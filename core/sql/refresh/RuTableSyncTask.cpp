@@ -26,13 +26,13 @@
 *
 * File:         RuTableSyncTask.cpp
 * Description:  Implementation of class CRUTableSyncTask
-*				
+*
 *
 * Created:      12/06/1999
 * Language:     C++
-* 
 *
-* 
+*
+*
 ******************************************************************************
 */
 
@@ -44,23 +44,19 @@
 //	Constructor and destructor of CRUTableSyncTask
 //---------------------------------------------------------------//
 
-CRUTableSyncTask::CRUTableSyncTask(Lng32 id, CRUTbl &table) :
-	CRULogProcessingTask(id,table)
-{}
+CRUTableSyncTask::CRUTableSyncTask(Lng32 id, CRUTbl &table) : CRULogProcessingTask(id, table) {}
 
-CRUTableSyncTask::~CRUTableSyncTask() 
-{}
+CRUTableSyncTask::~CRUTableSyncTask() {}
 
 //---------------------------------------------------------//
-//	CRUTableSyncTask::GetTaskName() 
+//	CRUTableSyncTask::GetTaskName()
 //---------------------------------------------------------//
 
-CDSString CRUTableSyncTask::GetTaskName() const
-{
-	CDSString name("TS(");
-	name += GetTable().GetFullName() + ") ";
-	
-	return name;
+CDSString CRUTableSyncTask::GetTaskName() const {
+  CDSString name("TS(");
+  name += GetTable().GetFullName() + ") ";
+
+  return name;
 }
 
 //---------------------------------------------------------//
@@ -69,11 +65,10 @@ CDSString CRUTableSyncTask::GetTaskName() const
 //	Task executor's creation
 //---------------------------------------------------------//
 
-CRUTaskExecutor *CRUTableSyncTask::CreateExecutorInstance()
-{
-	GetTable().CheckIfLongLockNeeded();
+CRUTaskExecutor *CRUTableSyncTask::CreateExecutorInstance() {
+  GetTable().CheckIfLongLockNeeded();
 
-	CRUTaskExecutor *pTaskEx = new CRUTableSyncTaskExecutor(this);
+  CRUTaskExecutor *pTaskEx = new CRUTableSyncTaskExecutor(this);
 
-	return pTaskEx;
+  return pTaskEx;
 }

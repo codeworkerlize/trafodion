@@ -37,7 +37,6 @@
  *****************************************************************************
  */
 
-
 #include "StmtDDLDropModule.h"
 #include "StmtDDLDropSQL.h"
 #include "StmtDDLDropCatalog.h"
@@ -51,8 +50,8 @@
 #include "parser/StmtDDLDropSchema.h"
 #include "parser/StmtDDLDropTable.h"
 #include "StmtDDLDropMVRGroup.h"
-#include "parser/StmtDDLDropTrigger.h"  
-#include "StmtDDLDropMV.h"   
+#include "parser/StmtDDLDropTrigger.h"
+#include "StmtDDLDropMV.h"
 #include "parser/StmtDDLDropView.h"
 #include "StmtDDLDropSynonym.h"
 #include "StmtDDLDropExceptionTable.h"

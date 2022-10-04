@@ -37,7 +37,6 @@
 
 #include "common/Platform.h"
 
-
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -50,7 +49,7 @@ using namespace std;
 typedef std::string NAText;
 
 // 32-bit unsigned should be sufficient
-typedef UInt32 CollIndex;	// 64-bit
+typedef UInt32 CollIndex;  // 64-bit
 
 // -----------------------------------------------------------------------
 // Declare a NULL pointer (if not already defined)
@@ -83,10 +82,10 @@ typedef float NAFloat;
 // The cardinality of a relation (rowcount), its row length and its total
 // size in Bytes
 // -----------------------------------------------------------------------
-typedef NAFloat     Cardinality; // $$$ get rid of this one!
-typedef NAUnsigned  ColumnSize;
-typedef NAUnsigned  RowSize;
-typedef NAFloat     TableSize;
+typedef NAFloat Cardinality;  // $$$ get rid of this one!
+typedef NAUnsigned ColumnSize;
+typedef NAUnsigned RowSize;
+typedef NAFloat TableSize;
 
 // could also use IEEE "infinity" value
 // NOTE: this value MUST be larger than any reasonable cardinality
@@ -103,46 +102,46 @@ typedef NAUnsigned SimpleHashValue;
 // -----------------------------------------------------------------------
 
 #ifndef NOT
-#define NOT		!
+#define NOT !
 #endif
 #ifndef AND
-#define AND		&&
+#define AND &&
 #endif
 #ifndef OR
-#define OR		||
+#define OR ||
 #endif
 #ifndef LAND
-#define LAND		&
+#define LAND &
 #endif
 #ifndef LOR
-#define LOR		|
+#define LOR |
 #endif
 #ifndef XOR
-#define XOR		^
+#define XOR ^
 #endif
 #ifndef LNOT
-#define LNOT		~
+#define LNOT ~
 #endif
 #ifndef YesNo
-#define YesNo(B)	((B) ? "Yes" : "No")
+#define YesNo(B) ((B) ? "Yes" : "No")
 #endif
 #ifndef TrueFalse
-#define TrueFalse(B)	((B) ? "True" : "False")
+#define TrueFalse(B) ((B) ? "True" : "False")
 #endif
 #ifndef YN
-#define YN(B)           ((B) ? "Y" : "N")
+#define YN(B) ((B) ? "Y" : "N")
 #endif
 #ifndef TRUEFALSE
-#define TRUEFALSE(B)	((*B == 'Y') ? TRUE : FALSE)
+#define TRUEFALSE(B) ((*B == 'Y') ? TRUE : FALSE)
 #endif
 #ifndef CONCAT
-#define CONCAT(A,B)     (NAString(A) += B)
+#define CONCAT(A, B) (NAString(A) += B)
 #endif
 #ifndef IFX
 #define IFX
 #endif
 #ifndef THENX
-#define THENX           ?
+#define THENX ?
 #endif
 #ifndef ELSEX
 #define ELSEX           :
@@ -150,80 +149,91 @@ typedef NAUnsigned SimpleHashValue;
 
 // -----------------------------------------------------------------------
 #ifndef IN_RANGE
-#define IN_RANGE(x, lower, upper) ( lower <= x ) && ( x <= upper )
+#define IN_RANGE(x, lower, upper) (lower <= x) && (x <= upper)
 #endif
 // Macro definitions
 // -----------------------------------------------------------------------
 #ifndef ABS
-#define ABS(X)	   (X >= 0 ? X : -(X))
+#define ABS(X) (X >= 0 ? X : -(X))
 #endif
 #ifndef MAXOF
-#define MAXOF(X,Y) (X >= Y ? X : Y)
+#define MAXOF(X, Y) (X >= Y ? X : Y)
 #endif
 #ifndef MINOF
-#define MINOF(X,Y) (X <= Y ? X : Y)
+#define MINOF(X, Y) (X <= Y ? X : Y)
 #endif
 #ifndef MIN_ONE /* denoting "at least one ..." */
-#define MIN_ONE(X) MAXOF(X,1)
+#define MIN_ONE(X) MAXOF(X, 1)
 #endif
 #ifndef STRINGIZE
-#define STRINGIZE(X)	#X
+#define STRINGIZE(X) #X
 #endif
 
 // -----------------------------------------------------------------------
 // Macros for formatting the output of print functions used for debugging
 // -----------------------------------------------------------------------
-#define LINE_SIZE 80
-#define DEFAULT_INDENT ""
+#define LINE_SIZE       80
+#define DEFAULT_INDENT  ""
 #define MIN_INDENT_SIZE 0
 #define MAX_INDENT_SIZE 40
 
 #define BLANK_SPACE " "
 
-#define BUMP_INDENT(X) \
-  char newindent[MAX_INDENT_SIZE + 1]; \
-  Int32 indentlen = strlen(X) + MIN_INDENT_SIZE;\
-  indentlen = (indentlen < MAX_INDENT_SIZE ? indentlen : MAX_INDENT_SIZE);\
-  for (Int32 fli = 0; fli < indentlen; fli++) \
-    newindent[fli] = ' ';\
+#define BUMP_INDENT(X)                                                     \
+  char newindent[MAX_INDENT_SIZE + 1];                                     \
+  Int32 indentlen = strlen(X) + MIN_INDENT_SIZE;                           \
+  indentlen = (indentlen < MAX_INDENT_SIZE ? indentlen : MAX_INDENT_SIZE); \
+  for (Int32 fli = 0; fli < indentlen; fli++) newindent[fli] = ' ';        \
   newindent[indentlen] = '\0';
 
 #define NEW_INDENT newindent
 
-#define LINE_STRING    ("===========")
+#define LINE_STRING ("===========")
 
-#define PRINTIT(file,heap,space,buf,mybuf) \
-  if (heap) { \
-    Space::outputBuffer(space, buf, mybuf); \
-  } else { fprintf(file, "%s", mybuf); fflush(file); }
-
+#define PRINTIT(file, heap, space, buf, mybuf) \
+  if (heap) {                                  \
+    Space::outputBuffer(space, buf, mybuf);    \
+  } else {                                     \
+    fprintf(file, "%s", mybuf);                \
+    fflush(file);                              \
+  }
 
 // Macros to work around c89's limited support of ANSI C++ features
-#  define CONST_CAST(t,e) const_cast< t >(e)
+#define CONST_CAST(t, e) const_cast<t>(e)
 
 // -----------------------------------------------------------------------
 // the enums needed by unparse()
 // -----------------------------------------------------------------------
-enum PhaseEnum { PARSER_PHASE, BINDER_PHASE, TRANSFORM_PHASE,
-		 NORMALIZER_PHASE, OPTIMIZER_PHASE,
-		 DEFAULT_PHASE = OPTIMIZER_PHASE };
+enum PhaseEnum {
+  PARSER_PHASE,
+  BINDER_PHASE,
+  TRANSFORM_PHASE,
+  NORMALIZER_PHASE,
+  OPTIMIZER_PHASE,
+  DEFAULT_PHASE = OPTIMIZER_PHASE
+};
 
-enum UnparseFormatEnum { USER_FORMAT, EXPLAIN_FORMAT, FILE_FORMAT,
-                             USER_FORMAT_DELUXE, ERROR_MSG_FORMAT,
-                             MVINFO_FORMAT, MV_SHOWDDL_FORMAT,
-                             QUERY_FORMAT, QUERY_FORMAT_VEGREF, 
-                             COMPUTED_COLUMN_FORMAT,
-                             HIVE_MD_FORMAT,
-                             USTAT_EXPRESSION_FORMAT, /* like QUERY_FORMAT, except column refs are unqualified */
-                             CONNECT_BY_FORMAT 
-                           };
+enum UnparseFormatEnum {
+  USER_FORMAT,
+  EXPLAIN_FORMAT,
+  FILE_FORMAT,
+  USER_FORMAT_DELUXE,
+  ERROR_MSG_FORMAT,
+  MVINFO_FORMAT,
+  MV_SHOWDDL_FORMAT,
+  QUERY_FORMAT,
+  QUERY_FORMAT_VEGREF,
+  COMPUTED_COLUMN_FORMAT,
+  HIVE_MD_FORMAT,
+  USTAT_EXPRESSION_FORMAT, /* like QUERY_FORMAT, except column refs are unqualified */
+  CONNECT_BY_FORMAT
+};
 
 // -----------------------------------------------------------------------
 // Used to display optimizer statistics, and other debugging statements
 // -----------------------------------------------------------------------
 
-#define report(msg)     printf ("%s,%d ", __FILE__, __LINE__),        \
-        printf("%s", msg)
+#define report(msg) printf("%s,%d ", __FILE__, __LINE__), printf("%s", msg)
 
 // -----------------------------------------------------------------------
 // give a debugger a chance to run (simply causes an endless loop, waiting
@@ -236,8 +246,8 @@ extern void NADebug();
 // Abnormal program termination
 // -----------------------------------------------------------------------
 
-#define ABORT(msg)	NAAbort (__FILE__, __LINE__, (msg))
-extern void NAAbort (const char *, Int32, const char *);
+#define ABORT(msg) NAAbort(__FILE__, __LINE__, (msg))
+extern void NAAbort(const char *, Int32, const char *);
 
 // -----------------------------------------------------------------------
 // the NAString datatype used to be Tools.h++'s RWCString; now it's a
@@ -253,10 +263,10 @@ Lng32 getAnsiTypeFromFSType(Lng32 datatype);
 Lng32 getDatetimeCodeFromFSType(Lng32 datatype);
 Lng32 getFSTypeFromDatetimeCode(Lng32 datetime_code);
 Lng32 getFSTypeFromANSIType(Lng32 ansitype);
-const char * getAnsiTypeStrFromFSType(Lng32 datatype);
+const char *getAnsiTypeStrFromFSType(Lng32 datatype);
 
 #define DISALLOW_COPY_AND_ASSIGN(TypeName) \
-  TypeName(const TypeName&);               \
-  void operator=(const TypeName&)
+  TypeName(const TypeName &);              \
+  void operator=(const TypeName &)
 
 #endif /* BASETYPES_H */

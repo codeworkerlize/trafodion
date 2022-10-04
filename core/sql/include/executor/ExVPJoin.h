@@ -27,7 +27,7 @@
  *
  * File:         ExVPJoin.h
  * Description:  Header file for VP Join operator that merges vertical partitions
- *               
+ *
  * Created:      7/10/95
  * Language:     C++
  *
@@ -44,7 +44,7 @@
 #include "exp/ex_expr.h"
 #include "executor/ex_globals.h"
 
-// 
+//
 // OVERVIEW
 //
 // ExVPJoinTdb and associated classes implement an operator that
@@ -54,7 +54,7 @@
 // ExVPJoin produce the same number of rows in exactly the same key
 // sequence, while this is not necessarily the case with the more
 // general merge join.
-// 
+//
 
 class ExVPJoinTdb;
 class ExVPJoinTcb;
@@ -78,27 +78,23 @@ class ex_tcb;
 // -----------------------------------------------------------------------
 // ExVPJoinTdb
 // -----------------------------------------------------------------------
-class ExVPJoinTdb : public ComTdbVPJoin
-{
-public:
-
+class ExVPJoinTdb : public ComTdbVPJoin {
+ public:
   // ---------------------------------------------------------------------
   // Constructor is only called to instantiate an object used for
   // retrieval of the virtual table function pointer of the class while
   // unpacking. An empty constructor is enough.
   // ---------------------------------------------------------------------
-  ExVPJoinTdb()
-  {}
+  ExVPJoinTdb() {}
 
-  virtual ~ExVPJoinTdb()
-  {}
+  virtual ~ExVPJoinTdb() {}
 
   // ---------------------------------------------------------------------
   // Build a TCB for this TDB. Redefined in the Executor project.
   // ---------------------------------------------------------------------
   virtual ex_tcb *build(ex_globals *globals);
 
-private:
+ private:
   // ---------------------------------------------------------------------
   // !!!!!!! IMPORTANT -- NO DATA MEMBERS ALLOWED IN EXECUTOR TDB !!!!!!!!
   // *********************************************************************
@@ -118,7 +114,7 @@ private:
   // 1. Are those data members Compiler-generated?
   //    If yes, put them in the ComTdbVPJoin instead.
   //    If no, they should probably belong to someplace else (like TCB).
-  // 
+  //
   // 2. Are the classes those data members belong defined in the executor
   //    project?
   //    If your answer to both questions is yes, you might need to move
@@ -126,34 +122,27 @@ private:
   // ---------------------------------------------------------------------
 };
 
-
-
-class ExVPJoinTcb: public ex_tcb
-{
+class ExVPJoinTcb : public ex_tcb {
   friend class ExVPJoinTdb;
   friend class ExVPJoinPrivateState;
 
-public:
-  
-  ExVPJoinTcb(const ExVPJoinTdb & vpjTdb, // TDB from which to build TCB
-			 const ex_tcb ** childTcbs,  // child TCBs
-			 ex_globals *glob            // globals
-			 );
-        
+ public:
+  ExVPJoinTcb(const ExVPJoinTdb &vpjTdb,  // TDB from which to build TCB
+              const ex_tcb **childTcbs,   // child TCBs
+              ex_globals *glob            // globals
+  );
+
   ~ExVPJoinTcb();
 
   void freeResources();
   ExWorkProcRetcode work();
   void registerSubtasks();
 
-  const ex_tcb* getChild(Int32 pos) const;
-  ex_queue_pair  getParentQueue() const;
+  const ex_tcb *getChild(Int32 pos) const;
+  ex_queue_pair getParentQueue() const;
   virtual Int32 numChildren() const;
-    
 
-
-private:
-
+ private:
   // Work methods.
   //
   ExWorkProcRetcode workDown();
@@ -169,10 +158,10 @@ private:
   static short sWorkCancel(ex_tcb *tcb);
   //                          { return ((ExVPJoinTcb *) tcb)->workCancel(); }
 
-  inline ExVPJoinTdb & vpJoinTdb() const;
-  
+  inline ExVPJoinTdb &vpJoinTdb() const;
+
   // Cancel request from parent.  pReq points to (parent down)
-  // queue entry containing the request, and pIx identifies the 
+  // queue entry containing the request, and pIx identifies the
   // queue index of this entry.
   void cancelParentRequest(ex_queue_entry *pReq, queue_index pIx);
 
@@ -183,54 +172,44 @@ private:
   // Data members.
   //
 
-  const ex_tcb ** childTcbs_;   // array of pointers to child task control blocks
+  const ex_tcb **childTcbs_;  // array of pointers to child task control blocks
 
-  ex_queue_pair qParent_; // parent queue
-  ex_queue_pair *qChild_; // array of pointers to child queues
+  ex_queue_pair qParent_;  // parent queue
+  ex_queue_pair *qChild_;  // array of pointers to child queues
 
-  queue_index nextReqIx_; // index of next request, in parent down queue,
-                          // to send to child nodes
-  
-  Int32 numChildren_;       // number of children
+  queue_index nextReqIx_;  // index of next request, in parent down queue,
+                           // to send to child nodes
 
-  inline ex_expr * filterPred();
+  Int32 numChildren_;  // number of children
+
+  inline ex_expr *filterPred();
 };
 
-class ExVPJoinPrivateState : public ex_tcb_private_state
-{
+class ExVPJoinPrivateState : public ex_tcb_private_state {
   friend class ExVPJoinTcb;
 
-public:
-  ExVPJoinPrivateState(const ExVPJoinTcb * tcb);
-  ex_tcb_private_state * allocate_new(const ex_tcb * tcb);
+ public:
+  ExVPJoinPrivateState(const ExVPJoinTcb *tcb);
+  ex_tcb_private_state *allocate_new(const ex_tcb *tcb);
   ~ExVPJoinPrivateState();
 
-private:
+ private:
   inline void init();
 
-  Int64 matchCount_; // number of rows returned for 
-                     // associated request
+  Int64 matchCount_;  // number of rows returned for
+                      // associated request
 
-  Int32 started_; // has associated request been "started"
-                // (i.e., passed down to children)
+  Int32 started_;  // has associated request been "started"
+                   // (i.e., passed down to children)
 };
 
-void ExVPJoinPrivateState::init()
-{
+void ExVPJoinPrivateState::init() {
   matchCount_ = 0;
   started_ = 0;
 }
 
-inline ExVPJoinTdb & ExVPJoinTcb::vpJoinTdb() const
-{
-  return (ExVPJoinTdb &)tdb;
-}
+inline ExVPJoinTdb &ExVPJoinTcb::vpJoinTdb() const { return (ExVPJoinTdb &)tdb; }
 
-inline ex_expr * ExVPJoinTcb::filterPred() 
-{ 
-  return vpJoinTdb().filterExpr_; 
-}
- 
+inline ex_expr *ExVPJoinTcb::filterPred() { return vpJoinTdb().filterExpr_; }
 
 #endif
-

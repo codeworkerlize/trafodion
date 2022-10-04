@@ -38,4 +38,4 @@
 #define SB_DIAG_DEPRECATED
 #endif
 
-#endif // !__SB_INT_DIAG_H_
+#endif  // !__SB_INT_DIAG_H_

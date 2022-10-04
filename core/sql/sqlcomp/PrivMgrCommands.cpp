@@ -47,9 +47,9 @@
 #include "sqlcomp/CmpSeabaseDDL.h"  // needed in order to access ExpHbaseInterface
 #include "exp/ExpHbaseInterface.h"
 #include "sqlcomp/CmpDDLCatErrorCodes.h"  // needed for DgSqlCode error msg enum
-#include "cli/Globals.h"          // needed to get access to CLI globals
-#include "cli/Context.h"          // needed to get access to Java exception info
-#include "executor/HBaseClient_JNI.h"      // needed for HBase client error msg enum
+#include "cli/Globals.h"                  // needed to get access to CLI globals
+#include "cli/Context.h"                  // needed to get access to Java exception info
+#include "executor/HBaseClient_JNI.h"     // needed for HBase client error msg enum
 
 #include <cstdio>
 #include <algorithm>

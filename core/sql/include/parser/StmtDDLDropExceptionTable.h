@@ -34,7 +34,7 @@
 * Language:      C++
 *
 ******************************************************************************
- */
+*/
 
 #include "common/ComSmallDefs.h"
 #include "StmtDDLNode.h"
@@ -52,56 +52,47 @@ class StmtDDLDropExceptionTable;
 // -----------------------------------------------------------------------
 // Drop Exception table statement
 // -----------------------------------------------------------------------
-class StmtDDLDropExceptionTable : public StmtDDLNode
-{
+class StmtDDLDropExceptionTable : public StmtDDLNode {
+ public:
+  // constructor
+  StmtDDLDropExceptionTable();
+  StmtDDLDropExceptionTable(const QualifiedName &exceptionname, const QualifiedName &objectreference,
+                            ComDropBehavior dropBehavior, NABoolean cleanupSpec, NAString *pLogFile);
 
-public:
+  StmtDDLDropExceptionTable(const QualifiedName &objectreference, ComDropBehavior dropBehavior, NABoolean cleanupSpec,
+                            NAString *pLogFile);
+  // virtual destructor
+  virtual ~StmtDDLDropExceptionTable();
 
-    // constructor
-    StmtDDLDropExceptionTable();
-    StmtDDLDropExceptionTable( const QualifiedName & exceptionname
-                             , const QualifiedName & objectreference
-                             , ComDropBehavior dropBehavior
-                             , NABoolean cleanupSpec
-                             , NAString * pLogFile);
+  // cast
+  virtual StmtDDLDropExceptionTable *castToStmtDDLDropExceptionTable();
 
-    StmtDDLDropExceptionTable( const QualifiedName & objectreference
-                             , ComDropBehavior dropBehavior
-                             , NABoolean cleanupSpec
-                             , NAString * pLogFile);
-    // virtual destructor
-    virtual ~StmtDDLDropExceptionTable();
+  // method for binding
+  ExprNode *bindNode(BindWA *bindWAPtr);
 
-    // cast
-    virtual StmtDDLDropExceptionTable * castToStmtDDLDropExceptionTable();
+  // accessors
+  inline ComDropBehavior getDropBehavior() const;
+  inline const NABoolean isCleanupSpecified() const;
+  inline const NABoolean isLogFileSpecified() const;
+  inline const NAString &getLogFile() const;
+  inline const NAString getExceptionName() const;
+  inline const NAString getObjectReference() const;
+  inline ComDropType getDropType() const;
 
-    // method for binding
-    ExprNode * bindNode(BindWA *bindWAPtr);
+  // for tracing
+  virtual const NAString displayLabel1() const;
+  virtual const NAString displayLabel2() const;
+  virtual const NAString getText() const;
 
-    // accessors
-    inline ComDropBehavior getDropBehavior() const;
-    inline const NABoolean isCleanupSpecified() const;
-    inline const NABoolean isLogFileSpecified() const;
-    inline const NAString & getLogFile() const;
-    inline const NAString getExceptionName() const;
-    inline const NAString getObjectReference() const ;
-    inline ComDropType getDropType() const ;
+ private:
+  QualifiedName exceptionName_;
+  QualifiedName objectReference_;
+  ComDropBehavior dropBehavior_;
+  NABoolean isCleanupSpec_;
+  ComDropType dropType_;
+  NAString *pLogFile_;
 
-    // for tracing
-    virtual const NAString displayLabel1() const;
-    virtual const NAString displayLabel2() const;
-    virtual const NAString getText() const;
-
-private:
-    QualifiedName exceptionName_;
-    QualifiedName objectReference_;
-    ComDropBehavior dropBehavior_;
-    NABoolean isCleanupSpec_;
-    ComDropType dropType_;
-    NAString  *pLogFile_;
-
-
-}; // class StmtDDLDropExceptionTable
+};  // class StmtDDLDropExceptionTable
 
 // -----------------------------------------------------------------------
 // definitions of inline methods for class StmtDDLDropExceptionTable
@@ -109,46 +100,29 @@ private:
 
 // accessors
 
-inline ComDropBehavior StmtDDLDropExceptionTable::getDropBehavior() const
-{
-  return dropBehavior_;
-}
+inline ComDropBehavior StmtDDLDropExceptionTable::getDropBehavior() const { return dropBehavior_; }
 
-inline ComDropType StmtDDLDropExceptionTable::getDropType() const
-{
-  return dropType_;
-}
+inline ComDropType StmtDDLDropExceptionTable::getDropType() const { return dropType_; }
 
-inline const NABoolean StmtDDLDropExceptionTable::isCleanupSpecified()const
-{
-  return isCleanupSpec_;
-}
-inline const NABoolean StmtDDLDropExceptionTable::isLogFileSpecified() const
-{
-  if (pLogFile_)
-    return TRUE;
+inline const NABoolean StmtDDLDropExceptionTable::isCleanupSpecified() const { return isCleanupSpec_; }
+inline const NABoolean StmtDDLDropExceptionTable::isLogFileSpecified() const {
+  if (pLogFile_) return TRUE;
   return FALSE;
 }
 
-
-inline const NAString & StmtDDLDropExceptionTable::getLogFile() const
-{
+inline const NAString &StmtDDLDropExceptionTable::getLogFile() const {
   ComASSERT(pLogFile_ NEQ NULL);
   return *pLogFile_;
 }
 
-
-inline const NAString StmtDDLDropExceptionTable::getExceptionName() const
-{
-    NAString exceptionname = exceptionName_.getQualifiedNameAsAnsiString();
-    return exceptionname;
+inline const NAString StmtDDLDropExceptionTable::getExceptionName() const {
+  NAString exceptionname = exceptionName_.getQualifiedNameAsAnsiString();
+  return exceptionname;
 }
 
-inline const  NAString StmtDDLDropExceptionTable::getObjectReference() const
-{
-    NAString objectreference =  objectReference_.getQualifiedNameAsAnsiString();
-    return objectreference;
+inline const NAString StmtDDLDropExceptionTable::getObjectReference() const {
+  NAString objectreference = objectReference_.getQualifiedNameAsAnsiString();
+  return objectreference;
 }
 
-
-#endif // STMTDDLDROPEXCEPTIONTABLE_H
+#endif  // STMTDDLDROPEXCEPTIONTABLE_H

@@ -30,8 +30,8 @@
  * Provided by Venkat R.
  * This file need to be kept in sync with the corresponding
  * file maintained by NVT.
- *               
- * Created:      
+ *
+ * Created:
  * Language:     C++
  *
  *
@@ -42,8 +42,7 @@
 
 #include "ExRLE.h"
 
-Int32
-ExEncode(unsigned char *dbuf, Int32 dlen, unsigned char *ebuf, Int32 *elen, Int32 flags) {
+Int32 ExEncode(unsigned char *dbuf, Int32 dlen, unsigned char *ebuf, Int32 *elen, Int32 flags) {
   Int32 c = EOFCHAR, p = EOFCHAR;
   Int32 i = 0;
   UInt32 j = 0;
@@ -53,15 +52,11 @@ ExEncode(unsigned char *dbuf, Int32 dlen, unsigned char *ebuf, Int32 *elen, Int3
   Int32 ret = 0;
   comp_buf *b = (comp_buf *)ebuf;
 
-
-
-  if (flags & COMP_COMPARE_BYTE)  {
+  if (flags & COMP_COMPARE_BYTE) {
     compare_size = 1;
-  }
-  else if (flags & COMP_COMPARE_SHORT)  {
+  } else if (flags & COMP_COMPARE_SHORT) {
     compare_size = 2;
   }
-
 
   b->u.hdr.compressed_len = 0;
   b->u.hdr.flags = flags;
@@ -71,28 +66,25 @@ ExEncode(unsigned char *dbuf, Int32 dlen, unsigned char *ebuf, Int32 *elen, Int3
   b->u.hdr.exploded_len = dlen;
   b->u.hdr.checksum = 0;
 
+  switch (compare_size) {
+    case 1:
+      if (flags & COMP_ALGO_RLE_PACKBITS) {
+        ret = pb_encode_byte(dbuf, dlen, ebuf + HDR_SIZE, elen);
+      } else {
+        ret = encode_byte(dbuf, dlen, ebuf + HDR_SIZE, elen);
+      }
 
-  switch(compare_size) {
-  case 1:
-    if (flags & COMP_ALGO_RLE_PACKBITS) {
-      ret = pb_encode_byte(dbuf, dlen, ebuf + HDR_SIZE, elen);
-    }
-    else {
-      ret = encode_byte(dbuf, dlen, ebuf + HDR_SIZE, elen);
-    }
-
-    break;
-  case 2:
-    if (flags & COMP_ALGO_RLE_PACKBITS) {
-      ret = pb_encode_short((unsigned short *)dbuf, dlen, (unsigned short *)(ebuf + HDR_SIZE), elen);
-    }
-    else {
-      ret = encode_short((unsigned short *)dbuf, dlen, (unsigned short *)(ebuf + HDR_SIZE), elen);
-    }
-    break;
-  default:
-    ret = -1;
-    return ret;
+      break;
+    case 2:
+      if (flags & COMP_ALGO_RLE_PACKBITS) {
+        ret = pb_encode_short((unsigned short *)dbuf, dlen, (unsigned short *)(ebuf + HDR_SIZE), elen);
+      } else {
+        ret = encode_short((unsigned short *)dbuf, dlen, (unsigned short *)(ebuf + HDR_SIZE), elen);
+      }
+      break;
+    default:
+      ret = -1;
+      return ret;
   }
 
   b->u.hdr.compressed_len = *elen + HDR_SIZE - sizeof(Int32);
@@ -101,7 +93,7 @@ ExEncode(unsigned char *dbuf, Int32 dlen, unsigned char *ebuf, Int32 *elen, Int3
 
   /* Compute checksum assuming the checksum field is currently 0 */
   if (flags & COMP_CHECKSUM_VALID) {
-    for (j = 0; j <  (b->u.hdr.compressed_len + sizeof(Int32)); ++j) {
+    for (j = 0; j < (b->u.hdr.compressed_len + sizeof(Int32)); ++j) {
       cs_lo += ebuf[j];
       cs_lo %= ADLER32_MODULUS;
       cs_hi += cs_lo;
@@ -116,7 +108,7 @@ ExEncode(unsigned char *dbuf, Int32 dlen, unsigned char *ebuf, Int32 *elen, Int3
 
 /**
  *  Encodes using RLE encoding the input buffer (clear or decoded
- *     buffer) dbuf of length dlen bytes to encoded buffer ebuf and 
+ *     buffer) dbuf of length dlen bytes to encoded buffer ebuf and
  *     length elen bytes
  *     Note that ebuf should be atleast as large as the dbuf.
  *     dbuf - decoded buffer (clear buffer)
@@ -124,57 +116,54 @@ ExEncode(unsigned char *dbuf, Int32 dlen, unsigned char *ebuf, Int32 *elen, Int3
  *     ebuf - encoded buffer
  *     elen - pointer to store encoded buffer len
  */
-Int32
-encode_byte(unsigned char *dbuf, Int32 dlen, unsigned char *ebuf, Int32 *elen) {
+Int32 encode_byte(unsigned char *dbuf, Int32 dlen, unsigned char *ebuf, Int32 *elen) {
   Int32 c = EOFCHAR, p = EOFCHAR;
   Int32 i = 0, j = 0;
   Int32 cnt = 0;
 
-  while ( i < dlen) {
+  while (i < dlen) {
     /* Get the next byte */
     c = dbuf[i++];
     /* write it to the encoded buffer */
     ebuf[j++] = c;
     cnt = 0;
     /* Check for repetition */
-    if ( c == p) {
+    if (c == p) {
       while (i < dlen) {
-	if ((c = dbuf[i++]) == p) {
-	  /* if next char is the same as previous char */
-	  cnt++;
-	  if (cnt == MAXCOUNT) {
-	    /*
-	     * If we hit a count of UCHAR_MAX (representable in a byte)
-	     * repetitions, and force new pair of char,count
-	     */
-	    ebuf[j++] = cnt;
-	    /* Force new char count */
-	    p = EOFCHAR;
-	    break;
-	  }
-	}
-	else {
-	  /*
-	   * The current run of the char ended.  Write out the count and start
-	   * for next
-	   */
-	  ebuf[j++] = cnt;
-	  ebuf[j++] = c;
-	  /*
-	   * Reset prev to current
-	   */
-	  p = c;
-	  break;
-	}
+        if ((c = dbuf[i++]) == p) {
+          /* if next char is the same as previous char */
+          cnt++;
+          if (cnt == MAXCOUNT) {
+            /*
+             * If we hit a count of UCHAR_MAX (representable in a byte)
+             * repetitions, and force new pair of char,count
+             */
+            ebuf[j++] = cnt;
+            /* Force new char count */
+            p = EOFCHAR;
+            break;
+          }
+        } else {
+          /*
+           * The current run of the char ended.  Write out the count and start
+           * for next
+           */
+          ebuf[j++] = cnt;
+          ebuf[j++] = c;
+          /*
+           * Reset prev to current
+           */
+          p = c;
+          break;
+        }
       }
       if (i == dlen) {
-	/*
-	 * run was stopped because we exhausted the buffer
-	 */
-	c = EOFCHAR;
+        /*
+         * run was stopped because we exhausted the buffer
+         */
+        c = EOFCHAR;
       }
-    }
-    else {
+    } else {
       /*
        * Reset prev to current char
        */
@@ -194,8 +183,6 @@ encode_byte(unsigned char *dbuf, Int32 dlen, unsigned char *ebuf, Int32 *elen) {
 
   return 0;
 }
-
-
 
 /**
  *  Encodes using modified RLE encoding the input buffer (clear or decoded buffer) dbuf
@@ -207,15 +194,13 @@ encode_byte(unsigned char *dbuf, Int32 dlen, unsigned char *ebuf, Int32 *elen) {
  *     elen - pointer to store encoded buffer len
  *
  */
-Int32
-pb_encode_byte(unsigned char *dbuf, Int32 dlen, unsigned char *ebuf, Int32 *elen) {
+Int32 pb_encode_byte(unsigned char *dbuf, Int32 dlen, unsigned char *ebuf, Int32 *elen) {
   Int32 c = EOFCHAR, n = EOFCHAR;
   Int32 i = 0, j = 0;
   Int32 cnt = 0;
   Int32 k = 0;
   Int32 t = 0;
-  unsigned char match_buf[RLE_PACKBITS_MAXBUF_BYTE]; 
-
+  unsigned char match_buf[RLE_PACKBITS_MAXBUF_BYTE];
 
   cnt = 0;
 
@@ -227,87 +212,83 @@ pb_encode_byte(unsigned char *dbuf, Int32 dlen, unsigned char *ebuf, Int32 *elen
     ++cnt;
 
     if (cnt >= RLE_PACKBITS_MINRUN) {
-
       /* check for run */
       for (k = 2; k <= RLE_PACKBITS_MINRUN; k++) {
-	if (c != match_buf[cnt - k]){
-	  /* no run */
-	  k = 0;
-	  break;
-	}
+        if (c != match_buf[cnt - k]) {
+          /* no run */
+          k = 0;
+          break;
+        }
       }
       if (k != 0) {
-	/* we have a run - let us write current ouput buffer */
-	if (cnt > RLE_PACKBITS_MINRUN) {
-	  ebuf[j++] = (unsigned char)(cnt - RLE_PACKBITS_MINRUN - 1);
-	  for (t = 0; t < (cnt - RLE_PACKBITS_MINRUN); t++) {
-	    ebuf[j++] = match_buf[t];
-	  }
-	}
+        /* we have a run - let us write current ouput buffer */
+        if (cnt > RLE_PACKBITS_MINRUN) {
+          ebuf[j++] = (unsigned char)(cnt - RLE_PACKBITS_MINRUN - 1);
+          for (t = 0; t < (cnt - RLE_PACKBITS_MINRUN); t++) {
+            ebuf[j++] = match_buf[t];
+          }
+        }
 
-	/* Get run length */
-	cnt = RLE_PACKBITS_MINRUN;
-	while (i < dlen && ((n = dbuf[i++]) == c)) {
-	  cnt++;
-	  if (cnt == RLE_PACKBITS_MAXRUN_BYTE) {
-	    /* run is at max length */
-	    break;
-	  }
-	}
-	ebuf[j++] = (unsigned char)(RLE_PACKBITS_MINRUN - 1 - cnt);
-	ebuf[j++] = (unsigned char)c;
+        /* Get run length */
+        cnt = RLE_PACKBITS_MINRUN;
+        while (i < dlen && ((n = dbuf[i++]) == c)) {
+          cnt++;
+          if (cnt == RLE_PACKBITS_MAXRUN_BYTE) {
+            /* run is at max length */
+            break;
+          }
+        }
+        ebuf[j++] = (unsigned char)(RLE_PACKBITS_MINRUN - 1 - cnt);
+        ebuf[j++] = (unsigned char)c;
 
-	if ((i < dlen) && (cnt != RLE_PACKBITS_MAXRUN_BYTE)) {
-	  /* make run breaker start of next buffer */
-	  match_buf[0] = n;
-	  cnt = 1;
-	}
-	else {
-	  /* end of buffer or max run hit */
-	  cnt = 0;
-	}
+        if ((i < dlen) && (cnt != RLE_PACKBITS_MAXRUN_BYTE)) {
+          /* make run breaker start of next buffer */
+          match_buf[0] = n;
+          cnt = 1;
+        } else {
+          /* end of buffer or max run hit */
+          cnt = 0;
+        }
       }
     }
 
     if (cnt == RLE_PACKBITS_MAXBUF_BYTE) {
       ebuf[j++] = RLE_PACKBITS_MAXBUF_BYTE - 1;
       for (k = 0; k < RLE_PACKBITS_MAXCOPY_BYTE; k++) {
-	ebuf[j++] = match_buf[k];
+        ebuf[j++] = match_buf[k];
       }
 
       /* start a new buffer */
 
       cnt = RLE_PACKBITS_MAXBUF_BYTE - RLE_PACKBITS_MAXCOPY_BYTE;
 
-
       /* copy excess to front of buffer */
       for (k = 0; k < cnt; k++) {
-	match_buf[k] = match_buf[RLE_PACKBITS_MAXCOPY_BYTE + k];
+        match_buf[k] = match_buf[RLE_PACKBITS_MAXCOPY_BYTE + k];
       }
     }
   }
 
   /* write out the last match buffer */
 
-  if (cnt != 0 ) {
+  if (cnt != 0) {
     if (cnt <= RLE_PACKBITS_MAXCOPY_BYTE) {
       /* write the entire buffer out */
       ebuf[j++] = cnt - 1;
       for (k = 0; k < cnt; k++) {
-	ebuf[j++] = match_buf[k];
+        ebuf[j++] = match_buf[k];
       }
-    }
-    else {
+    } else {
       /* we read more - write out the copy buffer */
       ebuf[j++] = RLE_PACKBITS_MAXCOPY_BYTE - 1;
       for (k = 0; k < RLE_PACKBITS_MAXCOPY_BYTE; k++) {
-	ebuf[j++] = match_buf[k];
+        ebuf[j++] = match_buf[k];
       }
       /* and the rest */
       cnt -= RLE_PACKBITS_MAXCOPY_BYTE;
       ebuf[j++] = cnt - 1;
       for (k = 0; k < cnt; k++) {
-	ebuf[j++] = match_buf[k + RLE_PACKBITS_MAXCOPY_BYTE];
+        ebuf[j++] = match_buf[k + RLE_PACKBITS_MAXCOPY_BYTE];
       }
     }
   }
@@ -317,7 +298,7 @@ pb_encode_byte(unsigned char *dbuf, Int32 dlen, unsigned char *ebuf, Int32 *elen
 
 /**
  *  Encodes using RLE encoding the input buffer (clear or decoded
- *     buffer) dbuf of length dlen shorts to encoded buffer ebuf and 
+ *     buffer) dbuf of length dlen shorts to encoded buffer ebuf and
  *     length elen shorts
  *     Note that ebuf should be atleast as large as the dbuf.
  *     dbuf - decoded buffer (clear buffer)
@@ -325,59 +306,55 @@ pb_encode_byte(unsigned char *dbuf, Int32 dlen, unsigned char *ebuf, Int32 *elen
  *     ebuf - encoded buffer
  *     elen - pointer to store encoded buffer len
  */
-Int32
-encode_short(unsigned short *dbuf, Int32 dlen_bytes, unsigned short *ebuf, Int32 *elen_bytes) {
-
+Int32 encode_short(unsigned short *dbuf, Int32 dlen_bytes, unsigned short *ebuf, Int32 *elen_bytes) {
   Int32 c = EOFCHAR, p = EOFCHAR;
   Int32 i = 0, j = 0;
   Int32 cnt = 0;
-  Int32 dlen = dlen_bytes/2;
+  Int32 dlen = dlen_bytes / 2;
 
-  while ( i < dlen) {
+  while (i < dlen) {
     /* Get the next short */
     c = dbuf[i++];
     /* write it to the encoded buffer */
     ebuf[j++] = c;
     cnt = 0;
     /* Check for repetition */
-    if ( c == p) {
+    if (c == p) {
       while (i < dlen) {
-	if ((c = dbuf[i++]) == p) {
-	  /* if next char is the same as previous char */
-	  cnt++;
-	  if (cnt == MAXUCOUNT) {
-	    /*
-	     * If we hit a count of UCHAR_MAX (representable in a byte)
-	     * repetitions, and force new pair of char,count
-	     */
-	    ebuf[j++] = cnt;
-	    /* Force new char count */
-	    p = EOFCHAR;
-	    break;
-	  }
-	}
-	else {
-	  /*
-	   * The current run of the char ended.  Write out the count and start
-	   * for next
-	   */
-	  ebuf[j++] = cnt;
-	  ebuf[j++] = c;
-	  /*
-	   * Reset prev to current
-	   */
-	  p = c;
-	  break;
-	}
+        if ((c = dbuf[i++]) == p) {
+          /* if next char is the same as previous char */
+          cnt++;
+          if (cnt == MAXUCOUNT) {
+            /*
+             * If we hit a count of UCHAR_MAX (representable in a byte)
+             * repetitions, and force new pair of char,count
+             */
+            ebuf[j++] = cnt;
+            /* Force new char count */
+            p = EOFCHAR;
+            break;
+          }
+        } else {
+          /*
+           * The current run of the char ended.  Write out the count and start
+           * for next
+           */
+          ebuf[j++] = cnt;
+          ebuf[j++] = c;
+          /*
+           * Reset prev to current
+           */
+          p = c;
+          break;
+        }
       }
       if (i == dlen) {
-	/*
-	 * run was stopped because we exhausted the buffer
-	 */
-	c = EOFCHAR;
+        /*
+         * run was stopped because we exhausted the buffer
+         */
+        c = EOFCHAR;
       }
-    }
-    else {
+    } else {
       /*
        * Reset prev to current char
        */
@@ -398,16 +375,15 @@ encode_short(unsigned short *dbuf, Int32 dlen_bytes, unsigned short *ebuf, Int32
   return 0;
 }
 
-Int32
-pb_encode_short(unsigned short *dbuf, Int32 dlen_bytes, unsigned short *ebuf, Int32 *elen_bytes) {
+Int32 pb_encode_short(unsigned short *dbuf, Int32 dlen_bytes, unsigned short *ebuf, Int32 *elen_bytes) {
   Int32 c = EOFCHAR, n = EOFCHAR;
   Int32 i = 0, j = 0;
   Int32 cnt = 0;
   Int32 k = 0;
   Int32 t = 0;
-  Int32 dlen = dlen_bytes/sizeof(short);
+  Int32 dlen = dlen_bytes / sizeof(short);
 
-  unsigned short match_buf[RLE_PACKBITS_MAXBUF_SHORT]; 
+  unsigned short match_buf[RLE_PACKBITS_MAXBUF_SHORT];
 
   cnt = 0;
 
@@ -419,87 +395,83 @@ pb_encode_short(unsigned short *dbuf, Int32 dlen_bytes, unsigned short *ebuf, In
     ++cnt;
 
     if (cnt >= RLE_PACKBITS_MINRUN) {
-
       /* check for run */
       for (k = 2; k <= RLE_PACKBITS_MINRUN; k++) {
-	if (c != match_buf[cnt - k]){
-	  /* no run */
-	  k = 0;
-	  break;
-	}
+        if (c != match_buf[cnt - k]) {
+          /* no run */
+          k = 0;
+          break;
+        }
       }
       if (k != 0) {
-	/* we have a run - let us write current ouput buffer */
-	if (cnt > RLE_PACKBITS_MINRUN) {
-	  ebuf[j++] = (unsigned short)(cnt - RLE_PACKBITS_MINRUN - 1);
-	  for (t = 0; t < (cnt - RLE_PACKBITS_MINRUN); t++) {
-	    ebuf[j++] = match_buf[t];
-	  }
-	}
+        /* we have a run - let us write current ouput buffer */
+        if (cnt > RLE_PACKBITS_MINRUN) {
+          ebuf[j++] = (unsigned short)(cnt - RLE_PACKBITS_MINRUN - 1);
+          for (t = 0; t < (cnt - RLE_PACKBITS_MINRUN); t++) {
+            ebuf[j++] = match_buf[t];
+          }
+        }
 
-	/* Get run length */
-	cnt = RLE_PACKBITS_MINRUN;
-	while (i < dlen && ((n = dbuf[i++]) == c)) {
-	  cnt++;
-	  if (cnt == RLE_PACKBITS_MAXRUN_SHORT) {
-	    /* run is at max length */
-	    break;
-	  }
-	}
-	ebuf[j++] = (unsigned short)(RLE_PACKBITS_MINRUN - 1 - cnt);
-	ebuf[j++] = (unsigned short)c;
+        /* Get run length */
+        cnt = RLE_PACKBITS_MINRUN;
+        while (i < dlen && ((n = dbuf[i++]) == c)) {
+          cnt++;
+          if (cnt == RLE_PACKBITS_MAXRUN_SHORT) {
+            /* run is at max length */
+            break;
+          }
+        }
+        ebuf[j++] = (unsigned short)(RLE_PACKBITS_MINRUN - 1 - cnt);
+        ebuf[j++] = (unsigned short)c;
 
-	if ((i < dlen) && (cnt != RLE_PACKBITS_MAXRUN_SHORT)) {
-	  /* make run breaker start of next buffer */
-	  match_buf[0] = n;
-	  cnt = 1;
-	}
-	else {
-	  /* end of buffer or max run hit */
-	  cnt = 0;
-	}
+        if ((i < dlen) && (cnt != RLE_PACKBITS_MAXRUN_SHORT)) {
+          /* make run breaker start of next buffer */
+          match_buf[0] = n;
+          cnt = 1;
+        } else {
+          /* end of buffer or max run hit */
+          cnt = 0;
+        }
       }
     }
 
     if (cnt == RLE_PACKBITS_MAXBUF_SHORT) {
       ebuf[j++] = RLE_PACKBITS_MAXBUF_SHORT - 1;
       for (k = 0; k < RLE_PACKBITS_MAXCOPY_SHORT; k++) {
-	ebuf[j++] = match_buf[k];
+        ebuf[j++] = match_buf[k];
       }
 
       /* start a new buffer */
 
       cnt = RLE_PACKBITS_MAXBUF_SHORT - RLE_PACKBITS_MAXCOPY_SHORT;
 
-
       /* copy excess to front of buffer */
       for (k = 0; k < cnt; k++) {
-	match_buf[k] = match_buf[RLE_PACKBITS_MAXCOPY_SHORT + k];
+        match_buf[k] = match_buf[RLE_PACKBITS_MAXCOPY_SHORT + k];
       }
     }
   }
 
   /* write out the last match buffer */
 
-  if (cnt != 0 ) {
+  if (cnt != 0) {
     if (cnt <= RLE_PACKBITS_MAXCOPY_SHORT) {
       /* write the entire buffer out */
       ebuf[j++] = cnt - 1;
       for (k = 0; k < cnt; k++) {
-	ebuf[j++] = match_buf[k];
+        ebuf[j++] = match_buf[k];
       }
-    }
-    else {
+    } else {
       /* we read more - write out the copy buffer */
       ebuf[j++] = RLE_PACKBITS_MAXCOPY_SHORT - 1;
       for (k = 0; k < RLE_PACKBITS_MAXCOPY_SHORT; k++) {
-	ebuf[j++] = match_buf[k];
+        ebuf[j++] = match_buf[k];
       }
       /* and the rest */
       cnt -= RLE_PACKBITS_MAXCOPY_SHORT;
       ebuf[j++] = cnt - 1;
       for (k = 0; k < cnt; k++) {
-	ebuf[j++] = match_buf[k + RLE_PACKBITS_MAXCOPY_SHORT];
+        ebuf[j++] = match_buf[k + RLE_PACKBITS_MAXCOPY_SHORT];
       }
     }
   }
@@ -511,9 +483,7 @@ pb_encode_short(unsigned short *dbuf, Int32 dlen_bytes, unsigned short *ebuf, In
   return 0;
 }
 
-Int32
-ExDecode(unsigned char *ebuf, Int32 elen, unsigned char *dbuf, Int32 *dlen,
-	 Lng32 &param1, Lng32 &param2) {
+Int32 ExDecode(unsigned char *ebuf, Int32 elen, unsigned char *dbuf, Int32 *dlen, Lng32 &param1, Lng32 &param2) {
   comp_buf *b = (comp_buf *)ebuf;
   Int32 saved_checksum = b->u.hdr.checksum;
   Int32 checksum = 0;
@@ -528,40 +498,33 @@ ExDecode(unsigned char *ebuf, Int32 elen, unsigned char *dbuf, Int32 *dlen,
 
   /* check eye catcher */
   if (b->u.hdr.eye_catcher1 != EYE_CATCHER_1 || b->u.hdr.eye_catcher2 != EYE_CATCHER_2) {
-    if (b->u.hdr.eye_catcher1 != EYE_CATCHER_1)
-      {
-	param1 = b->u.hdr.eye_catcher1;
-      }
-    else
-      {
-	param1 = b->u.hdr.eye_catcher2;
-      }
-      
+    if (b->u.hdr.eye_catcher1 != EYE_CATCHER_1) {
+      param1 = b->u.hdr.eye_catcher1;
+    } else {
+      param1 = b->u.hdr.eye_catcher2;
+    }
+
     return -2;
   }
 
-  if (flags & COMP_COMPARE_BYTE)  {
+  if (flags & COMP_COMPARE_BYTE) {
     compare_size = 1;
-  }
-  else if (flags & COMP_COMPARE_SHORT)  {
+  } else if (flags & COMP_COMPARE_SHORT) {
     compare_size = 2;
   }
 
-
   /* check length.  elen should be ebuf->compressed_len + 4 */
-
 
   if (flags & COMP_CHECKSUM_VALID) {
     /* check the checksum */
     b->u.hdr.checksum = 0;
 
-    for (j = 0; j <  (b->u.hdr.compressed_len + sizeof(Int32)); ++j) {
+    for (j = 0; j < (b->u.hdr.compressed_len + sizeof(Int32)); ++j) {
       cs_lo += ebuf[j];
       cs_lo %= ADLER32_MODULUS;
       cs_hi += cs_lo;
       cs_hi %= ADLER32_MODULUS;
     }
-
 
     b->u.hdr.checksum = saved_checksum;
 
@@ -573,37 +536,33 @@ ExDecode(unsigned char *ebuf, Int32 elen, unsigned char *dbuf, Int32 *dlen,
       param2 = saved_checksum;
       return -4;
     }
-  } 
+  }
 
   /*
    *  OK all clear - do the decoded now based on flags
    */
-  switch(compare_size) {
-  case 1:
-    if (flags & COMP_ALGO_RLE_PACKBITS) {
-      ret = pb_decode_byte(ebuf + HDR_SIZE, elen - HDR_SIZE, dbuf, dlen);
-    }
-    else {
-      ret = decode_byte(ebuf + HDR_SIZE, elen - HDR_SIZE, dbuf, dlen);
-    }
+  switch (compare_size) {
+    case 1:
+      if (flags & COMP_ALGO_RLE_PACKBITS) {
+        ret = pb_decode_byte(ebuf + HDR_SIZE, elen - HDR_SIZE, dbuf, dlen);
+      } else {
+        ret = decode_byte(ebuf + HDR_SIZE, elen - HDR_SIZE, dbuf, dlen);
+      }
 
-    break;
-  case 2:
-    if (flags & COMP_ALGO_RLE_PACKBITS) {
-      ret = pb_decode_short((unsigned short *)(ebuf + HDR_SIZE), elen - HDR_SIZE, (unsigned short *)dbuf, dlen);
-    }
-    else {
-      ret = decode_short((unsigned short *)(ebuf + HDR_SIZE), elen - HDR_SIZE, (unsigned short *)dbuf, dlen);
-    }
-    break;
-  default:
-    ret = -1;
-    /* Compute checksum assuming the checksum field is currently 0 */
+      break;
+    case 2:
+      if (flags & COMP_ALGO_RLE_PACKBITS) {
+        ret = pb_decode_short((unsigned short *)(ebuf + HDR_SIZE), elen - HDR_SIZE, (unsigned short *)dbuf, dlen);
+      } else {
+        ret = decode_short((unsigned short *)(ebuf + HDR_SIZE), elen - HDR_SIZE, (unsigned short *)dbuf, dlen);
+      }
+      break;
+    default:
+      ret = -1;
+      /* Compute checksum assuming the checksum field is currently 0 */
   }
   return ret;
 }
-
-
 
 /**
  *  Decodes using RLE encoding the input buffer (encoded buffer) ebuf
@@ -615,17 +574,16 @@ ExDecode(unsigned char *ebuf, Int32 elen, unsigned char *dbuf, Int32 *dlen,
  *     elen - pointer to store encoded buffer len
  *     dbuf - decoded buffer (clear buffer)
  *     dlen - buffer length to encode
- *       
+ *
  */
-Int32
-decode_byte(unsigned char *ebuf, Int32 elen, unsigned char *dbuf, Int32 *dlen) {
+Int32 decode_byte(unsigned char *ebuf, Int32 elen, unsigned char *dbuf, Int32 *dlen) {
   Int32 c = EOFCHAR, p = EOFCHAR;
   Int32 i = 0, j = 0, k = 0;
   Int32 cnt = 0;
 
   /*
    * We need to get the checksum and validate the buffer.  If valid, we will
-   * call the corresponding decode function 
+   * call the corresponding decode function
    */
 
   while (i < elen) {
@@ -637,15 +595,14 @@ decode_byte(unsigned char *ebuf, Int32 elen, unsigned char *dbuf, Int32 *dlen) {
      */
     if (c == p) {
       cnt = ebuf[i++];
-      for(k = 0; k < cnt; ++k) {
-	dbuf[j++] = c;
+      for (k = 0; k < cnt; ++k) {
+        dbuf[j++] = c;
       }
       /*
        * Reset prev char to force new char to be written
        */
       p = EOFCHAR;
-    }
-    else {
+    } else {
       /*
        * Set current char as previous
        */
@@ -659,16 +616,14 @@ decode_byte(unsigned char *ebuf, Int32 elen, unsigned char *dbuf, Int32 *dlen) {
   return 0;
 }
 
-
-Int32
-pb_decode_byte(unsigned char *ebuf, Int32 elen, unsigned char *dbuf, Int32 *dlen) {
+Int32 pb_decode_byte(unsigned char *ebuf, Int32 elen, unsigned char *dbuf, Int32 *dlen) {
   Int32 c = EOFCHAR, p = EOFCHAR;
   Int32 i = 0, j = 0, k = 0;
   Int32 cnt = 0;
 
   /*
    * We need to get the checksum and validate the buffer.  If valid, we will
-   * call the corresponding decode function 
+   * call the corresponding decode function
    */
 
   while (i < elen) {
@@ -677,20 +632,18 @@ pb_decode_byte(unsigned char *ebuf, Int32 elen, unsigned char *dbuf, Int32 *dlen
       cnt = (RLE_PACKBITS_MINRUN - 1) - cnt;
 
       if (i < elen) {
-	c = ebuf[i++];
-	for (k = 0; k < cnt; ++k) {
-	  dbuf[j++] = c;
-	}
+        c = ebuf[i++];
+        for (k = 0; k < cnt; ++k) {
+          dbuf[j++] = c;
+        }
+      } else {
+        cnt = 0;
       }
-      else {
-	cnt = 0;
-      }
-    }
-    else {
+    } else {
       for (cnt++; cnt > 0; --cnt) {
-	if (i < elen) {
-	  dbuf[j++] = ebuf[i++];
-	}
+        if (i < elen) {
+          dbuf[j++] = ebuf[i++];
+        }
       }
     }
   }
@@ -711,14 +664,13 @@ pb_decode_byte(unsigned char *ebuf, Int32 elen, unsigned char *dbuf, Int32 *dlen
  *     elen - pointer to store encoded buffer len
  *     dbuf - decoded buffer (clear buffer)
  *     dlen - buffer length to encode
- *       
+ *
  */
-Int32
-decode_short(unsigned short *ebuf, Int32 elen_bytes, unsigned short *dbuf, Int32 *dlen_bytes) {
+Int32 decode_short(unsigned short *ebuf, Int32 elen_bytes, unsigned short *dbuf, Int32 *dlen_bytes) {
   Int32 c = EOFCHAR, p = EOFCHAR;
   Int32 i = 0, j = 0, k = 0;
   Int32 cnt = 0;
-  Int32 elen = elen_bytes/sizeof(short);
+  Int32 elen = elen_bytes / sizeof(short);
 
   while (i < elen) {
     c = ebuf[i++];
@@ -729,15 +681,14 @@ decode_short(unsigned short *ebuf, Int32 elen_bytes, unsigned short *dbuf, Int32
      */
     if (c == p) {
       cnt = ebuf[i++];
-      for(k = 0; k < cnt; ++k) {
-	dbuf[j++] = c;
+      for (k = 0; k < cnt; ++k) {
+        dbuf[j++] = c;
       }
       /*
        * Reset prev char to force new char to be written
        */
       p = EOFCHAR;
-    }
-    else {
+    } else {
       /*
        * Set current char as previous
        */
@@ -751,15 +702,14 @@ decode_short(unsigned short *ebuf, Int32 elen_bytes, unsigned short *dbuf, Int32
   return 0;
 }
 
-Int32
-pb_decode_short(unsigned short *ebuf, Int32 elen_bytes, unsigned short *dbuf, Int32 *dlen_bytes) {
+Int32 pb_decode_short(unsigned short *ebuf, Int32 elen_bytes, unsigned short *dbuf, Int32 *dlen_bytes) {
   Int32 c = EOFCHAR, p = EOFCHAR;
   Int32 i = 0, j = 0, k = 0;
   Int32 cnt = 0;
-  Int32 elen = elen_bytes/sizeof(short);
+  Int32 elen = elen_bytes / sizeof(short);
   /*
    * We need to get the checksum and validate the buffer.  If valid, we will
-   * call the corresponding decode function 
+   * call the corresponding decode function
    */
 
   while (i < elen) {
@@ -768,20 +718,18 @@ pb_decode_short(unsigned short *ebuf, Int32 elen_bytes, unsigned short *dbuf, In
       cnt = (RLE_PACKBITS_MINRUN - 1) - cnt;
 
       if (i < elen) {
-	c = ebuf[i++];
-	for (k = 0; k < cnt; ++k) {
-	  dbuf[j++] = c;
-	}
+        c = ebuf[i++];
+        for (k = 0; k < cnt; ++k) {
+          dbuf[j++] = c;
+        }
+      } else {
+        cnt = 0;
       }
-      else {
-	cnt = 0;
-      }
-    }
-    else {
+    } else {
       for (cnt++; cnt > 0; --cnt) {
-	if (i < elen) {
-	  dbuf[j++] = ebuf[i++];
-	}
+        if (i < elen) {
+          dbuf[j++] = ebuf[i++];
+        }
       }
     }
   }
@@ -791,5 +739,3 @@ pb_decode_short(unsigned short *ebuf, Int32 elen_bytes, unsigned short *dbuf, In
   *dlen_bytes = j * sizeof(short);
   return 0;
 }
-
-

@@ -1302,8 +1302,6 @@ class RangeSpec : public NABasicObject {
   // return the length of the packed object.
   UInt32 getPackedLength();
 
-
-
   // reove all entries.
   void clear();
 

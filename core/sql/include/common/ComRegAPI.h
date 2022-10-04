@@ -40,8 +40,7 @@
 #include "common/ComSmallDefs.h"
 
 // log the error message in the event log.
-void logErrorMessageInEventLog(Int32 msgId, const char * msg);
-
+void logErrorMessageInEventLog(Int32 msgId, const char *msg);
 
 // retrieve the Tandem volume.
 ComString getTandemSysVol();
@@ -49,4 +48,4 @@ ComString getTandemSysVol();
 // retrieve the Tandem metadata versions.
 ComString getTandemMetaDataVersions();
 
-#endif // COMREGAPI_H_
+#endif  // COMREGAPI_H_

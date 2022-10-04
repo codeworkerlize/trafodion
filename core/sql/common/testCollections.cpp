@@ -33,253 +33,229 @@
 #include "common/Collections.h"
 
 // return # of failed. 0 means pass.
-Int32 getAll(NAHashDictionaryIteratorNoCopy<Int32, Int32>& itor)
-{
-  Int32* key=NULL;
-  Int32* value=NULL;
+Int32 getAll(NAHashDictionaryIteratorNoCopy<Int32, Int32> &itor) {
+  Int32 *key = NULL;
+  Int32 *value = NULL;
   int ct = 0;
   int matched = 0;
   while (itor.getNext(key, value)) {
 #if 0
     cout << "key=" << *key 
          << ", value=" << *value
-         << endl; 
+         << endl;
 #endif
 
-    if ( *key == *value )
-      matched++;
+    if (*key == *value) matched++;
 
     ct++;
   }
 
-  cout << "Itor: entries=" << ct
-       << ", retrieved=" << ct 
-       << ", match count=" << matched 
-       << endl;
+  cout << "Itor: entries=" << ct << ", retrieved=" << ct << ", match count=" << matched << endl;
 
   return (ct == matched) ? 0 : 1;
 }
 
 // return # of failed. 0 means pass.
-Int32 testHashDictionaryItorNoCopyFull(
-  NAHashDictionary<Int32, Int32>& table)
-{
-  NAHashDictionaryIteratorNoCopy<Int32, Int32> 
-        itor(table, 
-             iteratorEntryType::EVERYTHING, NULL, NULL, NULL, hashFunc);
+Int32 testHashDictionaryItorNoCopyFull(NAHashDictionary<Int32, Int32> &table) {
+  NAHashDictionaryIteratorNoCopy<Int32, Int32> itor(table, iteratorEntryType::EVERYTHING, NULL, NULL, NULL, hashFunc);
 
   return getAll(itor);
 }
 
-Int32 testHashDictionaryItorNoCopyFullSubset(
-  NAHashDictionary<Int32, Int32>& table)
-{
-  Int32* key=new Int32(1);
-  NAHashDictionaryIteratorNoCopy<Int32, Int32> 
-        itorSubset(table, 
-                   iteratorEntryType::EVERYTHING, key, NULL, NULL, hashFunc);
+Int32 testHashDictionaryItorNoCopyFullSubset(NAHashDictionary<Int32, Int32> &table) {
+  Int32 *key = new Int32(1);
+  NAHashDictionaryIteratorNoCopy<Int32, Int32> itorSubset(table, iteratorEntryType::EVERYTHING, key, NULL, NULL,
+                                                          hashFunc);
 
   return getAll(itorSubset);
 }
 
-void testHashDirectionaryIteratorNoCopy()
-{
+void testHashDirectionaryIteratorNoCopy() {
   NAHashDictionary<Int32, Int32> table(hashFunc);
 
-  Int32* key=NULL;
-  Int32* value=NULL;
-  for (int i=0; i<100; i++) {
-    key=new Int32(i);
-    value=new Int32(i);
+  Int32 *key = NULL;
+  Int32 *value = NULL;
+  for (int i = 0; i < 100; i++) {
+    key = new Int32(i);
+    value = new Int32(i);
     table.insert(key, value, hashFunc);
   }
 
-   Int32 pass = testHashDictionaryItorNoCopyFull(table);
-   pass += testHashDictionaryItorNoCopyFullSubset(table);
+  Int32 pass = testHashDictionaryItorNoCopyFull(table);
+  pass += testHashDictionaryItorNoCopyFullSubset(table);
 
-   if ( pass == 0 )
-     cout << "pass";
-   else
-     cout << "failed: #passed test=" << pass;
-    
-   cout << endl;
+  if (pass == 0)
+    cout << "pass";
+  else
+    cout << "failed: #passed test=" << pass;
+
+  cout << endl;
 }
-
 
 typedef NAHashBucket<int, int> HashBucketType;
 
 // return # of fails
-int testClear(HashBucketType& bucket, int& key)
-{
-   bucket.simulateBadIndex(FALSE);
-   bucket.clear(FALSE);
+int testClear(HashBucketType &bucket, int &key) {
+  bucket.simulateBadIndex(FALSE);
+  bucket.clear(FALSE);
 
-   int failed = (bucket.isComplete()) ? 0 : 1;
+  int failed = (bucket.isComplete()) ? 0 : 1;
 
-   bucket.simulateBadIndex(TRUE);
-   bucket.clear(FALSE);
+  bucket.simulateBadIndex(TRUE);
+  bucket.clear(FALSE);
 
-   bucket.simulateBadIndex(FALSE);
+  bucket.simulateBadIndex(FALSE);
 
-   return failed + ( bucket.isComplete() ) ? 0 : 1;
+  return failed + (bucket.isComplete()) ? 0 : 1;
 }
 
-int testContains(HashBucketType& bucket, int& key)
-{
-   bucket.simulateBadIndex(FALSE);
-   NABoolean ok = bucket.contains(&key);
+int testContains(HashBucketType &bucket, int &key) {
+  bucket.simulateBadIndex(FALSE);
+  NABoolean ok = bucket.contains(&key);
 
-   int failed = (ok && bucket.isComplete()) ? 0 : 1;
+  int failed = (ok && bucket.isComplete()) ? 0 : 1;
 
-   bucket.simulateBadIndex(TRUE);
-   ok = bucket.contains(&key);
+  bucket.simulateBadIndex(TRUE);
+  ok = bucket.contains(&key);
 
-   bucket.simulateBadIndex(FALSE);
+  bucket.simulateBadIndex(FALSE);
 
-   return failed + ( !ok && bucket.isComplete() ) ? 0 : 1;
+  return failed + (!ok && bucket.isComplete()) ? 0 : 1;
 }
 
-int testContainsConst(HashBucketType& bucket, int& key)
-{
-   bucket.simulateBadIndex(FALSE);
-   NABoolean ok = bucket.contains(&key);
+int testContainsConst(HashBucketType &bucket, int &key) {
+  bucket.simulateBadIndex(FALSE);
+  NABoolean ok = bucket.contains(&key);
 
-   int failed = (ok && bucket.isComplete()) ? 0 : 1;
+  int failed = (ok && bucket.isComplete()) ? 0 : 1;
 
-   bucket.simulateBadIndex(TRUE);
+  bucket.simulateBadIndex(TRUE);
 
-   const HashBucketType& bucketConst = bucket;
-   ok = bucketConst.contains(&key);
+  const HashBucketType &bucketConst = bucket;
+  ok = bucketConst.contains(&key);
 
-   bucket.simulateBadIndex(FALSE);
+  bucket.simulateBadIndex(FALSE);
 
-   return failed + ( !ok && bucketConst.isComplete() ) ? 0 : 1;
+  return failed + (!ok && bucketConst.isComplete()) ? 0 : 1;
 }
 
 // return # of fails
-int testGetFirstValue(HashBucketType& bucket, int& key)
-{
-   bucket.simulateBadIndex(FALSE);
-   int* validValue = bucket.getFirstValue(&key);
+int testGetFirstValue(HashBucketType &bucket, int &key) {
+  bucket.simulateBadIndex(FALSE);
+  int *validValue = bucket.getFirstValue(&key);
 
-   int failed = (validValue && bucket.isComplete()) ? 0 : 1;
+  int failed = (validValue && bucket.isComplete()) ? 0 : 1;
 
-   bucket.simulateBadIndex(TRUE);
-   int* nullValue = bucket.getFirstValue(&key);
+  bucket.simulateBadIndex(TRUE);
+  int *nullValue = bucket.getFirstValue(&key);
 
-   bucket.simulateBadIndex(FALSE);
+  bucket.simulateBadIndex(FALSE);
 
-   return failed + ( !nullValue && bucket.isComplete() ) ? 0 : 1;
+  return failed + (!nullValue && bucket.isComplete()) ? 0 : 1;
 }
 
 // return # of fails
-int testGetFirstValueAll(HashBucketType& bucket, int& key)
-{
-   bucket.simulateBadIndex(FALSE);
-   int* validValue = bucket.getFirstValueAll(&key);
+int testGetFirstValueAll(HashBucketType &bucket, int &key) {
+  bucket.simulateBadIndex(FALSE);
+  int *validValue = bucket.getFirstValueAll(&key);
 
-   int failed = (validValue && bucket.isComplete()) ? 0 : 1;
+  int failed = (validValue && bucket.isComplete()) ? 0 : 1;
 
-   bucket.simulateBadIndex(TRUE);
-   int* nullValue = bucket.getFirstValueAll(&key);
+  bucket.simulateBadIndex(TRUE);
+  int *nullValue = bucket.getFirstValueAll(&key);
 
-   bucket.simulateBadIndex(FALSE);
+  bucket.simulateBadIndex(FALSE);
 
-   return failed + ( !nullValue && bucket.isComplete() ) ? 0 : 1;
+  return failed + (!nullValue && bucket.isComplete()) ? 0 : 1;
 }
 
 // return # of fails
-int testGetKeyValuePair(NAHeap* heap, HashBucketType& bucket, int& key, int& value)
-{
-   bucket.simulateBadIndex(FALSE);
- 
-   HashBucketType container(heap);
+int testGetKeyValuePair(NAHeap *heap, HashBucketType &bucket, int &key, int &value) {
+  bucket.simulateBadIndex(FALSE);
 
-   // test key!=NULL case
-   NABoolean inserted = FALSE;
-   bucket.getKeyValuePair(&key, &value, container, &inserted);
+  HashBucketType container(heap);
 
-   int failed = (inserted && bucket.isComplete()) ? 0 : 1;
+  // test key!=NULL case
+  NABoolean inserted = FALSE;
+  bucket.getKeyValuePair(&key, &value, container, &inserted);
 
-   inserted = FALSE;
-   bucket.simulateBadIndex(TRUE);
-   bucket.getKeyValuePair(&key, &value, container, &inserted);
+  int failed = (inserted && bucket.isComplete()) ? 0 : 1;
 
-   failed += (!inserted && bucket.isComplete()) ? 0 : 1;
+  inserted = FALSE;
+  bucket.simulateBadIndex(TRUE);
+  bucket.getKeyValuePair(&key, &value, container, &inserted);
 
-   // test key==NULL case
-   inserted = FALSE;
-   bucket.getKeyValuePair(NULL, &value, container, &inserted);
+  failed += (!inserted && bucket.isComplete()) ? 0 : 1;
 
-   failed += (inserted && bucket.isComplete()) ? 0 : 1;
+  // test key==NULL case
+  inserted = FALSE;
+  bucket.getKeyValuePair(NULL, &value, container, &inserted);
 
-   inserted = FALSE;
-   bucket.simulateBadIndex(TRUE);
-   bucket.getKeyValuePair(NULL, &value, container, &inserted);
+  failed += (inserted && bucket.isComplete()) ? 0 : 1;
 
-   bucket.simulateBadIndex(FALSE);
+  inserted = FALSE;
+  bucket.simulateBadIndex(TRUE);
+  bucket.getKeyValuePair(NULL, &value, container, &inserted);
 
-   return failed + (!inserted && bucket.isComplete()) ? 0 : 1;
+  bucket.simulateBadIndex(FALSE);
+
+  return failed + (!inserted && bucket.isComplete()) ? 0 : 1;
 }
 
 // return # of fails
-int testRemove(HashBucketType& bucket, int& key)
-{
-   bucket.simulateBadIndex(TRUE);
+int testRemove(HashBucketType &bucket, int &key) {
+  bucket.simulateBadIndex(TRUE);
 
-   int entriesEnabled = 0;
-   int* removedKey = bucket.remove(&key, entriesEnabled);
+  int entriesEnabled = 0;
+  int *removedKey = bucket.remove(&key, entriesEnabled);
 
-   int failed = (!removedKey && bucket.isComplete()) ? 0 : 1;
+  int failed = (!removedKey && bucket.isComplete()) ? 0 : 1;
 
-   bucket.simulateBadIndex(FALSE);
-   removedKey = bucket.remove(&key, entriesEnabled);
+  bucket.simulateBadIndex(FALSE);
+  removedKey = bucket.remove(&key, entriesEnabled);
 
-   bucket.simulateBadIndex(FALSE);
+  bucket.simulateBadIndex(FALSE);
 
-   return failed + ( removedKey && bucket.isComplete() ) ? 0 : 1;
+  return failed + (removedKey && bucket.isComplete()) ? 0 : 1;
 }
 
 // return # of fails
-int testEnable(HashBucketType& bucket, int& key)
-{
-   bucket.simulateBadIndex(FALSE);
+int testEnable(HashBucketType &bucket, int &key) {
+  bucket.simulateBadIndex(FALSE);
 
-   int entriesEnabled = 0;
-   int* keyEnabled = bucket.enable(&key, TRUE, entriesEnabled);
+  int entriesEnabled = 0;
+  int *keyEnabled = bucket.enable(&key, TRUE, entriesEnabled);
 
-   int failed = (keyEnabled && bucket.isComplete()) ? 0 : 1;
+  int failed = (keyEnabled && bucket.isComplete()) ? 0 : 1;
 
-   bucket.simulateBadIndex(TRUE);
-   keyEnabled = bucket.enable(&key, TRUE, entriesEnabled);
+  bucket.simulateBadIndex(TRUE);
+  keyEnabled = bucket.enable(&key, TRUE, entriesEnabled);
 
-   bucket.simulateBadIndex(FALSE);
+  bucket.simulateBadIndex(FALSE);
 
-   return failed + (!keyEnabled && bucket.isComplete()) ? 0 : 1;
+  return failed + (!keyEnabled && bucket.isComplete()) ? 0 : 1;
 }
 
 // return # of fails
-int testDisable(HashBucketType& bucket, int& key)
-{
-   bucket.simulateBadIndex(FALSE);
+int testDisable(HashBucketType &bucket, int &key) {
+  bucket.simulateBadIndex(FALSE);
 
-   int entriesEnabled = 0;
-   int* keyEnabled = bucket.disable(&key, TRUE, entriesEnabled);
+  int entriesEnabled = 0;
+  int *keyEnabled = bucket.disable(&key, TRUE, entriesEnabled);
 
-   int failed = (keyEnabled && bucket.isComplete()) ? 0 : 1;
+  int failed = (keyEnabled && bucket.isComplete()) ? 0 : 1;
 
-   bucket.simulateBadIndex(TRUE);
-   keyEnabled = bucket.disable(&key, TRUE, entriesEnabled);
+  bucket.simulateBadIndex(TRUE);
+  keyEnabled = bucket.disable(&key, TRUE, entriesEnabled);
 
-   bucket.simulateBadIndex(FALSE);
+  bucket.simulateBadIndex(FALSE);
 
-   return failed + (!keyEnabled && bucket.isComplete()) ? 0 : 1;
+  return failed + (!keyEnabled && bucket.isComplete()) ? 0 : 1;
 }
- 
+
 #include "sqlcomp/SharedCache.h"
 // test hash bucket failure is not fatal
-int testHashBucketFailureNotFatal()
-{
+int testHashBucketFailureNotFatal() {
 #if 0
   // The use of the shared heap should only be done on a workstation
   // as it will destroy the content of the shared cache.
@@ -287,8 +263,7 @@ int testHashBucketFailureNotFatal()
   NAHeap* heap = (NAHeap*)SharedCacheDB::makeSharedHeap(&controller, NULL);
 #endif
 
-  NAHeap* heap = 
-    new NAHeap("simulated_heap", NAMemory::DERIVED_FROM_SYS_HEAP, 524288, 0);
+  NAHeap *heap = new NAHeap("simulated_heap", NAMemory::DERIVED_FROM_SYS_HEAP, 524288, 0);
 
   HashBucketType bucket(heap, FALSE);
 
@@ -296,13 +271,13 @@ int testHashBucketFailureNotFatal()
   int values[] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
 
   // insert some key-values into the bucket
-  for ( int i=0; i<sizeof(keys); i++ ) {
-     bucket.insert(&keys[i], &values[i]);
+  for (int i = 0; i < sizeof(keys); i++) {
+    bucket.insert(&keys[i], &values[i]);
   }
 
   int failed = 0;
 
-  // test each method of HashBucketType where an element 
+  // test each method of HashBucketType where an element
   // in the bucket_ array can be undefined. For each test,
   // we expect such an undefined event is handled properly
   // (failed == 0).
@@ -323,11 +298,10 @@ int testHashBucketFailureNotFatal()
   return failed;
 }
 
-void testHashBucket()
-{
+void testHashBucket() {
   int ok = testHashBucketFailureNotFatal();
 
-  if ( ok == 0 )
+  if (ok == 0)
     cout << "Pass.";
   else
     cout << "Failed: with " << ok << " failuires.";

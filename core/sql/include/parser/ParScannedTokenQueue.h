@@ -32,7 +32,7 @@
  *               queue containing information about recently scanned
  *               tokens.
  *
- *               
+ *
  * Created:      5/31/96
  * Language:     C++
  *
@@ -44,7 +44,7 @@
 
 // -----------------------------------------------------------------------
 // Change history:
-// 
+//
 // -----------------------------------------------------------------------
 
 #include "common/ComASSERT.h"
@@ -65,77 +65,66 @@ class ParScannedTokenQueue;
 // -----------------------------------------------------------------------
 // Definition of class ParScannedTokenQueue
 // -----------------------------------------------------------------------
-class ParScannedTokenQueue : public NABasicObject
-{
-public:
-  
+class ParScannedTokenQueue : public NABasicObject {
+ public:
   enum { QUEUE_SIZE = 9 };
 
-  struct scannedTokenInfo
-  {
+  struct scannedTokenInfo {
     size_t tokenStrPos;
-    size_t tokenStrLen;		// Length in UCS2 characters
-    size_t tokenStrInputLen;    // Length in original input stream bytes.
-    size_t tokenStrOffset;	// track extra offset for Wide characters
-    NABoolean tokenIsComment;   // TRUE if this token is a comment
+    size_t tokenStrLen;        // Length in UCS2 characters
+    size_t tokenStrInputLen;   // Length in original input stream bytes.
+    size_t tokenStrOffset;     // track extra offset for Wide characters
+    NABoolean tokenIsComment;  // TRUE if this token is a comment
   };
 
   //
   // constructor
   //
-  
+
   ParScannedTokenQueue();
 
   //
   // virtual destructor
   //
-  
+
   virtual ~ParScannedTokenQueue();
 
   //
   // accessors
   //
-  
+
   inline Int32 getQueueSize() const;
 
-  const scannedTokenInfo & getScannedTokenInfo
-                (const Int32 tokenInfoIndex = 0) const;
-  inline const scannedTokenInfo * getScannedTokenInfoPtr
-                (const Int32 tokenInfoIndex = 0) const;
-        scannedTokenInfo * getScannedTokenInfoPtr
-                (const Int32 tokenInfoIndex = 0);
+  const scannedTokenInfo &getScannedTokenInfo(const Int32 tokenInfoIndex = 0) const;
+  inline const scannedTokenInfo *getScannedTokenInfoPtr(const Int32 tokenInfoIndex = 0) const;
+  scannedTokenInfo *getScannedTokenInfoPtr(const Int32 tokenInfoIndex = 0);
 
-        //  0 : index of token most recently scanned
-        // -1 : index of token scanned before the most-recently-scanned token
-        // -2 : index of the token scanned before the -1 indexed token
-        // 
-        // index should never be a positive value
+  //  0 : index of token most recently scanned
+  // -1 : index of token scanned before the most-recently-scanned token
+  // -2 : index of the token scanned before the -1 indexed token
+  //
+  // index should never be a positive value
 
-  inline NABoolean isQueueIndexOutOfRange(Int32 i) const
-  {
+  inline NABoolean isQueueIndexOutOfRange(Int32 i) const {
     // Valid indexes are: -(getQueueSize()-1), ... , -2, -1, 0
-    return ( i > 0  OR  i <= (-getQueueSize()) );
+    return (i > 0 OR i <= (-getQueueSize()));
   }
 
-  inline NABoolean isQueueIndexWithinRange(Int32 i) const
-  {
+  inline NABoolean isQueueIndexWithinRange(Int32 i) const {
     // Valid indexes are: -(getQueueSize()-1), ... , -2, -1, 0
-    return ( (-i) < getQueueSize() );
+    return ((-i) < getQueueSize());
   }
 
   //
   // mutators
   //
 
-  void insert(const size_t tokenStrPos,
-              const size_t tokenStrLen,
-              const size_t tokenStrOffset,
+  void insert(const size_t tokenStrPos, const size_t tokenStrLen, const size_t tokenStrOffset,
               NABoolean tokenIsComment);
 
   void updateInputLen(const size_t tokenStrInputLen);
-  
-private:
 
+ private:
   // ---------------------------------------------------------------------
   // private methods
   // ---------------------------------------------------------------------
@@ -143,24 +132,23 @@ private:
   //
   // copy constructor
   //
-  
+
   ParScannedTokenQueue(const ParScannedTokenQueue &queue);  // DO NOT USE
 
   //
   // assignment operator
   //
 
-  ParScannedTokenQueue & operator=
-                (const ParScannedTokenQueue &queue);  // DO NOT USE
+  ParScannedTokenQueue &operator=(const ParScannedTokenQueue &queue);  // DO NOT USE
 
   // ---------------------------------------------------------------------
   // private data members
   // ---------------------------------------------------------------------
-  
+
   scannedTokenInfo scannedTokens_[QUEUE_SIZE];
   Int32 currentPos_;
-  
-}; // class ParScannedTokenQueue
+
+};  // class ParScannedTokenQueue
 
 // -----------------------------------------------------------------------
 // definitions of inline methods for class ParScannedTokenQueue
@@ -170,19 +158,12 @@ private:
 // accessors
 //
 
-inline Int32
-ParScannedTokenQueue::getQueueSize() const
-{
-  return QUEUE_SIZE;
+inline Int32 ParScannedTokenQueue::getQueueSize() const { return QUEUE_SIZE; }
+
+inline const ParScannedTokenQueue::scannedTokenInfo *ParScannedTokenQueue::getScannedTokenInfoPtr(
+    const Int32 tokenInfoIndex) const {
+  ComASSERT(tokenInfoIndex <= 0 AND getQueueSize() > -tokenInfoIndex);
+  return &scannedTokens_[(currentPos_ + getQueueSize() + tokenInfoIndex) % getQueueSize()];
 }
 
-inline const ParScannedTokenQueue::scannedTokenInfo *
-ParScannedTokenQueue::getScannedTokenInfoPtr(const Int32 tokenInfoIndex) const
-{
-  ComASSERT(tokenInfoIndex <= 0 AND
-            getQueueSize() > - tokenInfoIndex);
-  return &scannedTokens_[(currentPos_ + getQueueSize()
-                          + tokenInfoIndex) % getQueueSize()];
-}
-
-#endif // PARSCANNEDTOKENQUEUE_H
+#endif  // PARSCANNEDTOKENQUEUE_H

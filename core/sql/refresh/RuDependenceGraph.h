@@ -47,7 +47,7 @@ class CDSString;
 
 //--------------------------------------------------------------------------//
 // CRUDependenceGraph
-// 
+//
 //   The run-time representation of the dependence graph.
 //   The tasks are nodes in the graph,
 //   and the dependencies between them are edges in the graph.
@@ -56,146 +56,138 @@ class CDSString;
 //   Every CRUTask is responsible for handling its connectivity.
 //	 CRUDependenceGraph is responsible for deleting the task
 //	 objects when the execution is over.
-//	 
-//	 The user can insert tasks into the graph. A task is called 
-//	 *available* if it was inserted into the graph, and can be 
-//	 scheduled for execution when ready. A task that completes 
-//	 execution or is *doomed* before it - stops being available. 
+//
+//	 The user can insert tasks into the graph. A task is called
+//	 *available* if it was inserted into the graph, and can be
+//	 scheduled for execution when ready. A task that completes
+//	 execution or is *doomed* before it - stops being available.
 //	 Newly created tasks are automatically available.
 //
-//	 A task completion is followed by the *reduction* of the 
+//	 A task completion is followed by the *reduction* of the
 //	 dependence graph (i.e., the task is deleted from the graph
-//	 together with its adjacent edges. 
+//	 together with its adjacent edges.
 //
-//	The class also implements the Refresh utility's scheduling 
+//	The class also implements the Refresh utility's scheduling
 //	algorithm. The algorithm chooses the next task to execute,
 //  guided by the task priority and task cost considerations.
 //
 //--------------------------------------------------------------------------//
 
 class REFRESH_LIB_CLASS CRUDependenceGraph {
+ public:
+  CRUDependenceGraph(TInt32 maxPipelining);
+  virtual ~CRUDependenceGraph();
 
-public:
- 	CRUDependenceGraph(TInt32 maxPipelining);
-	virtual ~CRUDependenceGraph();
-	
-	//----------------------------------------------//
-	// Accessors
-	//----------------------------------------------//
-public:
-	// Access task by Id
-	CRUTask *GetTask(Lng32 taskId);
+  //----------------------------------------------//
+  // Accessors
+  //----------------------------------------------//
+ public:
+  // Access task by Id
+  CRUTask *GetTask(Lng32 taskId);
 
-	// Access task by UID of associated object and type
-	CRUTask *GetTask(TInt64 objUid, CRUTask::Type type);
+  // Access task by UID of associated object and type
+  CRUTask *GetTask(TInt64 objUid, CRUTask::Type type);
 
-	// Is the dependence graph empty?
-	BOOL AreAllTasksComplete() const
-	{
-		return (TRUE == availableTaskList_.IsEmpty());
-	}
+  // Is the dependence graph empty?
+  BOOL AreAllTasksComplete() const { return (TRUE == availableTaskList_.IsEmpty()); }
 
-        // are all empcheck tasks complete.  this must happen
-        // before MaximizePipeliningPotential 
-        BOOL AllEmpCheckTasksComplete() const;
+  // are all empcheck tasks complete.  this must happen
+  // before MaximizePipeliningPotential
+  BOOL AllEmpCheckTasksComplete() const;
 
-public:
-	// Get the last scheduled task
-	CRUTask *GetScheduledTask() const 
-	{ 
-		return pScheduledTask_; 
-	}
+ public:
+  // Get the last scheduled task
+  CRUTask *GetScheduledTask() const { return pScheduledTask_; }
 
 #ifdef _DEBUG
-public:
-	void Dump(CDSString &to);
+ public:
+  void Dump(CDSString &to);
 
-	// Print the graph in the Dotty format
-	void DumpGraph(CDSString &to);
+  // Print the graph in the Dotty format
+  void DumpGraph(CDSString &to);
 #endif
 
-	//----------------------------------------------//
-	// Mutators
-	//----------------------------------------------//
-public:
-	void InsertTask(CRUTask *pTask);
+  //----------------------------------------------//
+  // Mutators
+  //----------------------------------------------//
+ public:
+  void InsertTask(CRUTask *pTask);
 
-	//-- Disconnect the task from its environment
-	void Reduce(CRUTask *pTask);
+  //-- Disconnect the task from its environment
+  void Reduce(CRUTask *pTask);
 
-public:
-	//-- Elect (schedule) the next task to be executed --//
-	void Schedule();
+ public:
+  //-- Elect (schedule) the next task to be executed --//
+  void Schedule();
 
-private:
-	//-- Prevent copying
-	CRUDependenceGraph(const CRUDependenceGraph& other);
-	CRUDependenceGraph& operator= (const CRUDependenceGraph& other);
+ private:
+  //-- Prevent copying
+  CRUDependenceGraph(const CRUDependenceGraph &other);
+  CRUDependenceGraph &operator=(const CRUDependenceGraph &other);
 
-private:
-	friend class CRUDependenceGraphIterator;
+ private:
+  friend class CRUDependenceGraphIterator;
 
-private:
-	void RemoveFromAvailableList(CRUTask *pTask);
+ private:
+  void RemoveFromAvailableList(CRUTask *pTask);
 
-	//-- Schedule() callees
-	void ScheduleDoomedTask();
-	void ScheduleNormalTask();
+  //-- Schedule() callees
+  void ScheduleDoomedTask();
+  void ScheduleNormalTask();
 
-	// Before making the scheduling decision, 
-	// Apply the heuristic to compute the gain function.
-	void ComputeGainFunction();
+  // Before making the scheduling decision,
+  // Apply the heuristic to compute the gain function.
+  void ComputeGainFunction();
 
-private:
-	// Consider a single candidate for scheduling.
-	void ConsiderTaskForScheduling(CRUTask *pTask);
+ private:
+  // Consider a single candidate for scheduling.
+  void ConsiderTaskForScheduling(CRUTask *pTask);
 
-	// This is a very sensitive enum, DO NOT TOUCH UNNECESSARILY !
-	// Different task types have different priorities for scheduling.
-	// Between the types with the same priority, the gain decides.
+  // This is a very sensitive enum, DO NOT TOUCH UNNECESSARILY !
+  // Different task types have different priorities for scheduling.
+  // Between the types with the same priority, the gain decides.
 
-	enum TypePriority
-	{
-		PR_TABLE_SYNC		= 4,
-		PR_RC_RELEASE		= 3,
+  enum TypePriority {
+    PR_TABLE_SYNC = 4,
+    PR_RC_RELEASE = 3,
 
-		PR_EMP_CHECK		= 2,
-		
-		PR_REFRESH			= 1,
-		PR_DUP_ELIM			= 1,
-		PR_LOCK_EQUIV_SET	= 1,
-		
-		PR_LOG_CLEANUP		= 0
-	};
+    PR_EMP_CHECK = 2,
 
-	// The mapping between the task type and task priority.
-	// See the explanations for the priority allocation in the .cpp file!
-	static TypePriority GetTypePriority(CRUTask *pTask);
-	
-private:
-	// Schedule() callee
-	// Once the next task is chosen, merge it with the 
-	// maximum possible # of successors to perform pipelining.
-	void MaximizePipeliningPotential();
+    PR_REFRESH = 1,
+    PR_DUP_ELIM = 1,
+    PR_LOCK_EQUIV_SET = 1,
 
-	void BuildPipelinedTasksList(CRUTaskList &pplTaskList);
-	void MergePipelinedTasks(const CRUTaskList &pplTaskList);
+    PR_LOG_CLEANUP = 0
+  };
 
-	void InheritTopTaskConnectivity(CRUTask *pNewTopTask);
+  // The mapping between the task type and task priority.
+  // See the explanations for the priority allocation in the .cpp file!
+  static TypePriority GetTypePriority(CRUTask *pTask);
 
-private:
-	//----------------------------------------------//
-	// Core data members
-	//----------------------------------------------//
+ private:
+  // Schedule() callee
+  // Once the next task is chosen, merge it with the
+  // maximum possible # of successors to perform pipelining.
+  void MaximizePipeliningPotential();
 
-	CRUTaskList allTaskList_;
+  void BuildPipelinedTasksList(CRUTaskList &pplTaskList);
+  void MergePipelinedTasks(const CRUTaskList &pplTaskList);
 
-	// List of available tasks (i.e., those that can be executed).
-	// The scheduler will only consider these tasks.
-	CRUTaskList	availableTaskList_;
+  void InheritTopTaskConnectivity(CRUTask *pNewTopTask);
 
-	CRUTask *pScheduledTask_;
-	TInt32 maxPipelining_;
+ private:
+  //----------------------------------------------//
+  // Core data members
+  //----------------------------------------------//
+
+  CRUTaskList allTaskList_;
+
+  // List of available tasks (i.e., those that can be executed).
+  // The scheduler will only consider these tasks.
+  CRUTaskList availableTaskList_;
+
+  CRUTask *pScheduledTask_;
+  TInt32 maxPipelining_;
 };
 
 #endif

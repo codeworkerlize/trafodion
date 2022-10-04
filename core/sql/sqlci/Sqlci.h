@@ -29,9 +29,9 @@
  *
  * File:         Sqlci.h
  * RCS:          $Id: Sqlci.h,v 1.2 1997/04/23 00:30:37  Exp $
- * Description:  
- *               
- *               
+ * Description:
+ *
+ *
  * Created:      4/15/95
  * Modified:     $ $Date: 1997/04/23 00:30:37 $ (GMT)
  * Language:     C++

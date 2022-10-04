@@ -1431,10 +1431,7 @@ static DefaultDefault defaultDefaults[] = {
 
     DDui___(HIVE_MAX_COMPOSITE_STRING_LENGTH_IN_BYTES, "1000"),
 
-    // Read only attribute. To be used for debug only. Tolerates file error
-    // such as no permission, wrong file type for table
-    DDui___(HIVE_MAX_ERROR_FILES, "0"), DDui___(HIVE_MAX_ESPS, "9999"),
-    // Set to one byte less than QUERY_CACHE_MAX_CHAR_LEN so that hive queries with
+    DDui___(HIVE_MAX_ESPS, "9999"),
     // string literals can be cached.
     DDui___(HIVE_MAX_STRING_LENGTH_IN_BYTES, "31999"), SDDflte_(HIVE_MEMORY_UNIT_ESP, "300"),
     DDint__(HIVE_METADATA_REFRESH_INTERVAL, "0"), DDflt0_(HIVE_MIN_BYTES_PER_ESP_PARTITION, "67108864"),
@@ -1447,10 +1444,10 @@ static DefaultDefault defaultDefaults[] = {
     DDkwd__(HIVE_SCAN_RESOURCES_INCLUSION, "ON"), DDui0_2(HIVE_SCAN_SPECIAL_MODE, "1"),
     DDkwd__(HIVE_SIMULATE_REAL_NODEMAP, "OFF"), DDkwd__(HIVE_SORT_HDFS_HOSTS, "ON"), DDkwd__(HIVE_STATS_CACHING, "OFF"),
     DDkwd__(HIVE_STRAW_SCAN, "OFF"), DDint__(HIVE_STRAW_SCAN_MAX_NODES, "20"),
-    DDkwd__(HIVE_SUPPORTS_SUBDIRECTORIES, "OFF"), DDkwd__(HIVE_TIMESTAMP_PRECISION_IN_USEC, "OFF"),
-    DDkwd__(HIVE_TREAT_EMPTY_STRING_AS_NULL, "OFF"), DDkwd__(HIVE_USE_EXT_TABLE_ATTRS, "ON"),
-    DDkwd__(HIVE_USE_FAKE_TABLE_DESC, "OFF"), DDkwd__(HIVE_USE_HASH2_AS_PARTFUNCTION, "ON"),
-    DDkwd__(HIVE_USE_PERSISTENT_KEY, "OFF"), DDkwd__(HIVE_VIEWS, "ON"), SDDflte_(HIVE_WORK_UNIT_ESP, "1.00"),
+    DDkwd__(HIVE_TIMESTAMP_PRECISION_IN_USEC, "OFF"), DDkwd__(HIVE_TREAT_EMPTY_STRING_AS_NULL, "OFF"),
+    DDkwd__(HIVE_USE_EXT_TABLE_ATTRS, "ON"), DDkwd__(HIVE_USE_FAKE_TABLE_DESC, "OFF"),
+    DDkwd__(HIVE_USE_HASH2_AS_PARTFUNCTION, "ON"), DDkwd__(HIVE_USE_PERSISTENT_KEY, "OFF"), DDkwd__(HIVE_VIEWS, "ON"),
+    SDDflte_(HIVE_WORK_UNIT_ESP, "1.00"),
 
     // -------------------------------------------------------------------------
 
@@ -1528,25 +1525,10 @@ static DefaultDefault defaultDefaults[] = {
 
     DDui50_4194303(LISTAGG_MAX_LENGTH_IN_BYTES, "5000"),
 
-    // Size in MB  used to perform garbage collection  to lob data file
-    // Recommended size is 20GB   . Change to adjust disk usage. If -1 it means
     // don't do GC during insert/update operations.
-    DDint__(LOB_GC_LIMIT_SIZE, "-1"),
 
     DDint__(LOB_HDFS_PORT, "0"), DD_____(LOB_HDFS_SERVER, "default"),
-    // Max size of lob hybrid row in KB. If 0, it means all LOBs will be external.
-    DDint__(LOB_HYBRID_ROW_LIMIT, "1"),
 
-    // Control the locking via RMS shared lock. This ensures the CLI and HDFS
-    // operations for any LOB UID are done under a lock so concurrent operations
-    // wont conflict and cause incosistent data. For non concurrent applications,
-    // we can turn this off as a performance enhancement.
-    DDkwd__(LOB_LOCKING, "OFF"),
-    // Size of memoryin Megabytes  used to perform I/O to lob data file
-    // default size is 128MB   . Change to adjust memory usage.
-    DDint__(LOB_MAX_CHUNK_MEM_SIZE, "128"),
-    // default size is 5 G  (5120 M)
-    DDint__(LOB_MAX_SIZE, "5120"),
     // default size is 16MB . Change this to extract more data into memory.
     // Change this also if string operations need to be allowed on CLOBs more than
     // 16MB in size.
@@ -2025,8 +2007,6 @@ static DefaultDefault defaultDefaults[] = {
     DDkwd__(NSK_DBG_SHOW_TREE_AFTER_TRANSFORMATION, "OFF"),
 
     DDui1__(NUMBER_OF_COUNTSTAR_ROWS_PARALLEL_THRESHOLD, "100"),
-
-    DDui1__(NUMBER_OF_LOBV2_DATAFILES, "1"),
 
     DDflt0_(NUMBER_OF_PARTITIONS_DEVIATION, "0.25"), DDui1__(NUMBER_OF_ROWS_PARALLEL_THRESHOLD, "5000"),
     DDui1__(NUMBER_OF_USERS, "1"), DDui1__(NUM_OF_BLOCKS_PER_ACCESS, "SYSTEM"),
@@ -4404,8 +4384,7 @@ void NADefaults::resetAll(NAString &value, short reset, Int32 errOrWarn) {
 
 NABoolean NADefaults::isReadonlyAttribute(const char *attrName) const {
   if (((stricmp(attrName, "ISO_MAPPING") == 0) || (stricmp(attrName, "OVERFLOW_MODE") == 0) ||
-       (stricmp(attrName, "SORT_ALGO") == 0) || (stricmp(attrName, "MAINTENANCE_WINDOW") == 0) ||
-       (stricmp(attrName, "HIVE_MAX_ERROR_FILES") == 0)) &&
+       (stricmp(attrName, "SORT_ALGO") == 0) || (stricmp(attrName, "MAINTENANCE_WINDOW") == 0)) &&
       (CmpCommon::getDefault(DISABLE_READ_ONLY) == DF_ON))
     return FALSE;  // for internal development and testing purposes
 
@@ -4418,8 +4397,7 @@ NABoolean NADefaults::isReadonlyAttribute(const char *attrName) const {
       (stricmp(attrName, "BMO_MEMORY_LIMIT_LOWER_BOUND_SORT") == 0) ||
       (stricmp(attrName, "EXE_MEMORY_LIMIT_LOWER_BOUND_SEQUENCE") == 0) ||
       (stricmp(attrName, "EXE_MEMORY_LIMIT_LOWER_BOUND_EXCHANGE") == 0) || (stricmp(attrName, "SORT_ALGO") == 0) ||
-      (stricmp(attrName, "OVERFLOW_MODE") == 0) || (stricmp(attrName, "MAINTENANCE_WINDOW") == 0) ||
-      (stricmp(attrName, "HIVE_MAX_ERROR_FILES") == 0))
+      (stricmp(attrName, "OVERFLOW_MODE") == 0) || (stricmp(attrName, "MAINTENANCE_WINDOW") == 0))
     return TRUE;
 
   if (strlen(attrName) > 0) {
@@ -4892,9 +4870,6 @@ enum DefaultConstants NADefaults::validateAndInsert(const char *attrName, NAStri
             }
           }
         } break;
-        case HIVE_SUPPORTS_SUBDIRECTORIES:
-          ActiveSchemaDB()->getNATableDB()->free_hive_tables();
-          break;
 
         case MODE_SPECIAL_1: {
           NAString val;
@@ -5145,18 +5120,6 @@ enum DefaultConstants NADefaults::validateAndInsert(const char *attrName, NAStri
             val = "3";  // change this value too when the default value in the table is changed
           validateAndInsert("ESP_NUM_FRAGMENTS", val, FALSE);
         } break;
-
-        case LOB_GC_LIMIT_SIZE:
-          if ((atoi(value.data()) < -1) || (((atoi(value.data()) > 0) && (atoi(value.data())) <= 512))) {
-            *CmpCommon::diags() << DgSqlCode(-2055) << DgString0(value) << DgString1(lookupAttrName(attrEnum));
-          }
-          break;
-
-        case LOB_MAX_CHUNK_MEM_SIZE:
-          if (atoi(value.data()) < 0 || atoi(value.data()) > 5120) {
-            *CmpCommon::diags() << DgSqlCode(-2055) << DgString0(value) << DgString1(lookupAttrName(attrEnum));
-          }
-          break;
 
         case TRAF_COMPOSITE_DATATYPE_FORMAT: {
           if (NOT((value == "ALIGNED") || (value == "EXPLODED"))) {
@@ -5640,7 +5603,7 @@ DefaultToken NADefaults::token(Int32 attrEnum, NAString &value, NABoolean valueA
       else
         return DF_USER;  // kludge, return any valid token
     }                    // else
-       // else fall thru to see if value is SYSTEM
+                         // else fall thru to see if value is SYSTEM
 
     // OPTIMIZATION_LEVEL
     if ((attrEnum == OPTIMIZATION_LEVEL) && value.length() == 1) switch (*value.data()) {

@@ -27,65 +27,49 @@
 #include <unistd.h>
 #include <iostream>
 
-FILE * Timer::logFile = 0;
+FILE *Timer::logFile = 0;
 
-LogAgent::LogAgent()
-{
-  Timer::openLog();
-}
+LogAgent::LogAgent() { Timer::openLog(); }
 
-LogAgent::~LogAgent()
-{
-  Timer::closeLog();
-}
+LogAgent::~LogAgent() { Timer::closeLog(); }
 
 void Timer::timerOn() { startClock = times(&startTms); }
 
 void Timer::timerOff() { endClock = times(&endTms); }
 
-void Timer::timerLog(const char *msg, const char *file, Int32 line)
-{
+void Timer::timerLog(const char *msg, const char *file, Int32 line) {
   fprintf(logFile, "---------------------------------\n");
   fprintf(logFile, "%s %s %d\n", msg, file, line);
-  fprintf(logFile, "Elapsed Time: %fs\n", (endClock - startClock)/1000000.0);
-  fprintf(logFile, "User    Time: %fs\n", (endTms.tms_utime - startTms.tms_utime)/1000000.0);
-  fprintf(logFile, "System  Time: %fs\n", (endTms.tms_stime - startTms.tms_stime)/1000000.0);
+  fprintf(logFile, "Elapsed Time: %fs\n", (endClock - startClock) / 1000000.0);
+  fprintf(logFile, "User    Time: %fs\n", (endTms.tms_utime - startTms.tms_utime) / 1000000.0);
+  fprintf(logFile, "System  Time: %fs\n", (endTms.tms_stime - startTms.tms_stime) / 1000000.0);
 }
 
 void Timer::openLog() {
   pid_t pid = getpid();
   char fileName[256];
   char *logFileEnv = 0;
-  if((logFileEnv = getenv("MEASURE_LOG_FILE")) != NULL){
+  if ((logFileEnv = getenv("MEASURE_LOG_FILE")) != NULL) {
     sprintf(fileName, "%s.%d", logFileEnv, pid);
     logFile = fopen(fileName, "w+t");
-    if(logFile == 0){
+    if (logFile == 0) {
       logFile = stderr;
       cerr << "Can not open " << fileName << endl;
       cerr << "Timing results logging to standard error" << endl;
-    }
-    else
+    } else
       cerr << "Timing results logging to " << fileName << endl;
-  }
-  else{
+  } else {
     logFile = stderr;
     cerr << "Timing results logging to standard error" << endl;
   }
 }
 
 void Timer::closeLog() {
-  if(logFile)
-    fclose(logFile);
+  if (logFile) fclose(logFile);
 }
 
 void Timer::flushLog() {
-  if(logFile)
-    fflush(logFile);
+  if (logFile) fflush(logFile);
 }
 
 #endif
-
-
-
-
-

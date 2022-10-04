@@ -57,31 +57,26 @@ class StmtDDLDropMvRGroup;
 // -----------------------------------------------------------------------
 // Create MV group statement
 // -----------------------------------------------------------------------
-class StmtDDLDropMvRGroup : public StmtDDLNode
-{
-
-public:
-
+class StmtDDLDropMvRGroup : public StmtDDLNode {
+ public:
   // initialize constructor
-  StmtDDLDropMvRGroup(const QualifiedName & mvGroupName);
-                      //CollHeap    * heap = PARSERHEAP());
+  StmtDDLDropMvRGroup(const QualifiedName &mvGroupName);
+  // CollHeap    * heap = PARSERHEAP());
 
   // virtual destructor
   virtual ~StmtDDLDropMvRGroup();
 
   // cast
-  virtual StmtDDLDropMvRGroup * castToStmtDDLDropMvRGroup();
+  virtual StmtDDLDropMvRGroup *castToStmtDDLDropMvRGroup();
 
   //
   // accessors
   //
 
-
   inline const NAString getMvRGroupName() const;
-  inline const QualifiedName & getMvRGroupNameAsQualifiedName() const;
-  inline       QualifiedName & getMvRGroupNameAsQualifiedName() ;
+  inline const QualifiedName &getMvRGroupNameAsQualifiedName() const;
+  inline QualifiedName &getMvRGroupNameAsQualifiedName();
 
-  
   //
   // mutators
   //
@@ -90,60 +85,41 @@ public:
   // method for binding
   //
 
-  ExprNode * bindNode(BindWA * pBindWA);
+  ExprNode *bindNode(BindWA *pBindWA);
 
   //
   // methods for tracing
   //
 
   virtual const NAString displayLabel1() const;
-//  virtual NATraceList getDetailInfo() const;
+  //  virtual NATraceList getDetailInfo() const;
   virtual const NAString getText() const;
 
-
-private:
-
+ private:
   // ---------------------------------------------------------------------
   // private data members
   // ---------------------------------------------------------------------
 
-
-//  NAString mvRGroupName_;
+  //  NAString mvRGroupName_;
 
   // The syntax of table name is
   // [ [ catalog-name . ] schema-name . ] table-name
   QualifiedName mvRGroupQualName_;
 
-
-}; // class StmtDDLDropMvRGroup 
+};  // class StmtDDLDropMvRGroup
 
 // -----------------------------------------------------------------------
-// definitions of inline methods for class StmtDDLCreateMvGroup 
+// definitions of inline methods for class StmtDDLCreateMvGroup
 // -----------------------------------------------------------------------
-
 
 // get index name
-inline const NAString 
-StmtDDLDropMvRGroup::getMvRGroupName() const
-{
+inline const NAString StmtDDLDropMvRGroup::getMvRGroupName() const {
   // return mvRGroupName_;
   return mvRGroupQualName_.getQualifiedNameAsAnsiString();
 }
 
+inline QualifiedName &StmtDDLDropMvRGroup::getMvRGroupNameAsQualifiedName() { return mvRGroupQualName_; }
 
-inline QualifiedName &
-StmtDDLDropMvRGroup::getMvRGroupNameAsQualifiedName()
-{
-  return mvRGroupQualName_;
-}
+inline const QualifiedName &StmtDDLDropMvRGroup::getMvRGroupNameAsQualifiedName() const { return mvRGroupQualName_; }
 
-inline const QualifiedName & 
-StmtDDLDropMvRGroup::getMvRGroupNameAsQualifiedName() const
-{
-  return mvRGroupQualName_;
-}
-
-
-
-
-#endif // STMTDDLDROPMRVGROUP_H
+#endif  // STMTDDLDROPMRVGROUP_H

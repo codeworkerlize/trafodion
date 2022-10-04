@@ -50,10 +50,10 @@ class LmJavaSignature;
 //
 // LmJavaSignature: Represents a Java signature.
 //   This class contains the encoded signature in Java encoded
-//   format, decoded signature and the size of the decoded 
+//   format, decoded signature and the size of the decoded
 //   signature text.
 //
-//   Example: For an SPJ with parameters 
+//   Example: For an SPJ with parameters
 //            (int, java.sql.Date, java.sql.Time[])
 //
 //   encodedSignature_ = (ILjava/sql/Date;[Ljava/sql/Time;)V
@@ -82,49 +82,32 @@ class LmJavaSignature;
 //  class is not exported from langman.dll.
 //
 //////////////////////////////////////////////////////////////////////
-class LmJavaSignature
-{
-
-public:
-
-  LmJavaSignature(const char* encodedSignature = NULL, void* heap = NULL);
+class LmJavaSignature {
+ public:
+  LmJavaSignature(const char *encodedSignature = NULL, void *heap = NULL);
 
   ~LmJavaSignature();
 
-  LmResult createSig(ComFSDataType paramType[],
-                     ComUInt32     paramSubType[],
-                     ComColumnDirection direction[],
-                     ComUInt32     numParam,
-                     ComFSDataType resultType,
-                     ComUInt32     resultSubType,
-                     ComUInt32     numResultSets,
-                     const char    *optionalSig,
-                     ComBoolean    isUdrForJavaMain,
-                     char          *sigBuf,
-                     ComUInt32     sigLen,
-                     ComDiagsArea  *da);
+  LmResult createSig(ComFSDataType paramType[], ComUInt32 paramSubType[], ComColumnDirection direction[],
+                     ComUInt32 numParam, ComFSDataType resultType, ComUInt32 resultSubType, ComUInt32 numResultSets,
+                     const char *optionalSig, ComBoolean isUdrForJavaMain, char *sigBuf, ComUInt32 sigLen,
+                     ComDiagsArea *da);
 
   Int32 unpackSignature(char *unpackedSignature);
 
   Int32 getUnpackedSignatureSize();
 
-  // Returns the total number (SQL + Result set) of parameters 
+  // Returns the total number (SQL + Result set) of parameters
   // present in the method signature
   Int32 getParamCount() const { return numParams_; }
 
-
-private:
-
+ private:
   NAMemory *heap_;
   char *encodedSignature_;
-  Int32  unpackedSignatureSize_; 
-  Int32  numParams_;
+  Int32 unpackedSignatureSize_;
+  Int32 numParams_;
 
-  void setUnpackedSignatureSize(Int32 size)
-  {
-    unpackedSignatureSize_ = size;
-  }
-
+  void setUnpackedSignatureSize(Int32 size) { unpackedSignatureSize_ = size; }
 };
 
 #endif

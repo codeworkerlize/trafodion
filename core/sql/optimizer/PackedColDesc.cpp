@@ -112,9 +112,7 @@
 // Determine the size in bytes of a packed column for the column
 // given a packingFactor.
 //
-Lng32
-PackedColDesc::determinePackedColSize(Lng32 packingFactor) const
-{
+Lng32 PackedColDesc::determinePackedColSize(Lng32 packingFactor) const {
   const Int32 BitsPerByte = 8;
 
   const NAType *colType = getType();
@@ -123,32 +121,27 @@ PackedColDesc::determinePackedColSize(Lng32 packingFactor) const
   //
   CMPASSERT(NOT DFS2REC::isAnyVarChar(colType->getFSDatatype()));
 
-  Lng32 nullBitMapSize = (colType->supportsSQLnull()
-                         ? ((packingFactor-1)/BitsPerByte)+1
-                         : 0);
+  Lng32 nullBitMapSize = (colType->supportsSQLnull() ? ((packingFactor - 1) / BitsPerByte) + 1 : 0);
 
   // The size of this column in bits.
   //
   Lng32 dataSizeInBits;
 
-  if((colType->getTypeQualifier() == NA_NUMERIC_TYPE) &&
-     ((NumericType *)colType)->binaryPrecision() &&
-     ((NumericType *)colType)->isUnsigned()) {
-
+  if ((colType->getTypeQualifier() == NA_NUMERIC_TYPE) && ((NumericType *)colType)->binaryPrecision() &&
+      ((NumericType *)colType)->isUnsigned()) {
     // If the column is a bit precision integer, get the
     // number of bits used by this column.  When we pack we
     // also compress the bit precision integers.
     //
     dataSizeInBits = ((NumericType *)colType)->getPrecision();
-      
+
   } else {
-      
     dataSizeInBits = colType->getNominalSize() * BitsPerByte;
   }
 
   // Total size of the DATA field.
   //
-  Lng32 totalDataSize = (((dataSizeInBits * packingFactor)-1)/BitsPerByte)+1;
+  Lng32 totalDataSize = (((dataSizeInBits * packingFactor) - 1) / BitsPerByte) + 1;
 
   // Total size of this packed column given the packing factor.
   // SQL_INT_SIZE is for the NUM_ROWS field.
@@ -157,7 +150,7 @@ PackedColDesc::determinePackedColSize(Lng32 packingFactor) const
 }
 
 // PackedColDesc::generatePackingInfo()---------------------------------
-// Generate the packing information (dataOffset_, dataSize_, totalSize_, 
+// Generate the packing information (dataOffset_, dataSize_, totalSize_,
 // and nullBitmapPresent_) for this column given a packing factor.
 // This packing information is:
 //
@@ -177,39 +170,30 @@ PackedColDesc::determinePackedColSize(Lng32 packingFactor) const
 //   a NULL_BITMAP field present in this packed column.
 //
 //
-void
-PackedColDesc::generatePackingInfo(Lng32 packingFactor)
-{
-
+void PackedColDesc::generatePackingInfo(Lng32 packingFactor) {
   CMPASSERT(packingFactor > 1);
 
   const Int32 BitsPerByte = 8;
 
   const NAType *colType = getType();
-      
-        
-  Lng32 nullBitMapSize = (colType->supportsSQLnull()
-                         ? ((packingFactor-1)/BitsPerByte)+1
-                         : 0);
+
+  Lng32 nullBitMapSize = (colType->supportsSQLnull() ? ((packingFactor - 1) / BitsPerByte) + 1 : 0);
 
   Lng32 dataSize;
-      
-  if((colType->getTypeQualifier() == NA_NUMERIC_TYPE) &&
-     ((NumericType *)colType)->binaryPrecision() &&
-     ((NumericType *)colType)->isUnsigned()) {
 
+  if ((colType->getTypeQualifier() == NA_NUMERIC_TYPE) && ((NumericType *)colType)->binaryPrecision() &&
+      ((NumericType *)colType)->isUnsigned()) {
     // If the column is a bit precision integer, get the
     // number of bits used by this column.  When we pack we
     // also compress the bit precision integers.
     //
     dataSize = ((NumericType *)colType)->getPrecision();
-      
+
   } else {
-    
     dataSize = colType->getNominalSize() * BitsPerByte;
   }
 
-  Lng32 totalDataSize = (((dataSize * packingFactor)-1)/BitsPerByte)+1;
+  Lng32 totalDataSize = (((dataSize * packingFactor) - 1) / BitsPerByte) + 1;
 
   dataOffset_ = SQL_INT_SIZE + nullBitMapSize;
 
@@ -224,10 +208,7 @@ PackedColDesc::generatePackingInfo(Lng32 packingFactor)
 // Determine the maximum packing factor for this AP limited by the
 // given maxPackedRecLen.
 //
-Lng32
-PackedAPDesc::determinePackingFactor(Lng32 maxPackedRecLen) const
-{
-
+Lng32 PackedAPDesc::determinePackingFactor(Lng32 maxPackedRecLen) const {
   const Int32 BitsPerByte = 8;
 
   PackedColDescList apCols = getAPColumns();
@@ -248,15 +229,14 @@ PackedAPDesc::determinePackingFactor(Lng32 maxPackedRecLen) const
   //
   CollIndex numUserColumns = apCols.entries();
 
-  for(CollIndex c = 0; c < numUserColumns; c++) {
-    
+  for (CollIndex c = 0; c < numUserColumns; c++) {
     const NAType *colType = apCols[c]->getType();
 
     // Variable length columns can not be packed at this time.
     // If any column of this AP is variable length, then the AP
     // cannot be packed.
     //
-    if(colType->isVaryingLen())
+    if (colType->isVaryingLen())
 
       // Cannot pack this column.
       //
@@ -270,14 +250,11 @@ PackedAPDesc::determinePackingFactor(Lng32 maxPackedRecLen) const
     // number of bits used by this column.  When we pack we
     // also compress the bit precision integers.
     //
-    if((colType->getTypeQualifier() == NA_NUMERIC_TYPE) &&
-       ((NumericType *)colType)->binaryPrecision() &&
-       ((NumericType *)colType)->isUnsigned()) {
-
+    if ((colType->getTypeQualifier() == NA_NUMERIC_TYPE) && ((NumericType *)colType)->binaryPrecision() &&
+        ((NumericType *)colType)->isUnsigned()) {
       dataSizeInBits += ((NumericType *)colType)->getPrecision();
-      
-    } else {
 
+    } else {
       // Calculate how many bits required to store this column.
       //
       dataSizeInBits += colType->getNominalSize() * BitsPerByte;
@@ -294,10 +271,8 @@ PackedAPDesc::determinePackingFactor(Lng32 maxPackedRecLen) const
   // The keySizeinBytes is for the SYSKEY (one per AP).
   // The (SQL_INT_SIZE * numUserColumns) is for the NUM_ROWS fields.
   //
-  Lng32 packingFactor =
-    ((maxPackedRecLen - keySizeInBytes - (SQL_INT_SIZE * numUserColumns))
-     * BitsPerByte) /
-    (numNullFlags + dataSizeInBits);
+  Lng32 packingFactor = ((maxPackedRecLen - keySizeInBytes - (SQL_INT_SIZE * numUserColumns)) * BitsPerByte) /
+                        (numNullFlags + dataSizeInBits);
 
   return packingFactor;
 }
@@ -306,38 +281,30 @@ PackedAPDesc::determinePackingFactor(Lng32 maxPackedRecLen) const
 // Determine the size in bytes of all the packed columns of this AP
 // given a packing factor.
 //
-Lng32
-PackedAPDesc::determinePackedAPSize(Lng32 packingFactor) const
-{
-
+Lng32 PackedAPDesc::determinePackedAPSize(Lng32 packingFactor) const {
   Lng32 packedAPSize = 0;
 
   PackedColDescList apCols = getAPColumns();
   CollIndex numUserColumns = apCols.entries();
 
-  for(CollIndex c = 0; c < numUserColumns; c++) {
-
+  for (CollIndex c = 0; c < numUserColumns; c++) {
     packedAPSize += apCols[c]->determinePackedColSize(packingFactor);
   }
 
   return packedAPSize;
 }
 
-
 // PackedAPDesc::generatePackingInfo() ---------------------------------
 // Generate the packing information for this AP and all its
 // columns given a packing factor.  After this call the packing
 // info can be retrieved for a given column of the base table.
 //
-void
-PackedAPDesc::generatePackingInfo(Lng32 packingFactor)
-{
-
+void PackedAPDesc::generatePackingInfo(Lng32 packingFactor) {
   PackedColDescList apCols = getAPColumns();
 
-  if(packingFactor > 1) {
+  if (packingFactor > 1) {
     packingFactor_ = packingFactor;
-  
+
     for (CollIndex i = 0; i < apCols.entries(); i++) {
       apCols[i]->generatePackingInfo(packingFactor);
     }
@@ -348,20 +315,16 @@ PackedAPDesc::generatePackingInfo(Lng32 packingFactor)
   }
 }
 
-
 // PackedAPDesc::getPackingInfoForColumn() --------------------------------
 // Retrieve the packing information for a column given the columns
 // ordinal position in the base table.
 //
-PackedColDesc *
-PackedAPDesc::getPackingInfoForColumn(Lng32 position)
-{
+PackedColDesc *PackedAPDesc::getPackingInfoForColumn(Lng32 position) {
   PackedColDesc *packingInfo;
 
-  for(CollIndex i = 0; i < cols_.entries(); i++) {
+  for (CollIndex i = 0; i < cols_.entries(); i++) {
     packingInfo = cols_[i];
-    if(packingInfo->getPosition() == position)
-      return packingInfo;
+    if (packingInfo->getPosition() == position) return packingInfo;
   }
   return (PackedColDesc *)NULL;
 }
@@ -369,25 +332,20 @@ PackedAPDesc::getPackingInfoForColumn(Lng32 position)
 // PackedAPDesc::addColumn() ------------------------------------------
 // Add a column (PackedColDesc) to this PackedAPDesc.
 //
-void 
-PackedAPDesc::addColumn(const NAType *type, Lng32 position, CollHeap *h)
-{
+void PackedAPDesc::addColumn(const NAType *type, Lng32 position, CollHeap *h) {
   PackedColDesc *packedColDesc = new (h) PackedColDesc(position, type);
 
   cols_.insert(packedColDesc);
-  
 }
-
 
 // PackedTableDesc::PackedTableDesc() ------------------------------------
 // Constructor called from the binder.  Constructs and populates a
 // PackedTableDesc given a NATable.  The result will indicate if the
 // table can be packed and if so, will describe how each of the columns
-// of each of the access paths (read vertical partitions) of this table 
+// of each of the access paths (read vertical partitions) of this table
 // is packed.
 //
-PackedTableDesc::PackedTableDesc(const NATable *naTable, CollHeap *h)
-{
+PackedTableDesc::PackedTableDesc(const NATable *naTable, CollHeap *h) {
   // This constructor is only called from the binder when naTable is
   // already available.
   //
@@ -396,8 +354,7 @@ PackedTableDesc::PackedTableDesc(const NATable *naTable, CollHeap *h)
   // For now, only vertically partitioned tables are considered for
   // packing.
   //
-  if(naTable->getVerticalPartitionList().entries() > 0) {
-
+  if (naTable->getVerticalPartitionList().entries() > 0) {
     // For each VP of the table,
     //
     //   - determine the size of the key.  For now the keysize must
@@ -407,27 +364,26 @@ PackedTableDesc::PackedTableDesc(const NATable *naTable, CollHeap *h)
     //     contains a PackedColDesc for each user column of the VP
     //
     NAFileSetList vpList = naTable->getVerticalPartitionList();
-  
-    for(CollIndex i = 0; i < vpList.entries(); i++) {
+
+    for (CollIndex i = 0; i < vpList.entries(); i++) {
       NAColumnArray vpCols = vpList[i]->getAllColumns();
 
       Lng32 keySize = 0;
 
       CollIndex j = 0;
-      for(j = 0; j < vpCols.entries(); j++) {
+      for (j = 0; j < vpCols.entries(); j++) {
         const NAType *colType = vpCols[j]->getType();
 
-        if(vpCols[j]->isClusteringKey()) {
+        if (vpCols[j]->isClusteringKey()) {
           keySize += colType->getNominalSize();
         }
       }
 
-      PackedAPDesc *apDesc = new(h) PackedAPDesc(keySize);
-      for(j = 0; j < vpCols.entries(); j++) {
+      PackedAPDesc *apDesc = new (h) PackedAPDesc(keySize);
+      for (j = 0; j < vpCols.entries(); j++) {
         const NAType *colType = vpCols[j]->getType();
 
-        if(!vpCols[j]->isClusteringKey()) {
-
+        if (!vpCols[j]->isClusteringKey()) {
           apDesc->addColumn(colType, vpCols[j]->getPosition(), h);
         }
       }
@@ -440,7 +396,6 @@ PackedTableDesc::PackedTableDesc(const NATable *naTable, CollHeap *h)
     generatePackingInfo();
   }
 }
-
 
 // PackedTableDesc::generatePackingInfo() ---------------------------------
 // Generate the packing information of each column of each AP of this
@@ -462,11 +417,7 @@ PackedTableDesc::PackedTableDesc(const NATable *naTable, CollHeap *h)
 //   NABoolean nullBitmapPresent_: A boolean flag indicating if there is
 //   a NULL_BITMAP field present in this packed column.
 
-
-void
-PackedTableDesc::generatePackingInfo()
-{
-
+void PackedTableDesc::generatePackingInfo() {
   // The packing factor is determined based on two limiting factors.
   // First the packed row from each access path (vertical partition)
   // must fit within MaxPackedAPSize (currently 4000 bytes).  Secondly,
@@ -475,7 +426,7 @@ PackedTableDesc::generatePackingInfo()
   // These two limits are somewhat arbitrary.  The first limits a row of an
   // access path to fit within a block.  The second is needed due to the way
   // inserts into packed VP Tables are done.  The complete packed row is
-  // buffered in DP2 and then split into the VP's.  Having this buffer 
+  // buffered in DP2 and then split into the VP's.  Having this buffer
   // bigger than 32K may cause problems.
   //
   // The maximum size of any packed AP (which could have more than
@@ -492,7 +443,7 @@ PackedTableDesc::generatePackingInfo()
   // Initialize to the max possible packing factor.
   //
   Lng32 minPackingFactor = MaxPackedAPSize * 8;
-    
+
   // IF packing is turned off. Check to see if we're creating a new table.
   // Only check when we are creating a new table.  If we are scanning
   // then the table is already packed and we cannot do anything about
@@ -500,44 +451,36 @@ PackedTableDesc::generatePackingInfo()
   // "PACKING_OFF" set, then the packed flag in the catalog will not
   // be set and we will not reach this code when scanning the table.
   //
-  if(getenv("PACKING_OFF") != NULL AND callFromCatMan_) {
+  if (getenv("PACKING_OFF") != NULL AND callFromCatMan_) {
     // If we are, don't create a packed table.
     //
     minPackingFactor = 0;
 
-  }  else {
+  } else {
     // For each AP determine its packing factor given MaxPackedAPSize.
     // Keep track of the minimum. This is the limiting AP.
     //
     CollIndex i = 0;
     for (i = 0; i < packedAPDescList_.entries(); i++) {
+      Lng32 packingFactor = packedAPDescList_[i]->determinePackingFactor(MaxPackedAPSize);
 
-      Lng32 packingFactor = 
-        packedAPDescList_[i]->determinePackingFactor(MaxPackedAPSize);
-
-      minPackingFactor = (packingFactor < minPackingFactor)
-        ? packingFactor
-        : minPackingFactor;
+      minPackingFactor = (packingFactor < minPackingFactor) ? packingFactor : minPackingFactor;
     }
 
-
-    if(minPackingFactor > 1) {
+    if (minPackingFactor > 1) {
       // Determine the size of all the packed AP's given the packing
       // factor limited by MaxPackedAPSize.
       //
       Lng32 packedTableSize = 0;
       for (i = 0; i < packedAPDescList_.entries(); i++) {
-        
-        packedTableSize +=
-          packedAPDescList_[i]->determinePackedAPSize(minPackingFactor);
+        packedTableSize += packedAPDescList_[i]->determinePackedAPSize(minPackingFactor);
       }
-      
+
       // If the total size is larger than the max allowed, adjust the
       // packing factor by the same ratio.
       //
-      if(packedTableSize > MaxPackedTableSize) {
-
-        float packingFactorAdj = MaxPackedTableSize/(float)packedTableSize;
+      if (packedTableSize > MaxPackedTableSize) {
+        float packingFactorAdj = MaxPackedTableSize / (float)packedTableSize;
         minPackingFactor = (Int32)(minPackingFactor * packingFactorAdj) - 1;
       }
     }
@@ -550,23 +493,18 @@ PackedTableDesc::generatePackingInfo()
   for (CollIndex i = 0; i < packedAPDescList_.entries(); i++) {
     packedAPDescList_[i]->generatePackingInfo(minPackingFactor);
   }
-
 }
 
 // PackedTableDesc::getPackingInfoForColumn()------------------------------
 // Retrieve the packing information for a column given its
 // ordinal postion in the base table.
 //
-PackedColDesc *
-PackedTableDesc::getPackingInfoForColumn(Lng32 position)
-{
+PackedColDesc *PackedTableDesc::getPackingInfoForColumn(Lng32 position) {
   PackedColDesc *packingInfo = (PackedColDesc *)NULL;
 
-  for(CollIndex i = 0; i < packedAPDescList_.entries(); i++) {
+  for (CollIndex i = 0; i < packedAPDescList_.entries(); i++) {
     packingInfo = packedAPDescList_[i]->getPackingInfoForColumn(position);
-    if(packingInfo)
-      return packingInfo;
+    if (packingInfo) return packingInfo;
   }
   return (PackedColDesc *)packingInfo;
 }
-

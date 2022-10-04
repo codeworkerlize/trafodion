@@ -36,10 +36,9 @@
 
 #include "vproc.h"
 
-extern "C" { void
-VPROC (PRODNUMESP,DATE1ESP,ESP_CC_LABEL)
-() {} }
-
+extern "C" {
+void VPROC(PRODNUMESP, DATE1ESP, ESP_CC_LABEL)() {}
+}
 
 #include "common/SCMVersHelp.h"
 
@@ -47,5 +46,4 @@ VPROC (PRODNUMESP,DATE1ESP,ESP_CC_LABEL)
 #define VERS_CV_MIN 0
 #define VERS_CV_UPD 1
 
-VERS_BIN (tdm_arkesp)
-
+VERS_BIN(tdm_arkesp)

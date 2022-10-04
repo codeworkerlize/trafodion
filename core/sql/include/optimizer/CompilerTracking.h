@@ -39,30 +39,28 @@
 /************************************************************************
 class CompilerTrackingInfo
 
-Singleton class to collect information about this compiler 
-and to be logged into a file or a private user table on some interval 
+Singleton class to collect information about this compiler
+and to be logged into a file or a private user table on some interval
 (every N minutes)
 
 ************************************************************************/
-class CompilerTrackingInfo
-{
-public:
-
+class CompilerTrackingInfo {
+ public:
   // get the singleton instance
-  //static CompilerTrackingInfo * getInstance();
+  // static CompilerTrackingInfo * getInstance();
   CompilerTrackingInfo(CollHeap *outHeap = CmpCommon::contextHeap());
   //
   // initialize the singleton
-  //static void initGlobalInstance();
+  // static void initGlobalInstance();
   //
   // log all of the data members of this object
   void logCompilerStatusOnInterval(Int32 intervalLengthMins);
-  // 
+  //
   // the cpu time for the longest compilation is updated
   // if the parameter is longer than the current longest
-  void updateLongestCompile( Lng32 c );
+  void updateLongestCompile(Lng32 c);
   //
-  // the largest statement heap size so far 
+  // the largest statement heap size so far
   // update this right before deleting the CmpStatement
   void updateStmtIntervalWaterMark();
   //
@@ -75,14 +73,13 @@ public:
   void updateQCacheIntervalWaterMark();
   //
   // the number of successfully compiled queries
-  void incrementQueriesCompiled( NABoolean success );  
+  void incrementQueriesCompiled(NABoolean success);
   //
   // compiled successfully but with warnings 2053 or 2078
-  void incrementCaughtExceptions()
-    { caughtExceptionCount_++; }
+  void incrementCaughtExceptions() { caughtExceptionCount_++; }
   //
   // when the QueryCache is being deleted, clear the
-  // markers we used to determine difference during 
+  // markers we used to determine difference during
   // the interval.
   void clearQCacheCounters();
   //
@@ -92,9 +89,9 @@ public:
   // start the new interval (at the current time, clock())
   // if the previous interval tracking was disabled
   void resetIntervalIfNeeded();
-  
-// methods used internally within the class...
-protected:
+
+  // methods used internally within the class...
+ protected:
   //
   // check to see if an interval has expired
   NABoolean intervalExpired(Int32 intervalLengthMins);
@@ -109,46 +106,36 @@ protected:
   Lng32 cpuPathLength();
   //
   // getters
-  inline Int64 beginIntervalTime() 
-    { return beginIntervalTime_ ; }
+  inline Int64 beginIntervalTime() { return beginIntervalTime_; }
 
   // return the beginning of the interval in unix epoch
-  inline Int64 beginIntervalTimeUEpoch()
-    { return beginIntervalTimeUEpoch_ ; }
+  inline Int64 beginIntervalTimeUEpoch() { return beginIntervalTimeUEpoch_; }
 
-  inline Int64 endIntervalTime()
-    { return endIntervalTime_; }
+  inline Int64 endIntervalTime() { return endIntervalTime_; }
 
-  inline Lng32 beginIntervalClock()
-    { return beginIntervalClock_; }
+  inline Lng32 beginIntervalClock() { return beginIntervalClock_; }
   //
   // the compiler age in minutes
-  inline Lng32 compilerAge()
-  {
+  inline Lng32 compilerAge() {
     Int64 seconds = (processInfo_->getProcessDuration() / 1000000);
     Int64 minutes = (seconds / 60);
-    return int64ToInt32(minutes); 
+    return int64ToInt32(minutes);
   }
   //
   // statement heap
-  inline size_t stmtHeapCurrentSize()
-    { return CmpCommon::statementHeap()->getAllocSize(); }
+  inline size_t stmtHeapCurrentSize() { return CmpCommon::statementHeap()->getAllocSize(); }
 
-  inline size_t stmtHeapIntervalWaterMark();  
+  inline size_t stmtHeapIntervalWaterMark();
   //
   // context heap
-  inline size_t cxtHeapCurrentSize()
-    { return CmpCommon::contextHeap()->getAllocSize(); }
+  inline size_t cxtHeapCurrentSize() { return CmpCommon::contextHeap()->getAllocSize(); }
 
-  inline size_t cxtHeapIntervalWaterMark()
-    { return CmpCommon::contextHeap()->getIntervalWaterMark(); }
+  inline size_t cxtHeapIntervalWaterMark() { return CmpCommon::contextHeap()->getIntervalWaterMark(); }
   //
   // metadata cache
-  inline ULng32 metaDataCacheCurrentSize()
-    { return ActiveSchemaDB()->getNATableDB()->currentCacheSize(); }
+  inline ULng32 metaDataCacheCurrentSize() { return ActiveSchemaDB()->getNATableDB()->currentCacheSize(); }
 
-  inline ULng32 metaDataCacheIntervalWaterMark()
-    { return ActiveSchemaDB()->getNATableDB()->intervalWaterMark();}
+  inline ULng32 metaDataCacheIntervalWaterMark() { return ActiveSchemaDB()->getNATableDB()->intervalWaterMark(); }
 
   inline ULng32 metaDataCacheHits();
   inline ULng32 metaDataCacheLookups();
@@ -156,52 +143,43 @@ protected:
   //
   // query cache
   inline ULng32 qCacheCurrentSize();
-  inline ULng32 qCacheIntervalWaterMark();  
+  inline ULng32 qCacheIntervalWaterMark();
   inline ULng32 qCacheHits();
   inline ULng32 qCacheLookups();
   inline ULng32 qCacheRecompiles();
   void resetQueryCacheCounters();
-  // 
+  //
   // histogram cache
-  inline ULng32 hCacheCurrentSize()
-  {   
-      CMPASSERT(NULL!=CURRCONTEXT_HISTCACHE); 
-      return CURRCONTEXT_HISTCACHE->getHeap()->getAllocSize(); 
+  inline ULng32 hCacheCurrentSize() {
+    CMPASSERT(NULL != CURRCONTEXT_HISTCACHE);
+    return CURRCONTEXT_HISTCACHE->getHeap()->getAllocSize();
   }
 
-  inline ULng32 hCacheIntervalWaterMark()
-  { 
-      CMPASSERT(NULL!=CURRCONTEXT_HISTCACHE); 
-      return CURRCONTEXT_HISTCACHE->getHeap()->getIntervalWaterMark(); 
+  inline ULng32 hCacheIntervalWaterMark() {
+    CMPASSERT(NULL != CURRCONTEXT_HISTCACHE);
+    return CURRCONTEXT_HISTCACHE->getHeap()->getIntervalWaterMark();
   }
 
   inline ULng32 hCacheHits();
   inline ULng32 hCacheLookups();
   void resetHistogramCacheCounters();
 
-  inline Lng32 systemHeapIntervalWaterMark()
-    { return systemHeapWaterMark_; }
+  inline Lng32 systemHeapIntervalWaterMark() { return systemHeapWaterMark_; }
 
-  inline Lng32 longestCompile()
-    { return longestCompileClock_; } 
+  inline Lng32 longestCompile() { return longestCompileClock_; }
 
-  inline ULng32 successfulQueryCount() 
-    { return successfulQueryCount_; }
+  inline ULng32 successfulQueryCount() { return successfulQueryCount_; }
 
-  inline ULng32 failedQueryCount()
-    { return failedQueryCount_; }
+  inline ULng32 failedQueryCount() { return failedQueryCount_; }
 
-  inline ULng32 caughtExceptionCount()
-    { return caughtExceptionCount_; }
+  inline ULng32 caughtExceptionCount() { return caughtExceptionCount_; }
 
   inline ULng32 sessionCount();
 
-  inline const char *compilerInfo()
-    { return compilerInfo_; }  
+  inline const char *compilerInfo() { return compilerInfo_; }
   //
   // for printing to file
-  enum { CACHE_HEAP_HEADER_LEN = 18, 
-         CACHE_HEAP_VALUE_LEN = 16 };
+  enum { CACHE_HEAP_HEADER_LEN = 18, CACHE_HEAP_VALUE_LEN = 16 };
   //
   // just do the printing
   void printToFile();
@@ -212,7 +190,7 @@ protected:
   // log to a log4cxx appender
   void logIntervalInLog4Cxx();
 
-private:
+ private:
   ~CompilerTrackingInfo();
 
   // The process info contains information such as cpu num, pin, etc

@@ -28,8 +28,8 @@
  *
  * File:         ex_control.h
  * Description:  TDB and TCB to do control query statements.
- *               
- *               
+ *
+ *
  * Created:      5/15/1998
  * Language:     C++
  *
@@ -54,27 +54,23 @@ class ex_tcb;
 // -----------------------------------------------------------------------
 // ExControlTdb
 // -----------------------------------------------------------------------
-class ExControlTdb : public ComTdbControl
-{
-public:
-
+class ExControlTdb : public ComTdbControl {
+ public:
   // ---------------------------------------------------------------------
   // Constructor is only called to instantiate an object used for
   // retrieval of the virtual table function pointer of the class while
   // unpacking. An empty constructor is enough.
   // ---------------------------------------------------------------------
-  ExControlTdb()
-  {}
+  ExControlTdb() {}
 
-  virtual ~ExControlTdb()
-  {}
+  virtual ~ExControlTdb() {}
 
   // ---------------------------------------------------------------------
   // Build a TCB for this TDB. Redefined in the Executor project.
   // ---------------------------------------------------------------------
   virtual ex_tcb *build(ex_globals *globals);
 
-private:
+ private:
   // ---------------------------------------------------------------------
   // !!!!!!! IMPORTANT -- NO DATA MEMBERS ALLOWED IN EXECUTOR TDB !!!!!!!!
   // *********************************************************************
@@ -94,7 +90,7 @@ private:
   // 1. Are those data members Compiler-generated?
   //    If yes, put them in the ComTdbControl instead.
   //    If no, they should probably belong to someplace else (like TCB).
-  // 
+  //
   // 2. Are the classes those data members belong defined in the executor
   //    project?
   //    If your answer to both questions is yes, you might need to move
@@ -102,71 +98,54 @@ private:
   // ---------------------------------------------------------------------
 };
 
-
 //
 // Task control block
 //
-class ExControlTcb : public ex_tcb
-{
+class ExControlTcb : public ex_tcb {
   friend class ExControlTdb;
   friend class ExControlPrivateState;
 
-public:
-  enum Step
-  {
-    EMPTY_,
-    PROCESSING_,
-    DONE_,
-    CANCELLED_
-  };
+ public:
+  enum Step { EMPTY_, PROCESSING_, DONE_, CANCELLED_ };
 
-  ExControlTcb(const ExControlTdb & lock_tdb,
-	       ex_globals * glob = 0);
+  ExControlTcb(const ExControlTdb &lock_tdb, ex_globals *glob = 0);
 
   ~ExControlTcb();
 
   virtual short work();
 
-  ex_queue_pair getParentQueue() const{return qparent_;};
-  inline Int32 orderedQueueProtocol() const{return ((const ExControlTdb &)tdb).orderedQueueProtocol();}
+  ex_queue_pair getParentQueue() const { return qparent_; };
+  inline Int32 orderedQueueProtocol() const { return ((const ExControlTdb &)tdb).orderedQueueProtocol(); }
 
-  void display() const{};
+  void display() const {};
   void freeResources();
-  
-  const ex_tcb* getChild(Int32 /*pos*/) const{return 0;};
-  Int32 numChildren() const { return 0; }   
 
-protected:
-  ex_queue_pair	qparent_;
+  const ex_tcb *getChild(Int32 /*pos*/) const { return 0; };
+  Int32 numChildren() const { return 0; }
 
-  inline ExControlTdb & controlTdb() const{return (ExControlTdb &) tdb;};
+ protected:
+  ex_queue_pair qparent_;
 
+  inline ExControlTdb &controlTdb() const { return (ExControlTdb &)tdb; };
 };
 
-class ExSetSessionDefaultTcb : public ExControlTcb
-{
-public:
-  ExSetSessionDefaultTcb(const ExControlTdb & control_tdb,
-			 ex_globals * glob = 0)
-       : ExControlTcb(control_tdb, glob)
-  {}
+class ExSetSessionDefaultTcb : public ExControlTcb {
+ public:
+  ExSetSessionDefaultTcb(const ExControlTdb &control_tdb, ex_globals *glob = 0) : ExControlTcb(control_tdb, glob) {}
 
   virtual short work();
 };
 
-class ExControlPrivateState : public ex_tcb_private_state
-{
+class ExControlPrivateState : public ex_tcb_private_state {
   friend class ExControlTcb;
-  
-public:	
-  ExControlPrivateState(const ExControlTcb * tcb); //constructor
-  ~ExControlPrivateState();	// destructor
-  ex_tcb_private_state * allocate_new(const ex_tcb * tcb);
 
-private:
+ public:
+  ExControlPrivateState(const ExControlTcb *tcb);  // constructor
+  ~ExControlPrivateState();                        // destructor
+  ex_tcb_private_state *allocate_new(const ex_tcb *tcb);
+
+ private:
   ExControlTcb::Step step_;
-
 };
 
 #endif
-

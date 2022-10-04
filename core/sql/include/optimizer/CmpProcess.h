@@ -29,78 +29,70 @@
 /************************************************************************
 class CmpProcess
 
-Used to get information about this compiler 
+Used to get information about this compiler
 process through Guardian procedure calls
 
 ************************************************************************/
-class CmpProcess
-{
-public:
+class CmpProcess {
+ public:
   CmpProcess();
 
   // getters
-  inline short getNodeNum() { return nodeNum_; } 
+  inline short getNodeNum() { return nodeNum_; }
   inline short getPin() { return pin_; }
-  inline Int32 getSegmentNum() { return segmentNum_; }    
+  inline Int32 getSegmentNum() { return segmentNum_; }
   inline Int64 getProcessStartTime() { return processStartTime_; }
 
   Int64 getProcessDuration();
-  Lng32 getCurrentSystemHeapSize(); 
+  Lng32 getCurrentSystemHeapSize();
 
-  // generate the compiler id out of cpu#, pin, node#, and process start timestamp 
-  void getCompilerId( char *id, int len);
+  // generate the compiler id out of cpu#, pin, node#, and process start timestamp
+  void getCompilerId(char *id, int len);
 
-private:  
-  short       nodeNum_;  // cpu num
-  short       pin_;
-  Int32         segmentNum_;  
+ private:
+  short nodeNum_;  // cpu num
+  short pin_;
+  Int32 segmentNum_;
   //
   // timestamp for when this CmpProcess was created
-  Int64   processStartTime_;
+  Int64 processStartTime_;
 };
 /************************************************************************
 helper functions for timestamps
 
 ************************************************************************/
-static
-void
-getTimestampAsBuffer(Int64 juliantimestamp, char *datetime)
-{
+static void getTimestampAsBuffer(Int64 juliantimestamp, char *datetime) {
   short timestamp[8];
 
-  CMPASSERT(NULL!=datetime);
+  CMPASSERT(NULL != datetime);
 
   INTERPRETTIMESTAMP(juliantimestamp, timestamp);
-  str_sprintf(datetime, "%04d/%02d/%02d %02d:%02d:%02d.%03u%03u",                        
-			timestamp[0], // year
-                        timestamp[1], // month
-                        timestamp[2], // day
-			timestamp[3], // hour
-                        timestamp[4], // minute
-                        timestamp[5], // second
-			timestamp[6], // fraction
-                        timestamp[7]);// fraction
+  str_sprintf(datetime, "%04d/%02d/%02d %02d:%02d:%02d.%03u%03u",
+              timestamp[0],   // year
+              timestamp[1],   // month
+              timestamp[2],   // day
+              timestamp[3],   // hour
+              timestamp[4],   // minute
+              timestamp[5],   // second
+              timestamp[6],   // fraction
+              timestamp[7]);  // fraction
 }
-static 
-Int64
-getCurrentTimestamp()
-{
+static Int64 getCurrentTimestamp() {
   // return timestamp in local civil time
-  //return CONVERTTIMESTAMP(JULIANTIMESTAMP(0,0,0,-1),0,-1,0);
-  return JULIANTIMESTAMP(0,0,0,-1);
+  // return CONVERTTIMESTAMP(JULIANTIMESTAMP(0,0,0,-1),0,-1,0);
+  return JULIANTIMESTAMP(0, 0, 0, -1);
 }
 
-static Int64 getCurrentTimestampUEpoch()
-{
-   // return local timestamp in unix epoch (since January 1, 1970). This is what
-   // is expected by the repository UNC
-   time_t utcTimeStamp = time(0);
-   tm localTime;
-   localtime_r (&utcTimeStamp, &localTime);
-   time_t lctTimeStamp = timegm(&localTime);
+static Int64 getCurrentTimestampUEpoch() {
+  // return local timestamp in unix epoch (since January 1, 1970). This is what
+  // is expected by the repository UNC
+  time_t utcTimeStamp = time(0);
+  tm localTime;
+  localtime_r(&utcTimeStamp, &localTime);
+  time_t lctTimeStamp = timegm(&localTime);
 
-   Int64 usLctTimestamp = 1000000 * (Int64) lctTimeStamp;
-   return usLctTimestamp;
+  Int64 usLctTimestamp = 1000000 * (Int64)lctTimeStamp;
+  return usLctTimestamp;
 }
 
-#endif // CMPPROCESS_H
+#endif  // CMPPROCESS_H

@@ -43,7 +43,7 @@
 #include "common/Collections.h"
 #include "optimizer/ValueDesc.h"
 
-#define  MDAM_MAX_NUM_DISJUNCTS 256
+#define MDAM_MAX_NUM_DISJUNCTS 256
 
 // -----------------------------------------------------------------------
 // forward references
@@ -54,8 +54,6 @@
 // contents of this file
 // ***********************************************************************
 class DisjunctArray;
-
-
 
 // ***********************************************************************
 // DisjunctArray : An ordered collection of ValueIdSets
@@ -75,42 +73,32 @@ class DisjunctArray;
 // ORed together.
 // ***********************************************************************
 
-class DisjunctArray : public ARRAY(ValueIdSet * )
-{
-public:
-
+class DisjunctArray : public ARRAY(ValueIdSet *) {
+ public:
   // ---------------------------------------------------------------------
   // Constructor
   // ---------------------------------------------------------------------
 
-  DisjunctArray() :
-    ARRAY(ValueIdSet *)(CmpCommon::statementHeap())
-    { }
+  DisjunctArray() : ARRAY(ValueIdSet *)(CmpCommon::statementHeap()) {}
 
-  DisjunctArray(ValueIdSet * const disjunct ) :
-    ARRAY(ValueIdSet *)(CmpCommon::statementHeap())
-    { insertAt(0, disjunct); }
+  DisjunctArray(ValueIdSet *const disjunct) : ARRAY(ValueIdSet *)(CmpCommon::statementHeap()) { insertAt(0, disjunct); }
 
-private:
-  DisjunctArray (const DisjunctArray &) ; //memleak fix
-public:
-
+ private:
+  DisjunctArray(const DisjunctArray &);  // memleak fix
+ public:
   // ---------------------------------------------------------------------
   // Create a new disjunct entry by inserting a pointer to the ValueIdSet
   // to the end of the array. Finds the number of entries in the array and
   // inserts the pointer as a new entry at the end of the array.
   // ---------------------------------------------------------------------
 
-  void insert(ValueIdSet * setOfPredicates )
-  { insertAt(entries(), setOfPredicates); }
+  void insert(ValueIdSet *setOfPredicates) { insertAt(entries(), setOfPredicates); }
 
   // ---------------------------------------------------------------------
   // Destructor
   // Gets rid of all the ValueIdSets that each of the entries points to
   // ---------------------------------------------------------------------
   ~DisjunctArray();
-
-
 
   // ---------------------------------------------------------------------
   // This method is invoked only when there is a single entry in one of
@@ -122,8 +110,7 @@ public:
   // predicate value ids from the single disjunct (ValueIdSet) in the
   // disjunct array passed in as a parameter (otherDisjunctArray).
   // ---------------------------------------------------------------------
-  void andDisjunct
-    ( DisjunctArray * otherDisjunctArray );
+  void andDisjunct(DisjunctArray *otherDisjunctArray);
 
   // ---------------------------------------------------------------------
   // Here a new disjunctArray is created as a result of the ANDing of the
@@ -143,9 +130,7 @@ public:
   // disjunctArray, it deletes the left and right disjunct arrays, also
   // deleting all the ValueIdSets that they pointed to.
   // ---------------------------------------------------------------------
-  void andDisjunctArrays
-    ( DisjunctArray *  leftDisjunctArray,
-      DisjunctArray * rightDisjunctArray );
+  void andDisjunctArrays(DisjunctArray *leftDisjunctArray, DisjunctArray *rightDisjunctArray);
 
   // ---------------------------------------------------------------------
   // This method ORs the disjunctArray passed in as a parameter by copying
@@ -158,26 +143,19 @@ public:
   // Simply deleting it would also delete the ValueIdSets that it points
   // to.
   // ---------------------------------------------------------------------
-  void orDisjunctArray
-    ( DisjunctArray * otherDisjunctArray );
+  void orDisjunctArray(DisjunctArray *otherDisjunctArray);
 
   // ---------------------------------------------------------------------
   // Utility functions
   // ---------------------------------------------------------------------
-  void print( FILE* ofd = stdout,
-	      const char* indent = DEFAULT_INDENT,
-              const char* title = "DisjunctArray") const;
+  void print(FILE *ofd = stdout, const char *indent = DEFAULT_INDENT, const char *title = "DisjunctArray") const;
 
   void display() const;
 
-private:
-
+ private:
   NABoolean hasContradictoryPredicates_;
 
-}; // class DisjunctArray
-
-
-
+};  // class DisjunctArray
 
 // ***********************************************************************
 // static functions related to DisjunctArray
@@ -186,17 +164,11 @@ private:
 // -----------------------------------------------------------------------
 // mdamANDDisjunctArrays ANDs two DisjunctArrays
 // -----------------------------------------------------------------------
-DisjunctArray * mdamANDDisjunctArrays(
-     DisjunctArray *  leftDisjunctArray,
-     DisjunctArray * rightDisjunctArray );
+DisjunctArray *mdamANDDisjunctArrays(DisjunctArray *leftDisjunctArray, DisjunctArray *rightDisjunctArray);
 
 // -----------------------------------------------------------------------
 // mdamORDisjunctArrays ORs two DisjunctArrays
 // -----------------------------------------------------------------------
-DisjunctArray * mdamORDisjunctArrays(
-     DisjunctArray *  leftDisjunctArray,
-     DisjunctArray * rightDisjunctArray );
-
-
+DisjunctArray *mdamORDisjunctArrays(DisjunctArray *leftDisjunctArray, DisjunctArray *rightDisjunctArray);
 
 #endif /* MDAM_H */

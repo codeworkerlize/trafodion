@@ -59,94 +59,85 @@ class UdrClientControlStream;
 //------------------------------------------------------------------------
 // class RsInfo
 //
-// This class is a container for Result Set info 
+// This class is a container for Result Set info
 // and is instantiated by ExRsInfo
 //
 //------------------------------------------------------------------------
-class RsInfo : public NABasicObject
-{
+class RsInfo : public NABasicObject {
   friend class ExRsInfo;
 
-private:
+ private:
   RsInfo();
   virtual ~RsInfo();
 
-  //Accessors
-  Statement * getStatement() const {return statement_;} 
-  NABoolean getOpenAttempted() const {return openAttempted_;} 
-  NABoolean getCloseAttempted() const {return closeAttempted_;} 
-  NABoolean isPrepared() const {return prepared_;}
-  char * getProxySyntax() const { return proxySyntax_;} 
-  
-  //Mutators
-  void setStatement(Statement *statement) {statement_ = statement;}
-  void setOpenAttempted(NABoolean flag) {openAttempted_ = flag;}
-  void setCloseAttempted(NABoolean flag) {closeAttempted_ = flag;}
-  void setPrepared(NABoolean flag) {prepared_ = flag;}
-  void setProxySyntax(char *proxySyntax) {proxySyntax_ = proxySyntax;}  
+  // Accessors
+  Statement *getStatement() const { return statement_; }
+  NABoolean getOpenAttempted() const { return openAttempted_; }
+  NABoolean getCloseAttempted() const { return closeAttempted_; }
+  NABoolean isPrepared() const { return prepared_; }
+  char *getProxySyntax() const { return proxySyntax_; }
 
-  //Class data members
+  // Mutators
+  void setStatement(Statement *statement) { statement_ = statement; }
+  void setOpenAttempted(NABoolean flag) { openAttempted_ = flag; }
+  void setCloseAttempted(NABoolean flag) { closeAttempted_ = flag; }
+  void setPrepared(NABoolean flag) { prepared_ = flag; }
+  void setProxySyntax(char *proxySyntax) { proxySyntax_ = proxySyntax; }
+
+  // Class data members
   Statement *statement_;
   NABoolean openAttempted_;
   NABoolean closeAttempted_;
   NABoolean prepared_;
   char *proxySyntax_;
-}; //RsInfo
+};  // RsInfo
 
 //------------------------------------------------------------------------
 // class ExRsInfo
 //
-// This class is a wrapper around a collection of RsInfo objects. 
+// This class is a wrapper around a collection of RsInfo objects.
 //
 //------------------------------------------------------------------------
-class ExRsInfo : public NABasicObject
-{
-public:
+class ExRsInfo : public NABasicObject {
+ public:
   ExRsInfo();
   virtual ~ExRsInfo();
 
-  void populate(ULng32 index,   
-                const char * proxySyntax);   
-  void bind(ULng32 index,       
-            Statement * statement);   
-  void unbind(Statement *statement);   
-  void setOpenAttempted(ULng32 index);  
-  void setCloseAttempted(ULng32 index);  
-  void setPrepared(ULng32 index); 
+  void populate(ULng32 index, const char *proxySyntax);
+  void bind(ULng32 index, Statement *statement);
+  void unbind(Statement *statement);
+  void setOpenAttempted(ULng32 index);
+  void setCloseAttempted(ULng32 index);
+  void setPrepared(ULng32 index);
   void reset();
-  NABoolean statementExists(ULng32 index) const; 
+  NABoolean statementExists(ULng32 index) const;
   NABoolean openAttempted(ULng32 index) const;
   NABoolean closeAttempted(ULng32 index) const;
   NABoolean isPrepared(ULng32 index) const;
-  NABoolean getRsInfo(ULng32 position,    // IN
-                      Statement *&statement,     // OUT
-                      const char *&proxySyntax,  // OUT
-                      NABoolean &openAttempted,  // OUT
-                      NABoolean &closeAttempted, // OUT
-                      NABoolean &isPrepared)     // OUT
-    const;
-  ULng32 getIndex(Statement * statement) const;
+  NABoolean getRsInfo(ULng32 position,            // IN
+                      Statement *&statement,      // OUT
+                      const char *&proxySyntax,   // OUT
+                      NABoolean &openAttempted,   // OUT
+                      NABoolean &closeAttempted,  // OUT
+                      NABoolean &isPrepared)      // OUT
+      const;
+  ULng32 getIndex(Statement *statement) const;
 
-  ExUdrServer * getUdrServer() const {return udrServer_;}
-  const IpcProcessId & getIpcProcessId() const {return ipcProcessId_;} 
-  Int64 getUdrHandle() const {return udrHandle_;}
-  void setUdrServer(ExUdrServer *udrServer) {udrServer_ = udrServer;}
+  ExUdrServer *getUdrServer() const { return udrServer_; }
+  const IpcProcessId &getIpcProcessId() const { return ipcProcessId_; }
+  Int64 getUdrHandle() const { return udrHandle_; }
+  void setUdrServer(ExUdrServer *udrServer) { udrServer_ = udrServer; }
   void setIpcProcessId(const IpcProcessId &ipcProcessId);
-  void setUdrHandle(Int64 udrHandle) {udrHandle_ = udrHandle;}
+  void setUdrHandle(Int64 udrHandle) { udrHandle_ = udrHandle; }
 
-  ULng32 getNumReturnedByLastCall() const
-  { return numReturnedByLastCall_; }
-  ULng32 getNumClosedSinceLastCall() const
-  { return numClosedSinceLastCall_; }
+  ULng32 getNumReturnedByLastCall() const { return numReturnedByLastCall_; }
+  ULng32 getNumClosedSinceLastCall() const { return numClosedSinceLastCall_; }
 
-  NABoolean allResultsAreClosed() const
-  {
-    return (numClosedSinceLastCall_ >= numReturnedByLastCall_ ? TRUE : FALSE);
-  }
+  NABoolean allResultsAreClosed() const { return (numClosedSinceLastCall_ >= numReturnedByLastCall_ ? TRUE : FALSE); }
 
   // Methods to get and set the maximum number of RS entries this
-  // object can hold. 
-  // 
+  // object can hold.
+  //
   // If the user of this object calls setNumEntries(N) to set the max,
   // the object may actually raise the limit internally and
   // getNumEntries() may return a value higher than N.
@@ -155,8 +146,7 @@ public:
   // behavior. It is a side-effect of using NAArray in the
   // implementation of this class, and may change in the future.
   void setNumEntries(ComUInt32 maxEntries);
-  const ULng32 getNumEntries() const
-  {
+  const ULng32 getNumEntries() const {
     ULng32 n = rsInfoArray_.getSize();
     // We return (n-1) to account for the never-used entry in slot 0
     return (n > 0 ? n - 1 : 0);
@@ -174,46 +164,48 @@ public:
   void exitUdrTx(ExExeStmtGlobals &stmtGlobals);
 
   UdrClientControlStream *getEnterTxStream() const { return enterTxStream_; }
-  UdrClientControlStream *getExitOrSuspendStream() const
-  { return exitOrSuspendStream_; }
+  UdrClientControlStream *getExitOrSuspendStream() const { return exitOrSuspendStream_; }
 
   // Message streams for ENTER, EXIT, and SUSPEND TX messages will use
   // this method to inform the ExRsInfo that the message interaction
   // has completed.
   void reportCompletion(UdrClientControlStream *);
 
-private:
-
+ private:
   enum TxMsgType { ENTER, SUSPEND, EXIT };
 
   enum TxState { IDLE, ACTIVE, SUSPENDED };
 
-  static const char *getTxMsgTypeString(TxMsgType t)
-  {
-    switch (t)
-    {
-      case ENTER: return "ENTER";
-      case SUSPEND: return "SUSPEND";
-      case EXIT: return "EXIT";
-      default: return ComRtGetUnknownString((Int32) t);
+  static const char *getTxMsgTypeString(TxMsgType t) {
+    switch (t) {
+      case ENTER:
+        return "ENTER";
+      case SUSPEND:
+        return "SUSPEND";
+      case EXIT:
+        return "EXIT";
+      default:
+        return ComRtGetUnknownString((Int32)t);
     }
   }
 
-  static const char *getTxStateString(TxState s)
-  {
-    switch (s)
-    {
-      case IDLE: return "IDLE";
-      case ACTIVE: return "ACTIVE";
-      case SUSPENDED: return "SUSPENDED";
-      default: return ComRtGetUnknownString((Int32) s);
+  static const char *getTxStateString(TxState s) {
+    switch (s) {
+      case IDLE:
+        return "IDLE";
+      case ACTIVE:
+        return "ACTIVE";
+      case SUSPENDED:
+        return "SUSPENDED";
+      default:
+        return ComRtGetUnknownString((Int32)s);
     }
   }
 
   // A private method to do IPC for TX requests
   void sendTxMessage(ExExeStmtGlobals &, TxMsgType);
 
-  ARRAY(RsInfo*) rsInfoArray_;
+  ARRAY(RsInfo *) rsInfoArray_;
   ExUdrServer *udrServer_;
   IpcProcessId ipcProcessId_;
   Int64 udrHandle_;
@@ -233,14 +225,15 @@ private:
   ULng32 numClosedSinceLastCall_;
 
 #ifdef _DEBUG
-public:
+ public:
   void ExRsPrintf(const char *formatString, ...) const;
   NABoolean debugEnabled() const { return debug_; }
-private:
+
+ private:
   NABoolean debug_;
   NABoolean txDebug_;
   void displayList() const;
 #endif
-}; // class ExRsInfo
+};  // class ExRsInfo
 
-#endif // EX_RS_INFO_H
+#endif  // EX_RS_INFO_H

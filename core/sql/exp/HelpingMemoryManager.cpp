@@ -19,32 +19,23 @@
 
 namespace llvm {
 
-uint8_t *HelpingMemoryManager::allocateDataSection(uintptr_t Size,
-                                                   unsigned Alignment,
-                                                   unsigned SectionID,
-                                                   StringRef SectionName,
-                                                   bool IsReadOnly) {
-  if (IsReadOnly)
-    return allocateSection(RODataMem, Size, Alignment);
+uint8_t *HelpingMemoryManager::allocateDataSection(uintptr_t Size, unsigned Alignment, unsigned SectionID,
+                                                   StringRef SectionName, bool IsReadOnly) {
+  if (IsReadOnly) return allocateSection(RODataMem, Size, Alignment);
   return allocateSection(RWDataMem, Size, Alignment);
 }
 
-uint8_t *HelpingMemoryManager::allocateCodeSection(uintptr_t Size,
-                                                   unsigned Alignment,
-                                                   unsigned SectionID,
+uint8_t *HelpingMemoryManager::allocateCodeSection(uintptr_t Size, unsigned Alignment, unsigned SectionID,
                                                    StringRef SectionName) {
   return allocateSection(CodeMem, Size, Alignment);
 }
 
-uint8_t *HelpingMemoryManager::allocateSection(MemoryGroup &MemGroup,
-                                               uintptr_t Size,
-                                               unsigned Alignment) {
-  if (!Alignment)
-    Alignment = 16;
+uint8_t *HelpingMemoryManager::allocateSection(MemoryGroup &MemGroup, uintptr_t Size, unsigned Alignment) {
+  if (!Alignment) Alignment = 16;
 
   assert(!(Alignment & (Alignment - 1)) && "Alignment must be a power of two.");
 
-  uintptr_t RequiredSize = Alignment * ((Size + Alignment - 1)/Alignment + 1);
+  uintptr_t RequiredSize = Alignment * ((Size + Alignment - 1) / Alignment + 1);
   uintptr_t Addr = 0;
 
   // Look in the list of free memory regions and use a block there if one
@@ -70,7 +61,7 @@ uint8_t *HelpingMemoryManager::allocateSection(MemoryGroup &MemGroup,
 
       // Remember how much free space is now left in this block
       FreeMB.Free = sys::MemoryBlock((void *)(Addr + Size), EndOfBlock - Addr - Size);
-      return (uint8_t*)Addr;
+      return (uint8_t *)Addr;
     }
   }
 
@@ -84,11 +75,8 @@ uint8_t *HelpingMemoryManager::allocateSection(MemoryGroup &MemGroup,
   // FIXME: Initialize the Near member for each memory group to avoid
   // interleaving.
   std::error_code ec;
-  sys::MemoryBlock MB = sys::Memory::allocateMappedMemory(RequiredSize,
-                                                          &MemGroup.Near,
-                                                          sys::Memory::MF_READ |
-                                                            sys::Memory::MF_WRITE,
-                                                          ec);
+  sys::MemoryBlock MB =
+      sys::Memory::allocateMappedMemory(RequiredSize, &MemGroup.Near, sys::Memory::MF_READ | sys::Memory::MF_WRITE, ec);
   if (ec) {
     // FIXME: Add error propagation to the interface.
     return nullptr;
@@ -110,28 +98,25 @@ uint8_t *HelpingMemoryManager::allocateSection(MemoryGroup &MemGroup,
 
   // The allocateMappedMemory may allocate much more memory than we need. In
   // this case, we store the unused memory as a free memory block.
-  unsigned FreeSize = EndOfBlock-Addr-Size;
+  unsigned FreeSize = EndOfBlock - Addr - Size;
   if (FreeSize > 16) {
     FreeMemBlock FreeMB;
-    FreeMB.Free = sys::MemoryBlock((void*)(Addr + Size), FreeSize);
+    FreeMB.Free = sys::MemoryBlock((void *)(Addr + Size), FreeSize);
     FreeMB.PendingPrefixIndex = (unsigned)-1;
     MemGroup.FreeMem.push_back(FreeMB);
   }
 
   // Return aligned address
-  return (uint8_t*)Addr;
+  return (uint8_t *)Addr;
 }
 
-bool HelpingMemoryManager::finalizeMemory(std::string *ErrMsg)
-{
+bool HelpingMemoryManager::finalizeMemory(std::string *ErrMsg) {
   // FIXME: Should in-progress permissions be reverted if an error occurs?
   std::error_code ec;
 
   // Make code memory executable.
-  for (sys::MemoryBlock &MB : CodeMem.PendingMem)
-      funcMem.push_back(MB);
-  ec = applyMemoryGroupPermissions(CodeMem,
-                                   sys::Memory::MF_READ | sys::Memory::MF_EXEC);
+  for (sys::MemoryBlock &MB : CodeMem.PendingMem) funcMem.push_back(MB);
+  ec = applyMemoryGroupPermissions(CodeMem, sys::Memory::MF_READ | sys::Memory::MF_EXEC);
   if (ec) {
     if (ErrMsg) {
       *ErrMsg = ec.message();
@@ -140,8 +125,7 @@ bool HelpingMemoryManager::finalizeMemory(std::string *ErrMsg)
   }
 
   // Make read-only data memory read-only.
-  ec = applyMemoryGroupPermissions(RODataMem,
-                                   sys::Memory::MF_READ | sys::Memory::MF_EXEC);
+  ec = applyMemoryGroupPermissions(RODataMem, sys::Memory::MF_READ | sys::Memory::MF_EXEC);
   if (ec) {
     if (ErrMsg) {
       *ErrMsg = ec.message();
@@ -162,8 +146,7 @@ bool HelpingMemoryManager::finalizeMemory(std::string *ErrMsg)
 static sys::MemoryBlock trimBlockToPageSize(sys::MemoryBlock M) {
   static const size_t PageSize = sys::Process::getPageSize();
 
-  size_t StartOverlap =
-      (PageSize - ((uintptr_t)M.base() % PageSize)) % PageSize;
+  size_t StartOverlap = (PageSize - ((uintptr_t)M.base() % PageSize)) % PageSize;
 
   size_t TrimmedSize = M.size();
   TrimmedSize -= StartOverlap;
@@ -178,13 +161,9 @@ static sys::MemoryBlock trimBlockToPageSize(sys::MemoryBlock M) {
   return Trimmed;
 }
 
-
-std::error_code
-HelpingMemoryManager::applyMemoryGroupPermissions(MemoryGroup &MemGroup,
-                                                  unsigned Permissions) {
+std::error_code HelpingMemoryManager::applyMemoryGroupPermissions(MemoryGroup &MemGroup, unsigned Permissions) {
   for (sys::MemoryBlock &MB : MemGroup.PendingMem)
-    if (std::error_code EC = sys::Memory::protectMappedMemory(MB, Permissions))
-      return EC;
+    if (std::error_code EC = sys::Memory::protectMappedMemory(MB, Permissions)) return EC;
 
   MemGroup.PendingMem.clear();
 
@@ -197,10 +176,9 @@ HelpingMemoryManager::applyMemoryGroupPermissions(MemoryGroup &MemGroup,
   }
 
   // Remove all blocks which are now empty
-  MemGroup.FreeMem.erase(
-      std::remove_if(MemGroup.FreeMem.begin(), MemGroup.FreeMem.end(),
-                     [](FreeMemBlock &FreeMB) { return FreeMB.Free.size() == 0; }),
-      MemGroup.FreeMem.end());
+  MemGroup.FreeMem.erase(std::remove_if(MemGroup.FreeMem.begin(), MemGroup.FreeMem.end(),
+                                        [](FreeMemBlock &FreeMB) { return FreeMB.Free.size() == 0; }),
+                         MemGroup.FreeMem.end());
 
   return std::error_code();
 }
@@ -209,23 +187,21 @@ void HelpingMemoryManager::invalidateInstructionCache() {
   for (sys::MemoryBlock &Block : CodeMem.PendingMem)
     sys::Memory::InvalidateInstructionCache(Block.base(), Block.size());
 }
-size_t HelpingMemoryManager::getFunctionSize(void * function) {
+size_t HelpingMemoryManager::getFunctionSize(void *function) {
   size_t Size = 0;
   for (sys::MemoryBlock &MB : funcMem) {
     if (MB.base() == function) {
       Size = MB.size();
-        break;
-      }
+      break;
+    }
   }
-     return Size;
+  return Size;
 }
 
 HelpingMemoryManager::~HelpingMemoryManager() {
   for (MemoryGroup *Group : {&CodeMem, &RWDataMem, &RODataMem}) {
-    for (sys::MemoryBlock &Block : Group->AllocatedMem)
-      sys::Memory::releaseMappedMemory(Block);
+    for (sys::MemoryBlock &Block : Group->AllocatedMem) sys::Memory::releaseMappedMemory(Block);
   }
 }
 
-} // namespace llvm
-
+}  // namespace llvm

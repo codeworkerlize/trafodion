@@ -43,38 +43,39 @@ bool ExSM_TargetsEqual(const sm_target_t &a, const sm_target_t &b);
 //-------------------------------------------------------------------------
 // Assert macros for SeaMonster reader thread
 //-------------------------------------------------------------------------
-#define exsm_assert(expr, msg)                                       \
-  { if (!(expr)) assert_botch_abend(__FILE__, __LINE__, msg, "" # expr ""); }
+#define exsm_assert(expr, msg)                                             \
+  {                                                                        \
+    if (!(expr)) assert_botch_abend(__FILE__, __LINE__, msg, "" #expr ""); \
+  }
 
 extern __thread char ExSM_AssertBuf[];
 
-#define exsm_assert_rc(rc, func) {                                 \
-  if (rc != 0) {                                                     \
-    sprintf(ExSM_AssertBuf, "rc = %d", (int) rc);                  \
-    assert_botch_abend(__FILE__, __LINE__, func, ExSM_AssertBuf);  \
-  }                                                                  \
-}
+#define exsm_assert_rc(rc, func)                                    \
+  {                                                                 \
+    if (rc != 0) {                                                  \
+      sprintf(ExSM_AssertBuf, "rc = %d", (int)rc);                  \
+      assert_botch_abend(__FILE__, __LINE__, func, ExSM_AssertBuf); \
+    }                                                               \
+  }
 
 //-------------------------------------------------------------------------
 // SeaMonster message types used in the executor
 //-------------------------------------------------------------------------
-enum ExSM_MessageType
-  {
-    // Data reqeust
-    EXSM_MSG_REQUEST    = 1,
+enum ExSM_MessageType {
+  // Data reqeust
+  EXSM_MSG_REQUEST = 1,
 
-    // Data reply
-    EXSM_MSG_REPLY      = 2, 
+  // Data reply
+  EXSM_MSG_REPLY = 2,
 
-    // Short message
-    EXSM_MSG_SHORT      = 3
-  };
+  // Short message
+  EXSM_MSG_SHORT = 3
+};
 
 //-------------------------------------------------------------------------
 // SM initialize
 //-------------------------------------------------------------------------
-int32_t ExSM_Initialize(ExSMGlobals *smGlobals,
-                        ExExeStmtGlobals *stmtGlobals);
+int32_t ExSM_Initialize(ExSMGlobals *smGlobals, ExExeStmtGlobals *stmtGlobals);
 
 //-------------------------------------------------------------------------
 // SM finalize
@@ -84,15 +85,15 @@ int32_t ExSM_Finalize(ExSMGlobals *smGlobals);
 //-------------------------------------------------------------------------
 // Send a SeaMonster message
 //-------------------------------------------------------------------------
-int32_t ExSM_Send(ExSMGlobals *smGlobals,      // IN
-                  const sm_target_t &target,   // IN
-                  const void *data,            // IN
-                  size_t numBytes,             // IN
-                  ExSM_MessageType msgType,    // IN
-                  bool isPrepostRequired,      // IN
-                  bool &messageWasSent,        // OUT
-                  int maxRetries,              // IN (-1 = retry forever)
-                  int64_t sendCount,           // IN (for tracing only)
+int32_t ExSM_Send(ExSMGlobals *smGlobals,     // IN
+                  const sm_target_t &target,  // IN
+                  const void *data,           // IN
+                  size_t numBytes,            // IN
+                  ExSM_MessageType msgType,   // IN
+                  bool isPrepostRequired,     // IN
+                  bool &messageWasSent,       // OUT
+                  int maxRetries,             // IN (-1 = retry forever)
+                  int64_t sendCount,          // IN (for tracing only)
                   const void *startBuf);
 
 //-------------------------------------------------------------------------
@@ -107,10 +108,7 @@ int32_t ExSM_Post(const sm_target_t &target,  // IN
 //-------------------------------------------------------------------------
 // Send a SeaMonster short message
 //-------------------------------------------------------------------------
-int32_t ExSM_SendShortMessage(ExSMGlobals *smGlobals,
-                              const sm_target_t &target,
-                              const void *data,
-                              size_t bytesToSend);
+int32_t ExSM_SendShortMessage(ExSMGlobals *smGlobals, const sm_target_t &target, const void *data, size_t bytesToSend);
 
 //-------------------------------------------------------------------------
 // Wrapper function used by the reader thread to set the length of an
@@ -125,8 +123,7 @@ void ExSM_SetMessageLength(void *buf, size_t len);
 // new buffer will be dataBytes. Eliminates the need for the reader
 // thread function to include or be aware of our IPC classes.
 //-------------------------------------------------------------------------
-void *ExSM_AllocateMessageBuffer(size_t dataBytes,
-                                 NAMemory *threadSafeHeap);
+void *ExSM_AllocateMessageBuffer(size_t dataBytes, NAMemory *threadSafeHeap);
 
 //-------------------------------------------------------------------------
 // Return the SeaMonster prepost address of a message buffer. The
@@ -186,34 +183,33 @@ int ExSM_GetThreadID();
 //-------------------------------------------------------------------------
 
 // The tag qualifier bits
-const int32_t EXSM_TAG_REPLY      = 0x10000000;
-const int32_t EXSM_TAG_SQL_CHUNK  = 0x20000000;
+const int32_t EXSM_TAG_REPLY = 0x10000000;
+const int32_t EXSM_TAG_SQL_CHUNK = 0x20000000;
 
 // A filter for masking out the qualifier bits from a 32-bit tag
-const int32_t EXSM_TAG_FILTER     = 0x0fffffff;
+const int32_t EXSM_TAG_FILTER = 0x0fffffff;
 
 // Get, set and toggle the REPLY bit in the tag. The set function
 // modifies the caller's tag. The toggle function returns a new tag
 // and does not modify the caller's tag.
-inline bool ExSMTag_GetReplyFlag(int t)   { return t & EXSM_TAG_REPLY; }
-inline void ExSMTag_SetReplyFlag(int *t)  { *t |= EXSM_TAG_REPLY; }
+inline bool ExSMTag_GetReplyFlag(int t) { return t & EXSM_TAG_REPLY; }
+inline void ExSMTag_SetReplyFlag(int *t) { *t |= EXSM_TAG_REPLY; }
 inline int ExSMTag_ToggleReplyFlag(int t) { return t ^ EXSM_TAG_REPLY; }
 
 // Get, set and toggle the SQL CHUNK bit in the tag. The set function
 // modifies the caller's tag. The clear function also modifies the
 // caller's tag.
-inline bool ExSMTag_GetSQLChunkFlag(int t)    { return t & EXSM_TAG_SQL_CHUNK; }
-inline void ExSMTag_SetSQLChunkFlag(int *t)   { *t |= EXSM_TAG_SQL_CHUNK; }
+inline bool ExSMTag_GetSQLChunkFlag(int t) { return t & EXSM_TAG_SQL_CHUNK; }
+inline void ExSMTag_SetSQLChunkFlag(int *t) { *t |= EXSM_TAG_SQL_CHUNK; }
 inline void ExSMTag_ClearSQLChunkFlag(int *t) { *t &= ~EXSM_TAG_SQL_CHUNK; }
 
 // Return the tag value with all qualifier bits cleared
 inline int ExSMTag_GetTagWithoutQualifier(int t) { return t & EXSM_TAG_FILTER; }
 
 // Return a single hex character representing the 4-bit tag qualifier
-inline char ExSMTag_GetQualifierDisplay(int t)
-{
+inline char ExSMTag_GetQualifierDisplay(int t) {
   char qualifierDisplay[17] = "0123456789abcdef";
-  return qualifierDisplay[((unsigned int) t) >> 28];
+  return qualifierDisplay[((unsigned int)t) >> 28];
 }
 
 //-------------------------------------------------------------------------
@@ -235,4 +231,4 @@ int32_t ExSM_Register(const int64_t &id);
 int32_t ExSM_Cancel(const int64_t &id);
 bool ExSM_FindID(const int64_t &id, bool lock = true);
 
-#endif // EXSM_COMMON_H
+#endif  // EXSM_COMMON_H

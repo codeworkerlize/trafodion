@@ -30,7 +30,7 @@
  *               Create Table DDL statements
  *               Modelled like ElemDDLStoreOptions.h
  *
- *               
+ *
  * Created:      07/10/97
  * Language:     C++
  *
@@ -57,46 +57,37 @@ class ElemDDLPartitionByColumnList;
 // -----------------------------------------------------------------------
 // definition of base class ElemDDLPartitionByOpt
 // -----------------------------------------------------------------------
-class ElemDDLPartitionByOpt : public ElemDDLNode
-{
-
-public:
-
+class ElemDDLPartitionByOpt : public ElemDDLNode {
+ public:
   // constructor
-  ElemDDLPartitionByOpt(OperatorTypeEnum operatorType =
-                          ELM_ANY_PARTITION_BY_ELEM);
+  ElemDDLPartitionByOpt(OperatorTypeEnum operatorType = ELM_ANY_PARTITION_BY_ELEM);
 
   // virtual destructor
   virtual ~ElemDDLPartitionByOpt();
 
   // cast
-  virtual ElemDDLPartitionByOpt * castToElemDDLPartitionByOpt();
+  virtual ElemDDLPartitionByOpt *castToElemDDLPartitionByOpt();
 
   // methods for tracing
   virtual NATraceList getDetailInfo() const;
   virtual const NAString getText() const;
 
-private:
-
-}; // class ElemDDLPartitionByOpt
+ private:
+};  // class ElemDDLPartitionByOpt
 
 // -----------------------------------------------------------------------
 // definition of class ElemDDLPartitionByColumnList
 // -----------------------------------------------------------------------
-class ElemDDLPartitionByColumnList : public ElemDDLPartitionByOpt
-{
-
-public:
-
+class ElemDDLPartitionByColumnList : public ElemDDLPartitionByOpt {
+ public:
   // constructor
-  ElemDDLPartitionByColumnList(ElemDDLNode * partitionKeyColumnList,
-                               CollHeap    * heap = PARSERHEAP());
+  ElemDDLPartitionByColumnList(ElemDDLNode *partitionKeyColumnList, CollHeap *heap = PARSERHEAP());
 
   // virtual destructor
   virtual ~ElemDDLPartitionByColumnList();
 
   // casting
-  virtual ElemDDLPartitionByColumnList * castToElemDDLPartitionByColumnList();
+  virtual ElemDDLPartitionByColumnList *castToElemDDLPartitionByColumnList();
 
   //
   // accessors
@@ -104,15 +95,15 @@ public:
 
   virtual Int32 getArity() const;
 
-  virtual ExprNode * getChild(Lng32 index);
+  virtual ExprNode *getChild(Lng32 index);
 
-  inline const ElemDDLColRefArray & getPartitionKeyColumnArray() const;
-  inline       ElemDDLColRefArray & getPartitionKeyColumnArray();
+  inline const ElemDDLColRefArray &getPartitionKeyColumnArray() const;
+  inline ElemDDLColRefArray &getPartitionKeyColumnArray();
 
-  inline ElemDDLNode * getPartitionKeyColumnList() const;
+  inline ElemDDLNode *getPartitionKeyColumnList() const;
 
   // mutator
-  virtual void setChild(Lng32 index, ExprNode * pElemDDLNode);
+  virtual void setChild(Lng32 index, ExprNode *pElemDDLNode);
 
   // methods for tracing
   virtual const NAString displayLabel1() const;
@@ -122,12 +113,9 @@ public:
   // method for building text
   virtual NAString getSyntax() const;
 
-private:
-
-  ElemDDLPartitionByColumnList
-    (const ElemDDLPartitionByColumnList &);  // DO NOT USE
-  ElemDDLPartitionByColumnList & operator=
-    (const ElemDDLPartitionByColumnList &);  // DO NOT USE
+ private:
+  ElemDDLPartitionByColumnList(const ElemDDLPartitionByColumnList &);             // DO NOT USE
+  ElemDDLPartitionByColumnList &operator=(const ElemDDLPartitionByColumnList &);  // DO NOT USE
 
   //
   // data members
@@ -137,12 +125,11 @@ private:
 
   // pointers to child parse node
 
-  enum { INDEX_PARTITION_KEY_COLUMN_LIST = 0,
-         MAX_ELEM_DDL_PARTITION_BY_COLUMN_LIST_ARITY };
+  enum { INDEX_PARTITION_KEY_COLUMN_LIST = 0, MAX_ELEM_DDL_PARTITION_BY_COLUMN_LIST_ARITY };
 
-  ElemDDLNode * children_[MAX_ELEM_DDL_PARTITION_BY_COLUMN_LIST_ARITY];
+  ElemDDLNode *children_[MAX_ELEM_DDL_PARTITION_BY_COLUMN_LIST_ARITY];
 
-}; // class ElemDDLPartitionByColumnList
+};  // class ElemDDLPartitionByColumnList
 
 // -----------------------------------------------------------------------
 // definitions of inline methods for class ElemDDLStoreOptKeyColumnList
@@ -152,22 +139,16 @@ private:
 // accessor
 //
 
-inline ElemDDLColRefArray &
-ElemDDLPartitionByColumnList::getPartitionKeyColumnArray()
-{
+inline ElemDDLColRefArray &ElemDDLPartitionByColumnList::getPartitionKeyColumnArray() {
   return partitionKeyColumnArray_;
 }
 
-inline const ElemDDLColRefArray &
-ElemDDLPartitionByColumnList::getPartitionKeyColumnArray() const
-{
+inline const ElemDDLColRefArray &ElemDDLPartitionByColumnList::getPartitionKeyColumnArray() const {
   return partitionKeyColumnArray_;
 }
 
-inline ElemDDLNode *
-ElemDDLPartitionByColumnList::getPartitionKeyColumnList() const
-{
+inline ElemDDLNode *ElemDDLPartitionByColumnList::getPartitionKeyColumnList() const {
   return children_[INDEX_PARTITION_KEY_COLUMN_LIST];
 }
 
-#endif // ELEMDDLPARTITIONBYOPTIONS_H
+#endif  // ELEMDDLPARTITIONBYOPTIONS_H

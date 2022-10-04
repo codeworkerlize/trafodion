@@ -50,84 +50,61 @@
 
 class StmtDDLAlterMvRGroup;
 
+class StmtDDLAlterMvRGroup : public StmtDDLNode {
+ public:
+  enum alterMvGroupType {
+    ADD_ACTION,
+    REMOVE_ACTION
 
-class StmtDDLAlterMvRGroup : public StmtDDLNode
-{
-
-public:
-
-	enum alterMvGroupType { ADD_ACTION, REMOVE_ACTION
-	
 #ifdef OZY_TEST
-		
-		, testRedefTimeStamp_action
-		, testOpenBlownAway_action
+
+    ,
+    testRedefTimeStamp_action,
+    testOpenBlownAway_action
 
 #endif
-	
-	}; 
 
-	StmtDDLAlterMvRGroup(const QualifiedName & mvRGroupName,
-						alterMvGroupType action,
-						ElemDDLNode * pMVList);
+  };
 
-	virtual ~StmtDDLAlterMvRGroup();
+  StmtDDLAlterMvRGroup(const QualifiedName &mvRGroupName, alterMvGroupType action, ElemDDLNode *pMVList);
 
-	virtual StmtDDLAlterMvRGroup * castToStmtDDLAlterMvRGroup();
+  virtual ~StmtDDLAlterMvRGroup();
 
+  virtual StmtDDLAlterMvRGroup *castToStmtDDLAlterMvRGroup();
 
-	inline const NAString getMvRGroupName() const;
-	inline const QualifiedName & getMvRGroupNameAsQualifiedName() const;
-	inline       QualifiedName & getMvRGroupNameAsQualifiedName() ;
+  inline const NAString getMvRGroupName() const;
+  inline const QualifiedName &getMvRGroupNameAsQualifiedName() const;
+  inline QualifiedName &getMvRGroupNameAsQualifiedName();
 
-	
-	QualifiedName & getFirstMvInList();
-	ComBoolean	listHasMoreMVs() const;
-	QualifiedName & getNextMvInList();
+  QualifiedName &getFirstMvInList();
+  ComBoolean listHasMoreMVs() const;
+  QualifiedName &getNextMvInList();
 
-	alterMvGroupType getAction() const;
+  alterMvGroupType getAction() const;
 
-	ExprNode * bindNode(BindWA * pBindWA);
+  ExprNode *bindNode(BindWA *pBindWA);
 
+  // methods for tracing
+  virtual const NAString displayLabel1() const;
+  virtual const NAString getText() const;
 
-	// methods for tracing
-	virtual const NAString displayLabel1() const;
-	virtual const NAString getText() const;
+ private:
+  QualifiedName mvRGroupQualName_;  // The syntax of an mv group name is
+                                    // [ [ catalog-name . ] schema-name . ] mvrg-name
 
+  ElemDDLNode *pMVList_;
+  const alterMvGroupType action_;
+  CollIndex listIndex_;
 
-private:
-
-	QualifiedName mvRGroupQualName_; // The syntax of an mv group name is
-					// [ [ catalog-name . ] schema-name . ] mvrg-name
-
-	ElemDDLNode				* pMVList_;
-	const alterMvGroupType  action_;
-	CollIndex				listIndex_;
-
-
-}; // class StmtDDLAlterMvRGroup 
+};  // class StmtDDLAlterMvRGroup
 
 //----------------------------------------------------------------------------
-inline const NAString 
-StmtDDLAlterMvRGroup::getMvRGroupName() const
-{
+inline const NAString StmtDDLAlterMvRGroup::getMvRGroupName() const {
   return mvRGroupQualName_.getQualifiedNameAsAnsiString();
 }
 
+inline QualifiedName &StmtDDLAlterMvRGroup::getMvRGroupNameAsQualifiedName() { return mvRGroupQualName_; }
 
-inline QualifiedName &
-StmtDDLAlterMvRGroup::getMvRGroupNameAsQualifiedName()
-{
-  return mvRGroupQualName_;
-}
+inline const QualifiedName &StmtDDLAlterMvRGroup::getMvRGroupNameAsQualifiedName() const { return mvRGroupQualName_; }
 
-inline const QualifiedName & 
-StmtDDLAlterMvRGroup::getMvRGroupNameAsQualifiedName() const
-{
-  return mvRGroupQualName_;
-}
-
-
-
-
-#endif // STMTDDLALTERMRVGROUP_H
+#endif  // STMTDDLALTERMRVGROUP_H

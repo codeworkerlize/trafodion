@@ -28,7 +28,7 @@
  *****************************************************************************
  *
  * File:         SqlciNode.h
- * Description:  
+ * Description:
  * Created:      4/15/95
  * Language:     C++
  *
@@ -46,36 +46,37 @@
 class SqlciEnv;
 
 class SqlciNode {
-public:
-enum sqlci_node_type {
-  SQLCI_CMD_TYPE, SQL_CMD_TYPE, UTIL_CMD_TYPE, SHELL_CMD_TYPE, SQLCLI_CMD_TYPE, REPORT_CMD_TYPE, 
-  MXCS_CMD_TYPE
-};
+ public:
+  enum sqlci_node_type {
+    SQLCI_CMD_TYPE,
+    SQL_CMD_TYPE,
+    UTIL_CMD_TYPE,
+    SHELL_CMD_TYPE,
+    SQLCLI_CMD_TYPE,
+    REPORT_CMD_TYPE,
+    MXCS_CMD_TYPE
+  };
 
-private:
+ private:
   char eye_catcher[4];
   sqlci_node_type node_type;
-  SqlciNode * next;
+  SqlciNode *next;
   Lng32 errcode;
 
-public:
+ public:
   SqlciNode(const sqlci_node_type);
   virtual ~SqlciNode();
-  virtual short process(SqlciEnv * sqlci_env);
+  virtual short process(SqlciEnv *sqlci_env);
 
-  void set_next(SqlciNode * next_)	{next = next_;}
-  SqlciNode * get_next() const		{return next;}
+  void set_next(SqlciNode *next_) { next = next_; }
+  SqlciNode *get_next() const { return next; }
 
-  Lng32 errorCode() const		{return errcode;}
-  void setErrorCode(Lng32 e)		{errcode = e;}
+  Lng32 errorCode() const { return errcode; }
+  void setErrorCode(Lng32 e) { errcode = e; }
 
-  bool isSqlciNode() const              {return strncmp(eye_catcher, "CI  ", 4) == 0;}
+  bool isSqlciNode() const { return strncmp(eye_catcher, "CI  ", 4) == 0; }
 
-  sqlci_node_type getType()             {return node_type;}
-
+  sqlci_node_type getType() { return node_type; }
 };
 
 #endif
-
-
-

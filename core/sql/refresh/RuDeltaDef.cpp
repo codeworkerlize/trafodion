@@ -25,8 +25,8 @@
 ******************************************************************************
 *
 * File:         RuDeltaDef.cpp
-* Description:  
-*				
+* Description:
+*
 * Created:      04/04/2000
 * Language:     C++
 *
@@ -47,98 +47,79 @@
 //	Constructors and destructor
 //--------------------------------------------------------------------------//
 
-CRUUpdateBitmap::CRUUpdateBitmap(Int32 size, const char* buffer) :
-	size_(size+1),	// One byte more for the null terminator
-	buffer_(new char[size_]),
-	wasChanged_(FALSE)
-{
-	if (NULL == buffer)
-	{
-		memset(buffer_, '\0', size_);
-	}
-	else
-	{
-		memcpy(buffer_, buffer, size_);		
-	}
+CRUUpdateBitmap::CRUUpdateBitmap(Int32 size, const char *buffer)
+    : size_(size + 1),  // One byte more for the null terminator
+      buffer_(new char[size_]),
+      wasChanged_(FALSE) {
+  if (NULL == buffer) {
+    memset(buffer_, '\0', size_);
+  } else {
+    memcpy(buffer_, buffer, size_);
+  }
 }
 
-CRUUpdateBitmap::CRUUpdateBitmap(const CRUUpdateBitmap &other) :
-	size_(other.size_),
-	buffer_(new char[size_]),
-	wasChanged_(FALSE)
-{
-	memcpy(buffer_, other.buffer_, size_);	
+CRUUpdateBitmap::CRUUpdateBitmap(const CRUUpdateBitmap &other)
+    : size_(other.size_), buffer_(new char[size_]), wasChanged_(FALSE) {
+  memcpy(buffer_, other.buffer_, size_);
 }
 
-CRUUpdateBitmap::~CRUUpdateBitmap()
-{
-	delete [] buffer_;
-}
+CRUUpdateBitmap::~CRUUpdateBitmap() { delete[] buffer_; }
 
 //--------------------------------------------------------------------------//
 //	CRUUpdateBitmap::operator =
 //--------------------------------------------------------------------------//
 
-CRUUpdateBitmap & CRUUpdateBitmap::operator = (const CRUUpdateBitmap &other)
-{
-	if (this == &other)
-	{
-		return *this;
-	}
+CRUUpdateBitmap &CRUUpdateBitmap::operator=(const CRUUpdateBitmap &other) {
+  if (this == &other) {
+    return *this;
+  }
 
-	RUASSERT(size_ == other.size_);
-	wasChanged_ = FALSE;
+  RUASSERT(size_ == other.size_);
+  wasChanged_ = FALSE;
 
-	memcpy(buffer_, other.buffer_, size_);	
+  memcpy(buffer_, other.buffer_, size_);
 
-	return *this;
+  return *this;
 }
 
 //--------------------------------------------------------------------------//
 //	CRUUpdateBitmap::IsNull()
 //--------------------------------------------------------------------------//
 
-BOOL CRUUpdateBitmap::IsNull() const
-{
-	for (Int32 i=0; i<size_; i++)
-	{
-		if (0 != buffer_[i])
-		{
-			return FALSE;
-		}
-	}
+BOOL CRUUpdateBitmap::IsNull() const {
+  for (Int32 i = 0; i < size_; i++) {
+    if (0 != buffer_[i]) {
+      return FALSE;
+    }
+  }
 
-	return TRUE;
+  return TRUE;
 }
 
 //--------------------------------------------------------------------------//
 //	CRUUpdateBitmap::Reset()
 //--------------------------------------------------------------------------//
 
-void CRUUpdateBitmap::Reset()
-{
-	wasChanged_ = FALSE;
-	memset(buffer_, '\0', size_);
+void CRUUpdateBitmap::Reset() {
+  wasChanged_ = FALSE;
+  memset(buffer_, '\0', size_);
 }
 
 //--------------------------------------------------------------------------//
 //	CRUUpdateBitmap::operator |=
 //--------------------------------------------------------------------------//
 
-CRUUpdateBitmap & CRUUpdateBitmap::operator |= (const CRUUpdateBitmap &other)
-{
-	RUASSERT(size_ == other.size_);
+CRUUpdateBitmap &CRUUpdateBitmap::operator|=(const CRUUpdateBitmap &other) {
+  RUASSERT(size_ == other.size_);
 
-	for (Int32 i=0; i<size_; i++)
-	{
-		if (buffer_[i] != other.buffer_[i])
-		{
-			wasChanged_ = TRUE;
-			buffer_[i] |= other.buffer_[i];
-		}
-	}
+  for (Int32 i = 0; i < size_; i++) {
+    if (buffer_[i] != other.buffer_[i]) {
+      wasChanged_ = TRUE;
+      buffer_[i] |= other.buffer_[i];
+    }
+  }
 
-	return *this;
+  return *this;
 }
 
 //--------------------------------------------------------------------------//
@@ -151,22 +132,20 @@ CRUUpdateBitmap & CRUUpdateBitmap::operator |= (const CRUUpdateBitmap &other)
 //
 //--------------------------------------------------------------------------//
 
-CRUUpdateBitmap *CRUUpdateBitmap::
-CreateInstance(CUOFsIpcMessageTranslator &translator)
-{
-	Int32 size;
+CRUUpdateBitmap *CRUUpdateBitmap::CreateInstance(CUOFsIpcMessageTranslator &translator) {
+  Int32 size;
 
-	translator.ReadBlock(&size, sizeof(Int32));
-	RUASSERT(size > 0);
-	
-	char *buffer = new char[size];
-	translator.ReadBlock(buffer, size);
+  translator.ReadBlock(&size, sizeof(Int32));
+  RUASSERT(size > 0);
 
-	CRUUpdateBitmap *pUpdateBitmap = new CRUUpdateBitmap(size, buffer);
-		
-	delete [] buffer;
+  char *buffer = new char[size];
+  translator.ReadBlock(buffer, size);
 
-	return pUpdateBitmap;
+  CRUUpdateBitmap *pUpdateBitmap = new CRUUpdateBitmap(size, buffer);
+
+  delete[] buffer;
+
+  return pUpdateBitmap;
 }
 
 //--------------------------------------------------------------------------//
@@ -174,34 +153,29 @@ CreateInstance(CUOFsIpcMessageTranslator &translator)
 //
 //	Serialize the context
 //--------------------------------------------------------------------------//
-void CRUUpdateBitmap::StoreData(CUOFsIpcMessageTranslator &translator)
-{
-	RUASSERT(size_ > 0);
-	
-	translator.WriteBlock(&size_, sizeof(Int32));
-	translator.WriteBlock(buffer_, size_);
+void CRUUpdateBitmap::StoreData(CUOFsIpcMessageTranslator &translator) {
+  RUASSERT(size_ > 0);
+
+  translator.WriteBlock(&size_, sizeof(Int32));
+  translator.WriteBlock(buffer_, size_);
 }
 
 //--------------------------------------------------------------------------//
 //	CRUDeltaDef
 //--------------------------------------------------------------------------//
 
-CRUDeltaDef::CRUDeltaDef(CRUTbl *pTbl) :
-	tblUid_(pTbl->GetUID()),
-	tblName_(pTbl->GetFullName()),
-	fromEpoch_(0),
-	toEpoch_(pTbl->GetCurrentEpoch()),
-	deLevel_(NO_DE),
-	isRangeLogNonEmpty_(FALSE),
-	isIUDLogNonEmpty_(FALSE),
-	isIUDLogInsertOnly_(pTbl->IsInsertLog()),
-	pStat_(NULL)
-{}
+CRUDeltaDef::CRUDeltaDef(CRUTbl *pTbl)
+    : tblUid_(pTbl->GetUID()),
+      tblName_(pTbl->GetFullName()),
+      fromEpoch_(0),
+      toEpoch_(pTbl->GetCurrentEpoch()),
+      deLevel_(NO_DE),
+      isRangeLogNonEmpty_(FALSE),
+      isIUDLogNonEmpty_(FALSE),
+      isIUDLogInsertOnly_(pTbl->IsInsertLog()),
+      pStat_(NULL) {}
 
-CRUDeltaDef::~CRUDeltaDef()
-{
-	delete pStat_;
-}
+CRUDeltaDef::~CRUDeltaDef() { delete pStat_; }
 
 //--------------------------------------------------------------------------//
 //	CRUDeltaDefList
@@ -211,54 +185,45 @@ CRUDeltaDef::~CRUDeltaDef()
 //	CRUDeltaDefList::FindByUID()
 //--------------------------------------------------------------------------//
 
-CRUDeltaDef *CRUDeltaDefList::FindByUID(TInt64 tblUid) const
-{
-	CRUDeltaDef *pDdef = NULL;
+CRUDeltaDef *CRUDeltaDefList::FindByUID(TInt64 tblUid) const {
+  CRUDeltaDef *pDdef = NULL;
 
-	DSListPosition pos = GetHeadPosition();
-	while (NULL != pos)
-	{
-		pDdef = GetNext(pos);
-		if (tblUid == pDdef->tblUid_)
-		{
-			break;
-		}
-	}
+  DSListPosition pos = GetHeadPosition();
+  while (NULL != pos) {
+    pDdef = GetNext(pos);
+    if (tblUid == pDdef->tblUid_) {
+      break;
+    }
+  }
 
-	return pDdef;
+  return pDdef;
 }
 
 //--------------------------------------------------------------------------//
 //	CRUDeltaDefList::RemoveByUID()
 //--------------------------------------------------------------------------//
 
-void CRUDeltaDefList::RemoveByUID(TInt64 tblUid)
-{
-	DSListPosition prevpos = NULL;
-	DSListPosition pos = GetHeadPosition();
+void CRUDeltaDefList::RemoveByUID(TInt64 tblUid) {
+  DSListPosition prevpos = NULL;
+  DSListPosition pos = GetHeadPosition();
 
-	for (;;)
-	{
-		prevpos = pos;
-		CRUDeltaDef *pDdef = GetNext(pos);
-		
-		if (tblUid == pDdef->tblUid_)
-		{
-			if (NULL == prevpos)
-			{
-				RemoveHead();
-			}
-			else
-			{
-				RemoveAt(prevpos);
-			}
-			
-			return;
-		}
-	}
+  for (;;) {
+    prevpos = pos;
+    CRUDeltaDef *pDdef = GetNext(pos);
 
-	// The delta-def should have been in the list
-	RUASSERT(FALSE);
+    if (tblUid == pDdef->tblUid_) {
+      if (NULL == prevpos) {
+        RemoveHead();
+      } else {
+        RemoveAt(prevpos);
+      }
+
+      return;
+    }
+  }
+
+  // The delta-def should have been in the list
+  RUASSERT(FALSE);
 }
 
 //--------------------------------------------------------------------------//
@@ -269,69 +234,58 @@ void CRUDeltaDefList::RemoveByUID(TInt64 tblUid)
 //	Constructors and destructor
 //--------------------------------------------------------------------------//
 
-CRUDeltaStatistics::CRUDeltaStatistics() :
-	// Range log statistics
-	nRanges_(0),
-	nRangeCoveredRows_(0),	
-	// Exact IUD log statistics
-	nInsertedRows_(0),
-	nDeletedRows_(0),	
-	nUpdatedRows_(0),
-	pUpdateBitmap_(NULL)
-{}
+CRUDeltaStatistics::CRUDeltaStatistics()
+    :  // Range log statistics
+      nRanges_(0),
+      nRangeCoveredRows_(0),
+      // Exact IUD log statistics
+      nInsertedRows_(0),
+      nDeletedRows_(0),
+      nUpdatedRows_(0),
+      pUpdateBitmap_(NULL) {}
 
-CRUDeltaStatistics::CRUDeltaStatistics(const CRUDeltaStatistics &other) :
-	nRanges_(other.nRanges_),
-	nRangeCoveredRows_(other.nRangeCoveredRows_),
-	nInsertedRows_(other.nInsertedRows_),
-	nDeletedRows_(other.nDeletedRows_),	
-	nUpdatedRows_(other.nUpdatedRows_),
-	pUpdateBitmap_(NULL)
-{
-	CRUUpdateBitmap *pOtherUpdateBitmap = other.pUpdateBitmap_;
-	if (NULL != pOtherUpdateBitmap)
-	{
-		pUpdateBitmap_ = new CRUUpdateBitmap(*pOtherUpdateBitmap);
-	}
+CRUDeltaStatistics::CRUDeltaStatistics(const CRUDeltaStatistics &other)
+    : nRanges_(other.nRanges_),
+      nRangeCoveredRows_(other.nRangeCoveredRows_),
+      nInsertedRows_(other.nInsertedRows_),
+      nDeletedRows_(other.nDeletedRows_),
+      nUpdatedRows_(other.nUpdatedRows_),
+      pUpdateBitmap_(NULL) {
+  CRUUpdateBitmap *pOtherUpdateBitmap = other.pUpdateBitmap_;
+  if (NULL != pOtherUpdateBitmap) {
+    pUpdateBitmap_ = new CRUUpdateBitmap(*pOtherUpdateBitmap);
+  }
 }
 
-CRUDeltaStatistics::~CRUDeltaStatistics() 
-{
-	delete pUpdateBitmap_;
-}
+CRUDeltaStatistics::~CRUDeltaStatistics() { delete pUpdateBitmap_; }
 
 //--------------------------------------------------------------------------//
 //	CRUDeltaStatistics::operator =
 //--------------------------------------------------------------------------//
 
-CRUDeltaStatistics &CRUDeltaStatistics::
-operator = (const CRUDeltaStatistics &other) 
-{
-	if (this == &other)
-	{
-		return *this;
-	}
+CRUDeltaStatistics &CRUDeltaStatistics::operator=(const CRUDeltaStatistics &other) {
+  if (this == &other) {
+    return *this;
+  }
 
-	nRanges_ = other.nRanges_;
-	nRangeCoveredRows_ = other.nRangeCoveredRows_;
-	
-	nInsertedRows_ = other.nInsertedRows_;
-	nDeletedRows_ = other.nDeletedRows_;
-	nUpdatedRows_ = other.nUpdatedRows_;
+  nRanges_ = other.nRanges_;
+  nRangeCoveredRows_ = other.nRangeCoveredRows_;
 
-	if (NULL != pUpdateBitmap_)
-	{
-		delete pUpdateBitmap_;
-		pUpdateBitmap_ = NULL;
-	}
+  nInsertedRows_ = other.nInsertedRows_;
+  nDeletedRows_ = other.nDeletedRows_;
+  nUpdatedRows_ = other.nUpdatedRows_;
 
-	CRUUpdateBitmap *pOtherUpdateBitmap = other.pUpdateBitmap_;
-	if (NULL != pOtherUpdateBitmap)
-	{
-		pUpdateBitmap_ = new CRUUpdateBitmap(*pOtherUpdateBitmap);
-	}
+  if (NULL != pUpdateBitmap_) {
+    delete pUpdateBitmap_;
+    pUpdateBitmap_ = NULL;
+  }
 
-	return *this;
+  CRUUpdateBitmap *pOtherUpdateBitmap = other.pUpdateBitmap_;
+  if (NULL != pOtherUpdateBitmap) {
+    pUpdateBitmap_ = new CRUUpdateBitmap(*pOtherUpdateBitmap);
+  }
+
+  return *this;
 }
 
 //--------------------------------------------------------------------------//
@@ -340,15 +294,13 @@ operator = (const CRUDeltaStatistics &other)
 //	Delta size estimate (for the Refresh task)
 //--------------------------------------------------------------------------//
 
-TInt32 CRUDeltaStatistics::GetDeltaSize()
-{
-	TInt64 size = nInsertedRows_ + nDeletedRows_ + nUpdatedRows_;
-	if (RANGE_SIZE_UNKNOWN != nRangeCoveredRows_)
-	{
-		size += nRangeCoveredRows_;
-	}
+TInt32 CRUDeltaStatistics::GetDeltaSize() {
+  TInt64 size = nInsertedRows_ + nDeletedRows_ + nUpdatedRows_;
+  if (RANGE_SIZE_UNKNOWN != nRangeCoveredRows_) {
+    size += nRangeCoveredRows_;
+  }
 
-	return (size < MAX_STATISTIC) ? (TInt32)size : MAX_STATISTIC;
+  return (size < MAX_STATISTIC) ? (TInt32)size : MAX_STATISTIC;
 }
 
 //--------------------------------------------------------------------------//
@@ -356,29 +308,26 @@ TInt32 CRUDeltaStatistics::GetDeltaSize()
 //
 //	De-serialize the context
 //--------------------------------------------------------------------------//
-void CRUDeltaStatistics::LoadData(CUOFsIpcMessageTranslator &translator)
-{
-	translator.ReadBlock(&nRanges_, sizeof(TInt32));
-	translator.ReadBlock(&nRangeCoveredRows_, sizeof(TInt32));
+void CRUDeltaStatistics::LoadData(CUOFsIpcMessageTranslator &translator) {
+  translator.ReadBlock(&nRanges_, sizeof(TInt32));
+  translator.ReadBlock(&nRangeCoveredRows_, sizeof(TInt32));
 
-	translator.ReadBlock(&nInsertedRows_, sizeof(TInt32));
-	translator.ReadBlock(&nDeletedRows_, sizeof(TInt32));
-	translator.ReadBlock(&nUpdatedRows_, sizeof(TInt32));
+  translator.ReadBlock(&nInsertedRows_, sizeof(TInt32));
+  translator.ReadBlock(&nDeletedRows_, sizeof(TInt32));
+  translator.ReadBlock(&nUpdatedRows_, sizeof(TInt32));
 
-	if (NULL != pUpdateBitmap_)
-	{
-		delete pUpdateBitmap_;
-		pUpdateBitmap_ = NULL;
-	}
+  if (NULL != pUpdateBitmap_) {
+    delete pUpdateBitmap_;
+    pUpdateBitmap_ = NULL;
+  }
 
-	BOOL flag;
-	translator.ReadBlock(&flag, sizeof(BOOL));
+  BOOL flag;
+  translator.ReadBlock(&flag, sizeof(BOOL));
 
-	if (TRUE == flag)
-	{
-		// There is a serialized bitmap, create a new instance
-		pUpdateBitmap_ = CRUUpdateBitmap::CreateInstance(translator);
-	}
+  if (TRUE == flag) {
+    // There is a serialized bitmap, create a new instance
+    pUpdateBitmap_ = CRUUpdateBitmap::CreateInstance(translator);
+  }
 }
 
 //--------------------------------------------------------------------------//
@@ -387,27 +336,23 @@ void CRUDeltaStatistics::LoadData(CUOFsIpcMessageTranslator &translator)
 //	Serialize the context
 //--------------------------------------------------------------------------//
 
-void CRUDeltaStatistics::StoreData(CUOFsIpcMessageTranslator &translator)
-{
-	translator.WriteBlock(&nRanges_, sizeof(TInt32));
-	translator.WriteBlock(&nRangeCoveredRows_, sizeof(TInt32));
+void CRUDeltaStatistics::StoreData(CUOFsIpcMessageTranslator &translator) {
+  translator.WriteBlock(&nRanges_, sizeof(TInt32));
+  translator.WriteBlock(&nRangeCoveredRows_, sizeof(TInt32));
 
-	translator.WriteBlock(&nInsertedRows_, sizeof(TInt32));
-	translator.WriteBlock(&nDeletedRows_, sizeof(TInt32));
-	translator.WriteBlock(&nUpdatedRows_, sizeof(TInt32));
+  translator.WriteBlock(&nInsertedRows_, sizeof(TInt32));
+  translator.WriteBlock(&nDeletedRows_, sizeof(TInt32));
+  translator.WriteBlock(&nUpdatedRows_, sizeof(TInt32));
 
-	BOOL flag;
-	if (NULL == pUpdateBitmap_)
-	{
-		flag = FALSE;
-		translator.WriteBlock(&flag, sizeof(BOOL));
-	}
-	else
-	{
-		flag = TRUE;
-		translator.WriteBlock(&flag, sizeof(BOOL));
-		pUpdateBitmap_->StoreData(translator);
-	}
+  BOOL flag;
+  if (NULL == pUpdateBitmap_) {
+    flag = FALSE;
+    translator.WriteBlock(&flag, sizeof(BOOL));
+  } else {
+    flag = TRUE;
+    translator.WriteBlock(&flag, sizeof(BOOL));
+    pUpdateBitmap_->StoreData(translator);
+  }
 }
 
 //--------------------------------------------------------------------------//
@@ -416,16 +361,15 @@ void CRUDeltaStatistics::StoreData(CUOFsIpcMessageTranslator &translator)
 //	Room required for the serialized buffer
 //--------------------------------------------------------------------------//
 
-TInt32 CRUDeltaStatistics::GetPackedBufferSize(Int32 updateBitmapSize)
-{
-	return sizeof(TInt32)	// nRanges_ 
-		+ sizeof(TInt32)	// nRangeCoveredRows_
-		+ sizeof(TInt32)	// nInsertedRows_
-		+ sizeof(TInt32)	// nDeletedRows_
-		+ sizeof(TInt32)	// nUpdatedRows_
-		+ sizeof(Int32)		// update bitmap buffer size
-		+ updateBitmapSize + 1	// update bitmap buffer
-	;
+TInt32 CRUDeltaStatistics::GetPackedBufferSize(Int32 updateBitmapSize) {
+  return sizeof(TInt32)          // nRanges_
+         + sizeof(TInt32)        // nRangeCoveredRows_
+         + sizeof(TInt32)        // nInsertedRows_
+         + sizeof(TInt32)        // nDeletedRows_
+         + sizeof(TInt32)        // nUpdatedRows_
+         + sizeof(Int32)         // update bitmap buffer size
+         + updateBitmapSize + 1  // update bitmap buffer
+      ;
 }
 
 //--------------------------------------------------------------------------//
@@ -436,22 +380,19 @@ TInt32 CRUDeltaStatistics::GetPackedBufferSize(Int32 updateBitmapSize)
 //	CRUDeltaStatisticsMap::operator =
 //--------------------------------------------------------------------------//
 
-CRUDeltaStatisticsMap &
-CRUDeltaStatisticsMap::operator = (const CRUDeltaStatisticsMap& other)
-{
-	CRUDeltaStatistics deStat;
-	Lng32 epoch;
+CRUDeltaStatisticsMap &CRUDeltaStatisticsMap::operator=(const CRUDeltaStatisticsMap &other) {
+  CRUDeltaStatistics deStat;
+  Lng32 epoch;
 
-	CDSMapPosition<CRUDeltaStatistics> pos;
-	other.GetStartPosition(pos);
+  CDSMapPosition<CRUDeltaStatistics> pos;
+  other.GetStartPosition(pos);
 
-	while (TRUE == pos.IsValid())
-	{
-		other.GetNextAssoc(pos, epoch, deStat);
-		(*this)[epoch] = deStat;
-	}
+  while (TRUE == pos.IsValid()) {
+    other.GetNextAssoc(pos, epoch, deStat);
+    (*this)[epoch] = deStat;
+  }
 
-	return *this;
+  return *this;
 }
 
 //--------------------------------------------------------------------------//
@@ -459,20 +400,18 @@ CRUDeltaStatisticsMap::operator = (const CRUDeltaStatisticsMap& other)
 //
 //	De-serialize the context
 //--------------------------------------------------------------------------//
-void CRUDeltaStatisticsMap::LoadData(CUOFsIpcMessageTranslator &translator)
-{
-	CRUDeltaStatistics deStat;
-	Lng32 count, epoch;
+void CRUDeltaStatisticsMap::LoadData(CUOFsIpcMessageTranslator &translator) {
+  CRUDeltaStatistics deStat;
+  Lng32 count, epoch;
 
-	translator.ReadBlock(&count, sizeof(Lng32));
-	RUASSERT(0 == this->GetCount() && count > 0);
+  translator.ReadBlock(&count, sizeof(Lng32));
+  RUASSERT(0 == this->GetCount() && count > 0);
 
-	for (Int32 i=0; i<count; i++)
-	{
-		translator.ReadBlock(&epoch, sizeof(Lng32));
-		deStat.LoadData(translator);
-		(*this)[epoch] = deStat;
-	}
+  for (Int32 i = 0; i < count; i++) {
+    translator.ReadBlock(&epoch, sizeof(Lng32));
+    deStat.LoadData(translator);
+    (*this)[epoch] = deStat;
+  }
 }
 
 //--------------------------------------------------------------------------//
@@ -480,24 +419,22 @@ void CRUDeltaStatisticsMap::LoadData(CUOFsIpcMessageTranslator &translator)
 //
 //	Serialize the context
 //--------------------------------------------------------------------------//
-void CRUDeltaStatisticsMap::StoreData(CUOFsIpcMessageTranslator &translator)
-{
-	CRUDeltaStatistics deStat;
-	Lng32 epoch;
+void CRUDeltaStatisticsMap::StoreData(CUOFsIpcMessageTranslator &translator) {
+  CRUDeltaStatistics deStat;
+  Lng32 epoch;
 
-	Lng32 count = this->GetCount();
-	RUASSERT(count > 0);
+  Lng32 count = this->GetCount();
+  RUASSERT(count > 0);
 
-	translator.WriteBlock(&count, sizeof(Lng32));
+  translator.WriteBlock(&count, sizeof(Lng32));
 
-	CDSMapPosition<CRUDeltaStatistics> pos;
-	this->GetStartPosition(pos);
+  CDSMapPosition<CRUDeltaStatistics> pos;
+  this->GetStartPosition(pos);
 
-	while (TRUE == pos.IsValid())
-	{
-		this->GetNextAssoc(pos, epoch, deStat);
+  while (TRUE == pos.IsValid()) {
+    this->GetNextAssoc(pos, epoch, deStat);
 
-		translator.WriteBlock(&epoch, sizeof(Lng32));
-		deStat.StoreData(translator);
-	}
+    translator.WriteBlock(&epoch, sizeof(Lng32));
+    deStat.StoreData(translator);
+  }
 }

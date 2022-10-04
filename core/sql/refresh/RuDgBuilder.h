@@ -61,10 +61,10 @@ class CRULogCleanupTask;
 
 //--------------------------------------------------------------------------//
 // CRUDependenceGraphBuilder
-// 
+//
 //  The dependence graph builder class.
 //
-//   Encapsulates the logic of creating tasks (nodes in the dependence graph) 
+//   Encapsulates the logic of creating tasks (nodes in the dependence graph)
 //	 and dependencies between them (edges in the dependence graph).
 //
 //	 The graph will include three categories of tasks:
@@ -72,42 +72,42 @@ class CRULogCleanupTask;
 //	 (2) Table tasks (LockEquivSet, Table Sync, DE, Log Cleanup).
 //	 (3) Resource Release tasks.
 //
-//	 A Refresh task (works on one or more MVs) refreshes a single MV 
-//	 or a number of MVs, using delta pipelining. 
+//	 A Refresh task (works on one or more MVs) refreshes a single MV
+//	 or a number of MVs, using delta pipelining.
 //
 //	 A LockEquivSet task (works on one or more tables) performs a simultaneous
-//	 lock of *logs* for tables that belong to the same equivalence set, 
+//	 lock of *logs* for tables that belong to the same equivalence set,
 //	 to achieve a consistent database cut.
 //
-//	 A TableSync task (works on a single table) completes the work 
-//	 of LockEquivSet, by performing the epoch increment and/or the 
-//	 lock of *table*. Following the two tasks, the table is synchronized 
+//	 A TableSync task (works on a single table) completes the work
+//	 of LockEquivSet, by performing the epoch increment and/or the
+//	 lock of *table*. Following the two tasks, the table is synchronized
 //	 with its log and with the other tables that it participates in joins with.
 //
-//	 A EmpCheck task (works on a single table) checks whether the 
+//	 A EmpCheck task (works on a single table) checks whether the
 //	 delta(s) of the table towards the using MV(s) are empty.
-//	
-//	 A DE task (works on a single table) performs duplicate elimination 
+//
+//	 A DE task (works on a single table) performs duplicate elimination
 //	 on the table's log, i.e., maps the ranges from the IUD log to the
 //	 range log and resolves the duplicate log records.
 //
 //	 A Log Cleanup task (works on a single table)
 //	 deletes the inapplicable rows from the table's log.
 //
-//	 A Resource Release task (works on a single MV/table) frees the captured 
+//	 A Resource Release task (works on a single MV/table) frees the captured
 //	 object's resources (the DDL lock and/or read-protected open).
 //
-//	 See the description of the task interconnection rules 
-//	 in the class's implementation. 
+//	 See the description of the task interconnection rules
+//	 in the class's implementation.
 //
 //	 GENERAL COMMENTS:
 //
-//	 (1) Sometimes, the simplicity of the tasks' interconnection rules 
+//	 (1) Sometimes, the simplicity of the tasks' interconnection rules
 //	 is traded off for the graph's complexity. For example, patterns like:
 //
 //	 TaskA -----> TaskC
 //	    ^           ^
-//	    |           | 
+//	    |           |
 //	 TaskB----------+
 //
 //	 can appear. The graph's builder will not try to optimize the transitive
@@ -121,96 +121,90 @@ class CRULogCleanupTask;
 //--------------------------------------------------------------------------//
 
 class REFRESH_LIB_CLASS CRUDependenceGraphBuilder {
+ public:
+  CRUDependenceGraphBuilder(CRUCache &cache, CRUDependenceGraph &dg);
 
-public:
-	CRUDependenceGraphBuilder(
-		CRUCache& cache, 
-		CRUDependenceGraph& dg);
-	
-	virtual ~CRUDependenceGraphBuilder() {}
+  virtual ~CRUDependenceGraphBuilder() {}
 
-public:
-	// Create the initial task set 
-	// and establish connectivity between tasks.
-	void Build();	
+ public:
+  // Create the initial task set
+  // and establish connectivity between tasks.
+  void Build();
 
-private:
-	//-- Prevent copying
-	CRUDependenceGraphBuilder(const CRUDependenceGraphBuilder& other);
-	CRUDependenceGraphBuilder& operator= (const CRUDependenceGraphBuilder& other);
+ private:
+  //-- Prevent copying
+  CRUDependenceGraphBuilder(const CRUDependenceGraphBuilder &other);
+  CRUDependenceGraphBuilder &operator=(const CRUDependenceGraphBuilder &other);
 
-private:
-	//-- Build() callees
-	void BuildRefreshTasks();
-	void TraverseRefreshTasks();
+ private:
+  //-- Build() callees
+  void BuildRefreshTasks();
+  void TraverseRefreshTasks();
 
-	void BuildTableTasks(); // LockEquivSet/TableSync/EmpCheck/DE/LogCleanup
+  void BuildTableTasks();  // LockEquivSet/TableSync/EmpCheck/DE/LogCleanup
 
-	void BuildRcReleaseTasks();
+  void BuildRcReleaseTasks();
 
-private:
-	//-- BuildRefreshTasks() callee
-	void InterconnectRefreshTasks();
+ private:
+  //-- BuildRefreshTasks() callee
+  void InterconnectRefreshTasks();
 
-	//-- BuildTableTasks() callees
-	void BuildEquivSetBasedTableTasks();	// LockEquivSet/TableSync
-	void BuildSingleTableTasks();	// EmpCheck/DE/LogCleanup
-	void ConnectTableTasks();
+  //-- BuildTableTasks() callees
+  void BuildEquivSetBasedTableTasks();  // LockEquivSet/TableSync
+  void BuildSingleTableTasks();         // EmpCheck/DE/LogCleanup
+  void ConnectTableTasks();
 
-	void BuildSingleTableTasksForTbl(CRUTbl &tbl);
+  void BuildSingleTableTasksForTbl(CRUTbl &tbl);
 
-	void BuildLockEquivSetTask(CRUTblList &tblList);
-	void BuildTableSyncTask(CRUTbl &tbl);
-	void BuildEmpCheckTask(CRUTbl &tbl);
-	void BuildDETask(CRUTbl &tbl);
-	void BuildLogCleanupTask(CRUTbl &tbl);
+  void BuildLockEquivSetTask(CRUTblList &tblList);
+  void BuildTableSyncTask(CRUTbl &tbl);
+  void BuildEmpCheckTask(CRUTbl &tbl);
+  void BuildDETask(CRUTbl &tbl);
+  void BuildLogCleanupTask(CRUTbl &tbl);
 
-	void ConnectLockEquivSetTask(CRULockEquivSetTask &task);
-	void ConnectTableSyncTask(CRUTableSyncTask &task);
-	void ConnectDupElimTask(CRUDupElimTask &task);
-	void ConnectEmpCheckTask(CRUEmpCheckTask &task);
-	void ConnectLogCleanupTask(CRULogCleanupTask &task);
-	
-	void ConnectEmpCheckTaskIfTblIsInvolvedMV(CRUEmpCheckTask &task);
-	void ConnectEmpCheckTaskIfTblIsNotInvolvedMV(CRUEmpCheckTask &task);
+  void ConnectLockEquivSetTask(CRULockEquivSetTask &task);
+  void ConnectTableSyncTask(CRUTableSyncTask &task);
+  void ConnectDupElimTask(CRUDupElimTask &task);
+  void ConnectEmpCheckTask(CRUEmpCheckTask &task);
+  void ConnectLogCleanupTask(CRULogCleanupTask &task);
 
-	// BuildRcReleaseTasks() callees
-	void BuildRcReleaseTasksForMVs();
-	void BuildRcReleaseTasksForTables();
-	void BuildRcReleaseTask(CRUObject &obj);
+  void ConnectEmpCheckTaskIfTblIsInvolvedMV(CRUEmpCheckTask &task);
+  void ConnectEmpCheckTaskIfTblIsNotInvolvedMV(CRUEmpCheckTask &task);
 
-	void ConnectRcReleaseTasks();
-	void ConnectRefreshTaskToTableRcReleaseTasks(CRURefreshTask &task);
+  // BuildRcReleaseTasks() callees
+  void BuildRcReleaseTasksForMVs();
+  void BuildRcReleaseTasksForTables();
+  void BuildRcReleaseTask(CRUObject &obj);
 
-	// General
-	enum Dir { FORWARD, BACKWARD };
+  void ConnectRcReleaseTasks();
+  void ConnectRefreshTaskToTableRcReleaseTasks(CRURefreshTask &task);
 
-	void ConnectTaskToRefreshTasks(
-		CRUTask &task, 
-		CRUMVList &mvList,
-		Dir dir = FORWARD);
-private:
-	void BuildMVEquivSets();
+  // General
+  enum Dir { FORWARD, BACKWARD };
 
-private:
-	//-----------------------------------//
-	//	Core data members
-	//-----------------------------------//
+  void ConnectTaskToRefreshTasks(CRUTask &task, CRUMVList &mvList, Dir dir = FORWARD);
 
-	CRUCache &cache_;
-	CRUDependenceGraph &dg_;
+ private:
+  void BuildMVEquivSets();
 
-	Lng32 nTasks_;
-	CRUOptions::LogCleanupType lcType_;
+ private:
+  //-----------------------------------//
+  //	Core data members
+  //-----------------------------------//
 
-	// Tasks lists
-	CRUTaskList refreshTaskList_;
-	CRUTaskList tblTasksList_;
+  CRUCache &cache_;
+  CRUDependenceGraph &dg_;
 
-	// Equivalence set analyzers
-	CRUTblEquivSetBuilder tblEquivSetBuilder_; 
-	CRUMVEquivSetBuilder mvEquivSetBuilder_;
+  Lng32 nTasks_;
+  CRUOptions::LogCleanupType lcType_;
 
+  // Tasks lists
+  CRUTaskList refreshTaskList_;
+  CRUTaskList tblTasksList_;
+
+  // Equivalence set analyzers
+  CRUTblEquivSetBuilder tblEquivSetBuilder_;
+  CRUMVEquivSetBuilder mvEquivSetBuilder_;
 };
 
 #endif

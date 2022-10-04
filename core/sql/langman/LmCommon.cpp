@@ -58,61 +58,48 @@
 
 // copy_string(): create a copy of a string on the specified heap. A
 // pointer to the copy is returned.
-char *copy_string(NAMemory *heap, const char *src)
-{
-  return copy_chars(heap, src, (src ? strlen(src) : 0), TRUE);
-}
+char *copy_string(NAMemory *heap, const char *src) { return copy_chars(heap, src, (src ? strlen(src) : 0), TRUE); }
 
 // copy_chars(): create a copy of given chars on the specified heap.
 // The C runtime heap is used if heap is NULL. Target string is null
 // terminated if terminate is TRUE. A pointer to the copy is returned.
-char *copy_chars(NAMemory *heap, const char *src, ComUInt32 len,
-                 NABoolean terminate)
-{
-  if (!src)
-    return NULL;
+char *copy_chars(NAMemory *heap, const char *src, ComUInt32 len, NABoolean terminate) {
+  if (!src) return NULL;
 
-  if (terminate)
-    len++;
+  if (terminate) len++;
 
   char *tgt;
   if (heap)
-    tgt = new (heap) char [len];
+    tgt = new (heap) char[len];
   else
-    tgt = (char *) malloc(len);
-  
+    tgt = (char *)malloc(len);
+
   LMCOMMON_ASSERT(tgt);
-  
-  if (terminate)
-  {
-    str_cpy_all(tgt, src, (Lng32)len-1);
-    tgt[len-1] = '\0';
-  }
-  else
+
+  if (terminate) {
+    str_cpy_all(tgt, src, (Lng32)len - 1);
+    tgt[len - 1] = '\0';
+  } else
     str_cpy_all(tgt, src, (Lng32)len);
-  
+
   return tgt;
 }
 
 // copy_and_pad(): create a copy of the given buffer on the C runtime
 // heap. Optionally add zeroed-out padding at the end.
-char *copy_and_pad(const char *src, ComUInt32 len, ComUInt32 pad)
-{
+char *copy_and_pad(const char *src, ComUInt32 len, ComUInt32 pad) {
   char *tgt = NULL;
-  if (src)
-  {
+  if (src) {
     // Make sure the buffer size is a multiple of 8 so that it's
     // always aligned to store binary integers and floating point
     // values if necessary
     ComUInt32 actualLen = ROUND8(len + pad);
     ComUInt32 actualPad = actualLen - len;
-    tgt = (char *) malloc(actualLen);
+    tgt = (char *)malloc(actualLen);
     LMCOMMON_ASSERT(tgt);
 
-    if (len > 0)
-      memcpy(tgt, src, len);
-    if (actualPad)
-      memset(tgt + len, 0, actualPad);
+    if (len > 0) memcpy(tgt, src, len);
+    if (actualPad) memset(tgt + len, 0, actualPad);
   }
   return tgt;
 }
@@ -120,21 +107,17 @@ char *copy_and_pad(const char *src, ComUInt32 len, ComUInt32 pad)
 // strip_spaces(): strips leading and trailing spaces in a string. A
 // pointer to the first non-space character is returned. If there are
 // trailing spaces, the leftmost one is changed to '\0'.
-char *strip_spaces(char *str)
-{
+char *strip_spaces(char *str) {
   // Strip leading spaces
-  while (isSpace8859_1(*str))
-  {
+  while (isSpace8859_1(*str)) {
     str++;
   }
 
   ComUInt32 len = str_len(str);
 
   // Strip trailing spaces
-  for (ComUInt32 i = len; i > 0; i--)
-  {
-    if (!isSpace8859_1(str[i - 1]))
-    {
+  for (ComUInt32 i = len; i > 0; i--) {
+    if (!isSpace8859_1(str[i - 1])) {
       str[i] = '\0';
       break;
     }
@@ -145,23 +128,34 @@ char *strip_spaces(char *str)
 
 // This function maps INTERVAL FS datatypes to the corresponding
 // INTERVAL codes from sqlcli.h
-Lng32 getIntervalCode(short fstype)
-{
-  switch (fstype)
-  {
-    case REC_INT_YEAR:          return SQLINTCODE_YEAR;
-    case REC_INT_MONTH:         return SQLINTCODE_MONTH;
-    case REC_INT_YEAR_MONTH:    return SQLINTCODE_YEAR_MONTH;
-    case REC_INT_DAY:           return SQLINTCODE_DAY;
-    case REC_INT_HOUR:          return SQLINTCODE_HOUR;
-    case REC_INT_DAY_HOUR:      return SQLINTCODE_DAY_HOUR;
-    case REC_INT_MINUTE:        return SQLINTCODE_MINUTE;
-    case REC_INT_HOUR_MINUTE:   return SQLINTCODE_HOUR_MINUTE;
-    case REC_INT_DAY_MINUTE:    return SQLINTCODE_DAY_MINUTE;
-    case REC_INT_SECOND:        return SQLINTCODE_SECOND;
-    case REC_INT_MINUTE_SECOND: return SQLINTCODE_MINUTE_SECOND;
-    case REC_INT_HOUR_SECOND:   return SQLINTCODE_HOUR_SECOND;
-    case REC_INT_DAY_SECOND:    return SQLINTCODE_DAY_SECOND;
+Lng32 getIntervalCode(short fstype) {
+  switch (fstype) {
+    case REC_INT_YEAR:
+      return SQLINTCODE_YEAR;
+    case REC_INT_MONTH:
+      return SQLINTCODE_MONTH;
+    case REC_INT_YEAR_MONTH:
+      return SQLINTCODE_YEAR_MONTH;
+    case REC_INT_DAY:
+      return SQLINTCODE_DAY;
+    case REC_INT_HOUR:
+      return SQLINTCODE_HOUR;
+    case REC_INT_DAY_HOUR:
+      return SQLINTCODE_DAY_HOUR;
+    case REC_INT_MINUTE:
+      return SQLINTCODE_MINUTE;
+    case REC_INT_HOUR_MINUTE:
+      return SQLINTCODE_HOUR_MINUTE;
+    case REC_INT_DAY_MINUTE:
+      return SQLINTCODE_DAY_MINUTE;
+    case REC_INT_SECOND:
+      return SQLINTCODE_SECOND;
+    case REC_INT_MINUTE_SECOND:
+      return SQLINTCODE_MINUTE_SECOND;
+    case REC_INT_HOUR_SECOND:
+      return SQLINTCODE_HOUR_SECOND;
+    case REC_INT_DAY_SECOND:
+      return SQLINTCODE_DAY_SECOND;
   }
 
   LMCOMMON_ASSERT(0);
@@ -169,21 +163,13 @@ Lng32 getIntervalCode(short fstype)
 }
 
 // Class LmCBuffer
-LmCBuffer::LmCBuffer(ComUInt32 len)
-  : buf_(NULL),
-    len_(len)
-{
-  if (len_ > 0)
-    init(len_);
+LmCBuffer::LmCBuffer(ComUInt32 len) : buf_(NULL), len_(len) {
+  if (len_ > 0) init(len_);
 }
 
-LmCBuffer::~LmCBuffer()
-{
-  release();
-}
+LmCBuffer::~LmCBuffer() { release(); }
 
-char *LmCBuffer::init(ComUInt32 len)
-{
+char *LmCBuffer::init(ComUInt32 len) {
   release();
 
   // Make sure len_ is a multiple of 8 and then add 8 bytes for safety
@@ -193,145 +179,105 @@ char *LmCBuffer::init(ComUInt32 len)
   // malloc returns a buffer "suitably aligned for storage of any
   // type" according to the man page. We can assume the buffer will be
   // aligned on an 8-byte boundary.
-  buf_ = (char *) malloc(len_);
+  buf_ = (char *)malloc(len_);
   LMCOMMON_ASSERT(buf_);
 
   set(0);
   return buf_;
 }
 
-void LmCBuffer::set(Int32 c)
-{
-  if (buf_)
-    memset(buf_, c, len_);
+void LmCBuffer::set(Int32 c) {
+  if (buf_) memset(buf_, c, len_);
 }
 
-void LmCBuffer::release()
-{
-  if (buf_)
-    free(buf_);
+void LmCBuffer::release() {
+  if (buf_) free(buf_);
   buf_ = NULL;
   len_ = 0;
 }
 
-void addDllErrors(ComDiagsArea &diags,
-                  const char *operation,
-                  NABoolean isWarningOnly)
-{
+void addDllErrors(ComDiagsArea &diags, const char *operation, NABoolean isWarningOnly) {
   Int32 errorCode = 0;
   Int32 errorDetail = 0;
   char *errorString = (char *)"";
-
 
 #ifndef LMCOMMON_CANNOT_CALL_DLOPEN
   // dlresultcode() is not applicable to Linux
   errorString = dlerror();
 #endif
 
-
   // Remove trailing period and linefeed characters from the message
   // string
   ComUInt32 msglen = 0;
-  while (errorString && (msglen = strlen(errorString)) > 0)
-  {
+  while (errorString && (msglen = strlen(errorString)) > 0) {
     ComUInt32 idx = msglen - 1;
-    if (errorString[idx] == '\n' || errorString[idx] == '\r' ||
-        errorString[idx] == '.')
+    if (errorString[idx] == '\n' || errorString[idx] == '\r' || errorString[idx] == '.')
       errorString[idx] = 0;
     else
       break;
   }
 
-  diags << DgSqlCode((isWarningOnly ? LME_DLFCN_ERROR : -LME_DLFCN_ERROR))
-        << DgString0(operation)
-        << DgInt0(errorCode)
-        << DgInt1(errorDetail)
-        << DgString1(errorString);
-
+  diags << DgSqlCode((isWarningOnly ? LME_DLFCN_ERROR : -LME_DLFCN_ERROR)) << DgString0(operation) << DgInt0(errorCode)
+        << DgInt1(errorDetail) << DgString1(errorString);
 }
 
-LmHandle loadDll(
-  const char   *containerName,
-  const char   *externalPath,
-  LmHandle     extLoader,
-  ComUInt32    *containerSize,
-  ComDiagsArea *da,
-  NAMemory *heap)
-{
+LmHandle loadDll(const char *containerName, const char *externalPath, LmHandle extLoader, ComUInt32 *containerSize,
+                 ComDiagsArea *da, NAMemory *heap) {
 #ifdef LMCOMMON_CANNOT_CALL_DLOPEN
-  *da << DgSqlCode(-LME_INTERNAL_ERROR)
-      << DgString0(": dlopen() is not supported");
-  *da << DgSqlCode(-LME_DLL_CONT_NOT_FOUND)
-      << DgString0(containerName)
-      << DgString1(externalPath);
+  *da << DgSqlCode(-LME_INTERNAL_ERROR) << DgString0(": dlopen() is not supported");
+  *da << DgSqlCode(-LME_DLL_CONT_NOT_FOUND) << DgString0(containerName) << DgString1(externalPath);
   return NULL;
 #else
   char *libraryName = NULL;
-  if (str_len(externalPath) == 0)
-    externalPath = ".";
-  libraryName = new (heap)
-	  char[str_len(externalPath) + str_len(containerName) + 2];
+  if (str_len(externalPath) == 0) externalPath = ".";
+  libraryName = new (heap) char[str_len(externalPath) + str_len(containerName) + 2];
   sprintf(libraryName, "%s/%s", externalPath, containerName);
 
   // TBD: For now, set container size to 0. Need to see how to get
   // the actual size
-  if (containerSize)
-    *containerSize = 0;
+  if (containerSize) *containerSize = 0;
 
   // extLoader is an object of LmCLoader class. It's not used to
   // load the library. We can simply load the DLL.
   LmHandle container = NULL;
   const char *operation = "dlopen";
   short trycount = 6;
-  while (trycount >0)
-    {
-      container = (LmHandle) dlopen(libraryName, RTLD_NOW | RTLD_GLOBAL);
-      if (container == NULL)
-        {
-          sleep(30);
-          trycount--;
-        }
-      else
-        trycount = 0;
-    }
+  while (trycount > 0) {
+    container = (LmHandle)dlopen(libraryName, RTLD_NOW | RTLD_GLOBAL);
+    if (container == NULL) {
+      sleep(30);
+      trycount--;
+    } else
+      trycount = 0;
+  }
   LM_DEBUG3("%s(%s) returned 0x%08x\n", operation, libraryName, container);
-  
-  if (container == NULL)
-  {
-    *da << DgSqlCode(-LME_DLL_CONT_NOT_FOUND)
-        << DgString0(containerName)
-        << DgString1(externalPath);
+
+  if (container == NULL) {
+    *da << DgSqlCode(-LME_DLL_CONT_NOT_FOUND) << DgString0(containerName) << DgString1(externalPath);
     addDllErrors(*da, operation, FALSE);
   }
 
   NADELETEBASIC(libraryName, heap);
   return container;
-#endif // LMCOMMON_CANNOT_CALL_DLOPEN
+#endif  // LMCOMMON_CANNOT_CALL_DLOPEN
 }
 
-void unloadDll(LmHandle containerHandle, ComDiagsArea *da)
-{
-  if (containerHandle == NULL)
-    return;
-  
+void unloadDll(LmHandle containerHandle, ComDiagsArea *da) {
+  if (containerHandle == NULL) return;
+
 #ifndef LMCOMMON_CANNOT_CALL_DLOPEN
   Int32 retcode = 0;
   const char *operation = "dlclose";
   retcode = dlclose(containerHandle);
-  
-  LM_DEBUG3("%s(0x%08x) returned 0x%08x\n",
-            operation, containerHandle, retcode);
-  
+
+  LM_DEBUG3("%s(0x%08x) returned 0x%08x\n", operation, containerHandle, retcode);
+
   // Return a warning condition
-  if (retcode != 0 && da)
-    addDllErrors(*da, operation, TRUE);
-#endif // LMCOMMON_CANNOT_CALL_DLOPEN
+  if (retcode != 0 && da) addDllErrors(*da, operation, TRUE);
+#endif  // LMCOMMON_CANNOT_CALL_DLOPEN
 }
 
-LmHandle getRoutinePtr(
-  LmHandle     container,
-  const char   *routineName)
-{  
+LmHandle getRoutinePtr(LmHandle container, const char *routineName) {
 #ifdef LMCOMMON_CANNOT_CALL_DLOPEN
   return NULL;
 #else
@@ -339,12 +285,10 @@ LmHandle getRoutinePtr(
   LmHandle routinePtr = NULL;
   LMCOMMON_ASSERT(container);
   const char *operation = "dlsym";
-  routinePtr = (LmHandle) dlsym(container, routineName);
+  routinePtr = (LmHandle)dlsym(container, routineName);
 
-  LM_DEBUG4("%s(0x%08x,%s) returned 0x%08x\n",
-            operation, container, routineName, routinePtr);
-  
+  LM_DEBUG4("%s(0x%08x,%s) returned 0x%08x\n", operation, container, routineName, routinePtr);
+
   return routinePtr;
-#endif // LMCOMMON_CANNOT_CALL_DLOPEN
+#endif  // LMCOMMON_CANNOT_CALL_DLOPEN
 }
-

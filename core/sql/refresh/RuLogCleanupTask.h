@@ -47,71 +47,55 @@
 // ----------------------------------------------------------------- //
 // CRULogCleanupTask
 //
-//	 The Log Cleanup task class. Supports cleanup of inapplicable 
+//	 The Log Cleanup task class. Supports cleanup of inapplicable
 //	 epochs from a single table-log.
 //
 // ----------------------------------------------------------------- //
 
 class REFRESH_LIB_CLASS CRULogCleanupTask : public CRULogProcessingTask {
+ private:
+  typedef CRULogProcessingTask inherited;
 
-private:
-	typedef CRULogProcessingTask inherited;
+  //---------------------------------------//
+  //	PUBLIC AREA
+  //---------------------------------------//
+ public:
+  CRULogCleanupTask(Lng32 id, CRUTbl &table);
+  virtual ~CRULogCleanupTask() {}
 
-	//---------------------------------------//
-	//	PUBLIC AREA
-	//---------------------------------------//
-public:
-	CRULogCleanupTask(Lng32 id, CRUTbl& table);
-	virtual ~CRULogCleanupTask() {}
+  //-----------------------------------//
+  // Accessors
+  //-----------------------------------//
 
-	//-----------------------------------//
-	// Accessors
-	//-----------------------------------//
+ public:
+  TInt32 GetMaxInapplicableEpoch() const { return maxInapplicableEpoch_; }
 
-public:
-	TInt32 GetMaxInapplicableEpoch() const
-	{
-		return maxInapplicableEpoch_;
-	}
+  //-- Implementation of pure virtual functions
+  virtual CRUTask::Type GetType() const { return CRUTask::LOG_CLEANUP; }
 
-	//-- Implementation of pure virtual functions
-	virtual CRUTask::Type GetType() const 
-	{ 
-		return CRUTask::LOG_CLEANUP; 
-	}
+  //---------------------------------------//
+  //	PRIVATE AND PROTECTED AREA
+  //---------------------------------------//
+ protected:
+  //-- Implementation of pure virtuals
+  virtual CDSString GetTaskName() const { return "LC(" + GetTable().GetFullName() + ")"; }
 
-	//---------------------------------------//
-	//	PRIVATE AND PROTECTED AREA
-	//---------------------------------------//
-protected:
-	//-- Implementation of pure virtuals
-	virtual CDSString GetTaskName() const
-	{
-		return "LC(" + GetTable().GetFullName() +")"; 
-	}
+  virtual TInt32 GetComputedCost() const { return 0; }
 
-	virtual TInt32 GetComputedCost() const
-	{
-		return 0;
-	}
+  virtual BOOL IsImmediate() const { return FALSE; }
 
-	virtual BOOL IsImmediate() const
-	{
-		return FALSE;
-	}
+  virtual CRUTaskExecutor *CreateExecutorInstance();
 
-	virtual CRUTaskExecutor *CreateExecutorInstance();
+ private:
+  //-- Prevent copying
+  CRULogCleanupTask(const CRULogCleanupTask &other);
+  CRULogCleanupTask &operator=(const CRULogCleanupTask &other);
 
-private:
-	//-- Prevent copying
-	CRULogCleanupTask(const CRULogCleanupTask &other);
-	CRULogCleanupTask& operator= (const CRULogCleanupTask &other);
+ private:
+  void ComputeMaxInapplicableEpoch();
 
-private:
-	void ComputeMaxInapplicableEpoch();
-
-private:
-	TInt32 maxInapplicableEpoch_;
+ private:
+  TInt32 maxInapplicableEpoch_;
 };
 
 #endif

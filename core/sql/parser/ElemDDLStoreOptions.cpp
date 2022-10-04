@@ -44,24 +44,16 @@
 // -----------------------------------------------------------------------
 
 // virtual destructor
-ElemDDLStoreOpt::~ElemDDLStoreOpt()
-{
-}
+ElemDDLStoreOpt::~ElemDDLStoreOpt() {}
 
 // casting
-ElemDDLStoreOpt *
-ElemDDLStoreOpt::castToElemDDLStoreOpt()
-{
-  return this;
-}
+ElemDDLStoreOpt *ElemDDLStoreOpt::castToElemDDLStoreOpt() { return this; }
 
 //
 // methods for tracing
 //
 
-NATraceList
-ElemDDLStoreOpt::getDetailInfo() const
-{
+NATraceList ElemDDLStoreOpt::getDetailInfo() const {
   NATraceList detailTextList;
 
   //
@@ -73,9 +65,7 @@ ElemDDLStoreOpt::getDetailInfo() const
   return detailTextList;
 }
 
-const NAString
-ElemDDLStoreOpt::getText() const
-{
+const NAString ElemDDLStoreOpt::getText() const {
   ABORT("internal logic error");
   return "ElemDDLStoreOpt";
 }
@@ -85,64 +75,36 @@ ElemDDLStoreOpt::getText() const
 // -----------------------------------------------------------------------
 
 // virtual destructor
-ElemDDLStoreOptDefault::~ElemDDLStoreOptDefault()
-{
-}
+ElemDDLStoreOptDefault::~ElemDDLStoreOptDefault() {}
 
 // casting
-ElemDDLStoreOptDefault *
-ElemDDLStoreOptDefault::castToElemDDLStoreOptDefault()
-{
-  return this;
-}
+ElemDDLStoreOptDefault *ElemDDLStoreOptDefault::castToElemDDLStoreOptDefault() { return this; }
 
 //
 // methods for tracing
 //
 
-const NAString
-ElemDDLStoreOptDefault::displayLabel1() const
-{
-  return NAString("Default store option");
-}
+const NAString ElemDDLStoreOptDefault::displayLabel1() const { return NAString("Default store option"); }
 
-const NAString
-ElemDDLStoreOptDefault::getText() const
-{
-  return "ElemDDLStoreOptDefault";
-}
+const NAString ElemDDLStoreOptDefault::getText() const { return "ElemDDLStoreOptDefault"; }
 
 // -----------------------------------------------------------------------
 // methods for class ElemDDLStoreOptEntryOrder
 // -----------------------------------------------------------------------
 
 // virtual destructor
-ElemDDLStoreOptEntryOrder::~ElemDDLStoreOptEntryOrder()
-{
-}
+ElemDDLStoreOptEntryOrder::~ElemDDLStoreOptEntryOrder() {}
 
 // casting
-ElemDDLStoreOptEntryOrder *
-ElemDDLStoreOptEntryOrder::castToElemDDLStoreOptEntryOrder()
-{
-  return this;
-}
+ElemDDLStoreOptEntryOrder *ElemDDLStoreOptEntryOrder::castToElemDDLStoreOptEntryOrder() { return this; }
 
 //
 // methods for tracing
 //
 
-const NAString
-ElemDDLStoreOptEntryOrder::displayLabel1() const
-{
-  return NAString("Entry Order store option");
-}
+const NAString ElemDDLStoreOptEntryOrder::displayLabel1() const { return NAString("Entry Order store option"); }
 
-const NAString
-ElemDDLStoreOptEntryOrder::getText() const
-{
-  return "ElemDDLStoreOptEntryOrder";
-}
+const NAString ElemDDLStoreOptEntryOrder::getText() const { return "ElemDDLStoreOptEntryOrder"; }
 
 // -----------------------------------------------------------------------
 // methods for class ElemDDLStoreOptKeyColumnList
@@ -152,19 +114,15 @@ ElemDDLStoreOptEntryOrder::getText() const
 // constructor
 //
 
-ElemDDLStoreOptKeyColumnList::ElemDDLStoreOptKeyColumnList(
-     ElemDDLNode * pKeyColumnList,
-     NABoolean uniqueStoreBy,
-     NABoolean uniqueStoreByKeylist,
-     NABoolean pkeyStoreByKeylist,
-     CollHeap    * heap)
-: ElemDDLStoreOpt(ELM_STORE_OPT_KEY_COLUMN_LIST_ELEM),
-  keyColumnArray_(heap),
-  uniqueStoreBy_(uniqueStoreBy),
-  uniqueStoreByKeylist_(uniqueStoreByKeylist),
-  pkeyStoreByKeylist_(pkeyStoreByKeylist),
-  ser_(ComPkeySerialization::COM_SER_NOT_SPECIFIED)
-{
+ElemDDLStoreOptKeyColumnList::ElemDDLStoreOptKeyColumnList(ElemDDLNode *pKeyColumnList, NABoolean uniqueStoreBy,
+                                                           NABoolean uniqueStoreByKeylist, NABoolean pkeyStoreByKeylist,
+                                                           CollHeap *heap)
+    : ElemDDLStoreOpt(ELM_STORE_OPT_KEY_COLUMN_LIST_ELEM),
+      keyColumnArray_(heap),
+      uniqueStoreBy_(uniqueStoreBy),
+      uniqueStoreByKeylist_(uniqueStoreByKeylist),
+      pkeyStoreByKeylist_(pkeyStoreByKeylist),
+      ser_(ComPkeySerialization::COM_SER_NOT_SPECIFIED) {
   setChild(INDEX_KEY_COLUMN_LIST, pKeyColumnList);
 
   //
@@ -175,38 +133,25 @@ ElemDDLStoreOptKeyColumnList::ElemDDLStoreOptKeyColumnList(
   //
 
   ComASSERT(pKeyColumnList NEQ NULL);
-  for (CollIndex i = 0; i < pKeyColumnList->entries(); i++)
-  {
+  for (CollIndex i = 0; i < pKeyColumnList->entries(); i++) {
     keyColumnArray_.insert((*pKeyColumnList)[i]->castToElemDDLColRef());
   }
 }
 
 // virtual destructor
-ElemDDLStoreOptKeyColumnList::~ElemDDLStoreOptKeyColumnList()
-{
-}
+ElemDDLStoreOptKeyColumnList::~ElemDDLStoreOptKeyColumnList() {}
 
 // casting
-ElemDDLStoreOptKeyColumnList *
-ElemDDLStoreOptKeyColumnList::castToElemDDLStoreOptKeyColumnList()
-{
-  return this;
-}
+ElemDDLStoreOptKeyColumnList *ElemDDLStoreOptKeyColumnList::castToElemDDLStoreOptKeyColumnList() { return this; }
 
 //
 // accessors
 //
 
 // get the degree of this node
-Int32
-ElemDDLStoreOptKeyColumnList::getArity() const
-{
-  return MAX_ELEM_DDL_STORE_OPT_KEY_COLUMN_LIST_ARITY;
-}
+Int32 ElemDDLStoreOptKeyColumnList::getArity() const { return MAX_ELEM_DDL_STORE_OPT_KEY_COLUMN_LIST_ARITY; }
 
-ExprNode *
-ElemDDLStoreOptKeyColumnList::getChild(Lng32 index)
-{ 
+ExprNode *ElemDDLStoreOptKeyColumnList::getChild(Lng32 index) {
   ComASSERT(index >= 0 AND index < getArity());
   return children_[index];
 }
@@ -215,17 +160,12 @@ ElemDDLStoreOptKeyColumnList::getChild(Lng32 index)
 // mutator
 //
 
-void
-ElemDDLStoreOptKeyColumnList::setChild(Lng32 index, ExprNode * pChildNode)
-{
+void ElemDDLStoreOptKeyColumnList::setChild(Lng32 index, ExprNode *pChildNode) {
   ComASSERT(index >= 0 AND index < getArity());
-  if (pChildNode NEQ NULL)
-  {
+  if (pChildNode NEQ NULL) {
     ComASSERT(pChildNode->castToElemDDLNode() NEQ NULL);
     children_[index] = pChildNode->castToElemDDLNode();
-  }
-  else
-  {
+  } else {
     children_[index] = NULL;
   }
 }
@@ -234,18 +174,12 @@ ElemDDLStoreOptKeyColumnList::setChild(Lng32 index, ExprNode * pChildNode)
 // methods for tracing
 //
 
-const NAString
-ElemDDLStoreOptKeyColumnList::displayLabel1() const
-{
-  return NAString("Key Column List store option");
-}
+const NAString ElemDDLStoreOptKeyColumnList::displayLabel1() const { return NAString("Key Column List store option"); }
 
-NATraceList
-ElemDDLStoreOptKeyColumnList::getDetailInfo() const
-{
-  NAString        detailText;
+NATraceList ElemDDLStoreOptKeyColumnList::getDetailInfo() const {
+  NAString detailText;
   NATraceList detailTextList;
-  ElemDDLNode   * pKeyColumnList = getKeyColumnList();
+  ElemDDLNode *pKeyColumnList = getKeyColumnList();
 
   //
   // kind of store option
@@ -257,8 +191,7 @@ ElemDDLStoreOptKeyColumnList::getDetailInfo() const
   // column name list
   //
 
-  if (pKeyColumnList EQU NULL)
-  {
+  if (pKeyColumnList EQU NULL) {
     detailTextList.append("No column name list.");
     return detailTextList;
   }
@@ -268,8 +201,7 @@ ElemDDLStoreOptKeyColumnList::getDetailInfo() const
   detailText += " element(s)]:";
   detailTextList.append(detailText);
 
-  for (CollIndex i = 0; i < pKeyColumnList->entries(); i++)
-  {
+  for (CollIndex i = 0; i < pKeyColumnList->entries(); i++) {
     detailText = "[column ";
     detailText += LongToNAString((Lng32)i);
     detailText += "]";
@@ -280,55 +212,34 @@ ElemDDLStoreOptKeyColumnList::getDetailInfo() const
   return detailTextList;
 }
 
-const NAString
-ElemDDLStoreOptKeyColumnList::getText() const
-{
-  return "ElemDDLStoreOptKeyColumnList";
-}
+const NAString ElemDDLStoreOptKeyColumnList::getText() const { return "ElemDDLStoreOptKeyColumnList"; }
 
 // -----------------------------------------------------------------------
 // methods for class ElemDDLStoreOptNondroppablePK
 // -----------------------------------------------------------------------
 
-
 //
 // constructor
 //
 
-ElemDDLStoreOptNondroppablePK::ElemDDLStoreOptNondroppablePK(
-     NABoolean uniqueStoreByPrimaryKey)
-: ElemDDLStoreOpt(ELM_STORE_OPT_NONDROPPABLE_PRIMARY_KEY_ELEM),
-    uniqueStoreByPrimaryKey_(uniqueStoreByPrimaryKey)
-{
-}
+ElemDDLStoreOptNondroppablePK::ElemDDLStoreOptNondroppablePK(NABoolean uniqueStoreByPrimaryKey)
+    : ElemDDLStoreOpt(ELM_STORE_OPT_NONDROPPABLE_PRIMARY_KEY_ELEM), uniqueStoreByPrimaryKey_(uniqueStoreByPrimaryKey) {}
 
 // virtual destructor
-ElemDDLStoreOptNondroppablePK::~ElemDDLStoreOptNondroppablePK()
-{
-}
+ElemDDLStoreOptNondroppablePK::~ElemDDLStoreOptNondroppablePK() {}
 
 // casting
-ElemDDLStoreOptNondroppablePK *
-ElemDDLStoreOptNondroppablePK::castToElemDDLStoreOptNondroppablePK()
-{
-  return this;
-}
+ElemDDLStoreOptNondroppablePK *ElemDDLStoreOptNondroppablePK::castToElemDDLStoreOptNondroppablePK() { return this; }
 
 //
 // methods for tracing
 //
 
-const NAString
-ElemDDLStoreOptNondroppablePK::displayLabel1() const
-{
+const NAString ElemDDLStoreOptNondroppablePK::displayLabel1() const {
   return NAString("Nondroppable Primary Key store option");
 }
 
-const NAString
-ElemDDLStoreOptNondroppablePK::getText() const
-{
-  return "ElemDDLStoreOptNondroppablePK";
-}
+const NAString ElemDDLStoreOptNondroppablePK::getText() const { return "ElemDDLStoreOptNondroppablePK"; }
 
 //
 // End of File

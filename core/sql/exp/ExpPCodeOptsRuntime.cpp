@@ -29,13 +29,12 @@
 // in a higher selectivity (i.e. a better chance for this predicate group to
 // be scheduled earlier
 //
-float PCodePredicateGroup::getSelectivity(NABoolean isStatic)
-{
+float PCodePredicateGroup::getSelectivity(NABoolean isStatic) {
   // If static, taken is 1 so that only cost is recognized.
   float taken = (isStatic) ? ((float)1) : ((float)takenCount_);
   float hitRatio = (((float)taken) / ((float)seenCount_));
   float efficiency = hitRatio / ((float)cost_);
-  
+
   return efficiency;
 }
 
@@ -48,21 +47,19 @@ float PCodePredicateGroup::getSelectivity(NABoolean isStatic)
 // best.
 //
 // This minor selectivity function is used to give credit to those predicate
-// groups with high taken counts - with all else being equal, a predicate 
+// groups with high taken counts - with all else being equal, a predicate
 // group with a higher taken count can be considered a "reliable" or
 // "guaranteed" choice.
 //
-float PCodePredicateGroup::getMinorSelectivity(NABoolean isStatic)
-{
+float PCodePredicateGroup::getMinorSelectivity(NABoolean isStatic) {
   // If static, taken is 1 so that only cost is recognized.
   float taken = (isStatic) ? ((float)1) : ((float)takenCount_);
   float efficiency = taken / ((float)cost_);
-  
+
   return efficiency;
 }
 
-void PCodePredicateGroup::destroy(GROUPLIST& allGroups)
-{
+void PCodePredicateGroup::destroy(GROUPLIST &allGroups) {
 #if 0
   for (CollIndex i=0; i < allGroups.entries(); i++)
     NADELETE(allGroups[i], PCodePredicateGroup, heap_);
@@ -74,13 +71,9 @@ void PCodePredicateGroup::destroy(GROUPLIST& allGroups)
 // as TRUE when static reordering is performed, and FALSE when dynamic
 // reordering is done during runtime optimizations.
 //
-PCodePredicateGroup::PCodePredicateGroup(CollHeap* heap,
-                                         PCodeBlock* member,
-                                         NABoolean isStatic,
-                                         PCodeCfg* cfg)
-  : heap_(heap), predicates_(heap), reads_(heap), writes_(heap)
-{
-  PCodeInst* lastInst = member->getLastInst();
+PCodePredicateGroup::PCodePredicateGroup(CollHeap *heap, PCodeBlock *member, NABoolean isStatic, PCodeCfg *cfg)
+    : heap_(heap), predicates_(heap), reads_(heap), writes_(heap) {
+  PCodeInst *lastInst = member->getLastInst();
 
   // Add member to predicate group list
   predicates_.insert(member);
@@ -91,20 +84,19 @@ PCodePredicateGroup::PCodePredicateGroup(CollHeap* heap,
     assert(isStatic);
 
     // Get appropriate opcode for logical counted branch
-    PCIT::Instruction opc = ((lastInst->getOpcode() == PCIT::BRANCH_AND)
-                              ? PCIT::BRANCH_AND_CNT : PCIT::BRANCH_OR_CNT);
+    PCIT::Instruction opc = ((lastInst->getOpcode() == PCIT::BRANCH_AND) ? PCIT::BRANCH_AND_CNT : PCIT::BRANCH_OR_CNT);
 
     // Add logical counted branch at end and delete old logical branch
-    PCodeInst* branch = member->insertNewInstAfter(lastInst, opc);
+    PCodeInst *branch = member->insertNewInstAfter(lastInst, opc);
 
     // Rewrite pcode operands for this inst
-    branch->code[2] = 0; // clear trigger count
+    branch->code[2] = 0;  // clear trigger count
     branch->code[3] = lastInst->code[3];
     branch->code[4] = lastInst->code[4];
     branch->code[5] = lastInst->code[5];
     branch->code[6] = lastInst->code[6];
-    branch->code[7] = 0; // clear seen count
-    branch->code[8] = 0; // clear taken count
+    branch->code[7] = 0;  // clear seen count
+    branch->code[8] = 0;  // clear taken count
 
     // Reload operands
     branch->reloadOperands(cfg);
@@ -119,62 +111,55 @@ PCodePredicateGroup::PCodePredicateGroup(CollHeap* heap,
 
   // Set the cost_ for this basic predicate group.
   cost_ = 0;
-  FOREACH_INST_IN_BLOCK(member, inst) {
-    cost_ += inst->getCost();
-  } ENDFE_INST_IN_BLOCK
+  FOREACH_INST_IN_BLOCK(member, inst) { cost_ += inst->getCost(); }
+  ENDFE_INST_IN_BLOCK
 
   // Always make cost_ a multiple of the second costliest PCODE instruction.
   // At minimum its cost should be 1.
-  //cost_ = (cost_ < 100) ? 1 : (cost_/100 * 100);
+  // cost_ = (cost_ < 100) ? 1 : (cost_/100 * 100);
 }
 
 #if defined(_DEBUG)
 
-void PCodePredicateGroup::print()
-{
+void PCodePredicateGroup::print() {
   CollIndex i;
 
   // Print all predicate blocks in this group
   printf("(");
-  for (i=0; i < predicates_.entries(); i++)
-    printf(" %d ", predicates_[i]->getBlockNum());
+  for (i = 0; i < predicates_.entries(); i++) printf(" %d ", predicates_[i]->getBlockNum());
 
   // Print counts and costs for this predicate group
-  printf(") Cost=%d, Seen=%d, Taken=%d ",
-          (Int32)cost_, (Int32)seenCount_, (Int32)takenCount_);
+  printf(") Cost=%d, Seen=%d, Taken=%d ", (Int32)cost_, (Int32)seenCount_, (Int32)takenCount_);
 
   // Print reads
   printf(", Reads=");
-  for (i=0; i < reads_.entries(); i++)
-    printf("%d ", reads_[i]->getBvIndex());
+  for (i = 0; i < reads_.entries(); i++) printf("%d ", reads_[i]->getBvIndex());
 
   // Print writes
   printf(", Writes=");
-  for (i=0; i < writes_.entries(); i++)
-    printf("%d ", writes_[i]->getBvIndex());
+  for (i = 0; i < writes_.entries(); i++) printf("%d ", writes_[i]->getBvIndex());
 
   printf("\n");
 }
 
-#endif // defined(_DEBUG)
+#endif  // defined(_DEBUG)
 
 //
 // Gets invoked BEFORE predicate groups within unit have been shuffled.  This
 // should not be called for the static solution
 //
-void PCodePredicateGroup::adjustCost(GROUPLIST& unit)
-{
+void PCodePredicateGroup::adjustCost(GROUPLIST &unit) {
   CollIndex i;
-  PCodePredicateGroup* first = unit[0];
-  PCodePredicateGroup* last = unit[unit.entries() - 1];
+  PCodePredicateGroup *first = unit[0];
+  PCodePredicateGroup *last = unit[unit.entries() - 1];
 
   // Taken counts can be determined for any given predicate group by comparing
   // its seen count with that of it's successor - the difference indicates how
   // many times control exited the unit (early-exit).  This method can't be
   // done for the last predicate group in the unit, however.
 
-  for (i=0; i < unit.entries()-1; i++)
-    unit[i]->setTakenCount(unit[i]->getSeenCount() - unit[i+1]->getSeenCount());
+  for (i = 0; i < unit.entries() - 1; i++)
+    unit[i]->setTakenCount(unit[i]->getSeenCount() - unit[i + 1]->getSeenCount());
 
   // Counts need to be flipped when the last member falls through to the target
   // of the other members in the unit.
@@ -191,9 +176,7 @@ void PCodePredicateGroup::adjustCost(GROUPLIST& unit)
   // adjust the counts since they accurately reflect the early-exit.  If not,
   // however, then the counts needs to be flipped.
   //
-  if (first->getLastPredBlock()->getTargetBlock() !=
-      last->getFirstPredBlock()->getTargetBlock())
-  {
+  if (first->getLastPredBlock()->getTargetBlock() != last->getFirstPredBlock()->getTargetBlock()) {
     // The fallthrough of this last predicate group is in fact the early exit
     // block, so flip counts.
     last->setTakenCount(last->getSeenCount() - last->getTakenCount());
@@ -204,8 +187,7 @@ void PCodePredicateGroup::adjustCost(GROUPLIST& unit)
 // Gets invoked AFTER predicate groups within unit have been shuffled based
 // on cost
 //
-void PCodePredicateGroup::setCost(GROUPLIST& unit, NABoolean isStatic)
-{
+void PCodePredicateGroup::setCost(GROUPLIST &unit, NABoolean isStatic) {
   CollIndex i;
   Int64 totalSeen = 0;
   Int64 totalTaken = 0;
@@ -216,18 +198,16 @@ void PCodePredicateGroup::setCost(GROUPLIST& unit, NABoolean isStatic)
   // this unit after swapping is done, the group with the highest seenCount_
   // must have the correct seenCount_ for the unit.
 
-  for (i=1; i < unit.entries(); i++) {
-    if (seenCount_ < unit[i]->getSeenCount())
-      seenCount_ = unit[i]->getSeenCount();
+  for (i = 1; i < unit.entries(); i++) {
+    if (seenCount_ < unit[i]->getSeenCount()) seenCount_ = unit[i]->getSeenCount();
   }
 
   // Just to avoid potential divide-by-zero
-  if (seenCount_ == 0)
-    return;
+  if (seenCount_ == 0) return;
 
   // Recalculate seen and taken counts based on order of predicate groups in
-  // unit. 
-  for (totalSeen = seenCount_, i=0; i < unit.entries(); i++) {
+  // unit.
+  for (totalSeen = seenCount_, i = 0; i < unit.entries(); i++) {
     // Old counts for this unit
     Int64 seen = unit[i]->getSeenCount();
     Int64 taken = unit[i]->getTakenCount();
@@ -247,7 +227,7 @@ void PCodePredicateGroup::setCost(GROUPLIST& unit, NABoolean isStatic)
     // Next child will see however many this child saw minus early exits
     totalSeen -= taken;
   }
-  
+
   takenCount_ = totalTaken;
 
   // If static, assume on average that half the blocks are visited in this
@@ -260,7 +240,7 @@ void PCodePredicateGroup::setCost(GROUPLIST& unit, NABoolean isStatic)
 
   // Always make cost_ a multiple of the second costliest PCODE instruction.
   // At minimum its cost should be 1.
-  //cost_ = (cost_ < 100) ? 1 : (cost_/100 * 100);
+  // cost_ = (cost_ < 100) ? 1 : (cost_/100 * 100);
 }
 
 //
@@ -268,8 +248,7 @@ void PCodePredicateGroup::setCost(GROUPLIST& unit, NABoolean isStatic)
 // in.  Edges to and from each predicate block in each of the predicate groups
 // are rewired so that one replaces the other in the control flow graph
 //
-void PCodePredicateGroup::swap(PCodePredicateGroup* down, NABoolean adjacent)
-{
+void PCodePredicateGroup::swap(PCodePredicateGroup *down, NABoolean adjacent) {
   CollIndex i;
   Int32 tempOpc;
 
@@ -287,35 +266,32 @@ void PCodePredicateGroup::swap(PCodePredicateGroup* down, NABoolean adjacent)
   //
 
   // Copy down's preds into origPredsDown
-  for (i=0; i < down->getFirstPredBlock()->getPreds().entries(); i++)
+  for (i = 0; i < down->getFirstPredBlock()->getPreds().entries(); i++)
     origPredsDown.insert(down->getFirstPredBlock()->getPreds()[i]);
 
   // Copy up's preds into origPredsUp
-  for (i=0; i < getFirstPredBlock()->getPreds().entries(); i++)
+  for (i = 0; i < getFirstPredBlock()->getPreds().entries(); i++)
     origPredsUp.insert(getFirstPredBlock()->getPreds()[i]);
 
   // Copy down's succs into origSuccsDown
-  for (i=0; i < down->getLastPredBlock()->getSuccs().entries(); i++)
+  for (i = 0; i < down->getLastPredBlock()->getSuccs().entries(); i++)
     origSuccsDown.insert(down->getLastPredBlock()->getSuccs()[i]);
 
   // Copy up's succs into origSuccsUp
-  for (i=0; i < getLastPredBlock()->getSuccs().entries(); i++)
-    origSuccsUp.insert(getLastPredBlock()->getSuccs()[i]);
-
+  for (i = 0; i < getLastPredBlock()->getSuccs().entries(); i++) origSuccsUp.insert(getLastPredBlock()->getSuccs()[i]);
 
   // Record the first and last block of the up and down groups
 
-  PCodeBlock* origFirstBlockDown = down->getFirstPredBlock();
-  PCodeBlock* origFirstBlockUp = getFirstPredBlock();
-  PCodeBlock* origLastBlockDown = down->getLastPredBlock();
-  PCodeBlock* origLastBlockUp = getLastPredBlock();
+  PCodeBlock *origFirstBlockDown = down->getFirstPredBlock();
+  PCodeBlock *origFirstBlockUp = getFirstPredBlock();
+  PCodeBlock *origLastBlockDown = down->getLastPredBlock();
+  PCodeBlock *origLastBlockUp = getLastPredBlock();
 
   //
   // Fix up pred edges to new top group
   //
 
-  for (i=0; i < origPredsUp.entries(); i++) {
-
+  for (i = 0; i < origPredsUp.entries(); i++) {
     // Add edge from preds to down, properly adding fall-through edges
     if (origPredsUp[i]->getFallThroughBlock() == origFirstBlockUp)
       origPredsUp[i]->addFallThroughEdge(origFirstBlockDown);
@@ -330,7 +306,7 @@ void PCodePredicateGroup::swap(PCodePredicateGroup* down, NABoolean adjacent)
   // Fix up pred edges to new down group
   //
 
-  for (i=0; !adjacent && (i < origPredsDown.entries()); i++) {
+  for (i = 0; !adjacent && (i < origPredsDown.entries()); i++) {
     // Add edge from preds to down, properly adding fall-through edges
     if (origPredsDown[i]->getFallThroughBlock() == origFirstBlockDown)
       origPredsDown[i]->addFallThroughEdge(origFirstBlockUp);
@@ -345,13 +321,13 @@ void PCodePredicateGroup::swap(PCodePredicateGroup* down, NABoolean adjacent)
   // Fix interior nodes of new top group (i.e not last node)
   //
 
-  for (i=0; i < down->getPredicateBlocks().entries()-1; i++) {
-    PCodeBlock* block = down->getPredicateBlocks()[i];
+  for (i = 0; i < down->getPredicateBlocks().entries() - 1; i++) {
+    PCodeBlock *block = down->getPredicateBlocks()[i];
 
     // If this block points to some other interior node, then keep it - it
     // doesn't need to be fixed up.
     if ((block->getTargetBlock() != origLastBlockDown->getTargetBlock()) &&
-        (block->getTargetBlock() != origLastBlockDown->getFallThroughBlock())) 
+        (block->getTargetBlock() != origLastBlockDown->getFallThroughBlock()))
       continue;
 
     // First remove edge to target block
@@ -359,8 +335,7 @@ void PCodePredicateGroup::swap(PCodePredicateGroup* down, NABoolean adjacent)
 
     // Replace with edge to new target block, which will either be the beginning
     // of the old up group or the target of the old up group.
-    if (block->getLastInst()->getOpcode() ==
-        origLastBlockUp->getLastInst()->getOpcode())
+    if (block->getLastInst()->getOpcode() == origLastBlockUp->getLastInst()->getOpcode())
       block->addEdge(origLastBlockUp->getTargetBlock());
     else {
       if (adjacent)
@@ -374,13 +349,13 @@ void PCodePredicateGroup::swap(PCodePredicateGroup* down, NABoolean adjacent)
   // Fix interior nodes of new down group (i.e. not last node)
   //
 
-  for (i=0; i < getPredicateBlocks().entries()-1; i++) {
-    PCodeBlock* block = getPredicateBlocks()[i];
+  for (i = 0; i < getPredicateBlocks().entries() - 1; i++) {
+    PCodeBlock *block = getPredicateBlocks()[i];
 
     // If this block points to some other interior node, then keep it - it
     // doesn't need to be fixed up.
     if ((block->getTargetBlock() != origLastBlockUp->getTargetBlock()) &&
-        (block->getTargetBlock() != origLastBlockUp->getFallThroughBlock())) 
+        (block->getTargetBlock() != origLastBlockUp->getFallThroughBlock()))
       continue;
 
     // First remove edge to target block
@@ -388,8 +363,7 @@ void PCodePredicateGroup::swap(PCodePredicateGroup* down, NABoolean adjacent)
 
     // Replace with edge to new target block, which will either be the beginning
     // of the old up group or the target of the old up group.
-    if (block->getLastInst()->getOpcode() ==
-        origLastBlockDown->getLastInst()->getOpcode())
+    if (block->getLastInst()->getOpcode() == origLastBlockDown->getLastInst()->getOpcode())
       block->addEdge(origLastBlockDown->getTargetBlock());
     else
       block->addEdge(origLastBlockDown->getFallThroughBlock());
@@ -409,20 +383,16 @@ void PCodePredicateGroup::swap(PCodePredicateGroup* down, NABoolean adjacent)
 #endif
 
   tempOpc = origLastBlockUp->getLastInst()->getOpcode();
-  origLastBlockUp->getLastInst()->code[0] =
-    origLastBlockDown->getLastInst()->getOpcode();
+  origLastBlockUp->getLastInst()->code[0] = origLastBlockDown->getLastInst()->getOpcode();
   origLastBlockDown->getLastInst()->code[0] = tempOpc;
-
 
   //
   // Remove down's succs and up's succs and then fix them up
   //
 
-  while (origLastBlockDown->getSuccs().entries())
-    origLastBlockDown->removeEdge(origLastBlockDown->getSuccs()[0]);
+  while (origLastBlockDown->getSuccs().entries()) origLastBlockDown->removeEdge(origLastBlockDown->getSuccs()[0]);
 
-  while (origLastBlockUp->getSuccs().entries())
-    origLastBlockUp->removeEdge(origLastBlockUp->getSuccs()[0]);
+  while (origLastBlockUp->getSuccs().entries()) origLastBlockUp->removeEdge(origLastBlockUp->getSuccs()[0]);
 
   if (origSuccsUp[0] == origFirstBlockDown)
     origLastBlockDown->addEdge(origFirstBlockUp);
@@ -437,8 +407,7 @@ void PCodePredicateGroup::swap(PCodePredicateGroup* down, NABoolean adjacent)
   // Fix up entryBlock
   //
 
-  if (origFirstBlockUp->isEntryBlock())
-    origFirstBlockDown->setToEntryBlock();
+  if (origFirstBlockUp->isEntryBlock()) origFirstBlockDown->setToEntryBlock();
 }
 
 //
@@ -446,65 +415,55 @@ void PCodePredicateGroup::swap(PCodePredicateGroup* down, NABoolean adjacent)
 // with that at index "tail".  The two can't be swapped if, in between them,
 // is a predicate group with a "no cross" stamp
 //
-NABoolean PCodePredicateGroup::containsXBlock(GROUPLIST& unit,
-                                              CollIndex head,
-                                              CollIndex tail)
-{
+NABoolean PCodePredicateGroup::containsXBlock(GROUPLIST &unit, CollIndex head, CollIndex tail) {
   CollIndex i, j;
   PCodeOperand *read, *write;
-  PCodePredicateGroup* top = unit[head];
-  PCodePredicateGroup* bottom = unit[tail];
+  PCodePredicateGroup *top = unit[head];
+  PCodePredicateGroup *bottom = unit[tail];
 
   // WAW violations - no violation if write are the same in all groups
-  for (i=tail-1; (Int32)i >= (Int32)head; i--)
-  {
-    for (j=0; j < bottom->getWrites().entries(); j++) {
+  for (i = tail - 1; (Int32)i >= (Int32)head; i--) {
+    for (j = 0; j < bottom->getWrites().entries(); j++) {
       write = bottom->getWrites()[j];
-      if (!(unit[i]->getWrites().contains(write)))
-        return TRUE;
+      if (!(unit[i]->getWrites().contains(write))) return TRUE;
     }
 
-    for (j=0; j < unit[i]->getWrites().entries(); j++) {
+    for (j = 0; j < unit[i]->getWrites().entries(); j++) {
       write = unit[i]->getWrites()[j];
-      if (!(bottom->getWrites().contains(write)))
-        return TRUE;
+      if (!(bottom->getWrites().contains(write))) return TRUE;
     }
   }
 
   // RAW violation
-  for (i=0; i < bottom->getReads().entries(); i++) {
+  for (i = 0; i < bottom->getReads().entries(); i++) {
     read = bottom->getReads()[i];
     // Check if any of bottom's read operands conflict with write operands
-    for (j=tail-1; (Int32)j >= (Int32)head; j--)
-      if (unit[j]->getWrites().contains(read))
-        return TRUE;
+    for (j = tail - 1; (Int32)j >= (Int32)head; j--)
+      if (unit[j]->getWrites().contains(read)) return TRUE;
   }
 
   // WAR violations
-  for (i=0; i < bottom->getWrites().entries(); i++) {
+  for (i = 0; i < bottom->getWrites().entries(); i++) {
     write = bottom->getWrites()[i];
     // Check if any of bottom's write operands conflict with read operands
-    for (j=tail-1; (Int32)j >= (Int32)head; j--)
-      if (unit[j]->getReads().contains(write))
-        return TRUE;
+    for (j = tail - 1; (Int32)j >= (Int32)head; j--)
+      if (unit[j]->getReads().contains(write)) return TRUE;
   }
 
   // RAW violation (starting with top now)
-  for (i=0; i < top->getReads().entries(); i++) {
+  for (i = 0; i < top->getReads().entries(); i++) {
     read = top->getReads()[i];
     // Check if any of bottom's read operands conflict with write operands
-    for (j=head+1; j <= tail; j++)
-      if (unit[j]->getWrites().contains(read))
-        return TRUE;
+    for (j = head + 1; j <= tail; j++)
+      if (unit[j]->getWrites().contains(read)) return TRUE;
   }
 
   // WAR violations (starting with top now)
-  for (i=0; i < top->getWrites().entries(); i++) {
+  for (i = 0; i < top->getWrites().entries(); i++) {
     write = top->getWrites()[i];
     // Check if any of top's write operands conflict with read operands
-    for (j=head+1; j <= tail; j++)
-      if (unit[j]->getReads().contains(write))
-        return TRUE;
+    for (j = head + 1; j <= tail; j++)
+      if (unit[j]->getReads().contains(write)) return TRUE;
   }
 
   return FALSE;
@@ -517,39 +476,33 @@ NABoolean PCodePredicateGroup::containsXBlock(GROUPLIST& unit,
 // it's block.  In either case, the reads and writes list of the block are
 // updated.
 //
-void PCodePredicateGroup::identifyPICGroups(PCodeCfg* cfg,
-                                            CollHeap* heap,
-                                            GROUPLIST& allGroups)
-{
+void PCodePredicateGroup::identifyPICGroups(PCodeCfg *cfg, CollHeap *heap, GROUPLIST &allGroups) {
   CollIndex i, j, k;
-  PCodeBlock* block = getPredicateBlocks()[0];
+  PCodeBlock *block = getPredicateBlocks()[0];
 
   NABitVector operands(heap);
 
-  PCodeBlock* entryBlock = cfg->getEntryBlock();
+  PCodeBlock *entryBlock = cfg->getEntryBlock();
 
   FOREACH_INST_IN_BLOCK_BACKWARDS(block, inst) {
     // Kill defs first
-    for (i=0; i < inst->getWOps().entries(); i++)
-      operands -= inst->getWOps()[i]->getBvIndex();
+    for (i = 0; i < inst->getWOps().entries(); i++) operands -= inst->getWOps()[i]->getBvIndex();
 
     // Now add uses - note, consts don't count since they are constant defs
-    for (i=0; i < inst->getROps().entries(); i++)
-      if (!inst->getROps()[i]->isConst())
-        operands += inst->getROps()[i]->getBvIndex();
-  } ENDFE_INST_IN_BLOCK_BACKWARDS
+    for (i = 0; i < inst->getROps().entries(); i++)
+      if (!inst->getROps()[i]->isConst()) operands += inst->getROps()[i]->getBvIndex();
+  }
+  ENDFE_INST_IN_BLOCK_BACKWARDS
 
   i = operands.getLastStaleBit();
-  for (; (i = operands.prevUsed(i)) != NULL_COLL_INDEX; i--)
-  {
-    PCodeOperand* read = cfg->getMap()->getFirstValue(&i);
+  for (; (i = operands.prevUsed(i)) != NULL_COLL_INDEX; i--) {
+    PCodeOperand *read = cfg->getMap()->getFirstValue(&i);
 
-    PCodeInst* defE = entryBlock->reachingDefsTab_->find(i, TRUE /* In */);
-    PCodeInst* defB = block->reachingDefsTab_->find(i, TRUE /* In */);
+    PCodeInst *defE = entryBlock->reachingDefsTab_->find(i, TRUE /* In */);
+    PCodeInst *defB = block->reachingDefsTab_->find(i, TRUE /* In */);
 
     // If the def comes from entry, continue
-    if ((defE != NULL) && (defE == defB))
-      continue;
+    if ((defE != NULL) && (defE == defB)) continue;
 
     // Add read to reads list
     addRead(read);
@@ -557,18 +510,18 @@ void PCodePredicateGroup::identifyPICGroups(PCodeCfg* cfg,
     // If the def comes from a predicate group, then continue to consider this
     // as a predicate block, but mark the predicate block containing the def
     // as one which swapping can't cross over - i.e. no cross group.
-    for (j=0; j < allGroups.entries(); j++) {
-      PCodeBlock* basicPB = allGroups[j]->getPredicateBlocks()[0];
+    for (j = 0; j < allGroups.entries(); j++) {
+      PCodeBlock *basicPB = allGroups[j]->getPredicateBlocks()[0];
 
-      if (basicPB->reachingDefsTab_->find(i) == NULL)
-        continue;
+      if (basicPB->reachingDefsTab_->find(i) == NULL) continue;
 
       FOREACH_INST_IN_BLOCK_BACKWARDS(basicPB, def) {
-        for (k=0; k < def->getWOps().entries(); k++)
+        for (k = 0; k < def->getWOps().entries(); k++)
           if (def->getWOps()[k]->getBvIndex() == i) {
             allGroups[j]->addWrite(read);
           }
-      } ENDFE_INST_IN_BLOCK_BACKWARDS
+      }
+      ENDFE_INST_IN_BLOCK_BACKWARDS
     }
   }
 }
@@ -578,15 +531,13 @@ void PCodePredicateGroup::identifyPICGroups(PCodeCfg* cfg,
 // a predicate block).  Basic predicate groups must be self-containing such
 // that they are position-independent and can be moved freely.
 //
-NABoolean PCodePredicateGroup::isPredicateBlock(PCodeBlock* block)
-{
+NABoolean PCodePredicateGroup::isPredicateBlock(PCodeBlock *block) {
   FOREACH_INST_IN_BLOCK_BACKWARDS(block, inst) {
     // Some clauses should not be allowed to be swapped because they have
     // side-effects.
-    if (inst->clause_ &&
-        (inst->clause_->getClassID() == ex_clause::FUNC_RAISE_ERROR_ID))
-      return FALSE;
-  } ENDFE_INST_IN_BLOCK_BACKWARDS
+    if (inst->clause_ && (inst->clause_->getClassID() == ex_clause::FUNC_RAISE_ERROR_ID)) return FALSE;
+  }
+  ENDFE_INST_IN_BLOCK_BACKWARDS
 
   return TRUE;
 }
@@ -596,28 +547,24 @@ NABoolean PCodePredicateGroup::isPredicateBlock(PCodeBlock* block)
 // passed in.  It does so if and only iff all edges flowing into the sibling
 // predicate group come from this predicate group.
 //
-NABoolean PCodePredicateGroup::dominates(PCodePredicateGroup* sibling)
-{
+NABoolean PCodePredicateGroup::dominates(PCodePredicateGroup *sibling) {
   CollIndex i;
-  PCodeBlock* siblingFirstBlock = sibling->getFirstPredBlock();
+  PCodeBlock *siblingFirstBlock = sibling->getFirstPredBlock();
 
   // Since the first predicate block of the sibling predicate group dominates
   // all the predicate block members in its group, we only need to check the
   // edges flowing into the sibling's first pred block to see if this predicate
   // group dominates sibling.
-  for (i=0; i < siblingFirstBlock->getPreds().entries(); i++)
-  {
-    PCodeBlock* pred = siblingFirstBlock->getPreds()[i];
+  for (i = 0; i < siblingFirstBlock->getPreds().entries(); i++) {
+    PCodeBlock *pred = siblingFirstBlock->getPreds()[i];
 
     // If this group does not contain the predicate block, then it can't
     // possibly dominate sibling
-    if (predicates_.index(pred) == NULL_COLL_INDEX)
-      return FALSE;
+    if (predicates_.index(pred) == NULL_COLL_INDEX) return FALSE;
   }
 
   // If sibling has no preds, it can't be dominated
-  if (i == 0)
-    return FALSE;
+  if (i == 0) return FALSE;
 
   return TRUE;
 }
@@ -635,32 +582,27 @@ NABoolean PCodePredicateGroup::dominates(PCodePredicateGroup* sibling)
 //
 // Return TRUE if any unit is found
 //
-NABoolean PCodePredicateGroup::findUnits(GROUPLIST& unit,
-                                         GROUPLIST& workList,
-                                         NABoolean& swapPerformed,
-                                         NABoolean isStatic)
-{
+NABoolean PCodePredicateGroup::findUnits(GROUPLIST &unit, GROUPLIST &workList, NABoolean &swapPerformed,
+                                         NABoolean isStatic) {
   CollIndex i, j, k;
   PCodePredicateGroup *sibling, *group = this;
   NABoolean unitFound = FALSE;
 
 #if defined(_DEBUG)
   NABoolean debug = FALSE;
-#endif // defined(_DEBUG)
+#endif  // defined(_DEBUG)
 
   // The group is part of the unit, so add to unit and remove from workList
   unit.insert(group);
   workList.remove(group);
 
   // Find siblings
-  for (i=0; i < workList.entries(); i++)
-  {
+  for (i = 0; i < workList.entries(); i++) {
     // Record potential sibling
     sibling = workList[i];
 
     // 1. This group must dominate the potential sibling group
-    if (!group->dominates(sibling))
-      continue;
+    if (!group->dominates(sibling)) continue;
 
     // 2. Target of this group must either be the fall-through/target block of
     //    the potential sibling group, and that even depends on the branch opc
@@ -668,13 +610,12 @@ NABoolean PCodePredicateGroup::findUnits(GROUPLIST& unit,
     //    be the fall-through of the younger sibling, if the two are to be in
     //    the same predicate group.
 
-    PCodeBlock* target = group->getLastPredBlock()->getTargetBlock();
-    PCodeBlock* siblingLastBlock = sibling->getLastPredBlock();
+    PCodeBlock *target = group->getLastPredBlock()->getTargetBlock();
+    PCodeBlock *siblingLastBlock = sibling->getLastPredBlock();
     Int32 opc = group->getLastPredBlock()->getLastInst()->getOpcode();
 
     // If older and younger sibling have different opcodes...
-    if (opc != siblingLastBlock->getLastInst()->getOpcode())
-    {
+    if (opc != siblingLastBlock->getLastInst()->getOpcode()) {
       // The two siblings are in the same predicate group if the target block
       // of the older sibling is the same as the fall-through block of the
       // younger sibling.  If they're not the same, this implies that the
@@ -682,11 +623,9 @@ NABoolean PCodePredicateGroup::findUnits(GROUPLIST& unit,
       // to be materialized first before we can move forward.
 
       if (target != siblingLastBlock->getFallThroughBlock()) {
-
         // Attempt to find a sub-unit for this younger sibling
         GROUPLIST tempUnit(heap_);
-        if (sibling->findUnits(tempUnit, workList, swapPerformed, isStatic))
-          unitFound = TRUE;
+        if (sibling->findUnits(tempUnit, workList, swapPerformed, isStatic)) unitFound = TRUE;
 
         // Check if condition (2) is now met.  If not, restart search for
         // younger sibling.
@@ -695,8 +634,7 @@ NABoolean PCodePredicateGroup::findUnits(GROUPLIST& unit,
             i = (CollIndex)-1;
             continue;
           }
-        }
-        else {
+        } else {
           if (sibling->getLastPredBlock()->getTargetBlock() != target) {
             i = (CollIndex)-1;
             continue;
@@ -706,29 +644,24 @@ NABoolean PCodePredicateGroup::findUnits(GROUPLIST& unit,
         // All conditions met, so insert younger sibling into predicate group
         unit.insert(tempUnit[0]);
         workList.remove(tempUnit[0]);
-      }
-      else {
+      } else {
         // Insert younger sibling into predicate group
         unit.insert(sibling);
         workList.remove(sibling);
       }
-    }
-    else
-    {
+    } else {
       // This algorithm is the same as the logic above in the then clause - it
       // just treats things differently because of the opcode check.
       if (target != siblingLastBlock->getTargetBlock()) {
         GROUPLIST tempUnit(heap_);
-        if (sibling->findUnits(tempUnit, workList, swapPerformed, isStatic))
-          unitFound = TRUE;
+        if (sibling->findUnits(tempUnit, workList, swapPerformed, isStatic)) unitFound = TRUE;
 
         if (opc != sibling->getLastPredBlock()->getLastInst()->getOpcode()) {
           if (sibling->getLastPredBlock()->getFallThroughBlock() != target) {
             i = (CollIndex)-1;
             continue;
           }
-        }
-        else {
+        } else {
           if (sibling->getLastPredBlock()->getTargetBlock() != target) {
             i = (CollIndex)-1;
             continue;
@@ -737,8 +670,7 @@ NABoolean PCodePredicateGroup::findUnits(GROUPLIST& unit,
 
         unit.insert(tempUnit[0]);
         workList.remove(tempUnit[0]);
-      }
-      else {
+      } else {
         unit.insert(sibling);
         workList.remove(sibling);
       }
@@ -748,24 +680,22 @@ NABoolean PCodePredicateGroup::findUnits(GROUPLIST& unit,
     group = sibling;
 
     // Restart search from the beginning now
-    i=(CollIndex)-1;
+    i = (CollIndex)-1;
   }
 
 #if defined(_DEBUG)
   // Just some extra checking to make sure we've exhausted all possible
   // siblings.  TODO: remove this once testing shows it to be stable.
   sibling = unit[0];
-  for (i=0; i < workList.entries(); i++) {
+  for (i = 0; i < workList.entries(); i++) {
     group = workList[i];
 
-    if (group->dominates(sibling))
-      assert(FALSE);
+    if (group->dominates(sibling)) assert(FALSE);
   }
-#endif // defined(_DEBUG)
+#endif  // defined(_DEBUG)
 
   // If unit isn't big enough, continue
-  if (unit.entries() < 2)
-    return unitFound;
+  if (unit.entries() < 2) return unitFound;
 
   // Mark flag that a unit was found and so this expression should be analyzed
   // at runtime to see if counts affect how predicates within this expression
@@ -774,22 +704,20 @@ NABoolean PCodePredicateGroup::findUnits(GROUPLIST& unit,
 
   // At this point, group represents the leader of the unit.  Fix up the
   // costs of the last block within this unit, should it need fixing.
-  if (!isStatic)
-    group->adjustCost(unit);
+  if (!isStatic) group->adjustCost(unit);
 
 #if defined(_DEBUG)
   if (debug) {
     printf("Unit found:\n");
-    for (i=0; i < unit.entries(); i++)
-      unit[i]->print();
+    for (i = 0; i < unit.entries(); i++) unit[i]->print();
     printf("\n");
   }
-#endif // defined(_DEBUG)
+#endif  // defined(_DEBUG)
 
   // Record the fact on whether or not this unit contains a predicate group
   // with a write operand.
   NABoolean writeFound = FALSE;
-  for (j=0; j < unit.entries(); j++) {
+  for (j = 0; j < unit.entries(); j++) {
     if (unit[j]->getWrites().entries()) {
       writeFound = TRUE;
       break;
@@ -797,15 +725,14 @@ NABoolean PCodePredicateGroup::findUnits(GROUPLIST& unit,
   }
 
   // Swap elements in unit based on cost
-  for (j=0; j < unit.entries(); j++) {
+  for (j = 0; j < unit.entries(); j++) {
     // Make the assumption that the first predicate group member in this unit
     // has the best selectivity, and therefore is appropriately placed
     CollIndex minIndex = j;
 
     // Go through each predicate group member and check if that member has a
     // selectivity higher than the one identified so far.
-    for (k=j+1; k < unit.entries(); k++) {
-
+    for (k = j + 1; k < unit.entries(); k++) {
       float kSel = unit[k]->getSelectivity(isStatic);
       float minSel = unit[minIndex]->getSelectivity(isStatic);
       float diff = kSel - minSel;
@@ -818,22 +745,21 @@ NABoolean PCodePredicateGroup::findUnits(GROUPLIST& unit,
 
         kSel = unit[k]->getMinorSelectivity(isStatic);
         minSel = unit[minIndex]->getMinorSelectivity(isStatic);
-        diff = (minSel == 0) ? kSel : (kSel/minSel);
+        diff = (minSel == 0) ? kSel : (kSel / minSel);
 
         if (diff >= 0.25) {
           // One more check.  Do not allow the swap to occur if either groups
           // violate any read/write dependencies.
-          if (!writeFound || !unit[j]->containsXBlock(unit, j, k))
-            minIndex = k;
+          if (!writeFound || !unit[j]->containsXBlock(unit, j, k)) minIndex = k;
         }
       }
     }
 
     // Identify the minGroup - i.e. the group that should be scheduled earliest
-    PCodePredicateGroup* minGroup = unit[minIndex];
+    PCodePredicateGroup *minGroup = unit[minIndex];
 
     if (minIndex != j) {
-      unit[j]->swap(minGroup, (j+1 == minIndex) /* are groups adjacent */ );
+      unit[j]->swap(minGroup, (j + 1 == minIndex) /* are groups adjacent */);
 
       // Move minimal cost group to position j, so as to not process it again
       unit[minIndex] = unit[j];
@@ -850,21 +776,18 @@ NABoolean PCodePredicateGroup::findUnits(GROUPLIST& unit,
   group->setCost(unit, isStatic);
 
   // Propagate knowledge about reads and writes for this unit.
-  for (i=1; i < unit.entries(); i++) {
-    for (j=0; j < unit[i]->getReads().entries(); j++)
-      group->getReads().insert(unit[i]->getReads()[j]);
-    for (j=0; j < unit[i]->getWrites().entries(); j++)
-      group->getWrites().insert(unit[i]->getWrites()[j]);
+  for (i = 1; i < unit.entries(); i++) {
+    for (j = 0; j < unit[i]->getReads().entries(); j++) group->getReads().insert(unit[i]->getReads()[j]);
+    for (j = 0; j < unit[i]->getWrites().entries(); j++) group->getWrites().insert(unit[i]->getWrites()[j]);
   }
 
 #if defined(_DEBUG)
   if (debug) {
     printf("Unit after swap:\n");
-    for (i=0; i < unit.entries(); i++)
-      unit[i]->print();
+    for (i = 0; i < unit.entries(); i++) unit[i]->print();
     printf("\n");
   }
-#endif // defined(_DEBUG)
+#endif  // defined(_DEBUG)
 
   // Merge the rest of the unit into the leader predicate group
   while (unit.entries() > 1) {
@@ -878,74 +801,63 @@ NABoolean PCodePredicateGroup::findUnits(GROUPLIST& unit,
   return unitFound;
 }
 
-NABoolean PCodeCfg::reorderPredicates(NABoolean isStatic)
-{
+NABoolean PCodeCfg::reorderPredicates(NABoolean isStatic) {
   CollIndex i;
   GROUPLIST allGroups(heap_);
   Int32 triggerCount;
 
   NABoolean swapPerformed = FALSE;
   NABoolean unitFound = FALSE;
-  PCodeBlock* start = entryBlock_;
+  PCodeBlock *start = entryBlock_;
 
   // Currently only run this optimization if we're dealing with a SCAN
-  if (expr_->getType() != ex_expr::exp_SCAN_PRED)
-    return swapPerformed;
+  if (expr_->getType() != ex_expr::exp_SCAN_PRED) return swapPerformed;
 
   // If we have a bulk null branch, we only want to optimize in the case when
   // we have no nulls to process.  This will make it less likely to find false
   // predicate blocks.
-  if (start->getLastInst()->isBulkNullBranch())
-    start = start->getTargetBlock();
+  if (start->getLastInst()->isBulkNullBranch()) start = start->getTargetBlock();
 
   // Find all basic predicate groups.  It's very important that we process
   // blocks in the reverse depth-first-order so that calls to "findUnit" come
   // from predicate blocks which aren't dominated by any other predicate block.
   // This will ensure faster convergence for the algorithm.
-  FOREACH_BLOCK_REV_DFO_AT(start, block, firstInst, lastInst, index)
-  {
-    // Only blocks terminated by a logical branch qualify (potentially) as 
+  FOREACH_BLOCK_REV_DFO_AT(start, block, firstInst, lastInst, index) {
+    // Only blocks terminated by a logical branch qualify (potentially) as
     // a predicate block.  If terminated by a logical counted branch, no
     // additional check is needed since that implies that the block already
     // meets the requirements.
 
-    if (lastInst &&
-        (lastInst->isLogicalBranch() || lastInst->isLogicalCountedBranch()) &&
-        PCodePredicateGroup::isPredicateBlock(block))
-    {
-      PCodePredicateGroup* group =
-        (PCodePredicateGroup*) new(heap_)
-          PCodePredicateGroup(heap_, block, isStatic, this);
+    if (lastInst && (lastInst->isLogicalBranch() || lastInst->isLogicalCountedBranch()) &&
+        PCodePredicateGroup::isPredicateBlock(block)) {
+      PCodePredicateGroup *group = (PCodePredicateGroup *)new (heap_) PCodePredicateGroup(heap_, block, isStatic, this);
 
       allGroups.insert(group);
     }
-  } ENDFE_BLOCK_REV_DFO
+  }
+  ENDFE_BLOCK_REV_DFO
 
   // Don't proceed if we don't have at least 2 predicate groups to swap.
   // Similarly, don't proceed if we have *too* many groups.
   if ((allGroups.entries() < 2) || (allGroups.entries() > 1000)) {
-    if (allGroups.entries())
-      allGroups[0]->destroy(allGroups);
+    if (allGroups.entries()) allGroups[0]->destroy(allGroups);
     return FALSE;
   }
 
   // Now that we have the possibility of having a unit, identify read operands
   // that reach each predicate group, and write operands which are live at the
   // end of each predicate group.
-  for (i=0; i < allGroups.entries(); i++)
-    allGroups[i]->identifyPICGroups(this, heap_, allGroups);
+  for (i = 0; i < allGroups.entries(); i++) allGroups[i]->identifyPICGroups(this, heap_, allGroups);
 
   // Create a workList so as to maintain allGroups for later iteration
   GROUPLIST workList(heap_);
-  for (i=0; i < allGroups.entries(); i++)
-    workList.insert(allGroups[i]);
+  for (i = 0; i < allGroups.entries(); i++) workList.insert(allGroups[i]);
 
   // Find all units and reorder them individually (and together) based on cost
   // and frequency.
   while (workList.entries()) {
     GROUPLIST tempUnit(heap_);
-    if (workList[0]->findUnits(tempUnit, workList, swapPerformed, isStatic))
-      unitFound = TRUE;
+    if (workList[0]->findUnits(tempUnit, workList, swapPerformed, isStatic)) unitFound = TRUE;
   }
 
   // If no unit was found, then don't set trigger count for predicates in this
@@ -972,18 +884,17 @@ NABoolean PCodeCfg::reorderPredicates(NABoolean isStatic)
   // Reset trigger count - init if static, double if dynamic
   triggerCount = (isStatic) ? TRIGGER_COUNT : (triggerCount + triggerCount);
 
-  // Reset counters and trigger count here 
-  for (i=0; i < allGroups.entries(); i++) {
-    PCodePredicateGroup* group = allGroups[i];
-    PCodeBlock* block = group->getPredicateBlocks()[0];
-    PCodeInst* lastInst = block->getLastInst();
+  // Reset counters and trigger count here
+  for (i = 0; i < allGroups.entries(); i++) {
+    PCodePredicateGroup *group = allGroups[i];
+    PCodeBlock *block = group->getPredicateBlocks()[0];
+    PCodeInst *lastInst = block->getLastInst();
 
     // Set trigger count
     lastInst->code[2] = triggerCount;
 
     // Clear out counters if a swap was performed
-    if (swapPerformed)
-      lastInst->clearCounters();
+    if (swapPerformed) lastInst->clearCounters();
   }
 
   allGroups[0]->destroy(allGroups);

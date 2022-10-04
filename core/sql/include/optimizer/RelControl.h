@@ -27,8 +27,8 @@
  *
  * File:         RelControl.h
  * Description:  CONTROL statements
- *               
- *               
+ *
+ *
  * Created:      6/11/96
  * Language:     C++
  *
@@ -38,7 +38,6 @@
  *****************************************************************************
  */
 
-
 #include "sqlcomp/DefaultConstants.h"
 #include "optimizer/RelExpr.h"
 #include "parser/StmtCompilationMode.h"
@@ -47,61 +46,54 @@
 
 class GroupOfNAString;
 
-class ControlAbstractClass : public RelExpr
-{
-public:
-
-  ControlAbstractClass(OperatorTypeEnum otype,
-		       const NAString &sqlText, CharInfo::CharSet sqlTextCharSet,
-		       const NAString &token,
-		       const NAString &value,
-		       NABoolean dynamic,
-		       CollHeap *h,
-                       Int32 reset=0) :
-    RelExpr(otype, NULL, NULL, h),
-    sqlText_(sqlText,h), sqlTextCharSet_(sqlTextCharSet), token_(token,h), value_(value,h),
-    reset_(reset), dynamic_(dynamic)
-    { rewriteControlText(sqlText_, sqlTextCharSet, this); 
-      setNonCacheable();
-    }
+class ControlAbstractClass : public RelExpr {
+ public:
+  ControlAbstractClass(OperatorTypeEnum otype, const NAString &sqlText, CharInfo::CharSet sqlTextCharSet,
+                       const NAString &token, const NAString &value, NABoolean dynamic, CollHeap *h, Int32 reset = 0)
+      : RelExpr(otype, NULL, NULL, h),
+        sqlText_(sqlText, h),
+        sqlTextCharSet_(sqlTextCharSet),
+        token_(token, h),
+        value_(value, h),
+        reset_(reset),
+        dynamic_(dynamic) {
+    rewriteControlText(sqlText_, sqlTextCharSet, this);
+    setNonCacheable();
+  }
 
   // copy ctor
-  ControlAbstractClass (const ControlAbstractClass & orig, 
-                        CollHeap *h=CmpCommon::statementHeap()); // not written
+  ControlAbstractClass(const ControlAbstractClass &orig,
+                       CollHeap *h = CmpCommon::statementHeap());  // not written
 
   // virtual destructor
   virtual ~ControlAbstractClass();
 
-  virtual Int32 getArity() const		{ return 0; }
-  virtual NABoolean isPhysical() const	{ return TRUE; }
-  virtual HashValue topHash()		{ return 0; }
+  virtual Int32 getArity() const { return 0; }
+  virtual NABoolean isPhysical() const { return TRUE; }
+  virtual HashValue topHash() { return 0; }
   virtual void getPotentialOutputValues(ValueIdSet &vs) const { vs.clear(); }
-  virtual NABoolean  isAControlStatement() const	      { return TRUE; }
+  virtual NABoolean isAControlStatement() const { return TRUE; }
   virtual StaticOnly isAStaticOnlyStatement() const;
 
   virtual RelExpr *bindNode(BindWA *bindWAPtr);
   virtual RelExpr *copyTopNode(RelExpr *derivedNode = NULL, CollHeap *h = NULL);
   virtual NABoolean duplicateMatch(const RelExpr &other) const;
-  virtual PhysicalProperty *synthPhysicalProperty(const Context *context,
-                                                  const Lng32    planNumber,
-                                                  PlanWorkSpace  *pws);
-  virtual short codeGen(Generator*);	// defined in GenRelDCL.cpp
+  virtual PhysicalProperty *synthPhysicalProperty(const Context *context, const Lng32 planNumber, PlanWorkSpace *pws);
+  virtual short codeGen(Generator *);  // defined in GenRelDCL.cpp
 
-  const NAString &getSqlText() const	{ return sqlText_; }
-  CharInfo::CharSet getSqlTextCharSet() const	{ return sqlTextCharSet_; }
-  const NAString &getToken() const	{ return token_; }
-  const NAString &getValue() const	{ return value_; }
-  NAString &mutateToken()		{ return token_; }
-  NAString &mutateValue()		{ return value_; }
-  Int32 &reset()	 			{ return reset_; }	// mutator
-  NABoolean dynamic() const		{ return dynamic_; }
+  const NAString &getSqlText() const { return sqlText_; }
+  CharInfo::CharSet getSqlTextCharSet() const { return sqlTextCharSet_; }
+  const NAString &getToken() const { return token_; }
+  const NAString &getValue() const { return value_; }
+  NAString &mutateToken() { return token_; }
+  NAString &mutateValue() { return value_; }
+  Int32 &reset() { return reset_; }  // mutator
+  NABoolean dynamic() const { return dynamic_; }
   NABoolean alterArkcmpEnvNow() const;
 
-protected:
-
-  static NAString getControlTextPrefix	(const ControlAbstractClass *ctrl);
-  static void rewriteControlText	(NAString &sqlText, CharInfo::CharSet sqlTextCharSet,
-  					 ControlAbstractClass *ctrl);
+ protected:
+  static NAString getControlTextPrefix(const ControlAbstractClass *ctrl);
+  static void rewriteControlText(NAString &sqlText, CharInfo::CharSet sqlTextCharSet, ControlAbstractClass *ctrl);
 
   NAString sqlText_;
   CharInfo::CharSet sqlTextCharSet_;
@@ -112,17 +104,16 @@ protected:
   // because   SET SCHEMA '';   must *NOT* be allowed to mean CQD SCHEMA RESET
   // because Ansi says we must issue a syntax error for this.
   // It must be an int (values 0, 1, 2) for CQD * RESET RESET;
-  Int32       reset_;		// value is ignored; instead, RESET to prior val
-  NABoolean dynamic_;		// a SET stmt, to be evaluated at runtime
+  Int32 reset_;        // value is ignored; instead, RESET to prior val
+  NABoolean dynamic_;  // a SET stmt, to be evaluated at runtime
 
-private:
-
+ private:
 };
 
 // -----------------------------------------------------------------------
 // CONTROL QUERY SHAPE statement: used to force complex plans in the
 // optimizer. Here is an example for the syntax:
-// 
+//
 // CONTROL QUERY shape root(join(scan(cat.sch.table),scan(sch.index)))
 //
 // In other words, the shape of the plan generated by the optimizer is
@@ -131,44 +122,37 @@ private:
 // like scan, which allows to specify the SQL table or index name.
 // -----------------------------------------------------------------------
 
-class ControlQueryShape : public ControlAbstractClass
-{
-public:
-
-  ControlQueryShape(RelExpr *shape,
-		    const NAString &sqlText,
-		    CharInfo::CharSet sqlTextCharSet,
-		    NABoolean holdShape = FALSE,
-		    NABoolean dyn = FALSE,
-		    NABoolean ignoreExchange = FALSE,
-		    NABoolean ignoreSort = FALSE,
-		    CollHeap *h = CmpCommon::statementHeap()) :
-    // Empty/unused token and value args
-    ControlAbstractClass(REL_CONTROL_QUERY_SHAPE, sqlText, sqlTextCharSet, "", "", dyn, h),
-    shape_(shape), holdShape_(holdShape), ignoreExchange_(ignoreExchange),
-    ignoreSort_(ignoreSort)
-    {}
+class ControlQueryShape : public ControlAbstractClass {
+ public:
+  ControlQueryShape(RelExpr *shape, const NAString &sqlText, CharInfo::CharSet sqlTextCharSet,
+                    NABoolean holdShape = FALSE, NABoolean dyn = FALSE, NABoolean ignoreExchange = FALSE,
+                    NABoolean ignoreSort = FALSE, CollHeap *h = CmpCommon::statementHeap())
+      :  // Empty/unused token and value args
+        ControlAbstractClass(REL_CONTROL_QUERY_SHAPE, sqlText, sqlTextCharSet, "", "", dyn, h),
+        shape_(shape),
+        holdShape_(holdShape),
+        ignoreExchange_(ignoreExchange),
+        ignoreSort_(ignoreSort) {}
 
   // a virtual function for performing name binding within the query tree
-  virtual RelExpr * bindNode(BindWA *bindWAPtr);
-  
-  virtual RelExpr * copyTopNode(RelExpr *derivedNode = NULL,
-				CollHeap *h = NULL);
+  virtual RelExpr *bindNode(BindWA *bindWAPtr);
+
+  virtual RelExpr *copyTopNode(RelExpr *derivedNode = NULL, CollHeap *h = NULL);
 
   // get a printable string that identifies the operator
   virtual const NAString getText() const;
 
-  RelExpr * getShape()		 { return (holdShape_ ? NULL : shape_); }
-  void setShape(RelExpr * shape) { shape_ = shape; }
+  RelExpr *getShape() { return (holdShape_ ? NULL : shape_); }
+  void setShape(RelExpr *shape) { shape_ = shape; }
   const NAString &getShapeText() { return getSqlText(); }
 
-  NABoolean &holdShape()         { return holdShape_; }
+  NABoolean &holdShape() { return holdShape_; }
 
   NABoolean getIgnoreExchange() const { return ignoreExchange_; }
-  NABoolean getIgnoreSort() const     { return ignoreSort_; }
+  NABoolean getIgnoreSort() const { return ignoreSort_; }
 
-private:
-  RelExpr * shape_;
+ private:
+  RelExpr *shape_;
 
   // This field is set to TRUE or FALSE by a
   // CQS HOLD ON    or CQS HOLD OFF stmt.
@@ -186,40 +170,33 @@ private:
   NABoolean ignoreSort_;
 };
 
-class ControlQueryDefault : public ControlAbstractClass
-{
-public:
-
-  ControlQueryDefault(const NAString &sqlText, CharInfo::CharSet sqlTextCharSet,
-		      const NAString &token,
-		      const NAString &value,
-		      NABoolean dyn = FALSE,
-		      Lng32 holdOrRestoreCQD = 0,
-		      CollHeap *h = CmpCommon::statementHeap(),
-                      Int32 reset=0);
+class ControlQueryDefault : public ControlAbstractClass {
+ public:
+  ControlQueryDefault(const NAString &sqlText, CharInfo::CharSet sqlTextCharSet, const NAString &token,
+                      const NAString &value, NABoolean dyn = FALSE, Lng32 holdOrRestoreCQD = 0,
+                      CollHeap *h = CmpCommon::statementHeap(), Int32 reset = 0);
 
   // copy ctor
-  ControlQueryDefault (const ControlQueryDefault & orig, 
-                       CollHeap *h=CmpCommon::statementHeap()); // not written
+  ControlQueryDefault(const ControlQueryDefault &orig,
+                      CollHeap *h = CmpCommon::statementHeap());  // not written
 
   // a virtual function for performing name binding within the query tree
-  virtual RelExpr * bindNode(BindWA *bindWAPtr);
-  
-  virtual RelExpr * copyTopNode(RelExpr *derivedNode = NULL,
-				CollHeap *h = NULL);
+  virtual RelExpr *bindNode(BindWA *bindWAPtr);
+
+  virtual RelExpr *copyTopNode(RelExpr *derivedNode = NULL, CollHeap *h = NULL);
 
   // get a printable string that identifies the operator
   virtual const NAString getText() const;
 
-  DefaultConstants getAttrEnum() const	{ return attrEnum_; }
+  DefaultConstants getAttrEnum() const { return attrEnum_; }
 
   void setAttrEnum(DefaultConstants a) { attrEnum_ = a; }
-  
-  Int16 getHoldOrRestoreCQD() {return (Int16) holdOrRestoreCQD_; }
+
+  Int16 getHoldOrRestoreCQD() { return (Int16)holdOrRestoreCQD_; }
 
   virtual NABoolean isCQDs() { return FALSE; }
-private:
 
+ private:
   // This is used by the Binder and the arkcmp ControlDB.
   // It is NOT emitted by CodeGen, not stored in a compiled module,
   // so that programmers are free to add/change/delete from DefaultConstants.h
@@ -233,182 +210,145 @@ private:
   // With restore, the previously remembered(held) value is restored.
   // A value of 0 indicates that this is not a cqd hold/restore stmt.
   Lng32 holdOrRestoreCQD_;
-
 };
 
-class ControlQueryDefaults : public ControlQueryDefault
-{
-public:
-
-  ControlQueryDefaults(const NAString &sqlText, 
-                       CharInfo::CharSet sqlTextCharSet,
-                       const NAList<GroupOfNAString*> *cqds,
-                       Lng32 holdOrRestoreCQD = 0,
-                       Int32 reset = 0,
-                       CollHeap *h = CmpCommon::statementHeap());
+class ControlQueryDefaults : public ControlQueryDefault {
+ public:
+  ControlQueryDefaults(const NAString &sqlText, CharInfo::CharSet sqlTextCharSet, const NAList<GroupOfNAString *> *cqds,
+                       Lng32 holdOrRestoreCQD = 0, Int32 reset = 0, CollHeap *h = CmpCommon::statementHeap());
 
   // copy ctor
-  ControlQueryDefaults(const ControlQueryDefaults & orig, 
-                       CollHeap *h=CmpCommon::statementHeap()); // not written
+  ControlQueryDefaults(const ControlQueryDefaults &orig,
+                       CollHeap *h = CmpCommon::statementHeap());  // not written
 
   // a virtual function for performing name binding within the query tree
-  virtual RelExpr * bindNode(BindWA *bindWAPtr);
-  
-  virtual RelExpr * copyTopNode(RelExpr *derivedNode = NULL,
-				CollHeap *h = NULL);
+  virtual RelExpr *bindNode(BindWA *bindWAPtr);
+
+  virtual RelExpr *copyTopNode(RelExpr *derivedNode = NULL, CollHeap *h = NULL);
 
   // get a printable string that identifies the operator
   virtual const NAString getText() const;
 
   virtual NABoolean isCQDs() { return TRUE; }
-private:
-  NAList<GroupOfNAString*> *cqds_;
+
+ private:
+  NAList<GroupOfNAString *> *cqds_;
 };
 
-class ControlTable : public ControlAbstractClass
-{
-public:
+class ControlTable : public ControlAbstractClass {
+ public:
+  ControlTable(CorrName *tableName, const NAString &sqlText, CharInfo::CharSet sqlTextCharSet, const NAString &token,
+               const NAString &value, NABoolean dyn = FALSE, CollHeap *h = CmpCommon::statementHeap());
 
-  ControlTable(CorrName *tableName,
-	       const NAString &sqlText, CharInfo::CharSet sqlTextCharSet,
-	       const NAString &token,
-	       const NAString &value,
-	       NABoolean dyn = FALSE,
-	       CollHeap *h = CmpCommon::statementHeap());
-  
   // copy ctor
-  ControlTable (const ControlTable &orig, 
-		CollHeap *h=CmpCommon::statementHeap()); // not written
-  
+  ControlTable(const ControlTable &orig,
+               CollHeap *h = CmpCommon::statementHeap());  // not written
+
   // a virtual function for performing name binding within the query tree
-  virtual RelExpr * bindNode(BindWA *bindWAPtr);
-  
-  virtual RelExpr * copyTopNode(RelExpr *derivedNode = NULL,
-				CollHeap *h = NULL);
-  
+  virtual RelExpr *bindNode(BindWA *bindWAPtr);
+
+  virtual RelExpr *copyTopNode(RelExpr *derivedNode = NULL, CollHeap *h = NULL);
+
   // get a printable string that identifies the operator
   virtual const NAString getText() const;
-  
-  const CorrName & getTableName() const 
-  { 
-	  if (tableName_)
-		return *tableName_; 
-	  else
-		  return RelExpr::invalid;
+
+  const CorrName &getTableName() const {
+    if (tableName_)
+      return *tableName_;
+    else
+      return RelExpr::invalid;
   };
-  
-private:
-  
-  CorrName* tableName_;
+
+ private:
+  CorrName *tableName_;
 };
 
-class ControlSession : public ControlAbstractClass
-{
-public:
+class ControlSession : public ControlAbstractClass {
+ public:
+  ControlSession(const NAString &sqlText, CharInfo::CharSet sqlTextCharSet, const NAString &token,
+                 const NAString &value, NABoolean dyn = FALSE, CollHeap *h = CmpCommon::statementHeap());
 
-  ControlSession(const NAString &sqlText, CharInfo::CharSet sqlTextCharSet,
-		 const NAString &token,
-		 const NAString &value,
-		 NABoolean dyn = FALSE,
-		 CollHeap *h = CmpCommon::statementHeap());
-  
   // copy ctor
-  ControlSession (const ControlSession &orig, 
-		  CollHeap *h=CmpCommon::statementHeap()); // not written
-  
+  ControlSession(const ControlSession &orig,
+                 CollHeap *h = CmpCommon::statementHeap());  // not written
+
   // a virtual function for performing name binding within the query tree
-  virtual RelExpr * bindNode(BindWA *bindWAPtr);
-  
-  virtual RelExpr * copyTopNode(RelExpr *derivedNode = NULL,
-				CollHeap *h = NULL);
-  
+  virtual RelExpr *bindNode(BindWA *bindWAPtr);
+
+  virtual RelExpr *copyTopNode(RelExpr *derivedNode = NULL, CollHeap *h = NULL);
+
   // get a printable string that identifies the operator
   virtual const NAString getText() const;
-  
-private:
-  
+
+ private:
 };
 
-class SetSessionDefault : public ControlAbstractClass
-{
-public:
+class SetSessionDefault : public ControlAbstractClass {
+ public:
+  SetSessionDefault(const NAString &sqlText, CharInfo::CharSet sqlTextCharSet, const NAString &token,
+                    const NAString &value, CollHeap *h = CmpCommon::statementHeap());
 
-  SetSessionDefault(const NAString &sqlText, CharInfo::CharSet sqlTextCharSet,
-		    const NAString &token,
-		    const NAString &value,
-		    CollHeap *h = CmpCommon::statementHeap());
-  
   // copy ctor
-  SetSessionDefault (const SetSessionDefault &orig, 
-		     CollHeap *h=CmpCommon::statementHeap()); // not written
-  
+  SetSessionDefault(const SetSessionDefault &orig,
+                    CollHeap *h = CmpCommon::statementHeap());  // not written
+
   // a virtual function for performing name binding within the query tree
-  virtual RelExpr * bindNode(BindWA *bindWAPtr);
-  
-  virtual RelExpr * copyTopNode(RelExpr *derivedNode = NULL,
-				CollHeap *h = NULL);
-  
+  virtual RelExpr *bindNode(BindWA *bindWAPtr);
+
+  virtual RelExpr *copyTopNode(RelExpr *derivedNode = NULL, CollHeap *h = NULL);
+
   // get a printable string that identifies the operator
   virtual const NAString getText() const;
-  
-private:
-  
+
+ private:
 };
 
-class OSIMControl : public ControlAbstractClass
-{
-public:
+class OSIMControl : public ControlAbstractClass {
+ public:
+  OSIMControl(OptimizerSimulator::osimMode mode, NAString &localDir, NABoolean force, CollHeap *oHeap);
 
-    OSIMControl(OptimizerSimulator::osimMode mode,
-                                       NAString & localDir,
-                                       NABoolean force,
-                                       CollHeap * oHeap);
+  void setForceLoad(NABoolean b) { forceLoad_ = b; }
+  NABoolean isForceLoad() const { return forceLoad_; }
 
-	 void setForceLoad(NABoolean b) { forceLoad_ = b;}
-    NABoolean isForceLoad() const { return forceLoad_; }
-     
-    virtual RelExpr * bindNode(BindWA *bindWAPtr);
-    virtual RelExpr * copyTopNode(RelExpr *derivedNode = NULL, CollHeap *h = NULL);
+  virtual RelExpr *bindNode(BindWA *bindWAPtr);
+  virtual RelExpr *copyTopNode(RelExpr *derivedNode = NULL, CollHeap *h = NULL);
 
-private:
-     // copy ctor
-    OSIMControl (const OSIMControl &orig, 
-		                               CollHeap *h=CmpCommon::statementHeap()); // not written, not used
-		                               
-    OptimizerSimulator::osimMode targetMode_;
+ private:
+  // copy ctor
+  OSIMControl(const OSIMControl &orig,
+              CollHeap *h = CmpCommon::statementHeap());  // not written, not used
 
-    NAString osimLocalDir_;
+  OptimizerSimulator::osimMode targetMode_;
 
-    //in respond to force option of osim load, 
-    //e.g. osim load from '/xxx/xxx/osim-dir', force
-    //if true, when loading osim tables/views/indexes
-    //existing objects with same qualified name 
-    //will be droped first
-    NABoolean forceLoad_;
+  NAString osimLocalDir_;
 
+  // in respond to force option of osim load,
+  // e.g. osim load from '/xxx/xxx/osim-dir', force
+  // if true, when loading osim tables/views/indexes
+  // existing objects with same qualified name
+  // will be droped first
+  NABoolean forceLoad_;
 };
 
-class RtStatsControl : public ControlAbstractClass
-{
-public:
-    enum ControlType { REMOVE };
+class RtStatsControl : public ControlAbstractClass {
+ public:
+  enum ControlType { REMOVE };
 
-public:
-    RtStatsControl( enum RtStatsControl::ControlType, CollHeap * oHeap);
+ public:
+  RtStatsControl(enum RtStatsControl::ControlType, CollHeap *oHeap);
 
-    virtual RelExpr * bindNode(BindWA *bindWAPtr);
-    virtual RelExpr * copyTopNode(RelExpr *derivedNode = NULL, CollHeap *h = NULL);
+  virtual RelExpr *bindNode(BindWA *bindWAPtr);
+  virtual RelExpr *copyTopNode(RelExpr *derivedNode = NULL, CollHeap *h = NULL);
 
-protected:
-    virtual NABoolean performControl(NAString& errorData);
+ protected:
+  virtual NABoolean performControl(NAString &errorData);
 
-private:
-     // copy ctor
-    RtStatsControl (const RtStatsControl &orig, 
-		    CollHeap *h=CmpCommon::statementHeap()); // not written, not used
-		                               
-    ControlType controlType_;
+ private:
+  // copy ctor
+  RtStatsControl(const RtStatsControl &orig,
+                 CollHeap *h = CmpCommon::statementHeap());  // not written, not used
+
+  ControlType controlType_;
 };
 
 #endif /* REL_CONTROL_H */
-

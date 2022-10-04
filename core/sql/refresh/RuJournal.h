@@ -33,9 +33,9 @@
 *
 * Created:      03/23/2000
 * Language:     C++
-* 
 *
-* 
+*
+*
 ******************************************************************************
 */
 
@@ -46,51 +46,47 @@
 
 //--------------------------------------------------------------------------//
 //	CRUJournal
-//	
+//
 //	This class is an abstraction for the REFRESH utility's output file.
 //--------------------------------------------------------------------------//
 
 class REFRESH_LIB_CLASS CRUJournal {
+ public:
+  CRUJournal(const CDSString &fname);
+  ~CRUJournal();
 
-public:
-	CRUJournal(const CDSString& fname);
-	~CRUJournal();
+ public:
+  void Open();
+  void Close();
 
-public:
-	void Open();
-	void Close();
+ public:
+  // the isError flag is used to indicate whether this message corresponds to an error or not
+  void LogMessage(const CDSString &msg, BOOL printRowNum = FALSE, BOOL isError = FALSE);
 
-public:
-        // the isError flag is used to indicate whether this message corresponds to an error or not
-	void LogMessage(const CDSString& msg, BOOL printRowNum = FALSE, BOOL isError = FALSE);
+  void LogError(CDSException &ex);
 
-	void LogError(CDSException &ex);
+  // dump error/messages to EMS
+  void DumpToEMS(const char *eventMsg, BOOL isAnError);
 
-        // dump error/messages to EMS
-        void DumpToEMS (const char* eventMsg, BOOL isAnError);
+  // Control the current time printout
+  void SetTimePrint(BOOL flag) { logfile_.SetTimePrint(flag); }
 
-	// Control the current time printout
-	void SetTimePrint(BOOL flag) 
-	{ 
-		logfile_.SetTimePrint(flag); 
-	}
+ private:
+  //-- Prevent copying
+  CRUJournal(const CRUJournal &other);
+  CRUJournal &operator=(const CRUJournal &other);
 
-private:
-	//-- Prevent copying
-	CRUJournal(const CRUJournal &other);
-	CRUJournal &operator = (const CRUJournal &other);
+ private:
+  CDSString fname_;
+  CDSLogfile logfile_;
 
-private:
-	CDSString fname_;
-	CDSLogfile logfile_;
-	
-	// Print numbering counter
-	Int32 rowNum_;
+  // Print numbering counter
+  Int32 rowNum_;
 
-        // log to ems only unless the user specifies an OUTFILE option
-        // in which case the specified file will also be used to log
-        // refresh messages
-        BOOL emsOnlyLog_;
+  // log to ems only unless the user specifies an OUTFILE option
+  // in which case the specified file will also be used to log
+  // refresh messages
+  BOOL emsOnlyLog_;
 };
 
 #endif

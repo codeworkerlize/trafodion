@@ -29,7 +29,7 @@
 * Description:  class for UDR Transaction Attributes (parse node) elements in
 *               DDL statements
 *
-*               
+*
 * Created:      10/08/1999
 * Language:     C++
 *
@@ -42,11 +42,8 @@
 #include "common/ComSmallDefs.h"
 #include "ElemDDLNode.h"
 
-class ElemDDLUdrTransaction : public ElemDDLNode
-{
-
-public:
-
+class ElemDDLUdrTransaction : public ElemDDLNode {
+ public:
   // default constructor
   ElemDDLUdrTransaction(ComRoutineTransactionAttributes theTransactionAttributes);
 
@@ -54,25 +51,21 @@ public:
   virtual ~ElemDDLUdrTransaction(void);
 
   // cast
-  virtual ElemDDLUdrTransaction * castToElemDDLUdrTransaction(void);
+  virtual ElemDDLUdrTransaction *castToElemDDLUdrTransaction(void);
 
   // accessor
-  inline const ComRoutineTransactionAttributes getTransactionAttributes(void) const
-  {
-    return transactionAttributes_;
-  }
+  inline const ComRoutineTransactionAttributes getTransactionAttributes(void) const { return transactionAttributes_; }
 
   //
   // methods for tracing
   //
-  
+
   virtual NATraceList getDetailInfo() const;
   virtual const NAString getText() const;
 
-private:
-
+ private:
   ComRoutineTransactionAttributes transactionAttributes_;
 
-}; // class ElemDDLUdrTransaction
+};  // class ElemDDLUdrTransaction
 
 #endif /* ELEMDDLUDRTRANSACTION_H */

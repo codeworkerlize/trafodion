@@ -48,7 +48,7 @@ class NAMemory;
 typedef char **ExTrie;
 
 class ExTrieTable : public ExGod {
-public:
+ public:
   ExTrieTable(Int32 keySize, Int32 dataSize, Int32 memSize, NAMemory *heap);
   ~ExTrieTable();
 
@@ -56,18 +56,16 @@ public:
   Int32 getMinimumNumberTuples() const { return minimumNumberTuples_; };
   char *getData() const { return data_; };
 
-  char *getReturnRow() const { 
-    if(returnRow_ < numberTuples_)
-      return rootTuple_ - returnRow_ * dataSize_; 
+  char *getReturnRow() const {
+    if (returnRow_ < numberTuples_) return rootTuple_ - returnRow_ * dataSize_;
     return 0;
   };
   void advanceReturnRow() { returnRow_++; };
   void resetReturnRow() { returnRow_ = 0; };
-  
 
   Int32 findOrAdd(char *key);
 
-private:
+ private:
   Int32 keySize_;
   Int32 dataSize_;
   Int32 memSize_;
@@ -87,4 +85,3 @@ private:
 };
 
 #endif
-

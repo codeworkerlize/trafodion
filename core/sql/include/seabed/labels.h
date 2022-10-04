@@ -30,10 +30,10 @@
 #include "int/exp.h"
 
 typedef struct SB_Label_Map {
-    int          iv_low_inx;  // low index
-    int          iv_max;      // max label
-    const char  *ip_unknown;  // unknown label
-    const char **ipp_labels;  // list of labels [zero-based, monotonically increasing]
+  int iv_low_inx;           // low index
+  int iv_max;               // max label
+  const char *ip_unknown;   // unknown label
+  const char **ipp_labels;  // list of labels [zero-based, monotonically increasing]
 } SB_Label_Map;
 
 #define SB_LABEL_END NULL
@@ -68,7 +68,7 @@ typedef struct SB_Label_Map {
 //       fserror_labels          // labels
 //   };
 //
-//   #define LABEL_CHK(name, low, high) 
+//   #define LABEL_CHK(name, low, high)
 //   SB_util_static_assert((sizeof(name)/sizeof(const char *)) == (high - low + 2));
 //
 //   // Add a 'dummy' function to call LABEL_CHK
@@ -103,7 +103,7 @@ SB_Export const char *SB_get_label(SB_Label_Map *map, int value);
 //       &fserror1_label_map,
 //       NULL
 //   };
-// 
+//
 //   const char *fserror_label = SB_get_label_maps(&fserror_label_maps, 0);
 //
 // Usage notes:
@@ -115,4 +115,4 @@ SB_Export const char *SB_get_label(SB_Label_Map *map, int value);
 //
 SB_Export const char *SB_get_label_maps(SB_Label_Map **map, int value);
 
-#endif // !__SB_LABELS_H_
+#endif  // !__SB_LABELS_H_

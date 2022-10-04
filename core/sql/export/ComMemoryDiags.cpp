@@ -40,7 +40,6 @@
 //
 #include "common/Platform.h"
 
-
 #include "export/ComMemoryDiags.h"
 
-ostream * ComMemoryDiags::dumpMemoryInfo_ = 0 ; /* NULL */
+ostream *ComMemoryDiags::dumpMemoryInfo_ = 0; /* NULL */

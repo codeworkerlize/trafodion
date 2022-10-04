@@ -29,7 +29,7 @@
  * Description:  classes representing Store By options specified in
  *               Create Table DDL statements
  *
- *               
+ *
  * Created:      10/30/95
  * Language:     C++
  *
@@ -38,7 +38,6 @@
  *
  *****************************************************************************
  */
-
 
 #include "parser/ElemDDLColRefArray.h"
 #include "ElemDDLNode.h"
@@ -60,109 +59,87 @@ class ElemDDLStoreOptNondroppablePK;
 // -----------------------------------------------------------------------
 // definition of base class ElemDDLStoreOpt
 // -----------------------------------------------------------------------
-class ElemDDLStoreOpt : public ElemDDLNode
-{
-
-public:
-
+class ElemDDLStoreOpt : public ElemDDLNode {
+ public:
   // default constructor
-  ElemDDLStoreOpt(OperatorTypeEnum operatorType =
-                         ELM_ANY_STORE_OPT_ELEM)
-  : ElemDDLNode(operatorType)
-   ,isNullableSpecified_(FALSE)
-  { }
+  ElemDDLStoreOpt(OperatorTypeEnum operatorType = ELM_ANY_STORE_OPT_ELEM)
+      : ElemDDLNode(operatorType), isNullableSpecified_(FALSE) {}
 
   // virtual destructor
   virtual ~ElemDDLStoreOpt();
 
   // cast
-  virtual ElemDDLStoreOpt * castToElemDDLStoreOpt();
+  virtual ElemDDLStoreOpt *castToElemDDLStoreOpt();
 
   // methods for tracing
   virtual NATraceList getDetailInfo() const;
   virtual const NAString getText() const;
 
   NABoolean isNullableSpecified() { return isNullableSpecified_; }
-  void setIsNullableSpecified(NABoolean isNullable) {isNullableSpecified_=isNullable;}
-private:
-  NABoolean isNullableSpecified_; //if set, store by key is nullable
+  void setIsNullableSpecified(NABoolean isNullable) { isNullableSpecified_ = isNullable; }
 
-}; // class ElemDDLStoreOpt
+ private:
+  NABoolean isNullableSpecified_;  // if set, store by key is nullable
+
+};  // class ElemDDLStoreOpt
 
 // -----------------------------------------------------------------------
 // definition of class ElemDDLStoreOptDefault
 // -----------------------------------------------------------------------
-class ElemDDLStoreOptDefault : public ElemDDLStoreOpt
-{
-
-public:
-
+class ElemDDLStoreOptDefault : public ElemDDLStoreOpt {
+ public:
   // constructor
-  ElemDDLStoreOptDefault()
-  : ElemDDLStoreOpt(ELM_STORE_OPT_DEFAULT_ELEM)
-  { }
+  ElemDDLStoreOptDefault() : ElemDDLStoreOpt(ELM_STORE_OPT_DEFAULT_ELEM) {}
 
   // virtual destructor
   virtual ~ElemDDLStoreOptDefault();
 
   // cast
-  virtual ElemDDLStoreOptDefault * castToElemDDLStoreOptDefault();
+  virtual ElemDDLStoreOptDefault *castToElemDDLStoreOptDefault();
 
   // methods for tracing
   virtual const NAString displayLabel1() const;
   virtual const NAString getText() const;
 
-private:
-
-}; // class ElemDDLStoreOptDefault
+ private:
+};  // class ElemDDLStoreOptDefault
 
 // -----------------------------------------------------------------------
 // definition of class ElemDDLStoreOptEntryOrder
 // -----------------------------------------------------------------------
-class ElemDDLStoreOptEntryOrder : public ElemDDLStoreOpt
-{
-
-public:
-
+class ElemDDLStoreOptEntryOrder : public ElemDDLStoreOpt {
+ public:
   // constructor
-  ElemDDLStoreOptEntryOrder()
-  : ElemDDLStoreOpt(ELM_STORE_OPT_ENTRY_ORDER_ELEM)
-  { }
+  ElemDDLStoreOptEntryOrder() : ElemDDLStoreOpt(ELM_STORE_OPT_ENTRY_ORDER_ELEM) {}
 
   // virtual destructor
   virtual ~ElemDDLStoreOptEntryOrder();
 
   // cast
-  virtual ElemDDLStoreOptEntryOrder * castToElemDDLStoreOptEntryOrder();
+  virtual ElemDDLStoreOptEntryOrder *castToElemDDLStoreOptEntryOrder();
 
   // methods for tracing
   virtual const NAString displayLabel1() const;
   virtual const NAString getText() const;
 
-private:
-
-}; // class ElemDDLStoreOptEntryOrder
+ private:
+};  // class ElemDDLStoreOptEntryOrder
 
 // -----------------------------------------------------------------------
 // definition of class ElemDDLStoreOptKeyColumnList
 // -----------------------------------------------------------------------
-class ElemDDLStoreOptKeyColumnList : public ElemDDLStoreOpt
-{
-
-public:
-
+class ElemDDLStoreOptKeyColumnList : public ElemDDLStoreOpt {
+ public:
   // constructor
-  ElemDDLStoreOptKeyColumnList(ElemDDLNode * pKeyColumnList,
-			       NABoolean uniqueStoreBy = FALSE,
-			       NABoolean uniqueStoreByKeylist = FALSE,
-			       NABoolean pkeyStoreByKeyList = FALSE,
-                               CollHeap    * heap = PARSERHEAP());
+  ElemDDLStoreOptKeyColumnList(ElemDDLNode *pKeyColumnList, NABoolean uniqueStoreBy = FALSE,
+                               NABoolean uniqueStoreByKeylist = FALSE, NABoolean pkeyStoreByKeyList = FALSE,
+                               CollHeap *heap = PARSERHEAP());
 
   // virtual destructor
   virtual ~ElemDDLStoreOptKeyColumnList();
 
   // casting
-  virtual ElemDDLStoreOptKeyColumnList * castToElemDDLStoreOptKeyColumnList();
+  virtual ElemDDLStoreOptKeyColumnList *castToElemDDLStoreOptKeyColumnList();
 
   //
   // accessors
@@ -170,12 +147,12 @@ public:
 
   virtual Int32 getArity() const;
 
-  virtual ExprNode * getChild(Lng32 index);
+  virtual ExprNode *getChild(Lng32 index);
 
-  inline const ElemDDLColRefArray & getKeyColumnArray() const;
-  inline       ElemDDLColRefArray & getKeyColumnArray();
+  inline const ElemDDLColRefArray &getKeyColumnArray() const;
+  inline ElemDDLColRefArray &getKeyColumnArray();
 
-  inline ElemDDLNode * getKeyColumnList() const;
+  inline ElemDDLNode *getKeyColumnList() const;
 
   inline NABoolean isUniqueStoreBy() { return uniqueStoreBy_; }
 
@@ -183,59 +160,52 @@ public:
 
   inline NABoolean isPkeyStoreByKeylist() { return pkeyStoreByKeylist_; }
 
-  NABoolean isPkeyNotSerialized()
-  { return (ser_ == ComPkeySerialization::COM_NOT_SERIALIZED); }
-  void setSerializedOption(ComPkeySerialization ser) 
-  { ser_ = ser; }
+  NABoolean isPkeyNotSerialized() { return (ser_ == ComPkeySerialization::COM_NOT_SERIALIZED); }
+  void setSerializedOption(ComPkeySerialization ser) { ser_ = ser; }
   ComPkeySerialization getSerializedOption() { return ser_; }
 
   // mutator
-  virtual void setChild(Lng32 index, ExprNode * pElemDDLNode);
+  virtual void setChild(Lng32 index, ExprNode *pElemDDLNode);
 
   // methods for tracing
   virtual const NAString displayLabel1() const;
   virtual NATraceList getDetailInfo() const;
   virtual const NAString getText() const;
 
-private:
-
+ private:
   //
   // data members
   //
 
   ElemDDLColRefArray keyColumnArray_;
 
-  NABoolean uniqueStoreBy_;   // UNIQUE specified for PRIMARY key
+  NABoolean uniqueStoreBy_;  // UNIQUE specified for PRIMARY key
 
-  NABoolean uniqueStoreByKeylist_;   // UNIQUE specified for cluster columns
+  NABoolean uniqueStoreByKeylist_;  // UNIQUE specified for cluster columns
 
   NABoolean pkeyStoreByKeylist_;  // PRIMARY KEY specified with column list
 
   // pointers to child parse node
 
-  enum { INDEX_KEY_COLUMN_LIST = 0,
-         MAX_ELEM_DDL_STORE_OPT_KEY_COLUMN_LIST_ARITY };
+  enum { INDEX_KEY_COLUMN_LIST = 0, MAX_ELEM_DDL_STORE_OPT_KEY_COLUMN_LIST_ARITY };
 
-  ElemDDLNode * children_[MAX_ELEM_DDL_STORE_OPT_KEY_COLUMN_LIST_ARITY];
+  ElemDDLNode *children_[MAX_ELEM_DDL_STORE_OPT_KEY_COLUMN_LIST_ARITY];
 
   // if set to SERIALIZED, then pkey will be encoded before passint to hbase.
-  // if set to NOT_SERIALIZED, then primary key will not be encoded before 
+  // if set to NOT_SERIALIZED, then primary key will not be encoded before
   // passing on to HBase.
   // Used when accessing external HBase tables where data may not be stored
   // in serialized mode.
   // if not specified, then will be determined based on table type.
   ComPkeySerialization ser_;
 
-}; // class ElemDDLStoreOptKeyColumnList
+};  // class ElemDDLStoreOptKeyColumnList
 
 // -----------------------------------------------------------------------
 // definition of class ElemDDLStoreOptNondroppablePK
 // -----------------------------------------------------------------------
-class ElemDDLStoreOptNondroppablePK : public ElemDDLStoreOpt
-{
-
-public:
-
+class ElemDDLStoreOptNondroppablePK : public ElemDDLStoreOpt {
+ public:
   // constructor
   ElemDDLStoreOptNondroppablePK(NABoolean uniqueStoreByPrimaryKey = FALSE);
 
@@ -245,8 +215,7 @@ public:
   virtual ~ElemDDLStoreOptNondroppablePK();
 
   // cast
-  virtual ElemDDLStoreOptNondroppablePK *
-                castToElemDDLStoreOptNondroppablePK();
+  virtual ElemDDLStoreOptNondroppablePK *castToElemDDLStoreOptNondroppablePK();
 
   //
   // accessors
@@ -258,15 +227,14 @@ public:
   virtual const NAString displayLabel1() const;
   virtual const NAString getText() const;
 
-private:
-
+ private:
   //
   // data members
   //
 
-  NABoolean uniqueStoreByPrimaryKey_;   // UNIQUE specified for PRIMARY key
+  NABoolean uniqueStoreByPrimaryKey_;  // UNIQUE specified for PRIMARY key
 
-}; // class ElemDDLStoreOptNondroppablePK
+};  // class ElemDDLStoreOptNondroppablePK
 
 // -----------------------------------------------------------------------
 // definitions of inline methods for class ElemDDLStoreOptKeyColumnList
@@ -276,24 +244,10 @@ private:
 // accessor
 //
 
-inline ElemDDLColRefArray &
-ElemDDLStoreOptKeyColumnList::getKeyColumnArray()
-{
-  return keyColumnArray_;
-}
+inline ElemDDLColRefArray &ElemDDLStoreOptKeyColumnList::getKeyColumnArray() { return keyColumnArray_; }
 
-inline const ElemDDLColRefArray &
-ElemDDLStoreOptKeyColumnList::getKeyColumnArray() const
-{
-  return keyColumnArray_;
-}
+inline const ElemDDLColRefArray &ElemDDLStoreOptKeyColumnList::getKeyColumnArray() const { return keyColumnArray_; }
 
-inline ElemDDLNode *
-ElemDDLStoreOptKeyColumnList::getKeyColumnList() const
-{
-  return children_[INDEX_KEY_COLUMN_LIST];
-}
+inline ElemDDLNode *ElemDDLStoreOptKeyColumnList::getKeyColumnList() const { return children_[INDEX_KEY_COLUMN_LIST]; }
 
-
-
-#endif // ELEMDDLSTOREOPTIONS_H
+#endif  // ELEMDDLSTOREOPTIONS_H

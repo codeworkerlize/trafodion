@@ -27,8 +27,8 @@
 *
 * File:         MdamIntervalListMerger.h
 * Description:  MDAM Interval List Merger
-*               
-*               
+*
+*
 * Created:      9/11/96
 * Language:     C++
 *
@@ -48,7 +48,7 @@
 // *****************************************************************************
 // MdamIntervalListMerger : MDAM Interval List Merger
 // The iteration operator in this class merges two interval lists.
-// It eliminates duplicate points in the process. 
+// It eliminates duplicate points in the process.
 // If a point appears as both a begin and an end point,
 // it is returned twice.  As each point is returned, state is updated:
 //   + number of intervals currently active,
@@ -56,35 +56,28 @@
 // The two interval lists are identified by logical numbers 0 and 1.
 // *****************************************************************************
 
-class MdamIntervalListMerger
-{
-
-public:
-
+class MdamIntervalListMerger {
+ public:
   // Constructor.
-  MdamIntervalListMerger
-    (const MdamIntervalList * intervalListPtr0,
-     const MdamIntervalList * intervalListPtr1,
-     const ULng32 keyLen)
-     : intervalIterator0_(intervalListPtr0, 0),
-       intervalIterator1_(intervalListPtr1, 1),
-       activeIntervals_(0),
-       previousActiveIntervals_(0),
-       endPoint0_(),
-       endPoint1_(),
-       keyLen_(keyLen)
-  {
+  MdamIntervalListMerger(const MdamIntervalList *intervalListPtr0, const MdamIntervalList *intervalListPtr1,
+                         const ULng32 keyLen)
+      : intervalIterator0_(intervalListPtr0, 0),
+        intervalIterator1_(intervalListPtr1, 1),
+        activeIntervals_(0),
+        previousActiveIntervals_(0),
+        endPoint0_(),
+        endPoint1_(),
+        keyLen_(keyLen) {
     // Get the first endpoint from each of the two interval lists.
     intervalIterator0_(endPoint0_);
     intervalIterator1_(endPoint1_);
   }
 
-
   // Destructor.
   ~MdamIntervalListMerger();
 
   // Iteration operator returns the next endpoint on each call.
-  NABoolean operator()(MdamEndPoint & mdamEndPoint);
+  NABoolean operator()(MdamEndPoint &mdamEndPoint);
 
   // Get the number of active intervals for the most recent iteration call.
   inline Int32 getActiveIntervals() const;
@@ -92,8 +85,7 @@ public:
   // Get the number of active intervals for the previous iteration call.
   inline Int32 getPreviousActiveIntervals() const;
 
-private:
-
+ private:
   // Iterators for the two interval lists being merged.
   MdamIntervalIterator intervalIterator0_;
   MdamIntervalIterator intervalIterator1_;
@@ -112,25 +104,16 @@ private:
   // Key length.
   ULng32 keyLen_;
 
-}; // class MdamIntervalListMerger
-
+};  // class MdamIntervalListMerger
 
 // *****************************************************************************
 // Inline member functions for class MdamIntervalListMerger
 // *****************************************************************************
 
 // Get the number of active intervals for the most recent iteration call.
-inline Int32 MdamIntervalListMerger::getActiveIntervals() const
-{
-  return activeIntervals_;
-}
-
+inline Int32 MdamIntervalListMerger::getActiveIntervals() const { return activeIntervals_; }
 
 // Get the number of active intervals for the previous iteration call.
-inline Int32 MdamIntervalListMerger::getPreviousActiveIntervals() const
-{
-  return previousActiveIntervals_;
-}
-
+inline Int32 MdamIntervalListMerger::getPreviousActiveIntervals() const { return previousActiveIntervals_; }
 
 #endif /* MDAMINTERVALLISTMERGER_H */

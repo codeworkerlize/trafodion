@@ -27,10 +27,10 @@
 *
 * File:         ElemDDLLibClientFilename.h
 * Description:  class that contains the (parse node) elements in DDL statements
-                for the local filename of the deployed library 
-*               
+                for the local filename of the deployed library
 *
-*               
+*
+*
 * Created:      10/14/2011
 * Language:     C++
 *
@@ -43,34 +43,27 @@
 #include "common/ComSmallDefs.h"
 #include "ElemDDLNode.h"
 
-class ElemDDLLibClientFilename : public ElemDDLNode
-{
+class ElemDDLLibClientFilename : public ElemDDLNode {
+ public:
+  ElemDDLLibClientFilename(const NAString &theFilename);
 
-public:
+  virtual ~ElemDDLLibClientFilename();
 
-   ElemDDLLibClientFilename(const NAString &theFilename);
+  virtual ElemDDLLibClientFilename *castToElemDDLLibClientFilename(void);
 
-   virtual ~ElemDDLLibClientFilename();
+  inline const NAString &getFilename(void) const { return theFilename_; }
 
-   virtual ElemDDLLibClientFilename * castToElemDDLLibClientFilename(void);
+  //
+  // methods for tracing
+  //
 
-   inline const NAString &getFilename(void) const
-   {
-      return theFilename_;
-   }
+  virtual const NAString displayLabel1() const;
+  NAString getSyntax() const;
+  virtual const NAString getText() const;
 
-//
-// methods for tracing
-//
-  
-   virtual const NAString displayLabel1() const;
-                 NAString getSyntax() const;
-   virtual const NAString getText() const;
+ private:
+  const NAString &theFilename_;
 
-private:
-
-const NAString & theFilename_;
-
-}; // class ElemDDLLibClientFilename
+};  // class ElemDDLLibClientFilename
 
 #endif /* ELEMDDLLIBCLIENTFILENAME_H */

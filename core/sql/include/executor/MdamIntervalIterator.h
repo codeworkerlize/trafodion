@@ -27,8 +27,8 @@
 *
 * File:         MdamIntervalIterator.h
 * Description:  MDAM Interval Iterator
-*               
-*               
+*
+*
 * Created:      9/11/96
 * Language:     C++
 *
@@ -50,34 +50,29 @@
 //
 // This iterator returns the next endpoint on each call.  Within an interval
 // it returns the begin endpoint followed by the end endpoint. Then it
-// continues with the next interval in an interval list until the interval 
+// continues with the next interval in an interval list until the interval
 // list is exhausted.
 // So, this iterator makes an interval list appear to be an ordered set of
 // endpoints and presents the endpoints one at a time.
 // *****************************************************************************
 
-class MdamIntervalIterator
-{
-
-public:
-
+class MdamIntervalIterator {
+ public:
   // Constructor.
-  MdamIntervalIterator(const MdamIntervalList * intervalListPtr,
-					 const Int32 logicalIntervalListNumber);
+  MdamIntervalIterator(const MdamIntervalList *intervalListPtr, const Int32 logicalIntervalListNumber);
 
   // Destructor.
   ~MdamIntervalIterator();
 
   // Iteration operator returns the next endpoint on each call.
-  NABoolean operator()(MdamEndPoint & mdamEndPoint);
+  NABoolean operator()(MdamEndPoint &mdamEndPoint);
 
-private:
-
+ private:
   // Logical interval list number.
   const Int32 logicalIntervalListNumber_;
 
   // Pointer to the current interval.
-  MdamInterval * intervalPtr_;
+  MdamInterval *intervalPtr_;
 
   // endPointType_ is used to keep track of which of the two endpoints
   // is the current one for iteration purposes.
@@ -86,8 +81,6 @@ private:
   // Iterator to return intervals from the interval list.
   MdamIntervalListIterator intervalListIterator_;
 
-}; // class MdamIntervalIterator
-
-
+};  // class MdamIntervalIterator
 
 #endif /* MDAMINTERVALITERATOR_H */

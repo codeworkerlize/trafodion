@@ -48,21 +48,12 @@ class UdrServerReplyStream;
 class UdrServerDataStream;
 class UdrGlobals;
 
-extern void sendControlReply(UdrGlobals *UdrGlob,
-                             UdrServerReplyStream &msgStream,
-                             SPInfo *sp);
-extern void sendDataReply(UdrGlobals *UdrGlob,
-                          UdrServerDataStream &msgStream,
-                          SPInfo *sp);
+extern void sendControlReply(UdrGlobals *UdrGlob, UdrServerReplyStream &msgStream, SPInfo *sp);
+extern void sendDataReply(UdrGlobals *UdrGlob, UdrServerDataStream &msgStream, SPInfo *sp);
 
-extern void controlErrorReply(UdrGlobals *UdrGlob,
-                              UdrServerReplyStream &msgStream,
-                              Lng32 errortype, Lng32 error,
+extern void controlErrorReply(UdrGlobals *UdrGlob, UdrServerReplyStream &msgStream, Lng32 errortype, Lng32 error,
                               const char *charErrorInfo);
-extern void dataErrorReply(UdrGlobals *UdrGlob,
-                           UdrServerDataStream &msgStream,
-                           Lng32 errortype, Lng32 error,
-                           const char *charErrorInfo = NULL,
-                           ComDiagsArea *diags = NULL);
+extern void dataErrorReply(UdrGlobals *UdrGlob, UdrServerDataStream &msgStream, Lng32 errortype, Lng32 error,
+                           const char *charErrorInfo = NULL, ComDiagsArea *diags = NULL);
 
-#endif // _UDREXTRN_H_
+#endif  // _UDREXTRN_H_

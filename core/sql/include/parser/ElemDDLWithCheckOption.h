@@ -29,7 +29,7 @@
  * Description:  class respresenting the With Check Option clause
  *               in Create View statement
  *
- *               
+ *
  * Created:      1/12/96
  * Language:     C++
  *
@@ -38,7 +38,6 @@
  *
  *****************************************************************************
  */
-
 
 #include "common/ComSmallDefs.h"
 #include "ElemDDLNode.h"
@@ -56,23 +55,16 @@ class ElemDDLWithCheckOption;
 // -----------------------------------------------------------------------
 // definition of base class ElemDDLWithCheckOption
 // -----------------------------------------------------------------------
-class ElemDDLWithCheckOption : public ElemDDLNode
-{
-
-public:
-
+class ElemDDLWithCheckOption : public ElemDDLNode {
+ public:
   // constructor
-  ElemDDLWithCheckOption(ComLevels level)
-  : ElemDDLNode(ELM_WITH_CHECK_OPTION_ELEM),
-  level_(level)
-  { }
-
+  ElemDDLWithCheckOption(ComLevels level) : ElemDDLNode(ELM_WITH_CHECK_OPTION_ELEM), level_(level) {}
 
   // virtual destructor
   virtual ~ElemDDLWithCheckOption();
 
   // cast
-  virtual ElemDDLWithCheckOption * castToElemDDLWithCheckOption();
+  virtual ElemDDLWithCheckOption *castToElemDDLWithCheckOption();
 
   // accessors
   inline ComLevels getLevel() const;
@@ -82,11 +74,10 @@ public:
   virtual const NAString displayLabel1() const;  // display level info
   virtual const NAString getText() const;
 
-private:
-
+ private:
   ComLevels level_;
 
-}; // class ElemDDLWithCheckOption
+};  // class ElemDDLWithCheckOption
 
 // -----------------------------------------------------------------------
 // definitions of inline methods for class ElemDDLWithCheckOption
@@ -96,10 +87,6 @@ private:
 // accessor
 //
 
-inline ComLevels
-ElemDDLWithCheckOption::getLevel() const
-{
-  return level_;
-}
+inline ComLevels ElemDDLWithCheckOption::getLevel() const { return level_; }
 
-#endif // ELEMDDLWITHCHECKOPTION_H
+#endif  // ELEMDDLWITHCHECKOPTION_H

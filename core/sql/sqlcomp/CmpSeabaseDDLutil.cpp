@@ -216,8 +216,6 @@ const literalAndEnumStruct ODBCDataTypeXlateArray[] = {{COM_CHARACTER_ODT, COM_C
                                                        {COM_BLOB_SDT, COM_BLOB_ODT_LIT},
                                                        {COM_CLOB_SDT, COM_CLOB_ODT_LIT},
                                                        {COM_BOOLEAN_SDT, COM_BOOLEAN_ODT_LIT},
-                                                       {COM_BINARY_SDT, COM_BINARY_ODT_LIT},
-                                                       {COM_VARBINARY_SDT, COM_VARBINARY_ODT_LIT},
                                                        {COM_DATETIME_ODT, COM_DATETIME_ODT_LIT},
                                                        {COM_TIMESTAMP_ODT, COM_TIMESTAMP_ODT_LIT},
                                                        {COM_DATE_ODT, COM_DATE_ODT_LIT},
@@ -251,8 +249,6 @@ const literalAndEnumStruct SQLDataTypeXlateArray[] = {
     {COM_BLOB_SDT, COM_BLOB_SDT_LIT},
     {COM_CLOB_SDT, COM_CLOB_SDT_LIT},
     {COM_BOOLEAN_SDT, COM_BOOLEAN_SDT_LIT},
-    {COM_BINARY_SDT, COM_BINARY_SDT_LIT},
-    {COM_VARBINARY_SDT, COM_VARBINARY_SDT_LIT},
     {COM_DATETIME_SDT, COM_DATETIME_SDT_LIT},
     {COM_TIMESTAMP_SDT, COM_TIMESTAMP_SDT_LIT},
     {COM_DATE_SDT, COM_DATE_SDT_LIT},
@@ -292,7 +288,6 @@ const literalAndEnumStruct ParamDefaultClassXlateArray[] = {
     {COM_NO_PARAM_DEFAULT, COM_NO_PARAM_DEFAULT_LIT},                              // the default
     {COM_CURRENT_PARAM_DEFAULT, COM_CURRENT_PARAM_DEFAULT_LIT},                    // e.g. DEFAULT CURRENT DATE
     {COM_CURRENT_UT_PARAM_DEFAULT, COM_CURRENT_UT_PARAM_DEFAULT_LIT},              // e.g. DEFAULT CURRENT DATE
-    {COM_UUID_PARAM_DEFAULT, COM_UUID_PARAM_DEFAULT_LIT},                          // e.g. DEFAULT CURRENT DATE
     {COM_FUNCTION_DEFINED_PARAM_DEFAULT, COM_FUNCTION_DEFINED_PARAM_DEFAULT_LIT},  // e.g. DEFAULT CURRENT DATE
     {COM_NULL_PARAM_DEFAULT, COM_NULL_PARAM_DEFAULT_LIT},                          // i.e. DEFAULT NULL
     {COM_USER_DEFINED_PARAM_DEFAULT, COM_USER_DEFINED_PARAM_DEFAULT_LIT},          // e.g. DEFAULT 'a-string-literal'
@@ -586,7 +581,6 @@ const literalAndEnumStruct OperatorTypeXlateArray[] = {{ITM_COUNT, COM_COUNT_LIT
                                                        {ITM_VARIANCE_SAMP, COM_VARIANCE_SAMP_LIT},
                                                        {ITM_VARIANCE_POP, COM_VARIANCE_POP_LIT},
                                                        {ITM_STDDEV_SAMP, COM_STDDEV_SAMP_LIT},
-                                                       {ITM_STDDEV_POP, COM_STDDEV_POP_LIST},
                                                        {ITM_BASECOLUMN, COM_BASECOL_LIT}};
 
 // Cannot use defXLateFuncs because both directions may translate values that don't exist in the

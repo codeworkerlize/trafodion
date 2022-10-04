@@ -31,7 +31,6 @@
  *****************************************************************************
  */
 
-
 #include "common/ComSmallDefs.h"
 #include "StmtDDLNode.h"
 
@@ -48,49 +47,42 @@ class StmtDDLDropSchema;
 // -----------------------------------------------------------------------
 // Create Catalog statement
 // -----------------------------------------------------------------------
-class StmtDDLDropSchema : public StmtDDLNode
-{
-
-public:
-
+class StmtDDLDropSchema : public StmtDDLNode {
+ public:
   // constructor
-  StmtDDLDropSchema(const ElemDDLSchemaName & aSchemaNameParseNode,
-                    ComDropBehavior dropBehavior,
-                    ComBoolean cleanupMode,
+  StmtDDLDropSchema(const ElemDDLSchemaName &aSchemaNameParseNode, ComDropBehavior dropBehavior, ComBoolean cleanupMode,
                     ComBoolean dropObjectsOnly);
 
   // copy ctor
-  StmtDDLDropSchema (const StmtDDLDropSchema & orig) ;
+  StmtDDLDropSchema(const StmtDDLDropSchema &orig);
 
   // virtual destructor
   virtual ~StmtDDLDropSchema();
 
   // cast
-  virtual StmtDDLDropSchema * castToStmtDDLDropSchema();
+  virtual StmtDDLDropSchema *castToStmtDDLDropSchema();
 
   // accessors
   inline ComDropBehavior getDropBehavior() const;
   inline ComBoolean getCleanupMode() const;
-  inline const NAString & getSchemaName() const;
-  inline const SchemaName & getSchemaNameAsQualifiedName() const;
-  inline       SchemaName & getSchemaNameAsQualifiedName();
+  inline const NAString &getSchemaName() const;
+  inline const SchemaName &getSchemaNameAsQualifiedName() const;
+  inline SchemaName &getSchemaNameAsQualifiedName();
 
   const NABoolean dropIfExists() const { return dropIfExists_; }
-  
+
   void setDropIfExists(NABoolean v) { dropIfExists_ = v; }
   ComBoolean dropObjectsOnly() { return dropObjectsOnly_; }
 
   // for binding
-  ExprNode * bindNode(BindWA *bindWAPtr);
+  ExprNode *bindNode(BindWA *bindWAPtr);
 
   // for tracing
   virtual const NAString displayLabel1() const;
   virtual const NAString displayLabel2() const;
   virtual const NAString getText() const;
 
-
-private:
-
+ private:
   NAString schemaName_;
   SchemaName schemaQualName_;
   ComDropBehavior dropBehavior_;
@@ -100,7 +92,7 @@ private:
   // if TRUE, then only drop objects in the schema. Do not drop the schema.
   ComBoolean dropObjectsOnly_;
 
-}; // class StmtDDLDropSchema
+};  // class StmtDDLDropSchema
 
 // -----------------------------------------------------------------------
 // definitions of inline methods for class StmtDDLDropSchema
@@ -110,34 +102,14 @@ private:
 // accessors
 //
 
-inline SchemaName &
-StmtDDLDropSchema::getSchemaNameAsQualifiedName() 
-{
-  return schemaQualName_;
-}
+inline SchemaName &StmtDDLDropSchema::getSchemaNameAsQualifiedName() { return schemaQualName_; }
 
-inline const SchemaName &
-StmtDDLDropSchema::getSchemaNameAsQualifiedName() const
-{
-  return schemaQualName_;
-}
+inline const SchemaName &StmtDDLDropSchema::getSchemaNameAsQualifiedName() const { return schemaQualName_; }
 
-inline ComDropBehavior
-StmtDDLDropSchema::getDropBehavior() const
-{
-  return dropBehavior_;
-}
+inline ComDropBehavior StmtDDLDropSchema::getDropBehavior() const { return dropBehavior_; }
 
-inline ComBoolean
-StmtDDLDropSchema::getCleanupMode() const
-{
-  return cleanupMode_;
-}
+inline ComBoolean StmtDDLDropSchema::getCleanupMode() const { return cleanupMode_; }
 
-inline const NAString &
-StmtDDLDropSchema::getSchemaName() const
-{
-  return schemaName_;
-}
+inline const NAString &StmtDDLDropSchema::getSchemaName() const { return schemaName_; }
 
-#endif // STMTDDLDROPSCHEMA_H
+#endif  // STMTDDLDROPSCHEMA_H

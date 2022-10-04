@@ -38,7 +38,6 @@
  *****************************************************************************
  */
 
-
 #include "optimizer/ObjectNames.h"
 
 // -----------------------------------------------------------------------
@@ -52,49 +51,31 @@ class ElemDDLSchemaName;
 // A temporary parse node to contain a schema name and an optional
 // authorization identifier.
 // -----------------------------------------------------------------------
-class ElemDDLSchemaName : public ElemDDLNode
-{
-
-public:
-
+class ElemDDLSchemaName : public ElemDDLNode {
+ public:
   // default constructor
-  ElemDDLSchemaName(const SchemaName & aSchemaName,
-                    const NAString & anAuthorizationID = "",
-                    CollHeap * h=PARSERHEAP())
-    : ElemDDLNode(ELM_SCHEMA_NAME_ELEM),
-      schemaName_(aSchemaName, h),
-      authorizationID_(anAuthorizationID, h)  {}
+  ElemDDLSchemaName(const SchemaName &aSchemaName, const NAString &anAuthorizationID = "", CollHeap *h = PARSERHEAP())
+      : ElemDDLNode(ELM_SCHEMA_NAME_ELEM), schemaName_(aSchemaName, h), authorizationID_(anAuthorizationID, h) {}
 
   // copy ctor
-  ElemDDLSchemaName (const ElemDDLSchemaName & orig, CollHeap * h=PARSERHEAP()) ; // not written
+  ElemDDLSchemaName(const ElemDDLSchemaName &orig, CollHeap *h = PARSERHEAP());  // not written
 
   // virtual destructor
   virtual ~ElemDDLSchemaName();
 
   // cast
-  virtual ElemDDLSchemaName * castToElemDDLSchemaName();
+  virtual ElemDDLSchemaName *castToElemDDLSchemaName();
 
   // accessors
 
-  const NAString &
-  getAuthorizationID() const
-  {
-    return authorizationID_;
-  }
+  const NAString &getAuthorizationID() const { return authorizationID_; }
 
-  const SchemaName &
-  getSchemaName() const
-  {
-    return schemaName_;
-  }
+  const SchemaName &getSchemaName() const { return schemaName_; }
 
-private:
-
+ private:
   SchemaName schemaName_;
   NAString authorizationID_;
 
-}; // class ElemDDLSchemaName
+};  // class ElemDDLSchemaName
 
 #endif /* ELEMDDLSCHEMANAME_H */
-
-

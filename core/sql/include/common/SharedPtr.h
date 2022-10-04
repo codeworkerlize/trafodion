@@ -91,20 +91,25 @@
 //    }
 // ***********************************************************************
 
-
 #include "common/NAMemory.h"
 #include "common/NAAssert.h"
 
 // Classes and structs defined in this file.
 struct nullDeleter;
-template <class T> struct SharedRefCountBase;
-template <class T> struct SharedRefCount;
-template <class T, class D> struct SharedRefCountDel;
-template <class T> struct IntrusiveSharedRefCount;
-template <class T> class SharedPtr;
-template <class T> class IntrusiveSharedPtr;
+template <class T>
+struct SharedRefCountBase;
+template <class T>
+struct SharedRefCount;
+template <class T, class D>
+struct SharedRefCountDel;
+template <class T>
+struct IntrusiveSharedRefCount;
+template <class T>
+class SharedPtr;
+template <class T>
+class IntrusiveSharedPtr;
 
-// Classes that must use an embedded shared count must declare 
+// Classes that must use an embedded shared count must declare
 // INTRUSIVE_SHARED_PTR in the public section of the class.
 #define INTRUSIVE_SHARED_PTR(TYPE) IntrusiveSharedRefCount<TYPE> ISHP_
 
@@ -116,7 +121,7 @@ template <class T> class IntrusiveSharedPtr;
 //               not be deleted.
 // ***********************************************************************
 struct NullDeleter {
-  void operator() (void const *) const {}
+  void operator()(void const *) const {}
 };
 
 // ***********************************************************************
@@ -128,19 +133,20 @@ template <class T>
 struct SharedRefCountBase {
   SharedRefCountBase() : useCount_(0), objectP_(0) {}
 
-  SharedRefCountBase(T* t, Int32 use_count) :
-    useCount_(use_count), objectP_(t) {}
+  SharedRefCountBase(T *t, Int32 use_count) : useCount_(use_count), objectP_(t) {}
 
   // Functions to increment and decrement the use count
   void incrUseCount() { ++useCount_; }
-  void decrUseCount() { if (--useCount_ == 0) destroyObjects(); }
+  void decrUseCount() {
+    if (--useCount_ == 0) destroyObjects();
+  }
 
   // Function that properly destroys the object and reference count
   // objects.
   virtual void destroyObjects() = 0;
 
-  Lng32 useCount_;     // Reference count of this object
-  T *objectP_;        // Pointer to object
+  Lng32 useCount_;  // Reference count of this object
+  T *objectP_;      // Pointer to object
 };
 
 // ***********************************************************************
@@ -150,21 +156,18 @@ struct SharedRefCountBase {
 // ***********************************************************************
 template <class T>
 struct SharedRefCount : public SharedRefCountBase<T> {
+  SharedRefCount(T *t, NAMemory *heap, Int32 use_count) : SharedRefCountBase<T>(t, use_count), heap_(heap) {}
 
-  SharedRefCount(T* t, NAMemory* heap, Int32 use_count) :
-         SharedRefCountBase<T>(t, use_count), heap_(heap) {}
-
-  virtual void destroyObjects()
-  {
+  virtual void destroyObjects() {
     delete SharedRefCountBase<T>::objectP_;
     if (heap_)
       NADELETEBASIC(this, heap_);
     else
-      ::operator delete((void*)this);
+      ::operator delete((void *)this);
   }
 
-private:
-  NAMemory *heap_;         // Heap used to construct SharedRefCount.
+ private:
+  NAMemory *heap_;  // Heap used to construct SharedRefCount.
 };
 
 // ***********************************************************************
@@ -177,25 +180,23 @@ private:
 //          2) Provide a special deleter class if some special
 //             deletion is necessary.
 // ***********************************************************************
-template<class T, class D>
+template <class T, class D>
 struct SharedRefCountDel : public SharedRefCountBase<T> {
+  SharedRefCountDel(T *t, NAMemory *heap, Int32 use_count, D deleter)
+      : SharedRefCountBase<T>(t, use_count), heap_(heap), del_(deleter) {}
 
-  SharedRefCountDel(T *t, NAMemory *heap, Int32 use_count, D deleter) :
-     SharedRefCountBase<T>(t, use_count), heap_(heap), del_(deleter) {}
-
-  virtual void destroyObjects()
-  {
+  virtual void destroyObjects() {
     del_(SharedRefCountBase<T>::objectP_);
     if (heap_)
-     // heap_->deallocateMemory(this);
+      // heap_->deallocateMemory(this);
       NADELETEBASIC(this, heap_);
     else
-      ::operator delete((void*)this);
+      ::operator delete((void *)this);
   }
 
-private:
-  NAMemory *heap_;     // Heap used to construct SharedRefCount.
-  D del_;              // Deletion class
+ private:
+  NAMemory *heap_;  // Heap used to construct SharedRefCount.
+  D del_;           // Deletion class
 };
 
 // ***********************************************************************
@@ -212,16 +213,13 @@ private:
 //                  CMP_INTRUSIVE_SHARED_PTR(objectType);
 //
 // ***********************************************************************
-template<class T>
+template <class T>
 struct IntrusiveSharedRefCount : public SharedRefCountBase<T> {
-
   IntrusiveSharedRefCount() {}
 
-  IntrusiveSharedRefCount(T *t, Int32 use_count) :
-      SharedRefCountBase<T>(t, use_count) {}
+  IntrusiveSharedRefCount(T *t, Int32 use_count) : SharedRefCountBase<T>(t, use_count) {}
 
-  virtual void destroyObjects()
-  {
+  virtual void destroyObjects() {
     // Only the object pointer should be deleted for this class.
     delete SharedRefCountBase<T>::objectP_;
   }
@@ -234,45 +232,40 @@ struct IntrusiveSharedRefCount : public SharedRefCountBase<T> {
 //               that use this class will be derived from classes that
 //               provide their own operator new and operator delete.
 // ***********************************************************************
-template<class T>
+template <class T>
 class SharedPtr {
-public:
+ public:
   // Constructors
-  SharedPtr(): objectP_(0), refCount_(0) {}
+  SharedPtr() : objectP_(0), refCount_(0) {}
 
   // Normal constructor
-  template<class Y>
+  template <class Y>
   SharedPtr(Y *t, NAMemory *heap) : objectP_(t) {
     if (heap)
-      refCount_ = new (heap) SharedRefCount<Y> (t, heap, 1);
+      refCount_ = new (heap) SharedRefCount<Y>(t, heap, 1);
     else
-      refCount_ = new SharedRefCount<Y> (t, heap, 1);
+      refCount_ = new SharedRefCount<Y>(t, heap, 1);
   }
 
   // Constructor with a special deleter object
-  template<class Y, class D>
+  template <class Y, class D>
   SharedPtr(Y *t, NAMemory *heap, D deleter_class) : objectP_(t) {
     if (heap)
-      refCount_ = new (heap) SharedRefCountDel<Y, D> (t, heap, 1, deleter_class);
+      refCount_ = new (heap) SharedRefCountDel<Y, D>(t, heap, 1, deleter_class);
     else
-      refCount_ = new SharedRefCountDel<Y, D> (t, heap, 1, deleter_class);
+      refCount_ = new SharedRefCountDel<Y, D>(t, heap, 1, deleter_class);
   }
 
   // Constructor that allows construction with a NULL pointer
-  SharedPtr(const long i) : refCount_(0), objectP_((T*)i) {}
+  SharedPtr(const long i) : refCount_(0), objectP_((T *)i) {}
 
   // Copy constructor
-  SharedPtr(SharedPtr<T> const & r) :
-     objectP_(r.objectP_),
-     refCount_(r.refCount_)
-  {
-    if (refCount_)
-      refCount_->incrUseCount();
+  SharedPtr(SharedPtr<T> const &r) : objectP_(r.objectP_), refCount_(r.refCount_) {
+    if (refCount_) refCount_->incrUseCount();
   }
 
   // Destructor
-  ~SharedPtr()
-  {
+  ~SharedPtr() {
     if (refCount_) {
 #ifdef _DEBUG
       assert(objectP_ == refCount_->objectP_);
@@ -282,8 +275,7 @@ public:
   }
 
   // Assignment operator
-  SharedPtr<T>& operator= (SharedPtr<T> const & r)
-  {
+  SharedPtr<T> &operator=(SharedPtr<T> const &r) {
     if (objectP_ != r.objectP_) {
       if (refCount_) {
 #ifdef _DEBUG
@@ -293,75 +285,70 @@ public:
       }
       objectP_ = r.objectP_;
       refCount_ = r.refCount_;
-      if (refCount_)
-        refCount_->incrUseCount();
+      if (refCount_) refCount_->incrUseCount();
     }
     return *this;
   }
 
   // Allow assignment of pointer to NULL.
-  SharedPtr<T>& operator= (const long i)
-  {
+  SharedPtr<T> &operator=(const long i) {
     if (refCount_) {
 #ifdef _DEBUG
       assert(objectP_ == refCount_->objectP_);
 #endif
       refCount_->decrUseCount();
     }
-    objectP_ = (T*)i;
+    objectP_ = (T *)i;
     refCount_ = 0;
     return *this;
   }
 
   // Access operations
-  T& operator* () const
-  {
+  T &operator*() const {
 #ifdef _DEBUG
-    if (refCount_)
-      assert(objectP_ == refCount_->objectP_);
+    if (refCount_) assert(objectP_ == refCount_->objectP_);
 #endif
     return *objectP_;
   }
 
-  T* operator->() const
-  {
+  T *operator->() const {
 #ifdef _DEBUG
-    if (refCount_)
-      assert(objectP_ == refCount_->objectP_);
+    if (refCount_) assert(objectP_ == refCount_->objectP_);
 #endif
     return objectP_;
   }
 
   // Return a pointer to the object.
-  T* get() const { return objectP_; }
+  T *get() const { return objectP_; }
 
   // Return the reference count
   Lng32 getUseCount() const { return (refCount_ ? refCount_->useCount_ : 0); }
 
   // Return whether this SharePtr is not null.
-  operator bool () const { return objectP_ != 0; }
+  operator bool() const { return objectP_ != 0; }
 
   // reset() may be used for special cases where it is possible to
   // tell that a SharedPtr is no longer valid.  The current SharedPtr
   // can then be reset to point to nothing.
-  void reset() { objectP_ = 0; refCount_ = 0; }
+  void reset() {
+    objectP_ = 0;
+    refCount_ = 0;
+  }
 
-protected:
-  T* objectP_;                       // Pointer to contained object
-  SharedRefCountBase<T>* refCount_;  // Pointer to reference count object
+ protected:
+  T *objectP_;                       // Pointer to contained object
+  SharedRefCountBase<T> *refCount_;  // Pointer to reference count object
 };
 
 // Equality operator
-template<class T, class O>
-inline bool operator==(SharedPtr<T> const &a, SharedPtr<O> const &b)
-{
+template <class T, class O>
+inline bool operator==(SharedPtr<T> const &a, SharedPtr<O> const &b) {
   return a.get() == b.get();
 }
 
 // Inequality operator
-template<class T, class O>
-inline bool operator!=(SharedPtr<T> const &a, SharedPtr<O> const &b)
-{
+template <class T, class O>
+inline bool operator!=(SharedPtr<T> const &a, SharedPtr<O> const &b) {
   return a.get() != b.get();
 }
 
@@ -372,61 +359,56 @@ inline bool operator!=(SharedPtr<T> const &a, SharedPtr<O> const &b)
 //               allocated externally.  This allows for a shared pointer
 //               to be allocated from an existing object pointer.
 // ***********************************************************************
-template<class T>
+template <class T>
 class IntrusiveSharedPtr : public SharedPtr<T> {
-public:
+ public:
   // Constructors
   IntrusiveSharedPtr() {}
 
   // Normal constructor
-  template<class Y>
-  IntrusiveSharedPtr(Y *t)
-  {
+  template <class Y>
+  IntrusiveSharedPtr(Y *t) {
     // Reconstruct the reference count from object
-    SharedPtr<T>::objectP_ = (T*)t;
-    SharedPtr<T>::refCount_ = (SharedRefCountBase<T>*)&t->ISHP_;
-    SharedPtr<T>::refCount_->objectP_ = (T*)t;
+    SharedPtr<T>::objectP_ = (T *)t;
+    SharedPtr<T>::refCount_ = (SharedRefCountBase<T> *)&t->ISHP_;
+    SharedPtr<T>::refCount_->objectP_ = (T *)t;
     SharedPtr<T>::refCount_->useCount_++;
   }
 
   // Allow construction with a NULL
-  IntrusiveSharedPtr(const long i) : SharedPtr<T>(i) {} 
+  IntrusiveSharedPtr(const long i) : SharedPtr<T>(i) {}
 
   // Return a pointer to a shared pointer given an object with an intrusive
   // shared pointer.
-  static IntrusiveSharedPtr<T> getIntrusiveSharedPtr(const T *t)
-  {
+  static IntrusiveSharedPtr<T> getIntrusiveSharedPtr(const T *t) {
     IntrusiveSharedPtr retPtr;
 
     // Copy information to the returned shared pointer.  The casts done
     // below are to get rid of "const" errors.
-    retPtr.refCount_ = (SharedRefCountBase<T>*)&t->ISHP_;
-    retPtr.objectP_ = (T*)t;
-    retPtr.refCount_->objectP_ = (T*)t;
+    retPtr.refCount_ = (SharedRefCountBase<T> *)&t->ISHP_;
+    retPtr.objectP_ = (T *)t;
+    retPtr.refCount_->objectP_ = (T *)t;
     retPtr.refCount_->useCount_++;
     return retPtr;
   }
 
   // Provide an assignment operator to prevent the compiler from writing one.
-  IntrusiveSharedPtr<T>& operator= (const long i)
-  {
+  IntrusiveSharedPtr<T> &operator=(const long i) {
     (void)SharedPtr<T>::operator=(i);
     return *this;
   }
 };
 
 // Equality operator (for comparing an intrusive pointer to a regular pointer)
-template<class T>
-inline bool operator==(IntrusiveSharedPtr<T> const &a, T const *b)
-{
+template <class T>
+inline bool operator==(IntrusiveSharedPtr<T> const &a, T const *b) {
   return a.get() == b;
 }
 
 // Inequality operator (for comparing an intrusive pointer to a regular pointer)
-template<class T>
-inline bool operator!=(IntrusiveSharedPtr<T> const &a, T const *b)
-{
+template <class T>
+inline bool operator!=(IntrusiveSharedPtr<T> const &a, T const *b) {
   return a.get() != b;
 }
 
-#endif // _SHAREDPTR_H
+#endif  // _SHAREDPTR_H

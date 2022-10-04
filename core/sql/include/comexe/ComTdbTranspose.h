@@ -24,7 +24,7 @@
 ****************************************************************************
 *
 * File:         ComTdbTranspose.h
-* Description:  
+* Description:
 *
 * Created:      5/6/98
 * Language:     C++
@@ -43,11 +43,10 @@
 // class ComTdbTranspose --------------------------------------------------
 // The Task Definition Block for the transpose operator.  This structure is
 // produced by the generator and is passed to the executor as part of
-// a TDB tree.  This structure contains all the static information 
+// a TDB tree.  This structure contains all the static information
 // necessary to execute the Transpose operation.
-// 
-class ComTdbTranspose : public ComTdb
-{
+//
+class ComTdbTranspose : public ComTdb {
   // The Task Control Block for the transpose operator.  This struture
   // contains the run-time information necessary to execute the Transpose
   // operator.
@@ -58,23 +57,22 @@ class ComTdbTranspose : public ComTdb
   // the information associated with a given request of the transpose TCB.
   //
   friend class ExTransposePrivateState;
-  
-public:
 
+ public:
   // Default Constructor.
   // Used when unpacking the Transpose TDB.  Used to get a pointer
   // to the Virtual Method Table.
   //
   ComTdbTranspose();
-  
+
   // Construct a copy of the given node.
   // (This constructor does not seem to be used)
-  // 
+  //
   ComTdbTranspose(const ComTdbTranspose *transposeTdb);
-	
+
   // Construct a new Transpose TDB.
   // This constructor is call by the generator (PhysTranspose::codeGen() in
-  // GenRelMisc.cpp.) 
+  // GenRelMisc.cpp.)
   //
   // Parameters
   //
@@ -111,7 +109,7 @@ public:
   //  IN: The Cri Descriptor return to the parent node.
   //
   // queue_index fromParent
-  //  IN: Recommended queue size for the down queue used to communicate 
+  //  IN: Recommended queue size for the down queue used to communicate
   //      with the parent.
   //
   // queue_index toParent
@@ -128,38 +126,22 @@ public:
   // unsigned long bufferSize
   //  IN: Recommended size for pool buffers.
   //
-  ComTdbTranspose(ComTdb * childTdb,
-		  ex_expr ** transColExprs,
-		  Int32 numTransExprs,
-		  ex_expr * afterTransPred,
-		  Lng32 transRowLen,
-		  const unsigned short transTuppIndex,
-		  ex_cri_desc * givenCriDesc,
-		  ex_cri_desc * returnedCriDesc,
-		  queue_index down,
-		  queue_index up,
-		  Cardinality estimatedRowCount,
-		  Lng32 numBuffers,
-		  ULng32 bufferSize,
-		  Space *space);
+  ComTdbTranspose(ComTdb *childTdb, ex_expr **transColExprs, Int32 numTransExprs, ex_expr *afterTransPred,
+                  Lng32 transRowLen, const unsigned short transTuppIndex, ex_cri_desc *givenCriDesc,
+                  ex_cri_desc *returnedCriDesc, queue_index down, queue_index up, Cardinality estimatedRowCount,
+                  Lng32 numBuffers, ULng32 bufferSize, Space *space);
 
   // ---------------------------------------------------------------------
   // Redefine virtual functions required for Versioning.
   //----------------------------------------------------------------------
-  virtual unsigned char getClassVersionID()
-  {
-    return 1;
-  }
+  virtual unsigned char getClassVersionID() { return 1; }
 
-  virtual void populateImageVersionIDArray()
-  {
-    setImageVersionID(1,getClassVersionID());
+  virtual void populateImageVersionIDArray() {
+    setImageVersionID(1, getClassVersionID());
     ComTdb::populateImageVersionIDArray();
   }
 
-  virtual short getClassSize()
-                                { return (short)sizeof(ComTdbTranspose); }
-
+  virtual short getClassSize() { return (short)sizeof(ComTdbTranspose); }
 
   // ComTdbTranspose::pack() ---------------------------------------------
   // Pack the transpose TDB for transmission from the compiler to the
@@ -172,7 +154,7 @@ public:
   // void *space
   //  IN - The space object which was used to allocate this TDB. Used to
   //       compute offsets all pointers.  It is an error if any pointer
-  //       that can be reached from this TDB points to memory outside 
+  //       that can be reached from this TDB points to memory outside
   //       this space object.
   //
   Long pack(void *);
@@ -189,8 +171,8 @@ public:
   //  IN - The base address of the TDB fragment.  Pointers are calculated
   //       by adding the offset to the base address (more or less).
   //
-  Lng32 unpack(void *, void * reallocator);
-  
+  Lng32 unpack(void *, void *reallocator);
+
   // ComTdbTranspose::Display() -----------------------------------------
   // (Don't know why this is here.  It does not seem to be virtual and
   // on class seems to do anything for this method.)
@@ -199,7 +181,7 @@ public:
 
   // Return a pointer to the child TBD of this transpose TDB.
   //
-  inline ComTdb * getChildTdb() { return childTdb_; }
+  inline ComTdb *getChildTdb() { return childTdb_; }
 
   // We are observing order queue protocol. Results from
   // a request are returned in full, before any of the results
@@ -212,10 +194,8 @@ public:
   // return a pointer to the specifed (by position) child TDB.
   // Transpose has only one child.
   //
-  virtual const ComTdb *getChild(Int32 pos) const
-  {
-    if(pos == 0) 
-      return childTdb_;
+  virtual const ComTdb *getChild(Int32 pos) const {
+    if (pos == 0) return childTdb_;
     return NULL;
   }
 
@@ -229,83 +209,73 @@ public:
   // There are numTransExprs_ transpose expressions, plus
   // the afterTransPred_ selection predicate.
   //
-  virtual Int32 numExpressions() const
-  { 
-    return numTransExprs_ + 1;
-  }
+  virtual Int32 numExpressions() const { return numTransExprs_ + 1; }
 
   // Return the expression by position.
   // The transpose expressions come first, followed
   // by the selection pred.
   //
-  virtual ex_expr * getExpressionNode(Int32 pos) 
-  {
-    if(transColExprs_ && (pos >= 0) && (pos < numTransExprs_)) 
-      return( transColExprs_[pos] );
-    else if(pos == numTransExprs_)
-      return( afterTransPred_ );
-    return( NULL );
+  virtual ex_expr *getExpressionNode(Int32 pos) {
+    if (transColExprs_ && (pos >= 0) && (pos < numTransExprs_))
+      return (transColExprs_[pos]);
+    else if (pos == numTransExprs_)
+      return (afterTransPred_);
+    return (NULL);
   }
 
   // Return the name of an expression by position.
   // The transpose expressions come first, followed
   // by the selection pred.
   //
-  virtual const char * getExpressionName(Int32 pos) const
-  {
-    if(transColExprs_ && (pos >= 0) && (pos < numTransExprs_)) 
-      return( "transColExpr" );
-    else if(pos == numTransExprs_)
-      return( "afterTransPred" );
-    return( NULL );
+  virtual const char *getExpressionName(Int32 pos) const {
+    if (transColExprs_ && (pos >= 0) && (pos < numTransExprs_))
+      return ("transColExpr");
+    else if (pos == numTransExprs_)
+      return ("afterTransPred");
+    return (NULL);
   }
 
-  virtual const char *getNodeName() const
-  {
-    return "EX_TRANSPOSE";
-  }
+  virtual const char *getNodeName() const { return "EX_TRANSPOSE"; }
 
   // Return the number of transpose expressions.  Used by
   // the Transpose TDB and TCB methods.
   //
   Int32 numTransExprs() { return numTransExprs_; };
-protected:
 
+ protected:
   // The child of this Transpose TDB.
   //
-  ComTdbPtr childTdb_;                                  // 00-07
+  ComTdbPtr childTdb_;  // 00-07
 
   // A vector of pointers to ex_expr.  There are 'numTransExprs'
   // in the vector.  Each expression represents a transpose expression.
   // Each expression is a move expression which will generate a key
   // value, and multiple values.  One value will be from a transpose
   // expression, the others will generate the NULL value.
-  //  
-  ExExprPtrPtr transColExprs_;                          // 08-15
+  //
+  ExExprPtrPtr transColExprs_;  // 08-15
 
   // The number of expressions in transColsExprs.
   //
-  Int32 numTransExprs_;                                 // 16-19
+  Int32 numTransExprs_;  // 16-19
 
   // The length of the tuple which will hold the generated values.  This
   // tuple will be allocated by the transpose node.
   //
-  Int32 transRowLen_;                                   // 20-23
+  Int32 transRowLen_;  // 20-23
 
   // The selection Predicate for the Transpose operator. This expression
   // is applied after the transpose columns have been generated (so this
   // predicate will likely involve these generated values, other wise it
   // could have been pushed to the child of this node.
   //
-  ExExprPtr afterTransPred_;                            // 24-31
+  ExExprPtr afterTransPred_;  // 24-31
 
   // The index of the transpose tupp in the ATP.
   //
-  UInt16 transTuppIndex_;                               // 32-33
+  UInt16 transTuppIndex_;  // 32-33
 
-  char fillersComTdbTranspose_[46];                     // 34-79
-
+  char fillersComTdbTranspose_[46];  // 34-79
 };
 
 #endif
-

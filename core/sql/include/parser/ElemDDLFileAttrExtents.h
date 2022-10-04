@@ -28,8 +28,8 @@
  * File:         ElemDDLFileAttrExtents.h
  * Description:  class for Extents File Attribute (parse node) elements
  *               in Extents clause in DDL statements
- *               
- * Created:      09/12/01 
+ *
+ * Created:      09/12/01
  * Language:     C++
  *
  *
@@ -37,7 +37,6 @@
  *
  *****************************************************************************
  */
-
 
 #include "common/ComUnits.h"
 #include "ElemDDLFileAttr.h"
@@ -55,14 +54,11 @@ class ElemDDLFileAttrExtents;
 // -----------------------------------------------------------------------
 // definition of class ElemDDLFileAttrExtents
 // -----------------------------------------------------------------------
-class ElemDDLFileAttrExtents : public ElemDDLFileAttr
-{
-
-public:
-
+class ElemDDLFileAttrExtents : public ElemDDLFileAttr {
+ public:
   enum { DEFAULT_PRI_EXTENT = COM_PRI_EXTENT };
   enum { DEFAULT_SEC_EXTENT = COM_SEC_EXTENT };
-  
+
   // constructors
   ElemDDLFileAttrExtents();
   ElemDDLFileAttrExtents(Lng32 priExt);
@@ -72,21 +68,19 @@ public:
   virtual ~ElemDDLFileAttrExtents();
 
   // cast
-  virtual ElemDDLFileAttrExtents * castToElemDDLFileAttrExtents();
+  virtual ElemDDLFileAttrExtents *castToElemDDLFileAttrExtents();
 
   // accessors
   inline ULng32 getPriExtents() const;
   inline ULng32 getSecExtents() const;
 
   // methods for tracing
- // virtual const NAString getText() const;
- // virtual const NAString displayLabel1() const;
- // virtual const NAString displayLabel2() const;
- // virtual const NAString displayLabel3() const;
+  // virtual const NAString getText() const;
+  // virtual const NAString displayLabel1() const;
+  // virtual const NAString displayLabel2() const;
+  // virtual const NAString displayLabel3() const;
 
-
-private:
-
+ private:
   //
   // methods
   //
@@ -101,15 +95,14 @@ private:
 
   ULng32 priExt_;
   ULng32 secExt_;
-  
-}; // class ElemDDLFileAttrExtents
+
+};  // class ElemDDLFileAttrExtents
 
 //
 // helpers
 //
 
-void ParSetDefaultExtents(ULng32 &priExt,
-                          ULng32 &secExt);
+void ParSetDefaultExtents(ULng32 &priExt, ULng32 &secExt);
 void ParSetDefaultPriExtent(ULng32 &priExt);
 
 // -----------------------------------------------------------------------
@@ -120,16 +113,8 @@ void ParSetDefaultPriExtent(ULng32 &priExt);
 // accessors
 //
 
-inline ULng32
-ElemDDLFileAttrExtents::getPriExtents() const
-{
-  return priExt_;
-}
+inline ULng32 ElemDDLFileAttrExtents::getPriExtents() const { return priExt_; }
 
-inline ULng32
-ElemDDLFileAttrExtents::getSecExtents() const
-{
-  return secExt_;
-}
+inline ULng32 ElemDDLFileAttrExtents::getSecExtents() const { return secExt_; }
 
-#endif // ELEMDDLFILEATTREXTENTS_H
+#endif  // ELEMDDLFILEATTREXTENTS_H

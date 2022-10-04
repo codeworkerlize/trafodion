@@ -23,13 +23,12 @@
 #ifndef ExTranspose_h
 #define ExTranspose_h
 
-
 /* -*-C++-*-
 ******************************************************************************
 *
 * File:         ExTranspose.h
 * Description:  Transpose Operator
-*               
+*
 * Created:      4/1/97
 * Language:     C++
 *
@@ -51,9 +50,9 @@ class ExSimpleSQLBuffer;
 // class ExTransposeTdb --------------------------------------------------
 // The Task Definition Block for the transpose operator.  This structure is
 // produced by the generator and is passed to the executor as part of
-// a TDB tree.  This structure contains all the static information 
+// a TDB tree.  This structure contains all the static information
 // necessary to execute the Transpose operation.
-// 
+//
 #include "comexe/ComTdbTranspose.h"
 
 // -----------------------------------------------------------------------
@@ -69,27 +68,23 @@ class ex_tcb;
 // -----------------------------------------------------------------------
 // ExTransposeTdb
 // -----------------------------------------------------------------------
-class ExTransposeTdb : public ComTdbTranspose
-{
-public:
-
+class ExTransposeTdb : public ComTdbTranspose {
+ public:
   // ---------------------------------------------------------------------
   // Constructor is only called to instantiate an object used for
   // retrieval of the virtual table function pointer of the class while
   // unpacking. An empty constructor is enough.
   // ---------------------------------------------------------------------
-  ExTransposeTdb()
-  {}
+  ExTransposeTdb() {}
 
-  virtual ~ExTransposeTdb()
-  {}
+  virtual ~ExTransposeTdb() {}
 
   // ---------------------------------------------------------------------
   // Build a TCB for this TDB. Redefined in the Executor project.
   // ---------------------------------------------------------------------
   virtual ex_tcb *build(ex_globals *globals);
 
-private:
+ private:
   // ---------------------------------------------------------------------
   // !!!!!!! IMPORTANT -- NO DATA MEMBERS ALLOWED IN EXECUTOR TDB !!!!!!!!
   // *********************************************************************
@@ -109,7 +104,7 @@ private:
   // 1. Are those data members Compiler-generated?
   //    If yes, put them in the ComTdbTranspose instead.
   //    If no, they should probably belong to someplace else (like TCB).
-  // 
+  //
   // 2. Are the classes those data members belong defined in the executor
   //    project?
   //    If your answer to both questions is yes, you might need to move
@@ -117,41 +112,36 @@ private:
   // ---------------------------------------------------------------------
 };
 
-
-
 // class ExTransposeTcb --------------------------------------------------
 // The Task Control Block for the transpose operator.  This structure is
 // produced during the build phase as part of the TCB tree.
-// This structure contains all the run-time information 
+// This structure contains all the run-time information
 // necessary to execute the Transpose operation.
-// 
-class ExTransposeTcb : public ex_tcb
-{
+//
+class ExTransposeTcb : public ex_tcb {
   // The Task Definition Block for the transpose operator.  This struture
   // contains the static information necessary to execute the Transpose
   // operator.
   //
-  friend class   ExTransposeTdb;
+  friend class ExTransposeTdb;
 
   // The private state for the transpose operator.  This structure contains
   // the information associated with a given request of the transpose TCB.
   //
-  friend class   ExTransposePrivateState;
+  friend class ExTransposePrivateState;
 
-public:
-
+ public:
   // The various states of a request for the Transpose work methods.
   //
-  enum TransChildState
-  {
+  enum TransChildState {
     // The request has been sent to the child.
     //
-    STARTED_, 
+    STARTED_,
 
     // The request has not yet been sent to the child or
     // this entry has no request.
     //
-    EMPTY_,   
+    EMPTY_,
 
     // A cancel request has been sent to the child for this request.
     //
@@ -164,7 +154,7 @@ public:
   // It:
   //     - allocates the sql buffer pool
   //     - allocates the ATP's for its child's down queue.
-  //     - allocates the up and down queues used to communicate 
+  //     - allocates the up and down queues used to communicate
   //       with the parent.
   //     - allocates the private state associated with each entry of the
   //       parents down queue.
@@ -183,21 +173,18 @@ public:
   //    IN: Contains references to global executor information,
   //        notably the space object used to allocate objects.
   //
-  ExTransposeTcb(const ExTransposeTdb &transTdb,
-		 const ex_tcb &childTdb,    
-		 ex_globals *glob);
-	  
+  ExTransposeTcb(const ExTransposeTdb &transTdb, const ex_tcb &childTdb, ex_globals *glob);
 
   // Destructor
   //
-  ~ExTransposeTcb();  
+  ~ExTransposeTcb();
 
   // Free up any run-time resources.
   // For transpose, this frees up the buffer pool.
   // (Does not free up the queues, should it).
   // Called by the destructor.
   //
-  void freeResources(); 
+  void freeResources();
 
   // Register all the transpose subtasks with the scheduler.
   //
@@ -217,61 +204,50 @@ public:
   // pass up to parent.
   //
   ExWorkProcRetcode workUp();
-  
+
   // Stub to workUp() used by scheduler.
   //
-  
-  static ExWorkProcRetcode sWorkUp(ex_tcb *tcb)
-  {
-    return ((ExTransposeTcb *) tcb)->workUp(); 
-  }
-  
+
+  static ExWorkProcRetcode sWorkUp(ex_tcb *tcb) { return ((ExTransposeTcb *)tcb)->workUp(); }
+
   // Stub to workDown() used by scheduler.
-  // 
-  static ExWorkProcRetcode sWorkDown(ex_tcb *tcb)
-  {
-    return ((ExTransposeTcb *) tcb)->workDown(); 
-  }
-  
+  //
+  static ExWorkProcRetcode sWorkDown(ex_tcb *tcb) { return ((ExTransposeTcb *)tcb)->workDown(); }
+
   // Stub to processCancel() used by scheduler.
-  // 
-  static ExWorkProcRetcode sCancel(ex_tcb *tcb)
-  {
-    return ((ExTransposeTcb *) tcb)->processCancel(); 
-  }
+  //
+  static ExWorkProcRetcode sCancel(ex_tcb *tcb) { return ((ExTransposeTcb *)tcb)->processCancel(); }
 
   // Return the parent queue pair.
   //
   ex_queue_pair getParentQueue() const { return qParent_; }
 
-  // Return a reference to the Transpose TDB associated with this 
+  // Return a reference to the Transpose TDB associated with this
   // Transpose TCB.
   //
-  inline ExTransposeTdb &transTdb() const { return (ExTransposeTdb&)tdb; }
+  inline ExTransposeTdb &transTdb() const { return (ExTransposeTdb &)tdb; }
 
   // Return the transpose expression (index by number).
   //
-  inline ex_expr * transColExpr(Int32 i) { return transTdb().transColExprs_[i]; }
+  inline ex_expr *transColExpr(Int32 i) { return transTdb().transColExprs_[i]; }
 
   // Return the selection Predicate.
   //
-  inline ex_expr * afterTransPred() { return transTdb().afterTransPred_; }
+  inline ex_expr *afterTransPred() { return transTdb().afterTransPred_; }
 
   // Transpose has one child.
   //
-  virtual Int32 numChildren() const { return 1; }   
+  virtual Int32 numChildren() const { return 1; }
 
   // Return the child of the transpose node by position.
   //
-  virtual const ex_tcb * getChild(Int32 pos) const {
-    if(pos == 0) return childTcb_;
+  virtual const ex_tcb *getChild(Int32 pos) const {
+    if (pos == 0) return childTcb_;
     return NULL;
   }
-  virtual ex_tcb_private_state * allocatePstates(
-       Lng32 &numElems,      // inout, desired/actual elements
-       Lng32 &pstateLength); // out, length of one element
-protected:
-  
+  virtual ex_tcb_private_state *allocatePstates(Lng32 &numElems,       // inout, desired/actual elements
+                                                Lng32 &pstateLength);  // out, length of one element
+ protected:
   // The child TCB of this Transpose node.
   //
   const ex_tcb *childTcb_;
@@ -279,18 +255,18 @@ protected:
   // The queue pair used to communicate with the parent node.
   // This queue is allocated by this node.
   //
-  ex_queue_pair  qParent_;
+  ex_queue_pair qParent_;
 
   // The queue pair used to communicate with the child node.
   // This queue is allocated by the child node.  This data
   // member is initialized by calling getParentQueue() on the child TCB.
   //
-  ex_queue_pair  childQueue_;
+  ex_queue_pair childQueue_;
 
   // next parent down queue entry to process.
   //
   queue_index processedInputs_;
-  
+
   // Buffer pool used to allocated tupps for the transpose generated
   // columns.
   //
@@ -309,34 +285,30 @@ protected:
   // Process cancell requests.
   // Called when a cancel request occurs on the parents down queue.
   //
-  ExWorkProcRetcode processCancel(); 
+  ExWorkProcRetcode processCancel();
 
   void processError();
-   
 };
 
 // -----------------------------------------------------------------------
 // Private state
 // -----------------------------------------------------------------------
-class ExTransposePrivateState : public ex_tcb_private_state
-{
+class ExTransposePrivateState : public ex_tcb_private_state {
   friend class ExTransposeTcb;
-  
-  Int64 matchCount_; 
+
+  Int64 matchCount_;
   Int32 transCount_;
 
   ExTransposeTcb::TransChildState childState_;
 
-  void init();        
+  void init();
 
-public:
+ public:
+  ExTransposePrivateState();
 
-  ExTransposePrivateState(); 
+  ex_tcb_private_state *allocate_new(const ex_tcb *tcb);
 
-  ex_tcb_private_state * allocate_new(const ex_tcb * tcb);
-
-  ~ExTransposePrivateState();  
+  ~ExTransposePrivateState();
 };
 
 #endif
-

@@ -31,11 +31,11 @@ const uint64_t BASE_128_MASK = 0x7f;
 signed char RleDecoderV1::readByte() {
   if (bufferStart == bufferEnd) {
     int bufferLength;
-    const void* bufferPointer;
+    const void *bufferPointer;
     if (!inputStream->Next(&bufferPointer, &bufferLength)) {
       throw ParseError("bad read in readByte");
     }
-    bufferStart = static_cast<const char*>(bufferPointer);
+    bufferStart = static_cast<const char *>(bufferPointer);
     bufferEnd = bufferStart + bufferLength;
   }
   return *(bufferStart++);
@@ -75,14 +75,11 @@ void RleDecoderV1::readHeader() {
     remainingValues = static_cast<uint64_t>(ch) + MINIMUM_REPEAT;
     repeating = true;
     delta = readByte();
-    value = isSigned
-        ? unZigZag(readLong())
-        : static_cast<int64_t>(readLong());
+    value = isSigned ? unZigZag(readLong()) : static_cast<int64_t>(readLong());
   }
 }
 
-RleDecoderV1::RleDecoderV1(std::unique_ptr<SeekableInputStream> input,
-                           bool hasSigned)
+RleDecoderV1::RleDecoderV1(std::unique_ptr<SeekableInputStream> input, bool hasSigned)
     : inputStream(std::move(input)),
       isSigned(hasSigned),
       remainingValues(0),
@@ -90,10 +87,9 @@ RleDecoderV1::RleDecoderV1(std::unique_ptr<SeekableInputStream> input,
       bufferStart(nullptr),
       bufferEnd(bufferStart),
       delta(0),
-      repeating(false) {
-}
+      repeating(false) {}
 
-void RleDecoderV1::seek(PositionProvider& location) {
+void RleDecoderV1::seek(PositionProvider &location) {
   // move the input stream
   inputStream->seek(location);
   // force a re-read from the stream
@@ -120,9 +116,7 @@ void RleDecoderV1::skip(uint64_t numValues) {
   }
 }
 
-void RleDecoderV1::next(int64_t* const data,
-                        const uint64_t numValues,
-                        const char* const notNull) {
+void RleDecoderV1::next(int64_t *const data, const uint64_t numValues, const char *const notNull) {
   uint64_t position = 0;
   // skipNulls()
   if (notNull) {
@@ -156,11 +150,9 @@ void RleDecoderV1::next(int64_t* const data,
       value += static_cast<int64_t>(consumed) * delta;
     } else {
       if (notNull) {
-        for (uint64_t i = 0 ; i < count; ++i) {
+        for (uint64_t i = 0; i < count; ++i) {
           if (notNull[i]) {
-            data[position + i] = isSigned
-                ? unZigZag(readLong())
-                : static_cast<int64_t>(readLong());
+            data[position + i] = isSigned ? unZigZag(readLong()) : static_cast<int64_t>(readLong());
             ++consumed;
           }
         }

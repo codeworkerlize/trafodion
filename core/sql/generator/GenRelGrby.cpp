@@ -25,8 +25,8 @@
 *
 * File:         GenRelGrby.C
 * Description:  Aggregate and grouping operators
-*               
-*               
+*
+*
 * Created:      5/17/94
 * Language:     C++
 *
@@ -45,7 +45,7 @@
 #include "comexe/ComTdb.h"
 //#include "executor/ex_tcb.h"
 #include "HashRow.h"
-#include "hash_table.h" // for HashTableHeader
+#include "hash_table.h"  // for HashTableHeader
 #include "comexe/ComTdbHashGrby.h"
 #include "comexe/ComTdbSortGrby.h"
 #include "sqlcomp/DefaultConstants.h"
@@ -53,13 +53,12 @@
 #include "common/ComUnits.h"
 #include "executor/sql_buffer_size.h"
 
-
 //#include "executor/ExStats.h"
 
 /////////////////////////////////////////////////////////////////////
 //
 // Contents:
-//    
+//
 //   GroupByAgg::genAggrGrbyExpr()
 //   HashGroupBy::codeGen()
 //   GroupByAgg::codeGen()
@@ -67,28 +66,19 @@
 //////////////////////////////////////////////////////////////////////
 
 // Called by GroupByAgg::codeGen()
-short GroupByAgg::genAggrGrbyExpr(Generator * generator,
-				  ValueIdSet &aggregateExpr,
-				  ValueIdSet &groupExpr,
-				  ValueIdList &rollupGroupExprList,
-				  ValueIdSet &selectionPred,
-				  Int32 workAtp,
-				  Int32 workAtpIndex,
-				  short returnedAtpIndex, 
-				  ex_expr ** aggrExpr,
-				  ex_expr ** grbyExpr,
-				  ex_expr ** moveExpr,
-				  ex_expr ** havingExpr,
-				  ComTdb ** childTdb,
-				  ExpTupleDesc ** tupleDesc) {
-  ExpGenerator * expGen = generator->getExpGenerator();
-  Space * space = generator->getSpace();
-  
+short GroupByAgg::genAggrGrbyExpr(Generator *generator, ValueIdSet &aggregateExpr, ValueIdSet &groupExpr,
+                                  ValueIdList &rollupGroupExprList, ValueIdSet &selectionPred, Int32 workAtp,
+                                  Int32 workAtpIndex, short returnedAtpIndex, ex_expr **aggrExpr, ex_expr **grbyExpr,
+                                  ex_expr **moveExpr, ex_expr **havingExpr, ComTdb **childTdb,
+                                  ExpTupleDesc **tupleDesc) {
+  ExpGenerator *expGen = generator->getExpGenerator();
+  Space *space = generator->getSpace();
+
   // remember the end of the current MT
-  MapTable * lastMapTable = generator->getLastMapTable();
+  MapTable *lastMapTable = generator->getLastMapTable();
 
   // create extra MT to manipultate the childs MT
-  MapTable * childMapTable = generator->appendAtEnd();
+  MapTable *childMapTable = generator->appendAtEnd();
 
   // generate code for child tree
   child(0)->codeGen(generator);
@@ -109,8 +99,7 @@ short GroupByAgg::genAggrGrbyExpr(Generator * generator,
 
   // find the number of aggregate and groupby entries
   ULng32 numAttrs = 0;
-  if (NOT aggregateExpr.isEmpty())
-    numAttrs += aggregateExpr.entries();
+  if (NOT aggregateExpr.isEmpty()) numAttrs += aggregateExpr.entries();
   if (isRollup() && (NOT rollupGroupExprList.isEmpty()))
     numAttrs += rollupGroupExprList.entries();
   else if (NOT groupExpr.isEmpty())
@@ -118,32 +107,27 @@ short GroupByAgg::genAggrGrbyExpr(Generator * generator,
 
   NABoolean isAggrOneRow_ = FALSE;
 
-  // ITM_ONE_ROW can occur in a scalar groupby or in a groupBy with 
-  // grouping columns. The second possibility occurs only when the 
-  // subquery that contained the ITM_ONE_ROW predicate has been 
+  // ITM_ONE_ROW can occur in a scalar groupby or in a groupBy with
+  // grouping columns. The second possibility occurs only when the
+  // subquery that contained the ITM_ONE_ROW predicate has been
   // processed by subquery unnesting.
-  if (aggregateExpr.entries() == 1)
-  {
+  if (aggregateExpr.entries() == 1) {
     ValueId exprId;
     aggregateExpr.getFirst(exprId);
-    
-    if ( exprId.getItemExpr()->getOperatorType() == ITM_ONE_ROW )
-    {
+
+    if (exprId.getItemExpr()->getOperatorType() == ITM_ONE_ROW) {
       isAggrOneRow_ = TRUE;
     }
   }
 
   // add the elements in the aggr list to the map table
   Int32 i = 0;
-  Attributes ** attrs = NULL;
+  Attributes **attrs = NULL;
 
-  if ( NOT isAggrOneRow_ )
-    {
-    attrs = new(generator->wHeap()) Attributes * [numAttrs];
+  if (NOT isAggrOneRow_) {
+    attrs = new (generator->wHeap()) Attributes *[numAttrs];
     if (NOT aggregateExpr.isEmpty()) {
-      for (valId = aggregateExpr.init();
-	   aggregateExpr.next(valId);
-	   aggregateExpr.advance(valId), i++) {
+      for (valId = aggregateExpr.init(); aggregateExpr.next(valId); aggregateExpr.advance(valId), i++) {
         attrs[i] = (generator->addMapInfo(valId, 0))->getAttr();
       }
     }
@@ -156,19 +140,14 @@ short GroupByAgg::genAggrGrbyExpr(Generator * generator,
   // -----------------------------------------------------------------------
   ValueIdSet moveSet;
 
-  if ( isAggrOneRow_ )
-  {
+  if (isAggrOneRow_) {
     // ---------------------------------------------------------------------
     // First, collect all the inst-null values under ITM_ONE_ROW. We should
     // have the same number of values as the child's outputs.
     // ---------------------------------------------------------------------
-    GenAssert(NOT aggregateExpr.isEmpty(),
-              "both groupby and aggregate are empty");
+    GenAssert(NOT aggregateExpr.isEmpty(), "both groupby and aggregate are empty");
     ValueIdSet inulls;
-    for (ValueId vid = aggregateExpr.init();
-                       aggregateExpr.next(vid);
-                       aggregateExpr.advance(vid))
-    {
+    for (ValueId vid = aggregateExpr.init(); aggregateExpr.next(vid); aggregateExpr.advance(vid)) {
       GenAssert(vid.getItemExpr()->getOperatorType() == ITM_ONE_ROW,
                 "aggregateExpr of one-row aggr must be rooted by ITM_ONE_ROW");
 
@@ -181,29 +160,25 @@ short GroupByAgg::genAggrGrbyExpr(Generator * generator,
         ValueId listItemVid;
         if (listBackboneVid.getItemExpr()->getOperatorType() == ITM_ITEM_LIST)
           listItemVid = listBackboneVid.getItemExpr()->child(1)->getValueId();
-        else
-        {
+        else {
           // reach the end of the backbone. handle the remaining one item and
           // exit.
           listItemVid = listBackboneVid;
           moreToGo = FALSE;
         }
- 
-        if (listItemVid.getItemExpr()->getOperatorType() == ITM_CAST)
-        {
+
+        if (listItemVid.getItemExpr()->getOperatorType() == ITM_CAST) {
           // The code above might have inserted a ITM_CAST on top of INST_NULL.
           listItemVid = listItemVid.getItemExpr()->child(0)->getValueId();
         }
- 
-        GenAssert(
-          listItemVid.getItemExpr()->getOperatorType() == ITM_INSTANTIATE_NULL,
-          "ITM_ONE_ROW's logical leaf nodes can only be inst-null values");
- 
-        inulls.insert(listItemVid); // collect the value id.
- 
+
+        GenAssert(listItemVid.getItemExpr()->getOperatorType() == ITM_INSTANTIATE_NULL,
+                  "ITM_ONE_ROW's logical leaf nodes can only be inst-null values");
+
+        inulls.insert(listItemVid);  // collect the value id.
+
         // Go to the next item. Here is where we assume the tree is left linear.
-        if (moreToGo)
-        listBackboneVid = listBackboneVid.getItemExpr()->child(0)->getValueId();
+        if (moreToGo) listBackboneVid = listBackboneVid.getItemExpr()->child(0)->getValueId();
       } while (moreToGo);
     }
 
@@ -249,142 +224,109 @@ short GroupByAgg::genAggrGrbyExpr(Generator * generator,
     // we choose the second option. the first option is a lot more complex
     // and risky.
     //
-    const ValueIdSet & charOutputs = getGroupAttr()->getCharacteristicOutputs();
-    for (valId = charOutputs.init();
-         charOutputs.next(valId);
-         charOutputs.advance(valId))
-      {
-        OperatorTypeEnum opType = valId.getValueDesc()->getItemExpr()->getOperatorType();
-        if (opType == ITM_BASECOLUMN || opType == ITM_INDEXCOLUMN ||
-            opType == ITM_REFERENCE || opType == ITM_BASECOL)
-          // only do code gen for columns (but not other expressions)
+    const ValueIdSet &charOutputs = getGroupAttr()->getCharacteristicOutputs();
+    for (valId = charOutputs.init(); charOutputs.next(valId); charOutputs.advance(valId)) {
+      OperatorTypeEnum opType = valId.getValueDesc()->getItemExpr()->getOperatorType();
+      if (opType == ITM_BASECOLUMN || opType == ITM_INDEXCOLUMN || opType == ITM_REFERENCE || opType == ITM_BASECOL)
+        // only do code gen for columns (but not other expressions)
 
-	  // add only those value ids that are not already in the groupExpr
-	  if (NOT groupExpr.contains(valId))
-	      moveSet.insert(valId);
-      }
+        // add only those value ids that are not already in the groupExpr
+        if (NOT groupExpr.contains(valId)) moveSet.insert(valId);
+    }
 
     // ----------------------------------------------------------------------
     // Set up the destinations of this moveSet (if any). It's going to reside
     // in the workAtp together with the aggregates.
     // ----------------------------------------------------------------------
-    attrs = new(generator->wHeap()) Attributes * [numAttrs+moveSet.entries()];
+    attrs = new (generator->wHeap()) Attributes *[numAttrs + moveSet.entries()];
 
-    for (valId = aggregateExpr.init();
-                 aggregateExpr.next(valId);
-                 aggregateExpr.advance(valId), i++)
-    {
+    for (valId = aggregateExpr.init(); aggregateExpr.next(valId); aggregateExpr.advance(valId), i++) {
       attrs[i] = (generator->addMapInfo(valId, 0))->getAttr();
     }
 
-    for (valId = moveSet.init();
-                 moveSet.next(valId);
-                 moveSet.advance(valId), i++)
-    {
+    for (valId = moveSet.init(); moveSet.next(valId); moveSet.advance(valId), i++) {
       attrs[i] = (generator->addMapInfo(valId, 0))->getAttr();
     }
-  } // aggregate is ITM_ONE_ROW
+  }  // aggregate is ITM_ONE_ROW
 
   // create a copy of the group by set. This set is used
   // to move the incoming values to current group buffer.
   ValueIdList moveValIdList;
   ValueIdList gbyValIdList;
   ValueIdSet searchValIdSet;
-  
+
   if (isRollup() && (NOT rollupGroupExprList.isEmpty())) {
     for (CollIndex j = 0; j < rollupGroupExprList.entries(); j++) {
       valId = rollupGroupExprList[j];
 
-      ItemExpr * itemExpr = valId.getItemExpr();
-      
+      ItemExpr *itemExpr = valId.getItemExpr();
+
       // add this converted value to the map table.
-      ItemExpr * convNode = NULL;
-      convNode = new(generator->wHeap()) Convert (itemExpr);
+      ItemExpr *convNode = NULL;
+      convNode = new (generator->wHeap()) Convert(itemExpr);
 
       // bind/type propagate the new node
-      convNode->bindNode(generator->getBindWA());    
-      
-      attrs[i++] = 
-        (generator->addMapInfo(convNode->getValueId(), 0))->getAttr();
+      convNode->bindNode(generator->getBindWA());
+
+      attrs[i++] = (generator->addMapInfo(convNode->getValueId(), 0))->getAttr();
       moveValIdList.insert(convNode->getValueId());
       gbyValIdList.insert(valId);
-      
+
       // add the search condition
-      BiRelat * biRelat = new(generator->wHeap())
-        BiRelat(ITM_EQUAL, itemExpr, convNode);
+      BiRelat *biRelat = new (generator->wHeap()) BiRelat(ITM_EQUAL, itemExpr, convNode);
       biRelat->setSpecialNulls(-1);
       biRelat->bindNode(generator->getBindWA());
-      
-      biRelat->rollupColumnNum() = j+1;
-      
+
+      biRelat->rollupColumnNum() = j + 1;
+
+      searchValIdSet.insert(biRelat->getValueId());
+    }
+  } else if (NOT groupExpr.isEmpty()) {
+    for (valId = groupExpr.init(); groupExpr.next(valId); groupExpr.advance(valId), i++) {
+      ItemExpr *itemExpr = valId.getItemExpr();
+
+      // add this converted value to the map table.
+      Convert *convNode = new (generator->wHeap()) Convert(itemExpr);
+
+      // bind/type propagate the new node
+      convNode->bindNode(generator->getBindWA());
+
+      attrs[i] = (generator->addMapInfo(convNode->getValueId(), 0))->getAttr();
+      moveValIdList.insert(convNode->getValueId());
+      gbyValIdList.insert(valId);
+
+      // add the search condition
+      BiRelat *biRelat = new (generator->wHeap()) BiRelat(ITM_EQUAL, itemExpr, convNode);
+      biRelat->setSpecialNulls(-1);
+      biRelat->bindNode(generator->getBindWA());
+      if (generator->getBindWA()->errStatus()) GenExit();
       searchValIdSet.insert(biRelat->getValueId());
     }
   }
-  else if (NOT groupExpr.isEmpty()) {
-    for (valId = groupExpr.init();
-         groupExpr.next(valId);
-         groupExpr.advance(valId), i++) {
-      
-      ItemExpr * itemExpr = valId.getItemExpr();
-      
-      // add this converted value to the map table.
-      Convert * convNode = new(generator->wHeap()) Convert (itemExpr);
-      
-      // bind/type propagate the new node
-      convNode->bindNode(generator->getBindWA());    
-      
-      attrs[i] = 
-	(generator->addMapInfo(convNode->getValueId(), 0))->getAttr();
-      moveValIdList.insert(convNode->getValueId());
-      gbyValIdList.insert(valId);
-      
-      // add the search condition
-      BiRelat * biRelat = new(generator->wHeap())
-	BiRelat(ITM_EQUAL, itemExpr, convNode);
-      biRelat->setSpecialNulls(-1);
-      biRelat->bindNode(generator->getBindWA());
-      if (generator->getBindWA()->errStatus())
-        GenExit();
-      searchValIdSet.insert(biRelat->getValueId());
-    }
-  }
-  
-  numAttrs = ( isAggrOneRow_ ?  numAttrs + moveSet.entries() : numAttrs );
 
-  // Create the descriptor describing the aggr row and assign offset to attrs. 
-  expGen->processAttributes(numAttrs,
-			    attrs,
-			    ExpTupleDesc::SQLARK_EXPLODED_FORMAT,
-			    recLen,
-			    workAtp,
-			    workAtpIndex,
-			    tupleDesc,
-			    (isRollup() ? ExpTupleDesc::LONG_FORMAT : ExpTupleDesc::SHORT_FORMAT));
- 
+  numAttrs = (isAggrOneRow_ ? numAttrs + moveSet.entries() : numAttrs);
+
+  // Create the descriptor describing the aggr row and assign offset to attrs.
+  expGen->processAttributes(numAttrs, attrs, ExpTupleDesc::SQLARK_EXPLODED_FORMAT, recLen, workAtp, workAtpIndex,
+                            tupleDesc, (isRollup() ? ExpTupleDesc::LONG_FORMAT : ExpTupleDesc::SHORT_FORMAT));
+
   NADELETEBASIC(attrs, generator->wHeap());
 
   // add the childs MT again, we need it to generate the following expressions
   generator->appendAtEnd(childMapTable);
 
-  if (NOT aggregateExpr.isEmpty())
-  {
-    if (isAggrOneRow_)
-    {
+  if (NOT aggregateExpr.isEmpty()) {
+    if (isAggrOneRow_) {
       // --------------------------------------------------------------------
       // generate aggregate expression now. The function will also generate
       // an initializeExpr to initialize all the values in moveSet to null.
       // --------------------------------------------------------------------
-      expGen->generateAggrExpr(aggregateExpr, ex_expr::exp_AGGR,
-			       aggrExpr, 0, 
-                               (NOT groupExpr.isEmpty()), &moveSet);
+      expGen->generateAggrExpr(aggregateExpr, ex_expr::exp_AGGR, aggrExpr, 0, (NOT groupExpr.isEmpty()), &moveSet);
 
       ((AggrExpr *)*(aggrExpr))->setOneRowAggr();
-    }
-    else
-    {
-      // generate aggregate expression 
-      expGen->generateAggrExpr(aggregateExpr, ex_expr::exp_AGGR, aggrExpr, 
-                               0, (NOT groupExpr.isEmpty()));
+    } else {
+      // generate aggregate expression
+      expGen->generateAggrExpr(aggregateExpr, ex_expr::exp_AGGR, aggrExpr, 0, (NOT groupExpr.isEmpty()));
     }
   }
 
@@ -393,66 +335,50 @@ short GroupByAgg::genAggrGrbyExpr(Generator * generator,
   if (NOT groupExpr.isEmpty()) {
     // generate the move expression. This is used to move the incoming
     // grouping values to the aggr buffer.
-    expGen->generateListExpr(moveValIdList,
-			     ex_expr::exp_ARITH_EXPR,
-			     moveExpr);
+    expGen->generateListExpr(moveValIdList, ex_expr::exp_ARITH_EXPR, moveExpr);
 
     // generate the search expression. This expression is used
     // to look for a matching value in the hash table.
-    ItemExpr * newPredTree =
-      searchValIdSet.rebuildExprTree(ITM_AND, TRUE, TRUE);
-      
-    expGen->generateExpr(newPredTree->getValueId(),
-			 ex_expr::exp_SCAN_PRED,
-			 grbyExpr);
+    ItemExpr *newPredTree = searchValIdSet.rebuildExprTree(ITM_AND, TRUE, TRUE);
+
+    expGen->generateExpr(newPredTree->getValueId(), ex_expr::exp_SCAN_PRED, grbyExpr);
   }
-  
-   if ( isAggrOneRow_ && (NOT moveSet.isEmpty()) )
-   {
-     // --------------------------------------------------------------------
-     // Generate the moveExpr which moves values from the child's outputs
-     // (atp0) to the workAtp (atp1).
-     // --------------------------------------------------------------------
-     expGen->generateSetExpr(moveSet,
-                             ex_expr::exp_ARITH_EXPR,
-                             moveExpr);
-   }
+
+  if (isAggrOneRow_ && (NOT moveSet.isEmpty())) {
+    // --------------------------------------------------------------------
+    // Generate the moveExpr which moves values from the child's outputs
+    // (atp0) to the workAtp (atp1).
+    // --------------------------------------------------------------------
+    expGen->generateSetExpr(moveSet, ex_expr::exp_ARITH_EXPR, moveExpr);
+  }
 
   // Change the atp of aggregate values to 0.
   // All references to these values from this point on
   // will be at atp = 0, atp_index = last entry in returned desc.
   // Offset will be the same as in the workAtp.
   if (NOT aggregateExpr.isEmpty()) {
-    for (valId = aggregateExpr.init();
-	 aggregateExpr.next(valId);
-	 aggregateExpr.advance(valId)) {
-      Attributes * attr = generator->getMapInfo(valId)->getAttr();
+    for (valId = aggregateExpr.init(); aggregateExpr.next(valId); aggregateExpr.advance(valId)) {
+      Attributes *attr = generator->getMapInfo(valId)->getAttr();
       attr->setAtp(0);
       attr->setAtpIndex(returnedAtpIndex);
     }
   }
-  
+
   // remove the child's map table. Nothing from child's context
   // should be visible from here on upwards.
   generator->removeAll(lastMapTable);
 
-  if ( returnedMapTable_ )
-   generator->appendAtEnd( returnedMapTable_ );
+  if (returnedMapTable_) generator->appendAtEnd(returnedMapTable_);
 
-  if ( isAggrOneRow_ )
-  {
+  if (isAggrOneRow_) {
     // -------------------------------------------------------------------
     // Both the selection predicates and the parent expects outputs in
     // atp0. Set the values in moveSet to reference atp0, so that the
     // selection predicates and parent could be generated properly.
     // -------------------------------------------------------------------
-    for (valId = moveSet.init(); 
-	         moveSet.next(valId); 
-	         moveSet.advance(valId)) 
-    {
- 
-      MapInfo    * mapInfo = generator->getMapInfo(valId);
-      Attributes * colAttr = mapInfo->getAttr();
+    for (valId = moveSet.init(); moveSet.next(valId); moveSet.advance(valId)) {
+      MapInfo *mapInfo = generator->getMapInfo(valId);
+      Attributes *colAttr = mapInfo->getAttr();
       colAttr->setAtp(0);
 
       // This code assumes that returnedAtpIndex == workAtpIndex.
@@ -464,7 +390,7 @@ short GroupByAgg::genAggrGrbyExpr(Generator * generator,
       //
       mapInfo->codeGenerated();
     }
-  } // if ITM_ONE_ROW and outputs exist
+  }  // if ITM_ONE_ROW and outputs exist
 
   // the moveValIdList (set of convert nodes) was used to move the incoming
   // group by values to the aggregate buffer. The child of the convert node
@@ -479,57 +405,52 @@ short GroupByAgg::genAggrGrbyExpr(Generator * generator,
 
     for (CollIndex i = 0; i < moveValIdList.entries(); i++) {
       convValId = moveValIdList[i];
-      Attributes * newGroupColAttr =
-	(generator->getMapInfo(convValId))->getAttr();
-	
+      Attributes *newGroupColAttr = (generator->getMapInfo(convValId))->getAttr();
+
       ValueId valId = gbyValIdList[i];
 
       // change the location of the grouping columns, unless they
       // are input to this node. Input values already have location
       // assigned to them.
       if ((NOT getGroupAttr()->getCharacteristicInputs().contains(valId)) &&
-           (valId.getItemExpr()->getOperatorType() != ITM_CONSTANT)) 
-        {
-          MapInfo * mapInfo = generator->addMapInfo(valId, 0);
-          Attributes * oldGroupColAttr = mapInfo->getAttr();
-	  
-          oldGroupColAttr->copyLocationAttrs(newGroupColAttr);
-          oldGroupColAttr->setAtp(0);
-          oldGroupColAttr->setAtpIndex(returnedAtpIndex);
-	  
-          // code has been generated for valId and a value is available.
-          // Mark it so.
-          mapInfo->codeGenerated();
-        }
+          (valId.getItemExpr()->getOperatorType() != ITM_CONSTANT)) {
+        MapInfo *mapInfo = generator->addMapInfo(valId, 0);
+        Attributes *oldGroupColAttr = mapInfo->getAttr();
+
+        oldGroupColAttr->copyLocationAttrs(newGroupColAttr);
+        oldGroupColAttr->setAtp(0);
+        oldGroupColAttr->setAtpIndex(returnedAtpIndex);
+
+        // code has been generated for valId and a value is available.
+        // Mark it so.
+        mapInfo->codeGenerated();
+      }
     }
   }
-  
+
   // generate having expression, if present
   if (NOT selectionPred.isEmpty()) {
-    ItemExpr * newPredTree =
-      selectionPred.rebuildExprTree(ITM_AND,TRUE,TRUE);
-      expGen->generateExpr(newPredTree->getValueId(),
-			    ex_expr::exp_SCAN_PRED,
-			    havingExpr);
+    ItemExpr *newPredTree = selectionPred.rebuildExprTree(ITM_AND, TRUE, TRUE);
+    expGen->generateExpr(newPredTree->getValueId(), ex_expr::exp_SCAN_PRED, havingExpr);
   }
-  
+
   // reset the expression generation flag to generate float validation pcode
   generator->setGenNoFloatValidatePCode(FALSE);
 
   return 0;
-} // GroupByAgg::genAggrGrbyExpr()
+}  // GroupByAgg::genAggrGrbyExpr()
 
 /////////////////////////////////////////////////////////
 //
 // HashGroupBy::codeGen()
 //
 /////////////////////////////////////////////////////////
-short HashGroupBy::codeGen(Generator * generator) {
-  Space * space = generator->getSpace();
+short HashGroupBy::codeGen(Generator *generator) {
+  Space *space = generator->getSpace();
 
   // create a map tables for returned group by and aggregate values
-  MapTable * myMapTable1 = generator->appendAtEnd();
-  MapTable * myMapTable2 = generator->appendAtEnd();
+  MapTable *myMapTable1 = generator->appendAtEnd();
+  MapTable *myMapTable2 = generator->appendAtEnd();
 
   ////////////////////////////////////////////////////////////////////////////
   //
@@ -542,7 +463,7 @@ short HashGroupBy::codeGen(Generator * generator) {
   // <-- returned row to parent --->
   // <------------ returned row from child ------------>
   //
-  // input data:        the atp input to this node by its parent. 
+  // input data:        the atp input to this node by its parent.
   // grouped data:      tupp where the aggr/grouped result is moved
   // child data:        tupps appended by the left child
   //
@@ -553,15 +474,13 @@ short HashGroupBy::codeGen(Generator * generator) {
   //
   ////////////////////////////////////////////////////////////////////////////
 
-  ex_cri_desc * givenDesc
-    = generator->getCriDesc(Generator::DOWN);
+  ex_cri_desc *givenDesc = generator->getCriDesc(Generator::DOWN);
 
-  ex_cri_desc * returnedDesc 
-    = new(space) ex_cri_desc(givenDesc->noTuples() + 1, space); 
-  
+  ex_cri_desc *returnedDesc = new (space) ex_cri_desc(givenDesc->noTuples() + 1, space);
+
   generator->setCriDesc(returnedDesc, Generator::DOWN);
 
-  short returnedAtpIndex = (short) (returnedDesc->noTuples() - 1);
+  short returnedAtpIndex = (short)(returnedDesc->noTuples() - 1);
 
   ///////////////////////////////////////////////////////////////////////////
   // in all the computation below, the grouped/aggregated rows is available
@@ -584,43 +503,43 @@ short HashGroupBy::codeGen(Generator * generator) {
   //   4      the calculated hash value
   //   5      grouped row in the result buffer
   //////////////////////////////////////////////////////////////////////////
-  short workAtpPos = 1; // second atp 
+  short workAtpPos = 1;  // second atp
   short hbRowAtpIndex = 2;
   short ofRowAtpIndex = 3;
   short hashValueAtpIndex = 4;
   short resultRowAtpIndex = 5;
   short bitMuxAtpIndex = 6;
 
-  ex_cri_desc * workCriDesc = new(space) ex_cri_desc(7, space);
+  ex_cri_desc *workCriDesc = new (space) ex_cri_desc(7, space);
 
-  ComTdb * childTdb = 0;
+  ComTdb *childTdb = 0;
 
   // The hashExpr takes a child row and calculates the hash value. The hash
   // value is stored in the hashValueTupp_ of the hash_grby_tcb.
-  ex_expr * hashExpr = 0;
+  ex_expr *hashExpr = 0;
 
-  // The bitMuxExpr takes a child row and computes the entry in the 
-  // bitMuxTable of the row's group. The entry is stored in the 
+  // The bitMuxExpr takes a child row and computes the entry in the
+  // bitMuxTable of the row's group. The entry is stored in the
   // hashValueTupp_ of the hash_grby_tcb (like hashExpr above).
   //
-  ex_expr * bitMuxExpr = 0;
+  ex_expr *bitMuxExpr = 0;
 
   // The bitMuxAggrExpr is equivalent to hbAggrExpr except that since
   // the BitMux table automatically computes some aggregates (i.e. count),
   // the bitMuxAggrExpr does not recompute these aggregates.
   //
-  ex_expr * bitMuxAggrExpr = 0;
+  ex_expr *bitMuxAggrExpr = 0;
 
   // The hbMoveInExpr is used to move the grouping columns from the child
   // row into the hash buffer. This is done if a new group is started.
-  ex_expr * hbMoveInExpr = 0;
+  ex_expr *hbMoveInExpr = 0;
 
   // The ofMoveInExpr is used to move the grouping columns from the overflow
   // buffer into the hash buffer. This is done if a new group is started.
   // In case of a partial hash group this expression is not generated.
   // Note that the overflow buffer and the hash buffer contain rows with
   // identical format.
-  ex_expr * ofMoveInExpr = 0;
+  ex_expr *ofMoveInExpr = 0;
 
   // The resMoveInExpr is used to move the grouping columns from the child
   // row into the result buffer. This is done in case of partial hash groups
@@ -629,51 +548,50 @@ short HashGroupBy::codeGen(Generator * generator) {
   // parent takes care of merging partial groups. Partial groups are used to
   // avoid overflow handling (overflow handling can't be used in case the
   // hash grouping is executed in DP2) or in case of parallel execution.
-  // This expression is also generated in the case of no aggregates, where 
+  // This expression is also generated in the case of no aggregates, where
   // the root node (non partial) also needs to copy rows from child input
   // to the result buffer (that row/group is returned up immediately.)
-  ex_expr * resMoveInExpr = 0;
+  ex_expr *resMoveInExpr = 0;
 
   // The hbAggrExpr is used to aggregate a child row into an existing group
   // in the hash buffer.
-  ex_expr * hbAggrExpr = 0;
+  ex_expr *hbAggrExpr = 0;
 
   // The ofAggrExpr is used to aggregate a row from the overflow buffer into
   // an existing group in the hash buffer.
   // In case of a partial hash group this expression is not generated.
-  ex_expr * ofAggrExpr = 0;
+  ex_expr *ofAggrExpr = 0;
 
   // The resAggrExpr is used to aggregate a child row into a partial group
   // in the result buffer.
   // This expression is only generated in case of a partial hash group.
-  ex_expr * resAggrExpr = 0;
+  ex_expr *resAggrExpr = 0;
 
   // The havingExpr is used to decide whether a a group in the hash buffer
   // qualifies and is therefore moved into the result buffer.
-  ex_expr * havingExpr = 0;
+  ex_expr *havingExpr = 0;
 
   // The moveOutExpr is used to move a qualifiying group from the hash
   // buffer to the result buffer
-  ex_expr * moveOutExpr = 0;
+  ex_expr *moveOutExpr = 0;
 
   // The hbSearchExpr is used to serach the hash table for the group to which
   // the child row belongs.
-  ex_expr * hbSearchExpr = 0;
+  ex_expr *hbSearchExpr = 0;
 
   // The ofSearchExpr is used to search the hash table for the group to which
   // a row in a overflow buffer belongs
-  ex_expr * ofSearchExpr = 0;
- 
-  ExpTupleDesc * tupleDesc = 0;
+  ex_expr *ofSearchExpr = 0;
 
-  ExpGenerator * expGen = generator->getExpGenerator();
+  ExpTupleDesc *tupleDesc = 0;
+
+  ExpGenerator *expGen = generator->getExpGenerator();
 
   // if the hash grouping is executed in DP2, we don't do overflow
   // handling. This also means, that it is a partial group by
   // Do not do overflow handling for any partial groupby.
   //
-  NABoolean isPartialGroupBy = (isAPartialGroupByNonLeaf() ||
-                                isAPartialGroupByLeaf());
+  NABoolean isPartialGroupBy = (isAPartialGroupByNonLeaf() || isAPartialGroupByLeaf());
 
   // The old way, only groupbys in DP2 are considered partial
   //
@@ -684,7 +602,7 @@ short HashGroupBy::codeGen(Generator * generator) {
   // set flag to enable pcode for indirect varchar
   NABoolean vcflag = expGen->handleIndirectVC();
   if (CmpCommon::getDefault(VARCHAR_PCODE) == DF_ON) {
-    expGen->setHandleIndirectVC( TRUE );
+    expGen->setHandleIndirectVC(TRUE);
   }
 
   // If executing in DP2, then it should be a partial
@@ -699,47 +617,39 @@ short HashGroupBy::codeGen(Generator * generator) {
 
   // split the aggregate into a lower and an upper aggregate function.
   // Impotant assumption for this code: The lower and the upper aggregate
-  // have identical format. 
+  // have identical format.
   ValueId valId;
   ValueIdList originalAggrValIds(aggregateExpr());
 
-  GenAssert(aggregateEvaluationCanBeStaged(),
-	    "illegal aggregate function for hash grouping");
+  GenAssert(aggregateEvaluationCanBeStaged(), "illegal aggregate function for hash grouping");
 
   ValueIdList lowerAggrValIdList;
   ValueIdList upperAggrValIdList;
-  for (valId = aggregateExpr().init();
-       aggregateExpr().next(valId);
-       aggregateExpr().advance(valId)) {
-    Aggregate *a = (Aggregate *) valId.getItemExpr();
-    ItemExpr * newResult =
-      a->rewriteForStagedEvaluation(lowerAggrValIdList,
-				    upperAggrValIdList, TRUE);
+  for (valId = aggregateExpr().init(); aggregateExpr().next(valId); aggregateExpr().advance(valId)) {
+    Aggregate *a = (Aggregate *)valId.getItemExpr();
+    ItemExpr *newResult = a->rewriteForStagedEvaluation(lowerAggrValIdList, upperAggrValIdList, TRUE);
   };
 
   ValueIdSet lowerAggrValIds(lowerAggrValIdList);
   ValueIdSet upperAggrValIds(upperAggrValIdList);
 
-  // the value Ids of the grouping expression. 
+  // the value Ids of the grouping expression.
   ValueIdSet &groupValIds = groupExpr();
 
-  // the size of the grouped row in the hash buffer (not including the 
+  // the size of the grouped row in the hash buffer (not including the
   // HashRow header).
   ULng32 groupedRowLength = 0;
 
   // find the number of aggregate and groupby entries
-  ULng32 numAttrs
-    = ((NOT lowerAggrValIds.isEmpty() ) ? lowerAggrValIds.entries() : 0)
-    + ((NOT groupValIds.isEmpty() ) ? groupValIds.entries() : 0);
-  
-  Attributes ** attrs = new(generator->wHeap()) Attributes * [numAttrs];
-					  
+  ULng32 numAttrs = ((NOT lowerAggrValIds.isEmpty()) ? lowerAggrValIds.entries() : 0) +
+                    ((NOT groupValIds.isEmpty()) ? groupValIds.entries() : 0);
+
+  Attributes **attrs = new (generator->wHeap()) Attributes *[numAttrs];
+
   // add the elements in the aggr list to the map table
   Int32 i = 0;
   if (NOT lowerAggrValIds.isEmpty()) {
-    for (valId = lowerAggrValIds.init();
-	 lowerAggrValIds.next(valId);
-	 lowerAggrValIds.advance(valId), i++) {
+    for (valId = lowerAggrValIds.init(); lowerAggrValIds.next(valId); lowerAggrValIds.advance(valId), i++) {
       attrs[i] = (generator->addMapInfo(valId, 0))->getAttr();
 
       // For any varchar aggregates to be treated as fixed values in
@@ -758,39 +668,32 @@ short HashGroupBy::codeGen(Generator * generator) {
 
   // remember index of first group attr
   Int32 attrIdx = i;
-  
+
   if (NOT groupValIds.isEmpty()) {
-    for (valId = groupValIds.init();
-	 groupValIds.next(valId);
-	 groupValIds.advance(valId), i++) {
-      
-      ItemExpr * itemExpr = valId.getItemExpr();
-	  
-      if (valId.getType().getTypeQualifier() == NA_LOB_TYPE)
-        {
-          *CmpCommon::diags() << DgSqlCode(-4322);
-          GenExit();
-          return -1;
-        }
+    for (valId = groupValIds.init(); groupValIds.next(valId); groupValIds.advance(valId), i++) {
+      ItemExpr *itemExpr = valId.getItemExpr();
+
+      if (valId.getType().getTypeQualifier() == NA_LOB_TYPE) {
+        *CmpCommon::diags() << DgSqlCode(-4322);
+        GenExit();
+        return -1;
+      }
 
       // add this converted value to the map table.
-      Convert * convNode = new(generator->wHeap()) Convert (itemExpr);
-	  
+      Convert *convNode = new (generator->wHeap()) Convert(itemExpr);
+
       // bind/type propagate the new node
-      convNode->bindNode(generator->getBindWA());    
-	  
-      attrs[i] = 
-	(generator->addMapInfo(convNode->getValueId(), 0))->getAttr();
+      convNode->bindNode(generator->getBindWA());
+
+      attrs[i] = (generator->addMapInfo(convNode->getValueId(), 0))->getAttr();
       hbMoveValIds.insert(convNode->getValueId());
       gbyValIdList.insert(valId);
 
       // add the search condition
-      BiRelat * biRelat = new(generator->wHeap())
-	BiRelat(ITM_EQUAL, itemExpr, convNode);
+      BiRelat *biRelat = new (generator->wHeap()) BiRelat(ITM_EQUAL, itemExpr, convNode);
       biRelat->setSpecialNulls(-1);
       biRelat->bindNode(generator->getBindWA());
-      if (generator->getBindWA()->errStatus())
-        GenExit();
+      if (generator->getBindWA()->errStatus()) GenExit();
       hbSearchValIds.insert(biRelat->getValueId());
     }
   };
@@ -802,7 +705,7 @@ short HashGroupBy::codeGen(Generator * generator) {
   // generate code for child tree
   child(0)->codeGen(generator);
   childTdb = (ComTdb *)(generator->getGenObj());
-  
+
   // This value was originally set inside generator by my parent exchange node
   // as a global variable. Now need to reset the saveNumEsps value back into
   // generator since codegen of my children exchange nodes may have changed it.
@@ -817,61 +720,43 @@ short HashGroupBy::codeGen(Generator * generator) {
 
   ExpTupleDesc::TupleDataFormat tupleFormat = generator->getInternalFormat();
 
-  //determine the tuple format and whether we want to resize rows or not
+  // determine the tuple format and whether we want to resize rows or not
   NABoolean bmo_affinity = (CmpCommon::getDefault(COMPRESSED_INTERNAL_FORMAT_BMO_AFFINITY) == DF_ON);
   NABoolean resizeCifRecord = FALSE;
   NABoolean considerBufferDefrag = FALSE;
 
-  if (! bmo_affinity &&
-      getCachedTupleFormat() != ExpTupleDesc::UNINITIALIZED_FORMAT &&
+  if (!bmo_affinity && getCachedTupleFormat() != ExpTupleDesc::UNINITIALIZED_FORMAT &&
       CmpCommon::getDefault(COMPRESSED_INTERNAL_FORMAT) == DF_SYSTEM &&
-      CmpCommon::getDefault(COMPRESSED_INTERNAL_FORMAT_BMO) == DF_SYSTEM)
-  {
+      CmpCommon::getDefault(COMPRESSED_INTERNAL_FORMAT_BMO) == DF_SYSTEM) {
     resizeCifRecord = getCachedResizeCIFRecord();
     tupleFormat = getCachedTupleFormat();
     considerBufferDefrag = getCachedDefrag() && resizeCifRecord;
-  }
-  else
-  {
-     tupleFormat = determineInternalFormat(hbMoveValIds,
-                                          this,
-                                          resizeCifRecord,
-                                          generator,
-                                          bmo_affinity,
-                                          considerBufferDefrag);
-     considerBufferDefrag = considerBufferDefrag && resizeCifRecord;
+  } else {
+    tupleFormat =
+        determineInternalFormat(hbMoveValIds, this, resizeCifRecord, generator, bmo_affinity, considerBufferDefrag);
+    considerBufferDefrag = considerBufferDefrag && resizeCifRecord;
   }
 
   // If generating a contiguous move expression where the target tuple data
   // format is a disk format - Packed or Aligned - then header information
-  // must be gathered during processing the attributes. This allows a new 
+  // must be gathered during processing the attributes. This allows a new
   // header clause to be generated during endExprGen()
   ExpHdrInfo *hdrInfo = NULL;
-  if ( ExpTupleDesc::isDiskFormat(tupleFormat) )
-    hdrInfo = new( generator->wHeap() )ExpHdrInfo();
+  if (ExpTupleDesc::isDiskFormat(tupleFormat)) hdrInfo = new (generator->wHeap()) ExpHdrInfo();
 
   // generate resMoveInExpr and resAggrExpr required in case of
   // partial group by
-  if ( isPartialGroupBy || upperAggrValIds.isEmpty() ) {
+  if (isPartialGroupBy || upperAggrValIds.isEmpty()) {
     // first add a maptable, so that we can get rid of all the
     // stuff added to the map table by the following statements
-    MapTable * tempMapTable  = generator->appendAtEnd();
-    MapTable * tempMapTable1 = generator->appendAtEnd();
-    expGen->processAttributes(numAttrs,
-			      attrs,
-			      tupleFormat,
-			      groupedRowLength,
-			      workAtpPos,
-			      resultRowAtpIndex,
-			      0,
-			      ExpTupleDesc::SHORT_FORMAT,
-                              0,
-                              hdrInfo);
+    MapTable *tempMapTable = generator->appendAtEnd();
+    MapTable *tempMapTable1 = generator->appendAtEnd();
+    expGen->processAttributes(numAttrs, attrs, tupleFormat, groupedRowLength, workAtpPos, resultRowAtpIndex, 0,
+                              ExpTupleDesc::SHORT_FORMAT, 0, hdrInfo);
 
-    // generate resAggrExpr 
+    // generate resAggrExpr
     if (NOT lowerAggrValIds.isEmpty()) {
-      expGen->generateAggrExpr(lowerAggrValIds, ex_expr::exp_AGGR, 
-               &resAggrExpr, 0, (NOT groupValIds.isEmpty()));
+      expGen->generateAggrExpr(lowerAggrValIds, ex_expr::exp_AGGR, &resAggrExpr, 0, (NOT groupValIds.isEmpty()));
     }
 
     // create a copy of the group by set. This set is used
@@ -879,30 +764,22 @@ short HashGroupBy::codeGen(Generator * generator) {
     ValueIdSet resMoveValIds;
 
     if (NOT groupValIds.isEmpty()) {
-      for (valId = groupValIds.init();
-	   groupValIds.next(valId);
-	   groupValIds.advance(valId), attrIdx++) {
-      
-	ItemExpr * itemExpr = valId.getItemExpr();
-	  
-	// add this converted value to the map table.
-	Convert * convNode = new(generator->wHeap()) Convert (itemExpr);
-	  
-	// bind/type propagate the new node
-	convNode->bindNode(generator->getBindWA());    
-	  
-	generator->addMapInfo(convNode->getValueId(), attrs[attrIdx]);
-	resMoveValIds.insert(convNode->getValueId());
+      for (valId = groupValIds.init(); groupValIds.next(valId); groupValIds.advance(valId), attrIdx++) {
+        ItemExpr *itemExpr = valId.getItemExpr();
 
+        // add this converted value to the map table.
+        Convert *convNode = new (generator->wHeap()) Convert(itemExpr);
+
+        // bind/type propagate the new node
+        convNode->bindNode(generator->getBindWA());
+
+        generator->addMapInfo(convNode->getValueId(), attrs[attrIdx]);
+        resMoveValIds.insert(convNode->getValueId());
       }
 
       // generate the move expression. This is used to move the incoming
       // grouping values to the result buffer.
-      expGen->generateSetExpr(resMoveValIds,
-			      ex_expr::exp_ARITH_EXPR,
-			      &resMoveInExpr,
-                              -1,
-                              hdrInfo);
+      expGen->generateSetExpr(resMoveValIds, ex_expr::exp_ARITH_EXPR, &resMoveInExpr, -1, hdrInfo);
     };
 
     // the extra extressions are generated. Lets get rid of the additional
@@ -913,16 +790,8 @@ short HashGroupBy::codeGen(Generator * generator) {
   // change attributes and offsets to represent the rows in the
   // hash buffer
   // Offsets are based on the row starting after the HashRow structure.
-  expGen->processAttributes(numAttrs,
-			    attrs,
-			    tupleFormat,
-			    groupedRowLength,
-			    workAtpPos,
-			    hbRowAtpIndex,
-			    0,
-			    ExpTupleDesc::SHORT_FORMAT,
-                            0,
-                            hdrInfo);
+  expGen->processAttributes(numAttrs, attrs, tupleFormat, groupedRowLength, workAtpPos, hbRowAtpIndex, 0,
+                            ExpTupleDesc::SHORT_FORMAT, 0, hdrInfo);
 
   // the size of the grouped row in the hash buffer
   ULng32 extGroupRowLength = groupedRowLength + sizeof(HashRow);
@@ -930,83 +799,67 @@ short HashGroupBy::codeGen(Generator * generator) {
   NADELETEBASIC(attrs, generator->wHeap());
 
   // generate the hash computation function
-  ItemExpr * leftExpr = 0;
-  for (valId = groupValIds.init();
-       groupValIds.next(valId);     
-       groupValIds.advance(valId)) {
+  ItemExpr *leftExpr = 0;
+  for (valId = groupValIds.init(); groupValIds.next(valId); groupValIds.advance(valId)) {
+    ItemExpr *itemExpr = valId.getItemExpr();
 
-    ItemExpr * itemExpr = valId.getItemExpr();
-
-    BuiltinFunction * hashFunction = new(generator->wHeap()) Hash(itemExpr);
+    BuiltinFunction *hashFunction = new (generator->wHeap()) Hash(itemExpr);
 
     if (leftExpr)
-      leftExpr = new(generator->wHeap()) HashComb(leftExpr, hashFunction);
+      leftExpr = new (generator->wHeap()) HashComb(leftExpr, hashFunction);
     else
       leftExpr = hashFunction;
   }
 
-  leftExpr = new (generator->wHeap()) Cast(leftExpr, new (generator->wHeap())
-					   SQLInt(generator->wHeap(), FALSE, FALSE));
-  leftExpr->setConstFoldingDisabled(TRUE);      
+  leftExpr = new (generator->wHeap()) Cast(leftExpr, new (generator->wHeap()) SQLInt(generator->wHeap(), FALSE, FALSE));
+  leftExpr->setConstFoldingDisabled(TRUE);
 
   // bind/type propagate the hash evaluation tree
   leftExpr->bindNode(generator->getBindWA());
-      
+
   // add the root value id to the map table. This is the hash value.
-  Attributes * mapAttr 
-    = (generator->addMapInfo(leftExpr->getValueId(), 0))->getAttr();
+  Attributes *mapAttr = (generator->addMapInfo(leftExpr->getValueId(), 0))->getAttr();
   mapAttr->setAtp(workAtpPos);
   mapAttr->setAtpIndex(hashValueAtpIndex);
   ULng32 len;
-  ExpTupleDesc::computeOffsets(mapAttr, 
-                               ExpTupleDesc::SQLARK_EXPLODED_FORMAT,
-                               len);
+  ExpTupleDesc::computeOffsets(mapAttr, ExpTupleDesc::SQLARK_EXPLODED_FORMAT, len);
 
   // generate code to evaluate the hash expression
-  expGen->generateArithExpr(leftExpr->getValueId(),
-                            ex_expr::exp_ARITH_EXPR,
-                            &hashExpr);
+  expGen->generateArithExpr(leftExpr->getValueId(), ex_expr::exp_ARITH_EXPR, &hashExpr);
 
-  // Construct the BitMux expression. The BitMux expression computes the 
-  // binary encoded key for the grouping operation. The key is stored in 
+  // Construct the BitMux expression. The BitMux expression computes the
+  // binary encoded key for the grouping operation. The key is stored in
   // the bitMuxTupp_ of the workAtp.
   //
   // First, construct a list of the item expressions representing the
   // grouping attributes.
   //
-  LIST(ItemExpr*) bitMuxAttrList(generator->wHeap());
-  for(valId = groupValIds.init();
-      groupValIds.next(valId);
-      groupValIds.advance(valId)) {
-
-    ItemExpr * ie = valId.getItemExpr();
+  LIST(ItemExpr *) bitMuxAttrList(generator->wHeap());
+  for (valId = groupValIds.init(); groupValIds.next(valId); groupValIds.advance(valId)) {
+    ItemExpr *ie = valId.getItemExpr();
     const NAType &valType = valId.getType();
-    
-    if(valType.getTypeQualifier() == NA_CHARACTER_TYPE) {
-      
-      const CharType &chType = (CharType&)valType;
-      
-      if ((chType.isCaseinsensitive()) &&
-	  (NOT chType.isUpshifted())) {
-	ie = new (generator->wHeap()) Upper(ie);
-	ie = ie->bindNode(generator->getBindWA());
+
+    if (valType.getTypeQualifier() == NA_CHARACTER_TYPE) {
+      const CharType &chType = (CharType &)valType;
+
+      if ((chType.isCaseinsensitive()) && (NOT chType.isUpshifted())) {
+        ie = new (generator->wHeap()) Upper(ie);
+        ie = ie->bindNode(generator->getBindWA());
       }
       // At least for now, don't use BitMux if CZECH collation is involved.
-      if (chType.getCollation() == CharInfo::CZECH_COLLATION )
-         useBitMux = FALSE;
+      if (chType.getCollation() == CharInfo::CZECH_COLLATION) useBitMux = FALSE;
     }
-    
+
     bitMuxAttrList.insert(ie);
   }
 
   // Allocate and bind the bit muxing item expression
   //
-  ItemExpr *bitMuxItemExpr = new(generator->wHeap())
-    ItmBitMuxFunction(bitMuxAttrList);
-  bitMuxItemExpr->setConstFoldingDisabled(TRUE);      
+  ItemExpr *bitMuxItemExpr = new (generator->wHeap()) ItmBitMuxFunction(bitMuxAttrList);
+  bitMuxItemExpr->setConstFoldingDisabled(TRUE);
 
   bitMuxItemExpr->bindNode(generator->getBindWA());
-  
+
   // Alter the map table so that the result of the bitMux expression
   // side effects the bitMuxAtpIndex of the workAtp.
   //
@@ -1014,9 +867,7 @@ short HashGroupBy::codeGen(Generator * generator) {
   mapAttr = generator->addMapInfo(bitMuxItemExpr->getValueId(), 0)->getAttr();
   mapAttr->setAtp(workAtpPos);
   mapAttr->setAtpIndex(bitMuxAtpIndex);
-  ExpTupleDesc::computeOffsets(mapAttr,
-			       ExpTupleDesc::SQLARK_EXPLODED_FORMAT,
-			       keyLength);
+  ExpTupleDesc::computeOffsets(mapAttr, ExpTupleDesc::SQLARK_EXPLODED_FORMAT, keyLength);
 
   // a simple heuristic for now until BitMux limitations are better understood
   if (keyLength > 12 ||
@@ -1025,13 +876,13 @@ short HashGroupBy::codeGen(Generator * generator) {
       // checks for every newly incoming group. Don't use BitMux when the
       // groups held in memory are expected to exceed the bitmux table size!
 
-      1000 * 1024 <   // bitmux table size (taken from ex_hash_grby.cpp)
-      (Cardinality) getEstRowsUsed().getValue()  *   // expected #groups
-      // Approximate memory used per each group in the BitMux table
-      // (Detail in ExBitMapTable.cpp; "+3+7" is a cheap ROUND4/8 substitute)
-      ( extGroupRowLength + keyLength + 2*sizeof(char *) + 3 + 7 )
+      1000 * 1024 <                                   // bitmux table size (taken from ex_hash_grby.cpp)
+          (Cardinality)getEstRowsUsed().getValue() *  // expected #groups
+              // Approximate memory used per each group in the BitMux table
+              // (Detail in ExBitMapTable.cpp; "+3+7" is a cheap ROUND4/8 substitute)
+              (extGroupRowLength + keyLength + 2 * sizeof(char *) + 3 + 7)
 
-      )
+  )
     useBitMux = FALSE;
 
   // There is an arbitrary limit in the standard expression evaluation
@@ -1039,12 +890,10 @@ short HashGroupBy::codeGen(Generator * generator) {
   // operation. Thus, the number of items in the BitMux attribute list
   // must be less than MAX_OPERANDS.
   //
-  if(bitMuxAttrList.entries() < ex_clause::MAX_OPERANDS && useBitMux) {
+  if (bitMuxAttrList.entries() < ex_clause::MAX_OPERANDS && useBitMux) {
     // Finally, generate the clauses for the bit muxing expression.
     //
-    expGen->generateArithExpr(bitMuxItemExpr->getValueId(),
-			      ex_expr::exp_ARITH_EXPR,
-			      &bitMuxExpr);
+    expGen->generateArithExpr(bitMuxItemExpr->getValueId(), ex_expr::exp_ARITH_EXPR, &bitMuxExpr);
   }
 
   // If the BitMux expression is successfully generated.
@@ -1058,10 +907,8 @@ short HashGroupBy::codeGen(Generator * generator) {
   short bitMuxCountOffset = 0;
 
   if (NOT lowerAggrValIds.isEmpty()) {
-    // generate the hash buffer aggregate expression 
-    expGen->generateAggrExpr(lowerAggrValIds, ex_expr::exp_AGGR,
-			     &hbAggrExpr, 0, 
-                             (NOT groupValIds.isEmpty()));
+    // generate the hash buffer aggregate expression
+    expGen->generateAggrExpr(lowerAggrValIds, ex_expr::exp_AGGR, &hbAggrExpr, 0, (NOT groupValIds.isEmpty()));
 
     if (bitMuxExpr) {
       // Generate the BitMux table aggregate expression. For now the only
@@ -1073,54 +920,39 @@ short HashGroupBy::codeGen(Generator * generator) {
       // count(*) aggregates.
       //
       ValueIdSet bitMuxAggrValIds;
-      for (valId = lowerAggrValIds.init();
-	   lowerAggrValIds.next(valId);
-	   lowerAggrValIds.advance(valId), i++) {
-	Aggregate *aggr = (Aggregate*)valId.getItemExpr();
+      for (valId = lowerAggrValIds.init(); lowerAggrValIds.next(valId); lowerAggrValIds.advance(valId), i++) {
+        Aggregate *aggr = (Aggregate *)valId.getItemExpr();
 
-	if(aggr->getOperatorType() == ITM_COUNT) {
-	  Attributes * attr = generator->getMapInfo(valId)->getAttr();
-	  if(bitMuxCountOffset == 0) {
-	    bitMuxCountOffset = (short)attr->getOffset();
-	  } else {
-	    attr->setOffset(bitMuxCountOffset);
-	  }
-	  continue;
-	}
+        if (aggr->getOperatorType() == ITM_COUNT) {
+          Attributes *attr = generator->getMapInfo(valId)->getAttr();
+          if (bitMuxCountOffset == 0) {
+            bitMuxCountOffset = (short)attr->getOffset();
+          } else {
+            attr->setOffset(bitMuxCountOffset);
+          }
+          continue;
+        }
 
-	bitMuxAggrValIds += valId;
+        bitMuxAggrValIds += valId;
       }
 
-      // If there are still aggregates, generate the BitMux aggregate 
+      // If there are still aggregates, generate the BitMux aggregate
       // expression.
       //
-      if(NOT bitMuxAggrValIds.isEmpty())
-	expGen->generateAggrExpr(bitMuxAggrValIds, ex_expr::exp_AGGR,
-				 &bitMuxAggrExpr, 0, 
-				 (NOT groupValIds.isEmpty()));
+      if (NOT bitMuxAggrValIds.isEmpty())
+        expGen->generateAggrExpr(bitMuxAggrValIds, ex_expr::exp_AGGR, &bitMuxAggrExpr, 0, (NOT groupValIds.isEmpty()));
     }
   }
 
-  
   if (NOT groupValIds.isEmpty()) {
-
     // generate the move expression. This is used to move the incoming
     // grouping values to the hash buffer.
-    expGen->generateListExpr(hbMoveValIds,
-			     ex_expr::exp_ARITH_EXPR,
-			     &hbMoveInExpr,
-                             -1, -1,
-                             hdrInfo
-                             );
+    expGen->generateListExpr(hbMoveValIds, ex_expr::exp_ARITH_EXPR, &hbMoveInExpr, -1, -1, hdrInfo);
     // generate the search expression. This expression is used
     // to look for a matching value in the hash table.
-    ItemExpr * newPredTree =
-      hbSearchValIds.rebuildExprTree(ITM_AND, TRUE, TRUE);
-      
-    expGen->generateExpr(newPredTree->getValueId(),
-			 ex_expr::exp_SCAN_PRED,
-			 &hbSearchExpr);
+    ItemExpr *newPredTree = hbSearchValIds.rebuildExprTree(ITM_AND, TRUE, TRUE);
 
+    expGen->generateExpr(newPredTree->getValueId(), ex_expr::exp_SCAN_PRED, &hbSearchExpr);
   };
 
   // remove all the map tables generated by the child. This leaves us
@@ -1130,57 +962,45 @@ short HashGroupBy::codeGen(Generator * generator) {
   // generate the expression which moves a result row to the result buffer
   ValueIdList resultValIds;
   ULng32 resultRowLength;
-  MapTable * resultValMapTable = NULL;
+  MapTable *resultValMapTable = NULL;
   ValueIdList moveOutValIdList;
   ValueIdList gendAggrValIdList;
 
   // add the valIds of the aggregate expressions
   if (NOT lowerAggrValIds.isEmpty()) {
+    for (CollIndex i = 0; i < lowerAggrValIdList.entries(); i++) {
+      valId = lowerAggrValIdList[i];
+      ValueId origValId = originalAggrValIds[i];
 
-    for (CollIndex i = 0; i < lowerAggrValIdList.entries(); i++)
-      {
-	valId = lowerAggrValIdList[i];
-	ValueId origValId = originalAggrValIds[i];
+      // convert lowerAggrValIds to original aggr type before
+      // adding to the result row, if the two types are not the same.
+      ValueId moveOutValId;
+      if (!(valId.getType() == origValId.getType())) {
+        ItemExpr *item_expr = new (generator->wHeap()) Cast(valId.getItemExpr(), &(origValId.getType()));
+        item_expr->bindNode(generator->getBindWA());
+        moveOutValId = item_expr->getValueId();
+      } else
+        moveOutValId = valId;
 
-	// convert lowerAggrValIds to original aggr type before
-	// adding to the result row, if the two types are not the same.
-	ValueId moveOutValId;
-	if (! (valId.getType() == origValId.getType()))
-	  {
-	    ItemExpr * item_expr = new(generator->wHeap()) Cast(valId.getItemExpr(),
-						     &(origValId.getType()));
-	    item_expr->bindNode(generator->getBindWA());
-	    moveOutValId = item_expr->getValueId();
-	  }
-	else
-	  moveOutValId = valId;
-
-	resultValIds.insert(valId);
-	moveOutValIdList.insert(moveOutValId);
-	gendAggrValIdList.insert(moveOutValId);
-      }
+      resultValIds.insert(valId);
+      moveOutValIdList.insert(moveOutValId);
+      gendAggrValIdList.insert(moveOutValId);
+    }
   };
-  
+
   // add the valIds for grouping
   if (NOT hbMoveValIds.isEmpty()) {
-    for (CollIndex i = 0; i < hbMoveValIds.entries(); i++)
-      {
-	valId = hbMoveValIds[i];
-	moveOutValIdList.insert(valId);
-	resultValIds.insert(valId);
-      }
+    for (CollIndex i = 0; i < hbMoveValIds.entries(); i++) {
+      valId = hbMoveValIds[i];
+      moveOutValIdList.insert(valId);
+      resultValIds.insert(valId);
+    }
   };
-    
-  expGen->generateContiguousMoveExpr(moveOutValIdList, //resultValIds,
-				     -1, // add convert nodes
-				     workAtpPos,
-				     resultRowAtpIndex,
-				     tupleFormat,
-				     resultRowLength,
-				     &moveOutExpr, 
-				     &tupleDesc,
-				     ExpTupleDesc::SHORT_FORMAT,
-				     &resultValMapTable);
+
+  expGen->generateContiguousMoveExpr(moveOutValIdList,  // resultValIds,
+                                     -1,                // add convert nodes
+                                     workAtpPos, resultRowAtpIndex, tupleFormat, resultRowLength, &moveOutExpr,
+                                     &tupleDesc, ExpTupleDesc::SHORT_FORMAT, &resultValMapTable);
 
   // if we do overflow handling, we have to generate ofMoveInExpr,
   // ofSearchExpr, and ofAggrExpr
@@ -1193,19 +1013,17 @@ short HashGroupBy::codeGen(Generator * generator) {
     // for expressions. Thus, the atp is 0.
     for (CollIndex ix = 0; ix < resultValIds.entries(); ix++) {
       valId = resultValIds[ix];
-      Attributes * attr = generator->getMapInfo(valId)->getAttr();
+      Attributes *attr = generator->getMapInfo(valId)->getAttr();
       attr->setAtpIndex(ofRowAtpIndex);
       attr->setAtp(0);
     };
 
     // add the elements of the upper aggregate to the map table
-    attrs = new(generator->wHeap()) Attributes * [numAttrs];
+    attrs = new (generator->wHeap()) Attributes *[numAttrs];
     Int32 i = 0;
     if (NOT upperAggrValIds.isEmpty()) {
-      for (valId = upperAggrValIds.init();
-	   upperAggrValIds.next(valId);
-	   upperAggrValIds.advance(valId), i++) {
-	attrs[i] = (generator->addMapInfo(valId, 0))->getAttr();
+      for (valId = upperAggrValIds.init(); upperAggrValIds.next(valId); upperAggrValIds.advance(valId), i++) {
+        attrs[i] = (generator->addMapInfo(valId, 0))->getAttr();
 
         // For any varchar aggregates to be treated as fixed values in
         // Aligned format (CIF)
@@ -1220,77 +1038,58 @@ short HashGroupBy::codeGen(Generator * generator) {
     // existing group
     ValueIdSet ofMoveValIds;
     ValueIdSet ofSearchValIds;
-  
+
     if (NOT hbMoveValIds.isEmpty()) {
-      for (CollIndex j = 0; j < hbMoveValIds.entries(); j++,i++) {
-	valId = hbMoveValIds[j];
+      for (CollIndex j = 0; j < hbMoveValIds.entries(); j++, i++) {
+        valId = hbMoveValIds[j];
 
-	ItemExpr * itemExpr = valId.getItemExpr();
-	Attributes * hbAttr = (generator->getMapInfo(valId))->getAttr();
+        ItemExpr *itemExpr = valId.getItemExpr();
+        Attributes *hbAttr = (generator->getMapInfo(valId))->getAttr();
 
-	// copy this value and add it to the map table.
-	Convert * newItemExpr = new(generator->wHeap()) Convert (itemExpr);
-	  
-	// bind/type propagate the new node
-	newItemExpr->bindNode(generator->getBindWA());    
-	  
-	attrs[i] = 
-	  (generator->addMapInfo(newItemExpr->getValueId(), 0))->getAttr();
-	ofMoveValIds.insert(newItemExpr->getValueId());
+        // copy this value and add it to the map table.
+        Convert *newItemExpr = new (generator->wHeap()) Convert(itemExpr);
 
-	// add the search condition
-	BiRelat * biRelat = new(generator->wHeap())
-	  BiRelat(ITM_EQUAL, itemExpr, newItemExpr);
-	biRelat->setSpecialNulls(-1);
-	biRelat->bindNode(generator->getBindWA());
-	ofSearchValIds.insert(biRelat->getValueId());
+        // bind/type propagate the new node
+        newItemExpr->bindNode(generator->getBindWA());
+
+        attrs[i] = (generator->addMapInfo(newItemExpr->getValueId(), 0))->getAttr();
+        ofMoveValIds.insert(newItemExpr->getValueId());
+
+        // add the search condition
+        BiRelat *biRelat = new (generator->wHeap()) BiRelat(ITM_EQUAL, itemExpr, newItemExpr);
+        biRelat->setSpecialNulls(-1);
+        biRelat->bindNode(generator->getBindWA());
+        ofSearchValIds.insert(biRelat->getValueId());
       }
     };
 
-    
     // set the attributes and offsets to represent the rows in the
     // hash buffer
     // Offsets are based on the row starting after the HashRow structure.
-    expGen->processAttributes(numAttrs,
-                              attrs,
-                              tupleFormat,
-                              groupedRowLength,
-                              workAtpPos,
-                              hbRowAtpIndex,
-                              0,
-                              ExpTupleDesc::SHORT_FORMAT,
-                              0,
-                              hdrInfo);
+    expGen->processAttributes(numAttrs, attrs, tupleFormat, groupedRowLength, workAtpPos, hbRowAtpIndex, 0,
+                              ExpTupleDesc::SHORT_FORMAT, 0, hdrInfo);
 
     NADELETEBASIC(attrs, generator->wHeap());
 
     // generate the overflow buffer aggregate expression which aggregates
     // rows from the overflow buffer into groups in the hash buffer
     if (NOT upperAggrValIds.isEmpty())
-      expGen->generateAggrExpr(upperAggrValIds, ex_expr::exp_AGGR,
-			       &ofAggrExpr, 0, 
-                               (NOT hbMoveValIds.isEmpty()));
+      expGen->generateAggrExpr(upperAggrValIds, ex_expr::exp_AGGR, &ofAggrExpr, 0, (NOT hbMoveValIds.isEmpty()));
 
     if (NOT hbMoveValIds.isEmpty()) {
       // generate the move expression. This is used to move the
       // grouping values from the overflow buffer to the hash buffer.
-      expGen->generateSetExpr(ofMoveValIds,
-			      ex_expr::exp_ARITH_EXPR,
-			      &ofMoveInExpr);
+      expGen->generateSetExpr(ofMoveValIds, ex_expr::exp_ARITH_EXPR, &ofMoveInExpr);
 
       // generate the search expression. This expression is used
       // to look for a matching value in the hash table.
-      ItemExpr * newPredTree =
-	ofSearchValIds.rebuildExprTree(ITM_AND, TRUE, TRUE);
-      
-      expGen->generateExpr(newPredTree->getValueId(),
-			   ex_expr::exp_SCAN_PRED,
-			   &ofSearchExpr );
+      ItemExpr *newPredTree = ofSearchValIds.rebuildExprTree(ITM_AND, TRUE, TRUE);
+
+      expGen->generateExpr(newPredTree->getValueId(), ex_expr::exp_SCAN_PRED, &ofSearchExpr);
     };
   };
 
-  if (hdrInfo)
-    NADELETEBASIC( hdrInfo, generator->wHeap() );
+  if (hdrInfo) NADELETEBASIC(hdrInfo, generator->wHeap());
 
   // remove all the map tables generated by this node so far
   generator->removeAll(myMapTable1);
@@ -1302,24 +1101,23 @@ short HashGroupBy::codeGen(Generator * generator) {
   // change the atp of aggregate values to 0.
   // All references to these values from this point on
   // will be at atp = 0, atp_index = resultRowAtpIndex.
-  for (CollIndex ix = 0; ix <  lowerAggrValIdList.entries(); ix++) {
+  for (CollIndex ix = 0; ix < lowerAggrValIdList.entries(); ix++) {
     //    valId = lowerAggrValIdList[ix];
     valId = gendAggrValIdList[ix];
-      
+
     // get the "new" attributes
-    Attributes * newAggrAttr =
-      (generator->getMapInfo(valId))->getAttr();
-    
+    Attributes *newAggrAttr = (generator->getMapInfo(valId))->getAttr();
+
     // insert the original valIds into the map table
     ValueId originalValId = originalAggrValIds[ix];
-    MapInfo * originalMapInfo = generator->addMapInfo(originalValId, 0);
-    Attributes * originalAggrAttr = originalMapInfo->getAttr();
-    
+    MapInfo *originalMapInfo = generator->addMapInfo(originalValId, 0);
+    Attributes *originalAggrAttr = originalMapInfo->getAttr();
+
     // set the attributes of the original valIds
     originalAggrAttr->copyLocationAttrs(newAggrAttr);
     originalAggrAttr->setAtp(0);
     originalAggrAttr->setAtpIndex(returnedAtpIndex);
-    
+
     // code has been generated for originalValId and a
     // value is available. Mark it so.
     originalMapInfo->codeGenerated();
@@ -1338,63 +1136,56 @@ short HashGroupBy::codeGen(Generator * generator) {
 
     for (CollIndex i = 0; i < hbMoveValIds.entries(); i++) {
       convValId = hbMoveValIds[i];
-      Attributes * newGroupColAttr =
-	(generator->getMapInfo(convValId))->getAttr();
-	
+      Attributes *newGroupColAttr = (generator->getMapInfo(convValId))->getAttr();
+
       ValueId valId = gbyValIdList[i];
 
       // change the location of the grouping columns, unless they
       // are input to this node. Input values already have location
       // assigned to them.
       if ((NOT getGroupAttr()->getCharacteristicInputs().contains(valId)) &&
-           (valId.getItemExpr()->getOperatorType() != ITM_CONSTANT)) {
-	MapInfo * mapInfo = generator->addMapInfo(valId, 0);
-	Attributes * oldGroupColAttr = mapInfo->getAttr();
-	  
-	oldGroupColAttr->copyLocationAttrs(newGroupColAttr);
-	oldGroupColAttr->setAtp(0);
-	oldGroupColAttr->setAtpIndex(returnedAtpIndex);
-	  
-	// code has been generated for valId and a value is available.
-	// Mark it so.
-	mapInfo->codeGenerated();
+          (valId.getItemExpr()->getOperatorType() != ITM_CONSTANT)) {
+        MapInfo *mapInfo = generator->addMapInfo(valId, 0);
+        Attributes *oldGroupColAttr = mapInfo->getAttr();
+
+        oldGroupColAttr->copyLocationAttrs(newGroupColAttr);
+        oldGroupColAttr->setAtp(0);
+        oldGroupColAttr->setAtpIndex(returnedAtpIndex);
+
+        // code has been generated for valId and a value is available.
+        // Mark it so.
+        mapInfo->codeGenerated();
       }
     }
   };
 
   // generate having expression, if present
   if (NOT selectionPred().isEmpty()) {
-    ItemExpr * newPredTree =
-      selectionPred().rebuildExprTree(ITM_AND,TRUE,TRUE);
-    expGen->generateExpr(newPredTree->getValueId(),
-	             ex_expr::exp_SCAN_PRED, &havingExpr);
-
+    ItemExpr *newPredTree = selectionPred().rebuildExprTree(ITM_AND, TRUE, TRUE);
+    expGen->generateExpr(newPredTree->getValueId(), ex_expr::exp_SCAN_PRED, &havingExpr);
   };
 
   ExplainTuple *childExplainTuple = generator->getExplainTuple();
 
-  returnedDesc->
-    setTupleDescriptor(returnedDesc->noTuples() - 1, tupleDesc);
+  returnedDesc->setTupleDescriptor(returnedDesc->noTuples() - 1, tupleDesc);
 
   // This estimate on the number of groups should work correctly even when
   // under the right side of a NestedLoopJoin (i.e., multiple probes are
   // sent to this HGB, but the estimate is "per a single probe".)
   // This estimate is only used to determine the number of clusters; the
   // hash-table would adapt dynamically to the number of groups.
-  Cardinality expectedRows = (Cardinality) getEstRowsUsed().getValue() ;
+  Cardinality expectedRows = (Cardinality)getEstRowsUsed().getValue();
 
   // If this HGB is performed within ESPs, then number of records
   // processed by each ESP is a subset of total records.
-  if ( saveNumEsps > 0 )
-    expectedRows /= (Cardinality) saveNumEsps ;
+  if (saveNumEsps > 0) expectedRows /= (Cardinality)saveNumEsps;
 
   // also, make sure that we don't run into overflow problems.
   // estimatedRowCount_ is an estimate. Therfore it is ok to limit it
-  
+
   // the c89 doesn't handle the direct comparison of float and
   // UINT_MAX correctly. For now we use 4294967295.0!!!!!!!
-  if (expectedRows > 4294967295.0)
-    expectedRows  = (float)4294967295.0;
+  if (expectedRows > 4294967295.0) expectedRows = (float)4294967295.0;
 
   // determine the size of the HGB buffers. This buffer size is used for
   // 1 - store the rows in the hash table (HashTableBuffer)
@@ -1403,116 +1194,73 @@ short HashGroupBy::codeGen(Generator * generator) {
   // a buffer has to store at least one (extended) group/row plus tupp_desc
 
   // get the default value for the buffer size
-  ULng32 bufferSize = (ULng32) getDefault(GEN_HGBY_BUFFER_SIZE);
+  ULng32 bufferSize = (ULng32)getDefault(GEN_HGBY_BUFFER_SIZE);
 
   ULng32 hashBufferSize = extGroupRowLength + sizeof(tupp_descriptor);
-  bufferSize = MAXOF( hashBufferSize, bufferSize );
+  bufferSize = MAXOF(hashBufferSize, bufferSize);
 
   // minimum result buffer size
   ULng32 resBufferSize = resultRowLength + sizeof(tupp_descriptor);
-  bufferSize = MAXOF( resBufferSize, bufferSize );
-  
-  //For overflow buffer size must be multiple of 512 byte boundary
-  //due to O_DIRECT requirements.
-  //For calculation, refer to ALIGN_OFFSET in NAMemory.
-  ULng32 padlen = ((bufferSize & 511) == 0)? 0 :\
-                   (512 - (bufferSize & 511));
+  bufferSize = MAXOF(resBufferSize, bufferSize);
+
+  // For overflow buffer size must be multiple of 512 byte boundary
+  // due to O_DIRECT requirements.
+  // For calculation, refer to ALIGN_OFFSET in NAMemory.
+  ULng32 padlen = ((bufferSize & 511) == 0) ? 0 : (512 - (bufferSize & 511));
   bufferSize += padlen;
 
+  short scrthreshold = (short)CmpCommon::getDefaultLong(SCRATCH_FREESPACE_THRESHOLD_PERCENT);
+  short hgbGrowthPercent = RelExpr::bmoGrowthPercent(getEstRowsUsed(), getMaxCardEst());
 
-  short scrthreshold = 
-    (short) CmpCommon::getDefaultLong(SCRATCH_FREESPACE_THRESHOLD_PERCENT);
-  short hgbGrowthPercent = 
-    RelExpr::bmoGrowthPercent(getEstRowsUsed(), getMaxCardEst());
-
-  ComTdbHashGrby * hashGrbyTdb = new(space)
-    ComTdbHashGrby(childTdb,
-		   givenDesc,
-		   returnedDesc,
-		   hashExpr,
-		   bitMuxExpr,
-		   bitMuxAggrExpr,
-		   hbMoveInExpr,
-		   ofMoveInExpr,
-		   resMoveInExpr,
-		   hbAggrExpr,
-		   ofAggrExpr,
-		   resAggrExpr,
-		   havingExpr,
-		   moveOutExpr,
-		   hbSearchExpr,
-		   ofSearchExpr,
-		   keyLength,
-		   resultRowLength,
-		   extGroupRowLength,
-		   workCriDesc,
-		   hbRowAtpIndex,
-		   ofRowAtpIndex,
-		   hashValueAtpIndex,
-		   bitMuxAtpIndex,
-		   bitMuxCountOffset,
-		   resultRowAtpIndex,
-		   returnedAtpIndex,
-		   (unsigned short)getDefault(BMO_MEMORY_USAGE_PERCENT),
-		   (short)getDefault(GEN_MEM_PRESSURE_THRESHOLD),
-                   scrthreshold,
-		   (queue_index)getDefault(GEN_HGBY_SIZE_DOWN),
-		   (queue_index)getDefault(GEN_HGBY_SIZE_UP),
-		   isPartialGroupBy,
-		   expectedRows,
-		   (Lng32)getDefault(GEN_HGBY_NUM_BUFFERS),
-		   bufferSize,
-		   getDefault(GEN_HGBY_PARTIAL_GROUP_FLUSH_THRESHOLD),
-		   getDefault(GEN_HGBY_PARTIAL_GROUP_ROWS_PER_CLUSTER),
-		   (ULng32)getDefault(EXE_HGB_INITIAL_HT_SIZE),
-		   // To get the min number of buffers per a flushed cluster
-		   // before is can be flushed again
-		   (unsigned short)getDefault(EXE_NUM_CONCURRENT_SCRATCH_IOS)
-		   + (short)getDefault(COMP_INT_66), // for testing
-		   (ULng32) getDefault(COMP_INT_67), // numInBatch
-                   hgbGrowthPercent
-		   );
+  ComTdbHashGrby *hashGrbyTdb = new (space) ComTdbHashGrby(
+      childTdb, givenDesc, returnedDesc, hashExpr, bitMuxExpr, bitMuxAggrExpr, hbMoveInExpr, ofMoveInExpr,
+      resMoveInExpr, hbAggrExpr, ofAggrExpr, resAggrExpr, havingExpr, moveOutExpr, hbSearchExpr, ofSearchExpr,
+      keyLength, resultRowLength, extGroupRowLength, workCriDesc, hbRowAtpIndex, ofRowAtpIndex, hashValueAtpIndex,
+      bitMuxAtpIndex, bitMuxCountOffset, resultRowAtpIndex, returnedAtpIndex,
+      (unsigned short)getDefault(BMO_MEMORY_USAGE_PERCENT), (short)getDefault(GEN_MEM_PRESSURE_THRESHOLD), scrthreshold,
+      (queue_index)getDefault(GEN_HGBY_SIZE_DOWN), (queue_index)getDefault(GEN_HGBY_SIZE_UP), isPartialGroupBy,
+      expectedRows, (Lng32)getDefault(GEN_HGBY_NUM_BUFFERS), bufferSize,
+      getDefault(GEN_HGBY_PARTIAL_GROUP_FLUSH_THRESHOLD), getDefault(GEN_HGBY_PARTIAL_GROUP_ROWS_PER_CLUSTER),
+      (ULng32)getDefault(EXE_HGB_INITIAL_HT_SIZE),
+      // To get the min number of buffers per a flushed cluster
+      // before is can be flushed again
+      (unsigned short)getDefault(EXE_NUM_CONCURRENT_SCRATCH_IOS) + (short)getDefault(COMP_INT_66),  // for testing
+      (ULng32)getDefault(COMP_INT_67),                                                              // numInBatch
+      hgbGrowthPercent);
 
   hashGrbyTdb->setRecordLength(getGroupAttr()->getRecordLength());
 
   generator->initTdbFields(hashGrbyTdb);
   hashGrbyTdb->setOverflowMode(generator->getOverflowMode());
-  if (CmpCommon::getDefault(EXE_DIAGNOSTIC_EVENTS) == DF_ON)
-    hashGrbyTdb->setLogDiagnostics(TRUE);
+  if (CmpCommon::getDefault(EXE_DIAGNOSTIC_EVENTS) == DF_ON) hashGrbyTdb->setLogDiagnostics(TRUE);
   hashGrbyTdb->setBmoMinMemBeforePressureCheck((Int16)getDefault(EXE_BMO_MIN_SIZE_BEFORE_PRESSURE_CHECK_IN_MB));
 
-  if(generator->getOverflowMode() == ComTdb::OFM_SSD )
-    hashGrbyTdb->setBMOMaxMemThresholdMB((UInt16)(ActiveSchemaDB()->
-				   getDefaults()).
-			  getAsLong(SSD_BMO_MAX_MEM_THRESHOLD_IN_MB));
+  if (generator->getOverflowMode() == ComTdb::OFM_SSD)
+    hashGrbyTdb->setBMOMaxMemThresholdMB(
+        (UInt16)(ActiveSchemaDB()->getDefaults()).getAsLong(SSD_BMO_MAX_MEM_THRESHOLD_IN_MB));
   else
-    hashGrbyTdb->setBMOMaxMemThresholdMB((UInt16)(ActiveSchemaDB()->
-				   getDefaults()).
-			  getAsLong(EXE_MEMORY_AVAILABLE_IN_MB));
+    hashGrbyTdb->setBMOMaxMemThresholdMB(
+        (UInt16)(ActiveSchemaDB()->getDefaults()).getAsLong(EXE_MEMORY_AVAILABLE_IN_MB));
 
   hashGrbyTdb->setScratchIOVectorSize((Int16)getDefault(SCRATCH_IO_VECTOR_SIZE_HASH));
 
   double memQuota = 0;
   Lng32 numStreams;
   double memQuotaRatio;
-  double bmoMemoryUsagePerNode = generator->getEstMemPerNode(getKey() ,numStreams);
+  double bmoMemoryUsagePerNode = generator->getEstMemPerNode(getKey(), numStreams);
 
-  if(isPartialGroupBy) {
+  if (isPartialGroupBy) {
     // The Quota system does not apply to Partial GroupBy
-    UInt16 partialMem = 
-      (UInt16)(ActiveSchemaDB()->getDefaults()).
-      getAsULong(EXE_MEMORY_FOR_PARTIALHGB_IN_MB);
+    UInt16 partialMem = (UInt16)(ActiveSchemaDB()->getDefaults()).getAsULong(EXE_MEMORY_FOR_PARTIALHGB_IN_MB);
     hashGrbyTdb->setPartialGrbyMemoryMB(partialMem);
 
     // Test the PASS Thru mode.
-    if (CmpCommon::getDefault(COMP_BOOL_159) == DF_ON)
-      hashGrbyTdb->setPassPartialRows(TRUE);
+    if (CmpCommon::getDefault(COMP_BOOL_159) == DF_ON) hashGrbyTdb->setPassPartialRows(TRUE);
 
   } else {
-
     // The CQD EXE_MEM_LIMIT_PER_BMO_IN_MB has precedence over the mem quota sys
 
-    NADefaults &defs            = ActiveSchemaDB()->getDefaults();
+    NADefaults &defs = ActiveSchemaDB()->getDefaults();
 
     UInt16 mmu = UInt16(defs.getAsDouble(EXE_MEM_LIMIT_PER_BMO_IN_MB));
 
@@ -1521,70 +1269,55 @@ short HashGroupBy::codeGen(Generator * generator) {
     if (mmu != 0) {
       hashGrbyTdb->setMemoryQuotaMB(mmu);
       memQuota = mmu;
-    } else { 
-
+    } else {
       // Apply quota system if either one the following two is true:
       //   1. the memory limit feature is turned off and more than one BMOs
       //   2. the memory limit feature is turned on
       NABoolean mlimitPerNode = defs.getAsDouble(BMO_MEMORY_LIMIT_PER_NODE_IN_MB) > 0;
 
-      if ( mlimitPerNode || numBMOsInFrag > 1 ||
-           (numBMOsInFrag == 1 && CmpCommon::getDefault(EXE_SINGLE_BMO_QUOTA) == DF_ON)) {
-        memQuota =
-           computeMemoryQuota(generator->getEspLevel() == 0,
-                              mlimitPerNode,
-                              generator->getBMOsMemoryLimitPerNode().value(),
-                              generator->getTotalNumBMOs(),
-                              generator->getTotalBMOsMemoryPerNode().value(),
-                              numBMOsInFrag, 
-                              bmoMemoryUsagePerNode,
-                              numStreams,
-                              memQuotaRatio
-                             );
+      if (mlimitPerNode || numBMOsInFrag > 1 ||
+          (numBMOsInFrag == 1 && CmpCommon::getDefault(EXE_SINGLE_BMO_QUOTA) == DF_ON)) {
+        memQuota = computeMemoryQuota(generator->getEspLevel() == 0, mlimitPerNode,
+                                      generator->getBMOsMemoryLimitPerNode().value(), generator->getTotalNumBMOs(),
+                                      generator->getTotalBMOsMemoryPerNode().value(), numBMOsInFrag,
+                                      bmoMemoryUsagePerNode, numStreams, memQuotaRatio);
       }
       Lng32 hjGyMemoryLowbound = defs.getAsLong(BMO_MEMORY_LIMIT_LOWER_BOUND_HASHGROUPBY);
       Lng32 memoryUpperbound = defs.getAsLong(BMO_MEMORY_LIMIT_UPPER_BOUND);
-      if ( memQuota < hjGyMemoryLowbound ) {
-          memQuota = hjGyMemoryLowbound;
-          memQuotaRatio = BMOQuotaRatio::MIN_QUOTA;
-      }
-      else if (memQuota >  memoryUpperbound)
-          memQuota = memoryUpperbound;
+      if (memQuota < hjGyMemoryLowbound) {
+        memQuota = hjGyMemoryLowbound;
+        memQuotaRatio = BMOQuotaRatio::MIN_QUOTA;
+      } else if (memQuota > memoryUpperbound)
+        memQuota = memoryUpperbound;
 
-      hashGrbyTdb->setMemoryQuotaMB( UInt16(memQuota) );
+      hashGrbyTdb->setMemoryQuotaMB(UInt16(memQuota));
       hashGrbyTdb->setBmoQuotaRatio(memQuotaRatio);
     }
-
   }
 
   // For debugging overflow only (default is zero == not used).
-  hashGrbyTdb->
-    setForceOverflowEvery((UInt16)(ActiveSchemaDB()->getDefaults()).
-			  getAsULong(EXE_TEST_HASH_FORCE_OVERFLOW_EVERY));
+  hashGrbyTdb->setForceOverflowEvery(
+      (UInt16)(ActiveSchemaDB()->getDefaults()).getAsULong(EXE_TEST_HASH_FORCE_OVERFLOW_EVERY));
 
   double hashGBMemEst = generator->getEstMemPerInst(getKey());
   hashGrbyTdb->setEstimatedMemoryUsage(hashGBMemEst / 1024);
   generator->addToTotalEstimatedMemory(hashGBMemEst);
 
-  if ( generator->getRightSideOfFlow() ) 
-    hashGrbyTdb->setPossibleMultipleCalls(TRUE);
+  if (generator->getRightSideOfFlow()) hashGrbyTdb->setPossibleMultipleCalls(TRUE);
 
   // For now use variable size records whenever Aligned format is
   // used.
-  if (resizeCifRecord) {//tupleFormat == ExpTupleDesc::SQLMX_ALIGNED_FORMAT) {
+  if (resizeCifRecord) {  // tupleFormat == ExpTupleDesc::SQLMX_ALIGNED_FORMAT) {
     hashGrbyTdb->setUseVariableLength();
-    if (considerBufferDefrag)
-    {
+    if (considerBufferDefrag) {
       hashGrbyTdb->setConsiderBufferDefrag();
     }
   }
 
   hashGrbyTdb->setCIFON((tupleFormat == ExpTupleDesc::SQLMX_ALIGNED_FORMAT));
-  hashGrbyTdb->setHgbMemEstInKBPerNode(bmoMemoryUsagePerNode / 1024 );
+  hashGrbyTdb->setHgbMemEstInKBPerNode(bmoMemoryUsagePerNode / 1024);
   if (!generator->explainDisabled()) {
-    generator->setExplainTuple(
-       addExplainInfo(hashGrbyTdb, childExplainTuple, 0, generator));
-
+    generator->setExplainTuple(addExplainInfo(hashGrbyTdb, childExplainTuple, 0, generator));
   }
 
   // set the new up cri desc.
@@ -1599,106 +1332,82 @@ short HashGroupBy::codeGen(Generator * generator) {
   generator->setGenNoFloatValidatePCode(FALSE);
 
   // reset the handleIndirectVC flag to its initial value
-  expGen->setHandleIndirectVC( vcflag );
+  expGen->setHandleIndirectVC(vcflag);
 
   return 0;
-} // HashGroupBy::codeGen()
+}  // HashGroupBy::codeGen()
 
-
-ExpTupleDesc::TupleDataFormat HashGroupBy::determineInternalFormat( const ValueIdList & valIdList,
-                                                                   RelExpr * relExpr,
-                                                                   NABoolean & resizeCifRecord,
-                                                                   Generator * generator,
+ExpTupleDesc::TupleDataFormat HashGroupBy::determineInternalFormat(const ValueIdList &valIdList, RelExpr *relExpr,
+                                                                   NABoolean &resizeCifRecord, Generator *generator,
                                                                    NABoolean bmo_affinity,
-                                                                   NABoolean & considerBufferDefrag)
-{
-
+                                                                   NABoolean &considerBufferDefrag) {
   RelExpr::CifUseOptions bmo_cif = RelExpr::CIF_SYSTEM;
 
-
-  if (CmpCommon::getDefault(COMPRESSED_INTERNAL_FORMAT_BMO) == DF_OFF)
-  {
+  if (CmpCommon::getDefault(COMPRESSED_INTERNAL_FORMAT_BMO) == DF_OFF) {
     bmo_cif = RelExpr::CIF_OFF;
-  }
-  else
-  if (CmpCommon::getDefault(COMPRESSED_INTERNAL_FORMAT_BMO) == DF_ON)
-  {
+  } else if (CmpCommon::getDefault(COMPRESSED_INTERNAL_FORMAT_BMO) == DF_ON) {
     bmo_cif = RelExpr::CIF_ON;
   }
 
-  //CIF_SYSTEM
+  // CIF_SYSTEM
 
-  return generator->determineInternalFormat(valIdList, 
-                                            relExpr, 
-                                            resizeCifRecord, 
-                                            bmo_cif,
-                                            bmo_affinity,
+  return generator->determineInternalFormat(valIdList, relExpr, resizeCifRecord, bmo_cif, bmo_affinity,
                                             considerBufferDefrag);
-
 }
 
-CostScalar HashGroupBy::getEstimatedRunTimeMemoryUsage(Generator *generator, NABoolean perNode, Lng32 *numStreams)
-{
-  GroupAttributes * childGroupAttr = child(0).getGroupAttr();
+CostScalar HashGroupBy::getEstimatedRunTimeMemoryUsage(Generator *generator, NABoolean perNode, Lng32 *numStreams) {
+  GroupAttributes *childGroupAttr = child(0).getGroupAttr();
   const CostScalar childRecordSize = childGroupAttr->getCharacteristicOutputs().getRowLength();
-  const CostScalar childRowCount = getEstRowsUsed(); // the number of 
-  //TODO: Line below dumps core at times 
-  //const CostScalar maxCard = childGroupAttr->getResultMaxCardinalityForEmptyInput();
+  const CostScalar childRowCount = getEstRowsUsed();  // the number of
+  // TODO: Line below dumps core at times
+  // const CostScalar maxCard = childGroupAttr->getResultMaxCardinalityForEmptyInput();
   const CostScalar maxCard = 0;
 
-                                                     // distinct rows groupped
+  // distinct rows groupped
   // Each record also uses a header (HashRow) in memory (8 bytes for 32bit).
-  // Hash tables also take memory -- they are about %50 longer than the 
+  // Hash tables also take memory -- they are about %50 longer than the
   // number of entries.
-  const ULng32 
-    memOverheadPerRecord = sizeof(HashRow) + sizeof(HashTableHeader) * 3 / 2 ;
+  const ULng32 memOverheadPerRecord = sizeof(HashRow) + sizeof(HashTableHeader) * 3 / 2;
   CostScalar estMemPerNode;
   CostScalar estMemPerInst;
   // totalHashTableMemory is for all CPUs at this point of time.
-  CostScalar totalHashTableMemory = 
-    childRowCount * (childRecordSize + memOverheadPerRecord);
+  CostScalar totalHashTableMemory = childRowCount * (childRecordSize + memOverheadPerRecord);
   Lng32 numOfStreams = 1;
-  const PhysicalProperty* const phyProp = getPhysicalProperty();
-  if (phyProp)
-  {
-     PartitioningFunction * partFunc = phyProp -> getPartitioningFunction() ;
-     numOfStreams = partFunc->getCountOfPartitions();
-     if (numOfStreams <= 0)
-        numOfStreams = 1;
+  const PhysicalProperty *const phyProp = getPhysicalProperty();
+  if (phyProp) {
+    PartitioningFunction *partFunc = phyProp->getPartitioningFunction();
+    numOfStreams = partFunc->getCountOfPartitions();
+    if (numOfStreams <= 0) numOfStreams = 1;
   }
-  if (numStreams != NULL)
-     *numStreams = numOfStreams;
-  estMemPerNode =  totalHashTableMemory / MINOF(MAXOF(CURRCONTEXT_CLUSTERINFO->getTotalNumberOfCPUs(), 1), numOfStreams);
-  estMemPerInst =  totalHashTableMemory / numOfStreams;
-  NABoolean isPartialGroupBy = (isAPartialGroupByNonLeaf() ||
-                                isAPartialGroupByLeaf());
-  if (isPartialGroupBy)
-  {
-     estMemPerNode = 1024;
-     estMemPerInst = 1024;
+  if (numStreams != NULL) *numStreams = numOfStreams;
+  estMemPerNode = totalHashTableMemory / MINOF(MAXOF(CURRCONTEXT_CLUSTERINFO->getTotalNumberOfCPUs(), 1), numOfStreams);
+  estMemPerInst = totalHashTableMemory / numOfStreams;
+  NABoolean isPartialGroupBy = (isAPartialGroupByNonLeaf() || isAPartialGroupByLeaf());
+  if (isPartialGroupBy) {
+    estMemPerNode = 1024;
+    estMemPerInst = 1024;
   }
-  OperBMOQuota *operBMOQuota = new (generator->wHeap()) OperBMOQuota(getKey(), numOfStreams, 
-                                                  estMemPerNode, estMemPerInst, childRowCount, maxCard);
+  OperBMOQuota *operBMOQuota = new (generator->wHeap())
+      OperBMOQuota(getKey(), numOfStreams, estMemPerNode, estMemPerInst, childRowCount, maxCard);
   generator->getBMOQuotaMap()->insert(operBMOQuota);
   if (perNode)
-     return estMemPerNode;
+    return estMemPerNode;
   else
-     return estMemPerInst; 
+    return estMemPerInst;
 }
 
 /////////////////////////////////////////////////////////
 //
 // GroupByAgg::codeGen()
 //
-//  Used by SortGroupBy and ShortCutGroupBy 
+//  Used by SortGroupBy and ShortCutGroupBy
 /////////////////////////////////////////////////////////
 
-short GroupByAgg::codeGen(Generator * generator) {
+short GroupByAgg::codeGen(Generator *generator) {
+  Space *space = generator->getSpace();
 
-  Space * space = generator->getSpace();
-  
   // create a map table for returned group by and aggregate values
-  MapTable * myMapTable = generator->appendAtEnd();
+  MapTable *myMapTable = generator->appendAtEnd();
 
   ////////////////////////////////////////////////////////////////////////////
   //
@@ -1711,7 +1420,7 @@ short GroupByAgg::codeGen(Generator * generator) {
   // <-- returned row to parent --->
   // <------------ returned row from child ------------>
   //
-  // input data:        the atp input to this node by its parent. 
+  // input data:        the atp input to this node by its parent.
   // grouped data:      tupp where the aggr/grouped result is moved
   // child data:        tupps appended by the left child
   //
@@ -1722,79 +1431,49 @@ short GroupByAgg::codeGen(Generator * generator) {
   //
   ////////////////////////////////////////////////////////////////////////////
 
-  ex_cri_desc * givenDesc
-    = generator->getCriDesc(Generator::DOWN);
+  ex_cri_desc *givenDesc = generator->getCriDesc(Generator::DOWN);
 
-  ex_cri_desc * returnedDesc 
-    = new(space) ex_cri_desc(givenDesc->noTuples() + 1, space); 
-  
+  ex_cri_desc *returnedDesc = new (space) ex_cri_desc(givenDesc->noTuples() + 1, space);
+
   generator->setCriDesc(returnedDesc, Generator::DOWN);
 
-  ComTdb * childTdb = 0;
+  ComTdb *childTdb = 0;
 
-  ex_expr * aggrExpr = 0;
-  ex_expr * havingExpr = 0;
-  ex_expr * grbyExpr = 0;
-  ex_expr * moveExpr = 0;
+  ex_expr *aggrExpr = 0;
+  ex_expr *havingExpr = 0;
+  ex_expr *grbyExpr = 0;
+  ex_expr *moveExpr = 0;
 
-  ExpTupleDesc * tupleDesc = 0;
-  
-  genAggrGrbyExpr(generator,
-		  aggregateExpr(),
-                  groupExpr(),
-		  rollupGroupExprList(),
-		  selectionPred(),
-		  1,
-		  returnedDesc->noTuples() - 1, 
-		  (short) (returnedDesc->noTuples() - 1),
-		  &aggrExpr,
-		  &grbyExpr,
-		  &moveExpr,
-		  &havingExpr,
-		  &childTdb,
-		  &tupleDesc);
+  ExpTupleDesc *tupleDesc = 0;
 
+  genAggrGrbyExpr(generator, aggregateExpr(), groupExpr(), rollupGroupExprList(), selectionPred(), 1,
+                  returnedDesc->noTuples() - 1, (short)(returnedDesc->noTuples() - 1), &aggrExpr, &grbyExpr, &moveExpr,
+                  &havingExpr, &childTdb, &tupleDesc);
 
   ExplainTuple *childExplainTuple = generator->getExplainTuple();
 
-  returnedDesc->
-    setTupleDescriptor(returnedDesc->noTuples() - 1, tupleDesc); 
- 
-  ComTdbSortGrby * sortGrbyTdb 
-    = new(space) ComTdbSortGrby(aggrExpr,
-				grbyExpr,
-				moveExpr,
-				havingExpr,
-				tupleDesc->tupleDataLength(),
-				returnedDesc->noTuples()-1,
-				childTdb,
-				givenDesc,
-				returnedDesc,
-				(queue_index)getDefault(GEN_SGBY_SIZE_DOWN),
-				(queue_index)getDefault(GEN_SGBY_SIZE_UP),
-				(Cardinality) getGroupAttr()->
-				getOutputLogPropList()[0]->
-				getResultCardinality().value(),
-				getDefault(GEN_SGBY_NUM_BUFFERS),
-				getDefault(GEN_SGBY_BUFFER_SIZE),
-				generator->getTolerateNonFatalError());
+  returnedDesc->setTupleDescriptor(returnedDesc->noTuples() - 1, tupleDesc);
+
+  ComTdbSortGrby *sortGrbyTdb = new (space) ComTdbSortGrby(
+      aggrExpr, grbyExpr, moveExpr, havingExpr, tupleDesc->tupleDataLength(), returnedDesc->noTuples() - 1, childTdb,
+      givenDesc, returnedDesc, (queue_index)getDefault(GEN_SGBY_SIZE_DOWN), (queue_index)getDefault(GEN_SGBY_SIZE_UP),
+      (Cardinality)getGroupAttr()->getOutputLogPropList()[0]->getResultCardinality().value(),
+      getDefault(GEN_SGBY_NUM_BUFFERS), getDefault(GEN_SGBY_BUFFER_SIZE), generator->getTolerateNonFatalError());
 
   sortGrbyTdb->setRecordLength(getGroupAttr()->getRecordLength());
 
   generator->initTdbFields(sortGrbyTdb);
 
-  if (isRollup())
-    {
-      sortGrbyTdb->setIsRollup(TRUE);
+  if (isRollup()) {
+    sortGrbyTdb->setIsRollup(TRUE);
 
-      sortGrbyTdb->setNumRollupGroups(rollupGroupExprList().entries());
-    }
-
-  if(!generator->explainDisabled()) {
-    generator->setExplainTuple(
-         addExplainInfo(sortGrbyTdb, childExplainTuple, 0, generator));
+    sortGrbyTdb->setNumRollupGroups(rollupGroupExprList().entries());
   }
- 
+
+  if (!generator->explainDisabled()) {
+    generator->setExplainTuple(addExplainInfo(sortGrbyTdb, childExplainTuple, 0, generator));
+  }
+
   // set the new up cri desc.
   generator->setCriDesc(returnedDesc, Generator::UP);
 
@@ -1804,24 +1483,21 @@ short GroupByAgg::codeGen(Generator * generator) {
   generator->setGenObj(this, sortGrbyTdb);
 
   return 0;
-} // GroupByAgg::codeGen()
+}  // GroupByAgg::codeGen()
 
-
-short HbasePushdownAggr::codeGen(Generator * generator)
-{
-  Space * space          = generator->getSpace();
-  ExpGenerator * expGen = generator->getExpGenerator();
+short HbasePushdownAggr::codeGen(Generator *generator) {
+  Space *space = generator->getSpace();
+  ExpGenerator *expGen = generator->getExpGenerator();
 
   // allocate a map table for the retrieved columns
   //  generator->appendAtEnd();
-  MapTable * last_map_table = generator->getLastMapTable();
- 
+  MapTable *last_map_table = generator->getLastMapTable();
+
   ex_expr *projExpr = NULL;
 
-  ex_cri_desc * givenDesc 
-    = generator->getCriDesc(Generator::DOWN);
+  ex_cri_desc *givenDesc = generator->getCriDesc(Generator::DOWN);
 
-  ex_cri_desc * returnedDesc = NULL;
+  ex_cri_desc *returnedDesc = NULL;
 
   const Int32 workAtp = 1;
   Int32 finalAggrTuppIndex = 2;
@@ -1830,132 +1506,105 @@ short HbasePushdownAggr::codeGen(Generator * generator)
   const Int32 rowIdTuppIndex = 5;
   const Int32 rowIdAsciiTuppIndex = 6;
 
-  ULng32 projRowLen = 0; 
-  ExpTupleDesc * projTupleDesc = NULL;
+  ULng32 projRowLen = 0;
+  ExpTupleDesc *projTupleDesc = NULL;
 
-  ex_cri_desc * work_cri_desc = NULL;
-  work_cri_desc = new(space) ex_cri_desc(7, space);
+  ex_cri_desc *work_cri_desc = NULL;
+  work_cri_desc = new (space) ex_cri_desc(7, space);
 
-  returnedDesc = new(space) ex_cri_desc(givenDesc->noTuples() + 1, space);
+  returnedDesc = new (space) ex_cri_desc(givenDesc->noTuples() + 1, space);
   const Int32 returnedTuppIndex = returnedDesc->noTuples() - 1;
 
-  if (aggregateExpr().isEmpty())
-    {
-      GenAssert(0, "aggregateExpr() cannot be empty.");
-    }
+  if (aggregateExpr().isEmpty()) {
+    GenAssert(0, "aggregateExpr() cannot be empty.");
+  }
 
-  Queue * listOfAggrTypes = new(space) Queue(space);
-  Queue * listOfAggrColNames = new(space) Queue(space);
+  Queue *listOfAggrTypes = new (space) Queue(space);
+  Queue *listOfAggrColNames = new (space) Queue(space);
 
   ValueIdList aggrVidList;
   ValueIdList hbaseAggrVidList;
 
   ULng32 numAttrs = aggregateExpr().entries();
-  Attributes ** attrs = new(generator->wHeap()) Attributes * [numAttrs];
+  Attributes **attrs = new (generator->wHeap()) Attributes *[numAttrs];
   Int32 i = 0;
-  for (ValueId valId = aggregateExpr().init();
-       aggregateExpr().next(valId);
-       aggregateExpr().advance(valId), i++) 
-    {
-      // this value will be populated at runtime by aggr returned by HBASE.
-      // It will not be aggregated by the aggr expression.
-      // Mark it as codeGenerated.
-      MapInfo * mapInfo = generator->addMapInfo(valId, 0);
-      attrs[i] = mapInfo->getAttr();
-      mapInfo->codeGenerated();
-      aggrVidList.insert(valId);
-    }
+  for (ValueId valId = aggregateExpr().init(); aggregateExpr().next(valId); aggregateExpr().advance(valId), i++) {
+    // this value will be populated at runtime by aggr returned by HBASE.
+    // It will not be aggregated by the aggr expression.
+    // Mark it as codeGenerated.
+    MapInfo *mapInfo = generator->addMapInfo(valId, 0);
+    attrs[i] = mapInfo->getAttr();
+    mapInfo->codeGenerated();
+    aggrVidList.insert(valId);
+  }
 
   // Create the descriptor describing row where aggr returned by hbase will
   // be added.
-  ExpTupleDesc * hbaseAggrTupleDesc = NULL;
+  ExpTupleDesc *hbaseAggrTupleDesc = NULL;
   ULng32 hbaseAggrRowLen = 0;
-  
-  // Create the descriptor describing the aggr row and assign offset to attrs. 
-  ExpTupleDesc * tupleDesc = NULL;
+
+  // Create the descriptor describing the aggr row and assign offset to attrs.
+  ExpTupleDesc *tupleDesc = NULL;
   ULng32 finalAggrRowLen = 0;
-  expGen->processAttributes(numAttrs,
-			    attrs,
-			    ExpTupleDesc::SQLARK_EXPLODED_FORMAT,
-			    finalAggrRowLen,
-			    workAtp,
-			    finalAggrTuppIndex,
-			    &tupleDesc,
-			    ExpTupleDesc::SHORT_FORMAT);
-  
+  expGen->processAttributes(numAttrs, attrs, ExpTupleDesc::SQLARK_EXPLODED_FORMAT, finalAggrRowLen, workAtp,
+                            finalAggrTuppIndex, &tupleDesc, ExpTupleDesc::SHORT_FORMAT);
+
   NADELETEBASIC(attrs, generator->wHeap());
 
   NABoolean isAlignedFormat = tableDesc_->getNATable()->isAlignedFormat(NULL);
-  for (Int32 j = 0; j < numAttrs; j++)
+  for (Int32 j = 0; j < numAttrs; j++) {
+    ValueId &valId = aggrVidList[j];
+
+    if (NOT((Aggregate *)valId.getItemExpr())->isPushdown()) {
+      GenAssert(0, "This aggr must have pushdown flag set.");
+    }
+
+    Aggregate *a = (Aggregate *)valId.getItemExpr();
+    short aggrType;
+    char *aggrTypeInList = NULL;
+    char *aggrColName = NULL;
+
+    if (a->getOperatorType() == ITM_COUNT)  // count(*)
     {
-      ValueId &valId = aggrVidList[j];
+      aggrType = (short)ComTdbHbaseCoProcAggr::COUNT;
+      NAString cn = tableDesc_->getNATable()->defaultTrafColFam() + ":";
 
-      if (NOT ((Aggregate *) valId.getItemExpr())->isPushdown())
-        {
-          GenAssert(0, "This aggr must have pushdown flag set.");
-        }
+      short len = cn.length();
+      cn.prepend((char *)&len, sizeof(short));
 
-      Aggregate *a = (Aggregate*)valId.getItemExpr();
-      short aggrType;
-      char * aggrTypeInList = NULL;
-      char * aggrColName = NULL;
+      aggrColName = space->AllocateAndCopyToAlignedSpace(cn, 0);
+    } else {
+      GenAssert(0, "This aggregate not yet supported for coprocessor execution.");
+    }
 
-      if (a->getOperatorType() == ITM_COUNT) // count(*)
-	{
-	  aggrType = (short)ComTdbHbaseCoProcAggr::COUNT;
-          NAString cn = tableDesc_->getNATable()->defaultTrafColFam() + ":";
+    aggrTypeInList = space->allocateAndCopyToAlignedSpace((char *)&aggrType, sizeof(aggrType), 0);
+    listOfAggrTypes->insert(aggrTypeInList);
 
-          short len = cn.length();
-          cn.prepend((char*)&len, sizeof(short));
-            
-          aggrColName = space->AllocateAndCopyToAlignedSpace(cn, 0);
-	}
-      else
-	{
-	  GenAssert(0, "This aggregate not yet supported for coprocessor execution.");
-	}
+    listOfAggrColNames->insert(aggrColName);
+  }  // for
 
-      aggrTypeInList = space->allocateAndCopyToAlignedSpace
-	((char*)&aggrType, sizeof(aggrType), 0);
-      listOfAggrTypes->insert(aggrTypeInList);
-
-      listOfAggrColNames->insert(aggrColName);
-    } // for
-
-  if (getOptStoi() && getOptStoi()->getStoi())
-    generator->addSqlTableOpenInfo(getOptStoi()->getStoi()); 
-  // generate aggregate expression 
-  ex_expr * aggrExpr = NULL;
-  expGen->generateAggrExpr(aggregateExpr(), ex_expr::exp_AGGR, &aggrExpr,  
-                           0, FALSE);
+  if (getOptStoi() && getOptStoi()->getStoi()) generator->addSqlTableOpenInfo(getOptStoi()->getStoi());
+  // generate aggregate expression
+  ex_expr *aggrExpr = NULL;
+  expGen->generateAggrExpr(aggregateExpr(), ex_expr::exp_AGGR, &aggrExpr, 0, FALSE);
 
   // generate having expression, if present
-  ex_expr * havingExpr = NULL;
-  if (NOT selectionPred().isEmpty()) 
-    {
-      ItemExpr * newPredTree =
-        selectionPred().rebuildExprTree(ITM_AND,TRUE,TRUE);
-      expGen->generateExpr(newPredTree->getValueId(),
-                           ex_expr::exp_SCAN_PRED,
-                           &havingExpr);
-    }
-  
-  expGen->generateContiguousMoveExpr(aggrVidList, 
-				     -1,
-				     1, projTuppIndex,
-				     ExpTupleDesc::SQLARK_EXPLODED_FORMAT,
-				     projRowLen, 
-				     &projExpr,
-				     &projTupleDesc, ExpTupleDesc::LONG_FORMAT);
+  ex_expr *havingExpr = NULL;
+  if (NOT selectionPred().isEmpty()) {
+    ItemExpr *newPredTree = selectionPred().rebuildExprTree(ITM_AND, TRUE, TRUE);
+    expGen->generateExpr(newPredTree->getValueId(), ex_expr::exp_SCAN_PRED, &havingExpr);
+  }
+
+  expGen->generateContiguousMoveExpr(aggrVidList, -1, 1, projTuppIndex, ExpTupleDesc::SQLARK_EXPLODED_FORMAT,
+                                     projRowLen, &projExpr, &projTupleDesc, ExpTupleDesc::LONG_FORMAT);
 
   work_cri_desc->setTupleDescriptor(projTuppIndex, projTupleDesc);
 
   // The output row will be returned as the last entry of the returned atp.
   // Change the atp and atpindex of the returned values to indicate that.
-  expGen->assignAtpAndAtpIndex(aggrVidList,
-			       0, returnedDesc->noTuples()-1);
+  expGen->assignAtpAndAtpIndex(aggrVidList, 0, returnedDesc->noTuples() - 1);
 
-  Cardinality expectedRows = (Cardinality) getEstRowsUsed().getValue();
+  Cardinality expectedRows = (Cardinality)getEstRowsUsed().getValue();
   ULng32 buffersize = 3 * getDefault(GEN_DPSO_BUFFER_SIZE);
   queue_index upqueuelength = (queue_index)getDefault(GEN_DPSO_SIZE_UP);
   queue_index downqueuelength = (queue_index)getDefault(GEN_DPSO_SIZE_DOWN);
@@ -1967,139 +1616,96 @@ short HbasePushdownAggr::codeGen(Generator * generator)
   //
   // This should be more sophisticate than this, and should maybe be done
   // within the buffer class, but for now this will do.
-  // 
-  ULng32 cbuffersize = 
-    SqlBufferNeededSize((upqueuelength * 2 / numBuffers),
-			1000); //returnedRowlen);
+  //
+  ULng32 cbuffersize = SqlBufferNeededSize((upqueuelength * 2 / numBuffers),
+                                           1000);  // returnedRowlen);
   // But use at least the default buffer size.
   //
   buffersize = buffersize > cbuffersize ? buffersize : cbuffersize;
 
-  char * tablename = NULL;
-  if (FileScan::genTableName(generator, space, getTableName(),
-    getTableDesc()->getNATable(),
-    getIndexDesc()->getNAFileSet(),
-    FALSE,
-    tablename))
-  {
+  char *tablename = NULL;
+  if (FileScan::genTableName(generator, space, getTableName(), getTableDesc()->getNATable(),
+                             getIndexDesc()->getNAFileSet(), FALSE, tablename)) {
     GenAssert(0, "genTableName failed");
   }
 
-  char * baseTableName = NULL;
-  if (FileScan::genTableName(generator, space, tableDesc_->getCorrNameObj(),
-                             tableDesc_->getNATable(), 
+  char *baseTableName = NULL;
+  if (FileScan::genTableName(generator, space, tableDesc_->getCorrNameObj(), tableDesc_->getNATable(),
                              NULL,  // so we get the base table name
-                             FALSE,
-                             baseTableName))
-    {
-      GenAssert(0,"genTableName failed");
-    }
+                             FALSE, baseTableName)) {
+    GenAssert(0, "genTableName failed");
+  }
 
   char *connectParam1;
   char *connectParam2;
   NATable::getConnectParams(tableDesc_->getNATable()->storageType(), &connectParam1, &connectParam2);
 
-  char * server = space->allocateAlignedSpace(strlen(connectParam1) + 1);
+  char *server = space->allocateAlignedSpace(strlen(connectParam1) + 1);
   strcpy(server, connectParam1);
-  char * zkPort = space->allocateAlignedSpace(strlen(connectParam2) + 1);
+  char *zkPort = space->allocateAlignedSpace(strlen(connectParam2) + 1);
   strcpy(zkPort, connectParam2);
 
   TableDesc *tableDesc = tableDesc_;
-  ComTdbHbaseAccess::HbasePerfAttributes * hbpa =
-    new(space) ComTdbHbaseAccess::HbasePerfAttributes();
+  ComTdbHbaseAccess::HbasePerfAttributes *hbpa = new (space) ComTdbHbaseAccess::HbasePerfAttributes();
 
-  generator->setHBaseCacheBlocks(tableDesc->getNATable()->
-                                 computeHBaseRowSizeFromMetaData(),
-                                 (Int64) getEstRowsUsed().getValue(),
-                                 hbpa);
+  generator->setHBaseCacheBlocks(tableDesc->getNATable()->computeHBaseRowSizeFromMetaData(),
+                                 (Int64)getEstRowsUsed().getValue(), hbpa);
 
   // cache setting not relevant since rows are not returned to HBase client
   hbpa->setNumCacheRows(CmpCommon::getDefaultNumeric(HBASE_NUM_CACHE_ROWS_MIN));
 
-  Queue* tdbListOfRangeRows = NULL;
-  Queue* tdbListOfUniqueRows = NULL;
-  HbaseAccess::genListsOfRows(generator, listOfRangeRows_, listOfUniqueRows_,
-    tdbListOfRangeRows, tdbListOfUniqueRows);
+  Queue *tdbListOfRangeRows = NULL;
+  Queue *tdbListOfUniqueRows = NULL;
+  HbaseAccess::genListsOfRows(generator, listOfRangeRows_, listOfUniqueRows_, tdbListOfRangeRows, tdbListOfUniqueRows);
 
   ULng32 rowIdLength = 0;
   ULng32 rowIdAsciiRowLen = 0;
-  ExpTupleDesc* rowIdAsciiTupleDesc = 0;
-  ex_expr* rowIdExpr = NULL;
-  
+  ExpTupleDesc *rowIdAsciiTupleDesc = 0;
+  ex_expr *rowIdExpr = NULL;
 
   /*if (generator->getTempSpace() == NULL) {
     ComSpace* space = new(generator->wHeap()) ComSpace(ComSpace::GENERATOR_SPACE);
     space->setParent(generator->wHeap());
     generator->setTempSpace(space, TRUE);
   }*/
-  
-  HbaseAccess::genRowIdExpr(generator,
-    getIndexDesc()->getNAFileSet()->getIndexKeyColumns(),
-    getHbaseSearchKeys(),
-    work_cri_desc, workAtp,
-    rowIdAsciiTuppIndex, rowIdTuppIndex,
-    rowIdAsciiRowLen, rowIdAsciiTupleDesc,
-    rowIdLength,
-    rowIdExpr,
-    TRUE);
-    
-    
-  //generator->setTempSpace(NULL, FALSE);
 
+  HbaseAccess::genRowIdExpr(generator, getIndexDesc()->getNAFileSet()->getIndexKeyColumns(), getHbaseSearchKeys(),
+                            work_cri_desc, workAtp, rowIdAsciiTuppIndex, rowIdTuppIndex, rowIdAsciiRowLen,
+                            rowIdAsciiTupleDesc, rowIdLength, rowIdExpr, TRUE);
+
+  // generator->setTempSpace(NULL, FALSE);
 
   // create hbasecoproc_tdb
-  ComTdbHbaseCoProcAggr *aggr_tdb = new(space) 
-    ComTdbHbaseCoProcAggr(
-		      tablename,
-		      baseTableName,
+  ComTdbHbaseCoProcAggr *aggr_tdb = new (space) ComTdbHbaseCoProcAggr(
+      tablename, baseTableName,
 
-		      projExpr,
-		      projRowLen,
-		      projTuppIndex,
-		      returnedTuppIndex,
+      projExpr, projRowLen, projTuppIndex, returnedTuppIndex,
 
-		      listOfAggrTypes,
-		      listOfAggrColNames,
+      listOfAggrTypes, listOfAggrColNames,
 
-		      work_cri_desc,
-		      givenDesc,
-		      returnedDesc,
-		      downqueuelength,
-		      upqueuelength,
-                      expectedRows,
-		      numBuffers,
-		      buffersize,
+      work_cri_desc, givenDesc, returnedDesc, downqueuelength, upqueuelength, expectedRows, numBuffers, buffersize,
 
-		      server,
-                      zkPort,
-		      hbpa,
-          tdbListOfRangeRows,
-          rowIdExpr, 
-          rowIdTuppIndex, rowIdAsciiTuppIndex,
-          rowIdLength, rowIdAsciiRowLen, getFilterForNull()
-		      );
+      server, zkPort, hbpa, tdbListOfRangeRows, rowIdExpr, rowIdTuppIndex, rowIdAsciiTuppIndex, rowIdLength,
+      rowIdAsciiRowLen, getFilterForNull());
 
   if (gEnableRowLevelLock) {
-      TransMode::AccessType accessType = accessOptions().accessType();
-      LockMode lockMode = accessOptions().lockMode();
-      if (lockMode == LockMode::PROTECTED_) {
-          aggr_tdb->setLockMode(HBaseLockMode::LOCK_U);
-      } 
-      if (accessType == TransMode::ACCESS_TYPE_NOT_SPECIFIED_) {
-          accessType = TransMode::ILtoAT(generator->currentCmpContext()->getTransMode().getIsolationLevel());
-      }
-      if (accessType == TransMode::SERIALIZABLE_ACCESS_) {
-          aggr_tdb->setIsolationLevel(TransMode::SERIALIZABLE_ACCESS_);
-      }
-      else if (accessType == TransMode::REPEATABLE_READ_ACCESS_) {
-          aggr_tdb->setIsolationLevel(TransMode::REPEATABLE_READ_);
-      }
-      else if (accessType == TransMode::READ_COMMITTED_ACCESS_) {
-          aggr_tdb->setIsolationLevel(TransMode::READ_COMMITTED_);
-      }
-      else if (accessType == TransMode::READ_UNCOMMITTED_ACCESS_) {
-          aggr_tdb->setIsolationLevel(TransMode::READ_UNCOMMITTED_);
-      }
+    TransMode::AccessType accessType = accessOptions().accessType();
+    LockMode lockMode = accessOptions().lockMode();
+    if (lockMode == LockMode::PROTECTED_) {
+      aggr_tdb->setLockMode(HBaseLockMode::LOCK_U);
+    }
+    if (accessType == TransMode::ACCESS_TYPE_NOT_SPECIFIED_) {
+      accessType = TransMode::ILtoAT(generator->currentCmpContext()->getTransMode().getIsolationLevel());
+    }
+    if (accessType == TransMode::SERIALIZABLE_ACCESS_) {
+      aggr_tdb->setIsolationLevel(TransMode::SERIALIZABLE_ACCESS_);
+    } else if (accessType == TransMode::REPEATABLE_READ_ACCESS_) {
+      aggr_tdb->setIsolationLevel(TransMode::REPEATABLE_READ_);
+    } else if (accessType == TransMode::READ_COMMITTED_ACCESS_) {
+      aggr_tdb->setIsolationLevel(TransMode::READ_COMMITTED_);
+    } else if (accessType == TransMode::READ_UNCOMMITTED_ACCESS_) {
+      aggr_tdb->setIsolationLevel(TransMode::READ_UNCOMMITTED_);
+    }
   }
 
   aggr_tdb->setRecordLength(getGroupAttr()->getRecordLength());
@@ -2107,21 +1713,14 @@ short HbasePushdownAggr::codeGen(Generator * generator)
   generator->initTdbFields(aggr_tdb);
 
   // set we are replace hbase name by uid
-  if (USE_UUID_AS_HBASE_TABLENAME)
-  {
-    char * tablenameForUID = NULL;
-    if (FileScan::genTableName(generator, space, tableDesc_->getCorrNameObj(),
-                  tableDesc_->getNATable(), 
-                  tableDesc_->getClusteringIndex()->getNAFileSet(),
-                  FALSE,
-                  tablenameForUID,
-                  TRUE))
-    {
-      GenAssert(0,"genTableName failed");
+  if (USE_UUID_AS_HBASE_TABLENAME) {
+    char *tablenameForUID = NULL;
+    if (FileScan::genTableName(generator, space, tableDesc_->getCorrNameObj(), tableDesc_->getNATable(),
+                               tableDesc_->getClusteringIndex()->getNAFileSet(), FALSE, tablenameForUID, TRUE)) {
+      GenAssert(0, "genTableName failed");
     }
 
-    if (tablenameForUID)
-    {
+    if (tablenameForUID) {
       aggr_tdb->setReplaceNameByUID(TRUE);
       aggr_tdb->setDataUIDName(tablenameForUID);
     }
@@ -2130,29 +1729,23 @@ short HbasePushdownAggr::codeGen(Generator * generator)
   aggr_tdb->setTableId(getTableDesc()->getNATable()->objectUid().castToInt64());
   aggr_tdb->setDataUId(getTableDesc()->getNATable()->objDataUID().castToInt64());
 
-  if (tableDesc_->getNATable()->isSeabaseTable())
-    {
-      aggr_tdb->setStorageType(getTableDesc()->getNATable()->storageType());
+  if (tableDesc_->getNATable()->isSeabaseTable()) {
+    aggr_tdb->setStorageType(getTableDesc()->getNATable()->storageType());
 
-      aggr_tdb->setSQHbaseTable(TRUE);
+    aggr_tdb->setSQHbaseTable(TRUE);
 
-      if (tableDesc_->getNATable()->isEnabledForDDLQI())
-	generator->objectUids().insert(tableDesc_->getNATable()
-				       ->objectUid().get_value());
-    }
-
-  if(!generator->explainDisabled()) {
-    generator->setExplainTuple(
-       addExplainInfo(aggr_tdb, 0, 0, generator));
+    if (tableDesc_->getNATable()->isEnabledForDDLQI())
+      generator->objectUids().insert(tableDesc_->getNATable()->objectUid().get_value());
   }
 
-  if ((generator->computeStats()) && 
-      (generator->collectStatsType() == ComTdb::PERTABLE_STATS
-      || generator->collectStatsType() == ComTdb::OPERATOR_STATS))
-    {
-      aggr_tdb->setPertableStatsTdbId((UInt16)generator->
-					   getPertableStatsTdbId());
-    }
+  if (!generator->explainDisabled()) {
+    generator->setExplainTuple(addExplainInfo(aggr_tdb, 0, 0, generator));
+  }
+
+  if ((generator->computeStats()) && (generator->collectStatsType() == ComTdb::PERTABLE_STATS ||
+                                      generator->collectStatsType() == ComTdb::OPERATOR_STATS)) {
+    aggr_tdb->setPertableStatsTdbId((UInt16)generator->getPertableStatsTdbId());
+  }
 
   generator->setCriDesc(givenDesc, Generator::DOWN);
   generator->setCriDesc(returnedDesc, Generator::UP);
@@ -2160,4 +1753,3 @@ short HbasePushdownAggr::codeGen(Generator * generator)
 
   return 0;
 }
-

@@ -42,42 +42,37 @@
 //	Constructors
 //--------------------------------------------------------------------------//
 
-CRURange::CRURange() :
-	origBoundaryPair_(),
-	fragmentList_(eItemsAreOwned),
-	epoch_(0),
-	rangeId_(0),
-	isDeleteOfScreenedRecordsRequired_(FALSE),
-	isUpdateOfScreenedRecordsRequired_(FALSE),
-	// Range analysis state
-	pMyFragment_(NULL),
-	myPos_(NULL)
-{}
+CRURange::CRURange()
+    : origBoundaryPair_(),
+      fragmentList_(eItemsAreOwned),
+      epoch_(0),
+      rangeId_(0),
+      isDeleteOfScreenedRecordsRequired_(FALSE),
+      isUpdateOfScreenedRecordsRequired_(FALSE),
+      // Range analysis state
+      pMyFragment_(NULL),
+      myPos_(NULL) {}
 
 //--------------------------------------------------------------------------//
 //	CRURange::SetBRRecord()
 //--------------------------------------------------------------------------//
 
-void CRURange::SetBRRecord(const CRUIUDLogRecord *pBRRec)
-{
-	RUASSERT(NULL != pBRRec 
-			&& 
-			NULL == origBoundaryPair_.GetBRRecord());
+void CRURange::SetBRRecord(const CRUIUDLogRecord *pBRRec) {
+  RUASSERT(NULL != pBRRec && NULL == origBoundaryPair_.GetBRRecord());
 
-	origBoundaryPair_.SetBRRecord(pBRRec);
+  origBoundaryPair_.SetBRRecord(pBRRec);
 
-	epoch_ = pBRRec->GetEpoch();
-	rangeId_ = pBRRec->GetSyskey();
+  epoch_ = pBRRec->GetEpoch();
+  rangeId_ = pBRRec->GetSyskey();
 }
 
 //--------------------------------------------------------------------------//
 //	CRURange::SetERRecord()
 //--------------------------------------------------------------------------//
 
-void CRURange::SetERRecord(const CRUIUDLogRecord *pERRec)
-{
-	RUASSERT(NULL != pERRec);
-	origBoundaryPair_.SetERRecord(pERRec);
+void CRURange::SetERRecord(const CRUIUDLogRecord *pERRec) {
+  RUASSERT(NULL != pERRec);
+  origBoundaryPair_.SetERRecord(pERRec);
 }
 
 //--------------------------------------------------------------------------//
@@ -90,16 +85,16 @@ void CRURange::SetERRecord(const CRUIUDLogRecord *pERRec)
 //	(1) It is *covered* by this range.
 //	(2) The range was logged *before* the record.
 //
-//	If the screening epoch is smaller than the record's one, the record's 
-//	@IGNORE mark in the log must be updated the screening range's epoch. 
-//	
-//	If the screening epoch is equal to the record's one, 
+//	If the screening epoch is smaller than the record's one, the record's
+//	@IGNORE mark in the log must be updated the screening range's epoch.
+//
+//	If the screening epoch is equal to the record's one,
 //	the record must be deleted from the log.
 //
 //	These decisions will be marked in the record's internal flags.
 //	They will save work for the single-row resolver, if there is one.
 //
-//	For example, if the single-row resolver (that works after the range 
+//	For example, if the single-row resolver (that works after the range
 //	resolver) decides to delete a record while the range resolver made the
 //	same decision, the single-row resolver will not perform the operation.
 //
@@ -109,53 +104,45 @@ void CRURange::SetERRecord(const CRUIUDLogRecord *pERRec)
 //
 //--------------------------------------------------------------------------//
 
-void CRURange::PerformCrossTypeDE(CRUIUDLogRecord *pRec)
-{
-	RUASSERT(TRUE == pRec->IsSingleRowOp());
+void CRURange::PerformCrossTypeDE(CRUIUDLogRecord *pRec) {
+  RUASSERT(TRUE == pRec->IsSingleRowOp());
 
-	if (FALSE == IsClusteringKeyCovered(pRec)
-		||
-		pRec->GetSyskey() < GetBRRecord()->GetSyskey())
-	{
-		return;
-	}
+  if (FALSE == IsClusteringKeyCovered(pRec) || pRec->GetSyskey() < GetBRRecord()->GetSyskey()) {
+    return;
+  }
 
-	TInt32 ep = pRec->GetEpoch();
+  TInt32 ep = pRec->GetEpoch();
 
-	if (ep > epoch_)	
-	{
-		// The @IGNORE mark must be set to epoch_ ...
+  if (ep > epoch_) {
+    // The @IGNORE mark must be set to epoch_ ...
 
-		if (epoch_ <= pRec->GetIgnoreMark())
-		{
-			// However, if it is already epoch_ or more,
-			// there is nothing to do!
-			return;	
-		}
+    if (epoch_ <= pRec->GetIgnoreMark()) {
+      // However, if it is already epoch_ or more,
+      // there is nothing to do!
+      return;
+    }
 
-		pRec->SetIgnoreMark(epoch_);
-		// Set the flag for the single-row resolver...
-		pRec->SetRangeResolvWillUpdateMe();
-		// ... and for myself
-		isUpdateOfScreenedRecordsRequired_ = TRUE;
-	}
-	else 
-	{
-		RUASSERT(ep == epoch_);
+    pRec->SetIgnoreMark(epoch_);
+    // Set the flag for the single-row resolver...
+    pRec->SetRangeResolvWillUpdateMe();
+    // ... and for myself
+    isUpdateOfScreenedRecordsRequired_ = TRUE;
+  } else {
+    RUASSERT(ep == epoch_);
 
-		// Set the flag for the single-row resolver...
-		pRec->SetRangeResolvWillDeleteMe();
-		// ... and for myself
-		isDeleteOfScreenedRecordsRequired_ = TRUE;
-	}
+    // Set the flag for the single-row resolver...
+    pRec->SetRangeResolvWillDeleteMe();
+    // ... and for myself
+    isDeleteOfScreenedRecordsRequired_ = TRUE;
+  }
 }
 
 //--------------------------------------------------------------------------//
 //	CRURange::IsClusteringKeyCovered()
 //
-//	The clustering key value CK is *covered* by range R 
+//	The clustering key value CK is *covered* by range R
 //	if it holds that R.<BR-columns> <= CK <= R.<ER-columns>
-//	
+//
 //	There are two possible cases when the CK is covered.
 //	(1) The range is *not* balanced, i.e., the end-range record
 //	    matching the begin-range record has not encountered yet.
@@ -165,21 +152,18 @@ void CRURange::PerformCrossTypeDE(CRUIUDLogRecord *pRec)
 //
 //--------------------------------------------------------------------------//
 
-BOOL CRURange::IsClusteringKeyCovered(const CRUIUDLogRecord *pRec) const
-{
-	// Case 1 - the range is not balanced yet
-	if (NULL == GetERRecord())
-	{
-		return TRUE;
-	}
+BOOL CRURange::IsClusteringKeyCovered(const CRUIUDLogRecord *pRec) const {
+  // Case 1 - the range is not balanced yet
+  if (NULL == GetERRecord()) {
+    return TRUE;
+  }
 
-	// Case 2
-	if (TRUE == GetERRecord()->IsClusteringKeyEqualTo(*pRec))
-	{
-		return TRUE;
-	}
+  // Case 2
+  if (TRUE == GetERRecord()->IsClusteringKeyEqualTo(*pRec)) {
+    return TRUE;
+  }
 
-	return FALSE;
+  return FALSE;
 }
 
 //--------------------------------------------------------------------------//
@@ -188,14 +172,13 @@ BOOL CRURange::IsClusteringKeyCovered(const CRUIUDLogRecord *pRec) const
 //	Initialize the fragment list
 //--------------------------------------------------------------------------//
 
-void CRURange::PrepareForFlush()
-{
-	CRURangeFragment *pFragment = new CRURangeFragment();
-	
-	pFragment->SetBRRecord(this->GetBRRecord());
-	pFragment->SetERRecord(this->GetERRecord());
+void CRURange::PrepareForFlush() {
+  CRURangeFragment *pFragment = new CRURangeFragment();
 
-	fragmentList_.AddTail(pFragment);
+  pFragment->SetBRRecord(this->GetBRRecord());
+  pFragment->SetERRecord(this->GetERRecord());
+
+  fragmentList_.AddTail(pFragment);
 }
 
 //--------------------------------------------------------------------------//
@@ -210,74 +193,66 @@ void CRURange::PrepareForFlush()
 //
 //	In the case of overlap between my fragment and the younger range,
 //	the following principle guides:
-//	- The fragment of (my) range which has been logged earlier must be 
-//	  changed (deleted, split, or resized) to resolve the overlap, while 
+//	- The fragment of (my) range which has been logged earlier must be
+//	  changed (deleted, split, or resized) to resolve the overlap, while
 //	  the range which has been logged later must remain intact.
 //
 //	This rule is easiest to explain for two ranges that belong to different
 //	epocs. The range with the greater epoch number can be observed alone by
-//	some MV, but not vice versa. Hence, the range from the smaller epoch 
-//	"suffers". 
+//	some MV, but not vice versa. Hence, the range from the smaller epoch
+//	"suffers".
 //
-//	The same principle also holds for two overlapping ranges that belong 
-//	to the same epoch. This is a requirement of the INTERNAL REFRESH 
-//	optimization that filters out the cross-type duplicates through the 
+//	The same principle also holds for two overlapping ranges that belong
+//	to the same epoch. This is a requirement of the INTERNAL REFRESH
+//	optimization that filters out the cross-type duplicates through the
 //	Delta Computation Block (rather than through DE).
 //
 //	The algorithm is organized as a scan through the range's fragment list
-//	(which is sorted by the Begin-Range clustering key). Each fragment is 
-//	compared to the younger range, and the appropriate DE decision 
+//	(which is sorted by the Begin-Range clustering key). Each fragment is
+//	compared to the younger range, and the appropriate DE decision
 //	is performed (always in the younger range's favor).
 //
 //--------------------------------------------------------------------------//
 
-void CRURange::PerformRangeAnalysis(const CRURange &otherRange)
-{
-	RUASSERT(GetRangeId() <= otherRange.GetRangeId());
+void CRURange::PerformRangeAnalysis(const CRURange &otherRange) {
+  RUASSERT(GetRangeId() <= otherRange.GetRangeId());
 
-	if (TRUE == fragmentList_.IsEmpty()
-		||
-		TRUE == otherRange.GetFragmentList().IsEmpty())
-	{
-		// All the fragments of one of the two ranges are dominated 
-		// by "third-party" ranges (and hence removed from the list).
-		// Nothing to do in this case.
-		return;
-	}
+  if (TRUE == fragmentList_.IsEmpty() || TRUE == otherRange.GetFragmentList().IsEmpty()) {
+    // All the fragments of one of the two ranges are dominated
+    // by "third-party" ranges (and hence removed from the list).
+    // Nothing to do in this case.
+    return;
+  }
 
-	myPos_ = fragmentList_.GetHeadPosition();
-	ExposureType brExpType, erExpType;
+  myPos_ = fragmentList_.GetHeadPosition();
+  ExposureType brExpType, erExpType;
 
-	while (NULL != myPos_)
-	{
-		pMyFragment_ = fragmentList_.GetNext(myPos_);
+  while (NULL != myPos_) {
+    pMyFragment_ = fragmentList_.GetNext(myPos_);
 
-		// Compute whether the begin-range and end-range records 
-		// are exposed (i.e., not screened by the other range).
-		brExpType = GetExposureType(*(pMyFragment_->GetBRRecord()), otherRange);
-		erExpType = GetExposureType(*(pMyFragment_->GetERRecord()), otherRange);
-	
-		switch (brExpType)
-		{
-		case SMALLER_EXPOSED:
-			{
-				PerformRAIfMyBRIsSmallerExposed(otherRange, erExpType);
-				break;
-			}
-		case NOT_EXPOSED:
-			{
-				PerformRAIfMyBRIsNotExposed(otherRange, erExpType);
-				break;
-			}
-		case GREATER_EXPOSED:
-			{
-				// This fragment (as well as all the following ones)
-				// are not in conflict with the other range
-				return;
-			}
-		default:	RUASSERT(FALSE);
-		}
-	}
+    // Compute whether the begin-range and end-range records
+    // are exposed (i.e., not screened by the other range).
+    brExpType = GetExposureType(*(pMyFragment_->GetBRRecord()), otherRange);
+    erExpType = GetExposureType(*(pMyFragment_->GetERRecord()), otherRange);
+
+    switch (brExpType) {
+      case SMALLER_EXPOSED: {
+        PerformRAIfMyBRIsSmallerExposed(otherRange, erExpType);
+        break;
+      }
+      case NOT_EXPOSED: {
+        PerformRAIfMyBRIsNotExposed(otherRange, erExpType);
+        break;
+      }
+      case GREATER_EXPOSED: {
+        // This fragment (as well as all the following ones)
+        // are not in conflict with the other range
+        return;
+      }
+      default:
+        RUASSERT(FALSE);
+    }
+  }
 }
 
 //--------------------------------------------------------------------------//
@@ -299,43 +274,37 @@ void CRURange::PerformRangeAnalysis(const CRURange &otherRange)
 //
 //--------------------------------------------------------------------------//
 
-void CRURange::
-PerformRAIfMyBRIsSmallerExposed(const CRURange &otherRange,
-								ExposureType erExpType)
-{
-	switch (erExpType)
-	{
-		case SMALLER_EXPOSED:
-			{
-				// Case (1) - No overlap
+void CRURange::PerformRAIfMyBRIsSmallerExposed(const CRURange &otherRange, ExposureType erExpType) {
+  switch (erExpType) {
+    case SMALLER_EXPOSED: {
+      // Case (1) - No overlap
 
-				//         --------   other
-				// ------             my
+      //         --------   other
+      // ------             my
 
-				break;
-			}
-		case NOT_EXPOSED:
-			{
-				// Case (2)
+      break;
+    }
+    case NOT_EXPOSED: {
+      // Case (2)
 
-				//	   --------     other  ==>    --------
-				//   ------         my          --
-			
-				CutMyFragmentFromEnd(otherRange);
-				break;
-			}
-		case GREATER_EXPOSED:
-			{
-				// Case (3)
+      //	   --------     other  ==>    --------
+      //   ------         my          --
 
-				//    ---	  other ==>     ---
-				//	-------   my          --   --
+      CutMyFragmentFromEnd(otherRange);
+      break;
+    }
+    case GREATER_EXPOSED: {
+      // Case (3)
 
-				SplitMyFragment(otherRange);
-				break;
-			}
-		default:	RUASSERT(FALSE);
-	}
+      //    ---	  other ==>     ---
+      //	-------   my          --   --
+
+      SplitMyFragment(otherRange);
+      break;
+    }
+    default:
+      RUASSERT(FALSE);
+  }
 }
 
 //--------------------------------------------------------------------------//
@@ -357,39 +326,32 @@ PerformRAIfMyBRIsSmallerExposed(const CRURange &otherRange,
 //
 //--------------------------------------------------------------------------//
 
-void CRURange::
-PerformRAIfMyBRIsNotExposed(const CRURange &otherRange,
-							ExposureType erExpType)
-{
-	switch (erExpType)
-	{
-		case NOT_EXPOSED:
-			{
-				// Case (1)
+void CRURange::PerformRAIfMyBRIsNotExposed(const CRURange &otherRange, ExposureType erExpType) {
+  switch (erExpType) {
+    case NOT_EXPOSED: {
+      // Case (1)
 
-				//  -------------   other  ==> ------------- 
-				//       ----       my
-		
-				RemoveMyFragment();
-				break;
-			}
-		case GREATER_EXPOSED:
-			{
-				// Case (2)
+      //  -------------   other  ==> -------------
+      //       ----       my
 
-				//	------          other  ==> ------
-				//	    -----       my               ---
+      RemoveMyFragment();
+      break;
+    }
+    case GREATER_EXPOSED: {
+      // Case (2)
 
-				CutMyFragmentFromBegin(otherRange);
-				break;
-			}
+      //	------          other  ==> ------
+      //	    -----       my               ---
 
-		case SMALLER_EXPOSED:	// This cannot happen
-		default:	
-			{
-				RUASSERT(FALSE);
-			}
-	}
+      CutMyFragmentFromBegin(otherRange);
+      break;
+    }
+
+    case SMALLER_EXPOSED:  // This cannot happen
+    default: {
+      RUASSERT(FALSE);
+    }
+  }
 }
 
 //--------------------------------------------------------------------------//
@@ -402,12 +364,11 @@ PerformRAIfMyBRIsNotExposed(const CRURange &otherRange,
 //
 //--------------------------------------------------------------------------//
 
-void CRURange::CutMyFragmentFromBegin(const CRURange &otherRange)
-{
-	pMyFragment_->SetBRRecord(otherRange.GetERRecord());
+void CRURange::CutMyFragmentFromBegin(const CRURange &otherRange) {
+  pMyFragment_->SetBRRecord(otherRange.GetERRecord());
 
-	// My fragment will become open at the beginning
-	pMyFragment_->UnsetTypeBit(CRURangeFragment::IS_BR_INCLUDED);
+  // My fragment will become open at the beginning
+  pMyFragment_->UnsetTypeBit(CRURangeFragment::IS_BR_INCLUDED);
 }
 
 //--------------------------------------------------------------------------//
@@ -420,12 +381,11 @@ void CRURange::CutMyFragmentFromBegin(const CRURange &otherRange)
 //
 //--------------------------------------------------------------------------//
 
-void CRURange::CutMyFragmentFromEnd(const CRURange &otherRange)
-{
-	pMyFragment_->SetERRecord(otherRange.GetBRRecord());
+void CRURange::CutMyFragmentFromEnd(const CRURange &otherRange) {
+  pMyFragment_->SetERRecord(otherRange.GetBRRecord());
 
-	// My fragment will become open at the end
-	pMyFragment_->UnsetTypeBit(CRURangeFragment::IS_ER_INCLUDED);
+  // My fragment will become open at the end
+  pMyFragment_->UnsetTypeBit(CRURangeFragment::IS_ER_INCLUDED);
 }
 
 //--------------------------------------------------------------------------//
@@ -438,45 +398,40 @@ void CRURange::CutMyFragmentFromEnd(const CRURange &otherRange)
 //                        #1   #2
 //
 //	Following this change, a new fragment (fragment #2 in the picture)
-//	will be created an inserted into the fragment list. It will	become 
+//	will be created an inserted into the fragment list. It will	become
 //	my new current fragment. Fragment #1 will be my old current fragment,
 //	cut from the end.
 //
 //--------------------------------------------------------------------------//
 
-void CRURange::SplitMyFragment(const CRURange &otherRange)
-{
-	// Create fragment #2
-	CRURangeFragment *pNewFragment = new CRURangeFragment();
+void CRURange::SplitMyFragment(const CRURange &otherRange) {
+  // Create fragment #2
+  CRURangeFragment *pNewFragment = new CRURangeFragment();
 
-	pNewFragment->SetBRRecord(otherRange.GetERRecord());
-	pNewFragment->SetERRecord(pMyFragment_->GetERRecord());
-	// The new fragment is "born" closed from both ends.
-	// Set the end-range bit of fragment #2 to be the same
-	// as the end range of fragment #1 (open or closed).
-	if (0 == (pMyFragment_->GetType() & CRURangeFragment::IS_ER_INCLUDED))
-	{
-		pNewFragment->UnsetTypeBit(CRURangeFragment::IS_ER_INCLUDED);
-	}
+  pNewFragment->SetBRRecord(otherRange.GetERRecord());
+  pNewFragment->SetERRecord(pMyFragment_->GetERRecord());
+  // The new fragment is "born" closed from both ends.
+  // Set the end-range bit of fragment #2 to be the same
+  // as the end range of fragment #1 (open or closed).
+  if (0 == (pMyFragment_->GetType() & CRURangeFragment::IS_ER_INCLUDED)) {
+    pNewFragment->UnsetTypeBit(CRURangeFragment::IS_ER_INCLUDED);
+  }
 
-	pMyFragment_->SetERRecord(otherRange.GetBRRecord());
-	
-	//	Fragment #1 will become open at the end. 
-	pMyFragment_->UnsetTypeBit(CRURangeFragment::IS_ER_INCLUDED);
-	//	Fragment #2 will become open at the beginning.
-	pNewFragment->UnsetTypeBit(CRURangeFragment::IS_BR_INCLUDED);
+  pMyFragment_->SetERRecord(otherRange.GetBRRecord());
 
-	// Insert the fragment #2 into the list
-	if (NULL == myPos_)
-	{
-		fragmentList_.AddTail(pNewFragment);
-	}
-	else
-	{
-		fragmentList_.InsertBefore(myPos_, pNewFragment);
-		// Make a step back. The newly-created fragment will become current.
-		fragmentList_.GetPrev(myPos_);
-	}
+  //	Fragment #1 will become open at the end.
+  pMyFragment_->UnsetTypeBit(CRURangeFragment::IS_ER_INCLUDED);
+  //	Fragment #2 will become open at the beginning.
+  pNewFragment->UnsetTypeBit(CRURangeFragment::IS_BR_INCLUDED);
+
+  // Insert the fragment #2 into the list
+  if (NULL == myPos_) {
+    fragmentList_.AddTail(pNewFragment);
+  } else {
+    fragmentList_.InsertBefore(myPos_, pNewFragment);
+    // Make a step back. The newly-created fragment will become current.
+    fragmentList_.GetPrev(myPos_);
+  }
 }
 
 //--------------------------------------------------------------------------//
@@ -484,32 +439,28 @@ void CRURange::SplitMyFragment(const CRURange &otherRange)
 //
 //	Solve the following conflict:
 //
-//  -------------   other  ==> ------------- 
+//  -------------   other  ==> -------------
 //       ----       my
 //
 //--------------------------------------------------------------------------//
 
-void CRURange::RemoveMyFragment()
-{
-	if (NULL == myPos_)
-	{
-		// This is the last node in the list
-		fragmentList_.RemoveTail();
-	}
-	else
-	{
-		DSListPosition myPrevPos = myPos_;
+void CRURange::RemoveMyFragment() {
+  if (NULL == myPos_) {
+    // This is the last node in the list
+    fragmentList_.RemoveTail();
+  } else {
+    DSListPosition myPrevPos = myPos_;
 
-		// The scan has already skipped my node, make a single step back.
-		fragmentList_.GetPrev(myPrevPos);
-		fragmentList_.RemoveAt(myPrevPos);
-	}
+    // The scan has already skipped my node, make a single step back.
+    fragmentList_.GetPrev(myPrevPos);
+    fragmentList_.RemoveAt(myPrevPos);
+  }
 }
 
 //--------------------------------------------------------------------------//
 //	CRURange::GetExposureType()
 //
-//	Check where the record lies with regards to the younger range 
+//	Check where the record lies with regards to the younger range
 //	(and whether it is screened by it). There are three options:
 //
 //   <--- SMALLER_EXPOSED    <-- NOT_EXPOSED -->    GREATER_EXPOSED --->
@@ -518,42 +469,34 @@ void CRURange::RemoveMyFragment()
 //	Note that if the clustering key coincides with one of the range's
 //	boundaries, it is always NOT exposed.
 //
-//	In order to refrain from complex (and datatype-dependent) comparisons 
-//	between the data values, the algorithm exploits the fact that the delta 
-//	computation query sorts the data by the clustering key. Therefore, 
+//	In order to refrain from complex (and datatype-dependent) comparisons
+//	between the data values, the algorithm exploits the fact that the delta
+//	computation query sorts the data by the clustering key. Therefore,
 //	the comparisons are made between the *tags* that reflect the sorting order,
 //	rather than the actual values (this is also much faster).
-//	
+//
 //--------------------------------------------------------------------------//
 
-CRURange::ExposureType CRURange::GetExposureType(const CRUIUDLogRecord &rec, 
-												 const CRURange &otherRange)
-{
-	const CRUIUDLogRecord &otherBRRec = *(otherRange.GetBRRecord());
-	const CRUIUDLogRecord &otherERRec = *(otherRange.GetERRecord());
+CRURange::ExposureType CRURange::GetExposureType(const CRUIUDLogRecord &rec, const CRURange &otherRange) {
+  const CRUIUDLogRecord &otherBRRec = *(otherRange.GetBRRecord());
+  const CRUIUDLogRecord &otherERRec = *(otherRange.GetERRecord());
 
-	TInt64 ckTag = rec.GetCKTag();
-	TInt64 brCkTag = otherRange.GetBRRecord()->GetCKTag();
-	TInt64 erCkTag = otherRange.GetERRecord()->GetCKTag();
-	
-	RUASSERT(brCkTag <= erCkTag);
+  TInt64 ckTag = rec.GetCKTag();
+  TInt64 brCkTag = otherRange.GetBRRecord()->GetCKTag();
+  TInt64 erCkTag = otherRange.GetERRecord()->GetCKTag();
 
-	if (ckTag < brCkTag)
-	{
-		return SMALLER_EXPOSED;
-	}
-	else
-	{
-		if (ckTag > erCkTag)
-		{
-			return GREATER_EXPOSED;
-		}
-		else
-		{
-			//	brCkTag <= ckTag <= erCkTag
-			return NOT_EXPOSED;
-		}
-	}
+  RUASSERT(brCkTag <= erCkTag);
+
+  if (ckTag < brCkTag) {
+    return SMALLER_EXPOSED;
+  } else {
+    if (ckTag > erCkTag) {
+      return GREATER_EXPOSED;
+    } else {
+      //	brCkTag <= ckTag <= erCkTag
+      return NOT_EXPOSED;
+    }
+  }
 }
 
 // List classes' definition completions

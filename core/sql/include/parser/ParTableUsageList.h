@@ -37,7 +37,6 @@
  *****************************************************************************
  */
 
-
 #include "common/Collections.h"
 #include "common/ComASSERT.h"
 #include "common/ComOperators.h"
@@ -59,67 +58,63 @@ class ParTableUsageList;
 // -----------------------------------------------------------------------
 // Table Usage List
 // -----------------------------------------------------------------------
-class ParTableUsageList : private LIST(ExtendedQualName *)
-{
-public:
-
+class ParTableUsageList : private LIST(ExtendedQualName *) {
+ public:
   //
   // constructor
   //
 
   ParTableUsageList(CollHeap *heap = PARSERHEAP());
 
-        // heap specifies the heap to allocate space for objects
-        // pointed by the elements in this list.
-  
+  // heap specifies the heap to allocate space for objects
+  // pointed by the elements in this list.
+
   //
   // virtual destructor
   //
-  
+
   virtual ~ParTableUsageList();
 
   //
   // operators
   //
-  
-  inline const ExtendedQualName & operator[](CollIndex index) const;
-  inline       ExtendedQualName & operator[](CollIndex index);
-  
+
+  inline const ExtendedQualName &operator[](CollIndex index) const;
+  inline ExtendedQualName &operator[](CollIndex index);
+
   //
   // accessors
   //
-  
+
   inline CollIndex entries() const;
 
   inline const ExtendedQualName *const find(const ExtendedQualName &tableName) const;
-               ExtendedQualName *const find(const ExtendedQualName &tableName);
+  ExtendedQualName *const find(const ExtendedQualName &tableName);
 
   //
   // mutator
   //
-  
+
   NABoolean insert(const ExtendedQualName &usedTableName);
 
-        // inserts usedTableName to the list and returns TRUE if
-        // usedTableName is not in the list; otherwise, returns
-        // FALSE.
+  // inserts usedTableName to the list and returns TRUE if
+  // usedTableName is not in the list; otherwise, returns
+  // FALSE.
 
-private:
-
+ private:
   //
   // private methods
   //
 
-  ParTableUsageList(const ParTableUsageList &);              // DO NOT USE
-  ParTableUsageList & operator=(const ParTableUsageList &);  // DO NOT USE
+  ParTableUsageList(const ParTableUsageList &);             // DO NOT USE
+  ParTableUsageList &operator=(const ParTableUsageList &);  // DO NOT USE
 
   //
   // heap to allocate space for objects pointed by elements in the list.
   //
-  CollHeap * heap_;
+  CollHeap *heap_;
 
-}; // class ParTableUsageList
-
+};  // class ParTableUsageList
 
 // -----------------------------------------------------------------------
 // definitions of inline methods for class ParTableUsageList
@@ -129,15 +124,11 @@ private:
 // operators
 //
 
-inline const ExtendedQualName &
-ParTableUsageList::operator[](CollIndex index) const
-{
+inline const ExtendedQualName &ParTableUsageList::operator[](CollIndex index) const {
   return *(LIST(ExtendedQualName *)::operator[](index));
 }
 
-inline ExtendedQualName &
-ParTableUsageList::operator[](CollIndex index)
-{
+inline ExtendedQualName &ParTableUsageList::operator[](CollIndex index) {
   return *(LIST(ExtendedQualName *)::operator[](index));
 }
 
@@ -145,16 +136,10 @@ ParTableUsageList::operator[](CollIndex index)
 // accessors
 //
 
-inline CollIndex
-ParTableUsageList::entries() const
-{
-  return LIST(ExtendedQualName *)::entries();
-}
+inline CollIndex ParTableUsageList::entries() const { return LIST(ExtendedQualName *)::entries(); }
 
-inline const ExtendedQualName * const
-ParTableUsageList::find(const ExtendedQualName &tableName) const
-{
+inline const ExtendedQualName *const ParTableUsageList::find(const ExtendedQualName &tableName) const {
   return ((ParTableUsageList *)this)->find(tableName);
 }
 
-#endif // PARTABLEUSAGELIST_H
+#endif  // PARTABLEUSAGELIST_H

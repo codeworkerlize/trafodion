@@ -28,8 +28,8 @@
  * File:         StmtDDLCreateTriggerArray.h
  * Description:  class for an array of pointers pointing to instances of
  *               class StmtDDLCreateTrigger
- *               
- *               
+ *
+ *
  * Created:      3/24/99
  * Language:     C++
  *
@@ -39,10 +39,9 @@
  *****************************************************************************
  */
 
-
 #include "common/Collections.h"
-#ifndef   SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
-#define   SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
+#ifndef SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
+#define SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
 #endif
 #include "parser/SqlParserGlobals.h"
 #include "parser/StmtDDLCreateTrigger.h"
@@ -60,23 +59,15 @@ class StmtDDLCreateTriggerArray;
 // -----------------------------------------------------------------------
 // Definition of class StmtDDLCreateViewArray
 // -----------------------------------------------------------------------
-class StmtDDLCreateTriggerArray : public LIST(StmtDDLCreateTrigger *)
-{
-
-public:
-
+class StmtDDLCreateTriggerArray : public LIST(StmtDDLCreateTrigger *) {
+ public:
   // constructor
-  StmtDDLCreateTriggerArray(CollHeap *heap = PARSERHEAP())
-   : LIST(StmtDDLCreateTrigger *)(heap)
-  { }
+  StmtDDLCreateTriggerArray(CollHeap *heap = PARSERHEAP()) : LIST(StmtDDLCreateTrigger *)(heap) {}
 
   // virtual destructor
   virtual ~StmtDDLCreateTriggerArray();
 
-private:
+ private:
+};  // class StmtDDLCreateTriggerArray
 
-}; // class StmtDDLCreateTriggerArray
- 
-
-#endif // STMTDDLCREATETRIGGERARRAY_H
-
+#endif  // STMTDDLCREATETRIGGERARRAY_H

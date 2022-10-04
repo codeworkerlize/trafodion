@@ -28,10 +28,10 @@
 *
 * File:         Const.h
 * RCS:          $Id: SConst.h,v 1.2 1997/04/23 00:29:08  Exp $
-*                                
-* Description:  This file contains the constant declarations common to all 
-*               classes related to ArkSort.  
-*                   
+*
+* Description:  This file contains the constant declarations common to all
+*               classes related to ArkSort.
+*
 * Created:	05/20/96
 * Modified:     $ $Date: 1997/04/23 00:29:08 $ (GMT)
 * Language:     C++
@@ -43,7 +43,7 @@
 
 // -----------------------------------------------------------------------
 // Change history:
-// 
+//
 // $Log: SConst.h,v $
 // Revision 1.2  1997/04/23 00:29:08
 // Merge of MDAM/Costing changes into SDK thread
@@ -58,16 +58,16 @@
 // Revision 1.1.1.2  1997/04/02 06:25:23
 // This is the latest from SourceSafe.
 //
-// 
+//
 // 7     3/31/97 3:29p
 // performance code merge
-// 
+//
 // 6     1/22/97 11:02p
 // Merged UNIX and NT versions.
-// 
+//
 // 4     1/15/97 3:06a
 // Put UNIX file on top.
-// 
+//
 // 2     1/13/97 12:42p
 // milestone 4 snap
 // Revision 1.3  1996/12/11 22:53:26
@@ -95,35 +95,26 @@ const Int32 SORT_SUCCESS = 0;
 const Int32 SORT_FAILURE = 1;
 
 const short REPL_SELECT = 1;
-const short QUICKSORT   = 2;
-const short ITER_QUICKSORT =3;
-const Int32 SCRATCH_BLOCK_SIZE = 56*1024;
+const short QUICKSORT = 2;
+const short ITER_QUICKSORT = 3;
+const Int32 SCRATCH_BLOCK_SIZE = 56 * 1024;
 const Int32 MAXSCRFILES = 128;
 const Int32 FILENAMELEN = 48;
-const Int32 MAXRUNS     = 512;
-const Int32 OVERHEAD    = 20;    // The overhead for Scratch Buffer header struct
+const Int32 MAXRUNS = 512;
+const Int32 OVERHEAD = 20;  // The overhead for Scratch Buffer header struct
 
-const short INITIAL_PHASE            = 0;
-const short RUN_GENERATION_PHASE     = 1;
+const short INITIAL_PHASE = 0;
+const short RUN_GENERATION_PHASE = 1;
 const short INTERMEDIATE_MERGE_PHASE = 2;
-const short FINAL_MERGE_PHASE        = 3;
-const short EVERYTHING_DONE_PHASE    = 4;
+const short FINAL_MERGE_PHASE = 3;
+const short EVERYTHING_DONE_PHASE = 4;
 
-const short KEYS_ARE_EQUAL  = 0;
+const short KEYS_ARE_EQUAL = 0;
 const short KEY1_IS_SMALLER = -1;
 const short KEY1_IS_GREATER = 1;
 
-typedef Lng32  SBN;
-const Int32 TRUE_L  = 1;
+typedef Lng32 SBN;
+const Int32 TRUE_L = 1;
 const Int32 FALSE_L = 0;
 
 #endif
-
-
-
-
-
-
-
-
-

@@ -42,12 +42,11 @@
  *****************************************************************************
  */
 
-
 #include "StmtDDLAlterTable.h"
 
- // -----------------------------------------------------------------------
- // contents of this file
- // -----------------------------------------------------------------------
+// -----------------------------------------------------------------------
+// contents of this file
+// -----------------------------------------------------------------------
 class StmtDDLAlterTableMountPartition;
 
 // -----------------------------------------------------------------------
@@ -58,41 +57,35 @@ class StmtDDLAlterTableMountPartition;
 // -----------------------------------------------------------------------
 // definition of class StmtDDLAlterTableMountPartition
 // -----------------------------------------------------------------------
-class StmtDDLAlterTableMountPartition : public StmtDDLAlterTable
-{
-
-public:
-
+class StmtDDLAlterTableMountPartition : public StmtDDLAlterTable {
+ public:
   // constructor
-  StmtDDLAlterTableMountPartition(ElemDDLPartitionV2* tgtPartition, NAString s, NABoolean v);
-
+  StmtDDLAlterTableMountPartition(ElemDDLPartitionV2 *tgtPartition, NAString s, NABoolean v);
 
   // virtual destructor
   virtual ~StmtDDLAlterTableMountPartition();
 
   // cast
-  virtual StmtDDLAlterTableMountPartition* castToStmtDDLAlterTableMountPartition();
+  virtual StmtDDLAlterTableMountPartition *castToStmtDDLAlterTableMountPartition();
 
   // accessor
-  inline ElemDDLNode* getPartitionAction() const;
+  inline ElemDDLNode *getPartitionAction() const;
 
   // method for tracing
   virtual const NAString getText() const;
 
-  ElemDDLPartitionV2* getTargetPartition() { return targetPartition_; }
+  ElemDDLPartitionV2 *getTargetPartition() { return targetPartition_; }
   NAString getTargetPartitionName() { return targetPartitionName_; }
 
   NABoolean getValidation() { return validation_; }
 
   void setValidation(NABoolean v) { validation_ = v; }
 
-private:
-  ElemDDLPartitionV2* targetPartition_;
+ private:
+  ElemDDLPartitionV2 *targetPartition_;
   NABoolean validation_;
-  NAString      targetPartitionName_;
+  NAString targetPartitionName_;
 
-}; // class StmtDDLAlterTableMountPartition
+};  // class StmtDDLAlterTableMountPartition
 
-
-
-#endif // STMTDDLALTERTABLEMOUNTPARTITION_H
+#endif  // STMTDDLALTERTABLEMOUNTPARTITION_H

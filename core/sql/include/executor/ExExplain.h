@@ -23,14 +23,13 @@
 #ifndef EX_EXPLAIN_H
 #define EX_EXPLAIN_H
 
-
 /* -*-C++-*-
 ******************************************************************************
 *
 * File:         ExExplain.h
 * Description:  Class declarations for ExExplainTcb
-*               
-*               
+*
+*
 * Created:      4/26/96
 * Language:     C++
 *
@@ -49,7 +48,7 @@ class ExplainTuple;
 // Task Definition Block for Explain Function:
 //
 // Notable contents:
-// 
+//
 // -  scanPred_ a scan predicate to be applied to each tuple in the
 //    explain tree.
 //
@@ -70,27 +69,23 @@ class ex_tcb;
 // -----------------------------------------------------------------------
 // ExExplainTdb
 // -----------------------------------------------------------------------
-class ExExplainTdb : public ComTdbExplain
-{
-public:
-
+class ExExplainTdb : public ComTdbExplain {
+ public:
   // ---------------------------------------------------------------------
   // Constructor is only called to instantiate an object used for
   // retrieval of the virtual table function pointer of the class while
   // unpacking. An empty constructor is enough.
   // ---------------------------------------------------------------------
-  ExExplainTdb()
-  {}
+  ExExplainTdb() {}
 
-  virtual ~ExExplainTdb()
-  {}
+  virtual ~ExExplainTdb() {}
 
   // ---------------------------------------------------------------------
   // Build a TCB for this TDB. Redefined in the Executor project.
   // ---------------------------------------------------------------------
   virtual ex_tcb *build(ex_globals *globals);
 
-private:
+ private:
   // ---------------------------------------------------------------------
   // !!!!!!! IMPORTANT -- NO DATA MEMBERS ALLOWED IN EXECUTOR TDB !!!!!!!!
   // *********************************************************************
@@ -110,7 +105,7 @@ private:
   // 1. Are those data members Compiler-generated?
   //    If yes, put them in the ComTdbExplain instead.
   //    If no, they should probably belong to someplace else (like TCB).
-  // 
+  //
   // 2. Are the classes those data members belong defined in the executor
   //    project?
   //    If your answer to both questions is yes, you might need to move
@@ -118,79 +113,72 @@ private:
   // ---------------------------------------------------------------------
 };
 
-
 //
 // Task control block from Explain Function
 //
 // Notable contents:
 //
 
-class ReposTextChunksInfo
-{
+class ReposTextChunksInfo {
  public:
-  void init()
-  {
+  void init() {
     numChunks_ = 0;
     totalLen_ = 0;
   }
 
   Int32 numChunks_;
-  Int32 totalLen_; // total length of all chunks
+  Int32 totalLen_;  // total length of all chunks
 };
 
 // this structure is stored in repository and preceeds the actual explain data.
 // It contains details about explain storage and chunks info, if explain plan
 // was chunked into multiple rows and stored in metric_text_table.
-class ExplainReposInfo
-{
+class ExplainReposInfo {
  public:
-  void init()
-    {
-      filler_ = 0;
-      rtci_.init();
-    }
+  void init() {
+    filler_ = 0;
+    rtci_.init();
+  }
 
   Int64 filler_;
   ReposTextChunksInfo rtci_;
 };
 
-class ExExplainTcb : public ex_tcb
-{
-public:
-
+class ExExplainTcb : public ex_tcb {
+ public:
   // The return code for the traversal method (see traverseTree() below)
   // This enum has to be public, in order for the c89 compiler to be
   // able to compile ex_explain.C
   enum traverseReturnCode {
-    EXPL_TRAV_DONE,		// traverseTree() returned because the
-				// traversal was completed.
-    
-    EXPL_TRAV_QUEUEFULL,	// traverseTree() returned because its
-				// parent up queue was full and it could
-				// not proceed at this time.  When called
-				// again it will pick up where it left off.
-    EXPL_TRAV_NOBUFFERS,	// traverseTree() returned because it
-				// could not get a buffer and it could
-				// not proceed at this time.  When called
-				// again it will pick up where it left off.
+    EXPL_TRAV_DONE,  // traverseTree() returned because the
+                     // traversal was completed.
+
+    EXPL_TRAV_QUEUEFULL,  // traverseTree() returned because its
+                          // parent up queue was full and it could
+                          // not proceed at this time.  When called
+                          // again it will pick up where it left off.
+    EXPL_TRAV_NOBUFFERS,  // traverseTree() returned because it
+                          // could not get a buffer and it could
+                          // not proceed at this time.  When called
+                          // again it will pick up where it left off.
     EXPL_TRAV_ERROR
-    };
+  };
 
   // Constructor called during build phase (ExExplainTdb::build()).
-  ExExplainTcb(const ExExplainTdb & explainTdb, ex_globals *glob);
-        
+  ExExplainTcb(const ExExplainTdb &explainTdb, ex_globals *glob);
+
   // Default destructor
-  ~ExExplainTcb();  
+  ~ExExplainTcb();
 
   // Free resources (Don't know exactly what this should do)
-  void  freeResources();
+  void freeResources();
 
   // The work procedure for ExExplainTcb.
   // For details see ex_explain.C
   short work();
 
   // The queue pair used to communicate with the parent TCB
-  ex_queue_pair  getParentQueue() const;
+  ex_queue_pair getParentQueue() const;
 
   // A virtual function used by the GUI.  Will always return 0 for
   // ExExplainTcb
@@ -203,11 +191,8 @@ public:
   // The paramsTuple will contain the values of the parameters
   // to the explain function (module name and statement pattern)
   // The paramsTuple will be populated by evaluating the paramsExpr
-  void initParamsTuple(Int32 tupleLength,
-		       ex_cri_desc *criDescParams,
-		       Lng32 lengthModName,
-		       Lng32 lengthStmtPattern);
-  
+  void initParamsTuple(Int32 tupleLength, ex_cri_desc *criDescParams, Lng32 lengthModName, Lng32 lengthStmtPattern);
+
   void setQid(char *qid, Lng32 len);
   void setReposQid(char *reposQid, Lng32 len);
 
@@ -218,22 +203,13 @@ public:
 
   RtsExplainFrag *sendToSsmp();
 
-  static short getExplainData(
-                              ex_root_tdb * rootTdb,
-                              char * explain_ptr,
-                              Int32 explain_buf_len,
-                              Int32 * ret_explain_len,
-                              ComDiagsArea *diagsArea,
-                              CollHeap * heap);
+  static short getExplainData(ex_root_tdb *rootTdb, char *explain_ptr, Int32 explain_buf_len, Int32 *ret_explain_len,
+                              ComDiagsArea *diagsArea, CollHeap *heap);
 
-  static short storeExplainInRepos(
-                                   CliGlobals * cliGlobals,
-                                   Int64 * execStartUtcTs,
-                                   char * qid, Lng32 qidLen,
-                                   char * explainData, Lng32 explainDataLen);
-  
-private:
+  static short storeExplainInRepos(CliGlobals *cliGlobals, Int64 *execStartUtcTs, char *qid, Lng32 qidLen,
+                                   char *explainData, Lng32 explainDataLen);
 
+ private:
   // A reference to the cooresponding TDB (ExExplainTdb)
   inline ExExplainTdb &explainTdb() const;
 
@@ -249,17 +225,17 @@ private:
   // Explain function.
   inline ex_expr *getParamsExpr() const;
 
-  // Method used to copy the parameters from the paramsTuple to 
+  // Method used to copy the parameters from the paramsTuple to
   // the buffers (modName_ and stmtPattern_ see below).  These buffers
   // are allocated by the method initParamsTuple().
   void copyParameters();
 
-  // Boolean used to determine if the value of the module name 
+  // Boolean used to determine if the value of the module name
   // parameter stored in the paramsTuple is NULL.  Will return 1 if
   // the value is NULL 0 otherwise.
   short isNullModName();
 
-  // Boolean used to determine if the value of the statement pattern 
+  // Boolean used to determine if the value of the statement pattern
   // parameter stored in the paramsTuple is NULL.  Will return 1 if
   // the value is NULL 0 otherwise.
   short isNullStmtPattern();
@@ -273,7 +249,7 @@ private:
   ExplainDesc *getNextExplainTree();
 
   // explain data is at explainFragAddr. Unpack it and return
-  ExplainDesc * getNextExplainTree(Int64 explainFragAddr);
+  ExplainDesc *getNextExplainTree(Int64 explainFragAddr);
 
   // Method used to  traverse the Explain tree.  Enough state must be kept
   // in the TCB so that if necessary the routine can return and later be
@@ -297,16 +273,16 @@ private:
   // master executor.
 
   Int32 loadModule();
-  
+
   short processExplainStmt();
   short processExplainPlan();
 
-  short getExplainFromRepos(char * qid, Lng32 qidLen);
+  short getExplainFromRepos(char *qid, Lng32 qidLen);
 
   // private state
 
   // Queues used to communicate with the parent TCB.
-  ex_queue_pair  qParent_;
+  ex_queue_pair qParent_;
 
   // The Params Atp (and other supporting stuctures):
   //  The last entry in the Params Atp will point to paramsTupp_.
@@ -316,14 +292,14 @@ private:
   //  the result of applying the paramsExpr_.
   //  This is all set up by the method initParamsTuple();
 
-  atp_struct * paramsAtp_;
+  atp_struct *paramsAtp_;
   tupp paramsTupp_;
   tupp_descriptor paramsTuppDesc_;
   char *paramsTuple_;
 
   // Pointer to buffer used to hold the module name parameter.
   // The buffer is allocated by inintParamsTuple().
-  // The value of the parameter is copied to this buffer from the 
+  // The value of the parameter is copied to this buffer from the
   // paramsTuple_ by the method copyParameters().
   char *modName_;
 
@@ -334,7 +310,7 @@ private:
 
   // Pointer to buffer used to hold the statement pattern parameter.
   // The buffer is allocated by inintParamsTuple().
-  // The value of the parameter is copied to this buffer from the 
+  // The value of the parameter is copied to this buffer from the
   // paramsTuple_ by the method copyParameters().
   char *stmtPattern_;
 
@@ -382,7 +358,7 @@ private:
     EXPL_ERROR,
     EXPL_DONE,
     EXPL_SEND_TO_SSMP,
-    };
+  };
 
   // The current state of the work procedure.
   explain_work_state workState_;
@@ -391,42 +367,28 @@ private:
   char *qid_;
 
   // query id of explain information that will be read from repository.
-  char * reposQid_;
+  char *reposQid_;
 
   Int64 explainAddr_;
   NABoolean explainFromAddrProcessed_;
 
-  char * explainStmt_;
-  char * explainPlan_;
+  char *explainStmt_;
+  char *explainPlan_;
   Lng32 explainPlanLen_;
-  char * explainFrag_;
+  char *explainFrag_;
   Lng32 explainFragLen_;
-  
-  ComDiagsArea * diagsArea_;
+
+  ComDiagsArea *diagsArea_;
   Lng32 retryAttempts_;
   char *stmtName_;
 };
 
 //  Inline procedures
 
-inline ExExplainTdb &
-ExExplainTcb::explainTdb() const
-{
-  return (ExExplainTdb &) tdb;
-};
+inline ExExplainTdb &ExExplainTcb::explainTdb() const { return (ExExplainTdb &)tdb; };
 
-inline ex_expr *
-ExExplainTcb::getScanPred() const
-{
-  return explainTdb().getScanPred();
-};
+inline ex_expr *ExExplainTcb::getScanPred() const { return explainTdb().getScanPred(); };
 
-inline ex_expr *
-ExExplainTcb::getParamsExpr() const
-{
-  return explainTdb().getParamsExpr();
-};
+inline ex_expr *ExExplainTcb::getParamsExpr() const { return explainTdb().getParamsExpr(); };
 
 #endif
-
-

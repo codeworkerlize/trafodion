@@ -34,13 +34,11 @@
 // * The class also uses non-static data members to act as a container
 // * for a single trace event
 //
-class ExSMEvent
-{
+class ExSMEvent {
   ExSMEvent() {}
   virtual ~ExSMEvent() {}
 
-public:
-
+ public:
   // Data members for a single trace event
   struct timespec ts_;
   char fn_[5];
@@ -64,10 +62,9 @@ public:
   static const char *Exit;
 
   // Function to add an event to the trace
-  static ExSMEvent *add(const char *fn, const sm_target_t *target = NULL,
-                        int64_t i1 = 0, int64_t i2 = 0,
+  static ExSMEvent *add(const char *fn, const sm_target_t *target = NULL, int64_t i1 = 0, int64_t i2 = 0,
                         int64_t i3 = 0, int64_t i4 = 0, int64_t i5 = 0);
-  
+
   // Functions to be called in each thread to initialize in-memory
   // trace structures for that thread
   static void initMainThread();
@@ -83,7 +80,6 @@ public:
   void setOptional3(int64_t i) { optional_[2] = i; }
   void setOptional4(int64_t i) { optional_[3] = i; }
   void setOptional5(int64_t i) { optional_[4] = i; }
-
 };
 
 #endif

@@ -28,11 +28,11 @@
 *
 * File:         RunDirectory.h
 * RCS:          $Id: RunDirectory.h,v 1.2.16.2 1998/07/08 21:47:16  Exp $
-*                               
+*
 * Description:  This class is used to store a directory of runs generated
-*               during run generation phase. This directory is used 
+*               during run generation phase. This directory is used
 *               for reading the runs during Merge phase.
-* 
+*
 * Created:	05/20/96
 * Modified:     $ $Date: 1998/07/08 21:47:16 $ (GMT)
 * Language:     C++
@@ -44,7 +44,7 @@
 
 // -----------------------------------------------------------------------
 // Change history:
-// 
+//
 // $Log: RunDirectory.h,v $
 // Revision 1.2.16.2  1998/07/08 21:47:16
 // Merge of FCS0612 into NSKPORT_971208
@@ -71,7 +71,7 @@
 // Revision 1.1.1.1  1997/03/28 01:38:52
 // These are the source files from SourceSafe.
 //
-// 
+//
 // 7     3/06/97 4:54p Sql.lushung
 // A fix for the memory delete problem is make in this version of sort.
 // Revision 1.3  1997/01/14 03:22:17
@@ -95,47 +95,44 @@
 #include "export/NABasicObject.h"
 #include "SortError.h"
 
-struct RunDirectoryEntry; 
+struct RunDirectoryEntry;
 
 class RunDirectory : public NABasicObject {
+ public:
+  RunDirectory(short maxRuns, CollHeap *heap, SortError *sorterror);
+  ~RunDirectory();
 
-  public :
-    
-    RunDirectory(short maxRuns, CollHeap* heap, SortError* sorterror);
-    ~RunDirectory();
-    
-    Lng32 startNewRun(SBN);
-    Lng32 getTotalNumOfRuns(void);
-    void endCurrentRun(void); 
-    void sortRunDirectoryEntries(void);
-    SBN mapRunNumberToFirstSBN(Lng32 runNumber);  
-    
-  private :
-  
-    Lng32  numRunsGenerated_;            
-    Lng32  numRunsRemaining_;
-    Lng32  currentMaxRuns_;
-    Lng32  mergeOrder_;                  // Number of runs being merged.
-    
-    RunDirectoryEntry *rdListPtr_;      // Pointer to an array of <n>
-                                        // Run directory entries where
-                                        // n is the same as currentMaxRuns_   
-    SortError *sortError_;
-    CollHeap *heap_;    
+  Lng32 startNewRun(SBN);
+  Lng32 getTotalNumOfRuns(void);
+  void endCurrentRun(void);
+  void sortRunDirectoryEntries(void);
+  SBN mapRunNumberToFirstSBN(Lng32 runNumber);
+
+ private:
+  Lng32 numRunsGenerated_;
+  Lng32 numRunsRemaining_;
+  Lng32 currentMaxRuns_;
+  Lng32 mergeOrder_;  // Number of runs being merged.
+
+  RunDirectoryEntry *rdListPtr_;  // Pointer to an array of <n>
+                                  // Run directory entries where
+                                  // n is the same as currentMaxRuns_
+  SortError *sortError_;
+  CollHeap *heap_;
 };
 
 //----------------------------------------------------------------------
-// This structure is used to store information about each individual 
+// This structure is used to store information about each individual
 // run.
 //----------------------------------------------------------------------
-struct RunDirectoryEntry : public NABasicObject {    
-    Lng32 runNum_;
-    SBN  firstBlock_;
-    Lng32 numBlocks_;
-    Lng32 numRecs_;
-    short startTime_[3];
-    short endTime_[3];
-    SortError* sorterror_;
+struct RunDirectoryEntry : public NABasicObject {
+  Lng32 runNum_;
+  SBN firstBlock_;
+  Lng32 numBlocks_;
+  Lng32 numRecs_;
+  short startTime_[3];
+  short endTime_[3];
+  SortError *sorterror_;
 };
 
 #endif

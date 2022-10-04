@@ -31,7 +31,8 @@
 
 //
 // Basic log file format:
-//   MM/DD/YYYY-HH:MM:SS.MMM.UUU: <msg_prefix> (name=<name>/pid=<pid>/tid=<tid>) (cmp=<component>/ev=<eventid>/fac=<facility>/sev=<severity>: msg
+//   MM/DD/YYYY-HH:MM:SS.MMM.UUU: <msg_prefix> (name=<name>/pid=<pid>/tid=<tid>)
+//   (cmp=<component>/ev=<eventid>/fac=<facility>/sev=<severity>: msg
 //
 
 //
@@ -45,15 +46,15 @@
 // SBX_LOG_TYPE_SNMPTRAP       - log via snmptrap
 //
 enum {
-    SBX_LOG_TYPE_STDERR          = 0x0001,
-    SBX_LOG_TYPE_STDERR_PSTACK   = 0x0002,
-    SBX_LOG_TYPE_STDOUT          = 0x0004,
-    SBX_LOG_TYPE_STDOUT_PSTACK   = 0x0008,
-    SBX_LOG_TYPE_LOGFILE         = 0x0010,
-    SBX_LOG_TYPE_LOGFILE_PERSIST = 0x0020,
-    SBX_LOG_TYPE_LOGFILE_PSTACK  = 0x0040,
-    SBX_LOG_TYPE_SYSLOG          = 0x0080,
-    SBX_LOG_TYPE_SNMPTRAP        = 0x0100
+  SBX_LOG_TYPE_STDERR = 0x0001,
+  SBX_LOG_TYPE_STDERR_PSTACK = 0x0002,
+  SBX_LOG_TYPE_STDOUT = 0x0004,
+  SBX_LOG_TYPE_STDOUT_PSTACK = 0x0008,
+  SBX_LOG_TYPE_LOGFILE = 0x0010,
+  SBX_LOG_TYPE_LOGFILE_PERSIST = 0x0020,
+  SBX_LOG_TYPE_LOGFILE_PSTACK = 0x0040,
+  SBX_LOG_TYPE_SYSLOG = 0x0080,
+  SBX_LOG_TYPE_SNMPTRAP = 0x0100
 };
 
 //
@@ -79,19 +80,9 @@ enum {
 //   msg_ret         - returned log message
 //   msg_ret_size    - returned log message size
 //
-void SBX_log_write(int                     log_type,
-                   const char             *log_file_dir,
-                   const char             *log_file_prefix,
-                   int                     comp_id,
-                   int                     event_id,
-                   posix_sqlog_facility_t  facility,
-                   posix_sqlog_severity_t  severity,
-                   const char             *name,
-                   const char             *msg_prefix,
-                   const char             *msg,
-                   const char             *snmptrap_cmd,
-                   const char             *msg_snmptrap,
-                   char                   *msg_ret,
-                   size_t                  msg_ret_size);
+void SBX_log_write(int log_type, const char *log_file_dir, const char *log_file_prefix, int comp_id, int event_id,
+                   posix_sqlog_facility_t facility, posix_sqlog_severity_t severity, const char *name,
+                   const char *msg_prefix, const char *msg, const char *snmptrap_cmd, const char *msg_snmptrap,
+                   char *msg_ret, size_t msg_ret_size);
 
-#endif // !__SBX_LOGALT_H_
+#endif  // !__SBX_LOGALT_H_

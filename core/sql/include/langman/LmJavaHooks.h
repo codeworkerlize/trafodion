@@ -37,15 +37,14 @@
 */
 
 #include "common/Platform.h"
-  #include "lmjni.h"
+#include "lmjni.h"
 #include <stdarg.h>
 #include <stdio.h>
 
 #define LMJ_HOOK_TEXT_BUF_SIZE 2048
 
-class LmJavaHooks
-{
-public:
+class LmJavaHooks {
+ public:
   // These are the callback functions that the JVM will call
   static void JNICALL abortHookJVM();
   static void JNICALL exitHookJVM(jint);
@@ -59,7 +58,7 @@ public:
   static void init_vfprintfHook();
   static const char *get_vfprintfText() { return textBuf_; }
 
-private:
+ private:
   // We are storing JVM console messages in a global text
   // buffer. Sometimes after an MXUDR crash it is useful to load the
   // saveabend file into a debugger and display the contents of this
@@ -67,7 +66,6 @@ private:
   // discover some error information reported by the JVM that did not
   // get packaged into SQL diagnostics for the calling application.
   static char textBuf_[LMJ_HOOK_TEXT_BUF_SIZE];
-
 };
 
-#endif // LMJAVAHOOKS_H
+#endif  // LMJAVAHOOKS_H

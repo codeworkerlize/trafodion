@@ -32,17 +32,12 @@ class SMConnection;
 class NAMemory;
 class ex_tcb;
 
-class ExSMTask
-{
-public:
-  ExSMTask(const sm_target_t &receiver,
-           uint32_t queueSize,
-           int32_t *scheduledAddr,
-           NAMemory *heap,
-           ex_tcb *tcb,
+class ExSMTask {
+ public:
+  ExSMTask(const sm_target_t &receiver, uint32_t queueSize, int32_t *scheduledAddr, NAMemory *heap, ex_tcb *tcb,
            SMConnection *smConnection);
-  
-  ExSMTask(); // Do not implement
+
+  ExSMTask();  // Do not implement
 
   virtual ~ExSMTask();
 
@@ -85,7 +80,7 @@ public:
   void sendChunk_SetAckArrived(bool b);
   bool sendChunk_GetAckArrived() const { return sendChunk_ackArrived_; }
 
-protected:
+ protected:
   ExSMQueue *inQueue_;
   ExSMQueue *outQueue_;
   sm_target_t receiver_;
@@ -117,7 +112,7 @@ protected:
   // The following data members are for control flow when a message is
   // larger than the expected size. The control flow protocol is
   // explained in comments above, with the control flow methods.
-  // 
+  //
   // Data members for receiving a large buffer
   void *recvChunk_buffer_;         // Points to an IpcMessageBuffer
   uint32_t recvChunk_msgSize_;     // Size of the complete message
@@ -125,8 +120,8 @@ protected:
   uint32_t recvChunk_bytesSoFar_;  // Bytes seen so far
 
   // Data members for sending a large buffer
-  bool sendChunk_ackArrived_;        // Did an ack arrive?
+  bool sendChunk_ackArrived_;  // Did an ack arrive?
 
-}; // class ExSMTask
+};  // class ExSMTask
 
-#endif // EXSM_TASK_H
+#endif  // EXSM_TASK_H

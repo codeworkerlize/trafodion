@@ -29,13 +29,12 @@
  * Description:  class for parse node representing the enforced or
  *               not enforced constraint attribute specified in
  *               constraint definitions
- *               
+ *
  * Created:      04/15/08
  * Language:     C++
  *
  *
  */
-
 
 #include "ElemDDLConstraintAttr.h"
 
@@ -52,23 +51,17 @@ class ElemDDLConstraintAttrEnforced;
 // -----------------------------------------------------------------------
 // definition of class ElemDDLConstraintAttrEnforced
 // -----------------------------------------------------------------------
-class ElemDDLConstraintAttrEnforced : public ElemDDLConstraintAttr
-{
-
-public:
-
+class ElemDDLConstraintAttrEnforced : public ElemDDLConstraintAttr {
+ public:
   // default constructor
   ElemDDLConstraintAttrEnforced(NABoolean isEnforced = TRUE)
-  : ElemDDLConstraintAttr(ELM_CONSTRAINT_ATTR_ENFORCED_ELEM),
-  isEnforced_(isEnforced)
-  { }
+      : ElemDDLConstraintAttr(ELM_CONSTRAINT_ATTR_ENFORCED_ELEM), isEnforced_(isEnforced) {}
 
   // virtual destructor
   virtual ~ElemDDLConstraintAttrEnforced();
 
   // cast
-  virtual ElemDDLConstraintAttrEnforced *
-                castToElemDDLConstraintAttrEnforced();
+  virtual ElemDDLConstraintAttrEnforced *castToElemDDLConstraintAttrEnforced();
 
   // accessor
   inline NABoolean isEnforced() const;
@@ -77,21 +70,15 @@ public:
   virtual const NAString displayLabel1() const;
   virtual const NAString getText() const;
 
-
-private:
-
+ private:
   NABoolean isEnforced_;
 
-}; // class ElemDDLConstraintAttrEnforced
+};  // class ElemDDLConstraintAttrEnforced
 
 //
 // accessor
 //
 
-inline NABoolean
-ElemDDLConstraintAttrEnforced::isEnforced() const
-{
-  return isEnforced_;
-}
+inline NABoolean ElemDDLConstraintAttrEnforced::isEnforced() const { return isEnforced_; }
 
-#endif // ELEMDDLCONSTRAINTATTRENFORCED_H
+#endif  // ELEMDDLCONSTRAINTATTRENFORCED_H

@@ -43,17 +43,11 @@ class ExMasterStmtGlobals;
 // Classes defined in this file
 class SMConnection;
 
-class SMConnection : public IpcConnection
-{
-public:
-  SMConnection(IpcEnvironment *env,
-               sm_target_t &smTarget,
-               UInt32 numReceiveBuffers,
-               IpcMessageObjSize maxBufSize,
-               ex_tcb *tcb,
-               ExMasterStmtGlobals *masterGlobals,
-               NABoolean isServer = FALSE);
-  
+class SMConnection : public IpcConnection {
+ public:
+  SMConnection(IpcEnvironment *env, sm_target_t &smTarget, UInt32 numReceiveBuffers, IpcMessageObjSize maxBufSize,
+               ex_tcb *tcb, ExMasterStmtGlobals *masterGlobals, NABoolean isServer = FALSE);
+
   virtual ~SMConnection();
 
   // Virtual interface from IpcConnection parent class
@@ -61,9 +55,7 @@ public:
   virtual bool isServerSide() { return (isServer_ == TRUE); }
   virtual void receive(IpcMessageStreamBase *msg);
   virtual void send(IpcMessageBuffer *msgBuf);
-  virtual WaitReturnStatus wait(IpcTimeout timeout, 
-                                UInt32 *eventConsumed = NULL, 
-                                IpcAwaitiox *ipcAwaitiox = NULL);
+  virtual WaitReturnStatus wait(IpcTimeout timeout, UInt32 *eventConsumed = NULL, IpcAwaitiox *ipcAwaitiox = NULL);
 
   // Pure virtual functions from the IpcConnection parent class
   // * numQueuedSendMessages -- length of the send queue
@@ -108,9 +100,8 @@ public:
   // Method to stop the other end if something unexpected is received.
   void dumpAndStopOtherEnd(bool doDump, bool doStop) const;
 
-private:
-
-  // Allocates empty IpcMessageBuffers off of the NAHeap and 
+ private:
+  // Allocates empty IpcMessageBuffers off of the NAHeap and
   // inserts in the in queue of the SM task for the reader thread
   int32_t allocateReceiveBuffers();
 
@@ -152,7 +143,7 @@ private:
   // The TCB pointer is only used for debugging and tracing. It is
   // never dereferenced.
   ex_tcb *tcb_;
-  
+
   // The next two members are used for SM error handling
   // and reporting:
   // 1) The error number is the value returned by either: a) an SM API,
@@ -179,10 +170,10 @@ private:
   //
   // See comments in the cpp file at the beginning of method
   // tryToSendOneChunk() for details on the protocol.
-  IpcMessageBuffer *chunk_buffer_; // The IpcMessageBuffer being sent
-  UInt32 chunk_nextOffset_;        // The next offset to send
-  UInt32 chunk_size_;              // Chunk size for this buffer
-  bool chunk_waitingForAck_;       // Is the connection waiting for an ack
+  IpcMessageBuffer *chunk_buffer_;  // The IpcMessageBuffer being sent
+  UInt32 chunk_nextOffset_;         // The next offset to send
+  UInt32 chunk_size_;               // Chunk size for this buffer
+  bool chunk_waitingForAck_;        // Is the connection waiting for an ack
 
   // Is the other end of this connection running on the same Seaquest
   // node
@@ -208,7 +199,7 @@ private:
   // These methods provide access to attributes related to chunking:
   // * WAITING FOR ACK -- is the connection waiting for an ack?
   // * ACK ARRIVED -- has an ack arrived but is not yet processed?
-  // 
+  //
   // Note: ACK ARRIVED is stored in the task object
   bool getWaitingForAck() const { return chunk_waitingForAck_; }
   bool getAckArrived();
@@ -221,7 +212,6 @@ private:
   bool tryToSendOneChunk();
 
   void handleIOErrorForSM();
-
 };
 
-#endif // SM_CONNECTION_H
+#endif  // SM_CONNECTION_H

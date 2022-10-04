@@ -36,7 +36,6 @@
  *****************************************************************************
  */
 
-
 #include "common/ComSmallDefs.h"
 #include "StmtDDLNode.h"
 
@@ -53,20 +52,17 @@ class StmtDDLDropSynonym;
 // -----------------------------------------------------------------------
 // Drop Synonym statement
 // -----------------------------------------------------------------------
-class StmtDDLDropSynonym : public StmtDDLNode
-{
-
-public:
-
+class StmtDDLDropSynonym : public StmtDDLNode {
+ public:
   // constructor
   StmtDDLDropSynonym();
-  StmtDDLDropSynonym(const QualifiedName & synonymName);
+  StmtDDLDropSynonym(const QualifiedName &synonymName);
 
   // virtual destructor
   virtual ~StmtDDLDropSynonym();
 
   // cast
-  virtual StmtDDLDropSynonym * castToStmtDDLDropSynonym();
+  virtual StmtDDLDropSynonym *castToStmtDDLDropSynonym();
 
   // accessors
 
@@ -76,13 +72,13 @@ public:
   virtual const NAString displayLabel1() const;
   virtual const NAString getText() const;
 
- // for binding
-  ExprNode * bindNode(BindWA *bindWAPtr);
+  // for binding
+  ExprNode *bindNode(BindWA *bindWAPtr);
 
-private:
+ private:
   QualifiedName synonymName_;
 
-}; // class StmtDDLDropSynonym
+};  // class StmtDDLDropSynonym
 
 // -----------------------------------------------------------------------
 // definitions of inline methods for class StmtDDLDropSynonym
@@ -92,17 +88,9 @@ private:
 // accessors
 //
 
-inline const NAString
-StmtDDLDropSynonym::getSynonymName() const
-{
+inline const NAString StmtDDLDropSynonym::getSynonymName() const {
   NAString synonymName = synonymName_.getQualifiedNameAsAnsiString();
   return synonymName;
 }
 
-#endif // STMTDDLDROPSYNONYM_H
-
-
-
-
-
-
+#endif  // STMTDDLDROPSYNONYM_H

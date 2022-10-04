@@ -25,7 +25,7 @@
 *
 * File:         ExpPCodeList.h
 * RCS:          $Id: ExpPCodeList.h,v 1.1 2007/10/09 19:38:51  Exp $
-* Description:  
+* Description:
 *
 * Created:      8/25/97
 * Modified:     $ $Date: 2007/10/09 19:38:51 $ (GMT)
@@ -54,9 +54,15 @@ class PCIList;
 class PCIListIter;
 
 class ListLink {
-public:
-  ListLink() { prev_ = 0; next_ = 0; };
-  ListLink(ListLink *prev, ListLink *next) { prev_ = prev; next_ = next; };
+ public:
+  ListLink() {
+    prev_ = 0;
+    next_ = 0;
+  };
+  ListLink(ListLink *prev, ListLink *next) {
+    prev_ = prev;
+    next_ = next;
+  };
 
   ListLink *getNext() { return next_; };
   ListLink *getPrev() { return prev_; };
@@ -64,23 +70,22 @@ public:
   void setNext(ListLink *next) { next_ = next; };
   void setPrev(ListLink *prev) { prev_ = prev; };
 
-private:
+ private:
   ListLink *prev_, *next_;
-
 };
 
-
 class ListBase {
-public:
+ public:
   ListBase() { tail_ = NULL; }
   ListBase(ListLink *tail) { tail_ = tail; }
 
-  void insert(ListLink *item) { 
-    if(tail_) { 
-      item->setNext(getHead()); 
-      getHead()->setPrev(item); 
+  void insert(ListLink *item) {
+    if (tail_) {
+      item->setNext(getHead());
+      getHead()->setPrev(item);
+    } else {
+      tail_ = item;
     }
-    else { tail_ = item; }
     tail_->setNext(item);
     item->setPrev(tail_);
   };
@@ -90,8 +95,9 @@ public:
   };
 
   void insert(ListBase list) {
-    if(!list.getHead()) return;
-    if(!tail_) tail_ = list.getTail();
+    if (!list.getHead()) return;
+    if (!tail_)
+      tail_ = list.getTail();
     else {
       ListLink *origHead = list.getHead();
       list.getTail()->setNext(getHead());
@@ -101,7 +107,7 @@ public:
     }
   };
   void append(ListBase list) {
-    if(!list.getHead()) return;
+    if (!list.getHead()) return;
     insert(list);
     tail_ = list.getTail();
   };
@@ -110,137 +116,119 @@ public:
   void remove(ListLink *fromItem, ListLink *toItem) {
     ListLink *prev = fromItem->getPrev();
     ListLink *next = toItem->getNext();
-    if(prev) prev->setNext(next);
-    if(next) next->setPrev(prev);
-    if(tail_ == toItem) tail_ = prev;
+    if (prev) prev->setNext(next);
+    if (next) next->setPrev(prev);
+    if (tail_ == toItem) tail_ = prev;
   };
 
   ListLink *getHead() const { return tail_ ? tail_->getNext() : 0; };
   ListLink *getTail() const { return tail_; };
 
-private:
+ private:
   ListLink *tail_;
 };
 
-
 class ListBaseIter {
-public:
-  ListBaseIter(const ListBase &base) { 
-    base_ = &base; link_ = base_->getTail(); 
+ public:
+  ListBaseIter(const ListBase &base) {
+    base_ = &base;
+    link_ = base_->getTail();
   };
-  
+
   ListBaseIter(ListBaseIter &iter) {
-    base_ = iter.base_; link_ = iter.link_;
+    base_ = iter.base_;
+    link_ = iter.link_;
   };
-  ListLink *next() { 
-    if(link_ == base_->getTail()) link_ = NULL;
-    if(link_) link_ = link_->getNext(); 
-    return link_; 
+  ListLink *next() {
+    if (link_ == base_->getTail()) link_ = NULL;
+    if (link_) link_ = link_->getNext();
+    return link_;
   };
   ListLink *prev() {
-    if(link_ == base_->getHead()) link_ = NULL;
-    if(link_) link_ = link_->getPrev();
+    if (link_ == base_->getHead()) link_ = NULL;
+    if (link_) link_ = link_->getPrev();
     return link_;
   }
-  ListLink *first() { link_ = base_->getHead(); return link_; };
-  ListLink *last() { link_ = base_->getTail(); return link_; };
+  ListLink *first() {
+    link_ = base_->getHead();
+    return link_;
+  };
+  ListLink *last() {
+    link_ = base_->getTail();
+    return link_;
+  };
   ListLink *curr() { return link_; };
-  ListLink *prevPtr() { return (link_)? link_->getPrev(): NULL; };
+  ListLink *prevPtr() { return (link_) ? link_->getPrev() : NULL; };
 
-private:
+ private:
   ListLink *link_;
   const ListBase *base_;
-
 };
 
-
 class PCILink : public ListLink {
-public:
+ public:
   PCILink(PCodeInstruction *pci) : info_(pci) { ; };
   PCodeInstruction *getData() { return info_; };
 
-private:
+ private:
   PCodeInstruction *info_;
-
 };
-
 
 class PCIList : private ListBase {
   friend class PCIListIter;
 
-public:
+ public:
   PCIList(CollHeap *heap) : heap_(heap) { ; };
-  PCIList(PCILink *base, CollHeap *heap) : 
-                        ListBase(base), heap_(heap) { ; };
+  PCIList(PCILink *base, CollHeap *heap) : ListBase(base), heap_(heap) { ; };
 
-  void insert(PCodeInstruction *pci) { 
-    ListBase::insert(new(heap_) PCILink(pci)); 
-  };
-  void append(PCodeInstruction *pci) { 
-    ListBase::append(new(heap_) PCILink(pci)); 
-  };
-  void append(PCodeInstruction pci) {
-    ListBase::append(new(heap_) PCILink(new(heap_) PCodeInstruction(&pci)));
-  };
+  void insert(PCodeInstruction *pci) { ListBase::insert(new (heap_) PCILink(pci)); };
+  void append(PCodeInstruction *pci) { ListBase::append(new (heap_) PCILink(pci)); };
+  void append(PCodeInstruction pci) { ListBase::append(new (heap_) PCILink(new (heap_) PCodeInstruction(&pci))); };
   void append(PCIList pciList) { ListBase::append(pciList); };
 
   void remove(PCILink *pciLink) { ListBase::remove(pciLink); };
 
-  PCodeInstruction *getHead() { 
-    return ((PCILink*)ListBase::getHead())->getData(); 
-  };
-  PCodeInstruction *getTail() { 
-    return ((PCILink*)ListBase::getTail())->getData(); 
-  };
-  PCIID getHeadId() { 
-    return (PCIID)((PCILink*)ListBase::getHead())->getData(); 
-  };
-  PCIID getTailId() { 
-    return (PCIID)((PCILink*)ListBase::getTail())->getData(); 
-  };
-  PCILink *getList() { return (PCILink*)ListBase::getTail(); };
+  PCodeInstruction *getHead() { return ((PCILink *)ListBase::getHead())->getData(); };
+  PCodeInstruction *getTail() { return ((PCILink *)ListBase::getTail())->getData(); };
+  PCIID getHeadId() { return (PCIID)((PCILink *)ListBase::getHead())->getData(); };
+  PCIID getTailId() { return (PCIID)((PCILink *)ListBase::getTail())->getData(); };
+  PCILink *getList() { return (PCILink *)ListBase::getTail(); };
 
-private:
+ private:
   CollHeap *heap_;
-
 };
 
-
 class PCIListIter : private ListBaseIter {
-public:
-  PCIListIter(const PCIList &pcilist)
-    : ListBaseIter(pcilist) { ; };
-  PCIListIter(PCIListIter &pciListIter)
-    : ListBaseIter(pciListIter) { ; };
-  PCodeInstruction *next() { 
-    PCILink *item = (PCILink*)ListBaseIter::next();
+ public:
+  PCIListIter(const PCIList &pcilist) : ListBaseIter(pcilist) { ; };
+  PCIListIter(PCIListIter &pciListIter) : ListBaseIter(pciListIter) { ; };
+  PCodeInstruction *next() {
+    PCILink *item = (PCILink *)ListBaseIter::next();
     return item ? item->getData() : NULL;
   };
-  PCodeInstruction *first() { 
-    PCILink *item = (PCILink*)ListBaseIter::first();
+  PCodeInstruction *first() {
+    PCILink *item = (PCILink *)ListBaseIter::first();
     return item ? item->getData() : NULL;
   };
   PCodeInstruction *last() {
-    PCILink *item = (PCILink*)ListBaseIter::last();
+    PCILink *item = (PCILink *)ListBaseIter::last();
     return item ? item->getData() : NULL;
   };
   PCodeInstruction *prev() {
-    PCILink *item = (PCILink*)ListBaseIter::prev();
+    PCILink *item = (PCILink *)ListBaseIter::prev();
     return item ? item->getData() : NULL;
   };
   PCodeInstruction *curr() {
-    PCILink *item = (PCILink*)ListBaseIter::curr();
+    PCILink *item = (PCILink *)ListBaseIter::curr();
     return item ? item->getData() : NULL;
   };
 
-  PCILink *currItem() { return (PCILink*)ListBaseIter::curr(); };
+  PCILink *currItem() { return (PCILink *)ListBaseIter::curr(); };
   PCodeInstruction *prevPCI() {
-    PCILink *item = (PCILink*)ListBaseIter::prevPtr();
+    PCILink *item = (PCILink *)ListBaseIter::prevPtr();
     return item ? item->getData() : NULL;
   };
-  PCILink *prevItem() { return (PCILink*)ListBaseIter::prevPtr(); };
-
+  PCILink *prevItem() { return (PCILink *)ListBaseIter::prevPtr(); };
 };
-
 
 #endif

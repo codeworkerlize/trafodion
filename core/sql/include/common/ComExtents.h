@@ -4,9 +4,9 @@
  * File:         ComExtents.h
  * Description:  Provides conversion functions to convert Maxsize and Allocate
  *               attributes to primary-extents, secondary-extents and max-extents
- *               
- *               
- *               
+ *
+ *
+ *
  * Created:      11/28/94
  * Language:     C++
  *
@@ -38,7 +38,6 @@
 
 // -----------------------------------------------------------------------
 
-
 #ifndef _COM_EXTENTS_H_
 #define _COM_EXTENTS_H_
 
@@ -46,54 +45,36 @@
 #include "common/ComSmallDefs.h"
 #include "common/Int64.h"
 
-class ComExtents
-{
-  public:
+class ComExtents {
+ public:
   // ---------------------------------------------------------------------
   // Constructors & destructor
   // ---------------------------------------------------------------------
-   ComExtents (Int64  maxSize,
-	       ComUnits   units);
+  ComExtents(Int64 maxSize, ComUnits units);
 
-   ComExtents ( Int64 maxSize);
+  ComExtents(Int64 maxSize);
 
-   ComExtents (const ComExtents &rhs);
+  ComExtents(const ComExtents &rhs);
 
   // ---------------------------------------------------------------------
   // Accessor functions
   // ---------------------------------------------------------------------
 
-   
-   Int64    getMaxSize             (void) const;
-   ComUnits getMaxSizeUnits        (void) const;
-   Int64 getSizeInBytes         (Int64 sizeToConvert
-  		                      ,ComUnits  units
-	  		              );  
+  Int64 getMaxSize(void) const;
+  ComUnits getMaxSizeUnits(void) const;
+  Int64 getSizeInBytes(Int64 sizeToConvert, ComUnits units);
 
-
-  protected:
-
-  private:
+ protected:
+ private:
   // ---------------------------------------------------------------------
   // Private data members
   // ---------------------------------------------------------------------
-   Int64      maxSize_;
-   ComUnits   units_;   
-
+  Int64 maxSize_;
+  ComUnits units_;
 };
 
-inline
-Int64 ComExtents::getMaxSize (void) const
-{
-   return maxSize_;
-};
+inline Int64 ComExtents::getMaxSize(void) const { return maxSize_; };
 
-inline
-ComUnits ComExtents::getMaxSizeUnits (void) const
-{
-   return units_;
-};
+inline ComUnits ComExtents::getMaxSizeUnits(void) const { return units_; };
 
-
-
-#endif //_COM_EXTENTS_H_
+#endif  //_COM_EXTENTS_H_

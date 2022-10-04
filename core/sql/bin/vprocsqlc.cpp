@@ -37,12 +37,9 @@
 #include "vproc.h"
 #include <stdio.h>
 
-
-extern "C" { void
-VPROC (PRODNUMMXSQLC,DATE1MXSQLC,MXSQLC_CC_LABEL)
-() {} }
-
-
+extern "C" {
+void VPROC(PRODNUMMXSQLC, DATE1MXSQLC, MXSQLC_CC_LABEL)() {}
+}
 
 #include "common/SCMVersHelp.h"
 
@@ -50,5 +47,4 @@ VPROC (PRODNUMMXSQLC,DATE1MXSQLC,MXSQLC_CC_LABEL)
 #define VERS_CV_MIN 0
 #define VERS_CV_UPD 1
 
-VERS_BIN (sqlc)
-
+VERS_BIN(sqlc)

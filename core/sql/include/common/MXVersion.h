@@ -54,8 +54,8 @@
 // Various versions of SQL/MX. A define should be added each time a new
 // version is created.
 //------------------------------------------------------------------------
-#define R10           10
-#define R15           15
+#define R10 10
+#define R15 15
 
 #define PRE_SQLMX_VERSION 10
 #endif

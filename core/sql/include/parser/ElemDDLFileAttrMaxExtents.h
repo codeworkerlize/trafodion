@@ -28,8 +28,8 @@
  * File:         ElemDDLFileAttrMaxExtents.h
  * Description:  class for MaxExtents File Attribute (parse node) elements
  *               in MaxExtents clause in DDL statements
- *               
- * Created:      09/12/01 
+ *
+ * Created:      09/12/01
  * Language:     C++
  *
  *
@@ -37,7 +37,6 @@
  *
  *****************************************************************************
  */
-
 
 #include "common/ComUnits.h"
 #include "ElemDDLFileAttr.h"
@@ -55,13 +54,10 @@ class ElemDDLFileAttrMaxExtents;
 // -----------------------------------------------------------------------
 // definition of class ElemDDLFileAttrExtents
 // -----------------------------------------------------------------------
-class ElemDDLFileAttrMaxExtents : public ElemDDLFileAttr
-{
-
-public:
-
+class ElemDDLFileAttrMaxExtents : public ElemDDLFileAttr {
+ public:
   enum { DEFAULT_MAX_EXTENT = COM_MAX_EXTENT };
-  
+
   // constructors
   ElemDDLFileAttrMaxExtents();
   ElemDDLFileAttrMaxExtents(Lng32 maxExtent);
@@ -70,20 +66,18 @@ public:
   virtual ~ElemDDLFileAttrMaxExtents();
 
   // cast
-  virtual ElemDDLFileAttrMaxExtents * castToElemDDLFileAttrMaxExtents();
+  virtual ElemDDLFileAttrMaxExtents *castToElemDDLFileAttrMaxExtents();
 
   // accessors
   inline ULng32 getMaxExtents() const;
 
   // methods for tracing
-//  virtual const NAString getText() const;
-//  virtual const NAString displayLabel1() const;
-//  virtual const NAString displayLabel2() const;
-//  virtual const NAString displayLabel3() const;
+  //  virtual const NAString getText() const;
+  //  virtual const NAString displayLabel1() const;
+  //  virtual const NAString displayLabel2() const;
+  //  virtual const NAString displayLabel3() const;
 
-
-private:
-
+ private:
   //
   // methods
   //
@@ -96,8 +90,8 @@ private:
   //
 
   ULng32 maxExt_;
-  
-}; // class ElemDDLFileAttrMaxExtents
+
+};  // class ElemDDLFileAttrMaxExtents
 
 //
 // helpers
@@ -113,11 +107,6 @@ void ParSetDefaultMaxExtents(ULng32 &maxExt);
 // accessors
 //
 
-inline ULng32
-ElemDDLFileAttrMaxExtents::getMaxExtents() const
-{
-  return maxExt_;
-}
+inline ULng32 ElemDDLFileAttrMaxExtents::getMaxExtents() const { return maxExt_; }
 
-
-#endif // ELEMDDLFILEATTRMAXEXTENTS_H
+#endif  // ELEMDDLFILEATTRMAXEXTENTS_H

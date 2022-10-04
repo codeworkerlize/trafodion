@@ -39,20 +39,17 @@
 
 class Qms;
 
-typedef SharedPtrValueHash<const NAString, MVDetails>		MVDetailHash;
-typedef SharedPtrValueHashIterator<const NAString, MVDetails>	MVDetailHashIterator;
+typedef SharedPtrValueHash<const NAString, MVDetails> MVDetailHash;
+typedef SharedPtrValueHashIterator<const NAString, MVDetails> MVDetailHashIterator;
 
 /**
  * Class Qms encapsulates everything that has to do with the matching data structures.
  * There is a single static instance of this class so it should not be a SharedPtr class.
  */
-class Qms : public NABasicObject
-{
-public:
-  static Qms* getInstance(NAMemory* heap = NULL)
-  {
-    if (!instance_)
-      instance_ = new(heap) Qms(heap);
+class Qms : public NABasicObject {
+ public:
+  static Qms *getInstance(NAMemory *heap = NULL) {
+    if (!instance_) instance_ = new (heap) Qms(heap);
     return instance_;
   }
 
@@ -62,12 +59,11 @@ public:
    * a new instance. This new instance will have no knowledge of any MVs in the
    * system catalog until an INITIALIZE request is made on it.
    */
-  static void deleteInstance()
-  {
+  static void deleteInstance() {
     delete instance_;
     instance_ = NULL;
   }
- 
+
   virtual ~Qms();
 
   /**
@@ -77,10 +73,7 @@ public:
    *
    * @return \c TRUE iff the object has been initialized.
    */
-  NABoolean isInitialized() const
-  {
-    return isInitialized_;
-  }
+  NABoolean isInitialized() const { return isInitialized_; }
 
   /**
    * Sets the initialization status of the object. A Qms object is created in
@@ -88,52 +81,49 @@ public:
    *
    * @param newVal Boolean value indicating new initialization status.
    */
-  void setInitialized(NABoolean newVal)
-  {
-    isInitialized_ = newVal;
-  }
-     
+  void setInitialized(NABoolean newVal) { isInitialized_ = newVal; }
+
   /**
    * Insert a new MV into the QMS matching data structures.
    * @param mvDescPtr Descriptor of MV.
    * @param mvDefPtr QRMVDefinition descriptor pointer.
    */
-  void insert(QRMVDescriptorPtr mvDescPtr, const QRMVDefinition* mvDefPtr = NULL);
+  void insert(QRMVDescriptorPtr mvDescPtr, const QRMVDefinition *mvDefPtr = NULL);
 
   /**
    * Search for MVs matching the input query.
    * @param qryDescPtr Descriptor of query to match.
    * @param requestHeap Heap on which to allocate all temporary data.
-   * @return 
+   * @return
    */
-  QRResultDescriptorPtr match(QRQueryDescriptorPtr qryDescPtr, NAMemory* requestHeap);
+  QRResultDescriptorPtr match(QRQueryDescriptorPtr qryDescPtr, NAMemory *requestHeap);
 
   /**
    * Remove an MV from the matching data structures.
    * @param mvName Name of MV to remove.
    */
-  void drop(const NAString& mvName);
+  void drop(const NAString &mvName);
 
   /**
    * Alter the ignore changes value of an MV.
    * @param mvName Name of MV to alter.
    * @param hasIgnoreChanges New IGNORE_CHANGES status of the MV.
    */
-  void alter(const NAString& mvName, NABoolean hasIgnoreChanges);
+  void alter(const NAString &mvName, NABoolean hasIgnoreChanges);
 
   /**
    * Update the redefinition timestamp of an MV.
    * @param mvName Name of MV to alter.
    * @param timestamp New redefinition timestamp of MV.
    */
-  void touch(const NAString& mvName, const NAString& timestamp);
+  void touch(const NAString &mvName, const NAString &timestamp);
 
   /**
    * Alter the last refresh timestamp of an MV.
    * @param mvName Name of MV to alter.
    * @param timestamp New last refresh timestamp of MV.
    */
-  void refresh(const NAString& mvName, const NAString& timestamp, NABoolean isRecompute = FALSE);
+  void refresh(const NAString &mvName, const NAString &timestamp, NABoolean isRecompute = FALSE);
 
   /**
    * Rename an MV from mvName to newName.
@@ -141,58 +131,55 @@ public:
    * @param newName The new name of the MV.
    * @param timestamp New redefinition timestamp of MV.
    */
-  void rename(const NAString& oldName, const NAString& newName);
+  void rename(const NAString &oldName, const NAString &newName);
 
   /**
    * Check if QMS includes an MV named mvName.
    * @param mvName The name of the MV to find.
    * @return TRUE if the MV is found, FALSE otherwise.
    */
-  NABoolean contains(const NAString& mvName);
+  NABoolean contains(const NAString &mvName);
 
   /**
    * Get the redefinition timestamp of an MV.
    * @param mvName The name of the MV to find.
    * @return The redefinition timestamp as an Int64 number, or NULL if the MV is not contained in QMS.
    */
-  const Int64 *getMVTimestamp(const NAString& mvName);
+  const Int64 *getMVTimestamp(const NAString &mvName);
 
   /**
    * Perform workload analysis.
    */
-  void workloadAnalysis(ofstream& ofs, Int32 minQueriesPerMV, NAMemory* requestHeap);
+  void workloadAnalysis(ofstream &ofs, Int32 minQueriesPerMV, NAMemory *requestHeap);
 
   /**
    * Used to collect memory usage by QMS.
-   * 
+   *
    * Get pointer to the heap used by QMS.
    */
-   inline NAMemory* getHeap() { return (NAMemory *) heap_; };
+  inline NAMemory *getHeap() { return (NAMemory *)heap_; };
 
   void dumpInventoryHash();
 
-protected:
-  Qms(NAMemory* heap)
-    : mvMemo_(ADD_MEMCHECK_ARGS(heap))
-     ,MVInventoryHash_(hashKey, INIT_HASH_SIZE_LARGE, TRUE, heap) // Pass NAString::hashKey
-     ,isInitialized_(FALSE)
-     ,heap_(heap)
-  {}
- 
-private:
-  QRJoinGraphPtr createJoinGraphForJBB(const QRJBBPtr jbb, const NAString& title, CollHeap* heap);
+ protected:
+  Qms(NAMemory *heap)
+      : mvMemo_(ADD_MEMCHECK_ARGS(heap)),
+        MVInventoryHash_(hashKey, INIT_HASH_SIZE_LARGE, TRUE, heap)  // Pass NAString::hashKey
+        ,
+        isInitialized_(FALSE),
+        heap_(heap) {}
 
-  inline MVDetailsPtr getMvDetails(const NAString& mvName)
-  {
-    return MVInventoryHash_.getFirstValue(&mvName);
-  }
+ private:
+  QRJoinGraphPtr createJoinGraphForJBB(const QRJBBPtr jbb, const NAString &title, CollHeap *heap);
 
-private:
-  static Qms*  instance_;
-  NAMemory*    heap_;
-  MVMemo       mvMemo_;
+  inline MVDetailsPtr getMvDetails(const NAString &mvName) { return MVInventoryHash_.getFirstValue(&mvName); }
+
+ private:
+  static Qms *instance_;
+  NAMemory *heap_;
+  MVMemo mvMemo_;
   MVDetailHash MVInventoryHash_;
-  NABoolean    isInitialized_;
+  NABoolean isInitialized_;
 };
 
-#endif  /* _QMS_H_ */
+#endif /* _QMS_H_ */

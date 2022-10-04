@@ -86,36 +86,31 @@ using namespace std;
 // be reused.
 // -----------------------------------------------------------------------
 
-class NASpace : public CollHeap
-{
-public:
-
-  NASpace(Space::SpaceType t=Space::SYSTEM_SPACE);
+class NASpace : public CollHeap {
+ public:
+  NASpace(Space::SpaceType t = Space::SYSTEM_SPACE);
 
   virtual ~NASpace();
 
-  virtual void * allocateMemory(size_t size, NABoolean failureIsFatal = TRUE);
+  virtual void *allocateMemory(size_t size, NABoolean failureIsFatal = TRUE);
 
-  virtual void deallocateMemory(void*)
-    {
+  virtual void deallocateMemory(void *) {
 #ifdef NAHEAP__DEBUG
-      cout << "NASpace::deallocateMemory()\n";
+    cout << "NASpace::deallocateMemory()\n";
 #endif
-    }
+  }
 
 #if (defined(_DEBUG) || defined(NSK_MEMDEBUG))
-  virtual void dump(ostream* outstream, Lng32 indent) {};
+  virtual void dump(ostream *outstream, Lng32 indent){};
 #else
-  inline void dump(void* outstream, Lng32 indent) {}
+  inline void dump(void *outstream, Lng32 indent) {}
 #endif
 
-private:
-  NASpace(const NASpace&);
-  NASpace& operator =(const NASpace&);
+ private:
+  NASpace(const NASpace &);
+  NASpace &operator=(const NASpace &);
 
   Space s_;
-}; // end of NASpace
-
+};  // end of NASpace
 
 #endif
-

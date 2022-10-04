@@ -26,13 +26,13 @@
 *
 * File:         RuTbl.cpp
 * Description:  Implementation of class CRUTbl.
-*				
+*
 *
 * Created:      02/27/2000
 * Language:     C++
-* 
 *
-* 
+*
+*
 ******************************************************************************
 */
 
@@ -67,64 +67,52 @@ CDSString const CRUTbl::rngNmspPrefix = "RANGE_LOG";
 //	Constructor and destructor of CRUTbl
 //------------------------------------------------------------------------//
 
-CRUTbl::CRUTbl(CDDTblUsedByMV *pddTblUsedByMV) :
-	pddTblUsedByMV_(pddTblUsedByMV),
-	pddIUDLogTbl_(NULL),
+CRUTbl::CRUTbl(CDDTblUsedByMV *pddTblUsedByMV)
+    : pddTblUsedByMV_(pddTblUsedByMV),
+      pddIUDLogTbl_(NULL),
 
-	// Usage lists
-	pMVsUsingMe_(
-		new CRUMVList(eItemsArentOwned)
-	),
-	pOnRequestMVsUsingMe_(
-		new CRUMVList(eItemsArentOwned)
-	),
-	pInvolvedMVsUsingMe_(
-		new CRUMVList(eItemsArentOwned)
-	),
-	pOnRequestInvolvedMVsUsingMe_(
-		new CRUMVList(eItemsArentOwned)
-	),
-	pIncInvolvedMVsUsingMe_(
-		new CRUMVList(eItemsArentOwned)
-	),
+      // Usage lists
+      pMVsUsingMe_(new CRUMVList(eItemsArentOwned)),
+      pOnRequestMVsUsingMe_(new CRUMVList(eItemsArentOwned)),
+      pInvolvedMVsUsingMe_(new CRUMVList(eItemsArentOwned)),
+      pOnRequestInvolvedMVsUsingMe_(new CRUMVList(eItemsArentOwned)),
+      pIncInvolvedMVsUsingMe_(new CRUMVList(eItemsArentOwned)),
 
-	pMVInterface_(NULL),
-	timestamp_(0),
+      pMVInterface_(NULL),
+      timestamp_(0),
 
-	// Data structures for info exchange
-	pKeyColumnList_(new CRUKeyColumnList()),
-	pPartitionFileNamesList_(new CDSStringList()),
-	pEmpCheckVector_(new CRUEmpCheckVector()),
-	pStatMap_(new CRUDeltaStatisticsMap()),
-	deLevel_(CRUDeltaDef::NO_DE),
-	
-	// Flags
-	isRPOpenPending_(FALSE),
-	isLogRPOpenPending_(FALSE),
-	isUsedByIncrementalMJV_(FALSE),
-	isDENeeded_(FALSE),
-	isLongLockNeeded_(FALSE),
-	isEmptyDeltaNeeded_(FALSE)
-{}
+      // Data structures for info exchange
+      pKeyColumnList_(new CRUKeyColumnList()),
+      pPartitionFileNamesList_(new CDSStringList()),
+      pEmpCheckVector_(new CRUEmpCheckVector()),
+      pStatMap_(new CRUDeltaStatisticsMap()),
+      deLevel_(CRUDeltaDef::NO_DE),
 
-CRUTbl::~CRUTbl()
-{
-	// Since the lists do not own the referenced CRUMV objects,
-	// only the pointers will be released (not the objects themselves)
-	delete pMVsUsingMe_;
+      // Flags
+      isRPOpenPending_(FALSE),
+      isLogRPOpenPending_(FALSE),
+      isUsedByIncrementalMJV_(FALSE),
+      isDENeeded_(FALSE),
+      isLongLockNeeded_(FALSE),
+      isEmptyDeltaNeeded_(FALSE) {}
 
-	delete pOnRequestMVsUsingMe_;
-	delete pInvolvedMVsUsingMe_;
-	delete pOnRequestInvolvedMVsUsingMe_;
-	delete pIncInvolvedMVsUsingMe_;
+CRUTbl::~CRUTbl() {
+  // Since the lists do not own the referenced CRUMV objects,
+  // only the pointers will be released (not the objects themselves)
+  delete pMVsUsingMe_;
 
-	delete pKeyColumnList_;
+  delete pOnRequestMVsUsingMe_;
+  delete pInvolvedMVsUsingMe_;
+  delete pOnRequestInvolvedMVsUsingMe_;
+  delete pIncInvolvedMVsUsingMe_;
 
-	delete pPartitionFileNamesList_;
+  delete pKeyColumnList_;
 
-	delete pEmpCheckVector_;
+  delete pPartitionFileNamesList_;
 
-	delete pStatMap_;
+  delete pEmpCheckVector_;
+
+  delete pStatMap_;
 }
 
 //------------------------------------------------------------------------//
@@ -135,33 +123,23 @@ CRUTbl::~CRUTbl()
 //	CRUTbl::IsUsedByOnRequestMV()
 //------------------------------------------------------------------------//
 
-BOOL CRUTbl::IsUsedByOnRequestMV() const
-{
-	return (GetOnRequestInvolvedMVsUsingMe().GetCount() > 0);
-}
+BOOL CRUTbl::IsUsedByOnRequestMV() const { return (GetOnRequestInvolvedMVsUsingMe().GetCount() > 0); }
 
 //------------------------------------------------------------------------//
 //	CRUTbl::IsUsedByIncRefreshedMV()
 //------------------------------------------------------------------------//
 
-BOOL CRUTbl::IsUsedByIncRefreshedMV() const
-{
-	return (GetIncrementalInvolvedMVsUsingMe().GetCount() > 0);
-}
+BOOL CRUTbl::IsUsedByIncRefreshedMV() const { return (GetIncrementalInvolvedMVsUsingMe().GetCount() > 0); }
 
 //------------------------------------------------------------------------//
 //	CRUTbl::IsInsertLog()
 //
-//	A table is insert-only if it has an INSERTLOG or 
+//	A table is insert-only if it has an INSERTLOG or
 //	MANUAL RANGELOG attribute.
 //------------------------------------------------------------------------//
 
-BOOL CRUTbl::IsInsertLog()
-{
-	return (TRUE == pddTblUsedByMV_->IsInsertLog() 
-			||
-			CDDObject::eMANUAL == GetRangeLogType()
-			);
+BOOL CRUTbl::IsInsertLog() {
+  return (TRUE == pddTblUsedByMV_->IsInsertLog() || CDDObject::eMANUAL == GetRangeLogType());
 }
 
 //------------------------------------------------------------------------//
@@ -170,57 +148,50 @@ BOOL CRUTbl::IsInsertLog()
 //	Generate the short name of the IUD/range log (not FQ, without namespace).
 //------------------------------------------------------------------------//
 
-CDSString CRUTbl::GetLogShortName(const CDSString &nmsp)
-{
-//	Suffix removed from all the logs.
-//	CDSString logNameSuffix("__" + nmsp);
-	CDSString logNameSuffix("");
-	CDSString name(this->GetName());
-	
-	CRUSQLComposer::AddSuffixToString(logNameSuffix, name);
-	return name;
+CDSString CRUTbl::GetLogShortName(const CDSString &nmsp) {
+  //	Suffix removed from all the logs.
+  //	CDSString logNameSuffix("__" + nmsp);
+  CDSString logNameSuffix("");
+  CDSString name(this->GetName());
+
+  CRUSQLComposer::AddSuffixToString(logNameSuffix, name);
+  return name;
 }
 
 //------------------------------------------------------------------------//
 //	CRUTbl::GetIUDLogContentTypeBitmap()
 //------------------------------------------------------------------------//
 
-Lng32 CRUTbl::GetIUDLogContentTypeBitmap()
-{	
-	Lng32 contentType = 0;
+Lng32 CRUTbl::GetIUDLogContentTypeBitmap() {
+  Lng32 contentType = 0;
 
-	CDDObject::ERangeLogType rlType = GetRangeLogType();
+  CDDObject::ERangeLogType rlType = GetRangeLogType();
 
-	if (CDDObject::eNONE != rlType)
-	{
-		contentType |= RANGE;
-	}
+  if (CDDObject::eNONE != rlType) {
+    contentType |= RANGE;
+  }
 
-	if (CDDObject::eMANUAL != rlType)
-	{
-		contentType |= SINGLE_ROW;
-	}
+  if (CDDObject::eMANUAL != rlType) {
+    contentType |= SINGLE_ROW;
+  }
 
-	return contentType;
+  return contentType;
 }
 
 //------------------------------------------------------------------------//
 //	CRUTbl::GetUpdateBitmapSize()
 //------------------------------------------------------------------------//
 
-Lng32 CRUTbl::GetUpdateBitmapSize()
-{
-	RUASSERT (NULL != pddIUDLogTbl_);
+Lng32 CRUTbl::GetUpdateBitmapSize() {
+  RUASSERT(NULL != pddIUDLogTbl_);
 
-	CDSString colName("UPDATE_BITMAP");
-	colName = CRUSQLComposer::ComposeQuotedColName(
-		CRUTbl::logCrtlColPrefix, colName
-	);
+  CDSString colName("UPDATE_BITMAP");
+  colName = CRUSQLComposer::ComposeQuotedColName(CRUTbl::logCrtlColPrefix, colName);
 
-	CDDColumn *pCol = pddIUDLogTbl_->GetColumn(colName);
+  CDDColumn *pCol = pddIUDLogTbl_->GetColumn(colName);
 
-	RUASSERT (NULL != pCol);
-	return pCol->GetSize();
+  RUASSERT(NULL != pCol);
+  return pCol->GetSize();
 }
 
 //------------------------------------------------------------------------//
@@ -229,76 +200,59 @@ Lng32 CRUTbl::GetUpdateBitmapSize()
 //	Is the delta empty starting from this epoch?
 //------------------------------------------------------------------------//
 
-BOOL CRUTbl::IsDeltaNonEmpty(TInt32 beginEpoch)
-{
-	return GetEmpCheckVector().IsDeltaNonEmpty(beginEpoch);
-}
+BOOL CRUTbl::IsDeltaNonEmpty(TInt32 beginEpoch) { return GetEmpCheckVector().IsDeltaNonEmpty(beginEpoch); }
 
 //------------------------------------------------------------------------//
 //	CRUTbl::IsUsedOnlyByMultiTxnMvs()
 //
-//	Are all the incrementally refreshed MVs on top of this table 
+//	Are all the incrementally refreshed MVs on top of this table
 //	multi-transactional (i.e., COMMIT EACH > 0)?
 //------------------------------------------------------------------------//
 
-BOOL CRUTbl::IsUsedOnlyByMultiTxnMvs() const
-{
-	if (TRUE == pIncInvolvedMVsUsingMe_->IsEmpty())
-	{
-		return FALSE;
-	}
+BOOL CRUTbl::IsUsedOnlyByMultiTxnMvs() const {
+  if (TRUE == pIncInvolvedMVsUsingMe_->IsEmpty()) {
+    return FALSE;
+  }
 
-	DSListPosition pos = pIncInvolvedMVsUsingMe_->GetHeadPosition();
-	while (NULL != pos)
-	{
-		CRUMV *pMV = pIncInvolvedMVsUsingMe_->GetNext(pos);
-	
-		RUASSERT(
-			CDDObject::eON_REQUEST == pMV->GetRefreshType()
-			&&
-			TRUE == pMV->IsInvolved()
-		);
+  DSListPosition pos = pIncInvolvedMVsUsingMe_->GetHeadPosition();
+  while (NULL != pos) {
+    CRUMV *pMV = pIncInvolvedMVsUsingMe_->GetNext(pos);
 
-		if (0 == pMV->GetCommitNRows())
-		{
-			return FALSE;
-		}
-	}
+    RUASSERT(CDDObject::eON_REQUEST == pMV->GetRefreshType() && TRUE == pMV->IsInvolved());
 
-	return TRUE;
+    if (0 == pMV->GetCommitNRows()) {
+      return FALSE;
+    }
+  }
+
+  return TRUE;
 }
 
 #ifdef _DEBUG
 //------------------------------------------------------------------------//
 //	CRUTbl::Dump()
 //------------------------------------------------------------------------//
-void CRUTbl::Dump(CDSString &to, BOOL isExtended) 
-{
-	char statusStr[10];
+void CRUTbl::Dump(CDSString &to, BOOL isExtended) {
+  char statusStr[10];
 
-	to += "\nUSED OBJECT " + GetFullName() + " (";
-	if (TRUE == IsRegularTable())
-	{
-		to += "regular table)\n";
-	}
-	else 
-	{
-		to += "materialized view)\n";
-	}
+  to += "\nUSED OBJECT " + GetFullName() + " (";
+  if (TRUE == IsRegularTable()) {
+    to += "regular table)\n";
+  } else {
+    to += "materialized view)\n";
+  }
 
-	sprintf(statusStr, "%d", GetStatus()); 
-	to += "Status = ";
-	to += statusStr;
-	if (0 != GetStatus()) 
-		to += "(error)";
+  sprintf(statusStr, "%d", GetStatus());
+  to += "Status = ";
+  to += statusStr;
+  if (0 != GetStatus()) to += "(error)";
 
-	to += "\nMVs using me:\n";
-	DSListPosition pos = GetMVsUsingMe().GetHeadPosition();
-	while (NULL != pos) 
-	{
-		CRUMV *pMV = GetMVsUsingMe().GetNext(pos);
-		to += "\t" + (pMV->GetFullName()) + "\n";
-	}
+  to += "\nMVs using me:\n";
+  DSListPosition pos = GetMVsUsingMe().GetHeadPosition();
+  while (NULL != pos) {
+    CRUMV *pMV = GetMVsUsingMe().GetNext(pos);
+    to += "\t" + (pMV->GetFullName()) + "\n";
+  }
 }
 #endif
 
@@ -314,29 +268,25 @@ void CRUTbl::Dump(CDSString &to, BOOL isExtended)
 //	Update the usage lists
 //------------------------------------------------------------------------//
 
-void CRUTbl::AddRefToUsingMV(CRUMV *pMV)
-{
-	// Update the main list
-	pMVsUsingMe_->AddTail(pMV);
+void CRUTbl::AddRefToUsingMV(CRUMV *pMV) {
+  // Update the main list
+  pMVsUsingMe_->AddTail(pMV);
 
-	// Update the auxiliary lists
-	BOOL isOnRequest = (CDDObject::eON_REQUEST == pMV->GetRefreshType());
-	BOOL isInvolved = pMV->IsInvolved();
+  // Update the auxiliary lists
+  BOOL isOnRequest = (CDDObject::eON_REQUEST == pMV->GetRefreshType());
+  BOOL isInvolved = pMV->IsInvolved();
 
-	if (TRUE == isOnRequest)
-	{
-		pOnRequestMVsUsingMe_->AddTail(pMV);
-	}
+  if (TRUE == isOnRequest) {
+    pOnRequestMVsUsingMe_->AddTail(pMV);
+  }
 
-	if (TRUE == isInvolved)
-	{
-		pInvolvedMVsUsingMe_->AddTail(pMV);
-	}
-	
-	if (TRUE == isOnRequest && TRUE == isInvolved)
-	{
-		pOnRequestInvolvedMVsUsingMe_->AddTail(pMV);
-	}
+  if (TRUE == isInvolved) {
+    pInvolvedMVsUsingMe_->AddTail(pMV);
+  }
+
+  if (TRUE == isOnRequest && TRUE == isInvolved) {
+    pOnRequestInvolvedMVsUsingMe_->AddTail(pMV);
+  }
 }
 
 //------------------------------------------------------------------------//
@@ -345,39 +295,32 @@ void CRUTbl::AddRefToUsingMV(CRUMV *pMV)
 //	CALLED BY CRURcReleaseTaskExecutor
 //
 //	Release the DDL lock + read-protected open(s), if exist.
-//	
+//
 //------------------------------------------------------------------------//
 
-void CRUTbl::ReleaseResources()
-{
-	if (TRUE == IsDDLLockPending())
-	{
-		if (TRUE == CanReleaseDDLLock())
-		{
-			ReleaseDDLLock();	// This is generally the case
-		}
-		else
-		{
-			// The table is a non-involved NON-AUDITED/MULTI-TXN MV,
-			// which carried the DDL lock from some previous
-			// invocation of Refresh. 
-			// Take care not to drop it accidentally!
-			RUASSERT(FALSE == IsFullySynchronized());
-		}
-	}
+void CRUTbl::ReleaseResources() {
+  if (TRUE == IsDDLLockPending()) {
+    if (TRUE == CanReleaseDDLLock()) {
+      ReleaseDDLLock();  // This is generally the case
+    } else {
+      // The table is a non-involved NON-AUDITED/MULTI-TXN MV,
+      // which carried the DDL lock from some previous
+      // invocation of Refresh.
+      // Take care not to drop it accidentally!
+      RUASSERT(FALSE == IsFullySynchronized());
+    }
+  }
 
-	// The log's read-protected open (if there was one)
-	// should have been released by the TableSync task.
-	// However, if TableSync has crashed, I must do the job.
-	if (TRUE == IsLogRPOpenPending())
-	{
-		ReleaseLogReadProtectedOpen();
-	}
+  // The log's read-protected open (if there was one)
+  // should have been released by the TableSync task.
+  // However, if TableSync has crashed, I must do the job.
+  if (TRUE == IsLogRPOpenPending()) {
+    ReleaseLogReadProtectedOpen();
+  }
 
-	if (TRUE == IsRPOpenPending())
-	{
-		ReleaseReadProtectedOpen();
-	}
+  if (TRUE == IsRPOpenPending()) {
+    ReleaseReadProtectedOpen();
+  }
 }
 
 //------------------------------------------------------------------------//
@@ -390,36 +333,27 @@ void CRUTbl::ReleaseResources()
 //
 //------------------------------------------------------------------------//
 
-void CRUTbl::BuildListOfIncrementalInvolvedMVsUsingMe()
-{
-	// Verify that the list is not initialized already
-	RUASSERT(TRUE == pIncInvolvedMVsUsingMe_->IsEmpty());
+void CRUTbl::BuildListOfIncrementalInvolvedMVsUsingMe() {
+  // Verify that the list is not initialized already
+  RUASSERT(TRUE == pIncInvolvedMVsUsingMe_->IsEmpty());
 
-	DSListPosition pos = pOnRequestInvolvedMVsUsingMe_->GetHeadPosition();
-	while (NULL != pos)
-	{
-		CRUMV *pMV = pOnRequestInvolvedMVsUsingMe_->GetNext(pos);
-		RUASSERT(CDDObject::eON_REQUEST == pMV->GetRefreshType()
-				 &&
-				 TRUE == pMV->IsInvolved()
-		);
+  DSListPosition pos = pOnRequestInvolvedMVsUsingMe_->GetHeadPosition();
+  while (NULL != pos) {
+    CRUMV *pMV = pOnRequestInvolvedMVsUsingMe_->GetNext(pos);
+    RUASSERT(CDDObject::eON_REQUEST == pMV->GetRefreshType() && TRUE == pMV->IsInvolved());
 
-		if (TRUE == pMV->WillBeRecomputed()) 
-		{	
-			continue;
-		}
+    if (TRUE == pMV->WillBeRecomputed()) {
+      continue;
+    }
 
-		pIncInvolvedMVsUsingMe_->AddTail(pMV);
+    pIncInvolvedMVsUsingMe_->AddTail(pMV);
 
-		CDDObject::EMVQueryType qt = pMV->GetQueryType();
-		if (CDDObject::eMJV == qt
-			||
-			CDDObject::eOTHER == qt	// Is this MJV on single table?
-			)
-		{
-			isUsedByIncrementalMJV_ = TRUE;
-		}
-	}
+    CDDObject::EMVQueryType qt = pMV->GetQueryType();
+    if (CDDObject::eMJV == qt || CDDObject::eOTHER == qt  // Is this MJV on single table?
+    ) {
+      isUsedByIncrementalMJV_ = TRUE;
+    }
+  }
 }
 
 //------------------------------------------------------------------------//
@@ -432,17 +366,15 @@ void CRUTbl::BuildListOfIncrementalInvolvedMVsUsingMe()
 //
 //------------------------------------------------------------------------//
 
-void CRUTbl::PropagateEmpCheckToUsingMVs()
-{
-	RUASSERT(TRUE == GetEmpCheckVector().IsFinal());
+void CRUTbl::PropagateEmpCheckToUsingMVs() {
+  RUASSERT(TRUE == GetEmpCheckVector().IsFinal());
 
-	DSListPosition pos = pIncInvolvedMVsUsingMe_->GetHeadPosition();
-	while (NULL != pos) 
-	{
-		CRUMV *pMV = pIncInvolvedMVsUsingMe_->GetNext(pos);
+  DSListPosition pos = pIncInvolvedMVsUsingMe_->GetHeadPosition();
+  while (NULL != pos) {
+    CRUMV *pMV = pIncInvolvedMVsUsingMe_->GetNext(pos);
 
-		pMV->PropagateEmpCheck(*this);
-	}	
+    pMV->PropagateEmpCheck(*this);
+  }
 }
 
 //------------------------------------------------------------------------//
@@ -452,40 +384,34 @@ void CRUTbl::PropagateEmpCheckToUsingMVs()
 //
 //	If the table is itself an MV that has been just recomputed -
 //	propagate this attribute to the using MVs
-//	
+//
 //------------------------------------------------------------------------//
 
-void CRUTbl::PropagateRecomputeToUsingMVs()
-{
-	RUASSERT(TRUE == IsInvolvedMV()
-			 &&
-			 TRUE == GetMVInterface()->WillBeRecomputed());
+void CRUTbl::PropagateRecomputeToUsingMVs() {
+  RUASSERT(TRUE == IsInvolvedMV() && TRUE == GetMVInterface()->WillBeRecomputed());
 
-	DSListPosition pos = pIncInvolvedMVsUsingMe_->GetHeadPosition();
-	while (NULL != pos) 
-	{
-		CRUMV *pMV = pIncInvolvedMVsUsingMe_->GetNext(pos);
-		pMV->SetRefreshPatternMask(CRUMV::RECOMPUTE);
-	}	
+  DSListPosition pos = pIncInvolvedMVsUsingMe_->GetHeadPosition();
+  while (NULL != pos) {
+    CRUMV *pMV = pIncInvolvedMVsUsingMe_->GetNext(pos);
+    pMV->SetRefreshPatternMask(CRUMV::RECOMPUTE);
+  }
 }
 
 //---------------------------------------------------------//
 //	CRUTbl::PropagateDEStatisticsToUsingMVs()
 //
-//	CRURefreshExector::Init() callee. 
-//	
+//	CRURefreshExector::Init() callee.
+//
 //	Adopt the statistics fetched by the DE task.
 //---------------------------------------------------------//
 
-void CRUTbl::PropagateDEStatisticsToUsingMVs()
-{
-	DSListPosition pos = pIncInvolvedMVsUsingMe_->GetHeadPosition();
-	while (NULL != pos) 
-	{
-		CRUMV *pMV = pIncInvolvedMVsUsingMe_->GetNext(pos);
+void CRUTbl::PropagateDEStatisticsToUsingMVs() {
+  DSListPosition pos = pIncInvolvedMVsUsingMe_->GetHeadPosition();
+  while (NULL != pos) {
+    CRUMV *pMV = pIncInvolvedMVsUsingMe_->GetNext(pos);
 
-		pMV->PropagateDEStatistics(*this);
-	}	
+    pMV->PropagateDEStatistics(*this);
+  }
 }
 
 //------------------------------------------------------------------------//
@@ -498,7 +424,7 @@ void CRUTbl::PropagateDEStatisticsToUsingMVs()
 //	CALLED BY: CRUTableSyncExecutor
 //
 //	Compute whether the the table must be locked (by read-protected open)
-//	as long as the MVs directly using it are refreshed, to achieve 
+//	as long as the MVs directly using it are refreshed, to achieve
 //	consistency between the table and the MVs. The table must be locked
 //	in 3 cases:
 //	(1) The table has an AUTOMATIC/MIXED RANGELOG attribute.
@@ -506,85 +432,73 @@ void CRUTbl::PropagateDEStatisticsToUsingMVs()
 //	(3) Some ON REQUEST MV using the table will be recomputed.
 //
 //	If the table must be locked because it is involved into an indirect
-//	join through RECOMPUTED MVs, the flag will be set by the 
+//	join through RECOMPUTED MVs, the flag will be set by the
 //	EquivSetBuilder.
 //
 //------------------------------------------------------------------------//
 
-void CRUTbl::CheckIfLongLockNeeded()
-{
-	if (TRUE == IsLongLockNeeded())
-	{
-		// Someone else (the equivalence set analyzer)
-		// has already set the flag.
-		return;	
-	}
+void CRUTbl::CheckIfLongLockNeeded() {
+  if (TRUE == IsLongLockNeeded()) {
+    // Someone else (the equivalence set analyzer)
+    // has already set the flag.
+    return;
+  }
 
-	CDDObject::ERangeLogType rlType = GetRangeLogType();
+  CDDObject::ERangeLogType rlType = GetRangeLogType();
 
-	if (CDDObject::eAUTOMATIC == rlType	// Case #1
-		||
-		CDDObject::eMIXED == rlType)
-	{
-		SetLongLockIsNeeded();
-		return;
-	}
+  if (CDDObject::eAUTOMATIC == rlType  // Case #1
+      || CDDObject::eMIXED == rlType) {
+    SetLongLockIsNeeded();
+    return;
+  }
 
-	DSListPosition pos = pOnRequestInvolvedMVsUsingMe_->GetHeadPosition();
-	while (NULL != pos) 
-	{
-		CRUMV *pMV = pOnRequestInvolvedMVsUsingMe_->GetNext(pos);
-		
-		if (FALSE == pMV->IsSelfMaintainable() // Case #2
-			||
-			TRUE  == pMV->WillBeRecomputed() // Case #3
- 		   )
-		{
-			SetLongLockIsNeeded();
-			return;
-		}
-	}
+  DSListPosition pos = pOnRequestInvolvedMVsUsingMe_->GetHeadPosition();
+  while (NULL != pos) {
+    CRUMV *pMV = pOnRequestInvolvedMVsUsingMe_->GetNext(pos);
+
+    if (FALSE == pMV->IsSelfMaintainable()  // Case #2
+        || TRUE == pMV->WillBeRecomputed()  // Case #3
+    ) {
+      SetLongLockIsNeeded();
+      return;
+    }
+  }
 }
 
 //------------------------------------------------------------------------//
 //	CRUTbl::CheckIfDENeeded()
 //
 //	CALLED BY: CRUDependenceGraphBuilder
-//	
-//	Decide whether duplicate elimination must be done on the log 
+//
+//	Decide whether duplicate elimination must be done on the log
 //	of this table (and hence, whether the DE task must be created).
-// 
+//
 //	This should happen if:
-//	(1) There is at least one MV on this table that is being 
-//		refreshed incrementally, 
+//	(1) There is at least one MV on this table that is being
+//		refreshed incrementally,
 //	AND
-//	(2) There is no single-delta restriction which requires 
+//	(2) There is no single-delta restriction which requires
 //	    the delta to be empty
 //	AND
-//	(3) Either the table has a range log (3.1), OR one using 
+//	(3) Either the table has a range log (3.1), OR one using
 //		incremental MV is an MJV (3.2)
 //
 //------------------------------------------------------------------------//
 
-void CRUTbl::CheckIfDENeeded()
-{
-	isDENeeded_ = FALSE;
+void CRUTbl::CheckIfDENeeded() {
+  isDENeeded_ = FALSE;
 
-	if (FALSE == IsUsedByIncRefreshedMV()	// Condition #1
-		||
-		TRUE == IsEmptyDeltaNeeded()		// Condition #2
-		)
-	{
-		return;
-	}
+  if (FALSE == IsUsedByIncRefreshedMV()  // Condition #1
+      || TRUE == IsEmptyDeltaNeeded()    // Condition #2
+  ) {
+    return;
+  }
 
-	if (CDDObject::eNONE != GetRangeLogType()	// Condition #3.1
-		||
-		TRUE == IsUsedByIncrementalMJV()		// Condition #3.2
-		)
-	{
-		isDENeeded_ = TRUE;
-	}
+  if (CDDObject::eNONE != GetRangeLogType()  // Condition #3.1
+      || TRUE == IsUsedByIncrementalMJV()    // Condition #3.2
+  ) {
+    isDENeeded_ = TRUE;
+  }
 }
 
 //------------------------------------------------------------------------//
@@ -593,35 +507,31 @@ void CRUTbl::CheckIfDENeeded()
 //	CALLED BY: CRUEmpCheckTask
 //
 //	Build the emptiness check vector, in the following way.
-//	For each incrementally refreshed MV on the table, 
+//	For each incrementally refreshed MV on the table,
 //	add MV.EPOCH[T] to the vector.
 //
 //------------------------------------------------------------------------//
 
-void CRUTbl::BuildEmpCheckVector()
-{
-	// Verify that the vector is non-initialized
-	RUASSERT(FALSE == pEmpCheckVector_->IsValid());
+void CRUTbl::BuildEmpCheckVector() {
+  // Verify that the vector is non-initialized
+  RUASSERT(FALSE == pEmpCheckVector_->IsValid());
 
-	// CRUEmpCheckTask is created only if there is
-	// at least one incrementally refreshed MV.
-	RUASSERT(FALSE == pIncInvolvedMVsUsingMe_->IsEmpty());
+  // CRUEmpCheckTask is created only if there is
+  // at least one incrementally refreshed MV.
+  RUASSERT(FALSE == pIncInvolvedMVsUsingMe_->IsEmpty());
 
-	TInt64 tblUid = GetUID();
-	
-	DSListPosition lpos = pIncInvolvedMVsUsingMe_->GetHeadPosition();
-	while (NULL != lpos)
-	{
-		CRUMV *pMV = pIncInvolvedMVsUsingMe_->GetNext(lpos);	
-		RUASSERT (TRUE == pMV->IsInvolved() 
-				  && 
-				  FALSE == pMV->WillBeRecomputed());
+  TInt64 tblUid = GetUID();
 
-		// Register the epoch in the vector ...
-		pEmpCheckVector_->AddEpochForCheck(pMV->GetEpoch(tblUid));
-	}	
+  DSListPosition lpos = pIncInvolvedMVsUsingMe_->GetHeadPosition();
+  while (NULL != lpos) {
+    CRUMV *pMV = pIncInvolvedMVsUsingMe_->GetNext(lpos);
+    RUASSERT(TRUE == pMV->IsInvolved() && FALSE == pMV->WillBeRecomputed());
 
-	pEmpCheckVector_->Build();
+    // Register the epoch in the vector ...
+    pEmpCheckVector_->AddEpochForCheck(pMV->GetEpoch(tblUid));
+  }
+
+  pEmpCheckVector_->Build();
 }
 
 //------------------------------------------------------------------------//
@@ -630,27 +540,24 @@ void CRUTbl::BuildEmpCheckVector()
 //	Build the list of partitions names
 //------------------------------------------------------------------------//
 
-void CRUTbl::BuildPartitionFileNamesList()
-{
-	if (FALSE == pPartitionFileNamesList_->IsEmpty())
-	{
-		// The list is already initialized 
-		return;
-	}
+void CRUTbl::BuildPartitionFileNamesList() {
+  if (FALSE == pPartitionFileNamesList_->IsEmpty()) {
+    // The list is already initialized
+    return;
+  }
 
-	CUOFsFileList *pddPartitionFileList = GetPartitionFileList();
+  CUOFsFileList *pddPartitionFileList = GetPartitionFileList();
 
-	RUASSERT(NULL != pddPartitionFileList);
+  RUASSERT(NULL != pddPartitionFileList);
 
-	DSListPosition pos = pddPartitionFileList->GetHeadPosition();
-	while (NULL != pos)
-	{
-		CUOFsFile *pFile = pddPartitionFileList->GetNext(pos);
-		
-		CDSString *pName = new CDSString(pFile->GetFileName());
+  DSListPosition pos = pddPartitionFileList->GetHeadPosition();
+  while (NULL != pos) {
+    CUOFsFile *pFile = pddPartitionFileList->GetNext(pos);
 
-		pPartitionFileNamesList_->AddTail(pName);
-	}
+    CDSString *pName = new CDSString(pFile->GetFileName());
+
+    pPartitionFileNamesList_->AddTail(pName);
+  }
 }
 
 //------------------------------------------------------------------------//
@@ -659,10 +566,7 @@ void CRUTbl::BuildPartitionFileNamesList()
 //	Return the number of partitions of this table.
 //------------------------------------------------------------------------//
 
-Lng32 CRUTbl::getNumberOfPartitions()
-{
-  return GetPartitionFileList()->GetCount();
-}
+Lng32 CRUTbl::getNumberOfPartitions() { return GetPartitionFileList()->GetCount(); }
 
 //------------------------------------------------------------------------//
 //	CRUTbl::BuildKeyColumnList()
@@ -673,28 +577,25 @@ Lng32 CRUTbl::getNumberOfPartitions()
 //
 //------------------------------------------------------------------------//
 
-void CRUTbl::BuildKeyColumnList()
-{
-	// Verify that the list is non-initialized
-	if (FALSE == pKeyColumnList_->IsEmpty())
-	{
-		return;
-	}
+void CRUTbl::BuildKeyColumnList() {
+  // Verify that the list is non-initialized
+  if (FALSE == pKeyColumnList_->IsEmpty()) {
+    return;
+  }
 
-	CDDKeyColumnList *pddKeyColList = GetDDKeyColumnList();
-	CDDColumnList *pddColList =	GetDDColumnList();
+  CDDKeyColumnList *pddKeyColList = GetDDKeyColumnList();
+  CDDColumnList *pddColList = GetDDColumnList();
 
-	DSListPosition pos = pddKeyColList->GetHeadPosition();
-	while (NULL != pos)
-	{
-		CDDKeyColumn *pddKeyCol = pddKeyColList->GetNext(pos);
+  DSListPosition pos = pddKeyColList->GetHeadPosition();
+  while (NULL != pos) {
+    CDDKeyColumn *pddKeyCol = pddKeyColList->GetNext(pos);
 
-		CDDColumn *pddCol = pddColList->Find(pddKeyCol->GetName());
-		RUASSERT(NULL != pddCol);
-		
-		CRUKeyColumn *pKeyCol = new CRUKeyColumn(pddCol, pddKeyCol);
-		pKeyColumnList_->AddTail(pKeyCol);
-	}
+    CDDColumn *pddCol = pddColList->Find(pddKeyCol->GetName());
+    RUASSERT(NULL != pddCol);
+
+    CRUKeyColumn *pKeyCol = new CRUKeyColumn(pddCol, pddKeyCol);
+    pKeyColumnList_->AddTail(pKeyCol);
+  }
 }
 
 //-------------------------------------------------------------------//
@@ -707,18 +608,16 @@ void CRUTbl::BuildKeyColumnList()
 //	The actual action will be performed by the child classes.
 //-------------------------------------------------------------------//
 
-void CRUTbl::ExecuteReadProtectedOpen()
-{
-	RUASSERT(FALSE == isRPOpenPending_);
+void CRUTbl::ExecuteReadProtectedOpen() {
+  RUASSERT(FALSE == isRPOpenPending_);
 
 #ifdef _DEBUG
-	CDSString msg("Locking table " + GetFullName() + "\n");
-	
-	CRUGlobals::GetInstance()->
-		LogDebugMessage(CRUGlobals::DUMP_LOCKS, "", msg, TRUE);
+  CDSString msg("Locking table " + GetFullName() + "\n");
+
+  CRUGlobals::GetInstance()->LogDebugMessage(CRUGlobals::DUMP_LOCKS, "", msg, TRUE);
 #endif
 
-	isRPOpenPending_ = TRUE;
+  isRPOpenPending_ = TRUE;
 }
 
 //-------------------------------------------------------------------//
@@ -727,66 +626,58 @@ void CRUTbl::ExecuteReadProtectedOpen()
 //	The actual action will be performed by the child classes.
 //-------------------------------------------------------------------//
 
-void CRUTbl::ReleaseReadProtectedOpen()
-{
-	RUASSERT(TRUE == isRPOpenPending_);
+void CRUTbl::ReleaseReadProtectedOpen() {
+  RUASSERT(TRUE == isRPOpenPending_);
 
 #ifdef _DEBUG
-	CDSString msg("UnLocking table " + GetFullName() + "\n");
-	
-	CRUGlobals::GetInstance()->
-		LogDebugMessage(CRUGlobals::DUMP_LOCKS, "", msg, TRUE);
+  CDSString msg("UnLocking table " + GetFullName() + "\n");
+
+  CRUGlobals::GetInstance()->LogDebugMessage(CRUGlobals::DUMP_LOCKS, "", msg, TRUE);
 #endif
 
-	isRPOpenPending_ = FALSE;
+  isRPOpenPending_ = FALSE;
 }
 
 //-------------------------------------------------------------------//
-//	CRUTbl::ExecuteLogReadProtectedOpen() 
+//	CRUTbl::ExecuteLogReadProtectedOpen()
 //-------------------------------------------------------------------//
 
-void CRUTbl::ExecuteLogReadProtectedOpen() 
-{
-	RUASSERT(NULL != pddIUDLogTbl_ && FALSE == isLogRPOpenPending_);
+void CRUTbl::ExecuteLogReadProtectedOpen() {
+  RUASSERT(NULL != pddIUDLogTbl_ && FALSE == isLogRPOpenPending_);
 
 #ifdef _DEBUG
-	CDSString msg("Locking log " + GetFullName() + "\n");
-	
-	CRUGlobals::GetInstance()->
-		LogDebugMessage(CRUGlobals::DUMP_LOCKS, "", msg, TRUE);
+  CDSString msg("Locking log " + GetFullName() + "\n");
+
+  CRUGlobals::GetInstance()->LogDebugMessage(CRUGlobals::DUMP_LOCKS, "", msg, TRUE);
 #endif
 
 #ifdef NA_LINUX
-	pddIUDLogTbl_->
-		OpenPartitions(CUOFsFile::eProtected, CUOFsFile::eReadOnly, 
-                      TRUE, FALSE);//default clearVSN; do not clear transactions
+  pddIUDLogTbl_->OpenPartitions(CUOFsFile::eProtected, CUOFsFile::eReadOnly, TRUE,
+                                FALSE);  // default clearVSN; do not clear transactions
 #else
 
-	pddIUDLogTbl_->
-		OpenPartitions(CUOFsFile::eProtected, CUOFsFile::eReadOnly, TRUE, TRUE, TRUE);
-#endif //NA_LINUX
+  pddIUDLogTbl_->OpenPartitions(CUOFsFile::eProtected, CUOFsFile::eReadOnly, TRUE, TRUE, TRUE);
+#endif  // NA_LINUX
 
-	isLogRPOpenPending_ = TRUE;
+  isLogRPOpenPending_ = TRUE;
 }
 
 //-------------------------------------------------------------------//
 //	CRUTbl::ReleaseLogReadProtectedOpen()
 //-------------------------------------------------------------------//
 
-void CRUTbl::ReleaseLogReadProtectedOpen()
-{
-	RUASSERT(NULL != pddIUDLogTbl_ && TRUE == isLogRPOpenPending_);
+void CRUTbl::ReleaseLogReadProtectedOpen() {
+  RUASSERT(NULL != pddIUDLogTbl_ && TRUE == isLogRPOpenPending_);
 
 #ifdef _DEBUG
-	CDSString msg("UnLocking log " + GetFullName() + "\n");
-	
-	CRUGlobals::GetInstance()->
-		LogDebugMessage(CRUGlobals::DUMP_LOCKS, "", msg, TRUE);
+  CDSString msg("UnLocking log " + GetFullName() + "\n");
+
+  CRUGlobals::GetInstance()->LogDebugMessage(CRUGlobals::DUMP_LOCKS, "", msg, TRUE);
 #endif
 
-	pddIUDLogTbl_->ClosePartitions();
-	
-	isLogRPOpenPending_ = FALSE;
+  pddIUDLogTbl_->ClosePartitions();
+
+  isLogRPOpenPending_ = FALSE;
 }
 
 //------------------------------------------------------------------------//
@@ -799,25 +690,20 @@ void CRUTbl::ReleaseLogReadProtectedOpen()
 //	Generate the full name of the IUD/range log (with/without the namespace).
 //------------------------------------------------------------------------//
 
-CDSString CRUTbl::GetLogFullName(const CDSString &nmsp, BOOL useNmsp)
-{
-	CDSString logName("");
-	
-	if (TRUE == useNmsp)
-	{
-		logName += "TABLE(" + nmsp + "_TABLE ";
-	}
+CDSString CRUTbl::GetLogFullName(const CDSString &nmsp, BOOL useNmsp) {
+  CDSString logName("");
 
-	logName += 
-		GetCatName() + "." + GetSchName() + "." 
-		+ GetLogShortName(nmsp);
+  if (TRUE == useNmsp) {
+    logName += "TABLE(" + nmsp + "_TABLE ";
+  }
 
-	if (TRUE == useNmsp)
-	{
-		logName += ")";
-	}
+  logName += GetCatName() + "." + GetSchName() + "." + GetLogShortName(nmsp);
 
-	return logName;
+  if (TRUE == useNmsp) {
+    logName += ")";
+  }
+
+  return logName;
 }
 
 // Define the CRUTblList through this macro

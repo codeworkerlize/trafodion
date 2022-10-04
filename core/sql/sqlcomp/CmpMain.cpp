@@ -12,7 +12,7 @@
 
 #include <dlfcn.h>
 
-#include "export/ComMemoryDiags.h"  
+#include "export/ComMemoryDiags.h"
 
 #include "arkcmp/CmpContext.h"
 #include "optimizer/Analyzer.h"

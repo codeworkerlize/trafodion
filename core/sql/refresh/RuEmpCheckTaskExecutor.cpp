@@ -26,13 +26,13 @@
 *
 * File:         RuEmpCheckTaskExecutor.cpp
 * Description:  Implementation of class CRUEmpCheckTaskExecutor.
-*				
+*
 *
 * Created:      04/06/2000
 * Language:     C++
-* 
 *
-* 
+*
+*
 ******************************************************************************
 */
 
@@ -48,117 +48,96 @@
 //	Constructor and destructor
 //--------------------------------------------------------------------------//
 
-CRUEmpCheckTaskExecutor::CRUEmpCheckTaskExecutor(CRUTask *pParentTask) :
-	inherited(pParentTask),
-	pEmpCheck_(NULL)
-{}
+CRUEmpCheckTaskExecutor::CRUEmpCheckTaskExecutor(CRUTask *pParentTask) : inherited(pParentTask), pEmpCheck_(NULL) {}
 
-CRUEmpCheckTaskExecutor::~CRUEmpCheckTaskExecutor()
-{
-	delete pEmpCheck_;
-}
+CRUEmpCheckTaskExecutor::~CRUEmpCheckTaskExecutor() { delete pEmpCheck_; }
 
 //--------------------------------------------------------------------------//
 //	CRUEmpCheckTaskExecutor::GetEmpCheckVector()
 //--------------------------------------------------------------------------//
 
-const CRUEmpCheckVector &
-CRUEmpCheckTaskExecutor::GetEmpCheckVector() const
-{
-	RUASSERT(NULL != pEmpCheck_);
+const CRUEmpCheckVector &CRUEmpCheckTaskExecutor::GetEmpCheckVector() const {
+  RUASSERT(NULL != pEmpCheck_);
 
-	return pEmpCheck_->GetVector();
+  return pEmpCheck_->GetVector();
 }
 
 //--------------------------------------------------------------------------//
 //	CRUEmpCheckTaskExecutor::Init()
-//	
+//
 //	Initialize the emptiness check unit
 //--------------------------------------------------------------------------//
 
-void CRUEmpCheckTaskExecutor::Init()
-{
-	inherited::Init();
-	
-	CRUEmpCheckTask *pParentTask = (CRUEmpCheckTask *)GetParentTask();
-	
-	RUASSERT(NULL != pParentTask);
+void CRUEmpCheckTaskExecutor::Init() {
+  inherited::Init();
 
-	CRUTbl &tbl = pParentTask->GetTable();
+  CRUEmpCheckTask *pParentTask = (CRUEmpCheckTask *)GetParentTask();
 
-	pEmpCheck_ = new CRUEmpCheck(tbl.GetEmpCheckVector());
+  RUASSERT(NULL != pParentTask);
 
-	// We are interested only in the the records that are logged 
-	// BEFORE the epoch increment, so we place an upper bound
-	TInt32 upperBound;
-	
-	if (TRUE == tbl.IsInvolvedMV())
-	{
-		// The check happens before the epoch increment
-		upperBound = tbl.GetCurrentEpoch();
-	}
-	else
-	{	
-		// The check happens after the epoch increment
-		upperBound = tbl.GetCurrentEpoch()-1;
-	}
+  CRUTbl &tbl = pParentTask->GetTable();
 
-	pEmpCheck_->ComposeSQL(tbl, upperBound);
+  pEmpCheck_ = new CRUEmpCheck(tbl.GetEmpCheckVector());
 
-	SetState(EX_CHECK);
+  // We are interested only in the the records that are logged
+  // BEFORE the epoch increment, so we place an upper bound
+  TInt32 upperBound;
+
+  if (TRUE == tbl.IsInvolvedMV()) {
+    // The check happens before the epoch increment
+    upperBound = tbl.GetCurrentEpoch();
+  } else {
+    // The check happens after the epoch increment
+    upperBound = tbl.GetCurrentEpoch() - 1;
+  }
+
+  pEmpCheck_->ComposeSQL(tbl, upperBound);
+
+  SetState(EX_CHECK);
 }
 
 //--------------------------------------------------------------------------//
 //	CRUEmpCheckTaskExecutor::LoadRequest()
 //--------------------------------------------------------------------------//
-void CRUEmpCheckTaskExecutor::
-LoadRequest(CUOFsIpcMessageTranslator &translator)
-{
-	inherited::LoadRequest(translator);
+void CRUEmpCheckTaskExecutor::LoadRequest(CUOFsIpcMessageTranslator &translator) {
+  inherited::LoadRequest(translator);
 
-	RUASSERT(NULL == pEmpCheck_);
+  RUASSERT(NULL == pEmpCheck_);
 
-	pEmpCheck_ = new CRUEmpCheck();
-	
-	pEmpCheck_->LoadData(translator);
+  pEmpCheck_ = new CRUEmpCheck();
+
+  pEmpCheck_->LoadData(translator);
 }
 
 //--------------------------------------------------------------------------//
 //	CRUEmpCheckTaskExecutor::LoadReply()
 //--------------------------------------------------------------------------//
-void CRUEmpCheckTaskExecutor::
-LoadReply(CUOFsIpcMessageTranslator &translator)
-{
-	inherited::LoadReply(translator);
+void CRUEmpCheckTaskExecutor::LoadReply(CUOFsIpcMessageTranslator &translator) {
+  inherited::LoadReply(translator);
 
-	RUASSERT(NULL != pEmpCheck_);
+  RUASSERT(NULL != pEmpCheck_);
 
-	pEmpCheck_->LoadData(translator);
+  pEmpCheck_->LoadData(translator);
 }
 
 //--------------------------------------------------------------------------//
 //	CRUEmpCheckTaskExecutor::StoreRequest()
 //--------------------------------------------------------------------------//
-void CRUEmpCheckTaskExecutor::
-StoreRequest(CUOFsIpcMessageTranslator &translator)
-{
-	inherited::StoreRequest(translator);
+void CRUEmpCheckTaskExecutor::StoreRequest(CUOFsIpcMessageTranslator &translator) {
+  inherited::StoreRequest(translator);
 
-	pEmpCheck_->StoreData(translator);
+  pEmpCheck_->StoreData(translator);
 
-	translator.SetMessageType(CUOFsIpcMessageTranslator::
-							  RU_EMP_CHECK_EXECUTOR);
+  translator.SetMessageType(CUOFsIpcMessageTranslator::RU_EMP_CHECK_EXECUTOR);
 }
 
 //--------------------------------------------------------------------------//
 //	CRUEmpCheckTaskExecutor::StoreReply()
 //--------------------------------------------------------------------------//
-void CRUEmpCheckTaskExecutor::
-StoreReply(CUOFsIpcMessageTranslator &translator)
-{
-	inherited::StoreReply(translator);
+void CRUEmpCheckTaskExecutor::StoreReply(CUOFsIpcMessageTranslator &translator) {
+  inherited::StoreReply(translator);
 
-	pEmpCheck_->StoreData(translator);
+  pEmpCheck_->StoreData(translator);
 }
 
 //--------------------------------------------------------------------------//
@@ -168,20 +147,19 @@ StoreReply(CUOFsIpcMessageTranslator &translator)
 //
 //--------------------------------------------------------------------------//
 
-void CRUEmpCheckTaskExecutor::Work()
-{
-	RUASSERT(EX_CHECK == GetState());
+void CRUEmpCheckTaskExecutor::Work() {
+  RUASSERT(EX_CHECK == GetState());
 
-	PerformEmptinessCheck();
-	
-	SetState(EX_COMPLETE);
+  PerformEmptinessCheck();
+
+  SetState(EX_COMPLETE);
 }
 
 //--------------------------------------------------------------------------//
 //	CRUEmpCheckTaskExecutor::PerformEmptinessCheck()
-//	
+//
 //	Work() callee.
-//	
+//
 //	Iterate through the values of MV.EPOCH[T] of using MVs,
 //	in the descending order, and perform the delta emptiness
 //	check (by selecting the first (occasional) record from
@@ -189,15 +167,13 @@ void CRUEmpCheckTaskExecutor::Work()
 //	tered, it always holds that the MVs that observe the log
 //	from earlier epochs also see a non-empty delta, and the
 //	search can be stopped.
-//	
+//
 //--------------------------------------------------------------------------//
 
-void CRUEmpCheckTaskExecutor::
-PerformEmptinessCheck()
-{
-	pEmpCheck_->PrepareSQL();
+void CRUEmpCheckTaskExecutor::PerformEmptinessCheck() {
+  pEmpCheck_->PrepareSQL();
 
-	BeginTransaction();
-	pEmpCheck_->PerformCheck();		
-	CommitTransaction(); // Although no write operations were performed...
+  BeginTransaction();
+  pEmpCheck_->PerformCheck();
+  CommitTransaction();  // Although no write operations were performed...
 }

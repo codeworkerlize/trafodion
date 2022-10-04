@@ -29,7 +29,7 @@
  * Description:  class for the parallel execution clause specified in
  *               DDL statements associating with INDEX.
  *
- *               
+ *
  * Created:      9/18/95
  * Language:     C++
  *
@@ -38,7 +38,6 @@
  *
  *****************************************************************************
  */
-
 
 #include "common/ComASSERT.h"
 #include "common/ComOperators.h"
@@ -58,33 +57,24 @@ class ElemDDLParallelExec;
 // -----------------------------------------------------------------------
 // definition of class ElemDDLParallelExec
 // -----------------------------------------------------------------------
-class ElemDDLParallelExec : public ElemDDLNode
-{
-
-public:
-
+class ElemDDLParallelExec : public ElemDDLNode {
+ public:
   // constructors
   ElemDDLParallelExec(NABoolean parallelExecSpec)
-  : ElemDDLNode(ELM_PARALLEL_EXEC_ELEM),
-  parallelExecSpec_(parallelExecSpec),
-  configFileName_(PARSERHEAP())
-  { }
+      : ElemDDLNode(ELM_PARALLEL_EXEC_ELEM), parallelExecSpec_(parallelExecSpec), configFileName_(PARSERHEAP()) {}
 
-  ElemDDLParallelExec(NABoolean parallelExecSpec,
-                             const NAString & configFileName)
-  : ElemDDLNode(ELM_PARALLEL_EXEC_ELEM),
-  parallelExecSpec_(parallelExecSpec),
-  configFileName_(configFileName, PARSERHEAP())
-  {
+  ElemDDLParallelExec(NABoolean parallelExecSpec, const NAString &configFileName)
+      : ElemDDLNode(ELM_PARALLEL_EXEC_ELEM),
+        parallelExecSpec_(parallelExecSpec),
+        configFileName_(configFileName, PARSERHEAP()) {
     ComASSERT(parallelExecSpec_ EQU TRUE);
   }
-
 
   // virtual destructor
   virtual ~ElemDDLParallelExec();
 
   // cast
-  virtual ElemDDLParallelExec * castToElemDDLParallelExec();
+  virtual ElemDDLParallelExec *castToElemDDLParallelExec();
 
   // accessors
   inline NAString getConfigFileName() const;
@@ -97,29 +87,18 @@ public:
   virtual const NAString displayLabel2() const;
   virtual const NAString getText() const;
 
-
-private:
-
+ private:
   NABoolean parallelExecSpec_;
   NAString configFileName_;
 
-}; // class ElemDDLParallelExec
+};  // class ElemDDLParallelExec
 
 // -----------------------------------------------------------------------
 // definitions of inline methods for class ElemDDLParallelExec
 // -----------------------------------------------------------------------
 
+inline NAString ElemDDLParallelExec::getConfigFileName() const { return configFileName_; }
 
-inline NAString
-ElemDDLParallelExec::getConfigFileName() const
-{
-  return configFileName_;
-}
+inline NABoolean ElemDDLParallelExec::isParallelExecEnabled() const { return parallelExecSpec_; }
 
-inline NABoolean
-ElemDDLParallelExec::isParallelExecEnabled() const
-{
-  return parallelExecSpec_;
-}
-
-#endif // ELEMDDLPARALLELEXEC_H
+#endif  // ELEMDDLPARALLELEXEC_H

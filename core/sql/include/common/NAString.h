@@ -39,7 +39,7 @@
 #include "common/Int64.h"
 #include "common/CollHeap.h"
 #include "common/ComCharSetDefs.h"
-#include "export/NAStringDef.h"  
+#include "export/NAStringDef.h"
 #include "common/NAWinNT.h"
 
 // -----------------------------------------------------------------------
@@ -48,7 +48,7 @@
 
 // NB: NAString no longer IS RWCString ; instead, it's a separate class,
 // derived from RWCString, with all allocation changed from global new to
-// instead use a CollHeap * 
+// instead use a CollHeap *
 
 //#define NASTRING  RWCString	// needed by c89 compiler in a few places
 
@@ -86,93 +86,76 @@
 // Note that convertNAString() allocates memory.
 // -----------------------------------------------------------------------
 
-char*     convertNAString(const NAString &ns, CollHeap *heap,
-			  NABoolean wideNull = FALSE);
-void	  GetSimplePosixFilename(NAString &filename, NABoolean doLower = FALSE);
-ULng32	hashKey(const NAString &ns);
+char *convertNAString(const NAString &ns, CollHeap *heap, NABoolean wideNull = FALSE);
+void GetSimplePosixFilename(NAString &filename, NABoolean doLower = FALSE);
+ULng32 hashKey(const NAString &ns);
 NABoolean IsNAStringSpace(const NAString &ns);
 NABoolean IsNAStringSpaceOrEmpty(const NAString &ns);
-NABoolean NAStringHasOnly7BitAsciiChars(const NAString& ns);
-NABoolean NAStringHasOnlyDecimalDigitAsciiChars(const NAString& ns);
+NABoolean NAStringHasOnly7BitAsciiChars(const NAString &ns);
+NABoolean NAStringHasOnlyDecimalDigitAsciiChars(const NAString &ns);
 NABoolean IsSqlReservedWord(const char *sqlText);
 NABoolean IsCIdentifier(const char *id);
-NAString  LookupDefineName(const NAString &ns, NABoolean iterate = FALSE);
-void      NAStringUpshiftASCII(NAString &ns);
-Lng32      NAStringToLong(const NAString &ns);
-double    NAStringToReal(const NAString &ns);
-UInt32  NAStringToUnsigned(const NAString &ns);
-NAString  LongToNAString(Lng32 l);
-NAString  RealToNAString(double d);
-NAString  UnsignedToNAString(UInt32 u);
-NAString  Int64ToNAString(Int64 l);
+NAString LookupDefineName(const NAString &ns, NABoolean iterate = FALSE);
+void NAStringUpshiftASCII(NAString &ns);
+Lng32 NAStringToLong(const NAString &ns);
+double NAStringToReal(const NAString &ns);
+UInt32 NAStringToUnsigned(const NAString &ns);
+NAString LongToNAString(Lng32 l);
+NAString RealToNAString(double d);
+NAString UnsignedToNAString(UInt32 u);
+NAString Int64ToNAString(Int64 l);
 
 // -----------------------------------------------------------------------
 // ANSI SQL name related functions
 // -----------------------------------------------------------------------
 
-NAString  ToAnsiIdentifier(const NAString &ns, NABoolean assertShort=TRUE);
-char *    ToAnsiIdentifier2(const char * nsData, size_t nsLen,
-			    CollHeap * heap);
-char *    ToAnsiIdentifier2(const char * nsData, size_t nsLen,
-			    CollHeap * heap, Lng32 isoMapCS);
-void      ToAnsiIdentifier3(const char * inputData, size_t inputLen, 
-			    char * outputData, size_t outputMaxLen, size_t * outputLen);
-void      ToAnsiIdentifier3(const char * inputData, size_t inputLen, 
-			    char * outputData, size_t outputMaxLen, size_t * outputLen,
-			    Lng32  isoMapCS);
+NAString ToAnsiIdentifier(const NAString &ns, NABoolean assertShort = TRUE);
+char *ToAnsiIdentifier2(const char *nsData, size_t nsLen, CollHeap *heap);
+char *ToAnsiIdentifier2(const char *nsData, size_t nsLen, CollHeap *heap, Lng32 isoMapCS);
+void ToAnsiIdentifier3(const char *inputData, size_t inputLen, char *outputData, size_t outputMaxLen,
+                       size_t *outputLen);
+void ToAnsiIdentifier3(const char *inputData, size_t inputLen, char *outputData, size_t outputMaxLen, size_t *outputLen,
+                       Lng32 isoMapCS);
 
 // The following macro definitions are for the flags parameter of ToInternalIdentifier()
-#define   NASTRING_ALLOW_NSK_GUARDIAN_NAME_FORMAT    0x0001
-#define   NASTRING_REGULAR_IDENT_WITH_DOLLAR_PREFIX  0x0002
-#define   NASTRING_DELIM_IDENT_WITH_DOLLAR_PREFIX    0x0004
-Lng32	  ToInternalIdentifier( NAString &ansiIdent
-                              , Int32 upCase = TRUE
-                              , NABoolean acceptCircumflex = FALSE
-                              , UInt16 pv_flags = NASTRING_ALLOW_NSK_GUARDIAN_NAME_FORMAT
-                              );
+#define NASTRING_ALLOW_NSK_GUARDIAN_NAME_FORMAT   0x0001
+#define NASTRING_REGULAR_IDENT_WITH_DOLLAR_PREFIX 0x0002
+#define NASTRING_DELIM_IDENT_WITH_DOLLAR_PREFIX   0x0004
+Lng32 ToInternalIdentifier(NAString &ansiIdent, Int32 upCase = TRUE, NABoolean acceptCircumflex = FALSE,
+                           UInt16 pv_flags = NASTRING_ALLOW_NSK_GUARDIAN_NAME_FORMAT);
 
 // -----------------------------------------------------------------------
 // SQL text related functions
 // -----------------------------------------------------------------------
 
-void      ToInternalString(NAString &internalStr, const NAString &quotedStr);
-void      ToQuotedString( NAString &quotedStr
-                        , const NAString &internalStr
-                        , NABoolean encloseInQuotes = TRUE);
-Lng32	  PrettifySqlText(NAString &sqlText,
-			  const char *nationalCharSetName = NULL);
-size_t	  LineBreakSqlText(NAString &sqlText, 
-			   NABoolean showddlView = FALSE,
-			   size_t maxlen = 79,
-		           size_t pfxlen = 2,// indent subsequent lines 2 spaces
-			   size_t pfxinitlen = 0,// indent first line 0 spaces
-			   char pfxchar = ' ',
-			   const char *schemaName = NULL,
-			   NABoolean commentOut = FALSE);
+void ToInternalString(NAString &internalStr, const NAString &quotedStr);
+void ToQuotedString(NAString &quotedStr, const NAString &internalStr, NABoolean encloseInQuotes = TRUE);
+Lng32 PrettifySqlText(NAString &sqlText, const char *nationalCharSetName = NULL);
+size_t LineBreakSqlText(NAString &sqlText, NABoolean showddlView = FALSE, size_t maxlen = 79,
+                        size_t pfxlen = 2,      // indent subsequent lines 2 spaces
+                        size_t pfxinitlen = 0,  // indent first line 0 spaces
+                        char pfxchar = ' ', const char *schemaName = NULL, NABoolean commentOut = FALSE);
 
-void	  TrimNAStringSpace(NAString &ns, NABoolean leading = TRUE, 
-					  NABoolean trailing = TRUE);
-size_t    IndexOfFirstWhiteSpace(const NAString &ns, size_t startPos = 0);
-size_t    IndexOfFirstNonWhiteSpace(const NAString &ns, size_t startPos = 0);
+void TrimNAStringSpace(NAString &ns, NABoolean leading = TRUE, NABoolean trailing = TRUE);
+size_t IndexOfFirstWhiteSpace(const NAString &ns, size_t startPos = 0);
+size_t IndexOfFirstNonWhiteSpace(const NAString &ns, size_t startPos = 0);
 
-void	  RemoveLeadingZeros(NAString &ns);
-void	  RemoveTrailingZeros(NAString &ns);
+void RemoveLeadingZeros(NAString &ns);
+void RemoveTrailingZeros(NAString &ns);
 
-NAString Latin1StrToUTF8(const NAString & latin1Str, NAMemory * heap = NULL);
+NAString Latin1StrToUTF8(const NAString &latin1Str, NAMemory *heap = NULL);
 
-NAString &replaceAll(NAString &source, const NAString &searchFor,
-                     const NAString &replaceWith);
+NAString &replaceAll(NAString &source, const NAString &searchFor, const NAString &replaceWith);
 
 class base64Decoder {
+ public:
+  base64Decoder();
+  ~base64Decoder(){};
 
-public:
-   base64Decoder();
-   ~base64Decoder() {};
+  NABoolean decode(const char *str, const size_t len, NAString &decoded);
 
-   NABoolean decode(const char* str, const size_t len, NAString& decoded); 
-
-protected:
-   Int32 T_[256]; 
+ protected:
+  Int32 T_[256];
 };
 
 // See notes at NAString.cpp specialSQL_TEXT[].
@@ -186,12 +169,11 @@ protected:
 // (as it's a nonprinting ascii char, using it will make debugging a tiny bit
 // less obvious, that's all).
 //
-#define   NON_SQL_TEXT_CHAR	'@'
-#define   NON_SQL_TEXT_STR	"@"
-#define	  FUNNY_INTERNAL_IDENT(str)	     str NON_SQL_TEXT_STR
-#define	  FUNNY_ANSI_IDENT(str)		"\"" str NON_SQL_TEXT_STR "\""
-#define	  FUNNY_ANSI_IDENT_HAS_PREFIX(str,pfx) \
-	    (strncmp(str, "\"" pfx, strlen("\"" pfx)) == 0)
+#define NON_SQL_TEXT_CHAR                     '@'
+#define NON_SQL_TEXT_STR                      "@"
+#define FUNNY_INTERNAL_IDENT(str)             str NON_SQL_TEXT_STR
+#define FUNNY_ANSI_IDENT(str)                 "\"" str NON_SQL_TEXT_STR "\""
+#define FUNNY_ANSI_IDENT_HAS_PREFIX(str, pfx) (strncmp(str, "\"" pfx, strlen("\"" pfx)) == 0)
 
 void FUNNY_ANSI_IDENT_REMOVE_PREFIX(NAString &str, const char *pfx);
 
@@ -199,15 +181,13 @@ void FUNNY_ANSI_IDENT_REMOVE_PREFIX(NAString &str, const char *pfx);
 // identifiers, properly delimited where necessary.
 // Only simple column names are returned undelimited;
 // only they should use this procedure.
-#define ANSI_ID(name)   ToAnsiIdentifier(name).data()
+#define ANSI_ID(name) ToAnsiIdentifier(name).data()
 
 // Syntactic sugar to call Space::allocateAndCopyToAlignedSpace() in exp_space.C
 // (because exe/exp cannot use NAString/RWCString stuff, since exe/exp
 // is in a system library...)
-#define	  AllocateAndCopyToAlignedSpace(/* const NAString& */ ns, 	\
-					/* size_t */ countPrefixSize)	\
-		allocateAndCopyToAlignedSpace(				\
-			(ns).data(), (ns).length(), countPrefixSize)
+#define AllocateAndCopyToAlignedSpace(/* const NAString& */ ns, /* size_t */ countPrefixSize) \
+  allocateAndCopyToAlignedSpace((ns).data(), (ns).length(), countPrefixSize)
 
 // -----------------------------------------------------------------------
 // Routines to set and access the NAString_isoMappingCS memory cache for
@@ -215,20 +195,16 @@ void FUNNY_ANSI_IDENT_REMOVE_PREFIX(NAString &str, const char *pfx);
 // modules w:/common/NAString[2].cpp.  These routines currently cannot
 // access SqlParser_ISO_MAPPING directly due to the complex build hierarchy.
 // -----------------------------------------------------------------------
-Lng32     NAString_getIsoMapCS();
-void      NAString_setIsoMapCS(Lng32 isoMappingCS);
+Lng32 NAString_getIsoMapCS();
+void NAString_setIsoMapCS(Lng32 isoMappingCS);
 
 // -----------------------------------------------------------------------
 // Routines use by routines ToInternalIdentifier() and
 // ToAnsiIdentifier[2|3]() in modules w:/common/NAString[2].cpp.
 // -----------------------------------------------------------------------
-inline SQLCHARSET_CODE ComGetNameInterfaceCharSet()
-{
-  return SQLCHARSETCODE_UTF8;
-}
+inline SQLCHARSET_CODE ComGetNameInterfaceCharSet() { return SQLCHARSETCODE_UTF8; }
 
-inline void ComSetNameInterfaceCharSet(SQLCHARSET_CODE ansiNameCharSet)
-{
+inline void ComSetNameInterfaceCharSet(SQLCHARSET_CODE ansiNameCharSet) {
   // ComASSERT(ansiNameCharSet == SQLCHARSETCODE_UTF8);
 }
 
@@ -239,7 +215,7 @@ inline void ComSetNameInterfaceCharSet(SQLCHARSET_CODE ansiNameCharSet)
 NABoolean isUpperIsoMapCS(unsigned char c);
 NABoolean isAlphaIsoMapCS(unsigned char c);
 NABoolean isAlNumIsoMapCS(unsigned char c);
-void      NAStringUpshiftIsoMapCS(NAString &ns);
+void NAStringUpshiftIsoMapCS(NAString &ns);
 
 typedef LIST(const NAString *) ConstStringList;
 
@@ -255,38 +231,33 @@ typedef LIST(const NAString *) ConstStringList;
 
 #include "common/Collections.h"
 
-class NAStringAsOnlyValueInNAKeyLookup : public NAString
-{
-public:
-  NAStringAsOnlyValueInNAKeyLookup()			: NAString()    {}
-  NAStringAsOnlyValueInNAKeyLookup(const char *str)	: NAString(str) {}
-  NAStringAsOnlyValueInNAKeyLookup(const NAString &str)	: NAString(str) {}
+class NAStringAsOnlyValueInNAKeyLookup : public NAString {
+ public:
+  NAStringAsOnlyValueInNAKeyLookup() : NAString() {}
+  NAStringAsOnlyValueInNAKeyLookup(const char *str) : NAString(str) {}
+  NAStringAsOnlyValueInNAKeyLookup(const NAString &str) : NAString(str) {}
 
-  const NAString *getKey() const	{ return this; }
+  const NAString *getKey() const { return this; }
   // inherits NAString::operator==()
   // likewise hashkey(const NAString&) will be used by NAKeyLookup
 };
 
-class NAKeyLookupOnNAStringOnly : public NAKeyLookup<
-				    NAString,NAStringAsOnlyValueInNAKeyLookup>
-{
-public:
-  NAKeyLookupOnNAStringOnly(short initSize = 29, CollHeap* h = NULL) :
-    NAKeyLookup<NAString,NAStringAsOnlyValueInNAKeyLookup>
-      (initSize, NAKeyLookupEnums::KEY_INSIDE_VALUE, h) {}
+class NAKeyLookupOnNAStringOnly : public NAKeyLookup<NAString, NAStringAsOnlyValueInNAKeyLookup> {
+ public:
+  NAKeyLookupOnNAStringOnly(short initSize = 29, CollHeap *h = NULL)
+      : NAKeyLookup<NAString, NAStringAsOnlyValueInNAKeyLookup>(initSize, NAKeyLookupEnums::KEY_INSIDE_VALUE, h) {}
 
-  //copy ctor
-  NAKeyLookupOnNAStringOnly (const NAKeyLookupOnNAStringOnly & orig, CollHeap * h=0) ;
+  // copy ctor
+  NAKeyLookupOnNAStringOnly(const NAKeyLookupOnNAStringOnly &orig, CollHeap *h = 0);
 
-  ~NAKeyLookupOnNAStringOnly() 
-    {
-      //## This is commented out because it causes the dtor to crash.
-      //## The only current user of this class wants this hashtable to
-      //## persist over the entire lifetime of arkcmp, so memory leakage
-      //## is not an issue for it.  But other (future) users, beware!
-      //##
-      //##	clearAndDestroy();
-    }
+  ~NAKeyLookupOnNAStringOnly() {
+    //## This is commented out because it causes the dtor to crash.
+    //## The only current user of this class wants this hashtable to
+    //## persist over the entire lifetime of arkcmp, so memory leakage
+    //## is not an issue for it.  But other (future) users, beware!
+    //##
+    //##	clearAndDestroy();
+  }
 };
 
 #endif /* NAKEYLOOKUPONNASTRINGONLY_H     */

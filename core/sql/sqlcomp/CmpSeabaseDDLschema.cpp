@@ -393,45 +393,7 @@ bool CmpSeabaseDDL::describeSchema(const NAString &catalogName, const NAString &
       (CmpCommon::getDefault(SHOWDDL_DISPLAY_PRIVILEGE_GRANTS) == DF_OFF))
     displayGrants = false;
 
-  NABoolean isHive = FALSE;
-  NAString lcat(catalogName);
-  lcat.toLower();
-  if (lcat == HIVE_SYSTEM_CATALOG_LC) isHive = TRUE;
-
   NAString output;
-  if (isHive) {
-    if (checkPrivs && !ComUser::currentUserHasRole(HIVE_ROLE_ID, NULL /*don't update diags*/)) {
-      *CmpCommon::diags() << DgSqlCode(-CAT_NOT_AUTHORIZED);
-      return false;
-    }
-
-    output = "/* Hive DDL */";
-    outlines.push_back(output.data());
-
-    output = "CREATE SCHEMA HIVE.";
-    NAString lsch(schemaName);
-    output += lsch.data();
-    output += ";";
-
-    outlines.push_back(output.data());
-
-    outlines.push_back(" ");
-
-    if (isHiveRegistered) {
-      output = "REGISTER /*INTERNAL*/ HIVE SCHEMA HIVE.";
-      output += lsch.data();
-      output += ";";
-
-      outlines.push_back(output.data());
-    }
-
-    if (displayGrants) {
-      output = "-- schema owner grants are unavailable";
-      outlines.push_back(output.data());
-    }
-
-    return true;
-  }
 
   // Get the schema object, should exist
   NATable *naTable = bindWA.getNATable(cn);

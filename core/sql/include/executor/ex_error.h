@@ -36,13 +36,12 @@
  *****************************************************************************
  */
 
-
-#include "exp/ExpError.h"		// contains enum ExeErrorCode
+#include "exp/ExpError.h"  // contains enum ExeErrorCode
 #include "export/ComDiags.h"
 
-class  ComCondition;
-class  ex_globals;
-class  ex_queue_entry;
+class ComCondition;
+class ex_globals;
+class ex_queue_entry;
 struct ex_queue_pair;
 
 // -----------------------------------------------------------------------
@@ -54,41 +53,17 @@ struct ex_queue_pair;
 // attached diagnostics area, then an empty one is allocated in heap "heap",
 // and the indicated condition added to it.  In either case, a pointer to
 // the new condition is returned through parameter "cond".
-ComDiagsArea *ExRaiseSqlError(CollHeap* heap, ex_queue_entry* req,
-			      ExeErrorCode code, 
-			      Lng32 * intParam1 = NULL,
-			      char * stringParam1 = NULL,
-			      ComCondition** cond=NULL);
+ComDiagsArea *ExRaiseSqlError(CollHeap *heap, ex_queue_entry *req, ExeErrorCode code, Lng32 *intParam1 = NULL,
+                              char *stringParam1 = NULL, ComCondition **cond = NULL);
 
-ComDiagsArea *ExRaiseSqlWarning(CollHeap* heap, ex_queue_entry* req,
-				ExeErrorCode code, 
-				Lng32 * intParam1 = NULL,
-				char * stringParam1 = NULL,
-				ComCondition** cond=NULL);
+ComDiagsArea *ExRaiseSqlWarning(CollHeap *heap, ex_queue_entry *req, ExeErrorCode code, Lng32 *intParam1 = NULL,
+                                char *stringParam1 = NULL, ComCondition **cond = NULL);
 
-void ExHandleArkcmpErrors(ex_queue_pair  &qparent,
-			  ex_queue_entry *down_entry,
-			  Lng32 matchNo,
-			  ex_globals     *globals,
-			  ComDiagsArea   *da,
-			  ExeErrorCode    err = EXE_INTERNAL_ERROR);
+void ExHandleArkcmpErrors(ex_queue_pair &qparent, ex_queue_entry *down_entry, Lng32 matchNo, ex_globals *globals,
+                          ComDiagsArea *da, ExeErrorCode err = EXE_INTERNAL_ERROR);
 
-void ExHandleErrors(ex_queue_pair  &qparent,
-		    ex_queue_entry *down_entry,
-		    Lng32 matchNo,
-		    ex_globals     *globals,
-		    ComDiagsArea   *da,
-		    ExeErrorCode    err = EXE_INTERNAL_ERROR,
-		    Lng32 * intParam1 = NULL,
-		    const char * stringParam1 = NULL,
-                    Lng32 * nskErr = NULL,
-		    const char * stringParam2 = NULL);
+void ExHandleErrors(ex_queue_pair &qparent, ex_queue_entry *down_entry, Lng32 matchNo, ex_globals *globals,
+                    ComDiagsArea *da, ExeErrorCode err = EXE_INTERNAL_ERROR, Lng32 *intParam1 = NULL,
+                    const char *stringParam1 = NULL, Lng32 *nskErr = NULL, const char *stringParam2 = NULL);
 
 #endif /* EX_ERROR_H */
-
-
-
-
-
-
-

@@ -5,8 +5,8 @@
  *
  * File:         NAMessageType.h
  * Description:  Associate numbers with SQL/ARK message types
- *               
- *               
+ *
+ *
  * Created:      10/17/95
  * Language:     C++
  *
@@ -57,7 +57,7 @@
 //   shared by multiple components or processes
 //
 // This file describes the basic types used for the above information:
-// 
+//
 // NAMessageType             Type of a message header
 // NAMessageObjType          Type of a non-header object in the message
 // NAMessageObjVersion       Version of a message object
@@ -77,23 +77,13 @@
 // handle both Guardian and Unix-style personalities. An enumeration
 // type tells which communication protocol we are using.
 // -----------------------------------------------------------------------
-typedef enum NANetworkDomainEnum
-{
-  NA_DOM_INVALID,
-  NA_DOM_GUA_PHANDLE,
-  NA_DOM_INTERNET
-} NANetworkDomain;
+typedef enum NANetworkDomainEnum { NA_DOM_INVALID, NA_DOM_GUA_PHANDLE, NA_DOM_INTERNET } NANetworkDomain;
 
 // -----------------------------------------------------------------------
 // Types of server processes supported (see file ExIPC.C for the
 // logic that associates a name with each literal)
 // -----------------------------------------------------------------------
-typedef enum NAServerTypeEnum
-{
-  NA_SQLCAT_SERVER,
-  NA_SQLCOMP_SERVER,
-  NA_SQLESP_SERVER
-} NAServerType;
+typedef enum NAServerTypeEnum { NA_SQLCAT_SERVER, NA_SQLCOMP_SERVER, NA_SQLESP_SERVER } NAServerType;
 
 // -----------------------------------------------------------------------
 // Message types used by this protocol.
@@ -101,8 +91,7 @@ typedef enum NAServerTypeEnum
 // Rather than recompiling everything when this changes, one could also
 // reserve ranges of numbers in this file and manage them separately.
 // -----------------------------------------------------------------------
-typedef enum NAMessageTypeEnum
-{
+typedef enum NAMessageTypeEnum {
   NA_MSG_GUA_CLOSE = -999,
   NA_MSG_GUA_STARTUP = 1,
 
@@ -146,7 +135,7 @@ typedef Lng32 NAMessageObjType;
 // -----------------------------------------------------------------------
 // Version of a message header or of an object in a message
 // -----------------------------------------------------------------------
-typedef Lng32  NAMessageObjVersion;
+typedef Lng32 NAMessageObjVersion;
 
 // -----------------------------------------------------------------------
 // size of objects in bytes
@@ -158,7 +147,7 @@ typedef ULng32 NAMessageObjSize;
 // Reference count of a message header or of an object in a message
 // (used mainly when objects are shared across the IPC interface)
 // -----------------------------------------------------------------------
-typedef Lng32  NAMessageRefCount;
+typedef Lng32 NAMessageRefCount;
 
 // -----------------------------------------------------------------------
 // A buffer pointer to a raw, byte-adressable  message buffer, used for
@@ -173,7 +162,7 @@ typedef const char *NAConstMessageBufferPtr;
 // -----------------------------------------------------------------------
 
 const short NALittleEndian = 1;
-const short NABigEndian    = 2;
+const short NABigEndian = 2;
 
 #ifdef NA_LITTLE_ENDIAN
 const short NAMyEndianness = NALittleEndian;
@@ -197,6 +186,5 @@ const short NAAlignment8 = 8;
 // are laid out to have no fillers when this alignment is used
 // -----------------------------------------------------------------------
 const short NAMyAlignment = NAAlignment8;
-
 
 #endif /* NAMESSAGETYPE_H */

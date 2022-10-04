@@ -51,62 +51,53 @@ class StmtDDLCreateExceptionTable;
 // -----------------------------------------------------------------------
 // Create Exception table statement
 // -----------------------------------------------------------------------
-class StmtDDLCreateExceptionTable : public StmtDDLNode
-{
+class StmtDDLCreateExceptionTable : public StmtDDLNode {
+ public:
+  // constructor
+  StmtDDLCreateExceptionTable();
+  StmtDDLCreateExceptionTable(const QualifiedName &exceptionname, const QualifiedName &objectreference);
 
-public:
+  // virtual destructor
+  virtual ~StmtDDLCreateExceptionTable();
 
-    // constructor
-    StmtDDLCreateExceptionTable();
-    StmtDDLCreateExceptionTable (const QualifiedName & exceptionname,
-                                 const QualifiedName & objectreference);
+  // cast
+  virtual StmtDDLCreateExceptionTable *castToStmtDDLCreateExceptionTable();
 
-    // virtual destructor
-    virtual ~StmtDDLCreateExceptionTable();
+  // method for binding
+  ExprNode *bindNode(BindWA *bindWAPtr);
 
-    // cast
-    virtual StmtDDLCreateExceptionTable * castToStmtDDLCreateExceptionTable();
+  // accessors
+  inline const NAString getExceptionName() const;
+  inline const NAString getObjectReference() const;
 
-    // method for binding
-    ExprNode * bindNode(BindWA *bindWAPtr);
+  QualifiedName const &getExceptionNameAsQualifiedName() const { return exceptionName_; }
 
-    // accessors
-    inline const NAString getExceptionName() const;
-    inline const NAString getObjectReference() const ;
+  QualifiedName const &getObjectReferenceAsQualifiedName() const { return objectReference_; }
 
-    QualifiedName const &getExceptionNameAsQualifiedName() const
-      { return exceptionName_; }
+  // for tracing
+  virtual const NAString displayLabel1() const;
+  virtual const NAString displayLabel2() const;
+  virtual const NAString getText() const;
 
-    QualifiedName const &getObjectReferenceAsQualifiedName() const
-      { return objectReference_; }
+ private:
+  QualifiedName exceptionName_;
+  QualifiedName objectReference_;
 
-    // for tracing
-    virtual const NAString displayLabel1() const;
-    virtual const NAString displayLabel2() const;
-    virtual const NAString getText() const;
-
-private:
-    QualifiedName exceptionName_;
-    QualifiedName objectReference_;
-
-}; // class StmtDDLCreateExceptionTable
+};  // class StmtDDLCreateExceptionTable
 
 //----------------------------------------------------------------------------
 // definitions of inline methods for class StmtDDLCreateExceptionTable
 //----------------------------------------------------------------------------
 
 // accessors
-inline const  NAString StmtDDLCreateExceptionTable::getExceptionName() const
-{
-    NAString exceptionname = exceptionName_.getQualifiedNameAsAnsiString();
-    return exceptionname;
+inline const NAString StmtDDLCreateExceptionTable::getExceptionName() const {
+  NAString exceptionname = exceptionName_.getQualifiedNameAsAnsiString();
+  return exceptionname;
 }
 
-inline const  NAString StmtDDLCreateExceptionTable::getObjectReference() const
-{
-    NAString objectreference =  objectReference_.getQualifiedNameAsAnsiString();
-    return objectreference;
+inline const NAString StmtDDLCreateExceptionTable::getObjectReference() const {
+  NAString objectreference = objectReference_.getQualifiedNameAsAnsiString();
+  return objectreference;
 }
 
 #endif  // STMTDDLCREATEEXCEPTIONTABLE_H
-

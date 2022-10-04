@@ -53,7 +53,6 @@
  *****************************************************************************
  */
 
-
 #include "ElemDDLFileAttrMaxSize.h"
 #include "ParDDLFileAttrs.h"
 #include "ElemDDLFileAttrRangeLog.h"
@@ -61,7 +60,6 @@
 #include "ElemDDLFileAttrMvAudit.h"
 #include "ElemDDLFileAttrMaxExtents.h"
 #include "common/ComASSERT.h"
-
 
 // -----------------------------------------------------------------------
 // contents of this file
@@ -76,26 +74,20 @@ class ParDDLFileAttrsAlterTable;
 // -----------------------------------------------------------------------
 // class to contain all file attributes associating with a DDL statement
 // -----------------------------------------------------------------------
-class ParDDLFileAttrsAlterTable : public ParDDLFileAttrs
-{
-
-public:
-
+class ParDDLFileAttrsAlterTable : public ParDDLFileAttrs {
+ public:
   // default constructor
   ParDDLFileAttrsAlterTable(
-       ParDDLFileAttrs::fileAttrsNodeTypeEnum fileAttrsNodeType
-       = ParDDLFileAttrs::FILE_ATTRS_ALTER_TABLE);
+      ParDDLFileAttrs::fileAttrsNodeTypeEnum fileAttrsNodeType = ParDDLFileAttrs::FILE_ATTRS_ALTER_TABLE);
 
   // copy constructor
-  ParDDLFileAttrsAlterTable(
-       const ParDDLFileAttrsAlterTable & alterTableFileAttributes);
+  ParDDLFileAttrsAlterTable(const ParDDLFileAttrsAlterTable &alterTableFileAttributes);
 
   // virtual destructor
   virtual ~ParDDLFileAttrsAlterTable();
 
   // assignment operator
-  ParDDLFileAttrsAlterTable & operator = (
-       const ParDDLFileAttrsAlterTable &rhs);
+  ParDDLFileAttrsAlterTable &operator=(const ParDDLFileAttrsAlterTable &rhs);
 
   //
   // accessors
@@ -108,122 +100,122 @@ public:
 
   inline NABoolean getIsAudit() const;
 
-       // Returns TRUE when the Audit phrase appears; returns FALSE
-       // when the No Audit phrase appears. The return value has no
-       // meanings when neither the Audit nor No Audit phrase
-       // appears.
+  // Returns TRUE when the Audit phrase appears; returns FALSE
+  // when the No Audit phrase appears. The return value has no
+  // meanings when neither the Audit nor No Audit phrase
+  // appears.
 
   inline NABoolean getIsAuditCompress() const;
 
-       // Returns TRUE when the AuditCompress phrase appears; returns
-       // FALSE when the No AuditCompress phrase appears. The return
-       // value has no meanings when neither the AuditCompress nor No
-       // AuditCompress phrase appears.
+  // Returns TRUE when the AuditCompress phrase appears; returns
+  // FALSE when the No AuditCompress phrase appears. The return
+  // value has no meanings when neither the AuditCompress nor No
+  // AuditCompress phrase appears.
 
   inline NABoolean getIsBuffered() const;
 
-       // Returns TRUE when the Buffered phrase appears; returns
-       // FALSE when the No Buffered phrase appears. The return
-       // value has no meanings when neither the Buffered nor No
-       // Buffered phrase appears.
+  // Returns TRUE when the Buffered phrase appears; returns
+  // FALSE when the No Buffered phrase appears. The return
+  // value has no meanings when neither the Buffered nor No
+  // Buffered phrase appears.
 
   inline NABoolean getIsClearOnPurge() const;
 
-       // Returns TRUE when the ClearOnPurge phrase appears; returns
-       // FALSE when the No ClearOnPurge phrase appears. The return
-       // value has no meanings when neither the ClearOnPurge nor No
-       // ClearOnPurge phrase appears.
+  // Returns TRUE when the ClearOnPurge phrase appears; returns
+  // FALSE when the No ClearOnPurge phrase appears. The return
+  // value has no meanings when neither the ClearOnPurge nor No
+  // ClearOnPurge phrase appears.
 
   inline ComCompressionType getCompressionType() const;
-     // Returns the value of COMPRESSION TYPE
+  // Returns the value of COMPRESSION TYPE
 
   inline ULng32 getMaxSize() const;
 
-       // Returns the value appearing in the specified MaxSize phrase.
-       // The return value has no meanings when the MaxSize phrase
-       // does not appear.
-       
+  // Returns the value appearing in the specified MaxSize phrase.
+  // The return value has no meanings when the MaxSize phrase
+  // does not appear.
+
   inline ComUnits getMaxSizeUnit() const;
 
-       // Returns the size increment (unit) appearing in the specified
-       // MaxSize phrase.  If specified MaxSize phrase does not include
-       // a size unit, returns the default size increment.  If the
-       // specified MaxSize includes the keyword Unbounded or if the
-       // MaxSize phrase does not appear, the return value does not
-       // have any meanings.
+  // Returns the size increment (unit) appearing in the specified
+  // MaxSize phrase.  If specified MaxSize phrase does not include
+  // a size unit, returns the default size increment.  If the
+  // specified MaxSize includes the keyword Unbounded or if the
+  // MaxSize phrase does not appear, the return value does not
+  // have any meanings.
 
   NAString getMaxSizeUnitAsNAString() const;
 
-       // Same as getMaxSizeUnit() except that the returned size unit
-       // is in string format so it can be used for tracing purposes.
+  // Same as getMaxSizeUnit() except that the returned size unit
+  // is in string format so it can be used for tracing purposes.
 
   inline ULng32 getMaxExt() const;
-		
-       // Returns the maxext phrase.
+
+  // Returns the maxext phrase.
 
   inline NABoolean isAllocateSpecified() const;
 
-       // Returns TRUE if the Allocate phrase appears;
-       // returns FALSE otherwise.
+  // Returns TRUE if the Allocate phrase appears;
+  // returns FALSE otherwise.
 
   inline NABoolean isAuditCompress() const;
 
-       // Same as getIsAuditCompress()
+  // Same as getIsAuditCompress()
 
   inline NABoolean isAuditCompressSpecified() const;
 
-       // Returns TRUE if the AuditCompress or No AuditCompress
-       // phrase appears; returns FALSE otherwise.
+  // Returns TRUE if the AuditCompress or No AuditCompress
+  // phrase appears; returns FALSE otherwise.
 
   inline NABoolean isAuditSpecified() const;
 
-       // returns TRUE if the Audit or No Audit phrase appears;
-       // returns FALSE otherwise.
+  // returns TRUE if the Audit or No Audit phrase appears;
+  // returns FALSE otherwise.
 
   inline NABoolean isAudited() const;
 
-       // same as getIsAudit()
+  // same as getIsAudit()
 
   inline NABoolean isBuffered() const;
 
-       // Same as getIsBuffered()
+  // Same as getIsBuffered()
 
   inline NABoolean isBufferedSpecified() const;
 
-       // Returns TRUE if the Buffered or No Buffered phrase
-       // appears; returns FALSE if neither the Buffered nor
-       // No Buffered phrase appears.
+  // Returns TRUE if the Buffered or No Buffered phrase
+  // appears; returns FALSE if neither the Buffered nor
+  // No Buffered phrase appears.
 
   inline NABoolean isClearOnPurge() const;
 
-       // Same as getIsClearOnPurge()
+  // Same as getIsClearOnPurge()
 
   inline NABoolean isClearOnPurgeSpecified() const;
 
-       // Returns TRUE if the [No] ClearOnPurge phrase appears;
-       // returns FALSE if neither the ClearOnPurge nor No
-       // ClearOnPurge phrase appears.
+  // Returns TRUE if the [No] ClearOnPurge phrase appears;
+  // returns FALSE if neither the ClearOnPurge nor No
+  // ClearOnPurge phrase appears.
 
   inline NABoolean isCompressionTypeSpecified() const;
 
-       // Returns TRUE if the Compression phrase appears;
-       // returns FALSE otherwise.
+  // Returns TRUE if the Compression phrase appears;
+  // returns FALSE otherwise.
 
   inline NABoolean isDeallocateSpecified() const;
 
-       // Returns TRUE if the Deallocate phrase appears;
-       // returns FALSE otherwise.
+  // Returns TRUE if the Deallocate phrase appears;
+  // returns FALSE otherwise.
 
   inline NABoolean isMaxSizeSpecified() const;
 
-       // Returns TRUE if the MaxSize phrase appears;
-       // returns FALSE otherwise.
+  // Returns TRUE if the MaxSize phrase appears;
+  // returns FALSE otherwise.
 
   inline NABoolean isMaxSizeUnbounded() const;
 
-       // Returns TRUE if the MaxSize Unbounded phrase appears;
-       // returns FALSE otherwise.  The return value does not
-       // any meaning when the MaxSize phrase does not appear.
+  // Returns TRUE if the MaxSize Unbounded phrase appears;
+  // returns FALSE otherwise.  The return value does not
+  // any meaning when the MaxSize phrase does not appear.
 
   inline NABoolean isXnReplSpecified() const;
 
@@ -235,8 +227,8 @@ public:
   NABoolean isReadOnlySpecified() const;
   NABoolean readOnlyEnabled() const;
 
-//++ MV
-  
+  //++ MV
+
   inline ComRangeLogType getRangelogType() const;
 
   inline NABoolean isRangeLogSpecified() const;
@@ -245,12 +237,10 @@ public:
 
   inline NABoolean isLockOnRefreshSpecified() const;
 
-
-  NABoolean isRangeLog() const
-  {
-	// XXXXXXXXMVSXXXXX BITMAP
-	  printf("depricated rangelog attribute\n");
-	  return TRUE;
+  NABoolean isRangeLog() const {
+    // XXXXXXXXMVSXXXXX BITMAP
+    printf("depricated rangelog attribute\n");
+    return TRUE;
   }
 
   inline NABoolean isInsertLog() const;
@@ -261,31 +251,29 @@ public:
 
   inline NABoolean isMvsAllowedSpecified() const;
 
-//-- MV
-
+  //-- MV
 
   inline NABoolean isExtentSpecified() const;
-      // Returns TRUE is the Extent phrase appears;
-      // returns FALSE otherwise.
+  // Returns TRUE is the Extent phrase appears;
+  // returns FALSE otherwise.
 
   inline NABoolean isMaxExtentSpecified() const;
-      // Returns TRUE is the MaxExtents phrase appears;
-      // returns FALSE otherwise.  // mutators
+  // Returns TRUE is the MaxExtents phrase appears;
+  // returns FALSE otherwise.  // mutators
 
   inline NABoolean isNoLabelUpdateSpecified() const;
-      // Returns TRUE is the 'NO LABEL UPDATE' phrase appears;
-      // returns FALSE otherwise.  // mutators
+  // Returns TRUE is the 'NO LABEL UPDATE' phrase appears;
+  // returns FALSE otherwise.  // mutators
 
   inline NABoolean isNoLabelUpdate() const;
 
-  void setFileAttr(ElemDDLFileAttr * pFileAttrParseNode);
-  void copy(const ParDDLFileAttrsAlterTable & alterTableFileAttributes);
+  void setFileAttr(ElemDDLFileAttr *pFileAttrParseNode);
+  void copy(const ParDDLFileAttrsAlterTable &alterTableFileAttributes);
 
   // trace
   NATraceList getDetailInfo() const;
 
-private:
-
+ private:
   // ---------------------------------------------------------------------
   // private methods
   // ---------------------------------------------------------------------
@@ -305,83 +293,83 @@ private:
   //
   //   controls amount of disk space allocated
   //
-  NABoolean       isAllocateSpec_;
-  ComSInt16       extentsToAllocate_;
-  
+  NABoolean isAllocateSpec_;
+  ComSInt16 extentsToAllocate_;
+
   // [ NO ] AUDIT
   //
   //   controls TMF auditing
   //
-  NABoolean       isAuditSpec_;
-  NABoolean       isAudit_;
+  NABoolean isAuditSpec_;
+  NABoolean isAudit_;
 
   // [ NO ] AUDITCOMPRESS
-  NABoolean       isAuditCompressSpec_;
-  NABoolean       isAuditCompress_;
+  NABoolean isAuditCompressSpec_;
+  NABoolean isAuditCompress_;
 
   // [ NO ] BUFFERED
-  NABoolean       isBufferedSpec_;
-  NABoolean       isBuffered_;
+  NABoolean isBufferedSpec_;
+  NABoolean isBuffered_;
 
   // [ NO ] CLEARONPURGE
-  NABoolean       isClearOnPurgeSpec_;
-  NABoolean       isClearOnPurge_;
+  NABoolean isClearOnPurgeSpec_;
+  NABoolean isClearOnPurge_;
 
   // DEALLOCATE
-  NABoolean       isDeallocateSpec_;
-  
+  NABoolean isDeallocateSpec_;
+
   // MAXSIZE
-  NABoolean       isMaxSizeSpec_;
-  NABoolean       isMaxSizeUnbounded_;
-  ULng32   maxSize_;
-  ComUnits        maxSizeUnit_;
+  NABoolean isMaxSizeSpec_;
+  NABoolean isMaxSizeUnbounded_;
+  ULng32 maxSize_;
+  ComUnits maxSizeUnit_;
 
-    // EXTENT
-  NABoolean       isExtentSpec_;
-  ULng32   priExt_;
-  ULng32   secExt_;
+  // EXTENT
+  NABoolean isExtentSpec_;
+  ULng32 priExt_;
+  ULng32 secExt_;
 
-    // MAXEXTENT
-  NABoolean       isMaxExtentSpec_;
-  ULng32   maxExt_;
+  // MAXEXTENT
+  NABoolean isMaxExtentSpec_;
+  ULng32 maxExt_;
 
   // NO LABEL UPDATE
-  NABoolean       isNoLabelUpdateSpec_;
-  NABoolean       noLabelUpdate_;
+  NABoolean isNoLabelUpdateSpec_;
+  NABoolean noLabelUpdate_;
 
-//++ MV
-  
+  //++ MV
+
   // RANGELOG
-  NABoolean		  isRangeLogSpec_;
-  ComRangeLogType rangelogType_;	
+  NABoolean isRangeLogSpec_;
+  ComRangeLogType rangelogType_;
 
   // [NO] LOCKONREFRESH
-  NABoolean       isLockOnRefreshSpec_;
-  NABoolean       isLockOnRefresh_;
+  NABoolean isLockOnRefreshSpec_;
+  NABoolean isLockOnRefresh_;
 
   // [NO] INSERTLOG
-  NABoolean       isInsertLogSpec_;
-  NABoolean       isInsertLog_;
+  NABoolean isInsertLogSpec_;
+  NABoolean isInsertLog_;
 
   // MVS ALLOWED
-  NABoolean			isMvsAllowedSpec_;
-  ComMvsAllowed		mvsAllowedType_;
-  
+  NABoolean isMvsAllowedSpec_;
+  ComMvsAllowed mvsAllowedType_;
+
   // COMPRESSION TYPE { SOFTWARE | HARDWARE | NONE }
-  ComCompressionType  compressionType_;
-  NABoolean           isCompressionTypeSpec_;
+  ComCompressionType compressionType_;
+  NABoolean isCompressionTypeSpec_;
 
   // transaction replication across multiple clusters
-  NABoolean       isXnReplSpec_;
-  ComReplType     xnRepl_;
+  NABoolean isXnReplSpec_;
+  ComReplType xnRepl_;
 
   //  incremental backup
-  NABoolean       isIncrBackupSpec_;
-  NABoolean       incrBackupEnabled_;
+  NABoolean isIncrBackupSpec_;
+  NABoolean incrBackupEnabled_;
 
-  NABoolean       isReadOnlySpec_;
-  NABoolean       readOnlyEnabled_;
-}; // class ParDDLFileAttrsAlterTable
+  NABoolean isReadOnlySpec_;
+  NABoolean readOnlyEnabled_;
+};  // class ParDDLFileAttrsAlterTable
 
 // -----------------------------------------------------------------------
 // definitions of inline methods for class ParDDLFileAttrsAlterTable
@@ -391,256 +379,101 @@ private:
 // accessors
 //
 
-inline ComSInt16
-ParDDLFileAttrsAlterTable::getExtentsToAllocate() const
-{
-  return extentsToAllocate_;
-}
+inline ComSInt16 ParDDLFileAttrsAlterTable::getExtentsToAllocate() const { return extentsToAllocate_; }
 
-inline NABoolean
-ParDDLFileAttrsAlterTable::getIsAudit() const
-{
-  return isAudit_;
-}
+inline NABoolean ParDDLFileAttrsAlterTable::getIsAudit() const { return isAudit_; }
 
-inline NABoolean
-ParDDLFileAttrsAlterTable::getIsAuditCompress() const
-{
-  return isAuditCompress_;
-}
+inline NABoolean ParDDLFileAttrsAlterTable::getIsAuditCompress() const { return isAuditCompress_; }
 
-inline NABoolean
-ParDDLFileAttrsAlterTable::getIsBuffered() const
-{
-  return isBuffered_;
-}
+inline NABoolean ParDDLFileAttrsAlterTable::getIsBuffered() const { return isBuffered_; }
 
-inline NABoolean
-ParDDLFileAttrsAlterTable::getIsClearOnPurge() const
-{
-  return isClearOnPurge_;
-}
+inline NABoolean ParDDLFileAttrsAlterTable::getIsClearOnPurge() const { return isClearOnPurge_; }
 
-inline ULng32
-ParDDLFileAttrsAlterTable::getMaxSize() const
-{
-  return maxSize_;
-}
+inline ULng32 ParDDLFileAttrsAlterTable::getMaxSize() const { return maxSize_; }
 
-inline ComUnits
-ParDDLFileAttrsAlterTable::getMaxSizeUnit() const
-{
-  return maxSizeUnit_;
-}
-  
-inline ULng32
-ParDDLFileAttrsAlterTable::getMaxExt() const
-{
-  return maxExt_;
-}
+inline ComUnits ParDDLFileAttrsAlterTable::getMaxSizeUnit() const { return maxSizeUnit_; }
+
+inline ULng32 ParDDLFileAttrsAlterTable::getMaxExt() const { return maxExt_; }
 
 // is the Allocate phrase specified?
-inline NABoolean
-ParDDLFileAttrsAlterTable::isAllocateSpecified() const
-{
-  return isAllocateSpec_;
-}
+inline NABoolean ParDDLFileAttrsAlterTable::isAllocateSpecified() const { return isAllocateSpec_; }
 
-inline NABoolean
-ParDDLFileAttrsAlterTable::isAuditCompress() const
-{
-  return getIsAuditCompress();
-}
+inline NABoolean ParDDLFileAttrsAlterTable::isAuditCompress() const { return getIsAuditCompress(); }
 
 // is the [No] AuditCompress phrase specified?
-inline NABoolean
-ParDDLFileAttrsAlterTable::isAuditCompressSpecified() const
-{
-  return isAuditCompressSpec_;
-}
+inline NABoolean ParDDLFileAttrsAlterTable::isAuditCompressSpecified() const { return isAuditCompressSpec_; }
 
 // is the [No] Audit phrase appeared?
-inline NABoolean
-ParDDLFileAttrsAlterTable::isAuditSpecified() const
-{
-  return isAuditSpec_;
-}
+inline NABoolean ParDDLFileAttrsAlterTable::isAuditSpecified() const { return isAuditSpec_; }
 
-inline NABoolean
-ParDDLFileAttrsAlterTable::isAudited() const
-{
-  return getIsAudit();
-}
+inline NABoolean ParDDLFileAttrsAlterTable::isAudited() const { return getIsAudit(); }
 
-inline NABoolean
-ParDDLFileAttrsAlterTable::isBuffered() const
-{
-  return getIsBuffered();
-}
+inline NABoolean ParDDLFileAttrsAlterTable::isBuffered() const { return getIsBuffered(); }
 
 // is the [No] Buffered phrase specified?
-inline NABoolean
-ParDDLFileAttrsAlterTable::isBufferedSpecified() const
-{
-  return isBufferedSpec_;
-}
+inline NABoolean ParDDLFileAttrsAlterTable::isBufferedSpecified() const { return isBufferedSpec_; }
 
-inline NABoolean
-ParDDLFileAttrsAlterTable::isClearOnPurge() const
-{
-  return getIsClearOnPurge();
-}
+inline NABoolean ParDDLFileAttrsAlterTable::isClearOnPurge() const { return getIsClearOnPurge(); }
 
 // is the [No] ClearOnPurge phrase specified?
-inline NABoolean
-ParDDLFileAttrsAlterTable::isClearOnPurgeSpecified() const
-{
-  return isClearOnPurgeSpec_;
-}
+inline NABoolean ParDDLFileAttrsAlterTable::isClearOnPurgeSpecified() const { return isClearOnPurgeSpec_; }
 
 // is the Deallocate phrase specified?
-inline NABoolean
-ParDDLFileAttrsAlterTable::isDeallocateSpecified() const
-{
-  return isDeallocateSpec_;
-}
+inline NABoolean ParDDLFileAttrsAlterTable::isDeallocateSpecified() const { return isDeallocateSpec_; }
 
 // is the MaxSize phrase specified?
-inline NABoolean
-ParDDLFileAttrsAlterTable::isMaxSizeSpecified() const
-{
-  return isMaxSizeSpec_;
-}
+inline NABoolean ParDDLFileAttrsAlterTable::isMaxSizeSpecified() const { return isMaxSizeSpec_; }
 
+inline NABoolean ParDDLFileAttrsAlterTable::isMaxSizeUnbounded() const { return isMaxSizeUnbounded_; }
 
-inline NABoolean
-ParDDLFileAttrsAlterTable::isMaxSizeUnbounded() const
-{
-  return isMaxSizeUnbounded_;
-}
-
-inline ComCompressionType
-ParDDLFileAttrsAlterTable::getCompressionType() const
-{
-  return compressionType_;
-}
+inline ComCompressionType ParDDLFileAttrsAlterTable::getCompressionType() const { return compressionType_; }
 
 // is the Compression phrase specified?
-inline NABoolean
-ParDDLFileAttrsAlterTable::isCompressionTypeSpecified() const
-{
-  return isCompressionTypeSpec_;
-}
+inline NABoolean ParDDLFileAttrsAlterTable::isCompressionTypeSpecified() const { return isCompressionTypeSpec_; }
 
-inline NABoolean
-ParDDLFileAttrsAlterTable::isXnReplSpecified() const
-{
-  return isXnReplSpec_;
-}
+inline NABoolean ParDDLFileAttrsAlterTable::isXnReplSpecified() const { return isXnReplSpec_; }
 
-inline ComReplType ParDDLFileAttrsAlterTable::xnRepl() const 
-{ return xnRepl_; }
+inline ComReplType ParDDLFileAttrsAlterTable::xnRepl() const { return xnRepl_; }
 
-inline NABoolean
-ParDDLFileAttrsAlterTable::isIncrBackupSpecified() const
-{
-  return isIncrBackupSpec_;
-}
+inline NABoolean ParDDLFileAttrsAlterTable::isIncrBackupSpecified() const { return isIncrBackupSpec_; }
 
-inline NABoolean ParDDLFileAttrsAlterTable::incrBackupEnabled() const 
-{ return incrBackupEnabled_; }
+inline NABoolean ParDDLFileAttrsAlterTable::incrBackupEnabled() const { return incrBackupEnabled_; }
 
-inline NABoolean
-ParDDLFileAttrsAlterTable::isReadOnlySpecified() const
-{
-  return isReadOnlySpec_;
-}
+inline NABoolean ParDDLFileAttrsAlterTable::isReadOnlySpecified() const { return isReadOnlySpec_; }
 
-inline NABoolean ParDDLFileAttrsAlterTable::readOnlyEnabled() const 
-{ return readOnlyEnabled_; }
+inline NABoolean ParDDLFileAttrsAlterTable::readOnlyEnabled() const { return readOnlyEnabled_; }
 
 //----------------------------------------------------------------------------
 //++ MV
-inline ComRangeLogType 
-ParDDLFileAttrsAlterTable::getRangelogType() const
-{
-	return rangelogType_;
-}
+inline ComRangeLogType ParDDLFileAttrsAlterTable::getRangelogType() const { return rangelogType_; }
 
-inline NABoolean 
-ParDDLFileAttrsAlterTable::isRangeLogSpecified() const
-{
-	return isRangeLogSpec_;
-}
+inline NABoolean ParDDLFileAttrsAlterTable::isRangeLogSpecified() const { return isRangeLogSpec_; }
 
-inline NABoolean 
-ParDDLFileAttrsAlterTable::isLockOnRefresh() const
-{
-	return isLockOnRefresh_;
-}
+inline NABoolean ParDDLFileAttrsAlterTable::isLockOnRefresh() const { return isLockOnRefresh_; }
 
-inline NABoolean 
-ParDDLFileAttrsAlterTable::isLockOnRefreshSpecified() const
-{
-	return isLockOnRefreshSpec_;
+inline NABoolean ParDDLFileAttrsAlterTable::isLockOnRefreshSpecified() const { return isLockOnRefreshSpec_; }
 
-}
+inline NABoolean ParDDLFileAttrsAlterTable::isInsertLog() const { return isInsertLog_; }
 
+inline NABoolean ParDDLFileAttrsAlterTable::isInsertLogSpecified() const { return isInsertLogSpec_; }
 
-inline NABoolean 
-ParDDLFileAttrsAlterTable::isInsertLog() const
-{
-	return isInsertLog_;
-}
+inline ComMvsAllowed ParDDLFileAttrsAlterTable::getMvsAllowedType() const { return mvsAllowedType_; }
 
-inline NABoolean 
-ParDDLFileAttrsAlterTable::isInsertLogSpecified() const
-{
-	return isInsertLogSpec_;
-}
-
-inline ComMvsAllowed 
-ParDDLFileAttrsAlterTable::getMvsAllowedType() const
-{
-	return mvsAllowedType_;	
-}
-
-inline NABoolean 
-ParDDLFileAttrsAlterTable::isMvsAllowedSpecified() const
-{
-	return isMvsAllowedSpec_;
-}
+inline NABoolean ParDDLFileAttrsAlterTable::isMvsAllowedSpecified() const { return isMvsAllowedSpec_; }
 //-- MV
 //----------------------------------------------------------------------------
 
-
 // is the Extent phrase specified?
-inline NABoolean
-ParDDLFileAttrsAlterTable::isExtentSpecified() const
-{
-  return isExtentSpec_;
-}
+inline NABoolean ParDDLFileAttrsAlterTable::isExtentSpecified() const { return isExtentSpec_; }
 
 // is the MaxExtent phrase specified?
-inline NABoolean
-ParDDLFileAttrsAlterTable::isMaxExtentSpecified() const
-{
-  return isMaxExtentSpec_;
-}
+inline NABoolean ParDDLFileAttrsAlterTable::isMaxExtentSpecified() const { return isMaxExtentSpec_; }
 
 // is the MaxExtent phrase specified?
-inline NABoolean
-ParDDLFileAttrsAlterTable::isNoLabelUpdateSpecified() const
-{
-  return isNoLabelUpdateSpec_;
-}
+inline NABoolean ParDDLFileAttrsAlterTable::isNoLabelUpdateSpecified() const { return isNoLabelUpdateSpec_; }
 
-inline NABoolean
-ParDDLFileAttrsAlterTable::isNoLabelUpdate() const
-{
-  return noLabelUpdate_;
-}
+inline NABoolean ParDDLFileAttrsAlterTable::isNoLabelUpdate() const { return noLabelUpdate_; }
 
-#endif 
+#endif
 
 // PARDDLFILEATTRSALTERTABLE_H

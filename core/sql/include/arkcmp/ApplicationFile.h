@@ -35,15 +35,15 @@
  */
 #include <stdio.h>
 #include <string>
-#include <fcntl.h>    // for _O_CREAT, O_CREAT
-#include <sys/stat.h> // for _S_IWRITE, S_IWUSR
+#include <fcntl.h>     // for _O_CREAT, O_CREAT
+#include <sys/stat.h>  // for _S_IWRITE, S_IWUSR
 
-  #include <io.h>      // for _access(), _open(), _close(), _write()
-  #include <process.h> // for _getpid()
-  #define ACCESS _access
-  #define CLOSE  _close
-  #define READABLE 4
-  #define EXECUTABLE 4
+#include <io.h>       // for _access(), _open(), _close(), _write()
+#include <process.h>  // for _getpid()
+#define ACCESS     _access
+#define CLOSE      _close
+#define READABLE   4
+#define EXECUTABLE 4
 
 #include "common/Platform.h"  // 64-bit
 
@@ -52,7 +52,7 @@ class Cmdline_Args;
 class ApplicationFile {
  public:
   // factory method
-  static ApplicationFile* makeApplicationFile(std::string& filename);
+  static ApplicationFile *makeApplicationFile(std::string &filename);
 
   // constructor
   ApplicationFile(std::string &filename);
@@ -61,20 +61,19 @@ class ApplicationFile {
   virtual ~ApplicationFile();
 
   // open application file for reading
-  virtual bool openFile(Cmdline_Args &args); // (IN): for module name list
+  virtual bool openFile(Cmdline_Args &args);  // (IN): for module name list
   // return true if all OK
 
   // close application file
-  virtual bool closeFile(); // return true if all OK
+  virtual bool closeFile();  // return true if all OK
 
   // log any errors
   virtual void logErrors() = 0;
 
   // find next embedded module definition from this aplication file.
   // return false if no module definition found.
-  virtual bool findNextModule
-    (std::string &modName) // (OUT): name of module found
-    = 0;
+  virtual bool findNextModule(std::string &modName)  // (OUT): name of module found
+      = 0;
 
   // extract embedded module definition & SQL compile it.
   // return true if all OK.
@@ -88,23 +87,23 @@ class ApplicationFile {
 
  protected:
   // create a temporary file and open it for write
-  FILE* createTempFile(char* nam, char *newNam);
+  FILE *createTempFile(char *nam, char *newNam);
 
   // create a temporary file name that is not the name of an existing file
   // requires: allocated length of tNam >= L_tmpnam+10.
   // returns : tNam if all OK; NULL otherwise.
-  char* getTempFileName(char *tNam);
+  char *getTempFileName(char *tNam);
 
   // invoke mxcmp on module definition file
   bool mxcmpModule(char *mdf);
 
-  std::string fileName_; // application file name
-  Int32         nCompiles_;// number of mxcmp invocations
-  Int32         nFailures_;// number of unsuccessful mxcmp invocations
+  std::string fileName_;  // application file name
+  Int32 nCompiles_;       // number of mxcmp invocations
+  Int32 nFailures_;       // number of unsuccessful mxcmp invocations
 
-  Cmdline_Args *args_;   // for determining if all named modules were found
-  FILE         *appFile_;// handle to application file or 
-                         // file of extracted SQLJ mdfs
+  Cmdline_Args *args_;  // for determining if all named modules were found
+  FILE *appFile_;       // handle to application file or
+                        // file of extracted SQLJ mdfs
 };
 
-#endif // APPLICATIONFILE__H
+#endif  // APPLICATIONFILE__H

@@ -39,7 +39,7 @@
  *               The methods in this class are defined either in this
  *               header file or the source file StmtDDLAlter.C.
  *
- *               
+ *
  * Created:      6/15/95
  * Language:     C++
  *
@@ -48,7 +48,6 @@
  *
  *****************************************************************************
  */
-
 
 #include "common/ComSmallDefs.h"
 #include "ElemDDLConstraintRI.h"
@@ -69,84 +68,70 @@ class StmtDDLAddConstraintRI;
 // definition of class StmtDDLAddConstraintRI
 // -----------------------------------------------------------------------
 
-class StmtDDLAddConstraintRI : public StmtDDLAddConstraint
-{
-
-public:
-
+class StmtDDLAddConstraintRI : public StmtDDLAddConstraint {
+ public:
   // constructors
-  StmtDDLAddConstraintRI(ElemDDLNode * pElemDDLConstraintRI)
-  : StmtDDLAddConstraint(
-     DDL_ALTER_TABLE_ADD_CONSTRAINT_REFERENTIAL_INTEGRITY,
-     pElemDDLConstraintRI)
-  { }
+  StmtDDLAddConstraintRI(ElemDDLNode *pElemDDLConstraintRI)
+      : StmtDDLAddConstraint(DDL_ALTER_TABLE_ADD_CONSTRAINT_REFERENTIAL_INTEGRITY, pElemDDLConstraintRI) {}
 
-  StmtDDLAddConstraintRI(const QualifiedName & tableQualName,
-                                ElemDDLNode * pElemDDLConstraintRI)
-  : StmtDDLAddConstraint(
-     DDL_ALTER_TABLE_ADD_CONSTRAINT_REFERENTIAL_INTEGRITY,
-     tableQualName,
-     pElemDDLConstraintRI)
-  { }
+  StmtDDLAddConstraintRI(const QualifiedName &tableQualName, ElemDDLNode *pElemDDLConstraintRI)
+      : StmtDDLAddConstraint(DDL_ALTER_TABLE_ADD_CONSTRAINT_REFERENTIAL_INTEGRITY, tableQualName,
+                             pElemDDLConstraintRI) {}
 
   // virtual destructor
   virtual ~StmtDDLAddConstraintRI();
 
   // cast
-  virtual StmtDDLAddConstraintRI * castToStmtDDLAddConstraintRI();
+  virtual StmtDDLAddConstraintRI *castToStmtDDLAddConstraintRI();
 
   //
   // accessors
   //
-  
+
   ComRCDeleteRule getDeleteRule() const;
 
-        // returns COM_UNKNOWN_DELETE_RULE when Delete
-        // rule does not appear.
-  
+  // returns COM_UNKNOWN_DELETE_RULE when Delete
+  // rule does not appear.
+
   ComRCMatchOption getMatchType() const;
-  ElemDDLColNameArray & getReferencedColumns();
-  const ElemDDLColNameArray & getReferencedColumns() const;
-  
+  ElemDDLColNameArray &getReferencedColumns();
+  const ElemDDLColNameArray &getReferencedColumns() const;
+
   NAString getReferencedTableName() const;
 
-        // returns the externally-formatted name of the
-        // referenced table.  If this routine is invoked
-        // after the parse node is bound, the returned
-        // name is guaranteed to be fully-expanded.
+  // returns the externally-formatted name of the
+  // referenced table.  If this routine is invoked
+  // after the parse node is bound, the returned
+  // name is guaranteed to be fully-expanded.
 
-  ElemDDLColNameArray & getReferencingColumns();
-  const ElemDDLColNameArray & getReferencingColumns() const;
+  ElemDDLColNameArray &getReferencingColumns();
+  const ElemDDLColNameArray &getReferencingColumns() const;
 
   ComRCUpdateRule getUpdateRule() const;
 
-        // returns COM_UNKNOWN_UPDATE_RULE when Update
-        // rule does not appear.
+  // returns COM_UNKNOWN_UPDATE_RULE when Update
+  // rule does not appear.
 
   NABoolean isDeleteRuleSpecified() const;
   NABoolean isUpdateRuleSpecified() const;
 
   // method for tracing
   virtual const NAString getText() const;
- 
+
   // definition of method bindNode for the class StmtDDLAddConstraintRI
-  virtual ExprNode * bindNode(BindWA * pBindWA);
+  virtual ExprNode *bindNode(BindWA *pBindWA);
 
-private:
-
+ private:
   // ---------------------------------------------------------------------
   // private methods
   // ---------------------------------------------------------------------
-  
-  StmtDDLAddConstraintRI();                             // DO NOT USE
-  StmtDDLAddConstraintRI(const NAString & tableName,
-                         ElemDDLNode *);                // DO NOT USE
-  StmtDDLAddConstraintRI
-        (const StmtDDLAddConstraintRI &);               // DO NOT USE
-  StmtDDLAddConstraintRI & operator=
-        (const StmtDDLAddConstraintRI &);               // DO NOT USE
-  
-}; // class StmtDDLAddConstraintRI
 
+  StmtDDLAddConstraintRI();  // DO NOT USE
+  StmtDDLAddConstraintRI(const NAString &tableName,
+                         ElemDDLNode *);                              // DO NOT USE
+  StmtDDLAddConstraintRI(const StmtDDLAddConstraintRI &);             // DO NOT USE
+  StmtDDLAddConstraintRI &operator=(const StmtDDLAddConstraintRI &);  // DO NOT USE
 
-#endif // STMTDDLADDCONSTRAINTRI_H
+};  // class StmtDDLAddConstraintRI
+
+#endif  // STMTDDLADDCONSTRAINTRI_H

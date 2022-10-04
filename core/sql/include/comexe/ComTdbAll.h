@@ -49,7 +49,7 @@
 #include "comexe/ComTdbTuple.h"
 #include "comexe/ComTdbCompoundStmt.h"
 
-#include "comexe/ComTdbTimeout.h" 
+#include "comexe/ComTdbTimeout.h"
 
 #include "comexe/ComTdbControl.h"
 #include "comexe/ComTdbConnectBy.h"

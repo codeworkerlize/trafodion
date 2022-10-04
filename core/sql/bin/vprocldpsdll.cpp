@@ -28,13 +28,11 @@
  * Language:     C++
  *
  *
-*****************************************************************************
-*/
+ *****************************************************************************
+ */
 
 #include "vproc.h"
 
-extern "C" { void
-VPROC (PRODNUMLDPSDLL,DATE1LDPSDLL,LDPSDLL_CC_LABEL)
-() {} }
-
-
+extern "C" {
+void VPROC(PRODNUMLDPSDLL, DATE1LDPSDLL, LDPSDLL_CC_LABEL)() {}
+}

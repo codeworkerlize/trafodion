@@ -60,7 +60,6 @@
 #include "parser/StmtDDLRegisterComponent.h"
 #include "parser/StmtDDLCleanupObjects.h"
 #include "parser/StmtDDLAlterTableAttribute.h"
-#include "parser/StmtDDLRegOrUnregHive.h"
 #include "parser/StmtDDLNamespace.h"
 #include "parser/StmtDDLCommentOn.h"
 
@@ -89,9 +88,9 @@
 
 // get software major and minor versions from -D defs defined in sqlcomp/Makefile.
 // These defs pick up values from export vars defined in sqf/sqenvcom.sh.
-#define SOFTWARE_MAJOR_VERSION  TRAF_SOFTWARE_VERS_MAJOR
-#define SOFTWARE_MINOR_VERSION  TRAF_SOFTWARE_VERS_MINOR
-#define SOFTWARE_UPDATE_VERSION TRAF_SOFTWARE_VERS_UPDATE
+#define SOFTWARE_MAJOR_VERSION  1
+#define SOFTWARE_MINOR_VERSION  1
+#define SOFTWARE_UPDATE_VERSION 1
 // multiplier to encode minor & update versions into single value
 // increased multiplier allows for more than single digit update number
 // smaller multiplier allows compatibility to decode old versions

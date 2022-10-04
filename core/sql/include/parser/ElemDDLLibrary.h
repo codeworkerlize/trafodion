@@ -29,7 +29,7 @@
 * Description:  class for UDR Library (parse node) elements in
 *               DDL statements
 *
-*               
+*
 * Created:      10/14/2011
 * Language:     C++
 *
@@ -42,32 +42,26 @@
 #include "common/ComSmallDefs.h"
 #include "ElemDDLNode.h"
 
-class ElemDDLLibrary : public ElemDDLNode
-{
+class ElemDDLLibrary : public ElemDDLNode {
+ public:
+  ElemDDLUdrLibrary(NAString &theLibrary);
 
-public:
+  virtual ~ElemDDLUdrLibrary();
 
-   ElemDDLUdrLibrary(NAString &theLibrary);
+  virtual ElemDDLUdrLibrary *castToElemDDLUdrLibrary(void);
 
-   virtual ~ElemDDLUdrLibrary();
+  inline const NAString &getlibraryName(void) const { return libraryName_; }
 
-   virtual ElemDDLUdrLibrary * castToElemDDLUdrLibrary(void);
+  //
+  // methods for tracing
+  //
 
-   inline const NAString &getlibraryName(void) const
-   {
-      return libraryName_;
-   }
-
-//
-// methods for tracing
-//
-  
   virtual const NAString displayLabel1() const;
   virtual NATraceList getDetailInfo() const;
   virtual const NAString getText() const;
 
-private:
-NAString & libraryName_;
-}; // class ElemDDLUdrLibrary
+ private:
+  NAString &libraryName_;
+};  // class ElemDDLUdrLibrary
 
-#endif /* ELEMDDLUDRLIBRARY_H */  
+#endif /* ELEMDDLUDRLIBRARY_H */

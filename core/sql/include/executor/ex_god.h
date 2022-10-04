@@ -24,9 +24,9 @@
  *****************************************************************************
  *
  * File:         <file>
- * Description:  
- *               
- *               
+ * Description:
+ *
+ *
  * Created:      7/10/95
  * Language:     C++
  *
@@ -44,14 +44,13 @@
 #include <stdlib.h>
 #include "common/NAHeap.h"
 
-class ExGod : public NABasicObject 
-{
-protected:
+class ExGod : public NABasicObject {
+ protected:
   virtual ~ExGod();
 };
 
 // the next two methods will eventually be removed after all
 // executor objects have been derived from ExGod(or something
 // similar).
-void * operator new(size_t size, Space *s);
+void *operator new(size_t size, Space *s);
 #endif

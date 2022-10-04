@@ -41,7 +41,6 @@
  *****************************************************************************
  */
 
-
 #include "ElemDDLNode.h"
 #include "parser/ElemDDLPartitionClause.h"
 #include "ElemDDLPartitionArray.h"
@@ -62,76 +61,62 @@ class ElemDDLPartitionV2Array;
 // -----------------------------------------------------------------------
 // definition of class ElemDDLPartition
 // -----------------------------------------------------------------------
-class ElemDDLPartition : public ElemDDLNode
-{
-
-public:
-
+class ElemDDLPartition : public ElemDDLNode {
+ public:
   enum optionEnum { ADD_OPTION, DROP_OPTION };
 
   // default constructor
-  ElemDDLPartition(OperatorTypeEnum operType =
-                          ELM_ANY_PARTITION_ELEM)
-  : ElemDDLNode(operType)
-  , isTheSpecialCase1aOr1b_(FALSE) // Fix for Bugzilla bug 1369
+  ElemDDLPartition(OperatorTypeEnum operType = ELM_ANY_PARTITION_ELEM)
+      : ElemDDLNode(operType),
+        isTheSpecialCase1aOr1b_(FALSE)  // Fix for Bugzilla bug 1369
 
-  { }
+  {}
 
   // virtual destructor
   virtual ~ElemDDLPartition();
 
   // cast
-  virtual ElemDDLPartition * castToElemDDLPartition();
+  virtual ElemDDLPartition *castToElemDDLPartition();
 
   //
   // accessors
   //
 
-  inline NABoolean isTheSpecialCase1aOr1b() const
-  { return isTheSpecialCase1aOr1b_; } // Fix for Bugzilla bug 1369
+  inline NABoolean isTheSpecialCase1aOr1b() const { return isTheSpecialCase1aOr1b_; }  // Fix for Bugzilla bug 1369
 
   //
   // mutators
   //
 
-  inline void setTheSpecialCase1aOr1bFlag(NABoolean setting)
-  { isTheSpecialCase1aOr1b_= setting; }
+  inline void setTheSpecialCase1aOr1bFlag(NABoolean setting) { isTheSpecialCase1aOr1b_ = setting; }
 
-private:
+ private:
+  NABoolean isTheSpecialCase1aOr1b_;  // Fix for Bugzilla bug 1369 - See comments in StmtDDLCreate.cpp
 
-  NABoolean isTheSpecialCase1aOr1b_; // Fix for Bugzilla bug 1369 - See comments in StmtDDLCreate.cpp
-
-}; // class ElemDDLPartition
+};  // class ElemDDLPartition
 
 // class for hash/range/list partition new implement
 
-class ElemDDLPartitionV2 : public ElemDDLNode
-{
-public:
-  ElemDDLPartitionV2( NAString &pname
-        , ItemExpr *partValue = NULL
-        , ElemDDLNode *subPart = NULL);
-  
-  ElemDDLPartitionV2( Int32 numPart
-        , ElemDDLNode* subPart = NULL);
+class ElemDDLPartitionV2 : public ElemDDLNode {
+ public:
+  ElemDDLPartitionV2(NAString &pname, ItemExpr *partValue = NULL, ElemDDLNode *subPart = NULL);
+
+  ElemDDLPartitionV2(Int32 numPart, ElemDDLNode *subPart = NULL);
 
   virtual ~ElemDDLPartitionV2();
   // cast
-  virtual ElemDDLPartitionV2 * castToElemDDLPartitionV2()
-  { return this; }
+  virtual ElemDDLPartitionV2 *castToElemDDLPartitionV2() { return this; }
 
-  static NABoolean isSupportedOperatorType(OperatorTypeEnum type)
-  {
-    switch(type)
-    {
-      case ITM_CONSTANT :
-      case ITM_TO_TIMESTAMP :
-      case ITM_TO_DATE :
-      case ITM_DATEFORMAT :
+  static NABoolean isSupportedOperatorType(OperatorTypeEnum type) {
+    switch (type) {
+      case ITM_CONSTANT:
+      case ITM_TO_TIMESTAMP:
+      case ITM_TO_DATE:
+      case ITM_DATEFORMAT:
         return true;
         break;
 
-      default :
+      default:
         return false;
     }
   }
@@ -139,32 +124,27 @@ public:
   // accessors
   inline NABoolean hasSubpartition() { return hasSubparition_; }
   inline ElemDDLNode *getSubpartition() { return subPartition_; }
-  ElemDDLPartitionV2Array * getSubpartitionArray()
-  { return subpartitionArray_; }
+  ElemDDLPartitionV2Array *getSubpartitionArray() { return subpartitionArray_; }
 
-  inline const NAString &getPartitionName() const
-  { return partitionName_; }
+  inline const NAString &getPartitionName() const { return partitionName_; }
 
-  inline ItemExpr* getPartitionValue()
-  { return partitionValue_; }
+  inline ItemExpr *getPartitionValue() { return partitionValue_; }
 
   short buildPartitionValueArray(NABoolean strict = true);
-  inline const ItemExprList &getPartionValueArray() const
-  { return partionValueArray_; }
+  inline const ItemExprList &getPartionValueArray() const { return partionValueArray_; }
 
   NABoolean isValidMaxValue(ColReference *valueExpr);
   short replaceWithConstValue();
 
-private:
+ private:
   NAString partitionName_;
   Int32 numPartitions_;
   NABoolean hasSubparition_;
-  ItemExpr* partitionValue_;
-  //parser node
+  ItemExpr *partitionValue_;
+  // parser node
   ElemDDLNode *subPartition_;
   ElemDDLPartitionV2Array *subpartitionArray_;
   ItemExprList partionValueArray_;
 };
 
-#endif // ELEMDDLPARTITION_H
-
+#endif  // ELEMDDLPARTITION_H

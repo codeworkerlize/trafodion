@@ -4,9 +4,9 @@
  *****************************************************************************
  *
  * File:         key_single_subset.h
- * Description:  
- *               
- *               
+ * Description:
+ *
+ *
  * Created:      11/8/96
  * Language:     C++
  *
@@ -52,7 +52,6 @@
 
 #include "comexe/ComKeySingleSubset.h"
 
-
 /////////////////////////////////////////////////////////////////////////
 //
 // Class keySingleSubsetEx
@@ -64,22 +63,14 @@
 //
 /////////////////////////////////////////////////////////////////////////
 
-class keySingleSubsetEx : public keyRangeEx
-{
-private:
-
+class keySingleSubsetEx : public keyRangeEx {
+ private:
   // set to FALSE by initNextKeyRange(), to TRUE by getNextKeyRange()
-  NABoolean keyReturned_;  
+  NABoolean keyReturned_;
 
-public:
-
-  keySingleSubsetEx(const keyRangeGen & tdb_key,
-			       const short in_version,
-			       sql_buffer_pool *pool,
-			       ex_globals *g,
-			       unsigned short mode,
-                               const ex_tcb * tcb);
-				  
+ public:
+  keySingleSubsetEx(const keyRangeGen &tdb_key, const short in_version, sql_buffer_pool *pool, ex_globals *g,
+                    unsigned short mode, const ex_tcb *tcb);
 
   virtual ~keySingleSubsetEx();
 
@@ -88,43 +79,26 @@ public:
   virtual void display() const {};
 
   // key range iterator methods
-  virtual ExeErrorCode initNextKeyRange(sql_buffer_pool *pool,
-			        		   atp_struct *atp0);
-  virtual getNextKeyRangeReturnType getNextKeyRange(
-       atp_struct *atp0,NABoolean fetchRangeHadRows,
-       NABoolean detectNullRange = TRUE);  
+  virtual ExeErrorCode initNextKeyRange(sql_buffer_pool *pool, atp_struct *atp0);
+  virtual getNextKeyRangeReturnType getNextKeyRange(atp_struct *atp0, NABoolean fetchRangeHadRows,
+                                                    NABoolean detectNullRange = TRUE);
 
   // inlines to save some typing
-  inline keySingleSubsetGen & tdbBeginEndKey() const
-    { return (keySingleSubsetGen &)tdbKey_; } 
+  inline keySingleSubsetGen &tdbBeginEndKey() const { return (keySingleSubsetGen &)tdbKey_; }
 
-  inline ex_expr * bkPred() const
-    { return tdbBeginEndKey().bkPred(); };
+  inline ex_expr *bkPred() const { return tdbBeginEndKey().bkPred(); };
 
-  inline ex_expr * ekPred() const
-    { return tdbBeginEndKey().ekPred(); };
+  inline ex_expr *ekPred() const { return tdbBeginEndKey().ekPred(); };
 
-  inline ex_expr * bkExcludedExpr() const
-    { return tdbBeginEndKey().bkExcludedExpr(); }
+  inline ex_expr *bkExcludedExpr() const { return tdbBeginEndKey().bkExcludedExpr(); }
 
-  inline ex_expr * ekExcludedExpr() const
-    { return tdbBeginEndKey().ekExcludedExpr(); }
+  inline ex_expr *ekExcludedExpr() const { return tdbBeginEndKey().ekExcludedExpr(); }
 
-  inline short isBkeyExcluded() const 
-    { return tdbBeginEndKey().isBkeyExcluded();}
+  inline short isBkeyExcluded() const { return tdbBeginEndKey().isBkeyExcluded(); }
 
-  inline short isEkeyExcluded() const 
-    { return tdbBeginEndKey().isEkeyExcluded();}
+  inline short isEkeyExcluded() const { return tdbBeginEndKey().isEkeyExcluded(); }
 
-  inline Lng32 getExcludeFlagValue() const 
-    { return excludeFlag_; }
+  inline Lng32 getExcludeFlagValue() const { return excludeFlag_; }
 };
 
-
-
-
-
-
-
 #endif
-

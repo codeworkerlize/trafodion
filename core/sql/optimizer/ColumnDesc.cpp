@@ -43,30 +43,24 @@
 // definition(s) of non-inline method(s) of class ColumnDescList
 // -----------------------------------------------------------------------
 
-NAString ColumnDescList::getColumnDescListAsString(NABoolean removeIntCorrName) const
-{
+NAString ColumnDescList::getColumnDescListAsString(NABoolean removeIntCorrName) const {
   NAString list;
 
-  for (CollIndex i = 0; i < entries(); i++)
-  {
-    if (i != 0)		// not first element in the list
+  for (CollIndex i = 0; i < entries(); i++) {
+    if (i != 0)  // not first element in the list
       list += ",";
     const ColRefName &colRefName = at(i)->getColRefNameObj();
     ComASSERT(NOT colRefName.isEmpty());
-    list += colRefName.getColRefAsAnsiString
-      (FALSE, FALSE, removeIntCorrName);
+    list += colRefName.getColRefAsAnsiString(FALSE, FALSE, removeIntCorrName);
   }
 
   return list;
 }
 
-ColumnDesc *ColumnDescList::findColumn(const NAString& colName) const
-{
-  for (CollIndex i=0; i<entries(); i++)
-  {
+ColumnDesc *ColumnDescList::findColumn(const NAString &colName) const {
+  for (CollIndex i = 0; i < entries(); i++) {
     ColumnDesc *current = at(i);
-    if (current->getColRefNameObj().getColName() == colName)
-      return current;
+    if (current->getColRefNameObj().getColName() == colName) return current;
   }
   return NULL;
 }

@@ -34,7 +34,7 @@
 * Created:      02/27/2000
 * Language:     C++
 *
-* 
+*
 ******************************************************************************
 */
 
@@ -61,514 +61,346 @@ class CRUDeltaDefList;
 //	CRUMV (inherits from CRUObject)
 //
 //	  CRUMV is a wrapper class for CDDMV (MV class in DDOL)
-//	  that reflects the properties of an MV in a particular 
+//	  that reflects the properties of an MV in a particular
 //	  invocation of REFRESH (for example, will the MV be recomputed
 //	  in the current invocation of REFRESH?).
-// 
-//	  The class provides the functionality of updating the metadata 
-//	  and saving it in the SMD and UMD tables, acquiring and releasing 
+//
+//	  The class provides the functionality of updating the metadata
+//	  and saving it in the SMD and UMD tables, acquiring and releasing
 //	  resources etc.
 //
 //	  The class maintains the following pointers:
-//	  (1) The pointer to the DDOL "core" object, pddMV_. 
-//	      The destructor should *not* try to deallocate memory 
-//		  for the core, because the latter is owned by the 
+//	  (1) The pointer to the DDOL "core" object, pddMV_.
+//	      The destructor should *not* try to deallocate memory
+//		  for the core, because the latter is owned by the
 //		  CDDSchema object and will be freed by it.
-//	  (2) A list of pointers to the CRUTbl objects *directly* 
-//		  used by the MV, pTablesUsedByMe_ (that are not specified 
-//		  as IGNORE CHANGES). This list does not own the referenced 
+//	  (2) A list of pointers to the CRUTbl objects *directly*
+//		  used by the MV, pTablesUsedByMe_ (that are not specified
+//		  as IGNORE CHANGES). This list does not own the referenced
 //		  objects, and hence does not deallocate them in its destructor.
-//	  (3) A pointer to the CRUTbl object with the  same UID as the 
-//		  MV's one (i.e., the MV's representation as a table), if 
+//	  (3) A pointer to the CRUTbl object with the  same UID as the
+//		  MV's one (i.e., the MV's representation as a table), if
 //		  such an object exists in the cache - pTblInterface_.
-//	  (4) A list of pointers to the CDDIndex objects for indexes defined 
+//	  (4) A list of pointers to the CDDIndex objects for indexes defined
 //		  on the MV. When the REFRESH utility performs purgedata/popindex
-//		  operations on indexes, index handling is not transparent for it.  
+//		  operations on indexes, index handling is not transparent for it.
 //		  In this case, the index list is populated.
 //
 //	 An auxiliary table list, pFullySyncTablesUsedByMe_,
 //	 is a subset of pTablesUsedByMe_. It holds the pointers to the
 //	 regular tables and ON STATEMENT MVs used by this MV.
 //
-//	 The MV also maintains a *delta-def* list, where each delta-def object 
-//	 corresponds to a single non-empty delta of the MV. This list will be 
-//	 exploited in building the syntax of INTERNAL  REFRESH, and for scheduling 
+//	 The MV also maintains a *delta-def* list, where each delta-def object
+//	 corresponds to a single non-empty delta of the MV. This list will be
+//	 exploited in building the syntax of INTERNAL  REFRESH, and for scheduling
 //	 decisions.
 //
 //--------------------------------------------------------------------------//
 
 class REFRESH_LIB_CLASS CRUMV : public CRUObject {
+ private:
+  typedef CRUObject inherited;
 
-private:
-	typedef CRUObject inherited;
+ public:
+  CRUMV(CDDMV *pddMV);
+  virtual ~CRUMV();
 
-public:
-	CRUMV(CDDMV *pddMV);
-	virtual ~CRUMV();
+  //--------------------------------//
+  //  Accessors
+  //--------------------------------//
+ public:
+  CRUTblList &GetTablesUsedByMe() const {
+    RUASSERT(NULL != pTablesUsedByMe_);
+    return *pTablesUsedByMe_;
+  }
 
-	//--------------------------------//
-	//  Accessors
-	//--------------------------------//
-public:
-	CRUTblList &GetTablesUsedByMe() const 
-	{ 
-		RUASSERT(NULL != pTablesUsedByMe_);
-		return *pTablesUsedByMe_; 
-	} 
+  CRUTblList &GetFullySyncTablesUsedByMe() const {
+    RUASSERT(NULL != pFullySyncTablesUsedByMe_);
+    return *pFullySyncTablesUsedByMe_;
+  }
 
-	CRUTblList &GetFullySyncTablesUsedByMe() const
-	{
-		RUASSERT(NULL != pFullySyncTablesUsedByMe_);
-		return *pFullySyncTablesUsedByMe_; 
-	}
+  // The CRUTbl object that corresponds to this MV
+  CRUTbl *GetTblInterface() const { return pTblInterface_; }
 
-	// The CRUTbl object that corresponds to this MV
-	CRUTbl *GetTblInterface() const
-	{
-		return pTblInterface_;
-	}
+  CRUDeltaDefList &GetDeltaDefList() const {
+    RUASSERT(NULL != pDeltaDefList_);
+    return *pDeltaDefList_;
+  }
 
-	CRUDeltaDefList &GetDeltaDefList() const
-	{
-		RUASSERT(NULL != pDeltaDefList_);
-		return *pDeltaDefList_;
-	}
+  CRUDeltaDef *GetDeltaDefByUid(TInt64 uid) const;
 
-	CRUDeltaDef* GetDeltaDefByUid(TInt64 uid) const;
+  CRUTbl *GetUsedTableByName(const CDSString &tblName) const;
 
-	CRUTbl* GetUsedTableByName(const CDSString& tblName) const;
+  // Kind of refresh and optimizations during it
+  enum RefreshPatternMask {
 
-	// Kind of refresh and optimizations during it
-	enum RefreshPatternMask {
+    RECOMPUTE = 0x1,  // Recompute or incremental?
+    NODELETE = 0x2,   // (If recompute) Use NODELETE option?
+    PURGEDATA = 0x4,  // (If recompute) Use purgedata?
+    POPINDEX = 0x8    // (If recompute) Populate indexes?
+  };
 
-		RECOMPUTE = 0x1,	// Recompute or incremental?
-		NODELETE  = 0x2,	// (If recompute) Use NODELETE option?
-		PURGEDATA = 0x4,	// (If recompute) Use purgedata?
-		POPINDEX  = 0x8		// (If recompute) Populate indexes?
-	};
+  Lng32 GetRefreshPatternMap() const { return refreshPatternMap_; }
 
-	Lng32 GetRefreshPatternMap() const
-	{
-		return refreshPatternMap_;
-	}
+  // Should the MV be recomputed
+  BOOL WillBeRecomputed() const { return (0 != (refreshPatternMap_ & RECOMPUTE)); }
 
-	// Should the MV be recomputed
-	BOOL WillBeRecomputed() const
-	{
-		return (0 != (refreshPatternMap_ & RECOMPUTE));
-	}
+  //-- Various queries
+ public:
+  // Implementation of pure virtual
+  virtual BOOL HoldsResources() const { return IsDDLLockPending(); }
 
-	//-- Various queries
-public:
-	// Implementation of pure virtual
-	virtual BOOL HoldsResources() const
-	{
-		return IsDDLLockPending();
-	}
+  // Is the CRUTbl object that corresponds to this MV an *involved* table?
+  BOOL IsInvolvedTbl() const;
 
-	// Is the CRUTbl object that corresponds to this MV an *involved* table?
-	BOOL IsInvolvedTbl() const;
+  // Can the MV be maintained based only on the log?
+  BOOL IsSelfMaintainable();
 
-	// Can the MV be maintained based only on the log?
-	BOOL IsSelfMaintainable();
+  // Is a MIN/MAX, and some used table is not insert-only?
+  BOOL IsComplexMinMax();
 
-	// Is a MIN/MAX, and some used table is not insert-only?
-	BOOL IsComplexMinMax();
+  // Does the MV observe a non-empty delta of this table?
+  BOOL IsDeltaNonEmpty(CRUTbl &tbl);
 
-	// Does the MV observe a non-empty delta of this table?
-	BOOL IsDeltaNonEmpty(CRUTbl &tbl);
+  BOOL IsSingleDeltaRefresh() const;
 
-	BOOL IsSingleDeltaRefresh() const;
+  // Pipelining criteria
+  BOOL CanPipelineFromMe(BOOL isRoot, TInt64 &nextCandidateUid);
+  BOOL CanPipelineToMe(CRUMV &bottomMV);
 
-	// Pipelining criteria 
-	BOOL CanPipelineFromMe(BOOL isRoot, TInt64 &nextCandidateUid);
-	BOOL CanPipelineToMe(CRUMV &bottomMV);
+  // The current user's privileges
+  enum PrivMask {
 
-	// The current user's privileges 
-	enum PrivMask {
+    SELECT_PRIV = 0x1,
+    INSERT_PRIV = 0x2,
+    DELETE_PRIV = 0x4
+  };
 
-		SELECT_PRIV = 0x1,
-		INSERT_PRIV = 0x2,
-		DELETE_PRIV = 0x4
-	};
-	
-	Lng32 GetPrivMap() const
-	{
-		return privMap_;
-	}
+  Lng32 GetPrivMap() const { return privMap_; }
 
-	//-- Accessor wrappers
-public:
-	virtual TInt64 GetUID() const 
-	{ 
-		return pddMV_->GetUID(); 
-	}
-	virtual const CDSString &GetFullName() 
-	{ 
-		return pddMV_->GetFullName(); 
-	}
-	virtual const CDSString &GetCatName()
-	{
-		return pddMV_->GetCatName();
-	}
-	virtual const CDSString &GetSchName()
-	{
-		return pddMV_->GetSchName();
-	}
-	virtual const CDSString &GetName()
-	{
-		return pddMV_->GetName();
-	}
+  //-- Accessor wrappers
+ public:
+  virtual TInt64 GetUID() const { return pddMV_->GetUID(); }
+  virtual const CDSString &GetFullName() { return pddMV_->GetFullName(); }
+  virtual const CDSString &GetCatName() { return pddMV_->GetCatName(); }
+  virtual const CDSString &GetSchName() { return pddMV_->GetSchName(); }
+  virtual const CDSString &GetName() { return pddMV_->GetName(); }
 
-	CDDUIDTripleList &GetAllUsedObjectsUIDs() 
-	{
-		return pddMV_->GetUsedObjects();
-	} 
+  CDDUIDTripleList &GetAllUsedObjectsUIDs() { return pddMV_->GetUsedObjects(); }
 
-	CDDObject::EMVRefreshType GetRefreshType() 
-	{ 
-		return pddMV_->GetRefreshType(); 
-	}
+  CDDObject::EMVRefreshType GetRefreshType() { return pddMV_->GetRefreshType(); }
 
-	BOOL IsIgnoreChanges(TInt64 usedObjUid) 
-	{ 
-		return pddMV_->IsIgnoreChanges(usedObjUid);
-	}
+  BOOL IsIgnoreChanges(TInt64 usedObjUid) { return pddMV_->IsIgnoreChanges(usedObjUid); }
 
-	BOOL IsUsedObjectAnMV(TInt64 usedObjUid) 
-	{ 
-		return pddMV_->IsUsedObjectAnMV(usedObjUid);
-	}
+  BOOL IsUsedObjectAnMV(TInt64 usedObjUid) { return pddMV_->IsUsedObjectAnMV(usedObjUid); }
 
-	BOOL IsUsedObjectUDF(TInt64 usedObjUid) 
-	{ 
-		return pddMV_->IsUsedObjectUDF(usedObjUid);
-	}
+  BOOL IsUsedObjectUDF(TInt64 usedObjUid) { return pddMV_->IsUsedObjectUDF(usedObjUid); }
 
-	BOOL IsDeclarativeSingleDeltaMV()
-	{
-		return pddMV_->IsSingleDeltaMV();
-	}
+  BOOL IsDeclarativeSingleDeltaMV() { return pddMV_->IsSingleDeltaMV(); }
 
-	// How many of the directly used objects are MVs?
-	short GetNumDirectlyUsedMVs()
-	{
-		return pddMV_->GetNumDirectlyUsedMVs();
-	}
+  // How many of the directly used objects are MVs?
+  short GetNumDirectlyUsedMVs() { return pddMV_->GetNumDirectlyUsedMVs(); }
 
-	CDDObject::EMVQueryType GetQueryType() 
-	{
-		return pddMV_->GetQueryType(); 
-	}
-	CDDObject::EMVAuditType GetAuditType() 
-	{ 
-		return pddMV_->GetAuditType(); 
-	}
+  CDDObject::EMVQueryType GetQueryType() { return pddMV_->GetQueryType(); }
+  CDDObject::EMVAuditType GetAuditType() { return pddMV_->GetAuditType(); }
 
-	CDDObject::EMVStatus GetMVStatus() 
-	{ 
-		return pddMV_->GetMVStatus(); 
-	}
+  CDDObject::EMVStatus GetMVStatus() { return pddMV_->GetMVStatus(); }
 
-	TInt32 GetCommitNRows() 
-	{ 
-		return pddMV_->GetCommitNRows();
-	}
+  TInt32 GetCommitNRows() { return pddMV_->GetCommitNRows(); }
 
-	BOOL HasMinMaxAggregate() 
-	{ 
-		return pddMV_->HasMinMaxAggregate(); 
-	}
+  BOOL HasMinMaxAggregate() { return pddMV_->HasMinMaxAggregate(); }
 
-	virtual TInt64 GetTimestamp() const 
-	{
-		return pddMV_->GetRefreshedAtTimestamp(); 
-	}
+  virtual TInt64 GetTimestamp() const { return pddMV_->GetRefreshedAtTimestamp(); }
 
-	TInt32 GetEpoch(TInt64 usedObjUid) 
-	{ 
-		return pddMV_->GetEpoch(usedObjUid); 
-	}
+  TInt32 GetEpoch(TInt64 usedObjUid) { return pddMV_->GetEpoch(usedObjUid); }
 
-	TInt32 GetRecomputeDurationEstimate() 
-	{
-		return pddMV_->GetRecomputeDurationEstimate();
-	}
-	TInt32 GetRefreshDurationEstimateWith_2_Deltas()
-	{
-		return pddMV_->GetRefreshDurationEstimateWith_2_Deltas();
-	}
-	TInt32 GetRefreshDurationEstimateWith_3_Deltas()
-	{
-		return pddMV_->GetRefreshDurationEstimateWith_3_Deltas();
-	}
-	TInt32 GetRefreshDurationEstimateWith_N_Deltas()
-	{
-		return pddMV_->GetRefreshDurationEstimateWith_N_Deltas();
-	}
-	TInt32 GetMultiTxnTargetEpoch()
-	{
-		return pddMV_->GetMultiTxnTargetEpoch();
-	}
-	TInt32 GetRefreshDurationEstimate(TInt64 usedObjUid)
-	{
-		return pddMV_->GetRefreshDurationEstimate(usedObjUid);
-	}
-	TInt32 GetDeltaSizeEstimate(TInt64 usedObjUid)
-	{
-		return pddMV_->GetDeltaSizeEstimate(usedObjUid);
-	}
-	
-	// Is the MV in the middle of multi-transactional Refresh?
-	BOOL IsMultiTxnContext()
-	{
-		return pddMV_->IsMultiTxnContext();
-	}
+  TInt32 GetRecomputeDurationEstimate() { return pddMV_->GetRecomputeDurationEstimate(); }
+  TInt32 GetRefreshDurationEstimateWith_2_Deltas() { return pddMV_->GetRefreshDurationEstimateWith_2_Deltas(); }
+  TInt32 GetRefreshDurationEstimateWith_3_Deltas() { return pddMV_->GetRefreshDurationEstimateWith_3_Deltas(); }
+  TInt32 GetRefreshDurationEstimateWith_N_Deltas() { return pddMV_->GetRefreshDurationEstimateWith_N_Deltas(); }
+  TInt32 GetMultiTxnTargetEpoch() { return pddMV_->GetMultiTxnTargetEpoch(); }
+  TInt32 GetRefreshDurationEstimate(TInt64 usedObjUid) { return pddMV_->GetRefreshDurationEstimate(usedObjUid); }
+  TInt32 GetDeltaSizeEstimate(TInt64 usedObjUid) { return pddMV_->GetDeltaSizeEstimate(usedObjUid); }
 
-	const CDDIndexList& GetIndexList() const 
-	{ 
-		RUASSERT(NULL != pddIndexList_);
-		return *pddIndexList_; 
-	}
+  // Is the MV in the middle of multi-transactional Refresh?
+  BOOL IsMultiTxnContext() { return pddMV_->IsMultiTxnContext(); }
 
-	CDDIndexList& GetIndexList() 
-	{ 
-		RUASSERT(NULL != pddIndexList_);
-		return *pddIndexList_; 
-	}
+  const CDDIndexList &GetIndexList() const {
+    RUASSERT(NULL != pddIndexList_);
+    return *pddIndexList_;
+  }
 
-	// Direct invocation of POPINDEX CatApi request (not through DDOL)
-	void GetPopIndexCatApiRequestText(CDSString &to, CDDIndex *pddIndex);
+  CDDIndexList &GetIndexList() {
+    RUASSERT(NULL != pddIndexList_);
+    return *pddIndexList_;
+  }
 
-	void GetUpdateIndexStatusCatApiRequestText(CDSString &to, 
-						BOOL isAvail,
-						CDDIndex *pddIndex);
+  // Direct invocation of POPINDEX CatApi request (not through DDOL)
+  void GetPopIndexCatApiRequestText(CDSString &to, CDDIndex *pddIndex);
 
+  void GetUpdateIndexStatusCatApiRequestText(CDSString &to, BOOL isAvail, CDDIndex *pddIndex);
 
-        void GetToggleAuditCatApiRequestText(CDSString &to, 
-						BOOL auditFlag,
-						CDDIndex *pddIndex);
+  void GetToggleAuditCatApiRequestText(CDSString &to, BOOL auditFlag, CDDIndex *pddIndex);
 
-	// Force options for the internal refresh statement
-	const CRUMVForceOptions* GetMVForceOption() const
-	{
-		return pMvForceOptions_;
-	}
-	
+  // Force options for the internal refresh statement
+  const CRUMVForceOptions *GetMVForceOption() const { return pMvForceOptions_; }
+
 #ifdef _DEBUG
-public:
-	virtual void Dump(CDSString &to, BOOL isExtended=FALSE);
+ public:
+  virtual void Dump(CDSString &to, BOOL isExtended = FALSE);
 #endif
 
-	//--------------------------------//
-	//  Mutators
-	//--------------------------------//
-public:
-	// Update the usage lists
-	void AddRefToUsedObject(CRUTbl *pTbl);
-	
-	// Implementation of pure virtual
-	virtual void ReleaseResources();
+  //--------------------------------//
+  //  Mutators
+  //--------------------------------//
+ public:
+  // Update the usage lists
+  void AddRefToUsedObject(CRUTbl *pTbl);
 
-	// Set the reference to the CRUTbl object
-	// corresponding to this MV
-	void SetTblInterface(CRUTbl *pTbl)
-	{
-		pTblInterface_ = pTbl;
-	}
+  // Implementation of pure virtual
+  virtual void ReleaseResources();
 
-	// During the cache construction, decide whether the MV 
-	// must be recomputed, and consider the purgedata/popindex optimizations
-	void SetupRecomputeProperty(BOOL isTotalRecompute);
+  // Set the reference to the CRUTbl object
+  // corresponding to this MV
+  void SetTblInterface(CRUTbl *pTbl) { pTblInterface_ = pTbl; }
 
-	void SetRefreshPatternMask(RefreshPatternMask mask)
-	{
-		refreshPatternMap_ |= mask;
-	}
+  // During the cache construction, decide whether the MV
+  // must be recomputed, and consider the purgedata/popindex optimizations
+  void SetupRecomputeProperty(BOOL isTotalRecompute);
 
-	// Check the Select/Insert/Delete privileges for the current user
-	void FetchPrivileges();
+  void SetRefreshPatternMask(RefreshPatternMask mask) { refreshPatternMap_ |= mask; }
 
-	// During the DG construction, propagate the property between the MVs
-	void PropagateRecomputeProperty();
+  // Check the Select/Insert/Delete privileges for the current user
+  void FetchPrivileges();
 
-	// Set MV.RECOMPUTE_EPOCH <-- MV.CURRENT_EPOCH
-	void AdvanceRecomputeEpoch();
+  // During the DG construction, propagate the property between the MVs
+  void PropagateRecomputeProperty();
 
-	//-- Index population
-public:
-	// Build the list of all the secondary indexes on me 
-	// that are not captured by DDL locks
-	void BuildIndexList();
+  // Set MV.RECOMPUTE_EPOCH <-- MV.CURRENT_EPOCH
+  void AdvanceRecomputeEpoch();
 
-	void PurgeDataWithIndexes();
+  //-- Index population
+ public:
+  // Build the list of all the secondary indexes on me
+  // that are not captured by DDL locks
+  void BuildIndexList();
 
-	//-- Event handlers
-public:
-	// Update the delta-def list based on the EmpCheck results
-	void PropagateEmpCheck(CRUTbl &tbl);
-	// Update the delta-def list based on the DE statistics
-	void PropagateDEStatistics(CRUTbl &tbl);
+  void PurgeDataWithIndexes();
 
-	//-- Mutator wrappers
-public:
-	// Fetch the metadata about epochs, statistics etc.
-	// (not of general use in DDOL).
-	virtual void FetchMetadata()
-	{
-		pddMV_->FetchMVRefreshMetadata();
-	}
+  //-- Event handlers
+ public:
+  // Update the delta-def list based on the EmpCheck results
+  void PropagateEmpCheck(CRUTbl &tbl);
+  // Update the delta-def list based on the DE statistics
+  void PropagateDEStatistics(CRUTbl &tbl);
 
-	// Flush the metadata changes to the SMD and UMD tables
-	virtual void SaveMetadata()
-	{
-		pddMV_->Save();
-	}
+  //-- Mutator wrappers
+ public:
+  // Fetch the metadata about epochs, statistics etc.
+  // (not of general use in DDOL).
+  virtual void FetchMetadata() { pddMV_->FetchMVRefreshMetadata(); }
 
-	// Cancel saving the metadata
-	virtual void CancelChanges();
+  // Flush the metadata changes to the SMD and UMD tables
+  virtual void SaveMetadata() { pddMV_->Save(); }
 
-	void SetMVStatus(CDDObject::EMVStatus status) 
-	{ 
-		pddMV_->SetMVStatus(status); 
-	}
+  // Cancel saving the metadata
+  virtual void CancelChanges();
 
-        // publish a row to the Query Rewrite Publish table to
-        // indicate that this MV has been refreshed. If the
-        // refresh is with recompute the argument isRecompute
-        // should be set
-        void PublishMVRefresh ( BOOL isRecompute)
-        {
-                pddMV_->PublishMVRefresh (isRecompute);
-        }
+  void SetMVStatus(CDDObject::EMVStatus status) { pddMV_->SetMVStatus(status); }
 
-	void SetTimestamp(TInt64 ts)
-	{ 
-		pddMV_->SetRefreshedAtTimestamp(ts);
-	}
+  // publish a row to the Query Rewrite Publish table to
+  // indicate that this MV has been refreshed. If the
+  // refresh is with recompute the argument isRecompute
+  // should be set
+  void PublishMVRefresh(BOOL isRecompute) { pddMV_->PublishMVRefresh(isRecompute); }
 
-	void SetEpoch(TInt64 usedObjUid, TInt32 ep)
-	{
-		pddMV_->SetEpoch(usedObjUid, ep);
-	}
+  void SetTimestamp(TInt64 ts) { pddMV_->SetRefreshedAtTimestamp(ts); }
 
-	void SetMVTableAudit(BOOL audit)
-	{
-		pddMV_->SetMVTableAudit(audit);
-	}
+  void SetEpoch(TInt64 usedObjUid, TInt32 ep) { pddMV_->SetEpoch(usedObjUid, ep); }
 
-	void SetRecomputeDurationEstimate(TInt32 time) 
-	{ 
-		pddMV_->SetRecomputeDurationEstimate(time);
-	}
-	void SetRefreshDurationEstimateWith_2_Deltas(TInt32 time)
-	{
-		pddMV_->SetRefreshDurationEstimateWith_2_Deltas(time);
-	}
-	void SetRefreshDurationEstimateWith_3_Deltas(TInt32 time)
-	{
-		pddMV_->SetRefreshDurationEstimateWith_3_Deltas(time);
-	}
-	void SetRefreshDurationEstimateWith_N_Deltas(TInt32 time)
-	{
-		pddMV_->SetRefreshDurationEstimateWith_N_Deltas(time);
-	}
+  void SetMVTableAudit(BOOL audit) { pddMV_->SetMVTableAudit(audit); }
 
-	void SetMultiTxnTargetEpoch(TInt32 epoch)
-	{
-		pddMV_->SetMultiTxnTargetEpoch(epoch);
-	}
+  void SetRecomputeDurationEstimate(TInt32 time) { pddMV_->SetRecomputeDurationEstimate(time); }
+  void SetRefreshDurationEstimateWith_2_Deltas(TInt32 time) { pddMV_->SetRefreshDurationEstimateWith_2_Deltas(time); }
+  void SetRefreshDurationEstimateWith_3_Deltas(TInt32 time) { pddMV_->SetRefreshDurationEstimateWith_3_Deltas(time); }
+  void SetRefreshDurationEstimateWith_N_Deltas(TInt32 time) { pddMV_->SetRefreshDurationEstimateWith_N_Deltas(time); }
 
-	void SetRefreshDurationEstimate(TInt64 usedObjUid, TInt32 time)
-	{
-		pddMV_->SetRefreshDurationEstimate(usedObjUid, time);
-	}
-	void SetDeltaSizeEstimate(TInt64 usedObjUid, TInt32 time)
-	{
-		pddMV_->SetDeltaSizeEstimate(usedObjUid, time);
-	}
+  void SetMultiTxnTargetEpoch(TInt32 epoch) { pddMV_->SetMultiTxnTargetEpoch(epoch); }
 
-	void SetMVForceOption(CRUMVForceOptions *pOpt)
-	{
-		pMvForceOptions_ = pOpt;
-	}
+  void SetRefreshDurationEstimate(TInt64 usedObjUid, TInt32 time) {
+    pddMV_->SetRefreshDurationEstimate(usedObjUid, time);
+  }
+  void SetDeltaSizeEstimate(TInt64 usedObjUid, TInt32 time) { pddMV_->SetDeltaSizeEstimate(usedObjUid, time); }
 
-	//-------------------------------------------//
-	//	PROTECTED AREA
-	//-------------------------------------------//
-protected:
-	virtual CDDLockList *GetDDLLockList()
-	{
-		return pddMV_->GetDDLLockList();
-	}
+  void SetMVForceOption(CRUMVForceOptions *pOpt) { pMvForceOptions_ = pOpt; }
 
-	virtual CDDLock *AddDDLLock(CDSString lockName, CDDObject::EOperationType op,
- 					 const CDDDetailTextList &details, CDSLocationList *locationList,
- 					 Int32 status)
-	{
-		return pddMV_->AddDDLLock(lockName, op, details, locationList, status);
-	}
+  //-------------------------------------------//
+  //	PROTECTED AREA
+  //-------------------------------------------//
+ protected:
+  virtual CDDLockList *GetDDLLockList() { return pddMV_->GetDDLLockList(); }
 
-	virtual void DropDDLLock(const CDSString &name)
-	{
-		pddMV_->DropDDLLock(name);
-	}
+  virtual CDDLock *AddDDLLock(CDSString lockName, CDDObject::EOperationType op, const CDDDetailTextList &details,
+                              CDSLocationList *locationList, Int32 status) {
+    return pddMV_->AddDDLLock(lockName, op, details, locationList, status);
+  }
 
-	//-------------------------------------------//
-	//	PRIVATE AREA
-	//-------------------------------------------//
-private:
-	//-- Prevent copying
-	CRUMV(const CRUMV& other);
-	CRUMV& operator = (const CRUMV& other);
+  virtual void DropDDLLock(const CDSString &name) { pddMV_->DropDDLLock(name); }
 
-	void BuildDeltaDefList();
+  //-------------------------------------------//
+  //	PRIVATE AREA
+  //-------------------------------------------//
+ private:
+  //-- Prevent copying
+  CRUMV(const CRUMV &other);
+  CRUMV &operator=(const CRUMV &other);
 
-	//-- SetupRecomputeProperty() callee
-	BOOL DoIDemandRecompute();
+  void BuildDeltaDefList();
 
-	// Do the MV's properties allow to pipeline to/from it?
-	BOOL IsPipelineable();
+  //-- SetupRecomputeProperty() callee
+  BOOL DoIDemandRecompute();
 
-	// Does the MV's audit type allow pipelining from the second MV?
-	BOOL IsCompatibleForPipelining(CRUMV &fromMV); 
+  // Do the MV's properties allow to pipeline to/from it?
+  BOOL IsPipelineable();
 
-	// Check a single privilege
-	BOOL FetchPrivilege(CDDObject::EPrivilegeType privType);
+  // Does the MV's audit type allow pipelining from the second MV?
+  BOOL IsCompatibleForPipelining(CRUMV &fromMV);
 
-	// Consider the purgedata/popindex optimizations
-	void SetupPurgedataAndPopindex();
+  // Check a single privilege
+  BOOL FetchPrivilege(CDDObject::EPrivilegeType privType);
 
-	BOOL MustPerformPurgedata(BOOL isDeletePriv);
+  // Consider the purgedata/popindex optimizations
+  void SetupPurgedataAndPopindex();
 
-	//-------------------------------------------//
-	//	PRIVATE AREA
-	//-------------------------------------------//
-private:
-	// The DD core object
-	CDDMV	*pddMV_;
+  BOOL MustPerformPurgedata(BOOL isDeletePriv);
 
-	// The list of pointers to used objects.
-	// NOTE: THE LIST DOES NOT OWN THE REFERENCED OBJECTS
-	//       (and therefore, does not deallocate them).
-	CRUTblList *pTablesUsedByMe_;
+  //-------------------------------------------//
+  //	PRIVATE AREA
+  //-------------------------------------------//
+ private:
+  // The DD core object
+  CDDMV *pddMV_;
 
-	CRUTblList *pFullySyncTablesUsedByMe_;
+  // The list of pointers to used objects.
+  // NOTE: THE LIST DOES NOT OWN THE REFERENCED OBJECTS
+  //       (and therefore, does not deallocate them).
+  CRUTblList *pTablesUsedByMe_;
 
-	// The CRUTbl object that corresponds to this MV
-	CRUTbl *pTblInterface_;
+  CRUTblList *pFullySyncTablesUsedByMe_;
 
-	// The MV's indexes (for purgedata and popindex purposes)
-	CDDIndexList *pddIndexList_;
+  // The CRUTbl object that corresponds to this MV
+  CRUTbl *pTblInterface_;
 
-	// The delta-def list for INTERNAL REFRESH syntax and scheduling
-	CRUDeltaDefList *pDeltaDefList_;
+  // The MV's indexes (for purgedata and popindex purposes)
+  CDDIndexList *pddIndexList_;
 
-	Lng32 privMap_;	// Privileges for the current user
-	Lng32 refreshPatternMap_; // Incremental/recompute? Optimizations?
-	
-	CRUMVForceOptions *pMvForceOptions_;
+  // The delta-def list for INTERNAL REFRESH syntax and scheduling
+  CRUDeltaDefList *pDeltaDefList_;
 
+  Lng32 privMap_;            // Privileges for the current user
+  Lng32 refreshPatternMap_;  // Incremental/recompute? Optimizations?
+
+  CRUMVForceOptions *pMvForceOptions_;
 };
 
 // Declare the class CRUMVList through this macro

@@ -38,29 +38,21 @@ constructor CmpProcess
  The process info gathered below only needs to happen once.
 
 ************************************************************************/
-CmpProcess::CmpProcess()
-: nodeNum_(0), 
-  pin_(0), 
-  segmentNum_(0),  
-  processStartTime_(0) 
-{
-
+CmpProcess::CmpProcess() : nodeNum_(0), pin_(0), segmentNum_(0), processStartTime_(0) {
   char programDir[100];
   short processType;
   int myCPU;
-  char myNodeName[MAX_SEGMENT_NAME_LEN+1];
-  Lng32  myNodeNum;
+  char myNodeName[MAX_SEGMENT_NAME_LEN + 1];
+  Lng32 myNodeNum;
   short myNodeNameLen = MAX_SEGMENT_NAME_LEN;
   char myProcessName[PROCESSNAME_STRING_LEN];
   pid_t pid;
-  if (!ComRtGetProgramInfo(programDir,100,processType,myCPU,
-                          pid,myNodeNum,myNodeName,myNodeNameLen,
-                          processStartTime_,myProcessName))
-  {
+  if (!ComRtGetProgramInfo(programDir, 100, processType, myCPU, pid, myNodeNum, myNodeName, myNodeNameLen,
+                           processStartTime_, myProcessName)) {
     pin_ = pid;
     nodeNum_ = myNodeNum;
     // convert to local civil time
-    processStartTime_ = CONVERTTIMESTAMP(processStartTime_,0,-1,0);
+    processStartTime_ = CONVERTTIMESTAMP(processStartTime_, 0, -1, 0);
   }
 }
 /************************************************************************
@@ -69,9 +61,7 @@ method CmpProcess::getProcessDuration
   the number of microseconds since this process started
 
 ************************************************************************/
-Int64
-CmpProcess::getProcessDuration()
-{
+Int64 CmpProcess::getProcessDuration() {
   Int64 currentTime = getCurrentTimestamp();
   return (currentTime - processStartTime_);
 }
@@ -79,12 +69,10 @@ CmpProcess::getProcessDuration()
 method CmpProcess::getCurrentSystemHeapSize
 
  Guardian procedure calls used to get the latest memory usage information
- for this process. 
+ for this process.
 
 ************************************************************************/
-Lng32
-CmpProcess::getCurrentSystemHeapSize()
-{
+Lng32 CmpProcess::getCurrentSystemHeapSize() {
   Lng32 currentSystemHeapSize = 0;
 
   return currentSystemHeapSize;
@@ -103,14 +91,8 @@ parameter:
 
 
 ************************************************************************/
-void
-CmpProcess::getCompilerId(char *id, int len)
-{    
-  CMPASSERT( NULL != id );
+void CmpProcess::getCompilerId(char *id, int len) {
+  CMPASSERT(NULL != id);
 
-  snprintf
-    (id, len, "%018ld%03d%05d",
-     getProcessStartTime(),        
-     getNodeNum(),                      
-     getPin());                       
+  snprintf(id, len, "%018ld%03d%05d", getProcessStartTime(), getNodeNum(), getPin());
 }

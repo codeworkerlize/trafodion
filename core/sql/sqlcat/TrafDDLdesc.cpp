@@ -32,24 +32,17 @@
 // to either hardcoded values or to zero.  The callers,
 // in arkcmplib + generator + optimizer, can set additional fields afterwards.
 // -----------------------------------------------------------------------
-TrafDesc *TrafMakeColumnDesc(const char *tablename,
-                             const char *colname,
-                             Lng32 &colnumber,	// INOUT
-                             Int32 datatype,
-                             Lng32 length,
-                             Lng32 &offset,	// INOUT
-                             NABoolean null_flag,
-                             SQLCHARSET_CODE datacharset,
-                             NAMemory * space
-                             )
-{
-  #undef  COLUMN
-  #define COLUMN returnDesc->columnsDesc()
+TrafDesc *TrafMakeColumnDesc(const char *tablename, const char *colname,
+                             Lng32 &colnumber,  // INOUT
+                             Int32 datatype, Lng32 length,
+                             Lng32 &offset,  // INOUT
+                             NABoolean null_flag, SQLCHARSET_CODE datacharset, NAMemory *space) {
+#undef COLUMN
+#define COLUMN returnDesc->columnsDesc()
 
   // Pass in the optional "passedDesc" if you just want to overwrite an
   // already existing desc.
-  TrafDesc *returnDesc = 
-    TrafAllocateDDLdesc(DESC_COLUMNS_TYPE, space);
+  TrafDesc *returnDesc = TrafAllocateDDLdesc(DESC_COLUMNS_TYPE, space);
 
   COLUMN->colname = (char *)colname;
 
@@ -65,20 +58,17 @@ TrafDesc *TrafMakeColumnDesc(const char *tablename,
   COLUMN->colclass = 'U';
   COLUMN->setDefaultClass(COM_NO_DEFAULT);
 
-  if ((DFS2REC::isAnyCharacter(datatype))|| (datatype == REC_CLOB)) {
+  if ((DFS2REC::isAnyCharacter(datatype)) || (datatype == REC_CLOB)) {
     if (datacharset == SQLCHARSETCODE_UNKNOWN) {
-    COLUMN->character_set      = CharInfo::DefaultCharSet;
-    COLUMN->encoding_charset   = CharInfo::DefaultCharSet;
-    }
-    else {
-    COLUMN->character_set      = (CharInfo::CharSet)datacharset;
-    COLUMN->encoding_charset   = (CharInfo::CharSet)datacharset;
+      COLUMN->character_set = CharInfo::DefaultCharSet;
+      COLUMN->encoding_charset = CharInfo::DefaultCharSet;
+    } else {
+      COLUMN->character_set = (CharInfo::CharSet)datacharset;
+      COLUMN->encoding_charset = (CharInfo::CharSet)datacharset;
     }
     COLUMN->collation_sequence = CharInfo::DefaultCollation;
-    if (DFS2REC::isSQLVarChar(datatype))
-      offset += SQL_VARCHAR_HDR_SIZE;
-  }
-  else {	// datetime, interval, numeric, etc.
+    if (DFS2REC::isSQLVarChar(datatype)) offset += SQL_VARCHAR_HDR_SIZE;
+  } else {  // datetime, interval, numeric, etc.
     COLUMN->datetimestart = COLUMN->datetimeend = REC_DATE_UNKNOWN;
   }
 
@@ -94,13 +84,11 @@ TrafDesc *TrafMakeColumnDesc(const char *tablename,
 // Allocate one of the primitive structs and initialize to all zeroes.
 // Uses HEAP (StatementHeap) of CmpCommon or space.
 // -----------------------------------------------------------------------
-TrafDesc *TrafAllocateDDLdesc(desc_nodetype nodetype, NAMemory * space)
-{
+TrafDesc *TrafAllocateDDLdesc(desc_nodetype nodetype, NAMemory *space) {
   size_t size = 0;
-  TrafDesc * desc_ptr = NULL;
+  TrafDesc *desc_ptr = NULL;
 
-  switch (nodetype)
-    {
+  switch (nodetype) {
     case DESC_CHECK_CONSTRNTS_TYPE:
       desc_ptr = new GENHEAP(space) TrafCheckConstrntsDesc();
       break;
@@ -134,7 +122,7 @@ TrafDesc *TrafAllocateDDLdesc(desc_nodetype nodetype, NAMemory * space)
     case DESC_LIBRARY_TYPE:
       desc_ptr = new GENHEAP(space) TrafLibraryDesc();
       break;
-     case DESC_PARTNS_TYPE:
+    case DESC_PARTNS_TYPE:
       desc_ptr = new GENHEAP(space) TrafPartnsDesc();
       break;
     case DESC_REF_CONSTRNTS_TYPE:
@@ -143,7 +131,7 @@ TrafDesc *TrafAllocateDDLdesc(desc_nodetype nodetype, NAMemory * space)
     case DESC_ROUTINE_TYPE:
       desc_ptr = new GENHEAP(space) TrafRoutineDesc();
       break;
-    case DESC_SEQUENCE_GENERATOR_TYPE:   
+    case DESC_SEQUENCE_GENERATOR_TYPE:
       desc_ptr = new GENHEAP(space) TrafSequenceGeneratorDesc();
       break;
     case DESC_TABLE_TYPE:
@@ -154,17 +142,17 @@ TrafDesc *TrafAllocateDDLdesc(desc_nodetype nodetype, NAMemory * space)
       break;
     case DESC_VIEW_TYPE:
       desc_ptr = new GENHEAP(space) TrafViewDesc();
-      break;	       
-    case DESC_USING_MV_TYPE: 
+      break;
+    case DESC_USING_MV_TYPE:
       desc_ptr = new GENHEAP(space) TrafUsingMvDesc();
       break;
-    case DESC_PRIV_TYPE: 
+    case DESC_PRIV_TYPE:
       desc_ptr = new GENHEAP(space) TrafPrivDesc();
       break;
-    case DESC_PRIV_GRANTEE_TYPE: 
+    case DESC_PRIV_GRANTEE_TYPE:
       desc_ptr = new GENHEAP(space) TrafPrivGranteeDesc();
       break;
-    case DESC_PRIV_BITMAP_TYPE: 
+    case DESC_PRIV_BITMAP_TYPE:
       desc_ptr = new GENHEAP(space) TrafPrivBitmapDesc();
       break;
     case DESC_PARTITIONV2_TYPE:
@@ -176,45 +164,32 @@ TrafDesc *TrafAllocateDDLdesc(desc_nodetype nodetype, NAMemory * space)
     default:
       assert(FALSE);
       break;
-    }
+  }
 
   // if not being allocated from space, memset all bytes to 0.
   // If allocated from space, it will be set to 0 during space allocation.
-  if ((! space) || (!space->isComSpace()))
-    memset((char*)desc_ptr+sizeof(TrafDesc), 0, 
-           desc_ptr->getClassSize()-sizeof(TrafDesc));
+  if ((!space) || (!space->isComSpace()))
+    memset((char *)desc_ptr + sizeof(TrafDesc), 0, desc_ptr->getClassSize() - sizeof(TrafDesc));
 
   return desc_ptr;
-
 }
 
-TrafDesc::TrafDesc(UInt16 nodeType) 
-  : NAVersionedObject(nodeType),
-    nodetype(nodeType),
-    version(CURR_VERSION),
-    descFlags(0),
-    next(NULL)
-{}
+TrafDesc::TrafDesc(UInt16 nodeType)
+    : NAVersionedObject(nodeType), nodetype(nodeType), version(CURR_VERSION), descFlags(0), next(NULL) {}
 
-Lng32 TrafDesc::validateSize()
-{
-  if (getImageSize() != getClassSize())
-    return -1;
+Lng32 TrafDesc::validateSize() {
+  if (getImageSize() != getClassSize()) return -1;
 
   return 0;
 }
 
-Lng32 TrafDesc::validateVersion()
-{
-  if (version != CURR_VERSION)
-    return -1;
+Lng32 TrafDesc::validateVersion() {
+  if (version != CURR_VERSION) return -1;
 
   return 0;
 }
 
-Lng32 TrafDesc::migrateToNewVersion(
-     NAVersionedObject *&newImage)
-{
+Lng32 TrafDesc::migrateToNewVersion(NAVersionedObject *&newImage) {
   short tempimagesize = getClassSize();
   // -----------------------------------------------------------------
   // The base class implementation of migrateToNewVersion() is only
@@ -222,24 +197,19 @@ Lng32 TrafDesc::migrateToNewVersion(
   // redefined at the subclass. That means no new version of that
   // subclass has been invented yet.
   // -----------------------------------------------------------------
-  if (newImage == NULL)
-    {
-      if (validateSize())
-        return -1;
+  if (newImage == NULL) {
+    if (validateSize()) return -1;
 
-      if (validateVersion())
-        return -1;
-    }
+    if (validateVersion()) return -1;
+  }
 
   return NAVersionedObject::migrateToNewVersion(newImage);
 }
 
-char *TrafDesc::findVTblPtr(short classID)
-{
+char *TrafDesc::findVTblPtr(short classID) {
   char *vtblptr = NULL;
 
-  switch (classID)
-    {
+  switch (classID) {
     case DESC_CHECK_CONSTRNTS_TYPE:
       GetVTblPtr(vtblptr, TrafCheckConstrntsDesc);
       break;
@@ -273,7 +243,7 @@ char *TrafDesc::findVTblPtr(short classID)
     case DESC_LIBRARY_TYPE:
       GetVTblPtr(vtblptr, TrafLibraryDesc);
       break;
-     case DESC_PARTNS_TYPE:
+    case DESC_PARTNS_TYPE:
       GetVTblPtr(vtblptr, TrafPartnsDesc);
       break;
     case DESC_REF_CONSTRNTS_TYPE:
@@ -282,7 +252,7 @@ char *TrafDesc::findVTblPtr(short classID)
     case DESC_ROUTINE_TYPE:
       GetVTblPtr(vtblptr, TrafRoutineDesc);
       break;
-    case DESC_SEQUENCE_GENERATOR_TYPE:   
+    case DESC_SEQUENCE_GENERATOR_TYPE:
       GetVTblPtr(vtblptr, TrafSequenceGeneratorDesc);
       break;
     case DESC_TABLE_TYPE:
@@ -293,17 +263,17 @@ char *TrafDesc::findVTblPtr(short classID)
       break;
     case DESC_VIEW_TYPE:
       GetVTblPtr(vtblptr, TrafViewDesc);
-      break;	       
-    case DESC_USING_MV_TYPE: 
+      break;
+    case DESC_USING_MV_TYPE:
       GetVTblPtr(vtblptr, TrafUsingMvDesc);
       break;
-    case DESC_PRIV_TYPE: 
+    case DESC_PRIV_TYPE:
       GetVTblPtr(vtblptr, TrafPrivDesc);
       break;
-    case DESC_PRIV_GRANTEE_TYPE: 
+    case DESC_PRIV_GRANTEE_TYPE:
       GetVTblPtr(vtblptr, TrafPrivGranteeDesc);
       break;
-    case DESC_PRIV_BITMAP_TYPE: 
+    case DESC_PRIV_BITMAP_TYPE:
       GetVTblPtr(vtblptr, TrafPrivBitmapDesc);
       break;
     case DESC_PARTITIONV2_TYPE:
@@ -315,63 +285,55 @@ char *TrafDesc::findVTblPtr(short classID)
     default:
       assert(FALSE);
       break;
-    }
+  }
 
   return vtblptr;
 }
 
-short TrafDesc::copyFrom(TrafDesc * from, NAMemory * heap)
-{
+short TrafDesc::copyFrom(TrafDesc *from, NAMemory *heap) {
   // skip virtual table pointer stored as first eight bytes (64 bit pointer)
-  char * vtblPtr = (char*)this;
-  char * dataLoc = vtblPtr + sizeof(NAVersionedObject);
+  char *vtblPtr = (char *)this;
+  char *dataLoc = vtblPtr + sizeof(NAVersionedObject);
 
-  char * fromDataLoc = (char*)from + sizeof(NAVersionedObject);
+  char *fromDataLoc = (char *)from + sizeof(NAVersionedObject);
 
   memcpy(dataLoc, fromDataLoc, getClassSize() - sizeof(NAVersionedObject));
 
   return 0;
 }
 
-TrafDesc * TrafDesc::copyDescList(TrafDesc * srcDescList, NAMemory * heap)
-{
-  TrafDesc * retDescList = NULL;
-  TrafDesc * srcDesc = srcDescList;
-  TrafDesc * prevDesc = NULL;
-  while (srcDesc)
-    {
-      TrafDesc * tgtDesc = 
-        TrafAllocateDDLdesc((desc_nodetype)srcDesc->nodetype, heap);
+TrafDesc *TrafDesc::copyDescList(TrafDesc *srcDescList, NAMemory *heap) {
+  TrafDesc *retDescList = NULL;
+  TrafDesc *srcDesc = srcDescList;
+  TrafDesc *prevDesc = NULL;
+  while (srcDesc) {
+    TrafDesc *tgtDesc = TrafAllocateDDLdesc((desc_nodetype)srcDesc->nodetype, heap);
 
-      if (retDescList == NULL)
-        {
-          retDescList = tgtDesc;
-        }
-      else
-        prevDesc->next = tgtDesc;
+    if (retDescList == NULL) {
+      retDescList = tgtDesc;
+    } else
+      prevDesc->next = tgtDesc;
 
-      if (tgtDesc->copyFrom(srcDesc, heap)) // error
-        return NULL;
+    if (tgtDesc->copyFrom(srcDesc, heap))  // error
+      return NULL;
 
-      prevDesc = tgtDesc;
-      srcDesc = srcDesc->next;
-    }
-  
+    prevDesc = tgtDesc;
+    srcDesc = srcDesc->next;
+  }
+
   return retDescList;
 }
 
-void TrafDesc::deleteDescList(TrafDesc * srcDescList, NAMemory * heap)
-{
-  TrafDesc * srcDesc = srcDescList;
-  TrafDesc * nextDesc = NULL;
-  while (srcDesc)
-    {
-      nextDesc = srcDesc->next;
-      srcDesc->deallocMembers(heap);
-      NADELETE(srcDesc, TrafDesc, heap);
+void TrafDesc::deleteDescList(TrafDesc *srcDescList, NAMemory *heap) {
+  TrafDesc *srcDesc = srcDescList;
+  TrafDesc *nextDesc = NULL;
+  while (srcDesc) {
+    nextDesc = srcDesc->next;
+    srcDesc->deallocMembers(heap);
+    NADELETE(srcDesc, TrafDesc, heap);
 
-      srcDesc = nextDesc;
-    }
+    srcDesc = nextDesc;
+  }
 }
 
 // pack and unpack methods for various descriptor structs
@@ -381,24 +343,22 @@ void TrafDesc::deleteDescList(TrafDesc * srcDescList, NAMemory * heap)
 // each element. Before pack, the 'next' pointer of that element
 // is set to NULL which causes only that one element to be packed.
 // After pack, 'next' pointer is restored.
-Long TrafDesc::pack(void * space)
-{
+Long TrafDesc::pack(void *space) {
   DescStructPtr currDescPtr;
   TrafDesc *currDesc;
   TrafDesc *nextDesc;
 
   currDesc = next;
   next.packShallow(space);
-  while (currDesc)
-    {
-      currDescPtr = currDesc;
-      nextDesc = currDesc->next;
-      currDesc->next = 0;
-      currDescPtr.pack(space);
-      currDesc->next = nextDesc;
-      currDesc->next.packShallow(space);
-      currDesc = nextDesc;
-    }
+  while (currDesc) {
+    currDescPtr = currDesc;
+    nextDesc = currDesc->next;
+    currDesc->next = 0;
+    currDescPtr.pack(space);
+    currDesc->next = nextDesc;
+    currDesc->next.packShallow(space);
+    currDesc = nextDesc;
+  }
 
   return NAVersionedObject::pack(space);
 }
@@ -408,77 +368,67 @@ Long TrafDesc::pack(void * space)
 // each element. Before unpack, the 'next' pointer of that element
 // is set to NULL which causes only that one element to be unpacked.
 // After unpack, 'next' pointer is restored.
-Lng32 TrafDesc::unpack(void * base, void * reallocator)
-{
+Lng32 TrafDesc::unpack(void *base, void *reallocator) {
   DescStructPtr currDescPtr;
   DescStructPtr nextDescPtr;
   TrafDesc *currDesc;
-  
+
   currDescPtr = next;
   if (next.unpackShallow(base)) return -1;
 
-  while (! currDescPtr.isNull())
-    {
-      if (currDescPtr.unpackShallow(base)) return -1;
-      currDesc = currDescPtr.getPointer();
-      nextDescPtr = currDesc->next;
-      currDesc->next = 0;
-      currDescPtr.packShallow(base, 0);
-      if (currDescPtr.unpack(base, reallocator)) return -1;
-      currDesc->next = nextDescPtr;
-      if (currDesc->next.unpackShallow(base)) return -1;
+  while (!currDescPtr.isNull()) {
+    if (currDescPtr.unpackShallow(base)) return -1;
+    currDesc = currDescPtr.getPointer();
+    nextDescPtr = currDesc->next;
+    currDesc->next = 0;
+    currDescPtr.packShallow(base, 0);
+    if (currDescPtr.unpack(base, reallocator)) return -1;
+    currDesc->next = nextDescPtr;
+    if (currDesc->next.unpackShallow(base)) return -1;
 
-      currDescPtr = nextDescPtr;
-    }
+    currDescPtr = nextDescPtr;
+  }
 
   return NAVersionedObject::unpack(base, reallocator);
 }
 
-short TrafDesc::allocAndCopy(char * src, char* &tgt, NAMemory * heap)
-{
+short TrafDesc::allocAndCopy(char *src, char *&tgt, NAMemory *heap) {
   tgt = NULL;
 
-  if (src)
-    {
-      tgt = new(heap) char[strlen(src)+1];
-      strcpy(tgt, src);
+  if (src) {
+    tgt = new (heap) char[strlen(src) + 1];
+    strcpy(tgt, src);
 
-      setWasCopied(TRUE);
-    }
+    setWasCopied(TRUE);
+  }
 
   return 0;
 }
 
-NABoolean TrafDesc::deepCompare(const TrafDesc& other) const
-{
-  TrafDesc *currThisDesc = (TrafDesc*)this;
-  TrafDesc *currOtherDesc = (TrafDesc*)&other;
+NABoolean TrafDesc::deepCompare(const TrafDesc &other) const {
+  TrafDesc *currThisDesc = (TrafDesc *)this;
+  TrafDesc *currOtherDesc = (TrafDesc *)&other;
 
-  while (!currThisDesc && !currOtherDesc )
-    {
-      if ( !(*currThisDesc == *currOtherDesc) ) 
-         return FALSE;
+  while (!currThisDesc && !currOtherDesc) {
+    if (!(*currThisDesc == *currOtherDesc)) return FALSE;
 
-      currThisDesc = (currThisDesc->next).getPointer();
-      currOtherDesc = (currOtherDesc->next).getPointer();
-    }
+    currThisDesc = (currThisDesc->next).getPointer();
+    currOtherDesc = (currOtherDesc->next).getPointer();
+  }
 
-  if ( !currThisDesc || !currOtherDesc )
-    return FALSE;
+  if (!currThisDesc || !currOtherDesc) return FALSE;
 
   return TRUE;
 }
 
-Long TrafCheckConstrntsDesc::pack(void * space)
-{
-  constrnt_text = (constrnt_text ? (char*)(((Space*)space)->convertToOffset(constrnt_text)) : NULL);
+Long TrafCheckConstrntsDesc::pack(void *space) {
+  constrnt_text = (constrnt_text ? (char *)(((Space *)space)->convertToOffset(constrnt_text)) : NULL);
 
   return TrafDesc::pack(space);
 }
 
-Lng32 TrafCheckConstrntsDesc::unpack(void * base, void * reallocator)
-{
-  constrnt_text = (constrnt_text ? (char*)((char*)base - (Long)constrnt_text) : NULL);
+Lng32 TrafCheckConstrntsDesc::unpack(void *base, void *reallocator) {
+  constrnt_text = (constrnt_text ? (char *)((char *)base - (Long)constrnt_text) : NULL);
 
   return TrafDesc::unpack(base, reallocator);
 }
@@ -486,87 +436,73 @@ Lng32 TrafCheckConstrntsDesc::unpack(void * base, void * reallocator)
 ////////////////////////////////////////////
 // TrafColumnsDesc
 ////////////////////////////////////////////
-Long TrafColumnsDesc::pack(void * space)
-{
-  colname = (colname ? (char*)(((Space*)space)->convertToOffset(colname)) : NULL);
+Long TrafColumnsDesc::pack(void *space) {
+  colname = (colname ? (char *)(((Space *)space)->convertToOffset(colname)) : NULL);
 
-  pictureText = (pictureText ? (char*)(((Space*)space)->convertToOffset(pictureText)) : NULL);
+  pictureText = (pictureText ? (char *)(((Space *)space)->convertToOffset(pictureText)) : NULL);
 
-  defaultvalue = (defaultvalue ? (char*)(((Space*)space)->convertToOffset(defaultvalue)) : NULL);
-  initDefaultValue = (initDefaultValue ? (char*)(((Space*)space)->convertToOffset(initDefaultValue)) : NULL);
-  heading = (heading ? (char*)(((Space*)space)->convertToOffset(heading)) : NULL);
-  computed_column_text = (computed_column_text ? (char*)(((Space*)space)->convertToOffset(computed_column_text)) : NULL);
+  defaultvalue = (defaultvalue ? (char *)(((Space *)space)->convertToOffset(defaultvalue)) : NULL);
+  initDefaultValue = (initDefaultValue ? (char *)(((Space *)space)->convertToOffset(initDefaultValue)) : NULL);
+  heading = (heading ? (char *)(((Space *)space)->convertToOffset(heading)) : NULL);
+  computed_column_text =
+      (computed_column_text ? (char *)(((Space *)space)->convertToOffset(computed_column_text)) : NULL);
 
-  hbaseColFam = (hbaseColFam ? (char*)(((Space*)space)->convertToOffset(hbaseColFam)) : NULL);
-  hbaseColQual = (hbaseColQual ? (char*)(((Space*)space)->convertToOffset(hbaseColQual)) : NULL);
+  hbaseColFam = (hbaseColFam ? (char *)(((Space *)space)->convertToOffset(hbaseColFam)) : NULL);
+  hbaseColQual = (hbaseColQual ? (char *)(((Space *)space)->convertToOffset(hbaseColQual)) : NULL);
 
-  compDefnStr = (compDefnStr ? (char*)(((Space*)space)->convertToOffset(compDefnStr)) : NULL);
+  compDefnStr = (compDefnStr ? (char *)(((Space *)space)->convertToOffset(compDefnStr)) : NULL);
 
   return TrafDesc::pack(space);
 }
 
-Lng32 TrafColumnsDesc::unpack(void * base, void * reallocator)
-{
-  colname = (colname ? (char*)((char*)base - (Long)colname) : NULL);
+Lng32 TrafColumnsDesc::unpack(void *base, void *reallocator) {
+  colname = (colname ? (char *)((char *)base - (Long)colname) : NULL);
 
-  pictureText = (pictureText ? (char*)((char*)base - (Long)pictureText) : NULL);
+  pictureText = (pictureText ? (char *)((char *)base - (Long)pictureText) : NULL);
 
-  defaultvalue = (defaultvalue ? (char*)((char*)base - (Long)defaultvalue) : NULL);
-  initDefaultValue = (initDefaultValue ? (char*)((char*)base - (Long)initDefaultValue) : NULL);
-  heading = (heading ? (char*)((char*)base - (Long)heading) : NULL);
-  computed_column_text = (computed_column_text ? (char*)((char*)base - (Long)computed_column_text) : NULL);
+  defaultvalue = (defaultvalue ? (char *)((char *)base - (Long)defaultvalue) : NULL);
+  initDefaultValue = (initDefaultValue ? (char *)((char *)base - (Long)initDefaultValue) : NULL);
+  heading = (heading ? (char *)((char *)base - (Long)heading) : NULL);
+  computed_column_text = (computed_column_text ? (char *)((char *)base - (Long)computed_column_text) : NULL);
 
-  hbaseColFam = (hbaseColFam ? (char*)((char*)base - (Long)hbaseColFam) : NULL);
-  hbaseColQual = (hbaseColQual ? (char*)((char*)base - (Long)hbaseColQual) : NULL);
+  hbaseColFam = (hbaseColFam ? (char *)((char *)base - (Long)hbaseColFam) : NULL);
+  hbaseColQual = (hbaseColQual ? (char *)((char *)base - (Long)hbaseColQual) : NULL);
 
-  compDefnStr = (compDefnStr ? (char*)((char*)base - (Long)compDefnStr) : NULL);
+  compDefnStr = (compDefnStr ? (char *)((char *)base - (Long)compDefnStr) : NULL);
 
   return TrafDesc::unpack(base, reallocator);
 }
 
-short TrafColumnsDesc::copyFrom(TrafDesc * from, NAMemory * heap)
-{
-  if (from->nodetype != DESC_COLUMNS_TYPE)
-    return -1;
+short TrafColumnsDesc::copyFrom(TrafDesc *from, NAMemory *heap) {
+  if (from->nodetype != DESC_COLUMNS_TYPE) return -1;
 
   TrafDesc::copyFrom(from, heap);
 
-  TrafColumnsDesc * tFrom = (TrafColumnsDesc*)from;
+  TrafColumnsDesc *tFrom = (TrafColumnsDesc *)from;
 
-  if (allocAndCopy(tFrom->colname, colname, heap))
-    return -1;
+  if (allocAndCopy(tFrom->colname, colname, heap)) return -1;
 
-  if (allocAndCopy(tFrom->pictureText, pictureText, heap))
-    return -1;
+  if (allocAndCopy(tFrom->pictureText, pictureText, heap)) return -1;
 
-  if (allocAndCopy(tFrom->defaultvalue, defaultvalue, heap))
-    return -1;
+  if (allocAndCopy(tFrom->defaultvalue, defaultvalue, heap)) return -1;
 
-  if (allocAndCopy(tFrom->initDefaultValue, initDefaultValue, heap))
-    return -1;
+  if (allocAndCopy(tFrom->initDefaultValue, initDefaultValue, heap)) return -1;
 
-  if (allocAndCopy(tFrom->heading, heading, heap))
-    return -1;
+  if (allocAndCopy(tFrom->heading, heading, heap)) return -1;
 
-  if (allocAndCopy(tFrom->computed_column_text, computed_column_text, heap))
-    return -1;
+  if (allocAndCopy(tFrom->computed_column_text, computed_column_text, heap)) return -1;
 
-  if (allocAndCopy(tFrom->hbaseColFam, hbaseColFam, heap))
-    return -1;
+  if (allocAndCopy(tFrom->hbaseColFam, hbaseColFam, heap)) return -1;
 
-  if (allocAndCopy(tFrom->hbaseColQual, hbaseColQual, heap))
-    return -1;
+  if (allocAndCopy(tFrom->hbaseColQual, hbaseColQual, heap)) return -1;
 
-  if (allocAndCopy(tFrom->compDefnStr, compDefnStr, heap))
-    return -1;
+  if (allocAndCopy(tFrom->compDefnStr, compDefnStr, heap)) return -1;
 
   return 0;
 }
 
-void TrafColumnsDesc::deallocMembers(NAMemory * heap)
-{
-  if (NOT wasCopied())
-    return;
+void TrafColumnsDesc::deallocMembers(NAMemory *heap) {
+  if (NOT wasCopied()) return;
 
   NADELETEBASIC(colname, heap);
   NADELETEBASIC(pictureText, heap);
@@ -584,11 +520,10 @@ void TrafColumnsDesc::deallocMembers(NAMemory * heap)
 ///////////////////////////////////////////
 // TrafConstrntsDesc
 ///////////////////////////////////////////
-Long TrafConstrntsDesc::pack(void * space)
-{
-  constrntname = (constrntname ? (char*)(((Space*)space)->convertToOffset(constrntname)) : NULL);
-  tablename = (tablename ? (char*)(((Space*)space)->convertToOffset(tablename)) : NULL);
-  
+Long TrafConstrntsDesc::pack(void *space) {
+  constrntname = (constrntname ? (char *)(((Space *)space)->convertToOffset(constrntname)) : NULL);
+  tablename = (tablename ? (char *)(((Space *)space)->convertToOffset(tablename)) : NULL);
+
   check_constrnts_desc.pack(space);
   constr_key_cols_desc.pack(space);
   referenced_constrnts_desc.pack(space);
@@ -597,10 +532,9 @@ Long TrafConstrntsDesc::pack(void * space)
   return TrafDesc::pack(space);
 }
 
-Lng32 TrafConstrntsDesc::unpack(void * base, void * reallocator)
-{
-  constrntname = (constrntname ? (char*)((char*)base - (Long)constrntname) : NULL);
-  tablename = (tablename ? (char*)((char*)base - (Long)tablename) : NULL);
+Lng32 TrafConstrntsDesc::unpack(void *base, void *reallocator) {
+  constrntname = (constrntname ? (char *)((char *)base - (Long)constrntname) : NULL);
+  tablename = (tablename ? (char *)((char *)base - (Long)tablename) : NULL);
 
   if (check_constrnts_desc.unpack(base, reallocator)) return -1;
   if (constr_key_cols_desc.unpack(base, reallocator)) return -1;
@@ -610,47 +544,40 @@ Lng32 TrafConstrntsDesc::unpack(void * base, void * reallocator)
   return TrafDesc::unpack(base, reallocator);
 }
 
-Long TrafConstrntKeyColsDesc::pack(void * space)
-{
-  colname = (colname ? (char*)(((Space*)space)->convertToOffset(colname)) : NULL);
+Long TrafConstrntKeyColsDesc::pack(void *space) {
+  colname = (colname ? (char *)(((Space *)space)->convertToOffset(colname)) : NULL);
 
   return TrafDesc::pack(space);
 }
 
-Lng32 TrafConstrntKeyColsDesc::unpack(void * base, void * reallocator)
-{
-  colname = (colname ? (char*)((char*)base - (Long)colname) : NULL);
+Lng32 TrafConstrntKeyColsDesc::unpack(void *base, void *reallocator) {
+  colname = (colname ? (char *)((char *)base - (Long)colname) : NULL);
 
   return TrafDesc::unpack(base, reallocator);
 }
 
-
-Long TrafFilesDesc::pack(void * space)
-{
+Long TrafFilesDesc::pack(void *space) {
   partns_desc.pack(space);
 
   return TrafDesc::pack(space);
 }
 
-Lng32 TrafFilesDesc::unpack(void * base, void * reallocator)
-{
+Lng32 TrafFilesDesc::unpack(void *base, void *reallocator) {
   if (partns_desc.unpack(base, reallocator)) return -1;
 
   return TrafDesc::unpack(base, reallocator);
 }
 
-Long TrafHbaseRegionDesc::pack(void * space)
-{
-  beginKey = (beginKey ? (char*)(((Space*)space)->convertToOffset(beginKey)) : NULL);
-  endKey = (endKey ? (char*)(((Space*)space)->convertToOffset(endKey)) : NULL);
+Long TrafHbaseRegionDesc::pack(void *space) {
+  beginKey = (beginKey ? (char *)(((Space *)space)->convertToOffset(beginKey)) : NULL);
+  endKey = (endKey ? (char *)(((Space *)space)->convertToOffset(endKey)) : NULL);
 
   return TrafDesc::pack(space);
 }
 
-Lng32 TrafHbaseRegionDesc::unpack(void * base, void * reallocator)
-{
-  beginKey = (beginKey ? (char*)((char*)base - (Long)beginKey) : NULL);
-  endKey = (endKey ? (char*)((char*)base - (Long)endKey) : NULL);
+Lng32 TrafHbaseRegionDesc::unpack(void *base, void *reallocator) {
+  beginKey = (beginKey ? (char *)((char *)base - (Long)beginKey) : NULL);
+  endKey = (endKey ? (char *)((char *)base - (Long)endKey) : NULL);
 
   return TrafDesc::unpack(base, reallocator);
 }
@@ -658,66 +585,60 @@ Lng32 TrafHbaseRegionDesc::unpack(void * base, void * reallocator)
 //////////////////////////////////////////////
 // class TrafHistogramDesc
 //////////////////////////////////////////////
-Long TrafHistogramDesc::pack(void * space)
-{
-  tablename = (tablename ? (char*)(((Space*)space)->convertToOffset(tablename)) : NULL);
+Long TrafHistogramDesc::pack(void *space) {
+  tablename = (tablename ? (char *)(((Space *)space)->convertToOffset(tablename)) : NULL);
 
-  low_value = (low_value ? (char*)(((Space*)space)->convertToOffset(low_value)) : NULL);
-  high_value = (high_value ? (char*)(((Space*)space)->convertToOffset(high_value)) : NULL);
+  low_value = (low_value ? (char *)(((Space *)space)->convertToOffset(low_value)) : NULL);
+  high_value = (high_value ? (char *)(((Space *)space)->convertToOffset(high_value)) : NULL);
 
   // v5, expression text
-  v5 = (v5 ? (char*)(((Space*)space)->convertToOffset(v5)) : NULL);
+  v5 = (v5 ? (char *)(((Space *)space)->convertToOffset(v5)) : NULL);
 
   return TrafDesc::pack(space);
 }
 
-Lng32 TrafHistogramDesc::unpack(void * base, void * reallocator)
-{
-  tablename = (tablename ? (char*)((char*)base - (Long)tablename) : NULL);
+Lng32 TrafHistogramDesc::unpack(void *base, void *reallocator) {
+  tablename = (tablename ? (char *)((char *)base - (Long)tablename) : NULL);
 
-  high_value = (high_value ? (char*)((char*)base - (Long)high_value) : NULL);
-  low_value = (low_value ? (char*)((char*)base - (Long)low_value) : NULL);
+  high_value = (high_value ? (char *)((char *)base - (Long)high_value) : NULL);
+  low_value = (low_value ? (char *)((char *)base - (Long)low_value) : NULL);
 
   // v5, expression text
-  v5 = (v5 ? (char*)((char*)base - (Long)v5) : NULL);
+  v5 = (v5 ? (char *)((char *)base - (Long)v5) : NULL);
 
   return TrafDesc::unpack(base, reallocator);
 }
 
-short TrafHistogramDesc::copyFrom(TrafDesc * from, NAMemory * heap)
-{
-  if (from->nodetype != DESC_HISTOGRAM_TYPE)
-    return -1;
+short TrafHistogramDesc::copyFrom(TrafDesc *from, NAMemory *heap) {
+  if (from->nodetype != DESC_HISTOGRAM_TYPE) return -1;
 
   TrafDesc::copyFrom(from, heap);
 
-  TrafHistogramDesc * tFrom = (TrafHistogramDesc*)from;
+  TrafHistogramDesc *tFrom = (TrafHistogramDesc *)from;
 
   setWasCopied(TRUE);
   // low and high values stored as 4 bytes len followed by data.
-  Lng32 len = *(Lng32*)tFrom->low_value;
-  low_value = new(heap) char[sizeof(len) + len];
-  *(Lng32*)low_value = len;
+  Lng32 len = *(Lng32 *)tFrom->low_value;
+  low_value = new (heap) char[sizeof(len) + len];
+  *(Lng32 *)low_value = len;
   str_cpy_all(&low_value[sizeof(len)], &tFrom->low_value[sizeof(len)], len);
 
-  len = *(Lng32*)tFrom->high_value;
-  high_value = new(heap) char[sizeof(len) + len];
-  *(Lng32*)high_value = len;
+  len = *(Lng32 *)tFrom->high_value;
+  high_value = new (heap) char[sizeof(len) + len];
+  *(Lng32 *)high_value = len;
   str_cpy_all(&high_value[sizeof(len)], &tFrom->high_value[sizeof(len)], len);
 
   // v5, expression text
-  len = *(Int16*)tFrom->v5;
-  v5 = new(heap) char[sizeof(Int16) + len];
-  *(Int16*)v5 = len;
+  len = *(Int16 *)tFrom->v5;
+  v5 = new (heap) char[sizeof(Int16) + len];
+  *(Int16 *)v5 = len;
   str_cpy_all(&v5[sizeof(Int16)], &tFrom->v5[sizeof(Int16)], len);
 
   return 0;
 }
 
-void TrafHistogramDesc::deallocMembers(NAMemory * heap)
-{
-  if (NOT wasCopied())
-    return;
+void TrafHistogramDesc::deallocMembers(NAMemory *heap) {
+  if (NOT wasCopied()) return;
 
   NADELETEBASIC(tablename, heap);
   NADELETEBASIC(low_value, heap);
@@ -731,54 +652,46 @@ void TrafHistogramDesc::deallocMembers(NAMemory * heap)
 //////////////////////////////////////////////
 // class TrafHistIntervalDesc
 //////////////////////////////////////////////
-Long TrafHistIntervalDesc::pack(void * space)
-{
-  interval_boundary = 
-    (interval_boundary ? (char*)(((Space*)space)->convertToOffset(interval_boundary)) : NULL);
+Long TrafHistIntervalDesc::pack(void *space) {
+  interval_boundary = (interval_boundary ? (char *)(((Space *)space)->convertToOffset(interval_boundary)) : NULL);
 
-  v5 = (v5 ? (char*)(((Space*)space)->convertToOffset(v5)) : NULL);
+  v5 = (v5 ? (char *)(((Space *)space)->convertToOffset(v5)) : NULL);
 
   return TrafDesc::pack(space);
 }
 
-Lng32 TrafHistIntervalDesc::unpack(void * base, void * reallocator)
-{
-  interval_boundary = 
-    (interval_boundary ? (char*)((char*)base - (Long)interval_boundary) : NULL);
+Lng32 TrafHistIntervalDesc::unpack(void *base, void *reallocator) {
+  interval_boundary = (interval_boundary ? (char *)((char *)base - (Long)interval_boundary) : NULL);
 
-  v5 = (v5 ? (char*)((char*)base - (Long)v5) : NULL);
+  v5 = (v5 ? (char *)((char *)base - (Long)v5) : NULL);
 
   return TrafDesc::unpack(base, reallocator);
 }
 
-short TrafHistIntervalDesc::copyFrom(TrafDesc * from, NAMemory * heap)
-{
-  if (from->nodetype != DESC_HIST_INTERVAL_TYPE)
-    return -1;
+short TrafHistIntervalDesc::copyFrom(TrafDesc *from, NAMemory *heap) {
+  if (from->nodetype != DESC_HIST_INTERVAL_TYPE) return -1;
 
   TrafDesc::copyFrom(from, heap);
 
-  TrafHistIntervalDesc * tFrom = (TrafHistIntervalDesc*)from;
+  TrafHistIntervalDesc *tFrom = (TrafHistIntervalDesc *)from;
 
   setWasCopied(TRUE);
   // interval_boundary and v5 stored as 4 bytes len followed by data.
-  Lng32 len = *(Lng32*)tFrom->interval_boundary;
-  interval_boundary = new(heap) char[sizeof(len) + len];
-  *(Lng32*)interval_boundary = len;
+  Lng32 len = *(Lng32 *)tFrom->interval_boundary;
+  interval_boundary = new (heap) char[sizeof(len) + len];
+  *(Lng32 *)interval_boundary = len;
   str_cpy_all(&interval_boundary[sizeof(len)], &tFrom->interval_boundary[sizeof(len)], len);
 
-  len = *(Lng32*)tFrom->v5;
-  v5 = new(heap) char[sizeof(len) + len];
-  *(Lng32*)v5 = len;
+  len = *(Lng32 *)tFrom->v5;
+  v5 = new (heap) char[sizeof(len) + len];
+  *(Lng32 *)v5 = len;
   str_cpy_all(&v5[sizeof(len)], &tFrom->v5[sizeof(len)], len);
 
   return 0;
 }
 
-void TrafHistIntervalDesc::deallocMembers(NAMemory * heap)
-{
-  if (NOT wasCopied())
-    return;
+void TrafHistIntervalDesc::deallocMembers(NAMemory *heap) {
+  if (NOT wasCopied()) return;
 
   NADELETEBASIC(interval_boundary, heap);
   NADELETEBASIC(v5, heap);
@@ -789,12 +702,11 @@ void TrafHistIntervalDesc::deallocMembers(NAMemory * heap)
 //////////////////////////////////////////////
 // class TrafIndexesDesc
 //////////////////////////////////////////////
-Long TrafIndexesDesc::pack(void * space)
-{
-  tablename = (tablename ? (char*)(((Space*)space)->convertToOffset(tablename)) : NULL);
-  indexname = (indexname ? (char*)(((Space*)space)->convertToOffset(indexname)) : NULL);
-  hbaseSplitClause = (hbaseSplitClause ? (char*)(((Space*)space)->convertToOffset(hbaseSplitClause)) : NULL);
-  hbaseCreateOptions = (hbaseCreateOptions ? (char*)(((Space*)space)->convertToOffset(hbaseCreateOptions)) : NULL);
+Long TrafIndexesDesc::pack(void *space) {
+  tablename = (tablename ? (char *)(((Space *)space)->convertToOffset(tablename)) : NULL);
+  indexname = (indexname ? (char *)(((Space *)space)->convertToOffset(indexname)) : NULL);
+  hbaseSplitClause = (hbaseSplitClause ? (char *)(((Space *)space)->convertToOffset(hbaseSplitClause)) : NULL);
+  hbaseCreateOptions = (hbaseCreateOptions ? (char *)(((Space *)space)->convertToOffset(hbaseCreateOptions)) : NULL);
 
   files_desc.pack(space);
   keys_desc.pack(space);
@@ -804,12 +716,11 @@ Long TrafIndexesDesc::pack(void * space)
   return TrafDesc::pack(space);
 }
 
-Lng32 TrafIndexesDesc::unpack(void * base, void * reallocator)
-{
-  tablename = (tablename ? (char*)((char*)base - (Long)tablename) : NULL);
-  indexname = (indexname ? (char*)((char*)base - (Long)indexname) : NULL);
-  hbaseSplitClause = (hbaseSplitClause ? (char*)((char*)base - (Long)hbaseSplitClause) : NULL);
-  hbaseCreateOptions = (hbaseCreateOptions ? (char*)((char*)base - (Long)hbaseCreateOptions) : NULL);
+Lng32 TrafIndexesDesc::unpack(void *base, void *reallocator) {
+  tablename = (tablename ? (char *)((char *)base - (Long)tablename) : NULL);
+  indexname = (indexname ? (char *)((char *)base - (Long)indexname) : NULL);
+  hbaseSplitClause = (hbaseSplitClause ? (char *)((char *)base - (Long)hbaseSplitClause) : NULL);
+  hbaseCreateOptions = (hbaseCreateOptions ? (char *)((char *)base - (Long)hbaseCreateOptions) : NULL);
 
   if (files_desc.unpack(base, reallocator)) return -1;
   if (keys_desc.unpack(base, reallocator)) return -1;
@@ -819,49 +730,40 @@ Lng32 TrafIndexesDesc::unpack(void * base, void * reallocator)
   return TrafDesc::unpack(base, reallocator);
 }
 
-Long TrafKeysDesc::pack(void * space)
-{
-  keyname = (keyname ? (char*)(((Space*)space)->convertToOffset(keyname)) : NULL);
-  hbaseColFam = (hbaseColFam ? (char*)(((Space*)space)->convertToOffset(hbaseColFam)) : NULL);
-  hbaseColQual = (hbaseColQual ? (char*)(((Space*)space)->convertToOffset(hbaseColQual)) : NULL);
+Long TrafKeysDesc::pack(void *space) {
+  keyname = (keyname ? (char *)(((Space *)space)->convertToOffset(keyname)) : NULL);
+  hbaseColFam = (hbaseColFam ? (char *)(((Space *)space)->convertToOffset(hbaseColFam)) : NULL);
+  hbaseColQual = (hbaseColQual ? (char *)(((Space *)space)->convertToOffset(hbaseColQual)) : NULL);
 
   return TrafDesc::pack(space);
 }
 
-Lng32 TrafKeysDesc::unpack(void * base, void * reallocator)
-{
-  keyname = (keyname ? (char*)((char*)base - (Long)keyname) : NULL);
-  hbaseColFam = (hbaseColFam ? (char*)((char*)base - (Long)hbaseColFam) : NULL);
-  hbaseColQual = (hbaseColQual ? (char*)((char*)base - (Long)hbaseColQual) : NULL);
+Lng32 TrafKeysDesc::unpack(void *base, void *reallocator) {
+  keyname = (keyname ? (char *)((char *)base - (Long)keyname) : NULL);
+  hbaseColFam = (hbaseColFam ? (char *)((char *)base - (Long)hbaseColFam) : NULL);
+  hbaseColQual = (hbaseColQual ? (char *)((char *)base - (Long)hbaseColQual) : NULL);
 
   return TrafDesc::unpack(base, reallocator);
 }
 
-short TrafKeysDesc::copyFrom(TrafDesc * from, NAMemory * heap)
-{
-  if (from->nodetype != DESC_KEYS_TYPE)
-    return -1;
+short TrafKeysDesc::copyFrom(TrafDesc *from, NAMemory *heap) {
+  if (from->nodetype != DESC_KEYS_TYPE) return -1;
 
   TrafDesc::copyFrom(from, heap);
 
-  TrafKeysDesc * tFrom = (TrafKeysDesc*)from;
+  TrafKeysDesc *tFrom = (TrafKeysDesc *)from;
 
-  if (allocAndCopy(tFrom->keyname, keyname, heap))
-    return -1;
+  if (allocAndCopy(tFrom->keyname, keyname, heap)) return -1;
 
-  if (allocAndCopy(tFrom->hbaseColFam, hbaseColFam, heap))
-    return -1;
-  
-  if (allocAndCopy(tFrom->hbaseColQual, hbaseColQual, heap))
-    return -1;
+  if (allocAndCopy(tFrom->hbaseColFam, hbaseColFam, heap)) return -1;
+
+  if (allocAndCopy(tFrom->hbaseColQual, hbaseColQual, heap)) return -1;
 
   return 0;
 }
 
-void TrafKeysDesc::deallocMembers(NAMemory * heap)
-{
-  if (NOT wasCopied())
-    return;
+void TrafKeysDesc::deallocMembers(NAMemory *heap) {
+  if (NOT wasCopied()) return;
 
   NADELETEBASIC(keyname, heap);
   NADELETEBASIC(hbaseColFam, heap);
@@ -870,117 +772,106 @@ void TrafKeysDesc::deallocMembers(NAMemory * heap)
   return TrafDesc::deallocMembers(heap);
 }
 
-Long TrafLibraryDesc::pack(void * space)
-{
-  libraryName = (libraryName ? (char*)(((Space*)space)->convertToOffset(libraryName)) : NULL);
-  libraryFilename = (libraryFilename ? (char*)(((Space*)space)->convertToOffset(libraryFilename)) : NULL);
+Long TrafLibraryDesc::pack(void *space) {
+  libraryName = (libraryName ? (char *)(((Space *)space)->convertToOffset(libraryName)) : NULL);
+  libraryFilename = (libraryFilename ? (char *)(((Space *)space)->convertToOffset(libraryFilename)) : NULL);
 
   return TrafDesc::pack(space);
 }
 
-Lng32 TrafLibraryDesc::unpack(void * base, void * reallocator)
-{
-  libraryName = (libraryName ? (char*)((char*)base - (Long)libraryName) : NULL);
-  libraryFilename = (libraryFilename ? (char*)((char*)base - (Long)libraryFilename) : NULL);
+Lng32 TrafLibraryDesc::unpack(void *base, void *reallocator) {
+  libraryName = (libraryName ? (char *)((char *)base - (Long)libraryName) : NULL);
+  libraryFilename = (libraryFilename ? (char *)((char *)base - (Long)libraryFilename) : NULL);
 
   return TrafDesc::unpack(base, reallocator);
 }
 
-Long TrafPartnsDesc::pack(void * space)
-{
-  tablename = (tablename ? (char*)(((Space*)space)->convertToOffset(tablename)) : NULL);
-  partitionname = (partitionname ? (char*)(((Space*)space)->convertToOffset(partitionname)) : NULL);
-  logicalpartitionname = (logicalpartitionname ? (char*)(((Space*)space)->convertToOffset(logicalpartitionname)) : NULL);
-  firstkey = (firstkey ? (char*)(((Space*)space)->convertToOffset(firstkey)) : NULL);
-  encodedkey = (encodedkey ? (char*)(((Space*)space)->convertToOffset(encodedkey)) : NULL);
-  lowKey = (lowKey ? (char*)(((Space*)space)->convertToOffset(lowKey)) : NULL);
-  highKey = (highKey ? (char*)(((Space*)space)->convertToOffset(highKey)) : NULL);
-  givenname = (givenname ? (char*)(((Space*)space)->convertToOffset(givenname)) : NULL);
+Long TrafPartnsDesc::pack(void *space) {
+  tablename = (tablename ? (char *)(((Space *)space)->convertToOffset(tablename)) : NULL);
+  partitionname = (partitionname ? (char *)(((Space *)space)->convertToOffset(partitionname)) : NULL);
+  logicalpartitionname =
+      (logicalpartitionname ? (char *)(((Space *)space)->convertToOffset(logicalpartitionname)) : NULL);
+  firstkey = (firstkey ? (char *)(((Space *)space)->convertToOffset(firstkey)) : NULL);
+  encodedkey = (encodedkey ? (char *)(((Space *)space)->convertToOffset(encodedkey)) : NULL);
+  lowKey = (lowKey ? (char *)(((Space *)space)->convertToOffset(lowKey)) : NULL);
+  highKey = (highKey ? (char *)(((Space *)space)->convertToOffset(highKey)) : NULL);
+  givenname = (givenname ? (char *)(((Space *)space)->convertToOffset(givenname)) : NULL);
 
   return TrafDesc::pack(space);
 }
 
-Lng32 TrafPartnsDesc::unpack(void * base, void * reallocator)
-{
-  tablename = (tablename ? (char*)((char*)base - (Long)tablename) : NULL);
-  partitionname = (partitionname ? (char*)((char*)base - (Long)partitionname) : NULL);
-  logicalpartitionname = (logicalpartitionname ? (char*)((char*)base - (Long)logicalpartitionname) : NULL);
-  firstkey = (firstkey ? (char*)((char*)base - (Long)firstkey) : NULL);
-  encodedkey = (encodedkey ? (char*)((char*)base - (Long)encodedkey) : NULL);
-  lowKey = (lowKey ? (char*)((char*)base - (Long)lowKey) : NULL);
-  highKey = (highKey ? (char*)((char*)base - (Long)highKey) : NULL);
-  givenname = (givenname ? (char*)((char*)base - (Long)givenname) : NULL);
+Lng32 TrafPartnsDesc::unpack(void *base, void *reallocator) {
+  tablename = (tablename ? (char *)((char *)base - (Long)tablename) : NULL);
+  partitionname = (partitionname ? (char *)((char *)base - (Long)partitionname) : NULL);
+  logicalpartitionname = (logicalpartitionname ? (char *)((char *)base - (Long)logicalpartitionname) : NULL);
+  firstkey = (firstkey ? (char *)((char *)base - (Long)firstkey) : NULL);
+  encodedkey = (encodedkey ? (char *)((char *)base - (Long)encodedkey) : NULL);
+  lowKey = (lowKey ? (char *)((char *)base - (Long)lowKey) : NULL);
+  highKey = (highKey ? (char *)((char *)base - (Long)highKey) : NULL);
+  givenname = (givenname ? (char *)((char *)base - (Long)givenname) : NULL);
 
   return TrafDesc::unpack(base, reallocator);
 }
 
-Long TrafRefConstrntsDesc::pack(void * space)
-{
-  constrntname = (constrntname ? (char*)(((Space*)space)->convertToOffset(constrntname)) : NULL);
-  tablename = (tablename ? (char*)(((Space*)space)->convertToOffset(tablename)) : NULL);
+Long TrafRefConstrntsDesc::pack(void *space) {
+  constrntname = (constrntname ? (char *)(((Space *)space)->convertToOffset(constrntname)) : NULL);
+  tablename = (tablename ? (char *)(((Space *)space)->convertToOffset(tablename)) : NULL);
 
   return TrafDesc::pack(space);
 }
 
-Lng32 TrafRefConstrntsDesc::unpack(void * base, void * reallocator)
-{
-  constrntname = (constrntname ? (char*)((char*)base - (Long)constrntname) : NULL);
-  tablename = (tablename ? (char*)((char*)base - (Long)tablename) : NULL);
+Lng32 TrafRefConstrntsDesc::unpack(void *base, void *reallocator) {
+  constrntname = (constrntname ? (char *)((char *)base - (Long)constrntname) : NULL);
+  tablename = (tablename ? (char *)((char *)base - (Long)tablename) : NULL);
 
   return TrafDesc::unpack(base, reallocator);
 }
 
-Long TrafRoutineDesc::pack(void * space)
-{
-  routineName = (routineName ? (char*)(((Space*)space)->convertToOffset(routineName)) : NULL);
-  externalName = (externalName ? (char*)(((Space*)space)->convertToOffset(externalName)) : NULL);
-  librarySqlName = (librarySqlName ? (char*)(((Space*)space)->convertToOffset(librarySqlName)) : NULL);
-  libraryFileName = (libraryFileName ? (char*)(((Space*)space)->convertToOffset(libraryFileName)) : NULL);
-  signature = (signature ? (char*)(((Space*)space)->convertToOffset(signature)) : NULL);
-  libBlobHandle = (libBlobHandle ? (char*)(((Space*)space)->convertToOffset(libBlobHandle)) : NULL);
- libSchName = (libSchName ? (char*)(((Space*)space)->convertToOffset(libSchName)) : NULL);
+Long TrafRoutineDesc::pack(void *space) {
+  routineName = (routineName ? (char *)(((Space *)space)->convertToOffset(routineName)) : NULL);
+  externalName = (externalName ? (char *)(((Space *)space)->convertToOffset(externalName)) : NULL);
+  librarySqlName = (librarySqlName ? (char *)(((Space *)space)->convertToOffset(librarySqlName)) : NULL);
+  libraryFileName = (libraryFileName ? (char *)(((Space *)space)->convertToOffset(libraryFileName)) : NULL);
+  signature = (signature ? (char *)(((Space *)space)->convertToOffset(signature)) : NULL);
+  libBlobHandle = (libBlobHandle ? (char *)(((Space *)space)->convertToOffset(libBlobHandle)) : NULL);
+  libSchName = (libSchName ? (char *)(((Space *)space)->convertToOffset(libSchName)) : NULL);
   params.pack(space);
 
   return TrafDesc::pack(space);
 }
 
-Lng32 TrafRoutineDesc::unpack(void * base, void * reallocator)
-{
-  routineName = (routineName ? (char*)((char*)base - (Long)routineName) : NULL);
-  externalName = (externalName ? (char*)((char*)base - (Long)externalName) : NULL);
-  librarySqlName = (librarySqlName ? (char*)((char*)base - (Long)librarySqlName) : NULL);
-  libraryFileName = (libraryFileName ? (char*)((char*)base - (Long)libraryFileName) : NULL);
-  signature = (signature ? (char*)((char*)base - (Long)signature) : NULL);
-  libBlobHandle = (libBlobHandle ? (char*)((char*)base - (Long)libBlobHandle) : NULL);
-  libSchName = (libSchName ? (char*)((char*)base - (Long)libSchName) : NULL);
+Lng32 TrafRoutineDesc::unpack(void *base, void *reallocator) {
+  routineName = (routineName ? (char *)((char *)base - (Long)routineName) : NULL);
+  externalName = (externalName ? (char *)((char *)base - (Long)externalName) : NULL);
+  librarySqlName = (librarySqlName ? (char *)((char *)base - (Long)librarySqlName) : NULL);
+  libraryFileName = (libraryFileName ? (char *)((char *)base - (Long)libraryFileName) : NULL);
+  signature = (signature ? (char *)((char *)base - (Long)signature) : NULL);
+  libBlobHandle = (libBlobHandle ? (char *)((char *)base - (Long)libBlobHandle) : NULL);
+  libSchName = (libSchName ? (char *)((char *)base - (Long)libSchName) : NULL);
   if (params.unpack(base, reallocator)) return -1;
 
   return TrafDesc::unpack(base, reallocator);
 }
 
-Long TrafSequenceGeneratorDesc::pack(void * space)
-{
-  sgLocation = (sgLocation ? (char*)(((Space*)space)->convertToOffset(sgLocation)) : NULL);
+Long TrafSequenceGeneratorDesc::pack(void *space) {
+  sgLocation = (sgLocation ? (char *)(((Space *)space)->convertToOffset(sgLocation)) : NULL);
 
   return TrafDesc::pack(space);
 }
 
-Lng32 TrafSequenceGeneratorDesc::unpack(void * base, void * reallocator)
-{
-  sgLocation = (sgLocation ? (char*)((char*)base - (Long)sgLocation) : NULL);
+Lng32 TrafSequenceGeneratorDesc::unpack(void *base, void *reallocator) {
+  sgLocation = (sgLocation ? (char *)((char *)base - (Long)sgLocation) : NULL);
 
   return TrafDesc::unpack(base, reallocator);
 }
 
-Long TrafTableDesc::pack(void * space)
-{
-  tablename = (tablename ? (char*)(((Space*)space)->convertToOffset(tablename)) : NULL);
-  snapshotName = (snapshotName ? (char*)(((Space*)space)->convertToOffset(snapshotName)) : NULL);
-  default_col_fam = (default_col_fam ? (char*)(((Space*)space)->convertToOffset(default_col_fam)) : NULL);
-  all_col_fams = (all_col_fams ? (char*)(((Space*)space)->convertToOffset(all_col_fams)) : NULL);
+Long TrafTableDesc::pack(void *space) {
+  tablename = (tablename ? (char *)(((Space *)space)->convertToOffset(tablename)) : NULL);
+  snapshotName = (snapshotName ? (char *)(((Space *)space)->convertToOffset(snapshotName)) : NULL);
+  default_col_fam = (default_col_fam ? (char *)(((Space *)space)->convertToOffset(default_col_fam)) : NULL);
+  all_col_fams = (all_col_fams ? (char *)(((Space *)space)->convertToOffset(all_col_fams)) : NULL);
 
-  tableNamespace = 
-    (tableNamespace ? (char*)(((Space*)space)->convertToOffset(tableNamespace)) : NULL);
+  tableNamespace = (tableNamespace ? (char *)(((Space *)space)->convertToOffset(tableNamespace)) : NULL);
 
   columns_desc.pack(space);
   indexes_desc.pack(space);
@@ -996,16 +887,15 @@ Long TrafTableDesc::pack(void * space)
   priv_desc.pack(space);
   partitionv2_desc.pack(space);
 
-  return TrafDesc::pack(space);  
+  return TrafDesc::pack(space);
 }
 
-Lng32 TrafTableDesc::unpack(void * base, void * reallocator)
-{
-  tablename = (tablename ? (char*)((char*)base - (Long)tablename) : NULL);
-  snapshotName = (snapshotName ? (char*)((char*)base - (Long)snapshotName) : NULL);
-  default_col_fam = (default_col_fam ? (char*)((char*)base - (Long)default_col_fam) : NULL);
-  all_col_fams = (all_col_fams ? (char*)((char*)base - (Long)all_col_fams) : NULL);
-  tableNamespace = (tableNamespace ? (char*)((char*)base - (Long)tableNamespace) : NULL);
+Lng32 TrafTableDesc::unpack(void *base, void *reallocator) {
+  tablename = (tablename ? (char *)((char *)base - (Long)tablename) : NULL);
+  snapshotName = (snapshotName ? (char *)((char *)base - (Long)snapshotName) : NULL);
+  default_col_fam = (default_col_fam ? (char *)((char *)base - (Long)default_col_fam) : NULL);
+  all_col_fams = (all_col_fams ? (char *)((char *)base - (Long)all_col_fams) : NULL);
+  tableNamespace = (tableNamespace ? (char *)((char *)base - (Long)tableNamespace) : NULL);
 
   if (columns_desc.unpack(base, reallocator)) return -1;
   if (indexes_desc.unpack(base, reallocator)) return -1;
@@ -1024,45 +914,37 @@ Lng32 TrafTableDesc::unpack(void * base, void * reallocator)
   return TrafDesc::unpack(base, reallocator);
 }
 
-Long TrafTableStatsDesc::pack(void * space)
-{
+Long TrafTableStatsDesc::pack(void *space) {
   histograms_desc.pack(space);
   hist_interval_desc.pack(space);
 
-  return TrafDesc::pack(space);  
+  return TrafDesc::pack(space);
 }
 
-Lng32 TrafTableStatsDesc::unpack(void * base, void * reallocator)
-{
+Lng32 TrafTableStatsDesc::unpack(void *base, void *reallocator) {
   if (histograms_desc.unpack(base, reallocator)) return -1;
   if (hist_interval_desc.unpack(base, reallocator)) return -1;
 
   return TrafDesc::unpack(base, reallocator);
 }
 
-short TrafTableStatsDesc::copyFrom(TrafDesc * from, NAMemory * heap)
-{
-  if (from->nodetype != DESC_TABLE_STATS_TYPE)
-    return -1;
+short TrafTableStatsDesc::copyFrom(TrafDesc *from, NAMemory *heap) {
+  if (from->nodetype != DESC_TABLE_STATS_TYPE) return -1;
 
   TrafDesc::copyFrom(from, heap);
 
-  TrafTableStatsDesc * tFrom = (TrafTableStatsDesc*)from;
+  TrafTableStatsDesc *tFrom = (TrafTableStatsDesc *)from;
 
   setWasCopied(TRUE);
-  histograms_desc = 
-    TrafDesc::copyDescList(tFrom->histograms_desc, heap);
+  histograms_desc = TrafDesc::copyDescList(tFrom->histograms_desc, heap);
 
-  hist_interval_desc = 
-    TrafDesc::copyDescList(tFrom->hist_interval_desc, heap);
+  hist_interval_desc = TrafDesc::copyDescList(tFrom->hist_interval_desc, heap);
 
   return 0;
 }
 
-void TrafTableStatsDesc::deallocMembers(NAMemory * heap)
-{
-  if (NOT wasCopied())
-    return;
+void TrafTableStatsDesc::deallocMembers(NAMemory *heap) {
+  if (NOT wasCopied()) return;
 
   deleteDescList(histograms_desc, heap);
   deleteDescList(hist_interval_desc, heap);
@@ -1070,150 +952,110 @@ void TrafTableStatsDesc::deallocMembers(NAMemory * heap)
   return TrafDesc::deallocMembers(heap);
 }
 
-void TrafTableStatsDesc::initHistogramCursor()
-{
-  currHistogramDesc = histograms_desc;
-}
+void TrafTableStatsDesc::initHistogramCursor() { currHistogramDesc = histograms_desc; }
 
-void TrafTableStatsDesc::initHistintCursor()
-{
-  currHistintDesc = hist_interval_desc;
-}
+void TrafTableStatsDesc::initHistintCursor() { currHistintDesc = hist_interval_desc; }
 
-// Fetched values and datatypes must remain in sync with 
+// Fetched values and datatypes must remain in sync with
 // values retrieved in ustat/hs_read.cpp, method HSHistogrmCursor::get().
-short TrafTableStatsDesc::fetchHistogramCursor
-(
-     void * histogram_id,
-     void * column_number,
-     void * colcount,
-     void * interval_count,
-     void * rowcount,
-     void * total_uec,
-     void * stats_time,
-     void * low_value,
-     void * high_value,
-     void * read_time,
-     void * read_count,
-     void * sample_secs,
-     void * col_secs,
-     void * sample_percent,
-     void * cv,
-     void * reason,
-     void * v1,
-     void * v2,
-     // v5, expression text
-     void * v5
- )
-{
-  if (! currHistogramDesc)
-    return 100; // at EOD
+short TrafTableStatsDesc::fetchHistogramCursor(void *histogram_id, void *column_number, void *colcount,
+                                               void *interval_count, void *rowcount, void *total_uec, void *stats_time,
+                                               void *low_value, void *high_value, void *read_time, void *read_count,
+                                               void *sample_secs, void *col_secs, void *sample_percent, void *cv,
+                                               void *reason, void *v1, void *v2,
+                                               // v5, expression text
+                                               void *v5) {
+  if (!currHistogramDesc) return 100;  // at EOD
 
-  // return values from currHistogramDesc 
-  TrafHistogramDesc * h = currHistogramDesc->histogramDesc();
+  // return values from currHistogramDesc
+  TrafHistogramDesc *h = currHistogramDesc->histogramDesc();
 
-  *(Int64*)histogram_id = h->histogram_id;
-  *(Int32*)column_number = h->column_number;
-  *(Int32*)colcount = h->colcount;
-  *(Int16*)interval_count = h->interval_count;
-  *(Int64*)rowcount = h->rowcount;
-  *(Int64*)total_uec = h->total_uec;
-  *(Int64*)stats_time = h->stats_time;
+  *(Int64 *)histogram_id = h->histogram_id;
+  *(Int32 *)column_number = h->column_number;
+  *(Int32 *)colcount = h->colcount;
+  *(Int16 *)interval_count = h->interval_count;
+  *(Int64 *)rowcount = h->rowcount;
+  *(Int64 *)total_uec = h->total_uec;
+  *(Int64 *)stats_time = h->stats_time;
 
   // stored value has format: 4 bytes len plus data
   // returned value has format: 2 bytes len plus data
   short len = 0;
-  char * ptr = NULL;
-  if (h->low_value)
-    {
-      ptr = (char *)low_value;
-      len = (Int16)(*(Lng32*)h->low_value);
-      *(Int16*)ptr = len;
-      str_cpy_all(&ptr[sizeof(len)], &h->low_value[sizeof(Int32)], len);
-    }
+  char *ptr = NULL;
+  if (h->low_value) {
+    ptr = (char *)low_value;
+    len = (Int16)(*(Lng32 *)h->low_value);
+    *(Int16 *)ptr = len;
+    str_cpy_all(&ptr[sizeof(len)], &h->low_value[sizeof(Int32)], len);
+  }
 
-  if (h->high_value)
-    {
-      ptr = (char *)high_value;
-      len = (Int16)(*(Lng32*)h->high_value);
-      *(Int16*)ptr = len;
-      str_cpy_all(&ptr[sizeof(len)], &h->high_value[sizeof(Int32)], len);
-    }
+  if (h->high_value) {
+    ptr = (char *)high_value;
+    len = (Int16)(*(Lng32 *)h->high_value);
+    *(Int16 *)ptr = len;
+    str_cpy_all(&ptr[sizeof(len)], &h->high_value[sizeof(Int32)], len);
+  }
 
-  *(Int64*)read_time = h->read_time;
-  *(Int16*)read_count = h->read_count;
-  *(Int64*)sample_secs = h->sample_secs;
-  *(Int64*)col_secs = h->col_secs;
-  *(Int16*)sample_percent = h->sample_percent;
-  *(Float64*)cv = h->cv;
-  *(char*)reason = h->reason;
-  *(Int64*)v1 = h->v1;
-  *(Int64*)v2 = h->v2;
+  *(Int64 *)read_time = h->read_time;
+  *(Int16 *)read_count = h->read_count;
+  *(Int64 *)sample_secs = h->sample_secs;
+  *(Int64 *)col_secs = h->col_secs;
+  *(Int16 *)sample_percent = h->sample_percent;
+  *(Float64 *)cv = h->cv;
+  *(char *)reason = h->reason;
+  *(Int64 *)v1 = h->v1;
+  *(Int64 *)v2 = h->v2;
 
   // v5, expression text
-  if (v5 && h->v5)
-    {
-      ptr = (char *)v5;
-      len = (Int16)(*(Lng32*)h->v5);
-      *(Int16*)ptr = len;
-      str_cpy_all(&ptr[sizeof(Int16)], &h->v5[sizeof(Int16)], len);
-    }
-  
+  if (v5 && h->v5) {
+    ptr = (char *)v5;
+    len = (Int16)(*(Lng32 *)h->v5);
+    *(Int16 *)ptr = len;
+    str_cpy_all(&ptr[sizeof(Int16)], &h->v5[sizeof(Int16)], len);
+  }
+
   // advance currHistogramDesc
   currHistogramDesc = currHistogramDesc->next;
 
   return 0;
 }
 
-// Fetched values and datatypes must remain in sync with 
+// Fetched values and datatypes must remain in sync with
 // values retrieved in ustat/hs_read.cpp, method HSHistintsCursor::get().
-short  TrafTableStatsDesc::fetchHistintCursor
-(
-     void * histogram_id,
-     void * interval_number,
-     void * interval_rowcount,
-     void * interval_uec,
-     void * interval_boundary,
-     void * std_dev_of_freq,
-     void * v1,
-     void * v2,
-     void * v5
- )
-{
-  if (! currHistintDesc)
-    return 100; // at EOD
+short TrafTableStatsDesc::fetchHistintCursor(void *histogram_id, void *interval_number, void *interval_rowcount,
+                                             void *interval_uec, void *interval_boundary, void *std_dev_of_freq,
+                                             void *v1, void *v2, void *v5) {
+  if (!currHistintDesc) return 100;  // at EOD
 
-  // return values from currHistintDesc 
-  TrafHistIntervalDesc * h = currHistintDesc->histIntervalDesc();
+  // return values from currHistintDesc
+  TrafHistIntervalDesc *h = currHistintDesc->histIntervalDesc();
 
-  *(Int64*)histogram_id = h->histogram_id;
-  *(Int16*)interval_number = h->interval_number;
-  *(Int64*)interval_rowcount = h->interval_rowcount;
-  *(Int64*)interval_uec = h->interval_uec;
+  *(Int64 *)histogram_id = h->histogram_id;
+  *(Int16 *)interval_number = h->interval_number;
+  *(Int64 *)interval_rowcount = h->interval_rowcount;
+  *(Int64 *)interval_uec = h->interval_uec;
 
   // stored value has format: 4 bytes len plus data
   // returned value has format: 2 bytes len plus data
   short len = 0;
-  char * ptr = NULL;
-  if (h->interval_boundary)
-    {
-      ptr = (char *)interval_boundary;
-      len = (Int16)(*(Lng32*)h->interval_boundary);
-      *(Int16*)ptr = len;
-      str_cpy_all(&ptr[sizeof(len)], &h->interval_boundary[sizeof(Int32)], len);
-    }
+  char *ptr = NULL;
+  if (h->interval_boundary) {
+    ptr = (char *)interval_boundary;
+    len = (Int16)(*(Lng32 *)h->interval_boundary);
+    *(Int16 *)ptr = len;
+    str_cpy_all(&ptr[sizeof(len)], &h->interval_boundary[sizeof(Int32)], len);
+  }
 
-  *(Float64*)std_dev_of_freq = h->std_dev_of_freq;
-  *(Int64*)v1 = h->v1;
-  *(Int64*)v2 = h->v2;
+  *(Float64 *)std_dev_of_freq = h->std_dev_of_freq;
+  *(Int64 *)v1 = h->v1;
+  *(Int64 *)v2 = h->v2;
 
-  if (h->v5)
-    {
-      ptr = (char *)v5;
-      len = (Int16)(*(Lng32*)h->v5);
-      *(Int16*)ptr = len;
-      str_cpy_all(&ptr[sizeof(len)], &h->v5[sizeof(Int32)], len);
-    }
+  if (h->v5) {
+    ptr = (char *)v5;
+    len = (Int16)(*(Lng32 *)h->v5);
+    *(Int16 *)ptr = len;
+    str_cpy_all(&ptr[sizeof(len)], &h->v5[sizeof(Int32)], len);
+  }
 
   // advance currHistintDesc
   currHistintDesc = currHistintDesc->next;
@@ -1221,59 +1063,52 @@ short  TrafTableStatsDesc::fetchHistintCursor
   return 0;
 }
 
-Long TrafUsingMvDesc::pack(void * space)
-{
-  mvName = (mvName ? (char*)(((Space*)space)->convertToOffset(mvName)) : NULL);
+Long TrafUsingMvDesc::pack(void *space) {
+  mvName = (mvName ? (char *)(((Space *)space)->convertToOffset(mvName)) : NULL);
 
   return TrafDesc::pack(space);
 }
 
-Lng32 TrafUsingMvDesc::unpack(void * base, void * reallocator)
-{
-  mvName = (mvName ? (char*)((char*)base - (Long)mvName) : NULL);
+Lng32 TrafUsingMvDesc::unpack(void *base, void *reallocator) {
+  mvName = (mvName ? (char *)((char *)base - (Long)mvName) : NULL);
 
   return TrafDesc::unpack(base, reallocator);
 }
 
-Long TrafViewDesc::pack(void * space)
-{
-  viewname = (viewname ? (char*)(((Space*)space)->convertToOffset(viewname)) : NULL);
-  viewfilename = (viewfilename ? (char*)(((Space*)space)->convertToOffset(viewfilename)) : NULL);
+Long TrafViewDesc::pack(void *space) {
+  viewname = (viewname ? (char *)(((Space *)space)->convertToOffset(viewname)) : NULL);
+  viewfilename = (viewfilename ? (char *)(((Space *)space)->convertToOffset(viewfilename)) : NULL);
 
-  viewtext = (viewtext ? (char*)(((Space*)space)->convertToOffset(viewtext)) : NULL);
-  viewchecktext = (viewchecktext ? (char*)(((Space*)space)->convertToOffset(viewchecktext)) : NULL);
-  viewcolusages = (viewcolusages ? (char*)(((Space*)space)->convertToOffset(viewcolusages)) : NULL);
+  viewtext = (viewtext ? (char *)(((Space *)space)->convertToOffset(viewtext)) : NULL);
+  viewchecktext = (viewchecktext ? (char *)(((Space *)space)->convertToOffset(viewchecktext)) : NULL);
+  viewcolusages = (viewcolusages ? (char *)(((Space *)space)->convertToOffset(viewcolusages)) : NULL);
 
   return TrafDesc::pack(space);
 }
 
-Lng32 TrafViewDesc::unpack(void * base, void * reallocator)
-{
-  viewname = (viewname ? (char*)((char*)base - (Long)viewname) : NULL);
-  viewfilename = (viewfilename ? (char*)((char*)base - (Long)viewfilename) : NULL);
+Lng32 TrafViewDesc::unpack(void *base, void *reallocator) {
+  viewname = (viewname ? (char *)((char *)base - (Long)viewname) : NULL);
+  viewfilename = (viewfilename ? (char *)((char *)base - (Long)viewfilename) : NULL);
 
-  viewtext = (viewtext ? (char*)((char*)base - (Long)viewtext) : NULL);
-  viewchecktext = (viewchecktext ? (char*)((char*)base - (Long)viewchecktext) : NULL);
-  viewcolusages = (viewcolusages ? (char*)((char*)base - (Long)viewcolusages) : NULL);
+  viewtext = (viewtext ? (char *)((char *)base - (Long)viewtext) : NULL);
+  viewchecktext = (viewchecktext ? (char *)((char *)base - (Long)viewchecktext) : NULL);
+  viewcolusages = (viewcolusages ? (char *)((char *)base - (Long)viewcolusages) : NULL);
 
   return TrafDesc::unpack(base, reallocator);
 }
- 
-Long TrafPrivDesc::pack (void * space)
-{
-   privGrantees.pack(space);
 
-   return TrafDesc::pack(space);
+Long TrafPrivDesc::pack(void *space) {
+  privGrantees.pack(space);
+
+  return TrafDesc::pack(space);
 }
- 
-Lng32 TrafPrivDesc::unpack(void * base, void * reallocator)
-{
+
+Lng32 TrafPrivDesc::unpack(void *base, void *reallocator) {
   if (privGrantees.unpack(base, reallocator)) return -1;
   return TrafDesc::unpack(base, reallocator);
 }
 
-Long TrafPrivGranteeDesc::pack(void * space)
-{
+Long TrafPrivGranteeDesc::pack(void *space) {
   schemaBitmap.pack(space);
   objectBitmap.pack(space);
   columnBitmaps.pack(space);
@@ -1281,8 +1116,7 @@ Long TrafPrivGranteeDesc::pack(void * space)
   return TrafDesc::pack(space);
 }
 
-Lng32 TrafPrivGranteeDesc::unpack(void * base, void *reallocator)
-{
+Lng32 TrafPrivGranteeDesc::unpack(void *base, void *reallocator) {
   if (schemaBitmap.unpack(base, reallocator)) return -1;
   if (objectBitmap.unpack(base, reallocator)) return -1;
   if (columnBitmaps.unpack(base, reallocator)) return -1;
@@ -1290,48 +1124,46 @@ Lng32 TrafPrivGranteeDesc::unpack(void * base, void *reallocator)
   return TrafDesc::unpack(base, reallocator);
 }
 
-Long TrafPartitionV2Desc::pack(void *space)
-{
-  partitionColIdx = (partitionColIdx ? (char*)(((Space*)space)->convertToOffset(partitionColIdx)) : NULL);
-  subpartitionColIdx = (subpartitionColIdx ? (char*)(((Space*)space)->convertToOffset(subpartitionColIdx)) : NULL);
-  partitionInterval = (partitionInterval ? (char*)(((Space*)space)->convertToOffset(partitionInterval)) : NULL);
-  subpartitionInterval = (subpartitionInterval ? (char*)(((Space*)space)->convertToOffset(subpartitionInterval)) : NULL);
+Long TrafPartitionV2Desc::pack(void *space) {
+  partitionColIdx = (partitionColIdx ? (char *)(((Space *)space)->convertToOffset(partitionColIdx)) : NULL);
+  subpartitionColIdx = (subpartitionColIdx ? (char *)(((Space *)space)->convertToOffset(subpartitionColIdx)) : NULL);
+  partitionInterval = (partitionInterval ? (char *)(((Space *)space)->convertToOffset(partitionInterval)) : NULL);
+  subpartitionInterval =
+      (subpartitionInterval ? (char *)(((Space *)space)->convertToOffset(subpartitionInterval)) : NULL);
   part_desc.pack(space);
 
   return TrafDesc::pack(space);
 }
 
-Lng32 TrafPartitionV2Desc::unpack(void * base, void *reallocator)
-{
-  partitionColIdx = (partitionColIdx ? (char*)((char*)base - (Long)partitionColIdx) : NULL);
-  subpartitionColIdx = (subpartitionColIdx ? (char*)((char*)base - (Long)subpartitionColIdx) : NULL);
-  partitionInterval = (partitionInterval ? (char*)((char*)base - (Long)partitionInterval) : NULL);
-  subpartitionInterval = (subpartitionInterval ? (char*)((char*)base - (Long)subpartitionInterval) : NULL);
+Lng32 TrafPartitionV2Desc::unpack(void *base, void *reallocator) {
+  partitionColIdx = (partitionColIdx ? (char *)((char *)base - (Long)partitionColIdx) : NULL);
+  subpartitionColIdx = (subpartitionColIdx ? (char *)((char *)base - (Long)subpartitionColIdx) : NULL);
+  partitionInterval = (partitionInterval ? (char *)((char *)base - (Long)partitionInterval) : NULL);
+  subpartitionInterval = (subpartitionInterval ? (char *)((char *)base - (Long)subpartitionInterval) : NULL);
 
   if (part_desc.unpack(base, reallocator)) return -1;
 
   return TrafDesc::unpack(base, reallocator);
 }
 
-Long TrafPartDesc::pack(void *space)
-{
-  partitionName = (partitionName ? (char*)(((Space*)space)->convertToOffset(partitionName)) : NULL);
-  partitionEntityName = (partitionEntityName ? (char*)(((Space*)space)->convertToOffset(partitionEntityName)) : NULL);
-  partitionValueExpr = (partitionValueExpr ? (char*)(((Space*)space)->convertToOffset(partitionValueExpr)) : NULL);
-  prevPartitionValueExpr = (prevPartitionValueExpr ? (char*)(((Space*)space)->convertToOffset(prevPartitionValueExpr)) : NULL);
+Long TrafPartDesc::pack(void *space) {
+  partitionName = (partitionName ? (char *)(((Space *)space)->convertToOffset(partitionName)) : NULL);
+  partitionEntityName = (partitionEntityName ? (char *)(((Space *)space)->convertToOffset(partitionEntityName)) : NULL);
+  partitionValueExpr = (partitionValueExpr ? (char *)(((Space *)space)->convertToOffset(partitionValueExpr)) : NULL);
+  prevPartitionValueExpr =
+      (prevPartitionValueExpr ? (char *)(((Space *)space)->convertToOffset(prevPartitionValueExpr)) : NULL);
   subpart_desc.pack(space);
 
   return TrafDesc::pack(space);
 }
 
-Lng32 TrafPartDesc::unpack(void * base, void *reallocator)
-{
-  partitionName = (partitionName ? (char*)((char*)base - (Long)partitionName) : NULL);
-  partitionEntityName = (partitionEntityName ? (char*)((char*)base - (Long)partitionEntityName) : NULL);
-  partitionValueExpr = (partitionValueExpr ? (char*)((char*)base - (Long)partitionValueExpr) : NULL);
-  prevPartitionValueExpr = (prevPartitionValueExpr ? (char*)((char*)base - (Long)prevPartitionValueExpr) : NULL);
+Lng32 TrafPartDesc::unpack(void *base, void *reallocator) {
+  partitionName = (partitionName ? (char *)((char *)base - (Long)partitionName) : NULL);
+  partitionEntityName = (partitionEntityName ? (char *)((char *)base - (Long)partitionEntityName) : NULL);
+  partitionValueExpr = (partitionValueExpr ? (char *)((char *)base - (Long)partitionValueExpr) : NULL);
+  prevPartitionValueExpr = (prevPartitionValueExpr ? (char *)((char *)base - (Long)prevPartitionValueExpr) : NULL);
 
   if (subpart_desc.unpack(base, reallocator)) return -1;
 
   return TrafDesc::unpack(base, reallocator);
-} 
+}

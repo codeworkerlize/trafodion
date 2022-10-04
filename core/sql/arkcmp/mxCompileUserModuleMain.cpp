@@ -41,18 +41,16 @@
 #include "mxCompileUserModule.h"
 #include <new.h>
 
-mxCompileUserModule *mxCUMptr=NULL;
+mxCompileUserModule *mxCUMptr = NULL;
 
 // mainNewHandler_CharSave and mainNewHandler are used in the error
 // handling when running out of virtual memory for the main program.
 // Save 1K bytes of memory for the error handling when running out of VM.
-static char* mainNewHandler_CharSave = new char[1024];
+static char *mainNewHandler_CharSave = new char[1024];
 
-  static Int32  mainNewHandler(size_t)
+static Int32 mainNewHandler(size_t)
 
-Int32 main(Int32 argc, char **argv)
-{
-
+    Int32 main(Int32 argc, char **argv) {
   _set_new_handler(mainNewHandler);
 
   // for NA_YOS newHandler_NSK needs to be added, once it is ready -- Sri gadde
@@ -63,21 +61,17 @@ Int32 main(Int32 argc, char **argv)
   // process command line arguments
   Cmdline_Args args;
   args.processArgs(argc, argv);
-  ApplicationFile *appFile=NULL;
+  ApplicationFile *appFile = NULL;
 
   // check if application file exists
   if (ACCESS(args.application().c_str(), READABLE) != 0) {
-    mxCUM << ERROR << DgSqlCode(-2223)
-          << DgString0(args.application().c_str());
-  }
-  else {
+    mxCUM << ERROR << DgSqlCode(-2223) << DgString0(args.application().c_str());
+  } else {
     // ask factory to create an ELFFile or a SQLJFile
     appFile = ApplicationFile::makeApplicationFile(args.application());
-    if (!appFile) { // no, it's not an application file
-      mxCUM << ERROR << DgSqlCode(-2202)
-            << DgString0(args.application().c_str());
-    }
-    else {
+    if (!appFile) {  // no, it's not an application file
+      mxCUM << ERROR << DgSqlCode(-2202) << DgString0(args.application().c_str());
+    } else {
       // open the application file
       if (appFile->openFile(args)) {
         // process appFile's embedded module definitions

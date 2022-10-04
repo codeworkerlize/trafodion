@@ -43,9 +43,7 @@
 // -----------------------------------------------------------------------
 
 // virtual destructor
-ItemConstValueArray::~ItemConstValueArray()
-{
-}
+ItemConstValueArray::~ItemConstValueArray() {}
 
 //
 // End of File

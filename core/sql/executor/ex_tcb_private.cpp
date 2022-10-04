@@ -3,8 +3,8 @@
 *
 * File:         ex_tcb_private.cpp
 * Description:  Methods for class ex_tcb_private
-*               
-*               
+*
+*
 * Created:      5/3/94
 * Language:     C++
 *
@@ -48,12 +48,11 @@
 // to do so.
 //
 
-ex_tcb_private_state::ex_tcb_private_state():errorCode_(0){}
+ex_tcb_private_state::ex_tcb_private_state() : errorCode_(0) {}
 
-ex_tcb_private_state::~ex_tcb_private_state(){}
+ex_tcb_private_state::~ex_tcb_private_state() {}
 
-ex_tcb_private_state * ex_tcb_private_state::allocate_new(const ex_tcb * /*tcb*/)
-{
+ex_tcb_private_state *ex_tcb_private_state::allocate_new(const ex_tcb * /*tcb*/) {
   ex_assert(0, "Can't have private state for base tcb");
-  return (ex_tcb_private_state *) 0;
+  return (ex_tcb_private_state *)0;
 }

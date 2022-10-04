@@ -32,83 +32,56 @@
 //
 // Task Definition Block
 //
-class ComTdbCancel : public ComTdb
-{
+class ComTdbCancel : public ComTdb {
   friend class ExCancelTcb;
 
-protected:
+ protected:
+  NABasicPtr qid_;                 // 00-07
+  Int16 action_;                   // 08-09
+  Int16 forced_;                   // 10-11
+  Int32 cancelPidBlockThreshold_;  // 12-15
+  NABasicPtr comment_;             // 16-23
+  NABasicPtr cancelPname_;         // 24-31
+  Int32 cancelNid_;                // 32-35
+  Int32 cancelPid_;                // 36-39
+  char fillersComTdbCancel2_[24];  // 40-63
 
-  NABasicPtr qid_;                        // 00-07
-  Int16 action_;                          // 08-09
-  Int16 forced_;                          // 10-11
-  Int32 cancelPidBlockThreshold_;         // 12-15
-  NABasicPtr comment_;                    // 16-23
-  NABasicPtr cancelPname_;                // 24-31
-  Int32 cancelNid_;                       // 32-35
-  Int32 cancelPid_;                       // 36-39
-  char fillersComTdbCancel2_[24];         // 40-63
+ public:
+  enum Action { CancelByQid, CancelByPname, CancelByNidPid, Suspend, Activate, InvalidAction };
 
-public:
-  enum Action {
-    CancelByQid,
-    CancelByPname,
-    CancelByNidPid,
-    Suspend,
-    Activate,
-    InvalidAction
-    };
-
-  enum ForceOption {
-    Safe,
-    Force,
-    CancelOrActivateIsAlwaysSafe
-    };
+  enum ForceOption { Safe, Force, CancelOrActivateIsAlwaysSafe };
 
   // Constructor
-  ComTdbCancel(); // dummy constructor. Used by 'unpack' routines.
-  
-  ComTdbCancel( char *qid,
-                char *pname,
-                Int32 nid,
-                Int32 pid,
-                Int32 minAge,
-                Int16 action,
-                Int16 forced, 
-                char *comment,
-                ex_cri_desc *given_cri_desc,
-                ex_cri_desc *returned_cri_desc,
-                queue_index down,
-                queue_index up);
+  ComTdbCancel();  // dummy constructor. Used by 'unpack' routines.
+
+  ComTdbCancel(char *qid, char *pname, Int32 nid, Int32 pid, Int32 minAge, Int16 action, Int16 forced, char *comment,
+               ex_cri_desc *given_cri_desc, ex_cri_desc *returned_cri_desc, queue_index down, queue_index up);
 
   // ---------------------------------------------------------------------
   // Redefine virtual functions required for Versioning.
   //----------------------------------------------------------------------
-  virtual unsigned char getClassVersionID()
-  {
-    return 1;
-  }
+  virtual unsigned char getClassVersionID() { return 1; }
 
-  virtual void populateImageVersionIDArray()
-  {
-    setImageVersionID(1,getClassVersionID());
+  virtual void populateImageVersionIDArray() {
+    setImageVersionID(1, getClassVersionID());
     ComTdb::populateImageVersionIDArray();
   }
 
-  virtual short getClassSize() { return (short)sizeof(ComTdbCancel); }  
+  virtual short getClassSize() { return (short)sizeof(ComTdbCancel); }
   Long pack(void *);
 
-  Lng32 unpack(void *, void * reallocator);
-  
+  Lng32 unpack(void *, void *reallocator);
+
   void display() const;
 
-  inline ComTdb * getChildTdb();
+  inline ComTdb *getChildTdb();
 
   // ---------------------------------------------------------------------
   // Used by the internal SHOWPLAN command to get attributes of a TDB.
   // ---------------------------------------------------------------------
-  virtual void displayContents(Space *space,ULng32 flag);
+  virtual void displayContents(Space *space, ULng32 flag);
 
-  virtual const ComTdb* getChild(Int32 pos) const;
+  virtual const ComTdb *getChild(Int32 pos) const;
 
   virtual Int32 numChildren() const { return 0; }
 
@@ -118,13 +91,13 @@ public:
 
   inline const char *getQidText() const { return qid_; }
 
-  inline bool actionIsCancel() const { return (action_ == CancelByQid)    || 
-                                              (action_ == CancelByPname)  ||
-                                              (action_ == CancelByNidPid);}
+  inline bool actionIsCancel() const {
+    return (action_ == CancelByQid) || (action_ == CancelByPname) || (action_ == CancelByNidPid);
+  }
 
-  inline Action getAction() const { return (Action) action_; } 
+  inline Action getAction() const { return (Action)action_; }
 
-  inline ForceOption getForce() const { return (ForceOption) forced_; }
+  inline ForceOption getForce() const { return (ForceOption)forced_; }
 
   inline char *getCommentText() const { return comment_; }
 
@@ -134,14 +107,10 @@ public:
 
   inline Int32 getCancelPid() const { return cancelPid_; }
 
-  inline Int32 getCancelPidBlockThreshold() const 
-                                  { return cancelPidBlockThreshold_; }
+  inline Int32 getCancelPidBlockThreshold() const { return cancelPidBlockThreshold_; }
 };
 
-inline ComTdb * ComTdbCancel::getChildTdb(){
-  return NULL;
-};
-
+inline ComTdb *ComTdbCancel::getChildTdb() { return NULL; };
 
 /*****************************************************************************
   Description : Return ComTdb* depending on the position argument.
@@ -150,9 +119,6 @@ inline ComTdb * ComTdbCancel::getChildTdb(){
   History     : Yeogirl Yun                                      8/22/95
                  Initial Revision.
 *****************************************************************************/
-inline const ComTdb* ComTdbCancel::getChild(Int32 pos) const
-{
-  return NULL;
-}
+inline const ComTdb *ComTdbCancel::getChild(Int32 pos) const { return NULL; }
 
 #endif

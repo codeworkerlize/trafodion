@@ -29,9 +29,9 @@ DIAGNOSTIC_IGNORE("-Wsign-conversion")
 DIAGNOSTIC_IGNORE("-Wundef")
 
 #ifdef __clang__
-  DIAGNOSTIC_IGNORE("-Wshift-sign-overflow")
-  DIAGNOSTIC_IGNORE("-Wused-but-marked-unused")
-  DIAGNOSTIC_IGNORE("-Wweak-vtables")
+DIAGNOSTIC_IGNORE("-Wshift-sign-overflow")
+DIAGNOSTIC_IGNORE("-Wused-but-marked-unused")
+DIAGNOSTIC_IGNORE("-Wweak-vtables")
 #endif
 
 #include "gmock/gmock.h"

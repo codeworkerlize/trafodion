@@ -42,11 +42,8 @@
 
 #include "ElemDDLNode.h"
 
-class ElemDDLUdfFinalCall : public ElemDDLNode
-{
-
-public:
-
+class ElemDDLUdfFinalCall : public ElemDDLNode {
+ public:
   // constructor
   ElemDDLUdfFinalCall(NABoolean theFinalCall);
 
@@ -54,13 +51,10 @@ public:
   virtual ~ElemDDLUdfFinalCall(void);
 
   // cast
-  virtual ElemDDLUdfFinalCall * castToElemDDLUdfFinalCall(void);
+  virtual ElemDDLUdfFinalCall *castToElemDDLUdfFinalCall(void);
 
   // accessor
-  inline const NABoolean getFinalCall(void) const
-  {
-    return finalCall_;
-  }
+  inline const NABoolean getFinalCall(void) const { return finalCall_; }
 
   //
   // methods for tracing
@@ -69,10 +63,9 @@ public:
   virtual NATraceList getDetailInfo() const;
   virtual const NAString getText() const;
 
-private:
-
+ private:
   NABoolean finalCall_;
 
-}; // class ElemDDLUdfFinalCall
+};  // class ElemDDLUdfFinalCall
 
 #endif /* ELEMDDLUDFFINALCALL_H */

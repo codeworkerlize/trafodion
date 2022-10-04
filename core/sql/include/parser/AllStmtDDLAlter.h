@@ -29,19 +29,19 @@
  * File:         AllStmtDDLAlter.h
  * Description:  a header file that includes all header files
  *               defining classes relating to Alter statements.
- *                               for some strange reason this file did not exist 
- *               
- *               
+ *                               for some strange reason this file did not exist
+ *
+ *
  * Created:      6/25/99
  * Language:     C++
  * Project:              created with project MV - RG by ( OZ )
- *                              
+ *
  *
  *
  *
  *****************************************************************************
  */
- 
+
 #include "StmtDDLAlterAuditConfig.h"
 #include "parser/StmtDDLAlterLibrary.h"
 #include "StmtDDLAlterSynonym.h"
@@ -50,4 +50,4 @@
 #include "StmtDDLAlterRoutine.h"
 #include "parser/StmtDDLAlterUser.h"
 
-#endif // ALLSTMTDDLALTER_H
+#endif  // ALLSTMTDDLALTER_H

@@ -40,236 +40,205 @@
 //	Constructor & Destructors
 //--------------------------------------------------------------------------//
 
-CRUDisjointSetAlg::CRUDisjointSetAlg()
-	:
-	V_(HASH_SIZE),numNodes_(0),
-	sets_(eItemsArentOwned)
-{};
+CRUDisjointSetAlg::CRUDisjointSetAlg() : V_(HASH_SIZE), numNodes_(0), sets_(eItemsArentOwned){};
 
-CRUDisjointSetAlg::~CRUDisjointSetAlg() 
-{
-	CDSMapPosition<CRUDisjointSetAlgVertex*> pos;
-	
-	CRUDisjointSetAlgVertex *pVertex;
-	
-	V_.GetStartPosition(pos);
-	
-	while (TRUE == pos.IsValid())
-	{
-		TInt64 *pId;
-		V_.GetNextAssoc(pos,pId,pVertex);
-		delete pVertex;
-	}	
+CRUDisjointSetAlg::~CRUDisjointSetAlg() {
+  CDSMapPosition<CRUDisjointSetAlgVertex *> pos;
+
+  CRUDisjointSetAlgVertex *pVertex;
+
+  V_.GetStartPosition(pos);
+
+  while (TRUE == pos.IsValid()) {
+    TInt64 *pId;
+    V_.GetNextAssoc(pos, pId, pVertex);
+    delete pVertex;
+  }
 };
 
 //--------------------------------------------------------------------------//
-//	CRUDisjointSetAlg::AddVertex() 
-// 
-// Add a vertex to the graph and returns TRUE if the vertex 
+//	CRUDisjointSetAlg::AddVertex()
+//
+// Add a vertex to the graph and returns TRUE if the vertex
 // was not already in the tree
 //--------------------------------------------------------------------------//
 
-void CRUDisjointSetAlg::AddVertex(TInt64 id)
-{
-	CRUDisjointSetAlgVertex *pVertex;
-	
-	RUASSERT(FALSE == V_.Lookup(&id,pVertex));
+void CRUDisjointSetAlg::AddVertex(TInt64 id) {
+  CRUDisjointSetAlgVertex *pVertex;
 
-	pVertex = new CRUDisjointSetAlgVertex(id);
+  RUASSERT(FALSE == V_.Lookup(&id, pVertex));
 
-	V_[&(pVertex->id_)] = pVertex;
+  pVertex = new CRUDisjointSetAlgVertex(id);
 
-	// The algorithm starts when each vertex is a tree root
-	// Each node becomes a root by pointing to it from the sets_ list
-	sets_.AddTail(pVertex);
+  V_[&(pVertex->id_)] = pVertex;
 
-	numNodes_++;
+  // The algorithm starts when each vertex is a tree root
+  // Each node becomes a root by pointing to it from the sets_ list
+  sets_.AddTail(pVertex);
+
+  numNodes_++;
 }
 
 //--------------------------------------------------------------------------//
-//	CRUDisjointSetAlg::AddEdge() 
+//	CRUDisjointSetAlg::AddEdge()
 //--------------------------------------------------------------------------//
 
-void CRUDisjointSetAlg::AddEdge(TInt64 first,TInt64 second)
-{
-        // a copy constructor is activated here
-	E_.AddTail(CRUDisjointSetAlgEdge(first,second));
+void CRUDisjointSetAlg::AddEdge(TInt64 first, TInt64 second) {
+  // a copy constructor is activated here
+  E_.AddTail(CRUDisjointSetAlgEdge(first, second));
 }
 
 //--------------------------------------------------------------------------//
-//	CRUDisjointSetAlg::Run() 
+//	CRUDisjointSetAlg::Run()
 //--------------------------------------------------------------------------//
 
-void CRUDisjointSetAlg::Run() 
-{
-	// Go over the Edges and union the sets that are connected by each edge
-	BuildDisjointSetGraph();
+void CRUDisjointSetAlg::Run() {
+  // Go over the Edges and union the sets that are connected by each edge
+  BuildDisjointSetGraph();
 
-	// Naming each set by a unique identifier 
-	NameSets();
+  // Naming each set by a unique identifier
+  NameSets();
 }
 
 //--------------------------------------------------------------------------//
-//	CRUDisjointSetAlg::BuildDisjointSetGraph() 
+//	CRUDisjointSetAlg::BuildDisjointSetGraph()
 //
 //  While iterating through the edges list we merge the two sets that
-//  that are connected by that edge.The sets are represented by one of its 
+//  that are connected by that edge.The sets are represented by one of its
 //  vertices (The set's root node)
 //--------------------------------------------------------------------------//
 
-void CRUDisjointSetAlg::BuildDisjointSetGraph() 
-{
-	// Start finding connected nodes
-	DSListPosition pos = E_.GetHeadPosition();
-	while (NULL != pos)
-	{
-		CRUDisjointSetAlgEdge &e = E_.GetNext(pos);
+void CRUDisjointSetAlg::BuildDisjointSetGraph() {
+  // Start finding connected nodes
+  DSListPosition pos = E_.GetHeadPosition();
+  while (NULL != pos) {
+    CRUDisjointSetAlgEdge &e = E_.GetNext(pos);
 
-		CRUDisjointSetAlgVertex &left = FindSet(e.leftId_);
-		CRUDisjointSetAlgVertex &right = FindSet(e.rightId);
+    CRUDisjointSetAlgVertex &left = FindSet(e.leftId_);
+    CRUDisjointSetAlgVertex &right = FindSet(e.rightId);
 
-		if ( &left != &right )
-		{
-			UnionSets(left,right);
-		}
-	}
+    if (&left != &right) {
+      UnionSets(left, right);
+    }
+  }
 }
 
 //--------------------------------------------------------------------------//
 //	CRUDisjointSetAlg::NameSets()
 //
-// Unique identify each set by a number 
+// Unique identify each set by a number
 //--------------------------------------------------------------------------//
 
-void CRUDisjointSetAlg::NameSets() 
-{
-	DSListPosition pos = sets_.GetHeadPosition();
-	
-	Int32 i=0;
-	while (NULL != pos)
-	{
-		CRUDisjointSetAlgVertex *v = sets_.GetNext(pos);
-		v->setId_ = i++;
-	}
+void CRUDisjointSetAlg::NameSets() {
+  DSListPosition pos = sets_.GetHeadPosition();
+
+  Int32 i = 0;
+  while (NULL != pos) {
+    CRUDisjointSetAlgVertex *v = sets_.GetNext(pos);
+    v->setId_ = i++;
+  }
 }
 
 //--------------------------------------------------------------------------//
-//	CRUDisjointSetAlg::FindSet() 
+//	CRUDisjointSetAlg::FindSet()
 //
-// Find the set which the vertex belongs to.Each set is represented  
+// Find the set which the vertex belongs to.Each set is represented
 // by one of its vertices (The set's root node)
 //--------------------------------------------------------------------------//
 
-CRUDisjointSetAlgVertex& CRUDisjointSetAlg::FindSet(TInt64 id) 
-{
-	
-	CRUDisjointSetAlgVertex *pVertex = NULL;
-	if (FALSE == V_.Lookup(&id,pVertex))
-	{
-		RUASSERT(FALSE);
-	}
+CRUDisjointSetAlgVertex &CRUDisjointSetAlg::FindSet(TInt64 id) {
+  CRUDisjointSetAlgVertex *pVertex = NULL;
+  if (FALSE == V_.Lookup(&id, pVertex)) {
+    RUASSERT(FALSE);
+  }
 
-	// Go up the tree until you reach the root 
-	for (;;)
-	{
-		if (pVertex->pParent_ == NULL)
-		{
-			break;
-		}
+  // Go up the tree until you reach the root
+  for (;;) {
+    if (pVertex->pParent_ == NULL) {
+      break;
+    }
 
-		pVertex = pVertex->pParent_;
-	}
+    pVertex = pVertex->pParent_;
+  }
 
-	return *pVertex;
+  return *pVertex;
 }
 
 //--------------------------------------------------------------------------//
-//	CRUDisjointSetAlg::UnionSets() 
+//	CRUDisjointSetAlg::UnionSets()
 //
 //	Union the sets while the set with the bigger rank is placed as the son
 //  of the other
 //--------------------------------------------------------------------------//
 
-void CRUDisjointSetAlg::UnionSets(CRUDisjointSetAlgVertex &first, 
-				  CRUDisjointSetAlgVertex &second) 
-{
-	if (first.rank_ < second.rank_)
-	{
-		first.pParent_ = &second;
-		second.rank_++;
-		RemoveFromRootList(first.id_);
-	}
-	else
-	{
-		second.pParent_ = &first;
-		first.rank_++;
-		RemoveFromRootList(second.id_);
-	}
+void CRUDisjointSetAlg::UnionSets(CRUDisjointSetAlgVertex &first, CRUDisjointSetAlgVertex &second) {
+  if (first.rank_ < second.rank_) {
+    first.pParent_ = &second;
+    second.rank_++;
+    RemoveFromRootList(first.id_);
+  } else {
+    second.pParent_ = &first;
+    first.rank_++;
+    RemoveFromRootList(second.id_);
+  }
 }
 
 //--------------------------------------------------------------------------//
-//	CRUDisjointSetAlg::RemoveFromRootList() 
+//	CRUDisjointSetAlg::RemoveFromRootList()
 //
 //--------------------------------------------------------------------------//
 
-void CRUDisjointSetAlg::RemoveFromRootList(TInt64 id)
-{
-	DSListPosition pos = sets_.GetHeadPosition();
+void CRUDisjointSetAlg::RemoveFromRootList(TInt64 id) {
+  DSListPosition pos = sets_.GetHeadPosition();
 
-	while (NULL != pos)
-	{
-		DSListPosition prevpos = pos;
+  while (NULL != pos) {
+    DSListPosition prevpos = pos;
 
-		CRUDisjointSetAlgVertex *v = sets_.GetNext(pos);
-		if (id == v->id_)
-		{
-			sets_.RemoveAt(prevpos);
-		}
-	}
+    CRUDisjointSetAlgVertex *v = sets_.GetNext(pos);
+    if (id == v->id_) {
+      sets_.RemoveAt(prevpos);
+    }
+  }
 }
 
 #ifdef _DEBUG
 //--------------------------------------------------------------------------//
-//	CRUDisjointSetAlg::Test() 
+//	CRUDisjointSetAlg::Test()
 //--------------------------------------------------------------------------//
 
-void CRUDisjointSetAlg::Test()
-{
-	// BUILD TEST GRAPH
-	Int32 i;
-	for (i=1;i<=14;i++)
-	{
-		AddVertex(i);
-	}
+void CRUDisjointSetAlg::Test() {
+  // BUILD TEST GRAPH
+  Int32 i;
+  for (i = 1; i <= 14; i++) {
+    AddVertex(i);
+  }
 
-	AddEdge(1,7);
-	AddEdge(7,8);
-	AddEdge(10,11);
-	AddEdge(2,9);
-	AddEdge(3,9);
-	AddEdge(13,14);
-	AddEdge(4,10);
-	AddEdge(5,12);
-	AddEdge(12,14);
-	AddEdge(6,13);
-	AddEdge(2,8);
+  AddEdge(1, 7);
+  AddEdge(7, 8);
+  AddEdge(10, 11);
+  AddEdge(2, 9);
+  AddEdge(3, 9);
+  AddEdge(13, 14);
+  AddEdge(4, 10);
+  AddEdge(5, 12);
+  AddEdge(12, 14);
+  AddEdge(6, 13);
+  AddEdge(2, 8);
 
-	// RUN ALG
-	Run();
+  // RUN ALG
+  Run();
 
-	// CHECK RESULTS
+  // CHECK RESULTS
 
-	for (i=1;i<=14;i++)
-	{
-		cout << "node " << i << "is in set " << GetNodeSetId(i) << endl;
-	}
-	
-	// THE RESULTS SHOULD BE 
+  for (i = 1; i <= 14; i++) {
+    cout << "node " << i << "is in set " << GetNodeSetId(i) << endl;
+  }
 
-	// 1,2,7,8,9,3 are in a first set
-	// 4,10,11 are in a second set
-	// 5,6,12,13,14 are in a third set
+  // THE RESULTS SHOULD BE
 
+  // 1,2,7,8,9,3 are in a first set
+  // 4,10,11 are in a second set
+  // 5,6,12,13,14 are in a third set
 }
 
 #endif

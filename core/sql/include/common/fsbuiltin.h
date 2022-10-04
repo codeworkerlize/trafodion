@@ -25,9 +25,9 @@
 #if (!defined(fsbuiltin_including_self) && !defined(fsbuiltin_including_section))
 #define fsbuiltin_included_already
 #endif
-// 
 //
-// PREPROC: start of section: 
+//
+// PREPROC: start of section:
 #if (defined(fsbuiltin_) || (!defined(fsbuiltin_including_section) && !defined(fsbuiltin_including_self)))
 #undef fsbuiltin_
 //
@@ -35,12 +35,12 @@
 
 //
 #endif
-// PREPROC: end of section: 
+// PREPROC: end of section:
 //
 //
 #if (!defined(fsbuiltin_including_self))
 #undef fsbuiltin_including_section
 #endif
 
-#endif // file guard
+#endif  // file guard
 // end of file

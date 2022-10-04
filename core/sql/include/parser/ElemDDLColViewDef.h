@@ -7,8 +7,8 @@
  * Description:  class for View Column Definition elements in DDL
  *               Create View statements--Note that class ElemDDLColViewDef
  *               is not derived from class ElemDDLColDef.
- *               
- *               
+ *
+ *
  * Created:      2/8/96
  * Language:     C++
  *
@@ -38,7 +38,6 @@
  *****************************************************************************
  */
 
-
 #include "ElemDDLNode.h"
 
 // -----------------------------------------------------------------------
@@ -54,33 +53,29 @@ class ElemDDLColViewDef;
 // -----------------------------------------------------------------------
 // Column Definition elements in DDL statements.
 // -----------------------------------------------------------------------
-class ElemDDLColViewDef : public ElemDDLNode
-{
-
-public:
-
+class ElemDDLColViewDef : public ElemDDLNode {
+ public:
   // default constructor
-  ElemDDLColViewDef(const NAString & columnName,
-                    ElemDDLNode * pColAttrList = NULL);
+  ElemDDLColViewDef(const NAString &columnName, ElemDDLNode *pColAttrList = NULL);
 
   // virtual destructor
   virtual ~ElemDDLColViewDef();
 
   // cast
-  virtual ElemDDLColViewDef * castToElemDDLColViewDef();
+  virtual ElemDDLColViewDef *castToElemDDLColViewDef();
 
   //
   // accessors
   //
 
   virtual Int32 getArity() const;
-  virtual ExprNode * getChild(Lng32 index);
-  inline const NAString & getColumnName() const;
-  inline const NAString & getHeading() const;
+  virtual ExprNode *getChild(Lng32 index);
+  inline const NAString &getColumnName() const;
+  inline const NAString &getHeading() const;
   inline NABoolean isHeadingSpecified() const;
 
   // mutator
-  virtual void setChild(Lng32 index, ExprNode * pChildNode);
+  virtual void setChild(Lng32 index, ExprNode *pChildNode);
 
   // methods for tracing
   virtual const NAString displayLabel1() const;
@@ -88,14 +83,12 @@ public:
   virtual NATraceList getDetailInfo() const;
   virtual const NAString getText() const;
 
-
-private:
-
+ private:
   // ---------------------------------------------------------------------
   // private methods
   // ---------------------------------------------------------------------
 
-  void setColumnAttribute(ElemDDLNode * pColumnAttribute);
+  void setColumnAttribute(ElemDDLNode *pColumnAttribute);
 
   // ---------------------------------------------------------------------
   // private data members
@@ -122,35 +115,20 @@ private:
   //   Column Attributes list includes only column
   //   heading specification (HEADING clause).
   //
-  enum { INDEX_ELEM_DDL_COL_ATTR_LIST = 0,
-         MAX_ELEM_DDL_COL_VIEW_DEF_ARITY };
+  enum { INDEX_ELEM_DDL_COL_ATTR_LIST = 0, MAX_ELEM_DDL_COL_VIEW_DEF_ARITY };
 
-  ElemDDLNode * children_[MAX_ELEM_DDL_COL_VIEW_DEF_ARITY];
-  
-}; // class ElemDDLColViewDef
+  ElemDDLNode *children_[MAX_ELEM_DDL_COL_VIEW_DEF_ARITY];
+
+};  // class ElemDDLColViewDef
 
 // -----------------------------------------------------------------------
 // definitions of inline methods for class ElemDDLColViewDef
 // -----------------------------------------------------------------------
 
-inline const NAString &
-ElemDDLColViewDef::getColumnName() const
-{
-  return columnName_;
-}
+inline const NAString &ElemDDLColViewDef::getColumnName() const { return columnName_; }
 
-inline const NAString &
-ElemDDLColViewDef::getHeading() const
-{
-  return heading_;
-}
+inline const NAString &ElemDDLColViewDef::getHeading() const { return heading_; }
 
-inline NABoolean
-ElemDDLColViewDef::isHeadingSpecified() const
-{
-  return isHeadingSpec_;
-}
+inline NABoolean ElemDDLColViewDef::isHeadingSpecified() const { return isHeadingSpec_; }
 
-#endif // ELEMDDLCOLVIEWDEF_H
-
-
+#endif  // ELEMDDLCOLVIEWDEF_H

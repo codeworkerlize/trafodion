@@ -30,9 +30,9 @@
 *
 * Created:      08/20/2000
 * Language:     C++
-* 
 *
-* 
+*
+*
 ******************************************************************************
 */
 
@@ -53,48 +53,34 @@ CRUGlobals *CRUGlobals::pInstance_ = NULL;
 //	Constructor
 //--------------------------------------------------------------------------//
 
-CRUGlobals::CRUGlobals(CRUOptions &options, 
-					   CRUJournal &journal,
-					   CUOFsTransManager &transManager) :
-	options_(options),
-	journal_(journal),
-	transManager_(transManager),
-        parentQid_(NULL)
-{
-
-    getCurrentParentQid();
+CRUGlobals::CRUGlobals(CRUOptions &options, CRUJournal &journal, CUOFsTransManager &transManager)
+    : options_(options), journal_(journal), transManager_(transManager), parentQid_(NULL) {
+  getCurrentParentQid();
 }
 
-CRUGlobals::~CRUGlobals()
-{
-  if (parentQid_ != NULL)
-    delete parentQid_;
+CRUGlobals::~CRUGlobals() {
+  if (parentQid_ != NULL) delete parentQid_;
 }
 //--------------------------------------------------------------------------//
 //	CRUGlobals::GetInstance()
 //--------------------------------------------------------------------------//
 
-CRUGlobals *CRUGlobals::GetInstance()
-{
-	RUASSERT(NULL != pInstance_);
-	return pInstance_;
+CRUGlobals *CRUGlobals::GetInstance() {
+  RUASSERT(NULL != pInstance_);
+  return pInstance_;
 }
 
 //--------------------------------------------------------------------------//
 //	CRUGlobals::Init()
 //--------------------------------------------------------------------------//
 
-void CRUGlobals::Init(CRUOptions &options, 
-					  CRUJournal &journal,
-					  CUOFsTransManager &transManager)
-{
-	if (NULL != pInstance_)
-	{
-		delete pInstance_;
-	}
+void CRUGlobals::Init(CRUOptions &options, CRUJournal &journal, CUOFsTransManager &transManager) {
+  if (NULL != pInstance_) {
+    delete pInstance_;
+  }
 
-	// Create a new singletone's instance
-	pInstance_ = new CRUGlobals(options, journal,transManager);
+  // Create a new singletone's instance
+  pInstance_ = new CRUGlobals(options, journal, transManager);
 }
 
 //--------------------------------------------------------------------------//
@@ -104,18 +90,15 @@ void CRUGlobals::Init(CRUOptions &options,
 //	throw the CRUException object!
 //--------------------------------------------------------------------------//
 
-void CRUGlobals::Testpoint(Int32 testpointId, const CDSString &objName)
-{
-	CRUOptions::DebugOption *pDO = 
-		options_.FindDebugOption(testpointId, objName);
+void CRUGlobals::Testpoint(Int32 testpointId, const CDSString &objName) {
+  CRUOptions::DebugOption *pDO = options_.FindDebugOption(testpointId, objName);
 
-	if (NULL != pDO)
-	{
-		CRUException ex;
-		ex.SetError(IDS_RU_TESTPOINT);
-		ex.AddArgument(testpointId);
-		throw ex;
-	}
+  if (NULL != pDO) {
+    CRUException ex;
+    ex.SetError(IDS_RU_TESTPOINT);
+    ex.AddArgument(testpointId);
+    throw ex;
+  }
 }
 
 //--------------------------------------------------------------------------//
@@ -125,42 +108,34 @@ void CRUGlobals::Testpoint(Int32 testpointId, const CDSString &objName)
 //	throw the 0 value!
 //--------------------------------------------------------------------------//
 
-void CRUGlobals::TestpointSevere(Int32 testpointId, const CDSString &objName)
-{
-	CRUOptions::DebugOption *pDO = 
-		options_.FindDebugOption(testpointId, objName);
+void CRUGlobals::TestpointSevere(Int32 testpointId, const CDSString &objName) {
+  CRUOptions::DebugOption *pDO = options_.FindDebugOption(testpointId, objName);
 
-	if (NULL != pDO)
-	{
-		throw 0;
-	}
+  if (NULL != pDO) {
+    throw 0;
+  }
 }
 
 //--------------------------------------------------------------------------//
 //	CRUGlobals::GetCurrentTimestamp()
 //--------------------------------------------------------------------------//
 
-TInt64 CRUGlobals::GetCurrentTimestamp()
-{
-	return CUOFsSystem::GetCurrentSystemTime();
-}
+TInt64 CRUGlobals::GetCurrentTimestamp() { return CUOFsSystem::GetCurrentSystemTime(); }
 
 //--------------------------------------------------------------------------//
 //	CRUGlobals::LogMessageWithTime()
 //--------------------------------------------------------------------------//
 
-void CRUGlobals::LogMessageWithTime(const char* msg)
-{
-	if (NULL == options_.FindDebugOption(DUMP_EXECUTION_TIMESTAMPS,"")) 
-	{
-		return; 
-	}
+void CRUGlobals::LogMessageWithTime(const char *msg) {
+  if (NULL == options_.FindDebugOption(DUMP_EXECUTION_TIMESTAMPS, "")) {
+    return;
+  }
 
-	CDSString message(msg);
-	CRUGlobals *pGlobals = CRUGlobals::GetInstance();
-	pGlobals->GetJournal().SetTimePrint(TRUE);
-	pGlobals->GetJournal().LogMessage(message);
-	pGlobals->GetJournal().SetTimePrint(FALSE);
+  CDSString message(msg);
+  CRUGlobals *pGlobals = CRUGlobals::GetInstance();
+  pGlobals->GetJournal().SetTimePrint(TRUE);
+  pGlobals->GetJournal().LogMessage(message);
+  pGlobals->GetJournal().SetTimePrint(FALSE);
 }
 
 //--------------------------------------------------------------------------//
@@ -168,88 +143,75 @@ void CRUGlobals::LogMessageWithTime(const char* msg)
 //
 //  Get the current user name.
 //  On NSK, use userId to get the username incase an alias is used.
-//  
+//
 //--------------------------------------------------------------------------//
 
-CDSString CRUGlobals::GetCurrentUser()
-{
-  
-
+CDSString CRUGlobals::GetCurrentUser() {
 #ifdef NA_LINUX
   CDSString curUserName = GetCurrentUserName();
 #endif
 
 #ifdef NA_WINNT
 
-        CDSString curUserName;
+  CDSString curUserName;
   CDSString dml = "SELECT CURRENT_USER FROM (VALUES(1)) X(A); ";
 
-	CDMConnection connection;
-	CDMPreparedStatement *pPrepStmt;
-	CDMResultSet *pResult;
+  CDMConnection connection;
+  CDMPreparedStatement *pPrepStmt;
+  CDMResultSet *pResult;
 
-	pPrepStmt = connection.PrepareStatement(dml);
-	pResult = pPrepStmt->ExecuteQuery();
-	pResult->Next();
+  pPrepStmt = connection.PrepareStatement(dml);
+  pResult = pPrepStmt->ExecuteQuery();
+  pResult->Next();
 
-	// Retrieve the user's name
-	enum { NameSize = 65 };
+  // Retrieve the user's name
+  enum { NameSize = 65 };
 
-	char userName[NameSize];
-	pResult->GetString(1, userName, NameSize);
-	curUserName = userName;
+  char userName[NameSize];
+  pResult->GetString(1, userName, NameSize);
+  curUserName = userName;
 
-	pPrepStmt->DeleteResultSet(pResult);
-	connection.DeleteStatement(pPrepStmt); 
+  pPrepStmt->DeleteResultSet(pResult);
+  connection.DeleteStatement(pPrepStmt);
 
-#endif 
+#endif
 
-	//return CDSString(curUserName);
-        return curUserName;
+  // return CDSString(curUserName);
+  return curUserName;
 }
 
 //--------------------------------------------------------------------------//
 //	CRUGlobals::LogDebugMessage()
 //
-//	Print the debug message, if the user switched the 
+//	Print the debug message, if the user switched the
 //	debug option for the corresponding message type.
 //--------------------------------------------------------------------------//
 
-void CRUGlobals::LogDebugMessage(Int32 testpointId,
-								 const CDSString &objName,
-								 const CDSString &msg,
-								 BOOL printRowNum)
-{
+void CRUGlobals::LogDebugMessage(Int32 testpointId, const CDSString &objName, const CDSString &msg, BOOL printRowNum) {
 #ifdef _DEBUG
-	CRUOptions::DebugOption *pDO = 
-		options_.FindDebugOption(testpointId, objName);
+  CRUOptions::DebugOption *pDO = options_.FindDebugOption(testpointId, objName);
 
-	if (NULL != pDO)
-	{
-		CRUGlobals *pGlobals = CRUGlobals::GetInstance();
-		pGlobals->GetJournal().LogMessage(msg, printRowNum);
-	}
+  if (NULL != pDO) {
+    CRUGlobals *pGlobals = CRUGlobals::GetInstance();
+    pGlobals->GetJournal().LogMessage(msg, printRowNum);
+  }
 #endif
 }
-#define MAX_QUERY_ID_LEN   160 // Same as ComSqlId::MAX_QUERY_ID_LEN     
-void CRUGlobals::getCurrentParentQid()
-{
-  if (parentQid_ != NULL)
-    delete parentQid_;
+#define MAX_QUERY_ID_LEN 160  // Same as ComSqlId::MAX_QUERY_ID_LEN
+void CRUGlobals::getCurrentParentQid() {
+  if (parentQid_ != NULL) delete parentQid_;
   Lng32 len;
-  
-  parentQid_ = new char[MAX_QUERY_ID_LEN+1];
+
+  parentQid_ = new char[MAX_QUERY_ID_LEN + 1];
   CDMConnection::getParentQid(parentQid_, MAX_QUERY_ID_LEN, &len);
   parentQid_[len] = '\0';
-  if (len == 0)
-  {
+  if (len == 0) {
     delete parentQid_;
     parentQid_ = NULL;
   }
 }
 
-void CRUGlobals::setParentQidAtSession(char *parentQid)
-{
+void CRUGlobals::setParentQidAtSession(char *parentQid) {
   CDMConnection conn;
   CDSString src;
   if (parentQid != NULL)

@@ -23,7 +23,6 @@
 #ifndef __MEASURE_H_
 #define __MEASURE_H_
 
-
 #undef MEASURE
 
 #ifdef MEASURE
@@ -31,14 +30,14 @@
 #include <sys/times.h>
 #include <stdio.h>
 
-class LogAgent{
-public:
+class LogAgent {
+ public:
   LogAgent();
   ~LogAgent();
 };
 
-class Timer{
-public:
+class Timer {
+ public:
   void timerOn();
   void timerOff();
   void timerLog(const char *msg, const char *file, Int32 line);
@@ -46,7 +45,8 @@ public:
   static void openLog();
   static void closeLog();
   static void flushLog();
-private:
+
+ private:
   clock_t startClock;
   clock_t endClock;
   tms startTms;
@@ -54,37 +54,25 @@ private:
   static FILE *logFile;
 };
 
-#define LOG_AGENT \
-LogAgent logAgent;
+#define LOG_AGENT LogAgent logAgent;
 
-#define LOG_FLUSH \
-Timer::flushLog();
+#define LOG_FLUSH Timer::flushLog();
 
 #define TIMER_ON(timerId) \
-Timer timerId; \
-timerId.timerOn();
+  Timer timerId;          \
+  timerId.timerOn();
 
 #define TIMER_OFF(timerId, msg) \
-timerId.timerOff(); \
-timerId.timerLog(msg, __FILE__, __LINE__);
+  timerId.timerOff();           \
+  timerId.timerLog(msg, __FILE__, __LINE__);
 
-#else // #ifdef MEASURE
+#else  // #ifdef MEASURE
 
 #define LOG_AGENT
 #define TIMER_ON(timerId)
 #define TIMER_OFF(timerId, msg)
 #define LOG_FLUSH
 
-#endif // #ifdef MEASURE
+#endif  // #ifdef MEASURE
 
-#endif // __MEASURE_H
-
-
-
-
-
-
-
-
-
-
+#endif  // __MEASURE_H

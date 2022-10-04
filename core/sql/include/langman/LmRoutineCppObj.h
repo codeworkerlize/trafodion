@@ -35,7 +35,6 @@
 
 class SqlBuffer;
 
-
 //////////////////////////////////////////////////////////////////////
 //
 // LmRoutineCppObj
@@ -45,99 +44,72 @@ class SqlBuffer;
 // interface (class TMUDRInterface).
 //
 //////////////////////////////////////////////////////////////////////
-class SQLLM_LIB_FUNC LmRoutineCppObj : public LmRoutine
-{
+class SQLLM_LIB_FUNC LmRoutineCppObj : public LmRoutine {
   friend class LmLanguageManagerC;
-  
-public:
 
+ public:
   tmudr::UDRInvocationInfo *getInvocationInfo() { return invocationInfo_; }
   virtual const char *getParentQid();
-  virtual LmResult setRuntimeInfo(
-       const char   *parentQid,
-       int           totalNumInstances,
-       int           myInstanceNum,
-       ComDiagsArea *da);
-  virtual LmResult invokeRoutine(
-       void         *inputRow,
-       void         *outputRow,
-       ComDiagsArea *da);
+  virtual LmResult setRuntimeInfo(const char *parentQid, int totalNumInstances, int myInstanceNum, ComDiagsArea *da);
+  virtual LmResult invokeRoutine(void *inputRow, void *outputRow, ComDiagsArea *da);
   virtual LmResult invokeRoutineMethod(
-       /* IN */     tmudr::UDRInvocationInfo::CallPhase phase,
-       /* IN */     const char   *serializedInvocationInfo,
-       /* IN */     Int32         invocationInfoLen,
-       /* OUT */    Int32        *invocationInfoLenOut,
-       /* IN */     const char   *serializedPlanInfo,
-       /* IN */     Int32         planInfoLen,
-       /* IN */     Int32         planNum,
-       /* OUT */    Int32        *planInfoLenOut,
-       /* IN */     char         *inputRow,
-       /* IN */     Int32         inputRowLen,
-       /* OUT */    char         *outputRow,
-       /* IN */     Int32         outputRowLen,
-       /* IN/OUT */ ComDiagsArea *da);
+      /* IN */ tmudr::UDRInvocationInfo::CallPhase phase,
+      /* IN */ const char *serializedInvocationInfo,
+      /* IN */ Int32 invocationInfoLen,
+      /* OUT */ Int32 *invocationInfoLenOut,
+      /* IN */ const char *serializedPlanInfo,
+      /* IN */ Int32 planInfoLen,
+      /* IN */ Int32 planNum,
+      /* OUT */ Int32 *planInfoLenOut,
+      /* IN */ char *inputRow,
+      /* IN */ Int32 inputRowLen,
+      /* OUT */ char *outputRow,
+      /* IN */ Int32 outputRowLen,
+      /* IN/OUT */ ComDiagsArea *da);
   virtual LmResult getRoutineInvocationInfo(
-       /* IN/OUT */ char         *serializedInvocationInfo,
-       /* IN */     Int32         invocationInfoMaxLen,
-       /* OUT */    Int32        *invocationInfoLenOut,
-       /* IN/OUT */ char         *serializedPlanInfo,
-       /* IN */     Int32         planInfoMaxLen,
-       /* IN */     Int32         planNum,
-       /* OUT */    Int32        *planInfoLenOut,
-       /* IN/OUT */ ComDiagsArea *da);
-  virtual LmResult setFunctionPtrs(SQLUDR_GetNextRow getNextRowPtr,
-                                   SQLUDR_EmitRow emitRowPtr,
-                                   ComDiagsArea *da);
-  LmResult validateWall(char *userBuf,
-                        int userBufLen,
-                        ComDiagsArea *da,
-                        const char *bufferName);
+      /* IN/OUT */ char *serializedInvocationInfo,
+      /* IN */ Int32 invocationInfoMaxLen,
+      /* OUT */ Int32 *invocationInfoLenOut,
+      /* IN/OUT */ char *serializedPlanInfo,
+      /* IN */ Int32 planInfoMaxLen,
+      /* IN */ Int32 planNum,
+      /* OUT */ Int32 *planInfoLenOut,
+      /* IN/OUT */ ComDiagsArea *da);
+  virtual LmResult setFunctionPtrs(SQLUDR_GetNextRow getNextRowPtr, SQLUDR_EmitRow emitRowPtr, ComDiagsArea *da);
+  LmResult validateWall(char *userBuf, int userBufLen, ComDiagsArea *da, const char *bufferName);
   LmResult validateWalls(ComDiagsArea *da = NULL);
 
   // The following pure virtual methods must be implemented even
   // though we do not currently support result sets for C++ routines
-  void cleanupLmResultSet(LmResultSet *resultSet,
-                          ComDiagsArea *diagsArea = NULL) {}
-  void cleanupLmResultSet(ComUInt32 index,
-                          ComDiagsArea *diagsArea = NULL) {}
+  void cleanupLmResultSet(LmResultSet *resultSet, ComDiagsArea *diagsArea = NULL) {}
+  void cleanupLmResultSet(ComUInt32 index, ComDiagsArea *diagsArea = NULL) {}
   void cleanupResultSets(ComDiagsArea *diagsArea = NULL) {}
 
   virtual LmResult handleFinalCall(ComDiagsArea *diagsArea = NULL);
 
-protected:
-  LmRoutineCppObj(
-    tmudr::UDRInvocationInfo *invocationInfo,
-    tmudr::UDRPlanInfo       *planInfo,
-    tmudr::UDR               *interfaceObj,
-    const char   *sqlName,
-    const char   *externalName,
-    const char   *librarySqlName,
-    ComUInt32    maxResultSets,
-    ComRoutineTransactionAttributes transactionAttrs,
-    ComRoutineSQLAccess sqlAccessMode,
-    ComRoutineExternalSecurity externalSecurity,
-    Int32        routineOwnerId,
-    LmLanguageManagerC *lm,
-    LmContainer  *container,
-    ComDiagsArea *diagsArea);
+ protected:
+  LmRoutineCppObj(tmudr::UDRInvocationInfo *invocationInfo, tmudr::UDRPlanInfo *planInfo, tmudr::UDR *interfaceObj,
+                  const char *sqlName, const char *externalName, const char *librarySqlName, ComUInt32 maxResultSets,
+                  ComRoutineTransactionAttributes transactionAttrs, ComRoutineSQLAccess sqlAccessMode,
+                  ComRoutineExternalSecurity externalSecurity, Int32 routineOwnerId, LmLanguageManagerC *lm,
+                  LmContainer *container, ComDiagsArea *diagsArea);
 
   virtual ~LmRoutineCppObj();
   LmResult dealloc(ComDiagsArea *diagsArea);
 
  private:
-
   void setUpWall(char *userBuf, int userBufLen);
 
-  tmudr::UDRInvocationInfo     *invocationInfo_;
+  tmudr::UDRInvocationInfo *invocationInfo_;
   NAArray<tmudr::UDRPlanInfo *> planInfos_;
-  tmudr::UDR                   *interfaceObj_;
+  tmudr::UDR *interfaceObj_;
 
   // number, lengths and pointers to row buffers
-  char *paramRow_; // of length inputParamRowLen_ (stored in base class)
+  char *paramRow_;  // of length inputParamRowLen_ (stored in base class)
   int numInputTables_;
   int *inputRowLengths_;
   char **inputRows_;
-  char *outputRow_; // of length outputRowLen_ (stored in base class)
-}; // class LmRoutineCppObj
+  char *outputRow_;  // of length outputRowLen_ (stored in base class)
+};                   // class LmRoutineCppObj
 
 #endif

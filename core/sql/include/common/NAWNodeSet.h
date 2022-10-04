@@ -22,8 +22,8 @@ class NAWSetOfNodeIds;
 
 // Definitions of a tenant unit or slice, these values
 // should match those in class com.esgyn.common.CGroupHelper
-#define NAWNODESET_CORES_PER_SLICE  4
-#define NAWNODESET_MEMORY_GB_PER_SLICE 32
+#define NAWNODESET_CORES_PER_SLICE       4
+#define NAWNODESET_MEMORY_GB_PER_SLICE   32
 #define NAWNODESET_MIN_SLICES_PER_TENANT 4
 
 // ------------------------------------------------------------------
@@ -40,11 +40,11 @@ class NAWSetOfNodeIds;
 //   The weights define how many ESPs to run on a particular node.
 //
 // NAWNodeSet is the base class of a class hierarchy:
-// 
+//
 // - NAASNodes is a set of nodes defined by Adaptive Segmentation
 // - NAWSetOfNodeIds is a set of node ids with a weight assigned
 //   to each of the node ids
-// 
+//
 // NOTE: There are Java classes equivalent to these C++ classes:
 //
 //       C++               Java
@@ -89,11 +89,8 @@ class NAWSetOfNodeIds;
    must be converted back to regular node ids.
  */
 
-
-class NAWNodeSet : public NABasicObject
-{
-public:
-
+class NAWNodeSet : public NABasicObject {
+ public:
   // create the node set for the current tenant, from
   // information stored in the CLI
   static int getNumNodesOfCluster();
@@ -132,15 +129,12 @@ public:
   bool canUseAllAvailableUnits(NAClusterInfo *nacl) const;
 
   // compare two sets (just the nodes, no other attributes)
-  virtual bool usesTheSameNodes(const NAWNodeSet *other,
-                                NAClusterInfo *nacl) const;
+  virtual bool usesTheSameNodes(const NAWNodeSet *other, NAClusterInfo *nacl) const;
 
   // adjust a proposed size so it is a legal size (for a tenant of a
   // DoP, for example), optionally specify a subset size into which
   // the new size must fit
-  virtual int makeSizeFeasible(int proposedSize,
-                               int subsetSize = -1,
-                               int round = 0) const = 0;
+  virtual int makeSizeFeasible(int proposedSize, int subsetSize = -1, int round = 0) const = 0;
 
   // is this object completely specified or do we still need to
   // assign specific nodes to it?
@@ -164,22 +158,19 @@ public:
   virtual int getDistinctWeight(int ix) const = 0;
 
   // check for a valid definition
-  virtual const char * isInvalid(NAClusterInfo *nacl) const = 0;
+  virtual const char *isInvalid(NAClusterInfo *nacl) const = 0;
 
-  virtual bool tryToMakeValid(NAClusterInfo *nacl,
-                              bool updateCliContext) = 0;
+  virtual bool tryToMakeValid(NAClusterInfo *nacl, bool updateCliContext) = 0;
 
   // serialize this object into a string
   virtual void serialize(NAText &output) const = 0;
 
   // create a new object from a serialized string
-  static NAWNodeSet * deserialize(const char *serializedString,
-                                  CollHeap *heap);
+  static NAWNodeSet *deserialize(const char *serializedString, CollHeap *heap);
 
   virtual void display() const = 0;
 
   virtual bool describeTheCluster() = 0;
-
 };
 
 // NAASNodes: A class to determine the nodes on which to run a query
@@ -252,7 +243,7 @@ public:
 //  For <affinity> = 2, the node set = {2, 4, 6, 0} defines segment 1
 //  For <affinity> = 3, the node set = {3, 5, 7, 1} defines segment 2
 //  ... ... ...
-//  
+//
 //
 //  When <clusterSize> = 12 and <size> = 4
 //  <numSegs> = 12 / 4 = 3
@@ -309,7 +300,7 @@ public:
 // tenant and one for the query. Both of these objects share the same
 // <affinity> and <clusterSize> = 6, the only difference is their <size>s
 // T and Q:
-// 
+//
 //                  nodes
 //  T   Q  affinity 012345
 // --- --- -------- ------
@@ -319,7 +310,7 @@ public:
 //  1   1  3           3
 //  1   1  4            4
 //  1   1  5             5
-// 
+//
 //  2   1  0        0
 //  2   1  1         1
 //  2   1  2          2
@@ -358,18 +349,14 @@ public:
 //  6   6  0-5      012345
 //
 
-class NAASNodes : public NAWNodeSet
-{
-public:
-
+class NAASNodes : public NAWNodeSet {
+ public:
   // Constructor. Specifying -1 for all three values creates an
   // NAASNodes object that spans the entire (homegeneous)
   // cluster. Specifying -1 for the affinity creates an incompletely
   // specified object that can be completed with a call to
   // TenantHelper_JNI methods.
-  NAASNodes(int totalWeight,
-            int clusterSize,
-            int affinity);
+  NAASNodes(int totalWeight, int clusterSize, int affinity);
 
   // virtual methods
 
@@ -380,56 +367,46 @@ public:
   virtual const NAASNodes *castToNAASNodes() const;
   virtual NAASNodes *castToNAASNodes();
   virtual bool canUseAllNodes(NAClusterInfo *nacl) const;
-  virtual bool usesTheSameNodes(const NAWNodeSet *other,
-                                NAClusterInfo *nacl) const;
-  virtual int makeSizeFeasible(int proposedSize,
-                               int subsetSize = -1,
-                               int round = 0) const;
+  virtual bool usesTheSameNodes(const NAWNodeSet *other, NAClusterInfo *nacl) const;
+  virtual int makeSizeFeasible(int proposedSize, int subsetSize = -1, int round = 0) const;
   virtual bool isComplete() const;
   virtual bool usesDenseNodeIds() const;
   virtual int getWeightForNodeId(int nodeId) const;
   virtual int getDistinctNodeId(int ix) const;
   virtual int getDistinctWeight(int ix) const;
-  virtual const char * isInvalid(NAClusterInfo *nacl) const;
-  virtual bool tryToMakeValid(NAClusterInfo *nacl,
-                              bool updateCliContext);
+  virtual const char *isInvalid(NAClusterInfo *nacl) const;
+  virtual bool tryToMakeValid(NAClusterInfo *nacl, bool updateCliContext);
   virtual void serialize(NAText &output) const;
 
   // create a new object from a serialized string
-  static NAASNodes * deserialize(const char *serializedString,
-                                 CollHeap *heap);
+  static NAASNodes *deserialize(const char *serializedString, CollHeap *heap);
 
   // methods specific to this class
 
-  int getAffinity() const                                 { return affinity_; }
-  int getClusterSize() const                           { return clusterSize_; }
+  int getAffinity() const { return affinity_; }
+  int getClusterSize() const { return clusterSize_; }
 
   // distance between nodes in the segment
   int getNodeDistanceInSegment() const { return clusterSize_ / getNumNodes(); }
 
   // identify which tenant segment among those with the same size we are using
-  int getIdOfTenantSegment() const
-                       { return (affinity_ % (clusterSize_ / getNumNodes())); }
+  int getIdOfTenantSegment() const { return (affinity_ % (clusterSize_ / getNumNodes())); }
 
   // generate a random affinity value with the same node set
   int randomizeAffinity(int randomAffinity) const;
 
-  void display() const ;
+  void display() const;
 
   bool describeTheCluster();
 
-private:
-
+ private:
   int size_;
   int affinity_;
   int clusterSize_;
-
 };
 
-class NAWSetOfNodeIds : public NAWNodeSet
-{
-public:
-
+class NAWSetOfNodeIds : public NAWNodeSet {
+ public:
   // There are two ways to build this object:
   // 1. Pass in a positive anticipated total weight, then
   //    call addNode() zero or more times with weight -1.
@@ -441,11 +418,13 @@ public:
   //    This creates a completely specified object.
   // Both methods can be used when calling TenantHelper_JNI
   // methods.
-  NAWSetOfNodeIds(CollHeap *heap, int anticipatedTotalWeight) :
-       anticipatedTotalWeight_(anticipatedTotalWeight),
-       cachedTotalWeight_(0), commonWeight_(-2),
-       nodeIds_(heap), individualWeights_(NULL),
-       heap_(heap) {}
+  NAWSetOfNodeIds(CollHeap *heap, int anticipatedTotalWeight)
+      : anticipatedTotalWeight_(anticipatedTotalWeight),
+        cachedTotalWeight_(0),
+        commonWeight_(-2),
+        nodeIds_(heap),
+        individualWeights_(NULL),
+        heap_(heap) {}
 
   // virtual methods
   virtual NAWNodeSet *copy(CollHeap *outHeap) const;
@@ -454,24 +433,19 @@ public:
   virtual int getNodeNumber(int ix) const;
   virtual const NAWSetOfNodeIds *castToNAWSetOfNodeIds() const;
   virtual NAWSetOfNodeIds *castToNAWSetOfNodeIds();
-  virtual bool usesTheSameNodes(const NAWNodeSet *other,
-                                NAClusterInfo *nacl) const;
-  virtual int makeSizeFeasible(int proposedSize,
-                               int subsetSize = -1,
-                               int round = 0) const;
+  virtual bool usesTheSameNodes(const NAWNodeSet *other, NAClusterInfo *nacl) const;
+  virtual int makeSizeFeasible(int proposedSize, int subsetSize = -1, int round = 0) const;
   virtual bool isComplete() const;
   virtual bool usesDenseNodeIds() const;
   virtual int getWeightForNodeId(int nodeId) const;
   virtual int getDistinctNodeId(int ix) const;
   virtual int getDistinctWeight(int ix) const;
-  virtual const char * isInvalid(NAClusterInfo *nacl) const;
-  virtual bool tryToMakeValid(NAClusterInfo *nacl,
-                              bool updateCliContext);
+  virtual const char *isInvalid(NAClusterInfo *nacl) const;
+  virtual bool tryToMakeValid(NAClusterInfo *nacl, bool updateCliContext);
   virtual void serialize(NAText &output) const;
 
   // create a new object from a serialized string
-  static NAWSetOfNodeIds * deserialize(const char *serializedString,
-                                       CollHeap *heap);
+  static NAWSetOfNodeIds *deserialize(const char *serializedString, CollHeap *heap);
 
   // methods specific to this class
 
@@ -484,12 +458,11 @@ public:
 
   bool describeTheCluster();
 
-  const ARRAY(short)& getNodeIdArray() const { return nodeIds_; }
+  const ARRAY(short) & getNodeIdArray() const { return nodeIds_; }
 
-  void display() const ;
+  void display() const;
 
-private:
-
+ private:
   // We may have an object for which we only know
   // the size so far, not the node list. For such
   // objects we store the anticipated size here
@@ -510,42 +483,37 @@ private:
   // an optional array assigning an individual weight to
   // each node id in nodeIds_, used only if nodes don't
   // all have the same weight
-  ARRAY(short) *individualWeights_;
+  ARRAY(short) * individualWeights_;
 
   CollHeap *heap_;
 };
 
-
 // NAWNodeSet comes in two flavors: real IDs and "dense IDs".
 // Some callers only care about real IDs. Rather than force
 // these callers to know about both flavors, and force them
-// to have the NAClusterInfo object available in order to 
+// to have the NAClusterInfo object available in order to
 // convert from dense to real, we instead provide a wrapper
 // object to hide this detail from them. As this object today
 // is always transient and built as a stack variable, it does
 // not need to inherit from NABasicObject.
 
-class NAWNodeSetWrapper
-{
-  public:
+class NAWNodeSetWrapper {
+ public:
+  NAWNodeSetWrapper(NAWNodeSet *nodeSet, NAClusterInfo *clusterInfo) : nodeSet_(nodeSet), clusterInfo_(clusterInfo){};
 
-    NAWNodeSetWrapper(NAWNodeSet * nodeSet, NAClusterInfo * clusterInfo) :
-      nodeSet_(nodeSet), clusterInfo_(clusterInfo) { };
+  ~NAWNodeSetWrapper(){/* nothing to do */};
 
-    ~NAWNodeSetWrapper() { /* nothing to do */ };
+  // returns true if there is an NAWNodeSet wrapped here
+  bool hasNodeSet() { return nodeSet_ != NULL; };
 
-    // returns true if there is an NAWNodeSet wrapped here
-    bool hasNodeSet() { return nodeSet_ != NULL; };
+  // find a node different than the one passed in; if there
+  // is none available, return -1. Always deals with "real" node
+  // id; none of this "dense" node id business
+  int findAlternativeNode(int node);
 
-    // find a node different than the one passed in; if there
-    // is none available, return -1. Always deals with "real" node
-    // id; none of this "dense" node id business
-    int findAlternativeNode(int node);
-
-  private:
-
-    NAWNodeSet * nodeSet_;
-    NAClusterInfo * clusterInfo_;
+ private:
+  NAWNodeSet *nodeSet_;
+  NAClusterInfo *clusterInfo_;
 };
 
 #endif

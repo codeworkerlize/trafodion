@@ -9,13 +9,13 @@
 
 #define NOT_CHECK_NAHEAP(h) (h)
 
-class NAMemory ;
-typedef NAMemory CollHeap ;
+class NAMemory;
+typedef NAMemory CollHeap;
 
 // -----------------------------------------------------------------------
-// This file contains the 
+// This file contains the
 // NABasicObject class for the new/delete operator for memory management, and
-// memory management macros, overloaded new operators for the classes 
+// memory management macros, overloaded new operators for the classes
 // not derived from NABasicObject.
 //
 // -class CollHeap - defined in NAHeap.h,  abstract base class.
@@ -56,19 +56,19 @@ typedef NAMemory CollHeap ;
 //
 // Examples to use them :
 //
-// 1. Derive your class from NABasicObject 
+// 1. Derive your class from NABasicObject
 //    (Strongly suggested for the newly developed class)
 //    example :
 //    class A : public NABasicObject { }
 //
 //     A* a = new (anyCollHeap*) A;
 //     delete a;
-//   
+//
 //   The memory will be allocated/deallocated from the specified CollHeap*.
 //
 //     A* asys = new A;
 //     delete asys;
-// 
+//
 //   asys will be allocateed/deallocated using the global new/delete operator.
 //
 // 2. For the existing classes, you can do
@@ -101,14 +101,11 @@ typedef NAMemory CollHeap ;
 // memory management for classes derived from it.
 // -----------------------------------------------------------------------
 
-class NABasicObject
-{
+class NABasicObject {
+ protected:
+  virtual ~NABasicObject(){};
 
-protected:
- virtual ~NABasicObject() {};
-
-public:
-
+ public:
   // The destructor is not a virtual function, because all the executor
   // objects are derived from NABasicObject, and the objects will be
   // written to the disk. To save space in the disk, the destructor is
@@ -120,38 +117,38 @@ public:
   // overwrite the h_ pointer.
 
   NABasicObject();
-  NABasicObject(const NABasicObject&);
-  NABasicObject& operator=(const NABasicObject&);
+  NABasicObject(const NABasicObject &);
+  NABasicObject &operator=(const NABasicObject &);
 
-  void* operator new[](size_t t, NAMemory* h = 0,  NABoolean failureIsFatal = TRUE);
-  void operator delete[](void*);
-  void operator delete[](void*, NAMemory*, NABoolean);
+  void *operator new[](size_t t, NAMemory *h = 0, NABoolean failureIsFatal = TRUE);
+  void operator delete[](void *);
+  void operator delete[](void *, NAMemory *, NABoolean);
 
   // In the future, when the compiler supports the operator new[] and
   // operator [] delete, they should be added here for array allocation.
   // void* operator new[](size_t, NAMemory* h = 0,  NABoolean failureIsFatal = TRUE);
   // void operator delete[](void*, etc... -- see .C file comments...)
 
-  void* operator new(size_t t, NAMemory* h = 0, NABoolean failureIsFatal = TRUE );
-  void* operator new(size_t t, void* loc, NAMemory* h = 0);
+  void *operator new(size_t t, NAMemory *h = 0, NABoolean failureIsFatal = TRUE);
+  void *operator new(size_t t, void *loc, NAMemory *h = 0);
 
-  void operator delete(void*);
-  void operator delete(void*, NAMemory*, NABoolean); 
-  void operator delete(void*, void*, NAMemory*); 
+  void operator delete(void *);
+  void operator delete(void *, NAMemory *, NABoolean);
+  void operator delete(void *, void *, NAMemory *);
 
   // The CollHeap* returned is where this object is allocated from;
   // if this object is allocated through new, it will be some CollHeap* or 0.
   // If the object is a local stack variable, the CollHeap* will be
-  // uninitialized garbage. 
+  // uninitialized garbage.
   // In the design of the derived classes, if you want to use this
   // CollHeap* as further memory allocation, it is the user's
   // responsibility to make sure the object is not from stack.
 
-  NAMemory* collHeap()	      { return h_; }
+  NAMemory *collHeap() { return h_; }
 
   // The delete operator sets the object-being-deleted's heap pointer to the
   // invalid value below.  Thus dangling pointers to this object can *sometimes*
-  // be identified by use of this eyecatcher when in the debugger, or 
+  // be identified by use of this eyecatcher when in the debugger, or
   // smart-pointer code can explicitly check for this value, in the cases where:
   // - the pointed-to memory has not actually been freed (deallocateMemory method
   //   is often a no-op, so this is common); or
@@ -170,38 +167,36 @@ public:
   // to be out-of-bounds for a heap.  (0x0 already has a meaning: that no heap
   // is to be used, just the global new/delete.)
 
-  static CollHeap* invalidHeapPtr() { return (CollHeap*)0x1; }
-  static CollHeap* systemHeapPtr()  { return (CollHeap*)0x0; }
-  Int32 maybeInvalidObject()	       { return h_ == invalidHeapPtr();}
+  static CollHeap *invalidHeapPtr() { return (CollHeap *)0x1; }
+  static CollHeap *systemHeapPtr() { return (CollHeap *)0x0; }
+  Int32 maybeInvalidObject() { return h_ == invalidHeapPtr(); }
 
   // For smart-pointer callers, some defensive programming for Debug build.
 #if !defined(NDEBUG)
-    Int32 checkInvalidObject(const void* const referencingObject=NULL);
+  Int32 checkInvalidObject(const void *const referencingObject = NULL);
 #else
-    Int32 checkInvalidObject(const void* const = NULL) 
-					       { return 0/*not invalid*/; }
+  Int32 checkInvalidObject(const void *const = NULL) { return 0 /*not invalid*/; }
 #endif
 
-private:
+ private:
   // To add a field into the NABasicObject in later releases,
-  // need to have versioning in the generated rtd files. Since 
-  // the size will be different. 
+  // need to have versioning in the generated rtd files. Since
+  // the size will be different.
 
-  CollHeap* h_;
-
+  CollHeap *h_;
 };
 
 // -----------------------------------------------------------------------
-// The following overloading new operators are for the classes not 
+// The following overloading new operators are for the classes not
 // derived from NABasicObject. e.g. RW classes, if needs to be allocated
 // other than system area, use the overloaded new.
 // -----------------------------------------------------------------------
 
-void * operator new(size_t size, CollHeap* h);
+void *operator new(size_t size, CollHeap *h);
 
-void * operator new[](size_t size, CollHeap* h);
+void *operator new[](size_t size, CollHeap *h);
 
-void * operator new[](size_t size, CollHeap* h, NABoolean failureIsFatal);
+void *operator new[](size_t size, CollHeap *h, NABoolean failureIsFatal);
 
 // The following operator delete functions will be called to free memory if
 // the initialization throws an exception.  They are needed to remove a
@@ -216,25 +211,25 @@ void * operator new[](size_t size, CollHeap* h, NABoolean failureIsFatal);
 // and deallocate space ) certain data from certain heap. ( Since delete
 // cannot be overloaded with parameter. )
 //
-// The reason to use macro defines instead of template inlines is because 
+// The reason to use macro defines instead of template inlines is because
 // the destructor cannot be called from template function, i.e.
 // template <class C>
 // inline void deleteMe(C* p) { p->~C(); } failed
 // in ~C is not a member function name. If someone has found a way to let
-// it work, it should be changed into template function, then. This is 
+// it work, it should be changed into template function, then. This is
 // a bug in the compiler, if it ever gets fixed, template function is
 // a better approach.
 //
 // -----------------------------------------------------------------------
 
-// When the compiler supports the destructor in template function, 
+// When the compiler supports the destructor in template function,
 // the following template functions should be added, used to allocate
 // the objects not derived from NABasicObject, e.g. RW objects.
 
 // template<class T>
 // void deleteMe(T* p, NAMemory* h)
-// { 
-//   p->~p(); 
+// {
+//   p->~p();
 //   if (h)
 //     h->deallocateMemory((void*)p);
 //   else
@@ -245,27 +240,22 @@ void * operator new[](size_t size, CollHeap* h, NABoolean failureIsFatal);
 // *p is one of the builtin data types char, int, struct, etc.
 // (A better name would be NADELETEBUILTIN or NADELETESCALAR,
 // as the "BASIC" in this macro does *not* apply to NA*Basic*Object.)
-// example : 
+// example :
 // char* p = new (CmpCommon::contextHeap()) char[10];
 // NADELETEBASIC(p,CmpCommon::contextHeap());
 
-#define NADELETEBASIC(p,h) \
-  (void) (!(p) || \
-  	 ((NOT_CHECK_NAHEAP(h) ? (h)->deallocateMemory((void*)p) : delete p), 0) )
-#define NADELETEBASICARRAY(p,h) \
-  (void) (!(p) || \
-        ((NOT_CHECK_NAHEAP(h) ? (h)->deallocateMemory((void*)p) : delete [] p), 0))
+#define NADELETEBASIC(p, h) (void)(!(p) || ((NOT_CHECK_NAHEAP(h) ? (h)->deallocateMemory((void *)p) : delete p), 0))
+#define NADELETEBASICARRAY(p, h) \
+  (void)(!(p) || ((NOT_CHECK_NAHEAP(h) ? (h)->deallocateMemory((void *)p) : delete[] p), 0))
 
 // NADELETE(p,C,h) deletes p from CollHeap h, and calls p's destructor ~C.
 // so the destructor of class C will be called.
-// example : 
+// example :
 // ClassA* a = new(CmpCommon::contextHeap()) ClassA;
 // NADELETE(a,ClassA,CmpCommon::contextHeap());
 
-#define NADELETE(p,C,h)  \
-  (void) (!(p) || \
-  	 ((NOT_CHECK_NAHEAP(h) ? ((p)->~C(), (h)->deallocateMemory((void*)p)) : \
-	 	 delete p), 0))
+#define NADELETE(p, C, h) \
+  (void)(!(p) || ((NOT_CHECK_NAHEAP(h) ? ((p)->~C(), (h)->deallocateMemory((void *)p)) : delete p), 0))
 
 // NADELETEARRAY(p,n,C,h) deletes p from CollHeap h, p is an array of class C
 // so the destructor of C will be called for each element of p (if not NULL).
@@ -274,12 +264,15 @@ void * operator new[](size_t size, CollHeap* h, NABoolean failureIsFatal);
 // ClassA* a = new(CmpCommon::contextHeap()) classA[10];
 // NADELETEARRAY(a,10,ClassA,CmpCommon::contextHeap());
 
-
-#define NADELETEARRAY(p,n,C,h) \
-{ if (p) { \
-  if NOT_CHECK_NAHEAP(h) \
-    { for (C* t=(p)+n-1; t>=p; t--) t->~C(); (h)->deallocateMemory((void*)p); } \
-  else delete[] (p); } }
- 
+#define NADELETEARRAY(p, n, C, h)                      \
+  {                                                    \
+    if (p) {                                           \
+      if NOT_CHECK_NAHEAP (h) {                        \
+        for (C *t = (p) + n - 1; t >= p; t--) t->~C(); \
+        (h)->deallocateMemory((void *)p);              \
+      } else                                           \
+        delete[](p);                                   \
+    }                                                  \
+  }
 
 #endif

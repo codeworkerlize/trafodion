@@ -30,7 +30,7 @@
  *               constraint attributes specified in constraint
  *               definitions
  *
- *               
+ *
  * Created:      11/10/95
  * Language:     C++
  *
@@ -39,7 +39,6 @@
  *
  *****************************************************************************
  */
-
 
 #include "ElemDDLNode.h"
 
@@ -56,30 +55,21 @@ class ElemDDLConstraintAttr;
 // -----------------------------------------------------------------------
 // definition of class ElemDDLConstraintAttr
 // -----------------------------------------------------------------------
-class ElemDDLConstraintAttr : public ElemDDLNode
-{
-
-public:
-
+class ElemDDLConstraintAttr : public ElemDDLNode {
+ public:
   // default constructor
-  ElemDDLConstraintAttr(OperatorTypeEnum operType
-                               = ELM_ANY_CONSTRAINT_ATTR_ELEM)
-  : ElemDDLNode(operType)
-  { }
+  ElemDDLConstraintAttr(OperatorTypeEnum operType = ELM_ANY_CONSTRAINT_ATTR_ELEM) : ElemDDLNode(operType) {}
 
   // virtual destructor
   virtual ~ElemDDLConstraintAttr();
 
   // cast
-  virtual ElemDDLConstraintAttr * castToElemDDLConstraintAttr();
+  virtual ElemDDLConstraintAttr *castToElemDDLConstraintAttr();
 
   // methods for tracing
   virtual const NAString getText() const;
 
+ private:
+};  // class ElemDDLConstraintAttr
 
-private:
-
-}; // class ElemDDLConstraintAttr
-
-
-#endif // ELEMDDLCONSTRAINTATTR_H
+#endif  // ELEMDDLCONSTRAINTATTR_H

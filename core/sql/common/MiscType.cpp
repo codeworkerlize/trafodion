@@ -43,27 +43,21 @@
 //  SQLBooleanBase : The boolean data type
 //
 // ***********************************************************************
-SQLBooleanBase::SQLBooleanBase(NAMemory *heap, NABoolean allowSQLnull,
-                       NABoolean isRelat) :
-     NAType(heap, LiteralBoolean,
-            NA_BOOLEAN_TYPE,
-            (isRelat ? 4 : 1),  // dataStorageSize
-            allowSQLnull,
-            (allowSQLnull ? SQL_NULL_HDR_SIZE : 0),
-            FALSE,              // variableLength
-            0,                  // lengthHeaderSize
-            (isRelat ? 4 : 1)  // dataAlignment
-            )
-{ 
-}
+SQLBooleanBase::SQLBooleanBase(NAMemory *heap, NABoolean allowSQLnull, NABoolean isRelat)
+    : NAType(heap, LiteralBoolean, NA_BOOLEAN_TYPE,
+             (isRelat ? 4 : 1),  // dataStorageSize
+             allowSQLnull, (allowSQLnull ? SQL_NULL_HDR_SIZE : 0),
+             FALSE,             // variableLength
+             0,                 // lengthHeaderSize
+             (isRelat ? 4 : 1)  // dataAlignment
+      ) {}
 
 // ---------------------------------------------------------------------
 // A method which tells if a conversion error can occur when converting
 // a value of this type to the target type.
 // This method is a stub and so just returns true for now.
 // ---------------------------------------------------------------------
-NABoolean SQLBooleanBase::errorsCanOccur(const NAType& target, NABoolean lax) const
-{
+NABoolean SQLBooleanBase::errorsCanOccur(const NAType &target, NABoolean lax) const {
   return NAType::errorsCanOccur(target);
 }
 
@@ -78,16 +72,10 @@ NABoolean SQLBooleanBase::errorsCanOccur(const NAType& target, NABoolean lax) co
 //  SQLBooleanRelat : The boolean data type
 //
 // ***********************************************************************
-SQLBooleanRelat::SQLBooleanRelat(NAMemory *heap, NABoolean sqlUnknownFlag) :
-     SQLBooleanBase(heap, FALSE, TRUE),
-     sqlUnknownFlag_(sqlUnknownFlag)
-{ 
-}
+SQLBooleanRelat::SQLBooleanRelat(NAMemory *heap, NABoolean sqlUnknownFlag)
+    : SQLBooleanBase(heap, FALSE, TRUE), sqlUnknownFlag_(sqlUnknownFlag) {}
 
-NAType * SQLBooleanRelat::newCopy(CollHeap* h) const
-{
-  return new(h) SQLBooleanRelat(h, sqlUnknownFlag_);
-}
+NAType *SQLBooleanRelat::newCopy(CollHeap *h) const { return new (h) SQLBooleanRelat(h, sqlUnknownFlag_); }
 
 // ***********************************************************************
 //
@@ -95,12 +83,8 @@ NAType * SQLBooleanRelat::newCopy(CollHeap* h) const
 //
 // ***********************************************************************
 
-const NAType* SQLBooleanRelat::synthesizeType(enum NATypeSynthRuleEnum synthRule,
-                                         const NAType& operand1,
-					 const NAType& operand2,
-					 CollHeap* h,
-					 UInt32 *flags) const
-{
+const NAType *SQLBooleanRelat::synthesizeType(enum NATypeSynthRuleEnum synthRule, const NAType &operand1,
+                                              const NAType &operand2, CollHeap *h, UInt32 *flags) const {
   //
   // If the second operand's type synthesis rules have higher precedence than
   // this operand's rules, use the second operand's rules.
@@ -110,34 +94,25 @@ const NAType* SQLBooleanRelat::synthesizeType(enum NATypeSynthRuleEnum synthRule
   //
   // If either operand is not boolean, the expression is invalid.
   //
-  if ((operand1.getTypeQualifier() != NA_BOOLEAN_TYPE) ||
-      (operand2.getTypeQualifier() != NA_BOOLEAN_TYPE))
-    return NULL;
+  if ((operand1.getTypeQualifier() != NA_BOOLEAN_TYPE) || (operand2.getTypeQualifier() != NA_BOOLEAN_TYPE)) return NULL;
   //
   // The generator can create CASE expressions that have boolean result
   // expressions.
   //
-  if (synthRule == SYNTH_RULE_UNION)
-    return new(h) SQLBooleanRelat(h);
+  if (synthRule == SYNTH_RULE_UNION) return new (h) SQLBooleanRelat(h);
 
   return NULL;
-} // synthesizeType()
-
+}  // synthesizeType()
 
 // ***********************************************************************
 //
 //  SQLBooleanNative : The boolean data type
 //
 // ***********************************************************************
-SQLBooleanNative::SQLBooleanNative(NAMemory *heap, NABoolean allowSQLnull) :
-     SQLBooleanBase(heap, allowSQLnull, FALSE)
-{ 
-}
+SQLBooleanNative::SQLBooleanNative(NAMemory *heap, NABoolean allowSQLnull)
+    : SQLBooleanBase(heap, allowSQLnull, FALSE) {}
 
-NAType * SQLBooleanNative::newCopy(CollHeap* h) const
-{
-  return new(h) SQLBooleanNative(h, supportsSQLnull());
-}
+NAType *SQLBooleanNative::newCopy(CollHeap *h) const { return new (h) SQLBooleanNative(h, supportsSQLnull()); }
 
 // ***********************************************************************
 //
@@ -145,12 +120,8 @@ NAType * SQLBooleanNative::newCopy(CollHeap* h) const
 //
 // ***********************************************************************
 
-const NAType* SQLBooleanNative::synthesizeType(enum NATypeSynthRuleEnum synthRule,
-                                         const NAType& operand1,
-					 const NAType& operand2,
-					 CollHeap* h,
-					 UInt32 *flags) const
-{
+const NAType *SQLBooleanNative::synthesizeType(enum NATypeSynthRuleEnum synthRule, const NAType &operand1,
+                                               const NAType &operand2, CollHeap *h, UInt32 *flags) const {
   //
   // If the second operand's type synthesis rules have higher precedence than
   // this operand's rules, use the second operand's rules.
@@ -160,125 +131,88 @@ const NAType* SQLBooleanNative::synthesizeType(enum NATypeSynthRuleEnum synthRul
   //
   // If either operand is not boolean, the expression is invalid.
   //
-  if ((operand1.getTypeQualifier() != NA_BOOLEAN_TYPE) ||
-      (operand2.getTypeQualifier() != NA_BOOLEAN_TYPE))
-    return NULL;
+  if ((operand1.getTypeQualifier() != NA_BOOLEAN_TYPE) || (operand2.getTypeQualifier() != NA_BOOLEAN_TYPE)) return NULL;
   //
   // The generator can create CASE expressions that have boolean result
   // expressions.
   //
   if (synthRule == SYNTH_RULE_UNION)
-    return new(h) SQLBooleanNative
-      (h, operand1.supportsSQLnull() || operand2.supportsSQLnull());
+    return new (h) SQLBooleanNative(h, operand1.supportsSQLnull() || operand2.supportsSQLnull());
 
   return NULL;
-} // synthesizeType()
+}  // synthesizeType()
 
-void SQLBooleanNative::minRepresentableValue(void* bufPtr, Lng32* bufLen,
-                                     NAString ** stringLiteral,
-				     CollHeap* h) const
-{
+void SQLBooleanNative::minRepresentableValue(void *bufPtr, Lng32 *bufLen, NAString **stringLiteral, CollHeap *h) const {
   assert(*bufLen >= sizeof(Int8));
   *bufLen = sizeof(Int8);
-  *((Int8*)bufPtr) = 0;
+  *((Int8 *)bufPtr) = 0;
 
-  if (stringLiteral != NULL)
-    {
-      // Generate a printable string for the minimum value
-      char nameBuf[10];
-      strcpy(nameBuf, "false");
-      *stringLiteral = new (h) NAString(nameBuf, h);
-    }
+  if (stringLiteral != NULL) {
+    // Generate a printable string for the minimum value
+    char nameBuf[10];
+    strcpy(nameBuf, "false");
+    *stringLiteral = new (h) NAString(nameBuf, h);
+  }
 
-} // SQLBooleanNative::minRepresentableValue()
+}  // SQLBooleanNative::minRepresentableValue()
 
-void SQLBooleanNative::maxRepresentableValue(void* bufPtr, Lng32* bufLen,
-                                     NAString ** stringLiteral,
-				     CollHeap* h) const
-{
+void SQLBooleanNative::maxRepresentableValue(void *bufPtr, Lng32 *bufLen, NAString **stringLiteral, CollHeap *h) const {
   assert(*bufLen >= sizeof(Int8));
   *bufLen = sizeof(Int8);
-  *((Int8*)bufPtr) = 1;
-  
-  if (stringLiteral != NULL)
-    {
-      // Generate a printable string for the minimum value
-      char nameBuf[10];
-      strcpy(nameBuf, "true");
-      *stringLiteral = new (h) NAString(nameBuf, h);
-    }
+  *((Int8 *)bufPtr) = 1;
 
-} // SQLBooleanNative::maxRepresentableValue()
+  if (stringLiteral != NULL) {
+    // Generate a printable string for the minimum value
+    char nameBuf[10];
+    strcpy(nameBuf, "true");
+    *stringLiteral = new (h) NAString(nameBuf, h);
+  }
+
+}  // SQLBooleanNative::maxRepresentableValue()
 
 // ***********************************************************************
 //
 //  SQLRecord : The record data type
 //
 // ***********************************************************************
-SQLRecord::SQLRecord(NAMemory *heap, const NAType * elementType, const SQLRecord * restOfRecord) :
-   NAType(heap, LiteralRecord,
-          NA_RECORD_TYPE,
-          elementType->getTotalSize() +
-                (restOfRecord ? restOfRecord->getTotalSize()
-                              : 0),               // dataStorageSize
-          elementType->supportsSQLnull() |
-                (restOfRecord ? restOfRecord->supportsSQLnull()
-                              : FALSE),            // supportsSQLnull
-          0,                                      // SQLnullHdrSize
-          FALSE,                                  // variableLength
-          0,                                      // lengthHeaderSize
-          4),                                       // dataAlignment
-    elementType_(elementType),
-    restOfRecord_(restOfRecord)
-{
+SQLRecord::SQLRecord(NAMemory *heap, const NAType *elementType, const SQLRecord *restOfRecord)
+    : NAType(
+          heap, LiteralRecord, NA_RECORD_TYPE,
+          elementType->getTotalSize() + (restOfRecord ? restOfRecord->getTotalSize() : 0),            // dataStorageSize
+          elementType->supportsSQLnull() | (restOfRecord ? restOfRecord->supportsSQLnull() : FALSE),  // supportsSQLnull
+          0,                                                                                          // SQLnullHdrSize
+          FALSE,                                                                                      // variableLength
+          0,   // lengthHeaderSize
+          4),  // dataAlignment
+      elementType_(elementType),
+      restOfRecord_(restOfRecord) {
   if (restOfRecord)
     degree_ = restOfRecord->getDegree() + 1;
   else
     degree_ = 1;
 }
 
-NAType * SQLRecord::newCopy(CollHeap* h) const
-{
-  return new(h) SQLRecord(h, elementType_, restOfRecord_);
-}
+NAType *SQLRecord::newCopy(CollHeap *h) const { return new (h) SQLRecord(h, elementType_, restOfRecord_); }
 
-short SQLRecord::getFSDatatype() const 
-{
-  return REC_BYTE_F_ASCII;
-}
+short SQLRecord::getFSDatatype() const { return REC_BYTE_F_ASCII; }
 
-const NAType * SQLRecord::getElementType() const
-{
-  return elementType_;
-}
+const NAType *SQLRecord::getElementType() const { return elementType_; }
 
-const SQLRecord * SQLRecord::getRestOfRecord() const
-{
-  return restOfRecord_;
-}
-Lng32 SQLRecord::getDegree() const
-{
-  return degree_;
-}
+const SQLRecord *SQLRecord::getRestOfRecord() const { return restOfRecord_; }
+Lng32 SQLRecord::getDegree() const { return degree_; }
 
-NAString SQLRecord::getSimpleTypeName() const
-{
-  return "SQLRecord";
-}
+NAString SQLRecord::getSimpleTypeName() const { return "SQLRecord"; }
 
 // -- The external name for the type (text representation)
 
-NAString SQLRecord::getTypeSQLname(NABoolean terse) const
-{
-  if (terse)
-    return "SQLRecord";
+NAString SQLRecord::getTypeSQLname(NABoolean terse) const {
+  if (terse) return "SQLRecord";
 
   NAString name = "SQLRecord(" + this->elementType_->getTypeSQLname(terse);
 
   const SQLRecord *p = this->restOfRecord_;
 
-  while (p)
-  {
+  while (p) {
     name += "," + p->elementType_->getTypeSQLname(terse);
     p = p->restOfRecord_;
   }
@@ -293,12 +227,8 @@ NAString SQLRecord::getTypeSQLname(NABoolean terse) const
 //
 // ***********************************************************************
 
-const NAType* SQLRecord::synthesizeType(enum NATypeSynthRuleEnum synthRule,
-					const NAType& operand1,
-					const NAType& operand2,
-					CollHeap* h,
-					UInt32 *flags) const
-{
+const NAType *SQLRecord::synthesizeType(enum NATypeSynthRuleEnum synthRule, const NAType &operand1,
+                                        const NAType &operand2, CollHeap *h, UInt32 *flags) const {
   //
   // If the second operand's type synthesis rules have higher precedence than
   // this operand's rules, use the second operand's rules.
@@ -308,78 +238,61 @@ const NAType* SQLRecord::synthesizeType(enum NATypeSynthRuleEnum synthRule,
   //
   // If either operand is not boolean, the expression is invalid.
   //
-  if ((operand1.getTypeQualifier() != NA_RECORD_TYPE) ||
-      (operand2.getTypeQualifier() != NA_RECORD_TYPE))
-    return NULL;
+  if ((operand1.getTypeQualifier() != NA_RECORD_TYPE) || (operand2.getTypeQualifier() != NA_RECORD_TYPE)) return NULL;
 
   // To be done
   return NULL;
-} // synthesizeType()
+}  // synthesizeType()
 
 // ---------------------------------------------------------------------
 // Are the two types compatible for comparison or assignment?
 // ---------------------------------------------------------------------
-NABoolean SQLRecord::isCompatible (const NAType& other, UInt32 * flags) const
-{
-  return FALSE;
-}
+NABoolean SQLRecord::isCompatible(const NAType &other, UInt32 *flags) const { return FALSE; }
 
 // ---------------------------------------------------------------------
 // A method which tells if a conversion error can occur when converting
 // a value of this type to the target type.
 // This method is a stub and so just returns true for now.
 // ---------------------------------------------------------------------
-NABoolean SQLRecord::errorsCanOccur(const NAType& target, NABoolean lax) const
-{
-  return TRUE;
-}
+NABoolean SQLRecord::errorsCanOccur(const NAType &target, NABoolean lax) const { return TRUE; }
 
 // ***********************************************************************
 //
-//  SQLRowset: the Rowset array data type. 
+//  SQLRowset: the Rowset array data type.
 //             This is mainly for host variables of Rowset type. Other than
 //             that, rowsets would be very much like arrays.
 //
 //  The name SQLArray is not used to avoid a future conflict with a real
 //  database array type such as collection. In addition, we are trying to
-//  avoid any confusion with scalar indexed host variables which are 
+//  avoid any confusion with scalar indexed host variables which are
 //  supported by SQL/MX.
 // ***********************************************************************
 
-SQLRowset::SQLRowset(NAMemory *heap, NAType *elementType, Lng32 maxNumElements, 
-                     Lng32 numElements) : 
-  NAType(heap, LiteralRowset
-         ,NA_ROWSET_TYPE
-         ,elementType->getNominalSize()
-         ,elementType->supportsSQLnull()
-         ), // We may need to pass Data Alignment
-  elementType_(elementType),
-  maxNumElements_(maxNumElements),
-  numElements_(numElements),
-  useTotalSize_(0)
-{
-} // SQLRowset::SQLRowset()
+SQLRowset::SQLRowset(NAMemory *heap, NAType *elementType, Lng32 maxNumElements, Lng32 numElements)
+    : NAType(heap, LiteralRowset, NA_ROWSET_TYPE, elementType->getNominalSize(),
+             elementType->supportsSQLnull()),  // We may need to pass Data Alignment
+      elementType_(elementType),
+      maxNumElements_(maxNumElements),
+      numElements_(numElements),
+      useTotalSize_(0) {}  // SQLRowset::SQLRowset()
 
-NABoolean SQLRowset::isCompatible (const NAType& other, UInt32 * flags) const
-{
-
+NABoolean SQLRowset::isCompatible(const NAType &other, UInt32 *flags) const {
   // Both types must be Rowsets of the same element type and dimensions
-  if (NAType::isCompatible(other, flags)) { 
-    if (other.getTypeQualifier() == NA_ROWSET_TYPE) { 
+  if (NAType::isCompatible(other, flags)) {
+    if (other.getTypeQualifier() == NA_ROWSET_TYPE) {
       const SQLRowset &otherRowset = *(const SQLRowset *)&other;
       if (elementType_->isCompatible(*otherRowset.getElementType()) &&
-        maxNumElements_ == otherRowset.getMaxNumElements()) {
+          maxNumElements_ == otherRowset.getMaxNumElements()) {
         return TRUE;
       }
     }
   }
   return FALSE;
-} // SQLRowset::isCompatible ()
+}  // SQLRowset::isCompatible ()
 
-NABoolean SQLRowset::operator==(const NAType& other) const
-{
+NABoolean SQLRowset::operator==(const NAType &other) const {
   // Both types must be Rowsets of the same element type and dimensions
-  if (isCompatible(other)) { 
+  if (isCompatible(other)) {
     const SQLRowset &otherRowset = *(const SQLRowset *)&other;
     if (numElements_ == otherRowset.getNumElements()) {
       return TRUE;
@@ -387,75 +300,56 @@ NABoolean SQLRowset::operator==(const NAType& other) const
   }
 
   return FALSE;
-} // SQLRowset::operator==()
+}  // SQLRowset::operator==()
 
-NABoolean SQLRowset::errorsCanOccur(const NAType& target, NABoolean lax) const
-{
-  return TRUE;
-}
+NABoolean SQLRowset::errorsCanOccur(const NAType &target, NABoolean lax) const { return TRUE; }
 
-NAString SQLRowset::getSimpleTypeName() const
-{
+NAString SQLRowset::getSimpleTypeName() const {
   const NAString &sname = NAType::getTypeName();
   return sname;
 }
 
-NAString SQLRowset::getTypeSQLname(NABoolean terse) const
-{
+NAString SQLRowset::getTypeSQLname(NABoolean terse) const {
   NAString rName = getSimpleTypeName();
-  if (!terse)
-    {
-      char size[20];
+  if (!terse) {
+    char size[20];
 
-      sprintf(size, " %d ", maxNumElements_);
-      rName += size;
-      rName += elementType_->getTypeSQLname(terse);
-    }
+    sprintf(size, " %d ", maxNumElements_);
+    rName += size;
+    rName += elementType_->getTypeSQLname(terse);
+  }
   return rName;
-} // SQLRowset::getTypeSQLname()
+}  // SQLRowset::getTypeSQLname()
 
-short SQLRowset::getFSDatatype() const 
-{
-  //return REC_BYTE_F_ASCII;
+short SQLRowset::getFSDatatype() const {
+  // return REC_BYTE_F_ASCII;
   return elementType_->getFSDatatype();
 }
 
-void SQLRowset::print(FILE* ofd, const char* indent)
-{
+void SQLRowset::print(FILE *ofd, const char *indent) {
   NAType::print(ofd, indent);
-  
+
 #ifdef TRACING_ENABLED
-  fprintf(ofd,"%s elementType as follows\n",
-          indent);
+  fprintf(ofd, "%s elementType as follows\n", indent);
   getElementType()->print(ofd, indent);
-  fprintf(ofd,"%s maximum num of elements %d, actual num of elements %d\n",
-          indent, maxNumElements_, numElements_);
+  fprintf(ofd, "%s maximum num of elements %d, actual num of elements %d\n", indent, maxNumElements_, numElements_);
 #endif
-} // SQLRowset::print()
+}  // SQLRowset::print()
 
-NAType * SQLRowset::newCopy(CollHeap* h) const
-{
-  return new(h) SQLRowset(h, elementType_, maxNumElements_, numElements_);
+NAType *SQLRowset::newCopy(CollHeap *h) const {
+  return new (h) SQLRowset(h, elementType_, maxNumElements_, numElements_);
 }
 
-NAType * SQLRowset::getElementType() const
-{
-  return elementType_;
-}
+NAType *SQLRowset::getElementType() const { return elementType_; }
 
 // Both operands expected to be rowsets.
-const NAType* SQLRowset::synthesizeType(enum NATypeSynthRuleEnum synthRule,
-					const NAType& operand1,
-					const NAType& operand2,
-					CollHeap* h,
-					UInt32 *flags) const
-{
+const NAType *SQLRowset::synthesizeType(enum NATypeSynthRuleEnum synthRule, const NAType &operand1,
+                                        const NAType &operand2, CollHeap *h, UInt32 *flags) const {
   // Both must be rowset types
-  if ((operand1.getTypeQualifier() != NA_ROWSET_TYPE) ||
-      (operand2.getTypeQualifier() != NA_ROWSET_TYPE)) {
+  if ((operand1.getTypeQualifier() != NA_ROWSET_TYPE) || (operand2.getTypeQualifier() != NA_ROWSET_TYPE)) {
     return NULL;
   }
-  
+
   //
   // Check that the operands are compatible.
   //
@@ -465,29 +359,19 @@ const NAType* SQLRowset::synthesizeType(enum NATypeSynthRuleEnum synthRule,
   }
 
   // Operations currently allowed in rowsets
-  if (synthRule != SYNTH_RULE_UNION && synthRule != SYNTH_RULE_ADD &&
-      synthRule != SYNTH_RULE_SUB && synthRule != SYNTH_RULE_MUL &&
-      synthRule != SYNTH_RULE_DIV) {
+  if (synthRule != SYNTH_RULE_UNION && synthRule != SYNTH_RULE_ADD && synthRule != SYNTH_RULE_SUB &&
+      synthRule != SYNTH_RULE_MUL && synthRule != SYNTH_RULE_DIV) {
     return NULL;
   }
 
-  return new(h) SQLRowset(h, elementType_, maxNumElements_, numElements_);
+  return new (h) SQLRowset(h, elementType_, maxNumElements_, numElements_);
 }
 
-Lng32 SQLRowset::getNumElements() const
-{
-  return numElements_;
-}
+Lng32 SQLRowset::getNumElements() const { return numElements_; }
 
-Lng32 SQLRowset::setNumElements(Lng32 numElements)
-{
-  return numElements_ = numElements;
-}
+Lng32 SQLRowset::setNumElements(Lng32 numElements) { return numElements_ = numElements; }
 
-Lng32 SQLRowset::getMaxNumElements() const
-{
-  return maxNumElements_;
-}
+Lng32 SQLRowset::getMaxNumElements() const { return maxNumElements_; }
 
 // ***********************************************************************
 //
@@ -495,18 +379,11 @@ Lng32 SQLRowset::getMaxNumElements() const
 //
 // ***********************************************************************
 
-NAType * SQLUnknown::newCopy(CollHeap* h) const
-{
-  return new(h) SQLUnknown(*this,h);
-}
+NAType *SQLUnknown::newCopy(CollHeap *h) const { return new (h) SQLUnknown(*this, h); }
 
 // ---------------------------------------------------------------------
 // A method which tells if a conversion error can occur when converting
 // a value of this type to the target type.
 // This method is a stub and so just returns true for now.
 // ---------------------------------------------------------------------
-NABoolean SQLUnknown::errorsCanOccur(const NAType& target, NABoolean lax) const
-{
-  return TRUE;
-}
-
+NABoolean SQLUnknown::errorsCanOccur(const NAType &target, NABoolean lax) const { return TRUE; }

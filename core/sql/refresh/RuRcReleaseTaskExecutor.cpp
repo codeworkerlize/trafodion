@@ -42,23 +42,19 @@
 //	Constructor
 //------------------------------------------------------------------//
 
-CRURcReleaseTaskExecutor::CRURcReleaseTaskExecutor(CRUTask *pParentTask) :
-	inherited(pParentTask)
-{}
+CRURcReleaseTaskExecutor::CRURcReleaseTaskExecutor(CRUTask *pParentTask) : inherited(pParentTask) {}
 
 //------------------------------------------------------------------//
 //	CRURcReleaseTaskExecutor::Init()
 //------------------------------------------------------------------//
 
-void CRURcReleaseTaskExecutor::Init()
-{
-	CRURcReleaseTask *pParentTask = (CRURcReleaseTask *)GetParentTask();
-	CRUObject &obj = pParentTask->GetObject();
+void CRURcReleaseTaskExecutor::Init() {
+  CRURcReleaseTask *pParentTask = (CRURcReleaseTask *)GetParentTask();
+  CRUObject &obj = pParentTask->GetObject();
 
-	if (FALSE == obj.HoldsResources())
-	{
-		ResetHasWork();
-	}
+  if (FALSE == obj.HoldsResources()) {
+    ResetHasWork();
+  }
 }
 
 //------------------------------------------------------------------//
@@ -67,22 +63,21 @@ void CRURcReleaseTaskExecutor::Init()
 //	The main finite-state machine switch
 //------------------------------------------------------------------//
 
-void CRURcReleaseTaskExecutor::Work()
-{
-	CRURcReleaseTask *pParentTask = (CRURcReleaseTask *)GetParentTask();
-	RUASSERT(NULL != pParentTask);
-	
-	BeginTransaction();
+void CRURcReleaseTaskExecutor::Work() {
+  CRURcReleaseTask *pParentTask = (CRURcReleaseTask *)GetParentTask();
+  RUASSERT(NULL != pParentTask);
 
-	CRUObject &obj = pParentTask->GetObject();
-	RUASSERT(TRUE == obj.HoldsResources());
+  BeginTransaction();
 
-	obj.ReleaseResources();
-	
-	// Simulate the crash, and check the atomicity of SaveMetadata() !
-	TESTPOINT(CRUGlobals::TESTPOINT112);
+  CRUObject &obj = pParentTask->GetObject();
+  RUASSERT(TRUE == obj.HoldsResources());
 
-	CommitTransaction();
+  obj.ReleaseResources();
 
-	SetState(EX_COMPLETE);
+  // Simulate the crash, and check the atomicity of SaveMetadata() !
+  TESTPOINT(CRUGlobals::TESTPOINT112);
+
+  CommitTransaction();
+
+  SetState(EX_COMPLETE);
 }

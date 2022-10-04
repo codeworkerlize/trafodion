@@ -1453,13 +1453,7 @@ PrivStatus PrivMgrPrivileges::grantToOwners(const ComObjectType objectType, cons
   // no need to grant privileges.
   //
   // This creator grant may be controlled by a CQD in the future.
-  if (ownerID == creatorID || creatorID == ComUser::getRootUserID())
-
-    // unclear why next stmt was added. Removing it as it prevents
-    // privs to be added for hive and hbase tables.
-    //       ownerID == HIVE_ROLE_ID || ownerID == HBASE_ROLE_ID )
-
-    return STATUS_GOOD;
+  if (ownerID == creatorID || creatorID == ComUser::getRootUserID()) return STATUS_GOOD;
 
   // Add a grant from the private schema owner to the creator.
   row.grantorID_ = row.granteeID_;

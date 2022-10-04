@@ -25,45 +25,37 @@
 
 // Forward declarations
 
-static void setNeg1ConstantsForNullBranch(PCodeInst* inst,
-                                                     NABitVector& zeroes,
-                                                     NABitVector& ones,
-                                                     NABitVector& neg1);
+static void setNeg1ConstantsForNullBranch(PCodeInst *inst, NABitVector &zeroes, NABitVector &ones, NABitVector &neg1);
 
 //
 // Short circuit optimization for conditionals
 //
-void PCodeCfg::reorderPredicatesHelper()
-{
+void PCodeCfg::reorderPredicatesHelper() {
   CollIndex i;
 
-  FOREACH_BLOCK(srcBlock, firstInst, lastInst, index)
-  {
-    if (lastInst && (lastInst->getOpcode() == PCIT::RETURN) &&
-        lastInst->prev && (lastInst->prev->getOpcode() == PCIT::MOVE_MBIN32S))
-    {
+  FOREACH_BLOCK(srcBlock, firstInst, lastInst, index) {
+    if (lastInst && (lastInst->getOpcode() == PCIT::RETURN) && lastInst->prev &&
+        (lastInst->prev->getOpcode() == PCIT::MOVE_MBIN32S)) {
       NABoolean expand = FALSE;
 
       // First check to see if a logical branch comes into this RETURN
-      for (i=0; !expand && (i < srcBlock->getPreds().entries()); i++) {
-        PCodeInst* l = srcBlock->getPreds()[i]->getLastInst();
-        if (l && l->isLogicalBranch())
-          expand = TRUE;
+      for (i = 0; !expand && (i < srcBlock->getPreds().entries()); i++) {
+        PCodeInst *l = srcBlock->getPreds()[i]->getLastInst();
+        if (l && l->isLogicalBranch()) expand = TRUE;
       }
 
       // Don't continue if there is no point to expand
-      if (expand == FALSE)
-        continue;
+      if (expand == FALSE) continue;
 
-      PCodeBlock* retBlk;
+      PCodeBlock *retBlk;
       PCodeInst *retInst, *branch;
 
       branch = srcBlock->insertNewInstAfter(NULL, PCIT::BRANCH_OR);
       // BRANCH_OR code[0] is opcode, code[1] and code[2] are target
       // clause pointer; code[3] and code[4] are 64-bit 0; code[5] and code[6]
       // for operand #1; code[7] and code[8] for operand #2
-      branch->code[3] = 0; // not necessary to clear
-      branch->code[4] = 0; // not necessary to clear
+      branch->code[3] = 0;  // not necessary to clear
+      branch->code[4] = 0;  // not necessary to clear
       branch->code[5] = lastInst->prev->code[1];
       branch->code[6] = lastInst->prev->code[2];
       branch->code[7] = branch->code[5];
@@ -94,7 +86,8 @@ void PCodeCfg::reorderPredicatesHelper()
       // We can break out now - no more RETURNs with MOVE_MBIN32S
       break;
     }
-  } ENDFE_BLOCK
+  }
+  ENDFE_BLOCK
 
 #if 0
 
@@ -192,43 +185,33 @@ void PCodeCfg::reorderPredicatesHelper()
   } ENDFE_BLOCK
 
 #endif
-
 }
 
 //
 // Small version of constant propagation tailored for short circuit eval.
-// 
-PCodeInst* PCodeCfg::shortCircuitConstantProp(PCodeBlock* block,
-                                              NABitVector* zeroes,
-                                              NABitVector* ones,
-                                              NABoolean* isBranchTaken)
-{
+//
+PCodeInst *PCodeCfg::shortCircuitConstantProp(PCodeBlock *block, NABitVector *zeroes, NABitVector *ones,
+                                              NABoolean *isBranchTaken) {
   Int32 constant;
   NABitVector *bv1, *bv2;
 
-  FOREACH_INST_IN_BLOCK(block, inst)
-  {
+  FOREACH_INST_IN_BLOCK(block, inst) {
     OPLIST reads = inst->getROps();
     OPLIST writes = inst->getWOps();
 
     Int32 opc = inst->getOpcode();
-    switch (opc)
-    {
+    switch (opc) {
       // For logical operators, propogate constants 0 and 1.
       case PCIT::AND_MBIN32S_MBIN32S_MBIN32S:
-      case PCIT::OR_MBIN32S_MBIN32S_MBIN32S :
+      case PCIT::OR_MBIN32S_MBIN32S_MBIN32S:
         bv1 = (opc == PCIT::OR_MBIN32S_MBIN32S_MBIN32S) ? ones : zeroes;
         bv2 = (opc == PCIT::OR_MBIN32S_MBIN32S_MBIN32S) ? zeroes : ones;
 
-        if (bv1->testBit(reads[0]->getBvIndex()) ||
-            bv1->testBit(reads[1]->getBvIndex())) {
+        if (bv1->testBit(reads[0]->getBvIndex()) || bv1->testBit(reads[1]->getBvIndex())) {
           bv1->addElementFast(writes[0]->getBvIndex());
-        }
-        else if (bv2->testBit(reads[0]->getBvIndex()) &&
-                 bv2->testBit(reads[1]->getBvIndex())) {
+        } else if (bv2->testBit(reads[0]->getBvIndex()) && bv2->testBit(reads[1]->getBvIndex())) {
           bv2->addElementFast(writes[0]->getBvIndex());
-        }
-        else
+        } else
           return inst;
         break;
 
@@ -237,17 +220,15 @@ PCodeInst* PCodeCfg::shortCircuitConstantProp(PCodeBlock* block,
       case PCIT::BRANCH_AND:
       case PCIT::BRANCH_OR:
         bv1 = (opc == PCIT::BRANCH_AND) ? zeroes : ones;
-        bv2 = (opc == PCIT::BRANCH_AND) ? ones: zeroes;
+        bv2 = (opc == PCIT::BRANCH_AND) ? ones : zeroes;
 
         if (bv1->testBit(reads[0]->getBvIndex())) {
           bv1->addElementFast(writes[0]->getBvIndex());
           *isBranchTaken = TRUE;
-        }
-        else if (bv2->testBit(reads[0]->getBvIndex())) {
+        } else if (bv2->testBit(reads[0]->getBvIndex())) {
           bv2->addElementFast(writes[0]->getBvIndex());
           *isBranchTaken = FALSE;
-        }
-        else
+        } else
           return inst;
 
         break;
@@ -277,11 +258,8 @@ PCodeInst* PCodeCfg::shortCircuitConstantProp(PCodeBlock* block,
         break;
 
       case PCIT::NULL_VIOLATION_MBIN16U_MBIN16U:
-        if (!zeroes->testBit(reads[0]->getBvIndex()) ||
-            !zeroes->testBit(reads[1]->getBvIndex()))
-          return inst;
+        if (!zeroes->testBit(reads[0]->getBvIndex()) || !zeroes->testBit(reads[1]->getBvIndex())) return inst;
         break;
-
 
       // These instructions show up sometimes, but can't be handled
       case PCIT::NULL_VIOLATION_MBIN16U:
@@ -292,7 +270,8 @@ PCodeInst* PCodeCfg::shortCircuitConstantProp(PCodeBlock* block,
         // All instructions up to "inst" were evaluated with constants
         return inst;
     }
-  } ENDFE_INST_IN_BLOCK
+  }
+  ENDFE_INST_IN_BLOCK
 
   // All instructions in block were evaluated with constants
   return NULL;
@@ -300,17 +279,12 @@ PCodeInst* PCodeCfg::shortCircuitConstantProp(PCodeBlock* block,
 
 //
 // Create immediate moves of operands identified in the provided bit vector.
-// 
-void PCodeCfg::shortCircuitOptHelper(PCodeBlock* block,
-                                     NABitVector* bv,
-                                     Int32 constant)
-{
+//
+void PCodeCfg::shortCircuitOptHelper(PCodeBlock *block, NABitVector *bv, Int32 constant) {
   CollIndex i = bv->getLastStaleBit();
-  for (; (i = bv->prevUsed(i)) != NULL_COLL_INDEX; i--)
-  {
-    PCodeOperand* operand = indexToOperandMap_->getFirstValue(&i);
-    PCodeInst* inst =
-      block->insertNewInstAfter(NULL, PCIT::MOVE_MBIN32S_IBIN32S);
+  for (; (i = bv->prevUsed(i)) != NULL_COLL_INDEX; i--) {
+    PCodeOperand *operand = indexToOperandMap_->getFirstValue(&i);
+    PCodeInst *inst = block->insertNewInstAfter(NULL, PCIT::MOVE_MBIN32S_IBIN32S);
 
     inst->code[1] = operand->getStackIndex();
     inst->code[2] = operand->getOffset();
@@ -320,8 +294,7 @@ void PCodeCfg::shortCircuitOptHelper(PCodeBlock* block,
   }
 }
 
-NABoolean PCodeCfg::removeDuplicateBlocks(PCodeBlock* start)
-{
+NABoolean PCodeCfg::removeDuplicateBlocks(PCodeBlock *start) {
   CollIndex i, j, k;
 
   BLOCKLIST dupBlocks(heap_);
@@ -343,17 +316,14 @@ NABoolean PCodeCfg::removeDuplicateBlocks(PCodeBlock* start)
 #endif
 
       // If this block has a pred which falls through to it, then it is required
-      for (i=0; i < block->getPreds().entries(); i++) {
-        PCodeBlock* pred = block->getPreds()[i];
-        PCodeInst* predLastInst = pred->getLastInst();
+      for (i = 0; i < block->getPreds().entries(); i++) {
+        PCodeBlock *pred = block->getPreds()[i];
+        PCodeInst *predLastInst = pred->getLastInst();
 
-        if (predLastInst && predLastInst->isLogicalBranch())
-          hasPriority = TRUE;
+        if (predLastInst && predLastInst->isLogicalBranch()) hasPriority = TRUE;
 
         // Identify pred if it truly falls through to the block
-        if ((pred->getFallThroughBlock() == block) &&
-            !(predLastInst && predLastInst->isUncBranch()))
-        {
+        if ((pred->getFallThroughBlock() == block) && !(predLastInst && predLastInst->isUncBranch())) {
           if (hasPriority)
             requiredBlocks.insertAt(0, block);
           else
@@ -371,44 +341,39 @@ NABoolean PCodeCfg::removeDuplicateBlocks(PCodeBlock* start)
           dupBlocks.insert(block);
       }
     }
-  } ENDFE_BLOCK_DFO_AT
+  }
+  ENDFE_BLOCK_DFO_AT
 
   // Use required blocks to first get rid of duplicate blocks
-  for (i=0; i < requiredBlocks.entries(); i++) {
-    PCodeBlock* reqBlock = requiredBlocks[i];
+  for (i = 0; i < requiredBlocks.entries(); i++) {
+    PCodeBlock *reqBlock = requiredBlocks[i];
 
     // If this block was already processed, continue
-    if (reqBlock->getVisitedFlag())
-      continue;
+    if (reqBlock->getVisitedFlag()) continue;
 
     // Mark the required block as having been seen
     reqBlock->setVisitedFlag(TRUE);
 
     // Go through each exit block with no fall-through preds
-    for (j=0; j < dupBlocks.entries(); j++) {
+    for (j = 0; j < dupBlocks.entries(); j++) {
       NABoolean match = TRUE;
-      PCodeBlock* dupBlock = dupBlocks[j];
+      PCodeBlock *dupBlock = dupBlocks[j];
 
-      if (dupBlock->getVisitedFlag())
-        continue;
+      if (dupBlock->getVisitedFlag()) continue;
 
       // Make sure succs are identical
       if (reqBlock->getSuccs().entries() == 1)
-        if ((dupBlock->getSuccs().entries() != 1) ||
-            (reqBlock->getSuccs()[0] != dupBlock->getSuccs()[0]))
-          continue;
-
+        if ((dupBlock->getSuccs().entries() != 1) || (reqBlock->getSuccs()[0] != dupBlock->getSuccs()[0])) continue;
 
 #if 0
       if (reqBlock->getNumOfInsts() != dupBlock->getNumOfInsts())
         continue;
 #endif
 
-      PCodeInst* inst1 = reqBlock->getFirstInst();
-      PCodeInst* inst2 = dupBlock->getFirstInst();
+      PCodeInst *inst1 = reqBlock->getFirstInst();
+      PCodeInst *inst2 = dupBlock->getFirstInst();
 
       while (match && (inst1 || inst2)) {
-
         // Unconditional branches should be skipped when comparing blocks
         if (inst1 && inst1->isUncBranch()) {
           inst1 = inst1->next;
@@ -421,29 +386,25 @@ NABoolean PCodeCfg::removeDuplicateBlocks(PCodeBlock* start)
         }
 
         // Compare opcodes of the instructions
-        if ((inst1 == NULL) || (inst2 == NULL) || 
-            (inst1->getOpcode() != inst2->getOpcode())) {
+        if ((inst1 == NULL) || (inst2 == NULL) || (inst1->getOpcode() != inst2->getOpcode())) {
           match = FALSE;
           break;
         }
 
-        for (k=0;
-             match && (k < (CollIndex)PCode::getInstructionLength(inst1->code));
-             k++)
+        for (k = 0; match && (k < (CollIndex)PCode::getInstructionLength(inst1->code)); k++)
           match = match && (inst1->code[k] == inst2->code[k]);
 
         inst1 = inst1->next;
         inst2 = inst2->next;
       }
 
-      if (!match)
-        continue;
+      if (!match) continue;
 
       dupFound = TRUE;
 
       // Redirect all preds of block to reqBlock.  Original links will get
       // deleted when the block gets deleted below.
-      for (k=0; k < dupBlock->getPreds().entries(); k++) {
+      for (k = 0; k < dupBlock->getPreds().entries(); k++) {
         dupBlock->getPreds()[k]->addEdge(reqBlock);
       }
 
@@ -460,8 +421,7 @@ NABoolean PCodeCfg::removeDuplicateBlocks(PCodeBlock* start)
       // in ExpPCodeOptsRuntime.cpp.  For now just copy in each item.
 
       requiredBlocks.clear();
-      for (j=0; j < dupBlocks.entries(); j++)
-        requiredBlocks.insert(dupBlocks[j]);
+      for (j = 0; j < dupBlocks.entries(); j++) requiredBlocks.insert(dupBlocks[j]);
 
       i = -1;
     }
@@ -469,7 +429,6 @@ NABoolean PCodeCfg::removeDuplicateBlocks(PCodeBlock* start)
 
   return dupFound;
 }
-
 
 #if 0
 //
@@ -542,27 +501,21 @@ void PCodeCfg::removeDuplicateBlocks()
 #endif
 
 NABoolean PCodeBlock::doesBlockQualifyForShortCircuit() {
-  if (last_ &&
-      (last_->isNullBranch() || last_->isVarcharNullBranch() ||
-      last_->isLogicalBranch()) &&
-      (last_->getOpcode() != PCIT::NULL_BITMAP_BULK) &&
-      (last_->getOpcode() != PCIT::NOT_NULL_BRANCH_BULK) &&
+  if (last_ && (last_->isNullBranch() || last_->isVarcharNullBranch() || last_->isLogicalBranch()) &&
+      (last_->getOpcode() != PCIT::NULL_BITMAP_BULK) && (last_->getOpcode() != PCIT::NOT_NULL_BRANCH_BULK) &&
       (getSuccs()[0] != getSuccs()[1]))
     return TRUE;
 
   return FALSE;
 }
 
-NABoolean PCodeCfg::shortCircuitOpt(Int32 flags)
-{
+NABoolean PCodeCfg::shortCircuitOpt(Int32 flags) {
   NABoolean restart = FALSE;
-  PCodeBlock* tBlk = NULL;
-  NABoolean overlapFound = flags; // Only 1 bit flag passed in for now
+  PCodeBlock *tBlk = NULL;
+  NABoolean overlapFound = flags;  // Only 1 bit flag passed in for now
 
-  FOREACH_BLOCK_DFO(block, firstInst, lastInst, index)
-  {
-    if (block->doesBlockQualifyForShortCircuit())
-    {
+  FOREACH_BLOCK_DFO(block, firstInst, lastInst, index) {
+    if (block->doesBlockQualifyForShortCircuit()) {
       NABitVector zeroes(heap_), ones(heap_), neg1(heap_);
 
       // First set up vectors to use what constants we already know
@@ -572,22 +525,21 @@ NABoolean PCodeCfg::shortCircuitOpt(Int32 flags)
 
       // Next run local constant prop on the source block so as to pull in
       // whatever known constants we can about this block.
-      PCodeBlock* copyTgtBlock = copyCfg(block, block, NULL);
+      PCodeBlock *copyTgtBlock = copyCfg(block, block, NULL);
       copyTgtBlock->deleteInst(copyTgtBlock->getLastInst());
       localConstantPropagation(copyTgtBlock, zeroes, ones, neg1);
       deleteBlock(copyTgtBlock);
 
-      tBlk = shortCircuitOptForBlock(block, TRUE, overlapFound,
-                                     zeroes, ones, neg1);
+      tBlk = shortCircuitOptForBlock(block, TRUE, overlapFound, zeroes, ones, neg1);
 
       restart = (tBlk != NULL) || restart;
 
-      tBlk = shortCircuitOptForBlock(block, FALSE, overlapFound,
-                                     zeroes, ones, neg1);
+      tBlk = shortCircuitOptForBlock(block, FALSE, overlapFound, zeroes, ones, neg1);
 
       restart = (tBlk != NULL) || restart;
     }
-  } ENDFE_BLOCK_DFO
+  }
+  ENDFE_BLOCK_DFO
 
   return restart;
 }
@@ -596,85 +548,75 @@ NABoolean PCodeCfg::shortCircuitOpt(Int32 flags)
 // Perform copy propagation in straight-lined code embodied in the passed-in
 // list of blocks.
 //
-void PCodeCfg::localCopyPropForPeeling(BLOCKLIST& blockList)
-{
+void PCodeCfg::localCopyPropForPeeling(BLOCKLIST &blockList) {
   CollIndex i;
 
   // Only process one block (i.e. "block") for now.
-  Int32 maxLevel = COPY_PROP_MAX_RECURSION-1;
+  Int32 maxLevel = COPY_PROP_MAX_RECURSION - 1;
 
-  for (i=0; i < blockList.entries(); i++) {
-    PCodeBlock* block = blockList[i];
+  for (i = 0; i < blockList.entries(); i++) {
+    PCodeBlock *block = blockList[i];
     FOREACH_INST_IN_BLOCK(block, inst) {
-      if ((inst = constantFold(inst, FALSE)) == NULL)
-        continue;
+      if ((inst = constantFold(inst, FALSE)) == NULL) continue;
 
       // If this is a MOVE instruction involving a constant source operand, we
       // should try and forward propagate it.
-      if (inst && inst->isMove() &&
-          inst->getWOps()[0]->hasSameLength(inst->getROps()[0]) &&
-          inst->getROps()[0]->isConst())
-      {
-        PCodeOperand* moveTgt = inst->getWOps()[0];
-        PCodeOperand* moveSrc = inst->getROps()[0];
+      if (inst && inst->isMove() && inst->getWOps()[0]->hasSameLength(inst->getROps()[0]) &&
+          inst->getROps()[0]->isConst()) {
+        PCodeOperand *moveTgt = inst->getWOps()[0];
+        PCodeOperand *moveSrc = inst->getROps()[0];
 
-        PCodeInst* next = inst->next;
-        PCodeBlock* startBlock = block;
+        PCodeInst *next = inst->next;
+        PCodeBlock *startBlock = block;
 
         // If the next instruction is null, then go into the next block.
         if (!next) {
-          if ((i+1) < blockList.entries()) {
-            startBlock = blockList[i+1];
+          if ((i + 1) < blockList.entries()) {
+            startBlock = blockList[i + 1];
             next = startBlock->getFirstInst();
-          }
-          else
+          } else
             continue;
         }
 
         // Call the copy prop functionality.
         copyPropForwardsHelper(startBlock, next, moveTgt, moveSrc, maxLevel);
       }
-    } ENDFE_INST_IN_BLOCK
+    }
+    ENDFE_INST_IN_BLOCK
   }
 }
 
 //
-// Perform short circuit optimizations for not null branches, making the 
+// Perform short circuit optimizations for not null branches, making the
 // assmption that the branch isn't taken, and thereby propagating the known
 // constant -1.
 //
-PCodeBlock* PCodeCfg::shortCircuitOptForBlock(PCodeBlock* block,
-                                              NABoolean assumeTaken,
-                                              NABoolean overlapFound,
-                                              const NABitVector& zeroesConst,
-                                              const NABitVector& onesConst,
-                                              const NABitVector& neg1Const)
-{
+PCodeBlock *PCodeCfg::shortCircuitOptForBlock(PCodeBlock *block, NABoolean assumeTaken, NABoolean overlapFound,
+                                              const NABitVector &zeroesConst, const NABitVector &onesConst,
+                                              const NABitVector &neg1Const) {
   CollIndex i;
   PCodeBlock *ftBlock, *tgtBlock, *newTgtBlock;
 
   NABitVector zeroes(heap_), ones(heap_), neg1(heap_);
   NABitVector savedZeroes(heap_), savedOnes(heap_), savedNeg1(heap_);
-  NABitVector stopSavedZeroes(heap_), stopSavedOnes(heap_),stopSavedNeg1(heap_);
+  NABitVector stopSavedZeroes(heap_), stopSavedOnes(heap_), stopSavedNeg1(heap_);
 
   NABoolean useStopSavedConstants = FALSE;
 
   BLOCKLIST blockList(heap_);
 
-  PCodeInst* lastInst = block->getLastInst();
+  PCodeInst *lastInst = block->getLastInst();
 
   Int32 numOfBranchesResolved = 0;
 
-  PCodeBlock* stopTgtBlock = NULL;
+  PCodeBlock *stopTgtBlock = NULL;
   CollIndex stopCopyBlockIndex = -1;
 
   // If this block doesn't even qualify for short circuiting, return NULL
-  if (!block->doesBlockQualifyForShortCircuit())
-    return NULL;
+  if (!block->doesBlockQualifyForShortCircuit()) return NULL;
 
   // If assumeTaken is TRUE, we do this only for logical branches
-  if (!lastInst->isLogicalBranch() && assumeTaken)
-    return NULL;
+  if (!lastInst->isLogicalBranch() && assumeTaken) return NULL;
 
   // First set up vectors to use what constants we already know
   zeroes += zeroesConst;
@@ -688,18 +630,15 @@ PCodeBlock* PCodeCfg::shortCircuitOptForBlock(PCodeBlock* block,
       ftBlock = block->getFallThroughBlock();
 
     block->fixupConstantVectors(ftBlock, zeroes, ones, neg1);
-  }
-  else
-  {
-    assert (assumeTaken == FALSE);
+  } else {
+    assert(assumeTaken == FALSE);
     setNeg1ConstantsForNullBranch(lastInst, zeroes, ones, neg1);
     ftBlock = block->getFallThroughBlock();
 
     // If the fall-through is an exit block such that no other block targets
     // it, then it is a waste of time to process this guy - no transformation
     // would occur.
-    if (ftBlock->isExitBlock() && (ftBlock->getPreds().entries() == 1))
-      return NULL;
+    if (ftBlock->isExitBlock() && (ftBlock->getPreds().entries() == 1)) return NULL;
   }
 
   tgtBlock = ftBlock;
@@ -710,16 +649,14 @@ PCodeBlock* PCodeCfg::shortCircuitOptForBlock(PCodeBlock* block,
   // If it doesn't end in a branch, it may still be possible to dig
   // deeper down.  Use local constant prop engine to dig down.
 
-  while (tgtBlock->getLastInst())
-  {
-    PCodeInst* deletedBranchInst = NULL;
+  while (tgtBlock->getLastInst()) {
+    PCodeInst *deletedBranchInst = NULL;
 
     // Make duplicate of target block for use by local constant prop
     // engine - it can make changes to the block's instrs, which we don't
     // want since we're taking a hypothetical approach first.
-    PCodeBlock* copyTgtBlock = copyCfg(tgtBlock, tgtBlock, NULL);
-    for (i=0; i < tgtBlock->getSuccs().entries(); i++)
-      copyTgtBlock->addSucc(tgtBlock->getSuccs()[i]);
+    PCodeBlock *copyTgtBlock = copyCfg(tgtBlock, tgtBlock, NULL);
+    for (i = 0; i < tgtBlock->getSuccs().entries(); i++) copyTgtBlock->addSucc(tgtBlock->getSuccs()[i]);
 
     // Get rid of branch inst at end of copy block since we are calling
     // local constant prop with the assumption that this block doesn't
@@ -758,14 +695,13 @@ PCodeBlock* PCodeCfg::shortCircuitOptForBlock(PCodeBlock* block,
 
     blockList.insert(copyTgtBlock);
     localCopyPropForPeeling(blockList);
-    blockList.removeAt(blockList.entries()-1);
+    blockList.removeAt(blockList.entries() - 1);
 
     // Perform local constant propagation on the target block
     localConstantPropagation(copyTgtBlock, zeroes, ones, neg1);
 
     // Add the branch inst back in, if it ever was there
-    if (deletedBranchInst)
-      copyTgtBlock->insertInstAfter(NULL, deletedBranchInst);
+    if (deletedBranchInst) copyTgtBlock->insertInstAfter(NULL, deletedBranchInst);
 
     // The exit block should always be considered when making super-blocks.
     // It may not, however, be included, if the superblock isn't long enough
@@ -782,53 +718,44 @@ PCodeBlock* PCodeCfg::shortCircuitOptForBlock(PCodeBlock* block,
       // We have an exit block that can gain from being peeled off because
       // others go to it.  In addition, we should make sure that constant
       // prop did something to warrant this.
-      if (tgtBlock->getPreds().entries() > 1)
-        numOfBranchesResolved++;
+      if (tgtBlock->getPreds().entries() > 1) numOfBranchesResolved++;
 
       break;
     }
 
-    // If we can determine the direction taken by the target block, get 
+    // If we can determine the direction taken by the target block, get
     // the target of the target block and save the target block in the
     // blocklist for later duplication.
     newTgtBlock = copyTgtBlock->determineTargetBlock(zeroes, ones, neg1);
 
     if (newTgtBlock) {
-      PCodeInst* last = copyTgtBlock->getLastInst();
+      PCodeInst *last = copyTgtBlock->getLastInst();
 
       // Lay out new blocks with the exit block duplicated - small optimization
       // meant primarily for better null-processing when nulls are predominant -
       // it gets rid of an extra branch.  And of course, lay out new blocks if
       // any branch (not unconditional branch since that's basically a
       // fall-through) is reduced.
-      if (last && last->isBranch())
-      {
+      if (last && last->isBranch()) {
         if (last->isUncBranch()) {
           numOfBranchesResolved++;
 
           // Don't normally do this, but try it.
           stopTgtBlock = NULL;
           stopCopyBlockIndex = -1;
-        }
-        else
-        {
+        } else {
           numOfBranchesResolved += 2;
           stopTgtBlock = NULL;
           stopCopyBlockIndex = -1;
         }
       }
 
-      if (last && last->isBranch())
-      {
-        PCodeInst* copy = copyTgtBlock->reduceBranch(newTgtBlock,
-                                                     zeroes, ones, neg1);
-        if (copy != NULL)
-          copyTgtBlock->insertInstAfter(NULL, copy);
+      if (last && last->isBranch()) {
+        PCodeInst *copy = copyTgtBlock->reduceBranch(newTgtBlock, zeroes, ones, neg1);
+        if (copy != NULL) copyTgtBlock->insertInstAfter(NULL, copy);
 
         copyTgtBlock->deleteInst(last);
-      }
-      else
-      {
+      } else {
         stopTgtBlock = tgtBlock;
         stopCopyBlockIndex = blockList.entries();
 
@@ -840,8 +767,7 @@ PCodeBlock* PCodeCfg::shortCircuitOptForBlock(PCodeBlock* block,
 
       blockList.insert(copyTgtBlock);
       tgtBlock = newTgtBlock;
-    }
-    else {
+    } else {
       copyTgtBlock->getSuccs().clear();
       deleteBlock(copyTgtBlock);
       break;
@@ -851,8 +777,7 @@ PCodeBlock* PCodeCfg::shortCircuitOptForBlock(PCodeBlock* block,
   if (stopTgtBlock == NULL) {
     stopTgtBlock = tgtBlock;
     stopCopyBlockIndex = blockList.entries();
-  }
-  else
+  } else
     useStopSavedConstants = TRUE;
 
   // Create new super-block if we found a path deeper than the block's
@@ -861,7 +786,7 @@ PCodeBlock* PCodeCfg::shortCircuitOptForBlock(PCodeBlock* block,
   // added to the list.
   if (numOfBranchesResolved <= 1) {
     // Do some cleanup
-    for (i=0; i < blockList.entries(); i++) {
+    for (i = 0; i < blockList.entries(); i++) {
       blockList[i]->getSuccs().clear();
       deleteBlock(blockList[i]);
     }
@@ -875,14 +800,13 @@ PCodeBlock* PCodeCfg::shortCircuitOptForBlock(PCodeBlock* block,
   // instructions, some instructions which may use the write will not get
   // removed.
 
-  if (!overlapFound && stopTgtBlock->getSuccs().isEmpty())
-  {
+  if (!overlapFound && stopTgtBlock->getSuccs().isEmpty()) {
     CollIndex i, j;
     NABitVector liveList(heap_);
 
     // Go through each block in reverse order
-    for (i=0; i < stopCopyBlockIndex; i++) {
-      PCodeBlock* block = blockList[stopCopyBlockIndex - 1 - i];
+    for (i = 0; i < stopCopyBlockIndex; i++) {
+      PCodeBlock *block = blockList[stopCopyBlockIndex - 1 - i];
 
       // Walk block backwards and remove dead instructions
       FOREACH_INST_IN_BLOCK_BACKWARDS(block, inst) {
@@ -890,14 +814,12 @@ PCodeBlock* PCodeCfg::shortCircuitOptForBlock(PCodeBlock* block,
         NABoolean remove = (inst->getWOps().entries() > 0);
 
         // If every write operand was not seen before subsequent write, remove
-        for (j=0; remove && (j < inst->getWOps().entries()); j++) {
-          PCodeOperand* op = inst->getWOps()[j];
+        for (j = 0; remove && (j < inst->getWOps().entries()); j++) {
+          PCodeOperand *op = inst->getWOps()[j];
 
-          if (liveList.contains(op->getBvIndex()))
-            remove = FALSE;
+          if (liveList.contains(op->getBvIndex())) remove = FALSE;
 
-          if ((!op->isTemp() && !op->isGarbage()) || op->isEmptyVarchar())
-            remove = FALSE;
+          if ((!op->isTemp() && !op->isGarbage()) || op->isEmptyVarchar()) remove = FALSE;
         }
 
         if (remove && !inst->isClauseEval()) {
@@ -906,35 +828,31 @@ PCodeBlock* PCodeCfg::shortCircuitOptForBlock(PCodeBlock* block,
         }
 
         // Remove writes to list
-        for (j=0; j < inst->getWOps().entries(); j++)
-          liveList -= inst->getWOps()[j]->getBvIndex();
+        for (j = 0; j < inst->getWOps().entries(); j++) liveList -= inst->getWOps()[j]->getBvIndex();
 
         // Add reads from list
-        for (j=0; j < inst->getROps().entries(); j++)
-          liveList += inst->getROps()[j]->getBvIndex();
-
-      } ENDFE_INST_IN_BLOCK_BACKWARDS
+        for (j = 0; j < inst->getROps().entries(); j++) liveList += inst->getROps()[j]->getBvIndex();
+      }
+      ENDFE_INST_IN_BLOCK_BACKWARDS
     }
   }
 
-  PCodeBlock* newBlock = createBlock();
+  PCodeBlock *newBlock = createBlock();
 
   // Loop through copy blocks and move instructions into new block
-  for (i=0; i < stopCopyBlockIndex; i++)
-  {
-    PCodeBlock* copyBlock = blockList[i];
-    FOREACH_INST_IN_BLOCK(copyBlock, copy) {
-      newBlock->insertInstAfter(NULL, copy);
-    } ENDFE_INST_IN_BLOCK
+  for (i = 0; i < stopCopyBlockIndex; i++) {
+    PCodeBlock *copyBlock = blockList[i];
+    FOREACH_INST_IN_BLOCK(copyBlock, copy) { newBlock->insertInstAfter(NULL, copy); }
+    ENDFE_INST_IN_BLOCK
   }
 
   // Do some cleanup
   // never the copy.
-  for (i=0; i < blockList.entries(); i++) {
+  for (i = 0; i < blockList.entries(); i++) {
     blockList[i]->getSuccs().clear();
     deleteBlock(blockList[i]);
   }
-      
+
   if (!stopTgtBlock->getSuccs().isEmpty()) {
     // Add a branch inst at the end of the new block - it will go to the
     // final target block discovered by the algorithm.  Only do this,
@@ -947,8 +865,7 @@ PCodeBlock* PCodeCfg::shortCircuitOptForBlock(PCodeBlock* block,
   block->removeEdge(ftBlock);
   if (assumeTaken) {
     block->addEdge(newBlock);
-  }
-  else {
+  } else {
     block->addFallThroughEdge(newBlock);
   }
 
@@ -960,8 +877,7 @@ PCodeBlock* PCodeCfg::shortCircuitOptForBlock(PCodeBlock* block,
     newBlock->zeroesVector = stopSavedZeroes;
     newBlock->onesVector = stopSavedOnes;
     newBlock->neg1Vector = stopSavedNeg1;
-  }
-  else {
+  } else {
     newBlock->zeroesVector = savedZeroes;
     newBlock->onesVector = savedOnes;
     newBlock->neg1Vector = savedNeg1;
@@ -974,29 +890,22 @@ PCodeBlock* PCodeCfg::shortCircuitOptForBlock(PCodeBlock* block,
 // Knowing that this block branches to the provided "to" block, we may be able
 // to reduce the branch into some other inst.
 //
-PCodeInst*
-PCodeBlock::reduceBranch(PCodeBlock* to,
-                         NABitVector& zeroes,
-                         NABitVector& ones,
-                         NABitVector& neg1)
-{
-  PCodeInst* newInst = NULL;
+PCodeInst *PCodeBlock::reduceBranch(PCodeBlock *to, NABitVector &zeroes, NABitVector &ones, NABitVector &neg1) {
+  PCodeInst *newInst = NULL;
   PCodeOperand *write, *read;
   Int32 constant = 0;
 
-  PCodeInst* inst = getLastInst();
+  PCodeInst *inst = getLastInst();
   Int32 opc = inst->getOpcode();
 
-  switch (opc)
-  {
+  switch (opc) {
     case PCIT::NNB_MATTR3_IBIN32S:
     case PCIT::NOT_NULL_BRANCH_MBIN16S_IBIN32S:
     case PCIT::BRANCH:
       return NULL;
       break;
 
-    case PCIT::NNB_SPECIAL_NULLS_MBIN32S_MATTR3_MATTR3_IBIN32S_IBIN32S:
-    {
+    case PCIT::NNB_SPECIAL_NULLS_MBIN32S_MATTR3_MATTR3_IBIN32S_IBIN32S: {
       constant = (to == getTargetBlock()) ? 0 : 1;
 
       CollIndex bvIndex1 = inst->getROps()[0]->getBvIndex();
@@ -1008,7 +917,7 @@ PCodeBlock::reduceBranch(PCodeBlock* to,
       if (constant == 1) {
         write = inst->getWOps()[0];
 
-        PCodeOperand* op = (c1 == -1) ? inst->getROps()[1] : inst->getROps()[0];
+        PCodeOperand *op = (c1 == -1) ? inst->getROps()[1] : inst->getROps()[0];
 
         // TODO: If we could just tell this routine which operand was known to
         // be negative at the time this decision was made, we could use a
@@ -1018,20 +927,18 @@ PCodeBlock::reduceBranch(PCodeBlock* to,
         // guard against this, since there is no EQ for bits in bitmap.  TODO:
         // add an EQ_MATTR3_MATTR3 to check if two null bits are the same.
 
-        newInst =
-          cfg_->createInst(PCIT::NULL_TEST_MBIN32S_MATTR5_IBIN32S_IBIN32S);
+        newInst = cfg_->createInst(PCIT::NULL_TEST_MBIN32S_MATTR5_IBIN32S_IBIN32S);
 
         newInst->code[1] = write->getStackIndex();
         newInst->code[2] = write->getOffset();
         newInst->code[3] = op->getStackIndex();
         newInst->code[4] = op->getOffset();
-        newInst->code[5] = -1; // voa that's unnecessary.
-        newInst->code[6] = (op->forAlignedFormat())
-                             ? ExpTupleDesc::SQLMX_ALIGNED_FORMAT
-                             : ExpTupleDesc::SQLARK_EXPLODED_FORMAT;
+        newInst->code[5] = -1;  // voa that's unnecessary.
+        newInst->code[6] =
+            (op->forAlignedFormat()) ? ExpTupleDesc::SQLMX_ALIGNED_FORMAT : ExpTupleDesc::SQLARK_EXPLODED_FORMAT;
         newInst->code[7] = op->getNullBitIndex();
-        newInst->code[8] = 0;  // No voa lookup needed.
-        newInst->code[9] = -1; // Test for NULL
+        newInst->code[8] = 0;   // No voa lookup needed.
+        newInst->code[9] = -1;  // Test for NULL
 
 #if 0
         newInst = cfg_->createInst(PCIT::EQ_MBIN32S_MBIN16S_MBIN16S);
@@ -1074,19 +981,16 @@ PCodeBlock::reduceBranch(PCodeBlock* to,
         cfg_->loadOperandsOfInst(newInst);
 
         return newInst;
-      }
-      else
+      } else
         newInst = cfg_->createInst(PCIT::MOVE_MBIN16U_IBIN16U);
 
       break;
 
     case PCIT::NOT_NULL_BRANCH_MBIN32S_MBIN16S_IBIN32S_IBIN32S:
     case PCIT::NNB_MBIN32S_MATTR3_IBIN32S_IBIN32S:
-      if (getTargetBlock() == to)
-        return NULL;
+      if (getTargetBlock() == to) return NULL;
 
-      constant = (opc == PCIT::NNB_MBIN32S_MATTR3_IBIN32S_IBIN32S)
-                   ? inst->code[6] : inst->code[5];
+      constant = (opc == PCIT::NNB_MBIN32S_MATTR3_IBIN32S_IBIN32S) ? inst->code[6] : inst->code[5];
       newInst = cfg_->createInst(PCIT::MOVE_MBIN32S_IBIN32S);
       break;
 
@@ -1137,26 +1041,19 @@ PCodeBlock::reduceBranch(PCodeBlock* to,
 // Given a set of constant vectors, see if we can determine what direction the
 // branch for this block takes. Return the identified target block.
 //
-PCodeBlock*
-PCodeBlock::determineTargetBlock(NABitVector& zeroes,
-                                 NABitVector& ones,
-                                 NABitVector& neg1)
-{
+PCodeBlock *PCodeBlock::determineTargetBlock(NABitVector &zeroes, NABitVector &ones, NABitVector &neg1) {
   CollIndex bvIndex1, bvIndex2;
 
-
-  PCodeInst* inst = getLastInst();
+  PCodeInst *inst = getLastInst();
   Int32 const1, const2;
 
   // If the block doesn't have a branch, or the block is empty, then the
   // default target is the fall-through block
-  if (!inst || (!inst->isBranch() && getSuccs().entries()))
-    return getFallThroughBlock();
+  if (!inst || (!inst->isBranch() && getSuccs().entries())) return getFallThroughBlock();
 
   Int32 opc = inst->getOpcode();
 
-  switch(opc)
-  {
+  switch (opc) {
     case PCIT::BRANCH:
       return getTargetBlock();
       break;
@@ -1169,29 +1066,23 @@ PCodeBlock::determineTargetBlock(NABitVector& zeroes,
       const2 = PCodeConstants::getConstantValue(bvIndex2, zeroes, ones, neg1);
 
       if ((const1 == 0) && (const2 == 0)) {
-        PCodeConstants::setConstantInVectors(0,
-          inst->getWOps()[0]->getBvIndex(), zeroes, ones, neg1);
+        PCodeConstants::setConstantInVectors(0, inst->getWOps()[0]->getBvIndex(), zeroes, ones, neg1);
         return getTargetBlock();
-      }
-      else if ((const1 == -1) || (const2 == -1)) {
+      } else if ((const1 == -1) || (const2 == -1)) {
         // If both are -1, then you know the result.  Otherwise, all you know
         // is that we fall through
         if (const1 == const2) {
-          PCodeConstants::setConstantInVectors(1,
-            inst->getWOps()[0]->getBvIndex(), zeroes, ones, neg1);
+          PCodeConstants::setConstantInVectors(1, inst->getWOps()[0]->getBvIndex(), zeroes, ones, neg1);
         }
         return getFallThroughBlock();
       }
       break;
 
-
     case PCIT::NOT_NULL_BRANCH_MBIN32S_MBIN32S_IATTR3_IBIN32S:
     case PCIT::NOT_NULL_BRANCH_COMP_MBIN32S_MBIN32S_IATTR3_IBIN32S:
       // TODO: no support for indirect varchars.  Run sanity check before
       // we fall-through.
-      if ((inst->getROps()[0]->getOffset() < 0) ||
-          (inst->getWOps()[0]->getOffset() < 0))
-        break;
+      if ((inst->getROps()[0]->getOffset() < 0) || (inst->getWOps()[0]->getOffset() < 0)) break;
 
     case PCIT::NOT_NULL_BRANCH_MBIN16S_MBIN16S_IBIN32S:
     case PCIT::NOT_NULL_BRANCH_MBIN32S_MBIN16S_IBIN32S:
@@ -1201,34 +1092,25 @@ PCodeBlock::determineTargetBlock(NABitVector& zeroes,
       bvIndex1 = inst->getROps()[0]->getBvIndex();
       bvIndex2 = inst->getWOps()[0]->getBvIndex();
 
-      if (PCodeConstants::isAnyKnownConstant(bvIndex1, zeroes, ones, neg1))
-      {
+      if (PCodeConstants::isAnyKnownConstant(bvIndex1, zeroes, ones, neg1)) {
         const1 = PCodeConstants::getConstantValue(bvIndex1, zeroes, ones, neg1);
         NABoolean canBeOneOrNeg1 = !PCodeConstants::canBeZero(bvIndex1, zeroes);
 
-        if ((const1 == -1) || (const1 == 1) || (canBeOneOrNeg1))
-        {
+        if ((const1 == -1) || (const1 == 1) || (canBeOneOrNeg1)) {
           if (opc == PCIT::NOT_NULL_BRANCH_MBIN32S_MBIN16S_IBIN32S_IBIN32S) {
-            PCodeConstants::setConstantInVectors(inst->code[5], bvIndex2,
-                                                 zeroes, ones, neg1);
-          }
-          else if (opc == PCIT::NNB_MBIN32S_MATTR3_IBIN32S_IBIN32S) {
-            PCodeConstants::setConstantInVectors(inst->code[6], bvIndex2,
-                                                 zeroes, ones, neg1);
-          }
-          else {
+            PCodeConstants::setConstantInVectors(inst->code[5], bvIndex2, zeroes, ones, neg1);
+          } else if (opc == PCIT::NNB_MBIN32S_MATTR3_IBIN32S_IBIN32S) {
+            PCodeConstants::setConstantInVectors(inst->code[6], bvIndex2, zeroes, ones, neg1);
+          } else {
             PCodeConstants::clearConstantVectors(bvIndex2, zeroes, ones, neg1);
-            PCodeConstants::copyConstantVectors(bvIndex1, bvIndex2,
-                                                zeroes, ones, neg1);
+            PCodeConstants::copyConstantVectors(bvIndex1, bvIndex2, zeroes, ones, neg1);
           }
 
           return getFallThroughBlock();
-        }
-        else if (const1 == 0) {
+        } else if (const1 == 0) {
           if ((opc != PCIT::NOT_NULL_BRANCH_MBIN32S_MBIN16S_IBIN32S_IBIN32S) &&
               (opc != PCIT::NNB_MBIN32S_MATTR3_IBIN32S_IBIN32S))
-            PCodeConstants::setConstantInVectors(0, bvIndex2,
-                                                 zeroes, ones, neg1);
+            PCodeConstants::setConstantInVectors(0, bvIndex2, zeroes, ones, neg1);
 
           return getTargetBlock();
         }
@@ -1240,22 +1122,17 @@ PCodeBlock::determineTargetBlock(NABitVector& zeroes,
       bvIndex1 = inst->getROps()[0]->getBvIndex();
       bvIndex2 = inst->getWOps()[0]->getBvIndex();
 
-      if (PCodeConstants::isAnyKnownConstant(bvIndex1, zeroes, ones, neg1))
-      {
+      if (PCodeConstants::isAnyKnownConstant(bvIndex1, zeroes, ones, neg1)) {
         const1 = PCodeConstants::getConstantValue(bvIndex1, zeroes, ones, neg1);
         NABoolean canBeZeroOrNeg1 = !PCodeConstants::canBeOne(bvIndex1, ones);
 
-        if ((const1 == -1) || (const1 == 0) || (canBeZeroOrNeg1))
-        {
+        if ((const1 == -1) || (const1 == 0) || (canBeZeroOrNeg1)) {
           PCodeConstants::clearConstantVectors(bvIndex2, zeroes, ones, neg1);
-          PCodeConstants::copyConstantVectors(bvIndex1, bvIndex2,
-                                              zeroes, ones, neg1);
+          PCodeConstants::copyConstantVectors(bvIndex1, bvIndex2, zeroes, ones, neg1);
 
           return getFallThroughBlock();
-        }
-        else if (const1 == 1) {
-          PCodeConstants::setConstantInVectors(const1, bvIndex2,
-                                               zeroes, ones, neg1);
+        } else if (const1 == 1) {
+          PCodeConstants::setConstantInVectors(const1, bvIndex2, zeroes, ones, neg1);
           return getTargetBlock();
         }
       }
@@ -1278,8 +1155,7 @@ PCodeBlock::determineTargetBlock(NABitVector& zeroes,
     case PCIT::NOT_NULL_BRANCH_MBIN32S_MBIN32S_MBIN32S_IATTR4_IBIN32S:
       // TODO: no support for indirect varchars.  Run sanity check before
       // we fall-through.
-      if ((inst->getROps()[0]->getOffset() < 0) ||
-          (inst->getROps()[1]->getOffset() < 0) ||
+      if ((inst->getROps()[0]->getOffset() < 0) || (inst->getROps()[1]->getOffset() < 0) ||
           (inst->getWOps()[0]->getOffset() < 0))
         break;
 
@@ -1292,13 +1168,10 @@ PCodeBlock::determineTargetBlock(NABitVector& zeroes,
       const2 = PCodeConstants::getConstantValue(bvIndex2, zeroes, ones, neg1);
 
       if ((const1 == 0) && (const2 == 0)) {
-        PCodeConstants::setConstantInVectors(0, 
-          inst->getWOps()[0]->getBvIndex(), zeroes, ones, neg1);
+        PCodeConstants::setConstantInVectors(0, inst->getWOps()[0]->getBvIndex(), zeroes, ones, neg1);
         return getTargetBlock();
-      }
-      else if ((const1 == -1) || (const2 == -1)) {
-        PCodeConstants::setConstantInVectors(-1, 
-          inst->getWOps()[0]->getBvIndex(), zeroes, ones, neg1);
+      } else if ((const1 == -1) || (const2 == -1)) {
+        PCodeConstants::setConstantInVectors(-1, inst->getWOps()[0]->getBvIndex(), zeroes, ones, neg1);
 
         return getFallThroughBlock();
       }
@@ -1313,20 +1186,15 @@ PCodeBlock::determineTargetBlock(NABitVector& zeroes,
 // Make the assumption that the provided instruction (a null branch) is not
 // taken, and set the known constants for the operands involved in the inst.
 //
-static void setNeg1ConstantsForNullBranch(PCodeInst* inst,
-                                          NABitVector& zeroes,
-                                          NABitVector& ones,
-                                          NABitVector& neg1)
-{
+static void setNeg1ConstantsForNullBranch(PCodeInst *inst, NABitVector &zeroes, NABitVector &ones, NABitVector &neg1) {
   CollIndex bvIndex1, bvIndex2;
   Int32 opc = inst->getOpcode();
 
-  switch(opc) {
+  switch (opc) {
     case PCIT::NOT_NULL_BRANCH_MBIN32S_MBIN32S_IATTR3_IBIN32S:
     case PCIT::NOT_NULL_BRANCH_COMP_MBIN32S_MBIN32S_IATTR3_IBIN32S:
       // TODO: nullable indirect varchars not supported just yet as tgts.
-      if (inst->getWOps()[0]->getOffset() < 0)
-        break;
+      if (inst->getWOps()[0]->getOffset() < 0) break;
 
       // If read is a varchar also, then just mark the write operand.  Otherwise
       // fall through to the next case to mark both operands as -1.
@@ -1361,8 +1229,7 @@ static void setNeg1ConstantsForNullBranch(PCodeInst* inst,
     case PCIT::NOT_NULL_BRANCH_MBIN32S_MBIN32S_MBIN32S_IATTR4_IBIN32S:
       // TODO: nullable indirect varchars not supported just yet as tgts.
       // Fall-through otherwise.
-      if (inst->getWOps()[0]->getOffset() < 0)
-        break;
+      if (inst->getWOps()[0]->getOffset() < 0) break;
 
     case PCIT::NOT_NULL_BRANCH_MBIN32S_MBIN16S_MBIN16S_IBIN32S:
     case PCIT::NOT_NULL_BRANCH_MBIN16S_MBIN16S_MBIN16S_IBIN32S:

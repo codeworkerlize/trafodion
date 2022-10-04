@@ -18,24 +18,23 @@ extern "C" {
  * Method:    setResultInfo
  * Signature: (J[[B[[B[I[I[J[[B[III)I
  */
-JNIEXPORT jint JNICALL Java_org_trafodion_sql_MTableClient_setResultInfo
-  (JNIEnv *, jobject, jlong, jobjectArray, jobjectArray, jintArray, jintArray, jlongArray, jobjectArray, jintArray, jint, jint);
+JNIEXPORT jint JNICALL Java_org_trafodion_sql_MTableClient_setResultInfo(JNIEnv *, jobject, jlong, jobjectArray,
+                                                                         jobjectArray, jintArray, jintArray, jlongArray,
+                                                                         jobjectArray, jintArray, jint, jint);
 
 /*
  * Class:     org_trafodion_sql_MTableClient
  * Method:    cleanup
  * Signature: (J)V
  */
-JNIEXPORT void JNICALL Java_org_trafodion_sql_MTableClient_cleanup
-  (JNIEnv *, jobject, jlong);
+JNIEXPORT void JNICALL Java_org_trafodion_sql_MTableClient_cleanup(JNIEnv *, jobject, jlong);
 
 /*
  * Class:     org_trafodion_sql_MTableClient
  * Method:    setJavaObject
  * Signature: (J)I
  */
-JNIEXPORT jint JNICALL Java_org_trafodion_sql_MTableClient_setJavaObject
-  (JNIEnv *, jobject, jlong);
+JNIEXPORT jint JNICALL Java_org_trafodion_sql_MTableClient_setJavaObject(JNIEnv *, jobject, jlong);
 
 #ifdef __cplusplus
 }

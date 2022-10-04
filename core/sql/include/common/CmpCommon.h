@@ -35,7 +35,6 @@
  *****************************************************************************
  */
 
-
 #ifndef CMPCOMMON_H
 #define CMPCOMMON_H
 
@@ -47,20 +46,16 @@ class ComDiagsArea;
 
 #include "common/Platform.h"
 #include "export/ComDiags.h"
-#include "common/ComTransInfo.h"       
-#include "common/ComObjectName.h"       
+#include "common/ComTransInfo.h"
+#include "common/ComObjectName.h"
 #include "sqlcomp/DefaultConstants.h"
 #include "eh/EHException.h"
 #include "common/NAAssert.h"
 #include <vector>
 
-//use char* as key of std::map
-struct Char_Compare
-{
-    int operator()(const char *s1, const char *s2) const
-    {
-        return strcmp(s1, s2) < 0;
-    }
+// use char* as key of std::map
+struct Char_Compare {
+  int operator()(const char *s1, const char *s2) const { return strcmp(s1, s2) < 0; }
 };
 
 // CmpContext contains the global information for arkcmp, defined in arkcmp
@@ -72,26 +67,24 @@ class CmpContext;
 class CmpContextInfo;
 class CmpStatement;
 
-// For ComDiagsArea and memory handling, use the following static functions 
+// For ComDiagsArea and memory handling, use the following static functions
 // in CmpCommon.
 
-class CmpCommon
-{
-public:
-
-  // To get the current ComDiagsArea*, use diags(). This area will be 
+class CmpCommon {
+ public:
+  // To get the current ComDiagsArea*, use diags(). This area will be
   // cleanup up in the beginning of the statement compilation. In the
   // case of CMPASSERT called, an internal error ComCondition will be
   // put into the diags() with the file name and line number specified.
 
-  static ComDiagsArea* diags();
+  static ComDiagsArea *diags();
 
   // This routine dumps all diags messages in CmpCommon::diags() out to a given ostream.
- 
-  static void dumpDiags(ostream&, NABoolean newline = FALSE);
+
+  static void dumpDiags(ostream &, NABoolean newline = FALSE);
 
   // Some notes about memory management
-  // arkcmp (compiler main program) maintains two kind of heaps, 
+  // arkcmp (compiler main program) maintains two kind of heaps,
   // contextHeap and statementHeap.
   // For variables that will stay accross the statements, they should
   // be allocated in the contextHeap, because statementHeap will be
@@ -104,7 +97,7 @@ public:
   //         contextHeap->init();
   //         statementHeap;
   //          .....
-  //         contextHeap->cleanup(); 
+  //         contextHeap->cleanup();
   //      }  the statementHeap is deleted at this point
   // }
   //
@@ -112,9 +105,9 @@ public:
   //         or cleaned up, put them into init() and cleanup() routines.
   // Note 2: VERY IMPORTANT
   //         e.g. an instance of class A is in the scope of contextHeap
-  //         class A { char* p; }, 
+  //         class A { char* p; },
   //         - if p is allocated in the scope of statementHeap ( which will
-  //           be deleted in the end of statement), it can not be deleted in 
+  //           be deleted in the end of statement), it can not be deleted in
   //           the the next statement loop. The suggestion will be delete p
   //           in cleanup(), or if you need to use p for next statement, put
   //           it into the scope of contextHeap (i.e. new(contextHeap) char[])
@@ -123,12 +116,12 @@ public:
   // statementHeap, so that they will be wiped at the end of each statement.
   // Only very few should be put into contextHeap, then delete has to be
   // performed to avoid memory leak.
-  // **IMPORTANT NOTE** : The memory allocated from this heap should be 
+  // **IMPORTANT NOTE** : The memory allocated from this heap should be
   // deleted accordingly when not in use, otherwise memory leak.
   //  **IMPORTANT NOTE** : The variables allocated through this heap can not
-  // be reused in next statement, otherwise memory fault. 
+  // be reused in next statement, otherwise memory fault.
   // To allocate the space for contextHeap, use the overloaded new with
-  // CmpCommon::contextHeap() as the NAMemory*, 
+  // CmpCommon::contextHeap() as the NAMemory*,
   // To allocate the space for statementHeap, use the overloaded new with
   // CmpCommon::statementHeap() as the NAMemory*
   // use global new/delete will get the space from global new/delete.
@@ -138,33 +131,33 @@ public:
   // "HEAP" is a synonym for STMTHEAP, a default as it were, for the most
   // commonly new'd-from heap.
 
-  #define CTXTHEAP	(CmpCommon::contextHeap())
-  #define STMTHEAP	(CmpCommon::statementHeap())
-  #define HEAP		STMTHEAP			// the commonest case
+#define CTXTHEAP (CmpCommon::contextHeap())
+#define STMTHEAP (CmpCommon::statementHeap())
+#define HEAP     STMTHEAP  // the commonest case
 
-  static NAMemory * contextHeap();
-  static NAHeap * statementHeap();
+  static NAMemory *contextHeap();
+  static NAHeap *statementHeap();
 
-  #define CURRENTSTMT (CmpCommon::statement())
-  #define CURRSTMT_OPTGLOBALS  (CmpCommon::statement()->getOptGlobals())
-  #define CURRSTMT_CQSWA  (CmpCommon::statement()->getCqsWA())
-  #define CURRCONTEXT_OPTDEBUG (CmpCommon::context()->getOptDbg())
-  #define CURRCONTEXT_HISTCACHE (CmpCommon::context()->getHistogramCache())
-  #define CURRCONTEXT_OPTSIMULATOR (CmpCommon::context()->getOptimizerSimulator())
-  #define GLOBAL_EMPTY_INPUT_LOGPROP (CmpCommon::statement()->getGEILP())
-  #define CURRCONTEXT_CLUSTERINFO (CmpCommon::context()->getClusterInfo())
-  #define CURRSTMT_OPTDEFAULTS (CmpCommon::context()->getOptDefaults())
+#define CURRENTSTMT                (CmpCommon::statement())
+#define CURRSTMT_OPTGLOBALS        (CmpCommon::statement()->getOptGlobals())
+#define CURRSTMT_CQSWA             (CmpCommon::statement()->getCqsWA())
+#define CURRCONTEXT_OPTDEBUG       (CmpCommon::context()->getOptDbg())
+#define CURRCONTEXT_HISTCACHE      (CmpCommon::context()->getHistogramCache())
+#define CURRCONTEXT_OPTSIMULATOR   (CmpCommon::context()->getOptimizerSimulator())
+#define GLOBAL_EMPTY_INPUT_LOGPROP (CmpCommon::statement()->getGEILP())
+#define CURRCONTEXT_CLUSTERINFO    (CmpCommon::context()->getClusterInfo())
+#define CURRSTMT_OPTDEFAULTS       (CmpCommon::context()->getOptDefaults())
 
-  // For some routines that do care about the current CmpContext*. 
+  // For some routines that do care about the current CmpContext*.
   // If you need to declare some global/static variables in the scope of
   // context, put them into CmpContext class. (arkcmp/CmpContext.[Ch])
   // To access the variables in current Context, use
   // CmpCommon::context()->...
-  static CmpContext* context();
+  static CmpContext *context();
 
-  #define CURRENTQCACHE (CmpCommon::context()->getQueryCache())
+#define CURRENTQCACHE (CmpCommon::context()->getQueryCache())
 
-  #define GlobalRuleSet (CmpCommon::context()->getRuleSet())
+#define GlobalRuleSet (CmpCommon::context()->getRuleSet())
 
   // The following functions allow access to the defaults table
   // in sqlcomp/NADefaults.cpp.  Given the id number of the default,
@@ -176,75 +169,77 @@ public:
   // The third one doesn't have the overhead of returning the value
   // as a string. This one should be used most of the time.
   //
-  static Lng32         getDefaultLong(DefaultConstants id);
-  static double        getDefaultNumeric(DefaultConstants id);
-  static NAString       getDefaultString(DefaultConstants id);
-  static DefaultToken getDefault(DefaultConstants id,
-  				 NAString &result,
-				 Int32 errOrWarn =-1);
-  static DefaultToken getDefault(DefaultConstants id,
-				 Int32 errOrWarn = -1);
+  static Lng32 getDefaultLong(DefaultConstants id);
+  static double getDefaultNumeric(DefaultConstants id);
+  static NAString getDefaultString(DefaultConstants id);
+  static DefaultToken getDefault(DefaultConstants id, NAString &result, Int32 errOrWarn = -1);
+  static DefaultToken getDefault(DefaultConstants id, Int32 errOrWarn = -1);
   static NABoolean wantCharSetInference();
 
   static void applyDefaults(ComObjectName &name);
 
-  // The current statement under process. 
+  // The current statement under process.
   // If you need to declare some global/static variables in the scope of
   // statement, put them into CmpStatement (arkcmp/CmpStatement.[Ch])
   // To access the variables in current statement, use
   // CmpCommon::statement()->....
-  static CmpStatement* statement();
+  static CmpStatement *statement();
 
   // The TransMode for the current statement.  Was in generator.cpp previously.
-  static TransMode * transMode(); 
+  static TransMode *transMode();
 
-  static const NAString * getControlSessionValue(const NAString &token);
+  static const NAString *getControlSessionValue(const NAString &token);
 
-  //return original type of authentication
+  // return original type of authentication
   static ComAuthenticationType loadAuthenticationType();
   static NABoolean loadPasswordCheckSyntax(ComPwdPolicySyntax &syntax, NABoolean skipEnvVar = FALSE);
 
-  //dbsecurity component can't include Globals.h && ContextCli.h
-  //sqlci can't include ContextCli.h
+  // dbsecurity component can't include Globals.h && ContextCli.h
+  // sqlci can't include ContextCli.h
   static ComAuthenticationType getAuthenticationType();
   static ComPwdPolicySyntax getPasswordCheckSyntax();
   static void setPasswordCheckSyntax(ComPwdPolicySyntax);
   static void setAuthenticationType(ComAuthenticationType);
   static bool isModuleOpen(int);
   static NABoolean isUninitializedSeabase();
-  static NABoolean ConvertPasswordPolicyString(const char *str, ComPwdPolicySyntax &syntax, const char *where, bool justWarning = true);
-  static void letsQuerycacheToInvalidated(std::vector<int32_t>&, std::vector<int32_t>&);
+  static NABoolean ConvertPasswordPolicyString(const char *str, ComPwdPolicySyntax &syntax, const char *where,
+                                               bool justWarning = true);
+  static void letsQuerycacheToInvalidated(std::vector<int32_t> &, std::vector<int32_t> &);
   static void getDifferenceWithTwoVector(std::vector<int32_t> &, std::vector<int32_t> &, std::vector<int32_t> &);
-  //for std::sort
-  static inline bool char_comp(const char *s1, const char *s2)
-  {
-      return strcmp(s1, s2) < 0;
-  }
+  // for std::sort
+  static inline bool char_comp(const char *s1, const char *s2) { return strcmp(s1, s2) < 0; }
 };
 
 // For exception handling, use CMPASSERT, CMPBREAK and CMPABORT macros
 
 // CMPASSERT is used in the case of internal error. It will
 // put an internal error into the global diags area (the diags that
-// arkcmp passes into each routine) with the file name and line specified. 
-// Clean up the statement heap and wait for next statement 
+// arkcmp passes into each routine) with the file name and line specified.
+// Clean up the statement heap and wait for next statement
 // request if possible.
 // Notice this *always* asserts something, even if NDEBUG is TRUE.
 //
-#define CMPASSERT(b)                                                    \
-  { if (!(b)) CmpAssertInternal("" # b "", __FILE__, __LINE__); }
+#define CMPASSERT(b)                                           \
+  {                                                            \
+    if (!(b)) CmpAssertInternal("" #b "", __FILE__, __LINE__); \
+  }
 
-#define CMPASSERT_STRING(b,str)                         \
-  { if (!(b)) { cerr << str << endl; CMPASSERT(b); }}
+#define CMPASSERT_STRING(b, str) \
+  {                              \
+    if (!(b)) {                  \
+      cerr << str << endl;       \
+      CMPASSERT(b);              \
+    }                            \
+  }
 
 // The following DCMPASSERT is for supporting an assert mechanism for the
 // compiler that gets disabled in RELEASE (NDEBUG) code:
 //
 #ifndef NDEBUG
-#define DCMPASSERT(x)	 CMPASSERT(x); 
+#define DCMPASSERT(x) CMPASSERT(x);
 
 #else
-  #define DCMPASSERT(x) 
+#define DCMPASSERT(x)
 #endif
 
 #define CMPBREAK CMPASSERT(FALSE)
@@ -252,15 +247,15 @@ public:
 // CMPABORT will just exit the program. It is used in the case of
 // server error, so the program (process) can not continue anymore.
 //
-#define CMPABORT            CmpAbortInternal("", __FILE__, __LINE__);
-#define CMPABORT_MSG(b)     CmpAbortInternal(b, __FILE__, __LINE__);
+#define CMPABORT        CmpAbortInternal("", __FILE__, __LINE__);
+#define CMPABORT_MSG(b) CmpAbortInternal(b, __FILE__, __LINE__);
 
-extern ARKCMP_PRIVATE void CmpAssertInternal(const char*, const char*, Int32);
-extern ARKCMP_PRIVATE void CmpAbortInternal(const char*, const char*, Int32);
-extern THREAD_P ARKCMP_PRIVATE CmpContext* cmpCurrentContext;
+extern ARKCMP_PRIVATE void CmpAssertInternal(const char *, const char *, Int32);
+extern ARKCMP_PRIVATE void CmpAbortInternal(const char *, const char *, Int32);
+extern THREAD_P ARKCMP_PRIVATE CmpContext *cmpCurrentContext;
 
-extern THREAD_P ARKCMP_PRIVATE jmp_buf* ExportJmpBufPtr;
-extern THREAD_P ARKCMP_PRIVATE jmp_buf* CmpInternalErrorJmpBufPtr;
+extern THREAD_P ARKCMP_PRIVATE jmp_buf *ExportJmpBufPtr;
+extern THREAD_P ARKCMP_PRIVATE jmp_buf *CmpInternalErrorJmpBufPtr;
 
 extern void deinitializeArkcmp();
 

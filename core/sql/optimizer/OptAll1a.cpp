@@ -114,7 +114,7 @@
 #include "tasks.cpp"
 // need reordering
 #include "AccessSets.cpp"
-#include "TriggerDB.cpp"  
-#include "optimizer/Triggers.h"  
-#include "OptTrigger.cpp"  
+#include "TriggerDB.cpp"
+#include "optimizer/Triggers.h"
+#include "OptTrigger.cpp"
 #include "InliningInfo.cpp"

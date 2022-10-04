@@ -7,7 +7,7 @@
  * Description:  Classes representing SALT BY clause specified in
  *               create DDL for HBase objects
  *
- *               
+ *
  * Created:      8/27/2013
  * Language:     C++
  *
@@ -48,62 +48,48 @@
 class ElemDDLSaltOptionsClause;
 
 // -----------------------------------------------------------------------
-// class ElemDDLSaltOptionsClause 
+// class ElemDDLSaltOptionsClause
 // -----------------------------------------------------------------------
 
-class ElemDDLSaltOptionsClause : public ElemDDLNode
-{
-
-public:
-
+class ElemDDLSaltOptionsClause : public ElemDDLNode {
+ public:
   //
   // constructors
   //
 
-  ElemDDLSaltOptionsClause(ElemDDLNode * pSaltExprTree,
-                           Int32 numPartitions,
-                           Int32 numRegions = -1);
+  ElemDDLSaltOptionsClause(ElemDDLNode *pSaltExprTree, Int32 numPartitions, Int32 numRegions = -1);
 
-  ElemDDLSaltOptionsClause( NABoolean likeTable);
+  ElemDDLSaltOptionsClause(NABoolean likeTable);
 
   // virtual destructor
   virtual ~ElemDDLSaltOptionsClause();
 
   // casting
-  virtual ElemDDLSaltOptionsClause * castToElemDDLSaltOptionsClause();
+  virtual ElemDDLSaltOptionsClause *castToElemDDLSaltOptionsClause();
 
   //
   // accessors
   //
 
-  inline Int32 getNumPartitions() const
-  {
-    return numPartitions_;
-  }
+  inline Int32 getNumPartitions() const { return numPartitions_; }
 
-  inline Int32 getNumInitialRegions() const
-  {
-    return numInitialRegions_;
-  }
+  inline Int32 getNumInitialRegions() const { return numInitialRegions_; }
 
-  inline ElemDDLColRefArray & getSaltColRefArray()
-  {
-    return saltColumnArray_;
-  }
+  inline ElemDDLColRefArray &getSaltColRefArray() { return saltColumnArray_; }
 
   // get the degree of this node
   virtual Int32 getArity() const;
-  virtual ExprNode * getChild(Lng32 index);
+  virtual ExprNode *getChild(Lng32 index);
   // name we choose for the system column that contains the salting value
-  static const char * getSaltSysColName() { return "_SALT_"; }
+  static const char *getSaltSysColName() { return "_SALT_"; }
 
   //
   // mutators
   //
 
-  void setChild(Lng32 index, ExprNode * pChildNode);
+  void setChild(Lng32 index, ExprNode *pChildNode);
 
-  void setNumPartns(Int32 numPartns) {numPartitions_ = numPartns;}
+  void setNumPartns(Int32 numPartns) { numPartitions_ = numPartns; }
 
   //
   // methods for tracing and/or building text
@@ -113,16 +99,15 @@ public:
 
   NABoolean getLikeTable() const;
 
-  void unparseIt(NAString & result) const;
+  void unparseIt(NAString &result) const;
 
-private:
-
+ private:
   //
   // Private methods
   //
 
-  ElemDDLSaltOptionsClause(const ElemDDLSaltOptionsClause & rhs) ; // not defined - DO NOT USE
-  ElemDDLSaltOptionsClause & operator=(const ElemDDLSaltOptionsClause & rhs) ; // not defined - DO NOT USE
+  ElemDDLSaltOptionsClause(const ElemDDLSaltOptionsClause &rhs);             // not defined - DO NOT USE
+  ElemDDLSaltOptionsClause &operator=(const ElemDDLSaltOptionsClause &rhs);  // not defined - DO NOT USE
 
   //
   // data members
@@ -131,15 +116,14 @@ private:
   Int32 numPartitions_;
   Int32 numInitialRegions_;
   ElemDDLColRefArray saltColumnArray_;
-  NABoolean likeTable_; // salt an index like its base table
+  NABoolean likeTable_;  // salt an index like its base table
 
   // pointers to child parse node
 
-  enum { INDEX_SALT_COLUMN_LIST = 0,
-         MAX_ELEM_DDL_SALT_OPT_KEY_COLUMN_LIST_ARITY };
+  enum { INDEX_SALT_COLUMN_LIST = 0, MAX_ELEM_DDL_SALT_OPT_KEY_COLUMN_LIST_ARITY };
 
-  ElemDDLNode * children_[MAX_ELEM_DDL_SALT_OPT_KEY_COLUMN_LIST_ARITY];
+  ElemDDLNode *children_[MAX_ELEM_DDL_SALT_OPT_KEY_COLUMN_LIST_ARITY];
 
-}; // class ElemDDLSaltOptionsClause
+};  // class ElemDDLSaltOptionsClause
 
-#endif // ELEMDDLSALTOPTIONSCLAUSE_H
+#endif  // ELEMDDLSALTOPTIONSCLAUSE_H

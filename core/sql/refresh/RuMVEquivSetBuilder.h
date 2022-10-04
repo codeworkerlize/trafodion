@@ -44,75 +44,64 @@
 
 //--------------------------------------------------------------------------//
 // CRUMVEquivSetBuilder
-// 
-//	The input for this class is a set of the involved MVs, and the output 
+//
+//	The input for this class is a set of the involved MVs, and the output
 //	is a list of root MVs for each equivalence set.
 //
-//	An MV equivalence set contains involved ON REQUEST MVs using each other, 
-//	either directly or indirectly. The *root MV* in the set is the MV that 
+//	An MV equivalence set contains involved ON REQUEST MVs using each other,
+//	either directly or indirectly. The *root MV* in the set is the MV that
 //	uses no other MV.
-//	
+//
 //--------------------------------------------------------------------------//
 
+class REFRESH_LIB_CLASS CRUMVEquivSetBuilder : public CRUEquivSetBuilder {
+  //----------------------------------//
+  //	Public Members
+  //----------------------------------//
+ public:
+  CRUMVEquivSetBuilder();
 
-class REFRESH_LIB_CLASS CRUMVEquivSetBuilder : public CRUEquivSetBuilder
-{
-	//----------------------------------//
-	//	Public Members
-	//----------------------------------//
-public:
+  virtual ~CRUMVEquivSetBuilder();
 
-	CRUMVEquivSetBuilder();
+ public:
+  // This function is used for entering the input
+  // for the builder
+  // The whole graph is build from the given mv's
+  virtual void AddMV(CRUMV *pMV);
 
-	virtual ~CRUMVEquivSetBuilder();
+  CRUMVList &GetSet(Int32 num);
 
-public:
+  // The main execution function for this class
+  virtual void Run();
 
-	// This function is used for entering the input 
-	// for the builder
-	// The whole graph is build from the given mv's
-	virtual void AddMV(CRUMV *pMV);
+  // These functions are used for retrieving the results
+  virtual Int32 GetNumOfSets() { return equivSetsRootsList_.GetCount(); }
 
+  CRUMVList &GetEquivSetsRootsByMVUID(TInt64 uid);
 
-	CRUMVList& GetSet(Int32 num);
-
-	// The main execution function for this class
-	virtual void Run();
-
-	// These functions are used for retrieving the results
-	virtual Int32 GetNumOfSets() 
-	{
-		return equivSetsRootsList_.GetCount();
-	}
-
-	CRUMVList& GetEquivSetsRootsByMVUID(TInt64 uid);
-
-public:
-
+ public:
 #ifdef _DEBUG
-	// For debug purpose , dumps all sets to the output file
-	virtual void DumpSets();
+  // For debug purpose , dumps all sets to the output file
+  virtual void DumpSets();
 #endif
 
-	//----------------------------------//
-	//	Private Members
-	//----------------------------------//
+  //----------------------------------//
+  //	Private Members
+  //----------------------------------//
 
-	// Run() callee
-private:
-	
-	void BuildDisJointGraph();
-	void BuildSets();
-	void AddOnRequestMVs();
-	void AddOnRequestMV(CRUMV *pMV);
+  // Run() callee
+ private:
+  void BuildDisJointGraph();
+  void BuildSets();
+  void AddOnRequestMVs();
+  void AddOnRequestMV(CRUMV *pMV);
 
-private:
+ private:
+  CRUMVList onRequestMVsList_;
 
-	CRUMVList				onRequestMVsList_;
+  CDSPtrList<CRUMVList> equivSetsRootsList_;
 
-	CDSPtrList<CRUMVList>	equivSetsRootsList_;
-
-	CDSPtrList<CRUMV>		rootsMvsList_;
+  CDSPtrList<CRUMV> rootsMvsList_;
 };
 
 #endif

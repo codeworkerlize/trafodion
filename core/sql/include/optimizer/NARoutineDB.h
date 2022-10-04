@@ -34,65 +34,67 @@ class NARoutineCacheStats;
 //
 // External class definitions
 //
-//class NARoutine;
+// class NARoutine;
 
 // Used as inital list size to construct a NARoutineDB object
-#define NARoutineDB_INIT_SIZE  23
+#define NARoutineDB_INIT_SIZE 23
 
 //
 // NARoutineDB
 // Lookup class for NARoutine
 //
-class NARoutineDB : public NAKeyLookup<NARoutineDBKey,NARoutine>
-{
+class NARoutineDB : public NAKeyLookup<NARoutineDBKey, NARoutine> {
   friend class NARoutineCacheStatStoredProcedure;
 
-
-public:
+ public:
   NARoutineDB(NAMemory *h = 0);
 
-  void       resetAfterStatement();
-  NARoutine* get(BindWA *bindWA, const NARoutineDBKey *key);
-  void       put(NARoutine *routine);
-  NABoolean  cachingMetaData();
-  void       moveRoutineToDeleteList(NARoutine *cachedNARoutine, const NARoutineDBKey *key);
-  void       free_entries_with_QI_key(Int32 numSiKeys, SQL_QIKEY* qiKeyArray);
-  void       reset_priv_entries();
-  void       removeNARoutine(QualifiedName &routineName, ComQiScope qiScope, Int64 objUID,
-                             NABoolean ddlXns, NABoolean atCommit);
-
+  void resetAfterStatement();
+  NARoutine *get(BindWA *bindWA, const NARoutineDBKey *key);
+  void put(NARoutine *routine);
+  NABoolean cachingMetaData();
+  void moveRoutineToDeleteList(NARoutine *cachedNARoutine, const NARoutineDBKey *key);
+  void free_entries_with_QI_key(Int32 numSiKeys, SQL_QIKEY *qiKeyArray);
+  void reset_priv_entries();
+  void removeNARoutine(QualifiedName &routineName, ComQiScope qiScope, Int64 objUID, NABoolean ddlXns,
+                       NABoolean atCommit);
 
   // Defined member functions.
-  void setCachingON() { resizeCache(defaultCacheSize_); cacheMetaData_ = TRUE; }
-  void setCachingOFF(){ flushCache();                   cacheMetaData_= FALSE; }
+  void setCachingON() {
+    resizeCache(defaultCacheSize_);
+    cacheMetaData_ = TRUE;
+  }
+  void setCachingOFF() {
+    flushCache();
+    cacheMetaData_ = FALSE;
+  }
 
-  ULng32    getHighWatermarkCache()         { return highWatermarkCache_; }    
-  ULng32    getTotalLookupsCount()          { return totalLookupsCount_; }
-  ULng32    getTotalCacheHits()             { return totalCacheHits_; }
-  NAString        &getMetadata()                   { return metadata; }
-  void             setMetadata(const char *meta)   { metadata = meta; }
+  ULng32 getHighWatermarkCache() { return highWatermarkCache_; }
+  ULng32 getTotalLookupsCount() { return totalLookupsCount_; }
+  ULng32 getTotalCacheHits() { return totalCacheHits_; }
+  NAString &getMetadata() { return metadata; }
+  void setMetadata(const char *meta) { metadata = meta; }
 
-  inline void      resizeCache(Lng32 sizeInBytes)   { maxCacheSize_ = sizeInBytes;};
-  inline void      refreshCacheInThisStatement()   { refreshCacheInThisStatement_=TRUE;}
+  inline void resizeCache(Lng32 sizeInBytes) { maxCacheSize_ = sizeInBytes; };
+  inline void refreshCacheInThisStatement() { refreshCacheInThisStatement_ = TRUE; }
 
-  void getCacheStats(NARoutineCacheStats & stats);
-  void invalidateSPSQLRoutines(LIST(NARoutine*) &routines);
+  void getCacheStats(NARoutineCacheStats &stats);
+  void invalidateSPSQLRoutines(LIST(NARoutine *) & routines);
 
-private:
+ private:
   // Remove everything from cache.
   void flushCache();
 
   // Reduce size of cache if it exceeds limit, by using LRU algorithm.
   NABoolean enforceMemorySpaceConstraints();
-  Int64     getModifyTime(NARoutine &routine, Int32 &error);
-  Int64     getRedefTime(BindWA *bindWA, NARoutine &routine, Int32 &error);
-  Int64     getSchemaRedefTimeFromLabel(NARoutine &routine, Int32 &error);
-
+  Int64 getModifyTime(NARoutine &routine, Int32 &error);
+  Int64 getRedefTime(BindWA *bindWA, NARoutine &routine, Int32 &error);
+  Int64 getSchemaRedefTimeFromLabel(NARoutine &routine, Int32 &error);
 
   NAMemory *heap_;
 
   NABoolean cacheMetaData_;
-  NAString  metadata;
+  NAString metadata;
 
   // Maximum, default, and current size of the cache in bytes.
   ULng32 maxCacheSize_;
@@ -102,27 +104,27 @@ private:
   ULng32 entries_;
 
   // List of routines to be deleted.
-  // This list is used to collect routines that will be deleted after the statement 
-  // completes to avoid affecting compile time.  The delete of the elements in this 
+  // This list is used to collect routines that will be deleted after the statement
+  // completes to avoid affecting compile time.  The delete of the elements in this
   // list is done in NARoutineDB::resetAfterStatement, which is called indirectly by
   // the CmpStatement destructor.
   LIST(NARoutine *) routinesToDeleteAfterStatement_;
 
-  // This flag indicates that the entries (i.e. NARoutine objects) used during the 
+  // This flag indicates that the entries (i.e. NARoutine objects) used during the
   // current statement should be re-read from disk instead of using the entries
-  // already in the cache. This helps to refresh the entries used in the current 
+  // already in the cache. This helps to refresh the entries used in the current
   // statement.
   NABoolean refreshCacheInThisStatement_;
 
-  // Pointer to current location in the cachedRoutineList_. 
+  // Pointer to current location in the cachedRoutineList_.
   // Used for cache entry replacement purposes
   Int32 replacementCursor_;
 
   // Statistics counters.
-  ULng32 highWatermarkCache_;        // High watermark of currentCacheSize_    
-  ULng32 totalLookupsCount_;         // NARoutine entries lookup counter 
-  ULng32 totalCacheHits_;            // cache hit counter
+  ULng32 highWatermarkCache_;  // High watermark of currentCacheSize_
+  ULng32 totalLookupsCount_;   // NARoutine entries lookup counter
+  ULng32 totalCacheHits_;      // cache hit counter
 
-}; // class NARoutineDB
+};  // class NARoutineDB
 
 #endif

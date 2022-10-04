@@ -6,7 +6,7 @@
 * File:         EHJmpBufStack.h
 * Description:  class for the shadow runtime stack
 *
-*               
+*
 * Created:      5/16/95
 * Language:     C++
 *
@@ -36,7 +36,6 @@
 ******************************************************************************
 */
 
-
 #include "EHBaseTypes.h"
 
 // -----------------------------------------------------------------------
@@ -52,15 +51,11 @@ class EHExceptionJmpBufNode;
 // -----------------------------------------------------------------------
 // class for shadow runtime stack
 // -----------------------------------------------------------------------
-class EHExceptionJmpBufStack
-{
-public:
-
+class EHExceptionJmpBufStack {
+ public:
   // constructor
-  EHExceptionJmpBufStack() : pTopNode_(NULL)
-  {
-  }
-  
+  EHExceptionJmpBufStack() : pTopNode_(NULL) {}
+
   // virtual destructor
   virtual ~EHExceptionJmpBufStack();
 
@@ -69,19 +64,18 @@ public:
   //   pJmpBufNode must point to a space allocated
   //   via the new operator
   //
-  void push(EHExceptionJmpBufNode * pJmpBufNode);
+  void push(EHExceptionJmpBufNode *pJmpBufNode);
 
   // pop
-  // 
+  //
   //   the pointer returned by pop() points to space
   //   allocated via the new operator
   //
-  EHExceptionJmpBufNode * pop();
+  EHExceptionJmpBufNode *pop();
 
-private:
+ private:
+  EHExceptionJmpBufNode *pTopNode_;
 
-  EHExceptionJmpBufNode * pTopNode_;
-  
 };  // class EHExceptionJmpBufStack
 
-#endif // EHJMPBUFSTACK_H
+#endif  // EHJMPBUFSTACK_H

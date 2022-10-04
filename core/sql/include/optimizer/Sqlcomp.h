@@ -45,4 +45,4 @@
 #include "optimizer/SchemaDB.h"
 #include "opt_error.h"
 
-#endif // SQLCOMP_HDR
+#endif  // SQLCOMP_HDR

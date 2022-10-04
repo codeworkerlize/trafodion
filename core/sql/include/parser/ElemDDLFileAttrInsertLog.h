@@ -29,7 +29,7 @@
 * Description:  class for INSERTLOG File Attribute (parse node)
 *               elements in DDL statements
 *
-*               
+*
 * Created:      03/30/2000
 * Language:     C++
 *
@@ -39,35 +39,22 @@
 ******************************************************************************
 */
 
-
 #include "ElemDDLFileAttr.h"
 
-
-class ElemDDLFileAttrInsertLog : public ElemDDLFileAttr
-{
-
-public:
-
-	
+class ElemDDLFileAttrInsertLog : public ElemDDLFileAttr {
+ public:
   // default constructor
   ElemDDLFileAttrInsertLog(NABoolean isInsertLog = FALSE)
-    : ElemDDLFileAttr(ELM_FILE_ATTR_INSERT_LOG_ELEM),
-      isInsertLog_(isInsertLog)
-  {
-  }
+      : ElemDDLFileAttr(ELM_FILE_ATTR_INSERT_LOG_ELEM), isInsertLog_(isInsertLog) {}
 
   // virtual destructor
   virtual ~ElemDDLFileAttrInsertLog();
 
   // cast
-  virtual ElemDDLFileAttrInsertLog * castToElemDDLFileAttrInsertLog();
+  virtual ElemDDLFileAttrInsertLog *castToElemDDLFileAttrInsertLog();
 
   // accessor
-  NABoolean
-  isInsertLog() const
-  {
-    return isInsertLog_;
-  }
+  NABoolean isInsertLog() const { return isInsertLog_; }
 
   // member functions for tracing
   virtual const NAString getText() const;
@@ -76,11 +63,9 @@ public:
   // method for building text
   virtual NAString getSyntax() const;
 
-
-private:
-
+ private:
   NABoolean isInsertLog_;
 
-}; // class ElemDDLFileAttrInsertLog
+};  // class ElemDDLFileAttrInsertLog
 
-#endif // ELEMDDLFILEATTRINSERTLOG_H
+#endif  // ELEMDDLFILEATTRINSERTLOG_H

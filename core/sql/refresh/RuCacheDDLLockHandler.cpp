@@ -26,13 +26,13 @@
 *
 * File:         RuCacheDDLLockHandler.cpp
 * Description:  Implementation of class CRUCacheDDLLockHandler.
-*				
+*
 *
 * Created:      02/10/2000
 * Language:     C++
-* 
 *
-* 
+*
+*
 ******************************************************************************
 */
 
@@ -43,63 +43,53 @@
 #include "RuJournal.h"
 
 //--------------------------------------------------------------------------//
-//	Constructor 
+//	Constructor
 //--------------------------------------------------------------------------//
 
-CRUCacheDDLLockHandler::CRUCacheDDLLockHandler() :
-	doHandle_(TRUE),
-	didDDLLockErrorsHappen_(FALSE),
-	pObjSortedArray_(NULL),
-	objMap_(HASH_SIZE)
-{
-	CRUGlobals *pGlobals = CRUGlobals::GetInstance(); 
-	CRUOptions &options = pGlobals->GetOptions();
+CRUCacheDDLLockHandler::CRUCacheDDLLockHandler()
+    : doHandle_(TRUE), didDDLLockErrorsHappen_(FALSE), pObjSortedArray_(NULL), objMap_(HASH_SIZE) {
+  CRUGlobals *pGlobals = CRUGlobals::GetInstance();
+  CRUOptions &options = pGlobals->GetOptions();
 
-	if (CRUOptions::DO_ONLY_LC == options.GetLogCleanupType())
-	{
-		// When the utility is applied with DO ONLY LOG CLEANUP option,
-		// DDL locks are not required.
-		doHandle_ = FALSE;
-	}
+  if (CRUOptions::DO_ONLY_LC == options.GetLogCleanupType()) {
+    // When the utility is applied with DO ONLY LOG CLEANUP option,
+    // DDL locks are not required.
+    doHandle_ = FALSE;
+  }
 
 #ifdef _DEBUG
-	CRUOptions::DebugOption *pDO = 
-		options.FindDebugOption(CRUGlobals::DUMP_DS, "");
+  CRUOptions::DebugOption *pDO = options.FindDebugOption(CRUGlobals::DUMP_DS, "");
 
-	if (NULL != pDO)
-	{
-		doHandle_ = FALSE;	// The invocation is for the DS dump only
-	}
+  if (NULL != pDO) {
+    doHandle_ = FALSE;  // The invocation is for the DS dump only
+  }
 #endif
 }
 
 //--------------------------------------------------------------------------//
-//	Destructor 
+//	Destructor
 //--------------------------------------------------------------------------//
 
-CRUCacheDDLLockHandler::~CRUCacheDDLLockHandler()
-{
-	// Free the sorted array of pointers
-	if (NULL != pObjSortedArray_)
-	{
-		delete [] pObjSortedArray_;
-	}
+CRUCacheDDLLockHandler::~CRUCacheDDLLockHandler() {
+  // Free the sorted array of pointers
+  if (NULL != pObjSortedArray_) {
+    delete[] pObjSortedArray_;
+  }
 
-	// Free the data owned by the hash table
-	CDSMapPosition<ObjectLink *> pos;
+  // Free the data owned by the hash table
+  CDSMapPosition<ObjectLink *> pos;
 
-	ObjectLink *pLink;
-	TInt64 *uid;
+  ObjectLink *pLink;
+  TInt64 *uid;
 
-	objMap_.GetStartPosition(pos);
-	
-	while (TRUE == pos.IsValid())
-	{
-		objMap_.GetNextAssoc(pos, uid, pLink);
-		delete pLink;
-	}
+  objMap_.GetStartPosition(pos);
 
-	objMap_.RemoveAll();
+  while (TRUE == pos.IsValid()) {
+    objMap_.GetNextAssoc(pos, uid, pLink);
+    delete pLink;
+  }
+
+  objMap_.RemoveAll();
 }
 
 //--------------------------------------------------------------------------//
@@ -112,18 +102,16 @@ CRUCacheDDLLockHandler::~CRUCacheDDLLockHandler()
 //
 //--------------------------------------------------------------------------//
 
-void CRUCacheDDLLockHandler::AddObject(CRUObject *pObj)
-{
-	if (FALSE == doHandle_)
-	{
-		return;
-	}
+void CRUCacheDDLLockHandler::AddObject(CRUObject *pObj) {
+  if (FALSE == doHandle_) {
+    return;
+  }
 
-	RUASSERT (NULL != pObj);
+  RUASSERT(NULL != pObj);
 
-	ObjectLink *pLink = new ObjectLink(pObj);
+  ObjectLink *pLink = new ObjectLink(pObj);
 
-	objMap_[&(pLink->uid_)] = pLink;
+  objMap_[&(pLink->uid_)] = pLink;
 }
 
 //--------------------------------------------------------------------------//
@@ -133,80 +121,71 @@ void CRUCacheDDLLockHandler::AddObject(CRUObject *pObj)
 //	involved objects, in order to provide mutual exclusion from
 //	the concurrent DDL and utility operations.
 //
-//	The traversal of involved objects is done in the UID order, for 
-//	theoretical deadlock prevention (although the deadlock scenario 
+//	The traversal of involved objects is done in the UID order, for
+//	theoretical deadlock prevention (although the deadlock scenario
 //	is VERY unlikely).
 //
 //--------------------------------------------------------------------------//
 
-void CRUCacheDDLLockHandler::HandleDDLLocks(BOOL isCancelOnly)
-{
-	if (FALSE == doHandle_)
-	{
-		return;
-	}
+void CRUCacheDDLLockHandler::HandleDDLLocks(BOOL isCancelOnly) {
+  if (FALSE == doHandle_) {
+    return;
+  }
 
-	CRUJournal &journal = CRUGlobals::GetInstance()->GetJournal(); 
+  CRUJournal &journal = CRUGlobals::GetInstance()->GetJournal();
 
-	SortObjectsByUid();
+  SortObjectsByUid();
 
-	for (Int32 i=0; i<objMap_.GetCount(); i++)
-	{
-		CRUObject *pObj = pObjSortedArray_[i]->pObj_;
+  for (Int32 i = 0; i < objMap_.GetCount(); i++) {
+    CRUObject *pObj = pObjSortedArray_[i]->pObj_;
 
-		// Perform the CatApi request(s) ...
-		pObj->HandleDDLLockInCache(isCancelOnly);
+    // Perform the CatApi request(s) ...
+    pObj->HandleDDLLockInCache(isCancelOnly);
 
-		if (0 != pObj->GetStatus())
-		{
-			// For some reason, the DDL lock could not be dropped.	
-			if (TRUE == isCancelOnly)
-			{
-				// If this is the CANCEL mode, report to the outfile.
-				journal.LogError(pObj->GetErrorDesc());
+    if (0 != pObj->GetStatus()) {
+      // For some reason, the DDL lock could not be dropped.
+      if (TRUE == isCancelOnly) {
+        // If this is the CANCEL mode, report to the outfile.
+        journal.LogError(pObj->GetErrorDesc());
 
-				didDDLLockErrorsHappen_ = TRUE;
-			}
-			else
-			{
-				// This is the "normal" mode of execution.
-				// The error message will be copied from the object
-				// to some Refresh task, and will be printed by the
-				// flow controller.
-			}
-		}
-	}
+        didDDLLockErrorsHappen_ = TRUE;
+      } else {
+        // This is the "normal" mode of execution.
+        // The error message will be copied from the object
+        // to some Refresh task, and will be printed by the
+        // flow controller.
+      }
+    }
+  }
 }
 
 //--------------------------------------------------------------------------//
 //	CRUCacheDDLLockHandler::SortObjectsByUid()
 //--------------------------------------------------------------------------//
 
-void CRUCacheDDLLockHandler::SortObjectsByUid()
-{
-	RUASSERT(NULL == pObjSortedArray_);
-	
-	Lng32 size = objMap_.GetCount();
+void CRUCacheDDLLockHandler::SortObjectsByUid() {
+  RUASSERT(NULL == pObjSortedArray_);
 
-	// Copy the pointers to the links to the array first ...
-	pObjSortedArray_ = new PObjectLink[size];
+  Lng32 size = objMap_.GetCount();
 
-	CDSMapPosition<ObjectLink *> pos;
+  // Copy the pointers to the links to the array first ...
+  pObjSortedArray_ = new PObjectLink[size];
 
-	ObjectLink *pLink;
-	TInt64 *uid;
+  CDSMapPosition<ObjectLink *> pos;
 
-	objMap_.GetStartPosition(pos);
+  ObjectLink *pLink;
+  TInt64 *uid;
 
-	for (Int32 i=0; TRUE == pos.IsValid(); i++)
-	{
-		objMap_.GetNextAssoc(pos, uid, pLink);
-		
-		pObjSortedArray_[i] = pLink;
-	}
+  objMap_.GetStartPosition(pos);
 
-	// ... and sort the array
-	qsort(pObjSortedArray_, size, sizeof(PObjectLink), CompareElem);
+  for (Int32 i = 0; TRUE == pos.IsValid(); i++) {
+    objMap_.GetNextAssoc(pos, uid, pLink);
+
+    pObjSortedArray_[i] = pLink;
+  }
+
+  // ... and sort the array
+  qsort(pObjSortedArray_, size, sizeof(PObjectLink), CompareElem);
 }
 
 //--------------------------------------------------------------------------//
@@ -215,13 +194,10 @@ void CRUCacheDDLLockHandler::SortObjectsByUid()
 //	The function serves for the quicksort criteria.
 //--------------------------------------------------------------------------//
 
-Int32 CRUCacheDDLLockHandler::CompareElem(const void *pEl1, const void *pEl2)
-{
-	CRUCacheDDLLockHandler::ObjectLink *pLink1 = 
-		*((CRUCacheDDLLockHandler::PObjectLink *)pEl1);
+Int32 CRUCacheDDLLockHandler::CompareElem(const void *pEl1, const void *pEl2) {
+  CRUCacheDDLLockHandler::ObjectLink *pLink1 = *((CRUCacheDDLLockHandler::PObjectLink *)pEl1);
 
-	CRUCacheDDLLockHandler::ObjectLink *pLink2 = 
-		*((CRUCacheDDLLockHandler::PObjectLink *)pEl2);
+  CRUCacheDDLLockHandler::ObjectLink *pLink2 = *((CRUCacheDDLLockHandler::PObjectLink *)pEl2);
 
-	return (pLink1->uid_ < pLink2->uid_) ? -1 : 1;
+  return (pLink1->uid_ < pLink2->uid_) ? -1 : 1;
 }

@@ -35,7 +35,6 @@
 // mxcmp & mxCompileUserModule need these constants so that
 // they can both return the same exit codes to ETK.
 
-enum mxcmpExitCode
-{ SUCCEED = 0, FAIL = 1, FAIL_RETRYABLE = -1, ERROR = 2, WARNING = 3 };
+enum mxcmpExitCode { SUCCEED = 0, FAIL = 1, FAIL_RETRYABLE = -1, ERROR = 2, WARNING = 3 };
 
 #endif /* __MXCMPRETURNCODES_H */

@@ -36,7 +36,7 @@
  *               scope (global) functions relating to ParNameLocList
  *               or ParNameLocListPtr (defined in SqlParser.y).
  *
- *               
+ *
  * Created:      5/30/96
  * Language:     C++
  *
@@ -49,10 +49,10 @@
 #include "common/Collections.h"
 #include "optimizer/ColumnDesc.h"
 #include "common/NAString.h"
-#include "common/nawstring.h" // for wide token strings (tcr)
+#include "common/nawstring.h"  // for wide token strings (tcr)
 #include "optimizer/ObjectNames.h"
-#ifndef   SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
-#define   SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
+#ifndef SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
+#define SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
 #endif
 #include "parser/SqlParserGlobals.h"
 
@@ -68,8 +68,8 @@ class ParNameLocList;
 class ElemDDLConstraintCheck;
 class ElemDDLDivisionClause;
 class StmtDDLCreateView;
-class StmtDDLCreateTrigger;  
-class StmtDDLCreateMV; 
+class StmtDDLCreateTrigger;
+class StmtDDLCreateMV;
 class StmtDDLCreateTable;
 
 // -----------------------------------------------------------------------
@@ -79,99 +79,83 @@ class StmtDDLCreateTable;
 
 void ParInsertNameLoc(const StringPos namePos, const size_t nameLen);
 void ParInsertNameLocInOrder(const StringPos namePos, const size_t nameLen);
-void ParInsertNameLocForStar(ColRefName * pColRefName);
-void ParUpdateNameLocForDotStar(const ColRefName * pColRefName);
+void ParInsertNameLocForStar(ColRefName *pColRefName);
+void ParUpdateNameLocForDotStar(const ColRefName *pColRefName);
 
-void ParSetTextStartPosForCheckConstraint(ParNameLocList * pNameLocList);
-void ParSetTextStartPosForCreateView(ParNameLocList * pNameLocList);
-void ParSetTextStartPosForCreateTrigger(ParNameLocList * pNameLocList);
-void ParSetTextStartPosForDivisionByClause(ParNameLocList * pNameLocList);
+void ParSetTextStartPosForCheckConstraint(ParNameLocList *pNameLocList);
+void ParSetTextStartPosForCreateView(ParNameLocList *pNameLocList);
+void ParSetTextStartPosForCreateTrigger(ParNameLocList *pNameLocList);
+void ParSetTextStartPosForDivisionByClause(ParNameLocList *pNameLocList);
 
-NABoolean ParSetTextEndPos(ElemDDLConstraintCheck * pCkCnstrntNode);
-NABoolean ParSetTextEndPos(StmtDDLCreateView * pCreateViewParseNode);
-NABoolean ParSetTextEndPos(StmtDDLCreateTrigger * pCreateTriggerParseNode);
-NABoolean ParSetTextEndPos(ElemDDLDivisionClause * pDivisionClauseParseNode);
+NABoolean ParSetTextEndPos(ElemDDLConstraintCheck *pCkCnstrntNode);
+NABoolean ParSetTextEndPos(StmtDDLCreateView *pCreateViewParseNode);
+NABoolean ParSetTextEndPos(StmtDDLCreateTrigger *pCreateTriggerParseNode);
+NABoolean ParSetTextEndPos(ElemDDLDivisionClause *pDivisionClauseParseNode);
 
-void ParSetTextStartPosForCreateMV(ParNameLocList * pNameLocList);
-NABoolean ParSetTextEndPos(StmtDDLCreateMV * pCreateMVParseNode);
+void ParSetTextStartPosForCreateMV(ParNameLocList *pNameLocList);
+NABoolean ParSetTextEndPos(StmtDDLCreateMV *pCreateMVParseNode);
 
-void ParSetEndOfOptionalColumnListPos(ParNameLocList * pNameLocList);
-   // Keep position of end-of optional column names list
-void ParSetBeginingOfFileOptionsListPos(ParNameLocList * pNameLocList);
-   // Keep position of begining-of optional file options column list
-void ParSetEndOfFileOptionsListPos(ParNameLocList * pNameLocList);
-   // Keep position of end-of optional file options list
-void ParSetBeginOfMVQueryPos(ParNameLocList * pNameLocList);
-   // Mark the text begining of the MV query
-void ParSetEndOfSelectColumnListPos(ParNameLocList * pNameLocList);
-   // Keep position of end-of select column list
+void ParSetEndOfOptionalColumnListPos(ParNameLocList *pNameLocList);
+// Keep position of end-of optional column names list
+void ParSetBeginingOfFileOptionsListPos(ParNameLocList *pNameLocList);
+// Keep position of begining-of optional file options column list
+void ParSetEndOfFileOptionsListPos(ParNameLocList *pNameLocList);
+// Keep position of end-of optional file options list
+void ParSetBeginOfMVQueryPos(ParNameLocList *pNameLocList);
+// Mark the text begining of the MV query
+void ParSetEndOfSelectColumnListPos(ParNameLocList *pNameLocList);
+// Keep position of end-of select column list
 // ************************************************************
 
 // Mark the text begining of query in the AS clause of a Create Table stmt.
-void ParSetBeginOfCreateTableAsQueryPos(ParNameLocList * pNameLocList);
-void ParSetBeginOfCreateTableAsAttrList(ParNameLocList * pNameLocList);
-void ParSetEndOfCreateTableAsAttrList(ParNameLocList * pNameLocList);
-void ParSetEndOfCreateTableAsWithClause(ParNameLocList * pNameLocList);
-NABoolean ParSetTextEndPos(StmtDDLCreateTable * pCreateTableParseNode);
+void ParSetBeginOfCreateTableAsQueryPos(ParNameLocList *pNameLocList);
+void ParSetBeginOfCreateTableAsAttrList(ParNameLocList *pNameLocList);
+void ParSetEndOfCreateTableAsAttrList(ParNameLocList *pNameLocList);
+void ParSetEndOfCreateTableAsWithClause(ParNameLocList *pNameLocList);
+NABoolean ParSetTextEndPos(StmtDDLCreateTable *pCreateTableParseNode);
 
 // Used by MULTI-COMMIT Delete to find the start and end of the WHERE clause.
 //
-void ParSetTextStartPosForMultiCommit(ParNameLocList * pNameLocList);
-NABoolean ParGetTextStartEndPosForMultiCommit(ParNameLocList * pNameLocList,
-                                              StringPos &start, StringPos&end);
-
+void ParSetTextStartPosForMultiCommit(ParNameLocList *pNameLocList);
+NABoolean ParGetTextStartEndPosForMultiCommit(ParNameLocList *pNameLocList, StringPos &start, StringPos &end);
 
 // -----------------------------------------------------------------------
 // Definition of class ParNameLoc
 // -----------------------------------------------------------------------
-class ParNameLoc : public NABasicObject
-{
-public:
-
+class ParNameLoc : public NABasicObject {
+ public:
   //
   // constructors
   //
-  
-  ParNameLoc (CollHeap * h=PARSERHEAP())
-  : namePos_(0),
-  nameLen_(0),
-  expandedName_(h),
-  noneExpandedName_(h)
-  {
+
+  ParNameLoc(CollHeap *h = PARSERHEAP()) : namePos_(0), nameLen_(0), expandedName_(h), noneExpandedName_(h) {
     // expandedName_ is empty
   }
 
-  ParNameLoc (const StringPos namePos, const size_t nameLen, CollHeap * h=PARSERHEAP())
-  : namePos_(namePos),
-  nameLen_(nameLen),
-  expandedName_(h),
-  noneExpandedName_(h)
-  {
+  ParNameLoc(const StringPos namePos, const size_t nameLen, CollHeap *h = PARSERHEAP())
+      : namePos_(namePos), nameLen_(nameLen), expandedName_(h), noneExpandedName_(h) {
     // expandedName_ is empty
   }
 
   // copy ctor
-  ParNameLoc (const ParNameLoc &nameLoc, CollHeap * h=PARSERHEAP())
-  : namePos_(nameLoc.namePos_),
-  nameLen_(nameLoc.nameLen_),
-  expandedName_(nameLoc.expandedName_, h),
-  noneExpandedName_(nameLoc.noneExpandedName_, h)
-  { }
-
+  ParNameLoc(const ParNameLoc &nameLoc, CollHeap *h = PARSERHEAP())
+      : namePos_(nameLoc.namePos_),
+        nameLen_(nameLoc.nameLen_),
+        expandedName_(nameLoc.expandedName_, h),
+        noneExpandedName_(nameLoc.noneExpandedName_, h) {}
 
   //
   // virtual destructor
   //
-  
-  virtual ~ParNameLoc();
 
+  virtual ~ParNameLoc();
 
   //
   // operators
   //
 
-  ParNameLoc & operator=(const ParNameLoc &rhs);
-  
+  ParNameLoc &operator=(const ParNameLoc &rhs);
+
   const NABoolean operator==(const ParNameLoc &rhs) const;
 
   //
@@ -180,17 +164,13 @@ public:
 
   inline const size_t getNameLength() const;
   inline const StringPos getNamePosition() const;
-  const NAString &getExpandedName(NABoolean errorIfEmpty = TRUE) const
-  {
-  if (errorIfEmpty)
-    CMPASSERT(expandedName_ != (const char *)"");
-  return expandedName_;
+  const NAString &getExpandedName(NABoolean errorIfEmpty = TRUE) const {
+    if (errorIfEmpty) CMPASSERT(expandedName_ != (const char *)"");
+    return expandedName_;
   }
 
-  const NAString &getNoneExpandedName(NABoolean errorIfEmpty = TRUE) const
-  {
-    if (errorIfEmpty)
-      CMPASSERT(noneExpandedName_ != (const char *)"");
+  const NAString &getNoneExpandedName(NABoolean errorIfEmpty = TRUE) const {
+    if (errorIfEmpty) CMPASSERT(noneExpandedName_ != (const char *)"");
     return noneExpandedName_;
   }
 
@@ -202,39 +182,32 @@ public:
   inline void setNamePosition(const StringPos namePos);
   inline void setExpandedName(const NAString &expandedName);
   inline void setNoneExpandedName(const NAString &noneExpandedName);
-  
-private:
-  
+
+ private:
   StringPos namePos_;
   size_t nameLen_;
   NAString expandedName_;
   NAString noneExpandedName_;
-  
-}; // class ParNameLoc
+
+};  // class ParNameLoc
 
 // -----------------------------------------------------------------------
 // Definition of class ParNameLocList
 // -----------------------------------------------------------------------
-class ParNameLocList : private LIST(ParNameLoc *)
-{
-public:
-
+class ParNameLocList : private LIST(ParNameLoc *) {
+ public:
   //
   // constructors
   //
 
-  ParNameLocList(const char * const pInputString = NULL,
-                 CharInfo::CharSet inputStrCS =
-                                                CharInfo::UTF8
-                 ,
-                 const NAWchar * const pInputStrInUTF16 = NULL,
-                 CollHeap *heap = PARSERHEAP());
+  ParNameLocList(const char *const pInputString = NULL, CharInfo::CharSet inputStrCS = CharInfo::UTF8,
+                 const NAWchar *const pInputStrInUTF16 = NULL, CollHeap *heap = PARSERHEAP());
 
-        // heap specifies the heap to allocate space for objects
-        // pointed by the elements in this list.
+  // heap specifies the heap to allocate space for objects
+  // pointed by the elements in this list.
 
   ParNameLocList(const ParNameLocList &rhs, CollHeap *heap = PARSERHEAP());
-  
+
   //
   // virtual destructor
   //
@@ -244,13 +217,13 @@ public:
   //
   // operators
   //
- 
-  ParNameLocList & operator=(const ParNameLocList &rhs);
-  inline const ParNameLoc & operator[](CollIndex index) const;
-  inline       ParNameLoc & operator[](CollIndex index);
-  
-  inline void* operator new(size_t t, CollHeap* h = PARSERHEAP());
-  inline void operator delete(void*);
+
+  ParNameLocList &operator=(const ParNameLocList &rhs);
+  inline const ParNameLoc &operator[](CollIndex index) const;
+  inline ParNameLoc &operator[](CollIndex index);
+
+  inline void *operator new(size_t t, CollHeap *h = PARSERHEAP());
+  inline void operator delete(void *);
 
   //
   // accessors
@@ -258,11 +231,11 @@ public:
 
   inline CollIndex entries() const;
 
-  inline const char * getInputStringPtr() const;
-  inline const NAWchar * getWInputStringPtr() const;
+  inline const char *getInputStringPtr() const;
+  inline const NAWchar *getWInputStringPtr() const;
   inline CharInfo::CharSet getInputStringCharSet() const { return inputStrCharSet_; }
-  
-  ParNameLoc * getNameLocPtr(const StringPos namePos);
+
+  ParNameLoc *getNameLocPtr(const StringPos namePos);
 
   inline const StringPos getTextStartPosition() const;
   inline const StringPos getWhereStartPosition() const;
@@ -273,27 +246,26 @@ public:
 
   void clear();
 
-        // removes all ParNameLoc object pointed by the pointers
-        // in the list; then removes all pointers in the list.
+  // removes all ParNameLoc object pointed by the pointers
+  // in the list; then removes all pointers in the list.
 
   NABoolean insert(const ParNameLoc &nameLoc);
 
-        // inserts nameLoc to the list and returns TRUE if
-        // nameLoc was not already in the list; otherwise,
-        // returns FALSE.
+  // inserts nameLoc to the list and returns TRUE if
+  // nameLoc was not already in the list; otherwise,
+  // returns FALSE.
 
   NABoolean insertInOrder(const ParNameLoc &nameLoc);
 
-        // inserts nameLoc to the list such that the name 
-        // positions are in order. Required for UDFs.
-        // Returns TRUE if nameLoc was not already in the 
-        // list; otherwise, returns FALSE.
+  // inserts nameLoc to the list such that the name
+  // positions are in order. Required for UDFs.
+  // Returns TRUE if nameLoc was not already in the
+  // list; otherwise, returns FALSE.
 
   inline void setTextStartPosition(const StringPos textStartPos);
   inline void setWhereStartPosition(const StringPos whereStartPos);
 
-private:
-
+ private:
   void copy(const ParNameLocList &rhs);
 
   //
@@ -301,7 +273,7 @@ private:
   // starting position of the text (e.g., view text) to be
   // expanded and stored in the metadata table Text.
   //
-  
+
   StringPos textStartPos_;
 
   // The start postition of the WHERE clause associated with a
@@ -319,17 +291,17 @@ private:
   // the processing of a statement.
   //
 
-  const char * pInputString_;
+  const char *pInputString_;
   CharInfo::CharSet inputStrCharSet_;
-  const NAWchar * pwInputString_;
+  const NAWchar *pwInputString_;
   // wide version (tcr)
 
   //
   // heap to allocate space for objects pointed by elements in the list.
   //
-  CollHeap * heap_;
+  CollHeap *heap_;
 
-}; // class ParNameLocList
+};  // class ParNameLocList
 
 // -----------------------------------------------------------------------
 // definitions of inline methods for class ParNameLoc
@@ -338,46 +310,21 @@ private:
 // accessors
 //
 
-inline const size_t
-ParNameLoc::getNameLength() const
-{
-  return nameLen_;
-}
+inline const size_t ParNameLoc::getNameLength() const { return nameLen_; }
 
-inline const StringPos
-ParNameLoc::getNamePosition() const
-{
-  return namePos_;
-}
-
+inline const StringPos ParNameLoc::getNamePosition() const { return namePos_; }
 
 //
 // mutators
 //
 
-inline void
-ParNameLoc::setNameLength(const size_t nameLen)
-{
-  nameLen_ = nameLen;
-}
+inline void ParNameLoc::setNameLength(const size_t nameLen) { nameLen_ = nameLen; }
 
-inline void
-ParNameLoc::setNamePosition(const StringPos namePos)
-{
-  namePos_ = namePos;
-}
+inline void ParNameLoc::setNamePosition(const StringPos namePos) { namePos_ = namePos; }
 
-inline void
-ParNameLoc::setExpandedName(const NAString &expandedName)
-{
-  expandedName_ = expandedName;
-}
+inline void ParNameLoc::setExpandedName(const NAString &expandedName) { expandedName_ = expandedName; }
 
-inline void
-ParNameLoc::setNoneExpandedName(const NAString &noneExpandedName)
-{
-  noneExpandedName_ = noneExpandedName;
-}
+inline void ParNameLoc::setNoneExpandedName(const NAString &noneExpandedName) { noneExpandedName_ = noneExpandedName; }
 
 // -----------------------------------------------------------------------
 // definitions of inline methods for class ParNameLocList
@@ -387,79 +334,36 @@ ParNameLoc::setNoneExpandedName(const NAString &noneExpandedName)
 // operators
 //
 
-inline const ParNameLoc &
-ParNameLocList::operator[](CollIndex index) const
-{
+inline const ParNameLoc &ParNameLocList::operator[](CollIndex index) const {
   return *(LIST(ParNameLoc *)::operator[](index));
 }
 
-inline ParNameLoc &
-ParNameLocList::operator[](CollIndex index)
-{
-  return *(LIST(ParNameLoc *)::operator[](index));
-}
+inline ParNameLoc &ParNameLocList::operator[](CollIndex index) { return *(LIST(ParNameLoc *)::operator[](index)); }
 
-inline void *
-ParNameLocList::operator new(size_t t, CollHeap *h)
-{
-  return LIST(ParNameLoc *)::operator new(t, h);
-}
+inline void *ParNameLocList::operator new(size_t t, CollHeap *h) { return LIST(ParNameLoc *)::operator new(t, h); }
 
-inline void
-ParNameLocList::operator delete(void *p)
-{
-  LIST(ParNameLoc *)::operator delete(p);
-}
-
+inline void ParNameLocList::operator delete(void *p) { LIST(ParNameLoc *)::operator delete(p); }
 
 //
 // accessors
 //
 
-inline CollIndex
-ParNameLocList::entries() const
-{
-  return LIST(ParNameLoc *)::entries();
-}
+inline CollIndex ParNameLocList::entries() const { return LIST(ParNameLoc *)::entries(); }
 
-inline const char *
-ParNameLocList::getInputStringPtr() const
-{
-  return pInputString_;
-}
+inline const char *ParNameLocList::getInputStringPtr() const { return pInputString_; }
 
-inline const NAWchar *
-ParNameLocList::getWInputStringPtr() const
-{
-  return pwInputString_;
-}
+inline const NAWchar *ParNameLocList::getWInputStringPtr() const { return pwInputString_; }
 
-inline const StringPos
-ParNameLocList::getTextStartPosition() const
-{
-  return textStartPos_;
-}
+inline const StringPos ParNameLocList::getTextStartPosition() const { return textStartPos_; }
 
-inline const StringPos
-ParNameLocList::getWhereStartPosition() const
-{
-  return whereStartPos_;
-}
+inline const StringPos ParNameLocList::getWhereStartPosition() const { return whereStartPos_; }
 
 //
 // mutator
 //
 
-inline void
-ParNameLocList::setTextStartPosition(const StringPos textStartPos)
-{
-  textStartPos_ = textStartPos;
-}
+inline void ParNameLocList::setTextStartPosition(const StringPos textStartPos) { textStartPos_ = textStartPos; }
 
-inline void
-ParNameLocList::setWhereStartPosition(const StringPos whereStartPos)
-{
-  whereStartPos_ = whereStartPos;
-}
+inline void ParNameLocList::setWhereStartPosition(const StringPos whereStartPos) { whereStartPos_ = whereStartPos; }
 
-#endif // PARNAMELOCLIST_H
+#endif  // PARNAMELOCLIST_H

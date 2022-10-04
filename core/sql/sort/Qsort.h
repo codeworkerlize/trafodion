@@ -28,12 +28,12 @@
 *
 * File:         Qsort.h
 * RCS:          $Id: Qsort.h,v 1.2.16.2 1998/07/08 21:47:10  Exp $
-*                               
+*
 * Description:  This class implements the QuickSort Algorithm. It is derived
 *               from the SortAlgo base class in compliance with the Strategy
-*               Policy design pattern from Gamma. Note that QuickSort is used 
+*               Policy design pattern from Gamma. Note that QuickSort is used
 *               only for Run generation and not for merging. Replacement
-*               selection is the best for merging. 
+*               selection is the best for merging.
 *
 * Created:	    05/20/96
 * Modified:     $ $Date: 1998/07/08 21:47:10 $ (GMT)
@@ -45,7 +45,7 @@
 
 // -----------------------------------------------------------------------
 // Change history:
-// 
+//
 // $Log: Qsort.h,v $
 // Revision 1.6  1998/07/08 15:25:36
 // Changes in sort to allocate the initial Sort Memory dynamically. If the
@@ -74,7 +74,7 @@
 // Revision 1.1.1.1  1997/03/28 01:38:52
 // These are the source files from SourceSafe.
 //
-// 
+//
 // 8     3/06/97 4:54p Sql.lushung
 // A fix for the memory delete problem is make in this version of sort.
 // Revision 1.4  1997/01/14 03:22:13
@@ -104,7 +104,6 @@
 #include "export/NABasicObject.h"
 #include "SortError.h"
 
-
 class SortUtil;
 class ExBMOStats;
 //----------------------------------------------------------------------
@@ -112,58 +111,52 @@ class ExBMOStats;
 // to be used for quicksort.
 //----------------------------------------------------------------------
 
-
 void heapSort(RecKeyBuffer keysToSort[], Int32 runsize);
 void siftDown(RecKeyBuffer keysToSort[], Int32 root, Int32 bottom);
 
-class Qsort : public SortAlgo { //SortAlgo inherits from NABasicObject
+class Qsort : public SortAlgo {  // SortAlgo inherits from NABasicObject
 
-public:
-
-  Qsort(ULng32 recmax,ULng32 sortmaxmem, ULng32 recsize, NABoolean doNotallocRec, 
-        ULng32 keysize, SortScratchSpace* scratch,NABoolean iterQuickSort,
-        CollHeap* heap, SortError* sorterror, Lng32 explainNodeId, ExBMOStats *bmoStats, SortUtil* sortutil);
+ public:
+  Qsort(ULng32 recmax, ULng32 sortmaxmem, ULng32 recsize, NABoolean doNotallocRec, ULng32 keysize,
+        SortScratchSpace *scratch, NABoolean iterQuickSort, CollHeap *heap, SortError *sorterror, Lng32 explainNodeId,
+        ExBMOStats *bmoStats, SortUtil *sortutil);
   ~Qsort(void);
 
-  Lng32 sortSend(void* rec, ULng32 len, void* tupp);
-  
-  Lng32 sortClientOutOfMem(void);  
-  
+  Lng32 sortSend(void *rec, ULng32 len, void *tupp);
+
+  Lng32 sortClientOutOfMem(void);
+
   Lng32 sortSendEnd();
 
-  Lng32 sortReceive(void* rec, ULng32& len);
-  Lng32 sortReceive(void*& rec, ULng32& len, void*& tupp);
+  Lng32 sortReceive(void *rec, ULng32 &len);
+  Lng32 sortReceive(void *&rec, ULng32 &len, void *&tupp);
 
   Lng32 generateInterRuns();
 
   UInt32 getOverheadPerRecord(void);
-  
-    
-private:
-  
-  char* median(RecKeyBuffer keysToSort[], Int64 left, Int64 right);
-  NABoolean quickSort(RecKeyBuffer keysToSort[], Int64 left, Int64 right); 
+
+ private:
+  char *median(RecKeyBuffer keysToSort[], Int64 left, Int64 right);
+  NABoolean quickSort(RecKeyBuffer keysToSort[], Int64 left, Int64 right);
   NABoolean iterativeQuickSort(RecKeyBuffer keysToSort[], Int64 left, Int64 right);
   void heapSort(RecKeyBuffer keysToSort[], Int64 runsize);
   void siftDown(RecKeyBuffer keysToSort[], Int64 root, Int64 bottom);
   Lng32 generateARun();
-  NABoolean swap(RecKeyBuffer* recKeyOne, RecKeyBuffer* recKeyTwo);
+  NABoolean swap(RecKeyBuffer *recKeyOne, RecKeyBuffer *recKeyTwo);
   void cleanUpMemoryQuota(void);
-   
+
   ULng32 loopIndex_;
   ULng32 currentRun_;
   ULng32 recNum_;
   ULng32 allocRunSize_;
   ULng32 sortMaxMem_;
   NABoolean isIterativeSort_;
-  Record* rootRecord_;
-  RecKeyBuffer* recKeys_;
-  SortError* sortError_;
-  CollHeap* heap_;
-  SortUtil* sortUtil_;
+  Record *rootRecord_;
+  RecKeyBuffer *recKeys_;
+  SortError *sortError_;
+  CollHeap *heap_;
+  SortUtil *sortUtil_;
   ULng32 initialRunSize_;
 };
 
 #endif
-
-

@@ -30,9 +30,9 @@
 *
 * Created:      01/09/2000
 * Language:     C++
-* 
 *
-* 
+*
+*
 ******************************************************************************
 */
 
@@ -47,152 +47,146 @@ CDSString CRUOptions::defOutFilename = "REFRESH.LOG";
 //	Constructors
 //--------------------------------------------------------------------------//
 
-CRUOptions::CRUOptions() :
-	invocType_(SINGLE_MV),
-	isRecompute_(FALSE),
-	isCancel_(FALSE),
-	lcType_(DONTCARE_LC), 
-	catalogName_(""),
-	schemaName_(""),
-	objectName_(""),
-	fullName_(""),
-	defaultSchema_(""),
+CRUOptions::CRUOptions()
+    : invocType_(SINGLE_MV),
+      isRecompute_(FALSE),
+      isCancel_(FALSE),
+      lcType_(DONTCARE_LC),
+      catalogName_(""),
+      schemaName_(""),
+      objectName_(""),
+      fullName_(""),
+      defaultSchema_(""),
 #if defined(NA_WINNT)
-        outFilename_(defOutFilename),
+      outFilename_(defOutFilename),
 #else
-        outFilename_(""),
+      outFilename_(""),
 #endif
-	forceFilename_("")
-{}
+      forceFilename_("") {
+}
 
-CRUOptions::CRUOptions(const CRUOptions& other) :
-	invocType_(other.invocType_),
-	isRecompute_(other.isRecompute_),
-	isCancel_(other.isCancel_),
-	lcType_(other.lcType_),
-	catalogName_(other.catalogName_),
-	schemaName_(other.schemaName_),
-	objectName_(other.objectName_),
-	fullName_(other.fullName_),
-	outFilename_(other.outFilename_),
-	forceFilename_(other.forceFilename_)
-{}
+CRUOptions::CRUOptions(const CRUOptions &other)
+    : invocType_(other.invocType_),
+      isRecompute_(other.isRecompute_),
+      isCancel_(other.isCancel_),
+      lcType_(other.lcType_),
+      catalogName_(other.catalogName_),
+      schemaName_(other.schemaName_),
+      objectName_(other.objectName_),
+      fullName_(other.fullName_),
+      outFilename_(other.outFilename_),
+      forceFilename_(other.forceFilename_) {}
 
 //--------------------------------------------------------------------------//
 //	CRUOptions::FindDebugOption()
 //
 //	Search for the option using the <testpoint, objectName> pair.
-//	If the object name in the options list is empty, 
+//	If the object name in the options list is empty,
 //	the search does not use it as a criterion.
 //
 //--------------------------------------------------------------------------//
 
-CRUOptions::DebugOption *CRUOptions::
-FindDebugOption(Int32 testpoint, const CDSString &objName)
-{
-	DSListPosition pos = debugOptionList_.GetHeadPosition();
-	while (NULL != pos)
-	{
-		DebugOption &opt = debugOptionList_.GetNext(pos);
+CRUOptions::DebugOption *CRUOptions::FindDebugOption(Int32 testpoint, const CDSString &objName) {
+  DSListPosition pos = debugOptionList_.GetHeadPosition();
+  while (NULL != pos) {
+    DebugOption &opt = debugOptionList_.GetNext(pos);
 
-		if (testpoint != opt.testpoint_)
-		{
-			continue;
-		}
+    if (testpoint != opt.testpoint_) {
+      continue;
+    }
 
-		if (0 == opt.objName_.GetLength()
-			||
-			objName == opt.objName_
-			)
-		{
-			return &opt;
-		}
-	}
+    if (0 == opt.objName_.GetLength() || objName == opt.objName_) {
+      return &opt;
+    }
+  }
 
-	return NULL;
+  return NULL;
 }
 
 //--------------------------------------------------------------------------//
 //	CRUOptions::AddDebugOption()
 //--------------------------------------------------------------------------//
 
-void CRUOptions::AddDebugOption(Int32 testpoint, const CDSString &objName)
-{
-	CRUOptions::DebugOption opt;
+void CRUOptions::AddDebugOption(Int32 testpoint, const CDSString &objName) {
+  CRUOptions::DebugOption opt;
 
-	opt.testpoint_ = testpoint;
-	opt.objName_ = objName;
+  opt.testpoint_ = testpoint;
+  opt.objName_ = objName;
 
-	debugOptionList_.AddTail(opt);
+  debugOptionList_.AddTail(opt);
 
-        // when debuuging is set outfile is always set to default out filename
-        if (outFilename_.IsEmpty())
-           outFilename_ = defOutFilename;
+  // when debuuging is set outfile is always set to default out filename
+  if (outFilename_.IsEmpty()) outFilename_ = defOutFilename;
 }
 
 #ifdef _DEBUG
 //--------------------------------------------------------------------------//
 //	CRUOptions::Dump()
 //--------------------------------------------------------------------------//
-void CRUOptions::Dump(CDSString &to) 
-{
-	to += "\n\t\tCOMMAND OPTIONS DUMP\n\n";
+void CRUOptions::Dump(CDSString &to) {
+  to += "\n\t\tCOMMAND OPTIONS DUMP\n\n";
 
-	to += "Catalog name = " + GetCatalogName() + "\n";
-	to += "Schema name = " + GetSchemaName() + "\n";
-	to += "Object name = " + GetObjectName() + " ";
-	
-	switch (GetInvocType()) {
+  to += "Catalog name = " + GetCatalogName() + "\n";
+  to += "Schema name = " + GetSchemaName() + "\n";
+  to += "Object name = " + GetObjectName() + " ";
 
-	case SINGLE_MV:	to += "(MV)\n";
-					break;
+  switch (GetInvocType()) {
+    case SINGLE_MV:
+      to += "(MV)\n";
+      break;
 
-	case CASCADE  : to += "(CASCADE)\n";
-					break;
+    case CASCADE:
+      to += "(CASCADE)\n";
+      break;
 
-	case MV_GROUP : to += "(MV GROUP)\n";
-					break;
+    case MV_GROUP:
+      to += "(MV GROUP)\n";
+      break;
 
-	default		  :	RUASSERT(FALSE);
-	}
+    default:
+      RUASSERT(FALSE);
+  }
 
-	to += "Recompute mode = ";
-	to += (IsRecompute() ? "YES" : "NO");
-	to += "\n";
+  to += "Recompute mode = ";
+  to += (IsRecompute() ? "YES" : "NO");
+  to += "\n";
 
-	to += "DDL locks cancel mode = ";
-	to += (IsCancel() ? "YES" : "NO");
-	to += "\n";
+  to += "DDL locks cancel mode = ";
+  to += (IsCancel() ? "YES" : "NO");
+  to += "\n";
 
-	switch (GetLogCleanupType()) {
+  switch (GetLogCleanupType()) {
+    case DONTCARE_LC:
+      to += "LOG CLEANUP NOT SPECIFIED";
+      break;
 
-	case DONTCARE_LC:	to += "LOG CLEANUP NOT SPECIFIED";
-						break;
+    case WITH_LC:
+      to += "INCLUDING LOG CLEANUP";
+      break;
 
-	case WITH_LC	:	to += "INCLUDING LOG CLEANUP";
-						break;
+    case WITHOUT_LC:
+      to += "NOT INCLUDING LOG CLEANUP";
+      break;
 
-	case WITHOUT_LC	:	to += "NOT INCLUDING LOG CLEANUP";
-						break;
+    case DO_ONLY_LC:
+      to += "LOG CLEANUP ONLY";
+      break;
 
-	case DO_ONLY_LC :	to += "LOG CLEANUP ONLY";
-						break;
-	
-	default		  :		ASSERT(FALSE);
-	}
+    default:
+      ASSERT(FALSE);
+  }
 
-	to += "\nOutput file = \""; 
-	to += GetOutputFilename();
-	to += "\"\n";
+  to += "\nOutput file = \"";
+  to += GetOutputFilename();
+  to += "\"\n";
 
-	char buf[200];
-	DSListPosition pos = debugOptionList_.GetHeadPosition();
-	while (NULL != pos)
-	{
-		DebugOption &opt = debugOptionList_.GetNext(pos);
-		sprintf(buf, "TESTPOINT %6d\t%s\n", opt.testpoint_, opt.objName_.c_string());
-		to += CDSString(buf);
-	}
+  char buf[200];
+  DSListPosition pos = debugOptionList_.GetHeadPosition();
+  while (NULL != pos) {
+    DebugOption &opt = debugOptionList_.GetNext(pos);
+    sprintf(buf, "TESTPOINT %6d\t%s\n", opt.testpoint_, opt.objName_.c_string());
+    to += CDSString(buf);
+  }
 }
 #endif
 
@@ -200,91 +194,85 @@ void CRUOptions::Dump(CDSString &to)
 //	CRUOptions::DebugOption &operator = ()
 //--------------------------------------------------------------------------//
 
-CRUOptions::DebugOption &CRUOptions::DebugOption::
-operator = (const CRUOptions::DebugOption &other)
-{
-	testpoint_ = other.testpoint_;
-	objName_ = other.objName_;
+CRUOptions::DebugOption &CRUOptions::DebugOption::operator=(const CRUOptions::DebugOption &other) {
+  testpoint_ = other.testpoint_;
+  objName_ = other.objName_;
 
-	return *this;
+  return *this;
 }
 
 //--------------------------------------------------------------------------//
 //	CRUOptions::StoreData()
 //
-//	The LoadData/StoreData methods move only the output 
+//	The LoadData/StoreData methods move only the output
 //	file's name and the debug options between the processes.
 //--------------------------------------------------------------------------//
-void CRUOptions::StoreData(CUOFsIpcMessageTranslator &translator)
-{
- Int32 stringSize;
-	
-	// Output filename
-	stringSize = outFilename_.GetLength() + 1;
-	translator.WriteBlock(&stringSize, sizeof(Int32));
-	translator.WriteBlock(outFilename_.c_string(), stringSize);
-	
-	// Force filename
-	stringSize = forceFilename_.GetLength() + 1;
-	translator.WriteBlock(&stringSize, sizeof(Int32));
-	translator.WriteBlock(forceFilename_.c_string(), stringSize);
+void CRUOptions::StoreData(CUOFsIpcMessageTranslator &translator) {
+  Int32 stringSize;
 
-	// Debug options 
- Int32 size = debugOptionList_.GetCount();
-	translator.WriteBlock(&size,sizeof(Int32));
+  // Output filename
+  stringSize = outFilename_.GetLength() + 1;
+  translator.WriteBlock(&stringSize, sizeof(Int32));
+  translator.WriteBlock(outFilename_.c_string(), stringSize);
 
-	DSListPosition pos = debugOptionList_.GetHeadPosition();
-	while (NULL != pos)
-	{
-		DebugOption &opt = debugOptionList_.GetNext(pos);
-		
-		translator.WriteBlock(&(opt.testpoint_),sizeof(Int32));
-		
-		stringSize = opt.objName_.GetLength() + 1;
-		translator.WriteBlock(&stringSize, sizeof(Int32));
-		translator.WriteBlock(opt.objName_.c_string(), stringSize);
-	}
+  // Force filename
+  stringSize = forceFilename_.GetLength() + 1;
+  translator.WriteBlock(&stringSize, sizeof(Int32));
+  translator.WriteBlock(forceFilename_.c_string(), stringSize);
+
+  // Debug options
+  Int32 size = debugOptionList_.GetCount();
+  translator.WriteBlock(&size, sizeof(Int32));
+
+  DSListPosition pos = debugOptionList_.GetHeadPosition();
+  while (NULL != pos) {
+    DebugOption &opt = debugOptionList_.GetNext(pos);
+
+    translator.WriteBlock(&(opt.testpoint_), sizeof(Int32));
+
+    stringSize = opt.objName_.GetLength() + 1;
+    translator.WriteBlock(&stringSize, sizeof(Int32));
+    translator.WriteBlock(opt.objName_.c_string(), stringSize);
+  }
 }
 
 //--------------------------------------------------------------------------//
 //	CRUOptions::LoadData()
 //--------------------------------------------------------------------------//
-void CRUOptions::LoadData(CUOFsIpcMessageTranslator &translator)
-{
-	char buf[PACK_BUFFER_SIZE];
- Int32 stringSize;
-	
-	// Output filename
-	translator.ReadBlock(&stringSize, sizeof(Int32));
-	translator.ReadBlock(buf, stringSize);
-	
-	CDSString outFileName(buf);
-	SetOutputFilename(outFileName);
+void CRUOptions::LoadData(CUOFsIpcMessageTranslator &translator) {
+  char buf[PACK_BUFFER_SIZE];
+  Int32 stringSize;
 
-	// Force filename
-	translator.ReadBlock(&stringSize, sizeof(Int32));
-	translator.ReadBlock(buf, stringSize);
-	
-	CDSString forceFileName(buf);
-	SetForceFilename(forceFileName);
+  // Output filename
+  translator.ReadBlock(&stringSize, sizeof(Int32));
+  translator.ReadBlock(buf, stringSize);
 
-	// Debug options 
- Int32 size;
-	translator.ReadBlock(&size,sizeof(Int32));
+  CDSString outFileName(buf);
+  SetOutputFilename(outFileName);
 
-	for (Int32 i=0;i<size;i++)
-	{
-	 Int32 testpoint;
-				
-		translator.ReadBlock(&testpoint,sizeof(Int32));
-		
-		translator.ReadBlock(&stringSize, sizeof(Int32));
-		
-		RUASSERT(PACK_BUFFER_SIZE > stringSize);
+  // Force filename
+  translator.ReadBlock(&stringSize, sizeof(Int32));
+  translator.ReadBlock(buf, stringSize);
 
-		translator.ReadBlock(buf, stringSize);
-		
-		CDSString objName(buf);
-		AddDebugOption(testpoint, objName);
-	}
+  CDSString forceFileName(buf);
+  SetForceFilename(forceFileName);
+
+  // Debug options
+  Int32 size;
+  translator.ReadBlock(&size, sizeof(Int32));
+
+  for (Int32 i = 0; i < size; i++) {
+    Int32 testpoint;
+
+    translator.ReadBlock(&testpoint, sizeof(Int32));
+
+    translator.ReadBlock(&stringSize, sizeof(Int32));
+
+    RUASSERT(PACK_BUFFER_SIZE > stringSize);
+
+    translator.ReadBlock(buf, stringSize);
+
+    CDSString objName(buf);
+    AddDebugOption(testpoint, objName);
+  }
 }

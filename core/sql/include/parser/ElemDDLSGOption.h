@@ -27,7 +27,7 @@
  *
  * File:         ElemDDLSGOption.h
  * Description:  classes for sequence generator options specified in DDL statements
- *               
+ *
  * Created:      4/22/08
  * Language:     C++
  *
@@ -65,11 +65,8 @@ class ElemDDLSGOptionNextValOption;
 // -----------------------------------------------------------------------
 // definition of base class ElemDDLSGOption
 // -----------------------------------------------------------------------
-class ElemDDLSGOption : public ElemDDLNode  
-{
-
-public:
-
+class ElemDDLSGOption : public ElemDDLNode {
+ public:
   // default constructor
   ElemDDLSGOption(OperatorTypeEnum operatorType);
 
@@ -77,97 +74,84 @@ public:
   virtual ~ElemDDLSGOption();
 
   // cast
-  virtual ElemDDLSGOption * castToElemDDLSGOption();
+  virtual ElemDDLSGOption *castToElemDDLSGOption();
 
   // method for tracing
   virtual const NAString getText() const;
- 
-}; // class ElemDDLSGOption
+
+};  // class ElemDDLSGOption
 
 // -----------------------------------------------------------------------
 // definition of class ElemDDLSGOptionStartValue
 // -----------------------------------------------------------------------
-class ElemDDLSGOptionStartValue : public ElemDDLSGOption
-{
-
-public:
-
+class ElemDDLSGOptionStartValue : public ElemDDLSGOption {
+ public:
   // constructors
   ElemDDLSGOptionStartValue(Int64 value);
-  
+
   // virtual destructor
   virtual ~ElemDDLSGOptionStartValue();
 
   // cast
-  virtual ElemDDLSGOptionStartValue * castToElemDDLSGOptionStartValue();
+  virtual ElemDDLSGOptionStartValue *castToElemDDLSGOptionStartValue();
 
   // accessors
   inline Int64 getValue() const;
-   
+
   // methods for tracing
   virtual const NAString displayLabel1() const;
   virtual const NAString getText() const;
 
-
   // method for building text
   virtual NAString getSyntax() const;
 
-private:
-
+ private:
   //
   // data member(s)
   //
 
   Int64 value_;
-  
-}; // class ElemDDLSGOptionStartValue
+
+};  // class ElemDDLSGOptionStartValue
 
 // -----------------------------------------------------------------------
 // definition of class ElemDDLSGOptionRestartValue
 // -----------------------------------------------------------------------
-class ElemDDLSGOptionRestartValue : public ElemDDLSGOption
-{
-
-public:
-
+class ElemDDLSGOptionRestartValue : public ElemDDLSGOption {
+ public:
   // constructors
   ElemDDLSGOptionRestartValue(Int64 value);
-  
+
   // virtual destructor
   virtual ~ElemDDLSGOptionRestartValue();
 
   // cast
-  virtual ElemDDLSGOptionRestartValue * castToElemDDLSGOptionRestartValue();
+  virtual ElemDDLSGOptionRestartValue *castToElemDDLSGOptionRestartValue();
 
   // accessors
   inline Int64 getValue() const;
-   
+
   // methods for tracing
   virtual const NAString displayLabel1() const;
   virtual const NAString getText() const;
 
-
   // method for building text
   virtual NAString getSyntax() const;
 
-private:
-
+ private:
   //
   // data member(s)
   //
 
   Int64 value_;
-  
-}; // class ElemDDLSGOptionRestartValue
+
+};  // class ElemDDLSGOptionRestartValue
 
 // -----------------------------------------------------------------------
 // definition of class ElemDDLSGOptionIncrement
 // -----------------------------------------------------------------------
-class ElemDDLSGOptionIncrement : public ElemDDLSGOption
-{
-
-public:
-
+class ElemDDLSGOptionIncrement : public ElemDDLSGOption {
+ public:
   // constructor
   ElemDDLSGOptionIncrement(Int64 value);
 
@@ -175,7 +159,7 @@ public:
   virtual ~ElemDDLSGOptionIncrement();
 
   // cast
-  virtual ElemDDLSGOptionIncrement * castToElemDDLSGOptionIncrement();
+  virtual ElemDDLSGOptionIncrement *castToElemDDLSGOptionIncrement();
 
   // accessors
   inline Int64 getValue() const;
@@ -187,25 +171,20 @@ public:
   // method for building text
   virtual NAString getSyntax() const;
 
-private:
-
+ private:
   //
   // data member(s)
   //
 
   Int64 value_;
 
-}; // class ElemDDLSGOptionIncrement
-
+};  // class ElemDDLSGOptionIncrement
 
 // -----------------------------------------------------------------------
 // definition of class ElemDDLSGOptionMinValue
 // -----------------------------------------------------------------------
-class ElemDDLSGOptionMinValue : public ElemDDLSGOption
-{
-
-public:
-
+class ElemDDLSGOptionMinValue : public ElemDDLSGOption {
+ public:
   // constructor
   ElemDDLSGOptionMinValue(Int64 value);
   ElemDDLSGOptionMinValue(NABoolean noMinValue);
@@ -214,7 +193,7 @@ public:
   virtual ~ElemDDLSGOptionMinValue();
 
   // cast
-  virtual ElemDDLSGOptionMinValue * castToElemDDLSGOptionMinValue();
+  virtual ElemDDLSGOptionMinValue *castToElemDDLSGOptionMinValue();
 
   // accessors
   inline Int64 getValue() const;
@@ -224,12 +203,10 @@ public:
   virtual const NAString displayLabel1() const;
   virtual const NAString getText() const;
 
-
   // method for building text
   virtual NAString getSyntax() const;
 
-private:
-
+ private:
   //
   // data member(s)
   //
@@ -237,16 +214,13 @@ private:
   Int64 value_;
   NABoolean isNoMinValue_;
 
-}; // class ElemDDLSGOptionMinValue
+};  // class ElemDDLSGOptionMinValue
 
 // -----------------------------------------------------------------------
 // definition of class ElemDDLSGOptionMaxValue
 // -----------------------------------------------------------------------
-class ElemDDLSGOptionMaxValue : public ElemDDLSGOption
-{
-
-public:
-
+class ElemDDLSGOptionMaxValue : public ElemDDLSGOption {
+ public:
   // constructor
   ElemDDLSGOptionMaxValue(Int64 value);
   ElemDDLSGOptionMaxValue(NABoolean noMaxValue);
@@ -255,7 +229,7 @@ public:
   virtual ~ElemDDLSGOptionMaxValue();
 
   // cast
-  virtual ElemDDLSGOptionMaxValue * castToElemDDLSGOptionMaxValue();
+  virtual ElemDDLSGOptionMaxValue *castToElemDDLSGOptionMaxValue();
 
   // accessors
   inline Int64 getValue() const;
@@ -268,8 +242,7 @@ public:
   // method for building text
   virtual NAString getSyntax() const;
 
-private:
-
+ private:
   //
   // data member(s)
   //
@@ -277,16 +250,13 @@ private:
   Int64 value_;
   NABoolean isNoMaxValue_;
 
-}; // class ElemDDLSGOptionMaxValue
+};  // class ElemDDLSGOptionMaxValue
 
 // -----------------------------------------------------------------------
 // definition of class ElemDDLSGOptionCycleOption
 // -----------------------------------------------------------------------
-class ElemDDLSGOptionCycleOption : public ElemDDLSGOption
-{
-
-public:
-
+class ElemDDLSGOptionCycleOption : public ElemDDLSGOption {
+ public:
   // constructor
   ElemDDLSGOptionCycleOption(NABoolean cycle);
   ElemDDLSGOptionCycleOption();
@@ -295,12 +265,12 @@ public:
   virtual ~ElemDDLSGOptionCycleOption();
 
   // cast
-  virtual ElemDDLSGOptionCycleOption * castToElemDDLSGOptionCycleOption();
+  virtual ElemDDLSGOptionCycleOption *castToElemDDLSGOptionCycleOption();
 
   // accessors
-  inline NABoolean isCycle()   const { return cycle_ == TRUE; };
+  inline NABoolean isCycle() const { return cycle_ == TRUE; };
   inline NABoolean isNoCycle() const { return cycle_ == FALSE; };
-  inline NABoolean getValue()  const { return cycle_; };
+  inline NABoolean getValue() const { return cycle_; };
 
   // methods for tracing
   virtual const NAString displayLabel1() const;
@@ -309,24 +279,20 @@ public:
   // method for building text
   virtual NAString getSyntax() const;
 
-private:
-
+ private:
   //
   // data member(s)
   //
 
   NABoolean cycle_;
 
-}; // class ElemDDLSGOptionCycleOption
+};  // class ElemDDLSGOptionCycleOption
 
 // -----------------------------------------------------------------------
 // definition of class ElemDDLSGOptionCacheOption
 // -----------------------------------------------------------------------
-class ElemDDLSGOptionCacheOption : public ElemDDLSGOption
-{
-
-public:
-
+class ElemDDLSGOptionCacheOption : public ElemDDLSGOption {
+ public:
   // constructor
   ElemDDLSGOptionCacheOption(NABoolean cache, Int64 cacheSize);
   ElemDDLSGOptionCacheOption();
@@ -335,12 +301,12 @@ public:
   virtual ~ElemDDLSGOptionCacheOption();
 
   // cast
-  virtual ElemDDLSGOptionCacheOption * castToElemDDLSGOptionCacheOption();
+  virtual ElemDDLSGOptionCacheOption *castToElemDDLSGOptionCacheOption();
 
   // accessors
-  inline NABoolean isCache()   const { return cache_ == TRUE; };
+  inline NABoolean isCache() const { return cache_ == TRUE; };
   inline NABoolean isNoCache() const { return cache_ == FALSE; };
-  inline Int64 getCacheSize()  const { return cacheSize_; };
+  inline Int64 getCacheSize() const { return cacheSize_; };
 
   // methods for tracing
   virtual const NAString displayLabel1() const;
@@ -349,75 +315,67 @@ public:
   // method for building text
   virtual NAString getSyntax() const;
 
-private:
-
+ private:
   //
   // data member(s)
   //
   NABoolean cache_;
   Int64 cacheSize_;
 
-}; // class ElemDDLSGOptionCacheOption
+};  // class ElemDDLSGOptionCacheOption
 
 // -----------------------------------------------------------------------
 // definition of class ElemDDLSGOptionOrderOption
 // -----------------------------------------------------------------------
-class ElemDDLSGOptionOrderOption : public ElemDDLSGOption
-{
-
-public:
-
+class ElemDDLSGOptionOrderOption : public ElemDDLSGOption {
+ public:
   // constructor
   ElemDDLSGOptionOrderOption(NABoolean isNoOrder = false);
 
   // virtual destructor
   virtual ~ElemDDLSGOptionOrderOption();
-  
-  virtual ElemDDLSGOptionOrderOption * castToElemDDLSGOptionOrderOption();
+
+  virtual ElemDDLSGOptionOrderOption *castToElemDDLSGOptionOrderOption();
 
   NABoolean isNoOrder() { return isNoOrder_; }
 
-private:
-
+ private:
   NABoolean isNoOrder_;
 
-}; // class ElemDDLSGOptionOrderOption
+};  // class ElemDDLSGOptionOrderOption
 
 // -----------------------------------------------------------------------
 // definition of class ElemDDLSGOptionSystemOption
 // -----------------------------------------------------------------------
-class ElemDDLSGOptionSystemOption : public ElemDDLSGOption
-{
-
-public:
-
+class ElemDDLSGOptionSystemOption : public ElemDDLSGOption {
+ public:
   // constructor
-  ElemDDLSGOptionSystemOption(Int64 timeout=-1): ElemDDLSGOption(ELM_SG_OPT_SYSTEM_OPTION_ELEM) {timeout_ = timeout;};
+  ElemDDLSGOptionSystemOption(Int64 timeout = -1) : ElemDDLSGOption(ELM_SG_OPT_SYSTEM_OPTION_ELEM) {
+    timeout_ = timeout;
+  };
 
   // virtual destructor
   virtual ~ElemDDLSGOptionSystemOption(){};
-  
-  virtual ElemDDLSGOptionSystemOption * castToElemDDLSGOptionSystemOption(){return this;};
 
- // methods for tracing
-  virtual const NAString displayLabel1() const { return (NAString("GLOBAL "));};
-  virtual const NAString getText() const {return "ElemDDLSGOptionSystemOption";};
+  virtual ElemDDLSGOptionSystemOption *castToElemDDLSGOptionSystemOption() { return this; };
+
+  // methods for tracing
+  virtual const NAString displayLabel1() const { return (NAString("GLOBAL ")); };
+  virtual const NAString getText() const { return "ElemDDLSGOptionSystemOption"; };
 
   // method for building text
-  virtual NAString getSyntax() const  ;
-  Int64 getTimeout() { return timeout_;};
-private :
-  Int64 timeout_; // in microseconds.
+  virtual NAString getSyntax() const;
+  Int64 getTimeout() { return timeout_; };
 
-}; // class ElemDDLSGOptionOrderOption
+ private:
+  Int64 timeout_;  // in microseconds.
+
+};  // class ElemDDLSGOptionOrderOption
 // -----------------------------------------------------------------------
 // definition of class ElemDDLSGOptionDatatype
 // -----------------------------------------------------------------------
-class ElemDDLSGOptionDatatype : public ElemDDLSGOption
-{
-
-public:
-
+class ElemDDLSGOptionDatatype : public ElemDDLSGOption {
+ public:
   // constructor
   ElemDDLSGOptionDatatype(ComFSDataType dt);
   ElemDDLSGOptionDatatype();
@@ -426,10 +384,10 @@ public:
   virtual ~ElemDDLSGOptionDatatype();
 
   // cast
-  virtual ElemDDLSGOptionDatatype * castToElemDDLSGOptionDatatype();
+  virtual ElemDDLSGOptionDatatype *castToElemDDLSGOptionDatatype();
 
   // accessors
-  inline ComFSDataType getDatatype() { return dt_;}
+  inline ComFSDataType getDatatype() { return dt_; }
 
   // methods for tracing
   virtual const NAString displayLabel1() const;
@@ -438,20 +396,16 @@ public:
   // method for building text
   virtual NAString getSyntax() const;
 
-private:
-
+ private:
   ComFSDataType dt_;
 
-}; // class ElemDDLSGOptionDatatype
+};  // class ElemDDLSGOptionDatatype
 
 // -----------------------------------------------------------------------
 // definition of class ElemDDLSGOptionResetOption
 // -----------------------------------------------------------------------
-class ElemDDLSGOptionResetOption : public ElemDDLSGOption
-{
-
-public:
-
+class ElemDDLSGOptionResetOption : public ElemDDLSGOption {
+ public:
   // constructor
   ElemDDLSGOptionResetOption();
 
@@ -459,7 +413,7 @@ public:
   virtual ~ElemDDLSGOptionResetOption();
 
   // cast
-  virtual ElemDDLSGOptionResetOption * castToElemDDLSGOptionResetOption();
+  virtual ElemDDLSGOptionResetOption *castToElemDDLSGOptionResetOption();
 
   // methods for tracing
   virtual const NAString displayLabel1() const;
@@ -468,17 +422,14 @@ public:
   // method for building text
   virtual NAString getSyntax() const;
 
-private:
-}; // class ElemDDLSGOptionResetOption
+ private:
+};  // class ElemDDLSGOptionResetOption
 
 // -----------------------------------------------------------------------
 // definition of class ElemDDLSGOptionNextValOption
 // -----------------------------------------------------------------------
-class ElemDDLSGOptionNextValOption : public ElemDDLSGOption
-{
-
-public:
-
+class ElemDDLSGOptionNextValOption : public ElemDDLSGOption {
+ public:
   // constructor
   ElemDDLSGOptionNextValOption(Int64 nextVal);
 
@@ -486,10 +437,10 @@ public:
   virtual ~ElemDDLSGOptionNextValOption();
 
   // cast
-  virtual ElemDDLSGOptionNextValOption * castToElemDDLSGOptionNextValOption();
+  virtual ElemDDLSGOptionNextValOption *castToElemDDLSGOptionNextValOption();
 
   // accessors
-  inline Int64 getNextVal()  const { return nextVal_; };
+  inline Int64 getNextVal() const { return nextVal_; };
 
   // methods for tracing
   virtual const NAString displayLabel1() const;
@@ -498,76 +449,46 @@ public:
   // method for building text
   virtual NAString getSyntax() const;
 
-private:
-
+ private:
   //
   // data member(s)
   //
   Int64 nextVal_;
 
-}; // class ElemDDLSGOptionNextValOption
-
+};  // class ElemDDLSGOptionNextValOption
 
 // -----------------------------------------------------------------------
 // definitions of inline methods for class ElemDDLSGOptionStartValue
 // -----------------------------------------------------------------------
 
-inline Int64
-ElemDDLSGOptionStartValue::getValue() const
-{
-  return value_;
-}
+inline Int64 ElemDDLSGOptionStartValue::getValue() const { return value_; }
 
 // -----------------------------------------------------------------------
 // definitions of inline methods for class ElemDDLSGOptionRestartValue
 // -----------------------------------------------------------------------
 
-inline Int64
-ElemDDLSGOptionRestartValue::getValue() const
-{
-  return value_;
-}
+inline Int64 ElemDDLSGOptionRestartValue::getValue() const { return value_; }
 
 // -----------------------------------------------------------------------
 // definitions of inline methods for class ElemDDLSGOptionIncrement
 // -----------------------------------------------------------------------
 
-inline Int64
-ElemDDLSGOptionIncrement::getValue() const
-{
-  return value_;
-}
+inline Int64 ElemDDLSGOptionIncrement::getValue() const { return value_; }
 
 // -----------------------------------------------------------------------
 // definitions of inline methods for class ElemDDLSGOptionMaxValue
 // -----------------------------------------------------------------------
 
-inline Int64
-ElemDDLSGOptionMaxValue::getValue() const
-{
-  return value_;
-}
+inline Int64 ElemDDLSGOptionMaxValue::getValue() const { return value_; }
 
-inline NABoolean
-ElemDDLSGOptionMaxValue::isNoMaxValue() const
-{
-  return isNoMaxValue_;
-}
+inline NABoolean ElemDDLSGOptionMaxValue::isNoMaxValue() const { return isNoMaxValue_; }
 
 // -----------------------------------------------------------------------
 // definitions of inline methods for class ElemDDLSGOptionMinValue
 // -----------------------------------------------------------------------
 
-inline Int64
-ElemDDLSGOptionMinValue::getValue() const
-{
-  return value_;
-}
+inline Int64 ElemDDLSGOptionMinValue::getValue() const { return value_; }
 
-inline NABoolean
-ElemDDLSGOptionMinValue::isNoMinValue() const
-{
-  return isNoMinValue_;
-}
+inline NABoolean ElemDDLSGOptionMinValue::isNoMinValue() const { return isNoMinValue_; }
 
-#endif // ELEMDDLSGOPTION_H
+#endif  // ELEMDDLSGOPTION_H

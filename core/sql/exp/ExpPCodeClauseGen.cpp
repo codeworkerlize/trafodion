@@ -24,7 +24,7 @@
 ****************************************************************************
 *
 * File:         ExpPCodeClauseGen.cpp
-* Description:  
+* Description:
 *
 * Created:      8/25/97
 * Language:     C++
@@ -43,7 +43,6 @@
 
 #include "common/Platform.h"
 
-
 // Includes
 //
 #include "common/Platform.h"
@@ -60,43 +59,40 @@
 
 // ex_clause::pCodeGenerate
 //
-// PCode generation for the default case (ie. no fundamental pcode 
-// instructions to do the operation) so the original clause->eval is 
+// PCode generation for the default case (ie. no fundamental pcode
+// instructions to do the operation) so the original clause->eval is
 // executed via the PCode instruction CLAUSE_EVAL.
 //
 // IN     : space - memory allocator
-// OUT    : 
+// OUT    :
 // RETURN : ex_expr::EXPR_OK is no errors
 // EFFECTS: stores pointer to PCodeObject in clause
 //
 ex_expr::exp_return_type ex_clause::pCodeGenerate(Space *space, UInt32 f) {
-
   PCIList code(space);
   AttributesPtr *attrs = getOperand();
 
   Int32 nNullableInputs = 0;
   Int32 i = 0;
-  for(i=0; i<getNumOperands(); i++) {
-    if (! attrs[i])
-      continue;
+  for (i = 0; i < getNumOperands(); i++) {
+    if (!attrs[i]) continue;
 
-    if((i>0) && attrs[i]->getNullFlag())
-      nNullableInputs++;
+    if ((i > 0) && attrs[i]->getNullFlag()) nNullableInputs++;
   }
 
-  // Generate necessary pre clause PCI's 
+  // Generate necessary pre clause PCI's
   //
   PCode::preClausePCI(this, code);
 
-  // stackDepth is the total Depth of the stack (ie. the size of the 
+  // stackDepth is the total Depth of the stack (ie. the size of the
   // op_data vector that is being created) for the eval call.
   //
   // stackPushesWaiting is the current number of stack pushes needed for
-  // the eval call. Pushes are not done immediately so that consective 
+  // the eval call. Pushes are not done immediately so that consective
   // pushes can be coalesced.
   //
-  //int stackDepth = 0;
-  //int stackPushesWaiting = 0;
+  // int stackDepth = 0;
+  // int stackPushesWaiting = 0;
   Int32 useProcessNulls = 0;
 
   // Branch target IDs
@@ -106,40 +102,33 @@ ex_expr::exp_return_type ex_clause::pCodeGenerate(Space *space, UInt32 f) {
   // Are any of the attributes varchar?
   //
   Int32 varchar = 0;
-  for(i=0; i<getNumOperands(); i++) 
-  {
-    if (! attrs[i])
-      continue;
+  for (i = 0; i < getNumOperands(); i++) {
+    if (!attrs[i]) continue;
 
-    if(attrs[i]->getVCIndicatorLength() > 0) 
-      varchar = 1;
+    if (attrs[i]->getVCIndicatorLength() > 0) varchar = 1;
   }
 
-  // 
+  //
   // Set the first fixed field for the 2 disk formats.
-  if(getNumOperands() > 0)
-    code.append(PCode::storeVoa(attrs[0], space));
+  if (getNumOperands() > 0) code.append(PCode::storeVoa(attrs[0], space));
 
   // If any of the operands are nullable, NULL is relevant for
   // this clause, and any NULL input produces a NULL output, insert the
   // appropriate PCODE sequence to compute the nullness of the result.
   // (If branching is not desireable, then define the virtual methods
   //  below for that specific clause type.)
-  if(isAnyOperandNullable() && isNullRelevant() && isNullInNullOut()
-     && (nNullableInputs < 3)) { 
+  if (isAnyOperandNullable() && isNullRelevant() && isNullInNullOut() && (nNullableInputs < 3)) {
     branchEndA = PCode::nullBranch(this, code, attrs);
   }
-  // If any of the inputs are nullable, insert the appropriate PCODE 
+  // If any of the inputs are nullable, insert the appropriate PCODE
   // sequence to load the null indicators onto the stack.
   //
-  else if(isAnyOperandNullable())
-  {
+  else if (isAnyOperandNullable()) {
     // Load the address of the NULL indicator for the result into the
     // OpData vector.
     //
-    if(attrs[0]->getNullFlag())
-    {
-      if ( attrs[0]->isSQLMXAlignedFormat() )
+    if (attrs[0]->getNullFlag()) {
+      if (attrs[0]->isSQLMXAlignedFormat())
         code.append(PCode::loadOpDataNullBitmapAddress(attrs[0], 0, space));
       else
         code.append(PCode::loadOpDataNullAddress(attrs[0], 0, space));
@@ -149,23 +138,20 @@ ex_expr::exp_return_type ex_clause::pCodeGenerate(Space *space, UInt32 f) {
     // on the stack for eval. If an operand is NULL leave a zero on the
     // stack, otherwise a non-zero.
     //
-    for(i=1; i<getNumOperands(); i++) {
-      if (! attrs[i])
-        continue;
+    for (i = 1; i < getNumOperands(); i++) {
+      if (!attrs[i]) continue;
 
-      if(attrs[i]->getNullFlag())
-      {
-        if ( attrs[i]->isSQLMXAlignedFormat() )
+      if (attrs[i]->getNullFlag()) {
+        if (attrs[i]->isSQLMXAlignedFormat())
           code.append(PCode::loadOpDataNullBitmap(attrs[i], i, space));
         else
-	  code.append(PCode::loadOpDataNull(attrs[i], i, space));
+          code.append(PCode::loadOpDataNull(attrs[i], i, space));
       }
     }
 
     // If special NULL processing is needed, set flag so the process nulls
     // flag in the CLAUSE_EVAL instruction will be set.
-    if(isNullRelevant())
-      useProcessNulls = 1;
+    if (isNullRelevant()) useProcessNulls = 1;
   }
 
   // Setup the op_data vector for the call to eval. (The null indicator part
@@ -173,30 +159,25 @@ ex_expr::exp_return_type ex_clause::pCodeGenerate(Space *space, UInt32 f) {
   //
   // Compute pointers to the varchar indicators (if necessary) on the stack
   //
-  if(varchar) 
-    {
-      for(i=0; i<getNumOperands(); i++)
-        // For indirect varchars, this also loads the data address.
-	code.append(PCode::loadOpDataVCAddress(attrs[i], i, space));
-    } 
+  if (varchar) {
+    for (i = 0; i < getNumOperands(); i++)
+      // For indirect varchars, this also loads the data address.
+      code.append(PCode::loadOpDataVCAddress(attrs[i], i, space));
+  }
   // If there are no varchar, but there are NULL considerations, push empty
   // space on the stack because eval may access the NULL information
   //
-  else if(isAnyOperandNullable() && (1 || !isNullRelevant())) 
-    {
-      ;
-    }
+  else if (isAnyOperandNullable() && (1 || !isNullRelevant())) {
+    ;
+  }
 
   // Load the data addresses.
   //
-  for(i=0; i<getNumOperands(); i++) 
-    {
-      // For indirect varchars, the data address is loaded at the same time
-      // as the VCLen Address.
-      if( attrs[i] && (! attrs[i]->isIndirectVC()))
-        code.append(PCode::loadOpDataDataAddress(attrs[i], i, space));
-    }
-
+  for (i = 0; i < getNumOperands(); i++) {
+    // For indirect varchars, the data address is loaded at the same time
+    // as the VCLen Address.
+    if (attrs[i] && (!attrs[i]->isIndirectVC())) code.append(PCode::loadOpDataDataAddress(attrs[i], i, space));
+  }
 
   // Execute CLAUSE_EVAL which finishes pushing the stack, executes
   // clause->eval(), and then pops the stack.
@@ -204,47 +185,42 @@ ex_expr::exp_return_type ex_clause::pCodeGenerate(Space *space, UInt32 f) {
   AML aml(PCIT::IPTR, PCIT::IBIN32S);
   OL ol((Int64)this, useProcessNulls);
   PCI pci(PCIT::Op_CLAUSE_EVAL, aml, ol);
- 
+
   setNoPCodeAvailable(TRUE);
 
-  code.append(pci); 
+  code.append(pci);
 
   // update the varOffset if this CLAUSE_EVAL writes to a varchar in aligned format.
   // (unless this varchar is being treated as a fixed value in the aligned row).
   // Note that the updateRowlen instruction also updates the varOffset cursor of evalPCode().
-  if ( getNumOperands() > 0 &&
-       attrs[0]->isSQLMXDiskFormat() &&
-       (attrs[0]->getVCIndicatorLength() > 0) &&
-       !attrs[0]->isForceFixed() )
-  {
+  if (getNumOperands() > 0 && attrs[0]->isSQLMXDiskFormat() && (attrs[0]->getVCIndicatorLength() > 0) &&
+      !attrs[0]->isForceFixed()) {
     code.append(PCode::updateRowLen(attrs[0], space, f));
   }
 
   // Branch targets
   //
-  if(branchEndA)
-  {
+  if (branchEndA) {
     AML aml1;
     OL ol1((Int64)branchEndA);
     PCI pci1(PCIT::Op_TARGET, aml1, ol1);
     code.append(pci1);
   }
 
-  // Handle clauses that branch. Insert a CLAUSE_BRANCH instruction into 
-  // the code. A TARGET PCI instruction will be/has been added when PCI's are 
+  // Handle clauses that branch. Insert a CLAUSE_BRANCH instruction into
+  // the code. A TARGET PCI instruction will be/has been added when PCI's are
   // generated for the target clause. This no longer handles marking the
   // target clauses because it is too late for backwards branching at this
   // point. This is handled in ex_expr::pCodeGenerate().
   //
-  if(isBranchingClause()) 
-    {
-      ex_branch_clause *branchClause = (ex_branch_clause*)this;
-      ex_clause *targetClause = branchClause->get_branch_clause();
-      AML aml(PCIT::IPTR, PCIT::IPTR);
-      OL ol((Int64)targetClause, (Int64)this);
-      PCI pci(PCIT::Op_CLAUSE_BRANCH, aml, ol);
-      code.append(pci);
-    }
+  if (isBranchingClause()) {
+    ex_branch_clause *branchClause = (ex_branch_clause *)this;
+    ex_clause *targetClause = branchClause->get_branch_clause();
+    AML aml(PCIT::IPTR, PCIT::IPTR);
+    OL ol((Int64)targetClause, (Int64)this);
+    PCI pci(PCIT::Op_CLAUSE_BRANCH, aml, ol);
+    code.append(pci);
+  }
 
   // Generate the necessary post clause PCI's
   //
@@ -265,14 +241,11 @@ ex_expr::exp_return_type ex_inout_clause::pCodeGenerate(Space *space, UInt32 f) 
 // ex_aggr_min_max_clause::pCodeGenerate
 //
 ex_expr::exp_return_type ex_aggr_min_max_clause::pCodeGenerate(Space *space, UInt32 f) {
-
 #ifdef _DEBUG
-  if (getenv("NO_PCODE_MIN_MAX"))
-    return ex_clause::pCodeGenerate(space, f);
+  if (getenv("NO_PCODE_MIN_MAX")) return ex_clause::pCodeGenerate(space, f);
 #endif
 
-  if ((getOperand(1)->getNullFlag()) ||
-      (getOperand(0)->getVCIndicatorLength() > 0))
+  if ((getOperand(1)->getNullFlag()) || (getOperand(0)->getVCIndicatorLength() > 0))
     return ex_clause::pCodeGenerate(space, f);
 
   // Get a handle on the operands
@@ -293,21 +266,20 @@ ex_expr::exp_return_type ex_aggr_min_max_clause::pCodeGenerate(Space *space, UIn
   // If third operand is 1(TRUE), then move the first operand to result.
   // Fourth operand is the length of first operand. Data for this length
   // will be moved to result as the nee min/max value.
-  AML aml(PCIT::MBIN8,PCIT::MBIN8,PCIT::MBIN32S,PCIT::IBIN32S);
-  OL ol(attrs[0]->getAtp(), attrs[0]->getAtpIndex(), attrs[0]->getOffset(),
-        attrs[1]->getAtp(), attrs[1]->getAtpIndex(), attrs[1]->getOffset(),
-        attrs[2]->getAtp(), attrs[2]->getAtpIndex(), attrs[2]->getOffset(),
+  AML aml(PCIT::MBIN8, PCIT::MBIN8, PCIT::MBIN32S, PCIT::IBIN32S);
+  OL ol(attrs[0]->getAtp(), attrs[0]->getAtpIndex(), attrs[0]->getOffset(), attrs[1]->getAtp(), attrs[1]->getAtpIndex(),
+        attrs[1]->getOffset(), attrs[2]->getAtp(), attrs[2]->getAtpIndex(), attrs[2]->getOffset(),
         attrs[1]->getLength());
 
   PCI pci(PCIT::Op_MINMAX, aml, ol);
   code.append(pci);
-  
+
   // Generate post clause PCI's
   //
   PCode::postClausePCI(this, code);
 
   setPCIList(code.getList());
-  return ex_expr::EXPR_OK; 
+  return ex_expr::EXPR_OK;
 
   /* //  if ((getOperand(0)->getNullFlag()) ||
   if ((getOperand(1)->getNullFlag()) ||
@@ -338,14 +310,14 @@ ex_expr::exp_return_type ex_aggr_min_max_clause::pCodeGenerate(Space *space, UIn
   AML aml0(PCIT::IBIN32S, PCIT::IBIN32S);
   PCI pci0(PCIT::Op_ZERO, aml0);
   code.append(pci0);
-  
+
   // and branch out if it is true
   AML aml(PCIT::IBIN32S);
-  OL ol(0); 
+  OL ol(0);
   PCI pci(PCIT::Op_BRANCH, aml, ol);
   code.append(pci);
   PCIID branchTgt = code.getTailId();
-  
+
   code.append(PCode::moveValue(attrs[0], attrs[1], space));
 
   // End branch target.
@@ -354,7 +326,7 @@ ex_expr::exp_return_type ex_aggr_min_max_clause::pCodeGenerate(Space *space, UIn
   OL ol6((Int64)branchTgt);
   PCI pci6(PCIType::Op_TARGET, aml6, ol6);
   code.append(pci6);
-    
+
   // Generate post clause PCI's
   //
   PCode::postClausePCI(this, code);
@@ -373,19 +345,19 @@ ex_expr::exp_return_type ex_function_clause::pCodeGenerate(Space *space, UInt32 
 
 // ex_function_encode::pCodeGenerate
 //
-// For now PCode in only generated for very simple encodings. This is 
-// intended to improve scan/update node performance since the key encode 
+// For now PCode in only generated for very simple encodings. This is
+// intended to improve scan/update node performance since the key encode
 // expression is called frequently in these nodes.
 //
 // IN     : space - memory allocator
-// OUT    : 
+// OUT    :
 // RETURN : ex_expr::EXPR_OK is no errors
 // EFFECTS: stores pointer to PCodeObject in clause
 //
 ex_expr::exp_return_type ex_function_encode::pCodeGenerate(Space *space, UInt32 f) {
 #ifdef _DEBUG
   // For debugging...
-  if(getenv("PCODE_NO_ENCODE")) return ex_clause::pCodeGenerate(space, f);
+  if (getenv("PCODE_NO_ENCODE")) return ex_clause::pCodeGenerate(space, f);
 #endif
 
   // Generate the standard clause->eval PCode for cases that
@@ -394,73 +366,64 @@ ex_expr::exp_return_type ex_function_encode::pCodeGenerate(Space *space, UInt32 
   // For now, no nulls unless regularNullability has been explicitly asked.
   //
 
-  if ((NOT regularNullability()) &&
-      (isAnyOperandNullable()))
-    return ex_clause::pCodeGenerate(space, f);
+  if ((NOT regularNullability()) && (isAnyOperandNullable())) return ex_clause::pCodeGenerate(space, f);
 
   AttributesPtr *attrs = getOperand();
-  Attributes    *src = attrs[1];
+  Attributes *src = attrs[1];
   Lng32 fsDataType = src->getDatatype();
   Lng32 length = src->getLength();
 
-  if (isDecode())
-    {
-      if (! getenv("PCODE_DECODE"))
-	return ex_clause::pCodeGenerate(space, f);
-    }
-    
-  switch(fsDataType) {
-  case REC_BIN8_SIGNED:
-  case REC_BIN8_UNSIGNED:
-    break;
+  if (isDecode()) {
+    if (!getenv("PCODE_DECODE")) return ex_clause::pCodeGenerate(space, f);
+  }
 
-  case REC_BIN16_SIGNED:
-  case REC_BIN16_UNSIGNED:
-  case REC_BIN32_SIGNED:
-  case REC_BIN32_UNSIGNED:
-  case REC_BIN64_SIGNED:
-    break;
+  switch (fsDataType) {
+    case REC_BIN8_SIGNED:
+    case REC_BIN8_UNSIGNED:
+      break;
 
-  case REC_DECIMAL_LSE:
-  case REC_DECIMAL_UNSIGNED:
-    {
+    case REC_BIN16_SIGNED:
+    case REC_BIN16_UNSIGNED:
+    case REC_BIN32_SIGNED:
+    case REC_BIN32_UNSIGNED:
+    case REC_BIN64_SIGNED:
+      break;
+
+    case REC_DECIMAL_LSE:
+    case REC_DECIMAL_UNSIGNED: {
       // not enabled for NEO CA
       return ex_clause::pCodeGenerate(space, f);
-    }
-  break;
+    } break;
 
-  case REC_BYTE_F_ASCII:
-    // case REC_NCHAR_F_UNICODE:
+    case REC_BYTE_F_ASCII:
+      // case REC_NCHAR_F_UNICODE:
 
-    // for now, do non-pcode encoding for caseInsensitive datatypes.
-    // Later, add this to PCODE.
-    if (caseInsensitive())
-      return ex_clause::pCodeGenerate(space, f);
-    
-    //no pcode for now for Czech collated encode 
-    // this is for non nullable  op(1) 
-    if (CollationInfo::isSystemCollation(getCollation()))
-    {
-      return ex_clause::pCodeGenerate(space, f);
-    }
-  break;
+      // for now, do non-pcode encoding for caseInsensitive datatypes.
+      // Later, add this to PCODE.
+      if (caseInsensitive()) return ex_clause::pCodeGenerate(space, f);
 
-  case REC_DATETIME:
-    // Do not generate PCODE to encode the non-standard SQL/MP
-    // datetime types (for now).
-    // Do not generate PCODE on windows(Little Endian) platform.
-    // With little endian, we need to reversebytes the DATE and
-    // FRACTION part. Pcode cannot do that.
+      // no pcode for now for Czech collated encode
+      // this is for non nullable  op(1)
+      if (CollationInfo::isSystemCollation(getCollation())) {
+        return ex_clause::pCodeGenerate(space, f);
+      }
+      break;
+
+    case REC_DATETIME:
+      // Do not generate PCODE to encode the non-standard SQL/MP
+      // datetime types (for now).
+      // Do not generate PCODE on windows(Little Endian) platform.
+      // With little endian, we need to reversebytes the DATE and
+      // FRACTION part. Pcode cannot do that.
 #ifdef NA_LITTLE_ENDIAN
       return ex_clause::pCodeGenerate(space, f);
-#else    
-    if(src->getPrecision() > REC_DTCODE_TIMESTAMP)
-      return ex_clause::pCodeGenerate(space, f);
+#else
+      if (src->getPrecision() > REC_DTCODE_TIMESTAMP) return ex_clause::pCodeGenerate(space, f);
 #endif
-  break;
-  
-  default:
-    return ex_clause::pCodeGenerate(space, f);
+      break;
+
+    default:
+      return ex_clause::pCodeGenerate(space, f);
   }
 
   // If we get to this point, we have decided to generate PCode for this
@@ -477,75 +440,55 @@ ex_expr::exp_return_type ex_function_encode::pCodeGenerate(Space *space, UInt32 
   //
   PCIID branchToEnd = PCode::nullBranch(this, code, attrs);
 
-  if ((fsDataType == REC_BYTE_F_ASCII) ||
-      (fsDataType == REC_DATETIME) ||
-      (fsDataType == REC_DECIMAL_LSE) ||
-      (fsDataType == REC_DECIMAL_UNSIGNED))
-    {
-      // The first operand is the memory location for the result.
-      // The second operand is the memory location for the source.
-      // The third operand is the length of data to encode.
-      // The fourth operand is a boolean for ascending/descending.
-      //
-      short attrs1Datatype = src->getDatatype();
-      if ((fsDataType == REC_DATETIME) ||
-	  (fsDataType == REC_DECIMAL_UNSIGNED))
-	attrs1Datatype = REC_BYTE_F_ASCII;
+  if ((fsDataType == REC_BYTE_F_ASCII) || (fsDataType == REC_DATETIME) || (fsDataType == REC_DECIMAL_LSE) ||
+      (fsDataType == REC_DECIMAL_UNSIGNED)) {
+    // The first operand is the memory location for the result.
+    // The second operand is the memory location for the source.
+    // The third operand is the length of data to encode.
+    // The fourth operand is a boolean for ascending/descending.
+    //
+    short attrs1Datatype = src->getDatatype();
+    if ((fsDataType == REC_DATETIME) || (fsDataType == REC_DECIMAL_UNSIGNED)) attrs1Datatype = REC_BYTE_F_ASCII;
 
-      AML aml(PCIT::getMemoryAddressingMode(tgt->getDatatype()),
-	      PCIT::getMemoryAddressingMode(attrs1Datatype),
-	      PCIT::IBIN32S,
-	      PCIT::IBIN32S);
-      OL ol(tgt->getAtp(), tgt->getAtpIndex(),tgt->getOffset(),
-	    src->getAtp(), src->getAtpIndex(),src->getOffset(),
-	    tgt->getLength(),
-	    (isDesc()));
+    AML aml(PCIT::getMemoryAddressingMode(tgt->getDatatype()), PCIT::getMemoryAddressingMode(attrs1Datatype),
+            PCIT::IBIN32S, PCIT::IBIN32S);
+    OL ol(tgt->getAtp(), tgt->getAtpIndex(), tgt->getOffset(), src->getAtp(), src->getAtpIndex(), src->getOffset(),
+          tgt->getLength(), (isDesc()));
 
-      // Add the encode instruction.
-      //
-      if (isDecode())
-	{
-	  PCI pci(PCIT::Op_DECODE, aml, ol);
-	  code.append(pci);
-	}
-      else
-	{
-	  PCI pci(PCIT::Op_ENCODE, aml, ol);
-	  code.append(pci);
-	}
-
+    // Add the encode instruction.
+    //
+    if (isDecode()) {
+      PCI pci(PCIT::Op_DECODE, aml, ol);
+      code.append(pci);
+    } else {
+      PCI pci(PCIT::Op_ENCODE, aml, ol);
+      code.append(pci);
     }
-  else
-    {
-      // The first operand is the memory location for the result.
-      // The second operand is the memory location for the source.
-      // The third operand is a boolean for ascending/descending.
-      //
-      AML aml(PCIT::getMemoryAddressingMode(tgt->getDatatype()),
-	      PCIT::getMemoryAddressingMode(src->getDatatype()),
-	      PCIT::IBIN32S);
-      OL ol(tgt->getAtp(), tgt->getAtpIndex(),tgt->getOffset(),
-	    src->getAtp(), src->getAtpIndex(),src->getOffset(),
-	    (isDesc()));
 
-      // Add the encode instruction.
-      //
-      if (isDecode())
-	{
-	  PCI pci(PCIT::Op_DECODE, aml, ol);
-	  code.append(pci);
-	}
-      else
-	{
-	  PCI pci(PCIT::Op_ENCODE, aml, ol);
-	  code.append(pci);
-	}
+  } else {
+    // The first operand is the memory location for the result.
+    // The second operand is the memory location for the source.
+    // The third operand is a boolean for ascending/descending.
+    //
+    AML aml(PCIT::getMemoryAddressingMode(tgt->getDatatype()), PCIT::getMemoryAddressingMode(src->getDatatype()),
+            PCIT::IBIN32S);
+    OL ol(tgt->getAtp(), tgt->getAtpIndex(), tgt->getOffset(), src->getAtp(), src->getAtpIndex(), src->getOffset(),
+          (isDesc()));
+
+    // Add the encode instruction.
+    //
+    if (isDecode()) {
+      PCI pci(PCIT::Op_DECODE, aml, ol);
+      code.append(pci);
+    } else {
+      PCI pci(PCIT::Op_ENCODE, aml, ol);
+      code.append(pci);
     }
+  }
 
   // Add the branch target if necessary.
   //
-  if(branchToEnd)
-  {
+  if (branchToEnd) {
     AML aml;
     OL ol((Int64)branchToEnd);
     PCI pci(PCIT::Op_TARGET, aml, ol);
@@ -564,7 +507,7 @@ ex_expr::exp_return_type ex_function_encode::pCodeGenerate(Space *space, UInt32 
 //
 // For now simply calls the default ex_clause::pCodeGenerate
 //
-ex_expr::exp_return_type ex_aggregate_clause::pCodeGenerate(Space *space, UInt32 f) { 
+ex_expr::exp_return_type ex_aggregate_clause::pCodeGenerate(Space *space, UInt32 f) {
   return ex_clause::pCodeGenerate(space, f);
 };
 
@@ -572,15 +515,15 @@ ex_expr::exp_return_type ex_aggregate_clause::pCodeGenerate(Space *space, UInt32
 //
 // For now simply calls the default ex_clause::pCodeGenerate
 //
-ex_expr::exp_return_type ex_aggr_one_row_clause::pCodeGenerate(Space *space, UInt32 f) { 
-  return ex_clause::pCodeGenerate(space, f); 
+ex_expr::exp_return_type ex_aggr_one_row_clause::pCodeGenerate(Space *space, UInt32 f) {
+  return ex_clause::pCodeGenerate(space, f);
 };
 
 // ex_aggr_any_true_max_clause::pCodeGenerate
 //
 // For now simply calls the default ex_clause::pCodeGenerate
 //
-ex_expr::exp_return_type ex_aggr_any_true_max_clause::pCodeGenerate(Space *space, UInt32 f) { 
+ex_expr::exp_return_type ex_aggr_any_true_max_clause::pCodeGenerate(Space *space, UInt32 f) {
   return ex_clause::pCodeGenerate(space, f);
 };
 
@@ -591,26 +534,26 @@ ex_expr::exp_return_type ex_aggr_any_true_max_clause::pCodeGenerate(Space *space
 // input operands.
 //
 // IN     : space - memory allocator
-// OUT    : 
+// OUT    :
 // RETURN : ex_expr::EXPR_OK is no errors
 // EFFECTS: stores pointer to PCodeObject in clause
 //
-ex_expr::exp_return_type ex_bool_clause::pCodeGenerate(Space *space, UInt32 f) { 
+ex_expr::exp_return_type ex_bool_clause::pCodeGenerate(Space *space, UInt32 f) {
 #ifdef _DEBUG
   // For debugging...
-  if(getenv("PCODE_NO_BOOL")) return ex_clause::pCodeGenerate(space, f);
+  if (getenv("PCODE_NO_BOOL")) return ex_clause::pCodeGenerate(space, f);
 #endif
 
   // Generate the standard clause->eval PCode for cases that
   // are not handled with more fundamental PCode operations.
   //
-  switch(getOperType()) {
-  case ITM_AND:
-  case ITM_OR:
-    break;
+  switch (getOperType()) {
+    case ITM_AND:
+    case ITM_OR:
+      break;
 
-  default:
-    return ex_clause::pCodeGenerate(space, f);
+    default:
+      return ex_clause::pCodeGenerate(space, f);
   }
 
   // If we get to this point, we have decided to generate PCI's for this
@@ -629,44 +572,47 @@ ex_expr::exp_return_type ex_bool_clause::pCodeGenerate(Space *space, UInt32 f) {
   // The third operand is the memory location of the 2nd argument.
   //
   AML aml(PCIT::MBIN32S, PCIT::MBIN32S, PCIT::MBIN32S);
-  OL ol(attrs[0]->getAtp(), attrs[0]->getAtpIndex(), attrs[0]->getOffset(),
-	attrs[1]->getAtp(), attrs[1]->getAtpIndex(), attrs[1]->getOffset(),
-	attrs[2]->getAtp(), attrs[2]->getAtpIndex(), attrs[2]->getOffset());
+  OL ol(attrs[0]->getAtp(), attrs[0]->getAtpIndex(), attrs[0]->getOffset(), attrs[1]->getAtp(), attrs[1]->getAtpIndex(),
+        attrs[1]->getOffset(), attrs[2]->getAtp(), attrs[2]->getAtpIndex(), attrs[2]->getOffset());
 
   // Generate the instruction
   //
-  PCIT::Operation op = PCIT::Op_OPDATA; // prevent init warning
-  switch(getOperType()) {
-  case ITM_AND: op = PCIT::Op_AND; break;
-  case ITM_OR: op = PCIT::Op_OR; break;
+  PCIT::Operation op = PCIT::Op_OPDATA;  // prevent init warning
+  switch (getOperType()) {
+    case ITM_AND:
+      op = PCIT::Op_AND;
+      break;
+    case ITM_OR:
+      op = PCIT::Op_OR;
+      break;
   };
 
-  PCI pci(op, aml, ol); 
-  code.append(pci); 
+  PCI pci(op, aml, ol);
+  code.append(pci);
 
   // Generate post clause PCI's
   //
   PCode::postClausePCI(this, code);
 
   setPCIList(code.getList());
-  return ex_expr::EXPR_OK; 
+  return ex_expr::EXPR_OK;
 };
 
 // ex_bool_result_clause::pCodeGenerate
 //
-// Generates PCI's for bool result operation. The PCI's should return 
-// ex_expr::EXPR_TRUE for the result of the expression if the 1st operand 
+// Generates PCI's for bool result operation. The PCI's should return
+// ex_expr::EXPR_TRUE for the result of the expression if the 1st operand
 // is TRUE, otherwise return ex_expr::EXPR_FALSE.
 //
 // IN     : space - memory allocator
-// OUT    : 
+// OUT    :
 // RETURN : ex_expr::EXPR_OK is no errors
 // EFFECTS: stores pointer to PCodeObject in clause
 //
-ex_expr::exp_return_type bool_result_clause::pCodeGenerate(Space *space, UInt32 f) { 
+ex_expr::exp_return_type bool_result_clause::pCodeGenerate(Space *space, UInt32 f) {
 #ifdef _DEBUG
   // For debugging...
-  if(getenv("PCODE_NO_BOOL_RESULT")) return ex_clause::pCodeGenerate(space, f);
+  if (getenv("PCODE_NO_BOOL_RESULT")) return ex_clause::pCodeGenerate(space, f);
 #endif
 
   // Allocate the code list and get a handle on the operands
@@ -693,7 +639,7 @@ ex_expr::exp_return_type bool_result_clause::pCodeGenerate(Space *space, UInt32 
   PCode::postClausePCI(this, code);
 
   setPCIList(code.getList());
-  return ex_expr::EXPR_OK; 
+  return ex_expr::EXPR_OK;
 };
 
 // ex_branch_clause::pCodeGenerate
@@ -701,44 +647,35 @@ ex_expr::exp_return_type bool_result_clause::pCodeGenerate(Space *space, UInt32 
 // For now simply calls default ex_clause::pCodeGenerate(space, f)
 //
 // IN     : space - memory allocator
-// OUT    : 
+// OUT    :
 // RETURN : ex_expr::EXPR_OK is no errors
 // EFFECTS: stores pointer to PCodeObject in clause
 //
 ex_expr::exp_return_type ex_branch_clause::pCodeGenerate(Space *space, UInt32 f) {
+  if ((getOperType() != ITM_AND) && (getOperType() != ITM_OR)) return ex_clause::pCodeGenerate(space, f);
 
-  if ((getOperType() != ITM_AND) &&
-      (getOperType() != ITM_OR))
-    return ex_clause::pCodeGenerate(space, f);
-    
   PCIList code(space);
   AttributesPtr *attrs = getOperand();
 
   // Generate pre clause PCI's
   //
   PCode::preClausePCI(this, code);
-  
 
-  
   ex_clause *targetClause = get_branch_clause();
   AML aml(PCIT::IPTR, PCIT::IPTR, PCIT::MBIN32S, PCIT::MBIN32S);
-  OL ol((Int64)targetClause, (Int64)0,
-	attrs[0]->getAtp(), attrs[0]->getAtpIndex(), (Int32)attrs[0]->getOffset(),
-	attrs[1]->getAtp(), attrs[1]->getAtpIndex(), (Int32)attrs[1]->getOffset());
+  OL ol((Int64)targetClause, (Int64)0, attrs[0]->getAtp(), attrs[0]->getAtpIndex(), (Int32)attrs[0]->getOffset(),
+        attrs[1]->getAtp(), attrs[1]->getAtpIndex(), (Int32)attrs[1]->getOffset());
 
   // Generate the branch instruction
   //
-  if (getOperType() == ITM_AND)
-    {
-      PCI pci(PCIT::Op_BRANCH_AND, aml, ol);
-      code.append(pci);
-    }
-  else
-    {
-      PCI pci(PCIT::Op_BRANCH_OR, aml, ol);
-      code.append(pci);
-    }
-    
+  if (getOperType() == ITM_AND) {
+    PCI pci(PCIT::Op_BRANCH_AND, aml, ol);
+    code.append(pci);
+  } else {
+    PCI pci(PCIT::Op_BRANCH_OR, aml, ol);
+    code.append(pci);
+  }
+
   // Finish up and return
   //
   PCode::postClausePCI(this, code);
@@ -752,14 +689,14 @@ ex_expr::exp_return_type ex_branch_clause::pCodeGenerate(Space *space, UInt32 f)
 // do the comparison, and stores the tristate result.
 //
 // IN     : space - memory allocator
-// OUT    : 
+// OUT    :
 // RETURN : ex_expr::EXPR_OK is no errors
 // EFFECTS: stores pointer to PCodeObject in clause
 //
-ex_expr::exp_return_type ex_comp_clause::pCodeGenerate(Space *space, UInt32 f) { 
+ex_expr::exp_return_type ex_comp_clause::pCodeGenerate(Space *space, UInt32 f) {
 #ifdef _DEBUG
   // For debugging...
-  if(getenv("PCODE_NO_COMP")) return ex_clause::pCodeGenerate(space, f);
+  if (getenv("PCODE_NO_COMP")) return ex_clause::pCodeGenerate(space, f);
 #endif
 
   NABoolean flipOperands = FALSE;
@@ -772,361 +709,351 @@ ex_expr::exp_return_type ex_comp_clause::pCodeGenerate(Space *space, UInt32 f) {
   // not yet supported in pcode.
   // This is used for rollup group computation which need to know the particular
   // grouping column that caused the comparison to fail.
-  if (getRollupColumnNum() >= 0)
-    return ex_clause::pCodeGenerate(space, f);
+  if (getRollupColumnNum() >= 0) return ex_clause::pCodeGenerate(space, f);
 
   // Generate the standard clause->eval PCode for cases that
   // are not handled with more fundamental PCode operations.
   //
-  switch(getInstruction()) {
-  case NE_ASCII_F_F:
-  case EQ_ASCII_F_F:
-  case LT_ASCII_F_F:
-  case LE_ASCII_F_F:
-  case GT_ASCII_F_F:
-  case GE_ASCII_F_F:
-    break;
+  switch (getInstruction()) {
+    case NE_ASCII_F_F:
+    case EQ_ASCII_F_F:
+    case LT_ASCII_F_F:
+    case LE_ASCII_F_F:
+    case GT_ASCII_F_F:
+    case GE_ASCII_F_F:
+      break;
 
-  case NE_UNICODE_F_F:
-  case EQ_UNICODE_F_F:
-  case LT_UNICODE_F_F:
-  case LE_UNICODE_F_F:
-  case GT_UNICODE_F_F:
-  case GE_UNICODE_F_F:
-  case UNICODE_COMP:
-    break ;
+    case NE_UNICODE_F_F:
+    case EQ_UNICODE_F_F:
+    case LT_UNICODE_F_F:
+    case LE_UNICODE_F_F:
+    case GT_UNICODE_F_F:
+    case GE_UNICODE_F_F:
+    case UNICODE_COMP:
+      break;
 
-  case COMP_COMPLEX:
-    if (attrs[1]->getClassID() != Attributes::BigNumID)
+    case COMP_COMPLEX:
+      if (attrs[1]->getClassID() != Attributes::BigNumID) return ex_clause::pCodeGenerate(space, f);
+      break;
+
+    case ASCII_COMP:
+      // R2.4 has support for string compares of unequal lengths
+      if ((attrs[1]->getDatatype() != REC_BYTE_F_ASCII) || (attrs[2]->getDatatype() != REC_BYTE_F_ASCII))
+        return ex_clause::pCodeGenerate(space, f);
+      break;
+
+    case EQ_ASCII_COMP:
+    case NE_ASCII_COMP:
+    case LT_ASCII_COMP:
+    case LE_ASCII_COMP:
+    case GT_ASCII_COMP:
+    case GE_ASCII_COMP:
+      // PCIT::getMemoryAddressingMode(), used below, cannot currently handle these.
+      // if ((attrs[1]->getDatatype() == REC_BYTE_V_ASCII_LONG ) ||
+      //    (attrs[2]->getDatatype() == REC_BYTE_V_ASCII_LONG ))
       return ex_clause::pCodeGenerate(space, f);
-    break;
+      break;
 
-  case ASCII_COMP:
-    // R2.4 has support for string compares of unequal lengths
-    if ((attrs[1]->getDatatype() != REC_BYTE_F_ASCII) ||
-        (attrs[2]->getDatatype() != REC_BYTE_F_ASCII))
-      return ex_clause::pCodeGenerate(space, f);
-    break;
+    case EQ_BIN8S_BIN8S:
+    case EQ_BIN8U_BIN8U:
+    case EQ_BIN16S_BIN16S:
+    case EQ_BIN16S_BIN32S:
+    case EQ_BIN32S_BIN16S:
+    case EQ_BIN32S_BIN32S:
+    case EQ_BIN16U_BIN16U:
+    case EQ_BIN16U_BIN32U:
+    case EQ_BIN32U_BIN16U:
+    case EQ_BIN32U_BIN32U:
+    case EQ_BIN16S_BIN32U:
+    case EQ_BIN32U_BIN16S:
 
+    case LT_BIN8S_BIN8S:
+    case LT_BIN8U_BIN8U:
+    case LT_BIN16S_BIN16S:
+    case LT_BIN16S_BIN32S:
+    case LT_BIN32S_BIN16S:
+    case LT_BIN32S_BIN32S:
+    case LT_BIN16U_BIN16U:
+    case LT_BIN16U_BIN32U:
+    case LT_BIN32U_BIN16U:
+    case LT_BIN32U_BIN32U:
+    case LT_BIN16S_BIN32U:
+    case LT_BIN32U_BIN16S:
 
-  case EQ_ASCII_COMP:
-  case NE_ASCII_COMP:
-  case LT_ASCII_COMP:
-  case LE_ASCII_COMP:
-  case GT_ASCII_COMP:
-  case GE_ASCII_COMP:
-    // PCIT::getMemoryAddressingMode(), used below, cannot currently handle these.
-    //if ((attrs[1]->getDatatype() == REC_BYTE_V_ASCII_LONG ) ||
-    //    (attrs[2]->getDatatype() == REC_BYTE_V_ASCII_LONG ))
-      return ex_clause::pCodeGenerate(space, f);
-    break;
+    case GT_BIN8S_BIN8S:
+    case GT_BIN8U_BIN8U:
+    case GT_BIN16S_BIN16S:
+    case GT_BIN16S_BIN32S:
+    case GT_BIN32S_BIN16S:
+    case GT_BIN32S_BIN32S:
+    case GT_BIN16U_BIN16U:
+    case GT_BIN16U_BIN32U:
+    case GT_BIN32U_BIN16U:
+    case GT_BIN32U_BIN32U:
+    case GT_BIN16S_BIN32U:
+    case GT_BIN32U_BIN16S:
+      break;
 
-  case EQ_BIN8S_BIN8S:
-  case EQ_BIN8U_BIN8U:
-  case EQ_BIN16S_BIN16S: 
-  case EQ_BIN16S_BIN32S:
-  case EQ_BIN32S_BIN16S: 
-  case EQ_BIN32S_BIN32S:
-  case EQ_BIN16U_BIN16U: 
-  case EQ_BIN16U_BIN32U:
-  case EQ_BIN32U_BIN16U: 
-  case EQ_BIN32U_BIN32U: 
-  case EQ_BIN16S_BIN32U:
-  case EQ_BIN32U_BIN16S:
+    case LE_BIN8S_BIN8S:
+    case LE_BIN8U_BIN8U:
+    case LE_BIN16S_BIN16S:
+    case LE_BIN16S_BIN32S:
+    case LE_BIN32S_BIN16S:
+    case LE_BIN32S_BIN32S:
+    case LE_BIN16U_BIN16U:
+    case LE_BIN16U_BIN32U:
+    case LE_BIN32U_BIN16U:
+    case LE_BIN32U_BIN32U:
+    case LE_BIN16S_BIN32U:
+    case LE_BIN32U_BIN16S:
 
-  case LT_BIN8S_BIN8S:
-  case LT_BIN8U_BIN8U:
-  case LT_BIN16S_BIN16S: 
-  case LT_BIN16S_BIN32S:
-  case LT_BIN32S_BIN16S: 
-  case LT_BIN32S_BIN32S:
-  case LT_BIN16U_BIN16U: 
-  case LT_BIN16U_BIN32U:
-  case LT_BIN32U_BIN16U: 
-  case LT_BIN32U_BIN32U: 
-  case LT_BIN16S_BIN32U:
-  case LT_BIN32U_BIN16S:
+    case GE_BIN8S_BIN8S:
+    case GE_BIN8U_BIN8U:
+    case GE_BIN16S_BIN16S:
+    case GE_BIN16S_BIN32S:
+    case GE_BIN32S_BIN16S:
+    case GE_BIN32S_BIN32S:
+    case GE_BIN16U_BIN16U:
+    case GE_BIN16U_BIN32U:
+    case GE_BIN32U_BIN16U:
+    case GE_BIN32U_BIN32U:
+    case GE_BIN16S_BIN32U:
+    case GE_BIN32U_BIN16S:
+      break;
 
-  case GT_BIN8S_BIN8S:
-  case GT_BIN8U_BIN8U:
-  case GT_BIN16S_BIN16S: 
-  case GT_BIN16S_BIN32S:
-  case GT_BIN32S_BIN16S: 
-  case GT_BIN32S_BIN32S:
-  case GT_BIN16U_BIN16U: 
-  case GT_BIN16U_BIN32U:
-  case GT_BIN32U_BIN16U: 
-  case GT_BIN32U_BIN32U: 
-  case GT_BIN16S_BIN32U:
-  case GT_BIN32U_BIN16S:
-    break;
+    case EQ_BIN16U_BIN16S:
+    case LE_BIN16U_BIN16S:
+    case LT_BIN16U_BIN16S:
+    case GE_BIN16U_BIN16S:
+    case GT_BIN16U_BIN16S:
+      break;
 
-  case LE_BIN8S_BIN8S:
-  case LE_BIN8U_BIN8U:
-  case LE_BIN16S_BIN16S: 
-  case LE_BIN16S_BIN32S:
-  case LE_BIN32S_BIN16S: 
-  case LE_BIN32S_BIN32S:
-  case LE_BIN16U_BIN16U: 
-  case LE_BIN16U_BIN32U:
-  case LE_BIN32U_BIN16U: 
-  case LE_BIN32U_BIN32U: 
-  case LE_BIN16S_BIN32U:
-  case LE_BIN32U_BIN16S:
+    case EQ_BIN64S_BIN64S:
+    case LE_BIN64S_BIN64S:
+    case LT_BIN64S_BIN64S:
+    case GE_BIN64S_BIN64S:
+    case GT_BIN64S_BIN64S:
+    case NE_BIN64S_BIN64S:
+      break;
 
-  case GE_BIN8S_BIN8S:
-  case GE_BIN8U_BIN8U:
-  case GE_BIN16S_BIN16S: 
-  case GE_BIN16S_BIN32S:
-  case GE_BIN32S_BIN16S: 
-  case GE_BIN32S_BIN32S:
-  case GE_BIN16U_BIN16U: 
-  case GE_BIN16U_BIN32U:
-  case GE_BIN32U_BIN16U: 
-  case GE_BIN32U_BIN32U: 
-  case GE_BIN16S_BIN32U:
-  case GE_BIN32U_BIN16S:
-    break;
+    case NE_BIN8S_BIN8S:
+    case NE_BIN8U_BIN8U:
+    case NE_BIN16S_BIN16S:
+      break;
 
-  case EQ_BIN16U_BIN16S: 
-  case LE_BIN16U_BIN16S:
-  case LT_BIN16U_BIN16S:
-  case GE_BIN16U_BIN16S:
-  case GT_BIN16U_BIN16S:
-    break;
+    case NE_FLOAT32_FLOAT32:
+    case EQ_FLOAT32_FLOAT32:
+    case LT_FLOAT32_FLOAT32:
+    case LE_FLOAT32_FLOAT32:
+    case GT_FLOAT32_FLOAT32:
+    case GE_FLOAT32_FLOAT32:
 
-  case EQ_BIN64S_BIN64S:
-  case LE_BIN64S_BIN64S:
-  case LT_BIN64S_BIN64S:
-  case GE_BIN64S_BIN64S:
-  case GT_BIN64S_BIN64S:
-  case NE_BIN64S_BIN64S:
-    break;
+    case NE_FLOAT64_FLOAT64:
+    case EQ_FLOAT64_FLOAT64:
+    case LT_FLOAT64_FLOAT64:
+    case LE_FLOAT64_FLOAT64:
+    case GT_FLOAT64_FLOAT64:
+    case GE_FLOAT64_FLOAT64:
+      break;
 
-  case NE_BIN8S_BIN8S:
-  case NE_BIN8U_BIN8U:
-  case NE_BIN16S_BIN16S:
-    break;
-
-  case NE_FLOAT32_FLOAT32:
-  case EQ_FLOAT32_FLOAT32:
-  case LT_FLOAT32_FLOAT32:
-  case LE_FLOAT32_FLOAT32:
-  case GT_FLOAT32_FLOAT32:
-  case GE_FLOAT32_FLOAT32:
-
-  case NE_FLOAT64_FLOAT64:
-  case EQ_FLOAT64_FLOAT64:
-  case LT_FLOAT64_FLOAT64:
-  case LE_FLOAT64_FLOAT64:
-  case GT_FLOAT64_FLOAT64:
-  case GE_FLOAT64_FLOAT64:
-    break;
-
-
-  case EQ_DATETIME_DATETIME:
+    case EQ_DATETIME_DATETIME:
 #ifndef NA_LITTLE_ENDIAN
-  case LT_DATETIME_DATETIME:
-  case GT_DATETIME_DATETIME:
-  case LE_DATETIME_DATETIME:
-  case GE_DATETIME_DATETIME:
+    case LT_DATETIME_DATETIME:
+    case GT_DATETIME_DATETIME:
+    case LE_DATETIME_DATETIME:
+    case GE_DATETIME_DATETIME:
 #endif
-    // Do not generate PCODE to encode the non-standard SQL/MP
-    // datetime types (for now).
-    if ((attrs[1]->getPrecision() > REC_DTCODE_TIMESTAMP) ||
-	(attrs[1]->getPrecision() != attrs[2]->getPrecision()) ||
-	(attrs[1]->getLength() != attrs[2]->getLength()))
+      // Do not generate PCODE to encode the non-standard SQL/MP
+      // datetime types (for now).
+      if ((attrs[1]->getPrecision() > REC_DTCODE_TIMESTAMP) || (attrs[1]->getPrecision() != attrs[2]->getPrecision()) ||
+          (attrs[1]->getLength() != attrs[2]->getLength()))
+        return ex_clause::pCodeGenerate(space, f);
+      break;
+
+    case EQ_BOOL_BOOL:
+    case NE_BOOL_BOOL:
+      break;
+
+    default:
       return ex_clause::pCodeGenerate(space, f);
-    break;
-
-  case EQ_BOOL_BOOL:
-  case NE_BOOL_BOOL:
-    break;
-
-  default:
-    return ex_clause::pCodeGenerate(space, f);
   }
 
   // Generate the comparison operator
   //
-  PCIT::Operation op = PCIT::Op_OPDATA; // prevent init warning
-  switch(getInstruction()) {
+  PCIT::Operation op = PCIT::Op_OPDATA;  // prevent init warning
+  switch (getInstruction()) {
+    case EQ_BIN32S_BIN16S:
+    case EQ_BIN32U_BIN16U:
+    case EQ_BIN32U_BIN16S:
+      // Normalize instructions so smaller operand comes first
+      flipOperands = TRUE;
+      op = PCIT::Op_EQ;
+      break;
 
-  case EQ_BIN32S_BIN16S:
-  case EQ_BIN32U_BIN16U:
-  case EQ_BIN32U_BIN16S:
-    // Normalize instructions so smaller operand comes first
-    flipOperands = TRUE;
-    op = PCIT::Op_EQ;
-    break;
+    case EQ_BIN8S_BIN8S:
+    case EQ_BIN8U_BIN8U:
+    case EQ_BIN16U_BIN16S:
+    case EQ_BIN16S_BIN16S:
+    case EQ_BIN16S_BIN32S:
+    case EQ_BIN32S_BIN32S:
+    case EQ_BIN16U_BIN16U:
+    case EQ_BIN16U_BIN32U:
+    case EQ_BIN32U_BIN32U:
+    case EQ_BIN16S_BIN32U:
+    case EQ_FLOAT32_FLOAT32:
+    case EQ_FLOAT64_FLOAT64:
+    case EQ_BIN64S_BIN64S:
+    case EQ_ASCII_F_F:
+    case EQ_ASCII_COMP:
+    case EQ_DATETIME_DATETIME:
+      op = PCIT::Op_EQ;
+      break;
 
-  case EQ_BIN8S_BIN8S:
-  case EQ_BIN8U_BIN8U:
-  case EQ_BIN16U_BIN16S: 
-  case EQ_BIN16S_BIN16S: 
-  case EQ_BIN16S_BIN32S:
-  case EQ_BIN32S_BIN32S:
-  case EQ_BIN16U_BIN16U: 
-  case EQ_BIN16U_BIN32U:
-  case EQ_BIN32U_BIN32U: 
-  case EQ_BIN16S_BIN32U:
-  case EQ_FLOAT32_FLOAT32:
-  case EQ_FLOAT64_FLOAT64:
-  case EQ_BIN64S_BIN64S:
-  case EQ_ASCII_F_F:
-  case EQ_ASCII_COMP:
-  case EQ_DATETIME_DATETIME:
-     op = PCIT::Op_EQ;
-    break;
+    case EQ_BOOL_BOOL:
+      op = PCIT::Op_EQ;
+      break;
 
-  case EQ_BOOL_BOOL:
-     op = PCIT::Op_EQ;
-    break;
+    case LT_BIN32S_BIN16S:
+    case LT_BIN32U_BIN16U:
+    case LT_BIN32U_BIN16S:
+      // Normalize instructions so smaller operand comes first
+      flipOperands = TRUE;
+      op = PCIT::Op_GT;
+      break;
 
-  case LT_BIN32S_BIN16S:
-  case LT_BIN32U_BIN16U:
-  case LT_BIN32U_BIN16S:
-    // Normalize instructions so smaller operand comes first
-    flipOperands = TRUE;
-    op = PCIT::Op_GT;
-    break;
+    case LT_BIN8S_BIN8S:
+    case LT_BIN8U_BIN8U:
+    case LT_BIN16U_BIN16S:
+    case LT_BIN16S_BIN16S:
+    case LT_BIN16S_BIN32S:
+    case LT_BIN32S_BIN32S:
+    case LT_BIN16U_BIN16U:
+    case LT_BIN16U_BIN32U:
+    case LT_BIN32U_BIN32U:
+    case LT_BIN16S_BIN32U:
+    case LT_BIN64S_BIN64S:
+    case LT_FLOAT32_FLOAT32:
+    case LT_FLOAT64_FLOAT64:
+    case LT_ASCII_F_F:
+    case LT_ASCII_COMP:
+    case LT_DATETIME_DATETIME:
+      op = PCIT::Op_LT;
+      break;
 
-  case LT_BIN8S_BIN8S:
-  case LT_BIN8U_BIN8U:
-  case LT_BIN16U_BIN16S:
-  case LT_BIN16S_BIN16S:
-  case LT_BIN16S_BIN32S:
-  case LT_BIN32S_BIN32S:
-  case LT_BIN16U_BIN16U:
-  case LT_BIN16U_BIN32U:
-  case LT_BIN32U_BIN32U:
-  case LT_BIN16S_BIN32U:
-  case LT_BIN64S_BIN64S:
-  case LT_FLOAT32_FLOAT32:
-  case LT_FLOAT64_FLOAT64:
-  case LT_ASCII_F_F:
-  case LT_ASCII_COMP:
-  case LT_DATETIME_DATETIME:
-    op = PCIT::Op_LT;
-    break;
+    case GT_BIN32S_BIN16S:
+    case GT_BIN32U_BIN16U:
+    case GT_BIN32U_BIN16S:
+      // Normalize instructions so smaller operand comes first
+      flipOperands = TRUE;
+      op = PCIT::Op_LT;
+      break;
 
-  case GT_BIN32S_BIN16S:
-  case GT_BIN32U_BIN16U:
-  case GT_BIN32U_BIN16S:
-    // Normalize instructions so smaller operand comes first
-    flipOperands = TRUE;
-    op = PCIT::Op_LT;
-    break;
+    case GT_BIN8S_BIN8S:
+    case GT_BIN8U_BIN8U:
+    case GT_BIN16U_BIN16S:
+    case GT_BIN16S_BIN16S:
+    case GT_BIN16S_BIN32S:
+    case GT_BIN32S_BIN32S:
+    case GT_BIN16U_BIN16U:
+    case GT_BIN16U_BIN32U:
+    case GT_BIN32U_BIN32U:
+    case GT_BIN16S_BIN32U:
+    case GT_FLOAT32_FLOAT32:
+    case GT_FLOAT64_FLOAT64:
+    case GT_BIN64S_BIN64S:
+    case GT_ASCII_F_F:
+    case GT_ASCII_COMP:
+    case GT_DATETIME_DATETIME:
+      op = PCIT::Op_GT;
+      break;
 
-  case GT_BIN8S_BIN8S:
-  case GT_BIN8U_BIN8U:
-  case GT_BIN16U_BIN16S:
-  case GT_BIN16S_BIN16S:
-  case GT_BIN16S_BIN32S:
-  case GT_BIN32S_BIN32S:
-  case GT_BIN16U_BIN16U:
-  case GT_BIN16U_BIN32U:
-  case GT_BIN32U_BIN32U:
-  case GT_BIN16S_BIN32U:
-  case GT_FLOAT32_FLOAT32:
-  case GT_FLOAT64_FLOAT64:
-  case GT_BIN64S_BIN64S:
-  case GT_ASCII_F_F:
-  case GT_ASCII_COMP:
-  case GT_DATETIME_DATETIME:
-    op = PCIT::Op_GT;
-    break;
+    case LE_BIN32S_BIN16S:
+    case LE_BIN32U_BIN16U:
+    case LE_BIN32U_BIN16S:
+      // Normalize instructions so smaller operand comes first
+      flipOperands = TRUE;
+      op = PCIT::Op_GE;
+      break;
 
-  case LE_BIN32S_BIN16S:
-  case LE_BIN32U_BIN16U:
-  case LE_BIN32U_BIN16S:
-    // Normalize instructions so smaller operand comes first
-    flipOperands = TRUE;
-    op = PCIT::Op_GE;
-    break;
+    case LE_BIN8S_BIN8S:
+    case LE_BIN8U_BIN8U:
+    case LE_BIN16U_BIN16S:
+    case LE_BIN16S_BIN16S:
+    case LE_BIN16S_BIN32S:
+    case LE_BIN32S_BIN32S:
+    case LE_BIN16U_BIN16U:
+    case LE_BIN16U_BIN32U:
+    case LE_BIN32U_BIN32U:
+    case LE_BIN16S_BIN32U:
+    case LE_FLOAT32_FLOAT32:
+    case LE_FLOAT64_FLOAT64:
+    case LE_BIN64S_BIN64S:
+    case LE_ASCII_F_F:
+    case LE_ASCII_COMP:
+    case LE_DATETIME_DATETIME:
+      op = PCIT::Op_LE;
+      break;
 
-  case LE_BIN8S_BIN8S:
-  case LE_BIN8U_BIN8U:
-  case LE_BIN16U_BIN16S:
-  case LE_BIN16S_BIN16S:
-  case LE_BIN16S_BIN32S:
-  case LE_BIN32S_BIN32S:
-  case LE_BIN16U_BIN16U:
-  case LE_BIN16U_BIN32U:
-  case LE_BIN32U_BIN32U:
-  case LE_BIN16S_BIN32U:
-  case LE_FLOAT32_FLOAT32:
-  case LE_FLOAT64_FLOAT64:
-  case LE_BIN64S_BIN64S:
-  case LE_ASCII_F_F:
-  case LE_ASCII_COMP:
-  case LE_DATETIME_DATETIME:
-    op = PCIT::Op_LE;
-    break;
+    case GE_BIN32S_BIN16S:
+    case GE_BIN32U_BIN16U:
+    case GE_BIN32U_BIN16S:
+      // Normalize instructions so smaller operand comes first
+      flipOperands = TRUE;
+      op = PCIT::Op_LE;
+      break;
 
-  case GE_BIN32S_BIN16S:
-  case GE_BIN32U_BIN16U:
-  case GE_BIN32U_BIN16S:
-    // Normalize instructions so smaller operand comes first
-    flipOperands = TRUE;
-    op = PCIT::Op_LE;
-    break;
-
-  case GE_BIN8S_BIN8S:
-  case GE_BIN8U_BIN8U:
-  case GE_BIN16U_BIN16S:
-  case GE_BIN16S_BIN16S:
-  case GE_BIN16S_BIN32S:
-  case GE_BIN32S_BIN32S:
-  case GE_BIN16U_BIN16U:
-  case GE_BIN16U_BIN32U:
-  case GE_BIN32U_BIN32U:
-  case GE_BIN16S_BIN32U:
-  case GE_FLOAT32_FLOAT32:
-  case GE_FLOAT64_FLOAT64:
-  case GE_BIN64S_BIN64S:
-  case GE_ASCII_F_F:
-  case GE_ASCII_COMP:
+    case GE_BIN8S_BIN8S:
+    case GE_BIN8U_BIN8U:
+    case GE_BIN16U_BIN16S:
+    case GE_BIN16S_BIN16S:
+    case GE_BIN16S_BIN32S:
+    case GE_BIN32S_BIN32S:
+    case GE_BIN16U_BIN16U:
+    case GE_BIN16U_BIN32U:
+    case GE_BIN32U_BIN32U:
+    case GE_BIN16S_BIN32U:
+    case GE_FLOAT32_FLOAT32:
+    case GE_FLOAT64_FLOAT64:
+    case GE_BIN64S_BIN64S:
+    case GE_ASCII_F_F:
+    case GE_ASCII_COMP:
 #ifndef NA_LITTLE_ENDIAN
-  case GE_DATETIME_DATETIME:
+    case GE_DATETIME_DATETIME:
 #endif
-    op = PCIT::Op_GE;
-    break;
+      op = PCIT::Op_GE;
+      break;
 
-  case NE_BIN8S_BIN8S:
-  case NE_BIN8U_BIN8U:
-  case NE_FLOAT32_FLOAT32:
-  case NE_FLOAT64_FLOAT64:
-  case NE_BIN64S_BIN64S:
-  case NE_BIN16S_BIN16S:
-  case NE_ASCII_COMP:
-  case NE_ASCII_F_F:
-  case NE_BOOL_BOOL:
-    op = PCIT::Op_NE;
-    break;
+    case NE_BIN8S_BIN8S:
+    case NE_BIN8U_BIN8U:
+    case NE_FLOAT32_FLOAT32:
+    case NE_FLOAT64_FLOAT64:
+    case NE_BIN64S_BIN64S:
+    case NE_BIN16S_BIN16S:
+    case NE_ASCII_COMP:
+    case NE_ASCII_F_F:
+    case NE_BOOL_BOOL:
+      op = PCIT::Op_NE;
+      break;
 
-  case ASCII_COMP:
-  case UNICODE_COMP:
-  case COMP_COMPLEX:
-  case EQ_UNICODE_F_F:
-  case LT_UNICODE_F_F:
-  case GT_UNICODE_F_F:
-  case LE_UNICODE_F_F:
-  case GE_UNICODE_F_F:
-  case NE_UNICODE_F_F:
-    op = PCIT::Op_COMP;
-    break;
-
+    case ASCII_COMP:
+    case UNICODE_COMP:
+    case COMP_COMPLEX:
+    case EQ_UNICODE_F_F:
+    case LT_UNICODE_F_F:
+    case GT_UNICODE_F_F:
+    case LE_UNICODE_F_F:
+    case GE_UNICODE_F_F:
+    case NE_UNICODE_F_F:
+      op = PCIT::Op_COMP;
+      break;
   }
 
   // No NULLS for now
   //
-  if (isAnyOperandNullable())
-    {
-      // if special nulls, only handle equality predicate. 
-      if ( isSpecialNulls() && (getOperType() != ITM_EQUAL) )
-        return ex_clause::pCodeGenerate(space, f);
-    }
+  if (isAnyOperandNullable()) {
+    // if special nulls, only handle equality predicate.
+    if (isSpecialNulls() && (getOperType() != ITM_EQUAL)) return ex_clause::pCodeGenerate(space, f);
+  }
 
   // Allocate the code list and get a handle on the attributes.
   //
@@ -1136,10 +1063,8 @@ ex_expr::exp_return_type ex_comp_clause::pCodeGenerate(Space *space, UInt32 f) {
   // interval conversions is not set up correctly.
   //
   Attributes *tgt = attrs[0];
-  if((op1->getDatatype() >= REC_MIN_INTERVAL) &&
-     (op1->getDatatype() <= REC_MAX_INTERVAL) &&
-     (op2->getDatatype() >= REC_MIN_INTERVAL) &&
-     (op2->getDatatype() <= REC_MAX_INTERVAL))
+  if ((op1->getDatatype() >= REC_MIN_INTERVAL) && (op1->getDatatype() <= REC_MAX_INTERVAL) &&
+      (op2->getDatatype() >= REC_MIN_INTERVAL) && (op2->getDatatype() <= REC_MAX_INTERVAL))
     return ex_clause::pCodeGenerate(space, f);
 
   // Generate pre clause PCI's
@@ -1150,25 +1075,19 @@ ex_expr::exp_return_type ex_comp_clause::pCodeGenerate(Space *space, UInt32 f) {
   //
   PCIID branchToEnd = PCode::nullBranch(this, code, attrs);
 
-  if ((op1->getDatatype() == REC_NUM_BIG_SIGNED) ||
-      (op1->getDatatype() == REC_NUM_BIG_UNSIGNED))
-  {
+  if ((op1->getDatatype() == REC_NUM_BIG_SIGNED) || (op1->getDatatype() == REC_NUM_BIG_UNSIGNED)) {
     // Operand 1: memory location of boolean result
     // Operand 2: memory location of 1st argument
     // Operand 3: memory location of 2nd argument
     // Operand 4: length of data to compare
     // Operand 5: comparison operand
 
-    AML aml(PCIT::getMemoryAddressingMode(attrs[0]->getDatatype()),
-	    PCIT::MBIGS,
-	    PCIT::MBIGS,
-	    PCIT::IBIN32S,
+    AML aml(PCIT::getMemoryAddressingMode(attrs[0]->getDatatype()), PCIT::MBIGS, PCIT::MBIGS, PCIT::IBIN32S,
             PCIT::IBIN32S);
 
-    OL ol(attrs[0]->getAtp(), attrs[0]->getAtpIndex(), attrs[0]->getOffset(),
-	  attrs[1]->getAtp(), attrs[1]->getAtpIndex(), attrs[1]->getOffset(),
-	  attrs[2]->getAtp(), attrs[2]->getAtpIndex(), attrs[2]->getOffset(),
-	  attrs[2]->getLength(), (Int32)getOperType());
+    OL ol(attrs[0]->getAtp(), attrs[0]->getAtpIndex(), attrs[0]->getOffset(), attrs[1]->getAtp(),
+          attrs[1]->getAtpIndex(), attrs[1]->getOffset(), attrs[2]->getAtp(), attrs[2]->getAtpIndex(),
+          attrs[2]->getOffset(), attrs[2]->getLength(), (Int32)getOperType());
 
     // Add the comparison instruction.
     //
@@ -1177,24 +1096,19 @@ ex_expr::exp_return_type ex_comp_clause::pCodeGenerate(Space *space, UInt32 f) {
   }
   // both the operands are fixed chars/unicode or are of type DATETIME
   // or of type boolean.
-  else if (((op1->getDatatype() == REC_BYTE_F_ASCII) &&
-            (op2->getDatatype() == REC_BYTE_F_ASCII)) ||
-           ((op1->getDatatype() == REC_NCHAR_F_UNICODE) &&
-            (op2->getDatatype() == REC_NCHAR_F_UNICODE)) ||
-           (op1->getDatatype() == REC_DATETIME) ||
-           (op1->getDatatype() == REC_BOOLEAN))
-  {
+  else if (((op1->getDatatype() == REC_BYTE_F_ASCII) && (op2->getDatatype() == REC_BYTE_F_ASCII)) ||
+           ((op1->getDatatype() == REC_NCHAR_F_UNICODE) && (op2->getDatatype() == REC_NCHAR_F_UNICODE)) ||
+           (op1->getDatatype() == REC_DATETIME) || (op1->getDatatype() == REC_BOOLEAN)) {
     // Operand 1: memory location of boolean result
     // Operand 2: memory location of 1st argument
     // Operand 3: memory location of 2nd argument
     // Operand 4: length of data to compare
     short attrs1Datatype = op1->getDatatype();
     short attrs2Datatype = op2->getDatatype();
-    if (attrs1Datatype == REC_DATETIME)
-      {
-	attrs1Datatype = REC_BYTE_F_ASCII;
-	attrs2Datatype = REC_BYTE_F_ASCII;
-      }
+    if (attrs1Datatype == REC_DATETIME) {
+      attrs1Datatype = REC_BYTE_F_ASCII;
+      attrs2Datatype = REC_BYTE_F_ASCII;
+    }
 
     // Set "s" for attribute number with smaller string.
     Int32 s = (attrs[1]->getLength() > attrs[2]->getLength()) ? 2 : 1;
@@ -1235,36 +1149,28 @@ ex_expr::exp_return_type ex_comp_clause::pCodeGenerate(Space *space, UInt32 f) {
     if (op == PCIT::Op_COMP) {
       // Only different lengths should use COMP pcode instruction.  Regression
       // seen otherwise if COMP instruction used for all cases - 3% in DWP.
-      AML aml(PCIT::getMemoryAddressingMode(attrs[0]->getDatatype()),
-              PCIT::getMemoryAddressingMode(attrs1Datatype),
-              PCIT::getMemoryAddressingMode(attrs2Datatype),
-              PCIT::IBIN32S, PCIT::IBIN32S, PCIT::IBIN32S);
+      AML aml(PCIT::getMemoryAddressingMode(attrs[0]->getDatatype()), PCIT::getMemoryAddressingMode(attrs1Datatype),
+              PCIT::getMemoryAddressingMode(attrs2Datatype), PCIT::IBIN32S, PCIT::IBIN32S, PCIT::IBIN32S);
 
       // Smaller string is always the first operand
-      OL ol(attrs[0]->getAtp(), attrs[0]->getAtpIndex(), attrs[0]->getOffset(),
-            attrs[s]->getAtp(), attrs[s]->getAtpIndex(), attrs[s]->getOffset(),
-            attrs[l]->getAtp(), attrs[l]->getAtpIndex(), attrs[l]->getOffset(),
-            sLen, lLen, (Int32)operType);
+      OL ol(attrs[0]->getAtp(), attrs[0]->getAtpIndex(), attrs[0]->getOffset(), attrs[s]->getAtp(),
+            attrs[s]->getAtpIndex(), attrs[s]->getOffset(), attrs[l]->getAtp(), attrs[l]->getAtpIndex(),
+            attrs[l]->getOffset(), sLen, lLen, (Int32)operType);
 
       // Add the comparison instruction.
       //
       PCI pci(PCIT::Op_COMP, aml, ol);
       code.append(pci);
-    }
-    else
-    {
+    } else {
       // Same length should use faster pcode
 
-      AML aml(PCIT::getMemoryAddressingMode(attrs[0]->getDatatype()),
-              PCIT::getMemoryAddressingMode(attrs1Datatype),
-              PCIT::getMemoryAddressingMode(attrs2Datatype),
-              PCIT::IBIN32S);
+      AML aml(PCIT::getMemoryAddressingMode(attrs[0]->getDatatype()), PCIT::getMemoryAddressingMode(attrs1Datatype),
+              PCIT::getMemoryAddressingMode(attrs2Datatype), PCIT::IBIN32S);
 
       // Smaller string is always the first operand
-      OL ol(attrs[0]->getAtp(), attrs[0]->getAtpIndex(), attrs[0]->getOffset(),
-            attrs[s]->getAtp(), attrs[s]->getAtpIndex(), attrs[s]->getOffset(),
-            attrs[l]->getAtp(), attrs[l]->getAtpIndex(), attrs[l]->getOffset(),
-            sLen);
+      OL ol(attrs[0]->getAtp(), attrs[0]->getAtpIndex(), attrs[0]->getOffset(), attrs[s]->getAtp(),
+            attrs[s]->getAtpIndex(), attrs[s]->getOffset(), attrs[l]->getAtp(), attrs[l]->getAtpIndex(),
+            attrs[l]->getOffset(), sLen);
 
       // Add the comparison instruction.
       //
@@ -1273,24 +1179,19 @@ ex_expr::exp_return_type ex_comp_clause::pCodeGenerate(Space *space, UInt32 f) {
     }
   }
   // One of the operand is a varchar
-  else if (((op1->getDatatype() == REC_BYTE_V_ASCII) ||
-            (op2->getDatatype() == REC_BYTE_V_ASCII)) ||
-           ((op1->getDatatype() == REC_NCHAR_V_UNICODE) ||
-            (op2->getDatatype() == REC_NCHAR_V_UNICODE)))
-  {
+  else if (((op1->getDatatype() == REC_BYTE_V_ASCII) || (op2->getDatatype() == REC_BYTE_V_ASCII)) ||
+           ((op1->getDatatype() == REC_NCHAR_V_UNICODE) || (op2->getDatatype() == REC_NCHAR_V_UNICODE))) {
     // get the actual length if operands are varchars.
     UInt32 len1 = attrs[1]->getLength();
     UInt32 len2 = attrs[2]->getLength();
 
     UInt32 comboLen1 = 0, comboLen2 = 0;
-    char* comboPtr1 = (char*)&comboLen1;
-    char* comboPtr2 = (char*)&comboLen2;
+    char *comboPtr1 = (char *)&comboLen1;
+    char *comboPtr2 = (char *)&comboLen2;
 
     PCIT::AddressingMode srcAm =
-      (((op1->getDatatype() == REC_BYTE_V_ASCII) ||
-        (op2->getDatatype() == REC_BYTE_V_ASCII))
-         ? PCIT::MATTR5
-         : PCIT::MUNIV);
+        (((op1->getDatatype() == REC_BYTE_V_ASCII) || (op2->getDatatype() == REC_BYTE_V_ASCII)) ? PCIT::MATTR5
+                                                                                                : PCIT::MUNIV);
 
     comboPtr1[0] = (char)attrs[1]->getNullIndicatorLength();
     comboPtr1[1] = (char)attrs[1]->getVCIndicatorLength();
@@ -1300,39 +1201,33 @@ ex_expr::exp_return_type ex_comp_clause::pCodeGenerate(Space *space, UInt32 f) {
     AML aml(PCIT::getMemoryAddressingMode(attrs[0]->getDatatype()),  // target
             srcAm, srcAm, PCIT::IBIN32S);
 
-    OL ol(attrs[0]->getAtp(), attrs[0]->getAtpIndex(), attrs[0]->getOffset(),
-          attrs[1]->getAtp(), attrs[1]->getAtpIndex(), attrs[1]->getOffset(),
-          attrs[1]->getVoaOffset(), len1, comboLen1,
-          attrs[2]->getAtp(), attrs[2]->getAtpIndex(), attrs[2]->getOffset(),
-          attrs[2]->getVoaOffset(), len2, comboLen2,
+    OL ol(attrs[0]->getAtp(), attrs[0]->getAtpIndex(), attrs[0]->getOffset(), attrs[1]->getAtp(),
+          attrs[1]->getAtpIndex(), attrs[1]->getOffset(), attrs[1]->getVoaOffset(), len1, comboLen1, attrs[2]->getAtp(),
+          attrs[2]->getAtpIndex(), attrs[2]->getOffset(), attrs[2]->getVoaOffset(), len2, comboLen2,
           (Int32)getOperType());
 
     // Add the comparison instruction.
     //
     PCI pci(PCIT::Op_COMP, aml, ol);
     code.append(pci);
-  }
-  else
-  {
+  } else {
     // Operand 1: memory location of boolean result
     // Operand 2: memory location of 1st argument
     // Operand 3: memory location of 2nd argument
     //
     if (flipOperands) {
-      Attributes* tempOp;
+      Attributes *tempOp;
       tempOp = op1;
       op1 = op2;
       op2 = tempOp;
     }
 
-    AML aml(PCIT::getMemoryAddressingMode(attrs[0]->getDatatype()),
-            PCIT::getMemoryAddressingMode(op1->getDatatype()),
+    AML aml(PCIT::getMemoryAddressingMode(attrs[0]->getDatatype()), PCIT::getMemoryAddressingMode(op1->getDatatype()),
             PCIT::getMemoryAddressingMode(op2->getDatatype()));
-    
-    OL ol(attrs[0]->getAtp(), attrs[0]->getAtpIndex(), attrs[0]->getOffset(),
-          op1->getAtp(), op1->getAtpIndex(), op1->getOffset(),
-          op2->getAtp(), op2->getAtpIndex(), op2->getOffset());
-    
+
+    OL ol(attrs[0]->getAtp(), attrs[0]->getAtpIndex(), attrs[0]->getOffset(), op1->getAtp(), op1->getAtpIndex(),
+          op1->getOffset(), op2->getAtp(), op2->getAtpIndex(), op2->getOffset());
+
     // Add the comparison instruction.
     //
     PCI pci(op, aml, ol);
@@ -1341,11 +1236,10 @@ ex_expr::exp_return_type ex_comp_clause::pCodeGenerate(Space *space, UInt32 f) {
 
   // Add the branch target if necessary.
   //
-  if(branchToEnd)
-  {
-    AML aml; 
+  if (branchToEnd) {
+    AML aml;
     OL ol((Int64)branchToEnd);
-    PCI pci(PCIT::Op_TARGET, aml, ol); 
+    PCI pci(PCIT::Op_TARGET, aml, ol);
     code.append(pci);
   }
 
@@ -1354,21 +1248,21 @@ ex_expr::exp_return_type ex_comp_clause::pCodeGenerate(Space *space, UInt32 f) {
   PCode::postClausePCI(this, code);
 
   setPCIList(code.getList());
-  return ex_expr::EXPR_OK; 
+  return ex_expr::EXPR_OK;
 };
 
 // ex_aggregate_clause::pCodeGenerate
 //
 // Does nothing.
 //
-ex_expr::exp_return_type ex_noop_clause::pCodeGenerate(Space *space, UInt32 f) { 
+ex_expr::exp_return_type ex_noop_clause::pCodeGenerate(Space *space, UInt32 f) {
   //
   PCIList code(space);
 
   // Generate pre clause PCI's
   //
   PCode::preClausePCI(this, code);
-  
+
   // Generate post clause PCI's
   //
   PCode::postClausePCI(this, code);
@@ -1383,26 +1277,26 @@ ex_expr::exp_return_type ex_noop_clause::pCodeGenerate(Space *space, UInt32 f) {
 // perform the logical test, and store the tristate result.
 //
 // IN     : space - memory allocator
-// OUT    : 
+// OUT    :
 // RETURN : ex_expr::EXPR_OK is no errors
 // EFFECTS: stores pointer to PCodeObject in clause
 //
 ex_expr::exp_return_type ex_unlogic_clause::pCodeGenerate(Space *space, UInt32 f) {
 #ifdef _DEBUG
   // For debugging...
-  if(getenv("PCODE_NO_UNLOGIC")) return ex_clause::pCodeGenerate(space, f);
+  if (getenv("PCODE_NO_UNLOGIC")) return ex_clause::pCodeGenerate(space, f);
 #endif
 
   // Generate the standard clause->eval PCode for cases that
   // are not handled with more fundamental PCode operations.
   //
-  switch(getOperType()) {
-  case ITM_IS_NULL:
-  case ITM_IS_NOT_NULL:
-    break;
+  switch (getOperType()) {
+    case ITM_IS_NULL:
+    case ITM_IS_NOT_NULL:
+      break;
 
-  default:
-    return ex_clause::pCodeGenerate(space, f);
+    default:
+      return ex_clause::pCodeGenerate(space, f);
   }
 
   // Allocate the code list and get a handle on the attributes
@@ -1416,24 +1310,22 @@ ex_expr::exp_return_type ex_unlogic_clause::pCodeGenerate(Space *space, UInt32 f
 
   // Do the test
   //
-  switch(getOperType()) {
-  case ITM_IS_NULL:
-    // If the attribute is not nullable, then it is NOT NULL for sure
-    if(!attrs[1]->getNullFlag()) 
-      code.append(PCode::storeValue(0, attrs[0], space));
-    // Otherwise, actually test it
-    else
-      code.append(PCode::isNull(attrs[0], attrs[1], space));
-    break;
+  switch (getOperType()) {
+    case ITM_IS_NULL:
+      // If the attribute is not nullable, then it is NOT NULL for sure
+      if (!attrs[1]->getNullFlag()) code.append(PCode::storeValue(0, attrs[0], space));
+      // Otherwise, actually test it
+      else
+        code.append(PCode::isNull(attrs[0], attrs[1], space));
+      break;
 
-  case ITM_IS_NOT_NULL:
-    // If the attribute is not nullable, then it is NOT NULL for sure
-    if(!attrs[1]->getNullFlag()) 
-      code.append(PCode::storeValue(1, attrs[0], space));
-    // Otherwise, actually test it
-    else
-      code.append(PCode::isNotNull(attrs[0], attrs[1], space));
-    break;
+    case ITM_IS_NOT_NULL:
+      // If the attribute is not nullable, then it is NOT NULL for sure
+      if (!attrs[1]->getNullFlag()) code.append(PCode::storeValue(1, attrs[0], space));
+      // Otherwise, actually test it
+      else
+        code.append(PCode::isNotNull(attrs[0], attrs[1], space));
+      break;
   }
 
   // Generate post clause PCI's
@@ -1450,14 +1342,14 @@ ex_expr::exp_return_type ex_unlogic_clause::pCodeGenerate(Space *space, UInt32 f
 // boolean value.
 //
 // IN     : space - memory allocator
-// OUT    : 
+// OUT    :
 // RETURN : ex_expr::EXPR_OK is no errors
 // EFFECTS: stores pointer to PCodeObject in clause
 //
 ex_expr::exp_return_type ex_function_bool::pCodeGenerate(Space *space, UInt32 f) {
 #ifdef _DEBUG
   // For debugging...
-  if(getenv("PCODE_NO_BOOL")) return ex_clause::pCodeGenerate(space, f);
+  if (getenv("PCODE_NO_BOOL")) return ex_clause::pCodeGenerate(space, f);
 #endif
 
   // Get a handle on the operands
@@ -1472,19 +1364,26 @@ ex_expr::exp_return_type ex_function_bool::pCodeGenerate(Space *space, UInt32 f)
   PCode::preClausePCI(this, code);
 
   Int32 returnValue;
-  switch(getOperType()) {
-  case ITM_RETURN_TRUE: returnValue = 1; break;
-  case ITM_RETURN_FALSE: returnValue = 0; break;
-  case ITM_RETURN_NULL: returnValue = -1; break;
-  default: return ex_clause::pCodeGenerate(space, f); break;
+  switch (getOperType()) {
+    case ITM_RETURN_TRUE:
+      returnValue = 1;
+      break;
+    case ITM_RETURN_FALSE:
+      returnValue = 0;
+      break;
+    case ITM_RETURN_NULL:
+      returnValue = -1;
+      break;
+    default:
+      return ex_clause::pCodeGenerate(space, f);
+      break;
   }
 
   // First operand is the memory location of the result
   // Second operand is the immediate value to store in the result
   //
   AML aml(PCIT::MBIN32S, PCIT::IBIN32S);
-  OL ol(attrs[0]->getAtp(), attrs[0]->getAtpIndex(), attrs[0]->getOffset(),
-	returnValue);
+  OL ol(attrs[0]->getAtp(), attrs[0]->getAtpIndex(), attrs[0]->getOffset(), returnValue);
 
   // Add the move instruction.
   //
@@ -1509,8 +1408,7 @@ ex_expr::exp_return_type ex_function_bool::pCodeGenerate(Space *space, UInt32 f)
 // RETURN : ex_expr::EXPR_OK is no errors
 // EFFECTS: stores pointer to PCodeObject in clause
 //
-ex_expr::exp_return_type ExHDPHash::pCodeGenerate(Space *space, UInt32 f)
-{
+ex_expr::exp_return_type ExHDPHash::pCodeGenerate(Space *space, UInt32 f) {
   // NOTE - This code is identical to exp_function_hash::pCodeGenerate().
   // Ideally we should be able to cast the this pointer to exp_function_hash
   // and call its pCodeGenerate(), but it doesn't work that way - the vtbl
@@ -1520,14 +1418,13 @@ ex_expr::exp_return_type ExHDPHash::pCodeGenerate(Space *space, UInt32 f)
 
 #ifdef _DEBUG
   // For debugging...
-  if(getenv("PCODE_NO_HASH")) return ex_clause::pCodeGenerate(space, f);
+  if (getenv("PCODE_NO_HASH")) return ex_clause::pCodeGenerate(space, f);
 #endif
 
   AttributesPtr *attrs = getOperand();
 
   // Don't handle indirect varchars if CQD says so
-  if ( attrs[1]->isIndirectVC() && (NOT handleIndirectVC()) )
-    return ex_clause::pCodeGenerate(space, f);
+  if (attrs[1]->isIndirectVC() && (NOT handleIndirectVC())) return ex_clause::pCodeGenerate(space, f);
 
   // Allocate the code list and get a handle on the attributes
   //
@@ -1557,95 +1454,83 @@ ex_expr::exp_return_type ExHDPHash::pCodeGenerate(Space *space, UInt32 f)
 
   UInt32 flags = NO_FLAGS;
 
-  switch(attrs[1]->getDatatype()) {
-  case REC_NUM_BIG_UNSIGNED:
-  case REC_NUM_BIG_SIGNED:
-  case REC_BIN16_SIGNED:
-  case REC_BIN16_UNSIGNED:
-  case REC_NCHAR_F_UNICODE:
-  case REC_NCHAR_V_UNICODE:
-  case REC_NCHAR_V_ANSI_UNICODE:
-    flags = SWAP_TWO;
-    break; 
-  case REC_BIN32_SIGNED:
-  case REC_BIN32_UNSIGNED:
-  case REC_IEEE_FLOAT32:
-    flags = SWAP_FOUR;
-    break;
-  case REC_BIN64_SIGNED:
-  case REC_IEEE_FLOAT64:
-    flags = SWAP_EIGHT;
-    break;
-  case REC_DATETIME:
-    {
+  switch (attrs[1]->getDatatype()) {
+    case REC_NUM_BIG_UNSIGNED:
+    case REC_NUM_BIG_SIGNED:
+    case REC_BIN16_SIGNED:
+    case REC_BIN16_UNSIGNED:
+    case REC_NCHAR_F_UNICODE:
+    case REC_NCHAR_V_UNICODE:
+    case REC_NCHAR_V_ANSI_UNICODE:
+      flags = SWAP_TWO;
+      break;
+    case REC_BIN32_SIGNED:
+    case REC_BIN32_UNSIGNED:
+    case REC_IEEE_FLOAT32:
+      flags = SWAP_FOUR;
+      break;
+    case REC_BIN64_SIGNED:
+    case REC_IEEE_FLOAT64:
+      flags = SWAP_EIGHT;
+      break;
+    case REC_DATETIME: {
       oper = PCIT::MPTR32;
 
       rec_datetime_field start;
       rec_datetime_field end;
-      ExpDatetime *datetime = (ExpDatetime*) getOperand(1);
+      ExpDatetime *datetime = (ExpDatetime *)getOperand(1);
       datetime->getDatetimeFields(attrs[1]->getPrecision(), start, end);
-      if(start == REC_DATE_YEAR) {
+      if (start == REC_DATE_YEAR) {
         flags = SWAP_FIRSTTWO;
       }
-      if(end == REC_DATE_SECOND && attrs[1]->getScale() > 0) {
+      if (end == REC_DATE_SECOND && attrs[1]->getScale() > 0) {
         flags |= SWAP_LASTFOUR;
       }
-      
-    }
-    break; 
-  default:
-    if(attrs[1]->getDatatype() >= REC_MIN_INTERVAL &&
-       attrs[1]->getDatatype() <= REC_MAX_INTERVAL) {
 
-      if (attrs[1]->getLength() == 8)
-        flags = SWAP_EIGHT;
-      else if (attrs[1]->getLength() == 4)
-        flags = SWAP_FOUR;
-      else if (attrs[1]->getLength() == 2)
-        flags = SWAP_TWO;
-      else
-        assert(FALSE);
-    }
+    } break;
+    default:
+      if (attrs[1]->getDatatype() >= REC_MIN_INTERVAL && attrs[1]->getDatatype() <= REC_MAX_INTERVAL) {
+        if (attrs[1]->getLength() == 8)
+          flags = SWAP_EIGHT;
+        else if (attrs[1]->getLength() == 4)
+          flags = SWAP_FOUR;
+        else if (attrs[1]->getLength() == 2)
+          flags = SWAP_TWO;
+        else
+          assert(FALSE);
+      }
   }
 
   // handle varchar
-  if (attrs[1]->getVCIndicatorLength() > 0)
-    {
-      UInt32 comboLen = 0;
-      char* comboPtr = (char*)&comboLen;
+  if (attrs[1]->getVCIndicatorLength() > 0) {
+    UInt32 comboLen = 0;
+    char *comboPtr = (char *)&comboLen;
 
-      // Use combo fields for specifying vc/null lengths of both operands
-      comboPtr[0] = (char)attrs[1]->getNullIndicatorLength(),
-      comboPtr[1] = (char)attrs[1]->getVCIndicatorLength();
+    // Use combo fields for specifying vc/null lengths of both operands
+    comboPtr[0] = (char)attrs[1]->getNullIndicatorLength(), comboPtr[1] = (char)attrs[1]->getVCIndicatorLength();
 
-      AML aml(PCIT::MBIN32U,
-              PCIT::getMemoryAddressingMode(attrs[1]->getDatatype()));
+    AML aml(PCIT::MBIN32U, PCIT::getMemoryAddressingMode(attrs[1]->getDatatype()));
 
-      OL ol(attrs[0]->getAtp(), attrs[0]->getAtpIndex(),attrs[0]->getOffset(),
-            attrs[1]->getAtp(), attrs[1]->getAtpIndex(),attrs[1]->getOffset(),
-              attrs[1]->getVoaOffset(), attrs[1]->getLength(), comboLen);
-      PCI pci(PCIT::Op_HASH, aml, ol);
-      code.append( pci);
-    }
-  else
-    {
-      AML aml(PCIT::MBIN32U, oper, PCIT::IBIN32S, PCIT::IBIN32S);
-      OL ol(attrs[0]->getAtp(), attrs[0]->getAtpIndex(), attrs[0]->getOffset(),
-            attrs[1]->getAtp(), attrs[1]->getAtpIndex(), attrs[1]->getOffset(),
-            flags, attrs[1]->getLength());
-      PCI pci(PCIT::Op_HASH, aml, ol);
-      code.append( pci);
-    }
+    OL ol(attrs[0]->getAtp(), attrs[0]->getAtpIndex(), attrs[0]->getOffset(), attrs[1]->getAtp(),
+          attrs[1]->getAtpIndex(), attrs[1]->getOffset(), attrs[1]->getVoaOffset(), attrs[1]->getLength(), comboLen);
+    PCI pci(PCIT::Op_HASH, aml, ol);
+    code.append(pci);
+  } else {
+    AML aml(PCIT::MBIN32U, oper, PCIT::IBIN32S, PCIT::IBIN32S);
+    OL ol(attrs[0]->getAtp(), attrs[0]->getAtpIndex(), attrs[0]->getOffset(), attrs[1]->getAtp(),
+          attrs[1]->getAtpIndex(), attrs[1]->getOffset(), flags, attrs[1]->getLength());
+    PCI pci(PCIT::Op_HASH, aml, ol);
+    code.append(pci);
+  }
 
   // Add the branch target if necessary.
   //
-  if(branchToEnd)
-    {
-      AML aml;
-      OL ol((Int64)branchToEnd);
-      PCI pci(PCIT::Op_TARGET, aml, ol);
-      code.append(pci);
-    }
+  if (branchToEnd) {
+    AML aml;
+    OL ol((Int64)branchToEnd);
+    PCI pci(PCIT::Op_TARGET, aml, ol);
+    code.append(pci);
+  }
 
   // Generate post clause PCI's
   //
@@ -1658,26 +1543,23 @@ ex_expr::exp_return_type ExHDPHash::pCodeGenerate(Space *space, UInt32 f)
 // ex_function_hash::pCodeGenerate
 //
 // Generate PCI's for the hash operation. The PCI's load the operands
-// addresses and calls the hash function. 
+// addresses and calls the hash function.
 //
 // IN     : space - memory allocator
-// OUT    : 
+// OUT    :
 // RETURN : ex_expr::EXPR_OK is no errors
 // EFFECTS: stores pointer to PCodeObject in clause
 //
-ex_expr::exp_return_type ex_function_hash::pCodeGenerate(Space *space, UInt32 f)
-{
-
+ex_expr::exp_return_type ex_function_hash::pCodeGenerate(Space *space, UInt32 f) {
 #ifdef _DEBUG
   // For debugging...
-  if(getenv("PCODE_NO_HASH")) return ex_clause::pCodeGenerate(space, f);
+  if (getenv("PCODE_NO_HASH")) return ex_clause::pCodeGenerate(space, f);
 #endif
 
   AttributesPtr *attrs = getOperand();
 
   // Don't handle indirect varchars if CQD says so
-  if ( attrs[1]->isIndirectVC() && (NOT handleIndirectVC()) )
-    return ex_clause::pCodeGenerate(space, f);
+  if (attrs[1]->isIndirectVC() && (NOT handleIndirectVC())) return ex_clause::pCodeGenerate(space, f);
 
   // Allocate the code list and get a handle on the attributes
   //
@@ -1706,51 +1588,42 @@ ex_expr::exp_return_type ex_function_hash::pCodeGenerate(Space *space, UInt32 f)
     oper = PCIT::MPTR32;
 
   // handle varchar
-  if (attrs[1]->getVCIndicatorLength() > 0)
-    {
+  if (attrs[1]->getVCIndicatorLength() > 0) {
+    UInt32 comboLen = 0;
+    char *comboPtr = (char *)&comboLen;
 
-      UInt32 comboLen = 0;
-      char* comboPtr = (char*)&comboLen;
+    // Use combo fields for specifying vc/null lengths of both operands
+    comboPtr[0] = (char)attrs[1]->getNullIndicatorLength(), comboPtr[1] = (char)attrs[1]->getVCIndicatorLength();
 
-      // Use combo fields for specifying vc/null lengths of both operands
-      comboPtr[0] = (char)attrs[1]->getNullIndicatorLength(),
-      comboPtr[1] = (char)attrs[1]->getVCIndicatorLength();
+    AML aml(PCIT::MBIN32U, PCIT::getMemoryAddressingMode(attrs[1]->getDatatype()));
 
-      AML aml(PCIT::MBIN32U,
-              PCIT::getMemoryAddressingMode(attrs[1]->getDatatype()));
+    OL ol(attrs[0]->getAtp(), attrs[0]->getAtpIndex(), attrs[0]->getOffset(), attrs[1]->getAtp(),
+          attrs[1]->getAtpIndex(), attrs[1]->getOffset(), attrs[1]->getVoaOffset(), attrs[1]->getLength(), comboLen);
+    PCI pci(PCIT::Op_HASH, aml, ol);
+    code.append(pci);
+  } else {
+    UInt32 flags = ExHDPHash::NO_FLAGS;
 
-      OL ol(attrs[0]->getAtp(), attrs[0]->getAtpIndex(),attrs[0]->getOffset(),
-            attrs[1]->getAtp(), attrs[1]->getAtpIndex(),attrs[1]->getOffset(),
-              attrs[1]->getVoaOffset(), attrs[1]->getLength(), comboLen);
-      PCI pci(PCIT::Op_HASH, aml, ol);
-      code.append( pci);
-    }
-  else
-    {
-      UInt32 flags = ExHDPHash::NO_FLAGS;
-
-      AML aml(PCIT::MBIN32U, oper, PCIT::IBIN32S, PCIT::IBIN32S);
-      OL ol(attrs[0]->getAtp(), attrs[0]->getAtpIndex(), attrs[0]->getOffset(),
-            attrs[1]->getAtp(), attrs[1]->getAtpIndex(), attrs[1]->getOffset(),
-            flags, attrs[1]->getLength());
-      PCI pci(PCIT::Op_HASH, aml, ol);
-      code.append( pci);
-    }
+    AML aml(PCIT::MBIN32U, oper, PCIT::IBIN32S, PCIT::IBIN32S);
+    OL ol(attrs[0]->getAtp(), attrs[0]->getAtpIndex(), attrs[0]->getOffset(), attrs[1]->getAtp(),
+          attrs[1]->getAtpIndex(), attrs[1]->getOffset(), flags, attrs[1]->getLength());
+    PCI pci(PCIT::Op_HASH, aml, ol);
+    code.append(pci);
+  }
 
   // Add the branch target if necessary.
   //
-  if(branchToEnd)
-    {
-      AML aml; 
-      OL ol((Int64)branchToEnd);
-      PCI pci(PCIT::Op_TARGET, aml, ol); 
-      code.append(pci);
-    }
+  if (branchToEnd) {
+    AML aml;
+    OL ol((Int64)branchToEnd);
+    PCI pci(PCIT::Op_TARGET, aml, ol);
+    code.append(pci);
+  }
 
   // Generate post clause PCI's
   //
   PCode::postClausePCI(this, code);
-  
+
   setPCIList(code.getList());
   return ex_expr::EXPR_OK;
 }
@@ -1769,7 +1642,7 @@ ex_expr::exp_return_type ex_function_hash::pCodeGenerate(Space *space, UInt32 f)
 ex_expr::exp_return_type ExHDPHashComb::pCodeGenerate(Space *space, UInt32 f) {
 #ifdef _DEBUG
   // For debugging...
-  if(getenv("PCODE_NO_HASHCOMB")) return ex_clause::pCodeGenerate(space, f);
+  if (getenv("PCODE_NO_HASHCOMB")) return ex_clause::pCodeGenerate(space, f);
 #endif
 
   // Get a handle on the operands
@@ -1778,8 +1651,7 @@ ex_expr::exp_return_type ExHDPHashComb::pCodeGenerate(Space *space, UInt32 f) {
 
   // Use the default pCodeGenerate for cases not handles here
   //
-  if((attrs[1]->getLength() != 4) || (attrs[2]->getLength() != 4))
-    return ex_clause::pCodeGenerate(space, f);
+  if ((attrs[1]->getLength() != 4) || (attrs[2]->getLength() != 4)) return ex_clause::pCodeGenerate(space, f);
 
   // Allocate the code list
   //
@@ -1796,9 +1668,8 @@ ex_expr::exp_return_type ExHDPHashComb::pCodeGenerate(Space *space, UInt32 f) {
   AML aml(PCIT::getMemoryAddressingMode(attrs[0]->getDatatype()),
           PCIT::getMemoryAddressingMode(attrs[1]->getDatatype()),
           PCIT::getMemoryAddressingMode(attrs[2]->getDatatype()));
-  OL ol(attrs[0]->getAtp(), attrs[0]->getAtpIndex(), attrs[0]->getOffset(),
-        attrs[1]->getAtp(), attrs[1]->getAtpIndex(), attrs[1]->getOffset(),
-        attrs[2]->getAtp(), attrs[2]->getAtpIndex(), attrs[2]->getOffset());
+  OL ol(attrs[0]->getAtp(), attrs[0]->getAtpIndex(), attrs[0]->getOffset(), attrs[1]->getAtp(), attrs[1]->getAtpIndex(),
+        attrs[1]->getOffset(), attrs[2]->getAtp(), attrs[2]->getAtpIndex(), attrs[2]->getOffset());
 
   // Generate the operator
   //
@@ -1824,14 +1695,14 @@ ex_expr::exp_return_type ExHDPHashComb::pCodeGenerate(Space *space, UInt32 f) {
 // and store the result.
 //
 // IN     : space - memory allocator
-// OUT    : 
+// OUT    :
 // RETURN : ex_expr::EXPR_OK is no errors
 // EFFECTS: stores pointer to PCodeObject in clause
 //
 ex_expr::exp_return_type ExHashComb::pCodeGenerate(Space *space, UInt32 f) {
 #ifdef _DEBUG
   // For debugging...
-  if(getenv("PCODE_NO_HASHCOMB")) return ex_clause::pCodeGenerate(space, f);
+  if (getenv("PCODE_NO_HASHCOMB")) return ex_clause::pCodeGenerate(space, f);
 #endif
 
   // Get a handle on the operands
@@ -1840,8 +1711,7 @@ ex_expr::exp_return_type ExHashComb::pCodeGenerate(Space *space, UInt32 f) {
 
   // Use the default pCodeGenerate for cases not handles here
   //
-  if((attrs[1]->getLength() != 4) || (attrs[2]->getLength() != 4))
-    return ex_clause::pCodeGenerate(space, f);
+  if ((attrs[1]->getLength() != 4) || (attrs[2]->getLength() != 4)) return ex_clause::pCodeGenerate(space, f);
 
   // Allocate the code list
   //
@@ -1856,11 +1726,10 @@ ex_expr::exp_return_type ExHashComb::pCodeGenerate(Space *space, UInt32 f) {
   // Operand 3: memory location of 2nd argument
   //
   AML aml(PCIT::getMemoryAddressingMode(attrs[0]->getDatatype()),
-	  PCIT::getMemoryAddressingMode(attrs[1]->getDatatype()),
-	  PCIT::getMemoryAddressingMode(attrs[2]->getDatatype()));
-  OL ol(attrs[0]->getAtp(), attrs[0]->getAtpIndex(), attrs[0]->getOffset(),
-	attrs[1]->getAtp(), attrs[1]->getAtpIndex(), attrs[1]->getOffset(),
-	attrs[2]->getAtp(), attrs[2]->getAtpIndex(), attrs[2]->getOffset());
+          PCIT::getMemoryAddressingMode(attrs[1]->getDatatype()),
+          PCIT::getMemoryAddressingMode(attrs[2]->getDatatype()));
+  OL ol(attrs[0]->getAtp(), attrs[0]->getAtpIndex(), attrs[0]->getOffset(), attrs[1]->getAtp(), attrs[1]->getAtpIndex(),
+        attrs[1]->getOffset(), attrs[2]->getAtp(), attrs[2]->getAtpIndex(), attrs[2]->getOffset());
 
   // Generate the operator
   //
@@ -1882,25 +1751,25 @@ ex_expr::exp_return_type ExHashComb::pCodeGenerate(Space *space, UInt32 f) {
 // ex_replace_null_clause::pCodeGenerate
 //
 //
-ex_expr::exp_return_type ex_function_replace_null::pCodeGenerate(Space *space, UInt32 f){
+ex_expr::exp_return_type ex_function_replace_null::pCodeGenerate(Space *space, UInt32 f) {
 #ifdef _DEBUG
   // For debugging...
-  if(getenv("PCODE_NO_REPLACE_NULL")) return ex_clause::pCodeGenerate(space, f);
+  if (getenv("PCODE_NO_REPLACE_NULL")) return ex_clause::pCodeGenerate(space, f);
 #endif
 
   // Get a handle on the attributes
   //
   AttributesPtr *attrs = getOperand();
 
-  switch(attrs[0]->getDatatype()) {
-  case REC_BIN32_SIGNED:
-  case REC_BIN32_UNSIGNED:
-  case REC_BIN16_SIGNED:
-  case REC_BIN16_UNSIGNED:
-    break;
+  switch (attrs[0]->getDatatype()) {
+    case REC_BIN32_SIGNED:
+    case REC_BIN32_UNSIGNED:
+    case REC_BIN16_SIGNED:
+    case REC_BIN16_UNSIGNED:
+      break;
 
-  default:
-    return ex_clause::pCodeGenerate(space, f);
+    default:
+      return ex_clause::pCodeGenerate(space, f);
   }
 
   // Allocate the code list and get a handle on the attributes
@@ -1915,20 +1784,18 @@ ex_expr::exp_return_type ex_function_replace_null::pCodeGenerate(Space *space, U
   Attributes *op1 = attrs[1];
   Attributes *op2 = attrs[2];
 
-  if (NOT op1->getNullFlag() )           // value is not nullable
+  if (NOT op1->getNullFlag())  // value is not nullable
   {
-    AML aml(PCIT::MBIN8, PCIT::MBIN8,    // these two types must be the same
+    AML aml(PCIT::MBIN8, PCIT::MBIN8,  // these two types must be the same
             PCIT::IBIN32S);
 
     OL ol(tgt->getAtp(), tgt->getAtpIndex(), tgt->getOffset(),  // result
-          op2->getAtp(), op2->getAtpIndex(), op2->getOffset(),  // result to use for non-null 
+          op2->getAtp(), op2->getAtpIndex(), op2->getOffset(),  // result to use for non-null
           tgt->getLength());
 
     PCI pci(PCIT::Op_MOVE, aml, ol);
     code.append(pci);
-  }
-  else
-  {
+  } else {
     Attributes *op3 = attrs[3];
 
     // First operand is the result--either second or third operand is null.
@@ -1937,54 +1804,48 @@ ex_expr::exp_return_type ex_function_replace_null::pCodeGenerate(Space *space, U
     // Fourth operand is the immediate value to return if first value is null
     // Fifth operand is the length of operands three and four.
 
-     AML aml(PCIT::getMemoryAddressingMode(op2->getDatatype()), 
-             PCIT::MATTR3,PCIT::MBIN8,PCIT::MBIN8,PCIT::IBIN32S);
+    AML aml(PCIT::getMemoryAddressingMode(op2->getDatatype()), PCIT::MATTR3, PCIT::MBIN8, PCIT::MBIN8, PCIT::IBIN32S);
 
-     OL ol(tgt->getAtp(), tgt->getAtpIndex(), tgt->getOffset(), // result
-           op1->getAtp(), op1->getAtpIndex(), 
-           op1->getNullIndOffset(), op1->getNullBitIndex(),     // value to check
-           op2->getAtp(), op2->getAtpIndex(), op2->getOffset(), // result to use for non-null 
-           op3->getAtp(), op3->getAtpIndex(), op3->getOffset(), // result to use for null
-           op2->getLength());                   // length of replacement value
+    OL ol(tgt->getAtp(), tgt->getAtpIndex(), tgt->getOffset(),                                 // result
+          op1->getAtp(), op1->getAtpIndex(), op1->getNullIndOffset(), op1->getNullBitIndex(),  // value to check
+          op2->getAtp(), op2->getAtpIndex(), op2->getOffset(),  // result to use for non-null
+          op3->getAtp(), op3->getAtpIndex(), op3->getOffset(),  // result to use for null
+          op2->getLength());                                    // length of replacement value
 
-     // Add the REPLACE NULL instruction.
-     //
-     PCI pci(PCIT::Op_REPLACE_NULL, aml, ol);
-     code.append(pci);
+    // Add the REPLACE NULL instruction.
+    //
+    PCI pci(PCIT::Op_REPLACE_NULL, aml, ol);
+    code.append(pci);
   }
   // Generate post clause PCI's
   //
   PCode::postClausePCI(this, code);
   setPCIList(code.getList());
-  return ex_expr::EXPR_OK; 
+  return ex_expr::EXPR_OK;
 }
 
 // Helpers for working with attributes
 //
 Int32 isSameAttribute(Attributes *attrA, Attributes *attrB) {
-  if(attrA->getAtpIndex() != attrB->getAtpIndex()) return 0;
-  if(attrA->getOffset() != attrB->getOffset()) return 0;
+  if (attrA->getAtpIndex() != attrB->getAtpIndex()) return 0;
+  if (attrA->getOffset() != attrB->getOffset()) return 0;
   return 1;
 };
 Int32 isConstantAttribute(Attributes *attr) { return attr->getAtpIndex() == 0; };
-Int32 isTemporaryAttribute(Attributes *attr) { return attr->getAtpIndex() == 1;};
+Int32 isTemporaryAttribute(Attributes *attr) { return attr->getAtpIndex() == 1; };
 Int32 isAtpAttribute(Attributes *attr) { return attr->getAtpIndex() > 1; };
 
-ex_expr::exp_return_type ex_arith_clause::unaryArithPCodeGenerate
-(Space *space, UInt32 f) 
-{
-  if (getNumOperands() != 2)
-    return ex_expr::EXPR_ERROR;
+ex_expr::exp_return_type ex_arith_clause::unaryArithPCodeGenerate(Space *space, UInt32 f) {
+  if (getNumOperands() != 2) return ex_expr::EXPR_ERROR;
 
   AttributesPtr *attrs = getOperand();
 
-  switch(getInstruction()) {
+  switch (getInstruction()) {
+    case NEGATE_BOOLEAN:
+      break;
 
-  case NEGATE_BOOLEAN:
-    break;
-
-  default:
-    return ex_clause::pCodeGenerate(space, f);
+    default:
+      return ex_clause::pCodeGenerate(space, f);
   }
 
   // Allocate the code list and get a handle on the attributes
@@ -1996,33 +1857,30 @@ ex_expr::exp_return_type ex_arith_clause::unaryArithPCodeGenerate
   //
   Attributes *dst = attrs[0];
   Attributes *op1 = attrs[1];
-  
+
   // Generate pre clause PCI's
   //
   PCode::preClausePCI(this, code);
 
   // Construct the operands.
   //
-  OL ol2(dst->getAtp(), dst->getAtpIndex(), dst->getOffset(),  
-	 op1->getAtp(), op1->getAtpIndex(), op1->getOffset());
+  OL ol2(dst->getAtp(), dst->getAtpIndex(), dst->getOffset(), op1->getAtp(), op1->getAtpIndex(), op1->getOffset());
 
-  AML aml2(PCIT::getMemoryAddressingMode(dst->getDatatype()),
-	   PCIT::getMemoryAddressingMode(op1->getDatatype()));
+  AML aml2(PCIT::getMemoryAddressingMode(dst->getDatatype()), PCIT::getMemoryAddressingMode(op1->getDatatype()));
 
   // Construct the operation.
   //
   AML *aml = NULL;
   OL *ol = NULL;
   PCIT::Operation inst = PCIT::Op_OPDATA;  // prevent uninitialized var warning
- 
-  switch(getInstruction()) 
-    {
+
+  switch (getInstruction()) {
     case NEGATE_BOOLEAN:
       aml = &aml2;
       ol = &ol2;
       inst = PCIT::Op_NEG;
       break;
-    }
+  }
 
   // Add the null logic if necessary.
   //
@@ -2035,11 +1893,10 @@ ex_expr::exp_return_type ex_arith_clause::unaryArithPCodeGenerate
 
   // Add the branch target if necessary.
   //
-  if(branchToEnd)
-  {
-    AML aml; 
+  if (branchToEnd) {
+    AML aml;
     OL ol((Int64)branchToEnd);
-    PCI pci(PCIT::Op_TARGET, aml, ol); 
+    PCI pci(PCIT::Op_TARGET, aml, ol);
     code.append(pci);
   }
 
@@ -2057,79 +1914,78 @@ ex_expr::exp_return_type ex_arith_clause::unaryArithPCodeGenerate
 // do the arithematic, and then store the result.
 //
 // IN     : space - memory allocator
-// OUT    : 
+// OUT    :
 // RETURN : ex_expr::EXPR_OK is no errors
 // EFFECTS: stores pointer to PCodeObject in clause
 //
 ex_expr::exp_return_type ex_arith_clause::pCodeGenerate(Space *space, UInt32 f) {
 #ifdef _DEBUG
   // For debugging...
-  if(getenv("PCODE_NO_ARITH")) return ex_clause::pCodeGenerate(space, f);
+  if (getenv("PCODE_NO_ARITH")) return ex_clause::pCodeGenerate(space, f);
 #endif
 
   // if unary arith operator, generator unary pcode.
-  if (getNumOperands() == 2) // 1 result and 1 operand
-    {
-      return unaryArithPCodeGenerate(space, f);
-    }
+  if (getNumOperands() == 2)  // 1 result and 1 operand
+  {
+    return unaryArithPCodeGenerate(space, f);
+  }
 
   // Generate the standard clause->eval PCode for cases that
   // are not handled with more fundamental PCode operations.
   //
   AttributesPtr *attrs = getOperand();
-  switch(getInstruction()) {
-  case ADD_BIN16S_BIN16S_BIN16S:
-  case ADD_BIN32S_BIN32S_BIN32S:
-  case ADD_BIN64S_BIN64S_BIN64S:
-  case SUB_BIN16S_BIN16S_BIN16S:
-  case SUB_BIN32S_BIN32S_BIN32S:
-  case SUB_BIN64S_BIN64S_BIN64S:
-  case MUL_BIN16S_BIN16S_BIN16S:
-  case MUL_BIN32S_BIN32S_BIN32S:
-  case MUL_BIN64S_BIN64S_BIN64S:
-    break;
+  switch (getInstruction()) {
+    case ADD_BIN16S_BIN16S_BIN16S:
+    case ADD_BIN32S_BIN32S_BIN32S:
+    case ADD_BIN64S_BIN64S_BIN64S:
+    case SUB_BIN16S_BIN16S_BIN16S:
+    case SUB_BIN32S_BIN32S_BIN32S:
+    case SUB_BIN64S_BIN64S_BIN64S:
+    case MUL_BIN16S_BIN16S_BIN16S:
+    case MUL_BIN32S_BIN32S_BIN32S:
+    case MUL_BIN64S_BIN64S_BIN64S:
+      break;
 
-  case ADD_BIN16S_BIN16S_BIN32S:
-  case ADD_BIN16S_BIN32S_BIN32S:
-  case ADD_BIN32S_BIN16S_BIN32S:
-  case ADD_BIN32S_BIN64S_BIN64S:
-  case ADD_BIN64S_BIN32S_BIN64S:
+    case ADD_BIN16S_BIN16S_BIN32S:
+    case ADD_BIN16S_BIN32S_BIN32S:
+    case ADD_BIN32S_BIN16S_BIN32S:
+    case ADD_BIN32S_BIN64S_BIN64S:
+    case ADD_BIN64S_BIN32S_BIN64S:
 
-  case SUB_BIN16S_BIN16S_BIN32S:
-  case SUB_BIN16S_BIN32S_BIN32S:
-  case SUB_BIN32S_BIN16S_BIN32S:
+    case SUB_BIN16S_BIN16S_BIN32S:
+    case SUB_BIN16S_BIN32S_BIN32S:
+    case SUB_BIN32S_BIN16S_BIN32S:
 
-  case MUL_BIN16S_BIN16S_BIN32S:
-  case MUL_BIN16S_BIN32S_BIN32S:
-  case MUL_BIN32S_BIN16S_BIN32S:
-    break;
+    case MUL_BIN16S_BIN16S_BIN32S:
+    case MUL_BIN16S_BIN32S_BIN32S:
+    case MUL_BIN32S_BIN16S_BIN32S:
+      break;
 
-  case MUL_BIN16S_BIN32S_BIN64S:
-  case MUL_BIN32S_BIN16S_BIN64S:
-  case MUL_BIN32S_BIN32S_BIN64S:
-    break;
+    case MUL_BIN16S_BIN32S_BIN64S:
+    case MUL_BIN32S_BIN16S_BIN64S:
+    case MUL_BIN32S_BIN32S_BIN64S:
+      break;
 
-  case DIV_BIN64S_BIN64S_BIN64S:
-    break;
+    case DIV_BIN64S_BIN64S_BIN64S:
+      break;
 
-  case DIV_BIN64S_BIN64S_BIN64S_ROUND:
-    break;
+    case DIV_BIN64S_BIN64S_BIN64S_ROUND:
+      break;
 
-  case ADD_FLOAT64_FLOAT64_FLOAT64:
-  case SUB_FLOAT64_FLOAT64_FLOAT64:
-  case MUL_FLOAT64_FLOAT64_FLOAT64:
-  case DIV_FLOAT64_FLOAT64_FLOAT64:
-    break;
+    case ADD_FLOAT64_FLOAT64_FLOAT64:
+    case SUB_FLOAT64_FLOAT64_FLOAT64:
+    case MUL_FLOAT64_FLOAT64_FLOAT64:
+    case DIV_FLOAT64_FLOAT64_FLOAT64:
+      break;
 
-  case SUB_COMPLEX:
-  case ADD_COMPLEX:
-  case MUL_COMPLEX:
-    if (attrs[0]->getClassID() != Attributes::BigNumID)
+    case SUB_COMPLEX:
+    case ADD_COMPLEX:
+    case MUL_COMPLEX:
+      if (attrs[0]->getClassID() != Attributes::BigNumID) return ex_clause::pCodeGenerate(space, f);
+      break;
+
+    default:
       return ex_clause::pCodeGenerate(space, f);
-    break;
-
-  default:
-    return ex_clause::pCodeGenerate(space, f);
   }
 
   // Allocate the code list and get a handle on the attributes
@@ -2143,12 +1999,10 @@ ex_expr::exp_return_type ex_arith_clause::pCodeGenerate(Space *space, UInt32 f) 
   Attributes *op1 = attrs[1];
   Attributes *op2 = attrs[2];
 
-  if((dst->getDatatype() < REC_MIN_NUMERIC) ||
-     (dst->getDatatype() > REC_MAX_NUMERIC) ||
-     (op1->getDatatype() < REC_MIN_NUMERIC) ||
-     (op1->getDatatype() > REC_MAX_NUMERIC))
+  if ((dst->getDatatype() < REC_MIN_NUMERIC) || (dst->getDatatype() > REC_MAX_NUMERIC) ||
+      (op1->getDatatype() < REC_MIN_NUMERIC) || (op1->getDatatype() > REC_MAX_NUMERIC))
     return ex_clause::pCodeGenerate(space, f);
-  
+
   // Generate pre clause PCI's
   //
   PCode::preClausePCI(this, code);
@@ -2156,35 +2010,24 @@ ex_expr::exp_return_type ex_arith_clause::pCodeGenerate(Space *space, UInt32 f) 
   // Construct the operands.
   //
 
-  OL ols(dst->getAtp(), dst->getAtpIndex(), dst->getOffset(),  
-	 op1->getAtp(), op1->getAtpIndex(), op1->getOffset(), 
-	 op2->getAtp(), op2->getAtpIndex(), op2->getOffset());
+  OL ols(dst->getAtp(), dst->getAtpIndex(), dst->getOffset(), op1->getAtp(), op1->getAtpIndex(), op1->getOffset(),
+         op2->getAtp(), op2->getAtpIndex(), op2->getOffset());
 
-  OL olsFlipped(
-         dst->getAtp(), dst->getAtpIndex(), dst->getOffset(),
-         op2->getAtp(), op2->getAtpIndex(), op2->getOffset(),
-         op1->getAtp(), op1->getAtpIndex(), op1->getOffset());
+  OL olsFlipped(dst->getAtp(), dst->getAtpIndex(), dst->getOffset(), op2->getAtp(), op2->getAtpIndex(),
+                op2->getOffset(), op1->getAtp(), op1->getAtpIndex(), op1->getOffset());
 
-  OL olx(dst->getAtp(), dst->getAtpIndex(), dst->getOffset(), 
-	 dst->getPrecision(),
-	 op1->getAtp(), op1->getAtpIndex(), op1->getOffset(), 
-	 op1->getPrecision(),
-	 op2->getAtp(), op2->getAtpIndex(), op2->getOffset(),
-	 op2->getPrecision());
+  OL olx(dst->getAtp(), dst->getAtpIndex(), dst->getOffset(), dst->getPrecision(), op1->getAtp(), op1->getAtpIndex(),
+         op1->getOffset(), op1->getPrecision(), op2->getAtp(), op2->getAtpIndex(), op2->getOffset(),
+         op2->getPrecision());
 
-  OL olb(dst->getAtp(), dst->getAtpIndex(), dst->getOffset(),
-         op1->getAtp(), op1->getAtpIndex(), op1->getOffset(),
-         op2->getAtp(), op2->getAtpIndex(), op2->getOffset(),
-         dst->getLength());
+  OL olb(dst->getAtp(), dst->getAtpIndex(), dst->getOffset(), op1->getAtp(), op1->getAtpIndex(), op1->getOffset(),
+         op2->getAtp(), op2->getAtpIndex(), op2->getOffset(), dst->getLength());
 
-  OL olb2(dst->getAtp(), dst->getAtpIndex(), dst->getOffset(),
-          op1->getAtp(), op1->getAtpIndex(), op1->getOffset(),
-          op2->getAtp(), op2->getAtpIndex(), op2->getOffset(),
-          dst->getLength(), op1->getLength(), op2->getLength());
+  OL olb2(dst->getAtp(), dst->getAtpIndex(), dst->getOffset(), op1->getAtp(), op1->getAtpIndex(), op1->getOffset(),
+          op2->getAtp(), op2->getAtpIndex(), op2->getOffset(), dst->getLength(), op1->getLength(), op2->getLength());
 
   AML amlb(PCIT::MBIGS, PCIT::MBIGS, PCIT::MBIGS, PCIT::IBIN32S);
-  AML amlb2(PCIT::MBIGS, PCIT::MBIGS, PCIT::MBIGS,
-            PCIT::IBIN32S, PCIT::IBIN32S, PCIT::IBIN32S);
+  AML amlb2(PCIT::MBIGS, PCIT::MBIGS, PCIT::MBIGS, PCIT::IBIN32S, PCIT::IBIN32S, PCIT::IBIN32S);
 
   // OL for division using rounding. Need to pass in rounding mode and
   // if this rounding division is being done to downscale.
@@ -2192,47 +2035,35 @@ ex_expr::exp_return_type ex_arith_clause::pCodeGenerate(Space *space, UInt32 f) 
   // Rightmost bit in byte 3 is divToDownscale.
   Lng32 roundingInfo;
   roundingInfo = (Lng32)arithRoundingMode_;
-  if (getDivToDownscale())
-    roundingInfo |= 0x100;
+  if (getDivToDownscale()) roundingInfo |= 0x100;
 
-  OL ol_rd(dst->getAtp(), dst->getAtpIndex(), (Int32)dst->getOffset(),
-	   op1->getAtp(), op1->getAtpIndex(), (Int32)op1->getOffset(), 
-	   op2->getAtp(), op2->getAtpIndex(), (Int32)op2->getOffset(),
-	   roundingInfo);
+  OL ol_rd(dst->getAtp(), dst->getAtpIndex(), (Int32)dst->getOffset(), op1->getAtp(), op1->getAtpIndex(),
+           (Int32)op1->getOffset(), op2->getAtp(), op2->getAtpIndex(), (Int32)op2->getOffset(), roundingInfo);
 
   // Construct the addressing modes.
   //
   // Construct the addressing modes.
   //
-  AML amls(PCIT::getMemoryAddressingMode(dst->getDatatype()),
-	   PCIT::getMemoryAddressingMode(op1->getDatatype()),
-	   PCIT::getMemoryAddressingMode(op2->getDatatype()));
+  AML amls(PCIT::getMemoryAddressingMode(dst->getDatatype()), PCIT::getMemoryAddressingMode(op1->getDatatype()),
+           PCIT::getMemoryAddressingMode(op2->getDatatype()));
 
-  AML amlsFlipped(
-           PCIT::getMemoryAddressingMode(dst->getDatatype()),
-           PCIT::getMemoryAddressingMode(op2->getDatatype()),
-           PCIT::getMemoryAddressingMode(op1->getDatatype()));
+  AML amlsFlipped(PCIT::getMemoryAddressingMode(dst->getDatatype()), PCIT::getMemoryAddressingMode(op2->getDatatype()),
+                  PCIT::getMemoryAddressingMode(op1->getDatatype()));
 
-  AML amlx(PCIT::getMemoryAddressingMode(dst->getDatatype()),
-	   PCIT::IBIN32S,
-	   PCIT::getMemoryAddressingMode(op1->getDatatype()),
-	   PCIT::IBIN32S,
-	   PCIT::getMemoryAddressingMode(op2->getDatatype()),
-   	   PCIT::IBIN32S);
+  AML amlx(PCIT::getMemoryAddressingMode(dst->getDatatype()), PCIT::IBIN32S,
+           PCIT::getMemoryAddressingMode(op1->getDatatype()), PCIT::IBIN32S,
+           PCIT::getMemoryAddressingMode(op2->getDatatype()), PCIT::IBIN32S);
 
   // AML for division using rounding. Need to pass in rounding mode.
-  AML aml_rd(PCIT::getMemoryAddressingMode(dst->getDatatype()),
-	     PCIT::getMemoryAddressingMode(op1->getDatatype()),
-	     PCIT::getMemoryAddressingMode(op2->getDatatype()),
-	     PCIT::IBIN32S);
+  AML aml_rd(PCIT::getMemoryAddressingMode(dst->getDatatype()), PCIT::getMemoryAddressingMode(op1->getDatatype()),
+             PCIT::getMemoryAddressingMode(op2->getDatatype()), PCIT::IBIN32S);
 
   // Construct the operation.
   //
   AML *aml = NULL;
   OL *ol = NULL;
   PCIT::Operation inst = PCIT::Op_OPDATA;  // prevent uninitialized var warning
-  switch(getInstruction()) 
-    {
+  switch (getInstruction()) {
     case ADD_BIN32S_BIN16S_BIN32S:
     case ADD_BIN64S_BIN32S_BIN64S:
       // Normalize instructions so smaller operand comes first
@@ -2252,7 +2083,7 @@ ex_expr::exp_return_type ex_arith_clause::pCodeGenerate(Space *space, UInt32 f) 
       ol = &ols;
       inst = PCIT::Op_ADD;
       break;
-      
+
     case SUB_BIN16S_BIN16S_BIN16S:
     case SUB_BIN32S_BIN32S_BIN32S:
     case SUB_BIN64S_BIN64S_BIN64S:
@@ -2264,7 +2095,7 @@ ex_expr::exp_return_type ex_arith_clause::pCodeGenerate(Space *space, UInt32 f) 
       ol = &ols;
       inst = PCIT::Op_SUB;
       break;
-      
+
     case MUL_BIN32S_BIN16S_BIN32S:
     case MUL_BIN32S_BIN16S_BIN64S:
       // Normalize instructions so smaller operand comes first
@@ -2322,16 +2153,15 @@ ex_expr::exp_return_type ex_arith_clause::pCodeGenerate(Space *space, UInt32 f) 
       aml = &amlx;
       ol = &olx;
       inst = PCIT::Op_MUL;
-      break;      
+      break;
 #endif
 
     case DIV_COMPLEX:
       aml = &amlx;
       ol = &olx;
       inst = PCIT::Op_DIV;
-      break;      
-
-    }
+      break;
+  }
 
   // Add the null logic if necessary.
   //
@@ -2344,11 +2174,10 @@ ex_expr::exp_return_type ex_arith_clause::pCodeGenerate(Space *space, UInt32 f) 
 
   // Add the branch target if necessary.
   //
-  if(branchToEnd)
-  {
-    AML aml; 
+  if (branchToEnd) {
+    AML aml;
     OL ol((Int64)branchToEnd);
-    PCI pci(PCIT::Op_TARGET, aml, ol); 
+    PCI pci(PCIT::Op_TARGET, aml, ol);
     code.append(pci);
   }
 
@@ -2365,21 +2194,21 @@ ex_expr::exp_return_type ex_arith_clause::pCodeGenerate(Space *space, UInt32 f) 
 // Generate PCI's for the sum operation.
 //
 // IN     : space - memory allocator
-// OUT    : 
+// OUT    :
 // RETURN : ex_expr::EXPR_OK is no errors
 // EFFECTS: stores pointer to PCodeObject in clause
 //
 ex_expr::exp_return_type ex_arith_sum_clause::pCodeGenerate(Space *space, UInt32 f) {
 #ifdef _DEBUG
   // For debugging...
-  if(getenv("PCODE_NO_ARITH_SUM")) return ex_clause::pCodeGenerate(space, f);
+  if (getenv("PCODE_NO_ARITH_SUM")) return ex_clause::pCodeGenerate(space, f);
 #endif
 
 #if defined(__aarch64__)
   // The pcode of the sum function on the arm platform cannot be generated correctly
   return ex_clause::pCodeGenerate(space, f);
-#endif // __aarch64__
-  
+#endif  // __aarch64__
+
   // Allocate the code list and get a handle on the attributes
   //
   AttributesPtr *attrs = getOperand();
@@ -2388,51 +2217,45 @@ ex_expr::exp_return_type ex_arith_sum_clause::pCodeGenerate(Space *space, UInt32
   // are not handled with more fundamental PCode operations.
   // Since this is arith_sum, only add operations should appear.
   //
-  switch(getInstruction()) {
-  case ADD_BIN32S_BIN32S_BIN32S:
-  case ADD_BIN64S_BIN64S_BIN64S:
-    break;
+  switch (getInstruction()) {
+    case ADD_BIN32S_BIN32S_BIN32S:
+    case ADD_BIN64S_BIN64S_BIN64S:
+      break;
 
-  case ADD_FLOAT64_FLOAT64_FLOAT64:
-    break;
+    case ADD_FLOAT64_FLOAT64_FLOAT64:
+      break;
 
-  case ADD_COMPLEX:
-    if (attrs[0]->getClassID() != Attributes::BigNumID)
+    case ADD_COMPLEX:
+      if (attrs[0]->getClassID() != Attributes::BigNumID) return ex_clause::pCodeGenerate(space, f);
+      break;
+
+    default:
       return ex_clause::pCodeGenerate(space, f);
-    break;
-
-  default:
-    return ex_clause::pCodeGenerate(space, f);
   }
 
-// Don't get mixed up in interval conversions. The precision for
+  // Don't get mixed up in interval conversions. The precision for
   // interval conversions is not set up correctly.
   //
   Attributes *dst = attrs[0];
   Attributes *op1 = attrs[1];
   Attributes *op2 = attrs[2];
 
-  if((dst->getDatatype() < REC_MIN_NUMERIC) ||
-     (dst->getDatatype() > REC_MAX_NUMERIC) ||
-     (op1->getDatatype() < REC_MIN_NUMERIC) ||
-     (op1->getDatatype() > REC_MAX_NUMERIC))
+  if ((dst->getDatatype() < REC_MIN_NUMERIC) || (dst->getDatatype() > REC_MAX_NUMERIC) ||
+      (op1->getDatatype() < REC_MIN_NUMERIC) || (op1->getDatatype() > REC_MAX_NUMERIC))
     return ex_clause::pCodeGenerate(space, f);
 
-  if (! isAugmentedAssignOperation())
-     return ex_clause::pCodeGenerate(space, f);
+  if (!isAugmentedAssignOperation()) return ex_clause::pCodeGenerate(space, f);
 
   // The result should be the same as one of the operands.
   //
   Int32 firstOperand = isSameAttribute(dst, op1);
   Int32 secondOperand = isSameAttribute(dst, op2);
-  
-  if(!firstOperand && !secondOperand)
-    return ex_clause::pCodeGenerate(space, f);
+
+  if (!firstOperand && !secondOperand) return ex_clause::pCodeGenerate(space, f);
 
   // The offset must be positive for PCODE to work.
   //
-  if(dst->getOffset() == ExpOffsetMax)
-    return ex_clause::pCodeGenerate(space, f);
+  if (dst->getOffset() == ExpOffsetMax) return ex_clause::pCodeGenerate(space, f);
 
   // The sum's are implemented in PCODE by the increment operation.
   // So, generate the appropriate increment operation.
@@ -2443,17 +2266,13 @@ ex_expr::exp_return_type ex_arith_sum_clause::pCodeGenerate(Space *space, UInt32
   // nullable for PCODE to work.
   //
   Int32 nullable = attrOp->getNullFlag();
-  if(nullable && !dst->getNullFlag())
-    return ex_clause::pCodeGenerate(space, f);
+  if (nullable && !dst->getNullFlag()) return ex_clause::pCodeGenerate(space, f);
 
   // Both operands must be the same type as well.
   //
-  PCIT::AddressingMode amA 
-    = PCIT::getMemoryAddressingMode(dst->getDatatype());
-  PCIT::AddressingMode amB 
-    = PCIT::getMemoryAddressingMode(attrOp->getDatatype());
-  if(amA != amB) 
-    return ex_clause::pCodeGenerate(space, f);
+  PCIT::AddressingMode amA = PCIT::getMemoryAddressingMode(dst->getDatatype());
+  PCIT::AddressingMode amB = PCIT::getMemoryAddressingMode(attrOp->getDatatype());
+  if (amA != amB) return ex_clause::pCodeGenerate(space, f);
 
   // Allocate the code list and get a handle on the attributes
   //
@@ -2464,46 +2283,33 @@ ex_expr::exp_return_type ex_arith_sum_clause::pCodeGenerate(Space *space, UInt32
   PCode::preClausePCI(this, code);
 
   // Based on the type of addition and whether the operand is nullable or
-  // not, choose the appropriate operand number and size for the 
+  // not, choose the appropriate operand number and size for the
   // increment operation.
   //
-  if (getInstruction() == ADD_COMPLEX)
-  {
-    AML aml(PCIT::MATTR3, PCIT::MATTR3, PCIT::IBIN32S, PCIT::MBIGS,
-            PCIT::MBIGS, PCIT::IBIN32S);
-    OL ol(attrs[0]->getAtp(), attrs[0]->getAtpIndex(),
-            attrs[0]->getNullIndOffset(), attrs[0]->getNullBitIndex(),
-          attrOp->getAtp(), attrOp->getAtpIndex(),
-            attrOp->getNullIndOffset(), attrOp->getNullBitIndex(),
-          ((nullable) ? 1 : 0),
-          attrs[0]->getAtp(), attrs[0]->getAtpIndex(), attrs[0]->getOffset(),
-          attrOp->getAtp(), attrOp->getAtpIndex(), attrOp->getOffset(),
-          attrs[0]->getLength());
+  if (getInstruction() == ADD_COMPLEX) {
+    AML aml(PCIT::MATTR3, PCIT::MATTR3, PCIT::IBIN32S, PCIT::MBIGS, PCIT::MBIGS, PCIT::IBIN32S);
+    OL ol(attrs[0]->getAtp(), attrs[0]->getAtpIndex(), attrs[0]->getNullIndOffset(), attrs[0]->getNullBitIndex(),
+          attrOp->getAtp(), attrOp->getAtpIndex(), attrOp->getNullIndOffset(), attrOp->getNullBitIndex(),
+          ((nullable) ? 1 : 0), attrs[0]->getAtp(), attrs[0]->getAtpIndex(), attrs[0]->getOffset(), attrOp->getAtp(),
+          attrOp->getAtpIndex(), attrOp->getOffset(), attrs[0]->getLength());
+    PCI pci(PCIT::Op_SUM, aml, ol);
+    code.append(pci);
+  } else if (!nullable) {
+    AML aml(amA, amB);
+    OL ol(dst->getAtp(), dst->getAtpIndex(), (Int32)dst->getOffset(), attrOp->getAtp(), attrOp->getAtpIndex(),
+          (Int32)attrOp->getOffset());
+
+    PCI pci(PCIT::Op_SUM, aml, ol);
+    code.append(pci);
+  } else {
+    AML aml(PCIT::MATTR3, PCIT::MATTR3, PCIT::IBIN32S, amA, amB);
+    OL ol(dst->getAtp(), dst->getAtpIndex(), (Int32)dst->getNullIndOffset(), (Int32)dst->getNullBitIndex(),
+          attrOp->getAtp(), attrOp->getAtpIndex(), attrOp->getNullIndOffset(), (Int32)attrOp->getNullBitIndex(),
+          ((nullable) ? 1 : 0), dst->getAtp(), dst->getAtpIndex(), dst->getOffset(), attrOp->getAtp(),
+          attrOp->getAtpIndex(), attrOp->getOffset());
     PCI pci(PCIT::Op_SUM, aml, ol);
     code.append(pci);
   }
-  else if(!nullable)
-    {
-      AML aml(amA, amB);
-      OL ol(dst->getAtp(), dst->getAtpIndex(), (Int32)dst->getOffset(), 
-	    attrOp->getAtp(), attrOp->getAtpIndex(), (Int32)attrOp->getOffset());
-
-      PCI pci(PCIT::Op_SUM, aml, ol);
-      code.append(pci);
-    }
-  else 
-    {
-    AML aml(PCIT::MATTR3, PCIT::MATTR3, PCIT::IBIN32S, amA, amB);
-    OL ol(dst->getAtp(), dst->getAtpIndex(), (Int32)dst->getNullIndOffset(),
-          (Int32)dst->getNullBitIndex(),
-          attrOp->getAtp(), attrOp->getAtpIndex(), attrOp->getNullIndOffset(),
-          (Int32)attrOp->getNullBitIndex(),
-          ((nullable) ? 1 : 0),
-          dst->getAtp(), dst->getAtpIndex(), dst->getOffset(), 
-          attrOp->getAtp(), attrOp->getAtpIndex(), attrOp->getOffset());
-      PCI pci(PCIT::Op_SUM, aml, ol);
-      code.append(pci);
-    }
 
   // Generate post clause PCI's
   //
@@ -2518,7 +2324,7 @@ ex_expr::exp_return_type ex_arith_sum_clause::pCodeGenerate(Space *space, UInt32
 // Generate PCI's for the sum operation.
 //
 // IN     : space - memory allocator
-// OUT    : 
+// OUT    :
 // RETURN : ex_expr::EXPR_OK is no errors
 // EFFECTS: stores pointer to PCodeObject in clause
 //
@@ -2526,140 +2332,127 @@ ex_expr::exp_return_type ex_arith_count_clause::pCodeGenerate(Space *space, UInt
   return ex_clause::pCodeGenerate(space, f);
 };
 
-static void computeBounds(Attributes *attr, Int64 &lowBounds, 
-			  UInt64 &highBounds, Int32 &bigBounds, Int32 &isSigned)
-{
-const  UInt64 decimalPrecision[] = {
-    0,
-    9, 
-    99, 
-    999, 
-    9999, 
-    99999, 
-    999999, 
-    9999999, 
-    99999999, 
-    999999999,
-    9999999999LL, 
-    99999999999LL, 
-    999999999999LL, 
-    9999999999999LL,
-    99999999999999LL,
-    999999999999999LL,
-    9999999999999999LL,
-    99999999999999999LL,
-    999999999999999999LL,
-    4999999999999999999LL,
-    9999999999999999999ULL
-  };
+static void computeBounds(Attributes *attr, Int64 &lowBounds, UInt64 &highBounds, Int32 &bigBounds, Int32 &isSigned) {
+  const UInt64 decimalPrecision[] = {0,
+                                     9,
+                                     99,
+                                     999,
+                                     9999,
+                                     99999,
+                                     999999,
+                                     9999999,
+                                     99999999,
+                                     999999999,
+                                     9999999999LL,
+                                     99999999999LL,
+                                     999999999999LL,
+                                     9999999999999LL,
+                                     99999999999999LL,
+                                     999999999999999LL,
+                                     9999999999999999LL,
+                                     99999999999999999LL,
+                                     999999999999999999LL,
+                                     4999999999999999999LL,
+                                     9999999999999999999ULL};
 
-const  Int32 bpPrecision[] = { 0, 1, 3, 7, 15, 31, 63, 127, 255, 511,
-			     1023, 2047, 4095, 8191, 16483, 32767,
-			     65535, 65535 };
-    
+  const Int32 bpPrecision[] = {0,   1,    3,    7,    15,   31,    63,    127,   255,
+                               511, 1023, 2047, 4095, 8191, 16483, 32767, 65535, 65535};
 
   // By default, unsigned ints.
   //
   isSigned = 0;
   bigBounds = 0;
-  
+
   // Decimals have precision > 0 (Except for BPINTs).
   //
-  if((attr->getPrecision() > 0) && (attr->getDatatype() != REC_BPINT_UNSIGNED))
-    {
-      isSigned = 1;
-      switch(attr->getDatatype())
-	{
-	case REC_BIN8_UNSIGNED:
-	  isSigned = 0;
-	  break;
+  if ((attr->getPrecision() > 0) && (attr->getDatatype() != REC_BPINT_UNSIGNED)) {
+    isSigned = 1;
+    switch (attr->getDatatype()) {
+      case REC_BIN8_UNSIGNED:
+        isSigned = 0;
+        break;
 
-	case REC_BIN16_UNSIGNED:
-	  isSigned = 0;
-	  break;
+      case REC_BIN16_UNSIGNED:
+        isSigned = 0;
+        break;
 
-	case REC_BIN32_UNSIGNED:
-	  isSigned = 0;
-	  break;
+      case REC_BIN32_UNSIGNED:
+        isSigned = 0;
+        break;
 
-	case REC_BIN64_SIGNED:
-	  bigBounds = 1;
-          break;
+      case REC_BIN64_SIGNED:
+        bigBounds = 1;
+        break;
 
-	case REC_BIN64_UNSIGNED:
-          isSigned = 0;
-	  bigBounds = 1;
-          break;
-	}
-
-      lowBounds = 0;
-      if (isSigned) 
-        lowBounds = - decimalPrecision[attr->getPrecision()];
-      highBounds = decimalPrecision[attr->getPrecision()];
+      case REC_BIN64_UNSIGNED:
+        isSigned = 0;
+        bigBounds = 1;
+        break;
     }
+
+    lowBounds = 0;
+    if (isSigned) lowBounds = -decimalPrecision[attr->getPrecision()];
+    highBounds = decimalPrecision[attr->getPrecision()];
+  }
   // Binarys have precision = 0
   //
-  else
-    {
-      switch(attr->getDatatype())
-	{
-	case REC_BPINT_UNSIGNED:
-	  lowBounds = 0;
-	  highBounds = bpPrecision[attr->getPrecision()];
-	  break;
+  else {
+    switch (attr->getDatatype()) {
+      case REC_BPINT_UNSIGNED:
+        lowBounds = 0;
+        highBounds = bpPrecision[attr->getPrecision()];
+        break;
 
-	case REC_BIN8_SIGNED:
-	  lowBounds = SCHAR_MIN;
-	  highBounds = SCHAR_MAX;
-	  isSigned = 1;
-	  break;
+      case REC_BIN8_SIGNED:
+        lowBounds = SCHAR_MIN;
+        highBounds = SCHAR_MAX;
+        isSigned = 1;
+        break;
 
-	case REC_BIN8_UNSIGNED:
-	  lowBounds = 0;
-	  highBounds = UCHAR_MAX;
-	  break;
+      case REC_BIN8_UNSIGNED:
+        lowBounds = 0;
+        highBounds = UCHAR_MAX;
+        break;
 
-	case REC_BIN16_SIGNED:
-	  lowBounds = SHRT_MIN;
-	  highBounds = SHRT_MAX;
-	  isSigned = 1;
-	  break;
+      case REC_BIN16_SIGNED:
+        lowBounds = SHRT_MIN;
+        highBounds = SHRT_MAX;
+        isSigned = 1;
+        break;
 
-	case REC_BIN16_UNSIGNED:
-	  lowBounds = 0;
-	  highBounds = USHRT_MAX;
-	  break;
+      case REC_BIN16_UNSIGNED:
+        lowBounds = 0;
+        highBounds = USHRT_MAX;
+        break;
 
-	case REC_BIN32_SIGNED:
-	  lowBounds = INT_MIN;
-	  highBounds = INT_MAX;
-	  isSigned = 1;
-	  break;
+      case REC_BIN32_SIGNED:
+        lowBounds = INT_MIN;
+        highBounds = INT_MAX;
+        isSigned = 1;
+        break;
 
-	case REC_BIN32_UNSIGNED:
-	  lowBounds = 0;
-	  highBounds = UINT_MAX;
-	  break;
+      case REC_BIN32_UNSIGNED:
+        lowBounds = 0;
+        highBounds = UINT_MAX;
+        break;
 
-	case REC_BIN64_SIGNED:
-	  bigBounds = 1;
-	  // lowBounds = -(Int64)9223372036854775808;
-	  lowBounds = (Int64)LLONG_MIN;
-	  // highBounds = (Int64)9223372036854775807;
-	  highBounds = (Int64)LLONG_MAX;
-	  isSigned = 1;
-	  break;
+      case REC_BIN64_SIGNED:
+        bigBounds = 1;
+        // lowBounds = -(Int64)9223372036854775808;
+        lowBounds = (Int64)LLONG_MIN;
+        // highBounds = (Int64)9223372036854775807;
+        highBounds = (Int64)LLONG_MAX;
+        isSigned = 1;
+        break;
 
-	case REC_BIN64_UNSIGNED:
-	  bigBounds = 1;
-	  lowBounds = 0;
-	  highBounds = ULLONG_MAX;
-	  break;
-
-	}
+      case REC_BIN64_UNSIGNED:
+        bigBounds = 1;
+        lowBounds = 0;
+        highBounds = ULLONG_MAX;
+        break;
     }
+  }
 }
-
 
 // ex_conv_clause::pCodeGenerate
 //
@@ -2667,22 +2460,20 @@ const  Int32 bpPrecision[] = { 0, 1, 3, 7, 15, 31, 63, 127, 255, 511,
 // do the conversion, and then store the result.
 //
 // IN     : space - memory allocator
-// OUT    : 
+// OUT    :
 // RETURN : ex_expr::EXPR_OK is no errors
 // EFFECTS: stores pointer to PCodeObject in clause
 //
 ex_expr::exp_return_type ex_conv_clause::pCodeGenerate(Space *space, UInt32 f) {
 #ifdef _DEBUG
   // For debugging...
-  if(getenv("PCODE_NO_CONV")) return ex_clause::pCodeGenerate(space, f);
+  if (getenv("PCODE_NO_CONV")) return ex_clause::pCodeGenerate(space, f);
 #endif
-  if( ( flags_ & CONV_TO_NULL_WHEN_ERROR ) != 0 ||
-       ( flags_ & PAD_USE_ZERO ) != 0 )
-    {
-      // pcode currently cannot handle this case as a clause_eval clause.
-      // Disable pcode generation for the whole expression.
-      return ex_expr::EXPR_NULL;
-    }
+  if ((flags_ & CONV_TO_NULL_WHEN_ERROR) != 0 || (flags_ & PAD_USE_ZERO) != 0) {
+    // pcode currently cannot handle this case as a clause_eval clause.
+    // Disable pcode generation for the whole expression.
+    return ex_expr::EXPR_NULL;
+  }
 
   // If there is a third argument to the convert, it indicates that
   // a data conversion flag is present. This is used for converting keys
@@ -2690,20 +2481,17 @@ ex_expr::exp_return_type ex_conv_clause::pCodeGenerate(Space *space, UInt32 f) {
   // data conversion flag and the caller will insert either the
   // min or max value instead of issuing an error. PCODE currently
   // does not handle this case.
-  // 
+  //
   // Also, if there's a potential for a string truncation error,
   // use the hybrid expression evaluator.
   //
-  if ( (getNumOperands() > 2) || getCheckTruncationFlag() )
-    return ex_clause::pCodeGenerate(space, f);
+  if ((getNumOperands() > 2) || getCheckTruncationFlag()) return ex_clause::pCodeGenerate(space, f);
 
   // CIF bulk move -- no pcode yet --there will be later
 
-  if ( lastVOAoffset_>0)
-    {
-      if (getenv("NO_CIF_BULK_MOVE_PCODE"))
-        return ex_clause::pCodeGenerate(space, f);
-    }
+  if (lastVOAoffset_ > 0) {
+    if (getenv("NO_CIF_BULK_MOVE_PCODE")) return ex_clause::pCodeGenerate(space, f);
+  }
 
   // Get a handle on the operands.
   //
@@ -2711,321 +2499,261 @@ ex_expr::exp_return_type ex_conv_clause::pCodeGenerate(Space *space, UInt32 f) {
   Attributes *dst = attrs[0];
   Attributes *src = attrs[1];
 
-  if (srcIsVarcharPtr())
-    {
-      if (NOT ((dst->getDatatype() == REC_BIN32_SIGNED) ||
-	       (dst->getDatatype() == REC_BIN64_SIGNED) ||
-	       (dst->getDatatype() == REC_FLOAT32) ||
-	       (dst->getDatatype() == REC_BYTE_V_ASCII)))
-	return ex_clause::pCodeGenerate(space, f);
+  if (srcIsVarcharPtr()) {
+    if (NOT((dst->getDatatype() == REC_BIN32_SIGNED) || (dst->getDatatype() == REC_BIN64_SIGNED) ||
+            (dst->getDatatype() == REC_FLOAT32) || (dst->getDatatype() == REC_BYTE_V_ASCII)))
+      return ex_clause::pCodeGenerate(space, f);
 
-      if (dst->getDatatype() == REC_BYTE_V_ASCII)
-	{
-	  if(getenv("NO_PCODE_VC_PTR_CONV"))
-	    return ex_clause::pCodeGenerate(space, f);
-	}
+    if (dst->getDatatype() == REC_BYTE_V_ASCII) {
+      if (getenv("NO_PCODE_VC_PTR_CONV")) return ex_clause::pCodeGenerate(space, f);
+    }
 
-      if (((dst->getDatatype() == REC_BIN32_SIGNED) ||
-	   (dst->getDatatype() == REC_BIN64_SIGNED)) &&
-	  (dst->getScale() > 0))
-	{
-	  return ex_clause::pCodeGenerate(space, f);
-	}
+    if (((dst->getDatatype() == REC_BIN32_SIGNED) || (dst->getDatatype() == REC_BIN64_SIGNED)) &&
+        (dst->getScale() > 0)) {
+      return ex_clause::pCodeGenerate(space, f);
     }
-  else if ((dst->getDatatype() == REC_BOOLEAN) &&
-           (src->getDatatype() == REC_BOOLEAN))
-    {
-      // boolean conversions are pcode supported.
-    }
-  else if (((dst->getDatatype() < REC_MIN_NUMERIC) ||
-            (dst->getDatatype() > REC_MAX_NUMERIC) ||
-            (src->getDatatype() < REC_MIN_NUMERIC) ||
-            (src->getDatatype() > REC_MAX_NUMERIC)) &&
-           (((dst->getDatatype() != REC_BYTE_F_ASCII) ||
-             (src->getDatatype() != REC_BYTE_F_ASCII)) &&
-            ((dst->getDatatype() != REC_BYTE_V_ASCII) ||
-             (src->getDatatype() != REC_BYTE_V_ASCII)) &&
-            ((dst->getDatatype() != REC_BYTE_F_ASCII) ||
-             (src->getDatatype() != REC_BYTE_V_ASCII)) &&
-            ((dst->getDatatype() != REC_BYTE_V_ASCII) ||
-             (src->getDatatype() != REC_BYTE_F_ASCII)) &&
-            ((dst->getDatatype() != REC_NCHAR_V_UNICODE) ||
-             (src->getDatatype() != REC_NCHAR_V_UNICODE)) &&
-            ((dst->getDatatype() != REC_NCHAR_F_UNICODE) ||
-             (src->getDatatype() != REC_NCHAR_F_UNICODE)) &&
-            ((dst->getDatatype() != REC_DATETIME) ||
-             (src->getDatatype() != REC_DATETIME))))
+  } else if ((dst->getDatatype() == REC_BOOLEAN) && (src->getDatatype() == REC_BOOLEAN)) {
+    // boolean conversions are pcode supported.
+  } else if (((dst->getDatatype() < REC_MIN_NUMERIC) || (dst->getDatatype() > REC_MAX_NUMERIC) ||
+              (src->getDatatype() < REC_MIN_NUMERIC) || (src->getDatatype() > REC_MAX_NUMERIC)) &&
+             (((dst->getDatatype() != REC_BYTE_F_ASCII) || (src->getDatatype() != REC_BYTE_F_ASCII)) &&
+              ((dst->getDatatype() != REC_BYTE_V_ASCII) || (src->getDatatype() != REC_BYTE_V_ASCII)) &&
+              ((dst->getDatatype() != REC_BYTE_F_ASCII) || (src->getDatatype() != REC_BYTE_V_ASCII)) &&
+              ((dst->getDatatype() != REC_BYTE_V_ASCII) || (src->getDatatype() != REC_BYTE_F_ASCII)) &&
+              ((dst->getDatatype() != REC_NCHAR_V_UNICODE) || (src->getDatatype() != REC_NCHAR_V_UNICODE)) &&
+              ((dst->getDatatype() != REC_NCHAR_F_UNICODE) || (src->getDatatype() != REC_NCHAR_F_UNICODE)) &&
+              ((dst->getDatatype() != REC_DATETIME) || (src->getDatatype() != REC_DATETIME))))
     return ex_clause::pCodeGenerate(space, f);
-  
+
   // Generate the standard clause->eval PCode for particular
-  // conversions that are not handled with more fundamental PCode 
+  // conversions that are not handled with more fundamental PCode
   // operations.
   //
-  switch(getInstruction()) {
-  case CONV_BPINTU_BPINTU:
-    
-  case CONV_BIN16S_BIN16S: case CONV_BIN16S_BIN16U: 
-  case CONV_BIN16S_BIN32S: case CONV_BIN16S_BIN32U: 
-  case CONV_BIN16S_BIN64S: 
-    /*case CONV_BIN16S_FLOAT32: case CONV_BIN16S_FLOAT64:*/
-    
-  case CONV_BIN16U_BIN16S: case CONV_BIN16U_BIN16U: 
-  case CONV_BIN16U_BIN32S: case CONV_BIN16U_BIN32U: 
-  case CONV_BIN16U_BIN64S: 
-    /*case CONV_BIN16U_FLOAT32: case CONV_BIN16U_FLOAT64:*/
-    
-  case CONV_BIN32S_BIN16S: case CONV_BIN32S_BIN16U:
-  case CONV_BIN32S_BIN32S: case CONV_BIN32S_BIN32U:
-  case CONV_BIN32S_BIN64S: 
-    /*case CONV_BIN32S_FLOAT32: case CONV_BIN32S_FLOAT64:*/
-    
-  case CONV_BIN32U_BIN16S: case CONV_BIN32U_BIN16U:
-  case CONV_BIN32U_BIN32S: case CONV_BIN32U_BIN32U:
-  case CONV_BIN32U_BIN64S: 
-    /*case CONV_BIN32U_FLOAT32: case CONV_BIN32U_FLOAT64:*/
-    
-  case CONV_BIN64S_BIN16S: /*case CONV_BIN64S_BIN16U:*/
-  case CONV_BIN64S_BIN32S: case CONV_BIN64S_BIN32U:
-  case CONV_BIN64S_BIN64S: 
-  case CONV_BIN64U_BIN64U: 
+  switch (getInstruction()) {
+    case CONV_BPINTU_BPINTU:
 
-  case CONV_BIN64S_BIN64U:
-    //  case CONV_BIN64U_BIN64S: // not yet supported
-    break;
-    /*case CONV_BIN64S_FLOAT32: case CONV_BIN64S_FLOAT64:*/
-    
-    /*case CONV_FLOAT32_BIN16U: case CONV_FLOAT32_BIN16S:
-      case CONV_FLOAT32_BIN32U: case CONV_FLOAT32_BIN32S:*/
-    /*case CONV_FLOAT32_BIN64S:*/ 
-    
-    /*case CONV_FLOAT64_BIN16U: case CONV_FLOAT64_BIN16S:
-      case CONV_FLOAT64_BIN32U: case CONV_FLOAT64_BIN32S:*/
-    /*case CONV_FLOAT64_BIN64S:*/ 
-    /*case CONV_FLOAT64_FLOAT32:*/
-    
-  case CONV_DECS_BIN64S:
-    {
+    case CONV_BIN16S_BIN16S:
+    case CONV_BIN16S_BIN16U:
+    case CONV_BIN16S_BIN32S:
+    case CONV_BIN16S_BIN32U:
+    case CONV_BIN16S_BIN64S:
+      /*case CONV_BIN16S_FLOAT32: case CONV_BIN16S_FLOAT64:*/
+
+    case CONV_BIN16U_BIN16S:
+    case CONV_BIN16U_BIN16U:
+    case CONV_BIN16U_BIN32S:
+    case CONV_BIN16U_BIN32U:
+    case CONV_BIN16U_BIN64S:
+      /*case CONV_BIN16U_FLOAT32: case CONV_BIN16U_FLOAT64:*/
+
+    case CONV_BIN32S_BIN16S:
+    case CONV_BIN32S_BIN16U:
+    case CONV_BIN32S_BIN32S:
+    case CONV_BIN32S_BIN32U:
+    case CONV_BIN32S_BIN64S:
+      /*case CONV_BIN32S_FLOAT32: case CONV_BIN32S_FLOAT64:*/
+
+    case CONV_BIN32U_BIN16S:
+    case CONV_BIN32U_BIN16U:
+    case CONV_BIN32U_BIN32S:
+    case CONV_BIN32U_BIN32U:
+    case CONV_BIN32U_BIN64S:
+      /*case CONV_BIN32U_FLOAT32: case CONV_BIN32U_FLOAT64:*/
+
+    case CONV_BIN64S_BIN16S: /*case CONV_BIN64S_BIN16U:*/
+    case CONV_BIN64S_BIN32S:
+    case CONV_BIN64S_BIN32U:
+    case CONV_BIN64S_BIN64S:
+    case CONV_BIN64U_BIN64U:
+
+    case CONV_BIN64S_BIN64U:
+      //  case CONV_BIN64U_BIN64S: // not yet supported
+      break;
+      /*case CONV_BIN64S_FLOAT32: case CONV_BIN64S_FLOAT64:*/
+
+      /*case CONV_FLOAT32_BIN16U: case CONV_FLOAT32_BIN16S:
+        case CONV_FLOAT32_BIN32U: case CONV_FLOAT32_BIN32S:*/
+      /*case CONV_FLOAT32_BIN64S:*/
+
+      /*case CONV_FLOAT64_BIN16U: case CONV_FLOAT64_BIN16S:
+        case CONV_FLOAT64_BIN32U: case CONV_FLOAT64_BIN32S:*/
+      /*case CONV_FLOAT64_BIN64S:*/
+      /*case CONV_FLOAT64_FLOAT32:*/
+
+    case CONV_DECS_BIN64S: {
       // not enabled for NEO CA
       return ex_clause::pCodeGenerate(space, f);
-      
-      if (attrs[0]->getScale() != attrs[1]->getScale())
-	return ex_clause::pCodeGenerate(space, f);
+
+      if (attrs[0]->getScale() != attrs[1]->getScale()) return ex_clause::pCodeGenerate(space, f);
+    } break;
+
+    case CONV_BIN16S_BIGNUM:
+    case CONV_BIN32S_BIGNUM:
+    case CONV_BIN64S_BIGNUM:
+      break;
+
+    case CONV_BIGNUM_BIN64S:
+      if ((src->getPrecision() > dst->getPrecision()) && (dst->getPrecision() > 0))
+        return ex_clause::pCodeGenerate(space, f);
+      break;
+
+    case CONV_BIGNUM_BIGNUM:
+      if (src->getPrecision() > dst->getPrecision()) return ex_clause::pCodeGenerate(space, f);
+      break;
+
+    case CONV_SIMPLE_TO_COMPLEX:
+      if ((dst->getDatatype() != REC_NUM_BIG_SIGNED) || (src->getDatatype() != REC_BIN64_SIGNED) ||
+          (src->getPrecision() > dst->getPrecision()))
+        return ex_clause::pCodeGenerate(space, f);
+      break;
+
+    case CONV_FLOAT32_FLOAT32:
+    case CONV_FLOAT64_FLOAT64:
+      break;
+
+    case CONV_BIN64S_FLOAT64:
+    case CONV_BIN32S_FLOAT64:
+    case CONV_BIN16S_FLOAT64:
+    case CONV_FLOAT32_FLOAT64:
+      break;
+
+    case CONV_ASCII_F_F:
+    case CONV_ASCII_V_V:
+    case CONV_ASCII_F_V:
+    case CONV_ASCII_V_F: {
+      if (NOT srcIsVarcharPtr()) {
+        if (!requiresNoConvOrVal(src->getLength(), src->getPrecision(), src->getScale(), dst->getLength(),
+                                 dst->getPrecision(), dst->getScale(), getInstruction()))
+          return ex_clause::pCodeGenerate(space, f);
+      }
     }
-  break;
+      // fall through to next case
 
-  case CONV_BIN16S_BIGNUM:
-  case CONV_BIN32S_BIGNUM:
-  case CONV_BIN64S_BIGNUM:
-    break;
+    case CONV_UNICODE_F_F:
+    case CONV_UNICODE_V_V:
+    case CONV_DATETIME_DATETIME:
+    case CONV_DECS_DECS:
+    case CONV_ASCII_BIN32S:
+    case CONV_ASCII_BIN64S:
+    case CONV_ASCII_FLOAT32: {
+      if (getInstruction() == CONV_DECS_DECS) {
+        // not enabled for NEO CA
+        return ex_clause::pCodeGenerate(space, f);
+      }
 
-  case CONV_BIGNUM_BIN64S:
-    if ((src->getPrecision() > dst->getPrecision()) &&
-        (dst->getPrecision() > 0))
-      return ex_clause::pCodeGenerate(space, f);
-    break;
-
-  case CONV_BIGNUM_BIGNUM:
-    if (src->getPrecision() > dst->getPrecision())
-      return ex_clause::pCodeGenerate(space, f);
-    break;
-
-  case CONV_SIMPLE_TO_COMPLEX:
-    if ((dst->getDatatype() != REC_NUM_BIG_SIGNED) ||
-        (src->getDatatype() != REC_BIN64_SIGNED) ||
-        (src->getPrecision() > dst->getPrecision()))
-      return ex_clause::pCodeGenerate(space, f);
-    break;
-
-  case CONV_FLOAT32_FLOAT32:
-  case CONV_FLOAT64_FLOAT64:
-  break;
-  
-  case CONV_BIN64S_FLOAT64:
-  case CONV_BIN32S_FLOAT64:
-  case CONV_BIN16S_FLOAT64:
-  case CONV_FLOAT32_FLOAT64:
-  break;
-
-  case CONV_ASCII_F_F:
-  case CONV_ASCII_V_V:
-  case CONV_ASCII_F_V:
-  case CONV_ASCII_V_F:
-    {
-      if (NOT srcIsVarcharPtr())
-	{
-	  if (!requiresNoConvOrVal(src->getLength(),
-				   src->getPrecision(),
-				   src->getScale(),
-				   dst->getLength(),
-				   dst->getPrecision(),
-				   dst->getScale(),
-				   getInstruction()
-				   ))
-	    return ex_clause::pCodeGenerate(space, f);
-	}
-    }
-    // fall through to next case
-
-  case CONV_UNICODE_F_F:
-  case CONV_UNICODE_V_V:
-  case CONV_DATETIME_DATETIME:
-  case CONV_DECS_DECS:
-  case CONV_ASCII_BIN32S:
-  case CONV_ASCII_BIN64S:
-  case CONV_ASCII_FLOAT32:
-    {
-      if (getInstruction() == CONV_DECS_DECS)
-	{
-	  // not enabled for NEO CA
-	  return ex_clause::pCodeGenerate(space, f);
-	}
-      
       // Only handle equal length strings.
       //
-      if (NOT srcIsVarcharPtr())
-	{
-	  if (dst->getLength() < src->getLength())
-	    return ex_clause::pCodeGenerate(space, f);
-	}
+      if (NOT srcIsVarcharPtr()) {
+        if (dst->getLength() < src->getLength()) return ex_clause::pCodeGenerate(space, f);
+      }
 
-      if ((getInstruction() == CONV_ASCII_V_V) ||
-	  (getInstruction() == CONV_DATETIME_DATETIME) ||
-	  (getInstruction() == CONV_DECS_DECS))
-	{
-	  if ((getInstruction() == CONV_DATETIME_DATETIME) ||
-	      (getInstruction() == CONV_DECS_DECS))
-	    {
-	      if ((dst->getPrecision() != src->getPrecision()) ||
-		  (dst->getScale() != src->getScale()))
-		return ex_clause::pCodeGenerate(space, f);
-	    }
-	}
+      if ((getInstruction() == CONV_ASCII_V_V) || (getInstruction() == CONV_DATETIME_DATETIME) ||
+          (getInstruction() == CONV_DECS_DECS)) {
+        if ((getInstruction() == CONV_DATETIME_DATETIME) || (getInstruction() == CONV_DECS_DECS)) {
+          if ((dst->getPrecision() != src->getPrecision()) || (dst->getScale() != src->getScale()))
+            return ex_clause::pCodeGenerate(space, f);
+        }
+      }
 
       PCIList code(space);
-      
+
       // Generate pre clause PCI's
       //
       PCode::preClausePCI(this, code);
-      
+
       // handle NULLs (may jump)
       PCIID nullJmp = PCode::nullBranch(this, code, attrs);
-      
+
       // copy the value
-      switch(getInstruction())
-      {
+      switch (getInstruction()) {
         case CONV_ASCII_V_V:
-        case CONV_UNICODE_V_V:
-          {
-	    if (NOT srcIsVarcharPtr())
-	      {
-		code.append(PCode::moveVarcharValue(dst, src, space));
-	      }
-	    else
-	      {
-		code.append(PCode::convertVarcharPtrToTarget(dst, src, space));
-	      }
+        case CONV_UNICODE_V_V: {
+          if (NOT srcIsVarcharPtr()) {
+            code.append(PCode::moveVarcharValue(dst, src, space));
+          } else {
+            code.append(PCode::convertVarcharPtrToTarget(dst, src, space));
           }
-        break;
+        } break;
 
-        case CONV_ASCII_F_V:
-          {
-            code.append(PCode::moveFixedVarcharValue(dst, src, space));
+        case CONV_ASCII_F_V: {
+          code.append(PCode::moveFixedVarcharValue(dst, src, space));
+        } break;
+
+        case CONV_ASCII_V_F: {
+          code.append(PCode::moveVarcharFixedValue(dst, src, space));
+        } break;
+
+        case CONV_ASCII_BIN32S:
+        case CONV_ASCII_BIN64S:
+        case CONV_ASCII_FLOAT32: {
+          code.append(PCode::convertVarcharPtrToTarget(dst, src, space));
+        } break;
+
+        default: {
+          if (lastVOAoffset_ > 0) {  // cif bulk move
+            code.append(PCode::copyVarRow(dst, src, lastVOAoffset_, lastVcIndicatorLength_, lastNullIndicatorLength_,
+                                          alignment_, space));
+          } else {
+            code.append(PCode::moveValue(dst, src, space));
           }
-        break;
-
-        case CONV_ASCII_V_F:
-          {
-            code.append(PCode::moveVarcharFixedValue(dst, src, space));
-          }
-        break;
-
-      case CONV_ASCII_BIN32S:
-      case CONV_ASCII_BIN64S:
-      case CONV_ASCII_FLOAT32:
-	{
-	  code.append(PCode::convertVarcharPtrToTarget(dst, src, space));
-	}
-	break;
-
-      default:
-	{
-            if(lastVOAoffset_>0 )
-            {//cif bulk move
-              code.append(PCode::copyVarRow( dst,
-                                              src,
-                                              lastVOAoffset_,
-                                              lastVcIndicatorLength_,
-                                              lastNullIndicatorLength_,
-                                              alignment_,
-                                              space));
-            }
-            else
-           {
-	    code.append(PCode::moveValue(dst, src, space));
-           }
-          }
+        }
       }
-      
+
       // we'll jump here if the value is NULL
-      if (nullJmp)
-	{
-	  AML aml;
-	  OL ol((Int64) nullJmp);
-	  PCI pci(PCIT::Op_TARGET, aml, ol);
-	  code.append(pci);
-	}
-      
-//      Update row length at the end of the loop. Move it to
-//        ex_expr::pCodeGenerate.
-//      if(getNumOperands() > 0) 
-//	code.append(PCode::updateRowLen(attrs[0], space, f));
-      
+      if (nullJmp) {
+        AML aml;
+        OL ol((Int64)nullJmp);
+        PCI pci(PCIT::Op_TARGET, aml, ol);
+        code.append(pci);
+      }
+
+      //      Update row length at the end of the loop. Move it to
+      //        ex_expr::pCodeGenerate.
+      //      if(getNumOperands() > 0)
+      //	code.append(PCode::updateRowLen(attrs[0], space, f));
+
       // Finish up and return
       //
       PCode::postClausePCI(this, code);
       setPCIList(code.getList());
       return ex_expr::EXPR_OK;
-    }
-  break;
-  
-  case CONV_BIN8S_BIN8S:
-  case CONV_BIN8U_BIN8U:
-  case CONV_BIN8S_BIN16S:
-  case CONV_BIN8U_BIN16U:
-  case CONV_BIN8S_BIN32S:
-  case CONV_BIN8U_BIN32U:
-  case CONV_BIN8S_BIN64S:
-  case CONV_BIN8U_BIN64U:
-  case CONV_BIN16S_BIN8S:
-  case CONV_BIN16U_BIN8U:
-  case CONV_BIN16S_BIN8U:  
-  case CONV_BIN16U_BIN8S:
-    break;
+    } break;
 
-  case CONV_BOOL_BOOL:
-    break;
+    case CONV_BIN8S_BIN8S:
+    case CONV_BIN8U_BIN8U:
+    case CONV_BIN8S_BIN16S:
+    case CONV_BIN8U_BIN16U:
+    case CONV_BIN8S_BIN32S:
+    case CONV_BIN8U_BIN32U:
+    case CONV_BIN8S_BIN64S:
+    case CONV_BIN8U_BIN64U:
+    case CONV_BIN16S_BIN8S:
+    case CONV_BIN16U_BIN8U:
+    case CONV_BIN16S_BIN8U:
+    case CONV_BIN16U_BIN8S:
+      break;
 
-  default:
-    return ex_clause::pCodeGenerate(space, f);
+    case CONV_BOOL_BOOL:
+      break;
+
+    default:
+      return ex_clause::pCodeGenerate(space, f);
   }
-  
+
 #ifdef _DEBUG
   // Allow 64 -> 64 with differing scale
   //
-  if(getInstruction() == CONV_BIN64S_BIN64S)
-    {
-      if(getenv("PCODE_NO_INT64_SCALE_CONV"))
-        {
-          return ex_clause::pCodeGenerate(space, f);
-        }
+  if (getInstruction() == CONV_BIN64S_BIN64S) {
+    if (getenv("PCODE_NO_INT64_SCALE_CONV")) {
+      return ex_clause::pCodeGenerate(space, f);
     }
+  }
 #endif
-  
+
   // Generate the standard clause->eval PCODE if NULLS need to be handled
   // specially and any of the inputs are nullable.
   //
-  if(isAnyInputNullable() && isNullRelevant() && !isNullInNullOut())
-    return ex_clause::pCodeGenerate(space, f);
+  if (isAnyInputNullable() && isNullRelevant() && !isNullInNullOut()) return ex_clause::pCodeGenerate(space, f);
 
   // If we get here, we have decided that we should generate PCI's to handle
   // the particular conversion for this clause. Allocate the PCI list and
@@ -3041,21 +2769,13 @@ ex_expr::exp_return_type ex_conv_clause::pCodeGenerate(Space *space, UInt32 f) {
   //
   PCIID nullBranch = PCode::nullBranch(this, code, attrs);
 
-  if((getInstruction() != CONV_BIGNUM_BIN64S) &&
-     (getInstruction() != CONV_BIN64S_BIGNUM) &&
-     (getInstruction() != CONV_BIN32S_BIGNUM) &&
-     (getInstruction() != CONV_BIN16S_BIGNUM) &&
-     (getInstruction() != CONV_BIGNUM_BIGNUM) &&
-     (getInstruction() != CONV_SIMPLE_TO_COMPLEX) &&
-     (getInstruction() != CONV_FLOAT64_FLOAT64) &&
-     (getInstruction() != CONV_FLOAT32_FLOAT32) &&
-     (getInstruction() != CONV_FLOAT32_FLOAT64) &&
-     (getInstruction() != CONV_BIN16S_FLOAT64) &&
-     (getInstruction() != CONV_BIN32S_FLOAT64) &&
-     (getInstruction() != CONV_BIN64S_FLOAT64) &&
-     (getInstruction() != CONV_BOOL_BOOL)) {
-
-
+  if ((getInstruction() != CONV_BIGNUM_BIN64S) && (getInstruction() != CONV_BIN64S_BIGNUM) &&
+      (getInstruction() != CONV_BIN32S_BIGNUM) && (getInstruction() != CONV_BIN16S_BIGNUM) &&
+      (getInstruction() != CONV_BIGNUM_BIGNUM) && (getInstruction() != CONV_SIMPLE_TO_COMPLEX) &&
+      (getInstruction() != CONV_FLOAT64_FLOAT64) && (getInstruction() != CONV_FLOAT32_FLOAT32) &&
+      (getInstruction() != CONV_FLOAT32_FLOAT64) && (getInstruction() != CONV_BIN16S_FLOAT64) &&
+      (getInstruction() != CONV_BIN32S_FLOAT64) && (getInstruction() != CONV_BIN64S_FLOAT64) &&
+      (getInstruction() != CONV_BOOL_BOOL)) {
     // Compute the high and low bounds of the source and destination
     // operands.
     //
@@ -3076,50 +2796,48 @@ ex_expr::exp_return_type ex_conv_clause::pCodeGenerate(Space *space, UInt32 f) {
     Int32 srcAtpIndex = src->getAtpIndex();
     Int32 srcOffset = (Int32)src->getOffset();
 
-    if(srcLowBounds < dstLowBounds)
-      {
-	if (getInstruction() == CONV_DECS_BIN64S)
-	  return ex_clause::pCodeGenerate(space, f);
+    if (srcLowBounds < dstLowBounds) {
+      if (getInstruction() == CONV_DECS_BIN64S) return ex_clause::pCodeGenerate(space, f);
 
-        OL ol(srcAtp, srcAtpIndex, srcOffset, (Int64)dstLowBounds); 
-        PCI pci(PCIT::Op_RANGE_LOW, srcAml, ol); // RANGE_LOW_S32S64, RANGE_LOW_U32S64, RANGE_LOW_S64S64, 
-        code.append(pci);
-      }
-    if(srcHighBounds > dstHighBounds) 
-      {        
-	if (getInstruction() == CONV_DECS_BIN64S)
-	  return ex_clause::pCodeGenerate(space, f);
+      OL ol(srcAtp, srcAtpIndex, srcOffset, (Int64)dstLowBounds);
+      PCI pci(PCIT::Op_RANGE_LOW, srcAml, ol);  // RANGE_LOW_S32S64, RANGE_LOW_U32S64, RANGE_LOW_S64S64,
+      code.append(pci);
+    }
+    if (srcHighBounds > dstHighBounds) {
+      if (getInstruction() == CONV_DECS_BIN64S) return ex_clause::pCodeGenerate(space, f);
 
-        OL ol(srcAtp, srcAtpIndex, srcOffset, (Int64)dstHighBounds);               
-        PCI pci(PCIT::Op_RANGE_HIGH, srcAml, ol); // RANGE_HIGH_S32S64, RANGE_HIGH_U32S64, RANGE_HIGH_S64S64,
-        code.append(pci);
-      }
+      OL ol(srcAtp, srcAtpIndex, srcOffset, (Int64)dstHighBounds);
+      PCI pci(PCIT::Op_RANGE_HIGH, srcAml, ol);  // RANGE_HIGH_S32S64, RANGE_HIGH_U32S64, RANGE_HIGH_S64S64,
+      code.append(pci);
+    }
   }
 
-#if (defined (_DEBUG) )
-  if(!getenv("NO_PCODE_FLOAT_RANGE"))
+#if (defined(_DEBUG))
+  if (!getenv("NO_PCODE_FLOAT_RANGE"))
 #endif
-    if( getInstruction() == CONV_FLOAT64_FLOAT64 &&
-       !ex_expr::notValidateFloat64(f)) {
+    if (getInstruction() == CONV_FLOAT64_FLOAT64 && !ex_expr::notValidateFloat64(f)) {
       AML aml(PCIT::MFLT64);
-      OL ol(src->getAtp(), src->getAtpIndex(), (Int32)src->getOffset());               
-      PCI pci(PCIT::Op_RANGE_LOW, aml, ol); // RANGE_MFLT64
+      OL ol(src->getAtp(), src->getAtpIndex(), (Int32)src->getOffset());
+      PCI pci(PCIT::Op_RANGE_LOW, aml, ol);  // RANGE_MFLT64
       code.append(pci);
     }
 
   // Do the conversion
   //
-  switch(getInstruction()) 
-    {
+  switch (getInstruction()) {
       // For conversions that are simple moves, generate the byte move
       // instruction. This includes unmatched signedness conversions such
       // as BIN32U-->BIN32S since the bounds checking insures that
       // copying the bytes will effect the correct conversion.
       //
-    case CONV_BIN16U_BIN16U: case CONV_BIN16U_BIN16S:
-    case CONV_BIN16S_BIN16S: case CONV_BIN16S_BIN16U:
-    case CONV_BIN32U_BIN32U: case CONV_BIN32U_BIN32S:
-    case CONV_BIN32S_BIN32S: case CONV_BIN32S_BIN32U:
+    case CONV_BIN16U_BIN16U:
+    case CONV_BIN16U_BIN16S:
+    case CONV_BIN16S_BIN16S:
+    case CONV_BIN16S_BIN16U:
+    case CONV_BIN32U_BIN32U:
+    case CONV_BIN32U_BIN32S:
+    case CONV_BIN32S_BIN32S:
+    case CONV_BIN32S_BIN32U:
     case CONV_BIN64S_BIN64S:
     case CONV_BIN64U_BIN64U:
     case CONV_BPINTU_BPINTU:
@@ -3127,43 +2845,43 @@ ex_expr::exp_return_type ex_conv_clause::pCodeGenerate(Space *space, UInt32 f) {
     case CONV_FLOAT32_FLOAT32:
     case CONV_BIN8S_BIN8S:
     case CONV_BIN8U_BIN8U:
-    case CONV_BOOL_BOOL:
-      {
-	AML aml(PCIT::MBIN8, PCIT::MBIN8, PCIT::IBIN32S);
-	OL ol(dst->getAtp(), dst->getAtpIndex(), dst->getOffset(),
-	      src->getAtp(), src->getAtpIndex(), src->getOffset(),
-	      dst->getLength());
-	PCI pci(PCIT::Op_MOVE, aml, ol);
-	code.append(pci);
-      }
-    break;
+    case CONV_BOOL_BOOL: {
+      AML aml(PCIT::MBIN8, PCIT::MBIN8, PCIT::IBIN32S);
+      OL ol(dst->getAtp(), dst->getAtpIndex(), dst->getOffset(), src->getAtp(), src->getAtpIndex(), src->getOffset(),
+            dst->getLength());
+      PCI pci(PCIT::Op_MOVE, aml, ol);
+      code.append(pci);
+    } break;
 
     // Conversions from bigger to smaller types can be accomplished by
     // moving the right subset of bytes from the source to the destination.
     //
-    case CONV_BIN32S_BIN16U: case CONV_BIN32S_BIN16S:
-    case CONV_BIN32U_BIN16U: case CONV_BIN32U_BIN16S:
-    case CONV_BIN64S_BIN16U: case CONV_BIN64S_BIN16S:
-    case CONV_BIN64S_BIN32U: case CONV_BIN64S_BIN32S:
-    case CONV_BIN16S_BIN8S:  case CONV_BIN16U_BIN8U:
-    case CONV_BIN16S_BIN8U:  case CONV_BIN16U_BIN8S:
-      {
-	AML aml(PCIT::MBIN8, PCIT::MBIN8, PCIT::IBIN32S);
+    case CONV_BIN32S_BIN16U:
+    case CONV_BIN32S_BIN16S:
+    case CONV_BIN32U_BIN16U:
+    case CONV_BIN32U_BIN16S:
+    case CONV_BIN64S_BIN16U:
+    case CONV_BIN64S_BIN16S:
+    case CONV_BIN64S_BIN32U:
+    case CONV_BIN64S_BIN32S:
+    case CONV_BIN16S_BIN8S:
+    case CONV_BIN16U_BIN8U:
+    case CONV_BIN16S_BIN8U:
+    case CONV_BIN16U_BIN8S: {
+      AML aml(PCIT::MBIN8, PCIT::MBIN8, PCIT::IBIN32S);
 #ifdef NA_LITTLE_ENDIAN
-	Int32 srcOffset = src->getOffset();
+      Int32 srcOffset = src->getOffset();
 #else
-	Int32 srcOffset = src->getOffset() + src->getLength() - dst->getLength();
+      Int32 srcOffset = src->getOffset() + src->getLength() - dst->getLength();
 #endif
-	OL ol(dst->getAtp(), dst->getAtpIndex(), dst->getOffset(),
-	      src->getAtp(), src->getAtpIndex(), srcOffset,
-	      dst->getLength());
-	PCI pci(PCIT::Op_MOVE, aml, ol);
-	code.append(pci);
-      }
-    break;
+      OL ol(dst->getAtp(), dst->getAtpIndex(), dst->getOffset(), src->getAtp(), src->getAtpIndex(), srcOffset,
+            dst->getLength());
+      PCI pci(PCIT::Op_MOVE, aml, ol);
+      code.append(pci);
+    } break;
 
-      // Other conversions require specific operations.
-      //
+    // Other conversions require specific operations.
+    //
 #if 0
     case CONV_SIMPLE_TO_COMPLEX:
       {
@@ -3179,66 +2897,46 @@ ex_expr::exp_return_type ex_conv_clause::pCodeGenerate(Space *space, UInt32 f) {
       break;
 #endif
 
-    case CONV_COMPLEX_TO_COMPLEX:
-      {
-	if((dst->getPrecision() == src->getPrecision())
-	   /*&&	(dst->getScale() == src->getScale())*/)
-	  {
-	    AML aml(PCIT::getMemoryAddressingMode(dst->getDatatype()),
-		    PCIT::getMemoryAddressingMode(src->getDatatype()),
-		    PCIT::IBIN32S);
-	    OL ol(dst->getAtp(), dst->getAtpIndex(), dst->getOffset(),
-		  src->getAtp(), src->getAtpIndex(), src->getOffset(),
-		  dst->getPrecision());
-	    PCI pci(PCIT::Op_MOVE, aml, ol);
-	    code.append(pci);
-	  }
-	else
-	  {
-	    AML aml(PCIT::getMemoryAddressingMode(dst->getDatatype()),
-		    PCIT::IBIN32S,
-		    PCIT::getMemoryAddressingMode(src->getDatatype()),
-		    PCIT::IBIN32S, PCIT::IBIN32S);
-	    OL ol(dst->getAtp(), dst->getAtpIndex(), dst->getOffset(),
-		  dst->getPrecision(),
-		  src->getAtp(), src->getAtpIndex(), src->getOffset(),
-		  src->getPrecision(), dst->getScale() - src->getScale());
-	    PCI pci(PCIT::Op_MOVE, aml, ol);
-	    code.append(pci);
-	  }
+    case CONV_COMPLEX_TO_COMPLEX: {
+      if ((dst->getPrecision() == src->getPrecision())
+          /*&&	(dst->getScale() == src->getScale())*/) {
+        AML aml(PCIT::getMemoryAddressingMode(dst->getDatatype()), PCIT::getMemoryAddressingMode(src->getDatatype()),
+                PCIT::IBIN32S);
+        OL ol(dst->getAtp(), dst->getAtpIndex(), dst->getOffset(), src->getAtp(), src->getAtpIndex(), src->getOffset(),
+              dst->getPrecision());
+        PCI pci(PCIT::Op_MOVE, aml, ol);
+        code.append(pci);
+      } else {
+        AML aml(PCIT::getMemoryAddressingMode(dst->getDatatype()), PCIT::IBIN32S,
+                PCIT::getMemoryAddressingMode(src->getDatatype()), PCIT::IBIN32S, PCIT::IBIN32S);
+        OL ol(dst->getAtp(), dst->getAtpIndex(), dst->getOffset(), dst->getPrecision(), src->getAtp(),
+              src->getAtpIndex(), src->getOffset(), src->getPrecision(), dst->getScale() - src->getScale());
+        PCI pci(PCIT::Op_MOVE, aml, ol);
+        code.append(pci);
       }
-    break;
-      
-    case CONV_DECS_BIN64S:
-      {
-	AML aml(PCIT::getMemoryAddressingMode(dst->getDatatype()),
-		PCIT::getMemoryAddressingMode(src->getDatatype()),
-		PCIT::IBIN32S);
-	OL ol(dst->getAtp(), dst->getAtpIndex(), dst->getOffset(),
-	      src->getAtp(), src->getAtpIndex(), src->getOffset(),
-	      src->getLength());
-	PCI pci(PCIT::Op_MOVE, aml, ol);
-	code.append(pci);
-      }
-    break;
+    } break;
 
-    case CONV_BIGNUM_BIGNUM:
-    {
-      AML aml(PCIT::MBIGS, PCIT::MBIGS, PCIT::IBIN32S, PCIT::IBIN32S);
-      OL ol(dst->getAtp(), dst->getAtpIndex(), dst->getOffset(),
-            src->getAtp(), src->getAtpIndex(), src->getOffset(),
-            dst->getLength(),
+    case CONV_DECS_BIN64S: {
+      AML aml(PCIT::getMemoryAddressingMode(dst->getDatatype()), PCIT::getMemoryAddressingMode(src->getDatatype()),
+              PCIT::IBIN32S);
+      OL ol(dst->getAtp(), dst->getAtpIndex(), dst->getOffset(), src->getAtp(), src->getAtpIndex(), src->getOffset(),
             src->getLength());
+      PCI pci(PCIT::Op_MOVE, aml, ol);
+      code.append(pci);
+    } break;
+
+    case CONV_BIGNUM_BIGNUM: {
+      AML aml(PCIT::MBIGS, PCIT::MBIGS, PCIT::IBIN32S, PCIT::IBIN32S);
+      OL ol(dst->getAtp(), dst->getAtpIndex(), dst->getOffset(), src->getAtp(), src->getAtpIndex(), src->getOffset(),
+            dst->getLength(), src->getLength());
       PCI pci(PCIT::Op_MOVE, aml, ol);
       code.append(pci);
       break;
     }
 
-    case CONV_BIGNUM_BIN64S:
-    {
+    case CONV_BIGNUM_BIN64S: {
       AML aml(PCIT::MBIN64S, PCIT::MBIGS, PCIT::IBIN32S);
-      OL ol(dst->getAtp(), dst->getAtpIndex(), dst->getOffset(),
-            src->getAtp(), src->getAtpIndex(), src->getOffset(),
+      OL ol(dst->getAtp(), dst->getAtpIndex(), dst->getOffset(), src->getAtp(), src->getAtpIndex(), src->getOffset(),
             src->getLength());
       PCI pci(PCIT::Op_MOVE, aml, ol);
       code.append(pci);
@@ -3248,13 +2946,9 @@ ex_expr::exp_return_type ex_conv_clause::pCodeGenerate(Space *space, UInt32 f) {
     case CONV_SIMPLE_TO_COMPLEX:
     case CONV_BIN64S_BIGNUM:
     case CONV_BIN32S_BIGNUM:
-    case CONV_BIN16S_BIGNUM:
-    {
-      AML aml(PCIT::MBIGS,
-              PCIT::getMemoryAddressingMode(src->getDatatype()),
-              PCIT::IBIN32S);
-      OL ol(dst->getAtp(), dst->getAtpIndex(), dst->getOffset(),
-            src->getAtp(), src->getAtpIndex(), src->getOffset(),
+    case CONV_BIN16S_BIGNUM: {
+      AML aml(PCIT::MBIGS, PCIT::getMemoryAddressingMode(src->getDatatype()), PCIT::IBIN32S);
+      OL ol(dst->getAtp(), dst->getAtpIndex(), dst->getOffset(), src->getAtp(), src->getAtpIndex(), src->getOffset(),
             dst->getLength());
       PCI pci(PCIT::Op_MOVE, aml, ol);
       code.append(pci);
@@ -3262,37 +2956,31 @@ ex_expr::exp_return_type ex_conv_clause::pCodeGenerate(Space *space, UInt32 f) {
     }
 
     case CONV_BIN8S_BIN16S:
-    case CONV_BIN8U_BIN16U:
-     {
-	AML aml(PCIT::getMemoryAddressingMode(dst->getDatatype()),
-		PCIT::getMemoryAddressingMode(src->getDatatype()));
-	OL ol(dst->getAtp(), dst->getAtpIndex(), (Int32)dst->getOffset(),
-	      src->getAtp(), src->getAtpIndex(), (Int32)src->getOffset());
-	PCI pci(PCIT::Op_MOVE, aml, ol);
+    case CONV_BIN8U_BIN16U: {
+      AML aml(PCIT::getMemoryAddressingMode(dst->getDatatype()), PCIT::getMemoryAddressingMode(src->getDatatype()));
+      OL ol(dst->getAtp(), dst->getAtpIndex(), (Int32)dst->getOffset(), src->getAtp(), src->getAtpIndex(),
+            (Int32)src->getOffset());
+      PCI pci(PCIT::Op_MOVE, aml, ol);
 
-	code.append(pci);
-      }
-      break;
+      code.append(pci);
+    } break;
 
-    default:
-      {
-	AML aml(PCIT::getMemoryAddressingMode(dst->getDatatype()),
-		PCIT::getMemoryAddressingMode(src->getDatatype()));
-	OL ol(dst->getAtp(), dst->getAtpIndex(), (Int32)dst->getOffset(),
-	      src->getAtp(), src->getAtpIndex(), (Int32)src->getOffset());
-	PCI pci(PCIT::Op_MOVE, aml, ol);
+    default: {
+      AML aml(PCIT::getMemoryAddressingMode(dst->getDatatype()), PCIT::getMemoryAddressingMode(src->getDatatype()));
+      OL ol(dst->getAtp(), dst->getAtpIndex(), (Int32)dst->getOffset(), src->getAtp(), src->getAtpIndex(),
+            (Int32)src->getOffset());
+      PCI pci(PCIT::Op_MOVE, aml, ol);
 
-	code.append(pci);
-      }
-    };
+      code.append(pci);
+    }
+  };
 
   // Add the branch target if necessary.
   //
-  if(nullBranch)
-  {
-    AML aml; 
+  if (nullBranch) {
+    AML aml;
     OL ol((Int64)nullBranch);
-    PCI pci(PCIT::Op_TARGET, aml, ol); 
+    PCI pci(PCIT::Op_TARGET, aml, ol);
     code.append(pci);
   }
 
@@ -3302,8 +2990,8 @@ ex_expr::exp_return_type ex_conv_clause::pCodeGenerate(Space *space, UInt32 f) {
   // store the first fixed field offset
   code.append(PCode::storeVoa(attrs[0], space));
 
-//  if(getNumOperands() > 0) 
-//    code.append(PCode::updateRowLen(attrs[0], space, f));
+  //  if(getNumOperands() > 0)
+  //    code.append(PCode::updateRowLen(attrs[0], space, f));
 
   // Generate post clause PCI's
   //
@@ -3312,7 +3000,6 @@ ex_expr::exp_return_type ex_conv_clause::pCodeGenerate(Space *space, UInt32 f) {
   setPCIList(code.getList());
   return ex_expr::EXPR_OK;
 }
-
 
 // ExUnPackCol::pCodeGenerate() ------------------------------------
 // Generate PCode for the ExUnPackCol clause.  The ExUnPackCol
@@ -3362,7 +3049,7 @@ ex_expr::exp_return_type ExUnPackCol::pCodeGenerate(Space *space, UInt32 f) {
      ((attrs[0]->getLength() == 2) && (width_ == 4)) ||
      ((attrs[0]->getLength() == 2) && (width_ == 2)) ||
      ((attrs[0]->getLength() == 2) && (width_ == 1))) {
-    
+
     // Determine the instruction to use to extract (UnPack) the bits.
     //
     PCIType::Operation oper;
@@ -3384,7 +3071,7 @@ ex_expr::exp_return_type ExUnPackCol::pCodeGenerate(Space *space, UInt32 f) {
       oper = PCIT::Op_MV_INDEXED_ATP_B1;
       break;
     }
-    
+
     // Allocate the code list
     //
     PCIList code(space);
@@ -3467,7 +3154,7 @@ ex_expr::exp_return_type ExUnPackCol::pCodeGenerate(Space *space, UInt32 f) {
             attrs[1]->getAtp(),
             attrs[1]->getAtpIndex(),
             attrs[1]->getOffset() + sizeof(int));
-      
+
       PCI pci(PCIT::Op_MV_INDEXED_ATP_NB, aml, ol);
       code.append(pci);
     }
@@ -3492,7 +3179,7 @@ ex_expr::exp_return_type ExUnPackCol::pCodeGenerate(Space *space, UInt32 f) {
     OL ol1(1);
     PCI pci1(PCIT::Op_POP, aml1, ol1);
     code.append(pci1);
-    
+
     // Generate post clause PCI's
     //
     PCode::postClausePCI(this, code);
@@ -3504,9 +3191,7 @@ ex_expr::exp_return_type ExUnPackCol::pCodeGenerate(Space *space, UInt32 f) {
   } */
 }
 
-ex_expr::exp_return_type ex_function_mod::pCodeGenerate(Space *space, UInt32 f)
-{
-
+ex_expr::exp_return_type ex_function_mod::pCodeGenerate(Space *space, UInt32 f) {
   PCIID branchEnd = 0;
 
   // Get a handle on the operands
@@ -3515,19 +3200,17 @@ ex_expr::exp_return_type ex_function_mod::pCodeGenerate(Space *space, UInt32 f)
 
   // Use the default pCodeGenerate for cases not handled here
   //
-  if (NOT (((attrs[0]->getDatatype() == REC_BIN32_SIGNED) &&
-	    (attrs[1]->getDatatype() == REC_BIN32_SIGNED) &&
-	    (attrs[2]->getDatatype() == REC_BIN32_SIGNED)) ||
-	   ((attrs[0]->getDatatype() == REC_BIN32_UNSIGNED) &&
-	    (attrs[1]->getDatatype() == REC_BIN32_UNSIGNED) &&
-	    (attrs[2]->getDatatype() == REC_BIN32_SIGNED)))) {
+  if (NOT(((attrs[0]->getDatatype() == REC_BIN32_SIGNED) && (attrs[1]->getDatatype() == REC_BIN32_SIGNED) &&
+           (attrs[2]->getDatatype() == REC_BIN32_SIGNED)) ||
+          ((attrs[0]->getDatatype() == REC_BIN32_UNSIGNED) && (attrs[1]->getDatatype() == REC_BIN32_UNSIGNED) &&
+           (attrs[2]->getDatatype() == REC_BIN32_SIGNED)))) {
     return ex_clause::pCodeGenerate(space, f);
   }
 
-  // If any of the inputs are nullable, and we need to 
+  // If any of the inputs are nullable, and we need to
   // call processNulls, use clauseEval.
   //
-  if(isAnyOperandNullable() && (!isNullRelevant() || !isNullInNullOut())) {
+  if (isAnyOperandNullable() && (!isNullRelevant() || !isNullInNullOut())) {
     return ex_clause::pCodeGenerate(space, f);
   }
 
@@ -3539,11 +3222,11 @@ ex_expr::exp_return_type ex_function_mod::pCodeGenerate(Space *space, UInt32 f)
   //
   PCode::preClausePCI(this, code);
 
-  // If any of the operands are nullable, NULL is relevant for this clause, 
-  // and any NULL input produces a NULL output, insert the appropriate 
+  // If any of the operands are nullable, NULL is relevant for this clause,
+  // and any NULL input produces a NULL output, insert the appropriate
   // PCODE sequence to compute the nullness of the result.
   //
-  if(isAnyOperandNullable() && isNullRelevant() && isNullInNullOut()) {
+  if (isAnyOperandNullable() && isNullRelevant() && isNullInNullOut()) {
     branchEnd = PCode::nullBranch(this, code, attrs);
   }
 
@@ -3552,11 +3235,10 @@ ex_expr::exp_return_type ex_function_mod::pCodeGenerate(Space *space, UInt32 f)
   // Third operand is the memory location of the 2nd argument to modulo
   //
   AML aml(PCIT::getMemoryAddressingMode(attrs[0]->getDatatype()),
-	  PCIT::getMemoryAddressingMode(attrs[1]->getDatatype()),
-	  PCIT::getMemoryAddressingMode(attrs[2]->getDatatype()));
-  OL ol(attrs[0]->getAtp(), attrs[0]->getAtpIndex(), attrs[0]->getOffset(), 
-	attrs[1]->getAtp(), attrs[1]->getAtpIndex(), attrs[1]->getOffset(), 
-	attrs[2]->getAtp(), attrs[2]->getAtpIndex(), attrs[2]->getOffset());
+          PCIT::getMemoryAddressingMode(attrs[1]->getDatatype()),
+          PCIT::getMemoryAddressingMode(attrs[2]->getDatatype()));
+  OL ol(attrs[0]->getAtp(), attrs[0]->getAtpIndex(), attrs[0]->getOffset(), attrs[1]->getAtp(), attrs[1]->getAtpIndex(),
+        attrs[1]->getOffset(), attrs[2]->getAtp(), attrs[2]->getAtpIndex(), attrs[2]->getOffset());
 
   PCI pci(PCIT::Op_MOD, aml, ol);
   code.append(pci);
@@ -3564,8 +3246,7 @@ ex_expr::exp_return_type ex_function_mod::pCodeGenerate(Space *space, UInt32 f)
   // Generate post clause PCI's
   //
   PCode::postClausePCI(this, code);
-  if(branchEnd)
-  {
+  if (branchEnd) {
     AML aml1;
     OL ol1((Int64)branchEnd);
     PCI pci1(PCIT::Op_TARGET, aml1, ol1);
@@ -3577,11 +3258,7 @@ ex_expr::exp_return_type ex_function_mod::pCodeGenerate(Space *space, UInt32 f)
   return ex_expr::EXPR_OK;
 }
 
-
-
-ex_expr::exp_return_type
-ex_function_nullifzero::pCodeGenerate(Space *space, UInt32 f)
-{
+ex_expr::exp_return_type ex_function_nullifzero::pCodeGenerate(Space *space, UInt32 f) {
   // Get a handle on the operands
   //
   AttributesPtr *attrs = getOperand();
@@ -3590,11 +3267,11 @@ ex_function_nullifzero::pCodeGenerate(Space *space, UInt32 f)
 
   //
   PCIList code(space);
-  
+
   // Generate pre clause PCI's
   //
   PCode::preClausePCI(this, code);
-  
+
   // handle NULLs (may jump)
   PCIID nullBranch = PCode::nullBranch(this, code, attrs);
 
@@ -3603,25 +3280,22 @@ ex_function_nullifzero::pCodeGenerate(Space *space, UInt32 f)
           PCIT::MPTR32,    // source ptr
           PCIT::IBIN32S);  // source/target length
 
-  OL ol(dst->getAtp(), dst->getAtpIndex(), (Int32)dst->getOffset(),
-	dst->getAtp(), dst->getAtpIndex(), dst->getNullIndOffset(),
-          dst->getNullBitIndex(),
-	src->getAtp(), src->getAtpIndex(), (Int32)src->getOffset(),
-	src->getLength());
+  OL ol(dst->getAtp(), dst->getAtpIndex(), (Int32)dst->getOffset(), dst->getAtp(), dst->getAtpIndex(),
+        dst->getNullIndOffset(), dst->getNullBitIndex(), src->getAtp(), src->getAtpIndex(), (Int32)src->getOffset(),
+        src->getLength());
 
   PCI pci(PCIT::Op_NULLIFZERO, aml, ol);
   code.append(pci);
-  
+
   // Add the branch target if necessary.
   //
-  if (nullBranch)
-    {
-      AML aml; 
-      OL ol((Int64)nullBranch);
-      PCI pci(PCIT::Op_TARGET, aml, ol); 
-      code.append(pci);
-    }
-  
+  if (nullBranch) {
+    AML aml;
+    OL ol((Int64)nullBranch);
+    PCI pci(PCIT::Op_TARGET, aml, ol);
+    code.append(pci);
+  }
+
   // Generate post clause PCI's
   //
   PCode::postClausePCI(this, code);
@@ -3642,8 +3316,7 @@ ex_function_nullifzero::pCodeGenerate(Space *space, UInt32 f)
 // mapped into NVL(e1, e2)
 // Datatypes of e1 and e2 must be comparable/compatible.
 //
-ex_expr::exp_return_type ex_function_nvl::pCodeGenerate(Space *space, UInt32 f)
-{
+ex_expr::exp_return_type ex_function_nvl::pCodeGenerate(Space *space, UInt32 f) {
   // Get a handle on the operands
   //
   AttributesPtr *attrs = getOperand();
@@ -3658,8 +3331,7 @@ ex_expr::exp_return_type ex_function_nvl::pCodeGenerate(Space *space, UInt32 f)
 
   // As of today, NVL() on CHAR types becomes CASE. So make sure we are
   // not dealing with any CHAR types
-  assert(!DFS2REC::isAnyCharacter(arg1->getDatatype()) &&
-        !DFS2REC::isAnyCharacter(arg2->getDatatype()));
+  assert(!DFS2REC::isAnyCharacter(arg1->getDatatype()) && !DFS2REC::isAnyCharacter(arg2->getDatatype()));
 
   PCIList code(space);
 
@@ -3673,69 +3345,56 @@ ex_expr::exp_return_type ex_function_nvl::pCodeGenerate(Space *space, UInt32 f)
   // Otherwise we skip the test and just copy the column to the result.
 
   if (arg1->getNullFlag()) {
+    // handle NULLs (may jump)
+    //  PCIID nullBranch = PCode::nullBranch(this, code, attrs);
+    PCIID notNullBranch = 0;
+    if (arg1->isSQLMXAlignedFormat()) {
+      PCodeTupleFormats tpf(res->getTupleFormat(), arg1->getTupleFormat());
 
-  // handle NULLs (may jump)
-  //  PCIID nullBranch = PCode::nullBranch(this, code, attrs);
-  PCIID notNullBranch = 0;
-  if (arg1->isSQLMXAlignedFormat())
-  {
-    PCodeTupleFormats tpf(res->getTupleFormat(), 
-                          arg1->getTupleFormat());
-
-    AML aml(PCIT::MBIN32S,PCIT::MBIN32S,PCIT::IATTR3,PCIT::IBIN32S);
-    OL ol(resAtp, resAtpIdx, resNullOffs, 
-          arg1->getAtp(), arg1->getAtpIndex(), arg1->getNullIndOffset(), 
-          EXPAND_PCODEATTRNULL2(*(UInt32 *)&tpf, res, arg1),
-          0);
-    PCI pci(PCIT::Op_NOT_NULL_BRANCH, aml, ol);
-    code.append(pci);
-    notNullBranch = code.getTailId();
-  }
-  else
-  {
-    AML aml(PCIT::MBIN16S, PCIT::IBIN32S);
-    OL ol(arg1->getAtp(), arg1->getAtpIndex(), arg1->getNullIndOffset(), 0);
-    PCI pci(PCIT::Op_NOT_NULL_BRANCH, aml, ol);
-    code.append(pci);
-    notNullBranch = code.getTailId();
-  }
-
-  // it will come here if arg1 is a NULL value.
-  // Move arg2 to dst. arg2 and dst have the same data attrs.
-  {
-    assert((UInt32)(res->getLength()) >= (UInt32)(arg2->getLength()));
-
-    AML aml(PCIT::MBIN8,PCIT::MBIN8,PCIT::IBIN32S);
-    OL ol(resAtp, resAtpIdx, (Int32)resOffs,
-          arg2->getAtp(), arg2->getAtpIndex(), (Int32)arg2->getOffset(),
-          (Int32)arg2->getLength());
-    PCI pci(PCIT::Op_MOVE, aml, ol);
-    code.append(pci);
-
-    // Set or Clear NULL flag.
-
-    // if the second operand is not nullable then just clear the null
-    // indicator in the result
-    if (!arg2->getNullFlag() && res->getNullFlag())
-    {
-      AML amlNotNull(PCIT::MBIN16U,PCIT::IBIN16U);
-      OL olNotNull(resAtp, resAtpIdx, resNullOffs, 0);
-      PCI pciNotNull(PCIT::Op_MOVE, amlNotNull, olNotNull);
-      code.append(pciNotNull);
+      AML aml(PCIT::MBIN32S, PCIT::MBIN32S, PCIT::IATTR3, PCIT::IBIN32S);
+      OL ol(resAtp, resAtpIdx, resNullOffs, arg1->getAtp(), arg1->getAtpIndex(), arg1->getNullIndOffset(),
+            EXPAND_PCODEATTRNULL2(*(UInt32 *)&tpf, res, arg1), 0);
+      PCI pci(PCIT::Op_NOT_NULL_BRANCH, aml, ol);
+      code.append(pci);
+      notNullBranch = code.getTailId();
+    } else {
+      AML aml(PCIT::MBIN16S, PCIT::IBIN32S);
+      OL ol(arg1->getAtp(), arg1->getAtpIndex(), arg1->getNullIndOffset(), 0);
+      PCI pci(PCIT::Op_NOT_NULL_BRANCH, aml, ol);
+      code.append(pci);
+      notNullBranch = code.getTailId();
     }
-    else
+
+    // it will come here if arg1 is a NULL value.
+    // Move arg2 to dst. arg2 and dst have the same data attrs.
     {
+      assert((UInt32)(res->getLength()) >= (UInt32)(arg2->getLength()));
 
-      // second argument is NULLABLE, so copy the null status from the
-      // second argument into the null status of the result using one
-      // of the two possible formats
+      AML aml(PCIT::MBIN8, PCIT::MBIN8, PCIT::IBIN32S);
+      OL ol(resAtp, resAtpIdx, (Int32)resOffs, arg2->getAtp(), arg2->getAtpIndex(), (Int32)arg2->getOffset(),
+            (Int32)arg2->getLength());
+      PCI pci(PCIT::Op_MOVE, aml, ol);
+      code.append(pci);
 
-      code.append(PCode::isNull(res, arg2, space));
+      // Set or Clear NULL flag.
+
+      // if the second operand is not nullable then just clear the null
+      // indicator in the result
+      if (!arg2->getNullFlag() && res->getNullFlag()) {
+        AML amlNotNull(PCIT::MBIN16U, PCIT::IBIN16U);
+        OL olNotNull(resAtp, resAtpIdx, resNullOffs, 0);
+        PCI pciNotNull(PCIT::Op_MOVE, amlNotNull, olNotNull);
+        code.append(pciNotNull);
+      } else {
+        // second argument is NULLABLE, so copy the null status from the
+        // second argument into the null status of the result using one
+        // of the two possible formats
+
+        code.append(PCode::isNull(res, arg2, space));
+      }
     }
-  }
 
-  nullBranch = PCode::generateJumpAndBranch(res, code, notNullBranch);
-
+    nullBranch = PCode::generateJumpAndBranch(res, code, notNullBranch);
   }
 
   // it will come here if arg1 is not a NULL value.
@@ -3743,17 +3402,15 @@ ex_expr::exp_return_type ex_function_nvl::pCodeGenerate(Space *space, UInt32 f)
   {
     assert((UInt32)(res->getLength()) >= (UInt32)(arg1->getLength()));
 
-    AML aml(PCIT::MBIN8,PCIT::MBIN8,PCIT::IBIN32S);
-    OL ol(resAtp, resAtpIdx, (Int32)resOffs,
-          arg1->getAtp(), arg1->getAtpIndex(), (Int32)arg1->getOffset(),
+    AML aml(PCIT::MBIN8, PCIT::MBIN8, PCIT::IBIN32S);
+    OL ol(resAtp, resAtpIdx, (Int32)resOffs, arg1->getAtp(), arg1->getAtpIndex(), (Int32)arg1->getOffset(),
           (Int32)arg1->getLength());
     PCI pci(PCIT::Op_MOVE, aml, ol);
     code.append(pci);
 
     // first operand is NOT NULL, simply clear the status in result
-    if (res->getNullFlag())
-    {
-      AML amlNotNull(PCIT::MBIN16U,PCIT::IBIN16U);
+    if (res->getNullFlag()) {
+      AML amlNotNull(PCIT::MBIN16U, PCIT::IBIN16U);
       OL olNotNull(resAtp, resAtpIdx, resNullOffs, (Int16)0);
       PCI pciNotNull(PCIT::Op_MOVE, amlNotNull, olNotNull);
       code.append(pciNotNull);
@@ -3762,8 +3419,7 @@ ex_expr::exp_return_type ex_function_nvl::pCodeGenerate(Space *space, UInt32 f)
 
   // Add the branch target if necessary.
   //
-  if (nullBranch)
-  {
+  if (nullBranch) {
     AML aml;
     OL ol((Int64)nullBranch);
     PCI pci(PCIT::Op_TARGET, aml, ol);
@@ -3778,42 +3434,34 @@ ex_expr::exp_return_type ex_function_nvl::pCodeGenerate(Space *space, UInt32 f)
   return ex_expr::EXPR_OK;
 }
 
-ex_expr::exp_return_type ExFunctionRandomNum::pCodeGenerate(Space *space, UInt32 f)
-{
-  if (NOT simpleRandom()) 
-    return ex_clause::pCodeGenerate(space, f);
-    
+ex_expr::exp_return_type ExFunctionRandomNum::pCodeGenerate(Space *space, UInt32 f) {
+  if (NOT simpleRandom()) return ex_clause::pCodeGenerate(space, f);
+
   // Get a handle on the operands
   //
   AttributesPtr *attrs = getOperand();
   Attributes *dst = attrs[0];
   Attributes *src = attrs[1];
 
-  if (getNumOperands() > 1)
-    return ex_clause::pCodeGenerate(space, f);
-    
+  if (getNumOperands() > 1) return ex_clause::pCodeGenerate(space, f);
+
   //
   PCIList code(space);
-  
+
   // Generate pre clause PCI's
   //
   PCode::preClausePCI(this, code);
-  
-  AML aml(PCIT::IBIN32S,  // OperTypeEnum
-	  PCIT::MBIN8,    // target ptr
-	  PCIT::MBIN8,    // not needed
-	  PCIT::IBIN32S,  // not needed
-	  PCIT::MBIN8,    // not needed
-	  PCIT::IBIN32S); // seed
-  OL ol(getOperType(),
-	dst->getAtp(), dst->getAtpIndex(), (Lng32)dst->getOffset(),
-	-1, -1, -1,
-	-1,
-	-1, -1, -1,
-	seed_);
+
+  AML aml(PCIT::IBIN32S,   // OperTypeEnum
+          PCIT::MBIN8,     // target ptr
+          PCIT::MBIN8,     // not needed
+          PCIT::IBIN32S,   // not needed
+          PCIT::MBIN8,     // not needed
+          PCIT::IBIN32S);  // seed
+  OL ol(getOperType(), dst->getAtp(), dst->getAtpIndex(), (Lng32)dst->getOffset(), -1, -1, -1, -1, -1, -1, -1, seed_);
   PCI pci(PCIT::Op_GENFUNC, aml, ol);
   code.append(pci);
-  
+
   // Generate post clause PCI's
   //
   PCode::postClausePCI(this, code);
@@ -3822,8 +3470,7 @@ ex_expr::exp_return_type ExFunctionRandomNum::pCodeGenerate(Space *space, UInt32
   return ex_expr::EXPR_OK;
 }
 
-ex_expr::exp_return_type ExHash2Distrib::pCodeGenerate(Space *space, UInt32 f)
-{
+ex_expr::exp_return_type ExHash2Distrib::pCodeGenerate(Space *space, UInt32 f) {
   // Get a handle on the operands
   //
   AttributesPtr *attrs = getOperand();
@@ -3831,16 +3478,16 @@ ex_expr::exp_return_type ExHash2Distrib::pCodeGenerate(Space *space, UInt32 f)
   PCIList code(space);
   PCode::preClausePCI(this, code);
 
-  AML aml(PCIT::MBIN32U,  // Target (the partition number)
-          PCIT::MBIN32U,  // The hash value
-          PCIT::MBIN32U); // Number of partitions
+  AML aml(PCIT::MBIN32U,   // Target (the partition number)
+          PCIT::MBIN32U,   // The hash value
+          PCIT::MBIN32U);  // Number of partitions
 
   // attr[0] = result
   // attr[1] = keyValue
   // attr[2] = numParts
-  OL ols(attrs[0]->getAtp(),attrs[0]->getAtpIndex(),(Int32)attrs[0]->getOffset(),
-	 attrs[1]->getAtp(),attrs[1]->getAtpIndex(),(Int32)attrs[1]->getOffset(),
-	 attrs[2]->getAtp(),attrs[2]->getAtpIndex(),(Int32)attrs[2]->getOffset());
+  OL ols(attrs[0]->getAtp(), attrs[0]->getAtpIndex(), (Int32)attrs[0]->getOffset(), attrs[1]->getAtp(),
+         attrs[1]->getAtpIndex(), (Int32)attrs[1]->getOffset(), attrs[2]->getAtp(), attrs[2]->getAtpIndex(),
+         (Int32)attrs[2]->getOffset());
 
   PCI pci(PCIT::Op_HASH2_DISTRIB, aml, ols);
   code.append(pci);
@@ -3853,32 +3500,26 @@ ex_expr::exp_return_type ExHash2Distrib::pCodeGenerate(Space *space, UInt32 f)
   return ex_expr::EXPR_OK;
 }
 
-ex_expr::exp_return_type
-ex_function_concat::pCodeGenerate(Space *space, UInt32 f)
-{
-  //The flag noPCodeAvailable is set by the caller if MODE_COMPATIBLE_1 is ON
-  if (noPCodeAvailable())
-    return ex_clause::pCodeGenerate(space, f);
+ex_expr::exp_return_type ex_function_concat::pCodeGenerate(Space *space, UInt32 f) {
+  // The flag noPCodeAvailable is set by the caller if MODE_COMPATIBLE_1 is ON
+  if (noPCodeAvailable()) return ex_clause::pCodeGenerate(space, f);
 
   AttributesPtr *attrs = getOperand();
 
-  Int32 len0 = attrs[0]->getLength(); // Length of output string space
-  Int32 len1 = attrs[1]->getLength(); // Length of input string 1
-  Int32 len2 = attrs[2]->getLength(); // Length of input string 2
+  Int32 len0 = attrs[0]->getLength();  // Length of output string space
+  Int32 len1 = attrs[1]->getLength();  // Length of input string 1
+  Int32 len2 = attrs[2]->getLength();  // Length of input string 2
 
-  if ( len0 < (len1 + len2) )         // If output space is too small
+  if (len0 < (len1 + len2))  // If output space is too small
     return ex_clause::pCodeGenerate(space, f);
 
   CharInfo::CharSet cs1 = ((SimpleType *)getOperand(1))->getCharSet();
   CharInfo::CharSet cs2 = ((SimpleType *)getOperand(2))->getCharSet();
   // If a character set is SJIS or Unicode
-  if( (cs1 == CharInfo::UTF8) /* || (cs2 == CharInfo::SJIS) */ )
-  {
+  if ((cs1 == CharInfo::UTF8) /* || (cs2 == CharInfo::SJIS) */) {
     Int32 prec1 = ((SimpleType *)getOperand(1))->getPrecision();
-   Int32 prec2 = ((SimpleType *)getOperand(2))->getPrecision();
-    if (  ( prec1 && (prec1 != len1) )
-       || ( prec2 && (prec2 != len2) )
-       )
+    Int32 prec2 = ((SimpleType *)getOperand(2))->getPrecision();
+    if ((prec1 && (prec1 != len1)) || (prec2 && (prec2 != len2)))
       // Strings may have filler spaces at the end which pcode concat function
       // cannot handle, so call ex_clause version instead.
       return ex_clause::pCodeGenerate(space, f);
@@ -3894,39 +3535,32 @@ ex_function_concat::pCodeGenerate(Space *space, UInt32 f)
   //
   PCIID branchToEnd = PCode::nullBranch(this, code, attrs);
 
-  AML aml(PCIT::MATTR5,  // target ptr
-          PCIT::MATTR5,  // src1 ptr
-          PCIT::MATTR5); // src2 ptr
+  AML aml(PCIT::MATTR5,   // target ptr
+          PCIT::MATTR5,   // src1 ptr
+          PCIT::MATTR5);  // src2 ptr
 
-  UInt32 comboLen1=0;
-  UInt32 comboLen2=0;
-  UInt32 comboLen3=0;
-  char* comboPtr1 = (char*)&comboLen1;
-  char* comboPtr2 = (char*)&comboLen2;
-  char* comboPtr3 = (char*)&comboLen3;
+  UInt32 comboLen1 = 0;
+  UInt32 comboLen2 = 0;
+  UInt32 comboLen3 = 0;
+  char *comboPtr1 = (char *)&comboLen1;
+  char *comboPtr2 = (char *)&comboLen2;
+  char *comboPtr3 = (char *)&comboLen3;
 
   // Use combo fields for specifying null/vc lengths of both operands
-  comboPtr1[0] = (char)attrs[0]->getNullIndicatorLength(),
-  comboPtr1[1] = (char)attrs[0]->getVCIndicatorLength();
-  comboPtr2[0] = (char)attrs[1]->getNullIndicatorLength(),
-  comboPtr2[1] = (char)attrs[1]->getVCIndicatorLength();
-  comboPtr3[0] = (char)attrs[2]->getNullIndicatorLength(),
-  comboPtr3[1] = (char)attrs[2]->getVCIndicatorLength();
+  comboPtr1[0] = (char)attrs[0]->getNullIndicatorLength(), comboPtr1[1] = (char)attrs[0]->getVCIndicatorLength();
+  comboPtr2[0] = (char)attrs[1]->getNullIndicatorLength(), comboPtr2[1] = (char)attrs[1]->getVCIndicatorLength();
+  comboPtr3[0] = (char)attrs[2]->getNullIndicatorLength(), comboPtr3[1] = (char)attrs[2]->getVCIndicatorLength();
 
-  OL ol(attrs[0]->getAtp(), attrs[0]->getAtpIndex(), attrs[0]->getOffset(),
-          attrs[0]->getVoaOffset(), len0, comboLen1,
-        attrs[1]->getAtp(), attrs[1]->getAtpIndex(), attrs[1]->getOffset(),
-          attrs[1]->getVoaOffset(), len1, comboLen2,
-        attrs[2]->getAtp(), attrs[2]->getAtpIndex(), attrs[2]->getOffset(),
-          attrs[2]->getVoaOffset(), len2, comboLen3);
+  OL ol(attrs[0]->getAtp(), attrs[0]->getAtpIndex(), attrs[0]->getOffset(), attrs[0]->getVoaOffset(), len0, comboLen1,
+        attrs[1]->getAtp(), attrs[1]->getAtpIndex(), attrs[1]->getOffset(), attrs[1]->getVoaOffset(), len1, comboLen2,
+        attrs[2]->getAtp(), attrs[2]->getAtpIndex(), attrs[2]->getOffset(), attrs[2]->getVoaOffset(), len2, comboLen3);
 
   PCI pci(PCIT::Op_GENFUNC, aml, ol);
   code.append(pci);
 
   // Add the branch target if necessary.
   //
-  if(branchToEnd)
-  {
+  if (branchToEnd) {
     AML aml;
     OL ol((Int64)branchToEnd);
     PCI pci(PCIT::Op_TARGET, aml, ol);
@@ -3941,22 +3575,18 @@ ex_function_concat::pCodeGenerate(Space *space, UInt32 f)
   return ex_expr::EXPR_OK;
 }
 
-ex_expr::exp_return_type ex_function_substring::pCodeGenerate(Space *space,
-                                                              UInt32 f)
-{
-  //The flag noPCodeAvailable is set by the caller if MODE_COMPATIBLE_1 is ON
-  if (noPCodeAvailable())
-    return ex_clause::pCodeGenerate(space, f);
+ex_expr::exp_return_type ex_function_substring::pCodeGenerate(Space *space, UInt32 f) {
+  // The flag noPCodeAvailable is set by the caller if MODE_COMPATIBLE_1 is ON
+  if (noPCodeAvailable()) return ex_clause::pCodeGenerate(space, f);
 
   return ex_expr::EXPR_NULL;
   // How many nullable attrs are there?
   //
   AttributesPtr *attrs = getOperand();
   Int32 numOfNullableFields = 0;
-  for(Int32 i=0; i<getNumOperands(); i++) {
+  for (Int32 i = 0; i < getNumOperands(); i++) {
     // Count nullable attributes (but not output)
-    if (attrs[i]->getNullFlag() && (i != 0))
-      numOfNullableFields++;
+    if (attrs[i]->getNullFlag() && (i != 0)) numOfNullableFields++;
   }
 
   // Temporary fix for substring function. Since pcode substring function
@@ -3967,12 +3597,10 @@ ex_expr::exp_return_type ex_function_substring::pCodeGenerate(Space *space,
 
   CharInfo::CharSet cs = ((SimpleType *)getOperand(0))->getCharSet();
 
-  if(cs != CharInfo::ISO88591)
-    return ex_clause::pCodeGenerate(space, f);
+  if (cs != CharInfo::ISO88591) return ex_clause::pCodeGenerate(space, f);
 
   // If there are too many nullable fields
-  if (numOfNullableFields > 2)
-    return ex_clause::pCodeGenerate(space, f);
+  if (numOfNullableFields > 2) return ex_clause::pCodeGenerate(space, f);
 
   //
   PCIList code(space);
@@ -3990,21 +3618,19 @@ ex_expr::exp_return_type ex_function_substring::pCodeGenerate(Space *space,
   //
   PCIID nullBranch = PCode::nullBranch(this, code, attrs);
 
-  AML aml(PCIT::MATTR5,   // target ptr
-          PCIT::MATTR5,   // operand1 (string)
-          PCIT::MBIN32S,  // operand2 (start position)
-          PCIT::MBIN32S); // operand3 (length)
+  AML aml(PCIT::MATTR5,    // target ptr
+          PCIT::MATTR5,    // operand1 (string)
+          PCIT::MBIN32S,   // operand2 (start position)
+          PCIT::MBIN32S);  // operand3 (length)
 
   UInt32 comboLen1 = 0;
   UInt32 comboLen2 = 0;
-  char* comboPtr1 = (char*)&comboLen1;
-  char* comboPtr2 = (char*)&comboLen2;
+  char *comboPtr1 = (char *)&comboLen1;
+  char *comboPtr2 = (char *)&comboLen2;
 
   // Use combo fields for specifying vc/null lengths of both operands
-  comboPtr1[0] = (char)dst->getNullIndicatorLength(),
-  comboPtr1[1] = (char)dst->getVCIndicatorLength();
-  comboPtr2[0] = (char)src->getNullIndicatorLength(),
-  comboPtr2[1] = (char)src->getVCIndicatorLength();
+  comboPtr1[0] = (char)dst->getNullIndicatorLength(), comboPtr1[1] = (char)dst->getVCIndicatorLength();
+  comboPtr2[0] = (char)src->getNullIndicatorLength(), comboPtr2[1] = (char)src->getVCIndicatorLength();
 
   // Use part of combo field to specify additional info
   comboPtr2[2] = (getNumOperands() == 4);  // Was length passed in?
@@ -4012,15 +3638,12 @@ ex_expr::exp_return_type ex_function_substring::pCodeGenerate(Space *space,
 
   // If no length field exists, just copy over "start" (attribute 2) instead
   Int32 a3 = 3;
-  if (comboPtr2[2] == 0)
-    a3 = 2;
+  if (comboPtr2[2] == 0) a3 = 2;
 
-  OL ol(dst->getAtp(), dst->getAtpIndex(), dst->getOffset(),
-          dst->getVoaOffset(), dst->getLength(), comboLen1,
-        src->getAtp(), src->getAtpIndex(), src->getOffset(),
-          src->getVoaOffset(), src->getLength(), comboLen2,
-        attrs[2]->getAtp(), attrs[2]->getAtpIndex(), attrs[2]->getOffset(),
-        attrs[a3]->getAtp(), attrs[a3]->getAtpIndex(), attrs[a3]->getOffset());
+  OL ol(dst->getAtp(), dst->getAtpIndex(), dst->getOffset(), dst->getVoaOffset(), dst->getLength(), comboLen1,
+        src->getAtp(), src->getAtpIndex(), src->getOffset(), src->getVoaOffset(), src->getLength(), comboLen2,
+        attrs[2]->getAtp(), attrs[2]->getAtpIndex(), attrs[2]->getOffset(), attrs[a3]->getAtp(),
+        attrs[a3]->getAtpIndex(), attrs[a3]->getOffset());
 
   PCI pci(PCIT::Op_GENFUNC, aml, ol);
 
@@ -4028,8 +3651,7 @@ ex_expr::exp_return_type ex_function_substring::pCodeGenerate(Space *space,
 
   // Add the branch target if necessary.
   //
-  if (nullBranch)
-  {
+  if (nullBranch) {
     AML aml;
     OL ol((Int64)nullBranch);
     PCI pci(PCIT::Op_TARGET, aml, ol);
@@ -4045,10 +3667,8 @@ ex_expr::exp_return_type ex_function_substring::pCodeGenerate(Space *space,
   return ex_expr::EXPR_OK;
 }
 
-ex_expr::exp_return_type ExFunctionBitOper::pCodeGenerate(Space *space, UInt32 f)
-{
-  if ((getOperType() == ITM_CONVERTTOBITS) ||
-      (getOperType() == ITM_BITEXTRACT))
+ex_expr::exp_return_type ExFunctionBitOper::pCodeGenerate(Space *space, UInt32 f) {
+  if ((getOperType() == ITM_CONVERTTOBITS) || (getOperType() == ITM_BITEXTRACT))
     return ex_clause::pCodeGenerate(space, f);
 
   AttributesPtr *attrs = getOperand();
@@ -4064,29 +3684,27 @@ ex_expr::exp_return_type ExFunctionBitOper::pCodeGenerate(Space *space, UInt32 f
   //
   PCIID branchToEnd = PCode::nullBranch(this, code, attrs);
 
-  AML aml(PCIT::IBIN32S,  // OperTypeEnum
-	  PCIT::MBIN8,    // target ptr
-	  PCIT::MBIN8,    // operand1
-	  PCIT::MBIN8,    // operand2
-	  PCIT::IBIN32S,  // datatype operand0
-	  PCIT::IBIN32S); // length operand0
-  OL ol(getOperType(),
-	attrs[0]->getAtp(), attrs[0]->getAtpIndex(), (Lng32)attrs[0]->getOffset(),
-	attrs[1]->getAtp(), attrs[1]->getAtpIndex(), (Lng32)attrs[1]->getOffset(),
-	((getOperType() == ITM_BITNOT) ? attrs[1]->getAtp() : attrs[2]->getAtp()),
-	((getOperType() == ITM_BITNOT) ? attrs[1]->getAtpIndex() : attrs[2]->getAtpIndex()),
-	((getOperType() == ITM_BITNOT) ? (Lng32)attrs[1]->getOffset() : (Lng32)attrs[2]->getOffset()),
-	attrs[0]->getDatatype(), attrs[0]->getLength());
+  AML aml(PCIT::IBIN32S,   // OperTypeEnum
+          PCIT::MBIN8,     // target ptr
+          PCIT::MBIN8,     // operand1
+          PCIT::MBIN8,     // operand2
+          PCIT::IBIN32S,   // datatype operand0
+          PCIT::IBIN32S);  // length operand0
+  OL ol(getOperType(), attrs[0]->getAtp(), attrs[0]->getAtpIndex(), (Lng32)attrs[0]->getOffset(), attrs[1]->getAtp(),
+        attrs[1]->getAtpIndex(), (Lng32)attrs[1]->getOffset(),
+        ((getOperType() == ITM_BITNOT) ? attrs[1]->getAtp() : attrs[2]->getAtp()),
+        ((getOperType() == ITM_BITNOT) ? attrs[1]->getAtpIndex() : attrs[2]->getAtpIndex()),
+        ((getOperType() == ITM_BITNOT) ? (Lng32)attrs[1]->getOffset() : (Lng32)attrs[2]->getOffset()),
+        attrs[0]->getDatatype(), attrs[0]->getLength());
   PCI pci(PCIT::Op_GENFUNC, aml, ol);
   code.append(pci);
 
   // Add the branch target if necessary.
   //
-  if(branchToEnd)
-  {
-    AML aml; 
+  if (branchToEnd) {
+    AML aml;
     OL ol((Int64)branchToEnd);
-    PCI pci(PCIT::Op_TARGET, aml, ol); 
+    PCI pci(PCIT::Op_TARGET, aml, ol);
     code.append(pci);
   }
 
@@ -4098,9 +3716,7 @@ ex_expr::exp_return_type ExFunctionBitOper::pCodeGenerate(Space *space, UInt32 f
   return ex_expr::EXPR_OK;
 }
 
-ex_expr::exp_return_type ExHeaderClause::pCodeGenerate( Space  *space,
-                                                        UInt32  flags )
-{
+ex_expr::exp_return_type ExHeaderClause::pCodeGenerate(Space *space, UInt32 flags) {
   Attributes *tgt = getOperand(0);
 
   // Initialize the pCode
@@ -4109,17 +3725,12 @@ ex_expr::exp_return_type ExHeaderClause::pCodeGenerate( Space  *space,
   // Generate pre clause PCI's
   PCode::preClausePCI(this, code);
 
-  AML aml(PCIT::MPTR32,
-          PCIT::IBIN32S,PCIT::IBIN32S,PCIT::IBIN32S,PCIT::IBIN32S,PCIT::IBIN32S);
+  AML aml(PCIT::MPTR32, PCIT::IBIN32S, PCIT::IBIN32S, PCIT::IBIN32S, PCIT::IBIN32S, PCIT::IBIN32S);
 
   OL ol(tgt->getAtp(), tgt->getAtpIndex(), (Int32)tgt->getOffset(),
-        (Int32)adminSz_,     // bytes to clear
-        (Int32)firstFixedOffset_,
-        (Int32)( isSQLMXAlignedFormat()
-                 ? ExpAlignedFormat::OFFSET_SIZE : ExpVoaSize),
-        (Int32)bitmapOffset_, 
-        (Int32)entryOffset_
-        );
+        (Int32)adminSz_,  // bytes to clear
+        (Int32)firstFixedOffset_, (Int32)(isSQLMXAlignedFormat() ? ExpAlignedFormat::OFFSET_SIZE : ExpVoaSize),
+        (Int32)bitmapOffset_, (Int32)entryOffset_);
 
   PCI pci(PCIT::Op_HDR, aml, ol);
   code.append(pci);
@@ -4128,12 +3739,11 @@ ex_expr::exp_return_type ExHeaderClause::pCodeGenerate( Space  *space,
   PCode::postClausePCI(this, code);
 
   setPCIList(code.getList());
-  
+
   return ex_expr::EXPR_OK;
 }
 
-ex_expr::exp_return_type
-ex_function_upper::pCodeGenerate(Space *space, UInt32 f)
+ex_expr::exp_return_type ex_function_upper::pCodeGenerate(Space *space, UInt32 f)
 
 {
   // Get a handle on the operands
@@ -4150,11 +3760,9 @@ ex_function_upper::pCodeGenerate(Space *space, UInt32 f)
 
   CharInfo::CharSet cs = ((SimpleType *)getOperand(0))->getCharSet();
 
-  if(cs != CharInfo::ISO88591)
-    return ex_clause::pCodeGenerate(space, f);
+  if (cs != CharInfo::ISO88591) return ex_clause::pCodeGenerate(space, f);
 
-  if (src->widechar())
-    return ex_clause::pCodeGenerate(space, f);
+  if (src->widechar()) return ex_clause::pCodeGenerate(space, f);
 
   //
   PCIList code(space);
@@ -4166,25 +3774,21 @@ ex_function_upper::pCodeGenerate(Space *space, UInt32 f)
   // handle NULLs (may jump)
   PCIID nullBranch = PCode::nullBranch(this, code, attrs);
 
-  UInt32 comboLen1=0;
-  UInt32 comboLen2=0;
-  char* comboPtr1 = (char*)&comboLen1;
-  char* comboPtr2 = (char*)&comboLen2;
+  UInt32 comboLen1 = 0;
+  UInt32 comboLen2 = 0;
+  char *comboPtr1 = (char *)&comboLen1;
+  char *comboPtr2 = (char *)&comboLen2;
 
   // Use combo fields for specifying null/vc lengths of both operands
-  comboPtr1[0] = (char)dst->getNullIndicatorLength(),
-  comboPtr1[1] = (char)dst->getVCIndicatorLength();
-  comboPtr2[0] = (char)src->getNullIndicatorLength(),
-  comboPtr2[1] = (char)src->getVCIndicatorLength();
+  comboPtr1[0] = (char)dst->getNullIndicatorLength(), comboPtr1[1] = (char)dst->getVCIndicatorLength();
+  comboPtr2[0] = (char)src->getNullIndicatorLength(), comboPtr2[1] = (char)src->getVCIndicatorLength();
 
-  AML aml(PCIT::MATTR5,   // target ptr
-	  PCIT::MATTR5,   // source ptr
-	  PCIT::IBIN32S); // OperTypeEnum
+  AML aml(PCIT::MATTR5,    // target ptr
+          PCIT::MATTR5,    // source ptr
+          PCIT::IBIN32S);  // OperTypeEnum
 
-  OL ol(dst->getAtp(), dst->getAtpIndex(), dst->getOffset(), 
-        dst->getVoaOffset(), dst->getLength(), comboLen1,
-        src->getAtp(), src->getAtpIndex(), src->getOffset(), 
-        src->getVoaOffset(), src->getLength(), comboLen2,
+  OL ol(dst->getAtp(), dst->getAtpIndex(), dst->getOffset(), dst->getVoaOffset(), dst->getLength(), comboLen1,
+        src->getAtp(), src->getAtpIndex(), src->getOffset(), src->getVoaOffset(), src->getLength(), comboLen2,
         getOperType());
 
   PCI pci(PCIT::Op_GENFUNC, aml, ol);
@@ -4192,13 +3796,12 @@ ex_function_upper::pCodeGenerate(Space *space, UInt32 f)
 
   // Add the branch target if necessary.
   //
-  if (nullBranch)
-    {
-      AML aml;
-      OL ol((Int64)nullBranch);
-      PCI pci(PCIT::Op_TARGET, aml, ol);
-      code.append(pci);
-    }
+  if (nullBranch) {
+    AML aml;
+    OL ol((Int64)nullBranch);
+    PCI pci(PCIT::Op_TARGET, aml, ol);
+    code.append(pci);
+  }
 
   // Generate post clause PCI's
   //
@@ -4208,9 +3811,7 @@ ex_function_upper::pCodeGenerate(Space *space, UInt32 f)
   return ex_expr::EXPR_OK;
 }
 
-ex_expr::exp_return_type
-ex_function_lower::pCodeGenerate(Space *space, UInt32 f)
-{
+ex_expr::exp_return_type ex_function_lower::pCodeGenerate(Space *space, UInt32 f) {
   // Get a handle on the operands
   //
   AttributesPtr *attrs = getOperand();
@@ -4225,11 +3826,9 @@ ex_function_lower::pCodeGenerate(Space *space, UInt32 f)
 
   CharInfo::CharSet cs = ((SimpleType *)getOperand(0))->getCharSet();
 
-  if(cs != CharInfo::ISO88591)
-    return ex_clause::pCodeGenerate(space, f);
+  if (cs != CharInfo::ISO88591) return ex_clause::pCodeGenerate(space, f);
 
-  if (src->widechar())
-    return ex_clause::pCodeGenerate(space, f);
+  if (src->widechar()) return ex_clause::pCodeGenerate(space, f);
 
   //
   PCIList code(space);
@@ -4241,25 +3840,21 @@ ex_function_lower::pCodeGenerate(Space *space, UInt32 f)
   // handle NULLs (may jump)
   PCIID nullBranch = PCode::nullBranch(this, code, attrs);
 
-  UInt32 comboLen1=0;
-  UInt32 comboLen2=0;
-  char* comboPtr1 = (char*)&comboLen1;
-  char* comboPtr2 = (char*)&comboLen2;
+  UInt32 comboLen1 = 0;
+  UInt32 comboLen2 = 0;
+  char *comboPtr1 = (char *)&comboLen1;
+  char *comboPtr2 = (char *)&comboLen2;
 
   // Use combo fields for specifying null/vc lengths of both operands
-  comboPtr1[0] = (char)dst->getNullIndicatorLength(),
-  comboPtr1[1] = (char)dst->getVCIndicatorLength();
-  comboPtr2[0] = (char)src->getNullIndicatorLength(),
-  comboPtr2[1] = (char)src->getVCIndicatorLength();
+  comboPtr1[0] = (char)dst->getNullIndicatorLength(), comboPtr1[1] = (char)dst->getVCIndicatorLength();
+  comboPtr2[0] = (char)src->getNullIndicatorLength(), comboPtr2[1] = (char)src->getVCIndicatorLength();
 
-  AML aml(PCIT::MATTR5,   // target ptr
-          PCIT::MATTR5,   // source ptr
-          PCIT::IBIN32S); // OperTypeEnum
+  AML aml(PCIT::MATTR5,    // target ptr
+          PCIT::MATTR5,    // source ptr
+          PCIT::IBIN32S);  // OperTypeEnum
 
-  OL ol(dst->getAtp(), dst->getAtpIndex(), dst->getOffset(),
-          dst->getVoaOffset(), dst->getLength(), comboLen1,
-        src->getAtp(), src->getAtpIndex(), src->getOffset(),
-          src->getVoaOffset(), src->getLength(), comboLen2,
+  OL ol(dst->getAtp(), dst->getAtpIndex(), dst->getOffset(), dst->getVoaOffset(), dst->getLength(), comboLen1,
+        src->getAtp(), src->getAtpIndex(), src->getOffset(), src->getVoaOffset(), src->getLength(), comboLen2,
         getOperType());
 
   PCI pci(PCIT::Op_GENFUNC, aml, ol);
@@ -4267,13 +3862,12 @@ ex_function_lower::pCodeGenerate(Space *space, UInt32 f)
 
   // Add the branch target if necessary.
   //
-  if (nullBranch)
-    {
-      AML aml;
-      OL ol((Int64)nullBranch);
-      PCI pci(PCIT::Op_TARGET, aml, ol);
-      code.append(pci);
-    }
+  if (nullBranch) {
+    AML aml;
+    OL ol((Int64)nullBranch);
+    PCI pci(PCIT::Op_TARGET, aml, ol);
+    code.append(pci);
+  }
 
   // Generate post clause PCI's
   //
@@ -4283,14 +3877,11 @@ ex_function_lower::pCodeGenerate(Space *space, UInt32 f)
   return ex_expr::EXPR_OK;
 }
 
-ex_expr::exp_return_type
-ex_function_trim_char::pCodeGenerate(Space *space, UInt32 f)
-{
+ex_expr::exp_return_type ex_function_trim_char::pCodeGenerate(Space *space, UInt32 f) {
   // Only trim where the trim character is a single space literal
   // is supported. The flag noPCodeAvailable is set by the caller if
   // the trim char is something other than a single space literal.
-  if (noPCodeAvailable())
-    return ex_clause::pCodeGenerate(space, f);
+  if (noPCodeAvailable()) return ex_clause::pCodeGenerate(space, f);
 
   // Get a handle on the operands
   //
@@ -4306,11 +3897,9 @@ ex_function_trim_char::pCodeGenerate(Space *space, UInt32 f)
 
   CharInfo::CharSet cs = ((SimpleType *)getOperand(0))->getCharSet();
 
-  if(cs != CharInfo::ISO88591)
-    return ex_clause::pCodeGenerate(space, f);
+  if (cs != CharInfo::ISO88591) return ex_clause::pCodeGenerate(space, f);
 
-  if (src->widechar())
-    return ex_clause::pCodeGenerate(space, f);
+  if (src->widechar()) return ex_clause::pCodeGenerate(space, f);
 
   //
   PCIList code(space);
@@ -4322,40 +3911,34 @@ ex_function_trim_char::pCodeGenerate(Space *space, UInt32 f)
   // handle NULLs (may jump)
   PCIID nullBranch = PCode::nullBranch(this, code, attrs);
 
-  UInt32 comboLen1=0;
-  UInt32 comboLen2=0;
-  char* comboPtr1 = (char*)&comboLen1;
-  char* comboPtr2 = (char*)&comboLen2;
+  UInt32 comboLen1 = 0;
+  UInt32 comboLen2 = 0;
+  char *comboPtr1 = (char *)&comboLen1;
+  char *comboPtr2 = (char *)&comboLen2;
 
   // Use combo fields for specifying null/vc lengths of both operands
-  comboPtr1[0] = (char)dst->getNullIndicatorLength(),
-  comboPtr1[1] = (char)dst->getVCIndicatorLength();
-  comboPtr2[0] = (char)src->getNullIndicatorLength(),
-  comboPtr2[1] = (char)src->getVCIndicatorLength();
+  comboPtr1[0] = (char)dst->getNullIndicatorLength(), comboPtr1[1] = (char)dst->getVCIndicatorLength();
+  comboPtr2[0] = (char)src->getNullIndicatorLength(), comboPtr2[1] = (char)src->getVCIndicatorLength();
 
-  AML aml(PCIT::MATTR5,   // target ptr
-	  PCIT::MATTR5,   // source ptr
-	  PCIT::IBIN32S); // OperTypeEnum
+  AML aml(PCIT::MATTR5,    // target ptr
+          PCIT::MATTR5,    // source ptr
+          PCIT::IBIN32S);  // OperTypeEnum
 
-  OL ol(dst->getAtp(), dst->getAtpIndex(), dst->getOffset(), 
-        dst->getVoaOffset(), dst->getLength(), comboLen1,
-        src->getAtp(), src->getAtpIndex(), src->getOffset(), 
-        src->getVoaOffset(), src->getLength(), comboLen2,
-        (getTrimMode() == 0 ? ITM_RTRIM :
-          (getTrimMode() == 1 ? ITM_LTRIM : ITM_TRIM)));
+  OL ol(dst->getAtp(), dst->getAtpIndex(), dst->getOffset(), dst->getVoaOffset(), dst->getLength(), comboLen1,
+        src->getAtp(), src->getAtpIndex(), src->getOffset(), src->getVoaOffset(), src->getLength(), comboLen2,
+        (getTrimMode() == 0 ? ITM_RTRIM : (getTrimMode() == 1 ? ITM_LTRIM : ITM_TRIM)));
 
   PCI pci(PCIT::Op_GENFUNC, aml, ol);
   code.append(pci);
 
   // Add the branch target if necessary.
   //
-  if (nullBranch)
-    {
-      AML aml;
-      OL ol((Int64)nullBranch);
-      PCI pci(PCIT::Op_TARGET, aml, ol);
-      code.append(pci);
-    }
+  if (nullBranch) {
+    AML aml;
+    OL ol((Int64)nullBranch);
+    PCI pci(PCIT::Op_TARGET, aml, ol);
+    code.append(pci);
+  }
 
   // Generate post clause PCI's
   //
@@ -4365,17 +3948,14 @@ ex_function_trim_char::pCodeGenerate(Space *space, UInt32 f)
   return ex_expr::EXPR_OK;
 }
 
-ex_expr::exp_return_type
-ex_function_char_length_doublebyte::pCodeGenerate(Space *space, UInt32 f)
-{
+ex_expr::exp_return_type ex_function_char_length_doublebyte::pCodeGenerate(Space *space, UInt32 f) {
   // Get a handle on the operands
   //
   AttributesPtr *attrs = getOperand();
 
   // Only proceed (for now) with unicode strings.  Other charsets, like Kanji,
   // have 2 bytes for chars, but let's not deal with that now.
-  if ((attrs[1]->getDatatype() != REC_NCHAR_F_UNICODE) &&
-      (attrs[1]->getDatatype() != REC_NCHAR_V_UNICODE))
+  if ((attrs[1]->getDatatype() != REC_NCHAR_F_UNICODE) && (attrs[1]->getDatatype() != REC_NCHAR_V_UNICODE))
     return ex_clause::pCodeGenerate(space, f);
 
   // Allocate the code list
@@ -4391,32 +3971,26 @@ ex_function_char_length_doublebyte::pCodeGenerate(Space *space, UInt32 f)
   // Just return length/2 if the string is fixed
   if (attrs[1]->getDatatype() == REC_NCHAR_F_UNICODE) {
     AML aml(PCIT::MBIN32S, PCIT::IBIN32S);
-    OL ol(attrs[0]->getAtp(), attrs[0]->getAtpIndex(), attrs[0]->getOffset(),
-          (Int32)(attrs[1]->getLength() / 2));
+    OL ol(attrs[0]->getAtp(), attrs[0]->getAtpIndex(), attrs[0]->getOffset(), (Int32)(attrs[1]->getLength() / 2));
     PCI pci(PCIT::Op_MOVE, aml, ol);
     code.append(pci);
-  }
-  else
-  {
-    UInt32 comboLen1=0;
-    char* comboPtr1 = (char*)&comboLen1;
+  } else {
+    UInt32 comboLen1 = 0;
+    char *comboPtr1 = (char *)&comboLen1;
 
     // Use combo fields for specifying null/vc lengths of both operands
-    comboPtr1[0] = (char)attrs[1]->getNullIndicatorLength(),
-    comboPtr1[1] = (char)attrs[1]->getVCIndicatorLength();
+    comboPtr1[0] = (char)attrs[1]->getNullIndicatorLength(), comboPtr1[1] = (char)attrs[1]->getVCIndicatorLength();
 
     AML aml(PCIT::MBIN32U, PCIT::MUNIV);
-    OL ol(attrs[0]->getAtp(), attrs[0]->getAtpIndex(), attrs[0]->getOffset(),
-          attrs[1]->getAtp(), attrs[1]->getAtpIndex(), attrs[1]->getOffset(),
-            attrs[1]->getVoaOffset(), attrs[1]->getLength(), comboLen1);
+    OL ol(attrs[0]->getAtp(), attrs[0]->getAtpIndex(), attrs[0]->getOffset(), attrs[1]->getAtp(),
+          attrs[1]->getAtpIndex(), attrs[1]->getOffset(), attrs[1]->getVoaOffset(), attrs[1]->getLength(), comboLen1);
     PCI pci(PCIT::Op_GENFUNC, aml, ol);
     code.append(pci);
   }
 
   // Add the branch target if necessary.
   //
-  if(branchToEnd)
-  {
+  if (branchToEnd) {
     AML aml;
     OL ol((Int64)branchToEnd);
     PCI pci(PCIT::Op_TARGET, aml, ol);
@@ -4431,9 +4005,7 @@ ex_function_char_length_doublebyte::pCodeGenerate(Space *space, UInt32 f)
   return ex_expr::EXPR_OK;
 }
 
-ex_expr::exp_return_type
-ex_function_char_length::pCodeGenerate(Space *space, UInt32 f)
-{
+ex_expr::exp_return_type ex_function_char_length::pCodeGenerate(Space *space, UInt32 f) {
   // Get a handle on the operands
   //
   AttributesPtr *attrs = getOperand();
@@ -4441,8 +4013,7 @@ ex_function_char_length::pCodeGenerate(Space *space, UInt32 f)
   // Only support ascii strings for now
   CharInfo::CharSet cs = ((SimpleType *)getOperand(1))->getCharSet();
 
-  if(cs != CharInfo::ISO88591)
-    return ex_clause::pCodeGenerate(space, f);
+  if (cs != CharInfo::ISO88591) return ex_clause::pCodeGenerate(space, f);
 
   // Allocate the code list
   //
@@ -4457,32 +4028,26 @@ ex_function_char_length::pCodeGenerate(Space *space, UInt32 f)
   // Just return length if the string is fixed
   if (DFS2REC::isSQLFixedChar(attrs[1]->getDatatype())) {
     AML aml(PCIT::MBIN32S, PCIT::IBIN32S);
-    OL ol(attrs[0]->getAtp(), attrs[0]->getAtpIndex(), attrs[0]->getOffset(),
-          (Int32)attrs[1]->getLength());
+    OL ol(attrs[0]->getAtp(), attrs[0]->getAtpIndex(), attrs[0]->getOffset(), (Int32)attrs[1]->getLength());
     PCI pci(PCIT::Op_MOVE, aml, ol);
     code.append(pci);
-  }
-  else
-  {
-    UInt32 comboLen1=0;
-    char* comboPtr1 = (char*)&comboLen1;
+  } else {
+    UInt32 comboLen1 = 0;
+    char *comboPtr1 = (char *)&comboLen1;
 
     // Use combo fields for specifying null/vc lengths of both operands
-    comboPtr1[0] = (char)attrs[1]->getNullIndicatorLength(),
-    comboPtr1[1] = (char)attrs[1]->getVCIndicatorLength();
+    comboPtr1[0] = (char)attrs[1]->getNullIndicatorLength(), comboPtr1[1] = (char)attrs[1]->getVCIndicatorLength();
 
     AML aml(PCIT::MBIN32U, PCIT::MATTR5);
-    OL ol(attrs[0]->getAtp(), attrs[0]->getAtpIndex(), attrs[0]->getOffset(),
-          attrs[1]->getAtp(), attrs[1]->getAtpIndex(), attrs[1]->getOffset(),
-            attrs[1]->getVoaOffset(), attrs[1]->getLength(), comboLen1);
+    OL ol(attrs[0]->getAtp(), attrs[0]->getAtpIndex(), attrs[0]->getOffset(), attrs[1]->getAtp(),
+          attrs[1]->getAtpIndex(), attrs[1]->getOffset(), attrs[1]->getVoaOffset(), attrs[1]->getLength(), comboLen1);
     PCI pci(PCIT::Op_GENFUNC, aml, ol);
     code.append(pci);
   }
 
   // Add the branch target if necessary.
   //
-  if(branchToEnd)
-  {
+  if (branchToEnd) {
     AML aml;
     OL ol((Int64)branchToEnd);
     PCI pci(PCIT::Op_TARGET, aml, ol);
@@ -4497,19 +4062,15 @@ ex_function_char_length::pCodeGenerate(Space *space, UInt32 f)
   return ex_expr::EXPR_OK;
 }
 
-ex_expr::exp_return_type
-ExFunctionRepeat::pCodeGenerate(Space *space, UInt32 f)
-{
+ex_expr::exp_return_type ExFunctionRepeat::pCodeGenerate(Space *space, UInt32 f) {
   // Get a handle on the operands
   //
   AttributesPtr *attrs = getOperand();
   Attributes *dst = attrs[0];
   Attributes *src = attrs[1];
 
-  if ( ( src->getScale() == SQLCHARSETCODE_UTF8 ) &&
-       ( src->getPrecision() > 0 )                &&
-       ( src->getPrecision() < src->getLength() ) )
-     return( ex_expr::EXPR_NULL );    //pCode cannot handle this case
+  if ((src->getScale() == SQLCHARSETCODE_UTF8) && (src->getPrecision() > 0) && (src->getPrecision() < src->getLength()))
+    return (ex_expr::EXPR_NULL);  // pCode cannot handle this case
 
   //
   PCIList code(space);
@@ -4521,41 +4082,35 @@ ExFunctionRepeat::pCodeGenerate(Space *space, UInt32 f)
   // handle NULLs (may jump)
   PCIID nullBranch = PCode::nullBranch(this, code, attrs);
 
-  AML aml(PCIT::MATTR5,   // target ptr
-          PCIT::MATTR5,   // source ptr
-          PCIT::MBIN32S,  // len
-          PCIT::IBIN32S); // OperTypeEnum
+  AML aml(PCIT::MATTR5,    // target ptr
+          PCIT::MATTR5,    // source ptr
+          PCIT::MBIN32S,   // len
+          PCIT::IBIN32S);  // OperTypeEnum
 
-  UInt32 comboLen1=0;
-  UInt32 comboLen2=0;
-  char* comboPtr1 = (char*)&comboLen1;
-  char* comboPtr2 = (char*)&comboLen2;
+  UInt32 comboLen1 = 0;
+  UInt32 comboLen2 = 0;
+  char *comboPtr1 = (char *)&comboLen1;
+  char *comboPtr2 = (char *)&comboLen2;
 
   // Use combo fields for specifying null/vc lengths of both operands
-  comboPtr1[0] = (char)dst->getNullIndicatorLength(),
-  comboPtr1[1] = (char)dst->getVCIndicatorLength();
-  comboPtr2[0] = (char)src->getNullIndicatorLength(),
-  comboPtr2[1] = (char)src->getVCIndicatorLength();
+  comboPtr1[0] = (char)dst->getNullIndicatorLength(), comboPtr1[1] = (char)dst->getVCIndicatorLength();
+  comboPtr2[0] = (char)src->getNullIndicatorLength(), comboPtr2[1] = (char)src->getVCIndicatorLength();
 
-  OL ol(dst->getAtp(), dst->getAtpIndex(), dst->getOffset(),
-          dst->getVoaOffset(), dst->getLength(), comboLen1,
-        src->getAtp(), src->getAtpIndex(), src->getOffset(),
-          src->getVoaOffset(), src->getLength(), comboLen2,
-        attrs[2]->getAtp(), attrs[2]->getAtpIndex(), attrs[2]->getOffset(),
-        ITM_REPEAT);
+  OL ol(dst->getAtp(), dst->getAtpIndex(), dst->getOffset(), dst->getVoaOffset(), dst->getLength(), comboLen1,
+        src->getAtp(), src->getAtpIndex(), src->getOffset(), src->getVoaOffset(), src->getLength(), comboLen2,
+        attrs[2]->getAtp(), attrs[2]->getAtpIndex(), attrs[2]->getOffset(), ITM_REPEAT);
 
   PCI pci(PCIT::Op_GENFUNC, aml, ol);
   code.append(pci);
 
   // Add the branch target if necessary.
   //
-  if (nullBranch)
-    {
-      AML aml;
-      OL ol((Int64)nullBranch);
-      PCI pci(PCIT::Op_TARGET, aml, ol);
-      code.append(pci);
-    }
+  if (nullBranch) {
+    AML aml;
+    OL ol((Int64)nullBranch);
+    PCI pci(PCIT::Op_TARGET, aml, ol);
+    code.append(pci);
+  }
 
   // Generate post clause PCI's
   //
@@ -4565,9 +4120,7 @@ ExFunctionRepeat::pCodeGenerate(Space *space, UInt32 f)
   return ex_expr::EXPR_OK;
 }
 
-ex_expr::exp_return_type
-ex_function_position::pCodeGenerate(Space *space, UInt32 f)
-{
+ex_expr::exp_return_type ex_function_position::pCodeGenerate(Space *space, UInt32 f) {
   // Get a handle on the operands
   //
   AttributesPtr *attrs = getOperand();
@@ -4575,26 +4128,22 @@ ex_function_position::pCodeGenerate(Space *space, UInt32 f)
   // Only support ascii strings for now
   CharInfo::CharSet cs = ((SimpleType *)getOperand(1))->getCharSet();
 
-  if(cs != CharInfo::ISO88591)
-    return ex_clause::pCodeGenerate(space, f);
+  if (cs != CharInfo::ISO88591) return ex_clause::pCodeGenerate(space, f);
 
   // null prcessing done in eval. Cannot do pcode.
-  if (NOT getIsNullRelevant())
-    {
-      return ex_clause::pCodeGenerate(space, f);
-    }
+  if (NOT getIsNullRelevant()) {
+    return ex_clause::pCodeGenerate(space, f);
+  }
 
   // pcode currently doesn't handle non-default start position or n'th occurrence
-  if (getNumOperands() > 3)
-    return ex_clause::pCodeGenerate(space, f);
+  if (getNumOperands() > 3) return ex_clause::pCodeGenerate(space, f);
 
   // We don't support system collations (e.g. czech).  Note, some clauses have
   // the collation defined in the clause.  Others don't - in which case the
   // info needs to be derived from the operand.
 
   CharInfo::Collation co = getCollation();
-  if (CollationInfo::isSystemCollation(co))
-    return ex_clause::pCodeGenerate(space, f);
+  if (CollationInfo::isSystemCollation(co)) return ex_clause::pCodeGenerate(space, f);
 
   // Allocate the code list
   //
@@ -4606,30 +4155,25 @@ ex_function_position::pCodeGenerate(Space *space, UInt32 f)
   // Add the null logic if necessary.
   PCIID branchToEnd = PCode::nullBranch(this, code, attrs);
 
-  UInt32 comboLen1=0;
-  UInt32 comboLen2=0;
-  char*  comboPtr1 = (char*)&comboLen1;
-  char*  comboPtr2 = (char*)&comboLen2;
+  UInt32 comboLen1 = 0;
+  UInt32 comboLen2 = 0;
+  char *comboPtr1 = (char *)&comboLen1;
+  char *comboPtr2 = (char *)&comboLen2;
 
   // Use combo fields for specifying null/vc lengths of both operands
-  comboPtr1[0] = (char)attrs[1]->getNullIndicatorLength(),
-  comboPtr1[1] = (char)attrs[1]->getVCIndicatorLength();
-  comboPtr2[0] = (char)attrs[2]->getNullIndicatorLength(),
-  comboPtr2[1] = (char)attrs[2]->getVCIndicatorLength();
+  comboPtr1[0] = (char)attrs[1]->getNullIndicatorLength(), comboPtr1[1] = (char)attrs[1]->getVCIndicatorLength();
+  comboPtr2[0] = (char)attrs[2]->getNullIndicatorLength(), comboPtr2[1] = (char)attrs[2]->getVCIndicatorLength();
 
   AML aml(PCIT::MBIN32S, PCIT::MATTR5, PCIT::MATTR5);
-  OL ol(attrs[0]->getAtp(), attrs[0]->getAtpIndex(), attrs[0]->getOffset(),
-        attrs[1]->getAtp(), attrs[1]->getAtpIndex(), attrs[1]->getOffset(),
-          attrs[1]->getVoaOffset(), attrs[1]->getLength(), comboLen1,
-        attrs[2]->getAtp(), attrs[2]->getAtpIndex(), attrs[2]->getOffset(),
-          attrs[2]->getVoaOffset(), attrs[2]->getLength(), comboLen2);
+  OL ol(attrs[0]->getAtp(), attrs[0]->getAtpIndex(), attrs[0]->getOffset(), attrs[1]->getAtp(), attrs[1]->getAtpIndex(),
+        attrs[1]->getOffset(), attrs[1]->getVoaOffset(), attrs[1]->getLength(), comboLen1, attrs[2]->getAtp(),
+        attrs[2]->getAtpIndex(), attrs[2]->getOffset(), attrs[2]->getVoaOffset(), attrs[2]->getLength(), comboLen2);
   PCI pci(PCIT::Op_GENFUNC, aml, ol);
   code.append(pci);
 
   // Add the branch target if necessary.
   //
-  if(branchToEnd)
-  {
+  if (branchToEnd) {
     AML aml;
     OL ol((Int64)branchToEnd);
     PCI pci(PCIT::Op_TARGET, aml, ol);
@@ -4644,16 +4188,13 @@ ex_function_position::pCodeGenerate(Space *space, UInt32 f)
   return ex_expr::EXPR_OK;
 }
 
-ex_expr::exp_return_type
-ex_like_clause_base::pCodeGenerate(Space *space, UInt32 f)
-{
+ex_expr::exp_return_type ex_like_clause_base::pCodeGenerate(Space *space, UInt32 f) {
   // Get a handle on the operands
   //
   AttributesPtr *attrs = getOperand();
 
   // Only support ascii strings for now
   CharInfo::CharSet cs = ((SimpleType *)getOperand(1))->getCharSet();
-
 
   //
   // The following criteria must be met for PCode to be generated for LIKE
@@ -4667,7 +4208,7 @@ ex_like_clause_base::pCodeGenerate(Space *space, UInt32 f)
   //    way UTF-8 is encoded where the first byte indicates the length and
   //    continuation bytes can never match the first byte of a UTF-8 character).
   // 6. Pattern string and UTF-8 char limits can't exceed 255 bytes in length.
-  //    This is because both relative offsets and lengths of patterns are 
+  //    This is because both relative offsets and lengths of patterns are
   //    stored in 32-bit containers divided into 4 unsigned chars.
   // 7. Pattern string must contain 1-4 non-zero-length sub-patterns which
   //    are separated by '%', with at least one '%'.  For example:
@@ -4692,56 +4233,48 @@ ex_like_clause_base::pCodeGenerate(Space *space, UInt32 f)
   // info needs to be derived from the operand.
 
   CharInfo::Collation co = ((SimpleType *)getOperand(1))->getCollation();
-  if (CollationInfo::isSystemCollation(co))
-    return ex_clause::pCodeGenerate(space, f);
+  if (CollationInfo::isSystemCollation(co)) return ex_clause::pCodeGenerate(space, f);
 
   // (5) Allow only ISO and UTF8 charsets
-  if(cs != CharInfo::ISO88591 && cs != CharInfo::UTF8)
-    return ex_clause::pCodeGenerate(space, f);
+  if (cs != CharInfo::ISO88591 && cs != CharInfo::UTF8) return ex_clause::pCodeGenerate(space, f);
 
   Int32 precision = 0;
 
-  if (cs == CharInfo::UTF8)
-    {
-      precision = attrs[1]->getPrecision();
-    }
+  if (cs == CharInfo::UTF8) {
+    precision = attrs[1]->getPrecision();
+  }
 
   // Get pattern string and length
-  char* pat = getPatternStr();
+  char *pat = getPatternStr();
   Int32 patLen = attrs[2]->getLength();
 
   // (6) Generator restrictions met, as well as pattern length restriction
-  if (noPCodeAvailable() || (patLen > UCHAR_MAX) || (precision > UCHAR_MAX))
-    return ex_clause::pCodeGenerate(space, f);
+  if (noPCodeAvailable() || (patLen > UCHAR_MAX) || (precision > UCHAR_MAX)) return ex_clause::pCodeGenerate(space, f);
 
-  char   numOfPatterns = 0;
-  Int32  patternOffsets = -1;
-  Int32  patternLengths = -1;
-  UInt8* pOffPtr = (UInt8*)&patternOffsets;
-  UInt8* pLenPtr = (UInt8*)&patternLengths;
+  char numOfPatterns = 0;
+  Int32 patternOffsets = -1;
+  Int32 patternLengths = -1;
+  UInt8 *pOffPtr = (UInt8 *)&patternOffsets;
+  UInt8 *pLenPtr = (UInt8 *)&patternLengths;
 
   Int32 i;
   NABoolean open = FALSE, percentFound = FALSE;
 
-  for (i=0; i < patLen; i++)
-  {
+  for (i = 0; i < patLen; i++) {
     // (4) No underscore allowed (i.e. no "any" character)
-    if (pat[i] == '_')
-      return ex_clause::pCodeGenerate(space, f);
+    if (pat[i] == '_') return ex_clause::pCodeGenerate(space, f);
 
     if (pat[i] == '%') {
       percentFound = TRUE;
 
       // If open pattern found, close it off by setting the pattern length
       if (open) {
-        pLenPtr[numOfPatterns-1] = (UInt8)(i - pOffPtr[numOfPatterns-1]);
-        open = FALSE;     // Indicate end of pattern
+        pLenPtr[numOfPatterns - 1] = (UInt8)(i - pOffPtr[numOfPatterns - 1]);
+        open = FALSE;  // Indicate end of pattern
       }
-    }
-    else if (!open) {
+    } else if (!open) {
       // (7a) Can only support 4 patterns - bail out otherwise
-      if (numOfPatterns >= 4)
-        return ex_clause::pCodeGenerate(space, f);
+      if (numOfPatterns >= 4) return ex_clause::pCodeGenerate(space, f);
 
       // Otherwise start new pattern.  Assume max length of pattern
       pOffPtr[numOfPatterns] = (UInt8)i;
@@ -4753,8 +4286,7 @@ ex_like_clause_base::pCodeGenerate(Space *space, UInt32 f)
   }
 
   // (7b) Return if no pattern strings or no wildcard found
-  if ((numOfPatterns == 0) || (percentFound == FALSE))
-    return ex_clause::pCodeGenerate(space, f);
+  if ((numOfPatterns == 0) || (percentFound == FALSE)) return ex_clause::pCodeGenerate(space, f);
 
   // Allocate the code list
   //
@@ -4766,39 +4298,33 @@ ex_like_clause_base::pCodeGenerate(Space *space, UInt32 f)
   // Add the null logic if necessary.
   PCIID branchToEnd = PCode::nullBranch(this, code, attrs);
 
-  UInt32 comboLen1=0;
-  UInt32 comboLen2=0;
-  char*  comboPtr1 = (char*)&comboLen1;
-  char*  comboPtr2 = (char*)&comboLen2;
+  UInt32 comboLen1 = 0;
+  UInt32 comboLen2 = 0;
+  char *comboPtr1 = (char *)&comboLen1;
+  char *comboPtr2 = (char *)&comboLen2;
 
   // Use combo fields for specifying null/vc lengths of both operands
-  comboPtr1[0] = (char)attrs[1]->getNullIndicatorLength(),
-  comboPtr1[1] = (char)attrs[1]->getVCIndicatorLength();
-  comboPtr2[0] = (char)attrs[2]->getNullIndicatorLength(),
-  comboPtr2[1] = (char)attrs[2]->getVCIndicatorLength();
+  comboPtr1[0] = (char)attrs[1]->getNullIndicatorLength(), comboPtr1[1] = (char)attrs[1]->getVCIndicatorLength();
+  comboPtr2[0] = (char)attrs[2]->getNullIndicatorLength(), comboPtr2[1] = (char)attrs[2]->getVCIndicatorLength();
 
   // Indicate if boundary checks are needed, and set other flags
   comboPtr1[2] |= (pat[0] != '%') ? ex_like_clause_base::LIKE_HEAD : 0;
-  comboPtr1[2] |= (pat[patLen-1] != '%') ? ex_like_clause_base::LIKE_TAIL : 0;
+  comboPtr1[2] |= (pat[patLen - 1] != '%') ? ex_like_clause_base::LIKE_TAIL : 0;
 
   comboPtr1[3] = numOfPatterns;
-  comboPtr2[2] = (UInt8) precision;
+  comboPtr2[2] = (UInt8)precision;
 
-  AML aml(PCIT::MBIN32S, PCIT::MATTR5, PCIT::MATTR5,
-          PCIT::IBIN32S, PCIT::IBIN32S);
-  OL ol(attrs[0]->getAtp(), attrs[0]->getAtpIndex(), attrs[0]->getOffset(),
-        attrs[1]->getAtp(), attrs[1]->getAtpIndex(), attrs[1]->getOffset(),
-          attrs[1]->getVoaOffset(), attrs[1]->getLength(), comboLen1,
-        attrs[2]->getAtp(), attrs[2]->getAtpIndex(), attrs[2]->getOffset(),
-          attrs[2]->getVoaOffset(), attrs[2]->getLength(), comboLen2,
+  AML aml(PCIT::MBIN32S, PCIT::MATTR5, PCIT::MATTR5, PCIT::IBIN32S, PCIT::IBIN32S);
+  OL ol(attrs[0]->getAtp(), attrs[0]->getAtpIndex(), attrs[0]->getOffset(), attrs[1]->getAtp(), attrs[1]->getAtpIndex(),
+        attrs[1]->getOffset(), attrs[1]->getVoaOffset(), attrs[1]->getLength(), comboLen1, attrs[2]->getAtp(),
+        attrs[2]->getAtpIndex(), attrs[2]->getOffset(), attrs[2]->getVoaOffset(), attrs[2]->getLength(), comboLen2,
         patternOffsets, patternLengths);
   PCI pci(PCIT::Op_GENFUNC, aml, ol);
   code.append(pci);
 
   // Add the branch target if necessary.
   //
-  if(branchToEnd)
-  {
+  if (branchToEnd) {
     AML aml;
     OL ol((Int64)branchToEnd);
     PCI pci(PCIT::Op_TARGET, aml, ol);
@@ -4813,27 +4339,23 @@ ex_like_clause_base::pCodeGenerate(Space *space, UInt32 f)
   return ex_expr::EXPR_OK;
 }
 
-ex_expr::exp_return_type
-ex_function_extract::pCodeGenerate(Space *space, UInt32 f)
-{
+ex_expr::exp_return_type ex_function_extract::pCodeGenerate(Space *space, UInt32 f) {
   // Get a handle on the operands
   //
   AttributesPtr *attrs = getOperand();
 
   // Only deal with datetime types, for now.  Also, no extracting seconds with
   // fractional precision - this requires slightly more work.
-  if ((attrs[1]->getDatatype() != REC_DATETIME) ||
-      (getExtractField() > REC_DATE_MAX_SINGLE_FIELD) ||
-      (getExtractField()>=REC_DATE_CENTURY && getExtractField()<=REC_DATE_WOM) ||
+  if ((attrs[1]->getDatatype() != REC_DATETIME) || (getExtractField() > REC_DATE_MAX_SINGLE_FIELD) ||
+      (getExtractField() >= REC_DATE_CENTURY && getExtractField() <= REC_DATE_WOM) ||
       ((getExtractField() == REC_DATE_SECOND) && (attrs[1]->getScale() > 0)))
     return ex_clause::pCodeGenerate(space, f);
 
   // Determine what the offset is of the field to be extracted
   rec_datetime_field start;
   rec_datetime_field end;
-  ExpDatetime *datetime = (ExpDatetime*) getOperand(1);
-  if (datetime->getDatetimeFields(attrs[1]->getPrecision(), start, end) != 0)
-    assert(FALSE);
+  ExpDatetime *datetime = (ExpDatetime *)getOperand(1);
+  if (datetime->getDatetimeFields(attrs[1]->getPrecision(), start, end) != 0) assert(FALSE);
 
   Int32 offset = 0, lastFieldSize = 0;
 
@@ -4867,20 +4389,17 @@ ex_function_extract::pCodeGenerate(Space *space, UInt32 f)
   // Add the null logic if necessary.
   PCIID branchToEnd = PCode::nullBranch(this, code, attrs);
 
-  PCIT::AddressingMode type = (getExtractField() == REC_DATE_YEAR)
-                                ? PCIT::MBIN16U : PCIT::MBIN8;
+  PCIT::AddressingMode type = (getExtractField() == REC_DATE_YEAR) ? PCIT::MBIN16U : PCIT::MBIN8;
 
   AML aml(type, type);
-  OL ol(attrs[0]->getAtp(), attrs[0]->getAtpIndex(), attrs[0]->getOffset(),
-        attrs[1]->getAtp(), attrs[1]->getAtpIndex(),
-          attrs[1]->getOffset() + offset);
+  OL ol(attrs[0]->getAtp(), attrs[0]->getAtpIndex(), attrs[0]->getOffset(), attrs[1]->getAtp(), attrs[1]->getAtpIndex(),
+        attrs[1]->getOffset() + offset);
   PCI pci(PCIT::Op_MOVE, aml, ol);
   code.append(pci);
 
   // Add the branch target if necessary.
   //
-  if(branchToEnd)
-  {
+  if (branchToEnd) {
     AML aml;
     OL ol((Int64)branchToEnd);
     PCI pci(PCIT::Op_TARGET, aml, ol);
@@ -4895,8 +4414,6 @@ ex_function_extract::pCodeGenerate(Space *space, UInt32 f)
   return ex_expr::EXPR_OK;
 }
 
-
-ex_expr::exp_return_type ExpCompositeBase::pCodeGenerate(Space *space, UInt32 f) 
-{
+ex_expr::exp_return_type ExpCompositeBase::pCodeGenerate(Space *space, UInt32 f) {
   return ex_clause::pCodeGenerate(space, f);
 }

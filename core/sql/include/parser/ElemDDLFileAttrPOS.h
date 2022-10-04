@@ -7,7 +7,7 @@
  * Description:  class representing POS file attribute clause
  *               in DDL statements
  *
- *               
+ *
  * Created:      9/29/95
  * Language:     C++
  *
@@ -37,7 +37,6 @@
  *****************************************************************************
  */
 
-
 #include "ElemDDLFileAttr.h"
 
 // -----------------------------------------------------------------------
@@ -53,123 +52,83 @@ class ElemDDLFileAttrPOSNumPartns;
 // -----------------------------------------------------------------------
 // definition of class ElemDDLFileAttrPOS
 // -----------------------------------------------------------------------
-class ElemDDLFileAttrPOSNumPartns : public ElemDDLFileAttr
-{
-
-public:
-
+class ElemDDLFileAttrPOSNumPartns : public ElemDDLFileAttr {
+ public:
   // default constructor
   ElemDDLFileAttrPOSNumPartns(ComSInt32 numPartns);
   // virtual destructor
   virtual ~ElemDDLFileAttrPOSNumPartns();
 
   // cast
-  virtual ElemDDLFileAttrPOSNumPartns * castToElemDDLFileAttrPOSNumPartns();
+  virtual ElemDDLFileAttrPOSNumPartns *castToElemDDLFileAttrPOSNumPartns();
 
-  const ComSInt32 getPOSNumPartns() const
-  {
-    return posNumPartns_;
-  }
+  const ComSInt32 getPOSNumPartns() const { return posNumPartns_; }
 
   // methods for tracing
   virtual const NAString getText() const;
 
-
-private:
+ private:
   ComSInt32 posNumPartns_;
-}; // class ElemDDLFileAttrPOSNumPartns
+};  // class ElemDDLFileAttrPOSNumPartns
 
 // -----------------------------------------------------------------------
 // definitions of inline methods for class ElemDDLFileAttrPOSNumPartns
 // -----------------------------------------------------------------------
 
-
 // -----------------------------------------------------------------------
 // definition of class ElemDDLFileAttrPOSDiskPool
 // -----------------------------------------------------------------------
-class ElemDDLFileAttrPOSDiskPool : public ElemDDLFileAttr
-{
-
-public:
-
+class ElemDDLFileAttrPOSDiskPool : public ElemDDLFileAttr {
+ public:
   // default constructor
   ElemDDLFileAttrPOSDiskPool(ComSInt32 diskPool, ComSInt32 numDiskPools);
   // virtual destructor
   virtual ~ElemDDLFileAttrPOSDiskPool();
 
   // cast
-  virtual ElemDDLFileAttrPOSDiskPool * castToElemDDLFileAttrPOSDiskPool();
+  virtual ElemDDLFileAttrPOSDiskPool *castToElemDDLFileAttrPOSDiskPool();
 
-  const ComSInt32 getPOSDiskPool() const
-  {
-    return posDiskPool_;
-  }
+  const ComSInt32 getPOSDiskPool() const { return posDiskPool_; }
 
-  const ComSInt32 getPOSNumDiskPools() const
-  {
-    return posNumDiskPools_;
-  }
+  const ComSInt32 getPOSNumDiskPools() const { return posNumDiskPools_; }
 
   // methods for tracing
   virtual const NAString getText() const;
 
-
-private:
+ private:
   ComSInt32 posDiskPool_;
   ComSInt32 posNumDiskPools_;
-}; // class ElemDDLFileAttrPOSDiskPool
+};  // class ElemDDLFileAttrPOSDiskPool
 
 // -----------------------------------------------------------------------
 // definition of class ElemDDLFileAttrPOSNumPartns
 // -----------------------------------------------------------------------
-class ElemDDLFileAttrPOSTableSize : public ElemDDLFileAttr
-{
-
-public:
-
+class ElemDDLFileAttrPOSTableSize : public ElemDDLFileAttr {
+ public:
   // default constructor
-  ElemDDLFileAttrPOSTableSize(ComSInt32 initialTableSize,
-			      ComSInt32 maxTableSize,
-			      double numRows,
-			      ComSInt32 indexLevels = -1,
-			      ComSInt64 partnEOF = -1);
+  ElemDDLFileAttrPOSTableSize(ComSInt32 initialTableSize, ComSInt32 maxTableSize, double numRows,
+                              ComSInt32 indexLevels = -1, ComSInt64 partnEOF = -1);
 
   // virtual destructor
   virtual ~ElemDDLFileAttrPOSTableSize();
 
   // cast
-  virtual ElemDDLFileAttrPOSTableSize * castToElemDDLFileAttrPOSTableSize();
+  virtual ElemDDLFileAttrPOSTableSize *castToElemDDLFileAttrPOSTableSize();
 
-  const ComSInt32 getPOSInitialTableSize() const
-  {
-    return posInitialTableSize_;
-  }
+  const ComSInt32 getPOSInitialTableSize() const { return posInitialTableSize_; }
 
-  const ComSInt32 getPOSMaxTableSize() const
-  {
-    return posMaxTableSize_;
-  }
+  const ComSInt32 getPOSMaxTableSize() const { return posMaxTableSize_; }
 
-  const double getNumRows() const
-  {
-    return numRows_;
-  }
+  const double getNumRows() const { return numRows_; }
 
-  const ComSInt32 getIndexLevels() const
-  {
-    return indexLevels_;
-  }
+  const ComSInt32 getIndexLevels() const { return indexLevels_; }
 
-  const ComSInt64 getPartnEOF() const
-  {
-    return partnEOF_;
-  }
+  const ComSInt64 getPartnEOF() const { return partnEOF_; }
 
   // methods for tracing
   virtual const NAString getText() const;
 
-
-private:
+ private:
   ComSInt32 posInitialTableSize_;
   ComSInt32 posMaxTableSize_;
 
@@ -184,7 +143,7 @@ private:
   // Used for inMemory table definitions only.
   ComSInt64 partnEOF_;
 
-}; // class ElemDDLFileAttrPOSTableSize
+};  // class ElemDDLFileAttrPOSTableSize
 
 // -----------------------------------------------------------------------
 // definitions of inline methods for class ElemDDLFileAttrPOSTableSize
@@ -193,11 +152,8 @@ private:
 // -----------------------------------------------------------------------
 // definition of class ElemDDLFileAttrPOSIgnore
 // -----------------------------------------------------------------------
-class ElemDDLFileAttrPOSIgnore : public ElemDDLFileAttr
-{
-
-public:
-
+class ElemDDLFileAttrPOSIgnore : public ElemDDLFileAttr {
+ public:
   // default constructor
   ElemDDLFileAttrPOSIgnore(ComBoolean ignorePOS);
 
@@ -205,19 +161,15 @@ public:
   virtual ~ElemDDLFileAttrPOSIgnore();
 
   // cast
-  virtual ElemDDLFileAttrPOSIgnore * castToElemDDLFileAttrPOSIgnore();
+  virtual ElemDDLFileAttrPOSIgnore *castToElemDDLFileAttrPOSIgnore();
 
-  const ComSInt32 getIgnorePOS() const
-  {
-    return posIgnore_;
-  }
+  const ComSInt32 getIgnorePOS() const { return posIgnore_; }
 
   // methods for tracing
   virtual const NAString getText() const;
 
-
-private:
+ private:
   ComBoolean posIgnore_;
-}; // class ElemDDLFileAttrPOSIgnore
+};  // class ElemDDLFileAttrPOSIgnore
 
-#endif // ELEMDDLFILEATTRPOS_H
+#endif  // ELEMDDLFILEATTRPOS_H

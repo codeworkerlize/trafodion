@@ -33,130 +33,101 @@
 #include "common/NAMemory.h"
 #include "common/NAWNodeSet.h"
 
-
 // forward declare
 
 class ContextCli;
 
-
-
 // ===========================================================================
-// ===== The TenantHelper_JNI class implements access to the Java 
+// ===== The TenantHelper_JNI class implements access to the Java
 // ===== TenantHelper class.
 // ===========================================================================
 
 // Keep in sync with thErrorEnumStr array in TenantHelper_JNI.cpp.
 typedef enum {
-  TH_OK     = JOI_OK
- ,TH_FIRST  = MC_LAST
- ,TH_ERROR_REGISTER_TENANT_PARAM
- ,TH_ERROR_REGISTER_TENANT_EXCEPTION
- ,TH_ERROR_REGISTER_TENANT_NO_RESULT
- ,TH_ERROR_ALTER_TENANT_PARAM
- ,TH_ERROR_ALTER_TENANT_EXCEPTION
- ,TH_ERROR_ALTER_TENANT_NO_RESULT
- ,TH_ERROR_UNREGISTER_TENANT_PARAM
- ,TH_ERROR_UNREGISTER_TENANT_EXCEPTION
- ,TH_ERROR_CREATE_LOCAL_CGROUP_PARAM
- ,TH_ERROR_CREATE_LOCAL_CGROUP_EXCEPTION
- ,TH_LAST
+  TH_OK = JOI_OK,
+  TH_FIRST = MC_LAST,
+  TH_ERROR_REGISTER_TENANT_PARAM,
+  TH_ERROR_REGISTER_TENANT_EXCEPTION,
+  TH_ERROR_REGISTER_TENANT_NO_RESULT,
+  TH_ERROR_ALTER_TENANT_PARAM,
+  TH_ERROR_ALTER_TENANT_EXCEPTION,
+  TH_ERROR_ALTER_TENANT_NO_RESULT,
+  TH_ERROR_UNREGISTER_TENANT_PARAM,
+  TH_ERROR_UNREGISTER_TENANT_EXCEPTION,
+  TH_ERROR_CREATE_LOCAL_CGROUP_PARAM,
+  TH_ERROR_CREATE_LOCAL_CGROUP_EXCEPTION,
+  TH_LAST
 } TH_RetCode;
 
 // ---------------------------------------
 // keep this class in sync with Java class
 // com.esgyn.common.OversubscriptionInfo
 // ---------------------------------------
-struct OversubscriptionInfo
-{
+struct OversubscriptionInfo {
   int measures_[7];
 
   void init();
-  static int getNumMeasures()                                    { return 7; }
-  bool isOversubscribed()                         { return measures_[0] > 0; }
-  float nodeOversubscriptionRatio()
-                     { return  (float) measures_[6] / MAXOF(measures_[5],1); }
-  void setFromJavaArray(JNIEnv *jenv,
-                        jintArray &javaArray);
-  bool addDiagnostics(ComDiagsArea *diags,
-                      const char *tenantName,
-                      float warningThreshold,
-                      float errorThreshold);
+  static int getNumMeasures() { return 7; }
+  bool isOversubscribed() { return measures_[0] > 0; }
+  float nodeOversubscriptionRatio() { return (float)measures_[6] / MAXOF(measures_[5], 1); }
+  void setFromJavaArray(JNIEnv *jenv, jintArray &javaArray);
+  bool addDiagnostics(ComDiagsArea *diags, const char *tenantName, float warningThreshold, float errorThreshold);
 };
 
-class TenantHelper_JNI : public JavaObjectInterface
-{
-public:
-
-  TenantHelper_JNI(NAHeap *heap, jobject jObj = NULL)
-  :  JavaObjectInterface(heap, jObj)
-  {
-     heap_ = heap;
-  }
+class TenantHelper_JNI : public JavaObjectInterface {
+ public:
+  TenantHelper_JNI(NAHeap *heap, jobject jObj = NULL) : JavaObjectInterface(heap, jObj) { heap_ = heap; }
 
   // Destructor
   virtual ~TenantHelper_JNI();
 
-  char * getErrorText(TH_RetCode errEnum);
+  char *getErrorText(TH_RetCode errEnum);
 
-  static TenantHelper_JNI * getInstance();
+  static TenantHelper_JNI *getInstance();
 
   static void deleteInstance();
-  
+
   TH_RetCode init();
 
   // assign nodes (if not already done) and add
   // zookeeper data for a new tenant to be created
-  TH_RetCode registerTenant(const NAString & tenantName,
-                            const NAWNodeSet &assignedNodes,
-                            const NAString & sessionLimit,
-                            const NAString & defaultSchema, 
-                            NABoolean overrideWarning,
-                            NAWNodeSet *&resultAssignedNodes,
-                            OversubscriptionInfo &osi,
-                            NAHeap *outHeap);
+  TH_RetCode registerTenant(const NAString &tenantName, const NAWNodeSet &assignedNodes, const NAString &sessionLimit,
+                            const NAString &defaultSchema, NABoolean overrideWarning, NAWNodeSet *&resultAssignedNodes,
+                            OversubscriptionInfo &osi, NAHeap *outHeap);
 
   // Assign new nodes (if not already done) and update the
   // zookeeper data for a tenant to be altered.
-  TH_RetCode alterTenant(const NAString & tenantName,
-                         const NAWNodeSet &oldAssignedNodes,
-                         const NAWNodeSet &newAssignedNodes,
-                         const NAString & sessionLimit,
-                         const NAString & defaultSchema, 
-                         NABoolean overrideWarning,
-                         NAWNodeSet *&resultAssignedNodes,
-                         OversubscriptionInfo &osi,
-                         NAHeap *outHeap);
+  TH_RetCode alterTenant(const NAString &tenantName, const NAWNodeSet &oldAssignedNodes,
+                         const NAWNodeSet &newAssignedNodes, const NAString &sessionLimit,
+                         const NAString &defaultSchema, NABoolean overrideWarning, NAWNodeSet *&resultAssignedNodes,
+                         OversubscriptionInfo &osi, NAHeap *outHeap);
 
   // remove zookeeper data for a tenant, use this for
   // DROP TENANT or to undo a call to registerTenant()
   // or alterTenant() above when we encounter later errors
-  TH_RetCode unregisterTenant(const NAString & tenantName);
+  TH_RetCode unregisterTenant(const NAString &tenantName);
 
   // create cgroup for a tenant on the local node, called
   // at runtime if a cgroup is missing
   TH_RetCode createLocalCGroup(const char *tenantName);
 
-private:
-
+ private:
   enum JAVA_METHODS {
-    JM_CTOR = 0
-   ,JM_REGISTER_TENANT
-   ,JM_ALTER_TENANT 
-   ,JM_UNREGISTER_TENANT  
-   ,JM_CREATE_LOCAL_CGROUP
-   ,JM_LAST
+    JM_CTOR = 0,
+    JM_REGISTER_TENANT,
+    JM_ALTER_TENANT,
+    JM_UNREGISTER_TENANT,
+    JM_CREATE_LOCAL_CGROUP,
+    JM_LAST
   };
 
-  NAHeap * heap_;
+  NAHeap *heap_;
 
-  static jclass          javaClass_;  
-  static JavaMethodInit* JavaMethods_;
+  static jclass javaClass_;
+  static JavaMethodInit *JavaMethods_;
   static bool javaMethodsInitialized_;
   // this mutex protects both JaveMethods_ and javaClass_ initialization
   static pthread_mutex_t javaMethodsInitMutex_;
 };
 
-
 #endif
-
-

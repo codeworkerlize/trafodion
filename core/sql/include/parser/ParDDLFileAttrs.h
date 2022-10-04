@@ -31,7 +31,7 @@
  *               representing a DDL statement (for example, create table
  *               statement)
  *
- *               
+ *
  * Created:      5/25/95
  * Language:     C++
  *
@@ -40,7 +40,6 @@
  *
  *****************************************************************************
  */
-
 
 #include "export/NABasicObject.h"
 #include "common/ComSmallDefs.h"
@@ -58,25 +57,22 @@ class ParDDLFileAttrs;
 // -----------------------------------------------------------------------
 // definition of class ParDDLFileAttrs
 // -----------------------------------------------------------------------
-class ParDDLFileAttrs : public NABasicObject
-{
-
-public:
-
+class ParDDLFileAttrs : public NABasicObject {
+ public:
   // types of nodes containing all legal file attributes
   // associating with a DDL statement
-  enum fileAttrsNodeTypeEnum { FILE_ATTRS_ANY_DDL_STMT,
-                               FILE_ATTRS_ALTER_INDEX,
-                               FILE_ATTRS_ALTER_TABLE,
-                               FILE_ATTRS_ALTER_VIEW,
-                               FILE_ATTRS_CREATE_INDEX,
-                               FILE_ATTRS_CREATE_TABLE };
+  enum fileAttrsNodeTypeEnum {
+    FILE_ATTRS_ANY_DDL_STMT,
+    FILE_ATTRS_ALTER_INDEX,
+    FILE_ATTRS_ALTER_TABLE,
+    FILE_ATTRS_ALTER_VIEW,
+    FILE_ATTRS_CREATE_INDEX,
+    FILE_ATTRS_CREATE_TABLE
+  };
 
   // default constructor
-  ParDDLFileAttrs(fileAttrsNodeTypeEnum fileAttrsNodeType
-                         = FILE_ATTRS_ANY_DDL_STMT)
-  : fileAttrsNodeType_(fileAttrsNodeType)
-  { }
+  ParDDLFileAttrs(fileAttrsNodeTypeEnum fileAttrsNodeType = FILE_ATTRS_ANY_DDL_STMT)
+      : fileAttrsNodeType_(fileAttrsNodeType) {}
 
   // virtual destructor
   virtual ~ParDDLFileAttrs();
@@ -85,25 +81,18 @@ public:
   inline fileAttrsNodeTypeEnum getFileAttrsNodeType() const;
 
   // mutator
-  void copy(const ParDDLFileAttrs & rhs);
+  void copy(const ParDDLFileAttrs &rhs);
 
-
-private:
-
+ private:
   fileAttrsNodeTypeEnum fileAttrsNodeType_;
 
-}; // class ParDDLFileAttrs
+};  // class ParDDLFileAttrs
 
 // -----------------------------------------------------------------------
 // definitions of inline methods for class ParDDLFileAttrs
 // -----------------------------------------------------------------------
 
-
 // accessor
-ParDDLFileAttrs::fileAttrsNodeTypeEnum
-ParDDLFileAttrs::getFileAttrsNodeType() const
-{
-  return fileAttrsNodeType_;
-}
+ParDDLFileAttrs::fileAttrsNodeTypeEnum ParDDLFileAttrs::getFileAttrsNodeType() const { return fileAttrsNodeType_; }
 
-#endif // PARDDLFILEATTRS_H
+#endif  // PARDDLFILEATTRS_H

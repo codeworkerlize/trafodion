@@ -32,31 +32,27 @@
 *
 **************************************************************************** */
 
-#include "PartKeyDist.h"   
-#include "sqlcomp/parser.h"      /* for the parser of EncodedValues */
-
+#include "PartKeyDist.h"
+#include "sqlcomp/parser.h" /* for the parser of EncodedValues */
 
 // -----------------------------------------------------------------------
 //  methods on PartitionKeyDistribution class -- just ctors for now
 // -----------------------------------------------------------------------
 
-PartitionKeyDistribution::PartitionKeyDistribution () 
-     : partitionBoundaries_ (HistogramSharedPtr(0), HISTHEAP), /* init to invalid value */
-       partitionFactors_ (HISTHEAP, 0),       /* init to invalid value */
-       partitionKeyId_ (NULL_VALUE_ID),       /* init to invalid value */
-       objectInfoIsValid_ (FALSE)             /* init to invalid value */
-{} 
+PartitionKeyDistribution::PartitionKeyDistribution()
+    : partitionBoundaries_(HistogramSharedPtr(0), HISTHEAP), /* init to invalid value */
+      partitionFactors_(HISTHEAP, 0),                        /* init to invalid value */
+      partitionKeyId_(NULL_VALUE_ID),                        /* init to invalid value */
+      objectInfoIsValid_(FALSE)                              /* init to invalid value */
+{}
 
-
-PartitionKeyDistribution::PartitionKeyDistribution (
-     const RangePartitioningFunction & partFunc,
-     const ColStatDescList           & inputHistograms)
-     : partitionBoundaries_ (HistogramSharedPtr(0), HISTHEAP), /* init to invalid value */
-       partitionFactors_ (HISTHEAP, 0),       /* init to invalid value */
-       partitionKeyId_ (NULL_VALUE_ID),       /* init to invalid value */
-       objectInfoIsValid_ (FALSE)             /* init to invalid value */
+PartitionKeyDistribution::PartitionKeyDistribution(const RangePartitioningFunction &partFunc,
+                                                   const ColStatDescList &inputHistograms)
+    : partitionBoundaries_(HistogramSharedPtr(0), HISTHEAP), /* init to invalid value */
+      partitionFactors_(HISTHEAP, 0),                        /* init to invalid value */
+      partitionKeyId_(NULL_VALUE_ID),                        /* init to invalid value */
+      objectInfoIsValid_(FALSE)                              /* init to invalid value */
 {
-
   // -----------------------------------------------------------------------
   //  Get the partition boundaries:
   // -----------------------------------------------------------------------
@@ -64,25 +60,22 @@ PartitionKeyDistribution::PartitionKeyDistribution (
   const RangePartitionBoundaries *rpBoundariesPtr = partFunc.getRangePartitionBoundaries();
 
   // There are n+1 partition boundaries for n partitions:
-  const CollIndex numPartBounds = CollIndex(partFunc.getCountOfPartitions()+1);
-  for (CollIndex i=0; i < numPartBounds; i++)
-    {
-      EncodedValueList *evl = new (CmpCommon::statementHeap()) 
-                              EncodedValueList(CmpCommon::statementHeap(), 0);
+  const CollIndex numPartBounds = CollIndex(partFunc.getCountOfPartitions() + 1);
+  for (CollIndex i = 0; i < numPartBounds; i++) {
+    EncodedValueList *evl = new (CmpCommon::statementHeap()) EncodedValueList(CmpCommon::statementHeap(), 0);
 
-      boundaries.insertAt(i, evl);
-      const ItemExprList *boundary = rpBoundariesPtr->getBoundaryValues(i);
+    boundaries.insertAt(i, evl);
+    const ItemExprList *boundary = rpBoundariesPtr->getBoundaryValues(i);
 
-      // transform to encoded value list
-      for (CollIndex j=0; j < boundary->entries(); j++)
-        {
-          EncodedValue ev((*boundary)[j], FALSE /* "negate" */);
-          (boundaries[i])->insertAt(j,ev);
-        }
+    // transform to encoded value list
+    for (CollIndex j = 0; j < boundary->entries(); j++) {
+      EncodedValue ev((*boundary)[j], FALSE /* "negate" */);
+      (boundaries[i])->insertAt(j, ev);
     }
+  }
 
   const ValueIdList listOfPartitionKeys = partFunc.getKeyColumnList();
-  const ValueIdList listOfPartitionKeyOrders = partFunc.getOrderOfKeyValues() ;
+  const ValueIdList listOfPartitionKeyOrders = partFunc.getOrderOfKeyValues();
 
   // CSDL::divideHistogramAtPartitionBoundaries() returns FALSE if, for
   // some reason, the histogram-to-partition-boundary-list mapping fails
@@ -91,23 +84,19 @@ PartitionKeyDistribution::PartitionKeyDistribution (
   // data members partitionBoundaries_ and partitionKeyId_ have been
   // set to valid values.
 
-  if ( inputHistograms.divideHistogramAtPartitionBoundaries (
-       listOfPartitionKeys,      /* in  */
-       listOfPartitionKeyOrders, /* in  */
-       boundaries,               /* in  */
-       partitionKeyId_,          /* out */
-       isPartitionKeyAscending_, /* out */
-       partitionBoundaries_,     /* out */
-       partitionFactors_         /* out */ ) == TRUE )
-    {
-      objectInfoIsValid_ = TRUE ; 
-    }
+  if (inputHistograms.divideHistogramAtPartitionBoundaries(listOfPartitionKeys,      /* in  */
+                                                           listOfPartitionKeyOrders, /* in  */
+                                                           boundaries,               /* in  */
+                                                           partitionKeyId_,          /* out */
+                                                           isPartitionKeyAscending_, /* out */
+                                                           partitionBoundaries_,     /* out */
+                                                           partitionFactors_ /* out */) == TRUE) {
+    objectInfoIsValid_ = TRUE;
+  }
 
-} // PartitionKeyDistribution::PartitionKeyDistribution 
+}  // PartitionKeyDistribution::PartitionKeyDistribution
 
-CollIndex
-PartitionKeyDistribution::getHistIdxFromPartIdx (CollIndex extIdx) const
-{
+CollIndex PartitionKeyDistribution::getHistIdxFromPartIdx(CollIndex extIdx) const {
   // Since our "internal" representation of the partition boundaries
   // doesn't (necessarily) share the same numbering scheme as the
   // "external" world's view of the partition boundaries, we need to
@@ -126,61 +115,52 @@ PartitionKeyDistribution::getHistIdxFromPartIdx (CollIndex extIdx) const
 
   DCMPASSERT(extIdx >= 0 AND extIdx < getNumPartitions());
 
-  CollIndex countParts, interval ;
-  
+  CollIndex countParts, interval;
 
-  if ( isPartitionKeyAscending_ == FALSE )
-    {
-      CollIndex numParts = getNumPartitions() ;
-      // now "flip-flop", since we reversed the boundaries, so we have to
-      // "reverse" everything we do when talking about them 
-      extIdx = numParts - extIdx - 1; 
-    }
+  if (isPartitionKeyAscending_ == FALSE) {
+    CollIndex numParts = getNumPartitions();
+    // now "flip-flop", since we reversed the boundaries, so we have to
+    // "reverse" everything we do when talking about them
+    extIdx = numParts - extIdx - 1;
+  }
 
-  extIdx += 1 ; // we're zero-based when talking about Partition#
-  countParts = 0 ; 
+  extIdx += 1;  // we're zero-based when talking about Partition#
+  countParts = 0;
 
-  for ( interval = 1 ; interval < partitionFactors_.entries() ; interval++ )
-    {
-      countParts += partitionFactors_[interval] ;
-      if ( countParts >= extIdx )
-        break ;
-    }
+  for (interval = 1; interval < partitionFactors_.entries(); interval++) {
+    countParts += partitionFactors_[interval];
+    if (countParts >= extIdx) break;
+  }
 
-  DCMPASSERT ( countParts >= extIdx ) ; // if not, the index was bad! (or logic wrong!!!)
+  DCMPASSERT(countParts >= extIdx);  // if not, the index was bad! (or logic wrong!!!)
 
   // "interval" contains the HistInt index corresponding to the partition
   // requested; OR, it contains the HistInt corresponding to a number of
   // partitions, one of which is the one that was requested.
-  return interval ; 
+  return interval;
 }
 
-
-CostScalar
-PartitionKeyDistribution::getRowsForPartition(CollIndex extIdx) const 
-{
+CostScalar PartitionKeyDistribution::getRowsForPartition(CollIndex extIdx) const {
   // The first entry in the histogram will never contain rows because
   // it corresponds to a "partition" for all rows below "MIN".
   // No rows satisfy this. Thus, the first partition is described
   // by the first interval.
   DCMPASSERT(extIdx >= 0 AND extIdx < getNumPartitions());
-  
-  // remember : each entry in the histogram represents potentially many 
+
+  // remember : each entry in the histogram represents potentially many
   // different partition boundaries, each with the same partition boundary value.
-  CollIndex interval = getHistIdxFromPartIdx (extIdx) ;
+  CollIndex interval = getHistIdxFromPartIdx(extIdx);
 
   // If there is more than one partition represented by this histogram
   // interval, then we assume that all of the rows in this histogram
   // interval are uniformly distributed between all of them.
-  return (*Hist())[interval].getCardinality() / partitionFactors_[interval] ;
+  return (*Hist())[interval].getCardinality() / partitionFactors_[interval];
 }
 
-CostScalar
-PartitionKeyDistribution::getUecForPartition (CollIndex extIdx) const 
-{
-  // remember : each entry in the histogram represents potentially many 
+CostScalar PartitionKeyDistribution::getUecForPartition(CollIndex extIdx) const {
+  // remember : each entry in the histogram represents potentially many
   // different partition boundaries, each with the same partition boundary value.
-  CollIndex interval = getHistIdxFromPartIdx (extIdx) ;
+  CollIndex interval = getHistIdxFromPartIdx(extIdx);
 
   // If there is more than one partition represented by this histogram
   // interval, then we assume that all of the uec in this histogram
@@ -188,33 +168,25 @@ PartitionKeyDistribution::getUecForPartition (CollIndex extIdx) const
   return (*Hist())[interval].getUec() / partitionFactors_[interval];
 }
 
-CollIndex
-PartitionKeyDistribution::getNumPartitions () const
-{
-  // remember : each entry in the histogram represents potentially many 
+CollIndex PartitionKeyDistribution::getNumPartitions() const {
+  // remember : each entry in the histogram represents potentially many
   // different partition boundaries, each with the same partition boundary value.
-  CollIndex numParts = 0 ; 
+  CollIndex numParts = 0;
 
-  // don't count that first HistInt's counter 
-  for ( CollIndex i = 1 ; i < partitionFactors_.entries() ; i++ )
-    numParts += partitionFactors_[i] ; 
+  // don't count that first HistInt's counter
+  for (CollIndex i = 1; i < partitionFactors_.entries(); i++) numParts += partitionFactors_[i];
 
   // CollIndex numParts = Hist()->entries() - 1;
   return numParts;
 }
- 
-CollIndex
-PartitionKeyDistribution::getMaxPartitionFactor() const
-{
 
+CollIndex PartitionKeyDistribution::getMaxPartitionFactor() const {
   CollIndex max = 0;
-  for ( CollIndex i = 1 ; i < partitionFactors_.entries() ; i++ )
-    {
-      if (partitionFactors_[i] > max)
-        max = partitionFactors_[i];
-    }
+  for (CollIndex i = 1; i < partitionFactors_.entries(); i++) {
+    if (partitionFactors_[i] > max) max = partitionFactors_[i];
+  }
 
   return max;
 }
-  
+
 // eof

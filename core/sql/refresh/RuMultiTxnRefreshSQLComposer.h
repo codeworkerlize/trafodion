@@ -29,49 +29,46 @@
 *
 * File:         RuSQLMultiTxnRefreshComposer.h
 * Description:  Definition of class CRUSQLRefreshComposer
-*				
+*
 *
 * Created:      08/17/2000
 * Language:     C++
-* 
 *
-* 
+*
+*
 ******************************************************************************
 */
 
 //--------------------------------------------------------------------------//
 //	CRUMultiTxnRefreshSQLComposer
-//	
+//
 //	This class compose the internal refresh command for a multi-transaction MV
 //
 //--------------------------------------------------------------------------//
 
 #include "RuRefreshSQLComposer.h"
 
-class REFRESH_LIB_CLASS CRUMultiTxnRefreshSQLComposer : 
-      public CRURefreshSQLComposer {
-private:
-	typedef CRURefreshSQLComposer inherited;
+class REFRESH_LIB_CLASS CRUMultiTxnRefreshSQLComposer : public CRURefreshSQLComposer {
+ private:
+  typedef CRURefreshSQLComposer inherited;
 
-public:
-	CRUMultiTxnRefreshSQLComposer(CRURefreshTask *pTask);
-	virtual ~CRUMultiTxnRefreshSQLComposer() {}
+ public:
+  CRUMultiTxnRefreshSQLComposer(CRURefreshTask *pTask);
+  virtual ~CRUMultiTxnRefreshSQLComposer() {}
 
-public:
-	void ComposeRefresh(Int32 phase, BOOL catchup);
-	void ComposeCreateContextLogTable();
-	void ComposeReadContextLog();
-	void ComposeCQSForIRPhase1();
-	
-private:
-	
-	//-- Prevent copying
-	CRUMultiTxnRefreshSQLComposer(const CRUMultiTxnRefreshSQLComposer &other);
-	CRUMultiTxnRefreshSQLComposer &operator = 
-		(const CRUMultiTxnRefreshSQLComposer &other);
+ public:
+  void ComposeRefresh(Int32 phase, BOOL catchup);
+  void ComposeCreateContextLogTable();
+  void ComposeReadContextLog();
+  void ComposeCQSForIRPhase1();
 
-private:
-	void AddNRowsClause(Int32 phase, BOOL catchup);
+ private:
+  //-- Prevent copying
+  CRUMultiTxnRefreshSQLComposer(const CRUMultiTxnRefreshSQLComposer &other);
+  CRUMultiTxnRefreshSQLComposer &operator=(const CRUMultiTxnRefreshSQLComposer &other);
+
+ private:
+  void AddNRowsClause(Int32 phase, BOOL catchup);
 };
 
 #endif

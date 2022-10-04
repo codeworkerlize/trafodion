@@ -37,11 +37,9 @@
 #include "vproc.h"
 #include <stdio.h>
 
-
-extern "C" { void
-VPROC (PRODNUMMXUDR,DATE1MXUDR,MXUDR_CC_LABEL)
-() {} }
-
+extern "C" {
+void VPROC(PRODNUMMXUDR, DATE1MXUDR, MXUDR_CC_LABEL)() {}
+}
 
 #include "common/SCMVersHelp.h"
 
@@ -49,7 +47,4 @@ VPROC (PRODNUMMXUDR,DATE1MXUDR,MXUDR_CC_LABEL)
 #define VERS_CV_MIN 0
 #define VERS_CV_UPD 1
 
-VERS_BIN (tdm_udrserv)
-
-
-
+VERS_BIN(tdm_udrserv)

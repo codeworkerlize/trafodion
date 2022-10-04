@@ -37,7 +37,7 @@
 #include "ExSMTaskList.h"
 #include "ExSMReadyList.h"
 #include "ExSMTrace.h"
- 
+
 class ExSMGlobals;
 class ComDiagsArea;
 class NAMemory;
@@ -45,23 +45,20 @@ class ex_tcb;
 class ExExeStmtGlobals;
 class SMConnection;
 
-class ExSMGlobals
-{
-public:
-
+class ExSMGlobals {
+ public:
   // Thread states used for initialization and exit handling
   //
   // The normal state progression for the main thread is:
   //   NOT_STARTED -> STARTED -> DONE
-  // 
+  //
   // The normal state progression for the reader thread is:
   //   NOT_STARTED -> STARTED -> PROCESSING_SHUTDOWN -> DONE
-  // 
+  //
   // Or if the reader thread encounters a NO SERVICE error from SM:
   //   NOT_STARTED -> STARTED -> TERMINATED_DUE_TO_ERROR
-  // 
-  enum ThreadState
-  {
+  //
+  enum ThreadState {
     // Main thread and reader thread
     NOT_STARTED = 0,
     STARTED,
@@ -73,8 +70,7 @@ public:
   };
 
   // Constants used for SM message handling
-  enum MsgConstants
-  {
+  enum MsgConstants {
     // How long to wait for reader thread to start - in seconds
     READER_STARTUP_WAIT = 120,
 
@@ -82,13 +78,12 @@ public:
     READER_SHUTDOWN_WAIT = 120
   };
 
-
   // *** THIS FUNCTION DEPENDS ON SQL CODE AND SHOULD ONLY BE CALLED
   // *** FROM THE MAIN SQL THREAD. DO NOT CALL THIS FUNCTION FROM THE
   // *** SM READER THREAD.
   ExSMGlobals(bool isMasterExecutor);
 
-  ExSMGlobals(); // Do not implement
+  ExSMGlobals();  // Do not implement
 
   virtual ~ExSMGlobals();
 
@@ -104,7 +99,7 @@ public:
   // the same process.
   static int64_t reserveSMID();
   static int64_t getExeInternalSMID() { return exeInternalSMID_; }
-              
+
   // *** THIS FUNCTION DEPENDS ON SQL CODE AND SHOULD ONLY BE CALLED
   // *** FROM THE MAIN SQL THREAD. DO NOT CALL THIS FUNCTION FROM THE
   // *** SM READER THREAD.
@@ -113,21 +108,15 @@ public:
   // *** THIS FUNCTION DEPENDS ON SQL CODE AND SHOULD ONLY BE CALLED
   // *** FROM THE MAIN SQL THREAD. DO NOT CALL THIS FUNCTION FROM THE
   // *** SM READER THREAD.
-  ExSMTask *addTask(const sm_target_t &tgt,
-                    uint32_t queueSize,
-                    int32_t *scheduledAddr,
-                    NAMemory *heap,
-                    ex_tcb *tcb,
+  ExSMTask *addTask(const sm_target_t &tgt, uint32_t queueSize, int32_t *scheduledAddr, NAMemory *heap, ex_tcb *tcb,
                     SMConnection *smConnection_);
-  
-  static void addDiags(const char *functionName,
-                       int32_t rc,
-                       ExExeStmtGlobals *stmtGlob);
+
+  static void addDiags(const char *functionName, int32_t rc, ExExeStmtGlobals *stmtGlob);
 
   void addReaderThreadError(ExExeStmtGlobals *stmtGlob);
 
   void removeTask(ExSMTask *t);
-  
+
   bool isMasterExecutor() const { return master_; }
 
   ExSMTaskList *getSMTaskList() { return &smTaskList_; }
@@ -142,20 +131,16 @@ public:
   // Set the reader thread state. Optionally:
   // * acquire and release the reader thread state lock
   // * signal the reader thread state condition variable
-  void setReaderThreadState(ThreadState s,
-                            bool doLocking = true,
-                            bool doSignal = false);
+  void setReaderThreadState(ThreadState s, bool doLocking = true, bool doSignal = false);
 
   pid_t getMainThreadPID() { return mainThreadPID_; }
   int32_t getSQNodeNum() { return sqNodeNum_; }
   pthread_t getMainThreadTID() { return mainThreadThreadId_; }
   pthread_t getReaderThreadTID() { return readerThreadThreadId_; }
 
-  pthread_mutex_t *getReaderThreadStateLock()
-  { return &readerThreadStateLock_; }
+  pthread_mutex_t *getReaderThreadStateLock() { return &readerThreadStateLock_; }
 
-  pthread_cond_t *getReaderThreadStateCond()
-  { return &readerThreadStateCond_; }
+  pthread_cond_t *getReaderThreadStateCond() { return &readerThreadStateCond_; }
 
   uint32_t getSendRequestCount() const { return sendRequestCount_; }
   uint32_t incrSendRequestCount() { return ++sendRequestCount_; }
@@ -179,7 +164,7 @@ public:
   void setTraceEnabled(bool b);
   void setTraceLevel(uint32_t lvl) { traceLevel_ = lvl; }
   uint32_t getTraceLevel() const { return traceLevel_; }
-  const char * getTraceFilePrefix() const { return traceFilePrefix_; }
+  const char *getTraceFilePrefix() const { return traceFilePrefix_; }
   void setTraceFilePrefix(const char *pref) { traceFilePrefix_ = pref; }
   const char *getSessionID() const { return sessionID_; }
   NAMemory *getThreadSafeHeap() { return threadSafeHeap_; }
@@ -192,17 +177,13 @@ public:
 
   const Int32 getReaderThreadSmErrorNumber() { return readerThreadSmErrorNumber_; }
   void setReaderThreadSmErrorNumber(Int32 error) { readerThreadSmErrorNumber_ = error; }
-  const char * getReaderThreadSmErrorFunction() { return readerThreadSmErrorFunction_; }
-  void setReaderThreadSmErrorFunction(const char* function) 
-                        { strcpy(readerThreadSmErrorFunction_, function); }
+  const char *getReaderThreadSmErrorFunction() { return readerThreadSmErrorFunction_; }
+  void setReaderThreadSmErrorFunction(const char *function) { strcpy(readerThreadSmErrorFunction_, function); }
 
-  void handleReaderThreadError(int32_t rc,
-                               const char *function,
-                               sm_handle_t dataHandle,
+  void handleReaderThreadError(int32_t rc, const char *function, sm_handle_t dataHandle,
                                ExSMTaskList *smTaskList = NULL);
 
-protected:
-
+ protected:
   // Create a session ID string that becomes part of the output file
   // name when tracing is enabled
   static const char *createSessionID(ExExeStmtGlobals *stmtGlob);
@@ -212,7 +193,7 @@ protected:
 
   bool master_;
   bool traceEnabled_;
-  uint32_t  traceLevel_;
+  uint32_t traceLevel_;
   const char *traceFilePrefix_;
   const char *sessionID_;
   ExSMTaskList smTaskList_;
@@ -230,13 +211,13 @@ protected:
   // A global increasing counter is used to store the next available
   // SeaMonster ID. In the master executor every new query is given a new
   // ID.
-  // 
+  //
   // We reserve one ID for communication from the main thread to
   // the reader thread in the same process. The main thread calls SM
   // to initialize this ID right after a successful call to
   // SM_init. The reader thread cancels this ID after receiving a
   // SHUTDOWN message from the main thread.
-  // 
+  //
   // The ID for executor internal communication will be 1
   //
   // The IDs assigned to queries will start at 2 and go up
@@ -245,14 +226,13 @@ protected:
 
   // Main thread: thread ID and state
   pthread_t mainThreadThreadId_;
-  ThreadState mainThreadState_;               
+  ThreadState mainThreadState_;
 
   // Reader thread: thread ID and state
   pthread_t readerThreadThreadId_;
   ThreadState readerThreadState_;
   Int32 readerThreadSmErrorNumber_;
   char readerThreadSmErrorFunction_[32];
-
 
   // A lock and condition variable for accessing reader thread state
   pthread_mutex_t readerThreadStateLock_;
@@ -272,7 +252,7 @@ protected:
   // Note: we are assuming that in the master only one download is in
   // progress at any given time.
   static uint32_t fixupReplyCount_;
-  
-}; // class ExSMGlobals
 
-#endif // EXSM_GLOBALS_H
+};  // class ExSMGlobals
+
+#endif  // EXSM_GLOBALS_H

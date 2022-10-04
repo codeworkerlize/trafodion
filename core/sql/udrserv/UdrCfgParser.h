@@ -29,48 +29,42 @@ class NAString;
 
 #define BUFFMAX 1024
 
-class UdrCfgParser{
-public:
+class UdrCfgParser {
+ public:
+  /* cfgFileIsOpen: open config file, if already open just return TRUE
+     First look for envvar MXUDRCFG, if none use default of
+     /usr/tandem/sqlmx/udr/mxudrcfg
+     (NT default is c:/tdm_sql/udr/mxudrcfg) */
+  static NABoolean cfgFileIsOpen(NAString &errorText);
 
-/* cfgFileIsOpen: open config file, if already open just return TRUE 
-   First look for envvar MXUDRCFG, if none use default of 
-   /usr/tandem/sqlmx/udr/mxudrcfg
-   (NT default is c:/tdm_sql/udr/mxudrcfg) */
-   static NABoolean cfgFileIsOpen(NAString &errorText);
+  /* closeCfgFile: close config file.  */
+  static void closeCfgFile();
 
-/* closeCfgFile: close config file.  */
-   static void closeCfgFile();
-                                                                
-/* readSection: position to BOF for a new section, do continuous reads until no
-   more attr/value pairs in that section */
-   static Int32 readSection( const char *section, char *buf, Int32 bufLen
-                           , NAString &errorText);
+  /* readSection: position to BOF for a new section, do continuous reads until no
+     more attr/value pairs in that section */
+  static Int32 readSection(const char *section, char *buf, Int32 bufLen, NAString &errorText);
 
-/* textPos: get values position of an attribute  */
-   static char *textPos( char *buf, const char *entry );
+  /* textPos: get values position of an attribute  */
+  static char *textPos(char *buf, const char *entry);
 
-/* getPrivateProfileString: read value of string attribute */
-   static Int32 getPrivateProfileString( const char *section, const char *entry,
-                         const char *defaultString, char *buffer,
-                         Int32   bufLen, NAString &errorText );
+  /* getPrivateProfileString: read value of string attribute */
+  static Int32 getPrivateProfileString(const char *section, const char *entry, const char *defaultString, char *buffer,
+                                       Int32 bufLen, NAString &errorText);
 
+ private:
+  static FILE *cfgFile;
+  static char *cfgFileName;
 
-private:
-   static FILE *cfgFile;
-   static char *cfgFileName;
-      
-   static Int32 containTitle( char *buf, const char *section );
-   static Int32 gotoSection( FILE *is, const char *section, NAString &errorText);
-   static Int32 isTitleLine( char *bufPtr );
-   static Int32 readEntry( FILE *is, const char *entry, char *buf, Int32 bufSize
-                        , NAString &errorText );
-   static void remEOL(char *buffer);
-   static void rtrim(char *buf);
-   static void stripComment( char *buf );
-   static Int32 strnicmp(const char *s1, const char *s2, Int32 n);
-   static char *titlePos( char *buf, Int32 *len );
-   static Int32 readPair( FILE *is, char *buf, Int32 bufSize, NAString &errorText);
-
+  static Int32 containTitle(char *buf, const char *section);
+  static Int32 gotoSection(FILE *is, const char *section, NAString &errorText);
+  static Int32 isTitleLine(char *bufPtr);
+  static Int32 readEntry(FILE *is, const char *entry, char *buf, Int32 bufSize, NAString &errorText);
+  static void remEOL(char *buffer);
+  static void rtrim(char *buf);
+  static void stripComment(char *buf);
+  static Int32 strnicmp(const char *s1, const char *s2, Int32 n);
+  static char *titlePos(char *buf, Int32 *len);
+  static Int32 readPair(FILE *is, char *buf, Int32 bufSize, NAString &errorText);
 };
 
 #endif

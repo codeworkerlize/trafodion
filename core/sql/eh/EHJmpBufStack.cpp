@@ -32,10 +32,8 @@
 ******************************************************************************
 */
 
-
-#include <stdio.h> 
+#include <stdio.h>
 #include "EHCommonDefs.h"
-
 
 #include "EHJmpBufNode.h"
 #include "EHJmpBufStack.h"
@@ -45,18 +43,14 @@
 // -----------------------------------------------------------------------
 
 // virtual destructor
-EHExceptionJmpBufStack::~EHExceptionJmpBufStack()
-{
-}
+EHExceptionJmpBufStack::~EHExceptionJmpBufStack() {}
 
 // push
 //
 //   pJmpBufNode must point to a space allocated
 //   via the new operator
 //
-void
-EHExceptionJmpBufStack::push(EHExceptionJmpBufNode * pJmpBufNode)
-{
+void EHExceptionJmpBufStack::push(EHExceptionJmpBufNode *pJmpBufNode) {
   EH_ASSERT(pJmpBufNode->getLink() == NULL);
 
   pJmpBufNode->setLink(pTopNode_);
@@ -64,16 +58,13 @@ EHExceptionJmpBufStack::push(EHExceptionJmpBufNode * pJmpBufNode)
 }
 
 // pop
-// 
+//
 //   the pointer returned by pop() points to space allocated
 //   via the new operator
 //
-EHExceptionJmpBufNode *
-EHExceptionJmpBufStack::pop()
-{
-  EHExceptionJmpBufNode * pNode = pTopNode_;
+EHExceptionJmpBufNode *EHExceptionJmpBufStack::pop() {
+  EHExceptionJmpBufNode *pNode = pTopNode_;
 
-  if (pTopNode_ != NULL)
-    pTopNode_ = pNode->getLink();
+  if (pTopNode_ != NULL) pTopNode_ = pNode->getLink();
   return pNode;
 }

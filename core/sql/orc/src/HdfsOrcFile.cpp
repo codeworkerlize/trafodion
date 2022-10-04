@@ -30,85 +30,76 @@
 
 namespace orc {
 
-  class HDFSInputStream : public InputStream {
-  private:
-    std::string filename;
-    hdfsFile file;
-    long totalLength;
-    hdfsFS hdfs;
-  public:
-    HDFSInputStream(hdfsFileInfo * fi, hdfsFS fs) {
-      filename = fi->mName;
-      hdfs = fs;
-      totalLength = fi->mSize;
-     
-      long sampleBufferSize = fi->mBlockSize < 65536 ? fi->mBlockSize : 65536;
-      sampleBufferSize = sampleBufferSize < totalLength/10 ? sampleBufferSize : totalLength/10;
+class HDFSInputStream : public InputStream {
+ private:
+  std::string filename;
+  hdfsFile file;
+  long totalLength;
+  hdfsFS hdfs;
 
-      file = hdfsOpenFile(hdfs, fi->mName, O_RDONLY, 
-                   (int)sampleBufferSize, // buffer size
-                   0, // replication, take the default size 
-                   (tSize)fi->mBlockSize); // blocksize 
+ public:
+  HDFSInputStream(hdfsFileInfo *fi, hdfsFS fs) {
+    filename = fi->mName;
+    hdfs = fs;
+    totalLength = fi->mSize;
+
+    long sampleBufferSize = fi->mBlockSize < 65536 ? fi->mBlockSize : 65536;
+    sampleBufferSize = sampleBufferSize < totalLength / 10 ? sampleBufferSize : totalLength / 10;
+
+    file = hdfsOpenFile(hdfs, fi->mName, O_RDONLY,
+                        (int)sampleBufferSize,   // buffer size
+                        0,                       // replication, take the default size
+                        (tSize)fi->mBlockSize);  // blocksize
+  }
+  HDFSInputStream(const std::string &path) {
+    filename = path;
+    struct hdfsBuilder *builder = hdfsNewBuilder();
+    hdfsBuilderSetNameNode(builder, "default");
+    hdfsBuilderSetNameNodePort(builder, 0);
+    hdfs = hdfsBuilderConnect(builder);
+
+    hdfsFileInfo *fileInfo = hdfsGetPathInfo(hdfs, path.c_str());
+    filename = fileInfo->mName;
+
+    totalLength = (uint64_t)fileInfo->mSize;
+
+    file = hdfsOpenFile(hdfs, fileInfo->mName, O_RDONLY,
+                        65536,                                    // buffer size
+                        0,                                        // replication, take the default size
+                        static_cast<tSize>(fileInfo->mBlockSize)  // blocksize
+    );
+  }
+  ~HDFSInputStream() { hdfsCloseFile(hdfs, file); }
+
+  uint64_t getLength() const override { return totalLength; }
+
+  uint64_t getNaturalReadSize() const override { return 128 * 1024; }
+
+  void read(void *buf, uint64_t length, uint64_t offset) override {
+    if (!buf) {
+      throw ParseError("Buffer is null");
     }
-    HDFSInputStream(const std::string& path) {
-      filename = path;
-      struct hdfsBuilder * builder = hdfsNewBuilder();
-      hdfsBuilderSetNameNode(builder, "default");
-      hdfsBuilderSetNameNodePort(builder, 0);
-      hdfs = hdfsBuilderConnect(builder);
+    // ssize_t bytesRead = pread(file, buf, length, static_cast<off_t>(offset));
 
-      hdfsFileInfo * fileInfo = hdfsGetPathInfo(hdfs, path.c_str());
-      filename = fileInfo->mName;
+    ssize_t bytesRead = (ssize_t)hdfsPread(hdfs, file, static_cast<tOffset>(offset), buf, static_cast<tSize>(length));
 
-      totalLength = (uint64_t)fileInfo->mSize;
-
-      file = hdfsOpenFile(hdfs, fileInfo->mName, O_RDONLY, 
-                 65536, // buffer size
-                 0, // replication, take the default size 
-                 static_cast<tSize>(fileInfo->mBlockSize) // blocksize 
-                 );
+    if (bytesRead == -1) {
+      throw ParseError("Bad read of " + filename);
     }
-    ~HDFSInputStream(){
-       hdfsCloseFile(hdfs, file);
+    if (static_cast<uint64_t>(bytesRead) != length) {
+      throw ParseError("Short read of " + filename);
     }
-
-    uint64_t getLength() const override {
-      return totalLength;
-    }
-
-    uint64_t getNaturalReadSize() const override {
-      return 128 * 1024;
-    }
-
-    void read(void* buf,
-              uint64_t length,
-              uint64_t offset) override {
-      if (!buf) {
-        throw ParseError("Buffer is null");
-      }
-      //ssize_t bytesRead = pread(file, buf, length, static_cast<off_t>(offset));
-
-      ssize_t bytesRead = (ssize_t)hdfsPread(hdfs, file, static_cast<tOffset>(offset), buf, static_cast<tSize>(length));
-
-      if (bytesRead == -1) {
-        throw ParseError("Bad read of " + filename);
-      }
-      if (static_cast<uint64_t>(bytesRead) != length) {
-        throw ParseError("Short read of " + filename);
-      }
-    }
-
-    const std::string& getName() const override {
-      return filename;
-    }
-  };//HDFSInputStream
-  
-  std::unique_ptr<InputStream> readHDFSFile(const std::string& path) {
-    return std::unique_ptr<InputStream>(new HDFSInputStream(path));
   }
 
-  std::unique_ptr<InputStream> readHDFSFile(hdfsFileInfo* fi, hdfsFS fs) {
-    return std::unique_ptr<InputStream>(new HDFSInputStream(fi, fs));
-  }
+  const std::string &getName() const override { return filename; }
+};  // HDFSInputStream
 
-}//orc
+std::unique_ptr<InputStream> readHDFSFile(const std::string &path) {
+  return std::unique_ptr<InputStream>(new HDFSInputStream(path));
+}
+
+std::unique_ptr<InputStream> readHDFSFile(hdfsFileInfo *fi, hdfsFS fs) {
+  return std::unique_ptr<InputStream>(new HDFSInputStream(fi, fs));
+}
+
+}  // namespace orc

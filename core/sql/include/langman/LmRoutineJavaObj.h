@@ -4,7 +4,7 @@
 **********************************************************************
 *
 * File:         LmRoutineJavaObj.h
-* Description:  
+* Description:
 *
 * Created:      04/30/2015
 * Language:     C++
@@ -43,70 +43,49 @@
 // and the invocation of, a fixed set of methods for objects
 // of a class derived from tmudr::UDR.
 //////////////////////////////////////////////////////////////////////
-class LmRoutineJavaObj : public LmRoutineJava
-{
-friend class LmLanguageManagerJava;
-friend class LmJavaExceptionReporter;
+class LmRoutineJavaObj : public LmRoutineJava {
+  friend class LmLanguageManagerJava;
+  friend class LmJavaExceptionReporter;
 
-public:
-
-  virtual LmResult setRuntimeInfo(
-       const char   *parentQid,
-       int           totalNumInstances,
-       int           myInstanceNum,
-       ComDiagsArea *da);
+ public:
+  virtual LmResult setRuntimeInfo(const char *parentQid, int totalNumInstances, int myInstanceNum, ComDiagsArea *da);
 
   virtual LmResult invokeRoutineMethod(
-       /* IN */     tmudr::UDRInvocationInfo::CallPhase phase,
-       /* IN */     const char   *serializedInvocationInfo,
-       /* IN */     Int32         invocationInfoLen,
-       /* OUT */    Int32        *invocationInfoLenOut,
-       /* IN */     const char   *serializedPlanInfo,
-       /* IN */     Int32         planInfoLen,
-       /* IN */     Int32         planNum,
-       /* OUT */    Int32        *planInfoLenOut,
-       /* IN */     char         *inputRow,
-       /* IN */     Int32         inputRowLen,
-       /* OUT */    char         *outputRow,
-       /* IN */     Int32         outputRowLen,
-       /* IN/OUT */ ComDiagsArea *da);
+      /* IN */ tmudr::UDRInvocationInfo::CallPhase phase,
+      /* IN */ const char *serializedInvocationInfo,
+      /* IN */ Int32 invocationInfoLen,
+      /* OUT */ Int32 *invocationInfoLenOut,
+      /* IN */ const char *serializedPlanInfo,
+      /* IN */ Int32 planInfoLen,
+      /* IN */ Int32 planNum,
+      /* OUT */ Int32 *planInfoLenOut,
+      /* IN */ char *inputRow,
+      /* IN */ Int32 inputRowLen,
+      /* OUT */ char *outputRow,
+      /* IN */ Int32 outputRowLen,
+      /* IN/OUT */ ComDiagsArea *da);
 
   virtual LmResult getRoutineInvocationInfo(
-       /* IN/OUT */ char         *serializedInvocationInfo,
-       /* IN */     Int32         invocationInfoMaxLen,
-       /* OUT */    Int32        *invocationInfoLenOut,
-       /* IN/OUT */ char         *serializedPlanInfo,
-       /* IN */     Int32         planInfoMaxLen,
-       /* IN */     Int32         planNum,
-       /* OUT */    Int32        *planInfoLenOut,
-       /* IN/OUT */ ComDiagsArea *da);
+      /* IN/OUT */ char *serializedInvocationInfo,
+      /* IN */ Int32 invocationInfoMaxLen,
+      /* OUT */ Int32 *invocationInfoLenOut,
+      /* IN/OUT */ char *serializedPlanInfo,
+      /* IN */ Int32 planInfoMaxLen,
+      /* IN */ Int32 planNum,
+      /* OUT */ Int32 *planInfoLenOut,
+      /* IN/OUT */ ComDiagsArea *da);
 
-  virtual LmResult setFunctionPtrs(SQLUDR_GetNextRow getNextRowPtr,
-                                   SQLUDR_EmitRow emitRowPtr,
-                                   ComDiagsArea *da);
-  void setJNIFunctionPtrs(void *jniGetNextRowPtr,
-                          void *jniEmitRowPtr);
-  void setRowLengths(int inputRowLen,
-                     int outputRowLen);
+  virtual LmResult setFunctionPtrs(SQLUDR_GetNextRow getNextRowPtr, SQLUDR_EmitRow emitRowPtr, ComDiagsArea *da);
+  void setJNIFunctionPtrs(void *jniGetNextRowPtr, void *jniEmitRowPtr);
+  void setRowLengths(int inputRowLen, int outputRowLen);
 
-protected:
-
-  LmRoutineJavaObj(
-       const char   *sqlName,
-       const char   *externalName,
-       const char   *librarySqlName,
-       ComRoutineTransactionAttributes transactionAttrs,
-       ComRoutineSQLAccess sqlAccessMode,
-       ComRoutineExternalSecurity externalSecurity,
-       Int32    routineOwnerId,
-       const char   *serializedInvocationInfo,
-       int           invocationInfoLen,
-       const char   *serializedPlanInfo,
-       int           planInfoLen,
-       LmLanguageManagerJava *lm,
-       jobject       udrObject,
-       LmContainer  *container,
-       ComDiagsArea *diagsArea);
+ protected:
+  LmRoutineJavaObj(const char *sqlName, const char *externalName, const char *librarySqlName,
+                   ComRoutineTransactionAttributes transactionAttrs, ComRoutineSQLAccess sqlAccessMode,
+                   ComRoutineExternalSecurity externalSecurity, Int32 routineOwnerId,
+                   const char *serializedInvocationInfo, int invocationInfoLen, const char *serializedPlanInfo,
+                   int planInfoLen, LmLanguageManagerJava *lm, jobject udrObject, LmContainer *container,
+                   ComDiagsArea *diagsArea);
 
   ~LmRoutineJavaObj();
 
@@ -137,9 +116,9 @@ protected:
   int outputRowLen_;
 
   // function pointers for JNI and to emit result rows and EOD
-  SQLUDR_EmitRow      emitRowPtr_;
+  SQLUDR_EmitRow emitRowPtr_;
   void *jniGetNextRowPtr_;
   void *jniEmitRowPtr_;
-}; // class LmRoutineJavaObj
+};  // class LmRoutineJavaObj
 
 #endif

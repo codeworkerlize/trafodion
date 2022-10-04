@@ -29,7 +29,7 @@
 * Description:  class for UDR Max Results (parse node) elements in
 *               DDL statements
 *
-*               
+*
 * Created:      10/08/1999
 * Language:     C++
 *
@@ -42,11 +42,8 @@
 #include "common/ComSmallDefs.h"
 #include "ElemDDLNode.h"
 
-class ElemDDLUdrMaxResults : public ElemDDLNode
-{
-
-public:
-
+class ElemDDLUdrMaxResults : public ElemDDLNode {
+ public:
   // default constructor
   ElemDDLUdrMaxResults(ComUInt32 theMaxResults);
 
@@ -54,25 +51,21 @@ public:
   virtual ~ElemDDLUdrMaxResults(void);
 
   // cast
-  virtual ElemDDLUdrMaxResults * castToElemDDLUdrMaxResults(void);
+  virtual ElemDDLUdrMaxResults *castToElemDDLUdrMaxResults(void);
 
   // accessor
-  inline const ComUInt32 getMaxResults(void) const
-  {
-    return maxResults_;
-  }
+  inline const ComUInt32 getMaxResults(void) const { return maxResults_; }
 
   //
   // methods for tracing
   //
-  
+
   virtual NATraceList getDetailInfo() const;
   virtual const NAString getText() const;
 
-private:
-
+ private:
   ComUInt32 maxResults_;
 
-}; // class ElemDDLUdrMaxResults
+};  // class ElemDDLUdrMaxResults
 
 #endif /* ELEMDDLUDRMAXRESULTS_H */

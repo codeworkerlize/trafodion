@@ -28,7 +28,7 @@
  * File:         ElemDDLColRefList.h
  * Description:  class for lists of Column Name and Ordering Specification
  *               elements in DDL statements
- *               
+ *
  * Created:      4/21/95
  * Language:     C++
  *
@@ -37,7 +37,6 @@
  *
  *****************************************************************************
  */
-
 
 #include "parser/ElemDDLList.h"
 
@@ -54,28 +53,22 @@ class ElemDDLColRefList;
 // -----------------------------------------------------------------------
 // definition of class ElemDDLColRefList
 // -----------------------------------------------------------------------
-class ElemDDLColRefList : public ElemDDLList
-{
-
-public:
-
+class ElemDDLColRefList : public ElemDDLList {
+ public:
   // constructor
-  ElemDDLColRefList(ElemDDLNode * commaExpr, ElemDDLNode * otherExpr)
-  : ElemDDLList(ELM_COL_REF_LIST, commaExpr, otherExpr)
-  { }
+  ElemDDLColRefList(ElemDDLNode *commaExpr, ElemDDLNode *otherExpr)
+      : ElemDDLList(ELM_COL_REF_LIST, commaExpr, otherExpr) {}
 
   // virtual destructor
   virtual ~ElemDDLColRefList();
 
   // cast
-  virtual ElemDDLColRefList * castToElemDDLColRefList();
+  virtual ElemDDLColRefList *castToElemDDLColRefList();
 
   // methods for tracing
   virtual const NAString getText() const;
 
+ private:
+};  // class ElemDDLColRefList
 
-private:
-
-}; // class ElemDDLColRefList
-
-#endif // ELEMDDLCOLREFLIST_H
+#endif  // ELEMDDLCOLREFLIST_H

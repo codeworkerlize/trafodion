@@ -48,7 +48,7 @@
 // -----------------------------------------------------------------------
 class IpcEnvironment;
 class IpcMessageBuffer;
-struct sockaddr; // OS-specific
+struct sockaddr;  // OS-specific
 
 // -----------------------------------------------------------------------
 // A typedef for a port number as defined in /etc/services and a literal
@@ -61,53 +61,49 @@ const SockPortNumber NoSockPortNumber = 0;
 // An error number for a socket operation
 // -----------------------------------------------------------------------
 
-class SockErrNo
-{
-public:
+class SockErrNo {
+ public:
   // initialize to a specific error number (values from errno.h)
   SockErrNo(Int32 e = 0) : errno_(e) {}
 
   // check whether an error is set
-  inline NABoolean hasError() const                { return errno_ != 0; }
+  inline NABoolean hasError() const { return errno_ != 0; }
 
   // get the error number
-  inline Int32 geterrno() const                           { return errno_; }
+  inline Int32 geterrno() const { return errno_; }
 
   // set the error number from the global variable "errno" or its
   // replacement in GUARDIAN
   Int32 setFromerrno();
 
   // clear the error
-  inline void clear()                                      { errno_ = 0; }
+  inline void clear() { errno_ = 0; }
 
-
-private:
+ private:
   Int32 errno_;
 };
 
 // -----------------------------------------------------------------------
 // An Internet address of the form a.b.c.d (4 bytes).
 // -----------------------------------------------------------------------
-struct SockRawIPAddress
-{
+struct SockRawIPAddress {
   // binary form of the address
   unsigned char ipAddress_[4];
 };
 
-class SockIPAddress
-{
+class SockIPAddress {
   friend class SockSocket;
 
-public:
+ public:
   SockIPAddress();
-  SockIPAddress(const SockRawIPAddress a)               { a_ = a; }
+  SockIPAddress(const SockRawIPAddress a) { a_ = a; }
   SockIPAddress(const struct sockaddr &);
   // set address from a node name, NULL means local host
   // resolves the host name and stores the result in the object
   SockErrNo set(const char *hostName = NULL);
-  inline const SockRawIPAddress & getRawAddress() const     { return a_; }
+  inline const SockRawIPAddress &getRawAddress() const { return a_; }
 
-private:
+ private:
   // binary form of the address
   SockRawIPAddress a_;
 };
@@ -115,15 +111,13 @@ private:
 // -----------------------------------------------------------------------
 // Description of a service as maintained by inetd and /etc/services
 // -----------------------------------------------------------------------
-class SockService
-{
-public:
-  SockService(const char *serviceName,
-	      SockPortNumber defaultPortNumber = NoSockPortNumber);
-  inline SockPortNumber getPortNumber() const         { return portNum_; }
-  inline SockErrNo getError() const                 { return lastError_; }
+class SockService {
+ public:
+  SockService(const char *serviceName, SockPortNumber defaultPortNumber = NoSockPortNumber);
+  inline SockPortNumber getPortNumber() const { return portNum_; }
+  inline SockErrNo getError() const { return lastError_; }
 
-private:
+ private:
   // each service is assigned a port number which should be the same
   // for all nodes in the network
   SockPortNumber portNum_;
@@ -144,34 +138,35 @@ const SockFdesc InvalidFdesc = -1;
 const SockFdesc SockStdin = 0;
 const SockFdesc SockStdout = 1;
 
-class SockSocket
-{
-public:
-
+class SockSocket {
+ public:
   // default constructor for a TCP/IP socket (creates it)
   SockSocket(IpcEnvironment *env);
 
   // make a socket from an existing file descriptor or SockSocket
-  SockSocket(SockFdesc fd,IpcEnvironment *env);
+  SockSocket(SockFdesc fd, IpcEnvironment *env);
 
   // the destructor closes the socket
   ~SockSocket();
 
   // set this socket from an existing file descriptor, but only if there
   // is no real socket created yet for this object
-  void setFdesc(SockFdesc fd)
-                         { assert(fdesc_ == InvalidFdesc); fdesc_ = fd; }
-  SockFdesc getFdesc() const                           { return fdesc_; }
+  void setFdesc(SockFdesc fd) {
+    assert(fdesc_ == InvalidFdesc);
+    fdesc_ = fd;
+  }
+  SockFdesc getFdesc() const { return fdesc_; }
 
   //   creates a duplicate handle for fdesc_
   SockFdesc getDuplicateFdesc_();
   // bind or connect the socket to the specified port on the specified
   // IP address
-  inline SockPortNumber bind(const SockIPAddress &ipAddr,SockPortNumber port)
-                              { return bindOrConnect(ipAddr,port,TRUE); }
-  inline SockPortNumber connect(const SockIPAddress &ipAddr,
-				SockPortNumber port)
-                             { return bindOrConnect(ipAddr,port,FALSE); }
+  inline SockPortNumber bind(const SockIPAddress &ipAddr, SockPortNumber port) {
+    return bindOrConnect(ipAddr, port, TRUE);
+  }
+  inline SockPortNumber connect(const SockIPAddress &ipAddr, SockPortNumber port) {
+    return bindOrConnect(ipAddr, port, FALSE);
+  }
 
   // listen at the port
   SockPortNumber listen(SockPortNumber port = NoSockPortNumber);
@@ -185,8 +180,7 @@ public:
 
   // try to send a message within the specified time interval (call has to be
   // repeated with the same parameters until it returns TRUE)
-  NABoolean send(IpcMessageBuffer *message,
-		 IpcTimeout timeout = IpcInfiniteTimeout);
+  NABoolean send(IpcMessageBuffer *message, IpcTimeout timeout = IpcInfiniteTimeout);
 
   // Try to receive data within a given timeout period and create a
   // new buffer if none is passed in. The call returns FALSE if it times
@@ -199,8 +193,7 @@ public:
   // If a buffer is passed in, it has to be long enough to hold the entire
   // message. The receive call interprets the incoming message header in
   // order to find out the message length.
-  NABoolean receive(IpcMessageBuffer *&message,
-		    IpcTimeout timeout);
+  NABoolean receive(IpcMessageBuffer *&message, IpcTimeout timeout);
 
   // Try to accept a new connection request from a client, try for
   // the given timeout. Return whether a new client request was accepted
@@ -210,21 +203,18 @@ public:
 
   // error information
   SockErrNo setFromerrno(const char *msg);
-  SockErrNo getError() const                       { return lastError_; }
-  NABoolean hasError() const            { return lastError_.hasError(); }
+  SockErrNo getError() const { return lastError_; }
+  NABoolean hasError() const { return lastError_.hasError(); }
 
-private:
-
-  SockPortNumber bindOrConnect(const SockIPAddress &ipAddr,
-			       SockPortNumber port,
-			       NABoolean bindOnly);
-  SockFdesc          fdesc_;
-  SockErrNo          lastError_;
+ private:
+  SockPortNumber bindOrConnect(const SockIPAddress &ipAddr, SockPortNumber port, NABoolean bindOnly);
+  SockFdesc fdesc_;
+  SockErrNo lastError_;
 
   // remember partially completed receive operations
-  IpcMessageObjSize   expectedBytes_;
-  IpcMessageObjSize   receivedBytesSoFar_;
-  IpcMessageBuffer    *partiallyReceivedBuffer_;
+  IpcMessageObjSize expectedBytes_;
+  IpcMessageObjSize receivedBytesSoFar_;
+  IpcMessageBuffer *partiallyReceivedBuffer_;
 
   // environment information, needed to allocate memory from the heap
   IpcEnvironment *environment_;

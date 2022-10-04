@@ -3,8 +3,8 @@
  *
  * File:         InputStmt.h
  * RCS:          $Id: InputStmt.h,v 1.5.10.2 1998/09/10 19:38:22  Exp $
- * Description:  
- *               
+ * Description:
+ *
  * Created:      1/10/95
  * Modified:     $ $Date: 1998/09/10 19:38:22 $ (GMT)
  * Language:     C++
@@ -47,17 +47,16 @@
 // and also != -1, i.e. != EOF value from stdio.h.
 extern volatile Int32 breakReceived;
 extern volatile char Sqlci_PutbackChar;
-enum { LOOK_FOR_BREAK = -15, FOUND_A_BREAK = -16};
+enum { LOOK_FOR_BREAK = -15, FOUND_A_BREAK = -16 };
 
 class InputStmt {
-
-private:
+ private:
   struct StringFragment {
-    char * fragment;
-    StringFragment * next;
+    char *fragment;
+    StringFragment *next;
   };
-  StringFragment * first_fragment;
-  char * packed_string;
+  StringFragment *first_fragment;
+  char *packed_string;
   Int32 isIgnoreStmt_;
   NABoolean ignoreJustThis_;
   NABoolean veryFirstLine_;
@@ -67,20 +66,20 @@ private:
   Int32 shellCmd_;
   NABoolean allowCSinsqlci_;
 
-  SqlciEnv * sqlci_env;
+  SqlciEnv *sqlci_env;
 
   // The rest of these are used only by fix() and fix_string() and such
-  char * command;
-  char * text;
+  char *command;
+  char *text;
   size_t text_maxlen;
   size_t text_pos;
   size_t command_pos;
-  
-public:
-  InputStmt(SqlciEnv * the_sqlci_env);
-  InputStmt(const InputStmt * source, const char * packed);
+
+ public:
+  InputStmt(SqlciEnv *the_sqlci_env);
+  InputStmt(const InputStmt *source, const char *packed);
   ~InputStmt();
-  void operator=(const InputStmt * source);
+  void operator=(const InputStmt *source);
 
   // 64bit Project: Add Distinguish_arg to resolve ambiguous definition error
   // by C++ compiler (because noPrompt and stmt_num_ have the same underlying type.)
@@ -90,47 +89,51 @@ public:
   Int32 fix(Int32 append_only = 0);
   Int32 isEmpty(const char *str = NULL);
   Int32 isIgnoreStmt(const char *str = NULL, NABoolean *ignoreJustThis = NULL);
-  NABoolean ignoreJustThis() const		{ return ignoreJustThis_; }
-  Int32 isInHistoryList() const			{ return isInHistoryList_; }
-  void setInHistoryList(Int32 boolean)		{ isInHistoryList_ = boolean; }
-  void setVeryFirstLine()		{ veryFirstLine_ = TRUE; }
-  Int32 sectionMatches(const char * section = NULL);
+  NABoolean ignoreJustThis() const { return ignoreJustThis_; }
+  Int32 isInHistoryList() const { return isInHistoryList_; }
+  void setInHistoryList(Int32 boolean) { isInHistoryList_ = boolean; }
+  void setVeryFirstLine() { veryFirstLine_ = TRUE; }
+  Int32 sectionMatches(const char *section = NULL);
   void syntaxErrorOnMissingQuote(char *str = NULL);
   void syntaxErrorOnEof(const char *str = NULL);
-  char * findEnd(char * s, size_t &quote_seen_pos);
+  char *findEnd(char *s, size_t &quote_seen_pos);
   void logStmt(NABoolean noPrompt = FALSE) const;
-  Int32 readStmt(FILE * non_stdin_file = NULL, Int32 suppress_blank_line_output =0);
-  Int32 consumeLine(FILE * non_stdin_file = NULL);
+  Int32 readStmt(FILE *non_stdin_file = NULL, Int32 suppress_blank_line_output = 0);
+  Int32 consumeLine(FILE *non_stdin_file = NULL);
 
-  inline char * getPackedString()
-  {
-    if (!packed_string)
-      pack();
+  inline char *getPackedString() {
+    if (!packed_string) pack();
     return packed_string;
   };
 
   // This enum is used only privately, but appears in function result type
   // for two functions below and c89 therefore requires it to be public
-  enum Option
-    {
-      INSERT_O, DELETE_O, REPLACE_O, EXPLICIT_REPLACE_O, 
-      ADVANCE_O, ABORT_O, END_O, DONE_O, AGAIN_O, EMPTY_O
-    };
+  enum Option {
+    INSERT_O,
+    DELETE_O,
+    REPLACE_O,
+    EXPLICIT_REPLACE_O,
+    ADVANCE_O,
+    ABORT_O,
+    END_O,
+    DONE_O,
+    AGAIN_O,
+    EMPTY_O
+  };
 
-private:
+ private:
   // a line in a text file on Seaquest platform can be very long
   // Allocate 1 Mbytes for now...
-  enum {MAX_FRAGMENT_LEN = 256 * 4096};
+  enum { MAX_FRAGMENT_LEN = 256 * 4096 };
   Option fix_string(const char *in_data, char *fixed_data, size_t max_datalen);
   size_t getCommandLen() const;
-  Int32 getLine(char * input_str, FILE * non_stdin_file, Int32 first_line);
+  Int32 getLine(char *input_str, FILE *non_stdin_file, Int32 first_line);
   Option nextOption();
   Int32 pack();
   void processInsert();
   void processReplace();
   void processDelete();
-  inline char * getFirstFragment() const
-  {
+  inline char *getFirstFragment() const {
     if (first_fragment)
       return first_fragment->fragment;
     else
@@ -138,8 +141,7 @@ private:
   };
 
   NABoolean inBlockStmt() { return allowCSinsqlci_ && blockStmt_ > 0; }
-  void findBlockStmt(char *s, size_t xbeg, size_t xend,
-		     NABoolean searchForShellCmd);
+  void findBlockStmt(char *s, size_t xbeg, size_t xend, NABoolean searchForShellCmd);
 };
 
 #endif

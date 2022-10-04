@@ -31,25 +31,14 @@
 #include "LmLangManagerC.h"
 
 // SQLROW function declaration
-typedef Int32 (*sqlrow_func) (SQLUDR_CHAR *input_row,
-                            SQLUDR_CHAR *output_row,
-                            SQLUDR_CHAR sqlstate[6],
-                            SQLUDR_CHAR msgtext[256],
-                            SQLUDR_INT32 calltype,
-                            SQLUDR_STATEAREA *statearea,
-                            SQLUDR_UDRINFO *udrinfo);
+typedef Int32 (*sqlrow_func)(SQLUDR_CHAR *input_row, SQLUDR_CHAR *output_row, SQLUDR_CHAR sqlstate[6],
+                             SQLUDR_CHAR msgtext[256], SQLUDR_INT32 calltype, SQLUDR_STATEAREA *statearea,
+                             SQLUDR_UDRINFO *udrinfo);
 
-SQLUDR_INT32 SQLUDR_INVOKE_SQLROW(sqlrow_func func_ptr,
-                                  SQLUDR_CHAR *input_row,
-                                  SQLUDR_CHAR *output_row,
-                                  SQLUDR_CHAR sqlstate[6],
-                                  SQLUDR_CHAR msgtext[256],
-                                  SQLUDR_INT32 calltype,
-                                  SQLUDR_STATEAREA *statearea,
-                                  SQLUDR_UDRINFO *udrinfo)
-{
-  return func_ptr(input_row, output_row, sqlstate, msgtext,
-                  calltype, statearea, udrinfo);
+SQLUDR_INT32 SQLUDR_INVOKE_SQLROW(sqlrow_func func_ptr, SQLUDR_CHAR *input_row, SQLUDR_CHAR *output_row,
+                                  SQLUDR_CHAR sqlstate[6], SQLUDR_CHAR msgtext[256], SQLUDR_INT32 calltype,
+                                  SQLUDR_STATEAREA *statearea, SQLUDR_UDRINFO *udrinfo) {
+  return func_ptr(input_row, output_row, sqlstate, msgtext, calltype, statearea, udrinfo);
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -59,53 +48,25 @@ SQLUDR_INT32 SQLUDR_INVOKE_SQLROW(sqlrow_func func_ptr,
 // error. Caller is responsbile to cleanup by calling destructor.
 //
 //////////////////////////////////////////////////////////////////////
-LmRoutineCSqlRow::LmRoutineCSqlRow(
-  const char            *sqlName,
-  const char            *externalName,
-  const char            *librarySqlName,
-  ComUInt32             numSqlParam,
-  char                  *routineSig,
-  ComUInt32             maxResultSets,
-  ComRoutineTransactionAttributes transactionAttrs,
-  ComRoutineSQLAccess   sqlAccessMode,
-  ComRoutineExternalSecurity externalSecurity,
-  Int32                 routineOwnerId,
-  const char            *parentQid,
-  ComUInt32             inputRowLen,
-  ComUInt32             outputRowLen,
-  const char           *currentUserName,
-  const char           *sessionUserName,
-  LmParameter           *parameters,
-  LmLanguageManagerC    *lm,
-  LmHandle              routine,
-  LmContainer           *container,
-  ComDiagsArea          *diags)
-  : LmRoutineC(sqlName, externalName, librarySqlName, numSqlParam, routineSig,
-               maxResultSets,
-               COM_LANGUAGE_C,
-               COM_STYLE_SQLROW,
-               transactionAttrs,
-               sqlAccessMode,
-               externalSecurity, 
-	       routineOwnerId,
-               parentQid, inputRowLen, outputRowLen, 
-               currentUserName, sessionUserName,  
-	       parameters, lm, routine, container, diags)
-{
-}
+LmRoutineCSqlRow::LmRoutineCSqlRow(const char *sqlName, const char *externalName, const char *librarySqlName,
+                                   ComUInt32 numSqlParam, char *routineSig, ComUInt32 maxResultSets,
+                                   ComRoutineTransactionAttributes transactionAttrs, ComRoutineSQLAccess sqlAccessMode,
+                                   ComRoutineExternalSecurity externalSecurity, Int32 routineOwnerId,
+                                   const char *parentQid, ComUInt32 inputRowLen, ComUInt32 outputRowLen,
+                                   const char *currentUserName, const char *sessionUserName, LmParameter *parameters,
+                                   LmLanguageManagerC *lm, LmHandle routine, LmContainer *container,
+                                   ComDiagsArea *diags)
+    : LmRoutineC(sqlName, externalName, librarySqlName, numSqlParam, routineSig, maxResultSets, COM_LANGUAGE_C,
+                 COM_STYLE_SQLROW, transactionAttrs, sqlAccessMode, externalSecurity, routineOwnerId, parentQid,
+                 inputRowLen, outputRowLen, currentUserName, sessionUserName, parameters, lm, routine, container,
+                 diags) {}
 
-LmRoutineCSqlRow::~LmRoutineCSqlRow()
-{
-}
+LmRoutineCSqlRow::~LmRoutineCSqlRow() {}
 
-LmResult LmRoutineCSqlRow::invokeRoutine(void *inputRow,
-                                         void *outputRow,
-                                         ComDiagsArea *da)
-{
+LmResult LmRoutineCSqlRow::invokeRoutine(void *inputRow, void *outputRow, ComDiagsArea *da) {
   // We can return early if the caller is requesting a FINAL call but
   // not FINAL is necessary because the INITIAL call was never made
-  if (callType_ == SQLUDR_CALLTYPE_FINAL && !finalCallRequired_)
-    return LM_OK;
+  if (callType_ == SQLUDR_CALLTYPE_FINAL && !finalCallRequired_) return LM_OK;
 
   void *param_in_data = NULL, *param_out_data = NULL;
 
@@ -115,8 +76,7 @@ LmResult LmRoutineCSqlRow::invokeRoutine(void *inputRow,
   // For the FINAL call (invokeRoutine() during putRoutine()), there
   // are no data pointers to be passed down to routine. Only
   // statearea_ & udrInfo_ are sent.
-  if (callType_ != SQLUDR_CALLTYPE_FINAL)
-  {
+  if (callType_ != SQLUDR_CALLTYPE_FINAL) {
     param_in_data = inputRow;
     param_out_data = outputRow;
   }
@@ -124,37 +84,28 @@ LmResult LmRoutineCSqlRow::invokeRoutine(void *inputRow,
   // Initialize SQLSTATE to all '0' characters and add a null terminator
   str_pad(sqlState_, SQLUDR_SQLSTATE_SIZE - 1, '0');
   sqlState_[SQLUDR_SQLSTATE_SIZE - 1] = 0;
-  
+
   // Initialize SQL text to all zero bytes
   str_pad(msgText_, SQLUDR_MSGTEXT_SIZE, '\0');
 
   // Call the function
-  Int32 retValue = SQLUDR_INVOKE_SQLROW((sqlrow_func) routine_,
-                                      (SQLUDR_CHAR *) param_in_data,
-                                      (SQLUDR_CHAR *) param_out_data,
-                                      sqlState_,
-                                      msgText_,
-                                      callType_,
-                                      stateArea_,
-                                      udrInfo_);
-  
-  if (callType_ == SQLUDR_CALLTYPE_INITIAL)
-  {
+  Int32 retValue =
+      SQLUDR_INVOKE_SQLROW((sqlrow_func)routine_, (SQLUDR_CHAR *)param_in_data, (SQLUDR_CHAR *)param_out_data,
+                           sqlState_, msgText_, callType_, stateArea_, udrInfo_);
+
+  if (callType_ == SQLUDR_CALLTYPE_INITIAL) {
     // Set the call type for next invocation to NORMAL if this is an
     // INITIAL call
     callType_ = SQLUDR_CALLTYPE_NORMAL;
     finalCallRequired_ = TRUE;
-  }
-  else if (callType_ == SQLUDR_CALLTYPE_FINAL)
-  {
+  } else if (callType_ == SQLUDR_CALLTYPE_FINAL) {
     // We are done if this is a FINAL call
     finalCallRequired_ = FALSE;
     return LM_OK;
   }
 
   // Check the return value from routine execution
-  if (retValue != SQLUDR_SUCCESS)
-  {
+  if (retValue != SQLUDR_SUCCESS) {
     sqlState_[SQLUDR_SQLSTATE_SIZE - 1] = 0;
     return processReturnStatus(retValue, da);
   }

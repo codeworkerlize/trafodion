@@ -42,8 +42,7 @@
  *****************************************************************************
  */
 
-
-#define   SQLPARSERGLOBALS_FLAGS        // must precede all #include's
+#define SQLPARSERGLOBALS_FLAGS  // must precede all #include's
 #include "common/BaseTypes.h"
 #include "common/ComASSERT.h"
 #include "export/ComDiags.h"
@@ -84,8 +83,8 @@
 #include "parser/ElemDDLGroup.h"
 #include "optimizer/ItemExpr.h"
 #include "optimizer/ItemColRef.h"
-#ifndef   SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
-#define   SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
+#ifndef SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
+#define SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
 #endif
 #include "parser/SqlParserGlobals.h"
 
@@ -96,2030 +95,699 @@
 // -----------------------------------------------------------------------
 
 // virtual destructor
-ElemDDLNode::~ElemDDLNode()
-{
-}
+ElemDDLNode::~ElemDDLNode() {}
 
 // cast virtual functions
 
-ElemDDLNode *
-ElemDDLNode::castToElemDDLNode()
-{
-  return this;
-}
+ElemDDLNode *ElemDDLNode::castToElemDDLNode() { return this; }
 
-const ElemDDLNode *
-ElemDDLNode::castToElemDDLNode() const
-{
-  return this;
-}
+const ElemDDLNode *ElemDDLNode::castToElemDDLNode() const { return this; }
 
-ElemDDLQualName *
-ElemDDLNode::castToElemDDLQualName() // MV - RG
+ElemDDLQualName *ElemDDLNode::castToElemDDLQualName()  // MV - RG
 {
   return NULL;
 }
 
+ElemDDLIndexPopulateOption *ElemDDLNode::castToElemDDLIndexPopulateOption() { return NULL; }
 
-ElemDDLIndexPopulateOption *
-ElemDDLNode::castToElemDDLIndexPopulateOption()
+ElemDDLIndexScopeOption *ElemDDLNode::castToElemDDLIndexScopeOption() { return NULL; }
+
+ElemDDLAlterTableMove *ElemDDLNode::castToElemDDLAlterTableMove() { return NULL; }
+
+ElemDDLAuthSchema *ElemDDLNode::castToElemDDLAuthSchema() { return NULL; }
+
+ElemDDLColDef *ElemDDLNode::castToElemDDLColDef() { return NULL; }
+
+ElemProxyColDef *ElemDDLNode::castToElemProxyColDef() { return NULL; }
+
+ElemDDLColDefault *ElemDDLNode::castToElemDDLColDefault() { return NULL; }
+
+ElemDDLColHeading *ElemDDLNode::castToElemDDLColHeading() { return NULL; }
+
+ElemDDLColName *ElemDDLNode::castToElemDDLColName() { return NULL; }
+
+ElemDDLColNameList *ElemDDLNode::castToElemDDLColNameList() { return NULL; }
+
+ElemDDLColNameListNode *ElemDDLNode::castToElemDDLColNameListNode() { return NULL; }
+
+ElemDDLColRef *ElemDDLNode::castToElemDDLColRef() { return NULL; }
+
+ElemDDLColRefList *ElemDDLNode::castToElemDDLColRefList() { return NULL; }
+
+ElemDDLColViewDef *ElemDDLNode::castToElemDDLColViewDef() { return NULL; }
+
+ElemDDLConstraint *ElemDDLNode::castToElemDDLConstraint() { return NULL; }
+
+ElemDDLConstraintAttr *ElemDDLNode::castToElemDDLConstraintAttr() { return NULL; }
+
+ElemDDLConstraintAttrDroppable *ElemDDLNode::castToElemDDLConstraintAttrDroppable() { return NULL; }
+
+ElemDDLConstraintAttrEnforced *ElemDDLNode::castToElemDDLConstraintAttrEnforced() { return NULL; }
+
+ElemDDLConstraintCheck *ElemDDLNode::castToElemDDLConstraintCheck() { return NULL; }
+
+ElemDDLConstraintName *ElemDDLNode::castToElemDDLConstraintName() { return NULL; }
+
+ElemDDLConstraintNameList *ElemDDLNode::castToElemDDLConstraintNameList() { return NULL; }
+
+ElemDDLConstraintNotNull *ElemDDLNode::castToElemDDLConstraintNotNull() { return NULL; }
+
+ElemDDLLoggable *ElemDDLNode::castToElemDDLLoggable() { return NULL; }
+
+ElemDDLLobAttrs *ElemDDLNode::castToElemDDLLobAttrs() { return NULL; }
+
+ElemDDLSeabaseSerialized *ElemDDLNode::castToElemDDLSeabaseSerialized() { return NULL; }
+
+ElemDDLConstraintPK *ElemDDLNode::castToElemDDLConstraintPK() { return NULL; }
+
+ElemDDLConstraintPKColumn *ElemDDLNode::castToElemDDLConstraintPKColumn() { return NULL; }
+
+ElemDDLConstraintRI *ElemDDLNode::castToElemDDLConstraintRI() { return NULL; }
+
+ElemDDLConstraintUnique *ElemDDLNode::castToElemDDLConstraintUnique() { return NULL; }
+
+ElemDDLCreateMVOneAttributeTableList *ElemDDLNode::castToElemDDLCreateMVOneAttributeTableList()  // MV OZ
 {
   return NULL;
 }
 
-ElemDDLIndexScopeOption *
-ElemDDLNode::castToElemDDLIndexScopeOption()
-{
-  return NULL;
-}
+ElemDDLDivisionClause *ElemDDLNode::castToElemDDLDivisionClause() { return NULL; }
 
-ElemDDLAlterTableMove *
-ElemDDLNode::castToElemDDLAlterTableMove()
-{
-  return NULL;
-}
+ElemDDLFileAttr *ElemDDLNode::castToElemDDLFileAttr() { return NULL; }
 
-ElemDDLAuthSchema *
-ElemDDLNode::castToElemDDLAuthSchema()
-{
-  return NULL;
-}
+ElemDDLFileAttrAllocate *ElemDDLNode::castToElemDDLFileAttrAllocate() { return NULL; }
 
-ElemDDLColDef *
-ElemDDLNode::castToElemDDLColDef()
-{
-  return NULL;
-}
+ElemDDLFileAttrAudit *ElemDDLNode::castToElemDDLFileAttrAudit() { return NULL; }
 
-ElemProxyColDef *
-ElemDDLNode::castToElemProxyColDef()
-{
-  return NULL;
-}
+ElemDDLFileAttrAuditCompress *ElemDDLNode::castToElemDDLFileAttrAuditCompress() { return NULL; }
 
-ElemDDLColDefault *
-ElemDDLNode::castToElemDDLColDefault()
-{
-  return NULL;
-}
+ElemDDLFileAttrBlockSize *ElemDDLNode::castToElemDDLFileAttrBlockSize() { return NULL; }
 
-ElemDDLColHeading *
-ElemDDLNode::castToElemDDLColHeading()
-{
-  return NULL;
-}
+ElemDDLFileAttrBuffered *ElemDDLNode::castToElemDDLFileAttrBuffered() { return NULL; }
 
-ElemDDLColName *
-ElemDDLNode::castToElemDDLColName()
-{
-  return NULL;
-}
+ElemDDLFileAttrClause *ElemDDLNode::castToElemDDLFileAttrClause() { return NULL; }
 
-ElemDDLColNameList *
-ElemDDLNode::castToElemDDLColNameList()
-{
-  return NULL;
-}
+ElemDDLFileAttrClearOnPurge *ElemDDLNode::castToElemDDLFileAttrClearOnPurge() { return NULL; }
 
-ElemDDLColNameListNode *
-ElemDDLNode::castToElemDDLColNameListNode()
-{
-  return NULL;
-}
+ElemDDLFileAttrCompression *ElemDDLNode::castToElemDDLFileAttrCompression() { return NULL; }
 
-ElemDDLColRef *
-ElemDDLNode::castToElemDDLColRef()
-{
-  return NULL;
-}
+ElemDDLFileAttrDCompress *ElemDDLNode::castToElemDDLFileAttrDCompress() { return NULL; }
 
-ElemDDLColRefList *
-ElemDDLNode::castToElemDDLColRefList()
-{
-  return NULL;
-}
+ElemDDLFileAttrDeallocate *ElemDDLNode::castToElemDDLFileAttrDeallocate() { return NULL; }
 
-ElemDDLColViewDef *
-ElemDDLNode::castToElemDDLColViewDef()
-{
-  return NULL;
-}
+ElemDDLFileAttrICompress *ElemDDLNode::castToElemDDLFileAttrICompress() { return NULL; }
 
-ElemDDLConstraint *
-ElemDDLNode::castToElemDDLConstraint()
-{
-  return NULL;
-}
+ElemDDLFileAttrList *ElemDDLNode::castToElemDDLFileAttrList() { return NULL; }
 
-ElemDDLConstraintAttr *
-ElemDDLNode::castToElemDDLConstraintAttr()
-{
-  return NULL;
-}
+ElemDDLPartnAttrList *ElemDDLNode::castToElemDDLPartnAttrList() { return NULL; }
 
-ElemDDLConstraintAttrDroppable *
-ElemDDLNode::castToElemDDLConstraintAttrDroppable()
-{
-  return NULL;
-}
+ElemDDLFileAttrMaxSize *ElemDDLNode::castToElemDDLFileAttrMaxSize() { return NULL; }
 
-ElemDDLConstraintAttrEnforced *
-ElemDDLNode::castToElemDDLConstraintAttrEnforced()
-{
-  return NULL;
-}
+ElemDDLFileAttrExtents *ElemDDLNode::castToElemDDLFileAttrExtents() { return NULL; }
 
-ElemDDLConstraintCheck *
-ElemDDLNode::castToElemDDLConstraintCheck()
-{
-  return NULL;
-}
+ElemDDLFileAttrMaxExtents *ElemDDLNode::castToElemDDLFileAttrMaxExtents() { return NULL; }
 
-ElemDDLConstraintName *
-ElemDDLNode::castToElemDDLConstraintName()
-{
-  return NULL;
-}
+ElemDDLFileAttrNoLabelUpdate *ElemDDLNode::castToElemDDLFileAttrNoLabelUpdate() { return NULL; }
 
-ElemDDLConstraintNameList *
-ElemDDLNode::castToElemDDLConstraintNameList()
-{
-  return NULL;
-}
+ElemDDLFileAttrOwner *ElemDDLNode::castToElemDDLFileAttrOwner() { return NULL; }
 
-ElemDDLConstraintNotNull *
-ElemDDLNode::castToElemDDLConstraintNotNull()
-{
-  return NULL;
-}
+ElemDDLFileAttrUID *ElemDDLNode::castToElemDDLFileAttrUID() { return NULL; }
 
-ElemDDLLoggable *
-ElemDDLNode::castToElemDDLLoggable()
-{
-	return NULL;
-}
+ElemDDLFileAttrRowFormat *ElemDDLNode::castToElemDDLFileAttrRowFormat() { return NULL; }
 
-ElemDDLLobAttrs *
-ElemDDLNode::castToElemDDLLobAttrs()
-{
-	return NULL;
-}
+ElemDDLFileAttrColFam *ElemDDLNode::castToElemDDLFileAttrColFam() { return NULL; }
 
-ElemDDLSeabaseSerialized *
-ElemDDLNode::castToElemDDLSeabaseSerialized()
-{
-	return NULL;
-}
+ElemDDLFileAttrXnRepl *ElemDDLNode::castToElemDDLFileAttrXnRepl() { return NULL; }
 
-
-ElemDDLConstraintPK *
-ElemDDLNode::castToElemDDLConstraintPK()
-{
-  return NULL;
-}
-
-ElemDDLConstraintPKColumn *
-ElemDDLNode::castToElemDDLConstraintPKColumn()
-{
-  return NULL;
-}
-
-ElemDDLConstraintRI *
-ElemDDLNode::castToElemDDLConstraintRI()
-{
-  return NULL;
-}
-
-ElemDDLConstraintUnique *
-ElemDDLNode::castToElemDDLConstraintUnique()
-{
-  return NULL;
-}
-
-
-ElemDDLCreateMVOneAttributeTableList  *
-ElemDDLNode::castToElemDDLCreateMVOneAttributeTableList() // MV OZ
-{
-	return NULL;
-}
-
-ElemDDLDivisionClause *
-ElemDDLNode::castToElemDDLDivisionClause()
-{
-  return NULL;
-}
-
-ElemDDLFileAttr *
-ElemDDLNode::castToElemDDLFileAttr()
-{
-  return NULL;
-}
-
-
-
-ElemDDLFileAttrAllocate *
-ElemDDLNode::castToElemDDLFileAttrAllocate()
-{
-  return NULL;
-}
-
-ElemDDLFileAttrAudit *
-ElemDDLNode::castToElemDDLFileAttrAudit()
-{
-  return NULL;
-}
-
-ElemDDLFileAttrAuditCompress *
-ElemDDLNode::castToElemDDLFileAttrAuditCompress()
-{
-  return NULL;
-}
-
-ElemDDLFileAttrBlockSize *
-ElemDDLNode::castToElemDDLFileAttrBlockSize()
-{
-  return NULL;
-}
-
-ElemDDLFileAttrBuffered *
-ElemDDLNode::castToElemDDLFileAttrBuffered()
-{
-  return NULL;
-}
-
-ElemDDLFileAttrClause *
-ElemDDLNode::castToElemDDLFileAttrClause()
-{
-  return NULL;
-}
-
-ElemDDLFileAttrClearOnPurge *
-ElemDDLNode::castToElemDDLFileAttrClearOnPurge()
-{
-  return NULL;
-}
-
-ElemDDLFileAttrCompression *
-ElemDDLNode::castToElemDDLFileAttrCompression()
-{
-  return NULL;
-}
-
-ElemDDLFileAttrDCompress *
-ElemDDLNode::castToElemDDLFileAttrDCompress()
-{
-  return NULL;
-}
-
-ElemDDLFileAttrDeallocate *
-ElemDDLNode::castToElemDDLFileAttrDeallocate()
-{
-  return NULL;
-}
-
-ElemDDLFileAttrICompress *
-ElemDDLNode::castToElemDDLFileAttrICompress()
-{
-  return NULL;
-}
-
-ElemDDLFileAttrList *
-ElemDDLNode::castToElemDDLFileAttrList()
-{
-  return NULL;
-}
-
-ElemDDLPartnAttrList *
-ElemDDLNode::castToElemDDLPartnAttrList()
-{
-  return NULL;
-}
-
-ElemDDLFileAttrMaxSize *
-ElemDDLNode::castToElemDDLFileAttrMaxSize()
-{
-  return NULL;
-}
-
-ElemDDLFileAttrExtents *
-ElemDDLNode::castToElemDDLFileAttrExtents()
-{
-  return NULL;
-}
-
-ElemDDLFileAttrMaxExtents *
-ElemDDLNode::castToElemDDLFileAttrMaxExtents()
-{
-  return NULL;
-}
-
-ElemDDLFileAttrNoLabelUpdate *
-ElemDDLNode::castToElemDDLFileAttrNoLabelUpdate()
-{
-  return NULL;
-}
-
-ElemDDLFileAttrOwner *
-ElemDDLNode::castToElemDDLFileAttrOwner()
-{
-  return NULL;
-}
-
-ElemDDLFileAttrUID *
-ElemDDLNode::castToElemDDLFileAttrUID()
-{
-  return NULL;
-}
-
-ElemDDLFileAttrRowFormat *
-ElemDDLNode::castToElemDDLFileAttrRowFormat()
-{
-  return NULL;
-}
-
-ElemDDLFileAttrColFam *
-ElemDDLNode::castToElemDDLFileAttrColFam()
-{
-  return NULL;
-}
-
-ElemDDLFileAttrXnRepl *
-ElemDDLNode::castToElemDDLFileAttrXnRepl()
-{
-  return NULL;
-}
-
-ElemDDLFileAttrStorageType *
-ElemDDLNode::castToElemDDLFileAttrStorageType()
-{
-  return NULL;
-}
+ElemDDLFileAttrStorageType *ElemDDLNode::castToElemDDLFileAttrStorageType() { return NULL; }
 
 //++ MV
-ElemDDLFileAttrRangeLog *
-ElemDDLNode::castToElemDDLFileAttrRangeLog()
-{
-  return NULL;
-}
+ElemDDLFileAttrRangeLog *ElemDDLNode::castToElemDDLFileAttrRangeLog() { return NULL; }
 
-ElemDDLFileAttrLockOnRefresh  *
-ElemDDLNode::castToElemDDLFileAttrLockOnRefresh()
-{
-	return NULL;
-}
+ElemDDLFileAttrLockOnRefresh *ElemDDLNode::castToElemDDLFileAttrLockOnRefresh() { return NULL; }
 
-ElemDDLFileAttrInsertLog *
-ElemDDLNode::castToElemDDLFileAttrInsertLog()
-{
-	return NULL;
-}
+ElemDDLFileAttrInsertLog *ElemDDLNode::castToElemDDLFileAttrInsertLog() { return NULL; }
 
-ElemDDLFileAttrMvsAllowed *
-ElemDDLNode::castToElemDDLFileAttrMvsAllowed()
-{
-	return NULL;
-}
+ElemDDLFileAttrMvsAllowed *ElemDDLNode::castToElemDDLFileAttrMvsAllowed() { return NULL; }
 
-ElemDDLMVFileAttrClause *
-ElemDDLNode::castToElemDDLMVFileAttrClause()
-{
-	return NULL;
-}
+ElemDDLMVFileAttrClause *ElemDDLNode::castToElemDDLMVFileAttrClause() { return NULL; }
 
-ElemDDLFileAttrMVCommitEach	*
-ElemDDLNode::castToElemDDLFileAttrMVCommitEach()
-{
-	return NULL;
-}
+ElemDDLFileAttrMVCommitEach *ElemDDLNode::castToElemDDLFileAttrMVCommitEach() { return NULL; }
 
-ElemDDLFileAttrMvAudit *
-ElemDDLNode::castToElemDDLFileAttrMvAudit()
-{
-	return NULL;
-}
+ElemDDLFileAttrMvAudit *ElemDDLNode::castToElemDDLFileAttrMvAudit() { return NULL; }
 
 //-- MV
 
+ElemDDLGrantee *ElemDDLNode::castToElemDDLGrantee() { return NULL; }
 
-ElemDDLGrantee *
-ElemDDLNode::castToElemDDLGrantee()
-{
-  return NULL;
-}
+ElemDDLKeyValue *ElemDDLNode::castToElemDDLKeyValue() { return NULL; }
 
-ElemDDLKeyValue *
-ElemDDLNode::castToElemDDLKeyValue()
-{
-  return NULL;
-}
+ElemDDLKeyValueList *ElemDDLNode::castToElemDDLKeyValueList() { return NULL; }
 
-ElemDDLKeyValueList *
-ElemDDLNode::castToElemDDLKeyValueList()
-{
-  return NULL;
-}
+ElemDDLLibrary *ElemDDLNode::castToElemDDLLibrary() { return NULL; }
 
-ElemDDLLibrary *
-ElemDDLNode::castToElemDDLLibrary()
-{
-  return NULL;
-}
+ElemDDLLibClientFilename *ElemDDLNode::castToElemDDLLibClientFilename() { return NULL; }
 
-ElemDDLLibClientFilename *
-ElemDDLNode::castToElemDDLLibClientFilename()
-{
-  return NULL;
-}
+ElemDDLLibClientName *ElemDDLNode::castToElemDDLLibClientName() { return NULL; }
 
-ElemDDLLibClientName *
-ElemDDLNode::castToElemDDLLibClientName()
-{
-  return NULL;
-}
+ElemDDLLibPathName *ElemDDLNode::castToElemDDLLibPathName() { return NULL; }
 
-ElemDDLLibPathName *
-ElemDDLNode::castToElemDDLLibPathName()
-{
-  return NULL;
-}
+ElemDDLLike *ElemDDLNode::castToElemDDLLike() { return NULL; }
 
-ElemDDLLike *
-ElemDDLNode::castToElemDDLLike()
-{
-  return NULL;
-}
+ElemDDLLikeCreateTable *ElemDDLNode::castToElemDDLLikeCreateTable() { return NULL; }
 
-ElemDDLLikeCreateTable *
-ElemDDLNode::castToElemDDLLikeCreateTable()
-{
-  return NULL;
-}
+ElemDDLLikeOpt *ElemDDLNode::castToElemDDLLikeOpt() { return NULL; }
 
-ElemDDLLikeOpt *
-ElemDDLNode::castToElemDDLLikeOpt()
-{
-  return NULL;
-}
+ElemDDLLikeOptWithoutConstraints *ElemDDLNode::castToElemDDLLikeOptWithoutConstraints() { return NULL; }
 
-ElemDDLLikeOptWithoutConstraints *
-ElemDDLNode::castToElemDDLLikeOptWithoutConstraints()
-{
-  return NULL;
-}
+ElemDDLLikeOptWithoutIndexes *ElemDDLNode::castToElemDDLLikeOptWithoutIndexes() { return NULL; }
 
-ElemDDLLikeOptWithoutIndexes *
-ElemDDLNode::castToElemDDLLikeOptWithoutIndexes()
-{
-  return NULL;
-}
+ElemDDLLikeOptWithHeadings *ElemDDLNode::castToElemDDLLikeOptWithHeadings() { return NULL; }
 
-ElemDDLLikeOptWithHeadings *
-ElemDDLNode::castToElemDDLLikeOptWithHeadings()
-{
-  return NULL;
-}
+ElemDDLLikeOptWithHorizontalPartitions *ElemDDLNode::castToElemDDLLikeOptWithHorizontalPartitions() { return NULL; }
 
-ElemDDLLikeOptWithHorizontalPartitions *
-ElemDDLNode::castToElemDDLLikeOptWithHorizontalPartitions()
-{
-  return NULL;
-}
+ElemDDLLikeOptWithoutSalt *ElemDDLNode::castToElemDDLLikeOptWithoutSalt() { return NULL; }
 
-ElemDDLLikeOptWithoutSalt * ElemDDLNode::castToElemDDLLikeOptWithoutSalt()
-{
-  return NULL;
-}
+ElemDDLLikeSaltClause *ElemDDLNode::castToElemDDLLikeSaltClause() { return NULL; }
 
-ElemDDLLikeSaltClause * ElemDDLNode::castToElemDDLLikeSaltClause()
-{
-  return NULL;
-}
+ElemDDLLikeOptWithoutDivision *ElemDDLNode::castToElemDDLLikeOptWithoutDivision() { return NULL; }
 
-ElemDDLLikeOptWithoutDivision * ElemDDLNode::castToElemDDLLikeOptWithoutDivision()
-{
-  return NULL;
-}
+ElemDDLLikeLimitColumnLength *ElemDDLNode::castToElemDDLLikeLimitColumnLength() { return NULL; }
 
-ElemDDLLikeLimitColumnLength * ElemDDLNode::castToElemDDLLikeLimitColumnLength()
-{
-  return NULL;
-}
+ElemDDLLikeOptWithoutRowFormat *ElemDDLNode::castToElemDDLLikeOptWithoutRowFormat() { return NULL; }
 
-ElemDDLLikeOptWithoutRowFormat * ElemDDLNode::castToElemDDLLikeOptWithoutRowFormat()
-{
-  return NULL;
-}
+ElemDDLLikeOptWithoutLobColumns *ElemDDLNode::castToElemDDLLikeOptWithoutLobColumns() { return NULL; }
 
-ElemDDLLikeOptWithoutLobColumns * ElemDDLNode::castToElemDDLLikeOptWithoutLobColumns()
-{
-  return NULL;
-}
+ElemDDLLikeOptWithoutNamespace *ElemDDLNode::castToElemDDLLikeOptWithoutNamespace() { return NULL; }
 
-ElemDDLLikeOptWithoutNamespace * ElemDDLNode::castToElemDDLLikeOptWithoutNamespace()
-{
-  return NULL;
-}
+ElemDDLLikeOptWithData *ElemDDLNode::castToElemDDLLikeOptWithData() { return NULL; }
 
-ElemDDLLikeOptWithData * ElemDDLNode::castToElemDDLLikeOptWithData()
-{
-  return NULL;
-}
+ElemDDLLikeOptWithoutRegionReplication *ElemDDLNode::castToElemDDLLikeOptWithoutRegionReplication() { return NULL; }
 
-ElemDDLLikeOptWithoutRegionReplication * ElemDDLNode::castToElemDDLLikeOptWithoutRegionReplication()
-{
-  return NULL;
-}
+ElemDDLLikeOptWithoutIncrBackup *ElemDDLNode::castToElemDDLLikeOptWithoutIncrBackup() { return NULL; }
 
-ElemDDLLikeOptWithoutIncrBackup * ElemDDLNode::castToElemDDLLikeOptWithoutIncrBackup()
-{
-  return NULL;
-}
+ElemDDLList *ElemDDLNode::castToElemDDLList() { return NULL; }
 
-ElemDDLList *
-ElemDDLNode::castToElemDDLList()
-{
-  return NULL;
-}
+ElemDDLLocation *ElemDDLNode::castToElemDDLLocation() { return NULL; }
 
-ElemDDLLocation *
-ElemDDLNode::castToElemDDLLocation()
-{
-  return NULL;
-}
+ElemDDLOptionList *ElemDDLNode::castToElemDDLOptionList() { return NULL; }
 
-ElemDDLOptionList *
-ElemDDLNode::castToElemDDLOptionList()
-{
-  return NULL;
-}
+ElemDDLParallelExec *ElemDDLNode::castToElemDDLParallelExec() { return NULL; }
 
-ElemDDLParallelExec *
-ElemDDLNode::castToElemDDLParallelExec()
-{
-  return NULL;
-}
+ElemDDLParamDef *ElemDDLNode::castToElemDDLParamDef() { return NULL; }
 
-ElemDDLParamDef *
-ElemDDLNode::castToElemDDLParamDef()
-{
-  return NULL;
-}
+ElemDDLPartition *ElemDDLNode::castToElemDDLPartition() { return NULL; }
 
-ElemDDLPartition *
-ElemDDLNode::castToElemDDLPartition()
-{
-  return NULL;
-}
+ElemDDLPartitionV2 *ElemDDLNode::castToElemDDLPartitionV2() { return NULL; }
 
-ElemDDLPartitionV2 *
-ElemDDLNode::castToElemDDLPartitionV2()
-{
-  return NULL;
-}
+ElemDDLPartitionByOpt *ElemDDLNode::castToElemDDLPartitionByOpt() { return NULL; }
 
-ElemDDLPartitionByOpt *
-ElemDDLNode::castToElemDDLPartitionByOpt()
-{
-  return NULL;
-}
+ElemDDLPartitionByColumnList *ElemDDLNode::castToElemDDLPartitionByColumnList() { return NULL; }
 
-ElemDDLPartitionByColumnList *
-ElemDDLNode::castToElemDDLPartitionByColumnList()
-{
-  return NULL;
-}
+ElemDDLPartitionClause *ElemDDLNode::castToElemDDLPartitionClause() { return NULL; }
 
-ElemDDLPartitionClause *
-ElemDDLNode::castToElemDDLPartitionClause()
-{
-  return NULL;
-}
+ElemDDLPartitionClauseV2 *ElemDDLNode::castToElemDDLPartitionClauseV2() { return NULL; }
 
-ElemDDLPartitionClauseV2 *
-ElemDDLNode::castToElemDDLPartitionClauseV2()
-{
-  return NULL;
-}
+ElemDDLPartitionList *ElemDDLNode::castToElemDDLPartitionList() { return NULL; }
 
-ElemDDLPartitionList *
-ElemDDLNode::castToElemDDLPartitionList()
-{
-  return NULL;
-}
+ElemDDLPartitionRange *ElemDDLNode::castToElemDDLPartitionRange() { return NULL; }
 
-ElemDDLPartitionRange *
-ElemDDLNode::castToElemDDLPartitionRange()
-{
-  return NULL;
-}
+ElemDDLPartitionSingle *ElemDDLNode::castToElemDDLPartitionSingle() { return NULL; }
 
-ElemDDLPartitionSingle *
-ElemDDLNode::castToElemDDLPartitionSingle()
-{
-  return NULL;
-}
+ElemDDLPartitionSystem *ElemDDLNode::castToElemDDLPartitionSystem() { return NULL; }
 
-ElemDDLPartitionSystem *
-ElemDDLNode::castToElemDDLPartitionSystem()
-{
-  return NULL;
-}
+ElemDDLPartitionNameAndForValues *ElemDDLNode::castToElemDDLPartitionNameAndForValues() { return NULL; }
 
-ElemDDLPartitionNameAndForValues * 
-ElemDDLNode::castToElemDDLPartitionNameAndForValues()
-{
-  return NULL;
-}
+ElemDDLPassThroughParamDef *ElemDDLNode::castToElemDDLPassThroughParamDef() { return NULL; }
 
-ElemDDLPassThroughParamDef *
-ElemDDLNode::castToElemDDLPassThroughParamDef()
-{
-  return NULL;
-}
+ElemDDLPrivAct *ElemDDLNode::castToElemDDLPrivAct() { return NULL; }
 
-ElemDDLPrivAct *
-ElemDDLNode::castToElemDDLPrivAct()
-{
-  return NULL;
-}
+ElemDDLPrivActAlter *ElemDDLNode::castToElemDDLPrivActAlter() { return NULL; }
 
-ElemDDLPrivActAlter *
-ElemDDLNode::castToElemDDLPrivActAlter()
-{
-  return NULL;
-}
+ElemDDLPrivActAlterLibrary *ElemDDLNode::castToElemDDLPrivActAlterLibrary() { return NULL; }
 
-ElemDDLPrivActAlterLibrary *
-ElemDDLNode::castToElemDDLPrivActAlterLibrary()
-{
-  return NULL;
-}
+ElemDDLPrivActAlterMV *ElemDDLNode::castToElemDDLPrivActAlterMV() { return NULL; }
 
-ElemDDLPrivActAlterMV *
-ElemDDLNode::castToElemDDLPrivActAlterMV()
-{
-  return NULL;
-}
+ElemDDLPrivActAlterMVGroup *ElemDDLNode::castToElemDDLPrivActAlterMVGroup() { return NULL; }
 
-ElemDDLPrivActAlterMVGroup *
-ElemDDLNode::castToElemDDLPrivActAlterMVGroup()
-{
-  return NULL;
-}
+ElemDDLPrivActAlterRoutine *ElemDDLNode::castToElemDDLPrivActAlterRoutine() { return NULL; }
 
-ElemDDLPrivActAlterRoutine *
-ElemDDLNode::castToElemDDLPrivActAlterRoutine()
-{
-  return NULL;
-}
+ElemDDLPrivActAlterRoutineAction *ElemDDLNode::castToElemDDLPrivActAlterRoutineAction() { return NULL; }
 
-ElemDDLPrivActAlterRoutineAction *
-ElemDDLNode::castToElemDDLPrivActAlterRoutineAction()
-{
-  return NULL;
-}
+ElemDDLPrivActAlterSynonym *ElemDDLNode::castToElemDDLPrivActAlterSynonym() { return NULL; }
 
-ElemDDLPrivActAlterSynonym *
-ElemDDLNode::castToElemDDLPrivActAlterSynonym()
-{
-  return NULL;
-}
+ElemDDLPrivActAlterTable *ElemDDLNode::castToElemDDLPrivActAlterTable() { return NULL; }
 
-ElemDDLPrivActAlterTable *
-ElemDDLNode::castToElemDDLPrivActAlterTable()
-{
-  return NULL;
-}
+ElemDDLPrivActAlterTrigger *ElemDDLNode::castToElemDDLPrivActAlterTrigger() { return NULL; }
 
-ElemDDLPrivActAlterTrigger *
-ElemDDLNode::castToElemDDLPrivActAlterTrigger()
-{
-  return NULL;
-}
+ElemDDLPrivActAlterView *ElemDDLNode::castToElemDDLPrivActAlterView() { return NULL; }
 
-ElemDDLPrivActAlterView *
-ElemDDLNode::castToElemDDLPrivActAlterView()
-{
-  return NULL;
-}
+ElemDDLPrivActCreate *ElemDDLNode::castToElemDDLPrivActCreate() { return NULL; }
 
-ElemDDLPrivActCreate *
-ElemDDLNode::castToElemDDLPrivActCreate()
-{
-  return NULL;
-}
+ElemDDLPrivActCreateLibrary *ElemDDLNode::castToElemDDLPrivActCreateLibrary() { return NULL; }
 
-ElemDDLPrivActCreateLibrary *
-ElemDDLNode::castToElemDDLPrivActCreateLibrary()
-{
-  return NULL;
-}
+ElemDDLPrivActCreateMV *ElemDDLNode::castToElemDDLPrivActCreateMV() { return NULL; }
 
-ElemDDLPrivActCreateMV *
-ElemDDLNode::castToElemDDLPrivActCreateMV()
-{
-  return NULL;
-}
+ElemDDLPrivActCreateMVGroup *ElemDDLNode::castToElemDDLPrivActCreateMVGroup() { return NULL; }
 
-ElemDDLPrivActCreateMVGroup *
-ElemDDLNode::castToElemDDLPrivActCreateMVGroup()
-{
-  return NULL;
-}
+ElemDDLPrivActCreateProcedure *ElemDDLNode::castToElemDDLPrivActCreateProcedure() { return NULL; }
 
-ElemDDLPrivActCreateProcedure *
-ElemDDLNode::castToElemDDLPrivActCreateProcedure()
-{
-  return NULL;
-}
+ElemDDLPrivActCreateRoutine *ElemDDLNode::castToElemDDLPrivActCreateRoutine() { return NULL; }
 
-ElemDDLPrivActCreateRoutine *
-ElemDDLNode::castToElemDDLPrivActCreateRoutine()
-{
-  return NULL;
-}
+ElemDDLPrivActCreateRoutineAction *ElemDDLNode::castToElemDDLPrivActCreateRoutineAction() { return NULL; }
 
-ElemDDLPrivActCreateRoutineAction *
-ElemDDLNode::castToElemDDLPrivActCreateRoutineAction()
-{
-  return NULL;
-}
+ElemDDLPrivActCreateSynonym *ElemDDLNode::castToElemDDLPrivActCreateSynonym() { return NULL; }
 
-ElemDDLPrivActCreateSynonym *
-ElemDDLNode::castToElemDDLPrivActCreateSynonym()
-{
-  return NULL;
-}
+ElemDDLPrivActCreateTable *ElemDDLNode::castToElemDDLPrivActCreateTable() { return NULL; }
 
-ElemDDLPrivActCreateTable *
-ElemDDLNode::castToElemDDLPrivActCreateTable()
-{
-  return NULL;
-}
+ElemDDLPrivActCreateTrigger *ElemDDLNode::castToElemDDLPrivActCreateTrigger() { return NULL; }
 
-ElemDDLPrivActCreateTrigger *
-ElemDDLNode::castToElemDDLPrivActCreateTrigger()
-{
-  return NULL;
-}
+ElemDDLPrivActCreateView *ElemDDLNode::castToElemDDLPrivActCreateView() { return NULL; }
 
-ElemDDLPrivActCreateView *
-ElemDDLNode::castToElemDDLPrivActCreateView()
-{
-  return NULL;
-}
+ElemDDLPrivActDBA *ElemDDLNode::castToElemDDLPrivActDBA() { return NULL; }
 
-ElemDDLPrivActDBA *
-ElemDDLNode::castToElemDDLPrivActDBA()
-{
-  return NULL;
-}
+ElemDDLPrivActDelete *ElemDDLNode::castToElemDDLPrivActDelete() { return NULL; }
 
-ElemDDLPrivActDelete *
-ElemDDLNode::castToElemDDLPrivActDelete()
-{
-  return NULL;
-}
+ElemDDLPrivActDrop *ElemDDLNode::castToElemDDLPrivActDrop() { return NULL; }
 
-ElemDDLPrivActDrop *
-ElemDDLNode::castToElemDDLPrivActDrop()
-{
-  return NULL;
-}
+ElemDDLPrivActDropLibrary *ElemDDLNode::castToElemDDLPrivActDropLibrary() { return NULL; }
 
-ElemDDLPrivActDropLibrary *
-ElemDDLNode::castToElemDDLPrivActDropLibrary()
-{
-  return NULL;
-}
+ElemDDLPrivActDropMV *ElemDDLNode::castToElemDDLPrivActDropMV() { return NULL; }
 
-ElemDDLPrivActDropMV *
-ElemDDLNode::castToElemDDLPrivActDropMV()
-{
-  return NULL;
-}
+ElemDDLPrivActDropMVGroup *ElemDDLNode::castToElemDDLPrivActDropMVGroup() { return NULL; }
 
-ElemDDLPrivActDropMVGroup *
-ElemDDLNode::castToElemDDLPrivActDropMVGroup()
-{
-  return NULL;
-}
+ElemDDLPrivActDropProcedure *ElemDDLNode::castToElemDDLPrivActDropProcedure() { return NULL; }
+ElemDDLPrivActDropRoutine *ElemDDLNode::castToElemDDLPrivActDropRoutine() { return NULL; }
 
-ElemDDLPrivActDropProcedure *
-ElemDDLNode::castToElemDDLPrivActDropProcedure()
-{
-  return NULL;
-}
-ElemDDLPrivActDropRoutine *
-ElemDDLNode::castToElemDDLPrivActDropRoutine()
-{
-  return NULL;
-}
+ElemDDLPrivActDropRoutineAction *ElemDDLNode::castToElemDDLPrivActDropRoutineAction() { return NULL; }
 
-ElemDDLPrivActDropRoutineAction *
-ElemDDLNode::castToElemDDLPrivActDropRoutineAction()
-{
-  return NULL;
-}
+ElemDDLPrivActDropSynonym *ElemDDLNode::castToElemDDLPrivActDropSynonym() { return NULL; }
 
-ElemDDLPrivActDropSynonym *
-ElemDDLNode::castToElemDDLPrivActDropSynonym()
-{
-  return NULL;
-}
+ElemDDLPrivActDropTable *ElemDDLNode::castToElemDDLPrivActDropTable() { return NULL; }
 
-ElemDDLPrivActDropTable *
-ElemDDLNode::castToElemDDLPrivActDropTable()
-{
-  return NULL;
-}
+ElemDDLPrivActDropTrigger *ElemDDLNode::castToElemDDLPrivActDropTrigger() { return NULL; }
 
-ElemDDLPrivActDropTrigger *
-ElemDDLNode::castToElemDDLPrivActDropTrigger()
-{
-  return NULL;
-}
+ElemDDLPrivActDropView *ElemDDLNode::castToElemDDLPrivActDropView() { return NULL; }
 
-ElemDDLPrivActDropView *
-ElemDDLNode::castToElemDDLPrivActDropView()
-{
-  return NULL;
-}
+ElemDDLPrivActInsert *ElemDDLNode::castToElemDDLPrivActInsert() { return NULL; }
 
-ElemDDLPrivActInsert *
-ElemDDLNode::castToElemDDLPrivActInsert()
-{
-  return NULL;
-}
+ElemDDLPrivActMaintain *ElemDDLNode::castToElemDDLPrivActMaintain() { return NULL; }
 
-ElemDDLPrivActMaintain *
-ElemDDLNode::castToElemDDLPrivActMaintain()
-{
-  return NULL;
-}
+ElemDDLPrivActReferences *ElemDDLNode::castToElemDDLPrivActReferences() { return NULL; }
 
-ElemDDLPrivActReferences *
-ElemDDLNode::castToElemDDLPrivActReferences()
-{
-  return NULL;
-}
+ElemDDLPrivActRefresh *ElemDDLNode::castToElemDDLPrivActRefresh() { return NULL; }
 
-ElemDDLPrivActRefresh *
-ElemDDLNode::castToElemDDLPrivActRefresh()
-{
-  return NULL;
-}
+ElemDDLPrivActReorg *ElemDDLNode::castToElemDDLPrivActReorg() { return NULL; }
 
-ElemDDLPrivActReorg *
-ElemDDLNode::castToElemDDLPrivActReorg()
-{
-  return NULL;
-}
+ElemDDLPrivActSelect *ElemDDLNode::castToElemDDLPrivActSelect() { return NULL; }
 
-ElemDDLPrivActSelect *
-ElemDDLNode::castToElemDDLPrivActSelect()
-{
-  return NULL;
-}
+ElemDDLPrivActTransform *ElemDDLNode::castToElemDDLPrivActTransform() { return NULL; }
 
-ElemDDLPrivActTransform *
-ElemDDLNode::castToElemDDLPrivActTransform()
-{
-  return NULL;
-}
+ElemDDLPrivActUpdate *ElemDDLNode::castToElemDDLPrivActUpdate() { return NULL; }
 
-ElemDDLPrivActUpdate *
-ElemDDLNode::castToElemDDLPrivActUpdate()
-{
-  return NULL;
-}
+ElemDDLPrivActUpdateStats *ElemDDLNode::castToElemDDLPrivActUpdateStats() { return NULL; }
 
-ElemDDLPrivActUpdateStats *
-ElemDDLNode::castToElemDDLPrivActUpdateStats()
-{
-  return NULL;
-}
+ElemDDLPrivActAllDDL *ElemDDLNode::castToElemDDLPrivActAllDDL() { return NULL; }
 
-ElemDDLPrivActAllDDL *
-ElemDDLNode::castToElemDDLPrivActAllDDL()
-{
-  return NULL;
-}
-
-ElemDDLPrivActAllDML *
-ElemDDLNode::castToElemDDLPrivActAllDML()
-{
-  return NULL;
-}
-
-ElemDDLPrivActAllOther *
-ElemDDLNode::castToElemDDLPrivActAllOther()
-{
-  return NULL;
-}
-
-ElemDDLPrivActUsage *
-ElemDDLNode::castToElemDDLPrivActUsage()
-{
-  return NULL;
-}
-
-ElemDDLPrivActWithColumns *
-ElemDDLNode::castToElemDDLPrivActWithColumns()
-{
-  return NULL;
-}
-
-ElemDDLPrivileges *
-ElemDDLNode::castToElemDDLPrivileges()
-{
-  return NULL;
-}
-
-ElemDDLRefAct *
-ElemDDLNode::castToElemDDLRefAct()
-{
-  return NULL;
-}
-
-ElemDDLRefActCascade *
-ElemDDLNode::castToElemDDLRefActCascade()
-{
-  return NULL;
-}
-
-ElemDDLRefActNoAction *
-ElemDDLNode::castToElemDDLRefActNoAction()
-{
-  return NULL;
-}
-
-ElemDDLRefActRestrict *
-ElemDDLNode::castToElemDDLRefActRestrict()
-{
-  return NULL;
-}
-
-ElemDDLRefActSetDefault *
-ElemDDLNode::castToElemDDLRefActSetDefault()
-{
-  return NULL;
-}
+ElemDDLPrivActAllDML *ElemDDLNode::castToElemDDLPrivActAllDML() { return NULL; }
 
-ElemDDLRefActSetNull *
-ElemDDLNode::castToElemDDLRefActSetNull()
-{
-  return NULL;
-}
+ElemDDLPrivActAllOther *ElemDDLNode::castToElemDDLPrivActAllOther() { return NULL; }
 
-ElemDDLRefTrigAct *
-ElemDDLNode::castToElemDDLRefTrigAct()
-{
-  return NULL;
-}
+ElemDDLPrivActUsage *ElemDDLNode::castToElemDDLPrivActUsage() { return NULL; }
 
-ElemDDLRefTrigActDeleteRule *
-ElemDDLNode::castToElemDDLRefTrigActDeleteRule()
-{
-  return NULL;
-}
+ElemDDLPrivActWithColumns *ElemDDLNode::castToElemDDLPrivActWithColumns() { return NULL; }
 
-ElemDDLRefTrigActUpdateRule *
-ElemDDLNode::castToElemDDLRefTrigActUpdateRule()
-{
-  return NULL;
-}
+ElemDDLPrivileges *ElemDDLNode::castToElemDDLPrivileges() { return NULL; }
 
-ElemDDLReferences *
-ElemDDLNode::castToElemDDLReferences()
-{
-  return NULL;
-}
+ElemDDLRefAct *ElemDDLNode::castToElemDDLRefAct() { return NULL; }
 
-ElemDDLSaltOptionsClause * 
-ElemDDLNode::castToElemDDLSaltOptionsClause()
-{
-  return NULL;
-}
+ElemDDLRefActCascade *ElemDDLNode::castToElemDDLRefActCascade() { return NULL; }
 
-ElemDDLReplicateClause * 
-ElemDDLNode::castToElemDDLReplicateClause()
-{
-  return NULL;
-}
+ElemDDLRefActNoAction *ElemDDLNode::castToElemDDLRefActNoAction() { return NULL; }
 
-ElemDDLTableFeature *
-ElemDDLNode::castToElemDDLTableFeature()
-{
-  return NULL;
-}
+ElemDDLRefActRestrict *ElemDDLNode::castToElemDDLRefActRestrict() { return NULL; }
 
-ElemDDLHbaseOptions *
-ElemDDLNode::castToElemDDLHbaseOptions()
-{
-  return NULL;
-}
+ElemDDLRefActSetDefault *ElemDDLNode::castToElemDDLRefActSetDefault() { return NULL; }
 
-ElemDDLLobStorageOptions *
-ElemDDLNode::castToElemDDLLobStorageOptions()
-{
-  return NULL;
-}
+ElemDDLRefActSetNull *ElemDDLNode::castToElemDDLRefActSetNull() { return NULL; }
 
-ElemDDLSchemaName *
-ElemDDLNode::castToElemDDLSchemaName()
-{
-  return NULL;
-}
+ElemDDLRefTrigAct *ElemDDLNode::castToElemDDLRefTrigAct() { return NULL; }
 
-ElemDDLSGOptions *
-ElemDDLNode::castToElemDDLSGOptions()
-{
-  return NULL;
-}
+ElemDDLRefTrigActDeleteRule *ElemDDLNode::castToElemDDLRefTrigActDeleteRule() { return NULL; }
 
-ElemDDLSGOption *
-ElemDDLNode::castToElemDDLSGOption()
-{
-  return NULL;
-}
- 
-ElemDDLSGOptionStartValue *
-ElemDDLNode::castToElemDDLSGOptionStartValue()
-{
-  return NULL;
-}
+ElemDDLRefTrigActUpdateRule *ElemDDLNode::castToElemDDLRefTrigActUpdateRule() { return NULL; }
 
-ElemDDLSGOptionRestartValue *
-ElemDDLNode::castToElemDDLSGOptionRestartValue()
-{
-  return NULL;
-}
+ElemDDLReferences *ElemDDLNode::castToElemDDLReferences() { return NULL; }
 
-ElemDDLSGOptionMinValue *
-ElemDDLNode::castToElemDDLSGOptionMinValue()
-{
-  return NULL;
-}
+ElemDDLSaltOptionsClause *ElemDDLNode::castToElemDDLSaltOptionsClause() { return NULL; }
 
-ElemDDLSGOptionMaxValue *
-ElemDDLNode::castToElemDDLSGOptionMaxValue()
-{
-  return NULL;
-}
+ElemDDLReplicateClause *ElemDDLNode::castToElemDDLReplicateClause() { return NULL; }
 
-ElemDDLSGOptionIncrement *
-ElemDDLNode::castToElemDDLSGOptionIncrement()
-{
-  return NULL;
-}
+ElemDDLTableFeature *ElemDDLNode::castToElemDDLTableFeature() { return NULL; }
 
-ElemDDLSGOptionCycleOption *
-ElemDDLNode::castToElemDDLSGOptionCycleOption()
-{
-  return NULL;
-}
-ElemDDLSGOptionSystemOption *
-ElemDDLNode::castToElemDDLSGOptionSystemOption()
-{
-  return NULL;
-}
-ElemDDLSGOptionCacheOption *
-ElemDDLNode::castToElemDDLSGOptionCacheOption()
-{
-  return NULL;
-}
- 
-ElemDDLSGOptionOrderOption *
-ElemDDLNode::castToElemDDLSGOptionOrderOption()
-{
-  return NULL;
-}
+ElemDDLHbaseOptions *ElemDDLNode::castToElemDDLHbaseOptions() { return NULL; }
 
-ElemDDLSGOptionDatatype *
-ElemDDLNode::castToElemDDLSGOptionDatatype()
-{
-  return NULL;
-}
+ElemDDLLobStorageOptions *ElemDDLNode::castToElemDDLLobStorageOptions() { return NULL; }
 
-ElemDDLSGOptionNextValOption *
-ElemDDLNode::castToElemDDLSGOptionNextValOption()
-{
-  return NULL;
-}
+ElemDDLSchemaName *ElemDDLNode::castToElemDDLSchemaName() { return NULL; }
 
-ElemDDLStoreOpt *
-ElemDDLNode::castToElemDDLStoreOpt()
-{
-  return NULL;
-}
+ElemDDLSGOptions *ElemDDLNode::castToElemDDLSGOptions() { return NULL; }
 
-ElemDDLStoreOptDefault *
-ElemDDLNode::castToElemDDLStoreOptDefault()
-{
-  return NULL;
-}
+ElemDDLSGOption *ElemDDLNode::castToElemDDLSGOption() { return NULL; }
 
-ElemDDLStoreOptEntryOrder *
-ElemDDLNode::castToElemDDLStoreOptEntryOrder()
-{
-  return NULL;
-}
+ElemDDLSGOptionStartValue *ElemDDLNode::castToElemDDLSGOptionStartValue() { return NULL; }
 
-ElemDDLStoreOptKeyColumnList *
-ElemDDLNode::castToElemDDLStoreOptKeyColumnList()
-{
-  return NULL;
-}
+ElemDDLSGOptionRestartValue *ElemDDLNode::castToElemDDLSGOptionRestartValue() { return NULL; }
 
-ElemDDLStoreOptNondroppablePK *
-ElemDDLNode::castToElemDDLStoreOptNondroppablePK()
-{
-  return NULL;
-}
+ElemDDLSGOptionMinValue *ElemDDLNode::castToElemDDLSGOptionMinValue() { return NULL; }
 
-ElemDDLTenantOption *
-ElemDDLNode::castToElemDDLTenantOption()
-{
-  return NULL;
-}
+ElemDDLSGOptionMaxValue *ElemDDLNode::castToElemDDLSGOptionMaxValue() { return NULL; }
 
-ElemDDLTenantSchema *
-ElemDDLNode::castToElemDDLTenantSchema()
-{
-  return NULL;
-}
+ElemDDLSGOptionIncrement *ElemDDLNode::castToElemDDLSGOptionIncrement() { return NULL; }
 
-ElemDDLTenantGroup *
-ElemDDLNode::castToElemDDLTenantGroup()
-{
-  return NULL;
-}
+ElemDDLSGOptionCycleOption *ElemDDLNode::castToElemDDLSGOptionCycleOption() { return NULL; }
+ElemDDLSGOptionSystemOption *ElemDDLNode::castToElemDDLSGOptionSystemOption() { return NULL; }
+ElemDDLSGOptionCacheOption *ElemDDLNode::castToElemDDLSGOptionCacheOption() { return NULL; }
 
-ElemDDLTenantResourceGroup *
-ElemDDLNode::castToElemDDLTenantResourceGroup()
-{
-  return NULL;
-}
+ElemDDLSGOptionOrderOption *ElemDDLNode::castToElemDDLSGOptionOrderOption() { return NULL; }
 
-ElemDDLUdfExecutionMode *
-ElemDDLNode::castToElemDDLUdfExecutionMode(void)
-{
-  return NULL;
-}
+ElemDDLSGOptionDatatype *ElemDDLNode::castToElemDDLSGOptionDatatype() { return NULL; }
 
-ElemDDLUdfFinalCall *
-ElemDDLNode::castToElemDDLUdfFinalCall()
-{
-  return NULL;
-}
+ElemDDLSGOptionNextValOption *ElemDDLNode::castToElemDDLSGOptionNextValOption() { return NULL; }
 
-ElemDDLUdfOptimizationHint *
-ElemDDLNode::castToElemDDLUdfOptimizationHint()
-{
-  return NULL;
-}
+ElemDDLStoreOpt *ElemDDLNode::castToElemDDLStoreOpt() { return NULL; }
 
-ElemDDLUdfParallelism *
-ElemDDLNode::castToElemDDLUdfParallelism()
-{
-  return NULL;
-}
+ElemDDLStoreOptDefault *ElemDDLNode::castToElemDDLStoreOptDefault() { return NULL; }
 
-ElemDDLUdfSpecialAttributes *
-ElemDDLNode::castToElemDDLUdfSpecialAttributes(void)
-{
-  return NULL;
-}
+ElemDDLStoreOptEntryOrder *ElemDDLNode::castToElemDDLStoreOptEntryOrder() { return NULL; }
 
-ElemDDLUdfStateAreaSize *
-ElemDDLNode::castToElemDDLUdfStateAreaSize()
-{
-  return NULL;
-}
+ElemDDLStoreOptKeyColumnList *ElemDDLNode::castToElemDDLStoreOptKeyColumnList() { return NULL; }
 
-ElemDDLUdfVersionTag *
-ElemDDLNode::castToElemDDLUdfVersionTag()
-{
-  return NULL;
-}
-ElemDDLUdrDeterministic *
-ElemDDLNode::castToElemDDLUdrDeterministic()
-{
-  return NULL;
-}
+ElemDDLStoreOptNondroppablePK *ElemDDLNode::castToElemDDLStoreOptNondroppablePK() { return NULL; }
 
-ElemDDLUdrExternalName *
-ElemDDLNode::castToElemDDLUdrExternalName()
-{
-  return NULL;
-}
+ElemDDLTenantOption *ElemDDLNode::castToElemDDLTenantOption() { return NULL; }
 
-ElemDDLUdrExternalPath *
-ElemDDLNode::castToElemDDLUdrExternalPath()
-{
-  return NULL;
-}
+ElemDDLTenantSchema *ElemDDLNode::castToElemDDLTenantSchema() { return NULL; }
 
-ElemDDLUdrIsolate *
-ElemDDLNode::castToElemDDLUdrIsolate()
-{
-  return NULL;
-}
+ElemDDLTenantGroup *ElemDDLNode::castToElemDDLTenantGroup() { return NULL; }
 
-ElemDDLUdrLanguage *
-ElemDDLNode::castToElemDDLUdrLanguage()
-{
-  return NULL;
-}
+ElemDDLTenantResourceGroup *ElemDDLNode::castToElemDDLTenantResourceGroup() { return NULL; }
 
-ElemDDLUdrLibrary *
-ElemDDLNode::castToElemDDLUdrLibrary()
-{
-  return NULL;
-}
+ElemDDLUdfExecutionMode *ElemDDLNode::castToElemDDLUdfExecutionMode(void) { return NULL; }
 
-ElemDDLUdrMaxResults *
-ElemDDLNode::castToElemDDLUdrMaxResults()
-{
-  return NULL;
-}
+ElemDDLUdfFinalCall *ElemDDLNode::castToElemDDLUdfFinalCall() { return NULL; }
 
-ElemDDLUdrParamStyle *
-ElemDDLNode::castToElemDDLUdrParamStyle()
-{
-  return NULL;
-}
+ElemDDLUdfOptimizationHint *ElemDDLNode::castToElemDDLUdfOptimizationHint() { return NULL; }
 
-ElemDDLUdrExternalSecurity *
-ElemDDLNode::castToElemDDLUdrExternalSecurity()
-{
-  return NULL;
-}
+ElemDDLUdfParallelism *ElemDDLNode::castToElemDDLUdfParallelism() { return NULL; }
 
-ElemDDLUdrSqlAccess *
-ElemDDLNode::castToElemDDLUdrSqlAccess()
-{
-  return NULL;
-}
+ElemDDLUdfSpecialAttributes *ElemDDLNode::castToElemDDLUdfSpecialAttributes(void) { return NULL; }
 
-ElemDDLUdrTransaction *
-ElemDDLNode::castToElemDDLUdrTransaction()
-{
-  return NULL;
-}
+ElemDDLUdfStateAreaSize *ElemDDLNode::castToElemDDLUdfStateAreaSize() { return NULL; }
 
-ElemDDLUudfParamDef *
-ElemDDLNode::castToElemDDLUudfParamDef()
-{
-  return NULL;
-}
+ElemDDLUdfVersionTag *ElemDDLNode::castToElemDDLUdfVersionTag() { return NULL; }
+ElemDDLUdrDeterministic *ElemDDLNode::castToElemDDLUdrDeterministic() { return NULL; }
 
-ElemDDLWithCheckOption *
-ElemDDLNode::castToElemDDLWithCheckOption()
-{
-  return NULL;
-}
+ElemDDLUdrExternalName *ElemDDLNode::castToElemDDLUdrExternalName() { return NULL; }
 
-ElemDDLWithGrantOption *
-ElemDDLNode::castToElemDDLWithGrantOption()
-{
-  return NULL;
-}
+ElemDDLUdrExternalPath *ElemDDLNode::castToElemDDLUdrExternalPath() { return NULL; }
 
-StmtDDLAddConstraint *
-ElemDDLNode::castToStmtDDLAddConstraint()
-{
-  return NULL;
-}
+ElemDDLUdrIsolate *ElemDDLNode::castToElemDDLUdrIsolate() { return NULL; }
 
-StmtDDLAddConstraintCheck *
-ElemDDLNode::castToStmtDDLAddConstraintCheck()
-{
-  return NULL;
-}
+ElemDDLUdrLanguage *ElemDDLNode::castToElemDDLUdrLanguage() { return NULL; }
 
-StmtDDLAddConstraintPK *
-ElemDDLNode::castToStmtDDLAddConstraintPK()
-{
-  return NULL;
-}
+ElemDDLUdrLibrary *ElemDDLNode::castToElemDDLUdrLibrary() { return NULL; }
 
-StmtDDLAddConstraintRI *
-ElemDDLNode::castToStmtDDLAddConstraintRI()
-{
-  return NULL;
-}
+ElemDDLUdrMaxResults *ElemDDLNode::castToElemDDLUdrMaxResults() { return NULL; }
 
-StmtDDLAddConstraintUnique *
-ElemDDLNode::castToStmtDDLAddConstraintUnique()
-{
-  return NULL;
-}
+ElemDDLUdrParamStyle *ElemDDLNode::castToElemDDLUdrParamStyle() { return NULL; }
 
-StmtDDLAlterAuditConfig *
-ElemDDLNode::castToStmtDDLAlterAuditConfig()
-{
-  return NULL;
-}
+ElemDDLUdrExternalSecurity *ElemDDLNode::castToElemDDLUdrExternalSecurity() { return NULL; }
 
-StmtDDLAlterCatalog *
-ElemDDLNode::castToStmtDDLAlterCatalog()
-{
-  return NULL;
-}
+ElemDDLUdrSqlAccess *ElemDDLNode::castToElemDDLUdrSqlAccess() { return NULL; }
 
-StmtDDLAlterSchema *
-ElemDDLNode::castToStmtDDLAlterSchema()
-{
-  return NULL;
-}
+ElemDDLUdrTransaction *ElemDDLNode::castToElemDDLUdrTransaction() { return NULL; }
 
-StmtDDLAlterSynonym *
-ElemDDLNode::castToStmtDDLAlterSynonym()
-{
-  return NULL;
-}
+ElemDDLUudfParamDef *ElemDDLNode::castToElemDDLUudfParamDef() { return NULL; }
 
-StmtDDLAlterIndex *
-ElemDDLNode::castToStmtDDLAlterIndex()
-{
-  return NULL;
-}
+ElemDDLWithCheckOption *ElemDDLNode::castToElemDDLWithCheckOption() { return NULL; }
 
-StmtDDLAlterIndexAttribute *
-ElemDDLNode::castToStmtDDLAlterIndexAttribute()
-{
-  return NULL;
-}
+ElemDDLWithGrantOption *ElemDDLNode::castToElemDDLWithGrantOption() { return NULL; }
 
-StmtDDLAlterIndexHBaseOptions *
-ElemDDLNode::castToStmtDDLAlterIndexHBaseOptions()
-{
-  return NULL;
-}
+StmtDDLAddConstraint *ElemDDLNode::castToStmtDDLAddConstraint() { return NULL; }
 
-StmtDDLAlterLibrary *
-ElemDDLNode::castToStmtDDLAlterLibrary()
-{
-  return NULL;
-}
+StmtDDLAddConstraintCheck *ElemDDLNode::castToStmtDDLAddConstraintCheck() { return NULL; }
 
-StmtDDLAlterRoutine *
-ElemDDLNode::castToStmtDDLAlterRoutine()
-{
-  return NULL;
-}
+StmtDDLAddConstraintPK *ElemDDLNode::castToStmtDDLAddConstraintPK() { return NULL; }
 
-StmtDDLAlterTable *
-ElemDDLNode::castToStmtDDLAlterTable()
-{
-  return NULL;
-}
+StmtDDLAddConstraintRI *ElemDDLNode::castToStmtDDLAddConstraintRI() { return NULL; }
 
-StmtDDLAlterTableAttribute *
-ElemDDLNode::castToStmtDDLAlterTableAttribute()
-{
-  return NULL;
-}
+StmtDDLAddConstraintUnique *ElemDDLNode::castToStmtDDLAddConstraintUnique() { return NULL; }
 
-StmtDDLAlterTableColumn *
-ElemDDLNode::castToStmtDDLAlterTableColumn()
-{
-  return NULL;
-}
+StmtDDLAlterAuditConfig *ElemDDLNode::castToStmtDDLAlterAuditConfig() { return NULL; }
 
-StmtDDLAlterTableAddColumn *
-ElemDDLNode::castToStmtDDLAlterTableAddColumn()
-{
-  return NULL;
-}
+StmtDDLAlterCatalog *ElemDDLNode::castToStmtDDLAlterCatalog() { return NULL; }
 
-StmtDDLAlterTableDropColumn *
-ElemDDLNode::castToStmtDDLAlterTableDropColumn()
-{
-  return NULL;
-}
+StmtDDLAlterSchema *ElemDDLNode::castToStmtDDLAlterSchema() { return NULL; }
 
+StmtDDLAlterSynonym *ElemDDLNode::castToStmtDDLAlterSynonym() { return NULL; }
 
-StmtDDLAlterTableAlterColumnLoggable *
-ElemDDLNode::castToStmtDDLAlterTableAlterColumnLoggable()
-{
-	return NULL;
-}
+StmtDDLAlterIndex *ElemDDLNode::castToStmtDDLAlterIndex() { return NULL; }
 
-StmtDDLAlterTableDisableIndex *
-ElemDDLNode::castToStmtDDLAlterTableDisableIndex()
-{
-        return NULL;
-}
+StmtDDLAlterIndexAttribute *ElemDDLNode::castToStmtDDLAlterIndexAttribute() { return NULL; }
 
-StmtDDLAlterTableEnableIndex *
-ElemDDLNode::castToStmtDDLAlterTableEnableIndex()
-{
-        return NULL;
-}
+StmtDDLAlterIndexHBaseOptions *ElemDDLNode::castToStmtDDLAlterIndexHBaseOptions() { return NULL; }
 
+StmtDDLAlterLibrary *ElemDDLNode::castToStmtDDLAlterLibrary() { return NULL; }
 
-StmtDDLAlterTableMove *
-ElemDDLNode::castToStmtDDLAlterTableMove()
-{
-  return NULL;
-}
+StmtDDLAlterRoutine *ElemDDLNode::castToStmtDDLAlterRoutine() { return NULL; }
 
-StmtDDLAlterTablePartition *
-ElemDDLNode::castToStmtDDLAlterTablePartition()
-{
-  return NULL;
-}
+StmtDDLAlterTable *ElemDDLNode::castToStmtDDLAlterTable() { return NULL; }
 
-StmtDDLAlterTableAddPartition*
-ElemDDLNode::castToStmtDDLAlterTableAddPartition()
-{
-  return NULL;
-}
+StmtDDLAlterTableAttribute *ElemDDLNode::castToStmtDDLAlterTableAttribute() { return NULL; }
 
-StmtDDLAlterTableMountPartition*
-ElemDDLNode::castToStmtDDLAlterTableMountPartition()
-{
-  return NULL;
-}
+StmtDDLAlterTableColumn *ElemDDLNode::castToStmtDDLAlterTableColumn() { return NULL; }
 
-StmtDDLAlterTableUnmountPartition*
-ElemDDLNode::castToStmtDDLAlterTableUnmountPartition()
-{
-  return NULL;
-}
+StmtDDLAlterTableAddColumn *ElemDDLNode::castToStmtDDLAlterTableAddColumn() { return NULL; }
 
-StmtDDLAlterTableRename *
-ElemDDLNode::castToStmtDDLAlterTableRename()
-{
-  return NULL;
-}
+StmtDDLAlterTableDropColumn *ElemDDLNode::castToStmtDDLAlterTableDropColumn() { return NULL; }
 
-StmtDDLAlterTableStoredDesc *
-ElemDDLNode::castToStmtDDLAlterTableStoredDesc()
-{
-  return NULL;
-}
+StmtDDLAlterTableAlterColumnLoggable *ElemDDLNode::castToStmtDDLAlterTableAlterColumnLoggable() { return NULL; }
 
-StmtDDLAlterTableNamespace *
-ElemDDLNode::castToStmtDDLAlterTableNamespace()
-{
-  return NULL;
-}
+StmtDDLAlterTableDisableIndex *ElemDDLNode::castToStmtDDLAlterTableDisableIndex() { return NULL; }
 
-StmtDDLAlterTableResetDDLLock *
-ElemDDLNode::castToStmtDDLAlterTableResetDDLLock()
-{
-  return NULL;
-}
+StmtDDLAlterTableEnableIndex *ElemDDLNode::castToStmtDDLAlterTableEnableIndex() { return NULL; }
 
+StmtDDLAlterTableMove *ElemDDLNode::castToStmtDDLAlterTableMove() { return NULL; }
 
-StmtDDLAlterTableAlterColumnDefaultValue *
-ElemDDLNode::castToStmtDDLAlterTableAlterColumnDefaultValue()
-{
-  return NULL;
-}
+StmtDDLAlterTablePartition *ElemDDLNode::castToStmtDDLAlterTablePartition() { return NULL; }
 
-StmtDDLAlterTableAlterColumnDatatype *
-ElemDDLNode::castToStmtDDLAlterTableAlterColumnDatatype()
-{
-  return NULL;
-}
+StmtDDLAlterTableAddPartition *ElemDDLNode::castToStmtDDLAlterTableAddPartition() { return NULL; }
 
-StmtDDLAlterTableAlterColumnRename *
-ElemDDLNode::castToStmtDDLAlterTableAlterColumnRename()
-{
-  return NULL;
-}
+StmtDDLAlterTableMountPartition *ElemDDLNode::castToStmtDDLAlterTableMountPartition() { return NULL; }
 
-StmtDDLAlterTableAlterColumnSetSGOption *
-ElemDDLNode::castToStmtDDLAlterTableAlterColumnSetSGOption()
-{
-  return NULL;
-}
+StmtDDLAlterTableUnmountPartition *ElemDDLNode::castToStmtDDLAlterTableUnmountPartition() { return NULL; }
 
-StmtDDLAlterTableDropPartition *
-ElemDDLNode::castToStmtDDLAlterTableDropPartition()
-{
-  return NULL;
-}
+StmtDDLAlterTableRename *ElemDDLNode::castToStmtDDLAlterTableRename() { return NULL; }
 
-StmtDDLAlterTableSetConstraint *
-ElemDDLNode::castToStmtDDLAlterTableSetConstraint()
-{
-  return NULL;
-}
+StmtDDLAlterTableStoredDesc *ElemDDLNode::castToStmtDDLAlterTableStoredDesc() { return NULL; }
 
-StmtDDLAlterTableToggleConstraint *
-ElemDDLNode::castToStmtDDLAlterTableToggleConstraint()
-{
-        return NULL;
-}
+StmtDDLAlterTableNamespace *ElemDDLNode::castToStmtDDLAlterTableNamespace() { return NULL; }
 
-StmtDDLAlterTableHBaseOptions *
-ElemDDLNode::castToStmtDDLAlterTableHBaseOptions()
-{
-        return NULL;
-}
+StmtDDLAlterTableResetDDLLock *ElemDDLNode::castToStmtDDLAlterTableResetDDLLock() { return NULL; }
 
-StmtDDLAlterMvRGroup *
-ElemDDLNode::castToStmtDDLAlterMvRGroup() // OZ
-{
-  return NULL;
-}
+StmtDDLAlterTableAlterColumnDefaultValue *ElemDDLNode::castToStmtDDLAlterTableAlterColumnDefaultValue() { return NULL; }
 
-StmtDDLAlterTrigger *
-ElemDDLNode::castToStmtDDLAlterTrigger()
-{
-  return NULL;
-}
+StmtDDLAlterTableAlterColumnDatatype *ElemDDLNode::castToStmtDDLAlterTableAlterColumnDatatype() { return NULL; }
 
-StmtDDLAlterMV *
-ElemDDLNode::castToStmtDDLAlterMV()
-{
-  return NULL;
-}
+StmtDDLAlterTableAlterColumnRename *ElemDDLNode::castToStmtDDLAlterTableAlterColumnRename() { return NULL; }
 
-StmtDDLAlterUser *
-ElemDDLNode::castToStmtDDLAlterUser()
-{
-  return NULL;
-}
+StmtDDLAlterTableAlterColumnSetSGOption *ElemDDLNode::castToStmtDDLAlterTableAlterColumnSetSGOption() { return NULL; }
 
-StmtDDLAlterView *
-ElemDDLNode::castToStmtDDLAlterView()
-{
-  return NULL;
-}
+StmtDDLAlterTableDropPartition *ElemDDLNode::castToStmtDDLAlterTableDropPartition() { return NULL; }
 
-StmtDDLAlterDatabase *
-ElemDDLNode::castToStmtDDLAlterDatabase()
-{
-  return NULL;
-}
+StmtDDLAlterTableSetConstraint *ElemDDLNode::castToStmtDDLAlterTableSetConstraint() { return NULL; }
 
-StmtDDLAlterTableTruncatePartition *
-ElemDDLNode::castToStmtDDLAlterTableTruncatePartition()
-{
-  return NULL;
-}
+StmtDDLAlterTableToggleConstraint *ElemDDLNode::castToStmtDDLAlterTableToggleConstraint() { return NULL; }
 
-StmtDDLAlterTableRenamePartition *
-ElemDDLNode::castToStmtDDLAlterTableRenamePartition()
-{
-  return NULL;
-}
+StmtDDLAlterTableHBaseOptions *ElemDDLNode::castToStmtDDLAlterTableHBaseOptions() { return NULL; }
 
-StmtDDLAlterTableSplitPartition *
-ElemDDLNode::castToStmtDDLAlterTableSplitPartition()
+StmtDDLAlterMvRGroup *ElemDDLNode::castToStmtDDLAlterMvRGroup()  // OZ
 {
   return NULL;
 }
 
-StmtDDLCreateSynonym *
-ElemDDLNode::castToStmtDDLCreateSynonym()
-{
-  return NULL;
-}
+StmtDDLAlterTrigger *ElemDDLNode::castToStmtDDLAlterTrigger() { return NULL; }
 
-StmtDDLCreateExceptionTable *
-ElemDDLNode::castToStmtDDLCreateExceptionTable()
-{
-  return NULL;
-}
+StmtDDLAlterMV *ElemDDLNode::castToStmtDDLAlterMV() { return NULL; }
 
-StmtDDLCreateComponentPrivilege *
-ElemDDLNode::castToStmtDDLCreateComponentPrivilege()
-{
-  return NULL;
-}
+StmtDDLAlterUser *ElemDDLNode::castToStmtDDLAlterUser() { return NULL; }
 
-StmtDDLCreateCatalog *
-ElemDDLNode::castToStmtDDLCreateCatalog()
-{
-  return NULL;
-}
+StmtDDLAlterView *ElemDDLNode::castToStmtDDLAlterView() { return NULL; }
 
-StmtDDLCreateIndex *
-ElemDDLNode::castToStmtDDLCreateIndex()
-{
-  return NULL;
-}
+StmtDDLAlterDatabase *ElemDDLNode::castToStmtDDLAlterDatabase() { return NULL; }
 
-StmtDDLPopulateIndex *
-ElemDDLNode::castToStmtDDLPopulateIndex()
-{
-  return NULL;
-}
+StmtDDLAlterTableTruncatePartition *ElemDDLNode::castToStmtDDLAlterTableTruncatePartition() { return NULL; }
 
-StmtDDLCreateLibrary *
-ElemDDLNode::castToStmtDDLCreateLibrary()
-{
-  return NULL;
-}
+StmtDDLAlterTableRenamePartition *ElemDDLNode::castToStmtDDLAlterTableRenamePartition() { return NULL; }
 
-StmtDDLCommentOn *
-ElemDDLNode::castToStmtDDLCommentOn()
-{
-  return NULL;
-}
+StmtDDLAlterTableSplitPartition *ElemDDLNode::castToStmtDDLAlterTableSplitPartition() { return NULL; }
 
-StmtDDLCreatePackage *
-ElemDDLNode::castToStmtDDLCreatePackage()
-{
-  return NULL;
-}
+StmtDDLCreateSynonym *ElemDDLNode::castToStmtDDLCreateSynonym() { return NULL; }
 
-StmtDDLCreateRoutine *
-ElemDDLNode::castToStmtDDLCreateRoutine()
-{
-  return NULL;
-}
+StmtDDLCreateExceptionTable *ElemDDLNode::castToStmtDDLCreateExceptionTable() { return NULL; }
 
-StmtDDLCreateSchema *
-ElemDDLNode::castToStmtDDLCreateSchema()
-{
-  return NULL;
-}
+StmtDDLCreateComponentPrivilege *ElemDDLNode::castToStmtDDLCreateComponentPrivilege() { return NULL; }
 
-StmtDDLCreateSequence *
-ElemDDLNode::castToStmtDDLCreateSequence()
-{
-  return NULL;
-}
+StmtDDLCreateCatalog *ElemDDLNode::castToStmtDDLCreateCatalog() { return NULL; }
 
-StmtDDLCreateTable *
-ElemDDLNode::castToStmtDDLCreateTable()
-{
-  return NULL;
-}
+StmtDDLCreateIndex *ElemDDLNode::castToStmtDDLCreateIndex() { return NULL; }
 
-StmtDDLCreateHbaseTable *
-ElemDDLNode::castToStmtDDLCreateHbaseTable()
-{
-  return NULL;
-}
+StmtDDLPopulateIndex *ElemDDLNode::castToStmtDDLPopulateIndex() { return NULL; }
 
-StmtDDLCreateMvRGroup *
-ElemDDLNode::castToStmtDDLCreateMvRGroup()
-{
+StmtDDLCreateLibrary *ElemDDLNode::castToStmtDDLCreateLibrary() { return NULL; }
 
-	return NULL;  // OZ
+StmtDDLCommentOn *ElemDDLNode::castToStmtDDLCommentOn() { return NULL; }
 
-}
+StmtDDLCreatePackage *ElemDDLNode::castToStmtDDLCreatePackage() { return NULL; }
 
-StmtDDLCreateTrigger *
-ElemDDLNode::castToStmtDDLCreateTrigger()
-{
-  return NULL;
-}
+StmtDDLCreateRoutine *ElemDDLNode::castToStmtDDLCreateRoutine() { return NULL; }
 
-StmtDDLCreateMV *
-ElemDDLNode::castToStmtDDLCreateMV()
-{
-  return NULL;
-}
+StmtDDLCreateSchema *ElemDDLNode::castToStmtDDLCreateSchema() { return NULL; }
 
+StmtDDLCreateSequence *ElemDDLNode::castToStmtDDLCreateSequence() { return NULL; }
 
-StmtDDLCreateView *
-ElemDDLNode::castToStmtDDLCreateView()
-{
-  return NULL;
-}
+StmtDDLCreateTable *ElemDDLNode::castToStmtDDLCreateTable() { return NULL; }
 
-StmtDDLDropSynonym *
-ElemDDLNode::castToStmtDDLDropSynonym()
-{
-  return NULL;
-}
+StmtDDLCreateHbaseTable *ElemDDLNode::castToStmtDDLCreateHbaseTable() { return NULL; }
 
-StmtDDLDropCatalog *
-ElemDDLNode::castToStmtDDLDropCatalog()
-{
-  return NULL;
+StmtDDLCreateMvRGroup *ElemDDLNode::castToStmtDDLCreateMvRGroup() {
+  return NULL;  // OZ
 }
 
-StmtDDLDropComponentPrivilege *
-ElemDDLNode::castToStmtDDLDropComponentPrivilege()
-{
-  return NULL;
-}
+StmtDDLCreateTrigger *ElemDDLNode::castToStmtDDLCreateTrigger() { return NULL; }
 
-StmtDDLDropIndex *
-ElemDDLNode::castToStmtDDLDropIndex()
-{
-  return NULL;
-}
+StmtDDLCreateMV *ElemDDLNode::castToStmtDDLCreateMV() { return NULL; }
 
-StmtDDLDropLibrary *
-ElemDDLNode::castToStmtDDLDropLibrary()  
-{
-  return NULL;
-}
+StmtDDLCreateView *ElemDDLNode::castToStmtDDLCreateView() { return NULL; }
 
-StmtDDLDropModule *
-ElemDDLNode::castToStmtDDLDropModule()
-{
-  return NULL;
-}
+StmtDDLDropSynonym *ElemDDLNode::castToStmtDDLDropSynonym() { return NULL; }
 
-StmtDDLDropPackage *
-ElemDDLNode::castToStmtDDLDropPackage()
-{
-  return NULL;
-}
+StmtDDLDropCatalog *ElemDDLNode::castToStmtDDLDropCatalog() { return NULL; }
 
-StmtDDLDropRoutine *
-ElemDDLNode::castToStmtDDLDropRoutine()
-{
-  return NULL;
-}
+StmtDDLDropComponentPrivilege *ElemDDLNode::castToStmtDDLDropComponentPrivilege() { return NULL; }
 
-StmtDDLDropSchema *
-ElemDDLNode::castToStmtDDLDropSchema()
-{
-  return NULL;
-}
+StmtDDLDropIndex *ElemDDLNode::castToStmtDDLDropIndex() { return NULL; }
 
-StmtDDLDropSequence *
-ElemDDLNode::castToStmtDDLDropSequence()
-{
-  return NULL;
-}
+StmtDDLDropLibrary *ElemDDLNode::castToStmtDDLDropLibrary() { return NULL; }
 
-StmtDDLDropSQL *
-ElemDDLNode::castToStmtDDLDropSQL()
-{
-  return NULL;
-}
+StmtDDLDropModule *ElemDDLNode::castToStmtDDLDropModule() { return NULL; }
 
-StmtDDLDropTable *
-ElemDDLNode::castToStmtDDLDropTable()
-{
-  return NULL;
-}
+StmtDDLDropPackage *ElemDDLNode::castToStmtDDLDropPackage() { return NULL; }
 
-StmtDDLDropHbaseTable *
-ElemDDLNode::castToStmtDDLDropHbaseTable()
-{
-  return NULL;
-}
+StmtDDLDropRoutine *ElemDDLNode::castToStmtDDLDropRoutine() { return NULL; }
 
-StmtDDLDropMvRGroup *
-ElemDDLNode::castToStmtDDLDropMvRGroup()
-{
-	return NULL; 
-}
+StmtDDLDropSchema *ElemDDLNode::castToStmtDDLDropSchema() { return NULL; }
 
-StmtDDLDropTrigger *
-ElemDDLNode::castToStmtDDLDropTrigger()
-{
-  return NULL;
-}
+StmtDDLDropSequence *ElemDDLNode::castToStmtDDLDropSequence() { return NULL; }
 
-StmtDDLDropMV *
-ElemDDLNode::castToStmtDDLDropMV()
-{
-  return NULL;
-}
+StmtDDLDropSQL *ElemDDLNode::castToStmtDDLDropSQL() { return NULL; }
 
-StmtDDLDropView *
-ElemDDLNode::castToStmtDDLDropView()
-{
-  return NULL;
-}
+StmtDDLDropTable *ElemDDLNode::castToStmtDDLDropTable() { return NULL; }
 
-StmtDDLDropExceptionTable *
-ElemDDLNode::castToStmtDDLDropExceptionTable()
-{
-  return NULL;
-}
+StmtDDLDropHbaseTable *ElemDDLNode::castToStmtDDLDropHbaseTable() { return NULL; }
 
-StmtDDLGrant *
-ElemDDLNode::castToStmtDDLGrant()
-{
-  return NULL;
-}
+StmtDDLDropMvRGroup *ElemDDLNode::castToStmtDDLDropMvRGroup() { return NULL; }
 
-StmtDDLGrantComponentPrivilege *
-ElemDDLNode::castToStmtDDLGrantComponentPrivilege()
-{
-  return NULL;
-}
+StmtDDLDropTrigger *ElemDDLNode::castToStmtDDLDropTrigger() { return NULL; }
 
-StmtDDLSchGrant *
-ElemDDLNode::castToStmtDDLSchGrant()
-{
-  return NULL;
-}
+StmtDDLDropMV *ElemDDLNode::castToStmtDDLDropMV() { return NULL; }
 
-StmtDDLGiveAll *
-ElemDDLNode::castToStmtDDLGiveAll()
-{
-  return NULL;
-}
+StmtDDLDropView *ElemDDLNode::castToStmtDDLDropView() { return NULL; }
 
-StmtDDLGiveCatalog *
-ElemDDLNode::castToStmtDDLGiveCatalog()
-{
-  return NULL;
-}
+StmtDDLDropExceptionTable *ElemDDLNode::castToStmtDDLDropExceptionTable() { return NULL; }
 
-StmtDDLGiveObject *
-ElemDDLNode::castToStmtDDLGiveObject()
-{
-  return NULL;
-}
+StmtDDLGrant *ElemDDLNode::castToStmtDDLGrant() { return NULL; }
 
-StmtDDLGiveSchema *
-ElemDDLNode::castToStmtDDLGiveSchema()
-{
-  return NULL;
-}
+StmtDDLGrantComponentPrivilege *ElemDDLNode::castToStmtDDLGrantComponentPrivilege() { return NULL; }
 
-StmtDDLRevoke *
-ElemDDLNode::castToStmtDDLRevoke()
-{
-  return NULL;
-}
+StmtDDLSchGrant *ElemDDLNode::castToStmtDDLSchGrant() { return NULL; }
 
+StmtDDLGiveAll *ElemDDLNode::castToStmtDDLGiveAll() { return NULL; }
 
-StmtDDLRevokeComponentPrivilege *
-ElemDDLNode::castToStmtDDLRevokeComponentPrivilege()
-{
-  return NULL;
-}
+StmtDDLGiveCatalog *ElemDDLNode::castToStmtDDLGiveCatalog() { return NULL; }
 
-StmtDDLSchRevoke *
-ElemDDLNode::castToStmtDDLSchRevoke()
-{
-  return NULL;
-}
+StmtDDLGiveObject *ElemDDLNode::castToStmtDDLGiveObject() { return NULL; }
 
-StmtDDLDropConstraint *
-ElemDDLNode::castToStmtDDLDropConstraint()
-{
-  return NULL;
-}
+StmtDDLGiveSchema *ElemDDLNode::castToStmtDDLGiveSchema() { return NULL; }
 
-StmtDDLRegisterCatalog *
-ElemDDLNode::castToStmtDDLRegisterCatalog()
-{
-  return NULL;
-}
+StmtDDLRevoke *ElemDDLNode::castToStmtDDLRevoke() { return NULL; }
 
-StmtDDLUnregisterCatalog *
-ElemDDLNode::castToStmtDDLUnregisterCatalog()
-{
-  return NULL;
-}
+StmtDDLRevokeComponentPrivilege *ElemDDLNode::castToStmtDDLRevokeComponentPrivilege() { return NULL; }
 
-ElemDDLFileAttrPOSNumPartns * ElemDDLNode::castToElemDDLFileAttrPOSNumPartns()
-{
-  return NULL;
-}
+StmtDDLSchRevoke *ElemDDLNode::castToStmtDDLSchRevoke() { return NULL; }
 
-ElemDDLFileAttrPOSTableSize * ElemDDLNode::castToElemDDLFileAttrPOSTableSize()
-{
-  return NULL;
-}
+StmtDDLDropConstraint *ElemDDLNode::castToStmtDDLDropConstraint() { return NULL; }
 
-ElemDDLFileAttrPOSDiskPool * ElemDDLNode::castToElemDDLFileAttrPOSDiskPool()
-{
-  return NULL;
-}
+StmtDDLRegisterCatalog *ElemDDLNode::castToStmtDDLRegisterCatalog() { return NULL; }
 
-ElemDDLFileAttrPOSIgnore * ElemDDLNode::castToElemDDLFileAttrPOSIgnore()
-{
-  return NULL;
-}
+StmtDDLUnregisterCatalog *ElemDDLNode::castToStmtDDLUnregisterCatalog() { return NULL; }
 
-StmtDDLRegisterComponent *
-ElemDDLNode::castToStmtDDLRegisterComponent()
-{
-  return NULL;
-}
+ElemDDLFileAttrPOSNumPartns *ElemDDLNode::castToElemDDLFileAttrPOSNumPartns() { return NULL; }
 
-StmtDDLRegisterUser *
-ElemDDLNode::castToStmtDDLRegisterUser()
-{
-  return NULL;
-}
+ElemDDLFileAttrPOSTableSize *ElemDDLNode::castToElemDDLFileAttrPOSTableSize() { return NULL; }
 
-StmtDDLUserGroup *
-ElemDDLNode::castToStmtDDLUserGroup()
-{
-  return NULL;
-}
+ElemDDLFileAttrPOSDiskPool *ElemDDLNode::castToElemDDLFileAttrPOSDiskPool() { return NULL; }
 
-StmtDDLRegOrUnregObject *
-ElemDDLNode::castToStmtDDLRegOrUnregObject()
-{
-  return NULL;
-}
+ElemDDLFileAttrPOSIgnore *ElemDDLNode::castToElemDDLFileAttrPOSIgnore() { return NULL; }
 
-StmtDDLCreateRole *
-ElemDDLNode::castToStmtDDLCreateRole()
-{
-  return NULL;
-}
+StmtDDLRegisterComponent *ElemDDLNode::castToStmtDDLRegisterComponent() { return NULL; }
 
-StmtDDLResourceGroup *
-ElemDDLNode::castToStmtDDLResourceGroup()
-{
-  return NULL;
-}
+StmtDDLRegisterUser *ElemDDLNode::castToStmtDDLRegisterUser() { return NULL; }
 
-StmtDDLCleanupObjects *
-ElemDDLNode::castToStmtDDLCleanupObjects()
-{
-  return NULL;
-}
+StmtDDLUserGroup *ElemDDLNode::castToStmtDDLUserGroup() { return NULL; }
 
-StmtDDLRoleGrant *
-ElemDDLNode::castToStmtDDLRoleGrant()
-{
-  return NULL;
-}
+StmtDDLCreateRole *ElemDDLNode::castToStmtDDLCreateRole() { return NULL; }
 
-StmtDDLTenant *
-ElemDDLNode::castToStmtDDLTenant()
-{
-  return NULL;
-}
+StmtDDLResourceGroup *ElemDDLNode::castToStmtDDLResourceGroup() { return NULL; }
 
-StmtDDLAlterTableHDFSCache *
-ElemDDLNode::castToStmtDDLAlterTableHDFSCache()
-{
-  return NULL;
-}
+StmtDDLCleanupObjects *ElemDDLNode::castToStmtDDLCleanupObjects() { return NULL; }
 
-StmtDDLAlterSchemaHDFSCache *
-ElemDDLNode::castToStmtDDLAlterSchemaHDFSCache()
-{
-  return NULL;
-}
+StmtDDLRoleGrant *ElemDDLNode::castToStmtDDLRoleGrant() { return NULL; }
 
-StmtDDLonHiveObjects *
-ElemDDLNode::castToStmtDDLonHiveObjects()
-{
-  return NULL;
-}
+StmtDDLTenant *ElemDDLNode::castToStmtDDLTenant() { return NULL; }
 
-StmtDDLAlterTableMergePartition*
-ElemDDLNode::castToStmtDDLAlterTableMergePartition()
-{
-  return NULL;
-}
+StmtDDLAlterTableHDFSCache *ElemDDLNode::castToStmtDDLAlterTableHDFSCache() { return NULL; }
 
-StmtDDLAlterTableExchangePartition*
-ElemDDLNode::castToStmtDDLAlterTableExchangePartition()
-{
-  return NULL;
-}
+StmtDDLAlterSchemaHDFSCache *ElemDDLNode::castToStmtDDLAlterSchemaHDFSCache() { return NULL; }
 
-ElemDDLGroup* ElemDDLNode::castToElemDDLGroup()
-{
-    return NULL;
-}
+StmtDDLAlterTableMergePartition *ElemDDLNode::castToStmtDDLAlterTableMergePartition() { return NULL; }
+
+StmtDDLAlterTableExchangePartition *ElemDDLNode::castToStmtDDLAlterTableExchangePartition() { return NULL; }
+
+ElemDDLGroup *ElemDDLNode::castToElemDDLGroup() { return NULL; }
 
 //
 // accessors
 //
 
-Int32
-ElemDDLNode::getArity() const
-{
-  return 0;
-}
+Int32 ElemDDLNode::getArity() const { return 0; }
 
-ExprNode *
-ElemDDLNode::getChild(Lng32 /* index */ )
-{
-  return NULL;
-}
+ExprNode *ElemDDLNode::getChild(Lng32 /* index */) { return NULL; }
 
 // Treat this node as an array (of one element).
 // The number of elements in this array is 1.
 // For more information about this method,
 // please read the description of the corresponding
 // method in file ElemDDLList.h
-CollIndex
-ElemDDLNode::entries() const
-{
-  return 1;
-}
+CollIndex ElemDDLNode::entries() const { return 1; }
 
 // Treat this node as an array (of one element).
 // The only legal index is 0.
 // For more information about this method,
 // please read the description of the corresponding
 // method in file ElemDDLList.h
-ElemDDLNode *
-ElemDDLNode::operator[](CollIndex index)
-{
+ElemDDLNode *ElemDDLNode::operator[](CollIndex index) {
   ComASSERT(index EQU 0);
   return this;
 }
@@ -2129,12 +797,9 @@ ElemDDLNode::operator[](CollIndex index)
 // For more information about this method,
 // please read the description of the corresponding
 // method in file ElemDDLList.h
-/*virtual*/ void
-ElemDDLNode::traverseList(ElemDDLNode * pOtherNode,
-                          void (*visitNode)(ElemDDLNode * pOtherNode,
-                                            CollIndex indexOfLeafNode,
-                                            ElemDDLNode * pLeafNode))
-{
+/*virtual*/ void ElemDDLNode::traverseList(ElemDDLNode *pOtherNode,
+                                           void (*visitNode)(ElemDDLNode *pOtherNode, CollIndex indexOfLeafNode,
+                                                             ElemDDLNode *pLeafNode)) {
   // visit the first (and only) element in the list
   (*visitNode)(pOtherNode, 0, this);
 }
@@ -2143,10 +808,7 @@ ElemDDLNode::traverseList(ElemDDLNode * pOtherNode,
 // mutators
 //
 
-void
-ElemDDLNode::setChild(Lng32        /* index */ ,
-                      ExprNode *  /* pElemDDLNode */ )
-{
+void ElemDDLNode::setChild(Lng32 /* index */, ExprNode * /* pElemDDLNode */) {
   ABORT("virtual function ElemDDLNode::setChild() must be redefined");
 }
 
@@ -2154,16 +816,12 @@ ElemDDLNode::setChild(Lng32        /* index */ ,
 // method for binding
 //
 
-ExprNode *
-ElemDDLNode::bindNode(BindWA * /*pBindWA*/)
-{
+ExprNode *ElemDDLNode::bindNode(BindWA * /*pBindWA*/) {
   markAsBound();
   return this;
 }
 
-ComBoolean ElemDDLNode::applyDefaultsAndValidateObject(BindWA * pBindWA,
-						       QualifiedName *qn)
-{
+ComBoolean ElemDDLNode::applyDefaultsAndValidateObject(BindWA *pBindWA, QualifiedName *qn) {
   qn->applyDefaults(pBindWA->getDefaultSchema());
 
   return FALSE;
@@ -2173,57 +831,34 @@ ComBoolean ElemDDLNode::applyDefaultsAndValidateObject(BindWA * pBindWA,
 // methods for tracing
 //
 
-const NAString
-ElemDDLNode::displayLabel1() const
-{
-  return NAString();
-}
+const NAString ElemDDLNode::displayLabel1() const { return NAString(); }
 
-const NAString
-ElemDDLNode::displayLabel2() const
-{
-  return NAString();
-}
+const NAString ElemDDLNode::displayLabel2() const { return NAString(); }
 
-const NAString
-ElemDDLNode::displayLabel3() const
-{
-  return NAString();
-}
+const NAString ElemDDLNode::displayLabel3() const { return NAString(); }
 
-NATraceList
-ElemDDLNode::getDetailInfo() const
-{
+NATraceList ElemDDLNode::getDetailInfo() const {
   NATraceList detailTextList;
-  if (NOT displayLabel1().isNull())
-  {
+  if (NOT displayLabel1().isNull()) {
     detailTextList.append(displayLabel1());
   }
-  if (NOT displayLabel2().isNull())
-  {
+  if (NOT displayLabel2().isNull()) {
     detailTextList.append(displayLabel2());
   }
-  if (NOT displayLabel3().isNull())
-  {
+  if (NOT displayLabel3().isNull()) {
     detailTextList.append(displayLabel3());
   }
   return detailTextList;
 }
 
-const NAString
-ElemDDLNode::getText() const
-{
+const NAString ElemDDLNode::getText() const {
   ABORT("internal logic error");
   return "ElemDDLNode";
 }
 
-void
-ElemDDLNode::print(FILE * f,
-                   const char * prefix,
-                   const char * suffix) const
-{
-#ifdef TRACING_ENABLED 
-  fprintf(f,"%s%s(%s)\n", prefix, (const char *)getText(), suffix);
+void ElemDDLNode::print(FILE *f, const char *prefix, const char *suffix) const {
+#ifdef TRACING_ENABLED
+  fprintf(f, "%s%s(%s)\n", prefix, (const char *)getText(), suffix);
 #endif
 }
 
@@ -2232,56 +867,37 @@ ElemDDLNode::print(FILE * f,
 // -----------------------------------------------------------------------
 
 // constructor
-ElemDDLAlterTableMove::ElemDDLAlterTableMove(ElemDDLNode * sourceLocationList,
-                                             ElemDDLNode * destLocationList)
-: ElemDDLNode(ELM_ALTER_TABLE_MOVE_ELEM)
-{
+ElemDDLAlterTableMove::ElemDDLAlterTableMove(ElemDDLNode *sourceLocationList, ElemDDLNode *destLocationList)
+    : ElemDDLNode(ELM_ALTER_TABLE_MOVE_ELEM) {
   setChild(INDEX_SOURCE_LOCATION_LIST, sourceLocationList);
   setChild(INDEX_DEST_LOCATION_LIST, destLocationList);
 }
 
 // virtual destructor
-ElemDDLAlterTableMove::~ElemDDLAlterTableMove()
-{
-}
+ElemDDLAlterTableMove::~ElemDDLAlterTableMove() {}
 
 // cast virtual function
-ElemDDLAlterTableMove *
-ElemDDLAlterTableMove::castToElemDDLAlterTableMove()
-{
-  return this;
-}
+ElemDDLAlterTableMove *ElemDDLAlterTableMove::castToElemDDLAlterTableMove() { return this; }
 
 //
 // accessors
 //
 
 // get the degree of this node
-Int32
-ElemDDLAlterTableMove::getArity() const
-{
-  return MAX_ELEM_DDL_ALTER_TABLE_MOVE_ARITY;
-}
+Int32 ElemDDLAlterTableMove::getArity() const { return MAX_ELEM_DDL_ALTER_TABLE_MOVE_ARITY; }
 
-ExprNode *
-ElemDDLAlterTableMove::getChild(Lng32 index)
-{
+ExprNode *ElemDDLAlterTableMove::getChild(Lng32 index) {
   ComASSERT(index >= 0 AND index < getArity());
   return children_[index];
 }
 
 // mutator
-void
-ElemDDLAlterTableMove::setChild(Lng32 index, ExprNode * pChildNode)
-{
+void ElemDDLAlterTableMove::setChild(Lng32 index, ExprNode *pChildNode) {
   ComASSERT(index >= 0 AND index < getArity());
-  if (pChildNode NEQ NULL)
-  {
+  if (pChildNode NEQ NULL) {
     ComASSERT(pChildNode->castToElemDDLNode() NEQ NULL);
     children_[index] = pChildNode->castToElemDDLNode();
-  }
-  else
-  {
+  } else {
     children_[index] = NULL;
   }
 }
@@ -2290,69 +906,41 @@ ElemDDLAlterTableMove::setChild(Lng32 index, ExprNode * pChildNode)
 // methods for tracing
 //
 
-const NAString
-ElemDDLAlterTableMove::getText() const
-{
-  return "ElemDDLAlterTableMove";
-}
+const NAString ElemDDLAlterTableMove::getText() const { return "ElemDDLAlterTableMove"; }
 
 // -----------------------------------------------------------------------
 // methods for class ElemDDLAuthSchema
 // -----------------------------------------------------------------------
 
 // virtual destructor
-ElemDDLAuthSchema::~ElemDDLAuthSchema()
-{
-}
+ElemDDLAuthSchema::~ElemDDLAuthSchema() {}
 
 // cast virtual function
-ElemDDLAuthSchema *
-ElemDDLAuthSchema::castToElemDDLAuthSchema()
-{
-  return this;
-}
-
-
+ElemDDLAuthSchema *ElemDDLAuthSchema::castToElemDDLAuthSchema() { return this; }
 
 // -----------------------------------------------------------------------
 // methods for class ElemDDLGrantee
 // -----------------------------------------------------------------------
 
 // virtual destructor
-ElemDDLGrantee::~ElemDDLGrantee()
-{
-}
+ElemDDLGrantee::~ElemDDLGrantee() {}
 
 // cast virtual function
-ElemDDLGrantee *
-ElemDDLGrantee::castToElemDDLGrantee()
-{
-  return this;
-}
+ElemDDLGrantee *ElemDDLGrantee::castToElemDDLGrantee() { return this; }
 
 //
 // methods for tracing
 //
 
-const NAString
-ElemDDLGrantee::displayLabel1() const
-{
-  if (isPublic())
-  {
+const NAString ElemDDLGrantee::displayLabel1() const {
+  if (isPublic()) {
     return NAString("is public? ") + YesNo(isPublic());
-  }
-  else
-  {
-    return (NAString("Authorization identifier: ") +
-            getAuthorizationIdentifier());
+  } else {
+    return (NAString("Authorization identifier: ") + getAuthorizationIdentifier());
   }
 }
 
-const NAString
-ElemDDLGrantee::getText() const
-{
-  return "ElemDDLGrantee";
-}
+const NAString ElemDDLGrantee::getText() const { return "ElemDDLGrantee"; }
 
 // -----------------------------------------------------------------------
 // methods for class ElemDDLGranteeArray
@@ -2363,24 +951,17 @@ ElemDDLGrantee::getText() const
 // -----------------------------------------------------------------------
 
 // constructor
-ElemDDLGranteeArray::ElemDDLGranteeArray(CollHeap *heap)
-  : LIST(ElemDDLGrantee *)(heap)
-{
-}
+ElemDDLGranteeArray::ElemDDLGranteeArray(CollHeap *heap) : LIST(ElemDDLGrantee *)(heap) {}
 
 // virtual destructor
-ElemDDLGranteeArray::~ElemDDLGranteeArray()
-{
-}
+ElemDDLGranteeArray::~ElemDDLGranteeArray() {}
 
 //----------------------------------------------------------------------------
 // methods for class ElemDDLKeyValue
 //----------------------------------------------------------------------------
 
 // constructor
-ElemDDLKeyValue::ElemDDLKeyValue(ItemExpr * pConstValue)
-: ElemDDLNode(ELM_KEY_VALUE_ELEM)
-{
+ElemDDLKeyValue::ElemDDLKeyValue(ItemExpr *pConstValue) : ElemDDLNode(ELM_KEY_VALUE_ELEM) {
   //
   // The parser currently does not handle negative
   // value well.  So we currently use castToConstValue
@@ -2388,52 +969,35 @@ ElemDDLKeyValue::ElemDDLKeyValue(ItemExpr * pConstValue)
   // This is a kludge, and it is temporary.
   //
   NABoolean isNegative;
-  ComASSERT(pConstValue NEQ NULL AND
-            pConstValue->castToConstValue(isNegative) NEQ NULL);
+  ComASSERT(pConstValue NEQ NULL AND pConstValue->castToConstValue(isNegative) NEQ NULL);
   keyValue_ = pConstValue->castToConstValue(isNegative);
 }
 
 // virtual destructor
-ElemDDLKeyValue::~ElemDDLKeyValue()
-{
+ElemDDLKeyValue::~ElemDDLKeyValue() {
   // delete all children
-  for (Int32 i = 0; i < MAX_ELEM_DDL_KEY_VALUE_ARITY; i++)
-  {
-    if (getChild(i) NEQ NULL)
-      delete getChild(i);
+  for (Int32 i = 0; i < MAX_ELEM_DDL_KEY_VALUE_ARITY; i++) {
+    if (getChild(i) NEQ NULL) delete getChild(i);
   }
 }
 
 // cast
-ElemDDLKeyValue *
-ElemDDLKeyValue::castToElemDDLKeyValue()
-{
-  return this;
-}
+ElemDDLKeyValue *ElemDDLKeyValue::castToElemDDLKeyValue() { return this; }
 
 // accessors
 
 // get the degree of this node
-Int32
-ElemDDLKeyValue::getArity() const
-{
-  return MAX_ELEM_DDL_KEY_VALUE_ARITY;
-}
+Int32 ElemDDLKeyValue::getArity() const { return MAX_ELEM_DDL_KEY_VALUE_ARITY; }
 
-ExprNode *
-ElemDDLKeyValue::getChild(Lng32 index)
-{
+ExprNode *ElemDDLKeyValue::getChild(Lng32 index) {
   ComASSERT(index EQU INDEX_KEY_VALUE);
   return keyValue_;
 }
 
 // mutator
-void
-ElemDDLKeyValue::setChild(Lng32 index, ExprNode * pChildNode)
-{
+void ElemDDLKeyValue::setChild(Lng32 index, ExprNode *pChildNode) {
   ComASSERT(index EQU INDEX_KEY_VALUE);
-  if (pChildNode NEQ NULL)
-  {
+  if (pChildNode NEQ NULL) {
     //
     // The parser currently does not handle negative
     // value well.  So we currently use castToConstValue
@@ -2441,35 +1005,20 @@ ElemDDLKeyValue::setChild(Lng32 index, ExprNode * pChildNode)
     // This is a kludge, and it is temporary.
     //
     NABoolean isNegative;
-    ComASSERT(pChildNode->castToItemExpr() NEQ NULL AND
-              pChildNode->castToItemExpr()
-                        ->castToConstValue(isNegative) NEQ NULL);
+    ComASSERT(pChildNode->castToItemExpr() NEQ NULL AND pChildNode->castToItemExpr()->castToConstValue(isNegative)
+                  NEQ NULL);
     keyValue_ = pChildNode->castToItemExpr()->castToConstValue(isNegative);
-  }
-  else
+  } else
     keyValue_ = NULL;
 }
 
 // methods for tracing
 
-const NAString
-ElemDDLKeyValue::getText() const
-{
-  return "ElemDDLKeyValue";
-}
-
+const NAString ElemDDLKeyValue::getText() const { return "ElemDDLKeyValue"; }
 
 // method for building text
 // virtual
-NAString ElemDDLKeyValue::getSyntax() const
-{
-  return keyValue_->getConstStr(FALSE);
-
-
-} // getSyntax()
-
-
-
+NAString ElemDDLKeyValue::getSyntax() const { return keyValue_->getConstStr(FALSE); }  // getSyntax()
 
 // -----------------------------------------------------------------------
 // methods for class ElemDDLLibClientName
@@ -2480,55 +1029,37 @@ NAString ElemDDLKeyValue::getSyntax() const
 //
 
 ElemDDLLibClientName::ElemDDLLibClientName(const NAString &theName)
-: ElemDDLNode(ELM_CLIENTNAME_ELEM),
-  clientName_(theName)
-  
-{
+    : ElemDDLNode(ELM_CLIENTNAME_ELEM),
+      clientName_(theName)
 
+{
   ComASSERT(!theName.isNull());
-  
 }
 
 // virtual destructor
-ElemDDLLibClientName::~ElemDDLLibClientName()
-{
-}
+ElemDDLLibClientName::~ElemDDLLibClientName() {}
 
 // casting
-ElemDDLLibClientName *
-ElemDDLLibClientName::castToElemDDLLibClientName()
-{
-  return this;
-}
+ElemDDLLibClientName *ElemDDLLibClientName::castToElemDDLLibClientName() { return this; }
 
 //
 // methods for tracing
 //
 
-const NAString
-ElemDDLLibClientName::getText() const
-{
-  return "ElemDDLLibClientName";
-}
+const NAString ElemDDLLibClientName::getText() const { return "ElemDDLLibClientName"; }
 
-const NAString
-ElemDDLLibClientName::displayLabel1() const
-{
-  return NAString("Client name: ") + getClientName();
-}
+const NAString ElemDDLLibClientName::displayLabel1() const { return NAString("Client name: ") + getClientName(); }
 
 // method for building text
-//virtual
-NAString ElemDDLLibClientName::getSyntax() const
-{
+// virtual
+NAString ElemDDLLibClientName::getSyntax() const {
   NAString syntax = "CLIENTNAME ";
 
   syntax += getClientName();
 
   return syntax;
 
-} // getSyntax
-
+}  // getSyntax
 
 // -----------------------------------------------------------------------
 // methods for class ElemDDLLibClientFilename
@@ -2539,55 +1070,37 @@ NAString ElemDDLLibClientName::getSyntax() const
 //
 
 ElemDDLLibClientFilename::ElemDDLLibClientFilename(const NAString &theName)
-: ElemDDLNode(ELM_CLIENTFILE_ELEM),
-  theFilename_(theName)
-  
-{
+    : ElemDDLNode(ELM_CLIENTFILE_ELEM),
+      theFilename_(theName)
 
+{
   ComASSERT(!theName.isNull());
-  
 }
 
 // virtual destructor
-ElemDDLLibClientFilename::~ElemDDLLibClientFilename()
-{
-}
+ElemDDLLibClientFilename::~ElemDDLLibClientFilename() {}
 
 // casting
-ElemDDLLibClientFilename *
-ElemDDLLibClientFilename::castToElemDDLLibClientFilename()
-{
-  return this;
-}
+ElemDDLLibClientFilename *ElemDDLLibClientFilename::castToElemDDLLibClientFilename() { return this; }
 
 //
 // methods for tracing
 //
 
-const NAString
-ElemDDLLibClientFilename::getText() const
-{
-  return "ElemDDLLibClientName";
-}
+const NAString ElemDDLLibClientFilename::getText() const { return "ElemDDLLibClientName"; }
 
-const NAString
-ElemDDLLibClientFilename::displayLabel1() const
-{
-  return NAString("Client file: ") + getFilename();
-}
+const NAString ElemDDLLibClientFilename::displayLabel1() const { return NAString("Client file: ") + getFilename(); }
 
 // method for building text
-//virtual
-NAString ElemDDLLibClientFilename::getSyntax() const
-{
+// virtual
+NAString ElemDDLLibClientFilename::getSyntax() const {
   NAString syntax = "CLIENTFILE ";
 
   syntax += getFilename();
 
   return syntax;
 
-} // getSyntax
-
+}  // getSyntax
 
 // -----------------------------------------------------------------------
 // methods for class ElemDDLLibPathName
@@ -2597,57 +1110,31 @@ NAString ElemDDLLibClientFilename::getSyntax() const
 // contructor
 //
 
-ElemDDLLibPathName::ElemDDLLibPathName(
-      const NAString     &theName)
-: ElemDDLNode(ELM_PATHNAME_ELEM),
-  pathName_(theName)
-  
-{
+ElemDDLLibPathName::ElemDDLLibPathName(const NAString &theName)
+    : ElemDDLNode(ELM_PATHNAME_ELEM),
+      pathName_(theName)
 
+{
   ComASSERT(!theName.isNull());
-  
 }
 
 // virtual destructor
-ElemDDLLibPathName::~ElemDDLLibPathName()
-{
-}
+ElemDDLLibPathName::~ElemDDLLibPathName() {}
 
 // casting
-ElemDDLLibPathName *
-ElemDDLLibPathName::castToElemDDLLibPathName()
-{
-  return this;
-}
+ElemDDLLibPathName *ElemDDLLibPathName::castToElemDDLLibPathName() { return this; }
 
 //
 // methods for tracing
 //
 
-const NAString
-ElemDDLLibPathName::getText() const
-{
-  return "ElemDDLLibPathName";
-}
+const NAString ElemDDLLibPathName::getText() const { return "ElemDDLLibPathName"; }
 
-const NAString
-ElemDDLLibPathName::displayLabel1() const
-{
-  return NAString("Path: ") + getPathName();
-}
+const NAString ElemDDLLibPathName::displayLabel1() const { return NAString("Path: ") + getPathName(); }
 
 // method for building text
-//virtual
-NAString ElemDDLLibPathName::getSyntax() const
-{
-
-  return NAString("PATH ") + getPathName();
-
-} // getSyntax
-
-
-
-
+// virtual
+NAString ElemDDLLibPathName::getSyntax() const { return NAString("PATH ") + getPathName(); }  // getSyntax
 
 // -----------------------------------------------------------------------
 // methods for class ElemDDLLocation
@@ -2657,15 +1144,13 @@ NAString ElemDDLLibPathName::getSyntax() const
 // contructor
 //
 
-ElemDDLLocation::ElemDDLLocation(locationNameTypeEnum locationNameType,
-                                 const NAString & aLocationName)
-: ElemDDLNode(ELM_LOCATION_ELEM),
-  locationNameInputFormat_(ComLocationName::UNKNOWN_INPUT_FORMAT),
-  flags_(0),
-  locationNameType_(locationNameType),
-  locationName_(aLocationName, PARSERHEAP()),
-  partitionName_(PARSERHEAP())
-{
+ElemDDLLocation::ElemDDLLocation(locationNameTypeEnum locationNameType, const NAString &aLocationName)
+    : ElemDDLNode(ELM_LOCATION_ELEM),
+      locationNameInputFormat_(ComLocationName::UNKNOWN_INPUT_FORMAT),
+      flags_(0),
+      locationNameType_(locationNameType),
+      locationName_(aLocationName, PARSERHEAP()),
+      partitionName_(PARSERHEAP()) {
   //
   // checks the syntax of the input aLocationName
   //
@@ -2673,33 +1158,25 @@ ElemDDLLocation::ElemDDLLocation(locationNameTypeEnum locationNameType,
   ComASSERT(NOT aLocationName.isNull());
   ComLocationName locName;
 
-  switch(locationNameType)
-  {
-  case LOCATION_ENVIRONMENT_VARIABLE:
-    //
-    // This feature is currently not supported.
-    // The parser has already issued error message(s).
-    //
-    // Does not check for valid syntax.
-    //
-    break;
+  switch (locationNameType) {
+    case LOCATION_ENVIRONMENT_VARIABLE:
+      //
+      // This feature is currently not supported.
+      // The parser has already issued error message(s).
+      //
+      // Does not check for valid syntax.
+      //
+      break;
 
-  case LOCATION_GUARDIAN_NAME:
-  case LOCATION_OSS_NAME:
-    {
-      if (locationNameType EQU LOCATION_GUARDIAN_NAME)
-      {
-        locName.copy(aLocationName,
-                     ComLocationName::GUARDIAN_LOCATION_NAME_FORMAT);
-      }
-      else
-      {
-        locName.copy(aLocationName,
-                     ComLocationName::OSS_LOCATION_NAME_FORMAT);
+    case LOCATION_GUARDIAN_NAME:
+    case LOCATION_OSS_NAME: {
+      if (locationNameType EQU LOCATION_GUARDIAN_NAME) {
+        locName.copy(aLocationName, ComLocationName::GUARDIAN_LOCATION_NAME_FORMAT);
+      } else {
+        locName.copy(aLocationName, ComLocationName::OSS_LOCATION_NAME_FORMAT);
       }
 
-      if (NOT locName.isValid())
-      {
+      if (NOT locName.isValid()) {
         // Illegal location name.
         *SqlParser_Diags << DgSqlCode(-3061) << DgString0(aLocationName);
       }
@@ -2709,13 +1186,12 @@ ElemDDLLocation::ElemDDLLocation(locationNameTypeEnum locationNameType,
       // check system name part
       //
 
-      const ComNodeName & systemName = locName.getGuardianSystemNamePart();
-      if (!systemName.isNull())
-      {
+      const ComNodeName &systemName = locName.getGuardianSystemNamePart();
+      if (!systemName.isNull()) {
         Lng32 systemNumber;
         if (systemName.getNodeNumber(systemNumber) &&
-	   (CmpCommon::getDefault(CREATE_OBJECTS_IN_METADATA_ONLY,0) == DF_OFF))
-           //|| !OSIM_runningSimulation()))
+            (CmpCommon::getDefault(CREATE_OBJECTS_IN_METADATA_ONLY, 0) == DF_OFF))
+          //|| !OSIM_runningSimulation()))
           // Currently system name is not defined
           *SqlParser_Diags << DgSqlCode(-3122) << DgString0(aLocationName);
       }
@@ -2724,12 +1200,10 @@ ElemDDLLocation::ElemDDLLocation(locationNameTypeEnum locationNameType,
       // check subvolume name part
       //
 
-      const ComSubvolumeName & svNamePart = locName.getSubvolumeNamePart();
-      if (!svNamePart.isNull())
-      {
+      const ComSubvolumeName &svNamePart = locName.getSubvolumeNamePart();
+      if (!svNamePart.isNull()) {
         size_t svMinLength = 4;
-        if (!svNamePart.isMXSubvol (svMinLength))
-        {
+        if (!svNamePart.isMXSubvol(svMinLength)) {
           flags_ |= INVALIDSUBVOLNAME;
           // Subvolume name part must be eight characters long and
           // contain the ZSD prefix
@@ -2741,53 +1215,41 @@ ElemDDLLocation::ElemDDLLocation(locationNameTypeEnum locationNameType,
       // check file name part
       //
 
-      const ComFileName & fileNamePart = locName.getFileNamePart();
-      if (!fileNamePart.isNull())
-      {
-        if (NOT fileNamePart.isMXDataFork())
-        {
+      const ComFileName &fileNamePart = locName.getFileNamePart();
+      if (!fileNamePart.isNull()) {
+        if (NOT fileNamePart.isMXDataFork()) {
           flags_ |= INVALIDFILENAME;
           // File name part must be eight characters long and
           // contain the two zero digit suffix
           *SqlParser_Diags << DgSqlCode(-3123) << DgString0(aLocationName);
         }
       }
-    }
-    break;
+    } break;
 
-  default:
-    ABORT("internal logic error");
-    break;
+    default:
+      ABORT("internal logic error");
+      break;
   }
 }
 
 // virtual destructor
-ElemDDLLocation::~ElemDDLLocation()
-{
-}
+ElemDDLLocation::~ElemDDLLocation() {}
 
 // casting
-ElemDDLLocation *
-ElemDDLLocation::castToElemDDLLocation()
-{
-  return this;
-}
+ElemDDLLocation *ElemDDLLocation::castToElemDDLLocation() { return this; }
 
 // accessor
-NAString
-ElemDDLLocation::getLocationNameTypeAsNAString() const
-{
-  switch (getLocationNameType())
-  {
-  case LOCATION_OSS_NAME :
-    return NAString("OSS path name");
-  case LOCATION_GUARDIAN_NAME :
-    return NAString("Guardian device name");
-  case LOCATION_ENVIRONMENT_VARIABLE :
-    return NAString("OSS environment variable name");
-  default :
-    ABORT("internal logic error");
-    return NAString();
+NAString ElemDDLLocation::getLocationNameTypeAsNAString() const {
+  switch (getLocationNameType()) {
+    case LOCATION_OSS_NAME:
+      return NAString("OSS path name");
+    case LOCATION_GUARDIAN_NAME:
+      return NAString("Guardian device name");
+    case LOCATION_ENVIRONMENT_VARIABLE:
+      return NAString("OSS environment variable name");
+    default:
+      ABORT("internal logic error");
+      return NAString();
   }
 }
 
@@ -2795,125 +1257,78 @@ ElemDDLLocation::getLocationNameTypeAsNAString() const
 // methods for tracing
 //
 
-const NAString
-ElemDDLLocation::getText() const
-{
-  return "ElemDDLLocation";
-}
+const NAString ElemDDLLocation::getText() const { return "ElemDDLLocation"; }
 
-const NAString
-ElemDDLLocation::displayLabel1() const
-{
-  return NAString("Location name: ") + getLocationName();
-}
+const NAString ElemDDLLocation::displayLabel1() const { return NAString("Location name: ") + getLocationName(); }
 
-const NAString
-ElemDDLLocation::displayLabel2() const
-{
+const NAString ElemDDLLocation::displayLabel2() const {
   return NAString("Location name type: ") + getLocationNameTypeAsNAString();
 }
 
-const NAString
-ElemDDLLocation::displayLabel3() const
-{
-  return NAString("Partition name: ") + getPartitionName();
-}
-
+const NAString ElemDDLLocation::displayLabel3() const { return NAString("Partition name: ") + getPartitionName(); }
 
 // method for building text
-//virtual
-NAString ElemDDLLocation::getSyntax() const
-{
+// virtual
+NAString ElemDDLLocation::getSyntax() const {
   NAString syntax = "LOCATION ";
 
   syntax += getLocation();
 
-  if(getPartitionName() != "")
-  {
-	  syntax += "NAME ";
-	  syntax += getPartitionName();
+  if (getPartitionName() != "") {
+    syntax += "NAME ";
+    syntax += getPartitionName();
   }
 
   return syntax;
 
-} // getSyntax
+}  // getSyntax
 
 // -----------------------------------------------------------------------
 // methods for class ElemDDLParallelExec
 // -----------------------------------------------------------------------
 
 // virtual destructor
-ElemDDLParallelExec::~ElemDDLParallelExec()
-{
-}
+ElemDDLParallelExec::~ElemDDLParallelExec() {}
 
 // cast
-ElemDDLParallelExec *
-ElemDDLParallelExec::castToElemDDLParallelExec()
-{
-  return this;
-}
+ElemDDLParallelExec *ElemDDLParallelExec::castToElemDDLParallelExec() { return this; }
 
 //
 // methods for tracing
 //
 
-const NAString
-ElemDDLParallelExec::displayLabel1() const
-{
-  return (NAString("is parallel exec enabled? ") +
-          YesNo(isParallelExecEnabled()));
+const NAString ElemDDLParallelExec::displayLabel1() const {
+  return (NAString("is parallel exec enabled? ") + YesNo(isParallelExecEnabled()));
 }
 
-const NAString
-ElemDDLParallelExec::displayLabel2() const
-{
-  if (isParallelExecEnabled())
-  {
+const NAString ElemDDLParallelExec::displayLabel2() const {
+  if (isParallelExecEnabled()) {
     return NAString("config file name: ") + getConfigFileName();
-  }
-  else
-  {
+  } else {
     return NAString();
   }
 }
 
-const NAString
-ElemDDLParallelExec::getText() const
-{
-  return "ElemDDLParallelExec";
-}
+const NAString ElemDDLParallelExec::getText() const { return "ElemDDLParallelExec"; }
 
 // -----------------------------------------------------------------------
 // methods for class ElemDDLPrivileges
 // -----------------------------------------------------------------------
 
 // virtual destructor
-ElemDDLPrivileges::~ElemDDLPrivileges()
-{
-}
+ElemDDLPrivileges::~ElemDDLPrivileges() {}
 
 // cast virtual function
-ElemDDLPrivileges *
-ElemDDLPrivileges::castToElemDDLPrivileges()
-{
-  return this;
-}
+ElemDDLPrivileges *ElemDDLPrivileges::castToElemDDLPrivileges() { return this; }
 
 //
 // accessors
 //
 
 // get the degree of this node
-Int32
-ElemDDLPrivileges::getArity() const
-{
-  return MAX_ELEM_DDL_PRIVILEGES_ARITY;
-}
+Int32 ElemDDLPrivileges::getArity() const { return MAX_ELEM_DDL_PRIVILEGES_ARITY; }
 
-ExprNode *
-ElemDDLPrivileges::getChild(Lng32 index)
-{
+ExprNode *ElemDDLPrivileges::getChild(Lng32 index) {
   ComASSERT(index >= 0 AND index < getArity());
   return children_[index];
 }
@@ -2922,71 +1337,46 @@ ElemDDLPrivileges::getChild(Lng32 index)
 // mutators
 //
 
-void
-ElemDDLPrivileges::setChild(Lng32 index, ExprNode * pChildNode)
-{
+void ElemDDLPrivileges::setChild(Lng32 index, ExprNode *pChildNode) {
   ComASSERT(index >= 0 AND index < getArity());
-  if (pChildNode NEQ NULL)
-  {
+  if (pChildNode NEQ NULL) {
     ComASSERT(pChildNode->castToElemDDLNode() NEQ NULL);
     children_[index] = pChildNode->castToElemDDLNode();
-  }
-  else
-  {
+  } else {
     children_[index] = NULL;
   }
 }
 
-NABoolean ElemDDLPrivileges::containsPriv(OperatorTypeEnum whichPriv) const
-{
+NABoolean ElemDDLPrivileges::containsPriv(OperatorTypeEnum whichPriv) const {
   ElemDDLNode *pActionList = getPrivilegeActionList();
-  if (!pActionList)
-    return FALSE;
+  if (!pActionList) return FALSE;
 
-  ElemDDLList * pDDLList = pActionList->castToElemDDLList();
-  if (!pDDLList)
-  {
+  ElemDDLList *pDDLList = pActionList->castToElemDDLList();
+  if (!pDDLList) {
     ElemDDLPrivAct *pPrivAct = pActionList->castToElemDDLPrivAct();
-    if ( pPrivAct->getOperatorType() == whichPriv )
-      return TRUE;
-  }
-  else
-  {
-    for (CollIndex i = 0 ; i < pDDLList->entries() ; i++)
-    {
+    if (pPrivAct->getOperatorType() == whichPriv) return TRUE;
+  } else {
+    for (CollIndex i = 0; i < pDDLList->entries(); i++) {
       ElemDDLPrivAct *pPrivAct = (*pDDLList)[i]->castToElemDDLPrivAct();
-      if ( pPrivAct->getOperatorType() == whichPriv )
-        return TRUE;
+      if (pPrivAct->getOperatorType() == whichPriv) return TRUE;
     }
   }
   return FALSE;
-} 
+}
 
-NABoolean ElemDDLPrivileges::containsColumnPrivs() const
-{
-  ElemDDLNode * privActs = getPrivilegeActionList();
-  if (!privActs)
-    return FALSE;
+NABoolean ElemDDLPrivileges::containsColumnPrivs() const {
+  ElemDDLNode *privActs = getPrivilegeActionList();
+  if (!privActs) return FALSE;
 
-  ElemDDLList * privActsList = privActs->castToElemDDLList();
-  if (!privActsList)
-  {
-    if (privActs->castToElemDDLPrivActWithColumns())
-    {
-      if(privActs->castToElemDDLPrivActWithColumns()
-          ->getColumnNameArray().entries() > 0)
-          return TRUE;
+  ElemDDLList *privActsList = privActs->castToElemDDLList();
+  if (!privActsList) {
+    if (privActs->castToElemDDLPrivActWithColumns()) {
+      if (privActs->castToElemDDLPrivActWithColumns()->getColumnNameArray().entries() > 0) return TRUE;
     }
-  }
-  else
-  {
-    for (CollIndex i = 0 ; i < privActsList->entries() ; i++)
-    {
-      if ((*privActsList)[i]->castToElemDDLPrivActWithColumns())
-      {
-        if((*privActsList)[i]->castToElemDDLPrivActWithColumns()
-          ->getColumnNameArray().entries() > 0)
-          return TRUE;
+  } else {
+    for (CollIndex i = 0; i < privActsList->entries(); i++) {
+      if ((*privActsList)[i]->castToElemDDLPrivActWithColumns()) {
+        if ((*privActsList)[i]->castToElemDDLPrivActWithColumns()->getColumnNameArray().entries() > 0) return TRUE;
       }
     }
   }
@@ -2997,23 +1387,18 @@ NABoolean ElemDDLPrivileges::containsColumnPrivs() const
 // methods for tracing
 //
 
-const NAString
-ElemDDLPrivileges::displayLabel1() const
-{
+const NAString ElemDDLPrivileges::displayLabel1() const {
   return NAString("is all privileges? ") + YesNo(isAllPrivileges());
 }
 
-NATraceList
-ElemDDLPrivileges::getDetailInfo() const
-{
-  NAString        detailText;
+NATraceList ElemDDLPrivileges::getDetailInfo() const {
+  NAString detailText;
   NATraceList detailTextList;
-  ElemDDLNode   * pPrivActList = getPrivilegeActionList();
+  ElemDDLNode *pPrivActList = getPrivilegeActionList();
 
-  if (isAllPrivileges())
-  {
+  if (isAllPrivileges()) {
     ComASSERT(pPrivActList EQU NULL);
-    detailTextList.append(displayLabel1());   // All Privileges
+    detailTextList.append(displayLabel1());  // All Privileges
     return detailTextList;
   }
 
@@ -3024,8 +1409,7 @@ ElemDDLPrivileges::getDetailInfo() const
   detailText += " element(s)]:";
   detailTextList.append(detailText);
 
-  for (CollIndex i = 0; i < pPrivActList->entries(); i++)
-  {
+  for (CollIndex i = 0; i < pPrivActList->entries(); i++) {
     detailText = "[privilege action ";
     detailText += LongToNAString((Lng32)i);
     detailText += "]";
@@ -3037,54 +1421,35 @@ ElemDDLPrivileges::getDetailInfo() const
   return detailTextList;
 }
 
-const NAString
-ElemDDLPrivileges::getText() const
-{
-  return "ElemDDLPrivileges";
-}
-
+const NAString ElemDDLPrivileges::getText() const { return "ElemDDLPrivileges"; }
 
 // -----------------------------------------------------------------------
 // methods for class ElemDDLReferences
 // -----------------------------------------------------------------------
 
 // virtual destructor
-ElemDDLReferences::~ElemDDLReferences()
-{
+ElemDDLReferences::~ElemDDLReferences() {
   // delete all children
-  for (Int32 index = 0; index < getArity(); index++)
-  {
+  for (Int32 index = 0; index < getArity(); index++) {
     delete getChild(index);
   }
 }
 
-//cast
-ElemDDLReferences *
-ElemDDLReferences::castToElemDDLReferences()
-{
-  return this;
-}
+// cast
+ElemDDLReferences *ElemDDLReferences::castToElemDDLReferences() { return this; }
 
 //
 // accessors
 //
 
-Int32
-ElemDDLReferences::getArity() const
-{
-  return MAX_ELEM_DDL_REFERENCES_ARITY;
-}
+Int32 ElemDDLReferences::getArity() const { return MAX_ELEM_DDL_REFERENCES_ARITY; }
 
-ExprNode *
-ElemDDLReferences::getChild(Lng32 index)
-{
+ExprNode *ElemDDLReferences::getChild(Lng32 index) {
   ComASSERT(index >= 0 AND index < getArity());
   return children_[index];
 }
 
-NAString
-ElemDDLReferences::getReferencedTableName() const
-{
+NAString ElemDDLReferences::getReferencedTableName() const {
   return getReferencedNameAsQualifiedName().getQualifiedNameAsAnsiString();
 }
 
@@ -3092,16 +1457,11 @@ ElemDDLReferences::getReferencedTableName() const
 // mutator
 //
 
-void
-ElemDDLReferences::setChild(Lng32 index, ExprNode * pChildNode)
-{
+void ElemDDLReferences::setChild(Lng32 index, ExprNode *pChildNode) {
   ComASSERT(index >= 0 AND index < getArity());
-  if (pChildNode EQU NULL)
-  {
+  if (pChildNode EQU NULL) {
     children_[index] = NULL;
-  }
-  else
-  {
+  } else {
     ComASSERT(pChildNode->castToElemDDLNode() NEQ NULL);
     children_[index] = pChildNode->castToElemDDLNode();
   }
@@ -3111,16 +1471,12 @@ ElemDDLReferences::setChild(Lng32 index, ExprNode * pChildNode)
 // methods for tracing
 //
 
-const NAString
-ElemDDLReferences::displayLabel1() const
-{
+const NAString ElemDDLReferences::displayLabel1() const {
   return NAString("Referenced table name: ") + getReferencedTableName();
 }
 
-NATraceList
-ElemDDLReferences::getDetailInfo() const
-{
-  NAString        detailText;
+NATraceList ElemDDLReferences::getDetailInfo() const {
+  NAString detailText;
   NATraceList detailTextList;
 
   //
@@ -3133,12 +1489,9 @@ ElemDDLReferences::getDetailInfo() const
   // referenced columns
   //
 
-  if (getReferencedColumns() EQU NULL)
-  {
+  if (getReferencedColumns() EQU NULL) {
     detailTextList.append("Referenced column list not specified.");
-  }
-  else
-  {
+  } else {
     CollIndex nbrCols = getReferencedColumns()->entries();
     ComASSERT(nbrCols > 0);
 
@@ -3147,48 +1500,35 @@ ElemDDLReferences::getDetailInfo() const
     detailText += " element(s)]:";
     detailTextList.append(detailText);
 
-    for (CollIndex i = 0; i < nbrCols; i++)
-    {
+    for (CollIndex i = 0; i < nbrCols; i++) {
       detailText = "[referenced column ";
       detailText += LongToNAString((Lng32)i);
       detailText += "]";
       detailTextList.append(detailText);
 
-      NATraceList refColDetailTextList
-        = (*getReferencedColumns())[i]->getDetailInfo();
+      NATraceList refColDetailTextList = (*getReferencedColumns())[i]->getDetailInfo();
 
-      for (CollIndex j = 0; j < refColDetailTextList.entries(); j++)
-      {
+      for (CollIndex j = 0; j < refColDetailTextList.entries(); j++) {
         detailTextList.append(NAString("    ") + refColDetailTextList[j]);
       }
     }
-  } // else (getReferencedColumns() NEQ NULL)
+  }  // else (getReferencedColumns() NEQ NULL)
 
   return detailTextList;
 
-} // ElemDDLReferences::getDetailInfo()
+}  // ElemDDLReferences::getDetailInfo()
 
-const NAString
-ElemDDLReferences::getText() const
-{
-  return "ElemDDLReferences";
-}
+const NAString ElemDDLReferences::getText() const { return "ElemDDLReferences"; }
 
 // -----------------------------------------------------------------------
 // methods for class ElemDDLSchemaName
 // -----------------------------------------------------------------------
 
 // virtual destructor
-ElemDDLSchemaName::~ElemDDLSchemaName()
-{
-}
+ElemDDLSchemaName::~ElemDDLSchemaName() {}
 
 // cast virtual function
-ElemDDLSchemaName *
-ElemDDLSchemaName::castToElemDDLSchemaName()
-{
-  return this;
-}
+ElemDDLSchemaName *ElemDDLSchemaName::castToElemDDLSchemaName() { return this; }
 
 // -----------------------------------------------------------------------
 // methods for class ElemDDLTableFeature
@@ -3197,10 +1537,8 @@ ElemDDLSchemaName::castToElemDDLSchemaName()
 // methods for tracing
 //
 
-const NAString
-ElemDDLTableFeature::displayLabel1() const
-{
-  NAString tableAttr ("Table options: ");
+const NAString ElemDDLTableFeature::displayLabel1() const {
+  NAString tableAttr("Table options: ");
   if (isDroppable())
     tableAttr += "DROPPABLE, ";
   else
@@ -3211,11 +1549,7 @@ ElemDDLTableFeature::displayLabel1() const
   return tableAttr;
 }
 
-const NAString
-ElemDDLTableFeature::getText() const
-{
-  return "ElemDDLTableFeature";
-}
+const NAString ElemDDLTableFeature::getText() const { return "ElemDDLTableFeature"; }
 
 // -----------------------------------------------------------------------
 // methods for class ElemDDLHbaseOptions
@@ -3224,17 +1558,9 @@ ElemDDLTableFeature::getText() const
 // methods for tracing
 //
 
-const NAString
-ElemDDLHbaseOptions::displayLabel1() const
-{
-  return "";
-}
+const NAString ElemDDLHbaseOptions::displayLabel1() const { return ""; }
 
-const NAString
-ElemDDLHbaseOptions::getText() const
-{
-  return "ElemDDLHbaseOptions";
-}
+const NAString ElemDDLHbaseOptions::getText() const { return "ElemDDLHbaseOptions"; }
 
 // -----------------------------------------------------------------------
 // methods for class ElemDDLLobStorageOptions
@@ -3243,52 +1569,35 @@ ElemDDLHbaseOptions::getText() const
 // methods for tracing
 //
 
-const NAString
-ElemDDLLobStorageOptions::displayLabel1() const
-{
-  return "";
-}
+const NAString ElemDDLLobStorageOptions::displayLabel1() const { return ""; }
 
-const NAString
-ElemDDLLobStorageOptions::getText() const
-{
-  return "ElemDDLLobStorageOptions";
-}
+const NAString ElemDDLLobStorageOptions::getText() const { return "ElemDDLLobStorageOptions"; }
 
 // -----------------------------------------------------------------------
 // methods for class ElemDDLWithCheckOption
 // -----------------------------------------------------------------------
 
 // virtual destructor
-ElemDDLWithCheckOption::~ElemDDLWithCheckOption()
-{
-}
+ElemDDLWithCheckOption::~ElemDDLWithCheckOption() {}
 
 // cast virtual function
-ElemDDLWithCheckOption *
-ElemDDLWithCheckOption::castToElemDDLWithCheckOption()
-{
-  return this;
-}
+ElemDDLWithCheckOption *ElemDDLWithCheckOption::castToElemDDLWithCheckOption() { return this; }
 
 //
 // accessor
 //
 
-NAString
-ElemDDLWithCheckOption::getLevelAsNAString() const
-{
-  switch (getLevel())
-  {
-  case COM_CASCADED_LEVEL :
-    return "CASCADED";
-  case COM_LOCAL_LEVEL :
-    return "LOCAL";
-  case COM_UNKNOWN_LEVEL :
-    return "UNKNOWN";
-  default :
-    ABORT("internal logic error");
-    return NAString();
+NAString ElemDDLWithCheckOption::getLevelAsNAString() const {
+  switch (getLevel()) {
+    case COM_CASCADED_LEVEL:
+      return "CASCADED";
+    case COM_LOCAL_LEVEL:
+      return "LOCAL";
+    case COM_UNKNOWN_LEVEL:
+      return "UNKNOWN";
+    default:
+      ABORT("internal logic error");
+      return NAString();
   }
 }
 
@@ -3296,100 +1605,71 @@ ElemDDLWithCheckOption::getLevelAsNAString() const
 // methods for tracing
 //
 
-const NAString
-ElemDDLWithCheckOption::displayLabel1() const
-{
-  return NAString("Level: ") + getLevelAsNAString();
-}
+const NAString ElemDDLWithCheckOption::displayLabel1() const { return NAString("Level: ") + getLevelAsNAString(); }
 
-const NAString
-ElemDDLWithCheckOption::getText() const
-{
-  return "ElemDDLWithCheckOption";
-}
+const NAString ElemDDLWithCheckOption::getText() const { return "ElemDDLWithCheckOption"; }
 
 // -----------------------------------------------------------------------
 // methods for class ElemDDLWithGrantOption
 // -----------------------------------------------------------------------
 
 // virtual destructor
-ElemDDLWithGrantOption::~ElemDDLWithGrantOption()
-{
-}
+ElemDDLWithGrantOption::~ElemDDLWithGrantOption() {}
 
 // cast virtual function
-ElemDDLWithGrantOption *
-ElemDDLWithGrantOption::castToElemDDLWithGrantOption()
-{
-  return this;
-}
+ElemDDLWithGrantOption *ElemDDLWithGrantOption::castToElemDDLWithGrantOption() { return this; }
 
 // methods for tracing
-const NAString
-ElemDDLWithGrantOption::getText() const
-{
-  return "ElemDDLWithGrantOption";
-}
+const NAString ElemDDLWithGrantOption::getText() const { return "ElemDDLWithGrantOption"; }
 
 // -----------------------------------------------------------------------
 // methods for class ElemDDLColNameListNode
 // -----------------------------------------------------------------------
 
 // virtual destructor
-ElemDDLColNameListNode :: ~ElemDDLColNameListNode()
-{
-    // delete the column name list
+ElemDDLColNameListNode ::~ElemDDLColNameListNode() {
+  // delete the column name list
 
   delete columnNameList_;
 }
 
 // cast virtual function
-ElemDDLColNameListNode *
-ElemDDLColNameListNode::castToElemDDLColNameListNode()
-{
-  return this;
-}
+ElemDDLColNameListNode *ElemDDLColNameListNode::castToElemDDLColNameListNode() { return this; }
 
 // methods for tracing
-const NAString
-ElemDDLColNameListNode ::getText() const
-{
-  return "ElemDDLColNameListNode";
-}
+const NAString ElemDDLColNameListNode ::getText() const { return "ElemDDLColNameListNode"; }
 
 // -----------------------------------------------------------------------
 // methods for class ElemDDLDivisionClause
 // -----------------------------------------------------------------------
 
-ElemDDLDivisionClause::ElemDDLDivisionClause(ItemExpr * pDivisionExprTree)
-  : ElemDDLNode(ELM_DIVISION_CLAUSE_ELEM),
-    eDivisionType_(DIVISION_BY_EXPR_LIST),
-    pDivisionExprTree_(pDivisionExprTree), // shallow copy - Assume *pDivisionExprTree parse tree allocated in PARSERHEAP()
-    pDivisionExprList_(NULL),
-    pColumnRefList_(NULL),
-    columnRefArray_(PARSERHEAP()),
-    startPos_(0),
-    endPos_(0)
-{
-  pDivisionExprList_ = new(PARSERHEAP()) ItemExprList(pDivisionExprTree, PARSERHEAP());
+ElemDDLDivisionClause::ElemDDLDivisionClause(ItemExpr *pDivisionExprTree)
+    : ElemDDLNode(ELM_DIVISION_CLAUSE_ELEM),
+      eDivisionType_(DIVISION_BY_EXPR_LIST),
+      pDivisionExprTree_(
+          pDivisionExprTree),  // shallow copy - Assume *pDivisionExprTree parse tree allocated in PARSERHEAP()
+      pDivisionExprList_(NULL),
+      pColumnRefList_(NULL),
+      columnRefArray_(PARSERHEAP()),
+      startPos_(0),
+      endPos_(0) {
+  pDivisionExprList_ = new (PARSERHEAP()) ItemExprList(pDivisionExprTree, PARSERHEAP());
 }
 
 ElemDDLDivisionClause::ElemDDLDivisionClause(divisionTypeEnum eDivisionType)
-  : ElemDDLNode(ELM_DIVISION_CLAUSE_ELEM),
-    eDivisionType_(eDivisionType),
-    pDivisionExprTree_(NULL),
-    pDivisionExprList_(NULL),
-    pColumnRefList_(NULL),
-    columnRefArray_(PARSERHEAP()),
-    startPos_(0),
-    endPos_(0)
-{
-  PARSERASSERT(eDivisionType EQU DIVISION_LIKE_TABLE); // valid in CREATE INDEX syntax only
+    : ElemDDLNode(ELM_DIVISION_CLAUSE_ELEM),
+      eDivisionType_(eDivisionType),
+      pDivisionExprTree_(NULL),
+      pDivisionExprList_(NULL),
+      pColumnRefList_(NULL),
+      columnRefArray_(PARSERHEAP()),
+      startPos_(0),
+      endPos_(0) {
+  PARSERASSERT(eDivisionType EQU DIVISION_LIKE_TABLE);  // valid in CREATE INDEX syntax only
 }
 
 // virtual destructor
-ElemDDLDivisionClause::~ElemDDLDivisionClause()
-{
+ElemDDLDivisionClause::~ElemDDLDivisionClause() {
   // Note that we do not destroy the parse tree pointed by data member
   // pDivisionExprTree_ (because the constructor did a shallow copy).
   // We assume that the parse tree is allocated in the PARSERHEAP().
@@ -3397,35 +1677,26 @@ ElemDDLDivisionClause::~ElemDDLDivisionClause()
 }
 
 // safe cast-down virtual function
-ElemDDLDivisionClause * ElemDDLDivisionClause::castToElemDDLDivisionClause()
-{
-  return this;
-}
+ElemDDLDivisionClause *ElemDDLDivisionClause::castToElemDDLDivisionClause() { return this; }
 
 // Gather the information from the child sub-tree and store it in this Parse node
-void ElemDDLDivisionClause::synthesize(ElemDDLNode * pColRefTree)
-{
+void ElemDDLDivisionClause::synthesize(ElemDDLNode *pColRefTree) {
   this->setColumnRefList(pColRefTree);
 
   size_t colRefEntries = 0;
-  if (pColRefTree NEQ NULL)
-    colRefEntries = pColRefTree->entries();
-  if (colRefEntries EQU 1)
-  {
+  if (pColRefTree NEQ NULL) colRefEntries = pColRefTree->entries();
+  if (colRefEntries EQU 1) {
     columnRefArray_.insert(pColRefTree->castToElemDDLColRef());
-  }
-  else if (colRefEntries > 1 AND pColRefTree NEQ NULL)
-  {
-    ElemDDLList * pElemDDLList = pColRefTree->castToElemDDLList();
-    ElemDDLColRef * pElemDDLColRef = NULL;
-    ItemExpr * pDivExpr = NULL;
+  } else if (colRefEntries > 1 AND pColRefTree NEQ NULL) {
+    ElemDDLList *pElemDDLList = pColRefTree->castToElemDDLList();
+    ElemDDLColRef *pElemDDLColRef = NULL;
+    ItemExpr *pDivExpr = NULL;
     ComColumnOrdering eSortingOrder = COM_UNKNOWN_ORDER;
     Int32 iInverseNodeCount = 0;
 
-    for (CollIndex i = 0; i < colRefEntries; i++)
-    {
+    for (CollIndex i = 0; i < colRefEntries; i++) {
       pElemDDLColRef = ((*pElemDDLList)[i])->castToElemDDLColRef();
-      columnRefArray_.insert(pElemDDLColRef); // shallow copy
+      columnRefArray_.insert(pElemDDLColRef);  // shallow copy
 
       // Get the sorting order setting from the division expression parse tree;
       // then assign that value to the associating ElemDDLColRef parse node
@@ -3433,12 +1704,11 @@ void ElemDDLDivisionClause::synthesize(ElemDDLNode * pColRefTree)
       pDivExpr = (*pDivisionExprList_)[i];
       eSortingOrder = COM_ASCENDING_ORDER;
       iInverseNodeCount = 0;
-      while (pDivExpr NEQ NULL AND pDivExpr->getOperatorType() EQU ITM_INVERSE)
-      {
+      while (pDivExpr NEQ NULL AND pDivExpr->getOperatorType() EQU ITM_INVERSE) {
         pDivExpr = pDivExpr->child(0);
         iInverseNodeCount++;
       }
-      if ((iInverseNodeCount % 2) EQU 1) // odd count
+      if ((iInverseNodeCount % 2) EQU 1)  // odd count
         eSortingOrder = COM_DESCENDING_ORDER;
       pElemDDLColRef->setColumnOrdering(eSortingOrder);
     }
@@ -3447,75 +1717,62 @@ void ElemDDLDivisionClause::synthesize(ElemDDLNode * pColRefTree)
 
 // Check to make sure that the number of division expressions in the DIVISION BY ( ... ) clause
 // matches the number of columns specified in the associating COLUMN NAME[S] ( ... ) clause
-NABoolean ElemDDLDivisionClause::isNumOfDivExprsAndColsMatched() const
-{
-  if (pDivisionExprList_ NEQ NULL)
+NABoolean ElemDDLDivisionClause::isNumOfDivExprsAndColsMatched() const {
+  if (pDivisionExprList_ NEQ NULL) {
+    if (pDivisionExprList_->entries() NEQ columnRefArray_.entries()) return FALSE;
+  } else  // pDivisionExprList_ EQU NULL
   {
-    if (pDivisionExprList_->entries() NEQ columnRefArray_.entries())
-      return FALSE;
-  }
-  else // pDivisionExprList_ EQU NULL
-  {
-    if (columnRefArray_.entries() > 0)
-      return FALSE;
+    if (columnRefArray_.entries() > 0) return FALSE;
   }
   return TRUE;
 }
 
 // virtual method for tracing
-const NAString ElemDDLDivisionClause::getText() const
-{
-  return "ElemDDLDivisionClause";
-}
+const NAString ElemDDLDivisionClause::getText() const { return "ElemDDLDivisionClause"; }
 
 // method for building text
-// virtual 
-NAString ElemDDLDivisionClause::getSyntax() const
-{
-  ElemDDLDivisionClause * ncThis = const_cast<ElemDDLDivisionClause *>(this);
-  ItemExprList * pItemExprList = ncThis->getDivisionExprList();
-  ParNameLocList & nameLocList = ncThis->getNameLocList();
-  const char * pInputStr = nameLocList.getInputStringPtr();
+// virtual
+NAString ElemDDLDivisionClause::getSyntax() const {
+  ElemDDLDivisionClause *ncThis = const_cast<ElemDDLDivisionClause *>(this);
+  ItemExprList *pItemExprList = ncThis->getDivisionExprList();
+  ParNameLocList &nameLocList = ncThis->getNameLocList();
+  const char *pInputStr = nameLocList.getInputStringPtr();
   StringPos startPos = this->getStartPosition();
   StringPos endPos = this->getEndPosition();
 
   // Temporary code to help with debugging
-  // *SqlParser_Diags << DgSqlCode(-1110) 
+  // *SqlParser_Diags << DgSqlCode(-1110)
   //                  << DgString0("Define LOOP_ON_ERROR=1110 in file ms.env before starting sqlci");
 
   NAString syntax;
-  if (pItemExprList EQU NULL OR pItemExprList->entries() EQU 0 OR
-      pInputStr EQU NULL OR strlen(pInputStr) EQU 0 OR startPos >= endPos)
+  if (pItemExprList EQU NULL OR pItemExprList->entries() EQU 0 OR pInputStr EQU NULL OR strlen(pInputStr)
+          EQU 0 OR startPos >= endPos)
     return syntax;
 
-  const char * pDivExprListText = &pInputStr[startPos];
+  const char *pDivExprListText = &pInputStr[startPos];
   size_t divExprListTextLenInBytes = (size_t)(endPos + 1 - startPos);
 
   syntax = " DIVISION BY ";
-  if (*pDivExprListText NEQ '(')
-    syntax += "(";
+  if (*pDivExprListText NEQ '(') syntax += "(";
   syntax.append(pDivExprListText, divExprListTextLenInBytes);
-  if (*pDivExprListText NEQ '(')
-    syntax += ")";
+  if (*pDivExprListText NEQ '(') syntax += ")";
   syntax += " ";
 
   return syntax;
 
-} // getSyntax
+}  // getSyntax
 
 // -----------------------------------------------------------------------
 // methods for class ElemDDLSaltOptionsClause
 // -----------------------------------------------------------------------
 
-ElemDDLSaltOptionsClause::ElemDDLSaltOptionsClause(ElemDDLNode * pSaltExprTree,
-                                                   Int32 numPartitions,
+ElemDDLSaltOptionsClause::ElemDDLSaltOptionsClause(ElemDDLNode *pSaltExprTree, Int32 numPartitions,
                                                    Int32 numInitialRegions)
-  : ElemDDLNode(ELM_SALT_OPTIONS_ELEM),
-    numPartitions_(numPartitions),
-    numInitialRegions_(numInitialRegions),
-    saltColumnArray_(PARSERHEAP()),
-    likeTable_(FALSE)
-{
+    : ElemDDLNode(ELM_SALT_OPTIONS_ELEM),
+      numPartitions_(numPartitions),
+      numInitialRegions_(numInitialRegions),
+      saltColumnArray_(PARSERHEAP()),
+      likeTable_(FALSE) {
   setChild(INDEX_SALT_COLUMN_LIST, pSaltExprTree);
   //
   // copies pointers to parse nodes representing
@@ -3525,101 +1782,68 @@ ElemDDLSaltOptionsClause::ElemDDLSaltOptionsClause(ElemDDLNode * pSaltExprTree,
   //
 
   if (pSaltExprTree)
-    for (CollIndex i = 0; i < pSaltExprTree->entries(); i++)
-      {
-        saltColumnArray_.insert((*pSaltExprTree)[i]->castToElemDDLColRef());
-      }
+    for (CollIndex i = 0; i < pSaltExprTree->entries(); i++) {
+      saltColumnArray_.insert((*pSaltExprTree)[i]->castToElemDDLColRef());
+    }
 }
 
 ElemDDLSaltOptionsClause::ElemDDLSaltOptionsClause(NABoolean likeTable)
-  : ElemDDLNode(ELM_SALT_OPTIONS_ELEM),
-    numPartitions_(0),
-    numInitialRegions_(-1),
-    saltColumnArray_(PARSERHEAP()),
-    likeTable_(likeTable)
-{
-}
-
+    : ElemDDLNode(ELM_SALT_OPTIONS_ELEM),
+      numPartitions_(0),
+      numInitialRegions_(-1),
+      saltColumnArray_(PARSERHEAP()),
+      likeTable_(likeTable) {}
 
 // virtual destructor
-ElemDDLSaltOptionsClause::~ElemDDLSaltOptionsClause()
-{
-}
+ElemDDLSaltOptionsClause::~ElemDDLSaltOptionsClause() {}
 
 // safe cast-down virtual function
-ElemDDLSaltOptionsClause * ElemDDLSaltOptionsClause::castToElemDDLSaltOptionsClause()
-{
-  return this;
-}
+ElemDDLSaltOptionsClause *ElemDDLSaltOptionsClause::castToElemDDLSaltOptionsClause() { return this; }
 
 // virtual method for tracing
-const NAString ElemDDLSaltOptionsClause::getText() const
-{
-  return "ElemDDLSaltOptionsClause";
-}
+const NAString ElemDDLSaltOptionsClause::getText() const { return "ElemDDLSaltOptionsClause"; }
 
 // get the degree of this node
-Int32
-ElemDDLSaltOptionsClause::getArity() const
-{
-  return MAX_ELEM_DDL_SALT_OPT_KEY_COLUMN_LIST_ARITY;
-}
+Int32 ElemDDLSaltOptionsClause::getArity() const { return MAX_ELEM_DDL_SALT_OPT_KEY_COLUMN_LIST_ARITY; }
 
-ExprNode *
-ElemDDLSaltOptionsClause::getChild(Lng32 index)
-{ 
+ExprNode *ElemDDLSaltOptionsClause::getChild(Lng32 index) {
   ComASSERT(index >= 0 AND index < getArity());
   return children_[index];
 }
 
 // mutator
-void
-ElemDDLSaltOptionsClause::setChild(Lng32 index, ExprNode * pChildNode)
-{
+void ElemDDLSaltOptionsClause::setChild(Lng32 index, ExprNode *pChildNode) {
   ComASSERT(index >= 0 AND index < MAX_ELEM_DDL_SALT_OPT_KEY_COLUMN_LIST_ARITY);
-  if (pChildNode NEQ NULL)
-  {
+  if (pChildNode NEQ NULL) {
     ComASSERT(pChildNode->castToElemDDLNode() NEQ NULL);
     children_[index] = pChildNode->castToElemDDLNode();
-  }
-  else
-  {
+  } else {
     children_[index] = NULL;
   }
 }
 
+NABoolean ElemDDLSaltOptionsClause::getLikeTable() const { return likeTable_; }
 
-NABoolean
-ElemDDLSaltOptionsClause::getLikeTable() const
-{
-  return likeTable_;
-}
-
-void
-ElemDDLSaltOptionsClause::unparseIt(NAString & result) const
-{
+void ElemDDLSaltOptionsClause::unparseIt(NAString &result) const {
   if (likeTable_)
     result = "SALT LIKE TABLE";
-  else
-    {  
-      char buf[40];
-      sprintf(buf," SALT USING %d PARTITIONS",numPartitions_);
-      result = buf;
+  else {
+    char buf[40];
+    sprintf(buf, " SALT USING %d PARTITIONS", numPartitions_);
+    result = buf;
 
-      if (saltColumnArray_.entries() > 0)
-        {
-          result += " ON (";
-          const ElemDDLColRef * colRef = saltColumnArray_[0];
-          result += colRef->getColumnName();
-          for (CollIndex i = 1; i < saltColumnArray_.entries(); i++)
-            {
-              result += ",";
-              colRef = saltColumnArray_[i];
-              result += colRef->getColumnName();
-            }
-          result += ")";
-        }
+    if (saltColumnArray_.entries() > 0) {
+      result += " ON (";
+      const ElemDDLColRef *colRef = saltColumnArray_[0];
+      result += colRef->getColumnName();
+      for (CollIndex i = 1; i < saltColumnArray_.entries(); i++) {
+        result += ",";
+        colRef = saltColumnArray_[i];
+        result += colRef->getColumnName();
+      }
+      result += ")";
     }
+  }
 }
 
 // -----------------------------------------------------------------------
@@ -3627,33 +1851,20 @@ ElemDDLSaltOptionsClause::unparseIt(NAString & result) const
 // -----------------------------------------------------------------------
 
 ElemDDLReplicateClause::ElemDDLReplicateClause(Int16 numTrafReplicas)
-  : ElemDDLNode(ELM_REPLICATE_CLAUSE_ELEM),
-    numTrafReplicas_(numTrafReplicas)
-{
-}
+    : ElemDDLNode(ELM_REPLICATE_CLAUSE_ELEM), numTrafReplicas_(numTrafReplicas) {}
 
 // virtual destructor
-ElemDDLReplicateClause::~ElemDDLReplicateClause()
-{
-}
+ElemDDLReplicateClause::~ElemDDLReplicateClause() {}
 
 // safe cast-down virtual function
-ElemDDLReplicateClause * ElemDDLReplicateClause::castToElemDDLReplicateClause()
-{
-  return this;
-}
+ElemDDLReplicateClause *ElemDDLReplicateClause::castToElemDDLReplicateClause() { return this; }
 
 // virtual method for tracing
-const NAString ElemDDLReplicateClause::getText() const
-{
-  return "ElemDDLReplicateClause";
-}
+const NAString ElemDDLReplicateClause::getText() const { return "ElemDDLReplicateClause"; }
 
-void
-ElemDDLReplicateClause::unparseIt(NAString & result) const
-{
+void ElemDDLReplicateClause::unparseIt(NAString &result) const {
   char buf[40];
-  sprintf(buf," REPLICATE %d WAYS",numTrafReplicas_);
+  sprintf(buf, " REPLICATE %d WAYS", numTrafReplicas_);
   result = buf;
 }
 

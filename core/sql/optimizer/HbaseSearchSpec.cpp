@@ -22,64 +22,56 @@
 #include "HbaseSearchSpec.h"
 #include "optimizer/ItemColRef.h"
 
-void HbaseSearchSpec::addColumnNames(const ValueIdSet& vs)
-{
+void HbaseSearchSpec::addColumnNames(const ValueIdSet &vs) {
   // TEMP TEMP. Not all needed column names are being set up.
   // for now, return without populating result.
   // that will cause all columns to be retrieved.
-  //return;
+  // return;
 
-   for (ValueId vid = vs.init(); vs.next(vid); vs.advance(vid)) {
-      ItemExpr* ie = vid.getItemExpr();
+  for (ValueId vid = vs.init(); vs.next(vid); vs.advance(vid)) {
+    ItemExpr *ie = vid.getItemExpr();
 
-      NAString colName;
-      if ( ie->getOperatorType() == ITM_BASECOLUMN ) {
-	colName = ((BaseColumn*)ie)->getColName();
-      } else
-	if ( ie->getOperatorType() == ITM_INDEXCOLUMN ) {
-	  colName = ((IndexColumn*)ie)->getNAColumn()->getIndexColName();
-	}
-      
-      if (NOT colNames_.contains(colName))
-	colNames_.insert(colName);
-   }
+    NAString colName;
+    if (ie->getOperatorType() == ITM_BASECOLUMN) {
+      colName = ((BaseColumn *)ie)->getColName();
+    } else if (ie->getOperatorType() == ITM_INDEXCOLUMN) {
+      colName = ((IndexColumn *)ie)->getNAColumn()->getIndexColName();
+    }
+
+    if (NOT colNames_.contains(colName)) colNames_.insert(colName);
+  }
 }
 
-const NAString HbaseSearchSpec::getText() const
-{
-   if ( colNames_.entries() == 0 )
-     return "columns: all ";
+const NAString HbaseSearchSpec::getText() const {
+  if (colNames_.entries() == 0) return "columns: all ";
 
-   NAString result("columns: ");
-   for ( CollIndex i=0; i<colNames_.entries(); i++ ) {
-      result.append(colNames_[i]);
+  NAString result("columns: ");
+  for (CollIndex i = 0; i < colNames_.entries(); i++) {
+    result.append(colNames_[i]);
 
-      if (i < colNames_.entries() - 1)
-         result.append(",");
-   }
+    if (i < colNames_.entries() - 1) result.append(",");
+  }
 
-   result.append(" ");
-   return result;
+  result.append(" ");
+  return result;
 }
 
-static NABoolean extractKeyValuePairs(const NAString& source, NAString& result);
+static NABoolean extractKeyValuePairs(const NAString &source, NAString &result);
 
-const NAString HbaseUniqueRows::getText() const
-{
-   NAString result = HbaseSearchSpec::getText();
+const NAString HbaseUniqueRows::getText() const {
+  NAString result = HbaseSearchSpec::getText();
 
-   for ( CollIndex i=0; i<rowIds_.entries(); i++ ) {
+  for (CollIndex i = 0; i < rowIds_.entries(); i++) {
+    result.append("unique_rows: ");
+    extractKeyValuePairs(rowIds_[i], result);
+    result.append(" ");
+  }
 
-      result.append("unique_rows: ");
-      extractKeyValuePairs(rowIds_[i], result);
-      result.append(" ");
-   }
-
-   return result;
+  return result;
 }
 
 //
-// data (begin or end) is in this format: 
+// data (begin or end) is in this format:
 //  <length><data> ... <length><data>
 //
 // a). length is 2-bytes long
@@ -87,98 +79,90 @@ const NAString HbaseUniqueRows::getText() const
 // c). there are <n> such pairs, where <n> is determined by
 //     the total length of the source and the length of each pair.
 //
-static NABoolean extractKeyValuePairs(const NAString& source, NAString& result) 
-  {
-    UInt16 typeLen = sizeof(UInt16);
-    size_t header = 0;
-    size_t tail = source.length();
-    NABoolean hasData = ( tail > 0 );
-  
-    const char* data = source.data();
-  
-    while ( header < tail ){
-      // get the length of the string
-      size_t begin = header;
-      size_t end = begin + typeLen;
-      // error, do not have enough buffer to read
-      if ( end > tail )
-        break;
-      NAString tmp;
-      source.extract(begin, end-1, tmp);
-  
-      // get the string
-      begin = end;
-      end = begin + (*(UInt16 *)(tmp.data()));
-      // if the string lengh is 0, continue
-      if ( end == begin) {
-        header = end;
-        if ( header < tail )
-          result.append(",");
-        continue;
-      } 
-      // error, do not have enough buffer to read
-      else if ( end > tail )
-        break;
-      // add the new string but stop at any NUL characters
-      tmp.clear();
-      source.extract(begin, end-1, tmp);
-      result.append(tmp.data());
+static NABoolean extractKeyValuePairs(const NAString &source, NAString &result) {
+  UInt16 typeLen = sizeof(UInt16);
+  size_t header = 0;
+  size_t tail = source.length();
+  NABoolean hasData = (tail > 0);
+
+  const char *data = source.data();
+
+  while (header < tail) {
+    // get the length of the string
+    size_t begin = header;
+    size_t end = begin + typeLen;
+    // error, do not have enough buffer to read
+    if (end > tail) break;
+    NAString tmp;
+    source.extract(begin, end - 1, tmp);
+
+    // get the string
+    begin = end;
+    end = begin + (*(UInt16 *)(tmp.data()));
+    // if the string lengh is 0, continue
+    if (end == begin) {
       header = end;
-      if ( header < tail )
-        result.append(",");
+      if (header < tail) result.append(",");
+      continue;
     }
-  
-    return hasData;
+    // error, do not have enough buffer to read
+    else if (end > tail)
+      break;
+    // add the new string but stop at any NUL characters
+    tmp.clear();
+    source.extract(begin, end - 1, tmp);
+    result.append(tmp.data());
+    header = end;
+    if (header < tail) result.append(",");
   }
 
-const NAString HbaseRangeRows::getText() const
-{
-   NAString result = HbaseSearchSpec::getText();
-
-   result.append("begin_keys");
-   result.append(beginKeyExclusive_ ? "(excl)" : "(incl)");
-   result.append(": ");
-
-   // rowId_ (begin or end) is in this format: 
-   //  <length><data> ... <length><data>
-   //
-   // a). length is 2-bytes long
-   // b). data is <length> bytes long
-   // c). there are <n> such pairs, where <n> is determined by
-   //     the total length of the data and the length of each pair.
-
-   extractKeyValuePairs(beginRowId_, result); 
-         
-   result.append(" ");
-
-   result.append("end_keys");
-   result.append(endKeyExclusive_ ? "(excl)" : "(incl)");
-   result.append(": ");
-
-   extractKeyValuePairs(endRowId_, result);
-
-   result.append(" ");
-
-   return result;
+  return hasData;
 }
 
-const NAString ListOfUniqueRows::getText() const
-{
+const NAString HbaseRangeRows::getText() const {
+  NAString result = HbaseSearchSpec::getText();
+
+  result.append("begin_keys");
+  result.append(beginKeyExclusive_ ? "(excl)" : "(incl)");
+  result.append(": ");
+
+  // rowId_ (begin or end) is in this format:
+  //  <length><data> ... <length><data>
+  //
+  // a). length is 2-bytes long
+  // b). data is <length> bytes long
+  // c). there are <n> such pairs, where <n> is determined by
+  //     the total length of the data and the length of each pair.
+
+  extractKeyValuePairs(beginRowId_, result);
+
+  result.append(" ");
+
+  result.append("end_keys");
+  result.append(endKeyExclusive_ ? "(excl)" : "(incl)");
+  result.append(": ");
+
+  extractKeyValuePairs(endRowId_, result);
+
+  result.append(" ");
+
+  return result;
+}
+
+const NAString ListOfUniqueRows::getText() const {
   NAString result;
-  for (CollIndex i=0; i<entries(); i++) {
-     HbaseUniqueRows getRow = (*this)[i];
-     result.append(getRow.getText());
+  for (CollIndex i = 0; i < entries(); i++) {
+    HbaseUniqueRows getRow = (*this)[i];
+    result.append(getRow.getText());
   }
   return result;
 }
 
-const NAString ListOfRangeRows::getText() const
-{
+const NAString ListOfRangeRows::getText() const {
   NAString result;
-  for (CollIndex i=0; i<entries(); i++) {
-     HbaseRangeRows rangeRow = (*this)[i];
-     result.append(rangeRow.getText());
+  for (CollIndex i = 0; i < entries(); i++) {
+    HbaseRangeRows rangeRow = (*this)[i];
+    result.append(rangeRow.getText());
   }
   return result;
 }
-

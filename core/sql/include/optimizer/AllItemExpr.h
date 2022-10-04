@@ -4,7 +4,7 @@
 * File:         AllItemExpr.h
 * Description:  Just a dumb file that includes ItemExpr.h and all the files
 *               that define classes derived from ItemExpr
-*               
+*
 * Created:      11/04/94
 * Language:     C++
 *

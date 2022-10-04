@@ -40,7 +40,6 @@
 **************************************************************************
 */
 
-
 #include "common/Collections.h"
 #include "optimizer/ColumnDesc.h"
 #include "optimizer/ColumnNameMap.h"
@@ -63,9 +62,8 @@ class RoutineDesc;
 // ***********************************************************************
 // RETDesc : A descriptor for the table derived from a RelExpr
 // ***********************************************************************
-class RETDesc : public NABasicObject
-{
-private:
+class RETDesc : public NABasicObject {
+ private:
   // ---------------------------------------------------------------------
   // Disallowed constructor and assignment operator.
   // There are no implementations for these:  not called privately either.
@@ -76,16 +74,16 @@ private:
   //   the end of the stmt to reclaim memory.  But there's no need to write
   //   and allow these, as the public bindWA-passing ctors below suffice.)
   // ---------------------------------------------------------------------
-  RETDesc(const RETDesc&);
-  RETDesc& operator=(const RETDesc&);
-  
-public:
+  RETDesc(const RETDesc &);
+  RETDesc &operator=(const RETDesc &);
+
+ public:
   // ---------------------------------------------------------------------
   // Constructors and destructor
   // ---------------------------------------------------------------------
-  RETDesc(); 
+  RETDesc();
   RETDesc(BindWA *bindWA);
-  RETDesc(BindWA *bindWA, const RETDesc& sourceTable); 
+  RETDesc(BindWA *bindWA, const RETDesc &sourceTable);
   RETDesc(BindWA *bindWA, TableDesc *tdesc, CorrName *newCorrName = NULL);
   RETDesc(BindWA *bindWA, RoutineDesc *rdesc, QualifiedName *newQualName = NULL);
   ~RETDesc();
@@ -94,18 +92,16 @@ public:
   // A list of the tables described by this RETDesc (in the FROM clause
   // of this result table).
   // Only one name (the canonical name) for each table ref appears in the list.
-  // If the includePartitionName flag is set then then the partition name, 
+  // If the includePartitionName flag is set then then the partition name,
   // or partition number, or location name (only one of these can be specified by user)
-  // specified by user will be returned as part of the table name. 
+  // specified by user will be returned as part of the table name.
   // (if these extensions have been specified by the user for the table of interest)
   // ---------------------------------------------------------------------
-  void getTableList(LIST(TableNameMap*) &xtnmList,
-		    NAString *textList = NULL) const;
-  static void formatTableList(LIST(TableNameMap*) &xtnmList,
-			      NAString *textList,
-			      NABoolean includePartitionName = FALSE) /*const*/;
+  void getTableList(LIST(TableNameMap *) & xtnmList, NAString *textList = NULL) const;
+  static void formatTableList(LIST(TableNameMap *) & xtnmList, NAString *textList,
+                              NABoolean includePartitionName = FALSE) /*const*/;
 
-  NABoolean isEmpty() const	{ return xtnm_.isEmpty() && xcnm_.isEmpty(); }
+  NABoolean isEmpty() const { return xtnm_.isEmpty() && xcnm_.isEmpty(); }
 
   // ---------------------------------------------------------------------
   // The number of user columns in the result table.
@@ -117,7 +113,7 @@ public:
   // Get BindWA backpointer, as a non-const reference so can be used as lvalue.
   // Perhaps simpler just to make RETDescList a friend class ...
   // ---------------------------------------------------------------------
-  BindWA *& getBindWA() { return bindWA_; }
+  BindWA *&getBindWA() { return bindWA_; }
 
   // ---------------------------------------------------------------------
   // A list of the result table's user columns.
@@ -127,14 +123,11 @@ public:
   // ---------------------------------------------------------------------
   // A list of the result table's system columns.
   // ---------------------------------------------------------------------
-  const ColumnDescList *getSystemColumnList() const
-  {
-    return &systemColumnList_;
-  }
+  const ColumnDescList *getSystemColumnList() const { return &systemColumnList_; }
 
-  const XTNM &getXTNM() const {return  xtnm_;}
+  const XTNM &getXTNM() const { return xtnm_; }
 
-  const TableDesc *getTableDesc() const {return tdesc_;}
+  const TableDesc *getTableDesc() const { return tdesc_; }
 
   // ---------------------------------------------------------------------
   // A list of the user columns that match a given qualifier.
@@ -142,55 +135,35 @@ public:
   // either because BindRelExpr.C passed in an empty list, or due to
   // enforcement of ANSI 6.3 SR4 in XTNM::insertNames.
   // ---------------------------------------------------------------------
-  ColumnDescList *getQualColumnList(const CorrName& tableName) const
-  {
+  ColumnDescList *getQualColumnList(const CorrName &tableName) const {
     const TableNameMap *table = xtnm_.get(&tableName);
-    return (table != NULL)
-           ? table->getColumnList()
-           : NULL;
+    return (table != NULL) ? table->getColumnList() : NULL;
   }
-
 
   // ---------------------------------------------------------------------
   // The name of the user column at the given position.
   // ---------------------------------------------------------------------
-  const ColRefName& getColRefNameObj(const CollIndex i) const
-  {
-    return userColumnList_[i]->getColRefNameObj();
-  }
+  const ColRefName &getColRefNameObj(const CollIndex i) const { return userColumnList_[i]->getColRefNameObj(); }
 
-  const ColRefName& getSysColRefNameObj(const CollIndex i) const
-  {
-    return systemColumnList_[i]->getColRefNameObj();
-  }
+  const ColRefName &getSysColRefNameObj(const CollIndex i) const { return systemColumnList_[i]->getColRefNameObj(); }
 
   // ---------------------------------------------------------------------
   // The ValueId of the user column at the given position.
   // ---------------------------------------------------------------------
-  ValueId getValueId(const CollIndex i) const
-  {
-    return userColumnList_[i]->getValueId();
-  }
+  ValueId getValueId(const CollIndex i) const { return userColumnList_[i]->getValueId(); }
 
-  ValueId getSysColValueId(const CollIndex i) const
-  {
-    return systemColumnList_[i]->getValueId();
-  }
+  ValueId getSysColValueId(const CollIndex i) const { return systemColumnList_[i]->getValueId(); }
 
   // ---------------------------------------------------------------------
-  // The original ValueId (before castComputedColumnsToAnsiTypes) of 
+  // The original ValueId (before castComputedColumnsToAnsiTypes) of
   // the user column at the given position.
   // ---------------------------------------------------------------------
-  ValueId getOrigValueId(const CollIndex i) const
-  {
-    return userColumnList_[i]->getOrigValueId();
-  }
+  ValueId getOrigValueId(const CollIndex i) const { return userColumnList_[i]->getOrigValueId(); }
 
   // ---------------------------------------------------------------------
   // The NAType of the user column at the given position.
   // ---------------------------------------------------------------------
-  const NAType &getType(const CollIndex i)
-  {
+  const NAType &getType(const CollIndex i) {
     if (naTypeForUserColumnList_.entries() > 0)
       return *naTypeForUserColumnList_[i];
     else
@@ -200,17 +173,14 @@ public:
   // create a list of NATypes corresponding to each entry in the
   // userColumnList_ in RETDesc. Used by generator to convert to
   // this type during output expr code gen.
-  NABoolean createNATypeForUserColumnList(CollHeap * heap);
+  NABoolean createNATypeForUserColumnList(CollHeap *heap);
 
-  void changeNATypeForUserColumnList(CollIndex index, const NAType * newType);
+  void changeNATypeForUserColumnList(CollIndex index, const NAType *newType);
 
   // ---------------------------------------------------------------------
   // The heading of the user column at the given position.
   // ---------------------------------------------------------------------
-  const char *getHeading(const CollIndex i) const
-  {
-    return userColumnList_[i]->getHeading();
-  }
+  const char *getHeading(const CollIndex i) const { return userColumnList_[i]->getHeading(); }
 
   // ---------------------------------------------------------------------
   // Get/set the flags.
@@ -224,73 +194,56 @@ public:
   // ---------------------------------------------------------------------
   // A ValueIdList containing the ValueId of each user column.
   // ---------------------------------------------------------------------
-  void getValueIdList(ValueIdList &vidList,
-		      const ColumnClass colClass = USER_COLUMN) const
-  {
+  void getValueIdList(ValueIdList &vidList, const ColumnClass colClass = USER_COLUMN) const {
     switch (colClass) {
-    case USER_COLUMN:
-      userColumnList_.getValueIdList(vidList);
-      break;
-    case SYSTEM_COLUMN:
-      systemColumnList_.getValueIdList(vidList);
-      break;
-    case USER_AND_SYSTEM_COLUMNS:
-      userColumnList_.getValueIdList(vidList);
-      systemColumnList_.getValueIdList(vidList);
-      break;
-    default:
-      CMPASSERT(FALSE);
+      case USER_COLUMN:
+        userColumnList_.getValueIdList(vidList);
+        break;
+      case SYSTEM_COLUMN:
+        systemColumnList_.getValueIdList(vidList);
+        break;
+      case USER_AND_SYSTEM_COLUMNS:
+        userColumnList_.getValueIdList(vidList);
+        systemColumnList_.getValueIdList(vidList);
+        break;
+      default:
+        CMPASSERT(FALSE);
     }
   }
 
   // ---------------------------------------------------------------------
   // Add a column to the table descriptor.
   // ---------------------------------------------------------------------
-  void addColumn(BindWA *bindWA,
-		 const ColRefName& colRefName,
-                 const ValueId valId,
-                 const ColumnClass colClass = USER_COLUMN,
-		 const char * heading = NULL,
-         const NABoolean isRenameColumn = false);
-  
+  void addColumn(BindWA *bindWA, const ColRefName &colRefName, const ValueId valId,
+                 const ColumnClass colClass = USER_COLUMN, const char *heading = NULL,
+                 const NABoolean isRenameColumn = false);
+
   // ---------------------------------------------------------------------
   // Add a column to potentialUserColumnList_.
   // ---------------------------------------------------------------------
-  void addColumnToPotenialList(const ColRefName &colRefName)
-  {
+  void addColumnToPotenialList(const ColRefName &colRefName) {
     potentialUserColumnList_.insert(colRefName.getColName());
   }
 
   // ---------------------------------------------------------------------
   // Delete a column from the table descriptor.
   // ---------------------------------------------------------------------
-  void delColumn(BindWA *bindWA,			// could be const
-		 const ColRefName& colRefName,
-                 const ColumnClass colClass);
+  void delColumn(BindWA *bindWA,  // could be const
+                 const ColRefName &colRefName, const ColumnClass colClass);
 
   // ---------------------------------------------------------------------
   // Add several columns to the table descriptor.
   // ---------------------------------------------------------------------
-  void addColumns(BindWA *bindWA,
-		  const ColumnDescList& columnList,
-                  const ColumnClass colClass = USER_COLUMN,
-		  const CorrName *newCorrName = NULL)
-  {
+  void addColumns(BindWA *bindWA, const ColumnDescList &columnList, const ColumnClass colClass = USER_COLUMN,
+                  const CorrName *newCorrName = NULL) {
     for (CollIndex i = 0; i < columnList.entries(); i++)
       addColumn(bindWA,
-		newCorrName
-		  ? ColRefName(columnList[i]->getColRefNameObj().getColName(),
-			       *newCorrName)
-		  : columnList[i]->getColRefNameObj(),
-                columnList[i]->getValueId(),
-                colClass,
-		columnList[i]->getHeading());
+                newCorrName ? ColRefName(columnList[i]->getColRefNameObj().getColName(), *newCorrName)
+                            : columnList[i]->getColRefNameObj(),
+                columnList[i]->getValueId(), colClass, columnList[i]->getHeading());
   }
 
-  void addColumns(BindWA *bindWA, 
-		  const RETDesc& sourceTable,
-		  const CorrName *newCorrName = NULL)
-  {
+  void addColumns(BindWA *bindWA, const RETDesc &sourceTable, const CorrName *newCorrName = NULL) {
     addColumns(bindWA, *sourceTable.getColumnList(), USER_COLUMN, newCorrName);
     addColumns(bindWA, *sourceTable.getSystemColumnList(), SYSTEM_COLUMN, newCorrName);
   }
@@ -298,53 +251,41 @@ public:
   // ---------------------------------------------------------------------
   // Null-instantiate and add columns from columnList into the "this" RETDesc.
   // ---------------------------------------------------------------------
-  void nullInstantiateAndAddColumns(BindWA *bindWA,
-				    NABoolean forceCast,
-				    const ColumnDescList& columnList,
-				    const ColumnClass colClass = USER_COLUMN);
+  void nullInstantiateAndAddColumns(BindWA *bindWA, NABoolean forceCast, const ColumnDescList &columnList,
+                                    const ColumnClass colClass = USER_COLUMN);
 
   // ---------------------------------------------------------------------
   // Null-instantiate columns from const "this" into a new returned RETDesc,
   // also appending list of affected columns to nullOutputList.
   // ---------------------------------------------------------------------
-  RETDesc *nullInstantiate(BindWA *bindWA,
-			   NABoolean forceCast,
-			   ValueIdList& nullOutputList) const;
+  RETDesc *nullInstantiate(BindWA *bindWA, NABoolean forceCast, ValueIdList &nullOutputList) const;
 
   // ---------------------------------------------------------------------
   // Lookup the given column name.
   // ---------------------------------------------------------------------
-  ColumnNameMap *findColumn(const ColRefName &name) const
-  {
-    return xcnm_.get(&name);
-  }
+  ColumnNameMap *findColumn(const ColRefName &name) const { return xcnm_.get(&name); }
 
-  ColumnNameMap *findColumn(const NAString &simpleColNameStr) const
-  {
+  ColumnNameMap *findColumn(const NAString &simpleColNameStr) const {
     ColRefName name(simpleColNameStr);
     return findColumn(name);
   }
 
   ColumnNameMap *findColumn(const ValueId vid) const;
 
-  NABoolean isPotentialUserColumn(const NAString &colName) const
-  {
+  NABoolean isPotentialUserColumn(const NAString &colName) const {
     if (potentialUserColumnList_.contains(colName))
       return true;
     else
-      return false;	
+      return false;
   }
 
-        // find an entry whose vid matches and is either
-        // 1. fully-qualified and whose vid matches ...or...
-        // 2. is a fabricated name
+  // find an entry whose vid matches and is either
+  // 1. fully-qualified and whose vid matches ...or...
+  // 2. is a fabricated name
 
   // MVs --
   // Propaget the Op@ and SYKEY columns from a lower scope.
-  void propagateColumn(BindWA		 *bindWA, 
-		       const ColRefName&  colName,
-		       NABoolean	  isFromRoot,
-		       ColumnClass        colClass);
+  void propagateColumn(BindWA *bindWA, const ColRefName &colName, NABoolean isFromRoot, ColumnClass colClass);
   void propagateOpAndSyskeyColumns(BindWA *bindWA, NABoolean isFromRoot);
 
   // ---------------------------------------------------------------------
@@ -354,29 +295,22 @@ public:
 
   void display() const;
 
-  void print(FILE* ofd = stdout,
-	     const char* indent = DEFAULT_INDENT,
-             const char* title = "RETDesc") const;
+  void print(FILE *ofd = stdout, const char *indent = DEFAULT_INDENT, const char *title = "RETDesc") const;
 
-private:
-
+ private:
   // ---------------------------------------------------------------------
   // Create a column descriptor, insert it into the column list, and add
   // the exposed column name(s) to the hash table.
   // ---------------------------------------------------------------------
-  void addColumnDesc(BindWA *bindWA,			// could be const
-		     const ColRefName& colRefName,
-                     const ValueId valId,
-		     const char * heading,
-             const NABoolean isRenameCol,
-                     ColumnDescList& columnList);
+  void addColumnDesc(BindWA *bindWA,  // could be const
+                     const ColRefName &colRefName, const ValueId valId, const char *heading,
+                     const NABoolean isRenameCol, ColumnDescList &columnList);
 
   // ---------------------------------------------------------------------
   // Delete a column descriptor from the column list and the hash table.
   // ---------------------------------------------------------------------
-  void delColumnDesc(BindWA *bindWA,			// could be const
-		     const ColRefName& colRefName,
-                     ColumnDescList& columnList);
+  void delColumnDesc(BindWA *bindWA,  // could be const
+                     const ColRefName &colRefName, ColumnDescList &columnList);
 
   // ---------------------------------------------------------------------
   // A list of the user column descriptors for this table descriptor.
@@ -396,7 +330,7 @@ private:
   // types as the type of the corresponding value id in userColumnList_
   // may have changed between bind and code generate phases.
   // ---------------------------------------------------------------------
-  NAList<NAType*> naTypeForUserColumnList_;
+  NAList<NAType *> naTypeForUserColumnList_;
 
   // table descriptor
   TableDesc *tdesc_;
@@ -431,22 +365,19 @@ private:
   // ---------------------------------------------------------------------
   BindWA *bindWA_;
 
-}; // class RETDesc
+};  // class RETDesc
 
 // ***********************************************************************
 // RETDescList : A list of RETDescs
 // ***********************************************************************
-class RETDescList : public LIST(RETDesc *)
-{
-public:
+class RETDescList : public LIST(RETDesc *) {
+ public:
+  RETDescList(CollHeap *h /*=0*/) : LIST(RETDesc *)(h) {}
 
-  RETDescList(CollHeap* h/*=0*/) : LIST(RETDesc *)(h) {}
- 
   ~RETDescList() { clearAndDestroy(); }
- 
+
   // Remove all descriptors from the list and call their destructors
-  void clearAndDestroy()
-  {
+  void clearAndDestroy() {
     for (CollIndex i = 0; i < entries(); i++) {
       at(i)->getBindWA() = NULL;
       delete at(i);
@@ -454,6 +385,6 @@ public:
     clear();
   }
 
-}; // class RETDescList
+};  // class RETDescList
 
 #endif /* RETDESC_H */

@@ -26,13 +26,13 @@
 *
 * File:         RuAuditRefreshTaskExecutor.cpp
 * Description:  Implementation of class CRUSimpleRefreshTaskExecutor.
-*				
+*
 *
 * Created:      08/14/2000
 * Language:     C++
-* 
 *
-* 
+*
+*
 ******************************************************************************
 */
 
@@ -47,113 +47,96 @@
 //	Constructor and destructor
 //--------------------------------------------------------------------------//
 
-CRUAuditRefreshTaskExecutor::
-CRUAuditRefreshTaskExecutor(CRURefreshTask *pParentTask) :
-	inherited(pParentTask),
-	auditRefreshTEDynamicContainer_(NUM_OF_SQL_STMT),
-	isDeleteMultiTxnContext_(FALSE),
-        pAuditPopIndexdynamicContainer_(NULL),
-	pAuditAvailableIndeXdynamicContainer_(NULL),
-	pAuditUnavailableIndeXdynamicContainer_(NULL),
-        pAuditToggleOnIndexdynamicContainer_(NULL),
-        pAuditToggleOffIndexdynamicContainer_(NULL),
-	pLockTablesTEDynamicContainer_(NULL),
-	isPurgedata_(FALSE),
-	isPopindex_(FALSE),
-	numOfIndexes_(0)
-{}
+CRUAuditRefreshTaskExecutor::CRUAuditRefreshTaskExecutor(CRURefreshTask *pParentTask)
+    : inherited(pParentTask),
+      auditRefreshTEDynamicContainer_(NUM_OF_SQL_STMT),
+      isDeleteMultiTxnContext_(FALSE),
+      pAuditPopIndexdynamicContainer_(NULL),
+      pAuditAvailableIndeXdynamicContainer_(NULL),
+      pAuditUnavailableIndeXdynamicContainer_(NULL),
+      pAuditToggleOnIndexdynamicContainer_(NULL),
+      pAuditToggleOffIndexdynamicContainer_(NULL),
+      pLockTablesTEDynamicContainer_(NULL),
+      isPurgedata_(FALSE),
+      isPopindex_(FALSE),
+      numOfIndexes_(0) {}
 
-CRUAuditRefreshTaskExecutor::~CRUAuditRefreshTaskExecutor() 
-{
-	delete pLockTablesTEDynamicContainer_;
+CRUAuditRefreshTaskExecutor::~CRUAuditRefreshTaskExecutor() {
+  delete pLockTablesTEDynamicContainer_;
 
-        if( 0 < numOfIndexes_ )
-        {
-	  delete pAuditPopIndexdynamicContainer_;
-	  delete pAuditAvailableIndeXdynamicContainer_;
-	  delete pAuditUnavailableIndeXdynamicContainer_;        
-          delete pAuditToggleOnIndexdynamicContainer_ ;        
-          delete pAuditToggleOffIndexdynamicContainer_ ;
-        }        
+  if (0 < numOfIndexes_) {
+    delete pAuditPopIndexdynamicContainer_;
+    delete pAuditAvailableIndeXdynamicContainer_;
+    delete pAuditUnavailableIndeXdynamicContainer_;
+    delete pAuditToggleOnIndexdynamicContainer_;
+    delete pAuditToggleOffIndexdynamicContainer_;
+  }
 }
 
 //--------------------------------------------------------------------------//
 //	CRUAuditRefreshTaskExecutor::StoreRequest()
 //--------------------------------------------------------------------------//
 
-void CRUAuditRefreshTaskExecutor::
-	StoreRequest(CUOFsIpcMessageTranslator &translator)
-{
-	inherited::StoreRequest(translator);
+void CRUAuditRefreshTaskExecutor::StoreRequest(CUOFsIpcMessageTranslator &translator) {
+  inherited::StoreRequest(translator);
 
-        translator.WriteBlock(&isPurgedata_, sizeof(BOOL));
-	translator.WriteBlock(&isPopindex_, sizeof(BOOL));
+  translator.WriteBlock(&isPurgedata_, sizeof(BOOL));
+  translator.WriteBlock(&isPopindex_, sizeof(BOOL));
 
-	// Handle audit refresh executor sql dynamic container
-	auditRefreshTEDynamicContainer_.StoreData(translator);
-	
-	// Handle isDeleteMultiTxnContext_ data member
-	translator.WriteBlock(&isDeleteMultiTxnContext_,sizeof(BOOL));
+  // Handle audit refresh executor sql dynamic container
+  auditRefreshTEDynamicContainer_.StoreData(translator);
 
-        translator.WriteBlock(&numOfIndexes_, sizeof(TInt32));
+  // Handle isDeleteMultiTxnContext_ data member
+  translator.WriteBlock(&isDeleteMultiTxnContext_, sizeof(BOOL));
 
-	if (0 < numOfIndexes_)
-	{
-		pAuditPopIndexdynamicContainer_->StoreData(translator);
-		pAuditAvailableIndeXdynamicContainer_->StoreData(translator);
-		pAuditUnavailableIndeXdynamicContainer_->StoreData(translator);
-                pAuditToggleOnIndexdynamicContainer_->StoreData(translator);
-                pAuditToggleOffIndexdynamicContainer_->StoreData(translator);
-	}
+  translator.WriteBlock(&numOfIndexes_, sizeof(TInt32));
 
-	translator.SetMessageType(CUOFsIpcMessageTranslator::
-						RU_AUDIT_REFRESH_EXECUTOR);
+  if (0 < numOfIndexes_) {
+    pAuditPopIndexdynamicContainer_->StoreData(translator);
+    pAuditAvailableIndeXdynamicContainer_->StoreData(translator);
+    pAuditUnavailableIndeXdynamicContainer_->StoreData(translator);
+    pAuditToggleOnIndexdynamicContainer_->StoreData(translator);
+    pAuditToggleOffIndexdynamicContainer_->StoreData(translator);
+  }
+
+  translator.SetMessageType(CUOFsIpcMessageTranslator::RU_AUDIT_REFRESH_EXECUTOR);
 }
 
 //--------------------------------------------------------------------------//
 //	CRUAuditRefreshTaskExecutor::LoadRequest()
 //--------------------------------------------------------------------------//
 
-void CRUAuditRefreshTaskExecutor::
-	LoadRequest(CUOFsIpcMessageTranslator &translator)
-{
-	inherited::LoadRequest(translator);
+void CRUAuditRefreshTaskExecutor::LoadRequest(CUOFsIpcMessageTranslator &translator) {
+  inherited::LoadRequest(translator);
 
-        translator.ReadBlock(&isPurgedata_, sizeof(BOOL));
-	translator.ReadBlock(&isPopindex_, sizeof(BOOL));
+  translator.ReadBlock(&isPurgedata_, sizeof(BOOL));
+  translator.ReadBlock(&isPopindex_, sizeof(BOOL));
 
-	// Handle refresh executor sql dynamic container
-	auditRefreshTEDynamicContainer_.LoadData(translator);
-	
-	// Handle isDeleteMultiTxnContext_ data member
-	translator.ReadBlock(&isDeleteMultiTxnContext_,sizeof(BOOL));
+  // Handle refresh executor sql dynamic container
+  auditRefreshTEDynamicContainer_.LoadData(translator);
 
-        translator.ReadBlock(&numOfIndexes_, sizeof(TInt32));
+  // Handle isDeleteMultiTxnContext_ data member
+  translator.ReadBlock(&isDeleteMultiTxnContext_, sizeof(BOOL));
 
-	if (0 < numOfIndexes_)
-	{
-		pAuditPopIndexdynamicContainer_ =  
-			new CRUSQLDynamicStatementContainer(numOfIndexes_);
+  translator.ReadBlock(&numOfIndexes_, sizeof(TInt32));
 
-		pAuditAvailableIndeXdynamicContainer_ =
-			new CRUSQLDynamicStatementContainer(numOfIndexes_);
+  if (0 < numOfIndexes_) {
+    pAuditPopIndexdynamicContainer_ = new CRUSQLDynamicStatementContainer(numOfIndexes_);
 
-                pAuditUnavailableIndeXdynamicContainer_ = 
-			new CRUSQLDynamicStatementContainer(numOfIndexes_);
+    pAuditAvailableIndeXdynamicContainer_ = new CRUSQLDynamicStatementContainer(numOfIndexes_);
 
-		pAuditToggleOnIndexdynamicContainer_ = 
-			new CRUSQLDynamicStatementContainer(numOfIndexes_);
+    pAuditUnavailableIndeXdynamicContainer_ = new CRUSQLDynamicStatementContainer(numOfIndexes_);
 
-		pAuditToggleOffIndexdynamicContainer_ = 
-			new CRUSQLDynamicStatementContainer(numOfIndexes_);
+    pAuditToggleOnIndexdynamicContainer_ = new CRUSQLDynamicStatementContainer(numOfIndexes_);
 
+    pAuditToggleOffIndexdynamicContainer_ = new CRUSQLDynamicStatementContainer(numOfIndexes_);
 
-		pAuditPopIndexdynamicContainer_->LoadData(translator);
-		pAuditAvailableIndeXdynamicContainer_->LoadData(translator);
-		pAuditUnavailableIndeXdynamicContainer_->LoadData(translator);
-                pAuditToggleOnIndexdynamicContainer_->LoadData(translator);
-                pAuditToggleOffIndexdynamicContainer_->LoadData(translator);
-	}
+    pAuditPopIndexdynamicContainer_->LoadData(translator);
+    pAuditAvailableIndeXdynamicContainer_->LoadData(translator);
+    pAuditUnavailableIndeXdynamicContainer_->LoadData(translator);
+    pAuditToggleOnIndexdynamicContainer_->LoadData(translator);
+    pAuditToggleOffIndexdynamicContainer_->LoadData(translator);
+  }
 }
 
 //--------------------------------------------------------------------------//
@@ -162,93 +145,79 @@ void CRUAuditRefreshTaskExecutor::
 //	Initialize data members by analyzing the RefreshTask
 //--------------------------------------------------------------------------//
 
-void CRUAuditRefreshTaskExecutor::Init()
-{
-	inherited::Init();
-	
-	RUASSERT(TRUE == HasWork());
+void CRUAuditRefreshTaskExecutor::Init() {
+  inherited::Init();
 
-	if (FALSE == GetRefreshTask()->NeedToExecuteInternalRefresh())
-	{
-		return;
-	}
+  RUASSERT(TRUE == HasWork());
 
-        Lng32 refreshPattern = GetRootMV().GetRefreshPatternMap();
-	isPurgedata_ = (0 != (refreshPattern & CRUMV::PURGEDATA));
-	isPopindex_ = (0 != (refreshPattern & CRUMV::POPINDEX));
+  if (FALSE == GetRefreshTask()->NeedToExecuteInternalRefresh()) {
+    return;
+  }
 
-	CRUMV &mv = GetRootMV();
-	if (mv.GetCommitNRows() != 0 && 
-		TRUE == GetRootMV().IsMultiTxnContext())
-	{
-		RUASSERT(TRUE == GetRefreshTask()->IsRecompute());
+  Lng32 refreshPattern = GetRootMV().GetRefreshPatternMap();
+  isPurgedata_ = (0 != (refreshPattern & CRUMV::PURGEDATA));
+  isPopindex_ = (0 != (refreshPattern & CRUMV::POPINDEX));
 
-		// We need to drop multi-txn context table
-		// becuase we are recomputing a multi-txn mv
-		isDeleteMultiTxnContext_ = TRUE;
-	}
+  CRUMV &mv = GetRootMV();
+  if (mv.GetCommitNRows() != 0 && TRUE == GetRootMV().IsMultiTxnContext()) {
+    RUASSERT(TRUE == GetRefreshTask()->IsRecompute());
 
-	// We must synchronize between the table and the mv, so we need to 
-	// lock the table partitions
-	// Here we copy the partitions file names in order to allow access to 
-	// the files in the remote process when DDOL is not built
-	tableLockProtocol_ = new CRUTableLockProtocol();
-	tableLockProtocol_->Init(mv.GetTablesUsedByMe(), 
-				 GetRefreshTask()->GetDeltaDefList());
+    // We need to drop multi-txn context table
+    // becuase we are recomputing a multi-txn mv
+    isDeleteMultiTxnContext_ = TRUE;
+  }
 
-	ComposeMySql();
+  // We must synchronize between the table and the mv, so we need to
+  // lock the table partitions
+  // Here we copy the partitions file names in order to allow access to
+  // the files in the remote process when DDOL is not built
+  tableLockProtocol_ = new CRUTableLockProtocol();
+  tableLockProtocol_->Init(mv.GetTablesUsedByMe(), GetRefreshTask()->GetDeltaDefList());
+
+  ComposeMySql();
 }
 
 //--------------------------------------------------------------------------//
 //	CRUAuditRefreshTaskExecutor::ComposeMySql()
 //--------------------------------------------------------------------------//
 
-void CRUAuditRefreshTaskExecutor::ComposeMySql()
-{
-	CRUSimpleRefreshSQLComposer myComposer(GetRefreshTask());
-	CRUMV &rootMV = GetRootMV();        	
+void CRUAuditRefreshTaskExecutor::ComposeMySql() {
+  CRUSimpleRefreshSQLComposer myComposer(GetRefreshTask());
+  CRUMV &rootMV = GetRootMV();
 
-	if (TRUE == isDeleteMultiTxnContext_)
-	{
-		myComposer.ComposeDeleteContextLogTable();
+  if (TRUE == isDeleteMultiTxnContext_) {
+    myComposer.ComposeDeleteContextLogTable();
 
-		auditRefreshTEDynamicContainer_.SetStatementText
-			(DELETE_MULT_TXN_CTX_TBL,myComposer.GetSQL());
-	}
+    auditRefreshTEDynamicContainer_.SetStatementText(DELETE_MULT_TXN_CTX_TBL, myComposer.GetSQL());
+  }
 
-        // POPINDEX CatApi request
-	if (TRUE == isPopindex_)
-	{
-		numOfIndexes_ = rootMV.GetIndexList().GetCount();
-		              
-		if (0 < numOfIndexes_)
-		{
-			ComposeIndexesSql();
-		}
-	}
+  // POPINDEX CatApi request
+  if (TRUE == isPopindex_) {
+    numOfIndexes_ = rootMV.GetIndexList().GetCount();
 
-	// Compose the LOCK TABLE sql statements for locking all tables 
-	// in the on statement MV initialization 
-	if (CDDObject::eON_STATEMENT == GetRootMVType())
-	{	
-		CRUTblList &tblList = rootMV.GetTablesUsedByMe();
-		
-		DSListPosition pos = tblList.GetHeadPosition();
-		
-		pLockTablesTEDynamicContainer_ = 
-			new CRUSQLDynamicStatementContainer((short)tblList.GetCount());
-		
-		Int32 i=0;
-		
-		while (NULL != pos)
-		{
-			CRUTbl *pTbl = tblList.GetNext(pos);
-			myComposer.ComposeLock(pTbl->GetFullName(), FALSE /*shared*/);
-			pLockTablesTEDynamicContainer_->SetStatementText
-				(i,myComposer.GetSQL());
-			i++;
-		}
-	}
+    if (0 < numOfIndexes_) {
+      ComposeIndexesSql();
+    }
+  }
+
+  // Compose the LOCK TABLE sql statements for locking all tables
+  // in the on statement MV initialization
+  if (CDDObject::eON_STATEMENT == GetRootMVType()) {
+    CRUTblList &tblList = rootMV.GetTablesUsedByMe();
+
+    DSListPosition pos = tblList.GetHeadPosition();
+
+    pLockTablesTEDynamicContainer_ = new CRUSQLDynamicStatementContainer((short)tblList.GetCount());
+
+    Int32 i = 0;
+
+    while (NULL != pos) {
+      CRUTbl *pTbl = tblList.GetNext(pos);
+      myComposer.ComposeLock(pTbl->GetFullName(), FALSE /*shared*/);
+      pLockTablesTEDynamicContainer_->SetStatementText(i, myComposer.GetSQL());
+      i++;
+    }
+  }
 }
 
 //--------------------------------------------------------------------------//
@@ -257,68 +226,66 @@ void CRUAuditRefreshTaskExecutor::ComposeMySql()
 //	Main finite-state machine switch.
 //--------------------------------------------------------------------------//
 
-void CRUAuditRefreshTaskExecutor::Work()
-{
-	switch (GetState())
-	{
-	case EX_START: // MAIN PROCESS
-		{
-			// This state only logs the opening message
-			Start();
-			break;
-		}	
-	case EX_PROLOGUE: // MAIN PROCESS
-		{
-			// This state just starts a transaction  
-			Prologue();
-			break;
-		}
-	case EX_PURGE_DATA: // MAIN PROCESS
-		{
-			RUASSERT(FALSE == IsTransactionOpen());
-			// Execute purgedata from the MV (with indexes)
-			PurgeData();			
-			break;
-		}
-        case EX_REMOTE_START:
-                {
-                        // this state starts up the table lock protocol
-                        // and starts a transaction                 
-                        RemoteStart();
-                        break;
-                }
-	case EX_RECOMPUTE: // REMOTE PROCESS
-		{
-			// This state execute an internal refresh recompute statement 
-			Recompute();
-			break;
-		}
-	case EX_REFRESH: // REMOTE PROCESS
-		{
-			// This state execute an internal refresh statement 
-			// It may be a multi delta refresh or a single delta refresh
-			Refresh();
-			break;
-		}
-        case EX_POPINDEX:	// REMOTE PROCESS
-		{
-			RUASSERT(FALSE == IsTransactionOpen());
-			PopulateIndexes();
-			break;
-		}        
-	case EX_REMOTE_END: // REMOTE PROCESS
-		{
-			RemoteEnd();
-			break;
-		}
-	case EX_EPILOGUE: // MAIN PROCESS
-		{
-			// Update all meta-data concerning the mv and used tables objects
-			Epilogue();
-			break;
-		}
-	default: RUASSERT(FALSE);
-	}
+void CRUAuditRefreshTaskExecutor::Work() {
+  switch (GetState()) {
+    case EX_START:  // MAIN PROCESS
+    {
+      // This state only logs the opening message
+      Start();
+      break;
+    }
+    case EX_PROLOGUE:  // MAIN PROCESS
+    {
+      // This state just starts a transaction
+      Prologue();
+      break;
+    }
+    case EX_PURGE_DATA:  // MAIN PROCESS
+    {
+      RUASSERT(FALSE == IsTransactionOpen());
+      // Execute purgedata from the MV (with indexes)
+      PurgeData();
+      break;
+    }
+    case EX_REMOTE_START: {
+      // this state starts up the table lock protocol
+      // and starts a transaction
+      RemoteStart();
+      break;
+    }
+    case EX_RECOMPUTE:  // REMOTE PROCESS
+    {
+      // This state execute an internal refresh recompute statement
+      Recompute();
+      break;
+    }
+    case EX_REFRESH:  // REMOTE PROCESS
+    {
+      // This state execute an internal refresh statement
+      // It may be a multi delta refresh or a single delta refresh
+      Refresh();
+      break;
+    }
+    case EX_POPINDEX:  // REMOTE PROCESS
+    {
+      RUASSERT(FALSE == IsTransactionOpen());
+      PopulateIndexes();
+      break;
+    }
+    case EX_REMOTE_END:  // REMOTE PROCESS
+    {
+      RemoteEnd();
+      break;
+    }
+    case EX_EPILOGUE:  // MAIN PROCESS
+    {
+      // Update all meta-data concerning the mv and used tables objects
+      Epilogue();
+      break;
+    }
+    default:
+      RUASSERT(FALSE);
+  }
 }
 
 //--------------------------------------------------------------------------//
@@ -327,25 +294,21 @@ void CRUAuditRefreshTaskExecutor::Work()
 //	Implementation of EX_START state
 //--------------------------------------------------------------------------//
 
-void CRUAuditRefreshTaskExecutor::Start()
-{
-	RUASSERT(FALSE == IsTransactionOpen());
+void CRUAuditRefreshTaskExecutor::Start() {
+  RUASSERT(FALSE == IsTransactionOpen());
 
-	LogOpeningMessage();
+  LogOpeningMessage();
 
-	StartTimer();
+  StartTimer();
 
-	TESTPOINT2(CRUGlobals::TESTPOINT130, GetRootMVName())
+  TESTPOINT2(CRUGlobals::TESTPOINT130, GetRootMVName())
 
-	if (FALSE == GetRefreshTask()->NeedToExecuteInternalRefresh())
-	{
-		// There is no delta , we only need to update the metadata 
-		SetState(EX_EPILOGUE);
-	}
-	else
-	{		 
-		SetState(EX_PROLOGUE);
-	}
+  if (FALSE == GetRefreshTask()->NeedToExecuteInternalRefresh()) {
+    // There is no delta , we only need to update the metadata
+    SetState(EX_EPILOGUE);
+  } else {
+    SetState(EX_PROLOGUE);
+  }
 }
 //--------------------------------------------------------------------------//
 //	CRUAuditRefreshTaskExecutor::Prologue()
@@ -353,31 +316,26 @@ void CRUAuditRefreshTaskExecutor::Start()
 //	Implementation of EX_PROLOGUE state
 //--------------------------------------------------------------------------//
 
-void CRUAuditRefreshTaskExecutor::Prologue()
-{
-	RUASSERT(FALSE == IsTransactionOpen());	    
+void CRUAuditRefreshTaskExecutor::Prologue() {
+  RUASSERT(FALSE == IsTransactionOpen());
 
-        BeginTransaction();
-        if (CDDObject::eON_STATEMENT == GetRootMVType())
-	{
-		PrologueHandleOnStatementMV();
-	}
-			
-	SetObjectsUnavailable();		        	      
-        CommitTransaction();
+  BeginTransaction();
+  if (CDDObject::eON_STATEMENT == GetRootMVType()) {
+    PrologueHandleOnStatementMV();
+  }
 
-        TESTPOINT2(CRUGlobals::TESTPOINT102, GetRootMVName());
+  SetObjectsUnavailable();
+  CommitTransaction();
 
-	if (TRUE == isPurgedata_) 
-	{	
-		// purgedata is done in main process           
-		SetState(EX_PURGE_DATA);
-	}
-	else 
-	{
-		// refresh, recompute, and popindex done in remote process
-		SetState(EX_REMOTE_START);
-	}	
+  TESTPOINT2(CRUGlobals::TESTPOINT102, GetRootMVName());
+
+  if (TRUE == isPurgedata_) {
+    // purgedata is done in main process
+    SetState(EX_PURGE_DATA);
+  } else {
+    // refresh, recompute, and popindex done in remote process
+    SetState(EX_REMOTE_START);
+  }
 }
 //--------------------------------------------------------------------------//
 //	CRUAuditRefreshTaskExecutor::RemoteStart()
@@ -385,24 +343,19 @@ void CRUAuditRefreshTaskExecutor::Prologue()
 //	Implementation of EX_REMOTE_START state
 //--------------------------------------------------------------------------//
 
-void CRUAuditRefreshTaskExecutor::RemoteStart()
-{
-	BeginTransaction();
+void CRUAuditRefreshTaskExecutor::RemoteStart() {
+  BeginTransaction();
 
-	if (FALSE == StartTableLockProtocol() )
-	{		
-		SetState(EX_REMOTE_END);
-		return;
-	}  
+  if (FALSE == StartTableLockProtocol()) {
+    SetState(EX_REMOTE_END);
+    return;
+  }
 
-        if (TRUE == IsRecompute())
-	{
-		SetState(EX_RECOMPUTE);
-	}
-	else
-	{
-		SetState(EX_REFRESH);
-	}
+  if (TRUE == IsRecompute()) {
+    SetState(EX_RECOMPUTE);
+  } else {
+    SetState(EX_REFRESH);
+  }
 }
 
 //--------------------------------------------------------------------------//
@@ -413,46 +366,40 @@ void CRUAuditRefreshTaskExecutor::RemoteStart()
 //
 //--------------------------------------------------------------------------//
 
-void CRUAuditRefreshTaskExecutor::SetObjectsUnavailable()
-{
-	if (TRUE == isPopindex_ && 0 < numOfIndexes_)
-	{
-		// Turn all indexes to unavailable state
-		ExecuteIndexStatmenents(*pAuditUnavailableIndeXdynamicContainer_,
-					IDS_RU_INDEXSTATUS_FAILED);
-	} 
+void CRUAuditRefreshTaskExecutor::SetObjectsUnavailable() {
+  if (TRUE == isPopindex_ && 0 < numOfIndexes_) {
+    // Turn all indexes to unavailable state
+    ExecuteIndexStatmenents(*pAuditUnavailableIndeXdynamicContainer_, IDS_RU_INDEXSTATUS_FAILED);
+  }
 
-        // first turn the audit flag ON for the MV table
-        // and set the MV to unavailable
-	CRUMVList &mvList = GetRefreshTask()->GetMVList();
-	DSListPosition pos = mvList.GetHeadPosition();
-	while (NULL != pos)
-	{
-		CRUMV *pMV = mvList.GetNext(pos);
+  // first turn the audit flag ON for the MV table
+  // and set the MV to unavailable
+  CRUMVList &mvList = GetRefreshTask()->GetMVList();
+  DSListPosition pos = mvList.GetHeadPosition();
+  while (NULL != pos) {
+    CRUMV *pMV = mvList.GetNext(pos);
 
-		// Alter table audit uses "ALTER TABLE" syntax
-		// and it cannot be performed if there is a DDL lock.
-		// Due to the transaction protection , for any other transaction
-		// the ddl locks will preserve continuity.
-		pMV->ReleaseDDLLock();
-		pMV->SetMVTableAudit(TRUE);               
-		pMV->SaveMetadata();
-		pMV->CreateDDLLock();
-		
-		// if hasn't been set to initialized, initialize it
-                if( CDDObject::eINITIALIZED != pMV->GetMVStatus() )
-                {
-			pMV->SetMVStatus(CDDObject::eUNAVAILABLE);
-			pMV->SaveMetadata();                
-                }
-	}        
+    // Alter table audit uses "ALTER TABLE" syntax
+    // and it cannot be performed if there is a DDL lock.
+    // Due to the transaction protection , for any other transaction
+    // the ddl locks will preserve continuity.
+    pMV->ReleaseDDLLock();
+    pMV->SetMVTableAudit(TRUE);
+    pMV->SaveMetadata();
+    pMV->CreateDDLLock();
 
-        // Since the mv ddl lock was released and recreated, the popindex
-        // sql statements need to be recomposed
-        if( TRUE == isPopindex_ && 0 < numOfIndexes_ )
-        {
-        	ComposeIndexesSql();
-        }
+    // if hasn't been set to initialized, initialize it
+    if (CDDObject::eINITIALIZED != pMV->GetMVStatus()) {
+      pMV->SetMVStatus(CDDObject::eUNAVAILABLE);
+      pMV->SaveMetadata();
+    }
+  }
+
+  // Since the mv ddl lock was released and recreated, the popindex
+  // sql statements need to be recomposed
+  if (TRUE == isPopindex_ && 0 < numOfIndexes_) {
+    ComposeIndexesSql();
+  }
 }
 
 //--------------------------------------------------------------------------//
@@ -461,25 +408,18 @@ void CRUAuditRefreshTaskExecutor::SetObjectsUnavailable()
 //	Toggle the audit flag for all indices
 //--------------------------------------------------------------------------//
 
-void CRUAuditRefreshTaskExecutor::ToggleIndicesAudit(BOOL flag)
-{
-        RUASSERT(TRUE == isPopindex_);
+void CRUAuditRefreshTaskExecutor::ToggleIndicesAudit(BOOL flag) {
+  RUASSERT(TRUE == isPopindex_);
 
-        if( 0 == numOfIndexes_ )
-        {
-              return;
-        }
+  if (0 == numOfIndexes_) {
+    return;
+  }
 
-        if( TRUE == flag )
-        {      
-              ExecuteIndexStatmenents(*pAuditToggleOnIndexdynamicContainer_, 
-                                        IDS_RU_AUDITTOGGLE_FAILED); 
-        }
-        else
-        {
-              ExecuteIndexStatmenents(*pAuditToggleOffIndexdynamicContainer_,
-                                        IDS_RU_AUDITTOGGLE_FAILED); 
-        }                         
+  if (TRUE == flag) {
+    ExecuteIndexStatmenents(*pAuditToggleOnIndexdynamicContainer_, IDS_RU_AUDITTOGGLE_FAILED);
+  } else {
+    ExecuteIndexStatmenents(*pAuditToggleOffIndexdynamicContainer_, IDS_RU_AUDITTOGGLE_FAILED);
+  }
 }
 
 //--------------------------------------------------------------------------//
@@ -488,35 +428,28 @@ void CRUAuditRefreshTaskExecutor::ToggleIndicesAudit(BOOL flag)
 //	Reset objects to available and set the MV to initialized
 //--------------------------------------------------------------------------//
 
-void CRUAuditRefreshTaskExecutor::ResetObjectsAvailable()
-{
-        CRUMVList &mvList = GetRefreshTask()->GetMVList();
-	DSListPosition pos = mvList.GetHeadPosition();
-	while (NULL != pos)
-	{
-		CRUMV *pMV = mvList.GetNext(pos);
-                BOOL  mvUpdated = FALSE;
-		
-		// if hasn't been set to initialized, initialize it
-                if( CDDObject::eINITIALIZED != pMV->GetMVStatus() )
-                {
-			pMV->SetMVStatus(CDDObject::eINITIALIZED);
-                        mvUpdated = TRUE;
-                }
+void CRUAuditRefreshTaskExecutor::ResetObjectsAvailable() {
+  CRUMVList &mvList = GetRefreshTask()->GetMVList();
+  DSListPosition pos = mvList.GetHeadPosition();
+  while (NULL != pos) {
+    CRUMV *pMV = mvList.GetNext(pos);
+    BOOL mvUpdated = FALSE;
 
-                if (mvUpdated)
-                {
-			pMV->SaveMetadata();
-                }
+    // if hasn't been set to initialized, initialize it
+    if (CDDObject::eINITIALIZED != pMV->GetMVStatus()) {
+      pMV->SetMVStatus(CDDObject::eINITIALIZED);
+      mvUpdated = TRUE;
+    }
 
-	}        
+    if (mvUpdated) {
+      pMV->SaveMetadata();
+    }
+  }
 
-        if (TRUE == isPopindex_ && 0 < numOfIndexes_)
-	{                
-		// Turn all indexes to available state
-		ExecuteIndexStatmenents(*pAuditAvailableIndeXdynamicContainer_,
-					IDS_RU_INDEXSTATUS_FAILED);
-	}	
+  if (TRUE == isPopindex_ && 0 < numOfIndexes_) {
+    // Turn all indexes to available state
+    ExecuteIndexStatmenents(*pAuditAvailableIndeXdynamicContainer_, IDS_RU_INDEXSTATUS_FAILED);
+  }
 }
 
 //--------------------------------------------------------------------------//
@@ -524,44 +457,37 @@ void CRUAuditRefreshTaskExecutor::ResetObjectsAvailable()
 //
 //	Implementation of EX_RECOMPUTE state
 //
-// Prior to executing the internal refresh recompute statement we take 
+// Prior to executing the internal refresh recompute statement we take
 // for optimization reasons an exclusive lock on the mv
 //--------------------------------------------------------------------------//
 
-void CRUAuditRefreshTaskExecutor::Recompute()
-{
-	// TEMPORARY: Commented out until the privilege-skipping lock 
-	// is implemented 
-	
-	// LockMV();
+void CRUAuditRefreshTaskExecutor::Recompute() {
+  // TEMPORARY: Commented out until the privilege-skipping lock
+  // is implemented
 
-	if (FALSE == IsTransactionOpen())
-	{
-		BeginTransaction(); 
-	}
+  // LockMV();
 
-	// Decouple prepare and execute to separate transactions.
-	CDMPreparedStatement *pStat = PrepareRecomputeMV();
-	CommitTransaction();
-	BeginTransaction();
-	ExecuteRecomputeMV(pStat);
+  if (FALSE == IsTransactionOpen()) {
+    BeginTransaction();
+  }
 
-	if (TRUE == isDeleteMultiTxnContext_)
-	{
-		// Delete all rows from the context log table 
-		auditRefreshTEDynamicContainer_.
-			DirectExecStatement(DELETE_MULT_TXN_CTX_TBL);
-	}
+  // Decouple prepare and execute to separate transactions.
+  CDMPreparedStatement *pStat = PrepareRecomputeMV();
+  CommitTransaction();
+  BeginTransaction();
+  ExecuteRecomputeMV(pStat);
 
-        if (TRUE == isPopindex_)
-	{
-		CommitTransaction();
-		SetState(EX_POPINDEX);
-	}
-        else
-        {
-		SetState(EX_REMOTE_END);
-        }
+  if (TRUE == isDeleteMultiTxnContext_) {
+    // Delete all rows from the context log table
+    auditRefreshTEDynamicContainer_.DirectExecStatement(DELETE_MULT_TXN_CTX_TBL);
+  }
+
+  if (TRUE == isPopindex_) {
+    CommitTransaction();
+    SetState(EX_POPINDEX);
+  } else {
+    SetState(EX_REMOTE_END);
+  }
 }
 
 //--------------------------------------------------------------------------//
@@ -572,49 +498,42 @@ void CRUAuditRefreshTaskExecutor::Recompute()
 //  Execute an internal refresh statement (incremental refresh)
 //--------------------------------------------------------------------------//
 
-void CRUAuditRefreshTaskExecutor::Refresh()
-{
-	RUASSERT(TRUE == IsTransactionOpen());
+void CRUAuditRefreshTaskExecutor::Refresh() {
+  RUASSERT(TRUE == IsTransactionOpen());
 
-	// Simulate a system error at this point!
-	TESTPOINT_SEVERE(CRUGlobals::SEVERE_REFRESH_CRASH);
+  // Simulate a system error at this point!
+  TESTPOINT_SEVERE(CRUGlobals::SEVERE_REFRESH_CRASH);
 
-	try 
-	{		
-		ApplyIRCompilerDefaults();
+  try {
+    ApplyIRCompilerDefaults();
 
-		if(TRUE == IsSingleDeltaRefresh())
-		{
-			CDMPreparedStatement *pStat = PrepareSingleDeltaRefresh();
+    if (TRUE == IsSingleDeltaRefresh()) {
+      CDMPreparedStatement *pStat = PrepareSingleDeltaRefresh();
 
-			CommitTransaction();
-			BeginTransaction();
+      CommitTransaction();
+      BeginTransaction();
 
-			ExecuteSingleDeltaRefresh(pStat);
-		}
-		else
-		{
-			StmtList *stmts = PrepareMultiDeltasRefresh();
+      ExecuteSingleDeltaRefresh(pStat);
+    } else {
+      StmtList *stmts = PrepareMultiDeltasRefresh();
 
-			CommitTransaction();
-			BeginTransaction();
+      CommitTransaction();
+      BeginTransaction();
 
-			ExecuteMultiDeltasRefresh(stmts);
-		}
+      ExecuteMultiDeltasRefresh(stmts);
+    }
 
-		ResetIRCompilerDefaults();
+    ResetIRCompilerDefaults();
 
-		ExecuteShowExplain();
+    ExecuteShowExplain();
 
-		SetState(EX_REMOTE_END);
-	}
-	catch (CRUSimpleRefreshTaskExecutor::NeedRecomputeException)
-	{
-		// If a min/max value was deleted an exception will be thrown and
-		// then we need to recompute the mv
-		SetState(EX_RECOMPUTE);
-		SetRecompute(TRUE);
-	}
+    SetState(EX_REMOTE_END);
+  } catch (CRUSimpleRefreshTaskExecutor::NeedRecomputeException) {
+    // If a min/max value was deleted an exception will be thrown and
+    // then we need to recompute the mv
+    SetState(EX_RECOMPUTE);
+    SetRecompute(TRUE);
+  }
 }
 
 //--------------------------------------------------------------------------//
@@ -623,47 +542,41 @@ void CRUAuditRefreshTaskExecutor::Refresh()
 //	Apply the pre-composed CatApi request code to populate the indexes
 //--------------------------------------------------------------------------//
 
-void CRUAuditRefreshTaskExecutor::PopulateIndexes()
-{
-	RUASSERT(TRUE == isPopindex_);
+void CRUAuditRefreshTaskExecutor::PopulateIndexes() {
+  RUASSERT(TRUE == isPopindex_);
 
-	if (0 == numOfIndexes_)
-	{
-		return;
-	}
+  if (0 == numOfIndexes_) {
+    return;
+  }
 
-        // toggle audit flag OFF for indices to do the
-        // side tree insert
-        BeginTransaction();
-        ToggleIndicesAudit(FALSE);        
-        CommitTransaction();
-        
+  // toggle audit flag OFF for indices to do the
+  // side tree insert
+  BeginTransaction();
+  ToggleIndicesAudit(FALSE);
+  CommitTransaction();
 
-	// ?????
-	// Temporary - Should be removed when read commited from unaudited table is implemented
-	BeginTransaction();
+  // ?????
+  // Temporary - Should be removed when read commited from unaudited table is implemented
+  BeginTransaction();
 
 #ifdef _DEBUG
-	CDSString msg(
-		"\nPopulating the secondary indexes of materialized view " 
-		+ GetRootMVName() + "...\n");
+  CDSString msg("\nPopulating the secondary indexes of materialized view " + GetRootMVName() + "...\n");
 
-	CRUGlobals::GetInstance()->
-		LogDebugMessage(CRUGlobals::DUMP_POPINDEX,"",msg);
+  CRUGlobals::GetInstance()->LogDebugMessage(CRUGlobals::DUMP_POPINDEX, "", msg);
 #endif
 
-	ExecuteIndexStatmenents(*pAuditPopIndexdynamicContainer_, IDS_RU_POPINDEX_FAILED);
-        
-        CommitTransaction();
+  ExecuteIndexStatmenents(*pAuditPopIndexdynamicContainer_, IDS_RU_POPINDEX_FAILED);
 
-	TESTPOINT2(CRUGlobals::TESTPOINT105, GetRootMVName());
+  CommitTransaction();
 
-        // toggle the audit flag for the indices back on
-        BeginTransaction();
-        ToggleIndicesAudit(TRUE);
-        // transaction gets committed in EX_REMOTE_END...
+  TESTPOINT2(CRUGlobals::TESTPOINT105, GetRootMVName());
 
-	SetState(EX_REMOTE_END);
+  // toggle the audit flag for the indices back on
+  BeginTransaction();
+  ToggleIndicesAudit(TRUE);
+  // transaction gets committed in EX_REMOTE_END...
+
+  SetState(EX_REMOTE_END);
 }
 
 //--------------------------------------------------------------------------//
@@ -672,101 +585,82 @@ void CRUAuditRefreshTaskExecutor::PopulateIndexes()
 //	Implementation of EX_PURGE_DATA state
 //--------------------------------------------------------------------------//
 
-void CRUAuditRefreshTaskExecutor::PurgeData()
-{
+void CRUAuditRefreshTaskExecutor::PurgeData() {
 #ifdef _DEBUG
-	CDSString msg(
-		"\nPurging the data from materialized view " 
-		+ 
-		GetRootMVName());
-	
-	if (TRUE == isPopindex_)
-	{
-		msg += " and its secondary indexes";
-	}
+  CDSString msg("\nPurging the data from materialized view " + GetRootMVName());
 
-	msg += "...\n";
-	CRUGlobals::GetInstance()->
-		LogDebugMessage(CRUGlobals::DUMP_PURGEDATA,"",msg);
+  if (TRUE == isPopindex_) {
+    msg += " and its secondary indexes";
+  }
+
+  msg += "...\n";
+  CRUGlobals::GetInstance()->LogDebugMessage(CRUGlobals::DUMP_PURGEDATA, "", msg);
 #endif
 
-	GetRootMV().PurgeDataWithIndexes();
+  GetRootMV().PurgeDataWithIndexes();
 
-	TESTPOINT2(CRUGlobals::TESTPOINT103, GetRootMVName());
+  TESTPOINT2(CRUGlobals::TESTPOINT103, GetRootMVName());
 
-        // now start the remote states and do a recompute
-	SetState(EX_REMOTE_START);
+  // now start the remote states and do a recompute
+  SetState(EX_REMOTE_START);
 }
 
 //--------------------------------------------------------------------------//
 //	CRUAuditRefreshTaskExecutor::ComposeIndexesSql()
 //
 //--------------------------------------------------------------------------//
-void CRUAuditRefreshTaskExecutor::ComposeIndexesSql()
-{
-	
-	const CDDIndexList &indexList = GetRootMV().GetIndexList();
+void CRUAuditRefreshTaskExecutor::ComposeIndexesSql() {
+  const CDDIndexList &indexList = GetRootMV().GetIndexList();
 
-	if( NULL == pAuditPopIndexdynamicContainer_ )
-          pAuditPopIndexdynamicContainer_ = 
-		new CRUSQLDynamicStatementContainer(numOfIndexes_);
- 
-        if( NULL == pAuditAvailableIndeXdynamicContainer_ )
-	  pAuditAvailableIndeXdynamicContainer_ =
-		new CRUSQLDynamicStatementContainer(numOfIndexes_);
+  if (NULL == pAuditPopIndexdynamicContainer_)
+    pAuditPopIndexdynamicContainer_ = new CRUSQLDynamicStatementContainer(numOfIndexes_);
 
-        if( NULL == pAuditUnavailableIndeXdynamicContainer_ )
-	  pAuditUnavailableIndeXdynamicContainer_ = 
-		new CRUSQLDynamicStatementContainer(numOfIndexes_);
+  if (NULL == pAuditAvailableIndeXdynamicContainer_)
+    pAuditAvailableIndeXdynamicContainer_ = new CRUSQLDynamicStatementContainer(numOfIndexes_);
 
-        if( NULL == pAuditToggleOnIndexdynamicContainer_ )
-          pAuditToggleOnIndexdynamicContainer_ =
-		new CRUSQLDynamicStatementContainer(numOfIndexes_);
+  if (NULL == pAuditUnavailableIndeXdynamicContainer_)
+    pAuditUnavailableIndeXdynamicContainer_ = new CRUSQLDynamicStatementContainer(numOfIndexes_);
 
-        if( NULL == pAuditToggleOffIndexdynamicContainer_ )
-          pAuditToggleOffIndexdynamicContainer_ =
-		new CRUSQLDynamicStatementContainer(numOfIndexes_);
+  if (NULL == pAuditToggleOnIndexdynamicContainer_)
+    pAuditToggleOnIndexdynamicContainer_ = new CRUSQLDynamicStatementContainer(numOfIndexes_);
 
-	DSListPosition pos = indexList.GetHeadPosition();
-	
-	for (Int32 i=0;NULL != pos;i++)
-	{
-		CDDIndex *pddIndex = indexList.GetNext(pos);
-	
-		CDSString popIdxRqst;
-		GetRootMV().GetPopIndexCatApiRequestText(popIdxRqst, pddIndex);
+  if (NULL == pAuditToggleOffIndexdynamicContainer_)
+    pAuditToggleOffIndexdynamicContainer_ = new CRUSQLDynamicStatementContainer(numOfIndexes_);
 
-		pAuditPopIndexdynamicContainer_->SetStatementText(i, popIdxRqst);
+  DSListPosition pos = indexList.GetHeadPosition();
 
-		CDSString availablepopIdxRqst;
-		GetRootMV().GetUpdateIndexStatusCatApiRequestText(availablepopIdxRqst, 
-								TRUE, /*available*/
-								pddIndex);
+  for (Int32 i = 0; NULL != pos; i++) {
+    CDDIndex *pddIndex = indexList.GetNext(pos);
 
-		pAuditAvailableIndeXdynamicContainer_->SetStatementText(i, availablepopIdxRqst);
+    CDSString popIdxRqst;
+    GetRootMV().GetPopIndexCatApiRequestText(popIdxRqst, pddIndex);
 
-		CDSString unavailableIdxRqst; 
-		GetRootMV().GetUpdateIndexStatusCatApiRequestText(unavailableIdxRqst, 
-								FALSE, /*unavailable*/
-								pddIndex);
+    pAuditPopIndexdynamicContainer_->SetStatementText(i, popIdxRqst);
 
-		pAuditUnavailableIndeXdynamicContainer_->SetStatementText(i, unavailableIdxRqst);
+    CDSString availablepopIdxRqst;
+    GetRootMV().GetUpdateIndexStatusCatApiRequestText(availablepopIdxRqst, TRUE, /*available*/
+                                                      pddIndex);
 
-                CDSString auditOffIdxRqst;
-                GetRootMV().GetToggleAuditCatApiRequestText(auditOffIdxRqst, 
-								FALSE, /* audit OFF */
-								pddIndex);
+    pAuditAvailableIndeXdynamicContainer_->SetStatementText(i, availablepopIdxRqst);
 
-                pAuditToggleOffIndexdynamicContainer_->SetStatementText(i,auditOffIdxRqst);
+    CDSString unavailableIdxRqst;
+    GetRootMV().GetUpdateIndexStatusCatApiRequestText(unavailableIdxRqst, FALSE, /*unavailable*/
+                                                      pddIndex);
 
-                CDSString auditOnIdxRqst;
-                GetRootMV().GetToggleAuditCatApiRequestText(auditOnIdxRqst, 
-								TRUE, /* audit ON */
-								pddIndex);
+    pAuditUnavailableIndeXdynamicContainer_->SetStatementText(i, unavailableIdxRqst);
 
-                pAuditToggleOnIndexdynamicContainer_->SetStatementText(i,auditOnIdxRqst);
+    CDSString auditOffIdxRqst;
+    GetRootMV().GetToggleAuditCatApiRequestText(auditOffIdxRqst, FALSE, /* audit OFF */
+                                                pddIndex);
 
-	}
+    pAuditToggleOffIndexdynamicContainer_->SetStatementText(i, auditOffIdxRqst);
+
+    CDSString auditOnIdxRqst;
+    GetRootMV().GetToggleAuditCatApiRequestText(auditOnIdxRqst, TRUE, /* audit ON */
+                                                pddIndex);
+
+    pAuditToggleOnIndexdynamicContainer_->SetStatementText(i, auditOnIdxRqst);
+  }
 }
 
 //--------------------------------------------------------------------------//
@@ -774,17 +668,14 @@ void CRUAuditRefreshTaskExecutor::ComposeIndexesSql()
 //
 // Execute all the index related statments in the container
 //--------------------------------------------------------------------------//
-void CRUAuditRefreshTaskExecutor::ExecuteIndexStatmenents(CRUSQLDynamicStatementContainer &container, 
-							Lng32 errorCode)
-{
-	short numStmt = container.GetNumOfStmt();
+void CRUAuditRefreshTaskExecutor::ExecuteIndexStatmenents(CRUSQLDynamicStatementContainer &container, Lng32 errorCode) {
+  short numStmt = container.GetNumOfStmt();
 
-	for (short i=0;i<numStmt;i++)
-	{
-		CDMPreparedStatement *pStmt = container.GetPreparedStatement(i);
-	
-		ExecuteStatement(*pStmt, errorCode);
-	}
+  for (short i = 0; i < numStmt; i++) {
+    CDMPreparedStatement *pStmt = container.GetPreparedStatement(i);
+
+    ExecuteStatement(*pStmt, errorCode);
+  }
 }
 
 //--------------------------------------------------------------------------//
@@ -793,16 +684,15 @@ void CRUAuditRefreshTaskExecutor::ExecuteIndexStatmenents(CRUSQLDynamicStatement
 //	Implementation of the REMOTE_END phase see Refresh-Design.doc
 //  for detailed explanation
 //
-//  Unlock used table if necessary  
+//  Unlock used table if necessary
 //--------------------------------------------------------------------------//
 
-void CRUAuditRefreshTaskExecutor::RemoteEnd()
-{
-	RUASSERT(TRUE == IsTransactionOpen());
+void CRUAuditRefreshTaskExecutor::RemoteEnd() {
+  RUASSERT(TRUE == IsTransactionOpen());
 
-	EndTableLockProtocol();
-	CommitTransaction();
-	SetState(EX_EPILOGUE);
+  EndTableLockProtocol();
+  CommitTransaction();
+  SetState(EX_EPILOGUE);
 }
 
 //--------------------------------------------------------------------------//
@@ -813,88 +703,83 @@ void CRUAuditRefreshTaskExecutor::RemoteEnd()
 //  Update the MV's metadata
 //--------------------------------------------------------------------------//
 
-void CRUAuditRefreshTaskExecutor::Epilogue()
-{
-	RUASSERT(FALSE == IsTransactionOpen());
+void CRUAuditRefreshTaskExecutor::Epilogue() {
+  RUASSERT(FALSE == IsTransactionOpen());
 
-        EndTimer();
+  EndTimer();
 
-        BeginTransaction();
+  BeginTransaction();
 
-	// if this is the first refresh, the MV status can be
-        // changed to initialized
-	if( TRUE == GetRefreshTask()->NeedToExecuteInternalRefresh() )
-	{
-        	if (CDDObject::eON_STATEMENT == GetRootMVType())
-		{
-			EpilogueHandleOnStatementMV();
-		}		
-		ResetObjectsAvailable();	
-	}		
+  // if this is the first refresh, the MV status can be
+  // changed to initialized
+  if (TRUE == GetRefreshTask()->NeedToExecuteInternalRefresh()) {
+    if (CDDObject::eON_STATEMENT == GetRootMVType()) {
+      EpilogueHandleOnStatementMV();
+    }
+    ResetObjectsAvailable();
+  }
 
-	FinalMetadataUpdate();
+  FinalMetadataUpdate();
 
-	CommitTransaction();
+  CommitTransaction();
 
-	TESTPOINT2(CRUGlobals::TESTPOINT131, GetRootMVName());
-	
-	LogClosureMessage();
+  TESTPOINT2(CRUGlobals::TESTPOINT131, GetRootMVName());
 
-	SetState(EX_COMPLETE);
+  LogClosureMessage();
+
+  SetState(EX_COMPLETE);
 }
 
 //--------------------------------------------------------------------------//
 //	CRUAuditRefreshTaskExecutor::PrologueHandleOnStatementMV()
 //
 //	Tables used by the ON STATEMENT MV must remain locked throughout the
-//	process of refresh, until the MV's status becomes INITIALIZED. 
+//	process of refresh, until the MV's status becomes INITIALIZED.
 //
 //--------------------------------------------------------------------------//
 
-void CRUAuditRefreshTaskExecutor::PrologueHandleOnStatementMV()
-{
-	CRUTblList &tblList = GetRootMV().GetTablesUsedByMe();
-	DSListPosition pos = tblList.GetHeadPosition();
-		
-	while (NULL != pos)
-	{
-		CRUTbl *pTbl = tblList.GetNext(pos);
+void CRUAuditRefreshTaskExecutor::PrologueHandleOnStatementMV() {
+  CRUTblList &tblList = GetRootMV().GetTablesUsedByMe();
+  DSListPosition pos = tblList.GetHeadPosition();
 
-		pTbl->ExecuteReadProtectedOpen();
-	}
+  while (NULL != pos) {
+    CRUTbl *pTbl = tblList.GetNext(pos);
+
+    pTbl->ExecuteReadProtectedOpen();
+  }
 }
 
 //--------------------------------------------------------------------------//
 //	CRUAuditRefreshTaskExecutor::EpilogueHandleOnStatementMV()
 //
 //	The ON STATEMENT MV's initialization and index population are complete.
-//	Now, its status must become INITIALIZED. From now on, the incremental 
-//	maintenance of the MV must start - every IUD statement on the table 
+//	Now, its status must become INITIALIZED. From now on, the incremental
+//	maintenance of the MV must start - every IUD statement on the table
 //	must update the MV too. In the other words, the statements on the used
 //	tables must be recompiled and inline the MV's update mechanism.
 //
-//	In order to achieve this behavior, the CatApi request that changes the 
+//	In order to achieve this behavior, the CatApi request that changes the
 //	status of an ON STATEMENT MV to INITIALIZED - also touches the timestamps
-//	of all the tables used by this MV. The request must ignore the DDL locks 
-//	on the MV and all the used tables. However, the implementation of the 
-//	CatApi request mechanism does not allow to ignore more than a single DDL 
+//	of all the tables used by this MV. The request must ignore the DDL locks
+//	on the MV and all the used tables. However, the implementation of the
+//	CatApi request mechanism does not allow to ignore more than a single DDL
 //	lock. This is why the DDL locks on the MV and the used tables are dropped
 //	by the Refresh task executor, rather than the RcRelease task executor
 //	(the normal scenario).
 //
 //	The CatApi request is a catalog operation. Therefore, it requires an
-//	exclusive lock on the used tables. However, this cannot happen until 
+//	exclusive lock on the used tables. However, this cannot happen until
 //	the non-transactional RP open on the table is released. On the other
-//	hand, we cannot just release the RP open before turning the MV to 
+//	hand, we cannot just release the RP open before turning the MV to
 //	initialized, because then IUD operations can trickle data into the table
 //	without updating the MV. The solution is to perform a transactional
 //	LOCK TABLE command that will *overlap* the original RP open (thus ensuring
 //	the lock continuity), and to release the RP open immediately afterwards.
-//	The transactional lock will not collide with the DDL operation, and will 
+//	The transactional lock will not collide with the DDL operation, and will
 //	expire together with the transaction.
 //
 //	The operations' timing is as follows:
-//	
+//
 //	--+------...---+-------------+-----------------+---------
 //	  ^            ^             ^                 ^
 //	  |            |             |                 |
@@ -904,28 +789,25 @@ void CRUAuditRefreshTaskExecutor::PrologueHandleOnStatementMV()
 //
 //--------------------------------------------------------------------------//
 
-void CRUAuditRefreshTaskExecutor::EpilogueHandleOnStatementMV()
-{
-	CRUMV &mv = GetRootMV();
+void CRUAuditRefreshTaskExecutor::EpilogueHandleOnStatementMV() {
+  CRUMV &mv = GetRootMV();
 
-	CRUTblList &tblList = mv.GetTablesUsedByMe();
-	DSListPosition pos = tblList.GetHeadPosition();
+  CRUTblList &tblList = mv.GetTablesUsedByMe();
+  DSListPosition pos = tblList.GetHeadPosition();
 
-	Int32 i=0;
+  Int32 i = 0;
 
-	while (NULL != pos)
-	{
-		CRUTbl *pTbl = tblList.GetNext(pos);
-	
-		CDMPreparedStatement *pStat = 
-			pLockTablesTEDynamicContainer_->GetPreparedStatement(i);
+  while (NULL != pos) {
+    CRUTbl *pTbl = tblList.GetNext(pos);
 
-		// Perform the LOCK TABLE statement on the used table
-		// (the lock overlaps the original RP open, therefore
-		// guaranteeing the lock continuity).
-		ExecuteStatement(*pStat,IDS_RU_IREFRESH_FAILED);
+    CDMPreparedStatement *pStat = pLockTablesTEDynamicContainer_->GetPreparedStatement(i);
 
-		// Release the DDL lock AND the read-protected open on the used table.
-		pTbl->ReleaseResources();
-	}
+    // Perform the LOCK TABLE statement on the used table
+    // (the lock overlaps the original RP open, therefore
+    // guaranteeing the lock continuity).
+    ExecuteStatement(*pStat, IDS_RU_IREFRESH_FAILED);
+
+    // Release the DDL lock AND the read-protected open on the used table.
+    pTbl->ReleaseResources();
+  }
 }

@@ -38,7 +38,6 @@
  *****************************************************************************
  */
 
-
 #include "common/ComSmallDefs.h"
 #include "StmtDDLNode.h"
 
@@ -55,105 +54,83 @@ class StmtDDLDropRoutine;
 // -----------------------------------------------------------------------
 // Drop Package statement
 // -----------------------------------------------------------------------
-class StmtDDLDropPackage : public StmtDDLNode
-{
+class StmtDDLDropPackage : public StmtDDLNode {
  public:
-  StmtDDLDropPackage(const QualifiedName & packageQualName,
-                     NABoolean cleanupSpec,
-                     CollHeap * heap)
-    : StmtDDLNode(DDL_DROP_PACKAGE),
-      isCleanupSpec_(cleanupSpec),
-      packageQualName_(packageQualName, heap)
-  {}
+  StmtDDLDropPackage(const QualifiedName &packageQualName, NABoolean cleanupSpec, CollHeap *heap)
+      : StmtDDLNode(DDL_DROP_PACKAGE), isCleanupSpec_(cleanupSpec), packageQualName_(packageQualName, heap) {}
 
   virtual ~StmtDDLDropPackage() {}
 
-  virtual StmtDDLDropPackage* castToStmtDDLDropPackage() { return this; }
+  virtual StmtDDLDropPackage *castToStmtDDLDropPackage() { return this; }
 
-  const QualifiedName& getPackageNameAsQualifiedName() { return packageQualName_; }
+  const QualifiedName &getPackageNameAsQualifiedName() { return packageQualName_; }
 
-  const NAString getPackageName() const
-  {
-    return packageQualName_.getQualifiedNameAsAnsiString();
-  }
+  const NAString getPackageName() const { return packageQualName_.getQualifiedNameAsAnsiString(); }
 
   const NABoolean isCleanupSpecified() const { return isCleanupSpec_; }
   const NABoolean dropIfExists() const { return dropIfExists_; }
   void setDropIfExists(NABoolean v) { dropIfExists_ = v; }
 
-  ExprNode * bindNode(BindWA * pBindWA);
+  ExprNode *bindNode(BindWA *pBindWA);
 
-private:
+ private:
   QualifiedName packageQualName_;
   NABoolean isCleanupSpec_;
   NABoolean dropIfExists_;
 };
 
-
 // -----------------------------------------------------------------------
 // Create Catalog statement
 // -----------------------------------------------------------------------
-class StmtDDLDropRoutine : public StmtDDLNode
-{
-
-public:
-
+class StmtDDLDropRoutine : public StmtDDLNode {
+ public:
   // constructor
-  StmtDDLDropRoutine(ComRoutineType routineType,
-                     const QualifiedName & routineQualName,
-                     const QualifiedName & routineActionQualName,
-                     ComDropBehavior dropBehavior,
-                     NABoolean cleanupSpec,
-                     NABoolean validateSpec,
-                     NAString * pLogFile,
-                     CollHeap * heap = PARSERHEAP());
+  StmtDDLDropRoutine(ComRoutineType routineType, const QualifiedName &routineQualName,
+                     const QualifiedName &routineActionQualName, ComDropBehavior dropBehavior, NABoolean cleanupSpec,
+                     NABoolean validateSpec, NAString *pLogFile, CollHeap *heap = PARSERHEAP());
 
   // virtual destructor
   virtual ~StmtDDLDropRoutine();
 
   // cast
-  virtual StmtDDLDropRoutine * castToStmtDDLDropRoutine();
+  virtual StmtDDLDropRoutine *castToStmtDDLDropRoutine();
 
   // accessors
   inline ComRoutineType getRoutineType() const;
   inline ComDropBehavior getDropBehavior() const;
   inline const NAString getRoutineName() const;
-  inline const QualifiedName & getRoutineNameAsQualifiedName() const;
-  inline       QualifiedName & getRoutineNameAsQualifiedName() ;
+  inline const QualifiedName &getRoutineNameAsQualifiedName() const;
+  inline QualifiedName &getRoutineNameAsQualifiedName();
   inline const NAString getRoutineActionName() const;
-  inline const QualifiedName & getRoutineActionNameAsQualifiedName() const;
-  inline       QualifiedName & getRoutineActionNameAsQualifiedName() ;
+  inline const QualifiedName &getRoutineActionNameAsQualifiedName() const;
+  inline QualifiedName &getRoutineActionNameAsQualifiedName();
   inline const NABoolean isCleanupSpecified() const;
   inline const NABoolean isValidateSpecified() const;
   inline const NABoolean isLogFileSpecified() const;
-  inline const NAString & getLogFile() const;
+  inline const NAString &getLogFile() const;
 
   const NABoolean dropIfExists() const { return dropIfExists_; }
   void setDropIfExists(NABoolean v) { dropIfExists_ = v; }
 
   // for binding
-  ExprNode * bindNode(BindWA *bindWAPtr);
+  ExprNode *bindNode(BindWA *bindWAPtr);
 
   // for tracing
   virtual const NAString displayLabel1() const;
   virtual const NAString displayLabel2() const;
   virtual const NAString getText() const;
 
-
-private:
-
+ private:
   ComRoutineType routineType_;
-  QualifiedName  routineQualName_;
-  QualifiedName  routineActionQualName_;
+  QualifiedName routineQualName_;
+  QualifiedName routineActionQualName_;
   ComDropBehavior dropBehavior_;
   NABoolean isCleanupSpec_;
   NABoolean isValidateSpec_;
-  NAString  *pLogFile_;
+  NAString *pLogFile_;
   NABoolean dropIfExists_;
 
-
-
-}; // class StmtDDLDropRoutine
+};  // class StmtDDLDropRoutine
 
 // -----------------------------------------------------------------------
 // definitions of inline methods for class StmtDDLDropRoutine
@@ -163,85 +140,40 @@ private:
 // accessors
 //
 
-inline ComRoutineType
-StmtDDLDropRoutine::getRoutineType() const
-{
-  return routineType_;
-}
+inline ComRoutineType StmtDDLDropRoutine::getRoutineType() const { return routineType_; }
 
-inline QualifiedName  &
-StmtDDLDropRoutine::getRoutineNameAsQualifiedName()
-{
-  return routineQualName_;
-}
+inline QualifiedName &StmtDDLDropRoutine::getRoutineNameAsQualifiedName() { return routineQualName_; }
 
-inline const QualifiedName &
-StmtDDLDropRoutine::getRoutineNameAsQualifiedName() const
-{
-  return routineQualName_;
-}
+inline const QualifiedName &StmtDDLDropRoutine::getRoutineNameAsQualifiedName() const { return routineQualName_; }
 
-inline QualifiedName &
-StmtDDLDropRoutine::getRoutineActionNameAsQualifiedName()
-{
+inline QualifiedName &StmtDDLDropRoutine::getRoutineActionNameAsQualifiedName() { return routineActionQualName_; }
+
+inline const QualifiedName &StmtDDLDropRoutine::getRoutineActionNameAsQualifiedName() const {
   return routineActionQualName_;
 }
 
-inline const QualifiedName &
-StmtDDLDropRoutine::getRoutineActionNameAsQualifiedName() const
-{
-  return routineActionQualName_;
-}
+inline ComDropBehavior StmtDDLDropRoutine::getDropBehavior() const { return dropBehavior_; }
 
-inline ComDropBehavior
-StmtDDLDropRoutine::getDropBehavior() const
-{
-  return dropBehavior_;
-}
-
-inline const NAString 
-StmtDDLDropRoutine::getRoutineName() const
-{
+inline const NAString StmtDDLDropRoutine::getRoutineName() const {
   return routineQualName_.getQualifiedNameAsAnsiString();
 }
 
-inline const NAString
-StmtDDLDropRoutine::getRoutineActionName() const
-{
+inline const NAString StmtDDLDropRoutine::getRoutineActionName() const {
   return routineActionQualName_.getQualifiedNameAsAnsiString();
 }
 
-inline const NABoolean
-StmtDDLDropRoutine::isCleanupSpecified()const
-{
-  return isCleanupSpec_;
-}
+inline const NABoolean StmtDDLDropRoutine::isCleanupSpecified() const { return isCleanupSpec_; }
 
-inline const NABoolean
-StmtDDLDropRoutine::isValidateSpecified()const
-{
-  return isValidateSpec_;
-}
+inline const NABoolean StmtDDLDropRoutine::isValidateSpecified() const { return isValidateSpec_; }
 
-inline const NABoolean 
-StmtDDLDropRoutine::isLogFileSpecified() const
-{
-  if (pLogFile_)
-    return TRUE;
+inline const NABoolean StmtDDLDropRoutine::isLogFileSpecified() const {
+  if (pLogFile_) return TRUE;
   return FALSE;
 }
 
-inline const NAString &
-StmtDDLDropRoutine::getLogFile() const
-{
+inline const NAString &StmtDDLDropRoutine::getLogFile() const {
   ComASSERT(pLogFile_ NEQ NULL);
   return *pLogFile_;
 }
 
-#endif // STMTDDLDROPROUTINE_H
-
-
-
-
-
-
+#endif  // STMTDDLDROPROUTINE_H

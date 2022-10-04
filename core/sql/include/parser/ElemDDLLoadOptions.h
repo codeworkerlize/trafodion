@@ -28,7 +28,7 @@
  * File:         ElemDDLLoadOptions.h
  * Description:  classes for load options specified in DDL statements
  *
- *               
+ *
  * Created:      9/28/95
  * Language:     C++
  *
@@ -37,7 +37,6 @@
  *
  *****************************************************************************
  */
-
 
 #include "common/BaseTypes.h"
 #include "ElemDDLNode.h"
@@ -57,38 +56,28 @@ class ElemDDLLoadOptISlack;
 // -----------------------------------------------------------------------
 // definition of base class ElemDDLLoadOpt
 // -----------------------------------------------------------------------
-class ElemDDLLoadOpt : public ElemDDLNode
-{
-
-public:
-
+class ElemDDLLoadOpt : public ElemDDLNode {
+ public:
   // default constructor
-  ElemDDLLoadOpt(OperatorTypeEnum operatorType = ELM_ANY_LOAD_OPT_ELEM)
-  : ElemDDLNode(operatorType)
-  { }
+  ElemDDLLoadOpt(OperatorTypeEnum operatorType = ELM_ANY_LOAD_OPT_ELEM) : ElemDDLNode(operatorType) {}
 
   // virtual destructor
   virtual ~ElemDDLLoadOpt();
 
   // cast
-  virtual ElemDDLLoadOpt * castToElemDDLLoadOpt();
+  virtual ElemDDLLoadOpt *castToElemDDLLoadOpt();
 
   // method for tracing
   virtual const NAString getText() const;
 
-
-private:
-
-}; // class ElemDDLLoadOpt
+ private:
+};  // class ElemDDLLoadOpt
 
 // -----------------------------------------------------------------------
 // definition of class ElemDDLLoadOptDSlack
 // -----------------------------------------------------------------------
-class ElemDDLLoadOptDSlack : public ElemDDLLoadOpt
-{
-
-public:
-
+class ElemDDLLoadOptDSlack : public ElemDDLLoadOpt {
+ public:
   enum { DEFAULT_PERCENTAGE = 15 };
 
   // constructor
@@ -98,7 +87,7 @@ public:
   virtual ~ElemDDLLoadOptDSlack();
 
   // cast
-  virtual ElemDDLLoadOptDSlack * castToElemDDLLoadOptDSlack();
+  virtual ElemDDLLoadOptDSlack *castToElemDDLLoadOptDSlack();
 
   // accessors
   inline unsigned short getPercentage() const;
@@ -107,13 +96,10 @@ public:
   virtual const NAString displayLabel1() const;
   virtual const NAString getText() const;
 
-
   // method for building text
   virtual NAString getSyntax() const;
 
-
-private:
-
+ private:
   //
   // method(s)
   //
@@ -126,16 +112,13 @@ private:
 
   unsigned short percentage_;
 
-}; // class ElemDDLLoadOptDSlack
+};  // class ElemDDLLoadOptDSlack
 
 // -----------------------------------------------------------------------
 // definition of class ElemDDLLoadOptISlack
 // -----------------------------------------------------------------------
-class ElemDDLLoadOptISlack : public ElemDDLLoadOpt
-{
-
-public:
-
+class ElemDDLLoadOptISlack : public ElemDDLLoadOpt {
+ public:
   enum { DEFAULT_PERCENTAGE = 15 };
 
   // constructor
@@ -145,7 +128,7 @@ public:
   virtual ~ElemDDLLoadOptISlack();
 
   // cast
-  virtual ElemDDLLoadOptISlack * castToElemDDLLoadOptISlack();
+  virtual ElemDDLLoadOptISlack *castToElemDDLLoadOptISlack();
 
   // accessors
   inline unsigned short getPercentage() const;
@@ -157,8 +140,7 @@ public:
   // method for building text
   virtual NAString getSyntax() const;
 
-private:
-
+ private:
   //
   // method(s)
   //
@@ -171,27 +153,18 @@ private:
 
   unsigned short percentage_;
 
-}; // class ElemDDLLoadOptISlack
-
+};  // class ElemDDLLoadOptISlack
 
 // -----------------------------------------------------------------------
 // definitions of inline methods for class ElemDDLLoadOptDSlack
 // -----------------------------------------------------------------------
 
-inline unsigned short
-ElemDDLLoadOptDSlack::getPercentage() const
-{
-  return percentage_;
-}
+inline unsigned short ElemDDLLoadOptDSlack::getPercentage() const { return percentage_; }
 
 // -----------------------------------------------------------------------
 // definitions of inline methods for class ElemDDLLoadOptISlack
 // -----------------------------------------------------------------------
 
-inline unsigned short
-ElemDDLLoadOptISlack::getPercentage() const
-{
-  return percentage_;
-}
+inline unsigned short ElemDDLLoadOptISlack::getPercentage() const { return percentage_; }
 
-#endif // ELEMDDLLOADOPTIONS_H
+#endif  // ELEMDDLLOADOPTIONS_H

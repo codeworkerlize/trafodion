@@ -26,13 +26,13 @@
 *
 * File:         RuLogCleanupSQLComposer.cpp
 * Description:  Implementation of class CRULogCleanupSQLComposer.
-*				
+*
 *
 * Created:      09/25/2000
 * Language:     C++
-* 
 *
-* 
+*
+*
 ******************************************************************************
 */
 
@@ -45,12 +45,8 @@
 //	Constructor
 //--------------------------------------------------------------------------//
 
-CRULogCleanupSQLComposer::
-CRULogCleanupSQLComposer(CRULogCleanupTask *pTask) :
-	inherited(), 
-	tbl_(pTask->GetTable()),
-	maxInapplicableEpoch_(pTask->GetMaxInapplicableEpoch())
-{}
+CRULogCleanupSQLComposer::CRULogCleanupSQLComposer(CRULogCleanupTask *pTask)
+    : inherited(), tbl_(pTask->GetTable()), maxInapplicableEpoch_(pTask->GetMaxInapplicableEpoch()) {}
 
 //--------------------------------------------------------------------------//
 //	CRULogCleanupSQLComposer::ComposeIUDLogCleanup()
@@ -66,25 +62,24 @@ CRULogCleanupSQLComposer(CRULogCleanupTask *pTask) :
 //
 //--------------------------------------------------------------------------//
 
-void CRULogCleanupSQLComposer::ComposeIUDLogCleanup(CRULogCleanupTaskExecutor::SQL_STATEMENT type)
-{
-	ComposeHeader(tbl_.GetIUDLogFullName(), type);
+void CRULogCleanupSQLComposer::ComposeIUDLogCleanup(CRULogCleanupTaskExecutor::SQL_STATEMENT type) {
+  ComposeHeader(tbl_.GetIUDLogFullName(), type);
 
-	CDSString epochCol("EPOCH");
-	epochCol = ComposeQuotedColName(CRUTbl::logCrtlColPrefix, epochCol);
+  CDSString epochCol("EPOCH");
+  epochCol = ComposeQuotedColName(CRUTbl::logCrtlColPrefix, epochCol);
 
-	// For single-row records
-	sql_ += "\nWHERE\n(" + epochCol + " BETWEEN ";
+  // For single-row records
+  sql_ += "\nWHERE\n(" + epochCol + " BETWEEN ";
 
-	// MAX_SPECIAL_EPOCH+1 is the smallest non-special epoch
-	sql_ += CRUSQLComposer::TInt32ToStr(MAX_SPECIAL_EPOCH+1) + " AND ";
-	// The largest obsolete epoch
-	sql_ += CRUSQLComposer::TInt32ToStr(maxInapplicableEpoch_) + ")\n";
+  // MAX_SPECIAL_EPOCH+1 is the smallest non-special epoch
+  sql_ += CRUSQLComposer::TInt32ToStr(MAX_SPECIAL_EPOCH + 1) + " AND ";
+  // The largest obsolete epoch
+  sql_ += CRUSQLComposer::TInt32ToStr(maxInapplicableEpoch_) + ")\n";
 
-	// For range records
-	sql_ += "OR\n(" + epochCol + " BETWEEN ";
-	sql_ += CRUSQLComposer::TInt32ToStr(-maxInapplicableEpoch_);
-	sql_ += " AND 0);";
+  // For range records
+  sql_ += "OR\n(" + epochCol + " BETWEEN ";
+  sql_ += CRUSQLComposer::TInt32ToStr(-maxInapplicableEpoch_);
+  sql_ += " AND 0);";
 }
 
 //--------------------------------------------------------------------------//
@@ -98,16 +93,15 @@ void CRULogCleanupSQLComposer::ComposeIUDLogCleanup(CRULogCleanupTaskExecutor::S
 //
 //--------------------------------------------------------------------------//
 
-void CRULogCleanupSQLComposer::ComposeRangeLogCleanup()
-{
-	ComposeHeader(tbl_.GetRangeLogFullName(), CRULogCleanupTaskExecutor::CLEAN_IUD_FIRSTN);
+void CRULogCleanupSQLComposer::ComposeRangeLogCleanup() {
+  ComposeHeader(tbl_.GetRangeLogFullName(), CRULogCleanupTaskExecutor::CLEAN_IUD_FIRSTN);
 
-	CDSString epochCol("EPOCH");
-	epochCol = ComposeQuotedColName(CRUTbl::logCrtlColPrefix, epochCol);
+  CDSString epochCol("EPOCH");
+  epochCol = ComposeQuotedColName(CRUTbl::logCrtlColPrefix, epochCol);
 
-	sql_ += "\nWHERE\n(" + epochCol + " <= ";
-	// The largest obsolete epoch
-	sql_ += CRUSQLComposer::TInt32ToStr(maxInapplicableEpoch_) + ");";
+  sql_ += "\nWHERE\n(" + epochCol + " <= ";
+  // The largest obsolete epoch
+  sql_ += CRUSQLComposer::TInt32ToStr(maxInapplicableEpoch_) + ");";
 }
 
 //--------------------------------------------------------------------------//
@@ -116,15 +110,14 @@ void CRULogCleanupSQLComposer::ComposeRangeLogCleanup()
 //  Compose the statement without the predicate
 //  These are the 3 types:
 //  1. Basic: "DELETE FROM <table> "
-//  2. FirstN: "DELETE [FIRST <limit>] FROM <table> " 
+//  2. FirstN: "DELETE [FIRST <limit>] FROM <table> "
 //  3. Multi commit: "DELETE WITH MULTI COMMIT FROM <table> "
 //--------------------------------------------------------------------------//
 
-void CRULogCleanupSQLComposer::ComposeHeader(const CDSString &tableName, CRULogCleanupTaskExecutor::SQL_STATEMENT type)
-{
+void CRULogCleanupSQLComposer::ComposeHeader(const CDSString &tableName,
+                                             CRULogCleanupTaskExecutor::SQL_STATEMENT type) {
   sql_ = "DELETE ";
-  switch(type)
-  {
+  switch (type) {
     case CRULogCleanupTaskExecutor::CLEAN_IUD_BASIC:
       break;
 
@@ -148,8 +141,7 @@ void CRULogCleanupSQLComposer::ComposeHeader(const CDSString &tableName, CRULogC
 // SELECT COUNT(*) FROM <table>
 //--------------------------------------------------------------------------//
 
-void CRULogCleanupSQLComposer::composeGetRowCount()
-{
+void CRULogCleanupSQLComposer::composeGetRowCount() {
   sql_ = "SELECT ";
 
 #if defined(NA_WINNT)

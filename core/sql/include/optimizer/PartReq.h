@@ -47,7 +47,7 @@ class PartitioningRequirement;
 class FuzzyPartitioningRequirement;
 class FullySpecifiedPartitioningRequirement;
 class RequireApproximatelyNPartitions;
-class RequireExactlyOnePartition;  
+class RequireExactlyOnePartition;
 class RequireReplicateViaBroadcast;
 class RequireReplicateNoBroadcast;
 class RequireHash;
@@ -76,20 +76,14 @@ class LogicalPartitioningRequirement;
 // optimizer to state the desired criterion for partitioning namely,
 // either the number of partitions, or the partitioning keys, or both.
 // -----------------------------------------------------------------------
-class PartitioningRequirement : public NABasicObject
-{
-protected:
+class PartitioningRequirement : public NABasicObject {
+ protected:
   // --------------------------------------------------------------------
   // Partitioning requirement category identifier.
   // --------------------------------------------------------------------
-  enum PartitioningRequirementCategoryEnum
-    {
-      FULLY_SPECIFIED_PART_REQ,
-      FUZZY_PART_REQ
-    };
+  enum PartitioningRequirementCategoryEnum { FULLY_SPECIFIED_PART_REQ, FUZZY_PART_REQ };
 
-public:
-
+ public:
   // --------------------------------------------------------------------
   // Destructor functions
   // --------------------------------------------------------------------
@@ -98,58 +92,31 @@ public:
   // ---------------------------------------------------------------------
   // Perform type-safe pointer casts.
   // ---------------------------------------------------------------------
-  virtual const
-  FuzzyPartitioningRequirement*
-                   castToFuzzyPartitioningRequirement() const;
+  virtual const FuzzyPartitioningRequirement *castToFuzzyPartitioningRequirement() const;
 
-  virtual const
-  FullySpecifiedPartitioningRequirement*
-                   castToFullySpecifiedPartitioningRequirement() const;
+  virtual const FullySpecifiedPartitioningRequirement *castToFullySpecifiedPartitioningRequirement() const;
 
-  virtual const
-  RequireApproximatelyNPartitions*
-                   castToRequireApproximatelyNPartitions() const;
+  virtual const RequireApproximatelyNPartitions *castToRequireApproximatelyNPartitions() const;
 
-  virtual const
-  RequireExactlyOnePartition*
-                   castToRequireExactlyOnePartition() const;
+  virtual const RequireExactlyOnePartition *castToRequireExactlyOnePartition() const;
 
-  virtual const
-  RequireReplicateViaBroadcast*
-                   castToRequireReplicateViaBroadcast() const;
+  virtual const RequireReplicateViaBroadcast *castToRequireReplicateViaBroadcast() const;
 
-  virtual const
-  RequireReplicateNoBroadcast*
-                   castToRequireReplicateNoBroadcast() const;
+  virtual const RequireReplicateNoBroadcast *castToRequireReplicateNoBroadcast() const;
 
-  virtual const
-  RequireHash*
-                   castToRequireHash() const;
+  virtual const RequireHash *castToRequireHash() const;
 
-  virtual const
-  RequireHashDist*
-                   castToRequireHashDist() const;
+  virtual const RequireHashDist *castToRequireHashDist() const;
 
-  virtual const
-  RequireHash2*
-                   castToRequireHash2() const;
+  virtual const RequireHash2 *castToRequireHash2() const;
 
-  virtual const
-  RequireSkewed*
-                   castToRequireSkewed() const;
+  virtual const RequireSkewed *castToRequireSkewed() const;
 
+  virtual const RequireRange *castToRequireRange() const;
 
-  virtual const
-  RequireRange*
-                   castToRequireRange() const;
+  virtual const RequireRoundRobin *castToRequireRoundRobin() const;
 
-  virtual const
-  RequireRoundRobin*
-                   castToRequireRoundRobin() const;
-
-  virtual const
-  RequireHive*
-                   castToRequireHive() const;
+  virtual const RequireHive *castToRequireHive() const;
 
   // ---------------------------------------------------------------------
   // The number of partitions that will be formed using this scheme.
@@ -157,57 +124,41 @@ public:
   virtual Lng32 getCountOfPartitions() const;
 
   // Accessor method for the partitioning key
-  virtual const ValueIdSet& getPartitioningKey() const;
-  virtual const ValueIdSet& getPartialPartitioningKey() const 
-  { return getPartitioningKey(); };
+  virtual const ValueIdSet &getPartitioningKey() const;
+  virtual const ValueIdSet &getPartialPartitioningKey() const { return getPartitioningKey(); };
 
   virtual NABoolean partitioningKeyIsSpecified() const;
 
   // ---------------------------------------------------------------------
   // Partitioning Requirement Category Tests
   // ---------------------------------------------------------------------
-  NABoolean isRequirementFullySpecified() const
-    { return (requirementCategory_ == FULLY_SPECIFIED_PART_REQ); }
+  NABoolean isRequirementFullySpecified() const { return (requirementCategory_ == FULLY_SPECIFIED_PART_REQ); }
 
-  NABoolean isRequirementFuzzy() const
-    { return (requirementCategory_ == FUZZY_PART_REQ); }
+  NABoolean isRequirementFuzzy() const { return (requirementCategory_ == FUZZY_PART_REQ); }
 
-  virtual NABoolean partReqAndFuncCompatible
-                           (const PartitioningFunction* other) const;
+  virtual NABoolean partReqAndFuncCompatible(const PartitioningFunction *other) const;
 
-  virtual COMPARE_RESULT comparePartReqToReq
-                           (const PartitioningRequirement* other) const;
+  virtual COMPARE_RESULT comparePartReqToReq(const PartitioningRequirement *other) const;
 
-  virtual NABoolean isRequirementApproximatelyN() const
-    { return FALSE; }
+  virtual NABoolean isRequirementApproximatelyN() const { return FALSE; }
 
-  virtual NABoolean isRequirementExactlyOne() const
-    { return FALSE; }
+  virtual NABoolean isRequirementExactlyOne() const { return FALSE; }
 
-  virtual NABoolean isRequirementReplicateViaBroadcast() const
-    { return FALSE; }
+  virtual NABoolean isRequirementReplicateViaBroadcast() const { return FALSE; }
 
-  virtual NABoolean isRequirementReplicateNoBroadcast() const
-    { return FALSE; }
+  virtual NABoolean isRequirementReplicateNoBroadcast() const { return FALSE; }
 
-  virtual NABoolean isRequirementHash() const
-    { return FALSE; }
+  virtual NABoolean isRequirementHash() const { return FALSE; }
 
-  virtual NABoolean isRequirementSkewed() const
-    { return FALSE; }
+  virtual NABoolean isRequirementSkewed() const { return FALSE; }
 
-  virtual NABoolean isRequirementRange() const
-    { return FALSE; }
+  virtual NABoolean isRequirementRange() const { return FALSE; }
 
-  virtual NABoolean isRequirementRoundRobin() const
-    { return FALSE; }
+  virtual NABoolean isRequirementRoundRobin() const { return FALSE; }
 
-  virtual NABoolean isRequirementSkewBusterBroadcast() const
-    { return FALSE; };
+  virtual NABoolean isRequirementSkewBusterBroadcast() const { return FALSE; };
 
-
-  virtual NABoolean isRequirementHive() const
-    { return FALSE; };
+  virtual NABoolean isRequirementHive() const { return FALSE; };
 
   virtual NABoolean isReplicate() const { return FALSE; }
 
@@ -215,10 +166,8 @@ public:
   // Method used by the optimizer for replacing a partitioning
   // requirement with an actual partitioning function.
   // --------------------------------------------------------------------
-  virtual PartitioningFunction * realize(
-       const Context *myContext,
-       NABoolean useContextPartitioningRequirements = FALSE,
-       const PartitioningRequirement * softRequirements = NULL) ;
+  virtual PartitioningFunction *realize(const Context *myContext, NABoolean useContextPartitioningRequirements = FALSE,
+                                        const PartitioningRequirement *softRequirements = NULL);
 
   // --------------------------------------------------------------------
   // Copy this partitioning requirement and rewrite the copy in terms of
@@ -228,238 +177,174 @@ public:
   // Otherwise, it is rewritten in terms of values in the bottom map.
   // The virtual function remapIt() implements the remapping.
   // --------------------------------------------------------------------
-  PartitioningRequirement* copyAndRemap
-                           (ValueIdMap& map, NABoolean mapItUp) const;
+  PartitioningRequirement *copyAndRemap(ValueIdMap &map, NABoolean mapItUp) const;
 
-  virtual void remapIt(const PartitioningRequirement* opr,
-                       ValueIdMap& map, NABoolean mapItUp);
+  virtual void remapIt(const PartitioningRequirement *opr, ValueIdMap &map, NABoolean mapItUp);
 
   // --------------------------------------------------------------------
   // A method for copying the partitioning function.
   // --------------------------------------------------------------------
-  virtual PartitioningRequirement* copy() const;
+  virtual PartitioningRequirement *copy() const;
 
   // ---------------------------------------------------------------------
   // Print.
   // ---------------------------------------------------------------------
   virtual const NAString getText() const;
-  virtual void print( FILE* ofd = stdout,
-                      const char* indent = DEFAULT_INDENT,
-                      const char* title = "PartitioningRequirement") const;
+  virtual void print(FILE *ofd = stdout, const char *indent = DEFAULT_INDENT,
+                     const char *title = "PartitioningRequirement") const;
 
   virtual void display() const;
 
-protected:
-
+ protected:
   // ---------------------------------------------------------------------
   // The following constructors are used by the derived classes and
   // are therefore hidden from public view.
   // ---------------------------------------------------------------------
-  PartitioningRequirement(const PartitioningRequirementCategoryEnum rCat)
-     : requirementCategory_ (rCat)
-  {
-  }
+  PartitioningRequirement(const PartitioningRequirementCategoryEnum rCat) : requirementCategory_(rCat) {}
 
-  PartitioningRequirement(const PartitioningRequirement& other)        
-     : requirementCategory_ (other.requirementCategory_)
-  {
-  }
+  PartitioningRequirement(const PartitioningRequirement &other) : requirementCategory_(other.requirementCategory_) {}
 
-private :
-
+ private:
   PartitioningRequirementCategoryEnum requirementCategory_;
-}; // class PartitioningRequirement
+};  // class PartitioningRequirement
 
 // -----------------------------------------------------------------------
 // Classes that are derived directly from PartitioningRequirement.
 // -----------------------------------------------------------------------
 
-class FuzzyPartitioningRequirement : public PartitioningRequirement
-{
-protected:
+class FuzzyPartitioningRequirement : public PartitioningRequirement {
+ protected:
   // --------------------------------------------------------------------
   // Partitioning requirement type identifier.
   // --------------------------------------------------------------------
-  enum FuzzyPartReqTypeEnum
-    {
-      APPROXIMATELY_N_PART_REQ
-    };
+  enum FuzzyPartReqTypeEnum { APPROXIMATELY_N_PART_REQ };
 
-public:
-
+ public:
   // ---------------------------------------------------------------------
   // Perform a type-safe pointer cast.
   // ---------------------------------------------------------------------
-  virtual const
-  FuzzyPartitioningRequirement*
-                   castToFuzzyPartitioningRequirement() const;
+  virtual const FuzzyPartitioningRequirement *castToFuzzyPartitioningRequirement() const;
 
   // ---------------------------------------------------------------------
   // The number of partitions that will be formed using this scheme.
   // ---------------------------------------------------------------------
-  virtual Lng32 getCountOfPartitions() const
-    {  return numberOfPartitions_; }
+  virtual Lng32 getCountOfPartitions() const { return numberOfPartitions_; }
 
   // Accessor method for the partitioning key
-  virtual const ValueIdSet& getPartitioningKey() const
-    {  return partitioningKeyColumns_; }
+  virtual const ValueIdSet &getPartitioningKey() const { return partitioningKeyColumns_; }
 
-  virtual NABoolean partitioningKeyIsSpecified() const
-                                   { return partitioningKeyIsSpecified_; }
+  virtual NABoolean partitioningKeyIsSpecified() const { return partitioningKeyIsSpecified_; }
 
-  virtual NABoolean partReqAndFuncCompatible
-                           (const PartitioningFunction* other) const;
+  virtual NABoolean partReqAndFuncCompatible(const PartitioningFunction *other) const;
 
-  virtual COMPARE_RESULT comparePartReqToReq
-                           (const PartitioningRequirement* other) const;
+  virtual COMPARE_RESULT comparePartReqToReq(const PartitioningRequirement *other) const;
 
-  FuzzyPartReqTypeEnum getPartitioningRequirementType() const
-    { return requirementType_;}
+  FuzzyPartReqTypeEnum getPartitioningRequirementType() const { return requirementType_; }
 
-  virtual NABoolean isRequirementApproximatelyN() const
-    { return (requirementType_ == APPROXIMATELY_N_PART_REQ); }
+  virtual NABoolean isRequirementApproximatelyN() const { return (requirementType_ == APPROXIMATELY_N_PART_REQ); }
 
-  virtual void remapIt(const PartitioningRequirement* opr,
-                       ValueIdMap& map, NABoolean mapItUp);
+  virtual void remapIt(const PartitioningRequirement *opr, ValueIdMap &map, NABoolean mapItUp);
 
   // --------------------------------------------------------------------
   // A method for copying the partitioning function.
   // --------------------------------------------------------------------
-  virtual PartitioningRequirement* copy() const;
+  virtual PartitioningRequirement *copy() const;
 
   // ---------------------------------------------------------------------
   // Print.
   // ---------------------------------------------------------------------
-  virtual void print(FILE* ofd = stdout,
-                     const char* indent = DEFAULT_INDENT,
-                     const char* title = "FuzzyPartitioningRequirement") const;
+  virtual void print(FILE *ofd = stdout, const char *indent = DEFAULT_INDENT,
+                     const char *title = "FuzzyPartitioningRequirement") const;
 
   virtual void display() const;
 
   // helper function on skew property
-  virtual const skewProperty& getSkewProperty() const { return skewProperty_; };
-  virtual void setSkewProperty(const skewProperty& sk) { skewProperty_ = sk; };
+  virtual const skewProperty &getSkewProperty() const { return skewProperty_; };
+  virtual void setSkewProperty(const skewProperty &sk) { skewProperty_ = sk; };
 
-protected:
-
+ protected:
   // ---------------------------------------------------------------------
   // The following constructors are used by the derived classes and
   // are therefore hidden from public view.
   // ---------------------------------------------------------------------
-  FuzzyPartitioningRequirement(const FuzzyPartReqTypeEnum rType,
-                               const ValueIdSet& partitioningKeyColumns,
-                               Lng32 numberOfPartitions = 
-                                      ANY_NUMBER_OF_PARTITIONS
-                               ,const skewProperty& sk = ANY_SKEW_PROPERTY
-                               )
-     : PartitioningRequirement(FUZZY_PART_REQ),
-       requirementType_ (rType),
-       partitioningKeyColumns_(partitioningKeyColumns),
-       partitioningKeyIsSpecified_(TRUE),
-       numberOfPartitions_ (numberOfPartitions)
-     ,skewProperty_(sk)
-  {
-  }
+  FuzzyPartitioningRequirement(const FuzzyPartReqTypeEnum rType, const ValueIdSet &partitioningKeyColumns,
+                               Lng32 numberOfPartitions = ANY_NUMBER_OF_PARTITIONS,
+                               const skewProperty &sk = ANY_SKEW_PROPERTY)
+      : PartitioningRequirement(FUZZY_PART_REQ),
+        requirementType_(rType),
+        partitioningKeyColumns_(partitioningKeyColumns),
+        partitioningKeyIsSpecified_(TRUE),
+        numberOfPartitions_(numberOfPartitions),
+        skewProperty_(sk) {}
 
-  FuzzyPartitioningRequirement(const FuzzyPartReqTypeEnum rType,
-                               Lng32 numberOfPartitions = 
-                                      ANY_NUMBER_OF_PARTITIONS
-                               ,const skewProperty& sk = ANY_SKEW_PROPERTY
-                               )
-     : PartitioningRequirement(FUZZY_PART_REQ),
-       requirementType_ (rType),
-       partitioningKeyIsSpecified_(FALSE),
-       numberOfPartitions_ (numberOfPartitions)
-     ,skewProperty_(sk)
-  {
-  }
+  FuzzyPartitioningRequirement(const FuzzyPartReqTypeEnum rType, Lng32 numberOfPartitions = ANY_NUMBER_OF_PARTITIONS,
+                               const skewProperty &sk = ANY_SKEW_PROPERTY)
+      : PartitioningRequirement(FUZZY_PART_REQ),
+        requirementType_(rType),
+        partitioningKeyIsSpecified_(FALSE),
+        numberOfPartitions_(numberOfPartitions),
+        skewProperty_(sk) {}
 
-  FuzzyPartitioningRequirement(const FuzzyPartitioningRequirement& other)
-     : PartitioningRequirement(other),
-       requirementType_ (other.requirementType_),
-       partitioningKeyColumns_(other.partitioningKeyColumns_),
-       partitioningKeyIsSpecified_(other.partitioningKeyIsSpecified_),
-       numberOfPartitions_ (other.numberOfPartitions_)
-     ,skewProperty_(other.skewProperty_)
-  {
-  }
+  FuzzyPartitioningRequirement(const FuzzyPartitioningRequirement &other)
+      : PartitioningRequirement(other),
+        requirementType_(other.requirementType_),
+        partitioningKeyColumns_(other.partitioningKeyColumns_),
+        partitioningKeyIsSpecified_(other.partitioningKeyIsSpecified_),
+        numberOfPartitions_(other.numberOfPartitions_),
+        skewProperty_(other.skewProperty_) {}
 
-private :
-
+ private:
   FuzzyPartReqTypeEnum requirementType_;
   ValueIdSet partitioningKeyColumns_;
   NABoolean partitioningKeyIsSpecified_;
   Lng32 numberOfPartitions_;
   skewProperty skewProperty_;
-}; // class FuzzyPartitioningRequirement
+};  // class FuzzyPartitioningRequirement
 
-
-class FullySpecifiedPartitioningRequirement : public PartitioningRequirement
-{
-public:
-
+class FullySpecifiedPartitioningRequirement : public PartitioningRequirement {
+ public:
   // ---------------------------------------------------------------------
   // The number of partitions that will be formed using this scheme.
   // ---------------------------------------------------------------------
-  virtual Lng32 getCountOfPartitions() const
-    {  return partitioningFunction_->getCountOfPartitions(); }
+  virtual Lng32 getCountOfPartitions() const { return partitioningFunction_->getCountOfPartitions(); }
 
   // Accessor method for the partitioning key
-  virtual const ValueIdSet& getPartitioningKey() const
-    {  return partitioningFunction_->getPartitioningKey(); }
+  virtual const ValueIdSet &getPartitioningKey() const { return partitioningFunction_->getPartitioningKey(); }
 
   virtual NABoolean partitioningKeyIsSpecified() const { return TRUE; }
 
-  virtual NABoolean partReqAndFuncCompatible
-                           (const PartitioningFunction* other) const;
+  virtual NABoolean partReqAndFuncCompatible(const PartitioningFunction *other) const;
 
-  virtual COMPARE_RESULT comparePartReqToReq
-                           (const PartitioningRequirement* other) const;
+  virtual COMPARE_RESULT comparePartReqToReq(const PartitioningRequirement *other) const;
 
   // ---------------------------------------------------------------------
   // Perform a type-safe pointer cast.
   // ---------------------------------------------------------------------
-  virtual const
-  FullySpecifiedPartitioningRequirement*
-                   castToFullySpecifiedPartitioningRequirement() const;
+  virtual const FullySpecifiedPartitioningRequirement *castToFullySpecifiedPartitioningRequirement() const;
 
-  PartitioningFunction* getPartitioningFunction() const
-    { return partitioningFunction_; }
+  PartitioningFunction *getPartitioningFunction() const { return partitioningFunction_; }
 
-  void setPartitioningFunction (PartitioningFunction * partFunc)
-    { partitioningFunction_ = partFunc; }
+  void setPartitioningFunction(PartitioningFunction *partFunc) { partitioningFunction_ = partFunc; }
 
-  virtual NABoolean isRequirementExactlyOne() const
-    { return
-       getPartitioningFunction()->isASinglePartitionPartitioningFunction();
-    }
+  virtual NABoolean isRequirementExactlyOne() const {
+    return getPartitioningFunction()->isASinglePartitionPartitioningFunction();
+  }
 
-  virtual NABoolean isRequirementReplicateViaBroadcast() const
-    { return
-       getPartitioningFunction()->
-         isAReplicateViaBroadcastPartitioningFunction();
-    }
+  virtual NABoolean isRequirementReplicateViaBroadcast() const {
+    return getPartitioningFunction()->isAReplicateViaBroadcastPartitioningFunction();
+  }
 
-  virtual NABoolean isRequirementReplicateNoBroadcast() const
-    { return
-       getPartitioningFunction()->
-         isAReplicateNoBroadcastPartitioningFunction();
-    }
+  virtual NABoolean isRequirementReplicateNoBroadcast() const {
+    return getPartitioningFunction()->isAReplicateNoBroadcastPartitioningFunction();
+  }
 
-  virtual NABoolean isRequirementHash() const
-    { return
-       getPartitioningFunction()->isAHashPartitioningFunction();
-    }
+  virtual NABoolean isRequirementHash() const { return getPartitioningFunction()->isAHashPartitioningFunction(); }
 
-  virtual NABoolean isRequirementRange() const
-    { return
-       getPartitioningFunction()->isARangePartitioningFunction();
-    }
+  virtual NABoolean isRequirementRange() const { return getPartitioningFunction()->isARangePartitioningFunction(); }
 
-  virtual NABoolean isRequirementRoundRobin() const
-    { return
-       getPartitioningFunction()->isARoundRobinPartitioningFunction();
-    }
+  virtual NABoolean isRequirementRoundRobin() const {
+    return getPartitioningFunction()->isARoundRobinPartitioningFunction();
+  }
 
   virtual NABoolean isRequirementSkewBusterBroadcast() const;
 
@@ -467,303 +352,222 @@ public:
   // Method used by the optimizer for replacing a partitioning
   // requirement with an actual partitioning function.
   // --------------------------------------------------------------------
-  virtual PartitioningFunction * realize(
-       const Context *myContext,
-       NABoolean useContextPartitioningRequirements = FALSE,
-       const PartitioningRequirement * softRequirements = NULL) ;
+  virtual PartitioningFunction *realize(const Context *myContext, NABoolean useContextPartitioningRequirements = FALSE,
+                                        const PartitioningRequirement *softRequirements = NULL);
 
-  virtual void remapIt(const PartitioningRequirement* opr,
-                       ValueIdMap& map, NABoolean mapItUp);
+  virtual void remapIt(const PartitioningRequirement *opr, ValueIdMap &map, NABoolean mapItUp);
 
   // --------------------------------------------------------------------
   // A method for copying the partitioning function.
   // --------------------------------------------------------------------
-  virtual PartitioningRequirement* copy() const;
+  virtual PartitioningRequirement *copy() const;
 
   // ---------------------------------------------------------------------
   // Print.
   // ---------------------------------------------------------------------
-  virtual void print( FILE* ofd = stdout,
-                      const char* indent = DEFAULT_INDENT,
-            const char* title = "FullySpecifiedPartitioningRequirement") const;
+  virtual void print(FILE *ofd = stdout, const char *indent = DEFAULT_INDENT,
+                     const char *title = "FullySpecifiedPartitioningRequirement") const;
 
   virtual void display() const;
 
-protected:
-
+ protected:
   // ---------------------------------------------------------------------
   // The following constructors are used by the derived classes and
   // are therefore hidden from public view.
   // ---------------------------------------------------------------------
-  FullySpecifiedPartitioningRequirement(PartitioningFunction* partFunc)
-     : PartitioningRequirement(FULLY_SPECIFIED_PART_REQ),
-       partitioningFunction_(partFunc)
-  {
-  }
+  FullySpecifiedPartitioningRequirement(PartitioningFunction *partFunc)
+      : PartitioningRequirement(FULLY_SPECIFIED_PART_REQ), partitioningFunction_(partFunc) {}
 
   FullySpecifiedPartitioningRequirement()
-     : PartitioningRequirement(FULLY_SPECIFIED_PART_REQ),
-       partitioningFunction_(NULL)
-  {
-  }
+      : PartitioningRequirement(FULLY_SPECIFIED_PART_REQ), partitioningFunction_(NULL) {}
 
-  FullySpecifiedPartitioningRequirement
-          (const FullySpecifiedPartitioningRequirement& other)
-     : PartitioningRequirement(other),
-       partitioningFunction_(other.partitioningFunction_)
-  {
-  }
+  FullySpecifiedPartitioningRequirement(const FullySpecifiedPartitioningRequirement &other)
+      : PartitioningRequirement(other), partitioningFunction_(other.partitioningFunction_) {}
 
-private :
+ private:
+  PartitioningFunction *partitioningFunction_;
 
-  PartitioningFunction* partitioningFunction_;
-
-}; // class FullySpecifiedPartitioningRequirement
-
+};  // class FullySpecifiedPartitioningRequirement
 
 // -----------------------------------------------------------------------
 // Classes that are derived from FuzzyPartitioningRequirement.
 // -----------------------------------------------------------------------
 
-class RequireApproximatelyNPartitions : public FuzzyPartitioningRequirement
-{
-public:
+class RequireApproximatelyNPartitions : public FuzzyPartitioningRequirement {
+ public:
+  RequireApproximatelyNPartitions(
+      const ValueIdSet &partitioningKeyColumns,
+      float numOfPartsAllowedDeviation = CURRSTMT_OPTDEFAULTS->numberOfPartitionsDeviation(),
+      Lng32 numberOfPartitions = ANY_NUMBER_OF_PARTITIONS, NABoolean requireHash2Only = FALSE,
+      const skewProperty &sk = ANY_SKEW_PROPERTY);
 
-  RequireApproximatelyNPartitions (const ValueIdSet& partitioningKeyColumns,
-                                   float numOfPartsAllowedDeviation =
-                                     CURRSTMT_OPTDEFAULTS->numberOfPartitionsDeviation(),
-                                   Lng32 numberOfPartitions = 
-                                          ANY_NUMBER_OF_PARTITIONS,
-                                   NABoolean requireHash2Only = FALSE
-                                   ,const skewProperty& sk = ANY_SKEW_PROPERTY
-                                   );
+  RequireApproximatelyNPartitions(
+      float numOfPartsAllowedDeviation = CURRSTMT_OPTDEFAULTS->numberOfPartitionsDeviation(),
+      Lng32 numberOfPartitions = ANY_NUMBER_OF_PARTITIONS, NABoolean requireHash2Only = FALSE,
+      const skewProperty &sk = ANY_SKEW_PROPERTY);
 
-  RequireApproximatelyNPartitions (float numOfPartsAllowedDeviation = 
-                                     CURRSTMT_OPTDEFAULTS->numberOfPartitionsDeviation(),
-                                   Lng32 numberOfPartitions = 
-                                          ANY_NUMBER_OF_PARTITIONS,
-                                   NABoolean requireHash2Only = FALSE
-                                   ,const skewProperty& sk = ANY_SKEW_PROPERTY
-                                   );
+  RequireApproximatelyNPartitions(const RequireApproximatelyNPartitions &other)
+      : FuzzyPartitioningRequirement(other),
+        numOfPartsAllowedDeviation_(other.numOfPartsAllowedDeviation_),
+        requireHash2Only_(other.requireHash2Only_) {}
 
-  RequireApproximatelyNPartitions
-      (const RequireApproximatelyNPartitions& other)
-     : FuzzyPartitioningRequirement(other),
-       numOfPartsAllowedDeviation_ (other.numOfPartsAllowedDeviation_),
-       requireHash2Only_(other.requireHash2Only_)
-  {
-  }
+  virtual NABoolean partReqAndFuncCompatible(const PartitioningFunction *other) const;
 
-  virtual NABoolean partReqAndFuncCompatible
-                           (const PartitioningFunction* other) const;
-
-  virtual COMPARE_RESULT comparePartReqToReq
-                           (const PartitioningRequirement* other) const;
+  virtual COMPARE_RESULT comparePartReqToReq(const PartitioningRequirement *other) const;
 
   // ---------------------------------------------------------------------
   // Perform a type-safe pointer cast.
   // ---------------------------------------------------------------------
-  virtual const
-  RequireApproximatelyNPartitions*
-                   castToRequireApproximatelyNPartitions() const;
+  virtual const RequireApproximatelyNPartitions *castToRequireApproximatelyNPartitions() const;
 
   // accesor method for the allowable deviation
-  float getAllowedDeviation() const
-    { return numOfPartsAllowedDeviation_; }
+  float getAllowedDeviation() const { return numOfPartsAllowedDeviation_; }
 
   // check whether an actual number of partitions is within the
   // range for the allowed number of partitions
   NABoolean isPartitionCountWithinRange(Lng32 numOfParts) const;
-  
-  // accesor method for the lower bound of the range for the 
+
+  // accesor method for the lower bound of the range for the
   // allowed number of partitions
   Lng32 getCountOfPartitionsLowBound() const;
 
   NABoolean isRequireHash2Only() const { return requireHash2Only_; }
-  
+
   // --------------------------------------------------------------------
   // Method used by the optimizer for replacing a partitioning
   // requirement with an actual partitioning function.
   // --------------------------------------------------------------------
-  virtual PartitioningFunction * realize(
-       const Context *myContext,
-       NABoolean useContextPartitioningRequirements = FALSE,
-       const PartitioningRequirement * softRequirements = NULL) ;
+  virtual PartitioningFunction *realize(const Context *myContext, NABoolean useContextPartitioningRequirements = FALSE,
+                                        const PartitioningRequirement *softRequirements = NULL);
 
   // --------------------------------------------------------------------
   // A method for copying the partitioning function.
   // --------------------------------------------------------------------
-  virtual PartitioningRequirement* copy() const;
+  virtual PartitioningRequirement *copy() const;
 
   // ---------------------------------------------------------------------
   // Print.
   // ---------------------------------------------------------------------
-  virtual void print( FILE* ofd = stdout,
-                      const char* indent = DEFAULT_INDENT,
-                  const char* title = "RequireApproximatelyNPartitions") const;
+  virtual void print(FILE *ofd = stdout, const char *indent = DEFAULT_INDENT,
+                     const char *title = "RequireApproximatelyNPartitions") const;
 
   virtual void display() const;
 
-private :
-
+ private:
   float numOfPartsAllowedDeviation_;
   NABoolean requireHash2Only_;
 
-}; // class RequireApproximatelyNPartitions
-
+};  // class RequireApproximatelyNPartitions
 
 // -----------------------------------------------------------------------
 // Classes that are derived from FullySpecifiedPartitioningRequirement.
 // -----------------------------------------------------------------------
 
-class RequireExactlyOnePartition : public FullySpecifiedPartitioningRequirement
-{
-public:
-
-  RequireExactlyOnePartition (PartitioningFunction* partFunc)
-     : FullySpecifiedPartitioningRequirement(partFunc)
-  {
+class RequireExactlyOnePartition : public FullySpecifiedPartitioningRequirement {
+ public:
+  RequireExactlyOnePartition(PartitioningFunction *partFunc) : FullySpecifiedPartitioningRequirement(partFunc) {
     CMPASSERT(partFunc->isASinglePartitionPartitioningFunction());
   }
 
-  RequireExactlyOnePartition (NABoolean withNodeMap=FALSE);
+  RequireExactlyOnePartition(NABoolean withNodeMap = FALSE);
 
-  RequireExactlyOnePartition (const RequireExactlyOnePartition& other)
-    :  FullySpecifiedPartitioningRequirement (other)
-  {
-  }
-     
+  RequireExactlyOnePartition(const RequireExactlyOnePartition &other) : FullySpecifiedPartitioningRequirement(other) {}
+
   // ---------------------------------------------------------------------
   // Perform a type-safe pointer cast.
   // ---------------------------------------------------------------------
-  virtual const
-  RequireExactlyOnePartition*
-                   castToRequireExactlyOnePartition() const;
+  virtual const RequireExactlyOnePartition *castToRequireExactlyOnePartition() const;
 
   // --------------------------------------------------------------------
   // A method for copying the partitioning function.
   // --------------------------------------------------------------------
-  virtual PartitioningRequirement* copy() const;
+  virtual PartitioningRequirement *copy() const;
 
   // ---------------------------------------------------------------------
   // Print.
   // ---------------------------------------------------------------------
-  virtual void print( FILE* ofd = stdout,
-                      const char* indent = DEFAULT_INDENT,
-                      const char* title = "RequireExactlyOnePartition") const;
+  virtual void print(FILE *ofd = stdout, const char *indent = DEFAULT_INDENT,
+                     const char *title = "RequireExactlyOnePartition") const;
 
   virtual void display() const;
 
-}; // class RequireExactlyOnePartition
+};  // class RequireExactlyOnePartition
 
-
-class RequireReplicateViaBroadcast :
-        public FullySpecifiedPartitioningRequirement
-{
-public:
-
-  RequireReplicateViaBroadcast (PartitioningFunction* partFunc)
-     : FullySpecifiedPartitioningRequirement(partFunc)
-  {
+class RequireReplicateViaBroadcast : public FullySpecifiedPartitioningRequirement {
+ public:
+  RequireReplicateViaBroadcast(PartitioningFunction *partFunc) : FullySpecifiedPartitioningRequirement(partFunc) {
     CMPASSERT(partFunc->isAReplicateViaBroadcastPartitioningFunction());
   }
 
-  RequireReplicateViaBroadcast (Lng32 numOfReplicas);
+  RequireReplicateViaBroadcast(Lng32 numOfReplicas);
 
-  RequireReplicateViaBroadcast (PartitioningFunction *childPF,
-                                NABoolean useChildsNodeMap);
+  RequireReplicateViaBroadcast(PartitioningFunction *childPF, NABoolean useChildsNodeMap);
 
-  RequireReplicateViaBroadcast (const RequireReplicateViaBroadcast& other)
-    :  FullySpecifiedPartitioningRequirement (other)
-  {
-  }
-     
-  virtual COMPARE_RESULT comparePartReqToReq
-                           (const PartitioningRequirement* other) const;
+  RequireReplicateViaBroadcast(const RequireReplicateViaBroadcast &other)
+      : FullySpecifiedPartitioningRequirement(other) {}
+
+  virtual COMPARE_RESULT comparePartReqToReq(const PartitioningRequirement *other) const;
 
   NABoolean isReplicate() const { return TRUE; }
 
   // ---------------------------------------------------------------------
   // Perform a type-safe pointer cast.
   // ---------------------------------------------------------------------
-  virtual const
-  RequireReplicateViaBroadcast*
-                   castToRequireReplicateViaBroadcast() const;
-
+  virtual const RequireReplicateViaBroadcast *castToRequireReplicateViaBroadcast() const;
 
   // --------------------------------------------------------------------
   // A method for copying the partitioning function.
   // --------------------------------------------------------------------
-  virtual PartitioningRequirement* copy() const;
+  virtual PartitioningRequirement *copy() const;
 
   // ---------------------------------------------------------------------
   // Print.
   // ---------------------------------------------------------------------
-  virtual void print( FILE* ofd = stdout,
-                      const char* indent = DEFAULT_INDENT,
-                      const char* title =
-                                    "RequireReplicateViaBroadcast") const;
+  virtual void print(FILE *ofd = stdout, const char *indent = DEFAULT_INDENT,
+                     const char *title = "RequireReplicateViaBroadcast") const;
 
   virtual void display() const;
 
-private :
+ private:
+};  // class RequireReplicateViaBroadcast
 
-
-}; // class RequireReplicateViaBroadcast
-
-
-class RequireReplicateNoBroadcast :
-        public FullySpecifiedPartitioningRequirement
-{
-public:
-
-  RequireReplicateNoBroadcast (PartitioningFunction* partFunc)
-    : FullySpecifiedPartitioningRequirement(partFunc),
-      parentPartFunc_(NULL)
-  {
+class RequireReplicateNoBroadcast : public FullySpecifiedPartitioningRequirement {
+ public:
+  RequireReplicateNoBroadcast(PartitioningFunction *partFunc)
+      : FullySpecifiedPartitioningRequirement(partFunc), parentPartFunc_(NULL) {
     CMPASSERT(partFunc->isAReplicateNoBroadcastPartitioningFunction());
   }
 
-  RequireReplicateNoBroadcast (PartitioningFunction *parentPF,
-                               NABoolean useParentsNodeMap);
+  RequireReplicateNoBroadcast(PartitioningFunction *parentPF, NABoolean useParentsNodeMap);
 
-  RequireReplicateNoBroadcast (const RequireReplicateNoBroadcast& other)
-    :  FullySpecifiedPartitioningRequirement (other),
-       parentPartFunc_(other.getParentPartFunc())
-  {
-  }
-     
-  virtual COMPARE_RESULT comparePartReqToReq
-                           (const PartitioningRequirement* other) const;
+  RequireReplicateNoBroadcast(const RequireReplicateNoBroadcast &other)
+      : FullySpecifiedPartitioningRequirement(other), parentPartFunc_(other.getParentPartFunc()) {}
+
+  virtual COMPARE_RESULT comparePartReqToReq(const PartitioningRequirement *other) const;
 
   NABoolean isReplicate() const { return TRUE; }
 
   // ---------------------------------------------------------------------
   // Perform a type-safe pointer cast.
   // ---------------------------------------------------------------------
-  virtual const
-  RequireReplicateNoBroadcast*
-                   castToRequireReplicateNoBroadcast() const;
+  virtual const RequireReplicateNoBroadcast *castToRequireReplicateNoBroadcast() const;
 
   // --------------------------------------------------------------------
   // A method for copying the partitioning function.
   // --------------------------------------------------------------------
-  virtual PartitioningRequirement* copy() const;
+  virtual PartitioningRequirement *copy() const;
 
   // ---------------------------------------------------------------------
   // Print.
   // ---------------------------------------------------------------------
-  virtual void print( FILE* ofd = stdout,
-                      const char* indent = DEFAULT_INDENT,
-                      const char* title =
-                                    "RequireReplicateNoBroadcast") const;
+  virtual void print(FILE *ofd = stdout, const char *indent = DEFAULT_INDENT,
+                     const char *title = "RequireReplicateNoBroadcast") const;
 
   virtual void display() const;
 
-  const PartitioningFunction *getParentPartFunc() const {return parentPartFunc_;};
+  const PartitioningFunction *getParentPartFunc() const { return parentPartFunc_; };
 
-private :
-
+ private:
   // The partitioning function of the operator which is placing this
   // Rep-N requirement on its child.  This is used to determine if
   // each instance of the operator will access all the children or
@@ -771,308 +575,230 @@ private :
   // total number of PAs used by the PAPA.
   const PartitioningFunction *parentPartFunc_;
 
-}; // class RequireReplicateNoBroadcast
+};  // class RequireReplicateNoBroadcast
 
-
-class RequireHash : public FullySpecifiedPartitioningRequirement
-{
-public:
-
-  RequireHash (PartitioningFunction* partFunc)
-     : FullySpecifiedPartitioningRequirement(partFunc)
-  {
+class RequireHash : public FullySpecifiedPartitioningRequirement {
+ public:
+  RequireHash(PartitioningFunction *partFunc) : FullySpecifiedPartitioningRequirement(partFunc) {
     CMPASSERT(partFunc->isAHashPartitioningFunction());
     CMPASSERT(NOT partFunc->isASkewedDataPartitioningFunction());
   }
 
-  RequireHash (const RequireHash& other)
-    :  FullySpecifiedPartitioningRequirement (other)
-  {
-  }
-     
+  RequireHash(const RequireHash &other) : FullySpecifiedPartitioningRequirement(other) {}
+
   // ---------------------------------------------------------------------
   // Perform a type-safe pointer cast.
   // ---------------------------------------------------------------------
-  virtual const
-  RequireHash*
-                   castToRequireHash() const;
+  virtual const RequireHash *castToRequireHash() const;
 
   // --------------------------------------------------------------------
   // A method for copying the partitioning function.
   // --------------------------------------------------------------------
-  virtual PartitioningRequirement* copy() const;
+  virtual PartitioningRequirement *copy() const;
 
   // ---------------------------------------------------------------------
   // Print.
   // ---------------------------------------------------------------------
-  virtual void print( FILE* ofd = stdout,
-                      const char* indent = DEFAULT_INDENT,
-                      const char* title = "RequireHash") const;
+  virtual void print(FILE *ofd = stdout, const char *indent = DEFAULT_INDENT, const char *title = "RequireHash") const;
 
   virtual void display() const;
 
-}; // class RequireHash
+};  // class RequireHash
 
-
-class RequireHashDist : public FullySpecifiedPartitioningRequirement
-{
-public:
-
-  RequireHashDist (PartitioningFunction* partFunc)
-     : FullySpecifiedPartitioningRequirement(partFunc)
-  {
+class RequireHashDist : public FullySpecifiedPartitioningRequirement {
+ public:
+  RequireHashDist(PartitioningFunction *partFunc) : FullySpecifiedPartitioningRequirement(partFunc) {
     CMPASSERT(partFunc->isAHashDistPartitioningFunction());
     CMPASSERT(NOT partFunc->isASkewedDataPartitioningFunction());
   }
 
-  RequireHashDist (const RequireHashDist& other)
-    :  FullySpecifiedPartitioningRequirement (other)
-  {
-  }
-     
-  virtual NABoolean partReqAndFuncCompatible
-                           (const PartitioningFunction* other) const;
+  RequireHashDist(const RequireHashDist &other) : FullySpecifiedPartitioningRequirement(other) {}
+
+  virtual NABoolean partReqAndFuncCompatible(const PartitioningFunction *other) const;
 
   // ---------------------------------------------------------------------
   // Perform a type-safe pointer cast.
   // ---------------------------------------------------------------------
-  virtual const
-  RequireHashDist* castToRequireHashDist() const;
+  virtual const RequireHashDist *castToRequireHashDist() const;
 
   // --------------------------------------------------------------------
   // A method for copying the partitioning function.
   // --------------------------------------------------------------------
-  virtual PartitioningRequirement* copy() const;
+  virtual PartitioningRequirement *copy() const;
 
   // ---------------------------------------------------------------------
   // Print.
   // ---------------------------------------------------------------------
-  virtual void print( FILE* ofd = stdout,
-                      const char* indent = DEFAULT_INDENT,
-                      const char* title = "RequireHashDist") const;
+  virtual void print(FILE *ofd = stdout, const char *indent = DEFAULT_INDENT,
+                     const char *title = "RequireHashDist") const;
 
   virtual void display() const;
 
-}; // class RequireHashDist
+};  // class RequireHashDist
 
-
-class RequireHash2 : public FullySpecifiedPartitioningRequirement
-{
-public:
-
-  RequireHash2 (PartitioningFunction* partFunc)
-     : FullySpecifiedPartitioningRequirement(partFunc)
-  {
+class RequireHash2 : public FullySpecifiedPartitioningRequirement {
+ public:
+  RequireHash2(PartitioningFunction *partFunc) : FullySpecifiedPartitioningRequirement(partFunc) {
     CMPASSERT(partFunc->isAHash2PartitioningFunction());
     CMPASSERT(NOT partFunc->isASkewedDataPartitioningFunction());
   }
 
-  RequireHash2 (const RequireHash2& other)
-    :  FullySpecifiedPartitioningRequirement (other)
-  {
-  }
+  RequireHash2(const RequireHash2 &other) : FullySpecifiedPartitioningRequirement(other) {}
 
-  virtual NABoolean partReqAndFuncCompatible
-                           (const PartitioningFunction* other) const;
+  virtual NABoolean partReqAndFuncCompatible(const PartitioningFunction *other) const;
 
   // ---------------------------------------------------------------------
   // Perform a type-safe pointer cast.
   // ---------------------------------------------------------------------
-  virtual const
-  RequireHash2* castToRequireHash2() const;
+  virtual const RequireHash2 *castToRequireHash2() const;
 
   // --------------------------------------------------------------------
   // A method for copying the partitioning function.
   // --------------------------------------------------------------------
-  virtual PartitioningRequirement* copy() const;
+  virtual PartitioningRequirement *copy() const;
 
   // ---------------------------------------------------------------------
   // Print.
   // ---------------------------------------------------------------------
-  virtual void print( FILE* ofd = stdout,
-                      const char* indent = DEFAULT_INDENT,
-                      const char* title = "RequireHash2") const;
+  virtual void print(FILE *ofd = stdout, const char *indent = DEFAULT_INDENT, const char *title = "RequireHash2") const;
 
   virtual void display() const;
 
-}; // class RequireHash2
+};  // class RequireHash2
 
-class RequireSkewed : public FullySpecifiedPartitioningRequirement
-{
-public:
-
-  RequireSkewed (PartitioningFunction* partFunc)
-     : FullySpecifiedPartitioningRequirement(partFunc)
-  {
+class RequireSkewed : public FullySpecifiedPartitioningRequirement {
+ public:
+  RequireSkewed(PartitioningFunction *partFunc) : FullySpecifiedPartitioningRequirement(partFunc) {
     CMPASSERT(partFunc->isASkewedDataPartitioningFunction());
   }
 
-  RequireSkewed (const RequireSkewed& other)
-    :  FullySpecifiedPartitioningRequirement (other)
-  {
-  }
+  RequireSkewed(const RequireSkewed &other) : FullySpecifiedPartitioningRequirement(other) {}
 
-  const ValueIdSet& getPartialPartitioningKey() const;
+  const ValueIdSet &getPartialPartitioningKey() const;
 
   NABoolean isRequirementSkewed() const { return TRUE; }
 
-  COMPARE_RESULT 
-  comparePartReqToReq(const PartitioningRequirement* other) const;
+  COMPARE_RESULT
+  comparePartReqToReq(const PartitioningRequirement *other) const;
 
-  virtual NABoolean partReqAndFuncCompatible
-                           (const PartitioningFunction* other) const;
+  virtual NABoolean partReqAndFuncCompatible(const PartitioningFunction *other) const;
 
   NABoolean isReplicate() const { return getSkewProperty().isBroadcasted(); }
 
   // ---------------------------------------------------------------------
   // Perform a type-safe pointer cast.
   // ---------------------------------------------------------------------
-  virtual const
-  RequireSkewed* castToRequireSkewed() const;
+  virtual const RequireSkewed *castToRequireSkewed() const;
 
   // --------------------------------------------------------------------
   // A method for copying the partitioning function.
   // --------------------------------------------------------------------
-  virtual PartitioningRequirement* copy() const;
+  virtual PartitioningRequirement *copy() const;
 
   // Compare skew data property contained in this object with those
   // contained in a partitioning function
-  NABoolean compareSkewRequirement(const PartitioningFunction& other) const;
+  NABoolean compareSkewRequirement(const PartitioningFunction &other) const;
 
-  virtual const skewProperty& getSkewProperty() const;
+  virtual const skewProperty &getSkewProperty() const;
 
   // ---------------------------------------------------------------------
   // Print.
   // ---------------------------------------------------------------------
-  virtual void print( FILE* ofd = stdout,
-                      const char* indent = DEFAULT_INDENT,
-                      const char* title = "RequireSkewed") const;
+  virtual void print(FILE *ofd = stdout, const char *indent = DEFAULT_INDENT,
+                     const char *title = "RequireSkewed") const;
 
   virtual void display() const;
 
-protected:
-}; // class RequireSkewed
+ protected:
+};  // class RequireSkewed
 
-class RequireRange : public FullySpecifiedPartitioningRequirement
-{
-public:
-
-  RequireRange (PartitioningFunction* partFunc)
-     : FullySpecifiedPartitioningRequirement(partFunc)
-  {
+class RequireRange : public FullySpecifiedPartitioningRequirement {
+ public:
+  RequireRange(PartitioningFunction *partFunc) : FullySpecifiedPartitioningRequirement(partFunc) {
     CMPASSERT(partFunc->isARangePartitioningFunction());
   }
 
-  RequireRange (const RequireRange& other)
-    :  FullySpecifiedPartitioningRequirement (other)
-  {
-  }
-     
+  RequireRange(const RequireRange &other) : FullySpecifiedPartitioningRequirement(other) {}
+
   // ---------------------------------------------------------------------
   // Perform a type-safe pointer cast.
   // ---------------------------------------------------------------------
-  virtual const
-  RequireRange*
-                   castToRequireRange() const;
+  virtual const RequireRange *castToRequireRange() const;
 
   // --------------------------------------------------------------------
   // A method for copying the partitioning function.
   // --------------------------------------------------------------------
-  virtual PartitioningRequirement* copy() const;
+  virtual PartitioningRequirement *copy() const;
 
   // ---------------------------------------------------------------------
   // Print.
   // ---------------------------------------------------------------------
-  virtual void print( FILE* ofd = stdout,
-                      const char* indent = DEFAULT_INDENT,
-                      const char* title = "RequireRange") const;
+  virtual void print(FILE *ofd = stdout, const char *indent = DEFAULT_INDENT, const char *title = "RequireRange") const;
 
   virtual void display() const;
 
-}; // class RequireRange
+};  // class RequireRange
 
-
-class RequireRoundRobin : public FullySpecifiedPartitioningRequirement
-{
-public:
-
-  RequireRoundRobin (PartitioningFunction* partFunc)
-     : FullySpecifiedPartitioningRequirement(partFunc)
-  {
+class RequireRoundRobin : public FullySpecifiedPartitioningRequirement {
+ public:
+  RequireRoundRobin(PartitioningFunction *partFunc) : FullySpecifiedPartitioningRequirement(partFunc) {
     CMPASSERT(partFunc->isARoundRobinPartitioningFunction());
   }
 
-  RequireRoundRobin (const RequireRoundRobin& other)
-    :  FullySpecifiedPartitioningRequirement (other)
-  {
-  }
-     
-  virtual NABoolean partReqAndFuncCompatible
-                           (const PartitioningFunction* other) const;
+  RequireRoundRobin(const RequireRoundRobin &other) : FullySpecifiedPartitioningRequirement(other) {}
+
+  virtual NABoolean partReqAndFuncCompatible(const PartitioningFunction *other) const;
 
   // ---------------------------------------------------------------------
   // Perform a type-safe pointer cast.
   // ---------------------------------------------------------------------
-  virtual const
-  RequireRoundRobin*
-                   castToRequireRoundRobin() const;
+  virtual const RequireRoundRobin *castToRequireRoundRobin() const;
 
   // --------------------------------------------------------------------
   // A method for copying the partitioning function.
   // --------------------------------------------------------------------
-  virtual PartitioningRequirement* copy() const;
+  virtual PartitioningRequirement *copy() const;
 
   // ---------------------------------------------------------------------
   // Print.
   // ---------------------------------------------------------------------
-  virtual void print( FILE* ofd = stdout,
-                      const char* indent = DEFAULT_INDENT,
-                      const char* title = "RequireRoundRobin") const;
+  virtual void print(FILE *ofd = stdout, const char *indent = DEFAULT_INDENT,
+                     const char *title = "RequireRoundRobin") const;
 
   virtual void display() const;
 
-}; // class RequireRoundRobin
+};  // class RequireRoundRobin
 
-class RequireHive : public FullySpecifiedPartitioningRequirement
-{
-public:
-
-  RequireHive (PartitioningFunction* partFunc)
-     : FullySpecifiedPartitioningRequirement(partFunc)
-  {
+class RequireHive : public FullySpecifiedPartitioningRequirement {
+ public:
+  RequireHive(PartitioningFunction *partFunc) : FullySpecifiedPartitioningRequirement(partFunc) {
     CMPASSERT(partFunc->isAHivePartitioningFunction());
   }
 
-  RequireHive(const RequireHive& other)
-    :  FullySpecifiedPartitioningRequirement (other)
-  {
-  }
-     
+  RequireHive(const RequireHive &other) : FullySpecifiedPartitioningRequirement(other) {}
+
   // ---------------------------------------------------------------------
   // Perform a type-safe pointer cast.
   // ---------------------------------------------------------------------
-  virtual const
-  RequireHive* castToRequireHive() const { return this; };
+  virtual const RequireHive *castToRequireHive() const { return this; };
 
   virtual NABoolean isRequirementHive() const { return TRUE; };
 
   // --------------------------------------------------------------------
   // A method for copying the partitioning function.
   // --------------------------------------------------------------------
-  virtual PartitioningRequirement* copy() const 
-   { return new (CmpCommon::statementHeap()) RequireHive(*this);}
+  virtual PartitioningRequirement *copy() const { return new (CmpCommon::statementHeap()) RequireHive(*this); }
 
   // ---------------------------------------------------------------------
   // Print.
   // ---------------------------------------------------------------------
-  virtual void print( FILE* ofd = stdout,
-                      const char* indent = DEFAULT_INDENT,
-                      const char* title = "RequireHive") const
-  { FullySpecifiedPartitioningRequirement::print(ofd, indent, title); }
+  virtual void print(FILE *ofd = stdout, const char *indent = DEFAULT_INDENT, const char *title = "RequireHive") const {
+    FullySpecifiedPartitioningRequirement::print(ofd, indent, title);
+  }
 
   virtual void display() const { print(); };
 
-}; // class RequireHash
+};  // class RequireHash
 
 // -----------------------------------------------------------------------
 // LOGICAL PARTITIONING REQUIREMENT
@@ -1087,63 +813,50 @@ public:
 // context for a DP2 child. Each DP2 operator should pass its logical
 // partitioning requirement on to its child.
 // -----------------------------------------------------------------------
-class LogicalPartitioningRequirement : public NABasicObject
-{
-public:
-
+class LogicalPartitioningRequirement : public NABasicObject {
+ public:
   // constructor
-  LogicalPartitioningRequirement( 
-       PartitioningRequirement *logPartReq,
-       LogPhysPartitioningFunction::logPartType logPartType = 
-                    LogPhysPartitioningFunction::ANY_LOGICAL_PARTITIONING,
-       Lng32 numClients = ANY_NUMBER_OF_PARTITIONS,
-       NABoolean mustUsePapa = FALSE,
-       NABoolean numPAsForced = FALSE) :
-     logPartReq_(logPartReq),
-     logPartType_(logPartType),
-     numClients_(numClients),
-     mustUsePapa_(mustUsePapa),
-     numPAsForced_(numPAsForced)
-  {}
+  LogicalPartitioningRequirement(
+      PartitioningRequirement *logPartReq,
+      LogPhysPartitioningFunction::logPartType logPartType = LogPhysPartitioningFunction::ANY_LOGICAL_PARTITIONING,
+      Lng32 numClients = ANY_NUMBER_OF_PARTITIONS, NABoolean mustUsePapa = FALSE, NABoolean numPAsForced = FALSE)
+      : logPartReq_(logPartReq),
+        logPartType_(logPartType),
+        numClients_(numClients),
+        mustUsePapa_(mustUsePapa),
+        numPAsForced_(numPAsForced) {}
 
   // copy constructor
-  inline LogicalPartitioningRequirement(
-       LogicalPartitioningRequirement &other) :
-     logPartReq_(other.logPartReq_),
-     logPartType_(other.logPartType_),
-     numClients_(other.numClients_),
-     mustUsePapa_(other.mustUsePapa_),
-     numPAsForced_(other.numPAsForced_)
-  {}
+  inline LogicalPartitioningRequirement(LogicalPartitioningRequirement &other)
+      : logPartReq_(other.logPartReq_),
+        logPartType_(other.logPartType_),
+        numClients_(other.numClients_),
+        mustUsePapa_(other.mustUsePapa_),
+        numPAsForced_(other.numPAsForced_) {}
 
   // accessors
 
-  PartitioningRequirement * getLogReq() const
-                                                  { return logPartReq_; }
-  LogPhysPartitioningFunction::logPartType getLogPartTypeReq() const
-                                                  { return logPartType_; }
-  Lng32 getNumClientsReq() const                   { return numClients_; }
+  PartitioningRequirement *getLogReq() const { return logPartReq_; }
+  LogPhysPartitioningFunction::logPartType getLogPartTypeReq() const { return logPartType_; }
+  Lng32 getNumClientsReq() const { return numClients_; }
 
-  void setNumClientsReq(Lng32 n) {numClients_ = n;}
+  void setNumClientsReq(Lng32 n) { numClients_ = n; }
 
   NABoolean isNumberOfPAsForced() const { return numPAsForced_; }
 
-  NABoolean getMustUsePapa() const                { return mustUsePapa_; }
+  NABoolean getMustUsePapa() const { return mustUsePapa_; }
 
   // comparison
-  COMPARE_RESULT compareLogPartRequirements(
-       const LogicalPartitioningRequirement &other) const;
+  COMPARE_RESULT compareLogPartRequirements(const LogicalPartitioningRequirement &other) const;
 
-  NABoolean satisfied(const RelExpr * const physExpr,
-		      const PhysicalProperty * const physProp) const;
+  NABoolean satisfied(const RelExpr *const physExpr, const PhysicalProperty *const physProp) const;
 
-private:
-
+ private:
   // ---------------------------------------------------------------------
   // The logical partitioning requirement is the partitioning requirement
   // of the DP2 exchange
   // ---------------------------------------------------------------------
-  PartitioningRequirement            *logPartReq_;
+  PartitioningRequirement *logPartReq_;
 
   // ---------------------------------------------------------------------
   // The type of logical partitioning to be done by the DP2 fragment.
@@ -1156,15 +869,15 @@ private:
   // This is the total number of PAs in all ESPs, not the number of PAs
   // per ESP.
   // ---------------------------------------------------------------------
-  Lng32                                     numClients_;
+  Lng32 numClients_;
 
   // ---------------------------------------------------------------------
   // Do we have to use a PAPA node? TRUE forces one, FALSE allows one.
   // ---------------------------------------------------------------------
-  NABoolean                                mustUsePapa_;
+  NABoolean mustUsePapa_;
 
   // Is number of PAs forced by CQS?
-  NABoolean                                 numPAsForced_;
+  NABoolean numPAsForced_;
 };
 
 #endif /* PARTREQ_H */

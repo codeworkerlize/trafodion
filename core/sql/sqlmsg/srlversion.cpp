@@ -25,15 +25,14 @@
 ****************************************************************************
 *
 * File:         SRLVersion.cpp
-* RCS:          
+* RCS:
 * Description:
 *
 * Created:      10/19/98
-* Modified:     
+* Modified:
 * Language:     C++
 * Status:       $State: Exp $
 *
 ****************************************************************************
 */
 #include "common/platform.h"
-

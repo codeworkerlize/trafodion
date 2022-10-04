@@ -72,7 +72,7 @@
 #include "ExSequence.h"
 #include "executor/ExStats.h"
 #include "ex_exe_stmt_globals.h"
-#include "ex_timeout.h"   
+#include "ex_timeout.h"
 #include "ExUdr.h"
 #include "ExProbeCache.h"
 #include "ExCancel.h"
@@ -84,15 +84,9 @@
 // defined in Generator.cpp. That code, however, fixes up the TDB's to
 // the Compiler version.
 // -----------------------------------------------------------------------
-void ComTdb::fixupVTblPtr()
-{
-  fixupVTblPtrExe();
-}
+void ComTdb::fixupVTblPtr() { fixupVTblPtrExe(); }
 
-char *ComTdb::findVTblPtr(short classID)
-{
-  return findVTblPtrExe(classID);
-}
+char *ComTdb::findVTblPtr(short classID) { return findVTblPtrExe(classID); }
 
 // -----------------------------------------------------------------------
 // This method fixes up a TDB object which is retrieved from disk or
@@ -101,11 +95,9 @@ char *ComTdb::findVTblPtr(short classID)
 // implemented in the comexe project which fixes up a TDB object to the
 // Compiler version of the TDB.
 // -----------------------------------------------------------------------
-void ComTdb::fixupVTblPtrExe()
-{
-	ex_assert(0,"fixupVTblPtrExe() shouldn't be called"); // method retired
+void ComTdb::fixupVTblPtrExe() {
+  ex_assert(0, "fixupVTblPtrExe() shouldn't be called");  // method retired
 }
-
 
 // -----------------------------------------------------------------------
 // This method returns the virtual function table pointer for an object
@@ -114,50 +106,40 @@ void ComTdb::fixupVTblPtrExe()
 // implemented in the comexe project (in ComTdb.cpp) which returns the
 // pointer for an "compiler TDB".
 // -----------------------------------------------------------------------
-char *ComTdb::findVTblPtrExe(short classID)
-{
+char *ComTdb::findVTblPtrExe(short classID) {
   char *vtblptr = NULL;
-  switch (classID)
-  {
-
-    case ex_HASH_GRBY:
-    {
-      GetVTblPtr(vtblptr,ex_hash_grby_tdb);
+  switch (classID) {
+    case ex_HASH_GRBY: {
+      GetVTblPtr(vtblptr, ex_hash_grby_tdb);
       break;
     }
 
-    case ex_SORT_GRBY:
-    {
-      GetVTblPtr(vtblptr,ex_sort_grby_tdb);
+    case ex_SORT_GRBY: {
+      GetVTblPtr(vtblptr, ex_sort_grby_tdb);
       break;
     }
-   case ex_FIRST_N:
-    {
-      GetVTblPtr(vtblptr,ExFirstNTdb);
-      break;
-    }
-
-    case ex_TRANSPOSE:
-    {
-      GetVTblPtr(vtblptr,ExTransposeTdb);
+    case ex_FIRST_N: {
+      GetVTblPtr(vtblptr, ExFirstNTdb);
       break;
     }
 
-    case ex_UNPACKROWS:
-    {
-      GetVTblPtr(vtblptr,ExUnPackRowsTdb);
+    case ex_TRANSPOSE: {
+      GetVTblPtr(vtblptr, ExTransposeTdb);
       break;
     }
 
-    case ex_PACKROWS:
-    {
-      GetVTblPtr(vtblptr,ExPackRowsTdb);
+    case ex_UNPACKROWS: {
+      GetVTblPtr(vtblptr, ExUnPackRowsTdb);
       break;
     }
 
-    case ex_SAMPLE:
-    {
-      GetVTblPtr(vtblptr,ExSampleTdb);
+    case ex_PACKROWS: {
+      GetVTblPtr(vtblptr, ExPackRowsTdb);
+      break;
+    }
+
+    case ex_SAMPLE: {
+      GetVTblPtr(vtblptr, ExSampleTdb);
       break;
     }
 
@@ -168,390 +150,316 @@ char *ComTdb::findVTblPtrExe(short classID)
       GetVTblPtr(vtblptr,ExSimpleSampleTdb);
       break;
     }
-#endif // if 0
+#endif  // if 0
 
-    case ex_LEAF_TUPLE:
-    {
-      GetVTblPtr(vtblptr,ExTupleLeafTdb);
+    case ex_LEAF_TUPLE: {
+      GetVTblPtr(vtblptr, ExTupleLeafTdb);
       break;
     }
 
-    case ex_COMPOUND_STMT:
-    {
+    case ex_COMPOUND_STMT: {
       GetVTblPtr(vtblptr, ExCatpoundStmtTdb);
       break;
     }
 
-    case ex_NON_LEAF_TUPLE:
-    {
-      GetVTblPtr(vtblptr,ExTupleNonLeafTdb);
+    case ex_NON_LEAF_TUPLE: {
+      GetVTblPtr(vtblptr, ExTupleNonLeafTdb);
       break;
     }
 
-    case ex_CONTROL_QUERY:
-    {
-      GetVTblPtr(vtblptr,ExControlTdb);
+    case ex_CONTROL_QUERY: {
+      GetVTblPtr(vtblptr, ExControlTdb);
       break;
     }
 
-    case ex_ROOT:
-    {
-      GetVTblPtr(vtblptr,ex_root_tdb);
+    case ex_ROOT: {
+      GetVTblPtr(vtblptr, ex_root_tdb);
       break;
     }
 
-    case ex_ONLJ:
-    {
-      GetVTblPtr(vtblptr,ExOnljTdb);
+    case ex_ONLJ: {
+      GetVTblPtr(vtblptr, ExOnljTdb);
       break;
     }
 
-    case ex_HASHJ:
-    {
-      GetVTblPtr(vtblptr,ex_hashj_tdb);
+    case ex_HASHJ: {
+      GetVTblPtr(vtblptr, ex_hashj_tdb);
       break;
     }
 
-    case ex_MJ:
-    {
-      GetVTblPtr(vtblptr,ex_mj_tdb);
+    case ex_MJ: {
+      GetVTblPtr(vtblptr, ex_mj_tdb);
       break;
     }
 
-    case ex_UNION:
-    {
-      GetVTblPtr(vtblptr,ex_union_tdb);
+    case ex_UNION: {
+      GetVTblPtr(vtblptr, ex_union_tdb);
       break;
     }
 
-
-    case ex_UDR:
-    {
-      GetVTblPtr(vtblptr,ExUdrTdb);
+    case ex_UDR: {
+      GetVTblPtr(vtblptr, ExUdrTdb);
       break;
     }
-    case ex_EXPLAIN:
-    {
-      GetVTblPtr(vtblptr,ExExplainTdb);
+    case ex_EXPLAIN: {
+      GetVTblPtr(vtblptr, ExExplainTdb);
       break;
     }
 
-    case ex_SEQUENCE_FUNCTION:
-    {
-      GetVTblPtr(vtblptr,ExSequenceTdb);
+    case ex_SEQUENCE_FUNCTION: {
+      GetVTblPtr(vtblptr, ExSequenceTdb);
       break;
     }
 
-    case ex_SORT:
-    {
-      GetVTblPtr(vtblptr,ExSortTdb);
+    case ex_SORT: {
+      GetVTblPtr(vtblptr, ExSortTdb);
       break;
     }
 
-    case ex_SPLIT_TOP:
-    {
-      GetVTblPtr(vtblptr,ex_split_top_tdb);
+    case ex_SPLIT_TOP: {
+      GetVTblPtr(vtblptr, ex_split_top_tdb);
       break;
     }
 
-    case ex_SPLIT_BOTTOM:
-    {
-      GetVTblPtr(vtblptr,ex_split_bottom_tdb);
+    case ex_SPLIT_BOTTOM: {
+      GetVTblPtr(vtblptr, ex_split_bottom_tdb);
       break;
     }
 
-    case ex_SEND_TOP:
-    {
-      GetVTblPtr(vtblptr,ex_send_top_tdb);
+    case ex_SEND_TOP: {
+      GetVTblPtr(vtblptr, ex_send_top_tdb);
       break;
     }
 
-    case ex_SEND_BOTTOM:
-    {
-      GetVTblPtr(vtblptr,ex_send_bottom_tdb);
+    case ex_SEND_BOTTOM: {
+      GetVTblPtr(vtblptr, ex_send_bottom_tdb);
       break;
     }
 
-    case ex_STATS:
-    {
-      GetVTblPtr(vtblptr,ExStatsTdb);
+    case ex_STATS: {
+      GetVTblPtr(vtblptr, ExStatsTdb);
       break;
     }
 
-    case ex_STORED_PROC:
-    {
-      GetVTblPtr(vtblptr,ExStoredProcTdb);
+    case ex_STORED_PROC: {
+      GetVTblPtr(vtblptr, ExStoredProcTdb);
       break;
     }
 
-    case ex_TUPLE_FLOW:
-    {
-      GetVTblPtr(vtblptr,ExTupleFlowTdb);
+    case ex_TUPLE_FLOW: {
+      GetVTblPtr(vtblptr, ExTupleFlowTdb);
       break;
     }
 
-    case ex_SET_TIMEOUT:  
-    {
-      GetVTblPtr(vtblptr,ExTimeoutTdb);
+    case ex_SET_TIMEOUT: {
+      GetVTblPtr(vtblptr, ExTimeoutTdb);
       break;
     }
 
-    case ex_TRANSACTION:
-    {
-      GetVTblPtr(vtblptr,ExTransTdb);
+    case ex_TRANSACTION: {
+      GetVTblPtr(vtblptr, ExTransTdb);
       break;
     }
 
-    case ex_DDL:
-    {
-      GetVTblPtr(vtblptr,ExDDLTdb);
+    case ex_DDL: {
+      GetVTblPtr(vtblptr, ExDDLTdb);
       break;
     }
 
-    case ex_DDL_WITH_STATUS:
-    {
-      GetVTblPtr(vtblptr,ExDDLwithStatusTdb);
+    case ex_DDL_WITH_STATUS: {
+      GetVTblPtr(vtblptr, ExDDLwithStatusTdb);
       break;
     }
 
-    case ex_DESCRIBE:
-    {
-      GetVTblPtr(vtblptr,ExDescribeTdb);
+    case ex_DESCRIBE: {
+      GetVTblPtr(vtblptr, ExDescribeTdb);
       break;
     }
 
-    case ex_EXE_UTIL:
-    {
-      GetVTblPtr(vtblptr,ExExeUtilTdb);
+    case ex_EXE_UTIL: {
+      GetVTblPtr(vtblptr, ExExeUtilTdb);
       break;
     }
 
-
-
-    case ex_PROCESS_VOLATILE_TABLE:
-    {
-      GetVTblPtr(vtblptr,ExProcessVolatileTableTdb);
+    case ex_PROCESS_VOLATILE_TABLE: {
+      GetVTblPtr(vtblptr, ExProcessVolatileTableTdb);
       break;
     }
 
-  case ex_LOAD_VOLATILE_TABLE:
-    {
-      GetVTblPtr(vtblptr,ExExeUtilLoadVolatileTableTdb);
+    case ex_LOAD_VOLATILE_TABLE: {
+      GetVTblPtr(vtblptr, ExExeUtilLoadVolatileTableTdb);
 
       break;
     }
 
-  case ex_CLEANUP_VOLATILE_TABLES:
-    {
-      GetVTblPtr(vtblptr,ExExeUtilCleanupVolatileTablesTdb);
-
-      break;
-    }
-  
-  case ex_GET_VOLATILE_INFO:
-    {
-      GetVTblPtr(vtblptr,ExExeUtilGetVolatileInfoTdb);
+    case ex_CLEANUP_VOLATILE_TABLES: {
+      GetVTblPtr(vtblptr, ExExeUtilCleanupVolatileTablesTdb);
 
       break;
     }
 
-
-    case ex_PROCESS_INMEMORY_TABLE:
-    {
-      GetVTblPtr(vtblptr,ExProcessInMemoryTableTdb);
-      break;
-    }
-
-    case ex_CREATE_TABLE_AS:
-    {
-      GetVTblPtr(vtblptr,ExExeUtilCreateTableAsTdb);
-      break;
-    }
-
-    case ex_GET_STATISTICS:
-    {
-      GetVTblPtr(vtblptr,ExExeUtilGetStatisticsTdb);
+    case ex_GET_VOLATILE_INFO: {
+      GetVTblPtr(vtblptr, ExExeUtilGetVolatileInfoTdb);
 
       break;
     }
 
-  case ex_GET_METADATA_INFO:
-    {
-      GetVTblPtr(vtblptr,ExExeUtilGetMetadataInfoTdb);
+    case ex_PROCESS_INMEMORY_TABLE: {
+      GetVTblPtr(vtblptr, ExProcessInMemoryTableTdb);
+      break;
+    }
+
+    case ex_CREATE_TABLE_AS: {
+      GetVTblPtr(vtblptr, ExExeUtilCreateTableAsTdb);
+      break;
+    }
+
+    case ex_GET_STATISTICS: {
+      GetVTblPtr(vtblptr, ExExeUtilGetStatisticsTdb);
 
       break;
     }
 
-
-    case ex_GET_UID:
-    {
-      GetVTblPtr(vtblptr,ExExeUtilGetUIDTdb);
+    case ex_GET_METADATA_INFO: {
+      GetVTblPtr(vtblptr, ExExeUtilGetMetadataInfoTdb);
 
       break;
     }
 
-   case ex_GET_QID:
-    {
-      GetVTblPtr(vtblptr,ExExeUtilGetQIDTdb);
+    case ex_GET_UID: {
+      GetVTblPtr(vtblptr, ExExeUtilGetUIDTdb);
 
       break;
     }
 
-    case ex_POP_IN_MEM_STATS:
-    {
-      GetVTblPtr(vtblptr,ExExeUtilPopulateInMemStatsTdb);
-
-      break;
-    }
-  
-    case ex_DISPLAY_EXPLAIN:
-    {
-      GetVTblPtr(vtblptr,ExExeUtilDisplayExplainTdb);
-      break;
-    }
-
-    case ex_DISPLAY_EXPLAIN_COMPLEX:
-    {
-      GetVTblPtr(vtblptr,ExExeUtilDisplayExplainComplexTdb);
-      break;
-    }
-
-    case ex_PROBE_CACHE:
-    {
-      GetVTblPtr(vtblptr,ExProbeCacheTdb);
+    case ex_GET_QID: {
+      GetVTblPtr(vtblptr, ExExeUtilGetQIDTdb);
 
       break;
     }
 
-    case ex_LONG_RUNNING:
-    {
-      GetVTblPtr(vtblptr,ExExeUtilLongRunningTdb);
-      break;
-    }
-
-// Suspend uses ExCancelTdb
-
-    case ex_SHOW_SET:
-    {
-      GetVTblPtr(vtblptr,ExExeUtilShowSetTdb);
+    case ex_POP_IN_MEM_STATS: {
+      GetVTblPtr(vtblptr, ExExeUtilPopulateInMemStatsTdb);
 
       break;
     }
 
-    case ex_AQR:
-    {
-      GetVTblPtr(vtblptr,ExExeUtilAQRTdb);
+    case ex_DISPLAY_EXPLAIN: {
+      GetVTblPtr(vtblptr, ExExeUtilDisplayExplainTdb);
+      break;
+    }
+
+    case ex_DISPLAY_EXPLAIN_COMPLEX: {
+      GetVTblPtr(vtblptr, ExExeUtilDisplayExplainComplexTdb);
+      break;
+    }
+
+    case ex_PROBE_CACHE: {
+      GetVTblPtr(vtblptr, ExProbeCacheTdb);
 
       break;
     }
 
-   case ex_GET_ERROR_INFO:
-    {
-      GetVTblPtr(vtblptr,ExExeUtilGetErrorInfoTdb);
-
+    case ex_LONG_RUNNING: {
+      GetVTblPtr(vtblptr, ExExeUtilLongRunningTdb);
       break;
     }
-  case ex_PROCESS_STATISTICS:
-    {
-      GetVTblPtr(vtblptr,ExExeUtilGetProcessStatisticsTdb);
-      break;
-    }
-  case ex_ARQ_WNR_INSERT:
-  {
-    GetVTblPtr(vtblptr,ExExeUtilAqrWnrInsertTdb);
-    break;
-  }
 
+      // Suspend uses ExCancelTdb
 
-
-
-
-
-  case ex_HBASE_ACCESS:
-    {
-      GetVTblPtr(vtblptr,ExHbaseAccessTdb);
+    case ex_SHOW_SET: {
+      GetVTblPtr(vtblptr, ExExeUtilShowSetTdb);
 
       break;
     }
 
-  case ex_HBASE_COPROC_AGGR:
-    {
-      GetVTblPtr(vtblptr,ExHbaseCoProcAggrTdb);
+    case ex_AQR: {
+      GetVTblPtr(vtblptr, ExExeUtilAQRTdb);
 
       break;
     }
 
-  case ex_HBASE_LOAD:
-    {
-      GetVTblPtr(vtblptr,ExExeUtilHBaseBulkLoadTdb);
+    case ex_GET_ERROR_INFO: {
+      GetVTblPtr(vtblptr, ExExeUtilGetErrorInfoTdb);
+
+      break;
+    }
+    case ex_PROCESS_STATISTICS: {
+      GetVTblPtr(vtblptr, ExExeUtilGetProcessStatisticsTdb);
+      break;
+    }
+    case ex_ARQ_WNR_INSERT: {
+      GetVTblPtr(vtblptr, ExExeUtilAqrWnrInsertTdb);
+      break;
+    }
+
+    case ex_HBASE_ACCESS: {
+      GetVTblPtr(vtblptr, ExHbaseAccessTdb);
 
       break;
     }
 
-
-    case ex_CANCEL:
-    {
-      GetVTblPtr(vtblptr,ExCancelTdb);
+    case ex_HBASE_COPROC_AGGR: {
+      GetVTblPtr(vtblptr, ExHbaseCoProcAggrTdb);
 
       break;
     }
 
-   case ex_REGION_STATS:
-    {
-      GetVTblPtr(vtblptr,ExExeUtilRegionStatsTdb);
+    case ex_HBASE_LOAD: {
+      GetVTblPtr(vtblptr, ExExeUtilHBaseBulkLoadTdb);
 
       break;
     }
 
+    case ex_CANCEL: {
+      GetVTblPtr(vtblptr, ExCancelTdb);
 
+      break;
+    }
 
+    case ex_REGION_STATS: {
+      GetVTblPtr(vtblptr, ExExeUtilRegionStatsTdb);
 
+      break;
+    }
 
-
-   case ex_CONNECT_BY:
-    {
+    case ex_CONNECT_BY: {
       GetVTblPtr(vtblptr, ExConnectByTdb);
 
       break;
     }
 
-   case ex_CONNECT_BY_TEMP_TABLE:
-    {
+    case ex_CONNECT_BY_TEMP_TABLE: {
       GetVTblPtr(vtblptr, ExConnectByTempTableTdb);
 
       break;
     }
 
-   case ex_COMPOSITE_UNNEST:
-    {
-      GetVTblPtr(vtblptr,ExExeUtilCompositeUnnestTdb);
+    case ex_COMPOSITE_UNNEST: {
+      GetVTblPtr(vtblptr, ExExeUtilCompositeUnnestTdb);
 
       break;
     }
 
-    case ex_GET_OBJECT_EPOCH_STATS:
-    {
-      GetVTblPtr(vtblptr,ExExeUtilGetObjectEpochStatsTdb);
+    case ex_GET_OBJECT_EPOCH_STATS: {
+      GetVTblPtr(vtblptr, ExExeUtilGetObjectEpochStatsTdb);
 
       break;
     }
 
-    case ex_GET_OBJECT_LOCK_STATS:
-    {
-      GetVTblPtr(vtblptr,ExExeUtilGetObjectLockStatsTdb);
+    case ex_GET_OBJECT_LOCK_STATS: {
+      GetVTblPtr(vtblptr, ExExeUtilGetObjectLockStatsTdb);
 
       break;
     }
 
-    case ex_QUERY_INVALIDATION:
-    {
-      GetVTblPtr(vtblptr,ExQryInvalidStatsTdb);
+    case ex_QUERY_INVALIDATION: {
+      GetVTblPtr(vtblptr, ExQryInvalidStatsTdb);
       break;
     }
 
-    case ex_SNAPSHOT_UPDATE_DELETE:
-    {
-      GetVTblPtr(vtblptr,ExExeUtilUpdataDeleteTdb);
+    case ex_SNAPSHOT_UPDATE_DELETE: {
+      GetVTblPtr(vtblptr, ExExeUtilUpdataDeleteTdb);
       break;
     }
 
@@ -562,103 +470,86 @@ char *ComTdb::findVTblPtrExe(short classID)
   return vtblptr;
 }
 
-void fixupExeVtblPtr(ComTdb * tdb)
-{
-  for (Int32 i = 0; i < tdb->numChildren(); i++)
-    {
-      fixupExeVtblPtr((ComTdb *)(tdb->getChild(i)));
-    }
+void fixupExeVtblPtr(ComTdb *tdb) {
+  for (Int32 i = 0; i < tdb->numChildren(); i++) {
+    fixupExeVtblPtr((ComTdb *)(tdb->getChild(i)));
+  }
 
-  char * vtblPtr = NULL;
+  char *vtblPtr = NULL;
   vtblPtr = tdb->findVTblPtrExe(tdb->getClassID());
   tdb->setVTblPtr(vtblPtr);
- 
 }
 
-void fixupComVtblPtr(ComTdb * tdb)
-{
-  for (Int32 i = 0; i < tdb->numChildren(); i++)
-    {
-      fixupComVtblPtr((ComTdb *)(tdb->getChild(i)));
-    }
+void fixupComVtblPtr(ComTdb *tdb) {
+  for (Int32 i = 0; i < tdb->numChildren(); i++) {
+    fixupComVtblPtr((ComTdb *)(tdb->getChild(i)));
+  }
 
-  char * vtblPtr = NULL;
+  char *vtblPtr = NULL;
   vtblPtr = tdb->findVTblPtrCom(tdb->getClassID());
   tdb->setVTblPtr(vtblPtr);
- 
 }
 
-void resetBufSize(ex_tcb * tcb, Lng32 &tcbSpaceNeeded, Lng32 &poolSpaceNeeded)
-{
-  for (Int32 i = 0; i < tcb->numChildren(); i++)
-    {
-      resetBufSize((ex_tcb *)(tcb->getChild(i)), 
-		   tcbSpaceNeeded, poolSpaceNeeded);
-    }
-  
-  if (tcb->getPool())
-    {
-      Int32 numBuffs = -1;
-      UInt32 staticPoolSpaceSize = 0;
-      UInt32 dynPoolSpaceSize = 0;
+void resetBufSize(ex_tcb *tcb, Lng32 &tcbSpaceNeeded, Lng32 &poolSpaceNeeded) {
+  for (Int32 i = 0; i < tcb->numChildren(); i++) {
+    resetBufSize((ex_tcb *)(tcb->getChild(i)), tcbSpaceNeeded, poolSpaceNeeded);
+  }
 
-      // compute total pool space needed(static + dynamic) at runtime
-      tcb->computeNeededPoolInfo(numBuffs, 
-				 staticPoolSpaceSize, dynPoolSpaceSize);
+  if (tcb->getPool()) {
+    Int32 numBuffs = -1;
+    UInt32 staticPoolSpaceSize = 0;
+    UInt32 dynPoolSpaceSize = 0;
 
-      // size of pool space that was allocated during the build
-      // phase. This value is included in tcbSpaceNeeded.
-      // compute tcb space needed by subtracting staticPoolSize
-      tcbSpaceNeeded -= staticPoolSpaceSize;
+    // compute total pool space needed(static + dynamic) at runtime
+    tcb->computeNeededPoolInfo(numBuffs, staticPoolSpaceSize, dynPoolSpaceSize);
 
-      poolSpaceNeeded += dynPoolSpaceSize;
+    // size of pool space that was allocated during the build
+    // phase. This value is included in tcbSpaceNeeded.
+    // compute tcb space needed by subtracting staticPoolSize
+    tcbSpaceNeeded -= staticPoolSpaceSize;
 
-      if ((tcb->resizePoolInfo()) &&
-	  (numBuffs >= 0))
-	((ComTdb *)(tcb->getTdb()))->
-	  resetBufInfo(numBuffs, (staticPoolSpaceSize + dynPoolSpaceSize));
-    }
+    poolSpaceNeeded += dynPoolSpaceSize;
+
+    if ((tcb->resizePoolInfo()) && (numBuffs >= 0))
+      ((ComTdb *)(tcb->getTdb()))->resetBufInfo(numBuffs, (staticPoolSpaceSize + dynPoolSpaceSize));
+  }
 }
 
-Lng32 getTotalTcbSpace(char*inTdb, char * otherInfo, char * parentMemory)
-{
-  ComTdb * tdb = (ComTdb*)inTdb;
+Lng32 getTotalTcbSpace(char *inTdb, char *otherInfo, char *parentMemory) {
+  ComTdb *tdb = (ComTdb *)inTdb;
 
   Space space(Space::EXECUTOR_SPACE);
-  space.setParent((NAHeap*)parentMemory);
+  space.setParent((NAHeap *)parentMemory);
   //  space.setType(Space::SYSTEM_SPACE);
   //  space.setType(Space::EXECUTOR_SPACE);
 
   //  NAHeap heap("temp heap", NAMemory::DERIVED_FROM_SYS_HEAP);
   // NAHeap heap("temp heap", NAMemory::EXECUTOR_MEMORY);
-  NAHeap heap("temp heap", (NAHeap*)parentMemory, 32000 /*blocksize*/);
-  ex_globals * g = NULL;
+  NAHeap heap("temp heap", (NAHeap *)parentMemory, 32000 /*blocksize*/);
+  ex_globals *g = NULL;
 
-  switch (tdb->getNodeType())
-    {
-// This method is called from an internal CLI call and the only palce
-// where this internal CLI call is make is from generator for Generator.cpp
-// for EID Root tdb and so this code is not called for other tdb's
+  switch (tdb->getNodeType()) {
+      // This method is called from an internal CLI call and the only palce
+      // where this internal CLI call is make is from generator for Generator.cpp
+      // for EID Root tdb and so this code is not called for other tdb's
     case ComTdb::ex_ROOT:
-      g = new(&heap) ExMasterStmtGlobals(10, NULL, NULL, 0, &space, &heap);
+      g = new (&heap) ExMasterStmtGlobals(10, NULL, NULL, 0, &space, &heap);
       break;
 
     case ComTdb::ex_SPLIT_TOP:
-      g = new(&heap) ExEspStmtGlobals(10, NULL, 0, &space, &heap, NULL,
-                                      NullFragInstanceHandle, 0, FALSE);
+      g = new (&heap) ExEspStmtGlobals(10, NULL, 0, &space, &heap, NULL, NullFragInstanceHandle, 0, FALSE);
       break;
     case ComTdb::ex_EXPLAIN:
       break;
 
     default:
       break;
-
-    }
+  }
 
   g->setComputeSpace(TRUE);
 
   fixupExeVtblPtr(tdb);
-  ex_tcb * tcb = tdb->build(g);
+  ex_tcb *tcb = tdb->build(g);
   fixupComVtblPtr(tdb);
 
   Lng32 totalSpaceNeeded = 0;
@@ -670,7 +561,7 @@ Lng32 getTotalTcbSpace(char*inTdb, char * otherInfo, char * parentMemory)
 
   // add a 25% fudge factor to TCB space
   tcbSpaceNeeded = (tcbSpaceNeeded * 125) / 100;
-  
+
   totalSpaceNeeded = tcbSpaceNeeded + poolSpaceNeeded;
 
   return totalSpaceNeeded;

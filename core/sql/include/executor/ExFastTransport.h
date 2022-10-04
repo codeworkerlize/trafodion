@@ -32,7 +32,7 @@
 #include "ex_exe_stmt_globals.h"
 
 namespace {
-  typedef std::vector<Text> TextVec;
+typedef std::vector<Text> TextVec;
 }
 
 // -----------------------------------------------------------------------
@@ -44,48 +44,27 @@ class SequenceFileWriter;
 // Classes defined in this file
 // -----------------------------------------------------------------------
 
+class IOBuffer {
+ public:
+  enum BufferStatus { PARTIAL = 0, FULL, EMPTY, ERR };
 
-class IOBuffer
-{
-
-public:
-
-  enum BufferStatus {PARTIAL = 0, FULL, EMPTY, ERR};
-
-  IOBuffer(char *buffer, Int32 bufSize)
-    : bytesLeft_(bufSize),
-      bufSize_(bufSize),
-      numRows_(0),
-      status_(EMPTY)
-  {
+  IOBuffer(char *buffer, Int32 bufSize) : bytesLeft_(bufSize), bufSize_(bufSize), numRows_(0), status_(EMPTY) {
     data_ = buffer;
-    //memset(data_, '\0', bufSize);
-
+    // memset(data_, '\0', bufSize);
   }
 
-  ~IOBuffer()
-  {
-  }
+  ~IOBuffer() {}
 
-  void setStatus(BufferStatus val)
-  {
-    status_ = val;
-  }
-  BufferStatus getStatus()
-  {
-    return status_ ;
-  }
+  void setStatus(BufferStatus val) { status_ = val; }
+  BufferStatus getStatus() { return status_; }
 
-  char* data_;
+  char *data_;
   Int32 bytesLeft_;
   Int32 bufSize_;
   Int32 numRows_;
   BufferStatus status_;
-
 };
 //----------------------------------------------------------------------
 // Task control block
 
-
-
-#endif // __EX_FAST_TRANSPORT_H
+#endif  // __EX_FAST_TRANSPORT_H

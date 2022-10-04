@@ -29,7 +29,7 @@
 * Description:  class for Audit-Compress File Attribute (parse node)
 *               elements in DDL statements
 *
-*               
+*
 * Created:      4/21/95
 * Language:     C++
 *
@@ -38,7 +38,6 @@
 *
 ******************************************************************************
 */
-
 
 #include "ElemDDLFileAttr.h"
 
@@ -56,44 +55,31 @@ class ElemDDLFileAttrAuditCompress;
 // Audit-Compress File Attribute (parse node) elements in DDL statements
 // -----------------------------------------------------------------------
 
-class ElemDDLFileAttrAuditCompress : public ElemDDLFileAttr
-{
-
-public:
-
+class ElemDDLFileAttrAuditCompress : public ElemDDLFileAttr {
+ public:
   // default constructor
   ElemDDLFileAttrAuditCompress(NABoolean auditCompressSpec = FALSE)
-        : ElemDDLFileAttr(ELM_FILE_ATTR_AUDIT_COMPRESS_ELEM),
-          isAuditCompress_(auditCompressSpec)
-  {
-  }
+      : ElemDDLFileAttr(ELM_FILE_ATTR_AUDIT_COMPRESS_ELEM), isAuditCompress_(auditCompressSpec) {}
 
   // virtual destructor
   virtual ~ElemDDLFileAttrAuditCompress();
 
   // cast
-  virtual ElemDDLFileAttrAuditCompress * castToElemDDLFileAttrAuditCompress();
+  virtual ElemDDLFileAttrAuditCompress *castToElemDDLFileAttrAuditCompress();
 
   // accessor
-  const NABoolean
-  getIsAuditCompress() const
-  {
-    return isAuditCompress_;
-  }
+  const NABoolean getIsAuditCompress() const { return isAuditCompress_; }
 
   // member functions for tracing
   virtual const NAString getText() const;
   virtual const NAString displayLabel1() const;
 
-    // method for building text
+  // method for building text
   virtual NAString getSyntax() const;
 
-
-
-private:
-
+ private:
   NABoolean isAuditCompress_;
 
-}; // class ElemDDLFileAttrAuditCompress
+};  // class ElemDDLFileAttrAuditCompress
 
 #endif /* ELEMDDLFILEATTRAUDITCOMPRESS_H */

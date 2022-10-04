@@ -39,7 +39,6 @@
  *****************************************************************************
  */
 
-
 #include "common/NAString.h"
 #include "common/ComSmallDefs.h"
 #include "parser/StmtDDLCreateRoutine.h"
@@ -47,26 +46,19 @@
 // -----------------------------------------------------------------------
 // Alter Routine statement
 // -----------------------------------------------------------------------
-class StmtDDLAlterRoutine : public StmtDDLCreateRoutine
-{
-
-public:
-
+class StmtDDLAlterRoutine : public StmtDDLCreateRoutine {
+ public:
   // initialize constructor
-  StmtDDLAlterRoutine(ComAnsiNameSpace      eNameSpace,
-                      const QualifiedName & aRoutineName,
-                      const QualifiedName & anActionName,
-                      ComRoutineType        eRoutineType,
-                      ElemDDLNode         * pAlterPassThroughParamParseTree,
-                      ElemDDLNode         * pAddPassThroughParamParseTree,
-                      ElemDDLNode         * pRoutineAttributesParseTree,
-                      CollHeap            * heap);
+  StmtDDLAlterRoutine(ComAnsiNameSpace eNameSpace, const QualifiedName &aRoutineName, const QualifiedName &anActionName,
+                      ComRoutineType eRoutineType, ElemDDLNode *pAlterPassThroughParamParseTree,
+                      ElemDDLNode *pAddPassThroughParamParseTree, ElemDDLNode *pRoutineAttributesParseTree,
+                      CollHeap *heap);
 
   // virtual destructor
   virtual ~StmtDDLAlterRoutine();
 
   // cast
-  virtual StmtDDLAlterRoutine * castToStmtDDLAlterRoutine();
+  virtual StmtDDLAlterRoutine *castToStmtDDLAlterRoutine();
 
   //
   // accessors
@@ -74,15 +66,15 @@ public:
 
   inline const ComAnsiNameSpace getRoutineNameSpace(void) const;
 
-  inline const ElemDDLPassThroughParamDefArray & getAddPassThroughParamArray() const;
-  inline       ElemDDLPassThroughParamDefArray & getAddPassThroughParamArray();
+  inline const ElemDDLPassThroughParamDefArray &getAddPassThroughParamArray() const;
+  inline ElemDDLPassThroughParamDefArray &getAddPassThroughParamArray();
 
-  inline const ElemDDLPassThroughParamDefArray & getAlterPassThroughParamArray() const;
-  inline       ElemDDLPassThroughParamDefArray & getAlterPassThroughParamArray();
+  inline const ElemDDLPassThroughParamDefArray &getAlterPassThroughParamArray() const;
+  inline ElemDDLPassThroughParamDefArray &getAlterPassThroughParamArray();
 
   // methods relating to parse tree
-  inline ElemDDLNode * getAddPassThroughInputsParseTree();
-  inline ElemDDLNode * getAlterPassThroughInputsParseTree();
+  inline ElemDDLNode *getAddPassThroughInputsParseTree();
+  inline ElemDDLNode *getAlterPassThroughInputsParseTree();
 
   //
   // mutators
@@ -96,14 +88,14 @@ public:
   // method for binding
   //
 
-  ExprNode * bindNode(BindWA * pBindWA);
+  ExprNode *bindNode(BindWA *pBindWA);
 
   //
   // Method for collecting information
   //   Collects information in the parse sub-tree and
   //   copy/move them to the current parse node.
   //
-  
+
   void synthesize(void);
 
   //
@@ -115,9 +107,7 @@ public:
   virtual NATraceList getDetailInfo(void) const;
   virtual const NAString getText(void) const;
 
-
-private:
-
+ private:
   // ---------------------------------------------------------------------
   // private methods
   // ---------------------------------------------------------------------
@@ -126,10 +116,10 @@ private:
   // please do not use the following methods
   //
 
-  StmtDDLAlterRoutine();                                         // DO NOT USE
-  StmtDDLAlterRoutine(const StmtDDLAlterRoutine &);              // DO NOT USE
-  StmtDDLAlterRoutine & operator=(const StmtDDLAlterRoutine &);  // DO NOT USE
-  NABoolean operator==(const StmtDDLAlterRoutine &);             // DO NOT USE
+  StmtDDLAlterRoutine();                                        // DO NOT USE
+  StmtDDLAlterRoutine(const StmtDDLAlterRoutine &);             // DO NOT USE
+  StmtDDLAlterRoutine &operator=(const StmtDDLAlterRoutine &);  // DO NOT USE
+  NABoolean operator==(const StmtDDLAlterRoutine &);            // DO NOT USE
 
   // ---------------------------------------------------------------------
   // private data members
@@ -143,9 +133,9 @@ private:
   // pointers to child parse nodes
   //
 
-  ElemDDLNode * alterPassThroughInputsParseTree_;
+  ElemDDLNode *alterPassThroughInputsParseTree_;
 
-}; // class StmtDDLAlterRoutine
+};  // class StmtDDLAlterRoutine
 
 // -----------------------------------------------------------------------
 // definitions of inline methods for class StmtDDLAlterRoutine
@@ -155,41 +145,25 @@ private:
 // accessors
 //
 
-inline const ComAnsiNameSpace
-StmtDDLAlterRoutine::getRoutineNameSpace(void) const
-{
-  return nameSpace_;
-}
+inline const ComAnsiNameSpace StmtDDLAlterRoutine::getRoutineNameSpace(void) const { return nameSpace_; }
 
-inline const ElemDDLPassThroughParamDefArray &
-StmtDDLAlterRoutine::getAlterPassThroughParamArray() const
-{
+inline const ElemDDLPassThroughParamDefArray &StmtDDLAlterRoutine::getAlterPassThroughParamArray() const {
   return alterPassThroughParamArray_;
 }
 
-inline const ElemDDLPassThroughParamDefArray &
-StmtDDLAlterRoutine::getAddPassThroughParamArray() const
-{
+inline const ElemDDLPassThroughParamDefArray &StmtDDLAlterRoutine::getAddPassThroughParamArray() const {
   return getPassThroughParamArray();
 }
 
 // methods relating to parse trees and nodes
 
-inline ElemDDLNode *
-StmtDDLAlterRoutine::getAddPassThroughInputsParseTree()
-{
-  return getPassThroughInputsParseTree();
-}
+inline ElemDDLNode *StmtDDLAlterRoutine::getAddPassThroughInputsParseTree() { return getPassThroughInputsParseTree(); }
 
-inline ElemDDLNode *
-StmtDDLAlterRoutine::getAlterPassThroughInputsParseTree()
-{
+inline ElemDDLNode *StmtDDLAlterRoutine::getAlterPassThroughInputsParseTree() {
   return alterPassThroughInputsParseTree_;
 }
 
-inline ElemDDLPassThroughParamDefArray &
-StmtDDLAlterRoutine::getAddPassThroughParamArray()
-{
+inline ElemDDLPassThroughParamDefArray &StmtDDLAlterRoutine::getAddPassThroughParamArray() {
   return getPassThroughParamArray();
 }
 
@@ -197,24 +171,18 @@ StmtDDLAlterRoutine::getAddPassThroughParamArray()
 // mutators
 //
 
-inline ElemDDLPassThroughParamDefArray &
-StmtDDLAlterRoutine::getAlterPassThroughParamArray()
-{
+inline ElemDDLPassThroughParamDefArray &StmtDDLAlterRoutine::getAlterPassThroughParamArray() {
   return alterPassThroughParamArray_;
 }
 
 // methods relating to parse trees and nodes
 
-inline void
-StmtDDLAlterRoutine::setAddPassThroughInputsParseTree(ElemDDLNode *pParseTree)
-{
+inline void StmtDDLAlterRoutine::setAddPassThroughInputsParseTree(ElemDDLNode *pParseTree) {
   setPassThroughInputsParseTree(pParseTree);
 }
 
-inline void
-StmtDDLAlterRoutine::setAlterPassThroughInputsParseTree(ElemDDLNode *pParseTree)
-{
+inline void StmtDDLAlterRoutine::setAlterPassThroughInputsParseTree(ElemDDLNode *pParseTree) {
   alterPassThroughInputsParseTree_ = pParseTree;
 }
 
-#endif // STMTDDLALTERROUTINE_H
+#endif  // STMTDDLALTERROUTINE_H

@@ -1,6 +1,6 @@
 #ifndef STMTDDLSCHGRANTARRAY_H
 #define STMTDDLSCHGRANTARRAY_H
-/* -*-C++-*- 
+/* -*-C++-*-
 /**********************************************************************
 // @@@ START COPYRIGHT @@@
 //
@@ -26,14 +26,14 @@
     * File:         StmtDDLSchGrantArray.h
     * Description:  class for an array of pointers pointing to instances of
     *               class StmtDDLSchGrant
-    *               
+    *
     * Created:      03/06/2007
     * Language:     C++
 **********************************************************************/
 
 #include "common/Collections.h"
-#ifndef   SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
-#define   SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
+#ifndef SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
+#define SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
 #endif
 #include "parser/SqlParserGlobals.h"
 #include "parser/StmtDDLSchGrant.h"
@@ -51,20 +51,15 @@ class StmtDDLSchGrantArray;
 // -----------------------------------------------------------------------
 // Definition of class StmtDDLSchGrantArray
 // -----------------------------------------------------------------------
-class StmtDDLSchGrantArray : public LIST(StmtDDLSchGrant *)
-{
-public:
-
+class StmtDDLSchGrantArray : public LIST(StmtDDLSchGrant *) {
+ public:
   // constructor
-  StmtDDLSchGrantArray(CollHeap *heap = PARSERHEAP())
-   : LIST(StmtDDLSchGrant *)(heap)
-  { }
+  StmtDDLSchGrantArray(CollHeap *heap = PARSERHEAP()) : LIST(StmtDDLSchGrant *)(heap) {}
 
   // virtual destructor
   virtual ~StmtDDLSchGrantArray();
 
-private:
+ private:
+};  // class StmtDDLSchGrantArray
 
-}; // class StmtDDLSchGrantArray
-
-#endif // STMTDDLSCHGRANTARRAY_H
+#endif  // STMTDDLSCHGRANTARRAY_H

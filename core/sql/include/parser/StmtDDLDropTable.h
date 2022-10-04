@@ -38,7 +38,6 @@
  *****************************************************************************
  */
 
-
 #include "common/ComSmallDefs.h"
 #include "StmtDDLNode.h"
 
@@ -56,48 +55,39 @@ class StmtDDLDropHbaseTable;
 // -----------------------------------------------------------------------
 // Drop Table statement
 // -----------------------------------------------------------------------
-class StmtDDLDropTable : public StmtDDLNode
-{
-
-public:
-
+class StmtDDLDropTable : public StmtDDLNode {
+ public:
   // constructor
-  StmtDDLDropTable(const QualifiedName & tableQualName,
-                   ComDropBehavior dropBehavior);
-  StmtDDLDropTable(const QualifiedName & tableQualName,
-                   ComDropBehavior dropBehavior,
-                   NABoolean cleanupSpec,
-                   NABoolean validateSpec,
-                   NAString *pLogFile);
+  StmtDDLDropTable(const QualifiedName &tableQualName, ComDropBehavior dropBehavior);
+  StmtDDLDropTable(const QualifiedName &tableQualName, ComDropBehavior dropBehavior, NABoolean cleanupSpec,
+                   NABoolean validateSpec, NAString *pLogFile);
 
-
-
-  // virtual destructor		
+  // virtual destructor
   virtual ~StmtDDLDropTable();
 
   // cast
-  virtual StmtDDLDropTable * castToStmtDDLDropTable();
+  virtual StmtDDLDropTable *castToStmtDDLDropTable();
 
   void synthesize();
 
   // accessors
   inline ComDropBehavior getDropBehavior() const;
   inline const NAString getTableName() const;
-  inline const QualifiedName & getOrigTableNameAsQualifiedName() const;
-  inline       QualifiedName & getOrigTableNameAsQualifiedName();
-  inline const QualifiedName & getTableNameAsQualifiedName() const;
-  inline       QualifiedName   getTableNameAsQualifiedName();
-  inline ExtendedQualName::SpecialTableType getTableType() const; // ++ MV
-  inline NABoolean isSpecialTypeSpecified() const; //++ MV
+  inline const QualifiedName &getOrigTableNameAsQualifiedName() const;
+  inline QualifiedName &getOrigTableNameAsQualifiedName();
+  inline const QualifiedName &getTableNameAsQualifiedName() const;
+  inline QualifiedName getTableNameAsQualifiedName();
+  inline ExtendedQualName::SpecialTableType getTableType() const;  // ++ MV
+  inline NABoolean isSpecialTypeSpecified() const;                 //++ MV
   inline const NABoolean isCleanupSpecified() const;
   inline const NABoolean isValidateSpecified() const;
   inline const NABoolean isLogFileSpecified() const;
-  inline const NAString & getLogFile() const;
+  inline const NAString &getLogFile() const;
 
   const NABoolean dropIfExists() const { return dropIfExists_; }
 
   // for binding
-  ExprNode * bindNode(BindWA *bindWAPtr);
+  ExprNode *bindNode(BindWA *bindWAPtr);
 
   // for tracing
   virtual const NAString displayLabel1() const;
@@ -105,11 +95,11 @@ public:
   virtual const NAString getText() const;
 
   // mutators
-  inline void setTableType(ExtendedQualName::SpecialTableType tableType); // ++ MV
+  inline void setTableType(ExtendedQualName::SpecialTableType tableType);  // ++ MV
 
   void setDropIfExists(NABoolean v) { dropIfExists_ = v; }
 
-private:
+ private:
   // the tablename specified by user in the drop stmt.
   // This name is not fully qualified during bind phase.
   QualifiedName origTableQualName_;
@@ -117,17 +107,17 @@ private:
   QualifiedName tableQualName_;
   ComDropBehavior dropBehavior_;
   // ++ MV
-  // The type of the table - for dropping tables in special namespaces	 
+  // The type of the table - for dropping tables in special namespaces
   ExtendedQualName::SpecialTableType tableType_;
   NABoolean isSpecialTypeSpecified_;
   // -- MV
   NABoolean isCleanupSpec_;
   NABoolean isValidateSpec_;
-  NAString  *pLogFile_;
+  NAString *pLogFile_;
 
   // drop only if table exists. Otherwise just return.
   NABoolean dropIfExists_;
-}; // class StmtDDLDropTable
+};  // class StmtDDLDropTable
 
 // -----------------------------------------------------------------------
 // definitions of inline methods for class StmtDDLDropTable
@@ -136,88 +126,42 @@ private:
 //
 // accessors
 //
-inline QualifiedName &
-StmtDDLDropTable::getOrigTableNameAsQualifiedName()
-{
-  return origTableQualName_;
-}
+inline QualifiedName &StmtDDLDropTable::getOrigTableNameAsQualifiedName() { return origTableQualName_; }
 
-inline const QualifiedName &
-StmtDDLDropTable::getOrigTableNameAsQualifiedName() const
-{
-  return origTableQualName_;
-}
+inline const QualifiedName &StmtDDLDropTable::getOrigTableNameAsQualifiedName() const { return origTableQualName_; }
 
-inline QualifiedName
-StmtDDLDropTable::getTableNameAsQualifiedName()
-{
-  return tableQualName_;
-}
+inline QualifiedName StmtDDLDropTable::getTableNameAsQualifiedName() { return tableQualName_; }
 
-inline const QualifiedName &
-StmtDDLDropTable::getTableNameAsQualifiedName() const
-{
-  return tableQualName_;
-}
+inline const QualifiedName &StmtDDLDropTable::getTableNameAsQualifiedName() const { return tableQualName_; }
 
-inline ComDropBehavior
-StmtDDLDropTable::getDropBehavior() const
-{
-  return dropBehavior_;
-}
+inline ComDropBehavior StmtDDLDropTable::getDropBehavior() const { return dropBehavior_; }
 
-inline const NAString
-StmtDDLDropTable::getTableName() const
-{
-  return tableQualName_.getQualifiedNameAsAnsiString();
-}
+inline const NAString StmtDDLDropTable::getTableName() const { return tableQualName_.getQualifiedNameAsAnsiString(); }
 
 // ++ MV
-inline NABoolean StmtDDLDropTable::isSpecialTypeSpecified() const
-{
-  return isSpecialTypeSpecified_;
-}
+inline NABoolean StmtDDLDropTable::isSpecialTypeSpecified() const { return isSpecialTypeSpecified_; }
 
-inline void 
-StmtDDLDropTable::setTableType(ExtendedQualName::SpecialTableType tableType)
-{
+inline void StmtDDLDropTable::setTableType(ExtendedQualName::SpecialTableType tableType) {
   tableType_ = tableType;
   isSpecialTypeSpecified_ = TRUE;
 }
 
-inline 
-ExtendedQualName::SpecialTableType StmtDDLDropTable::getTableType() const
-{
-  return tableType_;
-}
+inline ExtendedQualName::SpecialTableType StmtDDLDropTable::getTableType() const { return tableType_; }
 
 // -- MV
 
-inline const NABoolean
-StmtDDLDropTable::isCleanupSpecified()const
-{
-  return isCleanupSpec_;
-}
+inline const NABoolean StmtDDLDropTable::isCleanupSpecified() const { return isCleanupSpec_; }
 
-inline const NABoolean
-StmtDDLDropTable::isValidateSpecified()const
-{
-  return isValidateSpec_;
-}
+inline const NABoolean StmtDDLDropTable::isValidateSpecified() const { return isValidateSpec_; }
 
-
-inline const NABoolean
-StmtDDLDropTable::isLogFileSpecified() const
-{
+inline const NABoolean StmtDDLDropTable::isLogFileSpecified() const {
   if (pLogFile_ == NULL)
     return FALSE;
   else
     return TRUE;
 }
 
-inline const NAString &
-StmtDDLDropTable::getLogFile() const
-{
+inline const NAString &StmtDDLDropTable::getLogFile() const {
   ComASSERT(pLogFile_ NEQ NULL);
   return *pLogFile_;
 }
@@ -225,42 +169,39 @@ StmtDDLDropTable::getLogFile() const
 // -----------------------------------------------------------------------
 // Drop Hbase Table statement
 // -----------------------------------------------------------------------
-class StmtDDLDropHbaseTable : public StmtDDLNode
-{
-
-public:
-
+class StmtDDLDropHbaseTable : public StmtDDLNode {
+ public:
   // constructor
-  StmtDDLDropHbaseTable(const QualifiedName & tableQualName);
+  StmtDDLDropHbaseTable(const QualifiedName &tableQualName);
 
-  // virtual destructor		
+  // virtual destructor
   virtual ~StmtDDLDropHbaseTable();
 
   // cast
-  virtual StmtDDLDropHbaseTable * castToStmtDDLDropHbaseTable();
+  virtual StmtDDLDropHbaseTable *castToStmtDDLDropHbaseTable();
 
   // accessors
   inline const NAString getTableName() const;
-  inline const QualifiedName & getOrigTableNameAsQualifiedName() const;
-  inline       QualifiedName & getOrigTableNameAsQualifiedName();
-  inline const QualifiedName & getTableNameAsQualifiedName() const;
-  inline       QualifiedName   getTableNameAsQualifiedName();
+  inline const QualifiedName &getOrigTableNameAsQualifiedName() const;
+  inline QualifiedName &getOrigTableNameAsQualifiedName();
+  inline const QualifiedName &getTableNameAsQualifiedName() const;
+  inline QualifiedName getTableNameAsQualifiedName();
 
   // for binding
-  ExprNode * bindNode(BindWA *bindWAPtr);
+  ExprNode *bindNode(BindWA *bindWAPtr);
 
   // for tracing
   virtual const NAString displayLabel1() const;
   virtual const NAString displayLabel2() const;
   virtual const NAString getText() const;
 
-private:
+ private:
   // the tablename specified by user in the drop stmt.
   // This name is not fully qualified during bind phase.
   QualifiedName origTableQualName_;
 
   QualifiedName tableQualName_;
-}; // class StmtDDLDropHbaseTable
+};  // class StmtDDLDropHbaseTable
 
 // -----------------------------------------------------------------------
 // definitions of inline methods for class StmtDDLDropHbaseTable
@@ -269,34 +210,18 @@ private:
 //
 // accessors
 //
-inline QualifiedName &
-StmtDDLDropHbaseTable::getOrigTableNameAsQualifiedName()
-{
+inline QualifiedName &StmtDDLDropHbaseTable::getOrigTableNameAsQualifiedName() { return origTableQualName_; }
+
+inline const QualifiedName &StmtDDLDropHbaseTable::getOrigTableNameAsQualifiedName() const {
   return origTableQualName_;
 }
 
-inline const QualifiedName &
-StmtDDLDropHbaseTable::getOrigTableNameAsQualifiedName() const
-{
-  return origTableQualName_;
-}
+inline QualifiedName StmtDDLDropHbaseTable::getTableNameAsQualifiedName() { return tableQualName_; }
 
-inline QualifiedName
-StmtDDLDropHbaseTable::getTableNameAsQualifiedName()
-{
-  return tableQualName_;
-}
+inline const QualifiedName &StmtDDLDropHbaseTable::getTableNameAsQualifiedName() const { return tableQualName_; }
 
-inline const QualifiedName &
-StmtDDLDropHbaseTable::getTableNameAsQualifiedName() const
-{
-  return tableQualName_;
-}
-
-inline const NAString
-StmtDDLDropHbaseTable::getTableName() const
-{
+inline const NAString StmtDDLDropHbaseTable::getTableName() const {
   return tableQualName_.getQualifiedNameAsAnsiString();
 }
 
-#endif // STMTDDLDROPTABLE_H
+#endif  // STMTDDLDROPTABLE_H

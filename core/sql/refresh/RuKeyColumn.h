@@ -29,13 +29,13 @@
 *
 * File:         RuKeyColumn.h
 * Description:  Definition of class CRUKeyColumn
-*				
+*
 *
 * Created:      06/27/2000
 * Language:     C++
-* 
 *
-* 
+*
+*
 ******************************************************************************
 */
 
@@ -49,9 +49,9 @@
 
 //--------------------------------------------------------------------------//
 //	CRUKeyColumn
-//	
-//	The CRUKeyColumn class combines the subset of properties of CDDColumn 
-//	(name, type conversion (casting) string) and CDDKeyColumn 
+//
+//	The CRUKeyColumn class combines the subset of properties of CDDColumn
+//	(name, type conversion (casting) string) and CDDKeyColumn
 //	(the STORE BY order).
 //
 //	This class is used by CRUDupElimSQLComposer for the SQL code generation.
@@ -59,37 +59,24 @@
 //--------------------------------------------------------------------------//
 
 class REFRESH_LIB_CLASS CRUKeyColumn {
+ public:
+  CRUKeyColumn(CDDColumn *pCol, CDDKeyColumn *pKeyCol)
+      : name_(pCol->GetName()), typeStr_(pCol->GetTypeStr()), sortOrder_(pKeyCol->GetSortOrder()) {}
 
-public:	
-	CRUKeyColumn(CDDColumn *pCol, CDDKeyColumn *pKeyCol) :
-		name_(pCol->GetName()),
-		typeStr_(pCol->GetTypeStr()),
-		sortOrder_(pKeyCol->GetSortOrder()) 
-		{}			
+  virtual ~CRUKeyColumn() {}
 
-	virtual ~CRUKeyColumn() {}
+ public:
+  const CDSString &GetName() const { return name_; }
 
-public:
-	const CDSString &GetName() const
-	{
-		return name_;
-	}
+  const CDSString &GetTypeString() const { return typeStr_; }
 
-	const CDSString &GetTypeString() const
-	{
-		return typeStr_;
-	}
+  CDDObject::ESortOrder GetSortOrder() const { return sortOrder_; }
 
-	CDDObject::ESortOrder GetSortOrder() const
-	{
-		return sortOrder_;
-	}
+ private:
+  CDSString name_;
+  CDSString typeStr_;
 
-private:
-	CDSString name_;
-	CDSString typeStr_;
-
-	CDDObject::ESortOrder sortOrder_;
+  CDDObject::ESortOrder sortOrder_;
 };
 
 // Declare the CRUKeyColumnList class through this macro

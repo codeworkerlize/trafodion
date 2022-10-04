@@ -35,24 +35,22 @@
 
 // This is an extension of the QR namespace, some elements of which are also
 // defined in QRMessage.h.
-namespace QR
-{
-  /**
-   * Enumeration representing element types that can appear as subelements in
-   * an &lt;Expr&gt; element. This is used in a virtual function in \c ItemExpr
-   * to indicate what element we should generate when a node of an item
-   * expression is visited.
-   */
-  enum ExprElement 
-    { 
-      QRNoElem,
-      QRFunctionElem,
-      QRFunctionWithParameters,
-      QRBinaryOperElem,
-      QRUnaryOperElem,
-      QRColumnElem,
-      QRScalarValueElem
-    };
+namespace QR {
+/**
+ * Enumeration representing element types that can appear as subelements in
+ * an &lt;Expr&gt; element. This is used in a virtual function in \c ItemExpr
+ * to indicate what element we should generate when a node of an item
+ * expression is visited.
+ */
+enum ExprElement {
+  QRNoElem,
+  QRFunctionElem,
+  QRFunctionWithParameters,
+  QRBinaryOperElem,
+  QRUnaryOperElem,
+  QRColumnElem,
+  QRScalarValueElem
+};
 };  // namespace QR
 
-#endif  /* _QREXPRELEMENT_H_ */
+#endif /* _QREXPRELEMENT_H_ */

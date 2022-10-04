@@ -2,7 +2,6 @@
 #ifndef VALUEDESC_H
 #define VALUEDESC_H
 
-
 #include "optimizer/ObjectNames.h"
 #include "common/Collections.h"
 #include "optimizer/CascadesBasic.h"
@@ -60,9 +59,9 @@ class PredAnalysis;
 //
 // ***********************************************************************
 
-extern SchemaDB * ActiveSchemaDB();
+extern SchemaDB *ActiveSchemaDB();
 
-extern void DisplayVid(CollIndex id);		// for debugging!
+extern void DisplayVid(CollIndex id);  // for debugging!
 
 // ***********************************************************************
 // ValueId : A Value identifier
@@ -70,17 +69,15 @@ extern void DisplayVid(CollIndex id);		// for debugging!
 // in the SchemaDB.
 // ***********************************************************************
 
-class ValueId
-{
-friend class ValueIdSet; // to access id_
+class ValueId {
+  friend class ValueIdSet;  // to access id_
 
-public:
-
+ public:
   // ---------------------------------------------------------------------
   // Constructor, default constructor, and copy constructor
   // (specify an index into the global array of ValueDescs)
   // ---------------------------------------------------------------------
-  ValueId (CollIndex x = 0) : id_(x) {}
+  ValueId(CollIndex x = 0) : id_(x) {}
 
   // ---------------------------------------------------------------------
   // This constructor should usually be used: create a value id by
@@ -99,18 +96,18 @@ public:
   // Since a ValueId is an index, it has an automatic conversion operator
   // to type CollIndex.
   // ---------------------------------------------------------------------
-  operator CollIndex () const { return id_; }
+  operator CollIndex() const { return id_; }
 
   // ---------------------------------------------------------------------
   // Comparison of two ValueIds
   // ---------------------------------------------------------------------
-  NABoolean operator == (const ValueId & other) { return id_ == other.id_; }
-  NABoolean operator != (const ValueId & other) { return id_ != other.id_; }
+  NABoolean operator==(const ValueId &other) { return id_ == other.id_; }
+  NABoolean operator!=(const ValueId &other) { return id_ != other.id_; }
 
   // ---------------------------------------------------------------------
   // convert to unsigned long
   // ---------------------------------------------------------------------
-  inline const UInt32 toUInt32() const { return id_; } ;
+  inline const UInt32 toUInt32() const { return id_; };
 
   // ---------------------------------------------------------------------
   // get the corresponding ValueDesc
@@ -131,10 +128,10 @@ public:
   // the converse of getNAColumn() above, return the itemExpr's BaseColumn
   // (if it is a column)
   // ---------------------------------------------------------------------
-  BaseColumn *castToBaseColumn(NABoolean *isaConstant=NULL) const ;
+  BaseColumn *castToBaseColumn(NABoolean *isaConstant = NULL) const;
 
   // return my base column value id or set isaConstant to true if a constant
-  ValueId getBaseColumn(NABoolean *isaConstant) const ;
+  ValueId getBaseColumn(NABoolean *isaConstant) const;
 
   // ---------------------------------------------------------------------
   // get the corresponding NAType
@@ -142,7 +139,7 @@ public:
   const NAType &getType() const;
 
   // Normalize the valueId replacing valueIds with VEGRefs
-  NABoolean normalizeNode(NormWA & normWARef);
+  NABoolean normalizeNode(NormWA &normWARef);
 
   // return TRUE iff i'm a string literal with unknown char set
   NABoolean inferableCharType();
@@ -177,12 +174,9 @@ public:
   // ---------------------------------------------------------------------
   // coerce the ValueId's unknown type to the desired type
   // ---------------------------------------------------------------------
-  void coerceType(enum NABuiltInTypeEnum desiredQualifier,
-                  enum CharInfo::CharSet charSet=CharInfo::DefaultCharSet,
-                  NABoolean bForce = FALSE,
-                  DefaultConstants defaultConst = __INVALID_DEFAULT_ATTRIBUTE);
-  void coerceType(const NAType& desiredType,
-                  enum NABuiltInTypeEnum defaultQualifier = NA_UNKNOWN_TYPE);
+  void coerceType(enum NABuiltInTypeEnum desiredQualifier, enum CharInfo::CharSet charSet = CharInfo::DefaultCharSet,
+                  NABoolean bForce = FALSE, DefaultConstants defaultConst = __INVALID_DEFAULT_ATTRIBUTE);
+  void coerceType(const NAType &desiredType, enum NABuiltInTypeEnum defaultQualifier = NA_UNKNOWN_TYPE);
 
   // ---------------------------------------------------------------------
   // create a ValueId of same datatype as 'this', except also nullable
@@ -196,7 +190,7 @@ public:
   // used in MergeUnion::preCodeGen() to minimize the set of outputs the
   // operator should produce.
   // ---------------------------------------------------------------------
-  void getSubExprRootedByVidUnion(ValueIdSet & vs);
+  void getSubExprRootedByVidUnion(ValueIdSet &vs);
 
   // ---------------------------------------------------------------------
   // replace any BaseColumn (of the given column name) in of this value
@@ -204,7 +198,7 @@ public:
   // used in Insert::bindNode() to move constraints from the target table
   // to the source table.
   // ---------------------------------------------------------------------
-  void replaceBaseColWithExpr(const NAString& colName, const ValueId & vid);
+  void replaceBaseColWithExpr(const NAString &colName, const ValueId &vid);
 
   // -----------------------------------------------------------------------
   // replace any ColReference (of the given column name) in of this value
@@ -212,22 +206,22 @@ public:
   // used in ValueId::computeEncodedKey() to assign key values into the
   // salt/DivisionByto expression.
   // ----------------------------------------------------------------------
-  void replaceColReferenceWithExpr(const NAString& colName, const ValueId & vid);
+  void replaceColReferenceWithExpr(const NAString &colName, const ValueId &vid);
 
   // ---------------------------------------------------------------------
   // Replace the definition of this valueId to be a new itemexpr
   // ---------------------------------------------------------------------
-  void replaceItemExpr(ItemExpr * iePtr);
+  void replaceItemExpr(ItemExpr *iePtr);
 
   // ---------------------------------------------------------------------
   // Return the ColAnalysis and PredAnalysis for this valueId
   // ---------------------------------------------------------------------
-  ColAnalysis* colAnalysis() const;
-  PredAnalysis* predAnalysis() const;
+  ColAnalysis *colAnalysis() const;
+  PredAnalysis *predAnalysis() const;
 
   // return column analysis or set isaConstant to true if a constant
   // set vid to base column's value id
-  ColAnalysis* baseColAnalysis(NABoolean *isaConstant, ValueId &vid) const;
+  ColAnalysis *baseColAnalysis(NABoolean *isaConstant, ValueId &vid) const;
 
   // ----------------------------------------------------------------------
   // returns TRUE if the valueId is a veg_ref referring columns from more
@@ -236,85 +230,78 @@ public:
 
   NABoolean isInvolvedInJoinAndConst() const;
   NABoolean anExpression();
-  NABoolean moreThanOneColFromSameTabOrCharDate(TableDesc * tdesc,
-                                                ValueIdSet & colsOfThisTable);
+  NABoolean moreThanOneColFromSameTabOrCharDate(TableDesc *tdesc, ValueIdSet &colsOfThisTable);
   NABoolean isConnectByPred() const;
   NABoolean isStartWithPred() const;
 
-  ULng32 hash() const { return (ULng32) id_;}
-private:
+  ULng32 hash() const { return (ULng32)id_; }
 
+ private:
   // an index into the ValueDescArray in the Schema DB
   CollIndex id_;
-
 };
 
 // Define a constant for an invalid ValueId
-const ValueId NULL_VALUE_ID((CollIndex) 0);
+const ValueId NULL_VALUE_ID((CollIndex)0);
 
 // ***********************************************************************
 // ValueIdArray : An ordered collection of Value identifiers
 // ***********************************************************************
 
-class ValueIdArray : public ARRAY(ValueId)
-{
-public:
-  ValueIdArray(Lng32 numberOfElements = 0) :
-  NAArray<ValueId>(CmpCommon::statementHeap(),numberOfElements)
-  {}
+class ValueIdArray : public ARRAY(ValueId) {
+ public:
+  ValueIdArray(Lng32 numberOfElements = 0) : NAArray<ValueId>(CmpCommon::statementHeap(), numberOfElements) {}
 
   // copy ctor
-  ValueIdArray (const ValueIdArray & orig) :
-  NAArray<ValueId>(orig, CmpCommon::statementHeap())
-  {}
+  ValueIdArray(const ValueIdArray &orig) : NAArray<ValueId>(orig, CmpCommon::statementHeap()) {}
 
   // constructor that takes a ValueIdList
-  ValueIdArray (const ValueIdList & orig, Lng32 numberOfElements );
+  ValueIdArray(const ValueIdList &orig, Lng32 numberOfElements);
 
-private:
-}; // class ValueIdArray
+ private:
+};  // class ValueIdArray
 
 // ***********************************************************************
 // ValueIdList : An ordered collection of Value identifiers
 // ***********************************************************************
 
-class ValueIdList : public LIST(ValueId)
-{
-public:
+class ValueIdList : public LIST(ValueId) {
+ public:
   // --------------------------------------------------------------------
   // Constructor that pre allocates storage for the list.
   // --------------------------------------------------------------------
-  ValueIdList(Lng32 numberOfElements = 0, CollHeap *h=CmpCommon::statementHeap()) :
-    NAList<ValueId>(h, numberOfElements)
-  {(*counter_).incrementCounter();}
+  ValueIdList(Lng32 numberOfElements = 0, CollHeap *h = CmpCommon::statementHeap())
+      : NAList<ValueId>(h, numberOfElements) {
+    (*counter_).incrementCounter();
+  }
 
   // --------------------------------------------------------------------
   // Constructor that copies from an array (assumes array is densely populated)
   // --------------------------------------------------------------------
-  ValueIdList(const ValueIdArray &, CollHeap *h=CmpCommon::statementHeap());
+  ValueIdList(const ValueIdArray &, CollHeap *h = CmpCommon::statementHeap());
 
   // --------------------------------------------------------------------
   // copy ctor
   // --------------------------------------------------------------------
-  ValueIdList(const ValueIdList &other, CollHeap *h=CmpCommon::statementHeap()) :
-    NAList<ValueId>(other, h)
-  {(*counter_).incrementCounter();}
+  ValueIdList(const ValueIdList &other, CollHeap *h = CmpCommon::statementHeap()) : NAList<ValueId>(other, h) {
+    (*counter_).incrementCounter();
+  }
   // --------------------------------------------------------------------
   // Constructor that copies from a set
   // --------------------------------------------------------------------
-  ValueIdList(const ValueIdSet &, CollHeap *h=CmpCommon::statementHeap());
+  ValueIdList(const ValueIdSet &, CollHeap *h = CmpCommon::statementHeap());
 
   // --------------------------------------------------------------------
   // Destructor
   // --------------------------------------------------------------------
-  ~ValueIdList() {(*counter_).decrementCounter();};
+  ~ValueIdList() { (*counter_).decrementCounter(); };
 
   // ---------------------------------------------------------------------
   // insert "foreign" data types
   // ---------------------------------------------------------------------
   void insertSet(const ValueIdSet &other);
 
-  void addMember(ItemExpr* x);
+  void addMember(ItemExpr *x);
 
   // find the length of the maximal prefix of this such that each element
   // in the prefix is in x.
@@ -323,7 +310,7 @@ public:
   //  return 2 when this = [1, 2, 3, 4], and x = {1, 2, 4}
   //  return 0 when this = [1, 2, 3, 4], and x = {2, 4}
   //  return 1 when this = [1], and x = {1, 2}
-  Lng32 findPrefixLength(const ValueIdSet& x) const;
+  Lng32 findPrefixLength(const ValueIdSet &x) const;
 
   // --------------------------------------------------------------------
   // transformNode()
@@ -360,9 +347,7 @@ public:
   //           FALSE otherwise
   //
   // --------------------------------------------------------------------
-  NABoolean transformNode(NormWA & normWARef,
-                          ExprGroupId & introduceSemiJoinHere,
-                          const ValueIdSet & externalInputs);
+  NABoolean transformNode(NormWA &normWARef, ExprGroupId &introduceSemiJoinHere, const ValueIdSet &externalInputs);
 
   // --------------------------------------------------------------------
   // ValueIdList::removeCoveredExprs()
@@ -370,7 +355,7 @@ public:
   // This method removes from the valueid set that values that
   // are covered by the available inputs.
   // --------------------------------------------------------------------
-  void removeCoveredExprs(const ValueIdSet & newExternalInputs);
+  void removeCoveredExprs(const ValueIdSet &newExternalInputs);
 
   // --------------------------------------------------------------------
   // ValueIdList::removeUnCoveredExprs()
@@ -378,7 +363,7 @@ public:
   // This method removes from the valueid set that values that
   // are NOT covered by the available inputs.
   // --------------------------------------------------------------------
-  void removeUnCoveredExprs(const ValueIdSet & newExternalInputs);
+  void removeUnCoveredExprs(const ValueIdSet &newExternalInputs);
 
   // --------------------------------------------------------------------
   // normalizeNode()
@@ -394,7 +379,7 @@ public:
   //    IN : a reference to the normalizer work area
   //
   // --------------------------------------------------------------------
-  NABoolean normalizeNode(NormWA & normWARef);
+  NABoolean normalizeNode(NormWA &normWARef);
 
   // ---------------------------------------------------------------------
   // removeSubqueryOrIsolatedUDFunctionPredicates()
@@ -403,7 +388,7 @@ public:
   // collects the ValueIds of the expressions which contain a subquery
   // or an IsolatedUDFunction and removes them from the orginal set.
   // ---------------------------------------------------------------------
-  void removeSubqueryOrIsolatedUDFunctionPredicates(ValueIdSet & subqueryExpr);
+  void removeSubqueryOrIsolatedUDFunctionPredicates(ValueIdSet &subqueryExpr);
 
   // ---------------------------------------------------------------------
   // Is a prefix of this list covered in the provided set?  If so,
@@ -411,23 +396,22 @@ public:
   // Warning: before using this function, take a look at the function
   // getLengthOfCoveredPrefix() and determine what functionality you want.
   // ---------------------------------------------------------------------
-  Int32 prefixCoveredInSet (const ValueIdSet& vidSet) const;
+  Int32 prefixCoveredInSet(const ValueIdSet &vidSet) const;
 
   // Are all members of this list are covered in the provided set?
-  // If exactMatch is set: 
+  // If exactMatch is set:
   //    If all the members of this list are covered in the provided set
   //    AND if they are exact match, return TRUE. Otherwise, return FALSE.
-  // If exactMatch is not set: 
-  //    If all the members of this list are covered in the provided set, 
+  // If exactMatch is not set:
+  //    If all the members of this list are covered in the provided set,
   //    return TRUE. Otherwise, return FALSE.
-  NABoolean allMembersCoveredInSet(const ValueIdSet& vidSet,
-                                   NABoolean exactMatch) const;
+  NABoolean allMembersCoveredInSet(const ValueIdSet &vidSet, NABoolean exactMatch) const;
 
   // ---------------------------------------------------------------------
   // Check whether a prefix of this list is covered by the provided set.
   // For the remaining suffix, remove those items from this list.
   // ---------------------------------------------------------------------
-  void removeUncoveredSuffix (const ValueIdSet& vidSet);
+  void removeUncoveredSuffix(const ValueIdSet &vidSet);
 
   // ---------------------------------------------------------------------
   // findNJEquiJoinColumns()
@@ -440,10 +424,8 @@ public:
   // Output: numOfUncoveredCols
   // Return value: a list representing the equijoin columns found
   // ---------------------------------------------------------------------
-  ValueIdList findNJEquiJoinCols(
-                const ValueIdSet & child0Outputs,
-                const ValueIdSet & child1Inputs,
-                ValueIdList & uncoveredCols) const;
+  ValueIdList findNJEquiJoinCols(const ValueIdSet &child0Outputs, const ValueIdSet &child1Inputs,
+                                 ValueIdList &uncoveredCols) const;
 
   // ---------------------------------------------------------------------
   // Is a prefix of this list covered in the provided set, or in
@@ -453,8 +435,7 @@ public:
   // list with the one in the original provided set - i.e. "complify"
   // it.
   // ---------------------------------------------------------------------
-  Int32 complifyAndCheckPrefixCovered (const ValueIdSet& vidSet,
-                                       const GroupAttributes *ga);
+  Int32 complifyAndCheckPrefixCovered(const ValueIdSet &vidSet, const GroupAttributes *ga);
 
   // ---------------------------------------------------------------------
   // Check whether a prefix of this list is covered by the provided set.
@@ -462,8 +443,7 @@ public:
   // their counterparts in the provided set.
   // For the remaining suffix, remove those items from this list.
   // ---------------------------------------------------------------------
-  void complifyAndRemoveUncoveredSuffix (const ValueIdSet& vidSet,
-                                         const GroupAttributes *ga);
+  void complifyAndRemoveUncoveredSuffix(const ValueIdSet &vidSet, const GroupAttributes *ga);
 
   // ---------------------------------------------------------------------
   // simplifyOrderExpr()
@@ -488,10 +468,9 @@ public:
   // ---------------------------------------------------------------------
   void removeDuplicateValueIds();
 
-
   // ---------------------------------------------------------------------
   // substituteValueIds()
-  // Substitutes a one valueId for another in the list 
+  // Substitutes a one valueId for another in the list
   // ---------------------------------------------------------------------
   void substituteValueIds(const ValueId vid, const ValueId replacementVid);
 
@@ -501,11 +480,9 @@ public:
   // (GroupAttributes and predicates can be provided to allow more matches
   // by applying some optimizations)
   // ---------------------------------------------------------------------
-  OrderComparison satisfiesReqdOrder(const ValueIdList &reqdOrder,
-				     GroupAttributes *ga = NULL,
+  OrderComparison satisfiesReqdOrder(const ValueIdList &reqdOrder, GroupAttributes *ga = NULL,
                                      const ValueIdSet *preds = NULL) const;
-  NABoolean satisfiesReqdArrangement(const ValueIdSet &reqdArrangement,
-				     GroupAttributes *ga = NULL,
+  NABoolean satisfiesReqdArrangement(const ValueIdSet &reqdArrangement, GroupAttributes *ga = NULL,
                                      const ValueIdSet *preds = NULL) const;
 
   // ---------------------------------------------------------------------
@@ -525,11 +502,11 @@ public:
   Lng32 getRowLengthOfNonCharColumns() const;
 
   // ---------------------------------------------------------------------
-  // Calculate the length of numeric type vids in the row containing all 
+  // Calculate the length of numeric type vids in the row containing all
   // the value ids
   // ---------------------------------------------------------------------
   Lng32 getRowLengthOfNumericCols() const;
- 
+
   // ---------------------------------------------------------------------
   // Calculate the space needed in an sql_buffer for Mdam values.
   // These values are: high, low, non-null high, non-null low, and current.
@@ -547,9 +524,8 @@ public:
   // createFinalizeResultNode flag is set to TRUE. Used by generator
   // to finalize the boolean result.
   // ---------------------------------------------------------------------
-  ItemExpr * rebuildExprTree(OperatorTypeEnum op = ITM_ITEM_LIST,
-                             NABoolean redriveTypeSynthesisFlag = FALSE,
-			     NABoolean createFinalizeResultNode = FALSE) const;
+  ItemExpr *rebuildExprTree(OperatorTypeEnum op = ITM_ITEM_LIST, NABoolean redriveTypeSynthesisFlag = FALSE,
+                            NABoolean createFinalizeResultNode = FALSE) const;
 
   // ---------------------------------------------------------------------
   // ValueIdList::replaceVEGExpressions()
@@ -572,25 +548,19 @@ public:
   // If replicateExpression is set, a copy of the expression is
   // returned.
   //
-  // if joinInputAndPotentialOutput is not null, then use it to steer that 
+  // if joinInputAndPotentialOutput is not null, then use it to steer that
   // join's VEGPredicate::replaceVEGPredicate()'s choice of invariantExprId
   // toward a member of that join's input and potential output.
-  // 
+  //
   // When thisIsAKeyPredicate is set to TRUE, you need to also pass in
   // an indexDesc in order to guarantee that we will replace a VEGReference
   // with a key column.
   // ---------------------------------------------------------------------
-  void replaceVEGExpressions
-          (const ValueIdSet & availableValues,
-           const ValueIdSet & inputValues,
-           NABoolean thisIsAKeyPredicate = FALSE,
-           VEGRewritePairs * lookup = NULL,
-           NABoolean replicateExpression = FALSE,
-           const ValueIdSet * outputExpr = NULL,
-           const ValueIdSet * joinInputAndPotentialOutput = NULL,
-           const IndexDesc  * iDesc = NULL,
-           const GroupAttributes * left_ga = NULL,
-           const GroupAttributes * right_ga = NULL);
+  void replaceVEGExpressions(const ValueIdSet &availableValues, const ValueIdSet &inputValues,
+                             NABoolean thisIsAKeyPredicate = FALSE, VEGRewritePairs *lookup = NULL,
+                             NABoolean replicateExpression = FALSE, const ValueIdSet *outputExpr = NULL,
+                             const ValueIdSet *joinInputAndPotentialOutput = NULL, const IndexDesc *iDesc = NULL,
+                             const GroupAttributes *left_ga = NULL, const GroupAttributes *right_ga = NULL);
 
   // ---------------------------------------------------------------------
   // replaceOperandsOfInstantiateNull()
@@ -598,8 +568,7 @@ public:
   // operands of an ITM_INSTANTIATE_NULL with a value that belongs
   // to availableValues.
   // ---------------------------------------------------------------------
-  void replaceOperandsOfInstantiateNull(const ValueIdSet &,
-                                        const ValueIdSet & inputValues);
+  void replaceOperandsOfInstantiateNull(const ValueIdSet &, const ValueIdSet &inputValues);
 
   // Simplify subexpressions that contain constants only;
   // for example, if the valueIdSet looks like x < 3 + 4
@@ -614,24 +583,23 @@ public:
   // or to an equal predicate.
   ValueId extractVEGRefForEquiPredicate(ValueId x) const;
 
-
   // Encode this list of constants into an encoded key and save the result into
   // encodedKeyBuffer, and the key length into keyBufLen. Allocate an buffer
   // if encodedKeyBuffer points at NULL from STMTHEAP. Also return the buffer pointer
   // if everything is OK.  Return NULL otherwise.
-  char* computeEncodedKey(const TableDesc* tDesc, NABoolean isMaxKey, char*& encodedKeyBuffer, Int32& keyBufLen) const;
+  char *computeEncodedKey(const TableDesc *tDesc, NABoolean isMaxKey, char *&encodedKeyBuffer, Int32 &keyBufLen) const;
 
   // remove NotCovered expressions that appear in cols from this list.
-  void removeNotCoveredExpr(const ValueIdSet& cols);
+  void removeNotCoveredExpr(const ValueIdSet &cols);
 
   // 'this' list represents a list of columns, from the list
   // we collect their corresponding base columns.
-  void getBaseColumnList(ValueIdList& baseCols);
+  void getBaseColumnList(ValueIdList &baseCols);
 
-  // clone the source list into this.  
+  // clone the source list into this.
   //   return TRUE if all expressions can be assigned a new
   //   valueId; FALSE otherwise.
-  NABoolean clone(const ValueIdList& source, NAHeap* workHeap);
+  NABoolean clone(const ValueIdList &source, NAHeap *workHeap);
 
   // ---------------------------------------------------------------------
   // Print
@@ -639,37 +607,29 @@ public:
   void display() const;
   void display(UnparseFormatEnum form) const;
 
-  void print( FILE* ofd = stdout,
-	      const char* indent = DEFAULT_INDENT,
-              const char* title = "ValueIdList",
-              CollHeap *c=NULL, char *buf=NULL,
-	      UnparseFormatEnum form = USER_FORMAT
-            ) const;
+  void print(FILE *ofd = stdout, const char *indent = DEFAULT_INDENT, const char *title = "ValueIdList",
+             CollHeap *c = NULL, char *buf = NULL, UnparseFormatEnum form = USER_FORMAT) const;
 
-  void unparse(NAString &result,
-	       PhaseEnum phase = DEFAULT_PHASE,
-	       UnparseFormatEnum form = USER_FORMAT,
-	       TableDesc * tabId = NULL) const;
+  void unparse(NAString &result, PhaseEnum phase = DEFAULT_PHASE, UnparseFormatEnum form = USER_FORMAT,
+               TableDesc *tabId = NULL) const;
 
   // evaluate this ValueIdList's expr(s) into resultBuffer
 
-  ex_expr::exp_return_type evalAtCompileTime
-    (short addConvNodes, //(IN) : 1 to add conv nodes, 0 otherwise
-     ExpTupleDesc::TupleDataFormat tf,//(IN): tuple format of resulting expr(s)
-     char* resultBuffer, //(INOUT): tuple buffer of resulting expr(s)
-     ULng32 resultBufferLength, //(IN): length of the result buffer
-     Lng32 *length=NULL,  //(OUT) : length of 1st result expr
-     Lng32 *offset=NULL   //(OUT) : offset of 1st result expr
-     , ComDiagsArea *diagsArea = NULL
-     , NAHeap *workingHeap = NULL
-     ) const;
-
+  ex_expr::exp_return_type evalAtCompileTime(
+      short addConvNodes,                //(IN) : 1 to add conv nodes, 0 otherwise
+      ExpTupleDesc::TupleDataFormat tf,  //(IN): tuple format of resulting expr(s)
+      char *resultBuffer,                //(INOUT): tuple buffer of resulting expr(s)
+      ULng32 resultBufferLength,         //(IN): length of the result buffer
+      Lng32 *length = NULL,              //(OUT) : length of 1st result expr
+      Lng32 *offset = NULL               //(OUT) : offset of 1st result expr
+      ,
+      ComDiagsArea *diagsArea = NULL, NAHeap *workingHeap = NULL) const;
 
   // is this list cacheable after this phase?
-  NABoolean isCacheableExpr(CacheWA& cwa);
+  NABoolean isCacheableExpr(CacheWA &cwa);
 
   // change literals of a ValueIdList into ConstantParameters
-  void normalizeForCache(CacheWA& cwa, BindWA& bindWA);
+  void normalizeForCache(CacheWA &cwa, BindWA &bindWA);
 
   // ---------------------------------------------------------------------
   // Find all common elements between "this" and "other"
@@ -684,59 +644,39 @@ public:
   // 2.- encodedKeyBuffer, which is a pointer to the result.
   // 3.- The length of the result
   //
-  static short evaluateTree( const ItemExpr * root,
-			     char * encodedKeyBuffer,
-			     ULng32 encodedKeyLength,
-			     Lng32 *length,
-			     Lng32 *offset,
-			     ComDiagsArea *diagsArea = NULL
-			     );
+  static short evaluateTree(const ItemExpr *root, char *encodedKeyBuffer, ULng32 encodedKeyLength, Lng32 *length,
+                            Lng32 *offset, ComDiagsArea *diagsArea = NULL);
 
-  static Lng32 evaluateConstantTree( const ValueId &parent,
-				    const ValueId & ch,
-				    Int32 childNumber,
-				    ItemExpr ** outItemExpr,
-				    ComDiagsArea *diagsArea = NULL
-				    );
+  static Lng32 evaluateConstantTree(const ValueId &parent, const ValueId &ch, Int32 childNumber, ItemExpr **outItemExpr,
+                                    ComDiagsArea *diagsArea = NULL);
 
-  static Int32 evaluateExpr( const ValueId & parent,
-			   const ValueId & ch,
-			   Int32 childNumber,
-			   NABoolean simplifyExpr = TRUE,
-			   NABoolean evalAllConsts = FALSE,
-			   ItemExpr ** outAllConstsItemExpr = NULL,
-			   ComDiagsArea *diagsArea = NULL
-			   );
+  static Int32 evaluateExpr(const ValueId &parent, const ValueId &ch, Int32 childNumber, NABoolean simplifyExpr = TRUE,
+                            NABoolean evalAllConsts = FALSE, ItemExpr **outAllConstsItemExpr = NULL,
+                            ComDiagsArea *diagsArea = NULL);
 
   NABoolean hasVarChars() const;
 
   // For each vid in the list represnting a constant,
   //   the literal value of the constant is appended to 'result'
-  void convertToTextKey(const ValueIdList& keyList, NAString& result);
-  static ConstValue* getConstant(ItemExpr* ie);
+  void convertToTextKey(const ValueIdList &keyList, NAString &result);
+  static ConstValue *getConstant(ItemExpr *ie);
 
-  // count the number of prefix constants 
+  // count the number of prefix constants
   Int32 countConstantsAsPrefixes();
 
-private:
-
-  static NABoolean canSimplify( ItemExpr *itemExpr,
-				const ValueId &parent,
-				Int32 i,
-				Int32 childNumber,
-				Int32 &moved
-				);
+ private:
+  static NABoolean canSimplify(ItemExpr *itemExpr, const ValueId &parent, Int32 i, Int32 childNumber, Int32 &moved);
 
   static THREAD_P ObjectCounter *counter_;
 
-}; // class ValueIdList
+};  // class ValueIdList
 
-//class ValueIdListList : public LIST(ValueIdList)
+// class ValueIdListList : public LIST(ValueIdList)
 //{
-//public:
-  // --------------------------------------------------------------------
-  // Constructor that pre allocates storage for the list.
-  // --------------------------------------------------------------------
+// public:
+// --------------------------------------------------------------------
+// Constructor that pre allocates storage for the list.
+// --------------------------------------------------------------------
 //  ValueIdListList(long numberOfElements = 0) :
 //  NAList<ValueIdList>(CmpCommon::statementHeap(), numberOfElements)
 //  {}
@@ -746,10 +686,8 @@ private:
 // ValueIdSet : A collection of Value identifiers
 // ***********************************************************************
 
-class ValueIdSet : public ClusteredBitmap
-{
-public:
-
+class ValueIdSet : public ClusteredBitmap {
+ public:
   // ---------------------------------------------------------------------
   // constructor (the default constructor uses a method to determine
   // the active SchemaDB automatically)
@@ -758,17 +696,16 @@ public:
   ValueIdSet(const ValueIdSet &other);
   // copy ctor
   ValueIdSet(const ValueIdList &other);
-  ValueIdSet(const ValueId& vid);
+  ValueIdSet(const ValueId &vid);
 
-  ~ValueIdSet()				{ (*counter_).decrementCounter();};
+  ~ValueIdSet() { (*counter_).decrementCounter(); };
 
   ValueIdSet(ValueDescArray *arr);
 
   // operators
-  NABoolean operator == (const ValueIdSet &other) const;
+  NABoolean operator==(const ValueIdSet &other) const;
 
-  NABoolean operator != (const ValueIdSet &other) const
-                                         { return NOT operator==(other); }
+  NABoolean operator!=(const ValueIdSet &other) const { return NOT operator==(other); }
 
   //----------------------------------------------------------------------
   // Method that synthesizes a valueIdset that is comprised of the basecolumn
@@ -785,7 +722,7 @@ public:
   Int32 prefixMatchesOf(const ValueIdList &other) const;
 
   // Does this contain the first N elements of the "other" ValueIdList?
-  NABoolean coversFirstN(const ValueIdList &other, Int32 N=INT_MAX) const;
+  NABoolean coversFirstN(const ValueIdList &other, Int32 N = INT_MAX) const;
 
   // ---------------------------------------------------------------------
   //  Calculate the number of character columns
@@ -808,7 +745,7 @@ public:
   // the value ids
   // ---------------------------------------------------------------------
   Lng32 getRowLengthOfNumericCols() const;
-  
+
   // ---------------------------------------------------------------------
   // Iterator methods for a ValueIdSet
   // use the iterators in a for loop like this (assuming you have a
@@ -816,20 +753,20 @@ public:
   // for (ValueId x= S.init();  S.next(x); S.advance(x) )
   //    { /* x is the current element */ }
   // ---------------------------------------------------------------------
-  ValueId init() const			{ return ValueId((CollIndex) 0); }
-  NABoolean next(ValueId &v) const	{ return nextUsed(v.id_); }
-  void advance(ValueId & v) const	{ v.id_++; }
+  ValueId init() const { return ValueId((CollIndex)0); }
+  NABoolean next(ValueId &v) const { return nextUsed(v.id_); }
+  void advance(ValueId &v) const { v.id_++; }
 
   // -----------------------------------------------------------------------
   // This method is a slight modification of intersectSet. Here instead of
   // modifying this operand it returns the modified set
   // -----------------------------------------------------------------------
-  ValueIdSet intersect(const ValueIdSet & v) const;
+  ValueIdSet intersect(const ValueIdSet &v) const;
 
   // like intersectSet but dig into wrappers
-  ValueIdSet& intersectSetDeep(const ValueIdSet & v);
+  ValueIdSet &intersectSetDeep(const ValueIdSet &v);
 
-  void getFirst(ValueId & v) const; // returns NULL_VALUE_ID if isEmpty()
+  void getFirst(ValueId &v) const;  // returns NULL_VALUE_ID if isEmpty()
 
   // ---------------------------------------------------------------------
   // insert "foreign" data types
@@ -837,9 +774,9 @@ public:
   void insertList(const ValueIdList &other);
 
   // ---------------------------------------------------------------------
-  // insert the valueId of x 
+  // insert the valueId of x
   // ---------------------------------------------------------------------
-  void addMember(ItemExpr* x);
+  void addMember(ItemExpr *x);
 
   // ---------------------------------------------------------------------
   // For this ValueIdSet, find any "nice" comparison predicates (that is,
@@ -848,10 +785,9 @@ public:
   // with the comparison in the map newExpressions. The ValueId is also
   // added to commonColumns.
   // ---------------------------------------------------------------------
-  void findAndPrimeNiceColumnComparisons(ValueIdSet & commonColumns /* in/out */,
-                                 std::map<ValueId, ItemExpr *> & newExpressions /* in/out */,
-                                 OperatorTypeEnum backboneType,
-                                 OperatorTypeEnum innerType);
+  void findAndPrimeNiceColumnComparisons(ValueIdSet &commonColumns /* in/out */,
+                                         std::map<ValueId, ItemExpr *> &newExpressions /* in/out */,
+                                         OperatorTypeEnum backboneType, OperatorTypeEnum innerType);
   // ---------------------------------------------------------------------
   // For this ValueIdSet, find any "nice" comparison predicates (that is,
   // predicates of the form <column> <comparison> <constant|param|hostvar>),
@@ -860,10 +796,9 @@ public:
   // column ValueId is already present in commonColumns. The collection of
   // ValueIds found in this call is intersected into commonColumns.
   // ---------------------------------------------------------------------
-  void findCommonNiceColumnComparisons(ValueIdSet & commonColumns /* in/out */,
-                                 std::map<ValueId, ItemExpr *> & newExpressions /* in/out */,
-                                 OperatorTypeEnum backboneType,
-                                 OperatorTypeEnum innerType);
+  void findCommonNiceColumnComparisons(ValueIdSet &commonColumns /* in/out */,
+                                       std::map<ValueId, ItemExpr *> &newExpressions /* in/out */,
+                                       OperatorTypeEnum backboneType, OperatorTypeEnum innerType);
 
   // --------------------------------------------------------------------
   // transformNode()
@@ -911,18 +846,12 @@ public:
   //           FALSE otherwise
   //
   // --------------------------------------------------------------------
-  NABoolean transformNode(NormWA & normWARef,
-                          ExprGroupId & introduceSemiJoinHere,
-                          const ValueIdSet & externalInputs,
-                          const NABoolean movePredicates = FALSE,
-			  const NABoolean postJoinPredicates = FALSE);
+  NABoolean transformNode(NormWA &normWARef, ExprGroupId &introduceSemiJoinHere, const ValueIdSet &externalInputs,
+                          const NABoolean movePredicates = FALSE, const NABoolean postJoinPredicates = FALSE);
 
   // Returns TRUE if EACH member of this ValueIdSet isCovered()
-  NABoolean isCovered(const ValueIdSet & newExternalInputs,
-		      const GroupAttributes & newRelExprAnchorGA,
-	   	      ValueIdSet & referencedInputs,
-		      ValueIdSet & coveredSubExpr,
-		      ValueIdSet & unCoveredExpr) const;
+  NABoolean isCovered(const ValueIdSet &newExternalInputs, const GroupAttributes &newRelExprAnchorGA,
+                      ValueIdSet &referencedInputs, ValueIdSet &coveredSubExpr, ValueIdSet &unCoveredExpr) const;
 
   // --------------------------------------------------------------------
   // ValueIdSet::removeCoveredExprs()
@@ -931,24 +860,21 @@ public:
   // are covered by the available inputs.
   // It returns the number of elements removed.
   // --------------------------------------------------------------------
-  Int32 removeCoveredExprs(const ValueIdSet & newExternalInputs, 
-                           ValueIdSet* usedInputs = NULL);
-
+  Int32 removeCoveredExprs(const ValueIdSet &newExternalInputs, ValueIdSet *usedInputs = NULL);
 
   // this method removes isNull or isNotNull predicates that refer to
-  // columns in nullPredsCols from this, and place all such predicates 
+  // columns in nullPredsCols from this, and place all such predicates
   // in isNullIsNotNullPred.
-  void removeIsNullIsNotNullExprs(const ValueIdSet & nullPredsCols, 
-                                  ValueIdSet& isNullIsNotNullPred);
+  void removeIsNullIsNotNullExprs(const ValueIdSet &nullPredsCols, ValueIdSet &isNullIsNotNullPred);
 
   //-------------------------------------------------------
-  //removeCoveredVidSet()
-  //Input: other set
-  //output: reduced *this set by other set
-  //Constraints: will remove the ids as long as
-  //other set contains a reference or the id itself.
+  // removeCoveredVidSet()
+  // Input: other set
+  // output: reduced *this set by other set
+  // Constraints: will remove the ids as long as
+  // other set contains a reference or the id itself.
   //---------------------------------------------------------
-  void removeCoveredVIdSet(const ValueIdSet & otherSet);
+  void removeCoveredVIdSet(const ValueIdSet &otherSet);
   // --------------------------------------------------------------------
   // ValueIdSet::removeUnCoveredExprs()
   //
@@ -956,7 +882,7 @@ public:
   // are NOT covered by the available inputs.
   // It returns the number of elements removed.
   // --------------------------------------------------------------------
-  Int32 removeUnCoveredExprs(const ValueIdSet & newExternalInputs);
+  Int32 removeUnCoveredExprs(const ValueIdSet &newExternalInputs);
 
   // ---------------------------------------------------------------------
   // simplifyOrderExpr()
@@ -977,20 +903,18 @@ public:
 
   ValueIdSet removeInverseOrder() const;
 
-
   // ---------------------------------------------------------------------
   // Remove all expressions that are not common subexpressions with the
   // other set from this set.
   // ---------------------------------------------------------------------
-  void findCommonSubexpressions(ValueIdSet &other,
-				NABoolean removeCommonExprFromOther = FALSE);
+  void findCommonSubexpressions(ValueIdSet &other, NABoolean removeCommonExprFromOther = FALSE);
 
   // ---------------------------------------------------------------------
   // Build predicate like the originals in the set, that substitues the
-  // given column reference with a computed column and the corresponding 
+  // given column reference with a computed column and the corresponding
   // computed column expression.
   //
-  // For example: 
+  // For example:
   // predicate is : A = 2
   // computed Column is: SQR
   // computed Column expr is: POW(A, 2)
@@ -998,39 +922,37 @@ public:
   // a predicate that looks like this:
   //    SQR = POW(VEG(A,2),2)
   // ---------------------------------------------------------------------
-  ValueIdSet createMirrorPreds(ValueId &computedCol,
-                               ValueIdSet underlyingCols);
+  ValueIdSet createMirrorPreds(ValueId &computedCol, ValueIdSet underlyingCols);
 
   // --------------------------------------------------------------------
   // lookForVEGReferences()
   // Accumulate ValueIds of VEGPredicates, if any, in vs.
   // --------------------------------------------------------------------
-  void lookForVEGReferences(ValueIdSet & VEGRefSet) const;
+  void lookForVEGReferences(ValueIdSet &VEGRefSet) const;
 
   // *this is a set of (join) equality predicates.
   // grcols is a set of group by columns.
   // if c is in grcols and c is an opd of an equality predicate then
   // add the equality's other opd to grcols.
-  void introduceMissingVEGRefs(ValueIdSet & grcols) const;
+  void introduceMissingVEGRefs(ValueIdSet &grcols) const;
 
   // --------------------------------------------------------------------
   // lookForVEGPredicates()
   // Accumulate ValueIds of VEGPredicates, if any, in vs.
   // --------------------------------------------------------------------
-  void lookForVEGPredicates(ValueIdSet & VEGPredSet) const;
+  void lookForVEGPredicates(ValueIdSet &VEGPredSet) const;
 
   // return TRUE iff this has no equality predicates at all
   // put in joinCols the simple base columns being equijoined
   // given "a-1=b and c=d+1", joinCols should get "b,c"
-  NABoolean hasNoEquiPredicates(ValueIdSet& joinCols) const;
-
+  NABoolean hasNoEquiPredicates(ValueIdSet &joinCols) const;
 
   // return TRUE iff x appears in this in a vegRef, a vegPredicate or
   // an equal predicate. A constant must also appear in the vegRef,
   // vegPredicate or the equal predicate.
   NABoolean containsAsEquiLocalPred(ValueId x) const;
 
-  // return TRUE iff x appears in this in a vegRef and is part of a 
+  // return TRUE iff x appears in this in a vegRef and is part of a
   // range predicate (<.<=,>,>=) whee the other side is a constant
   NABoolean containsAsRangeLocalPred(ValueId x) const;
 
@@ -1040,7 +962,7 @@ public:
   // references in them
   // --------------------------------------------------------------------
 
-  void getVEGesWithMultipleConsts(ValueIdSet & keyPredsToBeEvaluated);
+  void getVEGesWithMultipleConsts(ValueIdSet &keyPredsToBeEvaluated);
   // --------------------------------------------------------------------
   // ValueIdSet::accumulateReferencedValues()
   //
@@ -1049,10 +971,8 @@ public:
   // VEGReference in the referencingSet (if the optional parameters
   // allow it). The original contents of this ValueIdSet are augmented.
   // --------------------------------------------------------------------
-  void accumulateReferencedValues(const ValueIdSet & referencedSet,
-				  const ValueIdSet & referencingSet,
-                                  NABoolean doNotDigInsideVegRefs = FALSE,
-                                  NABoolean doNotDigInsideInstNulls = FALSE);
+  void accumulateReferencedValues(const ValueIdSet &referencedSet, const ValueIdSet &referencingSet,
+                                  NABoolean doNotDigInsideVegRefs = FALSE, NABoolean doNotDigInsideInstNulls = FALSE);
 
   // --------------------------------------------------------------------
   // ValueIdSet::getLeafValuesForCoverTest()
@@ -1064,9 +984,8 @@ public:
   // that are produced in one "scope" and referenced above that "scope"
   // in the dataflow tree for the query.
   // --------------------------------------------------------------------
-  virtual void getLeafValuesForCoverTest(ValueIdSet & leafValues, 
-                                         const GroupAttributes& coveringGA,
-                                         const ValueIdSet & newExternalInputs) const;
+  virtual void getLeafValuesForCoverTest(ValueIdSet &leafValues, const GroupAttributes &coveringGA,
+                                         const ValueIdSet &newExternalInputs) const;
 
   // --------------------------------------------------------------------
   // ValueIdSet::referencesOneValueFromTheSet()
@@ -1074,7 +993,7 @@ public:
   // Check whether an expression contained in this ValueIdSet
   // references an expression that is a member of the otherSet.
   // --------------------------------------------------------------------
-  NABoolean referencesOneValueFromTheSet(const ValueIdSet & otherSet) const;
+  NABoolean referencesOneValueFromTheSet(const ValueIdSet &otherSet) const;
 
   // --------------------------------------------------------------------
   // ValueIdSet::referencesAllValuesFromMe()
@@ -1082,7 +1001,7 @@ public:
   // Check whether every expression contained in this ValueIdSet
   // references an expression that is a member of the otherSet.
   // --------------------------------------------------------------------
-  NABoolean referencesAllValuesFromMe(const ValueIdSet & otherSet) const;
+  NABoolean referencesAllValuesFromMe(const ValueIdSet &otherSet) const;
 
   // --------------------------------------------------------------------
   // referencesTheGivenValue()
@@ -1090,11 +1009,8 @@ public:
   // Check whether any expression contained in this ValueIdSet
   // references the given value.
   // --------------------------------------------------------------------
-  NABoolean referencesTheGivenValue(
-              const ValueId & theValue,
-              ValueId & exprId,
-              NABoolean doNotDigInsideVegRefs = FALSE,
-              NABoolean doNotDigInsideInstNulls = FALSE) const;
+  NABoolean referencesTheGivenValue(const ValueId &theValue, ValueId &exprId, NABoolean doNotDigInsideVegRefs = FALSE,
+                                    NABoolean doNotDigInsideInstNulls = FALSE) const;
 
   // --------------------------------------------------------------------
   // containsTheGivenValue()
@@ -1103,7 +1019,7 @@ public:
   // is the given valueId or is a VEGref that contains the given
   // valueId.
   // --------------------------------------------------------------------
-  NABoolean containsTheGivenValue( const ValueId & theValue ) const;
+  NABoolean containsTheGivenValue(const ValueId &theValue) const;
 
   // return true iff set has RandomNum expr
   NABoolean hasRandom() const;
@@ -1114,13 +1030,13 @@ public:
   // Check whether any of the members of this ValueIdSet are contained
   // in the provided ValueIdSet.  Return the number of members found.
   // --------------------------------------------------------------------
-  Int32 membersCoveredInSet (const ValueIdSet & vidSet, NABoolean lookBelowInstantiateNull) const;
+  Int32 membersCoveredInSet(const ValueIdSet &vidSet, NABoolean lookBelowInstantiateNull) const;
 
   // --------------------------------------------------------------------
   // return true iff ValueIdSet has predicates that guarantee
   // that opd is not nullable
   // --------------------------------------------------------------------
-  NABoolean isNotNullable(const ValueId& opd);
+  NABoolean isNotNullable(const ValueId &opd);
 
   // --------------------------------------------------------------------
   // weedOutUnreferenced()
@@ -1129,7 +1045,7 @@ public:
   // Delete all values in other that are not referenced by the value
   // expressions that belong to this set.
   // --------------------------------------------------------------------
-  void weedOutUnreferenced(ValueIdSet & other) const;
+  void weedOutUnreferenced(ValueIdSet &other) const;
 
   // --------------------------------------------------------------------
   // weedOutNonEquiPreds()
@@ -1152,7 +1068,7 @@ public:
   //    IN : a reference to the normalizer work area
   //
   // --------------------------------------------------------------------
-  NABoolean normalizeNode(NormWA & normWARef);
+  NABoolean normalizeNode(NormWA &normWARef);
 
   // ---------------------------------------------------------------------
   // rebuildExprTree()
@@ -1160,9 +1076,8 @@ public:
   // This method is used by the code generator for reconstructing a
   // tree of predicate factors that is represented by a ValueIdSet
   // ---------------------------------------------------------------------
-  ItemExpr * rebuildExprTree(OperatorTypeEnum op = ITM_AND,
-                             NABoolean redriveTypeSynthesisFlag = FALSE,
-			     NABoolean createFinalizeResultNode = FALSE) const;
+  ItemExpr *rebuildExprTree(OperatorTypeEnum op = ITM_AND, NABoolean redriveTypeSynthesisFlag = FALSE,
+                            NABoolean createFinalizeResultNode = FALSE) const;
 
   // -----------------------------------------------------------------------
   // ValueIdSet::referencesOneValueFromTheSet()
@@ -1172,8 +1087,7 @@ public:
   // othewise.
   // -----------------------------------------------------------------------
 
-  void removeUnReferencedVEGPreds
-                           (const ValueIdSet & otherSet);
+  void removeUnReferencedVEGPreds(const ValueIdSet &otherSet);
 
   //--------------------------------------------------------------------------
   // Check whether the Valudidset contains any CAST expressions && and replace
@@ -1194,7 +1108,7 @@ public:
   // collects the ValueIds of the expressions which contain a subquery
   // or an Isolated UDFunction and removes them from the orginal set.
   // ---------------------------------------------------------------------
-  void removeSubqueryOrIsolatedUDFunctionPredicates(ValueIdSet & subqueryExpr);
+  void removeSubqueryOrIsolatedUDFunctionPredicates(ValueIdSet &subqueryExpr);
 
   // -----------------------------------------------------------------------
   // ValueIdSet::replaceVEGExpressionsAndCopy()
@@ -1202,7 +1116,7 @@ public:
   // Copy the Values contained in setContainingWildCards into this set
   // after expanding all wild card expressions.
   // -----------------------------------------------------------------------
-  void replaceVEGExpressionsAndCopy(const ValueIdSet & setContainingWildCards);
+  void replaceVEGExpressionsAndCopy(const ValueIdSet &setContainingWildCards);
 
   // -----------------------------------------------------------------------
   // ValueIdSet::getUnReferencedVEGmembers()
@@ -1210,7 +1124,7 @@ public:
   //   Called only from preCodeGen. Gets all the VEG members that
   //   have not been bound yet.
   // -----------------------------------------------------------------------
-  void getUnReferencedVEGmembers(const ValueIdSet & setContainingWildCards);
+  void getUnReferencedVEGmembers(const ValueIdSet &setContainingWildCards);
 
   // ---------------------------------------------------------------------
   // ValueIdSet::replaceVEGExpressions()
@@ -1221,29 +1135,24 @@ public:
   // an expression that belongs the VEG as well as to the
   // set of availableValues that is supplied.
   //
-  // if joinInputAndPotentialOutput is not null, then use it to steer that 
+  // if joinInputAndPotentialOutput is not null, then use it to steer that
   // join's VEGPredicate::replaceVEGPredicate()'s choice of invariantExprId
   // toward a member of that join's input and potential output.
-  // 
+  //
   // When thisIsAKeyPredicate is set to TRUE, you need to also pass in
   // an indexDesc in order to guarantee that we will replace a VEGReference
   // with a key column.
   //
-  // The last two optional parameters, avaliableValues_left and 
-  // availableValues_right are used by the hash join to make sure we 
-  // keep the resulution of VEGReferences to values apropriate for each 
+  // The last two optional parameters, avaliableValues_left and
+  // availableValues_right are used by the hash join to make sure we
+  // keep the resulution of VEGReferences to values apropriate for each
   // child of the join.
   // ---------------------------------------------------------------------
-  void replaceVEGExpressions(const ValueIdSet & availableValues,
-                             const ValueIdSet & inputValues,
-                             NABoolean thisIsAKeyPredicate = FALSE,
-                             VEGRewritePairs * lookup = NULL,
-                             NABoolean replicateExpression = FALSE,
-                             const ValueIdSet * outputExpr = NULL,
-                             const ValueIdSet * joinInputAndPotentialOutput = NULL,
-                             const IndexDesc * iDesc = NULL,
-                             const GroupAttributes * left_ga = NULL,
-                             const GroupAttributes * right_ga = NULL);
+  void replaceVEGExpressions(const ValueIdSet &availableValues, const ValueIdSet &inputValues,
+                             NABoolean thisIsAKeyPredicate = FALSE, VEGRewritePairs *lookup = NULL,
+                             NABoolean replicateExpression = FALSE, const ValueIdSet *outputExpr = NULL,
+                             const ValueIdSet *joinInputAndPotentialOutput = NULL, const IndexDesc *iDesc = NULL,
+                             const GroupAttributes *left_ga = NULL, const GroupAttributes *right_ga = NULL);
 
   // ---------------------------------------------------------------------
   // replaceOperandsOfInstantiateNull()
@@ -1251,14 +1160,13 @@ public:
   // operands of an ITM_INSTANTIATE_NULL with a value that belongs
   // to availableValues.
   // ---------------------------------------------------------------------
-  void replaceOperandsOfInstantiateNull(const ValueIdSet & availableValues,
-                                        const ValueIdSet & inputValues);
+  void replaceOperandsOfInstantiateNull(const ValueIdSet &availableValues, const ValueIdSet &inputValues);
 
   // ---------------------------------------------------------------------
   // References a  Constant Value
   // Does this valueidset reference a constant?  If so, return it.
   // ---------------------------------------------------------------------
-  NABoolean referencesAConstValue (ItemExpr ** constant) const;
+  NABoolean referencesAConstValue(ItemExpr **constant) const;
 
   // ---------------------------------------------------------------------
   // References a Constant Expression
@@ -1266,12 +1174,12 @@ public:
   // Optionally return the constant expression if constExprptr argument is
   // not NULL.
   // ---------------------------------------------------------------------
-  NABoolean referencesAConstExpr(ItemExpr** constExprPtr = NULL) const;
+  NABoolean referencesAConstExpr(ItemExpr **constExprPtr = NULL) const;
 
   // ---------------------------------------------------------------------
   // Removes constant expression references if any in this valueidset.
   // ---------------------------------------------------------------------
-  void removeConstExprReferences(NABoolean considerExpressions=FALSE);
+  void removeConstExprReferences(NABoolean considerExpressions = FALSE);
 
   // ---------------------------------------------------------------------
   // Given a ValueIdSet with distinct ConstValues in it, are new
@@ -1341,29 +1249,27 @@ public:
   // ---------------------------------------------------------------------
   // Get the constant values that are in the set
   // ---------------------------------------------------------------------
-  void getConstants(ValueIdSet & addConstantsToThisSet, NABoolean includeCacheParams = FALSE) const;
+  void getConstants(ValueIdSet &addConstantsToThisSet, NABoolean includeCacheParams = FALSE) const;
 
   // ---------------------------------------------------------------------
-  // If isStrict is false, get the constant expressions 
-  // (constants, hostvars and dynamic para) that are in the set. 
+  // If isStrict is false, get the constant expressions
+  // (constants, hostvars and dynamic para) that are in the set.
   // If isStrict is true look only for constants
   // in both cases look inside a veg.
   // ---------------------------------------------------------------------
-  void getConstantExprs(ValueIdSet & addConstantExprsToThisSet, 
-			NABoolean isStrict = FALSE) const;
+  void getConstantExprs(ValueIdSet &addConstantExprsToThisSet, NABoolean isStrict = FALSE) const;
 
   // ---------------------------------------------------------------------
   // Loops through the vidset and returns true iff all vids evaluate to a constant
   // Essentially calld doesExprEvaluateToAConstant() in a loop.
   // ---------------------------------------------------------------------
-  NABoolean doAllExprsEvaluateToConstant(NABoolean isStrict, 
-                                         NABoolean considerVEG) const ;
+  NABoolean doAllExprsEvaluateToConstant(NABoolean isStrict, NABoolean considerVEG) const;
 
   // ---------------------------------------------------------------------
   // Get Outer References
   // Given a set of input values, return all outer column references.
   // ---------------------------------------------------------------------
-  void getOuterReferences (ValueIdSet & OuterRefs) const;
+  void getOuterReferences(ValueIdSet &OuterRefs) const;
 
   //----------------------------------------------------------------------
   // a utility routine for analyzing predicates, and categorizing them as
@@ -1376,18 +1282,13 @@ public:
   //     b) other non-equality predicates
   // (3) BiLogic: AND, or OR
   //----------------------------------------------------------------------
-  void categorizePredicates (const ValueIdSet & outerReferences,
-			     ValueIdSet & EqLocalPreds,
-			     ValueIdSet & OtherLocalPreds,
-			     ValueIdSet & EqNonLocalPreds,
-			     ValueIdSet & OtherNonLocalPreds,
-			     ValueIdSet & BiLogicPreds,
-			     ValueIdSet & DefaultPreds ) const;
+  void categorizePredicates(const ValueIdSet &outerReferences, ValueIdSet &EqLocalPreds, ValueIdSet &OtherLocalPreds,
+                            ValueIdSet &EqNonLocalPreds, ValueIdSet &OtherNonLocalPreds, ValueIdSet &BiLogicPreds,
+                            ValueIdSet &DefaultPreds) const;
 
-
-  // This method returns TRUE if there are any predicates for which the 
+  // This method returns TRUE if there are any predicates for which the
   // cardinality cannot be accurately estimated by the optimizer
-  NABoolean predsReqFetchCnt(TableDesc * tdes);
+  NABoolean predsReqFetchCnt(TableDesc *tdes);
 
   // -----------------------------------------------------------------------
   // getReferencedPredicates:
@@ -1399,16 +1300,15 @@ public:
   // of the valueIdSet that is the first argument to this method are inserted
   // into the ValueIdSet that is the second argument. This method can be used
   // get all the predicates in the selection predicate of a node that contain
-  // outer references. Method returns TRUE if any predicate is found that 
+  // outer references. Method returns TRUE if any predicate is found that
   // references a valueid from the first set.
   //
   // The default behavior of the routine is to skip anything that evaluates
   // to a constant. If you set the searchConstExpr boolean parameter to
-  // TRUE, the routine (see ItemExpr::referencesOneValueFrom()) will search 
+  // TRUE, the routine (see ItemExpr::referencesOneValueFrom()) will search
   // those expressions as well.
   // -----------------------------------------------------------------------
-  NABoolean getReferencedPredicates (const ValueIdSet & outerReferences,
-				      ValueIdSet & nonLocalPreds ) const;
+  NABoolean getReferencedPredicates(const ValueIdSet &outerReferences, ValueIdSet &nonLocalPreds) const;
 
   // Evaluate a predicate (in form of a ValueIdSet) at compile time. For
   // this to work, the predicate needs to consist of constant expressions
@@ -1428,12 +1328,10 @@ public:
   //
   // Returns: outcome of the predicate evaluation, one of
   //  EXPR_ERROR, EXPR_TRUE, EXPR_FALSE, EXPR_NULL
-  ex_expr::exp_return_type evalPredsAtCompileTime(
-       ComDiagsArea *da = NULL,
-       ValueIdMap *rewrite = NULL,
-       NABoolean replaceVEGPreds = FALSE) const;
+  ex_expr::exp_return_type evalPredsAtCompileTime(ComDiagsArea *da = NULL, ValueIdMap *rewrite = NULL,
+                                                  NABoolean replaceVEGPreds = FALSE) const;
 
-  // Remove all bitMap IN predicate from this ValueIdSet 
+  // Remove all bitMap IN predicate from this ValueIdSet
   void removeBitMapInPredicate();
 
   // ---------------------------------------------------------------------
@@ -1442,36 +1340,29 @@ public:
   void display() const;
   void display(UnparseFormatEnum form) const;
 
-  void print( FILE* ofd = stdout,
-	      const char* indent = DEFAULT_INDENT,
-              const char* title = "ValueIdSet",
-              CollHeap *c=NULL, char *buf=NULL,
-	      UnparseFormatEnum form = USER_FORMAT
-            ) const;
+  void print(FILE *ofd = stdout, const char *indent = DEFAULT_INDENT, const char *title = "ValueIdSet",
+             CollHeap *c = NULL, char *buf = NULL, UnparseFormatEnum form = USER_FORMAT) const;
 
-  void unparse(NAString &result,
-	       PhaseEnum phase = DEFAULT_PHASE,
-	       UnparseFormatEnum form = USER_FORMAT,
-	       TableDesc * tabId = NULL) const;
+  void unparse(NAString &result, PhaseEnum phase = DEFAULT_PHASE, UnparseFormatEnum form = USER_FORMAT,
+               TableDesc *tabId = NULL) const;
 
   short showQueryStats(CollHeap *c, char *buf);
 
-  void replaceOneRowbyList( NormWA&);
+  void replaceOneRowbyList(NormWA &);
 
   // change literals of a ValueIdSet into ConstantParameters
-  void normalizeForCache(CacheWA& cwa, BindWA& bindWA);
+  void normalizeForCache(CacheWA &cwa, BindWA &bindWA);
 
-/////////////////////////////////////////////////////////////
+  /////////////////////////////////////////////////////////////
   // -----------------------------------------------------------------------
   // ValueIdSet::accumulateReferencingValues()
   //
   // This method accumulates those expressions that are members of the
   // referencingSet and are referencing any value in ReferencedSet.
   // -----------------------------------------------------------------------
-  void accumulateReferencingExpressions(const ValueIdSet & referencingSet,
-                                  const ValueIdSet & referencedSet,
-                                  NABoolean doNotDigInsideVegRefs = FALSE,
-                                  NABoolean doNotDigInsideInstNulls = FALSE);
+  void accumulateReferencingExpressions(const ValueIdSet &referencingSet, const ValueIdSet &referencedSet,
+                                        NABoolean doNotDigInsideVegRefs = FALSE,
+                                        NABoolean doNotDigInsideInstNulls = FALSE);
 
   // -----------------------------------------------------------------------
   // ValueIdSet::removeNonReferencingExpressions()
@@ -1479,9 +1370,8 @@ public:
   // This method remove those expressions that are members of the
   // referencingSet and not referencing any value in ReferencedSet.
   // -----------------------------------------------------------------------
-  void removeNonReferencingExpressions(const ValueIdSet & otherSet,
-                                  NABoolean doNotDigInsideVegRefs = FALSE,
-                                  NABoolean doNotDigInsideInstNulls = FALSE);
+  void removeNonReferencingExpressions(const ValueIdSet &otherSet, NABoolean doNotDigInsideVegRefs = FALSE,
+                                       NABoolean doNotDigInsideInstNulls = FALSE);
 
   // -----------------------------------------------------------------------
   // ValueIdSet::findAllReferencedBaseCols()
@@ -1490,24 +1380,24 @@ public:
   // via this ValueIdSet. This includes degging into VEGs and recursively
   // walking ItemExpr trees until the leaf nodes.
   // -----------------------------------------------------------------------
-  void findAllReferencedBaseCols(ValueIdSet & result) const;
+  void findAllReferencedBaseCols(ValueIdSet &result) const;
 
-  void findAllDynParams(ValueIdSet & result) const;
+  void findAllDynParams(ValueIdSet &result) const;
 
-  void findAllReferencedIndexCols(ValueIdSet & result) const;
+  void findAllReferencedIndexCols(ValueIdSet &result) const;
 
   // -----------------------------------------------------------------------
   // ValueIdSet::findAllEqualityCols()
   //
-  // This method finds all eqaulity columns referenced directly or indirectly 
+  // This method finds all eqaulity columns referenced directly or indirectly
   // via this ValueIdSet.
   // -----------------------------------------------------------------------
-  void findAllEqualityCols(ValueIdSet & result) const;
+  void findAllEqualityCols(ValueIdSet &result) const;
 
   // -----------------------------------------------------------------------
-  // This method finds all itemExpr with the type referenced directly 
+  // This method finds all itemExpr with the type referenced directly
   // -----------------------------------------------------------------------
-  void findAllOpType(OperatorTypeEnum type, ValueIdSet & result) const;
+  void findAllOpType(OperatorTypeEnum type, ValueIdSet &result) const;
 
   // -----------------------------------------------------------------------
   // This method determines if any nodes of the given op type exist
@@ -1516,10 +1406,10 @@ public:
   NABoolean containsOpType(OperatorTypeEnum type) const;
 
   // -----------------------------------------------------------------------
-  // This method collects all child expressions, for each member of the 
+  // This method collects all child expressions, for each member of the
   // set. This method does not recursively go below the current set.
   // -----------------------------------------------------------------------
-  void findAllChildren(ValueIdSet & result) const;
+  void findAllChildren(ValueIdSet &result) const;
 
   // ---------------------------------------------------------------------
   // ValueIdSet::getAllTables()
@@ -1533,12 +1423,12 @@ public:
   // Returns a boolean to indicate if these columns constitute a primary
   // key or unique index.
   // ---------------------------------------------------------------------
-  NABoolean doColumnsConstituteUniqueIndex(TableDesc * tableDesc, NABoolean considerStats = TRUE);
+  NABoolean doColumnsConstituteUniqueIndex(TableDesc *tableDesc, NABoolean considerStats = TRUE);
 
   // -------------------------------------
   // xxx
   // ------------------
-  void columnAnalysis(QueryAnalysis* qa, NABoolean predOnSemiOrLeftJoin = FALSE) const;
+  void columnAnalysis(QueryAnalysis *qa, NABoolean predOnSemiOrLeftJoin = FALSE) const;
 
   // ---------------------------------------------------------------------
   // Returns a boolean to indicate if this vid set has a vid that
@@ -1547,109 +1437,110 @@ public:
   NABoolean containsSubquery() const;
 
   // ---------------------------------------------------------------------
-  // Returns a pointer to the ItemExpr node of UDFunction if this vid set 
+  // Returns a pointer to the ItemExpr node of UDFunction if this vid set
   // has a vid that corresponds to a UDF.  0 otherwise.
   // ---------------------------------------------------------------------
   ItemExpr *containsUDF() const;
 
   // ---------------------------------------------------------------------
   // Returns a boolean to indicate if this vid set has a vid that
-  // corresponds to an Isolated UDFunction 
+  // corresponds to an Isolated UDFunction
   // ---------------------------------------------------------------------
   NABoolean containsIsolatedUDFunction() const;
 
   // ---------------------------------------------------------------------
   // ---------------------------------------------------------------------
-  // Returns a boolean to indicate if this vid set has a vid that 
-  // corresponds to a count function 
+  // Returns a boolean to indicate if this vid set has a vid that
+  // corresponds to a count function
   // ---------------------------------------------------------------------
   NABoolean containsCount() const;
 
   // ---------------------------------------------------------------------
-  // Returns a boolean to indicate if this vid set has a vid that 
+  // Returns a boolean to indicate if this vid set has a vid that
   // corresponds to a oneTrue function. If a reference to a ValueId
   // is given, we initialize it to the ValueID of the oneTrue expression.
   // ---------------------------------------------------------------------
-  NABoolean containsOneTrue(ValueId &refOneTrue ) const;
+  NABoolean containsOneTrue(ValueId &refOneTrue) const;
 
   // ---------------------------------------------------------------------
-  // Returns a boolean to indicate if this vid set has a vid that 
+  // Returns a boolean to indicate if this vid set has a vid that
   // corresponds to a anyTrue function. If a reference to a ValueId
   // is given, we initialize it to the ValueID of the oneTrue expression.
   // ---------------------------------------------------------------------
-  NABoolean containsAnyTrue(ValueId &refAnyTrue ) const;
+  NABoolean containsAnyTrue(ValueId &refAnyTrue) const;
 
   // ---------------------------------------------------------------------
-  // Returns a boolean to indicate if this vid set has a vid that 
-  // corresponds to a FalseConstant. Such a constant is generated 
-  // during constant folding. For example a user given predicate such as 
-  // 1 = 0 will cause constant folding to generate such a Constant. 
-  // The reference to a ValueId given is initialized to the ValueID 
+  // Returns a boolean to indicate if this vid set has a vid that
+  // corresponds to a FalseConstant. Such a constant is generated
+  // during constant folding. For example a user given predicate such as
+  // 1 = 0 will cause constant folding to generate such a Constant.
+  // The reference to a ValueId given is initialized to the ValueID
   // of the FalseConstant.
   // ---------------------------------------------------------------------
-  NABoolean containsFalseConstant(ValueId &falseConstant ) const;
+  NABoolean containsFalseConstant(ValueId &falseConstant) const;
 
   // for each OLAP LEAD function cotnained in this, add the equivalent
-  // OLAP LEAD function for each element (as the child of LEAD) in input, 
+  // OLAP LEAD function for each element (as the child of LEAD) in input,
   // and save the new function in result
-  void addOlapLeadFuncs(const ValueIdSet& input, ValueIdSet& result);
-  // generate push down list for external storage(orc, parquet, avro), 
-  // based on the veg-replaced push down 
+  void addOlapLeadFuncs(const ValueIdSet &input, ValueIdSet &result);
+  // generate push down list for external storage(orc, parquet, avro),
+  // based on the veg-replaced push down
   // predicates contained in this ValueIdSet. This member function is called
   // during preCodeGen for Hive scan.
-  void generatePushdownListForExtStorage(ExtPushdownPredInfoList&);
+  void generatePushdownListForExtStorage(ExtPushdownPredInfoList &);
 
   // test whether the set contains a Hive Virtual Cols. Will drill
   // down to components of a predicate
   NABoolean containsHiveVirtualCols() const;
 
-/////////////////////////////////////////////////////////////
+  /////////////////////////////////////////////////////////////
 
-private:
+ private:
   static THREAD_P ObjectCounter *counter_;
-}; // class ValueIdSet
+};  // class ValueIdSet
 
 // ***********************************************************************
 // ValueIdMap : A structure that bidirectionally maps value ids to new
 //              value ids (arbitrarily called top and lower value ids)
 // ***********************************************************************
 
-class ValueIdMap : public NABasicObject
-{
-public:
-
+class ValueIdMap : public NABasicObject {
+ public:
   // constructors
   ValueIdMap() {}
-  ValueIdMap(const ValueIdMap &other)
-    : topValues_(other.topValues_), bottomValues_(other.bottomValues_) {}
+  ValueIdMap(const ValueIdMap &other) : topValues_(other.topValues_), bottomValues_(other.bottomValues_) {}
   // copy ctor
   ValueIdMap(const ValueIdSet &identity);
-  ValueIdMap(const ValueIdList &topList,const ValueIdList &bottomList)
-    : topValues_(topList), bottomValues_(bottomList) {}
+  ValueIdMap(const ValueIdList &topList, const ValueIdList &bottomList)
+      : topValues_(topList), bottomValues_(bottomList) {}
 
   // operators
-  ValueIdMap & operator = (const ValueIdMap &other)
-                      { topValues_ = other.topValues_;
-			bottomValues_ = other.bottomValues_; return *this; }
+  ValueIdMap &operator=(const ValueIdMap &other) {
+    topValues_ = other.topValues_;
+    bottomValues_ = other.bottomValues_;
+    return *this;
+  }
 
-  NABoolean operator == (const ValueIdMap &other) const;
+  NABoolean operator==(const ValueIdMap &other) const;
 
-  NABoolean operator != (const ValueIdMap &other) const
-                                         { return NOT operator==(other); }
+  NABoolean operator!=(const ValueIdMap &other) const { return NOT operator==(other); }
 
   CollIndex entries() { return topValues_.entries(); }
 
   // accessor functions
-  const ValueIdList & getTopValues() const    { return topValues_; }
-  const ValueIdList & getBottomValues() const { return bottomValues_; }
+  const ValueIdList &getTopValues() const { return topValues_; }
+  const ValueIdList &getBottomValues() const { return bottomValues_; }
 
-  void remapTopValue(const ValueId & newTopValue, const ValueId &bottomValue);
+  void remapTopValue(const ValueId &newTopValue, const ValueId &bottomValue);
 
-  void remapBottomValue(const ValueId & topValue, const ValueId &newBottomValue);
+  void remapBottomValue(const ValueId &topValue, const ValueId &newBottomValue);
 
-  void addMapEntry(const ValueId & newTopValue, const ValueId &newBottomValue);
+  void addMapEntry(const ValueId &newTopValue, const ValueId &newBottomValue);
 
-  void clear()      { topValues_.clear(); bottomValues_.clear(); }
+  void clear() {
+    topValues_.clear();
+    bottomValues_.clear();
+  }
 
   // map value ids from the topValue side to the bottomValue side and vice versa
   // assume that expressions are already contained in the map, otherwise
@@ -1676,27 +1567,22 @@ public:
   void flipSides();
 
   // add VEGPreds for VEGRefs contained in the map
-  void augmentForVEG(NABoolean addVEGPreds,
-                     NABoolean addVEGRefs,
-                     NABoolean compareConstants,
-                     const ValueIdSet *topInputsToCheck,
-                     const ValueIdSet *bottomInputsToCheck,
-                     ValueIdSet *vegRefsWithDifferentConstants = NULL,
-                     ValueIdSet *vegRefsWithDifferentInputs = NULL);
+  void augmentForVEG(NABoolean addVEGPreds, NABoolean addVEGRefs, NABoolean compareConstants,
+                     const ValueIdSet *topInputsToCheck, const ValueIdSet *bottomInputsToCheck,
+                     ValueIdSet *vegRefsWithDifferentConstants = NULL, ValueIdSet *vegRefsWithDifferentInputs = NULL);
 
   // Normalize the map replacing valueIds with VEGRefs
-  NABoolean normalizeNode(NormWA & normWARef);
+  NABoolean normalizeNode(NormWA &normWARef);
 
   // Removed items from the map that are no longer required.
   void removeUnusedEntries(const ValueIdSet &requiredValues, NABoolean matchWithTopValues);
 
   void removeAt(const CollIndex index) {
-     topValues_.removeAt(index);
-     bottomValues_.removeAt(index);
+    topValues_.removeAt(index);
+    bottomValues_.removeAt(index);
   }
 
-private:
-
+ private:
   // value ids from corresponding list positions are mapped
   // (topValues_.entries() == bottomValues_.entries())
   ValueIdList topValues_;
@@ -1709,42 +1595,37 @@ private:
 //
 // ***********************************************************************
 
-class ValueDesc  : public NABasicObject
-{
-friend class ValueDescArray; // to set valId_
+class ValueDesc : public NABasicObject {
+  friend class ValueDescArray;  // to set valId_
 
-public:
-
+ public:
   // ---------------------------------------------------------------------
   // Constructor functions
   // ---------------------------------------------------------------------
   ValueDesc(ItemExpr *expr);
 
-  static ValueId create(ItemExpr *expr,
-  			const NAType *type,
-  			CollHeap *h = CmpCommon::statementHeap());
+  static ValueId create(ItemExpr *expr, const NAType *type, CollHeap *h = CmpCommon::statementHeap());
 
   // ---------------------------------------------------------------------
   // Accessor functions
   // ---------------------------------------------------------------------
-  ValueId  getValueId() const { return valId_; }
+  ValueId getValueId() const { return valId_; }
 
-  DomainDesc * getDomainDesc() const { return domId_; }
+  DomainDesc *getDomainDesc() const { return domId_; }
 
   ItemExpr *getItemExpr() const { return exprPtr_; }
 
   // ---------------------------------------------------------------------
   // Mutator functions
   // ---------------------------------------------------------------------
-  void setDomainDesc(DomainDesc * domId) { domId_ = domId; }
-  void replaceItemExpr(ItemExpr * iePtr) { exprPtr_ = iePtr; }
+  void setDomainDesc(DomainDesc *domId) { domId_ = domId; }
+  void replaceItemExpr(ItemExpr *iePtr) { exprPtr_ = iePtr; }
 
-private:
-
+ private:
   // ---------------------------------------------------------------------
   // The value identifier
   // ---------------------------------------------------------------------
-  ValueId  valId_;
+  ValueId valId_;
 
   // ---------------------------------------------------------------------
   // The value-producing expression (an item expression)
@@ -1754,37 +1635,33 @@ private:
   // ---------------------------------------------------------------------
   // The domain (type) information for the above expression.
   // ---------------------------------------------------------------------
-  DomainDesc *  domId_;
+  DomainDesc *domId_;
 
-}; // class ValueDesc
+};  // class ValueDesc
 
 // ***********************************************************************
 // ValueDescArray : An ordered collection of Value descriptors
 // ***********************************************************************
 
-class ValueDescArray : public ARRAY(ValueDesc *)
-{
-public:
-
+class ValueDescArray : public ARRAY(ValueDesc *) {
+ public:
   // ---------------------------------------------------------------------
   // Constructor
   // ---------------------------------------------------------------------
-  ValueDescArray() :
-    ARRAY(ValueDesc *) (CmpCommon::statementHeap())
-    { insertAt(0,NULL); /* create a NULL entry (ValueId = 0) */ }
+  ValueDescArray() : ARRAY(ValueDesc *)(CmpCommon::statementHeap()) {
+    insertAt(0, NULL); /* create a NULL entry (ValueId = 0) */
+  }
 
   // ---------------------------------------------------------------------
   // copy ctor
   // ---------------------------------------------------------------------
-  ValueDescArray (const ValueDescArray & orig) :
-    ARRAY(ValueDesc *) (orig, CmpCommon::statementHeap())
-    {}
+  ValueDescArray(const ValueDescArray &orig) : ARRAY(ValueDesc *)(orig, CmpCommon::statementHeap()) {}
 
   // ---------------------------------------------------------------------
   // Insert a new ValueDesc and assign a ValueId to it
   // ---------------------------------------------------------------------
-  void insert(ValueDesc * newElem);
-    //{ newElem->valId_ = entries(); insertAt(entries(),newElem); }
+  void insert(ValueDesc *newElem);
+  //{ newElem->valId_ = entries(); insertAt(entries(),newElem); }
 
   // ---------------------------------------------------------------------
   // Print
@@ -1793,45 +1670,36 @@ public:
 
   void display(NABoolean dontDisplayErrors = FALSE) const;
 
-  virtual void print( FILE* ofd = stdout,
-		      const char* indent = DEFAULT_INDENT,
-                      const char* title = "ValueDescArray",
-		      NABoolean dontDisplayErrors = FALSE) const;
+  virtual void print(FILE *ofd = stdout, const char *indent = DEFAULT_INDENT, const char *title = "ValueDescArray",
+                     NABoolean dontDisplayErrors = FALSE) const;
 
-}; // class ValueDescArray
+};  // class ValueDescArray
 
-class ValueIdCostScalarArray 
-{
-public:
-
+class ValueIdCostScalarArray {
+ public:
   // Constuctor
-  ValueIdCostScalarArray(CollHeap *outHeap = CmpCommon::statementHeap()):
-    heap_(outHeap), vidArray_(outHeap), csArray_(outHeap)
-  {}
+  ValueIdCostScalarArray(CollHeap *outHeap = CmpCommon::statementHeap())
+      : heap_(outHeap), vidArray_(outHeap), csArray_(outHeap) {}
 
-  ValueIdCostScalarArray(ValueIdCostScalarArray& other) :
-    vidArray_(other.vidArray_), csArray_(other.csArray_), heap_(other.heap_) 
-  {}
+  ValueIdCostScalarArray(ValueIdCostScalarArray &other)
+      : vidArray_(other.vidArray_), csArray_(other.csArray_), heap_(other.heap_) {}
 
   ~ValueIdCostScalarArray() {}
 
-  NABoolean find(ValueId vid, CostScalar& cs) const;
+  NABoolean find(ValueId vid, CostScalar &cs) const;
 
-  void insert(ValueId vid, CostScalar cs)
-  { 
-     CollIndex idx = vidArray_.entries();
-     vidArray_.insertAt(idx, vid); 
-     csArray_.insertAt(idx, cs); 
+  void insert(ValueId vid, CostScalar cs) {
+    CollIndex idx = vidArray_.entries();
+    vidArray_.insertAt(idx, vid);
+    csArray_.insertAt(idx, cs);
   }
 
   inline Lng32 entries() const { return vidArray_.entries(); }
 
-private:
+ private:
   ARRAY(ValueId) vidArray_;
   ARRAY(CostScalar) csArray_;
-  CollHeap* heap_;
-
+  CollHeap *heap_;
 };
 
 #endif /* VALUEDESC_H */
-

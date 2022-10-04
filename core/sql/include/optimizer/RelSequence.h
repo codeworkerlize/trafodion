@@ -64,20 +64,13 @@ class Attributes;
 // functions associated with this RelSequence node.  They are gathered
 // and assigned to the RelSequence node during binding.
 //
-class RelSequence : public RelExpr
-{
-public:
-
+class RelSequence : public RelExpr {
+ public:
   // The constructor
   //
-  RelSequence(RelExpr *child = NULL,
-              ItemExpr *requiredOrder = NULL,
-              CollHeap *oHeap = CmpCommon::statementHeap());
+  RelSequence(RelExpr *child = NULL, ItemExpr *requiredOrder = NULL, CollHeap *oHeap = CmpCommon::statementHeap());
 
-  RelSequence(RelExpr *child,
-              ItemExpr *partitionBy,
-              ItemExpr *orderBy,
-              CollHeap *oHeap = CmpCommon::statementHeap());
+  RelSequence(RelExpr *child, ItemExpr *partitionBy, ItemExpr *orderBy, CollHeap *oHeap = CmpCommon::statementHeap());
 
   // The destructor
   //
@@ -85,20 +78,19 @@ public:
 
   // RelSequence has one child.
   //
-  virtual Int32 getArity() const {return 1;};
+  virtual Int32 getArity() const { return 1; };
 
   //++MV
   void addRequiredOrderTree(ItemExpr *orderExpr);
 
   // a virtual function for performing name binding within the query tree
   //
-  RelExpr * bindNode(BindWA *bindWAPtr);
+  RelExpr *bindNode(BindWA *bindWAPtr);
 
   // Each operator supports a (virtual) method for transforming its
   // scalar expressions to a canonical form
   //
-  virtual void transformNode(NormWA & normWARef,
-			     ExprGroupId & locationOfPointerToMe);
+  virtual void transformNode(NormWA &normWARef, ExprGroupId &locationOfPointerToMe);
 
   // a method used during subquery transformation for pulling up predicates
   // towards the root of the transformed subquery tree
@@ -116,23 +108,20 @@ public:
   // Each operator supports a (virtual) method for rewriting its
   // value expressions.
   //
-  virtual void rewriteNode(NormWA & normWARef);
+  virtual void rewriteNode(NormWA &normWARef);
 
   // Each operator supports a (virtual) method for performing
   // predicate pushdown and computing a "minimal" set of
   // characteristic input and characteristic output values.
   //
-  virtual RelExpr * normalizeNode(NormWA & normWARef);
+  virtual RelExpr *normalizeNode(NormWA &normWARef);
 
   // Method to push down predicates from a RelSequence node into the
   // children
   //
-  virtual
-  void pushdownCoveredExpr(const ValueIdSet & outputExprOnOperator,
-                           const ValueIdSet & newExternalInputs,
-                           ValueIdSet& predOnOperator,
-			   const ValueIdSet * nonPredExprOnOperator = NULL,
-                           Lng32 childId = (-MAX_REL_ARITY) );
+  virtual void pushdownCoveredExpr(const ValueIdSet &outputExprOnOperator, const ValueIdSet &newExternalInputs,
+                                   ValueIdSet &predOnOperator, const ValueIdSet *nonPredExprOnOperator = NULL,
+                                   Lng32 childId = (-MAX_REL_ARITY));
 
   // Return a the set of potential output values of this node.
   // For RelSequence, this is the output of the child, plus all
@@ -143,8 +132,7 @@ public:
   // add all the expressions that are local to this
   // node to an existing list of expressions (used by GUI tool and Explain)
   //
-  virtual void addLocalExpr(LIST(ExprNode *) &xlist,
-			    LIST(NAString) &llist) const;
+  virtual void addLocalExpr(LIST(ExprNode *) & xlist, LIST(NAString) & llist) const;
 
   // Compute a hash value for a chain of derived RelExpr nodes.
   // Used by the Cascade engine as a quick way to determine if
@@ -157,167 +145,112 @@ public:
   // A more thorough method to compare two RelExpr nodes.
   // Used by the Cascades engine.
   //
-  virtual NABoolean duplicateMatch(const RelExpr & other) const;
+  virtual NABoolean duplicateMatch(const RelExpr &other) const;
 
   // Copy a chain of derived nodes (Calls RelExpr::copyTopNode).
   // Needs to copy all relevant fields.
   // Used by the Cascades engine.
   //
-  virtual RelExpr *copyTopNode(RelExpr *derivedNode = NULL,
-			       CollHeap *outHeap = NULL);
+  virtual RelExpr *copyTopNode(RelExpr *derivedNode = NULL, CollHeap *outHeap = NULL);
 
   // synthesize logical properties
   //
-  virtual void synthLogProp(NormWA * normWAPtr = NULL);
-  virtual void synthEstLogProp(const EstLogPropSharedPtr& inputEstLogProp);
+  virtual void synthLogProp(NormWA *normWAPtr = NULL);
+  virtual void synthEstLogProp(const EstLogPropSharedPtr &inputEstLogProp);
 
-  virtual Context* createContextForAChild(Context* myContext,
-                                          PlanWorkSpace* pws,
-                                          Lng32& childIndex);
+  virtual Context *createContextForAChild(Context *myContext, PlanWorkSpace *pws, Lng32 &childIndex);
 
   // get a printable string that identifies the operator
   //
-  virtual const NAString getText() const {return "Sequence";};
+  virtual const NAString getText() const { return "Sequence"; };
 
-  inline void setCancelExprTree(ItemExpr *expr)
-  { cancelExprTree_ = expr; }
+  inline void setCancelExprTree(ItemExpr *expr) { cancelExprTree_ = expr; }
 
   ValueIdList mapSortKey(const ValueIdList &sortKey) const;
 
   // Accessor methods
-  inline const ValueIdList & requiredOrder() const { return requiredOrder_; }
+  inline const ValueIdList &requiredOrder() const { return requiredOrder_; }
 
-  inline const ValueIdList & partition() const { return partition_; }
+  inline const ValueIdList &partition() const { return partition_; }
 
-  inline const ValueIdSet & sequenceFunctions() const
-  { return sequenceFunctions_; }
+  inline const ValueIdSet &sequenceFunctions() const { return sequenceFunctions_; }
 
-  inline const ValueIdSet & returnSeqFunctions() const
-  { 
-    return returnSeqFunctions_; 
-  }
-  inline const ValueIdSet & movePartIdsExpr() const
-  { 
-    return movePartIdsExpr_; 
-  }
-  inline const ValueIdSet & sequencedColumns() const
-  { return sequencedColumns_; }
+  inline const ValueIdSet &returnSeqFunctions() const { return returnSeqFunctions_; }
+  inline const ValueIdSet &movePartIdsExpr() const { return movePartIdsExpr_; }
+  inline const ValueIdSet &sequencedColumns() const { return sequencedColumns_; }
 
-  inline void addSequencedColumn(ValueId col)
-  { sequencedColumns_ += col; }
+  inline void addSequencedColumn(ValueId col) { sequencedColumns_ += col; }
 
-  inline const ValueIdList & cancelExpr() const
-  { return cancelExpr_; }
+  inline const ValueIdList &cancelExpr() const { return cancelExpr_; }
 
   // Add unresolved sequence functions to the RelSequence operator
   // found when binding the select list.  Also, if OLAP, bind the
   // partition by and order by clauses and add to RelSequence.
   //
-  void addUnResolvedSeqFunctions(ValueIdSet &unresolvedSeqFuncs,
-                                 BindWA *bindWA);
+  void addUnResolvedSeqFunctions(ValueIdSet &unresolvedSeqFuncs, BindWA *bindWA);
 
-   inline void setRequiredOrder(const ValueIdList &reqOrder)
-   { requiredOrder_ = reqOrder; }
+  inline void setRequiredOrder(const ValueIdList &reqOrder) { requiredOrder_ = reqOrder; }
 
-   inline void setPartition(const ValueIdList &partition)
-   { partition_ = partition; }
+  inline void setPartition(const ValueIdList &partition) { partition_ = partition; }
 
-   ValueIdList getPartitionChange() { return partitionChange_ ;}
+  ValueIdList getPartitionChange() { return partitionChange_; }
 
-   ItemExpr * getPartitionBy() { return partitionBy_;}
+  ItemExpr *getPartitionBy() { return partitionBy_; }
 
-   void setPartitionBy(ItemExpr * part) {partitionBy_ = part;}
+  void setPartitionBy(ItemExpr *part) { partitionBy_ = part; }
 
-   inline void setSequenceFunctions(const ValueIdSet &seqFuncs)
-   { sequenceFunctions_ = seqFuncs; }
+  inline void setSequenceFunctions(const ValueIdSet &seqFuncs) { sequenceFunctions_ = seqFuncs; }
 
-  inline void setSequencedColumns(const ValueIdSet &seqCols)
-  { sequencedColumns_ = seqCols; }
+  inline void setSequencedColumns(const ValueIdSet &seqCols) { sequencedColumns_ = seqCols; }
 
-  inline void setCancelExpr(const ValueIdList &expr)
-  { cancelExpr_ = expr; }
+  inline void setCancelExpr(const ValueIdList &expr) { cancelExpr_ = expr; }
 
-  inline void setHasOlapFunctions(const NABoolean v)
-  { hasOlapFunctions_ = v; }
-  inline const NABoolean getHasOlapFunctions() const
-  { return hasOlapFunctions_; }
+  inline void setHasOlapFunctions(const NABoolean v) { hasOlapFunctions_ = v; }
+  inline const NABoolean getHasOlapFunctions() const { return hasOlapFunctions_; }
 
-  inline void setHasTDFunctions(const NABoolean v)
-  { hasTDFunctions_ = v; }
-  inline const NABoolean getHasTDFunctions() const
-  { return hasTDFunctions_; }
+  inline void setHasTDFunctions(const NABoolean v) { hasTDFunctions_ = v; }
+  inline const NABoolean getHasTDFunctions() const { return hasTDFunctions_; }
 
-  ItemExpr * getRequiredOrderTree() {return requiredOrderTree_;}
+  ItemExpr *getRequiredOrderTree() { return requiredOrderTree_; }
 
-  Lng32 getCachedNumHistoryRows()
-  {
-    return cachedNumHistoryRows_;
-  }
-  void setCachedNumHistoryRows( Lng32 v)
-  {
-    cachedNumHistoryRows_ = v;
-  }
+  Lng32 getCachedNumHistoryRows() { return cachedNumHistoryRows_; }
+  void setCachedNumHistoryRows(Lng32 v) { cachedNumHistoryRows_ = v; }
 
-  NABoolean getCachedUnboundedFollowing()
-  {
-    return cachedUnboundedFollowing_;
-  }
-  void setCachedUnboundedFollowing( NABoolean v)
-  {
-    cachedUnboundedFollowing_ = v;
-  }
+  NABoolean getCachedUnboundedFollowing() { return cachedUnboundedFollowing_; }
+  void setCachedUnboundedFollowing(NABoolean v) { cachedUnboundedFollowing_ = v; }
 
-  Lng32 getCachedMinFollowingRows()
-  {
-    return cachedMinFollowingRows_;
-  }
-  void setCachedMinFollowingRows( Lng32 v)
-  {
-    cachedMinFollowingRows_ = v;
-  }
+  Lng32 getCachedMinFollowingRows() { return cachedMinFollowingRows_; }
+  void setCachedMinFollowingRows(Lng32 v) { cachedMinFollowingRows_ = v; }
 
-  Lng32 getCachedHistoryRowLength()
-  {
-    return cachedHistoryRowLength_;
-  }
-  void setCachedHistoryRowLength( Lng32 v)
-  {
-    cachedHistoryRowLength_ = v;
-  }
+  Lng32 getCachedHistoryRowLength() { return cachedHistoryRowLength_; }
+  void setCachedHistoryRowLength(Lng32 v) { cachedHistoryRowLength_ = v; }
 
-  NABoolean getHistoryInfoCached()
-  {
-    return historyInfoCached_;
-  }
-  void setHistoryInfoCached( NABoolean v)
-  {
-    historyInfoCached_ = v;
-  }
+  NABoolean getHistoryInfoCached() { return historyInfoCached_; }
+  void setHistoryInfoCached(NABoolean v) { historyInfoCached_ = v; }
 
-  ItemExpr * buildDefaultOrderByForRownum(BindWA * bindWA);
+  ItemExpr *buildDefaultOrderByForRownum(BindWA *bindWA);
 
-  virtual void generateCacheKey(CacheWA& cwa) const;
+  virtual void generateCacheKey(CacheWA &cwa) const;
 
-protected:
+ protected:
+  inline ValueIdList &requiredOrder() { return requiredOrder_; }
 
-  inline ValueIdList & requiredOrder() { return requiredOrder_; }
+  inline ValueIdList &partition() { return partition_; }
 
-  inline ValueIdList & partition() { return partition_; }
+  inline ValueIdSet &sequenceFunctions() { return sequenceFunctions_; }
 
-  inline ValueIdSet & sequenceFunctions() { return sequenceFunctions_; }
+  inline ValueIdSet &readSeqFunctions() { return sequenceFunctions_; }
+  inline ValueIdSet &returnSeqFunctions() { return returnSeqFunctions_; }
+  inline ValueIdSet &sequencedColumns() { return sequencedColumns_; }
 
-  inline ValueIdSet & readSeqFunctions() { return sequenceFunctions_; }
-  inline ValueIdSet & returnSeqFunctions() { return returnSeqFunctions_; }
-  inline ValueIdSet & sequencedColumns() { return sequencedColumns_; }
-
-  inline ValueIdList & cancelExpr() { return cancelExpr_; }
+  inline ValueIdList &cancelExpr() { return cancelExpr_; }
 
   void addCancelExpr(CollHeap *wHeap);
-  
-  inline ValueIdSet & checkPartitionChangeExpr() { return checkPartitionChangeExpr_; }
-  inline ValueIdSet & movePartIdsExpr() { return movePartIdsExpr_; }
 
-private:
+  inline ValueIdSet &checkPartitionChangeExpr() { return checkPartitionChangeExpr_; }
+  inline ValueIdSet &movePartIdsExpr() { return movePartIdsExpr_; }
+
+ private:
   // Return a pointer to the required order tree after
   // setting it to NULL.
   //
@@ -341,7 +274,7 @@ private:
   //
   ValueIdList requiredOrder_;
 
-    // The bound version of partitionByTree_
+  // The bound version of partitionByTree_
   //
   ValueIdList partition_;
 
@@ -366,14 +299,14 @@ private:
   ValueIdSet checkPartitionChangeExpr_;
   ValueIdSet movePartIdsExpr_;
 
-  //cached parameters
+  // cached parameters
   NABoolean historyInfoCached_;
   Lng32 cachedNumHistoryRows_;
   NABoolean cachedUnboundedFollowing_;
   Lng32 cachedMinFollowingRows_;
   Lng32 cachedHistoryRowLength_;
 
-}; // class RelSequence
+};  // class RelSequence
 
 // Class PhysSequence ----------------------------------------------------
 // The PhysSequence node replaces the logical RelSequence node through the
@@ -382,16 +315,11 @@ private:
 // that is both a logical and physical node. The PhysSequence node
 // does not add any data members. It adds a few virtual methods.
 // -----------------------------------------------------------------------
-class PhysSequence : public RelSequence
-{
-public:
-
+class PhysSequence : public RelSequence {
+ public:
   // The constructor
   //
-  PhysSequence(RelExpr *child = NULL,
-                      CollHeap *oHeap = CmpCommon::statementHeap())
-    : RelSequence(child, NULL, oHeap)
-  {
+  PhysSequence(RelExpr *child = NULL, CollHeap *oHeap = CmpCommon::statementHeap()) : RelSequence(child, NULL, oHeap) {
     numHistoryRows_ = getDefault(DEF_MAX_HISTORY_ROWS);
     minFixedHistoryRows_ = 0;
     unboundedFollowing_ = FALSE;
@@ -408,125 +336,95 @@ public:
 
   // methods to do code generation of the physical node.
   //
-  virtual RelExpr * preCodeGen(Generator * generator,
-			       const ValueIdSet & externalInputs,
-			       ValueIdSet &pulledNewInputs);
-  virtual short codeGen(Generator*);
+  virtual RelExpr *preCodeGen(Generator *generator, const ValueIdSet &externalInputs, ValueIdSet &pulledNewInputs);
+  virtual short codeGen(Generator *);
 
   // generate CONTROL QUERY SHAPE fragment for this node.
   //
-  virtual short generateShape(CollHeap * space, char * buf, NAString * shapeStr = NULL);
+  virtual short generateShape(CollHeap *space, char *buf, NAString *shapeStr = NULL);
 
   // Copy a chain of derived nodes (Calls RelSequence::copyTopNode).
   // Needs to copy all relevant fields (in this case no fields
   // need to be copied)
   // Used by the Cascades engine.
   //
-  virtual RelExpr * copyTopNode(RelExpr *derivedNode = NULL,
-				CollHeap *outHeap = NULL);
+  virtual RelExpr *copyTopNode(RelExpr *derivedNode = NULL, CollHeap *outHeap = NULL);
 
   // cost functions
   //
-  virtual PhysicalProperty *synthPhysicalProperty(const Context *context,
-                                                  const Lng32 planNumber,
-                                                  PlanWorkSpace  *pws);
-  virtual CostMethod* costMethod() const;
+  virtual PhysicalProperty *synthPhysicalProperty(const Context *context, const Lng32 planNumber, PlanWorkSpace *pws);
+  virtual CostMethod *costMethod() const;
 
   // The method gets redefined since Sequnece may be a BMO depending
   // on its inputs.
-  virtual NABoolean isBigMemoryOperator(const Context* context,
-                                        const Lng32 planNumber);
+  virtual NABoolean isBigMemoryOperator(const Context *context, const Lng32 planNumber);
 
   virtual CostScalar getEstimatedRunTimeMemoryUsage(Generator *generator, NABoolean perNode, Lng32 *numStreams = NULL);
 
   // Redefine these virtual methods to declare this node as a
   // physical node.
   //
-  virtual NABoolean isLogical() const {return FALSE;};
-  virtual NABoolean isPhysical() const {return TRUE;};
+  virtual NABoolean isLogical() const { return FALSE; };
+  virtual NABoolean isPhysical() const { return TRUE; };
 
-  ExplainTuple *addSpecificExplainInfo(ExplainTupleMaster *explainTuple,
-					      ComTdb * tdb,
-					      Generator *generator);
+  ExplainTuple *addSpecificExplainInfo(ExplainTupleMaster *explainTuple, ComTdb *tdb, Generator *generator);
 
   // Helper function that traverses the set of root sequence functions
   // supplied by the compiler and constructs the set of all of the
   // attributes that must be materialized in the history row.
   //
-  void getHistoryAttributes(const ValueIdSet &sequenceFunctions,
-                            const ValueIdSet &outputFromChild,
-                            ValueIdSet &historyAttributes,
-                            NABoolean addConvNodes = FALSE,
-                            CollHeap *wHeap = NULL,
+  void getHistoryAttributes(const ValueIdSet &sequenceFunctions, const ValueIdSet &outputFromChild,
+                            ValueIdSet &historyAttributes, NABoolean addConvNodes = FALSE, CollHeap *wHeap = NULL,
                             ValueIdMap *origAttributes = NULL) const;
 
   // A dedicated helper function that processes the offset and
   // default value expression for LEAD SQL function. On return
   // readFunctions, returnFunctions and historyAttributes (historyIds)
   // can be updated.
-  void processHistoryAttributesForLead(
-                          ValueIdSet & readFunctions,
-                          ValueIdSet & returnFunctions,
-                          ValueIdSet &historyAttributes,
-                          CollHeap *wHeap);
+  void processHistoryAttributesForLead(ValueIdSet &readFunctions, ValueIdSet &returnFunctions,
+                                       ValueIdSet &historyAttributes, CollHeap *wHeap);
 
   // Helper function to compute the attribute for the history buffer
   // based on the items projected from the child and the computed
   // history items.  Also, adds the attribute information the the map
   // table.
   //
-  void computeHistoryAttributes(Generator *generator,
-                                MapTable *localMapTable,
-                                Attributes **attrs,
+  void computeHistoryAttributes(Generator *generator, MapTable *localMapTable, Attributes **attrs,
                                 const ValueIdSet &historyIds) const;
 
   // Helper function that traverses the set of root sequence functions
   // supplied by the compiler and dynamically determines the size
   // of the history buffer.
   //
-  void computeHistoryRows(const ValueIdSet &sequenceFunctions,
-                          Lng32 &computedHistoryRows,
-                          Lng32 &unableToCalculate,
-                          //long &minFixedHistoryRows,
-                          NABoolean &unboundedFollowing, //&unlimitedHistoryRows,
-                          Lng32 &minFollowingRows,
-                          const ValueIdSet &outputFromChild);
-
+  void computeHistoryRows(const ValueIdSet &sequenceFunctions, Lng32 &computedHistoryRows, Lng32 &unableToCalculate,
+                          // long &minFixedHistoryRows,
+                          NABoolean &unboundedFollowing,  //&unlimitedHistoryRows,
+                          Lng32 &minFollowingRows, const ValueIdSet &outputFromChild);
 
   // Return a READ-ONLY reference to the number of history rows to be
   // allocated in the history buffer.
   //
-  inline const Lng32 & numHistoryRows() const { return numHistoryRows_; }
+  inline const Lng32 &numHistoryRows() const { return numHistoryRows_; }
 
   // Set the number of history rows to be allowed in the history buffer.
   void setNumHistoryRows(Lng32 numHistoryRows);
 
   void setUnboundedFollowing(NABoolean v);
-  NABoolean getUnboundedFollowing() const ;
+  NABoolean getUnboundedFollowing() const;
 
   void setMinFollowingRows(Lng32 v);
 
   // set the min following rows to max(v, minFollowingRows_);
   void computeAndSetMinFollowingRows(Lng32 v);
 
-  Lng32 getMinFollowingRows() const ;
+  Lng32 getMinFollowingRows() const;
 
-  Lng32 getEstHistoryRowLength() const
-  {
-    return estHistoryRowLength_;
-  }
+  Lng32 getEstHistoryRowLength() const { return estHistoryRowLength_; }
 
-  void setEstHistoryRowLength(Lng32 v)
-  {
-    estHistoryRowLength_ = v;
-  }
+  void setEstHistoryRowLength(Lng32 v) { estHistoryRowLength_ = v; }
 
-  void updateEstHistoryRowLength(ValueIdSet &histIds,
-				ValueId newValId,
-                                Lng32 &estimatedLength)
-  {
-    if (!histIds.contains(newValId))
-    {
+  void updateEstHistoryRowLength(ValueIdSet &histIds, ValueId newValId, Lng32 &estimatedLength) {
+    if (!histIds.contains(newValId)) {
       estimatedLength += newValId.getType().getTotalSize();
       histIds += newValId;
     }
@@ -534,33 +432,22 @@ public:
 
   void seperateReadAndReturnItems(CollHeap *wHeap);
 
-  void computeReadNReturnItems(ValueId seqVid,
-                               ValueId vid,
-                               const ValueIdSet &outputFromChild,
-                               CollHeap *wHeap);
-  
+  void computeReadNReturnItems(ValueId seqVid, ValueId vid, const ValueIdSet &outputFromChild, CollHeap *wHeap);
+
   void transformOlapFunctions(CollHeap *wHeap);
 
-  void computeHistoryParams( Lng32 histRecLength,
-                             Lng32 &maxRowsInOLAPBuffer,
-                             Lng32 &minNumberOfOLAPBuffers,
-                             Lng32 &numberOfWinOLAPBuffers,
-                             Lng32 &maxNumberOfOLAPBuffers,
-                             Lng32 &olapBufferSize);
+  void computeHistoryParams(Lng32 histRecLength, Lng32 &maxRowsInOLAPBuffer, Lng32 &minNumberOfOLAPBuffers,
+                            Lng32 &numberOfWinOLAPBuffers, Lng32 &maxNumberOfOLAPBuffers, Lng32 &olapBufferSize);
 
-  void retrieveCachedHistoryInfo(RelSequence * cacheRelSeq) ;
+  void retrieveCachedHistoryInfo(RelSequence *cacheRelSeq);
 
+  void estimateHistoryRowLength(const ValueIdSet &sequenceFunctions, const ValueIdSet &outputFromChild,
+                                ValueIdSet &histIds, Lng32 &estimatedLength);
 
-  void estimateHistoryRowLength(const ValueIdSet &sequenceFunctions,
-                                const ValueIdSet &outputFromChild,
-                                ValueIdSet &histIds,
-                                Lng32 &estimatedLength);
+  void addCheckPartitionChangeExpr(Generator *generator, NABoolean addConvNodes = FALSE,
+                                   ValueIdMap *origAttributes = NULL);
 
-  void addCheckPartitionChangeExpr( Generator *generator,
-                                    NABoolean addConvNodes = FALSE,
-                                    ValueIdMap *origAttributes = NULL);
-private:
-
+ private:
   // The number of history rows to allocate for the history buffer.
   // Is initialized to the value of the default REF_MAX_HISTORY_ROWS.
   // Later it may be reduced if it can be determined that fewer rows
@@ -574,15 +461,15 @@ private:
   Lng32 minFixedHistoryRows_;
 
   // do need to have unlimited size-- unbounded following cases
-  NABoolean unboundedFollowing_; //unlimitedHistoryRows_;
-
+  NABoolean unboundedFollowing_;  // unlimitedHistoryRows_;
 
   Lng32 minFollowingRows_;
 
-  //estimated history row length
+  // estimated history row length
   Lng32 estHistoryRowLength_;
-private:
+
+ private:
   CostMethodRelSequence *pCostMethod_;
-}; // class PhysSequence
+};  // class PhysSequence
 
 #endif

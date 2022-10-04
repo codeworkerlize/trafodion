@@ -22,7 +22,7 @@
 **********************************************************************/
 #ifndef SQLPARSERAUX_H
 #define SQLPARSERAUX_H
-/* -*++-*- 
+/* -*++-*-
 ******************************************************************************
 *
 * File:         SqlParserAux.cpp
@@ -46,7 +46,7 @@
 */
 
 #include <sstream>
-#include "common/Platform.h"				// must be the first #include
+#include "common/Platform.h"  // must be the first #include
 
 #include "optimizer/AllRelExpr.h"
 #include "common/DatetimeType.h"
@@ -57,29 +57,28 @@
 #include "ParScannedTokenQueue.h"
 #include "parser/StmtDDLCreateTable.h"
 
-
 #define MAX_START_WITH 20
 
 class NAWString;
 class SQLRow;
 
 class PairOfUnsigned : public NABasicObject {
-public:
+ public:
   PairOfUnsigned(UInt32 lArg, UInt32 rArg) : left_(lArg), right_(rArg) {}
-  UInt32 left  () const { return left_;  }
-  UInt32 right () const { return right_; }
-private:
-  UInt32 left_,right_;
+  UInt32 left() const { return left_; }
+  UInt32 right() const { return right_; }
+
+ private:
+  UInt32 left_, right_;
 };
 
 class GroupOfNAString : public NABasicObject {
-public:
-  GroupOfNAString(const NAString &val1, const NAString &val2) : 
-       val1_(val1), val2_(val2)
-  {}
+ public:
+  GroupOfNAString(const NAString &val1, const NAString &val2) : val1_(val1), val2_(val2) {}
   const NAString &val1() const { return val1_; }
   const NAString &val2() const { return val2_; }
-private:
+
+ private:
   NAString val1_;
   NAString val2_;
 };
@@ -88,79 +87,85 @@ private:
 // production to another.
 // Currently set to max 5 ptrs, increase size if needed.
 class PtrPlaceHolder {
-public:
-  PtrPlaceHolder()
-  {}
+ public:
+  PtrPlaceHolder() {}
 
-  PtrPlaceHolder(void * ptr1, void * ptr2=NULL, void * ptr3=NULL, 
-		 void * ptr4=NULL, void * ptr5=NULL, void * ptr6=NULL,
-                 void * ptr7=NULL, void * ptr8=NULL, void * ptr9=NULL,
-                 void * ptr10=NULL, void * ptr11=NULL, void * ptr12=NULL,
-                 void * ptr13=NULL, void * ptr14=NULL, void * ptr15=NULL,
-                 void * ptr16=NULL, void * ptr17=NULL, void * ptr18=NULL,
-                 void * ptr19=NULL, void * ptr20=NULL, void * ptr21=NULL,
-                 void * ptr22=NULL, void * ptr23=NULL, void * ptr24=NULL)
-       : ptr1_(ptr1), ptr2_(ptr2), ptr3_(ptr3), ptr4_(ptr4), ptr5_(ptr5),
-	 ptr6_(ptr6), ptr7_(ptr7), ptr8_(ptr8), ptr9_(ptr9), ptr10_(ptr10),
-         ptr11_(ptr11), ptr12_(ptr12), ptr13_(ptr13), ptr14_(ptr14), 
-         ptr15_(ptr15), ptr16_(ptr16), ptr17_(ptr17), ptr18_(ptr18),
-         ptr19_(ptr19), ptr20_(ptr20), ptr21_(ptr21),
-         ptr22_(ptr22), ptr23_(ptr23), ptr24_(ptr24)
-  {}
-    
-  void * ptr1_;
-  void * ptr2_;
-  void * ptr3_;
-  void * ptr4_;
-  void * ptr5_;
-  void * ptr6_;
-  void * ptr7_;
-  void * ptr8_;
-  void * ptr9_;
-  void * ptr10_;
-  void * ptr11_;
-  void * ptr12_;
-  void * ptr13_;
-  void * ptr14_;
-  void * ptr15_;
-  void * ptr16_;
-  void * ptr17_;
-  void * ptr18_;
-  void * ptr19_;
-  void * ptr20_;
-  void * ptr21_;
-  void * ptr22_;
-  void * ptr23_;
-  void * ptr24_;
+  PtrPlaceHolder(void *ptr1, void *ptr2 = NULL, void *ptr3 = NULL, void *ptr4 = NULL, void *ptr5 = NULL,
+                 void *ptr6 = NULL, void *ptr7 = NULL, void *ptr8 = NULL, void *ptr9 = NULL, void *ptr10 = NULL,
+                 void *ptr11 = NULL, void *ptr12 = NULL, void *ptr13 = NULL, void *ptr14 = NULL, void *ptr15 = NULL,
+                 void *ptr16 = NULL, void *ptr17 = NULL, void *ptr18 = NULL, void *ptr19 = NULL, void *ptr20 = NULL,
+                 void *ptr21 = NULL, void *ptr22 = NULL, void *ptr23 = NULL, void *ptr24 = NULL)
+      : ptr1_(ptr1),
+        ptr2_(ptr2),
+        ptr3_(ptr3),
+        ptr4_(ptr4),
+        ptr5_(ptr5),
+        ptr6_(ptr6),
+        ptr7_(ptr7),
+        ptr8_(ptr8),
+        ptr9_(ptr9),
+        ptr10_(ptr10),
+        ptr11_(ptr11),
+        ptr12_(ptr12),
+        ptr13_(ptr13),
+        ptr14_(ptr14),
+        ptr15_(ptr15),
+        ptr16_(ptr16),
+        ptr17_(ptr17),
+        ptr18_(ptr18),
+        ptr19_(ptr19),
+        ptr20_(ptr20),
+        ptr21_(ptr21),
+        ptr22_(ptr22),
+        ptr23_(ptr23),
+        ptr24_(ptr24) {}
+
+  void *ptr1_;
+  void *ptr2_;
+  void *ptr3_;
+  void *ptr4_;
+  void *ptr5_;
+  void *ptr6_;
+  void *ptr7_;
+  void *ptr8_;
+  void *ptr9_;
+  void *ptr10_;
+  void *ptr11_;
+  void *ptr12_;
+  void *ptr13_;
+  void *ptr14_;
+  void *ptr15_;
+  void *ptr16_;
+  void *ptr17_;
+  void *ptr18_;
+  void *ptr19_;
+  void *ptr20_;
+  void *ptr21_;
+  void *ptr22_;
+  void *ptr23_;
+  void *ptr24_;
 };
 
 class OldNewNames : public NABasicObject {
-public:
-  OldNewNames(NAString *theOld, NAString *theNew) :
-      oldName_(theOld), newName_(theNew)	
-    {}
+ public:
+  OldNewNames(NAString *theOld, NAString *theNew) : oldName_(theOld), newName_(theNew) {}
   // no special dtor; the old/new strings are deleted by the
   // dtor of StmtDDLCreateTrigger
-  NAString * oldName () const { return oldName_;  }
-  NAString * newName () const { return newName_; }
+  NAString *oldName() const { return oldName_; }
+  NAString *newName() const { return newName_; }
 
-private:
-  NAString * oldName_, * newName_;
+ private:
+  NAString *oldName_, *newName_;
 };
 
 // prepare "nameList" with old/new transition names
-//static void prepareReferencingNames(TableRefList & nameList,
-				 //  StmtDDLCreateTrigger * triggerObject);
+// static void prepareReferencingNames(TableRefList & nameList,
+//  StmtDDLCreateTrigger * triggerObject);
 
 /*  This enum is used only in the sqlparser.y file to collect and
 ** validate consistant use of trigger scoping
 */
-enum ParTriggerScopeType {
-    ParTRIG_SCOPE_NONE,
-    ParTRIG_SCOPE_ROW,
-    ParTRIG_SCOPE_TABLE
-  };
-
+enum ParTriggerScopeType { ParTRIG_SCOPE_NONE, ParTRIG_SCOPE_ROW, ParTRIG_SCOPE_TABLE };
 
 // If we need to reuse this class, STACK_LIMIT should become a variable
 // (a data member passed at constructor time), or the internal stack should
@@ -169,37 +174,52 @@ enum ParTriggerScopeType {
 //
 // For the one use to which this is being put (error 4101 stuff), a hard limit
 // (that is, too many pushes LOSE data!) is acceptable.
-class LimitedStack
-{
+class LimitedStack {
   enum { STACK_LIMIT = 10, EMPTY_VALUE = 0 };
   Int32 stack_[STACK_LIMIT];
   Int32 index_;
-public:
-  void reset()		{ index_ = -1; }
-  Int32  entries() const	{ return index_ + 1; }
-  Int32  isEmpty() const	{ return index_ < 0; }
-  Int32  push(Int32 i)	{ if (++index_ >= STACK_LIMIT) return index_--;
-  			  stack_[index_] = i; return 0;	  // return 0: success
-			}
-  Int32  pop(Int32 &i)	{ if (isEmpty()) { i = EMPTY_VALUE; return -1; }
-  			  i = stack_[index_--]; return 0; // return 0: success
-			}
-  void pop()		{ if (!isEmpty()) index_--; }
-  Int32  top(Int32 &i)	{ if (isEmpty()) { i = EMPTY_VALUE; return -1; }
-  			  i = stack_[index_]; return 0;   // return 0: success
-			}
-  Int32  operator()()	{ if (isEmpty()) return EMPTY_VALUE;
-			  return stack_[index_];
-			}
+
+ public:
+  void reset() { index_ = -1; }
+  Int32 entries() const { return index_ + 1; }
+  Int32 isEmpty() const { return index_ < 0; }
+  Int32 push(Int32 i) {
+    if (++index_ >= STACK_LIMIT) return index_--;
+    stack_[index_] = i;
+    return 0;  // return 0: success
+  }
+  Int32 pop(Int32 &i) {
+    if (isEmpty()) {
+      i = EMPTY_VALUE;
+      return -1;
+    }
+    i = stack_[index_--];
+    return 0;  // return 0: success
+  }
+  void pop() {
+    if (!isEmpty()) index_--;
+  }
+  Int32 top(Int32 &i) {
+    if (isEmpty()) {
+      i = EMPTY_VALUE;
+      return -1;
+    }
+    i = stack_[index_];
+    return 0;  // return 0: success
+  }
+  Int32 operator()() {
+    if (isEmpty()) return EMPTY_VALUE;
+    return stack_[index_];
+  }
 };
 
 const Int32 STACKDELTA_ENSURES_NONZERO = 100;
-extern THREAD_P LimitedStack *inJoinSpec;	// can handle <STACK_LIMIT> nested Joins
+extern THREAD_P LimitedStack *inJoinSpec;  // can handle <STACK_LIMIT> nested Joins
 
-char    *SQLTEXT();
+char *SQLTEXT();
 charBuf *SQLTEXTCHARBUF();
-Lng32    SQLTEXTCHARSET();
-NAWchar *SQLTEXTW(); // in UCS-2/UTF-16
+Lng32 SQLTEXTCHARSET();
+NAWchar *SQLTEXTW();  // in UCS-2/UTF-16
 NAWcharBuf *SQLTEXTNAWCHARBUF();
 
 CharInfo::CharSet getStringCharSet(NAString **p);
@@ -207,12 +227,15 @@ CharInfo::CharSet getStringCharSet(NAWString **p);
 
 NABoolean charsetMismatchError(NAString **d1, NAString **d2);
 
-inline NABoolean charsetMismatchError(NAWString **d1, NAWString **d2)
-{ return charsetMismatchError((NAString **)d1, (NAString **)d2); }
-inline NABoolean charsetMismatchError(NAString **d1, NAWString **d2)
-{ return charsetMismatchError((NAString **)d1, (NAString **)d2); }
-inline NABoolean charsetMismatchError(NAWString **d1, NAString **d2)
-{ return charsetMismatchError((NAString **)d1, (NAString **)d2); }
+inline NABoolean charsetMismatchError(NAWString **d1, NAWString **d2) {
+  return charsetMismatchError((NAString **)d1, (NAString **)d2);
+}
+inline NABoolean charsetMismatchError(NAString **d1, NAWString **d2) {
+  return charsetMismatchError((NAString **)d1, (NAString **)d2);
+}
+inline NABoolean charsetMismatchError(NAWString **d1, NAString **d2) {
+  return charsetMismatchError((NAString **)d1, (NAString **)d2);
+}
 
 // First emit syntax error 15001.
 // Then if we're not in a parenthesized join-spec, also emit error 4101,
@@ -234,46 +257,42 @@ typedef LIST(ItemExpr *) AssignmentHostVarsT;
 extern THREAD_P AllHostVarsT *AllHostVars;
 extern THREAD_P AssignmentHostVarsT *AssignmentHostVars;
 extern THREAD_P HVArgTypeLookup *TheProcArgTypes;
-extern THREAD_P NABoolean        intoClause;
-extern THREAD_P NABoolean        InAssignmentSt;
-extern THREAD_P NABoolean        ThereAreAssignments;
+extern THREAD_P NABoolean intoClause;
+extern THREAD_P NABoolean InAssignmentSt;
+extern THREAD_P NABoolean ThereAreAssignments;
 
 void resetHostVars();
-
 
 extern THREAD_P Int32 in3GL_;
 
 void MarkInteriorNodesAsInCompoundStmt(RelExpr *node);
-NAWString* localeMBStringToUnicode(NAString* localeString, Lng32 charset, CollHeap * heap = NULL);
+NAWString *localeMBStringToUnicode(NAString *localeString, Lng32 charset, CollHeap *heap = NULL);
 RelRoot *finalize(RelExpr *top, NABoolean outputVarCntValid = TRUE);
 
-NAString * getSqlStmtStr(CharInfo::CharSet &sqlStmtCharSet, CollHeap * heap);
+NAString *getSqlStmtStr(CharInfo::CharSet &sqlStmtCharSet, CollHeap *heap);
 
 class ForUpdateSpec : public NABasicObject {
-public:
+ public:
   ForUpdateSpec(NABoolean e, NABoolean u = FALSE, ItemExpr *col = NULL)
-    : explicitSpec_(e), forUpdate_(u), updateCol_(col) {}
+      : explicitSpec_(e), forUpdate_(u), updateCol_(col) {}
   void finalizeUpdatability(RelExpr *top);
   NABoolean explicitSpec() { return explicitSpec_; }
 
-private:
-  NABoolean explicitSpec_;	// TRUE if FOR UPDATE or FOR READ appeared
-  NABoolean forUpdate_;		// TRUE if FOR UPDATE; FALSE if FOR READ ONLY
-  ItemExpr *updateCol_;		// NULL unless "FOR UPDATE OF col [, col]..."
+ private:
+  NABoolean explicitSpec_;  // TRUE if FOR UPDATE or FOR READ appeared
+  NABoolean forUpdate_;     // TRUE if FOR UPDATE; FALSE if FOR READ ONLY
+  ItemExpr *updateCol_;     // NULL unless "FOR UPDATE OF col [, col]..."
 };
 
 // looks at attrList and sets up specified options in 'br'
 // Returns 0, if success. -1, if error.
-short processBackupRestoreOptions(NAList<PtrPlaceHolder*> *attrList,
-                                  RelBackupRestore * br);
+short processBackupRestoreOptions(NAList<PtrPlaceHolder *> *attrList, RelBackupRestore *br);
 
 // looks at fieldList and sets them up in SQLRow.
-short processSQLRowFields(NAList<PtrPlaceHolder*> *fieldList,
-                          SQLRow* &ss);
+short processSQLRowFields(NAList<PtrPlaceHolder *> *fieldList, SQLRow *&ss);
 
-NABoolean finalizeAccessOptions(RelExpr *top,
-                                TransMode::AccessType at = TransMode::ACCESS_TYPE_NOT_SPECIFIED_,
-                                LockMode   lm = LOCK_MODE_NOT_SPECIFIED_);
+NABoolean finalizeAccessOptions(RelExpr *top, TransMode::AccessType at = TransMode::ACCESS_TYPE_NOT_SPECIFIED_,
+                                LockMode lm = LOCK_MODE_NOT_SPECIFIED_);
 
 // The purpose of this function is to return a pointer to a HostVar object.
 // This new HostVar should have a name from the given name in the arg,
@@ -291,8 +310,7 @@ NABoolean finalizeAccessOptions(RelExpr *top,
 // is an indicator in this host variable.  Is this redundant since
 // that info is already in the HostVar itself?
 
-HostVar *makeHostVar(NAString *hvName, NAString *indName,
-		     NABoolean isDynamic = FALSE);
+HostVar *makeHostVar(NAString *hvName, NAString *indName, NABoolean isDynamic = FALSE);
 
 // In the next several procedures, we set up ConstValue's, in whose text
 // we want negative numbers to end up with minus signs but positive numbers
@@ -303,24 +321,21 @@ HostVar *makeHostVar(NAString *hvName, NAString *indName,
 // (Note that we delete the strptr before returning:  thus we may freely
 // modify the text therein.)
 
-ItemExpr *literalOfNumericPassingScale(NAString *strptr, char sign,
-                                       NAString *cvtstr, size_t scale);
+ItemExpr *literalOfNumericPassingScale(NAString *strptr, char sign, NAString *cvtstr, size_t scale);
 
-inline ItemExpr *literalOfNumericNoScale(NAString *strptr, char sign = '+')
-{ return literalOfNumericPassingScale(strptr, sign, strptr, 0); }
+inline ItemExpr *literalOfNumericNoScale(NAString *strptr, char sign = '+') {
+  return literalOfNumericPassingScale(strptr, sign, strptr, 0);
+}
 
 ItemExpr *literalOfNumericWithScale(NAString *strptr, char sign = '+');
 
-NABoolean literalToNumeric(NAString *strptr, double& val, char sign = '+');
+NABoolean literalToNumeric(NAString *strptr, double &val, char sign = '+');
 
-NABoolean literalToDouble(NAString *strptr, double& val, 
-                          NABoolean& floatP, char sign = '+');
+NABoolean literalToDouble(NAString *strptr, double &val, NABoolean &floatP, char sign = '+');
 
 ItemExpr *literalOfApproxNumeric(NAString *strptr, char sign = '+');
 
-ItemExpr *literalOfInterval(NAString *strptr,
-                            IntervalQualifier *qualifier,
-                            char sign = '+');
+ItemExpr *literalOfInterval(NAString *strptr, IntervalQualifier *qualifier, char sign = '+');
 
 ItemExpr *literalOfDate(NAString *strptr, NABoolean noDealloc = FALSE);
 
@@ -333,51 +348,34 @@ ItemExpr *literalOfTimestamp(NAString *strptr);
 //  DatetimeQualifier : A syntactic-sugar class used by the Parser only
 //
 // ***********************************************************************
-class DatetimeQualifier : public NABasicObject
-{
-public:
-
+class DatetimeQualifier : public NABasicObject {
+ public:
   // Constructors
-  DatetimeQualifier
-  ( rec_datetime_field startField
-  , UInt32 fractionPrec = 0
-  ) :
-  startField_(startField)
- ,fractionPrec_(fractionPrec)
- ,endField_ (startField) 
-  {}
+  DatetimeQualifier(rec_datetime_field startField, UInt32 fractionPrec = 0)
+      : startField_(startField), fractionPrec_(fractionPrec), endField_(startField) {}
 
-  DatetimeQualifier
-  ( rec_datetime_field startField
-  , rec_datetime_field endField
-  , UInt32 fractionPrec = 0
-   ) :
-  startField_(startField)
- ,endField_ (endField) 
- ,fractionPrec_(fractionPrec)
-  {}
+  DatetimeQualifier(rec_datetime_field startField, rec_datetime_field endField, UInt32 fractionPrec = 0)
+      : startField_(startField), endField_(endField), fractionPrec_(fractionPrec) {}
 
- rec_datetime_field getStartField() { return startField_; }
- rec_datetime_field getEndField()   { return endField_; }
- UInt32 getFractionPrecision()    { return fractionPrec_; }
+  rec_datetime_field getStartField() { return startField_; }
+  rec_datetime_field getEndField() { return endField_; }
+  UInt32 getFractionPrecision() { return fractionPrec_; }
 
-private:
-
- rec_datetime_field startField_;
- rec_datetime_field endField_ ;
- UInt32 fractionPrec_;
-}; // class DatetimeQualifier
+ private:
+  rec_datetime_field startField_;
+  rec_datetime_field endField_;
+  UInt32 fractionPrec_;
+};  // class DatetimeQualifier
 
 ItemExpr *literalOfDateTime(NAString *strptr, DatetimeQualifier *qualifier);
 
-enum ParCaseIdentifierClauseType { ParCALL_CASED_IDENTIFIER_CLAUSE,
-                                   ParGOTO_CASED_IDENTIFIER_CLAUSE,
-                                   ParPERFORM_CASED_IDENTIFIER_CLAUSE };
+enum ParCaseIdentifierClauseType {
+  ParCALL_CASED_IDENTIFIER_CLAUSE,
+  ParGOTO_CASED_IDENTIFIER_CLAUSE,
+  ParPERFORM_CASED_IDENTIFIER_CLAUSE
+};
 
-void parseCasedIdentifier(ParCaseIdentifierClauseType clauseType,
-                          NAString *pClauseBuffer,
-                          NAString &casedIdentifier);
-
+void parseCasedIdentifier(ParCaseIdentifierClauseType clauseType, NAString *pClauseBuffer, NAString &casedIdentifier);
 
 // Purpose: This class stores what essentially is a sequence of
 // one, two, three, or more NAStrings.  Actually, just NAString*
@@ -400,74 +398,64 @@ void parseCasedIdentifier(ParCaseIdentifierClauseType clauseType,
 // the elements of this sequence.
 
 class ShortStringSequence : public NABasicObject {
-public:
+ public:
   ShortStringSequence();
-  ShortStringSequence(NAString*,
-                      unsigned short toInternalIdentifierFlags
-                      = NASTRING_ALLOW_NSK_GUARDIAN_NAME_FORMAT);
+  ShortStringSequence(NAString *, unsigned short toInternalIdentifierFlags = NASTRING_ALLOW_NSK_GUARDIAN_NAME_FORMAT);
   ~ShortStringSequence();
-  enum { MAX_SIMPLENAME_PARTS = 1,
-  	 MAX_QUALIFIEDNAME_PARTS = 3,
-         MAX_COLREFERENCE_PARTS = 4,
+  enum {
+    MAX_SIMPLENAME_PARTS = 1,
+    MAX_QUALIFIEDNAME_PARTS = 3,
+    MAX_COLREFERENCE_PARTS = 4,
 
-         // this indicates the max number of parts that can be specified.
-         // It can be greater than MAX_COLREFERENCEPARTS for a composite(array/row)
-         // name specification of the format: {t.s}.a.b[2].c.d[3].e
-         MAX_NUM_PARTS = 25};
+    // this indicates the max number of parts that can be specified.
+    // It can be greater than MAX_COLREFERENCEPARTS for a composite(array/row)
+    // name specification of the format: {t.s}.a.b[2].c.d[3].e
+    MAX_NUM_PARTS = 25
+  };
 
-  void append(NAString*);
-  NAString* extract(UInt32, NABoolean noNull = FALSE);
+  void append(NAString *);
+  NAString *extract(UInt32, NABoolean noNull = FALSE);
 
   // TRUE: error.  FALSE: no error
   NABoolean errorChecks();
 
   // returns position of first character in name
-  const StringPos getPosition() const	  { return seqPos_; }
+  const StringPos getPosition() const { return seqPos_; }
   // returns position of last character in name
-  const StringPos getEndPosition() const  { return seqEndPos_; }
+  const StringPos getEndPosition() const { return seqEndPos_; }
   // returns number of characters in name
-  const size_t getNameLength() const	  { return seqEndPos_ - seqPos_ + 1; }
+  const size_t getNameLength() const { return seqEndPos_ - seqPos_ + 1; }
 
   // returns the number of parts in the sequence, that is, number of appends
   // that have been done plus the number of elements introduced by
   // the constructor (either zero or one)
-  UInt32 numParts() const		  { return numParts_; }
+  UInt32 numParts() const { return numParts_; }
 
   // number of initial seq parts that represent composite column name.
-  UInt32 numCompositeColRefParts() const    { return numCompColRefParts_; }
-  void setNumCompositeColRefParts(UInt32 v) { numCompColRefParts_ = v; }  
+  UInt32 numCompositeColRefParts() const { return numCompColRefParts_; }
+  void setNumCompositeColRefParts(UInt32 v) { numCompColRefParts_ = v; }
 
   NABoolean processCompositeColName() const { return processCompositeColName_; }
-  void setProcessCompositeColName(NABoolean v)
-  {
-    processCompositeColName_ = v;
-  }
+  void setProcessCompositeColName(NABoolean v) { processCompositeColName_ = v; }
 
-  UInt32 numArrayIndexes() const   { return numArrayIndexes_; }
-  
-  void setSeqArrayIndex(UInt32 v)  
-  { 
-    seqArrayIndex_[numParts()-1] = v;
+  UInt32 numArrayIndexes() const { return numArrayIndexes_; }
+
+  void setSeqArrayIndex(UInt32 v) {
+    seqArrayIndex_[numParts() - 1] = v;
     numArrayIndexes_++;
   }
 
-  Int32 getFirstSeqArrayIndex()
-  {
+  Int32 getFirstSeqArrayIndex() {
     Int32 i = 0;
-    while (i < MAX_NUM_PARTS)
-      {
-        if (seqArrayIndex_[i] > 0)
-          return i;
-        i++;
-      }
+    while (i < MAX_NUM_PARTS) {
+      if (seqArrayIndex_[i] > 0) return i;
+      i++;
+    }
 
     return -1;
   }
 
-  NABoolean isValid() const		  
-  { 
-    return numParts_ <= MAX_NUM_PARTS; 
-  }
+  NABoolean isValid() const { return numParts_ <= MAX_NUM_PARTS; }
 
   void invalidate();
 
@@ -475,33 +463,32 @@ public:
   // accordingly. This is currently used for converting a 4 parts
   // package routine name (cat.sch.pkg.obj) as a 3 parts qualified
   // name (cat.sch."pkg.obj")
-  void mergeFirstTwoStrings()
-  {
-    seq[numParts_-2]->append(".");
-    seq[numParts_-2]->append(*seq[numParts_-1]);
-    seq[numParts_-1] = NULL;
+  void mergeFirstTwoStrings() {
+    seq[numParts_ - 2]->append(".");
+    seq[numParts_ - 2]->append(*seq[numParts_ - 1]);
+    seq[numParts_ - 1] = NULL;
     numParts_--;
   }
 
   short populateLists(NAList<NAString> &names, NAList<UInt32> &indexes);
 
-private:
-  const ParScannedTokenQueue::scannedTokenInfo& getTokInfo(NAString*);
+ private:
+  const ParScannedTokenQueue::scannedTokenInfo &getTokInfo(NAString *);
 
-  NAString   *seq[MAX_NUM_PARTS];
-  UInt32     seqArrayIndex_[MAX_NUM_PARTS];
-  size_t     seqPos_;
-  size_t     seqPosStartOffset_;
-  size_t     seqEndPos_;
-  UInt32     numParts_;
-  UInt32     numCompColRefParts_;
-  UInt32     numArrayIndexes_;
+  NAString *seq[MAX_NUM_PARTS];
+  UInt32 seqArrayIndex_[MAX_NUM_PARTS];
+  size_t seqPos_;
+  size_t seqPosStartOffset_;
+  size_t seqEndPos_;
+  UInt32 numParts_;
+  UInt32 numCompColRefParts_;
+  UInt32 numArrayIndexes_;
 
-  NABoolean  processCompositeColName_;
-public:
+  NABoolean processCompositeColName_;
+
+ public:
   UInt16 toInternalIdentifierFlags_;
 };
-
 
 // For error messages
 NAWString badNameFromStrings(ShortStringSequence *names);
@@ -521,17 +508,15 @@ NAWString badNameFromStrings(ShortStringSequence *names);
 // parts, which can be interpreted as a standalone routine or a
 // package routine, and thus ambiguous.
 
-QualifiedName * qualifiedNameFromStrings(ShortStringSequence *names,
-                                         NABoolean ambiguous=FALSE);
+QualifiedName *qualifiedNameFromStrings(ShortStringSequence *names, NABoolean ambiguous = FALSE);
 
-SchemaName * schemaNameFromStrings(ShortStringSequence *names);
+SchemaName *schemaNameFromStrings(ShortStringSequence *names);
 
-SchemaName * schemaNameFromStrings(ShortStringSequence *names);
+SchemaName *schemaNameFromStrings(ShortStringSequence *names);
 
-CorrName * corrNameFromStrings(ShortStringSequence *names);
+CorrName *corrNameFromStrings(ShortStringSequence *names);
 
 ColRefName *colRefNameFromStrings(ShortStringSequence *names);
-
 
 // The purpose of this function is to convert NAStrings that contain
 // delimited identifiers as detected by SqlLexer
@@ -553,12 +538,12 @@ ColRefName *colRefNameFromStrings(ShortStringSequence *names);
 // would establish a transformed string in a separate buffer and then
 // copy it back into the original.
 
-NABoolean transformIdentifier(NAString& delimIdent, 
-                              Int32 upCase = TRUE,
-                              NABoolean acceptCircumflex = FALSE // VO: Fix genesis solution 10-040204-2957
-                             ,UInt16 toInternalIdentifierFlags = NASTRING_ALLOW_NSK_GUARDIAN_NAME_FORMAT // same as pv_flags in ToInternalIdentifier()
-                             );
-
+NABoolean transformIdentifier(NAString &delimIdent, Int32 upCase = TRUE,
+                              NABoolean acceptCircumflex = FALSE  // VO: Fix genesis solution 10-040204-2957
+                              ,
+                              UInt16 toInternalIdentifierFlags =
+                                  NASTRING_ALLOW_NSK_GUARDIAN_NAME_FORMAT  // same as pv_flags in ToInternalIdentifier()
+);
 
 // Class PicStream
 // ===============
@@ -584,32 +569,25 @@ NABoolean transformIdentifier(NAString& delimIdent,
 //       failure (and SqlLexer problem) if `PIC' or `PICTURE' is not found.
 
 class PicStream : public stringbuf {
-public:
-          PicStream         (char* buffer);
- void     skipWhite         ();
+ public:
+  PicStream(char *buffer);
+  void skipWhite();
   // return TRUE if successful, return FALSE if overflow
- NABoolean skipCount         (UInt32 *result, const char pattern, NABoolean isCharType = FALSE);
- void     skipPicture       ();
- void 
-   mystossc() 
- {
-   if (this->gptr() < this->egptr()) 
-     this->gbump(1);
-   else 
-     this->uflow();
- }
+  NABoolean skipCount(UInt32 *result, const char pattern, NABoolean isCharType = FALSE);
+  void skipPicture();
+  void mystossc() {
+    if (this->gptr() < this->egptr())
+      this->gbump(1);
+    else
+      this->uflow();
+  }
 };
 
-inline
-PicStream::PicStream (char *buffer) : stringbuf(buffer)
-{}
+inline PicStream::PicStream(char *buffer) : stringbuf(buffer) {}
 
-inline
-void PicStream::skipWhite()
-{
-  while( sgetc() != EOF && !isgraph(sgetc())) stossc();
+inline void PicStream::skipWhite() {
+  while (sgetc() != EOF && !isgraph(sgetc())) stossc();
 }
-
 
 // parsePicClause() accepts a char* and either
 // assertion fails (fundamentally due to a SqlLexer.l error), or,
@@ -624,14 +602,11 @@ void PicStream::skipWhite()
 // respectively.
 
 // return TRUE if successful, FALSE if overflow
-NABoolean parsePicClause(NAString *picClauseBuffer, NABoolean  *isStringPtr,
-			 UInt32 *precisionPtr, UInt32 *scalePtr,
-			 NABoolean *hasSignPtr);
-
+NABoolean parsePicClause(NAString *picClauseBuffer, NABoolean *isStringPtr, UInt32 *precisionPtr, UInt32 *scalePtr,
+                         NABoolean *hasSignPtr);
 
 // DISPLAY_STYLE is used in the cobol pic_type related grammar/code.
-enum DISPLAY_STYLE { STYLE_DISPLAY, STYLE_LEADING_SIGN, STYLE_UPSHIFT,
-                     STYLE_COMP };
+enum DISPLAY_STYLE { STYLE_DISPLAY, STYLE_LEADING_SIGN, STYLE_UPSHIFT, STYLE_COMP };
 
 // This function is used in the productions that handle the COBOL style
 // PIC type declarations.  It accepts some parameters gleaned from the
@@ -639,17 +614,10 @@ enum DISPLAY_STYLE { STYLE_DISPLAY, STYLE_LEADING_SIGN, STYLE_UPSHIFT,
 // or returns a pointer to a newly allocated NAType appropriate
 // to the given parameters.
 
-NAType *picNAType(const NABoolean      isString, 
-                  const DISPLAY_STYLE  style,
-                  const UInt32       precision,
-                  const UInt32       scale,
-                  const NABoolean      hasSign,
-                  const CharInfo::CharSet charset,
-                  const CharInfo::Collation collation,
-                  const CharInfo::Coercibility coerc,
-                  const NAString &     picClauseBuffer,
-		  const NABoolean      isCaseinsensitive);
-
+NAType *picNAType(const NABoolean isString, const DISPLAY_STYLE style, const UInt32 precision, const UInt32 scale,
+                  const NABoolean hasSign, const CharInfo::CharSet charset, const CharInfo::Collation collation,
+                  const CharInfo::Coercibility coerc, const NAString &picClauseBuffer,
+                  const NABoolean isCaseinsensitive);
 
 // : value_expression_list TOK_IN '(' value_expression_list ')'
 // Convert "v IN (v1, v2 ...)" to "v=v1 OR v=v2 ...".
@@ -665,17 +633,12 @@ NAType *picNAType(const NABoolean      isString,
 // the histogram code.)
 ItemExpr *convertINvaluesToOR(ItemExpr *lhs, ItemExpr *rhs);
 
-
 // quantified_predicate : value_expression_list '=' quantifier rel_subquery
-ItemExpr *makeQuantifiedComp(ItemExpr *lhs,
-                             OperatorTypeEnum compOpType,
-                             Int32 quantifierTok,
-                             RelExpr *subquery);
+ItemExpr *makeQuantifiedComp(ItemExpr *lhs, OperatorTypeEnum compOpType, Int32 quantifierTok, RelExpr *subquery);
 
 ItemExpr *makeBetween(ItemExpr *x, ItemExpr *y, ItemExpr *z, Int32 tok);
 // Triggers
 // static NABoolean isInvalidSignalSqlstateValue(NAString *SqlState);
-
 
 // Change the <sqltext> arg of a CQD from
 //	SET SCHEMA X.Y;		-- unquoted: Tandem syntax extension
@@ -687,108 +650,91 @@ ItemExpr *makeBetween(ItemExpr *x, ItemExpr *y, ItemExpr *z, Int32 tok);
 //   - the SET cqd's unquoted (non-string-literal) variants, or
 //   - or if we are otherwise rewriting the user input text
 //
-ControlQueryDefault *normalizeDynamicCQD(const char *attrName,
-                                         const NAString &attrValue);
+ControlQueryDefault *normalizeDynamicCQD(const char *attrName, const NAString &attrValue);
 
 // return the relexpr tree that evaluates an empty compound statement
-RelExpr* getEmptyCSRelTree();
+RelExpr *getEmptyCSRelTree();
 
-// return the relexpr tree that evaluates a IF statement. Empty 
-// branches are removed. If both branches are empty, a NULL is returned. 
+// return the relexpr tree that evaluates a IF statement. Empty
+// branches are removed. If both branches are empty, a NULL is returned.
 // Note the condition argument will be deleted if both theBranch and
 // elseBranch are NULL.
-RelExpr*
-getIfRelExpr(ItemExpr* condition, RelExpr* thenBranch, RelExpr* elseBranch);
+RelExpr *getIfRelExpr(ItemExpr *condition, RelExpr *thenBranch, RelExpr *elseBranch);
 
 // EJF L4J - dynamic CQD not allowed inside Compound Statements
 NABoolean beginsWith(char *sqltext, const char *kwd);
 
 // Used to set variable index for Host Vars and Dynamic params,
 // Currently used by CALL <procedure> statement
-void setHVorDPvarIndex ( ItemExpr *, NAString * );
+void setHVorDPvarIndex(ItemExpr *, NAString *);
 
-//ct-bug-10-030102-3803 Begin
+// ct-bug-10-030102-3803 Begin
 void conditionalDelimit(NAString &, const NAString &);
-//ct-bug-10-030102-3803 End
+// ct-bug-10-030102-3803 End
 
 // Get the default max column width from the defaults table for LONG VARCHAR/WVARCHAR.
-// LONG_MAX is returned if the parser is invoked by the preprocessor. This is 
+// LONG_MAX is returned if the parser is invoked by the preprocessor. This is
 // because the value that can be obtained on NT in the context of ETK may be different
 // from that in the defaults table on NSK.
 Lng32 getDefaultMaxLengthForLongVarChar(CharInfo::CharSet cs);
 
 // Get the default min column width from the defaults table for LONG VARCHAR/WVARCHAR.
-// 0 is returned if the parser is invoked by the preprocessor. This is 
+// 0 is returned if the parser is invoked by the preprocessor. This is
 // because the value that can be obtained on NT in the context of EKT may be different
 // from that in the defaults table on NSK.
 Lng32 getDefaultMinLengthForLongVarChar(CharInfo::CharSet cs);
 
-// Get the charset inference setting from the defaults table. The defVal's content 
-// is updated with the INFER_CHARSET entry in the table if the parser is not 
+// Get the charset inference setting from the defaults table. The defVal's content
+// is updated with the INFER_CHARSET entry in the table if the parser is not
 // invoked by the preprocessor and the  INFER_CHARSET CQD is turned on.
-// If the parser is invoked by the preprocessor, the function returns FALSE 
+// If the parser is invoked by the preprocessor, the function returns FALSE
 // and defval is not changed.
-NABoolean getCharSetInferenceSetting(NAString& defval);
+NABoolean getCharSetInferenceSetting(NAString &defval);
 
 // Purpose: Contains the specified length of the character-related
 // data type and its unit (e.g., CHARACTERS or BYTES).
-class ParAuxCharLenSpec : public NABasicObject
-{
-public:
+class ParAuxCharLenSpec : public NABasicObject {
+ public:
   enum ECharLenUnit { eCHAR_LEN_UNIT_NOT_SPECIFIED, eCHARACTERS, eBYTES };
-  ParAuxCharLenSpec(UInt32 len, ECharLenUnit eUnit) : uiCharLen_(len) , eCharLenUnit_(eUnit) { }
-  virtual ~ParAuxCharLenSpec() { }
+  ParAuxCharLenSpec(UInt32 len, ECharLenUnit eUnit) : uiCharLen_(len), eCharLenUnit_(eUnit) {}
+  virtual ~ParAuxCharLenSpec() {}
   UInt32 getCharLen() const { return uiCharLen_; }
   ECharLenUnit getCharLenUnit() const { return eCharLenUnit_; }
-  void setCharLenUnit(ECharLenUnit u) {eCharLenUnit_ = u;}
+  void setCharLenUnit(ECharLenUnit u) { eCharLenUnit_ = u; }
 
-  NABoolean isCharLenUnitSpecified() const { return(eCharLenUnit_ NEQ eCHAR_LEN_UNIT_NOT_SPECIFIED); }
-private:
-  ParAuxCharLenSpec(); // DO NOT USE
+  NABoolean isCharLenUnitSpecified() const { return (eCharLenUnit_ NEQ eCHAR_LEN_UNIT_NOT_SPECIFIED); }
+
+ private:
+  ParAuxCharLenSpec();  // DO NOT USE
   UInt32 uiCharLen_;
   ECharLenUnit eCharLenUnit_;
 };
 
-void emitError3435( int, int, ParAuxCharLenSpec::ECharLenUnit );
+void emitError3435(int, int, ParAuxCharLenSpec::ECharLenUnit);
 
 // return TRUE iff user wants to allow RAND function
 NABoolean allowRandFunction();
 
-RelExpr * getTableExpressionRelExpr(
-     RelExpr *fromClause,
-     ItemExpr *whereClause,
-     RelExpr *sampleClause,
-     RelExpr *transClause,
-     ItemExpr *seqByClause,
-     ItemExpr *groupByClause,
-     ItemExpr *havingClause,
-     ItemExpr *qualifyClause = NULL,
-     NABoolean hasTDFunctions = FALSE,
-     NABoolean hasOlapFunctions = FALSE);
-
-
+RelExpr *getTableExpressionRelExpr(RelExpr *fromClause, ItemExpr *whereClause, RelExpr *sampleClause,
+                                   RelExpr *transClause, ItemExpr *seqByClause, ItemExpr *groupByClause,
+                                   ItemExpr *havingClause, ItemExpr *qualifyClause = NULL,
+                                   NABoolean hasTDFunctions = FALSE, NABoolean hasOlapFunctions = FALSE);
 
 ItemExpr *processINlist(ItemExpr *lhs, ItemExpr *rhs);
 
-QualifiedName * processVolatileDDLName(QualifiedName * inName,
-				       NABoolean validateVolatileName,
-				       NABoolean updateVolatileName);
+QualifiedName *processVolatileDDLName(QualifiedName *inName, NABoolean validateVolatileName,
+                                      NABoolean updateVolatileName);
 const NABoolean validateVolatileSchemaName(NAString &schName);
-SchemaName * processVolatileSchemaName(SchemaName *schName,
-				       NABoolean validateVolatileName,
-				       NABoolean updateVolatileName);
+SchemaName *processVolatileSchemaName(SchemaName *schName, NABoolean validateVolatileName,
+                                      NABoolean updateVolatileName);
 
-RelExpr * processReturningClause(RelExpr * insert, 
-				 UInt32 returningType);
+RelExpr *processReturningClause(RelExpr *insert, UInt32 returningType);
 
 // Process the ascii characters for an Int64.
 // Ensure that the number is not larger than
 // the maximum allowed for an Int64
-NABoolean validateSGOption(NABoolean positive,
-			   NABoolean negAllowed,
-			   char * value,
-			   const char * optionName,
-			   const char * objectType);
+NABoolean validateSGOption(NABoolean positive, NABoolean negAllowed, char *value, const char *optionName,
+                           const char *objectType);
 
 /*
 // INSERT2000 COLUMN FIX STARTS HERE
@@ -798,7 +744,7 @@ NABoolean validateSGOption(NABoolean positive,
 // last link in the chain.
 // Example: INSERT INTO TABLE T (A,B,C,D,E) VALUES (1,2,3,4,5);
 // The first node would contain ItemExpr value corresponding to "1"
-// and the last node would correspond to "5". This is happening due to the 
+// and the last node would correspond to "5". This is happening due to the
 // left-reucrssion nature of the grammar.
 // Once all the elements are collected it is now sent to ItemList
 // The order of call would be:
@@ -806,21 +752,21 @@ NABoolean validateSGOption(NABoolean positive,
 //	ItemList (3,NULL);
 //	ItemList (2,NULL);
 //	ItemList (1,NULL);
-	
-class RearrangeValueExprList 
+
+class RearrangeValueExprList
 {
    public:
-	static RearrangeValueExprList *tail;
+        static RearrangeValueExprList *tail;
     ItemExpr *value;
-	
-	RearrangeValueExprList *next;
-	RearrangeValueExprList *prev;
-	
-	ItemExpr* Store_ValueExprList(ItemExpr *i, ItemExpr *j);	
+
+        RearrangeValueExprList *next;
+        RearrangeValueExprList *prev;
+
+        ItemExpr* Store_ValueExprList(ItemExpr *i, ItemExpr *j);
     ItemExpr* Return_ValueExprList();
 
-	RearrangeValueExprList();		
-	~RearrangeValueExprList();		
+        RearrangeValueExprList();
+        ~RearrangeValueExprList();
 };
 
 // class MultiValueExprList is only applicable for INSERT statements.
@@ -828,25 +774,25 @@ class RearrangeValueExprList
 // is having multiple rows inserted.
 // Consider the following example:
 // INSERT INTO TABLE T (A,B,C,D,E) VALUES (1,2,3,4,5), (6,7,8,9,0);
-// After the first row is received it has to be sent to ItemList which in turn 
+// After the first row is received it has to be sent to ItemList which in turn
 // return a ItemExpr pointer which is later on required in the grammar.
 // This returned pointer is stored before passing on the second row to
 // ItemExpr. This helps in preserving the order of rows being inserted.
 
-class MultiValueExprList 
+class MultiValueExprList
 {
    public:
-	static MultiValueExprList *tail;
+        static MultiValueExprList *tail;
     ItemExpr *value;
-	
-	MultiValueExprList *next;
-	MultiValueExprList *prev;
-	
-	void Store_MultiValueExprList(ItemExpr *i);	
+
+        MultiValueExprList *next;
+        MultiValueExprList *prev;
+
+        void Store_MultiValueExprList(ItemExpr *i);
     ItemExpr* Return_MultiValueExprList();
 
-	MultiValueExprList();		
-	~MultiValueExprList();		
+        MultiValueExprList();
+        ~MultiValueExprList();
 };
 
 // INSERT2000 COLUMN FIX ENDS HERE
@@ -866,184 +812,184 @@ class MultiValueExprList
 //           that load data
 //   ifNotExistsSet - A table token that tells the create code to ignore
 //           already exists errors.
-// ----------------------------------------------------------------------------           
-class TableTokens : public NABasicObject
-{
-public:
+// ----------------------------------------------------------------------------
+class TableTokens : public NABasicObject {
+ public:
   // Type of tables available from create table start tokens
-  enum TableType
-    { TYPE_REGULAR_TABLE = 0,
-      TYPE_EXTERNAL_TABLE,
-      TYPE_IMPLICIT_EXTERNAL_TABLE,
-      TYPE_SET_TABLE,
-      TYPE_MULTISET_TABLE,
-      TYPE_VOLATILE_TABLE,
-      TYPE_VOLATILE_TABLE_MODE_SPECIAL1,
-      TYPE_VOLATILE_SET_TABLE,
-      TYPE_VOLATILE_MULTISET_TABLE,
-      TYPE_GHOST_TABLE,
-      TYPE_PARTITION_TABLE,
-    };
+  enum TableType {
+    TYPE_REGULAR_TABLE = 0,
+    TYPE_EXTERNAL_TABLE,
+    TYPE_IMPLICIT_EXTERNAL_TABLE,
+    TYPE_SET_TABLE,
+    TYPE_MULTISET_TABLE,
+    TYPE_VOLATILE_TABLE,
+    TYPE_VOLATILE_TABLE_MODE_SPECIAL1,
+    TYPE_VOLATILE_SET_TABLE,
+    TYPE_VOLATILE_MULTISET_TABLE,
+    TYPE_GHOST_TABLE,
+    TYPE_PARTITION_TABLE,
+  };
 
   // load/in memory options
-  enum TableOptions
-    { OPT_NONE,
-      OPT_LOAD,
-      OPT_NO_LOAD,
-      OPT_IN_MEM,
-      OPT_LOAD_WITH_DELETE
-    };
+  enum TableOptions { OPT_NONE, OPT_LOAD, OPT_NO_LOAD, OPT_IN_MEM, OPT_LOAD_WITH_DELETE };
 
   TableTokens(TableType type, NABoolean ifNotExistsSet)
-  : type_(type),
-    options_ (OPT_NONE),
-    ifNotExistsSet_(ifNotExistsSet)
-  {}
+      : type_(type), options_(OPT_NONE), ifNotExistsSet_(ifNotExistsSet) {}
 
   TableType getType() { return type_; }
   void setType(TableType t) { type_ = t; }
 
-  NABoolean isVolatile()
-   { return (type_ == TYPE_VOLATILE_TABLE ||
-             type_ == TYPE_VOLATILE_TABLE_MODE_SPECIAL1 ||
-             type_ == TYPE_VOLATILE_SET_TABLE ||
-             type_ == TYPE_VOLATILE_MULTISET_TABLE); }
+  NABoolean isVolatile() {
+    return (type_ == TYPE_VOLATILE_TABLE || type_ == TYPE_VOLATILE_TABLE_MODE_SPECIAL1 ||
+            type_ == TYPE_VOLATILE_SET_TABLE || type_ == TYPE_VOLATILE_MULTISET_TABLE);
+  }
   TableOptions getOptions() { return options_; }
   NABoolean ifNotExistsSet() { return ifNotExistsSet_; }
 
-  void setOptions( TableOptions load) { options_ = load; }
+  void setOptions(TableOptions load) { options_ = load; }
   void setTableTokens(StmtDDLCreateTable *pNode);
 
-private:
-  TableType    type_;
+ private:
+  TableType type_;
   TableOptions options_;
-  NABoolean    ifNotExistsSet_;
+  NABoolean ifNotExistsSet_;
 };
 
 // -----------------------------------------------------------------------
 // Declarations of global functions
 // -----------------------------------------------------------------------
 
-ItemExpr *buildUdfExpr(NAString *udfName,
-                       NAString *fixedInput,
-                       ItemExpr *valueList);
+ItemExpr *buildUdfExpr(NAString *udfName, NAString *fixedInput, ItemExpr *valueList);
 
-ElemDDLNode *
-SqlParserAux_buildUdfOptimizationHint ( Int32       tokvalStage     // in
-                                      , Int32       tokvalResource  // in
-                                      , ComSInt32 cost            // in
-                                      );
+ElemDDLNode *SqlParserAux_buildUdfOptimizationHint(Int32 tokvalStage  // in
+                                                   ,
+                                                   Int32 tokvalResource  // in
+                                                   ,
+                                                   ComSInt32 cost  // in
+);
 
-StmtDDLNode *
-SqlParserAux_buildAlterFunction ( QualifiedName * ddl_qualified_name                       // in - deep copy
-                                , ElemDDLNode   * optional_alter_passthrough_inputs_clause // in
-                                , ElemDDLNode   * optional_add_passthrough_inputs_clause   // in
-                                , ElemDDLNode   * optional_create_function_attribute_list  // in
-                                );
+StmtDDLNode *SqlParserAux_buildAlterFunction(QualifiedName *ddl_qualified_name  // in - deep copy
+                                             ,
+                                             ElemDDLNode *optional_alter_passthrough_inputs_clause  // in
+                                             ,
+                                             ElemDDLNode *optional_add_passthrough_inputs_clause  // in
+                                             ,
+                                             ElemDDLNode *optional_create_function_attribute_list  // in
+);
 
-StmtDDLNode *
-SqlParserAux_buildAlterAction ( QualifiedName * ddl_qualified_name_of_uudf               // in - deep copy
-                              , QualifiedName * ddl_qualified_name_of_action             // in - deep copy
-                              , ElemDDLNode   * optional_alter_passthrough_inputs_clause // in
-                              , ElemDDLNode   * optional_add_passthrough_inputs_clause   // in
-                              , ElemDDLNode   * optional_create_function_attribute_list  // in
-                              );
+StmtDDLNode *SqlParserAux_buildAlterAction(QualifiedName *ddl_qualified_name_of_uudf  // in - deep copy
+                                           ,
+                                           QualifiedName *ddl_qualified_name_of_action  // in - deep copy
+                                           ,
+                                           ElemDDLNode *optional_alter_passthrough_inputs_clause  // in
+                                           ,
+                                           ElemDDLNode *optional_add_passthrough_inputs_clause  // in
+                                           ,
+                                           ElemDDLNode *optional_create_function_attribute_list  // in
+);
 
-StmtDDLNode *
-SqlParserAux_buildAlterTableMappingFunction
-  ( QualifiedName * ddl_qualified_name_of_table_mapping_udf  // in - deep copy
-  , ElemDDLNode   * optional_alter_passthrough_inputs_clause // in
-  , ElemDDLNode   * optional_add_passthrough_inputs_clause   // in
-  , ElemDDLNode   * optional_create_function_attribute_list  // in
-  );
+StmtDDLNode *SqlParserAux_buildAlterTableMappingFunction(
+    QualifiedName *ddl_qualified_name_of_table_mapping_udf  // in - deep copy
+    ,
+    ElemDDLNode *optional_alter_passthrough_inputs_clause  // in
+    ,
+    ElemDDLNode *optional_add_passthrough_inputs_clause  // in
+    ,
+    ElemDDLNode *optional_create_function_attribute_list  // in
+);
 
-StmtDDLNode *
-SqlParserAux_buildDropAction ( QualifiedName * ddl_qualified_name_of_uudf   // in - deep copy
-                             , QualifiedName * ddl_qualified_name_of_action // in - deep copy
-                             , NABoolean       optional_cleanup             // in
-                             , ComDropBehavior optional_drop_behavior       // in
-                             , NABoolean       optional_validate            // in
-                             , NAString      * optional_logfile             // in - deep copy
-                             );
+StmtDDLNode *SqlParserAux_buildDropAction(QualifiedName *ddl_qualified_name_of_uudf  // in - deep copy
+                                          ,
+                                          QualifiedName *ddl_qualified_name_of_action  // in - deep copy
+                                          ,
+                                          NABoolean optional_cleanup  // in
+                                          ,
+                                          ComDropBehavior optional_drop_behavior  // in
+                                          ,
+                                          NABoolean optional_validate  // in
+                                          ,
+                                          NAString *optional_logfile  // in - deep copy
+);
 
-StmtDDLNode *
-SqlParserAux_buildDropRoutine ( ComRoutineType  drop_routine_type_tokens  // in
-                              , QualifiedName * ddl_qualified_name_of_udf // in - deep copy
-                              , NABoolean       optional_cleanup          // in
-                              , ComDropBehavior optional_drop_behavior    // in
-                              , NABoolean       optional_validate         // in
-                              , NAString      * optional_logfile          // in - deep copy
-                              , NABoolean       optional_if_exists        // in
-                              );
+StmtDDLNode *SqlParserAux_buildDropRoutine(ComRoutineType drop_routine_type_tokens  // in
+                                           ,
+                                           QualifiedName *ddl_qualified_name_of_udf  // in - deep copy
+                                           ,
+                                           NABoolean optional_cleanup  // in
+                                           ,
+                                           ComDropBehavior optional_drop_behavior  // in
+                                           ,
+                                           NABoolean optional_validate  // in
+                                           ,
+                                           NAString *optional_logfile  // in - deep copy
+                                           ,
+                                           NABoolean optional_if_exists  // in
+);
 
-ElemDDLNode *
-SqlParserAux_buildAlterPassThroughParamDef
-  ( UInt32                   passthrough_param_position      // in
-  , ElemDDLNode *                  passthrough_input_value         // in - shallow copy
-  , ComRoutinePassThroughInputType optional_passthrough_input_type // in
-  );
+ElemDDLNode *SqlParserAux_buildAlterPassThroughParamDef(
+    UInt32 passthrough_param_position  // in
+    ,
+    ElemDDLNode *passthrough_input_value  // in - shallow copy
+    ,
+    ComRoutinePassThroughInputType optional_passthrough_input_type  // in
+);
 
-RelExpr *
-SqlParserAux_buildDescribeForFunctionAndAction
-  ( CorrName * actual_routine_name_of_udf_or_uudf  // in - deep copy
-  , CorrName * optional_showddl_action_name_clause // in - deep copy
-  , Lng32       optional_showddlroutine_options     // in
-  );
+RelExpr *SqlParserAux_buildDescribeForFunctionAndAction(CorrName *actual_routine_name_of_udf_or_uudf  // in - deep copy
+                                                        ,
+                                                        CorrName *optional_showddl_action_name_clause  // in - deep copy
+                                                        ,
+                                                        Lng32 optional_showddlroutine_options  // in
+);
 
-class OlapMultiWindowExpander : public NABasicObject
-{
-public:
-    OlapMultiWindowExpander(CollHeap* h = PARSERHEAP()) 
-		: heap_(h)
-		, olapPartitionOrderSignature_(h)
-		, renamedAggregates_(h)
-		, referencedColumns_(h)
-		, olapFunctions_(h)
-		{}
+class OlapMultiWindowExpander : public NABasicObject {
+ public:
+  OlapMultiWindowExpander(CollHeap *h = PARSERHEAP())
+      : heap_(h), olapPartitionOrderSignature_(h), renamedAggregates_(h), referencedColumns_(h), olapFunctions_(h) {}
 
-    void processOriginalSelectlist(ItemExpr*);
-    void expand(RelRoot * root, RelExpr* topNode, RelExpr* bottomNode);
-    void collectOlapFunctions(ItemExpr*);
-    void collectReferencedColumns(ItemExpr*);
+  void processOriginalSelectlist(ItemExpr *);
+  void expand(RelRoot *root, RelExpr *topNode, RelExpr *bottomNode);
+  void collectOlapFunctions(ItemExpr *);
+  void collectReferencedColumns(ItemExpr *);
 
-    ItemExpr* replaceOlapWithAlias(ItemExpr*);
-    ItemExpr * replaceAggrWithAlias(ItemExpr*);
-    ItemExpr * buildOneOlapWindowSelectlist();
-    ItemExpr * buildAggregateSelectlist();
-	
-    NAList<ItemExpr*> & olapFunctions() { return olapFunctions_; }
-    NAList<RenameCol*> & renamedAggregates() { return renamedAggregates_; }
-    NAList<ColReference*> & referencedColumns() { return referencedColumns_; }
-	
-    NAString extractSignature(Aggregate* aggr);
-    void setSignature(Aggregate*);
-    NABoolean matchSignature(Aggregate*);
-    NABoolean hasRenamedAggregate(const ColRefName &);
-    NABoolean hasReferencedColumns(const NAString &);
-private:
-    CollHeap * heap_;
-    //this list keeps pointers of RenameCol, which should be parent of aggregation functions in selectlists.
-    NAList<RenameCol*> renamedAggregates_;
-    //minium column list need by top root select list
-    NAList<ColReference*> referencedColumns_;
-    //composed by unparsing partitionby and orderby expression of OLAP functions,
-    //serve as id of OLAP window.
-    NAString olapPartitionOrderSignature_;
-    //pointers to OLAP functions collected from top select list.
-    //the top select list could originally have multiple OLAP functions with different windows.
-    NAList<ItemExpr*> olapFunctions_;
+  ItemExpr *replaceOlapWithAlias(ItemExpr *);
+  ItemExpr *replaceAggrWithAlias(ItemExpr *);
+  ItemExpr *buildOneOlapWindowSelectlist();
+  ItemExpr *buildAggregateSelectlist();
 
+  NAList<ItemExpr *> &olapFunctions() { return olapFunctions_; }
+  NAList<RenameCol *> &renamedAggregates() { return renamedAggregates_; }
+  NAList<ColReference *> &referencedColumns() { return referencedColumns_; }
+
+  NAString extractSignature(Aggregate *aggr);
+  void setSignature(Aggregate *);
+  NABoolean matchSignature(Aggregate *);
+  NABoolean hasRenamedAggregate(const ColRefName &);
+  NABoolean hasReferencedColumns(const NAString &);
+
+ private:
+  CollHeap *heap_;
+  // this list keeps pointers of RenameCol, which should be parent of aggregation functions in selectlists.
+  NAList<RenameCol *> renamedAggregates_;
+  // minium column list need by top root select list
+  NAList<ColReference *> referencedColumns_;
+  // composed by unparsing partitionby and orderby expression of OLAP functions,
+  // serve as id of OLAP window.
+  NAString olapPartitionOrderSignature_;
+  // pointers to OLAP functions collected from top select list.
+  // the top select list could originally have multiple OLAP functions with different windows.
+  NAList<ItemExpr *> olapFunctions_;
 };
 
-void handleMultiWindowOlapFunctions(RelRoot *  root);
+void handleMultiWindowOlapFunctions(RelRoot *root);
 
-RelExpr * buildAnonymousCallSP(NAString *body);
+RelExpr *buildAnonymousCallSP(NAString *body);
 
-ItemExpr * buildDelimterFromPivotOptions(NAList<PivotGroup::PivotOption*> * options);
+ItemExpr *buildDelimterFromPivotOptions(NAList<PivotGroup::PivotOption *> *options);
 
-void getStartWithStrBetween(NAString *src_str, const char *begin_pat, const char *end_pat, CollHeap * heap, NAString *osrc_str);
-NAString * normConnectByString(NAString *in, NAString *out, CollHeap * h);
-NAString *getSysConnectByPathExprString(NAString *in, CollHeap* h);
+void getStartWithStrBetween(NAString *src_str, const char *begin_pat, const char *end_pat, CollHeap *heap,
+                            NAString *osrc_str);
+NAString *normConnectByString(NAString *in, NAString *out, CollHeap *h);
+NAString *getSysConnectByPathExprString(NAString *in, CollHeap *h);
 
 extern NAArray<NAString> *startWithStr;
 

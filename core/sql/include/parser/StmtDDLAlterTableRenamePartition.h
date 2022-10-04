@@ -32,7 +32,7 @@
  *               The methods in this class are defined either in this
  *               header file or the source file StmtDDLAlter.C.
  *
- *               
+ *
  * Created:      2021/02/27
  * Language:     C++
  *
@@ -41,8 +41,8 @@
  *
  *****************************************************************************
  */
- #include "StmtDDLAlterTable.h"
- 
+#include "StmtDDLAlterTable.h"
+
 class StmtDDLAlterTableRenamePartition;
 // -----------------------------------------------------------------------
 // forward references
@@ -52,25 +52,26 @@ class StmtDDLAlterTableRenamePartition;
 // -----------------------------------------------------------------------
 // definition of class StmtDDLAlterTableTruncatePartition
 // -----------------------------------------------------------------------
-class StmtDDLAlterTableRenamePartition : public StmtDDLAlterTable
-{
-public:
+class StmtDDLAlterTableRenamePartition : public StmtDDLAlterTable {
+ public:
   StmtDDLAlterTableRenamePartition(NAString &oldPartName, NAString &newPartName, NABoolean isForClause, CollHeap *heap);
-	StmtDDLAlterTableRenamePartition(ItemExpr *partitionKey, NAString &newPartName, NABoolean isForClause, CollHeap *heap);
-	virtual ~StmtDDLAlterTableRenamePartition();
-  virtual StmtDDLAlterTableRenamePartition* castToStmtDDLAlterTableRenamePartition();
+  StmtDDLAlterTableRenamePartition(ItemExpr *partitionKey, NAString &newPartName, NABoolean isForClause,
+                                   CollHeap *heap);
+  virtual ~StmtDDLAlterTableRenamePartition();
+  virtual StmtDDLAlterTableRenamePartition *castToStmtDDLAlterTableRenamePartition();
   inline NAString &getOldPartName() { return oldPartName_; }
   inline NAString &getNewPartName() { return newPartName_; }
-  inline const LIST(NAString) *getPartNameList() { return partNameList_; }
+  inline const LIST(NAString) * getPartNameList() { return partNameList_; }
   inline NABoolean getIsForClause() { return isForClause_; }
   virtual ExprNode *bindNode(BindWA *pBindWA);
   virtual const NAString getText() const;
-private:
-  NAString          oldPartName_;   //old partition name
-	NAString          newPartName_;   //new partition name
-	ItemExpr*         partitionKey_;  //rename for(1,2,3) to p1
-  LIST(NAString)*   partNameList_;  //according to partitionKey_ convert to partition name
-  NABoolean         isForClause_;
+
+ private:
+  NAString oldPartName_;           // old partition name
+  NAString newPartName_;           // new partition name
+  ItemExpr *partitionKey_;         // rename for(1,2,3) to p1
+  LIST(NAString) * partNameList_;  // according to partitionKey_ convert to partition name
+  NABoolean isForClause_;
 };
 
 #endif

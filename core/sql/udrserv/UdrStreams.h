@@ -58,73 +58,49 @@ const Int32 UdrServerReplyStreamVersionNumber = 100;
 //
 // A non-buffered server-side stream for UDR control messages
 //
-class UdrServerControlStream : public UdrControlStream
-{
-public:
-  UdrServerControlStream(IpcEnvironment *env,
-                         UdrGlobals *udrGlob,
-                         IpcMessageType msgType,
-                         IpcMessageObjVersion version)
-       : UdrControlStream(env, msgType, version, NULL),
-      udrGlob_(udrGlob)
-  {
-  }
-  virtual ~UdrServerControlStream()
-  {
-  }
+class UdrServerControlStream : public UdrControlStream {
+ public:
+  UdrServerControlStream(IpcEnvironment *env, UdrGlobals *udrGlob, IpcMessageType msgType, IpcMessageObjVersion version)
+      : UdrControlStream(env, msgType, version, NULL), udrGlob_(udrGlob) {}
+  virtual ~UdrServerControlStream() {}
 
   void actOnReceive(IpcConnection *);
 
-private:
+ private:
   UdrGlobals *udrGlob_;
 
-}; // class UdrServerControlStream
+};  // class UdrServerControlStream
 
 //
 // A buffered server-side stream for UDR data
 //
-class UdrServerDataStream : public IpcServerMsgStream
-{
-friend class UdrServerReplyStream;
+class UdrServerDataStream : public IpcServerMsgStream {
+  friend class UdrServerReplyStream;
 
-public:
+ public:
   typedef IpcServerMsgStream super;
 
-  UdrServerDataStream(IpcEnvironment *env,
-                      Lng32 sendBufferLimit,
-                      Lng32 inUseBufferLimit,
-                      IpcMessageObjSize bufferSize,
-                      UdrGlobals *UdrGlob,
-                      SPInfo *spinfo)
-    : IpcServerMsgStream(env,
-                         UDR_STREAM_SERVER_DATA,
-                         UdrServerDataStreamVersionNumber,
-                         sendBufferLimit,
-                         inUseBufferLimit,
-                         bufferSize,
-                         NULL),
-      udrGlob_(UdrGlob),
-      replyTag_(GuaInvalidReplyTag),
-      spinfo_(spinfo)
-  {}
+  UdrServerDataStream(IpcEnvironment *env, Lng32 sendBufferLimit, Lng32 inUseBufferLimit, IpcMessageObjSize bufferSize,
+                      UdrGlobals *UdrGlob, SPInfo *spinfo)
+      : IpcServerMsgStream(env, UDR_STREAM_SERVER_DATA, UdrServerDataStreamVersionNumber, sendBufferLimit,
+                           inUseBufferLimit, bufferSize, NULL),
+        udrGlob_(UdrGlob),
+        replyTag_(GuaInvalidReplyTag),
+        spinfo_(spinfo) {}
 
-  virtual ~UdrServerDataStream()
-  {
-    releaseBuffers();
-  }
+  virtual ~UdrServerDataStream() { releaseBuffers(); }
 
-  void actOnSend(IpcConnection *)
-  {}
+  void actOnSend(IpcConnection *) {}
 
   void actOnReceive(IpcConnection *);
 
   void activateCurrentMsgTransaction();
 
-protected:
+ protected:
   void setReplyTag(short tag) { replyTag_ = tag; }
   short getReplyTag() const { return replyTag_; }
 
-private:
+ private:
   UdrGlobals *udrGlob_;
 
   // replyTag of the request. There is no easy of getting reply tag
@@ -135,59 +111,41 @@ private:
 
   // Owner of this stream
   SPInfo *spinfo_;
-}; // class UdrServerDataStream
+};  // class UdrServerDataStream
 
 // UdrGuaContolConnection
 //   UDR Server needs to have different behavior for actOnSystemMessage()
 //   because GuaReceiveControlConnection::actOnSystemMessage() does not
 //   allow multiple requestors for a server process.
-class UdrGuaControlConnection : public GuaReceiveControlConnection
-{
-public:
+class UdrGuaControlConnection : public GuaReceiveControlConnection {
+ public:
+  UdrGuaControlConnection(IpcEnvironment *env, UdrGlobals *udrGlob, short receiveDepth = 4000)
+      : GuaReceiveControlConnection(env, receiveDepth), udrGlob_(udrGlob) {}
 
-  UdrGuaControlConnection(IpcEnvironment *env,
-                          UdrGlobals *udrGlob,
-                          short receiveDepth = 4000) :
-    GuaReceiveControlConnection(env, receiveDepth),
-    udrGlob_(udrGlob)
-  { }
+  virtual void actOnSystemMessage(short messageNum, IpcMessageBufferPtr sysMsg, IpcMessageObjSize sysMsgLen,
+                                  short clientFileNumber, const GuaProcessHandle &clientPhandle,
+                                  GuaConnectionToClient *connection);
 
-  virtual void actOnSystemMessage(
-       short                  messageNum,
-       IpcMessageBufferPtr    sysMsg,
-       IpcMessageObjSize      sysMsgLen,
-       short                  clientFileNumber,
-       const GuaProcessHandle &clientPhandle,
-       GuaConnectionToClient  *connection);
-
-private:
+ private:
   UdrGlobals *udrGlob_;
-}; // class UdrGuaControlConnection
+};  // class UdrGuaControlConnection
 
 // A stream that is used to reply to messages
-class UdrServerReplyStream : public UdrControlStream
-{
-public:
-  UdrServerReplyStream(IpcEnvironment *env,
-                       UdrGlobals *udrGlob,
-                       IpcMessageType msgType,
-                       IpcMessageObjVersion version)
-       : UdrControlStream(env, msgType, version, NULL),
-      udrGlob_(udrGlob)
-  { }
+class UdrServerReplyStream : public UdrControlStream {
+ public:
+  UdrServerReplyStream(IpcEnvironment *env, UdrGlobals *udrGlob, IpcMessageType msgType, IpcMessageObjVersion version)
+      : UdrControlStream(env, msgType, version, NULL), udrGlob_(udrGlob) {}
 
-  virtual ~UdrServerReplyStream()
-  { }
+  virtual ~UdrServerReplyStream() {}
 
   void routeMessage(UdrServerDataStream &other);
 
   void activateCurrentMsgTransaction();
 
-  void actOnReceive(IpcConnection *)
-  { }
+  void actOnReceive(IpcConnection *) {}
 
-private:
+ private:
   UdrGlobals *udrGlob_;
-}; // class UdrServerReplyStream
+};  // class UdrServerReplyStream
 
-#endif // _UDRSTREAMS_H_
+#endif  // _UDRSTREAMS_H_

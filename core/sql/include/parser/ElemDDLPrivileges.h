@@ -28,7 +28,7 @@
  * File:         ElemDDLPrivileges.h
  * Description:  class for a parse node representing the privileges
  *               appearing in a Grant DDL statement.
- *               
+ *
  *
  * Created:      10/16/95
  * Language:     C++
@@ -38,7 +38,6 @@
  *
  *****************************************************************************
  */
-
 
 #include "common/ComASSERT.h"
 #include "ElemDDLNode.h"
@@ -56,28 +55,23 @@ class ElemDDLPrivileges;
 // -----------------------------------------------------------------------
 // definition of class ElemDDLPrivileges
 // -----------------------------------------------------------------------
-class ElemDDLPrivileges : public ElemDDLNode
-{
-
-public:
-
+class ElemDDLPrivileges : public ElemDDLNode {
+ public:
   // constructors
   ElemDDLPrivileges(ElemDDLNode::WhichAll typeOfAll)
-  : ElemDDLNode(ELM_PRIVILEGES_ELEM),
-  isAllDMLPrivileges_(TRUE),
-  isAllDDLPrivileges_(TRUE),
-  isAllOtherPrivileges_(TRUE)
-  {
+      : ElemDDLNode(ELM_PRIVILEGES_ELEM),
+        isAllDMLPrivileges_(TRUE),
+        isAllDDLPrivileges_(TRUE),
+        isAllOtherPrivileges_(TRUE) {
     ComASSERT(typeOfAll == ElemDDLNode::ALL);
     setChild(INDEX_PRIVILEGE_ACTION_LIST, NULL);
   }
 
-  ElemDDLPrivileges(ElemDDLNode * pPrivilegeActions)
-  : ElemDDLNode(ELM_PRIVILEGES_ELEM),
-  isAllDMLPrivileges_(FALSE),
-  isAllDDLPrivileges_(FALSE),
-  isAllOtherPrivileges_(FALSE)
-  {
+  ElemDDLPrivileges(ElemDDLNode *pPrivilegeActions)
+      : ElemDDLNode(ELM_PRIVILEGES_ELEM),
+        isAllDMLPrivileges_(FALSE),
+        isAllDDLPrivileges_(FALSE),
+        isAllOtherPrivileges_(FALSE) {
     ComASSERT(pPrivilegeActions NEQ NULL);
     setChild(INDEX_PRIVILEGE_ACTION_LIST, pPrivilegeActions);
     isAllDMLPrivileges_ = containsPriv(ELM_PRIV_ACT_ALL_DML_ELEM);
@@ -89,23 +83,23 @@ public:
   virtual ~ElemDDLPrivileges();
 
   // cast
-  virtual ElemDDLPrivileges * castToElemDDLPrivileges();
+  virtual ElemDDLPrivileges *castToElemDDLPrivileges();
 
   //
   // accessors
   //
 
   virtual Int32 getArity() const;
-  virtual ExprNode * getChild(Lng32 index);
+  virtual ExprNode *getChild(Lng32 index);
 
-  inline ElemDDLNode * getPrivilegeActionList() const;
+  inline ElemDDLNode *getPrivilegeActionList() const;
 
-        // returns NULL when the phrase ALL PRIVILEGES appears;
-        // otherwise returns a pointer to a parse node representing
-        // a privilege action or a list of privilege actions.
+  // returns NULL when the phrase ALL PRIVILEGES appears;
+  // otherwise returns a pointer to a parse node representing
+  // a privilege action or a list of privilege actions.
 
-        // returns TRUE if the phrase ALL PRIVILEGES appears;
-        // returns FALSE otherwise.
+  // returns TRUE if the phrase ALL PRIVILEGES appears;
+  // returns FALSE otherwise.
 
   inline NABoolean isAllPrivileges() const;
 
@@ -115,33 +109,30 @@ public:
 
   inline NABoolean isAllOtherPrivileges() const;
 
-
   // mutator
-  virtual void setChild(Lng32 index, ExprNode * pElemDDLNode);
- 
+  virtual void setChild(Lng32 index, ExprNode *pElemDDLNode);
+
   // methods for tracing
   virtual const NAString displayLabel1() const;
   virtual NATraceList getDetailInfo() const;
   virtual const NAString getText() const;
 
-  NABoolean containsColumnPrivs() const ;
+  NABoolean containsColumnPrivs() const;
 
   NABoolean containsPriv(OperatorTypeEnum whichPriv) const;
 
-
-private:
+ private:
   NABoolean isAllDDLPrivileges_;
   NABoolean isAllDMLPrivileges_;
   NABoolean isAllOtherPrivileges_;
 
   // pointer to child parse node
 
-  enum { INDEX_PRIVILEGE_ACTION_LIST = 0,
-         MAX_ELEM_DDL_PRIVILEGES_ARITY };
+  enum { INDEX_PRIVILEGE_ACTION_LIST = 0, MAX_ELEM_DDL_PRIVILEGES_ARITY };
 
-  ElemDDLNode * children_[MAX_ELEM_DDL_PRIVILEGES_ARITY];
+  ElemDDLNode *children_[MAX_ELEM_DDL_PRIVILEGES_ARITY];
 
-}; // class ElemDDLPrivileges
+};  // class ElemDDLPrivileges
 
 // -----------------------------------------------------------------------
 // definitions of inline methods for class ElemDDLPrivileges
@@ -151,34 +142,16 @@ private:
 // accessors
 //
 
-inline ElemDDLNode *
-ElemDDLPrivileges::getPrivilegeActionList() const
-{
-  return children_[INDEX_PRIVILEGE_ACTION_LIST];
-}
+inline ElemDDLNode *ElemDDLPrivileges::getPrivilegeActionList() const { return children_[INDEX_PRIVILEGE_ACTION_LIST]; }
 
-inline NABoolean
-ElemDDLPrivileges::isAllPrivileges() const
-{
+inline NABoolean ElemDDLPrivileges::isAllPrivileges() const {
   return (isAllDDLPrivileges_ && isAllDMLPrivileges_ && isAllOtherPrivileges_);
 }
 
-inline NABoolean
-ElemDDLPrivileges::isAllDDLPrivileges() const
-{
-  return isAllDDLPrivileges_;
-}
+inline NABoolean ElemDDLPrivileges::isAllDDLPrivileges() const { return isAllDDLPrivileges_; }
 
-inline NABoolean
-ElemDDLPrivileges::isAllDMLPrivileges() const
-{
-  return isAllDMLPrivileges_;
-}
+inline NABoolean ElemDDLPrivileges::isAllDMLPrivileges() const { return isAllDMLPrivileges_; }
 
-inline NABoolean
-ElemDDLPrivileges::isAllOtherPrivileges() const
-{
-  return isAllOtherPrivileges_;
-}
+inline NABoolean ElemDDLPrivileges::isAllOtherPrivileges() const { return isAllOtherPrivileges_; }
 
-#endif // ELEMDDLPRIVILEGES_H
+#endif  // ELEMDDLPRIVILEGES_H

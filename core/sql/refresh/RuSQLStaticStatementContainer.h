@@ -29,13 +29,13 @@
 *
 * File:         RuSQLStaticStatementContainer.h
 * Description:  Definition of class CRUTaskExUnit
-*				
+*
 *
 * Created:      09/08/2000
 * Language:     C++
-* 
 *
-* 
+*
+*
 ******************************************************************************
 */
 #include "RuSQLStatementContainer.h"
@@ -49,39 +49,33 @@
 //
 //------------------------------------------------------------------//
 
-class REFRESH_LIB_CLASS CRUSQLStaticStatementContainer : 
-				public CRUSQLStatementContainer {
-private:
-	typedef CRUSQLStatementContainer inherited;
+class REFRESH_LIB_CLASS CRUSQLStaticStatementContainer : public CRUSQLStatementContainer {
+ private:
+  typedef CRUSQLStatementContainer inherited;
 
-public:
-	
-	CRUSQLStaticStatementContainer(short nStmts);
-	virtual ~CRUSQLStaticStatementContainer();
+ public:
+  CRUSQLStaticStatementContainer(short nStmts);
+  virtual ~CRUSQLStaticStatementContainer();
 
-protected:
-	REFRESH_LIB_CLASS class StaticStmt;
+ protected:
+  REFRESH_LIB_CLASS class StaticStmt;
 
-public:
-	inline void SetStatement(short index, const CDMQueryDescriptor &pInfo, const COM_VERSION schemaVersion);
+ public:
+  inline void SetStatement(short index, const CDMQueryDescriptor &pInfo, const COM_VERSION schemaVersion);
 
-protected:
-	inline virtual StaticStmt& GetStaticStmt(short index);
-	
-	// Implementation of pure virtual function
-	inline virtual CRUSQLStatementContainer::Stmt& GetStmt(short index);
+ protected:
+  inline virtual StaticStmt &GetStaticStmt(short index);
 
-private:
-	
-	//-- Prevent copying
-	CRUSQLStaticStatementContainer(const CRUSQLStaticStatementContainer &other);
-	CRUSQLStaticStatementContainer &operator = (const CRUSQLStaticStatementContainer &other);
+  // Implementation of pure virtual function
+  inline virtual CRUSQLStatementContainer::Stmt &GetStmt(short index);
 
-private:
-	
-	StaticStmt *pStaticStmtVec_;
+ private:
+  //-- Prevent copying
+  CRUSQLStaticStatementContainer(const CRUSQLStaticStatementContainer &other);
+  CRUSQLStaticStatementContainer &operator=(const CRUSQLStaticStatementContainer &other);
 
-
+ private:
+  StaticStmt *pStaticStmtVec_;
 };
 
 //------------------------------------------------------------------//
@@ -90,18 +84,15 @@ private:
 //
 //------------------------------------------------------------------//
 
-class REFRESH_LIB_CLASS CRUSQLStaticStatementContainer::StaticStmt: 
-				public  CRUSQLStaticStatementContainer::Stmt {
-private:
+class REFRESH_LIB_CLASS CRUSQLStaticStatementContainer::StaticStmt : public CRUSQLStaticStatementContainer::Stmt {
+ private:
   typedef CRUSQLStaticStatementContainer::Stmt inherited;
 
-public:
-  StaticStmt() :pInfo_(NULL), schemaVersion_(COM_VERS_UNKNOWN) {}
+ public:
+  StaticStmt() : pInfo_(NULL), schemaVersion_(COM_VERS_UNKNOWN) {}
 
-public:
-
-  void SetStatement(const CDMQueryDescriptor &pInfo, const COM_VERSION schemaVersion)
-  {
+ public:
+  void SetStatement(const CDMQueryDescriptor &pInfo, const COM_VERSION schemaVersion) {
     pInfo_ = &pInfo;
     schemaVersion_ = schemaVersion;
   }
@@ -109,45 +100,39 @@ public:
   // Returns an already compiled statement that is ready to run
   CDMPreparedStatement *GetPreparedStatement();
 
-private:
-
+ private:
   //-- Prevent copying
-	CDMPreparedStatement *GetPreparedStatement(BOOL DeleteUsedStmt = TRUE);
+  CDMPreparedStatement *GetPreparedStatement(BOOL DeleteUsedStmt = TRUE);
 #if defined(NA_WINNT)
-  CRUSQLStaticStatementContainer::StaticStmt
-    (const CRUSQLStaticStatementContainer::StaticStmt &other);
-  CRUSQLStaticStatementContainer::StaticStmt &operator = 
-    (const CRUSQLStaticStatementContainer::StaticStmt &other);
+  CRUSQLStaticStatementContainer::StaticStmt(const CRUSQLStaticStatementContainer::StaticStmt &other);
+  CRUSQLStaticStatementContainer::StaticStmt &operator=(const CRUSQLStaticStatementContainer::StaticStmt &other);
 #endif
 
-private:
-
+ private:
   const CDMQueryDescriptor *pInfo_;
-  COM_VERSION       schemaVersion_;
+  COM_VERSION schemaVersion_;
 };
 
 //--------------------------------------------------------------------------//
 //	CRUSQLStaticStatementContainer inlines
 //--------------------------------------------------------------------------//
-	
+
 //--------------------------------------------------------------------------//
 //	CRUSQLStaticStatementContainer::SetStatement()
 //--------------------------------------------------------------------------//
-inline void REFRESH_LIB_CLASS CRUSQLStaticStatementContainer::
-SetStatement(short index, const CDMQueryDescriptor &pInfo, const COM_VERSION schemaVersion)
-{
-	GetStaticStmt(index).SetStatement(pInfo, schemaVersion);
+inline void REFRESH_LIB_CLASS CRUSQLStaticStatementContainer::SetStatement(short index, const CDMQueryDescriptor &pInfo,
+                                                                           const COM_VERSION schemaVersion) {
+  GetStaticStmt(index).SetStatement(pInfo, schemaVersion);
 }
 
 //--------------------------------------------------------------------------//
 //	CRUSQLStaticStatementContainer::GetStaticStmt()
 //--------------------------------------------------------------------------//
-inline CRUSQLStaticStatementContainer::StaticStmt& REFRESH_LIB_CLASS 
-	CRUSQLStaticStatementContainer::GetStaticStmt(short index)
-{
-	RUASSERT(0 <= index && index < GetNumOfStmt());
+inline CRUSQLStaticStatementContainer::StaticStmt &REFRESH_LIB_CLASS
+CRUSQLStaticStatementContainer::GetStaticStmt(short index) {
+  RUASSERT(0 <= index && index < GetNumOfStmt());
 
-	return  pStaticStmtVec_[index];
+  return pStaticStmtVec_[index];
 }
 
 //--------------------------------------------------------------------------//
@@ -155,10 +140,8 @@ inline CRUSQLStaticStatementContainer::StaticStmt& REFRESH_LIB_CLASS
 //
 // Implementation of pure virtual function
 //--------------------------------------------------------------------------//
-inline CRUSQLStatementContainer::Stmt& 
-REFRESH_LIB_CLASS CRUSQLStaticStatementContainer::GetStmt(short index)
-{
-	return GetStaticStmt(index);
+inline CRUSQLStatementContainer::Stmt &REFRESH_LIB_CLASS CRUSQLStaticStatementContainer::GetStmt(short index) {
+  return GetStaticStmt(index);
 }
 
 #endif

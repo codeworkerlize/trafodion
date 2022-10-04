@@ -41,11 +41,8 @@
 */
 #include "ElemDDLNode.h"
 
-class ElemDDLUdfStateAreaSize : public ElemDDLNode
-{
-
-public:
-
+class ElemDDLUdfStateAreaSize : public ElemDDLNode {
+ public:
   // default constructor
   ElemDDLUdfStateAreaSize(ComUInt32 sizeInBytes);
 
@@ -53,13 +50,10 @@ public:
   virtual ~ElemDDLUdfStateAreaSize(void);
 
   // cast
-  virtual ElemDDLUdfStateAreaSize * castToElemDDLUdfStateAreaSize(void);
+  virtual ElemDDLUdfStateAreaSize *castToElemDDLUdfStateAreaSize(void);
 
   // accessor
-  inline const ComUInt32 getStateAreaSize(void) const
-  {
-    return stateAreaSize_;
-  }
+  inline const ComUInt32 getStateAreaSize(void) const { return stateAreaSize_; }
 
   //
   // methods for tracing
@@ -68,10 +62,9 @@ public:
   virtual NATraceList getDetailInfo() const;
   virtual const NAString getText() const;
 
-private:
-
+ private:
   ComUInt32 stateAreaSize_;
 
-}; // class ElemDDLUdfStateAreaSize
+};  // class ElemDDLUdfStateAreaSize
 
 #endif /* ELEMDDLUDFSTATEAREASIZE_H */

@@ -27,4 +27,3 @@
 #define VERS_CV_UPD 1
 
 VERS_LIB(COMMON)
-

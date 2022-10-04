@@ -27,10 +27,10 @@
 *
 * File:         ElemDDLLibPathName.h
 * Description:  class that contains the (parse node) elements in DDL statements
-                for the path name of the deployed JAR file. 
-*               
+                for the path name of the deployed JAR file.
 *
-*               
+*
+*
 * Created:      11/12/2012
 * Language:     C++
 *
@@ -43,34 +43,27 @@
 #include "common/ComSmallDefs.h"
 #include "ElemDDLNode.h"
 
-class ElemDDLLibPathName : public ElemDDLNode
-{
+class ElemDDLLibPathName : public ElemDDLNode {
+ public:
+  ElemDDLLibPathName(const NAString &theName);
 
-public:
+  virtual ~ElemDDLLibPathName();
 
-   ElemDDLLibPathName(const NAString     &theName);
+  virtual ElemDDLLibPathName *castToElemDDLLibPathName(void);
 
-   virtual ~ElemDDLLibPathName();
+  inline const NAString &getPathName(void) const { return pathName_; }
 
-   virtual ElemDDLLibPathName * castToElemDDLLibPathName(void);
+  //
+  // methods for tracing
+  //
 
-   inline const NAString &getPathName(void) const
-   {
-      return pathName_;
-   }
+  virtual const NAString displayLabel1() const;
+  NAString getSyntax() const;
+  virtual const NAString getText() const;
 
-//
-// methods for tracing
-//
-  
-   virtual const NAString displayLabel1() const;
-                 NAString getSyntax() const;
-   virtual const NAString getText() const;
+ private:
+  const NAString &pathName_;
 
-private:
-
-const NAString & pathName_;
-
-}; // class ElemDDLLibPathName
+};  // class ElemDDLLibPathName
 
 #endif /* ELEMDDLLIBPATHNAME_H */

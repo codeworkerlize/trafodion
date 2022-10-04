@@ -29,7 +29,7 @@
  * Description:  base class for (generic) constraint definitions in
  *               DDL statements
  *
- *               
+ *
  * Created:      3/29/95
  * Language:     C++
  *
@@ -38,7 +38,6 @@
  *
  *****************************************************************************
  */
-
 
 #include "ElemDDLNode.h"
 #include "optimizer/ObjectNames.h"
@@ -61,117 +60,104 @@ class ElemDDLConstraint;
 // -----------------------------------------------------------------------
 // definition of class ElemDDLConstraint
 // -----------------------------------------------------------------------
-class ElemDDLConstraint : public ElemDDLNode
-{
+class ElemDDLConstraint : public ElemDDLNode {
+ public:
+  enum constraintKindEnum { COLUMN_CONSTRAINT_DEF, TABLE_CONSTRAINT_DEF };
 
-public:
-
-  enum constraintKindEnum { COLUMN_CONSTRAINT_DEF,
-                            TABLE_CONSTRAINT_DEF };
-
-  enum droppableClauseInfo { DROPPABLE_CLAUSE_NOT_SPECIFIED
-                           , DROPPABLE_SPECIFIED_EXPLICITLY
-                           , NOT_DROPPABLE_SPECIFIED_EXPLICITLY
-                           };
+  enum droppableClauseInfo {
+    DROPPABLE_CLAUSE_NOT_SPECIFIED,
+    DROPPABLE_SPECIFIED_EXPLICITLY,
+    NOT_DROPPABLE_SPECIFIED_EXPLICITLY
+  };
 
   // default constructor
-  ElemDDLConstraint(
-       CollHeap * h=0,
-       OperatorTypeEnum operType = ELM_ANY_CONSTRAINT_ELEM,
-       const QualifiedName & constraintName = QualifiedName(PARSERHEAP()),
-       constraintKindEnum constraintKind = COLUMN_CONSTRAINT_DEF,
-       ElemDDLNode * pConstraintAttributes = NULL,
-       NABoolean isDeferrable = FALSE,
-       NABoolean isDroppable = TRUE,
-       NABoolean isEnforced = TRUE)
-       : ElemDDLNode(operType),
-          constraintQualName_(constraintName, h),
-          constraintKind_(constraintKind),
-          isDeferrable_(isDeferrable),
-          isDroppable_(isDroppable),
-	  isEnforced_(isEnforced),
-          droppableClauseInfo_(DROPPABLE_CLAUSE_NOT_SPECIFIED)
-{
-  setChild(INDEX_CONSTRAINT_ATTRIBUTES, pConstraintAttributes);
-}
+  ElemDDLConstraint(CollHeap *h = 0, OperatorTypeEnum operType = ELM_ANY_CONSTRAINT_ELEM,
+                    const QualifiedName &constraintName = QualifiedName(PARSERHEAP()),
+                    constraintKindEnum constraintKind = COLUMN_CONSTRAINT_DEF,
+                    ElemDDLNode *pConstraintAttributes = NULL, NABoolean isDeferrable = FALSE,
+                    NABoolean isDroppable = TRUE, NABoolean isEnforced = TRUE)
+      : ElemDDLNode(operType),
+        constraintQualName_(constraintName, h),
+        constraintKind_(constraintKind),
+        isDeferrable_(isDeferrable),
+        isDroppable_(isDroppable),
+        isEnforced_(isEnforced),
+        droppableClauseInfo_(DROPPABLE_CLAUSE_NOT_SPECIFIED) {
+    setChild(INDEX_CONSTRAINT_ATTRIBUTES, pConstraintAttributes);
+  }
 
   // copy ctor
-  ElemDDLConstraint (const ElemDDLConstraint & orig, CollHeap * h=0) ; // not written
+  ElemDDLConstraint(const ElemDDLConstraint &orig, CollHeap *h = 0);  // not written
 
   // virtual destructor
   virtual ~ElemDDLConstraint();
 
   // cast
-  virtual ElemDDLConstraint * castToElemDDLConstraint();
+  virtual ElemDDLConstraint *castToElemDDLConstraint();
 
   //
   // accessors
   //
 
   virtual Int32 getArity() const;
-  virtual ExprNode * getChild(Lng32 index);
+  virtual ExprNode *getChild(Lng32 index);
 
   inline constraintKindEnum getConstraintKind() const;
 
-        // returns an enumerated constraint to tell whether
-        // the constraint is a column or table constraint.
+  // returns an enumerated constraint to tell whether
+  // the constraint is a column or table constraint.
 
-  inline       NAString getConstraintName() const;
+  inline NAString getConstraintName() const;
 
-  inline const QualifiedName & getConstraintNameAsQualifiedName() const;
-  inline       QualifiedName & getConstraintNameAsQualifiedName();
+  inline const QualifiedName &getConstraintNameAsQualifiedName() const;
+  inline QualifiedName &getConstraintNameAsQualifiedName();
 
   inline NABoolean isDeferrable() const;
   inline NABoolean isDroppable() const;
   inline NABoolean isEnforced() const;
-  
+
   inline NABoolean isDroppableSpecifiedExplicitly() const;
 
-        // returns TRUE if the user specified the DROPPABLE clause
-        // explicitly; returns FALSE otherwise (including the case
-        // when the user specified the NOT DROPPABLE clause explicitly).
+  // returns TRUE if the user specified the DROPPABLE clause
+  // explicitly; returns FALSE otherwise (including the case
+  // when the user specified the NOT DROPPABLE clause explicitly).
 
   inline NABoolean isNotDroppableSpecifiedExplicitly() const;
 
-        // returns TRUE if the user specified the NOT DROPPABLE clause
-        // explicitly; returns FALSE otherwise (including the case
-        // when the user specified the DROPPABLE clause explicitly).
+  // returns TRUE if the user specified the NOT DROPPABLE clause
+  // explicitly; returns FALSE otherwise (including the case
+  // when the user specified the DROPPABLE clause explicitly).
 
   inline NABoolean anyDroppableClauseSpecifiedExplicitly() const;
 
   //
   // mutators
   //
-  
-  virtual void setChild(Lng32 index, ExprNode * pChildNode);
-  void setConstraintAttributes(ElemDDLNode * pConstraintAttributes);
+
+  virtual void setChild(Lng32 index, ExprNode *pChildNode);
+  void setConstraintAttributes(ElemDDLNode *pConstraintAttributes);
   inline void setConstraintKind(constraintKindEnum constraintKind);
-  inline void setConstraintName(const QualifiedName & constraintName);
+  inline void setConstraintName(const QualifiedName &constraintName);
   void setDroppableFlag(const NABoolean setting);
   void setEnforcedFlag(const NABoolean setting);
 
   //
   // methods for tracing
   //
-  
+
   virtual const NAString displayLabel1() const;
   virtual NATraceList getDetailInfo() const;
   virtual const NAString getText() const;
 
-
-protected:
-
+ protected:
   //
   // enumerated constant relating to the child parse node
   // and the arity of this parse node
   //
 
-  enum { INDEX_CONSTRAINT_ATTRIBUTES = 0,
-         MAX_ELEM_DDL_CONSTRAINT_ARITY };
+  enum { INDEX_CONSTRAINT_ATTRIBUTES = 0, MAX_ELEM_DDL_CONSTRAINT_ARITY };
 
-
-private:
-
+ private:
   void setConstraintName(const NAString &);  // DO NOT USE
 
   constraintKindEnum constraintKind_;
@@ -191,73 +177,40 @@ private:
   //
   // pointer to child parse node
   //
-  
-  ElemDDLNode * pConstraintAttributes_;
 
-}; // class ElemDDLConstraint
-        
+  ElemDDLNode *pConstraintAttributes_;
+
+};  // class ElemDDLConstraint
 
 //
 // accessors
 //
 
-inline ElemDDLConstraint::constraintKindEnum
-ElemDDLConstraint::getConstraintKind() const
-{
-  return constraintKind_;
-}
+inline ElemDDLConstraint::constraintKindEnum ElemDDLConstraint::getConstraintKind() const { return constraintKind_; }
 
-inline NAString
-ElemDDLConstraint::getConstraintName() const
-{
+inline NAString ElemDDLConstraint::getConstraintName() const {
   return getConstraintNameAsQualifiedName().getQualifiedNameAsAnsiString();
 }
 
-inline const QualifiedName &
-ElemDDLConstraint::getConstraintNameAsQualifiedName() const
-{
-  return constraintQualName_;
-}
+inline const QualifiedName &ElemDDLConstraint::getConstraintNameAsQualifiedName() const { return constraintQualName_; }
 
-inline QualifiedName &
-ElemDDLConstraint::getConstraintNameAsQualifiedName()
-{
-  return constraintQualName_;
-}
+inline QualifiedName &ElemDDLConstraint::getConstraintNameAsQualifiedName() { return constraintQualName_; }
 
-inline NABoolean
-ElemDDLConstraint::isDeferrable() const
-{
-  return isDeferrable_;
-}
+inline NABoolean ElemDDLConstraint::isDeferrable() const { return isDeferrable_; }
 
-inline NABoolean
-ElemDDLConstraint::isDroppable() const
-{
-  return isDroppable_;
-}
+inline NABoolean ElemDDLConstraint::isDroppable() const { return isDroppable_; }
 
-inline NABoolean
-ElemDDLConstraint::isEnforced() const
-{
-  return isEnforced_;
-}
+inline NABoolean ElemDDLConstraint::isEnforced() const { return isEnforced_; }
 
-inline NABoolean
-ElemDDLConstraint::isDroppableSpecifiedExplicitly() const
-{
+inline NABoolean ElemDDLConstraint::isDroppableSpecifiedExplicitly() const {
   return droppableClauseInfo_ EQU DROPPABLE_SPECIFIED_EXPLICITLY;
 }
 
-inline NABoolean
-ElemDDLConstraint::isNotDroppableSpecifiedExplicitly() const
-{
+inline NABoolean ElemDDLConstraint::isNotDroppableSpecifiedExplicitly() const {
   return droppableClauseInfo_ EQU NOT_DROPPABLE_SPECIFIED_EXPLICITLY;
 }
 
-inline NABoolean
-ElemDDLConstraint::anyDroppableClauseSpecifiedExplicitly() const
-{
+inline NABoolean ElemDDLConstraint::anyDroppableClauseSpecifiedExplicitly() const {
   return droppableClauseInfo_ NEQ DROPPABLE_CLAUSE_NOT_SPECIFIED;
 }
 
@@ -265,16 +218,12 @@ ElemDDLConstraint::anyDroppableClauseSpecifiedExplicitly() const
 // mutators
 //
 
-inline void
-ElemDDLConstraint::setConstraintKind(constraintKindEnum constraintKind)
-{
+inline void ElemDDLConstraint::setConstraintKind(constraintKindEnum constraintKind) {
   constraintKind_ = constraintKind;
 }
 
-inline void
-ElemDDLConstraint::setConstraintName(const QualifiedName & constraintName)
-{
+inline void ElemDDLConstraint::setConstraintName(const QualifiedName &constraintName) {
   constraintQualName_ = constraintName;
 }
 
-#endif // ELEMDDLCONSTRAINT_H
+#endif  // ELEMDDLCONSTRAINT_H

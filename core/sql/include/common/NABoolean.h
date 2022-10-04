@@ -7,7 +7,7 @@
 
 // -----------------------------------------------------------------------
 // Declare a Boolean type
-// (compatible with standard C++ boolean expressions) 
+// (compatible with standard C++ boolean expressions)
 // -----------------------------------------------------------------------
 
 #ifndef NABOOLEAN_DEFINED
@@ -19,7 +19,7 @@ typedef Int32 NABoolean;
 #ifndef TRUE
 #ifndef TRUE_DEFINED
 #define TRUE_DEFINED
-const NABoolean		TRUE = (1 == 1);
+const NABoolean TRUE = (1 == 1);
 #endif
 #endif
 
@@ -27,8 +27,8 @@ const NABoolean		TRUE = (1 == 1);
 #ifndef FALSE
 #ifndef FALSE_DEFINED
 #define FALSE_DEFINED
-const NABoolean		FALSE = (0 == 1);
+const NABoolean FALSE = (0 == 1);
 #endif
 #endif
 
-#endif // NABOOLEAN_H
+#endif  // NABOOLEAN_H

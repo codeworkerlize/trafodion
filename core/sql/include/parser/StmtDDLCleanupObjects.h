@@ -26,16 +26,15 @@
  *****************************************************************************
  *
  * File:         StmtDDLCleanupObjects.h
- * Description:  
+ * Description:
  *
  *
- * Created:     
+ * Created:
  * Language:     C++
  *
  *
  *****************************************************************************
  */
-
 
 #include "ElemDDLNode.h"
 #include "common/NAString.h"
@@ -55,12 +54,9 @@ class StmtDDLCleanupObjects;
 // -----------------------------------------------------------------------
 // Cleanup Objects statement
 // -----------------------------------------------------------------------
-class StmtDDLCleanupObjects : public StmtDDLNode
-{
-
-public:
-  enum ObjectType
-  {
+class StmtDDLCleanupObjects : public StmtDDLNode {
+ public:
+  enum ObjectType {
     TABLE_,
     OBJECT_UID_,
     INDEX_,
@@ -74,18 +70,15 @@ public:
     UNKNOWN_,
     OBSOLETE_
   };
-    
+
   // initialize constructor
-  StmtDDLCleanupObjects(ObjectType type,
-                        const NAString & param1,
-                        const NAString * param2,
-                        CollHeap    * heap);
-  
+  StmtDDLCleanupObjects(ObjectType type, const NAString &param1, const NAString *param2, CollHeap *heap);
+
   // virtual destructor
   virtual ~StmtDDLCleanupObjects();
 
   // cast
-  virtual StmtDDLCleanupObjects * castToStmtDDLCleanupObjects();
+  virtual StmtDDLCleanupObjects *castToStmtDDLCleanupObjects();
 
   //
   // accessors
@@ -93,12 +86,12 @@ public:
 
   // methods relating to parse tree
   virtual Int32 getArity() const;
-  virtual ExprNode * getChild(Lng32 index);
+  virtual ExprNode *getChild(Lng32 index);
 
-  inline const QualifiedName & getOrigTableNameAsQualifiedName() const;
-  inline       QualifiedName & getOrigTableNameAsQualifiedName();
-  inline const QualifiedName * getTableNameAsQualifiedName() const;
-  inline       QualifiedName * getTableNameAsQualifiedName() ;
+  inline const QualifiedName &getOrigTableNameAsQualifiedName() const;
+  inline QualifiedName &getOrigTableNameAsQualifiedName();
+  inline const QualifiedName *getTableNameAsQualifiedName() const;
+  inline QualifiedName *getTableNameAsQualifiedName();
 
   inline const NAString getPartitionName() { return partition_name_; }
   inline void setPartitionName(const NAString *name) { partition_name_ = *name; }
@@ -107,9 +100,9 @@ public:
 
   const Int64 getObjectUID() const { return objectUID_; }
 
-  const ObjectType getType() const {return type_;}
+  const ObjectType getType() const { return type_; }
 
-  ExprNode * bindNode(BindWA * pBindWA);
+  ExprNode *bindNode(BindWA *pBindWA);
 
   //
   // methods for tracing
@@ -134,8 +127,7 @@ public:
   NABoolean noHBaseDrop() { return noHBaseDrop_; }
   void setNoHBaseDrop(NABoolean v) { noHBaseDrop_ = v; }
 
-private:
-
+ private:
   ObjectType type_;
   NAString param1_;
   NAString param2_;
@@ -146,10 +138,10 @@ private:
   //
   // please do not use the following methods
   //
-  
-  StmtDDLCleanupObjects();                                        // DO NOT USE
-  StmtDDLCleanupObjects(const StmtDDLCleanupObjects &);              // DO NOT USE
-  StmtDDLCleanupObjects & operator=(const StmtDDLCleanupObjects &);  // DO NOT USE
+
+  StmtDDLCleanupObjects();                                          // DO NOT USE
+  StmtDDLCleanupObjects(const StmtDDLCleanupObjects &);             // DO NOT USE
+  StmtDDLCleanupObjects &operator=(const StmtDDLCleanupObjects &);  // DO NOT USE
 
   // ---------------------------------------------------------------------
   // private data members
@@ -161,7 +153,7 @@ private:
 
   // The syntax of table name is
   // [ [ catalog-name . ] schema-name . ] table-name
-  QualifiedName * tableQualName_;
+  QualifiedName *tableQualName_;
 
   Int64 objectUID_;
 
@@ -171,33 +163,19 @@ private:
   NABoolean checkOnly_;
   NABoolean returnDetails_;
   NABoolean noHBaseDrop_;
-}; // class StmtDDLCleanupObjects
+};  // class StmtDDLCleanupObjects
 
 // -----------------------------------------------------------------------
 // definitions of inline methods for class StmtDDLCleanupObjects
 // -----------------------------------------------------------------------
-inline QualifiedName &
-StmtDDLCleanupObjects::getOrigTableNameAsQualifiedName()
-{
+inline QualifiedName &StmtDDLCleanupObjects::getOrigTableNameAsQualifiedName() { return origTableQualName_; }
+
+inline const QualifiedName &StmtDDLCleanupObjects::getOrigTableNameAsQualifiedName() const {
   return origTableQualName_;
 }
 
-inline const QualifiedName &
-StmtDDLCleanupObjects::getOrigTableNameAsQualifiedName() const
-{
-  return origTableQualName_;
-}
+inline QualifiedName *StmtDDLCleanupObjects::getTableNameAsQualifiedName() { return tableQualName_; }
 
-inline QualifiedName * 
-StmtDDLCleanupObjects::getTableNameAsQualifiedName()
-{
-  return tableQualName_;
-}
+inline const QualifiedName *StmtDDLCleanupObjects::getTableNameAsQualifiedName() const { return tableQualName_; }
 
-inline const QualifiedName *
-StmtDDLCleanupObjects::getTableNameAsQualifiedName() const
-{
-  return tableQualName_;
-}
-
-#endif // STMTDDLCLEANUPOBJECTS_H
+#endif  // STMTDDLCLEANUPOBJECTS_H

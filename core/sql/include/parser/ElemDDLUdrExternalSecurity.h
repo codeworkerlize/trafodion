@@ -29,7 +29,7 @@
 * Description:  class for UDR External Security (parse node) elements in
 *               DDL statements
 *
-*               
+*
 * Created:      01/20/2012
 * Language:     C++
 *
@@ -40,11 +40,8 @@
 #include "common/ComSmallDefs.h"
 #include "ElemDDLNode.h"
 
-class ElemDDLUdrExternalSecurity : public ElemDDLNode
-{
-
-public:
-
+class ElemDDLUdrExternalSecurity : public ElemDDLNode {
+ public:
   // default constructor
   ElemDDLUdrExternalSecurity(ComRoutineExternalSecurity theExternalSecurity);
 
@@ -52,26 +49,21 @@ public:
   virtual ~ElemDDLUdrExternalSecurity(void);
 
   // cast
-  virtual ElemDDLUdrExternalSecurity * castToElemDDLUdrExternalSecurity(void);
+  virtual ElemDDLUdrExternalSecurity *castToElemDDLUdrExternalSecurity(void);
 
   // accessor
-  inline const ComRoutineExternalSecurity getExternalSecurity(void) const
-  {
-    return externalSecurity_;
-  }
+  inline const ComRoutineExternalSecurity getExternalSecurity(void) const { return externalSecurity_; }
 
   //
   // methods for tracing
   //
-  
+
   virtual NATraceList getDetailInfo() const;
   virtual const NAString getText() const;
 
-
-private:
-
+ private:
   ComRoutineExternalSecurity externalSecurity_;
 
-}; // class ElemDDLUdrExternalSecurity
+};  // class ElemDDLUdrExternalSecurity
 
 #endif /* ELEMDDLUDREXTERNALSECURITY_H */

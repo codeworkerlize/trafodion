@@ -11,7 +11,7 @@
  *               nodes.  Several kinds of parse nodes contain these
  *               derived classes.
  *
- *               
+ *
  * Created:      6/6/95
  * Language:     C++
  *
@@ -41,7 +41,6 @@
  *****************************************************************************
  */
 
-
 #include "export/NABasicObject.h"
 
 // -----------------------------------------------------------------------
@@ -57,43 +56,29 @@ class ParDDLLikeOpts;
 // -----------------------------------------------------------------------
 // definition of class ParDDLLikeOpts
 // -----------------------------------------------------------------------
-class ParDDLLikeOpts : public NABasicObject
-{
-
-public:
-
+class ParDDLLikeOpts : public NABasicObject {
+ public:
   // types of nodes containing all legal Like options
   // associating with a DDL statement
-  enum likeOptsNodeTypeEnum { LIKE_OPTS_ANY_DDL_STMT,
-                              LIKE_OPTS_CREATE_COLLATION,
-                              LIKE_OPTS_CREATE_TABLE };
+  enum likeOptsNodeTypeEnum { LIKE_OPTS_ANY_DDL_STMT, LIKE_OPTS_CREATE_COLLATION, LIKE_OPTS_CREATE_TABLE };
 
   // default constructor
-  ParDDLLikeOpts(likeOptsNodeTypeEnum likeOptsNodeType
-                 = LIKE_OPTS_ANY_DDL_STMT)
-    : likeOptsNodeType_(likeOptsNodeType)
-  {
-  }
+  ParDDLLikeOpts(likeOptsNodeTypeEnum likeOptsNodeType = LIKE_OPTS_ANY_DDL_STMT)
+      : likeOptsNodeType_(likeOptsNodeType) {}
 
   // virtual destructor
   virtual ~ParDDLLikeOpts();
 
   // assignment
-  ParDDLLikeOpts & operator=(const ParDDLLikeOpts & likeOptions);
+  ParDDLLikeOpts &operator=(const ParDDLLikeOpts &likeOptions);
 
   // accessors
 
-  likeOptsNodeTypeEnum
-  getLikeOptsNodeType() const
-  {
-    return likeOptsNodeType_;
-  }
+  likeOptsNodeTypeEnum getLikeOptsNodeType() const { return likeOptsNodeType_; }
 
-
-private:
-
+ private:
   likeOptsNodeTypeEnum likeOptsNodeType_;
 
-}; // class ParDDLLikeOpts
+};  // class ParDDLLikeOpts
 
 #endif /* PARDDLLIKEOPTS_H */

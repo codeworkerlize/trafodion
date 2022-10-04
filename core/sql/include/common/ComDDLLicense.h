@@ -25,5 +25,4 @@
 
 #include "common/Platform.h"
 
-
-#endif // _COMDDLLICENSE_H
+#endif  // _COMDDLLICENSE_H

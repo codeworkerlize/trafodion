@@ -37,11 +37,10 @@
 // # under the License.
 //
 
-
 // ULexer.h -- define interfaces for Unicode lexical analyzer class (tcr)
 
 // Flex (version 2.5.4a and earlier) does not support Unicode. Our attempts
-// at extending flex to generate a Unicode scanner were unsuccessful. So, we 
+// at extending flex to generate a Unicode scanner were unsuccessful. So, we
 // hand-code a Unicode scanner for SQL/MX but retain the flex C++ scanner
 // class interface (defined in flexlexer.h)
 
@@ -71,17 +70,17 @@
 // Never included before - need to define base class.
 #define __U_LEXER_H
 
-#include <ctype.h>		// for toupper()
+#include <ctype.h>  // for toupper()
 #include <stdio.h>
-#include "common/NAWinNT.h"		// for NAWchar, WIDE_(), etc.
-#include "common/NABoolean.h" 
+#include "common/NAWinNT.h"  // for NAWchar, WIDE_(), etc.
+#include "common/NABoolean.h"
 #include "common/arkcmp_parser_defs.h"
 
 // Forward references.
 class ParKeyWord;
 
 // UR2-CNTNSK
-#define TXT(s) WIDE_(s)		// macro for Unicode string literals
+#define TXT(s) WIDE_(s)  // macro for Unicode string literals
 
 extern "C++" {
 
@@ -91,203 +90,196 @@ typedef Int32 yy_state_type;
 union YYSTYPE;
 
 class ULexer {
-public:
-	virtual ~ULexer()	{ }
+ public:
+  virtual ~ULexer() {}
 
-	const NAWchar* YYText()	{ return yytext_; }
-	Int32 YYLeng()		{ return yyleng_; }
+  const NAWchar *YYText() { return yytext_; }
+  Int32 YYLeng() { return yyleng_; }
 
-	virtual Int32 yylex(YYSTYPE *lvalp) = 0;
+  virtual Int32 yylex(YYSTYPE *lvalp) = 0;
 
-	Int32 debug() const		{ return yy_U_debug_; }
-	void set_debug( Int32 flag )	{ yy_U_debug_ = flag; }
+  Int32 debug() const { return yy_U_debug_; }
+  void set_debug(Int32 flag) { yy_U_debug_ = flag; }
 
-protected:
-	NAWchar* yytext_;
-	Int32 yyleng_;
-	Int32 yy_U_debug_;// only has effect with -d or "%option debug"
+ protected:
+  NAWchar *yytext_;
+  Int32 yyleng_;
+  Int32 yy_U_debug_;  // only has effect with -d or "%option debug"
 
-	void yyToUpper()
+  void yyToUpper()
 
-	{ for (NAWchar* c=yytext_; *c; c++) *c = toupper(*c); }
+  {
+    for (NAWchar *c = yytext_; *c; c++) *c = toupper(*c);
+  }
 
-	  char yynarrow_[400];
-	  void yyToNarrow()
-	  { 
-	    char *n = yynarrow_; 
-	    char *eob = n + sizeof(yynarrow_) - 1;
-	    for (NAWchar* c=yytext_; *c; c++, n++) {
-	      assert(n < eob);
-	      *n = (char)*c;
-	      NAWchar w = *n;
-	      assert(w == *c);
-	    }
-	    *n = '\0';
-	  }
+  char yynarrow_[400];
+  void yyToNarrow() {
+    char *n = yynarrow_;
+    char *eob = n + sizeof(yynarrow_) - 1;
+    for (NAWchar *c = yytext_; *c; c++, n++) {
+      assert(n < eob);
+      *n = (char)*c;
+      NAWchar w = *n;
+      assert(w == *c);
+    }
+    *n = '\0';
+  }
 };
-
 }
-#endif	// __U_LEXER_H
+#endif  // __U_LEXER_H
 
-#if defined(yyULexer) || ! defined(yyULexerOnce)
+#if defined(yyULexer) || !defined(yyULexerOnce)
 // Either this is the first time through (yyULexerOnce not defined),
 // or this is a repeated include to define a different flavor of
 // yyULexer, as discussed in the flex man page.
 #define yyULexerOnce
 
 class yyULexer : public ULexer {
-public:
-    // construct lexer to scan an in-memory string
-    yyULexer(const NAWchar *str, Int32 charCount);
-    yyULexer(const NAWchar *str, size_t charCount);
+ public:
+  // construct lexer to scan an in-memory string
+  yyULexer(const NAWchar *str, Int32 charCount);
+  yyULexer(const NAWchar *str, size_t charCount);
 
-    virtual ~yyULexer();
+  virtual ~yyULexer();
 
-    virtual Int32 yylex(YYSTYPE *lvalp);
+  virtual Int32 yylex(YYSTYPE *lvalp);
 
-    void reset();
+  void reset();
 
-    // these 2 replace the old SqlParser_InputPos global variable
-    Int32 getInputPos();
-    void setInputPos(Int32 i);
+  // these 2 replace the old SqlParser_InputPos global variable
+  Int32 getInputPos();
+  void setInputPos(Int32 i);
 
-    void setReturnAllChars()   { returnAllChars_ = TRUE; }
-    void resetReturnAllChars() { returnAllChars_ = FALSE; }	
-    
-    NABoolean isDynamicParameter(Int32 tokCod);
+  void setReturnAllChars() { returnAllChars_ = TRUE; }
+  void resetReturnAllChars() { returnAllChars_ = FALSE; }
 
-    NABoolean isLiteral4HQC(Int32 tokCod);
+  NABoolean isDynamicParameter(Int32 tokCod);
 
-protected:
-    void yyULexer_ctor(const NAWchar *str, Int32 charCount);
-    Int32 input_pos_; // used only by {set|get}InputPos()
+  NABoolean isLiteral4HQC(Int32 tokCod);
 
-    void yy_load_buffer_state();
+ protected:
+  void yyULexer_ctor(const NAWchar *str, Int32 charCount);
+  Int32 input_pos_;  // used only by {set|get}InputPos()
 
-    struct yy_buffer_state* yy_current_buffer_;
+  void yy_load_buffer_state();
 
-    // yy_hold_char_ holds the character lost when yytext_ is formed.
-    NAWchar yy_hold_char_;
+  struct yy_buffer_state *yy_current_buffer_;
 
-    // Number of characters read into yy_ch_buf.
-    Int32 yy_n_chars_;
+  // yy_hold_char_ holds the character lost when yytext_ is formed.
+  NAWchar yy_hold_char_;
 
-    // Points to current character in buffer.
-    NAWchar* yy_c_buf_p_;
+  // Number of characters read into yy_ch_buf.
+  Int32 yy_n_chars_;
 
-    Int32 yy_init_;		// whether we need to initialize
+  // Points to current character in buffer.
+  NAWchar *yy_c_buf_p_;
 
-    NAWchar *beginRun_; // points to start of a run
-    NAWchar *currChar_; // points to current candidate end of run
+  Int32 yy_init_;  // whether we need to initialize
 
-    NABoolean returnAllChars_;
+  NAWchar *beginRun_;  // points to start of a run
+  NAWchar *currChar_;  // points to current candidate end of run
 
-    // set up yytext_, etc for the start of a scan
-    void startRun()
-    { currChar_ = yy_c_buf_p_; *currChar_ = yy_hold_char_;
-      yytext_ = beginRun_ = currChar_; }
+  NABoolean returnAllChars_;
 
-    // Done after the current pattern has been matched and before the
-    // corresponding action - sets up yytext_.
-    void doBeforeAction()
-    { yytext_ = beginRun_; yyleng_ = (Int32)(currChar_ - beginRun_);
-      input_pos_ = 0;
-      yy_hold_char_ = *currChar_; *currChar_ = '\0'; yy_c_buf_p_ = currChar_; }
+  // set up yytext_, etc for the start of a scan
+  void startRun() {
+    currChar_ = yy_c_buf_p_;
+    *currChar_ = yy_hold_char_;
+    yytext_ = beginRun_ = currChar_;
+  }
 
-    // un-null terminate yytext_. used in scanning compound tokens.
-    void undoBeforeAction() { *yy_c_buf_p_ = yy_hold_char_; }
+  // Done after the current pattern has been matched and before the
+  // corresponding action - sets up yytext_.
+  void doBeforeAction() {
+    yytext_ = beginRun_;
+    yyleng_ = (Int32)(currChar_ - beginRun_);
+    input_pos_ = 0;
+    yy_hold_char_ = *currChar_;
+    *currChar_ = '\0';
+    yy_c_buf_p_ = currChar_;
+  }
 
-    // useful after an advance()
-    Int32 YYLengNow()	{ return (Int32)(currChar_ - beginRun_); }
+  // un-null terminate yytext_. used in scanning compound tokens.
+  void undoBeforeAction() { *yy_c_buf_p_ = yy_hold_char_; }
 
-    // used to remember candidate end of a compound token.
-    NAWchar *mark() { return currChar_; }
+  // useful after an advance()
+  Int32 YYLengNow() { return (Int32)(currChar_ - beginRun_); }
 
-    // used to retract current char pointer in compound token scanning
-    void retractToMark(NAWchar *m) { currChar_ = m; }
+  // used to remember candidate end of a compound token.
+  NAWchar *mark() { return currChar_; }
 
-    // have we reached the end of buffer?
-    Int32 endOfBuffer();
+  // used to retract current char pointer in compound token scanning
+  void retractToMark(NAWchar *m) { currChar_ = m; }
 
-    // advance current character
-    void advance() { currChar_++; }
-    
-    //delete comparison ' ' And '\n'
-    void advanceDeleteSpaceAndEnter() {
-        if ( (*currChar_ == '>') || (*currChar_ == '<') || (*currChar_ == '!') ){
-            currChar_++;
-            while ( *currChar_ == ' ' || *currChar_ == '\n' ){
-                currChar_++;
-            }
-        }else{
-            currChar_++;
-        }
+  // have we reached the end of buffer?
+  Int32 endOfBuffer();
+
+  // advance current character
+  void advance() { currChar_++; }
+
+  // delete comparison ' ' And '\n'
+  void advanceDeleteSpaceAndEnter() {
+    if ((*currChar_ == '>') || (*currChar_ == '<') || (*currChar_ == '!')) {
+      currChar_++;
+      while (*currChar_ == ' ' || *currChar_ == '\n') {
+        currChar_++;
+      }
+    } else {
+      currChar_++;
     }
-    
-    // read current character; if end of buffer then refill it first.
-    // returns WEOF or current character.
-    NAWchar peekChar();
+  }
 
-    // return current character and then advance
-    NAWchar peekAdvance() { NAWchar c=peekChar(); advance(); return c; }
+  // read current character; if end of buffer then refill it first.
+  // returns WEOF or current character.
+  NAWchar peekChar();
 
-    // set current character to c
-    void setCurrChar(NAWchar c) { *currChar_ = c; }
+  // return current character and then advance
+  NAWchar peekAdvance() {
+    NAWchar c = peekChar();
+    advance();
+    return c;
+  }
 
-    // does lexer actions associated with recognition of one of:
-    // {Reserved IDENTIFIER, IDENTIFIER, SQL/MX keyword, compound
-    // keyword, compound Cobol token, approx numeric, exact numeric
-    // with scale, exact numeric no scale}
-    Int32 anSQLMXReservedWord(YYSTYPE *lvalp);
-    Int32 anIdentifier    (YYSTYPE *lvalp);
-    Int32 anSQLMXKeyword  (Int32 tokCod, YYSTYPE *lvalp);
-    Int32 aCompoundKeyword(Int32 tokCod, YYSTYPE *lvalp);
-    Int32 aCobolToken     (Int32 tokCod, YYSTYPE *lvalp);
-    Int32 anApproxNumber  (YYSTYPE *lvalp);
-    Int32 exactWithScale  (YYSTYPE *lvalp);
-    Int32 exactNoScale    (YYSTYPE *lvalp);
-    Int32 eitherCompoundOrSimpleKeyword(
-			NABoolean isCompound,
-			Int32 tokcodCompound,
-			Int32 tokcodSimple,
-			NAWchar *end1,
-			NAWchar holdChar1,
-                        YYSTYPE *lvalp);
-    Int32 notCompoundKeyword(const ParKeyWord *key,
-                             NAWchar &holdChar,
-                             YYSTYPE *lvalp);
+  // set current character to c
+  void setCurrChar(NAWchar c) { *currChar_ = c; }
 
-    Int32 aCompoundStmtBlock(Int32 tokCode, YYSTYPE *lvalp);
-    Int32 aQuotedBlock(YYSTYPE *lvalp);
+  // does lexer actions associated with recognition of one of:
+  // {Reserved IDENTIFIER, IDENTIFIER, SQL/MX keyword, compound
+  // keyword, compound Cobol token, approx numeric, exact numeric
+  // with scale, exact numeric no scale}
+  Int32 anSQLMXReservedWord(YYSTYPE *lvalp);
+  Int32 anIdentifier(YYSTYPE *lvalp);
+  Int32 anSQLMXKeyword(Int32 tokCod, YYSTYPE *lvalp);
+  Int32 aCompoundKeyword(Int32 tokCod, YYSTYPE *lvalp);
+  Int32 aCobolToken(Int32 tokCod, YYSTYPE *lvalp);
+  Int32 anApproxNumber(YYSTYPE *lvalp);
+  Int32 exactWithScale(YYSTYPE *lvalp);
+  Int32 exactNoScale(YYSTYPE *lvalp);
+  Int32 eitherCompoundOrSimpleKeyword(NABoolean isCompound, Int32 tokcodCompound, Int32 tokcodSimple, NAWchar *end1,
+                                      NAWchar holdChar1, YYSTYPE *lvalp);
+  Int32 notCompoundKeyword(const ParKeyWord *key, NAWchar &holdChar, YYSTYPE *lvalp);
 
-    Int32 aStringLiteralWithCharSet(CharInfo::CharSet,
-                                  const NAWchar *s,
-                                  Int32 len,
-                                  NAWchar quote,
-                                  YYSTYPE *lvalp);
+  Int32 aCompoundStmtBlock(Int32 tokCode, YYSTYPE *lvalp);
+  Int32 aQuotedBlock(YYSTYPE *lvalp);
 
-    // qualified hexadecimal format string literals 
-    Int32 aHexStringLiteralWithCharSet(CharInfo::CharSet,
-                                  const NAWchar *s,
-                                  Int32 len,
-                                  NAWchar quote,
-                                  YYSTYPE *lvalp);
-    Int32 constructStringLiteralWithCharSet(NABoolean hexFormat,
-                                            CharInfo::CharSet cs,
-                                            YYSTYPE *lvalp,
-                                            NAWchar quote=L'\'');
+  Int32 aStringLiteralWithCharSet(CharInfo::CharSet, const NAWchar *s, Int32 len, NAWchar quote, YYSTYPE *lvalp);
 
-    // helper functions to set yylval token value used by above functions
-    Int32 setStringval(Int32 tokCod, const char *dbgstr, YYSTYPE *lvalp);
-    Int32 setTokval   (Int32 tokCod, const char *dbgstr, YYSTYPE *lvalp);
+  // qualified hexadecimal format string literals
+  Int32 aHexStringLiteralWithCharSet(CharInfo::CharSet, const NAWchar *s, Int32 len, NAWchar quote, YYSTYPE *lvalp);
+  Int32 constructStringLiteralWithCharSet(NABoolean hexFormat, CharInfo::CharSet cs, YYSTYPE *lvalp,
+                                          NAWchar quote = L'\'');
 
-    Int32 prematureEOF(YYSTYPE* lvalp); // hit EOF inside a string or comment
-    Int32 invalidHexStrLit(YYSTYPE* lvalp); //invalid format of hexadecimal representation of a string literal
-    Int32 invalidStrLitNonTranslatableChars(YYSTYPE *lvalp);  // invalid string literal/host var name 
-    Int32 invalidHostVarNonTranslatableChars(YYSTYPE *lvalp); // due to non-translatable characters.
+  // helper functions to set yylval token value used by above functions
+  Int32 setStringval(Int32 tokCod, const char *dbgstr, YYSTYPE *lvalp);
+  Int32 setTokval(Int32 tokCod, const char *dbgstr, YYSTYPE *lvalp);
+
+  Int32 prematureEOF(YYSTYPE *lvalp);      // hit EOF inside a string or comment
+  Int32 invalidHexStrLit(YYSTYPE *lvalp);  // invalid format of hexadecimal representation of a string literal
+  Int32 invalidStrLitNonTranslatableChars(YYSTYPE *lvalp);   // invalid string literal/host var name
+  Int32 invalidHostVarNonTranslatableChars(YYSTYPE *lvalp);  // due to non-translatable characters.
 
   void addTokenToGlobalQueue(NABoolean isComment = FALSE);
 
-}; // class yyULexer
+};  // class yyULexer
 
-#endif	// defined(yyULexer) || ! defined(yyULexerOnce)
+#endif  // defined(yyULexer) || ! defined(yyULexerOnce)

@@ -26,7 +26,7 @@
  * File:         AllElemDDL.h
  * Description:  a header file that includes ElemDDLNode.h and all header
  *               files that define classes derived from class ElemDDLNode.
- *               
+ *
  * Created:      3/30/95
  * Language:     C++
  *
@@ -35,7 +35,6 @@
  *
  *****************************************************************************
  */
-
 
 #include "ElemDDLNode.h"
 #include "AllElemDDLCol.h"
@@ -83,18 +82,11 @@
 #include "ElemDDLWithGrantOption.h"
 #include "ElemDDLIndexPopulateOption.h"
 #include "ElemDDLIndexScopeOption.h"
-#include "parser/ElemDDLQualName.h" // OZ
-#include "ElemDDLCreateMVOneAttributeTableList.h" // MV OZ
+#include "parser/ElemDDLQualName.h"                // OZ
+#include "ElemDDLCreateMVOneAttributeTableList.h"  // MV OZ
 #include "ElemDDLFileAttrMisc.h"
 #include "parser/ElemDDLGroup.h"
 
 //
 // End of File
 //
-
-
-
-
-
-
-

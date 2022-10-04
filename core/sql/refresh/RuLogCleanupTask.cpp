@@ -30,9 +30,9 @@
 *
 * Created:      12/29/1999
 * Language:     C++
-* 
 *
-* 
+*
+*
 ******************************************************************************
 */
 
@@ -42,13 +42,10 @@
 #include "RuMV.h"
 
 //---------------------------------------------------------------//
-//	Constructor 
+//	Constructor
 //---------------------------------------------------------------//
 
-CRULogCleanupTask::CRULogCleanupTask(Lng32 id, CRUTbl &table) :
-	inherited(id,table),
-	maxInapplicableEpoch_(0)
-{}
+CRULogCleanupTask::CRULogCleanupTask(Lng32 id, CRUTbl &table) : inherited(id, table), maxInapplicableEpoch_(0) {}
 
 //---------------------------------------------------------//
 //	CRULogCleanupTask::CreateExecutorInstance()
@@ -57,53 +54,48 @@ CRULogCleanupTask::CRULogCleanupTask(Lng32 id, CRUTbl &table) :
 //
 //---------------------------------------------------------//
 
-CRUTaskExecutor *CRULogCleanupTask::CreateExecutorInstance()
-{
-	ComputeMaxInapplicableEpoch();
+CRUTaskExecutor *CRULogCleanupTask::CreateExecutorInstance() {
+  ComputeMaxInapplicableEpoch();
 
-	CRUTaskExecutor *pTaskEx = new CRULogCleanupTaskExecutor(this);
+  CRUTaskExecutor *pTaskEx = new CRULogCleanupTaskExecutor(this);
 
-	return pTaskEx;
+  return pTaskEx;
 }
 
 //--------------------------------------------------------------------------//
 //	CRULogCleanupSQLComposer::ComputeMaxInapplicableEpoch()
 //
 //	Compute the minimal value of MV.EPOCH[T] between the ON REQUEST
-//	MVs that use T. 
+//	MVs that use T.
 //
-//	All the log records that have the ABSOLUTE epoch value between this value 
+//	All the log records that have the ABSOLUTE epoch value between this value
 //	and 100 (the first 100 epochs in the log are reserved for special purposes)
 //	must be deleted.
 //
 //--------------------------------------------------------------------------//
 
-void CRULogCleanupTask::ComputeMaxInapplicableEpoch()
-{
-	const TInt64 myUID = GetTable().GetUID();
+void CRULogCleanupTask::ComputeMaxInapplicableEpoch() {
+  const TInt64 myUID = GetTable().GetUID();
 
-	CRUMVList &mvList = GetTable().GetOnRequestMVsUsingMe();
+  CRUMVList &mvList = GetTable().GetOnRequestMVsUsingMe();
 
-	DSListPosition pos = mvList.GetHeadPosition();
+  DSListPosition pos = mvList.GetHeadPosition();
 
-	CRUMV *pCurrMV = mvList.GetNext(pos);
-	maxInapplicableEpoch_ = pCurrMV->GetEpoch(myUID);
+  CRUMV *pCurrMV = mvList.GetNext(pos);
+  maxInapplicableEpoch_ = pCurrMV->GetEpoch(myUID);
 
-	while (NULL != pos)
-	{
-		pCurrMV = mvList.GetNext(pos);
+  while (NULL != pos) {
+    pCurrMV = mvList.GetNext(pos);
 
-                // not interested in the epoch if its in ignore 
-                // changes list
-                if (FALSE == pCurrMV->IsIgnoreChanges(myUID)) 
-		{
-		  TInt32 ep = pCurrMV->GetEpoch(myUID);
+    // not interested in the epoch if its in ignore
+    // changes list
+    if (FALSE == pCurrMV->IsIgnoreChanges(myUID)) {
+      TInt32 ep = pCurrMV->GetEpoch(myUID);
 
-		  maxInapplicableEpoch_ = 
-			(ep < maxInapplicableEpoch_) ? ep : maxInapplicableEpoch_;
-                }
-	}
+      maxInapplicableEpoch_ = (ep < maxInapplicableEpoch_) ? ep : maxInapplicableEpoch_;
+    }
+  }
 
-	// One less than the minimal MV.EPOCH[T]
-	maxInapplicableEpoch_--;
+  // One less than the minimal MV.EPOCH[T]
+  maxInapplicableEpoch_--;
 }

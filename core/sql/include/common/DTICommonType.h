@@ -49,47 +49,29 @@ class DatetimeIntervalCommonType;
 //  DatetimeIntervalCommonType : Ancestor class to DatetimeType & IntervalType
 //
 // ***********************************************************************
-class DatetimeIntervalCommonType : public NAType
-{
-public:
+class DatetimeIntervalCommonType : public NAType {
+ public:
+  enum DTIFlags { UNSUPPORTED_DDL_DATA_TYPE = 1 };
 
-  enum DTIFlags
-  {
-    UNSUPPORTED_DDL_DATA_TYPE = 1
-  };
-
-  DatetimeIntervalCommonType (NAMemory *h, const NAString & adtName, 
-                              NABuiltInTypeEnum typeEnum,
-                              Lng32 storageSize,
-                              NABoolean allowSQLnull,
-                              rec_datetime_field startField,
-                              rec_datetime_field endField,
-                              UInt32 fractionPrecision,
-                              Lng32 dataAlignment = 1 /* no data alignment */)
-       : NAType (h, adtName,
-                 typeEnum,
-                 storageSize,
-                 allowSQLnull,
-                 SQL_NULL_HDR_SIZE,
-                 FALSE, /* fixed length */
-                 0, /* length header size */
-                 dataAlignment),
-         startField_(startField),
-         endField_(endField),
-         fractionPrecision_(fractionPrecision)
-  {
+  DatetimeIntervalCommonType(NAMemory *h, const NAString &adtName, NABuiltInTypeEnum typeEnum, Lng32 storageSize,
+                             NABoolean allowSQLnull, rec_datetime_field startField, rec_datetime_field endField,
+                             UInt32 fractionPrecision, Lng32 dataAlignment = 1 /* no data alignment */)
+      : NAType(h, adtName, typeEnum, storageSize, allowSQLnull, SQL_NULL_HDR_SIZE, FALSE, /* fixed length */
+               0,                                                                         /* length header size */
+               dataAlignment),
+        startField_(startField),
+        endField_(endField),
+        fractionPrecision_(fractionPrecision) {
     // clear flags
     DTIFlags_.clear();
   }
 
-
   // copy ctor
-  DatetimeIntervalCommonType (const DatetimeIntervalCommonType & rhs, NAMemory * h=0)
-       : NAType (rhs, h),
-         startField_ (rhs.startField_),
-         endField_ (rhs.endField_),
-         fractionPrecision_ (rhs.fractionPrecision_)
-  {
+  DatetimeIntervalCommonType(const DatetimeIntervalCommonType &rhs, NAMemory *h = 0)
+      : NAType(rhs, h),
+        startField_(rhs.startField_),
+        endField_(rhs.endField_),
+        fractionPrecision_(rhs.fractionPrecision_) {
     // clear flags
     DTIFlags_.clear();
   }
@@ -98,44 +80,37 @@ public:
   // Accessor functions
   // ---------------------------------------------------------------------
 
-  rec_datetime_field getStartField() const 	{ return startField_; }
-  rec_datetime_field getEndField() const 	{ return endField_; }
-  UInt32 getFractionPrecision() const 	{ return fractionPrecision_; }
+  rec_datetime_field getStartField() const { return startField_; }
+  rec_datetime_field getEndField() const { return endField_; }
+  UInt32 getFractionPrecision() const { return fractionPrecision_; }
 
-  virtual UInt32 getLeadingPrecision() const	{ return 0; }
+  virtual UInt32 getLeadingPrecision() const { return 0; }
 
   virtual Lng32 getScale() const { return (Lng32)fractionPrecision_; }
 
   // Used by IntervalType, other print/debug/naming functions
-  static const char* getFieldName(rec_datetime_field field);
+  static const char *getFieldName(rec_datetime_field field);
 
-  inline NABoolean getDTIFlag(CollIndex flag)
-  {
-    return DTIFlags_.contains(flag);
-  }
+  inline NABoolean getDTIFlag(CollIndex flag) { return DTIFlags_.contains(flag); }
 
   // ---------------------------------------------------------------------
   // Mutator functions
   // ---------------------------------------------------------------------
-  
-  inline void setDTIFlag(CollIndex flag)
-  {
-    DTIFlags_.insert(flag);
-  }
+
+  inline void setDTIFlag(CollIndex flag) { DTIFlags_.insert(flag); }
 
   // ---------------------------------------------------------------------
   // A method which tells if a conversion error can occur when converting
   // a value of this type to the target type.
   // ---------------------------------------------------------------------
-  NABoolean errorsCanOccur (const NAType& target, NABoolean lax=TRUE) const;
+  NABoolean errorsCanOccur(const NAType &target, NABoolean lax = TRUE) const;
 
-protected:
-
+ protected:
   // ---------------------------------------------------------------------
   // Start datetime field (REC_DATE_YEAR...REC_DATE_SECOND).
   // ---------------------------------------------------------------------
   rec_datetime_field startField_;
- 
+
   // ---------------------------------------------------------------------
   // End datetime field (REC_DATE_YEAR...REC_DATE_SECOND).
   // ---------------------------------------------------------------------
@@ -147,12 +122,12 @@ protected:
   // ---------------------------------------------------------------------
   unsigned short fractionPrecision_;
 
-private:
+ private:
   // ---------------------------------------------------------------------
   // Bit vector to contain flags (unsupportedDDLColDefDataType
   // ---------------------------------------------------------------------
   NABitVector DTIFlags_;
- 
-}; // class DatetimeIntervalCommonType
+
+};  // class DatetimeIntervalCommonType
 
 #endif /* DTICOMMONTYPE_H */

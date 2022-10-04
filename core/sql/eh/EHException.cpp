@@ -55,35 +55,23 @@
 // -----------------------------------------------------------------------
 // methods for class EHExceptionHandler
 // -----------------------------------------------------------------------
-EHExceptionHandler::EHExceptionHandler()
-{
-  pEHCallBack_=0;
-}
+EHExceptionHandler::EHExceptionHandler() { pEHCallBack_ = 0; }
 
 //
 // virtual destructor
 //
 
-EHExceptionHandler::~EHExceptionHandler()
-{
-}
+EHExceptionHandler::~EHExceptionHandler() {}
 
-//int CompEHCounter::counter_ = 0;
+// int CompEHCounter::counter_ = 0;
 
 //
 // mutators
 //
-void
-EHExceptionHandler::registerThrowCallBack(EHCallBack *pEHCallBack)
-{
-  pEHCallBack_ = pEHCallBack;
-}
+void EHExceptionHandler::registerThrowCallBack(EHCallBack *pEHCallBack) { pEHCallBack_ = pEHCallBack; }
 
-void
-EHExceptionHandler::endTryBlock()
-{
-  if (getExceptionType() NEQ EH_NORMAL)
-  {
+void EHExceptionHandler::endTryBlock() {
+  if (getExceptionType() NEQ EH_NORMAL) {
     return;  // does nothing, the method throwException() already did the work
   }
 
@@ -93,7 +81,7 @@ EHExceptionHandler::endTryBlock()
 
   isCaught_ = FALSE;
 
-  EHExceptionJmpBufNode * pJmpBufNode = exceptionJmpBufStack_.pop();
+  EHExceptionJmpBufNode *pJmpBufNode = exceptionJmpBufStack_.pop();
 
   EH_ASSERT(pJmpBufNode NEQ NULL);
 
@@ -101,15 +89,13 @@ EHExceptionHandler::endTryBlock()
   // pExceptionTypeNode points to a list of exceptions that can be
   // caught by the catch block(s) associating with the try block.
   //
-  EHExceptionTypeNode * pExceptionTypeNode
-    = pJmpBufNode->getExceptionTypeList();
+  EHExceptionTypeNode *pExceptionTypeNode = pJmpBufNode->getExceptionTypeList();
 
   //
   // deallocates the list of exceptions associating with the try
   // block.  It is no longer needed.
   //
-  while (pExceptionTypeNode NEQ NULL)
-  {
+  while (pExceptionTypeNode NEQ NULL) {
     pJmpBufNode->setExceptionTypeList(pExceptionTypeNode->getNextNode());
 #ifdef EH_USE_GLOB_NEW
     delete pExceptionTypeNode;
@@ -129,16 +115,12 @@ EHExceptionHandler::endTryBlock()
 #endif
 }
 
-EHBoolean
-EHExceptionHandler::catchException(EHExceptionTypeEnum exceptionType)
-{
-  if (getExceptionType() EQU EH_NORMAL)
-  {
+EHBoolean EHExceptionHandler::catchException(EHExceptionTypeEnum exceptionType) {
+  if (getExceptionType() EQU EH_NORMAL) {
     return FALSE;
   }
 
-  if (isCaught_)
-  {
+  if (isCaught_) {
     //
     // A previous catch block (also associating with the current
     // try block) has caught this exception.  The current catch
@@ -146,37 +128,26 @@ EHExceptionHandler::catchException(EHExceptionTypeEnum exceptionType)
     //
     return FALSE;
   }
-  if (getExceptionType() EQU exceptionType OR
-      exceptionType EQU EH_ALL_EXCEPTIONS)
-  {
+  if (getExceptionType() EQU exceptionType OR exceptionType EQU EH_ALL_EXCEPTIONS) {
     return (isCaught_ = TRUE);
   }
   return FALSE;
 }
 
-void
-EHExceptionHandler::setExceptionType(Int32 exceptionType)
-{
-  EH_ASSERT(exceptionType >= EH_NORMAL AND
-            exceptionType < EH_LAST_EXCEPTION_TYPE_ENUM);
+void EHExceptionHandler::setExceptionType(Int32 exceptionType) {
+  EH_ASSERT(exceptionType >= EH_NORMAL AND exceptionType < EH_LAST_EXCEPTION_TYPE_ENUM);
   exceptionType_ = (EHExceptionTypeEnum)exceptionType;
 }
 
-void
-EHExceptionHandler::registerException(EHExceptionTypeEnum exceptionType)
-{
+void EHExceptionHandler::registerException(EHExceptionTypeEnum exceptionType) {
 #ifdef EH_USE_GLOB_NEW
-  EHExceptionTypeNode * pExceptionTypeNode =
-    new EHExceptionTypeNode(exceptionType);
-  if (pExceptionTypeNode EQU NULL)
-  {
+  EHExceptionTypeNode *pExceptionTypeNode = new EHExceptionTypeNode(exceptionType);
+  if (pExceptionTypeNode EQU NULL) {
     EH_ABORT("operator new could not allocate the needed space");
   }
 #else
-  EHExceptionTypeNode * pExceptionTypeNode =
-    (EHExceptionTypeNode *)malloc(sizeof(EHExceptionTypeNode));
-  if (pExceptionTypeNode EQU NULL)
-  {
+  EHExceptionTypeNode *pExceptionTypeNode = (EHExceptionTypeNode *)malloc(sizeof(EHExceptionTypeNode));
+  if (pExceptionTypeNode EQU NULL) {
     EH_ABORT("malloc() could not allocate the needed space");
   }
   //
@@ -189,35 +160,27 @@ EHExceptionHandler::registerException(EHExceptionTypeEnum exceptionType)
   pExceptionTypeList_ = pExceptionTypeNode;
 }
 
-
 // define try block
 
-EHExceptionTypeEnum
-EHExceptionHandler::defineTryBlock()
-{
+EHExceptionTypeEnum EHExceptionHandler::defineTryBlock() {
   // this->setjmpStatus and this->environment
   // were set by setjmp() (for more information
   // refer to the definition of macro EH_TRY)
 
   setExceptionType(setjmpStatus);
 
-  if (getExceptionType() EQU EH_NORMAL)
-  {
-    if (pExceptionTypeList_ EQU NULL)
-    {
+  if (getExceptionType() EQU EH_NORMAL) {
+    if (pExceptionTypeList_ EQU NULL) {
       EH_ABORT("You have not registered any exceptions");
     }
 #ifdef EH_USE_GLOB_NEW
-    EHExceptionJmpBufNode * pJmpBufNode = new EHExceptionJmpBufNode;
-    if (pJmpBufNode EQU NULL)
-    {
+    EHExceptionJmpBufNode *pJmpBufNode = new EHExceptionJmpBufNode;
+    if (pJmpBufNode EQU NULL) {
       EH_ABORT("operator new could not allocate the needed space");
     }
 #else
-    EHExceptionJmpBufNode * pJmpBufNode =
-      (EHExceptionJmpBufNode *)malloc(sizeof(EHExceptionJmpBufNode));
-    if (pJmpBufNode EQU NULL)
-    {
+    EHExceptionJmpBufNode *pJmpBufNode = (EHExceptionJmpBufNode *)malloc(sizeof(EHExceptionJmpBufNode));
+    if (pJmpBufNode EQU NULL) {
       EH_ABORT("malloc() could not allocate the needed space");
     }
     //
@@ -236,13 +199,11 @@ EHExceptionHandler::defineTryBlock()
 
 // throw
 
-void
-EHExceptionHandler::throwException(EHExceptionTypeEnum exceptionType)
-{
+void EHExceptionHandler::throwException(EHExceptionTypeEnum exceptionType) {
   EHExceptionJmpBufNode::env envStruct;
   EHBoolean foundException = FALSE;
-  EHExceptionTypeNode * pExceptionTypeNode = NULL;
-  EHExceptionJmpBufNode * pJmpBufNode = exceptionJmpBufStack_.pop();
+  EHExceptionTypeNode *pExceptionTypeNode = NULL;
+  EHExceptionJmpBufNode *pJmpBufNode = exceptionJmpBufStack_.pop();
 
   //
   // The following flag helps to make sure that no more than one catch
@@ -258,8 +219,7 @@ EHExceptionHandler::throwException(EHExceptionTypeEnum exceptionType)
   // EH_PROCESSING_EXCEPTION) are not to be propagated.
   // Genesis case: 10-010523-0766
 
-  if (( exceptionType != EH_PROCESSING_EXCEPTION ) && pEHCallBack_)
-    pEHCallBack_->doFFDC();
+  if ((exceptionType != EH_PROCESSING_EXCEPTION) && pEHCallBack_) pEHCallBack_->doFFDC();
 
   //
   // Searches the nested try blocks, starting with the innermost try
@@ -269,8 +229,7 @@ EHExceptionHandler::throwException(EHExceptionTypeEnum exceptionType)
   // pJmpBufNode points to the control block describing the (current)
   // innermost try block.
   //
-  while (pJmpBufNode NEQ NULL)
-  {
+  while (pJmpBufNode NEQ NULL) {
     //
     // pExceptionTypeNode points to a list of exceptions that can be
     // caught by the catch block(s) associating with the innermost
@@ -284,11 +243,9 @@ EHExceptionHandler::throwException(EHExceptionTypeEnum exceptionType)
     // The list is deallocated after the search since it is no longer
     // needed.
     //
-    while (pExceptionTypeNode NEQ NULL)
-    {
-      if (pExceptionTypeNode->getExceptionType() EQU exceptionType OR
-          pExceptionTypeNode->getExceptionType() EQU EH_ALL_EXCEPTIONS)
-      {
+    while (pExceptionTypeNode NEQ NULL) {
+      if (pExceptionTypeNode->getExceptionType() EQU exceptionType OR pExceptionTypeNode->getExceptionType()
+              EQU EH_ALL_EXCEPTIONS) {
         foundException = TRUE;
       }
       pJmpBufNode->setExceptionTypeList(pExceptionTypeNode->getNextNode());
@@ -303,19 +260,15 @@ EHExceptionHandler::throwException(EHExceptionTypeEnum exceptionType)
     // If the thrown exception is found,
     // cut back the runtime stack now.
     //
-    if (foundException)
-    {
-      memcpy ((void *)&envStruct,
-              (void *)&pJmpBufNode->environment,
-              sizeof(envStruct));
+    if (foundException) {
+      memcpy((void *)&envStruct, (void *)&pJmpBufNode->environment, sizeof(envStruct));
 #if EH_USE_GLOB_NEW
       delete pJmpBufNode;
 #else
       free(pJmpBufNode);
 #endif
 
-      if(pEHCallBack_)
-	pEHCallBack_->dumpDiags();
+      if (pEHCallBack_) pEHCallBack_->dumpDiags();
 
       longjmp(envStruct.jmpBuf, exceptionType);
     }
@@ -335,4 +288,3 @@ EHExceptionHandler::throwException(EHExceptionTypeEnum exceptionType)
 
   EH_ABORT("Could not find any matching exception handler");
 }
-

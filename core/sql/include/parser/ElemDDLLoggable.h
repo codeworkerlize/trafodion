@@ -28,7 +28,7 @@
  * File:         ElemDDLLoggable.h
  * Description:  column LOGGABLE attribute
  *
- *               
+ *
  * Created:      05/18/2000
  * Language:     C++
  *
@@ -38,41 +38,26 @@
  *****************************************************************************
  */
 
-
 #include "ElemDDLNode.h"
 
+class ElemDDLLoggable : public ElemDDLNode {
+ public:
+  ElemDDLLoggable(NABoolean loggableVal) : ElemDDLNode(ELM_LOGGABLE), loggable_(loggableVal) {}
 
-class ElemDDLLoggable : public ElemDDLNode
-{
+  // virtual destructor
+  virtual ~ElemDDLLoggable() {}
 
-public:
+  // cast
+  virtual ElemDDLLoggable *castToElemDDLLoggable() { return this; }
+  virtual NABoolean getIsLoggable() const { return loggable_; }
 
-	ElemDDLLoggable( NABoolean loggableVal)
-	  : ElemDDLNode(ELM_LOGGABLE),
-	  loggable_(loggableVal)
-	{
+  // methods for tracing
+  //	virtual const NAString displayLabel2() const;
+  //	virtual const NAString getText() const;
 
-	}
+ private:
+  NABoolean loggable_;
 
+};  // class ElemDDLElemDDLLoggableAttribute
 
-	// virtual destructor
-	virtual ~ElemDDLLoggable(){}
-
-	// cast
-	virtual ElemDDLLoggable* castToElemDDLLoggable(){return this;}
-	virtual NABoolean getIsLoggable() const { return loggable_; }
-
-	// methods for tracing
-//	virtual const NAString displayLabel2() const;
-//	virtual const NAString getText() const;
-
-
-private:
-
-	NABoolean loggable_;
-
-}; // class ElemDDLElemDDLLoggableAttribute
-
-
-
-#endif // ELEMDDLLOGGABLE_H
+#endif  // ELEMDDLLOGGABLE_H

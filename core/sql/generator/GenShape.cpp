@@ -46,106 +46,77 @@
 #include "mdamkey.h"
 #include "GroupAttr.h"
 
-void outputBuffer(Space * space, char * buf, char * newbuf, NAString * shapeStr = NULL)
-{
-  if(shapeStr)
-  {
+void outputBuffer(Space *space, char *buf, char *newbuf, NAString *shapeStr = NULL) {
+  if (shapeStr) {
     (*shapeStr) += newbuf;
     return;
   }
 
-  if ((strlen(buf) + strlen(newbuf)) > 75)
-    {
-      space->allocateAndCopyToAlignedSpace(buf, strlen(buf), sizeof(short));
-      strcpy(buf, newbuf);
-    }
-  else
-    {
-      strcat(buf, newbuf);
-    }
+  if ((strlen(buf) + strlen(newbuf)) > 75) {
+    space->allocateAndCopyToAlignedSpace(buf, strlen(buf), sizeof(short));
+    strcpy(buf, newbuf);
+  } else {
+    strcat(buf, newbuf);
+  }
 }
 
-short RelExpr::generateShape(CollHeap * c, char * buf, NAString * shapeStr)
-{
-  Space * space = (Space *)c;
+short RelExpr::generateShape(CollHeap *c, char *buf, NAString *shapeStr) {
+  Space *space = (Space *)c;
   char mybuf[100];
 
   mybuf[0] = 0;
 
   NABoolean addParens = TRUE;
 
-  switch (getOperatorType())
-    {
-    case REL_SORT:
-      {
-	sprintf(mybuf, "sort(");
-      }
-    break;
+  switch (getOperatorType()) {
+    case REL_SORT: {
+      sprintf(mybuf, "sort(");
+    } break;
 
-    case REL_ORDERED_GROUPBY:
-      {
-	sprintf(mybuf, "sort_groupby(");
-      }
-    break;
+    case REL_ORDERED_GROUPBY: {
+      sprintf(mybuf, "sort_groupby(");
+    } break;
 
-    case REL_HASHED_GROUPBY:
-      {
-	sprintf(mybuf, "hash_groupby(");
-      }
-    break;
-    case REL_SHORTCUT_GROUPBY:
-      {
-        sprintf(mybuf, "shortcut_groupby(");
-      }
-    break;
+    case REL_HASHED_GROUPBY: {
+      sprintf(mybuf, "hash_groupby(");
+    } break;
+    case REL_SHORTCUT_GROUPBY: {
+      sprintf(mybuf, "shortcut_groupby(");
+    } break;
 
-    case REL_MAP_VALUEIDS:
-      {
-	sprintf(mybuf, "expr(");
-      }
-    break;
+    case REL_MAP_VALUEIDS: {
+      sprintf(mybuf, "expr(");
+    } break;
 
-    case REL_COMPOUND_STMT:
-      {
-	sprintf(mybuf, "compound_stmt(");
-      }
-    break;
+    case REL_COMPOUND_STMT: {
+      sprintf(mybuf, "compound_stmt(");
+    } break;
 
-   case REL_TUPLE:
-      {
-	sprintf(mybuf, "tuple");
-	addParens = FALSE;
-      }
-    break;
+    case REL_TUPLE: {
+      sprintf(mybuf, "tuple");
+      addParens = FALSE;
+    } break;
 
+    case REL_HIVE_INSERT: {
+      sprintf(mybuf, "hive_insert(");
+    } break;
 
-
-   case REL_HIVE_INSERT:
-     {
-       sprintf(mybuf, "hive_insert(");
-     }
-    break;
-
-   case REL_LEAF_TABLE_MAPPING_UDF:
-   case REL_UNARY_TABLE_MAPPING_UDF:
-   case REL_BINARY_TABLE_MAPPING_UDF:
-   case REL_TABLE_MAPPING_BUILTIN_LOG_READER:
-   case REL_TABLE_MAPPING_BUILTIN_SERIES:
-   case REL_TABLE_MAPPING_BUILTIN_TIMESERIES:
-   case REL_TABLE_MAPPING_BUILTIN_JDBC:
-   // for ngram
-   case REL_TABLE_MAPPING_BUILTIN_GENERATE_NGRAM:
-   case REL_TABLE_MAPPING_BUILTIN_GENERATE_WILDCARD_NGRAM:
-     {
-       if (getArity() == 0)
-         {
-           sprintf(mybuf, "tmudf");
-           addParens = FALSE;
-         }
-       else
-         sprintf(mybuf, "tmudf(");
-     }
-    break;
+    case REL_LEAF_TABLE_MAPPING_UDF:
+    case REL_UNARY_TABLE_MAPPING_UDF:
+    case REL_BINARY_TABLE_MAPPING_UDF:
+    case REL_TABLE_MAPPING_BUILTIN_LOG_READER:
+    case REL_TABLE_MAPPING_BUILTIN_SERIES:
+    case REL_TABLE_MAPPING_BUILTIN_TIMESERIES:
+    case REL_TABLE_MAPPING_BUILTIN_JDBC:
+    // for ngram
+    case REL_TABLE_MAPPING_BUILTIN_GENERATE_NGRAM:
+    case REL_TABLE_MAPPING_BUILTIN_GENERATE_WILDCARD_NGRAM: {
+      if (getArity() == 0) {
+        sprintf(mybuf, "tmudf");
+        addParens = FALSE;
+      } else
+        sprintf(mybuf, "tmudf(");
+    } break;
 
     case REL_TUPLE_LIST:
     case REL_STORED_PROC:
@@ -158,71 +129,57 @@ short RelExpr::generateShape(CollHeap * c, char * buf, NAString * shapeStr)
     case REL_UNLOCK:
     case REL_CONTROL_QUERY_SHAPE:
     case REL_CONTROL_QUERY_DEFAULT:
-    case REL_TRANSACTION:
-      {
-	sprintf(mybuf, "anything");
-	addParens = FALSE;
-      }
-    break;
+    case REL_TRANSACTION: {
+      sprintf(mybuf, "anything");
+      addParens = FALSE;
+    } break;
 
-    case REL_ROOT:
-      {
-	addParens = FALSE;
-      }
-    break;
+    case REL_ROOT: {
+      addParens = FALSE;
+    } break;
 
-    default:
-      {
-	addParens = FALSE;
-      }
-    break;
+    default: {
+      addParens = FALSE;
+    } break;
 
-    } // switch
+  }  // switch
 
-  if (mybuf)
-    outputBuffer(space, buf, mybuf, shapeStr);
+  if (mybuf) outputBuffer(space, buf, mybuf, shapeStr);
 
-  for (Int32 i = 0; i < getArity(); i++)
-    {
-      if (i > 0)
-	{
-	  sprintf(mybuf, ",");
-	  outputBuffer(space, buf, mybuf, shapeStr);
-	}
-
-      if (child(i))
-	{
-	  child(i)->generateShape(space, buf, shapeStr);
-	}
-    }
-
-  if (addParens)
-    {
-      sprintf(mybuf, ")");
+  for (Int32 i = 0; i < getArity(); i++) {
+    if (i > 0) {
+      sprintf(mybuf, ",");
       outputBuffer(space, buf, mybuf, shapeStr);
     }
+
+    if (child(i)) {
+      child(i)->generateShape(space, buf, shapeStr);
+    }
+  }
+
+  if (addParens) {
+    sprintf(mybuf, ")");
+    outputBuffer(space, buf, mybuf, shapeStr);
+  }
 
   return 0;
 }
 
-short Exchange::generateShape(CollHeap * c, char * buf, NAString * shapeStr)
-{
-  Space * space = (Space *)c;
+short Exchange::generateShape(CollHeap *c, char *buf, NAString *shapeStr) {
+  Space *space = (Space *)c;
   char mybuf[100];
 
   // ---------------------------------------------------------------------
   // copy important info from the properties into data members
   // ---------------------------------------------------------------------
-  //storePhysPropertiesInNode();
+  // storePhysPropertiesInNode();
 
-  if (isDP2Exchange())
-    {
-      if (isAPAPA())
-	sprintf(mybuf, "split_top_pa(");
-      else
-	sprintf(mybuf, "partition_access(");
-    }
-  else
+  if (isDP2Exchange()) {
+    if (isAPAPA())
+      sprintf(mybuf, "split_top_pa(");
+    else
+      sprintf(mybuf, "partition_access(");
+  } else
     sprintf(mybuf, "esp_exchange(");
   outputBuffer(space, buf, mybuf, shapeStr);
 
@@ -231,37 +188,31 @@ short Exchange::generateShape(CollHeap * c, char * buf, NAString * shapeStr)
   else
     child(0)->generateShape(space, buf, shapeStr);
 
-  const PartitioningFunction *bottomPartFunc =
-    getBottomPartitioningFunction();
+  const PartitioningFunction *bottomPartFunc = getBottomPartitioningFunction();
 
   mybuf[0] = 0;
-  if (isDP2Exchange())
-    {
-      if (bottomPartFunc)
-	{
-	  const LogPhysPartitioningFunction *lpf =
-	    bottomPartFunc->castToLogPhysPartitioningFunction();
-	  if (lpf)
-	    {
-	      switch (lpf->getLogPartType())
-		{
-		case LogPhysPartitioningFunction::PA_PARTITION_GROUPING:
-		  sprintf(mybuf, " ,group");
-		  break;
+  if (isDP2Exchange()) {
+    if (bottomPartFunc) {
+      const LogPhysPartitioningFunction *lpf = bottomPartFunc->castToLogPhysPartitioningFunction();
+      if (lpf) {
+        switch (lpf->getLogPartType()) {
+          case LogPhysPartitioningFunction::PA_PARTITION_GROUPING:
+            sprintf(mybuf, " ,group");
+            break;
 
-		case LogPhysPartitioningFunction::LOGICAL_SUBPARTITIONING:
-		case LogPhysPartitioningFunction::PA_GROUPED_REPARTITIONING:
-		  sprintf(mybuf, " ,split");
-		  break;
+          case LogPhysPartitioningFunction::LOGICAL_SUBPARTITIONING:
+          case LogPhysPartitioningFunction::PA_GROUPED_REPARTITIONING:
+            sprintf(mybuf, " ,split");
+            break;
 
-		default:
-		  break;
-		}
+          default:
+            break;
+        }
 
-	      outputBuffer(space, buf, mybuf, shapeStr);
-	    } // lpf !+ NULL
-	} // bottomPartFunc
-    } // DP2Exchange
+        outputBuffer(space, buf, mybuf, shapeStr);
+      }  // lpf !+ NULL
+    }    // bottomPartFunc
+  }      // DP2Exchange
 
   if ((bottomPartFunc) && (isDP2Exchange()) && (isAPAPA()))
     sprintf(mybuf, " ,%d", getBottomPartitioningFunction()->getCountOfPartitions());
@@ -273,13 +224,11 @@ short Exchange::generateShape(CollHeap * c, char * buf, NAString * shapeStr)
   return 0;
 }
 
-short Join::generateShape(CollHeap * c, char * buf, NAString * shapeStr)
-{
-  Space * space = (Space *)c;
+short Join::generateShape(CollHeap *c, char *buf, NAString *shapeStr) {
+  Space *space = (Space *)c;
   char mybuf[100];
 
-  switch (getOperatorType())
-    {
+  switch (getOperatorType()) {
     case REL_NESTED_JOIN:
     case REL_LEFT_NESTED_JOIN:
     case REL_NESTED_SEMIJOIN:
@@ -316,14 +265,14 @@ short Join::generateShape(CollHeap * c, char * buf, NAString * shapeStr)
 
     case REL_HYBRID_HASH_JOIN:
       if (((HashJoin *)this)->isOrderedCrossProduct())
-	sprintf(mybuf, "ordered_cross_product(");
+        sprintf(mybuf, "ordered_cross_product(");
       else
-	sprintf(mybuf, "hybrid_hash_join(");
+        sprintf(mybuf, "hybrid_hash_join(");
       break;
 
     default:
       sprintf(mybuf, "add_to_Join::generateShape(");
-    }
+  }
 
   outputBuffer(space, buf, mybuf, shapeStr);
 
@@ -336,51 +285,41 @@ short Join::generateShape(CollHeap * c, char * buf, NAString * shapeStr)
 
   // is it IndexJoin? if both children are scans and number of base tables is
   // 1, it is index join
-  if (getGroupAttr()->getNumBaseTables() == 1)
-  {
-     NABoolean child0isScan = FALSE;
-     NABoolean child1isScan = FALSE;
-     RelExpr *lChild = child(0)->castToRelExpr();
+  if (getGroupAttr()->getNumBaseTables() == 1) {
+    NABoolean child0isScan = FALSE;
+    NABoolean child1isScan = FALSE;
+    RelExpr *lChild = child(0)->castToRelExpr();
 
-     while (lChild->getArity() == 1)
-     {
-        lChild=lChild->child(0)->castToRelExpr();
-     }
+    while (lChild->getArity() == 1) {
+      lChild = lChild->child(0)->castToRelExpr();
+    }
 
-     switch( lChild->castToRelExpr()->getOperatorType())
-     {
-       case REL_SCAN:
-       case REL_FILE_SCAN:
-       case REL_HBASE_ACCESS:
-       case REL_HDFS_SCAN:
-	 child0isScan = TRUE;
-     }
+    switch (lChild->castToRelExpr()->getOperatorType()) {
+      case REL_SCAN:
+      case REL_FILE_SCAN:
+      case REL_HBASE_ACCESS:
+      case REL_HDFS_SCAN:
+        child0isScan = TRUE;
+    }
 
-     RelExpr *rChild = child(1)->castToRelExpr();
+    RelExpr *rChild = child(1)->castToRelExpr();
 
-     while (rChild->getArity() == 1)
-     {
-        rChild = rChild->child(0)->castToRelExpr();
-     }
-     switch (rChild->castToRelExpr()->getOperatorType())
-     {
-       case REL_SCAN:
-       case REL_FILE_SCAN:
-       case REL_HBASE_ACCESS:
-       case REL_HDFS_SCAN:
-         child1isScan = TRUE;
-     }
-     if (child0isScan && child1isScan)
-     {
-       sprintf(mybuf, ",INDEXJOIN)");
-     }
-     else
-     {
-       sprintf(mybuf, ")");
-     }
-  }
-  else
-  {
+    while (rChild->getArity() == 1) {
+      rChild = rChild->child(0)->castToRelExpr();
+    }
+    switch (rChild->castToRelExpr()->getOperatorType()) {
+      case REL_SCAN:
+      case REL_FILE_SCAN:
+      case REL_HBASE_ACCESS:
+      case REL_HDFS_SCAN:
+        child1isScan = TRUE;
+    }
+    if (child0isScan && child1isScan) {
+      sprintf(mybuf, ",INDEXJOIN)");
+    } else {
+      sprintf(mybuf, ")");
+    }
+  } else {
     sprintf(mybuf, ")");
   }
 
@@ -389,9 +328,8 @@ short Join::generateShape(CollHeap * c, char * buf, NAString * shapeStr)
   return 0;
 }
 
-short MergeUnion::generateShape(CollHeap * c, char * buf, NAString * shapeStr)
-{
-  Space * space = (Space *)c;
+short MergeUnion::generateShape(CollHeap *c, char *buf, NAString *shapeStr) {
+  Space *space = (Space *)c;
   char mybuf[100];
 
   sprintf(mybuf, "union(");
@@ -410,47 +348,29 @@ short MergeUnion::generateShape(CollHeap * c, char * buf, NAString * shapeStr)
   return 0;
 }
 
-short FileScan::generateShape(CollHeap * c, char * buf, NAString * shapeStr)
-{
-  Space * space = (Space *)c;
+short FileScan::generateShape(CollHeap *c, char *buf, NAString *shapeStr) {
+  Space *space = (Space *)c;
   char mybuf[1000];
   NAString fmtdStr1, fmtdStr2;
 
-  if (getIndexDesc()->getNAFileSet()->getKeytag() == 0)
-  {
-     if (getTableName().getCorrNameAsString() == "")
-     {
-        ToQuotedString(fmtdStr1, 
-                       getIndexDesc()->getNAFileSet()->
-                        getExtFileSetName().data());
-        snprintf(mybuf, 1000, "scan(path %s, ", fmtdStr1.data());
-     }
-     else
-     {
-        ToQuotedString(fmtdStr1,getTableName().getCorrNameAsString().data());
-        ToQuotedString(fmtdStr2,getIndexDesc()->getNAFileSet()->
-                                 getExtFileSetName().data());
-        snprintf(mybuf, 1000, "scan(TABLE %s, path %s, ",
-                  fmtdStr1.data(), fmtdStr2.data());
-     }
-  }
-  else
-  {
-    if (getTableName().getCorrNameAsString() != "")
-    {
-      ToQuotedString(fmtdStr1,getTableName().getCorrNameAsString().data());
-      ToQuotedString(fmtdStr2,getIndexDesc()->getNAFileSet()->
-                               getExtFileSetName().data());
-      snprintf(mybuf, 1000, "scan(TABLE %s, path %s, ",
-                  fmtdStr1.data(), fmtdStr2.data());
+  if (getIndexDesc()->getNAFileSet()->getKeytag() == 0) {
+    if (getTableName().getCorrNameAsString() == "") {
+      ToQuotedString(fmtdStr1, getIndexDesc()->getNAFileSet()->getExtFileSetName().data());
+      snprintf(mybuf, 1000, "scan(path %s, ", fmtdStr1.data());
+    } else {
+      ToQuotedString(fmtdStr1, getTableName().getCorrNameAsString().data());
+      ToQuotedString(fmtdStr2, getIndexDesc()->getNAFileSet()->getExtFileSetName().data());
+      snprintf(mybuf, 1000, "scan(TABLE %s, path %s, ", fmtdStr1.data(), fmtdStr2.data());
     }
-    else
-    {
-      ToQuotedString(fmtdStr1,getIndexDesc()->getNAFileSet()->
-                               getExtFileSetName().data());
+  } else {
+    if (getTableName().getCorrNameAsString() != "") {
+      ToQuotedString(fmtdStr1, getTableName().getCorrNameAsString().data());
+      ToQuotedString(fmtdStr2, getIndexDesc()->getNAFileSet()->getExtFileSetName().data());
+      snprintf(mybuf, 1000, "scan(TABLE %s, path %s, ", fmtdStr1.data(), fmtdStr2.data());
+    } else {
+      ToQuotedString(fmtdStr1, getIndexDesc()->getNAFileSet()->getExtFileSetName().data());
       snprintf(mybuf, 1000, "scan(path %s, ", fmtdStr1.data());
     }
-
   }
 
   outputBuffer(space, buf, mybuf, shapeStr);
@@ -462,83 +382,69 @@ short FileScan::generateShape(CollHeap * c, char * buf, NAString * shapeStr)
 
   outputBuffer(space, buf, mybuf, shapeStr);
 
-  if (getNumberOfBlocksToReadPerAccess() > -1)
-    {
-      sprintf(mybuf, ", blocks_per_access %d ",
-	      getNumberOfBlocksToReadPerAccess());
-      outputBuffer(space, buf, mybuf, shapeStr);
-    }
+  if (getNumberOfBlocksToReadPerAccess() > -1) {
+    sprintf(mybuf, ", blocks_per_access %d ", getNumberOfBlocksToReadPerAccess());
+    outputBuffer(space, buf, mybuf, shapeStr);
+  }
 
   if (getMdamKeyPtr() == NULL)
     strcpy(mybuf, ", mdam off)");
-  else
-    {
-      // compute MAX stop column
-      CollIndex maxStopColumn=0;
-      CollIndex j = 0;
-      for (j=0; j < getMdamKeyPtr()->getKeyDisjunctEntries(); j++)
-        {
-          if (getMdamKeyPtr()->getStopColumn(j) > maxStopColumn)
-            {
-              maxStopColumn = getMdamKeyPtr()->getStopColumn(j);
-            }
-        }
-
-      if (maxStopColumn == getIndexDesc()->getIndexKey().entries()-1)
-        {
-          strcpy(mybuf, ", mdam forced, mdam_columns all(");
-        }
-        else
-        {
-          strcpy(mybuf, ", mdam forced, mdam_columns (");
-        }
-
-      outputBuffer(space, buf, mybuf, shapeStr);
-
-      UInt32 maxCol = MINOF((maxStopColumn+1), getIndexDesc()->getIndexKey().entries());
-      for (UInt32 i = 0; i < maxCol; i++)
-	{
-	  if (i > 0)
-	    strcpy(mybuf, ", ");
-	  else
-	    mybuf[0] = 0;
-
-	  if (getMdamKeyPtr()->isColumnSparse(i))
-	    strcat(mybuf, "sparse");
-	  else
-	    strcat(mybuf, "dense");
-	  outputBuffer(space, buf, mybuf, shapeStr);
-	}
-      strcpy(mybuf, "))");
+  else {
+    // compute MAX stop column
+    CollIndex maxStopColumn = 0;
+    CollIndex j = 0;
+    for (j = 0; j < getMdamKeyPtr()->getKeyDisjunctEntries(); j++) {
+      if (getMdamKeyPtr()->getStopColumn(j) > maxStopColumn) {
+        maxStopColumn = getMdamKeyPtr()->getStopColumn(j);
+      }
     }
+
+    if (maxStopColumn == getIndexDesc()->getIndexKey().entries() - 1) {
+      strcpy(mybuf, ", mdam forced, mdam_columns all(");
+    } else {
+      strcpy(mybuf, ", mdam forced, mdam_columns (");
+    }
+
+    outputBuffer(space, buf, mybuf, shapeStr);
+
+    UInt32 maxCol = MINOF((maxStopColumn + 1), getIndexDesc()->getIndexKey().entries());
+    for (UInt32 i = 0; i < maxCol; i++) {
+      if (i > 0)
+        strcpy(mybuf, ", ");
+      else
+        mybuf[0] = 0;
+
+      if (getMdamKeyPtr()->isColumnSparse(i))
+        strcat(mybuf, "sparse");
+      else
+        strcat(mybuf, "dense");
+      outputBuffer(space, buf, mybuf, shapeStr);
+    }
+    strcpy(mybuf, "))");
+  }
 
   outputBuffer(space, buf, mybuf, shapeStr);
 
   return 0;
 }
 
-short GenericUpdate::generateShape(CollHeap * c, char * buf, NAString * shapeStr)
-{
-  Space * space = (Space *)c;
+short GenericUpdate::generateShape(CollHeap *c, char *buf, NAString *shapeStr) {
+  Space *space = (Space *)c;
   char mybuf[100];
 
-  switch (getOperatorType())
-    {
-    default:
-      {
-	sprintf (mybuf, "anything");
-      }
-    break;
-    }
+  switch (getOperatorType()) {
+    default: {
+      sprintf(mybuf, "anything");
+    } break;
+  }
 
   outputBuffer(space, buf, mybuf, shapeStr);
 
   return 0;
 }
 
-short PhysSequence::generateShape(CollHeap * c, char * buf, NAString * shapeStr)
-{
-  Space * space = (Space *)c;
+short PhysSequence::generateShape(CollHeap *c, char *buf, NAString *shapeStr) {
+  Space *space = (Space *)c;
   char mybuf[100];
 
   sprintf(mybuf, "sequence(");
@@ -552,9 +458,8 @@ short PhysSequence::generateShape(CollHeap * c, char * buf, NAString * shapeStr)
   return 0;
 }
 
-short PhysTranspose::generateShape(CollHeap * c, char * buf, NAString * shapeStr)
-{
-  Space * space = (Space *)c;
+short PhysTranspose::generateShape(CollHeap *c, char *buf, NAString *shapeStr) {
+  Space *space = (Space *)c;
   char mybuf[100];
 
   sprintf(mybuf, "transpose(");
@@ -568,9 +473,8 @@ short PhysTranspose::generateShape(CollHeap * c, char * buf, NAString * shapeStr
   return 0;
 }
 
-short PhysUnPackRows::generateShape(CollHeap * c, char * buf, NAString * shapeStr)
-{
-  Space * space = (Space *)c;
+short PhysUnPackRows::generateShape(CollHeap *c, char *buf, NAString *shapeStr) {
+  Space *space = (Space *)c;
   char mybuf[100];
 
   sprintf(mybuf, "unpack(");
@@ -584,9 +488,8 @@ short PhysUnPackRows::generateShape(CollHeap * c, char * buf, NAString * shapeSt
   return 0;
 }
 
-short PhyPack::generateShape(CollHeap * c, char * buf, NAString * shapeStr)
-{
-  Space * space = (Space *)c;
+short PhyPack::generateShape(CollHeap *c, char *buf, NAString *shapeStr) {
+  Space *space = (Space *)c;
   char mybuf[100];
 
   sprintf(mybuf, "pack(");
@@ -600,9 +503,8 @@ short PhyPack::generateShape(CollHeap * c, char * buf, NAString * shapeStr)
   return 0;
 }
 
-short PhysSample::generateShape(CollHeap * c, char * buf, NAString * shapeStr)
-{
-  Space * space = (Space *)c;
+short PhysSample::generateShape(CollHeap *c, char *buf, NAString *shapeStr) {
+  Space *space = (Space *)c;
   char mybuf[100];
 
   sprintf(mybuf, "sample(");
@@ -616,50 +518,41 @@ short PhysSample::generateShape(CollHeap * c, char * buf, NAString * shapeStr)
   return 0;
 }
 
-short
-IsolatedScalarUDF::generateShape(CollHeap * c, char * buf,
-                           NAString * shapeStr)
-{
+short IsolatedScalarUDF::generateShape(CollHeap *c, char *buf, NAString *shapeStr) {
   Space *space = (Space *)c;
   char mybuf[100];
 
-  sprintf (mybuf, "isolated_scalar_udf");
-  outputBuffer (space, buf, mybuf, shapeStr);
+  sprintf(mybuf, "isolated_scalar_udf");
+  outputBuffer(space, buf, mybuf, shapeStr);
 
-  if (getRoutineDesc() &&
-      getRoutineDesc()->getNARoutine() &&
-      getRoutineDesc()->getNARoutine()->getRoutineName())
-  {
+  if (getRoutineDesc() && getRoutineDesc()->getNARoutine() && getRoutineDesc()->getNARoutine()->getRoutineName()) {
     NAString fmtdStr;
-    ToQuotedString(fmtdStr, getRoutineDesc()->getNARoutine()->
-                             getRoutineName()->getQualifiedNameObj().
-                             getQualifiedNameAsAnsiString().data());
-    snprintf (mybuf, 100, "(scalar_udf %s", fmtdStr.data());
-    outputBuffer (space, buf, mybuf, shapeStr);
-    if (getRoutineDesc()->isUUDFRoutine() &&
-        getRoutineDesc()->getActionNARoutine() &&
-        getRoutineDesc()->getActionNARoutine()->getActionName())
-    {
-      ToQuotedString(fmtdStr, getRoutineDesc()->getActionNARoutine()->
-                               getActionName()->data());
-      snprintf (mybuf, 100, ", udf_action %s", fmtdStr.data());
-      outputBuffer (space, buf, mybuf, shapeStr);
+    ToQuotedString(fmtdStr, getRoutineDesc()
+                                ->getNARoutine()
+                                ->getRoutineName()
+                                ->getQualifiedNameObj()
+                                .getQualifiedNameAsAnsiString()
+                                .data());
+    snprintf(mybuf, 100, "(scalar_udf %s", fmtdStr.data());
+    outputBuffer(space, buf, mybuf, shapeStr);
+    if (getRoutineDesc()->isUUDFRoutine() && getRoutineDesc()->getActionNARoutine() &&
+        getRoutineDesc()->getActionNARoutine()->getActionName()) {
+      ToQuotedString(fmtdStr, getRoutineDesc()->getActionNARoutine()->getActionName()->data());
+      snprintf(mybuf, 100, ", udf_action %s", fmtdStr.data());
+      outputBuffer(space, buf, mybuf, shapeStr);
     }
     strcpy(mybuf, ")");
-    outputBuffer (space, buf, mybuf, shapeStr);
+    outputBuffer(space, buf, mybuf, shapeStr);
   }
   return 0;
 }
 
-short CallSP::generateShape(CollHeap * c, char * buf, NAString * shapeStr)
-{
+short CallSP::generateShape(CollHeap *c, char *buf, NAString *shapeStr) {
   Space *space = (Space *)c;
   char mybuf[100];
 
-  sprintf (mybuf, "callsp");
-  outputBuffer (space, buf, mybuf, shapeStr);
+  sprintf(mybuf, "callsp");
+  outputBuffer(space, buf, mybuf, shapeStr);
 
   return 0;
-
 }
-

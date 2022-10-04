@@ -6,9 +6,9 @@
  *
  * File:         SqlciStmts.h
  * RCS:          $Id: SqlciStmts.h,v 1.2 1997/04/23 00:31:15  Exp $
- * Description:  
- *               
- *               
+ * Description:
+ *
+ *
  * Created:      4/15/95
  * Modified:     $ $Date: 1997/04/23 00:31:15 $ (GMT)
  * Language:     C++
@@ -42,7 +42,7 @@
 
 // -----------------------------------------------------------------------
 // Change history:
-// 
+//
 // $Log: SqlciStmts.h,v $
 // Revision 1.2  1997/04/23 00:31:15
 // Merge of MDAM/Costing changes into SDK thread
@@ -57,11 +57,11 @@
 // Revision 1.1.1.1  1997/03/28 01:39:45
 // These are the source files from SourceSafe.
 //
-// 
-// 4     1/22/97 11:04p 
+//
+// 4     1/22/97 11:04p
 // Merged UNIX and NT versions.
-// 
-// 2     1/13/97 1:16p 
+//
+// 2     1/13/97 1:16p
 // Revision 1.4  1996/12/21 04:15:02
 // Made most methods const.
 //
@@ -74,47 +74,47 @@
 // Revision 1.1  1995/07/17 22:02:49
 // Initial revision
 //
-// 
+//
 // -----------------------------------------------------------------------
-
 
 class StmtEntry;
 class InputStmt;
 
 class SqlciStmts {
-  StmtEntry * First;
-  StmtEntry * Last;
+  StmtEntry *First;
+  StmtEntry *Last;
   Lng32 last_stmt_num;
   Lng32 max_entries;
-public:
+
+ public:
   SqlciStmts(Lng32 max_entries_);
   ~SqlciStmts();
-  void add(InputStmt * input_stmt_);
+  void add(InputStmt *input_stmt_);
   void display(Lng32 num_stmts_) const;
-  InputStmt * get(Lng32 stmt_num_) const;
-  InputStmt * get(char * stmt_) const;
-  InputStmt * get() const; 		// gets last statement
-  void remove(); 			// removes last statement
-  Lng32 last_stmt() const { return last_stmt_num; } 
+  InputStmt *get(Lng32 stmt_num_) const;
+  InputStmt *get(char *stmt_) const;
+  InputStmt *get() const;  // gets last statement
+  void remove();           // removes last statement
+  Lng32 last_stmt() const { return last_stmt_num; }
 };
 
 class StmtEntry {
   Lng32 stmt_num;
-  InputStmt * input_stmt;
-  StmtEntry * next;
-  StmtEntry * prev;
-public:
+  InputStmt *input_stmt;
+  StmtEntry *next;
+  StmtEntry *prev;
+
+ public:
   StmtEntry();
   ~StmtEntry();
   void disconnect();
-  void set(Lng32 stmt_num_, InputStmt * input_stmt_);
-  inline Lng32 getStmtNum() const		{ return stmt_num; }
-  inline InputStmt * getInputStmt() const	{ return input_stmt; }
-  inline StmtEntry * getNext() const		{ return next; }
-  inline StmtEntry * getPrev() const		{ return prev; }
-  inline void setNext(StmtEntry * next_)	{ next = next_; }
-  inline void setPrev(StmtEntry * prev_)	{ prev = prev_; }
-
+  void set(Lng32 stmt_num_, InputStmt *input_stmt_);
+  inline Lng32 getStmtNum() const { return stmt_num; }
+  inline InputStmt *getInputStmt() const { return input_stmt; }
+  inline StmtEntry *getNext() const { return next; }
+  inline StmtEntry *getPrev() const { return prev; }
+  inline void setNext(StmtEntry *next_) { next = next_; }
+  inline void setPrev(StmtEntry *prev_) { prev = prev_; }
 };
 
 #endif

@@ -36,8 +36,7 @@
 ******************************************************************************
 */
 
-
-#include "common/charinfo.h"		// for CollationAndCoercibility
+#include "common/charinfo.h"  // for CollationAndCoercibility
 #include "common/ComASSERT.h"
 #include "common/ExprNode.h"
 #include "optimizer/ItemExprList.h"
@@ -82,97 +81,78 @@ class ColStatDescList;
 // allows its users to prevent updates to the object. See also class
 // ExprGroupId in file RelExpr.h.
 // -----------------------------------------------------------------------
-class ExprValueId : public NABasicObject
-{
-public:
-
+class ExprValueId : public NABasicObject {
+ public:
   // state of the object
-  enum ItemExprMode
-  {
-    STANDALONE,
-    MEMOIZED
-  };
+  enum ItemExprMode { STANDALONE, MEMOIZED };
 
   // constructors
 
   ExprValueId();
   ExprValueId(const ExprValueId &other);
-  ExprValueId(ItemExpr * exprPtr);
-  ExprValueId(const ValueId & exprId);
+  ExprValueId(ItemExpr *exprPtr);
+  ExprValueId(const ValueId &exprId);
 
   // assignment operators
-  ExprValueId & operator = (const ExprValueId & other);
-  ExprValueId & operator = (ItemExpr * other);
-  ExprValueId & operator = (const ValueId & other);
+  ExprValueId &operator=(const ExprValueId &other);
+  ExprValueId &operator=(ItemExpr *other);
+  ExprValueId &operator=(const ValueId &other);
 
   // compare an ExprValueId with another ExprValueId or ItemExpr * or ValueId
-  NABoolean operator == (const ExprValueId &other) const;
-  inline NABoolean operator != (const ExprValueId &other) const
-                                           { return NOT operator == (other); }
+  NABoolean operator==(const ExprValueId &other) const;
+  inline NABoolean operator!=(const ExprValueId &other) const { return NOT operator==(other); }
 
-  NABoolean operator == (const ItemExpr *other) const;
-  inline NABoolean operator != (const ItemExpr *other) const
-                                           { return NOT operator == (other); }
-  NABoolean operator == (const ValueId &other) const;
-  inline NABoolean operator != (const ValueId &other) const
-                                           { return NOT operator == (other); }
+  NABoolean operator==(const ItemExpr *other) const;
+  inline NABoolean operator!=(const ItemExpr *other) const { return NOT operator==(other); }
+  NABoolean operator==(const ValueId &other) const;
+  inline NABoolean operator!=(const ValueId &other) const { return NOT operator==(other); }
 
   // dereferencing operator, this class works like a pointer
-  inline ItemExpr * operator ->() const;	// defined below class ItemExpr
+  inline ItemExpr *operator->() const;  // defined below class ItemExpr
 
   // same as a "normal" method
-  ItemExpr * getPtr() const;		// defined below class ItemExpr
+  ItemExpr *getPtr() const;  // defined below class ItemExpr
 
   // cast into an ItemExpr *
-  inline operator ItemExpr *() const;		// defined below class ItemExpr
+  inline operator ItemExpr *() const;  // defined below class ItemExpr
 
   // cast into a ValueId
-  inline operator ValueId() const                     { return getValueId(); }
+  inline operator ValueId() const { return getValueId(); }
 
-  NAColumn *getNAColumn(NABoolean okIfNotColumn = FALSE) const
-			   { return getValueId().getNAColumn(okIfNotColumn); }
+  NAColumn *getNAColumn(NABoolean okIfNotColumn = FALSE) const { return getValueId().getNAColumn(okIfNotColumn); }
 
   // return the ValueId
   ValueId getValueId() const;
 
   // return the mode of the pointer
-  inline ItemExprMode getMode() const                    { return exprMode_; }
+  inline ItemExprMode getMode() const { return exprMode_; }
 
   // change modes
   void convertToMemoized();
   void convertToStandalone();
 
-private:
-
+ private:
   enum ItemExprMode exprMode_;
-  ItemExpr    * exprPtr_;   // used for the STANDALONE and MEMOIZED mode
-  ValueId       exprId_;    // used for the MEMOIZED mode
+  ItemExpr *exprPtr_;  // used for the STANDALONE and MEMOIZED mode
+  ValueId exprId_;     // used for the MEMOIZED mode
 
-}; // class ExprValueId
+};  // class ExprValueId
 
 // declarations for ItemExpr::treeWalk below
-typedef ItemExpr * (*ItemTreeWalkFunc)(ItemExpr *,
-                                       CollHeap *outHeap,
-                                       void *context);
+typedef ItemExpr *(*ItemTreeWalkFunc)(ItemExpr *, CollHeap *outHeap, void *context);
 enum ItemTreeWalkSeq { ITM_PREFIX_WALK, ITM_POSTFIX_WALK };
 
 // -----------------------------------------------------------------------
 // A generic item expression node.
 // -----------------------------------------------------------------------
 
-
-class ItemExpr : public ExprNode
-{
-
-public:
-
+class ItemExpr : public ExprNode {
+ public:
   // default constructor
-  ItemExpr(OperatorTypeEnum otype,
-	   ItemExpr *child0 = NULL,
-	   ItemExpr *child1 = NULL);
+  ItemExpr(OperatorTypeEnum otype, ItemExpr *child0 = NULL, ItemExpr *child1 = NULL);
 
   // copy constructor
-  ItemExpr(const ItemExpr& s);
+  ItemExpr(const ItemExpr &s);
 
   // virtual destructor
   virtual ~ItemExpr();
@@ -181,33 +161,33 @@ public:
   void deleteInstance();
 
   // operator [] is used to access the children of a tree
-  virtual ExprValueId & operator[] (Lng32 index);
-  virtual const ExprValueId & operator[] (Lng32 index) const;
+  virtual ExprValueId &operator[](Lng32 index);
+  virtual const ExprValueId &operator[](Lng32 index) const;
 
   // flip tree without extra resources.
-  ItemExpr * reverseTree();
+  ItemExpr *reverseTree();
 
   // for cases where a named method is more convenient than operator []
-  ExprValueId & child(Lng32 index)      		{ return operator[](index); }
-  const ExprValueId & child(Lng32 index) const	{ return operator[](index); }
+  ExprValueId &child(Lng32 index) { return operator[](index); }
+  const ExprValueId &child(Lng32 index) const { return operator[](index); }
 
   // return a reference (can be used as an lvalue)
-  Lng32 &currChildNo()				{ return currChildNo_; }
+  Lng32 &currChildNo() { return currChildNo_; }
 
-  virtual NABoolean operator == (const ItemExpr& other) const;
+  virtual NABoolean operator==(const ItemExpr &other) const;
 
-  virtual NABoolean isEquivalentForCodeGeneration(const ItemExpr * other);
+  virtual NABoolean isEquivalentForCodeGeneration(const ItemExpr *other);
 
-  NABoolean hasBaseEquivalenceForCodeGeneration(const ItemExpr * other);
+  NABoolean hasBaseEquivalenceForCodeGeneration(const ItemExpr *other);
 
-  virtual ConstValue *castToConstValue(NABoolean & negate);
+  virtual ConstValue *castToConstValue(NABoolean &negate);
 
   // a method for initializing the ValueId in the item expression.
-  void setValueId(ValueId valId)		{ valId_ = valId; }
-  ValueId getValueId() const			{ return valId_; }
-  
-  void setInitVId(ValueId valId)		{ initVId_ = valId; }
-  ValueId getInitVId() const			{ return initVId_; }
+  void setValueId(ValueId valId) { valId_ = valId; }
+  ValueId getValueId() const { return valId_; }
+
+  void setInitVId(ValueId valId) { initVId_ = valId; }
+  ValueId getInitVId() const { return initVId_; }
 
   // a method for allocating the ValueId for an ItemExpr
   void allocValueId();
@@ -220,45 +200,35 @@ public:
   // Ways of determining if *this represents any "IS NOT NULL" predicate
   // or in particular, a "col IS NOT NULL" pred.
   //
-  ItemExpr *getChildIfThisIsISNOTNULL() const
-  {
+  ItemExpr *getChildIfThisIsISNOTNULL() const {
     if (getOperatorType() == ITM_IS_NOT_NULL)
       return child(0);
-    else if (getOperatorType() == ITM_NOT &&
-    	     child(0)->getOperatorType() == ITM_IS_NULL)
+    else if (getOperatorType() == ITM_NOT && child(0)->getOperatorType() == ITM_IS_NULL)
       return child(0)->child(0);
     else
       return NULL;
   }
 
-  NABoolean isISNOTNULL() const
-  {
+  NABoolean isISNOTNULL() const {
     ItemExpr *ie = getChildIfThisIsISNOTNULL();
     if (ie) return TRUE;
-    if (getOperatorType() == ITM_AND)
-      return child(0)->isISNOTNULL() && child(1)->isISNOTNULL();
+    if (getOperatorType() == ITM_AND) return child(0)->isISNOTNULL() && child(1)->isISNOTNULL();
     return FALSE;
   }
 
-  void getColumnsIfThisIsISNOTNULL(ItemExprList &il, NABoolean) const
-  {
+  void getColumnsIfThisIsISNOTNULL(ItemExprList &il, NABoolean) const {
     ItemExpr *ie = getChildIfThisIsISNOTNULL();
-    if (ie)
-      {
-	if (ie->getOperatorType() == ITM_REFERENCE  ||
-	    ie->getOperatorType() == ITM_BASECOLUMN ||
-	    ie->getOperatorType() == ITM_INDEXCOLUMN)
-	  il.insert(ie);
-      }
-    else
-      {
-        child(0)->getColumnsIfThisIsISNOTNULL(il, TRUE);
-        child(1)->getColumnsIfThisIsISNOTNULL(il, TRUE);
-      }
+    if (ie) {
+      if (ie->getOperatorType() == ITM_REFERENCE || ie->getOperatorType() == ITM_BASECOLUMN ||
+          ie->getOperatorType() == ITM_INDEXCOLUMN)
+        il.insert(ie);
+    } else {
+      child(0)->getColumnsIfThisIsISNOTNULL(il, TRUE);
+      child(1)->getColumnsIfThisIsISNOTNULL(il, TRUE);
+    }
   }
 
-  NABoolean getColumnsIfThisIsISNOTNULL(ItemExprList &il) const
-  {
+  NABoolean getColumnsIfThisIsISNOTNULL(ItemExprList &il) const {
     il.clear();
     if (!isISNOTNULL()) return FALSE;
     getColumnsIfThisIsISNOTNULL(il, TRUE);
@@ -267,12 +237,12 @@ public:
 
   // If this predicate is of the form <column> <comparison op> <constant/param/host varb>
   // (or its mirror image), return the <column> node. Return NULL if not.
-  ItemExpr * getColumnIfThisIsNiceComparison();
+  ItemExpr *getColumnIfThisIsNiceComparison();
 
   // methods required for traversing an ExprNode tree:
   // non-const & const access a child of an ExprNode, replace a particular child
-  virtual ExprNode *getChild(Lng32 index)           { return child(index); }
-  virtual const ExprNode *getConstChild(Lng32 index) const {return child(index);}
+  virtual ExprNode *getChild(Lng32 index) { return child(index); }
+  virtual const ExprNode *getConstChild(Lng32 index) const { return child(index); }
   virtual void setChild(Lng32 index, ExprNode *);
 
   ItemExpr *containsRightmost(const ItemExpr *ie);
@@ -281,55 +251,43 @@ public:
   // can cause this scalar expression to be replaced with another one.
   // The original expression remembers its replacement expression.
   //
-  void setReplacementExpr(ItemExpr * replacementExpr)
-  					{ replacementExpr_ = replacementExpr; };
-  virtual ItemExpr * getReplacementExpr() const	{ return replacementExpr_; };
+  void setReplacementExpr(ItemExpr *replacementExpr) { replacementExpr_ = replacementExpr; };
+  virtual ItemExpr *getReplacementExpr() const { return replacementExpr_; };
 
   // Take an item expression and remove all nodes from its top that form
   // a "backbone". Then add the value ids of all the remaining nodes to
   // a ValueIdSet.
-  Int32 convertToValueIdSet(ValueIdSet &vs,
-			  BindWA *bindWA = NULL,
-			  OperatorTypeEnum backboneType = ITM_AND,
-                          NABoolean transformSubqueries = TRUE,
-                          NABoolean flattenLists = FALSE);
+  Int32 convertToValueIdSet(ValueIdSet &vs, BindWA *bindWA = NULL, OperatorTypeEnum backboneType = ITM_AND,
+                            NABoolean transformSubqueries = TRUE, NABoolean flattenLists = FALSE);
 
   // Take an item expression and remove all nodes from its top that form
   // a "backbone". Then add the value ids of all the remaining nodes to
   // a ValueIdList.
-  Int32 convertToValueIdList(ValueIdList &vl,
-			    BindWA *bindWA = NULL,
-			    OperatorTypeEnum backboneType = ITM_ITEM_LIST,
-                            RelExpr *parent = NULL);
+  Int32 convertToValueIdList(ValueIdList &vl, BindWA *bindWA = NULL, OperatorTypeEnum backboneType = ITM_ITEM_LIST,
+                             RelExpr *parent = NULL);
 
   // rewrite this expression by replacing all value ids in it with
   // the equivalent mapped value ids; return a new value id for the result
   // Also add to the map the mapping form the old to the new expression
-  virtual ValueId mapAndRewrite(ValueIdMap &map,
-				NABoolean mapDownwards = FALSE);
+  virtual ValueId mapAndRewrite(ValueIdMap &map, NABoolean mapDownwards = FALSE);
 
   // The method is similar to the mapAndRewrite method. Except it looks
   // for the bottom value from the given index of the list.
   // This is to take care of duplicates appearing in the
   // bottomValue list. Sol: 10-040416-5166
-  virtual ValueId mapAndRewriteWithIndx(ValueIdMap &map,
-	  				CollIndex i);
-  virtual NABoolean hasEquivalentProperties(ItemExpr * other);
-  NABoolean hasBaseEquivalence(ItemExpr * other);
-  
-  ItemExpr * changeDefaultOrderToDesc();
+  virtual ValueId mapAndRewriteWithIndx(ValueIdMap &map, CollIndex i);
+  virtual NABoolean hasEquivalentProperties(ItemExpr *other);
+  NABoolean hasBaseEquivalence(ItemExpr *other);
 
-  ValueId removeInverseFromExprTree( NABoolean & invExists );
-  ItemExpr* removeInverseFromExprTree( NABoolean & invExists,
-                                     const NABoolean onlyDouble );
-  
-  static void removeNotCoveredFromExprTree( ItemExpr* &ie, 
-                                            const ValueIdSet &seqColumns,
-                                            NABoolean rootNode = TRUE,
-                                            NABoolean assignValueId = FALSE);
+  ItemExpr *changeDefaultOrderToDesc();
+
+  ValueId removeInverseFromExprTree(NABoolean &invExists);
+  ItemExpr *removeInverseFromExprTree(NABoolean &invExists, const NABoolean onlyDouble);
+
+  static void removeNotCoveredFromExprTree(ItemExpr *&ie, const ValueIdSet &seqColumns, NABoolean rootNode = TRUE,
+                                           NABoolean assignValueId = FALSE);
 
   NABoolean containsSequenceFunctions();
-
 
   // This method encapsulates the decision about which scalar expression
   // operators can belong to a VEG.
@@ -338,50 +296,46 @@ public:
   // return true iff maxSelectivity(this) == selectivity(this)
   NABoolean maxSelectivitySameAsSelectivity() const;
 
-  // starts the ItemExpr tree anchored by the this pointer and 
+  // starts the ItemExpr tree anchored by the this pointer and
   // checks if childNum[0] th child is of type opType[0] and if so
   // gets that child and proceeds to the same check with childNum[1]
   // and opType[1], and so on. The objective is to walk down a specific
   // tree looking for a certain node. The specific tree is given by the
   // two input arguments. If the required node is not found, NULL is returned.
   // Used currently by LPAD and RPAD.
-  ItemExpr* getParticularItemExprFromTree(NAList<Lng32>& childNum, 
-                                          NAList<OperatorTypeEnum>& opType) const;
+  ItemExpr *getParticularItemExprFromTree(NAList<Lng32> &childNum, NAList<OperatorTypeEnum> &opType) const;
 
   // This method checks if the ItemExpr represents a OR reprdicate that can be
   // transformed into an IN subquery (i.e. implemented using a semijoin)
   // only logical conditions are checked by this method and a TRUE/FALSE
   // reply is provided. If the return value is TRUE valuesListIE will contain
-  // all the constants in the IN List. This datamember is cleared upon entry 
+  // all the constants in the IN List. This datamember is cleared upon entry
   // into the method. numParams is the number of params/hostvars in the INList,
-  // it is guaranteed to be less than equal to number of entries in the first 
+  // it is guaranteed to be less than equal to number of entries in the first
   // argument.
-  NABoolean canTransformToSemiJoin(ItemExprList& valuesListIE, TableDesc* tdesc,
-                           Lng32& numParams, ValueId& colVid, CollHeap* h) const;
-
+  NABoolean canTransformToSemiJoin(ItemExprList &valuesListIE, TableDesc *tdesc, Lng32 &numParams, ValueId &colVid,
+                                   CollHeap *h) const;
 
   void transformOlapFunctions(CollHeap *wHeap);
 
-
   // test if this is a constant, a host var, a dynamic or a cache parameter.
-  NABoolean isAConstantHostVarParameterOrFunc() ;
-  
+  NABoolean isAConstantHostVarParameterOrFunc();
+
   // test if this is a NULL constant.
   virtual NABoolean isNullConstant() { return FALSE; };
 
   // test whether this and other are BaseColumns or IndexColums and
-  // refer to the same SQL object. 
-  virtual NABoolean appearInALocalPredTogether(ItemExpr* other) { return TRUE; };
+  // refer to the same SQL object.
+  virtual NABoolean appearInALocalPredTogether(ItemExpr *other) { return TRUE; };
 
-  virtual NABoolean convertToInListFeasible(ValueId& colId, ValueIdList& result) { return FALSE; };
+  virtual NABoolean convertToInListFeasible(ValueId &colId, ValueIdList &result) { return FALSE; };
 
   Int16 getFilterId();
 
  private:
   // This method has the code that is common to
   // mapAndRewrite() and mapAndRewriteWithIndex().
-  ValueId mapAndRewriteCommon(ValueIdMap &map,
-			      NABoolean mapDownwards);
+  ValueId mapAndRewriteCommon(ValueIdMap &map, NABoolean mapDownwards);
 
  public:
   // Recursively walk this item expression tree and try to fold constants
@@ -390,8 +344,7 @@ public:
   // method. Errors (such as 1/0) and warnings are reported in the diags area.
   // Unless allowed by setting newTypeSynthesis to TRUE, the folded expression
   // will have the same type as the original expression.
-  virtual ItemExpr *foldConstants(ComDiagsArea *diagsArea,
-				  NABoolean newTypeSynthesis = FALSE);
+  virtual ItemExpr *foldConstants(ComDiagsArea *diagsArea, NABoolean newTypeSynthesis = FALSE);
   ItemExpr *foldConstants(BindWA *bindWA);
 
   // Find common subexpressions in an expression, for example
@@ -401,24 +354,21 @@ public:
   // (C1 AND C2) AND (C3 OR C4 OR (C5 AND C6))
   // The method may someday take operators other than OR and AND as well
   // (e.g. + and *), but that will require some minor code changes.
-  ItemExpr *applyInverseDistributivityLaw(
-       OperatorTypeEnum backboneType = ITM_OR,
-       OperatorTypeEnum innerType = ITM_AND);
+  ItemExpr *applyInverseDistributivityLaw(OperatorTypeEnum backboneType = ITM_OR, OperatorTypeEnum innerType = ITM_AND);
   // little helper for the above method
   ItemExpr *connect2(OperatorTypeEnum op, ItemExpr *op1, ItemExpr *op2);
 
   // Find those predicates in an expression that refer to the same
   // column and pull them up over the backbone. For example:
   // (Col1 = 3 AND Col2 = 5) OR (Col1 = 7 AND Col2 = 6) is transformed
-  // to Col1 IN (3,7) AND Col2 IN (5,6) AND   
+  // to Col1 IN (3,7) AND Col2 IN (5,6) AND
   //  ((Col1 = 3 AND Col2 = 5) OR (Col1 = 7 AND Col2 = 6))
-  // So, this transformation introduces redundant predicates. The 
+  // So, this transformation introduces redundant predicates. The
   // advantage of doing so is that we should be able to push the
   // redundant predicates down to table scans, while the original
   // predicate, if it refers to multiple tables, cannot be pushed down.
-  ItemExpr *applyInverseDistributivityLawByColumn(
-       OperatorTypeEnum backboneType = ITM_OR,
-       OperatorTypeEnum innerType = ITM_AND);
+  ItemExpr *applyInverseDistributivityLawByColumn(OperatorTypeEnum backboneType = ITM_OR,
+                                                  OperatorTypeEnum innerType = ITM_AND);
 
   // a virtual function for performing name binding within the query tree
   // The following method performs name binding, allocates a ValueId and
@@ -427,7 +377,7 @@ public:
 
   // a virtual function for performing name binding within the query tree
   // The following method performs name binding, allocates a ValueId and
-  // synthesizes the resultant type for the UDFs or Subqueries in 
+  // synthesizes the resultant type for the UDFs or Subqueries in
   // the expression.
   virtual ItemExpr *bindUDFsOrSubqueries(BindWA *bindWA);
 
@@ -441,43 +391,45 @@ public:
   // prepare the expression to be bound again, e.g. after changing
   // a child pointer, something that should be done only if we are
   // sure the expression is not used elsewhere.
-  void unBind() { markAsUnBound(); setValueId(NULL_VALUE_ID); }
+  void unBind() {
+    markAsUnBound();
+    setValueId(NULL_VALUE_ID);
+  }
 
-  virtual NABoolean isTypeComplete(const NAType*) { return TRUE; };
-  virtual void reportTypeIsIncomplete() {};
+  virtual NABoolean isTypeComplete(const NAType *) { return TRUE; };
+  virtual void reportTypeIsIncomplete(){};
 
-  void bindChildren(BindWA *bindWA); // a method for binding the children
-  void bindSelf(BindWA *bindWA); // a method for binding the children and self
+  void bindChildren(BindWA *bindWA);  // a method for binding the children
+  void bindSelf(BindWA *bindWA);      // a method for binding the children and self
 
   // a method for binding host variables, dynamic parameters and constants.
   ItemExpr *bindUserInput(BindWA *, const NAType *, const NAString &);
 
-  OperatorTypeEnum  origOpType() const		{ return origOpType_; }
-  void  setOrigOpType(OperatorTypeEnum o)	{ origOpType_ = o; }
+  OperatorTypeEnum origOpType() const { return origOpType_; }
+  void setOrigOpType(OperatorTypeEnum o) { origOpType_ = o; }
 
-  //OperatorTypeEnum &origOpTypeBeingBound()	{ return origOpTypeBeingBound_; }
-  //Int32 &origOpTypeCounter()                      { return origOpTypeCounter_;}
+  // OperatorTypeEnum &origOpTypeBeingBound()	{ return origOpTypeBeingBound_; }
+  // Int32 &origOpTypeCounter()                      { return origOpTypeCounter_;}
 
   // the NON-virtual encapsulating function for type-propagating the node
   // (calls the virtual one, below)
-  const NAType *synthTypeWithCollateClause(BindWA *bindWA,
-					   const NAType *type = NULL);
+  const NAType *synthTypeWithCollateClause(BindWA *bindWA, const NAType *type = NULL);
 
   // a virtual function to determine whether an itemexpr can relax
   // the charset matching rule for its children WITHOUT examining
   // whether the children have Unicode hostvars
-  virtual NABoolean isRelaxCharTypeMatchRulesPossible() {return FALSE;};
+  virtual NABoolean isRelaxCharTypeMatchRulesPossible() { return FALSE; };
 
   // a virtual function to determine whether an itemexpr's type can
   // be relaxed.
   virtual NABoolean isCharTypeMatchRulesRelaxable() { return FALSE; };
 
   // relax the charset matching rule for Unicode hostvars
-  virtual ItemExpr* tryToRelaxCharTypeMatchRules(BindWA *bindWA);
+  virtual ItemExpr *tryToRelaxCharTypeMatchRules(BindWA *bindWA);
 
-  ItemExpr* performImplicitCasting(CharInfo::CharSet cs, BindWA *bindWA);
-  virtual ItemExpr* tryToDoImplicitCasting(BindWA *bindWA);
-  Int32       shouldPushTranslateDown(CharInfo::CharSet chrset) const;
+  ItemExpr *performImplicitCasting(CharInfo::CharSet cs, BindWA *bindWA);
+  virtual ItemExpr *tryToDoImplicitCasting(BindWA *bindWA);
+  Int32 shouldPushTranslateDown(CharInfo::CharSet chrset) const;
 
   virtual NABoolean CanChild0BeImplicitlyCast() { return TRUE; };
 
@@ -490,34 +442,27 @@ public:
   // types for the entire subtree, from the leaves upto this operator,
   // once again.
   virtual void synthTypeAndValueId(NABoolean redriveTypeSynthesisFlag = FALSE,
-				   NABoolean redriveChildTypeSynthesis = FALSE);
+                                   NABoolean redriveChildTypeSynthesis = FALSE);
   virtual void synthTypeAndValueId2(NABoolean redriveTypeSynthesisFlag = FALSE,
-				    NABoolean redriveChildTypeSynthesis = FALSE);
+                                    NABoolean redriveChildTypeSynthesis = FALSE);
 
   // Propagate type information down the ItemExpr tree.
   // Called by coerceType().  The default implementation
   // does nothing.  Currently is only redefined by ValueIdUnion
   // to propagate the desired type to the sources of the ValueIdUnion.
   //
-  virtual const NAType *pushDownType(NAType &desiredType,
-                               enum NABuiltInTypeEnum defaultQualifier
-                               = NA_UNKNOWN_TYPE);
+  virtual const NAType *pushDownType(NAType &desiredType, enum NABuiltInTypeEnum defaultQualifier = NA_UNKNOWN_TYPE);
 
-  virtual void coerceChildType(NAType& desiredType,
-                enum NABuiltInTypeEnum defaultQualifier);
+  virtual void coerceChildType(NAType &desiredType, enum NABuiltInTypeEnum defaultQualifier);
 
   // set/get resolving-incomplete-type status. Used by charset inference.
-  virtual void setResolveIncompleteTypeStatus(NABoolean x)
-    { resolveIncompleteType_ = x; }
+  virtual void setResolveIncompleteTypeStatus(NABoolean x) { resolveIncompleteType_ = x; }
 
-  NABoolean getResolveIncompleteTypeStatus()
-    { return resolveIncompleteType_ ; }
+  NABoolean getResolveIncompleteTypeStatus() { return resolveIncompleteType_; }
 
-  void setpreCodeGenNATypeChangeStatus()
-    { preCodeGenNATypeChange_ = TRUE;}
+  void setpreCodeGenNATypeChangeStatus() { preCodeGenNATypeChange_ = TRUE; }
 
-  NABoolean isPreCodeGenNATypeChanged()
-    { return preCodeGenNATypeChange_;}
+  NABoolean isPreCodeGenNATypeChanged() { return preCodeGenNATypeChange_; }
   // --------------------------------------------------------------------
   // transformNode()
   //
@@ -577,76 +522,63 @@ public:
   //         by transformNode().
   //
   // --------------------------------------------------------------------
-  virtual void transformNode(NormWA & normWARef,
-			     ExprValueId & locationOfPointerToMe,
-                             ExprGroupId & introduceSemiJoinHere,
-			     const ValueIdSet & externalInputs);
+  virtual void transformNode(NormWA &normWARef, ExprValueId &locationOfPointerToMe, ExprGroupId &introduceSemiJoinHere,
+                             const ValueIdSet &externalInputs);
 
   // --------------------------------------------------------------------
   // transformToRelExpr()
   //
-  // transformToRelExpr() is an overloaded name, it is used during 
+  // transformToRelExpr() is an overloaded name, it is used during
   // transformation by those classes that needs to convert an ItemExpr
   // into a RelExpr.
   //
   // At the moment, it is used for subqueries and Isolated Routines.
   //
   // --------------------------------------------------------------------
-  virtual void transformToRelExpr(NormWA & normWARef,
-			     ExprValueId & locationOfPointerToMe,
-                             ExprGroupId & introduceSemiJoinHere,
-			     const ValueIdSet & externalInputs);
+  virtual void transformToRelExpr(NormWA &normWARef, ExprValueId &locationOfPointerToMe,
+                                  ExprGroupId &introduceSemiJoinHere, const ValueIdSet &externalInputs);
 
   // A method for inverting (finding the inverse of) the operators
   // in a subtree that is rooted in a NOT.
-  virtual ItemExpr * transformSubtreeOfNot(NormWA & normWARef,
-                                           OperatorTypeEnum falseOrNot);
+  virtual ItemExpr *transformSubtreeOfNot(NormWA &normWARef, OperatorTypeEnum falseOrNot);
 
   // A virtual method for transforming a multi-value predicate
   // to ANDs and ORs of simpler subconditions,
   // but only if all (by default) children are ItemList.
   // Returns NULL if no transformation was necessary or possible.
-  virtual ItemExpr * transformMultiValuePredicate(
-					  NABoolean flattenSubqueries = TRUE,
-					  ChildCondition tfmIf = ANY_CHILD);
+  virtual ItemExpr *transformMultiValuePredicate(NABoolean flattenSubqueries = TRUE, ChildCondition tfmIf = ANY_CHILD);
 
-  NABoolean referencesTheGivenValue(
-              const ValueId & exprId,
-              NABoolean doNotDigInsideVegRefs = FALSE,
-              NABoolean doNotDigInsideInstNulls = FALSE) const;
+  NABoolean referencesTheGivenValue(const ValueId &exprId, NABoolean doNotDigInsideVegRefs = FALSE,
+                                    NABoolean doNotDigInsideInstNulls = FALSE) const;
 
   // does this item expression reference one of the set of ValueIds?
-  NABoolean referencesOneValueFrom(const ValueIdSet & vs) const;
+  NABoolean referencesOneValueFrom(const ValueIdSet &vs) const;
 
   // Is the item exprId the same value id, or if I'm a VEG is it
   // contained in my set of values?
-  NABoolean containsTheGivenValue(const ValueId & exprId) const;
-
+  NABoolean containsTheGivenValue(const ValueId &exprId) const;
 
   // Constant fold myself by evaluating all constants in the expression
   // rooted at myself. During the process, 'this' object is not simplified.
-  // Return NULL if 'this' contains at least one non-constant or 
+  // Return NULL if 'this' contains at least one non-constant or
   // the evluation is not successful.
-  ItemExpr* constFold();
+  ItemExpr *constFold();
 
-  ItemExpr * createMirrorPred(ItemExpr *compColPtr, 
-                              ItemExpr *compColExprPtr,
-                              const ValueIdSet &underlyingCols);
-  //Does 'this' ItemExpr evaluate to constant e.g.
-  //If we go by the strict definition then
-  //Sin(Cos(1)+1) will return TRUE.
-  //Sin(?p) will return FALSE.
-  //If we don't use the strict definition then
-  //Sin(?p) would be a constant and therefore
-  //we will get a return value of TRUE.
-  //The reason for this is that Sin(?p) is constant
-  //for a particular execution of a statement as
+  ItemExpr *createMirrorPred(ItemExpr *compColPtr, ItemExpr *compColExprPtr, const ValueIdSet &underlyingCols);
+  // Does 'this' ItemExpr evaluate to constant e.g.
+  // If we go by the strict definition then
+  // Sin(Cos(1)+1) will return TRUE.
+  // Sin(?p) will return FALSE.
+  // If we don't use the strict definition then
+  // Sin(?p) would be a constant and therefore
+  // we will get a return value of TRUE.
+  // The reason for this is that Sin(?p) is constant
+  // for a particular execution of a statement as
   //?p remains constant for given execution of a statment
-  //And not only dynamic parameters like ?p but host vars
-  //like :h also stay constant for a particular execution
-  //of a query, therefore Sin(:h) will also return TRUE.
-  NABoolean doesExprEvaluateToConstant(NABoolean strict = TRUE,
-                                       NABoolean considerVEG = FALSE) const;
+  // And not only dynamic parameters like ?p but host vars
+  // like :h also stay constant for a particular execution
+  // of a query, therefore Sin(:h) will also return TRUE.
+  NABoolean doesExprEvaluateToConstant(NABoolean strict = TRUE, NABoolean considerVEG = FALSE) const;
 
   // This method returns TRUE or FALSE depending whether the optimizer
   // should use stats to compute selectivity or use default selectivity
@@ -654,7 +586,7 @@ public:
 
   // get leaf expression if the cardinality for this expression can be
   // estimated using histograms
-  ItemExpr * getLeafValueIfUseStats(NABoolean digIntoInstantiateNull = TRUE);
+  ItemExpr *getLeafValueIfUseStats(NABoolean digIntoInstantiateNull = TRUE);
 
   // get the value ids of all leaf nodes (arity 0) in this expression tree
   void getLeafValueIds(ValueIdSet &lv) const;
@@ -673,53 +605,46 @@ public:
 
   // initiateInnerToLeftJoinTransformation() is invoked when
   // a predicateEliminatesNullAugmentedRows().
-  virtual ItemExpr * initiateLeftToInnerJoinTransformation(NormWA &);
+  virtual ItemExpr *initiateLeftToInnerJoinTransformation(NormWA &);
 
   // Each operator supports a (virtual) method for transforming its
   // query tree to a canonical form. The parameter setOfPredExpr is
   // supplied only when predicates are normalized.
-  virtual ItemExpr * normalizeNode(NormWA & normWARef);
-  virtual ItemExpr * normalizeNode2(NormWA & normWARef);
+  virtual ItemExpr *normalizeNode(NormWA &normWARef);
+  virtual ItemExpr *normalizeNode2(NormWA &normWARef);
 
   // A helper function. Used by preCodeGen to convert external types
   // to internal types.
-  ItemExpr * convertExternalType(Generator *);
+  ItemExpr *convertExternalType(Generator *);
 
   // virtual method to fixup tree for code generation.
-  virtual ItemExpr * preCodeGen(Generator *);
+  virtual ItemExpr *preCodeGen(Generator *);
 
   // virtual method to do code generation
-  virtual short codeGen(Generator*);
+  virtual short codeGen(Generator *);
 
   // virtual method to generate Mdam predicates
-  virtual short mdamPredGen(Generator * generator,
-                            MdamPred ** head,
-                            MdamPred ** tail,
-                            MdamCodeGenHelper & mdamHelper,
-                            ItemExpr * parent);
+  virtual short mdamPredGen(Generator *generator, MdamPred **head, MdamPred **tail, MdamCodeGenHelper &mdamHelper,
+                            ItemExpr *parent);
 
   // virtual method to get details of an mdam predicate, currently used only by
   // BiRelat subclass.
-  virtual void getMdamPredDetails(Generator* generator,
-                                  MdamCodeGenHelper& mdamHelper, 
-                                  enum MdamPred::MdamPredType& predType,
-                                  ex_expr** vexpr)
-    { CMPASSERT(FALSE); }
-
+  virtual void getMdamPredDetails(Generator *generator, MdamCodeGenHelper &mdamHelper,
+                                  enum MdamPred::MdamPredType &predType, ex_expr **vexpr) {
+    CMPASSERT(FALSE);
+  }
 
   // virtual method to generate MDAM_BETWEEN predicate. Redefined only for
   // BiLogic subclass.
-  virtual void mdamPredGenSubrange(Generator* generator,
-                                   MdamPred** head,
-                                   MdamPred** tail,
-                                   MdamCodeGenHelper& mdamHelper)
-    { CMPASSERT(FALSE); }
+  virtual void mdamPredGenSubrange(Generator *generator, MdamPred **head, MdamPred **tail,
+                                   MdamCodeGenHelper &mdamHelper) {
+    CMPASSERT(FALSE);
+  }
 
-  virtual void codegen_and_set_attributes(Generator *, Attributes **,Lng32);
+  virtual void codegen_and_set_attributes(Generator *, Attributes **, Lng32);
 
-
-  inline ex_clause * getClause(){return clause_;};
-  inline void setClause(ex_clause * clause){clause_ = clause;};
+  inline ex_clause *getClause() { return clause_; };
+  inline void setClause(ex_clause *clause) { clause_ = clause; };
 
   // A method that determines if an item expression contains a subquery
   virtual NABoolean containsSubquery();
@@ -747,38 +672,32 @@ public:
   // node (or grandchild node, or ...) that is untransformed.  If it does,
   // then the node itself, and the path to that child (or children) is
   // also marked as untransformed.
-  NABoolean markPathToUnTransformedNode() ;
-
+  NABoolean markPathToUnTransformedNode();
 
   // A method that changes OneRow aggregate expression to a list
-  ItemExpr* transformOneRowAggregate( NormWA &);
-  ItemExpr* removeOneRowAggregate( ItemExpr *, NormWA &);
+  ItemExpr *transformOneRowAggregate(NormWA &);
+  ItemExpr *removeOneRowAggregate(ItemExpr *, NormWA &);
 
   // A method to determine whether this is an equijoin predicate
-  NABoolean isAnEquiJoinPredicate(
-       const GroupAttributes* const leftGroupAttr,
-       const GroupAttributes* const rightGroupAttr,
-       const GroupAttributes* const joinGroupAttr,
-       ValueId & leftChildValueId,
-       ValueId & rightChildValueId,
-       NABoolean & isOrderPreserving) const;
+  NABoolean isAnEquiJoinPredicate(const GroupAttributes *const leftGroupAttr,
+                                  const GroupAttributes *const rightGroupAttr,
+                                  const GroupAttributes *const joinGroupAttr, ValueId &leftChildValueId,
+                                  ValueId &rightChildValueId, NABoolean &isOrderPreserving) const;
 
   // determines whether this is a join predicate for
   // an operator under a nested join
-  NABoolean isANestedJoinPredicate (
-       const ValueIdSet& inputValues,
-       const ValueIdSet& operatorValues) const;
+  NABoolean isANestedJoinPredicate(const ValueIdSet &inputValues, const ValueIdSet &operatorValues) const;
 
   // determines whether a predicate references a constant
   // in any of its operands (it may be a complicated
   // predicate expression). Also, all the predicates that have
   // constants are collected in constExprs.
-  void accumulateConstExprs (ValueIdSet & constExprs);
+  void accumulateConstExprs(ValueIdSet &constExprs);
   // is the predicate an equality predicate equating to a constant:
-  NABoolean equatesToAConstant () const;
+  NABoolean equatesToAConstant() const;
 
   // A method that determines whether evaluation of this predicate will preserve order
-  virtual NABoolean isOrderPreserving () const;
+  virtual NABoolean isOrderPreserving() const;
 
   // A method that determines if an item expression is a subquery expression
   virtual NABoolean isASubquery() const;
@@ -796,9 +715,9 @@ public:
   virtual NABoolean isLike() const { return FALSE; }
 
   // An indicator whether this item expression is a sequence function.
-  virtual NABoolean isASequenceFunction () const;
+  virtual NABoolean isASequenceFunction() const;
 
-  virtual NABoolean isOlapFunction () const;
+  virtual NABoolean isOlapFunction() const;
 
   // An indicator whether this item expression contains a THIS function.
   virtual NABoolean containsTHISFunction();
@@ -821,35 +740,27 @@ public:
   virtual NABoolean isAGenericUpdateOutputFunction() const { return FALSE; }
   // a method that finds all occurences of a certain operator in an
   // item expression tree
-  void findAll(OperatorTypeEnum wantedType,
-	       ValueIdSet & result,
-	       NABoolean visitVEGMembers = FALSE,
-	       NABoolean visitIndexColDefs = FALSE);
+  void findAll(OperatorTypeEnum wantedType, ValueIdSet &result, NABoolean visitVEGMembers = FALSE,
+               NABoolean visitIndexColDefs = FALSE);
 
   template <class Result>
-  void findAllT(OperatorTypeEnum wantedType,
-	       Result& result,
-	       NABoolean visitVEGMembers = FALSE,
-	       NABoolean visitIndexColDefs = FALSE);
+  void findAllT(OperatorTypeEnum wantedType, Result &result, NABoolean visitVEGMembers = FALSE,
+                NABoolean visitIndexColDefs = FALSE);
 
   // A variation of the above method that saves the matching ItemExprs in a
   // ItemExprList. The order of occurences of these ItemExprs is maintained.
-  void findAll(OperatorTypeEnum wantedType,
-	       ItemExprList& result,
-	       NABoolean visitVEGMembers = FALSE,
-	       NABoolean visitIndexColDefs = FALSE);
+  void findAll(OperatorTypeEnum wantedType, ItemExprList &result, NABoolean visitVEGMembers = FALSE,
+               NABoolean visitIndexColDefs = FALSE);
 
   // Find the number of elements in the expression tree, and the maximum tree depth.
-  Lng32 getTreeSize(Lng32& maxDepth, NABoolean giveUpThreshold);
+  Lng32 getTreeSize(Lng32 &maxDepth, NABoolean giveUpThreshold);
 
   // Find all eqaulity columns in an item expression tree.
-  void findEqualityCols(ValueIdSet & result);
+  void findEqualityCols(ValueIdSet &result);
 
   // execute transformation function f on each node of the tree and
   // return the transformed tree
-  ItemExpr *treeWalk(ItemTreeWalkFunc f,
-                     CollHeap *outHeap = NULL,
-                     enum ItemTreeWalkSeq sequence = ITM_POSTFIX_WALK,
+  ItemExpr *treeWalk(ItemTreeWalkFunc f, CollHeap *outHeap = NULL, enum ItemTreeWalkSeq sequence = ITM_POSTFIX_WALK,
                      void *context = NULL);
 
   // --------------------------------------------------------------------
@@ -896,11 +807,9 @@ public:
   //         FALSE: Otherwise.
   //
   // --------------------------------------------------------------------
-  virtual NABoolean isCovered(const ValueIdSet& newExternalInputs,
-			      const GroupAttributes& newRelExprAnchorGA,
-	   	              ValueIdSet& referencedInputs,
-			      ValueIdSet& coveredSubExpr,
-			      ValueIdSet& unCoveredExpr) const;
+  virtual NABoolean isCovered(const ValueIdSet &newExternalInputs, const GroupAttributes &newRelExprAnchorGA,
+                              ValueIdSet &referencedInputs, ValueIdSet &coveredSubExpr,
+                              ValueIdSet &unCoveredExpr) const;
 
   // --------------------------------------------------------------------
   // Walk through an ItemExpr tree and gather the ValueIds of those
@@ -910,10 +819,8 @@ public:
   // that are produced in one "scope" and referenced above that "scope"
   // in the dataflow tree for the query.
   // --------------------------------------------------------------------
-  virtual void getLeafValuesForCoverTest(ValueIdSet & leafValues, 
-                                         const GroupAttributes& coveringGA,
-                                         const ValueIdSet & newExternalInputs) const;
-
+  virtual void getLeafValuesForCoverTest(ValueIdSet &leafValues, const GroupAttributes &coveringGA,
+                                         const ValueIdSet &newExternalInputs) const;
 
   // --------------------------------------------------------------------
   // replaceVEGExpressions()
@@ -936,36 +843,27 @@ public:
   //
   // thisIsAKeyPredicate=TRUE indicates that the rewrite logic must
   // make sure that a key predicate is generated from the VEG.
-  // 
-  // In order to guarantee a keyColumn is returned when the 
+  //
+  // In order to guarantee a keyColumn is returned when the
   // thisIsAKeyPredicate flag is set, we also need the indexDesc parameter
   //
-  // The two optional left_ga and right_ga 
-  // are used when we resolve expressions in hash joins as we need to 
-  // guarantee that an expression on the left side of an equipred only 
-  // contains values avaiable on the left and vice versa. 
+  // The two optional left_ga and right_ga
+  // are used when we resolve expressions in hash joins as we need to
+  // guarantee that an expression on the left side of an equipred only
+  // contains values avaiable on the left and vice versa.
   //
   // --------------------------------------------------------------------
-  virtual ItemExpr * replaceVEGExpressions
-                        (const ValueIdSet& availableValues,
-                         const ValueIdSet& inputValues,
-                         NABoolean thisIsAKeyPredicate = FALSE,
-                         VEGRewritePairs * lookup = NULL,
-                         NABoolean replicateExpression = FALSE,
-                         const ValueIdSet *joinInputAndPotentialOutput = NULL,
-                         const IndexDesc *iDesc = NULL,
-                         const GroupAttributes *left_ga = NULL,
-                         const GroupAttributes *right_ga = NULL);
+  virtual ItemExpr *replaceVEGExpressions(const ValueIdSet &availableValues, const ValueIdSet &inputValues,
+                                          NABoolean thisIsAKeyPredicate = FALSE, VEGRewritePairs *lookup = NULL,
+                                          NABoolean replicateExpression = FALSE,
+                                          const ValueIdSet *joinInputAndPotentialOutput = NULL,
+                                          const IndexDesc *iDesc = NULL, const GroupAttributes *left_ga = NULL,
+                                          const GroupAttributes *right_ga = NULL);
 
-  ItemExpr * replaceVEGExpressions1( VEGRewritePairs* lookup );
-  void       replaceVEGExpressions2( Int32 index
-                                   , const ValueIdSet& availableValues
-                                   , const ValueIdSet& inputValues
-                                   ,       ValueIdSet& currAvailableValues
-                                   , const GroupAttributes * left_ga
-                                   , const GroupAttributes * right_ga
-                                   );
-
+  ItemExpr *replaceVEGExpressions1(VEGRewritePairs *lookup);
+  void replaceVEGExpressions2(Int32 index, const ValueIdSet &availableValues, const ValueIdSet &inputValues,
+                              ValueIdSet &currAvailableValues, const GroupAttributes *left_ga,
+                              const GroupAttributes *right_ga);
 
   // ---------------------------------------------------------------------
   // ItemExpr::replaceOperandsOfInstantiateNull()
@@ -973,116 +871,95 @@ public:
   // operands of an ITM_INSTANTIATE_NULL with a value that belongs
   // to availableValues.
   // ---------------------------------------------------------------------
-   void replaceOperandsOfInstantiateNull(const ValueIdSet &,
-                                         const ValueIdSet & inputValues );
-
+  void replaceOperandsOfInstantiateNull(const ValueIdSet &, const ValueIdSet &inputValues);
 
   // rewrite any predciates of the form X <> c as X < c OR X > c
-  virtual ItemExpr * rewriteNotEquals(BindWA * bindWA);
+  virtual ItemExpr *rewriteNotEquals(BindWA *bindWA);
 
   // check whether this item expression delivers its values in the
   // same order as another item expression, assuming this is an output
   // value in the specified group
-  virtual OrderComparison sameOrder(ItemExpr *other,
-				    NABoolean askOther = TRUE);
-  virtual OrderComparison sameOrder(VEGReference *other,
-				    NABoolean askOther = TRUE);
-  virtual ItemExpr * simplifyOrderExpr(OrderComparison *newOrder = NULL);
+  virtual OrderComparison sameOrder(ItemExpr *other, NABoolean askOther = TRUE);
+  virtual OrderComparison sameOrder(VEGReference *other, NABoolean askOther = TRUE);
+  virtual ItemExpr *simplifyOrderExpr(OrderComparison *newOrder = NULL);
 
   // Replace VEG Reference by the constant contained in the VEG.
   // This is done for all the VEG References rooted directly or
   // indirectly at this. If no constant is found, this expression
   // is not simpfified and a NULL is returned.
-  virtual ItemExpr * simplifyBeforeConstFolding();
+  virtual ItemExpr *simplifyBeforeConstFolding();
 
   // Return the only constant itemexpr contained in a VEG pointed by 'this'.
   // If 'this' is not a VEG or has more than one constant, return NULL.
-  ConstValue* getConstantInVEG();
+  ConstValue *getConstantInVEG();
 
+  virtual ItemExpr *removeInverseOrder();
 
-  virtual ItemExpr * removeInverseOrder();
-
-  virtual SimpleHashValue hash(); // from ExprNode
-  virtual HashValue topHash();    // for this and all subclasses
+  virtual SimpleHashValue hash();  // from ExprNode
+  virtual HashValue topHash();     // for this and all subclasses
   HashValue treeHash();
-  virtual NABoolean duplicateMatch(const ItemExpr & other) const;
+  virtual NABoolean duplicateMatch(const ItemExpr &other) const;
   NABoolean genericDuplicateMatch(const ItemExpr &other) const;
 
   // The default implementation calls copyTopNode() to clone this itemExpr
-  // called from within copyTree(). In most of the implementations, the 
-  // content of each ItemExpr is copied except the ValueId data member 
-  // which is not copied. 
+  // called from within copyTree(). In most of the implementations, the
+  // content of each ItemExpr is copied except the ValueId data member
+  // which is not copied.
   //
   // However for the following three ItemExpr, the original object is
   // returned directly (when derivedNode is null): VEGReference, BaseColumn
   // and IndexColumn.
-  virtual ItemExpr * copyTopNode(ItemExpr *derivedNode = NULL,
-				 CollHeap* outHeap = 0);
+  virtual ItemExpr *copyTopNode(ItemExpr *derivedNode = NULL, CollHeap *outHeap = 0);
 
   // "virtual copy constructor", provides a generic method to duplicate
   // the top node of an expression tree or an entire tree
-  // The pointers to children itemExprs are copied, and the valueId of 
+  // The pointers to children itemExprs are copied, and the valueId of
   // any non leaf node is reset to zero (invalid).
   //
-  ItemExpr * copyTree(CollHeap* outHeap=0);
+  ItemExpr *copyTree(CollHeap *outHeap = 0);
 
-  // Copy this item expression only. Thus far, only VEGPredicate is known to 
-  // alter its ValueId after the copyTopNode() call and the valueId is significant 
-  // in maintaining the content of the vegPair lookup table correctly after 
-  // multiple ValueIdSet::replaceVEGExpressions() calls.  So there is a special 
-  // implementation VEGPredicate::copyTopNodeNonLeaf() that retains the same 
+  // Copy this item expression only. Thus far, only VEGPredicate is known to
+  // alter its ValueId after the copyTopNode() call and the valueId is significant
+  // in maintaining the content of the vegPair lookup table correctly after
+  // multiple ValueIdSet::replaceVEGExpressions() calls.  So there is a special
+  // implementation VEGPredicate::copyTopNodeNonLeaf() that retains the same
   // valueId after clone, which is true for leaf item expressions, such as
   // ConstValue, BaseColumn, IndexColumn and HostVar.
-  virtual ItemExpr * copyTopNodeNonleaf(ItemExpr*, CollHeap* outHeap=0) 
-   { return copyTopNode(NULL, outHeap); };
+  virtual ItemExpr *copyTopNodeNonleaf(ItemExpr *, CollHeap *outHeap = 0) { return copyTopNode(NULL, outHeap); };
 
-
-  // Copy the entire item tree to use as a scratchpad for some computation. 
-  // The pointers to children itemExprs are copied, and the valueId of any 
+  // Copy the entire item tree to use as a scratchpad for some computation.
+  // The pointers to children itemExprs are copied, and the valueId of any
   // non leaf node is reset to zero (invalid).
   //
-  // The default implementation calls copyTopNodeNonleaf() to clone this. 
-  virtual ItemExpr * copyTreeNonLeaves(CollHeap* outHeap=0);
-
+  // The default implementation calls copyTopNodeNonleaf() to clone this.
+  virtual ItemExpr *copyTreeNonLeaves(CollHeap *outHeap = 0);
 
   // A help method to facilitate copying leaf nodes for copyTreeNonLeaves() in
   // that a leaf node can call this method to copy itself including
   // the valueId.
-  ItemExpr * copyTopNodeAndValueId(CollHeap* outHeap); 
+  ItemExpr *copyTopNodeAndValueId(CollHeap *outHeap);
 
   // Is this operator supported by the synthesis functions?
   virtual NABoolean synthSupportedOp() const { return FALSE; }
 
   // Return the default selectivity for this predicate
   virtual double defaultSel();
-  
+
   // This method will apply the selectivity of default predicate on histograms
-  virtual NABoolean applyDefaultPred(ColStatDescList & histograms,
-                                                 OperatorTypeEnum exprOpCode,
-                                                 ValueId predValueId,
-                                     NABoolean & globalPredicate,
-                                     CostScalar *maxSelectivity=NULL);
+  virtual NABoolean applyDefaultPred(ColStatDescList &histograms, OperatorTypeEnum exprOpCode, ValueId predValueId,
+                                     NABoolean &globalPredicate, CostScalar *maxSelectivity = NULL);
 
   // This method will apply the selectivity of unsupported default predicate on histograms
-  NABoolean applyUnSuppDefaultPred(ColStatDescList & histograms,
-                                   ValueId predValueId,
-                                   NABoolean & globalPredicate);
+  NABoolean applyUnSuppDefaultPred(ColStatDescList &histograms, ValueId predValueId, NABoolean &globalPredicate);
 
   // Helper method for applyDefaultPred methods
-  NABoolean checkForStats(ColStatDescList & histograms, 
-				  CollIndex & columnIndex, 
-				  ValueIdSet & leafValues);
+  NABoolean checkForStats(ColStatDescList &histograms, CollIndex &columnIndex, ValueIdSet &leafValues);
 
-  NABoolean calculateUecs(ColStatDescList & histograms,
-                                 CostScalar & minUec,
-                                 CostScalar & maxUec);
+  NABoolean calculateUecs(ColStatDescList &histograms, CostScalar &minUec, CostScalar &maxUec);
 
   void resetRealBigNumFlag(ItemExpr *node);
 
-  virtual NABoolean calculateMinMaxUecs(ColStatDescList & histograms,
-					       CostScalar & minUec,
-					       CostScalar & maxUec);
-  
+  virtual NABoolean calculateMinMaxUecs(ColStatDescList &histograms, CostScalar &minUec, CostScalar &maxUec);
 
   //++MV
   // Return the selectivityFactor for this predicate.
@@ -1091,12 +968,11 @@ public:
   // factor is set to a number between 0 and 1 , this number
   // serves as the selectivity factor for this ItemExpr.
   double getSelectivityFactor() const { return selectivityFactor_; }
-  void setSelectivityFactor(double selectivityFactor)
-  { selectivityFactor_ = selectivityFactor; }
+  void setSelectivityFactor(double selectivityFactor) { selectivityFactor_ = selectivityFactor; }
   //--MV
 
   // Return the inverse of the operator type if any.  Otherwise, return its operatorType.
-  OperatorTypeEnum getInverseOpType () const;
+  OperatorTypeEnum getInverseOpType() const;
 
   // ---------------------------------------------------------------------
   //  MDAM Related methods
@@ -1104,41 +980,32 @@ public:
   // This is a recursive
   // function that returns the leaf predicates of the tree
   // whose root is the ItemExpr into the ValueIdSet&.
-  void getLeafPredicates(ValueIdSet& leafPredicates);
+  void getLeafPredicates(ValueIdSet &leafPredicates);
 
   NABoolean referencesAHostVar() const;
 
   // ---------------------------------------------------------------------
   //  Utility methods
   // ---------------------------------------------------------------------
-  
+
   // Evaluate the exprssion at compile time. Assume all operands are constants.
   // Return NULL if the computation fails and CmpCommon::diags() may be side-affected.
-  ConstValue* evaluate(CollHeap* heap);
+  ConstValue *evaluate(CollHeap *heap);
 
   // produce an ascii-version of the object (for display or saving into a file)
-  virtual void unparse(NAString &result,
-		       PhaseEnum phase = DEFAULT_PHASE,
-		       UnparseFormatEnum form = USER_FORMAT,
-		       TableDesc * tabId = NULL) const;
+  virtual void unparse(NAString &result, PhaseEnum phase = DEFAULT_PHASE, UnparseFormatEnum form = USER_FORMAT,
+                       TableDesc *tabId = NULL) const;
 
-  void      computeKwdAndFlags( NAString  &kwd,
-                                NABoolean &prefixFns,
-                                NABoolean &specialPrefixFns,
-                                PhaseEnum phase,
-                                UnparseFormatEnum form,
-                                TableDesc * tabId) const;
+  void computeKwdAndFlags(NAString &kwd, NABoolean &prefixFns, NABoolean &specialPrefixFns, PhaseEnum phase,
+                          UnparseFormatEnum form, TableDesc *tabId) const;
 
-  void    computeKwdAndPostfix( NAString &kwd, NAString &postfix,
-                                UnparseFormatEnum form = USER_FORMAT ) const ;
+  void computeKwdAndPostfix(NAString &kwd, NAString &postfix, UnparseFormatEnum form = USER_FORMAT) const;
 
-  virtual void print(FILE * f = stdout,
-		     const char * prefix = "",
-		     const char * suffix = "") const;
+  virtual void print(FILE *f = stdout, const char *prefix = "", const char *suffix = "") const;
 
   void display();
   void display(UnparseFormatEnum form);
-  void display(ostream& out, UnparseFormatEnum form = USER_FORMAT_DELUXE);
+  void display(ostream &out, UnparseFormatEnum form = USER_FORMAT_DELUXE);
 
   // MDAM related methods
   // ---------------------------------------------------------------------
@@ -1170,22 +1037,16 @@ public:
   // The resulting DisjunctArray is returned to the previous ItemExpr node
   // in the recursion.
   // ---------------------------------------------------------------------
-  virtual DisjunctArray * mdamTreeWalk();
+  virtual DisjunctArray *mdamTreeWalk();
 
   NABoolean containsColumn();
 
-    // See coments for previousHostVar_ in private section
-  NABoolean &previousHostVar()
-  {
-    return previousHostVar_;
-  }
+  // See coments for previousHostVar_ in private section
+  NABoolean &previousHostVar() { return previousHostVar_; }
 
-  NAString &previousName()
-  {
-    return previousName_;
-  }
+  NAString &previousName() { return previousName_; }
 
-  CollationAndCoercibility *& collateClause()	{ return collateClause_; }
+  CollationAndCoercibility *&collateClause() { return collateClause_; }
   static void cleanupPerStatement();
 
   virtual ConstantParameter *castToConstantParameter() { return NULL; }
@@ -1196,7 +1057,7 @@ public:
   virtual const SelParameter *castToSelParameter() const { return NULL; }
 
   // does this entire ItemExpr qualify query to be cacheable after this phase?
-  virtual NABoolean isCacheableExpr(CacheWA& cwa);
+  virtual NABoolean isCacheableExpr(CacheWA &cwa);
 
   // is this single ExprNode cacheable after this phase?
   NABoolean isCacheableNode(CmpPhase phase) const;
@@ -1205,13 +1066,13 @@ public:
   void setCacheableNode(CmpPhase phase);
 
   // is any literal in this expr safely coercible to its target type?
-  virtual NABoolean isSafelyCoercible(CacheWA& cwa) const;
+  virtual NABoolean isSafelyCoercible(CacheWA &cwa) const;
 
   // append an ascii-version of ItemExpr into cachewa.qryText_
-  virtual void generateCacheKey(CacheWA& cachewa) const;
+  virtual void generateCacheKey(CacheWA &cachewa) const;
 
   // A helper routine for ItemExpr::generateCacheKey()
-  void addSelectivityFactor( CacheWA& cwa ) const ;
+  void addSelectivityFactor(CacheWA &cwa) const;
 
   // return a string that identifies the operator. same as getText() except
   // we prepend char set to string literals. This is to fix genesis case
@@ -1221,121 +1082,115 @@ public:
   virtual const NAString getText4CacheKey() const { return getText(); }
 
   // change literals of a cacheable query into constant parameters
-  virtual ItemExpr* normalizeForCache(CacheWA& cwa, BindWA& bindWA);
+  virtual ItemExpr *normalizeForCache(CacheWA &cwa, BindWA &bindWA);
 
   // return true if ItemExpr & its descendants have no constants
   // and no noncacheable nodes
-  virtual NABoolean hasNoLiterals(CacheWA& cwa);
+  virtual NABoolean hasNoLiterals(CacheWA &cwa);
 
   // return TRUE if this node can be used in a group by or order by expr.
   // returns FALSE otherwise. Optionally sets error in diags area.
   virtual NABoolean canBeUsedInGBorOB(NABoolean setErr);
 
   // Defined only for HV's and Dynamic parameters
-  virtual ComColumnDirection getParamMode () const;
-  virtual Int32 getOrdinalPosition () const;
-  virtual Int32 getHVorDPIndex () const;
-  virtual void setPMOrdPosAndIndex( ComColumnDirection paramMode,
-					   Int32 ordinalPosition,
-                                    Int32 index) { CMPASSERT (0);}
+  virtual ComColumnDirection getParamMode() const;
+  virtual Int32 getOrdinalPosition() const;
+  virtual Int32 getHVorDPIndex() const;
+  virtual void setPMOrdPosAndIndex(ComColumnDirection paramMode, Int32 ordinalPosition, Int32 index) { CMPASSERT(0); }
 
   NABoolean isARangePredicate() const;
 
   // get and set for flags_. See enum Flags.
-  NABoolean constFoldingDisabled()   { return (flags_ & CONST_FOLDING_DISABLED) != 0; }
-  void setConstFoldingDisabled(NABoolean v)
-  { (v ? flags_ |= CONST_FOLDING_DISABLED : flags_ &= ~CONST_FOLDING_DISABLED); }
+  NABoolean constFoldingDisabled() { return (flags_ & CONST_FOLDING_DISABLED) != 0; }
+  void setConstFoldingDisabled(NABoolean v) {
+    (v ? flags_ |= CONST_FOLDING_DISABLED : flags_ &= ~CONST_FOLDING_DISABLED);
+  }
 
   // get and set for flags_. See enum Flags.
-  NABoolean inGroupByOrdinal()   { return (flags_ & IN_GROUPBY_ORDINAL) != 0; }
-  void setInGroupByOrdinal(NABoolean v)
-  { (v ? flags_ |= IN_GROUPBY_ORDINAL : flags_ &= ~IN_GROUPBY_ORDINAL); }
+  NABoolean inGroupByOrdinal() { return (flags_ & IN_GROUPBY_ORDINAL) != 0; }
+  void setInGroupByOrdinal(NABoolean v) { (v ? flags_ |= IN_GROUPBY_ORDINAL : flags_ &= ~IN_GROUPBY_ORDINAL); }
 
-  NABoolean inOrderByOrdinal()   { return (flags_ & IN_ORDERBY_ORDINAL) != 0; }
-  void setInOrderByOrdinal(NABoolean v)
-  { (v ? flags_ |= IN_ORDERBY_ORDINAL : flags_ &= ~IN_ORDERBY_ORDINAL); }
+  NABoolean inOrderByOrdinal() { return (flags_ & IN_ORDERBY_ORDINAL) != 0; }
+  void setInOrderByOrdinal(NABoolean v) { (v ? flags_ |= IN_ORDERBY_ORDINAL : flags_ &= ~IN_ORDERBY_ORDINAL); }
 
-  NABoolean isSelectivitySetUsingHint()   { return (flags_ & SELECTIVITY_SET_USING_HINT) != 0; }
-  void setSelectivitySetUsingHint(NABoolean v = TRUE)
-  { (v ? flags_ |= SELECTIVITY_SET_USING_HINT : flags_ &= ~SELECTIVITY_SET_USING_HINT); }
+  NABoolean isSelectivitySetUsingHint() { return (flags_ & SELECTIVITY_SET_USING_HINT) != 0; }
+  void setSelectivitySetUsingHint(NABoolean v = TRUE) {
+    (v ? flags_ |= SELECTIVITY_SET_USING_HINT : flags_ &= ~SELECTIVITY_SET_USING_HINT);
+  }
 
   // get and set for flags_. See enum Flags.
-  NABoolean isGroupByExpr()   const { return (flags_ & IS_GROUPBY_EXPR) != 0; }
-  void setIsGroupByExpr(NABoolean v)
-  { (v ? flags_ |= IS_GROUPBY_EXPR : flags_ &= ~IS_GROUPBY_EXPR); }
+  NABoolean isGroupByExpr() const { return (flags_ & IS_GROUPBY_EXPR) != 0; }
+  void setIsGroupByExpr(NABoolean v) { (v ? flags_ |= IS_GROUPBY_EXPR : flags_ &= ~IS_GROUPBY_EXPR); }
 
   // get and set for IS_RANGESPEC_ITEM_EXPR flag.
   NABoolean isRangespecItemExpr() const { return (flags_ & IS_RANGESPEC_ITEM_EXPR) != 0; }
-  void setRangespecItemExpr(NABoolean v = TRUE)
-  { (v ? flags_ |= IS_RANGESPEC_ITEM_EXPR : flags_ &= ~IS_RANGESPEC_ITEM_EXPR); }
+  void setRangespecItemExpr(NABoolean v = TRUE) {
+    (v ? flags_ |= IS_RANGESPEC_ITEM_EXPR : flags_ &= ~IS_RANGESPEC_ITEM_EXPR);
+  }
 
-  NABoolean wasDefaultClause()   const { return (flags_ & WAS_DEFAULT_CLAUSE) != 0; }
-  void setWasDefaultClause(NABoolean v)
-  { (v ? flags_ |= WAS_DEFAULT_CLAUSE : flags_ &= ~WAS_DEFAULT_CLAUSE); }
+  NABoolean wasDefaultClause() const { return (flags_ & WAS_DEFAULT_CLAUSE) != 0; }
+  void setWasDefaultClause(NABoolean v) { (v ? flags_ |= WAS_DEFAULT_CLAUSE : flags_ &= ~WAS_DEFAULT_CLAUSE); }
 
-  NABoolean isGroupByRollup()   const { return (flags_ & IS_GROUPBY_ROLLUP) != 0; }
-  void setIsGroupByRollup(NABoolean v)
-  { (v ? flags_ |= IS_GROUPBY_ROLLUP : flags_ &= ~IS_GROUPBY_ROLLUP); }
+  NABoolean isGroupByRollup() const { return (flags_ & IS_GROUPBY_ROLLUP) != 0; }
+  void setIsGroupByRollup(NABoolean v) { (v ? flags_ |= IS_GROUPBY_ROLLUP : flags_ &= ~IS_GROUPBY_ROLLUP); }
 
-  NABoolean isOrderSyblingsBy()   const { return (flags_ & IS_ORDER_SIBGINGS_BY) != 0; }
-  void setIsOrderSyblingsBy(NABoolean v)
-  { (v ? flags_ |= IS_ORDER_SIBGINGS_BY: flags_ &= ~IS_ORDER_SIBGINGS_BY); }
+  NABoolean isOrderSyblingsBy() const { return (flags_ & IS_ORDER_SIBGINGS_BY) != 0; }
+  void setIsOrderSyblingsBy(NABoolean v) { (v ? flags_ |= IS_ORDER_SIBGINGS_BY : flags_ &= ~IS_ORDER_SIBGINGS_BY); }
 
-  NABoolean isConnectByExpr()   const { return (flags_ & IS_CONNECT_BY_EXPR) != 0; }
-  void setIsConnectByExpr(NABoolean v)
-  { (v ? flags_ |= IS_CONNECT_BY_EXPR: flags_ &= ~IS_CONNECT_BY_EXPR); }
+  NABoolean isConnectByExpr() const { return (flags_ & IS_CONNECT_BY_EXPR) != 0; }
+  void setIsConnectByExpr(NABoolean v) { (v ? flags_ |= IS_CONNECT_BY_EXPR : flags_ &= ~IS_CONNECT_BY_EXPR); }
 
-  NABoolean isStartWithExpr()   const { return (flags_ & IS_START_WITH_EXPR) != 0; }
-  void setIsStartWithExpr(NABoolean v)
-  { (v ? flags_ |= IS_START_WITH_EXPR: flags_ &= ~IS_START_WITH_EXPR); }
-  NABoolean isBuiltinFuncOrderable()   const { return (flags_ & IS_BUILT_IN_FUNC_ORDERABLE) != 0; }
+  NABoolean isStartWithExpr() const { return (flags_ & IS_START_WITH_EXPR) != 0; }
+  void setIsStartWithExpr(NABoolean v) { (v ? flags_ |= IS_START_WITH_EXPR : flags_ &= ~IS_START_WITH_EXPR); }
+  NABoolean isBuiltinFuncOrderable() const { return (flags_ & IS_BUILT_IN_FUNC_ORDERABLE) != 0; }
 
-  void setIsBuiltinFuncOrderable(NABoolean v)
-  { (v ? flags_ |= IS_BUILT_IN_FUNC_ORDERABLE : flags_ &= ~IS_BUILT_IN_FUNC_ORDERABLE); }
+  void setIsBuiltinFuncOrderable(NABoolean v) {
+    (v ? flags_ |= IS_BUILT_IN_FUNC_ORDERABLE : flags_ &= ~IS_BUILT_IN_FUNC_ORDERABLE);
+  }
 
   virtual QR::ExprElement getQRExprElem() const;
 
-  virtual ItemExpr* removeRangeSpecItems(NormWA* normWA = NULL);
+  virtual ItemExpr *removeRangeSpecItems(NormWA *normWA = NULL);
 
-  // output degree functions for ItemExprs that can have 
+  // output degree functions for ItemExprs that can have
   // multiple outputs (such as scalar UDFs and subqueries).
-  virtual Int32       getOutputDegree()     { return 1; }
+  virtual Int32 getOutputDegree() { return 1; }
   virtual ItemExpr *getOutputItem(UInt32 i) { return this; }
 
   // remove non-pushabe predicates for ORC, default implementation.
-  virtual ItemExpr* removeNonPushablePredicatesForORC() { return NULL; }
+  virtual ItemExpr *removeNonPushablePredicatesForORC() { return NULL; }
 
   // check if this item expr involves a column directly or indirectly
   virtual NABoolean isInvolvingAColumn();
 
   // remove non-pushabe predicates for ORC, default implementation, for binary item exprs
-  virtual ItemExpr* doBinaryRemoveNonPushablePredicatesForORC(NABoolean allowTrimOff);
+  virtual ItemExpr *doBinaryRemoveNonPushablePredicatesForORC(NABoolean allowTrimOff);
 
-  virtual void generatePushdownListForExtStorage(ExtPushdownPredInfoList&) {};
+  virtual void generatePushdownListForExtStorage(ExtPushdownPredInfoList &){};
 
-  virtual NABoolean isIsNullOrIsNotNullPred() const; 
+  virtual NABoolean isIsNullOrIsNotNullPred() const;
 
   NABoolean allValueIdsAreInvalid();
 
   NAString &getUserTextStr() { return userTextStr_; }
   const NAString &getUserTextStr() const { return userTextStr_; }
-  void setUserTextStr(NAString v)  { userTextStr_ = v; userTextStr_.toUpper(); }
+  void setUserTextStr(NAString v) {
+    userTextStr_ = v;
+    userTextStr_.toUpper();
+  }
 
-  NABoolean isBiRelat()
-  {
+  NABoolean isBiRelat() {
     OperatorTypeEnum op = getOperatorType();
-    return (op == ITM_EQUAL || op == ITM_NOT_EQUAL ||
-            op == ITM_LESS || op == ITM_LESS_EQ ||
-            op == ITM_GREATER || op == ITM_GREATER_EQ);
+    return (op == ITM_EQUAL || op == ITM_NOT_EQUAL || op == ITM_LESS || op == ITM_LESS_EQ || op == ITM_GREATER ||
+            op == ITM_GREATER_EQ);
   }
 
   virtual void setAssignColName(NAString colName) {}
-public:
-  void bindPriorItem(BindWA* bindWA);
 
-protected:
+ public:
+  void bindPriorItem(BindWA *bindWA);
 
-
+ protected:
   // ---------------------------------------------------------------------
   // This function does the real work of bind nodes for an expression.
   // It calls bindNode on the tree and then fills any incomplete
@@ -1347,27 +1202,25 @@ protected:
   // on "this" ItemExpr by adding a translate node on top of "this". Return "this"
   // if relaxation is done successfully or not necessary; return NULL if the relaxation
   // failed.
-  virtual ItemExpr* performRelaxation(CharInfo::CharSet csTranslatedTo, BindWA *bindWA);
+  virtual ItemExpr *performRelaxation(CharInfo::CharSet csTranslatedTo, BindWA *bindWA);
 
   // A special version of the virtual function performing the actual charset
   // matching rule relaxation for two ExprValueIds.
   // Returns TRUE if the relaxation is successfully done and one of the ExprValueIds
   // is changed, or relaxation is not necessary; return FALSE if the relaxation failed.
-  virtual NABoolean performRelaxation(ExprValueId* ie1, ExprValueId* ie2, BindWA *bindWA);
+  virtual NABoolean performRelaxation(ExprValueId *ie1, ExprValueId *ie2, BindWA *bindWA);
 
   // perform the copyTree operation with the actual copyTopNode function provided.
   // Current variations of copyTreeImp():
   //    copyTopNode - all nodes are copied with ValueIds data member not copied;
-  //    copyTopNodeNonleaf - all nodes are copied except some of the leaf node's ValueIds 
+  //    copyTopNodeNonleaf - all nodes are copied except some of the leaf node's ValueIds
   //                         data member copied.
   //
-  typedef ItemExpr* (ItemExpr::*copyNodeFuncPtrT)(ItemExpr *derivedNode, CollHeap* outHeap);
-  virtual ItemExpr * copyTreeImp(copyNodeFuncPtrT, CollHeap* outHeap=0);
+  typedef ItemExpr *(ItemExpr::*copyNodeFuncPtrT)(ItemExpr *derivedNode, CollHeap *outHeap);
+  virtual ItemExpr *copyTreeImp(copyNodeFuncPtrT, CollHeap *outHeap = 0);
 
-private:
-
-  enum Flags
-  {
+ private:
+  enum Flags {
     // if set, then constant folding is disabled for this node.
     // The child nodes are folded, if allowed.
     CONST_FOLDING_DISABLED = 0x0001,
@@ -1386,7 +1239,7 @@ private:
     // not pushed below a grouping column. A grouping column is an expression
     // specified in the GROUP BY clause
     IS_GROUPBY_EXPR = 0x0008,
-    
+
     // If set, the subtree rooted by this ItemExpr was derived from a rangespec
     // (see OptRangeSpec::getRangeItemExpr()). This flag is consulted to avoid
     // repeating the rangespec analysis process when the expression is in more
@@ -1398,12 +1251,12 @@ private:
     IN_ORDERBY_ORDINAL = 0x0020,
 
     // If set, this subtree was created while processing the DEFAULT
-    // clause in DefaultSpecification::bindNode. 
+    // clause in DefaultSpecification::bindNode.
     WAS_DEFAULT_CLAUSE = 0x0040,
 
     // if set, the subtree rooted below was part of "groupby rollup" clause.
-	// Currently used during parsing phase. See parser/sqlparser.y.
-    IS_GROUPBY_ROLLUP  = 0x0080,
+    // Currently used during parsing phase. See parser/sqlparser.y.
+    IS_GROUPBY_ROLLUP = 0x0080,
 
     // if set, the subtree was order siblings by clause
     IS_ORDER_SIBGINGS_BY = 0x0100,
@@ -1421,10 +1274,10 @@ private:
   // This value is filled in by the binder for every expression.
   // ---------------------------------------------------------------------
   ValueId valId_;
-  
+
   // ---------------------------------------------------------------------
   // The value identifier for this expression before translate, 0 by default
-  // add this to fix mantis8286 
+  // add this to fix mantis8286
   // ---------------------------------------------------------------------
   ValueId initVId_;
 
@@ -1450,13 +1303,13 @@ private:
   // When we're binding and have determined the type of the expr,
   // we disallow it for non-CHARACTER-type exprs, and apply it to the CharTypes.
   // ---------------------------------------------------------------------
-  CollationAndCoercibility * collateClause_;
+  CollationAndCoercibility *collateClause_;
 
   // ---------------------------------------------------------------------
   // A pointer to the scalar expression that replaces this expression
   // during the transformation/normalization phase.
   // ---------------------------------------------------------------------
-  ItemExpr * replacementExpr_;
+  ItemExpr *replacementExpr_;
 
   // ---------------------------------------------------------------------
   // A pointer to the generated clause for this ItemExpr.
@@ -1464,7 +1317,7 @@ private:
   // the generated clause after code generation.
   // For example, to backpatch branch addresses for boolean clauses.
   // ---------------------------------------------------------------------
-  ex_clause * clause_;
+  ex_clause *clause_;
 
   // ---------------------------------------------------------------------
   // The optype of the item that the user actually specified;
@@ -1477,8 +1330,8 @@ private:
   // ---------------------------------------------------------------------
   // In some cases, multiple user specified functions could be created
   // as the same ItemExpr during parsing.
-  // In such cases, display string for the user function show up as the 
-  // value defined for the underlying ItemExpr instead of the original user 
+  // In such cases, display string for the user function show up as the
+  // value defined for the underlying ItemExpr instead of the original user
   // function that was used.
   // This could happen during error or other internal plan display.
   //
@@ -1496,8 +1349,8 @@ private:
   // ---------------------------------------------------------------------
   NAString userTextStr_;
 
-  //static THREAD_P OperatorTypeEnum origOpTypeBeingBound_;
-  //static THREAD_P Int32 origOpTypeCounter_;
+  // static THREAD_P OperatorTypeEnum origOpTypeBeingBound_;
+  // static THREAD_P Int32 origOpTypeCounter_;
 
   // ------------------
   // Object Counter
@@ -1509,11 +1362,11 @@ private:
   // This can happen in a compound statement when we do an INTO :hostvar and
   // use that hostvar later on in the same compound statement
   NABoolean previousHostVar_;
-  NAString  previousName_;
+  NAString previousName_;
 
   // an indicator on whether to resolve incomplete types
   // in the method BindNodeRoot().
-  NABoolean resolveIncompleteType_ ;
+  NABoolean resolveIncompleteType_;
 
   NABoolean preCodeGenNATypeChange_;
 
@@ -1526,14 +1379,13 @@ private:
   //--MV
 
   UInt32 flags_;
-}; // class ItemExpr
+};  // class ItemExpr
 
 // -----------------------------------------------------------------------
 // Inlines that couldn't be defined till now due to dependencies
 // -----------------------------------------------------------------------
 
-inline ItemExpr * ExprValueId::operator ->() const	{ return getPtr(); }
-inline ExprValueId::operator ItemExpr *() const		{ return getPtr(); }
-
+inline ItemExpr *ExprValueId::operator->() const { return getPtr(); }
+inline ExprValueId::operator ItemExpr *() const { return getPtr(); }
 
 #endif /* ITEMEXPR_H */

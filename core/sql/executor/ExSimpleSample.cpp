@@ -410,6 +410,4 @@ void ExSimpleSampleTcb::processCancel()
   while(ix <= nextRqst_);
 }
 
-
-#endif // if 0
-
+#endif  // if 0

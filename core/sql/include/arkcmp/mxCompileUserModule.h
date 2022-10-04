@@ -44,29 +44,31 @@ class mxCompileUserModule {
   mxCompileUserModule();
   virtual ~mxCompileUserModule();
 
-  ComDiagsArea& operator<<(const DgBase&);
+  ComDiagsArea &operator<<(const DgBase &);
   void internalError(const char *file, Int32 line, const char *msg);
 
   void dumpDiags();
   Int32 diagsCount();
 
-  ComDiagsArea& operator<<(mxcmpExitCode rc) 
-    { setReturnCode(rc); return *diags_; }
+  ComDiagsArea &operator<<(mxcmpExitCode rc) {
+    setReturnCode(rc);
+    return *diags_;
+  }
   void setReturnCode(mxcmpExitCode rc);
   mxcmpExitCode returnCode() { return returnCode_; }
 
   NAHeap *heap();
 
  private:
-  NAHeap       *heap_;
+  NAHeap *heap_;
   ComDiagsArea *diags_;
   mxcmpExitCode returnCode_;
 };
 
-inline NAHeap* mxCompileUserModule::heap() { return heap_; }
+inline NAHeap *mxCompileUserModule::heap() { return heap_; }
 
 extern mxCompileUserModule *mxCUMptr;
 
-#define mxCUMinternalError(msg) mxCUMptr->internalError(__FILE__,__LINE__,msg)
+#define mxCUMinternalError(msg) mxCUMptr->internalError(__FILE__, __LINE__, msg)
 
-#endif // MXCOMPILEUSERMODULE__H
+#endif  // MXCOMPILEUSERMODULE__H

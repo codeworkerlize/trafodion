@@ -38,7 +38,7 @@ using namespace tmudr;
 // ------------------------------------------------------------------------
 // This file includes implementations of methods defined in sqludr.h that
 // are of interest to UDR writers.
-// 
+//
 // For example, the default action for the C++ compiler interface for
 // TMUDFs are shown here. These can be called by TMUDFs, to provide
 // additional features and this source code can be used to decide whether
@@ -46,7 +46,7 @@ using namespace tmudr;
 // can inspect this code, copy and modify it for their own use or
 // call it from derived classes.
 //
-// This file gets compiled in Trafodion as part of 
+// This file gets compiled in Trafodion as part of
 // trafodion/core/sql/optimizer/UdfDllInteraction.cpp.
 // It does not need to be included into the DLL of the UDF.
 //
@@ -73,8 +73,7 @@ using namespace tmudr;
  *                  Example:
  *                  new UDRException(38001, "num %d, string %s", 1, "a");
  */
-UDRException::UDRException(int sqlState, const char *printf_format, ...)
-{
+UDRException::UDRException(int sqlState, const char *printf_format, ...) {
   va_list args;
   const int maxMsgLen = 250;
   char msg[maxMsgLen];
@@ -97,8 +96,7 @@ UDRException::UDRException(int sqlState, const char *printf_format, ...)
  *  @param printf_format a format string like it is used in printf,
  *                  with a variable list of arguments to be substituted.
  */
-UDRException::UDRException(const char *sqlState, const char *printf_format, ...)
-{
+UDRException::UDRException(const char *sqlState, const char *printf_format, ...) {
   va_list args;
   const int maxMsgLen = 250;
   char msg[maxMsgLen];
@@ -111,7 +109,7 @@ UDRException::UDRException(const char *sqlState, const char *printf_format, ...)
 
   strncpy(sqlState_, sqlState, sizeof(sqlState_));
   // add a NUL terminator in case we overflowed
-  sqlState_[sizeof(sqlState_)-1] = 0;
+  sqlState_[sizeof(sqlState_) - 1] = 0;
 }
 
 /**
@@ -121,10 +119,7 @@ UDRException::UDRException(const char *sqlState, const char *printf_format, ...)
  *          this is a pointer to a data member, the buffer
  *          lives only as long as the UDRException object.
  */
-const char * UDRException::getSQLState() const
-{
-  return sqlState_;
-}
+const char *UDRException::getSQLState() const { return sqlState_; }
 
 /**
  *  Get the error message associated with this exception
@@ -135,10 +130,7 @@ const char * UDRException::getSQLState() const
  *          a data member, it lives only as long as the
  *          UDRException object.
  */
-const std::string & UDRException::getMessage() const
-{
-  return text_;
-}
+const std::string &UDRException::getMessage() const { return text_; }
 
 /**
  *  Get the error message associated with this exception
@@ -148,59 +140,42 @@ const std::string & UDRException::getMessage() const
  *  @deprecated Use getMessage() instead, in Java that is the
  *              standard method.
  */
-const std::string & UDRException::getText() const
-{
-  return text_;
-}
+const std::string &UDRException::getText() const { return text_; }
 
 // ------------------------------------------------------------------------
 // Member functions for class TMUDRSerializableObject
 // ------------------------------------------------------------------------
 
-TMUDRSerializableObject::TMUDRSerializableObject(TMUDRObjectType objectType,
-                                                 unsigned short version,
-                                                 unsigned short endianness)
-{
-  v_.objectType_  = static_cast<int>(objectType);
-  v_.totalLength_ = -1; // will be set when we serialize the object
-  v_.version_     = version;
-  v_.endianness_  = endianness;
-  v_.flags_       = 0;
-  v_.filler_      = 0;
+TMUDRSerializableObject::TMUDRSerializableObject(TMUDRObjectType objectType, unsigned short version,
+                                                 unsigned short endianness) {
+  v_.objectType_ = static_cast<int>(objectType);
+  v_.totalLength_ = -1;  // will be set when we serialize the object
+  v_.version_ = version;
+  v_.endianness_ = endianness;
+  v_.flags_ = 0;
+  v_.filler_ = 0;
 }
 
-TMUDRSerializableObject::TMUDRObjectType TMUDRSerializableObject::getObjectType() const 
-{
+TMUDRSerializableObject::TMUDRObjectType TMUDRSerializableObject::getObjectType() const {
   return static_cast<TMUDRObjectType>(v_.objectType_);
 }
 
-unsigned short TMUDRSerializableObject::getVersion() const
-{
-  return v_.version_;
+unsigned short TMUDRSerializableObject::getVersion() const { return v_.version_; }
+
+TMUDRSerializableObject::Endianness TMUDRSerializableObject::getEndianness() const {
+  return (Endianness)v_.endianness_;
 }
 
-TMUDRSerializableObject::Endianness TMUDRSerializableObject::getEndianness() const
-{
-  return (Endianness) v_.endianness_;
-}
+int TMUDRSerializableObject::serializedLength() { return sizeof(v_); }
 
-int TMUDRSerializableObject::serializedLength()
-{
-  return sizeof(v_);
-}
-
-int TMUDRSerializableObject::serialize(Bytes &outputBuffer,
-                                       int &outputBufferLength)
-{
+int TMUDRSerializableObject::serialize(Bytes &outputBuffer, int &outputBufferLength) {
   // as a sanity check, also serialize the total length of the object
   v_.totalLength_ = serializedLength();
 
   if (outputBufferLength < v_.totalLength_)
-    throw UDRException(38900,"need %d bytes to serialize object of type %d, have %d bytes",
-                       v_.totalLength_,
-                       static_cast<int>(v_.objectType_),
-                       outputBufferLength);
-  memcpy(outputBuffer, (void *) &v_, sizeof(v_));
+    throw UDRException(38900, "need %d bytes to serialize object of type %d, have %d bytes", v_.totalLength_,
+                       static_cast<int>(v_.objectType_), outputBufferLength);
+  memcpy(outputBuffer, (void *)&v_, sizeof(v_));
   outputBuffer += sizeof(v_);
   outputBufferLength -= sizeof(v_);
   // Checks to be done by the caller:
@@ -211,20 +186,15 @@ int TMUDRSerializableObject::serialize(Bytes &outputBuffer,
   return sizeof(v_);
 }
 
-int TMUDRSerializableObject::deserialize(ConstBytes &inputBuffer,
-                                         int &inputBufferLength)
-{
+int TMUDRSerializableObject::deserialize(ConstBytes &inputBuffer, int &inputBufferLength) {
   if (inputBufferLength < sizeof(v_))
-    throw UDRException(38900,"not enough data to deserialize object header, need %d, got %d bytes",
-                       sizeof(v_),
+    throw UDRException(38900, "not enough data to deserialize object header, need %d, got %d bytes", sizeof(v_),
                        inputBufferLength);
-  memcpy((void *) &v_, inputBuffer, sizeof(v_));
+  memcpy((void *)&v_, inputBuffer, sizeof(v_));
 
   if (inputBufferLength < v_.totalLength_)
-    throw UDRException(38900,"not enough data to deserialize object of type %d, need %d, got %d bytes",
-                       static_cast<int>(v_.objectType_),
-                       v_.totalLength_,
-                       inputBufferLength);
+    throw UDRException(38900, "not enough data to deserialize object of type %d, need %d, got %d bytes",
+                       static_cast<int>(v_.objectType_), v_.totalLength_, inputBufferLength);
 
   inputBuffer += sizeof(v_);
   inputBufferLength -= sizeof(v_);
@@ -238,67 +208,42 @@ int TMUDRSerializableObject::deserialize(ConstBytes &inputBuffer,
   return sizeof(v_);
 }
 
-void TMUDRSerializableObject::validateObjectType(TMUDRObjectType o)
-{
+void TMUDRSerializableObject::validateObjectType(TMUDRObjectType o) {
   if (v_.objectType_ != o)
-    throw UDRException(38900,"Object type of expected object (%d) does not match the type (%d) in the serialized buffer",
-                       o,
+    throw UDRException(38900,
+                       "Object type of expected object (%d) does not match the type (%d) in the serialized buffer", o,
                        static_cast<int>(v_.objectType_));
 }
 
-void TMUDRSerializableObject::validateSerializedLength(int l)
-{
+void TMUDRSerializableObject::validateSerializedLength(int l) {
   if (l != v_.totalLength_)
-    throw UDRException(38900,"Expected %d bytes to serialize object of type %d, actually produced %d bytes",
-                       v_.totalLength_,
-                       static_cast<int>(v_.objectType_),
-                       l);
+    throw UDRException(38900, "Expected %d bytes to serialize object of type %d, actually produced %d bytes",
+                       v_.totalLength_, static_cast<int>(v_.objectType_), l);
 }
 
-void TMUDRSerializableObject::validateDeserializedLength(int l)
-{
+void TMUDRSerializableObject::validateDeserializedLength(int l) {
   if (l != v_.totalLength_)
-    throw UDRException(38900,"Expected %d bytes to deserialize object of type %d, actually consumed %d bytes",
-                       v_.totalLength_,
-                       static_cast<int>(v_.objectType_),
-                       l);
+    throw UDRException(38900, "Expected %d bytes to deserialize object of type %d, actually consumed %d bytes",
+                       v_.totalLength_, static_cast<int>(v_.objectType_), l);
 }
 
-int TMUDRSerializableObject::serializedLengthOfInt()
-{
-  return sizeof(int);
-}
+int TMUDRSerializableObject::serializedLengthOfInt() { return sizeof(int); }
 
-int TMUDRSerializableObject::serializedLengthOfLong()
-{
-  return sizeof(long);
-}
+int TMUDRSerializableObject::serializedLengthOfLong() { return sizeof(long); }
 
-int TMUDRSerializableObject::serializedLengthOfString(const char *s)
-{
-  return sizeof(int) + strlen(s);
-}
+int TMUDRSerializableObject::serializedLengthOfString(const char *s) { return sizeof(int) + strlen(s); }
 
-int TMUDRSerializableObject::serializedLengthOfString(int stringLength)
-{
-  return sizeof(int) + stringLength;
-}
+int TMUDRSerializableObject::serializedLengthOfString(int stringLength) { return sizeof(int) + stringLength; }
 
-int TMUDRSerializableObject::serializedLengthOfString(const std::string &s)
-{
+int TMUDRSerializableObject::serializedLengthOfString(const std::string &s) {
   return serializedLengthOfString(s.size());
 }
 
-int TMUDRSerializableObject::serializedLengthOfBinary(int binaryLength)
-{
+int TMUDRSerializableObject::serializedLengthOfBinary(int binaryLength) {
   return serializedLengthOfString(binaryLength);
 }
 
-int TMUDRSerializableObject::serializeInt8(
-  uint8_t i,
-  Bytes& outputBuffer,
-  int& outputBufferLength)
-{
+int TMUDRSerializableObject::serializeInt8(uint8_t i, Bytes &outputBuffer, int &outputBufferLength) {
   if (outputBufferLength < 0 || outputBufferLength < sizeof(uint8_t))
     throw UDRException(38900, "insufficient space to serialize an int");
 
@@ -310,13 +255,9 @@ int TMUDRSerializableObject::serializeInt8(
   return sizeof(uint8_t);
 }
 
-int TMUDRSerializableObject::serializeInt(
-     int i,
-     Bytes &outputBuffer,
-     int &outputBufferLength)
-{
+int TMUDRSerializableObject::serializeInt(int i, Bytes &outputBuffer, int &outputBufferLength) {
   if (outputBufferLength < 0 || outputBufferLength < sizeof(int))
-    throw UDRException(38900,"insufficient space to serialize an int");
+    throw UDRException(38900, "insufficient space to serialize an int");
 
   memcpy(outputBuffer, &i, sizeof(int));
 
@@ -326,11 +267,7 @@ int TMUDRSerializableObject::serializeInt(
   return sizeof(int);
 }
 
-int TMUDRSerializableObject::serializeShort(
-  short s,
-  Bytes& outputBuffer,
-  int& outputBufferLength)
-{
+int TMUDRSerializableObject::serializeShort(short s, Bytes &outputBuffer, int &outputBufferLength) {
   if (outputBufferLength < 0 || outputBufferLength < sizeof(short))
     throw UDRException(38900, "insufficient space to serialize an double");
 
@@ -342,11 +279,7 @@ int TMUDRSerializableObject::serializeShort(
   return sizeof(short);
 }
 
-int TMUDRSerializableObject::serializeDouble(
-  double d,
-  Bytes& outputBuffer,
-  int& outputBufferLength)
-{
+int TMUDRSerializableObject::serializeDouble(double d, Bytes &outputBuffer, int &outputBufferLength) {
   if (outputBufferLength < 0 || outputBufferLength < sizeof(double))
     throw UDRException(38900, "insufficient space to serialize an double");
 
@@ -358,13 +291,9 @@ int TMUDRSerializableObject::serializeDouble(
   return sizeof(double);
 }
 
-int TMUDRSerializableObject::serializeLong(
-     long i,
-     Bytes &outputBuffer,
-     int &outputBufferLength)
-{
+int TMUDRSerializableObject::serializeLong(long i, Bytes &outputBuffer, int &outputBufferLength) {
   if (outputBufferLength < 0 || outputBufferLength < sizeof(long))
-    throw UDRException(38900,"insufficient space to serialize an int");
+    throw UDRException(38900, "insufficient space to serialize an int");
 
   memcpy(outputBuffer, &i, sizeof(long));
 
@@ -374,16 +303,11 @@ int TMUDRSerializableObject::serializeLong(
   return sizeof(long);
 }
 
-int TMUDRSerializableObject::serializeString(
-     const char *s,
-     Bytes &outputBuffer,
-     int &outputBufferLength)
-{
+int TMUDRSerializableObject::serializeString(const char *s, Bytes &outputBuffer, int &outputBufferLength) {
   int result = 0;
   int strLen = strlen(s);
   if (outputBufferLength < 0 || outputBufferLength < sizeof(int) + strLen)
-    throw UDRException(38900,"buffer to serialize string has %d bytes, needs %d",
-                       outputBufferLength, strLen);
+    throw UDRException(38900, "buffer to serialize string has %d bytes, needs %d", outputBufferLength, strLen);
 
   memcpy(outputBuffer, &strLen, sizeof(int));
 
@@ -398,61 +322,34 @@ int TMUDRSerializableObject::serializeString(
   return sizeof(int) + strLen;
 }
 
-int TMUDRSerializableObject::serializeString(
-     const char *s,
-     int len,
-     Bytes &outputBuffer,
-     int &outputBufferLength)
-{
+int TMUDRSerializableObject::serializeString(const char *s, int len, Bytes &outputBuffer, int &outputBufferLength) {
   if (outputBufferLength < 0 || outputBufferLength < sizeof(int) + len)
-    throw UDRException(38900,"buffer to serialize string has %d bytes, needs %d",
-                       outputBufferLength, len);
+    throw UDRException(38900, "buffer to serialize string has %d bytes, needs %d", outputBufferLength, len);
 
   memcpy(outputBuffer, &len, sizeof(int));
 
   outputBuffer += sizeof(int);
   outputBufferLength -= sizeof(int);
 
-  if (len > 0)
-    {
-      memcpy(outputBuffer, s, len);
+  if (len > 0) {
+    memcpy(outputBuffer, s, len);
 
-      outputBuffer += len;
-      outputBufferLength -= len;
-    }
+    outputBuffer += len;
+    outputBufferLength -= len;
+  }
 
   return sizeof(int) + len;
 }
 
-int TMUDRSerializableObject::serializeString(
-     const std::string &s,
-     Bytes &outputBuffer,
-     int &outputBufferLength)
-{
-  return serializeString(s.data(),
-                         s.size(),
-                         outputBuffer,
-                         outputBufferLength);
+int TMUDRSerializableObject::serializeString(const std::string &s, Bytes &outputBuffer, int &outputBufferLength) {
+  return serializeString(s.data(), s.size(), outputBuffer, outputBufferLength);
 }
 
-int TMUDRSerializableObject::serializeBinary(
-     const void *b,
-     int len,
-     Bytes &outputBuffer,
-     int &outputBufferLength)
-{
-  return serializeString(static_cast<const char *>(b),
-                         len,
-                         outputBuffer,
-                         outputBufferLength);
+int TMUDRSerializableObject::serializeBinary(const void *b, int len, Bytes &outputBuffer, int &outputBufferLength) {
+  return serializeString(static_cast<const char *>(b), len, outputBuffer, outputBufferLength);
 }
 
-
-int TMUDRSerializableObject::deserializeInt8(
-  uint8_t& i,
-  ConstBytes& inputBuffer,
-  int& inputBufferLength)
-{
+int TMUDRSerializableObject::deserializeInt8(uint8_t &i, ConstBytes &inputBuffer, int &inputBufferLength) {
   if (inputBufferLength < 0 || inputBufferLength < sizeof(uint8_t))
     throw UDRException(38900, "insufficient space to deserialize an int");
 
@@ -464,13 +361,9 @@ int TMUDRSerializableObject::deserializeInt8(
   return sizeof(uint8_t);
 }
 
-int TMUDRSerializableObject::deserializeInt(
-     int &i,
-     ConstBytes &inputBuffer,
-     int &inputBufferLength)
-{
+int TMUDRSerializableObject::deserializeInt(int &i, ConstBytes &inputBuffer, int &inputBufferLength) {
   if (inputBufferLength < 0 || inputBufferLength < sizeof(int))
-    throw UDRException(38900,"insufficient space to deserialize an int");
+    throw UDRException(38900, "insufficient space to deserialize an int");
 
   memcpy(&i, inputBuffer, sizeof(int));
 
@@ -480,11 +373,7 @@ int TMUDRSerializableObject::deserializeInt(
   return sizeof(int);
 }
 
-int TMUDRSerializableObject::deserializeShort(
-  short& s,
-  ConstBytes& inputBuffer,
-  int& inputBufferLength)
-{
+int TMUDRSerializableObject::deserializeShort(short &s, ConstBytes &inputBuffer, int &inputBufferLength) {
   if (inputBufferLength < 0 || inputBufferLength < sizeof(short))
     throw UDRException(38900, "insufficient space to deserialize an double");
 
@@ -496,11 +385,7 @@ int TMUDRSerializableObject::deserializeShort(
   return sizeof(short);
 }
 
-int TMUDRSerializableObject::deserializeDouble(
-  double& d,
-  ConstBytes& inputBuffer,
-  int& inputBufferLength)
-{
+int TMUDRSerializableObject::deserializeDouble(double &d, ConstBytes &inputBuffer, int &inputBufferLength) {
   if (inputBufferLength < 0 || inputBufferLength < sizeof(double))
     throw UDRException(38900, "insufficient space to deserialize an double");
 
@@ -512,13 +397,9 @@ int TMUDRSerializableObject::deserializeDouble(
   return sizeof(double);
 }
 
-int TMUDRSerializableObject::deserializeLong(
-     long &i,
-     ConstBytes &inputBuffer,
-     int &inputBufferLength)
-{
+int TMUDRSerializableObject::deserializeLong(long &i, ConstBytes &inputBuffer, int &inputBufferLength) {
   if (inputBufferLength < 0 || inputBufferLength < sizeof(long))
-    throw UDRException(38900,"insufficient space to deserialize an int");
+    throw UDRException(38900, "insufficient space to deserialize an int");
 
   memcpy(&i, inputBuffer, sizeof(long));
 
@@ -528,52 +409,38 @@ int TMUDRSerializableObject::deserializeLong(
   return sizeof(long);
 }
 
-int TMUDRSerializableObject::deserializeStringSafe(
-  const char*& s,
-  int& stringLength,
-  bool makeACopy,
-  ConstBytes& inputBuffer,
-  int& inputBufferLength)
-{
+int TMUDRSerializableObject::deserializeStringSafe(const char *&s, int &stringLength, bool makeACopy,
+                                                   ConstBytes &inputBuffer, int &inputBufferLength) {
   int ret = deserializeString(s, stringLength, makeACopy, inputBuffer, inputBufferLength);
-  if (s == NULL)
-    s = "";
+  if (s == NULL) s = "";
   return ret;
 }
 
-int TMUDRSerializableObject::deserializeString(
-     const char *&s,
-     int &stringLength,
-     bool makeACopy,
-     ConstBytes &inputBuffer,
-     int &inputBufferLength)
-{
+int TMUDRSerializableObject::deserializeString(const char *&s, int &stringLength, bool makeACopy,
+                                               ConstBytes &inputBuffer, int &inputBufferLength) {
   if (inputBufferLength < 0 || inputBufferLength < sizeof(int))
-    throw UDRException(38900,"insufficient space to deserialize length field of a string");
+    throw UDRException(38900, "insufficient space to deserialize length field of a string");
 
   int len;
 
   memcpy(&len, inputBuffer, sizeof(int));
-  inputBuffer +=  sizeof(int);
+  inputBuffer += sizeof(int);
   inputBufferLength -= sizeof(int);
 
   if (inputBufferLength < len)
-    throw UDRException(38900,"string length indicator value %d exceeds size %d of serialized buffer",
-                       len, inputBufferLength);
+    throw UDRException(38900, "string length indicator value %d exceeds size %d of serialized buffer", len,
+                       inputBufferLength);
 
   if (len <= 0)
     s = NULL;
-  else if (makeACopy)
-    {
-      char *tempBuf = new char[len];
-      memcpy(tempBuf, inputBuffer, len);
-      s = tempBuf;
-    }
-  else
-    {
-      // return a pointer to the string - needs to be copied immediately and is not null-terminated
-      s = inputBuffer;
-    }
+  else if (makeACopy) {
+    char *tempBuf = new char[len];
+    memcpy(tempBuf, inputBuffer, len);
+    s = tempBuf;
+  } else {
+    // return a pointer to the string - needs to be copied immediately and is not null-terminated
+    s = inputBuffer;
+  }
 
   // this is the length of the string in bytes
   stringLength = len;
@@ -585,50 +452,30 @@ int TMUDRSerializableObject::deserializeString(
   return sizeof(int) + len;
 }
 
-int TMUDRSerializableObject::deserializeString(
-     std::string &s,
-     ConstBytes &inputBuffer,
-     int &inputBufferLength)
-{
+int TMUDRSerializableObject::deserializeString(std::string &s, ConstBytes &inputBuffer, int &inputBufferLength) {
   const char *temp = NULL;
   int strLen = 0;
-  int result = deserializeString(temp,
-                                 strLen,
-                                 false,
-                                 inputBuffer,
-                                 inputBufferLength);
+  int result = deserializeString(temp, strLen, false, inputBuffer, inputBufferLength);
   s.assign(temp, strLen);
 
   return result;
 }
 
-int TMUDRSerializableObject::deserializeBinary(
-     const void **b,
-     int &binaryLength,
-     bool makeACopy,
-     ConstBytes &inputBuffer,
-     int &inputBufferLength)
-{
+int TMUDRSerializableObject::deserializeBinary(const void **b, int &binaryLength, bool makeACopy,
+                                               ConstBytes &inputBuffer, int &inputBufferLength) {
   const char *temp;
-  int result = deserializeString(temp,
-                                 binaryLength,
-                                 makeACopy,
-                                 inputBuffer,
-                                 inputBufferLength);
+  int result = deserializeString(temp, binaryLength, makeACopy, inputBuffer, inputBufferLength);
 
   *b = const_cast<char *>(temp);
 
   return result;
 }
 
-TMUDRSerializableObject::TMUDRObjectType TMUDRSerializableObject::getNextObjectType(
-     ConstBytes inputBuffer,
-     int inputBufferLength)
-{
+TMUDRSerializableObject::TMUDRObjectType TMUDRSerializableObject::getNextObjectType(ConstBytes inputBuffer,
+                                                                                    int inputBufferLength) {
   // determine the object type of the next object in the buffer
   if (inputBufferLength < 0 || inputBufferLength < sizeof(v_))
-    throw UDRException(38900,"not enough data to look at next object header, need %d, got %d bytes",
-                       sizeof(v_),
+    throw UDRException(38900, "not enough data to look at next object header, need %d, got %d bytes", sizeof(v_),
                        inputBufferLength);
   const headerFields *nextObjInBuffer = reinterpret_cast<const headerFields *>(inputBuffer);
 
@@ -640,10 +487,7 @@ TMUDRSerializableObject::TMUDRObjectType TMUDRSerializableObject::getNextObjectT
 // ------------------------------------------------------------------------
 
 /** Copy constructor */
-TypeInfo::TypeInfo(const TypeInfo &type) :
-     TMUDRSerializableObject(TYPE_INFO_OBJ,
-                             getCurrentVersion())
-{
+TypeInfo::TypeInfo(const TypeInfo &type) : TMUDRSerializableObject(TYPE_INFO_OBJ, getCurrentVersion()) {
   d_.sqlType_ = type.d_.sqlType_;
   d_.nullable_ = type.d_.nullable_;
   d_.scale_ = type.d_.scale_;
@@ -656,10 +500,7 @@ TypeInfo::TypeInfo(const TypeInfo &type) :
   d_.nullIndOffset_ = type.d_.nullIndOffset_;
   d_.vcLenIndOffset_ = type.d_.vcLenIndOffset_;
   d_.flags_ = type.d_.flags_;
-  d_.fillers_[0] =
-    d_.fillers_[1] =
-    d_.fillers_[2] =
-    d_.fillers_[3] = 0;
+  d_.fillers_[0] = d_.fillers_[1] = d_.fillers_[2] = d_.fillers_[3] = 0;
 }
 
 /**
@@ -690,17 +531,9 @@ TypeInfo::TypeInfo(const TypeInfo &type) :
  *                       currently supported.
  *  @throws UDRException
  */
-TypeInfo::TypeInfo(SQLTypeCode sqlType,
-                   int length,
-                   bool nullable,
-                   int scale,
-                   SQLCharsetCode charset,
-                   SQLIntervalCode intervalCode,
-                   int precision,
-                   SQLCollationCode collation) :
-     TMUDRSerializableObject(TYPE_INFO_OBJ,
-                             getCurrentVersion())
-{
+TypeInfo::TypeInfo(SQLTypeCode sqlType, int length, bool nullable, int scale, SQLCharsetCode charset,
+                   SQLIntervalCode intervalCode, int precision, SQLCollationCode collation)
+    : TMUDRSerializableObject(TYPE_INFO_OBJ, getCurrentVersion()) {
   d_.sqlType_ = sqlType;
   d_.nullable_ = nullable;
   d_.scale_ = scale;
@@ -713,13 +546,9 @@ TypeInfo::TypeInfo(SQLTypeCode sqlType,
   d_.nullIndOffset_ = -1;
   d_.vcLenIndOffset_ = -1;
   d_.flags_ = 0;
-  d_.fillers_[0] =
-  d_.fillers_[1] =
-  d_.fillers_[2] =
-  d_.fillers_[3] = 0;
+  d_.fillers_[0] = d_.fillers_[1] = d_.fillers_[2] = d_.fillers_[3] = 0;
 
-  switch (sqlType)
-    {
+  switch (sqlType) {
     case TINYINT:
       d_.length_ = 1;
       d_.precision_ = 0;
@@ -747,22 +576,26 @@ TypeInfo::TypeInfo(SQLTypeCode sqlType,
     case NUMERIC:
       d_.length_ = convertToBinaryPrecision(d_.precision_);
       if (d_.scale_ < 0 || scale > 18)
-        throw UDRException(38900,"Scale %d of a numeric in TypeInfo::TypeInfo is out of the allowed range of 0-18", d_.scale_);
+        throw UDRException(38900, "Scale %d of a numeric in TypeInfo::TypeInfo is out of the allowed range of 0-18",
+                           d_.scale_);
       if (scale > precision)
-        throw UDRException(38900,"Scale %d of a numeric in TypeInfo::TypeInfo is greater than precision %d", d_.scale_, d_.precision_);
+        throw UDRException(38900, "Scale %d of a numeric in TypeInfo::TypeInfo is greater than precision %d", d_.scale_,
+                           d_.precision_);
       break;
 
     case DECIMAL_LSE:
       if (scale < 0 || scale > 18)
-        throw UDRException(38900,"Scale %d of a decimal in TypeInfo::TypeInfo is out of the allowed range of 0-18", d_.scale_);
+        throw UDRException(38900, "Scale %d of a decimal in TypeInfo::TypeInfo is out of the allowed range of 0-18",
+                           d_.scale_);
       if (precision < 1 || precision > 18)
-        throw UDRException(38900,"Precision %d of a decimal in TypeInfo::TypeInfo is out of the allowed range of 1-18", d_.precision_);
+        throw UDRException(38900, "Precision %d of a decimal in TypeInfo::TypeInfo is out of the allowed range of 1-18",
+                           d_.precision_);
       if (scale > precision)
-        throw UDRException(38900,"Scale %d of a decimal in TypeInfo::TypeInfo is greater than precision %d", d_.scale_, d_.precision_);
+        throw UDRException(38900, "Scale %d of a decimal in TypeInfo::TypeInfo is greater than precision %d", d_.scale_,
+                           d_.precision_);
       // format [-]mmmm[.sss]  - total number of digits = precision
-      d_.length_ = d_.precision_ + 1; // add one for the sign
-      if (d_.scale_ > 0)
-        d_.length_ += 1; // for the decimal point
+      d_.length_ = d_.precision_ + 1;      // add one for the sign
+      if (d_.scale_ > 0) d_.length_ += 1;  // for the decimal point
       break;
 
     case TINYINT_UNSIGNED:
@@ -786,22 +619,29 @@ TypeInfo::TypeInfo(SQLTypeCode sqlType,
     case NUMERIC_UNSIGNED:
       d_.length_ = convertToBinaryPrecision(d_.precision_);
       if (d_.scale_ < 0 || scale > 18)
-        throw UDRException(38900,"Scale %d of a numeric unsigned in TypeInfo::TypeInfo is out of the allowed range of 0-18", d_.scale_);
+        throw UDRException(38900,
+                           "Scale %d of a numeric unsigned in TypeInfo::TypeInfo is out of the allowed range of 0-18",
+                           d_.scale_);
       if (scale > precision)
-        throw UDRException(38900,"Scale %d of a numeric unsigned in TypeInfo::TypeInfo is greater than precision %d", d_.scale_, d_.precision_);
+        throw UDRException(38900, "Scale %d of a numeric unsigned in TypeInfo::TypeInfo is greater than precision %d",
+                           d_.scale_, d_.precision_);
       break;
 
     case DECIMAL_UNSIGNED:
       if (scale < 0 || scale > 18)
-        throw UDRException(38900,"Scale %d of a decimal unsigned in TypeInfo::TypeInfo is out of the allowed range of 0-18", d_.scale_);
+        throw UDRException(38900,
+                           "Scale %d of a decimal unsigned in TypeInfo::TypeInfo is out of the allowed range of 0-18",
+                           d_.scale_);
       if (d_.precision_ < 1 || d_.precision_ > 18)
-        throw UDRException(38900,"Precision %d of a decimal unsigned in TypeInfo::TypeInfo is out of the allowed range of 1-18", d_.precision_);
+        throw UDRException(
+            38900, "Precision %d of a decimal unsigned in TypeInfo::TypeInfo is out of the allowed range of 1-18",
+            d_.precision_);
       if (scale > precision)
-        throw UDRException(38900,"Scale %d of a decimal unsigned in TypeInfo::TypeInfo is greater than precision %d", d_.scale_, d_.precision_);
+        throw UDRException(38900, "Scale %d of a decimal unsigned in TypeInfo::TypeInfo is greater than precision %d",
+                           d_.scale_, d_.precision_);
       // format mmmm[.sss]  - total number of digits = precision
       d_.length_ = d_.precision_;
-      if (d_.scale_ > 0)
-        d_.length_ += 1; // for the decimal point
+      if (d_.scale_ > 0) d_.length_ += 1;  // for the decimal point
       break;
 
     case REAL:
@@ -814,23 +654,21 @@ TypeInfo::TypeInfo(SQLTypeCode sqlType,
 
     case CHAR:
       if (d_.charset_ == UNDEFINED_CHARSET)
-        throw UDRException(38900,"Charset must be specified for CHAR type in TypeInfo::TypeInfo");
+        throw UDRException(38900, "Charset must be specified for CHAR type in TypeInfo::TypeInfo");
       // length is the length in characters, but d_.length_ is
       // the byte length, multiply by min bytes per char
       d_.length_ = length * minBytesPerChar();
       if (d_.length_ < 0)
-        throw UDRException(38900,
-                           "Length of a character type must not be negative, got %d",
-                           d_.length_);
+        throw UDRException(38900, "Length of a character type must not be negative, got %d", d_.length_);
       if (d_.collation_ == UNDEFINED_COLLATION)
-        throw UDRException(38900,"Collation must be specified for CHAR type in TypeInfo::TypeInfo");
+        throw UDRException(38900, "Collation must be specified for CHAR type in TypeInfo::TypeInfo");
       break;
 
     case VARCHAR:
       if (d_.charset_ == UNDEFINED_CHARSET)
-        throw UDRException(38900,"Charset must be specified for VARCHAR type in TypeInfo::TypeInfo");
+        throw UDRException(38900, "Charset must be specified for VARCHAR type in TypeInfo::TypeInfo");
       if (d_.collation_ == UNDEFINED_COLLATION)
-        throw UDRException(38900,"Collation must be specified for VARCHAR type in TypeInfo::TypeInfo");
+        throw UDRException(38900, "Collation must be specified for VARCHAR type in TypeInfo::TypeInfo");
       // length is the length in characters, but d_.length_ is
       // the byte length, multiply by min bytes per char
       d_.length_ = length * minBytesPerChar();
@@ -838,9 +676,7 @@ TypeInfo::TypeInfo(SQLTypeCode sqlType,
         // see also CharType::CharType in ../common/CharType.cpp
         d_.flags_ |= TYPE_FLAG_4_BYTE_VC_LEN;
       if (d_.length_ < 0)
-        throw UDRException(38900,
-                           "Length of a varchar type must not be negative, got %d",
-                           d_.length_);
+        throw UDRException(38900, "Length of a varchar type must not be negative, got %d", d_.length_);
       break;
 
     case CLOB:
@@ -862,99 +698,94 @@ TypeInfo::TypeInfo(SQLTypeCode sqlType,
     case TIME:
       // string hh:mm:ss
       d_.length_ = 8;
-      if (scale > 0)
-        d_.length_ += scale+1;
+      if (scale > 0) d_.length_ += scale + 1;
       if (scale < 0 || scale > 6)
-        throw UDRException(38900,"Scale %d of time in TypeInfo::TypeInfo is outside the allowed range of 0-6", scale);
+        throw UDRException(38900, "Scale %d of time in TypeInfo::TypeInfo is outside the allowed range of 0-6", scale);
       break;
 
     case TIMESTAMP:
       // string yyyy-mm-dd hh:mm:ss.ffffff
       //        12345678901234567890123456
       d_.length_ = 19;
-      if (scale > 0)
-        d_.length_ += scale+1;
+      if (scale > 0) d_.length_ += scale + 1;
       if (scale < 0 || scale > 6)
-        throw UDRException(38900,"Scale %d of timestamp in TypeInfo::TypeInfo is outside the allowed range of 0-6", scale);
+        throw UDRException(38900, "Scale %d of timestamp in TypeInfo::TypeInfo is outside the allowed range of 0-6",
+                           scale);
       break;
 
-    case INTERVAL:
-      {
-        int totalPrecision = 0;
-        bool allowScale = false;
+    case INTERVAL: {
+      int totalPrecision = 0;
+      bool allowScale = false;
 
-        if (d_.intervalCode_ == UNDEFINED_INTERVAL_CODE)
-          throw UDRException(38900,"Interval code in TypeInfo::TypeInfo is undefined");
-        if (scale < 0 || scale > 6)
-          throw UDRException(38900,"Scale %d of interval in TypeInfo::TypeInfo is outside the allowed range of 0-6", sqlType);
+      if (d_.intervalCode_ == UNDEFINED_INTERVAL_CODE)
+        throw UDRException(38900, "Interval code in TypeInfo::TypeInfo is undefined");
+      if (scale < 0 || scale > 6)
+        throw UDRException(38900, "Scale %d of interval in TypeInfo::TypeInfo is outside the allowed range of 0-6",
+                           sqlType);
 
-        // all intervals are treated like signed numbers, need to compute
-        // the length from the combined precision of all parts, see method
-        // IntervalType::getStorageSize() in ../common/IntervalType.cpp and
-        // see also the defaults for leading precision in the SQL Reference
-        // Manual. Note that the default for fraction precision in this
-        // constructor is 0, the default scale for other types. This is
-        // different from the default fraction precision of 6 in Trafodion
-        // SQL!!
+      // all intervals are treated like signed numbers, need to compute
+      // the length from the combined precision of all parts, see method
+      // IntervalType::getStorageSize() in ../common/IntervalType.cpp and
+      // see also the defaults for leading precision in the SQL Reference
+      // Manual. Note that the default for fraction precision in this
+      // constructor is 0, the default scale for other types. This is
+      // different from the default fraction precision of 6 in Trafodion
+      // SQL!!
 
-        // start with the leading precision
-        if (precision == 0)
-          totalPrecision = 2; // default leading precision
-        else
-          totalPrecision = precision;
+      // start with the leading precision
+      if (precision == 0)
+        totalPrecision = 2;  // default leading precision
+      else
+        totalPrecision = precision;
 
-        switch (d_.intervalCode_)
-          {
-          case INTERVAL_YEAR:
-          case INTERVAL_MONTH:
-          case INTERVAL_DAY:
-          case INTERVAL_HOUR:
-          case INTERVAL_MINUTE:
-            // we are all set
-            break;
-          case INTERVAL_SECOND:
-            // add the fraction precision (scale)
-            totalPrecision += scale;
-            allowScale = true;
-            break;
-          case INTERVAL_YEAR_MONTH:
-          case INTERVAL_DAY_HOUR:
-          case INTERVAL_HOUR_MINUTE:
-            // leading field + 1 more field
-            totalPrecision += 2;
-            break;
-          case INTERVAL_DAY_MINUTE:
-            // leading field + 2 more fields
-            totalPrecision += 4;
-            break;
-          case INTERVAL_DAY_SECOND:
-            totalPrecision += 6 + scale;
-            allowScale = true;
-            break;
-          case INTERVAL_HOUR_SECOND:
-            totalPrecision += 4 + scale;
-            allowScale = true;
-            break;
-          case INTERVAL_MINUTE_SECOND:
-            totalPrecision += 2 + scale;
-            allowScale = true;
-            break;
-          default:
-            throw UDRException(
-                 38900,
-                 "TypeInfo::TypeInfo() for interval type with invalid interval code");
-          }
-
-        if (scale > 0 && !allowScale)
-          throw UDRException(
-               38900,
-               "TypeInfo::TypeInfo(): Scale (fraction precision) should not be specified for a type when end field is not SECOND");
-
-        // convert decimal to binary precision, but intervals don't
-        // use single byte representation (yet?)
-        d_.length_ = MAXOF(2,convertToBinaryPrecision(totalPrecision));
+      switch (d_.intervalCode_) {
+        case INTERVAL_YEAR:
+        case INTERVAL_MONTH:
+        case INTERVAL_DAY:
+        case INTERVAL_HOUR:
+        case INTERVAL_MINUTE:
+          // we are all set
+          break;
+        case INTERVAL_SECOND:
+          // add the fraction precision (scale)
+          totalPrecision += scale;
+          allowScale = true;
+          break;
+        case INTERVAL_YEAR_MONTH:
+        case INTERVAL_DAY_HOUR:
+        case INTERVAL_HOUR_MINUTE:
+          // leading field + 1 more field
+          totalPrecision += 2;
+          break;
+        case INTERVAL_DAY_MINUTE:
+          // leading field + 2 more fields
+          totalPrecision += 4;
+          break;
+        case INTERVAL_DAY_SECOND:
+          totalPrecision += 6 + scale;
+          allowScale = true;
+          break;
+        case INTERVAL_HOUR_SECOND:
+          totalPrecision += 4 + scale;
+          allowScale = true;
+          break;
+        case INTERVAL_MINUTE_SECOND:
+          totalPrecision += 2 + scale;
+          allowScale = true;
+          break;
+        default:
+          throw UDRException(38900, "TypeInfo::TypeInfo() for interval type with invalid interval code");
       }
-      break;
+
+      if (scale > 0 && !allowScale)
+        throw UDRException(38900,
+                           "TypeInfo::TypeInfo(): Scale (fraction precision) should not be specified for a type when "
+                           "end field is not SECOND");
+
+      // convert decimal to binary precision, but intervals don't
+      // use single byte representation (yet?)
+      d_.length_ = MAXOF(2, convertToBinaryPrecision(totalPrecision));
+    } break;
 
     case BOOLEAN:
       d_.length_ = 1;
@@ -968,22 +799,15 @@ TypeInfo::TypeInfo(SQLTypeCode sqlType,
       break;
 
     default:
-      throw UDRException(38900,"Invalid SQL Type code for the short TypeInfo constructor with an SQL code: %d", sqlType);
+      throw UDRException(38900, "Invalid SQL Type code for the short TypeInfo constructor with an SQL code: %d",
+                         sqlType);
       break;
-    }
+  }
 }
 
-TypeInfo::TypeInfo(SQLTypeCode sqlType,
-                   bool nullable,
-                   int scale,
-                   SQLCharsetCode charset,
-                   SQLIntervalCode intervalCode,
-                   int precision,
-                   SQLCollationCode collation,
-                   int length) :
-     TMUDRSerializableObject(TYPE_INFO_OBJ,
-                             getCurrentVersion())
-{
+TypeInfo::TypeInfo(SQLTypeCode sqlType, bool nullable, int scale, SQLCharsetCode charset, SQLIntervalCode intervalCode,
+                   int precision, SQLCollationCode collation, int length)
+    : TMUDRSerializableObject(TYPE_INFO_OBJ, getCurrentVersion()) {
   d_.sqlType_ = sqlType;
   d_.nullable_ = (nullable ? 1 : 0);
   d_.scale_ = scale;
@@ -996,10 +820,7 @@ TypeInfo::TypeInfo(SQLTypeCode sqlType,
   d_.nullIndOffset_ = -1;
   d_.vcLenIndOffset_ = -1;
   d_.flags_ = 0;
-  d_.fillers_[0] =
-    d_.fillers_[1] =
-    d_.fillers_[2] =
-    d_.fillers_[3] = 0;
+  d_.fillers_[0] = d_.fillers_[1] = d_.fillers_[2] = d_.fillers_[3] = 0;
 }
 
 /**
@@ -1007,10 +828,7 @@ TypeInfo::TypeInfo(SQLTypeCode sqlType,
  *
  *  @return SQL type enum.
  */
-TypeInfo::SQLTypeCode TypeInfo::getSQLType() const
-{
-  return (TypeInfo::SQLTypeCode) d_.sqlType_;
-}
+TypeInfo::SQLTypeCode TypeInfo::getSQLType() const { return (TypeInfo::SQLTypeCode)d_.sqlType_; }
 
 /**
  *  Get the SQL type class.
@@ -1018,10 +836,8 @@ TypeInfo::SQLTypeCode TypeInfo::getSQLType() const
  *  Determine whether this is a numeric character, datetime or interval type.
  *  @return SQL type class enum.
  */
-TypeInfo::SQLTypeClassCode TypeInfo::getSQLTypeClass() const
-{
-  switch (d_.sqlType_)
-    {
+TypeInfo::SQLTypeClassCode TypeInfo::getSQLTypeClass() const {
+  switch (d_.sqlType_) {
     case TINYINT:
     case SMALLINT:
     case INT:
@@ -1058,7 +874,7 @@ TypeInfo::SQLTypeClassCode TypeInfo::getSQLTypeClass() const
 
     default:
       break;
-    }
+  }
 
   return UNDEFINED_TYPE_CLASS;
 }
@@ -1070,10 +886,8 @@ TypeInfo::SQLTypeClassCode TypeInfo::getSQLTypeClass() const
  *  like exact/approximate numeric, char/varchar, etc.
  *  @return SQL type subclass enum.
  */
-TypeInfo::SQLTypeSubClassCode TypeInfo::getSQLTypeSubClass() const
-{
-  switch (d_.sqlType_)
-    {
+TypeInfo::SQLTypeSubClassCode TypeInfo::getSQLTypeSubClass() const {
+  switch (d_.sqlType_) {
     case TINYINT:
     case SMALLINT:
     case INT:
@@ -1103,8 +917,7 @@ TypeInfo::SQLTypeSubClassCode TypeInfo::getSQLTypeSubClass() const
       return TIMESTAMP_TYPE;
 
     case INTERVAL:
-      switch (d_.intervalCode_)
-        {
+      switch (d_.intervalCode_) {
         case INTERVAL_YEAR:
         case INTERVAL_MONTH:
         case INTERVAL_YEAR_MONTH:
@@ -1124,7 +937,7 @@ TypeInfo::SQLTypeSubClassCode TypeInfo::getSQLTypeSubClass() const
 
         default:
           break;
-        }
+      }
 
     case BLOB:
     case CLOB:
@@ -1135,7 +948,7 @@ TypeInfo::SQLTypeSubClassCode TypeInfo::getSQLTypeSubClass() const
 
     default:
       break;
-    }
+  }
 
   return UNDEFINED_TYPE_SUB_CLASS;
 }
@@ -1145,10 +958,7 @@ TypeInfo::SQLTypeSubClassCode TypeInfo::getSQLTypeSubClass() const
  *
  *  @return True for nullable types, false for non-nullable types.
  */
-bool TypeInfo::getIsNullable() const
-{
-  return (d_.nullable_ != 0);
-}
+bool TypeInfo::getIsNullable() const { return (d_.nullable_ != 0); }
 
 /**
  *  Get the scale of the data type.
@@ -1164,30 +974,21 @@ bool TypeInfo::getIsNullable() const
  *  @return Scale (digits after the decimal point) for numeric types,
  *          fraction precision (digits of fractional seconds) for intervals.
  */
-int TypeInfo::getScale() const
-{
-  return d_.scale_;
-}
+int TypeInfo::getScale() const { return d_.scale_; }
 
 /**
  *  Get the character set of the data type.
  *
  *  @return Character set enum.
  */
-TypeInfo::SQLCharsetCode TypeInfo::getCharset() const
-{
-  return (TypeInfo::SQLCharsetCode) d_.charset_;
-}
+TypeInfo::SQLCharsetCode TypeInfo::getCharset() const { return (TypeInfo::SQLCharsetCode)d_.charset_; }
 
 /**
  *  Get the interval code for start/end fields.
  *
  *  @return Interval code enum, indicating start and end fields of an interval type.
  */
-TypeInfo::SQLIntervalCode TypeInfo::getIntervalCode() const
-{
-  return (TypeInfo::SQLIntervalCode) d_.intervalCode_;
-}
+TypeInfo::SQLIntervalCode TypeInfo::getIntervalCode() const { return (TypeInfo::SQLIntervalCode)d_.intervalCode_; }
 
 /**
  *  Get the precision (max. number of significant digits).
@@ -1204,10 +1005,7 @@ TypeInfo::SQLIntervalCode TypeInfo::getIntervalCode() const
  *
  *  @return Precision of numeric types or interval types.
  */
-int TypeInfo::getPrecision() const
-{
-  return d_.precision_;
-}
+int TypeInfo::getPrecision() const { return d_.precision_; }
 
 /**
  *  Get the collation for char/varchar data types.
@@ -1218,10 +1016,7 @@ int TypeInfo::getPrecision() const
  *
  *  @return Collation enum.
  */
-TypeInfo::SQLCollationCode TypeInfo::getCollation() const
-{
-  return (TypeInfo::SQLCollationCode) d_.collation_;
-}
+TypeInfo::SQLCollationCode TypeInfo::getCollation() const { return (TypeInfo::SQLCollationCode)d_.collation_; }
 
 /**
  *  Get the length of a value of the type.
@@ -1235,10 +1030,7 @@ TypeInfo::SQLCollationCode TypeInfo::getCollation() const
  *
  *  @return Length in bytes.
  */
-int TypeInfo::getByteLength() const
-{
-  return d_.length_;
-}
+int TypeInfo::getByteLength() const { return d_.length_; }
 
 /**
  *  Get the maximum number of characters that can be stored in this type.
@@ -1258,10 +1050,8 @@ int TypeInfo::getByteLength() const
  *  @return Length in bytes.
  *  @throws UDRException
  */
-int TypeInfo::getMaxCharLength() const
-{
-  switch (getSQLTypeClass())
-    {
+int TypeInfo::getMaxCharLength() const {
+  switch (getSQLTypeClass()) {
     case CHARACTER_TYPE:
       return d_.length_ / minBytesPerChar();
     case NUMERIC_TYPE:
@@ -1275,11 +1065,8 @@ int TypeInfo::getMaxCharLength() const
     case BOOLEAN_TYPE:
       return 0;
     default:
-      throw UDRException(
-           38900,
-           "Called TypeInfo::getMaxCharLength() on an unsupported type: %d",
-           d_.sqlType_);
-    }
+      throw UDRException(38900, "Called TypeInfo::getMaxCharLength() on an unsupported type: %d", d_.sqlType_);
+  }
 }
 
 /**
@@ -1291,42 +1078,27 @@ int TypeInfo::getMaxCharLength() const
  *  @param nullable true to set the type to nullable, false
  *                  to give the type the NOT NULL attibute.
  */
-void TypeInfo::setNullable(bool nullable)
-{
-  d_.nullable_ = nullable;
-}
+void TypeInfo::setNullable(bool nullable) { d_.nullable_ = nullable; }
 
-int TypeInfo::getInt(const char *row, bool &wasNull) const
-{
+int TypeInfo::getInt(const char *row, bool &wasNull) const {
   long result = getLong(row, wasNull);
 
   if (result < INT_MIN || result > INT_MAX)
-    throw UDRException(
-         38900, 
-         "Under or overflow in getInt(), %ld does not fit in an int",
-         result);
+    throw UDRException(38900, "Under or overflow in getInt(), %ld does not fit in an int", result);
 
   return static_cast<int>(result);
 }
 
-long TypeInfo::getLong(const char *row, bool &wasNull) const
-{
-  if (row == NULL)
-    throw UDRException(
-         38900,
-         "Row not available for getLong() or related method");
+long TypeInfo::getLong(const char *row, bool &wasNull) const {
+  if (row == NULL) throw UDRException(38900, "Row not available for getLong() or related method");
 
   if (d_.dataOffset_ < 0)
-    throw UDRException(
-         38900,
-         "Offset for column not set, getLong() or related method not available");
+    throw UDRException(38900, "Offset for column not set, getLong() or related method not available");
 
-  if (d_.nullIndOffset_ >= 0 &&
-      (*((short *) (row + d_.nullIndOffset_)) != 0))
-    {
-      wasNull = true;
-      return 0;
-    }
+  if (d_.nullIndOffset_ >= 0 && (*((short *)(row + d_.nullIndOffset_)) != 0)) {
+    wasNull = true;
+    return 0;
+  }
 
   long result = 0;
   int tempSQLType = d_.sqlType_;
@@ -1336,176 +1108,139 @@ long TypeInfo::getLong(const char *row, bool &wasNull) const
 
   // convert NUMERIC to the corresponding type with binary precision
   // see also code in LmTypeIsString() in file ../generator/LmExpr.cpp
-  if (d_.sqlType_ == NUMERIC ||
-      d_.sqlType_ == NUMERIC_UNSIGNED ||
-      d_.sqlType_ == INTERVAL ||
-      d_.sqlType_ == BOOLEAN)
-    {
-      if (d_.length_ == 1)
-        if (d_.sqlType_ == NUMERIC_UNSIGNED)
-          tempSQLType = TINYINT_UNSIGNED;
-        else
-          tempSQLType = TINYINT;
-      else if (d_.length_ == 2)
-        if (d_.sqlType_ == NUMERIC_UNSIGNED)
-          tempSQLType = SMALLINT_UNSIGNED;
-        else
-          tempSQLType = SMALLINT;
-      else if (d_.length_ == 4)
-        if (d_.sqlType_ == NUMERIC_UNSIGNED)
-          tempSQLType = INT_UNSIGNED;
-        else
-          tempSQLType = INT;
-      else if (d_.length_ == 8)
-        tempSQLType = LARGEINT;
-        // unsigned 8 byte integer is not supported
-    }
+  if (d_.sqlType_ == NUMERIC || d_.sqlType_ == NUMERIC_UNSIGNED || d_.sqlType_ == INTERVAL || d_.sqlType_ == BOOLEAN) {
+    if (d_.length_ == 1)
+      if (d_.sqlType_ == NUMERIC_UNSIGNED)
+        tempSQLType = TINYINT_UNSIGNED;
+      else
+        tempSQLType = TINYINT;
+    else if (d_.length_ == 2)
+      if (d_.sqlType_ == NUMERIC_UNSIGNED)
+        tempSQLType = SMALLINT_UNSIGNED;
+      else
+        tempSQLType = SMALLINT;
+    else if (d_.length_ == 4)
+      if (d_.sqlType_ == NUMERIC_UNSIGNED)
+        tempSQLType = INT_UNSIGNED;
+      else
+        tempSQLType = INT;
+    else if (d_.length_ == 8)
+      tempSQLType = LARGEINT;
+    // unsigned 8 byte integer is not supported
+  }
 
-  switch (tempSQLType)
-    {
+  switch (tempSQLType) {
     case TINYINT:
-      result = *((char *) data);
+      result = *((char *)data);
       break;
 
     case SMALLINT:
-      result = *((short *) data);
+      result = *((short *)data);
       break;
 
     case INT:
-      result = *((int *) data);
+      result = *((int *)data);
       break;
 
     case LARGEINT:
-      result = *((long *) data);
+      result = *((long *)data);
       break;
 
     case TINYINT_UNSIGNED:
-      result = *((unsigned char *) data);
+      result = *((unsigned char *)data);
       break;
 
     case SMALLINT_UNSIGNED:
-      result = *((unsigned short *) data);
+      result = *((unsigned short *)data);
       break;
 
     case INT_UNSIGNED:
-      result = *((int *) data);
+      result = *((int *)data);
       break;
 
     case DECIMAL_LSE:
-    case DECIMAL_UNSIGNED:
-      {
-        long fractionalPart = 0;
-        bool isNegative = false;
-        bool overflow = false;
-        char buf[200];
-        int dataLen = d_.length_;
+    case DECIMAL_UNSIGNED: {
+      long fractionalPart = 0;
+      bool isNegative = false;
+      bool overflow = false;
+      char buf[200];
+      int dataLen = d_.length_;
 
-        if (*data == '-')
-          {
-            isNegative = true;
-            data++;
-            dataLen--;
-          }
+      if (*data == '-') {
+        isNegative = true;
+        data++;
+        dataLen--;
+      }
 
-        // copy the value to be able to add a terminating NUL byte
-        memcpy(buf, data, dataLen);
-        buf[dataLen] = 0;
+      // copy the value to be able to add a terminating NUL byte
+      memcpy(buf, data, dataLen);
+      buf[dataLen] = 0;
 
-        if (d_.scale_ == 0)
-          {
-            if (sscanf(buf, "%ld", &result) != 1)
-              throw UDRException(
-                   38900,
-                   "Error converting decimal value %s to a long",
-                   buf);
-          }
-        else
-          {
-            if (sscanf(buf, "%ld.%ld", &result, &fractionalPart) != 2)
-              throw UDRException(
-                   38900,
-                   "Error converting decimal value %s (with scale) to a long",
-                   buf);
-            for (int s=0; s<d_.scale_; s++)
-              if (result <= LONG_MAX/10)
-                result *= 10;
-              else
-                overflow = true;
-            if (result <= LONG_MAX - fractionalPart)
-              result += fractionalPart;
-            else
-              overflow = true;
-          }
-
-        if (isNegative)
-          if (result < LONG_MAX)
-            result = -result;
+      if (d_.scale_ == 0) {
+        if (sscanf(buf, "%ld", &result) != 1)
+          throw UDRException(38900, "Error converting decimal value %s to a long", buf);
+      } else {
+        if (sscanf(buf, "%ld.%ld", &result, &fractionalPart) != 2)
+          throw UDRException(38900, "Error converting decimal value %s (with scale) to a long", buf);
+        for (int s = 0; s < d_.scale_; s++)
+          if (result <= LONG_MAX / 10)
+            result *= 10;
           else
             overflow = true;
-
-        if (overflow)
-          throw UDRException(
-               38900,
-               "Under or overflow occurred, converting decimal to a long");
+        if (result <= LONG_MAX - fractionalPart)
+          result += fractionalPart;
+        else
+          overflow = true;
       }
-      break;
+
+      if (isNegative)
+        if (result < LONG_MAX)
+          result = -result;
+        else
+          overflow = true;
+
+      if (overflow) throw UDRException(38900, "Under or overflow occurred, converting decimal to a long");
+    } break;
 
     case REAL:
-    case DOUBLE_PRECISION:
-      {
-        double dresult = getDouble(row, wasNull);
+    case DOUBLE_PRECISION: {
+      double dresult = getDouble(row, wasNull);
 
-        if (dresult < LONG_MIN || dresult > LONG_MAX)
-            throw UDRException(
-                 38900, 
-                 "Overflow in getInt() or getLong(), float value %g does not fit in a long",
-                 dresult);
-        result = static_cast<long>(dresult);
-      }
-      break;
+      if (dresult < LONG_MIN || dresult > LONG_MAX)
+        throw UDRException(38900, "Overflow in getInt() or getLong(), float value %g does not fit in a long", dresult);
+      result = static_cast<long>(dresult);
+    } break;
 
     default:
-      throw UDRException(38902,
-                         "TypeInfo::getLong() and getDouble() not supported for SQL type %d",
-                         d_.sqlType_);
+      throw UDRException(38902, "TypeInfo::getLong() and getDouble() not supported for SQL type %d", d_.sqlType_);
       break;
-    }
+  }
 
   return result;
 }
 
-double TypeInfo::getDouble(const char *row, bool &wasNull) const
-{
-  if (row == NULL)
-    throw UDRException(
-         38900,
-         "Row not available for getDouble()");
+double TypeInfo::getDouble(const char *row, bool &wasNull) const {
+  if (row == NULL) throw UDRException(38900, "Row not available for getDouble()");
 
-  if (d_.dataOffset_ < 0)
-    throw UDRException(
-         38900,
-         "Offset for column not set, getDouble() method not available");
+  if (d_.dataOffset_ < 0) throw UDRException(38900, "Offset for column not set, getDouble() method not available");
 
-  if (d_.nullIndOffset_ >= 0 &&
-      *((short *) (row + d_.nullIndOffset_)) != 0)
-    {
-      wasNull = true;
-      return 0.0;
-    }
-              
+  if (d_.nullIndOffset_ >= 0 && *((short *)(row + d_.nullIndOffset_)) != 0) {
+    wasNull = true;
+    return 0.0;
+  }
+
   double result = 0.0;
   const char *data = row + d_.dataOffset_;
 
   wasNull = false;
 
-  switch (d_.sqlType_)
-    {
+  switch (d_.sqlType_) {
     case REAL:
-      result = *((float *) data);
+      result = *((float *)data);
       break;
 
     case DOUBLE_PRECISION:
-      result = *((double *) data);
+      result = *((double *)data);
       break;
 
     case TINYINT:
@@ -1520,505 +1255,368 @@ double TypeInfo::getDouble(const char *row, bool &wasNull) const
     case NUMERIC_UNSIGNED:
     case DECIMAL_UNSIGNED:
     case INTERVAL:
-    case BOOLEAN:
-      {
-        result = static_cast<double>(getLong(row, wasNull));
-        // for numbers with a scale, ensure that the decimal
-        // point is at the right place for floating point results
-        for (int s=0; s<d_.scale_; s++)
-          result /= 10;
-      }
-      break;
+    case BOOLEAN: {
+      result = static_cast<double>(getLong(row, wasNull));
+      // for numbers with a scale, ensure that the decimal
+      // point is at the right place for floating point results
+      for (int s = 0; s < d_.scale_; s++) result /= 10;
+    } break;
 
     default:
-      throw UDRException(38900,
-                         "getDouble() not supported for SQL type %d",
-                         d_.sqlType_);
+      throw UDRException(38900, "getDouble() not supported for SQL type %d", d_.sqlType_);
       break;
-    }
+  }
 
   return result;
 }
 
-time_t TypeInfo::getTime(const char *row, bool &wasNull) const
-{
+time_t TypeInfo::getTime(const char *row, bool &wasNull) const {
   time_t result = 0;
 
-  if (d_.sqlType_ == INTERVAL)
-    {
-      long longVal = getLong(row, wasNull);
+  if (d_.sqlType_ == INTERVAL) {
+    long longVal = getLong(row, wasNull);
 
-      if (wasNull)
-        return 0;
+    if (wasNull) return 0;
 
-      // convert the interval value to seconds
+    // convert the interval value to seconds
 
-      // NOTE: This relies on the assumption that time_t
-      //       uses seconds as its unit, which is true for
-      //       current Linux systems but may not always remain
-      //       true
-      switch (d_.intervalCode_)
-        {
-        case INTERVAL_DAY:
-          result = longVal * 86400;
-          break;
-        case INTERVAL_HOUR:
-        case INTERVAL_DAY_HOUR:
-          result = longVal * 3600;
-          break;
-        case INTERVAL_MINUTE:
-        case INTERVAL_DAY_MINUTE:
-        case INTERVAL_HOUR_MINUTE:
-          result = longVal * 60;
-          break;
-        case INTERVAL_SECOND:
-        case INTERVAL_DAY_SECOND:
-        case INTERVAL_HOUR_SECOND:
-        case INTERVAL_MINUTE_SECOND:
-          {
-            // scale the value down and ignore fractional seconds
-            for (int s=0; s<d_.scale_; s++)
-              longVal /= 10;
+    // NOTE: This relies on the assumption that time_t
+    //       uses seconds as its unit, which is true for
+    //       current Linux systems but may not always remain
+    //       true
+    switch (d_.intervalCode_) {
+      case INTERVAL_DAY:
+        result = longVal * 86400;
+        break;
+      case INTERVAL_HOUR:
+      case INTERVAL_DAY_HOUR:
+        result = longVal * 3600;
+        break;
+      case INTERVAL_MINUTE:
+      case INTERVAL_DAY_MINUTE:
+      case INTERVAL_HOUR_MINUTE:
+        result = longVal * 60;
+        break;
+      case INTERVAL_SECOND:
+      case INTERVAL_DAY_SECOND:
+      case INTERVAL_HOUR_SECOND:
+      case INTERVAL_MINUTE_SECOND: {
+        // scale the value down and ignore fractional seconds
+        for (int s = 0; s < d_.scale_; s++) longVal /= 10;
 
-            result = longVal;
-          }
-          break;
-        default:
-          throw UDRException(
-               38900,
-               "getTime() is not supported for year-month intervals");
-        }
-    } // intervals
-  else
-    {
-      int stringLen = 0;
-      const char *val = getRaw(row, wasNull, stringLen);
-      char buf[200];
-      struct tm t;
-      bool ok = true;
-
-      if (wasNull)
-        return 0;
-
-
-      t.tm_sec =
-        t.tm_min =
-        t.tm_hour =
-        t.tm_mday =
-        t.tm_mon =
-        t.tm_year =
-        t.tm_wday =
-        t.tm_yday =
-        t.tm_isdst = 0;
-
-      if (stringLen+1 > sizeof(buf))
-        throw UDRException(
-             38900,
-             "Datetime string of length %d exceeds size limit of %d for time_t conversion",
-             stringLen, (int) sizeof(buf) - 1);
-      memcpy(buf, val, stringLen);
-      buf[stringLen] = 0;
-
-      switch (d_.sqlType_)
-        {
-        case DATE:
-          // yyyy-mm-dd
-          ok = (sscanf(buf,"%4d-%2d-%2d", &t.tm_year, &t.tm_mon, &t.tm_mday) == 3);
-          result = mktime(&t);
-          break;
-
-        case TIME:
-          // hh:mm:ss
-          ok = (sscanf(buf,"%2d:%2d:%2d", &t.tm_hour, &t.tm_min, &t.tm_sec) == 3);
-          result = 3600 * t.tm_hour + 60 * t.tm_min + t.tm_sec;
-          break;
-
-        case TIMESTAMP:
-          // yy-mm-dd hh:mm:ss
-          ok = (sscanf(buf,"%4d-%2d-%2d %2d:%2d:%2d", &t.tm_year, &t.tm_mon, &t.tm_mday,
-                                                      &t.tm_hour, &t.tm_min, &t.tm_sec) == 6);
-          result = mktime(&t);
-          break;
-
-        default:
-          throw UDRException(38900,
-                             "getTime() not supported for SQL type %d",
-                             d_.sqlType_);
-        }
-
-      if (!ok)
-        throw UDRException(
-             38900,
-             "Unable to parse datetime string %s for conversion to time_t",
-             buf);
-
-      // catch errors returned by mktime
-      if (result < 0)
-        throw UDRException(
-             38900,
-             "Unable to convert datetime string %s to time_t",
-             buf);
+        result = longVal;
+      } break;
+      default:
+        throw UDRException(38900, "getTime() is not supported for year-month intervals");
     }
+  }  // intervals
+  else {
+    int stringLen = 0;
+    const char *val = getRaw(row, wasNull, stringLen);
+    char buf[200];
+    struct tm t;
+    bool ok = true;
+
+    if (wasNull) return 0;
+
+    t.tm_sec = t.tm_min = t.tm_hour = t.tm_mday = t.tm_mon = t.tm_year = t.tm_wday = t.tm_yday = t.tm_isdst = 0;
+
+    if (stringLen + 1 > sizeof(buf))
+      throw UDRException(38900, "Datetime string of length %d exceeds size limit of %d for time_t conversion",
+                         stringLen, (int)sizeof(buf) - 1);
+    memcpy(buf, val, stringLen);
+    buf[stringLen] = 0;
+
+    switch (d_.sqlType_) {
+      case DATE:
+        // yyyy-mm-dd
+        ok = (sscanf(buf, "%4d-%2d-%2d", &t.tm_year, &t.tm_mon, &t.tm_mday) == 3);
+        result = mktime(&t);
+        break;
+
+      case TIME:
+        // hh:mm:ss
+        ok = (sscanf(buf, "%2d:%2d:%2d", &t.tm_hour, &t.tm_min, &t.tm_sec) == 3);
+        result = 3600 * t.tm_hour + 60 * t.tm_min + t.tm_sec;
+        break;
+
+      case TIMESTAMP:
+        // yy-mm-dd hh:mm:ss
+        ok = (sscanf(buf, "%4d-%2d-%2d %2d:%2d:%2d", &t.tm_year, &t.tm_mon, &t.tm_mday, &t.tm_hour, &t.tm_min,
+                     &t.tm_sec) == 6);
+        result = mktime(&t);
+        break;
+
+      default:
+        throw UDRException(38900, "getTime() not supported for SQL type %d", d_.sqlType_);
+    }
+
+    if (!ok) throw UDRException(38900, "Unable to parse datetime string %s for conversion to time_t", buf);
+
+    // catch errors returned by mktime
+    if (result < 0) throw UDRException(38900, "Unable to convert datetime string %s to time_t", buf);
+  }
 
   return result;
 }
 
-bool TypeInfo::getBoolean(const char *row, bool &wasNull) const
-{
-  switch (getSQLTypeClass())
-    {
-    case CHARACTER_TYPE:
-      {
-        int byteLen = 0;
-        const char *cval = getRaw(row, wasNull, byteLen);
+bool TypeInfo::getBoolean(const char *row, bool &wasNull) const {
+  switch (getSQLTypeClass()) {
+    case CHARACTER_TYPE: {
+      int byteLen = 0;
+      const char *cval = getRaw(row, wasNull, byteLen);
 
-        while (byteLen > 0 && cval[byteLen-1] == ' ')
-          byteLen--;
+      while (byteLen > 0 && cval[byteLen - 1] == ' ') byteLen--;
 
-        // strings must have a value of "0" or "1"
-        if (byteLen == 1 &&
-            (cval[0] == '0' ||
-             cval[0] == '1'))
-          return (cval[0] == '1');
-        else
-          {
-            std::string errval(cval, (byteLen > 10 ? 10 : byteLen));
+      // strings must have a value of "0" or "1"
+      if (byteLen == 1 && (cval[0] == '0' || cval[0] == '1'))
+        return (cval[0] == '1');
+      else {
+        std::string errval(cval, (byteLen > 10 ? 10 : byteLen));
 
-            throw UDRException(
-                 38900,
-                 "getBoolean() encountered string value %s, booleans must be 0 or 1",
-                 errval.c_str());
-          }
+        throw UDRException(38900, "getBoolean() encountered string value %s, booleans must be 0 or 1", errval.c_str());
       }
-      break;
+    } break;
 
     case NUMERIC_TYPE:
-    case BOOLEAN_TYPE:
-      {
-        // numerics or booleans must have a value of 0 or 1
-        long lval = getLong(row, wasNull);
-        if (lval <0 || lval > 1)
-          throw UDRException(
-             38900,
-             "getBoolean() encountered value %ld, booleans must be 0 or 1",
-             lval);
-        return (lval != 0);
-      }
-      break;
+    case BOOLEAN_TYPE: {
+      // numerics or booleans must have a value of 0 or 1
+      long lval = getLong(row, wasNull);
+      if (lval < 0 || lval > 1)
+        throw UDRException(38900, "getBoolean() encountered value %ld, booleans must be 0 or 1", lval);
+      return (lval != 0);
+    } break;
 
-    default:
-      {
-        std::string typeName;
+    default: {
+      std::string typeName;
 
-        toString(typeName, false);
-        throw UDRException(
-             38900,
-             "getBoolean() not supported for type %s",
-             typeName.c_str());
-      }
+      toString(typeName, false);
+      throw UDRException(38900, "getBoolean() not supported for type %s", typeName.c_str());
     }
+  }
 }
 
-const char * TypeInfo::getRaw(const char *row,
-                              bool &wasNull,
-                              int &byteLen) const
-{
-  if (row == NULL)
-    throw UDRException(
-         38900,
-         "Row not available for getRaw()");
+const char *TypeInfo::getRaw(const char *row, bool &wasNull, int &byteLen) const {
+  if (row == NULL) throw UDRException(38900, "Row not available for getRaw()");
 
-  if (d_.dataOffset_ < 0)
-    throw UDRException(
-         38900,
-         "Offset for column not set, getRaw() method not available");
+  if (d_.dataOffset_ < 0) throw UDRException(38900, "Offset for column not set, getRaw() method not available");
 
-  if (d_.nullIndOffset_ >= 0 &&
-      *((short *) (row + d_.nullIndOffset_)) != 0)
-    {
-      wasNull = true;
-      byteLen = 0;
-      return NULL;
-    }
-              
+  if (d_.nullIndOffset_ >= 0 && *((short *)(row + d_.nullIndOffset_)) != 0) {
+    wasNull = true;
+    byteLen = 0;
+    return NULL;
+  }
+
   const char *result = row + d_.dataOffset_;
 
   wasNull = false;
 
-  switch (d_.sqlType_)
-    {
+  switch (d_.sqlType_) {
     case VARCHAR:
     case BLOB:
     case CLOB:
-      if (d_.flags_ & TYPE_FLAG_4_BYTE_VC_LEN)
-        {
-          const int32_t *vcLen4 =
-            reinterpret_cast<const int32_t *>(row + d_.vcLenIndOffset_);
+      if (d_.flags_ & TYPE_FLAG_4_BYTE_VC_LEN) {
+        const int32_t *vcLen4 = reinterpret_cast<const int32_t *>(row + d_.vcLenIndOffset_);
 
-          byteLen = *vcLen4;
-        }
-      else
-        {
-          const int16_t *vcLen2 =
-            reinterpret_cast<const int16_t *>(row + d_.vcLenIndOffset_);
+        byteLen = *vcLen4;
+      } else {
+        const int16_t *vcLen2 = reinterpret_cast<const int16_t *>(row + d_.vcLenIndOffset_);
 
-          byteLen = *vcLen2;
-        }
+        byteLen = *vcLen2;
+      }
       break;
 
     case UNDEFINED_SQL_TYPE:
-      throw UDRException(38900,
-                         "getString()/getRaw() not supported for SQL type %d",
-                         d_.sqlType_);
+      throw UDRException(38900, "getString()/getRaw() not supported for SQL type %d", d_.sqlType_);
       break;
 
     default:
       byteLen = d_.length_;
-      if (d_.sqlType_ == CHAR)
-        switch (d_.charset_)
-          {
+      if (d_.sqlType_ == CHAR) switch (d_.charset_) {
           case CHARSET_ISO88591:
           case CHARSET_UTF8:
             // trim trailing blanks from the value
-            while (byteLen > 0 && result[byteLen-1] == ' ')
-              byteLen--;
+            while (byteLen > 0 && result[byteLen - 1] == ' ') byteLen--;
             break;
           case CHARSET_UCS2:
             // trim trailing little-endian UCS2 blanks
             // from the value
             while (byteLen > 1 &&
-                   reinterpret_cast<const unsigned short *>(result)[byteLen/2-1] == (unsigned short) ' ')
+                   reinterpret_cast<const unsigned short *>(result)[byteLen / 2 - 1] == (unsigned short)' ')
               byteLen -= 2;
             break;
           default:
-            throw UDRException(
-                 38900,
-                 "Unsupported character set in TupleInfo::getRaw(): %d",
-                 d_.charset_);
-          }
+            throw UDRException(38900, "Unsupported character set in TupleInfo::getRaw(): %d", d_.charset_);
+        }
       break;
-    }
+  }
 
   return result;
 }
 
-bool TypeInfo::isAvailable() const
-{
-  return (d_.dataOffset_ >= 0);
-}
+bool TypeInfo::isAvailable() const { return (d_.dataOffset_ >= 0); }
 
-void TypeInfo::setInt(int val, char *row) const
-{
-  setLong(val, row);
-}
+void TypeInfo::setInt(int val, char *row) const { setLong(val, row); }
 
-void TypeInfo::setLong(long val, char *row) const
-{
-  if (row == NULL ||
-      d_.dataOffset_ < 0)
-    throw UDRException(38900, "setInt() or setLong() on a non-existent value");
+void TypeInfo::setLong(long val, char *row) const {
+  if (row == NULL || d_.dataOffset_ < 0) throw UDRException(38900, "setInt() or setLong() on a non-existent value");
 
   // set NULL indicator to 0
-  if (d_.nullIndOffset_ >= 0)
-    *(reinterpret_cast<short *>(row + d_.nullIndOffset_)) = 0;
+  if (d_.nullIndOffset_ >= 0) *(reinterpret_cast<short *>(row + d_.nullIndOffset_)) = 0;
 
   int tempSQLType = d_.sqlType_;
   char *data = row + d_.dataOffset_;
 
   // convert NUMERIC to the corresponding type with binary precision
-  if (d_.sqlType_ == NUMERIC ||
-      d_.sqlType_ == NUMERIC_UNSIGNED ||
-      d_.sqlType_ == INTERVAL)
-    {
-      if (d_.length_ == 1)
-        if (d_.sqlType_ == NUMERIC_UNSIGNED)
-          tempSQLType = TINYINT_UNSIGNED;
-        else
-          tempSQLType = TINYINT;
-      else if (d_.length_ == 2)
-        if (d_.sqlType_ == NUMERIC_UNSIGNED)
-          tempSQLType = SMALLINT_UNSIGNED;
-        else
-          tempSQLType = SMALLINT;
-      else if (d_.length_ == 4)
-        if (d_.sqlType_ == NUMERIC_UNSIGNED)
-          tempSQLType = INT_UNSIGNED;
-        else
-          tempSQLType = INT;
-      else if (d_.length_ == 8)
-        tempSQLType = LARGEINT;
-        // unsigned 8 byte integer is not supported
-    }
+  if (d_.sqlType_ == NUMERIC || d_.sqlType_ == NUMERIC_UNSIGNED || d_.sqlType_ == INTERVAL) {
+    if (d_.length_ == 1)
+      if (d_.sqlType_ == NUMERIC_UNSIGNED)
+        tempSQLType = TINYINT_UNSIGNED;
+      else
+        tempSQLType = TINYINT;
+    else if (d_.length_ == 2)
+      if (d_.sqlType_ == NUMERIC_UNSIGNED)
+        tempSQLType = SMALLINT_UNSIGNED;
+      else
+        tempSQLType = SMALLINT;
+    else if (d_.length_ == 4)
+      if (d_.sqlType_ == NUMERIC_UNSIGNED)
+        tempSQLType = INT_UNSIGNED;
+      else
+        tempSQLType = INT;
+    else if (d_.length_ == 8)
+      tempSQLType = LARGEINT;
+    // unsigned 8 byte integer is not supported
+  }
 
-  switch (tempSQLType)
-    {
+  switch (tempSQLType) {
     case TINYINT:
       if (val < SCHAR_MIN || val > SCHAR_MAX)
-        throw UDRException(
-             38900,
-             "Overflow/underflow when assigning %ld to TINYINT type",
-             val);
-      *((char *) data) = val;
+        throw UDRException(38900, "Overflow/underflow when assigning %ld to TINYINT type", val);
+      *((char *)data) = val;
       break;
 
     case SMALLINT:
       if (val < SHRT_MIN || val > SHRT_MAX)
-        throw UDRException(
-             38900,
-             "Overflow/underflow when assigning %ld to SMALLINT type",
-             val);
-      *((short *) data) = val;
+        throw UDRException(38900, "Overflow/underflow when assigning %ld to SMALLINT type", val);
+      *((short *)data) = val;
       break;
 
     case INT:
       if (val < INT_MIN || val > INT_MAX)
-        throw UDRException(
-             38900,
-             "Overflow/underflow when assigning %ld to INTEGER type",
-             val);
-      *((int *) data) = val;
+        throw UDRException(38900, "Overflow/underflow when assigning %ld to INTEGER type", val);
+      *((int *)data) = val;
       break;
 
     case LARGEINT:
-      *((long *) data) = val;
+      *((long *)data) = val;
       break;
 
     case TINYINT_UNSIGNED:
       if (val < 0 || val > UCHAR_MAX)
-        throw UDRException(
-             38900,
-             "Overflow/underflow when assigning %ld to TINYINT UNSIGNED type",
-             val);
-      *((unsigned char *) data) = val;
+        throw UDRException(38900, "Overflow/underflow when assigning %ld to TINYINT UNSIGNED type", val);
+      *((unsigned char *)data) = val;
       break;
 
     case SMALLINT_UNSIGNED:
       if (val < 0 || val > USHRT_MAX)
-        throw UDRException(
-             38900,
-             "Overflow/underflow when assigning %ld to SMALLINT UNSIGNED type",
-             val);
-      *((unsigned short *) data) = val;
+        throw UDRException(38900, "Overflow/underflow when assigning %ld to SMALLINT UNSIGNED type", val);
+      *((unsigned short *)data) = val;
       break;
 
     case INT_UNSIGNED:
       if (val < 0 || val > UINT_MAX)
-        throw UDRException(
-             38900,
-             "Overflow/underflow when assigning %ld to INTEGER UNSIGNED type",
-             val);
-      *((unsigned int *) data) = val;
+        throw UDRException(38900, "Overflow/underflow when assigning %ld to INTEGER UNSIGNED type", val);
+      *((unsigned int *)data) = val;
       break;
 
     case DECIMAL_LSE:
-    case DECIMAL_UNSIGNED:
-      {
-        bool overflow = false;
-        bool isNegative = false;
-        int remainingLength = d_.length_;
-        int neededLengthWithoutSign = d_.precision_ + (d_.scale_ > 0 ? 1 : 0);
-        char buf[20];
-        int remainingBufLength = sizeof(buf);
-        char *bufPtr = buf;
+    case DECIMAL_UNSIGNED: {
+      bool overflow = false;
+      bool isNegative = false;
+      int remainingLength = d_.length_;
+      int neededLengthWithoutSign = d_.precision_ + (d_.scale_ > 0 ? 1 : 0);
+      char buf[20];
+      int remainingBufLength = sizeof(buf);
+      char *bufPtr = buf;
 
-        const long maxvals[] = {9L,
-                                99L,
-                                999L,
-                                9999L,
-                                99999L,
-                                999999L,
-                                9999999L,
-                                99999999L,
-                                999999999L,
-                                9999999999L,
-                                99999999999L,
-                                999999999999L,
-                                9999999999999L,
-                                99999999999999L,
-                                999999999999999L,
-                                9999999999999999L,
-                                99999999999999999L,
-                                999999999999999999L};
+      const long maxvals[] = {9L,
+                              99L,
+                              999L,
+                              9999L,
+                              99999L,
+                              999999L,
+                              9999999L,
+                              99999999L,
+                              999999999L,
+                              9999999999L,
+                              99999999999L,
+                              999999999999L,
+                              9999999999999L,
+                              99999999999999L,
+                              999999999999999L,
+                              9999999999999999L,
+                              99999999999999999L,
+                              999999999999999999L};
 
-        if (d_.precision_ < 1 || d_.precision_ > 18 ||
-            d_.scale_ < 0 || d_.scale_ > d_.precision_)
-          throw UDRException(
-               38900, "Invalid precision (%d) or scale (%d) for a decimal data type",
-               d_.precision_, d_.scale_);
+      if (d_.precision_ < 1 || d_.precision_ > 18 || d_.scale_ < 0 || d_.scale_ > d_.precision_)
+        throw UDRException(38900, "Invalid precision (%d) or scale (%d) for a decimal data type", d_.precision_,
+                           d_.scale_);
 
-        // right now precision is limited to 18, but may need to use this code for BigNum
-        // so we add a check for this future case
-        if (d_.length_ >=  sizeof(buf))
-          throw UDRException(
-               38900, "Decimal precision %d is not supported by setLong(), limit is %d",
-               d_.precision_, sizeof(buf));
+      // right now precision is limited to 18, but may need to use this code for BigNum
+      // so we add a check for this future case
+      if (d_.length_ >= sizeof(buf))
+        throw UDRException(38900, "Decimal precision %d is not supported by setLong(), limit is %d", d_.precision_,
+                           sizeof(buf));
 
-        if (val < 0)
-          {
-            if (tempSQLType == DECIMAL_UNSIGNED)
-              throw UDRException(
-                   38900,
-                   "Trying to assign a negative value to a DECIMAL UNSIGNED type");
-            val = -val;
-            isNegative = true;
-            *bufPtr = '-';
-            bufPtr++;
-            remainingLength--;
-            remainingBufLength--;
-          }
-
-        // add enough blanks to print the number right-adjusted
-        while (neededLengthWithoutSign < remainingLength)
-          {
-            *bufPtr = ' ';
-            bufPtr++;
-            remainingLength--;
-            remainingBufLength--;
-          }
-
-        // sanity check, d_.length_ should have enough space for sign,
-        // precision and decimal point
-        if (remainingLength < neededLengthWithoutSign)
-          throw UDRException(
-               38900,
-               "Internal error, field length too short in setLong() (%d, %d)",
-               remainingLength, neededLengthWithoutSign);
-
-        // validate limits for decimal precision
-        if (val > maxvals[d_.precision_-1])
-          throw UDRException(
-               38900,
-               "Overflow/underflow occurred while converting value %ld to a DECIMAL(%d, %d)",
-               val, d_.precision_, d_.scale_);
-
-        if (d_.scale_ == 0)
-          {
-            snprintf(bufPtr, remainingBufLength, "%0*ld", d_.precision_, val);
-          }
-        else
-          {
-            long fractionalValue = 0;
-            long multiplier = 1;
-
-            for (int s=0; s<d_.scale_; s++)
-              {
-                fractionalValue += multiplier * (val % 10);
-                val /= 10;
-                multiplier *= 10;
-              }
-            snprintf(bufPtr, remainingBufLength,
-                     "%0*ld.%0*ld",
-                     d_.precision_-d_.scale_,
-                     val,
-                     d_.scale_,
-                     fractionalValue);
-          }
-        // snprintf put a terminating NUL byte into the string,
-        // which is not allowed in the actual record, copy the
-        // part without this extra byte into the record
-        memcpy(data, buf, d_.length_);
+      if (val < 0) {
+        if (tempSQLType == DECIMAL_UNSIGNED)
+          throw UDRException(38900, "Trying to assign a negative value to a DECIMAL UNSIGNED type");
+        val = -val;
+        isNegative = true;
+        *bufPtr = '-';
+        bufPtr++;
+        remainingLength--;
+        remainingBufLength--;
       }
-      break;
+
+      // add enough blanks to print the number right-adjusted
+      while (neededLengthWithoutSign < remainingLength) {
+        *bufPtr = ' ';
+        bufPtr++;
+        remainingLength--;
+        remainingBufLength--;
+      }
+
+      // sanity check, d_.length_ should have enough space for sign,
+      // precision and decimal point
+      if (remainingLength < neededLengthWithoutSign)
+        throw UDRException(38900, "Internal error, field length too short in setLong() (%d, %d)", remainingLength,
+                           neededLengthWithoutSign);
+
+      // validate limits for decimal precision
+      if (val > maxvals[d_.precision_ - 1])
+        throw UDRException(38900, "Overflow/underflow occurred while converting value %ld to a DECIMAL(%d, %d)", val,
+                           d_.precision_, d_.scale_);
+
+      if (d_.scale_ == 0) {
+        snprintf(bufPtr, remainingBufLength, "%0*ld", d_.precision_, val);
+      } else {
+        long fractionalValue = 0;
+        long multiplier = 1;
+
+        for (int s = 0; s < d_.scale_; s++) {
+          fractionalValue += multiplier * (val % 10);
+          val /= 10;
+          multiplier *= 10;
+        }
+        snprintf(bufPtr, remainingBufLength, "%0*ld.%0*ld", d_.precision_ - d_.scale_, val, d_.scale_, fractionalValue);
+      }
+      // snprintf put a terminating NUL byte into the string,
+      // which is not allowed in the actual record, copy the
+      // part without this extra byte into the record
+      memcpy(data, buf, d_.length_);
+    } break;
 
     case REAL:
     case DOUBLE_PRECISION:
@@ -2026,41 +1624,28 @@ void TypeInfo::setLong(long val, char *row) const
       break;
 
     case BOOLEAN:
-      *((char *) data) = val;
+      *((char *)data) = val;
       if (val != 0 && val != 1)
-        throw UDRException(
-             38900,
-             "Got value %ld which cannot be converted to a BOOLEAN, only 0 or 1 are allowed",
-             val);
+        throw UDRException(38900, "Got value %ld which cannot be converted to a BOOLEAN, only 0 or 1 are allowed", val);
       break;
 
     default:
-      throw UDRException(38900,
-                         "setLong(), setInt() or related is not supported for data type %d",
-                         d_.sqlType_);
-    }
+      throw UDRException(38900, "setLong(), setInt() or related is not supported for data type %d", d_.sqlType_);
+  }
 }
 
-void TypeInfo::setDouble(double val, char *row) const
-{
-  if (row == NULL ||
-      d_.dataOffset_ < 0)
-    throw UDRException(38900, "setDouble() on a non-existent value");
+void TypeInfo::setDouble(double val, char *row) const {
+  if (row == NULL || d_.dataOffset_ < 0) throw UDRException(38900, "setDouble() on a non-existent value");
 
   // set NULL indicator to 0
-  if (d_.nullIndOffset_ >= 0)
-    *(reinterpret_cast<short *>(row + d_.nullIndOffset_)) = 0;
+  if (d_.nullIndOffset_ >= 0) *(reinterpret_cast<short *>(row + d_.nullIndOffset_)) = 0;
 
   const char *data = row + d_.dataOffset_;
 
-  switch (d_.sqlType_)
-    {
+  switch (d_.sqlType_) {
     case REAL:
       // we are not testing for underflow at this point
-      if (val > FLT_MAX || val < -FLT_MAX)
-        throw UDRException(
-             38900,
-             "Overflow when assigining to REAL type");
+      if (val > FLT_MAX || val < -FLT_MAX) throw UDRException(38900, "Overflow when assigining to REAL type");
       *(reinterpret_cast<float *>(row + d_.dataOffset_)) = val;
       break;
 
@@ -2069,132 +1654,103 @@ void TypeInfo::setDouble(double val, char *row) const
       break;
 
     default:
-      throw UDRException(38900,
-                         "setDouble() is not supported for data type %d",
-                         d_.sqlType_);
+      throw UDRException(38900, "setDouble() is not supported for data type %d", d_.sqlType_);
+  }
+}
+
+void TypeInfo::setTime(time_t val, char *row) const {
+  if (d_.sqlType_ == INTERVAL) {
+    long tVal = static_cast<long>(val);
+    long result = 0;
+
+    // convert the time_t value to the base units of the interval
+
+    // NOTE: This relies on the assumption that time_t
+    //       uses seconds as its unit, which is true for
+    //       current Linux systems but may not always remain
+    //       true. It may also some day become bigger than long.
+    switch (d_.intervalCode_) {
+      case INTERVAL_DAY:
+        result = tVal / 86400;
+        break;
+      case INTERVAL_HOUR:
+      case INTERVAL_DAY_HOUR:
+        result = tVal / 3600;
+        break;
+      case INTERVAL_MINUTE:
+      case INTERVAL_DAY_MINUTE:
+      case INTERVAL_HOUR_MINUTE:
+        result = tVal / 60;
+        break;
+      case INTERVAL_SECOND:
+      case INTERVAL_DAY_SECOND:
+      case INTERVAL_HOUR_SECOND:
+      case INTERVAL_MINUTE_SECOND: {
+        // scale the value up
+        for (int s = 0; s < d_.scale_; s++) tVal *= 10;
+
+        result = tVal;
+      } break;
+      default:
+        throw UDRException(38900, "getTime() is not supported for year-month intervals");
     }
+
+    setLong(result, row);
+  }  // intervals
+  else {
+    struct tm t;
+    time_t temp = val;
+    char buf[64];
+    const char *fraction = ".000000";
+    int strLimit = sizeof(buf) - strlen(fraction);
+
+    if (gmtime_r(&temp, &t) != &t) throw UDRException(38900, "Unable to interpret time_t value %ld", (long)val);
+
+    switch (d_.sqlType_) {
+      case DATE:
+        // yyyy-mm-dd
+        snprintf(buf, strLimit, "%04d-%02d-%02d", t.tm_year, t.tm_mon, t.tm_mday);
+        break;
+
+      case TIME:
+        // hh:mm:ss
+        snprintf(buf, strLimit, "%02d:%02d:%02d", t.tm_hour, t.tm_min, t.tm_sec);
+        break;
+
+      case TIMESTAMP:
+        // yyyy-mm-d hh:mm:ss
+        snprintf(buf, strLimit, "%04d-%02d-%02d %02d:%02d:%02d", t.tm_year, t.tm_mon, t.tm_mday, t.tm_hour, t.tm_min,
+                 t.tm_sec);
+        break;
+
+      default:
+        throw UDRException(38900, "setTime() not supported for SQL type %d", d_.sqlType_);
+    }
+
+    // add fraction (with value 0) if needed
+    if (d_.scale_ > 0) strncat(buf, fraction, d_.scale_ + 1);
+
+    setString(buf, strlen(buf), row);
+  }  // types other than intervals
 }
 
-void TypeInfo::setTime(time_t val, char *row) const
-{
-  if (d_.sqlType_ == INTERVAL)
-    {
-      long tVal = static_cast<long>(val);
-      long result = 0;
-
-      // convert the time_t value to the base units of the interval
-
-      // NOTE: This relies on the assumption that time_t
-      //       uses seconds as its unit, which is true for
-      //       current Linux systems but may not always remain
-      //       true. It may also some day become bigger than long.
-      switch (d_.intervalCode_)
-        {
-        case INTERVAL_DAY:
-          result = tVal/86400;
-          break;
-        case INTERVAL_HOUR:
-        case INTERVAL_DAY_HOUR:
-          result = tVal/3600;
-          break;
-        case INTERVAL_MINUTE:
-        case INTERVAL_DAY_MINUTE:
-        case INTERVAL_HOUR_MINUTE:
-          result = tVal/60;
-          break;
-        case INTERVAL_SECOND:
-        case INTERVAL_DAY_SECOND:
-        case INTERVAL_HOUR_SECOND:
-        case INTERVAL_MINUTE_SECOND:
-          {
-            // scale the value up
-            for (int s=0; s<d_.scale_; s++)
-              tVal *= 10;
-
-            result = tVal;
-          }
-          break;
-        default:
-          throw UDRException(
-               38900,
-               "getTime() is not supported for year-month intervals");
-        }
-
-      setLong(result, row);
-    } // intervals
-  else
-    {
-      struct tm t;
-      time_t temp = val;
-      char buf[64];
-      const char *fraction = ".000000";
-      int strLimit = sizeof(buf) - strlen(fraction);
-
-      if (gmtime_r(&temp, &t) != &t)
-        throw UDRException(
-             38900,
-             "Unable to interpret time_t value %ld",
-             (long) val);
-
-      switch (d_.sqlType_)
-        {
-        case DATE:
-          // yyyy-mm-dd
-          snprintf(buf, strLimit, "%04d-%02d-%02d", t.tm_year, t.tm_mon, t.tm_mday);
-          break;
-
-        case TIME:
-          // hh:mm:ss
-          snprintf(buf, strLimit, "%02d:%02d:%02d", t.tm_hour, t.tm_min, t.tm_sec);
-          break;
-
-        case TIMESTAMP:
-          // yyyy-mm-d hh:mm:ss
-          snprintf(buf, strLimit, "%04d-%02d-%02d %02d:%02d:%02d",
-                   t.tm_year, t.tm_mon, t.tm_mday,
-                   t.tm_hour, t.tm_min, t.tm_sec);
-          break;
-
-        default:
-          throw UDRException(38900,
-                             "setTime() not supported for SQL type %d",
-                             d_.sqlType_);
-        }
-
-      // add fraction (with value 0) if needed
-      if (d_.scale_ > 0)
-        strncat(buf, fraction, d_.scale_+1);
-
-      setString(buf, strlen(buf), row);
-    } // types other than intervals
-}
-
-void TypeInfo::setString(const char *val, int stringLen, char *row) const
-{
-  if (row == NULL ||
-      d_.dataOffset_ < 0)
-    throw UDRException(38900, "setString() on a non-existent value");
+void TypeInfo::setString(const char *val, int stringLen, char *row) const {
+  if (row == NULL || d_.dataOffset_ < 0) throw UDRException(38900, "setString() on a non-existent value");
 
   // set NULL indicator, a stringLen of 0 and a NULL val ptr is interpreted
   // as NULL, everything else as non-null
   if (d_.nullIndOffset_ >= 0)
-    if (val == NULL)
-      {
-        if (stringLen > 0)
-          throw UDRException(
-               38900,
-               "setString with NULL string and string len > 0");
-        setNull(row);
-        return;
-      }
-    else
+    if (val == NULL) {
+      if (stringLen > 0) throw UDRException(38900, "setString with NULL string and string len > 0");
+      setNull(row);
+      return;
+    } else
       *(reinterpret_cast<short *>(row + d_.nullIndOffset_)) = 0;
 
   char *data = row + d_.dataOffset_;
   bool isApproxNumeric = false;
 
-  switch (d_.sqlType_)
-    {
+  switch (d_.sqlType_) {
     case CHAR:
     case VARCHAR:
     case DATE:
@@ -2206,59 +1762,42 @@ void TypeInfo::setString(const char *val, int stringLen, char *row) const
       if (stringLen > d_.length_)
         // should probably check whether this is a CHAR or datetime
         // and the excess characters are all blanks
-        throw UDRException(
-             38900,
-             "setString() with a string of length %d on a column with length %d",
-             stringLen,
-             d_.length_);
+        throw UDRException(38900, "setString() with a string of length %d on a column with length %d", stringLen,
+                           d_.length_);
 
       // for these types, copy the string and pad with blanks
       // of the appropriate charset for fixed-length strings
       memcpy(data, val, stringLen);
 
-      if (d_.sqlType_ == VARCHAR ||
-          d_.sqlType_ == BLOB ||
-          d_.sqlType_ == CLOB)
-        {
-          // set the varchar length indicator
-          if (d_.vcLenIndOffset_ < 0)
-            throw UDRException(38900,
-                               "Internal error, VARCHAR/BLOB/CLOB without length indicator");
+      if (d_.sqlType_ == VARCHAR || d_.sqlType_ == BLOB || d_.sqlType_ == CLOB) {
+        // set the varchar length indicator
+        if (d_.vcLenIndOffset_ < 0)
+          throw UDRException(38900, "Internal error, VARCHAR/BLOB/CLOB without length indicator");
 
-          if (d_.flags_ & TYPE_FLAG_4_BYTE_VC_LEN)
-            *(reinterpret_cast<int32_t *>(row + d_.vcLenIndOffset_)) =
-              stringLen;
-          else
-            *(reinterpret_cast<int16_t *>(row + d_.vcLenIndOffset_)) =
-              stringLen;
-        }
-      else if (stringLen < d_.length_)
+        if (d_.flags_ & TYPE_FLAG_4_BYTE_VC_LEN)
+          *(reinterpret_cast<int32_t *>(row + d_.vcLenIndOffset_)) = stringLen;
+        else
+          *(reinterpret_cast<int16_t *>(row + d_.vcLenIndOffset_)) = stringLen;
+      } else if (stringLen < d_.length_)
         // fill fixed character value with blanks of the appropriate
         // character set
-        switch (d_.charset_)
-          {
+        switch (d_.charset_) {
           case CHARSET_ISO88591:
           case CHARSET_UTF8:
-            memset(data+stringLen, ' ', d_.length_ - stringLen);
+            memset(data + stringLen, ' ', d_.length_ - stringLen);
             break;
-          case CHARSET_UCS2:
-            {
-              int paddedLen = stringLen;
+          case CHARSET_UCS2: {
+            int paddedLen = stringLen;
 
-              // pad with little-endian UCS-2 blanks
-              while (paddedLen+1 < d_.length_)
-                {
-                  reinterpret_cast<unsigned short *>(data)[paddedLen/2] = (unsigned short) ' ';
-                  paddedLen += 2;
-                }
+            // pad with little-endian UCS-2 blanks
+            while (paddedLen + 1 < d_.length_) {
+              reinterpret_cast<unsigned short *>(data)[paddedLen / 2] = (unsigned short)' ';
+              paddedLen += 2;
             }
-            break;
+          } break;
           default:
-            throw UDRException(
-                 38900,
-                 "Unsupported character set in TupleInfo::setString(): %d",
-                 d_.charset_);
-          }
+            throw UDRException(38900, "Unsupported character set in TupleInfo::setString(): %d", d_.charset_);
+        }
 
       break;
 
@@ -2277,342 +1816,267 @@ void TypeInfo::setString(const char *val, int stringLen, char *row) const
     case SMALLINT_UNSIGNED:
     case INT_UNSIGNED:
     case NUMERIC_UNSIGNED:
-    case DECIMAL_UNSIGNED:
-      {
-        char buf[200];
-        long lval = 0;
-        double dval = 0.0;
-        int numCharsConsumed = 0;
-        int rc = 0;
-        int vScale = 0;
-        bool sawMinusDot = false;
+    case DECIMAL_UNSIGNED: {
+      char buf[200];
+      long lval = 0;
+      double dval = 0.0;
+      int numCharsConsumed = 0;
+      int rc = 0;
+      int vScale = 0;
+      bool sawMinusDot = false;
 
-        // ignore trailing blanks
-        while (val[stringLen-1] == ' ' ||
-               val[stringLen-1] == '\t')
-          stringLen--;
+      // ignore trailing blanks
+      while (val[stringLen - 1] == ' ' || val[stringLen - 1] == '\t') stringLen--;
 
-        if (stringLen+1 > sizeof(buf))
-          throw UDRException(
-               38900,
-               "String of length %d exceeds size limit of %d for numeric conversion",
-               stringLen, (int) sizeof(buf) - 1);
+      if (stringLen + 1 > sizeof(buf))
+        throw UDRException(38900, "String of length %d exceeds size limit of %d for numeric conversion", stringLen,
+                           (int)sizeof(buf) - 1);
 
-        // copy the value to be able to add a terminating NUL byte
-        memcpy(buf, val, stringLen);
-        buf[stringLen] = 0;
+      // copy the value to be able to add a terminating NUL byte
+      memcpy(buf, val, stringLen);
+      buf[stringLen] = 0;
 
-        if (isApproxNumeric)
-          rc = sscanf(buf,"%lf%n", &dval, &numCharsConsumed);
-        else
-          rc = sscanf(buf,"%ld%n", &lval, &numCharsConsumed);
+      if (isApproxNumeric)
+        rc = sscanf(buf, "%lf%n", &dval, &numCharsConsumed);
+      else
+        rc = sscanf(buf, "%ld%n", &lval, &numCharsConsumed);
 
-        if (rc <= 0)
-          {
-            bool isOK = false;
+      if (rc <= 0) {
+        bool isOK = false;
 
-            // could not read a long or float value, this could be an error
-            // or a number that starts with '.' or '-.' with optional
-            // leading white space. Check for this special case before
-            // raising an exception.
-            if (!isApproxNumeric && d_.scale_ > 0 && numCharsConsumed == 0)
-              {
-                while (buf[numCharsConsumed] == ' ' ||
-                       buf[numCharsConsumed] == '\t')
-                  numCharsConsumed++;
-                if (buf[numCharsConsumed] == '-' &&
-                    buf[numCharsConsumed+1] == '.')
-                  {
-                    // the number starts with "-.", remember
-                    // to negate it at the end and go on
-                    sawMinusDot = true;
-                    numCharsConsumed++; // skip over the '-'
-                    isOK = true;
-                  }
-                else if (buf[numCharsConsumed] == '.')
-                  {
-                    // the number starts with '.', that's
-                    // ok, continue on
-                    isOK = true;
-                  }
-              }
-
-            if (!isOK)
-              throw UDRException(
-                   38900,
-                   "Error in setString(), \"%s\" is not a numeric value",
-                   buf);
+        // could not read a long or float value, this could be an error
+        // or a number that starts with '.' or '-.' with optional
+        // leading white space. Check for this special case before
+        // raising an exception.
+        if (!isApproxNumeric && d_.scale_ > 0 && numCharsConsumed == 0) {
+          while (buf[numCharsConsumed] == ' ' || buf[numCharsConsumed] == '\t') numCharsConsumed++;
+          if (buf[numCharsConsumed] == '-' && buf[numCharsConsumed + 1] == '.') {
+            // the number starts with "-.", remember
+            // to negate it at the end and go on
+            sawMinusDot = true;
+            numCharsConsumed++;  // skip over the '-'
+            isOK = true;
+          } else if (buf[numCharsConsumed] == '.') {
+            // the number starts with '.', that's
+            // ok, continue on
+            isOK = true;
           }
+        }
 
-        if (d_.scale_ > 0 && !isApproxNumeric)
-          {
-            if (buf[numCharsConsumed] == '.')
-              {
-                int sign = (lval < 0 ? -1 : 1);
-
-                // skip over the decimal dot
-                numCharsConsumed++;
-
-                // process digits following the dot
-                while (numCharsConsumed < stringLen &&
-                       buf[numCharsConsumed] >= '0' &&
-                       buf[numCharsConsumed] <= '9' &&
-                       lval <= LONG_MAX/10)
-                  {
-                    lval = 10*lval +
-                      ((int)(buf[numCharsConsumed++] - '0')) * sign;
-                    vScale++;
-                  }
-              }
-
-            if (sawMinusDot)
-              lval = -lval;
-
-            while (vScale < d_.scale_)
-              if (lval <= LONG_MAX/10)
-                {
-                  lval *= 10;
-                  vScale++;
-                }
-              else
-                throw UDRException(
-                     38900,
-                     "Error in setString(): Value %s exceeds range for a long",
-                     buf);
-
-            if (vScale > d_.scale_)
-              throw UDRException(
-                     38900,
-                     "Error in setString(): Value %s exceeds scale %d",
-                     buf, d_.scale_);
-          }
-
-        // check for any non-white space left after conversion
-        while (numCharsConsumed < stringLen)
-          if (buf[numCharsConsumed] != ' ' &&
-              buf[numCharsConsumed] != '\t')
-            throw UDRException(
-                 38900,
-                 "Error in setString(): \"%s\" is not a valid, in-range numeric value",
-                 buf);
-          else
-            numCharsConsumed++;
-
-        if (isApproxNumeric)
-          setDouble(dval, row);
-        else
-          setLong(lval, row);
+        if (!isOK) throw UDRException(38900, "Error in setString(), \"%s\" is not a numeric value", buf);
       }
-      break;
 
-    case INTERVAL:
-      {
-        char buf[100];
-        char *strVal;
-        unsigned long years, months, days, hours, minutes, seconds, singleField;
-        long result = 0;
-        unsigned long fractionalVal = 0;
-        int numLeaderChars   = 0;
-        int numCharsConsumed = 0;
-        int numFractionChars = 0;
-        bool ok = true;
-        bool readFraction = false;
-        bool isNegative = false;
+      if (d_.scale_ > 0 && !isApproxNumeric) {
+        if (buf[numCharsConsumed] == '.') {
+          int sign = (lval < 0 ? -1 : 1);
 
-        // ignore trailing blanks
-        while (val[stringLen-1] == ' ')
-          stringLen--;
+          // skip over the decimal dot
+          numCharsConsumed++;
 
-        if (stringLen+1 > sizeof(buf))
-          throw UDRException(
-               38900,
-               "String of length %d exceeds size limit of %d for interval conversion",
-               stringLen, (int) sizeof(buf) - 1);
-
-        // copy the value to be able to add a terminating NUL byte
-        memcpy(buf, val, stringLen);
-        buf[stringLen] = 0;
-        strVal = buf;
-
-        // check for the sign
-        while (*strVal == ' ')
-          strVal++;
-        if (*strVal == '-')
-          {
-            isNegative = true;
-            strVal++;
+          // process digits following the dot
+          while (numCharsConsumed < stringLen && buf[numCharsConsumed] >= '0' && buf[numCharsConsumed] <= '9' &&
+                 lval <= LONG_MAX / 10) {
+            lval = 10 * lval + ((int)(buf[numCharsConsumed++] - '0')) * sign;
+            vScale++;
           }
+        }
 
-        numLeaderChars = strVal - buf;
+        if (sawMinusDot) lval = -lval;
 
-        // Use sscanf to convert string representation to a number.
-        // Note that this does not check for overflow, which cannot occur
-        // for valid interval literals, and that it also may allow some
-        // string that aren't quite legal, such as 01:120:00 (should be 03:00:00).
-        // We treat such overflows like other overflows that could occur in the
-        // user-written code.
+        while (vScale < d_.scale_)
+          if (lval <= LONG_MAX / 10) {
+            lval *= 10;
+            vScale++;
+          } else
+            throw UDRException(38900, "Error in setString(): Value %s exceeds range for a long", buf);
 
-        switch (d_.intervalCode_)
-          {
-          case INTERVAL_YEAR:
-          case INTERVAL_MONTH:
-          case INTERVAL_DAY:
-          case INTERVAL_HOUR:
-          case INTERVAL_MINUTE:
-            ok = (sscanf(strVal, "%lu%n", &singleField, &numCharsConsumed) >= 1);
-            result = singleField;
-            break;
-          case INTERVAL_SECOND:
-            ok = (sscanf(strVal, "%lu%n", &singleField, &numCharsConsumed) >= 1);
-            result = singleField;
-            readFraction = true;
-            break;
-          case INTERVAL_YEAR_MONTH:
-            ok = (sscanf(strVal, "%lu-%lu%n", &years, &months, &numCharsConsumed) >= 2);
-            result = years * 12 + months;
-            break;
-          case INTERVAL_DAY_HOUR:
-            ok = (sscanf(strVal, "%lu %lu%n", &days, &hours, &numCharsConsumed) >= 2);
-            result = days * 24 + hours;
-            break;
-          case INTERVAL_DAY_MINUTE:
-            ok = (sscanf(strVal, "%lu %lu:%lu%n", &days, &hours, &minutes, &numCharsConsumed) >= 3);
-            result = days * 1440 + hours * 60 + minutes;
-            break;
-          case INTERVAL_DAY_SECOND:
-            ok = (sscanf(strVal, "%lu %lu:%lu:%lu%n", &days, &hours, &minutes, &seconds, &numCharsConsumed) >= 4);
-            result = days * 86400 + hours * 3600 + minutes * 60 + seconds;
-            readFraction = true;
-            break;
-          case INTERVAL_HOUR_MINUTE:
-            ok = (sscanf(strVal, "%lu:%lu%n", &hours, &minutes, &numCharsConsumed) >= 2);
-            result = hours * 60 + minutes;
-            break;
-          case INTERVAL_HOUR_SECOND:
-            ok = (sscanf(strVal, "%lu:%lu:%lu%n", &hours, &minutes, &seconds, &numCharsConsumed) >= 3);
-            result = hours * 3600 + minutes * 60 + seconds;
-            readFraction = true;
-            break;
-          case INTERVAL_MINUTE_SECOND:
-            ok = (sscanf(strVal, "%lu:%lu%n", &minutes, &seconds, &numCharsConsumed) >= 2);
-            result = minutes * 60 + seconds;
-            readFraction = true;
-            break;
-          default:
-            throw UDRException(
-                 38900,
-                 "Invalid interval code in TupleInfo::setString()");
-          }
-
-        strVal += numCharsConsumed;
-
-        // allow fractional seconds, regardless of whether fraction precision is >0
-        if (ok && readFraction && *strVal == '.')
-          {
-            ok = (sscanf(strVal,".%ld%n", &fractionalVal, &numFractionChars) >= 1);
-            strVal += numFractionChars;
-
-            // then, if the fractional seconds are not 0, complain if fraction
-            // precision is 0.
-            if (fractionalVal > 0 && d_.scale_ == 0)
-              throw UDRException(
-                   38900,
-                   "Encountered a fractional second part in a string value for an interval type that doesn't allow fractional values: %s",
-                   buf);
-          }
-
-        if (!ok)
-          throw UDRException(
-               38900,
-               "Error in setString(), \"%s\" is not an interval value for interval code %d",
-               buf, d_.intervalCode_);
-
-        // check for any non-white space left after conversion
-        while (strVal - buf < stringLen)
-          if (*strVal != ' ' &&
-              *strVal != '\t')
-            throw UDRException(
-                 38900,
-                 "Found non-numeric character in setString for an interval column: %s",
-                 buf);
-          else
-            strVal++;
-
-        if (d_.scale_ > 0)
-          {
-            long fractionOverflowTest = fractionalVal;
-
-            // scale up the result
-            for (int s=0; s<d_.scale_; s++)
-              {
-                result *= 10;
-                fractionOverflowTest /= 10;
-              }
-
-            if (fractionOverflowTest != 0)
-              throw UDRException(
-                   38900,
-                   "Fractional value %ld exceeds allowed range for interval fraction precision %d",
-                   fractionalVal, d_.scale_);
-
-            // add whole and fractional seconds (could overflow in extreme cases)
-            result += fractionalVal;
-          }
-
-        // could overflow in extreme cases
-        if (isNegative)
-          result = -result;
-
-        // result could exceed allowed precision, will cause an executor error when processed further
-        setDouble(result, row);
+        if (vScale > d_.scale_)
+          throw UDRException(38900, "Error in setString(): Value %s exceeds scale %d", buf, d_.scale_);
       }
-      break;
 
-    case BOOLEAN:
-      {
-        long bval = -1;
-        // accept 0, 1, TRUE, true, FALSE, false as values
-        while (stringLen > 0 && val[stringLen-1] == ' ')
-          stringLen--;
-        if (stringLen == 1)
-          {
-            if (strcmp(val, "0") == 0)
-              bval = 0;
-            else if (strcmp(val, "1") == 0)
-              bval = 1;
-          }
-        if (stringLen == 4)
-          {
-            if (strcmp(val, "TRUE") == 0 ||
-                strcmp(val, "true") == 0)
-              bval = 1;
-          }
-        else if (stringLen == 5)
-          if (strcmp(val, "FALSE") == 0 ||
-              strcmp(val, "false") == 0)
-            bval = 0;
-
-        if (bval >= 0)
-          setLong(bval, row);
+      // check for any non-white space left after conversion
+      while (numCharsConsumed < stringLen)
+        if (buf[numCharsConsumed] != ' ' && buf[numCharsConsumed] != '\t')
+          throw UDRException(38900, "Error in setString(): \"%s\" is not a valid, in-range numeric value", buf);
         else
+          numCharsConsumed++;
+
+      if (isApproxNumeric)
+        setDouble(dval, row);
+      else
+        setLong(lval, row);
+    } break;
+
+    case INTERVAL: {
+      char buf[100];
+      char *strVal;
+      unsigned long years, months, days, hours, minutes, seconds, singleField;
+      long result = 0;
+      unsigned long fractionalVal = 0;
+      int numLeaderChars = 0;
+      int numCharsConsumed = 0;
+      int numFractionChars = 0;
+      bool ok = true;
+      bool readFraction = false;
+      bool isNegative = false;
+
+      // ignore trailing blanks
+      while (val[stringLen - 1] == ' ') stringLen--;
+
+      if (stringLen + 1 > sizeof(buf))
+        throw UDRException(38900, "String of length %d exceeds size limit of %d for interval conversion", stringLen,
+                           (int)sizeof(buf) - 1);
+
+      // copy the value to be able to add a terminating NUL byte
+      memcpy(buf, val, stringLen);
+      buf[stringLen] = 0;
+      strVal = buf;
+
+      // check for the sign
+      while (*strVal == ' ') strVal++;
+      if (*strVal == '-') {
+        isNegative = true;
+        strVal++;
+      }
+
+      numLeaderChars = strVal - buf;
+
+      // Use sscanf to convert string representation to a number.
+      // Note that this does not check for overflow, which cannot occur
+      // for valid interval literals, and that it also may allow some
+      // string that aren't quite legal, such as 01:120:00 (should be 03:00:00).
+      // We treat such overflows like other overflows that could occur in the
+      // user-written code.
+
+      switch (d_.intervalCode_) {
+        case INTERVAL_YEAR:
+        case INTERVAL_MONTH:
+        case INTERVAL_DAY:
+        case INTERVAL_HOUR:
+        case INTERVAL_MINUTE:
+          ok = (sscanf(strVal, "%lu%n", &singleField, &numCharsConsumed) >= 1);
+          result = singleField;
+          break;
+        case INTERVAL_SECOND:
+          ok = (sscanf(strVal, "%lu%n", &singleField, &numCharsConsumed) >= 1);
+          result = singleField;
+          readFraction = true;
+          break;
+        case INTERVAL_YEAR_MONTH:
+          ok = (sscanf(strVal, "%lu-%lu%n", &years, &months, &numCharsConsumed) >= 2);
+          result = years * 12 + months;
+          break;
+        case INTERVAL_DAY_HOUR:
+          ok = (sscanf(strVal, "%lu %lu%n", &days, &hours, &numCharsConsumed) >= 2);
+          result = days * 24 + hours;
+          break;
+        case INTERVAL_DAY_MINUTE:
+          ok = (sscanf(strVal, "%lu %lu:%lu%n", &days, &hours, &minutes, &numCharsConsumed) >= 3);
+          result = days * 1440 + hours * 60 + minutes;
+          break;
+        case INTERVAL_DAY_SECOND:
+          ok = (sscanf(strVal, "%lu %lu:%lu:%lu%n", &days, &hours, &minutes, &seconds, &numCharsConsumed) >= 4);
+          result = days * 86400 + hours * 3600 + minutes * 60 + seconds;
+          readFraction = true;
+          break;
+        case INTERVAL_HOUR_MINUTE:
+          ok = (sscanf(strVal, "%lu:%lu%n", &hours, &minutes, &numCharsConsumed) >= 2);
+          result = hours * 60 + minutes;
+          break;
+        case INTERVAL_HOUR_SECOND:
+          ok = (sscanf(strVal, "%lu:%lu:%lu%n", &hours, &minutes, &seconds, &numCharsConsumed) >= 3);
+          result = hours * 3600 + minutes * 60 + seconds;
+          readFraction = true;
+          break;
+        case INTERVAL_MINUTE_SECOND:
+          ok = (sscanf(strVal, "%lu:%lu%n", &minutes, &seconds, &numCharsConsumed) >= 2);
+          result = minutes * 60 + seconds;
+          readFraction = true;
+          break;
+        default:
+          throw UDRException(38900, "Invalid interval code in TupleInfo::setString()");
+      }
+
+      strVal += numCharsConsumed;
+
+      // allow fractional seconds, regardless of whether fraction precision is >0
+      if (ok && readFraction && *strVal == '.') {
+        ok = (sscanf(strVal, ".%ld%n", &fractionalVal, &numFractionChars) >= 1);
+        strVal += numFractionChars;
+
+        // then, if the fractional seconds are not 0, complain if fraction
+        // precision is 0.
+        if (fractionalVal > 0 && d_.scale_ == 0)
           throw UDRException(38900,
-                             "Invalid value %.10s encountered in setString() for a boolean data type",
-                             val);
+                             "Encountered a fractional second part in a string value for an interval type that doesn't "
+                             "allow fractional values: %s",
+                             buf);
       }
-      break;
+
+      if (!ok)
+        throw UDRException(38900, "Error in setString(), \"%s\" is not an interval value for interval code %d", buf,
+                           d_.intervalCode_);
+
+      // check for any non-white space left after conversion
+      while (strVal - buf < stringLen)
+        if (*strVal != ' ' && *strVal != '\t')
+          throw UDRException(38900, "Found non-numeric character in setString for an interval column: %s", buf);
+        else
+          strVal++;
+
+      if (d_.scale_ > 0) {
+        long fractionOverflowTest = fractionalVal;
+
+        // scale up the result
+        for (int s = 0; s < d_.scale_; s++) {
+          result *= 10;
+          fractionOverflowTest /= 10;
+        }
+
+        if (fractionOverflowTest != 0)
+          throw UDRException(38900, "Fractional value %ld exceeds allowed range for interval fraction precision %d",
+                             fractionalVal, d_.scale_);
+
+        // add whole and fractional seconds (could overflow in extreme cases)
+        result += fractionalVal;
+      }
+
+      // could overflow in extreme cases
+      if (isNegative) result = -result;
+
+      // result could exceed allowed precision, will cause an executor error when processed further
+      setDouble(result, row);
+    } break;
+
+    case BOOLEAN: {
+      long bval = -1;
+      // accept 0, 1, TRUE, true, FALSE, false as values
+      while (stringLen > 0 && val[stringLen - 1] == ' ') stringLen--;
+      if (stringLen == 1) {
+        if (strcmp(val, "0") == 0)
+          bval = 0;
+        else if (strcmp(val, "1") == 0)
+          bval = 1;
+      }
+      if (stringLen == 4) {
+        if (strcmp(val, "TRUE") == 0 || strcmp(val, "true") == 0) bval = 1;
+      } else if (stringLen == 5)
+        if (strcmp(val, "FALSE") == 0 || strcmp(val, "false") == 0) bval = 0;
+
+      if (bval >= 0)
+        setLong(bval, row);
+      else
+        throw UDRException(38900, "Invalid value %.10s encountered in setString() for a boolean data type", val);
+    } break;
 
     case UNDEFINED_SQL_TYPE:
     default:
-      throw UDRException(38900,
-                         "setString() is not yet supported for data type %d",
-                         d_.sqlType_);
-    }
+      throw UDRException(38900, "setString() is not yet supported for data type %d", d_.sqlType_);
+  }
 }
 
-void TypeInfo::setBoolean(bool val, char *row) const
-{
-  switch (getSQLTypeClass())
-    {
+void TypeInfo::setBoolean(bool val, char *row) const {
+  switch (getSQLTypeClass()) {
     case CHARACTER_TYPE:
       setString((val ? "1" : "0"), 1, row);
       break;
@@ -2622,57 +2086,40 @@ void TypeInfo::setBoolean(bool val, char *row) const
       setLong((val ? 1 : 0), row);
       break;
 
-    default:
-      {
-        std::string typeName;
+    default: {
+      std::string typeName;
 
-        toString(typeName, false);
-        throw UDRException(
-             38900,
-             "setBoolean() not supported for type %s",
-             typeName.c_str());
-      }
-
+      toString(typeName, false);
+      throw UDRException(38900, "setBoolean() not supported for type %s", typeName.c_str());
     }
+  }
 }
 
-void TypeInfo::setNull(char *row) const
-{
-  if (row == NULL ||
-      d_.dataOffset_ < 0)
-    throw UDRException(38900, "setNull() on a non-existent value");
+void TypeInfo::setNull(char *row) const {
+  if (row == NULL || d_.dataOffset_ < 0) throw UDRException(38900, "setNull() on a non-existent value");
 
   // set NULL indicator to -1
   if (d_.nullIndOffset_ >= 0)
     *(reinterpret_cast<short *>(row + d_.nullIndOffset_)) = -1;
   else
-    throw UDRException(38900,
-                       "Trying to set a non-nullable value to NULL");
+    throw UDRException(38900, "Trying to set a non-nullable value to NULL");
 }
 
-int TypeInfo::minBytesPerChar() const
-{
-  switch (d_.charset_)
-    {
+int TypeInfo::minBytesPerChar() const {
+  switch (d_.charset_) {
     case CHARSET_ISO88591:
     case CHARSET_UTF8:
       return 1;
     case CHARSET_UCS2:
       return 2;
     default:
-      throw UDRException(
-           38900, "Minimum bytes per char not defined for charset %d",
-           d_.charset_);
-    }
+      throw UDRException(38900, "Minimum bytes per char not defined for charset %d", d_.charset_);
+  }
 }
 
-int TypeInfo::convertToBinaryPrecision(int decimalPrecision) const
-{
+int TypeInfo::convertToBinaryPrecision(int decimalPrecision) const {
   if (decimalPrecision < 1 || decimalPrecision > 18)
-    throw UDRException(
-         38900,
-         "Decimal precision %d is out of the allowed range of 1-18",
-         decimalPrecision);
+    throw UDRException(38900, "Decimal precision %d is out of the allowed range of 1-18", decimalPrecision);
 
   if (decimalPrecision < 3)
     return 1;
@@ -2684,12 +2131,10 @@ int TypeInfo::convertToBinaryPrecision(int decimalPrecision) const
     return 8;
 }
 
-void TypeInfo::toString(std::string &s, bool longForm) const
-{
+void TypeInfo::toString(std::string &s, bool longForm) const {
   char buf[100];
 
-  switch (d_.sqlType_)
-    {
+  switch (d_.sqlType_) {
     case UNDEFINED_SQL_TYPE:
       s += "undefined_sql_type";
       break;
@@ -2706,13 +2151,11 @@ void TypeInfo::toString(std::string &s, bool longForm) const
       s += "LARGEINT";
       break;
     case NUMERIC:
-      snprintf(buf, sizeof(buf), "NUMERIC(%d,%d)",
-               getPrecision(), getScale());
+      snprintf(buf, sizeof(buf), "NUMERIC(%d,%d)", getPrecision(), getScale());
       s += buf;
       break;
     case DECIMAL_LSE:
-      snprintf(buf, sizeof(buf), "DECIMAL(%d,%d)",
-               getPrecision(), getScale());
+      snprintf(buf, sizeof(buf), "DECIMAL(%d,%d)", getPrecision(), getScale());
       s += buf;
       break;
     case TINYINT_UNSIGNED:
@@ -2725,13 +2168,11 @@ void TypeInfo::toString(std::string &s, bool longForm) const
       s += "INT UNSIGNED";
       break;
     case NUMERIC_UNSIGNED:
-      snprintf(buf, sizeof(buf), "NUMERIC(%d,%d) UNSIGNED",
-               getPrecision(), getScale());
+      snprintf(buf, sizeof(buf), "NUMERIC(%d,%d) UNSIGNED", getPrecision(), getScale());
       s += buf;
       break;
     case DECIMAL_UNSIGNED:
-      snprintf(buf, sizeof(buf), "DECIMAL(%d,%d) UNSIGNED",
-               getPrecision(), getScale());
+      snprintf(buf, sizeof(buf), "DECIMAL(%d,%d) UNSIGNED", getPrecision(), getScale());
       s += buf;
       break;
     case REAL:
@@ -2744,8 +2185,7 @@ void TypeInfo::toString(std::string &s, bool longForm) const
     case VARCHAR:
       const char *csName;
 
-      switch(getCharset())
-        {
+      switch (getCharset()) {
         case UNDEFINED_CHARSET:
           csName = "undefined";
           break;
@@ -2761,13 +2201,10 @@ void TypeInfo::toString(std::string &s, bool longForm) const
         default:
           csName = "invalid charset!";
           break;
-        }
+      }
 
-      snprintf(buf, sizeof(buf), "%s(%d%s) CHARACTER SET %s",
-               (d_.sqlType_ == CHAR ? "CHAR" : "VARCHAR"),
-               getMaxCharLength(),
-               (getCharset() == CHARSET_UTF8 ? " BYTES" : ""),
-               csName);
+      snprintf(buf, sizeof(buf), "%s(%d%s) CHARACTER SET %s", (d_.sqlType_ == CHAR ? "CHAR" : "VARCHAR"),
+               getMaxCharLength(), (getCharset() == CHARSET_UTF8 ? " BYTES" : ""), csName);
       s += buf;
       break;
     case DATE:
@@ -2775,81 +2212,62 @@ void TypeInfo::toString(std::string &s, bool longForm) const
       break;
     case TIME:
       s += "TIME";
-      if (d_.scale_ > 0)
-        {
-          snprintf(buf, sizeof(buf), "(%d)", d_.scale_);
-          s += buf;
-        }
+      if (d_.scale_ > 0) {
+        snprintf(buf, sizeof(buf), "(%d)", d_.scale_);
+        s += buf;
+      }
       break;
     case TIMESTAMP:
       snprintf(buf, sizeof(buf), "TIMESTAMP(%d)", d_.scale_);
       s += buf;
       break;
     case INTERVAL:
-      switch (d_.intervalCode_)
-        {
+      switch (d_.intervalCode_) {
         case UNDEFINED_INTERVAL_CODE:
           snprintf(buf, sizeof(buf), "INTERVAL with undefined subtype!");
           break;
         case INTERVAL_YEAR:
-          snprintf(buf, sizeof(buf), "INTERVAL YEAR(%d)",
-                   getPrecision());
+          snprintf(buf, sizeof(buf), "INTERVAL YEAR(%d)", getPrecision());
           break;
         case INTERVAL_MONTH:
-          snprintf(buf, sizeof(buf), "INTERVAL MONTH(%d)",
-                   getPrecision());
+          snprintf(buf, sizeof(buf), "INTERVAL MONTH(%d)", getPrecision());
           break;
         case INTERVAL_DAY:
-          snprintf(buf, sizeof(buf), "INTERVAL DAY(%d)",
-                   getPrecision());
+          snprintf(buf, sizeof(buf), "INTERVAL DAY(%d)", getPrecision());
           break;
         case INTERVAL_HOUR:
-          snprintf(buf, sizeof(buf), "INTERVAL HOUR(%d)",
-                   getPrecision());
+          snprintf(buf, sizeof(buf), "INTERVAL HOUR(%d)", getPrecision());
           break;
         case INTERVAL_MINUTE:
-          snprintf(buf, sizeof(buf), "INTERVAL MINUTE(%d)",
-                   getPrecision());
+          snprintf(buf, sizeof(buf), "INTERVAL MINUTE(%d)", getPrecision());
           break;
         case INTERVAL_SECOND:
-          snprintf(buf, sizeof(buf), "INTERVAL SECOND(%d,%d)",
-                   getPrecision(),
-                   getScale());
+          snprintf(buf, sizeof(buf), "INTERVAL SECOND(%d,%d)", getPrecision(), getScale());
           break;
         case INTERVAL_YEAR_MONTH:
-          snprintf(buf, sizeof(buf), "INTERVAL YEAR(%d) TO MONTH",
-                   getPrecision());
+          snprintf(buf, sizeof(buf), "INTERVAL YEAR(%d) TO MONTH", getPrecision());
           break;
         case INTERVAL_DAY_HOUR:
-          snprintf(buf, sizeof(buf), "INTERVAL DAY(%d) TO HOUR",
-                   getPrecision());
+          snprintf(buf, sizeof(buf), "INTERVAL DAY(%d) TO HOUR", getPrecision());
           break;
         case INTERVAL_DAY_MINUTE:
-          snprintf(buf, sizeof(buf), "INTERVAL DAY(%d) TO MINUTE",
-                   getPrecision());
+          snprintf(buf, sizeof(buf), "INTERVAL DAY(%d) TO MINUTE", getPrecision());
           break;
         case INTERVAL_DAY_SECOND:
-          snprintf(buf, sizeof(buf), "INTERVAL DAY(%d) TO SECOND(%d)",
-                   getPrecision(),
-                   getScale());
+          snprintf(buf, sizeof(buf), "INTERVAL DAY(%d) TO SECOND(%d)", getPrecision(), getScale());
           break;
         case INTERVAL_HOUR_MINUTE:
-          snprintf(buf, sizeof(buf), "INTERVAL HOUR(%d) TO MINUTE",
-                   getPrecision());
+          snprintf(buf, sizeof(buf), "INTERVAL HOUR(%d) TO MINUTE", getPrecision());
           break;
         case INTERVAL_HOUR_SECOND:
-          snprintf(buf, sizeof(buf), "INTERVAL HOUR(%d) TO SECOND(%d)",
-                   getPrecision(),
-                   getScale());
+          snprintf(buf, sizeof(buf), "INTERVAL HOUR(%d) TO SECOND(%d)", getPrecision(), getScale());
           break;
         case INTERVAL_MINUTE_SECOND:
-          snprintf(buf, sizeof(buf), "INTERVAL MINUTE(%d) TO SECOND(%d)",
-                   getPrecision(),
-                   getScale());
+          snprintf(buf, sizeof(buf), "INTERVAL MINUTE(%d) TO SECOND(%d)", getPrecision(), getScale());
           break;
         default:
           snprintf(buf, sizeof(buf), "invalid interval code!");
-        }
+      }
       s += buf;
       break;
     case BLOB:
@@ -2864,60 +2282,41 @@ void TypeInfo::toString(std::string &s, bool longForm) const
     default:
       s += "invalid SQL type!";
       break;
-    }
+  }
 
-  if (!d_.nullable_)
-    s += " NOT NULL";
+  if (!d_.nullable_) s += " NOT NULL";
 
-  if (longForm && d_.dataOffset_ >= 0)
-    {
-      snprintf(buf, sizeof(buf), " offsets: (nullInd=%d, vcLen=%d, data=%d)",
-               d_.nullIndOffset_, d_.vcLenIndOffset_, d_.dataOffset_);
-      s += buf;
-    }
+  if (longForm && d_.dataOffset_ >= 0) {
+    snprintf(buf, sizeof(buf), " offsets: (nullInd=%d, vcLen=%d, data=%d)", d_.nullIndOffset_, d_.vcLenIndOffset_,
+             d_.dataOffset_);
+    s += buf;
+  }
 }
 
-int TypeInfo::serializedLength()
-{
+int TypeInfo::serializedLength() {
   // format is base class bytes + binary image of d_
-  return TMUDRSerializableObject::serializedLength() +
-    serializedLengthOfBinary(sizeof(d_));
+  return TMUDRSerializableObject::serializedLength() + serializedLengthOfBinary(sizeof(d_));
 }
 
-int TypeInfo::serialize(Bytes &outputBuffer,
-                        int &outputBufferLength)
-{
-  int result = 
-    TMUDRSerializableObject::serialize(outputBuffer,
-                                       outputBufferLength);
+int TypeInfo::serialize(Bytes &outputBuffer, int &outputBufferLength) {
+  int result = TMUDRSerializableObject::serialize(outputBuffer, outputBufferLength);
 
-  result += serializeBinary(&d_,
-                            sizeof(d_),
-                            outputBuffer,
-                            outputBufferLength);
+  result += serializeBinary(&d_, sizeof(d_), outputBuffer, outputBufferLength);
   validateSerializedLength(result);
 
   return result;
 }
 
-int TypeInfo::deserialize(ConstBytes &inputBuffer,
-                          int &inputBufferLength)
-{
-  int result =
-    TMUDRSerializableObject::deserialize(inputBuffer, inputBufferLength);
+int TypeInfo::deserialize(ConstBytes &inputBuffer, int &inputBufferLength) {
+  int result = TMUDRSerializableObject::deserialize(inputBuffer, inputBufferLength);
   validateObjectType(TYPE_INFO_OBJ);
 
   int binarySize = 0;
   const void *temp = NULL;
 
-  result += deserializeBinary(&temp,
-                              binarySize,
-                              false,
-                              inputBuffer,
-                              inputBufferLength);
+  result += deserializeBinary(&temp, binarySize, false, inputBuffer, inputBufferLength);
   if (binarySize != sizeof(d_))
-    throw UDRException(38900,"Expected %d bytes to deserialize TypeInfo struct, actually used %d bytes",
-                       sizeof(d_),
+    throw UDRException(38900, "Expected %d bytes to deserialize TypeInfo struct, actually used %d bytes", sizeof(d_),
                        binarySize);
   memcpy(&d_, temp, binarySize);
 
@@ -2926,13 +2325,11 @@ int TypeInfo::deserialize(ConstBytes &inputBuffer,
   return result;
 }
 
-void TypeInfo::setOffsets(int indOffset, int vcOffset, int dataOffset)
-{
-  d_.nullIndOffset_  = indOffset;
+void TypeInfo::setOffsets(int indOffset, int vcOffset, int dataOffset) {
+  d_.nullIndOffset_ = indOffset;
   d_.vcLenIndOffset_ = vcOffset;
-  d_.dataOffset_     = dataOffset;
+  d_.dataOffset_ = dataOffset;
 }
-
 
 // ------------------------------------------------------------------------
 // Member functions for class ProvenanceInfo
@@ -2941,10 +2338,7 @@ void TypeInfo::setOffsets(int indOffset, int vcOffset, int dataOffset)
 /**
  * Default constructor, generates unspecified provenance.
  */
-ProvenanceInfo::ProvenanceInfo() :
-     inputTableNum_(-1),
-     inputColNum_(-1)
-{}
+ProvenanceInfo::ProvenanceInfo() : inputTableNum_(-1), inputColNum_(-1) {}
 
 /**
  *  Constructor to link an output column to a specific input column
@@ -2958,31 +2352,22 @@ ProvenanceInfo::ProvenanceInfo() :
  *                       that is the source of the output column to be
  *                       produced.
  */
-ProvenanceInfo::ProvenanceInfo(int inputTableNum,
-                               int inputColNum) :
-     inputTableNum_(inputTableNum),
-     inputColNum_(inputColNum)
-{}
+ProvenanceInfo::ProvenanceInfo(int inputTableNum, int inputColNum)
+    : inputTableNum_(inputTableNum), inputColNum_(inputColNum) {}
 
 /**
  *  Get the input table number.
  *
  *  @return Input table number.
  */
-int ProvenanceInfo::getInputTableNum() const
-{
-  return inputTableNum_;
-}
+int ProvenanceInfo::getInputTableNum() const { return inputTableNum_; }
 
 /**
  *  Get the input column number.
  *
  *  @return Input column number.
  */
-int ProvenanceInfo::getInputColumnNum() const
-{
-  return inputColNum_;
-}
+int ProvenanceInfo::getInputColumnNum() const { return inputColNum_; }
 
 /**
  *  Test whether the column comes from any or from a specific table-valued input.
@@ -2992,11 +2377,8 @@ int ProvenanceInfo::getInputColumnNum() const
  *  @return true if the provenance indicates a column that comes from the
  *          specified input table(s), false otherwise
  */
-bool ProvenanceInfo::isFromInputTable(int inputTableNum) const
-{
-  return (inputTableNum_ >= 0 &&
-          inputColNum_ >= 0 &&
-          (inputTableNum > 0 ? inputTableNum == inputTableNum_ : true));
+bool ProvenanceInfo::isFromInputTable(int inputTableNum) const {
+  return (inputTableNum_ >= 0 && inputColNum_ >= 0 && (inputTableNum > 0 ? inputTableNum == inputTableNum_ : true));
 }
 
 // ------------------------------------------------------------------------
@@ -3006,12 +2388,8 @@ bool ProvenanceInfo::isFromInputTable(int inputTableNum) const
 /**
  *  Default constructor
  */
-ColumnInfo::ColumnInfo() :
-     TMUDRSerializableObject(COLUMN_INFO_OBJ,
-                             getCurrentVersion()),
-     usage_(UNKNOWN),
-     estimatedUniqueEntries_(-1)
-{}
+ColumnInfo::ColumnInfo()
+    : TMUDRSerializableObject(COLUMN_INFO_OBJ, getCurrentVersion()), usage_(UNKNOWN), estimatedUniqueEntries_(-1) {}
 
 /**
  *  Constructor, specifying a name and a type
@@ -3022,35 +2400,26 @@ ColumnInfo::ColumnInfo() :
  *                    Trafodion.
  *  @param type       Type of the column to add.
  */
-ColumnInfo::ColumnInfo(const char *name,
-                       const TypeInfo &type) :
-     TMUDRSerializableObject(COLUMN_INFO_OBJ,
-                             getCurrentVersion()),
-     name_(name),
-     type_(type),
-     usage_(UNKNOWN),
-     estimatedUniqueEntries_(-1)
-{}
-  
+ColumnInfo::ColumnInfo(const char *name, const TypeInfo &type)
+    : TMUDRSerializableObject(COLUMN_INFO_OBJ, getCurrentVersion()),
+      name_(name),
+      type_(type),
+      usage_(UNKNOWN),
+      estimatedUniqueEntries_(-1) {}
+
 /**
  *  Get the name of the column.
  *
  *  @return Name of the column in UTF-8.
  */
-const std::string &ColumnInfo::getColName() const
-{
-  return name_;
-}
+const std::string &ColumnInfo::getColName() const { return name_; }
 
 /**
  *  Get the type of the column.
  *
  *  @return Type of the column.
  */
-const TypeInfo &ColumnInfo::getType() const
-{
-  return type_;
-}
+const TypeInfo &ColumnInfo::getType() const { return type_; }
 
 /**
  *  Non-const method to get the type.
@@ -3060,10 +2429,7 @@ const TypeInfo &ColumnInfo::getType() const
  *          be changed from the
  *          UDR::describeParamsAndColumns() call.
  */
-TypeInfo & ColumnInfo::getType()
-{
-  return type_;
-}
+TypeInfo &ColumnInfo::getType() { return type_; }
 
 /**
  *  Get the estimated number of unique entries.
@@ -3080,10 +2446,7 @@ TypeInfo & ColumnInfo::getType()
  *
  *  @return Estimated number of unique entries or -1 if there is no estimate.
  */
-long ColumnInfo::getEstimatedUniqueEntries() const
-{
-  return estimatedUniqueEntries_;
-}
+long ColumnInfo::getEstimatedUniqueEntries() const { return estimatedUniqueEntries_; }
 
 /**
  *  Get the usage of an input or output column.
@@ -3095,19 +2458,14 @@ long ColumnInfo::getEstimatedUniqueEntries() const
  *
  *  @return Usage enum value for the column.
  */
-ColumnInfo::ColumnUseCode ColumnInfo::getUsage() const        {
-  return usage_;
-}
+ColumnInfo::ColumnUseCode ColumnInfo::getUsage() const { return usage_; }
 
 /**
  *  Get provenance info for an output column.
  *
  *  @return Provenance of the column.
  */
-const ProvenanceInfo &ColumnInfo::getProvenance() const
-{
-  return provenance_;
-}
+const ProvenanceInfo &ColumnInfo::getProvenance() const { return provenance_; }
 
 /**
  *  Set the name of the column.
@@ -3115,10 +2473,7 @@ const ProvenanceInfo &ColumnInfo::getProvenance() const
  *  @param colName Name of the column (in UTF-8). There is a length
  *         limit of 256 bytes for the column name.
  */
-void ColumnInfo::setColName(const char *colName)
-{
-  name_ = colName;
-}
+void ColumnInfo::setColName(const char *colName) { name_ = colName; }
 
 /**
  *  Set the type of the column.
@@ -3127,10 +2482,7 @@ void ColumnInfo::setColName(const char *colName)
  *
  *  @param type Type of the column.
  */
-void ColumnInfo::setType(TypeInfo &type)
-{
-  type_ = type;
-}
+void ColumnInfo::setType(TypeInfo &type) { type_ = type; }
 
 /**
  *  Provide an estimate for the number of unique values of a column.
@@ -3146,10 +2498,7 @@ void ColumnInfo::setType(TypeInfo &type)
  *  @param uniqueEntries Estimate of the number of unique entries or
  *         -1 if there is no estimate.
  */
-void ColumnInfo::setEstimatedUniqueEntries(long uniqueEntries)
-{
-  estimatedUniqueEntries_ = uniqueEntries;
-}
+void ColumnInfo::setEstimatedUniqueEntries(long uniqueEntries) { estimatedUniqueEntries_ = uniqueEntries; }
 
 /**
  *  Set the usage of the column.
@@ -3161,10 +2510,7 @@ void ColumnInfo::setEstimatedUniqueEntries(long uniqueEntries)
  *
  *  @param usage Usage enum value of the column.
  */
-void ColumnInfo::setUsage(ColumnUseCode usage)
-{
-  usage_ = usage;
-}
+void ColumnInfo::setUsage(ColumnUseCode usage) { usage_ = usage; }
 
 /**
  *  Set the provenance of an output column.
@@ -3179,131 +2525,88 @@ void ColumnInfo::setUsage(ColumnUseCode usage)
  *
  *  @param provenance The provenance information.
  */
-void ColumnInfo::setProvenance(const ProvenanceInfo &provenance)
-{
-  provenance_ = provenance;
-}
+void ColumnInfo::setProvenance(const ProvenanceInfo &provenance) { provenance_ = provenance; }
 
-void ColumnInfo::toString(std::string &s, bool longForm) const
-{
+void ColumnInfo::toString(std::string &s, bool longForm) const {
   s += name_;
-  if (longForm)
-    {
-      s += " ";
-      type_.toString(s, longForm);
-      if (provenance_.isFromInputTable())
-        {
-          char buf[100];
+  if (longForm) {
+    s += " ";
+    type_.toString(s, longForm);
+    if (provenance_.isFromInputTable()) {
+      char buf[100];
 
-          snprintf(buf, sizeof(buf), " passthru(%d,%d)",
-                   provenance_.getInputTableNum(),
-                   provenance_.getInputColumnNum());
-          s += buf;
-        }
-      switch (usage_)
-        {
-        case UNKNOWN:
-        case USED:
-          // don't show anything for these "normal" cases
-          break;
-        case NOT_USED:
-          s+= " (not used)";
-          break;
-        case NOT_PRODUCED:
-          s+= " (not produced)";
-          break;
-        default:
-          s+= " (invalid usage code)";
-          break;
-        }
-      if (estimatedUniqueEntries_ >= 0)
-        {
-          char buf[40];
-
-          snprintf(buf, sizeof(buf), " uec=%ld", estimatedUniqueEntries_);
-          s+= buf;
-        }
+      snprintf(buf, sizeof(buf), " passthru(%d,%d)", provenance_.getInputTableNum(), provenance_.getInputColumnNum());
+      s += buf;
     }
+    switch (usage_) {
+      case UNKNOWN:
+      case USED:
+        // don't show anything for these "normal" cases
+        break;
+      case NOT_USED:
+        s += " (not used)";
+        break;
+      case NOT_PRODUCED:
+        s += " (not produced)";
+        break;
+      default:
+        s += " (invalid usage code)";
+        break;
+    }
+    if (estimatedUniqueEntries_ >= 0) {
+      char buf[40];
+
+      snprintf(buf, sizeof(buf), " uec=%ld", estimatedUniqueEntries_);
+      s += buf;
+    }
+  }
 }
 
-int ColumnInfo::serializedLength()
-{
+int ColumnInfo::serializedLength() {
   // format: base class + name + type + int(usage) + long(uec) +
   //         int(input table #) + int(input col #)
-  return TMUDRSerializableObject::serializedLength() +
-    serializedLengthOfString(name_) +
-    type_.serializedLength() +
-    3 * serializedLengthOfInt() +
-    serializedLengthOfLong();
+  return TMUDRSerializableObject::serializedLength() + serializedLengthOfString(name_) + type_.serializedLength() +
+         3 * serializedLengthOfInt() + serializedLengthOfLong();
 }
 
-int ColumnInfo::serialize(Bytes &outputBuffer,
-                          int &outputBufferLength)
-{
-  int result = 
-    TMUDRSerializableObject::serialize(outputBuffer,
-                                       outputBufferLength);
+int ColumnInfo::serialize(Bytes &outputBuffer, int &outputBufferLength) {
+  int result = TMUDRSerializableObject::serialize(outputBuffer, outputBufferLength);
 
-  result += serializeString(name_,
-                            outputBuffer,
-                            outputBufferLength);
+  result += serializeString(name_, outputBuffer, outputBufferLength);
 
-  result += type_.serialize(outputBuffer,
-                            outputBufferLength);
+  result += type_.serialize(outputBuffer, outputBufferLength);
 
-  result += serializeInt(static_cast<int>(usage_),
-                         outputBuffer,
-                         outputBufferLength);
+  result += serializeInt(static_cast<int>(usage_), outputBuffer, outputBufferLength);
 
-  result += serializeLong(estimatedUniqueEntries_,
-                          outputBuffer,
-                          outputBufferLength);
+  result += serializeLong(estimatedUniqueEntries_, outputBuffer, outputBufferLength);
 
-  result += serializeInt(getProvenance().getInputTableNum(),
-                         outputBuffer,
-                         outputBufferLength);
+  result += serializeInt(getProvenance().getInputTableNum(), outputBuffer, outputBufferLength);
 
-  result += serializeInt(getProvenance().getInputColumnNum(),
-                         outputBuffer,
-                         outputBufferLength);
+  result += serializeInt(getProvenance().getInputColumnNum(), outputBuffer, outputBufferLength);
 
   validateSerializedLength(result);
 
   return result;
 }
 
-int ColumnInfo::deserialize(ConstBytes &inputBuffer,
-                            int &inputBufferLength)
-{
-  int result =
-    TMUDRSerializableObject::deserialize(inputBuffer, inputBufferLength);
+int ColumnInfo::deserialize(ConstBytes &inputBuffer, int &inputBufferLength) {
+  int result = TMUDRSerializableObject::deserialize(inputBuffer, inputBufferLength);
   int tempInt1 = 0;
   int tempInt2 = 0;
 
   validateObjectType(COLUMN_INFO_OBJ);
 
-  result += deserializeString(name_,
-                      inputBuffer,
-                      inputBufferLength);
+  result += deserializeString(name_, inputBuffer, inputBufferLength);
 
-  result += type_.deserialize(inputBuffer,
-                              inputBufferLength);
+  result += type_.deserialize(inputBuffer, inputBufferLength);
 
-  result += deserializeInt(tempInt1,
-                   inputBuffer,
-                   inputBufferLength);
+  result += deserializeInt(tempInt1, inputBuffer, inputBufferLength);
   usage_ = static_cast<ColumnUseCode>(tempInt1);
 
-  result += deserializeLong(estimatedUniqueEntries_,
-                    inputBuffer,
-                    inputBufferLength);
+  result += deserializeLong(estimatedUniqueEntries_, inputBuffer, inputBufferLength);
 
-  result += deserializeInt(tempInt1,
-                   inputBuffer,
-                   inputBufferLength);
-  result += deserializeInt(tempInt2,
-                   inputBuffer,
-                   inputBufferLength);
+  result += deserializeInt(tempInt1, inputBuffer, inputBufferLength);
+  result += deserializeInt(tempInt2, inputBuffer, inputBufferLength);
   setProvenance(ProvenanceInfo(tempInt1, tempInt2));
 
   validateDeserializedLength(result);
@@ -3311,26 +2614,19 @@ int ColumnInfo::deserialize(ConstBytes &inputBuffer,
   return result;
 }
 
-
 // ------------------------------------------------------------------------
 // Member functions for class ConstraintInfo
 // ------------------------------------------------------------------------
 
-ConstraintInfo::ConstraintInfo(ConstraintTypeCode constraintType,
-                               unsigned short version) :
-     TMUDRSerializableObject(
-          (constraintType == CARDINALITY ?
-              TMUDRSerializableObject::CARDINALITY_CONSTRAINT_INFO_OBJ :
-           (constraintType == UNIQUE ?
-              TMUDRSerializableObject::UNIQUE_CONSTRAINT_INFO_OBJ :
-              TMUDRSerializableObject::UNKNOWN_OBJECT_TYPE)),
-          version),
-     constraintType_(constraintType)
-{
+ConstraintInfo::ConstraintInfo(ConstraintTypeCode constraintType, unsigned short version)
+    : TMUDRSerializableObject((constraintType == CARDINALITY
+                                   ? TMUDRSerializableObject::CARDINALITY_CONSTRAINT_INFO_OBJ
+                                   : (constraintType == UNIQUE ? TMUDRSerializableObject::UNIQUE_CONSTRAINT_INFO_OBJ
+                                                               : TMUDRSerializableObject::UNKNOWN_OBJECT_TYPE)),
+                              version),
+      constraintType_(constraintType) {
   if (getObjectType() == TMUDRSerializableObject::UNKNOWN_OBJECT_TYPE)
-    throw UDRException(
-         38900,
-         "Invalid subclass in ConstraintInfo() constructor");
+    throw UDRException(38900, "Invalid subclass in ConstraintInfo() constructor");
 }
 
 /**
@@ -3340,40 +2636,22 @@ ConstraintInfo::ConstraintInfo(ConstraintTypeCode constraintType,
  *
  *  @return Type of the constraint.
  */
-ConstraintInfo::ConstraintTypeCode ConstraintInfo::getType() const
-{
-  return constraintType_;
-}
+ConstraintInfo::ConstraintTypeCode ConstraintInfo::getType() const { return constraintType_; }
 
-int ConstraintInfo::serializedLength()
-{
-  return TMUDRSerializableObject::serializedLength() +
-    serializedLengthOfInt();
-}
+int ConstraintInfo::serializedLength() { return TMUDRSerializableObject::serializedLength() + serializedLengthOfInt(); }
 
-int ConstraintInfo::serialize(Bytes &outputBuffer,
-                              int &outputBufferLength)
-{
-  int result = 
-    TMUDRSerializableObject::serialize(outputBuffer,
-                                       outputBufferLength);
+int ConstraintInfo::serialize(Bytes &outputBuffer, int &outputBufferLength) {
+  int result = TMUDRSerializableObject::serialize(outputBuffer, outputBufferLength);
 
-  result += serializeInt(static_cast<int>(constraintType_),
-                         outputBuffer,
-                         outputBufferLength);
+  result += serializeInt(static_cast<int>(constraintType_), outputBuffer, outputBufferLength);
   return result;
 }
 
-int ConstraintInfo::deserialize(ConstBytes &inputBuffer,
-                                int &inputBufferLength)
-{
-  int result =
-    TMUDRSerializableObject::deserialize(inputBuffer, inputBufferLength);
+int ConstraintInfo::deserialize(ConstBytes &inputBuffer, int &inputBufferLength) {
+  int result = TMUDRSerializableObject::deserialize(inputBuffer, inputBufferLength);
   int tempInt = 0;
 
-  result += deserializeInt(tempInt,
-                   inputBuffer,
-                   inputBufferLength);
+  result += deserializeInt(tempInt, inputBuffer, inputBufferLength);
   constraintType_ = static_cast<ConstraintTypeCode>(tempInt);
 
   return result;
@@ -3396,19 +2674,11 @@ int ConstraintInfo::deserialize(ConstBytes &inputBuffer,
  *                    must be greater or equal minNumRows.
  *  @throws UDRException
  */
-CardinalityConstraintInfo::CardinalityConstraintInfo(long minNumRows,
-                                                     long maxNumRows) :
-     ConstraintInfo(CARDINALITY, getCurrentVersion()),
-     minNumRows_(minNumRows),
-     maxNumRows_(maxNumRows)
-{
-  if (minNumRows < 0 ||
-      maxNumRows < -1 ||
-      maxNumRows >= 0 && minNumRows > maxNumRows)
-    throw UDRException(
-         38900,
-         "Invalid lower/upper bound for cardinality constraint: (%ld, %ld)",
-         minNumRows, maxNumRows);
+CardinalityConstraintInfo::CardinalityConstraintInfo(long minNumRows, long maxNumRows)
+    : ConstraintInfo(CARDINALITY, getCurrentVersion()), minNumRows_(minNumRows), maxNumRows_(maxNumRows) {
+  if (minNumRows < 0 || maxNumRows < -1 || maxNumRows >= 0 && minNumRows > maxNumRows)
+    throw UDRException(38900, "Invalid lower/upper bound for cardinality constraint: (%ld, %ld)", minNumRows,
+                       maxNumRows);
 }
 
 /**
@@ -3416,76 +2686,49 @@ CardinalityConstraintInfo::CardinalityConstraintInfo(long minNumRows,
  *
  *  @return Minimum number of rows (0 or a positive number).
  */
-long CardinalityConstraintInfo::getMinNumRows() const
-{
-  return minNumRows_;
-}
+long CardinalityConstraintInfo::getMinNumRows() const { return minNumRows_; }
 
 /**
  *  Return the maximum number of rows in a table.
  *
  *  @return Maximum number of rows or -1 if there is no upper bound.
  */
-long CardinalityConstraintInfo::getMaxNumRows() const
-{
-  return maxNumRows_;
-}
+long CardinalityConstraintInfo::getMaxNumRows() const { return maxNumRows_; }
 
-void CardinalityConstraintInfo::toString(const TableInfo &,
-                                         std::string &s)
-{
+void CardinalityConstraintInfo::toString(const TableInfo &, std::string &s) {
   char buf[100];
 
-  snprintf(buf, sizeof(buf), "cardinality constraint(min=%ld, max=%ld)",
-           minNumRows_, maxNumRows_);
+  snprintf(buf, sizeof(buf), "cardinality constraint(min=%ld, max=%ld)", minNumRows_, maxNumRows_);
   s += buf;
 }
 
-int CardinalityConstraintInfo::serializedLength()
-{
-  return ConstraintInfo::serializedLength() +
-    2 * serializedLengthOfLong();
+int CardinalityConstraintInfo::serializedLength() {
+  return ConstraintInfo::serializedLength() + 2 * serializedLengthOfLong();
 }
 
-int CardinalityConstraintInfo::serialize(Bytes &outputBuffer,
-                              int &outputBufferLength)
-{
-  int result = 
-    ConstraintInfo::serialize(outputBuffer,
-                              outputBufferLength);
+int CardinalityConstraintInfo::serialize(Bytes &outputBuffer, int &outputBufferLength) {
+  int result = ConstraintInfo::serialize(outputBuffer, outputBufferLength);
 
-  result += serializeLong(minNumRows_,
-                          outputBuffer,
-                          outputBufferLength);
-  result += serializeLong(maxNumRows_,
-                          outputBuffer,
-                          outputBufferLength);
+  result += serializeLong(minNumRows_, outputBuffer, outputBufferLength);
+  result += serializeLong(maxNumRows_, outputBuffer, outputBufferLength);
 
   validateSerializedLength(result);
 
   return result;
 }
 
-int CardinalityConstraintInfo::deserialize(ConstBytes &inputBuffer,
-                                int &inputBufferLength)
-{
-  int result =
-    ConstraintInfo::deserialize(inputBuffer, inputBufferLength);
+int CardinalityConstraintInfo::deserialize(ConstBytes &inputBuffer, int &inputBufferLength) {
+  int result = ConstraintInfo::deserialize(inputBuffer, inputBufferLength);
 
   validateObjectType(CARDINALITY_CONSTRAINT_INFO_OBJ);
 
-  result += deserializeLong(minNumRows_,
-                            inputBuffer,
-                            inputBufferLength);
-  result += deserializeLong(maxNumRows_,
-                            inputBuffer,
-                            inputBufferLength);
+  result += deserializeLong(minNumRows_, inputBuffer, inputBufferLength);
+  result += deserializeLong(maxNumRows_, inputBuffer, inputBufferLength);
 
   validateDeserializedLength(result);
 
   return result;
 }
-
 
 // ------------------------------------------------------------------------
 // Member functions for class UniqueConstraintInfo
@@ -3496,20 +2739,14 @@ int CardinalityConstraintInfo::deserialize(ConstBytes &inputBuffer,
  *
  *  Use method addColumn() to add columns.
  */
-UniqueConstraintInfo::UniqueConstraintInfo() :
-     ConstraintInfo(UNIQUE,
-                    getCurrentVersion())
-{}
+UniqueConstraintInfo::UniqueConstraintInfo() : ConstraintInfo(UNIQUE, getCurrentVersion()) {}
 
 /**
  *  Get the number of columns that form the unique key.
  *
  *  @return Number of columns in the uniqueness constraint.
  */
-int UniqueConstraintInfo::getNumUniqueColumns() const
-{
-  return uniqueColumns_.size();
-}
+int UniqueConstraintInfo::getNumUniqueColumns() const { return uniqueColumns_.size(); }
 
 /**
  *  Get a column of the uniqueness constraint by iterator.
@@ -3518,17 +2755,14 @@ int UniqueConstraintInfo::getNumUniqueColumns() const
  *  columns in the set. Note that the columns form a set, so this
  *  number i is merely there to iterate over the set of columns.
  *
- *  @param i A number between 0 and getNumUniqueColumns()-1. 
+ *  @param i A number between 0 and getNumUniqueColumns()-1.
  *  @return Column number/ordinal of the unique column.
  *  @throws UDRException
  */
-int UniqueConstraintInfo::getUniqueColumn(int i) const
-{
+int UniqueConstraintInfo::getUniqueColumn(int i) const {
   if (i < 0 || i >= uniqueColumns_.size())
-    throw UDRException(
-         38900,
-         "Invalid index in getUniqueColumn: %d, has %d columns",
-         i, static_cast<int>(uniqueColumns_.size()));
+    throw UDRException(38900, "Invalid index in getUniqueColumn: %d, has %d columns", i,
+                       static_cast<int>(uniqueColumns_.size()));
   return uniqueColumns_[i];
 }
 
@@ -3538,58 +2772,41 @@ int UniqueConstraintInfo::getUniqueColumn(int i) const
  *  @param c Column number/ordinal of one of the unique columns in the
  *           constraint.
  */
-void UniqueConstraintInfo::addColumn(int c)
-{
+void UniqueConstraintInfo::addColumn(int c) {
   std::vector<int>::iterator it;
 
   // insert columns ordered by number and ignore duplicates
 
   // skip over any elements < c
-  for (it = uniqueColumns_.begin();
-       it != uniqueColumns_.end() && *it < c;
-       it++)
+  for (it = uniqueColumns_.begin(); it != uniqueColumns_.end() && *it < c; it++)
     ;
 
   // insert at the current position if c is not already in the list
-  if (it == uniqueColumns_.end() || *it > c)
-    uniqueColumns_.insert(it, c);
+  if (it == uniqueColumns_.end() || *it > c) uniqueColumns_.insert(it, c);
 }
 
-void UniqueConstraintInfo::toString(const TableInfo &ti, std::string &s)
-{
+void UniqueConstraintInfo::toString(const TableInfo &ti, std::string &s) {
   s += "unique(";
-  for (int c=0; c<uniqueColumns_.size(); c++)
-    {
-      if (c>0)
-        s +=  ", ";
+  for (int c = 0; c < uniqueColumns_.size(); c++) {
+    if (c > 0) s += ", ";
 
-      s += ti.getColumn(uniqueColumns_[c]).getColName();
-    }
+    s += ti.getColumn(uniqueColumns_[c]).getColName();
+  }
   s += ")";
 }
 
-int UniqueConstraintInfo::serializedLength()
-{
-  return ConstraintInfo::serializedLength() +
-    serializedLengthOfBinary(uniqueColumns_.size() * sizeof(int));
+int UniqueConstraintInfo::serializedLength() {
+  return ConstraintInfo::serializedLength() + serializedLengthOfBinary(uniqueColumns_.size() * sizeof(int));
 }
 
-int UniqueConstraintInfo::serialize(Bytes &outputBuffer,
-                                    int &outputBufferLength)
-{
-  int result = 
-    ConstraintInfo::serialize(outputBuffer,
-                              outputBufferLength);
+int UniqueConstraintInfo::serialize(Bytes &outputBuffer, int &outputBufferLength) {
+  int result = ConstraintInfo::serialize(outputBuffer, outputBufferLength);
   int numCols = uniqueColumns_.size();
   int *cols = new int[numCols];
 
-  for (int u=0; u<numCols; u++)
-    cols[u] = uniqueColumns_[u];
+  for (int u = 0; u < numCols; u++) cols[u] = uniqueColumns_[u];
 
-  result += serializeBinary(cols,
-                            numCols * sizeof(int),
-                            outputBuffer,
-                            outputBufferLength);
+  result += serializeBinary(cols, numCols * sizeof(int), outputBuffer, outputBufferLength);
   delete cols;
 
   validateSerializedLength(result);
@@ -3597,41 +2814,29 @@ int UniqueConstraintInfo::serialize(Bytes &outputBuffer,
   return result;
 }
 
-int UniqueConstraintInfo::deserialize(ConstBytes &inputBuffer,
-                                      int &inputBufferLength)
-{
-  int result =
-    ConstraintInfo::deserialize(inputBuffer, inputBufferLength);
+int UniqueConstraintInfo::deserialize(ConstBytes &inputBuffer, int &inputBufferLength) {
+  int result = ConstraintInfo::deserialize(inputBuffer, inputBufferLength);
   int numCols;
   int *cols;
   int binaryLength;
 
   validateObjectType(UNIQUE_CONSTRAINT_INFO_OBJ);
 
-  result += deserializeBinary((const void **)&cols,
-                              binaryLength,
-                              false,
-                              inputBuffer,
-                              inputBufferLength);
+  result += deserializeBinary((const void **)&cols, binaryLength, false, inputBuffer, inputBufferLength);
   numCols = binaryLength / sizeof(int);
-  for (int u=0; u<numCols; u++)
-    uniqueColumns_.push_back(cols[u]);
+  for (int u = 0; u < numCols; u++) uniqueColumns_.push_back(cols[u]);
 
   validateDeserializedLength(result);
 
   return result;
 }
 
-
 // ------------------------------------------------------------------------
 // Member functions for class PredicateInfo
 // ------------------------------------------------------------------------
 
-PredicateInfo::PredicateInfo(TMUDRObjectType t) :
-     TMUDRSerializableObject(t, getCurrentVersion()),
-     evalCode_(UNKNOWN_EVAL),
-     operator_(UNKNOWN_OP)
-{}
+PredicateInfo::PredicateInfo(TMUDRObjectType t)
+    : TMUDRSerializableObject(t, getCurrentVersion()), evalCode_(UNKNOWN_EVAL), operator_(UNKNOWN_OP) {}
 
 /**
  *  Get evaluation code for a predicate.
@@ -3639,8 +2844,7 @@ PredicateInfo::PredicateInfo(TMUDRObjectType t) :
  *  @return Evaluation code.
  *  @throws UDRException
  */
-PredicateInfo::EvaluationCode PredicateInfo::getEvaluationCode() const
-{
+PredicateInfo::EvaluationCode PredicateInfo::getEvaluationCode() const {
   return static_cast<EvaluationCode>(evalCode_);
 }
 
@@ -3650,10 +2854,7 @@ PredicateInfo::EvaluationCode PredicateInfo::getEvaluationCode() const
  *  @return Operator code.
  *  @throws UDRException
  */
-PredicateInfo::PredOperator PredicateInfo::getOperator() const
-{
-  return operator_;
-}
+PredicateInfo::PredOperator PredicateInfo::getOperator() const { return operator_; }
 
 /**
  *  Check whether this predicate is a comparison predicate.
@@ -3663,10 +2864,8 @@ PredicateInfo::PredOperator PredicateInfo::getOperator() const
 
  *  @return true if predcate i is a comparison predicate, false otherwise.
  */
-bool PredicateInfo::isAComparisonPredicate() const
-{
-  switch (operator_)
-    {
+bool PredicateInfo::isAComparisonPredicate() const {
+  switch (operator_) {
     case EQUAL:
     case NOT_EQUAL:
     case LESS:
@@ -3677,59 +2876,36 @@ bool PredicateInfo::isAComparisonPredicate() const
 
     default:
       return false;
-    }
+  }
 }
 
-void PredicateInfo::setOperator(PredicateInfo::PredOperator op)
-{
-  operator_ = op;
+void PredicateInfo::setOperator(PredicateInfo::PredOperator op) { operator_ = op; }
+
+void PredicateInfo::setEvaluationCode(PredicateInfo::EvaluationCode c) { evalCode_ = c; }
+
+int PredicateInfo::serializedLength() {
+  return TMUDRSerializableObject::serializedLength() + 2 * serializedLengthOfInt();
 }
 
-void PredicateInfo::setEvaluationCode(PredicateInfo::EvaluationCode c)
-{
-  evalCode_ = c;
-}
+int PredicateInfo::serialize(Bytes &outputBuffer, int &outputBufferLength) {
+  int result = TMUDRSerializableObject::serialize(outputBuffer, outputBufferLength);
 
-int PredicateInfo::serializedLength()
-{
-  return TMUDRSerializableObject::serializedLength() +
-    2 * serializedLengthOfInt();
-}
-
-int PredicateInfo::serialize(Bytes &outputBuffer,
-                             int &outputBufferLength)
-{
-  int result = 
-    TMUDRSerializableObject::serialize(outputBuffer,
-                                       outputBufferLength);
-
-  result += serializeInt(evalCode_,
-                         outputBuffer,
-                         outputBufferLength);
-  result += serializeInt(static_cast<int>(operator_),
-                         outputBuffer,
-                         outputBufferLength);
+  result += serializeInt(evalCode_, outputBuffer, outputBufferLength);
+  result += serializeInt(static_cast<int>(operator_), outputBuffer, outputBufferLength);
   // validate length in derived classes
   return result;
 }
 
-int PredicateInfo::deserialize(ConstBytes &inputBuffer,
-                               int &inputBufferLength)
-{
-  int result =
-    TMUDRSerializableObject::deserialize(inputBuffer, inputBufferLength);
+int PredicateInfo::deserialize(ConstBytes &inputBuffer, int &inputBufferLength) {
+  int result = TMUDRSerializableObject::deserialize(inputBuffer, inputBufferLength);
 
   int op = 0;
 
-  result += deserializeInt(evalCode_,
-                           inputBuffer,
-                           inputBufferLength);
-  
-  result += deserializeInt(op,
-                           inputBuffer,
-                           inputBufferLength);
+  result += deserializeInt(evalCode_, inputBuffer, inputBufferLength);
+
+  result += deserializeInt(op, inputBuffer, inputBufferLength);
   operator_ = static_cast<PredOperator>(op);
-  
+
   // validate operator type and length in derived classes
   return result;
 }
@@ -3738,20 +2914,14 @@ int PredicateInfo::deserialize(ConstBytes &inputBuffer,
 // Member functions for class ComparisonPredicateInfo
 // ------------------------------------------------------------------------
 
-ComparisonPredicateInfo::ComparisonPredicateInfo() :
-     PredicateInfo(COMP_PREDICATE_INFO_OBJ),
-     columnNumber_(-1)
-{}
+ComparisonPredicateInfo::ComparisonPredicateInfo() : PredicateInfo(COMP_PREDICATE_INFO_OBJ), columnNumber_(-1) {}
 
 /**
  *  Get the column number of the column in this comparison predicate.
  *
  *  @return Column number.
  */
-int ComparisonPredicateInfo::getColumnNumber() const
-{
-  return columnNumber_;
-}
+int ComparisonPredicateInfo::getColumnNumber() const { return columnNumber_; }
 
 /**
  *  Return whether this comparison value involves a constant.
@@ -3766,10 +2936,7 @@ int ComparisonPredicateInfo::getColumnNumber() const
  *
  *  @return true if the comparison is with a constant, false otherwise
  */
-bool ComparisonPredicateInfo::hasAConstantValue() const
-{
-  return (value_.size() > 0);
-}
+bool ComparisonPredicateInfo::hasAConstantValue() const { return (value_.size() > 0); }
 
 /**
  *  Return the value, as a string, of the constant in this predicate.
@@ -3783,38 +2950,22 @@ bool ComparisonPredicateInfo::hasAConstantValue() const
  *  @return Value of the constant in this comparison predicate.
  *  @throws UDRException
  */
-std::string ComparisonPredicateInfo::getConstValue() const
-{
-  return value_;
-}
+std::string ComparisonPredicateInfo::getConstValue() const { return value_; }
 
-void ComparisonPredicateInfo::setColumnNumber(int columnNumber)
-{
-  columnNumber_ = columnNumber;
-}
+void ComparisonPredicateInfo::setColumnNumber(int columnNumber) { columnNumber_ = columnNumber; }
 
-void ComparisonPredicateInfo::setValue(const char *value)
-{
-  value_.assign(value);
-}
+void ComparisonPredicateInfo::setValue(const char *value) { value_.assign(value); }
 
-void ComparisonPredicateInfo::mapColumnNumbers(const std::vector<int> &map)
-{
+void ComparisonPredicateInfo::mapColumnNumbers(const std::vector<int> &map) {
   if (map[columnNumber_] < 0)
-    throw UDRException(
-         38900,
-         "Invalid column mapping for column %d in a predicate",
-         columnNumber_);
+    throw UDRException(38900, "Invalid column mapping for column %d in a predicate", columnNumber_);
   columnNumber_ = map[columnNumber_];
 }
 
-void ComparisonPredicateInfo::toString(std::string &s,
-                                       const TableInfo &ti) const
-{
+void ComparisonPredicateInfo::toString(std::string &s, const TableInfo &ti) const {
   s += ti.getColumn(columnNumber_).getColName();
 
-  switch (getOperator())
-    {
+  switch (getOperator()) {
     case UNKNOWN_OP:
       s += " unknown operator ";
       break;
@@ -3845,49 +2996,31 @@ void ComparisonPredicateInfo::toString(std::string &s,
     default:
       s += " invalid operator ";
       break;
-    }
+  }
 
   s += value_;
 }
 
-int ComparisonPredicateInfo::serializedLength()
-{
-  return PredicateInfo::serializedLength() +
-    serializedLengthOfInt() +
-    serializedLengthOfString(value_);
+int ComparisonPredicateInfo::serializedLength() {
+  return PredicateInfo::serializedLength() + serializedLengthOfInt() + serializedLengthOfString(value_);
 }
 
-int ComparisonPredicateInfo::serialize(Bytes &outputBuffer,
-                                       int &outputBufferLength)
-{
-  int result = 
-    PredicateInfo::serialize(outputBuffer,
-                             outputBufferLength);
+int ComparisonPredicateInfo::serialize(Bytes &outputBuffer, int &outputBufferLength) {
+  int result = PredicateInfo::serialize(outputBuffer, outputBufferLength);
 
-  result += serializeInt(columnNumber_,
-                         outputBuffer,
-                         outputBufferLength);
-  result += serializeString(value_,
-                            outputBuffer,
-                            outputBufferLength);
+  result += serializeInt(columnNumber_, outputBuffer, outputBufferLength);
+  result += serializeString(value_, outputBuffer, outputBufferLength);
 
   validateSerializedLength(result);
 
   return result;
 }
 
-int ComparisonPredicateInfo::deserialize(ConstBytes &inputBuffer,
-                                         int &inputBufferLength)
-{
-  int result =
-    PredicateInfo::deserialize(inputBuffer, inputBufferLength);
+int ComparisonPredicateInfo::deserialize(ConstBytes &inputBuffer, int &inputBufferLength) {
+  int result = PredicateInfo::deserialize(inputBuffer, inputBufferLength);
 
-  result += deserializeInt(columnNumber_,
-                           inputBuffer,
-                           inputBufferLength);
-  result += deserializeString(value_,
-                              inputBuffer,
-                              inputBufferLength);
+  result += deserializeInt(columnNumber_, inputBuffer, inputBufferLength);
+  result += deserializeString(value_, inputBuffer, inputBufferLength);
 
   validateObjectType(COMP_PREDICATE_INFO_OBJ);
   validateDeserializedLength(result);
@@ -3905,18 +3038,14 @@ int ComparisonPredicateInfo::deserialize(ConstBytes &inputBuffer,
  *  Use this constructor to generate an object to be passed
  *  to UDRInvocationInfo::setChildPartitioning().
  */
-PartitionInfo::PartitionInfo() : type_(UNKNOWN)
-{}
+PartitionInfo::PartitionInfo() : type_(UNKNOWN) {}
 
 /**
  *  Get the partitioning type.
  *
  *  @return Partition type enum.
  */
-PartitionInfo::PartitionTypeCode PartitionInfo::getType() const
-{
-  return type_;
-}
+PartitionInfo::PartitionTypeCode PartitionInfo::getType() const { return type_; }
 
 /**
  *  Get the number of columns that form the partitioning key
@@ -3926,10 +3055,7 @@ PartitionInfo::PartitionTypeCode PartitionInfo::getType() const
  *
  *  @return Number of partitioning key columns (could be zero)
  */
-int PartitionInfo::getNumEntries() const
-{
-  return partCols_.size();
-}
+int PartitionInfo::getNumEntries() const { return partCols_.size(); }
 
 /**
  *  Get the number/ordinal of the ith partitioning column.
@@ -3938,13 +3064,10 @@ int PartitionInfo::getNumEntries() const
  *          the list of partitioning columns.
  *  @throws UDRException
  */
-int PartitionInfo::getColumnNum(int i) const
-{
+int PartitionInfo::getColumnNum(int i) const {
   if (i < 0 || i >= partCols_.size())
-    throw UDRException(
-         38900,
-         "Trying to access column %d of a PartitionInfo with %d partitioning columns",
-         i, partCols_.size());
+    throw UDRException(38900, "Trying to access column %d of a PartitionInfo with %d partitioning columns", i,
+                       partCols_.size());
   return partCols_[i];
 }
 
@@ -3953,10 +3076,7 @@ int PartitionInfo::getColumnNum(int i) const
  *
  *  @param type Partition type enum.
  */
-void PartitionInfo::setType(PartitionTypeCode type)
-{
-  type_ = type;
-}
+void PartitionInfo::setType(PartitionTypeCode type) { type_ = type; }
 
 /**
  *  Add a new column to the list of partitioning columns
@@ -3969,17 +3089,11 @@ void PartitionInfo::setType(PartitionTypeCode type)
  *                associated table.
  *  @throws UDRException
  */
-void PartitionInfo::addEntry(int colNum)
-{
+void PartitionInfo::addEntry(int colNum) {
   // don't allow duplicates
-  for (std::vector<int>::iterator it = partCols_.begin();
-       it != partCols_.end();
-       it++)
+  for (std::vector<int>::iterator it = partCols_.begin(); it != partCols_.end(); it++)
     if (*it == colNum)
-      throw UDRException(
-           38900,
-           "Trying to add column number %d more than once to a PartitionInfo object",
-           colNum);
+      throw UDRException(38900, "Trying to add column number %d more than once to a PartitionInfo object", colNum);
 
   partCols_.push_back(colNum);
 }
@@ -3987,27 +3101,19 @@ void PartitionInfo::addEntry(int colNum)
 /**
  *  Clear the contents of the object
  */
-void PartitionInfo::clear()
-{
+void PartitionInfo::clear() {
   type_ = UNKNOWN;
   partCols_.clear();
 }
 
-void PartitionInfo::mapColumnNumbers(const std::vector<int> &map)
-{
-  for (int i=0; i<partCols_.size(); i++)
-    {
-      int colNum = partCols_[i];
+void PartitionInfo::mapColumnNumbers(const std::vector<int> &map) {
+  for (int i = 0; i < partCols_.size(); i++) {
+    int colNum = partCols_[i];
 
-      if (map[colNum] < 0)
-        throw UDRException(
-             38900,
-             "Invalid mapping for PARTITION BY column %d",
-             colNum);
-      partCols_[i] = map[colNum];
-    }
+    if (map[colNum] < 0) throw UDRException(38900, "Invalid mapping for PARTITION BY column %d", colNum);
+    partCols_[i] = map[colNum];
+  }
 }
-
 
 // ------------------------------------------------------------------------
 // Member functions for class OrderInfo
@@ -4018,10 +3124,7 @@ void PartitionInfo::mapColumnNumbers(const std::vector<int> &map)
  *
  *  @return Number of entries/columns that make up the ordering.
  */
-int OrderInfo::getNumEntries() const
-{
-  return columnNumbers_.size();
-}
+int OrderInfo::getNumEntries() const { return columnNumbers_.size(); }
 
 /**
  *  Get the column number of an entry of the ordering.
@@ -4030,13 +3133,10 @@ int OrderInfo::getNumEntries() const
  *  @return The column number of the n-th entry of the ordering (both are 0-based).
  *  @throws UDRException
  */
-int OrderInfo::getColumnNum(int i) const
-{
+int OrderInfo::getColumnNum(int i) const {
   if (i < 0 || i >= columnNumbers_.size())
-    throw UDRException(
-         38900,
-         "Trying to access colnum entry %d of an OrderInfo object with %d entries",
-         i, columnNumbers_.size());
+    throw UDRException(38900, "Trying to access colnum entry %d of an OrderInfo object with %d entries", i,
+                       columnNumbers_.size());
 
   return columnNumbers_[i];
 }
@@ -4048,13 +3148,10 @@ int OrderInfo::getColumnNum(int i) const
  *  @return The order type of the n-th entry of the ordering (0-based).
  *  @throws UDRException
  */
-OrderInfo::OrderTypeCode OrderInfo::getOrderType(int i) const
-{
+OrderInfo::OrderTypeCode OrderInfo::getOrderType(int i) const {
   if (i < 0 || i >= orderTypes_.size())
-    throw UDRException(
-         38900,
-         "Trying to access order type entry %d of an OrderInfo object with %d entries",
-         i, orderTypes_.size());
+    throw UDRException(38900, "Trying to access order type entry %d of an OrderInfo object with %d entries", i,
+                       orderTypes_.size());
 
   return orderTypes_[i];
 }
@@ -4065,8 +3162,7 @@ OrderInfo::OrderTypeCode OrderInfo::getOrderType(int i) const
  *  @param colNum Column number to append to the ordering.
  *  @param orderType Order type (ascending or descending) to use.
  */
-void OrderInfo::addEntry(int colNum, OrderTypeCode orderType)
-{
+void OrderInfo::addEntry(int colNum, OrderTypeCode orderType) {
   columnNumbers_.push_back(colNum);
   orderTypes_.push_back(orderType);
 }
@@ -4079,7 +3175,7 @@ void OrderInfo::addEntry(int colNum, OrderTypeCode orderType)
  *  We produce an ordering (C ASCENDING):
  *
  *  @code OrderInfo myorder;
- *  
+ *
  *  myorder.addEntryAt(0, 2); @endcode
  *
  *  Next, we want to make this into (B DESCENDING, C ASCENDING):
@@ -4093,15 +3189,10 @@ void OrderInfo::addEntry(int colNum, OrderTypeCode orderType)
  *  @param orderType Order type (ascending or descending) to use
  *  @throws UDRException
  */
-void OrderInfo::addEntryAt(int pos,
-                           int colNum,
-                           OrderTypeCode orderType)
-{
+void OrderInfo::addEntryAt(int pos, int colNum, OrderTypeCode orderType) {
   if (pos > columnNumbers_.size())
-    throw UDRException(
-         38900,
-         "OrderInfo::addEntryAt at position %d with a list of %d entries",
-         pos, columnNumbers_.size());
+    throw UDRException(38900, "OrderInfo::addEntryAt at position %d with a list of %d entries", pos,
+                       columnNumbers_.size());
   columnNumbers_.insert(columnNumbers_.begin() + pos, colNum);
   orderTypes_.insert(orderTypes_.begin() + pos, orderType);
 }
@@ -4109,46 +3200,30 @@ void OrderInfo::addEntryAt(int pos,
 /**
  *  Clear the contents of the object
  */
-void OrderInfo::clear()
-{
+void OrderInfo::clear() {
   columnNumbers_.clear();
   orderTypes_.clear();
 }
 
-void OrderInfo::mapColumnNumbers(const std::vector<int> &map)
-{
-  for (int i=0; i<columnNumbers_.size(); i++)
-    {
-      int colNum = columnNumbers_[i];
+void OrderInfo::mapColumnNumbers(const std::vector<int> &map) {
+  for (int i = 0; i < columnNumbers_.size(); i++) {
+    int colNum = columnNumbers_[i];
 
-      if (map[colNum] < 0)
-        throw UDRException(
-             38900,
-             "Invalid mapping for ORDER BY column %d",
-             colNum);
-      columnNumbers_[i] = map[colNum];
-    }
+    if (map[colNum] < 0) throw UDRException(38900, "Invalid mapping for ORDER BY column %d", colNum);
+    columnNumbers_[i] = map[colNum];
+  }
 }
-
 
 // ------------------------------------------------------------------------
 // Member functions for class TupleInfo
 // ------------------------------------------------------------------------
 
-TupleInfo::TupleInfo(TMUDRObjectType objType, int version) :
-     TMUDRSerializableObject(objType, version),
-     recordLength_(-1),
-     rowPtr_(NULL),
-     wasNull_(false)
-{}
+TupleInfo::TupleInfo(TMUDRObjectType objType, int version)
+    : TMUDRSerializableObject(objType, version), recordLength_(-1), rowPtr_(NULL), wasNull_(false) {}
 
-TupleInfo::~TupleInfo()
-{
+TupleInfo::~TupleInfo() {
   // delete all columns
-  for (std::vector<ColumnInfo *>::iterator it1 = columns_.begin();
-       it1 != columns_.end();
-       it1++)
-    delete *it1;
+  for (std::vector<ColumnInfo *>::iterator it1 = columns_.begin(); it1 != columns_.end(); it1++) delete *it1;
 
   // rowPtr_ is not owned by this object
 }
@@ -4158,10 +3233,7 @@ TupleInfo::~TupleInfo()
  *
  *  @return Number of columns/parameters.
  */
-int TupleInfo::getNumColumns() const
-{
-  return columns_.size();
-}
+int TupleInfo::getNumColumns() const { return columns_.size(); }
 
 /**
  *  Look up a column/parameter number by name.
@@ -4170,14 +3242,12 @@ int TupleInfo::getNumColumns() const
  *  @return Column/parameter number.
  *  @throws UDRException
  */
-int TupleInfo::getColNum(const char *colName) const
-{
+int TupleInfo::getColNum(const char *colName) const {
   int result = 0;
   std::vector<ColumnInfo *>::const_iterator it = columns_.begin();
 
   for (; it != columns_.end(); it++, result++)
-    if ((*it)->getColName() == colName)
-      return result;
+    if ((*it)->getColName() == colName) return result;
 
   throw UDRException(38900, "Column %s not found", colName);
 }
@@ -4189,10 +3259,7 @@ int TupleInfo::getColNum(const char *colName) const
  *  @return Column/parameter number.
  *  @throws UDRException
  */
-int TupleInfo::getColNum(const std::string &colName) const
-{
-  return getColNum(colName.c_str());
-}
+int TupleInfo::getColNum(const std::string &colName) const { return getColNum(colName.c_str()); }
 
 /**
  *  Get the column info for a column identified by its ordinal.
@@ -4201,13 +3268,10 @@ int TupleInfo::getColNum(const std::string &colName) const
  *  @return Column info.
  *  @throws UDRException
  */
-const ColumnInfo &TupleInfo::getColumn(int colNum) const
-{
+const ColumnInfo &TupleInfo::getColumn(int colNum) const {
   if (colNum < 0 || colNum >= columns_.size())
-    throw UDRException(
-         38900,
-         "Trying to access column number %d but column list has only %d elements",
-         colNum, columns_.size());
+    throw UDRException(38900, "Trying to access column number %d but column list has only %d elements", colNum,
+                       columns_.size());
 
   return *(columns_[colNum]);
 }
@@ -4219,10 +3283,7 @@ const ColumnInfo &TupleInfo::getColumn(int colNum) const
  *  @return Column info.
  *  @throws UDRException
  */
-const ColumnInfo &TupleInfo::getColumn(const std::string &colName) const
-{
-  return getColumn(getColNum(colName));
-}
+const ColumnInfo &TupleInfo::getColumn(const std::string &colName) const { return getColumn(getColNum(colName)); }
 
 /**
  *  Get the non-const column info for a column identified by its ordinal.
@@ -4231,13 +3292,10 @@ const ColumnInfo &TupleInfo::getColumn(const std::string &colName) const
  *  @return Column info.
  *  @throws UDRException
  */
-ColumnInfo &TupleInfo::getColumn(int colNum)
-{
+ColumnInfo &TupleInfo::getColumn(int colNum) {
   if (colNum < 0 || colNum >= columns_.size())
-    throw UDRException(
-         38900,
-         "Trying to access column number %d but column list has only %d elements",
-         colNum, columns_.size());
+    throw UDRException(38900, "Trying to access column number %d but column list has only %d elements", colNum,
+                       columns_.size());
 
   return *(columns_[colNum]);
 }
@@ -4249,10 +3307,7 @@ ColumnInfo &TupleInfo::getColumn(int colNum)
  *  @return Column info.
  *  @throws UDRException
  */
-ColumnInfo &TupleInfo::getColumn(const std::string &colName)
-{
-  return getColumn(getColNum(colName));
-}
+ColumnInfo &TupleInfo::getColumn(const std::string &colName) { return getColumn(getColNum(colName)); }
 
 /**
  *  Get the type of a column.
@@ -4261,10 +3316,7 @@ ColumnInfo &TupleInfo::getColumn(const std::string &colName)
  *  @return Type of the column.
  *  @throws UDRException
  */
-const TypeInfo &TupleInfo::getType(int colNum) const
-{
-  return getColumn(colNum).getType();
-}
+const TypeInfo &TupleInfo::getType(int colNum) const { return getColumn(colNum).getType(); }
 
 /**
  *  Get the SQL type class.
@@ -4274,10 +3326,7 @@ const TypeInfo &TupleInfo::getType(int colNum) const
  *  @return SQL type class enum.
  *  @throws UDRException
  */
-TypeInfo::SQLTypeClassCode TupleInfo::getSQLTypeClass(int colNum) const
-{
-  return getType(colNum).getSQLTypeClass();
-}
+TypeInfo::SQLTypeClassCode TupleInfo::getSQLTypeClass(int colNum) const { return getType(colNum).getSQLTypeClass(); }
 
 /**
  *  Add a new column.
@@ -4288,8 +3337,7 @@ TypeInfo::SQLTypeClassCode TupleInfo::getSQLTypeClass(int colNum) const
  *  @param column Info of the new column to add.
  *  @throws UDRException
  */
-void TupleInfo::addColumn(const ColumnInfo &column)
-{
+void TupleInfo::addColumn(const ColumnInfo &column) {
   ColumnInfo *newCol = new ColumnInfo(column);
 
   columns_.push_back(newCol);
@@ -4310,8 +3358,7 @@ void TupleInfo::addColumn(const ColumnInfo &column)
  *          a NULL value was returned.
  *  @throws UDRException
  */
-int TupleInfo::getInt(int colNum) const
-{
+int TupleInfo::getInt(int colNum) const {
   bool &nonConstWasNull = const_cast<TupleInfo *>(this)->wasNull_;
 
   nonConstWasNull = false;
@@ -4331,10 +3378,7 @@ int TupleInfo::getInt(int colNum) const
  *          a NULL value was returned.
  *  @throws UDRException
  */
-int TupleInfo::getInt(const std::string &colName) const
-{
-  return getInt(getColNum(colName));
-}
+int TupleInfo::getInt(const std::string &colName) const { return getInt(getColNum(colName)); }
 
 /**
  *  Get a long value of a column or parameter
@@ -4351,8 +3395,7 @@ int TupleInfo::getInt(const std::string &colName) const
  *          a NULL value was returned.
  *  @throws UDRException
  */
-long TupleInfo::getLong(int colNum) const
-{
+long TupleInfo::getLong(int colNum) const {
   bool &nonConstWasNull = const_cast<TupleInfo *>(this)->wasNull_;
 
   nonConstWasNull = false;
@@ -4369,10 +3412,7 @@ long TupleInfo::getLong(int colNum) const
  *  @return long value.
  *  @throws UDRException
  */
-long TupleInfo::getLong(const std::string &colName) const
-{
-  return getLong(getColNum(colName));
-}
+long TupleInfo::getLong(const std::string &colName) const { return getLong(getColNum(colName)); }
 
 /**
  *  Get a double value of a column or parameter
@@ -4386,8 +3426,7 @@ long TupleInfo::getLong(const std::string &colName) const
  *  @return double value.
  *  @throws UDRException
  */
-double TupleInfo::getDouble(int colNum) const
-{
+double TupleInfo::getDouble(int colNum) const {
   bool &nonConstWasNull = const_cast<TupleInfo *>(this)->wasNull_;
 
   nonConstWasNull = false;
@@ -4404,10 +3443,7 @@ double TupleInfo::getDouble(int colNum) const
  *  @return double value.
  *  @throws UDRException
  */
-double TupleInfo::getDouble(const std::string &colName) const
-{
-  return getDouble(getColNum(colName));
-}
+double TupleInfo::getDouble(const std::string &colName) const { return getDouble(getColNum(colName)); }
 
 /**
  *  Get a pointer to the raw data value of a column.
@@ -4427,15 +3463,12 @@ double TupleInfo::getDouble(const std::string &colName) const
  *  @return Pointer to the raw column value in the row buffer.
  *  @throws UDRException
  */
-const char * TupleInfo::getRaw(int colNum, int &byteLen) const
-{
+const char *TupleInfo::getRaw(int colNum, int &byteLen) const {
   bool &nonConstWasNull = const_cast<TupleInfo *>(this)->wasNull_;
 
   nonConstWasNull = false;
 
-  return getType(colNum).getRaw(rowPtr_,
-                                nonConstWasNull,
-                                byteLen);
+  return getType(colNum).getRaw(rowPtr_, nonConstWasNull, byteLen);
 }
 
 /**
@@ -4452,14 +3485,12 @@ const char * TupleInfo::getRaw(int colNum, int &byteLen) const
  *  @param colNum Column number.
  *  @throws UDRException
  */
-time_t TupleInfo::getTime(int colNum) const
-{
+time_t TupleInfo::getTime(int colNum) const {
   bool &nonConstWasNull = const_cast<TupleInfo *>(this)->wasNull_;
 
   nonConstWasNull = false;
 
-  return getType(colNum).getTime(rowPtr_,
-                                 nonConstWasNull);
+  return getType(colNum).getTime(rowPtr_, nonConstWasNull);
 }
 
 /**
@@ -4474,11 +3505,8 @@ time_t TupleInfo::getTime(int colNum) const
  *  @return true if the parameter value is available.
  *  @throws UDRException
  */
-bool TupleInfo::isAvailable(int colNum) const
-{
-  return (rowPtr_ != NULL &&
-          colNum < columns_.size() &&
-          getType(colNum).isAvailable());
+bool TupleInfo::isAvailable(int colNum) const {
+  return (rowPtr_ != NULL && colNum < columns_.size() && getType(colNum).isAvailable());
 }
 
 /**
@@ -4507,72 +3535,50 @@ bool TupleInfo::isAvailable(int colNum) const
  *                     the last column in the row.
  *  @throws UDRException
  */
-void TupleInfo::getDelimitedRow(std::string &row,
-                                char delim,
-                                bool quote,
-                                char quoteSymbol,
-                                int firstColumn,
-                                int lastColumn) const
-{
+void TupleInfo::getDelimitedRow(std::string &row, char delim, bool quote, char quoteSymbol, int firstColumn,
+                                int lastColumn) const {
   // read all columns and form a delimited text row from them
 
   // if quote is true, then quote any text that contains the delimiter
-  // and also double any quotes appearing in the text 
+  // and also double any quotes appearing in the text
   int nc = getNumColumns();
 
-  if (firstColumn >= nc ||
-      firstColumn < 0 ||
-      lastColumn < -1 ||
-      lastColumn > 0 && lastColumn >= nc)
-    throw UDRException(
-         38900,
-         "Invalid column range %d to %d in getDelimitedRow for a tuple with %d columns",
-         firstColumn,
-         lastColumn,
-         nc);
-  if (lastColumn == -1)
-    lastColumn = nc-1;
+  if (firstColumn >= nc || firstColumn < 0 || lastColumn < -1 || lastColumn > 0 && lastColumn >= nc)
+    throw UDRException(38900, "Invalid column range %d to %d in getDelimitedRow for a tuple with %d columns",
+                       firstColumn, lastColumn, nc);
+  if (lastColumn == -1) lastColumn = nc - 1;
 
   row.erase();
 
-  for (int i=firstColumn; i<=lastColumn; i++)
-    {
-      std::string val=getString(i);
+  for (int i = firstColumn; i <= lastColumn; i++) {
+    std::string val = getString(i);
 
-      if (i>firstColumn)
-        row.push_back(delim);
+    if (i > firstColumn) row.push_back(delim);
 
-      if (!wasNull())
-        {
-          if (quote)
-            {
-              bool quoteTheString=false;
+    if (!wasNull()) {
+      if (quote) {
+        bool quoteTheString = false;
 
-              // replace all quotes with two quotes
-              for (std::string::iterator it = val.begin();
-                   it != val.end();
-                   it++)
-                if (*it == quoteSymbol)
-                  {
-                    quoteTheString = true;
-                    it++;
-                    val.insert(it,quoteSymbol);
-                  }
-                else if (*it == delim)
-                  quoteTheString = true;
+        // replace all quotes with two quotes
+        for (std::string::iterator it = val.begin(); it != val.end(); it++)
+          if (*it == quoteSymbol) {
+            quoteTheString = true;
+            it++;
+            val.insert(it, quoteSymbol);
+          } else if (*it == delim)
+            quoteTheString = true;
 
-              // if we found a quote or a delimiter in the
-              // string, then quote it
-              if (quoteTheString)
-                {
-                  val.insert(0,1,quoteSymbol);
-                  val.push_back(quoteSymbol);
-                }
-            } // quote
+        // if we found a quote or a delimiter in the
+        // string, then quote it
+        if (quoteTheString) {
+          val.insert(0, 1, quoteSymbol);
+          val.push_back(quoteSymbol);
+        }
+      }  // quote
 
-          row += val;
-        } // value is not NULL
-    } // loop over columns
+      row += val;
+    }  // value is not NULL
+  }    // loop over columns
 }
 
 /**
@@ -4590,13 +3596,11 @@ void TupleInfo::getDelimitedRow(std::string &row,
  *          determine whether a NULL value was returned.
  *  @throws UDRException
  */
-std::string TupleInfo::getString(int colNum) const
-{
+std::string TupleInfo::getString(int colNum) const {
   int stringLen = 0;
   TypeInfo::SQLTypeCode sqlType = getType(colNum).getSQLType();
 
-  switch (sqlType)
-    {
+  switch (sqlType) {
     case TypeInfo::DECIMAL_LSE:
     case TypeInfo::DECIMAL_UNSIGNED:
     case TypeInfo::CHAR:
@@ -4605,16 +3609,14 @@ std::string TupleInfo::getString(int colNum) const
     case TypeInfo::TIME:
     case TypeInfo::TIMESTAMP:
     case TypeInfo::BLOB:
-    case TypeInfo::CLOB:
-      {
-        // these types are stored as strings
-        const char *buf = getRaw(colNum, stringLen);
-        if (buf)
-          return std::string(buf, stringLen);
-        else
-          return std::string("");
-      }
-
+    case TypeInfo::CLOB: {
+      // these types are stored as strings
+      const char *buf = getRaw(colNum, stringLen);
+      if (buf)
+        return std::string(buf, stringLen);
+      else
+        return std::string("");
+    }
 
     case TypeInfo::TINYINT:
     case TypeInfo::SMALLINT:
@@ -4624,149 +3626,119 @@ std::string TupleInfo::getString(int colNum) const
     case TypeInfo::TINYINT_UNSIGNED:
     case TypeInfo::SMALLINT_UNSIGNED:
     case TypeInfo::INT_UNSIGNED:
-    case TypeInfo::NUMERIC_UNSIGNED:
-      {
-        char buf[32];
-        long num = getLong(colNum);
+    case TypeInfo::NUMERIC_UNSIGNED: {
+      char buf[32];
+      long num = getLong(colNum);
 
-        if (wasNull_)
-          return "";
+      if (wasNull_) return "";
 
-        snprintf(buf, sizeof(buf), "%ld", num);
+      snprintf(buf, sizeof(buf), "%ld", num);
 
-        return buf;
-      }
-
-    case TypeInfo::REAL:
-    case TypeInfo::DOUBLE_PRECISION:
-      {
-        char buf[32];
-        double num = getDouble(colNum);
-        // see also constants SQL_FLOAT_FRAG_DIGITS and
-        // SQL_DOUBLE_PRECISION_FRAG_DIGITS in file 
-        // trafodion/core/sql/common/SQLTypeDefs.h
-        int numSignificantDigits = 17;
-        if (sqlType == TypeInfo::REAL)
-          numSignificantDigits = 7;
-
-        if (wasNull_)
-          return "";
-
-        snprintf(buf, sizeof(buf), "%*lf", numSignificantDigits, num);
-
-        return buf;
-      }
-    case TypeInfo::INTERVAL:
-      {
-        char buf[32];
-        long longVal       = getLong(colNum);
-        long fractionalVal = 0;
-        const TypeInfo typ = getType(colNum);
-        TypeInfo::SQLIntervalCode intervalCode = typ.getIntervalCode();
-        int precision      = typ.getPrecision();
-        int scale          = typ.getScale();
-        const char *sign   = "";
-        const char *dot    = (scale == 0 ? "" : ".");
-
-        if (wasNull_)
-          return "";
-
-        if (longVal < 0)
-          {
-            longVal = -longVal;
-            sign = "-";
-          }
-
-        // split the number into integer and fractional values
-        for (int d=0; d<scale; d++)
-          {
-            fractionalVal = 10*fractionalVal + longVal % 10;
-            longVal /= 10;
-          }
-
-        switch (intervalCode)
-          {
-          case TypeInfo::INTERVAL_YEAR:
-          case TypeInfo::INTERVAL_MONTH:
-          case TypeInfo::INTERVAL_DAY:
-          case TypeInfo::INTERVAL_HOUR:
-          case TypeInfo::INTERVAL_MINUTE:
-            // Example: "59"
-            snprintf(buf, sizeof(buf), "%s%*ld", sign, precision, longVal);
-            break;
-          case TypeInfo::INTERVAL_SECOND:
-            // Example: "99999.000001"
-            snprintf(buf, sizeof(buf), "%s%*ld%s%0*ld", sign, precision, longVal,
-                                                                         dot, scale, fractionalVal);
-            break;
-          case TypeInfo::INTERVAL_YEAR_MONTH:
-            // Example: "100-01"
-            snprintf(buf, sizeof(buf), "%s%*ld-%02d", sign, precision, (long) (longVal/12),
-                                                                       (int)  (longVal%12));
-            break;
-          case TypeInfo::INTERVAL_DAY_HOUR:
-            // Example: "365 06"
-            snprintf(buf, sizeof(buf), "%s%*ld %02d", sign, precision, (long) (longVal/24),
-                                                                       (int)  (longVal%24));
-            break;
-          case TypeInfo::INTERVAL_DAY_MINUTE:
-            // Example: "365:05:49"
-            snprintf(buf, sizeof(buf), "%s%*ld %02d:%02d", sign, precision, (long) (longVal/1440),
-                                                                            (int)  (longVal%1440/60),
-                                                                            (int)  (longVal%60));
-            break;
-          case TypeInfo::INTERVAL_DAY_SECOND:
-            // Example: "365:05:49:12.00"
-            snprintf(buf, sizeof(buf), "%s%*ld %02d:%02d:%02d%s%0*ld", sign, precision,
-                     (long) (longVal/86400),
-                     (int)  (longVal%86400/3600),
-                     (int)  (longVal%3600/60),
-                     (int)  (longVal%60),
-                     dot, scale, fractionalVal);
-            break;
-          case TypeInfo::INTERVAL_HOUR_MINUTE:
-            // Example: "12:00"
-            snprintf(buf, sizeof(buf), "%s%*ld:%02d", sign, precision, (long) (longVal/60),
-                                                                       (int)  (longVal%60));
-            break;
-          case TypeInfo::INTERVAL_HOUR_SECOND:
-            // Example: "100:00:00"
-            snprintf(buf, sizeof(buf), "%s%*ld:%02d:%02d%s%0*ld", sign, precision,
-                     (long) (longVal/3600),
-                     (int)  (longVal%3600/60),
-                     (int)  (longVal%60),
-                     dot, scale, fractionalVal);
-            break;
-          case TypeInfo::INTERVAL_MINUTE_SECOND:
-            // Example: "3600:00.000000"
-            snprintf(buf, sizeof(buf), "%s%*ld:%02d%s%0*ld", sign, precision,
-                     (long) (longVal/60),
-                     (int)  (longVal%60),
-                     dot, scale, fractionalVal);
-            break;
-          default:
-            throw UDRException(
-                 38900,
-                 "Invalid interval code in TypeInfo::getString()");
-          }
-
-        return buf;
-      }
-    case TypeInfo::BOOLEAN:
-      {
-        if (getBoolean(colNum))
-          return "1";
-        else
-          return "0";
-      }
-
-    default:
-      throw UDRException(
-           38900,
-           "Type %d not yet supported in getString()",
-           sqlType);
+      return buf;
     }
 
+    case TypeInfo::REAL:
+    case TypeInfo::DOUBLE_PRECISION: {
+      char buf[32];
+      double num = getDouble(colNum);
+      // see also constants SQL_FLOAT_FRAG_DIGITS and
+      // SQL_DOUBLE_PRECISION_FRAG_DIGITS in file
+      // trafodion/core/sql/common/SQLTypeDefs.h
+      int numSignificantDigits = 17;
+      if (sqlType == TypeInfo::REAL) numSignificantDigits = 7;
+
+      if (wasNull_) return "";
+
+      snprintf(buf, sizeof(buf), "%*lf", numSignificantDigits, num);
+
+      return buf;
+    }
+    case TypeInfo::INTERVAL: {
+      char buf[32];
+      long longVal = getLong(colNum);
+      long fractionalVal = 0;
+      const TypeInfo typ = getType(colNum);
+      TypeInfo::SQLIntervalCode intervalCode = typ.getIntervalCode();
+      int precision = typ.getPrecision();
+      int scale = typ.getScale();
+      const char *sign = "";
+      const char *dot = (scale == 0 ? "" : ".");
+
+      if (wasNull_) return "";
+
+      if (longVal < 0) {
+        longVal = -longVal;
+        sign = "-";
+      }
+
+      // split the number into integer and fractional values
+      for (int d = 0; d < scale; d++) {
+        fractionalVal = 10 * fractionalVal + longVal % 10;
+        longVal /= 10;
+      }
+
+      switch (intervalCode) {
+        case TypeInfo::INTERVAL_YEAR:
+        case TypeInfo::INTERVAL_MONTH:
+        case TypeInfo::INTERVAL_DAY:
+        case TypeInfo::INTERVAL_HOUR:
+        case TypeInfo::INTERVAL_MINUTE:
+          // Example: "59"
+          snprintf(buf, sizeof(buf), "%s%*ld", sign, precision, longVal);
+          break;
+        case TypeInfo::INTERVAL_SECOND:
+          // Example: "99999.000001"
+          snprintf(buf, sizeof(buf), "%s%*ld%s%0*ld", sign, precision, longVal, dot, scale, fractionalVal);
+          break;
+        case TypeInfo::INTERVAL_YEAR_MONTH:
+          // Example: "100-01"
+          snprintf(buf, sizeof(buf), "%s%*ld-%02d", sign, precision, (long)(longVal / 12), (int)(longVal % 12));
+          break;
+        case TypeInfo::INTERVAL_DAY_HOUR:
+          // Example: "365 06"
+          snprintf(buf, sizeof(buf), "%s%*ld %02d", sign, precision, (long)(longVal / 24), (int)(longVal % 24));
+          break;
+        case TypeInfo::INTERVAL_DAY_MINUTE:
+          // Example: "365:05:49"
+          snprintf(buf, sizeof(buf), "%s%*ld %02d:%02d", sign, precision, (long)(longVal / 1440),
+                   (int)(longVal % 1440 / 60), (int)(longVal % 60));
+          break;
+        case TypeInfo::INTERVAL_DAY_SECOND:
+          // Example: "365:05:49:12.00"
+          snprintf(buf, sizeof(buf), "%s%*ld %02d:%02d:%02d%s%0*ld", sign, precision, (long)(longVal / 86400),
+                   (int)(longVal % 86400 / 3600), (int)(longVal % 3600 / 60), (int)(longVal % 60), dot, scale,
+                   fractionalVal);
+          break;
+        case TypeInfo::INTERVAL_HOUR_MINUTE:
+          // Example: "12:00"
+          snprintf(buf, sizeof(buf), "%s%*ld:%02d", sign, precision, (long)(longVal / 60), (int)(longVal % 60));
+          break;
+        case TypeInfo::INTERVAL_HOUR_SECOND:
+          // Example: "100:00:00"
+          snprintf(buf, sizeof(buf), "%s%*ld:%02d:%02d%s%0*ld", sign, precision, (long)(longVal / 3600),
+                   (int)(longVal % 3600 / 60), (int)(longVal % 60), dot, scale, fractionalVal);
+          break;
+        case TypeInfo::INTERVAL_MINUTE_SECOND:
+          // Example: "3600:00.000000"
+          snprintf(buf, sizeof(buf), "%s%*ld:%02d%s%0*ld", sign, precision, (long)(longVal / 60), (int)(longVal % 60),
+                   dot, scale, fractionalVal);
+          break;
+        default:
+          throw UDRException(38900, "Invalid interval code in TypeInfo::getString()");
+      }
+
+      return buf;
+    }
+    case TypeInfo::BOOLEAN: {
+      if (getBoolean(colNum))
+        return "1";
+      else
+        return "0";
+    }
+
+    default:
+      throw UDRException(38900, "Type %d not yet supported in getString()", sqlType);
+  }
 }
 
 /**
@@ -4785,10 +3757,7 @@ std::string TupleInfo::getString(int colNum) const
  *          determine whether a NULL value was returned.
  *  @throws UDRException
  */
-std::string TupleInfo::getString(const std::string &colName) const
-{
-  return getString(getColNum(colName));
-}
+std::string TupleInfo::getString(const std::string &colName) const { return getString(getColNum(colName)); }
 
 /**
  *  Get a boolean value of a column or parameter
@@ -4808,8 +3777,7 @@ std::string TupleInfo::getString(const std::string &colName) const
  *          determine whether a NULL value was returned.
  *  @throws UDRException
  */
-bool TupleInfo::getBoolean(int colNum) const
-{
+bool TupleInfo::getBoolean(int colNum) const {
   bool &nonConstWasNull = const_cast<TupleInfo *>(this)->wasNull_;
 
   nonConstWasNull = false;
@@ -4833,10 +3801,7 @@ bool TupleInfo::getBoolean(int colNum) const
  *          determine whether a NULL value was returned.
  *  @throws UDRException
  */
-bool TupleInfo::getBoolean(const std::string &colName) const
-{
-  return getBoolean(getColNum(colName));
-}
+bool TupleInfo::getBoolean(const std::string &colName) const { return getBoolean(getColNum(colName)); }
 
 /**
  *  Check whether the last value returned from a getInt() etc. method was NULL.
@@ -4846,10 +3811,7 @@ bool TupleInfo::getBoolean(const std::string &colName) const
  *  @return true if the last value returned from a getInt(), getString()
  *               etc. method was a NULL value, false otherwise.
  */
-bool TupleInfo::wasNull() const
-{
-  return wasNull_;
-}
+bool TupleInfo::wasNull() const { return wasNull_; }
 
 /**
  *  Set an output column to a specified integer value.
@@ -4860,10 +3822,7 @@ bool TupleInfo::wasNull() const
  *  @param val    The new integer value for the column to set.
  *  @throws UDRException
  */
-void TupleInfo::setInt(int colNum, int val) const
-{
-  getType(colNum).setInt(val, rowPtr_);
-}
+void TupleInfo::setInt(int colNum, int val) const { getType(colNum).setInt(val, rowPtr_); }
 
 /**
  *  Set an output column to a specified long value.
@@ -4874,10 +3833,7 @@ void TupleInfo::setInt(int colNum, int val) const
  *  @param val    The new long value for the column to set.
  *  @throws UDRException
  */
-void TupleInfo::setLong(int colNum, long val) const
-{
-  getType(colNum).setLong(val, rowPtr_);
-}
+void TupleInfo::setLong(int colNum, long val) const { getType(colNum).setLong(val, rowPtr_); }
 
 /**
  *  Set an output column to a specified double value.
@@ -4888,10 +3844,7 @@ void TupleInfo::setLong(int colNum, long val) const
  *  @param val    The new double value for the column to set.
  *  @throws UDRException
  */
-void TupleInfo::setDouble(int colNum, double val) const
-{
-  getType(colNum).setDouble(val, rowPtr_);
-}
+void TupleInfo::setDouble(int colNum, double val) const { getType(colNum).setDouble(val, rowPtr_); }
 
 /**
  *  Set an output column to a specified string value.
@@ -4904,10 +3857,7 @@ void TupleInfo::setDouble(int colNum, double val) const
  *                The length of the string is determined by calling strlen.
  *  @throws UDRException
  */
-void TupleInfo::setString(int colNum, const char *val) const
-{
-  setString(colNum, val, strlen(val));
-}
+void TupleInfo::setString(int colNum, const char *val) const { setString(colNum, val, strlen(val)); }
 
 /**
  *  Set an output column to a specified string value.
@@ -4920,8 +3870,7 @@ void TupleInfo::setString(int colNum, const char *val) const
  *                   The string may contain embedded NUL bytes.
  *  @throws UDRException
  */
-void TupleInfo::setString(int colNum, const char *val, int stringLen) const
-{
+void TupleInfo::setString(int colNum, const char *val, int stringLen) const {
   getType(colNum).setString(val, stringLen, rowPtr_);
 }
 
@@ -4934,10 +3883,7 @@ void TupleInfo::setString(int colNum, const char *val, int stringLen) const
  *  @param val       The new string value for the column to set.
  *  @throws UDRException
  */
-void TupleInfo::setString(int colNum, const std::string &val) const
-{
-  setString(colNum, val.data(), val.size());
-}
+void TupleInfo::setString(int colNum, const std::string &val) const { setString(colNum, val.data(), val.size()); }
 
 /**
  *  Set a datetime or interval output column to a value specified as time_t
@@ -4952,10 +3898,7 @@ void TupleInfo::setString(int colNum, const std::string &val) const
  *  @param val       The new time_t value for the column to set.
  *  @throws UDRException
  */
-void TupleInfo::setTime(int colNum, time_t val) const
-{
-  getType(colNum).setTime(val, rowPtr_);
-}
+void TupleInfo::setTime(int colNum, time_t val) const { getType(colNum).setTime(val, rowPtr_); }
 
 /**
  *  Set a column to a value specified as bool
@@ -4970,10 +3913,7 @@ void TupleInfo::setTime(int colNum, time_t val) const
  *  @param val       The new boolean value for the column to set.
  *  @throws UDRException
  */
-void TupleInfo::setBoolean(int colNum, bool val) const
-{
-  getType(colNum).setBoolean(val, rowPtr_);
-}
+void TupleInfo::setBoolean(int colNum, bool val) const { getType(colNum).setBoolean(val, rowPtr_); }
 
 /**
  *  Set the result row from a string with delimited field values.
@@ -5020,140 +3960,105 @@ void TupleInfo::setBoolean(int colNum, bool val) const
  *                           text that has been consumed by this method.
  *  @throws UDRException
  */
-const char * TupleInfo::setFromDelimitedRow(const char *row,
-                                            char delim,
-                                            bool quote,
-                                            char quoteSymbol,
-                                            int firstColumnToSet,
-                                            int lastColumnToSet,
-                                            int numDelimColsToSkip) const
-{
+const char *TupleInfo::setFromDelimitedRow(const char *row, char delim, bool quote, char quoteSymbol,
+                                           int firstColumnToSet, int lastColumnToSet, int numDelimColsToSkip) const {
   int nc = getNumColumns();
   const char *c = row;
   // virtual start column number of the first column in the delimited row
   // we may need to skip some values to reach the first one to use
-  int startCol = firstColumnToSet-numDelimColsToSkip;
+  int startCol = firstColumnToSet - numDelimColsToSkip;
 
-  if (firstColumnToSet >= nc ||
-      firstColumnToSet < 0 ||
-      lastColumnToSet < -1 ||
-      lastColumnToSet > 0 && (lastColumnToSet >= nc ||
-                              firstColumnToSet > lastColumnToSet))
-    throw UDRException(
-         38900,
-         "Invalid column range %d to %d in setFromDelimitedRow for a tuple with %d columns",
-         firstColumnToSet,
-         lastColumnToSet,
-         nc);
-  if (lastColumnToSet == -1)
-    lastColumnToSet = nc-1;
+  if (firstColumnToSet >= nc || firstColumnToSet < 0 || lastColumnToSet < -1 ||
+      lastColumnToSet > 0 && (lastColumnToSet >= nc || firstColumnToSet > lastColumnToSet))
+    throw UDRException(38900, "Invalid column range %d to %d in setFromDelimitedRow for a tuple with %d columns",
+                       firstColumnToSet, lastColumnToSet, nc);
+  if (lastColumnToSet == -1) lastColumnToSet = nc - 1;
 
-  for (int i=startCol; i<=lastColumnToSet; i++)
-    {
-      // skip over whitespace
+  for (int i = startCol; i <= lastColumnToSet; i++) {
+    // skip over whitespace
+    while (*c == ' ' || *c == '\t') c++;
+
+    // make sure we have a delimiter for columns other than the first
+    if (i > startCol) {
+      if (*c != delim) throw UDRException(38900, "Expected delimiter at position %d in string %s", c - row, row);
+
+      // skip over the delimiter and white space
+      c++;
       while (*c == ' ' || *c == '\t') c++;
-
-      // make sure we have a delimiter for columns other than the first
-      if (i>startCol)
-        {
-          if (*c != delim)
-            throw UDRException(
-                 38900,
-                 "Expected delimiter at position %d in string %s",
-                 c-row, row);
-
-          // skip over the delimiter and white space
-          c++;
-          while (*c == ' ' || *c == '\t') c++;
-        }
-
-      // find the end of the column value
-      const char *endOfVal = c;
-
-      if (quote && *c == quoteSymbol)
-        {
-          // read and set a quoted string
-          bool embeddedQuote = false;
-          bool done = false;
-
-          endOfVal = ++c;
-
-          // find the matching end to the quote
-          while (*endOfVal != 0 && !done)
-            if (*endOfVal == quoteSymbol)
-              if (endOfVal[1] == quoteSymbol)
-                {
-                  // skip over both quotes
-                  embeddedQuote = true;
-                  endOfVal += 2;
-                }
-              else
-                // found the terminating quote
-                done = true;
-            else
-              endOfVal++;
-
-          if (!done)
-            throw UDRException(
-                 38900,
-                 "missing quote at the end of column %d in string %s",
-                 i, row);
-
-          if (embeddedQuote)
-            {
-              // need to transform the double doublequotes
-              // in a separate buffer
-              std::string unquotedVal(c, (endOfVal-c));
-              std::string::iterator it = unquotedVal.begin();
-
-              while (it != unquotedVal.end())
-                if (*it == quoteSymbol)
-                  it = unquotedVal.erase(it);
-                else
-                  it++;
-              if (i >= firstColumnToSet)
-                // set from the transformed string
-                setString(i, unquotedVal);
-            }
-          else
-            {
-              if (i >= firstColumnToSet)
-                // set from the value between the quotes
-                setString(i, c, (endOfVal-c));
-              // skip over the trailing quote
-              endOfVal++;
-            }
-
-        }
-      else
-        {
-          // c points to the beginning of the field value
-          // find the next delimiter or the end of the
-          // record and treat white space only as a NULL
-          // value
-          bool isNull = true;
-
-          while (*endOfVal != 0 && *endOfVal != delim)
-            {
-              if (isNull && *endOfVal != ' ' && *endOfVal != '\t')
-                isNull = false;
-
-              endOfVal++;
-            }
-
-          if (i >= firstColumnToSet)
-            {
-              if (isNull)
-                setNull(i);
-              else
-                setString(i, c, (endOfVal-c));
-            }
-        }
-
-      // set the current character pointer to the
-      // character just past of what we have consumed
-      c = endOfVal;
     }
+
+    // find the end of the column value
+    const char *endOfVal = c;
+
+    if (quote && *c == quoteSymbol) {
+      // read and set a quoted string
+      bool embeddedQuote = false;
+      bool done = false;
+
+      endOfVal = ++c;
+
+      // find the matching end to the quote
+      while (*endOfVal != 0 && !done)
+        if (*endOfVal == quoteSymbol)
+          if (endOfVal[1] == quoteSymbol) {
+            // skip over both quotes
+            embeddedQuote = true;
+            endOfVal += 2;
+          } else
+            // found the terminating quote
+            done = true;
+        else
+          endOfVal++;
+
+      if (!done) throw UDRException(38900, "missing quote at the end of column %d in string %s", i, row);
+
+      if (embeddedQuote) {
+        // need to transform the double doublequotes
+        // in a separate buffer
+        std::string unquotedVal(c, (endOfVal - c));
+        std::string::iterator it = unquotedVal.begin();
+
+        while (it != unquotedVal.end())
+          if (*it == quoteSymbol)
+            it = unquotedVal.erase(it);
+          else
+            it++;
+        if (i >= firstColumnToSet)
+          // set from the transformed string
+          setString(i, unquotedVal);
+      } else {
+        if (i >= firstColumnToSet)
+          // set from the value between the quotes
+          setString(i, c, (endOfVal - c));
+        // skip over the trailing quote
+        endOfVal++;
+      }
+
+    } else {
+      // c points to the beginning of the field value
+      // find the next delimiter or the end of the
+      // record and treat white space only as a NULL
+      // value
+      bool isNull = true;
+
+      while (*endOfVal != 0 && *endOfVal != delim) {
+        if (isNull && *endOfVal != ' ' && *endOfVal != '\t') isNull = false;
+
+        endOfVal++;
+      }
+
+      if (i >= firstColumnToSet) {
+        if (isNull)
+          setNull(i);
+        else
+          setString(i, c, (endOfVal - c));
+      }
+    }
+
+    // set the current character pointer to the
+    // character just past of what we have consumed
+    c = endOfVal;
+  }
 
   return c;
 }
@@ -5166,10 +4071,7 @@ const char * TupleInfo::setFromDelimitedRow(const char *row,
  *  @param colNum Index/ordinal of the column to set to NULL.
  *  @throws UDRException
  */
-void TupleInfo::setNull(int colNum) const
-{
-  getType(colNum).setNull(rowPtr_);
-}
+void TupleInfo::setNull(int colNum) const { getType(colNum).setNull(rowPtr_); }
 
 /**
  *  Add an integer output column.
@@ -5188,9 +4090,8 @@ void TupleInfo::setNull(int colNum) const
  *                    constraint.
  *  @throws UDRException
  */
-void TupleInfo::addIntColumn(const char *colName, bool isNullable)
-{
-  addColumn(ColumnInfo(colName, TypeInfo(TypeInfo::INT,0,isNullable)));
+void TupleInfo::addIntColumn(const char *colName, bool isNullable) {
+  addColumn(ColumnInfo(colName, TypeInfo(TypeInfo::INT, 0, isNullable)));
 }
 
 /**
@@ -5210,9 +4111,8 @@ void TupleInfo::addIntColumn(const char *colName, bool isNullable)
  *                    constraint.
  *  @throws UDRException
  */
-void TupleInfo::addLongColumn(const char *colName, bool isNullable)
-{
-  addColumn(ColumnInfo(colName, TypeInfo(TypeInfo::LARGEINT,0,isNullable)));
+void TupleInfo::addLongColumn(const char *colName, bool isNullable) {
+  addColumn(ColumnInfo(colName, TypeInfo(TypeInfo::LARGEINT, 0, isNullable)));
 }
 
 /**
@@ -5232,9 +4132,8 @@ void TupleInfo::addLongColumn(const char *colName, bool isNullable)
  *                    constraint.
  *  @throws UDRException
  */
-void TupleInfo::addDoubleColumn(const char *colName, bool isNullable)
-{
-  addColumn(ColumnInfo(colName, TypeInfo(TypeInfo::DOUBLE_PRECISION,0,isNullable)));
+void TupleInfo::addDoubleColumn(const char *colName, bool isNullable) {
+  addColumn(ColumnInfo(colName, TypeInfo(TypeInfo::DOUBLE_PRECISION, 0, isNullable)));
 }
 
 /**
@@ -5261,20 +4160,10 @@ void TupleInfo::addDoubleColumn(const char *colName, bool isNullable)
  *  @param collation  Collation of the new column.
  *  @throws UDRException
  */
-void TupleInfo::addCharColumn(const char *colName,
-                              int length,
-                              bool isNullable,
-                              TypeInfo::SQLCharsetCode charset,
-                              TypeInfo::SQLCollationCode collation)
-{
-  addColumn(ColumnInfo(colName, TypeInfo(TypeInfo::CHAR,
-                                         length,
-                                         isNullable,
-                                         0,
-                                         charset,
-                                         TypeInfo::UNDEFINED_INTERVAL_CODE,
-                                         0,
-                                         collation)));
+void TupleInfo::addCharColumn(const char *colName, int length, bool isNullable, TypeInfo::SQLCharsetCode charset,
+                              TypeInfo::SQLCollationCode collation) {
+  addColumn(ColumnInfo(colName, TypeInfo(TypeInfo::CHAR, length, isNullable, 0, charset,
+                                         TypeInfo::UNDEFINED_INTERVAL_CODE, 0, collation)));
 }
 
 /**
@@ -5301,20 +4190,10 @@ void TupleInfo::addCharColumn(const char *colName,
  *  @param collation  Collation of the new column.
  *  @throws UDRException
  */
-void TupleInfo::addVarCharColumn(const char *colName,
-                                 int length,
-                                 bool isNullable,
-                                 TypeInfo::SQLCharsetCode charset,
-                                 TypeInfo::SQLCollationCode collation)
-{
-  addColumn(ColumnInfo(colName, TypeInfo(TypeInfo::VARCHAR,
-                                         length,
-                                         isNullable,
-                                         0,
-                                         charset,
-                                         TypeInfo::UNDEFINED_INTERVAL_CODE,
-                                         0,
-                                         collation)));
+void TupleInfo::addVarCharColumn(const char *colName, int length, bool isNullable, TypeInfo::SQLCharsetCode charset,
+                                 TypeInfo::SQLCollationCode collation) {
+  addColumn(ColumnInfo(colName, TypeInfo(TypeInfo::VARCHAR, length, isNullable, 0, charset,
+                                         TypeInfo::UNDEFINED_INTERVAL_CODE, 0, collation)));
 }
 
 /**
@@ -5326,12 +4205,8 @@ void TupleInfo::addVarCharColumn(const char *colName,
  *  @param columns Vector of ColumnInfo objects describing the columns to add.
  *  @throws UDRException
  */
-void TupleInfo::addColumns(const std::vector<ColumnInfo *> &columns)
-{
-  for (std::vector<ColumnInfo *>::const_iterator it = columns.begin();
-       it != columns.end();
-       it++)
-    addColumn(**it);
+void TupleInfo::addColumns(const std::vector<ColumnInfo *> &columns) {
+  for (std::vector<ColumnInfo *>::const_iterator it = columns.begin(); it != columns.end(); it++) addColumn(**it);
 }
 
 /**
@@ -5346,8 +4221,7 @@ void TupleInfo::addColumns(const std::vector<ColumnInfo *> &columns)
  *                  greater or equal to position will be shifted by one.
  *  @throws UDRException
  */
-void TupleInfo::addColumnAt(const ColumnInfo &column, int position)
-{
+void TupleInfo::addColumnAt(const ColumnInfo &column, int position) {
   ColumnInfo *newCol = new ColumnInfo(column);
 
   columns_.insert(columns_.begin() + position, newCol);
@@ -5362,16 +4236,13 @@ void TupleInfo::addColumnAt(const ColumnInfo &column, int position)
  *  @param i Position/ordinal (0-based) of column to be deleted.
  *  @throws UDRException
  */
-void TupleInfo::deleteColumn(int i)
-{
+void TupleInfo::deleteColumn(int i) {
   std::vector<ColumnInfo *>::iterator it = columns_.begin() + i;
 
-  if (it != columns_.end())
-    {
-      delete *it;
-      columns_.erase(it);
-    }
-  else
+  if (it != columns_.end()) {
+    delete *it;
+    columns_.erase(it);
+  } else
     throw UDRException(38906, "Column number %d not found", i);
 }
 
@@ -5384,10 +4255,7 @@ void TupleInfo::deleteColumn(int i)
  *  @param name Name of the column to be deleted.
  *  @throws UDRException
  */
-void TupleInfo::deleteColumn(const std::string &name)
-{
-  deleteColumn(getColNum(name));
-}
+void TupleInfo::deleteColumn(const std::string &name) { deleteColumn(getColNum(name)); }
 
 /**
  *  Print the object, for use in debugging.
@@ -5395,64 +4263,44 @@ void TupleInfo::deleteColumn(const std::string &name)
  *  @see UDR::debugLoop()
  *  @see UDRInvocationInfo::PRINT_INVOCATION_INFO_AT_RUN_TIME
  */
-void TupleInfo::print()
-{
+void TupleInfo::print() {
   printf("    Number of columns        : %d\n", getNumColumns());
   printf("    Columns                  : \n");
-  for (int c=0; c<getNumColumns(); c++)
-    {
-      std::string colString;
+  for (int c = 0; c < getNumColumns(); c++) {
+    std::string colString;
 
-      getColumn(c).toString(colString, true);
-      printf("        %s\n", colString.c_str());
-    }
-  if (recordLength_ >= 0)
-    printf("    Record length            : %d\n", recordLength_);
+    getColumn(c).toString(colString, true);
+    printf("        %s\n", colString.c_str());
+  }
+  if (recordLength_ >= 0) printf("    Record length            : %d\n", recordLength_);
 }
 
-int TupleInfo::serializedLength()
-{
+int TupleInfo::serializedLength() {
   // format: base class + int(#cols) + n*ColumnInfo + int(recordLength_)
   // rowPtr_ is not serialized
-  int result = TMUDRSerializableObject::serializedLength() +
-    2 * serializedLengthOfInt();
+  int result = TMUDRSerializableObject::serializedLength() + 2 * serializedLengthOfInt();
 
-  for (int c=0; c<getNumColumns(); c++)
-    result += getColumn(c).serializedLength();
+  for (int c = 0; c < getNumColumns(); c++) result += getColumn(c).serializedLength();
 
   return result;
 }
 
-int TupleInfo::serialize(Bytes &outputBuffer,
-                         int &outputBufferLength)
-{
-  int result = 
-    TMUDRSerializableObject::serialize(outputBuffer,
-                                       outputBufferLength);
+int TupleInfo::serialize(Bytes &outputBuffer, int &outputBufferLength) {
+  int result = TMUDRSerializableObject::serialize(outputBuffer, outputBufferLength);
 
-  result += serializeInt(getNumColumns(),
-                         outputBuffer,
-                         outputBufferLength);
+  result += serializeInt(getNumColumns(), outputBuffer, outputBufferLength);
 
-  for (int c=0; c<getNumColumns(); c++)
-    result += getColumn(c).serialize(outputBuffer,
-                                     outputBufferLength);
+  for (int c = 0; c < getNumColumns(); c++) result += getColumn(c).serialize(outputBuffer, outputBufferLength);
 
-  result += serializeInt(recordLength_,
-                         outputBuffer,
-                         outputBufferLength);
+  result += serializeInt(recordLength_, outputBuffer, outputBufferLength);
 
-  if (getObjectType() == TUPLE_INFO_OBJ)
-    validateSerializedLength(result);
+  if (getObjectType() == TUPLE_INFO_OBJ) validateSerializedLength(result);
 
   return result;
 }
 
-int TupleInfo::deserialize(ConstBytes &inputBuffer,
-                           int &inputBufferLength)
-{
-  int result =
-    TMUDRSerializableObject::deserialize(inputBuffer, inputBufferLength);
+int TupleInfo::deserialize(ConstBytes &inputBuffer, int &inputBufferLength) {
+  int result = TMUDRSerializableObject::deserialize(inputBuffer, inputBufferLength);
 
   // Caller needs to validate the object type when they are
   // serializing this class, since derived objects exist, so we
@@ -5460,43 +4308,30 @@ int TupleInfo::deserialize(ConstBytes &inputBuffer,
   // validateObjectType(TABLE_INFO_OBJ);
   int numCols = 0;
 
-  result += deserializeInt(numCols,
-                   inputBuffer,
-                   inputBufferLength);
+  result += deserializeInt(numCols, inputBuffer, inputBufferLength);
 
   // delete all existing columns
-  for (std::vector<ColumnInfo *>::iterator it1 = columns_.begin();
-       it1 != columns_.end();
-       it1++)
-    delete *it1;
+  for (std::vector<ColumnInfo *>::iterator it1 = columns_.begin(); it1 != columns_.end(); it1++) delete *it1;
   columns_.clear();
 
-  for (int c=0; c<numCols; c++)
-    {
-      ColumnInfo ci;
+  for (int c = 0; c < numCols; c++) {
+    ColumnInfo ci;
 
-      result += ci.deserialize(inputBuffer,
-                               inputBufferLength);
-      addColumn(ci);
-    }
+    result += ci.deserialize(inputBuffer, inputBufferLength);
+    addColumn(ci);
+  }
 
-  result += deserializeInt(recordLength_,
-                   inputBuffer,
-                   inputBufferLength);
+  result += deserializeInt(recordLength_, inputBuffer, inputBufferLength);
 
   // leave rowPtr_ intact, the row is not serialized/
   // deserialized with this object
 
-  if (getObjectType() == TUPLE_INFO_OBJ)
-    validateDeserializedLength(result);
+  if (getObjectType() == TUPLE_INFO_OBJ) validateDeserializedLength(result);
 
   return result;
 }
 
-char * TupleInfo::getRowPtr() const
-{
-  return rowPtr_;
-}
+char *TupleInfo::getRowPtr() const { return rowPtr_; }
 
 /**
  *  Get the record length of a row.
@@ -5508,38 +4343,22 @@ char * TupleInfo::getRowPtr() const
  *
  *  @return Record length in bytes.
  */
-int TupleInfo::getRecordLength() const
-{
-  return recordLength_;
-}
+int TupleInfo::getRecordLength() const { return recordLength_; }
 
-void TupleInfo::setRecordLength(int len)
-{
-  recordLength_ = len;
-}
+void TupleInfo::setRecordLength(int len) { recordLength_ = len; }
 
-void TupleInfo::setRowPtr(char *ptr)
-{
-  rowPtr_ = ptr;
-}
-
+void TupleInfo::setRowPtr(char *ptr) { rowPtr_ = ptr; }
 
 // ------------------------------------------------------------------------
 // Member functions for class TableInfo
 // ------------------------------------------------------------------------
 
-TableInfo::TableInfo() :
-     TupleInfo(TABLE_INFO_OBJ, getCurrentVersion()),
-     estimatedNumRows_(-1),
-     estimatedNumPartitions_(-1)
-{}
+TableInfo::TableInfo()
+    : TupleInfo(TABLE_INFO_OBJ, getCurrentVersion()), estimatedNumRows_(-1), estimatedNumPartitions_(-1) {}
 
-TableInfo::~TableInfo()
-{
+TableInfo::~TableInfo() {
   // delete all constraints
-  for (std::vector<ConstraintInfo *>::iterator it2 = constraints_.begin();
-       it2 != constraints_.end();
-       it2++)
+  for (std::vector<ConstraintInfo *>::iterator it2 = constraints_.begin(); it2 != constraints_.end(); it2++)
     delete *it2;
 }
 
@@ -5551,10 +4370,7 @@ TableInfo::~TableInfo()
  *
  *  @return Estimated number of rows or -1 if there is no estimate.
  */
-long TableInfo::getEstimatedNumRows() const
-{
-  return estimatedNumRows_;
-}
+long TableInfo::getEstimatedNumRows() const { return estimatedNumRows_; }
 
 /**
  *  For tables with a PARTITION BY, get estimated number of partitions.
@@ -5564,10 +4380,7 @@ long TableInfo::getEstimatedNumRows() const
  *
  *  @return Estimated number of partitions or -1 if there is no estimate or no PARTITION BY.
  */
-long TableInfo::getEstimatedNumPartitions() const
-{
-  return estimatedNumPartitions_;
-}
+long TableInfo::getEstimatedNumPartitions() const { return estimatedNumPartitions_; }
 
 /**
  *  Get the PARTITION BY clause for this input table.
@@ -5579,16 +4392,10 @@ long TableInfo::getEstimatedNumPartitions() const
  *
  *  @return Partitioning clause for this input table.
  */
-const PartitionInfo &TableInfo::getQueryPartitioning() const
-{
-  return queryPartitioning_;
-}
+const PartitionInfo &TableInfo::getQueryPartitioning() const { return queryPartitioning_; }
 
 // non-const version
-PartitionInfo &TableInfo::getQueryPartitioning()
-{
-  return queryPartitioning_;
-}
+PartitionInfo &TableInfo::getQueryPartitioning() { return queryPartitioning_; }
 
 /**
  *  Get the ORDER BY clause for this input table.
@@ -5600,16 +4407,10 @@ PartitionInfo &TableInfo::getQueryPartitioning()
  *
  *  @return Ordering clause for this input table.
  */
-const OrderInfo &TableInfo::getQueryOrdering() const
-{
-  return queryOrdering_;
-}
+const OrderInfo &TableInfo::getQueryOrdering() const { return queryOrdering_; }
 
 // non-const version
-OrderInfo &TableInfo::getQueryOrdering()
-{
-  return queryOrdering_;
-}
+OrderInfo &TableInfo::getQueryOrdering() { return queryOrdering_; }
 
 /**
  *  Returns whether the UDF result is treated as a continuous stream.
@@ -5619,20 +4420,14 @@ OrderInfo &TableInfo::getQueryOrdering()
  *
  *  @return true if the UDF result is a stream, false otherwise.
  */
-bool TableInfo::isStream() const
-{
-  return false;
-}
+bool TableInfo::isStream() const { return false; }
 
 /**
  *  Get the number of constraints defined on this table.
  *
  *  @return Number of constraints defined on this table.
  */
-int TableInfo::getNumConstraints() const
-{
-  return constraints_.size();
-}
+int TableInfo::getNumConstraints() const { return constraints_.size(); }
 
 /**
  *  Get a constraint by index/ordinal number.
@@ -5641,13 +4436,10 @@ int TableInfo::getNumConstraints() const
  *  @return Constraint for a given index/ordinal.
  *  @throws UDRException
  */
-const ConstraintInfo &TableInfo::getConstraint(int i) const
-{
+const ConstraintInfo &TableInfo::getConstraint(int i) const {
   if (i < 0 || i >= constraints_.size())
-    throw UDRException(
-         38900,
-         "Trying to access constraint %d of a ConstraintInfo object with %d constraints",
-         i, constraints_.size());
+    throw UDRException(38900, "Trying to access constraint %d of a ConstraintInfo object with %d constraints", i,
+                       constraints_.size());
 
   return *(constraints_[i]);
 }
@@ -5668,10 +4460,7 @@ const ConstraintInfo &TableInfo::getConstraint(int i) const
  *
  *  @param rows Estimated number of rows for this table.
  */
-void TableInfo::setEstimatedNumRows(long rows)
-{
-  estimatedNumRows_ = rows;
-}
+void TableInfo::setEstimatedNumRows(long rows) { estimatedNumRows_ = rows; }
 
 /**
  *  Add a cardinality constraint to the UDF table-valued output.
@@ -5685,9 +4474,7 @@ void TableInfo::setEstimatedNumRows(long rows)
  *         deallocated by the caller after this call returns.
  *  @throws UDRException
  */
-void TableInfo::addCardinalityConstraint(
-     const CardinalityConstraintInfo &constraint)
-{
+void TableInfo::addCardinalityConstraint(const CardinalityConstraintInfo &constraint) {
   ConstraintInfo *newConstr = new CardinalityConstraintInfo(constraint);
 
   constraints_.push_back(newConstr);
@@ -5705,9 +4492,7 @@ void TableInfo::addCardinalityConstraint(
  *         to be deallocated by the caller after this call returns.
  *  @throws UDRException
  */
-void TableInfo::addUniquenessConstraint(
-     const UniqueConstraintInfo &constraint)
-{
+void TableInfo::addUniquenessConstraint(const UniqueConstraintInfo &constraint) {
   ConstraintInfo *newConstr = new UniqueConstraintInfo(constraint);
 
   constraints_.push_back(newConstr);
@@ -5721,10 +4506,8 @@ void TableInfo::addUniquenessConstraint(
  *  @param stream true if the table is a stream, false otherwise.
  *  @throws UDRException
  */
-void TableInfo::setIsStream(bool stream)
-{
-  if (stream)
-    throw UDRException(38908, "Stream tables not yet supported");
+void TableInfo::setIsStream(bool stream) {
+  if (stream) throw UDRException(38908, "Stream tables not yet supported");
 }
 
 /**
@@ -5733,13 +4516,11 @@ void TableInfo::setIsStream(bool stream)
  *  @see UDR::debugLoop()
  *  @see UDRInvocationInfo::PRINT_INVOCATION_INFO_AT_RUN_TIME
  */
-void TableInfo::print()
-{
+void TableInfo::print() {
   TupleInfo::print();
   printf("    Estimated number of rows : %ld\n", getEstimatedNumRows());
   printf("    Partitioning             : ");
-  switch (getQueryPartitioning().getType())
-    {
+  switch (getQueryPartitioning().getType()) {
     case PartitionInfo::UNKNOWN:
       printf("unknown\n");
       break;
@@ -5749,159 +4530,108 @@ void TableInfo::print()
     case PartitionInfo::SERIAL:
       printf("serial\n");
       break;
-    case PartitionInfo::PARTITION:
-      {
-        bool needsComma = false;
-        printf("(");
-        for (int p=0; p<getQueryPartitioning().getNumEntries(); p++)
-          {
-            if (needsComma)
-              printf(", ");
-            printf("%s", getColumn(getQueryPartitioning().getColumnNum(p)).getColName().c_str());
-            needsComma = true;
-          }
-        printf(")\n");
-        printf("    Estimated # of partitions: %ld\n", getEstimatedNumPartitions());
+    case PartitionInfo::PARTITION: {
+      bool needsComma = false;
+      printf("(");
+      for (int p = 0; p < getQueryPartitioning().getNumEntries(); p++) {
+        if (needsComma) printf(", ");
+        printf("%s", getColumn(getQueryPartitioning().getColumnNum(p)).getColName().c_str());
+        needsComma = true;
       }
-      break;
+      printf(")\n");
+      printf("    Estimated # of partitions: %ld\n", getEstimatedNumPartitions());
+    } break;
     case PartitionInfo::REPLICATE:
       printf("replicate\n");
       break;
     default:
       printf("invalid partitioning specification!\n");
       break;
-    }
+  }
   printf("    Ordering                 : ");
-  if (getQueryOrdering().getNumEntries() > 0)
-    {
-      printf("(");
-      for (int o=0; o<getQueryOrdering().getNumEntries(); o++)
-        {
-          if (o>0)
-            printf(", ");
-          printf("%s",
-                 getColumn(
-                      getQueryOrdering().getColumnNum(o)).getColName().c_str());
+  if (getQueryOrdering().getNumEntries() > 0) {
+    printf("(");
+    for (int o = 0; o < getQueryOrdering().getNumEntries(); o++) {
+      if (o > 0) printf(", ");
+      printf("%s", getColumn(getQueryOrdering().getColumnNum(o)).getColName().c_str());
 
-          OrderInfo::OrderTypeCode ot = getQueryOrdering().getOrderType(o);
-          if (ot == OrderInfo::DESCENDING)
-            printf(" DESC");
-          else if (ot != OrderInfo::ASCENDING)
-            printf(" - invalid order type!");
-        }
-      printf(")\n");
+      OrderInfo::OrderTypeCode ot = getQueryOrdering().getOrderType(o);
+      if (ot == OrderInfo::DESCENDING)
+        printf(" DESC");
+      else if (ot != OrderInfo::ASCENDING)
+        printf(" - invalid order type!");
     }
-  else
+    printf(")\n");
+  } else
     printf("none\n");
-  if (constraints_.size() > 0)
-    {
-      printf("    Constraints              :\n");
+  if (constraints_.size() > 0) {
+    printf("    Constraints              :\n");
 
-      for (int c=0; c<constraints_.size(); c++)
-        {
-          std::string s = "        ";
+    for (int c = 0; c < constraints_.size(); c++) {
+      std::string s = "        ";
 
-          constraints_[c]->toString(*this, s);
-          printf("%s\n", s.c_str());
-        }
+      constraints_[c]->toString(*this, s);
+      printf("%s\n", s.c_str());
     }
+  }
 }
 
-void TableInfo::setQueryPartitioning(const PartitionInfo &partInfo)
-{
-  queryPartitioning_ = partInfo;
-}
+void TableInfo::setQueryPartitioning(const PartitionInfo &partInfo) { queryPartitioning_ = partInfo; }
 
-void TableInfo::setQueryOrdering(const OrderInfo &orderInfo)
-{
-  queryOrdering_ = orderInfo;
-}
+void TableInfo::setQueryOrdering(const OrderInfo &orderInfo) { queryOrdering_ = orderInfo; }
 
-int TableInfo::serializedLength()
-{
+int TableInfo::serializedLength() {
   // format: base class + long(numRows) + long(numParts) +
   // int(#part cols) + int(#order cols) +
   // binary array of ints:
   // p*int(partkeycol#) +
   // o*(int(ordercol#) + int(ordering)) +
   // int(#constraints) + constraints
-  int result = TupleInfo::serializedLength() +
-    2 * serializedLengthOfLong() +
-    4 * serializedLengthOfInt() +
-    serializedLengthOfBinary(
-         (getQueryPartitioning().getNumEntries() +
-          2 * getQueryOrdering().getNumEntries()) * sizeof(int));
+  int result = TupleInfo::serializedLength() + 2 * serializedLengthOfLong() + 4 * serializedLengthOfInt() +
+               serializedLengthOfBinary(
+                   (getQueryPartitioning().getNumEntries() + 2 * getQueryOrdering().getNumEntries()) * sizeof(int));
 
-  for (int c=0; c<constraints_.size(); c++)
-    result += constraints_[c]->serializedLength();
+  for (int c = 0; c < constraints_.size(); c++) result += constraints_[c]->serializedLength();
 
   return result;
 }
 
-int TableInfo::serialize(Bytes &outputBuffer,
-                         int &outputBufferLength)
-{
-  int result = 
-    TupleInfo::serialize(outputBuffer,
-                         outputBufferLength);
+int TableInfo::serialize(Bytes &outputBuffer, int &outputBufferLength) {
+  int result = TupleInfo::serialize(outputBuffer, outputBufferLength);
   int numPartCols = queryPartitioning_.getNumEntries();
   int numOrderCols = queryOrdering_.getNumEntries();
   int numConstraints = constraints_.size();
-  int *intArray = new int[numPartCols + 2*numOrderCols];
+  int *intArray = new int[numPartCols + 2 * numOrderCols];
   int c;
 
-  result += serializeLong(estimatedNumRows_,
-                          outputBuffer,
-                          outputBufferLength);
+  result += serializeLong(estimatedNumRows_, outputBuffer, outputBufferLength);
 
-  result += serializeLong(estimatedNumPartitions_,
-                          outputBuffer,
-                          outputBufferLength);
+  result += serializeLong(estimatedNumPartitions_, outputBuffer, outputBufferLength);
 
-  result += serializeInt(numPartCols,
-                         outputBuffer,
-                         outputBufferLength);
+  result += serializeInt(numPartCols, outputBuffer, outputBufferLength);
 
-  result += serializeInt(numOrderCols,
-                         outputBuffer,
-                         outputBufferLength);
+  result += serializeInt(numOrderCols, outputBuffer, outputBufferLength);
 
-  result += serializeInt(static_cast<int>(queryPartitioning_.getType()),
-                         outputBuffer,
-                         outputBufferLength);
+  result += serializeInt(static_cast<int>(queryPartitioning_.getType()), outputBuffer, outputBufferLength);
 
-  for (c=0; c<numPartCols; c++)
-    intArray[c] = queryPartitioning_.getColumnNum(c);
-  for (c=0; c<numOrderCols; c++)
-    {
-      intArray[numPartCols+2*c] = queryOrdering_.getColumnNum(c);
-      intArray[numPartCols+2*c+1] =
-        static_cast<int>(queryOrdering_.getOrderType(c));
-    }
-  result += serializeBinary(
-       intArray,
-       (numPartCols + 2*numOrderCols) * sizeof(int),
-       outputBuffer,
-       outputBufferLength);
+  for (c = 0; c < numPartCols; c++) intArray[c] = queryPartitioning_.getColumnNum(c);
+  for (c = 0; c < numOrderCols; c++) {
+    intArray[numPartCols + 2 * c] = queryOrdering_.getColumnNum(c);
+    intArray[numPartCols + 2 * c + 1] = static_cast<int>(queryOrdering_.getOrderType(c));
+  }
+  result += serializeBinary(intArray, (numPartCols + 2 * numOrderCols) * sizeof(int), outputBuffer, outputBufferLength);
   delete intArray;
 
-  result += serializeInt(numConstraints,
-                         outputBuffer,
-                         outputBufferLength);
-  for (c=0; c<numConstraints; c++)
-    result += constraints_[c]->serialize(outputBuffer,
-                                         outputBufferLength);
+  result += serializeInt(numConstraints, outputBuffer, outputBufferLength);
+  for (c = 0; c < numConstraints; c++) result += constraints_[c]->serialize(outputBuffer, outputBufferLength);
 
   validateSerializedLength(result);
 
   return result;
 }
 
-int TableInfo::deserialize(ConstBytes &inputBuffer,
-                           int &inputBufferLength)
-{
-  int result =
-    TupleInfo::deserialize(inputBuffer, inputBufferLength);
+int TableInfo::deserialize(ConstBytes &inputBuffer, int &inputBufferLength) {
+  int result = TupleInfo::deserialize(inputBuffer, inputBufferLength);
 
   validateObjectType(TABLE_INFO_OBJ);
   int numCols = 0;
@@ -5913,132 +4643,88 @@ int TableInfo::deserialize(ConstBytes &inputBuffer,
   int binarySize = 0;
   int c;
 
-  result += deserializeLong(estimatedNumRows_,
-                            inputBuffer,
-                            inputBufferLength);
+  result += deserializeLong(estimatedNumRows_, inputBuffer, inputBufferLength);
 
-  result += deserializeLong(estimatedNumPartitions_,
-                            inputBuffer,
-                            inputBufferLength);
+  result += deserializeLong(estimatedNumPartitions_, inputBuffer, inputBufferLength);
 
-  result += deserializeInt(numPartCols,
-                           inputBuffer,
-                           inputBufferLength);
+  result += deserializeInt(numPartCols, inputBuffer, inputBufferLength);
 
-  result += deserializeInt(numOrderCols,
-                           inputBuffer,
-                           inputBufferLength);
+  result += deserializeInt(numOrderCols, inputBuffer, inputBufferLength);
 
-  result += deserializeInt(partType,
-                           inputBuffer,
-                           inputBufferLength);
+  result += deserializeInt(partType, inputBuffer, inputBufferLength);
 
-  result += deserializeBinary((const void **) &intArray,
-                              binarySize,
-                              false,
-                              inputBuffer,
-                              inputBufferLength);
-  if (binarySize != (numPartCols + 2*numOrderCols) * sizeof(int))
-    throw UDRException(38900, "Invalid int array size in TableInfo, got %d, expected %d",
-                       binarySize,
-                       (numPartCols + 2*numOrderCols) * sizeof(int));
+  result += deserializeBinary((const void **)&intArray, binarySize, false, inputBuffer, inputBufferLength);
+  if (binarySize != (numPartCols + 2 * numOrderCols) * sizeof(int))
+    throw UDRException(38900, "Invalid int array size in TableInfo, got %d, expected %d", binarySize,
+                       (numPartCols + 2 * numOrderCols) * sizeof(int));
   queryPartitioning_.clear();
-  queryPartitioning_.setType(
-       static_cast<PartitionInfo::PartitionTypeCode>(partType));
-  for (c=0; c<numPartCols; c++)
-    queryPartitioning_.addEntry(intArray[c]);
+  queryPartitioning_.setType(static_cast<PartitionInfo::PartitionTypeCode>(partType));
+  for (c = 0; c < numPartCols; c++) queryPartitioning_.addEntry(intArray[c]);
   queryOrdering_.clear();
-  for (c=0; c<numOrderCols; c++)
-    queryOrdering_.addEntry(
-         intArray[numPartCols+2*c],
-         static_cast<OrderInfo::OrderTypeCode>(intArray[numPartCols+2*c+1]));
+  for (c = 0; c < numOrderCols; c++)
+    queryOrdering_.addEntry(intArray[numPartCols + 2 * c],
+                            static_cast<OrderInfo::OrderTypeCode>(intArray[numPartCols + 2 * c + 1]));
 
   // delete all constraints
-  for (std::vector<ConstraintInfo *>::iterator it2 = constraints_.begin();
-       it2 != constraints_.end();
-       it2++)
+  for (std::vector<ConstraintInfo *>::iterator it2 = constraints_.begin(); it2 != constraints_.end(); it2++)
     delete *it2;
   constraints_.clear();
 
-  result += deserializeInt(numConstraints,
-                           inputBuffer,
-                           inputBufferLength);
-  for (c=0; c<numConstraints; c++)
-    {
-      ConstraintInfo *constr = NULL;
+  result += deserializeInt(numConstraints, inputBuffer, inputBufferLength);
+  for (c = 0; c < numConstraints; c++) {
+    ConstraintInfo *constr = NULL;
 
-      // look ahead what the next object type is and allocate
-      // an empty object of the appropriate subclass
-      switch (getNextObjectType(inputBuffer,
-                                inputBufferLength))
-        {
-        case CARDINALITY_CONSTRAINT_INFO_OBJ:
-          constr = new CardinalityConstraintInfo();
-          break;
-        case UNIQUE_CONSTRAINT_INFO_OBJ:
-          constr = new UniqueConstraintInfo();
-          break;
-        default:
-          throw UDRException(
-               38900,
-               "Invalid object type during constraint deserialization: %d",
-               static_cast<int>(getNextObjectType(inputBuffer,
-                                                  inputBufferLength)));
-        }
-      // deserialize the object and add it to the list of constraints
-      result += constr->deserialize(inputBuffer,
-                                    inputBufferLength);
-      constraints_.push_back(constr);
+    // look ahead what the next object type is and allocate
+    // an empty object of the appropriate subclass
+    switch (getNextObjectType(inputBuffer, inputBufferLength)) {
+      case CARDINALITY_CONSTRAINT_INFO_OBJ:
+        constr = new CardinalityConstraintInfo();
+        break;
+      case UNIQUE_CONSTRAINT_INFO_OBJ:
+        constr = new UniqueConstraintInfo();
+        break;
+      default:
+        throw UDRException(38900, "Invalid object type during constraint deserialization: %d",
+                           static_cast<int>(getNextObjectType(inputBuffer, inputBufferLength)));
     }
+    // deserialize the object and add it to the list of constraints
+    result += constr->deserialize(inputBuffer, inputBufferLength);
+    constraints_.push_back(constr);
+  }
 
   validateDeserializedLength(result);
 
   return result;
 }
 
-
 // ------------------------------------------------------------------------
 // Member functions for class ParameterListInfo
 // ------------------------------------------------------------------------
 
-ParameterListInfo::ParameterListInfo() :
-     TupleInfo(PARAMETER_LIST_INFO_OBJ, getCurrentVersion())
-{
-}
+ParameterListInfo::ParameterListInfo() : TupleInfo(PARAMETER_LIST_INFO_OBJ, getCurrentVersion()) {}
 
-ParameterListInfo::~ParameterListInfo()
-{
-}
+ParameterListInfo::~ParameterListInfo() {}
 
-int ParameterListInfo::serializedLength()
-{
+int ParameterListInfo::serializedLength() {
   // format: Base class
   return TupleInfo::serializedLength();
 }
-int ParameterListInfo::serialize(Bytes &outputBuffer,
-                                 int &outputBufferLength)
-{
-  int result = TupleInfo::serialize(outputBuffer,
-                                    outputBufferLength);
+int ParameterListInfo::serialize(Bytes &outputBuffer, int &outputBufferLength) {
+  int result = TupleInfo::serialize(outputBuffer, outputBufferLength);
 
   validateSerializedLength(result);
 
   return result;
 }
 
-int ParameterListInfo::deserialize(ConstBytes &inputBuffer,
-                                   int &inputBufferLength)
-{
-  int result =
-    TupleInfo::deserialize(inputBuffer,
-                           inputBufferLength);
+int ParameterListInfo::deserialize(ConstBytes &inputBuffer, int &inputBufferLength) {
+  int result = TupleInfo::deserialize(inputBuffer, inputBufferLength);
 
   validateObjectType(PARAMETER_LIST_INFO_OBJ);
   validateDeserializedLength(result);
 
   return result;
 }
-
 
 // ------------------------------------------------------------------------
 // Member functions for class UDRWriterCompileTimeData
@@ -6050,8 +4736,7 @@ int ParameterListInfo::deserialize(ConstBytes &inputBuffer,
  *  UDR writers can derive from this class to store state between
  *  the calls of the compiler interface.
  */
-UDRWriterCompileTimeData::UDRWriterCompileTimeData()
-{}
+UDRWriterCompileTimeData::UDRWriterCompileTimeData() {}
 
 /**
  *  Virtual destructor.
@@ -6060,8 +4745,7 @@ UDRWriterCompileTimeData::UDRWriterCompileTimeData()
  *  resources owned by the UDR writer once the compile phase of a
  *  query is completed.
  */
-UDRWriterCompileTimeData::~UDRWriterCompileTimeData()
-{}
+UDRWriterCompileTimeData::~UDRWriterCompileTimeData() {}
 
 /**
  *  Print the object, for use in debugging.
@@ -6069,42 +4753,32 @@ UDRWriterCompileTimeData::~UDRWriterCompileTimeData()
  *  @see UDR::debugLoop()
  *  @see UDRInvocationInfo::PRINT_INVOCATION_INFO_AT_RUN_TIME
  */
-void UDRWriterCompileTimeData::print()
-{
-  printf("no print method provided for UDR Writer compile time data\n");
-}
+void UDRWriterCompileTimeData::print() { printf("no print method provided for UDR Writer compile time data\n"); }
 
 // ------------------------------------------------------------------------
 // Member functions for class UDRInvocationInfo
 // ------------------------------------------------------------------------
 
-UDRInvocationInfo::UDRInvocationInfo() :
-     TMUDRSerializableObject(UDR_INVOCATION_INFO_OBJ,
-                             getCurrentVersion()),
-     numTableInputs_(0),
-     callPhase_(UNKNOWN_CALL_PHASE),
-     funcType_(GENERIC),
-     debugFlags_(0),
-     sqlAccessType_(CONTAINS_NO_SQL),
-     sqlTransactionType_(REQUIRES_NO_TRANSACTION),
-     sqlRights_(INVOKERS_RIGHTS),
-     isolationType_(TRUSTED),
-     udrWriterCompileTimeData_(NULL),
-     totalNumInstances_(0),
-     myInstanceNum_(0)
-{}
+UDRInvocationInfo::UDRInvocationInfo()
+    : TMUDRSerializableObject(UDR_INVOCATION_INFO_OBJ, getCurrentVersion()),
+      numTableInputs_(0),
+      callPhase_(UNKNOWN_CALL_PHASE),
+      funcType_(GENERIC),
+      debugFlags_(0),
+      sqlAccessType_(CONTAINS_NO_SQL),
+      sqlTransactionType_(REQUIRES_NO_TRANSACTION),
+      sqlRights_(INVOKERS_RIGHTS),
+      isolationType_(TRUSTED),
+      udrWriterCompileTimeData_(NULL),
+      totalNumInstances_(0),
+      myInstanceNum_(0) {}
 
-UDRInvocationInfo::~UDRInvocationInfo()
-{
+UDRInvocationInfo::~UDRInvocationInfo() {
   // delete all the content of collections of pointers
-  for (std::vector<PredicateInfo *>::iterator p = predicates_.begin();
-       p != predicates_.end();
-       p++)
-    delete *p;
+  for (std::vector<PredicateInfo *>::iterator p = predicates_.begin(); p != predicates_.end(); p++) delete *p;
 
   // delete UDF writer's data
-  if (udrWriterCompileTimeData_)
-    delete udrWriterCompileTimeData_;
+  if (udrWriterCompileTimeData_) delete udrWriterCompileTimeData_;
 }
 
 /**
@@ -6112,20 +4786,14 @@ UDRInvocationInfo::~UDRInvocationInfo()
  *
  *  @return Fully qualified name (catalog.schema.name) of the UDR.
  */
-const std::string &UDRInvocationInfo::getUDRName() const
-{
-  return name_;
-}
+const std::string &UDRInvocationInfo::getUDRName() const { return name_; }
 
 /**
  *  Get number of table-valued inputs provided.
  *
  *  @return Number of table-valued inputs provided.
  */
-int UDRInvocationInfo::getNumTableInputs() const
-{
-  return numTableInputs_;
-}
+int UDRInvocationInfo::getNumTableInputs() const { return numTableInputs_; }
 
 /**
  *  Get description of a table-valued input.
@@ -6133,10 +4801,8 @@ int UDRInvocationInfo::getNumTableInputs() const
  *  @return TableInfo reference for the table-valued input.
  *  @throws UDRException
  */
-const TableInfo &UDRInvocationInfo::in(int childNum) const
-{
-  if (childNum < 0 || childNum >= numTableInputs_)
-    throw UDRException(38909, "Invalid child table number %d", childNum);
+const TableInfo &UDRInvocationInfo::in(int childNum) const {
+  if (childNum < 0 || childNum >= numTableInputs_) throw UDRException(38909, "Invalid child table number %d", childNum);
 
   return inputTableInfo_[childNum];
 }
@@ -6146,20 +4812,14 @@ const TableInfo &UDRInvocationInfo::in(int childNum) const
  *
  *  @return TableInfo reference for the table-valued output.
  */
-const TableInfo &UDRInvocationInfo::out() const
-{
-  return outputTableInfo_;
-}
+const TableInfo &UDRInvocationInfo::out() const { return outputTableInfo_; }
 
 /**
  *  Non-const method to get description of the table-valued result.
  *
  *  @return Non-const TableInfo reference for the table-valued output.
  */
-TableInfo &UDRInvocationInfo::out()
-{
-  return outputTableInfo_;
-}
+TableInfo &UDRInvocationInfo::out() { return outputTableInfo_; }
 
 /**
  *  Get call phase.
@@ -6171,10 +4831,7 @@ TableInfo &UDRInvocationInfo::out()
  *
  *  @return Enum for the call phase we are in.
  */
-UDRInvocationInfo::CallPhase UDRInvocationInfo::getCallPhase() const
-{
-  return callPhase_;
-}
+UDRInvocationInfo::CallPhase UDRInvocationInfo::getCallPhase() const { return callPhase_; }
 
 /**
  *  Get current user.
@@ -6189,10 +4846,7 @@ UDRInvocationInfo::CallPhase UDRInvocationInfo::getCallPhase() const
  *  @see getSessionUser()
  *  @return Current user.
  */
-const std::string &UDRInvocationInfo::getCurrentUser() const
-{
-  return currentUser_;
-}
+const std::string &UDRInvocationInfo::getCurrentUser() const { return currentUser_; }
 
 /**
  *  Get session user.
@@ -6207,20 +4861,14 @@ const std::string &UDRInvocationInfo::getCurrentUser() const
  *  @see getCurrentUser()
  *  @return Session user.
  */
-const std::string &UDRInvocationInfo::getSessionUser() const
-{
-  return sessionUser_;
-}
+const std::string &UDRInvocationInfo::getSessionUser() const { return sessionUser_; }
 
 /**
  *  Get current role.
  *
  *  @return Current role.
  */
-const std::string &UDRInvocationInfo::getCurrentRole() const
-{
-  return currentRole_;
-}
+const std::string &UDRInvocationInfo::getCurrentRole() const { return currentRole_; }
 
 /**
  *  Get query id.
@@ -6230,44 +4878,26 @@ const std::string &UDRInvocationInfo::getCurrentRole() const
  *
  *  @return Query id.
  */
-const std::string &UDRInvocationInfo::getQueryId() const
-{
-  return queryId_;
-}
+const std::string &UDRInvocationInfo::getQueryId() const { return queryId_; }
 
 // The next four methods are not yet documented in Doxygen,
 // since there is no choice yet. Add them to the documentation
 // when we support more than one choice.
-UDRInvocationInfo::SQLAccessType UDRInvocationInfo::getSQLAccessType() const
-{
-  return sqlAccessType_;
-}
+UDRInvocationInfo::SQLAccessType UDRInvocationInfo::getSQLAccessType() const { return sqlAccessType_; }
 
-UDRInvocationInfo::SQLTransactionType
-UDRInvocationInfo::getSQLTransactionType() const
-{
-  return sqlTransactionType_;
-}
+UDRInvocationInfo::SQLTransactionType UDRInvocationInfo::getSQLTransactionType() const { return sqlTransactionType_; }
 
-UDRInvocationInfo::SQLRightsType UDRInvocationInfo::getSQLRights() const
-{
-  return sqlRights_;
-}
+UDRInvocationInfo::SQLRightsType UDRInvocationInfo::getSQLRights() const { return sqlRights_; }
 
-UDRInvocationInfo::IsolationType UDRInvocationInfo::getIsolationType() const
-{
-  return isolationType_;
-}
+UDRInvocationInfo::IsolationType UDRInvocationInfo::getIsolationType() const { return isolationType_; }
 
 /**
  *  Check whether we are in the compile time interface.
  *
  *  @return true at compile time, false at run-time.
  */
-bool UDRInvocationInfo::isCompileTime() const
-{
-  return (callPhase_ <= COMPILER_INITIAL_CALL &&
-          callPhase_ <= COMPILER_COMPLETION_CALL);
+bool UDRInvocationInfo::isCompileTime() const {
+  return (callPhase_ <= COMPILER_INITIAL_CALL && callPhase_ <= COMPILER_COMPLETION_CALL);
 }
 
 /**
@@ -6275,10 +4905,7 @@ bool UDRInvocationInfo::isCompileTime() const
  *
  *  @return false at compile time, true at run-time.
  */
-bool UDRInvocationInfo::isRunTime() const
-{
-  return (callPhase_ >= RUNTIME_WORK_CALL);
-}
+bool UDRInvocationInfo::isRunTime() const { return (callPhase_ >= RUNTIME_WORK_CALL); }
 
 /**
  *  Get debugging flags, set via CONTROL QUERY DEFAULT.
@@ -6289,10 +4916,7 @@ bool UDRInvocationInfo::isRunTime() const
  *
  *  @return Value the UDR_DEBUG_FLAGS CQD has or had at compile time.
  */
-int UDRInvocationInfo::getDebugFlags() const
-{
-  return debugFlags_;
-}
+int UDRInvocationInfo::getDebugFlags() const { return debugFlags_; }
 
 /**
  *  Get the function type of this UDR invocation.
@@ -6304,10 +4928,7 @@ int UDRInvocationInfo::getDebugFlags() const
  *
  *  @return Enum of the function type.
  */
-UDRInvocationInfo::FuncType UDRInvocationInfo::getFuncType() const
-{
-  return funcType_;
-}
+UDRInvocationInfo::FuncType UDRInvocationInfo::getFuncType() const { return funcType_; }
 
 /**
  *  Get the formal parameters of the UDR invocation.
@@ -6320,10 +4941,7 @@ UDRInvocationInfo::FuncType UDRInvocationInfo::getFuncType() const
  *
  *  @return Formal parameter description.
  */
-const ParameterListInfo &UDRInvocationInfo::getFormalParameters() const
-{
-  return formalParameterInfo_;
-}
+const ParameterListInfo &UDRInvocationInfo::getFormalParameters() const { return formalParameterInfo_; }
 
 /**
  *  Get parameters of the UDR invocation.
@@ -6336,20 +4954,11 @@ const ParameterListInfo &UDRInvocationInfo::getFormalParameters() const
  *
  *  @return Parameter description.
  */
-const ParameterListInfo &UDRInvocationInfo::par() const
-{
-  return actualParameterInfo_;
-}
+const ParameterListInfo &UDRInvocationInfo::par() const { return actualParameterInfo_; }
 
-ParameterListInfo &UDRInvocationInfo::nonConstFormalParameters()
-{
-  return formalParameterInfo_;
-}
+ParameterListInfo &UDRInvocationInfo::nonConstFormalParameters() { return formalParameterInfo_; }
 
-ParameterListInfo &UDRInvocationInfo::nonConstActualParameters()
-{
-  return actualParameterInfo_;
-}
+ParameterListInfo &UDRInvocationInfo::nonConstActualParameters() { return actualParameterInfo_; }
 
 /**
  *  Return number of predicates to be applied in the context of this UDF.
@@ -6359,11 +4968,9 @@ ParameterListInfo &UDRInvocationInfo::nonConstActualParameters()
  *
  *  @return Number of predicates.
  */
-int UDRInvocationInfo::getNumPredicates() const
-{
+int UDRInvocationInfo::getNumPredicates() const {
   // predicates are not yet set up in the initial call
-  validateCallPhase(COMPILER_DATAFLOW_CALL, RUNTIME_WORK_CALL,
-                    "UDRInvocationInfo::getNumPredicates()");
+  validateCallPhase(COMPILER_DATAFLOW_CALL, RUNTIME_WORK_CALL, "UDRInvocationInfo::getNumPredicates()");
   return predicates_.size();
 }
 
@@ -6375,13 +4982,10 @@ int UDRInvocationInfo::getNumPredicates() const
  *  @see setPredicateEvaluationCode()
  *  @throws UDRException
  */
-const PredicateInfo &UDRInvocationInfo::getPredicate(int i) const
-{
+const PredicateInfo &UDRInvocationInfo::getPredicate(int i) const {
   if (i < 0 || i >= predicates_.size())
-    throw UDRException(
-         38900,
-         "Trying to access predicate %d of a PredicateInfo object with %d predicates",
-         i, predicates_.size());
+    throw UDRException(38900, "Trying to access predicate %d of a PredicateInfo object with %d predicates", i,
+                       predicates_.size());
 
   return *(predicates_[i]);
 }
@@ -6397,10 +5001,7 @@ const PredicateInfo &UDRInvocationInfo::getPredicate(int i) const
  *  @return true if predcate i is a comparison predicate, false otherwise.
  *  @throws UDRException
  */
-bool UDRInvocationInfo::isAComparisonPredicate(int i) const
-{
-  return getPredicate(i).isAComparisonPredicate();
-}
+bool UDRInvocationInfo::isAComparisonPredicate(int i) const { return getPredicate(i).isAComparisonPredicate(); }
 
 /**
  *  Get a comparison predicate
@@ -6418,13 +5019,8 @@ bool UDRInvocationInfo::isAComparisonPredicate(int i) const
  *  @return Comparison predicate.
  *  @throws UDRException
  */
-const ComparisonPredicateInfo &UDRInvocationInfo::getComparisonPredicate(
-     int i) const
-{
-  if (!isAComparisonPredicate(i))
-    throw UDRException(38900,
-                       "Predicate %d is not a comparison predicate",
-                       i);
+const ComparisonPredicateInfo &UDRInvocationInfo::getComparisonPredicate(int i) const {
+  if (!isAComparisonPredicate(i)) throw UDRException(38900, "Predicate %d is not a comparison predicate", i);
   return dynamic_cast<ComparisonPredicateInfo &>(*(predicates_[i]));
 }
 
@@ -6440,10 +5036,8 @@ const ComparisonPredicateInfo &UDRInvocationInfo::getComparisonPredicate(
  *
  *  @throws UDRException
  */
-void UDRInvocationInfo::addFormalParameter(const ColumnInfo &param)
-{
-  validateCallPhase(COMPILER_INITIAL_CALL, COMPILER_INITIAL_CALL,
-                    "UDRInvocationInfo::addFormalParameter()");
+void UDRInvocationInfo::addFormalParameter(const ColumnInfo &param) {
+  validateCallPhase(COMPILER_INITIAL_CALL, COMPILER_INITIAL_CALL, "UDRInvocationInfo::addFormalParameter()");
 
   formalParameterInfo_.addColumn(param);
 }
@@ -6467,19 +5061,15 @@ void UDRInvocationInfo::addFormalParameter(const ColumnInfo &param)
  *  @param type Function type of this UDR invocation.
  *  @throws UDRException
  */
-void UDRInvocationInfo::setFuncType(FuncType type)
-{
-  validateCallPhase(COMPILER_INITIAL_CALL, COMPILER_INITIAL_CALL,
-                    "UDRInvocationInfo::setFuncType()");
+void UDRInvocationInfo::setFuncType(FuncType type) {
+  validateCallPhase(COMPILER_INITIAL_CALL, COMPILER_INITIAL_CALL, "UDRInvocationInfo::setFuncType()");
 
   funcType_ = type;
 
   // also set the default value for partitioning of table-valued inputs
   // to ANY, if this UDF is a mapper, to allow parallel execution
   // without restrictions
-  if (type == MAPPER &&
-      getNumTableInputs() == 1 &&
-      in().getQueryPartitioning().getType() == PartitionInfo::UNKNOWN)
+  if (type == MAPPER && getNumTableInputs() == 1 && in().getQueryPartitioning().getType() == PartitionInfo::UNKNOWN)
     inputTableInfo_[0].getQueryPartitioning().setType(PartitionInfo::ANY);
 }
 
@@ -6509,12 +5099,8 @@ void UDRInvocationInfo::setFuncType(FuncType type)
  *                          or -1 to add all remaining column.
  *  @throws UDRException
  */
-void UDRInvocationInfo::addPassThruColumns(int inputTableNum,
-                                           int startInputColNum,
-                                           int endInputColNum)
-{
-  validateCallPhase(COMPILER_INITIAL_CALL, COMPILER_INITIAL_CALL,
-                    "UDRInvocationInfo::addPassThruColumns()");
+void UDRInvocationInfo::addPassThruColumns(int inputTableNum, int startInputColNum, int endInputColNum) {
+  validateCallPhase(COMPILER_INITIAL_CALL, COMPILER_INITIAL_CALL, "UDRInvocationInfo::addPassThruColumns()");
 
   // Adding one or more columns from an input (child) table as output columns
   // The advantage of doing this is that the query optimizer can automatically
@@ -6530,19 +5116,17 @@ void UDRInvocationInfo::addPassThruColumns(int inputTableNum,
   //   eliminate some input rows and duplicate others, so the total row count
   //   and frequencies of values may or may not be usable.
 
-  if (endInputColNum == -1)
-    endInputColNum = in(inputTableNum).getNumColumns() - 1;
+  if (endInputColNum == -1) endInputColNum = in(inputTableNum).getNumColumns() - 1;
 
-  for (int c=startInputColNum; c<=endInputColNum; c++)
-    {
-      // make a copy of the input column
-      ColumnInfo newCol(in(inputTableNum).getColumn(c));
+  for (int c = startInputColNum; c <= endInputColNum; c++) {
+    // make a copy of the input column
+    ColumnInfo newCol(in(inputTableNum).getColumn(c));
 
-      // change the provenance info of the column
-      newCol.setProvenance(ProvenanceInfo(inputTableNum, c));
+    // change the provenance info of the column
+    newCol.setProvenance(ProvenanceInfo(inputTableNum, c));
 
-      outputTableInfo_.addColumn(newCol);
-    }
+    outputTableInfo_.addColumn(newCol);
+  }
 }
 
 /**
@@ -6562,11 +5146,8 @@ void UDRInvocationInfo::addPassThruColumns(int inputTableNum,
  *  @param partInfo New information on required partitioning for this input table.
  *  @throws UDRException
  */
-void UDRInvocationInfo::setChildPartitioning(int inputTableNum,
-                                             const PartitionInfo &partInfo)
-{
-  validateCallPhase(COMPILER_INITIAL_CALL, COMPILER_INITIAL_CALL,
-                    "UDRInvocationInfo::setChildPartitioning()");
+void UDRInvocationInfo::setChildPartitioning(int inputTableNum, const PartitionInfo &partInfo) {
+  validateCallPhase(COMPILER_INITIAL_CALL, COMPILER_INITIAL_CALL, "UDRInvocationInfo::setChildPartitioning()");
   if (inputTableNum < 0 || inputTableNum >= numTableInputs_)
     throw UDRException(38900, "Invalid child table number %d", inputTableNum);
 
@@ -6590,11 +5171,8 @@ void UDRInvocationInfo::setChildPartitioning(int inputTableNum,
  *  @param orderInfo New information on required order for this input table.
  *  @throws UDRException
  */
-void UDRInvocationInfo::setChildOrdering(int inputTableNum,
-                                         const OrderInfo &orderInfo)
-{
-  validateCallPhase(COMPILER_INITIAL_CALL, COMPILER_INITIAL_CALL,
-                    "UDRInvocationInfo::setChildOrder()");
+void UDRInvocationInfo::setChildOrdering(int inputTableNum, const OrderInfo &orderInfo) {
+  validateCallPhase(COMPILER_INITIAL_CALL, COMPILER_INITIAL_CALL, "UDRInvocationInfo::setChildOrder()");
   if (inputTableNum < 0 || inputTableNum >= numTableInputs_)
     throw UDRException(38900, "Invalid child table number %d", inputTableNum);
   inputTableInfo_[inputTableNum].setQueryOrdering(orderInfo);
@@ -6617,11 +5195,8 @@ void UDRInvocationInfo::setChildOrdering(int inputTableNum,
  *  @param usage          New usage for this column.
  *  @throws UDRException
  */
-void UDRInvocationInfo::setChildColumnUsage(int inputTableNum,
-                                            int inputColumnNum,
-                                            ColumnInfo::ColumnUseCode usage)
-{
-  in(inputTableNum); // validate inputTableNum
+void UDRInvocationInfo::setChildColumnUsage(int inputTableNum, int inputColumnNum, ColumnInfo::ColumnUseCode usage) {
+  in(inputTableNum);  // validate inputTableNum
   inputTableInfo_[inputTableNum].getColumn(inputColumnNum).setUsage(usage);
 }
 
@@ -6644,30 +5219,25 @@ void UDRInvocationInfo::setChildColumnUsage(int inputTableNum,
  *
  *  @throws UDRException
  */
-void UDRInvocationInfo::setUnusedPassthruColumns()
-{
+void UDRInvocationInfo::setUnusedPassthruColumns() {
   int numOutCols = out().getNumColumns();
 
   // loop over output columns
-  for (int oc=0; oc<numOutCols; oc++)
-    {
-      ColumnInfo &colInfo = out().getColumn(oc);
-      ColumnInfo::ColumnUseCode usage = colInfo.getUsage();
-      const ProvenanceInfo &prov = colInfo.getProvenance();
-      int it = prov.getInputTableNum();
-      int ic = prov.getInputColumnNum();
+  for (int oc = 0; oc < numOutCols; oc++) {
+    ColumnInfo &colInfo = out().getColumn(oc);
+    ColumnInfo::ColumnUseCode usage = colInfo.getUsage();
+    const ProvenanceInfo &prov = colInfo.getProvenance();
+    int it = prov.getInputTableNum();
+    int ic = prov.getInputColumnNum();
 
-      // is this a pass-thru column that is not used?
-      if (it >= 0 && ic >= 0 &&
-          (usage == ColumnInfo::NOT_USED ||
-           usage == ColumnInfo::NOT_PRODUCED))
-        {
-          setChildColumnUsage(it, ic, ColumnInfo::NOT_USED);
-          // also make sure the output column is not produced, since
-          // we could not get its value from the table-valued input
-          colInfo.setUsage(ColumnInfo::NOT_PRODUCED);
-        }
+    // is this a pass-thru column that is not used?
+    if (it >= 0 && ic >= 0 && (usage == ColumnInfo::NOT_USED || usage == ColumnInfo::NOT_PRODUCED)) {
+      setChildColumnUsage(it, ic, ColumnInfo::NOT_USED);
+      // also make sure the output column is not produced, since
+      // we could not get its value from the table-valued input
+      colInfo.setUsage(ColumnInfo::NOT_PRODUCED);
     }
+  }
 }
 
 /**
@@ -6684,22 +5254,17 @@ void UDRInvocationInfo::setUnusedPassthruColumns()
  *  @param c            Evaluation code for this predicate.
  *  @throws UDRException
  */
-void UDRInvocationInfo::setPredicateEvaluationCode(int predicateNum,
-                                                   PredicateInfo::EvaluationCode c)
-{
-  validateCallPhase(COMPILER_DATAFLOW_CALL, COMPILER_DATAFLOW_CALL,
-                    "UDRInvocationInfo::setPredicateEvaluationCode()");
+void UDRInvocationInfo::setPredicateEvaluationCode(int predicateNum, PredicateInfo::EvaluationCode c) {
+  validateCallPhase(COMPILER_DATAFLOW_CALL, COMPILER_DATAFLOW_CALL, "UDRInvocationInfo::setPredicateEvaluationCode()");
 
   // validate index
   const PredicateInfo &pred = getPredicate(predicateNum);
 
-  if (c == PredicateInfo::EVALUATE_IN_UDF &&
-      pred.isAComparisonPredicate() &&
+  if (c == PredicateInfo::EVALUATE_IN_UDF && pred.isAComparisonPredicate() &&
       !(dynamic_cast<const ComparisonPredicateInfo &>(pred).hasAConstantValue()))
     throw UDRException(
-         38900,
-         "Comparison predicate %d cannot be evaluated in the UDF since it does not refer to a constant value",
-         predicateNum);
+        38900, "Comparison predicate %d cannot be evaluated in the UDF since it does not refer to a constant value",
+        predicateNum);
   predicates_[predicateNum]->setEvaluationCode(c);
 }
 
@@ -6721,29 +5286,23 @@ void UDRInvocationInfo::setPredicateEvaluationCode(int predicateNum,
  *                      or -1 to push all remaining predicates.
  *  @throws UDRException
  */
-void UDRInvocationInfo::pushPredicatesOnPassthruColumns(int startPredNum,
-                                                        int lastPredNum)
-{
+void UDRInvocationInfo::pushPredicatesOnPassthruColumns(int startPredNum, int lastPredNum) {
   validateCallPhase(COMPILER_DATAFLOW_CALL, COMPILER_DATAFLOW_CALL,
                     "UDRInvocationInfo::pushPredicatesOnPassthruColumns()");
 
   int numPreds = getNumPredicates();
 
   // loop over predicates in the specified range
-  for (int p = startPredNum;
-       p<numPreds && (p<=lastPredNum || lastPredNum == -1);
-       p++)
-    if (isAComparisonPredicate(p))
-      {
-        const ComparisonPredicateInfo &cpi = getComparisonPredicate(p);
+  for (int p = startPredNum; p < numPreds && (p <= lastPredNum || lastPredNum == -1); p++)
+    if (isAComparisonPredicate(p)) {
+      const ComparisonPredicateInfo &cpi = getComparisonPredicate(p);
 
-        if (out().getColumn(cpi.getColumnNumber()).
-            getProvenance().isFromInputTable())
-          // Yes, this predicate is a comparison predicate on a pass-thru
-          // column (note we do not allow predicates of the form
-          // "col1 op col2"). Push it down.
-          setPredicateEvaluationCode(p,PredicateInfo::EVALUATE_IN_CHILD);
-      }
+      if (out().getColumn(cpi.getColumnNumber()).getProvenance().isFromInputTable())
+        // Yes, this predicate is a comparison predicate on a pass-thru
+        // column (note we do not allow predicates of the form
+        // "col1 op col2"). Push it down.
+        setPredicateEvaluationCode(p, PredicateInfo::EVALUATE_IN_CHILD);
+    }
 }
 
 /**
@@ -6762,67 +5321,49 @@ void UDRInvocationInfo::pushPredicatesOnPassthruColumns(int startPredNum,
  *                               one output row (true) or at most one output
  *                               row (false) for every input row.
  */
-void UDRInvocationInfo::propagateConstraintsFor1To1UDFs(
-     bool exactlyOneRowPerInput)
-{
+void UDRInvocationInfo::propagateConstraintsFor1To1UDFs(bool exactlyOneRowPerInput) {
   validateCallPhase(COMPILER_CONSTRAINTS_CALL, COMPILER_CONSTRAINTS_CALL,
                     "UDRInvocationInfo::propagateConstraintsFor1To1UDFs()");
 
-  if (getNumTableInputs() == 1)
-    {
-      int numConstraints = in().getNumConstraints();
-      int numOutputCols = out().getNumColumns();
+  if (getNumTableInputs() == 1) {
+    int numConstraints = in().getNumConstraints();
+    int numOutputCols = out().getNumColumns();
 
-      for (int c=0; c<numConstraints; c++)
-        switch (in().getConstraint(c).getType())
-          {
-          case ConstraintInfo::CARDINALITY:
-            {
-              const CardinalityConstraintInfo &cc = 
-                static_cast<const CardinalityConstraintInfo &>(
-                     in().getConstraint(c));
+    for (int c = 0; c < numConstraints; c++) switch (in().getConstraint(c).getType()) {
+        case ConstraintInfo::CARDINALITY: {
+          const CardinalityConstraintInfo &cc = static_cast<const CardinalityConstraintInfo &>(in().getConstraint(c));
 
-              // add a cardinality constraint to the parent with
-              // an adjusted lower bound of 0 if exactlyOneRowPerInput
-              // is false
-              out().addCardinalityConstraint(CardinalityConstraintInfo(
-                                                  (exactlyOneRowPerInput ?
-                                                   cc.getMinNumRows() :
-                                                   0),
-                                                  cc.getMaxNumRows()));
-            }
-            break;
+          // add a cardinality constraint to the parent with
+          // an adjusted lower bound of 0 if exactlyOneRowPerInput
+          // is false
+          out().addCardinalityConstraint(
+              CardinalityConstraintInfo((exactlyOneRowPerInput ? cc.getMinNumRows() : 0), cc.getMaxNumRows()));
+        } break;
 
-          case ConstraintInfo::UNIQUE:
-            {
-              UniqueConstraintInfo ucParent;
-              const UniqueConstraintInfo &ucChild = 
-                static_cast<const UniqueConstraintInfo &>(
-                     in().getConstraint(c));
-              int numUniqueCols = ucChild.getNumUniqueColumns();
+        case ConstraintInfo::UNIQUE: {
+          UniqueConstraintInfo ucParent;
+          const UniqueConstraintInfo &ucChild = static_cast<const UniqueConstraintInfo &>(in().getConstraint(c));
+          int numUniqueCols = ucChild.getNumUniqueColumns();
 
-              // translate child columns into parent columns
-              for (int uc=0; uc<numUniqueCols; uc++)
-                for (int oc=0; oc<numOutputCols; oc++)
-                  if (out().getColumn(oc).getProvenance().getInputColumnNum()
-                      == ucChild.getUniqueColumn(uc))
-                    {
-                      ucParent.addColumn(oc);
-                      break;
-                    }
+          // translate child columns into parent columns
+          for (int uc = 0; uc < numUniqueCols; uc++)
+            for (int oc = 0; oc < numOutputCols; oc++)
+              if (out().getColumn(oc).getProvenance().getInputColumnNum() == ucChild.getUniqueColumn(uc)) {
+                ucParent.addColumn(oc);
+                break;
+              }
 
-              if (ucParent.getNumUniqueColumns() == numUniqueCols)
-                // we were able to translate all the unique columns on the
-                // child into unique columns of the parent, add the constraint
-                out().addUniquenessConstraint(ucParent);
-            }
-            break;
+          if (ucParent.getNumUniqueColumns() == numUniqueCols)
+            // we were able to translate all the unique columns on the
+            // child into unique columns of the parent, add the constraint
+            out().addUniquenessConstraint(ucParent);
+        } break;
 
-          default:
-            // should not see this
-            break;
-          }
-    }
+        default:
+          // should not see this
+          break;
+      }
+  }
 }
 
 /**
@@ -6838,8 +5379,7 @@ void UDRInvocationInfo::propagateConstraintsFor1To1UDFs(
  *  @return UDR writer-specific data that was previously attached or NULL.
  *  @throws UDRException
  */
-UDRWriterCompileTimeData *UDRInvocationInfo::getUDRWriterCompileTimeData()
-{
+UDRWriterCompileTimeData *UDRInvocationInfo::getUDRWriterCompileTimeData() {
   validateCallPhase(COMPILER_INITIAL_CALL, COMPILER_COMPLETION_CALL,
                     "UDRInvocationInfo::getUDRWriterCompileTimeData()");
 
@@ -6868,14 +5408,10 @@ UDRWriterCompileTimeData *UDRInvocationInfo::getUDRWriterCompileTimeData()
  *  @param compileTimeData UDR writer-defined compile-time data to attach.
  *  @throws UDRException
  */
-void UDRInvocationInfo::setUDRWriterCompileTimeData(
-     UDRWriterCompileTimeData *compileTimeData)
-{
-  validateCallPhase(COMPILER_INITIAL_CALL, COMPILER_PLAN_CALL,
-                    "UDRInvocationInfo::setUDRWriterCompileTimeData()");
+void UDRInvocationInfo::setUDRWriterCompileTimeData(UDRWriterCompileTimeData *compileTimeData) {
+  validateCallPhase(COMPILER_INITIAL_CALL, COMPILER_PLAN_CALL, "UDRInvocationInfo::setUDRWriterCompileTimeData()");
 
-  if (udrWriterCompileTimeData_)
-    delete udrWriterCompileTimeData_;
+  if (udrWriterCompileTimeData_) delete udrWriterCompileTimeData_;
 
   udrWriterCompileTimeData_ = compileTimeData;
 }
@@ -6903,10 +5439,7 @@ void UDRInvocationInfo::setUDRWriterCompileTimeData(
  *                          (inclusive) or -1 to copy all remaining columns
  *  @throws UDRException
  */
-void UDRInvocationInfo::copyPassThruData(int inputTableNum,
-                                         int startInputColNum,
-                                         int endInputColNum)
-{
+void UDRInvocationInfo::copyPassThruData(int inputTableNum, int startInputColNum, int endInputColNum) {
   // no need to validate call phase, this will raise an exception at compile time
   // validateCallPhase(RUNTIME_INITIAL_CALL, RUNTIME_FINAL_CALL,
   //                   "UDRInvocationInfo::copyPassThruData()");
@@ -6914,79 +5447,65 @@ void UDRInvocationInfo::copyPassThruData(int inputTableNum,
   int endColNum = endInputColNum;
   int numOutCols = out().getNumColumns();
 
-  if (endInputColNum < 0 ||
-      endInputColNum >= in(inputTableNum).getNumColumns())
+  if (endInputColNum < 0 || endInputColNum >= in(inputTableNum).getNumColumns())
     endColNum = in(inputTableNum).getNumColumns() - 1;
 
   // loop through the output columns and pick up those that
   // are passed through from the specified input columns
-  for (int oc=0; oc<numOutCols; oc++)
-    {
-      const ProvenanceInfo &prov = out().getColumn(oc).getProvenance();
-      int it = prov.getInputTableNum();
-      int ic = prov.getInputColumnNum();
+  for (int oc = 0; oc < numOutCols; oc++) {
+    const ProvenanceInfo &prov = out().getColumn(oc).getProvenance();
+    int it = prov.getInputTableNum();
+    int ic = prov.getInputColumnNum();
 
-      if (it == inputTableNum &&
-          ic >= startInputColNum &&
-          ic <= endColNum)
-        {
-          // this output column is passed through from the range
-          // of input columns selected, copy it
-          const TypeInfo &ty = out().getColumn(oc).getType();
+    if (it == inputTableNum && ic >= startInputColNum && ic <= endColNum) {
+      // this output column is passed through from the range
+      // of input columns selected, copy it
+      const TypeInfo &ty = out().getColumn(oc).getType();
 
-          switch (ty.getSQLTypeSubClass())
-            {
-            case TypeInfo::FIXED_CHAR_TYPE:
-            case TypeInfo::VAR_CHAR_TYPE:
-            case TypeInfo::DATE_TYPE:
-            case TypeInfo::TIME_TYPE:
-            case TypeInfo::TIMESTAMP_TYPE:
-            case TypeInfo::LOB_SUB_CLASS:
-              {
-                int strLen = 0;
-                const char *str = in(it).getRaw(ic, strLen);
+      switch (ty.getSQLTypeSubClass()) {
+        case TypeInfo::FIXED_CHAR_TYPE:
+        case TypeInfo::VAR_CHAR_TYPE:
+        case TypeInfo::DATE_TYPE:
+        case TypeInfo::TIME_TYPE:
+        case TypeInfo::TIMESTAMP_TYPE:
+        case TypeInfo::LOB_SUB_CLASS: {
+          int strLen = 0;
+          const char *str = in(it).getRaw(ic, strLen);
 
-                if (in(it).wasNull())
-                  out().setNull(oc);
-                else
-                  out().setString(oc, str, strLen);
-              }
-              break;
+          if (in(it).wasNull())
+            out().setNull(oc);
+          else
+            out().setString(oc, str, strLen);
+        } break;
 
-            case TypeInfo::EXACT_NUMERIC_TYPE:
-            case TypeInfo::YEAR_MONTH_INTERVAL_TYPE:
-            case TypeInfo::DAY_SECOND_INTERVAL_TYPE:
-            case TypeInfo::BOOLEAN_SUB_CLASS:
-              {
-                long l = in(it).getLong(ic);
+        case TypeInfo::EXACT_NUMERIC_TYPE:
+        case TypeInfo::YEAR_MONTH_INTERVAL_TYPE:
+        case TypeInfo::DAY_SECOND_INTERVAL_TYPE:
+        case TypeInfo::BOOLEAN_SUB_CLASS: {
+          long l = in(it).getLong(ic);
 
-                if (in(it).wasNull())
-                  out().setNull(oc);
-                else
-                  out().setLong(oc, l);
-              }
-              break;
+          if (in(it).wasNull())
+            out().setNull(oc);
+          else
+            out().setLong(oc, l);
+        } break;
 
-            case TypeInfo::APPROXIMATE_NUMERIC_TYPE:
-              {
-                double d = in(it).getDouble(ic);
+        case TypeInfo::APPROXIMATE_NUMERIC_TYPE: {
+          double d = in(it).getDouble(ic);
 
-                if (in(it).wasNull())
-                  out().setNull(oc);
-                else
-                  out().setDouble(oc, d);
-              }
-              break;
+          if (in(it).wasNull())
+            out().setNull(oc);
+          else
+            out().setDouble(oc, d);
+        } break;
 
-            case TypeInfo::UNDEFINED_TYPE_SUB_CLASS:
-            default:
-              throw UDRException(
-                   38900,
-                   "Invalid or unsupported type subclass in UDRInvocationInfo::copyPassThruData: %d",
-                   (int) ty.getSQLTypeSubClass());
-            }
-        }
+        case TypeInfo::UNDEFINED_TYPE_SUB_CLASS:
+        default:
+          throw UDRException(38900, "Invalid or unsupported type subclass in UDRInvocationInfo::copyPassThruData: %d",
+                             (int)ty.getSQLTypeSubClass());
+      }
     }
+  }
 }
 
 /**
@@ -7001,10 +5520,8 @@ void UDRInvocationInfo::copyPassThruData(int inputTableNum,
  *  @return Number of parallel instances for this UDR invocation.
  *  @throws UDRException
  */
-int UDRInvocationInfo::getNumParallelInstances() const
-{
-  validateCallPhase(RUNTIME_WORK_CALL, RUNTIME_WORK_CALL,
-                    "UDRInvocationInfo::getNumParallelInstances()");
+int UDRInvocationInfo::getNumParallelInstances() const {
+  validateCallPhase(RUNTIME_WORK_CALL, RUNTIME_WORK_CALL, "UDRInvocationInfo::getNumParallelInstances()");
 
   return totalNumInstances_;
 }
@@ -7021,10 +5538,8 @@ int UDRInvocationInfo::getNumParallelInstances() const
  *  @return A number between 0 and getNumParallelInstances() - 1.
  *  @throws UDRException
  */
-int UDRInvocationInfo::getMyInstanceNum() const
-{
-  validateCallPhase(RUNTIME_WORK_CALL, RUNTIME_WORK_CALL,
-                    "UDRInvocationInfo::getMyInstanceNum()");
+int UDRInvocationInfo::getMyInstanceNum() const {
+  validateCallPhase(RUNTIME_WORK_CALL, RUNTIME_WORK_CALL, "UDRInvocationInfo::getMyInstanceNum()");
 
   return myInstanceNum_;
 }
@@ -7035,382 +5550,266 @@ int UDRInvocationInfo::getMyInstanceNum() const
  *  @see UDR::debugLoop()
  *  @see UDRInvocationInfo::PRINT_INVOCATION_INFO_AT_RUN_TIME
  */
-void UDRInvocationInfo::print()
-{
+void UDRInvocationInfo::print() {
   printf("\nUDRInvocationInfo\n-----------------\n");
   printf("UDR Name                   : %s\n", getUDRName().c_str());
   printf("Num of table-valued inputs : %d\n", getNumTableInputs());
   printf("Call phase                 : %s\n", callPhaseToString(callPhase_));
   printf("Debug flags                : 0x%x\n", getDebugFlags());
-  printf("Function type              : %s\n", (funcType_ == GENERIC ? "GENERIC" :
-                                               (funcType_ == MAPPER ? "MAPPER" :
-                                                (funcType_ == REDUCER ? "REDUCER" :
-                                                 (funcType_ == REDUCER_NC ? "REDUCER_NC" :
-                                                  "Invalid function type")))));
+  printf("Function type              : %s\n",
+         (funcType_ == GENERIC
+              ? "GENERIC"
+              : (funcType_ == MAPPER
+                     ? "MAPPER"
+                     : (funcType_ == REDUCER ? "REDUCER"
+                                             : (funcType_ == REDUCER_NC ? "REDUCER_NC" : "Invalid function type")))));
   printf("User id                    : %s\n", getCurrentUser().c_str());
   printf("Session user id            : %s\n", getSessionUser().c_str());
   printf("User role                  : %s\n", getCurrentRole().c_str());
-  if (isRunTime())
-    printf("Query id                   : %s\n", getQueryId().c_str());
+  if (isRunTime()) printf("Query id                   : %s\n", getQueryId().c_str());
 
   bool needsComma = false;
 
-  if (!isRunTime())
-    {
-      printf("Formal parameters          : (");
-      for (int p=0; p<getFormalParameters().getNumColumns(); p++)
-        {
-          std::string buf;
+  if (!isRunTime()) {
+    printf("Formal parameters          : (");
+    for (int p = 0; p < getFormalParameters().getNumColumns(); p++) {
+      std::string buf;
 
-          if (needsComma)
-            printf(", ");
-          getFormalParameters().getColumn(p).toString(buf);
-          printf("%s", buf.c_str());
-          needsComma = true;
-        }
-      printf(")\n");
+      if (needsComma) printf(", ");
+      getFormalParameters().getColumn(p).toString(buf);
+      printf("%s", buf.c_str());
+      needsComma = true;
     }
+    printf(")\n");
+  }
 
   printf("Actual parameters          : (");
   needsComma = false;
   const ParameterListInfo &pli = par();
 
-  for (int p=0; p < pli.getNumColumns(); p++)
-    {
+  for (int p = 0; p < pli.getNumColumns(); p++) {
+    if (needsComma) printf(", ");
 
-      if (needsComma)
-        printf(", ");
+    if (pli.isAvailable(p)) {
+      std::string strVal = pli.getString(p);
 
-      if (pli.isAvailable(p))
-        {
-          std::string strVal = pli.getString(p);
-
-          if (pli.wasNull())
-            printf("NULL");
-          else
-            printf("'%s'", strVal.c_str());
-        }
+      if (pli.wasNull())
+        printf("NULL");
       else
-        {
-          // no value available, print name and type
-          std::string buf;
+        printf("'%s'", strVal.c_str());
+    } else {
+      // no value available, print name and type
+      std::string buf;
 
-          pli.getColumn(p).toString(buf, true);
-          printf("\n        ");
-          printf("%s", buf.c_str());
-        }
-      needsComma = true;
+      pli.getColumn(p).toString(buf, true);
+      printf("\n        ");
+      printf("%s", buf.c_str());
     }
+    needsComma = true;
+  }
   printf(")\n");
 
-  if (udrWriterCompileTimeData_)
-    {
-      printf("UDR Writer comp. time data : ");
-      udrWriterCompileTimeData_->print();
-      printf("\n");
-    }
+  if (udrWriterCompileTimeData_) {
+    printf("UDR Writer comp. time data : ");
+    udrWriterCompileTimeData_->print();
+    printf("\n");
+  }
 
-  if (isRunTime())
-    printf("Instance number (0-based)  : %d of %d\n",
-           getMyInstanceNum(),
-           getNumParallelInstances());
+  if (isRunTime()) printf("Instance number (0-based)  : %d of %d\n", getMyInstanceNum(), getNumParallelInstances());
 
-  for (int c=0; c<getNumTableInputs(); c++)
-    {
-      printf("\nInput TableInfo %d\n-----------------\n", c);
-      const_cast<TableInfo &>(in(c)).print();
-    }
+  for (int c = 0; c < getNumTableInputs(); c++) {
+    printf("\nInput TableInfo %d\n-----------------\n", c);
+    const_cast<TableInfo &>(in(c)).print();
+  }
   printf("\nOutput TableInfo\n----------------\n");
   outputTableInfo_.print();
 
-  if (predicates_.size() > 0)
-    {
-      printf("\nPredicates\n----------\n");
+  if (predicates_.size() > 0) {
+    printf("\nPredicates\n----------\n");
 
-      for (int p=0; p<getNumPredicates(); p++)
-        {
-          std::string predString;
+    for (int p = 0; p < getNumPredicates(); p++) {
+      std::string predString;
 
-          getPredicate(p).toString(predString, out());
-          switch (getPredicate(p).getEvaluationCode())
-            {
-            case PredicateInfo::UNKNOWN_EVAL:
-              break;
-            case PredicateInfo::EVALUATE_ON_RESULT:
-              predString += " (evaluated on result)";
-              break;
-            case PredicateInfo::EVALUATE_IN_UDF:
-              predString += " (evaluated by the UDF)";
-              break;
-            case PredicateInfo::EVALUATE_IN_CHILD:
-              predString += " (evaluated in the child)";
-              break;
-            default:
-              predString += " -- invalid evaluation code!";
-              break;
-            }
-          printf("    %s\n", predString.c_str());
-        }
+      getPredicate(p).toString(predString, out());
+      switch (getPredicate(p).getEvaluationCode()) {
+        case PredicateInfo::UNKNOWN_EVAL:
+          break;
+        case PredicateInfo::EVALUATE_ON_RESULT:
+          predString += " (evaluated on result)";
+          break;
+        case PredicateInfo::EVALUATE_IN_UDF:
+          predString += " (evaluated by the UDF)";
+          break;
+        case PredicateInfo::EVALUATE_IN_CHILD:
+          predString += " (evaluated in the child)";
+          break;
+        default:
+          predString += " -- invalid evaluation code!";
+          break;
+      }
+      printf("    %s\n", predString.c_str());
     }
+  }
 }
 
-int UDRInvocationInfo::serializedLength()
-{
+int UDRInvocationInfo::serializedLength() {
   // Format: base class + name + sqlAccessType + sqlTransactionType_ +
   // sqlRights + isolationType + debugFlags + type + callPhase +
   // numTableInputs + n*TableInfo + TableInfo(outputTableInfo_) +
   // formal params + actual params + num preds + preds
-  int result = TMUDRSerializableObject::serializedLength() +
-    serializedLengthOfString(name_) +
-    serializedLengthOfString(currentUser_) +
-    serializedLengthOfString(sessionUser_) +
-    serializedLengthOfString(currentRole_) +
-    serializedLengthOfString(queryId_) +
-    9*serializedLengthOfInt();
+  int result = TMUDRSerializableObject::serializedLength() + serializedLengthOfString(name_) +
+               serializedLengthOfString(currentUser_) + serializedLengthOfString(sessionUser_) +
+               serializedLengthOfString(currentRole_) + serializedLengthOfString(queryId_) +
+               9 * serializedLengthOfInt();
 
   int i;
 
-  for (i=0; i<numTableInputs_; i++)
-    result += inputTableInfo_[i].serializedLength();
+  for (i = 0; i < numTableInputs_; i++) result += inputTableInfo_[i].serializedLength();
 
   result += outputTableInfo_.serializedLength();
   result += formalParameterInfo_.serializedLength();
   result += actualParameterInfo_.serializedLength();
 
-  for (std::vector<PredicateInfo *>::iterator it = predicates_.begin();
-       it != predicates_.end();
-       it++)
-    {
-      result += (*it)->serializedLength();
-    }
+  for (std::vector<PredicateInfo *>::iterator it = predicates_.begin(); it != predicates_.end(); it++) {
+    result += (*it)->serializedLength();
+  }
 
   return result;
 }
 
 // more convenient methods for external callers,
 // without side-effecting parameters
-void UDRInvocationInfo::serializeObj(Bytes outputBuffer,
-                                     int outputBufferLength)
-{
+void UDRInvocationInfo::serializeObj(Bytes outputBuffer, int outputBufferLength) {
   Bytes tempBuf = outputBuffer;
-  int tempLen   = outputBufferLength;
+  int tempLen = outputBufferLength;
 
   serialize(tempBuf, tempLen);
 }
 
-void UDRInvocationInfo::deserializeObj(ConstBytes inputBuffer,
-                                       int inputBufferLength)
-{
+void UDRInvocationInfo::deserializeObj(ConstBytes inputBuffer, int inputBufferLength) {
   ConstBytes tempBuf = inputBuffer;
-  int tempLen   = inputBufferLength;
+  int tempLen = inputBufferLength;
 
   deserialize(tempBuf, tempLen);
 }
 
-int UDRInvocationInfo::serialize(Bytes &outputBuffer,
-                                 int &outputBufferLength)
-{
-  int result = 
-    TMUDRSerializableObject::serialize(outputBuffer,
-                                       outputBufferLength);
+int UDRInvocationInfo::serialize(Bytes &outputBuffer, int &outputBufferLength) {
+  int result = TMUDRSerializableObject::serialize(outputBuffer, outputBufferLength);
   int i;
 
-  result += serializeString(name_,
-                            outputBuffer,
-                            outputBufferLength);
+  result += serializeString(name_, outputBuffer, outputBufferLength);
 
-  result += serializeInt(static_cast<int>(sqlAccessType_),
-                         outputBuffer,
-                         outputBufferLength);
+  result += serializeInt(static_cast<int>(sqlAccessType_), outputBuffer, outputBufferLength);
 
-  result += serializeInt(static_cast<int>(sqlTransactionType_),
-                         outputBuffer,
-                         outputBufferLength);
+  result += serializeInt(static_cast<int>(sqlTransactionType_), outputBuffer, outputBufferLength);
 
-  result += serializeInt(static_cast<int>(sqlRights_),
-                         outputBuffer,
-                         outputBufferLength);
+  result += serializeInt(static_cast<int>(sqlRights_), outputBuffer, outputBufferLength);
 
-  result += serializeInt(static_cast<int>(isolationType_),
-                         outputBuffer,
-                         outputBufferLength);
+  result += serializeInt(static_cast<int>(isolationType_), outputBuffer, outputBufferLength);
 
-  result += serializeInt(debugFlags_,
-                         outputBuffer,
-                         outputBufferLength);
+  result += serializeInt(debugFlags_, outputBuffer, outputBufferLength);
 
-  result += serializeInt(static_cast<int>(funcType_),
-                         outputBuffer,
-                         outputBufferLength);
+  result += serializeInt(static_cast<int>(funcType_), outputBuffer, outputBufferLength);
 
-  result += serializeInt(static_cast<int>(callPhase_),
-                         outputBuffer,
-                         outputBufferLength);
+  result += serializeInt(static_cast<int>(callPhase_), outputBuffer, outputBufferLength);
 
-  result += serializeString(currentUser_,
-                            outputBuffer,
-                            outputBufferLength);
+  result += serializeString(currentUser_, outputBuffer, outputBufferLength);
 
-  result += serializeString(sessionUser_,
-                            outputBuffer,
-                            outputBufferLength);
+  result += serializeString(sessionUser_, outputBuffer, outputBufferLength);
 
-  result += serializeString(currentRole_,
-                            outputBuffer,
-                            outputBufferLength);
+  result += serializeString(currentRole_, outputBuffer, outputBufferLength);
 
-  result += serializeString(queryId_,
-                            outputBuffer,
-                            outputBufferLength);
+  result += serializeString(queryId_, outputBuffer, outputBufferLength);
 
-  result += serializeInt(numTableInputs_,
-                         outputBuffer,
-                         outputBufferLength);
+  result += serializeInt(numTableInputs_, outputBuffer, outputBufferLength);
 
-  for (i=0; i<numTableInputs_; i++)
-    result += inputTableInfo_[i].serialize(outputBuffer,
-                                           outputBufferLength);
+  for (i = 0; i < numTableInputs_; i++) result += inputTableInfo_[i].serialize(outputBuffer, outputBufferLength);
 
-  result += outputTableInfo_.serialize(outputBuffer,
-                                       outputBufferLength);
+  result += outputTableInfo_.serialize(outputBuffer, outputBufferLength);
 
-  result += formalParameterInfo_.serialize(outputBuffer,
-                                           outputBufferLength);
+  result += formalParameterInfo_.serialize(outputBuffer, outputBufferLength);
 
-  result += actualParameterInfo_.serialize(outputBuffer,
-                                           outputBufferLength);
+  result += actualParameterInfo_.serialize(outputBuffer, outputBufferLength);
 
-  result += serializeInt(predicates_.size(),
-                         outputBuffer,
-                         outputBufferLength);
+  result += serializeInt(predicates_.size(), outputBuffer, outputBufferLength);
 
-  for (std::vector<PredicateInfo *>::iterator it = predicates_.begin();
-       it != predicates_.end();
-       it++)
-    {
-      result += (*it)->serialize(outputBuffer,
-                                 outputBufferLength);
-    }
+  for (std::vector<PredicateInfo *>::iterator it = predicates_.begin(); it != predicates_.end(); it++) {
+    result += (*it)->serialize(outputBuffer, outputBufferLength);
+  }
 
   validateSerializedLength(result);
 
   return result;
 }
 
-int UDRInvocationInfo::deserialize(ConstBytes &inputBuffer,
-                                   int &inputBufferLength)
-{
+int UDRInvocationInfo::deserialize(ConstBytes &inputBuffer, int &inputBufferLength) {
   int tempInt = 0;
   int i;
-  int result =
-    TMUDRSerializableObject::deserialize(inputBuffer, inputBufferLength);
+  int result = TMUDRSerializableObject::deserialize(inputBuffer, inputBufferLength);
 
   validateObjectType(UDR_INVOCATION_INFO_OBJ);
 
-  result += deserializeString(name_,
-                              inputBuffer,
-                              inputBufferLength);
+  result += deserializeString(name_, inputBuffer, inputBufferLength);
 
-  result += deserializeInt(tempInt,
-                           inputBuffer,
-                           inputBufferLength);
+  result += deserializeInt(tempInt, inputBuffer, inputBufferLength);
   sqlAccessType_ = static_cast<SQLAccessType>(tempInt);
 
-  result += deserializeInt(tempInt,
-                           inputBuffer,
-                           inputBufferLength);
+  result += deserializeInt(tempInt, inputBuffer, inputBufferLength);
   sqlTransactionType_ = static_cast<SQLTransactionType>(tempInt);
 
-  result += deserializeInt(tempInt,
-                           inputBuffer,
-                           inputBufferLength);
+  result += deserializeInt(tempInt, inputBuffer, inputBufferLength);
   sqlRights_ = static_cast<SQLRightsType>(tempInt);
 
-  result += deserializeInt(tempInt,
-                           inputBuffer,
-                           inputBufferLength);
+  result += deserializeInt(tempInt, inputBuffer, inputBufferLength);
   isolationType_ = static_cast<IsolationType>(tempInt);
 
-  result += deserializeInt(debugFlags_,
-                           inputBuffer,
-                           inputBufferLength);
+  result += deserializeInt(debugFlags_, inputBuffer, inputBufferLength);
 
-  result += deserializeInt(tempInt,
-                           inputBuffer,
-                           inputBufferLength);
+  result += deserializeInt(tempInt, inputBuffer, inputBufferLength);
   funcType_ = static_cast<FuncType>(tempInt);
 
-  result += deserializeInt(tempInt,
-                           inputBuffer,
-                           inputBufferLength);
+  result += deserializeInt(tempInt, inputBuffer, inputBufferLength);
   callPhase_ = static_cast<CallPhase>(tempInt);
 
-  result += deserializeString(currentUser_,
-                              inputBuffer,
-                              inputBufferLength);
+  result += deserializeString(currentUser_, inputBuffer, inputBufferLength);
 
-  result += deserializeString(sessionUser_,
-                              inputBuffer,
-                              inputBufferLength);
+  result += deserializeString(sessionUser_, inputBuffer, inputBufferLength);
 
-  result += deserializeString(currentRole_,
-                              inputBuffer,
-                              inputBufferLength);
+  result += deserializeString(currentRole_, inputBuffer, inputBufferLength);
 
-  result += deserializeString(queryId_,
-                              inputBuffer,
-                              inputBufferLength);
+  result += deserializeString(queryId_, inputBuffer, inputBufferLength);
 
-  result += deserializeInt(numTableInputs_,
-                           inputBuffer,
-                           inputBufferLength);
+  result += deserializeInt(numTableInputs_, inputBuffer, inputBufferLength);
 
-  for (i=0; i<numTableInputs_; i++)
-    result += inputTableInfo_[i].deserialize(inputBuffer,
-                                             inputBufferLength);
+  for (i = 0; i < numTableInputs_; i++) result += inputTableInfo_[i].deserialize(inputBuffer, inputBufferLength);
 
-  result += outputTableInfo_.deserialize(inputBuffer,
-                                         inputBufferLength);
+  result += outputTableInfo_.deserialize(inputBuffer, inputBufferLength);
 
-  result += formalParameterInfo_.deserialize(inputBuffer,
-                                             inputBufferLength);
+  result += formalParameterInfo_.deserialize(inputBuffer, inputBufferLength);
 
-  result += actualParameterInfo_.deserialize(inputBuffer,
-                                             inputBufferLength);
+  result += actualParameterInfo_.deserialize(inputBuffer, inputBufferLength);
 
   // delete all predicates
-  for (std::vector<PredicateInfo *>::iterator p = predicates_.begin();
-       p != predicates_.end();
-       p++)
-    delete *p;
+  for (std::vector<PredicateInfo *>::iterator p = predicates_.begin(); p != predicates_.end(); p++) delete *p;
   predicates_.clear();
 
-  result += deserializeInt(tempInt,
-                           inputBuffer,
-                           inputBufferLength);
+  result += deserializeInt(tempInt, inputBuffer, inputBufferLength);
 
-  for (int p=0; p<tempInt; p++)
-    {
-      switch (getNextObjectType(inputBuffer,inputBufferLength))
-        {
-        case COMP_PREDICATE_INFO_OBJ:
-          {
-            ComparisonPredicateInfo *p = new ComparisonPredicateInfo;
+  for (int p = 0; p < tempInt; p++) {
+    switch (getNextObjectType(inputBuffer, inputBufferLength)) {
+      case COMP_PREDICATE_INFO_OBJ: {
+        ComparisonPredicateInfo *p = new ComparisonPredicateInfo;
 
-            result += p->deserialize(inputBuffer,
-                                     inputBufferLength);
+        result += p->deserialize(inputBuffer, inputBufferLength);
 
-            predicates_.push_back(p);
-          }
-          break;
+        predicates_.push_back(p);
+      } break;
 
-        default:
-          throw UDRException(
-               38900,
-               "Found invalid predicate object of type %d",
-               static_cast<int>(getNextObjectType(inputBuffer,inputBufferLength)));
-        }
+      default:
+        throw UDRException(38900, "Found invalid predicate object of type %d",
+                           static_cast<int>(getNextObjectType(inputBuffer, inputBufferLength)));
     }
+  }
 
   // The UDR writer compile time data stays in place and is not affected
   // by deserialization.
@@ -7423,28 +5822,15 @@ int UDRInvocationInfo::deserialize(ConstBytes &inputBuffer,
   return result;
 }
 
-void UDRInvocationInfo::validateCallPhase(CallPhase start,
-                                          CallPhase end,
-                                          const char *callee) const
-{
+void UDRInvocationInfo::validateCallPhase(CallPhase start, CallPhase end, const char *callee) const {
   if (callPhase_ < start && callPhase_ != UNKNOWN_CALL_PHASE)
-    throw UDRException(
-         38900,
-         "Method %s cannot be called before the %s phase",
-         callee,
-         callPhaseToString(start));
+    throw UDRException(38900, "Method %s cannot be called before the %s phase", callee, callPhaseToString(start));
   if (callPhase_ > end)
-    throw UDRException(
-         38900,
-         "Method %s cannot be called after the %s phase",
-         callee,
-         callPhaseToString(end));
+    throw UDRException(38900, "Method %s cannot be called after the %s phase", callee, callPhaseToString(end));
 }
 
-const char *UDRInvocationInfo::callPhaseToString(CallPhase c)
-{
-  switch(c)
-    {
+const char *UDRInvocationInfo::callPhaseToString(CallPhase c) {
+  switch (c) {
     case UNKNOWN_CALL_PHASE:
       return "unknown";
       break;
@@ -7475,47 +5861,32 @@ const char *UDRInvocationInfo::callPhaseToString(CallPhase c)
     default:
       return "invalid call phase!";
       break;
-    }
+  }
 }
 
-void UDRInvocationInfo::setQueryId(const char *qid)
-{
-  queryId_ = qid;
-}
+void UDRInvocationInfo::setQueryId(const char *qid) { queryId_ = qid; }
 
-void UDRInvocationInfo::setTotalNumInstances(int i)
-{
-  totalNumInstances_ = i;
-}
+void UDRInvocationInfo::setTotalNumInstances(int i) { totalNumInstances_ = i; }
 
-void UDRInvocationInfo::setMyInstanceNum(int i)
-{
-  myInstanceNum_ = i;
-}
-
+void UDRInvocationInfo::setMyInstanceNum(int i) { myInstanceNum_ = i; }
 
 // ------------------------------------------------------------------------
 // Member functions for class UDRPlanInfo
 // ------------------------------------------------------------------------
 
-UDRPlanInfo::UDRPlanInfo(UDRInvocationInfo *invocationInfo, int planNum) :
-     TMUDRSerializableObject(UDR_PLAN_INFO_OBJ,
-                             getCurrentVersion()),
-     invocationInfo_(invocationInfo),
-     planNum_(planNum),
-     costPerRow_(-1),
-     degreeOfParallelism_(ANY_DEGREE_OF_PARALLELISM),
-     udrWriterCompileTimeData_(NULL),
-     planData_(NULL),
-     planDataLength_(0)
-{}
+UDRPlanInfo::UDRPlanInfo(UDRInvocationInfo *invocationInfo, int planNum)
+    : TMUDRSerializableObject(UDR_PLAN_INFO_OBJ, getCurrentVersion()),
+      invocationInfo_(invocationInfo),
+      planNum_(planNum),
+      costPerRow_(-1),
+      degreeOfParallelism_(ANY_DEGREE_OF_PARALLELISM),
+      udrWriterCompileTimeData_(NULL),
+      planData_(NULL),
+      planDataLength_(0) {}
 
-UDRPlanInfo::~UDRPlanInfo()
-{
-  if (udrWriterCompileTimeData_)
-    delete udrWriterCompileTimeData_;
-  if (planData_)
-    delete planData_;
+UDRPlanInfo::~UDRPlanInfo() {
+  if (udrWriterCompileTimeData_) delete udrWriterCompileTimeData_;
+  if (planData_) delete planData_;
 }
 
 /**
@@ -7523,10 +5894,7 @@ UDRPlanInfo::~UDRPlanInfo()
  *
  *  @return Plan number for this object, relative to the invocation.
  */
-int UDRPlanInfo::getPlanNum() const
-{
-  return planNum_;
-}
+int UDRPlanInfo::getPlanNum() const { return planNum_; }
 
 /**
  *  Get the cost of the UDR per row, approximately in nanoseconds.
@@ -7534,10 +5902,7 @@ int UDRPlanInfo::getPlanNum() const
  *  @see setCostPerRow()
  *  @return Cost of the UDR per row, in nanoseconds, for optimization purposes.
  */
-long UDRPlanInfo::getCostPerRow() const
-{
-  return costPerRow_;
-}
+long UDRPlanInfo::getCostPerRow() const { return costPerRow_; }
 
 /**
  *  Return the desired degree of parallelism for this plan.
@@ -7547,10 +5912,7 @@ long UDRPlanInfo::getCostPerRow() const
  *          (positive) or one of the enum values in
  *          UDRPlanInfo::SpecialDegreeOfParallelism (zero or negative).
  */
-int UDRPlanInfo::getDesiredDegreeOfParallelism() const
-{
-  return degreeOfParallelism_;
-}
+int UDRPlanInfo::getDesiredDegreeOfParallelism() const { return degreeOfParallelism_; }
 
 /**
  *  Set the desired degree of parallelism.
@@ -7583,10 +5945,8 @@ int UDRPlanInfo::getDesiredDegreeOfParallelism() const
  *             UDRPlanInfo::SpecialDegreeOfParallelism).
  *  @throws UDRException
  */
-void UDRPlanInfo::setDesiredDegreeOfParallelism(int dop)
-{
-  invocationInfo_->validateCallPhase(UDRInvocationInfo::COMPILER_DOP_CALL,
-                                     UDRInvocationInfo::COMPILER_DOP_CALL,
+void UDRPlanInfo::setDesiredDegreeOfParallelism(int dop) {
+  invocationInfo_->validateCallPhase(UDRInvocationInfo::COMPILER_DOP_CALL, UDRInvocationInfo::COMPILER_DOP_CALL,
                                      "UDRPlanInfo::setDesiredDegreeOfParallelism()");
 
   degreeOfParallelism_ = dop;
@@ -7624,10 +5984,8 @@ void UDRPlanInfo::setDesiredDegreeOfParallelism(int dop)
  *  @param nanoseconds Cost of the UDR per row, in nanoseconds, for
  *                     optimization purposes.
  */
-void UDRPlanInfo::setCostPerRow(long nanoseconds)
-{
-  invocationInfo_->validateCallPhase(UDRInvocationInfo::COMPILER_DOP_CALL,
-                                     UDRInvocationInfo::COMPILER_PLAN_CALL,
+void UDRPlanInfo::setCostPerRow(long nanoseconds) {
+  invocationInfo_->validateCallPhase(UDRInvocationInfo::COMPILER_DOP_CALL, UDRInvocationInfo::COMPILER_PLAN_CALL,
                                      "UDRPlanInfo::setCostPerRow()");
 
   costPerRow_ = nanoseconds;
@@ -7640,8 +5998,7 @@ void UDRPlanInfo::setCostPerRow(long nanoseconds)
  *  @return UDR writer-specific data that was previously attached or NULL.
  *  @throws UDRException
  */
-UDRWriterCompileTimeData *UDRPlanInfo::getUDRWriterCompileTimeData()
-{
+UDRWriterCompileTimeData *UDRPlanInfo::getUDRWriterCompileTimeData() {
   invocationInfo_->validateCallPhase(UDRInvocationInfo::COMPILER_DATAFLOW_CALL,
                                      UDRInvocationInfo::COMPILER_COMPLETION_CALL,
                                      "UDRPlanInfo::getUDRWriterCompileTimeData()");
@@ -7669,9 +6026,7 @@ UDRWriterCompileTimeData *UDRPlanInfo::getUDRWriterCompileTimeData()
  *  @param compileTimeData UDR writer-defined compile-time data to attach.
  *  @throws UDRException
  */
-void UDRPlanInfo::setUDRWriterCompileTimeData(
-     UDRWriterCompileTimeData *compileTimeData)
-{
+void UDRPlanInfo::setUDRWriterCompileTimeData(UDRWriterCompileTimeData *compileTimeData) {
   invocationInfo_->validateCallPhase(UDRInvocationInfo::COMPILER_DATAFLOW_CALL,
                                      UDRInvocationInfo::COMPILER_COMPLETION_CALL,
                                      "UDRPlanInfo::setUDRWriterCompileTimeData()");
@@ -7680,12 +6035,9 @@ void UDRPlanInfo::setUDRWriterCompileTimeData(
   // this object after we unloaded the DLL containing the code
   // Todo: Cache DLL opens, at least until after the
   // UDRInvocationInfo objects get deleted.
-  throw UDRException(
-       38912,
-       "UDRPlanInfo::setUDRWriterCompileTimeData() not yet supported");
+  throw UDRException(38912, "UDRPlanInfo::setUDRWriterCompileTimeData() not yet supported");
 
-  if (udrWriterCompileTimeData_)
-    delete udrWriterCompileTimeData_;
+  if (udrWriterCompileTimeData_) delete udrWriterCompileTimeData_;
 
   udrWriterCompileTimeData_ = compileTimeData;
 }
@@ -7714,33 +6066,24 @@ void UDRPlanInfo::setUDRWriterCompileTimeData(
  *  @param planDataLength Length, in bytes, of the planData.
  *  @throws UDRException
  */
-void UDRPlanInfo::addPlanData(const char *planData,
-                              int planDataLength)
-{
-  invocationInfo_->validateCallPhase(UDRInvocationInfo::COMPILER_DOP_CALL,
-                                     UDRInvocationInfo::COMPILER_COMPLETION_CALL,
+void UDRPlanInfo::addPlanData(const char *planData, int planDataLength) {
+  invocationInfo_->validateCallPhase(UDRInvocationInfo::COMPILER_DOP_CALL, UDRInvocationInfo::COMPILER_COMPLETION_CALL,
                                      "UDRPlanInfo::addPlanData()");
 
-  if (planDataLength > 0 &&
-      planData == NULL)
-    throw UDRException(38900,
-                       "UDRWriterCompileTimeData::addPlanData() with no plan data and length >0");
+  if (planDataLength > 0 && planData == NULL)
+    throw UDRException(38900, "UDRWriterCompileTimeData::addPlanData() with no plan data and length >0");
 
-  if (planDataLength_)
-    delete planData_;
+  if (planDataLength_) delete planData_;
 
   planData_ = NULL;
   planDataLength_ = 0;
 
-  if (planDataLength)
-    {
-      // make a new copy of the input data
-      planData_ = new char[planDataLength];
-      memcpy(const_cast<char *>(planData_),
-             const_cast<char *>(planData),
-             planDataLength);
-      planDataLength_ = planDataLength;
-    }
+  if (planDataLength) {
+    // make a new copy of the input data
+    planData_ = new char[planDataLength];
+    memcpy(const_cast<char *>(planData_), const_cast<char *>(planData), planDataLength);
+    planDataLength_ = planDataLength;
+  }
 }
 
 /**
@@ -7754,8 +6097,7 @@ void UDRPlanInfo::addPlanData(const char *planData,
  *  @return Pointer to a byte array with plan data generated by the UDR writer
  *          at compile time.
  */
-const char *UDRPlanInfo::getPlanData(int &planDataLength)
-{
+const char *UDRPlanInfo::getPlanData(int &planDataLength) {
   planDataLength = planDataLength_;
   return planData_;
 }
@@ -7765,28 +6107,23 @@ const char *UDRPlanInfo::getPlanData(int &planDataLength)
  *
  *  @see UDRInvocationInfo::PRINT_INVOCATION_INFO_AT_RUN_TIME
  */
-void UDRPlanInfo::print()
-{
+void UDRPlanInfo::print() {
   printf("\nUDRPlanInfo\n-----------------------\n");
-  printf("Plan number                : %d\n",  planNum_);
+  printf("Plan number                : %d\n", planNum_);
   printf("Cost per row               : %ld\n", costPerRow_);
-  printf("Degree of parallelism      : %d\n",  degreeOfParallelism_);
-  if (udrWriterCompileTimeData_)
-    {
-      printf("UDR Writer comp. time data : ");
-      udrWriterCompileTimeData_->print();
-      printf("\n");
-    }
+  printf("Degree of parallelism      : %d\n", degreeOfParallelism_);
+  if (udrWriterCompileTimeData_) {
+    printf("UDR Writer comp. time data : ");
+    udrWriterCompileTimeData_->print();
+    printf("\n");
+  }
   printf("UDF Writer plan data length: ");
   printf("%d\n", planDataLength_);
 }
 
-int UDRPlanInfo::serializedLength()
-{
+int UDRPlanInfo::serializedLength() {
   // Format: base class + long(cost) + int(DoP) + UDR Writer data
-  int result = TMUDRSerializableObject::serializedLength() +
-    serializedLengthOfLong() +
-    serializedLengthOfInt();
+  int result = TMUDRSerializableObject::serializedLength() + serializedLengthOfLong() + serializedLengthOfInt();
   int udrWriterPlanDataLen = 0;
 
   result += serializedLengthOfBinary(planDataLength_);
@@ -7796,73 +6133,47 @@ int UDRPlanInfo::serializedLength()
 
 // more convenient methods for external callers,
 // without side-effecting parameters
-void UDRPlanInfo::serializeObj(Bytes outputBuffer,
-                               int outputBufferLength)
-{
+void UDRPlanInfo::serializeObj(Bytes outputBuffer, int outputBufferLength) {
   Bytes tempBuf = outputBuffer;
-  int tempLen   = outputBufferLength;
+  int tempLen = outputBufferLength;
 
   serialize(tempBuf, tempLen);
 }
 
-void UDRPlanInfo::deserializeObj(ConstBytes inputBuffer,
-                                 int inputBufferLength)
-{
+void UDRPlanInfo::deserializeObj(ConstBytes inputBuffer, int inputBufferLength) {
   ConstBytes tempBuf = inputBuffer;
-  int tempLen   = inputBufferLength;
+  int tempLen = inputBufferLength;
 
   deserialize(tempBuf, tempLen);
 }
 
-int UDRPlanInfo::serialize(Bytes &outputBuffer,
-                           int &outputBufferLength)
-{
-  int result = 
-    TMUDRSerializableObject::serialize(outputBuffer,
-                                       outputBufferLength);
+int UDRPlanInfo::serialize(Bytes &outputBuffer, int &outputBufferLength) {
+  int result = TMUDRSerializableObject::serialize(outputBuffer, outputBufferLength);
 
-  result += serializeLong(costPerRow_,
-                          outputBuffer,
-                          outputBufferLength);
+  result += serializeLong(costPerRow_, outputBuffer, outputBufferLength);
 
-  result += serializeInt(degreeOfParallelism_,
-                         outputBuffer,
-                         outputBufferLength);
+  result += serializeInt(degreeOfParallelism_, outputBuffer, outputBufferLength);
 
   int udrWriterPlanDataLen = 0;
   char *udrWriterPlanData = NULL;
 
-  result += serializeBinary(planData_,
-                            planDataLength_,
-                            outputBuffer,
-                            outputBufferLength);
+  result += serializeBinary(planData_, planDataLength_, outputBuffer, outputBufferLength);
 
   validateSerializedLength(result);
 
   return result;
 }
 
-int UDRPlanInfo::deserialize(ConstBytes &inputBuffer,
-                             int &inputBufferLength)
-{
-  int result =
-    TMUDRSerializableObject::deserialize(inputBuffer, inputBufferLength);
+int UDRPlanInfo::deserialize(ConstBytes &inputBuffer, int &inputBufferLength) {
+  int result = TMUDRSerializableObject::deserialize(inputBuffer, inputBufferLength);
 
   validateObjectType(UDR_PLAN_INFO_OBJ);
 
-  result += deserializeLong(costPerRow_,
-                            inputBuffer,
-                            inputBufferLength);
+  result += deserializeLong(costPerRow_, inputBuffer, inputBufferLength);
 
-  result += deserializeInt(degreeOfParallelism_,
-                           inputBuffer,
-                           inputBufferLength);
+  result += deserializeInt(degreeOfParallelism_, inputBuffer, inputBufferLength);
 
-  result += deserializeBinary((const void **) &planData_,
-                              planDataLength_,
-                              true,
-                              inputBuffer,
-                              inputBufferLength);
+  result += deserializeBinary((const void **)&planData_, planDataLength_, true, inputBuffer, inputBufferLength);
 
   validateDeserializedLength(result);
 
@@ -7878,10 +6189,7 @@ int UDRPlanInfo::deserialize(ConstBytes &inputBuffer,
  *
  *  Use this in the constructor of a derived class.
  */
-UDR::UDR() :
-     getNextRowPtr_(NULL),
-     emitRowPtr_(NULL)
-{}
+UDR::UDR() : getNextRowPtr_(NULL), emitRowPtr_(NULL) {}
 
 /**
  *  Virtual Destructor.
@@ -7957,9 +6265,7 @@ UDR::~UDR() {}
  *  @param info A description of the UDR invocation.
  *  @throws UDRException
  */
-void UDR::describeParamsAndColumns(UDRInvocationInfo &info)
-{
-}
+void UDR::describeParamsAndColumns(UDRInvocationInfo &info) {}
 
 /**
  *  Second method of the compiler interface (optional).
@@ -8026,10 +6332,8 @@ void UDR::describeParamsAndColumns(UDRInvocationInfo &info)
  *  @param info A description of the UDR invocation.
  *  @throws UDRException
  */
-void UDR::describeDataflowAndPredicates(UDRInvocationInfo &info)
-{
-  switch (info.getFuncType())
-    {
+void UDR::describeDataflowAndPredicates(UDRInvocationInfo &info) {
+  switch (info.getFuncType()) {
     case UDRInvocationInfo::GENERIC:
       break;
 
@@ -8039,61 +6343,49 @@ void UDR::describeDataflowAndPredicates(UDRInvocationInfo &info)
       break;
 
     case UDRInvocationInfo::REDUCER:
-    case UDRInvocationInfo::REDUCER_NC:
-      {
-        int partitionedChild = -1;
+    case UDRInvocationInfo::REDUCER_NC: {
+      int partitionedChild = -1;
 
-        // find a child that uses a PARTITION BY
-        for (int c=0; c<info.getNumTableInputs(); c++)
-          if (info.in(c).getQueryPartitioning().getType() ==
-              PartitionInfo::PARTITION)
-            {
-              partitionedChild = c;
-              break;
-            }
+      // find a child that uses a PARTITION BY
+      for (int c = 0; c < info.getNumTableInputs(); c++)
+        if (info.in(c).getQueryPartitioning().getType() == PartitionInfo::PARTITION) {
+          partitionedChild = c;
+          break;
+        }
 
-        if (partitionedChild >= 0)
-          {
-            const PartitionInfo &partInfo =
-              info.in(partitionedChild).getQueryPartitioning();
-            int numPredicates = info.getNumPredicates();
+      if (partitionedChild >= 0) {
+        const PartitionInfo &partInfo = info.in(partitionedChild).getQueryPartitioning();
+        int numPredicates = info.getNumPredicates();
 
-            // walk through all comparison predicates
-            for (int p=0; p<numPredicates; p++)
-              if (info.isAComparisonPredicate(p))
-                {
-                  // a predicate on column "predCol"
-                  int predCol = 
-                    info.getComparisonPredicate(p).getColumnNumber();
-                  const ColumnInfo &colInfo = info.out().getColumn(predCol);
-                  const ProvenanceInfo &prov = colInfo.getProvenance();
+        // walk through all comparison predicates
+        for (int p = 0; p < numPredicates; p++)
+          if (info.isAComparisonPredicate(p)) {
+            // a predicate on column "predCol"
+            int predCol = info.getComparisonPredicate(p).getColumnNumber();
+            const ColumnInfo &colInfo = info.out().getColumn(predCol);
+            const ProvenanceInfo &prov = colInfo.getProvenance();
 
-                  // find the corresponding child table and child column #
-                  if (prov.getInputTableNum() == partitionedChild)
-                    {
-                      int inputColNum = prov.getInputColumnNum();
+            // find the corresponding child table and child column #
+            if (prov.getInputTableNum() == partitionedChild) {
+              int inputColNum = prov.getInputColumnNum();
 
-                      // check whether inputColNum appears in the PARTITION BY clause
-                      for (int pbColIx=0; pbColIx<partInfo.getNumEntries(); pbColIx++)
-                        if (partInfo.getColumnNum(pbColIx) == inputColNum)
-                          {
-                            // yes, this is a predicate on a partitioning column,
-                            // push it down if possible
-                            info.pushPredicatesOnPassthruColumns(p, p);
-                            break;
-                          }
-                    } // column is from the partitioned input table
-                } // is a comparison predicate
-          } // found a partitioned child table
-      } // REDUCER(_NC)
-      break;
+              // check whether inputColNum appears in the PARTITION BY clause
+              for (int pbColIx = 0; pbColIx < partInfo.getNumEntries(); pbColIx++)
+                if (partInfo.getColumnNum(pbColIx) == inputColNum) {
+                  // yes, this is a predicate on a partitioning column,
+                  // push it down if possible
+                  info.pushPredicatesOnPassthruColumns(p, p);
+                  break;
+                }
+            }  // column is from the partitioned input table
+          }    // is a comparison predicate
+      }        // found a partitioned child table
+    }          // REDUCER(_NC)
+    break;
 
     default:
-      throw UDRException(
-           38900,
-           "Invalid UDR Function type: %d",
-           static_cast<int>(info.getFuncType()));
-    }
+      throw UDRException(38900, "Invalid UDR Function type: %d", static_cast<int>(info.getFuncType()));
+  }
 }
 
 /**
@@ -8115,9 +6407,7 @@ void UDR::describeDataflowAndPredicates(UDRInvocationInfo &info)
  *  @param info A description of the UDR invocation.
  *  @throws UDRException
  */
-void UDR::describeConstraints(UDRInvocationInfo &info)
-{
-}
+void UDR::describeConstraints(UDRInvocationInfo &info) {}
 
 /**
  *  Fourth method of the compiler interface (optional).
@@ -8156,8 +6446,7 @@ void UDR::describeConstraints(UDRInvocationInfo &info)
  *  @param info A description of the UDR invocation.
  *  @throws UDRException
  */
-void UDR::describeStatistics(UDRInvocationInfo &info)
-{
+void UDR::describeStatistics(UDRInvocationInfo &info) {
   // do nothing
 }
 
@@ -8207,16 +6496,13 @@ void UDR::describeStatistics(UDRInvocationInfo &info)
  *  @param plan Plan-related description of the UDR invocation.
  *  @throws UDRException
  */
-void UDR::describeDesiredDegreeOfParallelism(UDRInvocationInfo &info,
-                                                      UDRPlanInfo &plan)
-{
+void UDR::describeDesiredDegreeOfParallelism(UDRInvocationInfo &info, UDRPlanInfo &plan) {
   if (info.getNumTableInputs() == 1 &&
-      (info.getFuncType() == UDRInvocationInfo::MAPPER ||
-       info.getFuncType() == UDRInvocationInfo::REDUCER ||
+      (info.getFuncType() == UDRInvocationInfo::MAPPER || info.getFuncType() == UDRInvocationInfo::REDUCER ||
        info.getFuncType() == UDRInvocationInfo::REDUCER_NC))
     plan.setDesiredDegreeOfParallelism(UDRPlanInfo::ANY_DEGREE_OF_PARALLELISM);
   else
-    plan.setDesiredDegreeOfParallelism(1); // serial execution
+    plan.setDesiredDegreeOfParallelism(1);  // serial execution
 }
 
 /**
@@ -8230,14 +6516,12 @@ void UDR::describeDesiredDegreeOfParallelism(UDRInvocationInfo &info,
  *  result properties.
  *
  *  This interface is currently not used.
- *  
+ *
  *  @param info A description of the UDR invocation.
  *  @param plan Plan-related description of the UDR invocation.
  *  @throws UDRException
  */
-void UDR::describePlanProperties(UDRInvocationInfo &info,
-                                          UDRPlanInfo &plan)
-{
+void UDR::describePlanProperties(UDRInvocationInfo &info, UDRPlanInfo &plan) {
   // TBD
 }
 
@@ -8260,10 +6544,7 @@ void UDR::describePlanProperties(UDRInvocationInfo &info,
  *  @param plan Plan-related description of the UDR invocation.
  *  @throws UDRException
  */
-void UDR::completeDescription(UDRInvocationInfo &info,
-                                       UDRPlanInfo &plan)
-{
-}
+void UDR::completeDescription(UDRInvocationInfo &info, UDRPlanInfo &plan) {}
 
 /**
  *  Runtime code for UDRs (required).
@@ -8287,10 +6568,8 @@ void UDR::completeDescription(UDRInvocationInfo &info,
  *  @param plan Plan-related description of the UDR invocation.
  *  @throws UDRException
  */
-void UDR::processData(UDRInvocationInfo &info,
-                               UDRPlanInfo &plan)
-{
-  throw UDRException(38900,"UDR::processData() must be overridden by the UDF");
+void UDR::processData(UDRInvocationInfo &info, UDRPlanInfo &plan) {
+  throw UDRException(38900, "UDR::processData() must be overridden by the UDF");
 }
 
 /**
@@ -8298,7 +6577,8 @@ void UDR::processData(UDRInvocationInfo &info,
  *
  *  This method is called in debug Trafodion builds when certain
  *  flags are set in the UDR_DEBUG_FLAGS CQD (CONTROL QUERY DEFAULT).
- *  See https://cwiki.apache.org/confluence/display/TRAFODION/Tutorial%3A+The+object-oriented+UDF+interface#Tutorial:Theobject-orientedUDFinterface-DebuggingUDFcode
+ *  See
+ * https://cwiki.apache.org/confluence/display/TRAFODION/Tutorial%3A+The+object-oriented+UDF+interface#Tutorial:Theobject-orientedUDFinterface-DebuggingUDFcode
  *  for details.
  *
  *  The default implementation prints out the process id and then
@@ -8308,8 +6588,7 @@ void UDR::processData(UDRInvocationInfo &info,
  *  Note that the printout of the pid may not always be displayed on
  *  a terminal, for example if the process is executing on a different node.
  */
-void UDR::debugLoop()
-{
+void UDR::debugLoop() {
   int debugLoop = 1;
   int myPid = static_cast<int>(getpid());
 
@@ -8317,8 +6596,7 @@ void UDR::debugLoop()
 
   // go into a loop to allow the user to attach a debugger,
   // if requested, set debugLoop = 2 in the debugger to get out
-  while (debugLoop < 2)
-    debugLoop = 1-debugLoop;
+  while (debugLoop < 2) debugLoop = 1 - debugLoop;
 }
 
 /**
@@ -8331,51 +6609,39 @@ void UDR::debugLoop()
  *  @return true if another row could be read, false if it reached end of data.
  *  @throws UDRException
  */
-bool UDR::getNextRow(UDRInvocationInfo &info, int tableIndex)
-{
+bool UDR::getNextRow(UDRInvocationInfo &info, int tableIndex) {
   SQLUDR_Q_STATE qstate = SQLUDR_Q_MORE;
 
-  (*getNextRowPtr_)(info.in(tableIndex).getRowPtr(),
-                    tableIndex,
-                    &qstate);
+  (*getNextRowPtr_)(info.in(tableIndex).getRowPtr(), tableIndex, &qstate);
 
-  if (info.getDebugFlags() & UDRInvocationInfo::TRACE_ROWS)
-    switch (qstate)
-      {
-      case SQLUDR_Q_MORE:
-        {
-          std::string row;
+  if (info.getDebugFlags() & UDRInvocationInfo::TRACE_ROWS) switch (qstate) {
+      case SQLUDR_Q_MORE: {
+        std::string row;
 
-          info.in(tableIndex).getDelimitedRow(row,'|',true);
-          // replace any control characters with escape sequences
-          for (int c=row.size()-1; c>=0; c--)
-            if (row[c] < 32)
-              {
-                char buf[5];
+        info.in(tableIndex).getDelimitedRow(row, '|', true);
+        // replace any control characters with escape sequences
+        for (int c = row.size() - 1; c >= 0; c--)
+          if (row[c] < 32) {
+            char buf[5];
 
-                // print \x0a for an ASCII line feed (decimal 10)
-                snprintf(buf, sizeof(buf), "\\x%02hhx", row[c]);
-                row.replace(c, 1, buf);
-              }
-          printf("(%d) Input row from table %d: %s\n",
-                 info.getMyInstanceNum(), tableIndex, row.c_str());
-        }
-        break;
+            // print \x0a for an ASCII line feed (decimal 10)
+            snprintf(buf, sizeof(buf), "\\x%02hhx", row[c]);
+            row.replace(c, 1, buf);
+          }
+        printf("(%d) Input row from table %d: %s\n", info.getMyInstanceNum(), tableIndex, row.c_str());
+      } break;
 
       case SQLUDR_Q_EOD:
-        printf("(%d) Input table %d reached EOD\n",
-               info.getMyInstanceNum(), tableIndex);
+        printf("(%d) Input table %d reached EOD\n", info.getMyInstanceNum(), tableIndex);
         break;
 
       case SQLUDR_Q_CANCEL:
-        printf("(%d) Cancel request from input table %d\n",
-               info.getMyInstanceNum(), tableIndex);
+        printf("(%d) Cancel request from input table %d\n", info.getMyInstanceNum(), tableIndex);
         break;
 
       default:
-        printf("(%d) Invalid queue state %d from input table %d\n",
-               info.getMyInstanceNum(), qstate, tableIndex);
-      }
+        printf("(%d) Invalid queue state %d from input table %d\n", info.getMyInstanceNum(), qstate, tableIndex);
+    }
 
   return (qstate == SQLUDR_Q_MORE);
 }
@@ -8388,32 +6654,26 @@ bool UDR::getNextRow(UDRInvocationInfo &info, int tableIndex)
  *  @param info A description of the UDR invocation.
  *  @throws UDRException
  */
-void UDR::emitRow(UDRInvocationInfo &info)
-{
+void UDR::emitRow(UDRInvocationInfo &info) {
   SQLUDR_Q_STATE qstate = SQLUDR_Q_MORE;
 
-  if (info.getDebugFlags() & UDRInvocationInfo::TRACE_ROWS)
-    {
-      std::string row;
+  if (info.getDebugFlags() & UDRInvocationInfo::TRACE_ROWS) {
+    std::string row;
 
-      info.out().getDelimitedRow(row,'|',true);
-      // replace any control characters with escape sequences
-      for (int c=row.size()-1; c>=0; c--)
-        if (row[c] < 32)
-          {
-            char buf[5];
+    info.out().getDelimitedRow(row, '|', true);
+    // replace any control characters with escape sequences
+    for (int c = row.size() - 1; c >= 0; c--)
+      if (row[c] < 32) {
+        char buf[5];
 
-            // print \x0a for an ASCII line feed (decimal 10)
-            snprintf(buf, sizeof(buf), "\\x%02hhx", row[c]);
-            row.replace(c, 1, buf);
-          }
-      printf("(%d) Emitting row: %s\n",
-             info.getMyInstanceNum(), row.c_str());
-    }
+        // print \x0a for an ASCII line feed (decimal 10)
+        snprintf(buf, sizeof(buf), "\\x%02hhx", row[c]);
+        row.replace(c, 1, buf);
+      }
+    printf("(%d) Emitting row: %s\n", info.getMyInstanceNum(), row.c_str());
+  }
 
-  (*emitRowPtr_)(info.out().getRowPtr(),
-                 0,
-                 &qstate);
+  (*emitRowPtr_)(info.out().getRowPtr(), 0, &qstate);
 }
 
 /**
@@ -8428,7 +6688,4 @@ void UDR::emitRow(UDRInvocationInfo &info)
  *  @return A yet to be determined set of bit flags or codes for
  *          supported features.
  */
-int UDR::getFeaturesSupportedByUDF()
-{
-  return 0;
-}
+int UDR::getFeaturesSupportedByUDF() { return 0; }

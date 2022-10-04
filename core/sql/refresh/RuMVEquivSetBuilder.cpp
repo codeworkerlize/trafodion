@@ -45,210 +45,180 @@
 //--------------------------------------------------------------------------//
 
 CRUMVEquivSetBuilder::CRUMVEquivSetBuilder()
-: rootsMvsList_(eItemsArentOwned),
-  onRequestMVsList_(eItemsArentOwned),
-  equivSetsRootsList_(eItemsAreOwned)
-{}
+    : rootsMvsList_(eItemsArentOwned), onRequestMVsList_(eItemsArentOwned), equivSetsRootsList_(eItemsAreOwned) {}
 
-CRUMVEquivSetBuilder::~CRUMVEquivSetBuilder()
-{}
+CRUMVEquivSetBuilder::~CRUMVEquivSetBuilder() {}
 
 //--------------------------------------------------------------------------//
-//	CRUMVEquivSetBuilder::AddMV() 
+//	CRUMVEquivSetBuilder::AddMV()
 //
 //	Add the given MV to the data structure
 //--------------------------------------------------------------------------//
 
-void CRUMVEquivSetBuilder::AddMV(CRUMV *pMV)
-{
-	RUASSERT (
-		pMV != NULL 
-		&&
-		CDDObject::eON_REQUEST == pMV->GetRefreshType()
-	);
+void CRUMVEquivSetBuilder::AddMV(CRUMV *pMV) {
+  RUASSERT(pMV != NULL && CDDObject::eON_REQUEST == pMV->GetRefreshType());
 
-	onRequestMVsList_.AddTail(pMV);
+  onRequestMVsList_.AddTail(pMV);
 }
 
 //--------------------------------------------------------------------------//
-//	CRUMVEquivSetBuilder::GetSet() 
+//	CRUMVEquivSetBuilder::GetSet()
 //--------------------------------------------------------------------------//
 
-CRUMVList& CRUMVEquivSetBuilder::GetSet(Int32 num)
-{
-	RUASSERT (GetNumOfSets() >= num && 0 <= num );
-	
-	CRUMVList *pMVList = equivSetsRootsList_.GetAt(num);
+CRUMVList &CRUMVEquivSetBuilder::GetSet(Int32 num) {
+  RUASSERT(GetNumOfSets() >= num && 0 <= num);
 
-	RUASSERT (NULL != pMVList);
-	
-	return *pMVList;
+  CRUMVList *pMVList = equivSetsRootsList_.GetAt(num);
+
+  RUASSERT(NULL != pMVList);
+
+  return *pMVList;
 }
 
 //--------------------------------------------------------------------------//
-//	CRUMVEquivSetBuilder::Run() 
+//	CRUMVEquivSetBuilder::Run()
 //
 //	Main execution function
 //--------------------------------------------------------------------------//
 
-void CRUMVEquivSetBuilder::Run() 
-{
-	// Iterate through all the given mv's and add all the nessesary used
-	// objects to the graph.This function also builds the root mv's list
-	BuildDisJointGraph();
-	
-	// Analyze the graph with the disjoint graph helper class
-	GetDisJointAlg().Run();
+void CRUMVEquivSetBuilder::Run() {
+  // Iterate through all the given mv's and add all the nessesary used
+  // objects to the graph.This function also builds the root mv's list
+  BuildDisJointGraph();
 
-	// Iterate through all the root mv's list and build the root mvs' sets
-	BuildSets();
+  // Analyze the graph with the disjoint graph helper class
+  GetDisJointAlg().Run();
+
+  // Iterate through all the root mv's list and build the root mvs' sets
+  BuildSets();
 }
 
 //--------------------------------------------------------------------------//
-//	CRUMVEquivSetBuilder::BuildDisJointGraph() 
+//	CRUMVEquivSetBuilder::BuildDisJointGraph()
 //
 //	Iterate through all the given mv's and add all the nessesary used
 //	objects to the graph.
 //--------------------------------------------------------------------------//
 
-void CRUMVEquivSetBuilder::BuildDisJointGraph() 
-{
-	AddOnRequestMVs();
+void CRUMVEquivSetBuilder::BuildDisJointGraph() { AddOnRequestMVs(); }
+
+//--------------------------------------------------------------------------//
+//	CRUMVEquivSetBuilder::AddOnRequestMVs()
+//--------------------------------------------------------------------------//
+
+void CRUMVEquivSetBuilder::AddOnRequestMVs() {
+  DSListPosition mvPos = onRequestMVsList_.GetHeadPosition();
+  while (NULL != mvPos) {
+    CRUMV *pMV = onRequestMVsList_.GetNext(mvPos);
+
+    AddOnRequestMV(pMV);
+  }
 }
 
 //--------------------------------------------------------------------------//
-//	CRUMVEquivSetBuilder::AddOnRequestMVs() 
-//--------------------------------------------------------------------------//
-
-void CRUMVEquivSetBuilder::AddOnRequestMVs() 
-{
-	DSListPosition mvPos = onRequestMVsList_.GetHeadPosition();
-	while (NULL != mvPos)
-	{
-		CRUMV *pMV = onRequestMVsList_.GetNext(mvPos);
-		
-		AddOnRequestMV(pMV);
-	}
-}
-
-//--------------------------------------------------------------------------//
-//	CRUMVEquivSetBuilder::AddOnRequestMV() 
+//	CRUMVEquivSetBuilder::AddOnRequestMV()
 //
-//	For each ON REQUEST mv add it as a vertex to the disjoint sets alg' 
+//	For each ON REQUEST mv add it as a vertex to the disjoint sets alg'
 //	and then iterate through all of its tables and add edges between the MVs.
 //
-//	We do not need to deal with recomputed mv's because there are no 
+//	We do not need to deal with recomputed mv's because there are no
 //	recomputed MVs under an on request MV.
 //--------------------------------------------------------------------------//
 
-void CRUMVEquivSetBuilder::AddOnRequestMV(CRUMV *pMV)
-{
-	RUASSERT(CDDObject::eON_REQUEST == pMV->GetRefreshType());
+void CRUMVEquivSetBuilder::AddOnRequestMV(CRUMV *pMV) {
+  RUASSERT(CDDObject::eON_REQUEST == pMV->GetRefreshType());
 
-	GetDisJointAlg().AddVertex(pMV->GetUID());
+  GetDisJointAlg().AddVertex(pMV->GetUID());
 
-	CRUTblList &tblList = pMV->GetTablesUsedByMe();
-		
-	DSListPosition tblPos = tblList.GetHeadPosition();
+  CRUTblList &tblList = pMV->GetTablesUsedByMe();
 
-	BOOL isRoot = TRUE;
+  DSListPosition tblPos = tblList.GetHeadPosition();
 
-	while (NULL != tblPos)
-	{
-		CRUTbl *pTbl = tblList.GetNext(tblPos);
-		
-		if (TRUE  == pTbl->IsFullySynchronized() ||
-			FALSE == pTbl->IsInvolvedMV())
-		{
-			// regular tables and uninvolved mv's are not a part 
-			// of the equivalent mv's sets
-			continue;
-		}
+  BOOL isRoot = TRUE;
 
-		isRoot = FALSE;
+  while (NULL != tblPos) {
+    CRUTbl *pTbl = tblList.GetNext(tblPos);
 
-		GetDisJointAlg().AddEdge(pTbl->GetUID(), pMV->GetUID());
-	}
+    if (TRUE == pTbl->IsFullySynchronized() || FALSE == pTbl->IsInvolvedMV()) {
+      // regular tables and uninvolved mv's are not a part
+      // of the equivalent mv's sets
+      continue;
+    }
 
-	if (TRUE == isRoot)
-	{
-		rootsMvsList_.AddTail(pMV);
-	}
+    isRoot = FALSE;
+
+    GetDisJointAlg().AddEdge(pTbl->GetUID(), pMV->GetUID());
+  }
+
+  if (TRUE == isRoot) {
+    rootsMvsList_.AddTail(pMV);
+  }
 }
 
 //--------------------------------------------------------------------------//
-//	CRUMVEquivSetBuilder::BuildSets() 
+//	CRUMVEquivSetBuilder::BuildSets()
 //
 //	Collect the output from the disjoint set algorithm and prepare the sets
 //--------------------------------------------------------------------------//
 
-void CRUMVEquivSetBuilder::BuildSets()
-{
-	Int32 equivSetsSize = GetDisJointAlg().GetNumOfSets();
-	
-	// Initialize the list of root mv's sets 
-	for (Int32 i=0;i<equivSetsSize;i++)
-	{
-		equivSetsRootsList_.AddTail(
-			new CRUMVList(eItemsArentOwned));
-	}
+void CRUMVEquivSetBuilder::BuildSets() {
+  Int32 equivSetsSize = GetDisJointAlg().GetNumOfSets();
 
-	DSListPosition mvPos = rootsMvsList_.GetHeadPosition();
+  // Initialize the list of root mv's sets
+  for (Int32 i = 0; i < equivSetsSize; i++) {
+    equivSetsRootsList_.AddTail(new CRUMVList(eItemsArentOwned));
+  }
 
-	while (NULL != mvPos)
-	{
-		CRUMV *pMV = rootsMvsList_.GetNext(mvPos);
+  DSListPosition mvPos = rootsMvsList_.GetHeadPosition();
 
-		Int32 setId = GetDisJointAlg().GetNodeSetId(pMV->GetUID());
+  while (NULL != mvPos) {
+    CRUMV *pMV = rootsMvsList_.GetNext(mvPos);
 
-		equivSetsRootsList_.GetAt(setId)->AddTail(pMV);
-	}
+    Int32 setId = GetDisJointAlg().GetNodeSetId(pMV->GetUID());
+
+    equivSetsRootsList_.GetAt(setId)->AddTail(pMV);
+  }
 }
 
 //--------------------------------------------------------------------------//
-//	CRUMVEquivSetBuilder::GetEquivSetsRootsByMVUID() 
+//	CRUMVEquivSetBuilder::GetEquivSetsRootsByMVUID()
 //
 //	Returns the root mv's for which the given MV belongs to
 //--------------------------------------------------------------------------//
 
-CRUMVList& CRUMVEquivSetBuilder::GetEquivSetsRootsByMVUID(TInt64 uid)
-{
-	Int32 setId = GetDisJointAlg().GetNodeSetId(uid);
+CRUMVList &CRUMVEquivSetBuilder::GetEquivSetsRootsByMVUID(TInt64 uid) {
+  Int32 setId = GetDisJointAlg().GetNodeSetId(uid);
 
-	RUASSERT(0 <= setId && setId < equivSetsRootsList_.GetCount())
+  RUASSERT(0 <= setId && setId < equivSetsRootsList_.GetCount())
 
-	return *equivSetsRootsList_.GetAt(setId);
+  return *equivSetsRootsList_.GetAt(setId);
 }
 
 #ifdef _DEBUG
 //--------------------------------------------------------------------------//
-//	CRUMVEquivSetBuilder::DumpSets() 
+//	CRUMVEquivSetBuilder::DumpSets()
 //--------------------------------------------------------------------------//
 
-void CRUMVEquivSetBuilder::DumpSets()
-{
-	CDSString msg;
-	char tmpstr[10];
+void CRUMVEquivSetBuilder::DumpSets() {
+  CDSString msg;
+  char tmpstr[10];
 
-	msg = "\nMV Equivalence sets: \n" ;
+  msg = "\nMV Equivalence sets: \n";
 
-	CRUGlobals::GetInstance()->GetJournal().LogMessage(msg);
-	for (Int32 i=0;i<GetNumOfSets();i++)
-	{
-		sprintf(tmpstr, "%d", i+1);
-		msg = "\nRoots of Set #" + CDSString(tmpstr) + ":\n" ;
-		
-		CRUGlobals::GetInstance()->GetJournal().LogMessage(msg);
+  CRUGlobals::GetInstance()->GetJournal().LogMessage(msg);
+  for (Int32 i = 0; i < GetNumOfSets(); i++) {
+    sprintf(tmpstr, "%d", i + 1);
+    msg = "\nRoots of Set #" + CDSString(tmpstr) + ":\n";
 
-		DSListPosition tblPos = GetSet(i).GetHeadPosition();
+    CRUGlobals::GetInstance()->GetJournal().LogMessage(msg);
 
-		while (NULL != tblPos)
-		{
-			CRUMV *pMV = GetSet(i).GetNext(tblPos);
-			
-			CRUGlobals::GetInstance()->GetJournal().
-		                          LogMessage(pMV->GetFullName());
-		}
-	}
+    DSListPosition tblPos = GetSet(i).GetHeadPosition();
+
+    while (NULL != tblPos) {
+      CRUMV *pMV = GetSet(i).GetNext(tblPos);
+
+      CRUGlobals::GetInstance()->GetJournal().LogMessage(pMV->GetFullName());
+    }
+  }
 }
 #endif

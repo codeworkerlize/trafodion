@@ -36,134 +36,102 @@
 
 class ExExeStmtGlobals;
 
-namespace ExOverflow
-{
+namespace ExOverflow {
 
-  class Allocator : public NABasicObject
-  {
-    public:
-      Allocator(ByteCount bufferSize, UInt32 memoryQuotaMB,
-                BufferCount nBuffers, BufferCount reserve, 
-                NAMemory* heap = NULL, ExExeStmtGlobals* exeGlobals = NULL,
-                bool yieldQuota = true);
-      ~Allocator(void);
+class Allocator : public NABasicObject {
+ public:
+  Allocator(ByteCount bufferSize, UInt32 memoryQuotaMB, BufferCount nBuffers, BufferCount reserve,
+            NAMemory *heap = NULL, ExExeStmtGlobals *exeGlobals = NULL, bool yieldQuota = true);
+  ~Allocator(void);
 
-      // Adjust buffer reuse list based on forecasted demand
-      void adjust(BufferCount bufferDemand);
+  // Adjust buffer reuse list based on forecasted demand
+  void adjust(BufferCount bufferDemand);
 
-      // Allocate a buffer if the allocation doesn't exceed the memory quota.
-      char* allocate(bool failureIsFatal = false);
-      
-      // Deallocate a buffer
-      void deallocate(char*& buffer);
+  // Allocate a buffer if the allocation doesn't exceed the memory quota.
+  char *allocate(bool failureIsFatal = false);
 
-      // Deallocate all buffers
-      void deallocateAll(void);
+  // Deallocate a buffer
+  void deallocate(char *&buffer);
 
-      // Get a buffer from the reuse list or allocate one.  The number
-      // of available buffers is not allowed to fall below the reserve
-      // count unless useReserve is true.  Returns NULL if useReserve
-      // is false and the number of available buffers is less than or
-      // equal to the reserve count.
-      char *getBuffer(bool useReserve = false);
+  // Deallocate all buffers
+  void deallocateAll(void);
 
-      // Get default buffer size in bytes
-      ByteCount getDefaultBufferSize(void) const;
+  // Get a buffer from the reuse list or allocate one.  The number
+  // of available buffers is not allowed to fall below the reserve
+  // count unless useReserve is true.  Returns NULL if useReserve
+  // is false and the number of available buffers is less than or
+  // equal to the reserve count.
+  char *getBuffer(bool useReserve = false);
 
-      // Access the heap
-      NAMemory* getHeap(void) const;
+  // Get default buffer size in bytes
+  ByteCount getDefaultBufferSize(void) const;
 
-      // Return the maximum number of bytes ever allocated
-      ByteCount64 getMaxAllocation(void) const;
+  // Access the heap
+  NAMemory *getHeap(void) const;
 
-      // Return the memory quota (in megabytes)
-      UInt32 getQuotaMB(void) const;
+  // Return the maximum number of bytes ever allocated
+  ByteCount64 getMaxAllocation(void) const;
 
-      // Reinitialize undoes deallocateAll.  Failure is fatal.
-      void reinitialize(void);
+  // Return the memory quota (in megabytes)
+  UInt32 getQuotaMB(void) const;
 
-      // Make a buffer available for reuse
-      void reuse(char* buffer);
+  // Reinitialize undoes deallocateAll.  Failure is fatal.
+  void reinitialize(void);
 
-      // Return the number of bytes currently allocated
-      ByteCount64 size(void) const;
+  // Make a buffer available for reuse
+  void reuse(char *buffer);
 
-    private:
-      Allocator(void);                               // unimplemented
-      Allocator(const Allocator& src);               // unimplemented
-      Allocator& operator=(const Allocator& rhs);    // unimplemented
+  // Return the number of bytes currently allocated
+  ByteCount64 size(void) const;
 
-      // Allocate nInitial_ memory buffers.  Failure to allocate
-      // these buffers is fatal.
-      void acquireMemory(void);
+ private:
+  Allocator(void);                             // unimplemented
+  Allocator(const Allocator &src);             // unimplemented
+  Allocator &operator=(const Allocator &rhs);  // unimplemented
 
-      // Allocate a buffer if the allocation doesn't exceed the memory quota.
-      char* allocateBuffer(bool failureIsFatal);
+  // Allocate nInitial_ memory buffers.  Failure to allocate
+  // these buffers is fatal.
+  void acquireMemory(void);
 
-      // Destroy count buffers
-      void destroy(BufferCount count);
+  // Allocate a buffer if the allocation doesn't exceed the memory quota.
+  char *allocateBuffer(bool failureIsFatal);
 
-      ByteCount64 maxAllocated_;      // high water mark for allocated memory
-      ByteCount64 memAllocated_;      // total memory currently allocated
-      ByteCount64 quota_;             // current memory quota (no quota if zero)
-      ByteCount64 quotaInitial_;      // initial memory quota (no quota if zero)
-      ExExeStmtGlobals* exeGlobals_;  // globals containing BMO memory quota
-      NAMemory*   heap_;              // NULL => use global new
-      ByteCount   bufferSize_;        // buffer allocation size
-      BufferCount nInitial_;          // number of initial buffers
-      BufferCount nReserve_;          // number of buffers to keep in reserve
-      BufferList  reuseList_;         // buffers available for reuse
-      bool        yieldQuota_;        // true => yield entire quota;
-                                      // false => yield excess quota
-  };
+  // Destroy count buffers
+  void destroy(BufferCount count);
 
-  inline
-  ByteCount
-  Allocator::getDefaultBufferSize(void) const
-  {
-    return bufferSize_;
-  }
+  ByteCount64 maxAllocated_;      // high water mark for allocated memory
+  ByteCount64 memAllocated_;      // total memory currently allocated
+  ByteCount64 quota_;             // current memory quota (no quota if zero)
+  ByteCount64 quotaInitial_;      // initial memory quota (no quota if zero)
+  ExExeStmtGlobals *exeGlobals_;  // globals containing BMO memory quota
+  NAMemory *heap_;                // NULL => use global new
+  ByteCount bufferSize_;          // buffer allocation size
+  BufferCount nInitial_;          // number of initial buffers
+  BufferCount nReserve_;          // number of buffers to keep in reserve
+  BufferList reuseList_;          // buffers available for reuse
+  bool yieldQuota_;               // true => yield entire quota;
+                                  // false => yield excess quota
+};
 
-  inline
-  NAMemory*   
-  Allocator::getHeap(void) const
-  {
-    return heap_;
-  }
-  inline
-  ByteCount64
-  Allocator::getMaxAllocation(void) const
-  {
-    return maxAllocated_;
-  }
+inline ByteCount Allocator::getDefaultBufferSize(void) const { return bufferSize_; }
 
+inline NAMemory *Allocator::getHeap(void) const { return heap_; }
+inline ByteCount64 Allocator::getMaxAllocation(void) const { return maxAllocated_; }
 
-  inline
-  UInt32
-  Allocator::getQuotaMB(void) const
-  {
+inline UInt32 Allocator::getQuotaMB(void) const {
 #if defined(HAS_ANSI_CPP_CASTS)
-    return static_cast<UInt32>(quota_ / ONE_MEGABYTE);
+  return static_cast<UInt32>(quota_ / ONE_MEGABYTE);
 #else
-    return (UInt32) (quota_ / ONE_MEGABYTE);
+  return (UInt32)(quota_ / ONE_MEGABYTE);
 #endif
-  }
-  inline
-  void
-  Allocator::reuse(char* buffer)
-  {
-    if (buffer)
-    {
-      reuseList_.push_back(buffer);
-    }
-  }
-  inline
-  ByteCount64
-  Allocator::size(void) const
-  {
-    return memAllocated_;
-  }
-
 }
+inline void Allocator::reuse(char *buffer) {
+  if (buffer) {
+    reuseList_.push_back(buffer);
+  }
+}
+inline ByteCount64 Allocator::size(void) const { return memAllocated_; }
+
+}  // namespace ExOverflow
 
 #endif

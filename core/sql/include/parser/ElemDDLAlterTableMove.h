@@ -7,7 +7,7 @@
  * Description:  class for Move clause in Alter Table <table-name>
  *               DDL statements
  *
- *               
+ *
  * Created:      9/20/95
  * Language:     C++
  *
@@ -37,7 +37,6 @@
  *****************************************************************************
  */
 
-
 #include "ElemDDLNode.h"
 
 // -----------------------------------------------------------------------
@@ -53,66 +52,50 @@ class ElemDDLAlterTableMove;
 // -----------------------------------------------------------------------
 // Key Value elements in DDL statements.
 // -----------------------------------------------------------------------
-class ElemDDLAlterTableMove : public ElemDDLNode
-{
-
-public:
-
+class ElemDDLAlterTableMove : public ElemDDLNode {
+ public:
   // constructor
-  ElemDDLAlterTableMove(ElemDDLNode * sourceLocationList,
-                        ElemDDLNode * destLocationList);
+  ElemDDLAlterTableMove(ElemDDLNode *sourceLocationList, ElemDDLNode *destLocationList);
 
   // virtual destructor
   virtual ~ElemDDLAlterTableMove();
 
   // cast
-  virtual ElemDDLAlterTableMove * castToElemDDLAlterTableMove();  
+  virtual ElemDDLAlterTableMove *castToElemDDLAlterTableMove();
 
   //
   // accessors
   //
 
   virtual Int32 getArity() const;
-  virtual ExprNode * getChild(Lng32 index);
+  virtual ExprNode *getChild(Lng32 index);
 
-  inline ElemDDLNode * getSourceLocationList() const;
-  inline ElemDDLNode * getDestLocationList() const;
+  inline ElemDDLNode *getSourceLocationList() const;
+  inline ElemDDLNode *getDestLocationList() const;
 
   // mutator
-  virtual void setChild(Lng32 index, ExprNode * pChildNode);
+  virtual void setChild(Lng32 index, ExprNode *pChildNode);
 
   // method for tracing
   virtual const NAString getText() const;
 
-
-private:
-
+ private:
   // pointers to child parse nodes
 
-  enum { INDEX_SOURCE_LOCATION_LIST = 0,
-         INDEX_DEST_LOCATION_LIST,
-         MAX_ELEM_DDL_ALTER_TABLE_MOVE_ARITY };
+  enum { INDEX_SOURCE_LOCATION_LIST = 0, INDEX_DEST_LOCATION_LIST, MAX_ELEM_DDL_ALTER_TABLE_MOVE_ARITY };
 
-  ElemDDLNode * children_[MAX_ELEM_DDL_ALTER_TABLE_MOVE_ARITY];
-  
-}; // class ElemDDLAlterTableMove
+  ElemDDLNode *children_[MAX_ELEM_DDL_ALTER_TABLE_MOVE_ARITY];
+
+};  // class ElemDDLAlterTableMove
 
 // -----------------------------------------------------------------------
 // definitions of inline methods for class ElemDDLAlterTableMove
 // -----------------------------------------------------------------------
 
-inline
-ElemDDLNode *
-ElemDDLAlterTableMove::getSourceLocationList() const
-{
+inline ElemDDLNode *ElemDDLAlterTableMove::getSourceLocationList() const {
   return children_[INDEX_SOURCE_LOCATION_LIST];
 }
 
-inline
-ElemDDLNode *
-ElemDDLAlterTableMove::getDestLocationList() const
-{
-  return children_[INDEX_DEST_LOCATION_LIST];
-}
+inline ElemDDLNode *ElemDDLAlterTableMove::getDestLocationList() const { return children_[INDEX_DEST_LOCATION_LIST]; }
 
-#endif // ELEMDDLALTERTABLEMOVE_H
+#endif  // ELEMDDLALTERTABLEMOVE_H

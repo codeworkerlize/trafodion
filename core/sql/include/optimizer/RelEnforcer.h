@@ -60,23 +60,18 @@ class CostMethodExchange;
 // clause at the top level of a view.
 // It is created during bind phase view expansion and is eliminated during
 // the normalization phase.
-// See method BindWA::bindView, RelRoot::transformNode 
+// See method BindWA::bindView, RelRoot::transformNode
 // and SortLogical::normalizeNode for details.
 ///////////////////////////////////////////////////////////////////////////
-class SortLogical : public RelExpr
-{
-public:
-  SortLogical(RelExpr *child,
-	      const ValueIdList &sortKey,
-	      CollHeap *oHeap = CmpCommon::statementHeap()) :
-       RelExpr(REL_SORT_LOGICAL,child, NULL, oHeap),
-       sortKey_(sortKey)
-  {}
+class SortLogical : public RelExpr {
+ public:
+  SortLogical(RelExpr *child, const ValueIdList &sortKey, CollHeap *oHeap = CmpCommon::statementHeap())
+      : RelExpr(REL_SORT_LOGICAL, child, NULL, oHeap), sortKey_(sortKey) {}
 
   // Each operator supports a (virtual) method for performing
   // predicate pushdown and computing a "minimal" set of
   // characteristic input and characteristic output values.
-  virtual RelExpr * normalizeNode(NormWA & normWARef);
+  virtual RelExpr *normalizeNode(NormWA &normWARef);
 
   // accessor functions
   inline ValueIdList &getSortKey() { return sortKey_; }
@@ -84,10 +79,9 @@ public:
   // get the degree of this node (it is a unary op).
   virtual Int32 getArity() const { return 1; };
 
-private:
-
+ private:
   // the sort key list
-  ValueIdList sortKey_;       // the order of sort keys is relevant
+  ValueIdList sortKey_;  // the order of sort keys is relevant
 };
 
 // -----------------------------------------------------------------------
@@ -98,20 +92,14 @@ private:
 // and extend an existing ordering key of the child
 // (alreadySortedColumns_) by additional expressions.
 // -----------------------------------------------------------------------
-class Sort : public RelExpr
-{
-public:
-
+class Sort : public RelExpr {
+ public:
   // constructors
-  Sort(RelExpr *child,
-	      CollHeap *oHeap = CmpCommon::statementHeap());
+  Sort(RelExpr *child, CollHeap *oHeap = CmpCommon::statementHeap());
 
-  Sort(RelExpr *child,
-	      const ValueIdList &sortKey,
-	      CollHeap *oHeap = CmpCommon::statementHeap());
+  Sort(RelExpr *child, const ValueIdList &sortKey, CollHeap *oHeap = CmpCommon::statementHeap());
 
-  Sort(RelExpr *child,
-	      const ValueIdSet &arrangedCols);
+  Sort(RelExpr *child, const ValueIdSet &arrangedCols);
 
   virtual ~Sort();
 
@@ -120,32 +108,25 @@ public:
 
   virtual NABoolean isUniqueOper();
 
-  virtual RelExpr * preCodeGen(Generator * generator,
-			       const ValueIdSet & externalInputs,
-			       ValueIdSet &pulledNewInputs);
-  virtual short codeGen(Generator*);
+  virtual RelExpr *preCodeGen(Generator *generator, const ValueIdSet &externalInputs, ValueIdSet &pulledNewInputs);
+  virtual short codeGen(Generator *);
   virtual void needSortedNRows(NABoolean val);
-  NABoolean &sortNRows() {return sortNRows_;}
+  NABoolean &sortNRows() { return sortNRows_; }
 
   virtual HashValue topHash();
-  virtual NABoolean duplicateMatch(const RelExpr & other) const;
-  virtual RelExpr * copyTopNode(RelExpr *derivedNode = NULL,
-				CollHeap* outHeap = NULL);
+  virtual NABoolean duplicateMatch(const RelExpr &other) const;
+  virtual RelExpr *copyTopNode(RelExpr *derivedNode = NULL, CollHeap *outHeap = NULL);
 
   virtual NABoolean isLogical() const;
   virtual NABoolean isPhysical() const;
 
   // Cascades-related functions
-  virtual CostMethod* costMethod() const;
-  virtual Context* createContextForAChild(Context* myContext,
-                     PlanWorkSpace* pws,
-                     Lng32& childindex);
+  virtual CostMethod *costMethod() const;
+  virtual Context *createContextForAChild(Context *myContext, PlanWorkSpace *pws, Lng32 &childindex);
 
-  virtual PhysicalProperty* synthPhysicalProperty(const Context* myContext,
-                                                  const Lng32    planNumber,
-                                                  PlanWorkSpace  *pws);
+  virtual PhysicalProperty *synthPhysicalProperty(const Context *myContext, const Lng32 planNumber, PlanWorkSpace *pws);
 
-  void synthPartialSortKeyFromChild(const Context*);
+  void synthPartialSortKeyFromChild(const Context *);
   virtual void produceFinalSortKey();
 
   // get a printable string that identifies the operator
@@ -153,48 +134,39 @@ public:
 
   // add all the expressions that are local to this
   // node to an existing list of expressions (used by GUI tool)
-  virtual void addLocalExpr(LIST(ExprNode *) &xlist,
-			    LIST(NAString) &llist) const;
+  virtual void addLocalExpr(LIST(ExprNode *) & xlist, LIST(NAString) & llist) const;
 
   // accessor functions
-  inline ValueIdList &getSortKey()                    { return sortKey_; }
-  inline ValueIdList &getPartialSortKeyFromChild() 
-                   { return PartialSortKeyFromChild_;} 
-  inline ValueIdList &getPrefixSortKey()
-                   { return PartialSortKeyFromChild_;}
+  inline ValueIdList &getSortKey() { return sortKey_; }
+  inline ValueIdList &getPartialSortKeyFromChild() { return PartialSortKeyFromChild_; }
+  inline ValueIdList &getPrefixSortKey() { return PartialSortKeyFromChild_; }
 
-  inline ValueIdSet &getArrangedCols()           { return arrangedCols_; }
+  inline ValueIdSet &getArrangedCols() { return arrangedCols_; }
 
   // The method gets refined since Sort may be a BMO depending on its inputs.
-  virtual NABoolean isBigMemoryOperator(const PlanWorkSpace* pws,
-                                        const Lng32 planNumber);
+  virtual NABoolean isBigMemoryOperator(const PlanWorkSpace *pws, const Lng32 planNumber);
 
   virtual CostScalar getEstimatedRunTimeMemoryUsage(Generator *generator, NABoolean perNode, Lng32 *numStreams = NULL);
 
-  virtual PlanPriority computeOperatorPriority
-    (const Context* context,
-     PlanWorkSpace *pws=NULL,
-     Lng32 planNumber=0);
+  virtual PlanPriority computeOperatorPriority(const Context *context, PlanWorkSpace *pws = NULL, Lng32 planNumber = 0);
 
-  inline void markAsHalloweenProtection() { forcedHalloweenProtection_= TRUE; }
-  inline void setCollectNFErrors(NABoolean cf = TRUE) {collectNFErrors_ = cf;}
-  inline NABoolean collectNFErrors() {return collectNFErrors_;}
+  inline void markAsHalloweenProtection() { forcedHalloweenProtection_ = TRUE; }
+  inline void setCollectNFErrors(NABoolean cf = TRUE) { collectNFErrors_ = cf; }
+  inline NABoolean collectNFErrors() { return collectNFErrors_; }
 
   inline void doCheckAccessToSelfRefTable() { checkAccessToSelfRefTable_ = TRUE; }
 
-  ExplainTuple *addSpecificExplainInfo(ExplainTupleMaster *explainTuple,
-					      ComTdb * tdb,
-					      Generator *generator);
+  ExplainTuple *addSpecificExplainInfo(ExplainTupleMaster *explainTuple, ComTdb *tdb, Generator *generator);
 
   virtual NABoolean sortFromTop() { return FALSE; }
   virtual void doIgnoreTrailingBlank() { ignoreTrailingBlank_ = TRUE; }
   virtual NABoolean isIgnoreTrailingBlank() { return ignoreTrailingBlank_; }
-protected:
 
+ protected:
   // the sort key list
-  ValueIdList sortKey_;       // the order of sort keys is relevant
-  ValueIdSet  arrangedCols_;  // a "fuzzy" sort key, actual order can
-                              // be determined later
+  ValueIdList sortKey_;      // the order of sort keys is relevant
+  ValueIdSet arrangedCols_;  // a "fuzzy" sort key, actual order can
+                             // be determined later
 
   // set to TRUE, if top N sorted rows are needed.
   // See method needSortedNRows().
@@ -207,7 +179,7 @@ protected:
 
   // A "halloween sort" needs to ensure that if it is parallel, but executes
   // in the same ESP as the generic update's TSJ flow node, then the Sort
-  // will block until all scans are finished.  This logic is enforced in the 
+  // will block until all scans are finished.  This logic is enforced in the
   // PreCodeGen phase.  This next flag helps.
   NABoolean checkAccessToSelfRefTable_;
 
@@ -222,55 +194,33 @@ protected:
 
   CostMethodSort *pCostMethod_;
 
-  short generateTdb(Generator * generator,
-                    ComTdb * child_tdb,
-                    ex_expr * sortKeyExpr,
-                    ex_expr * sortRecExpr,
-                    ULng32 sortKeyLen,
-                    ULng32 sortRecLen,
-                    ULng32 sortPrefixKeyLen,
-                    ex_cri_desc * given_desc,
-                    ex_cri_desc * returned_desc,
-                    ex_cri_desc * work_cri_desc,
-                    Lng32 saveNumEsps,
-                    ExplainTuple *childExplainTuple,
-                    NABoolean resizeCifRecord,
-                    NABoolean considerBufferDefrag,
+  short generateTdb(Generator *generator, ComTdb *child_tdb, ex_expr *sortKeyExpr, ex_expr *sortRecExpr,
+                    ULng32 sortKeyLen, ULng32 sortRecLen, ULng32 sortPrefixKeyLen, ex_cri_desc *given_desc,
+                    ex_cri_desc *returned_desc, ex_cri_desc *work_cri_desc, Lng32 saveNumEsps,
+                    ExplainTuple *childExplainTuple, NABoolean resizeCifRecord, NABoolean considerBufferDefrag,
                     NABoolean operatorCIF = FALSE);
 
-  //determine internal format
+  // determine internal format
   /*
   virtual ExpTupleDesc::TupleDataFormat determineInternalFormat( const ValueIdList & valIdList,
                                                                     RelExpr * relExpr,
                                                                     NABoolean & resizeCifRecord,
                                                                     Generator * generator);*/
 
-  ExpTupleDesc::TupleDataFormat determineInternalFormat( const ValueIdList & valIdList,
-                                                         RelExpr * relExpr,
-                                                         NABoolean & resizeCifRecord,
-                                                         Generator * generator,
-                                                         NABoolean bmo_affinity ,
-                                                         NABoolean & considerBufferDefrag);
-
+  ExpTupleDesc::TupleDataFormat determineInternalFormat(const ValueIdList &valIdList, RelExpr *relExpr,
+                                                        NABoolean &resizeCifRecord, Generator *generator,
+                                                        NABoolean bmo_affinity, NABoolean &considerBufferDefrag);
 };
 
-class SortFromTop : public Sort
-{
-public:
-
+class SortFromTop : public Sort {
+ public:
   // constructors
-  SortFromTop(RelExpr *child,
-	      CollHeap *oHeap = CmpCommon::statementHeap()) :
-       Sort(child, oHeap)
-  {}
+  SortFromTop(RelExpr *child, CollHeap *oHeap = CmpCommon::statementHeap()) : Sort(child, oHeap) {}
 
-  virtual RelExpr * preCodeGen(Generator * generator,
-			       const ValueIdSet & externalInputs,
-			       ValueIdSet &pulledNewInputs);
-  virtual short codeGen(Generator*);
+  virtual RelExpr *preCodeGen(Generator *generator, const ValueIdSet &externalInputs, ValueIdSet &pulledNewInputs);
+  virtual short codeGen(Generator *);
 
-  virtual RelExpr * copyTopNode(RelExpr *derivedNode = NULL,
-				CollHeap* outHeap = NULL);
+  virtual RelExpr *copyTopNode(RelExpr *derivedNode = NULL, CollHeap *outHeap = NULL);
 
   // get a printable string that identifies the operator
   virtual const NAString getText() const;
@@ -279,89 +229,87 @@ public:
 
   ValueIdList &getSortRecExpr() { return sortRecExpr_; }
 
-private:
+ private:
   // list of values to be used to create the input row to sort
-  ValueIdList sortRecExpr_;       
+  ValueIdList sortRecExpr_;
 };
 
-// 
+//
 // preCodeGen (pcg) phase esp fragment. This class is used by over
 // parallelization correction logic and is not related to FragmentDir.
 //
 class pcgEspFragment {
-
-public:
-
-  pcgEspFragment(RelExpr* root, CollHeap* heap);
-  ~pcgEspFragment() {};
+ public:
+  pcgEspFragment(RelExpr *root, CollHeap *heap);
+  ~pcgEspFragment(){};
 
   Int32 getDesirableDoP() { return desirableDoP_; }
 
-  void addChild(Exchange* esp);
+  void addChild(Exchange *esp);
 
-  void accumulateData(RelExpr* relExpr, NABoolean useRTstats);
+  void accumulateData(RelExpr *relExpr, NABoolean useRTstats);
 
   void selfDiscover();
 
-  CostScalar getTotaleRows() { return totalRows_; } ;
+  CostScalar getTotaleRows() { return totalRows_; };
 
-  Int32 getNumOfHiveTables() { return numOfHiveTables_; } ;
+  Int32 getNumOfHiveTables() { return numOfHiveTables_; };
 
   // get number of non-exchange operators within the fragment
-  Int32 getNumOfOperators() { return numOfOperators_; } ;
+  Int32 getNumOfOperators() { return numOfOperators_; };
 
-/*
-  NABoolean isValid() const { return valid_; };
+  /*
+    NABoolean isValid() const { return valid_; };
 
-  // reduce the dop at this fragment. 
-  NABoolean tryToReduceDoP(); 
+    // reduce the dop at this fragment.
+    NABoolean tryToReduceDoP();
 
-  // invalidate DoP for my fragment and my child fragments
-  void invalidate();     
-  Lng32 getNewDop() { return newDoP_;}
-*/
+    // invalidate DoP for my fragment and my child fragments
+    void invalidate();
+    Lng32 getNewDop() { return newDoP_;}
+  */
 
-  // adjust the dop 
+  // adjust the dop
   void adjustDoP(Lng32 newDop);
 
   // compute a desirable dop based on total data size
-  // known processed (e.g., through run-time stats) 
+  // known processed (e.g., through run-time stats)
   // in this fragment.
   void computeDesirableDoP(NABoolean isRoot);
 
   CostScalar getTotalDataSize() { return totalDataSize_; }
 
-  RelExpr* getRoot() { return root_; }
+  RelExpr *getRoot() { return root_; }
 
   NABoolean performDopReduction();
 
-protected:
+ protected:
   void setValid(NABoolean x) { valid_ = x; };
 
-protected:
-  RelExpr* root_;
+ protected:
+  RelExpr *root_;
 
-  NAArray<Exchange*> childEsps_;
+  NAArray<Exchange *> childEsps_;
 
   CostScalar totalRows_;  // total rows to be rocessed;
 
-  Lng32 newDoP_;         // new proposed dop for the fragment 
+  Lng32 newDoP_;  // new proposed dop for the fragment
 
-  Lng32 commonDoP_;      // a common dop fro the 1st child esp with
-                         // non-broadcast parf func, for other 
-                         // non-broadcast child esps to match
+  Lng32 commonDoP_;  // a common dop fro the 1st child esp with
+                     // non-broadcast parf func, for other
+                     // non-broadcast child esps to match
 
-  NABoolean valid_;      // whether this fragment is a candidate for
-                         // over parallelization correction.
-                         
+  NABoolean valid_;  // whether this fragment is a candidate for
+                     // over parallelization correction.
+
   Int32 desirableDoP_;
 
   Int32 numOfHiveTables_;
-  Int32 numOfOperators_;;
+  Int32 numOfOperators_;
+  ;
 
   CostScalar totalDataSize_;
 };
-
 
 // -----------------------------------------------------------------------
 // class Exchange
@@ -425,39 +373,29 @@ protected:
 //
 // -----------------------------------------------------------------------
 //
-class ScanFilterInput
-{
-public:
+class ScanFilterInput {
+ public:
+  ScanFilterInput(ValueId min = NULL_VALUE_ID, ValueId max = NULL_VALUE_ID, ValueId rs = NULL_VALUE_ID)
+      : minVar_(min), maxVar_(max), rangeOfValuesVar_(rs){};
 
-  ScanFilterInput(ValueId min=NULL_VALUE_ID, 
-             ValueId max=NULL_VALUE_ID, 
-             ValueId rs=NULL_VALUE_ID)
-   : minVar_(min),
-     maxVar_(max),
-     rangeOfValuesVar_(rs)
-   {};
-
-  ~ScanFilterInput() {};
+  ~ScanFilterInput(){};
 
   ValueId getMinVar() const { return minVar_; }
   ValueId getMaxVar() const { return maxVar_; }
   ValueId getRangeOfValuesVar() const { return rangeOfValuesVar_; }
 
-  NABoolean operator==(const ScanFilterInput&) const;
+  NABoolean operator==(const ScanFilterInput &) const;
 
-protected:
-   ValueId minVar_;
-   ValueId maxVar_;
-   ValueId rangeOfValuesVar_;
+ protected:
+  ValueId minVar_;
+  ValueId maxVar_;
+  ValueId rangeOfValuesVar_;
 };
 
-class Exchange : public RelExpr
-{
-public:
-
+class Exchange : public RelExpr {
+ public:
   // constructor
-  Exchange(RelExpr *childSubtree,
-	   CollHeap *oHeap = CmpCommon::statementHeap());
+  Exchange(RelExpr *childSubtree, CollHeap *oHeap = CmpCommon::statementHeap());
 
   virtual ~Exchange();
 
@@ -487,54 +425,43 @@ public:
   // used by the (preCode) generator to avoid accessing physical props
   // directly.
   // ---------------------------------------------------------------------
-  inline const PartitioningFunction * getTopPartitioningFunction() const
-                                                  { return topPartFunc_; }
-  inline const PartitioningFunction * getBottomPartitioningFunction() const
-                                               { return bottomPartFunc_; }
+  inline const PartitioningFunction *getTopPartitioningFunction() const { return topPartFunc_; }
+  inline const PartitioningFunction *getBottomPartitioningFunction() const { return bottomPartFunc_; }
 
-  inline const IndexDesc * getIndexDesc() const     { return indexDesc_; }
+  inline const IndexDesc *getIndexDesc() const { return indexDesc_; }
 
   // ---------------------------------------------------------------------
   // Location for the plan rooted in this Exchange operator.
   // NOTE: both methods return FALSE if the location is undetermined.
   // ---------------------------------------------------------------------
-  inline NABoolean isDP2Exchange() const
-       { return (bottomLocIsSet_ AND bottomLocation_ == EXECUTE_IN_DP2); }
-  inline NABoolean isEspExchange() const
-       { return (bottomLocIsSet_ AND bottomLocation_ != EXECUTE_IN_DP2); }
+  inline NABoolean isDP2Exchange() const { return (bottomLocIsSet_ AND bottomLocation_ == EXECUTE_IN_DP2); }
+  inline NABoolean isEspExchange() const { return (bottomLocIsSet_ AND bottomLocation_ != EXECUTE_IN_DP2); }
 
   // ---------------------------------------------------------------------
   // Misc. methods required by the optimizer
   // ---------------------------------------------------------------------
-  virtual RelExpr * copyTopNode(RelExpr *derivedNode = NULL,
-				CollHeap* outHeap = NULL);
+  virtual RelExpr *copyTopNode(RelExpr *derivedNode = NULL, CollHeap *outHeap = NULL);
 
   virtual NABoolean isLogical() const;
   virtual NABoolean isPhysical() const;
 
   // Cascades-related functions
-  virtual CostMethod* costMethod() const;
-  virtual Context* createContextForAChild(Context* myContext,
-                     PlanWorkSpace* pws,
-                     Lng32& childIndex);
+  virtual CostMethod *costMethod() const;
+  virtual Context *createContextForAChild(Context *myContext, PlanWorkSpace *pws, Lng32 &childIndex);
 
-  virtual PhysicalProperty* synthPhysicalProperty(const Context *context,
-                                                  const Lng32    planNumber,
-                                                  PlanWorkSpace  *pws);
+  virtual PhysicalProperty *synthPhysicalProperty(const Context *context, const Lng32 planNumber, PlanWorkSpace *pws);
 
   // ---------------------------------------------------------------------
   // Methods used by the generator.
   // ---------------------------------------------------------------------
-  virtual RelExpr * preCodeGen(Generator * generator,
-			       const ValueIdSet & externalInputs,
-			       ValueIdSet &pulledNewInputs);
+  virtual RelExpr *preCodeGen(Generator *generator, const ValueIdSet &externalInputs, ValueIdSet &pulledNewInputs);
 
-  virtual short codeGen(Generator * generator);
+  virtual short codeGen(Generator *generator);
 
   // -----------------------------------------------------
   // generate CONTROL QUERY SHAPE fragment for this node.
   // -----------------------------------------------------
-  virtual short generateShape(CollHeap * space, char * buf, NAString * shapeStr = NULL);
+  virtual short generateShape(CollHeap *space, char *buf, NAString *shapeStr = NULL);
 
   // ---------------------------------------------------------------------
   // The term partition input values is used for the values that
@@ -543,10 +470,8 @@ public:
   // propagate the values down to the source of the data streams,
   // which is either another Exchange or a DP2Scan.
   // ---------------------------------------------------------------------
-  inline const ValueIdList &getBottomPartitionInputValues() const
-                                        { return bottomPartInputValues_; }
-  inline void setBottomPartitionInputValues(const ValueIdList &v)
-                                           { bottomPartInputValues_ = v; }
+  inline const ValueIdList &getBottomPartitionInputValues() const { return bottomPartInputValues_; }
+  inline void setBottomPartitionInputValues(const ValueIdList &v) { bottomPartInputValues_ = v; }
 
   // ---------------------------------------------------------------------
   // get a printable string that identifies the operator
@@ -557,40 +482,26 @@ public:
   // add all the expressions that are local to this
   // node to an existing list of expressions (used by GUI tool)
   // ---------------------------------------------------------------------
-  virtual void addLocalExpr(LIST(ExprNode *) &xlist,
-			    LIST(NAString) &llist) const;
+  virtual void addLocalExpr(LIST(ExprNode *) & xlist, LIST(NAString) & llist) const;
 
-  ExplainTuple *addSpecificExplainInfo(ExplainTupleMaster *explainTuple,
-					      ComTdb * tdb,
-					      Generator *generator);
+  ExplainTuple *addSpecificExplainInfo(ExplainTupleMaster *explainTuple, ComTdb *tdb, Generator *generator);
 
+  void computeBufferLength(const Context *, const CostScalar &, const CostScalar &, CostScalar &, CostScalar &);
 
-  void  computeBufferLength(const Context*,
-                            const CostScalar&,
-                            const CostScalar&,
-                            CostScalar&,
-                            CostScalar&);
+  inline void setDP2TransactionIndicator(NABoolean b) { DP2TransactionIndicator_ = b; }
+  inline NABoolean getDP2TransactionIndicator() { return DP2TransactionIndicator_; }
 
-  inline void setDP2TransactionIndicator( NABoolean b )
-                               { DP2TransactionIndicator_ = b; }
-  inline NABoolean getDP2TransactionIndicator()
-                               { return DP2TransactionIndicator_; }
+  inline NABoolean isOverReverseScan() { return isOverReverseScan_ == TRUE; }
+  void setOverReverseScan() { isOverReverseScan_ = TRUE; }
 
-  inline NABoolean isOverReverseScan() { return isOverReverseScan_ == TRUE;}
-  void setOverReverseScan() { isOverReverseScan_=TRUE;}
-
-  virtual PlanPriority computeOperatorPriority
-   (const Context* context,
-   PlanWorkSpace *pws=NULL,
-   Lng32 planNumber=0);
+  virtual PlanPriority computeOperatorPriority(const Context *context, PlanWorkSpace *pws = NULL, Lng32 planNumber = 0);
 
   // for Hash2 or Hash1 pf functions, used in costing of probes
   NABoolean areProbesHashed(const ValueIdSet);
 
   // Does this exchange node only change # of partitions
   // the top and bottom partitioing key is still the same
-  inline NABoolean hash2RepartitioningWithSameKey()
-  { return hash2RepartitioningWithSameKey_;}
+  inline NABoolean hash2RepartitioningWithSameKey() { return hash2RepartitioningWithSameKey_; }
 
   inline void setNumBMOs(unsigned short num) { numBMOs_ = num; }
   inline unsigned short getNumBMOs() { return numBMOs_; }
@@ -598,10 +509,10 @@ public:
   // set and get the total BMO memory usage of the fragment rooted
   // at this Exchange node
   inline void setBMOsMemoryUsage(CostScalar x) { BMOsMemoryUsage_ = x; }
-  inline CostScalar getBMOsMemoryUsage() { return BMOsMemoryUsage_ ; }
+  inline CostScalar getBMOsMemoryUsage() { return BMOsMemoryUsage_; }
 
   virtual CostScalar getEstimatedRunTimeMemoryUsage(Generator *generator, NABoolean perNode, Lng32 *numStreams = NULL);
-  virtual double getEstimatedRunTimeMemoryUsage(Generator *generator, ComTdb * tdb);
+  virtual double getEstimatedRunTimeMemoryUsage(Generator *generator, ComTdb *tdb);
 
   void setExtractProducerFlag() { isExtractProducer_ = TRUE; }
   NABoolean getExtractProducerFlag() { return isExtractProducer_; }
@@ -610,42 +521,33 @@ public:
   NABoolean getExtractConsumerFlag() { return isExtractConsumer_; }
 
   // Only valid after preCodeGen.  Halloween-related.
-  NABoolean doesMerge() {return (sortKeyForMyOutput_.entries() != 0); }
+  NABoolean doesMerge() { return (sortKeyForMyOutput_.entries() != 0); }
 
   // Halloween-related.
-  inline void markAsHalloweenProtection() 
-                                  { forcedHalloweenProtection_ = TRUE; }
+  inline void markAsHalloweenProtection() { forcedHalloweenProtection_ = TRUE; }
 
   inline void markHalloweenSortIsMyChild() { halloweenSortIsMyChild_ = TRUE; }
 
-  // Three mutators for ESP Exchanges inserted during preCodeGen.   
+  // Three mutators for ESP Exchanges inserted during preCodeGen.
   // Halloween-related.
   void doSkipRedundancyCheck() { skipRedundancyCheck_ = TRUE; }
-  void setUpMessageBufferLength(CostScalar len) 
-    { upMessageBufferLength_ = len; }
-  void setDownMessageBufferLength( CostScalar len)
-    { downMessageBufferLength_ = len; }
+  void setUpMessageBufferLength(CostScalar len) { upMessageBufferLength_ = len; }
+  void setDownMessageBufferLength(CostScalar len) { downMessageBufferLength_ = len; }
 
-  inline NABoolean isAnESPAccess() const
-  { return isAnESPAccess_;}
+  inline NABoolean isAnESPAccess() const { return isAnESPAccess_; }
 
-  inline void makeAnESPAccess()
-  { isAnESPAccess_ = TRUE;}
+  inline void makeAnESPAccess() { isAnESPAccess_ = TRUE; }
 
-  ExpTupleDesc::TupleDataFormat determineInternalFormat( const ValueIdList & valIdList,
-                                                         RelExpr * relExpr,
-                                                         NABoolean & resizeCifRecord,
-                                                         Generator * generator,
-                                                         NABoolean bmo_affinity,
-                                                         NABoolean & considerBufferDefrag);
+  ExpTupleDesc::TupleDataFormat determineInternalFormat(const ValueIdList &valIdList, RelExpr *relExpr,
+                                                        NABoolean &resizeCifRecord, Generator *generator,
+                                                        NABoolean bmo_affinity, NABoolean &considerBufferDefrag);
 
-;
-
+  ;
 
   // dop reduction
-  void prepareDopReduction(Generator*, NABoolean useRTstats);
+  void prepareDopReduction(Generator *, NABoolean useRTstats);
 
-  pcgEspFragment* getEspFragPCG() { return &pcgEspFragment_; };
+  pcgEspFragment *getEspFragPCG() { return &pcgEspFragment_; };
 
   // Rules for enabling SeaMonster are encapsulated in this
   // method. Rules include: CQD SEAMONSTER ON or the env var
@@ -655,19 +557,16 @@ public:
 
   NABoolean dopReductionRTFeasible();
 
-  void setScanFilterExpressions(ValueIdList& x) { minMaxExprs_ = x; };
-  const ValueIdList& getScanFilterExpressions() { return minMaxExprs_; }
+  void setScanFilterExpressions(ValueIdList &x) { minMaxExprs_ = x; };
+  const ValueIdList &getScanFilterExpressions() { return minMaxExprs_; }
 
-  void addScanFilterInput(ScanFilterInput& v);
+  void addScanFilterInput(ScanFilterInput &v);
 
-  const NAList<ScanFilterInput>&  getScanFilterInputs() 
-             { return filterInputs_; }
+  const NAList<ScanFilterInput> &getScanFilterInputs() { return filterInputs_; }
 
-  ScanFilterInput& getScanFilterInput(CollIndex i)
-      { return filterInputs_[i]; }
+  ScanFilterInput &getScanFilterInput(CollIndex i) { return filterInputs_[i]; }
 
-private:
-
+ private:
   // ---------------------------------------------------------------------
   // PRIVATE METHODS
   // ---------------------------------------------------------------------
@@ -676,11 +575,10 @@ private:
   // generate code (two different cases, for an ESP or for reading
   // a partitioned table in parallel)
   // ---------------------------------------------------------------------
-  short codeGenForSplitTop(Generator * generator);
-  short codeGenForESP(Generator * generator);
-  void storePhysPropertiesInNode(const ValueIdList & );
-  short generateMergeExpr(Generator * generator);
-
+  short codeGenForSplitTop(Generator *generator);
+  short codeGenForESP(Generator *generator);
+  void storePhysPropertiesInNode(const ValueIdList &);
+  short generateMergeExpr(Generator *generator);
 
   // ---------------------------------------------------------------------
   // A method that interprets the CONTROL QUERY SHAPE ... to decide
@@ -688,8 +586,7 @@ private:
   // properties for the child or sometimes even indicates that the
   // given plan should not be considered by returning NULL.
   // ---------------------------------------------------------------------
-  ReqdPhysicalProperty * processCQS(const ReqdPhysicalProperty *rppForMe,
-				    ReqdPhysicalProperty *rppForChild);
+  ReqdPhysicalProperty *processCQS(const ReqdPhysicalProperty *rppForMe, ReqdPhysicalProperty *rppForChild);
 
   // what kind of exchange is this
   // (both may return FALSE if this has not been determined yet)
@@ -701,34 +598,26 @@ private:
   //
   // Helper method for Exchange::synthPhysicalProperty()
   //
-  PhysicalProperty*
-  synthPhysicalPropertyDP2(const Context *myContext);
+  PhysicalProperty *synthPhysicalPropertyDP2(const Context *myContext);
 
   // Synthesize physical properties for exchange operator's current plan
   // extracted from a spcified context when child executes in ESP.
   //
   // Helper method for Exchange::synthPhysicalProperty()
   //
-  PhysicalProperty*
-  synthPhysicalPropertyESP(const Context *myContext);
+  PhysicalProperty *synthPhysicalPropertyESP(const Context *myContext);
 
   // Helper method for Exchange::synthPhysicalProperty()
   // Synthesize those physical properties for exchange operator's that are common
   // to both case (child executes in DP2 and child executes in DP2)
   //
-  PhysicalProperty*
-  synthPhysicalPropertyFinalize(const Context *myContext,
-                                PartitioningFunction *myPartFunc,
-                                SortOrderTypeEnum sortOrderType,
-                                PartitioningFunction *childPartFunc,
-                                const PhysicalProperty *sppOfChild,
-                                const ReqdPhysicalProperty *rppForMe,
-                                PartitioningFunction* dp2SortOrderPartFunc);
+  PhysicalProperty *synthPhysicalPropertyFinalize(const Context *myContext, PartitioningFunction *myPartFunc,
+                                                  SortOrderTypeEnum sortOrderType, PartitioningFunction *childPartFunc,
+                                                  const PhysicalProperty *sppOfChild,
+                                                  const ReqdPhysicalProperty *rppForMe,
+                                                  PartitioningFunction *dp2SortOrderPartFunc);
 
-
-
-private:
-
+ private:
   // ---------------------------------------------------------------------
   // PRIVATE DATA: this data is stored in the Exchange node only AFTER
   // optimization. Before that time this data should be obtained from
@@ -752,8 +641,8 @@ private:
   NABoolean skipRedundancyCheck_;
   NABoolean isOverReverseScan_;
 
-  const IndexDesc* indexDesc_;
-  const SearchKey* partSearchKey_;
+  const IndexDesc *indexDesc_;
+  const SearchKey *partSearchKey_;
 
   // ---------------------------------------------------------------------
   // The bottomPartInputValues_ describes the layout of the partition
@@ -777,7 +666,7 @@ private:
   // For a hash partitioning function, the part. input values contain
   // two integer values, indicating a range of hash classes.
   // ---------------------------------------------------------------------
-  ValueIdList bottomPartInputValues_;   // values identifying the partition
+  ValueIdList bottomPartInputValues_;  // values identifying the partition
 
   // ---------------------------------------------------------------------
   // If the required physical properties for this Exchange specify a
@@ -787,13 +676,13 @@ private:
   // merge of the sorted data streams and produces an ordered stream of
   // rows as its own output. The sort key is provided by the child.
   // ---------------------------------------------------------------------
-  ValueIdList sortKeyForMyOutput_;        // sort order produced by executor
+  ValueIdList sortKeyForMyOutput_;  // sort order produced by executor
 
-  NABoolean DP2TransactionIndicator_; // set for compound statements
+  NABoolean DP2TransactionIndicator_;  // set for compound statements
 
-  unsigned short numBMOs_; // number of BMOs in this fragment
+  unsigned short numBMOs_;  // number of BMOs in this fragment
 
-  CostScalar BMOsMemoryUsage_; // total amount of BMO memory usage in this fragment
+  CostScalar BMOsMemoryUsage_;  // total amount of BMO memory usage in this fragment
 
   // Flag that indicates this exchange node only change # of partitions
   // the top and bottom partitioing key is still the same
@@ -810,16 +699,16 @@ private:
   CostScalar upMessageBufferLength_;
   CostScalar downMessageBufferLength_;
 
-  // This flag tells if this (ESP) exchange was introduced specifically 
+  // This flag tells if this (ESP) exchange was introduced specifically
   // to protect against  halloween problem.  Part of solution 10-071204-9253.
   // See comments on generator/Generator.cpp.
   NABoolean forcedHalloweenProtection_;
 
-  // This flag used in preCodeGen, in case Exchange is eliminated b/c is 
+  // This flag used in preCodeGen, in case Exchange is eliminated b/c is
   // is redundant.
   NABoolean halloweenSortIsMyChild_;
 
-   NABoolean isAnESPAccess_;
+  NABoolean isAnESPAccess_;
 
   // a pre-code-gen phase fragment rooted at this exchange
   pcgEspFragment pcgEspFragment_;
@@ -828,24 +717,23 @@ private:
   ItemExpr *overridePartExpr_;
 
   // Added for support of the MIN/MAX optimization
-  // for type-1HashJoin. 
+  // for type-1HashJoin.
 
   // The list of filter inputs as the source to compute the
   // final min, max and range of values filters in this
   // exhange, split_bottom to be precise.
-  NAList<ScanFilterInput> filterInputs_;  
+  NAList<ScanFilterInput> filterInputs_;
 
-  // The list of surrogate expressions representing the 
+  // The list of surrogate expressions representing the
   // min and max values computed at split bottom nodes.
   // These are system generated hostvars which
-  // will be replaced (mapped) to the actual min max 
+  // will be replaced (mapped) to the actual min max
   // values during codeGen(). These values will be passed
   // to the scan node
   //
-  ValueIdList minMaxExprs_;  // expressions 
+  ValueIdList minMaxExprs_;  // expressions
 
   CostMethodExchange *pCostMethod_;
-}; // class Exchange
+};  // class Exchange
 
 #endif /* RELENFORCER_H */
-

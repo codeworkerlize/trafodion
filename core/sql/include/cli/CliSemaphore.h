@@ -28,7 +28,7 @@
 *
 * File:         CLISemaphore.h
 * Description:  Header file containing CLI Semaphore implementation.
-*               
+*
 * Created:      7/21/97
 * Language:     C++
 *
@@ -36,8 +36,6 @@
 *
 ******************************************************************************
 */
-
-
 
 #ifndef NA_NO_GLOBAL_EXE_VARS
 #ifndef CLI_GLOBALS_DEF_
@@ -50,38 +48,24 @@ extern CLISemaphore *getCliSemaphore();
 #endif
 
 // define the semaphore functions and mechanism
-class CLISemaphore
-{
-private:
-   CRITICAL_SECTION cs;
-public:
-   void  get();
-   void  release();
-   CLISemaphore();
+class CLISemaphore {
+ private:
+  CRITICAL_SECTION cs;
+
+ public:
+  void get();
+  void release();
+  CLISemaphore();
   ~CLISemaphore();
 };
 
-inline void CLISemaphore::get()
-{
-   EnterCriticalSection(&cs);
+inline void CLISemaphore::get() { EnterCriticalSection(&cs); }
 
-}
+inline void CLISemaphore::release() { LeaveCriticalSection(&cs); }
 
-inline void CLISemaphore::release()
-{
+inline CLISemaphore::CLISemaphore() { InitializeCriticalSection(&cs); }
 
-   LeaveCriticalSection(&cs);
-}
-
-inline CLISemaphore::CLISemaphore()
-{
-   InitializeCriticalSection(&cs);
-}
-
-inline CLISemaphore::~CLISemaphore()
-{
-   DeleteCriticalSection(&cs);
-}
+inline CLISemaphore::~CLISemaphore() { DeleteCriticalSection(&cs); }
 
 extern CLISemaphore globalSemaphore;
 

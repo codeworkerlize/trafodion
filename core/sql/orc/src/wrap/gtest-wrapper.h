@@ -23,10 +23,10 @@
 DIAGNOSTIC_IGNORE("-Wsign-compare")
 
 #ifdef __clang__
-  DIAGNOSTIC_IGNORE("-Wconversion-null")
-  DIAGNOSTIC_IGNORE("-Wexit-time-destructors")
-  DIAGNOSTIC_IGNORE("-Wglobal-constructors")
-  DIAGNOSTIC_IGNORE("-Wused-but-marked-unused")
+DIAGNOSTIC_IGNORE("-Wconversion-null")
+DIAGNOSTIC_IGNORE("-Wexit-time-destructors")
+DIAGNOSTIC_IGNORE("-Wglobal-constructors")
+DIAGNOSTIC_IGNORE("-Wused-but-marked-unused")
 #endif
 
 DIAGNOSTIC_PUSH
@@ -38,9 +38,9 @@ DIAGNOSTIC_IGNORE("-Wsign-compare")
 DIAGNOSTIC_IGNORE("-Wundef")
 
 #ifdef __clang__
-  DIAGNOSTIC_IGNORE("-Wshift-sign-overflow")
-  DIAGNOSTIC_IGNORE("-Wused-but-marked-unused")
-  DIAGNOSTIC_IGNORE("-Wweak-vtables")
+DIAGNOSTIC_IGNORE("-Wshift-sign-overflow")
+DIAGNOSTIC_IGNORE("-Wused-but-marked-unused")
+DIAGNOSTIC_IGNORE("-Wweak-vtables")
 #endif
 
 #include "gtest/gtest.h"

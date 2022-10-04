@@ -49,12 +49,10 @@
 //
 //////////////////////////////////////////////////////////////////////////
 
-RelExpr *CompoundStmt::bindNode(BindWA *bindWA)
-{
-  if (nodeIsBound())
-    return this;
+RelExpr *CompoundStmt::bindNode(BindWA *bindWA) {
+  if (nodeIsBound()) return this;
 
-  // Bind the children. 
+  // Bind the children.
   // rowset's modifyTree and modifyTupleNode rely on finding HostArraysArea
   // in bindWA.
   for (Int32 i = 0; i < getArity(); i++) {
@@ -64,14 +62,12 @@ RelExpr *CompoundStmt::bindNode(BindWA *bindWA)
       // the sibling scope, then we must clear the current RETDesc
       // (so as to disallow the illegal query in the Binder internals document,
       // section 1.5.3, also in TEST028).
-      if (i && !getOperator().match(REL_ANY_TSJ))
-        bindWA->getCurrentScope()->setRETDesc(NULL);
+      if (i && !getOperator().match(REL_ANY_TSJ)) bindWA->getCurrentScope()->setRETDesc(NULL);
 
       if (child(i)->getOperatorType() == REL_ROOT)
-        // each RelRoot child of a compoundstmt has its own hostArraysArea. 
-        // tell bindWA about it. 
-        bindWA->setHostArraysArea
-          (((RelRoot*)getChild(i))->getHostArraysArea());
+        // each RelRoot child of a compoundstmt has its own hostArraysArea.
+        // tell bindWA about it.
+        bindWA->setHostArraysArea(((RelRoot *)getChild(i))->getHostArraysArea());
 
       child(i) = child(i)->bindNode(bindWA);
       if (bindWA->errStatus()) return this;
@@ -81,35 +77,31 @@ RelExpr *CompoundStmt::bindNode(BindWA *bindWA)
   if (bindWA->errStatus()) return this;
 
   // QSTUFF
-  synthPropForBindChecks();   
+  synthPropForBindChecks();
 
-  if (getGroupAttr()->isStream()){
+  if (getGroupAttr()->isStream()) {
     *CmpCommon::diags() << DgSqlCode(-4200);
     bindWA->setErrStatus();
     return this;
   }
-  if (getGroupAttr()->isEmbeddedUpdateOrDelete() ||
-      getGroupAttr()->isEmbeddedInsert()){
-    *CmpCommon::diags() << DgSqlCode(-4201) 
-      << DgString0(getGroupAttr()->getOperationWithinGroup());
+  if (getGroupAttr()->isEmbeddedUpdateOrDelete() || getGroupAttr()->isEmbeddedInsert()) {
+    *CmpCommon::diags() << DgSqlCode(-4201) << DgString0(getGroupAttr()->getOperationWithinGroup());
     bindWA->setErrStatus();
     return this;
   }
   // QSTUFF
 
- 
   AssignmentStHostVars *ptrAssign = bindWA->getAssignmentStArea()->getAssignmentStHostVars();
   // Setup the RETDesc.
-  RETDesc *leftTable  = child(0)->getRETDesc();
+  RETDesc *leftTable = child(0)->getRETDesc();
   RETDesc *rightTable = child(1)->getRETDesc();
 
-  leftTable  = new (bindWA->wHeap()) RETDesc(bindWA, *leftTable);
+  leftTable = new (bindWA->wHeap()) RETDesc(bindWA, *leftTable);
   rightTable = new (bindWA->wHeap()) RETDesc(bindWA, *rightTable);
 
   RETDesc *resultTable = new (bindWA->wHeap()) RETDesc(bindWA);
 
   if (!ptrAssign) {
-
     resultTable->addColumns(bindWA, *leftTable);
     resultTable->addColumns(bindWA, *rightTable);
     setRETDesc(resultTable);
@@ -125,18 +117,16 @@ RelExpr *CompoundStmt::bindNode(BindWA *bindWA)
   // Note: it is very important that the columns in the resultTable appear
   // in the same order as they are in the list pointed by ptrAssign
 
-  ColumnDescList leftColumnList  =  *(leftTable->getColumnList());
-  ColumnDescList rightColumnList  = *(rightTable->getColumnList());
+  ColumnDescList leftColumnList = *(leftTable->getColumnList());
+  ColumnDescList rightColumnList = *(rightTable->getColumnList());
 
   while (ptrAssign) {
-    
     Int32 found = FALSE;
     UInt32 j = 0;
     for (j = 0; j < leftColumnList.entries(); j++) {
       if (ptrAssign->currentValueId() == leftColumnList[j]->getValueId()) {
-        resultTable->addColumn(bindWA, leftColumnList[j]->getColRefNameObj(),
-                               leftColumnList[j]->getValueId(),USER_COLUMN,
-                               leftColumnList[j]->getHeading());
+        resultTable->addColumn(bindWA, leftColumnList[j]->getColRefNameObj(), leftColumnList[j]->getValueId(),
+                               USER_COLUMN, leftColumnList[j]->getHeading());
         found = TRUE;
         break;
       }
@@ -145,16 +135,14 @@ RelExpr *CompoundStmt::bindNode(BindWA *bindWA)
     if (!found) {
       for (j = 0; j < rightColumnList.entries(); j++) {
         if (ptrAssign->currentValueId() == rightColumnList[j]->getValueId()) {
-          resultTable->addColumn(bindWA, rightColumnList[j]->getColRefNameObj(),
-                                 rightColumnList[j]->getValueId(),USER_COLUMN,
-                                 rightColumnList[j]->getHeading());
+          resultTable->addColumn(bindWA, rightColumnList[j]->getColRefNameObj(), rightColumnList[j]->getValueId(),
+                                 USER_COLUMN, rightColumnList[j]->getHeading());
           break;
         }
       }
     }
 
     ptrAssign = ptrAssign->next();
-
   }
 
   setRETDesc(resultTable);
@@ -163,22 +151,18 @@ RelExpr *CompoundStmt::bindNode(BindWA *bindWA)
   // Bind the base class.
   return bindSelf(bindWA);
 
-} // CompoundStmt::bindNode()
+}  // CompoundStmt::bindNode()
 
-
-void CompoundStmt::transformNode(NormWA &normWARef,
-                                 ExprGroupId & locationOfPointerToMe)
-{
+void CompoundStmt::transformNode(NormWA &normWARef, ExprGroupId &locationOfPointerToMe) {
   CMPASSERT(this == locationOfPointerToMe);
 
-  if (nodeIsTransformed())
-    return;
+  if (nodeIsTransformed()) return;
 
   ValueIdSet availableValues = getGroupAttr()->getCharacteristicInputs();
 
   child(0)->getGroupAttr()->addCharacteristicInputs(availableValues);
 
-  child(0)->transformNode(normWARef, child(0)); 
+  child(0)->transformNode(normWARef, child(0));
 
   // Values may flow from left to right
   availableValues += child(0)->getGroupAttr()->getCharacteristicOutputs();
@@ -186,7 +170,7 @@ void CompoundStmt::transformNode(NormWA &normWARef,
   child(1)->getGroupAttr()->addCharacteristicInputs(availableValues);
 
   child(1)->transformNode(normWARef, child(1));
-  
+
   // Pull up predicates and recompute the required inputs of children.
   pullUpPreds();
 
@@ -195,44 +179,30 @@ void CompoundStmt::transformNode(NormWA &normWARef,
 
   markAsTransformed();
 
-} // CompoundStmt::transformNode
+}  // CompoundStmt::transformNode
 
-void
-CompoundStmt::pushdownCoveredExpr(const ValueIdSet &outputExpr,
-			    const ValueIdSet &newExternalInputs,
-			    ValueIdSet &predicatesOnParent,
-			    const ValueIdSet *setOfValuesReqdByParent,
-			    Lng32 childIndex
-			         )
-{
+void CompoundStmt::pushdownCoveredExpr(const ValueIdSet &outputExpr, const ValueIdSet &newExternalInputs,
+                                       ValueIdSet &predicatesOnParent, const ValueIdSet *setOfValuesReqdByParent,
+                                       Lng32 childIndex) {
   ValueIdSet requiredValues;
-  if (setOfValuesReqdByParent)
-    requiredValues =  *setOfValuesReqdByParent;
+  if (setOfValuesReqdByParent) requiredValues = *setOfValuesReqdByParent;
 
   // We may flow values from left to right
   requiredValues += child(1)->getGroupAttr()->getCharacteristicInputs();
- 
+
   // Push expressions computable by children, updating their group attrs.
-  RelExpr::pushdownCoveredExpr(outputExpr,
-				newExternalInputs, 
-				predicatesOnParent,
-				&requiredValues);
+  RelExpr::pushdownCoveredExpr(outputExpr, newExternalInputs, predicatesOnParent, &requiredValues);
 }
 
+RelExpr *CompoundStmt::normalizeNode(NormWA &normWARef) {
+  if (nodeIsNormalized()) return this;
 
-RelExpr* CompoundStmt::normalizeNode(NormWA & normWARef)
-{
-  if (nodeIsNormalized())
-    return this;
- 
   // Push expressions computable by children, updating their group attrs.
-  pushdownCoveredExpr(getGroupAttr()->getCharacteristicOutputs(),
-                      getGroupAttr()->getCharacteristicInputs(), 
-		      selectionPred());
+  pushdownCoveredExpr(getGroupAttr()->getCharacteristicOutputs(), getGroupAttr()->getCharacteristicInputs(),
+                      selectionPred());
 
   // Normalize children
-  for (Int32 i = 0; i < getArity(); i++)
-  {
+  for (Int32 i = 0; i < getArity(); i++) {
     child(i) = child(i)->normalizeNode(normWARef);
   }
 
@@ -241,43 +211,38 @@ RelExpr* CompoundStmt::normalizeNode(NormWA & normWARef)
   markAsNormalized();
 
   return this;
- 
-} // CompoundStmt::normalizeNode
 
-void CompoundStmt::pullUpPreds()
-{
+}  // CompoundStmt::normalizeNode
+
+void CompoundStmt::pullUpPreds() {
   for (Int32 i = 0; i < getArity(); i++) {
     child(i)->pullUpPreds();
   }
 
-} // CompoundStmt::pullUpPreds
+}  // CompoundStmt::pullUpPreds
 
-void CompoundStmt::rewriteNode(NormWA & normWARef)
-{
+void CompoundStmt::rewriteNode(NormWA &normWARef) {
   // Rewrite children
-  for (Int32 i = 0; i < getArity(); i++) 
-  {
+  for (Int32 i = 0; i < getArity(); i++) {
     child(i)->rewriteNode(normWARef);
   }
 
   // Rewrite the predicates.
-  if (selectionPred().normalizeNode(normWARef))
-  {
+  if (selectionPred().normalizeNode(normWARef)) {
   }
 
   // Rewrite the Group Attributes.
   getGroupAttr()->normalizeInputsAndOutputs(normWARef);
 
-} // CompoundStmt::rewriteNode
+}  // CompoundStmt::rewriteNode
 
-void CompoundStmt::recomputeOuterReferences()
-{
+void CompoundStmt::recomputeOuterReferences() {
   // ---------------------------------------------------------------------
   // Delete all those input values that are no longer referenced on
-  // this operator because the predicates that reference them have 
+  // this operator because the predicates that reference them have
   // been pulled up.
   // ---------------------------------------------------------------------
-  ValueIdSet outerRefs = getGroupAttr()->getCharacteristicInputs(); 
+  ValueIdSet outerRefs = getGroupAttr()->getCharacteristicInputs();
 
   // Remove from outerRefs those valueIds that are not needed
   // by my selection predicate
@@ -285,10 +250,9 @@ void CompoundStmt::recomputeOuterReferences()
 
   // Add to outerRefs those that my children need.
   Int32 arity = getArity();
-  for (Int32 i = 0; i < arity; i++)
-    {
-      outerRefs += child(i).getPtr()->getGroupAttr()->getCharacteristicInputs();
-    }
+  for (Int32 i = 0; i < arity; i++) {
+    outerRefs += child(i).getPtr()->getGroupAttr()->getCharacteristicInputs();
+  }
 
   // If some of those values are produced by the left child, then we do not
   // need them from above
@@ -296,41 +260,34 @@ void CompoundStmt::recomputeOuterReferences()
 
   // set my Character Inputs to this new minimal set.
   getGroupAttr()->setCharacteristicInputs(outerRefs);
-} // RelExpr::recomputeOuterReferences()  
+}  // RelExpr::recomputeOuterReferences()
 
-RelExpr *CompoundStmt::copyTopNode(RelExpr *derivedNode, CollHeap* outHeap)
-{
+RelExpr *CompoundStmt::copyTopNode(RelExpr *derivedNode, CollHeap *outHeap) {
   RelExpr *result;
 
-  if ( derivedNode == NULL)
+  if (derivedNode == NULL)
     result = new (outHeap) CompoundStmt(NULL, NULL, getOperatorType(), outHeap);
-  else 
-    result = (CompoundStmt*) derivedNode;
+  else
+    result = (CompoundStmt *)derivedNode;
 
   return RelExpr::copyTopNode(result, outHeap);
 
-} // CompoundStmt::copyTopNode
+}  // CompoundStmt::copyTopNode
 
-
-void CompoundStmt::enterVEGRegion(NormWA &normWARef, Int32 id, NABoolean create)
-{
-  if (child(id)->getOperatorType() != REL_COMPOUND_STMT)
-  {
+void CompoundStmt::enterVEGRegion(NormWA &normWARef, Int32 id, NABoolean create) {
+  if (child(id)->getOperatorType() != REL_COMPOUND_STMT) {
     if (create)
       normWARef.allocateAndSetVEGRegion(IMPORT_AND_EXPORT, this, id);
     else
       normWARef.locateAndSetVEGRegion(this, id);
   }
 
-} // CompoundStmt::enterVEGRegion
+}  // CompoundStmt::enterVEGRegion
 
+void CompoundStmt::leaveVEGRegion(NormWA &normWARef, Int32 id) {
+  if (child(id)->getOperatorType() != REL_COMPOUND_STMT) normWARef.restoreOriginalVEGRegion();
 
-void CompoundStmt::leaveVEGRegion(NormWA & normWARef, Int32 id)
-{
-  if (child(id)->getOperatorType() != REL_COMPOUND_STMT)
-    normWARef.restoreOriginalVEGRegion();
-
-} // CompoundStmt::leaveVEGRegion
+}  // CompoundStmt::leaveVEGRegion
 
 // ***********************************************************************
 // Methods for class AssignmentStHostVars.
@@ -338,14 +295,13 @@ void CompoundStmt::leaveVEGRegion(NormWA & normWARef, Int32 id)
 // A list of this type is kept in class BindWA so that it is globally
 // accessible at binding time. This class mantains a current and previous
 // valueId, so that when we find SET <var> = <select statement>, we update
-// the value id of <var> to that returned by the select statement. See 
-// assignment statements internal spec for details. 
+// the value id of <var> to that returned by the select statement. See
+// assignment statements internal spec for details.
 // ***********************************************************************
 
 // Adds var to end of this list with new value id; if it is already there, it
 // updates the value id
-AssignmentStHostVars & AssignmentStHostVars::addVar(HostVar *var, const ValueId &id)
-{
+AssignmentStHostVars &AssignmentStHostVars::addVar(HostVar *var, const ValueId &id) {
   AssignmentStHostVars *ptr, *current;
 
   current = ptr = this;
@@ -360,9 +316,7 @@ AssignmentStHostVars & AssignmentStHostVars::addVar(HostVar *var, const ValueId 
   // Search for variable name and update value id
   // Note that ptr can become null when this loop ends
   while (ptr && ptr->var()) {
-
     if (ptr->var()->getName() == var->getName()) {
-      
       // New value id must replace the latest one
       ptr->setCurrentValueId(id);
       return *ptr;
@@ -372,7 +326,6 @@ AssignmentStHostVars & AssignmentStHostVars::addVar(HostVar *var, const ValueId 
     ptr = ptr->next_;
   }
 
-
   // Now add variable to the end of the list
   ptr = current->next_ = new (bindWA_->wHeap()) AssignmentStHostVars(bindWA_);
   ptr->var() = var;
@@ -380,84 +333,70 @@ AssignmentStHostVars & AssignmentStHostVars::addVar(HostVar *var, const ValueId 
   return *ptr;
 }
 
-// Update the latest value id of this host var. 
-void AssignmentStHostVars::setCurrentValueId(const ValueId &id)
-{
-
+// Update the latest value id of this host var.
+void AssignmentStHostVars::setCurrentValueId(const ValueId &id) {
   if (valueIds_.entries() == 0) {
     valueIds_.insert(id);
     return;
   }
 
-  AssignmentStArea * ptrArea = bindWA_->getAssignmentStArea();
+  AssignmentStArea *ptrArea = bindWA_->getAssignmentStArea();
   Union *ifNode = ptrArea->getCurrentIF();
   AssignmentStHostVars *varList = NULL;
 
-  // If we are not inside an IF statement, then we replace the 
+  // If we are not inside an IF statement, then we replace the
   // value id this variable has with the one provided in the parameter
-  // to this function.  
+  // to this function.
   if (!ifNode) {
     valueIds_[valueIds_.entries() - 1] = id;
     return;
   }
 
   // If we are within an IF statement, we must figure out if this is the
-  // first time we are setting the value id of this variable. If it is so, 
+  // first time we are setting the value id of this variable. If it is so,
   // then we insert a new value id at the end of the list of value ids for
   // this variable. Otherwise we overwrite the current value id
   varList = ifNode->getCurrentList(bindWA_);
   if (varList && (varList->findVar(var()->getName()))) {
     valueIds_[valueIds_.entries() - 1] = id;
-  }
-  else {
+  } else {
     valueIds_.insert(id);
   }
 }
 
-// Gets current value id 
-const ValueId AssignmentStHostVars::currentValueId()
-{
+// Gets current value id
+const ValueId AssignmentStHostVars::currentValueId() {
   if (valueIds_.entries() > 0) {
     return valueIds_[valueIds_.entries() - 1];
-  }
-  else {
+  } else {
     return NULL_VALUE_ID;
   }
 }
 
 // Gets the variable
-HostVar *& AssignmentStHostVars::var()
-{
-  return var_;
-}
+HostVar *&AssignmentStHostVars::var() { return var_; }
 
 // Finds the variable whose name is given
-AssignmentStHostVars * AssignmentStHostVars::findVar(const NAString & name)
-{
-
+AssignmentStHostVars *AssignmentStHostVars::findVar(const NAString &name) {
   AssignmentStHostVars *ptr = this;
 
   while (ptr && ptr->var_) {
-
     // We must consider the cases when the variable has or does not have an indicator
-    if ((ptr->var_->getName() == name) || 
-        ((ptr->var_->getName() + " " + ptr->var_->getIndName()) == name)) {
+    if ((ptr->var_->getName() == name) || ((ptr->var_->getName() + " " + ptr->var_->getIndName()) == name)) {
       return ptr;
     }
 
     ptr = ptr->next_;
-  }      
-  
-  return NULL;
+  }
 
+  return NULL;
 }
 
 // When we reach a Root node that contains a list of host variables on the
-// left hand side of an assignment statement (assignmentStTree_), we update 
-// the value ids of such variables with the value ids returned from the 
+// left hand side of an assignment statement (assignmentStTree_), we update
+// the value ids of such variables with the value ids returned from the
 // subtree below the Root node. This function is called in RelRoot::bindNode
-NABoolean AssignmentStHostVars::updateValueIds(const ValueIdList &returnedList, ItemExpr *listInRootNode)
-{
+NABoolean AssignmentStHostVars::updateValueIds(const ValueIdList &returnedList, ItemExpr *listInRootNode) {
   UInt32 listSize = 0;
   ItemExpr *hostVarList = listInRootNode;
 
@@ -465,54 +404,49 @@ NABoolean AssignmentStHostVars::updateValueIds(const ValueIdList &returnedList, 
   // listInRootNode contains a list of the variables being assigned to
   CollIndex i = 0;
   for (i = 0; i < returnedList.entries() && hostVarList; i++) {
-    ItemExpr *targetExpr = hostVarList->child(0); 
+    ItemExpr *targetExpr = hostVarList->child(0);
     CMPASSERT(targetExpr);
 
     //
     // Check that the operands are compatible.
     //
     ValueId sourceId = returnedList[listSize];
-    const NAType& targetType = *(((HostVar *) targetExpr)->getType());
+    const NAType &targetType = *(((HostVar *)targetExpr)->getType());
     sourceId.coerceType(targetType);
-    const NAType& sourceType = sourceId.getType();
+    const NAType &sourceType = sourceId.getType();
 
     if (NOT targetType.isCompatible(sourceType)) {
-
       // Relaxing Characet Data Type matching rule.
       NABoolean relax = FALSE;
-      if ( (targetType.getTypeQualifier() == NA_CHARACTER_TYPE) && 
-           (sourceType.getTypeQualifier() == NA_CHARACTER_TYPE) &&
-	   ((const CharType&)targetType).getCharSet() == CharInfo::UNICODE &&
-	   ((const CharType&)sourceType).getCharSet() == CharInfo::ISO88591
-         ) {
-	  relax = TRUE;
+      if ((targetType.getTypeQualifier() == NA_CHARACTER_TYPE) &&
+          (sourceType.getTypeQualifier() == NA_CHARACTER_TYPE) &&
+          ((const CharType &)targetType).getCharSet() == CharInfo::UNICODE &&
+          ((const CharType &)sourceType).getCharSet() == CharInfo::ISO88591) {
+        relax = TRUE;
       }
-      
-      if ( !relax ) {
-	if (CmpCommon::getDefault(IMPLICIT_DATETIME_INTERVAL_HOSTVAR_CONVERSION) == DF_OFF)
-	  {
-	    // Incompatible assignment from type $0~String0 to type $1~String1
-	    *CmpCommon::diags() << DgSqlCode(-30007)
-				<< DgString0(sourceType.getTypeSQLname(TRUE /*terse*/))
-				<< DgString1(targetType.getTypeSQLname(TRUE /*terse*/));
-	    bindWA_->setErrStatus();
-	    return FALSE;
-	  }
+
+      if (!relax) {
+        if (CmpCommon::getDefault(IMPLICIT_DATETIME_INTERVAL_HOSTVAR_CONVERSION) == DF_OFF) {
+          // Incompatible assignment from type $0~String0 to type $1~String1
+          *CmpCommon::diags() << DgSqlCode(-30007) << DgString0(sourceType.getTypeSQLname(TRUE /*terse*/))
+                              << DgString1(targetType.getTypeSQLname(TRUE /*terse*/));
+          bindWA_->setErrStatus();
+          return FALSE;
+        }
       }
     }
 
     // temp contains the variable; returnedList[listSize] contains its new value id
-    addVar((HostVar *) targetExpr, sourceId);
+    addVar((HostVar *)targetExpr, sourceId);
     hostVarList = hostVarList->child(1);
     listSize++;
   }
-  
+
   if (hostVarList || (listSize != returnedList.entries())) {
-      // Mismatch in number of variables in SET list and the returned list
-     *CmpCommon::diags() << DgSqlCode(-4094)
-      << DgInt0(listSize) << DgInt1(returnedList.entries());
-     bindWA_->setErrStatus();
-     return FALSE;
+    // Mismatch in number of variables in SET list and the returned list
+    *CmpCommon::diags() << DgSqlCode(-4094) << DgInt0(listSize) << DgInt1(returnedList.entries());
+    bindWA_->setErrStatus();
+    return FALSE;
   }
 
   // We keep track of all HostVars on the left side of the SET statement
@@ -523,45 +457,41 @@ NABoolean AssignmentStHostVars::updateValueIds(const ValueIdList &returnedList, 
 
   // We get the list of host vars in the current IF node associated with the
   // subtree (left or right) that we are currently visiting
-  if (currentIF) { 
+  if (currentIF) {
     AssignmentStHostVars *listOfVarsInIF = currentIF->getCurrentList(bindWA_);
-   
+
     listSize = 0;
     hostVarList = listInRootNode;
-  
+
     // And we insert into that list all the variables that have been assigned in this
     // subtree
     for (i = 0; i < returnedList.entries(); i++) {
       if (hostVarList) {
-        ItemExpr *temp = hostVarList->child(0); 
-	HostVar *var = (HostVar *) temp;
+        ItemExpr *temp = hostVarList->child(0);
+        HostVar *var = (HostVar *)temp;
 
         // temp contains the variable; returnedList[listSize] contains its new value id
-	listOfVarsInIF->addToListInIF(var, returnedList[i]);
+        listOfVarsInIF->addToListInIF(var, returnedList[i]);
 
-	// Get next variable
+        // Get next variable
         hostVarList = hostVarList->child(1);
       }
     }
   }
-    
+
   return TRUE;
 }
 
 // To know if there are rowsets in the given list
-NABoolean AssignmentStHostVars::containsRowsets(ItemExpr * list) 
-{
-
+NABoolean AssignmentStHostVars::containsRowsets(ItemExpr *list) {
   if (!list) {
     return FALSE;
   }
 
   while (list) {
-       
     if (list->getChild(0) && list->getChild(0)->getOperatorType() == ITM_HOSTVAR) {
-      
-      HostVar *hostVar = (HostVar *) (list->getChild(0));
-      
+      HostVar *hostVar = (HostVar *)(list->getChild(0));
+
       if (hostVar->getType()->getTypeQualifier() == NA_ROWSET_TYPE) {
         return TRUE;
       }
@@ -573,43 +503,35 @@ NABoolean AssignmentStHostVars::containsRowsets(ItemExpr * list)
   return FALSE;
 }
 
-   
 // Updates listOfVars_ when we exit a child of Union node at binding time. For
 // each host variable, it determines whether its value id is no longer
 // valid outside the branch of the IF statement we are exiting, and removes it if so.
-// In this way, the value id this variable had before entering the branch of the IF 
+// In this way, the value id this variable had before entering the branch of the IF
 // statement will be the current one
-void AssignmentStArea::removeLastValueIds(AssignmentStHostVars * listInUnion, Union * node)
-{
-
+void AssignmentStArea::removeLastValueIds(AssignmentStHostVars *listInUnion, Union *node) {
   while (listInUnion && (listInUnion->var())) {
-
     // Get the variable in the Union node
-    HostVar * var = listInUnion->var();
+    HostVar *var = listInUnion->var();
 
     // Now find it in the global list of Host variables
-    AssignmentStHostVars * theVar = listOfVars_->findVar(var->getName());
+    AssignmentStHostVars *theVar = listOfVars_->findVar(var->getName());
 
     // The last value id of theVar is no longer valid
     CMPASSERT(theVar);
     theVar->removeLastValueId();
 
     listInUnion = listInUnion->next();
-
   }
 }
-
-
 
 // Adds var to the given list with new value id; if it is already there, it
 // overwrites the value. This functio is used only for lists contained in
 // an IF node (i.e. left list_ and rightList_ in class Union).
-AssignmentStHostVars & AssignmentStHostVars::addToListInIF(HostVar *var, const ValueId &id)
-{
-  AssignmentStHostVars *ptr      = NULL;
+AssignmentStHostVars &AssignmentStHostVars::addToListInIF(HostVar *var, const ValueId &id) {
+  AssignmentStHostVars *ptr = NULL;
   AssignmentStHostVars *previous = NULL;
 
-  ValueIdList list; 
+  ValueIdList list;
   list.clear();
   list.insert(id);
 
@@ -617,7 +539,6 @@ AssignmentStHostVars & AssignmentStHostVars::addToListInIF(HostVar *var, const V
   NABoolean found = FALSE;
 
   while (ptr && ptr->var_) {
-
     if (ptr->var_->getName() == var->getName()) {
       found = TRUE;
       break;
@@ -625,17 +546,15 @@ AssignmentStHostVars & AssignmentStHostVars::addToListInIF(HostVar *var, const V
 
     previous = ptr;
     ptr = ptr->next_;
-  }      
- 
+  }
+
   if (found) {
     ptr->valueIds() = list;
-  }
-  else {
+  } else {
     if (ptr) {
       ptr->var_ = var;
       ptr->valueIds_ = list;
-    }
-    else {
+    } else {
       ptr = new (bindWA_->wHeap()) AssignmentStHostVars(bindWA_);
       ptr->var_ = var;
       ptr->valueIds_ = list;
@@ -647,17 +566,14 @@ AssignmentStHostVars & AssignmentStHostVars::addToListInIF(HostVar *var, const V
   return *ptr;
 }
 
-
 // Adds all the hostvars and their associated value ids from the AssignmentStHostVars
 // that is passed as an argument to this method to the AssignmentStHostVars pointed to
-// this pointer. 
-void AssignmentStHostVars::addAllToListInIF(AssignmentStHostVars * copyFromList)
-{
-
-while (copyFromList) { 
-	HostVar *var = copyFromList->var();
-	ValueId id   = copyFromList->currentValueId();
-        addToListInIF(var, id);
-	copyFromList = copyFromList->next();
-      }
+// this pointer.
+void AssignmentStHostVars::addAllToListInIF(AssignmentStHostVars *copyFromList) {
+  while (copyFromList) {
+    HostVar *var = copyFromList->var();
+    ValueId id = copyFromList->currentValueId();
+    addToListInIF(var, id);
+    copyFromList = copyFromList->next();
+  }
 }

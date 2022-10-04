@@ -41,89 +41,72 @@ class ItmExpressionVariable;
 class ItmPersistentExpressionVariable;
 class ItmWhileFunction;
 
-class ItmDoWhileFunction : public BuiltinFunction 
-{
-public:
+class ItmDoWhileFunction : public BuiltinFunction {
+ public:
   ItmDoWhileFunction(ItemExpr *body, ItemExpr *condition)
-    : BuiltinFunction(ITM_DO_WHILE,
-                      CmpCommon::statementHeap(),
-                      2, body, condition) { };
+      : BuiltinFunction(ITM_DO_WHILE, CmpCommon::statementHeap(), 2, body, condition){};
 
-  virtual ~ItmDoWhileFunction() { };
+  virtual ~ItmDoWhileFunction(){};
 
   const NAType *synthesizeType();
-  ItemExpr *preCodeGen(Generator*);
-  short codeGen(Generator*);
-  ItemExpr *copyTopNode(ItemExpr *derivedNode =NULL,
-			NAMemory *outHeap =0);
+  ItemExpr *preCodeGen(Generator *);
+  short codeGen(Generator *);
+  ItemExpr *copyTopNode(ItemExpr *derivedNode = NULL, NAMemory *outHeap = 0);
 };
 
 class ItmBlockFunction : public BuiltinFunction {
-public:
+ public:
   ItmBlockFunction(ItemExpr *left, ItemExpr *right)
-    : BuiltinFunction(ITM_BLOCK,
-                      CmpCommon::statementHeap(),
-                      2, left, right) { };
+      : BuiltinFunction(ITM_BLOCK, CmpCommon::statementHeap(), 2, left, right){};
 
-  virtual ~ItmBlockFunction() { };
+  virtual ~ItmBlockFunction(){};
 
   const NAType *synthesizeType();
-  ItemExpr *preCodeGen(Generator*);
-  short codeGen(Generator*);
-  ItemExpr *copyTopNode(ItemExpr *derivedNode =NULL,
-			NAMemory *outHeap =0);
+  ItemExpr *preCodeGen(Generator *);
+  short codeGen(Generator *);
+  ItemExpr *copyTopNode(ItemExpr *derivedNode = NULL, NAMemory *outHeap = 0);
 };
 
-class ItmExpressionVar : public HostVar
-{
-public:
-  ItmExpressionVar(const NAType *type)
-    : HostVar("_sys_ItmExpressionVariable", type, TRUE) { };
+class ItmExpressionVar : public HostVar {
+ public:
+  ItmExpressionVar(const NAType *type) : HostVar("_sys_ItmExpressionVariable", type, TRUE){};
 
-  virtual ~ItmExpressionVar() { };
+  virtual ~ItmExpressionVar(){};
 };
 
-class ItmPersistentExpressionVar : public ConstValue
-{
-public:
-  ItmPersistentExpressionVar(Lng32 intVal)
-    : ConstValue(intVal) { setConstFoldingDisabled(TRUE);};
+class ItmPersistentExpressionVar : public ConstValue {
+ public:
+  ItmPersistentExpressionVar(Lng32 intVal) : ConstValue(intVal) { setConstFoldingDisabled(TRUE); };
 
-  /*  ItmPersistentExpressionVar(NAType *type, 
-			     NABoolean wantMinValue =FALSE, 
-			     NABoolean allowNull =TRUE)
+  /*  ItmPersistentExpressionVar(NAType *type,
+                             NABoolean wantMinValue =FALSE,
+                             NABoolean allowNull =TRUE)
     : ConstValue(type, wantMinValue, allowNull) { };*/
 
   // Supply a type, a buffer containing the packed value,
   // the size of the buffer and , optionally, the string
   // for the literal (system-supplied version)
-  ItmPersistentExpressionVar(const NAType *type, void *value, Lng32 value_len, 
-			     NAString *literal = NULL)
-    : ConstValue(type, value, value_len, literal) 
-  { setConstFoldingDisabled(TRUE); }
-  
-  
-  virtual ~ItmPersistentExpressionVar() { };
+  ItmPersistentExpressionVar(const NAType *type, void *value, Lng32 value_len, NAString *literal = NULL)
+      : ConstValue(type, value, value_len, literal) {
+    setConstFoldingDisabled(TRUE);
+  }
 
-  short codeGen(Generator*);
+  virtual ~ItmPersistentExpressionVar(){};
+
+  short codeGen(Generator *);
 };
 
-class ItmWhileFunction : public BuiltinFunction 
-{
-public:
+class ItmWhileFunction : public BuiltinFunction {
+ public:
   ItmWhileFunction(ItemExpr *body, ItemExpr *condition)
-    : BuiltinFunction(ITM_WHILE,
-                      CmpCommon::statementHeap(),
-                      2, body, condition) { };
+      : BuiltinFunction(ITM_WHILE, CmpCommon::statementHeap(), 2, body, condition){};
 
-  virtual ~ItmWhileFunction() {};
+  virtual ~ItmWhileFunction(){};
 
   const NAType *synthesizeType();
-  ItemExpr *preCodeGen(Generator*);
-  short codeGen(Generator*);
-  ItemExpr *copyTopNode(ItemExpr *derivedNode =NULL,
-			NAMemory *outHeap =0);
+  ItemExpr *preCodeGen(Generator *);
+  short codeGen(Generator *);
+  ItemExpr *copyTopNode(ItemExpr *derivedNode = NULL, NAMemory *outHeap = 0);
 };
 
 #endif
-

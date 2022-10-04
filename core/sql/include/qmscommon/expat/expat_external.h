@@ -51,8 +51,7 @@
 */
 #define XMLCALL
 #endif
-#endif  /* not defined XMLCALL */
-
+#endif /* not defined XMLCALL */
 
 #if !defined(XML_STATIC) && !defined(XMLIMPORT)
 #ifndef XML_BUILDING_EXPAT
@@ -63,14 +62,12 @@
 #endif
 
 #endif
-#endif  /* not defined XML_STATIC */
-
+#endif /* not defined XML_STATIC */
 
 /* If we didn't define it above, define it away: */
 #ifndef XMLIMPORT
 #define XMLIMPORT
 #endif
-
 
 // For building with qmscommon (MVQR).
 #undef XMLIMPORT
@@ -88,7 +85,7 @@ extern "C" {
 #define XML_UNICODE
 #endif
 
-#ifdef XML_UNICODE     /* Information is UTF-16 encoded. */
+#ifdef XML_UNICODE /* Information is UTF-16 encoded. */
 #ifdef XML_UNICODE_WCHAR_T
 typedef wchar_t XML_Char;
 typedef wchar_t XML_LChar;
@@ -96,14 +93,14 @@ typedef wchar_t XML_LChar;
 typedef unsigned short XML_Char;
 typedef char XML_LChar;
 #endif /* XML_UNICODE_WCHAR_T */
-#else                  /* Information is UTF-8 encoded. */
+#else  /* Information is UTF-8 encoded. */
 typedef char XML_Char;
 typedef char XML_LChar;
 #endif /* XML_UNICODE */
 
-#ifdef XML_LARGE_SIZE  /* Use large integers for file/stream positions. */
+#ifdef XML_LARGE_SIZE /* Use large integers for file/stream positions. */
 #if defined(XML_USE_MSC_EXTENSIONS) && _MSC_VER < 1400
-typedef long XML_Index; 
+typedef long XML_Index;
 typedef UInt64 XML_Size;
 #else
 typedef Int64 XML_Index;

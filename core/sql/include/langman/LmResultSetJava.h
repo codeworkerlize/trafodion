@@ -49,67 +49,43 @@
 //
 //////////////////////////////////////////////////////////////////////
 
-class LmResultSetJava : public LmResultSet
-{
-friend class LmRoutineJava;
+class LmResultSetJava : public LmResultSet {
+  friend class LmRoutineJava;
 
-public:
+ public:
+  enum LmResultSetInfoStatus { RS_INFO_OK = 0, RS_INFO_CLOSED, RS_INFO_LOBCOL, RS_INFO_ERROR = -1 };
 
-  enum LmResultSetInfoStatus {
-    RS_INFO_OK = 0,
-    RS_INFO_CLOSED,
-    RS_INFO_LOBCOL,
-    RS_INFO_ERROR = -1
-  };
-
-  enum LmJDBCConnectionType {
-    JDBC_UNKNOWN_CONNECTION = -1,
-    JDBC_TYPE4_CONNECTION = 1,
-    JDBC_TYPE2_CONNECTION = 2
-  };
+  enum LmJDBCConnectionType { JDBC_UNKNOWN_CONNECTION = -1, JDBC_TYPE4_CONNECTION = 1, JDBC_TYPE2_CONNECTION = 2 };
 
   // Accessor methods
   LmHandle getResultSet() const { return jdbcRSRef_; }
 
   char *getProxySyntax() { return proxySyntax_; }
 
-  NABoolean usesT2Connection()
-    { return connectionType_ == JDBC_TYPE2_CONNECTION; }
+  NABoolean usesT2Connection() { return connectionType_ == JDBC_TYPE2_CONNECTION; }
 
-  NABoolean usesT4Connection()
-    { return connectionType_ == JDBC_TYPE4_CONNECTION; }
+  NABoolean usesT4Connection() { return connectionType_ == JDBC_TYPE4_CONNECTION; }
 
-  NABoolean moreSpecialRows()
-    { return (usesT2Connection()) ?
-               lastBufferedRow_ > currentRowPosition_ : TRUE; }
+  NABoolean moreSpecialRows() { return (usesT2Connection()) ? lastBufferedRow_ > currentRowPosition_ : TRUE; }
 
-  NABoolean isCLIStmtClosed()
-    { 
-       return CLIStmtClosed_; 
-    }
-  Lng32 fetchSpecialRows(void *dataPtr,
-		        LmParameter *colDesc,
-                        ComUInt32 numCols,
-		        ComDiagsArea &da,
-                        ComDiagsArea *rda);
+  NABoolean isCLIStmtClosed() { return CLIStmtClosed_; }
+  Lng32 fetchSpecialRows(void *dataPtr, LmParameter *colDesc, ComUInt32 numCols, ComDiagsArea &da, ComDiagsArea *rda);
 
-private:
-  NABoolean isScrollable() const
-  {
-    if (cursorType_ == RS_TYPE_SCROLL_INSENSITIVE ||
-        cursorType_ == RS_TYPE_SCROLL_SENSITIVE)
+ private:
+  NABoolean isScrollable() const {
+    if (cursorType_ == RS_TYPE_SCROLL_INSENSITIVE || cursorType_ == RS_TYPE_SCROLL_SENSITIVE)
       return TRUE;
     else
       return FALSE;
   }
 
-  // The constructor and destructor are defined as private 
-  // since the object management of this class can only be 
+  // The constructor and destructor are defined as private
+  // since the object management of this class can only be
   // done by the LmRoutineJava class.
 
   // Constrcutor:
   // Makes a JNI call to LmUtility::getRSInfo()
-  // to get result set information for the passed in 
+  // to get result set information for the passed in
   // java.sql.ResultSet object (parameter rsRef) and
   // initializes the data members accordingly.
   //
@@ -127,78 +103,64 @@ private:
   // RS_INFO_OK : Result set information was retrieved successfully
   // RS_INFO_CLOSED : The result set object (rsRef) is already closed
   // RS_INFO_ERROR  : There was a problem getting result set information
-  LmResultSetJava(LmLanguageManagerJava *lm,
-                  LmHandle rsRef,
-                  Int32 paramPos,
-                  const char *routineName,
-                  LmResultSetInfoStatus &status,
-                  NAList<LmConnection*> &lmConnList,
-                  ComDiagsArea *da);
+  LmResultSetJava(LmLanguageManagerJava *lm, LmHandle rsRef, Int32 paramPos, const char *routineName,
+                  LmResultSetInfoStatus &status, NAList<LmConnection *> &lmConnList, ComDiagsArea *da);
 
   // Destructor:
   // Deletes the global references in jdbcRSRef_.
   // Should be called only from within the close() method
   ~LmResultSetJava();
 
-  void initType4ResultSet(Int32 paramPos,
-                          const char *routineName,
-                          LmResultSetInfoStatus &status,
-                          NAList<LmConnection*> &lmConnList,
-                          ComDiagsArea *da);
+  void initType4ResultSet(Int32 paramPos, const char *routineName, LmResultSetInfoStatus &status,
+                          NAList<LmConnection *> &lmConnList, ComDiagsArea *da);
 
-  void initType2ResultSet(Int32 paramPos,
-                          const char *routineName,
-                          LmResultSetInfoStatus &status,
-                          NAList<LmConnection*> &lmConnList,
-                          ComDiagsArea *da);
+  void initType2ResultSet(Int32 paramPos, const char *routineName, LmResultSetInfoStatus &status,
+                          NAList<LmConnection *> &lmConnList, ComDiagsArea *da);
 
   // Calls the close() method on the Java result set object
   // Decrements the reference count in the associated LmConnection object
   // Calls the class destructor
-  void close( ComDiagsArea *da = NULL );
+  void close(ComDiagsArea *da = NULL);
 
   void insertIntoDiagnostic(ComDiagsArea &da, ComUInt32 col_num);
 
-  LmResult getValueAsJlong(jobject bigdecObj,
-                           ComUInt32 columnIndex,
-                           ComDiagsArea &da,
-			   NABoolean &wasNull,
+  LmResult getValueAsJlong(jobject bigdecObj, ComUInt32 columnIndex, ComDiagsArea &da, NABoolean &wasNull,
                            jlong &returnvalue);
 
   LmLanguageManagerJava *lmj_;
 
-  NAList<LmConnection*> &lmConnList_; // +++ NEED COMMENTS
+  NAList<LmConnection *> &lmConnList_;  // +++ NEED COMMENTS
 
   LmConnection *lmConn_;  // Manages the java.sql.Connection object
                           // of this result set
 
   LmJDBCConnectionType connectionType_;  // Type 2 or Type 4 connection
 
-  LmHandle	jdbcRSRef_;   // The Java result set object of this
-                              // result set. Contains a  global reference
-                              // the object passed into the init() method.
+  LmHandle jdbcRSRef_;  // The Java result set object of this
+                        // result set. Contains a  global reference
+                        // the object passed into the init() method.
 
-  char *proxySyntax_;     // Proxy syntax (used when T4 conn is used)
+  char *proxySyntax_;  // Proxy syntax (used when T4 conn is used)
 
   Int32 firstBufferedRow_;  // The row position of the first row that JDBC/MX
-                          // has fetched from SQL/MX and that is still
-			  // buffered in the JDBC/MX driver. The row
-			  // numbers are 1-based.
+                            // has fetched from SQL/MX and that is still
+                            // buffered in the JDBC/MX driver. The row
+                            // numbers are 1-based.
 
-  Int32 lastBufferedRow_;   // The row position of the last row that JDBC/MX
-                          // has fetched from SQL/MX and that is still
-			  // buffered in the JDBC/MX driver.
+  Int32 lastBufferedRow_;  // The row position of the last row that JDBC/MX
+                           // has fetched from SQL/MX and that is still
+                           // buffered in the JDBC/MX driver.
 
-  Int32 currentRowPosition_; // The current row position of this
-                           // java.sql.ResultSet instance.
+  Int32 currentRowPosition_;  // The current row position of this
+                              // java.sql.ResultSet instance.
 
   LmResultSetType cursorType_;  // Indicates whether this is a scrollable
                                 // or forward-only cursor etc.
 
-  Int64 rsCounter_;       // An unique value given to each result set
-                          // object in JDBC/MX to indicate the order
-			  // in which the result set's underlying SQL
-			  // statement was executed.
+  Int64 rsCounter_;  // An unique value given to each result set
+                     // object in JDBC/MX to indicate the order
+                     // in which the result set's underlying SQL
+                     // statement was executed.
 
   NABoolean CLIStmtClosed_;  // Indicates whether the CLI statement is
                              // closed or not
@@ -223,8 +185,6 @@ private:
   jobjectArray oArray_;
   jintArray errCode_;
   jobjectArray errDetail_;
-
 };
-
 
 #endif

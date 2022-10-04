@@ -9,17 +9,13 @@
 #include "export/NAVersionedObject.h"
 
 // a class that wraps an NAWNodeSet object for inclusion in query plans
-class ComASNodes : public NAVersionedObject
-{
-public:
-
+class ComASNodes : public NAVersionedObject {
+ public:
   ComASNodes() : serializedNodes_(NULL) {}
 
-  ComASNodes(char *serializedNodes) :
-       serializedNodes_(serializedNodes) {}
+  ComASNodes(char *serializedNodes) : serializedNodes_(serializedNodes) {}
 
-  const char * getSerializedNodes() const
-                                      { return serializedNodes_.getPointer(); }
+  const char *getSerializedNodes() const { return serializedNodes_.getPointer(); }
 
   // ---------------------------------------------------------------------
   // Redefine virtual functions required for Versioning.
@@ -28,16 +24,14 @@ public:
   virtual unsigned char getClassVersionID();
   virtual void populateImageVersionIDArray();
   virtual short getClassSize();
-  virtual Long pack(void * space);
-  virtual Lng32 unpack(void * base, void * reallocator);
+  virtual Long pack(void *space);
+  virtual Lng32 unpack(void *base, void *reallocator);
 
-private:
-
-  NABasicPtr serializedNodes_;                // 00-07
-  char filler_[12];                           // 08-19
+ private:
+  NABasicPtr serializedNodes_;  // 00-07
+  char filler_[12];             // 08-19
 };
 
-typedef
-  NAVersionedObjectPtrTempl<ComASNodes> ComASNodesPtr;
+typedef NAVersionedObjectPtrTempl<ComASNodes> ComASNodesPtr;
 
 #endif

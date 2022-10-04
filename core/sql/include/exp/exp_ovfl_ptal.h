@@ -27,9 +27,9 @@
  *****************************************************************************
  *
  * File:         <exp_ovfl_ptal.h>
- * Description:  
- *               
- *               
+ * Description:
+ *
+ *
  * Created:      9/28/1999
  * Language:     C++
  *
@@ -41,13 +41,12 @@
 
 #include "common/Int64.h"
 
-Int64 EXP_FIXED_OV_ADD(Int64 op1, Int64 op2, short * ov);
-Int64 EXP_FIXED_OV_SUB(Int64 op1, Int64 op2, short * ov);
-Int64 EXP_FIXED_OV_MUL(Int64 op1, Int64 op2, short * ov);
-Int64 EXP_FIXED_OV_DIV(Int64 op1, Int64 op2, short * ov);
+Int64 EXP_FIXED_OV_ADD(Int64 op1, Int64 op2, short *ov);
+Int64 EXP_FIXED_OV_SUB(Int64 op1, Int64 op2, short *ov);
+Int64 EXP_FIXED_OV_MUL(Int64 op1, Int64 op2, short *ov);
+Int64 EXP_FIXED_OV_DIV(Int64 op1, Int64 op2, short *ov);
 
 Int64 EXP_FIXED_OV_ADD_SETMAX(Int64 op1, Int64 op2);
 short EXP_SHORT_OV_ADD_SETMAX(short op1, short op2);
-
 
 #endif

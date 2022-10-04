@@ -20,9 +20,9 @@
 //
 // @@@ END COPYRIGHT @@@
 **********************************************************************/
-#define  SQLPARSERGLOBALS_FLAGS
-#define  SQLPARSERGLOBALS_NADEFAULTS
-#define  SQLPARSERGLOBALSCMN__INITIALIZE
+#define SQLPARSERGLOBALS_FLAGS
+#define SQLPARSERGLOBALS_NADEFAULTS
+#define SQLPARSERGLOBALSCMN__INITIALIZE
 
 // -----------------------------------------------------------------------
 // Files that are compiled with the same settings
@@ -35,31 +35,30 @@
 // use different preprocessor defines
 // -----------------------------------------------------------------------
 
-
 // -----------------------------------------------------------------------
 // Files that are only in common and are not available in the executor
 // -----------------------------------------------------------------------
-#include "CharType.cpp"		
+#include "CharType.cpp"
 #include "ComAnsiNamePart.cpp"
 #include "ComRoutineActionNamePart.cpp"
-#include "ComExtents.cpp"          
-#include "ComLocationNames.cpp"	
+#include "ComExtents.cpp"
+#include "ComLocationNames.cpp"
 #include "ComMPLoc.cpp"
-#include "ComObjectName.cpp"	
+#include "ComObjectName.cpp"
 #include "ComRegAPI.cpp"
-#include "ComSchemaName.cpp"	
+#include "ComSchemaName.cpp"
 #include "ComSchLevelOp.cpp"
-#include "ComSmallDefs.cpp"	
+#include "ComSmallDefs.cpp"
 #include "ComSqlText.cpp"
-#include "ComTOMDefinitionSchema.cpp"	
-#include "ComTOMUserSchema.cpp"	
-#include "DatetimeType.cpp"	
-#include "DTICommonType.cpp"	
-#include "ExprNode.cpp"		
-#include "IntervalType.cpp"	
-#include "MiscType.cpp"	
-#include "NAString.cpp"		
-#include "NAType.cpp"		
+#include "ComTOMDefinitionSchema.cpp"
+#include "ComTOMUserSchema.cpp"
+#include "DatetimeType.cpp"
+#include "DTICommonType.cpp"
+#include "ExprNode.cpp"
+#include "IntervalType.cpp"
+#include "MiscType.cpp"
+#include "NAString.cpp"
+#include "NAType.cpp"
 #include "NumericType.cpp"
 #include "BigNumHelper.cpp"
 #include "NLSConversion.cpp"
@@ -72,8 +71,8 @@
 #include "csconvert.cpp"
 #include "CommonLogger.cpp"
 
-#include "BaseTypes.cpp" 
-#include "charinfo.cpp" 
+#include "BaseTypes.cpp"
+#include "charinfo.cpp"
 #include "CharType.cpp"
 #include "ComAnsiNamePart.cpp"
 #include "ComExtents.cpp"

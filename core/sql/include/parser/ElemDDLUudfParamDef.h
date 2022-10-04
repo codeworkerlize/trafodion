@@ -40,11 +40,8 @@
 
 #include "ElemDDLNode.h"
 
-class ElemDDLUudfParamDef : public ElemDDLNode
-{
-
-public:
-
+class ElemDDLUudfParamDef : public ElemDDLNode {
+ public:
   // constructor
   ElemDDLUudfParamDef(ComUudfParamKind uudfParamKind);
 
@@ -52,13 +49,10 @@ public:
   virtual ~ElemDDLUudfParamDef(void);
 
   // cast
-  virtual ElemDDLUudfParamDef * castToElemDDLUudfParamDef(void);
+  virtual ElemDDLUudfParamDef *castToElemDDLUudfParamDef(void);
 
   // accessor
-  inline const ComUudfParamKind getUudfParamKind(void) const
-  {
-    return uudfParamKind_;
-  }
+  inline const ComUudfParamKind getUudfParamKind(void) const { return uudfParamKind_; }
 
   //
   // methods for tracing
@@ -67,10 +61,9 @@ public:
   virtual NATraceList getDetailInfo() const;
   virtual const NAString getText() const;
 
-private:
-
+ private:
   ComUudfParamKind uudfParamKind_;
 
-}; // class ElemDDLUudfParamDef
+};  // class ElemDDLUudfParamDef
 
 #endif /* ELEMDDLUUDFPARAMDEF_H */

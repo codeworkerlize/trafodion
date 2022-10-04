@@ -50,8 +50,8 @@ class HHDFSPartitionStats;
 //----------------------------------------------------------------
 //  Needed for passing CollIndex pointers as reference parameters.
 //----------------------------------------------------------------
-typedef CollIndex* CollIndexPointer;
-typedef LIST(const char*) DP2VolumeNamesContainer;
+typedef CollIndex *CollIndexPointer;
+typedef LIST(const char *) DP2VolumeNamesContainer;
 
 //-----------------------------------------
 //  Indication that any node is acceptable.
@@ -63,82 +63,72 @@ const Lng32 LOCAL_CLUSTER = 0;
 // its SMP node and its cluster.
 //--------------------------------------------
 class NodeMapEntry : public NABasicObject {
-
-public:
-
-  enum PartitionState {ACTIVE, IDLE, NOT_ACTIVE, ACTIVE_NO_DATA, UNKNOWN};
+ public:
+  enum PartitionState { ACTIVE, IDLE, NOT_ACTIVE, ACTIVE_NO_DATA, UNKNOWN };
 
   //----------------------------
   // Constructors and destructor
   //----------------------------
-  NodeMapEntry(char* fullName, char* givenName, CollHeap* heap = 0, Int32 tableIdent =0, NABoolean noService=FALSE);
+  NodeMapEntry(char *fullName, char *givenName, CollHeap *heap = 0, Int32 tableIdent = 0, NABoolean noService = FALSE);
 
   NodeMapEntry(PartitionState state = ACTIVE)
-  : dp2Name_       (0),
-    partitionName_ (0),
-    heap_          (0),
-    nodeNumber_    (IPC_CPU_DONT_CARE),
-    clusterNumber_ (LOCAL_CLUSTER),
-    partitionState_(state),
-    givenName_(0)
-  {}
+      : dp2Name_(0),
+        partitionName_(0),
+        heap_(0),
+        nodeNumber_(IPC_CPU_DONT_CARE),
+        clusterNumber_(LOCAL_CLUSTER),
+        partitionState_(state),
+        givenName_(0) {}
 
-  NodeMapEntry(const NodeMapEntry& other, CollHeap* heap = 0);
+  NodeMapEntry(const NodeMapEntry &other, CollHeap *heap = 0);
 
-  virtual ~NodeMapEntry()           { NADELETEBASIC(dp2Name_,heap_);
-                                      NADELETEBASIC(partitionName_,heap_);
-				      NADELETEBASIC(givenName_,heap_);
-                                    }
+  virtual ~NodeMapEntry() {
+    NADELETEBASIC(dp2Name_, heap_);
+    NADELETEBASIC(partitionName_, heap_);
+    NADELETEBASIC(givenName_, heap_);
+  }
 
   //-------------------------------
   // Overloaded assignment operator
   //-------------------------------
-  NodeMapEntry& operator=(const NodeMapEntry& other);
+  NodeMapEntry &operator=(const NodeMapEntry &other);
 
   //-------------------
   // Accessor functions
   //-------------------
-  virtual const char* getDP2Name()       const { return dp2Name_;       }
-  virtual const char* getPartitionName() const { return partitionName_; }
-  virtual const char* getGivenName()	 const { return givenName_; }
-  virtual Int32         getNodeNumber()    const { return nodeNumber_;    }
-  virtual Int32         getClusterNumber() const { return clusterNumber_; }
-  virtual NABoolean   isPartitionActive() const
-                               { return (partitionState_ == ACTIVE); }
-  virtual PartitionState  getPartitionState() const
-                               { return partitionState_; }
+  virtual const char *getDP2Name() const { return dp2Name_; }
+  virtual const char *getPartitionName() const { return partitionName_; }
+  virtual const char *getGivenName() const { return givenName_; }
+  virtual Int32 getNodeNumber() const { return nodeNumber_; }
+  virtual Int32 getClusterNumber() const { return clusterNumber_; }
+  virtual NABoolean isPartitionActive() const { return (partitionState_ == ACTIVE); }
+  virtual PartitionState getPartitionState() const { return partitionState_; }
 
   //------------------
   // Mutator functions
   //------------------
-  virtual void setDp2Name(char* dp2Name);
-  virtual void setNodeNumber(Int32 nodeNumber)  {nodeNumber_ = nodeNumber;      }
-  virtual void setClusterNumber(Int32 clusterNumber)
-                                              {clusterNumber_ = clusterNumber;}
-  virtual void setPartitionState(const PartitionState& partState)
-                               { partitionState_ = partState; }
+  virtual void setDp2Name(char *dp2Name);
+  virtual void setNodeNumber(Int32 nodeNumber) { nodeNumber_ = nodeNumber; }
+  virtual void setClusterNumber(Int32 clusterNumber) { clusterNumber_ = clusterNumber; }
+  virtual void setPartitionState(const PartitionState &partState) { partitionState_ = partState; }
 
   //------------------
   //  Print functions.
   //------------------
   void display() const;
 
-  void print( FILE* ofd = stdout,
-	      const char* indent = DEFAULT_INDENT,
-              const char* title = "NodeMapEntry") const;
+  void print(FILE *ofd = stdout, const char *indent = DEFAULT_INDENT, const char *title = "NodeMapEntry") const;
 
-protected:
+ protected:
   // Pointer to heap in which disk process name above is allocated.  If disk
   // process name above is not allocated, this pointer is null.
-  CollHeap* heap_;
+  CollHeap *heap_;
 
-  
-private:
-
+ private:
   // Disk process name associated with this entry and implemented as a
   // simple null terminated character array.  A null pointer value
   // indicates a node map entry for a process other than disk process.
-  char* dp2Name_;
+  char *dp2Name_;
 
   // The full name.  E.g., dp2Name_ might be "$DATA"
   // while this member'll be "\NSK.$DATA.ZSDHH99A.XFT8000".
@@ -150,7 +140,7 @@ private:
   //
   // Useful in Binder -- see containsPartition() method
   // in NodeMap::, NAFileSet::, NATable::.
-  char* partitionName_;
+  char *partitionName_;
 
   // Integer value identifying SMP node associated with this entry.
   Int32 nodeNumber_;
@@ -180,89 +170,68 @@ private:
 
   // holds the name given to this partition by the PARTITION NAME clause
   // used to restrict statement to a specified list of partitions.
-  char* givenName_;
+  char *givenName_;
 
-}; // NodeMapEntry
+};  // NodeMapEntry
 //<pb>
 
-
-
 class HBaseNodeMapEntry : public NodeMapEntry {
+ public:
+  HBaseNodeMapEntry(PartitionState state = ACTIVE, CollHeap *heap = 0) : NodeMapEntry(state) {}
 
-public:
+  HBaseNodeMapEntry(const HBaseNodeMapEntry &, CollHeap *heap = 0);
+  ~HBaseNodeMapEntry() {}
 
-   HBaseNodeMapEntry(PartitionState state = ACTIVE, CollHeap* heap=0)
-    : NodeMapEntry(state)
-    {}
+  HBaseNodeMapEntry &operator=(const HBaseNodeMapEntry &other);
 
-   HBaseNodeMapEntry(const HBaseNodeMapEntry&, CollHeap* heap=0);
-   ~HBaseNodeMapEntry() {}
-
-   HBaseNodeMapEntry& operator=(const HBaseNodeMapEntry& other);
-
-   void print(FILE* ofd, const char* indent, const char* title) const;
-
+  void print(FILE *ofd, const char *indent, const char *title) const;
 };
-
-   
 
 //----------------------------------------------
 //  A node map encapsulates access to an ordered
 // collection of node map entries.
 //----------------------------------------------
 class NodeMap : public NABasicObject {
-
-public:
-
+ public:
   friend class NodeMapIterator;
-  enum NodeMapType {SQ=0, HIVE=1, HBASE=2};
+  enum NodeMapType { SQ = 0, HIVE = 1, HBASE = 2 };
 
   //-----------------------------
   // Constructors and destructor.
   //-----------------------------
-  NodeMap (CollHeap* heap, NodeMap::NodeMapType type = SQ)
-    : map_(heap,0)
-    ,numActivePartitions_(-1)
-    ,numEstActivePartitionsAtRuntime_(-1)
-    ,numOfDP2Volumes_(-1)
-    ,numOfActiveDP2Volumes_(-1)
-    ,tableIdent_(-1)
-    ,usesLocality_(FALSE)
-    ,heap_(heap)
-    ,type_(type)
-  {}
+  NodeMap(CollHeap *heap, NodeMap::NodeMapType type = SQ)
+      : map_(heap, 0),
+        numActivePartitions_(-1),
+        numEstActivePartitionsAtRuntime_(-1),
+        numOfDP2Volumes_(-1),
+        numOfActiveDP2Volumes_(-1),
+        tableIdent_(-1),
+        usesLocality_(FALSE),
+        heap_(heap),
+        type_(type) {}
 
-  NodeMap (CollHeap* heap,
-           const CollIndex numEntries,
-           const NodeMapEntry::PartitionState state = NodeMapEntry::ACTIVE,
-           NodeMap::NodeMapType NodeMapKind = SQ
-          );
+  NodeMap(CollHeap *heap, const CollIndex numEntries, const NodeMapEntry::PartitionState state = NodeMapEntry::ACTIVE,
+          NodeMap::NodeMapType NodeMapKind = SQ);
 
-  NodeMap (const NodeMap& other, CollHeap* heap);
+  NodeMap(const NodeMap &other, CollHeap *heap);
 
   // cstr for a partially active node map. The total # of entries is
   // <numEntries> and active node IDs are provded in <activeNodeIds>.
-  NodeMap (CollHeap* heap,
-           const CollIndex numEntries,
-           const ARRAY(short)& activeNodeIds,
-           NodeMap::NodeMapType NodeMapKind = SQ
-          );
+  NodeMap(CollHeap *heap, const CollIndex numEntries, const ARRAY(short) & activeNodeIds,
+          NodeMap::NodeMapType NodeMapKind = SQ);
 
   virtual ~NodeMap();
 
-  NodeMap* copy() const; // use the heap of this nodeMap for copying
-  NodeMap* copy(CollHeap* heap) const;
+  NodeMap *copy() const;  // use the heap of this nodeMap for copying
+  NodeMap *copy(CollHeap *heap) const;
 
   inline CollIndex getNumEntries() const { return map_.entries(); }
 
   NABoolean containsPartition(const char *fullName) const;
 
-  NodeMap* synthesizeLogicalMap (const CollIndex logicalNumEntries,
-                                 NABoolean forESP);
+  NodeMap *synthesizeLogicalMap(const CollIndex logicalNumEntries, NABoolean forESP);
 
-  void deriveGrouping (const CollIndex         numGroups,
-                             CollIndexPointer& groupStart,
-                             CollIndexPointer& groupSize);
+  void deriveGrouping(const CollIndex numGroups, CollIndexPointer &groupStart, CollIndexPointer &groupSize);
 
   NABoolean allNodesSpecified(void) const;
   NABoolean allNodesAreWildcards() const;
@@ -270,28 +239,23 @@ public:
   //--------------------------------
   // Accessor functions.
   //--------------------------------
-  const NodeMapEntry* getNodeMapEntry(const CollIndex position)const
-  {
+  const NodeMapEntry *getNodeMapEntry(const CollIndex position) const {
     CMPASSERT(map_.getUsage(position) != UNUSED_COLL_ENTRY);
     return map_[position];
   }
-  NodeMapEntry* getNodeMapEntry(const CollIndex position)
-  {
+  NodeMapEntry *getNodeMapEntry(const CollIndex position) {
     CMPASSERT(map_.getUsage(position) != UNUSED_COLL_ENTRY);
     return map_[position];
   }
   NABoolean isActive(const CollIndex position) const;
-  Lng32      getNodeNumber(const CollIndex position) const;
-  Lng32      getPopularNodeNumber(const CollIndex beginPos, 
-                                  const CollIndex endPos) const;
-  Lng32      mapNodeNameToNodeNum(const NAString node) const;
-  Lng32      getClusterNumber(const CollIndex position) const;
-  Int32       getTableIdent(void) const  {return tableIdent_; }
-  NABoolean isMultiCluster(CollIndex start, CollIndex end, 
-                           NABoolean activeOnly) const;
+  Lng32 getNodeNumber(const CollIndex position) const;
+  Lng32 getPopularNodeNumber(const CollIndex beginPos, const CollIndex endPos) const;
+  Lng32 mapNodeNameToNodeNum(const NAString node) const;
+  Lng32 getClusterNumber(const CollIndex position) const;
+  Int32 getTableIdent(void) const { return tableIdent_; }
+  NABoolean isMultiCluster(CollIndex start, CollIndex end, NABoolean activeOnly) const;
 
-
-  NABoolean smooth(Lng32 numNodes) ;
+  NABoolean smooth(Lng32 numNodes);
 
   // These functions should be const but because of the
   // cached values and the fact that mutable is not
@@ -306,74 +270,58 @@ public:
   Int32 getNumberOfUniqueNodes() const;
   NABoolean usesLocality() const { return usesLocality_; }
 
-  NABoolean isCoLocated(const NodeMap*) const;
+  NABoolean isCoLocated(const NodeMap *) const;
 
   //--------------------------------
   // Mutator functions.
   //--------------------------------
-  void setNodeMapEntry(const CollIndex     position,
-                       const NodeMapEntry& entry,
-                       CollHeap*           heap = 0);
+  void setNodeMapEntry(const CollIndex position, const NodeMapEntry &entry, CollHeap *heap = 0);
 
-
-  void setPartitionState(const CollIndex& position,
-                         const NodeMapEntry::PartitionState& state);
+  void setPartitionState(const CollIndex &position, const NodeMapEntry::PartitionState &state);
 
   void setNodeNumber(const CollIndex position, const Lng32 nodeNumber);
   void setClusterNumber(const CollIndex position, const Lng32 clusterNumber);
 
-  void setNumActivePartitions(const CollIndex &numActPart)
-  { numActivePartitions_ = (Lng32)numActPart; }
+  void setNumActivePartitions(const CollIndex &numActPart) { numActivePartitions_ = (Lng32)numActPart; }
 
-  void setEstNumActivePartitionsAtRuntime(const CollIndex &numActPart)
-  { numEstActivePartitionsAtRuntime_ = (Lng32)numActPart; }
+  void setEstNumActivePartitionsAtRuntime(const CollIndex &numActPart) {
+    numEstActivePartitionsAtRuntime_ = (Lng32)numActPart;
+  }
 
   void setTableIdent(Int32 tableIdent) { tableIdent_ = tableIdent; }
 
   // Does this node map have any remote partitions
   NABoolean hasRemotePartitions() const;
 
-
-
-
   //------------------
   //  Generator methods
   //------------------
-  static short codeGen(const PartitioningFunction *partFunc,
-		       const Lng32 numESPs,
-		       Generator *generator);
+  static short codeGen(const PartitioningFunction *partFunc, const Lng32 numESPs, Generator *generator);
 
   //------------------
   //  Print functions.
   //------------------
   void display() const;
 
-  void print( FILE* ofd = stdout,
-	      const char* indent = DEFAULT_INDENT,
-              const char* title = "NodeMap") const;
-  void printToLog(
-	      const char* indent = DEFAULT_INDENT,
-              const char* title = "NodeMap") const;
-  NABoolean printMsgToLog(
-              const char* indent,
-              const char* msg) const;
+  void print(FILE *ofd = stdout, const char *indent = DEFAULT_INDENT, const char *title = "NodeMap") const;
+  void printToLog(const char *indent = DEFAULT_INDENT, const char *title = "NodeMap") const;
+  NABoolean printMsgToLog(const char *indent, const char *msg) const;
 
   // Generate a string representation of this NodeMap.
   const NAString getText() const;
 
   NodeMap::NodeMapType type() const { return type_; }
 
-private:
-
-  NodeMap () ; // *must* specify a CollHeap *
-  NodeMap & operator = (const NodeMap &) ; // don't use this fn unless you write it
+ private:
+  NodeMap();                            // *must* specify a CollHeap *
+  NodeMap &operator=(const NodeMap &);  // don't use this fn unless you write it
 
   CollHeap *heap() { return heap_; }
 
   void resetCachedValues();
 
   // An array of pointers to node map entries.
-  ARRAY (NodeMapEntry *) map_;
+  ARRAY(NodeMapEntry *) map_;
 
   // The number of partitions doing work for a particular query
   // Value of -1 means the member has not been set.
@@ -400,57 +348,43 @@ private:
   // another resource like HDFS or HBase?
   NABoolean usesLocality_;
 
-  CollHeap* heap_;
+  CollHeap *heap_;
 
   NodeMap::NodeMapType type_;
 
-}; // NodeMap
+};  // NodeMap
 
 class NodeMapIterator {
+ public:
+  NodeMapIterator(NodeMap &x) : nodeMap_(x), idx_(-1) { init(); };
+  ~NodeMapIterator(){};
 
-public:
-   NodeMapIterator(NodeMap& x) : nodeMap_(x), idx_(-1) { init(); };
-   ~NodeMapIterator() {};
+  void init() {
+    if (nodeMap_.map_.entries() > 0) idx_ = 0;
+  };
 
-   void init() 
-   { 
-      if ( nodeMap_.map_.entries() > 0 )
-        idx_ = 0;
-   };
+  NodeMapEntry *getEntry() {
+    if (idx_ < 0 || idx_ >= nodeMap_.map_.entries() || nodeMap_.map_.getUsage(idx_) == UNUSED_COLL_ENTRY) return NULL;
 
-   NodeMapEntry* getEntry() 
-   {
-      if ( idx_ < 0 || idx_ >= nodeMap_.map_.entries() ||
-           nodeMap_.map_.getUsage(idx_) == UNUSED_COLL_ENTRY )
-        return NULL;
-  
-      return nodeMap_.map_[idx_];
-   }
+    return nodeMap_.map_[idx_];
+  }
 
-   void advance() 
-   {
-      if (idx_ == nodeMap_.map_.entries()-1) 
-         return;
+  void advance() {
+    if (idx_ == nodeMap_.map_.entries() - 1) return;
 
-      do{ 
-        idx_++;
-      }
-      while (idx_ < nodeMap_.map_.entries() &&
-             nodeMap_.map_.getUsage(idx_) == UNUSED_COLL_ENTRY); 
-   }
+    do {
+      idx_++;
+    } while (idx_ < nodeMap_.map_.entries() && nodeMap_.map_.getUsage(idx_) == UNUSED_COLL_ENTRY);
+  }
 
-   NodeMapEntry* advanceAndGetEntry() 
-   { advance(); return getEntry(); }
-   
+  NodeMapEntry *advanceAndGetEntry() {
+    advance();
+    return getEntry();
+  }
 
-protected:
-   CollIndex idx_;
-   NodeMap& nodeMap_;
+ protected:
+  CollIndex idx_;
+  NodeMap &nodeMap_;
 };
 
 #endif
-
-
-
-
-

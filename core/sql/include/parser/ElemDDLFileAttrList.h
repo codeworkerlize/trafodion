@@ -36,7 +36,7 @@
  *               from class ElemDDLFileAttr which represents file attribute
  *               elements.
  *
- *               
+ *
  * Created:      9/27/95
  * Language:     C++
  *
@@ -45,7 +45,6 @@
  *
  *****************************************************************************
  */
-
 
 #include "parser/ElemDDLList.h"
 
@@ -62,22 +61,17 @@ class ElemDDLFileAttrList;
 // -----------------------------------------------------------------------
 // definition of class ElemDDLFileAttrList
 // -----------------------------------------------------------------------
-class ElemDDLFileAttrList : public ElemDDLList
-{
-
-public:
-
+class ElemDDLFileAttrList : public ElemDDLList {
+ public:
   // constructor
-  ElemDDLFileAttrList(ElemDDLNode * commaExpr,
-                             ElemDDLNode * otherExpr)
-  : ElemDDLList(ELM_FILE_ATTR_LIST, commaExpr, otherExpr)
-  { }
+  ElemDDLFileAttrList(ElemDDLNode *commaExpr, ElemDDLNode *otherExpr)
+      : ElemDDLList(ELM_FILE_ATTR_LIST, commaExpr, otherExpr) {}
 
   // virtual destructor
   virtual ~ElemDDLFileAttrList();
 
   // cast
-  virtual ElemDDLFileAttrList * castToElemDDLFileAttrList();
+  virtual ElemDDLFileAttrList *castToElemDDLFileAttrList();
 
   // methods for tracing
   virtual const NAString getText() const;
@@ -85,11 +79,7 @@ public:
   // method for building text
   virtual NAString getSyntax() const;
 
+ private:
+};  // class ElemDDLFileAttrList
 
-
-private:
-
-}; // class ElemDDLFileAttrList
-
-
-#endif // ELEMDDLFILEATTRLIST_H
+#endif  // ELEMDDLFILEATTRLIST_H

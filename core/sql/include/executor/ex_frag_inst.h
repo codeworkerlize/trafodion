@@ -27,8 +27,8 @@
  *
  * File:         ex_frag_inst.h
  * Description:  Identifiers for fragments and fragment instances
- *               
- *               
+ *
+ *
  * Created:      1/22/96
  * Language:     C++
  *
@@ -72,40 +72,32 @@ typedef ULng32 ExEspStatementHandle;
 // A fragment key consists of
 // - the process id of the master executor
 // - the statement handle of the master executor
-// - the fragment id 
+// - the fragment id
 // Together, those three values uniquely identify one fragment of one
 // statement in one executing SQL program. Note that multiple instances
 // of this fragment may exist in multiple ESPs, but each ESP has at most
 // one instance.
 // -----------------------------------------------------------------------
-class ExFragKey : public IpcMessageObj
-{
-public:
-
+class ExFragKey : public IpcMessageObj {
+ public:
   ExFragKey();
-  ExFragKey(IpcProcessId          pid,
-	    ExEspStatementHandle  statementHandle,
-	    ExFragId              fragId);
+  ExFragKey(IpcProcessId pid, ExEspStatementHandle statementHandle, ExFragId fragId);
   ExFragKey(const ExFragKey &other);
-  NABoolean operator == (const ExFragKey &other);
+  NABoolean operator==(const ExFragKey &other);
 
-  inline const IpcProcessId &getProcessId() const         { return pid_; }
-  inline ExEspStatementHandle getStatementHandle() const
-                                              { return statementHandle_; }
-  inline ExFragId getFragId() const                    { return fragId_; }
-  inline void setFragId(ExFragId fid)                   { fragId_ = fid; }
+  inline const IpcProcessId &getProcessId() const { return pid_; }
+  inline ExEspStatementHandle getStatementHandle() const { return statementHandle_; }
+  inline ExFragId getFragId() const { return fragId_; }
+  inline void setFragId(ExFragId fid) { fragId_ = fid; }
 
   IpcMessageObjSize packedLength();
 
-private:
-
-  IpcProcessId          pid_;
-  ExEspStatementHandle  statementHandle_;
-  ExFragId              fragId_;
-  Int32                 spare1_;
-  Int32                 spare2_;
+ private:
+  IpcProcessId pid_;
+  ExEspStatementHandle statementHandle_;
+  ExFragId fragId_;
+  Int32 spare1_;
+  Int32 spare2_;
 };
 
-
 #endif /* EX_FRAG_INST_H */
-

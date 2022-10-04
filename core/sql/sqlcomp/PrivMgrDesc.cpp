@@ -144,7 +144,6 @@ void PrivMgrCoreDesc::setAllObjectPrivileges(const ComObjectType objectType, con
       setAllUdrGrantPrivileges(priv, wgo, all_dml, all_ddl);
       break;
     case COM_VIEW_OBJECT:
-      // will reach here for native hive views
       setAllTableGrantPrivileges(priv, wgo, all_dml, all_ddl);
       break;
     default:;  // TODO: internal error?

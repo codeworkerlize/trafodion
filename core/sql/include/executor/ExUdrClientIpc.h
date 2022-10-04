@@ -28,7 +28,7 @@
  * File:         ExUdrClientIpc.h
  * Description:  IPC streams and message objects for the client-side
  *               of a UDR server connection
- *               
+ *
  * Created:      08/20/2000
  * Language:     C++
  *
@@ -54,21 +54,16 @@ const Int32 UdrClientDataStreamVersionNumber = 1;
 //
 // A non-buffered client-side message stream for UDR control messages.
 // A given instance of this class will be used to send one and only
-// one message. Once the reply for the message arrives the stream is 
+// one message. Once the reply for the message arrives the stream is
 // no longer used. The stream will notify a TCB of the reply if the
-// TCB has not yet called delinkTcb(). 
+// TCB has not yet called delinkTcb().
 //
-class UdrClientControlStream : public UdrControlStream
-{
-public:
+class UdrClientControlStream : public UdrControlStream {
+ public:
   typedef UdrControlStream super;
 
-  UdrClientControlStream(IpcEnvironment *,
-                         ExUdrTcb *,
-                         ExExeStmtGlobals *,
-                         NABoolean keepUdrDiagsForCaller,
-                         NABoolean isTransactional,
-                         IpcThreadInfo *threadInfo);
+  UdrClientControlStream(IpcEnvironment *, ExUdrTcb *, ExExeStmtGlobals *, NABoolean keepUdrDiagsForCaller,
+                         NABoolean isTransactional, IpcThreadInfo *threadInfo);
 
   virtual ~UdrClientControlStream();
 
@@ -109,14 +104,13 @@ public:
   ExRsInfo *getExRsInfo() { return exRsInfo_; }
   void setExRsInfo(ExRsInfo *exRsInfo) { exRsInfo_ = exRsInfo; }
 
-protected:
-
+ protected:
   // Returns TRUE if the TCB is expecting callbacks
   NABoolean tcbExpectsReply() const;
-  
+
   // Returns TRUE if the TCB's statement globals is expecting callbacks
   NABoolean stmtGlobalsExpectsReply() const;
-  
+
   ExUdrTcb *tcb_;
   ExExeStmtGlobals *stmtGlobals_;
 
@@ -146,18 +140,12 @@ protected:
 //
 // A buffered client-side message stream for UDR data
 //
-class UdrClientDataStream : public IpcClientMsgStream
-{
-public:
+class UdrClientDataStream : public IpcClientMsgStream {
+ public:
   typedef IpcClientMsgStream super;
 
-  UdrClientDataStream(IpcEnvironment *env,
-                      Lng32 sendBufferLimit,
-                      Lng32 inUseBufferLimit,
-                      IpcMessageObjSize bufferSize,
-                      ExUdrTcb *tcb,
-                      ExExeStmtGlobals *stmtGlobals,
-                      NABoolean isTransactional,
+  UdrClientDataStream(IpcEnvironment *env, Lng32 sendBufferLimit, Lng32 inUseBufferLimit, IpcMessageObjSize bufferSize,
+                      ExUdrTcb *tcb, ExExeStmtGlobals *stmtGlobals, NABoolean isTransactional,
                       ExEspInstanceThread *threadInfo);
 
   virtual ~UdrClientDataStream();
@@ -178,8 +166,7 @@ public:
 
   NABoolean isTransactional() const { return isTransactional_; }
 
-protected:
-
+ protected:
   //
   // Returns TRUE if the TCB is expecting callbacks
   //
@@ -202,8 +189,6 @@ protected:
   FILE *traceFile_;
   NABoolean trustReplies_;
 #endif
-
 };
 
-#endif // _EX_UDR_CLIENT_IPC_H_
-
+#endif  // _EX_UDR_CLIENT_IPC_H_

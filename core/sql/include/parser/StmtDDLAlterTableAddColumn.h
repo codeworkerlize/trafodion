@@ -10,7 +10,7 @@
  *               The methods in this class are defined either in this
  *               header file or the source file StmtDDLAlter.C.
  *
- *               
+ *
  * Created:      1/27/98
  * Language:     C++
  *
@@ -42,7 +42,7 @@
 
 // -----------------------------------------------------------------------
 // Change history:
-// 
+//
 // -----------------------------------------------------------------------
 
 #include "StmtDDLAlterTable.h"
@@ -65,8 +65,7 @@ class StmtDDLAlterTableAddColumn;
 // -----------------------------------------------------------------------
 // definition of class StmtDDLAlterTableAddColumn
 // -----------------------------------------------------------------------
-class StmtDDLAlterTableAddColumn : public StmtDDLAlterTable
-{
+class StmtDDLAlterTableAddColumn : public StmtDDLAlterTable {
   //
   // The following public global function helps to improve
   // performance.  It is passed to the method traverseList
@@ -92,30 +91,25 @@ class StmtDDLAlterTableAddColumn : public StmtDDLAlterTable
   // StmtDDLAlterTableAddColumn_visit is a global function
   // defined in StmtDDLAlter.cpp
   //
-  friend void StmtDDLAlterTableAddColumn_visit(
-       ElemDDLNode * pThisNode,
-       CollIndex index,
-       ElemDDLNode * pElement);
+  friend void StmtDDLAlterTableAddColumn_visit(ElemDDLNode *pThisNode, CollIndex index, ElemDDLNode *pElement);
 
-public:
-
+ public:
   // constructor
-  StmtDDLAlterTableAddColumn(ElemDDLNode * pColumnDefinition
-                            ,CollHeap    * heap = PARSERHEAP());
+  StmtDDLAlterTableAddColumn(ElemDDLNode *pColumnDefinition, CollHeap *heap = PARSERHEAP());
 
   // virtual destructor
   virtual ~StmtDDLAlterTableAddColumn();
 
   // cast
-  virtual StmtDDLAlterTableAddColumn * castToStmtDDLAlterTableAddColumn();
+  virtual StmtDDLAlterTableAddColumn *castToStmtDDLAlterTableAddColumn();
 
   // accessors
-  inline ElemDDLNode * getColToAdd();
-  inline ElemDDLColDefArray & getColDefArray();
-  inline StmtDDLAddConstraintCheckArray & getAddConstraintCheckArray();
-  inline StmtDDLAddConstraintRIArray & getAddConstraintRIArray();
-  inline StmtDDLAddConstraintUniqueArray & getAddConstraintUniqueArray();
-  inline StmtDDLAddConstraintPK * getAddConstraintPK() const;
+  inline ElemDDLNode *getColToAdd();
+  inline ElemDDLColDefArray &getColDefArray();
+  inline StmtDDLAddConstraintCheckArray &getAddConstraintCheckArray();
+  inline StmtDDLAddConstraintRIArray &getAddConstraintRIArray();
+  inline StmtDDLAddConstraintUniqueArray &getAddConstraintUniqueArray();
+  inline StmtDDLAddConstraintPK *getAddConstraintPK() const;
 
   NABoolean addIfNotExists() { return addIfNotExists_; }
   void setAddIfNotExists(NABoolean v) { addIfNotExists_ = v; }
@@ -123,11 +117,11 @@ public:
   // ---------------------------------------------------------------------
   // mutators
   // ---------------------------------------------------------------------
- 
+
   // This method collects information in the parse sub-tree and copies it
   // to the current parse node.
   void synthesize();
-  void setConstraint(ElemDDLNode * pConstraint);
+  void setConstraint(ElemDDLNode *pConstraint);
 
   // method for tracing
   virtual const NAString getText() const;
@@ -136,14 +130,13 @@ public:
   // please do not use the following methods
   //
 
-  StmtDDLAlterTableAddColumn();   // DO NOT USE
-  StmtDDLAlterTableAddColumn(const StmtDDLAlterTableAddColumn &);   // DO NOT USE
-  StmtDDLAlterTableAddColumn & operator=(const StmtDDLAlterTableAddColumn &);  // DO NOT USE
+  StmtDDLAlterTableAddColumn();                                               // DO NOT USE
+  StmtDDLAlterTableAddColumn(const StmtDDLAlterTableAddColumn &);             // DO NOT USE
+  StmtDDLAlterTableAddColumn &operator=(const StmtDDLAlterTableAddColumn &);  // DO NOT USE
 
-private:
-
+ private:
   // column definition
-  ElemDDLNode * pColumnToAdd_;
+  ElemDDLNode *pColumnToAdd_;
 
   // list of (only one) column definition
   ElemDDLColDefArray columnDefArray_;
@@ -155,73 +148,55 @@ private:
   // Class StmtDDLAddConstraint represents
   // Alter Table <table-name> Add Constraint statements.
   //
-  // In order to easily reuse the existing functions for 
+  // In order to easily reuse the existing functions for
   // adding constraints, this class mimics class
   // StmtDDLCreateTable in creating a kludge
   // parse node derived from class StmtDDLAddConstraint for
   // each column constraint definition specified for the
   // column being added.
   //
-  StmtDDLAddConstraintCheckArray  addConstraintCheckArray_;
-  StmtDDLAddConstraintRIArray     addConstraintRIArray_;
+  StmtDDLAddConstraintCheckArray addConstraintCheckArray_;
+  StmtDDLAddConstraintRIArray addConstraintRIArray_;
   StmtDDLAddConstraintUniqueArray addConstraintUniqueArray_;
 
   //
-  // Since the kludge parge nodes (see above) that are 
-  // used for the column constraints  are not part of the 
+  // Since the kludge parge nodes (see above) that are
+  // used for the column constraints  are not part of the
   // Alter Table Add Column parse tree, we need to save
   // pointers to them in the following array so that we
   // can delete them when we invoke the destructor to destroy
-  // Alter Table Add Column parse node.  For more information, 
+  // Alter Table Add Column parse node.  For more information,
   // please read the content of the header file StmtDDLAlterTable.h.
   //
   StmtDDLAddConstraintArray addConstraintArray_;
 
   // PRIMARY KEY clause
   //
-  StmtDDLAddConstraintPK * pAddConstraintPK_;
+  StmtDDLAddConstraintPK *pAddConstraintPK_;
 
   // add only if column doesnt exist. Otherwise just return.
   NABoolean addIfNotExists_;
 
-}; // class StmtDDLAlterTableAddColumn
+};  // class StmtDDLAlterTableAddColumn
 
 // -----------------------------------------------------------------------
 // definitions of inline methods for class StmtDDLAlterTableAddColumn
 // -----------------------------------------------------------------------
 
-inline ElemDDLNode *
-StmtDDLAlterTableAddColumn::getColToAdd()
-{
-  return pColumnToAdd_;
-}
+inline ElemDDLNode *StmtDDLAlterTableAddColumn::getColToAdd() { return pColumnToAdd_; }
 
-inline ElemDDLColDefArray &
-StmtDDLAlterTableAddColumn::getColDefArray()
-{
-  return columnDefArray_;
-}
-inline StmtDDLAddConstraintCheckArray &
-StmtDDLAlterTableAddColumn::getAddConstraintCheckArray()
-{
+inline ElemDDLColDefArray &StmtDDLAlterTableAddColumn::getColDefArray() { return columnDefArray_; }
+inline StmtDDLAddConstraintCheckArray &StmtDDLAlterTableAddColumn::getAddConstraintCheckArray() {
   return addConstraintCheckArray_;
 }
 
-inline StmtDDLAddConstraintRIArray &
-StmtDDLAlterTableAddColumn::getAddConstraintRIArray()
-{
+inline StmtDDLAddConstraintRIArray &StmtDDLAlterTableAddColumn::getAddConstraintRIArray() {
   return addConstraintRIArray_;
 }
 
-inline StmtDDLAddConstraintUniqueArray &
-StmtDDLAlterTableAddColumn::getAddConstraintUniqueArray()
-{
+inline StmtDDLAddConstraintUniqueArray &StmtDDLAlterTableAddColumn::getAddConstraintUniqueArray() {
   return addConstraintUniqueArray_;
 }
 
-inline StmtDDLAddConstraintPK *
-StmtDDLAlterTableAddColumn::getAddConstraintPK() const
-{
-  return pAddConstraintPK_;
-}
-#endif // STMTDDLALTERTABLEADDCOLUMN_H
+inline StmtDDLAddConstraintPK *StmtDDLAlterTableAddColumn::getAddConstraintPK() const { return pAddConstraintPK_; }
+#endif  // STMTDDLALTERTABLEADDCOLUMN_H

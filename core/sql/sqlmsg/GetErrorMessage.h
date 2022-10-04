@@ -43,50 +43,39 @@
 #include "common/NABoolean.h"
 #include "common/NAWinNT.h"
 
-enum MsgTextType { ERROR_TEXT=1,
-                   CAUSE_TEXT,
-                   EFFECT_TEXT,
-                   RECOVERY_TEXT,
-                   SQL_STATE,
-                   HELP_ID,
-                   EMS_SEVERITY,
-                   EMS_EVENT_TARGET,
-                   EMS_EXPERIENCE_LEVEL
-                 };
-
-enum ErrorType {
-    MAIN_ERROR = 0,
-    SUBERROR_HBASE,
-    SUBERROR_TM
+enum MsgTextType {
+  ERROR_TEXT = 1,
+  CAUSE_TEXT,
+  EFFECT_TEXT,
+  RECOVERY_TEXT,
+  SQL_STATE,
+  HELP_ID,
+  EMS_SEVERITY,
+  EMS_EVENT_TARGET,
+  EMS_EXPERIENCE_LEVEL
 };
 
-#define SQLERRORS_MSGFILE_VERSION_INFO	   10	// see sqlci Env command
-#define SQLERRORS_MSGFILE_NOT_FOUND	16000	
-#define SQLERRORS_MSG_NOT_FOUND		16001	
+enum ErrorType { MAIN_ERROR = 0, SUBERROR_HBASE, SUBERROR_TM };
+
+#define SQLERRORS_MSGFILE_VERSION_INFO 10  // see sqlci Env command
+#define SQLERRORS_MSGFILE_NOT_FOUND    16000
+#define SQLERRORS_MSG_NOT_FOUND        16001
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
+void GetErrorMessageRebindMessageFile();
+char *GetPastHeaderOfErrorMessage(char *text);
 
-void 	 GetErrorMessageRebindMessageFile();
-char 	*GetPastHeaderOfErrorMessage(char *text);
+const char *GetErrorMessageFileName();
 
+short GetErrorMessageRC(Lng32 num, NAWchar *msgBuf, Lng32 bufSize);
 
-const char 	*GetErrorMessageFileName();
+short GetErrorMessage(ErrorType errType, Lng32 error_code, NAWchar *&return_text, MsgTextType M_type = ERROR_TEXT,
+                      NAWchar *alternate_return_text = NULL, Int32 recurse_level = 0, NABoolean prefixAdded = TRUE);
 
-short GetErrorMessageRC (Lng32 num, NAWchar *msgBuf, Lng32 bufSize);
-
-short GetErrorMessage (ErrorType errType, Lng32 error_code, 
-                                          NAWchar*& return_text,
-                                          MsgTextType M_type = ERROR_TEXT,
-                                          NAWchar *alternate_return_text = NULL,
-                                          Int32 recurse_level = 0, 
-                                          NABoolean prefixAdded = TRUE);
-
-void ErrorMessageOverflowCheckW (NAWchar *buf, size_t maxsiz);
-
+void ErrorMessageOverflowCheckW(NAWchar *buf, size_t maxsiz);
 
 #ifdef __cplusplus
 }

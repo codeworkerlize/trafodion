@@ -25,45 +25,33 @@
 #include "common/str.h"
 #include "ExpAlignedFormat.h"
 
-
-Int32 ExpAlignedFormat::setupHeaderAndVOAs(UInt32 numFields, 
-                                           UInt32 numNullableFields,
-                                           UInt32 numVarcharFields)
-{
-  
+Int32 ExpAlignedFormat::setupHeaderAndVOAs(UInt32 numFields, UInt32 numNullableFields, UInt32 numVarcharFields) {
   UInt32 hdrSize = getHdrSize();
-  firstFixed_   = hdrSize;
+  firstFixed_ = hdrSize;
   bitmapOffset_ = hdrSize;
-  
-  if (numVarcharFields > 0)
-    {
-      firstFixed_   += numVarcharFields * sizeof(UInt32);
-      bitmapOffset_ += numVarcharFields * sizeof(UInt32);
-    }
-  
-  if (numNullableFields > 0)
-    {
-      UInt32 bitmapSize = getNeededBitmapSize(numNullableFields);
-      firstFixed_ += bitmapSize;
-    }
-  
+
+  if (numVarcharFields > 0) {
+    firstFixed_ += numVarcharFields * sizeof(UInt32);
+    bitmapOffset_ += numVarcharFields * sizeof(UInt32);
+  }
+
+  if (numNullableFields > 0) {
+    UInt32 bitmapSize = getNeededBitmapSize(numNullableFields);
+    firstFixed_ += bitmapSize;
+  }
+
   return 0;
 }
 
-Int32 ExpAlignedFormat::copyData(UInt32 fieldNum, 
-                                 char *dataPtr, UInt32 dataLen,
-                                 NABoolean isVarchar)
-{
-  if (isVarchar)
-    return -1;
+Int32 ExpAlignedFormat::copyData(UInt32 fieldNum, char *dataPtr, UInt32 dataLen, NABoolean isVarchar) {
+  if (isVarchar) return -1;
 
   clearNullValue(fieldNum);
 
-  Int32 currEndOffset = getFirstFixedOffset() + (fieldNum-1)*dataLen;
-  char *eafDataPtr = (char*)this + currEndOffset;
+  Int32 currEndOffset = getFirstFixedOffset() + (fieldNum - 1) * dataLen;
+  char *eafDataPtr = (char *)this + currEndOffset;
   str_cpy_all(eafDataPtr, dataPtr, dataLen);
 
   currEndOffset += dataLen;
   return currEndOffset;
 }
-

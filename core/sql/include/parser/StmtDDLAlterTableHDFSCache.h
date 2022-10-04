@@ -4,13 +4,13 @@
  *****************************************************************************
  *
  * File:         StmtDDLAlterTableHDFSCache.h
- * Description:  class for 
+ * Description:  class for
  *               --Add table to HDFS cache pool
  *               Alter Table <table-name> CACHE IN <pool-name>
- *               --Remove table from HDFS cache pool 
+ *               --Remove table from HDFS cache pool
  *               Alter Table <table-name> DECACHE FROM <pool-name>
  *
- *               
+ *
  *
  *
 // @@@ START COPYRIGHT @@@
@@ -40,37 +40,28 @@
 
 #include "StmtDDLAlterTable.h"
 
-class StmtDDLAlterTableHDFSCache : public StmtDDLAlterTable
-{
-public:
-
+class StmtDDLAlterTableHDFSCache : public StmtDDLAlterTable {
+ public:
   // constructor
-  StmtDDLAlterTableHDFSCache(const NAString &     pool,
-                             NABoolean            atc, 
-                             NAMemory *           heap = PARSERHEAP()
-                            );
+  StmtDDLAlterTableHDFSCache(const NAString &pool, NABoolean atc, NAMemory *heap = PARSERHEAP());
 
   // virtual destructor
   virtual ~StmtDDLAlterTableHDFSCache();
-  //cast
-  virtual StmtDDLAlterTableHDFSCache * castToStmtDDLAlterTableHDFSCache();
+  // cast
+  virtual StmtDDLAlterTableHDFSCache *castToStmtDDLAlterTableHDFSCache();
 
   // method for tracing
-  virtual const NAString getText() const 
-  { 
-    return "StmtDDLAlterTableHDFSCache"; 
-  }
+  virtual const NAString getText() const { return "StmtDDLAlterTableHDFSCache"; }
 
-  NAString & poolName() { return poolName_; }
+  NAString &poolName() { return poolName_; }
 
-  NABoolean & isAddToCache() { return isAddToCache_; }
+  NABoolean &isAddToCache() { return isAddToCache_; }
 
-private:
-
+ private:
   NAString poolName_;
 
   NABoolean isAddToCache_;
 
-}; // class StmtDDLAlterTableHDFSCache
+};  // class StmtDDLAlterTableHDFSCache
 
-#endif //STMTDDLALTERTABLEHDFSCACHE_H
+#endif  // STMTDDLALTERTABLEHDFSCACHE_H

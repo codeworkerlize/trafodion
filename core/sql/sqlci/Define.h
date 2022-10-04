@@ -6,9 +6,9 @@
  *
  * File:         Define.h
  * RCS:          $Id: Define.h,v 1.3 1997/06/20 23:39:45  Exp $
- * Description:  
- *               
- *               
+ * Description:
+ *
+ *
  * Created:      4/15/95
  * Modified:     $ $Date: 1997/06/20 23:39:45 $ (GMT)
  * Language:     C++
@@ -42,23 +42,22 @@
 
 class SqlciEnv;
 
-class Envvar 
-{
-  char * name;
-  char * value;
-  char * env_str;
-  
-public:
-  Envvar(const char * name_, const char * value_);
+class Envvar {
+  char *name;
+  char *value;
+  char *env_str;
+
+ public:
+  Envvar(const char *name_, const char *value_);
   ~Envvar();
 
-  const char * getName() const		{return name;};
-  void setName(const char * name_);
+  const char *getName() const { return name; };
+  void setName(const char *name_);
 
-  const char * getValue() const		{return value;};
-  void setValue(const char * value_);
+  const char *getValue() const { return value; };
+  void setValue(const char *value_);
 
-  short contains(const char * value) const;
+  short contains(const char *value) const;
 
   Int32 set();
   Int32 reset();

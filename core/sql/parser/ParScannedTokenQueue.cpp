@@ -46,11 +46,8 @@
 // constructor
 //
 
-ParScannedTokenQueue::ParScannedTokenQueue()
-: currentPos_(-1)
-{
-  for (Int32 i = 0; i < getQueueSize(); i++)
-  {
+ParScannedTokenQueue::ParScannedTokenQueue() : currentPos_(-1) {
+  for (Int32 i = 0; i < getQueueSize(); i++) {
     scannedTokens_[i].tokenStrPos = 0;
     scannedTokens_[i].tokenStrLen = 0;
     scannedTokens_[i].tokenStrInputLen = 0;
@@ -63,22 +60,16 @@ ParScannedTokenQueue::ParScannedTokenQueue()
 // virtual destructor
 //
 
-ParScannedTokenQueue::~ParScannedTokenQueue()
-{
-}
+ParScannedTokenQueue::~ParScannedTokenQueue() {}
 
 //
 // mutator
 //
-  
-void
-ParScannedTokenQueue::insert(const size_t tokenStrPos,
-                             const size_t tokenStrLen,
-                             const size_t tokenStrOffset,
-                             NABoolean tokenIsComment)
-{
+
+void ParScannedTokenQueue::insert(const size_t tokenStrPos, const size_t tokenStrLen, const size_t tokenStrOffset,
+                                  NABoolean tokenIsComment) {
   currentPos_ = (currentPos_ + 1) % getQueueSize();
-  scannedTokenInfo & tokInfo = scannedTokens_[currentPos_];
+  scannedTokenInfo &tokInfo = scannedTokens_[currentPos_];
   tokInfo.tokenStrPos = tokenStrPos + tokenStrOffset;
   tokInfo.tokenStrLen = tokenStrLen;
   tokInfo.tokenStrInputLen = tokenStrLen;
@@ -86,32 +77,22 @@ ParScannedTokenQueue::insert(const size_t tokenStrPos,
   tokInfo.tokenIsComment = tokenIsComment;
 }
 
-void
-ParScannedTokenQueue::updateInputLen(const size_t tokenStrInputLen)
-{
-  scannedTokenInfo & tokInfo = scannedTokens_[currentPos_];
-  tokInfo.tokenStrInputLen = tokenStrInputLen;  
+void ParScannedTokenQueue::updateInputLen(const size_t tokenStrInputLen) {
+  scannedTokenInfo &tokInfo = scannedTokens_[currentPos_];
+  tokInfo.tokenStrInputLen = tokenStrInputLen;
 }
 
-// accessor 
+// accessor
 
-const ParScannedTokenQueue::scannedTokenInfo &
-ParScannedTokenQueue::getScannedTokenInfo(const Int32 tokenInfoIndex) const
-{
-  ComASSERT(tokenInfoIndex <= 0 AND
-            getQueueSize() > - tokenInfoIndex);
-  return scannedTokens_[(currentPos_ + getQueueSize()
-                         + tokenInfoIndex) % getQueueSize()];
+const ParScannedTokenQueue::scannedTokenInfo &ParScannedTokenQueue::getScannedTokenInfo(
+    const Int32 tokenInfoIndex) const {
+  ComASSERT(tokenInfoIndex <= 0 AND getQueueSize() > -tokenInfoIndex);
+  return scannedTokens_[(currentPos_ + getQueueSize() + tokenInfoIndex) % getQueueSize()];
 }
 
-
-ParScannedTokenQueue::scannedTokenInfo *
-ParScannedTokenQueue::getScannedTokenInfoPtr(const Int32 tokenInfoIndex)
-{
-  ComASSERT(tokenInfoIndex <= 0 AND
-            getQueueSize() > - tokenInfoIndex);
-  return &scannedTokens_[(currentPos_ + getQueueSize()
-                          + tokenInfoIndex) % getQueueSize()];
+ParScannedTokenQueue::scannedTokenInfo *ParScannedTokenQueue::getScannedTokenInfoPtr(const Int32 tokenInfoIndex) {
+  ComASSERT(tokenInfoIndex <= 0 AND getQueueSize() > -tokenInfoIndex);
+  return &scannedTokens_[(currentPos_ + getQueueSize() + tokenInfoIndex) % getQueueSize()];
 }
 
 //

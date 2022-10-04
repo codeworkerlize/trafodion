@@ -25,9 +25,9 @@
  *
  * File:         ComExternaluser.C
  * Description:  methods for class ComExternaluser
- *               
- *               
- * Created:      
+ *
+ *
+ * Created:
  * Language:     C++
  *
  *
@@ -36,8 +36,7 @@
  *****************************************************************************
  */
 
-
-#define  SQLPARSERGLOBALS_NADEFAULTS		// first
+#define SQLPARSERGLOBALS_NADEFAULTS  // first
 
 #include <string.h>
 #include "common/ComASSERT.h"
@@ -47,32 +46,22 @@
 #include "common/NAString.h"
 #include "ComSchLevelOp.h"
 
-#include "parser/SqlParserGlobals.h"			// last
-
+#include "parser/SqlParserGlobals.h"  // last
 
 //
 // constructors
 //
-ComdbUser::ComdbUser () 
-{
-}
+ComdbUser::ComdbUser() {}
 
 //
 // initializing constructor
 //
-ComdbUser::ComdbUser (const NAString &dbUserName)
-	:dbUserName_(dbuserName)
-{
-  scan(dbUserName);
-}
+ComdbUser::ComdbUser(const NAString &dbUserName) : dbUserName_(dbuserName) { scan(dbUserName); }
 
 //
 // virtual destructor
 //
-ComdbUser::~ComdbUser ()
-{
-}
-
+ComdbUser::~ComdbUser() {}
 
 //
 //  private methods
@@ -80,36 +69,27 @@ ComdbUser::~ComdbUser ()
 //
 // Scans (parses) input external-format schema name.
 //
-NABoolean
-ComdbUser::scan(const NAString &dbUserName)
-{
-	//validate the user name by querying USERS table.
+NABoolean ComdbUser::scan(const NAString &dbUserName) {
+  // validate the user name by querying USERS table.
   return TRUE;
 }
 
 //
 // default constructor
 //
-ComExternaluser::ComExternaluser () 
-{
-}
+ComExternaluser::ComExternaluser() {}
 
 //
 // initializing constructor
 //
-ComExternaluser::ComExternaluser (const NAString &externalUserName)
-	:externalUserName_(externaluserName)
-{
+ComExternaluser::ComExternaluser(const NAString &externalUserName) : externalUserName_(externaluserName) {
   scan(externalUserName);
 }
 
 //
 // virtual destructor
 //
-ComExternaluser::~ComExternaluser ()
-{
-}
-
+ComExternaluser::~ComExternaluser() {}
 
 //
 //  private methods
@@ -117,11 +97,7 @@ ComExternaluser::~ComExternaluser ()
 //
 // Scans (parses) input external-format schema name.
 //
-NABoolean
-ComExternaluser::scan(const NAString &externalUserName)
-{
-	//validate the user name by querying USERS table.
+NABoolean ComExternaluser::scan(const NAString &externalUserName) {
+  // validate the user name by querying USERS table.
   return TRUE;
 }
-
-

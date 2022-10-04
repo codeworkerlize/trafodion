@@ -12,16 +12,15 @@ extern "C" {
  * Method:    SpInfoGetNextRowJava
  * Signature: ([BILorg/trafodion/sql/udr/UDR/QueueStateInfo;)V
  */
-JNIEXPORT void JNICALL Java_org_trafodion_sql_udr_UDR_SpInfoGetNextRowJava
-  (JNIEnv *, jobject, jbyteArray, jint, jobject);
+JNIEXPORT void JNICALL Java_org_trafodion_sql_udr_UDR_SpInfoGetNextRowJava(JNIEnv *, jobject, jbyteArray, jint,
+                                                                           jobject);
 
 /*
  * Class:     org_trafodion_sql_udr_UDR
  * Method:    SpInfoEmitRowJava
  * Signature: ([BILorg/trafodion/sql/udr/UDR/QueueStateInfo;)V
  */
-JNIEXPORT void JNICALL Java_org_trafodion_sql_udr_UDR_SpInfoEmitRowJava
-  (JNIEnv *, jobject, jbyteArray, jint, jobject);
+JNIEXPORT void JNICALL Java_org_trafodion_sql_udr_UDR_SpInfoEmitRowJava(JNIEnv *, jobject, jbyteArray, jint, jobject);
 
 #ifdef __cplusplus
 }

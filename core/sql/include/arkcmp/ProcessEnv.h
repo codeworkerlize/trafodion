@@ -26,8 +26,8 @@
  * File:         ProcessEnv.h
  * Description:  The class declaration for the process environment. i.e.
  *               current working directory and environment variables.
- *               
- *               
+ *
+ *
  * Created:      07/10/96
  * Language:     C++
  *
@@ -36,7 +36,6 @@
  *
  *****************************************************************************
  */
-
 
 #ifndef PROCESSENV_H
 #define PROCESSENV_H
@@ -47,34 +46,32 @@
 // setup should be set here. This is for arkcmp to set up the same run time
 // environment as sqlci.
 
-class ProcessEnv : public NABasicObject
-{
-public:
+class ProcessEnv : public NABasicObject {
+ public:
+  ProcessEnv(CollHeap *heap);
 
-  ProcessEnv(CollHeap *heap) ;
-  
   void cleanup();
-  void setEnv(char** newenvs, Lng32 nEnvs);
+  void setEnv(char **newenvs, Lng32 nEnvs);
   void addOrChangeEnv(char **newenvs, Lng32 nEnvs);
   void resetEnv(const char *envName);
-  Int32 unsetEnv(char* env);  
-  Int32 chdir(char* dir);
+  Int32 unsetEnv(char *env);
+  Int32 chdir(char *dir);
   void dumpEnvs();
-  
+
   virtual ~ProcessEnv();
-  
-private:
+
+ private:
   void removeEnv(char **newenvs, Lng32 nEnvs);
 
   CollHeap *heap_;
   // The following members are used to keep the environment variable info.
-  NAArray<char*> envs_;
-  // Copy Constructor Unimplemented, to prevent an accidental use of 
+  NAArray<char *> envs_;
+  // Copy Constructor Unimplemented, to prevent an accidental use of
   // the default byte copy operation
-  // Copy Constructor Unimplemented, to prevent an accidental use of 
+  // Copy Constructor Unimplemented, to prevent an accidental use of
   // the default byte copy operation
-  ProcessEnv& operator=(const ProcessEnv&);
-  ProcessEnv(const ProcessEnv&);
+  ProcessEnv &operator=(const ProcessEnv &);
+  ProcessEnv(const ProcessEnv &);
 };
 
 #endif

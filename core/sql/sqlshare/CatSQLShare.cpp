@@ -26,8 +26,8 @@
  *
  * File:         CatSQLShare.cpp
  * Description:  See CatSQLShare.h for details.
- *               
- *               
+ *
+ *
  * Created:      7/2/99
  * Language:     C++
  *
@@ -55,7 +55,6 @@
 #include "seabed/fs.h"
 #include "seabed/fserr.h"
 
-
 // Generate a unique value. This is really the meat and bone of UIDs,
 // packaged in a context where it can be used by all SQL components, including utilities.
 //
@@ -63,27 +62,25 @@
 // ---------------------------------------------------------------------------------
 // WINDOWS - just uses the rightmost 51 bits of the Julian timestamp
 // Linux:                                                                               !
-// !          |rightmost 14 bits of node number | 
+// !          |rightmost 14 bits of node number |
 // |          |             XOR                 |
 // |          |right most 14 bits of Thread ID  ! rghtmost 49 bits of Julian timestamp  !
 // ! sign bit |       (14 bits)                 !   (expect rollover every 17 years)    !
 // ---------------------------------------------------------------------------------
 //
 // The "Julian timestamp" is constructed from the combination of the system coldload
-// time and the time since coldload, to avoid potential duplicates if the system clock 
+// time and the time since coldload, to avoid potential duplicates if the system clock
 // is set back while the system is running.
 
 // On LINUX, use 49 bits, for other platforms, use 51 bits
 #define MASK 0x1ffffffffffffLL
 
-SQLShareInt64 CATSQLSHARE_LIB_FUNC
-generateUniqueValue (void)
-{
+SQLShareInt64 CATSQLSHARE_LIB_FUNC generateUniqueValue(void) {
   static THREAD_P SQLShareInt64 lastTime = -1;
-  static          SQLShareInt64 systemColdLoadTime = -1;
+  static SQLShareInt64 systemColdLoadTime = -1;
   static THREAD_P SQLShareInt64 highOrderBits = -1;
-  static          SQLShareInt64 lastGeneratedUID = -1;
-  pthread_mutex_t               lastGeneratedUID_mutex = PTHREAD_MUTEX_INITIALIZER;
+  static SQLShareInt64 lastGeneratedUID = -1;
+  pthread_mutex_t lastGeneratedUID_mutex = PTHREAD_MUTEX_INITIALIZER;
 
   SQLShareInt64 timeSinceColdLoad = 0;
 
@@ -91,32 +88,30 @@ generateUniqueValue (void)
   // the life of the thread, so we only need to calculate them once
   // per thread
 
-  if (highOrderBits == -1)
-  {
-    Int32  rtnCode = -1;
-    char monProcessName[MS_MON_MAX_PROCESS_NAME+1];
+  if (highOrderBits == -1) {
+    Int32 rtnCode = -1;
+    char monProcessName[MS_MON_MAX_PROCESS_NAME + 1];
 
-    Int32  monNodeId = -1;
-    Int32  monProcessId = -1;
-    Int32  monProcessType = -1;
-    Int32  monZoneId = -1;
-    Int32  lnxOsPid = -1;
+    Int32 monNodeId = -1;
+    Int32 monProcessId = -1;
+    Int32 monProcessType = -1;
+    Int32 monZoneId = -1;
+    Int32 lnxOsPid = -1;
     ThreadId lnxOsTid = -1;
-    
-    rtnCode = msg_mon_get_my_info(&monNodeId,              // int * mon node-id
-                                  &monProcessId,           // int * mon process-id
-                                  monProcessName,          // char * mon process-name
-                                  MS_MON_MAX_PROCESS_NAME, // int mon process-name-max-len
-                                  &monProcessType,         // int * mon process-type
-                                  &monZoneId,              // int * mon zone-id
-                                  &lnxOsPid,               // int * linux os process-id
-                                  &lnxOsTid);              // long * linux os thread-id
+
+    rtnCode = msg_mon_get_my_info(&monNodeId,               // int * mon node-id
+                                  &monProcessId,            // int * mon process-id
+                                  monProcessName,           // char * mon process-name
+                                  MS_MON_MAX_PROCESS_NAME,  // int mon process-name-max-len
+                                  &monProcessType,          // int * mon process-type
+                                  &monZoneId,               // int * mon zone-id
+                                  &lnxOsPid,                // int * linux os process-id
+                                  &lnxOsTid);               // long * linux os thread-id
 
     // should we return an error instead?
-    if (rtnCode != XZFIL_ERR_OK)
-    {
+    if (rtnCode != XZFIL_ERR_OK) {
       monNodeId = 255;
-      lnxOsTid = 1; 
+      lnxOsTid = 1;
     }
 
     highOrderBits = (monNodeId & 0x3fff) ^ (lnxOsTid & 0x3fff);
@@ -124,15 +119,13 @@ generateUniqueValue (void)
     // Shift over to make room for the Juliantimestamp
     highOrderBits = highOrderBits << 49;
 
-    systemColdLoadTime = JULIANTIMESTAMP (1,OMIT,OMIT,OMIT);
-    lastTime = JULIANTIMESTAMP (3,OMIT,OMIT,OMIT);
-
+    systemColdLoadTime = JULIANTIMESTAMP(1, OMIT, OMIT, OMIT);
+    lastTime = JULIANTIMESTAMP(3, OMIT, OMIT, OMIT);
   }
 
-  while (timeSinceColdLoad <= lastTime)
-  {
+  while (timeSinceColdLoad <= lastTime) {
     // cater for the situation where we run faster than the clock :-)
-    timeSinceColdLoad = JULIANTIMESTAMP(3,OMIT,OMIT,OMIT);
+    timeSinceColdLoad = JULIANTIMESTAMP(3, OMIT, OMIT, OMIT);
   }
 
   // calculate the rightmost bits of JulianTimeStamp
@@ -146,7 +139,7 @@ generateUniqueValue (void)
   // generated the same value more than once, adjust.
 
   // Lock the mutex on lastGeneratedUID -- to ensure uniqueness.
-  (void) pthread_mutex_lock(&lastGeneratedUID_mutex);
+  (void)pthread_mutex_lock(&lastGeneratedUID_mutex);
 
   if (lastGeneratedUID <= (highOrderBits + tempValue))
     lastGeneratedUID = highOrderBits + tempValue + 1;
@@ -156,54 +149,49 @@ generateUniqueValue (void)
   SQLShareInt64 tempLastGeneratedUID = lastGeneratedUID;
 
   // Unlock the mutex
-  (void) pthread_mutex_unlock(&lastGeneratedUID_mutex);
+  (void)pthread_mutex_unlock(&lastGeneratedUID_mutex);
 
   return tempLastGeneratedUID;
 }
 
-//similar to generateUniqueValue
-//except that it is faster since it does not use 
-//time since coldload logic. Used for syskey generation in Trafodion.
+// similar to generateUniqueValue
+// except that it is faster since it does not use
+// time since coldload logic. Used for syskey generation in Trafodion.
 #define MASK1 0x1ffffffffffffLL
-Int64
-generateUniqueValueFast ()
-{
+Int64 generateUniqueValueFast() {
   static THREAD_P Int64 lastTime = -1;
   static THREAD_P Int64 highOrderBits = -1;
   Int64 uniqueValue = -1;
   Int64 currentTime = -1;
   struct timespec ts;
   ts.tv_sec = 0;
-  ts.tv_nsec = 1000;  //1 microsecond
-            
+  ts.tv_nsec = 1000;  // 1 microsecond
+
   // Generate the highOrderBits for the UID.  They will not change for`
   // the life of the thread, so we only need to calculate them once
 
-  if (highOrderBits == -1)
-  {
-    
-    Int32  rtnCode = -1;
-    char monProcessName[MS_MON_MAX_PROCESS_NAME+1];
+  if (highOrderBits == -1) {
+    Int32 rtnCode = -1;
+    char monProcessName[MS_MON_MAX_PROCESS_NAME + 1];
 
-    Int32  monNodeId = -1;
-    Int32  monProcessId = -1;
-    Int32  monProcessType = -1;
-    Int32  monZoneId = -1;
-    Int32  lnxOsPid = -1;
+    Int32 monNodeId = -1;
+    Int32 monProcessId = -1;
+    Int32 monProcessType = -1;
+    Int32 monZoneId = -1;
+    Int32 lnxOsPid = -1;
     ThreadId lnxOsTid = -1;
-    
-    rtnCode = msg_mon_get_my_info(&monNodeId,              // int * mon node-id
-                                  &monProcessId,           // int * mon process-id
-                                  monProcessName,          // char * mon process-name
-                                  MS_MON_MAX_PROCESS_NAME, // int mon process-name-max-len
-                                  &monProcessType,         // int * mon process-type
-                                  &monZoneId,              // int * mon zone-id
-                                  &lnxOsPid,               // int * linux os process-id
-                                  &lnxOsTid);              // long * linux os thread-id
+
+    rtnCode = msg_mon_get_my_info(&monNodeId,               // int * mon node-id
+                                  &monProcessId,            // int * mon process-id
+                                  monProcessName,           // char * mon process-name
+                                  MS_MON_MAX_PROCESS_NAME,  // int mon process-name-max-len
+                                  &monProcessType,          // int * mon process-type
+                                  &monZoneId,               // int * mon zone-id
+                                  &lnxOsPid,                // int * linux os process-id
+                                  &lnxOsTid);               // long * linux os thread-id
 
     // should we return an error instead?
-    if (rtnCode != XZFIL_ERR_OK)
-    {
+    if (rtnCode != XZFIL_ERR_OK) {
       monNodeId = 255;
       lnxOsTid = 1;
     }
@@ -213,38 +201,35 @@ generateUniqueValueFast ()
     // Shift over to make room for the Juliantimestamp
     highOrderBits = highOrderBits << 49;
 
-    currentTime = JULIANTIMESTAMP ();
-  }
-  else 
-  {
-    currentTime = JULIANTIMESTAMP ();
-    while (currentTime <= lastTime)
-    {
-      //now sleep
+    currentTime = JULIANTIMESTAMP();
+  } else {
+    currentTime = JULIANTIMESTAMP();
+    while (currentTime <= lastTime) {
+      // now sleep
       nanosleep(&ts, NULL);
       // cater for the situation where we run faster than the clock :-)
-      currentTime = JULIANTIMESTAMP ();
+      currentTime = JULIANTIMESTAMP();
     }
   }
 
-  lastTime = currentTime ;
+  lastTime = currentTime;
   // calculate the rightmost bits of JulianTimeStamp
   currentTime = currentTime & MASK1;
-  uniqueValue = highOrderBits + currentTime ;
+  uniqueValue = highOrderBits + currentTime;
 
-  return uniqueValue; 
+  return uniqueValue;
 }
 
 //------------------------------------------------------------------------
-// Generate a name, of specified format, based upon a generated unique value 
-// (see above). Currently, we can generate 4 formats: 
+// Generate a name, of specified format, based upon a generated unique value
+// (see above). Currently, we can generate 4 formats:
 //  - Funny filenames of the form axxxxx00
 //  - Funny SMD subvol names of the form ZSDnxxxx
 //  - Funny user subvol names of the form ZSDaxxxx
-//  - Implicit ANSI name suffixes of the form 
+//  - Implicit ANSI name suffixes of the form
 //    <Truncated ANSI identifier>_nnnnnnnn_nnnn
 // where x is an alphanum char, a is an alpha char and n is a digit,
-// from the set of permitted characters below 
+// from the set of permitted characters below
 //
 // generateFunnyName will return the desired name part, including decorations
 //------------------------------------------------------------------------
@@ -252,23 +237,18 @@ generateUniqueValueFast ()
 
 // The layouts of the various forms of generated names
 //
-const char * NameFormatTemplates [] = 
-{ "ZSDnxxxx",
-  "ZSDaxxxx",
-  "axxxxx00",
-  "_nnnnnnnnn_nnnn"
-};
+const char *NameFormatTemplates[] = {"ZSDnxxxx", "ZSDaxxxx", "axxxxx00", "_nnnnnnnnn_nnnn"};
 
 //
 // Permitted characters: No vowels, no zero digit
 //
-const char alphaNumCharacters [] = "BCDFGHJKLMNPQRSTVWXZ123456789";
-const char * numericCharacters = &alphaNumCharacters[20];
+const char alphaNumCharacters[] = "BCDFGHJKLMNPQRSTVWXZ123456789";
+const char *numericCharacters = &alphaNumCharacters[20];
 
 // ----------------------------------------------------------------
 // void generateFunnyName (const FunnyNameFormat nameFormat, char * generatedName);
 //
-// This function produces a new, hopefully unique "funny-name".  
+// This function produces a new, hopefully unique "funny-name".
 // The Guardian name of a SQL partition has the form:
 //      \system.$volume.ZSDxxxxx.axxxxx00
 // where:
@@ -284,67 +264,58 @@ const char * numericCharacters = &alphaNumCharacters[20];
 //    & DP2 store multiple streams in the file (e.g., data
 //    & resource fork) and use these last two chars internally
 //    to identify which stream is being addressed
-// 
-// 2) Two unique values picked sequentially in the same process are likely 
-//    to differ only by one. If we generated two funnynames from 
-//    these by a standard right-to-left conversion into 
-//    pseudo-base-36, the funny names would likely be alphabetically 
+//
+// 2) Two unique values picked sequentially in the same process are likely
+//    to differ only by one. If we generated two funnynames from
+//    these by a standard right-to-left conversion into
+//    pseudo-base-36, the funny names would likely be alphabetically
 //    next to each other. This would cause an inefficiency for DP2
 //    as the secondary labels of the two files would be intermixed.
 //    So, when we convert the unique value into the funny name, we extract
 //    the pseudo-base-36 right-to-left, but insert them left-to-right,
 //    in order to keep the internal labels next to
 //    their external counterparts.
-// 
+//
 // ----------------------------------------------------------------
 
+void CATSQLSHARE_LIB_FUNC generateFunnyName(const FunnyNameFormat nameFormat, char *generatedName) {
+  const char *nameFormatTemplate = NameFormatTemplates[nameFormat];
+  char *outputPointer = generatedName;
 
-void CATSQLSHARE_LIB_FUNC
-generateFunnyName (const FunnyNameFormat nameFormat, char * generatedName)
-{
+  SQLShareInt64 uniqueValue = generateUniqueValue();
 
-  const char * nameFormatTemplate = NameFormatTemplates[nameFormat];
-  char * outputPointer = generatedName;
+  const char *nextTemplateChar = nameFormatTemplate;
 
-  SQLShareInt64 uniqueValue = generateUniqueValue ();
-
-  const char * nextTemplateChar = nameFormatTemplate;
-
-  while (*nextTemplateChar)
-  {
+  while (*nextTemplateChar) {
     Int32 divisor;
-    const char * base;
+    const char *base;
 
-    switch (*nextTemplateChar)
-    {
-    case 'x': // Generate an alphanumeric character
-      base = alphaNumCharacters;
-      divisor = 29;
-      break;
+    switch (*nextTemplateChar) {
+      case 'x':  // Generate an alphanumeric character
+        base = alphaNumCharacters;
+        divisor = 29;
+        break;
 
-    case 'a': // Generate an alpha character
-      base = alphaNumCharacters;
-      divisor = 20;
-      break;
+      case 'a':  // Generate an alpha character
+        base = alphaNumCharacters;
+        divisor = 20;
+        break;
 
-    case 'n': // Generate a numeric character
-      base = numericCharacters;
-      divisor = 9;
-      break;
+      case 'n':  // Generate a numeric character
+        base = numericCharacters;
+        divisor = 9;
+        break;
 
-    default:  // A decoration, simply move the character
-      base = NULL;
-      divisor = 0;
-      break;
+      default:  // A decoration, simply move the character
+        base = NULL;
+        divisor = 0;
+        break;
     }
 
-    if (divisor)
-    {
-      *outputPointer = base [uniqueValue % divisor];
+    if (divisor) {
+      *outputPointer = base[uniqueValue % divisor];
       uniqueValue /= divisor;
-    }
-    else
-    {
+    } else {
       *outputPointer = *nextTemplateChar;
     }
 
@@ -353,10 +324,7 @@ generateFunnyName (const FunnyNameFormat nameFormat, char * generatedName)
   }
 
   *outputPointer = 0;
-
 }
-
-
 
 //  CatDeriveRandomName
 //
@@ -372,42 +340,34 @@ generateFunnyName (const FunnyNameFormat nameFormat, char * generatedName)
 //  byte characters.  The algorithm might run into problem when the
 //  inputName contains multibyte characters; e.g., UTF-8 characters.
 
-void CATSQLSHARE_LIB_FUNC 
-  CatDeriveRandomName (const char* inputName, char* generatedName)
-{
-   generatedName[0] = '\0';
-   UInt32 len = strlen(inputName);
+void CATSQLSHARE_LIB_FUNC CatDeriveRandomName(const char *inputName, char *generatedName) {
+  generatedName[0] = '\0';
+  UInt32 len = strlen(inputName);
 
-   // Copy up to 20 chars of incoming name.
-   if ( inputName[0] == '"' )
-     // Identifier is delimited.  Strip the leading quote.
-   {
-     len = len - 1;
-     if ( len > 20 )
-       len = 20;
-     strncpy( generatedName, &inputName[1], len);
-   }
-   else
-   {
-     if ( len > 20 )
-       len = 20;
-     strncpy ( generatedName, inputName, len );
-   }
-   generatedName[len] = '\0';
+  // Copy up to 20 chars of incoming name.
+  if (inputName[0] == '"')
+  // Identifier is delimited.  Strip the leading quote.
+  {
+    len = len - 1;
+    if (len > 20) len = 20;
+    strncpy(generatedName, &inputName[1], len);
+  } else {
+    if (len > 20) len = 20;
+    strncpy(generatedName, inputName, len);
+  }
+  generatedName[len] = '\0';
 
-   // Strip trailing quotes from the (possibly truncated) name.
-   for ( ; generatedName[len - 1] == '"' && len > 0; len-- );
+  // Strip trailing quotes from the (possibly truncated) name.
+  for (; generatedName[len - 1] == '"' && len > 0; len--)
+    ;
 
-   // Append the funny name suffix for uniqueness
-   generateFunnyName (UID_GENERATED_ANSI_NAME, &generatedName[len]);
-
+  // Append the funny name suffix for uniqueness
+  generateFunnyName(UID_GENERATED_ANSI_NAME, &generatedName[len]);
 }
 
-
-Int32 CATSQLSHARE_LIB_FUNC
-SqlShareLnxGetMyProcessIdString (char   *processIdStrOutBuf,        // out
-                                 size_t  processIdStrOutBufMaxLen,  // in
-                                 size_t *pProcessIdStrLen)          // out
+Int32 CATSQLSHARE_LIB_FUNC SqlShareLnxGetMyProcessIdString(char *processIdStrOutBuf,         // out
+                                                           size_t processIdStrOutBufMaxLen,  // in
+                                                           size_t *pProcessIdStrLen)         // out
 //
 // Generates the process id string for my running process.
 // The format of this process id string is:
@@ -427,28 +387,27 @@ SqlShareLnxGetMyProcessIdString (char   *processIdStrOutBuf,        // out
 //                             that this function is unable to compute the
 //                             process id string
 {
-  Int32  rtnCode = -1;
-  Int32  monNodeId = -1;
-  Int32  monProcessId = -1;
-  char monProcessName[MS_MON_MAX_PROCESS_NAME+1];
-  Int32  monProcessType = -1;
-  Int32  monZoneId = -1;
-  Int32  lnxOsPid = -1;
+  Int32 rtnCode = -1;
+  Int32 monNodeId = -1;
+  Int32 monProcessId = -1;
+  char monProcessName[MS_MON_MAX_PROCESS_NAME + 1];
+  Int32 monProcessType = -1;
+  Int32 monZoneId = -1;
+  Int32 lnxOsPid = -1;
   ThreadId lnxOsTid = -1;
-  char buf[2016]; // plenty of room to avoide overflow condition
+  char buf[2016];  // plenty of room to avoide overflow condition
   char *p = NULL;
 
   // monProcessName[0] = '\0';
-  rtnCode = msg_mon_get_my_info(&monNodeId,              // int * mon node-id
-                                &monProcessId,           // int * mon process-id
-                                monProcessName,          // char * mon process-name
-                                MS_MON_MAX_PROCESS_NAME, // int mon process-name-max-len
-                                &monProcessType,         // int * mon process-type
-                                &monZoneId,              // int * mon zone-id
-                                &lnxOsPid,               // int * linux os process-id
-                                &lnxOsTid);              // long * linux os thread-id
-  if (rtnCode != XZFIL_ERR_OK)
-  {
+  rtnCode = msg_mon_get_my_info(&monNodeId,               // int * mon node-id
+                                &monProcessId,            // int * mon process-id
+                                monProcessName,           // char * mon process-name
+                                MS_MON_MAX_PROCESS_NAME,  // int mon process-name-max-len
+                                &monProcessType,          // int * mon process-type
+                                &monZoneId,               // int * mon zone-id
+                                &lnxOsPid,                // int * linux os process-id
+                                &lnxOsTid);               // long * linux os thread-id
+  if (rtnCode != XZFIL_ERR_OK) {
     // set the actual length to zero to tell the caller
     // that we are unable to compute the process id string
     *pProcessIdStrLen = 0;
@@ -461,17 +420,9 @@ SqlShareLnxGetMyProcessIdString (char   *processIdStrOutBuf,        // out
   p = &buf[strlen(monProcessName)];
   *p = '\0';
 
-  sprintf(p,
-          ":%-u:%-u:%-u:%-u:%-u:%-ld",
-          monNodeId,
-          monProcessId,
-          monProcessType,
-          monZoneId,
-          lnxOsPid,
-          lnxOsTid);
+  sprintf(p, ":%-u:%-u:%-u:%-u:%-u:%-ld", monNodeId, monProcessId, monProcessType, monZoneId, lnxOsPid, lnxOsTid);
 
-  if (strlen(buf) > processIdStrOutBufMaxLen)
-  {
+  if (strlen(buf) > processIdStrOutBufMaxLen) {
     // return the actual length just in case the caller
     // wants to allocate more space for the output buffer
     // and then tries again.
@@ -482,9 +433,6 @@ SqlShareLnxGetMyProcessIdString (char   *processIdStrOutBuf,        // out
 
   *pProcessIdStrLen = strlen(buf);
   memcpy(processIdStrOutBuf, buf, *pProcessIdStrLen);
-  if (*pProcessIdStrLen < processIdStrOutBufMaxLen)
-    processIdStrOutBuf[*pProcessIdStrLen] = '\0';
+  if (*pProcessIdStrLen < processIdStrOutBufMaxLen) processIdStrOutBuf[*pProcessIdStrLen] = '\0';
   return XZFIL_ERR_OK;
-
 }
-

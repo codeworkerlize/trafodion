@@ -51,14 +51,13 @@
 #include "udrdecs.h"
 
 NABoolean allocateReplyRow(UdrGlobals *UdrGlob,
-  SqlBuffer &replyBuffer,       // [IN]  A reply buffer
-  queue_index parentIndex,      // [IN]  Identifies the request queue entry
-  Int32 replyRowLen,              // [IN]  Length of reply row
-  char *&newReplyRow,           // [OUT] The allocated reply row
-  ControlInfo *&newControlInfo, // [OUT] The allocated ControlInfo entry
-  ex_queue::up_status upStatus  // [IN]  Q_OK_MMORE, Q_NO_DATA, Q_SQLERROR
-  )
-{
+                           SqlBuffer &replyBuffer,        // [IN]  A reply buffer
+                           queue_index parentIndex,       // [IN]  Identifies the request queue entry
+                           Int32 replyRowLen,             // [IN]  Length of reply row
+                           char *&newReplyRow,            // [OUT] The allocated reply row
+                           ControlInfo *&newControlInfo,  // [OUT] The allocated ControlInfo entry
+                           ex_queue::up_status upStatus   // [IN]  Q_OK_MMORE, Q_NO_DATA, Q_SQLERROR
+) {
   const char *moduleName = "allocateReplyRow";
 
   doMessageBox(UdrGlob, TRACE_SHOW_DIALOGS, UdrGlob->showInvoke_, moduleName);
@@ -76,10 +75,8 @@ NABoolean allocateReplyRow(UdrGlobals *UdrGlob,
   ControlInfo **ctrlInfo;
   NABoolean moveCtrlInfo, moveDataInfo;
 
-  switch (upStatus)
-  {
-    case ex_queue::Q_OK_MMORE :
-    {
+  switch (upStatus) {
+    case ex_queue::Q_OK_MMORE: {
       ctrlInfo = &newControlInfo;
       moveCtrlInfo = TRUE;
       moveDataInfo = TRUE;
@@ -87,8 +84,7 @@ NABoolean allocateReplyRow(UdrGlobals *UdrGlob,
       break;
     }
 
-    case ex_queue::Q_SQLERROR :
-    {
+    case ex_queue::Q_SQLERROR: {
       ctrlInfo = &newControlInfo;
       moveCtrlInfo = TRUE;
       moveDataInfo = FALSE;
@@ -96,8 +92,7 @@ NABoolean allocateReplyRow(UdrGlobals *UdrGlob,
       break;
     }
 
-    case ex_queue::Q_NO_DATA :
-    {
+    case ex_queue::Q_NO_DATA: {
       ctrlInfo = NULL;
       moveCtrlInfo = TRUE;
       moveDataInfo = FALSE;
@@ -105,137 +100,98 @@ NABoolean allocateReplyRow(UdrGlobals *UdrGlob,
       break;
     }
 
-    default:
-    {
+    default: {
       UDR_ASSERT(FALSE, "Unknown ex_queue::up_status value.");
       return FALSE;
     }
   }
 
-  status = replyBuffer.moveInSendOrReplyData(
-    FALSE,                           // [IN] sending? (vs. replying)
-    moveCtrlInfo,                    // [IN] force move of ControlInfo?
-    moveDataInfo,                    // [IN] move data?
-    (void *) &upState,               // [IN] queue state
-    sizeof(ControlInfo),             // [IN] length of ControlInfo
-    ctrlInfo,                        // [OUT] new ControlInfo
-    replyRowLen,                     // [IN] data row length
-    tuppDesc,                        // [OUT] new data tupp_desc
-    NULL,                            // [IN] diags area
-    0                                // [OUT] new diags tupp_desc
-    );
+  status = replyBuffer.moveInSendOrReplyData(FALSE,                // [IN] sending? (vs. replying)
+                                             moveCtrlInfo,         // [IN] force move of ControlInfo?
+                                             moveDataInfo,         // [IN] move data?
+                                             (void *)&upState,     // [IN] queue state
+                                             sizeof(ControlInfo),  // [IN] length of ControlInfo
+                                             ctrlInfo,             // [OUT] new ControlInfo
+                                             replyRowLen,          // [IN] data row length
+                                             tuppDesc,             // [OUT] new data tupp_desc
+                                             NULL,                 // [IN] diags area
+                                             0                     // [OUT] new diags tupp_desc
+  );
 
-  if (status == SqlBufferBase::MOVE_SUCCESS)
-  {
-    if (upStatus == ex_queue::Q_OK_MMORE)
-    {
-       newReplyRow = tdesc->getTupleAddress();
-       memset(newReplyRow, 0, replyRowLen);
+  if (status == SqlBufferBase::MOVE_SUCCESS) {
+    if (upStatus == ex_queue::Q_OK_MMORE) {
+      newReplyRow = tdesc->getTupleAddress();
+      memset(newReplyRow, 0, replyRowLen);
     }
     result = TRUE;
-  }
-  else
-  {
+  } else {
     result = FALSE;
   }
   return result;
 }
 
-NABoolean allocateErrorRow(UdrGlobals *UdrGlob,
-                           SqlBuffer &replyBuffer,
-                           queue_index parentIndex,
-                           NABoolean setDiagsFlag)
-{
+NABoolean allocateErrorRow(UdrGlobals *UdrGlob, SqlBuffer &replyBuffer, queue_index parentIndex,
+                           NABoolean setDiagsFlag) {
   char *dummyData = NULL;
   ControlInfo *ci = NULL;
 
-  NABoolean ok = allocateReplyRow(UdrGlob, replyBuffer, parentIndex, 0,
-                                  dummyData, ci, ex_queue::Q_SQLERROR);
+  NABoolean ok = allocateReplyRow(UdrGlob, replyBuffer, parentIndex, 0, dummyData, ci, ex_queue::Q_SQLERROR);
 
-  if (ok && ci && setDiagsFlag)
-    ci->setIsExtDiagsAreaPresent(TRUE);
+  if (ok && ci && setDiagsFlag) ci->setIsExtDiagsAreaPresent(TRUE);
 
   return ok;
 }
 
-NABoolean allocateEODRow(UdrGlobals *UdrGlob,
-                         SqlBuffer &replyBuffer,
-                         queue_index parentIndex)
-{
+NABoolean allocateEODRow(UdrGlobals *UdrGlob, SqlBuffer &replyBuffer, queue_index parentIndex) {
   char *dummyData = NULL;
   ControlInfo *ci = NULL;
 
-  NABoolean ok = allocateReplyRow(UdrGlob, replyBuffer, parentIndex, 0,
-                                  dummyData, ci, ex_queue::Q_NO_DATA);
+  NABoolean ok = allocateReplyRow(UdrGlob, replyBuffer, parentIndex, 0, dummyData, ci, ex_queue::Q_NO_DATA);
 
   return ok;
 }
 
-NABoolean allocateReplyRowAndEOD(UdrGlobals *UdrGlob,
-                                 SqlBuffer &replyBuffer,
-                                 queue_index parentIndex,
-                                 char *&replyData,
-                                 Int32 rowLen,
-                                 ControlInfo *&newControlInfo)
-{
+NABoolean allocateReplyRowAndEOD(UdrGlobals *UdrGlob, SqlBuffer &replyBuffer, queue_index parentIndex, char *&replyData,
+                                 Int32 rowLen, ControlInfo *&newControlInfo) {
   const char *moduleName = "allocateReplyRowAndEOD";
 
-  doMessageBox(UdrGlob, TRACE_SHOW_DIALOGS,
-               UdrGlob->showInvoke_, moduleName);
+  doMessageBox(UdrGlob, TRACE_SHOW_DIALOGS, UdrGlob->showInvoke_, moduleName);
 
-  NABoolean ok = allocateReplyRow(UdrGlob, replyBuffer, parentIndex, rowLen,
-                              replyData, newControlInfo, ex_queue::Q_OK_MMORE);
+  NABoolean ok =
+      allocateReplyRow(UdrGlob, replyBuffer, parentIndex, rowLen, replyData, newControlInfo, ex_queue::Q_OK_MMORE);
 
-  if (ok)
-    ok = allocateEODRow(UdrGlob, replyBuffer, parentIndex);
+  if (ok) ok = allocateEODRow(UdrGlob, replyBuffer, parentIndex);
 
   return ok;
 }
 
-NABoolean allocateErrorRowAndEOD(UdrGlobals *UdrGlob,
-                                 SqlBuffer &replyBuffer,
-                                 queue_index parentIndex,
-                                 NABoolean setDiagsFlag)
-{
-  NABoolean ok = allocateErrorRow(UdrGlob, replyBuffer,
-		                  parentIndex, setDiagsFlag);
+NABoolean allocateErrorRowAndEOD(UdrGlobals *UdrGlob, SqlBuffer &replyBuffer, queue_index parentIndex,
+                                 NABoolean setDiagsFlag) {
+  NABoolean ok = allocateErrorRow(UdrGlob, replyBuffer, parentIndex, setDiagsFlag);
 
-  if (ok)
-    ok = allocateEODRow(UdrGlob, replyBuffer, parentIndex);
+  if (ok) ok = allocateEODRow(UdrGlob, replyBuffer, parentIndex);
 
   return ok;
 }
 
-void backoutTupps(SqlBuffer &b, Lng32 numTuppsBefore)
-{
-  while (b.getTotalTuppDescs() > numTuppsBefore)
-  {
+void backoutTupps(SqlBuffer &b, Lng32 numTuppsBefore) {
+  while (b.getTotalTuppDescs() > numTuppsBefore) {
     b.remove_tuple_desc();
   }
 }
 
-NABoolean convertReplyRowToErrorRow(SqlBuffer *sqlBuf,
-                                    Lng32 numTuppsBefore,
-                                    queue_index requestQueueIndex,
-                                    UdrServerDataStream &msgStream,
-                                    UdrGlobals *UdrGlob)
-{
+NABoolean convertReplyRowToErrorRow(SqlBuffer *sqlBuf, Lng32 numTuppsBefore, queue_index requestQueueIndex,
+                                    UdrServerDataStream &msgStream, UdrGlobals *UdrGlob) {
   // Remove tupps after numTuppsBefore
   backoutTupps(*sqlBuf, numTuppsBefore);
 
   // Add Error and EOD row
-  NABoolean ok = allocateErrorRowAndEOD(UdrGlob,
-                                        *sqlBuf,
-                                        requestQueueIndex,
-                                        TRUE);
-  if (!ok)
-  {
+  NABoolean ok = allocateErrorRowAndEOD(UdrGlob, *sqlBuf, requestQueueIndex, TRUE);
+  if (!ok) {
     // failed to allocate Error Row and EOD
     // Backout all the reply rows and return UdrErrorReply
     backoutTupps(*sqlBuf, 0);
-    dataErrorReply(UdrGlob, msgStream,
-                   UDR_ERR_MESSAGE_PROCESSING,
-                   INVOKE_ERR_NO_ERROR_ROW, NULL);
+    dataErrorReply(UdrGlob, msgStream, UDR_ERR_MESSAGE_PROCESSING, INVOKE_ERR_NO_ERROR_ROW, NULL);
   }
 
   return ok;

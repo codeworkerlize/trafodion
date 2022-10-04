@@ -38,8 +38,8 @@
  *****************************************************************************
  */
 
-#ifndef   SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
-#define   SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
+#ifndef SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
+#define SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
 #endif
 #include "parser/SqlParserGlobals.h"
 #include "ElemDDLSchemaName.h"
@@ -57,63 +57,40 @@ class ElemDDLAuthSchema;
 // A temporary parse node to contain a schema name and an optional
 // authorization identifier.
 // -----------------------------------------------------------------------
-class ElemDDLAuthSchema : public ElemDDLNode
-{
-
-public:
-
+class ElemDDLAuthSchema : public ElemDDLNode {
+ public:
   // default constructor
-  ElemDDLAuthSchema(const SchemaName & aSchemaName,
-                    const ComSchemaClass schemaClass,
-                    CollHeap * h=PARSERHEAP())
-    : ElemDDLNode(ELM_AUTH_SCHEMA_ELEM),
-      schemaName_(aSchemaName, h),
-      schemaClass_(schemaClass),
-      isSchemaNameSpecified_(TRUE)  {}
-      
-  ElemDDLAuthSchema(const ComSchemaClass schemaClass,
-                    CollHeap * h=PARSERHEAP())
-    : ElemDDLNode(ELM_AUTH_SCHEMA_ELEM),
-      schemaClass_(schemaClass),
-      isSchemaNameSpecified_(FALSE)  {}
+  ElemDDLAuthSchema(const SchemaName &aSchemaName, const ComSchemaClass schemaClass, CollHeap *h = PARSERHEAP())
+      : ElemDDLNode(ELM_AUTH_SCHEMA_ELEM),
+        schemaName_(aSchemaName, h),
+        schemaClass_(schemaClass),
+        isSchemaNameSpecified_(TRUE) {}
+
+  ElemDDLAuthSchema(const ComSchemaClass schemaClass, CollHeap *h = PARSERHEAP())
+      : ElemDDLNode(ELM_AUTH_SCHEMA_ELEM), schemaClass_(schemaClass), isSchemaNameSpecified_(FALSE) {}
 
   // copy ctor
-  ElemDDLAuthSchema (const ElemDDLAuthSchema & orig, CollHeap * h=PARSERHEAP()) ; // not written
+  ElemDDLAuthSchema(const ElemDDLAuthSchema &orig, CollHeap *h = PARSERHEAP());  // not written
 
   // virtual destructor
   virtual ~ElemDDLAuthSchema();
 
   // cast
-  virtual ElemDDLAuthSchema * castToElemDDLAuthSchema();
+  virtual ElemDDLAuthSchema *castToElemDDLAuthSchema();
 
   // accessors
 
-  const ComSchemaClass
-  getSchemaClass() const
-  {
-    return schemaClass_;
-  }
+  const ComSchemaClass getSchemaClass() const { return schemaClass_; }
 
-  const SchemaName &
-  getSchemaName() const
-  {
-    return schemaName_;
-  }
+  const SchemaName &getSchemaName() const { return schemaName_; }
 
-  NABoolean
-  isSchemaNameSpecified() const
-  {
-    return isSchemaNameSpecified_;
-  }
+  NABoolean isSchemaNameSpecified() const { return isSchemaNameSpecified_; }
 
-private:
-
+ private:
   SchemaName schemaName_;
   ComSchemaClass schemaClass_;
   NABoolean isSchemaNameSpecified_;
 
-}; // class ElemDDLAuthSchema
+};  // class ElemDDLAuthSchema
 
 #endif /* ELEMDDLAUTHSCHEMA_H */
-
-

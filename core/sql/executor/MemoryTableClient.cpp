@@ -24,8 +24,7 @@
 #include "cli/Globals.h"
 #include "sqlcomp/SharedCache.h"
 
-
-const char * fixNamePtr(const char *tableName) {
+const char *fixNamePtr(const char *tableName) {
   const char *colonPos = strchr(tableName, ':');
   if (colonPos)
     return colonPos + 1;
@@ -33,33 +32,27 @@ const char * fixNamePtr(const char *tableName) {
     return tableName;
 }
 
-static NAMemory* getSharedHeap() {
+static NAMemory *getSharedHeap() {
   SharedTableDataCache *sharedDataCache = SharedTableDataCache::locate();
-  if (sharedDataCache)
-    return sharedDataCache->getSharedHeap();
+  if (sharedDataCache) return sharedDataCache->getSharedHeap();
 
   return NULL;
 }
 
-static MemoryTableDB* getSharedTableDB() {
+static MemoryTableDB *getSharedTableDB() {
   SharedTableDataCache *sharedDataCache = SharedTableDataCache::locate();
-  if (sharedDataCache)
-    return sharedDataCache->getMemoryTableDB();
+  if (sharedDataCache) return sharedDataCache->getMemoryTableDB();
   return NULL;
 }
 
 static MemoryTableDB *getMemTableDB() {
   MemoryTableDB *memDB = NULL;
-  if (memDB = getSharedTableDB())
-    return memDB;
+  if (memDB = getSharedTableDB()) return memDB;
 
   return NULL;
 }
 
-MemoryTableClient::MemoryTableClient(NAMemory* heap, char* tableName)
-    :heap_(heap),
-     kvArray_(heap_)
-{
+MemoryTableClient::MemoryTableClient(NAMemory *heap, char *tableName) : heap_(heap), kvArray_(heap_) {
   tableName_ = NULL;
   htableCache_ = NULL;
   numReqRows_ = 0;
@@ -72,61 +65,49 @@ MemoryTableClient::MemoryTableClient(NAMemory* heap, char* tableName)
   init(tableName);
 }
 
-void MemoryTableClient::setTableName(const char* tableName)
-{
-  if (tableName == NULL)
-    return;
+void MemoryTableClient::setTableName(const char *tableName) {
+  if (tableName == NULL) return;
 
   Int32 len = strlen(tableName);
-  if (tableName_ != NULL)
-  {
+  if (tableName_ != NULL) {
     NADELETEBASIC(tableName_, heap_);
     tableName_ = NULL;
   }
 
-  tableName_ = new (heap_) char[len+1];
-  strcpy(tableName_, tableName); 
+  tableName_ = new (heap_) char[len + 1];
+  strcpy(tableName_, tableName);
 }
 
-void MemoryTableClient::init(char* tableName)
-{
+void MemoryTableClient::init(char *tableName) {
   setTableName(fixNamePtr(tableName));
 
   MemoryTableDB *memDB = NULL;
-  if (memDB = getMemTableDB())
-  {
+  if (memDB = getMemTableDB()) {
     memDBinitFailed_ = false;
     HTableCache *htableCache = memDB->getHTableCache(tableName_);
     if (htableCache) {
       htableCache_ = htableCache;
       isDisabled_ = false;
-    }
-    else if (memDB->contains(tableName_))
+    } else if (memDB->contains(tableName_))
       isDisabled_ = true;
   }
 }
 
-void MemoryTableClient::create()
-{
-  if (htableCache_ == NULL)
-  {
+void MemoryTableClient::create() {
+  if (htableCache_ == NULL) {
     MemoryTableDB *memDB = NULL;
-    if (memDB = getMemTableDB())
-    {
+    if (memDB = getMemTableDB()) {
       memDB->insert(tableName_);
       htableCache_ = memDB->getHTableCache(tableName_);
     }
   }
 }
 
-bool MemoryTableClient::insert(HbaseStr &key, HbaseStr &value)
-{
-  if (htableCache_ == NULL)
-  {
+bool MemoryTableClient::insert(HbaseStr &key, HbaseStr &value) {
+  if (htableCache_ == NULL) {
     MemoryTableDB *memDB = NULL;
 
-    if (memDB = getMemTableDB())
-    {
+    if (memDB = getMemTableDB()) {
       memDB->insert(tableName_);
       htableCache_ = memDB->getHTableCache(tableName_);
     }
@@ -134,81 +115,63 @@ bool MemoryTableClient::insert(HbaseStr &key, HbaseStr &value)
   return htableCache_->insert(key, value);
 }
 
-void MemoryTableClient::remove(const char* tableName)
-{
+void MemoryTableClient::remove(const char *tableName) {
   MemoryTableDB *memDB = NULL;
 
-  if (memDB = getMemTableDB())
-    memDB->remove(tableName);
+  if (memDB = getMemTableDB()) memDB->remove(tableName);
 }
 
-Lng32 MemoryTableClient::startGet(const char* tableName,
-                                  const HbaseStr& rowID)
-{
+Lng32 MemoryTableClient::startGet(const char *tableName, const HbaseStr &rowID) {
   ex_assert((htableCache_ && strcmp((fixNamePtr(tableName)), tableName_) == 0),
-             "MemoryTableClient::startGet assert failed");
+            "MemoryTableClient::startGet assert failed");
 
   numRowsReturned_ = htableCache_->startGet(rowID, kvArray_);
   currentRowNum_ = -1;
 
-  return 0; //HBASE_ACCESS_SUCCESS
+  return 0;  // HBASE_ACCESS_SUCCESS
 }
 
-Lng32 MemoryTableClient::startGets(const char* tableName,
-                                   const NAList<HbaseStr> *rowIDs)
-{
+Lng32 MemoryTableClient::startGets(const char *tableName, const NAList<HbaseStr> *rowIDs) {
   ex_assert((htableCache_ && strcmp((fixNamePtr(tableName)), tableName_) == 0),
-             "MemoryTableClient::startGet assert failed");
+            "MemoryTableClient::startGet assert failed");
 
   numRowsReturned_ = htableCache_->startGets(rowIDs, kvArray_);
   currentRowNum_ = -1;
 
-  return 0; //HBASE_ACCESS_SUCCESS
+  return 0;  // HBASE_ACCESS_SUCCESS
 }
 
-Lng32 MemoryTableClient::startGets(const char* tableName,
-                                   const HbaseStr& rowIDs,
-                                   const UInt32 keyLen)
-{
+Lng32 MemoryTableClient::startGets(const char *tableName, const HbaseStr &rowIDs, const UInt32 keyLen) {
   ex_assert((htableCache_ && strcmp((fixNamePtr(tableName)), tableName_) == 0),
-             "MemoryTableClient::startGet assert failed");
+            "MemoryTableClient::startGet assert failed");
 
   numRowsReturned_ = htableCache_->startGets(rowIDs, keyLen, kvArray_);
   currentRowNum_ = -1;
 
-  return 0; //HBASE_ACCESS_SUCCESS
+  return 0;  // HBASE_ACCESS_SUCCESS
 }
 
-HTC_RetCode MemoryTableClient::nextRow()
-{
+HTC_RetCode MemoryTableClient::nextRow() {
   HTC_RetCode retCode;
 
   switch (fetchMode_) {
     case GET_ROW:
-      if (numRowsReturned_ == -1)
-        return HTC_DONE;
-      if (currentRowNum_ == -1)
-      {
+      if (numRowsReturned_ == -1) return HTC_DONE;
+      if (currentRowNum_ == -1) {
         currentRowNum_ = 0;
         return HTC_OK;
-      }
-      else
-      {
-        cleanupResultInfo();   
+      } else {
+        cleanupResultInfo();
         return HTC_DONE;
       }
       break;
 
     case BATCH_GET:
-      if (numRowsReturned_ == -1)
-        return HTC_DONE_RESULT;
-      if (currentRowNum_ == -1)
-      {
+      if (numRowsReturned_ == -1) return HTC_DONE_RESULT;
+      if (currentRowNum_ == -1) {
         currentRowNum_ = 0;
         return HTC_OK;
-      }
-      else if ((currentRowNum_+1) >= numRowsReturned_)
-      {
+      } else if ((currentRowNum_ + 1) >= numRowsReturned_) {
         cleanupResultInfo();
         return HTC_DONE_RESULT;
       }
@@ -217,10 +180,8 @@ HTC_RetCode MemoryTableClient::nextRow()
       break;
   }
 
-  if (fetchMode_ == SCAN_FETCH &&(currentRowNum_ == -1 || ((currentRowNum_+1) >= numRowsReturned_)))
-  {
-    if (currentRowNum_ != -1 && (numRowsReturned_ < numReqRows_))
-    {
+  if (fetchMode_ == SCAN_FETCH && (currentRowNum_ == -1 || ((currentRowNum_ + 1) >= numRowsReturned_))) {
+    if (currentRowNum_ != -1 && (numRowsReturned_ < numReqRows_)) {
       cleanupResultInfo();
       return HTC_DONE;
     }
@@ -228,34 +189,27 @@ HTC_RetCode MemoryTableClient::nextRow()
     retCode = fetchRows();
     currentRowNum_ = 0;
 
-    if (retCode != HTC_OK)
-    {
+    if (retCode != HTC_OK) {
       cleanupResultInfo();
       return retCode;
     }
-  }
-  else
-  {
-    currentRowNum_++; 
+  } else {
+    currentRowNum_++;
   }
   return HTC_OK;
 }
 
-void MemoryTableClient::cleanupResultInfo()
-{
+void MemoryTableClient::cleanupResultInfo() {
   numRowsReturned_ = 0;
   currentRowNum_ = 0;
   kvArray_.clear();
 }
 
-HTC_RetCode MemoryTableClient::getColVal(BYTE *colVal, Lng32 &colValLen)
-{
-  if (kvArray_.entries() == 0)
-    return HTC_DONE_DATA;
+HTC_RetCode MemoryTableClient::getColVal(BYTE *colVal, Lng32 &colValLen) {
+  if (kvArray_.entries() == 0) return HTC_DONE_DATA;
 
   HTableRow *row = kvArray_[currentRowNum_];
-  if (row == NULL)
-    return HTC_DONE_DATA;
+  if (row == NULL) return HTC_DONE_DATA;
 
   Int32 dataLen = row->value.len;
   Int32 copyLen = MINOF(colValLen, dataLen);
@@ -268,8 +222,7 @@ HTC_RetCode MemoryTableClient::getColVal(BYTE *colVal, Lng32 &colValLen)
   return HTC_OK;
 }
 
-HTC_RetCode MemoryTableClient::getRowID(HbaseStr &rowID)
-{
+HTC_RetCode MemoryTableClient::getRowID(HbaseStr &rowID) {
   HTableRow *row = kvArray_[currentRowNum_];
 
   rowID.len = row->key->length();
@@ -278,17 +231,14 @@ HTC_RetCode MemoryTableClient::getRowID(HbaseStr &rowID)
   return HTC_OK;
 }
 
-Lng32 MemoryTableClient::scanOpen(const char* tableName, const Text& startRow,
-                                  const Text& stopRow, const Lng32 numCacheRows)
-{
+Lng32 MemoryTableClient::scanOpen(const char *tableName, const Text &startRow, const Text &stopRow,
+                                  const Lng32 numCacheRows) {
   numReqRows_ = numCacheRows;
   currentRowNum_ = -1;
-  if (startRow.size() == 0) //<min>
+  if (startRow.size() == 0)  //<min>
   {
     fetchStartPos_ = 0;
-  }
-  else
-  {
+  } else {
     setFetchPos(startRow);
   }
   stopRow_ = stopRow;
@@ -296,14 +246,9 @@ Lng32 MemoryTableClient::scanOpen(const char* tableName, const Text& startRow,
   return 0;
 }
 
-void MemoryTableClient::setFetchPos(const Text& startRow)
-{
-  fetchStartPos_ = htableCache_->getStartPos(startRow);
-}
+void MemoryTableClient::setFetchPos(const Text &startRow) { fetchStartPos_ = htableCache_->getStartPos(startRow); }
 
-HTC_RetCode MemoryTableClient::fetchRows()
-{
-  numRowsReturned_ = htableCache_->fetchRows(numReqRows_, fetchStartPos_,
-                                             kvArray_, stopRow_);
+HTC_RetCode MemoryTableClient::fetchRows() {
+  numRowsReturned_ = htableCache_->fetchRows(numReqRows_, fetchStartPos_, kvArray_, stopRow_);
   return HTC_OK;
 }

@@ -20,28 +20,26 @@ typedef enum {
   DL_LAST
 } DL_RetCode;
 
-class DistributedLock_JNI : public JavaObjectInterface
-{
-public:
-  static DistributedLock_JNI* newInstance(NAHeap *heap, DL_RetCode &retCode);
+class DistributedLock_JNI : public JavaObjectInterface {
+ public:
+  static DistributedLock_JNI *newInstance(NAHeap *heap, DL_RetCode &retCode);
 
-  //get instance stored in currContext(), if NULL, then create it
-  static DistributedLock_JNI* getInstance();
+  // get instance stored in currContext(), if NULL, then create it
+  static DistributedLock_JNI *getInstance();
   static void deleteInstance();
 
-  char* getErrorText(DL_RetCode errEnum);
+  char *getErrorText(DL_RetCode errEnum);
   DL_RetCode init();
-  DL_RetCode lock(const char* lockName, long timeout = 0);
-  DL_RetCode longHeldLock(const char * lockName, const char * data, char * returnedData /* out */, size_t returnedDataMaxLength);
+  DL_RetCode lock(const char *lockName, long timeout = 0);
+  DL_RetCode longHeldLock(const char *lockName, const char *data, char *returnedData /* out */,
+                          size_t returnedDataMaxLength);
   DL_RetCode unlock();
   DL_RetCode clearlock();
-  DL_RetCode observe(const char* lockName, bool& locked);
-  DL_RetCode listNodes(const char* lockName);
+  DL_RetCode observe(const char *lockName, bool &locked);
+  DL_RetCode listNodes(const char *lockName);
 
-private:
-  DistributedLock_JNI(NAHeap *heap)
-    : JavaObjectInterface(heap)
-    {}
+ private:
+  DistributedLock_JNI(NAHeap *heap) : JavaObjectInterface(heap) {}
 
   enum JAVA_METHODS {
     JM_CTOR = 0,
@@ -55,10 +53,9 @@ private:
   };
 
   static jclass javaClass_;
-  static JavaMethodInit* JavaMethods_;
+  static JavaMethodInit *JavaMethods_;
   static bool javaMethodsInitialized_;
   static pthread_mutex_t javaMethodsInitMutex_;
-
 };
 
 #endif

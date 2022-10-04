@@ -26,7 +26,7 @@
  *****************************************************************************
  * File:         QueryText.h
  * Description:  QueryText encapsulates a SQL statement text that can be a
- *               UCS-2 or ANSI (localized) character string. 
+ *               UCS-2 or ANSI (localized) character string.
  * Created:      7/16/2003
  * Language:     C++
  *****************************************************************************
@@ -37,73 +37,61 @@
 class QueryText {
  public:
   // constructor
-  QueryText(char* text, Lng32 charset) : text_(text), charset_(charset) {}
+  QueryText(char *text, Lng32 charset) : text_(text), charset_(charset) {}
 
   // simple accessors
   Lng32 charSet() { return charset_; }
-  char* text() { return text_; }
-  NAWchar* wText() { return (NAWchar*)text_; }
+  char *text() { return text_; }
+  NAWchar *wText() { return (NAWchar *)text_; }
 
   // other accessors
-  inline Int32 canBeUsedBySqlcompTest(char** text);
+  inline Int32 canBeUsedBySqlcompTest(char **text);
   Int32 isNullText() { return !text_; }
 
   inline Int32 octetLength();
   inline Int32 octetLenPlusOne();
   inline Int32 length();
-  NABoolean isDISPLAY()
-{
-  if (!text()) 
-    return FALSE;
-  if (charSet() == SQLCHARSETCODE_UCS2) {
-    NAWchar u[100];
-    na_wstr_cpy_convert(u, wText(), 7, -1);
-    return na_wcsncmp(u, WIDE_("DISPLAY"), 7) == 0;
+  NABoolean isDISPLAY() {
+    if (!text()) return FALSE;
+    if (charSet() == SQLCHARSETCODE_UCS2) {
+      NAWchar u[100];
+      na_wstr_cpy_convert(u, wText(), 7, -1);
+      return na_wcsncmp(u, WIDE_("DISPLAY"), 7) == 0;
+    } else {
+      char u[100];
+      str_cpy_convert(u, text(), 7, -1);
+      return str_cmp(u, "DISPLAY", 7) == 0;
+    }
   }
-  else {
-    char u[100];
-    str_cpy_convert(u, text(), 7, -1);
-    return str_cmp(u, "DISPLAY", 7) == 0;
-  }
-}
 
   // mutators
   void setText(char *t) { text_ = t; }
   void setCharSet(Lng32 cs) { charset_ = cs; }
 
  private:
-  char *text_;    // we don't own this memory
-  Lng32  charset_;
+  char *text_;  // we don't own this memory
+  Lng32 charset_;
 };
 
-inline Int32 QueryText::canBeUsedBySqlcompTest(char** text)
-{
+inline Int32 QueryText::canBeUsedBySqlcompTest(char **text) {
   if (charset_ == SQLCHARSETCODE_UCS2 || !text_) {
     return 0;
-  }
-  else {
+  } else {
     *text = text_;
     return 1;
   }
 }
 
-inline Int32 QueryText::octetLength()
-{
-  return charset_==SQLCHARSETCODE_UCS2 ? 
-    na_wcslen((const NAWchar*)wText()) * 
-    CharInfo::maxBytesPerChar((CharInfo::CharSet)charset_) : str_len(text());
+inline Int32 QueryText::octetLength() {
+  return charset_ == SQLCHARSETCODE_UCS2
+             ? na_wcslen((const NAWchar *)wText()) * CharInfo::maxBytesPerChar((CharInfo::CharSet)charset_)
+             : str_len(text());
 }
 
-inline Int32 QueryText::octetLenPlusOne()
-{
+inline Int32 QueryText::octetLenPlusOne() {
   return octetLength() + CharInfo::maxBytesPerChar((CharInfo::CharSet)charset_);
 }
 
-inline Int32 QueryText::length()
-{
-  return charset_==SQLCHARSETCODE_UCS2 ? na_wcslen(wText()) : str_len(text());
-}
-
-
+inline Int32 QueryText::length() { return charset_ == SQLCHARSETCODE_UCS2 ? na_wcslen(wText()) : str_len(text()); }
 
 #endif

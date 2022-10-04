@@ -1014,7 +1014,7 @@ extern "C" DLLEXPORT short NODENAME_TO_NODENUMBER_
 #ifdef TDM_ROSETTA_COMPATIBILITY_
     (unsigned char *sysname,  // IN OPTIONAL
 #else
-    (char *sysname,                                                  // IN OPTIONAL
+    (char *sysname,                                                 // IN OPTIONAL
 #endif
      short sysnamelen, int *nodenumber) {
   *nodenumber = 0;
@@ -1025,7 +1025,7 @@ extern "C" DLLEXPORT int_16 NODENUMBER_TO_NODENAME_(int sysnum,
 #ifdef TDM_ROSETTA_COMPATIBILITY_
                                                     unsigned char *sysname,  // OUT
 #else
-                                                     char *sysname,  // OUT
+                                                    char *sysname,  // OUT
 #endif
                                                     int_16 maxlen, int_16 *syslen) {
   *syslen = 4;

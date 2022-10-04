@@ -34,7 +34,7 @@
  *****************************************************************************
  */
 
-#define   SQLPARSERGLOBALS_FLAGS        // must precede all #include's
+#define SQLPARSERGLOBALS_FLAGS  // must precede all #include's
 
 #include <stdlib.h>
 #ifndef NDEBUG
@@ -48,32 +48,25 @@
 #include "export/ComDiags.h"
 #include "common/ComOperators.h"
 
-#ifndef   SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
-#define   SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
+#ifndef SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
+#define SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
 #endif
 
-#include "parser/SqlParserGlobals.h"   // must be last #include
-
+#include "parser/SqlParserGlobals.h"  // must be last #include
 
 // -----------------------------------------------------------------------
 // member functions for class StmtDDLRoleGrant
 // -----------------------------------------------------------------------
 // constructor for GRANT /REVOKE ROLE
-StmtDDLRoleGrant::StmtDDLRoleGrant(ElemDDLNode * pRolesList,
-                                   ElemDDLNode * pGranteeList,
-                                   NABoolean     withAdmin,
-                                   ElemDDLNode * pOptionalGrantedBy,
-                                   ComDropBehavior dropBehavior,
-				   NABoolean     isGrantRole,
-                                   CollHeap    * heap)
+StmtDDLRoleGrant::StmtDDLRoleGrant(ElemDDLNode *pRolesList, ElemDDLNode *pGranteeList, NABoolean withAdmin,
+                                   ElemDDLNode *pOptionalGrantedBy, ComDropBehavior dropBehavior, NABoolean isGrantRole,
+                                   CollHeap *heap)
 
-: StmtDDLNode(DDL_GRANT_ROLE),
-  withAdmin_(withAdmin),
-  isGrantRole_(isGrantRole),
-  dropBehavior_(dropBehavior),
-  grantedBy_(NULL)
-{
-
+    : StmtDDLNode(DDL_GRANT_ROLE),
+      withAdmin_(withAdmin),
+      isGrantRole_(isGrantRole),
+      dropBehavior_(dropBehavior),
+      grantedBy_(NULL) {
   setChild(INDEX_ROLES_LIST, pRolesList);
   setChild(INDEX_GRANTEE_LIST, pGranteeList);
   setChild(INDEX_GRANTED_BY_OPTION, pOptionalGrantedBy);
@@ -85,53 +78,38 @@ StmtDDLRoleGrant::StmtDDLRoleGrant(ElemDDLNode * pRolesList,
   //
 
   ComASSERT(pGranteeList NEQ NULL);
-  for (CollIndex i = 0; i < pGranteeList->entries(); i++)
-  {
+  for (CollIndex i = 0; i < pGranteeList->entries(); i++) {
     granteeArray_.insert((*pGranteeList)[i]->castToElemDDLGrantee());
   }
 
   ComASSERT(pRolesList NEQ NULL);
-  for (CollIndex i = 0; i < pRolesList->entries(); i++)
-  {
+  for (CollIndex i = 0; i < pRolesList->entries(); i++) {
     rolesArray_.insert((*pRolesList)[i]->castToElemDDLGrantee());
   }
 
-  if ( pOptionalGrantedBy NEQ NULL )
-  {
+  if (pOptionalGrantedBy NEQ NULL) {
     grantedBy_ = pOptionalGrantedBy->castToElemDDLGrantee();
   }
 
-} // StmtDDLRoleGrant::StmtDDLRoleGrant()
+}  // StmtDDLRoleGrant::StmtDDLRoleGrant()
 
 // virtual destructor
-StmtDDLRoleGrant::~StmtDDLRoleGrant()
-{
+StmtDDLRoleGrant::~StmtDDLRoleGrant() {
   // delete all children
-  for (Int32 i = 0; i < getArity(); i++)
-  {
+  for (Int32 i = 0; i < getArity(); i++) {
     delete getChild(i);
   }
 }
 // cast
-StmtDDLRoleGrant *
-StmtDDLRoleGrant::castToStmtDDLRoleGrant()
-{
-  return this;
-}
+StmtDDLRoleGrant *StmtDDLRoleGrant::castToStmtDDLRoleGrant() { return this; }
 
 //
 // accessors
 //
 
-Int32
-StmtDDLRoleGrant::getArity() const
-{
-  return MAX_STMT_DDL_GRANT_ARITY;
-}
+Int32 StmtDDLRoleGrant::getArity() const { return MAX_STMT_DDL_GRANT_ARITY; }
 
-ExprNode *
-StmtDDLRoleGrant::getChild(Lng32 index)
-{
+ExprNode *StmtDDLRoleGrant::getChild(Lng32 index) {
   ComASSERT(index >= 0 AND index < getArity());
   return children_[index];
 }
@@ -140,17 +118,12 @@ StmtDDLRoleGrant::getChild(Lng32 index)
 // mutators
 //
 
-void
-StmtDDLRoleGrant::setChild(Lng32 index, ExprNode * pChildNode)
-{
+void StmtDDLRoleGrant::setChild(Lng32 index, ExprNode *pChildNode) {
   ComASSERT(index >= 0 AND index < getArity());
-  if (pChildNode NEQ NULL)
-  {
+  if (pChildNode NEQ NULL) {
     ComASSERT(pChildNode->castToElemDDLNode() NEQ NULL);
     children_[index] = pChildNode->castToElemDDLNode();
-  }
-  else
-  {
+  } else {
     children_[index] = NULL;
   }
 }
@@ -160,6 +133,4 @@ StmtDDLRoleGrant::setChild(Lng32 index, ExprNode * pChildNode)
 // -----------------------------------------------------------------------
 
 // virtual destructor
-StmtDDLRoleGrantArray::~StmtDDLRoleGrantArray()
-{
-}
+StmtDDLRoleGrantArray::~StmtDDLRoleGrantArray() {}

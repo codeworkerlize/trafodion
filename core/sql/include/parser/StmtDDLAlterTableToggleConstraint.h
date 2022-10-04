@@ -4,7 +4,7 @@
  *****************************************************************************
  *
  * File:         StmtDDLAlterTableToggleConstraint.h
- * Description:  class for Alter Table <table-name> 
+ * Description:  class for Alter Table <table-name>
  *                  DISABLE ALL CONSTRAINTS and
  *                  DISABLE <constraint>
  *                  ENABLE ALL CONSTRAINTS
@@ -14,7 +14,7 @@
  *               The methods in this class are defined either in this
  *               header file or the source file StmtDDLAlter.cpp
  *
- *               
+ *
  * Created:     03/23/07
  * Language:     C++
  *
@@ -59,36 +59,31 @@ class StmtDDLAlterTableToggleConstraint;
 // -----------------------------------------------------------------------
 // definition of class StmtDDLAlterTableToggleConstraint
 // -----------------------------------------------------------------------
-class StmtDDLAlterTableToggleConstraint : public StmtDDLAlterTable
-{
-
-public:
-
+class StmtDDLAlterTableToggleConstraint : public StmtDDLAlterTable {
+ public:
   // constructor
-  StmtDDLAlterTableToggleConstraint(const QualifiedName & constraintQualifiedName, 
-                                     NABoolean allConstraints,
-                                     NABoolean setDisabled,
-                                     NABoolean validateConstraintFlag);
+  StmtDDLAlterTableToggleConstraint(const QualifiedName &constraintQualifiedName, NABoolean allConstraints,
+                                    NABoolean setDisabled, NABoolean validateConstraintFlag);
 
   // virtual destructor
   virtual ~StmtDDLAlterTableToggleConstraint();
 
   // cast
-  virtual StmtDDLAlterTableToggleConstraint * castToStmtDDLAlterTableToggleConstraint();
+  virtual StmtDDLAlterTableToggleConstraint *castToStmtDDLAlterTableToggleConstraint();
 
   // accessors
   inline const NABoolean getAllConstraints() const;
   inline const NABoolean getDisabledFlag() const;
 
   const NAString getConstraintName() const;
-  inline const QualifiedName & getConstraintNameAsQualifiedName() const;
-  inline       QualifiedName & getConstraintNameAsQualifiedName();
+  inline const QualifiedName &getConstraintNameAsQualifiedName() const;
+  inline QualifiedName &getConstraintNameAsQualifiedName();
   inline const NABoolean getValidateConstraintFlag() const;
 
   // ---------------------------------------------------------------------
   // mutators
   // ---------------------------------------------------------------------
- 
+
   // This method collects information in the parse sub-tree and copies it
   // to the current parse node.
   void synthesize();
@@ -104,68 +99,45 @@ public:
   // please do not use the following methods
   //
 
-  StmtDDLAlterTableToggleConstraint(); 
+  StmtDDLAlterTableToggleConstraint();
   StmtDDLAlterTableToggleConstraint(const StmtDDLAlterTableToggleConstraint &);
-  StmtDDLAlterTableToggleConstraint & operator=(const StmtDDLAlterTableToggleConstraint &);
+  StmtDDLAlterTableToggleConstraint &operator=(const StmtDDLAlterTableToggleConstraint &);
 
-private:
+ private:
+  QualifiedName constraintQualName_;
+  NABoolean allConstraints_;
+  NABoolean setDisabled_;
+  NABoolean validateConstraint_;  // only meaningful if enabling
 
-  QualifiedName  constraintQualName_;
-  NABoolean      allConstraints_;
-  NABoolean      setDisabled_;
-  NABoolean      validateConstraint_;  // only meaningful if enabling
-
-}; // class StmtDDLAlterTableToggleConstraint
+};  // class StmtDDLAlterTableToggleConstraint
 
 // -----------------------------------------------------------------------
 // definitions of inline methods for class StmtDDLAlterTableToggleConstraint
 // -----------------------------------------------------------------------
-inline const QualifiedName &
-StmtDDLAlterTableToggleConstraint::getConstraintNameAsQualifiedName() const
-{
+inline const QualifiedName &StmtDDLAlterTableToggleConstraint::getConstraintNameAsQualifiedName() const {
   return constraintQualName_;
 }
 
-inline QualifiedName &
-StmtDDLAlterTableToggleConstraint::getConstraintNameAsQualifiedName()
-{
+inline QualifiedName &StmtDDLAlterTableToggleConstraint::getConstraintNameAsQualifiedName() {
   return constraintQualName_;
 }
 
-inline const NABoolean
-StmtDDLAlterTableToggleConstraint::getAllConstraints() const
-{
-  return allConstraints_;
-}
+inline const NABoolean StmtDDLAlterTableToggleConstraint::getAllConstraints() const { return allConstraints_; }
 
-inline void 
-StmtDDLAlterTableToggleConstraint::setAllConstraints(NABoolean allConstraints)
-{
+inline void StmtDDLAlterTableToggleConstraint::setAllConstraints(NABoolean allConstraints) {
   allConstraints_ = allConstraints;
 }
 
-inline const NABoolean
-StmtDDLAlterTableToggleConstraint::getDisabledFlag() const
-{
-  return setDisabled_;
-}
+inline const NABoolean StmtDDLAlterTableToggleConstraint::getDisabledFlag() const { return setDisabled_; }
 
-inline void 
-StmtDDLAlterTableToggleConstraint::setDisabledFlag(NABoolean setDisabled)
-{
-  setDisabled_ = setDisabled;
-}
+inline void StmtDDLAlterTableToggleConstraint::setDisabledFlag(NABoolean setDisabled) { setDisabled_ = setDisabled; }
 
-inline const NABoolean
-StmtDDLAlterTableToggleConstraint::getValidateConstraintFlag() const
-{
+inline const NABoolean StmtDDLAlterTableToggleConstraint::getValidateConstraintFlag() const {
   return validateConstraint_;
 }
 
-inline void
-StmtDDLAlterTableToggleConstraint::setValidateConstraintFlag(NABoolean validateConstraint)
-{
+inline void StmtDDLAlterTableToggleConstraint::setValidateConstraintFlag(NABoolean validateConstraint) {
   validateConstraint_ = validateConstraint;
 }
 
-#endif // STMTDDLALTERTABLETOGGLECNSTRNT_H
+#endif  // STMTDDLALTERTABLETOGGLECNSTRNT_H

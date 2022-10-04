@@ -24,8 +24,8 @@
  *****************************************************************************
  *
  * File:         sql_id.cpp
- * RCS:          $Id: 
- * Description:  The implementation of C-style ADT for manipulating 
+ * RCS:          $Id:
+ * Description:  The implementation of C-style ADT for manipulating
  *               CLI module/object identifiers
  *
  * Created:      7/8/98
@@ -58,17 +58,12 @@ SQLMODULE_ID* new_SQLMODULE_ID(
 }
 #endif
 // intialize a SQL module id.
-void init_SQLMODULE_ID(SQLMODULE_ID* m,
-	Lng32 version, const char* name, 
-	Lng32 timestamp,
-	const char* charset,
-	Lng32 name_len
-		)
-{
-   m->version = version;
-   m->creation_timestamp = timestamp;
+void init_SQLMODULE_ID(SQLMODULE_ID *m, Lng32 version, const char *name, Lng32 timestamp, const char *charset,
+                       Lng32 name_len) {
+  m->version = version;
+  m->creation_timestamp = timestamp;
 
-   setNameForModule(m, name, name_len, charset);
+  setNameForModule(m, name, name_len, charset);
 }
 #if 0
 
@@ -87,88 +82,67 @@ SQLCLI_OBJ_ID* new_SQLCLI_OBJ_ID(
 #endif
 
 // initialize a SQL object id.
-void init_SQLCLI_OBJ_ID(SQLCLI_OBJ_ID* x,
-	Lng32 version, enum SQLOBJ_ID_NAME_MODE mode, 
-	const SQLMODULE_ID* module, const char* id, 
-	void* handle_,
-	const char* charset,
-	Lng32 id_len, Lng32 tag)
-{
-   x->version = version;
-   x->name_mode = mode;
-   x->module = module;
-   x->handle = handle_;
-   x->tag = tag;
-   setNameForId(x, id, id_len, charset);
+void init_SQLCLI_OBJ_ID(SQLCLI_OBJ_ID *x, Lng32 version, enum SQLOBJ_ID_NAME_MODE mode, const SQLMODULE_ID *module,
+                        const char *id, void *handle_, const char *charset, Lng32 id_len, Lng32 tag) {
+  x->version = version;
+  x->name_mode = mode;
+  x->module = module;
+  x->handle = handle_;
+  x->tag = tag;
+  setNameForId(x, id, id_len, charset);
 }
-
 
 ////////////////////////////////////////////
 // compare two SQL object ids for equality.
 ////////////////////////////////////////////
 
-Int32 isEqualByName(SQLCLI_OBJ_ID* x, SQLCLI_OBJ_ID* y)
-{
-// 8/6/98: Unicode based comparison is not enabled yet
-// as it is still questionable whether a module will be 
-// coded in Unicode.
+Int32 isEqualByName(SQLCLI_OBJ_ID *x, SQLCLI_OBJ_ID *y) {
+  // 8/6/98: Unicode based comparison is not enabled yet
+  // as it is still questionable whether a module will be
+  // coded in Unicode.
 
-   return (
-	   ( x->identifier && y->identifier && 
-             getIdLen(x) == getIdLen(y) &&
-             str_cmp(x->identifier, y->identifier, getIdLen(x)) == 0
-           ) 
-           || 
-           ( x->identifier == 0 && y->identifier == 0 ) 
-          );
+  return ((x->identifier && y->identifier && getIdLen(x) == getIdLen(y) &&
+           str_cmp(x->identifier, y->identifier, getIdLen(x)) == 0) ||
+          (x->identifier == 0 && y->identifier == 0));
 }
 
 ////////////////////////////////////////////
 // compare two SQL module ids for equality.
 ////////////////////////////////////////////
 
-Int32 isEqualByName(const SQLMODULE_ID* x, const SQLMODULE_ID* y)
-{
-// 8/6/98: Unicode based comparison is not enabled yet
-// as it is still questionable whether a module will be 
-// coded in Unicode.
+Int32 isEqualByName(const SQLMODULE_ID *x, const SQLMODULE_ID *y) {
+  // 8/6/98: Unicode based comparison is not enabled yet
+  // as it is still questionable whether a module will be
+  // coded in Unicode.
 
-   return (
-	   ( x->module_name && y->module_name && 
-             getModNameLen(x) == getModNameLen(y) &&
-             str_cmp(x->module_name, y->module_name, getModNameLen(x)) == 0
-           ) 
-           || 
-           ( x->module_name == 0 && y->module_name == 0 ) 
-          );
+  return ((x->module_name && y->module_name && getModNameLen(x) == getModNameLen(y) &&
+           str_cmp(x->module_name, y->module_name, getModNameLen(x)) == 0) ||
+          (x->module_name == 0 && y->module_name == 0));
 }
 
 ////////////////////////////////////////////
 // set the name for a SQL object id.
 ////////////////////////////////////////////
-void setNameForId(SQLCLI_OBJ_ID* x, const char* name, Lng32 len, const char* charset)
-{
-   x->identifier = name;
+void setNameForId(SQLCLI_OBJ_ID *x, const char *name, Lng32 len, const char *charset) {
+  x->identifier = name;
 
-   if ( x -> version == SQLCLI_CURRENT_VERSION ) {
-     x->identifier_len = len;
-     x->charset = charset;
-   }
+  if (x->version == SQLCLI_CURRENT_VERSION) {
+    x->identifier_len = len;
+    x->charset = charset;
+  }
 }
 
 ////////////////////////////////////////////
 // set the name for a SQL module id.
 ////////////////////////////////////////////
-void setNameForModule(SQLMODULE_ID* m, const char* name, Lng32 len, const char* charset)
-{
-   m->module_name = name;
+void setNameForModule(SQLMODULE_ID *m, const char *name, Lng32 len, const char *charset) {
+  m->module_name = name;
 
-   if ( m -> version == SQLCLI_CURRENT_VERSION ) {
-     m->module_name_len = len;
-     m->charset = charset;
-   }
+  if (m->version == SQLCLI_CURRENT_VERSION) {
+    m->module_name_len = len;
+    m->charset = charset;
+  }
 }
-
 
 #if 0
 ////////////////////////////////////////////

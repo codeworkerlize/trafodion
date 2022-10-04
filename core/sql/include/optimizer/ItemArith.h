@@ -28,7 +28,7 @@
 * File:         ItemArith.h
 * Description:  Arithmetic item expressions (+, -, *, /, **, unary -, ...)
 *
-*               
+*
 * Created:      11/04/94
 * Language:     C++
 *
@@ -53,22 +53,18 @@ class Generator;
 // -----------------------------------------------------------------------
 // binary arithmetic operators (+, -, *, /, **)
 // -----------------------------------------------------------------------
-class BiArith : public ItemExpr
-{
+class BiArith : public ItemExpr {
   // ITM_PLUS, ITM_MINUS, ITM_TIMES, ITM_DIVIDE, ITM_EXPONENT
-public:
-  BiArith(OperatorTypeEnum otype,
-	  ItemExpr *child0 = NULL,
-	  ItemExpr *child1 = NULL)
-  : ItemExpr(otype,child0,child1),
-    unaryNegate_(FALSE),
-    intervalQualifier_(NULL),
-    roundingMode_(0),
-    ignoreSpecialRounding_(FALSE),
-    divToDownscale_(FALSE),
-    normalizeFlags_(0)
-  {
-    if(CmpCommon::getDefault(MODE_COMPATIBLE_1) == DF_ON)
+ public:
+  BiArith(OperatorTypeEnum otype, ItemExpr *child0 = NULL, ItemExpr *child1 = NULL)
+      : ItemExpr(otype, child0, child1),
+        unaryNegate_(FALSE),
+        intervalQualifier_(NULL),
+        roundingMode_(0),
+        ignoreSpecialRounding_(FALSE),
+        divToDownscale_(FALSE),
+        normalizeFlags_(0) {
+    if (CmpCommon::getDefault(MODE_COMPATIBLE_1) == DF_ON)
       supportNullOperand_ = TRUE;
     else
       supportNullOperand_ = FALSE;
@@ -76,21 +72,20 @@ public:
 
   // virtual destructor
   virtual ~BiArith() {}
- 
+
   // accessor functions
-  NABoolean isUnaryNegate() const 		{ return unaryNegate_; }
-  void setIsUnaryNegate(NABoolean u = TRUE)	{ unaryNegate_ = u; }
+  NABoolean isUnaryNegate() const { return unaryNegate_; }
+  void setIsUnaryNegate(NABoolean u = TRUE) { unaryNegate_ = u; }
 
-  NABoolean isStandardNormalization() const 		{ return normalizeFlags_ == LAST_DAY_ON_ERR; }
-  void setStandardNormalization()	                { normalizeFlags_ = LAST_DAY_ON_ERR; }
+  NABoolean isStandardNormalization() const { return normalizeFlags_ == LAST_DAY_ON_ERR; }
+  void setStandardNormalization() { normalizeFlags_ = LAST_DAY_ON_ERR; }
 
-  NABoolean isKeepLastDay() const 		{ return normalizeFlags_ == LAST_DAY_OF_MONTH_FLAG; }
-  void setKeepLastDay()	                { normalizeFlags_ = LAST_DAY_OF_MONTH_FLAG; }
-  NABoolean isDateMathFunction() const  { return (isStandardNormalization() || isKeepLastDay()); }
+  NABoolean isKeepLastDay() const { return normalizeFlags_ == LAST_DAY_OF_MONTH_FLAG; }
+  void setKeepLastDay() { normalizeFlags_ = LAST_DAY_OF_MONTH_FLAG; }
+  NABoolean isDateMathFunction() const { return (isStandardNormalization() || isKeepLastDay()); }
 
-  const NAType* getIntervalQualifier() const 	{ return intervalQualifier_; }
-  void setIntervalQualifier(const NAType* intervalQualifier)
-				   { intervalQualifier_ = intervalQualifier; }
+  const NAType *getIntervalQualifier() const { return intervalQualifier_; }
+  void setIntervalQualifier(const NAType *intervalQualifier) { intervalQualifier_ = intervalQualifier; }
 
   // get the degree of this node (it is a binary op).
   virtual Int32 getArity() const;
@@ -98,95 +93,74 @@ public:
   // get a printable string that identifies the operator
   const NAString getText() const;
 
-  virtual ConstValue *castToConstValue(NABoolean & negate);
+  virtual ConstValue *castToConstValue(NABoolean &negate);
 
   virtual NABoolean duplicateMatch(const ItemExpr &other) const;
-  virtual ItemExpr * copyTopNode(ItemExpr *derivedNode = NULL,
-				 CollHeap* outHeap = NULL);
+  virtual ItemExpr *copyTopNode(ItemExpr *derivedNode = NULL, CollHeap *outHeap = NULL);
 
-  virtual ItemExpr * simplifyOrderExpr(OrderComparison *newOrder = NULL);
+  virtual ItemExpr *simplifyOrderExpr(OrderComparison *newOrder = NULL);
 
   virtual NABoolean isOrderPreserving() const;
 
   // convert expressions of constant values into a single constant
-  virtual ItemExpr *foldConstants(ComDiagsArea *diagsArea,
-				  NABoolean newTypeSynthesis = FALSE);
+  virtual ItemExpr *foldConstants(ComDiagsArea *diagsArea, NABoolean newTypeSynthesis = FALSE);
 
   // a virtual function for performing name binding within the query tree
   virtual ItemExpr *bindNode(BindWA *bindWA);
 
   // a virtual function for type propagating the node
-  virtual const NAType * synthesizeType();
+  virtual const NAType *synthesizeType();
 
   // determines whether this value can be produced by the same generated
   // expression as another (for common subexpression elimination)
-  virtual NABoolean isEquivalentForCodeGeneration(const ItemExpr * other);
+  virtual NABoolean isEquivalentForCodeGeneration(const ItemExpr *other);
 
   // method to do code generation
-  ItemExpr * preCodeGen(Generator*);
-  short codeGen(Generator*);
+  ItemExpr *preCodeGen(Generator *);
+  short codeGen(Generator *);
 
-  // change literals of a cacheable query into ConstantParameters 
-  virtual ItemExpr* normalizeForCache(CacheWA& cachewa, BindWA& bindWA);
+  // change literals of a cacheable query into ConstantParameters
+  virtual ItemExpr *normalizeForCache(CacheWA &cachewa, BindWA &bindWA);
 
   // append an indication of rounding mode for datetime arithmetic functions
-  virtual void generateCacheKey(CacheWA& cwa) const;
+  virtual void generateCacheKey(CacheWA &cwa) const;
 
-  virtual NABoolean calculateMinMaxUecs(ColStatDescList & histograms,
-					       CostScalar & minUec,
-					       CostScalar & maxUec);
+  virtual NABoolean calculateMinMaxUecs(ColStatDescList &histograms, CostScalar &minUec, CostScalar &maxUec);
 
-  void setRoundingMode(short roundingMode)
-  {
-    roundingMode_ = roundingMode;
-  }
+  void setRoundingMode(short roundingMode) { roundingMode_ = roundingMode; }
   short getRoundingMode() const { return roundingMode_; }
 
-  NABoolean getSupportNullOperand() const
-  {
-      return supportNullOperand_;
-  }
+  NABoolean getSupportNullOperand() const { return supportNullOperand_; }
 
-  void setSupportNullOperand(NABoolean flag)
-  {
-    supportNullOperand_ = flag;
-  }
-  void setIgnoreSpecialRounding() 
-  {
+  void setSupportNullOperand(NABoolean flag) { supportNullOperand_ = flag; }
+  void setIgnoreSpecialRounding() {
     ignoreSpecialRounding_ = TRUE;
-    roundingMode_ = 0 ; // no rounding
+    roundingMode_ = 0;  // no rounding
   }
 
   NABoolean ignoreSpecialRounding() const { return ignoreSpecialRounding_; }
 
-  void setDivToDownscale(NABoolean divToDownscale)
-  {
-    divToDownscale_ = divToDownscale;
-  }
+  void setDivToDownscale(NABoolean divToDownscale) { divToDownscale_ = divToDownscale; }
   NABoolean getDivToDownscale() const { return divToDownscale_; }
 
   virtual QR::ExprElement getQRExprElem() const;
-  virtual NABoolean hasEquivalentProperties(ItemExpr * other);
+  virtual NABoolean hasEquivalentProperties(ItemExpr *other);
 
-  virtual void unparse(NAString &result,
-		       PhaseEnum phase = DEFAULT_PHASE,
-		       UnparseFormatEnum form = USER_FORMAT,
-		       TableDesc * tabId = NULL) const;
+  virtual void unparse(NAString &result, PhaseEnum phase = DEFAULT_PHASE, UnparseFormatEnum form = USER_FORMAT,
+                       TableDesc *tabId = NULL) const;
 
-private:
-
+ private:
   // Parser implements "-x" (unary negate) as "0 - x" (const zero minus x).
   // Put this flag here so SynthType can differentiate.
   NABoolean unaryNegate_;
 
-  UInt16           normalizeFlags_;
-  enum normalize_flags_type 
-    {
-    LAST_DAY_ON_ERR        = 0x0001,  // If the ending day of resulting day is invalid,
-                                      // day will be rounded down.
-    LAST_DAY_OF_MONTH_FLAG = 0x0002   // used to set processing to the last day
-                                      // of month when adding month/year intervals
-    }; 
+  UInt16 normalizeFlags_;
+  enum normalize_flags_type {
+    LAST_DAY_ON_ERR = 0x0001,        // If the ending day of resulting day is invalid,
+                                     // day will be rounded down.
+    LAST_DAY_OF_MONTH_FLAG = 0x0002  // used to set processing to the last day
+                                     // of month when adding month/year intervals
+  };
 
   // For "(datetime - datetime) interval_qualifier" (ANSI 6.15).
   const NAType *intervalQualifier_;
@@ -197,7 +171,7 @@ private:
   // 2: round half even
   short roundingMode_;
 
-  // If set, ignore any special (1 or 2) rounding mode setting for this item 
+  // If set, ignore any special (1 or 2) rounding mode setting for this item
   NABoolean ignoreSpecialRounding_;
 
   // if TRUE, indicates that this division is to downscale the
@@ -208,95 +182,73 @@ private:
 };
 
 // Special case of BiArith -- sum
-// 
-// 
-class BiArithSum : public BiArith
-{
-public:
-  BiArithSum(OperatorTypeEnum otype,
-		 ItemExpr *child0 = NULL,
-		 ItemExpr *child1 = NULL)
-    : BiArith(otype,child0,child1)
-  {}
-  
+//
+//
+class BiArithSum : public BiArith {
+ public:
+  BiArithSum(OperatorTypeEnum otype, ItemExpr *child0 = NULL, ItemExpr *child1 = NULL)
+      : BiArith(otype, child0, child1) {}
+
   // virtual destructor
   virtual ~BiArithSum() {}
- 
-  virtual ItemExpr * copyTopNode(ItemExpr *derivedNode = NULL,
-				 CollHeap* outHeap = NULL);
 
-  virtual ItemExpr *preCodeGen(Generator*);
-  virtual short codeGen(Generator*);
+  virtual ItemExpr *copyTopNode(ItemExpr *derivedNode = NULL, CollHeap *outHeap = NULL);
 
-  virtual const NAString getText() const
-  {
-    return "BiArithSum";
-  };
-  virtual NABoolean hasEquivalentProperties(ItemExpr * other) { return TRUE;}
+  virtual ItemExpr *preCodeGen(Generator *);
+  virtual short codeGen(Generator *);
 
-private:
+  virtual const NAString getText() const { return "BiArithSum"; };
+  virtual NABoolean hasEquivalentProperties(ItemExpr *other) { return TRUE; }
+
+ private:
 };
 
 // Special case of BiArith -- count
-// 
-// 
-class BiArithCount : public BiArith
-{
-public:
-  inline BiArithCount(OperatorTypeEnum otype,
-		      ItemExpr *child0 = NULL,
-		      ItemExpr *child1 = NULL)
-    : BiArith(otype,child0,child1)
-    {}
-  
+//
+//
+class BiArithCount : public BiArith {
+ public:
+  inline BiArithCount(OperatorTypeEnum otype, ItemExpr *child0 = NULL, ItemExpr *child1 = NULL)
+      : BiArith(otype, child0, child1) {}
+
   // virtual destructor
   inline virtual ~BiArithCount() {}
- 
-  virtual ItemExpr * copyTopNode(ItemExpr *derivedNode = NULL,
-				 CollHeap* outHeap = NULL);
 
-  virtual ItemExpr *preCodeGen(Generator*);
-  virtual short codeGen(Generator*);
-  
-  virtual const NAString getText() const
-  {
-    return "BiArithCount";
-  };
-  virtual NABoolean hasEquivalentProperties(ItemExpr * other) { return TRUE;}
+  virtual ItemExpr *copyTopNode(ItemExpr *derivedNode = NULL, CollHeap *outHeap = NULL);
 
-private:
+  virtual ItemExpr *preCodeGen(Generator *);
+  virtual short codeGen(Generator *);
+
+  virtual const NAString getText() const { return "BiArithCount"; };
+  virtual NABoolean hasEquivalentProperties(ItemExpr *other) { return TRUE; }
+
+ private:
 };
 
-class UnArith : public ItemExpr
-{
+class UnArith : public ItemExpr {
   // ITM_NEGATE. Used with negation of boolean native datatype
-public:
-  UnArith(ItemExpr *child0 = NULL)
-       : ItemExpr(ITM_NEGATE,child0,NULL)
-  {
-  }
+ public:
+  UnArith(ItemExpr *child0 = NULL) : ItemExpr(ITM_NEGATE, child0, NULL) {}
 
   // get the degree of this node (it is a binary op).
-  virtual Int32 getArity() const { return 1;}
+  virtual Int32 getArity() const { return 1; }
 
   // get a printable string that identifies the operator
   const NAString getText() const { return '!'; }
 
-  virtual ItemExpr * copyTopNode(ItemExpr *derivedNode = NULL,
-				 CollHeap* outHeap = NULL);
+  virtual ItemExpr *copyTopNode(ItemExpr *derivedNode = NULL, CollHeap *outHeap = NULL);
 
   // a virtual function for performing name binding within the query tree
   virtual ItemExpr *bindNode(BindWA *bindWA);
 
   // a virtual function for type propagating the node
-  virtual const NAType * synthesizeType();
+  virtual const NAType *synthesizeType();
 
   // method to do code generation
-  ItemExpr * preCodeGen(Generator*);
-  short codeGen(Generator*);
+  ItemExpr *preCodeGen(Generator *);
+  short codeGen(Generator *);
 
-private:
+ private:
 };
-
 
 #endif /* ITEMARITH_H */

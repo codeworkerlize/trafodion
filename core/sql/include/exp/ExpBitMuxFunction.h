@@ -53,16 +53,16 @@ class ExpBitMuxFunction;
 // The ExBitMuxFunction class is a leaf of the derivation chain
 // ex_function_clause->ex_clause->NABasicObject. The NABasicObject class provides a basic
 // interface for memory management and packing of executor classes. The
-// ex_clause class provides the basic unit of operation for the standard 
+// ex_clause class provides the basic unit of operation for the standard
 // executor expression evaluation engine. The ex_function_clause class is
 // a specialization of the ex_clause class for "functions". Other examples
 // of classes derived from ex_function_clause include the string functions
 // trim, substring, etc. and the numeric functions variance and standard
 // deviation.
-// 
+//
 // The ExpBitMuxFunction class provides support for the "BitMuxing" function.
-// The BitMuxing function is a variable arity function which computes a 
-// unique byte stream for each unique set of inputs. The outputs of separate 
+// The BitMuxing function is a variable arity function which computes a
+// unique byte stream for each unique set of inputs. The outputs of separate
 // applications of the BitMuxing function can be byte compared to determine
 // the equality of sets of inputs. This is very similar to the encode
 // function, except BitMuxing only works for equality comparisons and not
@@ -74,26 +74,21 @@ class ExpBitMuxFunction;
 // be contiguous in the output.
 //
 // The BitMuxing function may be used in hash grouping and hash join
-// operations in order to convert the input rows into byte comparable 
+// operations in order to convert the input rows into byte comparable
 // form. This allows equality comparisions to be made without using the
 // expression evaluation engine -- a large performance gain.
 //
 
-
 // ExpBitMuxFunction declaration
 //
 class ExpBitMuxFunction : public ex_function_clause {
-public:
+ public:
   // Construction - this is the "real" constructor
   //
-  ExpBitMuxFunction(OperatorTypeEnum oper_type,
-			       Int32 arity,
-			       Attributes ** attr,
-			       Space * space);
+  ExpBitMuxFunction(OperatorTypeEnum oper_type, Int32 arity, Attributes **attr, Space *space);
   // This constructor is used only to get at the virtual function table.
   //
   ExpBitMuxFunction();
-
 
   // isNullInNullOut - Must redefine this virtual function to return 0
   // since a NULL input does not simply produce a NULL output.
@@ -107,8 +102,7 @@ public:
 
   // eval - Must redefine eval to compute the BitMuxing function.
   //
-  ex_expr::exp_return_type eval(char *op_data[], CollHeap*, 
-					   ComDiagsArea** =0);
+  ex_expr::exp_return_type eval(char *op_data[], CollHeap *, ComDiagsArea ** = 0);
 
   // pack - Must redefine pack.
   Long pack(void *);
@@ -116,20 +110,15 @@ public:
   // pCodeGenerate - Must redefine pCodeGenerate the produce specific
   // PCODE instructions for BitMuxing.
   //
-  ex_expr::exp_return_type pCodeGenerate(Space *space,
-						    UInt32 f);
+  ex_expr::exp_return_type pCodeGenerate(Space *space, UInt32 f);
 
   // ---------------------------------------------------------------------
   // Redefinition of methods inherited from NAVersionedObject.
   // ---------------------------------------------------------------------
-  virtual unsigned char getClassVersionID()
-  {
-    return 1;
-  }
+  virtual unsigned char getClassVersionID() { return 1; }
 
-  virtual void populateImageVersionIDArray()
-  {
-    setImageVersionID(2,getClassVersionID());
+  virtual void populateImageVersionIDArray() {
+    setImageVersionID(2, getClassVersionID());
     ex_function_clause::populateImageVersionIDArray();
   }
 
@@ -138,10 +127,7 @@ public:
 
   // There are no private members.
   //
-private:
-
+ private:
 };
 
-
 #endif
-

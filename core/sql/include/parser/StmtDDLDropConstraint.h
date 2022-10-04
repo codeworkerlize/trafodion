@@ -36,7 +36,6 @@
  *****************************************************************************
  */
 
-
 #include "common/ComSmallDefs.h"
 #include "StmtDDLAlterTable.h"
 
@@ -53,28 +52,24 @@ class StmtDDLDropConstraint;
 // -----------------------------------------------------------------------
 // Drop Constraint statement
 // -----------------------------------------------------------------------
-class StmtDDLDropConstraint : public StmtDDLAlterTable
-{
-
-public:
-
+class StmtDDLDropConstraint : public StmtDDLAlterTable {
+ public:
   // constructor
-  StmtDDLDropConstraint(const QualifiedName & constraintQualifiedName,
-                        ComDropBehavior dropBehavior);
+  StmtDDLDropConstraint(const QualifiedName &constraintQualifiedName, ComDropBehavior dropBehavior);
 
   // virtual destructor
   virtual ~StmtDDLDropConstraint();
 
   // cast
-  virtual StmtDDLDropConstraint * castToStmtDDLDropConstraint();
+  virtual StmtDDLDropConstraint *castToStmtDDLDropConstraint();
 
   // accessors
 
   const NAString getConstraintName() const;
-  inline ComDropBehavior getDropBehavior() const ;
+  inline ComDropBehavior getDropBehavior() const;
 
-  inline const QualifiedName & getConstraintNameAsQualifiedName() const;
-  inline       QualifiedName & getConstraintNameAsQualifiedName();
+  inline const QualifiedName &getConstraintNameAsQualifiedName() const;
+  inline QualifiedName &getConstraintNameAsQualifiedName();
 
   // for tracing
   virtual const NAString displayLabel2() const;
@@ -82,15 +77,13 @@ public:
   virtual const NAString getText() const;
 
   // method for binding
-  virtual ExprNode * bindNode(BindWA * pBindWA);
+  virtual ExprNode *bindNode(BindWA *pBindWA);
 
-
-private:
-
+ private:
   QualifiedName constraintQualName_;
   ComDropBehavior dropBehavior_;
 
-}; // class StmtDDLDropConstraint
+};  // class StmtDDLDropConstraint
 
 // -----------------------------------------------------------------------
 // definitions of inline methods for class StmtDDLDropConstraint
@@ -99,29 +92,12 @@ private:
 //
 // accessors
 //
-inline QualifiedName &
-StmtDDLDropConstraint::getConstraintNameAsQualifiedName()
-{
+inline QualifiedName &StmtDDLDropConstraint::getConstraintNameAsQualifiedName() { return constraintQualName_; }
+
+inline const QualifiedName &StmtDDLDropConstraint::getConstraintNameAsQualifiedName() const {
   return constraintQualName_;
 }
 
-inline const QualifiedName &
-StmtDDLDropConstraint::getConstraintNameAsQualifiedName() const
-{
-  return constraintQualName_;
-}
+inline ComDropBehavior StmtDDLDropConstraint::getDropBehavior() const { return dropBehavior_; }
 
-inline ComDropBehavior
-StmtDDLDropConstraint::getDropBehavior() const
-{
-  return dropBehavior_;
-}
-
-
-#endif // STMTDDLDROPCONSTRAINT_H
-
-
-
-
-
-
+#endif  // STMTDDLDROPCONSTRAINT_H

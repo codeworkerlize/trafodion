@@ -28,7 +28,7 @@
  * File:         IndexDesc.h
  * Description:  Index descriptors (an IndexDesc is to an index what
  *               a TableDesc is to a base table)
- *               
+ *
  * Created:      4/21/95
  * Language:     C++
  *
@@ -58,18 +58,11 @@ class FileScanCostList;
 class AccessPathAnalysis;
 #ifndef MDAM_FLAGS
 #define MDAM_FLAGS
-enum MdamFlags	{ UNDECIDED,
-		   MDAM_ON,
-		   MDAM_OFF
-		};
+enum MdamFlags { UNDECIDED, MDAM_ON, MDAM_OFF };
 #endif
 #ifndef INDEX_JOIN_SLECTIVITY
 #define INDEX_JOIN_SLECTIVITY
-enum IndexJoinSelectivityEnum { 
-				INDEX_ONLY_INDEX,
-				INDEX_JOIN_VIABLE, 
-				EXCEEDS_BT_SCAN
-			      }; 	 
+enum IndexJoinSelectivityEnum { INDEX_ONLY_INDEX, INDEX_JOIN_VIABLE, EXCEEDS_BT_SCAN };
 #endif
 // -----------------------------------------------------------------------
 // An IndexDesc contains value ids for the columns of an index and for
@@ -77,71 +70,60 @@ enum IndexJoinSelectivityEnum {
 // contained in an NATable object, an IndexDesc mirrors the information
 // contained in an NAFileSet object.
 // -----------------------------------------------------------------------
-class IndexDesc : public NABasicObject
-{
-
-public:
-
-  IndexDesc(TableDesc *tdesc, NAFileSet *fileSet, CmpContext* context);
+class IndexDesc : public NABasicObject {
+ public:
+  IndexDesc(TableDesc *tdesc, NAFileSet *fileSet, CmpContext *context);
 
   // accessor functions
-  const QualifiedName& getIndexName() const;
-  const NAString&  getExtIndexName() const;
+  const QualifiedName &getIndexName() const;
+  const NAString &getExtIndexName() const;
 
   Lng32 getRecordLength() const;
   Lng32 getKeyLength() const;
-  Lng32 getIndexLevels() const                     { return indexLevels_; }
-  
-  const NAColumnArray & getAllColumns() const;
-  
-  const ValueIdList & getIndexColumns() const	  { return indexColumns_; }
-  const ValueIdList & getIndexKey() const	  { return indexKey_; }
+  Lng32 getIndexLevels() const { return indexLevels_; }
+
+  const NAColumnArray &getAllColumns() const;
+
+  const ValueIdList &getIndexColumns() const { return indexColumns_; }
+  const ValueIdList &getIndexKey() const { return indexKey_; }
 
   // return the set of index columns that are not part of
   // the key:
-  void getNonKeyColumnSet(ValueIdSet& nonKeyColumnSet) const;
+  void getNonKeyColumnSet(ValueIdSet &nonKeyColumnSet) const;
 
   // return the list of index columns that are not part of the key:
-  void getNonKeyColumnList(ValueIdList& nonKeyColumnList) const;
+  void getNonKeyColumnList(ValueIdList &nonKeyColumnList) const;
 
-  const ValueIdList & getOrderOfKeyValues() const { return orderOfKeyValues_; }
-  const ValueIdList & getPartitioningKey() const  { return partitioningKey_; }
+  const ValueIdList &getOrderOfKeyValues() const { return orderOfKeyValues_; }
+  const ValueIdList &getPartitioningKey() const { return partitioningKey_; }
 
-  const ValueIdList & getOrderOfPartitioningKeyValues() const 
-                                    { return orderOfPartitioningKeyValues_; }
+  const ValueIdList &getOrderOfPartitioningKeyValues() const { return orderOfPartitioningKeyValues_; }
 
-  const ValueIdList & getHiveSortKey() const  { return hiveSortKey_; }
+  const ValueIdList &getHiveSortKey() const { return hiveSortKey_; }
 
-  const ValueIdList & getOrderOfHiveSortKeyValues() const 
-                                    { return orderOfHiveSortKeyValues_; }
+  const ValueIdList &getOrderOfHiveSortKeyValues() const { return orderOfHiveSortKeyValues_; }
 
-  const ValueIdList& getHivePartCols() { return  hivePartCols_; } 
+  const ValueIdList &getHivePartCols() { return hivePartCols_; }
 
-  NABoolean isHivePartitioned() { return  hivePartCols_.entries() > 0; }
+  NABoolean isHivePartitioned() { return hivePartCols_.entries() > 0; }
 
-  void setIndexLevels(Lng32 indexLevels) { indexLevels_ = indexLevels ; }
+  void setIndexLevels(Lng32 indexLevels) { indexLevels_ = indexLevels; }
   void setOrderOfKeyValues(const ValueIdList &no) { orderOfKeyValues_ = no; }
 
-  NABoolean containsClusteringKey() const
-                                  { return clusteringKey_.entries() > 0; }
+  NABoolean containsClusteringKey() const { return clusteringKey_.entries() > 0; }
 
-  const ValueIdList & getClusteringKeyCols() const 
-						{ return clusteringKey_; }
+  const ValueIdList &getClusteringKeyCols() const { return clusteringKey_; }
 
-  PartitioningFunction * getPartitioningFunction() const 
-                                                     { return partFunc_; }
+  PartitioningFunction *getPartitioningFunction() const { return partFunc_; }
 
-  NABoolean isClusteringIndex() const     { return clusteringIndexFlag_; }
+  NABoolean isClusteringIndex() const { return clusteringIndexFlag_; }
 
-  const NAFileSet * getNAFileSet() const              { return fileSet_; }
+  const NAFileSet *getNAFileSet() const { return fileSet_; }
 
-  TableDesc *getPrimaryTableDesc() const      	    { return tableDesc_; }
+  TableDesc *getPrimaryTableDesc() const { return tableDesc_; }
 
-  MdamFlags pruneMdam(const ValueIdSet& preds,
-			 NABoolean indexOnlyIndex,
-			 IndexJoinSelectivityEnum& selectivityEnum,
-			 const GroupAttributes * groupAttr = NULL,
-			 const ValueIdSet * inputValues = NULL) const;
+  MdamFlags pruneMdam(const ValueIdSet &preds, NABoolean indexOnlyIndex, IndexJoinSelectivityEnum &selectivityEnum,
+                      const GroupAttributes *groupAttr = NULL, const ValueIdSet *inputValues = NULL) const;
   NABoolean isUniqueIndex() const;
   // if the index is a ngram index
   NABoolean isNgramIndex() const;
@@ -152,17 +134,17 @@ public:
 
   NABoolean isPartGlobalIndex() const;
 
-  // Partitioning 
+  // Partitioning
   NABoolean isPartitioned() const;
-  
+
   // mutator functions
-  void markAsClusteringIndex()        { clusteringIndexFlag_ = TRUE; }
+  void markAsClusteringIndex() { clusteringIndexFlag_ = TRUE; }
 
   // Is it recommended by user hint, and what delta to use
   int indexHintPriorityDelta() const;
 
   // On return:
-  //   the amount of data that the local predicate will produce, when 
+  //   the amount of data that the local predicate will produce, when
   //    table analysis is performed and all stats on the referenced
   //    columns are available and not faked;
   //   -1; otherwise.
@@ -174,35 +156,30 @@ public:
   CostScalar getRecordSizeInKb() const;
   CostScalar getBlockSizeInKb() const;
   CostScalar getEstimatedRecordsPerBlock() const;
-  CostScalar getEstimatedIndexBlocksLowerBound(const CostScalar& probes) const;
-  
-  // new access method added for reusing simple cost vectors 
-  FileScanCostList * getBasicCostList() const {return scanBasicCosts_;} 
+  CostScalar getEstimatedIndexBlocksLowerBound(const CostScalar &probes) const;
 
-  void setBasicCostList(FileScanCostList * basicCosts )
-      { scanBasicCosts_ = basicCosts; }
+  // new access method added for reusing simple cost vectors
+  FileScanCostList *getBasicCostList() const { return scanBasicCosts_; }
 
-  AccessPathAnalysis * getAccessPathAnalysis() const {return accessPathAnalysis_;}
-  void setAccessPathAnalysis(AccessPathAnalysis * accessPath)
-  {  accessPathAnalysis_ = accessPath;}
+  void setBasicCostList(FileScanCostList *basicCosts) { scanBasicCosts_ = basicCosts; }
+
+  AccessPathAnalysis *getAccessPathAnalysis() const { return accessPathAnalysis_; }
+  void setAccessPathAnalysis(AccessPathAnalysis *accessPath) { accessPathAnalysis_ = accessPath; }
 
   // ---------------------------------------------------------------------
   // Print/debug
   // ---------------------------------------------------------------------
-  virtual void print( FILE* ofd = stdout,
-		      const char* indent = DEFAULT_INDENT,
-                      const char* title = "IndexDesc");
+  virtual void print(FILE *ofd = stdout, const char *indent = DEFAULT_INDENT, const char *title = "IndexDesc");
 
   // -----------------------------------------------------------------------
   // get the working heap, this heap is expected to be cleanup at the end
   // of statement.
   // -----------------------------------------------------------------------
-  CollHeap* wHeap();
+  CollHeap *wHeap();
 
   NABoolean isSortedORCHive() const;
-  
-private:
 
+ private:
   // A pointer to the table descriptor for the base table.
   //
   TableDesc *tableDesc_;
@@ -212,7 +189,7 @@ private:
   // If the root is one level from the leaf then indexLevel_ is set to 1.
   // ---------------------------------------------------------------------
   Lng32 indexLevels_;
-  
+
   // ---------------------------------------------------------------------
   // all columns (index key and non-key columns) of the index
   // ---------------------------------------------------------------------
@@ -252,7 +229,7 @@ private:
   ValueIdList orderOfHiveSortKeyValues_;
 
   // ---------------------------------------------------------------------
-  // hive partition columns 
+  // hive partition columns
   // ---------------------------------------------------------------------
   ValueIdList hivePartCols_;
 
@@ -270,28 +247,27 @@ private:
   // ---------------------------------------------------------------------
   // Partitioning function, if the index is horizontally partitioned.
   // ---------------------------------------------------------------------
-  PartitioningFunction * partFunc_;
+  PartitioningFunction *partFunc_;
 
   // ---------------------------------------------------------------------
   // a pointer to the schema information
   // ---------------------------------------------------------------------
-  NAFileSet * fileSet_;
+  NAFileSet *fileSet_;
 
   // -----------------------------------------------------------------------
-  // a pointer to current CmpContext, containing the global info 
+  // a pointer to current CmpContext, containing the global info
   // -----------------------------------------------------------------------
-  CmpContext* cmpContext_; 
+  CmpContext *cmpContext_;
 
   // -----------------------------------------------------------------------
-  // a pointer to list of basic cost objects to reuse in FileScanOptimizer  
+  // a pointer to list of basic cost objects to reuse in FileScanOptimizer
   // -----------------------------------------------------------------------
-  FileScanCostList * scanBasicCosts_; 
+  FileScanCostList *scanBasicCosts_;
 
   // -----------------------------------------------------------------------
-  // a pointer to Acess Path Analysis (generated in the amalyzer)  
+  // a pointer to Acess Path Analysis (generated in the amalyzer)
   // -----------------------------------------------------------------------
-  AccessPathAnalysis * accessPathAnalysis_; 
-
+  AccessPathAnalysis *accessPathAnalysis_;
 };
 
 #endif

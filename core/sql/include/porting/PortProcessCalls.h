@@ -27,7 +27,7 @@
  * Description:  Some common Process related functions that are called by the
  *               SQL engine components
  *
- *               Includes class NAProcessHandle. This is used to encapsulate 
+ *               Includes class NAProcessHandle. This is used to encapsulate
  *               process handle.
  *               See comments in class heading for more details.
  *
@@ -43,73 +43,69 @@
 #include "common/Platform.h"
 #include "seabed/fs.h"
 
-#define PhandleSize 64
+#define PhandleSize      64
 #define PhandleStringLen (MS_MON_MAX_PROCESS_NAME + 1 + 20 + 1)
-#define NodeNameLen 9
+#define NodeNameLen      9
 
 //
 // Class NAProcessHandle:
 //
-// This class encapsulates the differences between platforms for the 
+// This class encapsulates the differences between platforms for the
 // Process Handle.
 //
 //  On LINUX, the PHANDLE is 64 bytes
 //
 // ------------------------------------------------------------------------
-class NAProcessHandle
-{
-  public:
+class NAProcessHandle {
+ public:
+  // Constructor
+  NAProcessHandle();
 
-    // Constructor
-    NAProcessHandle();
+  NAProcessHandle(const SB_Phandle_Type *phandle);
 
-    NAProcessHandle(const SB_Phandle_Type * phandle);
+  // Destructor
+  virtual ~NAProcessHandle(void){};
 
-    // Destructor
-    virtual ~NAProcessHandle (void) {};
+  // Guardian procedure call wrappers
+  // Add new methods to support any other guardian procedure calls
+  // in this section
 
-    // Guardian procedure call wrappers
-    // Add new methods to support any other guardian procedure calls 
-    // in this section
+  // Wrapper for PROCESSHANDLE_DECOMPOSE_
+  short decompose();
 
-    // Wrapper for PROCESSHANDLE_DECOMPOSE_
-    short decompose(); 
+  // Wrapper for PROCESSHANDLE_GETMINE_
+  short getmine(SB_Phandle_Type *phandle);
 
-    // Wrapper for PROCESSHANDLE_GETMINE_
-    short getmine( SB_Phandle_Type * phandle);
+  short getmine();
 
-    short getmine();
-
-    // Wrapper for PROCESSHANDLE_NULLIT_
-    short nullit( SB_Phandle_Type * phandle);
+  // Wrapper for PROCESSHANDLE_NULLIT_
+  short nullit(SB_Phandle_Type *phandle);
 
   // Accessors to access various process handle components
-    SB_Phandle_Type *getPhandle() { return &phandle_; }
-    Int32 getCpu() {return cpu_;}
-    Int32 getPin() {return pin_;}
-    Int64 getSeqNum() {return seqNum_;}
-    void setPhandle( SB_Phandle_Type * phandle);
+  SB_Phandle_Type *getPhandle() { return &phandle_; }
+  Int32 getCpu() { return cpu_; }
+  Int32 getPin() { return pin_; }
+  Int64 getSeqNum() { return seqNum_; }
+  void setPhandle(SB_Phandle_Type *phandle);
 
-    Lng32 getNodeNumber() {return nodeNumber_;}
-    Lng32 getSegment() {return nodeNumber_;}
-    char * getNodeName();
-    short getNodeNameLen();
-    char * getPhandleString();
-    short getPhandleStringLen();
+  Lng32 getNodeNumber() { return nodeNumber_; }
+  Lng32 getSegment() { return nodeNumber_; }
+  char *getNodeName();
+  short getNodeNameLen();
+  char *getPhandleString();
+  short getPhandleStringLen();
 
-  private:
+ private:
+  SB_Phandle_Type phandle_;  // 64 bytes phandle
+  Int32 cpu_;
+  Int32 pin_;
+  Int64 seqNum_;
 
-  SB_Phandle_Type phandle_;  // 64 bytes phandle  
-  Int32         cpu_;                               
-  Int32         pin_;                               
-  Int64   seqNum_;  
-
-  Lng32        nodeNumber_;                        
-  char        nodeName_[NodeNameLen+1];         
-  short       nodeNameLen_;                       
-  char        phandleString_[PhandleStringLen+1];               
-  short       phandleStringLen_;                      
+  Lng32 nodeNumber_;
+  char nodeName_[NodeNameLen + 1];
+  short nodeNameLen_;
+  char phandleString_[PhandleStringLen + 1];
+  short phandleStringLen_;
 };
 
-
-#endif // PORTPROCESSCALLS_H
+#endif  // PORTPROCESSCALLS_H

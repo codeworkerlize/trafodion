@@ -27,37 +27,27 @@
 #include "common/NAString.h"
 #include "common/NABoolean.h"
 
-class QRMVDefinition
-{
-public:
-  QRMVDefinition(CollHeap* heap)
-    : redefTimeString_(heap),
-      refreshedTimeString_(heap)
-  {
-  }
+class QRMVDefinition {
+ public:
+  QRMVDefinition(CollHeap *heap) : redefTimeString_(heap), refreshedTimeString_(heap) {}
 
-  QRMVDefinition(NABoolean  hasIgnoreChanges,
-                 Int64	    redefTime,
-                 Int64	    refreshedTime,
-                 Int64	    objectUID,
-                 CollHeap*  heap)
-   :  hasIgnoreChanges_(hasIgnoreChanges),
-      redefTime_(redefTime),
-      refreshedTime_(refreshedTime),
-      objectUID_(objectUID),
-      redefTimeString_(heap),
-      refreshedTimeString_(heap)
-  {
+  QRMVDefinition(NABoolean hasIgnoreChanges, Int64 redefTime, Int64 refreshedTime, Int64 objectUID, CollHeap *heap)
+      : hasIgnoreChanges_(hasIgnoreChanges),
+        redefTime_(redefTime),
+        refreshedTime_(refreshedTime),
+        objectUID_(objectUID),
+        redefTimeString_(heap),
+        refreshedTimeString_(heap) {
     refreshedTimeString_ = Int64ToNAString(refreshedTime);
-    redefTimeString_     = Int64ToNAString(redefTime);
+    redefTimeString_ = Int64ToNAString(redefTime);
   }
 
   NABoolean hasIgnoreChanges_;
-  NAString  redefTimeString_;
-  Int64	    redefTime_;
-  NAString  refreshedTimeString_;
-  Int64	    refreshedTime_;
-  Int64	    objectUID_;
+  NAString redefTimeString_;
+  Int64 redefTime_;
+  NAString refreshedTimeString_;
+  Int64 refreshedTime_;
+  Int64 objectUID_;
 };
 
 #endif  // _QRMVDEFINITION_H_

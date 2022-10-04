@@ -56,9 +56,7 @@
 
 #include "common/Platform.h"
 
-
 #include "export/NAVersionedObject.h"
-
 
 // =====================================================================
 // Function bodies of class NAVersionedObject
@@ -75,16 +73,12 @@
 // This arrangement avoids the dependence on the constructors of sub-
 // classes of NAVersionedObject on setting these values correctly.
 // ---------------------------------------------------------------------
-NAVersionedObject::NAVersionedObject(Int16 classID)
-    : classID_(classID),
-      reallocatedAddress_(NULL),
-      imageSize_(0)
-  {
-    clearFillers();
-    initFlags();    // set to state of "not packed".
-    clearVersionIDArray();
-    str_cpy_all(eyeCatcher_,VOBJ_EYE_CATCHER,VOBJ_EYE_CATCHER_SIZE);
-  }
+NAVersionedObject::NAVersionedObject(Int16 classID) : classID_(classID), reallocatedAddress_(NULL), imageSize_(0) {
+  clearFillers();
+  initFlags();  // set to state of "not packed".
+  clearVersionIDArray();
+  str_cpy_all(eyeCatcher_, VOBJ_EYE_CATCHER, VOBJ_EYE_CATCHER_SIZE);
+}
 
 // ---------------------------------------------------------------------
 // All subclasses could redefine convertToReference/LocalPlatform() to
@@ -92,19 +86,17 @@ NAVersionedObject::NAVersionedObject(Int16 classID)
 // platform and vice versa. Typically, this only involves toggling the
 // endianness of some members.
 // ---------------------------------------------------------------------
-void NAVersionedObject::convertToReferencePlatform()
-  {
+void NAVersionedObject::convertToReferencePlatform() {
 #ifndef NA_LITTLE_ENDIAN
-    toggleEndianness();
+  toggleEndianness();
 #endif
-  }
+}
 
-void NAVersionedObject::convertToLocalPlatform()
-  {
+void NAVersionedObject::convertToLocalPlatform() {
 #ifndef NA_LITTLE_ENDIAN
-    toggleEndianness();
+  toggleEndianness();
 #endif
-  }
+}
 
 // ---------------------------------------------------------------------
 // reallocateImage() provides the basic implementation for the virtual
@@ -114,20 +106,17 @@ void NAVersionedObject::convertToLocalPlatform()
 // The left-over space will be zero'ed. Finally, reallocatedAddress_
 // field in the older object is set to the address of the new object.
 // ---------------------------------------------------------------------
-NAVersionedObject *NAVersionedObject::reallocateImage(void * reallocator)
-  {
-    Space *space = (Space *)reallocator;
+NAVersionedObject *NAVersionedObject::reallocateImage(void *reallocator) {
+  Space *space = (Space *)reallocator;
 
-    short size = getClassSize();
-    char *newObjPtr = (char *)( (space == NULL) ?
-                                (::operator new(size)) :
-                                (space->allocateAlignedSpace(size)) );
-    str_pad(newObjPtr,size,0);
-    str_cpy_all(newObjPtr,(char *)this,imageSize_);
-    setReallocatedAddress((NAVersionedObject *)newObjPtr);
-    ((NAVersionedObject *)(newObjPtr))->setImageSize(size);
-    return (NAVersionedObject *)(newObjPtr);
-  }
+  short size = getClassSize();
+  char *newObjPtr = (char *)((space == NULL) ? (::operator new(size)) : (space->allocateAlignedSpace(size)));
+  str_pad(newObjPtr, size, 0);
+  str_cpy_all(newObjPtr, (char *)this, imageSize_);
+  setReallocatedAddress((NAVersionedObject *)newObjPtr);
+  ((NAVersionedObject *)(newObjPtr))->setImageSize(size);
+  return (NAVersionedObject *)(newObjPtr);
+}
 
 // ---------------------------------------------------------------------
 // This is a utility for use by redefined migrateToNewVersion() at the
@@ -137,24 +126,20 @@ NAVersionedObject *NAVersionedObject::reallocateImage(void * reallocator)
 // the image has been reallocated so that it is big enough to make this
 // expansion.
 // ---------------------------------------------------------------------
-void NAVersionedObject::makeRoomForNewVersion(
-                                                  short oldSubClassSize,
-                                                  short newSubClassSize)
-  {
-    // -----------------------------------------------------------------
-    // This is an intermediate subclass in derivation chain which needs
-    // expansion. Shift all members of subclass(es) lower in the deri-
-    // vation chain downwards to make room.
-    // -----------------------------------------------------------------
-    if (imageSize_ != newSubClassSize)
-    {
-      char *src = (char *)this + oldSubClassSize;
-      char *des = (char *)this + newSubClassSize;
-      short siz = imageSize_ - newSubClassSize;
-      str_cpy_all(des,src,siz);
-    }
+void NAVersionedObject::makeRoomForNewVersion(short oldSubClassSize, short newSubClassSize) {
+  // -----------------------------------------------------------------
+  // This is an intermediate subclass in derivation chain which needs
+  // expansion. Shift all members of subclass(es) lower in the deri-
+  // vation chain downwards to make room.
+  // -----------------------------------------------------------------
+  if (imageSize_ != newSubClassSize) {
+    char *src = (char *)this + oldSubClassSize;
+    char *des = (char *)this + newSubClassSize;
+    short siz = imageSize_ - newSubClassSize;
+    str_cpy_all(des, src, siz);
   }
-                                    
+}
+
 // ---------------------------------------------------------------------
 // Subclasses could redefine migrateToNewVersion() when a new version
 // is introduced according to the following template:
@@ -183,7 +168,7 @@ void NAVersionedObject::makeRoomForNewVersion(
 //   //
 //   unsigned char version = getImageVersionID(?SUBCLASS_LEVEL);
 //   short oldClassSize = classSizesArray[version];
-// 
+//
 //   if (oldClassSize != newClassSize)
 //     makeRoomForNewVersion(oldClassSize,newClassSize);
 //
@@ -203,7 +188,7 @@ void NAVersionedObject::makeRoomForNewVersion(
 //
 //   return 0;
 // }
-//       
+//
 // This method is redefined by following a strategy similar to RelExpr::
 // copyTopNode() in the optimizer directory. Each subclass invokes the
 // same method on its base class and then handles the migration of its
@@ -214,60 +199,51 @@ void NAVersionedObject::makeRoomForNewVersion(
 // which is not supported anymore. Also notice that the versionIDArray_
 // should only be updated at initNewMembers().
 // ---------------------------------------------------------------------
-Lng32 NAVersionedObject::migrateToNewVersion(
-                                           NAVersionedObject *&newImage)
-  {
-    short tempimagesize = getClassSize();
-    // -----------------------------------------------------------------
-    // The base class implementation of migrateToNewVersion() is only
-    // called with newImage == NULL when the same function is not
-    // redefined at the subclass. That means no new version of that
-    // subclass has been invented yet.
-    // -----------------------------------------------------------------
-    if (newImage == NULL)
-    {
-      assert(imageSize_ == getClassSize());
+Lng32 NAVersionedObject::migrateToNewVersion(NAVersionedObject *&newImage) {
+  short tempimagesize = getClassSize();
+  // -----------------------------------------------------------------
+  // The base class implementation of migrateToNewVersion() is only
+  // called with newImage == NULL when the same function is not
+  // redefined at the subclass. That means no new version of that
+  // subclass has been invented yet.
+  // -----------------------------------------------------------------
+  if (newImage == NULL) {
+    assert(imageSize_ == getClassSize());
 
-      // ---------------------------------------------------------------
-      // Should also assert this->versionIDArray_ is same as the one
-      // generated from populateVersionIDArray(). But it takes too much
-      // time.
-      // ---------------------------------------------------------------
-      // !!! -----------------------------------------------------------
-      // CODE SPECIFIC TO FIRST RELEASE: to be removed at the second
-      // release : to guard against the case where a 1st release exec-
-      // utor is used to execute 2nd release plan. A more general mech-
-      // anism should be developed at the 2nd release to guard against
-      // this case.
-      // ---------------------------------------------------------------
-      unsigned char * versionIDArray = getImageVersionIDArray();
-      for (Int32 i = 0; i < VERSION_ID_ARRAY_SIZE; i++)
-      {
-        if ((versionIDArray[i] != 0) && 
-            (versionIDArray[i] != 1) && 
-            (versionIDArray[i] != 2) &&
-            (versionIDArray[i] != 3))
-           return -1;
-      }
-
-      // ---------------------------------------------------------------
-      // Simply set newImage to this since there are no new version.
-      // ---------------------------------------------------------------
-      newImage = this;
-    }
-    else
-    {
-      // ---------------------------------------------------------------
-      // This is called from the subclass implementation of the same
-      // function. The subclass should have called reallocateImage() if
-      // imageSize_ was different from class size. Therefore, imageSize_
-      // should be the same as the most recent version class size now.
-      // ---------------------------------------------------------------
-      assert(newImage->imageSize_ == getClassSize());
+    // ---------------------------------------------------------------
+    // Should also assert this->versionIDArray_ is same as the one
+    // generated from populateVersionIDArray(). But it takes too much
+    // time.
+    // ---------------------------------------------------------------
+    // !!! -----------------------------------------------------------
+    // CODE SPECIFIC TO FIRST RELEASE: to be removed at the second
+    // release : to guard against the case where a 1st release exec-
+    // utor is used to execute 2nd release plan. A more general mech-
+    // anism should be developed at the 2nd release to guard against
+    // this case.
+    // ---------------------------------------------------------------
+    unsigned char *versionIDArray = getImageVersionIDArray();
+    for (Int32 i = 0; i < VERSION_ID_ARRAY_SIZE; i++) {
+      if ((versionIDArray[i] != 0) && (versionIDArray[i] != 1) && (versionIDArray[i] != 2) && (versionIDArray[i] != 3))
+        return -1;
     }
 
-    return 0;
+    // ---------------------------------------------------------------
+    // Simply set newImage to this since there are no new version.
+    // ---------------------------------------------------------------
+    newImage = this;
+  } else {
+    // ---------------------------------------------------------------
+    // This is called from the subclass implementation of the same
+    // function. The subclass should have called reallocateImage() if
+    // imageSize_ was different from class size. Therefore, imageSize_
+    // should be the same as the most recent version class size now.
+    // ---------------------------------------------------------------
+    assert(newImage->imageSize_ == getClassSize());
   }
+
+  return 0;
+}
 
 // ---------------------------------------------------------------------
 // Driver for Packing
@@ -276,83 +252,80 @@ Lng32 NAVersionedObject::migrateToNewVersion(
 // later when 64-bit platforms are really available since it doesn't
 // affect object layout.
 // ---------------------------------------------------------------------
-Long NAVersionedObject::drivePack(void *space, short isSpacePtr)
-  {
-    // -----------------------------------------------------------------
-    // If the object has already been packed, just convert the pointer
-    // of the object to an offset and return its value. That value will
-    // be used by the caller to replace the pointer stored there.
-    // -----------------------------------------------------------------
-    if (isPacked())
-    {
-      if (isSpacePtr)
-        return ((Space *)space)->convertToOffset((char *)this);
-      else
-        return ((char *)space - (char *)this);
-    }
+Long NAVersionedObject::drivePack(void *space, short isSpacePtr) {
+  // -----------------------------------------------------------------
+  // If the object has already been packed, just convert the pointer
+  // of the object to an offset and return its value. That value will
+  // be used by the caller to replace the pointer stored there.
+  // -----------------------------------------------------------------
+  if (isPacked()) {
+    if (isSpacePtr)
+      return ((Space *)space)->convertToOffset((char *)this);
+    else
+      return ((char *)space - (char *)this);
+  }
 
-    // -----------------------------------------------------------------
-    // Make sure the image size and the version ID are set properly
-    // before proceeding on to pack the object.
-    // -----------------------------------------------------------------
-    Int16 classSize = getClassSize();
-    if ((classSize % 8) != 0)
-      assert((classSize % 8) == 0);
-    setImageSize(classSize);
-    populateImageVersionIDArray();
+  // -----------------------------------------------------------------
+  // Make sure the image size and the version ID are set properly
+  // before proceeding on to pack the object.
+  // -----------------------------------------------------------------
+  Int16 classSize = getClassSize();
+  if ((classSize % 8) != 0) assert((classSize % 8) == 0);
+  setImageSize(classSize);
+  populateImageVersionIDArray();
 
-    // -----------------------------------------------------------------
-    // Toggle the Endianness of the Version Header if it's not stored
-    // in little-endian form.
-    //
-    // *** DON'T DO THIS JUST YET: PLAN IS TO SUPPORT THIS ONLY FROM
-    // *** SECOND RELEASE.
-    // -----------------------------------------------------------------
+  // -----------------------------------------------------------------
+  // Toggle the Endianness of the Version Header if it's not stored
+  // in little-endian form.
+  //
+  // *** DON'T DO THIS JUST YET: PLAN IS TO SUPPORT THIS ONLY FROM
+  // *** SECOND RELEASE.
+  // -----------------------------------------------------------------
 #ifndef NA_LITTLE_ENDIAN
-    // toggleEndiannessOfVersionHeader();
+  // toggleEndiannessOfVersionHeader();
 #endif
 
-    // -----------------------------------------------------------------
-    // Convert members of this object from local platform to reference
-    // platform.
-    //
-    // *** DON'T DO THIS JUST YET: PLAN IS TO SUPPORT THIS ONLY FROM
-    // *** SECOND RELEASE.
-    // -----------------------------------------------------------------
-    // convertToReferencePlatform();
+  // -----------------------------------------------------------------
+  // Convert members of this object from local platform to reference
+  // platform.
+  //
+  // *** DON'T DO THIS JUST YET: PLAN IS TO SUPPORT THIS ONLY FROM
+  // *** SECOND RELEASE.
+  // -----------------------------------------------------------------
+  // convertToReferencePlatform();
 
-    // -----------------------------------------------------------------
-    // Mark object as packed, despite it is not completely packed yet.
-    // It is needed because the call that follows to the virtual method
-    // pack() drives the packing of all objects referenced by this
-    // object. If this object is subsequently referenced by another
-    // object down the row, drivePack() will be called on this object
-    // again. At that point of time, we should see the packed flag set
-    // so that "double-packing" can be avoided.
-    // -----------------------------------------------------------------
-    markAsPacked();
+  // -----------------------------------------------------------------
+  // Mark object as packed, despite it is not completely packed yet.
+  // It is needed because the call that follows to the virtual method
+  // pack() drives the packing of all objects referenced by this
+  // object. If this object is subsequently referenced by another
+  // object down the row, drivePack() will be called on this object
+  // again. At that point of time, we should see the packed flag set
+  // so that "double-packing" can be avoided.
+  // -----------------------------------------------------------------
+  markAsPacked();
 
-    // -----------------------------------------------------------------
-    // pack() is a virtual method the subclass should redefine to drive
-    // the packing of all objects it references by pointers and convert
-    // those pointers to offsets. It should also convert the endianness
-    // of its members to the reference if necessary.
-    // -----------------------------------------------------------------
-    setIsSpacePtr( isSpacePtr !=0 );
-    Long offset = pack(space);
+  // -----------------------------------------------------------------
+  // pack() is a virtual method the subclass should redefine to drive
+  // the packing of all objects it references by pointers and convert
+  // those pointers to offsets. It should also convert the endianness
+  // of its members to the reference if necessary.
+  // -----------------------------------------------------------------
+  setIsSpacePtr(isSpacePtr != 0);
+  Long offset = pack(space);
 
-    //    long offset = (isSpacePtr ? pack(space) : pack(space,0));
+  //    long offset = (isSpacePtr ? pack(space) : pack(space,0));
 
-    // -----------------------------------------------------------------
-    // Make sure the eyeCatcher_ field of the object is proper. Also
-    // clean up the virtual table function pointer, so that the image
-    // look identical each time.
-    // -----------------------------------------------------------------
-    str_cpy_all(eyeCatcher_,VOBJ_EYE_CATCHER,VOBJ_EYE_CATCHER_SIZE);
-    setVTblPtr(NULL);
+  // -----------------------------------------------------------------
+  // Make sure the eyeCatcher_ field of the object is proper. Also
+  // clean up the virtual table function pointer, so that the image
+  // look identical each time.
+  // -----------------------------------------------------------------
+  str_cpy_all(eyeCatcher_, VOBJ_EYE_CATCHER, VOBJ_EYE_CATCHER_SIZE);
+  setVTblPtr(NULL);
 
-    return offset;
-  }
+  return offset;
+}
 
 // ---------------------------------------------------------------------
 // Driver for Unpacking
@@ -374,32 +347,25 @@ Long NAVersionedObject::drivePack(void *space, short isSpacePtr)
 // ptrToAnchorClass (second form, see below) is a pointer to an object
 //                  that has the desired virtual function pointer
 // ---------------------------------------------------------------------
-NAVersionedObject *NAVersionedObject::driveUnpack(
-                                    void *base,
-				    char *vtblPtr,
-				    void * reallocator)
-  {
-    // -----------------------------------------------------------------
-    // Make sure we are really dealing with a NAVersionedObject by
-    // examining its eyeCatcher_.
-    // -----------------------------------------------------------------
-    if (str_cmp(eyeCatcher_,VOBJ_EYE_CATCHER,VOBJ_EYE_CATCHER_SIZE))
-      return NULL;
+NAVersionedObject *NAVersionedObject::driveUnpack(void *base, char *vtblPtr, void *reallocator) {
+  // -----------------------------------------------------------------
+  // Make sure we are really dealing with a NAVersionedObject by
+  // examining its eyeCatcher_.
+  // -----------------------------------------------------------------
+  if (str_cmp(eyeCatcher_, VOBJ_EYE_CATCHER, VOBJ_EYE_CATCHER_SIZE)) return NULL;
 
-    // -----------------------------------------------------------------
-    // If object has already been unpacked, just return either its own
-    // address or the reallocated address if the object was reallocated
-    // to somewhere else.
-    // -----------------------------------------------------------------
-    if (!isPacked())
-    {
-      if (reallocatedAddress_.isNull())
-        return this;
-      else
-        return reallocatedAddress_.getPointer();
-    }
+  // -----------------------------------------------------------------
+  // If object has already been unpacked, just return either its own
+  // address or the reallocated address if the object was reallocated
+  // to somewhere else.
+  // -----------------------------------------------------------------
+  if (!isPacked()) {
+    if (reallocatedAddress_.isNull())
+      return this;
     else
-      reallocatedAddress_ = (NAVersionedObjectPtr) NULL ;
+      return reallocatedAddress_.getPointer();
+  } else
+    reallocatedAddress_ = (NAVersionedObjectPtr)NULL;
 
     // -----------------------------------------------------------------
     // Fix the Version Header to the endianness of the local platform
@@ -413,74 +379,67 @@ NAVersionedObject *NAVersionedObject::driveUnpack(
     // toggleEndiannessOfVersionHeader();
 #endif
 
-    // -----------------------------------------------------------------
-    // The method findVTblPtr() was called on an object of the Anthor
-    // Class T to find out what subclass of the Anchor Class this object
-    // belongs based on its classID_. Now, the virtual function table
-    // pointer is used to fix up this object.
-    // -----------------------------------------------------------------
-    if (vtblPtr == NULL)
-      return NULL;                                // unknown class ID //
-    else
-      setVTblPtr(vtblPtr);
+  // -----------------------------------------------------------------
+  // The method findVTblPtr() was called on an object of the Anthor
+  // Class T to find out what subclass of the Anchor Class this object
+  // belongs based on its classID_. Now, the virtual function table
+  // pointer is used to fix up this object.
+  // -----------------------------------------------------------------
+  if (vtblPtr == NULL)
+    return NULL;  // unknown class ID //
+  else
+    setVTblPtr(vtblPtr);
 
-    // -----------------------------------------------------------------
-    // Call the virtual method migrateToNewVersion() so that older
-    // objects can be migrated to fit in the new class template.
-    // -----------------------------------------------------------------
-    NAVersionedObject *objPtr = NULL;
+  // -----------------------------------------------------------------
+  // Call the virtual method migrateToNewVersion() so that older
+  // objects can be migrated to fit in the new class template.
+  // -----------------------------------------------------------------
+  NAVersionedObject *objPtr = NULL;
 
-    // -----------------------------------------------------------------
-    // migrateToNewVersion() should either set objPtr to this or to an
-    // reallocated image.
-    // -----------------------------------------------------------------
-    if (migrateToNewVersion(objPtr))
-      return NULL;                           // version not supported //
+  // -----------------------------------------------------------------
+  // migrateToNewVersion() should either set objPtr to this or to an
+  // reallocated image.
+  // -----------------------------------------------------------------
+  if (migrateToNewVersion(objPtr)) return NULL;  // version not supported //
 
-    // -----------------------------------------------------------------
-    // Convert members of this object from reference platform to local
-    // platform.
-    //
-    // *** DON'T DO THIS JUST YET: PLAN IS TO SUPPORT THIS ONLY FROM
-    // *** SECOND RELEASE.
-    // -----------------------------------------------------------------
-    // objPtr->convertToLocalPlatform();
+  // -----------------------------------------------------------------
+  // Convert members of this object from reference platform to local
+  // platform.
+  //
+  // *** DON'T DO THIS JUST YET: PLAN IS TO SUPPORT THIS ONLY FROM
+  // *** SECOND RELEASE.
+  // -----------------------------------------------------------------
+  // objPtr->convertToLocalPlatform();
 
-    // -----------------------------------------------------------------
-    // Mark object as not packed, despite it is not completely unpacked
-    // yet. This is needed because the call that follows to the virtual
-    // method unpack() drives the unpacking of all objects referenced by
-    // this object. If this object is subsequently referenced by another
-    // object down the row, driveUnpack() will be called on this object
-    // again. At that point of time, we should see the packed flag set
-    // to "not packed" so that "double-unpacking" can be avoided.
-    // -----------------------------------------------------------------
-    markAsNotPacked();
-    objPtr->markAsNotPacked();
+  // -----------------------------------------------------------------
+  // Mark object as not packed, despite it is not completely unpacked
+  // yet. This is needed because the call that follows to the virtual
+  // method unpack() drives the unpacking of all objects referenced by
+  // this object. If this object is subsequently referenced by another
+  // object down the row, driveUnpack() will be called on this object
+  // again. At that point of time, we should see the packed flag set
+  // to "not packed" so that "double-unpacking" can be avoided.
+  // -----------------------------------------------------------------
+  markAsNotPacked();
+  objPtr->markAsNotPacked();
 
-    // -----------------------------------------------------------------
-    // After migration, the object might have been reallocated. In that
-    // case objPtr will be changed to point to the reallocated object.
-    // The following calls are then made on the reallocated object
-    // instead of this.
-    // -----------------------------------------------------------------
-    if(objPtr->unpack(base, reallocator))
-      return NULL;              // Should this ever happen? Internal Error.
+  // -----------------------------------------------------------------
+  // After migration, the object might have been reallocated. In that
+  // case objPtr will be changed to point to the reallocated object.
+  // The following calls are then made on the reallocated object
+  // instead of this.
+  // -----------------------------------------------------------------
+  if (objPtr->unpack(base, reallocator)) return NULL;  // Should this ever happen? Internal Error.
 
-    objPtr->initNewMembers();
-    return objPtr;
-  }
+  objPtr->initNewMembers();
+  return objPtr;
+}
 
-NAVersionedObject *NAVersionedObject::driveUnpack(
-                                    void *base,
-				    NAVersionedObject *ptrToAnchorClass,
-				    void * reallocator)
-{
+NAVersionedObject *NAVersionedObject::driveUnpack(void *base, NAVersionedObject *ptrToAnchorClass, void *reallocator) {
   // this method uses more stack space, due to the inline method
   // findVTblPtr
   char *vtblPtr = ptrToAnchorClass->findVTblPtr(classID_);
-  return driveUnpack(base,vtblPtr,reallocator);
+  return driveUnpack(base, vtblPtr, reallocator);
 }
 
 // ------------------------------------------------------------ EOF ----
-

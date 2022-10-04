@@ -23,14 +23,13 @@
 #ifndef EX_FIRSTN_H
 #define EX_FIRSTN_H
 
-
 /* -*-C++-*-
  *****************************************************************************
  *
  * File:         ex_firstn.h
- * Description:  
- *               
- *               
+ * Description:
+ *
+ *
  * Created:      7/10/95
  * Language:     C++
  *
@@ -57,27 +56,23 @@ class ex_tcb;
 // -----------------------------------------------------------------------
 // ExFirstNTdb
 // -----------------------------------------------------------------------
-class ExFirstNTdb : public ComTdbFirstN
-{
-public:
-
+class ExFirstNTdb : public ComTdbFirstN {
+ public:
   // ---------------------------------------------------------------------
   // Constructor is only called to instantiate an object used for
   // retrieval of the virtual table function pointer of the class while
   // unpacking. An empty constructor is enough.
   // ---------------------------------------------------------------------
-  ExFirstNTdb()
-  {}
+  ExFirstNTdb() {}
 
-  virtual ~ExFirstNTdb()
-  {}
+  virtual ~ExFirstNTdb() {}
 
   // ---------------------------------------------------------------------
   // Build a TCB for this TDB. Redefined in the Executor project.
   // ---------------------------------------------------------------------
   virtual ex_tcb *build(ex_globals *globals);
 
-private:
+ private:
   // ---------------------------------------------------------------------
   // !!!!!!! IMPORTANT -- NO DATA MEMBERS ALLOWED IN EXECUTOR TDB !!!!!!!!
   // *********************************************************************
@@ -97,7 +92,7 @@ private:
   // 1. Are those data members Compiler-generated?
   //    If yes, put them in the ComTdbFirstn instead.
   //    If no, they should probably belong to someplace else (like TCB).
-  // 
+  //
   // 2. Are the classes those data members belong defined in the executor
   //    project?
   //    If your answer to both questions is yes, you might need to move
@@ -105,80 +100,65 @@ private:
   // ---------------------------------------------------------------------
 };
 
-
 //
 // Task control block
 //
-class ExFirstNTcb : public ex_tcb
-{
-  friend class   ExFirstNTdb;
-  friend class   ExFirstNPrivateState;
+class ExFirstNTcb : public ex_tcb {
+  friend class ExFirstNTdb;
+  friend class ExFirstNPrivateState;
 
-  enum FirstNStep {
-    INITIAL_,
-    PROCESS_FIRSTN_,
-    PROCESS_LASTN_,
-    DONE_,
-    CANCEL_,
-    ERROR_
-    };
+  enum FirstNStep { INITIAL_, PROCESS_FIRSTN_, PROCESS_LASTN_, DONE_, CANCEL_, ERROR_ };
 
-  const ex_tcb * childTcb_;
+  const ex_tcb *childTcb_;
 
-  ex_queue_pair  qparent_;
-  ex_queue_pair  qchild_;
+  ex_queue_pair qparent_;
+  ex_queue_pair qchild_;
 
   FirstNStep step_;
 
   Int64 requestedLastNRows_;
   Int64 returnedLastNRows_;
 
-  atp_struct     * workAtp_;
+  atp_struct *workAtp_;
   Lng32 firstNParamVal_;   // first N computed from parameter
   Lng32 effectiveFirstN_;  // effective first n (constant or param)
   Lng32 returnedSoFar_;    // number of rows returned so far
 
-  // Stub to cancel() subtask used by scheduler. 
-  static ExWorkProcRetcode sCancel(ex_tcb *tcb) 
-  { return ((ExFirstNTcb *) tcb)->cancel(); }
-  
-public:
+  // Stub to cancel() subtask used by scheduler.
+  static ExWorkProcRetcode sCancel(ex_tcb *tcb) { return ((ExFirstNTcb *)tcb)->cancel(); }
+
+ public:
   // Constructor
-  ExFirstNTcb(const ExFirstNTdb & firstn_tdb,    
-	      const ex_tcb &    child_tcb,    // child queue pair
-	      ex_globals *glob
-	      );
-  
-  ~ExFirstNTcb();  
-  
+  ExFirstNTcb(const ExFirstNTdb &firstn_tdb,
+              const ex_tcb &child_tcb,  // child queue pair
+              ex_globals *glob);
+
+  ~ExFirstNTcb();
+
   short moveChildDataToParent();
 
   void freeResources();  // free resources
-  
+
   short work();                     // when scheduled to do work
   virtual void registerSubtasks();  // register work procedures with scheduler
   short cancel();                   // for the fickle.
 
-  inline ExFirstNTdb & firstnTdb() const { return (ExFirstNTdb &) tdb; }
+  inline ExFirstNTdb &firstnTdb() const { return (ExFirstNTdb &)tdb; }
 
- 
-  ex_queue_pair getParentQueue() const { return qparent_;}
+  ex_queue_pair getParentQueue() const { return qparent_; }
 
-
-  virtual Int32 numChildren() const { return 1; }   
-  virtual const ex_tcb* getChild(Int32 /*pos*/) const { return childTcb_; }
-
-}; 
+  virtual Int32 numChildren() const { return 1; }
+  virtual const ex_tcb *getChild(Int32 /*pos*/) const { return childTcb_; }
+};
 
 ///////////////////////////////////////////////////////////////////
-class ExFirstNPrivateState : public ex_tcb_private_state
-{
+class ExFirstNPrivateState : public ex_tcb_private_state {
   friend class ExFirstNTcb;
-  
-public:
-  ExFirstNPrivateState(const ExFirstNTcb * tcb); //constructor
-  ex_tcb_private_state * allocate_new(const ex_tcb * tcb);
-  ~ExFirstNPrivateState();       // destructor
+
+ public:
+  ExFirstNPrivateState(const ExFirstNTcb *tcb);  // constructor
+  ex_tcb_private_state *allocate_new(const ex_tcb *tcb);
+  ~ExFirstNPrivateState();  // destructor
 };
 
 #endif

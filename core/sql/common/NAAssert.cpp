@@ -24,9 +24,9 @@
  *****************************************************************************
  *
  * File:         <file>
- * Description:  
- *               
- *               
+ * Description:
+ *
+ *
  * Created:      7/10/95
  * Language:     C++
  *
@@ -40,8 +40,7 @@
 #include "common/NAAssert.h"
 #include "cli/SQLCLIdev.h"
 
-  #include <iostream>
-
+#include <iostream>
 
 // To debug an inline function:
 // - Put a "NAInlineBreakpoint;" statement in the inline function;
@@ -50,19 +49,13 @@
 //   files you aren't interested in breaking on each time),
 //   - and rebuild;
 // - Set a breakpoint here, after the filtering-out lines you added.
-void NAInlineBreakpointFunc(char * file_, Int32 line_)
-{
+void NAInlineBreakpointFunc(char *file_, Int32 line_) {
   cout << "Tracepoint at: file " << file_ << ", line " << line_ << "\n";
 }
 
-NAAssertGlobals * GetNAAssertGlobals(NABoolean *logEmsEvents)
-{
-  return NULL;
-}
+NAAssertGlobals *GetNAAssertGlobals(NABoolean *logEmsEvents) { return NULL; }
 
-NABoolean IsExecutor(NABoolean *logEmsEvents)
-{
-  if (logEmsEvents != NULL)
-    *logEmsEvents = TRUE;
+NABoolean IsExecutor(NABoolean *logEmsEvents) {
+  if (logEmsEvents != NULL) *logEmsEvents = TRUE;
   return FALSE;
 }

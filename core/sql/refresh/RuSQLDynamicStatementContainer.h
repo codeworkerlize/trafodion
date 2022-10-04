@@ -29,13 +29,13 @@
 *
 * File:         RuSQLDynamicStatementContainer.h
 * Description:  Definition of class CRUSQLDynamicStatementContainer
-*				
+*
 *
 * Created:      09/08/2000
 * Language:     C++
-* 
 *
-* 
+*
+*
 ******************************************************************************
 */
 
@@ -51,73 +51,63 @@ class CUOFsIpcMessageTranslator;
 //
 //--------------------------------------------------------------------------//
 
-class REFRESH_LIB_CLASS CRUSQLDynamicStatementContainer : 
-				public CRUSQLStatementContainer {
-private:
-	typedef CRUSQLStatementContainer inherited;
+class REFRESH_LIB_CLASS CRUSQLDynamicStatementContainer : public CRUSQLStatementContainer {
+ private:
+  typedef CRUSQLStatementContainer inherited;
 
-public:
-	
-	enum { 
-		MAX_COMPILED_PARAMS = 10,
-		MAX_SQL_TEXT_SIZE = 10000 
-	};
+ public:
+  enum { MAX_COMPILED_PARAMS = 10, MAX_SQL_TEXT_SIZE = 10000 };
 
-	static const char* const COMPILED_PARAM_TOKEN ;
+  static const char *const COMPILED_PARAM_TOKEN;
 
-public:
-	CRUSQLDynamicStatementContainer(short nStmts);
-	virtual ~CRUSQLDynamicStatementContainer();
+ public:
+  CRUSQLDynamicStatementContainer(short nStmts);
+  virtual ~CRUSQLDynamicStatementContainer();
 
-public:
-	// Is the statment already prepared ?
-	inline BOOL IsStatementPrepared(short index);
-	
-	// Returns the last sql statement text that was prepared
-	inline char const* GetLastSQL(short index);
+ public:
+  // Is the statment already prepared ?
+  inline BOOL IsStatementPrepared(short index);
 
-	// Load the container with an sql text 
-	inline void SetStatementText(short index, const CDSString &sql);
+  // Returns the last sql statement text that was prepared
+  inline char const *GetLastSQL(short index);
 
-public:
-	// Prepares all statements
-	void PrepareSQL();
-	
-	// Prepare a single statement
-	inline void PrepareStatement(short index);
-	
-	// Replace the compiled time param (represented by COMPILED_PARAM_TOKEN
-	// in the statment text) by value
-	inline void SetCompiledTimeParam(short index, // statment index
-						  short paramIndex,
-						  const CDSString &value);
+  // Load the container with an sql text
+  inline void SetStatementText(short index, const CDSString &sql);
 
-	// Direct execution of the sql statement - generally used for ddl statments
-	void DirectExecStatement(short index);
+ public:
+  // Prepares all statements
+  void PrepareSQL();
 
-protected:
-	REFRESH_LIB_CLASS class DynamicStmt;
+  // Prepare a single statement
+  inline void PrepareStatement(short index);
 
-protected:
-	
-	virtual DynamicStmt& GetDynamicStmt(short index);
-	
-protected:
-	// Implementation of pure virtual function
-	inline virtual CRUSQLStatementContainer::Stmt& GetStmt(short index);
+  // Replace the compiled time param (represented by COMPILED_PARAM_TOKEN
+  // in the statment text) by value
+  inline void SetCompiledTimeParam(short index,  // statment index
+                                   short paramIndex, const CDSString &value);
 
-private:
-	//-- Prevent copying
-	CRUSQLDynamicStatementContainer
-							(const CRUSQLDynamicStatementContainer &other);
-	CRUSQLDynamicStatementContainer &operator = 
-							(const CRUSQLDynamicStatementContainer &other);
+  // Direct execution of the sql statement - generally used for ddl statments
+  void DirectExecStatement(short index);
 
-private:
-	// An array of dynamic statments 
-	DynamicStmt *pDynamicStmtVec_;
+ protected:
+  REFRESH_LIB_CLASS class DynamicStmt;
+
+ protected:
+  virtual DynamicStmt &GetDynamicStmt(short index);
+
+ protected:
+  // Implementation of pure virtual function
+  inline virtual CRUSQLStatementContainer::Stmt &GetStmt(short index);
+
+ private:
+  //-- Prevent copying
+  CRUSQLDynamicStatementContainer(const CRUSQLDynamicStatementContainer &other);
+  CRUSQLDynamicStatementContainer &operator=(const CRUSQLDynamicStatementContainer &other);
+
+ private:
+  // An array of dynamic statments
+  DynamicStmt *pDynamicStmtVec_;
 };
-
 
 //--------------------------------------------------------------------------//
 //	CRUSQLStaticStatementContainer::DynamicStmt
@@ -125,80 +115,69 @@ private:
 //
 //--------------------------------------------------------------------------//
 
-class CRUSQLDynamicStatementContainer::DynamicStmt: 
-				public  CRUSQLDynamicStatementContainer::Stmt {
+class CRUSQLDynamicStatementContainer::DynamicStmt : public CRUSQLDynamicStatementContainer::Stmt {
+ private:
+  typedef CRUSQLDynamicStatementContainer::Stmt inherited;
 
-private:
-	typedef CRUSQLDynamicStatementContainer::Stmt inherited;
+ public:
+  DynamicStmt();
+  virtual ~DynamicStmt();
 
-public:
-	
-	DynamicStmt();
-	virtual ~DynamicStmt();
+ public:
+  // Is the statment already prepared ?
+  inline BOOL IsStatementPrepared() const { return prepared_; }
 
-public:
-	// Is the statment already prepared ?
-	inline BOOL IsStatementPrepared() const
-	{
-		return prepared_;
-	}
+  char const *GetLastSQL();
 
-	char const* GetLastSQL();
+  // The function compiles the statment if the statement needs
+  // recompilation .
+  // The statement needs recompilation at the first time or when
+  // one or more of its compiled parameters is changed
+  CDMPreparedStatement *GetPreparedStatement(BOOL DeleteUsedStmt = TRUE);
 
-	// The function compiles the statment if the statement needs
-	// recompilation .
-	// The statement needs recompilation at the first time or when 
-	// one or more of its compiled parameters is changed
-	CDMPreparedStatement *GetPreparedStatement(BOOL DeleteUsedStmt = TRUE);
+  // Direct execution of the sql statement - generally used for ddl statments
+  void DirectExecStatement();
 
-	// Direct execution of the sql statement - generally used for ddl statments
-	void DirectExecStatement();
+ public:
+  void SetStatementText(const CDSString &sql);
+  void SetCompiledTimeParam(short paramIndex, const CDSString &value);
+  void PrepareStatement(BOOL PrepareStatement = TRUE);
 
+ public:
+  // This functions used to (un)serialized the executor context
+  // for the message communication with the remote server process
+  virtual void LoadData(CUOFsIpcMessageTranslator &translator);
 
-public:
-	void SetStatementText(const CDSString &sql);
-	void SetCompiledTimeParam(short paramIndex,const CDSString &value);
-	void PrepareStatement(BOOL PrepareStatement = TRUE);
+  virtual void StoreData(CUOFsIpcMessageTranslator &translator);
 
-public:
-	// This functions used to (un)serialized the executor context 
-	// for the message communication with the remote server process
-	virtual void LoadData(CUOFsIpcMessageTranslator &translator);
+ private:
+  // Find outs how many compile parameters are in the statement and their
+  // position
+  void AnalyzeSql();
 
-	virtual void StoreData(CUOFsIpcMessageTranslator &translator);
+  // Prepare the sql text for compilation by inserting all compiledtime
+  // params into the sql text
+  void PrepareSqlText(char *buffer);
 
-private:
-	// Find outs how many compile parameters are in the statement and their 
-	// position
-	void AnalyzeSql();
-
-	// Prepare the sql text for compilation by inserting all compiledtime 
-	// params into the sql text
-	void PrepareSqlText(char *buffer);
-
-private:
-
-	//-- Prevent copying
+ private:
+  //-- Prevent copying
 #if defined(NA_WINNT)
-	CRUSQLDynamicStatementContainer::DynamicStmt
-		(const CRUSQLDynamicStatementContainer::DynamicStmt &other);
-	CRUSQLDynamicStatementContainer::DynamicStmt &operator = 
-		(const CRUSQLDynamicStatementContainer::DynamicStmt &other);
+  CRUSQLDynamicStatementContainer::DynamicStmt(const CRUSQLDynamicStatementContainer::DynamicStmt &other);
+  CRUSQLDynamicStatementContainer::DynamicStmt &operator=(const CRUSQLDynamicStatementContainer::DynamicStmt &other);
 #endif
 
-private:
-	// These fields are the only one who travels between processes
-	char*				sql_;
-	Lng32				paramNum_;
+ private:
+  // These fields are the only one who travels between processes
+  char *sql_;
+  Lng32 paramNum_;
 
-private:
-	// Is the statment already prepared ?
-	BOOL				prepared_; 
-	CDSString			params_[MAX_COMPILED_PARAMS];
-	Int32					paramsPos_[MAX_COMPILED_PARAMS];
-	Int32					paramSumStringSize_;
+ private:
+  // Is the statment already prepared ?
+  BOOL prepared_;
+  CDSString params_[MAX_COMPILED_PARAMS];
+  Int32 paramsPos_[MAX_COMPILED_PARAMS];
+  Int32 paramSumStringSize_;
 };
-
 
 //--------------------------------------------------------------------------//
 //	CRUSQLDynamicStatementContainer inlines
@@ -210,23 +189,20 @@ private:
 // Direct execution of the sql statement - generally used for ddl statments
 //--------------------------------------------------------------------------//
 
-inline void REFRESH_LIB_CLASS CRUSQLDynamicStatementContainer::
-	DirectExecStatement(short index)
-{
-	RUASSERT(0 <= index && index < GetNumOfStmt());
+inline void REFRESH_LIB_CLASS CRUSQLDynamicStatementContainer::DirectExecStatement(short index) {
+  RUASSERT(0 <= index && index < GetNumOfStmt());
 
-	GetDynamicStmt(index).DirectExecStatement();
+  GetDynamicStmt(index).DirectExecStatement();
 }
 
 //--------------------------------------------------------------------------//
 //	CRUSQLDynamicStatementContainer::GetDynamicStmt()
 //--------------------------------------------------------------------------//
-inline REFRESH_LIB_CLASS CRUSQLDynamicStatementContainer::DynamicStmt& 
-REFRESH_LIB_CLASS CRUSQLDynamicStatementContainer::GetDynamicStmt(short index)
-{
-	RUASSERT(0 <= index && index < GetNumOfStmt());
+inline REFRESH_LIB_CLASS CRUSQLDynamicStatementContainer::DynamicStmt &REFRESH_LIB_CLASS
+CRUSQLDynamicStatementContainer::GetDynamicStmt(short index) {
+  RUASSERT(0 <= index && index < GetNumOfStmt());
 
-	return  pDynamicStmtVec_[index];
+  return pDynamicStmtVec_[index];
 }
 
 //--------------------------------------------------------------------------//
@@ -234,20 +210,16 @@ REFRESH_LIB_CLASS CRUSQLDynamicStatementContainer::GetDynamicStmt(short index)
 //
 // Implementation of pure virtual function
 //--------------------------------------------------------------------------//
-inline REFRESH_LIB_CLASS CRUSQLStatementContainer::Stmt& 
-REFRESH_LIB_CLASS CRUSQLDynamicStatementContainer::GetStmt(short index)
-{
-	return GetDynamicStmt(index);
+inline REFRESH_LIB_CLASS CRUSQLStatementContainer::Stmt &REFRESH_LIB_CLASS
+CRUSQLDynamicStatementContainer::GetStmt(short index) {
+  return GetDynamicStmt(index);
 }
-
 
 //--------------------------------------------------------------------------//
 //	CRUSQLDynamicStatementContainer::IsStatementPrepared()
 //--------------------------------------------------------------------------//
-inline BOOL REFRESH_LIB_CLASS CRUSQLDynamicStatementContainer::
-IsStatementPrepared(short index) 
-{
-	return GetDynamicStmt(index).IsStatementPrepared();
+inline BOOL REFRESH_LIB_CLASS CRUSQLDynamicStatementContainer::IsStatementPrepared(short index) {
+  return GetDynamicStmt(index).IsStatementPrepared();
 }
 
 //--------------------------------------------------------------------------//
@@ -255,21 +227,17 @@ IsStatementPrepared(short index)
 //
 // Returns the last sql statement text that was prepared
 //--------------------------------------------------------------------------//
-inline char const* REFRESH_LIB_CLASS CRUSQLDynamicStatementContainer::
-GetLastSQL(short index)
-{
-	return GetDynamicStmt(index).GetLastSQL();
+inline char const *REFRESH_LIB_CLASS CRUSQLDynamicStatementContainer::GetLastSQL(short index) {
+  return GetDynamicStmt(index).GetLastSQL();
 }
 
 //--------------------------------------------------------------------------//
 //	CRUSQLDynamicStatementContainer::SetStatementText()
 //
-// Load the container with an sql text 
+// Load the container with an sql text
 //--------------------------------------------------------------------------//
-inline void REFRESH_LIB_CLASS CRUSQLDynamicStatementContainer::
-SetStatementText(short index, const CDSString &sql)
-{
-	GetDynamicStmt(index).SetStatementText(sql);
+inline void REFRESH_LIB_CLASS CRUSQLDynamicStatementContainer::SetStatementText(short index, const CDSString &sql) {
+  GetDynamicStmt(index).SetStatementText(sql);
 }
 
 //--------------------------------------------------------------------------//
@@ -277,23 +245,16 @@ SetStatementText(short index, const CDSString &sql)
 //
 // Prepare a single statement
 //--------------------------------------------------------------------------//
-inline void REFRESH_LIB_CLASS CRUSQLDynamicStatementContainer::
-	PrepareStatement(short index)
-{
-	GetDynamicStmt(index).PrepareStatement();
+inline void REFRESH_LIB_CLASS CRUSQLDynamicStatementContainer::PrepareStatement(short index) {
+  GetDynamicStmt(index).PrepareStatement();
 }
 
 //--------------------------------------------------------------------------//
 //	CRUSQLDynamicStatementContainer::SetCompiledTimeParam()
 //--------------------------------------------------------------------------//
-void REFRESH_LIB_CLASS CRUSQLDynamicStatementContainer::
-	SetCompiledTimeParam(	short index ,
-							short paramIndex,
-							const CDSString &value)
-{
-	GetDynamicStmt(index).SetCompiledTimeParam(paramIndex,value);
+void REFRESH_LIB_CLASS CRUSQLDynamicStatementContainer::SetCompiledTimeParam(short index, short paramIndex,
+                                                                             const CDSString &value) {
+  GetDynamicStmt(index).SetCompiledTimeParam(paramIndex, value);
 }
-
-
 
 #endif

@@ -4,7 +4,7 @@
 *************************************************************************
 *
 * File:         LookupTable.h
-* Description:  Lookup table template class 
+* Description:  Lookup table template class
 *               i.e. a class that implements a 2-dimensional array
 * Created:      09/07/00
 * Language:     C++
@@ -38,34 +38,32 @@
 // ----------------------------------------------------------------------
 // contents of this file
 // ----------------------------------------------------------------------
-template<class T> class LookupTable;
+template <class T>
+class LookupTable;
 
-template<class T>
-class LookupTable : public NABasicObject
-{
-public:
+template <class T>
+class LookupTable : public NABasicObject {
+ public:
   LookupTable();
-  LookupTable(Int32 numRows, 
-              Int32 numCols, 
-              CollHeap* heap=0); // constructor
-  LookupTable(const LookupTable& other, CollHeap* heap=0); // copy constructor
-  
-  virtual ~LookupTable();  //destructor
+  LookupTable(Int32 numRows, Int32 numCols,
+              CollHeap *heap = 0);                            // constructor
+  LookupTable(const LookupTable &other, CollHeap *heap = 0);  // copy constructor
 
-  LookupTable& operator=(const LookupTable& other);
+  virtual ~LookupTable();  // destructor
 
-  const T& getValue(Int32 rowNum, Int32 colNum) const;
-  T& operator[](Int32 elem);
-  void setValue(Int32 rowNum, Int32 colNum, const T& value);
+  LookupTable &operator=(const LookupTable &other);
 
-private:
+  const T &getValue(Int32 rowNum, Int32 colNum) const;
+  T &operator[](Int32 elem);
+  void setValue(Int32 rowNum, Int32 colNum, const T &value);
+
+ private:
   Int32 numRows_;
   Int32 numCols_;
   CollHeap *heap_;
   T *arr_;
 
-}; //LookupTable
-
+};  // LookupTable
 
 template <class T>
 LookupTable<T>::LookupTable() : numRows_(0), numCols_(0), heap_(NULL), arr_(NULL) {}

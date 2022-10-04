@@ -36,7 +36,6 @@
  *****************************************************************************
  */
 
-
 #include "common/ComSmallDefs.h"
 #include "StmtDDLNode.h"
 
@@ -53,58 +52,50 @@ class StmtDDLDropView;
 // -----------------------------------------------------------------------
 // Create Catalog statement
 // -----------------------------------------------------------------------
-class StmtDDLDropView : public StmtDDLNode
-{
-
-public:
-
+class StmtDDLDropView : public StmtDDLNode {
+ public:
   // constructor
-  StmtDDLDropView(const QualifiedName & tableQualName,
-                  ComDropBehavior dropBehavior,
-                  NABoolean cleanupSpec,
-                  NABoolean validateSpec,
-		  NAString * pLogFile);
+  StmtDDLDropView(const QualifiedName &tableQualName, ComDropBehavior dropBehavior, NABoolean cleanupSpec,
+                  NABoolean validateSpec, NAString *pLogFile);
 
   // virtual destructor
   virtual ~StmtDDLDropView();
 
   // cast
-  virtual StmtDDLDropView * castToStmtDDLDropView();
+  virtual StmtDDLDropView *castToStmtDDLDropView();
 
   // accessors
   inline ComDropBehavior getDropBehavior() const;
   inline const NAString getViewName() const;
-  inline const QualifiedName & getViewNameAsQualifiedName() const;
-  inline       QualifiedName & getViewNameAsQualifiedName();
+  inline const QualifiedName &getViewNameAsQualifiedName() const;
+  inline QualifiedName &getViewNameAsQualifiedName();
   inline const NABoolean isCleanupSpecified() const;
   inline const NABoolean isValidateSpecified() const;
   inline const NABoolean isLogFileSpecified() const;
-  inline const NAString & getLogFile() const;
+  inline const NAString &getLogFile() const;
 
   const NABoolean dropIfExists() const { return dropIfExists_; }
   void setDropIfExists(NABoolean v) { dropIfExists_ = v; }
 
   // for binding
-  ExprNode * bindNode(BindWA *bindWAPtr);
+  ExprNode *bindNode(BindWA *bindWAPtr);
 
   // for tracing
   virtual const NAString displayLabel1() const;
   virtual const NAString displayLabel2() const;
   virtual const NAString getText() const;
 
-
-private:
-
+ private:
   QualifiedName viewQualName_;
   ComDropBehavior dropBehavior_;
   NABoolean isCleanupSpec_;
   NABoolean isValidateSpec_;
-  NAString  *pLogFile_;
+  NAString *pLogFile_;
 
   // drop only if view exists. Otherwise just return.
   NABoolean dropIfExists_;
 
-}; // class StmtDDLDropView
+};  // class StmtDDLDropView
 
 // -----------------------------------------------------------------------
 // definitions of inline methods for class StmtDDLDropView
@@ -114,55 +105,26 @@ private:
 // accessors
 //
 
-inline QualifiedName &
-StmtDDLDropView::getViewNameAsQualifiedName()
-{
-  return viewQualName_;
-}
+inline QualifiedName &StmtDDLDropView::getViewNameAsQualifiedName() { return viewQualName_; }
 
-inline const QualifiedName & 
-StmtDDLDropView::getViewNameAsQualifiedName() const 
-{
-  return viewQualName_;
-}
+inline const QualifiedName &StmtDDLDropView::getViewNameAsQualifiedName() const { return viewQualName_; }
 
-inline ComDropBehavior
-StmtDDLDropView::getDropBehavior() const
-{
-  return dropBehavior_;
-}
+inline ComDropBehavior StmtDDLDropView::getDropBehavior() const { return dropBehavior_; }
 
-inline const NAString
-StmtDDLDropView::getViewName() const
-{
-  return viewQualName_.getQualifiedNameAsAnsiString();
-}
+inline const NAString StmtDDLDropView::getViewName() const { return viewQualName_.getQualifiedNameAsAnsiString(); }
 
-inline const NABoolean
-StmtDDLDropView::isCleanupSpecified()const
-{
-  return isCleanupSpec_;
-}
+inline const NABoolean StmtDDLDropView::isCleanupSpecified() const { return isCleanupSpec_; }
 
-inline const NABoolean
-StmtDDLDropView::isValidateSpecified()const
-{
-  return isValidateSpec_;
-}
+inline const NABoolean StmtDDLDropView::isValidateSpecified() const { return isValidateSpec_; }
 
-inline const NABoolean
-StmtDDLDropView::isLogFileSpecified()const
-{
-  if (pLogFile_)
-    return TRUE;
+inline const NABoolean StmtDDLDropView::isLogFileSpecified() const {
+  if (pLogFile_) return TRUE;
   return FALSE;
 }
 
-inline const NAString &
-StmtDDLDropView::getLogFile() const
-{
+inline const NAString &StmtDDLDropView::getLogFile() const {
   ComASSERT(pLogFile_ NEQ NULL);
   return *pLogFile_;
 }
 
-#endif // STMTDDLDROPVIEW_H
+#endif  // STMTDDLDROPVIEW_H

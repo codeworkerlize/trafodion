@@ -41,18 +41,16 @@ class NAMemory;
 class ItmBitMuxFunction;
 
 class ItmBitMuxFunction : public BuiltinFunction {
-public:
-  ItmBitMuxFunction(const LIST(ItemExpr*) &children) 
-    : BuiltinFunction(ITM_BITMUX, CmpCommon::statementHeap(), children) { };
+ public:
+  ItmBitMuxFunction(const LIST(ItemExpr *) & children)
+      : BuiltinFunction(ITM_BITMUX, CmpCommon::statementHeap(), children){};
 
   virtual ~ItmBitMuxFunction();
 
   const NAType *synthesizeType();
-  ItemExpr *preCodeGen(Generator*);
-  short codeGen(Generator*);
-  ItemExpr *copyTopNode(ItemExpr *derivedNode =NULL,
-			NAMemory *outHeap =0);
+  ItemExpr *preCodeGen(Generator *);
+  short codeGen(Generator *);
+  ItemExpr *copyTopNode(ItemExpr *derivedNode = NULL, NAMemory *outHeap = 0);
 };
 
 #endif
-

@@ -74,20 +74,20 @@
 // binding in captured in a tree of "CascadesBinding" objects.
 // -----------------------------------------------------------------------
 
-class CascadesGroup;	     // an equivalence class of log/phys. expressions
-class CascadesMemo;          // collection of equivalence classs, search space memory
+class CascadesGroup;  // an equivalence class of log/phys. expressions
+class CascadesMemo;   // collection of equivalence classs, search space memory
 
-class Context;               // optimization goal
-class ContextList;           // a list of context pointers
+class Context;      // optimization goal
+class ContextList;  // a list of context pointers
 
-class CascadesPlan;          // a plan
+class CascadesPlan;  // a plan
 class CascadesPlanList;
 
-class PlanWorkSpace;         // a class that is used for recording plan related info.
+class PlanWorkSpace;  // a class that is used for recording plan related info.
 
-class CascadesTask;	     // task
+class CascadesTask;  // task
 
-class OptimizeGroupTask;     // specific tasks
+class OptimizeGroupTask;  // specific tasks
 class OptimizeExprTask;
 class ExploreGroupTask;
 class ExploreExprTask;
@@ -95,9 +95,9 @@ class ApplyRuleTask;
 class CreatePlanTask;
 class GarbageCollectionTask;
 
-class CascadesTaskList;	     // LIFO stack of tasks to be done
+class CascadesTaskList;  // LIFO stack of tasks to be done
 
-class CascadesBinding;	     // for pattern matching
+class CascadesBinding;  // for pattern matching
 class OptDefaults;
 
 class IndexDesc;
@@ -108,7 +108,7 @@ class CmpStatement;
 #include <fstream>
 
 class SimpleCostVector;
-class OptDebug;              // for debugging purposes
+class OptDebug;  // for debugging purposes
 
 class PerformanceGoal;
 class CostWeight;
@@ -116,68 +116,68 @@ class CostWeight;
 // forward declaration
 class QueryComplexityVector;
 namespace tmudr {
-  class UDRPlanInfo;
+class UDRPlanInfo;
 }
 
 #ifdef _DEBUG
-  #define DBGLOGMSG(str) \
-  { if (CmpCommon::getDefault(NSK_DBG_SHOW_PLAN_LOG) == DF_ON ) \
-     (*CURRCONTEXT_OPTDEBUG).stream() << str << endl; }
-  #define DBGLOGMSGCNTXT(str,cntxt) \
-  { if (CmpCommon::getDefault(NSK_DBG_SHOW_PLAN_LOG) == DF_ON ) \
-     (*CURRCONTEXT_OPTDEBUG).stream() << str << (cntxt)->getRequirementsString().data() \
-                     << "group " << (cntxt)->getGroupId() << endl; }
-  #define DBGLOGPLAN(plan) \
-  { if (CmpCommon::getDefault(NSK_DBG_SHOW_PLAN_LOG) == DF_ON ) \
-      (*CURRCONTEXT_OPTDEBUG).showNode((plan)->getPhysicalExpr()->castToRelExpr(), \
-                      (plan)," *** ", FALSE ); }
-  #define DBGMJENUMRULE(message) \
-  { if (CmpCommon::getDefault(NSK_DBG_SHOW_MJ_ENUM_RULE_LOG) == DF_ON ) \
-      (*CURRCONTEXT_OPTDEBUG).showNode((plan)->getPhysicalExpr()->castToRelExpr(), \
-                      (plan)," *** ", FALSE ); }
+#define DBGLOGMSG(str)                                                                                          \
+  {                                                                                                             \
+    if (CmpCommon::getDefault(NSK_DBG_SHOW_PLAN_LOG) == DF_ON) (*CURRCONTEXT_OPTDEBUG).stream() << str << endl; \
+  }
+#define DBGLOGMSGCNTXT(str, cntxt)                                                                   \
+  {                                                                                                  \
+    if (CmpCommon::getDefault(NSK_DBG_SHOW_PLAN_LOG) == DF_ON)                                       \
+      (*CURRCONTEXT_OPTDEBUG).stream() << str << (cntxt)->getRequirementsString().data() << "group " \
+                                       << (cntxt)->getGroupId() << endl;                             \
+  }
+#define DBGLOGPLAN(plan)                                                                                    \
+  {                                                                                                         \
+    if (CmpCommon::getDefault(NSK_DBG_SHOW_PLAN_LOG) == DF_ON)                                              \
+      (*CURRCONTEXT_OPTDEBUG).showNode((plan)->getPhysicalExpr()->castToRelExpr(), (plan), " *** ", FALSE); \
+  }
+#define DBGMJENUMRULE(message)                                                                              \
+  {                                                                                                         \
+    if (CmpCommon::getDefault(NSK_DBG_SHOW_MJ_ENUM_RULE_LOG) == DF_ON)                                      \
+      (*CURRCONTEXT_OPTDEBUG).showNode((plan)->getPhysicalExpr()->castToRelExpr(), (plan), " *** ", FALSE); \
+  }
 #else
-  #define DBGLOGMSG(str)
-  #define DBGLOGMSGCNTXT(str,cntxt)
-  #define DBGLOGPLAN(plan)
+#define DBGLOGMSG(str)
+#define DBGLOGMSGCNTXT(str, cntxt)
+#define DBGLOGPLAN(plan)
 #endif
 
 // This is a double epsilon being defined to make sure the selectivity
 // always has some minimum. We did not want to do it in DefaultValidator.h,
 // as that would have been too general.
-#define MIN_SELECTIVITY       (1e-16)
+#define MIN_SELECTIVITY (1e-16)
 
-const Lng32  GB_IN_BYTES      = 1024*1024*1024;
+const Lng32 GB_IN_BYTES = 1024 * 1024 * 1024;
 
 // ----------------------------------------------------------------------
 // Will put this class in other place later
 // A very fast random number sequence generator
 // ----------------------------------------------------------------------
-class RandomSequence
-{
-  private:
-    Lng32 m_;
-    Lng32 a_;
-    Lng32 c_;
-    Lng32 x_;
+class RandomSequence {
+ private:
+  Lng32 m_;
+  Lng32 a_;
+  Lng32 c_;
+  Lng32 x_;
 
-  public:
+ public:
+  RandomSequence() { initialize(); }
 
-    RandomSequence()
-    { initialize();}
+  double random() {
+    x_ = (x_ * a_ + c_) % m_;
+    return double(x_) / double(m_);
+  }
 
-    double random()
-    {
-      x_ = (x_*a_ + c_)%m_;
-      return double(x_)/double(m_);
-    }
-
-    void initialize(Lng32 i=616)
-    {
-      m_=259200;       // magic numbers
-      a_=7141;         // magic numbers
-      c_=54773;        // magic numbers
-      x_= i % m_;
-    }
+  void initialize(Lng32 i = 616) {
+    m_ = 259200;  // magic numbers
+    a_ = 7141;    // magic numbers
+    c_ = 54773;   // magic numbers
+    x_ = i % m_;
+  }
 };
 
 // ---------------------------------------------------------------
@@ -195,672 +195,246 @@ class RandomSequence
 // Lastly, it contains cached recalibration defaults.
 // ---------------------------------------------------------------
 
-class OptDefaults
-{
-public:
+class OptDefaults {
+ public:
+  OptDefaults(CollHeap *heap);
+  ~OptDefaults();
 
-  OptDefaults (CollHeap* heap);
-  ~OptDefaults ();
+  enum optLevelEnum { MINIMUM, LOW, MEDIUM_LOW, MEDIUM, MEDIUM_MAX, MAXIMUM, AGGRESSIVE };
 
-  enum optLevelEnum
-    {
-      MINIMUM,
-      LOW,
-      MEDIUM_LOW,
-      MEDIUM,
-      MEDIUM_MAX,
-      MAXIMUM,
-      AGGRESSIVE
-    };
+  optLevelEnum optLevel() { return optLevel_; }
 
-  optLevelEnum optLevel() { return optLevel_;}
+  optLevelEnum indexEliminationLevel() { return indexEliminationLevel_; }
+  double mdamSelectionDefault() { return mdamSelectionDefault_; }
+  double readAheadMaxBlocks() { return readAheadMaxBlocks_; }
+  double acceptableInputEstLogPropError() { return acceptableInputEstLogPropError_; }
 
-  optLevelEnum indexEliminationLevel()
-  { return indexEliminationLevel_; }
-  double mdamSelectionDefault()
-  { return mdamSelectionDefault_; }
-  double readAheadMaxBlocks()
-  { return readAheadMaxBlocks_; }
-  double acceptableInputEstLogPropError()
-  { return acceptableInputEstLogPropError_; }
+  inline void setTaskCount(Lng32 id) { taskCount_ = id; };
 
-  inline void setTaskCount(Lng32 id){taskCount_ = id;};
-
-  inline Lng32 getTaskCount(){ return taskCount_;};
+  inline Lng32 getTaskCount() { return taskCount_; };
 
   inline Lng32 level1SafetyNet() { return level1SafetyNet_; }
 
-  inline double level1SafetyNetMultiple()
-  {
-    return level1SafetyNetMultiple_;
-  };
-  inline NABoolean taskLimitExceeded(Lng32 id)
-  {
-    return (id > optTaskLimit_);
-  };
+  inline double level1SafetyNetMultiple() { return level1SafetyNetMultiple_; };
+  inline NABoolean taskLimitExceeded(Lng32 id) { return (id > optTaskLimit_); };
 
-  inline void setEnumPotentialThreshold(Lng32 threshold)
-  {
-    enumPotentialThreshold_ = threshold;
-  }
+  inline void setEnumPotentialThreshold(Lng32 threshold) { enumPotentialThreshold_ = threshold; }
 
-  inline Lng32 getEnumPotentialThreshold()
-  {
-    return enumPotentialThreshold_;
-  }
+  inline Lng32 getEnumPotentialThreshold() { return enumPotentialThreshold_; }
 
-  inline NABoolean needShortPassOptimization()
-  {
-    return ((queryComplexity_ >= shortOptPassThreshold_) OR
-            (numTables_ >= 5));
+  inline NABoolean needShortPassOptimization() {
+    return ((queryComplexity_ >= shortOptPassThreshold_) OR(numTables_ >= 5));
   };
-  inline ULng32 getNumOfBlocksPerAccess()
-  {
-    return numOfBlocksPerAccess_;
-  };
-  inline Int32 getNumTables()
-  {
-    return numTables_;
-  };
-  inline NABoolean isFakeHardware()
-  {
-    return fakeHardware_;
-  };
-  inline NABoolean isAdditiveResourceCosting()
-  {
-    return additiveResourceCosting_;
-  };
-  inline double getQueryComplexity()
-  {
-    return queryComplexity_;
-  };
+  inline ULng32 getNumOfBlocksPerAccess() { return numOfBlocksPerAccess_; };
+  inline Int32 getNumTables() { return numTables_; };
+  inline NABoolean isFakeHardware() { return fakeHardware_; };
+  inline NABoolean isAdditiveResourceCosting() { return additiveResourceCosting_; };
+  inline double getQueryComplexity() { return queryComplexity_; };
   void setQueryMJComplexity(double complexity);
-  inline double getQueryMJComplexity()
-  {
-    return queryMJComplexity_;
-  };
-  inline NABoolean isComplexMJQuery()
-  {
-    return isComplexMJQuery_;
-  }
-  inline double getRequiredMemoryResourceEstimate()
-  {
-    return requiredMemoryResourceEstimate_;
-  };
-  inline double getRequiredCpuResourceEstimate()
-  {
-    return requiredCpuResourceEstimate_;
-  };
-  inline double getTotalDataAccessCost()
-  {
-    return totalDataAccessCost_;
-  };  
-  inline double getMaxOperatorMemoryEstimate()
-  {
-    return maxOperatorMemoryEstimate_;
-  };
-  inline double getMaxOperatorCpuEstimate()
-  {
-    return maxOperatorCpuEstimate_;
-  };
-  inline double getMaxOperatorDataAccessCost()
-  {
-    return maxOperatorDataAccessCost_;
-  };
-  inline double getMemoryPerCPU()
-  {
-    return memoryPerCPU_;
-  };
-  inline double getWorkPerCPU()
-  {
-    return workPerCPU_;
-  };
-  inline double getTenantUnitMemoryPerCore()
-  {
-    return tenantUnitMemory_ / tenantUnitCores_; 
-  };
-  inline double getTenantUnitMemory()
-  {
-    return tenantUnitMemory_; 
-  };
+  inline double getQueryMJComplexity() { return queryMJComplexity_; };
+  inline NABoolean isComplexMJQuery() { return isComplexMJQuery_; }
+  inline double getRequiredMemoryResourceEstimate() { return requiredMemoryResourceEstimate_; };
+  inline double getRequiredCpuResourceEstimate() { return requiredCpuResourceEstimate_; };
+  inline double getTotalDataAccessCost() { return totalDataAccessCost_; };
+  inline double getMaxOperatorMemoryEstimate() { return maxOperatorMemoryEstimate_; };
+  inline double getMaxOperatorCpuEstimate() { return maxOperatorCpuEstimate_; };
+  inline double getMaxOperatorDataAccessCost() { return maxOperatorDataAccessCost_; };
+  inline double getMemoryPerCPU() { return memoryPerCPU_; };
+  inline double getWorkPerCPU() { return workPerCPU_; };
+  inline double getTenantUnitMemoryPerCore() { return tenantUnitMemory_ / tenantUnitCores_; };
+  inline double getTenantUnitMemory() { return tenantUnitMemory_; };
 
-  inline ULng32 getTotalCoresInTenant()
-  {
+  inline ULng32 getTotalCoresInTenant() {
     DCMPASSERT(tenantTotalCores_ > 0);
     return tenantTotalCores_;
   }
 
-  inline ULng32 getTenantUnitCores()
-  {
-    return tenantUnitCores_; 
-  };
-  inline Lng32 getAdjustedDegreeOfParallelism()
-  {
-    return adjustedDegreeOfParallelism_;
-  };
-  inline Lng32 getDefaultDegreeOfParallelism()
-  {
-    return defaultDegreeOfParallelism_;
-  };
-  inline Lng32 getMaximumDegreeOfParallelism()
-  {
-    return maximumDegreeOfParallelism_;
-  };
-  inline Lng32 getMinimumESPParallelism()
-  {
-    return minimumESPParallelism_;
-  };
-  inline Lng32 getTotalNumberOfCPUs()
-  {
-    return totalNumberOfCPUs_;
-  };
-  inline Lng32 getTotalNumberOfNodes()
-  {
-    return totalNumberOfNodes_;
-  };
-  inline NABoolean isJoinToTSJRuleNeededOnPass1()
-  {
-    if (CmpCommon::getDefault(COMP_BOOL_71) != DF_ON)
-      return TRUE;
+  inline ULng32 getTenantUnitCores() { return tenantUnitCores_; };
+  inline Lng32 getAdjustedDegreeOfParallelism() { return adjustedDegreeOfParallelism_; };
+  inline Lng32 getDefaultDegreeOfParallelism() { return defaultDegreeOfParallelism_; };
+  inline Lng32 getMaximumDegreeOfParallelism() { return maximumDegreeOfParallelism_; };
+  inline Lng32 getMinimumESPParallelism() { return minimumESPParallelism_; };
+  inline Lng32 getTotalNumberOfCPUs() { return totalNumberOfCPUs_; };
+  inline Lng32 getTotalNumberOfNodes() { return totalNumberOfNodes_; };
+  inline NABoolean isJoinToTSJRuleNeededOnPass1() {
+    if (CmpCommon::getDefault(COMP_BOOL_71) != DF_ON) return TRUE;
     return enableJoinToTSJRuleOnPass1_;
   };
-  inline NABoolean areTriggersPresent()
-  {
-    return triggersPresent_;
-  };
-  inline NABoolean isCrossProductControlEnabled()
-  {
-    return enableCrossProductControl_;
-  };
-  inline NABoolean isNestedJoinControlEnabled()
-  {
-    return enableNestedJoinControl_;
-  };
-  inline NABoolean isZigZagControlEnabled()
-  {
-    return enableZigZagControl_;
-  };
-  inline NABoolean isMergeJoinControlEnabled()
-  {
-    return enableMergeJoinControl_;
-  };
-  inline NABoolean isOrderedHashJoinControlEnabled()
-  {
-    return enableOrderedHashJoinControl_;
-  };
-  inline NABoolean isNestedJoinConsidered()
-  {
-    return considerNestedJoin_;
-  };
-  inline NABoolean isHashJoinConsidered()
-  {
-    return considerHashJoin_;
-  };
-  inline NABoolean isHybridHashJoinConsidered()
-  {
-    return considerHybridHashJoin_;
-  };
-  inline NABoolean isOrderedHashJoinConsidered()
-  {
-    return considerOrderedHashJoin_;
-  };
-  inline NABoolean isMergeJoinConsidered()
-  {
-    return considerMergeJoin_;
-  };
-  inline DefaultToken isZigZagTreeConsidered()
-  {
-    return considerZigZagTree_;
-  };
-  inline NABoolean isMinMaxConsidered()
-  {
-	return considerMinMaxOpt_;
-  };
-  inline NABoolean nestedJoinForCrossProducts()
-  {
-    return nestedJoinForCrossProducts_;
-  };
+  inline NABoolean areTriggersPresent() { return triggersPresent_; };
+  inline NABoolean isCrossProductControlEnabled() { return enableCrossProductControl_; };
+  inline NABoolean isNestedJoinControlEnabled() { return enableNestedJoinControl_; };
+  inline NABoolean isZigZagControlEnabled() { return enableZigZagControl_; };
+  inline NABoolean isMergeJoinControlEnabled() { return enableMergeJoinControl_; };
+  inline NABoolean isOrderedHashJoinControlEnabled() { return enableOrderedHashJoinControl_; };
+  inline NABoolean isNestedJoinConsidered() { return considerNestedJoin_; };
+  inline NABoolean isHashJoinConsidered() { return considerHashJoin_; };
+  inline NABoolean isHybridHashJoinConsidered() { return considerHybridHashJoin_; };
+  inline NABoolean isOrderedHashJoinConsidered() { return considerOrderedHashJoin_; };
+  inline NABoolean isMergeJoinConsidered() { return considerMergeJoin_; };
+  inline DefaultToken isZigZagTreeConsidered() { return considerZigZagTree_; };
+  inline NABoolean isMinMaxConsidered() { return considerMinMaxOpt_; };
+  inline NABoolean nestedJoinForCrossProducts() { return nestedJoinForCrossProducts_; };
 
-  inline NABoolean preferredProbingOrderForNJ()
-  {
-    return preferredProbingOrderForNJ_;
-  };
+  inline NABoolean preferredProbingOrderForNJ() { return preferredProbingOrderForNJ_; };
 
-  inline NABoolean orderedWritesForNJ()
-  {
-    return orderedWritesForNJ_;
-  };
+  inline NABoolean orderedWritesForNJ() { return orderedWritesForNJ_; };
 
-  inline NABoolean joinOrderByUser()
-  {
-    return joinOrderByUser_;
-  };
+  inline NABoolean joinOrderByUser() { return joinOrderByUser_; };
 
-  inline NABoolean ignoreExchangesInCQS()
-  {
-    return ignoreExchangesInCQS_;
-  };
+  inline NABoolean ignoreExchangesInCQS() { return ignoreExchangesInCQS_; };
 
-  inline NABoolean ignoreSortsInCQS()
-  {
-    return ignoreSortsInCQS_;
-  };
+  inline NABoolean ignoreSortsInCQS() { return ignoreSortsInCQS_; };
 
-  inline NABoolean dataFlowOptimization()
-  {
-    return dataFlowOptimization_;
-  };
+  inline NABoolean dataFlowOptimization() { return dataFlowOptimization_; };
 
-  inline NABoolean optimizerHeuristic1()
-  {
-    return optimizerHeuristic1_;
-  };
-  inline NABoolean optimizerHeuristic2()
-  {
-    return optimizerHeuristic2_;
-  };
-  inline NABoolean optimizerHeuristic3()
-  {
-    return optimizerHeuristic3_;
-  };
-  inline NABoolean optimizerHeuristic4()
-  {
-    return optimizerHeuristic4_;
-  };
-  inline NABoolean optimizerHeuristic5()
-  {
-    return optimizerHeuristic5_;
-  };
-  inline Lng32 getMJEnumLimit()
-  {
-    return level1MJEnumLimit_;
-  };
-  inline void setInitialMemory()
-  {
+  inline NABoolean optimizerHeuristic1() { return optimizerHeuristic1_; };
+  inline NABoolean optimizerHeuristic2() { return optimizerHeuristic2_; };
+  inline NABoolean optimizerHeuristic3() { return optimizerHeuristic3_; };
+  inline NABoolean optimizerHeuristic4() { return optimizerHeuristic4_; };
+  inline NABoolean optimizerHeuristic5() { return optimizerHeuristic5_; };
+  inline Lng32 getMJEnumLimit() { return level1MJEnumLimit_; };
+  inline void setInitialMemory() {
     optInitialMemory_ = 0;
 
-    if (CmpCommon::getDefault(COMP_BOOL_160) == DF_OFF)
-    {
+    if (CmpCommon::getDefault(COMP_BOOL_160) == DF_OFF) {
       optInitialMemory_ = (CmpCommon::statementHeap())->getAllocSize();
     }
   }
-  inline Lng32 getMemUsed()
-  {
+  inline Lng32 getMemUsed() {
     UInt32 currentMem = (CmpCommon::statementHeap())->getAllocSize();
     UInt32 memUsed = currentMem - MINOF(currentMem, (UInt32)optInitialMemory_);
-    memUsed /= (1024*1024);
+    memUsed /= (1024 * 1024);
     return memUsed;
   }
-  inline void setOriginalOptimizationBudget(double budget)
-  {
-    originalOptimizationBudget_ = budget;
-  }
-  inline double getOriginalOptimizationBudget()
-  {
-    return originalOptimizationBudget_;
-  }
-  inline void setOptimizationBudget(double budget)
-  {
-    optimizationBudget_ = budget;
-  }
-  inline double getOptimizationBudget()
-  {
-    return optimizationBudget_;
-  }
-  inline Lng32 maxDepthToCheckForCyclicPlan()
-  {
-    return maxDepthToCheckForCyclicPlan_;
-  }
-  inline Lng32 memUsageTaskThreshold()
-  {
-    return memUsageTaskThreshold_;
-  }
-  inline Lng32 memUsageTaskInterval()
-  {
-    return memUsageTaskInterval_;
-  }
-  inline Lng32 getMemUsageSafetyNet()
-  {
-    return memUsageSafetyNet_;
-  }
-  inline double getMemUsageOptPassFactor()
-  {
-    return memUsageOptPassFactor_;
-  }
-  inline double getMemUsageNiceContextFactor()
-  {
-    return memUsageNiceContextFactor_;
-  }
-  inline DefaultToken attemptESPParallelism()
-  {
-    return attemptESPParallelism_;
-  };
+  inline void setOriginalOptimizationBudget(double budget) { originalOptimizationBudget_ = budget; }
+  inline double getOriginalOptimizationBudget() { return originalOptimizationBudget_; }
+  inline void setOptimizationBudget(double budget) { optimizationBudget_ = budget; }
+  inline double getOptimizationBudget() { return optimizationBudget_; }
+  inline Lng32 maxDepthToCheckForCyclicPlan() { return maxDepthToCheckForCyclicPlan_; }
+  inline Lng32 memUsageTaskThreshold() { return memUsageTaskThreshold_; }
+  inline Lng32 memUsageTaskInterval() { return memUsageTaskInterval_; }
+  inline Lng32 getMemUsageSafetyNet() { return memUsageSafetyNet_; }
+  inline double getMemUsageOptPassFactor() { return memUsageOptPassFactor_; }
+  inline double getMemUsageNiceContextFactor() { return memUsageNiceContextFactor_; }
+  inline DefaultToken attemptESPParallelism() { return attemptESPParallelism_; };
 
-  inline NABoolean maxParallelismIsFeasible()
-  {
-    return maxParallelismIsFeasible_;
-  };
+  inline NABoolean maxParallelismIsFeasible() { return maxParallelismIsFeasible_; };
 
-  inline NABoolean isOrOptimizationEnabled()
-  {
-    return enableOrOptimization_;
-  };
+  inline NABoolean isOrOptimizationEnabled() { return enableOrOptimization_; };
 
-  inline float numberOfPartitionsDeviation()
-  {
-    return numberOfPartitionsDeviation_;
-  };
-  inline double updatedBytesPerESP()
-  {
-    return updatedBytesPerESP_;
-  };
-  inline float numberOfRowsParallelThreshold()
-  {
-    return numberOfRowsParallelThreshold_;
-  };
-  inline NABoolean deviationType2JoinsSystem()
-  {
-    return deviationType2JoinsSystem_;
-  };
-  inline float numOfPartsDeviationType2Joins()
-  {
-    return numOfPartsDeviationType2Joins_;
-  };
-  inline NABoolean parallelHeuristic1()
-  {
-    return parallelHeuristic1_;
-  };
-  inline NABoolean parallelHeuristic2()
-  {
-    return parallelHeuristic2_;
-  };
-  inline NABoolean parallelHeuristic3()
-  {
-    return parallelHeuristic3_;
-  };
-  inline NABoolean parallelHeuristic4()
-  {
-    return parallelHeuristic4_;
-  };
-  inline NABoolean optimizerPruning()
-  {
-    return optimizerPruning_;
-  };
-  inline NABoolean OPHpruneWhenCLExceeded()
-  {
-    return OPHpruneWhenCLExceeded_;
-  };
-  inline NABoolean OPHreduceCLfromCandidates()
-  {
-    return OPHreduceCLfromCandidates_;
-  };
-  inline NABoolean OPHreduceCLfromPass1Solution()
-  {
-    return OPHreduceCLfromPass1Solution_;
-  };
-  inline NABoolean OPHreuseFailedPlan()
-  {
-    return OPHreuseFailedPlan_;
-  };
-  inline NABoolean OPHreuseOperatorCost()
-  {
-    return OPHreuseOperatorCost_;
-  };
-  inline NABoolean OPHskipOGTforSharedGCfailedCL()
-  {
-    return OPHskipOGTforSharedGCfailedCL_;
-  };
-  inline NABoolean OPHuseCandidatePlans()
-  {
-    return OPHuseCandidatePlans_;
-  };
-  inline NABoolean OPHuseCompCostThreshold()
-  {
-    return OPHuseCompCostThreshold_;
-  };
-  inline NABoolean OPHuseConservativeCL()
-  {
-    return OPHuseConservativeCL_;
-  };
-  inline NABoolean OPHuseEnforcerPlanPromotion()
-  {
-    return OPHuseEnforcerPlanPromotion_;
-  };
-  inline NABoolean OPHuseFailedPlanCost()
-  {
-    return OPHuseFailedPlanCost_;
-  };
-  inline NABoolean OPHuseNiceContext()
-  {
-    return OPHuseNiceContext_;
-  };
-  inline NABoolean OPHusePWSflagForContext()
-  {
-    return OPHusePWSflagForContext_;
-  };
-  inline NABoolean OPHuseCachedElapsedTime()
-  {
-    return OPHuseCachedElapsedTime_;
-  };
-  inline NABoolean OPHexitNJcrContChiLoop()
-  {
-    return OPHexitNJcrContChiLoop_;
-  };
-  inline NABoolean OPHexitMJcrContChiLoop()
-  {
-    return OPHexitMJcrContChiLoop_;
-  };
-  inline NABoolean OPHexitHJcrContChiLoop()
-  {
-    return OPHexitHJcrContChiLoop_;
-  };
-  inline NABoolean compileTimeMonitor()
-  {
-    return compileTimeMonitor_;
-  };
-  inline NABoolean reuseBasicCost()
-  {
-    return reuseBasicCost_;
-  };
-  inline void setReuseBasicCost(NABoolean v)
-  {
-    reuseBasicCost_ = v;
-  };
-  inline NABoolean randomPruningOccured()
-  {
-    return randomPruningOccured_;
-  };
-  inline NABoolean pushDownDP2Requested()
-  {
-    return pushDownDP2Requested_;
-  };
-  inline NABoolean reduceBaseHistograms()
-  {
-  	return reduceBaseHistograms_;
-  };
-  inline NABoolean reduceIntermediateHistograms()
-  {
-   	return reduceIntermediateHistograms_;
-  };
-  inline NABoolean preFetchHistograms()
-  {
-   	return preFetchHistograms_;
-  };
-  inline Int64 siKeyGCinterval()
-  {
-    return siKeyGCinterval_;
-  };
+  inline float numberOfPartitionsDeviation() { return numberOfPartitionsDeviation_; };
+  inline double updatedBytesPerESP() { return updatedBytesPerESP_; };
+  inline float numberOfRowsParallelThreshold() { return numberOfRowsParallelThreshold_; };
+  inline NABoolean deviationType2JoinsSystem() { return deviationType2JoinsSystem_; };
+  inline float numOfPartsDeviationType2Joins() { return numOfPartsDeviationType2Joins_; };
+  inline NABoolean parallelHeuristic1() { return parallelHeuristic1_; };
+  inline NABoolean parallelHeuristic2() { return parallelHeuristic2_; };
+  inline NABoolean parallelHeuristic3() { return parallelHeuristic3_; };
+  inline NABoolean parallelHeuristic4() { return parallelHeuristic4_; };
+  inline NABoolean optimizerPruning() { return optimizerPruning_; };
+  inline NABoolean OPHpruneWhenCLExceeded() { return OPHpruneWhenCLExceeded_; };
+  inline NABoolean OPHreduceCLfromCandidates() { return OPHreduceCLfromCandidates_; };
+  inline NABoolean OPHreduceCLfromPass1Solution() { return OPHreduceCLfromPass1Solution_; };
+  inline NABoolean OPHreuseFailedPlan() { return OPHreuseFailedPlan_; };
+  inline NABoolean OPHreuseOperatorCost() { return OPHreuseOperatorCost_; };
+  inline NABoolean OPHskipOGTforSharedGCfailedCL() { return OPHskipOGTforSharedGCfailedCL_; };
+  inline NABoolean OPHuseCandidatePlans() { return OPHuseCandidatePlans_; };
+  inline NABoolean OPHuseCompCostThreshold() { return OPHuseCompCostThreshold_; };
+  inline NABoolean OPHuseConservativeCL() { return OPHuseConservativeCL_; };
+  inline NABoolean OPHuseEnforcerPlanPromotion() { return OPHuseEnforcerPlanPromotion_; };
+  inline NABoolean OPHuseFailedPlanCost() { return OPHuseFailedPlanCost_; };
+  inline NABoolean OPHuseNiceContext() { return OPHuseNiceContext_; };
+  inline NABoolean OPHusePWSflagForContext() { return OPHusePWSflagForContext_; };
+  inline NABoolean OPHuseCachedElapsedTime() { return OPHuseCachedElapsedTime_; };
+  inline NABoolean OPHexitNJcrContChiLoop() { return OPHexitNJcrContChiLoop_; };
+  inline NABoolean OPHexitMJcrContChiLoop() { return OPHexitMJcrContChiLoop_; };
+  inline NABoolean OPHexitHJcrContChiLoop() { return OPHexitHJcrContChiLoop_; };
+  inline NABoolean compileTimeMonitor() { return compileTimeMonitor_; };
+  inline NABoolean reuseBasicCost() { return reuseBasicCost_; };
+  inline void setReuseBasicCost(NABoolean v) { reuseBasicCost_ = v; };
+  inline NABoolean randomPruningOccured() { return randomPruningOccured_; };
+  inline NABoolean pushDownDP2Requested() { return pushDownDP2Requested_; };
+  inline NABoolean reduceBaseHistograms() { return reduceBaseHistograms_; };
+  inline NABoolean reduceIntermediateHistograms() { return reduceIntermediateHistograms_; };
+  inline NABoolean preFetchHistograms() { return preFetchHistograms_; };
+  inline Int64 siKeyGCinterval() { return siKeyGCinterval_; };
 
   static NABoolean cacheHistograms();
 
-  inline double joinCardLowBound()
-  {
-    return joinCardLowBound_;
-  };
-  inline NABoolean ustatAutomation()
-  {
-    return ustatAutomation_;
-  };
-  inline NABoolean histMCStatsNeeded()
-  {
-  	return histMCStatsNeeded_;
-  };
-  inline double histDefaultSampleSize()
-  {
-    return histDefaultSampleSize_;
-  }
-  inline void setHistDefaultSampleSize(double val)
-  {
-    histDefaultSampleSize_ = val;
-  }
-  inline NABoolean histSkipMCUecForNonKeyCols()
-  {
-  	return histSkipMCUecForNonKeyCols_;
-  };
-  inline Lng32 histMissingStatsWarningLevel()
-  {
-      return histMissingStatsWarningLevel_;
-  }
-  inline NABoolean histOptimisticCardOpt()
-  {
-    return histOptimisticCardOpt_;
-  }
-  inline ULng32 histTupleFreqValListThreshold()
-  {
-    return histTupleFreqValListThreshold_;
-  }
-  inline ULng32 histNumOfAddDaysToExtrapolate()
-  {
-    return histNumOfAddDaysToExtrapolate_;
-  }
-  inline NABoolean incorporateSkewInCosting()
-  {
-      return incorporateSkewInCosting_;
-  }
-  inline ULng32 maxSkewValuesDetected()
-  {
-	return maxSkewValuesDetected_;
-  }
-  inline double skewSensitivityThreshold()
-  {
-	return skewSensitivityThreshold_;
-  }
-  inline NABoolean histAssumeIndependentReduction()
-  {
-      return histAssumeIndependentReduction_;
-  }
-  inline NABoolean histUseSampleForCardEst()
-  {
-    return histUseSampleForCardEst_;
-  }
+  inline double joinCardLowBound() { return joinCardLowBound_; };
+  inline NABoolean ustatAutomation() { return ustatAutomation_; };
+  inline NABoolean histMCStatsNeeded() { return histMCStatsNeeded_; };
+  inline double histDefaultSampleSize() { return histDefaultSampleSize_; }
+  inline void setHistDefaultSampleSize(double val) { histDefaultSampleSize_ = val; }
+  inline NABoolean histSkipMCUecForNonKeyCols() { return histSkipMCUecForNonKeyCols_; };
+  inline Lng32 histMissingStatsWarningLevel() { return histMissingStatsWarningLevel_; }
+  inline NABoolean histOptimisticCardOpt() { return histOptimisticCardOpt_; }
+  inline ULng32 histTupleFreqValListThreshold() { return histTupleFreqValListThreshold_; }
+  inline ULng32 histNumOfAddDaysToExtrapolate() { return histNumOfAddDaysToExtrapolate_; }
+  inline NABoolean incorporateSkewInCosting() { return incorporateSkewInCosting_; }
+  inline ULng32 maxSkewValuesDetected() { return maxSkewValuesDetected_; }
+  inline double skewSensitivityThreshold() { return skewSensitivityThreshold_; }
+  inline NABoolean histAssumeIndependentReduction() { return histAssumeIndependentReduction_; }
+  inline NABoolean histUseSampleForCardEst() { return histUseSampleForCardEst_; }
 
-  void setHistUseSampleForCardEst(NABoolean v)
-  {
-    histUseSampleForCardEst_ = v;
-  }
+  void setHistUseSampleForCardEst(NABoolean v) { histUseSampleForCardEst_ = v; }
 
-  inline Lng32 partitioningSchemeSharing()
-  {
-    return partitioningSchemeSharing_;
-  };
-  inline double riskPremiumNJ()
-  {
-    return riskPremiumNJ_;
-  };
-  inline double riskPremiumMJ()
-  {
-    return riskPremiumMJ_;
-  };
-  double riskPremiumSerial() ;
+  inline Lng32 partitioningSchemeSharing() { return partitioningSchemeSharing_; };
+  inline double riskPremiumNJ() { return riskPremiumNJ_; };
+  inline double riskPremiumMJ() { return riskPremiumMJ_; };
+  double riskPremiumSerial();
 
   inline double maxMaxCardinality() { return maxMaxCardinality_; }
 
-  inline double robustHjToNjFudgeFactor()
-  {
-    return robustHjToNjFudgeFactor_;
-  };
-  inline Lng32 robustSortGroupBy()
-  {
-    return robustSortGroupBy_;
-  };
-  inline DefaultToken robustQueryOptimization()
-  {
-    return robustQueryOptimization_;
-  };
+  inline double robustHjToNjFudgeFactor() { return robustHjToNjFudgeFactor_; };
+  inline Lng32 robustSortGroupBy() { return robustSortGroupBy_; };
+  inline DefaultToken robustQueryOptimization() { return robustQueryOptimization_; };
 
-  inline double defSelForRangePred()
-  {
+  inline double defSelForRangePred() {
     if (defSelForRangePred_ < MIN_SELECTIVITY)
-      return MIN_SELECTIVITY ;
+      return MIN_SELECTIVITY;
     else
       return defSelForRangePred_;
   };
 
-  inline double defSelForWildCard()
-  {
+  inline double defSelForWildCard() {
     if (defSelForWildCard_ < MIN_SELECTIVITY)
-      return MIN_SELECTIVITY ;
+      return MIN_SELECTIVITY;
     else
       return defSelForWildCard_;
   };
 
-    inline double defSelForNoWildCard()
-  {
+  inline double defSelForNoWildCard() {
     if (defSelForNoWildCard_ < MIN_SELECTIVITY)
-      return MIN_SELECTIVITY ;
+      return MIN_SELECTIVITY;
     else
       return defSelForNoWildCard_;
   };
 
-  inline double defNoStatsUec()
-  {
-    return defNoStatsUec_;
-  };
+  inline double defNoStatsUec() { return defNoStatsUec_; };
 
-  inline void setNoStatsUec(double uec)
-  {
-    defNoStatsUec_ = uec;
-  };
+  inline void setNoStatsUec(double uec) { defNoStatsUec_ = uec; };
 
-  inline double defNoStatsRowCount()
-  {
-    return defNoStatsRowCount_;
-  };
+  inline double defNoStatsRowCount() { return defNoStatsRowCount_; };
 
-  inline double baseHistogramReductionFF()
-  {
-    return baseHistogramReductionFF_;
-  };
-  inline double intermediateHistogramReductionFF()
-  {
-    return intermediateHistogramReductionFF_;
-  };
-  inline double histogramReductionConstantAlpha()
-  {
-    return histogramReductionConstantAlpha_;
-  };
+  inline double baseHistogramReductionFF() { return baseHistogramReductionFF_; };
+  inline double intermediateHistogramReductionFF() { return intermediateHistogramReductionFF_; };
+  inline double histogramReductionConstantAlpha() { return histogramReductionConstantAlpha_; };
 
-  NABoolean pruneByOptDefaults(Rule* rule, RelExpr* relExpr);
-  NABoolean pruneByOptLevel(Rule* rule, RelExpr* relExpr);
-  NABoolean pruneByRProbability(Rule* rule, RelExpr* relExpr);
-  NABoolean pruneByPotential(Rule* rule, RelExpr* relExpr);
-  Int32 optimizerGracefulTermination()
-  {
-    return optimizerGracefulTermination_;
-  };
+  NABoolean pruneByOptDefaults(Rule *rule, RelExpr *relExpr);
+  NABoolean pruneByOptLevel(Rule *rule, RelExpr *relExpr);
+  NABoolean pruneByRProbability(Rule *rule, RelExpr *relExpr);
+  NABoolean pruneByPotential(Rule *rule, RelExpr *relExpr);
+  Int32 optimizerGracefulTermination() { return optimizerGracefulTermination_; };
 
-  RequiredResources * estimateRequiredResources(RelExpr* rootExpr);
-  // initialize portion of the cache based on ActiveSchemaDB's optDefaults 
+  RequiredResources *estimateRequiredResources(RelExpr *rootExpr);
+  // initialize portion of the cache based on ActiveSchemaDB's optDefaults
   // and the pass-in argument rootExpr
-  void initialize(RelExpr* rootExpr);
+  void initialize(RelExpr *rootExpr);
 
-  Int32 getRulePriority(Rule* rule);
+  Int32 getRulePriority(Rule *rule);
 
-
-  double getReductionToPushGBPastTSJ()
-  {
-    return reduction_to_push_gb_past_tsj_;
-  };
+  double getReductionToPushGBPastTSJ() { return reduction_to_push_gb_past_tsj_; };
   // -----------------------------------------------------------------------
   // Cost-related methods:
   // -----------------------------------------------------------------------
@@ -870,35 +444,25 @@ public:
   // initialize all cost related members here!!
   void initializeCostInfo();
 
-  double getTimePerCPUInstructions()
-  { return calibratedMSCF_ET_CPU_;}
+  double getTimePerCPUInstructions() { return calibratedMSCF_ET_CPU_; }
 
-  double getTimePerSeqKb()
-  { return calibratedMSCF_ET_IO_TRANSFER_;}
+  double getTimePerSeqKb() { return calibratedMSCF_ET_IO_TRANSFER_; }
 
-  double getTimePerSeek()
-  { return calibratedMSCF_ET_NUM_IO_SEEKS_;}
+  double getTimePerSeek() { return calibratedMSCF_ET_NUM_IO_SEEKS_; }
 
-  double getTimePerKbOfLocalMsg()
-  { return calibratedMSCF_ET_LOCAL_MSG_TRANSFER_;}
+  double getTimePerKbOfLocalMsg() { return calibratedMSCF_ET_LOCAL_MSG_TRANSFER_; }
 
-  double getTimePerLocalMsg()
-  { return calibratedMSCF_ET_NUM_LOCAL_MSGS_;}
+  double getTimePerLocalMsg() { return calibratedMSCF_ET_NUM_LOCAL_MSGS_; }
 
-  double getTimePerKbOfRemoteMsg()
-  { return calibratedMSCF_ET_REMOTE_MSG_TRANSFER_;}
+  double getTimePerKbOfRemoteMsg() { return calibratedMSCF_ET_REMOTE_MSG_TRANSFER_; }
 
-  double getTimePerRemoteMsg()
-  { return calibratedMSCF_ET_NUM_REMOTE_MSGS_;}
+  double getTimePerRemoteMsg() { return calibratedMSCF_ET_NUM_REMOTE_MSGS_; }
 
-  double getMemoryLimitPerCPU()
-  { return calculatedMEMORY_LIMIT_PER_CPU_; }
+  double getMemoryLimitPerCPU() { return calculatedMEMORY_LIMIT_PER_CPU_; }
 
-  NABoolean useHighFreqInfo()
-  { return useHighFreqInfo_; }
+  NABoolean useHighFreqInfo() { return useHighFreqInfo_; }
 
-  inline void setMemoryLimitPerCPU(double memLimit)
-  {calculatedMEMORY_LIMIT_PER_CPU_ = memLimit;}
+  inline void setMemoryLimitPerCPU(double memLimit) { calculatedMEMORY_LIMIT_PER_CPU_ = memLimit; }
 
   NABoolean useNewMdam();
 
@@ -918,34 +482,31 @@ public:
   void recalibrateLocalMsgTransfer();
   void recalibrateRemoteMsg();
   void recalibrateRemoteMsgTransfer();
-  double recalibrate(Int32 calEnum
-                            ,Int32 baseEnum, Int32 endEnum);
+  double recalibrate(Int32 calEnum, Int32 baseEnum, Int32 endEnum);
 
-
-  NABoolean newMemoryLimit(RelExpr * rootExpr,
-                                  NABoolean recompute );
+  NABoolean newMemoryLimit(RelExpr *rootExpr, NABoolean recompute);
 
   NABoolean isRuleDisabled(ULng32 ruleBitPosition);
 
-  void setCurrentTask( CascadesTask *t ) { currentTask_ = t; }
+  void setCurrentTask(CascadesTask *t) { currentTask_ = t; }
   ULng32 updateGetMemoExprCount() { return ++memoExprCount_; }
 
   // Query Strategizer Params
   // used for explain
   // BEGIN
-  NABoolean useStrategizer() {return useStrategizer_; }
+  NABoolean useStrategizer() { return useStrategizer_; }
   double getCpuCost() { return cpuCost_; };
   double getScanCost() { return scanCost_; };
   double getTotalCost() { return (cpuCost_ + scanCost_); };
   double getBudgetFactor() { return budgetFactor_; };
   double getPass1Tasks() { return pass1Tasks_; };
   double getTaskFactor() { return taskFactor_; };
-  double getNComplexity() {return nComplexity_; };
+  double getNComplexity() { return nComplexity_; };
   double get2NComplexity() { return n_2Complexity_; };
   double getN2Complexity() { return n2Complexity_; };
   double getN3Complexity() { return n3Complexity_; };
   double getExhaustiveComplexity() { return exhaustiveComplexity_; };
-  
+
   void setCpuCost(double cpuCost) { cpuCost_ = cpuCost; };
   void setScanCost(double scanCost) { scanCost_ = scanCost; };
   void setBudgetFactor(double budgetFactor) { budgetFactor_ = budgetFactor; };
@@ -961,10 +522,8 @@ public:
   Lng32 getRequiredESPs() { return requiredESPs_; }
   void setRequiredESPs(Lng32 x) { requiredESPs_ = x; }
 
-  const IndexDesc* getRequiredScanDescForFastDelete() 
-              { return requiredScanDescForFastDelete_; }
-  void setRequiredScanDescForFastDelete(const IndexDesc* x) 
-              { requiredScanDescForFastDelete_ = x; }
+  const IndexDesc *getRequiredScanDescForFastDelete() { return requiredScanDescForFastDelete_; }
+  void setRequiredScanDescForFastDelete(const IndexDesc *x) { requiredScanDescForFastDelete_ = x; }
 
   NABoolean isSideTreeInsert() { return isSideTreeInsert_; }
   void setSideTreeInsert(NABoolean x) { isSideTreeInsert_ = x; }
@@ -977,10 +536,9 @@ public:
   // of random disk I/Os (normalize all values to 20 ms and add them up).
   // Space consumption (memory and temp disk files) doesn't count.
   // -----------------------------------------------------------------------
-  CostWeight* getDefaultCostWeight() const { return defaultCostWeight_; }
-  PerformanceGoal* getDefaultPerformanceGoal() const { return defaultPerformanceGoal_; }
-  PerformanceGoal* getResourcePerformanceGoal() const { return resourcePerformanceGoal_; }
-
+  CostWeight *getDefaultCostWeight() const { return defaultCostWeight_; }
+  PerformanceGoal *getDefaultPerformanceGoal() const { return defaultPerformanceGoal_; }
+  PerformanceGoal *getResourcePerformanceGoal() const { return resourcePerformanceGoal_; }
 
   ULng32 getNumESPsPerQuery() const { return numESPsPerQuery_; }
 
@@ -990,13 +548,13 @@ public:
   NABoolean minMaxINlistOpt() { return minMaxINlistOpt_; };
   NABoolean rangeOptimizedScan() { return rangeOptimizedScan_; };
 
-protected:
-   NABoolean InitCostVariables();
-   void CleanupCostVariables();
+ protected:
+  NABoolean InitCostVariables();
+  void CleanupCostVariables();
 
-  void computeNumESPsForQuery(const RequiredResources* requiredResources);
+  void computeNumESPsForQuery(const RequiredResources *requiredResources);
 
-private:
+ private:
   optLevelEnum optLevel_;
   optLevelEnum indexEliminationLevel_;
   double mdamSelectionDefault_;
@@ -1025,7 +583,7 @@ private:
   Lng32 level1ImmunityLimit_;
   Lng32 level1MJEnumLimit_;
   ULng32 numOfBlocksPerAccess_;
-  Int32  numTables_;
+  Int32 numTables_;
   double queryComplexity_;
   double queryMJComplexity_;
   NABoolean isComplexMJQuery_;
@@ -1039,23 +597,23 @@ private:
   double workPerCPU_;
 
   // memory in bytes in each tenant unit.
-  double tenantUnitMemory_; 
+  double tenantUnitMemory_;
   // # of cores in each tenant unit.
-  ULng32 tenantUnitCores_; 
+  ULng32 tenantUnitCores_;
 
   // total # of cores for all tenant units.
-  ULng32 tenantTotalCores_; 
-              
+  ULng32 tenantTotalCores_;
+
   Lng32 adjustedDegreeOfParallelism_;
   Lng32 defaultDegreeOfParallelism_;
   Lng32 maximumDegreeOfParallelism_;
   Lng32 minimumESPParallelism_;
   Lng32 totalNumberOfCPUs_;
 
-  // total number of nodes available for this query. 
+  // total number of nodes available for this query.
   // In a tenant setup, its value can be smaller than
   // the total number of physical nodes in the cluster.
-  Lng32 totalNumberOfNodes_; 
+  Lng32 totalNumberOfNodes_;
 
   NABoolean enableJoinToTSJRuleOnPass1_;
   NABoolean triggersPresent_;
@@ -1214,7 +772,7 @@ private:
 
   CascadesTask *currentTask_;
   ULng32 memoExprCount_;
-  
+
   // Query Strategizer Params
   // used for explain
   // BEGIN
@@ -1228,27 +786,27 @@ private:
   double n_2Complexity_;
   double n2Complexity_;
   double n3Complexity_;
-  double exhaustiveComplexity_; 
+  double exhaustiveComplexity_;
   // END
 
   // requred ESPs and scan indexDesc involved - for fast delete used in parallel
   // purge data
   Lng32 requiredESPs_;
-              
-  // number of ESPs per query, set during resource estimation 
+
+  // number of ESPs per query, set during resource estimation
   // OptDefaults::estimateRequiredResources().
   float numESPsPerQuery_;
 
-  const IndexDesc* requiredScanDescForFastDelete_;
+  const IndexDesc *requiredScanDescForFastDelete_;
 
   NABoolean isSideTreeInsert_;
 
-  CostWeight* defaultCostWeight_;
-  PerformanceGoal* defaultPerformanceGoal_;
-  PerformanceGoal* resourcePerformanceGoal_;
+  CostWeight *defaultCostWeight_;
+  PerformanceGoal *defaultPerformanceGoal_;
+  PerformanceGoal *resourcePerformanceGoal_;
 
-  CollHeap* heap_;
-}; // class OptDefaults
+  CollHeap *heap_;
+};  // class OptDefaults
 
 //<pb>
 // -----------------------------------------------------------------------
@@ -1274,28 +832,24 @@ private:
 // expression as well as its Cost. It also contains a RuleSubset
 // that indicates the set of Rules that have been applied.
 // -----------------------------------------------------------------------
-class CascadesPlan : public ReferenceCounter
-{
-public:
+class CascadesPlan : public ReferenceCounter {
+ public:
   // ---------------------------------------------------------------------
   // Constructor and Destructor.
   // ---------------------------------------------------------------------
-  CascadesPlan(RelExpr * physExpr, Context * context = NULL);
+  CascadesPlan(RelExpr *physExpr, Context *context = NULL);
 
   virtual ~CascadesPlan();
 
   // ---------------------------------------------------------------------
   // Accessor functions.
   // ---------------------------------------------------------------------
-  inline RelExpr * getPhysicalExpr() const           { return physExpr_; }
+  inline RelExpr *getPhysicalExpr() const { return physExpr_; }
 
-  inline PhysicalProperty * getPhysicalProperty() const
-                                                     { return physProp_; }
-  inline const Cost * getOperatorCost() const
-  { return operatorCost_; }
+  inline PhysicalProperty *getPhysicalProperty() const { return physProp_; }
+  inline const Cost *getOperatorCost() const { return operatorCost_; }
 
-  inline const Cost * getRollUpCost() const
-  { return rollUpCost_; }
+  inline const Cost *getRollUpCost() const { return rollUpCost_; }
 
   inline CostScalar getPlanElapsedTime() { return planElapsedTime_; }
   inline void setPlanElapsedTime(ElapsedTime et) { planElapsedTime_ = et; }
@@ -1303,61 +857,56 @@ public:
   inline NABoolean exceededCostLimit() { return planExceededCostLimit_; }
   inline void setExceededCostLimit() { planExceededCostLimit_ = TRUE; }
 
-  inline Context * getContext() const                 { return context_; }
+  inline Context *getContext() const { return context_; }
 
   // Get the pass numberwhen the plan was created
-  inline Lng32 getCreationPassNumber() const
-  { return passNoWhenCreated_; }
+  inline Lng32 getCreationPassNumber() const { return passNoWhenCreated_; }
 
   // returns TRUE if the plan succeeded in the current pass, else
   // it returns FALSE
-  inline NABoolean succeededInCurrentPass() const
-  { return (succeededInPassNo_ == GlobalRuleSet->getCurrentPassNumber()); }
+  inline NABoolean succeededInCurrentPass() const {
+    return (succeededInPassNo_ == GlobalRuleSet->getCurrentPassNumber());
+  }
 
   // returns TRUE if the plan failed in the current pass, else
   // it returns FALSE
-  inline NABoolean failedInCurrentPass() const
-  { return (failedInPassNo_ == GlobalRuleSet->getCurrentPassNumber()); }
+  inline NABoolean failedInCurrentPass() const { return (failedInPassNo_ == GlobalRuleSet->getCurrentPassNumber()); }
 
-  inline Context * getContextForChild(Lng32 childIndex) const
-         { if ( childIndex >= Lng32 (childContexts_.entries()) )
-             return NULL;
-           else
-             return childContexts_[childIndex]; }
+  inline Context *getContextForChild(Lng32 childIndex) const {
+    if (childIndex >= Lng32(childContexts_.entries()))
+      return NULL;
+    else
+      return childContexts_[childIndex];
+  }
 
-  inline NABoolean isBigMemoryOperator() const          { return isBMO_; }
+  inline NABoolean isBigMemoryOperator() const { return isBMO_; }
 
   // ---------------------------------------------------------------------
   // Mutator functions.
   // ---------------------------------------------------------------------
-  inline void setPhysicalProperty(PhysicalProperty *ppv)
-  { physProp_ = ppv; }
+  inline void setPhysicalProperty(PhysicalProperty *ppv) { physProp_ = ppv; }
 
   void setOperatorCost(Cost *cost);
   void setRollUpCost(Cost *cost);
 
-  inline void setContextForChild(Lng32 childIndex, Context *context)
-  { childContexts_.insertAt(childIndex, context); }
+  inline void setContextForChild(Lng32 childIndex, Context *context) { childContexts_.insertAt(childIndex, context); }
 
-  inline void setSuccessInCurrentPass()
-  { succeededInPassNo_ = GlobalRuleSet->getCurrentPassNumber(); }
+  inline void setSuccessInCurrentPass() { succeededInPassNo_ = GlobalRuleSet->getCurrentPassNumber(); }
 
-  inline void setFailedInCurrentPass()
-  { failedInPassNo_ = GlobalRuleSet->getCurrentPassNumber(); }
+  inline void setFailedInCurrentPass() { failedInPassNo_ = GlobalRuleSet->getCurrentPassNumber(); }
 
-  inline void setBigMemoryOperator(NABoolean isBMO)     { isBMO_ = isBMO; }
+  inline void setBigMemoryOperator(NABoolean isBMO) { isBMO_ = isBMO; }
 
   // ---------------------------------------------------------------------
   // Methods for accessing solutions from the child contexts
   // ---------------------------------------------------------------------
-  const CascadesPlan * getSolutionForChild (Lng32 childIndex) const;
+  const CascadesPlan *getSolutionForChild(Lng32 childIndex) const;
 
-  const PhysicalProperty * getPhysicalPropertyForChild (Lng32 childIndex) const;
+  const PhysicalProperty *getPhysicalPropertyForChild(Lng32 childIndex) const;
 
-  const Cost * getCostForChild(Lng32 childIndex) const;
+  const Cost *getCostForChild(Lng32 childIndex) const;
 
-  NABoolean exprOccursInChildTree(RelExpr *newExpr,
-                                  Int32 maxDepth=1) const;
+  NABoolean exprOccursInChildTree(RelExpr *newExpr, Int32 maxDepth = 1) const;
 
   // ---------------------------------------------------------------------
   // Utility methods
@@ -1368,18 +917,17 @@ public:
 
   // GUI display method (defined in DisplayTree.C)
   void displayTree();
-//<pb>
-private:
-
+  //<pb>
+ private:
   // ---------------------------------------------------------------------
   // The physical expression to be optimized.
   // ---------------------------------------------------------------------
-  RelExpr * physExpr_;
+  RelExpr *physExpr_;
 
   // ---------------------------------------------------------------------
   // The physical properties for this plan.
   // ---------------------------------------------------------------------
-  PhysicalProperty * physProp_;
+  PhysicalProperty *physProp_;
 
   // ---------------------------------------------------------------------
   // Does this plan belong to a big memory operator?
@@ -1391,13 +939,13 @@ private:
   // on an estimated degree of parallelism and possibly revised if actual
   // degree of parallelism differs from estimate.
   // ---------------------------------------------------------------------
-  Cost * operatorCost_;
+  Cost *operatorCost_;
 
   // ---------------------------------------------------------------------
   // Cost for the sub-plan rooted at this operator (operator cost combined
   // with the operator's children cost)
   // ---------------------------------------------------------------------
-  Cost * rollUpCost_;
+  Cost *rollUpCost_;
 
   // This is cached value of plan elapsed time. It is used to speed up
   // comparison with costLimit when  OPH_CONSERVATIVE_COST_LIMIT is OFF
@@ -1414,7 +962,7 @@ private:
   // ---------------------------------------------------------------------
   // The context for which this plan was created.
   // ---------------------------------------------------------------------
-  Context * context_;
+  Context *context_;
 
   // ---------------------------------------------------------------------
   // The optimization pass number for which this plan was created
@@ -1435,19 +983,17 @@ private:
   // The optimization goal for each child of the given physical expression
   // that is created using the given context.
   // ---------------------------------------------------------------------
-  ARRAY(Context *) childContexts_; // for phys. Operators
+  ARRAY(Context *) childContexts_;  // for phys. Operators
 
-}; // CascadesPlan
+};  // CascadesPlan
 
 // -----------------------------------------------------------------------
 // Just for convenience: a list collection of CascadesPlan pointers
 // -----------------------------------------------------------------------
 
-class CascadesPlanList : public LIST(CascadesPlan *)
-{
-public:
-  CascadesPlanList(CollHeap* h/*=0*/) : LIST(CascadesPlan *)(h)
-    {  }
+class CascadesPlanList : public LIST(CascadesPlan *) {
+ public:
+  CascadesPlanList(CollHeap *h /*=0*/) : LIST(CascadesPlan *)(h) {}
 };
 //<pb>
 // -----------------------------------------------------------------------
@@ -1476,70 +1022,55 @@ public:
 //   applying transformation rules
 // -----------------------------------------------------------------------
 
-class Context : public NABasicObject
-{
-
-public:
-
+class Context : public NABasicObject {
+ public:
   // constructor (do NOT use this constructor, use CascadesGroup::shareContext()
   // or ExprGroupId::shareContext()!!!!!)
-  Context (CascadesGroupId equivClassId,
-	   const ReqdPhysicalProperty * const reqdPhys,
-           const InputPhysicalProperty* const inputPhys,
-	   const EstLogPropSharedPtr& inputLogProp);
+  Context(CascadesGroupId equivClassId, const ReqdPhysicalProperty *const reqdPhys,
+          const InputPhysicalProperty *const inputPhys, const EstLogPropSharedPtr &inputLogProp);
 
-  virtual ~Context ();
+  virtual ~Context();
 
   // ---------------------------------------------------------------------
   // Accessor methods used by the optimizer outside the Cascades
   // search engine.
   // ---------------------------------------------------------------------
 
-  inline const ReqdPhysicalProperty * getReqdPhysicalProperty() const
-                                                     { return reqdPhys_; }
+  inline const ReqdPhysicalProperty *getReqdPhysicalProperty() const { return reqdPhys_; }
 
-  inline const InputPhysicalProperty* getInputPhysicalProperty() const
-  { return inputPhys_; }
+  inline const InputPhysicalProperty *getInputPhysicalProperty() const { return inputPhys_; }
 
   NABoolean requiresOrder() const;
   NABoolean requiresPartitioning() const;
   NABoolean requiresSpecificLocation() const;
 
-  inline CostLimit* getCostLimit() const            { return costLimit_; }
+  inline CostLimit *getCostLimit() const { return costLimit_; }
 
-  inline CascadesPlan * getPlan() const           { return currentPlan_; }
+  inline CascadesPlan *getPlan() const { return currentPlan_; }
 
-  inline const PhysicalProperty *getPhysicalPropertyForSolution() const
-  {
+  inline const PhysicalProperty *getPhysicalPropertyForSolution() const {
     if (solution_)
       return solution_->getPhysicalProperty();
     else
       return NULL;
   }
 
-  inline const Cost *getCostForSolution() const
-  {
+  inline const Cost *getCostForSolution() const {
     if (solution_)
       return solution_->getRollUpCost();
     else
       return NULL;
   }
 
-  const RelExpr *
-  getPhysicalExprOfSolutionForChild(Lng32 childIndex) const;
+  const RelExpr *getPhysicalExprOfSolutionForChild(Lng32 childIndex) const;
 
-  const PhysicalProperty * getPhysicalPropertyOfSolutionForChild
-                              (Lng32 childIndex) const;
+  const PhysicalProperty *getPhysicalPropertyOfSolutionForChild(Lng32 childIndex) const;
 
-  const Cost * getCostOfSolutionForChild(Lng32 childIndex) const;
+  const Cost *getCostOfSolutionForChild(Lng32 childIndex) const;
 
-  const RelExpr *
-  getPhysicalExprOfSolutionForGrandChild(Lng32 childIndex,
-                                         Lng32 grandChildIndex) const;
+  const RelExpr *getPhysicalExprOfSolutionForGrandChild(Lng32 childIndex, Lng32 grandChildIndex) const;
 
-  const PhysicalProperty * getPhysicalPropertyOfSolutionForGrandChild
-                              (Lng32 childIndex,
-                               Lng32 grandChildIndex) const;
+  const PhysicalProperty *getPhysicalPropertyOfSolutionForGrandChild(Lng32 childIndex, Lng32 grandChildIndex) const;
 
   // ---------------------------------------------------------------------
   // Mutator methods used by the optimizer outside the Cascades
@@ -1548,26 +1079,17 @@ public:
 
   // --- Methods on Cost Limit
 
-  void setCostLimit(CostLimit* c);
+  void setCostLimit(CostLimit *c);
 
   void setCostLimitExceeded() { costLimitExceeded_ = TRUE; }
 
   // is the current cost limit a feasible one for creating a plan?
-  NABoolean isCostLimitFeasible() const
-                                      { return (NOT costLimitExceeded_); }
-  NABoolean exceededCostLimit() const
-                                      { return NOT costLimitExceeded_; }
-
+  NABoolean isCostLimitFeasible() const { return (NOT costLimitExceeded_); }
+  NABoolean exceededCostLimit() const { return NOT costLimitExceeded_; }
 
   // These two method used by pruning heuristic to use failed plan cost
-  inline void setCurrentPlanExceededCostLimit()
-  {
-	currentPlanExceededCostLimit_ = TRUE;
-  }
-  inline NABoolean currentPlanExceededCostLimit()
-  {
-	return currentPlanExceededCostLimit_;
-  }
+  inline void setCurrentPlanExceededCostLimit() { currentPlanExceededCostLimit_ = TRUE; }
+  inline NABoolean currentPlanExceededCostLimit() { return currentPlanExceededCostLimit_; }
   // ---------------------------------------------------------------------
   // Methods that are used within the Cascades search engine.
   // ---------------------------------------------------------------------
@@ -1578,21 +1100,18 @@ public:
   // result == INCOMPATIBLE if contexts have conflicting
   // requested properties (like sorted by A vs. sorted by B),
   // otherwise, result = UNDEFINED.
-  COMPARE_RESULT compareContexts (const Context & other) const;
+  COMPARE_RESULT compareContexts(const Context &other) const;
 
   // Mark this Context to indicate that it is *done* for the current pass.
   // The marking is done for a Context that cannot yield an optimal plan,
   // e.g., because the plan is infeasible given the cost limit.
-  void markAsDoneForCurrentPass()
-                  { doneInPass_ = GlobalRuleSet->getCurrentPassNumber(); }
+  void markAsDoneForCurrentPass() { doneInPass_ = GlobalRuleSet->getCurrentPassNumber(); }
 
   // Use this to re-optimize the current context:
-  void resetCurrentPassNumber()
-  { doneInPass_ = Lng32(-1); }
+  void resetCurrentPassNumber() { doneInPass_ = Lng32(-1); }
 
   // Has this Context been optimized during the current optimization pass?
-  NABoolean optimizedInCurrentPass() const
-        { return (doneInPass_ == GlobalRuleSet->getCurrentPassNumber()); }
+  NABoolean optimizedInCurrentPass() const { return (doneInPass_ == GlobalRuleSet->getCurrentPassNumber()); }
 
   // Does this Context provide an optimal solution?
   // The Context provides an optimal solution, iff a solution is found
@@ -1603,16 +1122,13 @@ public:
   // The Context provides possible solution, iff a solution is found
   // during the current optimization pass. Cost limit needs to be checked
   // separately, when necessary.
-  NABoolean hasSolution() const
-  {
-    return ( solution_ AND optimizedInCurrentPass() );
-  }
+  NABoolean hasSolution() const { return (solution_ AND optimizedInCurrentPass()); }
 
   void clearFailedStatus();
 
   // Test whether the given plan satisfies a context.
   // (no consideration of the cost limit)
-  NABoolean satisfied(const CascadesPlan * const plan) const;
+  NABoolean satisfied(const CascadesPlan *const plan) const;
 
   // Find the best existing plan for a context and indicate in the return
   // value whether the optimal plan or a definite failure has been found.
@@ -1629,91 +1145,79 @@ public:
   // return a complete solution (a binding of a tree of physical nodes)
   //
   // see function body for description of the parameter
-  RelExpr * bindSolutionTree(NABoolean getPrevSolution=FALSE) const;
+  RelExpr *bindSolutionTree(NABoolean getPrevSolution = FALSE) const;
 
-  NABoolean isPruningEnabled() const           { return pruningEnabled_; }
-  void setPruningEnabled(NABoolean v)             { pruningEnabled_ = v; }
+  NABoolean isPruningEnabled() const { return pruningEnabled_; }
+  void setPruningEnabled(NABoolean v) { pruningEnabled_ = v; }
 
   // store pws information in context, used for preliminary cost estimation
   void setPlanWorkSpace(PlanWorkSpace *myPws) { myPws_ = myPws; }
-  inline PlanWorkSpace* getPlanWorkSpace() const { return myPws_; }
+  inline PlanWorkSpace *getPlanWorkSpace() const { return myPws_; }
 
-  NABoolean isNice() const
-  {
-    return niceContext_;
-  }
+  NABoolean isNice() const { return niceContext_; }
 
   NABoolean isNiceContextEnabled() const;
 
-  void setNice(NABoolean v)                          { niceContext_ = v; }
+  void setNice(NABoolean v) { niceContext_ = v; }
 
-  CascadesGroupId getGroupId() const                  { return groupId_; }
-  void setGroupId(CascadesGroupId g)                     { groupId_ = g; }
+  CascadesGroupId getGroupId() const { return groupId_; }
+  void setGroupId(CascadesGroupId g) { groupId_ = g; }
 
   // methods on the associated input est. logical properties
-  EstLogPropSharedPtr getInputLogProp() const  { return inputEstLogProp_; }
-  void setInputLogProp(const EstLogPropSharedPtr& elp) { inputEstLogProp_ = elp; }
+  EstLogPropSharedPtr getInputLogProp() const { return inputEstLogProp_; }
+  void setInputLogProp(const EstLogPropSharedPtr &elp) { inputEstLogProp_ = elp; }
 
   // --- Methods on the current plan
 
   // Whenever this Context is reused (CascadesGroup::shareContext()),
   // the current plan is cleared.
-  void clearCurrentPlan()                         { currentPlan_ = NULL; }
+  void clearCurrentPlan() { currentPlan_ = NULL; }
 
   // Whenever this Context is resued for creating a new plan
   // (CreatePlanTask::CreatePlanTask), the new plan is assigned
   // with this Context.
-  void assignCurrentPlan(CascadesPlan * plan)     { currentPlan_ = plan; }
+  void assignCurrentPlan(CascadesPlan *plan) { currentPlan_ = plan; }
 
   // --- Methods on the plans that are candidate solutions.
 
-  void addCandidatePlan(CascadesPlan * plan);
+  void addCandidatePlan(CascadesPlan *plan);
 
-  inline Lng32 getCountOfCandidatePlans() const
-                                         { return candidates_.entries(); }
-  inline CascadesPlan * getCandidatePlan(Lng32 i)
-                                                { return candidates_[i]; }
-  inline NABoolean isACandidate(CascadesPlan *plan) const
-                                    { return candidates_.contains(plan); }
+  inline Lng32 getCountOfCandidatePlans() const { return candidates_.entries(); }
+  inline CascadesPlan *getCandidatePlan(Lng32 i) { return candidates_[i]; }
+  inline NABoolean isACandidate(CascadesPlan *plan) const { return candidates_.contains(plan); }
 
   // --- Methods on the plan that is the best solution so far
 
-  inline const CascadesPlan * getSolution() const    { return solution_; }
+  inline const CascadesPlan *getSolution() const { return solution_; }
 
+  void setSolution(CascadesPlan *plan, NABoolean checkAndAdjustCostLimit = TRUE);
 
-  void setSolution(CascadesPlan *plan,
-                   NABoolean checkAndAdjustCostLimit = TRUE);
-
-  void setPhysicalPropertyForSolution(PhysicalProperty* spp)
-                                  { solution_->setPhysicalProperty(spp); }
+  void setPhysicalPropertyForSolution(PhysicalProperty *spp) { solution_->setPhysicalProperty(spp); }
 
   // manage the number of outstanding operations/tasks for this context
-  Lng32 getOutstanding() const                     { return outstanding_; }
-  inline void incrOutstanding()                        { outstanding_++; }
+  Lng32 getOutstanding() const { return outstanding_; }
+  inline void incrOutstanding() { outstanding_++; }
   void decrOutstanding();
 
-  Context * getCurrentAncestor() const        { return currentAncestor_; }
-  void setCurrentAncestor(Context *c)            { currentAncestor_ = c; }
+  Context *getCurrentAncestor() const { return currentAncestor_; }
+  void setCurrentAncestor(Context *c) { currentAncestor_ = c; }
 
-  NABoolean isADuplicate() const          { return duplicateOf_ != NULL; }
-  Context * getDuplicateOf() const                { return duplicateOf_; }
-  void setDuplicateOf(Context *c)                    { duplicateOf_ = c; }
+  NABoolean isADuplicate() const { return duplicateOf_ != NULL; }
+  Context *getDuplicateOf() const { return duplicateOf_; }
+  void setDuplicateOf(Context *c) { duplicateOf_ = c; }
 
-  void setPredecessorTask(CascadesTask *t)       { predecessorTask_ = t; }
-  CascadesTask * getPredecessorTask() const   { return predecessorTask_; }
+  void setPredecessorTask(CascadesTask *t) { predecessorTask_ = t; }
+  CascadesTask *getPredecessorTask() const { return predecessorTask_; }
 
-  inline const RuleSubset &getTriedEnforcerRules() const
-                                           { return triedEnforcerRules_; }
+  inline const RuleSubset &getTriedEnforcerRules() const { return triedEnforcerRules_; }
   inline RuleSubset &triedEnforcerRules() { return triedEnforcerRules_; }
   inline RuleSubset &ignoredRules() { return ignoreTheseRules_; }
 
   virtual void display() { print(); };
-  virtual void print (FILE * f = stdout,
-		      const char * prefix = "",
-		      const char * suffix = "") const;
+  virtual void print(FILE *f = stdout, const char *prefix = "", const char *suffix = "") const;
 
   NAString getRequirementsString() const;
-  //GTOOL
+  // GTOOL
   NAString getCostString() const;
   NAString getRPPString() const;
   NAString getIPPString() const;
@@ -1724,43 +1228,41 @@ public:
   // -- basically, if the optimizer hits an assertion in pass N,
   // -- we return the best plan from pass N-1
 
-  inline const CascadesPlan * getPreviousSolution() const
-                                                 { return prevSolution_; }
-  NABoolean setPreviousSolution() ;
+  inline const CascadesPlan *getPreviousSolution() const { return prevSolution_; }
+  NABoolean setPreviousSolution();
 
   const GroupAttributes *getGroupAttr() const;
 
-//<pb>
-private:
-
+  //<pb>
+ private:
   // ---------------------------------------------------------------------
   // information that is passed top-down during the optimization process
   // ---------------------------------------------------------------------
 
-  const ReqdPhysicalProperty* const reqdPhys_;  // required physical properties
+  const ReqdPhysicalProperty *const reqdPhys_;  // required physical properties
 
-  const InputPhysicalProperty* const inputPhys_; // input physical properties
+  const InputPhysicalProperty *const inputPhys_;  // input physical properties
 
-  CostLimit*                costLimit_;       // cost limit
+  CostLimit *costLimit_;  // cost limit
 
   // ---------------------------------------------------------------------
   // administrative information, used by the optimizer search engine
   // ---------------------------------------------------------------------
-  CascadesGroupId  groupId_;           // where is this context used
-  Lng32             doneInPass_;        // OptimizeGroupTask done in this pass
-  Lng32             outstanding_;       // # plans outstanding in
-                                       // OptimizeGroupTask task
-  Context*         currentAncestor_;   // current parent context
-  Context*         duplicateOf_;       // duplicate resulting from
-                                       // equivalence class merge
+  CascadesGroupId groupId_;   // where is this context used
+  Lng32 doneInPass_;          // OptimizeGroupTask done in this pass
+  Lng32 outstanding_;         // # plans outstanding in
+                              // OptimizeGroupTask task
+  Context *currentAncestor_;  // current parent context
+  Context *duplicateOf_;      // duplicate resulting from
+                              // equivalence class merge
 
   // pointer to the predecessor task for this context, i.e.
   // the task scheduled just prior to the OptimizeGroupTask for this context
-  CascadesTask*    predecessorTask_;
+  CascadesTask *predecessorTask_;
 
-  NABoolean        costLimitExceeded_; // solution exceeds cost limit
-  NABoolean        currentPlanExceededCostLimit_; // flag passed from plan
-  NABoolean        pruningEnabled_;    // allowed to perform branch and bound?
+  NABoolean costLimitExceeded_;             // solution exceeds cost limit
+  NABoolean currentPlanExceededCostLimit_;  // flag passed from plan
+  NABoolean pruningEnabled_;                // allowed to perform branch and bound?
 
   // "Nice context". If true, parent will not imlicitly require properties
   // from grandchildren (could be satisfied by child naturally or forced
@@ -1772,7 +1274,7 @@ private:
   // of contexts to be optimized, therefore - compile time and memory
   // required to optimize the plan. The plan created with "nice context"
   // could be a littel worse than default plan.
-  NABoolean        niceContext_;
+  NABoolean niceContext_;
 
   // ---------------------------------------------------------------------
   // Each context is associated with one set of input estimated logical
@@ -1796,36 +1298,34 @@ private:
   // ---------------------------------------------------------------------
   // Plans that are generated bottom up.
   // ---------------------------------------------------------------------
-  CascadesPlan*    currentPlan_;  // plan that is currently being optimized
-				  // using  this Context
-  CascadesPlan*    solution_;     // optimal solution for this context
-  CascadesPlan*    prevSolution_ ;// pointer to the solution of the previous
-                                  // optimizer pass (needed for recovery from
-                                  // assertion failures)
-  CascadesPlanList candidates_;   // plans that satisfy the context
+  CascadesPlan *currentPlan_;    // plan that is currently being optimized
+                                 // using  this Context
+  CascadesPlan *solution_;       // optimal solution for this context
+  CascadesPlan *prevSolution_;   // pointer to the solution of the previous
+                                 // optimizer pass (needed for recovery from
+                                 // assertion failures)
+  CascadesPlanList candidates_;  // plans that satisfy the context
 
-  PlanWorkSpace*       myPws_;    // my PlanWorkSpace
+  PlanWorkSpace *myPws_;  // my PlanWorkSpace
 
-}; // Context
+};  // Context
 
 // -----------------------------------------------------------------------
 // A list and an array of context pointers
 // -----------------------------------------------------------------------
-class ContextList : public LIST(Context *)
-{
-public:
-  ContextList(CollHeap* h/*=0*/) : LIST(Context *)(h) //
-    {  }
+class ContextList : public LIST(Context *) {
+ public:
+  ContextList(CollHeap *h /*=0*/)
+      : LIST(Context *)(h)  //
+  {}
 };
 
-class ContextArray : public ARRAY(Context *)
-{
-public:
-  ContextArray(CollHeap* h/*=0*/) : ARRAY(Context *)(h)
-    {}
+class ContextArray : public ARRAY(Context *) {
+ public:
+  ContextArray(CollHeap *h /*=0*/) : ARRAY(Context *)(h) {}
 
   // copy ctor
-  ContextArray (const ContextArray & orig, CollHeap * h=0) ;
+  ContextArray(const ContextArray &orig, CollHeap *h = 0);
 };
 //<pb>
 // -----------------------------------------------------------------------
@@ -1840,10 +1340,8 @@ public:
 // per child to create its own execution plan.
 // -----------------------------------------------------------------------
 
-class PlanWorkSpace : public NABasicObject
-{
-public:
-
+class PlanWorkSpace : public NABasicObject {
+ public:
   // ---------------------------------------------------------------------
   // Constructor and destructor.
   // ---------------------------------------------------------------------
@@ -1857,8 +1355,7 @@ public:
   // Set the context under which this operator is optimized for. A plan
   // must have already been created for this context by CreatePlanTask.
   // ---------------------------------------------------------------------
-  void storeContext(Context* myContext)
-  {
+  void storeContext(Context *myContext) {
     myContext_ = myContext;
     CMPASSERT(myContext_->getPlan() != NULL);
   }
@@ -1866,20 +1363,19 @@ public:
   // ---------------------------------------------------------------------
   // Is the workspace empty?
   // ---------------------------------------------------------------------
-  NABoolean isEmpty() const               { return (contextCount_ == 0); }
+  NABoolean isEmpty() const { return (contextCount_ == 0); }
 
-  Lng32 getCountOfChildContexts() const           { return contextCount_; }
+  Lng32 getCountOfChildContexts() const { return contextCount_; }
 
   // ---------------------------------------------------------------------
   // Store a new child Context in the PlanWorkSpace.
   // ---------------------------------------------------------------------
-  void storeChildContext(Lng32 childIndex, Lng32 planNumber,
-			 Context* childContext);
+  void storeChildContext(Lng32 childIndex, Lng32 planNumber, Context *childContext);
 
   // ---------------------------------------------------------------------
   // Get a specific child Context.
   // ---------------------------------------------------------------------
-  Context* getChildContext(Lng32 childIndex, Lng32 planNumber = 0) const;
+  Context *getChildContext(Lng32 childIndex, Lng32 planNumber = 0) const;
 
   // Is this plan's n-th child a scan?
   NABoolean getScanLeaf(int childNumber, int planNumber, FileScan *&scanLeaf) const;
@@ -1897,16 +1393,15 @@ public:
   // ---------------------------------------------------------------------
   // Initialize the cost and set it to the initial local cost.
   // ---------------------------------------------------------------------
-  void initializeCost(Cost* operatorCost);
+  void initializeCost(Cost *operatorCost);
 
-  void setOperatorCost(Cost * cost);
+  void setOperatorCost(Cost *cost);
 
-  Cost* getOperatorCost() const          { return operatorCost_; }
+  Cost *getOperatorCost() const { return operatorCost_; }
 
-  void setCountOfStreams(Lng32 countOfStreams)
-                                     { countOfStreams_ = countOfStreams; }
+  void setCountOfStreams(Lng32 countOfStreams) { countOfStreams_ = countOfStreams; }
 
-  Lng32 getCountOfStreams() const               { return countOfStreams_; }
+  Lng32 getCountOfStreams() const { return countOfStreams_; }
 
   // ---------------------------------------------------------------------
   // Return initial operator cost if the guess we made about the
@@ -1914,65 +1409,59 @@ public:
   // Otherwise, recompute the operator cost using the synthesized
   // physical property stored in myContext_->getPlan() and return it.
   // ---------------------------------------------------------------------
-  Cost* getFinalOperatorCost(Lng32 planNumber);
+  Cost *getFinalOperatorCost(Lng32 planNumber);
 
   // ---------------------------------------------------------------------
   // Set/get a computed PartialPlan cost in/from the PlanWorkSpace.
   // ---------------------------------------------------------------------
-  void setPartialPlanCost(Cost* newCost);
+  void setPartialPlanCost(Cost *newCost);
 
-  Cost* getPartialPlanCost() const                { return partialPlanCost_; }
+  Cost *getPartialPlanCost() const { return partialPlanCost_; }
 
   // ---------------------------------------------------------------------
   // Set/get a computed known children cost in/from the PlanWorkSpace.
   // ---------------------------------------------------------------------
-  void setKnownChildrenCost(Cost* newCost);
+  void setKnownChildrenCost(Cost *newCost);
 
-  Cost* getKnownChildrenCost() const          { return knownChildrenCost_; }
+  Cost *getKnownChildrenCost() const { return knownChildrenCost_; }
 
-  void updateBestCost(Cost* cost, Lng32 planNumber);
+  void updateBestCost(Cost *cost, Lng32 planNumber);
 
-  Cost*             getBestRollUpCostSoFar() const
-                                               { return bestRollUpCostSoFar_; }
+  Cost *getBestRollUpCostSoFar() const { return bestRollUpCostSoFar_; }
 
-  Cost*             getBestOperatorCostSoFar() const
-                                             { return bestOperatorCostSoFar_; }
+  Cost *getBestOperatorCostSoFar() const { return bestOperatorCostSoFar_; }
 
-  Lng32              getBestPlanSoFar() const { return bestPlanSoFar_; }
+  Lng32 getBestPlanSoFar() const { return bestPlanSoFar_; }
 
-  NABoolean isBestPlanSoFarBMO() const       { return bestPlanSoFarIsBMO_; }
+  NABoolean isBestPlanSoFarBMO() const { return bestPlanSoFarIsBMO_; }
 
-  PhysicalProperty* getBestSynthPhysPropSoFar() const
-                                            { return bestSynthPhysPropSoFar_; }
+  PhysicalProperty *getBestSynthPhysPropSoFar() const { return bestSynthPhysPropSoFar_; }
 
   void setPartialPlanCostToOperatorCost();
 
   // ---------------------------------------------------------------------
   // Get the latest Context that was considered.
   // ---------------------------------------------------------------------
-  Context* getLatestChildContext() const        { return latestContext_; }
+  Context *getLatestChildContext() const { return latestContext_; }
 
-  Lng32 getLatestChildIndex() const                { return latestChild_; }
+  Lng32 getLatestChildIndex() const { return latestChild_; }
 
-  Lng32 getLatestPlan() const                       { return latestPlan_; }
-  Lng32 getPrevPlan() const                     { return prevPlan_; }
-
+  Lng32 getLatestPlan() const { return latestPlan_; }
+  Lng32 getPrevPlan() const { return prevPlan_; }
 
   // ---------------------------------------------------------------------
   // Keep track of number of children costed for latest plan.
   // ---------------------------------------------------------------------
-  Lng32 getPlanChildCount() const               { return planChildCount_; }
-  void incPlanChildCount()                          { ++planChildCount_; }
-  void resetPlanChildCount()                      { planChildCount_ = 0; }
+  Lng32 getPlanChildCount() const { return planChildCount_; }
+  void incPlanChildCount() { ++planChildCount_; }
+  void resetPlanChildCount() { planChildCount_ = 0; }
 
   // ---------------------------------------------------------------------
   // If the latest Context cannot be used because the cost for its plan
   // exceeds the cost limit, mark it as failed,
   // ---------------------------------------------------------------------
-  void markLatestContextAsViolatesCostLimit()
-                                         { withinCostLimitFlag_ = FALSE; }
-  NABoolean isLatestContextWithinCostLimit() const
-                                          { return withinCostLimitFlag_; }
+  void markLatestContextAsViolatesCostLimit() { withinCostLimitFlag_ = FALSE; }
+  NABoolean isLatestContextWithinCostLimit() const { return withinCostLimitFlag_; }
 
   // ---------------------------------------------------------------------
   // Iterates over the well-formed plans stored in this pws, cost them
@@ -1982,28 +1471,25 @@ public:
   // picked if one is picked. Return FALSE and set planNumber to -1 other
   // wise.
   // ---------------------------------------------------------------------
-  NABoolean findOptimalSolution(Lng32& planNumber);
+  NABoolean findOptimalSolution(Lng32 &planNumber);
 
-  Cost* getCostOfPlan(Lng32 planNumber);
+  Cost *getCostOfPlan(Lng32 planNumber);
 
   // ---------------------------------------------------------------------
   // Does this pws belong to a big memory operator?
   // ---------------------------------------------------------------------
-  void setBigMemoryOperator(NABoolean isBMO)           { isBMO_ = isBMO; }
-  NABoolean isBigMemoryOperator() const                 { return isBMO_; }
+  void setBigMemoryOperator(NABoolean isBMO) { isBMO_ = isBMO; }
+  NABoolean isBigMemoryOperator() const { return isBMO_; }
 
   // ---------------------------------------------------------------------
   // Does this pws wants parallelism
   // ---------------------------------------------------------------------
-  void setParallelismIsOK(NABoolean isOK)   { parallelismIsOK_ = isOK; }
-  NABoolean getParallelismIsOK() const      { return parallelismIsOK_; }
+  void setParallelismIsOK(NABoolean isOK) { parallelismIsOK_ = isOK; }
+  NABoolean getParallelismIsOK() const { return parallelismIsOK_; }
 
-  NABoolean allChildrenContextsConsidered()
-    { return allChildrenContextsConsidered_;}
-  void setAllChildrenContextsConsidered()
-    { allChildrenContextsConsidered_ = TRUE;}
-  void resetAllChildrenContextsConsidered()
-    { allChildrenContextsConsidered_ = FALSE;}
+  NABoolean allChildrenContextsConsidered() { return allChildrenContextsConsidered_; }
+  void setAllChildrenContextsConsidered() { allChildrenContextsConsidered_ = TRUE; }
+  void resetAllChildrenContextsConsidered() { allChildrenContextsConsidered_ = FALSE; }
 
 #ifdef DEBUG
   // ---------------------------------------------------------------------
@@ -2014,14 +1500,13 @@ public:
 
 #endif /* DEBUG */
 
-//<pb>
-private:
-
+  //<pb>
+ private:
   // ---------------------------------------------------------------------
   // The context under which the operator associated with this pws is
   // optimized for.
   // ---------------------------------------------------------------------
-  Context* myContext_;
+  Context *myContext_;
 
   // ---------------------------------------------------------------------
   // The following array has as many elements as the number of children
@@ -2029,7 +1514,7 @@ private:
   // Each element is an array of pointers to Contexts that are used for
   // optimzing a specific child.
   // ---------------------------------------------------------------------
-  ARRAY(ContextArray*)  childContexts_;
+  ARRAY(ContextArray *) childContexts_;
 
   // ---------------------------------------------------------------------
   // A counter for contexts created so far.
@@ -2040,18 +1525,18 @@ private:
   // Cache the latest Context that was stored in childContexts_
   // as well as the index for the child.
   // ---------------------------------------------------------------------
-  Lng32     latestChild_;
-  Lng32     latestPlan_;
-  Context* latestContext_;
+  Lng32 latestChild_;
+  Lng32 latestPlan_;
+  Context *latestContext_;
 
   // keep track of previous plan, this will be compared with current plan
   // (latestPlan) to decide if preliminary cost need to be recomputed
-  Lng32     prevPlan_;
+  Lng32 prevPlan_;
 
   // ---------------------------------------------------------------------
   // Keep track of the number of children costed for the latest plan.
   // ---------------------------------------------------------------------
-  Lng32     planChildCount_;
+  Lng32 planChildCount_;
 
   // ---------------------------------------------------------------------
   // If the latest Context cannot be used because the cost for its plan
@@ -2064,7 +1549,7 @@ private:
   // on an estimated degree of parallelism and possibly revised if actual
   // degree of parallelism differs from estimate.
   // ---------------------------------------------------------------------
-  Cost* operatorCost_;
+  Cost *operatorCost_;
 
   // ---------------------------------------------------------------------
   // Degree of parallelism assumed when computing operator cost.
@@ -2075,12 +1560,12 @@ private:
   // The cost for this operator together with the cost for one or more
   // (but not all) of its children. This cost is NOT the final cost.
   // ---------------------------------------------------------------------
-  Cost* partialPlanCost_;
+  Cost *partialPlanCost_;
 
   // -------------------------------------------------------------------
   // The cost for one or more (but not all) of this operator's children.
   // -------------------------------------------------------------------
-  Cost* knownChildrenCost_;
+  Cost *knownChildrenCost_;
 
   // --------------------------------------------------------------------
   //  The best roll-up cost of any plan considered so far for this plan
@@ -2088,11 +1573,11 @@ private:
   // whether it is a BMO and synthesized physical properties associated
   // with the best plan so far.
   // --------------------------------------------------------------------
-  Cost*             bestRollUpCostSoFar_;
-  Cost*             bestOperatorCostSoFar_;
-  Lng32              bestPlanSoFar_;
-  NABoolean         bestPlanSoFarIsBMO_;
-  PhysicalProperty* bestSynthPhysPropSoFar_;
+  Cost *bestRollUpCostSoFar_;
+  Cost *bestOperatorCostSoFar_;
+  Lng32 bestPlanSoFar_;
+  NABoolean bestPlanSoFarIsBMO_;
+  PhysicalProperty *bestSynthPhysPropSoFar_;
 
   // ---------------------------------------------------------------------
   // Does this pws belong to a big memory operator?
@@ -2114,91 +1599,78 @@ private:
   ////////////////////////////////////////////////////////////////////////
 
   // ---------------------------------------------------------------------
-  // Value of CmpStatement::planWorkSpaceCount_ at time of PlanWorkSpace creation. 
+  // Value of CmpStatement::planWorkSpaceCount_ at time of PlanWorkSpace creation.
   // Used for debugging purposes only.  Never modified once set.
   // ---------------------------------------------------------------------
   Lng32 pwsID_;
 
 #endif /* DEBUG */
 
-}; // class PlanWorkSpace
+};  // class PlanWorkSpace
 
-class NestedJoinPlanWorkSpace : public PlanWorkSpace
-{
-public:
-
-  NestedJoinPlanWorkSpace(Lng32 numberOfChildren) : 
-       PlanWorkSpace(numberOfChildren),
-       useParallelism_(FALSE),
-       childNumPartsRequirement_(0),
-       childNumPartsAllowedDeviation_(0.0),
-       numOfESPsForced_(FALSE),
-       childPlansToConsider_(0),
-       OCBJoinIsConsidered_(FALSE),
-       OCRJoinIsConsidered_(FALSE),
-       fastLoadIntoTrafodion_(FALSE) {}
+class NestedJoinPlanWorkSpace : public PlanWorkSpace {
+ public:
+  NestedJoinPlanWorkSpace(Lng32 numberOfChildren)
+      : PlanWorkSpace(numberOfChildren),
+        useParallelism_(FALSE),
+        childNumPartsRequirement_(0),
+        childNumPartsAllowedDeviation_(0.0),
+        numOfESPsForced_(FALSE),
+        childPlansToConsider_(0),
+        OCBJoinIsConsidered_(FALSE),
+        OCRJoinIsConsidered_(FALSE),
+        fastLoadIntoTrafodion_(FALSE) {}
   ~NestedJoinPlanWorkSpace() {}
 
-  NABoolean getUseParallelism()       const       { return useParallelism_; }
-  Lng32     getChildNumPartsRequirement() const
-                                        { return childNumPartsRequirement_; }
-  float     getChildNumPartsAllowedDeviation() const
-                                   { return childNumPartsAllowedDeviation_; }
-  NABoolean getNumOfESPsForced()      const      { return numOfESPsForced_; }
-  Lng32     getChildPlansToConsider() const { return childPlansToConsider_; }
-  NABoolean getOCBJoinIsConsidered()  const  { return OCBJoinIsConsidered_; }
-  NABoolean getOCRJoinIsConsidered()  const  { return OCRJoinIsConsidered_; }
-  NABoolean getFastLoadIntoTrafodion()  const  { return fastLoadIntoTrafodion_; }
+  NABoolean getUseParallelism() const { return useParallelism_; }
+  Lng32 getChildNumPartsRequirement() const { return childNumPartsRequirement_; }
+  float getChildNumPartsAllowedDeviation() const { return childNumPartsAllowedDeviation_; }
+  NABoolean getNumOfESPsForced() const { return numOfESPsForced_; }
+  Lng32 getChildPlansToConsider() const { return childPlansToConsider_; }
+  NABoolean getOCBJoinIsConsidered() const { return OCBJoinIsConsidered_; }
+  NABoolean getOCRJoinIsConsidered() const { return OCRJoinIsConsidered_; }
+  NABoolean getFastLoadIntoTrafodion() const { return fastLoadIntoTrafodion_; }
 
-  void setParallelismItems(NABoolean useParallelism,
-                           Lng32     childNumPartsRequirement,
-                           float     childNumPartsAllowedDeviation,
-                           NABoolean numOfESPsForced)
-          {                useParallelism_ =                useParallelism;
-                 childNumPartsRequirement_ =      childNumPartsRequirement;
-            childNumPartsAllowedDeviation_ = childNumPartsAllowedDeviation;
-                          numOfESPsForced_ =               numOfESPsForced; }
-  void setChildPlansToConsider(Lng32 cp)      { childPlansToConsider_ = cp; }
-  void setOCBJoinIsConsidered(NABoolean o)      { OCBJoinIsConsidered_ = o; }
-  void setOCRJoinIsConsidered(NABoolean o)      { OCRJoinIsConsidered_ = o; }
-  void setFastLoadIntoTrafodion(NABoolean o)      { fastLoadIntoTrafodion_ = o; }
+  void setParallelismItems(NABoolean useParallelism, Lng32 childNumPartsRequirement,
+                           float childNumPartsAllowedDeviation, NABoolean numOfESPsForced) {
+    useParallelism_ = useParallelism;
+    childNumPartsRequirement_ = childNumPartsRequirement;
+    childNumPartsAllowedDeviation_ = childNumPartsAllowedDeviation;
+    numOfESPsForced_ = numOfESPsForced;
+  }
+  void setChildPlansToConsider(Lng32 cp) { childPlansToConsider_ = cp; }
+  void setOCBJoinIsConsidered(NABoolean o) { OCBJoinIsConsidered_ = o; }
+  void setOCRJoinIsConsidered(NABoolean o) { OCRJoinIsConsidered_ = o; }
+  void setFastLoadIntoTrafodion(NABoolean o) { fastLoadIntoTrafodion_ = o; }
 
   void transferParallelismReqsToRG(RequirementGenerator &rg);
 
-private:
-
+ private:
   NABoolean useParallelism_;
-  Lng32     childNumPartsRequirement_;
-  float     childNumPartsAllowedDeviation_;
+  Lng32 childNumPartsRequirement_;
+  float childNumPartsAllowedDeviation_;
   NABoolean numOfESPsForced_;
-  Lng32     childPlansToConsider_;
+  Lng32 childPlansToConsider_;
   NABoolean OCBJoinIsConsidered_;
   NABoolean OCRJoinIsConsidered_;
   NABoolean fastLoadIntoTrafodion_;
 
-}; // class NestedJoinPlanWorkSpace
+};  // class NestedJoinPlanWorkSpace
 
-class TMUDFPlanWorkSpace : public PlanWorkSpace
-{
-public:
-
-  TMUDFPlanWorkSpace(Lng32 numberOfChildren) : 
-       PlanWorkSpace(numberOfChildren),
-       udrPlanInfo_(NULL)  {}
+class TMUDFPlanWorkSpace : public PlanWorkSpace {
+ public:
+  TMUDFPlanWorkSpace(Lng32 numberOfChildren) : PlanWorkSpace(numberOfChildren), udrPlanInfo_(NULL) {}
   ~TMUDFPlanWorkSpace() {}
 
   // ---------------------------------------------------------------------
   // get/set TMUDF-related things
   // ---------------------------------------------------------------------
-  tmudr::UDRPlanInfo *getUDRPlanInfo()           { return udrPlanInfo_; }
-  const tmudr::UDRPlanInfo *getUDRPlanInfo() const
-                                                 { return udrPlanInfo_; }
-  void setUDRPlanInfo(tmudr::UDRPlanInfo *pi)      { udrPlanInfo_ = pi; }
+  tmudr::UDRPlanInfo *getUDRPlanInfo() { return udrPlanInfo_; }
+  const tmudr::UDRPlanInfo *getUDRPlanInfo() const { return udrPlanInfo_; }
+  void setUDRPlanInfo(tmudr::UDRPlanInfo *pi) { udrPlanInfo_ = pi; }
 
-private:
-
+ private:
   tmudr::UDRPlanInfo *udrPlanInfo_;
-
 };
 
 //<pb>
@@ -2216,92 +1688,75 @@ private:
 // (d) a list of pattern for which this group has been expanded
 // -----------------------------------------------------------------------
 
-class CascadesGroup : public NABasicObject
-{
+class CascadesGroup : public NABasicObject {
+ public:
+  CascadesGroup(CascadesGroupId groupId, GroupAttributes *groupAttr);
+  ~CascadesGroup();
 
-public:
+  inline CascadesGroupId getGroupId() const { return groupId_; }
 
-  CascadesGroup (CascadesGroupId groupId,
-		 GroupAttributes *groupAttr);
-  ~CascadesGroup ();
-
-  inline CascadesGroupId getGroupId() const           { return groupId_; }
-
-  inline GroupAttributes * getGroupAttr() const     { return groupAttr_; }
+  inline GroupAttributes *getGroupAttr() const { return groupAttr_; }
 
   // add, unlink, and retrieve logical/physical expressions, and plans
-  void addLogExpr (RelExpr * expr, RelExpr *src=NULL);
-  NABoolean addPhysExpr (RelExpr* & expr, RelExpr *src=NULL);
-  void addPlan(CascadesPlan * plan);
+  void addLogExpr(RelExpr *expr, RelExpr *src = NULL);
+  NABoolean addPhysExpr(RelExpr *&expr, RelExpr *src = NULL);
+  void addPlan(CascadesPlan *plan);
 
   RelExpr *unlinkLogExpr(RelExpr *expr);
   RelExpr *unlinkPhysExpr(RelExpr *expr);
 
-  inline RelExpr * getFirstLogExpr() const           { return logExprs_; }
-  inline RelExpr * getFirstPhysExpr() const         { return physExprs_; }
-  CascadesPlan   * getFirstPlan() const;
+  inline RelExpr *getFirstLogExpr() const { return logExprs_; }
+  inline RelExpr *getFirstPhysExpr() const { return physExprs_; }
+  CascadesPlan *getFirstPlan() const;
 
-  const CascadesPlanList& getPlans() const              { return plans_; }
-  Lng32 getCountOfPlans() const                { return plans_.entries(); }
+  const CascadesPlanList &getPlans() const { return plans_; }
+  Lng32 getCountOfPlans() const { return plans_.entries(); }
 
-  RelExpr * getLastLogExpr() const;
+  RelExpr *getLastLogExpr() const;
 
   Lng32 getCountOfLogicalExpr() const;
   Lng32 getCountOfPhysicalExpr() const;
   double calculateNoOfLogPlans() const;
 
-  HashValue hash ();
+  HashValue hash();
 
-  void merge (CascadesGroup * other);
+  void merge(CascadesGroup *other);
 
   // create or share a context with a given optimization goal for this group
-  Context * shareContext(const ReqdPhysicalProperty* const reqdPhys,
-                         const InputPhysicalProperty* const inputPhys,
-			 CostLimit* costLimit,
-			 Context* parentContext,
-			 const EstLogPropSharedPtr& inputLogProp);
+  Context *shareContext(const ReqdPhysicalProperty *const reqdPhys, const InputPhysicalProperty *const inputPhys,
+                        CostLimit *costLimit, Context *parentContext, const EstLogPropSharedPtr &inputLogProp);
 
   // access all the optimization goals (contexts) for this group
-  inline Lng32 getCountOfContexts() const
-                                              { return goals_.entries(); }
-  inline Context * getContext(Lng32 i)                { return goals_[i]; }
+  inline Lng32 getCountOfContexts() const { return goals_.entries(); }
+  inline Context *getContext(Lng32 i) { return goals_[i]; }
 
-  inline Lng32 getExploredInPass() const        { return exploredInPass_; }
-  inline void setExploredInPass(Lng32 e)           { exploredInPass_ = e; }
+  inline Lng32 getExploredInPass() const { return exploredInPass_; }
+  inline void setExploredInPass(Lng32 e) { exploredInPass_ = e; }
 
-  inline RuleSubset getExploredRules () const       {return exploredRules_;}
-  inline void addToExploredRules (RuleSubset & rules) {exploredRules_ += rules;}
+  inline RuleSubset getExploredRules() const { return exploredRules_; }
+  inline void addToExploredRules(RuleSubset &rules) { exploredRules_ += rules; }
 
   // temporary, for nice context prototype
-  inline NABoolean isBelowRoot() const
-  {
-      return isBelowRoot_;
-  }
-  inline void setBelowRoot(NABoolean val)
-  {
-      isBelowRoot_ = val;
-  }
+  inline NABoolean isBelowRoot() const { return isBelowRoot_; }
+  inline void setBelowRoot(NABoolean val) { isBelowRoot_ = val; }
 
-  void print (FILE * f = stdout,
-	      const char * prefix = "",
-	      const char * suffix = "") const;
-//<pb>
-private:
-
-  CascadesGroupId   groupId_;          // index into CascadesMemo
-  GroupAttributes * groupAttr_;        // common attributes for this Group
-  RelExpr         * logExprs_;         // linked list of logical expressions
-  RelExpr         * physExprs_;        // linked list of physical expressions
-  CascadesPlanList  plans_;            // linked list of plans
-  ContextList       goals_;            // optimization goals tried so far
-  Lng32              exploredInPass_;   // to avoid exploring twice
-  RuleSubset        exploredRules_;    // Rules that the groups has been explored
-                                       // with or scheduled to be explored with.
+  void print(FILE *f = stdout, const char *prefix = "", const char *suffix = "") const;
+  //<pb>
+ private:
+  CascadesGroupId groupId_;     // index into CascadesMemo
+  GroupAttributes *groupAttr_;  // common attributes for this Group
+  RelExpr *logExprs_;           // linked list of logical expressions
+  RelExpr *physExprs_;          // linked list of physical expressions
+  CascadesPlanList plans_;      // linked list of plans
+  ContextList goals_;           // optimization goals tried so far
+  Lng32 exploredInPass_;        // to avoid exploring twice
+  RuleSubset exploredRules_;    // Rules that the groups has been explored
+                                // with or scheduled to be explored with.
   // This is temporary and later should be moved to GroupAttr ot GroupAnalysys,
   // the flag will be TRUE for immediate child of the ROOT. This will help
   // top parallelism heristic and nice contrext for top groupBy
-  NABoolean  isBelowRoot_;
-}; // CascadesGroup
+  NABoolean isBelowRoot_;
+};  // CascadesGroup
 //<pb>
 // -----------------------------------------------------------------------
 // Search space memory
@@ -2312,34 +1767,24 @@ private:
 // duplicate expressions.
 // -----------------------------------------------------------------------
 
-class CascadesMemo : public NABasicObject
-{
-
-public:
-
-  CascadesMemo (CascadesGroupId groups = 100, Lng32 buckets = 1001);
-  ~CascadesMemo ();
+class CascadesMemo : public NABasicObject {
+ public:
+  CascadesMemo(CascadesGroupId groups = 100, Lng32 buckets = 1001);
+  ~CascadesMemo();
   // to include a newly derived expression in "memo"
-  RelExpr * include (RelExpr * query,
-		     NABoolean & duplicateExprFlag,
-		     NABoolean & groupMergeFlag,
-		     NABoolean GrpIdIsBinding = FALSE, //soln-10-070330-3667
-		     CascadesGroupId groupId = INVALID_GROUP_ID,
-		     Context * context = NULL,
-                     RelExpr *before = NULL
-                    );
+  RelExpr *include(RelExpr *query, NABoolean &duplicateExprFlag, NABoolean &groupMergeFlag,
+                   NABoolean GrpIdIsBinding = FALSE,  // soln-10-070330-3667
+                   CascadesGroupId groupId = INVALID_GROUP_ID, Context *context = NULL, RelExpr *before = NULL);
 
   // deal with duplicate detection
-  void addExpr (RelExpr * expr, HashValue hash_value);
-  RelExpr * findDuplicate (RelExpr * expr) const;
+  void addExpr(RelExpr *expr, HashValue hash_value);
+  RelExpr *findDuplicate(RelExpr *expr) const;
 
   // deal with groups
   CascadesGroupId makeNewGroup(GroupAttributes *ga);
-  void update (CascadesGroup * oldGroup, CascadesGroup * newGroup);
-  inline Lng32 getCountOfUsedGroups() const
-                                             { return group_.entries(); }
-  inline CascadesGroup * operator[] (CascadesGroupId groupId)
-                                              { return group_[groupId]; }
+  void update(CascadesGroup *oldGroup, CascadesGroup *newGroup);
+  inline Lng32 getCountOfUsedGroups() const { return group_.entries(); }
+  inline CascadesGroup *operator[](CascadesGroupId groupId) { return group_[groupId]; }
 
   // consolidate group pointers after group merge(s)
   Int32 garbageCollection();
@@ -2347,23 +1792,17 @@ public:
   // check for inconsistencies (return FALSE if something wrong)
   NABoolean consistencyCheck() const;
 
-  void print (FILE * f = stdout,
-	      const char * prefix = "",
-	      const char * suffix = "") const;
+  void print(FILE *f = stdout, const char *prefix = "", const char *suffix = "") const;
 
-  void print_all_trees (CascadesGroupId root,
-			NABoolean incl_log,
-			NABoolean incl_phs,
-			FILE * f = stdout) const;
-//<pb>
-private:
+  void print_all_trees(CascadesGroupId root, NABoolean incl_log, NABoolean incl_phs, FILE *f = stdout) const;
+  //<pb>
+ private:
+  ARRAY(CascadesGroup *) group_;  // groups of equivalent expressions
 
-  ARRAY(CascadesGroup *) group_;      // groups of equivalent expressions
+  ARRAY(RelExpr *) hash_;  // for dupl. expr. detection
+  Lng32 hashSize_;         // size of hash table
 
-  ARRAY(RelExpr *)	 hash_;       // for dupl. expr. detection
-  Lng32                   hashSize_;   // size of hash table
-
-}; // CascadesMemo
+};  // CascadesMemo
 //<pb>
 // -----------------------------------------------------------------------
 // Tasks
@@ -2374,31 +1813,27 @@ private:
 //  Tasks must destroy themselves when done!
 // -----------------------------------------------------------------------
 
-class CascadesTask : public NABasicObject
-{
-friend class CascadesTaskList;
+class CascadesTask : public NABasicObject {
+  friend class CascadesTaskList;
 
-public:
+ public:
+  enum cascadesTaskTypeEnum {
+    OPTIMIZE_GROUP_TASK,
+    OPTIMIZE_EXPR_TASK,
+    APPLY_RULE_TASK,
+    CREATE_PLAN_TASK,
+    EXPLORE_GROUP_TASK,
+    EXPLORE_EXPR_TASK,
+    GARBAGE_COLLECTION_TASK,
+    NUMBER_OF_TASK_TYPES = 7  // This should be at the end of the list
+  };
 
-  enum cascadesTaskTypeEnum
-    {
-      OPTIMIZE_GROUP_TASK,
-      OPTIMIZE_EXPR_TASK,
-      APPLY_RULE_TASK,
-      CREATE_PLAN_TASK,
-      EXPLORE_GROUP_TASK,
-      EXPLORE_EXPR_TASK,
-      GARBAGE_COLLECTION_TASK,
-      NUMBER_OF_TASK_TYPES = 7     // This should be at the end of the list
-    };
+  CascadesTask(Guidance *guidance, Context *context, Lng32 parentTaskId, short stride);
+  ~CascadesTask();
 
-  CascadesTask (Guidance * guidance, Context * context,
-		Lng32 parentTaskId, short stride);
-  ~CascadesTask ();
+  Context *getContext() const { return context_; }
 
-  Context * getContext() const                        { return context_; }
-
-  inline CascadesTask * getNextTask() const {return next_; }
+  inline CascadesTask *getNextTask() const { return next_; }
 
   inline Lng32 getParentTaskId() const { return parentTaskId_; }
 
@@ -2406,82 +1841,73 @@ public:
 
   virtual CascadesGroupId getGroupId() const;
 
-  virtual RelExpr * getExpr();
+  virtual RelExpr *getExpr();
 
-  virtual CascadesPlan * getPlan();
+  virtual CascadesPlan *getPlan();
 
-  virtual void perform (Lng32 taskId) = 0;
+  virtual void perform(Lng32 taskId) = 0;
 
-  virtual void garbageCollection(RelExpr *oldx,
-				 RelExpr *newx,
-				 Int32 groupMergeCount);
+  virtual void garbageCollection(RelExpr *oldx, RelExpr *newx, Int32 groupMergeCount);
 
   virtual NAString taskText() const;
 
   NABoolean taskNumberExceededLimit(Lng32 id);
 
-  virtual void print (FILE * f = stdout,
-		      const char * prefix = "",
-		      const char * suffix = "") const;
+  virtual void print(FILE *f = stdout, const char *prefix = "", const char *suffix = "") const;
 
   virtual cascadesTaskTypeEnum taskType() = 0;
 
-//<pb>
-private:
+  //<pb>
+ private:
+  CascadesTask *next_;  // linked list of tasks
 
-  CascadesTask	* next_;	  // linked list of tasks
-
-protected:
-
-  Guidance	* guidance_;	  // search guidance
-  Context	* context_;	      // shared context
-  Lng32        parentTaskId_;  // parent task, in execution order
-  short       stride_;        
+ protected:
+  Guidance *guidance_;  // search guidance
+  Context *context_;    // shared context
+  Lng32 parentTaskId_;  // parent task, in execution order
+  short stride_;
   // stride_ is (sub)task number assigned by parent in its parent::perform
   // call when parent was popped and it pushed this (sub)task onto the
-  // cascades todo stack. 
+  // cascades todo stack.
   // {parentTaskId_,stride_} uniquely identifies this CascadesTask.
 
-}; // CascadesTask
+};  // CascadesTask
 //<pb>
 // -----------------------------------------------------------------------
 // List of un-done tasks
 // -----------------------------------------------------------------------
 
-class CascadesTaskList : public NABasicObject
-{
-
-public:
-
-  CascadesTaskList ();
-  ~CascadesTaskList ();
-  inline NABoolean empty () const { return first_ == NULL; }
+class CascadesTaskList : public NABasicObject {
+ public:
+  CascadesTaskList();
+  ~CascadesTaskList();
+  inline NABoolean empty() const { return first_ == NULL; }
 
   // push and pop
-  inline void push (CascadesTask * task) { task->next_ = first_; first_ = task; }
-  CascadesTask * pop ();
+  inline void push(CascadesTask *task) {
+    task->next_ = first_;
+    first_ = task;
+  }
+  CascadesTask *pop();
 
   // for the rare case when tasks need to be scheduled in a specific position
   // on the stack
-  void insertTask (CascadesTask * task, CascadesTask * predecessorTask);
+  void insertTask(CascadesTask *task, CascadesTask *predecessorTask);
 
   // for the rare case when tasks need to be scheduled in a specific position
   // on the stack
-  void insertOptimizeExprTask (CascadesTask * task, CascadesTask * predecessorTask);
+  void insertOptimizeExprTask(CascadesTask *task, CascadesTask *predecessorTask);
 
   // non-destructive read
-  CascadesTask * getFirst() { return first_; }
-  CascadesTask * getNext(CascadesTask *prev) { return prev->next_; }
+  CascadesTask *getFirst() { return first_; }
+  CascadesTask *getNext(CascadesTask *prev) { return prev->next_; }
 
-  void print (FILE * f = stdout,
-	      const char * prefix = "",
-	      const char * suffix = "") const;
+  void print(FILE *f = stdout, const char *prefix = "", const char *suffix = "") const;
 
-private:
+ private:
+  CascadesTask *first_;  // anchor of CascadesTask stack
 
-  CascadesTask	* first_;	// anchor of CascadesTask stack
-
-}; // CascadesTaskList
+};  // CascadesTaskList
 //<pb>
 // -----------------------------------------------------------------------
 // Task to optimize a group
@@ -2489,36 +1915,27 @@ private:
 // Find the optimal plan for any expression in a group.
 // -----------------------------------------------------------------------
 
-class OptimizeGroupTask : public CascadesTask
-{
-
-public:
-
-  OptimizeGroupTask (Context * context,
-		     Guidance * guidance,
-		     NABoolean reoptimize,
-		     Lng32 parentTaskId, short stride);
+class OptimizeGroupTask : public CascadesTask {
+ public:
+  OptimizeGroupTask(Context *context, Guidance *guidance, NABoolean reoptimize, Lng32 parentTaskId, short stride);
   virtual CascadesGroupId getGroupId() const;
 
-  virtual void perform (Lng32 taskId);
+  virtual void perform(Lng32 taskId);
 
   virtual NAString taskText() const;
 
-  void print (FILE * f = stdout,
-	      const char * prefix = "",
-	      const char * suffix = "") const;
+  void print(FILE *f = stdout, const char *prefix = "", const char *suffix = "") const;
 
-  virtual cascadesTaskTypeEnum taskType() {return CascadesTask::OPTIMIZE_GROUP_TASK;}
+  virtual cascadesTaskTypeEnum taskType() { return CascadesTask::OPTIMIZE_GROUP_TASK; }
 
-private:
-
-  CascadesGroupId  groupId_;
-  NABoolean        reoptimize_;  // retry optimization before taking any
-                                 // existing "best" plans, if this is set to TRUE
+ private:
+  CascadesGroupId groupId_;
+  NABoolean reoptimize_;  // retry optimization before taking any
+                          // existing "best" plans, if this is set to TRUE
   // helper method that returns true if scheduling a CreatePlanTask for this
   // plan's physExpr for this context_ can generate a DAG (non-tree) plan
   NABoolean canCauseCycle(const CascadesPlan *plan) const;
-}; // OptimizeGroupTask
+};  // OptimizeGroupTask
 //<pb>
 // -----------------------------------------------------------------------
 // Task to explore a logical expression
@@ -2526,38 +1943,27 @@ private:
 // Find the optimal plan for any expression equivalent to a given one.
 // -----------------------------------------------------------------------
 
-class OptimizeExprTask : public CascadesTask
-{
-
-public:
-
-  OptimizeExprTask (RelExpr * expr,
-		    Guidance * guidance,
-		    Context * context,
-		    Lng32 parentTaskId, short stride);
+class OptimizeExprTask : public CascadesTask {
+ public:
+  OptimizeExprTask(RelExpr *expr, Guidance *guidance, Context *context, Lng32 parentTaskId, short stride);
   virtual CascadesGroupId getGroupId() const;
 
-  virtual RelExpr * getExpr();
+  virtual RelExpr *getExpr();
 
-  virtual void perform (Lng32 taskId);
+  virtual void perform(Lng32 taskId);
 
-  virtual void garbageCollection(RelExpr *oldx,
-				 RelExpr *newx,
-				 Int32 groupMergeCount);
+  virtual void garbageCollection(RelExpr *oldx, RelExpr *newx, Int32 groupMergeCount);
 
-  void print (FILE * f = stdout,
-	      const char * prefix = "",
-	      const char * suffix = "") const;
+  void print(FILE *f = stdout, const char *prefix = "", const char *suffix = "") const;
 
   virtual NAString taskText() const;
 
-  virtual cascadesTaskTypeEnum taskType() {return CascadesTask::OPTIMIZE_EXPR_TASK;}
+  virtual cascadesTaskTypeEnum taskType() { return CascadesTask::OPTIMIZE_EXPR_TASK; }
 
-private:
+ private:
+  RelExpr *expr_;
 
-  RelExpr	* expr_;
-
-}; // OptimizeExprTask
+};  // OptimizeExprTask
 //<pb>
 // -----------------------------------------------------------------------
 // Task to explore a group
@@ -2567,33 +1973,24 @@ private:
 // expressions.
 // -----------------------------------------------------------------------
 
-class ExploreGroupTask : public CascadesTask
-{
-
-public:
-
-  ExploreGroupTask (CascadesGroupId groupId,
-		    RelExpr * pattern,
-		    Guidance * guidance,
-		    Lng32 parentTaskId, short stride);
+class ExploreGroupTask : public CascadesTask {
+ public:
+  ExploreGroupTask(CascadesGroupId groupId, RelExpr *pattern, Guidance *guidance, Lng32 parentTaskId, short stride);
   virtual CascadesGroupId getGroupId() const;
 
-  virtual void perform (Lng32 taskId);
+  virtual void perform(Lng32 taskId);
 
-  void print (FILE * f = stdout,
-	      const char * prefix = "",
-	      const char * suffix = "") const;
+  void print(FILE *f = stdout, const char *prefix = "", const char *suffix = "") const;
 
   virtual NAString taskText() const;
 
-  virtual cascadesTaskTypeEnum taskType() {return CascadesTask::EXPLORE_GROUP_TASK;}
+  virtual cascadesTaskTypeEnum taskType() { return CascadesTask::EXPLORE_GROUP_TASK; }
 
-private:
+ private:
+  CascadesGroupId groupId_;
+  RelExpr *pattern_;
 
-  CascadesGroupId   groupId_;
-  RelExpr	  * pattern_;
-
-}; // ExploreGroupTask
+};  // ExploreGroupTask
 //<pb>
 // -----------------------------------------------------------------------
 // Task to explore a logical expression
@@ -2603,37 +2000,26 @@ private:
 // expressions.
 // -----------------------------------------------------------------------
 
-class ExploreExprTask : public CascadesTask
-{
-
-public:
-
-  ExploreExprTask (RelExpr * expr,
-		   RelExpr * pattern,
-		   Guidance * guidance,
-		   Lng32 parentTaskId, short stride);
+class ExploreExprTask : public CascadesTask {
+ public:
+  ExploreExprTask(RelExpr *expr, RelExpr *pattern, Guidance *guidance, Lng32 parentTaskId, short stride);
   virtual CascadesGroupId getGroupId() const;
-  virtual RelExpr * getExpr();
+  virtual RelExpr *getExpr();
 
-  virtual void perform (Lng32 taskId);
+  virtual void perform(Lng32 taskId);
 
-  virtual void garbageCollection(RelExpr *oldx,
-				 RelExpr *newx,
-				 Int32 groupMergeCount);
-  void print (FILE * f = stdout,
-	      const char * prefix = "",
-	      const char * suffix = "") const;
+  virtual void garbageCollection(RelExpr *oldx, RelExpr *newx, Int32 groupMergeCount);
+  void print(FILE *f = stdout, const char *prefix = "", const char *suffix = "") const;
 
   virtual NAString taskText() const;
 
-  virtual cascadesTaskTypeEnum taskType() {return CascadesTask::EXPLORE_EXPR_TASK;}
+  virtual cascadesTaskTypeEnum taskType() { return CascadesTask::EXPLORE_EXPR_TASK; }
 
-private:
+ private:
+  RelExpr *expr_;
+  RelExpr *pattern_;
 
-  RelExpr	* expr_;
-  RelExpr	* pattern_;
-
-}; // ExploreExprTask
+};  // ExploreExprTask
 //<pb>
 // -----------------------------------------------------------------------
 // Task to apply a rule to a logical expression
@@ -2643,42 +2029,30 @@ private:
 // apply the rule.
 // -----------------------------------------------------------------------
 
-class ApplyRuleTask : public CascadesTask
-{
-
-public:
-
-  ApplyRuleTask (Rule * rule,
-		 RelExpr * expr,
-		 RelExpr * pattern,
-		 Guidance * guidance,
-		 Context * context,
-		 Lng32 parentTaskId, short stride);
+class ApplyRuleTask : public CascadesTask {
+ public:
+  ApplyRuleTask(Rule *rule, RelExpr *expr, RelExpr *pattern, Guidance *guidance, Context *context, Lng32 parentTaskId,
+                short stride);
   virtual CascadesGroupId getGroupId() const;
-  virtual RelExpr * getExpr();
+  virtual RelExpr *getExpr();
 
-  virtual void perform (Lng32 taskId);
+  virtual void perform(Lng32 taskId);
 
-  virtual void garbageCollection(RelExpr *oldx,
-				 RelExpr *newx,
-				 Int32 groupMergeCount);
+  virtual void garbageCollection(RelExpr *oldx, RelExpr *newx, Int32 groupMergeCount);
 
-  void print (FILE * f = stdout,
-	      const char * prefix = "",
-	      const char * suffix = "") const;
+  void print(FILE *f = stdout, const char *prefix = "", const char *suffix = "") const;
   virtual NAString taskText() const;
 
-  virtual cascadesTaskTypeEnum taskType() {return CascadesTask::APPLY_RULE_TASK;}
+  virtual cascadesTaskTypeEnum taskType() { return CascadesTask::APPLY_RULE_TASK; }
 
-private:
+ private:
+  Rule *rule_;           // rule to apply
+  RelExpr *expr_;        // root of expr. before rule
+  RelExpr *pattern_;     // pattern for further exploration
+  NABoolean exploring_;  // FALSE if apply is for an optimizing task
+                         // TRUE if apply is for exploring task
 
-  Rule		* rule_;	// rule to apply
-  RelExpr	* expr_;	// root of expr. before rule
-  RelExpr     	* pattern_;     // pattern for further exploration
-  NABoolean     exploring_;     // FALSE if apply is for an optimizing task
-                                // TRUE if apply is for exploring task
-
-}; // ApplyRuleTask
+};  // ApplyRuleTask
 //<pb>
 // -----------------------------------------------------------------------
 // Task to create a subplan
@@ -2692,44 +2066,32 @@ private:
 // times, i.e., each time another child has been optimized.
 // -----------------------------------------------------------------------
 
-class CreatePlanTask : public CascadesTask
-{
+class CreatePlanTask : public CascadesTask {
+ public:
+  CreatePlanTask(Rule *rule, RelExpr *expr, Guidance *guidance, Context *context, Lng32 parentTaskId, short stride,
+                 CascadesPlan *failedPlan = NULL);
 
-public:
-
-  CreatePlanTask (Rule * rule,
-		  RelExpr * expr,
-		  Guidance * guidance,
-		  Context * context,
-		  Lng32 parentTaskId, short stride,
-		  CascadesPlan * failedPlan = NULL);
-
-  ~CreatePlanTask ();
-  void print (FILE * f = stdout,
-	      const char * prefix = "",
-	      const char * suffix = "") const;
+  ~CreatePlanTask();
+  void print(FILE *f = stdout, const char *prefix = "", const char *suffix = "") const;
   virtual NAString taskText() const;
   virtual CascadesGroupId getGroupId() const;
-  virtual RelExpr * getExpr();
-  virtual CascadesPlan * getPlan();
+  virtual RelExpr *getExpr();
+  virtual CascadesPlan *getPlan();
 
-  virtual void perform (Lng32 taskId);
+  virtual void perform(Lng32 taskId);
 
-  virtual void garbageCollection(RelExpr *oldx,
-				 RelExpr *newx,
-				 Int32 groupMergeCount);
+  virtual void garbageCollection(RelExpr *oldx, RelExpr *newx, Int32 groupMergeCount);
 
-  virtual cascadesTaskTypeEnum taskType() {return CascadesTask::CREATE_PLAN_TASK;}
+  virtual cascadesTaskTypeEnum taskType() { return CascadesTask::CREATE_PLAN_TASK; }
 
-private:
+ private:
+  CascadesPlan *plan_;  // the plan
 
-  CascadesPlan * plan_;            // the plan
+  PlanWorkSpace *workSpace_;  // how many lives did this task have so far
 
-  PlanWorkSpace*  workSpace_;      // how many lives did this task have so far
+  Rule *rule_;  // implementation rule that was applied
 
-  Rule *         rule_;            // implementation rule that was applied
-
-}; // CreatePlanTask
+};  // CreatePlanTask
 //<pb>
 // -----------------------------------------------------------------------
 // Task to clean up after a group merge
@@ -2741,31 +2103,23 @@ private:
 // such, because they use different (but equivalent) group numbers.
 // -----------------------------------------------------------------------
 
-class GarbageCollectionTask : public CascadesTask
-{
+class GarbageCollectionTask : public CascadesTask {
+ public:
+  GarbageCollectionTask();
+  ~GarbageCollectionTask();
+  virtual void perform(Lng32 taskId);
 
-public:
+  virtual void garbageCollection(RelExpr *oldx, RelExpr *newx, Int32 groupMergeCount);
 
-  GarbageCollectionTask ();
-  ~GarbageCollectionTask ();
-  virtual void perform (Lng32 taskId);
-
-  virtual void garbageCollection(RelExpr *oldx,
-				 RelExpr *newx,
-				 Int32 groupMergeCount);
-
-  void print (FILE * f = stdout,
-	      const char * prefix = "",
-	      const char * suffix = "") const;
+  void print(FILE *f = stdout, const char *prefix = "", const char *suffix = "") const;
 
   virtual NAString taskText() const;
 
-  virtual cascadesTaskTypeEnum taskType() {return CascadesTask::GARBAGE_COLLECTION_TASK;}
+  virtual cascadesTaskTypeEnum taskType() { return CascadesTask::GARBAGE_COLLECTION_TASK; }
 
-private:
-
+ private:
   NABoolean alreadyDone_;
-}; // GarbageCollectionTask
+};  // GarbageCollectionTask
 //<pb>
 // -----------------------------------------------------------------------
 // Bindings
@@ -2776,70 +2130,57 @@ private:
 // iterator over all possible bindings for a pattern.
 // -----------------------------------------------------------------------
 
-class CascadesBinding : public ReferenceCounter
-{
+class CascadesBinding : public ReferenceCounter {
+ public:
+  enum CascadesBindingStateEnum {
+    START_GROUP,       // newly created for an entire group
+    START_EXPR,        // newly created for a single expression
+    VALID_BINDING,     // last binding was succeeded
+    ALMOST_EXHAUSTED,  // last binding succeeded, but no further ones
+    FINISHED,          // iteration through bindings is exhausted
+    EXPR_FINISHED      // current expr is finished; in advance() only
+  };
 
-public:
-
-  enum CascadesBindingStateEnum
-    {
-      START_GROUP,	// newly created for an entire group
-      START_EXPR,	// newly created for a single expression
-      VALID_BINDING,	// last binding was succeeded
-      ALMOST_EXHAUSTED, // last binding succeeded, but no further ones
-      FINISHED,	        // iteration through bindings is exhausted
-      EXPR_FINISHED	// current expr is finished; in advance() only
-    };
-
-  static const char * binding_state_name (CascadesBindingStateEnum state)
-    {
-      return  state == START_GROUP ? "start a group" :
-              state == START_EXPR ? "start an expr" :
-              state == VALID_BINDING ? "valid binding" :
-              state == ALMOST_EXHAUSTED ? "last valid binding" :
-              state == FINISHED ? "finished" : "undefined";
-    } // binding_state_name
+  static const char *binding_state_name(CascadesBindingStateEnum state) {
+    return state == START_GROUP
+               ? "start a group"
+               : state == START_EXPR ? "start an expr"
+                                     : state == VALID_BINDING
+                                           ? "valid binding"
+                                           : state == ALMOST_EXHAUSTED ? "last valid binding"
+                                                                       : state == FINISHED ? "finished" : "undefined";
+  }  // binding_state_name
 
   // to find bindings for all expressions in group
-  CascadesBinding(CascadesGroupId groupId,
-		  RelExpr * pattern,
-		  CascadesBinding * parent,
-		  NABoolean incl_log,
-		  NABoolean incl_phys);
+  CascadesBinding(CascadesGroupId groupId, RelExpr *pattern, CascadesBinding *parent, NABoolean incl_log,
+                  NABoolean incl_phys);
 
   // to find bindings rooted at a specific logical expression
-  CascadesBinding(RelExpr * expr,
-		  RelExpr * pattern,
-		  CascadesBinding * parent,
-		  NABoolean incl_log,
-		  NABoolean incl_phys);
+  CascadesBinding(RelExpr *expr, RelExpr *pattern, CascadesBinding *parent, NABoolean incl_log, NABoolean incl_phys);
 
   ~CascadesBinding();
-  void print(FILE * f = stdout,
-	     const char * prefix = "",
-	     const char * suffix = "") const;
+  void print(FILE *f = stdout, const char *prefix = "", const char *suffix = "") const;
 
-  NABoolean advance();		// produce the next binding
+  NABoolean advance();  // produce the next binding
 
-  RelExpr * extract_expr();        // materialize a binding
-  void release_expr();          // release the materialized binding
+  RelExpr *extract_expr();  // materialize a binding
+  void release_expr();      // release the materialized binding
 
   inline CascadesGroupId getGroupId() const { return groupId_; }
-  inline CascadesBinding * getParent() { return parent_; }
-//<pb>
-private:
+  inline CascadesBinding *getParent() { return parent_; }
+  //<pb>
+ private:
+  CascadesBindingStateEnum state_;
 
-  CascadesBindingStateEnum  state_;
+  NABoolean fixed_;          // is advancing prohibited?
+  CascadesGroupId groupId_;  // group for which a binding is to be created
+  RelExpr *curExpr_;         // first or current expression
+  RelExpr *copiedExpr_;      // copied extracted expression or NULL
 
-  NABoolean	     fixed_;	    // is advancing prohibited?
-  CascadesGroupId    groupId_;      // group for which a binding is to be created
-  RelExpr	   * curExpr_;	    // first or current expression
-  RelExpr          * copiedExpr_;   // copied extracted expression or NULL
-
-  RelExpr	   * pattern_;	    // pattern to search for
-  CascadesBinding  * parent_;       // parent binding or NULL for top
-  NABoolean	     inclLog_;	    // include log. expr's?
-  NABoolean	     inclPhys_;	    // include phys. expr's?
+  RelExpr *pattern_;         // pattern to search for
+  CascadesBinding *parent_;  // parent binding or NULL for top
+  NABoolean inclLog_;        // include log. expr's?
+  NABoolean inclPhys_;       // include phys. expr's?
 
   LIST(CascadesBinding *) children_;  // bindings for child expr's
 
@@ -2854,141 +2195,102 @@ private:
 //
 // -----------------------------------------------------------------------
 
-class OptDebug
-{
-public:
+class OptDebug {
+ public:
   OptDebug();
   ~OptDebug();
 
-  NABoolean openLog( const char* filename );
+  NABoolean openLog(const char *filename);
   void closeLog();
 
-  
-  void setCompileInstanceClass(const char* str);
+  void setCompileInstanceClass(const char *str);
 
   // ---------------------------------------------------------------------
   // Accessor functions.
   // ---------------------------------------------------------------------
-  ostream& stream();
-  FILE*    fp();
+  ostream &stream();
+  FILE *fp();
 
   // ---------------------------------------------------------------------
   // Functions to show tree nodes and their properties for debugging purpose.
   // ---------------------------------------------------------------------
-  void showTree( const ExprNode *tree = NULL,
-                 const CascadesPlan *plan = NULL,
-                 const char *prefix = "",
-                 NABoolean showDetail = TRUE );
+  void showTree(const ExprNode *tree = NULL, const CascadesPlan *plan = NULL, const char *prefix = "",
+                NABoolean showDetail = TRUE);
 
   // ---------------------------------------------------------------------
   // Functions to show CascadeTask for debugging purpose.
   // ---------------------------------------------------------------------
-  void showTask( Int32 pass = -1,
-                 Int32 groupId = -1,
-                 Int32 task_count = -1,
-                 const CascadesTask *task = NULL,
-                 const ExprNode *tree = NULL,
-                 const CascadesPlan *plan = NULL,
-                 const char *prefix = "" );
+  void showTask(Int32 pass = -1, Int32 groupId = -1, Int32 task_count = -1, const CascadesTask *task = NULL,
+                const ExprNode *tree = NULL, const CascadesPlan *plan = NULL, const char *prefix = "");
 
-  void showNode( const ExprNode *tree = NULL,
-                 const CascadesPlan *plan = NULL,
-                 const char *prefix = "",
-                 NABoolean showDetail = TRUE );
+  void showNode(const ExprNode *tree = NULL, const CascadesPlan *plan = NULL, const char *prefix = "",
+                NABoolean showDetail = TRUE);
 
   // ---------------------------------------------------------------------
   // Functions to show memo statistics for debugging purpose.
   // ---------------------------------------------------------------------
   void showMemoStats(CascadesMemo *memo, const char *prefix, ostream &out);
 
-private:
-
+ private:
   // ---------------------------------------------------------------------
   // Log file related members.
   // ---------------------------------------------------------------------
 
-  NABoolean fileIsGood_;         // true if a file has been specified
-  char      logFileName_[1024];  // log file name
-  fstream   fstream_;            // log file stream
-  FILE     *file_;               // log file object
+  NABoolean fileIsGood_;    // true if a file has been specified
+  char logFileName_[1024];  // log file name
+  fstream fstream_;         // log file stream
+  FILE *file_;              // log file object
 
   CmpContextInfo::CmpContextClassType ciClass_;  // the class of compile instances
-                                 // to which the compilation activities as
-                                 // specified by NSK_DBG_<nnn> will be reported.
-                                 // The values are defined by 
-                                 // CmpContextInfo::setCompileInstanceClass.
+                                                 // to which the compilation activities as
+                                                 // specified by NSK_DBG_<nnn> will be reported.
+                                                 // The values are defined by
+                                                 // CmpContextInfo::setCompileInstanceClass.
 
   // ---------------------------------------------------------------------
   // Helper functions
   // ---------------------------------------------------------------------
 
-  void showItemExpr( const ExprNode *tree = NULL,
-                     const CascadesPlan *plan = NULL,
-                     const char *prefix = "" );
+  void showItemExpr(const ExprNode *tree = NULL, const CascadesPlan *plan = NULL, const char *prefix = "");
 
-  void showProperties( const ExprNode *tree = NULL,
-                       const CascadesPlan *plan = NULL,
-                       const char *prefix = "" );
+  void showProperties(const ExprNode *tree = NULL, const CascadesPlan *plan = NULL, const char *prefix = "");
 
-  double getCost( const RelExpr *re, const CascadesPlan *plan );
-  double getRows( const RelExpr *re, const CascadesPlan *plan );
-  const NAString getGroups( const RelExpr *re );
-  const NAString getType( const RelExpr *re, const CascadesPlan *plan );
+  double getCost(const RelExpr *re, const CascadesPlan *plan);
+  double getRows(const RelExpr *re, const CascadesPlan *plan);
+  const NAString getGroups(const RelExpr *re);
+  const NAString getType(const RelExpr *re, const CascadesPlan *plan);
 
-  void showCharacteristicInputs( const RelExpr *re,
-                                 const CascadesPlan *plan,
-                                 const char *prefix = "" );
-  void showCharacteristicOutputs( const RelExpr *re,
-                                  const CascadesPlan *plan,
-                                  const char *prefix = "" );
-  void showConstraints( const RelExpr *re,
-                        const CascadesPlan *plan,
-                        const char *prefix = "" );
-  void showContext( const RelExpr *re,
-                    const CascadesPlan *plan,
-                    const char *prefix = "" );
-  void showCosts( const RelExpr *re,
-                  const CascadesPlan *plan,
-                  const char *prefix = "" );
-  void showLogicalProperties( const RelExpr *re,
-                              const CascadesPlan *plan,
-                              const char *prefix = "" );
-  void showPhysicalProperties( const RelExpr *re,
-                               const CascadesPlan *plan,
-                               const char *prefix = "" );
+  void showCharacteristicInputs(const RelExpr *re, const CascadesPlan *plan, const char *prefix = "");
+  void showCharacteristicOutputs(const RelExpr *re, const CascadesPlan *plan, const char *prefix = "");
+  void showConstraints(const RelExpr *re, const CascadesPlan *plan, const char *prefix = "");
+  void showContext(const RelExpr *re, const CascadesPlan *plan, const char *prefix = "");
+  void showCosts(const RelExpr *re, const CascadesPlan *plan, const char *prefix = "");
+  void showLogicalProperties(const RelExpr *re, const CascadesPlan *plan, const char *prefix = "");
+  void showPhysicalProperties(const RelExpr *re, const CascadesPlan *plan, const char *prefix = "");
 
-  void showEstLogProp( const EstLogPropSharedPtr& estLogProp,
-                       const char * prefix = "" );
+  void showEstLogProp(const EstLogPropSharedPtr &estLogProp, const char *prefix = "");
 
-  void showCostInDetail( const NAString& header,
-                         const Cost *cost,
-                         const char *prefix = "" );
-  void showSimpleCostVector( const char* header,
-                             const SimpleCostVector &scv,
-                             const char *prefix,
-                             ostream &out );
-  void showSimpleCostVectorDetail( const SimpleCostVector &scv,
-                                   const char *prefix,
-                                   ostream &out );
+  void showCostInDetail(const NAString &header, const Cost *cost, const char *prefix = "");
+  void showSimpleCostVector(const char *header, const SimpleCostVector &scv, const char *prefix, ostream &out);
+  void showSimpleCostVectorDetail(const SimpleCostVector &scv, const char *prefix, ostream &out);
 
 };  // class OptDebug
 
 class AssertException;
 
-class QueryOptimizerDriver
-{
-public:
+class QueryOptimizerDriver {
+ public:
   QueryOptimizerDriver(RelExpr *relExpr);
   ~QueryOptimizerDriver();
-  RelExpr * doPass1Only(RelExpr *relExpr, Context *context);
-  RelExpr * doPass1Pass2(RelExpr *relExpr, Context *context);
-  RelExpr * doPass2PerhapsPass1(RelExpr *relExpr, Context *context,
-				RelExpr *original);
-  Context * initializeOptimization(RelExpr *relExpr);
+  RelExpr *doPass1Only(RelExpr *relExpr, Context *context);
+  RelExpr *doPass1Pass2(RelExpr *relExpr, Context *context);
+  RelExpr *doPass2PerhapsPass1(RelExpr *relExpr, Context *context, RelExpr *original);
+  Context *initializeOptimization(RelExpr *relExpr);
   void resetOptimization();
-private:
+
+ private:
   void DEBUG_BREAK_ON_TASK();
-  void DEBUG_SHOW_TASK(CascadesTask * task);
+  void DEBUG_SHOW_TASK(CascadesTask *task);
   void DEBUG_PRINT_COUNTERS();
   void DEBUG_RESET_PWSCOUNT();
   void DEBUG_SHOW_PLAN(Context *context);
@@ -3002,12 +2304,12 @@ private:
   void TEST_ERROR_HANDLING();
 
   void initializeMonitors();
-  RelExpr * bindSavedPass1Solution(RelExpr *relExpr, Context *context);
+  RelExpr *bindSavedPass1Solution(RelExpr *relExpr, Context *context);
   void setupPassTwoHeuristics(Context *context);
   void optimizeAPass(Context *context);
   void optimizeAPassHelper(Context *context);
   void markFatalAndGenErrorNoPlan(RelExpr *relExpr, Context *context);
-  void genWarnAssertPassTwo(AssertException & e);
+  void genWarnAssertPassTwo(AssertException &e);
   void genWarnNoPlanPassTwo();
   void genErrorNoPlan(RelExpr *relExpr, Context *context);
 
@@ -3021,21 +2323,19 @@ private:
 
 void opt_qsort(void *base, UInt32 num, UInt32 width, Int32 (*comp)(const void *, const void *));
 
+// class to wrap some optimizer global variables.
+class OptGlobals {
+ public:
+  OptGlobals(NAHeap *heap_);
 
-// class to wrap some optimizer global variables. 
-class OptGlobals
-{
-public:
-   OptGlobals (NAHeap* heap_);
+  // -----------------------------------------------------------------------
+  // counters for capturing optimizer statistics
+  // -----------------------------------------------------------------------
 
-   // -----------------------------------------------------------------------
-   // counters for capturing optimizer statistics
-   // -----------------------------------------------------------------------
+  ObjectCounter *contextCounter;
+  ObjectCounter *cascadesPlanCounter;
 
-   ObjectCounter* contextCounter; 
-   ObjectCounter* cascadesPlanCounter; 
-
-   Lng32            duplicate_expr_count;
+  Lng32 duplicate_expr_count;
 
 #ifdef DEBUG
   // ---------------------------------------------------------------------
@@ -3046,94 +2346,94 @@ public:
   Lng32 planWorkSpaceCount;
 #endif /* DEBUG */
 
-   Lng32            logical_expr_count;
-   Lng32            physical_expr_count;
-   Lng32            plans_count;
+  Lng32 logical_expr_count;
+  Lng32 physical_expr_count;
+  Lng32 plans_count;
 
-   // ----------------------------------------------------------------
-   // counters for evaluating ASM
-   // -----------------------------------------------------------------
-   Int32 asm_count;
-   Int32 cascade_count;
-   
-   // TaskMonitor cascadesTasksMonitor[CascadesTask::NUMBER_OF_TASK_TYPES];
-   TaskMonitor *cascadesTasksMonitor[CascadesTask::NUMBER_OF_TASK_TYPES];
-   TaskMonitor *cascadesPassMonitor;
-   
-   // These monitor were introduced to collect statistics about how
-   // much time ScanOptimizer spent in most important functions
-   // for costing and how many times those functions were called
-   
-   // First 3 Monitors collect statistics about fileScanOptimizer.optimize(...)
-   // in costmethod. fileScanMonitor gives total statistics, nestedJoinMonitor
-   // - inside nested joins, indexJoinMonitor - inside index joins
-   
-   TaskMonitor     *fileScanMonitor;
-   TaskMonitor     *nestedJoinMonitor;
-   TaskMonitor     *indexJoinMonitor;
-   
-   // Next 3 Monitors collect statistics about computeCostForSingleSubset
-   // in costmethod. singleSubsetMonitor gives total statistics,
-   // singleVectorCostMonitor - inside computeCostVector,
-   // singleObjectCostMonitor - inside computeCostObject
-   
-   TaskMonitor     *singleSubsetCostMonitor;
-   TaskMonitor     *singleVectorCostMonitor;
-   TaskMonitor     *singleObjectCostMonitor;
-   
-   // Next 3 Monitors collect statistics about computeCostForMultipleSubset
-   // in costmethod. multSubsetMonitor gives total statistics,
-   // multVectorCostMonitor - inside computeCostVectorForMultipleSubset,
-   // multObjectCostMonitor - inside computeCostObject (only to compute
-   // final cost object, cases when computeCostObject is called to compute
-   // intermediate cost to check the costBound are not counted).
-   
-   TaskMonitor     *multSubsetCostMonitor;
-   TaskMonitor     *multVectorCostMonitor;
-   TaskMonitor     *multObjectCostMonitor;
-   
-   // This last monitor counts how many times a final cost object was
-   // created for asynchronous access for both singleSubset and
-   // multipleSubset. This is being counted in computeCostObject
-   // function. To ignore all other calls (except final) for
-   // computeCostObject synCheckFlag is used. (Inside computeCostFor
-   // MultipleSubset computeCOstObject is called many times to
-   // check costBound). It is set to TRUE right before the final call,
-   // and - to FALSE right after it.
-   
-   TaskMonitor    *asynchrMonitor;
-   NABoolean       synCheckFlag;
-   
-   // Controls DCMPASSERT delta < 0 for Linux
-   NABoolean warningGiven;
-   
-   // -----------------------------------------------------------------------
-   // command line options (initially set in sqlcomp.C)
-   // -----------------------------------------------------------------------
-   
-   NABoolean       pruningIsFeasible;
-   NABoolean       maxParIsFeasible;
-   NABoolean       forceParallelInsertSelect;
+  // ----------------------------------------------------------------
+  // counters for evaluating ASM
+  // -----------------------------------------------------------------
+  Int32 asm_count;
+  Int32 cascade_count;
 
-   // Setting this to FALSE makes the optimizer print out statistics
-   NABoolean       BeSilent;
-   
-   // ----------------------------------------------------------------------
-   // A  global output string for debugging
-   // ----------------------------------------------------------------------
-   
-   char returnString[500];      // global output string for debugging
-   
-   // for debugging only
-   Int32             group_merge_count;
-   Int32             garbage_expr_count;
-   Int32             pruned_tasks_count;
-   NABoolean         countExpr;
+  // TaskMonitor cascadesTasksMonitor[CascadesTask::NUMBER_OF_TASK_TYPES];
+  TaskMonitor *cascadesTasksMonitor[CascadesTask::NUMBER_OF_TASK_TYPES];
+  TaskMonitor *cascadesPassMonitor;
 
-   CascadesMemo     * memo;
-   CascadesTaskList * task_list;
+  // These monitor were introduced to collect statistics about how
+  // much time ScanOptimizer spent in most important functions
+  // for costing and how many times those functions were called
 
-private:
- NAHeap* heap_;
+  // First 3 Monitors collect statistics about fileScanOptimizer.optimize(...)
+  // in costmethod. fileScanMonitor gives total statistics, nestedJoinMonitor
+  // - inside nested joins, indexJoinMonitor - inside index joins
+
+  TaskMonitor *fileScanMonitor;
+  TaskMonitor *nestedJoinMonitor;
+  TaskMonitor *indexJoinMonitor;
+
+  // Next 3 Monitors collect statistics about computeCostForSingleSubset
+  // in costmethod. singleSubsetMonitor gives total statistics,
+  // singleVectorCostMonitor - inside computeCostVector,
+  // singleObjectCostMonitor - inside computeCostObject
+
+  TaskMonitor *singleSubsetCostMonitor;
+  TaskMonitor *singleVectorCostMonitor;
+  TaskMonitor *singleObjectCostMonitor;
+
+  // Next 3 Monitors collect statistics about computeCostForMultipleSubset
+  // in costmethod. multSubsetMonitor gives total statistics,
+  // multVectorCostMonitor - inside computeCostVectorForMultipleSubset,
+  // multObjectCostMonitor - inside computeCostObject (only to compute
+  // final cost object, cases when computeCostObject is called to compute
+  // intermediate cost to check the costBound are not counted).
+
+  TaskMonitor *multSubsetCostMonitor;
+  TaskMonitor *multVectorCostMonitor;
+  TaskMonitor *multObjectCostMonitor;
+
+  // This last monitor counts how many times a final cost object was
+  // created for asynchronous access for both singleSubset and
+  // multipleSubset. This is being counted in computeCostObject
+  // function. To ignore all other calls (except final) for
+  // computeCostObject synCheckFlag is used. (Inside computeCostFor
+  // MultipleSubset computeCOstObject is called many times to
+  // check costBound). It is set to TRUE right before the final call,
+  // and - to FALSE right after it.
+
+  TaskMonitor *asynchrMonitor;
+  NABoolean synCheckFlag;
+
+  // Controls DCMPASSERT delta < 0 for Linux
+  NABoolean warningGiven;
+
+  // -----------------------------------------------------------------------
+  // command line options (initially set in sqlcomp.C)
+  // -----------------------------------------------------------------------
+
+  NABoolean pruningIsFeasible;
+  NABoolean maxParIsFeasible;
+  NABoolean forceParallelInsertSelect;
+
+  // Setting this to FALSE makes the optimizer print out statistics
+  NABoolean BeSilent;
+
+  // ----------------------------------------------------------------------
+  // A  global output string for debugging
+  // ----------------------------------------------------------------------
+
+  char returnString[500];  // global output string for debugging
+
+  // for debugging only
+  Int32 group_merge_count;
+  Int32 garbage_expr_count;
+  Int32 pruned_tasks_count;
+  NABoolean countExpr;
+
+  CascadesMemo *memo;
+  CascadesTaskList *task_list;
+
+ private:
+  NAHeap *heap_;
 };
-#endif // OPT_HDR
+#endif  // OPT_HDR

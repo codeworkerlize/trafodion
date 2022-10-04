@@ -59,51 +59,47 @@ class TriggerBindInfo;
 //***************************************************************************
 //			OptTrigger
 //
-//	Hold single trigger information, needed in optimizer pilot phase for reorder	
+//	Hold single trigger information, needed in optimizer pilot phase for reorder
 //***************************************************************************
 
-class OptTrigger : public NABasicObject
-{
-public:
+class OptTrigger : public NABasicObject {
+ public:
   // ---------------------------------------------------------------------
   // Constructor functions
   // ---------------------------------------------------------------------
-  OptTrigger(SubTreeAccessSet *treeAccessSet, 
-	     NABoolean isRowTrigger,
-	     RelExpr *triggerSubTree, 
-	     RelExpr *parentSubTree);
+  OptTrigger(SubTreeAccessSet *treeAccessSet, NABoolean isRowTrigger, RelExpr *triggerSubTree, RelExpr *parentSubTree);
 
   // Dummy copy constructor - method body does not exist
-  OptTrigger(const OptTrigger &orig, NAMemory *h=0); 
+  OptTrigger(const OptTrigger &orig, NAMemory *h = 0);
   // ---------------------------------------------------------------------
   // Accessor functions
   // ---------------------------------------------------------------------
-  inline const SubTreeAccessSet *getAccessSet()	const    {return treeAccessSet_;}
-  inline NABoolean isRowTrigger() const			 {return isRowTrigger_;}
-  inline const RelExpr * getTriggerSubTree() const		 {return triggerSubtree_;}		
-  inline const RelExpr * getTriggerParentSubTree() const {return triggerParentSubtree_;}
-  inline Int64 getTriggerTimeStamp() const
-  {return (triggerSubtree_->getInliningInfo().getTriggerObject()->getTimeStamp());}
+  inline const SubTreeAccessSet *getAccessSet() const { return treeAccessSet_; }
+  inline NABoolean isRowTrigger() const { return isRowTrigger_; }
+  inline const RelExpr *getTriggerSubTree() const { return triggerSubtree_; }
+  inline const RelExpr *getTriggerParentSubTree() const { return triggerParentSubtree_; }
+  inline Int64 getTriggerTimeStamp() const {
+    return (triggerSubtree_->getInliningInfo().getTriggerObject()->getTimeStamp());
+  }
 
-private:
+ private:
   const SubTreeAccessSet *treeAccessSet_;
   const NABoolean isRowTrigger_;
-  const RelExpr *triggerSubtree_; // from the Driving union down
-  const RelExpr *triggerParentSubtree_;// union or NULL (for reuse)
-};// OptTrigger
+  const RelExpr *triggerSubtree_;        // from the Driving union down
+  const RelExpr *triggerParentSubtree_;  // union or NULL (for reuse)
+};                                       // OptTrigger
 
-typedef OptTrigger *OptTriggerPtr; // this typedef is used in OptTriggersBackbone::reorder
+typedef OptTrigger *OptTriggerPtr;  // this typedef is used in OptTriggersBackbone::reorder
 
 //***********************************************************************
 //	A list of OptTrigger
 //***********************************************************************
-class OptTriggerList : public LIST(OptTriggerPtr)
-{
-public:
-  OptTriggerList(): LIST(OptTriggerPtr)(CmpCommon::statementHeap()) { }
+class OptTriggerList : public LIST(OptTriggerPtr) {
+ public:
+  OptTriggerList() : LIST(OptTriggerPtr)(CmpCommon::statementHeap()) {}
 
   // Dummy copy constructor - method body does not exist
-  OptTriggerList(const OptTriggerList &orig, NAMemory *h=0);
+  OptTriggerList(const OptTriggerList &orig, NAMemory *h = 0);
 
   RelExpr *createUnionSubTree() const;
 };
@@ -116,18 +112,16 @@ public:
 //
 //***********************************************************************
 
-class OptTriggerGroup  : public NABasicObject
-{
-public:
-
+class OptTriggerGroup : public NABasicObject {
+ public:
   enum TriggerGroupFlags {
     // placed in piplined action
     PIPELINED_ROW_TRIGGERS = 1,
     // executed in paraller to IUD
-    IUD_PARALLEL_STATEMENT_TRIGGER,	
-    // have conflict with previus group, 
+    IUD_PARALLEL_STATEMENT_TRIGGER,
+    // have conflict with previus group,
     // can includes both row and statment triggers
-    BLOCKED_GROUP						
+    BLOCKED_GROUP
   };
 
   // ---------------------------------------------------------------------
@@ -140,13 +134,12 @@ public:
 
   virtual ~OptTriggerGroup() {}
 
-  inline CollIndex entries() const 
-    { return (rowTriggerGroup_.entries()+statmentTriggerGroup_.entries());}
+  inline CollIndex entries() const { return (rowTriggerGroup_.entries() + statmentTriggerGroup_.entries()); }
 
-  //If the group is empty the answer is FALSE
-  NABoolean isConflicting(const SubTreeAccessSet *) const; 
+  // If the group is empty the answer is FALSE
+  NABoolean isConflicting(const SubTreeAccessSet *) const;
   // add trigger to group
-  void addTrigger(const OptTriggerPtr trigger); 
+  void addTrigger(const OptTriggerPtr trigger);
   // get group tree representation
   RelExpr *toTree();
   // creates the sub-tree that handles the row triggers in the group
@@ -156,52 +149,45 @@ public:
   // Accessor functions
   // ---------------------------------------------------------------------
 
-  inline NABoolean isPipeLinedRowTriggesGroup() const
-    {return ((Flags_ == PIPELINED_ROW_TRIGGERS) ? TRUE : FALSE);}
-  inline NABoolean isIudParallelStatmentGroup() const
-    {return ((Flags_ == IUD_PARALLEL_STATEMENT_TRIGGER) ? TRUE : FALSE);}
-  inline NABoolean isBlockedGroup() const
-    {return ((Flags_ == BLOCKED_GROUP) ? TRUE :FALSE);}
+  inline NABoolean isPipeLinedRowTriggesGroup() const { return ((Flags_ == PIPELINED_ROW_TRIGGERS) ? TRUE : FALSE); }
+  inline NABoolean isIudParallelStatmentGroup() const {
+    return ((Flags_ == IUD_PARALLEL_STATEMENT_TRIGGER) ? TRUE : FALSE);
+  }
+  inline NABoolean isBlockedGroup() const { return ((Flags_ == BLOCKED_GROUP) ? TRUE : FALSE); }
 
-private:
-
+ private:
   //---------------------------------------------------------------------------
   // methods for generating the temp-table scan for blocked triggers' groups
   //---------------------------------------------------------------------------
 
   RelExpr *buildTempScanTree();
-  
-  RelExpr *buildTempTableScanNodes(OptColumnMapping& colMapping, 
-				   BindWA           *bindWA);
+
+  RelExpr *buildTempTableScanNodes(OptColumnMapping &colMapping, BindWA *bindWA);
 
   //---------------------------------------------------------------------------
   // data members
   //---------------------------------------------------------------------------
 
-  OptTriggerList rowTriggerGroup_;// The triggers in the current group
-  OptTriggerList statmentTriggerGroup_;// The triggers in the current group
+  OptTriggerList rowTriggerGroup_;       // The triggers in the current group
+  OptTriggerList statmentTriggerGroup_;  // The triggers in the current group
   SubTreeAccessSet groupAccessSet_;
-  const TriggerGroupFlags Flags_; // see triggerGroupFlags
-  OptTriggersBackbone * backbone_;
+  const TriggerGroupFlags Flags_;  // see triggerGroupFlags
+  OptTriggersBackbone *backbone_;
 
-  ValueIdSet reqOutput_; // required output of the generated temp-table scan
-};// OptTriggerGroup
-
-
+  ValueIdSet reqOutput_;  // required output of the generated temp-table scan
+};                        // OptTriggerGroup
 
 // ***********************************************************************
 // A list of OptTriggerGrp
 // ***********************************************************************
 //
-class OptTriggerGroupList : public LIST(OptTriggerGroup *)
-{
-public:
-  OptTriggerGroupList(): LIST(OptTriggerGroup *)(CmpCommon::statementHeap()) { }
+class OptTriggerGroupList : public LIST(OptTriggerGroup *) {
+ public:
+  OptTriggerGroupList() : LIST(OptTriggerGroup *)(CmpCommon::statementHeap()) {}
 
   // Dummy copy constructor - method body does not exist
-  OptTriggerGroupList(const OptTriggerGroupList &orig, NAMemory *h=0);
+  OptTriggerGroupList(const OptTriggerGroupList &orig, NAMemory *h = 0);
 };
-
 
 //***********************************************************************
 //
@@ -212,36 +198,33 @@ public:
 // reorder and grouping of the triggers.
 //
 //***********************************************************************
-class OptTriggersBackbone  : public NABasicObject
-{
-public:
-
+class OptTriggersBackbone : public NABasicObject {
+ public:
   // ---------------------------------------------------------------------
   // Constructor functions
   // ---------------------------------------------------------------------
 
   OptTriggersBackbone(RelExpr *drivingBackbone)
-    : beforeTriggerDrivingNode_(NULL),
-      tempDeleteDrivingNode_(NULL),
-      statmentTriggerDrivingNode_(NULL),
-      rowTriggerDrivingNode_(NULL),
-      riDrivingNode_(NULL),
-      pipeLineDrivingNode_(NULL),
-      pipeLineDrivingNodeParent_(NULL),
-      tempInsertDrivingNode_(NULL),
-      tempInsertDrivingNodeParent_(NULL),
-      iudDrivingNode_(NULL),
-      iudDrivingNodeParent_(NULL),
-      iudNode_(NULL),
-      beforeTriggersExist_(FALSE),
-      triggerList_(NULL),
-      triggerGroups_(NULL),
-      drivingBackbone_(drivingBackbone),
-      pParent_(NULL),
-      pNext_(NULL),
-      triggerBindInfo_(NULL),
-      tempTableUsage_(0L)
-  {}
+      : beforeTriggerDrivingNode_(NULL),
+        tempDeleteDrivingNode_(NULL),
+        statmentTriggerDrivingNode_(NULL),
+        rowTriggerDrivingNode_(NULL),
+        riDrivingNode_(NULL),
+        pipeLineDrivingNode_(NULL),
+        pipeLineDrivingNodeParent_(NULL),
+        tempInsertDrivingNode_(NULL),
+        tempInsertDrivingNodeParent_(NULL),
+        iudDrivingNode_(NULL),
+        iudDrivingNodeParent_(NULL),
+        iudNode_(NULL),
+        beforeTriggersExist_(FALSE),
+        triggerList_(NULL),
+        triggerGroups_(NULL),
+        drivingBackbone_(drivingBackbone),
+        pParent_(NULL),
+        pNext_(NULL),
+        triggerBindInfo_(NULL),
+        tempTableUsage_(0L) {}
 
   ~OptTriggersBackbone();
 
@@ -254,17 +237,13 @@ public:
   // Accessor functions
   // ---------------------------------------------------------------------
 
-  inline NABoolean hasBeforeTriggers() const
-    { return beforeTriggersExist_; }
+  inline NABoolean hasBeforeTriggers() const { return beforeTriggersExist_; }
 
-  inline GenericUpdate *getTriggeringNode() const
-    { return iudNode_; }
+  inline GenericUpdate *getTriggeringNode() const { return iudNode_; }
 
-  inline RelExpr *getIudDrivingNode() const
-    { return iudDrivingNode_; }
+  inline RelExpr *getIudDrivingNode() const { return iudDrivingNode_; }
 
-  inline TriggerBindInfo *getTriggerBindInfo() const
-    { return triggerBindInfo_; }
+  inline TriggerBindInfo *getTriggerBindInfo() const { return triggerBindInfo_; }
 
   // force the cardinality of the given expression to be the same as the
   // IUD node that started the whole backbone
@@ -279,10 +258,9 @@ public:
   static void SetUnionCharacteristicInputs(RelExpr *pUnion);
   static void SetTsjCharacteristicInputs(RelExpr *pTsj);
   static void PrepareNewBindWA(BindWA &bindWA, TriggerBindInfo *bindInfo);
-  static RelExpr * BindAndNormalizeNewlyConstructedTree(BindWA *bindWA, RelExpr *topNode);
+  static RelExpr *BindAndNormalizeNewlyConstructedTree(BindWA *bindWA, RelExpr *topNode);
 
-private:
-
+ private:
   // dummy copy constructor - method body does not exist
   OptTriggersBackbone(const OptTriggersBackbone &orig);
 
@@ -298,8 +276,7 @@ private:
   void replacePipelinedRowTriggers(RelExpr *rowTriggerTree);
   RelExpr *toTree();
 
-  void fixCardinalityAndCollectTempUsage(RelExpr *rootNode,
-					 NABoolean enterInnerBackbone);
+  void fixCardinalityAndCollectTempUsage(RelExpr *rootNode, NABoolean enterInnerBackbone);
   void collectTempTableUsage(RelExpr *node);
   void setUsageAccordingToUniqueUidPredicate(const ValueIdSet &uniqueUidPred);
   void fixTempInsertSubtree();
@@ -340,22 +317,21 @@ private:
   RelExpr *iudDrivingNodeParent_;
   // The triggering IUD node - the one that started it all
   GenericUpdate *iudNode_;
-  
+
   NABoolean beforeTriggersExist_;
-  OptTriggerList *triggerList_; 
-  OptTriggerGroupList *triggerGroups_; 
+  OptTriggerList *triggerList_;
+  OptTriggerGroupList *triggerGroups_;
 
   // The following members are in use during the initalization of the object
   // and through the tagging of the key nodes in the backbone.
 
-  RelExpr *drivingBackbone_; // the tree to transform
-  RelExpr *pNext_; // current node - the next to be evaluated
-  RelExpr *pParent_; // parent of current node 
+  RelExpr *drivingBackbone_;  // the tree to transform
+  RelExpr *pNext_;            // current node - the next to be evaluated
+  RelExpr *pParent_;          // parent of current node
 
-  TriggerBindInfo *triggerBindInfo_; // information collected during binding
-  Lng32 tempTableUsage_; // specify which values are actually needed
-};// class OptTriggersBackbone
-
+  TriggerBindInfo *triggerBindInfo_;  // information collected during binding
+  Lng32 tempTableUsage_;              // specify which values are actually needed
+};                                    // class OptTriggersBackbone
 
 //***********************************************************************
 //
@@ -365,19 +341,16 @@ private:
 // This mapping holds only columns needed by a specific row trigger group.
 //
 //***********************************************************************
-class OptColumnMapping  : public NABasicObject
-{
-public:
+class OptColumnMapping : public NABasicObject {
+ public:
   struct ColumnMapping {
     const ColRefName *colName_;
-    ValueId           topValueId_;
-    ValueId           topVeg_;
+    ValueId topValueId_;
+    ValueId topVeg_;
   };
   typedef LIST(ColumnMapping *) MappingList;
 
-  OptColumnMapping(TriggerBindInfo  *bindInfo, 
-		   OperatorTypeEnum  iudOpType,
-		   CollHeap         *heap);
+  OptColumnMapping(TriggerBindInfo *bindInfo, OperatorTypeEnum iudOpType, CollHeap *heap);
 
   void initializeMappings(ValueIdSet &reqOutput);
 
@@ -388,35 +361,32 @@ public:
   inline NABoolean isOldNeeded() const { return oldNeeded_; }
   inline NABoolean isNewNeeded() const { return newNeeded_; }
 
-private:
+ private:
   void createInitialMappingLists(ValueIdSet &reqOutput);
 
   void findCommonColumns();
   void checkWhichTablesAreNeeded();
 
-  ColumnMapping *findEqualCols(MappingList   &colsList,
-			       ColumnMapping *colToFind,
-			       CollIndex      startAt);
+  ColumnMapping *findEqualCols(MappingList &colsList, ColumnMapping *colToFind, CollIndex startAt);
 
-private:
+ private:
   TriggerBindInfo *bindInfo_;
   OperatorTypeEnum iudOpType_;
   MappingList mappingArray_;  // The final mapping list
 
-  MappingList newCols_;       // temp list for NEW columns.
-  MappingList oldCols_;       // temp list for OLD columns.
-  MappingList newCommonCols_; // temp list for NEW common columns.
-  MappingList oldCommonCols_; // temp list for OLD common columns.
+  MappingList newCols_;        // temp list for NEW columns.
+  MappingList oldCols_;        // temp list for OLD columns.
+  MappingList newCommonCols_;  // temp list for NEW common columns.
+  MappingList oldCommonCols_;  // temp list for OLD common columns.
 
-  NABoolean   oldNeeded_;     
-  NABoolean   newNeeded_;
+  NABoolean oldNeeded_;
+  NABoolean newNeeded_;
 
-  NAString    atNew_;         // "@NEW"
-  NAString    atOld_;         // "@OLD"
-  NABoolean   dummyFeed_;     // TRUE when the triggers are not using any of the OLD and NEW values.
+  NAString atNew_;       // "@NEW"
+  NAString atOld_;       // "@OLD"
+  NABoolean dummyFeed_;  // TRUE when the triggers are not using any of the OLD and NEW values.
 
-  CollHeap   *heap_;
+  CollHeap *heap_;
 };
 
-
-#endif  /* OPTTRIGGER_H */
+#endif /* OPTTRIGGER_H */

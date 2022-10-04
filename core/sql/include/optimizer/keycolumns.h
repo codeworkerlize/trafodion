@@ -39,10 +39,8 @@
 
 // -----------------------------------------------------------------------
 
-
-
 #include "optimizer/ValueDesc.h"
-#include "export/NABasicObject.h" 
+#include "export/NABasicObject.h"
 
 // -----------------------------------------------------------------------
 // Class KeyColumns
@@ -61,38 +59,31 @@
 // -----------------------------------------------------------------------
 
 class KeyColumns : public NABasicObject {
-public:
+ public:
   // the keyColumns are needed to set up the list,
 
   // column entries will be added later:
   KeyColumns();
 
   // initialize column entries
-  KeyColumns(const ValueIdList& orderList);
+  KeyColumns(const ValueIdList &orderList);
 
   ~KeyColumns();
 
   // ------Accessors
 
-  NABoolean isEmpty() const
-  { return keyColumnPtrCache_.isEmpty(); }
-  const ValueIdSet& getPredicatesForColumn(const ValueId& column) const;
+  NABoolean isEmpty() const { return keyColumnPtrCache_.isEmpty(); }
+  const ValueIdSet &getPredicatesForColumn(const ValueId &column) const;
 
-  const ValueIdSet& getColumnSet() const
-  { return columnSet_; }
+  const ValueIdSet &getColumnSet() const { return columnSet_; }
 
   // Get all predicates attached to all keycolumns to set
   // allPredicates (side-effects allPredicates):
-  void getAllPredicates(ValueIdSet& allPredicates) const;
+  void getAllPredicates(ValueIdSet &allPredicates) const;
 
-  
+  virtual void print(FILE *ofd = stdout, const char *indent = DEFAULT_INDENT, const char *title = "") const;
 
-  virtual void print( FILE* ofd = stdout,
-	     const char* indent = DEFAULT_INDENT,
-	     const char* title = "") const;
-
-  virtual void display() const
-  { print(); }
+  virtual void display() const { print(); }
 
   // -------Mutators:
   // Remove columns and their predicates:
@@ -100,108 +91,89 @@ public:
   // remove predicates hanging from each column, but leave columns in:
   virtual void clearPredicates();
   // append a set of key predicates:
-  void append(const ValueIdSet& andPredicateExpression);
-
-
+  void append(const ValueIdSet &andPredicateExpression);
 
   // insert a column into the cache:
-  void insertColumn(const ValueId& column);
+  void insertColumn(const ValueId &column);
   // insert a predicate, let the class decide the appropiate(s)
   // column(s)
   void insertPredicate(const ValueId &predicate);
   // insert a predicate into a given column:
-  void insertPredicateInColumn(const ValueId& column
-                               ,const ValueId &predicate
-                               );
-
+  void insertPredicateInColumn(const ValueId &column, const ValueId &predicate);
 
   // private:  oss build fails when this is uncommented
   // This class holds a set of predicates that refer to a given
   // key column
   class KeyColumn : public NABasicObject {
-  public:
-    enum KeyColumnType {EMPTY, // initial state, no preds
-			EQUAL, // A=20
-			RANGE, // A>10, A<30
-			INLIST,   // A IN (...)
-			CONFLICT, // There is a mix. of preds (A>3, A>20)
-			CONFLICT_EQUALS, // there is an = among the preds
-			IS_NULL, // A IS NULL
-			ASSIGN}; 
+   public:
+    enum KeyColumnType {
+      EMPTY,            // initial state, no preds
+      EQUAL,            // A=20
+      RANGE,            // A>10, A<30
+      INLIST,           // A IN (...)
+      CONFLICT,         // There is a mix. of preds (A>3, A>20)
+      CONFLICT_EQUALS,  // there is an = among the preds
+      IS_NULL,          // A IS NULL
+      ASSIGN
+    };
 
-    KeyColumn(const ValueId& column)
-	 :column_(column),
-	  keyColumnType_(EMPTY)
-    {}
+    KeyColumn(const ValueId &column) : column_(column), keyColumnType_(EMPTY) {}
 
     // ----------------------------------------------------------------
     // Accessors
     // ----------------------------------------------------------------
 
-    const ValueIdSet& getPredicates() const
-    {return predicatesForColumn_;}
+    const ValueIdSet &getPredicates() const { return predicatesForColumn_; }
 
-    const ValueId& getColumnId() const
-    { return column_;}
+    const ValueId &getColumnId() const { return column_; }
 
     // returns the type of this column (it may be EMPTY)
-    KeyColumnType getType() const
-    { return keyColumnType_;}
+    KeyColumnType getType() const { return keyColumnType_; }
 
     // returns the type of the predicate
-    KeyColumnType getType(const ValueId& predId) const;
+    KeyColumnType getType(const ValueId &predId) const;
 
-    
     // -----------------------------------------------------------------------
     // mutators:
     // -----------------------------------------------------------------------
 
-    void setType(KeyColumnType type) 
-    { keyColumnType_ = type;}
+    void setType(KeyColumnType type) { keyColumnType_ = type; }
 
     void insert(const ValueId &predicate);
 
     // remove all predicates and reset type to EMPTY:
     void clearPredicates();
 
-
-    // Eliminate conflicting predicates 
+    // Eliminate conflicting predicates
     void resolveConflict();
 
-    
-    void print( FILE* ofd = stdout,
-		const char* indent = DEFAULT_INDENT,
-		const char* title = "") const;
- 
-    
-  private:
-    const ValueId& column_;
+    void print(FILE *ofd = stdout, const char *indent = DEFAULT_INDENT, const char *title = "") const;
+
+   private:
+    const ValueId &column_;
     ValueIdSet predicatesForColumn_;
     KeyColumnType keyColumnType_;
   };
 
-protected:
+ protected:
   // utility for insertPredicateForColumn
-  void insertPredicate(const ValueId &predicate,
-                       const ValueId* columnPtr);
+  void insertPredicate(const ValueId &predicate, const ValueId *columnPtr);
 
-  const KeyColumn& getKeyColumn(const ValueId& column) const;	
+  const KeyColumn &getKeyColumn(const ValueId &column) const;
   // the only reason that the following does not return a pointer
   // to constant data is because the templates cannot seem
   // to accept them (I will put these into an ARRAY later,
   // see validateOrder below...)
-  KeyColumn* getKeyColumnPtr(const ValueId& column);
-
+  KeyColumn *getKeyColumnPtr(const ValueId &column);
 
   LIST(KeyColumn *) keyColumnPtrCache_;
-private:
+
+ private:
   // this is handy to have to be able to get at the data in the
   // key columns object
   ValueIdSet columnSet_;
 
-}; // class KeyColumns
-
-
+};  // class KeyColumns
 
 // -----------------------------------------------------------------------
 // A ColumnOrderList is used to store key predicates.
@@ -209,32 +181,25 @@ private:
 // together. Thus, it can be used to represent a disjunct.
 // Also, and very important, the predicates are hashed by key
 // column order (order zero is the first key column,
-// order one, the second, and so on). 
+// order one, the second, and so on).
 // -----------------------------------------------------------------------
 
-
-
-class ColumnOrderList : public KeyColumns
-{
-public:
-  ColumnOrderList(const ValueIdList& columnList);
+class ColumnOrderList : public KeyColumns {
+ public:
+  ColumnOrderList(const ValueIdList &columnList);
   // accessor:
   // A pointer to the Predicates in the column order:
   // (NULL if the order has no predicates)
-  const ValueIdSet* operator[] (CollIndex order) const;
+  const ValueIdSet *operator[](CollIndex order) const;
 
   // Return the KeyColumn for this order (a NULL column is
   // returned if the order has no predicates)
-  const KeyColumn* getPredicateExpressionPtr(CollIndex order) const;
+  const KeyColumn *getPredicateExpressionPtr(CollIndex order) const;
 
-  
   // the number of column orders in the list (i.e. ABCAB returns 5)
-  CollIndex entries() const
-  { return orderKeyColumnPtrList_.entries(); }
-  //the columnIdList on which the columnOrderList was created
-  ValueIdList getColumnList() const
-  { return columnList_;}  
-
+  CollIndex entries() const { return orderKeyColumnPtrList_.entries(); }
+  // the columnIdList on which the columnOrderList was created
+  ValueIdList getColumnList() const { return columnList_; }
 
   // the columnId associated with the key column at location 'order'.
   ValueId getKeyColumnId(CollIndex order) const;
@@ -243,20 +208,17 @@ public:
   // Returns the single subset order (see header of method
   // implementation for definition and examples)
   // -----------------------------------------------------------------------
-  NABoolean getSingleSubsetOrder(CollIndex& sso /* out */) const;
+  NABoolean getSingleSubsetOrder(CollIndex &sso /* out */) const;
   // Fix for MDAM in an isolated way.
-  NABoolean getSingleSubsetOrderForMdam(CollIndex& sso /* out */) const;
+  NABoolean getSingleSubsetOrderForMdam(CollIndex &sso /* out */) const;
 
-// Returns TRUE if at least one key column
+  // Returns TRUE if at least one key column
   // in the list contains predicates:
   NABoolean containsPredicates() const;
 
-  virtual void display() const
-  { print(); }
+  virtual void display() const { print(); }
 
-  void print( FILE* ofd = stdout,
-	      const char* indent = DEFAULT_INDENT,
-	      const char* title = "") const;
+  void print(FILE *ofd = stdout, const char *indent = DEFAULT_INDENT, const char *title = "") const;
 
   //------------------
   // Mutators
@@ -273,9 +235,9 @@ public:
 
   // If possible, convert predicate expression in order to a compatible
   // expression with no conflict:
-  void resolveConflict(CollIndex order);  
-private:
+  void resolveConflict(CollIndex order);
 
+ private:
   // Call this to signal that a given order contains
   // predicates (by default, no order contains predicates)
   // order <-> predicates is a one-to-many relationships
@@ -295,33 +257,25 @@ private:
   LIST(KeyColumn *) orderKeyColumnPtrList_;
   const ValueIdList columnList_;
 
-}; // class ColumnOrderList
+};  // class ColumnOrderList
 
-
-class ColumnOrderListPtrArray : public ARRAY(ColumnOrderList *){
-public:
+class ColumnOrderListPtrArray : public ARRAY(ColumnOrderList *) {
+ public:
   ColumnOrderListPtrArray();
   // copy ctor
-  ColumnOrderListPtrArray (const ColumnOrderListPtrArray & orig) :
-    ARRAY(ColumnOrderList *)(orig, HEAP)
-    {}
+  ColumnOrderListPtrArray(const ColumnOrderListPtrArray &orig) : ARRAY(ColumnOrderList *)(orig, HEAP) {}
 
   // These are needed by MdamKey::preCodeGen to compute the
   // executor predicates:
-  void computeCommonKeyPredicates(ValueIdSet& commonPredicates) const;
+  void computeCommonKeyPredicates(ValueIdSet &commonPredicates) const;
 
-  void print( FILE* ofd = stdout,
-	      const char* indent = DEFAULT_INDENT,
-	      const char* title = "ColumnOrderListPtrArray") const;
-
-
+  void print(FILE *ofd = stdout, const char *indent = DEFAULT_INDENT,
+             const char *title = "ColumnOrderListPtrArray") const;
 
   // mutators:
 
-
-private:
-
+ private:
 };
 
 #endif
-// eof 
+// eof

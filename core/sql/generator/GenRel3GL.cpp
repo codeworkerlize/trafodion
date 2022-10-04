@@ -25,7 +25,7 @@
 *
 * File:         GenRel3GL.cpp
 * Description:  Generate code for 3GL operators.
-*               
+*
 * Created:      12/8/97
 * Language:     C++
 *
@@ -36,7 +36,7 @@
 #include "generator/Generator.h"
 #include "GenExpGenerator.h"
 #include "comexe/ComTdbCompoundStmt.h"
-#include "optimizer/Rel3GL.h" 
+#include "optimizer/Rel3GL.h"
 #include "sqlcomp/DefaultConstants.h"
 #include "exp/ExpCriDesc.h"
 
@@ -46,22 +46,19 @@
 //
 //////////////////////////////////////////////////////////////////////////////
 
-RelExpr *PhysCompoundStmt::copyTopNode(RelExpr *derivedNode, CollHeap *oHeap)
-{
-
-  PhysCompoundStmt* result;
+RelExpr *PhysCompoundStmt::copyTopNode(RelExpr *derivedNode, CollHeap *oHeap) {
+  PhysCompoundStmt *result;
 
   if (derivedNode == NULL)
     result = new (oHeap) PhysCompoundStmt(NULL, NULL);
   else
-    result = (PhysCompoundStmt*)derivedNode;
+    result = (PhysCompoundStmt *)derivedNode;
 
   return CompoundStmt::copyTopNode(result, oHeap);
 
-} // PhysCompoundStmt::copyTopNode
+}  // PhysCompoundStmt::copyTopNode
 
-short PhysCompoundStmt::codeGen(Generator * generator)
-{
+short PhysCompoundStmt::codeGen(Generator *generator) {
   ////////////////////////////////////////////////////////////////////////////
   //
   // Layout of row returned by this node.
@@ -74,7 +71,7 @@ short PhysCompoundStmt::codeGen(Generator * generator)
   // <-- returned row from left ------->
   // <------------------ returned row from right ---------->
   //
-  // input data:        the atp input to this node by its parent. 
+  // input data:        the atp input to this node by its parent.
   // left child data:   tupps appended by the left child
   // right child data:  tupps appended by right child
   //
@@ -101,8 +98,7 @@ short PhysCompoundStmt::codeGen(Generator * generator)
   ExplainTuple *rightExplainTuple = NULL;
 
   // Generate code for left child.
-  if (child(0))
-  {
+  if (child(0)) {
     child(0)->codeGen(generator);
     leftTdb = (ComTdb *)(generator->getGenObj());
     leftExplainTuple = generator->getExplainTuple();
@@ -112,21 +108,20 @@ short PhysCompoundStmt::codeGen(Generator * generator)
   // if an update operation is found in the left subtree of this CS then
   // set rowsFromLeft to 0 which is passed on to execution tree indicating
   // that this CS node is not  expecting rows from the left child, then
-  // foundAnUpdate_ is reset so it can be reused while doing codGen() on 
+  // foundAnUpdate_ is reset so it can be reused while doing codGen() on
   // the right sub tree
 
   NABoolean rowsFromLeft = TRUE;
 
-  if (generator->foundAnUpdate())
-  {
+  if (generator->foundAnUpdate()) {
     rowsFromLeft = FALSE;
     generator->setFoundAnUpdate(FALSE);
   }
 
   // if an update operation is found during or before the execution of the
   // left subtree, set afterUpdate to 1 indicating that an update operation
-  // was performed before or during the execution of the left child.  Which 
-  // is used at runtime to decide whether to set rollbackTransaction in the 
+  // was performed before or during the execution of the left child.  Which
+  // is used at runtime to decide whether to set rollbackTransaction in the
   // diagsArea
 
   NABoolean afterUpdate = FALSE;
@@ -136,10 +131,9 @@ short PhysCompoundStmt::codeGen(Generator * generator)
   }
 
   // Generate code for right child.
-  if (child(1)) 
-  {
+  if (child(1)) {
     generator->setCriDesc(leftCRI, Generator::DOWN);
-   
+
     child(1)->codeGen(generator);
     rightTdb = (ComTdb *)(generator->getGenObj());
     rightExplainTuple = generator->getExplainTuple();
@@ -154,8 +148,7 @@ short PhysCompoundStmt::codeGen(Generator * generator)
 
   NABoolean rowsFromRight = TRUE;
 
-  if (generator->foundAnUpdate())
-  {
+  if (generator->foundAnUpdate()) {
     rowsFromRight = FALSE;
     generator->setFoundAnUpdate(FALSE);
   }
@@ -168,27 +161,18 @@ short PhysCompoundStmt::codeGen(Generator * generator)
     generator->setFoundAnUpdate(TRUE);
   }
 
-   
   // Create returned CRI desc and CompoundStmt TDB.
-  returnedCRI = new(space) ex_cri_desc(rightCRI->noTuples(), space);
+  returnedCRI = new (space) ex_cri_desc(rightCRI->noTuples(), space);
 
-  ComTdbCompoundStmt *tdb = 
-    new(space) ComTdbCompoundStmt(leftTdb, rightTdb,
-			         givenDesc, returnedCRI,
-			         (queue_index)getDefault(GEN_CS_SIZE_DOWN),
-			         (queue_index)getDefault(GEN_CS_SIZE_UP),
-			         getDefault(GEN_CS_NUM_BUFFERS), 
-			         getDefault(GEN_CS_BUFFER_SIZE),
-                                 rowsFromLeft,
-                                 rowsFromRight,
-                                 afterUpdate);
+  ComTdbCompoundStmt *tdb = new (space)
+      ComTdbCompoundStmt(leftTdb, rightTdb, givenDesc, returnedCRI, (queue_index)getDefault(GEN_CS_SIZE_DOWN),
+                         (queue_index)getDefault(GEN_CS_SIZE_UP), getDefault(GEN_CS_NUM_BUFFERS),
+                         getDefault(GEN_CS_BUFFER_SIZE), rowsFromLeft, rowsFromRight, afterUpdate);
   generator->initTdbFields(tdb);
 
   // Add expain info.
-  if (!generator->explainDisabled()) 
-  {
-    generator->setExplainTuple(
-      addExplainInfo(tdb, leftExplainTuple, rightExplainTuple, generator));
+  if (!generator->explainDisabled()) {
+    generator->setExplainTuple(addExplainInfo(tdb, leftExplainTuple, rightExplainTuple, generator));
   }
 
   // Restore the original down CRI desc.
@@ -196,9 +180,9 @@ short PhysCompoundStmt::codeGen(Generator * generator)
 
   // Set the new up CRI desc.
   generator->setCriDesc(returnedCRI, Generator::UP);
-  
+
   generator->setGenObj(this, tdb);
 
   return 0;
 
-} // PhysCompoundStmt::codeGen
+}  // PhysCompoundStmt::codeGen

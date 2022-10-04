@@ -54,85 +54,66 @@ class BindWA;
 // derived classes implement the buildRefreshTree() method.
 //----------------------------------------------------------------------------
 class MjvBuilder : public MvRefreshBuilder {
-public:
-
-  MjvBuilder(const CorrName      &mvName,
-             MVInfoForDML        *mvInfo,
-	     Refresh	         *refreshNode,
-	     BindWA              *bindWA)
-  : MvRefreshBuilder(mvName, mvInfo, refreshNode, bindWA)
-  {}
+ public:
+  MjvBuilder(const CorrName &mvName, MVInfoForDML *mvInfo, Refresh *refreshNode, BindWA *bindWA)
+      : MvRefreshBuilder(mvName, mvInfo, refreshNode, bindWA) {}
 
   virtual ~MjvBuilder() {}
 
-protected:
+ protected:
   // build the scanning node of the MJV
   Scan *buildScanOfMJV(const CorrName &corrName, const NATable *baseNaTable) const;
 
-protected:
+ protected:
   // These methods are for building direct update refresh.
   // Used by direct update immediate refresh and by ON REQUEST refresh.
 
   // build the new record expression when directly updating the MJV
-  ItemExpr *buildUpdatePredicate(const CorrName &inputCorrName,
-				 const NATable  *baseNaTable,
-				 SET(MVColumnInfo*) SetOfAffectedColumns) const;
-
+  ItemExpr *buildUpdatePredicate(const CorrName &inputCorrName, const NATable *baseNaTable,
+                                 SET(MVColumnInfo *) SetOfAffectedColumns) const;
 
   // return the expression tree to be assigned to the MJV column
-  ItemExpr *getExpressionTreeForColumn(const MVColumnInfo *affectedCol,
-				       const NAString     &colName, 
-				       const CorrName     &inputCorrName) const;
+  ItemExpr *getExpressionTreeForColumn(const MVColumnInfo *affectedCol, const NAString &colName,
+                                       const CorrName &inputCorrName) const;
 
   // Construct a set of MVColumnInfo objects for all updated MJV columns.
-  SET(MVColumnInfo*) collectAllAffectedColumns(const IntegerList   *updatedCols,
-					       const QualifiedName &qualTableName ) const;
+  SET(MVColumnInfo *)
+  collectAllAffectedColumns(const IntegerList *updatedCols, const QualifiedName &qualTableName) const;
 
   // add the NEW@ correlation name to column names (for computed columns)
   void addCorrNameToExpr(ItemExpr *expr, const CorrName &inputCorrName) const;
 
   // Used by insert refresh.
-  void setupBindContext(RelRoot *topNode, 
-			RelExpr *scanBlock,
-			const QualifiedName *baseTableName);
+  void setupBindContext(RelRoot *topNode, RelExpr *scanBlock, const QualifiedName *baseTableName);
 
-private:
-
+ private:
   // Copy Ctor and = operator are not implemented
   MjvBuilder(const MjvBuilder &other);
-  MjvBuilder& operator=(const MjvBuilder &other);
+  MjvBuilder &operator=(const MjvBuilder &other);
 
   // build the selection-predicate for scanning the corresponding rows from the
   // MJV.
-  ItemExpr *buildEqualityPredOnClusteringIndex(const CorrName &tableName,
-					       const NATable  *baseNaTable) const;
-}; // class MjvBuilder
+  ItemExpr *buildEqualityPredOnClusteringIndex(const CorrName &tableName, const NATable *baseNaTable) const;
+};  // class MjvBuilder
 
 //----------------------------------------------------------------------------
 // Abstract class, from which all Immediate MJV refresh builders inherit.
 //----------------------------------------------------------------------------
 class MjvImmediateBuilder : public MjvBuilder {
-public:
-
+ public:
   // Ctor for use with ON STATEMENT MJVs
-  MjvImmediateBuilder(const CorrName      &mvName,
-		      MVInfoForDML        *mvInfo,
-		      const GenericUpdate *iudNode,
-		      BindWA              *bindWA)
-  : MjvBuilder(mvName, mvInfo, NULL, bindWA),
-    iudNode_(iudNode)
-  {}
+  MjvImmediateBuilder(const CorrName &mvName, MVInfoForDML *mvInfo, const GenericUpdate *iudNode, BindWA *bindWA)
+      : MjvBuilder(mvName, mvInfo, NULL, bindWA), iudNode_(iudNode) {}
 
   virtual ~MjvImmediateBuilder() {}
 
-protected:
+ protected:
   // Accessors
   inline const GenericUpdate *getIudNode() const { return iudNode_; }
 
   // builds the refresh tree after direct-update/delete operations
-  RelExpr *buildDeleteOrDirectUpdateBlock(const CorrName &corrName, 
-					  const NATable *baseNaTable) const;
-  
+  RelExpr *buildDeleteOrDirectUpdateBlock(const CorrName &corrName, const NATable *baseNaTable) const;
+
   // build the GU node that updates the MJV
   GenericUpdate *buildGUNodeOfMJV(RelExpr *subTreeBelow) const;
 
@@ -142,22 +123,19 @@ protected:
   // avoid any security check in the built refresh tree
   void avoidSecurityCheckInRefreshTree(RelExpr *refreshTree) const;
 
-protected:
-  const GenericUpdate *iudNode_; // The IUD node that started the whole process
+ protected:
+  const GenericUpdate *iudNode_;  // The IUD node that started the whole process
 
-}; // class MjvImmediateBuilder
+};  // class MjvImmediateBuilder
 
 //----------------------------------------------------------------------------
 // Builds the refresh tree for ON STATEMENT MJV after an insert operation.
 //----------------------------------------------------------------------------
 class MjvImmInsertBuilder : public MjvImmediateBuilder {
-public:
-  MjvImmInsertBuilder(const CorrName      &mvName,
-	              MVInfoForDML        *mvInfo,
-		      const GenericUpdate *iudNode,
-		      BindWA              *bindWA)
-  : MjvImmediateBuilder(mvName, mvInfo, iudNode, bindWA),
-    optimized_(FALSE) // optimize only on demand
+ public:
+  MjvImmInsertBuilder(const CorrName &mvName, MVInfoForDML *mvInfo, const GenericUpdate *iudNode, BindWA *bindWA)
+      : MjvImmediateBuilder(mvName, mvInfo, iudNode, bindWA),
+        optimized_(FALSE)  // optimize only on demand
   {}
 
   virtual RelExpr *buildRefreshTree();
@@ -165,8 +143,7 @@ public:
   // flag that the optimized version of the tree if requested
   inline void optimizeForFewRows() { optimized_ = TRUE; };
 
-private:
-
+ private:
   // build the actual GU node that updates the MJV
   virtual GenericUpdate *buildActualGUOfMJV(RelExpr *subTreeBelow) const;
 
@@ -176,73 +153,59 @@ private:
   // build the replacement block when the optimized tree is requested
   RelExpr *buildOptimizedScanBlock() const;
 
-  NABoolean optimized_; // build the optimized version of the tree?
+  NABoolean optimized_;  // build the optimized version of the tree?
 
-}; // class MjvImmInsertBuilder
+};  // class MjvImmInsertBuilder
 
 //----------------------------------------------------------------------------
 // Builds the refresh tree for ON STATEMENT MJV after a delete operation.
 //----------------------------------------------------------------------------
 class MjvImmDeleteBuilder : public MjvImmediateBuilder {
-public:
-  MjvImmDeleteBuilder(const CorrName	  &mvName,
-		      MVInfoForDML        *mvInfo,
-		      const GenericUpdate *iudNode,
-		      BindWA              *bindWA)
-  : MjvImmediateBuilder(mvName, mvInfo, iudNode, bindWA)
-  {}
+ public:
+  MjvImmDeleteBuilder(const CorrName &mvName, MVInfoForDML *mvInfo, const GenericUpdate *iudNode, BindWA *bindWA)
+      : MjvImmediateBuilder(mvName, mvInfo, iudNode, bindWA) {}
 
   virtual RelExpr *buildRefreshTree();
 
-private:
-
+ private:
   // build the actual GU node that updates the MJV
   virtual GenericUpdate *buildActualGUOfMJV(RelExpr *subTreeBelow) const;
 
-}; // class MjvImmDeleteBuilder
+};  // class MjvImmDeleteBuilder
 
 //----------------------------------------------------------------------------
 // Builds the refresh tree for ON STATEMENT MJV after a direct-update
 // operation.
 //----------------------------------------------------------------------------
 class MjvImmDirectUpdateBuilder : public MjvImmediateBuilder {
-public:
-  MjvImmDirectUpdateBuilder(const CorrName      &mvName,
-              		    MVInfoForDML        *mvInfo,
-			    const GenericUpdate *iudNode,
-			    BindWA              *bindWA)
-  : MjvImmediateBuilder(mvName, mvInfo, iudNode, bindWA)
-  {}
+ public:
+  MjvImmDirectUpdateBuilder(const CorrName &mvName, MVInfoForDML *mvInfo, const GenericUpdate *iudNode, BindWA *bindWA)
+      : MjvImmediateBuilder(mvName, mvInfo, iudNode, bindWA) {}
 
   virtual RelExpr *buildRefreshTree();
-  
-private:
 
+ private:
   // build the actual GU node that updates the MJV
   virtual GenericUpdate *buildActualGUOfMJV(RelExpr *subTreeBelow) const;
 
   IntegerList *StoiToIntegerList(SqlTableOpenInfo *stoi) const;
 
-}; // class MjvImmDirectUpdateBuilder
+};  // class MjvImmDirectUpdateBuilder
 
 //----------------------------------------------------------------------------
 // Builds the refresh tree for ON REQUEST MJV with a single delta.
 //----------------------------------------------------------------------------
 class MjvOnRequestBuilder : public MjvBuilder {
-public:
-  MjvOnRequestBuilder(const CorrName      &mvName,
-		      MVInfoForDML        *mvInfo,
-		      Refresh             *refreshNode,
-		      BindWA              *bindWA)
-  : MjvBuilder(mvName, mvInfo, refreshNode, bindWA)
-  {}
+ public:
+  MjvOnRequestBuilder(const CorrName &mvName, MVInfoForDML *mvInfo, Refresh *refreshNode, BindWA *bindWA)
+      : MjvBuilder(mvName, mvInfo, refreshNode, bindWA) {}
 
   virtual RelExpr *buildRefreshTree();
 
-protected:
-  static const char *getVirtualIndirectColumnName()  { return virtualIndirectColumnName_; }
+ protected:
+  static const char *getVirtualIndirectColumnName() { return virtualIndirectColumnName_; }
 
-  // These methods are implemented here for a single delta, and should be over-ridden 
+  // These methods are implemented here for a single delta, and should be over-ridden
   // to support multi-delta refresh.
   virtual NABoolean isNeedDeletionBlock();
   virtual NABoolean isNeedInsertionBlock();
@@ -257,61 +220,50 @@ protected:
   // Methods for the Deletion Block
   RelExpr *buildMjvDeletionBlockSpecific(DeltaDefinition *deltaDef);
   RelExpr *buildIfNode(RelExpr *leftSide, RelExpr *rightSide);
-  RelExpr *buildMjvDeleteSubtree(LogsInfo       *logsInfo, 
-                                 const CorrName &logCorrName);
-  RelExpr *buildMjvUpdateSubtree(LogsInfo       *logsInfo, 
-                                 const CorrName &logCorrName);
+  RelExpr *buildMjvDeleteSubtree(LogsInfo *logsInfo, const CorrName &logCorrName);
+  RelExpr *buildMjvUpdateSubtree(LogsInfo *logsInfo, const CorrName &logCorrName);
 
   // Methods for the Insertion Block
   RelExpr *buildMjvInsertionBlock();
   RelExpr *buildMjvInsertJoinSpecific(DeltaDefinition *deltaDef);
 
-  // Methods for building the Scan log block - used by both 
+  // Methods for building the Scan log block - used by both
   // the Deletion and Insertion blocks.
-  RelExpr *buildScanLogForOnRequestMjv(const QualifiedName& baseTableName,
-				       NABoolean 	    isForDelete);
+  RelExpr *buildScanLogForOnRequestMjv(const QualifiedName &baseTableName, NABoolean isForDelete);
   // Override method from MvRefreshBuilder.
   virtual ItemExpr *buildSelectionListForScanOnIudLog() const;
-  virtual RelExpr *buildLogsScanningBlock(const QualifiedName& baseTable);
+  virtual RelExpr *buildLogsScanningBlock(const QualifiedName &baseTable);
   virtual RelRoot *buildRootOverIUDLog(RelExpr *topNode) const;
   virtual RelRoot *buildRootOverRangeBlock(RelExpr *topNode) const;
-  virtual RelRoot *buildRootWithUniformSelectList(RelExpr *topNode, ItemExpr *opExpr, const CorrName *nameOverride) const;
+  virtual RelRoot *buildRootWithUniformSelectList(RelExpr *topNode, ItemExpr *opExpr,
+                                                  const CorrName *nameOverride) const;
 
   ItemExpr *buildPredicateOnOpType(ComMvIudLogRowType opType);
   ItemExpr *buildPredicateOnIndirect(OperatorTypeEnum val);
   ItemExpr *buildDeleteSidePredicate();
   ItemExpr *buildInsertSidePredicate();
 
-  // "@LOG" is the correlation name given to the output of the 
+  // "@LOG" is the correlation name given to the output of the
   // Scan log block, and used by the Deletion Block.
   // For single delta there is only one delete\update block
-  virtual const NAString *getLogName() const
-  {
-    return new (heap_) NAString("@LOG1");
-  }
+  virtual const NAString *getLogName() const { return new (heap_) NAString("@LOG1"); }
 
-private:
+ private:
   static const char virtualIndirectColumnName_[];
 
-}; // class MjvOnRequestBuilder
+};  // class MjvOnRequestBuilder
 
 //----------------------------------------------------------------------------
 // Builds the refresh tree for ON REQUEST MJV with multiple delta.
 //----------------------------------------------------------------------------
 class MjvOnRequestMultiDeltaBuilder : public MjvOnRequestBuilder {
-public:
-  MjvOnRequestMultiDeltaBuilder(const CorrName	    &mvName,
-				MVInfoForDML        *mvInfo,
-				Refresh             *refreshNode,
-				BindWA              *bindWA)
-  : MjvOnRequestBuilder(mvName, mvInfo, refreshNode, bindWA),
-    deleteBlockCounter_(1)
-  {}
+ public:
+  MjvOnRequestMultiDeltaBuilder(const CorrName &mvName, MVInfoForDML *mvInfo, Refresh *refreshNode, BindWA *bindWA)
+      : MjvOnRequestBuilder(mvName, mvInfo, refreshNode, bindWA), deleteBlockCounter_(1) {}
 
-protected:
-  
+ protected:
   // Check all the deltas instead og just the first one.
-  virtual NABoolean isNeedDeletionBlock(); 
+  virtual NABoolean isNeedDeletionBlock();
   virtual NABoolean isNeedInsertionBlock();
 
   // Handle all the deltas instead of just the first one.
@@ -320,19 +272,16 @@ protected:
 
   virtual const NAString *getLogName() const;
 
-  RelExpr *buildDeltaCalculationTree(const MultiDeltaRefreshMatrix& productMatrix);
+  RelExpr *buildDeltaCalculationTree(const MultiDeltaRefreshMatrix &productMatrix);
 
   ItemExpr *buildAntiSemiJoinPredicate(NAString rightName, NAString leftName);
 
-private:
-  void incrementDeleteBlockCounter()
-  {
-    deleteBlockCounter_++;
-  }
+ private:
+  void incrementDeleteBlockCounter() { deleteBlockCounter_++; }
 
-private:
+ private:
   Int32 deleteBlockCounter_;
 
-}; // class MjvOnRequestMultiDeltaBuilder
+};  // class MjvOnRequestMultiDeltaBuilder
 
 #endif

@@ -42,10 +42,9 @@
 #include "optimizer/ObjectNames.h"
 #include "common/ComSqlId.h"
 
-class CmpSqlSession : public NABasicObject
-{
-public:
-  CmpSqlSession(NAHeap * heap);
+class CmpSqlSession : public NABasicObject {
+ public:
+  CmpSqlSession(NAHeap *heap);
 
   ~CmpSqlSession();
 
@@ -61,42 +60,36 @@ public:
   NABoolean validateVolatileQualifiedSchemaName(QualifiedName &inName);
   NABoolean validateVolatileQualifiedName(QualifiedName &inName);
   NABoolean validateVolatileCorrName(CorrName &corrName);
-  NABoolean validateVolatileName(const char * name);
+  NABoolean validateVolatileName(const char *name);
 
-  QualifiedName * updateVolatileQualifiedName(QualifiedName &inName);
-  QualifiedName * updateVolatileQualifiedName(const NAString &inName);
+  QualifiedName *updateVolatileQualifiedName(QualifiedName &inName);
+  QualifiedName *updateVolatileQualifiedName(const NAString &inName);
   CorrName getVolatileCorrName(CorrName &corrName);
-  SchemaName * updateVolatileSchemaName();
-
+  SchemaName *updateVolatileSchemaName();
 
   void setSessionId(NAString &sessionID);
 
-  const NAString &getSessionId() {return sessionID_;}
+  const NAString &getSessionId() { return sessionID_; }
 
   void setSessionUsername(NAString &userName);
 
   NAString &getDatabaseUserName() { return databaseUserName_; }
   Int32 &getDatabaseUserID() { return databaseUserID_; }
 
-  Lng32 setDatabaseUserAndTenant(Int32 userID,
-                                 const char *userName,
-                                 Int32 tenantID,
-                                 const char *tenantName,
-                                 const char *tenantNodes,
-                                 const char *tenantDefaultSchema);
+  Lng32 setDatabaseUserAndTenant(Int32 userID, const char *userName, Int32 tenantID, const char *tenantName,
+                                 const char *tenantNodes, const char *tenantDefaultSchema);
 
-  NAString &volatileSchemaName() { return volatileSchemaName_;}
+  NAString &volatileSchemaName() { return volatileSchemaName_; }
   void setVolatileSchemaName(NAString &volatileSchemaName);
 
-  NAString &volatileCatalogName() { return volatileCatalogName_;}
-  void setVolatileCatalogName(NAString &volatileCatalogName,
-			      NABoolean noSegmentAppend = FALSE);
+  NAString &volatileCatalogName() { return volatileCatalogName_; }
+  void setVolatileCatalogName(NAString &volatileCatalogName, NABoolean noSegmentAppend = FALSE);
 
   NABoolean sessionInUse() { return sessionInUse_; }
   NABoolean volatileSchemaInUse();
 
   void setSessionInUse(NABoolean v) { sessionInUse_ = v; };
-  void setVolatileSchemaInUse(NABoolean v){ volatileSchemaInUse_ = v; };
+  void setVolatileSchemaInUse(NABoolean v) { volatileSchemaInUse_ = v; };
 
   void disableVolatileSchemaInUse();
   void saveVolatileSchemaInUse();
@@ -107,14 +100,15 @@ public:
   inline Lng32 getNumSessions() { return numSessions_; }
 
   Int32 getTenantID() { return tenantID_; }
-private:
-  NAHeap * heap_;
+
+ private:
+  NAHeap *heap_;
 
   NAString sessionID_;
-  Lng32    numSessions_;
-  Int32    databaseUserID_;
+  Lng32 numSessions_;
+  Int32 databaseUserID_;
   NAString databaseUserName_;
-  Int32    tenantID_;
+  Int32 tenantID_;
   NAString tenantName_;
 
   // On NSK we store a Guardian user name and the external LDAP
@@ -143,7 +137,4 @@ private:
   Lng32 getUserInfoFromCLI();
 };
 
-
-
-
-#endif // CMPSQLSESSION_H
+#endif  // CMPSQLSESSION_H

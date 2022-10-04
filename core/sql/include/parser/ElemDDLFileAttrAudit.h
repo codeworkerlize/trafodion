@@ -7,7 +7,7 @@
 * Description:  class for Audit File Attribute (parse node) elements in
 *               DDL statements
 *
-*               
+*
 * Created:      4/21/95
 * Language:     C++
 *
@@ -37,7 +37,6 @@
 ******************************************************************************
 */
 
-
 #include "ElemDDLFileAttr.h"
 
 // -----------------------------------------------------------------------
@@ -54,40 +53,27 @@ class ElemDDLFileAttrAudit;
 // Audit File Attribute (parse node) elements in DDL statements
 // -----------------------------------------------------------------------
 
-class ElemDDLFileAttrAudit : public ElemDDLFileAttr
-{
-
-public:
-
+class ElemDDLFileAttrAudit : public ElemDDLFileAttr {
+ public:
   // default constructor
-  ElemDDLFileAttrAudit(NABoolean auditSpec = TRUE)
-                      : ElemDDLFileAttr(ELM_FILE_ATTR_AUDIT_ELEM),
-                        isAudit_(auditSpec)
-  {
-  }
+  ElemDDLFileAttrAudit(NABoolean auditSpec = TRUE) : ElemDDLFileAttr(ELM_FILE_ATTR_AUDIT_ELEM), isAudit_(auditSpec) {}
 
   // virtual destructor
   virtual ~ElemDDLFileAttrAudit();
 
   // cast
-  virtual ElemDDLFileAttrAudit * castToElemDDLFileAttrAudit();
+  virtual ElemDDLFileAttrAudit *castToElemDDLFileAttrAudit();
 
   // accessor
-  const NABoolean
-  getIsAudit() const
-  {
-    return isAudit_;
-  }
+  const NABoolean getIsAudit() const { return isAudit_; }
 
   // member functions for tracing
   virtual const NAString getText() const;
   virtual const NAString displayLabel1() const;
 
-
-private:
-
+ private:
   NABoolean isAudit_;
 
-}; // class ElemDDLFileAttrAudit
+};  // class ElemDDLFileAttrAudit
 
 #endif /* ELEMDDLFILEATTRAUDIT_H */

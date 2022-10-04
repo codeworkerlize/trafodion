@@ -25,28 +25,21 @@ class ComDiagsArea;
 // not meant to be interpreted by callers.
 // ------------------------------------------------------------------
 
-class ComCGroup
-{
-public:
-
+class ComCGroup {
+ public:
   // create an empty object
   ComCGroup(NAMemory *heap);
 
   // change the cgroup in this object and assign this
   // process to the new cgroup
-  int setOrAlterCGroup(const char *newCGroupName,
-                       ComDiagsArea &diags);
+  int setOrAlterCGroup(const char *newCGroupName, ComDiagsArea &diags);
 
   NABoolean isSystemTenant() const;
 
-private:
-
+ private:
   // record error information in the diags area when we fail
   // to assign a process to a cgroup
-  int recordAssignError(ComDiagsArea &diags,
-                        const char *pathName,
-                        const char *assignPhase,
-                        int linuxError);
+  int recordAssignError(ComDiagsArea &diags, const char *pathName, const char *assignPhase, int linuxError);
 
   NAMemory *heap_;
   NAString cgroupName_;

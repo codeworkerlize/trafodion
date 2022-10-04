@@ -39,14 +39,13 @@
 
 #include "common/Platform.h"
 
-
 // Includes
 //
 #include "SQLTypeDefs.h"
 #include "exp/exp_clause.h"
 #include "exp/exp_attrs.h"
 #include "ExpPCode.h"
-#include "ExpSequenceFunction.h" // <--- See here for comments.
+#include "ExpSequenceFunction.h"  // <--- See here for comments.
 
 // ExpSequenceFunction::ExpSequenceFunction
 //
@@ -62,12 +61,10 @@
 //        : The space object is valid.
 // PSTCOND: ExpSequenceFunction is constructed.
 //
-ExpSequenceFunction::ExpSequenceFunction
-(OperatorTypeEnum oper_type, Int32 arity, Int32 index,
- Attributes ** attr, Space * space)
-  : ex_function_clause(oper_type, arity, attr, space), offsetIndex_(index), flags_(0) {
-
-   setAllowNegativeOffset(TRUE);
+ExpSequenceFunction::ExpSequenceFunction(OperatorTypeEnum oper_type, Int32 arity, Int32 index, Attributes **attr,
+                                         Space *space)
+    : ex_function_clause(oper_type, arity, attr, space), offsetIndex_(index), flags_(0) {
+  setAllowNegativeOffset(TRUE);
 };
 
 // ExpSequenceFunction::ExpSequenceFunction
@@ -76,10 +73,7 @@ ExpSequenceFunction::ExpSequenceFunction
 //
 // EFFECTS: None
 //
-ExpSequenceFunction::ExpSequenceFunction() 
-{
-   setAllowNegativeOffset(TRUE);
-};
+ExpSequenceFunction::ExpSequenceFunction() { setAllowNegativeOffset(TRUE); };
 
 // ExpSequenceFunction::pack
 //
@@ -89,42 +83,34 @@ ExpSequenceFunction::ExpSequenceFunction()
 // RETURN : the offset withing space of the packed object.
 // EFFECTS: Pointers are changed to offsets within space.
 // PRECOND: Space is a valid space object.
-Long ExpSequenceFunction::pack(void * space) {
+Long ExpSequenceFunction::pack(void *space) {
   // Since ExpSequenceFunction has no private data, the pack_clause
   // helper of the ex_clause class can be used to pack this
   // class.
   //
   return packClause(space, sizeof(ExpSequenceFunction));
-}  
+}
 
-ex_expr::exp_return_type ExpSequenceFunction::pCodeGenerate(Space *space, UInt32 f) 
-{
+ex_expr::exp_return_type ExpSequenceFunction::pCodeGenerate(Space *space, UInt32 f) {
+  if (isAnyOperandNullable()) return ex_clause::pCodeGenerate(space, f);
 
-  if(isAnyOperandNullable()) 
-    return ex_clause::pCodeGenerate(space, f);
+  if (getNumOperands() != 2 && getNumOperands() != 3) return ex_clause::pCodeGenerate(space, f);
 
-  if(getNumOperands() != 2 && getNumOperands() != 3)
-    return ex_clause::pCodeGenerate(space, f);
+  if (!nullRowIsZero()) return ex_clause::pCodeGenerate(space, f);
 
-  if(!nullRowIsZero())
-    return ex_clause::pCodeGenerate(space, f);
-
-  if(!isLeading() || (winSize() != 0))
-    return ex_clause::pCodeGenerate(space, f);
+  if (!isLeading() || (winSize() != 0)) return ex_clause::pCodeGenerate(space, f);
 
   AttributesPtr *attrs = getOperand();
   Lng32 fsDataType = attrs[1]->getDatatype();
   Lng32 length = attrs[1]->getLength();
-  
-  if(fsDataType != REC_BIN64_SIGNED || length != 8)
-    return ex_clause::pCodeGenerate(space, f);
 
-  if(getNumOperands() == 3) {
+  if (fsDataType != REC_BIN64_SIGNED || length != 8) return ex_clause::pCodeGenerate(space, f);
+
+  if (getNumOperands() == 3) {
     fsDataType = attrs[2]->getDatatype();
     length = attrs[2]->getLength();
 
-    if(fsDataType != REC_BIN32_SIGNED || length != 4)
-      return ex_clause::pCodeGenerate(space, f);
+    if (fsDataType != REC_BIN32_SIGNED || length != 4) return ex_clause::pCodeGenerate(space, f);
   }
 
   // If we get to this point, we have decided to generate PCode for this
@@ -136,24 +122,19 @@ ex_expr::exp_return_type ExpSequenceFunction::pCodeGenerate(Space *space, UInt32
   //
   PCode::preClausePCI(this, code);
 
-  if(getNumOperands() == 2) {
+  if (getNumOperands() == 2) {
     Int32 index = offsetIndex_;
-  
-       
+
     // The 1st operand is a pointer to the function.
     // The 2nd operand is a pointer the Tcb to get to the history buffer.
     // The 3rd operand is the immediate index value.
     // The 4th operand is the memory location for the target.
     // The 5th operand is the memory location for the source.
     //
-    AML aml(PCIT::IPTR, 
-            PCIT::IPTR, 
-            PCIT::IBIN32S,
-            PCIT::getMemoryAddressingMode(attrs[0]->getDatatype()),
+    AML aml(PCIT::IPTR, PCIT::IPTR, PCIT::IBIN32S, PCIT::getMemoryAddressingMode(attrs[0]->getDatatype()),
             PCIT::getMemoryAddressingMode(attrs[1]->getDatatype()));
 
-    OL ol((Int64)isOLAP(), (Int64)0, index, 
-          attrs[0]->getAtp(), attrs[0]->getAtpIndex(), attrs[0]->getOffset(),
+    OL ol((Int64)isOLAP(), (Int64)0, index, attrs[0]->getAtp(), attrs[0]->getAtpIndex(), attrs[0]->getOffset(),
           attrs[1]->getAtp(), attrs[1]->getAtpIndex(), attrs[1]->getOffset());
 
     // Add the OFFSET instruction.
@@ -167,23 +148,20 @@ ex_expr::exp_return_type ExpSequenceFunction::pCodeGenerate(Space *space, UInt32
     // The 4th operand is the memory location for the target.
     // The 5th operand is the memory location for the source.
     //
-    AML aml(PCIT::IPTR,
-            PCIT::IPTR,
-            PCIT::getMemoryAddressingMode(attrs[2]->getDatatype()),
+    AML aml(PCIT::IPTR, PCIT::IPTR, PCIT::getMemoryAddressingMode(attrs[2]->getDatatype()),
             PCIT::getMemoryAddressingMode(attrs[0]->getDatatype()),
             PCIT::getMemoryAddressingMode(attrs[1]->getDatatype()));
 
-    OL ol((Int64)(isOLAP()), (Int64)0,
-          attrs[2]->getAtp(), attrs[2]->getAtpIndex(), attrs[2]->getOffset(),
-          attrs[0]->getAtp(), attrs[0]->getAtpIndex(), attrs[0]->getOffset(),
-          attrs[1]->getAtp(), attrs[1]->getAtpIndex(), attrs[1]->getOffset());
+    OL ol((Int64)(isOLAP()), (Int64)0, attrs[2]->getAtp(), attrs[2]->getAtpIndex(), attrs[2]->getOffset(),
+          attrs[0]->getAtp(), attrs[0]->getAtpIndex(), attrs[0]->getOffset(), attrs[1]->getAtp(),
+          attrs[1]->getAtpIndex(), attrs[1]->getOffset());
 
     // Add the OFFSET instruction.
     //
     PCI pci(PCIT::Op_OFFSET, aml, ol);
     code.append(pci);
   }
-  
+
   // Generate post clause PCI's
   //
   PCode::postClausePCI(this, code);
@@ -202,10 +180,7 @@ ex_expr::exp_return_type ExpSequenceFunction::pCodeGenerate(Space *space, UInt32
 // RETURN : ex_expr::EXPR_OK is no errors
 // PRECOND: The op_data vector points to the NULL/VARCHAR and data.
 //
-ex_expr::exp_return_type ExpSequenceFunction::eval(char *op_data[],
-						   CollHeap *heap,
-						   ComDiagsArea **diagsArea) {
-  
+ex_expr::exp_return_type ExpSequenceFunction::eval(char *op_data[], CollHeap *heap, ComDiagsArea **diagsArea) {
   // Get a handle on the operands so they can be queried for
   // NULL and VARCHAR -ness.
   //
@@ -216,18 +191,17 @@ ex_expr::exp_return_type ExpSequenceFunction::eval(char *op_data[],
   // is a constant set in the clause.
   //
   Int32 index;
-  if(getNumOperands() >= 3) {
-    if(attrs[2]->getNullFlag() && !op_data[-2 * MAX_OPERANDS + 2])
+  if (getNumOperands() >= 3) {
+    if (attrs[2]->getNullFlag() && !op_data[-2 * MAX_OPERANDS + 2])
       index = -1;
     else
       index = *((Int32 *)op_data[2]);
-  }
-  else
+  } else
     index = offsetIndex_;
 
-  if( index < 0 && !allowNegativeOffset() ) {
-     ExRaiseSqlError(heap, diagsArea, EXE_OLAP_NEGATIVE_OFFSET);
-     return ex_expr::EXPR_ERROR;
+  if (index < 0 && !allowNegativeOffset()) {
+    ExRaiseSqlError(heap, diagsArea, EXE_OLAP_NEGATIVE_OFFSET);
+    return ex_expr::EXPR_ERROR;
   }
 
   // Lookup the indexed row in the history buffer. Compute pointers
@@ -236,34 +210,29 @@ ex_expr::exp_return_type ExpSequenceFunction::eval(char *op_data[],
   char *srcData = NULL;
   UInt32 srcLen = 0;
   char *srcNull = NULL;
-  char *srcVC   = NULL;
-  Int32 rc=0;
+  char *srcVC = NULL;
+  Int32 rc = 0;
 
   {
     char *row = (*GetRow_)(GetRowData_, index, isLeading(), winSize(), rc);
 
-    if(rc == -1)
-      {
-        ExRaiseSqlError(heap, diagsArea, EXE_HISTORY_BUFFER_TOO_SMALL);
-        return ex_expr::EXPR_ERROR;
-      }
-    if(row) 
-      {
-        srcData = row + attrs[1]->getOffset();
-        if(attrs[1]->getVCIndicatorLength() > 0)
-          srcVC = row + attrs[1]->getVCLenIndOffset();
-        if(attrs[1]->getNullFlag())
-          srcNull = row + attrs[1]->getNullIndOffset();
+    if (rc == -1) {
+      ExRaiseSqlError(heap, diagsArea, EXE_HISTORY_BUFFER_TOO_SMALL);
+      return ex_expr::EXPR_ERROR;
+    }
+    if (row) {
+      srcData = row + attrs[1]->getOffset();
+      if (attrs[1]->getVCIndicatorLength() > 0) srcVC = row + attrs[1]->getVCLenIndOffset();
+      if (attrs[1]->getNullFlag()) srcNull = row + attrs[1]->getNullIndOffset();
 
-        srcLen = getOperand(1)->getLength(srcVC);
-      } else {
-          if(getNumOperands() == 4) {
-  
-             srcData = op_data[3];
-             srcLen = getOperand(3)->getLength(op_data[-MAX_OPERANDS+3]);
-             srcNull = NULL;
-          }
+      srcLen = getOperand(1)->getLength(srcVC);
+    } else {
+      if (getNumOperands() == 4) {
+        srcData = op_data[3];
+        srcLen = getOperand(3)->getLength(op_data[-MAX_OPERANDS + 3]);
+        srcNull = NULL;
       }
+    }
   }
 
   // Is the source null? There are two reaons the source data can be null:
@@ -271,100 +240,77 @@ ex_expr::exp_return_type ExpSequenceFunction::eval(char *op_data[],
   // 2. The data exist but is itself NULL (srcNull == 0xFFFF)
   //
   Int32 srcIsNull = (srcData ? 0 : 1);
-  if(srcData && srcNull)
-    srcIsNull = *((unsigned short*)(srcNull)) == 0xFFFFU;
+  if (srcData && srcNull) srcIsNull = *((unsigned short *)(srcNull)) == 0xFFFFU;
 
   // Get the pointer to the start of the result data.
   //
   char *dstData = op_data[0];
   char *dstNull = op_data[-2 * MAX_OPERANDS + 0];
-  char *dstVC   = op_data[- MAX_OPERANDS];
+  char *dstVC = op_data[-MAX_OPERANDS];
 
   // srcData is not null if a default value is present,
   // picked up from op_data[3]
-  if (rc == -3 && !srcData )
-  {
-     *((unsigned short*)dstNull) = 0xFFFFU;
-     return ex_expr::EXPR_OK;
+  if (rc == -3 && !srcData) {
+    *((unsigned short *)dstNull) = 0xFFFFU;
+    return ex_expr::EXPR_OK;
   }
   // Copy the source data to the destination data.
   //
-  if(srcIsNull)
-    {
-      if(nullRowIsZero() || (rc == -2)) {
-        switch (getOperand(1)->getDatatype()) {
+  if (srcIsNull) {
+    if (nullRowIsZero() || (rc == -2)) {
+      switch (getOperand(1)->getDatatype()) {
         case REC_BIN16_UNSIGNED:
-        case REC_BIN16_SIGNED: 
-        {
-          // hiding code from code coverag tool-- 
+        case REC_BIN16_SIGNED: {
+          // hiding code from code coverag tool--
           short value = 0;
-          str_cpy_all(dstData, (char *) &value, sizeof(value));
+          str_cpy_all(dstData, (char *)&value, sizeof(value));
           break;
         }
         case REC_BIN32_SIGNED:
-        case REC_BIN32_UNSIGNED:
-        {
+        case REC_BIN32_UNSIGNED: {
           Lng32 value = 0;
-          str_cpy_all(dstData, (char *) &value, sizeof(value));
+          str_cpy_all(dstData, (char *)&value, sizeof(value));
           break;
         }
-        case REC_BIN64_SIGNED:
-        {
+        case REC_BIN64_SIGNED: {
           Int64 value = 0;
-          str_cpy_all(dstData, (char *) &value, sizeof(value));
+          str_cpy_all(dstData, (char *)&value, sizeof(value));
           break;
         }
-        case REC_IEEE_FLOAT32:
-        {
+        case REC_IEEE_FLOAT32: {
           float value = 0;
-          str_cpy_all(dstData, (char *) &value, sizeof(value));
+          str_cpy_all(dstData, (char *)&value, sizeof(value));
           break;
         }
-        case REC_IEEE_FLOAT64:
-        {
+        case REC_IEEE_FLOAT64: {
           double value = 0;
-          str_cpy_all(dstData, (char *) &value, sizeof(value));
+          str_cpy_all(dstData, (char *)&value, sizeof(value));
           break;
         }
-        default:
-        {
+        default: {
           Lng32 value = 0;
-          if (convDoIt((char *)&value,
-                       sizeof(value),
-                       REC_BIN32_SIGNED,
-                       0,
-                       0,
-                       dstData,
-                       getOperand(1)->getLength(),
-                       getOperand(1)->getDatatype(),
-                       getOperand(1)->getPrecision(),
-                       getOperand(1)->getScale(),
-                       NULL, 0, heap, diagsArea,
-                       CONV_UNKNOWN) != ex_expr::EXPR_OK) {
+          if (convDoIt((char *)&value, sizeof(value), REC_BIN32_SIGNED, 0, 0, dstData, getOperand(1)->getLength(),
+                       getOperand(1)->getDatatype(), getOperand(1)->getPrecision(), getOperand(1)->getScale(), NULL, 0,
+                       heap, diagsArea, CONV_UNKNOWN) != ex_expr::EXPR_OK) {
             return ex_expr::EXPR_ERROR;
           }
 
           break;
         }
-        }
-
-        if(attrs[0]->getNullFlag())
-          *((short*)dstNull) = 0x0000;
-
-      } else {
-        *((unsigned short*)dstNull) = 0xFFFFU;
       }
+
+      if (attrs[0]->getNullFlag()) *((short *)dstNull) = 0x0000;
+
+    } else {
+      *((unsigned short *)dstNull) = 0xFFFFU;
     }
-  else
-    {
-      Int32 len = attrs[0]->getLength();
-      str_cpy_all(dstData, srcData, attrs[0]->getLength());
-      if (attrs[1]->getVCIndicatorLength() > 0)
-           getOperand(0)->setVarLength(srcLen, dstVC);
-           //getOperand(0)->setVarLength(getOperand(1)->getLength(srcVC), dstVC);
-      if(attrs[0]->getNullFlag())
-        *((short*)dstNull) = 0x0000;
-    }
+  } else {
+    Int32 len = attrs[0]->getLength();
+    str_cpy_all(dstData, srcData, attrs[0]->getLength());
+    if (attrs[1]->getVCIndicatorLength() > 0) getOperand(0)->setVarLength(srcLen, dstVC);
+    // getOperand(0)->setVarLength(getOperand(1)->getLength(srcVC), dstVC);
+    if (attrs[0]->getNullFlag()) *((short *)dstNull) = 0x0000;
+  }
 
   // Return all OK...
   //

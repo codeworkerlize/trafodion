@@ -41,12 +41,10 @@
 #include "common/Int64.h"
 #include "common/Platform.h"
 
-
 #include <sys/time.h>
 
-
 #ifdef NA_LITTLE_ENDIAN
-#define EXTRACT_SIGN_INT64(sign, ptr) sign = *((Int32 *)ptr +1) & 0x80000000;
+#define EXTRACT_SIGN_INT64(sign, ptr) sign = *((Int32 *)ptr + 1) & 0x80000000;
 #else
 #define EXTRACT_SIGN_INT64(sign, ptr) sign = *((Int32 *)ptr) & 0x80000000;
 #endif
@@ -58,52 +56,32 @@
 // **************************************************************************
 extern "C" {
 
-  // Real Unix need not emulate its native "gettimeofday" (see ComSysUtils.cpp)
+// Real Unix need not emulate its native "gettimeofday" (see ComSysUtils.cpp)
 #define NA_timeval timeval
 
-struct NA_timezone   /* Only here for the compiler. */
-   {
-   };
+struct NA_timezone /* Only here for the compiler. */
+{};
 
 typedef struct NA_timeval TimeVal;
 typedef struct NA_timezone TimeZone;
-  Int32 NA_gettimeofday(struct NA_timeval *, struct NA_timezone *);
+Int32 NA_gettimeofday(struct NA_timeval *, struct NA_timezone *);
 
-#define GETTIMEOFDAY(tv,tz) NA_gettimeofday(tv,tz)
+#define GETTIMEOFDAY(tv, tz) NA_gettimeofday(tv, tz)
 }
 
-#if   defined(NA_LITTLE_ENDIAN)
+#if defined(NA_LITTLE_ENDIAN)
 
+inline unsigned short reversebytes(unsigned short s) { return (s >> 8 | s << 8); }
 
-inline unsigned short reversebytes( unsigned short s )
-{
-  return (s>>8 | s<<8);
+inline unsigned short reversebytesUS(unsigned short s) { return (s >> 8 | s << 8); }
+
+inline ULng32 reversebytes(ULng32 x) { return ((x << 24) | (x << 8 & 0x00ff0000) | (x >> 8 & 0x0000ff00) | (x >> 24)); }
+
+inline Lng32 reversebytes(Lng32 x) {
+  return ((x << 24) | (x << 8 & 0x00ff0000) | (x >> 8 & 0x0000ff00) | (x >> 24 & 0x000000ff));
 }
 
-inline unsigned short reversebytesUS( unsigned short s )
-{
-  return (s>>8 | s<<8);
-}
-
-inline ULng32 reversebytes( ULng32 x )
-{
-  return ((x<<24)
-	  |(x<<8 & 0x00ff0000)
-	  |(x>>8 & 0x0000ff00)
-	  |(x>>24)
-	  );
-}
-
-inline Lng32 reversebytes( Lng32 x )
-{
-  return ((x<<24)
-	  |(x<<8 & 0x00ff0000)
-	  |(x>>8 & 0x0000ff00)
-	  |(x>>24 & 0x000000ff)
-	  );
-}
-
-//SQ TBD NGG
+// SQ TBD NGG
 #if 0
 inline Int64 reversebytes( Int64 x )
 {
@@ -119,44 +97,40 @@ inline Int64 reversebytes( Int64 x )
 }
 #endif
 
-inline Int64 reversebytes( Int64 xx )
-{
-    union {
-        Int64 xx;
-        char c[8];
-    } source;
+inline Int64 reversebytes(Int64 xx) {
+  union {
+    Int64 xx;
+    char c[8];
+  } source;
 
-    union {
-        Int64 xx;
-        char c[8];
-    } sink;
+  union {
+    Int64 xx;
+    char c[8];
+  } sink;
 
-    source.xx = xx;
+  source.xx = xx;
 
-    for (Int32 i=0; i<8; i++)
-        sink.c[i] = source.c[7-i];
+  for (Int32 i = 0; i < 8; i++) sink.c[i] = source.c[7 - i];
 
-    return sink.xx;
+  return sink.xx;
 }
 
-inline UInt64 reversebytes( UInt64 xx )
-{
-    union {
-        UInt64 xx;
-        char c[8];
-    } source;
+inline UInt64 reversebytes(UInt64 xx) {
+  union {
+    UInt64 xx;
+    char c[8];
+  } source;
 
-    union {
-        UInt64 xx;
-        char c[8];
-    } sink;
+  union {
+    UInt64 xx;
+    char c[8];
+  } sink;
 
-    source.xx = xx;
+  source.xx = xx;
 
-    for (Int32 i=0; i<8; i++)
-        sink.c[i] = source.c[7-i];
+  for (Int32 i = 0; i < 8; i++) sink.c[i] = source.c[7 - i];
 
-    return sink.xx;
+  return sink.xx;
 }
 
 #endif  // NA_LITTLE_ENDIAN
@@ -164,14 +138,12 @@ inline UInt64 reversebytes( UInt64 xx )
 
 #endif
 
+void copyInteger(void *destination, Int32 targetLength, void *sourceAddress, Int32 sourceLength);
 
-void copyInteger (void *destination, Int32 targetLength, 
-		  void *sourceAddress, Int32 sourceLength);
+void copyToInteger1(Int8 *destination, void *sourceAddress, Int32 sourceSize);
 
-void copyToInteger1 (Int8 *destination, void *sourceAddress, Int32 sourceSize);
+void copyToInteger2(short *destination, void *sourceAddress, Int32 sourceSize);
 
-void copyToInteger2 (short *destination, void *sourceAddress, Int32 sourceSize);
+void copyToInteger4(Lng32 *destination, void *sourceAddress, Int32 sourceSize);
 
-void copyToInteger4 (Lng32 *destination, void *sourceAddress, Int32 sourceSize);
-
-void copyToInteger8 (Int64 *destination, void *sourceAddress, Int32 sourceSize);
+void copyToInteger8(Int64 *destination, void *sourceAddress, Int32 sourceSize);

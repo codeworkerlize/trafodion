@@ -31,76 +31,66 @@
 
 namespace orc {
 
-  class FileInputStream : public InputStream {
-  private:
-    std::string filename ;
-    int file;
-    uint64_t totalLength;
+class FileInputStream : public InputStream {
+ private:
+  std::string filename;
+  int file;
+  uint64_t totalLength;
 
-  public:
-    FileInputStream(std::string _filename) {
-      filename = _filename ;
-      file = open(filename.c_str(), O_RDONLY);
-      if (file == -1) {
-        throw ParseError("Can't open " + filename);
-      }
-      struct stat fileStat;
-      if (fstat(file, &fileStat) == -1) {
-        throw ParseError("Can't stat " + filename);
-      }
-      totalLength = static_cast<uint64_t>(fileStat.st_size);
+ public:
+  FileInputStream(std::string _filename) {
+    filename = _filename;
+    file = open(filename.c_str(), O_RDONLY);
+    if (file == -1) {
+      throw ParseError("Can't open " + filename);
     }
-
-    ~FileInputStream();
-
-    uint64_t getLength() const override {
-      return totalLength;
+    struct stat fileStat;
+    if (fstat(file, &fileStat) == -1) {
+      throw ParseError("Can't stat " + filename);
     }
-
-    uint64_t getNaturalReadSize() const override {
-      return 128 * 1024;
-    }
-
-    void read(void* buf,
-              uint64_t length,
-              uint64_t offset) override {
-      if (!buf) {
-        throw ParseError("Buffer is null");
-      }
-      ssize_t bytesRead = pread(file, buf, length, static_cast<off_t>(offset));
-
-      if (bytesRead == -1) {
-        throw ParseError("Bad read of " + filename);
-      }
-      if (static_cast<uint64_t>(bytesRead) != length) {
-        throw ParseError("Short read of " + filename);
-      }
-    }
-
-    const std::string& getName() const override {
-      return filename;
-    }
-  };
-
-  FileInputStream::~FileInputStream() {
-    close(file);
+    totalLength = static_cast<uint64_t>(fileStat.st_size);
   }
 
-  std::unique_ptr<InputStream> readLocalFile(const std::string& path) {
-    return std::unique_ptr<InputStream>(new FileInputStream(path));
+  ~FileInputStream();
+
+  uint64_t getLength() const override { return totalLength; }
+
+  uint64_t getNaturalReadSize() const override { return 128 * 1024; }
+
+  void read(void *buf, uint64_t length, uint64_t offset) override {
+    if (!buf) {
+      throw ParseError("Buffer is null");
+    }
+    ssize_t bytesRead = pread(file, buf, length, static_cast<off_t>(offset));
+
+    if (bytesRead == -1) {
+      throw ParseError("Bad read of " + filename);
+    }
+    if (static_cast<uint64_t>(bytesRead) != length) {
+      throw ParseError("Short read of " + filename);
+    }
   }
+
+  const std::string &getName() const override { return filename; }
+};
+
+FileInputStream::~FileInputStream() { close(file); }
+
+std::unique_ptr<InputStream> readLocalFile(const std::string &path) {
+  return std::unique_ptr<InputStream>(new FileInputStream(path));
 }
+}  // namespace orc
 
 #ifndef HAS_STOLL
 
-  #include <sstream>
+#include <sstream>
 
-  int64_t std::stoll(std::string str) {
-    int64_t val = 0;
-    stringstream ss ;
-    ss << str ;
-    ss >> val ;
-    return val;
-  }
+int64_t std::stoll(std::string str) {
+  int64_t val = 0;
+  stringstream ss;
+  ss << str;
+  ss >> val;
+  return val;
+}
 
 #endif

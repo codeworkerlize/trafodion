@@ -28,7 +28,7 @@
 * File:         ItemComposite.h
 * Description:  Composite item expressions
 *
-* Created:      
+* Created:
 * Language:     C++
 *
 ******************************************************************************
@@ -39,97 +39,81 @@
 
 ////////////////////////////////////////////////////////////////////
 // class CompositeArrayLength
-// Returns number of direct array elements. 
+// Returns number of direct array elements.
 ////////////////////////////////////////////////////////////////////
-class CompositeArrayLength : public BuiltinFunction
-{
-public:
+class CompositeArrayLength : public BuiltinFunction {
+ public:
   CompositeArrayLength(ItemExpr *valPtr)
-       : BuiltinFunction(ITM_COMPOSITE_ARRAY_LENGTH, CmpCommon::statementHeap(),
-                         1, valPtr)
-  {
-  }
+      : BuiltinFunction(ITM_COMPOSITE_ARRAY_LENGTH, CmpCommon::statementHeap(), 1, valPtr) {}
 
   // virtual destructor
-  virtual ~CompositeArrayLength() {};
+  virtual ~CompositeArrayLength(){};
 
-  virtual NABoolean isCacheableExpr(CacheWA& cwa);
+  virtual NABoolean isCacheableExpr(CacheWA &cwa);
 
   // get the degree of this node
   virtual Int32 getArity() const { return 1; }
 
-  virtual ItemExpr * bindNode(BindWA *bindWA);
+  virtual ItemExpr *bindNode(BindWA *bindWA);
 
   // method to do code generation
-  virtual short codeGen(Generator*);
+  virtual short codeGen(Generator *);
 
   // a virtual function for type propagating the node
-  virtual const NAType * synthesizeType();
+  virtual const NAType *synthesizeType();
 
-  virtual ItemExpr * copyTopNode(ItemExpr *derivedNode = NULL,
-				 CollHeap* outHeap = 0);
+  virtual ItemExpr *copyTopNode(ItemExpr *derivedNode = NULL, CollHeap *outHeap = 0);
 
   // get a printable string that identifies the operator
   const NAString getText() const;
-private:
-}; // class CompositeArrayLength
+
+ private:
+};  // class CompositeArrayLength
 
 //////////////////////////////////////////////
 // class CompositeCreate
 // Created when   ARRAY(list_of_values) or ROW(list_of_values)
 // is specified.
 //////////////////////////////////////////////
-class CompositeCreate : public ItemExpr
-{
-public:
-  enum {
-    ARRAY_TYPE = 1,
-    ROW_TYPE   = 2
-  };
+class CompositeCreate : public ItemExpr {
+ public:
+  enum { ARRAY_TYPE = 1, ROW_TYPE = 2 };
 
-  CompositeCreate(ItemExpr *valPtr, short type)
-       : ItemExpr(ITM_COMPOSITE_CREATE, valPtr),
-         type_(type)
-  {
-  }
+  CompositeCreate(ItemExpr *valPtr, short type) : ItemExpr(ITM_COMPOSITE_CREATE, valPtr), type_(type) {}
 
   // virtual destructor
-  virtual ~CompositeCreate() {};
+  virtual ~CompositeCreate(){};
 
-  virtual NABoolean isCacheableExpr(CacheWA& cwa) {return FALSE;};
+  virtual NABoolean isCacheableExpr(CacheWA &cwa) { return FALSE; };
 
   // get the degree of this node
   virtual Int32 getArity() const { return 1; }
 
   // method to do precode generation
-  virtual ItemExpr * bindNode(BindWA *bindWA);
+  virtual ItemExpr *bindNode(BindWA *bindWA);
 
   // virtual method to fixup tree for code generation.
-  virtual ItemExpr * preCodeGen(Generator*);
+  virtual ItemExpr *preCodeGen(Generator *);
 
   // method to do code generation
-  virtual short codeGen(Generator*);
+  virtual short codeGen(Generator *);
 
   // a virtual function for type propagating the node
-  virtual const NAType * synthesizeType();
+  virtual const NAType *synthesizeType();
 
-  virtual ItemExpr * copyTopNode(ItemExpr *derivedNode = NULL,
-				 CollHeap* outHeap = 0);
+  virtual ItemExpr *copyTopNode(ItemExpr *derivedNode = NULL, CollHeap *outHeap = 0);
 
   // get a printable string that identifies the operator
-  const NAString getText() const 
-  { 
-    return NAString("composite_create") + (type_ == ARRAY_TYPE ? "(array)" : "(row)"); 
-  }
+  const NAString getText() const { return NAString("composite_create") + (type_ == ARRAY_TYPE ? "(array)" : "(row)"); }
 
   ValueIdList &elementsVIDlist() { return elemVidList_; }
 
   short getType() { return type_; }
 
-private:
+ private:
   short type_;
   ValueIdList elemVidList_;
-}; // class CompositeCreate
+};  // class CompositeCreate
 
 ////////////////////////////////////////////////////////
 // class CompositeDisplay
@@ -145,62 +129,48 @@ private:
 //           [ (row1), (row2...) ]
 //
 ////////////////////////////////////////////////////////
-class CompositeDisplay : public ItemExpr
-{
-public:
-  CompositeDisplay(ItemExpr *valPtr, NABoolean isInternal = TRUE)
-       : ItemExpr(ITM_COMPOSITE_DISPLAY, valPtr)
-  {
-  }
+class CompositeDisplay : public ItemExpr {
+ public:
+  CompositeDisplay(ItemExpr *valPtr, NABoolean isInternal = TRUE) : ItemExpr(ITM_COMPOSITE_DISPLAY, valPtr) {}
 
   // virtual destructor
-  virtual ~CompositeDisplay() {};
+  virtual ~CompositeDisplay(){};
 
   // get the degree of this node
   virtual Int32 getArity() const { return 1; }
 
   // method to do precode generation
-  virtual ItemExpr * bindNode(BindWA *bindWA);
+  virtual ItemExpr *bindNode(BindWA *bindWA);
 
   // method to do code generation
-  virtual short codeGen(Generator*);
+  virtual short codeGen(Generator *);
 
   // a virtual function for type propagating the node
-  virtual const NAType * synthesizeType();
+  virtual const NAType *synthesizeType();
 
-  virtual ItemExpr * copyTopNode(ItemExpr *derivedNode = NULL,
-				 CollHeap* outHeap = 0);
+  virtual ItemExpr *copyTopNode(ItemExpr *derivedNode = NULL, CollHeap *outHeap = 0);
 
   // get a printable string that identifies the operator
-  const NAString getText() const 
-  { 
-    return "composite_display"; 
-  }
+  const NAString getText() const { return "composite_display"; }
 
   const NABoolean isInternal() { return isInternal_; }
 
-private:
+ private:
   // created internally and not as an explicit user function
   NABoolean isInternal_;
-}; // class CompositeDisplay
+};  // class CompositeDisplay
 
 ////////////////////////////////////////////////////////////////////
 // class CompositeCast
 // Created when CAST of array to array, or row to row is done.
 ////////////////////////////////////////////////////////////////////
-class CompositeCast : public ItemExpr
-{
-public:
-  CompositeCast(ItemExpr *valPtr, const NAType *type,
-                NABoolean isExtendOrTruncate = FALSE)
-       : ItemExpr(ITM_COMPOSITE_CAST, valPtr),
-         type_(type),
-         isExtendOrTruncate_(isExtendOrTruncate)
-  {
-  }
+class CompositeCast : public ItemExpr {
+ public:
+  CompositeCast(ItemExpr *valPtr, const NAType *type, NABoolean isExtendOrTruncate = FALSE)
+      : ItemExpr(ITM_COMPOSITE_CAST, valPtr), type_(type), isExtendOrTruncate_(isExtendOrTruncate) {}
 
   // virtual destructor
-  virtual ~CompositeCast() {};
+  virtual ~CompositeCast(){};
 
   // get the degree of this node
   virtual Int32 getArity() const { return 1; }
@@ -208,174 +178,149 @@ public:
   ItemExpr *arrayExtendOrTruncate(BindWA *bindWA);
 
   // method to do precode generation
-  virtual ItemExpr * bindNode(BindWA *bindWA);
+  virtual ItemExpr *bindNode(BindWA *bindWA);
 
   // method to do code generation
-  virtual short codeGen(Generator*);
+  virtual short codeGen(Generator *);
 
   // a virtual function for type propagating the node
-  virtual const NAType * synthesizeType();
+  virtual const NAType *synthesizeType();
 
-  virtual ItemExpr * copyTopNode(ItemExpr *derivedNode = NULL,
-				 CollHeap* outHeap = 0);
+  virtual ItemExpr *copyTopNode(ItemExpr *derivedNode = NULL, CollHeap *outHeap = 0);
 
   // get a printable string that identifies the operator
   const NAString getText() const;
 
-protected:
+ protected:
   // type of target type.
   const NAType *type_;
 
   NABoolean isExtendOrTruncate_;
   NABoolean isTruncate_;
-}; // class CompositeCast
+};  // class CompositeCast
 
 ////////////////////////////////////////////////////////////////////
 // class CompositeCastForHive
 // Created when underlying hive composite value is to be converted
 // to or from traf composite type.
 ////////////////////////////////////////////////////////////////////
-class CompositeHiveCast : public CompositeCast
-{
-public:
+class CompositeHiveCast : public CompositeCast {
+ public:
   CompositeHiveCast(ItemExpr *valPtr, const NAType *type, NABoolean fromHive)
-       : CompositeCast(valPtr, type),
-         fromHive_(fromHive)
-  {
+      : CompositeCast(valPtr, type), fromHive_(fromHive) {
     setOperatorType(ITM_COMPOSITE_HIVE_CAST);
   }
 
   // virtual destructor
-  virtual ~CompositeHiveCast() {};
+  virtual ~CompositeHiveCast(){};
 
   // method to do precode generation
-  virtual ItemExpr * bindNode(BindWA *bindWA);
+  virtual ItemExpr *bindNode(BindWA *bindWA);
 
   // method to do code generation
-  virtual short codeGen(Generator*);
+  virtual short codeGen(Generator *);
 
-  virtual ItemExpr * copyTopNode(ItemExpr *derivedNode = NULL,
-				 CollHeap* outHeap = 0);
+  virtual ItemExpr *copyTopNode(ItemExpr *derivedNode = NULL, CollHeap *outHeap = 0);
 
   // get a printable string that identifies the operator
   const NAString getText() const;
 
-private:
+ private:
   // if TRUE, convert hive to traf. If FALSE, convert traf to hive.
   NABoolean fromHive_;
-}; // class CompositeHiveCast
+};  // class CompositeHiveCast
 
 ////////////////////////////////////////////////////////////////////
 // class CompositeConcat
 //   Concatenation of 2 arrays.
 ////////////////////////////////////////////////////////////////////
-class CompositeConcat : public BuiltinFunction
-{
-public:
+class CompositeConcat : public BuiltinFunction {
+ public:
   CompositeConcat(ItemExpr *val1Ptr, ItemExpr *val2Ptr)
-       : BuiltinFunction(ITM_COMPOSITE_CONCAT, CmpCommon::statementHeap(),
-                         2, val1Ptr, val2Ptr),
-         concatExpr_(NULL)
-  {
-  }
+      : BuiltinFunction(ITM_COMPOSITE_CONCAT, CmpCommon::statementHeap(), 2, val1Ptr, val2Ptr), concatExpr_(NULL) {}
 
   // virtual destructor
-  virtual ~CompositeConcat() {};
+  virtual ~CompositeConcat(){};
 
-  virtual NABoolean isCacheableExpr(CacheWA& cwa);
+  virtual NABoolean isCacheableExpr(CacheWA &cwa);
 
   // method to do precode generation
-  virtual ItemExpr * bindNode(BindWA *bindWA);
+  virtual ItemExpr *bindNode(BindWA *bindWA);
 
   // method to do code generation
-  virtual short codeGen(Generator*);
+  virtual short codeGen(Generator *);
 
   // a virtual function for type propagating the node
-  virtual const NAType * synthesizeType();
+  virtual const NAType *synthesizeType();
 
-  virtual ItemExpr * copyTopNode(ItemExpr *derivedNode = NULL,
-				 CollHeap* outHeap = 0);
+  virtual ItemExpr *copyTopNode(ItemExpr *derivedNode = NULL, CollHeap *outHeap = 0);
 
   // get a printable string that identifies the operator
-  const NAString getText() const 
-  { 
-    return "composite_concat"; 
-  }
+  const NAString getText() const { return "composite_concat"; }
 
   ItemExpr *concatExpr() { return concatExpr_; }
-private:
+
+ private:
   ItemExpr *concatExpr_;
-}; // class CompositeConcat
+};  // class CompositeConcat
 
 ////////////////////////////////////////////////////////////////////
 // class CompositeExtract
 ////////////////////////////////////////////////////////////////////
-class CompositeExtract : public BuiltinFunction
-{
-public:
+class CompositeExtract : public BuiltinFunction {
+ public:
   // extract elem number elemNum from the composite array or row operand.
   CompositeExtract(ItemExpr *valPtr, Lng32 elemNum)
-       : BuiltinFunction(ITM_COMPOSITE_EXTRACT, CmpCommon::statementHeap(),
-                         1, valPtr),
-         elemNum_(elemNum),
-         names_(CmpCommon::statementHeap()),
-         indexes_(CmpCommon::statementHeap()),
-         resultType_(NULL),
-         attrIndexList_(CmpCommon::statementHeap()),
-         attrTypeList_(CmpCommon::statementHeap())
-  {
-  }
+      : BuiltinFunction(ITM_COMPOSITE_EXTRACT, CmpCommon::statementHeap(), 1, valPtr),
+        elemNum_(elemNum),
+        names_(CmpCommon::statementHeap()),
+        indexes_(CmpCommon::statementHeap()),
+        resultType_(NULL),
+        attrIndexList_(CmpCommon::statementHeap()),
+        attrTypeList_(CmpCommon::statementHeap()) {}
 
   // extract elem specified as a.b[1].c...
   // See arrayIndexList_ and arrayTypeList_ below.
-  CompositeExtract(ItemExpr *valPtr, 
-                   NAList<NAString> &names, 
-                   NAList<UInt32> &indexes)
-       : BuiltinFunction(ITM_COMPOSITE_EXTRACT, CmpCommon::statementHeap(),
-                         1, valPtr),
-         names_(names, CmpCommon::statementHeap()),
-         indexes_(indexes, CmpCommon::statementHeap()),
-         elemNum_(-1),
-         resultType_(NULL),
-         attrIndexList_(CmpCommon::statementHeap()),
-         attrTypeList_(CmpCommon::statementHeap())
-  {
-  }
+  CompositeExtract(ItemExpr *valPtr, NAList<NAString> &names, NAList<UInt32> &indexes)
+      : BuiltinFunction(ITM_COMPOSITE_EXTRACT, CmpCommon::statementHeap(), 1, valPtr),
+        names_(names, CmpCommon::statementHeap()),
+        indexes_(indexes, CmpCommon::statementHeap()),
+        elemNum_(-1),
+        resultType_(NULL),
+        attrIndexList_(CmpCommon::statementHeap()),
+        attrTypeList_(CmpCommon::statementHeap()) {}
 
   // extract elem number specified through elemNumExpr.
   CompositeExtract(ItemExpr *valPtr, ItemExpr *elemNumExpr)
-       : BuiltinFunction(ITM_COMPOSITE_EXTRACT, CmpCommon::statementHeap(),
-                         2, valPtr, elemNumExpr),
-         elemNum_(-1),
-         names_(CmpCommon::statementHeap()),
-         indexes_(CmpCommon::statementHeap()),
-         resultType_(NULL),
-         attrIndexList_(CmpCommon::statementHeap()),
-         attrTypeList_(CmpCommon::statementHeap())
-  {
-  }
+      : BuiltinFunction(ITM_COMPOSITE_EXTRACT, CmpCommon::statementHeap(), 2, valPtr, elemNumExpr),
+        elemNum_(-1),
+        names_(CmpCommon::statementHeap()),
+        indexes_(CmpCommon::statementHeap()),
+        resultType_(NULL),
+        attrIndexList_(CmpCommon::statementHeap()),
+        attrTypeList_(CmpCommon::statementHeap()) {}
 
   // virtual destructor
-  virtual ~CompositeExtract() {};
+  virtual ~CompositeExtract(){};
 
   // currently not cacheable.
-  virtual NABoolean isCacheableExpr(CacheWA& cwa);
+  virtual NABoolean isCacheableExpr(CacheWA &cwa);
 
   // method to do precode generation
-  virtual ItemExpr * bindNode(BindWA *bindWA);
+  virtual ItemExpr *bindNode(BindWA *bindWA);
 
   // method to do code generation
-  virtual short codeGen(Generator*);
+  virtual short codeGen(Generator *);
 
   // a virtual function for type propagating the node
-  virtual const NAType * synthesizeType();
+  virtual const NAType *synthesizeType();
 
-  virtual ItemExpr * copyTopNode(ItemExpr *derivedNode = NULL,
-				 CollHeap* outHeap = 0);
+  virtual ItemExpr *copyTopNode(ItemExpr *derivedNode = NULL, CollHeap *outHeap = 0);
 
   // get a printable string that identifies the operator
   const NAString getText() const;
-private:
+
+ private:
   // element to be extracted. 1-based (first elem is 1)
   Lng32 elemNum_;
 
@@ -386,10 +331,10 @@ private:
 
   // each entry represents the index/type into the corresponding composite
   // attribute list. Used to find out the value to be extracted.
-  // For ex: {b1}[3].b10  where b1 is row and b10 is char, will have 2 entries. 
+  // For ex: {b1}[3].b10  where b1 is row and b10 is char, will have 2 entries.
   //         First entry will be 3,221(REC_ROW) and second will be 0,0(ASCII_F)
   NAList<Int32> attrIndexList_;
   NAList<Int32> attrTypeList_;
-}; // class CompositeExtract
+};  // class CompositeExtract
 
 #endif

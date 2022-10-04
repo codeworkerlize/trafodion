@@ -28,4 +28,4 @@
 //-------------------------------------------------------------------------
 extern void *ExSM_ReaderFunction(void *arg);
 
-#endif // EXSM_READER_H
+#endif  // EXSM_READER_H

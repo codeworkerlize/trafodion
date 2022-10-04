@@ -43,31 +43,19 @@
 // -----------------------------------------------------------------------
 
 // virtual destructor
-ElemDDLRefTrigAct::~ElemDDLRefTrigAct()
-{
-}
+ElemDDLRefTrigAct::~ElemDDLRefTrigAct() {}
 
 // casting
-ElemDDLRefTrigAct *
-ElemDDLRefTrigAct::castToElemDDLRefTrigAct()
-{
-  return this;
-}
+ElemDDLRefTrigAct *ElemDDLRefTrigAct::castToElemDDLRefTrigAct() { return this; }
 
 //
 // accessors
 //
 
 // get the degree of this node
-Int32
-ElemDDLRefTrigAct::getArity() const
-{
-  return MAX_ELEM_DDL_REF_TRIG_ACT_ARITY;
-}
+Int32 ElemDDLRefTrigAct::getArity() const { return MAX_ELEM_DDL_REF_TRIG_ACT_ARITY; }
 
-ExprNode *
-ElemDDLRefTrigAct::getChild(Lng32 index)
-{ 
+ExprNode *ElemDDLRefTrigAct::getChild(Lng32 index) {
   ComASSERT(index >= 0 AND index < getArity());
   return children_[index];
 }
@@ -76,17 +64,12 @@ ElemDDLRefTrigAct::getChild(Lng32 index)
 // mutator
 //
 
-void
-ElemDDLRefTrigAct::setChild(Lng32 index, ExprNode * pChildNode)
-{
+void ElemDDLRefTrigAct::setChild(Lng32 index, ExprNode *pChildNode) {
   ComASSERT(index >= 0 AND index < getArity());
-  if (pChildNode NEQ NULL)
-  {
+  if (pChildNode NEQ NULL) {
     ComASSERT(pChildNode->castToElemDDLNode() NEQ NULL);
     children_[index] = pChildNode->castToElemDDLNode();
-  }
-  else
-  {
+  } else {
     children_[index] = NULL;
   }
 }
@@ -95,9 +78,7 @@ ElemDDLRefTrigAct::setChild(Lng32 index, ExprNode * pChildNode)
 // methods for tracing
 //
 
-NATraceList
-ElemDDLRefTrigAct::getDetailInfo() const
-{
+NATraceList ElemDDLRefTrigAct::getDetailInfo() const {
   NATraceList detailTextList;
 
   //
@@ -109,9 +90,7 @@ ElemDDLRefTrigAct::getDetailInfo() const
   return detailTextList;
 }
 
-const NAString
-ElemDDLRefTrigAct::getText() const
-{
+const NAString ElemDDLRefTrigAct::getText() const {
   ABORT("internal logic error");
   return "ElemDDLRefTrigAct";
 }
@@ -124,67 +103,51 @@ ElemDDLRefTrigAct::getText() const
 // constructor
 //
 
-ElemDDLRefTrigActDeleteRule::ElemDDLRefTrigActDeleteRule(
-     ElemDDLNode * pReferentialAction)
-: ElemDDLRefTrigAct(ELM_REF_TRIG_ACT_DELETE_RULE_ELEM,
-                    pReferentialAction)
-{
+ElemDDLRefTrigActDeleteRule::ElemDDLRefTrigActDeleteRule(ElemDDLNode *pReferentialAction)
+    : ElemDDLRefTrigAct(ELM_REF_TRIG_ACT_DELETE_RULE_ELEM, pReferentialAction) {
   ComASSERT(pReferentialAction NEQ NULL);
-  switch (pReferentialAction->getOperatorType())
-  {
-  case ELM_REF_ACT_CASCADE_ELEM :
-    deleteRule_ = COM_CASCADE_DELETE_RULE;
-    break;
+  switch (pReferentialAction->getOperatorType()) {
+    case ELM_REF_ACT_CASCADE_ELEM:
+      deleteRule_ = COM_CASCADE_DELETE_RULE;
+      break;
 
-  case ELM_REF_ACT_NO_ACTION_ELEM :
-    deleteRule_ = COM_NO_ACTION_DELETE_RULE;
-    break;
+    case ELM_REF_ACT_NO_ACTION_ELEM:
+      deleteRule_ = COM_NO_ACTION_DELETE_RULE;
+      break;
 
-  case ELM_REF_ACT_RESTRICT_ELEM :
-    deleteRule_ = COM_RESTRICT_DELETE_RULE;
-    break;
+    case ELM_REF_ACT_RESTRICT_ELEM:
+      deleteRule_ = COM_RESTRICT_DELETE_RULE;
+      break;
 
-  case ELM_REF_ACT_SET_DEFAULT_ELEM :
-    deleteRule_ = COM_SET_DEFAULT_DELETE_RULE;
-    break;
+    case ELM_REF_ACT_SET_DEFAULT_ELEM:
+      deleteRule_ = COM_SET_DEFAULT_DELETE_RULE;
+      break;
 
-  case ELM_REF_ACT_SET_NULL_ELEM :
-    deleteRule_ = COM_SET_NULL_DELETE_RULE;
-    break;
+    case ELM_REF_ACT_SET_NULL_ELEM:
+      deleteRule_ = COM_SET_NULL_DELETE_RULE;
+      break;
 
-  default :
-    NAAbort("ElemDDLRefTrigActions.C", __LINE__, "internal logic error");
-    break;
+    default:
+      NAAbort("ElemDDLRefTrigActions.C", __LINE__, "internal logic error");
+      break;
   }
-} // ElemDDLRefTrigActDeleteRule::ElemDDLRefTrigActDeleteRule()
+}  // ElemDDLRefTrigActDeleteRule::ElemDDLRefTrigActDeleteRule()
 
 // virtual destructor
-ElemDDLRefTrigActDeleteRule::~ElemDDLRefTrigActDeleteRule()
-{
-}
+ElemDDLRefTrigActDeleteRule::~ElemDDLRefTrigActDeleteRule() {}
 
 // casting
-ElemDDLRefTrigActDeleteRule *
-ElemDDLRefTrigActDeleteRule::castToElemDDLRefTrigActDeleteRule()
-{
-  return this;
-}
+ElemDDLRefTrigActDeleteRule *ElemDDLRefTrigActDeleteRule::castToElemDDLRefTrigActDeleteRule() { return this; }
 
 //
 // methods for tracing
 //
 
-const NAString
-ElemDDLRefTrigActDeleteRule::displayLabel1() const
-{
+const NAString ElemDDLRefTrigActDeleteRule::displayLabel1() const {
   return NAString("Delete Rule referential triggered action");
 }
 
-const NAString
-ElemDDLRefTrigActDeleteRule::getText() const
-{
-  return "ElemDDLRefTrigActDeleteRule";
-}
+const NAString ElemDDLRefTrigActDeleteRule::getText() const { return "ElemDDLRefTrigActDeleteRule"; }
 
 // -----------------------------------------------------------------------
 // methods for class ElemDDLRefTrigActUpdateRule
@@ -194,67 +157,51 @@ ElemDDLRefTrigActDeleteRule::getText() const
 // constructor
 //
 
-ElemDDLRefTrigActUpdateRule::ElemDDLRefTrigActUpdateRule(
-     ElemDDLNode * pReferentialAction)
-: ElemDDLRefTrigAct(ELM_REF_TRIG_ACT_UPDATE_RULE_ELEM,
-                    pReferentialAction)
-{
+ElemDDLRefTrigActUpdateRule::ElemDDLRefTrigActUpdateRule(ElemDDLNode *pReferentialAction)
+    : ElemDDLRefTrigAct(ELM_REF_TRIG_ACT_UPDATE_RULE_ELEM, pReferentialAction) {
   ComASSERT(pReferentialAction NEQ NULL);
-  switch (pReferentialAction->getOperatorType())
-  {
-  case ELM_REF_ACT_CASCADE_ELEM :
-    updateRule_ = COM_CASCADE_UPDATE_RULE;
-    break;
+  switch (pReferentialAction->getOperatorType()) {
+    case ELM_REF_ACT_CASCADE_ELEM:
+      updateRule_ = COM_CASCADE_UPDATE_RULE;
+      break;
 
-  case ELM_REF_ACT_NO_ACTION_ELEM :
-    updateRule_ = COM_NO_ACTION_UPDATE_RULE;
-    break;
+    case ELM_REF_ACT_NO_ACTION_ELEM:
+      updateRule_ = COM_NO_ACTION_UPDATE_RULE;
+      break;
 
-  case ELM_REF_ACT_RESTRICT_ELEM :
-    updateRule_ = COM_RESTRICT_UPDATE_RULE;
-    break;
+    case ELM_REF_ACT_RESTRICT_ELEM:
+      updateRule_ = COM_RESTRICT_UPDATE_RULE;
+      break;
 
-  case ELM_REF_ACT_SET_DEFAULT_ELEM :
-    updateRule_ = COM_SET_DEFAULT_UPDATE_RULE;
-    break;
+    case ELM_REF_ACT_SET_DEFAULT_ELEM:
+      updateRule_ = COM_SET_DEFAULT_UPDATE_RULE;
+      break;
 
-  case ELM_REF_ACT_SET_NULL_ELEM :
-    updateRule_ = COM_SET_NULL_UPDATE_RULE;
-    break;
+    case ELM_REF_ACT_SET_NULL_ELEM:
+      updateRule_ = COM_SET_NULL_UPDATE_RULE;
+      break;
 
-  default :
-    NAAbort("ElemDDLRefTrigActions.C", __LINE__, "internal logic error");
-    break;
+    default:
+      NAAbort("ElemDDLRefTrigActions.C", __LINE__, "internal logic error");
+      break;
   }
-} // ElemDDLRefTrigActUpdateRule::ElemDDLRefTrigActUpdateRule()
+}  // ElemDDLRefTrigActUpdateRule::ElemDDLRefTrigActUpdateRule()
 
 // virtual destructor
-ElemDDLRefTrigActUpdateRule::~ElemDDLRefTrigActUpdateRule()
-{
-}
+ElemDDLRefTrigActUpdateRule::~ElemDDLRefTrigActUpdateRule() {}
 
 // casting
-ElemDDLRefTrigActUpdateRule *
-ElemDDLRefTrigActUpdateRule::castToElemDDLRefTrigActUpdateRule()
-{
-  return this;
-}
+ElemDDLRefTrigActUpdateRule *ElemDDLRefTrigActUpdateRule::castToElemDDLRefTrigActUpdateRule() { return this; }
 
 //
 // methods for tracing
 //
 
-const NAString
-ElemDDLRefTrigActUpdateRule::displayLabel1() const
-{
+const NAString ElemDDLRefTrigActUpdateRule::displayLabel1() const {
   return NAString("Update Rule referential triggered action");
 }
 
-const NAString
-ElemDDLRefTrigActUpdateRule::getText() const
-{
-  return "ElemDDLRefTrigActUpdateRule";
-}
+const NAString ElemDDLRefTrigActUpdateRule::getText() const { return "ElemDDLRefTrigActUpdateRule"; }
 
 //
 // End of File

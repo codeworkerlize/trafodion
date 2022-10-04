@@ -25,14 +25,14 @@
 ******************************************************************************
 *
 * File:         RuLogProcessingTask.cpp
-* Description:  Implementation of class CRULogProcessingTask 
-*				
+* Description:  Implementation of class CRULogProcessingTask
+*
 *
 * Created:      08/29/2000
 * Language:     C++
-* 
 *
-* 
+*
+*
 ******************************************************************************
 */
 
@@ -43,10 +43,7 @@
 //	Constructor
 //--------------------------------------------------------------------------//
 
-CRULogProcessingTask::CRULogProcessingTask(Lng32 id, CRUTbl &table) :
-	inherited(id), 
-	table_(table)
-{}
+CRULogProcessingTask::CRULogProcessingTask(Lng32 id, CRUTbl &table) : inherited(id), table_(table) {}
 
 CRULogProcessingTask::~CRULogProcessingTask() {}
 
@@ -57,12 +54,10 @@ CRULogProcessingTask::~CRULogProcessingTask() {}
 //	I am obsolete, and must not be executed.
 //--------------------------------------------------------------------------//
 
-void CRULogProcessingTask::HandleSuccessorFailure(CRUTask &taask)
-{
-	if (1 == GetTasksThatDependOnMe().GetCount())
-	{
-		CRUException &ex = GetErrorDesc();
-		ex.SetError(IDS_RU_OBSOLETE_PROBLEM);
-		ex.AddArgument(GetTaskName());
-	}
+void CRULogProcessingTask::HandleSuccessorFailure(CRUTask &taask) {
+  if (1 == GetTasksThatDependOnMe().GetCount()) {
+    CRUException &ex = GetErrorDesc();
+    ex.SetError(IDS_RU_OBSOLETE_PROBLEM);
+    ex.AddArgument(GetTaskName());
+  }
 }

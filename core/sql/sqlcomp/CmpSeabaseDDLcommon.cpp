@@ -3495,19 +3495,6 @@ short CmpSeabaseDDL::getTypeInfo(const NAType *naType, NABoolean alignedFormat, 
       }
     } break;
 
-    case NA_LOB_TYPE: {
-      if (datatype == REC_BLOB) {
-        SQLBlob *blobType = (SQLBlob *)naType;
-        precision = blobType->getLobLength() >> 32;
-        scale = blobType->getLobLength() & 0xFFFFFFFF;
-      } else {
-        SQLClob *clobType = (SQLClob *)naType;
-        charset = CharInfo::getCharSetName(clobType->getDataCharSet());
-        precision = clobType->getLobLength() >> 32;
-        scale = clobType->getLobLength() & 0xFFFFFFFF;
-      }
-    } break;
-
     case NA_BOOLEAN_TYPE: {
       precision = 0;
     } break;
@@ -11399,10 +11386,7 @@ short CmpSeabaseDDL::executeSeabaseDDL(DDLExpr *ddlExpr, ExprNode *ddlNode, NASt
 
       StmtDDLTenant *registerTenantParseNode = ddlNode->castToStmtDDLNode()->castToStmtDDLTenant();
       unregisterSeabaseTenant(&cliInterface, registerTenantParseNode);
-    } else if (ddlNode->getOperatorType() == DDL_REG_OR_UNREG_OBJECT) {
-      StmtDDLRegOrUnregObject *regOrUnregObjectParseNode =
-          ddlNode->castToStmtDDLNode()->castToStmtDDLRegOrUnregObject();
-      regOrUnregNativeObject(regOrUnregObjectParseNode, currCatName, currSchName);
+
     } else if (ddlNode->getOperatorType() == DDL_CREATE_ROLE) {
       StmtDDLCreateRole *createRoleParseNode = ddlNode->castToStmtDDLNode()->castToStmtDDLCreateRole();
 

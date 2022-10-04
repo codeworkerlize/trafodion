@@ -13,14 +13,13 @@
 #undef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
 
-
 #undef WIN32_LEAN_AND_MEAN
 
 #include <memory.h>
 #include <string.h>
 
-#define XML_NS 1
-#define XML_DTD 1
+#define XML_NS            1
+#define XML_DTD           1
 #define XML_CONTEXT_BYTES 1024
 
 /* we will assume all Windows platforms are little endian */

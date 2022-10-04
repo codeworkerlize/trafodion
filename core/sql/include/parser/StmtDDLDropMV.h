@@ -38,7 +38,6 @@
  *****************************************************************************
  */
 
-
 #include "common/ComSmallDefs.h"
 #include "StmtDDLNode.h"
 
@@ -55,52 +54,44 @@ class StmtDDLDropMV;
 // -----------------------------------------------------------------------
 // Create Catalog statement
 // -----------------------------------------------------------------------
-class StmtDDLDropMV : public StmtDDLNode
-{
-
-public:
-
+class StmtDDLDropMV : public StmtDDLNode {
+ public:
   // constructor
-  StmtDDLDropMV(const QualifiedName & tableQualName,
-                ComDropBehavior dropBehavior,
-                NABoolean cleanupSpec,
-                NABoolean validateSpec,
-		NAString * pLogFile);
+  StmtDDLDropMV(const QualifiedName &tableQualName, ComDropBehavior dropBehavior, NABoolean cleanupSpec,
+                NABoolean validateSpec, NAString *pLogFile);
 
   // virtual destructor
   virtual ~StmtDDLDropMV();
 
   // cast
-  virtual StmtDDLDropMV * castToStmtDDLDropMV();
+  virtual StmtDDLDropMV *castToStmtDDLDropMV();
 
   // accessors
   inline ComDropBehavior getDropBehavior() const;
   inline const NAString getMVName() const;
-  inline const QualifiedName & getMVNameAsQualifiedName() const;
-  inline       QualifiedName & getMVNameAsQualifiedName();
+  inline const QualifiedName &getMVNameAsQualifiedName() const;
+  inline QualifiedName &getMVNameAsQualifiedName();
   inline const NABoolean isCleanupSpecified() const;
   inline const NABoolean isValidateSpecified() const;
   inline const NABoolean isLogFileSpecified() const;
-  inline const NAString & getLogFile() const;
+  inline const NAString &getLogFile() const;
 
   // for binding
-  ExprNode * bindNode(BindWA *bindWAPtr);
+  ExprNode *bindNode(BindWA *bindWAPtr);
 
   // for tracing
   virtual const NAString displayLabel1() const;
   virtual const NAString displayLabel2() const;
   virtual const NAString getText() const;
 
-
-private:
-
+ private:
   QualifiedName MVQualName_;
   ComDropBehavior dropBehavior_;
   NABoolean isCleanupSpec_;
   NABoolean isValidateSpec_;
-  NAString  *pLogFile_;
+  NAString *pLogFile_;
 
-}; // class StmtDDLDropMV
+};  // class StmtDDLDropMV
 
 // -----------------------------------------------------------------------
 // definitions of inline methods for class StmtDDLDropMV
@@ -110,55 +101,26 @@ private:
 // accessors
 //
 
-inline QualifiedName &
-StmtDDLDropMV::getMVNameAsQualifiedName()
-{
-  return MVQualName_;
-}
+inline QualifiedName &StmtDDLDropMV::getMVNameAsQualifiedName() { return MVQualName_; }
 
-inline const QualifiedName & 
-StmtDDLDropMV::getMVNameAsQualifiedName() const 
-{
-  return MVQualName_;
-}
+inline const QualifiedName &StmtDDLDropMV::getMVNameAsQualifiedName() const { return MVQualName_; }
 
-inline ComDropBehavior
-StmtDDLDropMV::getDropBehavior() const
-{
-  return dropBehavior_;
-}
+inline ComDropBehavior StmtDDLDropMV::getDropBehavior() const { return dropBehavior_; }
 
-inline const NAString
-StmtDDLDropMV::getMVName() const
-{
-  return MVQualName_.getQualifiedNameAsAnsiString();
-}
+inline const NAString StmtDDLDropMV::getMVName() const { return MVQualName_.getQualifiedNameAsAnsiString(); }
 
-inline const NABoolean
-StmtDDLDropMV::isCleanupSpecified()const
-{
-  return isCleanupSpec_;
-}
+inline const NABoolean StmtDDLDropMV::isCleanupSpecified() const { return isCleanupSpec_; }
 
-inline const NABoolean
-StmtDDLDropMV::isValidateSpecified()const
-{
-  return isValidateSpec_;
-}
+inline const NABoolean StmtDDLDropMV::isValidateSpecified() const { return isValidateSpec_; }
 
-inline const NABoolean
-StmtDDLDropMV::isLogFileSpecified() const
-{
-  if (pLogFile_)
-    return TRUE;
+inline const NABoolean StmtDDLDropMV::isLogFileSpecified() const {
+  if (pLogFile_) return TRUE;
   return FALSE;
 }
 
-inline const NAString &
-StmtDDLDropMV::getLogFile() const
-{
+inline const NAString &StmtDDLDropMV::getLogFile() const {
   ComASSERT(pLogFile_ NEQ NULL);
   return *pLogFile_;
 }
 
-#endif // STMTDDLDROPMV_H
+#endif  // STMTDDLDROPMV_H

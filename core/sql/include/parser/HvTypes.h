@@ -36,48 +36,40 @@
 #include "common/NAString.h"
 #include "common/NAType.h"
 
-class HVArgType : public NABasicObject
-{
-public:
-  HVArgType(NAString *name, NAType *type)
-    : name_(name), type_(type),
-      useCount_(0), intoCount_(0)
-    {}
+class HVArgType : public NABasicObject {
+ public:
+  HVArgType(NAString *name, NAType *type) : name_(name), type_(type), useCount_(0), intoCount_(0) {}
 
-  const NAString *getName() const	{ return name_; }
-  const NAType   *getType() const	{ return type_; }
-        NAType   *getType()      	{ return type_; }
-	Int32	 &useCount()		{ return useCount_; }
-	Int32	 &intoCount()		{ return intoCount_; }
+  const NAString *getName() const { return name_; }
+  const NAType *getType() const { return type_; }
+  NAType *getType() { return type_; }
+  Int32 &useCount() { return useCount_; }
+  Int32 &intoCount() { return intoCount_; }
 
   // Methods needed for NAKeyLookup collections template
 
-  const NAString *getKey() const	{ return name_; }
+  const NAString *getKey() const { return name_; }
 
-  NABoolean operator==(const HVArgType &other)
-  { return *getName() == *other.getName() &&
-  	   *getType() == *other.getType();
+  NABoolean operator==(const HVArgType &other) {
+    return *getName() == *other.getName() && *getType() == *other.getType();
   }
 
-private:
+ private:
   NAString *name_;
-  NAType   *type_;
-  Int32 	   useCount_;
-  Int32 	   intoCount_;
+  NAType *type_;
+  Int32 useCount_;
+  Int32 intoCount_;
 };
 
-class HVArgTypeLookup : public NAKeyLookup<NAString,HVArgType>
-{
-public:
-  #define HVARGTYPELKP_INIT_SIZE 29
-  HVArgTypeLookup(CollHeap *h) :
-    NAKeyLookup<NAString,HVArgType> (HVARGTYPELKP_INIT_SIZE,
-    				     NAKeyLookupEnums::KEY_INSIDE_VALUE,
-				     h)
-    {}
-  
+class HVArgTypeLookup : public NAKeyLookup<NAString, HVArgType> {
+ public:
+#define HVARGTYPELKP_INIT_SIZE 29
+  HVArgTypeLookup(CollHeap *h)
+      : NAKeyLookup<NAString, HVArgType>(HVARGTYPELKP_INIT_SIZE, NAKeyLookupEnums::KEY_INSIDE_VALUE, h) {}
+
   ~HVArgTypeLookup() { clearAndDestroy(); }
-private:
+
+ private:
 };
 
-#endif // HVTYPES_H
+#endif  // HVTYPES_H

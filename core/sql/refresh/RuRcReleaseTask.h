@@ -45,9 +45,9 @@
 //--------------------------------------------------------------------------//
 //	CRURcReleaseTask
 //
-//	This task implements the release of resources 
+//	This task implements the release of resources
 //	captured at the previous stages of the Refresh
-//	utility's execution: DDL lock + (optionally) 
+//	utility's execution: DDL lock + (optionally)
 //	read-protected open.
 //
 //	The task operates on a single object (MV or table).
@@ -56,68 +56,49 @@
 //--------------------------------------------------------------------------//
 
 class REFRESH_LIB_CLASS CRURcReleaseTask : public CRUTask {
+ private:
+  typedef CRUTask inherited;
 
-private:
-	typedef CRUTask inherited;
+ public:
+  CRURcReleaseTask(Lng32 id, CRUObject &obj);
+  ~CRURcReleaseTask() {}
 
-public:
-	CRURcReleaseTask(Lng32 id, CRUObject &obj);
-	~CRURcReleaseTask() {}
+  //-----------------------------------//
+  // Accessors
+  //-----------------------------------//
+ public:
+  CRUObject &GetObject() const { return obj_; }
 
-	//-----------------------------------//
-	// Accessors
-	//-----------------------------------//
-public:
-	CRUObject &GetObject() const
-	{
-		return obj_;
-	}
+  //-- Implementation of pure virtuals
+  virtual CRUTask::Type GetType() const { return CRUTask::RC_RELEASE; }
 
-	//-- Implementation of pure virtuals
-	virtual CRUTask::Type GetType() const 
-	{ 
-		return CRUTask::RC_RELEASE; 
-	}
+  virtual BOOL HasObject(TInt64 uid) const { return (obj_.GetUID() == uid); }
 
-	virtual BOOL HasObject(TInt64 uid) const
-	{
-		return (obj_.GetUID() == uid);
-	}
+  // Override the default behavior:
+  // I do not react automatically on the predecessor's failure
+  virtual void HandlePredecessorFailure(CRUTask &task) {}
 
-	// Override the default behavior:
-	// I do not react automatically on the predecessor's failure
-	virtual void HandlePredecessorFailure(CRUTask &task) {}
+  //---------------------------------------//
+  //	PRIVATE AND PROTECTED AREA
+  //---------------------------------------//
+ protected:
+  //-- Implementation of pure virtuals
 
-	//---------------------------------------//
-	//	PRIVATE AND PROTECTED AREA
-	//---------------------------------------//
-protected:
-	//-- Implementation of pure virtuals
+  virtual CDSString GetTaskName() const { return "RR(" + obj_.GetFullName() + ")"; }
 
-	virtual CDSString GetTaskName() const
-	{
-		return "RR(" + obj_.GetFullName() +")"; 
-	}
+  virtual CRUTaskExecutor *CreateExecutorInstance();
 
-	virtual CRUTaskExecutor *CreateExecutorInstance();
+  virtual TInt32 GetComputedCost() const { return 0; }
 
-	virtual TInt32 GetComputedCost() const
-	{
-		return 0;
-	}
+  virtual BOOL IsImmediate() const { return FALSE; }
 
-	virtual BOOL IsImmediate() const
-	{
-		return FALSE;
-	}
+ private:
+  //-- Prevent copying
+  CRURcReleaseTask(const CRURcReleaseTask &other);
+  CRURcReleaseTask &operator=(const CRURcReleaseTask &other);
 
-private:
-	//-- Prevent copying
-	CRURcReleaseTask(const CRURcReleaseTask &other);
-	CRURcReleaseTask& operator= (const CRURcReleaseTask &other);
-
-private:
-	CRUObject &obj_;	// The object to release
+ private:
+  CRUObject &obj_;  // The object to release
 };
 
 #endif

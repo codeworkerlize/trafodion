@@ -36,7 +36,6 @@
 
 #include "common/Platform.h"
 
-
 #include "comexe/ComPackDefs.h"
 #include "exp/ExpCriDesc.h"
 #include "common/ComSpace.h"
@@ -44,76 +43,62 @@
 #include "export/NAStringDef.h"
 #include <iostream>
 
-
-ex_cri_desc::ex_cri_desc(const unsigned short numTuples, void * space_) :
-  numTuples_(numTuples), NAVersionedObject(-1)
-{
-  tupleDesc_ = (ExpTupleDescPtr *)
-    (((Space *)space_)->allocateAlignedSpace
-     (numTuples_ * sizeof(ExpTupleDescPtr)));
+ex_cri_desc::ex_cri_desc(const unsigned short numTuples, void *space_) : numTuples_(numTuples), NAVersionedObject(-1) {
+  tupleDesc_ = (ExpTupleDescPtr *)(((Space *)space_)->allocateAlignedSpace(numTuples_ * sizeof(ExpTupleDescPtr)));
 
   unsigned short i;
-  for (i=0; i< numTuples; i++)
-    {
-      tupleDesc_[i] = (ExpTupleDescPtrPtr)NULL;
-    };
+  for (i = 0; i < numTuples; i++) {
+    tupleDesc_[i] = (ExpTupleDescPtrPtr)NULL;
+  };
 
   flags_ = 0;
 };
 
-Long ex_cri_desc::pack(void * space)
-{
-  if ( ! (flags_ & PACKED)) // REVISIT
-    {
-      tupleDesc_.pack(space, numTuples_);
-      flags_ |= PACKED;
-    }
+Long ex_cri_desc::pack(void *space) {
+  if (!(flags_ & PACKED))  // REVISIT
+  {
+    tupleDesc_.pack(space, numTuples_);
+    flags_ |= PACKED;
+  }
   return NAVersionedObject::pack(space);
 }
 
-Lng32 ex_cri_desc::unpack(void * base, void * reallocator)
-{
-  if (flags_ & PACKED) // REVISIT
-    {
-      if (tupleDesc_.unpack(base, numTuples_, reallocator)) return -1;
-      flags_ &= ~PACKED;
-    }
+Lng32 ex_cri_desc::unpack(void *base, void *reallocator) {
+  if (flags_ & PACKED)  // REVISIT
+  {
+    if (tupleDesc_.unpack(base, numTuples_, reallocator)) return -1;
+    flags_ &= ~PACKED;
+  }
   return NAVersionedObject::unpack(base, reallocator);
 }
 
-void ex_cri_desc::display(Int32 pid, Int32 exNodeId, const char* title)
-{
-   char buf[100];
-   snprintf(buf, sizeof(buf), "pid=%d, exNodeId=%d", pid, exNodeId);
+void ex_cri_desc::display(Int32 pid, Int32 exNodeId, const char *title) {
+  char buf[100];
+  snprintf(buf, sizeof(buf), "pid=%d, exNodeId=%d", pid, exNodeId);
 
-   if ( !title ) {
-     display(buf);
-   } else {
-      NAString msg(buf);
-      msg += ", ";
-      msg += title;
-      display(msg.data());
-   }
+  if (!title) {
+    display(buf);
+  } else {
+    NAString msg(buf);
+    msg += ", ";
+    msg += title;
+    display(msg.data());
+  }
 }
 
-void ex_cri_desc::display(const char* title)
-{
-   cout << title;
+void ex_cri_desc::display(const char *title) {
+  cout << title;
 
-   for ( int k=0; k<noTuples(); k++)
-   {
+  for (int k = 0; k < noTuples(); k++) {
+    ExpTupleDesc *tDesc = getTupleDescriptor(k);
+    cout << "tupp(" << k << ")" << tDesc << endl;
 
-      ExpTupleDesc* tDesc = getTupleDescriptor(k);
-      cout << "tupp(" << k << ")" << tDesc << endl;
-
-      if ( tDesc ) {
-         UInt32 attrs = tDesc->numAttrs();
-         cout << "num of attris=" << attrs << endl;
-         for ( int j=0; j<attrs; j++)
-         {
-            cout << "	attr[" << j << "]=" << tDesc->getAttr(j) << endl;
-         }
+    if (tDesc) {
+      UInt32 attrs = tDesc->numAttrs();
+      cout << "num of attris=" << attrs << endl;
+      for (int j = 0; j < attrs; j++) {
+        cout << "	attr[" << j << "]=" << tDesc->getAttr(j) << endl;
       }
-   }
+    }
+  }
 }
-

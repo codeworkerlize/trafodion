@@ -45,7 +45,7 @@
 
 #ifdef UDRSERV_BUILD
 #include "udrdefs.h"
-#endif // UDRSERV_BUILD
+#endif  // UDRSERV_BUILD
 
 #include "seabed/fs.h"
 #include "seabed/ms.h"
@@ -59,20 +59,20 @@
 #ifdef _DEBUG
 #ifndef UDR_DEBUG
 #define UDR_DEBUG 1
-#endif // not UDR_DEBUG
-#else  // _DEBUG
+#endif  // not UDR_DEBUG
+#else   // _DEBUG
 #undef UDR_DEBUG
-#endif // _DEBUG else
+#endif  // _DEBUG else
 
 //
 // Define a local assert macro. We define UdrExeAssert to something
 // other than ex_assert in the UDR Server build.
 //
 #ifdef UDRSERV_BUILD
-#define UdrExeAssert(a,b) UDR_ASSERT(a,b)
+#define UdrExeAssert(a, b) UDR_ASSERT(a, b)
 #else
-#define UdrExeAssert(a,b) ex_assert(a,b)
-#endif // UDRSERV_BUILD
+#define UdrExeAssert(a, b) ex_assert(a, b)
+#endif  // UDRSERV_BUILD
 
 //
 // UDR printf-style debugging function. Only defined for UDR_DEBUG builds.
@@ -92,7 +92,7 @@
 //
 #ifdef UDR_DEBUG
 extern void UdrPrintf(FILE *, const char *formatString, ...);
-#define PLURAL_SUFFIX(x) ( (x) == (1) ? ("") : ("s") )
+#define PLURAL_SUFFIX(x) ((x) == (1) ? ("") : ("s"))
 #endif
 
 // Forward class references
@@ -168,57 +168,56 @@ const Int32 UdrTmudfDataHeaderVersionNumber = 100;
 
 // An enumeration of all IPC objects for UDRs. Includes both message
 // objects and stream objects.
-// 
+//
 // We use the 8000-8999 range for UDR IPC objects. The range is
 // reserved in the IpcMessageTypeEnum enumeration (see
 // common/IpcMessageType.h).
-enum UdrIpcObjectType
-{
-  UDR_IPC_FIRST = IPC_MSG_SQLUDR_FIRST,    // 8000
+enum UdrIpcObjectType {
+  UDR_IPC_FIRST = IPC_MSG_SQLUDR_FIRST,  // 8000
 
   //
   // Message types
   //
-  UDR_MSG_LOAD,                            // 8001
-  UDR_MSG_LOAD_REPLY,                      // 8002
+  UDR_MSG_LOAD,        // 8001
+  UDR_MSG_LOAD_REPLY,  // 8002
 
-  UDR_MSG_UNLOAD,                          // 8003
-  UDR_MSG_UNLOAD_REPLY,                    // 8004
+  UDR_MSG_UNLOAD,        // 8003
+  UDR_MSG_UNLOAD_REPLY,  // 8004
 
-  UDR_MSG_DATA_HEADER,                     // 8005
-  UDR_MSG_DATA_REQUEST,                    // 8006
-  UDR_MSG_DATA_REPLY,                      // 8007
-  UDR_MSG_CONTINUE_REQUEST,                // 8008
+  UDR_MSG_DATA_HEADER,       // 8005
+  UDR_MSG_DATA_REQUEST,      // 8006
+  UDR_MSG_DATA_REPLY,        // 8007
+  UDR_MSG_CONTINUE_REQUEST,  // 8008
 
-  UDR_MSG_ERROR_REPLY,                     // 8009
+  UDR_MSG_ERROR_REPLY,  // 8009
 
-  UDR_MSG_SESSION,                         // 8010
-  UDR_MSG_SESSION_REPLY,                   // 8011
+  UDR_MSG_SESSION,        // 8010
+  UDR_MSG_SESSION_REPLY,  // 8011
 
-  UDR_MSG_ENTER_TX,                        // 8012
-  UDR_MSG_ENTER_TX_REPLY,                  // 8013
+  UDR_MSG_ENTER_TX,        // 8012
+  UDR_MSG_ENTER_TX_REPLY,  // 8013
 
-  UDR_MSG_EXIT_TX,                         // 8014
-  UDR_MSG_EXIT_TX_REPLY,                   // 8015
+  UDR_MSG_EXIT_TX,        // 8014
+  UDR_MSG_EXIT_TX_REPLY,  // 8015
 
-  UDR_MSG_RS_LOAD,                         // 8016
-  UDR_MSG_RS_LOAD_REPLY,                   // 8017
+  UDR_MSG_RS_LOAD,        // 8016
+  UDR_MSG_RS_LOAD_REPLY,  // 8017
 
-  UDR_MSG_RS_DATA_HEADER,                  // 8018
+  UDR_MSG_RS_DATA_HEADER,  // 8018
 
-  UDR_MSG_RS_CONTINUE,                     // 8019
+  UDR_MSG_RS_CONTINUE,  // 8019
 
-  UDR_MSG_RS_CLOSE,                        // 8020
-  UDR_MSG_RS_CLOSE_REPLY,                  // 8021
+  UDR_MSG_RS_CLOSE,        // 8020
+  UDR_MSG_RS_CLOSE_REPLY,  // 8021
 
-  UDR_MSG_RS_UNLOAD,                       // 8022
-  UDR_MSG_RS_UNLOAD_REPLY,                 // 8023
+  UDR_MSG_RS_UNLOAD,        // 8022
+  UDR_MSG_RS_UNLOAD_REPLY,  // 8023
 
-  UDR_MSG_RS_INFO,			   // 8024
+  UDR_MSG_RS_INFO,  // 8024
 
-  UDR_MSG_SUSPEND_TX,                      // 8025
-  UDR_MSG_SUSPEND_TX_REPLY,                // 8026
-  UDR_MSG_TMUDF_DATA_HEADER,               // 8027              
+  UDR_MSG_SUSPEND_TX,         // 8025
+  UDR_MSG_SUSPEND_TX_REPLY,   // 8026
+  UDR_MSG_TMUDF_DATA_HEADER,  // 8027
 
   // ----> Add new message types just above this line <----
 
@@ -227,17 +226,17 @@ enum UdrIpcObjectType
   //
   // Stream types
   //
-  UDR_STREAM_CLIENT_CONTROL,               // 8801
-  UDR_STREAM_SERVER_CONTROL,               // 8802
+  UDR_STREAM_CLIENT_CONTROL,  // 8801
+  UDR_STREAM_SERVER_CONTROL,  // 8802
 
-  UDR_STREAM_CLIENT_DATA,                  // 8803
-  UDR_STREAM_SERVER_DATA,                  // 8804
+  UDR_STREAM_CLIENT_DATA,  // 8803
+  UDR_STREAM_SERVER_DATA,  // 8804
 
-  UDR_STREAM_SERVER_REPLY,                 // 8805
+  UDR_STREAM_SERVER_REPLY,  // 8805
 
   // ----> Add new stream types just above this line <----
 
-  UDR_IPC_LAST = IPC_MSG_SQLUDR_LAST,      // 8999
+  UDR_IPC_LAST = IPC_MSG_SQLUDR_LAST,  // 8999
 
   UDR_IPC_INVALID = UDR_IPC_LAST
 };
@@ -249,15 +248,15 @@ const char *GetUdrIpcTypeString(UdrIpcObjectType t);
 // UDR handle
 //----------------------------------------------------------------------
 typedef Int64 UdrHandle;
-#define INVALID_UDR_HANDLE 0
-#define UdrHandleIsValid(x) ( (x) != (INVALID_UDR_HANDLE) )
+#define INVALID_UDR_HANDLE  0
+#define UdrHandleIsValid(x) ((x) != (INVALID_UDR_HANDLE))
 
 //----------------------------------------------------------------------
 // RS handle
 //----------------------------------------------------------------------
 typedef Int64 RSHandle;
-#define INVALID_RS_HANDLE 0
-#define RSHandleIsValid(x) ( (x) != (INVALID_RS_HANDLE) )
+#define INVALID_RS_HANDLE  0
+#define RSHandleIsValid(x) ((x) != (INVALID_RS_HANDLE))
 
 // Define a printf format specifier for 64-bit integers
 #define INT64_PRINTF_SPEC "%ld"
@@ -272,35 +271,17 @@ const Int32 UDRSIZESTATDESC_V100 = 30;
 //----------------------------------------------------------------------
 // UDR parameter info
 //----------------------------------------------------------------------
-struct UdrParameterInfo
-{
+struct UdrParameterInfo {
   friend class UdrLoadMsg;
   friend class UdrRSLoadMsg;
   friend struct UdrTableInputInfo;
 
-public:
-
-  UdrParameterInfo(
-    ComUInt32 position,
-    ComUInt32 flags,
-    ComSInt16 fsType,
-    ComSInt16 ansiType,
-    ComUInt16 paramNameLen,
-    const char *paramName,
-    ComUInt16 prec,
-    ComUInt16 scale,
-    ComUInt16 encodingCharSet,
-    ComUInt16 collation,
-    ComUInt32 dataLength,
-    ComSInt16 tupleFormat,
-    ComSInt16 nullIndicatorLength,
-    ComSInt32 nullIndicatorOffset,
-    ComSInt16 nullBitIndex,
-    ComUInt32 dataOffset,
-    ComSInt32 vcLenIndOffset,
-    ComSInt16 vcIndicatorLength,
-    ComUInt32 voaOffset
-    );
+ public:
+  UdrParameterInfo(ComUInt32 position, ComUInt32 flags, ComSInt16 fsType, ComSInt16 ansiType, ComUInt16 paramNameLen,
+                   const char *paramName, ComUInt16 prec, ComUInt16 scale, ComUInt16 encodingCharSet,
+                   ComUInt16 collation, ComUInt32 dataLength, ComSInt16 tupleFormat, ComSInt16 nullIndicatorLength,
+                   ComSInt32 nullIndicatorOffset, ComSInt16 nullBitIndex, ComUInt32 dataOffset,
+                   ComSInt32 vcLenIndOffset, ComSInt16 vcIndicatorLength, ComUInt32 voaOffset);
 
   inline ComUInt32 getPosition() const { return position_; }
   inline ComUInt32 getFlags() const { return flags_; }
@@ -312,10 +293,8 @@ public:
   inline ComUInt16 getCollation() const { return collation_; }
   inline ComUInt32 getDataLength() const { return dataLength_; }
   inline ComUInt32 getTupleFormat() const { return tupleFormat_; }
-  inline ComSInt16 getNullIndicatorLength() const
-  { return nullIndicatorLength_; }
-  inline ComSInt32 getNullIndicatorOffset() const
-  { return nullIndicatorOffset_; }
+  inline ComSInt16 getNullIndicatorLength() const { return nullIndicatorLength_; }
+  inline ComSInt32 getNullIndicatorOffset() const { return nullIndicatorOffset_; }
   inline ComSInt32 getNullBitIndex() const { return nullBitIndex_; }
   inline ComUInt32 getDataOffset() const { return dataOffset_; }
   inline ComSInt32 getVCLenIndOffset() const { return vcLenIndOffset_; }
@@ -324,16 +303,11 @@ public:
   inline const char *getParamName() const { return paramName_; }
   inline ComUInt16 getParamNameLen() const { return paramNameLen_; }
 
-  inline NABoolean isIn() const
-  { return (flags_ & UDR_PARAM_IN)? TRUE : FALSE; }
-  inline NABoolean isOut() const
-  { return (flags_ & UDR_PARAM_OUT)? TRUE : FALSE; }
-  inline NABoolean isInOut() const
-  { return isIn() && isOut(); }
-  inline NABoolean isNullable() const
-  { return (flags_ & UDR_PARAM_NULLABLE)? TRUE : FALSE; }
-  inline NABoolean isLmObjType() const
-  { return (flags_ & UDR_PARAM_LM_OBJ_TYPE)? TRUE : FALSE; }
+  inline NABoolean isIn() const { return (flags_ & UDR_PARAM_IN) ? TRUE : FALSE; }
+  inline NABoolean isOut() const { return (flags_ & UDR_PARAM_OUT) ? TRUE : FALSE; }
+  inline NABoolean isInOut() const { return isIn() && isOut(); }
+  inline NABoolean isNullable() const { return (flags_ & UDR_PARAM_NULLABLE) ? TRUE : FALSE; }
+  inline NABoolean isLmObjType() const { return (flags_ & UDR_PARAM_LM_OBJ_TYPE) ? TRUE : FALSE; }
 
   //
   // Display function
@@ -343,10 +317,9 @@ public:
   //
   // Assignment operator
   //
-  UdrParameterInfo& operator=(const UdrParameterInfo &other);
+  UdrParameterInfo &operator=(const UdrParameterInfo &other);
 
-protected:
-
+ protected:
   //
   // This class does not derive from IpcMessageObj but we need
   // similar methods to pack/unpack the object in a message buffer.
@@ -360,16 +333,16 @@ protected:
   //
   // This first set of fields describe the UDR formal parameter
   //
-  ComUInt32 position_;          // Position in formal parameter list
-  ComUInt32 flags_;             // ComUdrParamFlags in ComSmallDefs.h
-  ComSInt16 fsType_;            // Formal type (FS type)
-  ComSInt16 ansiType_;          // Formal type (ANSI type defined in sqlcli.h)
-  short paramNameLen_;          // Length of the parameter name
-  char paramName_[129];         // Null-terminated parameter name
-  ComUInt16 prec_;              // Numeric precision or datetime subtype
-  ComUInt16 scale_;             // Scale for numeric and time types
-  ComUInt16 encodingCharSet_;   // Encoding Charset for char & varchar
-  ComUInt16 collation_;         // Collation for char & varchar
+  ComUInt32 position_;         // Position in formal parameter list
+  ComUInt32 flags_;            // ComUdrParamFlags in ComSmallDefs.h
+  ComSInt16 fsType_;           // Formal type (FS type)
+  ComSInt16 ansiType_;         // Formal type (ANSI type defined in sqlcli.h)
+  short paramNameLen_;         // Length of the parameter name
+  char paramName_[129];        // Null-terminated parameter name
+  ComUInt16 prec_;             // Numeric precision or datetime subtype
+  ComUInt16 scale_;            // Scale for numeric and time types
+  ComUInt16 encodingCharSet_;  // Encoding Charset for char & varchar
+  ComUInt16 collation_;        // Collation for char & varchar
 
   //
   // These fields describe the actual data that is sent to the UDR
@@ -380,75 +353,60 @@ protected:
   // object that describes the actual value being passed to the UDR
   // server and Language Manager.
   //
-  ComUInt32 dataLength_;            // Length of data area
-  ComUInt32 tupleFormat_;            // Tuple Data Format
-  ComSInt16 nullIndicatorLength_;   // 2 or 0
-  ComSInt32 nullIndicatorOffset_;   // Offset of null indicator or -1
-  ComSInt16 nullBitIndex_;          // Index of null bit
-  ComUInt32 dataOffset_;            // Offset of data area
-  ComSInt32 vcLenIndOffset_;        // Offset of VarChar Indicator
-  ComSInt16 vcIndicatorLength_;     // Length of VarChar Indicator
-  ComUInt32 voaOffset_;             // Offset of VarChar in VOA[]
+  ComUInt32 dataLength_;           // Length of data area
+  ComUInt32 tupleFormat_;          // Tuple Data Format
+  ComSInt16 nullIndicatorLength_;  // 2 or 0
+  ComSInt32 nullIndicatorOffset_;  // Offset of null indicator or -1
+  ComSInt16 nullBitIndex_;         // Index of null bit
+  ComUInt32 dataOffset_;           // Offset of data area
+  ComSInt32 vcLenIndOffset_;       // Offset of VarChar Indicator
+  ComSInt16 vcIndicatorLength_;    // Length of VarChar Indicator
+  ComUInt32 voaOffset_;            // Offset of VarChar in VOA[]
 
-private:
-
+ private:
   //
   // Default constructor should not be used outside this class
   //
-  UdrParameterInfo()
-  {
-  }
-
+  UdrParameterInfo() {}
 };
-
-
 
 //----------------------------------------------------------------------
 // UDR table input info
 //----------------------------------------------------------------------
-struct UdrTableInputInfo
-{
+struct UdrTableInputInfo {
   friend class UdrLoadMsg;
   friend struct UdrParameterInfo;
 
-public:
+ public:
   // this version isused in the uderserve for ipc unpack
-  UdrTableInputInfo(
-    ComUInt16 tabIndex,
-    ComUInt16 tableNameLen,
-    const char *tableName,
-    ComUInt16 numColumns,
-    ComUInt32 rowLength
-   
-    );
- 
- 
-  
+  UdrTableInputInfo(ComUInt16 tabIndex, ComUInt16 tableNameLen, const char *tableName, ComUInt16 numColumns,
+                    ComUInt32 rowLength
+
+  );
+
   inline ComSInt16 getTabIndex() const { return tabIndex_; }
-  inline ComSInt16 getTableNameLen() const { return tableNameLen_; }  
-  inline  const char *getTableName() const { return tableName_; }
-  inline UdrParameterInfo *getInTableColumnDescs(){return inTableColumnDescs_;}
-  void setInTableColumnDescs(UdrParameterInfo *inTableColumnDescs)
-  {inTableColumnDescs_ = inTableColumnDescs;}
-  inline ComUInt16 getNumColumns() const {return numColumns_;}
+  inline ComSInt16 getTableNameLen() const { return tableNameLen_; }
+  inline const char *getTableName() const { return tableName_; }
+  inline UdrParameterInfo *getInTableColumnDescs() { return inTableColumnDescs_; }
+  void setInTableColumnDescs(UdrParameterInfo *inTableColumnDescs) { inTableColumnDescs_ = inTableColumnDescs; }
+  inline ComUInt16 getNumColumns() const { return numColumns_; }
 
   //
   // Display function
   //
-  void display(FILE *f, Lng32 indent, UdrTableInputInfo *pi) const{};
+  void display(FILE *f, Lng32 indent, UdrTableInputInfo *pi) const {};
 
   //
   // Assignment operator
   //
-  UdrTableInputInfo& operator=(const UdrTableInputInfo &other);
+  UdrTableInputInfo &operator=(const UdrTableInputInfo &other);
   const UdrParameterInfo &getInTableColumnDesc(ComUInt32 i) const;
-  void setInTableColumnDesc(ComUInt32 i, const UdrParameterInfo &info,
-			    NAMemory *heap);
-  
-  void setRowLength(UInt32 val) { outputRowLen_ = val;}
-  UInt32 getRowLength() const { return outputRowLen_; }
-protected:
+  void setInTableColumnDesc(ComUInt32 i, const UdrParameterInfo &info, NAMemory *heap);
 
+  void setRowLength(UInt32 val) { outputRowLen_ = val; }
+  UInt32 getRowLength() const { return outputRowLen_; }
+
+ protected:
   //
   // This class does not derive from IpcMessageObj but we need
   // similar methods to pack/unpack the object in a message buffer.
@@ -456,31 +414,24 @@ protected:
   // packing/unpacking itself.
   //
   IpcMessageObjSize packedLength() const;
-  IpcMessageObjSize pack(IpcMessageBufferPtr &buffer) const ;
+  IpcMessageObjSize pack(IpcMessageBufferPtr &buffer) const;
   void unpack(IpcConstMessageBufferPtr &buffer, NAMemory *heap);
- 
+
   //
   // This set of fields describe the UDR table input info
 
   ComUInt16 tabIndex_;
   ComUInt16 tableNameLen_;
-  char tableName_[ComMAX_1_PART_EXTERNAL_UTF8_NAME_LEN_IN_BYTES+1];
+  char tableName_[ComMAX_1_PART_EXTERNAL_UTF8_NAME_LEN_IN_BYTES + 1];
   ComUInt16 numColumns_;
   UInt32 outputRowLen_;
   UdrParameterInfo *inTableColumnDescs_;
-  
 
-
-  
-private:
-
+ private:
   //
   // Default constructor should not be used outside this class
   //
-  UdrTableInputInfo()
-  {
-  }
-
+  UdrTableInputInfo() {}
 };
 
 //----------------------------------------------------------------------
@@ -489,23 +440,19 @@ private:
 // Client-side and Server-side control streams will inherit
 // from this base class.
 //----------------------------------------------------------------------
-class UdrControlStream : public IpcMessageStream
-{
-public:
-  UdrControlStream(IpcEnvironment *env,
-    IpcMessageType msgType,
-    IpcMessageObjVersion version,
-    IpcThreadInfo *threadInfo);
+class UdrControlStream : public IpcMessageStream {
+ public:
+  UdrControlStream(IpcEnvironment *env, IpcMessageType msgType, IpcMessageObjVersion version,
+                   IpcThreadInfo *threadInfo);
 
   virtual ~UdrControlStream();
 
   virtual void actOnSend(IpcConnection *connection);
   virtual void actOnReceive(IpcConnection *connection);
 
-protected:
+ protected:
   ULng32 sendCount_;
   ULng32 recvCount_;
-
 };
 
 //----------------------------------------------------------------------
@@ -607,25 +554,19 @@ protected:
 // the code from the ExEspMsgObj class which is responsible for heap
 // management of ESP message objects.
 //----------------------------------------------------------------------
-class UdrMessageObj : public IpcMessageObj
-{
+class UdrMessageObj : public IpcMessageObj {
   typedef IpcMessageObj super;
 
-public:
+ public:
   //
   // Constructor for allocation on an NAMemory heap
   //
-  UdrMessageObj(UdrIpcObjectType objType,
-                IpcMessageObjVersion objVersion,
-                NAMemory *heap);
+  UdrMessageObj(UdrIpcObjectType objType, IpcMessageObjVersion objVersion, NAMemory *heap);
 
   //
   // Constructor for copyless receive
   //
-  UdrMessageObj(IpcBufferedMsgStream *msgStream)
-    : IpcMessageObj(msgStream), heap_(NULL)
-  {
-  }
+  UdrMessageObj(IpcBufferedMsgStream *msgStream) : IpcMessageObj(msgStream), heap_(NULL) {}
 
   //
   // The delete operator
@@ -633,7 +574,6 @@ public:
   // existence of this class
   //
   void operator delete(void *p);
-
 
   //
   // Accessor/Mutator methods
@@ -648,16 +588,10 @@ public:
   IpcMessageObjSize packedLength();
   IpcMessageObjSize packObjIntoMessage(IpcMessageBufferPtr buffer);
 
-  void unpackObj(IpcMessageObjType objType,
-                 IpcMessageObjVersion objVersion,
-                 NABoolean sameEndianness,
-                 IpcMessageObjSize objSize,
-                 IpcConstMessageBufferPtr buffer);
+  void unpackObj(IpcMessageObjType objType, IpcMessageObjVersion objVersion, NABoolean sameEndianness,
+                 IpcMessageObjSize objSize, IpcConstMessageBufferPtr buffer);
 
-  NABoolean checkObj(IpcMessageObjType t,
-                     IpcMessageObjVersion v,
-                     NABoolean sameEndianness,
-                     IpcMessageObjSize size,
+  NABoolean checkObj(IpcMessageObjType t, IpcMessageObjVersion v, NABoolean sameEndianness, IpcMessageObjSize size,
                      IpcConstMessageBufferPtr buffer) const;
 
   //
@@ -666,7 +600,7 @@ public:
   //
   virtual IpcMessageRefCount decrRefCount();
 
-protected:
+ protected:
   //
   // Helper functions to manage the NAMemory heap
   //
@@ -686,14 +620,10 @@ protected:
   virtual IpcMessageObjSize udrBaseClassPackedLength();
   virtual IpcMessageObjSize packUdrBaseClass(IpcMessageBufferPtr &buffer);
   virtual void unpackUdrBaseClass(IpcConstMessageBufferPtr &buffer);
-  virtual NABoolean checkUdrBaseClass(IpcMessageObjType t,
-                                      IpcMessageObjVersion v,
-                                      NABoolean sameEndianness,
-                                      IpcMessageObjSize size,
-                                      IpcConstMessageBufferPtr &buffer) const;
+  virtual NABoolean checkUdrBaseClass(IpcMessageObjType t, IpcMessageObjVersion v, NABoolean sameEndianness,
+                                      IpcMessageObjSize size, IpcConstMessageBufferPtr &buffer) const;
 
-private:
-
+ private:
   UdrHandle handle_;
 
   //
@@ -711,7 +641,7 @@ private:
   UdrMessageObj(const UdrMessageObj &);
   UdrMessageObj &operator=(const UdrMessageObj &);
 
-}; // class UdrMessageObj
+};  // class UdrMessageObj
 
 //----------------------------------------------------------------------
 // UDR control message base class
@@ -719,19 +649,14 @@ private:
 // Currently this class provides no functionality. It just gives us
 // a way to distinguish a control message from a data message.
 //----------------------------------------------------------------------
-class UdrControlMsg : public UdrMessageObj
-{
-public:
-  UdrControlMsg(UdrIpcObjectType msgType, IpcMessageObjVersion version,
-    NAMemory *heap)
-    : UdrMessageObj(msgType, version, heap)
-  {
-  }
+class UdrControlMsg : public UdrMessageObj {
+ public:
+  UdrControlMsg(UdrIpcObjectType msgType, IpcMessageObjVersion version, NAMemory *heap)
+      : UdrMessageObj(msgType, version, heap) {}
 
   virtual ~UdrControlMsg() {}
 
-private:
-
+ private:
   //
   // Do not implement default constructors or an assignment operator
   //
@@ -739,7 +664,7 @@ private:
   UdrControlMsg(const UdrControlMsg &);
   UdrControlMsg &operator=(const UdrControlMsg &);
 
-}; // class UdrControlMsg
+};  // class UdrControlMsg
 
 //----------------------------------------------------------------------
 // UDR control message subclasses
@@ -747,44 +672,24 @@ private:
 // - Unload, Unload reply
 // - Session, Session reply
 //----------------------------------------------------------------------
-class UdrLoadMsg : public UdrControlMsg
-{
-public:
+class UdrLoadMsg : public UdrControlMsg {
+ public:
   UdrLoadMsg(NAMemory *heap);
 
-  UdrLoadMsg(NAMemory *heap,
-    const char *sqlName,
-    const char *routineName,
-    const char *routineSignature,
-    const char *containerName,
-    const char *externalPath,
-    const char *librarySqlName,
-    ComRoutineTransactionAttributes transactionAttrs,
-    ComRoutineSQLAccess sqlAccessMode,
-    ComRoutineLanguage language,
-    ComRoutineParamStyle paramStyle,
-    ComRoutineExternalSecurity externalSecurity,
-    ComUInt32 maxNumResultSets,
-    ComUInt32 numParameters,
-    ComUInt32 numInValues,
-    ComUInt32 numOutValues,
-    ComUInt32 inBufferSize,           // Size of input SqlBuffer
-    ComUInt32 outBufferSize,          // Size of output SqlBuffer
-    ComUInt32 inputRowSize,           // Size of input row
-    ComUInt32 outputRowSize,          // Size of output row
-    ComUInt32 udrFlags,
-    Int32 routineOwnerId,
-    const char *parentQid,
-    const char *clientInfo,
-    const char *tenantName,
-    ComUInt32 udrSerInvocationInfoLen, // objects for new C++ interface
-    const char *udrSerInvocationInfo,
-    ComUInt32 udrSerPlanInfoLen,
-    const char *udrSerPlanInfo,
-    Int32 javaDebugPort,
-    Int32 javaDebugTimeout,
-    ComUInt32 instanceNum,
-    ComUInt32 numInstances);
+  UdrLoadMsg(NAMemory *heap, const char *sqlName, const char *routineName, const char *routineSignature,
+             const char *containerName, const char *externalPath, const char *librarySqlName,
+             ComRoutineTransactionAttributes transactionAttrs, ComRoutineSQLAccess sqlAccessMode,
+             ComRoutineLanguage language, ComRoutineParamStyle paramStyle, ComRoutineExternalSecurity externalSecurity,
+             ComUInt32 maxNumResultSets, ComUInt32 numParameters, ComUInt32 numInValues, ComUInt32 numOutValues,
+             ComUInt32 inBufferSize,   // Size of input SqlBuffer
+             ComUInt32 outBufferSize,  // Size of output SqlBuffer
+             ComUInt32 inputRowSize,   // Size of input row
+             ComUInt32 outputRowSize,  // Size of output row
+             ComUInt32 udrFlags, Int32 routineOwnerId, const char *parentQid, const char *clientInfo,
+             const char *tenantName,
+             ComUInt32 udrSerInvocationInfoLen,  // objects for new C++ interface
+             const char *udrSerInvocationInfo, ComUInt32 udrSerPlanInfoLen, const char *udrSerPlanInfo,
+             Int32 javaDebugPort, Int32 javaDebugTimeout, ComUInt32 instanceNum, ComUInt32 numInstances);
 
   virtual ~UdrLoadMsg();
 
@@ -796,7 +701,7 @@ public:
   inline const char *getSignature() const { return routineSignature_; }
   inline const char *getContainerName() const { return containerName_; }
   inline const char *getExternalPath() const { return externalPath_; }
-  inline const char *getLibrarySqlName() const { return librarySqlName_; }  
+  inline const char *getLibrarySqlName() const { return librarySqlName_; }
   inline ComUInt32 getMaxResultSets() const { return maxNumResultSets_; }
   inline ComUInt32 getNumParameters() const { return numParameters_; }
   inline ComUInt32 getNumInValues() const { return numInValues_; }
@@ -806,30 +711,24 @@ public:
   inline ComUInt32 getInputRowSize() const { return inputRowSize_; }
   inline ComUInt32 getOutputRowSize() const { return outputRowSize_; }
   inline ComUInt32 getUdrFlags() const { return udrFlags_; }
-  inline ComRoutineTransactionAttributes getTransactionAttrs() const
-  { return (ComRoutineTransactionAttributes) transactionAttrs_; }
-  inline ComRoutineSQLAccess getSqlAccessMode() const
-  { return (ComRoutineSQLAccess) sqlAccessMode_; }
-  inline ComRoutineLanguage getLanguage() const
-  { return (ComRoutineLanguage) language_; }
-  inline ComRoutineParamStyle getParamStyle() const
-  { return (ComRoutineParamStyle) paramStyle_; }
-  inline ComRoutineExternalSecurity getExternalSecurity() const
-  { return (ComRoutineExternalSecurity) externalSecurity_; }
+  inline ComRoutineTransactionAttributes getTransactionAttrs() const {
+    return (ComRoutineTransactionAttributes)transactionAttrs_;
+  }
+  inline ComRoutineSQLAccess getSqlAccessMode() const { return (ComRoutineSQLAccess)sqlAccessMode_; }
+  inline ComRoutineLanguage getLanguage() const { return (ComRoutineLanguage)language_; }
+  inline ComRoutineParamStyle getParamStyle() const { return (ComRoutineParamStyle)paramStyle_; }
+  inline ComRoutineExternalSecurity getExternalSecurity() const {
+    return (ComRoutineExternalSecurity)externalSecurity_;
+  }
   inline Int32 getRoutineOwnerId() const { return routineOwnerId_; }
   inline const char *getParentQid() const { return parentQid_; }
   inline const char *getClientInfo() const { return clientInfo_; }
   inline const char *getTenantName() const { return tenantName_; }
-  inline NABoolean isIsolate() const
-  { return (udrFlags_ & UDR_ISOLATE)? TRUE : FALSE; }
-  inline NABoolean isCallOnNull() const
-  { return (udrFlags_ & UDR_CALL_ON_NULL)? TRUE : FALSE; }
-  inline NABoolean isExtraCall() const
-  { return (udrFlags_ & UDR_EXTRA_CALL)? TRUE : FALSE; }
-  inline NABoolean isDeterministic() const
-  { return (udrFlags_ & UDR_DETERMINISTIC)? TRUE : FALSE; }
-  inline NABoolean isLMNoLoad() const
-  { return (udrFlags_ & UDR_LM_NOLOAD)? TRUE : FALSE; }
+  inline NABoolean isIsolate() const { return (udrFlags_ & UDR_ISOLATE) ? TRUE : FALSE; }
+  inline NABoolean isCallOnNull() const { return (udrFlags_ & UDR_CALL_ON_NULL) ? TRUE : FALSE; }
+  inline NABoolean isExtraCall() const { return (udrFlags_ & UDR_EXTRA_CALL) ? TRUE : FALSE; }
+  inline NABoolean isDeterministic() const { return (udrFlags_ & UDR_DETERMINISTIC) ? TRUE : FALSE; }
+  inline NABoolean isLMNoLoad() const { return (udrFlags_ & UDR_LM_NOLOAD) ? TRUE : FALSE; }
 
   // Methods to get/set parameter info structures
   const UdrParameterInfo &getInParam(ComUInt32 i) const;
@@ -837,20 +736,20 @@ public:
   UdrParameterInfo *setInParam(ComUInt32 i, const UdrParameterInfo &info);
   UdrParameterInfo *setOutParam(ComUInt32 i, const UdrParameterInfo &info);
 
-  inline ComUInt16 getNumInputTables() {return numInputTables_;}
-  inline void setNumInputTables(ComUInt16 n){numInputTables_ = n;}
-  inline UdrTableInputInfo *getInputTables() {return inTables_;}
-  inline void setParamStyle(ComRoutineParamStyle ps){ paramStyle_ = (ComUInt16)ps;}
-  inline void setExternalSecurity(ComRoutineExternalSecurity ps){ externalSecurity_ = (ComUInt16)ps;}
-  inline void setRoutineOwnerId(Int32 o){routineOwnerId_ = o;}
+  inline ComUInt16 getNumInputTables() { return numInputTables_; }
+  inline void setNumInputTables(ComUInt16 n) { numInputTables_ = n; }
+  inline UdrTableInputInfo *getInputTables() { return inTables_; }
+  inline void setParamStyle(ComRoutineParamStyle ps) { paramStyle_ = (ComUInt16)ps; }
+  inline void setExternalSecurity(ComRoutineExternalSecurity ps) { externalSecurity_ = (ComUInt16)ps; }
+  inline void setRoutineOwnerId(Int32 o) { routineOwnerId_ = o; }
 
-  inline ComUInt32 getNumInstances() {return numInstances_;}
-  inline void setNumInstances(ComUInt32 n){numInstances_ = n;}
+  inline ComUInt32 getNumInstances() { return numInstances_; }
+  inline void setNumInstances(ComUInt32 n) { numInstances_ = n; }
 
-  inline ComUInt32 getInstanceNum() {return instanceNum_;}
-  inline void setInstanceNum(ComUInt32 n){instanceNum_ = n;}
+  inline ComUInt32 getInstanceNum() { return instanceNum_; }
+  inline void setInstanceNum(ComUInt32 n) { instanceNum_ = n; }
   void setChildTableInput(ComUInt32 i, const UdrTableInputInfo &info);
- 
+
   // Methods to get/set the collection of optional data buffers
   void initOptionalDataBufs(ComUInt32 i, NABoolean isShared);
   ComUInt32 getNumOptionalDataBufs();
@@ -858,81 +757,73 @@ public:
   char *getOptionalDataBuf(ComUInt32 i);
 
   // methods for C++ interface data
-  inline ComUInt32 getUDRSerInvocationInfoLen()
-                                          { return udrSerInvocationInfoLen_; }
-  inline const char *getUDRSerInvocationInfo()
-                                             { return udrSerInvocationInfo_; }
-  inline ComUInt32 getUDRSerPlanInfoLen()       { return udrSerPlanInfoLen_; }
-  inline const char *getUDRSerPlanInfo()           { return udrSerPlanInfo_; }
+  inline ComUInt32 getUDRSerInvocationInfoLen() { return udrSerInvocationInfoLen_; }
+  inline const char *getUDRSerInvocationInfo() { return udrSerInvocationInfo_; }
+  inline ComUInt32 getUDRSerPlanInfoLen() { return udrSerPlanInfoLen_; }
+  inline const char *getUDRSerPlanInfo() { return udrSerPlanInfo_; }
 
   // debugging Java UDRs (works for Trafodion user or debug build only)
-  inline Int32 getUdrJavaDebugPort() const       { return udrJavaDebugPort_; }
+  inline Int32 getUdrJavaDebugPort() const { return udrJavaDebugPort_; }
   inline Int32 getUdrJavaDebugTimeout() const { return udrJavaDebugTimeout_; }
   // Redefine pack/unpack methods from IpcMessageObj
   IpcMessageObjSize packedLength();
   IpcMessageObjSize packObjIntoMessage(IpcMessageBufferPtr buffer);
-  void unpackObj(IpcMessageObjType objType,
-    IpcMessageObjVersion objVersion,
-    NABoolean sameEndianness,
-    IpcMessageObjSize objSize,
-    IpcConstMessageBufferPtr buffer);
-    void allocateTableInputInfo();
-    void deallocateTableInputInfo();
-protected:
+  void unpackObj(IpcMessageObjType objType, IpcMessageObjVersion objVersion, NABoolean sameEndianness,
+                 IpcMessageObjSize objSize, IpcConstMessageBufferPtr buffer);
+  void allocateTableInputInfo();
+  void deallocateTableInputInfo();
 
+ protected:
   // Helper functions for memory management
   void allocateParamInfo();
   void deallocateParamInfo();
- 
+
   void deallocateOptionalDataBufs();
 
   void allocateInvocationInfo();
   void deallocateInvocationInfo();
-  
 
-  char *sqlName_;                    // Fully qualified SQL name
-  char *routineName_;                // e.g. a Java method name
-  char *routineSignature_;           // e.g. (ii)v for Java "void f(int,int)"
-  char *containerName_;              // e.g. a Java class name
-  char *externalPath_;               // File system path
-  char *librarySqlName_;             // Fully qualified sql name of Jar/DLL
-  ComUInt16 transactionAttrs_;           // ComRoutineTransactionAttributes in ComSmallDefs.h
-  ComUInt16 sqlAccessMode_;          // ComRoutineSQLAccess in ComSmallDefs.h
-  ComUInt16 language_;               // ComRoutineLanguage in ComSmallDefs.h
-  ComUInt16 paramStyle_;             // ComRoutineParamStyle in ComSmallDefs.h
-  ComUInt16 externalSecurity_;       // ComRoutineExternalSecurity in ComSmallDefs.h
-  ComUInt32 maxNumResultSets_;       // Max result sets
-  ComUInt32 numParameters_;          // Num formal params
-  ComUInt32 numInValues_;            // Num IN/INOUT params
-  ComUInt32 numOutValues_;           // Num OUT/INOUT params
-  ComUInt32 inBufferSize_;           // Size of input SqlBuffer
-  ComUInt32 outBufferSize_;          // Size of output SqlBuffer
-  ComUInt32 inputRowSize_;           // Size of input row
-  ComUInt32 outputRowSize_;          // Size of output row
-  ComUInt32 udrFlags_;               // ComUdrFlags in ComSmallDefs.h
-  Int32 routineOwnerId_;             // Owner of routine for Definer Rights
-  char *parentQid_;                  // Query id of the CALL statement
-  char *tenantName_;                 // Tenant name (optional) of the caller
-  UdrParameterInfo *inParamInfo_;    // Info for IN/INOUT params
-  UdrParameterInfo *outParamInfo_;   // Info for OUT/INOUT params
-  ComUInt16 numInputTables_;          // number of child table inputs
-  UdrTableInputInfo *inTables_;         // array of table inputs
-  ComUInt32 numOptionalDataBufs_;    // Number of optional data buffers
-  char **optionalData_;              // Optional data buffers
-  NABoolean optionalDataIsShared_;   // Buffers owned by this instance?
-  ComUInt32 numInstances_;           // num if instances of this udr tcb
-  ComUInt32 instanceNum_;            // instance number of this udr tcb
-  ComUInt32 udrSerInvocationInfoLen_; // serialized objects for new C++ interface
+  char *sqlName_;                      // Fully qualified SQL name
+  char *routineName_;                  // e.g. a Java method name
+  char *routineSignature_;             // e.g. (ii)v for Java "void f(int,int)"
+  char *containerName_;                // e.g. a Java class name
+  char *externalPath_;                 // File system path
+  char *librarySqlName_;               // Fully qualified sql name of Jar/DLL
+  ComUInt16 transactionAttrs_;         // ComRoutineTransactionAttributes in ComSmallDefs.h
+  ComUInt16 sqlAccessMode_;            // ComRoutineSQLAccess in ComSmallDefs.h
+  ComUInt16 language_;                 // ComRoutineLanguage in ComSmallDefs.h
+  ComUInt16 paramStyle_;               // ComRoutineParamStyle in ComSmallDefs.h
+  ComUInt16 externalSecurity_;         // ComRoutineExternalSecurity in ComSmallDefs.h
+  ComUInt32 maxNumResultSets_;         // Max result sets
+  ComUInt32 numParameters_;            // Num formal params
+  ComUInt32 numInValues_;              // Num IN/INOUT params
+  ComUInt32 numOutValues_;             // Num OUT/INOUT params
+  ComUInt32 inBufferSize_;             // Size of input SqlBuffer
+  ComUInt32 outBufferSize_;            // Size of output SqlBuffer
+  ComUInt32 inputRowSize_;             // Size of input row
+  ComUInt32 outputRowSize_;            // Size of output row
+  ComUInt32 udrFlags_;                 // ComUdrFlags in ComSmallDefs.h
+  Int32 routineOwnerId_;               // Owner of routine for Definer Rights
+  char *parentQid_;                    // Query id of the CALL statement
+  char *tenantName_;                   // Tenant name (optional) of the caller
+  UdrParameterInfo *inParamInfo_;      // Info for IN/INOUT params
+  UdrParameterInfo *outParamInfo_;     // Info for OUT/INOUT params
+  ComUInt16 numInputTables_;           // number of child table inputs
+  UdrTableInputInfo *inTables_;        // array of table inputs
+  ComUInt32 numOptionalDataBufs_;      // Number of optional data buffers
+  char **optionalData_;                // Optional data buffers
+  NABoolean optionalDataIsShared_;     // Buffers owned by this instance?
+  ComUInt32 numInstances_;             // num if instances of this udr tcb
+  ComUInt32 instanceNum_;              // instance number of this udr tcb
+  ComUInt32 udrSerInvocationInfoLen_;  // serialized objects for new C++ interface
   const char *udrSerInvocationInfo_;
   ComUInt32 udrSerPlanInfoLen_;
   const char *udrSerPlanInfo_;
-  Int32 udrJavaDebugPort_;           // port for Java debugger
-  Int32 udrJavaDebugTimeout_;        // timeout to wait for Java debugger
-  char *clientInfo_;                  // Query id of the CALL statement
+  Int32 udrJavaDebugPort_;     // port for Java debugger
+  Int32 udrJavaDebugTimeout_;  // timeout to wait for Java debugger
+  char *clientInfo_;           // Query id of the CALL statement
 
-
-private:
-
+ private:
   //
   // Do not implement default constructors or an assignment operator
   //
@@ -940,22 +831,15 @@ private:
   UdrLoadMsg(const UdrLoadMsg &);
   UdrLoadMsg &operator=(const UdrLoadMsg &);
 
-}; // class UdrLoadMsg
+};  // class UdrLoadMsg
 
-class UdrLoadReply : public UdrControlMsg
-{
-public:
-  UdrLoadReply(NAMemory *heap)
-    : UdrControlMsg(UDR_MSG_LOAD_REPLY, UdrLoadReplyVersionNumber, heap)
-  {
-  }
+class UdrLoadReply : public UdrControlMsg {
+ public:
+  UdrLoadReply(NAMemory *heap) : UdrControlMsg(UDR_MSG_LOAD_REPLY, UdrLoadReplyVersionNumber, heap) {}
 
-  virtual ~UdrLoadReply()
-  {
-  }
+  virtual ~UdrLoadReply() {}
 
-private:
-
+ private:
   //
   // Do not implement default constructors or an assignment operator
   //
@@ -963,22 +847,15 @@ private:
   UdrLoadReply(const UdrLoadReply &);
   UdrLoadReply &operator=(const UdrLoadReply &);
 
-}; // class UdrLoadReply
+};  // class UdrLoadReply
 
-class UdrUnloadMsg : public UdrControlMsg
-{
-public:
-  UdrUnloadMsg(NAMemory *heap)
-    : UdrControlMsg(UDR_MSG_UNLOAD, UdrUnloadMsgVersionNumber, heap)
-  {
-  }
+class UdrUnloadMsg : public UdrControlMsg {
+ public:
+  UdrUnloadMsg(NAMemory *heap) : UdrControlMsg(UDR_MSG_UNLOAD, UdrUnloadMsgVersionNumber, heap) {}
 
-  virtual ~UdrUnloadMsg()
-  {
-  }
+  virtual ~UdrUnloadMsg() {}
 
-private:
-
+ private:
   //
   // Do not implement default constructors or an assignment operator
   //
@@ -986,22 +863,15 @@ private:
   UdrUnloadMsg(const UdrUnloadMsg &);
   UdrUnloadMsg &operator=(const UdrUnloadMsg &);
 
-}; // class UdrUnloadMsg
+};  // class UdrUnloadMsg
 
-class UdrUnloadReply : public UdrControlMsg
-{
-public:
-  UdrUnloadReply(NAMemory *heap)
-    : UdrControlMsg(UDR_MSG_UNLOAD_REPLY, UdrUnloadReplyVersionNumber, heap)
-  {
-  }
+class UdrUnloadReply : public UdrControlMsg {
+ public:
+  UdrUnloadReply(NAMemory *heap) : UdrControlMsg(UDR_MSG_UNLOAD_REPLY, UdrUnloadReplyVersionNumber, heap) {}
 
-  virtual ~UdrUnloadReply()
-  {
-  }
+  virtual ~UdrUnloadReply() {}
 
-private:
-
+ private:
   //
   // Do not implement default constructors or an assignment operator
   //
@@ -1009,7 +879,7 @@ private:
   UdrUnloadReply(const UdrUnloadReply &);
   UdrUnloadReply &operator=(const UdrUnloadReply &);
 
-}; // class UdrUnloadReply
+};  // class UdrUnloadReply
 
 //----------------------------------------------------------------------
 // UdrSessionMsg and UdrSessionReply message subclasses
@@ -1024,24 +894,13 @@ private:
 //     string 2: the set of delimiting characters
 //
 //----------------------------------------------------------------------
-class UdrSessionMsg : public UdrControlMsg
-{
-public:
+class UdrSessionMsg : public UdrControlMsg {
+ public:
+  enum UdrSessionAttrType { UDR_SESSION_TYPE_UNKNOWN = 0, UDR_SESSION_TYPE_JAVA_OPTIONS = 1 };
 
-  enum UdrSessionAttrType
-  {
-    UDR_SESSION_TYPE_UNKNOWN = 0,
-    UDR_SESSION_TYPE_JAVA_OPTIONS = 1
-  };
+  enum UdrSessionFlags { UDR_SESSION_FLAG_RESET = 0x0001 };
 
-  enum UdrSessionFlags
-  {
-    UDR_SESSION_FLAG_RESET = 0x0001
-  };
-
-  UdrSessionMsg(UdrSessionAttrType attrType,
-                ComUInt32 flags,
-                NAMemory *heap);
+  UdrSessionMsg(UdrSessionAttrType attrType, ComUInt32 flags, NAMemory *heap);
 
   UdrSessionMsg(NAMemory *heap);
 
@@ -1051,60 +910,47 @@ public:
 
   ComUInt32 numStrings() const { return strings_.entries(); }
   const char *getString(ComUInt32 i) const { return strings_[i]; }
-  const char *operator[] (ComUInt32 i) const { return strings_[i]; }
+  const char *operator[](ComUInt32 i) const { return strings_[i]; }
 
   ComUInt32 getFlags() const { return flags_; }
-  UdrSessionAttrType getType() const { return (UdrSessionAttrType) attrType_; }
+  UdrSessionAttrType getType() const { return (UdrSessionAttrType)attrType_; }
 
   // Redefine pack/unpack methods from IpcMessageObj
   IpcMessageObjSize packedLength();
   IpcMessageObjSize packObjIntoMessage(IpcMessageBufferPtr buffer);
-  void unpackObj(IpcMessageObjType objType,
-                 IpcMessageObjVersion objVersion,
-                 NABoolean sameEndianness,
-                 IpcMessageObjSize objSize,
-                 IpcConstMessageBufferPtr buffer);
+  void unpackObj(IpcMessageObjType objType, IpcMessageObjVersion objVersion, NABoolean sameEndianness,
+                 IpcMessageObjSize objSize, IpcConstMessageBufferPtr buffer);
 
 #ifdef UDR_DEBUG
   void display(FILE *f, const char *prefix) const;
 #endif
 
-protected:
-
+ protected:
   ComUInt32 attrType_;
   ComUInt32 flags_;
   LIST(char *) strings_;
 
-private:
-
+ private:
   // Do not implement default constructors or an assignment operator
   UdrSessionMsg();
   UdrSessionMsg(const UdrSessionMsg &);
   UdrSessionMsg &operator=(const UdrSessionMsg &);
 
-}; // class UdrSessionMsg
+};  // class UdrSessionMsg
 
-class UdrSessionReply : public UdrControlMsg
-{
-public:
-  UdrSessionReply(NAMemory *heap)
-    : UdrControlMsg(UDR_MSG_SESSION_REPLY,
-                    UdrSessionReplyVersionNumber, heap)
-  {
-  }
+class UdrSessionReply : public UdrControlMsg {
+ public:
+  UdrSessionReply(NAMemory *heap) : UdrControlMsg(UDR_MSG_SESSION_REPLY, UdrSessionReplyVersionNumber, heap) {}
 
-  virtual ~UdrSessionReply()
-  {
-  }
+  virtual ~UdrSessionReply() {}
 
-private:
-
+ private:
   // Do not implement default constructors or an assignment operator
   UdrSessionReply();
   UdrSessionReply(const UdrSessionReply &);
   UdrSessionReply &operator=(const UdrSessionReply &);
 
-}; // class UdrSessionReply
+};  // class UdrSessionReply
 
 //----------------------------------------------------------------------
 // UDR data header
@@ -1114,45 +960,31 @@ private:
 // UDR handle from superclass UdrMessageObj will be used in the UDR
 // server to route the data buffer to the appropriate message stream.
 //----------------------------------------------------------------------
-class UdrDataHeader : public UdrMessageObj
-{
-public:
-
+class UdrDataHeader : public UdrMessageObj {
+ public:
   // Constructor for allocation on a heap
   UdrDataHeader(const UdrHandle &h, NAMemory *heap)
-    : UdrMessageObj(UDR_MSG_DATA_HEADER, UdrDataHeaderVersionNumber, heap)
-  {
+      : UdrMessageObj(UDR_MSG_DATA_HEADER, UdrDataHeaderVersionNumber, heap) {
     setHandle(h);
- 
   }
 
   // Constructor for copyless send
-  UdrDataHeader(const UdrHandle &h)
-    : UdrMessageObj(UDR_MSG_DATA_HEADER, UdrDataHeaderVersionNumber, NULL)
-  {
+  UdrDataHeader(const UdrHandle &h) : UdrMessageObj(UDR_MSG_DATA_HEADER, UdrDataHeaderVersionNumber, NULL) {
     setHandle(h);
- 
   }
 
   // Constructor for copyless receive
-  UdrDataHeader(IpcBufferedMsgStream *msgStream)
-    : UdrMessageObj(msgStream)
-  {}
+  UdrDataHeader(IpcBufferedMsgStream *msgStream) : UdrMessageObj(msgStream) {}
 
-  virtual ~UdrDataHeader()
-  {}
-  
- 
+  virtual ~UdrDataHeader() {}
 
-private:
-  
+ private:
   // Do not implement default constructors or an assignment operator
   UdrDataHeader();
   UdrDataHeader(const UdrDataHeader &);
   UdrDataHeader &operator=(const UdrDataHeader &);
-  
 
-}; // class UdrDataHeader
+};  // class UdrDataHeader
 //----------------------------------------------------------------------
 // UDR TMUDFdata header
 //
@@ -1161,45 +993,32 @@ private:
 // UDR handle from superclass UdrMessageObj will be used in the UDR
 // server to route the data buffer to the appropriate message stream.
 //----------------------------------------------------------------------
-class UdrTmudfDataHeader : public UdrMessageObj
-{
-public:
-
+class UdrTmudfDataHeader : public UdrMessageObj {
+ public:
   // Constructor for allocation on a heap
   UdrTmudfDataHeader(const UdrHandle &h, NAMemory *heap)
-    : UdrMessageObj(UDR_MSG_TMUDF_DATA_HEADER, UdrTmudfDataHeaderVersionNumber, heap)
-  {
+      : UdrMessageObj(UDR_MSG_TMUDF_DATA_HEADER, UdrTmudfDataHeaderVersionNumber, heap) {
     setHandle(h);
- 
   }
 
   // Constructor for copyless send
   UdrTmudfDataHeader(const UdrHandle &h)
-    : UdrMessageObj(UDR_MSG_TMUDF_DATA_HEADER, UdrTmudfDataHeaderVersionNumber, NULL)
-  {
+      : UdrMessageObj(UDR_MSG_TMUDF_DATA_HEADER, UdrTmudfDataHeaderVersionNumber, NULL) {
     setHandle(h);
- 
   }
 
   // Constructor for copyless receive
-  UdrTmudfDataHeader(IpcBufferedMsgStream *msgStream)
-    : UdrMessageObj(msgStream)
-  {}
+  UdrTmudfDataHeader(IpcBufferedMsgStream *msgStream) : UdrMessageObj(msgStream) {}
 
-  virtual ~UdrTmudfDataHeader()
-  {}
-  
- 
+  virtual ~UdrTmudfDataHeader() {}
 
-private:
-  
+ private:
   // Do not implement default constructors or an assignment operator
   UdrTmudfDataHeader();
   UdrTmudfDataHeader(const UdrTmudfDataHeader &);
   UdrTmudfDataHeader &operator=(const UdrTmudfDataHeader &);
-  
 
-}; // class UdrTmudfDataHeader
+};  // class UdrTmudfDataHeader
 
 //----------------------------------------------------------------------
 // UDR data buffers
@@ -1207,22 +1026,19 @@ private:
 // The packed format of this class is all IpcMessageObj members
 // followed by a SqlBuffer.
 //----------------------------------------------------------------------
-class UdrDataBuffer : public UdrMessageObj
-{
-public:
-
+class UdrDataBuffer : public UdrMessageObj {
+ public:
   enum InOut { UDR_DATA_IN, UDR_DATA_OUT };
 
-  enum UdrDataBufferFlags
-  {
-    UDR_DATA_BUFFER_LAST = 0x0001,   // Last reply buffer for a given request
-    UDR_SEND_NEXT_DATA_BUFFER=0x0002, // flag set to indicate the client to send
-                                    // the next data buffer. If FALSE this 
-                                    // means client (ExUdrTCB) is supposed to 
-                                    // send a continueRequest.
-    UDR_SENDING_SCALAR_VALUES=0x0004 // flag to indicate the udrserever
-                                     // that we are sending scalar values in
-                                     //  this data buffer
+  enum UdrDataBufferFlags {
+    UDR_DATA_BUFFER_LAST = 0x0001,       // Last reply buffer for a given request
+    UDR_SEND_NEXT_DATA_BUFFER = 0x0002,  // flag set to indicate the client to send
+                                         // the next data buffer. If FALSE this
+                                         // means client (ExUdrTCB) is supposed to
+                                         // send a continueRequest.
+    UDR_SENDING_SCALAR_VALUES = 0x0004   // flag to indicate the udrserever
+                                         // that we are sending scalar values in
+                                         //  this data buffer
   };
 
   //
@@ -1233,58 +1049,42 @@ public:
   //
   // Constructors for copyless receive
   //
-  UdrDataBuffer(IpcBufferedMsgStream *msgStream,
-                NABoolean driveUnPack = TRUE);
+  UdrDataBuffer(IpcBufferedMsgStream *msgStream, NABoolean driveUnPack = TRUE);
   UdrDataBuffer(/* IN  */ IpcBufferedMsgStream *msgStream,
                 /* IN  */ IpcMessageObjSize objSize,
-                /* OUT */ NABoolean &integrityCheckResult );
+                /* OUT */ NABoolean &integrityCheckResult);
 
   virtual ~UdrDataBuffer();
 
   inline SqlBuffer *getSqlBuffer() { return theBuffer_; }
   inline const SqlBuffer *getSqlBuffer() const { return theBuffer_; }
   inline ULng32 getSqlBufferLength() const { return sqlBufferLength_; }
-  inline void setSqlBuffer(SqlBuffer *sqlbuf)
-  {
-    theBuffer_ = sqlbuf;
-  }
+  inline void setSqlBuffer(SqlBuffer *sqlbuf) { theBuffer_ = sqlbuf; }
   NABoolean moreRows() const;
 
   // Each reply buffer carries a flag to indicate whether it is the
   // final reply buffer for a given request buffer. Our server-side
   // code sets the flag correctly the flag is
   // not actually used by client-side executor code.
-  inline NABoolean isLastBuffer() const
-  { return (flags_ & UDR_DATA_BUFFER_LAST) ? TRUE : FALSE; }
+  inline NABoolean isLastBuffer() const { return (flags_ & UDR_DATA_BUFFER_LAST) ? TRUE : FALSE; }
 
-  inline void setLastBuffer(NABoolean yes)
-  {
-    flags_ = (yes) ? flags_ | UDR_DATA_BUFFER_LAST
-                   : flags_ & ~UDR_DATA_BUFFER_LAST;
+  inline void setLastBuffer(NABoolean yes) {
+    flags_ = (yes) ? flags_ | UDR_DATA_BUFFER_LAST : flags_ & ~UDR_DATA_BUFFER_LAST;
   }
 
-  inline NABoolean sendMoreData() const
-  { return (flags_ & UDR_SEND_NEXT_DATA_BUFFER) ? TRUE : FALSE;}
+  inline NABoolean sendMoreData() const { return (flags_ & UDR_SEND_NEXT_DATA_BUFFER) ? TRUE : FALSE; }
 
-  inline void setSendMoreData(NABoolean yes)
-  {
-    flags_ = (yes) ? flags_ | UDR_SEND_NEXT_DATA_BUFFER
-                   : flags_ & ~UDR_SEND_NEXT_DATA_BUFFER;
+  inline void setSendMoreData(NABoolean yes) {
+    flags_ = (yes) ? flags_ | UDR_SEND_NEXT_DATA_BUFFER : flags_ & ~UDR_SEND_NEXT_DATA_BUFFER;
   }
-  inline NABoolean sendingScalarValues() const
-  {
-   return (flags_ & UDR_SENDING_SCALAR_VALUES) ? TRUE : FALSE; 
-  }
-  inline void setSendingScalarValues(NABoolean yes)
-  {
-    flags_ = (yes) ? flags_ | UDR_SENDING_SCALAR_VALUES
-                   : flags_ & ~UDR_SENDING_SCALAR_VALUES;
+  inline NABoolean sendingScalarValues() const { return (flags_ & UDR_SENDING_SCALAR_VALUES) ? TRUE : FALSE; }
+  inline void setSendingScalarValues(NABoolean yes) {
+    flags_ = (yes) ? flags_ | UDR_SENDING_SCALAR_VALUES : flags_ & ~UDR_SENDING_SCALAR_VALUES;
   }
 
-  inline ComSInt16 tableIndex()
-  { return tableIndex_;}
-  
-  inline void setTableIndex(ComSInt16 ind) { tableIndex_ = ind;}
+  inline ComSInt16 tableIndex() { return tableIndex_; }
+
+  inline void setTableIndex(ComSInt16 ind) { tableIndex_ = ind; }
   //
   // Virtual methods for use with buffered streams
   //
@@ -1296,30 +1096,20 @@ public:
   //
   IpcMessageObjSize packedLength();
   IpcMessageObjSize packObjIntoMessage(IpcMessageBufferPtr buffer);
-  void unpackObj(IpcMessageObjType objType,
-                 IpcMessageObjVersion objVersion,
-                 NABoolean sameEndianness,
-                 IpcMessageObjSize objSize,
-                 IpcConstMessageBufferPtr buffer);
-  NABoolean checkObj(IpcMessageObjType t,
-                     IpcMessageObjVersion v,
-                     NABoolean sameEndianness,
-                     IpcMessageObjSize size,
+  void unpackObj(IpcMessageObjType objType, IpcMessageObjVersion objVersion, NABoolean sameEndianness,
+                 IpcMessageObjSize objSize, IpcConstMessageBufferPtr buffer);
+  NABoolean checkObj(IpcMessageObjType t, IpcMessageObjVersion v, NABoolean sameEndianness, IpcMessageObjSize size,
                      IpcConstMessageBufferPtr buffer) const;
 
-protected:
-
-  NABoolean copylessUnpack(NABoolean doChecks,
-                           IpcMessageObjSize objSize,
-                           NABoolean driveUnPack = TRUE);
+ protected:
+  NABoolean copylessUnpack(NABoolean doChecks, IpcMessageObjSize objSize, NABoolean driveUnPack = TRUE);
 
   ComUInt32 flags_;
   ULng32 sqlBufferLength_;
   SqlBuffer *theBuffer_;
-  ComSInt16 tableIndex_; // applies only to TMUDFs will be -1 for scalar udfs
+  ComSInt16 tableIndex_;  // applies only to TMUDFs will be -1 for scalar udfs
 
-private:
-
+ private:
   //
   // Do not implement default constructors or an assignment operator
   //
@@ -1327,7 +1117,7 @@ private:
   UdrDataBuffer(const UdrDataBuffer &);
   UdrDataBuffer &operator=(const UdrDataBuffer &);
 
-}; // class UdrDataBuffer
+};  // class UdrDataBuffer
 
 //----------------------------------------------------------------------
 // UDR continue request
@@ -1336,40 +1126,31 @@ private:
 // UDR handle from superclass UdrMessageObj will be used in the UDR
 // server to route the request to the appropriate data stream.
 //----------------------------------------------------------------------
-class UdrContinueMsg : public UdrMessageObj
-{
-public:
+class UdrContinueMsg : public UdrMessageObj {
+ public:
   //
   // Constructor for allocation on a heap
   //
   UdrContinueMsg(const UdrHandle &h, NAMemory *heap)
-    : UdrMessageObj(UDR_MSG_CONTINUE_REQUEST, UdrContinueMsgVersionNumber, heap)
-  {
+      : UdrMessageObj(UDR_MSG_CONTINUE_REQUEST, UdrContinueMsgVersionNumber, heap) {
     setHandle(h);
   }
 
   //
   // Constructor for copyless send
   //
-  UdrContinueMsg(const UdrHandle &h)
-    : UdrMessageObj(UDR_MSG_CONTINUE_REQUEST, UdrContinueMsgVersionNumber, NULL)
-  {
+  UdrContinueMsg(const UdrHandle &h) : UdrMessageObj(UDR_MSG_CONTINUE_REQUEST, UdrContinueMsgVersionNumber, NULL) {
     setHandle(h);
-    
   }
 
   //
   // Constructor for copyless receive
   //
-  UdrContinueMsg(IpcBufferedMsgStream *msgStream)
-    : UdrMessageObj(msgStream)
-  {}
+  UdrContinueMsg(IpcBufferedMsgStream *msgStream) : UdrMessageObj(msgStream) {}
 
-  virtual ~UdrContinueMsg()
-  {}
+  virtual ~UdrContinueMsg() {}
 
-private:
-
+ private:
   //
   // Do not implement default constructors or an assignment operator
   //
@@ -1377,22 +1158,15 @@ private:
   UdrContinueMsg(const UdrContinueMsg &);
   UdrContinueMsg &operator=(const UdrContinueMsg &);
 
-}; // class UdrContinueMsg
+};  // class UdrContinueMsg
 
-class UdrErrorReply : public UdrControlMsg
-{
-public:
-  UdrErrorReply(NAMemory *heap)
-    : UdrControlMsg(UDR_MSG_ERROR_REPLY, UdrErrorReplyVersionNumber, heap)
-  {
-  }
+class UdrErrorReply : public UdrControlMsg {
+ public:
+  UdrErrorReply(NAMemory *heap) : UdrControlMsg(UDR_MSG_ERROR_REPLY, UdrErrorReplyVersionNumber, heap) {}
 
-  virtual ~UdrErrorReply()
-  {
-  }
+  virtual ~UdrErrorReply() {}
 
-private:
-
+ private:
   //
   // Do not implement default constructors or an assignment operator
   //
@@ -1400,178 +1174,125 @@ private:
   UdrErrorReply(const UdrErrorReply &);
   UdrErrorReply &operator=(const UdrErrorReply &);
 
-}; // class UdrErrorReply
+};  // class UdrErrorReply
 
 //----------------------------------------------------------------------
 // Following are Transaction related messages
 //  Enter Tx, Enter Tx reply
 //  Exit Tx, Exit Tx reply
 //----------------------------------------------------------------------
-class UdrEnterTxMsg : public UdrControlMsg
-{
-public:
-  UdrEnterTxMsg(NAMemory *heap)
-    : UdrControlMsg(UDR_MSG_ENTER_TX, UdrEnterTxMsgVersionNumber, heap)
-  {
-  }
+class UdrEnterTxMsg : public UdrControlMsg {
+ public:
+  UdrEnterTxMsg(NAMemory *heap) : UdrControlMsg(UDR_MSG_ENTER_TX, UdrEnterTxMsgVersionNumber, heap) {}
 
-  virtual ~UdrEnterTxMsg()
-  {
-  }
+  virtual ~UdrEnterTxMsg() {}
 
-private:
+ private:
   //
   // Do not implement default constructors or an assignment operator
   //
   UdrEnterTxMsg();
   UdrEnterTxMsg(const UdrEnterTxMsg &);
   UdrEnterTxMsg &operator=(const UdrEnterTxMsg &);
-}; // class UdrEnterTxMsg
+};  // class UdrEnterTxMsg
 
-class UdrEnterTxReply : public UdrControlMsg
-{
-public:
-  UdrEnterTxReply(NAMemory *heap)
-    : UdrControlMsg(UDR_MSG_ENTER_TX_REPLY, UdrEnterTxReplyVersionNumber, heap)
-  {
-  }
+class UdrEnterTxReply : public UdrControlMsg {
+ public:
+  UdrEnterTxReply(NAMemory *heap) : UdrControlMsg(UDR_MSG_ENTER_TX_REPLY, UdrEnterTxReplyVersionNumber, heap) {}
 
-  virtual ~UdrEnterTxReply()
-  {
-  }
+  virtual ~UdrEnterTxReply() {}
 
-private:
+ private:
   //
   // Do not implement default constructors or an assignment operator
   //
   UdrEnterTxReply();
   UdrEnterTxReply(const UdrEnterTxReply &);
   UdrEnterTxReply &operator=(const UdrEnterTxReply &);
-}; // class UdrEnterTxReply
+};  // class UdrEnterTxReply
 
-class UdrSuspendTxMsg : public UdrControlMsg
-{
+class UdrSuspendTxMsg : public UdrControlMsg {
   typedef UdrControlMsg super;
 
-public:
-  UdrSuspendTxMsg(NAMemory *heap)
-    : UdrControlMsg(UDR_MSG_SUSPEND_TX, UdrSuspendTxMsgVersionNumber, heap)
-  {
-  }
+ public:
+  UdrSuspendTxMsg(NAMemory *heap) : UdrControlMsg(UDR_MSG_SUSPEND_TX, UdrSuspendTxMsgVersionNumber, heap) {}
 
-  virtual ~UdrSuspendTxMsg()
-  {
-  }
+  virtual ~UdrSuspendTxMsg() {}
 
-private:
+ private:
   // Do not implement default constructors or an assignment operator
   UdrSuspendTxMsg();
   UdrSuspendTxMsg(const UdrSuspendTxMsg &);
   UdrSuspendTxMsg &operator=(const UdrSuspendTxMsg &);
 
-}; // class UdrSuspendTxMsg
+};  // class UdrSuspendTxMsg
 
-class UdrSuspendTxReply : public UdrControlMsg
-{
-public:
-  UdrSuspendTxReply(NAMemory *heap)
-    : UdrControlMsg(UDR_MSG_SUSPEND_TX_REPLY,
-                    UdrSuspendTxReplyVersionNumber, heap)
-  {
-  }
+class UdrSuspendTxReply : public UdrControlMsg {
+ public:
+  UdrSuspendTxReply(NAMemory *heap) : UdrControlMsg(UDR_MSG_SUSPEND_TX_REPLY, UdrSuspendTxReplyVersionNumber, heap) {}
 
-  virtual ~UdrSuspendTxReply()
-  {
-  }
+  virtual ~UdrSuspendTxReply() {}
 
-private:
+ private:
   // Do not implement default constructors or an assignment operator
   UdrSuspendTxReply();
   UdrSuspendTxReply(const UdrSuspendTxReply &);
   UdrSuspendTxReply &operator=(const UdrSuspendTxReply &);
 
-}; // class UdrSuspendTxReply
+};  // class UdrSuspendTxReply
 
-class UdrExitTxMsg : public UdrControlMsg
-{
+class UdrExitTxMsg : public UdrControlMsg {
   typedef UdrControlMsg super;
 
-public:
-  UdrExitTxMsg(NAMemory *heap)
-    : UdrControlMsg(UDR_MSG_EXIT_TX, UdrExitTxMsgVersionNumber, heap)
-  {
-  }
+ public:
+  UdrExitTxMsg(NAMemory *heap) : UdrControlMsg(UDR_MSG_EXIT_TX, UdrExitTxMsgVersionNumber, heap) {}
 
-  virtual ~UdrExitTxMsg()
-  {
-  }
+  virtual ~UdrExitTxMsg() {}
 
-private:
+ private:
   //
   // Do not implement default constructors or an assignment operator
   //
   UdrExitTxMsg();
   UdrExitTxMsg(const UdrExitTxMsg &);
   UdrExitTxMsg &operator=(const UdrExitTxMsg &);
-}; // class UdrExitTxMsg
+};  // class UdrExitTxMsg
 
-class UdrExitTxReply : public UdrControlMsg
-{
-public:
-  UdrExitTxReply(NAMemory *heap)
-    : UdrControlMsg(UDR_MSG_EXIT_TX_REPLY, UdrExitTxReplyVersionNumber, heap)
-  {
-  }
+class UdrExitTxReply : public UdrControlMsg {
+ public:
+  UdrExitTxReply(NAMemory *heap) : UdrControlMsg(UDR_MSG_EXIT_TX_REPLY, UdrExitTxReplyVersionNumber, heap) {}
 
-  virtual ~UdrExitTxReply()
-  {
-  }
+  virtual ~UdrExitTxReply() {}
 
-private:
+ private:
   //
   // Do not implement default constructors or an assignment operator
   //
   UdrExitTxReply();
   UdrExitTxReply(const UdrExitTxReply &);
   UdrExitTxReply &operator=(const UdrExitTxReply &);
-}; // class UdrExitTxReply
+};  // class UdrExitTxReply
 
 //----------------------------------------------------------------------
 // This class adds a data member for RS Handle and is base class
 // for all RS message classes.
 //----------------------------------------------------------------------
-class UdrRSMessageObj : public UdrMessageObj
-{
+class UdrRSMessageObj : public UdrMessageObj {
   typedef UdrMessageObj super;
 
-public:
-
+ public:
   // Constructor for allocation on a heap
-  UdrRSMessageObj(UdrIpcObjectType msgType,
-                  IpcMessageObjVersion version,
-                  NAMemory *heap)
-    : UdrMessageObj(msgType, version, heap),
-      rshandle_(INVALID_RS_HANDLE)
-  {
-  }
+  UdrRSMessageObj(UdrIpcObjectType msgType, IpcMessageObjVersion version, NAMemory *heap)
+      : UdrMessageObj(msgType, version, heap), rshandle_(INVALID_RS_HANDLE) {}
 
   // Constructor for copyless send
-  UdrRSMessageObj(UdrIpcObjectType msgType,
-                  IpcMessageObjVersion version)
-    : UdrMessageObj(msgType, version, NULL),
-      rshandle_(INVALID_RS_HANDLE)
-  {
-  }
+  UdrRSMessageObj(UdrIpcObjectType msgType, IpcMessageObjVersion version)
+      : UdrMessageObj(msgType, version, NULL), rshandle_(INVALID_RS_HANDLE) {}
 
   // Constructor for copyless receive
-  UdrRSMessageObj(IpcBufferedMsgStream *msgStream)
-    : UdrMessageObj(msgStream)
-  {
-  }
+  UdrRSMessageObj(IpcBufferedMsgStream *msgStream) : UdrMessageObj(msgStream) {}
 
-  virtual ~UdrRSMessageObj()
-  {
-  }
+  virtual ~UdrRSMessageObj() {}
 
   // Accessor/Mutator methods
   inline const RSHandle &getRSHandle() const { return rshandle_; }
@@ -1580,31 +1301,20 @@ public:
   // Pack/unpack/check methods in the IpcMessageObj interface
   IpcMessageObjSize packedLength();
   IpcMessageObjSize packObjIntoMessage(IpcMessageBufferPtr buffer);
-  void unpackObj(IpcMessageObjType objType,
-                 IpcMessageObjVersion objVersion,
-                 NABoolean sameEndianness,
-                 IpcMessageObjSize objSize,
-                 IpcConstMessageBufferPtr buffer);
-  NABoolean checkObj(IpcMessageObjType t,
-                     IpcMessageObjVersion v,
-                     NABoolean sameEndianness,
-                     IpcMessageObjSize size,
+  void unpackObj(IpcMessageObjType objType, IpcMessageObjVersion objVersion, NABoolean sameEndianness,
+                 IpcMessageObjSize objSize, IpcConstMessageBufferPtr buffer);
+  NABoolean checkObj(IpcMessageObjType t, IpcMessageObjVersion v, NABoolean sameEndianness, IpcMessageObjSize size,
                      IpcConstMessageBufferPtr buffer) const;
 
-protected:
-
+ protected:
   // Pack/unpack/check methods in the UdrMessageObj interface
   virtual IpcMessageObjSize udrBaseClassPackedLength();
   virtual IpcMessageObjSize packUdrBaseClass(IpcMessageBufferPtr &buffer);
   virtual void unpackUdrBaseClass(IpcConstMessageBufferPtr &buffer);
-  virtual NABoolean checkUdrBaseClass(IpcMessageObjType t,
-                                      IpcMessageObjVersion v,
-                                      NABoolean sameEndianness,
-                                      IpcMessageObjSize size,
-                                      IpcConstMessageBufferPtr &buffer) const;
+  virtual NABoolean checkUdrBaseClass(IpcMessageObjType t, IpcMessageObjVersion v, NABoolean sameEndianness,
+                                      IpcMessageObjSize size, IpcConstMessageBufferPtr &buffer) const;
 
-private:
-
+ private:
   // Do not implement default constructors or an assignment operator
   UdrRSMessageObj();
   UdrRSMessageObj(const UdrRSMessageObj &);
@@ -1612,31 +1322,27 @@ private:
 
   RSHandle rshandle_;
 
-}; // class UdrRSMessageObj
+};  // class UdrRSMessageObj
 
 //----------------------------------------------------------------------
 // Currently this class provides no functionality. It just gives us
 // a way to distinguish a control message from a data message.
 //----------------------------------------------------------------------
-class UdrRSControlMsg : public UdrRSMessageObj
-{
-public:
-  UdrRSControlMsg(UdrIpcObjectType msgType, IpcMessageObjVersion version,
-    NAMemory *heap)
-    : UdrRSMessageObj(msgType, version, heap)
-  {
-  }
+class UdrRSControlMsg : public UdrRSMessageObj {
+ public:
+  UdrRSControlMsg(UdrIpcObjectType msgType, IpcMessageObjVersion version, NAMemory *heap)
+      : UdrRSMessageObj(msgType, version, heap) {}
 
   virtual ~UdrRSControlMsg() {}
 
-private:
+ private:
   //
   // Do not implement default constructors or an assignment operator
   //
   UdrRSControlMsg();
   UdrRSControlMsg(const UdrRSControlMsg &);
   UdrRSControlMsg &operator=(const UdrRSControlMsg &);
-}; // class UdrRSControlMsg
+};  // class UdrRSControlMsg
 
 //----------------------------------------------------------------------
 // Following are RS control messages
@@ -1645,15 +1351,14 @@ private:
 //  RS Close, RS Close reply
 //  RS Unload, RS Unload reply
 //----------------------------------------------------------------------
-class UdrRSLoadMsg : public UdrRSControlMsg
-{
+class UdrRSLoadMsg : public UdrRSControlMsg {
   typedef UdrRSControlMsg super;
 
-public:
+ public:
   UdrRSLoadMsg(NAMemory *heap);
 
-  UdrRSLoadMsg(ComUInt32 rsIndex, ComUInt32 numRSCols, ComUInt32 rowSize,
-               ComUInt32 bufferSize, ComUInt32 flags, NAMemory *heap);
+  UdrRSLoadMsg(ComUInt32 rsIndex, ComUInt32 numRSCols, ComUInt32 rowSize, ComUInt32 bufferSize, ComUInt32 flags,
+               NAMemory *heap);
 
   virtual ~UdrRSLoadMsg();
 
@@ -1665,10 +1370,7 @@ public:
   inline ComUInt32 getFlags() const { return rsLoadFlags_; }
 
   // Methods to get/set column desc structures
-  UdrParameterInfo *getColumnDesc() const
-  {
-    return rsColumnDesc_;
-  }
+  UdrParameterInfo *getColumnDesc() const { return rsColumnDesc_; }
   UdrParameterInfo &getColumnDesc(ComUInt32 i) const;
   UdrParameterInfo *setColumnDesc(ComUInt32 i, const UdrParameterInfo &info);
 
@@ -1677,13 +1379,10 @@ public:
   //
   IpcMessageObjSize packedLength();
   IpcMessageObjSize packObjIntoMessage(IpcMessageBufferPtr buffer);
-  void unpackObj(IpcMessageObjType objType,
-    IpcMessageObjVersion objVersion,
-    NABoolean sameEndianness,
-    IpcMessageObjSize objSize,
-    IpcConstMessageBufferPtr buffer);
+  void unpackObj(IpcMessageObjType objType, IpcMessageObjVersion objVersion, NABoolean sameEndianness,
+                 IpcMessageObjSize objSize, IpcConstMessageBufferPtr buffer);
 
-private:
+ private:
   //
   // Do not implement default constructors or an assignment operator
   //
@@ -1701,34 +1400,28 @@ private:
   // in UdrParameterInfo. So UdrParameterInfo is reused here.
   //
   UdrParameterInfo *rsColumnDesc_;
-  ComUInt32 numRSCols_;                // Number of Columns in the RS
-  ComUInt32 outputRowSize_;            // RS row size
-  ComUInt32 outBufferSize_;            // Buffer size that UDR server uses
-                                       // to send multiple rows
-  ComUInt32 rsLoadFlags_;              // Flags for future use
+  ComUInt32 numRSCols_;      // Number of Columns in the RS
+  ComUInt32 outputRowSize_;  // RS row size
+  ComUInt32 outBufferSize_;  // Buffer size that UDR server uses
+                             // to send multiple rows
+  ComUInt32 rsLoadFlags_;    // Flags for future use
 
-}; // class UdrRSLoadMsg
+};  // class UdrRSLoadMsg
 
-class UdrRSLoadReply : public UdrRSControlMsg
-{
-public:
-  UdrRSLoadReply(NAMemory *heap)
-    : UdrRSControlMsg(UDR_MSG_RS_LOAD_REPLY, UdrRSLoadReplyVersionNumber, heap)
-  {
-  }
+class UdrRSLoadReply : public UdrRSControlMsg {
+ public:
+  UdrRSLoadReply(NAMemory *heap) : UdrRSControlMsg(UDR_MSG_RS_LOAD_REPLY, UdrRSLoadReplyVersionNumber, heap) {}
 
-  virtual ~UdrRSLoadReply()
-  {
-  }
+  virtual ~UdrRSLoadReply() {}
 
-private:
+ private:
   //
   // Do not implement default constructors or an assignment operator
   //
   UdrRSLoadReply();
   UdrRSLoadReply(const UdrRSLoadReply &);
   UdrRSLoadReply &operator=(const UdrRSLoadReply &);
-}; // class UdrRSLoadReply
+};  // class UdrRSLoadReply
 
 //----------------------------------------------------------------------
 // RS data header
@@ -1739,167 +1432,120 @@ private:
 // will be used in the UDR server to route the data buffer to the
 // appropriate message stream.
 //----------------------------------------------------------------------
-class UdrRSDataHeader : public UdrRSMessageObj
-{
-public:
-
+class UdrRSDataHeader : public UdrRSMessageObj {
+ public:
   // Constructor for allocation on a heap
   UdrRSDataHeader(const UdrHandle &h, const RSHandle &rs, NAMemory *heap)
-    : UdrRSMessageObj(UDR_MSG_RS_DATA_HEADER,
-                      UdrRSDataHeaderVersionNumber,
-                      heap)
-  {
+      : UdrRSMessageObj(UDR_MSG_RS_DATA_HEADER, UdrRSDataHeaderVersionNumber, heap) {
     setHandle(h);
     setRSHandle(rs);
   }
 
   // Constructor for copyless send
   UdrRSDataHeader(const UdrHandle &h, const RSHandle &rs)
-    : UdrRSMessageObj(UDR_MSG_RS_DATA_HEADER,
-                      UdrRSDataHeaderVersionNumber,
-                      NULL)
-  {
+      : UdrRSMessageObj(UDR_MSG_RS_DATA_HEADER, UdrRSDataHeaderVersionNumber, NULL) {
     setHandle(h);
     setRSHandle(rs);
   }
 
   // Constructor for copyless receive
-  UdrRSDataHeader(IpcBufferedMsgStream *msgStream)
-    : UdrRSMessageObj(msgStream)
-  {}
+  UdrRSDataHeader(IpcBufferedMsgStream *msgStream) : UdrRSMessageObj(msgStream) {}
 
-  virtual ~UdrRSDataHeader()
-  {}
+  virtual ~UdrRSDataHeader() {}
 
-private:
-
+ private:
   // Do not implement default constructors or an assignment operator
   UdrRSDataHeader();
   UdrRSDataHeader(const UdrRSDataHeader &);
   UdrRSDataHeader &operator=(const UdrRSDataHeader &);
 
-}; // class UdrRSDataHeader
+};  // class UdrRSDataHeader
 
-class UdrRSContinueMsg : public UdrRSMessageObj
-{
-public:
-
+class UdrRSContinueMsg : public UdrRSMessageObj {
+ public:
   // Constructor for allocation on a heap
-  UdrRSContinueMsg(NAMemory *heap)
-    : UdrRSMessageObj(UDR_MSG_RS_CONTINUE, UdrRSContinueMsgVersionNumber, heap)
-  {
-  }
+  UdrRSContinueMsg(NAMemory *heap) : UdrRSMessageObj(UDR_MSG_RS_CONTINUE, UdrRSContinueMsgVersionNumber, heap) {}
 
   // Constructor for copyless send
   UdrRSContinueMsg(const UdrHandle &handle, const RSHandle &rsHandle)
-    : UdrRSMessageObj(UDR_MSG_RS_CONTINUE, UdrRSContinueMsgVersionNumber)
-  {
+      : UdrRSMessageObj(UDR_MSG_RS_CONTINUE, UdrRSContinueMsgVersionNumber) {
     setHandle(handle);
     setRSHandle(rsHandle);
   }
 
   // Constructor for copyless receive
-  UdrRSContinueMsg(IpcBufferedMsgStream *msgStream)
-    : UdrRSMessageObj(msgStream)
-  {
-  }
+  UdrRSContinueMsg(IpcBufferedMsgStream *msgStream) : UdrRSMessageObj(msgStream) {}
 
-  virtual ~UdrRSContinueMsg()
-  {
-  }
+  virtual ~UdrRSContinueMsg() {}
 
-private:
+ private:
   //
   // Do not implement default constructors or an assignment operator
   //
   UdrRSContinueMsg();
   UdrRSContinueMsg(const UdrRSContinueMsg &);
   UdrRSContinueMsg &operator=(const UdrRSContinueMsg &);
-}; // class UdrRSContinueMsg
+};  // class UdrRSContinueMsg
 
-class UdrRSCloseMsg : public UdrRSControlMsg
-{
-public:
-  UdrRSCloseMsg(NAMemory *heap)
-    : UdrRSControlMsg(UDR_MSG_RS_CLOSE, UdrRSCloseMsgVersionNumber, heap)
-  {
-  }
+class UdrRSCloseMsg : public UdrRSControlMsg {
+ public:
+  UdrRSCloseMsg(NAMemory *heap) : UdrRSControlMsg(UDR_MSG_RS_CLOSE, UdrRSCloseMsgVersionNumber, heap) {}
 
-  virtual ~UdrRSCloseMsg()
-  {
-  }
+  virtual ~UdrRSCloseMsg() {}
 
-private:
+ private:
   //
   // Do not implement default constructors or an assignment operator
   //
   UdrRSCloseMsg();
   UdrRSCloseMsg(const UdrRSCloseMsg &);
   UdrRSCloseMsg &operator=(const UdrRSCloseMsg &);
-}; // class UdrRSCloseMsg
+};  // class UdrRSCloseMsg
 
-class UdrRSCloseReply : public UdrRSControlMsg
-{
-public:
-  UdrRSCloseReply(NAMemory *heap)
-    : UdrRSControlMsg(UDR_MSG_RS_CLOSE_REPLY, UdrRSCloseReplyVersionNumber, heap)
-  {
-  }
+class UdrRSCloseReply : public UdrRSControlMsg {
+ public:
+  UdrRSCloseReply(NAMemory *heap) : UdrRSControlMsg(UDR_MSG_RS_CLOSE_REPLY, UdrRSCloseReplyVersionNumber, heap) {}
 
-  virtual ~UdrRSCloseReply()
-  {
-  }
+  virtual ~UdrRSCloseReply() {}
 
-private:
+ private:
   //
   // Do not implement default constructors or an assignment operator
   //
   UdrRSCloseReply();
   UdrRSCloseReply(const UdrRSCloseReply &);
   UdrRSCloseReply &operator=(const UdrRSCloseReply &);
-}; // class UdrRSColseReply
+};  // class UdrRSColseReply
 
-class UdrRSUnloadMsg : public UdrRSControlMsg
-{
-public:
-  UdrRSUnloadMsg(NAMemory *heap)
-    : UdrRSControlMsg(UDR_MSG_RS_UNLOAD, UdrRSUnloadMsgVersionNumber, heap)
-  {
-  }
+class UdrRSUnloadMsg : public UdrRSControlMsg {
+ public:
+  UdrRSUnloadMsg(NAMemory *heap) : UdrRSControlMsg(UDR_MSG_RS_UNLOAD, UdrRSUnloadMsgVersionNumber, heap) {}
 
-  virtual ~UdrRSUnloadMsg()
-  {
-  }
+  virtual ~UdrRSUnloadMsg() {}
 
-private:
+ private:
   //
   // Do not implement default constructors or an assignment operator
   //
   UdrRSUnloadMsg();
   UdrRSUnloadMsg(const UdrRSUnloadMsg &);
   UdrRSUnloadMsg &operator=(const UdrRSUnloadMsg &);
-}; // class UdrRSUnloadMsg
+};  // class UdrRSUnloadMsg
 
-class UdrRSUnloadReply : public UdrRSControlMsg
-{
-public:
-  UdrRSUnloadReply(NAMemory *heap)
-    : UdrRSControlMsg(UDR_MSG_RS_UNLOAD_REPLY, UdrRSUnloadReplyVersionNumber, heap)
-  {
-  }
+class UdrRSUnloadReply : public UdrRSControlMsg {
+ public:
+  UdrRSUnloadReply(NAMemory *heap) : UdrRSControlMsg(UDR_MSG_RS_UNLOAD_REPLY, UdrRSUnloadReplyVersionNumber, heap) {}
 
-  virtual ~UdrRSUnloadReply()
-  {
-  }
+  virtual ~UdrRSUnloadReply() {}
 
-private:
+ private:
   //
   // Do not implement default constructors or an assignment operator
   //
   UdrRSUnloadReply();
   UdrRSUnloadReply(const UdrRSUnloadReply &);
   UdrRSUnloadReply &operator=(const UdrRSUnloadReply &);
-}; // class UDRRSUnloadReply
+};  // class UDRRSUnloadReply
 
 //----------------------------------------------------------------------
 // struct ResultSetInfo
@@ -1915,13 +1561,11 @@ private:
 // So setHeap() must be called after an object is instantiated
 // using default constructor.
 //----------------------------------------------------------------------
-class ResultSetInfo
-{
+class ResultSetInfo {
   friend class UdrRSInfoMsg;
 
-public:
-  ResultSetInfo(const char *proxy, SQLSTMT_ID *stmtID,
-                ComUInt32 cntxID, NAMemory *heap);
+ public:
+  ResultSetInfo(const char *proxy, SQLSTMT_ID *stmtID, ComUInt32 cntxID, NAMemory *heap);
 
   ~ResultSetInfo();
 
@@ -1931,9 +1575,9 @@ public:
   ComUInt32 getContextID() const { return cntxID_; }
 
   // Assignment operator
-  ResultSetInfo& operator=(const ResultSetInfo &src);
+  ResultSetInfo &operator=(const ResultSetInfo &src);
 
-protected:
+ protected:
   //
   // This class does not derive from IpcMessageObj but we need
   // similar methods to pack/unpack the object in a message
@@ -1944,19 +1588,12 @@ protected:
   IpcMessageObjSize pack(IpcMessageBufferPtr &buffer) const;
   void unpack(IpcConstMessageBufferPtr &buffer);
 
-  static
-  NABoolean checkResultSetInfoClass(IpcMessageObjType t,
-                                      IpcMessageObjVersion v,
-                                      NABoolean sameEndianness,
-                                      IpcMessageObjSize size,
-                                      IpcConstMessageBufferPtr &buffer);
+  static NABoolean checkResultSetInfoClass(IpcMessageObjType t, IpcMessageObjVersion v, NABoolean sameEndianness,
+                                           IpcMessageObjSize size, IpcConstMessageBufferPtr &buffer);
 
-private:
+ private:
   // Only friends can call default constructor and setHeap()
-  ResultSetInfo()
-    : heap_(NULL), proxySyntax_(NULL), stmtID_(NULL), cntxID_(0)
-  {
-  }
+  ResultSetInfo() : heap_(NULL), proxySyntax_(NULL), stmtID_(NULL), cntxID_(0) {}
 
   // Helper functions for memory management
   char *allocateString(const char *s);
@@ -1966,7 +1603,7 @@ private:
 
   NAMemory *heap_;
 
-  char *proxySyntax_;     // proxy statement text
+  char *proxySyntax_;  // proxy statement text
 
   // TBD: Ramana
   // The following information is added for debugging/measure data
@@ -1974,24 +1611,20 @@ private:
   // Right now we have the following but these values will be set to 0
   // by UDR Server and we should not depend on these fields right now.
   // This part of this class will be updated later.
-  SQLSTMT_ID *stmtID_;      // Pointer to Stmt_ID struct
-  ComUInt32 cntxID_;      // context handle where stmtID_ is valid
-}; // struct ResultSetInfo
+  SQLSTMT_ID *stmtID_;  // Pointer to Stmt_ID struct
+  ComUInt32 cntxID_;    // context handle where stmtID_ is valid
+};                      // struct ResultSetInfo
 
 //----------------------------------------------------------------------
 // UdrRSInfoMsg will be sent by UDR server along with UDR INVOKE
 // reply message. This object contains one or more ResultSetInfo structs
 //----------------------------------------------------------------------
-class UdrRSInfoMsg : public UdrMessageObj
-{
+class UdrRSInfoMsg : public UdrMessageObj {
   typedef UdrMessageObj super;
 
-public:
+ public:
   UdrRSInfoMsg(NAMemory *heap)
-    : UdrMessageObj(UDR_MSG_RS_INFO, UdrRSInfoMsgVersionNumber, heap),
-      numRS_(0), resultSetInfo_(NULL)
-  {
-  }
+      : UdrMessageObj(UDR_MSG_RS_INFO, UdrRSInfoMsgVersionNumber, heap), numRS_(0), resultSetInfo_(NULL) {}
 
   UdrRSInfoMsg(ComUInt32 numRS, NAMemory *heap);
 
@@ -2000,16 +1633,10 @@ public:
   // Redefine pack/unpack methods from IpcMessageObj
   IpcMessageObjSize packedLength();
   IpcMessageObjSize packObjIntoMessage(IpcMessageBufferPtr b);
-  void unpackObj(IpcMessageObjType objType,
-                 IpcMessageObjVersion objVersion,
-                 NABoolean sameEndianness,
-                 IpcMessageObjSize objSize,
-                 IpcConstMessageBufferPtr buffer);
+  void unpackObj(IpcMessageObjType objType, IpcMessageObjVersion objVersion, NABoolean sameEndianness,
+                 IpcMessageObjSize objSize, IpcConstMessageBufferPtr buffer);
 
-  NABoolean checkObj(IpcMessageObjType t,
-                     IpcMessageObjVersion v,
-                     NABoolean sameEndianness,
-                     IpcMessageObjSize size,
+  NABoolean checkObj(IpcMessageObjType t, IpcMessageObjVersion v, NABoolean sameEndianness, IpcMessageObjSize size,
                      IpcConstMessageBufferPtr buffer) const;
 
   // Accessor methods
@@ -2019,14 +1646,11 @@ public:
   ResultSetInfo &getRSInfo(ComUInt32 i) const;
   void setRSInfo(ComUInt32 i, const ResultSetInfo &info);
 
-protected:
-  virtual NABoolean checkUdrBaseClass(IpcMessageObjType t,
-                                      IpcMessageObjVersion v,
-                                      NABoolean sameEndianness,
-                                      IpcMessageObjSize size,
-                                      IpcConstMessageBufferPtr &buffer) const;
+ protected:
+  virtual NABoolean checkUdrBaseClass(IpcMessageObjType t, IpcMessageObjVersion v, NABoolean sameEndianness,
+                                      IpcMessageObjSize size, IpcConstMessageBufferPtr &buffer) const;
 
-private:
+ private:
   // Number of result sets returned by the UDR
   ComUInt32 numRS_;
   ResultSetInfo *resultSetInfo_;
@@ -2043,6 +1667,6 @@ private:
   UdrRSInfoMsg(const UdrRSInfoMsg &);
   UdrRSInfoMsg &operator=(const UdrRSInfoMsg &);
 
-}; // class UdrRSInfoMsg
+};  // class UdrRSInfoMsg
 
-#endif // _UDR_EXE_IPC_H_
+#endif  // _UDR_EXE_IPC_H_

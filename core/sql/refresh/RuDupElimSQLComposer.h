@@ -29,13 +29,13 @@
 *
 * File:         RuDupElimSQLComposer.h
 * Description:  Definition of class CRUDupSQLComposer
-*				
+*
 *
 * Created:      06/14/2000
 * Language:     C++
-* 
 *
-* 
+*
+*
 ******************************************************************************
 */
 
@@ -51,11 +51,11 @@ class CRUTbl;
 
 //-----------------------------------------------------------//
 //	CRUDupElimSQLComposer
-//	
-//	This class is an auxiliary class for the duplicate 
-//	elimination algorithm. It generates the SQL for the delta 
-//	computation query and for the Insert/Update/Delete 
-//	statements for applying the duplicate elimination 
+//
+//	This class is an auxiliary class for the duplicate
+//	elimination algorithm. It generates the SQL for the delta
+//	computation query and for the Insert/Update/Delete
+//	statements for applying the duplicate elimination
 //	decisions to the IUD- and the range-log.
 //
 //	The class provides three main methods to generate the SQL:
@@ -63,131 +63,116 @@ class CRUTbl;
 //	(2) ComposeSingleRowResolvText()
 //	(3) ComposeRangeResolvText()
 //
-//	The GetSQL() method returns the text generated 
+//	The GetSQL() method returns the text generated
 //	in the last invocation of one of the ComposeXXX() methods.
 //
 //-----------------------------------------------------------//
 
 class REFRESH_LIB_CLASS CRUDupElimSQLComposer : public CRUSQLComposer {
+ private:
+  typedef CRUSQLComposer inherited;
 
-private:
-	typedef CRUSQLComposer inherited;
+ public:
+  CRUDupElimSQLComposer(CRUDupElimTask *pTask, CRUDupElimGlobals &globals);
+  virtual ~CRUDupElimSQLComposer() {}
 
-public:
-	CRUDupElimSQLComposer(CRUDupElimTask *pTask, CRUDupElimGlobals &globals);
-	virtual ~CRUDupElimSQLComposer() {}
+ public:
+  // Generate the text of a delta computation query
+  void ComposeQueryText(Int32 type);
 
-public:
-	// Generate the text of a delta computation query
-	void ComposeQueryText(Int32 type);
+  // Generate the text of a statement for the single-row resolver
+  void ComposeSingleRowResolvText(Int32 type);
 
-	// Generate the text of a statement for the single-row resolver
-	void ComposeSingleRowResolvText(Int32 type); 
+  // Generate the text of a statement for the range resolver
+  void ComposeRangeResolvText(Int32 type);
 
-	// Generate the text of a statement for the range resolver
-	void ComposeRangeResolvText(Int32 type);
+  // Generate the text of the MDAM control statement
+  void ComposeControlText(Int32 type);
 
-	// Generate the text of the MDAM control statement
-	void ComposeControlText(Int32 type);
+ private:
+  //-- Prevent copying
+  CRUDupElimSQLComposer(const CRUDupElimSQLComposer &other);
+  CRUDupElimSQLComposer &operator=(const CRUDupElimSQLComposer &other);
 
-private:
-	//-- Prevent copying
-	CRUDupElimSQLComposer(const CRUDupElimSQLComposer& other);	
-	CRUDupElimSQLComposer& operator= (const CRUDupElimSQLComposer& other);
+ private:
+  // ComposeQueryText() callees
+  void ComposeQControlColNames(CDSString &to);
 
-private:
-	// ComposeQueryText() callees
-	void ComposeQControlColNames(CDSString &to);
+  void ComposeQClusteringKeyColNames(CDSString &to, BOOL order);
+  void ComposeQBlockForEpoch(CDSString &qryBase, CDSString &epochCol, TInt32 ep, BOOL isPhase0Query);
 
-	void ComposeQClusteringKeyColNames(CDSString &to, BOOL order);
-	void ComposeQBlockForEpoch(
-		CDSString &qryBase, 
-		CDSString &epochCol, 
-		TInt32 ep,
-		BOOL isPhase0Query);
+  void ComposeQBlockForMultipleEpochs(CDSString &qryBase, CDSString &epochCol, BOOL isPhase0Query);
 
-	void ComposeQBlockForMultipleEpochs(
-		CDSString &qryBase, 
-		CDSString &epochCol,
-		BOOL isPhase0Query);
+  void ComposeQBlockForMultipleEpochsBasicPred(CDSString &to, CDSString &epochCol, TInt32 fromEp, TInt32 toEp,
+                                               BOOL isPhase0Query);
 
-	void ComposeQBlockForMultipleEpochsBasicPred(
-		CDSString &to,
-		CDSString &epochCol,
-		TInt32 fromEp,
-		TInt32 toEp,
-		BOOL isPhase0Query);
+  CDSString ComposeQBlockLowerBoundPredicate();
 
-	CDSString ComposeQBlockLowerBoundPredicate();
+ private:
+  // ComposeSingleRowResolvText() callees
+  void ComposeIUDSingleDeleteText();
+  void ComposeIUDSingleUpdateIgnoreText();
+  void ComposeIUDUpdateBitmapText();
+  void ComposeIUDUpdateOptypeText();
 
-private:
-	// ComposeSingleRowResolvText() callees
-	void ComposeIUDSingleDeleteText();
-	void ComposeIUDSingleUpdateIgnoreText();
-	void ComposeIUDUpdateBitmapText();
-	void ComposeIUDUpdateOptypeText();
+  void ComposeUpdateIgnorePrefix(CDSString &cmdPrefix);
 
-	void ComposeUpdateIgnorePrefix(CDSString &cmdPrefix);
+  // Search predicates for U/D statements
+  void ComposeSingleIUDRecSearchPredicate(CDSString &pred);
+  void ComposeUpdateRecsSearchPredicate(CDSString &pred);
+  void ComposeCKEqualSearchClause(CDSString &keyPred);
 
-	// Search predicates for U/D statements
-	void ComposeSingleIUDRecSearchPredicate(CDSString &pred);
-	void ComposeUpdateRecsSearchPredicate(CDSString &pred);
-	void ComposeCKEqualSearchClause(CDSString &keyPred);
+ private:
+  // ComposeRangeResolvText() callees
+  void ComposeRngInsertText();
+  void ComposeRngDeleteText();
+  void ComposeIUDSubsetDeleteText();
+  void ComposeIUDSubsetUpdateIgnoreText();
+  void ComposeIUDSubsetUpdateAlwaysIgnoreText();
 
-private:
-	// ComposeRangeResolvText() callees
-	void ComposeRngInsertText();
-	void ComposeRngDeleteText();
-	void ComposeIUDSubsetDeleteText();
-	void ComposeIUDSubsetUpdateIgnoreText();
-	void ComposeIUDSubsetUpdateAlwaysIgnoreText();
-	
-	void ComposeForceMDAMQryShapeText(const CDSString &logName);
-	void ComposeResetQryShapeText();
-	void ComposeCntrlTableText(BOOL isForceMDAM);
+  void ComposeForceMDAMQryShapeText(const CDSString &logName);
+  void ComposeResetQryShapeText();
+  void ComposeCntrlTableText(BOOL isForceMDAM);
 
-	// ComposeRngInsertText() callees
-	void ComposeRngInsertColNames();
-	void ComposeRngBoundaryColNames(const CDSString &prefix, CDSString &to);
-	void ComposeRngInsertParamStr();
+  // ComposeRngInsertText() callees
+  void ComposeRngInsertColNames();
+  void ComposeRngBoundaryColNames(const CDSString &prefix, CDSString &to);
+  void ComposeRngInsertParamStr();
 
-	// ComposeRngDeleteText callees
-	void ComposeTupleComparisonRightOperand(CDSString &to);
-	void ComposeRngBoundaryParamStr(CDSString &to);
+  // ComposeRngDeleteText callees
+  void ComposeTupleComparisonRightOperand(CDSString &to);
+  void ComposeRngBoundaryParamStr(CDSString &to);
 
-	// ComposeIUDSubsetXXXText() callee
-	void ComposeSubsetIUDRecSearchPredicate(
-		CDSString &pred, CDSString &epochOp);
+  // ComposeIUDSubsetXXXText() callee
+  void ComposeSubsetIUDRecSearchPredicate(CDSString &pred, CDSString &epochOp);
 
-	// Search predicates
-	void ComposeDirectByClause(CDSString &to);
+  // Search predicates
+  void ComposeDirectByClause(CDSString &to);
 
-private:
-	static CDSString ComposeQuotedColName(const CDSString &name);
-	static CDSString ComposeIUDLogKeyColName(const CRUKeyColumn *pKeyCol);
-	
-	static CDSString ComposeRngLogKeyColName(
-		const CDSString &prefix, const CRUKeyColumn *pKeyCol
-	);
+ private:
+  static CDSString ComposeQuotedColName(const CDSString &name);
+  static CDSString ComposeIUDLogKeyColName(const CRUKeyColumn *pKeyCol);
 
-private:
-	CRUTbl &table_;
-	
-	Int32  nCtrlColumns_; // The number of control columns in selection list
-	Int32  updateBmpSize_;
-	TInt32 beginEpoch_;
-	TInt32 endEpoch_;
+  static CDSString ComposeRngLogKeyColName(const CDSString &prefix, const CRUKeyColumn *pKeyCol);
 
-	// The IUD log's name (including namespace)
-	CDSString iudLogName_;
+ private:
+  CRUTbl &table_;
 
-	// The range log's name (including namespace)
-	CDSString rngLogName_;
+  Int32 nCtrlColumns_;  // The number of control columns in selection list
+  Int32 updateBmpSize_;
+  TInt32 beginEpoch_;
+  TInt32 endEpoch_;
 
-	// Are we going to read the single-row records?
-	BOOL isSingleRow_;
-	// Are we going to read the range records?
-	BOOL isRange_;
+  // The IUD log's name (including namespace)
+  CDSString iudLogName_;
+
+  // The range log's name (including namespace)
+  CDSString rngLogName_;
+
+  // Are we going to read the single-row records?
+  BOOL isSingleRow_;
+  // Are we going to read the range records?
+  BOOL isRange_;
 };
 
 #endif

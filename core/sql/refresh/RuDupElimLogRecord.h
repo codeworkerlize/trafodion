@@ -28,7 +28,7 @@
 ******************************************************************************
 *
 * File:         RuDupElimLogRecord.h
-* Description:  Definition of class CRUIUDLogRecord 
+* Description:  Definition of class CRUIUDLogRecord
 *
 * Created:      06/12/2000
 * Language:     C++
@@ -51,10 +51,10 @@ class CRUUpdateBitmap;
 //--------------------------------------------------------------------------//
 //	CRUIUDLogRecord
 //
-//	This class stores the columns of a single IUD-log record 
-//	extracted by the delta computation query: the control columns 
+//	This class stores the columns of a single IUD-log record
+//	extracted by the delta computation query: the control columns
 //	(@EPOCH, @IGNORE etc.), @TS, and the table's clustering key columns.
-//	
+//
 //	The non-persistent data members of the class are:
 //	(1) The clustering key (CK) tag - the number of distinct
 //		clustering key values encountered so far.
@@ -64,175 +64,105 @@ class CRUUpdateBitmap;
 //--------------------------------------------------------------------------//
 
 class REFRESH_LIB_CLASS CRUIUDLogRecord {
+ public:
+  CRUIUDLogRecord(CDMSqlTupleDesc &ckDesc, Int32 updateBmpSize);
+  CRUIUDLogRecord(const CRUIUDLogRecord &other);
 
-public:
-	CRUIUDLogRecord(CDMSqlTupleDesc &ckDesc, Int32 updateBmpSize);
-	CRUIUDLogRecord(const CRUIUDLogRecord &other);
+  virtual ~CRUIUDLogRecord();
 
-	virtual ~CRUIUDLogRecord();
+  //----------------------------//
+  //	Accessors
+  //----------------------------//
+ public:
+  //-- Persistent attributes
+  TInt64 GetSyskey() const { return syskey_; }
+  TInt32 GetEpoch() const { return epoch_; }
+  TInt32 GetOperationType() const { return opType_; }
+  TInt32 GetIgnoreMark() const { return ignore_; }
+  TInt32 GetRangeSize() { return rangeSize_; }
 
-	//----------------------------//
-	//	Accessors
-	//----------------------------//
-public:
-	//-- Persistent attributes
-	TInt64 GetSyskey() const 
-	{ 
-		return syskey_; 
-	}
-	TInt32 GetEpoch() const 
-	{ 
-		return epoch_; 
-	}
-	TInt32 GetOperationType() const
-	{
-		return opType_;
-	}
-	TInt32 GetIgnoreMark() const
-	{
-		return ignore_;
-	}
-	TInt32 GetRangeSize()
-	{
-		return rangeSize_;
-	}
+  const CRUUpdateBitmap *GetUpdateBitmap() const { return pUpdateBitmap_; }
 
-	const CRUUpdateBitmap *GetUpdateBitmap() const
-	{
-		return pUpdateBitmap_;
-	}
+  //-- Operation type decoding
+  BOOL IsSingleRowOp() const { return (0 == (opType_ & CRUDupElimConst::IS_RANGE_RECORD)); }
 
-	//-- Operation type decoding
-	BOOL IsSingleRowOp() const
-	{
-		return (0 == (opType_ & CRUDupElimConst::IS_RANGE_RECORD));
-	}
+  BOOL IsBeginRange() const { return (0 != (opType_ & CRUDupElimConst::IS_BEGIN_RANGE)); }
 
-	BOOL IsBeginRange() const
-	{
-		return (0 != (opType_ & CRUDupElimConst::IS_BEGIN_RANGE));
-	}
-	
-	BOOL IsInsert() const
-	{
-		return (TRUE == IsSingleRowOp()
-				&&
-				0 == (opType_ & CRUDupElimConst::IS_DELETE));
-	}
-	
-	BOOL IsDelete() const
-	{
-		return (TRUE == IsSingleRowOp()
-				&&
-				0 != (opType_ & CRUDupElimConst::IS_DELETE));
-	}
+  BOOL IsInsert() const { return (TRUE == IsSingleRowOp() && 0 == (opType_ & CRUDupElimConst::IS_DELETE)); }
 
-	BOOL IsPartOfUpdate() const
-	{
-		return (0 != (opType_ & CRUDupElimConst::IS_PART_OF_UPDATE));
-	}
+  BOOL IsDelete() const { return (TRUE == IsSingleRowOp() && 0 != (opType_ & CRUDupElimConst::IS_DELETE)); }
 
-public:
-	//--- Access to the clustering key tuple
+  BOOL IsPartOfUpdate() const { return (0 != (opType_ & CRUDupElimConst::IS_PART_OF_UPDATE)); }
 
-	//	Copy the tuple's values to N consecutive parameters
-	//	of the statement: firstParam, ... firstParam + N - 1.
-	//	Useful for statements where the whole tuple 
-	//	participates in a WHERE expression, 
-	//	or the whole tuple is dumped to the log.
-	void CopyCKTupleValuesToParams(
-		CDMPreparedStatement &stmt, 
-		Int32 firstParam) const;
+ public:
+  //--- Access to the clustering key tuple
 
-	const CDMSqlTuple &GetCKTuple() const
-	{
-		return ckTuple_;
-	}
+  //	Copy the tuple's values to N consecutive parameters
+  //	of the statement: firstParam, ... firstParam + N - 1.
+  //	Useful for statements where the whole tuple
+  //	participates in a WHERE expression,
+  //	or the whole tuple is dumped to the log.
+  void CopyCKTupleValuesToParams(CDMPreparedStatement &stmt, Int32 firstParam) const;
 
-	Lng32 GetCKLength()	const
-	{
-		return ckTuple_.GetLength();
-	}
+  const CDMSqlTuple &GetCKTuple() const { return ckTuple_; }
 
-	BOOL IsClusteringKeyEqualTo(const CRUIUDLogRecord &other) const
-	{
-		return (ckTag_ == other.ckTag_);
-	}
+  Lng32 GetCKLength() const { return ckTuple_.GetLength(); }
 
-	TInt64 GetCKTag() const
-	{
-		return ckTag_;
-	}
+  BOOL IsClusteringKeyEqualTo(const CRUIUDLogRecord &other) const { return (ckTag_ == other.ckTag_); }
 
-	//-- Decision type decoding
-	BOOL WillRangeResolvDeleteMe() const
-	{
-		return (0 != action_ & DO_DELETE);
-	}
+  TInt64 GetCKTag() const { return ckTag_; }
 
-	BOOL WillRangeResolvUpdateMe() const
-	{
-		return (0 != action_ & DO_UPDATE_IGN_MARK);
-	}
+  //-- Decision type decoding
+  BOOL WillRangeResolvDeleteMe() const { return (0 != action_ & DO_DELETE); }
 
-	//----------------------------//
-	//	Mutators
-	//----------------------------//
-public:
-	// Retrieve the data from the result set
-	void Build(CDMResultSet &rs, Int32 startCKColumn);
+  BOOL WillRangeResolvUpdateMe() const { return (0 != action_ & DO_UPDATE_IGN_MARK); }
 
-	void SetCKTag(TInt64 val)
-	{
-		ckTag_ = val;
-	}
+  //----------------------------//
+  //	Mutators
+  //----------------------------//
+ public:
+  // Retrieve the data from the result set
+  void Build(CDMResultSet &rs, Int32 startCKColumn);
 
-	void SetIgnoreMark(TInt32 val)
-	{
-		ignore_ = val;
-	}
+  void SetCKTag(TInt64 val) { ckTag_ = val; }
 
-	void SetRangeResolvWillDeleteMe()
-	{
-		action_ |= DO_DELETE;
-	}
+  void SetIgnoreMark(TInt32 val) { ignore_ = val; }
 
-	void SetRangeResolvWillUpdateMe()
-	{
-		action_ |= DO_UPDATE_IGN_MARK;
-	}
+  void SetRangeResolvWillDeleteMe() { action_ |= DO_DELETE; }
 
-private:
-	//-- Prevent copying
-	CRUIUDLogRecord& operator= (const CRUIUDLogRecord &other);
+  void SetRangeResolvWillUpdateMe() { action_ |= DO_UPDATE_IGN_MARK; }
 
-private:
-	// Constructor callees
-	void ReadControlColumns(CDMResultSet &rs, Int32 startCKColumn);
-	void ReadCKColumns(CDMResultSet &rs, Int32 startCKColumn);
+ private:
+  //-- Prevent copying
+  CRUIUDLogRecord &operator=(const CRUIUDLogRecord &other);
 
-private:
-	TInt64 syskey_;
-	TInt32 epoch_;
-	TInt32 opType_;
-	TInt32 ignore_;
-	TInt32 rangeSize_;
+ private:
+  // Constructor callees
+  void ReadControlColumns(CDMResultSet &rs, Int32 startCKColumn);
+  void ReadCKColumns(CDMResultSet &rs, Int32 startCKColumn);
 
-	CRUUpdateBitmap *pUpdateBitmap_;
+ private:
+  TInt64 syskey_;
+  TInt32 epoch_;
+  TInt32 opType_;
+  TInt32 ignore_;
+  TInt32 rangeSize_;
 
-	// The clustering key tuple
-	CDMSqlTuple ckTuple_;
+  CRUUpdateBitmap *pUpdateBitmap_;
 
-	// Take enough room to prevent overflows if the delta is extremely big
-	TInt64 ckTag_;
+  // The clustering key tuple
+  CDMSqlTuple ckTuple_;
 
-	enum Action {
+  // Take enough room to prevent overflows if the delta is extremely big
+  TInt64 ckTag_;
 
-		DO_DELETE,
-		DO_UPDATE_IGN_MARK
-	};
+  enum Action {
 
-	ULng32 action_;		// What to do with the current record? 
+    DO_DELETE,
+    DO_UPDATE_IGN_MARK
+  };
+
+  ULng32 action_;  // What to do with the current record?
 };
 
 // Declare the class CRUIUDLogRecordList with this macro

@@ -45,51 +45,34 @@
 
 // constructors
 
-ElemDDLList::ElemDDLList(ElemDDLNode * commaExpr, ElemDDLNode * otherExpr)
-: ElemDDLNode(ELM_ELEM_LIST)
-{
+ElemDDLList::ElemDDLList(ElemDDLNode *commaExpr, ElemDDLNode *otherExpr) : ElemDDLNode(ELM_ELEM_LIST) {
   initializeDataMembers(commaExpr, otherExpr);
 }
 
-ElemDDLList::ElemDDLList(const enum OperatorTypeEnum operType,
-                         ElemDDLNode * commaExpr,
-                         ElemDDLNode * otherExpr)
-: ElemDDLNode(operType)
-{
+ElemDDLList::ElemDDLList(const enum OperatorTypeEnum operType, ElemDDLNode *commaExpr, ElemDDLNode *otherExpr)
+    : ElemDDLNode(operType) {
   initializeDataMembers(commaExpr, otherExpr);
 }
 
 // virtual destructor
-ElemDDLList::~ElemDDLList()
-{
+ElemDDLList::~ElemDDLList() {
   // delete all children
-  for (Int32 i = 0; i < MAX_ELEM_DDL_LIST_ARITY; i++)
-  {
+  for (Int32 i = 0; i < MAX_ELEM_DDL_LIST_ARITY; i++) {
     delete children_[i];
   }
 }
 
 // cast virtual function
-ElemDDLList *
-ElemDDLList::castToElemDDLList()
-{
-  return this;
-}
+ElemDDLList *ElemDDLList::castToElemDDLList() { return this; }
 
 //
 // accessors
 //
 
 // get the degree of this node
-Int32
-ElemDDLList::getArity() const
-{
-  return MAX_ELEM_DDL_LIST_ARITY;
-}
+Int32 ElemDDLList::getArity() const { return MAX_ELEM_DDL_LIST_ARITY; }
 
-ExprNode *
-ElemDDLList::getChild(Lng32 index)
-{ 
+ExprNode *ElemDDLList::getChild(Lng32 index) {
   ComASSERT(index >= 0 AND index < getArity());
   return children_[index];
 }
@@ -111,22 +94,15 @@ ElemDDLList::getChild(Lng32 index)
 //  The case of 1 entry is not handled by this class.
 //  This case is handled by the class ElemDDLNode.
 //
-CollIndex  
-ElemDDLList::entries() const
-{
+CollIndex ElemDDLList::entries() const {
   CollIndex count = 0;
-  ElemDDLNode * pElemDDLNode = (ElemDDLNode *)this;
+  ElemDDLNode *pElemDDLNode = (ElemDDLNode *)this;
 
-  while (pElemDDLNode NEQ NULL)
-  {
+  while (pElemDDLNode NEQ NULL) {
     count++;
-    if (pElemDDLNode->getOperatorType() EQU getOperatorType() AND
-        pElemDDLNode->getArity() >= 2)
-    {
+    if (pElemDDLNode->getOperatorType() EQU getOperatorType() AND pElemDDLNode->getArity() >= 2) {
       pElemDDLNode = pElemDDLNode->getChild(0)->castToElemDDLNode();
-    }
-    else
-    {
+    } else {
       pElemDDLNode = NULL;
     }
   }
@@ -157,21 +133,16 @@ ElemDDLList::entries() const
 //  all leaf nodes in the left linear tree, please use
 //  the method traverseList instead.
 //
-ElemDDLNode *
-ElemDDLList::operator[](CollIndex index)
-{
+ElemDDLNode *ElemDDLList::operator[](CollIndex index) {
   CollIndex count;
-  ElemDDLNode * pElemDDLNode = this;
-  
-  if (index >= entries())
-  {
+  ElemDDLNode *pElemDDLNode = this;
+
+  if (index >= entries()) {
     return NULL;
   }
 
-  if (index EQU 0)
-  {
-    for (count = 1; count < entries(); count ++)
-    {
+  if (index EQU 0) {
+    for (count = 1; count < entries(); count++) {
       pElemDDLNode = pElemDDLNode->getChild(0)->castToElemDDLNode();
     }
     ComASSERT(pElemDDLNode->getOperatorType() NEQ getOperatorType());
@@ -179,11 +150,8 @@ ElemDDLList::operator[](CollIndex index)
   }
 
   count = entries() - index;
-  while (pElemDDLNode NEQ NULL AND count > 0)
-  {
-    if (pElemDDLNode->getOperatorType() EQU getOperatorType() AND
-        pElemDDLNode->getArity() >= 2)
-    {
+  while (pElemDDLNode NEQ NULL AND count > 0) {
+    if (pElemDDLNode->getOperatorType() EQU getOperatorType() AND pElemDDLNode->getArity() >= 2) {
       if (count EQU 1)
         pElemDDLNode = pElemDDLNode->getChild(1)->castToElemDDLNode();
       else
@@ -199,10 +167,7 @@ ElemDDLList::operator[](CollIndex index)
 // mutators
 //
 
-void
-ElemDDLList::initializeDataMembers(ElemDDLNode * commaExpr,
-                                   ElemDDLNode * otherExpr)
-{
+void ElemDDLList::initializeDataMembers(ElemDDLNode *commaExpr, ElemDDLNode *otherExpr) {
   pParentListNode_ = NULL;
 
   setChild(INDEX_ELEM_DDL_LIST_CHILD, commaExpr);
@@ -227,23 +192,17 @@ ElemDDLList::initializeDataMembers(ElemDDLNode * commaExpr,
   // nodes (even though class ElemDDLPartitionList is derived from
   // class ElemDDLList).
 
-  ElemDDLList * pChildListNode = commaExpr->castToElemDDLList();
-  if (pChildListNode NEQ NULL AND
-      getOperatorType() EQU pChildListNode->getOperatorType())
+  ElemDDLList *pChildListNode = commaExpr->castToElemDDLList();
+  if (pChildListNode NEQ NULL AND getOperatorType() EQU pChildListNode->getOperatorType())
     pChildListNode->setParentListNode(this);
 }
 
-void
-ElemDDLList::setChild(Lng32 index, ExprNode * pChildNode)
-{
+void ElemDDLList::setChild(Lng32 index, ExprNode *pChildNode) {
   ComASSERT(index >= 0 AND index < getArity());
-  if (pChildNode NEQ NULL)
-  {
+  if (pChildNode NEQ NULL) {
     ComASSERT(pChildNode->castToElemDDLNode() NEQ NULL);
     children_[index] = pChildNode->castToElemDDLNode();
-  }
-  else
-  {
+  } else {
     children_[index] = NULL;
   }
 }
@@ -265,7 +224,7 @@ ElemDDLList::setChild(Lng32 index, ExprNode * pChildNode)
 // to the parse node that contains the left linear
 // tree to be traversed.  This parameter will be
 // pass to the function pointer visitNode during
-// the invocation of visitNode so the code in 
+// the invocation of visitNode so the code in
 // visitNode can update the contents of the parse
 // node pointed by pOtherNode.
 //
@@ -275,21 +234,17 @@ ElemDDLList::setChild(Lng32 index, ExprNode * pChildNode)
 // information is used by visitNode to update the
 // contents of the parse node pointed by pOtherNode.
 //
-/*virtual*/ void
-ElemDDLList::traverseList(ElemDDLNode * pOtherNode,
-                          void (*visitNode)(ElemDDLNode * pOtherNode,
-                                            CollIndex indexOfLeafNode,
-                                            ElemDDLNode * pLeafNode))
-{
+/*virtual*/ void ElemDDLList::traverseList(ElemDDLNode *pOtherNode,
+                                           void (*visitNode)(ElemDDLNode *pOtherNode, CollIndex indexOfLeafNode,
+                                                             ElemDDLNode *pLeafNode)) {
   OperatorTypeEnum operatorType = getOperatorType();
-  ElemDDLList * pElemDDLList = this;
+  ElemDDLList *pElemDDLList = this;
   CollIndex count = 0;
-  ElemDDLNode * pElemDDLNode = (ElemDDLNode *)this;
+  ElemDDLNode *pElemDDLNode = (ElemDDLNode *)this;
 
   // go to the first element of the list
 
-  while (pElemDDLNode->getOperatorType() EQU operatorType)
-  {
+  while (pElemDDLNode->getOperatorType() EQU operatorType) {
     count++;
     ComASSERT(pElemDDLNode->castToElemDDLList() NEQ NULL);
     pElemDDLList = pElemDDLNode->castToElemDDLList();
@@ -306,60 +261,48 @@ ElemDDLList::traverseList(ElemDDLNode * pOtherNode,
 
   // count now contains the number of elements in the list
   // pElemDDLNode now points to the first element in the list
-  // pElemDDLList now points to the list node that is the 
+  // pElemDDLList now points to the list node that is the
   //   parent node of the leaf node representing the first
   //   element in the list
-  
+
   ComASSERT(pElemDDLNode NEQ NULL);
 
   // visit the first element in the list
   (*visitNode)(pOtherNode, 0, pElemDDLNode);
-  
+
   // visit the remaining elements in the list sequentially
 
   ComASSERT(count > 1);
 
-  for (CollIndex index = 1; index < count; index ++)
-  {
+  for (CollIndex index = 1; index < count; index++) {
     // getChild(1) returns the pointer to the right sub-tree
-    ComASSERT(pElemDDLList NEQ NULL AND
-              pElemDDLList->getOperatorType() EQU operatorType AND
-              pElemDDLList->getChild(1) NEQ NULL);
-    (*visitNode)(pOtherNode,
-                 index,
-                 pElemDDLList->getChild(1)->castToElemDDLNode());
+    ComASSERT(pElemDDLList NEQ NULL AND pElemDDLList->getOperatorType() EQU operatorType AND pElemDDLList->getChild(1)
+                  NEQ NULL);
+    (*visitNode)(pOtherNode, index, pElemDDLList->getChild(1)->castToElemDDLNode());
     pElemDDLList = pElemDDLList->getParentListNode();
   }
-  ComASSERT(pElemDDLList EQU NULL OR
-            pElemDDLList->getOperatorType() EQU operatorType);
+  ComASSERT(pElemDDLList EQU NULL OR pElemDDLList->getOperatorType() EQU operatorType);
 }
 
 // methods for tracing
 
-const NAString
-ElemDDLList::getText() const
-{
-  return "ElemDDLList";
-}
-
+const NAString ElemDDLList::getText() const { return "ElemDDLList"; }
 
 // method for building text
-NAString ElemDDLList::getSyntax(NAString separator) const
-{
+NAString ElemDDLList::getSyntax(NAString separator) const {
   NAString syntax;
 
-  ElemDDLList * ncThis = (ElemDDLList*)this;
+  ElemDDLList *ncThis = (ElemDDLList *)this;
 
   syntax = (*ncThis)[0]->getSyntax();
-  
+
   // notice we start from i = 1
-  for (CollIndex i = 1 ; i < entries() ; i++)
-  {
+  for (CollIndex i = 1; i < entries(); i++) {
     syntax += separator;
     syntax += (*ncThis)[i]->getSyntax();
   }
 
-  return syntax; 
+  return syntax;
 }
 
 // -----------------------------------------------------------------------
@@ -367,242 +310,139 @@ NAString ElemDDLList::getSyntax(NAString separator) const
 // -----------------------------------------------------------------------
 
 // virtual destructor
-ElemDDLColNameList::~ElemDDLColNameList()
-{
-}
+ElemDDLColNameList::~ElemDDLColNameList() {}
 
 // cast virtual function
-ElemDDLColNameList *
-ElemDDLColNameList::castToElemDDLColNameList()
-{
-  return this;
-}
+ElemDDLColNameList *ElemDDLColNameList::castToElemDDLColNameList() { return this; }
 
 //
 // methods for tracing
 //
 
-const NAString
-ElemDDLColNameList::getText() const
-{
-  return "ElemDDLColNameList";
-}
+const NAString ElemDDLColNameList::getText() const { return "ElemDDLColNameList"; }
 
 // -----------------------------------------------------------------------
 // methods for class ElemDDLColRefList
 // -----------------------------------------------------------------------
 
 // virtual destructor
-ElemDDLColRefList::~ElemDDLColRefList()
-{
-}
+ElemDDLColRefList::~ElemDDLColRefList() {}
 
 // cast virtual function
-ElemDDLColRefList *
-ElemDDLColRefList::castToElemDDLColRefList()
-{
-  return this;
-}
+ElemDDLColRefList *ElemDDLColRefList::castToElemDDLColRefList() { return this; }
 
 // methods for tracing
 
-const NAString
-ElemDDLColRefList::getText() const
-{
-  return "ElemDDLColRefList";
-}
+const NAString ElemDDLColRefList::getText() const { return "ElemDDLColRefList"; }
 
 // -----------------------------------------------------------------------
 // methods for class ElemDDLConstraintNameList
 // -----------------------------------------------------------------------
 
 // virtual destructor
-ElemDDLConstraintNameList::~ElemDDLConstraintNameList()
-{
-}
+ElemDDLConstraintNameList::~ElemDDLConstraintNameList() {}
 
 // cast
-ElemDDLConstraintNameList *
-ElemDDLConstraintNameList::castToElemDDLConstraintNameList()
-{
-  return this;
-}
+ElemDDLConstraintNameList *ElemDDLConstraintNameList::castToElemDDLConstraintNameList() { return this; }
 
 // methods for tracing
 
-const NAString
-ElemDDLConstraintNameList::getText() const
-{
-  return "ElemDDLConstraintNameList";
-}
+const NAString ElemDDLConstraintNameList::getText() const { return "ElemDDLConstraintNameList"; }
 
 // -----------------------------------------------------------------------
 // methods for class ElemDDLFileAttrList
 // -----------------------------------------------------------------------
 
 // virtual destructor
-ElemDDLFileAttrList::~ElemDDLFileAttrList()
-{
-}
+ElemDDLFileAttrList::~ElemDDLFileAttrList() {}
 
 // cast virtual function
-ElemDDLFileAttrList *
-ElemDDLFileAttrList::castToElemDDLFileAttrList()
-{
-  return this;
-}
+ElemDDLFileAttrList *ElemDDLFileAttrList::castToElemDDLFileAttrList() { return this; }
 
 //
 // methods for tracing
 //
 
-const NAString
-ElemDDLFileAttrList::getText() const
-{
-  return "ElemDDLFileAttrList";
-}
+const NAString ElemDDLFileAttrList::getText() const { return "ElemDDLFileAttrList"; }
 
 // method for building text
-// virtual 
-NAString ElemDDLFileAttrList::getSyntax() const
-{
-  return ElemDDLList::getSyntax(", ");
-}
+// virtual
+NAString ElemDDLFileAttrList::getSyntax() const { return ElemDDLList::getSyntax(", "); }
 
 // -----------------------------------------------------------------------
 // methods for class ElemDDLPartnAttrList
 // -----------------------------------------------------------------------
 
 // virtual destructor
-ElemDDLPartnAttrList::~ElemDDLPartnAttrList()
-{
-}
+ElemDDLPartnAttrList::~ElemDDLPartnAttrList() {}
 
 // cast virtual function
-ElemDDLPartnAttrList *
-ElemDDLPartnAttrList::castToElemDDLPartnAttrList()
-{
-  return this;
-}
+ElemDDLPartnAttrList *ElemDDLPartnAttrList::castToElemDDLPartnAttrList() { return this; }
 
 //
 // methods for tracing
 //
 
-const NAString
-ElemDDLPartnAttrList::getText() const
-{
-  return "ElemDDLPartnAttrList";
-}
+const NAString ElemDDLPartnAttrList::getText() const { return "ElemDDLPartnAttrList"; }
 
 // method for building text
 // virtual
-NAString ElemDDLPartnAttrList::getSyntax() const
-{
-  return ElemDDLList::getSyntax(", ");
-}
+NAString ElemDDLPartnAttrList::getSyntax() const { return ElemDDLList::getSyntax(", "); }
 // -----------------------------------------------------------------------
 // methods for class ElemDDLKeyValueList
 // -----------------------------------------------------------------------
 
 // virtual destructor
-ElemDDLKeyValueList::~ElemDDLKeyValueList()
-{
-}
+ElemDDLKeyValueList::~ElemDDLKeyValueList() {}
 
 // cast
-ElemDDLKeyValueList *
-ElemDDLKeyValueList::castToElemDDLKeyValueList()
-{
-  return this;
-}
+ElemDDLKeyValueList *ElemDDLKeyValueList::castToElemDDLKeyValueList() { return this; }
 
 // methods for tracing
 
-const NAString
-ElemDDLKeyValueList::getText() const
-{
-  return "ElemDDLKeyValueList";
-}
-
+const NAString ElemDDLKeyValueList::getText() const { return "ElemDDLKeyValueList"; }
 
 // method for building text
-// virtual 
-NAString ElemDDLKeyValueList::getSyntax() const
-{
-
-  return ElemDDLList::getSyntax(", ");
-
-} // getSyntax
-
+// virtual
+NAString ElemDDLKeyValueList::getSyntax() const { return ElemDDLList::getSyntax(", "); }  // getSyntax
 
 // -----------------------------------------------------------------------
 // methods for class ElemDDLOptionList
 // -----------------------------------------------------------------------
 
 // virtual destructor
-ElemDDLOptionList::~ElemDDLOptionList()
-{
-}
+ElemDDLOptionList::~ElemDDLOptionList() {}
 
 // cast
-ElemDDLOptionList *
-ElemDDLOptionList::castToElemDDLOptionList()
-{
-  return this;
-}
+ElemDDLOptionList *ElemDDLOptionList::castToElemDDLOptionList() { return this; }
 
 // methods for tracing
 
-const NAString
-ElemDDLOptionList::getText() const
-{
-  return "ElemDDLOptionList";
-}
-
+const NAString ElemDDLOptionList::getText() const { return "ElemDDLOptionList"; }
 
 // method for building text
-// virtual 
-NAString ElemDDLOptionList::getSyntax() const
-{
-  return ElemDDLList::getSyntax(" ");
-} // getSyntax()
-
+// virtual
+NAString ElemDDLOptionList::getSyntax() const { return ElemDDLList::getSyntax(" "); }  // getSyntax()
 
 // -----------------------------------------------------------------------
 // methods for class ElemDDLPartitionList
 // -----------------------------------------------------------------------
 
 // virtual destructor
-ElemDDLPartitionList::~ElemDDLPartitionList()
-{
-}
+ElemDDLPartitionList::~ElemDDLPartitionList() {}
 
 // cast virtual function
-ElemDDLPartitionList *
-ElemDDLPartitionList::castToElemDDLPartitionList()
-{
-  return this;
-}
+ElemDDLPartitionList *ElemDDLPartitionList::castToElemDDLPartitionList() { return this; }
 
 //
 // methods for tracing
 //
 
-const NAString
-ElemDDLPartitionList::getText() const
-{
-  return "ElemDDLPartitionList";
-}
-
+const NAString ElemDDLPartitionList::getText() const { return "ElemDDLPartitionList"; }
 
 // method for building text
-// virtual 
-NAString ElemDDLPartitionList::getSyntax() const
-{
-  return ElemDDLList::getSyntax(", ");
-} // getSyntax()
-
+// virtual
+NAString ElemDDLPartitionList::getSyntax() const { return ElemDDLList::getSyntax(", "); }  // getSyntax()
 
 //
 // End of File

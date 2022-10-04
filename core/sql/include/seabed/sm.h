@@ -30,76 +30,80 @@
 extern "C" {
 #endif
 
-#define SM_ERR_NOSERVICE		-1
-#define SM_ERR_INTERNAL			-2
-#define SM_ERR_SIZE			-3
-#define SM_ERR_TARGET			-4
-#define SM_ERR_CALL_ORDER		-5
-#define SM_ERR_PREPOST			-6
-#define SM_ERR_EXIST			-7
-#define SM_ERR_NOMATCH			-8
-#define SM_ERR_NOPEER			-9
-#define SM_ERR_TRUNC			-10
-#define SM_ERR_INCHUNK			-11
-#define SM_ERR_EAGAIN			-12
-#define SM_ERR_QUEUED			-13
-#define SM_ERR_INVAL			-14
-#define SM_ERR_LOCAL_TARGET		-15
-#define SM_ERR_REMOTE_TARGET		-16
-#define SM_ERR_NODE_DOWN		-17
+#define SM_ERR_NOSERVICE     -1
+#define SM_ERR_INTERNAL      -2
+#define SM_ERR_SIZE          -3
+#define SM_ERR_TARGET        -4
+#define SM_ERR_CALL_ORDER    -5
+#define SM_ERR_PREPOST       -6
+#define SM_ERR_EXIST         -7
+#define SM_ERR_NOMATCH       -8
+#define SM_ERR_NOPEER        -9
+#define SM_ERR_TRUNC         -10
+#define SM_ERR_INCHUNK       -11
+#define SM_ERR_EAGAIN        -12
+#define SM_ERR_QUEUED        -13
+#define SM_ERR_INVAL         -14
+#define SM_ERR_LOCAL_TARGET  -15
+#define SM_ERR_REMOTE_TARGET -16
+#define SM_ERR_NODE_DOWN     -17
 
 typedef int64_t sm_id_t;
-typedef char * sm_handle_t;
+typedef char *sm_handle_t;
 
 typedef struct {
-	sm_id_t	id;
-	int		node;
-	pid_t	pid;
-	int		verifier;
-	int		tag;
+  sm_id_t id;
+  int node;
+  pid_t pid;
+  int verifier;
+  int tag;
 } sm_target_t;
 
-#define SM_FLAG_PREPOST				1	// SM_put()
-										//	Input:	This chunk is a buffer to
-										//			post
-										// SM_get()
-										//	Output: This chunk is a preposted
-										//			buffer that has been filled
-#define SM_FLAG_RECVANY				2	// SM_put()
-										//	Input:
-										//		With SM_PREPOST:
-										//			post command, this chunk
-										//			can be filled by any source
-										//		Without SM_PREPOST
-										//			send comand, this chunk
-										//			can be only be filled by
-										//			<node,pid>
-#define SM_FLAG_SENDNOTIFICATION	4	// SM_get()
-										//	Output:	This chunk is notification
-										//			that a send has been
-										//			delivered
-#define SM_FLAG_SEND_TO_PREPOST		8	// SM_put()
-										//	Cannot be used with SM_FLAG_PREPOST
-										//	Input:	send command, this chunk
-										//			will fill a preposted recv
-										//			buffer.
-										//	If not set, then this is a short
-										//	message that will not fill a
-										//	preposted buffer
+#define SM_FLAG_PREPOST \
+  1  // SM_put()
+     //	Input:	This chunk is a buffer to
+     //			post
+     // SM_get()
+     //	Output: This chunk is a preposted
+     //			buffer that has been filled
+#define SM_FLAG_RECVANY \
+  2  // SM_put()
+     //	Input:
+     //		With SM_PREPOST:
+     //			post command, this chunk
+     //			can be filled by any source
+     //		Without SM_PREPOST
+     //			send comand, this chunk
+     //			can be only be filled by
+     //			<node,pid>
+#define SM_FLAG_SENDNOTIFICATION \
+  4  // SM_get()
+     //	Output:	This chunk is notification
+     //			that a send has been
+     //			delivered
+#define SM_FLAG_SEND_TO_PREPOST \
+  8  // SM_put()
+     //	Cannot be used with SM_FLAG_PREPOST
+     //	Input:	send command, this chunk
+     //			will fill a preposted recv
+     //			buffer.
+     //	If not set, then this is a short
+     //	message that will not fill a
+     //	preposted buffer
 #define SM_MAX_FLAGS 15
 typedef struct {
-	sm_target_t	tgt;
-	char		*buff;
-	char		*handle;
-	uint64_t	hdr_payload;
-	uint32_t	size;
-	int16_t		errcode;
-	uint16_t	flags;
+  sm_target_t tgt;
+  char *buff;
+  char *handle;
+  uint64_t hdr_payload;
+  uint32_t size;
+  int16_t errcode;
+  uint16_t flags;
 } sm_chunk_t;
 
 // SM_ctl commands
-#define SM_GET_BUFFSIZE	1
-#define SM_GET_MAXNONPP	2
+#define SM_GET_BUFFSIZE         1
+#define SM_GET_MAXNONPP         2
 #define SM_GET_MAXINTRABUFFSIZE 3
 
 extern int SM_init(int channel, int node, int verifier);

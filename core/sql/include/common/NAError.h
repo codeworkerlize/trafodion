@@ -41,15 +41,15 @@
 // Global defines and functions
 // -----------------------------------------------------------------------
 
-void NAError_stub_for_breakpoints();        // in BaseTypes.cpp not NAError!
+void NAError_stub_for_breakpoints();  // in BaseTypes.cpp not NAError!
 void NAArkcmpExceptionEpilogue();
 
-#define ARKCMP_EXCEPTION_EPILOGUE(str)      NAArkcmpExceptionEpilogue()
-#define EXECUTOR_EXCEPTION_EPILOGUE(str)    NAError_stub_for_breakpoints()
-#define SQLCI_EXCEPTION_EPILOGUE(str)       NAError_stub_for_breakpoints()
-#define UDRSERV_EXCEPTION_EPILOGUE(str)     NAError_stub_for_breakpoints()
-#define MXEXPORTDDL_EXCEPTION_EPILOGUE(str) NAError_stub_for_breakpoints()
-#define MXIMPORTDDL_EXCEPTION_EPILOGUE(str) NAError_stub_for_breakpoints()
+#define ARKCMP_EXCEPTION_EPILOGUE(str)       NAArkcmpExceptionEpilogue()
+#define EXECUTOR_EXCEPTION_EPILOGUE(str)     NAError_stub_for_breakpoints()
+#define SQLCI_EXCEPTION_EPILOGUE(str)        NAError_stub_for_breakpoints()
+#define UDRSERV_EXCEPTION_EPILOGUE(str)      NAError_stub_for_breakpoints()
+#define MXEXPORTDDL_EXCEPTION_EPILOGUE(str)  NAError_stub_for_breakpoints()
+#define MXIMPORTDDL_EXCEPTION_EPILOGUE(str)  NAError_stub_for_breakpoints()
 #define MXPREPAREMAP_EXCEPTION_EPILOGUE(str) NAError_stub_for_breakpoints()
 
 // -----------------------------------------------------------------------
@@ -68,31 +68,21 @@ typedef Lng32 NAErrorCode;
 // ***********************************************************************
 // A wrapper for an error parameter.
 // ***********************************************************************
-class NAErrorParam
-{
-public:
-
-  enum NAErrorParamType {
-                          NAERROR_PARAM_TYPE_INTEGER,
-                  NAERROR_PARAM_TYPE_CHAR_STRING
-                        };
-
+class NAErrorParam {
+ public:
+  enum NAErrorParamType { NAERROR_PARAM_TYPE_INTEGER, NAERROR_PARAM_TYPE_CHAR_STRING };
 
   // ---------------------------------------------------------------------
   // Constructor
   // ---------------------------------------------------------------------
-  NAErrorParam(Lng32 l) : errParamType_(NAERROR_PARAM_TYPE_INTEGER),
-                         longValue_(l)
-  { }
+  NAErrorParam(Lng32 l) : errParamType_(NAERROR_PARAM_TYPE_INTEGER), longValue_(l) {}
 
-  NAErrorParam(char * s) : errParamType_(NAERROR_PARAM_TYPE_CHAR_STRING),
-                           stringValue_(s)
-  { }
+  NAErrorParam(char *s) : errParamType_(NAERROR_PARAM_TYPE_CHAR_STRING), stringValue_(s) {}
 
   // ---------------------------------------------------------------------
   // Destructor
   // ---------------------------------------------------------------------
-  virtual ~NAErrorParam() {};
+  virtual ~NAErrorParam(){};
 
   // ---------------------------------------------------------------------
   // Ideally, there should be just one method for returning a string for
@@ -124,22 +114,18 @@ public:
   //       }
   //
   // ---------------------------------------------------------------------
-  NAErrorParamType getNAErrorParamType() const
-  { return errParamType_; }
+  NAErrorParamType getNAErrorParamType() const { return errParamType_; }
 
-  Lng32 getIntegerNAErrorParam() const
-  { return longValue_; }
+  Lng32 getIntegerNAErrorParam() const { return longValue_; }
 
-  char * getStringNAErrorParam() const
-  { return stringValue_; }
+  char *getStringNAErrorParam() const { return stringValue_; }
 
-protected:
-  NAErrorParamType  errParamType_;
-  Lng32            longValue_;
-  char *          stringValue_;
+ protected:
+  NAErrorParamType errParamType_;
+  Lng32 longValue_;
+  char *stringValue_;
 
-}; // class NAErrorParam
-
+};  // class NAErrorParam
 
 // ***********************************************************************
 // NAErrorParamArray
@@ -147,26 +133,16 @@ protected:
 // This wrapper is designed to be a readonly object. No mutator functions
 // are supported on it.
 // ***********************************************************************
-class NAErrorParamArray
-{
-public:
-
+class NAErrorParamArray {
+ public:
   // ---------------------------------------------------------------------
   // The first argument, numParams, ends up deciding how many of the
   // following parameters are relevant.
   // ---------------------------------------------------------------------
-  NAErrorParamArray(Lng32 numParams = 0,
-            NAErrorParam * errParam0 = 0,
-            NAErrorParam * errParam1 = 0,
-            NAErrorParam * errParam2 = 0,
-            NAErrorParam * errParam3 = 0,
-            NAErrorParam * errParam4 = 0,
-            NAErrorParam * errParam5 = 0,
-            NAErrorParam * errParam6 = 0,
-            NAErrorParam * errParam7 = 0,
-            NAErrorParam * errParam8 = 0,
-            NAErrorParam * errParam9 = 0
-           );
+  NAErrorParamArray(Lng32 numParams = 0, NAErrorParam *errParam0 = 0, NAErrorParam *errParam1 = 0,
+                    NAErrorParam *errParam2 = 0, NAErrorParam *errParam3 = 0, NAErrorParam *errParam4 = 0,
+                    NAErrorParam *errParam5 = 0, NAErrorParam *errParam6 = 0, NAErrorParam *errParam7 = 0,
+                    NAErrorParam *errParam8 = 0, NAErrorParam *errParam9 = 0);
 
   virtual ~NAErrorParamArray();
 
@@ -178,9 +154,8 @@ public:
   // ---------------------------------------------------------------------
   // Accessor function.
   // ---------------------------------------------------------------------
-  NAErrorParam * getNAErrorParam(Lng32 paramNo) const
-  {
-    if (  (paramNo >= 0) && (paramNo < numParams_ ) )
+  NAErrorParam *getNAErrorParam(Lng32 paramNo) const {
+    if ((paramNo >= 0) && (paramNo < numParams_))
       return array_[paramNo].errParam_;
     else
       return 0;
@@ -190,71 +165,62 @@ public:
   // NO MUTATOR FUNCTIONS.
   // ---------------------------------------------------------------------
 
-private:
+ private:
   // ---------------------------------------------------------------------
   // A private declaration
   // ---------------------------------------------------------------------
-  struct NAErrorParamArrayElement
-    {
-      NAErrorParam * errParam_;
-    }; // struct NAErrorParamArrayElement
+  struct NAErrorParamArrayElement {
+    NAErrorParam *errParam_;
+  };  // struct NAErrorParamArrayElement
 
-private:
-  Lng32                     numParams_;
-  NAErrorParamArrayElement * array_;
-}; // class NAErrorParamArray
+ private:
+  Lng32 numParams_;
+  NAErrorParamArrayElement *array_;
+};  // class NAErrorParamArray
 
 // ***********************************************************************
 // An error issued by an SQL subsystem.
 // ***********************************************************************
-class NAError
-{
-public:
-
+class NAError {
+ public:
   // ---------------------------------------------------------------------
   // A classification for the type of error that is issued.
   // ---------------------------------------------------------------------
   enum NAErrorType {
-                     NAERROR_NONE,
-                     NAERROR_WARNING,
-             NAERROR_SYNTAX,
-             NAERROR_SQL_SEMANTICS,
-             NAERROR_EXPR_SEMANTICS,
-             NAERROR_INTERNAL,
-             NAERROR_EXCEPTION
-           };
+    NAERROR_NONE,
+    NAERROR_WARNING,
+    NAERROR_SYNTAX,
+    NAERROR_SQL_SEMANTICS,
+    NAERROR_EXPR_SEMANTICS,
+    NAERROR_INTERNAL,
+    NAERROR_EXCEPTION
+  };
 
   // ---------------------------------------------------------------------
   // An id for the subsystem that issues the error.
   // ---------------------------------------------------------------------
   enum NASubsys {
-                  NA_CATMAN = 1000,
-                  NA_COMPMAIN = 2000,
-                  NA_PARSER = 3000,
-                  NA_BINDER = 4000,
-          NA_NORMALIZER = 5000,
-          NA_OPTIMIZER = 6000,
-          NA_CODEGEN = 7000,
-          NA_EXPRGEN = 8000,
-          NA_EXECUTOR = 9000,
-          NA_EXPREVAL = 10000,
-          NA_FILESYSTEM = 11000,
-          NA_OS = 12000,
-                  NA_SQLC = 13000,
-                  NA_UNKNOWN = 14000
-            };
+    NA_CATMAN = 1000,
+    NA_COMPMAIN = 2000,
+    NA_PARSER = 3000,
+    NA_BINDER = 4000,
+    NA_NORMALIZER = 5000,
+    NA_OPTIMIZER = 6000,
+    NA_CODEGEN = 7000,
+    NA_EXPRGEN = 8000,
+    NA_EXECUTOR = 9000,
+    NA_EXPREVAL = 10000,
+    NA_FILESYSTEM = 11000,
+    NA_OS = 12000,
+    NA_SQLC = 13000,
+    NA_UNKNOWN = 14000
+  };
 
   // ---------------------------------------------------------------------
   // Constructor
   // ---------------------------------------------------------------------
-  NAError(const NAErrorCode errCode = 0,
-          const NAErrorType errType = NAERROR_NONE,
-      const NASubsys subsys = NA_UNKNOWN,
-      NAErrorParamArray * errParams = 0,
-      char * procName = 0,
-      const ULng32 lineNumber = 0,
-      const ULng32 offset = 0
-         );
+  NAError(const NAErrorCode errCode = 0, const NAErrorType errType = NAERROR_NONE, const NASubsys subsys = NA_UNKNOWN,
+          NAErrorParamArray *errParams = 0, char *procName = 0, const ULng32 lineNumber = 0, const ULng32 offset = 0);
 
   // ---------------------------------------------------------------------
   // Destructor
@@ -266,21 +232,19 @@ public:
   // ---------------------------------------------------------------------
   NAErrorCode getErrCode() const { return errCode_; }
   NAErrorType getErrType() const { return errType_; }
-  NASubsys  getSubsys() const { return subsysId_; }
+  NASubsys getSubsys() const { return subsysId_; }
 
   // ---------------------------------------------------------------------
   // Error Parameters.
   // ---------------------------------------------------------------------
-  Lng32 getErrParamCount() const
-    {
-      if (errParams_)
-    return errParams_->entries();
-      else
-    return 0;
-    }
+  Lng32 getErrParamCount() const {
+    if (errParams_)
+      return errParams_->entries();
+    else
+      return 0;
+  }
 
-  NAErrorParam * getNAErrorParam(Lng32 paramNo) const
-  {
+  NAErrorParam *getNAErrorParam(Lng32 paramNo) const {
     if (errParams_)
       return errParams_->getNAErrorParam(paramNo);
     else
@@ -290,66 +254,59 @@ public:
   // ---------------------------------------------------------------------
   // Procedure name and line numbers.
   // ---------------------------------------------------------------------
-  char * getProcName() const { return procName_; }
+  char *getProcName() const { return procName_; }
 
-  Lng32  getLineNumber() const { return lineNumber_; }
+  Lng32 getLineNumber() const { return lineNumber_; }
 
   // ---------------------------------------------------------------------
   // Method for traversing error list
   // ---------------------------------------------------------------------
-  void setNext(NAError * errPtr) { next_ = errPtr; }
-  NAError * getNext() const { return next_; }
+  void setNext(NAError *errPtr) { next_ = errPtr; }
+  NAError *getNext() const { return next_; }
 
   // ---------------------------------------------------------------------
   // Linearization and De-linearization functions to copy SQLDiagArea
   // tree to and from contiguous storage.
   // ---------------------------------------------------------------------
-  Long pack(void * space);
+  Long pack(void *space);
   Lng32 unpack(Lng32);
 
-private:
-
+ private:
   // ---------------------------------------------------------------------
   // Link to its predecessor.
   // ---------------------------------------------------------------------
-  NAError * next_;
+  NAError *next_;
 
   // ---------------------------------------------------------------------
   // Error code and type.
   // ---------------------------------------------------------------------
-  const NAErrorCode errCode_;     // error code
-  const NAErrorType errType_;     // error type
-  const NASubsys  subsysId_;    // id of subsystem that issues the error
+  const NAErrorCode errCode_;  // error code
+  const NAErrorType errType_;  // error type
+  const NASubsys subsysId_;    // id of subsystem that issues the error
 
   // ---------------------------------------------------------------------
   // Error Parameters.
   // ---------------------------------------------------------------------
-  NAErrorParamArray * errParams_;
+  NAErrorParamArray *errParams_;
 
   // ---------------------------------------------------------------------
   // Procedure name and line numbers.
   // ---------------------------------------------------------------------
-  const Lng32   lineNumber_;
-  char * procName_;
-  const Lng32   offset_;
+  const Lng32 lineNumber_;
+  char *procName_;
+  const Lng32 offset_;
 
-}; // class NAError
+};  // class NAError
 
 // ***********************************************************************
 // The error stack
 // ***********************************************************************
-class NAErrorStack
-{
-public:
-
+class NAErrorStack {
+ public:
   // ---------------------------------------------------------------------
   // Constructor
   // ---------------------------------------------------------------------
-  NAErrorStack(Lng32 maxSize)
-              : maxEntries_(maxSize), numEntries_(0), errEntry_(0),
-        nextEntry_(0), iterEntries_(0)
-  {
-  }
+  NAErrorStack(Lng32 maxSize) : maxEntries_(maxSize), numEntries_(0), errEntry_(0), nextEntry_(0), iterEntries_(0) {}
 
   // ---------------------------------------------------------------------
   // Destructor
@@ -364,8 +321,7 @@ public:
   // ---------------------------------------------------------------------
   // Method for returning the error code for the latest error
   // ---------------------------------------------------------------------
-  NAErrorCode getErrCode()
-  {
+  NAErrorCode getErrCode() {
     if (errEntry_ != (NAError *)0)
       return errEntry_->getErrCode();
     else
@@ -375,34 +331,24 @@ public:
   // ---------------------------------------------------------------------
   // Method for adding a new Error
   // ---------------------------------------------------------------------
-  void addErrEntry(NAError * errPtr);
+  void addErrEntry(NAError *errPtr);
 
   // ---------------------------------------------------------------------
   // Iterator over all errors
   // ---------------------------------------------------------------------
-  NAError * getFirst(); // initialize the iterator
-  NAError * getNext();  // behaviour undefined unless getFirst() was called
+  NAError *getFirst();  // initialize the iterator
+  NAError *getNext();   // behaviour undefined unless getFirst() was called
 
-private:
-
+ private:
   // ---------------------------------------------------------------------
   // The error stack
   // ---------------------------------------------------------------------
-  Lng32  maxEntries_;       // if prescribed by a SET TRANSACTION
-  Lng32  numEntries_;       // number of entries allocated so far
-  NAError * errEntry_;     // an array of NAError
-  NAError * nextEntry_;    // maintained after an iterator is initialized
-  Lng32     iterEntries_;   // for terminating iterations over unused entries
+  Lng32 maxEntries_;    // if prescribed by a SET TRANSACTION
+  Lng32 numEntries_;    // number of entries allocated so far
+  NAError *errEntry_;   // an array of NAError
+  NAError *nextEntry_;  // maintained after an iterator is initialized
+  Lng32 iterEntries_;   // for terminating iterations over unused entries
 
-}; // class NAErrorStack
-
+};  // class NAErrorStack
 
 #endif /* NAERROR_H */
-
-
-
-
-
-
-
-

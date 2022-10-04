@@ -39,7 +39,6 @@
  *****************************************************************************
  */
 
-
 #include "ElemDDLPartitionSystem.h"
 
 // -----------------------------------------------------------------------
@@ -55,11 +54,8 @@ class ElemDDLPartitionSingle;
 // -----------------------------------------------------------------------
 // definition of class ElemDDLPartitionSingle
 // -----------------------------------------------------------------------
-class ElemDDLPartitionSingle : public ElemDDLPartitionSystem
-{
-
-public:
-
+class ElemDDLPartitionSingle : public ElemDDLPartitionSystem {
+ public:
   // constructors
   ElemDDLPartitionSingle();
 
@@ -67,26 +63,25 @@ public:
   virtual ~ElemDDLPartitionSingle();
 
   // cast
-  virtual ElemDDLPartitionSingle * castToElemDDLPartitionSingle();
+  virtual ElemDDLPartitionSingle *castToElemDDLPartitionSingle();
 
-private:
-
+ private:
   // ---------------------------------------------------------------------
   // private methods
   // ---------------------------------------------------------------------
-  
+
   ElemDDLPartitionSingle(const ElemDDLPartitionSingle &);
 
-        // copy constructor not supported
-  
+  // copy constructor not supported
+
   // ---------------------------------------------------------------------
   // private data members
   // ---------------------------------------------------------------------
   //
   // none
   //
-  
-}; // class ElemDDLPartitionSingle
+
+};  // class ElemDDLPartitionSingle
 
 // -----------------------------------------------------------------------
 // definitions of inline methods for class ElemDDLPartitionSingle
@@ -95,4 +90,4 @@ private:
 // none
 //
 
-#endif // ELEMDDLPARTITIONSINGLE_H
+#endif  // ELEMDDLPARTITIONSINGLE_H

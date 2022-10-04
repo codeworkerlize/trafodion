@@ -30,4 +30,4 @@
 //
 #define SB_Export
 
-#endif // !__SB_INT_EXP_H_
+#endif  // !__SB_INT_EXP_H_

@@ -24,4 +24,4 @@
 #ifndef _QMSMAIN_H_
 #define _QMSMAIN_H_
 
-#endif  /* _QMSMAIN_H_ */
+#endif /* _QMSMAIN_H_ */

@@ -45,7 +45,6 @@ using namespace std;
 #include "export/HeapLog.h"
 #include <new>
 
-
 //#include <cextdecs (DEBUG)>
 
 // -----------------------------------------------------------------------
@@ -61,151 +60,122 @@ NABasicObject::NABasicObject() {}
 
 // Note that this just ignores the passed object, which is correct:
 // we do *not* want to copy its heap pointer!
-NABasicObject::NABasicObject(const NABasicObject&) {}
+NABasicObject::NABasicObject(const NABasicObject &) {}
 
 // Note that this just ignores the passed object, which is correct:
 // we do *not* want to copy its heap pointer!
-// Otherwise, a default operator= on a NABasicObject-derived class would 
+// Otherwise, a default operator= on a NABasicObject-derived class would
 // overwrite the heap pointer, a very bad thing.
-NABasicObject& NABasicObject::operator=(const NABasicObject&) { return *this; }
+NABasicObject &NABasicObject::operator=(const NABasicObject &) { return *this; }
 
-void* NABasicObject::operator new(size_t t, CollHeap* h, NABoolean failureIsFatal) 
-{
-  if (t < sizeof(NABasicObject))
-    t = sizeof(NABasicObject);			// always allocate some size.
+void *NABasicObject::operator new(size_t t, CollHeap *h, NABoolean failureIsFatal) {
+  if (t < sizeof(NABasicObject)) t = sizeof(NABasicObject);  // always allocate some size.
 
-  void* p;
+  void *p;
 
-   if (NOT_CHECK_NAHEAP(h))
-    {
-      // This is asserted only because the check in 'operator delete' below
-      // depends on it -- but that check is rather half-baked anyway.
-      // So this is ComDEBUG (no-op if Release build) rather than ComABORT.
-      ComDEBUG(h != invalidHeapPtr());
-      p = h->allocateMemory(t, failureIsFatal);
-    }
-  else
-    {
+  if (NOT_CHECK_NAHEAP(h)) {
+    // This is asserted only because the check in 'operator delete' below
+    // depends on it -- but that check is rather half-baked anyway.
+    // So this is ComDEBUG (no-op if Release build) rather than ComABORT.
+    ComDEBUG(h != invalidHeapPtr());
+    p = h->allocateMemory(t, failureIsFatal);
+  } else {
 #ifdef NA_LEAK_DETECTION
-      get_caller_location();
+    get_caller_location();
 #endif
 
-
-      p = ::operator new(t);
-      //      HEAPLOG_ADD_ENTRY(p, t, NA_HEAP_BASIC, "NABasic Heap")
-    }
+    p = ::operator new(t);
+    //      HEAPLOG_ADD_ENTRY(p, t, NA_HEAP_BASIC, "NABasic Heap")
+  }
 
   if (p)
-    ((NABasicObject*)p)->h_ = h;
-  else
-    {
-      if (failureIsFatal)
-        {
-          ComABORT(p);
-        }
+    ((NABasicObject *)p)->h_ = h;
+  else {
+    if (failureIsFatal) {
+      ComABORT(p);
     }
+  }
 
   return p;
 }
 
-void* NABasicObject::operator new(size_t t, void* loc, NAMemory* h) 
-{
-  if (loc != NULL)
-  {
-    ((NABasicObject*)loc)->h_ = h;
+void *NABasicObject::operator new(size_t t, void *loc, NAMemory *h) {
+  if (loc != NULL) {
+    ((NABasicObject *)loc)->h_ = h;
     return loc;
   }
   return 0;
 }
-void NABasicObject::operator delete(void* p)
-{
-  if (p)	// "delete NULL;" is legal in C++, obviously a no-op
-    {
-      CollHeap* h = ((NABasicObject*)p)->h_;
+void NABasicObject::operator delete(void *p) {
+  if (p)  // "delete NULL;" is legal in C++, obviously a no-op
+  {
+    CollHeap *h = ((NABasicObject *)p)->h_;
 
-      // ComDEBUG(h != invalidHeapPtr());
-      if (h == invalidHeapPtr())
-        {
-	  #ifndef NDEBUG
-	    cerr << "**WARNING: " << __FILE__ << ": "
-	         << "Ignoring attempt to delete pointer twice    "
-	         << "(possible memory leak at " << p << "; need to run Purify)"
-		 << endl;
-	  #endif
-	  return;
-	}
-
-      ((NABasicObject*)p)->h_ = invalidHeapPtr();
-      if (NOT_CHECK_NAHEAP(h))
-	h->deallocateMemory(p);
-      else
-	{
-	  //	  HEAPLOG_DELETE_ENTRY(p, NA_HEAP_BASIC)
-	  ::operator delete(p);
-	}
+    // ComDEBUG(h != invalidHeapPtr());
+    if (h == invalidHeapPtr()) {
+#ifndef NDEBUG
+      cerr << "**WARNING: " << __FILE__ << ": "
+           << "Ignoring attempt to delete pointer twice    "
+           << "(possible memory leak at " << p << "; need to run Purify)" << endl;
+#endif
+      return;
     }
+
+    ((NABasicObject *)p)->h_ = invalidHeapPtr();
+    if (NOT_CHECK_NAHEAP(h))
+      h->deallocateMemory(p);
+    else {
+      //	  HEAPLOG_DELETE_ENTRY(p, NA_HEAP_BASIC)
+      ::operator delete(p);
+    }
+  }
 }
 
-
-void NABasicObject::operator delete(void* p, NAMemory*h, NABoolean f)
-{
-   if (p)
-   {
-      if (NOT_CHECK_NAHEAP(h))
-         h->deallocateMemory(p);
-      else
-	  ::operator delete(p);
-   }
+void NABasicObject::operator delete(void *p, NAMemory *h, NABoolean f) {
+  if (p) {
+    if (NOT_CHECK_NAHEAP(h))
+      h->deallocateMemory(p);
+    else
+      ::operator delete(p);
+  }
 }
 
-void NABasicObject::operator delete(void* p, void*, NAMemory*)
-{
+void NABasicObject::operator delete(void *p, void *, NAMemory *) {
   // This shouldn't do anything.
 }
 
-void* NABasicObject::operator new[](size_t t, CollHeap* h, NABoolean failureIsFatal) 
-{
-  if (t < sizeof(NABasicObject))
-    t = sizeof(NABasicObject);			// always allocate some size.
+void *NABasicObject::operator new[](size_t t, CollHeap *h, NABoolean failureIsFatal) {
+  if (t < sizeof(NABasicObject)) t = sizeof(NABasicObject);  // always allocate some size.
 
-  void* p;
+  void *p;
 
-    if (NOT_CHECK_NAHEAP(h))
-    {
-      // This is asserted only because the check in 'operator delete' below
-      // depends on it -- but that check is rather half-baked anyway.
-      // So this is ComDEBUG (no-op if Release build) rather than ComABORT.
-      ComDEBUG(h != invalidHeapPtr());
-      p = h->allocateMemory(t, failureIsFatal);
-    }
-  else
-    {
-
+  if (NOT_CHECK_NAHEAP(h)) {
+    // This is asserted only because the check in 'operator delete' below
+    // depends on it -- but that check is rather half-baked anyway.
+    // So this is ComDEBUG (no-op if Release build) rather than ComABORT.
+    ComDEBUG(h != invalidHeapPtr());
+    p = h->allocateMemory(t, failureIsFatal);
+  } else {
 #ifdef NA_LEAK_DETECTION
     get_caller_location();
 #endif
-    
 
-
-      p = ::operator new(t);
-      //      HEAPLOG_ADD_ENTRY(p, t, NA_HEAP_BASIC, "NABasic Heap")
-    }
+    p = ::operator new(t);
+    //      HEAPLOG_ADD_ENTRY(p, t, NA_HEAP_BASIC, "NABasic Heap")
+  }
 
   if (p)
-    ((NABasicObject*)p)->h_ = h;
-  else
-    {
-      if (failureIsFatal)
-        {
-          ComABORT(p);
-        }
+    ((NABasicObject *)p)->h_ = h;
+  else {
+    if (failureIsFatal) {
+      ComABORT(p);
     }
+  }
 
   return p;
 }
 
-void NABasicObject::operator delete[](void* p)
-{
+void NABasicObject::operator delete[](void *p) {
 #if 0
   if (p)	// "delete NULL;" is legal in C++, obviously a no-op
     {
@@ -215,12 +185,12 @@ void NABasicObject::operator delete[](void* p)
       // ComDEBUG(h != invalidHeapPtr());
       if (h == invalidHeapPtr())
         {
-	  #ifndef NDEBUG
+#ifndef NDEBUG
 	    cerr << "**WARNING: " << __FILE__ << ": "
 	         << "Ignoring attempt to delete pointer twice    "
 	         << "(possible memory leak at " << p << "; need to run Purify)"
 		 << endl;
-	  #endif
+#endif
 	  return;
 	}
 
@@ -234,28 +204,26 @@ void NABasicObject::operator delete[](void* p)
 	}
     }
 #endif
-	  ::operator delete(p);
-
+  ::operator delete(p);
 }
 
 // This function will be called if the constructor throws an exception.
-void NABasicObject::operator delete[](void* p,  NAMemory* h, NABoolean)
-{
-   if ( p ) {
-      if (NOT_CHECK_NAHEAP(h))
-        h->deallocateMemory(p);
-     else
-        ::operator delete(p);
-   }
+void NABasicObject::operator delete[](void *p, NAMemory *h, NABoolean) {
+  if (p) {
+    if (NOT_CHECK_NAHEAP(h))
+      h->deallocateMemory(p);
+    else
+      ::operator delete(p);
+  }
 }
 
 //
-//void* operator new[](size_t, NAMemory* h, NABoolean failureIsFatal)
+// void* operator new[](size_t, NAMemory* h, NABoolean failureIsFatal)
 //{
-//return NABasicObject::operator new(t, h, failureIsFatal);
+// return NABasicObject::operator new(t, h, failureIsFatal);
 //}
 
-//void* NABasicObject::operator delete[](void* p /* , another arg; see C++ ARM*/)
+// void* NABasicObject::operator delete[](void* p /* , another arg; see C++ ARM*/)
 //{
 // We need to call multiple destructors here, one for each object in
 // the array, and then deallocate ...
@@ -269,43 +237,39 @@ void NABasicObject::operator delete[](void* p,  NAMemory* h, NABoolean)
 // you are when the invalid dereference occurs and what object type it is (was).
 // You can then set a breakpoint in that object class's destructor to see when
 // that particular instance is being destroyed and being marked invalid/free.
-// (Although not actually being freed by deallocateMemory() yet -- which is why 
-// Purify can't find this "FMR" error, and also why your code continues to run 
+// (Although not actually being freed by deallocateMemory() yet -- which is why
+// Purify can't find this "FMR" error, and also why your code continues to run
 // okay FOR NOW; it may not on a future platform or future deallocation scheme.
 // This finds latent bugs.)
 
 #if !defined(NDEBUG)
-  Int32 NABasicObject::checkInvalidObject(const void* const referencingObject)
-  {
-    if (this && maybeInvalidObject())
-      {
-	Lng32 stackVar = (char*)this - (char*)&stackVar;
-	if (stackVar < 0) stackVar = -stackVar;
+Int32 NABasicObject::checkInvalidObject(const void *const referencingObject) {
+  if (this && maybeInvalidObject()) {
+    Lng32 stackVar = (char *)this - (char *)&stackVar;
+    if (stackVar < 0) stackVar = -stackVar;
 
-	cerr << "**ERROR: Object " << (void*)this;
+    cerr << "**ERROR: Object " << (void *)this;
 
-	if (stackVar <= 8192)
-	  cerr << " may be invalid (may be on stack, currently " 
-	       << (void*)&stackVar << ")";
-	else
-	  cerr << " is invalid";
+    if (stackVar <= 8192)
+      cerr << " may be invalid (may be on stack, currently " << (void *)&stackVar << ")";
+    else
+      cerr << " is invalid";
 
-	if (referencingObject)
-	  cerr << " (pointer from " << (void*)referencingObject << ")";
-	
-	cerr << ".**" << endl;
+    if (referencingObject) cerr << " (pointer from " << (void *)referencingObject << ")";
 
-	return -1;
-      }
-    return 0;
+    cerr << ".**" << endl;
+
+    return -1;
   }
+  return 0;
+}
 #endif
 
 // -----------------------------------------------------------------------
 // overloaded new operator for CollHeap*
 // -----------------------------------------------------------------------
 
-// The following new/delete operator should follow the rule of new 
+// The following new/delete operator should follow the rule of new
 // operator, i.e.
 // in the case of out of space, it should
 //  - call the new_handler if being set previously
@@ -316,56 +280,40 @@ void NABasicObject::operator delete[](void* p,  NAMemory* h, NABoolean)
 // The compiler does not support exception yet. Should be done when
 // the compiler supports exception.
 //
-void* operator new (size_t t, CollHeap* h)
-{
-  if (NOT_CHECK_NAHEAP(h))
-  {
+void *operator new(size_t t, CollHeap *h) {
+  if (NOT_CHECK_NAHEAP(h)) {
     return h->allocateMemory(t);
   } else {
-
-#ifdef NA_LEAK_DETECTION
-      get_caller_location();
-#endif
-
-
-    return (::new char[t] );
-  }
-
-}
-
-void* operator new[] (size_t t, CollHeap* h)
-{
-  //return ( (h) ? h->allocateMemory(t) : (::new char[t] ) );
-
-  if (NOT_CHECK_NAHEAP(h))
-  {
-    return h->allocateMemory(t);
-  } else {
-
 #ifdef NA_LEAK_DETECTION
     get_caller_location();
 #endif
 
-
-    return (::new char[t] );
+    return (::new char[t]);
   }
-
 }
 
-void* operator new[] (size_t t, CollHeap* h, NABoolean failureIsFatal)
-{
-  if (NOT_CHECK_NAHEAP(h))
-  {
+void *operator new[](size_t t, CollHeap *h) {
+  // return ( (h) ? h->allocateMemory(t) : (::new char[t] ) );
+
+  if (NOT_CHECK_NAHEAP(h)) {
+    return h->allocateMemory(t);
+  } else {
+#ifdef NA_LEAK_DETECTION
+    get_caller_location();
+#endif
+
+    return (::new char[t]);
+  }
+}
+
+void *operator new[](size_t t, CollHeap *h, NABoolean failureIsFatal) {
+  if (NOT_CHECK_NAHEAP(h)) {
     return h->allocateMemory(t, failureIsFatal);
   } else {
-
 #ifdef NA_LEAK_DETECTION
     get_caller_location();
 #endif
 
-
-    return (::new char[t] );
+    return (::new char[t]);
   }
-
 }
-

@@ -26,13 +26,13 @@
 *
 * File:         RuCacheDDLLockHandler.h
 * Description:  Definition of class CRUCacheDDLLockHandler.
-*				
+*
 *
 * Created:      02/10/2000
 * Language:     C++
-* 
 *
-* 
+*
+*
 ******************************************************************************
 */
 
@@ -48,65 +48,58 @@
 //	CRUCacheDDLLockHandler
 //
 //	This class performs the handling (cancellation and aquirement)
-//	of DDL locks in the cache. The new DDL locks must be created 
+//	of DDL locks in the cache. The new DDL locks must be created
 //	in the growing order of UIDs, in order to prevent a deadlock
 //	with the other (concurrent) invocation of Refresh.
-//		
+//
 //--------------------------------------------------------------------------//
 
 class REFRESH_LIB_CLASS CRUCacheDDLLockHandler {
+ public:
+  CRUCacheDDLLockHandler();
+  virtual ~CRUCacheDDLLockHandler();
 
-public:
-	CRUCacheDDLLockHandler();
-	virtual ~CRUCacheDDLLockHandler();
+ public:
+  BOOL DidDDLLockErrorsHappen() const { return didDDLLockErrorsHappen_; }
 
-public:
-	BOOL DidDDLLockErrorsHappen() const
-	{
-		return didDDLLockErrorsHappen_;
-	}
+ public:
+  void AddObject(CRUObject *pObj);
 
-public:
-	void AddObject(CRUObject *pObj);
+  // The main method
+  void HandleDDLLocks(BOOL isCancelOnly);
 
-	// The main method
-	void HandleDDLLocks(BOOL isCancelOnly);
+ private:
+  //-- Prevent copying --//
+  CRUCacheDDLLockHandler(const CRUCacheDDLLockHandler &other);
+  CRUCacheDDLLockHandler &operator=(const CRUCacheDDLLockHandler &other);
 
-private:
-	//-- Prevent copying --//
-	CRUCacheDDLLockHandler(const CRUCacheDDLLockHandler &other);
-	CRUCacheDDLLockHandler & operator= (const CRUCacheDDLLockHandler &other);
+ private:
+  void SortObjectsByUid();
 
-private:
-	void SortObjectsByUid();
-	
-	// Sorting criteria
-	static Int32 CompareElem(const void *pEl1, const void *pEl2);
+  // Sorting criteria
+  static Int32 CompareElem(const void *pEl1, const void *pEl2);
 
-private:
-	// Do we need to handle the DDL locks at all?
-	BOOL doHandle_;
+ private:
+  // Do we need to handle the DDL locks at all?
+  BOOL doHandle_;
 
-	// Any problems about canceling the DDL locks?
-	BOOL didDDLLockErrorsHappen_;
+  // Any problems about canceling the DDL locks?
+  BOOL didDDLLockErrorsHappen_;
 
-	struct ObjectLink {
+  struct ObjectLink {
+    ObjectLink(CRUObject *pObj) : pObj_(pObj), uid_(pObj->GetUID()) {}
 
-		ObjectLink(CRUObject *pObj) : 
-			pObj_(pObj), uid_(pObj->GetUID()) 
-		{}
+    TInt64 uid_;
+    CRUObject *pObj_;
+  };
 
-		TInt64 uid_;
-		CRUObject *pObj_;
-	};
-	
-	typedef ObjectLink * PObjectLink;
-	enum { HASH_SIZE = 101 };
+  typedef ObjectLink *PObjectLink;
+  enum { HASH_SIZE = 101 };
 
-	CDSTInt64Map<ObjectLink *> objMap_;
+  CDSTInt64Map<ObjectLink *> objMap_;
 
-	// The array of pointers to links (will be sorted by the object UID)
-	PObjectLink *pObjSortedArray_;
+  // The array of pointers to links (will be sorted by the object UID)
+  PObjectLink *pObjSortedArray_;
 };
 
 #endif

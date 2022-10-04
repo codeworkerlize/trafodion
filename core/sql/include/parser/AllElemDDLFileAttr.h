@@ -34,7 +34,7 @@
  *               derived from class ElemDDLNode instead of class
  *               ElemDDLFileAttr.
  *
- *               
+ *
  * Created:      5/30/95
  * Language:     C++
  *
@@ -43,7 +43,6 @@
  *
  *****************************************************************************
  */
-
 
 #include "ElemDDLFileAttr.h"
 #include "ElemDDLFileAttrAllocate.h"
@@ -74,9 +73,7 @@
 #include "ElemDDLFileAttrMVCommitEach.h"
 #include "ElemDDLFileAttrMvAudit.h"
 
-
 //-- MV
-
 
 //
 // End of File

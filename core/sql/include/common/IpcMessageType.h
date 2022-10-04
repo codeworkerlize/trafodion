@@ -86,20 +86,14 @@ class IpcConnection;
 // handle both Guardian and Unix-style personalities. An enumeration
 // type tells which communication protocol we are using.
 // -----------------------------------------------------------------------
-typedef enum IpcNetworkDomainEnum
-{
-  IPC_DOM_INVALID,
-  IPC_DOM_GUA_PHANDLE,
-  IPC_DOM_INTERNET
-} IpcNetworkDomain;
+typedef enum IpcNetworkDomainEnum { IPC_DOM_INVALID, IPC_DOM_GUA_PHANDLE, IPC_DOM_INTERNET } IpcNetworkDomain;
 
 // -----------------------------------------------------------------------
 // Types of server processes supported (see file ExIPC.C for the
 // logic that associates a name with each literal) and default port
 // numbers for these servers in case sockets are used
 // -----------------------------------------------------------------------
-typedef enum IpcServerTypeEnum
-{
+typedef enum IpcServerTypeEnum {
   IPC_CLIENT_OR_UNSPECIFIED_SERVER = -1,
   IPC_SQLUSTAT_SERVER = 0,
   IPC_SQLCAT_SERVER,
@@ -116,27 +110,26 @@ typedef enum IpcServerTypeEnum
   IPC_SQLBDRR_SERVER   // BDR replicator process
 } IpcServerType;
 
-typedef enum IpcServerPortNumberEnum
-{
-  IPC_INVALID_SERVER_PORTNUMBER  = 0,
-  IPC_SQLUSTAT_PORTNUMBER        = 3692,
-  IPC_SQLUSTAT_DEBUG_PORTNUMBER  = 3693,
-  IPC_SQLCAT_PORTNUMBER          = 3694,
-  IPC_SQLCAT_DEBUG_PORTNUMBER    = 3695,
-  IPC_SQLCOMP_PORTNUMBER         = 3696,
-  IPC_SQLCOMP_DEBUG_PORTNUMBER   = 3697,
-  IPC_SQLESP_PORTNUMBER          = 3698,
-  IPC_SQLESP_DEBUG_PORTNUMBER    = 3699,
-  IPC_SQLUDR_PORTNUMBER          = 3700,
-  IPC_SQLUDR_DEBUG_PORTNUMBER    = 3701,
-  IPC_GENERIC_PORTNUMBER         = 3702,
-  IPC_GENERIC_DEBUG_PORTNUMBER   = 3703,
-  IPC_SQLQMS_PORTNUMBER          = 3704,
-  IPC_SQLQMS_DEBUG_PORTNUMBER    = 3705,
-  IPC_SQLQMP_PORTNUMBER          = 3706,
-  IPC_SQLQMP_DEBUG_PORTNUMBER    = 3707,
-  IPC_SQLQMM_PORTNUMBER          = 3708,
-  IPC_SQLQMM_DEBUG_PORTNUMBER    = 3709
+typedef enum IpcServerPortNumberEnum {
+  IPC_INVALID_SERVER_PORTNUMBER = 0,
+  IPC_SQLUSTAT_PORTNUMBER = 3692,
+  IPC_SQLUSTAT_DEBUG_PORTNUMBER = 3693,
+  IPC_SQLCAT_PORTNUMBER = 3694,
+  IPC_SQLCAT_DEBUG_PORTNUMBER = 3695,
+  IPC_SQLCOMP_PORTNUMBER = 3696,
+  IPC_SQLCOMP_DEBUG_PORTNUMBER = 3697,
+  IPC_SQLESP_PORTNUMBER = 3698,
+  IPC_SQLESP_DEBUG_PORTNUMBER = 3699,
+  IPC_SQLUDR_PORTNUMBER = 3700,
+  IPC_SQLUDR_DEBUG_PORTNUMBER = 3701,
+  IPC_GENERIC_PORTNUMBER = 3702,
+  IPC_GENERIC_DEBUG_PORTNUMBER = 3703,
+  IPC_SQLQMS_PORTNUMBER = 3704,
+  IPC_SQLQMS_DEBUG_PORTNUMBER = 3705,
+  IPC_SQLQMP_PORTNUMBER = 3706,
+  IPC_SQLQMP_DEBUG_PORTNUMBER = 3707,
+  IPC_SQLQMM_PORTNUMBER = 3708,
+  IPC_SQLQMM_DEBUG_PORTNUMBER = 3709
 } IpcServerPortNumber;
 
 // -----------------------------------------------------------------------
@@ -154,9 +147,8 @@ typedef enum IpcServerPortNumberEnum
 //
 // -----------------------------------------------------------------------
 
-typedef enum IpcServerAllocationMethodEnum
-{
-  IPC_ALLOC_DONT_CARE, // system decides
+typedef enum IpcServerAllocationMethodEnum {
+  IPC_ALLOC_DONT_CARE,  // system decides
   IPC_LAUNCH_GUARDIAN_PROCESS,
   IPC_SPAWN_OSS_PROCESS,
   IPC_INETD,
@@ -173,8 +165,7 @@ typedef enum IpcServerAllocationMethodEnum
 // To allow this, the type definition for a message type is not the
 // enum listed below, but a long.
 // -----------------------------------------------------------------------
-enum IpcMessageTypeEnum
-{
+enum IpcMessageTypeEnum {
   // messages to and from the SQL catalog manager
   // for the actual message types see file ???
   IPC_MSG_SQLCAT_FIRST = 2000,
@@ -211,17 +202,16 @@ enum IpcMessageTypeEnum
   IPC_MSG_SQLUDR_LAST = 8999,
 
   IPC_MSG_RTS_FIRST = 9000,
-  IPC_MSG_RTS_LAST  = 9999,
+  IPC_MSG_RTS_LAST = 9999,
 
   // messages among processes involved in query rewrite
   // for the actual message types, see file ../qmscommon/QRIpc.h
   IPC_MSG_QR_FIRST = 10000,
-  IPC_MSG_QR_LAST  = 10999
-
+  IPC_MSG_QR_LAST = 10999
 
 };
 
-typedef Int32  IpcMessageType;
+typedef Int32 IpcMessageType;
 
 // -----------------------------------------------------------------------
 // Types for objects inside messages (a different space of numbers for
@@ -231,12 +221,12 @@ typedef Int32  IpcMessageType;
 // allows us to manage the enum types separately per component of the
 // SQL system without forcing global recompiles on small changes.
 // -----------------------------------------------------------------------
-typedef Int32  IpcMessageObjType;
+typedef Int32 IpcMessageObjType;
 
 // -----------------------------------------------------------------------
 // Version of a message header or of an object in a message
 // -----------------------------------------------------------------------
-typedef Int32  IpcMessageObjVersion;
+typedef Int32 IpcMessageObjVersion;
 
 // -----------------------------------------------------------------------
 // Reserved numbers for certain common objects in messages, to be
@@ -244,20 +234,19 @@ typedef Int32  IpcMessageObjVersion;
 // the reserved values below in your own enum types for message object
 // types!!!
 // -----------------------------------------------------------------------
-enum IpcCommonObjectTypeEnum
-{
+enum IpcCommonObjectTypeEnum {
   IPC_COMMON_OBJ_TYPE_START = 13500,
 
-  IPC_SQL_DIAG_AREA         = 13501,
-  IPC_SQL_STATISTICS        = 13502,
-  IPC_PROCESS_ID            = 13503,
-  IPC_SQL_CONDITION         = 13504,
-  IPC_SQL_STATS_AREA        = 13505,
-  IPC_SQL_STATS_ENTRY       = 13506,
-  IPC_SQL_STATS_COUNTER     = 13507,
-  IPC_SQL_STATS_TIMER       = 13508,
+  IPC_SQL_DIAG_AREA = 13501,
+  IPC_SQL_STATISTICS = 13502,
+  IPC_PROCESS_ID = 13503,
+  IPC_SQL_CONDITION = 13504,
+  IPC_SQL_STATS_AREA = 13505,
+  IPC_SQL_STATS_ENTRY = 13506,
+  IPC_SQL_STATS_COUNTER = 13507,
+  IPC_SQL_STATS_TIMER = 13508,
 
-  IPC_COMMON_OBJ_TYPE_END   = 13999
+  IPC_COMMON_OBJ_TYPE_END = 13999
 };
 
 // -----------------------------------------------------------------------
@@ -266,22 +255,22 @@ enum IpcCommonObjectTypeEnum
 
 const IpcMessageObjVersion IpcCurrSqlDiagnosticsAreaVersion = 100;
 // Stats are version 0 in Release 1, version 100 in Release 1.5
-const IpcMessageObjVersion IpcCurrSqlStatisticsVersion      = 100;
-const IpcMessageObjVersion IpcCurrProcessIdVersion          = 100;
+const IpcMessageObjVersion IpcCurrSqlStatisticsVersion = 100;
+const IpcMessageObjVersion IpcCurrProcessIdVersion = 100;
 
-typedef Int32  IpcMessageType;
+typedef Int32 IpcMessageType;
 
 // -----------------------------------------------------------------------
 // size of objects in bytes
 // -----------------------------------------------------------------------
 
-typedef UInt32  IpcMessageObjSize;
+typedef UInt32 IpcMessageObjSize;
 
 // -----------------------------------------------------------------------
 // Reference count of a message header or of an object in a message
 // (used mainly when objects are shared across the IPC interface)
 // -----------------------------------------------------------------------
-typedef Int32   IpcMessageRefCount;
+typedef Int32 IpcMessageRefCount;
 
 // -----------------------------------------------------------------------
 // A buffer pointer to a raw, byte-adressable  message buffer, used for
@@ -296,7 +285,7 @@ typedef const char *IpcConstMessageBufferPtr;
 // -----------------------------------------------------------------------
 
 const char IpcLittleEndian = 1;
-const char IpcBigEndian    = 2;
+const char IpcBigEndian = 2;
 
 #ifdef NA_LITTLE_ENDIAN
 const char IpcMyEndianness = IpcLittleEndian;
@@ -326,14 +315,14 @@ const short IpcMyAlignment = IpcAlignment8;
 // a value of 100 means 1 sec), 0 means return immediately,
 // IpcInfiniteTimeout waits forever
 // -----------------------------------------------------------------------
-typedef Int32  IpcTimeout;
+typedef Int32 IpcTimeout;
 const IpcTimeout IpcImmediately = 0;
 const IpcTimeout IpcInfiniteTimeout = -1;
 
 // -----------------------------------------------------------------------
 // CPU number in a node
 // -----------------------------------------------------------------------
-typedef Int32  IpcCpuNum;
+typedef Int32 IpcCpuNum;
 
 // an invalid CPU number in a node
 const IpcCpuNum IPC_CPU_DONT_CARE = -1;
@@ -341,7 +330,7 @@ const IpcCpuNum IPC_CPU_DONT_CARE = -1;
 // -----------------------------------------------------------------------
 // Priority of a started process
 // -----------------------------------------------------------------------
-typedef Int32  IpcPriority;
+typedef Int32 IpcPriority;
 
 const IpcPriority IPC_PRIORITY_DONT_CARE = -1;
 

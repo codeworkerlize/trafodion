@@ -27,7 +27,7 @@
  *
  * File:         ex_split_top.h
  * Description:  Split Top executor node (the client part of a split node)
- *               
+ *
  * Created:      12/6/95
  * Language:     C++
  *
@@ -75,27 +75,23 @@ class ex_tcb;
 // -----------------------------------------------------------------------
 // ex_split_top_tdb
 // -----------------------------------------------------------------------
-class ex_split_top_tdb : public ComTdbSplitTop
-{
-public:
-
+class ex_split_top_tdb : public ComTdbSplitTop {
+ public:
   // ---------------------------------------------------------------------
   // Constructor is only called to instantiate an object used for
   // retrieval of the virtual table function pointer of the class while
   // unpacking. An empty constructor is enough.
   // ---------------------------------------------------------------------
-  ex_split_top_tdb()
-  {}
+  ex_split_top_tdb() {}
 
-  virtual ~ex_split_top_tdb()
-  {}
+  virtual ~ex_split_top_tdb() {}
 
   // ---------------------------------------------------------------------
   // Build a TCB for this TDB. Redefined in the Executor project.
   // ---------------------------------------------------------------------
   virtual ex_tcb *build(ex_globals *globals);
 
-private:
+ private:
   // ---------------------------------------------------------------------
   // !!!!!!! IMPORTANT -- NO DATA MEMBERS ALLOWED IN EXECUTOR TDB !!!!!!!!
   // *********************************************************************
@@ -115,14 +111,13 @@ private:
   // 1. Are those data members Compiler-generated?
   //    If yes, put them in the ComTdbSplitTop instead.
   //    If no, they should probably belong to someplace else (like TCB).
-  // 
+  //
   // 2. Are the classes those data members belong defined in the executor
   //    project?
   //    If your answer to both questions is yes, you might need to move
   //    the classes to the comexe project.
   // ---------------------------------------------------------------------
 };
-
 
 ////////////////////////////////////////////////////////////////////////////
 // Task control block for split top node
@@ -135,15 +130,14 @@ private:
 // value for a child that is not associated to any partition number
 static const Int32 SPLIT_TOP_UNASSOCIATED = -1;
 
-struct SplitTopChildState
-{
+struct SplitTopChildState {
   // Information on whether the child is currently active on behalf
   // of a request from the parent (from the parent's point of view)
   // and what the last parent queue index was that was sent down
   // to the child.
-  Lng32           numActiveRequests_;
-  queue_index    highWaterMark_;
-  
+  Lng32 numActiveRequests_;
+  queue_index highWaterMark_;
+
   // The next fields are used when the split top node acts as a PAPA
   // node (PArent of Partition Access nodes). PA nodes work best if
   // their requests deal with only one partition number. This ensures
@@ -151,162 +145,146 @@ struct SplitTopChildState
   // Using multiple PAs for a large request of a partitioned table
   // allows a variable degree of parallelism. PA nodes do not provide
   // parallel access to multiple partitions, this is done by the PAPA node.
-  Lng32           associatedPartNum_;
+  Lng32 associatedPartNum_;
 };
 
 // used for fast indexing to child tcb from a given partition
-struct SplitTopPartNums
-{
+struct SplitTopPartNums {
   // The index to a PA in child array which is currently associated
   // to the partition. Valid only if static partition affinity is on.
-  CollIndex      childTcbIndex_;
+  CollIndex childTcbIndex_;
 };
 
-struct SplitTopReadyChild
-{
-  CollIndex                  index;    // child TCB index
-  queue_index                prev;     // prev readyChildren_ index
-  queue_index                next;     // next readyChildren_ index
-  queue_index                entryCnt; // number of ready entries
+struct SplitTopReadyChild {
+  CollIndex index;       // child TCB index
+  queue_index prev;      // prev readyChildren_ index
+  queue_index next;      // next readyChildren_ index
+  queue_index entryCnt;  // number of ready entries
 };
 
-class ex_split_top_tcb : public ex_tcb
-{
+class ex_split_top_tcb : public ex_tcb {
   // friend class ex_split_top_tdb;
   friend class ex_split_top_private_state;
   friend class ex_split_top_private_state_ext;
 
-public:
-
-  enum workState
-  {
-    INITIAL,			// entry is untouched by a work() procedure
-    PART_NUMS_CALCULATED,	// now we know where to send requests,
-				// some requests may have been sent and
-				// we may be returning unmerged data
-    ALL_SENT_DOWN,		// all down requests sent
-    MERGING,                    // merging data from children
-    END_OF_DATA,		// all children done, parent needs end-of-data
-    CANCELLING,			// cancelling while children may be active
-    CANCELLED,			// cancelled, no child is active
+ public:
+  enum workState {
+    INITIAL,               // entry is untouched by a work() procedure
+    PART_NUMS_CALCULATED,  // now we know where to send requests,
+                           // some requests may have been sent and
+                           // we may be returning unmerged data
+    ALL_SENT_DOWN,  // all down requests sent
+    MERGING,        // merging data from children
+    END_OF_DATA,    // all children done, parent needs end-of-data
+    CANCELLING,     // cancelling while children may be active
+    CANCELLED,      // cancelled, no child is active
 
     // BertBert VVV
-				// NOTE: PART_NUMS_CALCULATED is used to process
-				//  GET_ALL and GET_N commands
-    PROCESS_GET_NEXT_N,		// used for non-streaming destructive select
-				//  processes GET_NEXT_N command
+    // NOTE: PART_NUMS_CALCULATED is used to process
+    //  GET_ALL and GET_N commands
+    PROCESS_GET_NEXT_N,  // used for non-streaming destructive select
+                         //  processes GET_NEXT_N command
     PROCESS_GET_NEXT_N_MAYBE_WAIT,
-				// used for streaming destructive select
-				//  processes GET_NEXT_N_MAYBE_WAIT command
+    // used for streaming destructive select
+    //  processes GET_NEXT_N_MAYBE_WAIT command
     PROCESS_GET_NEXT_N_MAYBE_WAIT_ONE_PARTITION,
-				// used for streaming destructive select where only
-				//  one partition is accessed.
-				//  processes GET_NEXT_N_MAYBE_WAIT command 
+    // used for streaming destructive select where only
+    //  one partition is accessed.
+    //  processes GET_NEXT_N_MAYBE_WAIT command
     // BertBert ^^^
     ERROR_BEFORE_SEND
   };
 
   // Constructor
-  ex_split_top_tcb(const ex_split_top_tdb & splitTopTdb,
-		   ExExeStmtGlobals * glob);
-        
-  ~ex_split_top_tcb();  
+  ex_split_top_tcb(const ex_split_top_tdb &splitTopTdb, ExExeStmtGlobals *glob);
 
-  inline const ex_split_top_tdb & splitTopTdb() const
-                                   { return ( const ex_split_top_tdb &)tdb; }
-  
+  ~ex_split_top_tcb();
+
+  inline const ex_split_top_tdb &splitTopTdb() const { return (const ex_split_top_tdb &)tdb; }
+
   void freeResources();  // free resources
   void registerSubtasks();
 
   // 2 methods to add child TCB trees dynamically
   void registerChildQueueSubtask(Int32 c);
-  void addChild(Int32 c, NABoolean atWorktime, ExOperStats* statsEntry);
-  
+  void addChild(Int32 c, NABoolean atWorktime, ExOperStats *statsEntry);
+
   short work();  // when scheduled to do work
- 
+
   ex_queue_pair getParentQueue() const;
 
-  virtual ex_tcb_private_state * allocatePstates(
-       Lng32 &numElems,      // inout, desired/actual elements
-       Lng32 &pstateLength); // out, length of one element
+  virtual ex_tcb_private_state *allocatePstates(Lng32 &numElems,       // inout, desired/actual elements
+                                                Lng32 &pstateLength);  // out, length of one element
 
   // access predicates in tdb
-  inline ex_expr * childInputPartFunction() const
-                           { return splitTopTdb().childInputPartFunction_; }
-  inline ex_expr * mergeKeyExpr() const
-                                     { return splitTopTdb().mergeKeyExpr_; }
-  inline Lng32 mergeKeyAtpIndex() const
-                                 { return splitTopTdb().mergeKeyAtpIndex_; }
-  inline Lng32 mergeKeyLength() const
-                                   { return splitTopTdb().mergeKeyLength_; }
-  inline NABoolean isPapaNode() const
-                          { return (splitTopTdb().paPartNoAtpIndex_ >= 0); }
- 
+  inline ex_expr *childInputPartFunction() const { return splitTopTdb().childInputPartFunction_; }
+  inline ex_expr *mergeKeyExpr() const { return splitTopTdb().mergeKeyExpr_; }
+  inline Lng32 mergeKeyAtpIndex() const { return splitTopTdb().mergeKeyAtpIndex_; }
+  inline Lng32 mergeKeyLength() const { return splitTopTdb().mergeKeyLength_; }
+  inline NABoolean isPapaNode() const { return (splitTopTdb().paPartNoAtpIndex_ >= 0); }
+
   virtual Int32 numChildren() const;
-  virtual const ex_tcb* getChild(Int32 pos) const;
+  virtual const ex_tcb *getChild(Int32 pos) const;
 
-  virtual ExOperStats *doAllocateStatsEntry(CollHeap *heap,
-                                                       ComTdb *tdb);
+  virtual ExOperStats *doAllocateStatsEntry(CollHeap *heap, ComTdb *tdb);
 
-private:
-
-  ex_queue_pair    qParent_;
+ private:
+  ex_queue_pair qParent_;
 
   // serves as a temp. child Atp. The sidTuple is attached to this
   // and sent to Aux. PA for sequence generation.
-  atp_struct       *tempChildAtp_;
+  atp_struct *tempChildAtp_;
 
-  atp_struct       *workAtp_;
-  tupp_descriptor  partNumTupp_;      // target of part # expression
-  Lng32             calculatedPartNum_;// target buffer for part. function expr
-  SqlBuffer       *inputDataTupps_;  // partition input data sent to children
-  SqlBuffer       *paPartNumTupps_;  // part # data sent to PA children
-  SqlBuffer       *mergeKeyTupps_;   // encoded keys for children for merge
-  ExSubtask        *workDownTask_;    // to schedule workDown method
-  ExSubtask        *workUpTask_;      // to schedule workUp method
+  atp_struct *workAtp_;
+  tupp_descriptor partNumTupp_;  // target of part # expression
+  Lng32 calculatedPartNum_;      // target buffer for part. function expr
+  SqlBuffer *inputDataTupps_;    // partition input data sent to children
+  SqlBuffer *paPartNumTupps_;    // part # data sent to PA children
+  SqlBuffer *mergeKeyTupps_;     // encoded keys for children for merge
+  ExSubtask *workDownTask_;      // to schedule workDown method
+  ExSubtask *workUpTask_;        // to schedule workUp method
 
-  ARRAY(ex_tcb *)  childTcbs_;            // ptrs to child TCBs
-  ARRAY(ex_queue*) childTcbsParentUpQ_;   // ptrs to child TCBs parent up queue.
-  ARRAY(ex_queue*) childTcbsParentDownQ_; // ptrs to child TCBs parent dn queue.
-  SplitTopReadyChild* readyChildren_;     // list of data-ready children TCBs
+  ARRAY(ex_tcb *) childTcbs_;               // ptrs to child TCBs
+  ARRAY(ex_queue *) childTcbsParentUpQ_;    // ptrs to child TCBs parent up queue.
+  ARRAY(ex_queue *) childTcbsParentDownQ_;  // ptrs to child TCBs parent dn queue.
+  SplitTopReadyChild *readyChildren_;       // list of data-ready children TCBs
 
-  SplitTopChildState *childStates_;   // states of child PAs
-  Lng32             maxNumChildren_;   // upper limit for # of child TCBs
-  Lng32             firstPartNum_;     // upper limit for # of child TCBs
-  Lng32             numChildren_;      // # of child TCBs used so far
-  SplitTopPartNums *childParts_;      // partNum to PA mapping
-  LIST(CollIndex)  mergeSequence_;    // ordered list of child #s
-  NABitVector      unmergedChildren_; // who is missing from mergeSequence_
+  SplitTopChildState *childStates_;  // states of child PAs
+  Lng32 maxNumChildren_;             // upper limit for # of child TCBs
+  Lng32 firstPartNum_;               // upper limit for # of child TCBs
+  Lng32 numChildren_;                // # of child TCBs used so far
+  SplitTopPartNums *childParts_;     // partNum to PA mapping
+  LIST(CollIndex) mergeSequence_;    // ordered list of child #s
+  NABitVector unmergedChildren_;     // who is missing from mergeSequence_
 
-  ExOperStats      **statsArray_;     // to keep stats Entrys for all partitions (PAPA)
+  ExOperStats **statsArray_;  // to keep stats Entrys for all partitions (PAPA)
 
   // Which partitions (for PAPA node) an INSERT request was sent to.
   // Used to send the EOD (End Of Data) request to those partitions
   // only.
-  NABitVector                 partNumsReqSent_;
+  NABitVector partNumsReqSent_;
 
   // This field is used to accumulate all requests that were previously
   // sent in multiple executions. Set when GET_EOD_NO_ST_COMMIT is seen.
   // Values in this field are then used at GET_EOD to send EOD to all
   // partitions.
-  NABitVector                 accumPartNumsReqSent_;
+  NABitVector accumPartNumsReqSent_;
 
-  queue_index      processedInputs_;  // first q entry not yet seen by work()
+  queue_index processedInputs_;  // first q entry not yet seen by work()
 
   // To prevent a race condition in repartitioned plans (some descendent tcb
   // is a multi-parent split_bottom), we only send down one request until
-  // all replies are received.  
+  // all replies are received.
 
   NABoolean serializeRequests_;
 
-  enum SplitTopWorkState
-    {
+  enum SplitTopWorkState {
     READY_TO_REQUEST,
     WAIT_FOR_ALL_REPLIES,
-    } tcbState_;
+  } tcbState_;
 
   // Keep stream timeout - dynamic if set, else the static value
-  Lng32 streamTimeout_ ;
+  Lng32 streamTimeout_;
 
   // shared pool used by children (PAs)
   sql_buffer_pool *sharedPool_;
@@ -323,34 +301,30 @@ private:
   ExWorkProcRetcode workCancel();
 
   // static versions
-  static ExWorkProcRetcode sWorkDown(ex_tcb *tcb)
-                        { return ((ex_split_top_tcb *) tcb)->workDown(); }
-  static ExWorkProcRetcode sWorkUp(ex_tcb *tcb)
-                          { return ((ex_split_top_tcb *) tcb)->workUp(); }
+  static ExWorkProcRetcode sWorkDown(ex_tcb *tcb) { return ((ex_split_top_tcb *)tcb)->workDown(); }
+  static ExWorkProcRetcode sWorkUp(ex_tcb *tcb) { return ((ex_split_top_tcb *)tcb)->workUp(); }
 
   // cancel all child activity for a given request from the parent
-  void cancelChildRequests(queue_index parentIndex); // for a given parent req.
+  void cancelChildRequests(queue_index parentIndex);  // for a given parent req.
 
   // find the child that is associated to partition number partNo or
   // try to associate a child with that partition number
   CollIndex getAssociatedChildIndex(Lng32 partNo);
   void resetAssociatedChildIndex(Lng32 partNo);
 
-  // Generate the next value for the sequence 
-  short generateSequenceNextValue(atp_struct * parentAtp);
+  // Generate the next value for the sequence
+  short generateSequenceNextValue(atp_struct *parentAtp);
 
   // set the partition range for the current parent queue entry
   // (for PAPA node only)
-  Lng32 getDP2PartitionsToDo(atp_struct *parentAtp,
-			    ex_split_top_private_state *pstate);
+  Lng32 getDP2PartitionsToDo(atp_struct *parentAtp, ex_split_top_private_state *pstate);
 
   // find the next child that has data ready to copy to the parent
   CollIndex findNextReadyChild(ex_split_top_private_state *pstate);
 
-  inline void addPartNumReqSent(CollIndex p)    { partNumsReqSent_ += p; }
-  inline void clearPartNumsReqSent()     { partNumsReqSent_.clearFast(); }
-  inline CollIndex getFirstPartNumReqSent() const
-                                      { return getNextPartNumReqSent(0); }
+  inline void addPartNumReqSent(CollIndex p) { partNumsReqSent_ += p; }
+  inline void clearPartNumsReqSent() { partNumsReqSent_.clearFast(); }
+  inline CollIndex getFirstPartNumReqSent() const { return getNextPartNumReqSent(0); }
   CollIndex getNextPartNumReqSent(CollIndex prev) const;
   void allocateStatsEntry(Int32 c, ex_tcb *childTcb);
 
@@ -370,130 +344,103 @@ private:
   //
   // For EPS i where i in [0, m), the number of source ESPs can be found
   // by this function:
-  inline Lng32 numOfSourceESPs(Lng32 numOfTopPs, Lng32 numOfBottomPs,
-                              Lng32 myIndex)
-  {
-    ex_assert(myIndex < numOfTopPs,
-              "Invalid N-M repartition mapping at top!");
-    return ((myIndex * numOfBottomPs + numOfBottomPs - 1) / numOfTopPs
-           - (myIndex * numOfBottomPs) / numOfTopPs + 1);
+  inline Lng32 numOfSourceESPs(Lng32 numOfTopPs, Lng32 numOfBottomPs, Lng32 myIndex) {
+    ex_assert(myIndex < numOfTopPs, "Invalid N-M repartition mapping at top!");
+    return ((myIndex * numOfBottomPs + numOfBottomPs - 1) / numOfTopPs - (myIndex * numOfBottomPs) / numOfTopPs + 1);
   }
 
   // To find the index of my first child ESP:
-  inline Lng32 myFirstSourceESP(Lng32 numOfTopPs, Lng32 numOfBottomPs,
-                              Lng32 myIndex)
-  { return ((myIndex * numOfBottomPs) / numOfTopPs); }
+  inline Lng32 myFirstSourceESP(Lng32 numOfTopPs, Lng32 numOfBottomPs, Lng32 myIndex) {
+    return ((myIndex * numOfBottomPs) / numOfTopPs);
+  }
 };
 
-class ex_split_top_private_state : public ex_tcb_private_state
-{
+class ex_split_top_private_state : public ex_tcb_private_state {
   friend class ex_split_top_tcb;
-  
-public:
 
+ public:
   ex_split_top_private_state();
   ~ex_split_top_private_state();
 
   void init();
   void setHeap(CollHeap *heap);
 
-  inline void addPartNumToDo(CollIndex p)          
-  { 
-    partNumsToDo_.addElementFast(p); 
+  inline void addPartNumToDo(CollIndex p) { partNumsToDo_.addElementFast(p); }
+  inline void addPartNumToDoRange(CollIndex lo, CollIndex hi) {
+    for (CollIndex i = lo; i <= hi; i++) partNumsToDo_.addElementFast(i);
   }
-  inline void addPartNumToDoRange(CollIndex lo, CollIndex hi)
-  { 
-    for (CollIndex i = lo; i <= hi; i++) 
-      partNumsToDo_.addElementFast(i); 
-  }
-  inline void removePartNumToDo(CollIndex p)       { partNumsToDo_ -= p; }
-  inline void clearPartNumsToDo()           { partNumsToDo_.clearFast(); }
-  inline NABoolean partNumsToDoIsEmpty() const
-                                       { return partNumsToDo_.isEmpty(); }
+  inline void removePartNumToDo(CollIndex p) { partNumsToDo_ -= p; }
+  inline void clearPartNumsToDo() { partNumsToDo_.clearFast(); }
+  inline NABoolean partNumsToDoIsEmpty() const { return partNumsToDo_.isEmpty(); }
 
   // iterate through partitions to do (end is indicated by NULL_COLL_INDEX)
-  inline CollIndex getFirstPartNumToDo() const
-                                         { return getNextPartNumToDo(0); }
+  inline CollIndex getFirstPartNumToDo() const { return getNextPartNumToDo(0); }
   CollIndex getNextPartNumToDo(CollIndex prev) const;
 
-  inline void addActiveChild(CollIndex c)        
-                                    { activeChildren_.addElementFast(c); }
-  inline void removeActiveChild(CollIndex c)     { activeChildren_ -= c; }
-  inline CollIndex getPrevActiveChild(CollIndex prev)
-         { return activeChildren_.prevUsed(prev); }
-  inline CollIndex getLastActiveChild()
-         { return getPrevActiveChild(activeChildren_.getLastStaleBit()); }
-  inline CollIndex getLastStaleChild()
-         { return activeChildren_.getLastStaleBit(); }
+  inline void addActiveChild(CollIndex c) { activeChildren_.addElementFast(c); }
+  inline void removeActiveChild(CollIndex c) { activeChildren_ -= c; }
+  inline CollIndex getPrevActiveChild(CollIndex prev) { return activeChildren_.prevUsed(prev); }
+  inline CollIndex getLastActiveChild() { return getPrevActiveChild(activeChildren_.getLastStaleBit()); }
+  inline CollIndex getLastStaleChild() { return activeChildren_.getLastStaleBit(); }
   inline CollIndex getFirstActiveChild() { return getNextActiveChild(0); }
   CollIndex getNextActiveChild(CollIndex prev);
 
-  inline CollIndex getNumActiveChildren() const
-                                     { return activeChildren_.entries(); }
-  inline const NABitVector &getAllActiveChildren() const
-                                               { return activeChildren_; }
-  inline CollIndex getCurrActiveChild()       { return currActiveChild_; }
-  inline void setCurrActiveChild(CollIndex c)    { currActiveChild_ = c; }
+  inline CollIndex getNumActiveChildren() const { return activeChildren_.entries(); }
+  inline const NABitVector &getAllActiveChildren() const { return activeChildren_; }
+  inline CollIndex getCurrActiveChild() { return currActiveChild_; }
+  inline void setCurrActiveChild(CollIndex c) { currActiveChild_ = c; }
 
-  inline ex_split_top_tcb::workState getState() const
-           { return (ex_split_top_tcb::workState)state_; }
+  inline ex_split_top_tcb::workState getState() const { return (ex_split_top_tcb::workState)state_; }
   void setState(ex_split_top_tcb::workState s);
 
-  void addDiagsArea(ComDiagsArea * diagsArea);
-  inline ComDiagsArea * getDiagsArea() const        { return diagsArea_; }
-  inline ComDiagsArea * detachDiagsArea()
-        { ComDiagsArea *res = diagsArea_; diagsArea_ = NULL; return res; }
-
-  enum flagvals {
-    ACTIVE_PART_NUM_CMD_SENT = 0x0001,
-    MAINTAIN_GET_NEXT_COUNTERS = 0x0002,
-    REC_SKIPPED = 0x0004
-  };
-
-  NABoolean activePartNumCmdSent() const { 
-    return (splitTopPStateFlags_ & ACTIVE_PART_NUM_CMD_SENT) ? TRUE : FALSE;
+  void addDiagsArea(ComDiagsArea *diagsArea);
+  inline ComDiagsArea *getDiagsArea() const { return diagsArea_; }
+  inline ComDiagsArea *detachDiagsArea() {
+    ComDiagsArea *res = diagsArea_;
+    diagsArea_ = NULL;
+    return res;
   }
-  void setActivePartNumCmdSent() { splitTopPStateFlags_ |= ACTIVE_PART_NUM_CMD_SENT ;}
-  void clearActivePartNumCmdSent() { splitTopPStateFlags_ &= ~ACTIVE_PART_NUM_CMD_SENT ;}
+
+  enum flagvals { ACTIVE_PART_NUM_CMD_SENT = 0x0001, MAINTAIN_GET_NEXT_COUNTERS = 0x0002, REC_SKIPPED = 0x0004 };
+
+  NABoolean activePartNumCmdSent() const { return (splitTopPStateFlags_ & ACTIVE_PART_NUM_CMD_SENT) ? TRUE : FALSE; }
+  void setActivePartNumCmdSent() { splitTopPStateFlags_ |= ACTIVE_PART_NUM_CMD_SENT; }
+  void clearActivePartNumCmdSent() { splitTopPStateFlags_ &= ~ACTIVE_PART_NUM_CMD_SENT; }
 
   NABoolean maintainGetNextCounters() const {
     return (splitTopPStateFlags_ & MAINTAIN_GET_NEXT_COUNTERS) ? TRUE : FALSE;
   }
-  void setMaintainGetNextCounters() { splitTopPStateFlags_ |= MAINTAIN_GET_NEXT_COUNTERS ;}
-  void clearMaintainGetNextCounters() { splitTopPStateFlags_ &= ~MAINTAIN_GET_NEXT_COUNTERS ;}
+  void setMaintainGetNextCounters() { splitTopPStateFlags_ |= MAINTAIN_GET_NEXT_COUNTERS; }
+  void clearMaintainGetNextCounters() { splitTopPStateFlags_ &= ~MAINTAIN_GET_NEXT_COUNTERS; }
 
-  NABoolean recSkipped() const {
-    return (splitTopPStateFlags_ & REC_SKIPPED) ? TRUE : FALSE;
-  }
-  void setRecSkipped() { splitTopPStateFlags_ |= REC_SKIPPED ;}
-  void clearRecSkipped() { splitTopPStateFlags_ &= ~REC_SKIPPED ;}
+  NABoolean recSkipped() const { return (splitTopPStateFlags_ & REC_SKIPPED) ? TRUE : FALSE; }
+  void setRecSkipped() { splitTopPStateFlags_ |= REC_SKIPPED; }
+  void clearRecSkipped() { splitTopPStateFlags_ &= ~REC_SKIPPED; }
 
-private:
-
+ private:
   // state of processing this request
-  UInt16                      state_;
+  UInt16 state_;
 
-  UInt16                      splitTopPStateFlags_;
+  UInt16 splitTopPStateFlags_;
 
   // which DP2 partition numbers (for PAPA node) still have to be done
-  NABitVector                 partNumsToDo_;
+  NABitVector partNumsToDo_;
 
   // which child TCBs are processing requests on behalf of this request
-  NABitVector                 activeChildren_;
+  NABitVector activeChildren_;
 
   // child which is currently returning rows to the parent
-  CollIndex                   currActiveChild_;
+  CollIndex currActiveChild_;
 
   // how many rows sent back to parent so far
-  Int64                       matchCount_;
+  Int64 matchCount_;
 
   // errors that have accumulated before we can reply to this request
-  ComDiagsArea                *diagsArea_;
+  ComDiagsArea *diagsArea_;
 
   // how many OK_MMORE or Q_SQLERRORS sent back to parent so far. Used for Get_N requests and row counting in NJ node.
-  Int64                       matchCountForGetN_;
+  Int64 matchCountForGetN_;
 };
-
 
 // This class represents the extended version of the SplitTop PState.
 // The extended version contains state required for GET_NEXT_N
@@ -501,19 +448,17 @@ private:
 // and can save a lot of memory when very large queues are used.
 // The SplitTop PState class was split into two version to reduce the amount of
 // memory required, especially when using large queues for Split Top.
-class ex_split_top_private_state_ext : public ex_split_top_private_state
-{
+class ex_split_top_private_state_ext : public ex_split_top_private_state {
   friend class ex_split_top_tcb;
 
-public:
-
+ public:
   ex_split_top_private_state_ext();
   ~ex_split_top_private_state_ext();
 
   void init();
   void setHeap(CollHeap *heap);
 
-private:
+ private:
   // BertBert VVV
   // Variables used to process GET_NEXT_N commands.
   // GET_NEXT_N is used to execute a non-streaming destructive select.
@@ -521,7 +466,7 @@ private:
   //  partition that we are retrieving deleted/updated rows from via the GET_NEXT_N
   //  protocol.  activePartNumCmdSent remembers if we are waiting for a
   //  response from the active partition.
-  CollIndex                   activePartNum_;
+  CollIndex activePartNum_;
 
   // Variables used to process GET_NEXT_N_MAYBE_WAIT commands.
   // The two bitvectors combined define a state machine:
@@ -535,29 +480,27 @@ private:
   //	(C) -> (D): send a GET_NEXT_N
   //	(D) -> (C): receive rows plus Q_GET_DONE
   //	(D) -> (A): receive a Q_GET_DONE
-  NABitVector                 commandSent_;
-  NABitVector		      rowsAvailable_;
-  Lng32			      rowsBeforeQGetDone_; // this assumes one active partition at a time.
+  NABitVector commandSent_;
+  NABitVector rowsAvailable_;
+  Lng32 rowsBeforeQGetDone_;  // this assumes one active partition at a time.
 
   // Used for GET_NEXT_N protocol.
   // satisfiedRequestValue = number of rows returned + number of rows we could not satisfy.
   //			   = down-queue-entry.requestValue after a Q_GET_DONE is returned.
   //			   = less than down-queue-entry.requestValue if Q_GET_DONE is not yet returned.
   // down-queue-entry.requestValue = requested number of rows to be returned.
-  Lng32			      satisfiedRequestValue_;
+  Lng32 satisfiedRequestValue_;
   // Used for GET_NEXT_N protocol.
   // satisfiedGetNexts = number of Q_GET_DONEs returned
   // down-queue-entry.numGetNexts = number of GET_NEXT_N(_MAYBE_WAIT) received on the down-queue-entry
-  Lng32			      satisfiedGetNexts_;
-  // The counters above are signed 32 bit, so we need a guard to prevent them 
+  Lng32 satisfiedGetNexts_;
+  // The counters above are signed 32 bit, so we need a guard to prevent them
   // from being incremented in the non-pubsub code path.
 
   // microseconds time when we last timed out the stream (streamTimeout_ is the .01 seconds to timeout).
-  Int64			      time_of_stream_get_next_usec_;
+  Int64 time_of_stream_get_next_usec_;
 
   // BertBert ^^^
-
 };
 
 #endif /* EX_SPLIT_TOP_H */
-

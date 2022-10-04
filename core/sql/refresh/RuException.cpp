@@ -40,119 +40,106 @@
 //--------------------------------------------------------------------------//
 //	CRUException::StoreData()
 //--------------------------------------------------------------------------//
-void CRUException::StoreData(CUOFsIpcMessageTranslator &translator)
-{
-	Int32 i;
-	Int32 numErrors = GetNumErrors();
-	translator.WriteBlock(&numErrors,sizeof(Int32));
-	for (i=0;i<numErrors;i++)
-	{
-		Lng32 errorCode = GetErrorCode(i);
-		translator.WriteBlock(&errorCode,sizeof(Lng32));
-		
-		// Load the resource, substitute the arguments etc.
-		BuildErrorMsg(i);
-		// Only now we know the exact (null-terminated) buffer length
-		Int32 bufsize = GetErrorMsgLen(i);
+void CRUException::StoreData(CUOFsIpcMessageTranslator &translator) {
+  Int32 i;
+  Int32 numErrors = GetNumErrors();
+  translator.WriteBlock(&numErrors, sizeof(Int32));
+  for (i = 0; i < numErrors; i++) {
+    Lng32 errorCode = GetErrorCode(i);
+    translator.WriteBlock(&errorCode, sizeof(Lng32));
 
-		char *buffer = new char[bufsize];
-		
-		GetErrorMsg(i, buffer, bufsize);
-		Int32 strSize = strlen(buffer)+1;	// Can be smaller than bufsize
+    // Load the resource, substitute the arguments etc.
+    BuildErrorMsg(i);
+    // Only now we know the exact (null-terminated) buffer length
+    Int32 bufsize = GetErrorMsgLen(i);
 
-		translator.WriteBlock(&strSize, sizeof(Int32));
-		translator.WriteBlock(buffer, strSize);
+    char *buffer = new char[bufsize];
 
-		delete [] buffer;
+    GetErrorMsg(i, buffer, bufsize);
+    Int32 strSize = strlen(buffer) + 1;  // Can be smaller than bufsize
 
-		// Oblivious. The error message is already built.
-		// StoreErrorParams(translator,i);
-	}
+    translator.WriteBlock(&strSize, sizeof(Int32));
+    translator.WriteBlock(buffer, strSize);
+
+    delete[] buffer;
+
+    // Oblivious. The error message is already built.
+    // StoreErrorParams(translator,i);
+  }
 }
 
 //--------------------------------------------------------------------------//
 //	CRUException::StoreErrorParams()
 //--------------------------------------------------------------------------//
-void CRUException::StoreErrorParams(CUOFsIpcMessageTranslator &translator,
-									Int32 index)
-{
-	Int32 i;
+void CRUException::StoreErrorParams(CUOFsIpcMessageTranslator &translator, Int32 index) {
+  Int32 i;
 
-	Int32 numLongParams = GetNumLongArguments(index);
-	translator.WriteBlock(&numLongParams,sizeof(Int32));
-	for (i=0;i<numLongParams;i++)
-	{
-		Lng32 errorCode = GetLongArgument(index,i);
-		translator.WriteBlock(&errorCode,sizeof(Lng32));
-	}
+  Int32 numLongParams = GetNumLongArguments(index);
+  translator.WriteBlock(&numLongParams, sizeof(Int32));
+  for (i = 0; i < numLongParams; i++) {
+    Lng32 errorCode = GetLongArgument(index, i);
+    translator.WriteBlock(&errorCode, sizeof(Lng32));
+  }
 
-	Int32 numStrParams = GetNumStrArguments(index);
-	translator.WriteBlock(&numStrParams,sizeof(Int32));
-	for (i=0;i<numStrParams;i++)
-	{
-		const char *param = GetStrArgument(index,i);
-		Int32 strSize = strlen(param) + 1;
-		translator.WriteBlock(&strSize,sizeof(Int32));
-		translator.WriteBlock(param,strSize);
-	}
+  Int32 numStrParams = GetNumStrArguments(index);
+  translator.WriteBlock(&numStrParams, sizeof(Int32));
+  for (i = 0; i < numStrParams; i++) {
+    const char *param = GetStrArgument(index, i);
+    Int32 strSize = strlen(param) + 1;
+    translator.WriteBlock(&strSize, sizeof(Int32));
+    translator.WriteBlock(param, strSize);
+  }
 }
 
 //--------------------------------------------------------------------------//
 //	CRUException::LoadData()
 //--------------------------------------------------------------------------//
-void CRUException::LoadData(CUOFsIpcMessageTranslator &translator)
-{
-	Int32 i;
-	Int32 numErrors;
-	translator.ReadBlock(&numErrors,sizeof(Int32));
-	for (i=0;i<numErrors;i++)
-	{
-		Lng32 errorCode;
-		translator.ReadBlock(&errorCode,sizeof(Lng32));
-		
-		Int32 strSize;
-		translator.ReadBlock(&strSize,sizeof(Int32));
+void CRUException::LoadData(CUOFsIpcMessageTranslator &translator) {
+  Int32 i;
+  Int32 numErrors;
+  translator.ReadBlock(&numErrors, sizeof(Int32));
+  for (i = 0; i < numErrors; i++) {
+    Lng32 errorCode;
+    translator.ReadBlock(&errorCode, sizeof(Lng32));
 
-		char *buffer = new char[strSize];
-		translator.ReadBlock(buffer,strSize);
-		SetError(errorCode,buffer);
+    Int32 strSize;
+    translator.ReadBlock(&strSize, sizeof(Int32));
 
-		delete [] buffer;
+    char *buffer = new char[strSize];
+    translator.ReadBlock(buffer, strSize);
+    SetError(errorCode, buffer);
 
-		// Oblivious. The error message was built by StoreData().
-		// LoadErrorParams(translator,i);
-	}
+    delete[] buffer;
+
+    // Oblivious. The error message was built by StoreData().
+    // LoadErrorParams(translator,i);
+  }
 }
 
 //--------------------------------------------------------------------------//
 //	CRUException::LoadErrorParams()
 //--------------------------------------------------------------------------//
-void CRUException::
-LoadErrorParams(CUOFsIpcMessageTranslator &translator,
-				Int32 index)
-{
-	Int32 i;
+void CRUException::LoadErrorParams(CUOFsIpcMessageTranslator &translator, Int32 index) {
+  Int32 i;
 
-	Int32 numLongParams;
-	translator.ReadBlock(&numLongParams,sizeof(Int32));
-	for (i=0;i<numLongParams;i++)
-	{
-		Lng32 errorCode;
-		translator.ReadBlock(&errorCode,sizeof(Lng32));
-		AddArgument(errorCode);
-	}
+  Int32 numLongParams;
+  translator.ReadBlock(&numLongParams, sizeof(Int32));
+  for (i = 0; i < numLongParams; i++) {
+    Lng32 errorCode;
+    translator.ReadBlock(&errorCode, sizeof(Lng32));
+    AddArgument(errorCode);
+  }
 
-	Int32 numStrParams;
-	translator.ReadBlock(&numStrParams,sizeof(Int32));
-	for (i=0;i<numStrParams;i++)
-	{
-		Int32 strSize;
-		translator.ReadBlock(&strSize,sizeof(Int32));
+  Int32 numStrParams;
+  translator.ReadBlock(&numStrParams, sizeof(Int32));
+  for (i = 0; i < numStrParams; i++) {
+    Int32 strSize;
+    translator.ReadBlock(&strSize, sizeof(Int32));
 
-		char *buffer = new char[strSize];
-		translator.ReadBlock(buffer,strSize);
-		AddArgument(buffer);
+    char *buffer = new char[strSize];
+    translator.ReadBlock(buffer, strSize);
+    AddArgument(buffer);
 
-		delete [] buffer;
-	}
+    delete[] buffer;
+  }
 }

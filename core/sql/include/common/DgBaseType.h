@@ -43,9 +43,7 @@
 
 class ComDiagsArea;
 
-
-enum DGTYPE 
-{
+enum DGTYPE {
   DGSQLCODE,
   DGCUSTOMSQLSTATE,
   DGCOLUMNNAME,
@@ -80,19 +78,12 @@ enum DGTYPE
 // Due to the Catalog Manager need. I (Huy) introduced a new base class call DgBase
 // and all other Dg classes will be derived from the base class.
 
-
-class DgBase
-{
-public:
-
+class DgBase {
+ public:
   virtual DGTYPE getTypeName() const = 0;
+};
 
-}; 
-
-
-
-ComDiagsArea& operator<<(ComDiagsArea&, const DgBase &);
-
+ComDiagsArea &operator<<(ComDiagsArea &, const DgBase &);
 
 // The following are classes defined solely for the purpose
 // of creating manipulators for streaming into a ComDiagsArea class.
@@ -102,403 +93,349 @@ ComDiagsArea& operator<<(ComDiagsArea&, const DgBase &);
 // limit due to a new DgSqlCode going in), or, if areMore() is true.
 // This functionality supports the concept of length limit of a ComDiagsArea.
 
-class DgSqlCode : public DgBase
-{
-public:
+class DgSqlCode : public DgBase {
+ public:
   enum ErrorOrWarning { ERROR_ = -1, WARNING_ = +1 };
-  DgSqlCode   (Lng32   aSqlCode);
-  DgSqlCode   (Lng32   aSqlCode, ErrorOrWarning e);
+  DgSqlCode(Lng32 aSqlCode);
+  DgSqlCode(Lng32 aSqlCode, ErrorOrWarning e);
 
-  Lng32        getSQLCODE() const {return theSQLCODE_; }
+  Lng32 getSQLCODE() const { return theSQLCODE_; }
 
-  DGTYPE      getTypeName() const ;
-private:
-  Lng32        theSQLCODE_;
+  DGTYPE getTypeName() const;
+
+ private:
+  Lng32 theSQLCODE_;
 };
 
+class DgColumnName : public DgBase {
+ public:
+  DgColumnName(const char *const);
 
-class DgColumnName : public DgBase
-{
-public:
+  const char *getCharStr() const { return theCharStr_; };
 
-  DgColumnName  (const char * const);
+  DGTYPE getTypeName() const;
 
-  const char * getCharStr  () const {return theCharStr_; };
-
-  DGTYPE      getTypeName() const;
-private:
-  const char * const theCharStr_;
+ private:
+  const char *const theCharStr_;
 };
 
+class DgCustomSQLState : public DgBase {
+ public:
+  DgCustomSQLState(const char *const);
 
-class DgCustomSQLState : public DgBase
-{
-public:
+  const char *getCharStr() const { return theCharStr_; };
 
-  DgCustomSQLState  (const char * const);
+  DGTYPE getTypeName() const;
 
-  const char * getCharStr  () const {return theCharStr_; };
-
-  DGTYPE      getTypeName() const;
-private:
-  const char * const theCharStr_;
+ private:
+  const char *const theCharStr_;
 };
 
+class DgCatalogName : public DgBase {
+ public:
+  DgCatalogName(const char *const);
 
-class DgCatalogName : public DgBase
-{
-public:
+  const char *getCharStr() const { return theCharStr_; };
 
-  DgCatalogName  (const char * const);
+  DGTYPE getTypeName() const;
 
-  const char * getCharStr  () const {return theCharStr_; };
-
-  DGTYPE      getTypeName() const;
-private:
-  const char * const theCharStr_;
+ private:
+  const char *const theCharStr_;
 };
 
+class DgSchemaName : public DgBase {
+ public:
+  DgSchemaName(const char *const);
 
-class DgSchemaName : public DgBase
-{
-public:
+  const char *getCharStr() const { return theCharStr_; };
 
-  DgSchemaName  (const char * const);
+  DGTYPE getTypeName() const;
 
-  const char * getCharStr  () const {return theCharStr_; };
-
-  DGTYPE      getTypeName() const;
-private:
-  const char * const theCharStr_;
+ private:
+  const char *const theCharStr_;
 };
 
+class DgTableName : public DgBase {
+ public:
+  DgTableName(const char *const);
 
-class DgTableName : public DgBase
-{
-public:
+  const char *getCharStr() const { return theCharStr_; };
 
-  DgTableName  (const char * const);
+  DGTYPE getTypeName() const;
 
-  const char * getCharStr  () const {return theCharStr_; };
-
-  DGTYPE      getTypeName() const;
-private:
-  const char * const theCharStr_;
+ private:
+  const char *const theCharStr_;
 };
 
+class DgConstraintCatalog : public DgBase {
+ public:
+  DgConstraintCatalog(const char *const);
 
-class DgConstraintCatalog : public DgBase
-{
-public:
+  const char *getCharStr() const { return theCharStr_; };
 
-  DgConstraintCatalog  (const char * const);
+  DGTYPE getTypeName() const;
 
-  const char * getCharStr  () const {return theCharStr_; };
-
-  DGTYPE      getTypeName() const ;
-private:
-  const char * const theCharStr_;
+ private:
+  const char *const theCharStr_;
 };
 
+class DgConstraintSchema : public DgBase {
+ public:
+  DgConstraintSchema(const char *const);
 
-class DgConstraintSchema : public DgBase
-{
-public:
+  const char *getCharStr() const { return theCharStr_; };
 
-  DgConstraintSchema  (const char * const);
+  DGTYPE getTypeName() const;
 
-  const char * getCharStr  () const {return theCharStr_; };
-
-  DGTYPE      getTypeName() const ;
-private:
-  const char * const theCharStr_;
+ private:
+  const char *const theCharStr_;
 };
 
+class DgConstraintName : public DgBase {
+ public:
+  DgConstraintName(const char *const);
 
-class DgConstraintName : public DgBase
-{
-public:
+  const char *getCharStr() const { return theCharStr_; };
 
-  DgConstraintName  (const char * const);
+  DGTYPE getTypeName() const;
 
-  const char * getCharStr  () const {return theCharStr_; };
-
-  DGTYPE      getTypeName() const ;
-private:
-  const char * const theCharStr_;
+ private:
+  const char *const theCharStr_;
 };
 
+class DgRowNumber : public DgBase {
+ public:
+  DgRowNumber(Lng32);
 
-class DgRowNumber : public DgBase
-{ 
-public:
+  Lng32 getLong() const { return theLong_; };
 
-  DgRowNumber  (Lng32);
+  DGTYPE getTypeName() const;
 
-  Lng32 getLong  () const {return theLong_; };
-
-  DGTYPE      getTypeName() const;
-private:
+ private:
   Lng32 theLong_;
 };
 
+class DgTriggerCatalog : public DgBase {
+ public:
+  DgTriggerCatalog(const char *const);
+  const char *getCharStr() const { return theCharStr_; };
+  DGTYPE getTypeName() const;
 
-class DgTriggerCatalog : public DgBase
-{
-public:
-  DgTriggerCatalog  (const char * const);
-  const char * getCharStr  () const {return theCharStr_; };
-  DGTYPE      getTypeName() const ;
-private:
-  const char * const theCharStr_;
+ private:
+  const char *const theCharStr_;
 };
 
+class DgTriggerSchema : public DgBase {
+ public:
+  DgTriggerSchema(const char *const);
+  const char *getCharStr() const { return theCharStr_; };
+  DGTYPE getTypeName() const;
 
-class DgTriggerSchema : public DgBase
-{
-public:
-  DgTriggerSchema  (const char * const);
-  const char * getCharStr  () const {return theCharStr_; };
-  DGTYPE      getTypeName() const ;
-private:
-  const char * const theCharStr_;
+ private:
+  const char *const theCharStr_;
 };
 
+class DgTriggerName : public DgBase {
+ public:
+  DgTriggerName(const char *const);
+  const char *getCharStr() const { return theCharStr_; };
+  DGTYPE getTypeName() const;
 
-class DgTriggerName : public DgBase
-{
-public:
-  DgTriggerName  (const char * const);
-  const char * getCharStr  () const {return theCharStr_; };
-  DGTYPE      getTypeName() const ;
-private:
-  const char * const theCharStr_;
+ private:
+  const char *const theCharStr_;
 };
 
+class DgNskCode : public DgBase {
+ public:
+  DgNskCode(Lng32);
 
-class DgNskCode : public DgBase
-{ 
-public:
+  Lng32 getLong() const { return theLong_; };
 
-  DgNskCode  (Lng32);
+  DGTYPE getTypeName() const;
 
-  Lng32 getLong  () const {return theLong_; };
-
-  DGTYPE      getTypeName() const;
-private:
+ private:
   Lng32 theLong_;
 };
 
+class DgString0 : public DgBase {
+ public:
+  DgString0(const char *const);
 
-class DgString0 : public DgBase
-{ 
-public:
+  const char *getCharStr() const { return theCharStr_; };
 
-  DgString0  (const char * const);
+  DGTYPE getTypeName() const;
 
-  const char * getCharStr  () const {return theCharStr_; };
-
-  DGTYPE      getTypeName() const;
-private:
-  const char * const theCharStr_;
+ private:
+  const char *const theCharStr_;
 };
 
+class DgString1 : public DgBase {
+ public:
+  DgString1(const char *const);
 
-class DgString1 : public DgBase 
-{ 
-public:
+  const char *getCharStr() const { return theCharStr_; };
 
-  DgString1  (const char * const);
+  DGTYPE getTypeName() const;
 
-  const char * getCharStr  () const {return theCharStr_; };
-
-  DGTYPE      getTypeName() const ;
-private:
-  const char * const theCharStr_;
+ private:
+  const char *const theCharStr_;
 };
 
+class DgString2 : public DgBase {
+ public:
+  DgString2(const char *const);
 
-class DgString2 : public DgBase
-{ 
-public:
+  const char *getCharStr() const { return theCharStr_; };
 
-  DgString2  (const char * const);
+  DGTYPE getTypeName() const;
 
-  const char * getCharStr  () const {return theCharStr_; };
-
-  DGTYPE      getTypeName() const ;
-private:
-  const char * const theCharStr_;
+ private:
+  const char *const theCharStr_;
 };
 
+class DgString3 : public DgBase {
+ public:
+  DgString3(const char *const);
 
-class DgString3 : public DgBase
-{ 
-public:
+  const char *getCharStr() const { return theCharStr_; };
 
-  DgString3  (const char * const);
+  DGTYPE getTypeName() const;
 
-  const char * getCharStr  () const {return theCharStr_; };
-
-  DGTYPE      getTypeName() const;
-private:
-  const char * const theCharStr_;
+ private:
+  const char *const theCharStr_;
 };
 
+class DgString4 : public DgBase {
+ public:
+  DgString4(const char *const);
 
-class DgString4 : public DgBase
-{ 
-public:
+  const char *getCharStr() const { return theCharStr_; };
 
-  DgString4  (const char * const);
+  DGTYPE getTypeName() const;
 
-  const char * getCharStr  () const {return theCharStr_; };
-
-  DGTYPE      getTypeName() const ;
-private:
-  const char * const theCharStr_;
+ private:
+  const char *const theCharStr_;
 };
-
 
 // Added to allow NCHAR error messages.
-class DgWString0 : public DgBase
-{ 
-public:
+class DgWString0 : public DgBase {
+ public:
+  DgWString0(const NAWchar *const x) : theWCharStr_(x){};
 
-  DgWString0  (const NAWchar* const x) : theWCharStr_(x) {};
+  const NAWchar *getWCharStr() const { return theWCharStr_; };
 
-  const NAWchar* getWCharStr  () const {return theWCharStr_; };
+  DGTYPE getTypeName() const { return DGWSTRING0; };
 
-  DGTYPE      getTypeName() const { return DGWSTRING0; };
-private:
-  const NAWchar* const theWCharStr_;
+ private:
+  const NAWchar *const theWCharStr_;
 };
 
+class DgWString1 : public DgBase {
+ public:
+  DgWString1(const NAWchar *const x) : theWCharStr_(x){};
 
-class DgWString1 : public DgBase 
-{ 
-public:
+  const NAWchar *getWCharStr() const { return theWCharStr_; };
 
-  DgWString1  (const NAWchar* const x) : theWCharStr_(x) {};
+  DGTYPE getTypeName() const { return DGWSTRING1; };
 
-  const NAWchar* getWCharStr  () const {return theWCharStr_; };
-
-  DGTYPE      getTypeName() const { return DGWSTRING1; };
-private:
-  const NAWchar* const theWCharStr_;
+ private:
+  const NAWchar *const theWCharStr_;
 };
 
+class DgWString2 : public DgBase {
+ public:
+  DgWString2(const NAWchar *const x) : theWCharStr_(x){};
 
-class DgWString2 : public DgBase
-{ 
-public:
+  const NAWchar *getWCharStr() const { return theWCharStr_; };
 
-  DgWString2  (const NAWchar* const x) : theWCharStr_(x) {};
+  DGTYPE getTypeName() const { return DGWSTRING2; };
 
-  const NAWchar* getWCharStr  () const {return theWCharStr_; };
-
-  DGTYPE      getTypeName() const  { return DGWSTRING2; };
-private:
-  const NAWchar* const theWCharStr_;
+ private:
+  const NAWchar *const theWCharStr_;
 };
 
+class DgWString3 : public DgBase {
+ public:
+  DgWString3(const NAWchar *const x) : theWCharStr_(x){};
 
-class DgWString3 : public DgBase
-{ 
-public:
+  const NAWchar *getWCharStr() const { return theWCharStr_; };
 
-  DgWString3  (const NAWchar* const x) : theWCharStr_(x) {};
+  DGTYPE getTypeName() const { return DGWSTRING3; };
 
-  const NAWchar* getWCharStr  () const {return theWCharStr_; };
-
-  DGTYPE      getTypeName() const { return DGWSTRING3; };
-private:
-  const NAWchar* const theWCharStr_;
+ private:
+  const NAWchar *const theWCharStr_;
 };
 
+class DgWString4 : public DgBase {
+ public:
+  DgWString4(const NAWchar *const x) : theWCharStr_(x){};
 
-class DgWString4 : public DgBase
-{ 
-public:
+  const NAWchar *getWCharStr() const { return theWCharStr_; };
 
-  DgWString4  (const NAWchar* const x) : theWCharStr_(x) {};
+  DGTYPE getTypeName() const { return DGWSTRING4; };
 
-  const NAWchar* getWCharStr  () const {return theWCharStr_; };
-
-  DGTYPE      getTypeName() const { return DGWSTRING4; };
-private:
-  const NAWchar* const theWCharStr_;
+ private:
+  const NAWchar *const theWCharStr_;
 };
 
+class DgInt0 : public DgBase {
+ public:
+  DgInt0(Lng32);
 
-class DgInt0 : public DgBase
-{ 
-public:
+  Lng32 getLong() const { return theLong_; };
 
-  DgInt0  (Lng32);
+  DGTYPE getTypeName() const;
 
-  Lng32 getLong  () const {return theLong_; };
-
-  DGTYPE      getTypeName() const;
-private:
+ private:
   Lng32 theLong_;
 };
 
+class DgInt1 : public DgBase {
+ public:
+  DgInt1(Lng32);
 
-class DgInt1 : public DgBase
-{ 
-public:
+  Lng32 getLong() const { return theLong_; };
 
-  DgInt1  (Lng32);
+  DGTYPE getTypeName() const;
 
-  Lng32 getLong  () const {return theLong_; };
-
-  DGTYPE      getTypeName() const ;
-private:
+ private:
   Lng32 theLong_;
 };
 
+class DgInt2 : public DgBase {
+ public:
+  DgInt2(Lng32);
 
-class DgInt2 : public DgBase
-{ 
-public:
+  Lng32 getLong() const { return theLong_; };
 
-  DgInt2  (Lng32);
+  DGTYPE getTypeName() const;
 
-  Lng32 getLong  () const {return theLong_; };
-
-  DGTYPE      getTypeName() const ;
-private:
+ private:
   Lng32 theLong_;
 };
 
+class DgInt3 : public DgBase {
+ public:
+  DgInt3(Lng32);
 
-class DgInt3 : public DgBase
-{ 
-public:
+  Lng32 getLong() const { return theLong_; };
 
-  DgInt3  (Lng32);
+  DGTYPE getTypeName() const;
 
-  Lng32 getLong  () const {return theLong_; };
-
-  DGTYPE      getTypeName() const ;
-private:
+ private:
   Lng32 theLong_;
 };
 
+class DgInt4 : public DgBase {
+ public:
+  DgInt4(Lng32);
 
-class DgInt4 : public DgBase
-{ 
-public:
+  Lng32 getLong() const { return theLong_; };
 
-  DgInt4  (Lng32);
+  DGTYPE getTypeName() const;
 
-  Lng32 getLong  () const {return theLong_; };
-
-  DGTYPE      getTypeName() const ;
-private:
+ private:
   Lng32 theLong_;
 };
 
-
-#endif // DGBASETYPE_H
+#endif  // DGBASETYPE_H

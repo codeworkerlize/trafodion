@@ -46,75 +46,60 @@
 
 //--------------------------------------------------------------//
 //	CRULockEquivSetTask
-//	
-//	The purpose of the Lock Equivalence Set task is to execute 
-//	synchronization between involved base tables by locking all the 
-//  tables or the tables' logs that are members of this lock 
+//
+//	The purpose of the Lock Equivalence Set task is to execute
+//	synchronization between involved base tables by locking all the
+//  tables or the tables' logs that are members of this lock
 //	equivalence set.
 //
 //--------------------------------------------------------------//
 
 class REFRESH_LIB_CLASS CRULockEquivSetTask : public CRUTask {
+  //---------------------------------------//
+  //	PUBLIC AREA
+  //---------------------------------------//
+ public:
+  CRULockEquivSetTask(Lng32 id, const CRUTblList &tblList);
+  virtual ~CRULockEquivSetTask();
 
-	//---------------------------------------//
-	//	PUBLIC AREA
-	//---------------------------------------//
-public:
+  //-----------------------------------//
+  // Accessors
+  //-----------------------------------//
+ public:
+  //-- Implementation of pure virtuals
+  virtual CRUTask::Type GetType() const { return CRUTask::LOCK_EQUIV_SET; }
 
-	CRULockEquivSetTask(Lng32 id, const CRUTblList &tblList);
-	virtual ~CRULockEquivSetTask();
+  virtual BOOL HasObject(TInt64 uid) const;
 
-	//-----------------------------------//
-	// Accessors
-	//-----------------------------------//
-public:
-	//-- Implementation of pure virtuals
-	virtual CRUTask::Type GetType() const 
-	{ 
-		return CRUTask::LOCK_EQUIV_SET; 
-	}
+  CRUTblList &GetTableList() { return tblList_; }
 
-	virtual BOOL HasObject(TInt64 uid) const;
+  //-----------------------------------//
+  // Mutators
+  //-----------------------------------//
 
-	CRUTblList& GetTableList()
-	{
-		return tblList_;
-	}
+  //---------------------------------------//
+  //	PRIVATE AND PROTECTED AREA
+  //---------------------------------------//
+ protected:
+  virtual CDSString GetTaskName() const;
 
-	//-----------------------------------//
-	// Mutators
-	//-----------------------------------//
+  // If my only successor has failed - I am obsolete
+  virtual void HandleSuccessorFailure(CRUTask &task) {}
 
-	//---------------------------------------//
-	//	PRIVATE AND PROTECTED AREA
-	//---------------------------------------//
-protected:
-	virtual CDSString GetTaskName() const;
+  // Create the concrete task executor
+  virtual CRUTaskExecutor *CreateExecutorInstance();
 
-	// If my only successor has failed - I am obsolete
-	virtual void HandleSuccessorFailure(CRUTask &task) {}
+  virtual TInt32 GetComputedCost() const { return 0; }
 
-	// Create the concrete task executor
-	virtual CRUTaskExecutor *CreateExecutorInstance();
+  virtual BOOL IsImmediate() const { return TRUE; }
 
-	virtual TInt32 GetComputedCost() const
-	{
-		return 0;
-	}
+ private:
+  //-- Prevent copying
+  CRULockEquivSetTask(const CRULockEquivSetTask &other);
+  CRULockEquivSetTask &operator=(const CRULockEquivSetTask &other);
 
-	virtual BOOL IsImmediate() const
-	{
-		return TRUE;
-	}
-
-private:
-	//-- Prevent copying
-	CRULockEquivSetTask(const CRULockEquivSetTask &other);
-	CRULockEquivSetTask& operator= (const CRULockEquivSetTask &other);
-
-private:
-
-	CRUTblList tblList_;
+ private:
+  CRUTblList tblList_;
 };
 
 #endif

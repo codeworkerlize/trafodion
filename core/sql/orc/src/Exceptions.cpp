@@ -20,40 +20,35 @@
 
 namespace orc {
 
-  NotImplementedYet::NotImplementedYet(const std::string& what_arg
-                                       ) : logic_error(what_arg) {
-    // PASS
-  }
-
-  NotImplementedYet::NotImplementedYet(const char* what_arg
-                                       ) :logic_error(what_arg) {
-    // PASS
-  }
-
-  NotImplementedYet::NotImplementedYet(const NotImplementedYet& error
-                                       ): logic_error(error) {
-    // PASS
-  }
-
-  NotImplementedYet::~NotImplementedYet() noexcept {
-    // PASS
-  }
-
-  ParseError::ParseError(const std::string& what_arg
-                         ): runtime_error(what_arg) {
-    // PASS
-  }
-
-  ParseError::ParseError(const char* what_arg
-                         ): runtime_error(what_arg) {
-    // PASS
-  }
-
-  ParseError::ParseError(const ParseError& error): runtime_error(error) {
-    // PASS
-  }
-
-  ParseError::~ParseError() noexcept {
-    // PASS
-  }
+NotImplementedYet::NotImplementedYet(const std::string &what_arg) : logic_error(what_arg) {
+  // PASS
 }
+
+NotImplementedYet::NotImplementedYet(const char *what_arg) : logic_error(what_arg) {
+  // PASS
+}
+
+NotImplementedYet::NotImplementedYet(const NotImplementedYet &error) : logic_error(error) {
+  // PASS
+}
+
+NotImplementedYet::~NotImplementedYet() noexcept {
+  // PASS
+}
+
+ParseError::ParseError(const std::string &what_arg) : runtime_error(what_arg) {
+  // PASS
+}
+
+ParseError::ParseError(const char *what_arg) : runtime_error(what_arg) {
+  // PASS
+}
+
+ParseError::ParseError(const ParseError &error) : runtime_error(error) {
+  // PASS
+}
+
+ParseError::~ParseError() noexcept {
+  // PASS
+}
+}  // namespace orc

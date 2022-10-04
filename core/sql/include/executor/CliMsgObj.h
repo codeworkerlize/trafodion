@@ -23,47 +23,40 @@
 #ifndef _CLI_MSG_OBJ_H_
 #define _CLI_MSG_OBJ_H_
 
-//forwarded class declarations
+// forwarded class declarations
 class ComplexObject;
 
 class CtrlStmtComplexObject : public ComplexObject {
-public:
-  CtrlStmtComplexObject(NAMemory * heap, char * sqlText, Int16 sqlTextCharSet,
-			 CtrlStmtComplexObject *ctrlObj);
-  CtrlStmtComplexObject(char * sqlText, Int16 sqlTextCharSet,
-			 CtrlStmtComplexObject *ctrlObj);
+ public:
+  CtrlStmtComplexObject(NAMemory *heap, char *sqlText, Int16 sqlTextCharSet, CtrlStmtComplexObject *ctrlObj);
+  CtrlStmtComplexObject(char *sqlText, Int16 sqlTextCharSet, CtrlStmtComplexObject *ctrlObj);
   CtrlStmtComplexObject(NAMemory *heap);
   CtrlStmtComplexObject();
   virtual ~CtrlStmtComplexObject();
   virtual void freeSubObjects();
-  virtual void sharedOperationSequence(MessageOperator *msgOp,
-				       InputContainer *input,
-				       OutputContainer *output);
-  char * getSqlText();
+  virtual void sharedOperationSequence(MessageOperator *msgOp, InputContainer *input, OutputContainer *output);
+  char *getSqlText();
   Int16 getSqlTextCharSet();
-  CtrlStmtComplexObject * getCtrlStmt();
+  CtrlStmtComplexObject *getCtrlStmt();
   void dump();
-private:
-  char * sqlText_;
+
+ private:
+  char *sqlText_;
   Int16 sqlTextCharSet_;
   CtrlStmtComplexObject *ctrlObj_;
 };
 
-class TransAttrComplexObject: public ComplexObject {
-public:
-  TransAttrComplexObject(NAMemory * heap, TransMode::AccessMode mode, 
-    TransMode::IsolationLevel isoLv, Lng32 diagSize, 
-    TransMode::RollbackMode rollbackMode, Lng32 autoabortInterval );
-  TransAttrComplexObject(TransMode::AccessMode mode, 
-    TransMode::IsolationLevel isoLv, Lng32 diagSize,
-    TransMode::RollbackMode rollbackMode, Lng32 autoabortInterval );
-  TransAttrComplexObject(NAMemory * heap);
+class TransAttrComplexObject : public ComplexObject {
+ public:
+  TransAttrComplexObject(NAMemory *heap, TransMode::AccessMode mode, TransMode::IsolationLevel isoLv, Lng32 diagSize,
+                         TransMode::RollbackMode rollbackMode, Lng32 autoabortInterval);
+  TransAttrComplexObject(TransMode::AccessMode mode, TransMode::IsolationLevel isoLv, Lng32 diagSize,
+                         TransMode::RollbackMode rollbackMode, Lng32 autoabortInterval);
+  TransAttrComplexObject(NAMemory *heap);
   TransAttrComplexObject();
   virtual ~TransAttrComplexObject();
   virtual void freeSubObjects();
-  virtual void sharedOperationSequence(MessageOperator *msgOp,
-    InputContainer *input,
-    OutputContainer *output);
+  virtual void sharedOperationSequence(MessageOperator *msgOp, InputContainer *input, OutputContainer *output);
   TransMode::AccessMode getAccessMode();
   TransMode::IsolationLevel getIsolationLevel();
   Lng32 getDiagSize();
@@ -75,20 +68,19 @@ public:
   void setDiagSize(Lng32 diagSize);
   void setAutoabortInterval(Lng32 autoabortInterval);
   void dump();
-private:
+
+ private:
   TransMode::AccessMode mode_;
   TransMode::IsolationLevel isoLv_;
   Lng32 diagSize_;
   TransMode::RollbackMode rollbackMode_;
   Lng32 autoabortInterval_;
-
-
 };
 
 // Stack allocated factory object.
 // Should used singleton pattern. However, NSK security does not allow globals.
-class CliComplexObjectFactory : public ComplexObjectFactory{
-public:
+class CliComplexObjectFactory : public ComplexObjectFactory {
+ public:
   virtual ComplexObject *manufacture(NAMemory *heap, ComplexObjectType objType);
 };
 #endif

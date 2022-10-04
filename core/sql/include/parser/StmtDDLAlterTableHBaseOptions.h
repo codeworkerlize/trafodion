@@ -10,7 +10,7 @@
  *               The methods in this class are defined either in this
  *               header file or in the source file StmtDDLAlter.cpp.
  *
- *               
+ *
  * Created:      5/5/15
  * Language:     C++
  *
@@ -40,7 +40,6 @@
  *****************************************************************************
  */
 
-
 #include "StmtDDLAlterTable.h"
 
 class ElemDDLHbaseOptions;  // forward reference
@@ -58,11 +57,8 @@ class StmtDDLAlterTableHBaseOptions;
 // -----------------------------------------------------------------------
 // definition of class StmtDDLAlterTableHBaseOptions
 // -----------------------------------------------------------------------
-class StmtDDLAlterTableHBaseOptions : public StmtDDLAlterTable
-{
-
-public:
-
+class StmtDDLAlterTableHBaseOptions : public StmtDDLAlterTable {
+ public:
   // constructor
   StmtDDLAlterTableHBaseOptions(ElemDDLHbaseOptions *pHBaseOptions);
 
@@ -70,43 +66,42 @@ public:
   virtual ~StmtDDLAlterTableHBaseOptions();
 
   // accessor
-  inline       ElemDDLHbaseOptions * getHBaseOptions();
-  inline const ElemDDLHbaseOptions * getHBaseOptions() const;
+  inline ElemDDLHbaseOptions *getHBaseOptions();
+  inline const ElemDDLHbaseOptions *getHBaseOptions() const;
 
   // cast
-  virtual StmtDDLAlterTableHBaseOptions * castToStmtDDLAlterTableHBaseOptions();
+  virtual StmtDDLAlterTableHBaseOptions *castToStmtDDLAlterTableHBaseOptions();
 
   // method for tracing
   virtual NATraceList getDetailInfo() const;
   virtual const NAString getText() const;
 
-  StmtDDLAlterTableHBaseOptions();   // DO NOT USE
-  StmtDDLAlterTableHBaseOptions(const StmtDDLAlterTableHBaseOptions &);   // DO NOT USE
-  StmtDDLAlterTableHBaseOptions & operator=(const StmtDDLAlterTableHBaseOptions &);  // DO NOT USE
+  StmtDDLAlterTableHBaseOptions();                                                  // DO NOT USE
+  StmtDDLAlterTableHBaseOptions(const StmtDDLAlterTableHBaseOptions &);             // DO NOT USE
+  StmtDDLAlterTableHBaseOptions &operator=(const StmtDDLAlterTableHBaseOptions &);  // DO NOT USE
 
-private:
-
+ private:
   // ---------------------------------------------------------------------
   // private methods
   // ---------------------------------------------------------------------
 
   void setHBaseOptions(ElemDDLHbaseOptions *pHBaseOptions);
 
-        // Copies the information in the specified HBase
-        // Options clause (pointed to by pHBaseOptions)
-        // to data member HBaseOptions_ in this object.
-        // 
-        // This method can only be invoked during the
-        // construction of this object when the HBase Options
-        // clause appears.
+  // Copies the information in the specified HBase
+  // Options clause (pointed to by pHBaseOptions)
+  // to data member HBaseOptions_ in this object.
+  //
+  // This method can only be invoked during the
+  // construction of this object when the HBase Options
+  // clause appears.
 
   // ---------------------------------------------------------------------
   // private data members
   // ---------------------------------------------------------------------
 
-  ElemDDLHbaseOptions * pHBaseOptions_;
+  ElemDDLHbaseOptions *pHBaseOptions_;
 
-}; // class StmtDDLAlterTableHBaseOptions
+};  // class StmtDDLAlterTableHBaseOptions
 
 // -----------------------------------------------------------------------
 // definitions of inline methods for class StmtDDLAlterTableHBaseOptions
@@ -116,16 +111,8 @@ private:
 // accessors
 //
 
-inline const ElemDDLHbaseOptions *
-StmtDDLAlterTableHBaseOptions::getHBaseOptions() const
-{
-  return pHBaseOptions_;
-}
+inline const ElemDDLHbaseOptions *StmtDDLAlterTableHBaseOptions::getHBaseOptions() const { return pHBaseOptions_; }
 
-inline ElemDDLHbaseOptions *
-StmtDDLAlterTableHBaseOptions::getHBaseOptions()
-{
-  return pHBaseOptions_;
-}
+inline ElemDDLHbaseOptions *StmtDDLAlterTableHBaseOptions::getHBaseOptions() { return pHBaseOptions_; }
 
-#endif // STMTDDLALTERTABLEHBASEOPTIONS_H
+#endif  // STMTDDLALTERTABLEHBASEOPTIONS_H

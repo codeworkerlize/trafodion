@@ -86,4 +86,4 @@
 #include "RuTblImpl.cpp"
 #include "RuTestTaskExecutor.cpp"
 #include "RuUnAuditRefreshTaskExecutor.cpp"
-#include "RuDeltaDef.cpp" // placed here due to MSDEV internal compiler error
+#include "RuDeltaDef.cpp"  // placed here due to MSDEV internal compiler error

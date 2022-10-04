@@ -54,61 +54,51 @@ class SetRefVisitor;
 // Other forward declarations.
 class OptRangeSpec;
 
-ULng32 hashString(const NAString& str);
-ULng32 hashValueId(const QRValueId& vid);
+ULng32 hashString(const NAString &str);
+ULng32 hashValueId(const QRValueId &vid);
 
 #ifdef _MEMSHAREDPTR
 typedef QRIntrusiveSharedPtr<SetRefVisitor> SetRefVisitorPtr;
 #else
-typedef SetRefVisitor* SetRefVisitorPtr;
+typedef SetRefVisitor *SetRefVisitorPtr;
 #endif
 
-class SetRefVisitor : public Visitor
-{
-  public:
-    SetRefVisitor(const QRElementHash& idHash,
-                  ADD_MEMCHECK_ARGS_DECL(CollHeap* heap))
-      : Visitor(ADD_MEMCHECK_ARGS_PASS(heap)),
-        idHash_(idHash)
-    {}
+class SetRefVisitor : public Visitor {
+ public:
+  SetRefVisitor(const QRElementHash &idHash, ADD_MEMCHECK_ARGS_DECL(CollHeap *heap))
+      : Visitor(ADD_MEMCHECK_ARGS_PASS(heap)), idHash_(idHash) {}
 
-    virtual Visitor::VisitResult visit(QRElementPtr caller);
+  virtual Visitor::VisitResult visit(QRElementPtr caller);
 
-  private:
-    const QRElementHash& idHash_;
-}; // class SetRefVisitor
-ULng32 hashQRValueId(const QRValueId& vid);
+ private:
+  const QRElementHash &idHash_;
+};  // class SetRefVisitor
+ULng32 hashQRValueId(const QRValueId &vid);
 
 /**
  * Class that implements the interface specified by the Visitor abstract class
  * and is used to traverse the tree structure of a partial descriptor to see
- * if that partial descriptor contains something that will generate XML that 
+ * if that partial descriptor contains something that will generate XML that
  * may not be parseable. For example: string literals containing the '%' and
  * '&' characters.
  */
-class XmlValidatorVisitor : public Visitor
-{
-  public: 
-    XmlValidatorVisitor(ADD_MEMCHECK_ARGS_DECL(CollHeap* heap))
-      : Visitor(ADD_MEMCHECK_ARGS_PASS(heap)),
-        foundProblem_(FALSE)
-    {}
+class XmlValidatorVisitor : public Visitor {
+ public:
+  XmlValidatorVisitor(ADD_MEMCHECK_ARGS_DECL(CollHeap *heap))
+      : Visitor(ADD_MEMCHECK_ARGS_PASS(heap)), foundProblem_(FALSE) {}
 
-    virtual VisitResult visit(QRElementPtr caller);
-  
-    NABoolean foundProblem() const
-    {
-      return foundProblem_;
-    }
+  virtual VisitResult visit(QRElementPtr caller);
 
-private:
+  NABoolean foundProblem() const { return foundProblem_; }
+
+ private:
   NABoolean foundProblem_;
-}; // class XmlValidatorVisitor
+};  // class XmlValidatorVisitor
 
 #ifdef _MEMSHAREDPTR
 typedef QRIntrusiveSharedPtr<XmlValidatorVisitor> XmlValidatorVisitorPtr;
 #else
-typedef XmlValidatorVisitor* XmlValidatorVisitorPtr;
+typedef XmlValidatorVisitor *XmlValidatorVisitorPtr;
 #endif
 
 /**
@@ -126,33 +116,23 @@ typedef XmlValidatorVisitor* XmlValidatorVisitorPtr;
  * the NAList template class. The list members are the item expressions that
  * comprise the equality set.
  */
-class EqualitySet : public NAList<ItemExpr*>
-{
-  public:
-    /**
-     * Instantiates an initially empty equality set.
-     * @param heap Heap to use with the underlying list.
-     */
-    EqualitySet(CollHeap* heap)
-      : NAList<ItemExpr*>(heap),
-        heap_(heap),
-        joinPredId_(NULL_VALUE_ID),
-        type_(NULL)
-      {
-        delete type_;
-      }
+class EqualitySet : public NAList<ItemExpr *> {
+ public:
+  /**
+   * Instantiates an initially empty equality set.
+   * @param heap Heap to use with the underlying list.
+   */
+  EqualitySet(CollHeap *heap) : NAList<ItemExpr *>(heap), heap_(heap), joinPredId_(NULL_VALUE_ID), type_(NULL) {
+    delete type_;
+  }
 
-    virtual ~EqualitySet()
-      {}
+  virtual ~EqualitySet() {}
 
   /**
    * Returns the id of the \c JoinPred associated with this EqualitySet.
    * @return The \c JoinPred id, or 0 if there is none.
    */
-  UInt32 getJoinPredId() const
-    {
-      return joinPredId_;
-    }
+  UInt32 getJoinPredId() const { return joinPredId_; }
 
   /**
    * Sets the id of the \c JoinPred associated with this EqualitySet. This is used
@@ -160,10 +140,7 @@ class EqualitySet : public NAList<ItemExpr*>
    * of the equality set, but outside the JoinPred.
    * @param id The \c JoinPred id.
    */
-  void setJoinPredId(UInt32 id)
-    {
-      joinPredId_ = id;
-    }
+  void setJoinPredId(UInt32 id) { joinPredId_ = id; }
 
   /**
    * Returns the type of the equality set. For numeric types, this is the most
@@ -174,23 +151,21 @@ class EqualitySet : public NAList<ItemExpr*>
    *
    * @return The type of the equality set.
    */
-  const NAType* getType()
-    {
-      if (!type_)
-        determineType();
-      return type_;
-    }
+  const NAType *getType() {
+    if (!type_) determineType();
+    return type_;
+  }
 
-  private:
-    /**
-     * Sets the type for the equality set according to the rules outlined in
-     * getType().
-     */
-    void determineType();
+ private:
+  /**
+   * Sets the type for the equality set according to the rules outlined in
+   * getType().
+   */
+  void determineType();
 
-    UInt32 joinPredId_;
-    NAType* type_;
-    CollHeap* heap_;
+  UInt32 joinPredId_;
+  NAType *type_;
+  CollHeap *heap_;
 };  // EqualitySet
 
 /**
@@ -198,36 +173,34 @@ class EqualitySet : public NAList<ItemExpr*>
  * It uses the QueryAnalysis object (performed on the
  * query expression) for its processing.
  */
-class QRDescGenerator : public NABasicObject
-{
+class QRDescGenerator : public NABasicObject {
   friend class OptRangeSpec;
-public:
 
-  QRDescGenerator(NABoolean bFormatted, CollHeap* heap)
-    : mvqrHeap_(heap),
-      bFormatted_(bFormatted),
-      bSortJoinPredicateCols_(TRUE),
-      bGenColumnRefs_(TRUE),
-      generatedJBBid_(GENERATED_JBBID_START),
-      putAllJBBsInQD_(CmpCommon::getDefault(MVQR_ALL_JBBS_IN_QD) == DF_ON),
-      descriptorType_(ET_INVALID),
-      relExpr_(NULL),
-      currentJBB_(NULL),
-      rangeColHash_(hashValueId, 77, TRUE, heap),
-      rangeExprHash_(hashString, 77, TRUE, heap),
-      vegsUsedHash_(hashValueId, 77, TRUE, heap),
-      exprsUsedHash_(hashString, 77, TRUE, heap),
-      colTblIdHash_(hashString, 77, TRUE, heap),
-      isDumpMvMode_(FALSE),
-      allEqualitySets_(heap)
-    {
-      maxExprSize_   = CmpCommon::getDefaultLong(MVQR_MAX_EXPR_SIZE);
-      maxExprDepth_  = CmpCommon::getDefaultLong(MVQR_MAX_EXPR_DEPTH);
-    }
+ public:
+  QRDescGenerator(NABoolean bFormatted, CollHeap *heap)
+      : mvqrHeap_(heap),
+        bFormatted_(bFormatted),
+        bSortJoinPredicateCols_(TRUE),
+        bGenColumnRefs_(TRUE),
+        generatedJBBid_(GENERATED_JBBID_START),
+        putAllJBBsInQD_(CmpCommon::getDefault(MVQR_ALL_JBBS_IN_QD) == DF_ON),
+        descriptorType_(ET_INVALID),
+        relExpr_(NULL),
+        currentJBB_(NULL),
+        rangeColHash_(hashValueId, 77, TRUE, heap),
+        rangeExprHash_(hashString, 77, TRUE, heap),
+        vegsUsedHash_(hashValueId, 77, TRUE, heap),
+        exprsUsedHash_(hashString, 77, TRUE, heap),
+        colTblIdHash_(hashString, 77, TRUE, heap),
+        isDumpMvMode_(FALSE),
+        allEqualitySets_(heap) {
+    maxExprSize_ = CmpCommon::getDefaultLong(MVQR_MAX_EXPR_SIZE);
+    maxExprDepth_ = CmpCommon::getDefaultLong(MVQR_MAX_EXPR_DEPTH);
+  }
 
   virtual ~QRDescGenerator();
 
-  static NABoolean typeSupported(const NAType* type);
+  static NABoolean typeSupported(const NAType *type);
 
   /**
    * Checks to see if at least one of the MVs in the list is enabled for
@@ -236,7 +209,7 @@ public:
    * @param tableDesc Table descriptor containing the list of MVs.
    * @return \c TRUE iff at least one MV in the list is rewrite-enabled.
    */
-  static NABoolean hasRewriteEnabledMVs(TableDesc* tableDesc);
+  static NABoolean hasRewriteEnabledMVs(TableDesc *tableDesc);
 
   /**
    * Determines whether or not the passed JBB should be included in the query
@@ -249,14 +222,14 @@ public:
    * @return \c TRUE iff the JBB should be included in the descriptor and be
    *         eligible for rewrite.
    */
-  NABoolean qrNeededForJBB(JBB* jbb);
+  NABoolean qrNeededForJBB(JBB *jbb);
 
   /**
    * Determines whether or not an isolated Scan node should be included in the
    * query descriptor as a pseudo-JBB. The table referenced by the Scan must be
    * used in at least 1 MV, and the Scan must have a Group By node immediately
    * above it. When constructing an MV descriptor, all JBBs are included without
-   * regard to these criteria. The need for this function is temporary, until 
+   * regard to these criteria. The need for this function is temporary, until
    * single-node JBBs are provided by the Analyzer. Currently, a single Scan
    * node is not treated as a JBB.
    *
@@ -267,50 +240,32 @@ public:
    * @return \c TRUE iff the Scan node is to be included in the descriptor as a
    *         JBB element, and thus eligible for rewrite.
    */
-  NABoolean qrNeededForTable(RelExpr* parent, RelExpr* scanExpr);
+  NABoolean qrNeededForTable(RelExpr *parent, RelExpr *scanExpr);
 
   /**
-   * Used to specify the MV Table Name. Needs to be called if 
+   * Used to specify the MV Table Name. Needs to be called if
    * an MV Descriptor is to be generated.
    *
-   * @param MVTableName 
+   * @param MVTableName
    */
-  void setMVTableName(NAString& MVTableName)
-  {
-    mMVTableName_ = MVTableName;
-  }
+  void setMVTableName(NAString &MVTableName) { mMVTableName_ = MVTableName; }
 
-  const NAString& getMVTableName() const
-  {
-    return mMVTableName_;
-  }
+  const NAString &getMVTableName() const { return mMVTableName_; }
 
   /**
    * Whether the columns in a join predicate should be sorted
    * (by column name).
    */
-  void setSortJoinPredicateCols(NABoolean bWhat=TRUE)
-  {
-    bSortJoinPredicateCols_ = bWhat;
-  }
+  void setSortJoinPredicateCols(NABoolean bWhat = TRUE) { bSortJoinPredicateCols_ = bWhat; }
 
-  NABoolean getSortJoinPredicateCols() const
-  {
-    return bSortJoinPredicateCols_;
-  }
+  NABoolean getSortJoinPredicateCols() const { return bSortJoinPredicateCols_; }
 
   /**
    * Whether column refs should be generated (for the same column id)
    */
-  void setGenColumnRefs(NABoolean bWhat = FALSE)
-  {
-    bGenColumnRefs_ = bWhat;
-  }
-  
-  NABoolean getGenColumnRefs() const
-  {
-    return bGenColumnRefs_;
-  }
+  void setGenColumnRefs(NABoolean bWhat = FALSE) { bGenColumnRefs_ = bWhat; }
+
+  NABoolean getGenColumnRefs() const { return bGenColumnRefs_; }
 
   /**
    * Generates a unique id value for a "pseudo-JBB". The only such case is
@@ -320,10 +275,7 @@ public:
    *
    * @return A generated id for a JBB.
    */
-  UInt32 genJBBid()
-  {
-    return generatedJBBid_--;
-  }
+  UInt32 genJBBid() { return generatedJBBid_--; }
 
   /**
    * Returns the equality set that the passed \c ValueId is part of, or
@@ -332,10 +284,7 @@ public:
    * @param vidPtr Pointer to the ValueId.
    * @return Pointer to the equality set found, if any.
    */
-  EqualitySet* getEqualitySet(QRValueId* vidPtr)
-    {
-      return vegsUsedHash_.getFirstValue(vidPtr);
-    }
+  EqualitySet *getEqualitySet(QRValueId *vidPtr) { return vegsUsedHash_.getFirstValue(vidPtr); }
 
   /**
    * Returns the equality set containing the passed expression, or \c NULL if
@@ -345,10 +294,7 @@ public:
    * @param strPtr Pointer to the text of the expression.
    * @return Pointer to the equality set found, if any.
    */
-  EqualitySet* getEqualitySet(NAString* strPtr)
-    {
-      return exprsUsedHash_.getFirstValue(strPtr);
-    }
+  EqualitySet *getEqualitySet(NAString *strPtr) { return exprsUsedHash_.getFirstValue(strPtr); }
 
   /**
    * Populate the passed descriptor with the JBBs from the underlying query or
@@ -359,8 +305,7 @@ public:
    * @return \c TRUE if one or more JBBs were found, \c FALSE otherwise (in
    *         which case the descriptor will not be generated.
    */
-  NABoolean processJBBs(QRDescriptorPtr descPtr,
-                        QueryAnalysis* qa);
+  NABoolean processJBBs(QRDescriptorPtr descPtr, QueryAnalysis *qa);
 
   /**
    * Logs the list of columns for which the corresponding bit is set in the
@@ -372,9 +317,7 @@ public:
    *                 a range predicate, or those having a residual predicate.
    *                 This is incorporated into the message displayed in the log.
    */
-  void logColumnBitmap(QRTablePtr table,
-                       const XMLBitmap& bitmap,
-                       ElementType predType);
+  void logColumnBitmap(QRTablePtr table, const XMLBitmap &bitmap, ElementType predType);
   /**
    * Derives and returns a query descriptor from a QueryAnalysis object.
    *
@@ -384,7 +327,7 @@ public:
    *             for them.
    * @return The query's descriptor, or NULL if the query has no JBBs.
    */
-  QRQueryDescriptorPtr createQueryDescriptor(QueryAnalysis* qa, RelExpr* expr);
+  QRQueryDescriptorPtr createQueryDescriptor(QueryAnalysis *qa, RelExpr *expr);
 
   /**
    * Creates a materialized view descriptor from a QueryAnalysis object.
@@ -395,29 +338,26 @@ public:
    *             for them.
    * @return The MV descriptor.
    */
-  QRMVDescriptorPtr createMvDescriptor(QueryAnalysis* qa, RelExpr* expr);
+  QRMVDescriptorPtr createMvDescriptor(QueryAnalysis *qa, RelExpr *expr);
 
   /**
    * Tells whether this is an MV descriptor or a query descriptor.
    * @return Element type enumeration value corresponding to the descriptor type.
    */
-  ElementType getDescriptorType() const
-    {
-      return descriptorType_;
-    }
+  ElementType getDescriptorType() const { return descriptorType_; }
 
   /**
    * Serializes a descriptor object to XML form.
    * @param desc The descriptor.
    * @return The XML text for the descriptor.
    */
-  XMLString* createXmlText(QRElementPtr desc);
+  XMLString *createXmlText(QRElementPtr desc);
 
   /**
    * Sets the bit corresponding to the passed column value id in either the
    * table's range or residual predicate bit map.
    *
-   * @param colVid Value id of the column to set the bit for. 
+   * @param colVid Value id of the column to set the bit for.
    * @param elemType Indicates whether the range or residual bitmap should
    *                 be used.
    */
@@ -436,19 +376,13 @@ public:
    * @param jbbElem Ptr to the JBB element owning the range predicate list the
    *                range belongs to.
    */
-  void storeRangeInfo(OptRangeSpec* range, QRJBBPtr jbbElem);
+  void storeRangeInfo(OptRangeSpec *range, QRJBBPtr jbbElem);
 
-  const QRElementHash& getColTblIdHash() const
-    {
-      return colTblIdHash_;
-    }
+  const QRElementHash &getColTblIdHash() const { return colTblIdHash_; }
 
-  QRElementPtr getElementForValueID(ValueId& id) const;
-  
-  const NAList<EqualitySet*>& getAllEqualitySets() const
-    {
-      return allEqualitySets_;
-    }
+  QRElementPtr getElementForValueID(ValueId &id) const;
+
+  const NAList<EqualitySet *> &getAllEqualitySets() const { return allEqualitySets_; }
 
   /**
    * Adds information from data structures of another QRDescGenerator into this
@@ -460,11 +394,11 @@ public:
    * column and table ids. I tried creating the generator where it could be passed
    * to both places so a single one could be used, but there were cases where this
    * could not be done.
-   * 
+   *
    * @param other The descriptor generator providing the data to merge into this
    *              one, typically from Normalizer.
    */
-  void mergeDescGenerator(const QRDescGenerator* other);
+  void mergeDescGenerator(const QRDescGenerator *other);
 
   /**
    * Creates the equality sets implied by any vegpreds or equality predicates
@@ -481,33 +415,23 @@ public:
    *              formEqualitySets(), which removes any vegpreds or equality
    *              preds from the list.
    */
-  void createEqualitySets(ValueIdSet preds)
-    {
-      NAList<EqualitySet*> equalitySets(mvqrHeap_);
-      formEqualitySets(preds, equalitySets);
-    }
-
-  NABoolean isDumpMvMode()
-  {
-    return isDumpMvMode_;
-  }    
-  
-  void setDumpMvMode()
-  {
-    isDumpMvMode_ = TRUE;
+  void createEqualitySets(ValueIdSet preds) {
+    NAList<EqualitySet *> equalitySets(mvqrHeap_);
+    formEqualitySets(preds, equalitySets);
   }
+
+  NABoolean isDumpMvMode() { return isDumpMvMode_; }
+
+  void setDumpMvMode() { isDumpMvMode_ = TRUE; }
 
   /**
    * Tells whether the passed value id is that of a joinpred.
    * @param vid The value id to look up.
    * @return True iff the vid is a joinpred id.
    */
-  NABoolean isJoinPredId(ValueId vid)
-  {
-    return colToJoinPredMap_.getTopValues().contains(vid);
-  }
+  NABoolean isJoinPredId(ValueId vid) { return colToJoinPredMap_.getTopValues().contains(vid); }
 
-private:
+ private:
   /**
    * Adds a JoinPred element to a JBB element of a descriptor. The elements
    * passed in the array are examined to see if they belong to the hub or
@@ -519,8 +443,7 @@ private:
    * @param eqCount Number of elements in the JoinPred.
    * @param [out] hubJoinPredId The id of the JoinPred element for the hub.
    */
-  void addJoinPred(QRJBBPtr jbbElem, QRElementPtr* qrElemArray,
-                   Int32* idArray, Int32 eqCount, UInt32& hubJoinPredId);
+  void addJoinPred(QRJBBPtr jbbElem, QRElementPtr *qrElemArray, Int32 *idArray, Int32 eqCount, UInt32 &hubJoinPredId);
 
   /**
    * Returns the node id of the passed item expression, or \c NULL_CA_ID if no
@@ -530,7 +453,7 @@ private:
    * @return The CA node id for the expression, or \c NULL_CA_ID if it is a
    *         multi-node expression.
    */
-  CANodeId getExprNode(ItemExpr* itemExpr);
+  CANodeId getExprNode(ItemExpr *itemExpr);
 
   /**
    * Goes through the members of an equality set, identifying the JoinPred
@@ -540,9 +463,9 @@ private:
    * @param jbbElem JBB element the equality set is part of.
    * @param eqSet The equality set.
    */
-  void processEqualitySet(QRJBBPtr jbbElem, EqualitySet& eqSet);
+  void processEqualitySet(QRJBBPtr jbbElem, EqualitySet &eqSet);
 
-  VEGPredicate* getVegPredicate(UInt32 hubJoinPredId);
+  VEGPredicate *getVegPredicate(UInt32 hubJoinPredId);
 
   /**
    * Adds a range predicate expressing equality of #rangeItemExpr to the
@@ -556,26 +479,20 @@ private:
    * @param constItem The constant the range item is equated to.
    * @see #processEqualitySet
    */
-   void addEqualityRangePred(ItemExpr* rangeItemExpr,
-                             const NAType* type,
-                             QRJBBPtr jbbElem,
-                             ConstValue* constItem);
+  void addEqualityRangePred(ItemExpr *rangeItemExpr, const NAType *type, QRJBBPtr jbbElem, ConstValue *constItem);
 
   /**
    * Adds a range predicate expressing equality of a JoinPred to a constant.
    * This is used when there is a constant included in an equality set, and two
    * or more of the other equality set members form an equijoin predicate.
-   * 
+   *
    * @param hubJoinPredId Id of the hub JoinPred.
    * @param type Type associated with the equality set.
    * @param jbbElem JBB element the equality set is part of.
    * @param constItem The constant the range item is equated to.
    * @see #processEqualitySet
    */
-   void addEqualityRangePred(UInt32 hubJoinPredId,
-                             const NAType* type,
-                             QRJBBPtr jbbElem,
-                             ConstValue* constItem);
+  void addEqualityRangePred(UInt32 hubJoinPredId, const NAType *type, QRJBBPtr jbbElem, ConstValue *constItem);
 
   /**
    * Adds a residual predicate to a JBB element for an equality condition.
@@ -593,10 +510,7 @@ private:
    *                      if such a join pred exists.
    * @see #processEqualitySet
    */
-  void addEqualityResidPred(QRJBBPtr jbbElem,
-                            ItemExpr* op1,
-                            ItemExpr* op2,
-                            ValueId hubJoinPredId = NULL_VALUE_ID);
+  void addEqualityResidPred(QRJBBPtr jbbElem, ItemExpr *op1, ItemExpr *op2, ValueId hubJoinPredId = NULL_VALUE_ID);
 
   /**
    * Adds the source equality set to the destination, and removes the source.
@@ -610,9 +524,7 @@ private:
    * @param equalitySets The list of all equality sets, needed so the source
    *                     equality set can be removed.
    */
-  void combineEqSets(EqualitySet* source,
-                     EqualitySet* destination,
-                     NAList<EqualitySet*>& equalitySets);
+  void combineEqSets(EqualitySet *source, EqualitySet *destination, NAList<EqualitySet *> &equalitySets);
 
   /**
    * Adds the members of #vegVals into the equality set #eqSet, creating that
@@ -631,12 +543,8 @@ private:
    * @param equalitySets The list of all equality sets. If a new equality set
    *                     must be allocated, add it to this list.
    */
-  void putVegMembersInEqualitySet(
-              ItemExpr* vegPred,
-              const ValueId& vegVid,
-              const ValueIdSet& vegVals,
-              EqualitySet*& eqSet,
-              NAList<EqualitySet*>& equalitySets);
+  void putVegMembersInEqualitySet(ItemExpr *vegPred, const ValueId &vegVid, const ValueIdSet &vegVals,
+                                  EqualitySet *&eqSet, NAList<EqualitySet *> &equalitySets);
 
   /**
    * Adds the members of a VEGPredicate to an equality set. Some of the members
@@ -653,9 +561,7 @@ private:
    * @param equalitySets List of equality sets, in case a new one is created and
    *                     must be added to it.
    */
-  void addVegPredToEqualitySets(
-              VEGPredicate* vegPred,
-              NAList<EqualitySet*>& equalitySets);
+  void addVegPredToEqualitySets(VEGPredicate *vegPred, NAList<EqualitySet *> &equalitySets);
 
   /**
    * Adds the operands of an equality predicate to an equality set. If the
@@ -668,9 +574,7 @@ private:
    * @param [out] equalitySets The list of equality sets, in case a new one needs
    *                           to be created and added to it.
    */
-  void addEqPredToEqualitySets(
-              ItemExpr* pred,
-              NAList<EqualitySet*>& equalitySets);
+  void addEqPredToEqualitySets(ItemExpr *pred, NAList<EqualitySet *> &equalitySets);
 
   /**
    * Create equality sets from the VEGPredicates and other equality conditions
@@ -684,8 +588,7 @@ private:
    *                    produce the equality sets.
    * @param [out] equalitySets The list of equality sets produced by the function.
    */
-  void formEqualitySets(ValueIdSet& preds,
-                        NAList<EqualitySet*>& equalitySets);
+  void formEqualitySets(ValueIdSet &preds, NAList<EqualitySet *> &equalitySets);
 
   /**
    * Obtains the set of predicates from the query that reference children of
@@ -697,10 +600,7 @@ private:
    *               find predicates on GB node that aren't pushed down (count(*)).
    * @param jbbElem The JBB being processed.
    */
-  void processReferencingPreds(CANodeIdSet* nodeSet,
-                               RelExpr* gbNode,
-                               QRJBBPtr jbbElem);
-
+  void processReferencingPreds(CANodeIdSet *nodeSet, RelExpr *gbNode, QRJBBPtr jbbElem);
 
   /**
    * Deletes the equality sets in the passed list, and clears the hash tables
@@ -709,7 +609,7 @@ private:
    *
    * @param equalitySets List of equality sets that have served their purpose.
    */
-  void discardEqualitySets(NAList<EqualitySet*>& equalitySets);
+  void discardEqualitySets(NAList<EqualitySet *> &equalitySets);
 
   /**
    * Traverses the query tree looking for table scan nodes that are not part of
@@ -719,7 +619,7 @@ private:
    * @param desc The query descriptor we are creating.
    * @param expr RelExpr node that is the root of the query tree.
    */
-  void getSingleTableJBBs(QRDescriptorPtr desc, RelExpr* expr);
+  void getSingleTableJBBs(QRDescriptorPtr desc, RelExpr *expr);
 
   /**
    * Gets information about a column, including the node ID of the table that
@@ -738,14 +638,9 @@ private:
    * @param [out] colIndex The ordinal number of the column in the base table.
    * @return \c TRUE if a node id was determined, \c FALSE otherwise.
    */
-  NABoolean getTableId(ValueId    vid,
-                       CANodeId&  nodeID,
-                       ValueId&   cvid,
-                       ValueId&   vegrefVid,
-                       NAString&  baseColName,
-                       NABoolean& isExtraHub,
-                       Int32&       colIndex);
-  
+  NABoolean getTableId(ValueId vid, CANodeId &nodeID, ValueId &cvid, ValueId &vegrefVid, NAString &baseColName,
+                       NABoolean &isExtraHub, Int32 &colIndex);
+
   /**
    * Returns the node id for the table that owns the referenced column.
    *
@@ -766,9 +661,7 @@ private:
    *                   reference to the original to be used.
    * @return Pointer to the create column element.
    */
-  QRColumnPtr genQRColumn(ValueId vid,
-                          UInt32 joinPredId = 0, 
-                          NABoolean markAsUsed = TRUE);
+  QRColumnPtr genQRColumn(ValueId vid, UInt32 joinPredId = 0, NABoolean markAsUsed = TRUE);
 
   /**
    * Creates a hierarchy of descriptor objects corresponding to the passed
@@ -778,8 +671,8 @@ private:
    *                 objects for.
    * @return Root of the hierarchy of created descriptor objects.
    */
-  QRExplicitExprPtr getExprTree(ItemExpr* itemExpr);
-  
+  QRExplicitExprPtr getExprTree(ItemExpr *itemExpr);
+
   /**
    * Creates a descriptor object corresponding to the passed item expression.
    * This method is used for both output expressions and residual predicates.
@@ -790,18 +683,16 @@ private:
    *                   the existing JoinPred element with this id.
    * @return The created expression descriptor object.
    */
-  QRExprPtr genQRExpr(ItemExpr* pExpr,
-                      NABoolean isResidual,
-                      UInt32 joinPredId = 0);
+  QRExprPtr genQRExpr(ItemExpr *pExpr, NABoolean isResidual, UInt32 joinPredId = 0);
 
   /**
    * Is this expression an InstantiateNull function?
    *
    * @param itemExpr The InstantiateNull expression
    * @return TRUE is the passed itemExpr is an InstantiateNull function.
-   */ 
-  NABoolean isInstNull(ItemExpr* itemExpr);
-  	
+   */
+  NABoolean isInstNull(ItemExpr *itemExpr);
+
   /**
    * Skip the VEGReference and/or InstantiateNull function to get to the column itself.
    *
@@ -809,8 +700,8 @@ private:
    * @return A QRColumn element for the column pointed to by the InstantiateNull
    *         function.
    */
-  QRColumnPtr skipInstNull(ItemExpr* itemExpr);
-  	
+  QRColumnPtr skipInstNull(ItemExpr *itemExpr);
+
   /**
    * Replaces all occurrences of a given column name in a string with a numbered
    * placeholder.
@@ -822,9 +713,7 @@ private:
    * @return \c TRUE if at least one instance of the column was replaced,
    *         otherwise \c FALSE.
    */
-  NABoolean normalizeColumnInExpression(NAString& pItemText,
-					ValueId   colvid,
-					short     dColIndex);
+  NABoolean normalizeColumnInExpression(NAString &pItemText, ValueId colvid, short dColIndex);
 
   /**
    * Creates a JBB descriptor object from an Analyzer JBB object, and fills in
@@ -833,7 +722,7 @@ private:
    * @param jbb The Analyzer JBB.
    * @return The descriptor version of the JBB.
    */
-  QRJBBPtr createJbb(JBB* jbb);
+  QRJBBPtr createJbb(JBB *jbb);
 
   /**
    * Sets bits in the residual predicate bitmap for any column that is part of
@@ -841,7 +730,7 @@ private:
    *
    * @param vegrefsInExpr List of veg refs to go through.
    */
-  void markColumnsAsResidual(ValueIdSet& vegrefsInExpr);
+  void markColumnsAsResidual(ValueIdSet &vegrefsInExpr);
 
   /**
    * Creates a residual predicate descriptor object for the predicate with the
@@ -859,9 +748,7 @@ private:
    * @param gbAnalysis The Analyzer's analysis object for the group by.
    * @param jbbElement The JBB descriptor object the group by is for.
    */
-  void processGroupBy(RelExpr*    groupByNode,
-                      CANodeId    gbID,
-		      QRJBBPtr    jbbElement);
+  void processGroupBy(RelExpr *groupByNode, CANodeId gbID, QRJBBPtr jbbElement);
 
   /**
    * Creates the output list for a descriptor from the characteristic outputs
@@ -870,8 +757,7 @@ private:
    * @param normOutput Characteristic outputs of the JBB
    * @param jbbElement Descriptor object for the JBB this is the output of.
    */
-  void processOutputList(const ValueIdSet& normOutput,
-			 QRJBBPtr jbbElement);
+  void processOutputList(const ValueIdSet &normOutput, QRJBBPtr jbbElement);
 
   /**
    * Creates the table descriptor objects and possibly group by descriptor
@@ -881,20 +767,16 @@ private:
    * @param jbbElement The JBB descriptor object.
    * @param jbbOutputs The ValueIdSet of the JBB outputs.
    */
-  void processJBBCList(CANodeIdSet* jbbcNodeIds,
-                       QRJBBPtr jbbElement,
-                       ValueIdSet &jbbOutputs,
-                       CANodeId& groupJbbcNodeId);
+  void processJBBCList(CANodeIdSet *jbbcNodeIds, QRJBBPtr jbbElement, ValueIdSet &jbbOutputs,
+                       CANodeId &groupJbbcNodeId);
 
   /**
    * Process the primary key of the table, and add it into the table element.
-   * @param tableAnalysis 
-   * @param tableElement 
+   * @param tableAnalysis
+   * @param tableElement
    * @param jbbOutputs
    */
-  void processKeys(TableAnalysis* tableAnalysis, 
-                   QRTablePtr tableElement,
-                   ValueIdSet &jbbOutputs);
+  void processKeys(TableAnalysis *tableAnalysis, QRTablePtr tableElement, ValueIdSet &jbbOutputs);
 
   /**
    * Creates a version descriptor object. Each of the top-level descriptor
@@ -914,40 +796,34 @@ private:
   void addRangePredicates();
 
   QRElementPtr getElementForValueID(char firstChar, UInt32 id) const;
-	
-	NABoolean isMvMode()
-	{
-		return descriptorType_ == ET_MVDescriptor;
-	}
-	
-	NABoolean isQueryMode()
-	{
-		return descriptorType_ == ET_QueryDescriptor;
-	}
-	
-	NABoolean isRangeSupported(QRRangePredPtr rangePred);
 
-private:
+  NABoolean isMvMode() { return descriptorType_ == ET_MVDescriptor; }
+
+  NABoolean isQueryMode() { return descriptorType_ == ET_QueryDescriptor; }
+
+  NABoolean isRangeSupported(QRRangePredPtr rangePred);
+
+ private:
   /** Starting value for generated IDs for pseudo-JBBs. */
   static const UInt32 GENERATED_JBBID_START;
 
-  // To keep track of column IDs - the set gets populated 
+  // To keep track of column IDs - the set gets populated
   // and utilized when bGenColumnRefs_ is TRUE
-  ValueIdSet	mColumnsUsed_;
-  ValueIdSet	mExtraHubColumnsUsed_;
+  ValueIdSet mColumnsUsed_;
+  ValueIdSet mExtraHubColumnsUsed_;
 
-  CollHeap*	mvqrHeap_;
+  CollHeap *mvqrHeap_;
 
-  NAString	mMVTableName_;
+  NAString mMVTableName_;
 
-  NABoolean     bSortJoinPredicateCols_;
-  NABoolean     bGenColumnRefs_;
-  NABoolean	bFormatted_;
-  UInt32  generatedJBBid_;
-  NABoolean     putAllJBBsInQD_;    // read from CQD MVQR_ALL_JBBS_IN_QD
-  ElementType   descriptorType_;    // Query or MV descriptor being generated?
-  RelExpr*      relExpr_;           // root node of query
-  JBB*          currentJBB_;        // currently generating desc for this JBB
+  NABoolean bSortJoinPredicateCols_;
+  NABoolean bGenColumnRefs_;
+  NABoolean bFormatted_;
+  UInt32 generatedJBBid_;
+  NABoolean putAllJBBsInQD_;    // read from CQD MVQR_ALL_JBBS_IN_QD
+  ElementType descriptorType_;  // Query or MV descriptor being generated?
+  RelExpr *relExpr_;            // root node of query
+  JBB *currentJBB_;             // currently generating desc for this JBB
 
   /** Hash table mapping ValueIds of columns to their associated range info. */
   NAHashDictionary<QRValueId, RangeInfo> rangeColHash_;
@@ -970,12 +846,12 @@ private:
    */
   ValueIdMap colToJoinPredMap_;
 
-  NAList<EqualitySet*> allEqualitySets_;
-  
+  NAList<EqualitySet *> allEqualitySets_;
+
   NABoolean isDumpMvMode_;
-  
+
   Lng32 maxExprSize_;
   Lng32 maxExprDepth_;
-}; // QRDescGenerator
+};  // QRDescGenerator
 
 #endif /* QUERYDESCRIPTOR_H */

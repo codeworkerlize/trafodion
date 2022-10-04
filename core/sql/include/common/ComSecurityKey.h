@@ -35,38 +35,26 @@ class PrivMgrUserPrivs;
 
 class ComSecurityKey;
 
-typedef NASet<ComSecurityKey>  ComSecurityKeySet;
+typedef NASet<ComSecurityKey> ComSecurityKeySet;
 
-bool buildSecurityKeys( const NAList <Int32> &roleGrantees,
-                        const int32_t roleID,
-                        const int64_t objectUID,
-                        const bool isSchema,
-                        const bool isColumn,
-                        const PrivMgrCoreDesc &privs,
-                        ComSecurityKeySet &secKeySet);
+bool buildSecurityKeys(const NAList<Int32> &roleGrantees, const int32_t roleID, const int64_t objectUID,
+                       const bool isSchema, const bool isColumn, const PrivMgrCoreDesc &privs,
+                       ComSecurityKeySet &secKeySet);
 
-NABoolean qiCheckForInvalidObject (const Int32 numInvalidationKeys, 
-                                   const SQL_QIKEY* invalidationKeys, 
-                                   const Int64 objectUID,
-                                   const ComSecurityKeySet & objectKeys);
+NABoolean qiCheckForInvalidObject(const Int32 numInvalidationKeys, const SQL_QIKEY *invalidationKeys,
+                                  const Int64 objectUID, const ComSecurityKeySet &objectKeys);
 
-NABoolean qiCheckForSchemaUID(const Int32 numInvalidationKeys,
-                              const SQL_QIKEY* invalidationKeys,
+NABoolean qiCheckForSchemaUID(const Int32 numInvalidationKeys, const SQL_QIKEY *invalidationKeys,
                               const Int64 schemaUID);
 
-void qiInvalidationType (const Int32 numInvalidationKeys,
-                         const SQL_QIKEY* invalidationKeys,
-                         const Int32 userID,
-                         bool &resetRoleList,
-                         bool &updateCaches,
-                         bool &resetSchemaCaches);
-
+void qiInvalidationType(const Int32 numInvalidationKeys, const SQL_QIKEY *invalidationKeys, const Int32 userID,
+                        bool &resetRoleList, bool &updateCaches, bool &resetSchemaCaches);
 
 NABoolean qiSubjectMatchesRole(uint32_t subjectKey);
 NABoolean qiSubjectMatchesGroup(uint32_t subjectKey);
 
 // ****************************************************************************
-// Class:  ComSecurityKey 
+// Class:  ComSecurityKey
 //   Represents a key describing a change that will effect query and compiler
 //   cache
 //
@@ -74,13 +62,10 @@ NABoolean qiSubjectMatchesGroup(uint32_t subjectKey);
 //   subject = hash value describing the effected user or role
 //   object = hash value describing the effected object
 //   action type = type of operation
-//***************************************************************************** 
+//*****************************************************************************
 
-
-class ComSecurityKey
-{
-public:
-
+class ComSecurityKey {
+ public:
   // QIType indicates the type of entity
   enum QIType {
     INVALID_TYPE = 0,
@@ -96,72 +81,44 @@ public:
   };
 
   // QISpecialHashValues are used for security keys for special roles
-  enum QISpecialHashValues {
-    SPECIAL_SUBJECT_HASH = -1,
-    SPECIAL_OBJECT_HASH = -1
-  };
+  enum QISpecialHashValues { SPECIAL_SUBJECT_HASH = -1, SPECIAL_OBJECT_HASH = -1 };
 
   // Constructor for privilege grant on a SQL object to an authID
-  ComSecurityKey(
-    const int32_t subjectUserID, 
-    const int64_t objectUID, 
-    const PrivType which, 
-    const QIType typeOfObject);
+  ComSecurityKey(const int32_t subjectUserID, const int64_t objectUID, const PrivType which, const QIType typeOfObject);
 
-  // Constructor for a role grant to an authID.  
+  // Constructor for a role grant to an authID.
   // Currently only supporting grants of roles to users and schemas.
-  ComSecurityKey(
-   const int32_t subjectUserID, 
-   const int64_t objectUserID, 
-   const QIType typeOfSubject);
+  ComSecurityKey(const int32_t subjectUserID, const int64_t objectUserID, const QIType typeOfSubject);
 
   // Constructor for a special role grant to an authID.
-  ComSecurityKey(
-    const int32_t subjectUserID, 
-    const QIType typeOfObject);
+  ComSecurityKey(const int32_t subjectUserID, const QIType typeOfObject);
 
   // Constructor for generating revoke role from subject
-  ComSecurityKey(
-    const uint32_t subjectHashValue,
-    const uint32_t objectHashValue)
-  : subjectHash_(subjectHashValue),
-    objectHash_ (objectHashValue),
-    actionType_(COM_QI_USER_GRANT_ROLE)
-  {};
+  ComSecurityKey(const uint32_t subjectHashValue, const uint32_t objectHashValue)
+      : subjectHash_(subjectHashValue), objectHash_(objectHashValue), actionType_(COM_QI_USER_GRANT_ROLE){};
 
   ComSecurityKey();  // do not use
-  bool operator == (const ComSecurityKey &other) const;
-   
- // Accessors
+  bool operator==(const ComSecurityKey &other) const;
 
-  uint32_t getSubjectHashValue() const
-  {return subjectHash_;}
-  uint32_t getObjectHashValue() const
-  {return objectHash_;}
-  ComQIActionType getSecurityKeyType() const
-  {return actionType_;}
+  // Accessors
 
-  void getSecurityKeyTypeAsLit (std::string &actionString) const;
-  bool isValid() const
- {
-    if (actionType_ == COM_QI_INVALID_ACTIONTYPE)
-      return false;
+  uint32_t getSubjectHashValue() const { return subjectHash_; }
+  uint32_t getObjectHashValue() const { return objectHash_; }
+  ComQIActionType getSecurityKeyType() const { return actionType_; }
+
+  void getSecurityKeyTypeAsLit(std::string &actionString) const;
+  bool isValid() const {
+    if (actionType_ == COM_QI_INVALID_ACTIONTYPE) return false;
 
     return true;
   }
 
-  static bool schemaKeyType (const ComQIActionType actionType) 
-  {
-     return (   actionType == COM_QI_SCHEMA_SELECT 
-             || actionType == COM_QI_SCHEMA_INSERT
-             || actionType == COM_QI_SCHEMA_DELETE
-             || actionType == COM_QI_SCHEMA_UPDATE
-             || actionType == COM_QI_SCHEMA_USAGE
-             || actionType == COM_QI_SCHEMA_REFERENCES
-             || actionType == COM_QI_SCHEMA_EXECUTE
-             || actionType == COM_QI_SCHEMA_CREATE 
-             || actionType == COM_QI_SCHEMA_ALTER 
-             || actionType == COM_QI_SCHEMA_DROP );
+  static bool schemaKeyType(const ComQIActionType actionType) {
+    return (actionType == COM_QI_SCHEMA_SELECT || actionType == COM_QI_SCHEMA_INSERT ||
+            actionType == COM_QI_SCHEMA_DELETE || actionType == COM_QI_SCHEMA_UPDATE ||
+            actionType == COM_QI_SCHEMA_USAGE || actionType == COM_QI_SCHEMA_REFERENCES ||
+            actionType == COM_QI_SCHEMA_EXECUTE || actionType == COM_QI_SCHEMA_CREATE ||
+            actionType == COM_QI_SCHEMA_ALTER || actionType == COM_QI_SCHEMA_DROP);
   }
 
   ComQIActionType convertBitmapToQIActionType(const PrivType which, const QIType inputType) const;
@@ -174,12 +131,11 @@ public:
   // For debugging purposes
   NAString print(Int32 subject, Int64 object);
 
-private:
-  uint32_t subjectHash_ ;
+ private:
+  uint32_t subjectHash_;
   uint32_t objectHash_;
   ComQIActionType actionType_;
 
-}; // class ComSecurityKey
+};  // class ComSecurityKey
 
 #endif
-

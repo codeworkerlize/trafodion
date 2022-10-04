@@ -6,8 +6,8 @@
  * File:         StmtDDLAddConstraintUniqueArray.h
  * Description:  class for an array of pointers pointing to instances of
  *               class StmtDDLAddConstraintUnique
- *               
- *               
+ *
+ *
  * Created:      6/21/95
  * Language:     C++
  *
@@ -37,10 +37,9 @@
  *****************************************************************************
  */
 
-
 #include "common/Collections.h"
-#ifndef   SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
-#define   SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
+#ifndef SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
+#define SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
 #endif
 #include "parser/SqlParserGlobals.h"
 #include "StmtDDLAddConstraintUnique.h"
@@ -58,23 +57,15 @@ class StmtDDLAddConstraintUniqueArray;
 // -----------------------------------------------------------------------
 // Definition of class StmtDDLAddConstraintUniqueArray
 // -----------------------------------------------------------------------
-class StmtDDLAddConstraintUniqueArray
-: public LIST(StmtDDLAddConstraintUnique *)
-{
-
-public:
-
+class StmtDDLAddConstraintUniqueArray : public LIST(StmtDDLAddConstraintUnique *) {
+ public:
   // constructor
-  StmtDDLAddConstraintUniqueArray(CollHeap *heap = PARSERHEAP())
-    : LIST(StmtDDLAddConstraintUnique *)(heap)
-  {
-  }
+  StmtDDLAddConstraintUniqueArray(CollHeap *heap = PARSERHEAP()) : LIST(StmtDDLAddConstraintUnique *)(heap) {}
 
   // virtual destructor
   virtual ~StmtDDLAddConstraintUniqueArray();
 
-private:
-
-}; // class StmtDDLAddConstraintUniqueArray
+ private:
+};  // class StmtDDLAddConstraintUniqueArray
 
 #endif /* STMTDDLADDCONSTRAINTUNIQUEARRAY_H */

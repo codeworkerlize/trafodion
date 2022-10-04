@@ -28,8 +28,8 @@
  *
  * File:         ElemDDLParamDef.h
  * Description:  class for Routine parameters in DDL statements
- *               
- *               
+ *
+ *
  * Created:      10/01/1999
  * Language:     C++
  *
@@ -39,9 +39,8 @@
  *****************************************************************************
  */
 
-
-#ifndef   SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
-#define   SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
+#ifndef SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
+#define SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
 #endif
 #include "parser/SqlParserGlobals.h"
 
@@ -62,36 +61,30 @@ class ItemExpr;
 // -----------------------------------------------------------------------
 // Param Definition elements in DDL statements.
 // -----------------------------------------------------------------------
-class ElemDDLParamDef : public ElemDDLNode
-{
-
-public:
-
+class ElemDDLParamDef : public ElemDDLNode {
+ public:
   // default constructor
-  ElemDDLParamDef(NAType * pParamDataType,
-                  ElemDDLParamName * paramName,
-                  ComParamDirection paramDirection,
-                  CollHeap * heap = PARSERHEAP());
+  ElemDDLParamDef(NAType *pParamDataType, ElemDDLParamName *paramName, ComParamDirection paramDirection,
+                  CollHeap *heap = PARSERHEAP());
 
-	
   // copy ctor
-  ElemDDLParamDef (const ElemDDLParamDef & orig, CollHeap * h=0) ; // not written
+  ElemDDLParamDef(const ElemDDLParamDef &orig, CollHeap *h = 0);  // not written
 
   // virtual destructor
   virtual ~ElemDDLParamDef();
 
   // cast
-  virtual ElemDDLParamDef * castToElemDDLParamDef();
+  virtual ElemDDLParamDef *castToElemDDLParamDef();
 
   //
   // accessors
   //
 
   virtual Int32 getArity() const;
-  virtual ExprNode * getChild(Lng32 index);
+  virtual ExprNode *getChild(Lng32 index);
 
-  inline NAType * getParamDataType(void) const;
-  inline const NAString & getParamName(void) const;
+  inline NAType *getParamDataType(void) const;
+  inline const NAString &getParamName(void) const;
   inline const ComParamDirection getParamDirection(void) const;
 
   //
@@ -105,70 +98,50 @@ public:
   //
   // methods for tracing
   //
-  
+
   virtual const NAString displayLabel1() const;
   virtual const NAString displayLabel2() const;
   virtual NATraceList getDetailInfo() const;
   virtual const NAString getText() const;
 
-
-private:
-
+ private:
   // ---------------------------------------------------------------------
   // private methods
   // ---------------------------------------------------------------------
 
-  void setParamAttribute(ElemDDLNode * pParamAttribute);
+  void setParamAttribute(ElemDDLNode *pParamAttribute);
 
   // ---------------------------------------------------------------------
   // private data members
   // ---------------------------------------------------------------------
 
   NAString paramName_;
-  NAType * paramDataType_;
-  ComParamDirection paramDirection_; 
+  NAType *paramDataType_;
+  ComParamDirection paramDirection_;
 
   // no child parse nodes
   //
- 
+
   enum { MAX_ELEM_DDL_PARAM_DEF_ARITY = 0 };
 
   // ElemDDLNode * children_[MAX_ELEM_DDL_COL_DEF_ARITY];
-  
-}; // class ElemDDLParamDef
+
+};  // class ElemDDLParamDef
 
 // -----------------------------------------------------------------------
 // definitions of inline methods for class ElemDDLParamDef
 // -----------------------------------------------------------------------
 
-inline NAType *
-ElemDDLParamDef::getParamDataType() const
-{
-  return paramDataType_;
-}
+inline NAType *ElemDDLParamDef::getParamDataType() const { return paramDataType_; }
 
-inline const NAString &
-ElemDDLParamDef::getParamName() const
-{
-  return paramName_;
-}
+inline const NAString &ElemDDLParamDef::getParamName() const { return paramName_; }
 
-inline const ComParamDirection
-ElemDDLParamDef::getParamDirection() const
-{
-  return paramDirection_;
-}
-
+inline const ComParamDirection ElemDDLParamDef::getParamDirection() const { return paramDirection_; }
 
 //
 // mutators
 //
 
-inline void 
-ElemDDLParamDef::setParamDirection(const ComParamDirection direction)
-{
-  paramDirection_ = direction;
-}
+inline void ElemDDLParamDef::setParamDirection(const ComParamDirection direction) { paramDirection_ = direction; }
 
-
-#endif // ELEMDDLPARAMDEF_H
+#endif  // ELEMDDLPARAMDEF_H

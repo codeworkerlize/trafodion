@@ -27,8 +27,8 @@
  *
  * File:         EHCallBack.cpp
  * Description:  Call back functions for exception handling
- *               
- *               
+ *
+ *
  * Created:      5/4/02
  * Language:     C++
  *
@@ -38,14 +38,9 @@
  *****************************************************************************
  */
 class EHCallBack {
-public:
+ public:
   virtual void doFFDC() = 0;
   virtual void dumpDiags() = 0;
 };
 
 #endif
-
-
-
-
-

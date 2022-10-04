@@ -26,7 +26,7 @@
  * File:         CliImplLmExtFunc.cpp
  * Description:  Functions needed by the language manager
  *               (derived from ../udrserv/UdrImplLmExtFunc.cpp)
- *               
+ *
  * Created:      4/9/2015
  * Language:     C++
  *
@@ -38,32 +38,26 @@
 #include "common/Platform.h"
 #include "LmExtFunc.h"
 
-void lmMakeTFDSCall(const char *msg, const char *file, UInt32 line)
-{
+void lmMakeTFDSCall(const char *msg, const char *file, UInt32 line) {
   // makeTFDSCall(msg, file, line);
   abort();
 }
 
-
-void lmPrintSignalHandlers()
-{
+void lmPrintSignalHandlers() {
   // printSignalHandlers();
 }
 
-NABoolean lmSetSignalHandlersToDefault()
-{
+NABoolean lmSetSignalHandlersToDefault() {
   // return setSignalHandlersToDefault();
   return TRUE;
 }
 
-NABoolean lmRestoreJavaSignalHandlers()
-{
+NABoolean lmRestoreJavaSignalHandlers() {
   // return restoreJavaSignalHandlers();
   return TRUE;
 }
 
-NABoolean lmRestoreUdrTrapSignalHandlers(NABoolean saveJavaSignalHandlers)
-{
-  // return restoreUdrTrapSignalHandlers(saveJavaSignalHandlers); 
+NABoolean lmRestoreUdrTrapSignalHandlers(NABoolean saveJavaSignalHandlers) {
+  // return restoreUdrTrapSignalHandlers(saveJavaSignalHandlers);
   return TRUE;
 }

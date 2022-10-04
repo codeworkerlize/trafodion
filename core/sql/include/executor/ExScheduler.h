@@ -41,7 +41,6 @@
  *****************************************************************************
  */
 
-
 #include "executor/ex_god.h"
 #include "common/ComSqlcmpdbg.h"
 #include "common/Platform.h"
@@ -69,7 +68,6 @@ class ExFragRootOperStats;
 class ExOperStats;
 class ExTimeStats;
 
-
 // -----------------------------------------------------------------------
 // Typedef for return codes of subtask work procedures. In DP2, the return
 // codes are partially generated and interpreted by the DP2 environment,
@@ -77,18 +75,17 @@ class ExTimeStats;
 // The actual type is therefore an int, not an enum.
 // -----------------------------------------------------------------------
 
-enum WorkProcRetcodeEnum
-{
-  WORK_OK	    =  0, // OK, all work is done (same as FEOK)
-  WORK_CALL_AGAIN   = -1, // reschedule work procedure, not done yet
-  WORK_POOL_BLOCKED = -2, // wait for pool space to free up
-  WORK_BAD_ERROR    = -3, // An internal error occurred during work
-  WORK_RESCHEDULE_AND_RETURN = -4, // reschedule work procedure, but 
-                                   // return control to the caller of
-                                   // scheduler with this return code.
-  WORK_NOBODY_WORKED         = -5, // Can be used for loop detection.
-  WORK_STATS_PREEMPT         = -6, // If signaled for a statistics preemption
-  WORK_HASHJ_PREEMPT         = -7, // HJ preempts to scheduler.
+enum WorkProcRetcodeEnum {
+  WORK_OK = 0,                      // OK, all work is done (same as FEOK)
+  WORK_CALL_AGAIN = -1,             // reschedule work procedure, not done yet
+  WORK_POOL_BLOCKED = -2,           // wait for pool space to free up
+  WORK_BAD_ERROR = -3,              // An internal error occurred during work
+  WORK_RESCHEDULE_AND_RETURN = -4,  // reschedule work procedure, but
+                                    // return control to the caller of
+                                    // scheduler with this return code.
+  WORK_NOBODY_WORKED = -5,          // Can be used for loop detection.
+  WORK_STATS_PREEMPT = -6,          // If signaled for a statistics preemption
+  WORK_HASHJ_PREEMPT = -7,          // HJ preempts to scheduler.
 
   // if a retcode is added to the enum, make sure that WORK_LAST_RETCODE
   // is changed accordingly. This value is used to set up and index an
@@ -120,24 +117,21 @@ typedef ExWorkProcRetcode (*ExWorkProcPtr)(ex_tcb *);
 const Int32 NumLastCalled = 8;
 
 struct TraceEntry {
-  ExSubtask         *lastCalledTask_;
-  ExWorkProcRetcode  lastWorkRetcode_;
-  #ifdef TRACE_DP2_CPU_LIMIT
-    Int64              dp2TimeConsumed_;
-    Int64              dp2QidCummulative_;
-  #endif
-  Int64              rmsTimeConsumed_;
+  ExSubtask *lastCalledTask_;
+  ExWorkProcRetcode lastWorkRetcode_;
+#ifdef TRACE_DP2_CPU_LIMIT
+  Int64 dp2TimeConsumed_;
+  Int64 dp2QidCummulative_;
+#endif
+  Int64 rmsTimeConsumed_;
 };
 
 // -----------------------------------------------------------------------
 // class ExScheduler
 // -----------------------------------------------------------------------
 
-class ExScheduler : public ExGod
-{
-
-public:
-
+class ExScheduler : public ExGod {
+ public:
   ExScheduler(ex_globals *glob);
   ~ExScheduler();
 
@@ -190,31 +184,14 @@ public:
   // - all others:	  The scheduler returns with the given return code
   //			  to its caller
   // ---------------------------------------------------------------------
-  void registerInsertSubtask(ExWorkProcPtr subtask,
-					ex_tcb *tcb,
-					ex_queue *queue,
-					const char *taskName = NULL);
-  void registerUnblockSubtask(ExWorkProcPtr subtask,
-					 ex_tcb *tcb,
-					 ex_queue *queue,
-					 const char *taskName = NULL);
-  void registerCancelSubtask(ExWorkProcPtr subtask,
-					ex_tcb *tcb,
-					ex_queue *queue,
-					const char *taskName = NULL);
+  void registerInsertSubtask(ExWorkProcPtr subtask, ex_tcb *tcb, ex_queue *queue, const char *taskName = NULL);
+  void registerUnblockSubtask(ExWorkProcPtr subtask, ex_tcb *tcb, ex_queue *queue, const char *taskName = NULL);
+  void registerCancelSubtask(ExWorkProcPtr subtask, ex_tcb *tcb, ex_queue *queue, const char *taskName = NULL);
   // BertBert VV
-  void registerNextSubtask(ExWorkProcPtr subtask,
-					ex_tcb *tcb,
-					ex_queue *queue,
-					const char *taskName = NULL);
+  void registerNextSubtask(ExWorkProcPtr subtask, ex_tcb *tcb, ex_queue *queue, const char *taskName = NULL);
   // BertBert ^^
-  void registerResizeSubtask(ExWorkProcPtr subtask,
-					ex_tcb *tcb,
-					ex_queue *queue,
-					const char *taskName = NULL);
-  ExSubtask * registerNonQueueSubtask(ExWorkProcPtr subtask,
-						 ex_tcb *tcb,
-						 const char *taskName = NULL);
+  void registerResizeSubtask(ExWorkProcPtr subtask, ex_tcb *tcb, ex_queue *queue, const char *taskName = NULL);
+  ExSubtask *registerNonQueueSubtask(ExWorkProcPtr subtask, ex_tcb *tcb, const char *taskName = NULL);
 
   // ---------------------------------------------------------------------
   // Acessor methods
@@ -222,35 +199,33 @@ public:
 
   Int32 hasActiveEvents(ex_tcb *tcb);
 
-  inline NABoolean externalEventCompleted(void)
-    { return externalEventCompleted_; };
+  inline NABoolean externalEventCompleted(void) { return externalEventCompleted_; };
 
   // ---------------------------------------------------------------------
   // The following method allows an ExSubtask to flag the scheduler as
   // having an external event completed (that may give the scheduler some
   // useful work to do). (It would be desireable to have this method
-  // declared in such a way that only ExSubtask can call it, but 
-  // unfortunately the only way to do that is to make ExSubtask a 
+  // declared in such a way that only ExSubtask can call it, but
+  // unfortunately the only way to do that is to make ExSubtask a
   // friend of this class, giving it access to everything, since the
   // definition of ExSubtask follows this class.)
   // ---------------------------------------------------------------------
 
-  inline void setExternalEventCompleted(void)
-    { externalEventCompleted_ = TRUE; };
+  inline void setExternalEventCompleted(void) { externalEventCompleted_ = TRUE; };
 
   void setRootTcb(ex_tcb *tcb);
 
   // ---------------------------------------------------------------------
   // Query limits: next three methods support the ability to raise an error
-  // if a query takes too much of a ESP or master's CPU time.  These are 
+  // if a query takes too much of a ESP or master's CPU time.  These are
   // defined also for exe-in-dp2, though the feature is not used there.
   // ---------------------------------------------------------------------
   void setMaxCpuTime(Int64 m) { maxCpuTime_ = m * 1000L * 1000L; }
 
-  void setCpuLimitCheckFreq(Int32 m) { 
-    maxSubtaskLoops_ = m; 
-    subtaskLoopCnt_ = maxSubtaskLoops_;    // A trick to ensure we check CPU 
-                                           // time on the the first iteration.
+  void setCpuLimitCheckFreq(Int32 m) {
+    maxSubtaskLoops_ = m;
+    subtaskLoopCnt_ = maxSubtaskLoops_;  // A trick to ensure we check CPU
+                                         // time on the the first iteration.
   }
 
   NABoolean checkSuspendAndLimit();
@@ -261,9 +236,7 @@ public:
   // ---------------------------------------------------------------------
   void startGui();
   void stopGui();
-  void getProcInfoForGui(int &frag, int &inst, int &numInst,
-                         int &nid, int &pid, char *procNameBuf,
-                         int procNameBufLen);
+  void getProcInfoForGui(int &frag, int &inst, int &numInst, int &nid, int &pid, char *procNameBuf, int procNameBufLen);
   ExSubtask *getSubtasksForGui() { return subtasks_; }
   ex_tcb *getLocalRootTcbForGui() { return localRootTcb_; }
   int getFragInstIdForGui();
@@ -272,49 +245,47 @@ public:
   // Method to aid in diagnosing looping problems
   // ---------------------------------------------------------------------
 
-  inline ExSubtask * getLastCalledTask(void) const 
-    { return (lastCalledIdx_ == -1 ? 0 : 
-              subtaskTrace_[lastCalledIdx_].lastCalledTask_);}
+  inline ExSubtask *getLastCalledTask(void) const {
+    return (lastCalledIdx_ == -1 ? 0 : subtaskTrace_[lastCalledIdx_].lastCalledTask_);
+  }
 
   // ---------------------------------------------------------------------
   // Method to aid executor tracing
   // ---------------------------------------------------------------------
   Int32 printALiner(Int32 lineno, char *buf);
-  static Int32 getALine(void * mine, Int32 lineno, char * buf)
-               { return ((ExScheduler *) mine)->printALiner(lineno, buf); }
+  static Int32 getALine(void *mine, Int32 lineno, char *buf) { return ((ExScheduler *)mine)->printALiner(lineno, buf); }
 
   // for debugging
   void scheduleAllTasks();
 
-private:
-
+ private:
   // remember where we get the space from
-  ex_globals         *glob_;
+  ex_globals *glob_;
 
   // list of events managed by this scheduler
-  ExSubtask          *subtasks_;
+  ExSubtask *subtasks_;
 
   // a convenient pointer to the last event
-  ExSubtask          *tail_;
+  ExSubtask *tail_;
 
   // helps with debugging loops
-  TraceEntry          subtaskTrace_[NumLastCalled];
-  Int32                 lastCalledIdx_;
+  TraceEntry subtaskTrace_[NumLastCalled];
+  Int32 lastCalledIdx_;
   // helps with executor tracing
-  ExeTrace            *exeTrace_;
+  ExeTrace *exeTrace_;
 
   // list of rarely used subtasks (could keep multiple of these later)
   ExExceptionSubtask *exceptionSubtask_;
 
   // a flag for use by no-wait completion logic -- It is set to true
-  // whenever an external event completes that might give this 
+  // whenever an external event completes that might give this
   // scheduler some useful work to do. It is reset whenever the
   // scheduler exits with no more work to do.
   NABoolean externalEventCompleted_;
 
   // pointer to the root operator's stats, if we need to collect
   // CPU and elapsed time measurements
-  ExOperStats * rootStats_;
+  ExOperStats *rootStats_;
 
   // data members for executor GUI ONLY
 
@@ -340,16 +311,11 @@ private:
   // private methods
 
   // add another subtask or share an already existing one
-  ExSubtask * addOrFindSubtask(ExWorkProcPtr workProc,
-					  ex_tcb        *tcb,
-					  const char    *taskName);
-  
+  ExSubtask *addOrFindSubtask(ExWorkProcPtr workProc, ex_tcb *tcb, const char *taskName);
+
   // add another exception subtask or share an already existing one
-  ExExceptionSubtask * addOrFindExceptionSubtask(
-       ExWorkProcPtr workProc,
-       ex_tcb        *tcb,
-       const char    *taskName,
-       ex_globals    *glob);
+  ExExceptionSubtask *addOrFindExceptionSubtask(ExWorkProcPtr workProc, ex_tcb *tcb, const char *taskName,
+                                                ex_globals *glob);
 
   ExOperStats *getRootStats();
 };
@@ -362,133 +328,109 @@ private:
 // scheduler and can link subtasks to queue and non-queue events.
 // -----------------------------------------------------------------------
 
-class ExSubtask
-{
+class ExSubtask {
   friend class ExScheduler;
 
-public:
-
-  inline ex_tcb * getTcb() const         { return tcb_; }
-  inline Int32 isScheduled() const         { return scheduled_; }
-  inline void schedule()                    { scheduled_ = 1; }
-  inline void scheduleAndNoteCompletion()           
-    { scheduled_ = 1; scheduler_->setExternalEventCompleted(); }
+ public:
+  inline ex_tcb *getTcb() const { return tcb_; }
+  inline Int32 isScheduled() const { return scheduled_; }
+  inline void schedule() { scheduled_ = 1; }
+  inline void scheduleAndNoteCompletion() {
+    scheduled_ = 1;
+    scheduler_->setExternalEventCompleted();
+  }
 
   // for GUI
   //
-  inline Int32 getBreakPoint() const      { return breakPoint_; }
-  inline void setBreakPoint(Int32 val)     { breakPoint_ = val; }  
-  inline const char * getTaskName() const   { return taskName_; }
-  inline Int32 * getScheduledAddr()       { return &scheduled_; }
-  inline ExSubtask *getNextForGUI()             { return next_; }
+  inline Int32 getBreakPoint() const { return breakPoint_; }
+  inline void setBreakPoint(Int32 val) { breakPoint_ = val; }
+  inline const char *getTaskName() const { return taskName_; }
+  inline Int32 *getScheduledAddr() { return &scheduled_; }
+  inline ExSubtask *getNextForGUI() { return next_; }
 
-protected:
-
-  ExSubtask( 
-       ExScheduler * scheduler,
-       ExWorkProcPtr workProc,
-       ex_tcb *tcb,
-       const char *taskName) {
+ protected:
+  ExSubtask(ExScheduler *scheduler, ExWorkProcPtr workProc, ex_tcb *tcb, const char *taskName) {
     scheduler_ = scheduler;
-    scheduled_ = 0; workProc_ = workProc; tcb_ = tcb;
-    taskName_ = taskName; next_ = NULL; breakPoint_ = 0;
+    scheduled_ = 0;
+    workProc_ = workProc;
+    tcb_ = tcb;
+    taskName_ = taskName;
+    next_ = NULL;
+    breakPoint_ = 0;
   }
 
-  inline NABoolean matches(ExWorkProcPtr workProc, ex_tcb *tcb) const
-                        { return (workProc_ == workProc && tcb_ == tcb); }
+  inline NABoolean matches(ExWorkProcPtr workProc, ex_tcb *tcb) const { return (workProc_ == workProc && tcb_ == tcb); }
 
-  inline void setTcb(ex_tcb *tcb)               { tcb_ = tcb; }  
+  inline void setTcb(ex_tcb *tcb) { tcb_ = tcb; }
 
-private:
-
+ private:
   // pointer to the ExScheduler that created (and dispatches) this subtask
-  ExScheduler * scheduler_; 
+  ExScheduler *scheduler_;
 
   // an indicator whether the subtask is to be scheduled or not (boolean)
-  Int32           scheduled_;
+  Int32 scheduled_;
 
   // pointer to the work procedure that gets scheduled when the event is
   // triggered
   ExWorkProcPtr workProc_;
 
   // pointer to the TCB that registered the subtask
-  ex_tcb        *tcb_;
+  ex_tcb *tcb_;
 
   // events are kept in (intrusive) linked lists
-  ExSubtask     *next_;
+  ExSubtask *next_;
 
   // **	**  information for GUI  *** -------------
-  Int32           breakPoint_;
+  Int32 breakPoint_;
 
-  const char    *taskName_;
+  const char *taskName_;
 
   // private methods
 
   virtual ExWorkProcRetcode work();
-  inline void reset()                       { scheduled_ = 0; }
-  inline ExSubtask *getNext()                 { return next_; }
-  inline void insertAfter(ExSubtask *newNext)
-                              { newNext->next_ = next_; next_ = newNext; }
-
+  inline void reset() { scheduled_ = 0; }
+  inline ExSubtask *getNext() { return next_; }
+  inline void insertAfter(ExSubtask *newNext) {
+    newNext->next_ = next_;
+    next_ = newNext;
+  }
 };
 
-class ExExceptionSubtask : public ExSubtask
-{
-public:
- 
-   ExExceptionSubtask(
-       ExScheduler * scheduler,
-       const char *taskName) : ExSubtask(scheduler, NULL, NULL, taskName),
-	 entryList_(NULL) {}
+class ExExceptionSubtask : public ExSubtask {
+ public:
+  ExExceptionSubtask(ExScheduler *scheduler, const char *taskName)
+      : ExSubtask(scheduler, NULL, NULL, taskName), entryList_(NULL) {}
 
-  void addOrFindSubtaskEntry(ExWorkProcPtr workProc,
-				  ex_tcb        *tcb,
-				  const char    *taskName,
-				  ex_globals    *glob);
+  void addOrFindSubtaskEntry(ExWorkProcPtr workProc, ex_tcb *tcb, const char *taskName, ex_globals *glob);
 
   virtual ExWorkProcRetcode work();
 
-private:
-
-  ExExceptionSubtaskEntry * entryList_;
+ private:
+  ExExceptionSubtaskEntry *entryList_;
 };
 
-class ExExceptionSubtaskEntry
-{
+class ExExceptionSubtaskEntry {
   friend class ExExceptionSubtask;
 
-public:
+ public:
+  ExExceptionSubtaskEntry(ExWorkProcPtr workProc, ex_tcb *tcb, const char *taskName)
+      : workProc_(workProc), tcb_(tcb), next_(NULL), taskName_(taskName) {}
 
-  ExExceptionSubtaskEntry( 
-       ExWorkProcPtr workProc,
-       ex_tcb *tcb,
-       const char *taskName) :
-       workProc_(workProc), tcb_(tcb), next_(NULL), taskName_(taskName) {}
-
-private:
-
+ private:
   // pointer to the work procedure that gets scheduled when the event is
   // triggered
   ExWorkProcPtr workProc_;
 
   // pointer to the TCB that registered the subtask
-  ex_tcb        *tcb_;
+  ex_tcb *tcb_;
 
   // events are kept in (intrusive) linked lists
-  ExExceptionSubtaskEntry * next_;
+  ExExceptionSubtaskEntry *next_;
 
   // the name is mostly for debugging
-  const char    *taskName_;
-  
-  inline Int32 matches(ExWorkProcPtr workProc, ex_tcb *tcb) const
-                        { return (workProc_ == workProc && tcb_ == tcb); }
+  const char *taskName_;
+
+  inline Int32 matches(ExWorkProcPtr workProc, ex_tcb *tcb) const { return (workProc_ == workProc && tcb_ == tcb); }
 };
 
-
-
 #endif /* EX_SCHEDULER_H */
-
-
-
-
-

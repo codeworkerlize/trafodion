@@ -27,9 +27,9 @@
  *****************************************************************************
  *
  * File:         <file>
- * Description:  
- *               
- *               
+ * Description:
+ *
+ *
  * Created:      7/10/95
  * Language:     C++
  *
@@ -52,8 +52,7 @@
 // return 0 if left == right,
 // return a positive value if left > right.
 // -----------------------------------------------------------------------
-Int32 compareWcharWithBlankPadding(const NAWchar *wstr1, UInt32 len1,
-                                   const NAWchar *wstr2, UInt32 len2);
+Int32 compareWcharWithBlankPadding(const NAWchar *wstr1, UInt32 len1, const NAWchar *wstr2, UInt32 len2);
 
 // -----------------------------------------------------------------------
 // Compare strings <left> and <right> (using unsigned comparison).
@@ -62,43 +61,35 @@ Int32 compareWcharWithBlankPadding(const NAWchar *wstr1, UInt32 len1,
 // return 0 if left == right,
 // return a positive value if left > right.
 // -----------------------------------------------------------------------
-inline
-Int32 wc_str_cmp(const NAWchar *left, const NAWchar *right, Int32 length)
-{
-  for ( Int32 i=0; i<length; i++ ) {
-    if ( left[i] < right[i] ) return -1;
-    if ( left[i] > right[i] ) return 1;
+inline Int32 wc_str_cmp(const NAWchar *left, const NAWchar *right, Int32 length) {
+  for (Int32 i = 0; i < length; i++) {
+    if (left[i] < right[i]) return -1;
+    if (left[i] > right[i]) return 1;
   }
   return 0;
 }
- 
+
 // -----------------------------------------------------------------------
 // fill string <str>  for <length> bytes with <padchar>
 // -----------------------------------------------------------------------
 
-inline
-void wc_str_pad(NAWchar *str, Int32 length, 
-                NAWchar padchar = unicode_char_set::SPACE)
-{
-  for (Int32 i=0; i<length; i++) str[i] = padchar;
+inline void wc_str_pad(NAWchar *str, Int32 length, NAWchar padchar = unicode_char_set::SPACE) {
+  for (Int32 i = 0; i < length; i++) str[i] = padchar;
 }
 
-// Swap bytes for each NAWchar in the string. 
-inline
-void wc_swap_bytes(NAWchar *str, Int32 length)
-{
-  unsigned char* ptr;
+// Swap bytes for each NAWchar in the string.
+inline void wc_swap_bytes(NAWchar *str, Int32 length) {
+  unsigned char *ptr;
   unsigned char temp;
 
-  if ( str == 0 || length == 0 ) return;
+  if (str == 0 || length == 0) return;
 
-  for (Int32 i = 0; i < length; i++)
-    {
-      ptr = (unsigned char*)&str[i];
-      temp = *ptr;
-      *ptr = *(ptr+1);
-      *(ptr+1) = temp;
-    }
+  for (Int32 i = 0; i < length; i++) {
+    ptr = (unsigned char *)&str[i];
+    temp = *ptr;
+    *ptr = *(ptr + 1);
+    *(ptr + 1) = temp;
+  }
 }
 
 Int32 na_wstr_cpy_convert(NAWchar *tgt, NAWchar *src, Lng32 length, Int32 upshift);

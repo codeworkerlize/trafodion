@@ -38,7 +38,6 @@
  *****************************************************************************
  */
 
-
 #include "ElemDDLNode.h"
 #include "common/NAString.h"
 #include "StmtDDLNode.h"
@@ -57,31 +56,25 @@ class StmtDDLCreateMvRGroup;
 // -----------------------------------------------------------------------
 // Create MV group statement
 // -----------------------------------------------------------------------
-class StmtDDLCreateMvRGroup : public StmtDDLNode
-{
-
-public:
-
+class StmtDDLCreateMvRGroup : public StmtDDLNode {
+ public:
   // initialize constructor
-  StmtDDLCreateMvRGroup(const QualifiedName & mvGroupName,
-                      CollHeap    * heap = PARSERHEAP());
+  StmtDDLCreateMvRGroup(const QualifiedName &mvGroupName, CollHeap *heap = PARSERHEAP());
 
   // virtual destructor
   virtual ~StmtDDLCreateMvRGroup();
 
   // cast
-  virtual StmtDDLCreateMvRGroup * castToStmtDDLCreateMvRGroup();
+  virtual StmtDDLCreateMvRGroup *castToStmtDDLCreateMvRGroup();
 
   //
   // accessors
   //
 
-
   inline const NAString getMvRGroupName() const;
-  inline const QualifiedName & getMvRGroupNameAsQualifiedName() const;
-  inline       QualifiedName & getMvRGroupNameAsQualifiedName() ;
+  inline const QualifiedName &getMvRGroupNameAsQualifiedName() const;
+  inline QualifiedName &getMvRGroupNameAsQualifiedName();
 
-  
   //
   // mutators
   //
@@ -90,58 +83,39 @@ public:
   // method for binding
   //
 
-  ExprNode * bindNode(BindWA * pBindWA);
+  ExprNode *bindNode(BindWA *pBindWA);
 
   //
   // methods for tracing
   //
 
   virtual const NAString displayLabel1() const;
-//  virtual NATraceList getDetailInfo() const;
+  //  virtual NATraceList getDetailInfo() const;
   virtual const NAString getText() const;
 
-
-private:
-
+ private:
   // ---------------------------------------------------------------------
   // private data members
   // ---------------------------------------------------------------------
 
-
-//  NAString mvRGroupName_;
+  //  NAString mvRGroupName_;
 
   // The syntax of table name is
   // [ [ catalog-name . ] schema-name . ] table-name
   QualifiedName mvRGroupQualName_;
 
-
-}; // class StmtDDLCreateMvGroup 
+};  // class StmtDDLCreateMvGroup
 
 // -----------------------------------------------------------------------
-// definitions of inline methods for class StmtDDLCreateMvGroup 
+// definitions of inline methods for class StmtDDLCreateMvGroup
 // -----------------------------------------------------------------------
 
-
-inline const NAString 
-StmtDDLCreateMvRGroup::getMvRGroupName() const
-{
+inline const NAString StmtDDLCreateMvRGroup::getMvRGroupName() const {
   return mvRGroupQualName_.getQualifiedNameAsAnsiString();
 }
 
+inline QualifiedName &StmtDDLCreateMvRGroup::getMvRGroupNameAsQualifiedName() { return mvRGroupQualName_; }
 
-inline QualifiedName &
-StmtDDLCreateMvRGroup::getMvRGroupNameAsQualifiedName()
-{
-  return mvRGroupQualName_;
-}
+inline const QualifiedName &StmtDDLCreateMvRGroup::getMvRGroupNameAsQualifiedName() const { return mvRGroupQualName_; }
 
-inline const QualifiedName & 
-StmtDDLCreateMvRGroup::getMvRGroupNameAsQualifiedName() const
-{
-  return mvRGroupQualName_;
-}
-
-
-
-
-#endif // STMTDDLCREATEMRVGROUP_H
+#endif  // STMTDDLCREATEMRVGROUP_H

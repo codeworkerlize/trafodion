@@ -29,7 +29,7 @@
  * Description:  class for File Block Size (parse node) elements in
  *               DDL statements
  *
- *               
+ *
  * Created:      4/21/95
  * Language:     C++
  *
@@ -38,7 +38,6 @@
  *
  *****************************************************************************
  */
-
 
 #include "ElemDDLFileAttr.h"
 
@@ -55,22 +54,18 @@ class ElemDDLFileAttrBlockSize;
 // -----------------------------------------------------------------------
 // definition of class ElemDDLFileAttrBlockSize
 // -----------------------------------------------------------------------
-class ElemDDLFileAttrBlockSize : public ElemDDLFileAttr
-{
-
-public:
-
+class ElemDDLFileAttrBlockSize : public ElemDDLFileAttr {
+ public:
   enum { DEFAULT_BLOCK_SIZE = 32768 };
 
   // default constructor
-  ElemDDLFileAttrBlockSize(ULng32 blockSizeInBytes
-                           = DEFAULT_BLOCK_SIZE);
+  ElemDDLFileAttrBlockSize(ULng32 blockSizeInBytes = DEFAULT_BLOCK_SIZE);
 
   // virtual destructor
   virtual ~ElemDDLFileAttrBlockSize();
 
   // cast
-  virtual ElemDDLFileAttrBlockSize * castToElemDDLFileAttrBlockSize();
+  virtual ElemDDLFileAttrBlockSize *castToElemDDLFileAttrBlockSize();
 
   // accessors
   inline ULng32 getBlockSize() const;
@@ -79,13 +74,10 @@ public:
   virtual const NAString getText() const;
   virtual const NAString displayLabel1() const;
 
-    // method for building text
+  // method for building text
   virtual NAString getSyntax() const;
 
-
-
-private:
-
+ private:
   //
   // method(s)
   //
@@ -98,16 +90,12 @@ private:
 
   ULng32 blockSizeInBytes_;
 
-}; // class ElemDDLFileAttrBlockSize
+};  // class ElemDDLFileAttrBlockSize
 
 // -----------------------------------------------------------------------
 // definitions of inline methods for class ElemDDLFileAttrBlockSize
 // -----------------------------------------------------------------------
 
-inline ULng32
-ElemDDLFileAttrBlockSize::getBlockSize() const
-{
-  return blockSizeInBytes_;
-}
+inline ULng32 ElemDDLFileAttrBlockSize::getBlockSize() const { return blockSizeInBytes_; }
 
-#endif // ELEMDDLFILEATTRBLOCKSIZE_H
+#endif  // ELEMDDLFILEATTRBLOCKSIZE_H

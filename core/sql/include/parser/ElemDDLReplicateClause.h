@@ -7,7 +7,7 @@
  * Description:  Classes representing REPLICATE clause specified in
  *               create DDL for tables
  *
- *               
+ *
  * Created:      8/21/2019
  * Language:     C++
  *
@@ -46,14 +46,11 @@
 class ElemDDLReplicateClause;
 
 // -----------------------------------------------------------------------
-// class ElemDDLReplicateClause 
+// class ElemDDLReplicateClause
 // -----------------------------------------------------------------------
 
-class ElemDDLReplicateClause : public ElemDDLNode
-{
-
-public:
-
+class ElemDDLReplicateClause : public ElemDDLNode {
+ public:
   //
   // constructors
   //
@@ -64,25 +61,22 @@ public:
   virtual ~ElemDDLReplicateClause();
 
   // casting
-  virtual ElemDDLReplicateClause * castToElemDDLReplicateClause();
+  virtual ElemDDLReplicateClause *castToElemDDLReplicateClause();
 
   //
   // accessors
   //
 
-  inline Int16 getNumTrafReplicas() const
-  {
-    return numTrafReplicas_;
-  }
+  inline Int16 getNumTrafReplicas() const { return numTrafReplicas_; }
 
   // name we choose for the system column that contains the replica value
-  static const char * getReplicaSysColName() { return "_REPLICA_"; }
+  static const char *getReplicaSysColName() { return "_REPLICA_"; }
 
   //
   // mutators
   //
 
-  void setNumReplicas(Int16 numTrafReplicas) {numTrafReplicas_ = numTrafReplicas;}
+  void setNumReplicas(Int16 numTrafReplicas) { numTrafReplicas_ = numTrafReplicas; }
 
   //
   // methods for tracing and/or building text
@@ -90,24 +84,22 @@ public:
 
   virtual const NAString getText() const;
 
-  void unparseIt(NAString & result) const;
+  void unparseIt(NAString &result) const;
 
-private:
-
+ private:
   //
   // Private methods
   //
 
-  ElemDDLReplicateClause(const ElemDDLReplicateClause & rhs) ; // not defined - DO NOT USE
-  ElemDDLReplicateClause & operator=(const ElemDDLReplicateClause & rhs) ; // not defined - DO NOT USE
+  ElemDDLReplicateClause(const ElemDDLReplicateClause &rhs);             // not defined - DO NOT USE
+  ElemDDLReplicateClause &operator=(const ElemDDLReplicateClause &rhs);  // not defined - DO NOT USE
 
   //
   // data members
   //
 
   Int16 numTrafReplicas_;
- 
 
-}; // class ElemDDLReplicateClause
+};  // class ElemDDLReplicateClause
 
-#endif // ELEMDDLREPLICATECLAUSE_H
+#endif  // ELEMDDLREPLICATECLAUSE_H

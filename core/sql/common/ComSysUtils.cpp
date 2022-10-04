@@ -37,16 +37,13 @@
 
 #include "common/Platform.h"
 
-
 #include "common/ComSysUtils.h"
 #include "common/NAAssert.h"
-
 
 //----------------------------------------------------------------
 // This section of the code should be removed when the real
 // gettimeofday call is available under OSS. Also remember
-// to remove the function declaration from SqlciStats.h 
-
+// to remove the function declaration from SqlciStats.h
 
 // ****************************************************************************
 // *                                                                          *
@@ -80,55 +77,47 @@
 // ****************************************************************************
 
 extern "C" {
-Int32 NA_gettimeofday(struct NA_timeval *tp, struct NA_timezone *tzp)
-  {
-    return gettimeofday(tp, 0);
+Int32 NA_gettimeofday(struct NA_timeval *tp, struct NA_timezone *tzp) {
+  return gettimeofday(tp, 0);
 
+  return (0);
+}
 
-   return(0);
-   }
-   
-} // extern "C"
+}  // extern "C"
 
 //----------------------------------------------------------------
 
-void copyInteger (void *destination, Int32 targetLength, 
-		  void *sourceAddress, Int32 sourceLength)
-{
-  switch (targetLength)
-    {
+void copyInteger(void *destination, Int32 targetLength, void *sourceAddress, Int32 sourceLength) {
+  switch (targetLength) {
     case SQL_TINY_SIZE: {
       Int8 *target = (Int8 *)destination;
-      copyToInteger1 (target, sourceAddress, sourceLength);
+      copyToInteger1(target, sourceAddress, sourceLength);
       break;
     }
     case SQL_SMALL_SIZE: {
       short *target = (short *)destination;
-      copyToInteger2 (target, sourceAddress, sourceLength);
+      copyToInteger2(target, sourceAddress, sourceLength);
       break;
     }
     case SQL_INT_SIZE: {
       Lng32 *target = (Lng32 *)destination;
-      copyToInteger4 (target, sourceAddress, sourceLength);
+      copyToInteger4(target, sourceAddress, sourceLength);
       break;
     }
 
     case SQL_LARGE_SIZE: {
       Int64 *target = (Int64 *)destination;
-      copyToInteger8 (target, sourceAddress, sourceLength);
+      copyToInteger8(target, sourceAddress, sourceLength);
       break;
     }
 
-    default :
+    default:
       break;
-    }
-
+  }
 }
 
-void copyToInteger1 (Int8 *destination, void *sourceAddress, Int32 sourceSize)
-{
-  switch (sourceSize)
-    {
+void copyToInteger1(Int8 *destination, void *sourceAddress, Int32 sourceSize) {
+  switch (sourceSize) {
     case SQL_TINY_SIZE: {
       Int8 *source = (Int8 *)sourceAddress;
       *destination = *source;
@@ -153,100 +142,82 @@ void copyToInteger1 (Int8 *destination, void *sourceAddress, Int32 sourceSize)
       break;
     }
 
-    default :
+    default:
       break;
-
-    }
-
-
+  }
 }
 
-void copyToInteger2 (short *destination, void *sourceAddress, Int32 sourceSize)
-{
-  switch (sourceSize)
-    {
+void copyToInteger2(short *destination, void *sourceAddress, Int32 sourceSize) {
+  switch (sourceSize) {
     case SQL_SMALL_SIZE: {
       short *source = (short *)sourceAddress;
-	  *destination = *source;
+      *destination = *source;
       break;
     }
 
     case SQL_INT_SIZE: {
       Lng32 *source = (Lng32 *)sourceAddress;
-	  *destination = (short)*source;
-	  break;
-    }
-
-    case SQL_LARGE_SIZE: {
-		Int64 *source = (Int64 *)sourceAddress;
-	    *destination = (short)*source;
-		break;
-    }
-
-    default :
-      break;
-
-    }
-
-
-}
-
-
-void copyToInteger4 (Lng32 *destination, void *sourceAddress, Int32 sourceSize)
-{
-  switch (sourceSize)
-    {
-    case SQL_SMALL_SIZE:{
-      short *source = (short *)sourceAddress;
-	  *destination = (Lng32)*source;
-      break;
-    }
-
-    case SQL_INT_SIZE: {
-      Lng32 *source = (Lng32 *)sourceAddress;
-	  *destination = *source;
+      *destination = (short)*source;
       break;
     }
 
     case SQL_LARGE_SIZE: {
       Int64 *source = (Int64 *)sourceAddress;
-	  *destination = (Lng32)*source;
+      *destination = (short)*source;
       break;
     }
 
-    default :
+    default:
       break;
-
-    }
-
-  
+  }
 }
 
-void copyToInteger8 (Int64 *destination, void *sourceAddress, Int32 sourceSize)
-{
-  switch (sourceSize)
-    {
-    case SQL_SMALL_SIZE:{
+void copyToInteger4(Lng32 *destination, void *sourceAddress, Int32 sourceSize) {
+  switch (sourceSize) {
+    case SQL_SMALL_SIZE: {
       short *source = (short *)sourceAddress;
-	  *destination = (Int64)*source;
+      *destination = (Lng32)*source;
       break;
     }
 
     case SQL_INT_SIZE: {
       Lng32 *source = (Lng32 *)sourceAddress;
-	  *destination = (Int64)*source;
+      *destination = *source;
       break;
     }
 
     case SQL_LARGE_SIZE: {
       Int64 *source = (Int64 *)sourceAddress;
-	  *destination = *source;
+      *destination = (Lng32)*source;
       break;
     }
 
-    default :
+    default:
+      break;
+  }
+}
+
+void copyToInteger8(Int64 *destination, void *sourceAddress, Int32 sourceSize) {
+  switch (sourceSize) {
+    case SQL_SMALL_SIZE: {
+      short *source = (short *)sourceAddress;
+      *destination = (Int64)*source;
       break;
     }
 
-  
+    case SQL_INT_SIZE: {
+      Lng32 *source = (Lng32 *)sourceAddress;
+      *destination = (Int64)*source;
+      break;
+    }
+
+    case SQL_LARGE_SIZE: {
+      Int64 *source = (Int64 *)sourceAddress;
+      *destination = *source;
+      break;
+    }
+
+    default:
+      break;
+  }
 }

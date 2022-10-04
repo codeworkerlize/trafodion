@@ -27,8 +27,8 @@
  *
  * File:         LmExtFunc.h
  * Description:  Functins needed by the language manager
- *               
- *               
+ *
+ *
  * Created:      5/4/02
  * Language:     C++
  *
@@ -47,6 +47,3 @@ extern NABoolean lmRestoreJavaSignalHandlers();
 extern NABoolean lmRestoreUdrTrapSignalHandlers(NABoolean saveJavaSignalHandlers);
 
 #endif
-
-
-

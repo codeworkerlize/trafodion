@@ -40,7 +40,7 @@
 // -----------------------------------------------------------------------
 //  The following classes are defined in this file.
 // -----------------------------------------------------------------------
-class ComMemoryDiags;   // used to diagnose memory leaks
+class ComMemoryDiags;  // used to diagnose memory leaks
 
 #include <iosfwd>
 using namespace std;
@@ -50,7 +50,7 @@ using namespace std;
 //
 //      ostream * dumpMemoryInfo_
 //
-// This data member refers to a filestream where we dump memory information 
+// This data member refers to a filestream where we dump memory information
 // at various stages of compilation.  The resulting file is used to debug
 // memory leak / usage information (this is a vital component of the effort
 // to reduce/remove memory leaks in arkcmp!).
@@ -58,8 +58,8 @@ using namespace std;
 // We're doing this for two reasons : we need to enforce the non-interdependence
 // of cli.lib and tdm_arkcmp.exe; also, we'd like to minimize pollution of the global
 // namespace.
-// 
-// This class (data member) is used in two places : 
+//
+// This class (data member) is used in two places :
 //
 //   /cli/Context.cpp
 //   /sqlcomp/CmpMain.cpp
@@ -68,17 +68,11 @@ using namespace std;
 //
 
 class ComMemoryDiags {
-public:
-  static ostream *& DumpMemoryInfo() { return dumpMemoryInfo_ ; }
-private:
-  static ostream *  dumpMemoryInfo_ ; 
+ public:
+  static ostream *&DumpMemoryInfo() { return dumpMemoryInfo_; }
 
+ private:
+  static ostream *dumpMemoryInfo_;
 };
 
-
-
 #endif /* COM_MEMORY_DIAGS_H */
-
-
-
-

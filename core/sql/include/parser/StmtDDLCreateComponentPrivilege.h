@@ -22,7 +22,7 @@
 // @@@ END COPYRIGHT @@@
 /* -*-C++-*-
 ******************************************************************************
-* 
+*
 * File:          StmtDDLCreateComponentPrivilege.h
 * RCS:           $Id:
 * Description:   class for parse node representing the
@@ -31,9 +31,9 @@
 *
 * Created:       06/24/2011
 * Language:      C++
-* 
 *
-* 
+*
+*
 *
 ******************************************************************************
 */
@@ -44,44 +44,39 @@
 class StmtDDLCreateComponentPrivilege : public StmtDDLNode
 
 {
- 
-public: 
-   
+ public:
   // constructor
-  StmtDDLCreateComponentPrivilege (const NAString & componentPrivilegeName,
-                                   const NAString & componentPrivilegeAbbreviation,
-                                   const NAString & componentName,
-                                   const NABoolean  isSystem,
-                                   const NAString & componentPrivilegeDetailInformation,
-                                   CollHeap       * heap = PARSERHEAP());
+  StmtDDLCreateComponentPrivilege(const NAString &componentPrivilegeName,
+                                  const NAString &componentPrivilegeAbbreviation, const NAString &componentName,
+                                  const NABoolean isSystem, const NAString &componentPrivilegeDetailInformation,
+                                  CollHeap *heap = PARSERHEAP());
 
-  // Virtual Destructor  
+  // Virtual Destructor
   virtual ~StmtDDLCreateComponentPrivilege();
 
   // Cast
 
-  virtual StmtDDLCreateComponentPrivilege * castToStmtDDLCreateComponentPrivilege();
+  virtual StmtDDLCreateComponentPrivilege *castToStmtDDLCreateComponentPrivilege();
 
   // accessors
 
-  inline const NAString & getComponentPrivilegeName()              const { return componentPrivilegeName_; }
-  inline const NAString & getComponentPrivilegeAbbreviation()      const { return componentPrivilegeAbbreviation_; }
-  inline const NAString & getComponentName()                       const { return componentName_; }
-  inline const NAString & getComponentPrivilegeDetailInformation() const { return componentPrivilegeDetailInformation_; }
+  inline const NAString &getComponentPrivilegeName() const { return componentPrivilegeName_; }
+  inline const NAString &getComponentPrivilegeAbbreviation() const { return componentPrivilegeAbbreviation_; }
+  inline const NAString &getComponentName() const { return componentName_; }
+  inline const NAString &getComponentPrivilegeDetailInformation() const { return componentPrivilegeDetailInformation_; }
   inline NABoolean isSystem() const { return isSystem_; }
 
   // for tracing
   virtual const NAString displayLabel1() const;
   virtual const NAString displayLabel2() const;
-  virtual const NAString getText() const;                    
+  virtual const NAString getText() const;
 
-private:
-
+ private:
   // not-supported methods
 
-  StmtDDLCreateComponentPrivilege(); // DO NOT USE
-  StmtDDLCreateComponentPrivilege(const StmtDDLCreateComponentPrivilege &); // DO NOT USE
-  StmtDDLCreateComponentPrivilege & operator=(const StmtDDLCreateComponentPrivilege &); // DO NOT USE
+  StmtDDLCreateComponentPrivilege();                                                    // DO NOT USE
+  StmtDDLCreateComponentPrivilege(const StmtDDLCreateComponentPrivilege &);             // DO NOT USE
+  StmtDDLCreateComponentPrivilege &operator=(const StmtDDLCreateComponentPrivilege &);  // DO NOT USE
 
   // Data members
 
@@ -90,7 +85,6 @@ private:
   NAString componentName_;
   NABoolean isSystem_;
   NAString componentPrivilegeDetailInformation_;
-
 };
 
 #endif  // STMTDDLCREATECOMPONENTPRIVILEGE_H

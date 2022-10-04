@@ -39,67 +39,51 @@
 #include "optimizer/RelGrby.h"
 #include "AppliedStatMan.h"
 
-
 //-----------------------------------------------------------------------------
-//Methods on AppliedStatMan
+// Methods on AppliedStatMan
 //-----------------------------------------------------------------------------
 
 // define a hash function for the cache
 
-ULng32 AppliedStatMan::hashASM(const CANodeIdSet &key)
-{
-  return key.hash();
-} // AppliedStatMan::hashASM
+ULng32 AppliedStatMan::hashASM(const CANodeIdSet &key) { return key.hash(); }  // AppliedStatMan::hashASM
 
 // This will be used when we are interested in only finding out
 // if the statistics for the cache has already been created.
 // Example in setupASMCacheForJBB.
 
-NABoolean AppliedStatMan::lookup(const CANodeIdSet &key1) const
-{
-  //exist for the given key
-  if (cacheASM_->contains (&key1))
+NABoolean AppliedStatMan::lookup(const CANodeIdSet &key1) const {
+  // exist for the given key
+  if (cacheASM_->contains(&key1))
     return TRUE;
   else
     return FALSE;
-} // AppliedStatMan::lookup
-
+}  // AppliedStatMan::lookup
 
 // getCachedStatistics returns the pointer to estLogProp for the given
 // nodeSet and the inputNodeSet. If the properties do not exist,
 // it returns NULL.
 
-EstLogPropSharedPtr AppliedStatMan::getCachedStatistics(
-				const CANodeIdSet * combinedNodeSet)
-{
-  //exist for the given key
-  if (cacheASM_->contains (combinedNodeSet))
-  {
-
+EstLogPropSharedPtr AppliedStatMan::getCachedStatistics(const CANodeIdSet *combinedNodeSet) {
+  // exist for the given key
+  if (cacheASM_->contains(combinedNodeSet)) {
     EstLogPropSharedPtr cachedStat = cacheASM_->getFirstValue(combinedNodeSet);
     return cachedStat;
-  }
-  else
+  } else
     return NULL;
-} // AppliedStatMan::getCachedStatistics
+}  // AppliedStatMan::getCachedStatistics
 
-// removeEntryIfThisObjectIsCached is used in the EstLogProp destructor. 
+// removeEntryIfThisObjectIsCached is used in the EstLogProp destructor.
 // This removes the reference to the key from the HashDictionary.
 
-void AppliedStatMan::removeEntryIfThisObjectIsCached(EstLogProp * lp)
-{
-  if(!lp || (!lp->getNodeSet()))
-    return;
-  
-  CANodeIdSet* nodeSet = lp->getNodeSet();
-  if (cacheASM_->contains(nodeSet))
-  {
-    EstLogProp * cachedStat = cacheASM_->getFirstValue(nodeSet);
-    if(lp == cachedStat)
-      cacheASM_->remove(nodeSet);
-  }
-} // AppliedStatMan::removeEntryIfThisObjectIsCached
+void AppliedStatMan::removeEntryIfThisObjectIsCached(EstLogProp *lp) {
+  if (!lp || (!lp->getNodeSet())) return;
 
+  CANodeIdSet *nodeSet = lp->getNodeSet();
+  if (cacheASM_->contains(nodeSet)) {
+    EstLogProp *cachedStat = cacheASM_->getFirstValue(nodeSet);
+    if (lp == cachedStat) cacheASM_->remove(nodeSet);
+  }
+}  // AppliedStatMan::removeEntryIfThisObjectIsCached
 
 // Insert the pointer to outputEstLogProp in the cache. The key is
 // the CANodeIdSet of the JBBCs for these EstLogProps. This consists
@@ -108,21 +92,17 @@ void AppliedStatMan::removeEntryIfThisObjectIsCached(EstLogProp * lp)
 // the outputLogProp of the given JBBsubset for any given
 // inputNodeSet
 
-NABoolean AppliedStatMan::insertCachePredStatEntry(
-			    const CANodeIdSet & jbbcNodeSet,
-			    const EstLogPropSharedPtr& estLogProp)
-{
-  CANodeIdSet * tableSet = new (STMTHEAP) CANodeIdSet (jbbcNodeSet);
-// FIXME!!! Must properly create cacheASM_
-  CANodeIdSet * result = cacheASM_->
-			insert(tableSet, estLogProp.get());
+NABoolean AppliedStatMan::insertCachePredStatEntry(const CANodeIdSet &jbbcNodeSet,
+                                                   const EstLogPropSharedPtr &estLogProp) {
+  CANodeIdSet *tableSet = new (STMTHEAP) CANodeIdSet(jbbcNodeSet);
+  // FIXME!!! Must properly create cacheASM_
+  CANodeIdSet *result = cacheASM_->insert(tableSet, estLogProp.get());
 
   if (result == NULL)
     return FALSE;  // insert failed.
   else
-    return TRUE; // insert successful
-} // AppliedStatMan::insertCachePredStatEntry
-
+    return TRUE;  // insert successful
+}  // AppliedStatMan::insertCachePredStatEntry
 
 AppliedStatMan::AppliedStatMan(CollHeap *outHeap)
 
@@ -132,98 +112,81 @@ AppliedStatMan::AppliedStatMan(CollHeap *outHeap)
   // JBBCs. This would be especially useful for queries larger than
   // 32 tables, as this could avoid frequent resizing of the cache.
 
-  //create the actual cache
-   cacheASM_ = new (STMTHEAP)
-     NAHashDictionary<CANodeIdSet, EstLogProp>
-       (&(AppliedStatMan::hashASM),107,TRUE,outHeap);
+  // create the actual cache
+  cacheASM_ = new (STMTHEAP) NAHashDictionary<CANodeIdSet, EstLogProp>(&(AppliedStatMan::hashASM), 107, TRUE, outHeap);
 }
 
 // Get the scan expression for given jbbc
 // if jbbc is not a scan or predIdSet is NULL
 // then the original JBBC expression is returned
-RelExpr * AppliedStatMan::getExprForCANodeId(
-          CANodeId jbbc,
-          const EstLogPropSharedPtr &inLP,
-          const ValueIdSet * predIdSet)
-{
-  RelExpr * jbbcExpr = NULL;
-  
+RelExpr *AppliedStatMan::getExprForCANodeId(CANodeId jbbc, const EstLogPropSharedPtr &inLP,
+                                            const ValueIdSet *predIdSet) {
+  RelExpr *jbbcExpr = NULL;
+
   // should not happen but a check just in case
   CCMPASSERT(jbbc.getNodeAnalysis());
-  
-  //if specified by the user apply those predicates,
+
+  // if specified by the user apply those predicates,
   // else apply predicates in the original expr
-  NodeAnalysis * jbbcNode = jbbc.getNodeAnalysis();
+  NodeAnalysis *jbbcNode = jbbc.getNodeAnalysis();
 
-  TableAnalysis * tableAnalysis = jbbcNode->getTableAnalysis();
+  TableAnalysis *tableAnalysis = jbbcNode->getTableAnalysis();
 
-  if (tableAnalysis && predIdSet)
-  {
-    TableDesc * tableDesc = tableAnalysis->getTableDesc();
-    const CorrName& name = tableDesc->getNATable()->getTableName();
+  if (tableAnalysis && predIdSet) {
+    TableDesc *tableDesc = tableAnalysis->getTableDesc();
+    const CorrName &name = tableDesc->getNATable()->getTableName();
 
     Scan *scanExpr = new STMTHEAP Scan(name, tableDesc, REL_SCAN, STMTHEAP);
-    scanExpr->setBaseCardinality(MIN_ONE (tableDesc->getNATable()->getEstRowCount())) ;
+    scanExpr->setBaseCardinality(MIN_ONE(tableDesc->getNATable()->getEstRowCount()));
 
-    GroupAttributes * gaExpr = new STMTHEAP GroupAttributes();
+    GroupAttributes *gaExpr = new STMTHEAP GroupAttributes();
 
     scanExpr->setSelectionPredicates(*predIdSet);
 
-    ValueIdSet requiredOutputs = jbbc.getNodeAnalysis()->\
-  getOriginalExpr()->getGroupAttr()->getCharacteristicOutputs();
+    ValueIdSet requiredOutputs = jbbc.getNodeAnalysis()->getOriginalExpr()->getGroupAttr()->getCharacteristicOutputs();
 
     gaExpr->setCharacteristicOutputs(requiredOutputs);
 
-    ValueIdSet requiredInputs = jbbc.getNodeAnalysis()->\
-  getOriginalExpr()->getGroupAttr()->getCharacteristicInputs();
+    ValueIdSet requiredInputs = jbbc.getNodeAnalysis()->getOriginalExpr()->getGroupAttr()->getCharacteristicInputs();
 
     gaExpr->setCharacteristicInputs(requiredInputs);
-    
+
     scanExpr->setGroupAttr(gaExpr);
     gaExpr->setLogExprForSynthesis(scanExpr);
     scanExpr->synthLogProp();
     jbbcExpr = scanExpr;
-  }
-  else
-  {
-    NodeAnalysis * nodeAnalysis = jbbc.getNodeAnalysis();
+  } else {
+    NodeAnalysis *nodeAnalysis = jbbc.getNodeAnalysis();
 
-    RelExpr * relExpr = nodeAnalysis->getModifiedExpr();
+    RelExpr *relExpr = nodeAnalysis->getModifiedExpr();
 
-    if (relExpr == NULL)
-      relExpr = nodeAnalysis->getOriginalExpr();
+    if (relExpr == NULL) relExpr = nodeAnalysis->getOriginalExpr();
 
     jbbcExpr = relExpr;
   }
 
   return jbbcExpr;
-} // getExprForCANodeId
+}  // getExprForCANodeId
 
 // AppliedStatMan::formJoinExprWithCANodeSet fakes a join expression,
 // between the left and the right child. This method takes the left
 // childId and the right childId, and forms a join expression.
 
-Join * AppliedStatMan::formJoinExprWithCANodeSets(
-					const CANodeIdSet & leftNodeSet,
-					const CANodeIdSet & rightNodeSet,
-					EstLogPropSharedPtr& inLP,
-					const ValueIdSet * joinPreds,
-					const NABoolean cacheable)
-{
+Join *AppliedStatMan::formJoinExprWithCANodeSets(const CANodeIdSet &leftNodeSet, const CANodeIdSet &rightNodeSet,
+                                                 EstLogPropSharedPtr &inLP, const ValueIdSet *joinPreds,
+                                                 const NABoolean cacheable) {
   EstLogPropSharedPtr leftEstLogProp = NULL;
   EstLogPropSharedPtr rightEstLogProp = NULL;
 
-  CANodeIdSet * inputNodeSet = NULL;
-  if (inLP->isCacheable())
-  {
+  CANodeIdSet *inputNodeSet = NULL;
+  if (inLP->isCacheable()) {
     inputNodeSet = inLP->getNodeSet();
 
     // if inLP are cacheable these should have a nodeSet attached
     // if it is not for some reason, assert in debug mode. In release
     // mode do not look for properties in ASM cache, instead get them
     // from group attr cache.
-    if (inputNodeSet == NULL)
-    {
+    if (inputNodeSet == NULL) {
       CCMPASSERT(inputNodeSet != NULL);
       inLP->setCacheableFlag(FALSE);
     }
@@ -240,26 +203,22 @@ Join * AppliedStatMan::formJoinExprWithCANodeSets(
   CANodeIdSet tempLeftNodeSet = leftNodeSet;
   CANodeIdSet tempRightNodeSet = rightNodeSet;
 
-  if (commonNodeSet.entries() > 0)
-  {
+  if (commonNodeSet.entries() > 0) {
     if (lookup(leftNodeSet))
       tempRightNodeSet.subtractSet(commonNodeSet);
+    else if (lookup(rightNodeSet))
+      tempLeftNodeSet.subtractSet(commonNodeSet);
+    else if (leftNodeSet.entries() > rightNodeSet.entries())
+      tempLeftNodeSet.subtractSet(commonNodeSet);
     else
-      if (lookup(rightNodeSet))
-	tempLeftNodeSet.subtractSet(commonNodeSet);
-      else
-	if (leftNodeSet.entries() > rightNodeSet.entries())
-	  tempLeftNodeSet.subtractSet(commonNodeSet);
-	else
-	  tempRightNodeSet.subtractSet(commonNodeSet);
+      tempRightNodeSet.subtractSet(commonNodeSet);
   }
 
   // get the estLogProps for the left and the right child.
   // If these are not in the cache, then synthesize them incrementally
   // starting from the left most JBBC in the JBBSubset
 
-  if (inputNodeSet)
-  {
+  if (inputNodeSet) {
     // leftEstLogProp cached?
 
     CANodeIdSet combinedNodeSetWithInput = tempLeftNodeSet;
@@ -273,25 +232,21 @@ Join * AppliedStatMan::formJoinExprWithCANodeSets(
     rightEstLogProp = getCachedStatistics(&combinedNodeSetWithInput);
   }
 
-  if (leftEstLogProp == NULL)
-      leftEstLogProp = synthesizeLogProp(&tempLeftNodeSet, inLP);
+  if (leftEstLogProp == NULL) leftEstLogProp = synthesizeLogProp(&tempLeftNodeSet, inLP);
 
   // if the estimate logical properties have been computed for non-cacheable
   // inLP, then these would not contain nodeSet. But we do need the nodeSet
   // to compute potential output values. Hence we shall add this now
 
-  if (!leftEstLogProp->getNodeSet())
-  {
-    CANodeIdSet * copyLeftNodeSet = new (STMTHEAP) CANodeIdSet (tempLeftNodeSet);
+  if (!leftEstLogProp->getNodeSet()) {
+    CANodeIdSet *copyLeftNodeSet = new (STMTHEAP) CANodeIdSet(tempLeftNodeSet);
     leftEstLogProp->setNodeSet(copyLeftNodeSet);
   }
 
-  if (rightEstLogProp == NULL)
-      rightEstLogProp = synthesizeLogProp(&tempRightNodeSet, inLP);
+  if (rightEstLogProp == NULL) rightEstLogProp = synthesizeLogProp(&tempRightNodeSet, inLP);
 
-  if (!rightEstLogProp->getNodeSet())
-  {
-    CANodeIdSet * copyRightNodeSet = new (STMTHEAP) CANodeIdSet (tempRightNodeSet);
+  if (!rightEstLogProp->getNodeSet()) {
+    CANodeIdSet *copyRightNodeSet = new (STMTHEAP) CANodeIdSet(tempRightNodeSet);
     rightEstLogProp->setNodeSet(copyRightNodeSet);
   }
 
@@ -305,7 +260,7 @@ Join * AppliedStatMan::formJoinExprWithCANodeSets(
   // JBBSubsets, the JBBSubset for this Join expression would be
   // the superset of left and right JBBSubset
 
-  JBBSubset * combinedSet = leftNodeSet.jbbcsToJBBSubset();
+  JBBSubset *combinedSet = leftNodeSet.jbbcsToJBBSubset();
   combinedSet->addSubset(*(rightNodeSet.jbbcsToJBBSubset()));
 
   // Now form the join expressions with these EstLogProp,
@@ -314,44 +269,35 @@ Join * AppliedStatMan::formJoinExprWithCANodeSets(
   // on whether left, right and the outer child are ccaheable, or
   // if the join is on all columns or not
 
-  return formJoinExprWithEstLogProps(leftEstLogProp, rightEstLogProp,
-			    inLP, joinPreds, cacheable, combinedSet);
+  return formJoinExprWithEstLogProps(leftEstLogProp, rightEstLogProp, inLP, joinPreds, cacheable, combinedSet);
 
-
-
-} // AppliedStatMan::formJoinExprWithCANodeSets
+}  // AppliedStatMan::formJoinExprWithCANodeSets
 
 // This method forms the join expression with the estLogProps.
-Join * AppliedStatMan::formJoinExprWithEstLogProps(
-					const EstLogPropSharedPtr& leftEstLogProp,
-					const EstLogPropSharedPtr& rightEstLogProp,
-					const EstLogPropSharedPtr& inputEstLogProp,
-					const ValueIdSet * setOfPredicates,
-					const NABoolean cacheable,
-					JBBSubset * combinedJBBSubset)
-{
+Join *AppliedStatMan::formJoinExprWithEstLogProps(const EstLogPropSharedPtr &leftEstLogProp,
+                                                  const EstLogPropSharedPtr &rightEstLogProp,
+                                                  const EstLogPropSharedPtr &inputEstLogProp,
+                                                  const ValueIdSet *setOfPredicates, const NABoolean cacheable,
+                                                  JBBSubset *combinedJBBSubset) {
   // Form a join expression with these estLogProps.
 
   // form the left child. Since the estLogProps of the left and the
   // right children exist, these can be treated as Scan expressions
 
-  Scan * leftChildExpr = new STMTHEAP Scan();
-  GroupAttributes * galeft = new STMTHEAP GroupAttributes();
+  Scan *leftChildExpr = new STMTHEAP Scan();
+  GroupAttributes *galeft = new STMTHEAP GroupAttributes();
 
   // set GroupAttr of the leftChild
   galeft->inputLogPropList().insert(inputEstLogProp);
   galeft->outputLogPropList().insert(leftEstLogProp);
-  CANodeIdSet * leftNodeSet = leftEstLogProp->getNodeSet();
+  CANodeIdSet *leftNodeSet = leftEstLogProp->getNodeSet();
 
   CANodeId nodeId;
 
-  if (leftNodeSet)
-  {
-    if (leftNodeSet->entries() == 1)
-    {
+  if (leftNodeSet) {
+    if (leftNodeSet->entries() == 1) {
       nodeId = leftNodeSet->getFirst();
-      if(nodeId.getNodeAnalysis()->getTableAnalysis())
-	leftChildExpr->setTableAttributes(nodeId);
+      if (nodeId.getNodeAnalysis()->getTableAnalysis()) leftChildExpr->setTableAttributes(nodeId);
     }
     CostScalar minEstCard = leftNodeSet->getMinChildEstRowCount();
 
@@ -362,32 +308,26 @@ Join * AppliedStatMan::formJoinExprWithEstLogProps(
   galeft->setLogExprForSynthesis(leftChildExpr);
 
   // form the right child and set its groupAttr
-  Scan * rightChildExpr = new STMTHEAP Scan();
-  GroupAttributes * garight = new STMTHEAP GroupAttributes();
+  Scan *rightChildExpr = new STMTHEAP Scan();
+  GroupAttributes *garight = new STMTHEAP GroupAttributes();
   garight->inputLogPropList().insert(inputEstLogProp);
   garight->outputLogPropList().insert(rightEstLogProp);
-  CANodeIdSet * rightNodeSet = rightEstLogProp->getNodeSet();
+  CANodeIdSet *rightNodeSet = rightEstLogProp->getNodeSet();
 
   // xxx
 
-  JBBC * singleRightChild = NULL;
-  Join * singleRightChildParentJoin = NULL;
+  JBBC *singleRightChild = NULL;
+  Join *singleRightChildParentJoin = NULL;
   ValueIdSet leftOuterJoinFilterPreds;
 
-
-  if (rightNodeSet)
-  {
-    if (rightNodeSet->entries() == 1)
-    {
+  if (rightNodeSet) {
+    if (rightNodeSet->entries() == 1) {
       nodeId = rightNodeSet->getFirst();
-      if(nodeId.getNodeAnalysis()->getTableAnalysis())
-	rightChildExpr->setTableAttributes(nodeId);
-	  if(nodeId.getNodeAnalysis()->getJBBC())
-	  {
-		  singleRightChild = nodeId.getNodeAnalysis()->getJBBC();
-		  if(singleRightChild)
-		    singleRightChildParentJoin = singleRightChild->getOriginalParentJoin();
-	  }
+      if (nodeId.getNodeAnalysis()->getTableAnalysis()) rightChildExpr->setTableAttributes(nodeId);
+      if (nodeId.getNodeAnalysis()->getJBBC()) {
+        singleRightChild = nodeId.getNodeAnalysis()->getJBBC();
+        if (singleRightChild) singleRightChildParentJoin = singleRightChild->getOriginalParentJoin();
+      }
     }
     CostScalar minEstCard = rightNodeSet->getMinChildEstRowCount();
 
@@ -397,47 +337,32 @@ Join * AppliedStatMan::formJoinExprWithEstLogProps(
   rightChildExpr->setGroupAttr(garight);
   garight->setLogExprForSynthesis(rightChildExpr);
 
-  Join * joinExpr = NULL;
-  if(singleRightChild &&
-	 singleRightChildParentJoin)
-  {
-      if(singleRightChildParentJoin->isSemiJoin())
-        joinExpr = new STMTHEAP Join(leftChildExpr,
-                                     rightChildExpr,
-                                     REL_SEMIJOIN,
-                                     NULL);
+  Join *joinExpr = NULL;
+  if (singleRightChild && singleRightChildParentJoin) {
+    if (singleRightChildParentJoin->isSemiJoin())
+      joinExpr = new STMTHEAP Join(leftChildExpr, rightChildExpr, REL_SEMIJOIN, NULL);
 
-      if(singleRightChildParentJoin->isAntiSemiJoin())
-        joinExpr = new STMTHEAP Join(leftChildExpr,
-                                     rightChildExpr,
-                                     REL_ANTI_SEMIJOIN,
-                                     NULL);
+    if (singleRightChildParentJoin->isAntiSemiJoin())
+      joinExpr = new STMTHEAP Join(leftChildExpr, rightChildExpr, REL_ANTI_SEMIJOIN, NULL);
 
-      if(singleRightChildParentJoin->isLeftJoin())
-      {
-        joinExpr = new STMTHEAP Join(leftChildExpr,
-			                          rightChildExpr,
-									  REL_LEFT_JOIN,
-									  NULL);
-        leftOuterJoinFilterPreds += singleRightChild->getLeftJoinFilterPreds();
-      }
+    if (singleRightChildParentJoin->isLeftJoin()) {
+      joinExpr = new STMTHEAP Join(leftChildExpr, rightChildExpr, REL_LEFT_JOIN, NULL);
+      leftOuterJoinFilterPreds += singleRightChild->getLeftJoinFilterPreds();
+    }
 
-      if(joinExpr)
-      {
-        joinExpr->setJoinPred(singleRightChild->getPredsWithPredecessors());
+    if (joinExpr) {
+      joinExpr->setJoinPred(singleRightChild->getPredsWithPredecessors());
 
-        joinExpr->nullInstantiatedOutput().insert(singleRightChild->
-                                                    nullInstantiatedOutput());
-      }
+      joinExpr->nullInstantiatedOutput().insert(singleRightChild->nullInstantiatedOutput());
+    }
   }
 
-  if(!joinExpr)
-  {
-  // now form a JoinExpr with these left and right children.
-  joinExpr = new STMTHEAP Join(leftChildExpr,  // left child
-				      rightChildExpr, // right child
-				      REL_JOIN,	      // join type
-				      NULL);	      // join predicates
+  if (!joinExpr) {
+    // now form a JoinExpr with these left and right children.
+    joinExpr = new STMTHEAP Join(leftChildExpr,   // left child
+                                 rightChildExpr,  // right child
+                                 REL_JOIN,        // join type
+                                 NULL);           // join predicates
   }
 
   ValueIdSet selPredsAndLOJFilter = leftOuterJoinFilterPreds;
@@ -445,38 +370,32 @@ Join * AppliedStatMan::formJoinExprWithEstLogProps(
   joinExpr->setSelectionPredicates(selPredsAndLOJFilter);
 
   // set groupAttr of this Join expression
-  GroupAttributes * gaJoin = new STMTHEAP GroupAttributes();
+  GroupAttributes *gaJoin = new STMTHEAP GroupAttributes();
 
   // set required outputs of Join as sum of characteristic
   // outputs of the left and the right children
   ValueIdSet requiredOutputs;
 
-  if (leftNodeSet)
-    requiredOutputs.addSet(getPotentialOutputs(*(leftNodeSet)));
+  if (leftNodeSet) requiredOutputs.addSet(getPotentialOutputs(*(leftNodeSet)));
 
-  if (rightNodeSet)
-    requiredOutputs.addSet(getPotentialOutputs(*(rightNodeSet)));
+  if (rightNodeSet) requiredOutputs.addSet(getPotentialOutputs(*(rightNodeSet)));
 
   gaJoin->setCharacteristicOutputs(requiredOutputs);
 
   // set JBBSubset for this group, if all estLogProps are cacheable.
   // Else JBBSubset is NULL
 
-  if (cacheable)
-    gaJoin->getGroupAnalysis()->setLocalJBBView(combinedJBBSubset);
+  if (cacheable) gaJoin->getGroupAnalysis()->setLocalJBBView(combinedJBBSubset);
 
-  gaJoin->setMinChildEstRowCount(MINOF(garight->getMinChildEstRowCount(), galeft->getMinChildEstRowCount() ) );
+  gaJoin->setMinChildEstRowCount(MINOF(garight->getMinChildEstRowCount(), galeft->getMinChildEstRowCount()));
 
   joinExpr->setGroupAttr(gaJoin);
 
   // if there are some probes coming into the join
   // then join type = tsj.
-  if ((inputEstLogProp->getResultCardinality() > 1) ||
-      (inputEstLogProp->getColStats().entries() > 1))
-  {
-    if (cacheable)
-    {
-      CANodeIdSet inputNodeSet =  *(inputEstLogProp->getNodeSet());
+  if ((inputEstLogProp->getResultCardinality() > 1) || (inputEstLogProp->getColStats().entries() > 1)) {
+    if (cacheable) {
+      CANodeIdSet inputNodeSet = *(inputEstLogProp->getNodeSet());
       gaJoin->setCharacteristicInputs(getPotentialOutputs(inputNodeSet));
     }
   }
@@ -485,85 +404,68 @@ Join * AppliedStatMan::formJoinExprWithEstLogProps(
   gaJoin->setLogExprForSynthesis(joinExpr);
   return joinExpr;
 
-} // AppliedStatMan::formJoinExprWithEstLogProps
+}  // AppliedStatMan::formJoinExprWithEstLogProps
 
 // This method forms the join expression for join on JBBC specified by jbbcId
 // inputEstLogProp should not be cacheable
-Join * AppliedStatMan::formJoinExprForJoinOnJBBC(
-          CANodeIdSet jbbSubset,
-          CANodeId    jbbcId,
-          const ValueIdSet * jbbcLocalPreds,
-          const ValueIdSet * joinPreds,
-          const EstLogPropSharedPtr& inputEstLogProp,
-          const NABoolean cacheable)
-{
-
+Join *AppliedStatMan::formJoinExprForJoinOnJBBC(CANodeIdSet jbbSubset, CANodeId jbbcId,
+                                                const ValueIdSet *jbbcLocalPreds, const ValueIdSet *joinPreds,
+                                                const EstLogPropSharedPtr &inputEstLogProp, const NABoolean cacheable) {
   NABoolean origInputIsCacheable = inputEstLogProp->isCacheable();
-  if(origInputIsCacheable)
-  {
+  if (origInputIsCacheable) {
     inputEstLogProp->setCacheableFlag(FALSE);
     CCMPASSERT("Expecting Non Cacheable Input");
   }
-  
-  RelExpr * jbbcExpr = getExprForCANodeId(jbbcId, inputEstLogProp, jbbcLocalPreds);
+
+  RelExpr *jbbcExpr = getExprForCANodeId(jbbcId, inputEstLogProp, jbbcLocalPreds);
   jbbcExpr->getGroupAttr()->outputLogProp(inputEstLogProp);
-  RelExpr * jbbSubsetExpr = jbbSubset.jbbcsToJBBSubset()->getPreferredJoin();
-  
-  if(!jbbSubsetExpr)
-    if(jbbSubset.entries()==1)
-      if(!inputEstLogProp->isCacheable())
-      {
+  RelExpr *jbbSubsetExpr = jbbSubset.jbbcsToJBBSubset()->getPreferredJoin();
+
+  if (!jbbSubsetExpr)
+    if (jbbSubset.entries() == 1)
+      if (!inputEstLogProp->isCacheable()) {
         inputEstLogProp->setCacheableFlag(TRUE);
         jbbSubsetExpr = getExprForCANodeId(jbbSubset.getFirst(), inputEstLogProp);
         inputEstLogProp->setCacheableFlag(FALSE);
-      }
-      else
+      } else
         jbbSubsetExpr = getExprForCANodeId(jbbSubset.getFirst(), inputEstLogProp);
-    else
-    {
+    else {
       CCMPASSERT("No Subset expression, need at least one entry in set");
     }
 
+  RelExpr *leftChildExpr = jbbSubsetExpr;
+  RelExpr *rightChildExpr = jbbcExpr;
 
-  RelExpr * leftChildExpr = jbbSubsetExpr;
-  RelExpr * rightChildExpr = jbbcExpr;
-  
-  GroupAttributes * galeft = jbbSubsetExpr->getGroupAttr();
-  GroupAttributes * garight = jbbcExpr->getGroupAttr();
-  
+  GroupAttributes *galeft = jbbSubsetExpr->getGroupAttr();
+  GroupAttributes *garight = jbbcExpr->getGroupAttr();
+
   // xxx
 
-  JBBC * jbbc = jbbcId.getNodeAnalysis()->getJBBC();
-  Join * jbbcParentJoin = jbbc->getOriginalParentJoin();
+  JBBC *jbbc = jbbcId.getNodeAnalysis()->getJBBC();
+  Join *jbbcParentJoin = jbbc->getOriginalParentJoin();
   ValueIdSet leftOuterJoinFilterPreds;
 
+  Join *joinExpr = NULL;
 
-  Join * joinExpr = NULL;
-  
-  if(jbbcParentJoin)
-  {
-      if(jbbcParentJoin->isSemiJoin())
-        joinExpr = new STMTHEAP Join(leftChildExpr, rightChildExpr, REL_SEMIJOIN, NULL);
+  if (jbbcParentJoin) {
+    if (jbbcParentJoin->isSemiJoin()) joinExpr = new STMTHEAP Join(leftChildExpr, rightChildExpr, REL_SEMIJOIN, NULL);
 
-      if(jbbcParentJoin->isAntiSemiJoin())
-        joinExpr = new STMTHEAP Join(leftChildExpr, rightChildExpr, REL_ANTI_SEMIJOIN, NULL);
+    if (jbbcParentJoin->isAntiSemiJoin())
+      joinExpr = new STMTHEAP Join(leftChildExpr, rightChildExpr, REL_ANTI_SEMIJOIN, NULL);
 
-      if(jbbcParentJoin->isLeftJoin())
-      {
-        joinExpr = new STMTHEAP Join(leftChildExpr, rightChildExpr, REL_LEFT_JOIN, NULL);
-        leftOuterJoinFilterPreds += jbbc->getLeftJoinFilterPreds();
-      }
+    if (jbbcParentJoin->isLeftJoin()) {
+      joinExpr = new STMTHEAP Join(leftChildExpr, rightChildExpr, REL_LEFT_JOIN, NULL);
+      leftOuterJoinFilterPreds += jbbc->getLeftJoinFilterPreds();
+    }
 
-      if(joinExpr)
-      {
-        joinExpr->setJoinPred(jbbc->getPredsWithPredecessors());
+    if (joinExpr) {
+      joinExpr->setJoinPred(jbbc->getPredsWithPredecessors());
 
-        joinExpr->nullInstantiatedOutput().insert(jbbc->nullInstantiatedOutput());
-      }
+      joinExpr->nullInstantiatedOutput().insert(jbbc->nullInstantiatedOutput());
+    }
   }
 
-  if(!joinExpr)
-  {
+  if (!joinExpr) {
     // now form a JoinExpr with these left and right children.
     joinExpr = new STMTHEAP Join(leftChildExpr, rightChildExpr, REL_JOIN, NULL);
   }
@@ -573,7 +475,7 @@ Join * AppliedStatMan::formJoinExprForJoinOnJBBC(
   joinExpr->setSelectionPredicates(selPredsAndLOJFilter);
 
   // set groupAttr of this Join expression
-  GroupAttributes * gaJoin = new STMTHEAP GroupAttributes();
+  GroupAttributes *gaJoin = new STMTHEAP GroupAttributes();
 
   // set required outputs of Join as sum of characteristic
   // outputs of the left and the right children
@@ -590,20 +492,16 @@ Join * AppliedStatMan::formJoinExprForJoinOnJBBC(
 
   CANodeIdSet combinedSet = jbbSubset;
   combinedSet += jbbcId;
-  
-  if (cacheable)
-    gaJoin->getGroupAnalysis()->setLocalJBBView(combinedSet.jbbcsToJBBSubset());
 
-  gaJoin->setMinChildEstRowCount(MINOF(garight->getMinChildEstRowCount(), galeft->getMinChildEstRowCount() ) );
+  if (cacheable) gaJoin->getGroupAnalysis()->setLocalJBBView(combinedSet.jbbcsToJBBSubset());
+
+  gaJoin->setMinChildEstRowCount(MINOF(garight->getMinChildEstRowCount(), galeft->getMinChildEstRowCount()));
 
   // if there are some probes coming into the join
   // then join type = tsj.
-  if ((inputEstLogProp->getResultCardinality() > 1) ||
-      (inputEstLogProp->getColStats().entries() > 1))
-  {
-    if (cacheable)
-    {
-      CANodeIdSet inputNodeSet =  *(inputEstLogProp->getNodeSet());
+  if ((inputEstLogProp->getResultCardinality() > 1) || (inputEstLogProp->getColStats().entries() > 1)) {
+    if (cacheable) {
+      CANodeIdSet inputNodeSet = *(inputEstLogProp->getNodeSet());
       gaJoin->setCharacteristicInputs(getPotentialOutputs(inputNodeSet));
     }
   }
@@ -613,90 +511,73 @@ Join * AppliedStatMan::formJoinExprForJoinOnJBBC(
   joinExpr->synthLogProp();
   inputEstLogProp->setCacheableFlag(origInputIsCacheable);
   return joinExpr;
-} // AppliedStatMan::formJoinExprForJoinOnJBBC
+}  // AppliedStatMan::formJoinExprForJoinOnJBBC
 
 // synthesizeLogProp method is used to synthesize estLogProps
 // for the JBBSubset if these do not already exist in the ASM
 // cache. All local predicates are applied
 // on the JBBCs and the join is done on all columns
 
-EstLogPropSharedPtr AppliedStatMan::synthesizeLogProp(
-				const CANodeIdSet * nodeSet,
-				EstLogPropSharedPtr &inLP)
-{
+EstLogPropSharedPtr AppliedStatMan::synthesizeLogProp(const CANodeIdSet *nodeSet, EstLogPropSharedPtr &inLP) {
   EstLogPropSharedPtr outputEstLogProp;
   CANodeIdSet combinedNodeSetWithInput = *nodeSet;
 
-  if (inLP->isCacheable())
-  {
-    CANodeIdSet * inNodeSet = inLP->getNodeSet();
+  if (inLP->isCacheable()) {
+    CANodeIdSet *inNodeSet = inLP->getNodeSet();
 
     // if inLP are cacheable these should have a nodeSet attached
     // if not, assert in debug mode. In release mode, set the properties
     // as not cacheable. These will then be looked into group attr cache
-    if (inNodeSet == NULL)
-    {
+    if (inNodeSet == NULL) {
       CCMPASSERT(inNodeSet != NULL);
       inLP->setCacheableFlag(FALSE);
-    }
-    else
-    {
+    } else {
       // check ASM cache for the estLogProps of nodeSet for the given
       // inLP
 
       combinedNodeSetWithInput.insert(*inNodeSet);
-      if ((outputEstLogProp =\
-        getCachedStatistics(&combinedNodeSetWithInput)) != NULL)
-      return outputEstLogProp;
+      if ((outputEstLogProp = getCachedStatistics(&combinedNodeSetWithInput)) != NULL) return outputEstLogProp;
     }
   }
 
-	if(nodeSet->entries() == 1)
-    return getStatsForCANodeId(nodeSet->getFirst(), inLP);
+  if (nodeSet->entries() == 1) return getStatsForCANodeId(nodeSet->getFirst(), inLP);
 
-  JBBSubset * jbbSubset = nodeSet->jbbcsToJBBSubset();
+  JBBSubset *jbbSubset = nodeSet->jbbcsToJBBSubset();
 
-  Join * preferredJoin = jbbSubset->getPreferredJoin();
+  Join *preferredJoin = jbbSubset->getPreferredJoin();
 
-  //CMPASSERT(preferredJoin->isJoinFromMJSynthLogProp());
+  // CMPASSERT(preferredJoin->isJoinFromMJSynthLogProp());
 
   outputEstLogProp = preferredJoin->getGroupAttr()->outputLogProp(inLP);
 
-	return outputEstLogProp;
-} // AppliedStatMan::synthesizeLogProp
+  return outputEstLogProp;
+}  // AppliedStatMan::synthesizeLogProp
 
-EstLogPropSharedPtr AppliedStatMan::joinEstLogProps (
-              const EstLogPropSharedPtr& leftEstLogProp,
-              const EstLogPropSharedPtr& rightEstLogProp,
-              const EstLogPropSharedPtr& inLP)
-{
+EstLogPropSharedPtr AppliedStatMan::joinEstLogProps(const EstLogPropSharedPtr &leftEstLogProp,
+                                                    const EstLogPropSharedPtr &rightEstLogProp,
+                                                    const EstLogPropSharedPtr &inLP) {
   EstLogPropSharedPtr outputEstLogProp;
 
   NABoolean cacheable = FALSE;
 
-  CANodeIdSet * inputNodeSet = inLP->getNodeSet();
+  CANodeIdSet *inputNodeSet = inLP->getNodeSet();
 
   // These nodesets could be NULL, if the estLogProps to which they
   // belong are not cacheable
 
-  CANodeIdSet * leftNodeSet = leftEstLogProp->getNodeSet();
-  CANodeIdSet * rightNodeSet = rightEstLogProp->getNodeSet();
+  CANodeIdSet *leftNodeSet = leftEstLogProp->getNodeSet();
+  CANodeIdSet *rightNodeSet = rightEstLogProp->getNodeSet();
 
-  if ((leftEstLogProp->isCacheable()) &&
-     (rightEstLogProp->isCacheable()) &&
-     (inLP->isCacheable()) )
-  {
+  if ((leftEstLogProp->isCacheable()) && (rightEstLogProp->isCacheable()) && (inLP->isCacheable())) {
     CCMPASSERT(leftNodeSet != NULL);
     CCMPASSERT(rightNodeSet != NULL);
     CCMPASSERT(inputNodeSet != NULL);
-    if (leftNodeSet && rightNodeSet && inputNodeSet)
-    {
+    if (leftNodeSet && rightNodeSet && inputNodeSet) {
       cacheable = TRUE;
     }
   }
 
-  if (cacheable)
-  {
+  if (cacheable) {
     // check the ASM cache to see if outputEstLogProp for these
     // NodeSets appear for the given inputEstLogProp
 
@@ -707,16 +588,14 @@ EstLogPropSharedPtr AppliedStatMan::joinEstLogProps (
     combinedWithInputNodeSet.insert(*inputNodeSet);
 
     outputEstLogProp = getCachedStatistics(&combinedWithInputNodeSet);
-    if (outputEstLogProp != NULL)
-      return outputEstLogProp;
+    if (outputEstLogProp != NULL) return outputEstLogProp;
   }
 
-  JBBSubset * newJBBSubset = NULL;
+  JBBSubset *newJBBSubset = NULL;
 
   ValueIdSet setOfPredicates;
 
-  if  (leftNodeSet && rightNodeSet)
-  {
+  if (leftNodeSet && rightNodeSet) {
     // join predicates can be obtained from EstLogProp, only
     // if these corresponded to complete set of predicates -
     // all local or complete join. Also, we need a
@@ -739,13 +618,8 @@ EstLogPropSharedPtr AppliedStatMan::joinEstLogProps (
   // contain the combined left and the right JBB subset. But if
   // cacheable is FALSE, newJBBsubset should be NULL
 
-  Join * joinExpr = formJoinExprWithEstLogProps(
-				      leftEstLogProp,
-				      rightEstLogProp,
-				      inLP,
-				      &setOfPredicates,
-				      cacheable,
-				      newJBBSubset);
+  Join *joinExpr =
+      formJoinExprWithEstLogProps(leftEstLogProp, rightEstLogProp, inLP, &setOfPredicates, cacheable, newJBBSubset);
 
   // Now do the actual synthesis and cache statistics in the cache
 
@@ -759,39 +633,28 @@ EstLogPropSharedPtr AppliedStatMan::joinEstLogProps (
 // outputs of the left and the right JBBsubsets. jbbcsNodeSet is
 // the combined nodeSet of the left and the right CANodeIdSets
 
-ValueIdSet AppliedStatMan::getPotentialOutputs(
-			  const CANodeIdSet & jbbcsNodeSet)
-{
+ValueIdSet AppliedStatMan::getPotentialOutputs(const CANodeIdSet &jbbcsNodeSet) {
   ValueIdSet potentialOutputs;
 
-  for (CANodeId jbbc = jbbcsNodeSet.init();
-		    jbbcsNodeSet.next(jbbc);
-		    jbbcsNodeSet.advance(jbbc))
-  {
-    if (NodeAnalysis * jbbcNodeAnalysis = jbbc.getNodeAnalysis())
-    {
+  for (CANodeId jbbc = jbbcsNodeSet.init(); jbbcsNodeSet.next(jbbc); jbbcsNodeSet.advance(jbbc)) {
+    if (NodeAnalysis *jbbcNodeAnalysis = jbbc.getNodeAnalysis()) {
       ValueIdSet outputs;
-	  const Join * jbbcParentJoin = jbbcNodeAnalysis->getJBBC()->
-                                      getOriginalParentJoin();
-      if((!jbbcParentJoin) ||
-		 (jbbcParentJoin && jbbcParentJoin->isInnerNonSemiJoin()))
-        outputs = jbbcNodeAnalysis->getOriginalExpr()->\
-          getGroupAttr()->getCharacteristicOutputs();
-	  else if (jbbcParentJoin->isLeftJoin())
+      const Join *jbbcParentJoin = jbbcNodeAnalysis->getJBBC()->getOriginalParentJoin();
+      if ((!jbbcParentJoin) || (jbbcParentJoin && jbbcParentJoin->isInnerNonSemiJoin()))
+        outputs = jbbcNodeAnalysis->getOriginalExpr()->getGroupAttr()->getCharacteristicOutputs();
+      else if (jbbcParentJoin->isLeftJoin())
         outputs = jbbcParentJoin->nullInstantiatedOutput();
       potentialOutputs.insert(outputs);
     }
   }
 
   return potentialOutputs;
-} // AppliedStatMan::getPotentialOutputs
-
+}  // AppliedStatMan::getPotentialOutputs
 
 // AppliedStatMan::setupASMCacheForJBB method will be called from
 // Query::Analyze after connectivity analysis has been done and
 // empty logical properties have been set.
-void AppliedStatMan::setupASMCacheForJBB(JBB & jbb)
-{
+void AppliedStatMan::setupASMCacheForJBB(JBB &jbb) {
   EstLogPropSharedPtr myEstLogProp;
 
   // get all JBBCs of JBB
@@ -799,80 +662,60 @@ void AppliedStatMan::setupASMCacheForJBB(JBB & jbb)
   CANodeId jbbcId;
 
   // for all jbbcs
-  for (jbbcId = jbbcNodeIdSet.init();
-	  jbbcNodeIdSet.next(jbbcId);
-	  jbbcNodeIdSet.advance(jbbcId))
-  {
-    if (NodeAnalysis * jbbcNode = jbbcId.getNodeAnalysis())
-    {
+  for (jbbcId = jbbcNodeIdSet.init(); jbbcNodeIdSet.next(jbbcId); jbbcNodeIdSet.advance(jbbcId)) {
+    if (NodeAnalysis *jbbcNode = jbbcId.getNodeAnalysis()) {
       // Evaluate local predicates only if it is a table.
 
-      RelExpr * jbbcExpr = jbbcNode->getOriginalExpr();
+      RelExpr *jbbcExpr = jbbcNode->getOriginalExpr();
 
-      if ((jbbcNode->getTableAnalysis() != NULL) &&
-	        (jbbcExpr->getOperatorType() == REL_SCAN))
-      {
+      if ((jbbcNode->getTableAnalysis() != NULL) && (jbbcExpr->getOperatorType() == REL_SCAN)) {
         // get the original expression of the jbbc
-        Scan * scanExpr = (Scan *) jbbcExpr;
+        Scan *scanExpr = (Scan *)jbbcExpr;
 
         ValueIdSet localPreds = scanExpr->getSelectionPredicates();
 
         // if local predicates have already been computed, then skip
-        if ((localPreds.entries() > 0) || !(lookup(jbbcId)))
-        {
+        if ((localPreds.entries() > 0) || !(lookup(jbbcId))) {
           // check to see this GA has already been associated with
           // a logExpr for synthesis.  If not, then synthesize
-	        // log. expression, and then apply local predicates to it
+          // log. expression, and then apply local predicates to it
 
-          if (NOT scanExpr->getGroupAttr()->existsLogExprForSynthesis())
-	          scanExpr->synthLogProp();
+          if (NOT scanExpr->getGroupAttr()->existsLogExprForSynthesis()) scanExpr->synthLogProp();
 
-	        myEstLogProp = getStatsForCANodeId(jbbcId);
-	      }
+          myEstLogProp = getStatsForCANodeId(jbbcId);
+        }
       }
     }
   }
 
   // Now do a second traversal of the JBB looking for join reducers
-  for (jbbcId = jbbcNodeIdSet.init();
-		jbbcNodeIdSet.next(jbbcId);
-		jbbcNodeIdSet.advance(jbbcId))
-  {
+  for (jbbcId = jbbcNodeIdSet.init(); jbbcNodeIdSet.next(jbbcId); jbbcNodeIdSet.advance(jbbcId)) {
     // now look for all two way joins for this child
-    if (jbbcId.getNodeAnalysis())
-    {
-
+    if (jbbcId.getNodeAnalysis()) {
       // get all JBBCs connected to this JBBC, and do a two-way
       // join with all of them
 
-      CANodeIdSet connectedNodes = jbbcId.getNodeAnalysis()->\
-				  getJBBC()->getJoinedJBBCs();
+      CANodeIdSet connectedNodes = jbbcId.getNodeAnalysis()->getJBBC()->getJoinedJBBCs();
 
-      for (CANodeId connectedTable = connectedNodes.init();
-			      connectedNodes.next(connectedTable);
-			      connectedNodes.advance(connectedTable))
-      {
-	      if (connectedTable.getNodeAnalysis())
-	      {
+      for (CANodeId connectedTable = connectedNodes.init(); connectedNodes.next(connectedTable);
+           connectedNodes.advance(connectedTable)) {
+        if (connectedTable.getNodeAnalysis()) {
+          // ASM does not concern itself with the order of the tables,
+          // hence it is possible that the join has already been computed
 
-	        // ASM does not concern itself with the order of the tables,
-	        // hence it is possible that the join has already been computed
+          CANodeIdSet tableSet = jbbcId;
+          tableSet.insert(connectedTable);
 
-	        CANodeIdSet tableSet = jbbcId;
-	        tableSet.insert(connectedTable);
-
-	        if ((myEstLogProp = getCachedStatistics(&tableSet)) == NULL)
-	        {
-	          CANodeIdSet setForjbbcId(jbbcId);
-	          CANodeIdSet setForConnectedTable(connectedTable);
-	          myEstLogProp = joinJBBChildren(setForjbbcId, setForConnectedTable);
-	        }
-	      }
+          if ((myEstLogProp = getCachedStatistics(&tableSet)) == NULL) {
+            CANodeIdSet setForjbbcId(jbbcId);
+            CANodeIdSet setForConnectedTable(connectedTable);
+            myEstLogProp = joinJBBChildren(setForjbbcId, setForConnectedTable);
+          }
+        }
       }
     }
   }
-} // AppliedStatMan::setupASMCacheForJBB
-
+}  // AppliedStatMan::setupASMCacheForJBB
 
 // Following three methods can be used to get cached statistics from
 // ASM cache for JBBsubset / CANodeIdSet / CANodeId. In all cases
@@ -882,22 +725,17 @@ void AppliedStatMan::setupASMCacheForJBB(JBB & jbb)
 // which can be very inefficient, hence this method should not be used
 // as a substitute for joinJBBSubsets / joinCANodeIdSets
 
-EstLogPropSharedPtr AppliedStatMan::getStatsForJBBSubset(
-					const JBBSubset & jbbSubset)
-{
+EstLogPropSharedPtr AppliedStatMan::getStatsForJBBSubset(const JBBSubset &jbbSubset) {
   CANodeIdSet jbbNodeSet = jbbSubset.getJBBCs();
 
-  // We don't want any group-bys at this stage. 
-  CMPASSERT ( (jbbSubset.getGB() == NULL_CA_ID));
+  // We don't want any group-bys at this stage.
+  CMPASSERT((jbbSubset.getGB() == NULL_CA_ID));
 
   return getStatsForCANodeIdSet(jbbNodeSet);
 };
 
 // this method assume jbbNodeSet contains nodes from the same JBB
-EstLogPropSharedPtr AppliedStatMan::getStatsForCANodeIdSet(
-					const CANodeIdSet & jbbNodeSet)
-{
-
+EstLogPropSharedPtr AppliedStatMan::getStatsForCANodeIdSet(const CANodeIdSet &jbbNodeSet) {
   EstLogPropSharedPtr outputEstLogProp;
   CANodeIdSet combinedNodeSet = jbbNodeSet;
   combinedNodeSet += *(jbbNodeSet.getJBBInput()->getNodeSet());
@@ -915,18 +753,13 @@ EstLogPropSharedPtr AppliedStatMan::getStatsForCANodeIdSet(
 // and rightJBBSubsets. Both these CANodeIdSets should correspond
 // to the JBBCs from the same JBB.
 
-EstLogPropSharedPtr AppliedStatMan::joinJBBChildren(
-					const CANodeIdSet & leftChildren,
-					const CANodeIdSet & rightChildren,
-					EstLogPropSharedPtr & inLP)
-{
-
+EstLogPropSharedPtr AppliedStatMan::joinJBBChildren(const CANodeIdSet &leftChildren, const CANodeIdSet &rightChildren,
+                                                    EstLogPropSharedPtr &inLP) {
   EstLogPropSharedPtr inputLP = inLP;
 
   EstLogPropSharedPtr outputEstLogProp;
 
-  if(inputLP == (*GLOBAL_EMPTY_INPUT_LOGPROP))
-    inputLP = leftChildren.getJBBInput();
+  if (inputLP == (*GLOBAL_EMPTY_INPUT_LOGPROP)) inputLP = leftChildren.getJBBInput();
 
   // Because there exist a nodeSet for the left, right and the outer
   // child, hence these properties are cacheable. Check to see if the
@@ -935,10 +768,9 @@ EstLogPropSharedPtr AppliedStatMan::joinJBBChildren(
   CANodeIdSet combinedNodeSet = leftChildren;
   combinedNodeSet.insert(rightChildren);
 
-  CANodeIdSet * inNodeSet = NULL;
+  CANodeIdSet *inNodeSet = NULL;
 
-  if (inputLP->isCacheable())
-  {
+  if (inputLP->isCacheable()) {
     inNodeSet = inputLP->getNodeSet();
 
     CANodeIdSet combinedWithInputNodeSet = combinedNodeSet;
@@ -947,43 +779,34 @@ EstLogPropSharedPtr AppliedStatMan::joinJBBChildren(
     outputEstLogProp = getCachedStatistics(&combinedWithInputNodeSet);
   }
 
-  if(outputEstLogProp == NULL)
-    outputEstLogProp = synthesizeLogProp(&combinedNodeSet, inputLP);
-  
+  if (outputEstLogProp == NULL) outputEstLogProp = synthesizeLogProp(&combinedNodeSet, inputLP);
+
   return outputEstLogProp;
-} // AppliedStatMan::joinJBBChildren
+}  // AppliedStatMan::joinJBBChildren
 
-  // do a fast computation of the join reduction based only on the
-  // jbbcs that are involved in the join between the two sets
+// do a fast computation of the join reduction based only on the
+// jbbcs that are involved in the join between the two sets
 
-CostScalar AppliedStatMan::computeJoinReduction(
-          const CANodeIdSet & leftChildren,
-          const CANodeIdSet & rightChildren)
-{
+CostScalar AppliedStatMan::computeJoinReduction(const CANodeIdSet &leftChildren, const CANodeIdSet &rightChildren) {
   CostScalar result = 0;
 
   // get stats for left
-  EstLogPropSharedPtr leftCard =
-    getStatsForCANodeIdSet(leftChildren);
+  EstLogPropSharedPtr leftCard = getStatsForCANodeIdSet(leftChildren);
 
   // get stats for right
-  EstLogPropSharedPtr rightCard =
-    getStatsForCANodeIdSet(rightChildren);
+  EstLogPropSharedPtr rightCard = getStatsForCANodeIdSet(rightChildren);
 
   CANodeIdSet jbbcsJoinedToRight;
   CANodeIdSet allPredecessors;
   CANodeIdSet allSuccessors;
 
-  for( CANodeId rChild = rightChildren.init();
-       rightChildren.next(rChild);
-       rightChildren.advance(rChild))
-  {
-    JBBC * rChildJBBC = rChild.getNodeAnalysis()->getJBBC();
+  for (CANodeId rChild = rightChildren.init(); rightChildren.next(rChild); rightChildren.advance(rChild)) {
+    JBBC *rChildJBBC = rChild.getNodeAnalysis()->getJBBC();
     jbbcsJoinedToRight += rChildJBBC->getJoinedJBBCs();
     jbbcsJoinedToRight += rChildJBBC->getPredecessorJBBCs();
-    allPredecessors    += rChildJBBC->getPredecessorJBBCs();
+    allPredecessors += rChildJBBC->getPredecessorJBBCs();
     jbbcsJoinedToRight += rChildJBBC->getSuccessorJBBCs();
-    allSuccessors      += rChildJBBC->getSuccessorJBBCs();
+    allSuccessors += rChildJBBC->getSuccessorJBBCs();
   }
 
   CANodeIdSet dependencyCausingNodesFromLeft = leftChildren;
@@ -992,8 +815,7 @@ CostScalar AppliedStatMan::computeJoinReduction(
   CANodeIdSet leftNodesJoinedToRight = leftChildren;
   leftNodesJoinedToRight.intersectSet(jbbcsJoinedToRight);
 
-  if(!leftNodesJoinedToRight.entries())
-  {
+  if (!leftNodesJoinedToRight.entries()) {
     result = rightCard->getResultCardinality();
     return result;
   }
@@ -1002,13 +824,9 @@ CostScalar AppliedStatMan::computeJoinReduction(
   CANodeIdSet newNodes = leftNodesJoinedToRight;
   CANodeIdSet nodesConsidered;
 
-  while(newNodes.entries())
-  {
-    for( CANodeId lChild = newNodes.init();
-         newNodes.next(lChild);
-         newNodes.advance(lChild))
-    {
-      JBBC * lChildJBBC = lChild.getNodeAnalysis()->getJBBC();
+  while (newNodes.entries()) {
+    for (CANodeId lChild = newNodes.init(); newNodes.next(lChild); newNodes.advance(lChild)) {
+      JBBC *lChildJBBC = lChild.getNodeAnalysis()->getJBBC();
       leftSetPredecessors += lChildJBBC->getPredecessorJBBCs();
       nodesConsidered += lChild;
     }
@@ -1023,29 +841,22 @@ CostScalar AppliedStatMan::computeJoinReduction(
   // for a JBBSubset to be legal it has to have at least one
   // independent jbbc i.e. a jbbcs connect via a innerNonSemiNonTsjJoin
   // Assumption: leftChildren represents a legal JBBSubset
-  CANodeIdSet independentJBBCsInLeftNodesJoinedToRight =
-    QueryAnalysis::Instance()->getInnerNonSemiNonTSJJBBCs();
+  CANodeIdSet independentJBBCsInLeftNodesJoinedToRight = QueryAnalysis::Instance()->getInnerNonSemiNonTSJJBBCs();
 
   independentJBBCsInLeftNodesJoinedToRight.intersectSet(leftNodesJoinedToRight);
-  
-  if(!independentJBBCsInLeftNodesJoinedToRight.entries())
-    leftNodesJoinedToRight += 
-      leftChildren.jbbcsToJBBSubset()->
-        getJBBSubsetAnalysis()->
-          getLargestIndependentNode();
 
-  EstLogPropSharedPtr cardLeftNodesJoinedToRight =
-    getStatsForCANodeIdSet(leftNodesJoinedToRight);
+  if (!independentJBBCsInLeftNodesJoinedToRight.entries())
+    leftNodesJoinedToRight += leftChildren.jbbcsToJBBSubset()->getJBBSubsetAnalysis()->getLargestIndependentNode();
+
+  EstLogPropSharedPtr cardLeftNodesJoinedToRight = getStatsForCANodeIdSet(leftNodesJoinedToRight);
 
   // All nodes connected via a join
   CANodeIdSet connectedNodes(leftNodesJoinedToRight);
   connectedNodes += rightChildren;
 
-  EstLogPropSharedPtr cardConnectedNodes =
-    joinJBBChildren(leftNodesJoinedToRight,rightChildren);
+  EstLogPropSharedPtr cardConnectedNodes = joinJBBChildren(leftNodesJoinedToRight, rightChildren);
 
-  result = cardConnectedNodes->getResultCardinality() /
-             cardLeftNodesJoinedToRight->getResultCardinality();
+  result = cardConnectedNodes->getResultCardinality() / cardLeftNodesJoinedToRight->getResultCardinality();
 
   return result;
 }
@@ -1057,16 +868,11 @@ CostScalar AppliedStatMan::computeJoinReduction(
 // is cached if all local predicates are applied. Partial statistics
 // (corresponding to a specific predicate) is re-computed
 
-EstLogPropSharedPtr AppliedStatMan::getStatsForCANodeId(
-					CANodeId jbbc,
-					const EstLogPropSharedPtr &inLP,
-					const ValueIdSet * predIdSet)
-{
-
+EstLogPropSharedPtr AppliedStatMan::getStatsForCANodeId(CANodeId jbbc, const EstLogPropSharedPtr &inLP,
+                                                        const ValueIdSet *predIdSet) {
   EstLogPropSharedPtr inputLP = inLP;
 
-  if(inputLP == (*GLOBAL_EMPTY_INPUT_LOGPROP))
-    inputLP = jbbc.getJBBInput();
+  if (inputLP == (*GLOBAL_EMPTY_INPUT_LOGPROP)) inputLP = jbbc.getJBBInput();
 
   EstLogPropSharedPtr outputEstLogProp = NULL;
 
@@ -1076,21 +882,19 @@ EstLogPropSharedPtr AppliedStatMan::getStatsForCANodeId(
   // predicates are to be applied and if inNodeSet is provided,
   // or the inLP are cacheable
 
-  if ((inputLP->isCacheable()) && (predIdSet == NULL) )
-  {
+  if ((inputLP->isCacheable()) && (predIdSet == NULL)) {
     CANodeIdSet combinedSet = jbbc;
 
     // get the nodeIdSet of the outer child, if not already given. This
     // along with the present jbbc is used as a key in the cache
 
-    CANodeIdSet * inputNodeSet;
+    CANodeIdSet *inputNodeSet;
     inputNodeSet = inputLP->getNodeSet();
 
     // if inLP are cacheable these should have a nodeSet attached
     CCMPASSERT(inputNodeSet != NULL);
 
-    if (inputNodeSet)
-    {
+    if (inputNodeSet) {
       combinedSet.insert(*inputNodeSet);
       // if estLogProp for all local predicates is required,
       // then it might already exist in the cache
@@ -1098,22 +902,19 @@ EstLogPropSharedPtr AppliedStatMan::getStatsForCANodeId(
     }
   }
 
-  if (outputEstLogProp == NULL)
-  {
+  if (outputEstLogProp == NULL) {
     // 2. properties do not exist in the cache, so synthesize them.
 
-    //if specified by the user apply those predicates,
+    // if specified by the user apply those predicates,
     // else apply predicates in the original expr
-    NodeAnalysis * jbbcNode = jbbc.getNodeAnalysis();
+    NodeAnalysis *jbbcNode = jbbc.getNodeAnalysis();
 
-    TableAnalysis * tableAnalysis = jbbcNode->getTableAnalysis();
+    TableAnalysis *tableAnalysis = jbbcNode->getTableAnalysis();
 
-    if (tableAnalysis && predIdSet)
-    {
-      TableDesc * tableDesc = tableAnalysis->getTableDesc();
+    if (tableAnalysis && predIdSet) {
+      TableDesc *tableDesc = tableAnalysis->getTableDesc();
 
-      const QualifiedName& qualName = 
-            tableDesc->getNATable()->getTableName();
+      const QualifiedName &qualName = tableDesc->getNATable()->getTableName();
 
       CorrName name(qualName, STMTHEAP);
 
@@ -1121,52 +922,45 @@ EstLogPropSharedPtr AppliedStatMan::getStatsForCANodeId(
 
       Cardinality rc = tableDesc->getNATable()->getEstRowCount();
 
-      const CardinalityHint* cardHint = tableDesc->getCardinalityHint();
-      if ( cardHint ) 
-         rc = (cardHint->getScanCardinality()).getValue();
+      const CardinalityHint *cardHint = tableDesc->getCardinalityHint();
+      if (cardHint) rc = (cardHint->getScanCardinality()).getValue();
 
-      if ( !cardHint ) {
+      if (!cardHint) {
+        NATable *nt = (NATable *)(tableDesc->getNATable());
 
-          NATable* nt = (NATable*)(tableDesc->getNATable());
-   
-          StatsList* statsList = nt->getColStats();
-   
-          if ( statsList && statsList->entries() > 0 ) {
-              ColStatsSharedPtr cStatsPtr = 
-                    statsList->getSingleColumnColStats(0);
-   
-              if ( cStatsPtr )
-                 rc = (cStatsPtr->getRowcount()).getValue();
-          }
+        StatsList *statsList = nt->getColStats();
+
+        if (statsList && statsList->entries() > 0) {
+          ColStatsSharedPtr cStatsPtr = statsList->getSingleColumnColStats(0);
+
+          if (cStatsPtr) rc = (cStatsPtr->getRowcount()).getValue();
+        }
       }
 
-      scanExpr->setBaseCardinality(MIN_ONE (rc));
+      scanExpr->setBaseCardinality(MIN_ONE(rc));
 
-      GroupAttributes * gaExpr = new STMTHEAP GroupAttributes();
+      GroupAttributes *gaExpr = new STMTHEAP GroupAttributes();
 
       scanExpr->setSelectionPredicates(*predIdSet);
 
-      ValueIdSet requiredOutputs = jbbc.getNodeAnalysis()->\
-	getOriginalExpr()->getGroupAttr()->getCharacteristicOutputs();
+      ValueIdSet requiredOutputs =
+          jbbc.getNodeAnalysis()->getOriginalExpr()->getGroupAttr()->getCharacteristicOutputs();
 
       gaExpr->setCharacteristicOutputs(requiredOutputs);
 
       scanExpr->setGroupAttr(gaExpr);
       gaExpr->setLogExprForSynthesis(scanExpr);
 
-      EstLogPropSharedPtr nonCacheableInLP(new (HISTHEAP) EstLogProp (*inputLP));
+      EstLogPropSharedPtr nonCacheableInLP(new (HISTHEAP) EstLogProp(*inputLP));
       nonCacheableInLP->setCacheableFlag(FALSE);
       scanExpr->synthLogProp();
       outputEstLogProp = scanExpr->getGroupAttr()->outputLogProp(nonCacheableInLP);
-    }
-    else
-    {
-        NodeAnalysis * nodeAnalysis = jbbc.getNodeAnalysis();
+    } else {
+      NodeAnalysis *nodeAnalysis = jbbc.getNodeAnalysis();
 
-        RelExpr * relExpr = nodeAnalysis->getModifiedExpr();
+      RelExpr *relExpr = nodeAnalysis->getModifiedExpr();
 
-	if (relExpr == NULL)
-	  relExpr = nodeAnalysis->getOriginalExpr();
+      if (relExpr == NULL) relExpr = nodeAnalysis->getOriginalExpr();
 
       // synthesize and cache estLogProp for the given inLP.
       outputEstLogProp = relExpr->getGroupAttr()->outputLogProp(inputLP);
@@ -1174,48 +968,35 @@ EstLogPropSharedPtr AppliedStatMan::getStatsForCANodeId(
   }
 
   return outputEstLogProp;
-} // getStatsForCANodeId
-
+}  // getStatsForCANodeId
 
 // get Stats after applying local predicates to Clustering key columns of JBBC
-EstLogPropSharedPtr AppliedStatMan::getStatsForLocalPredsOnCKPOfJBBC(
-		      CANodeId jbbc,
-		      const EstLogPropSharedPtr &inLP)
-{
+EstLogPropSharedPtr AppliedStatMan::getStatsForLocalPredsOnCKPOfJBBC(CANodeId jbbc, const EstLogPropSharedPtr &inLP) {
   EstLogPropSharedPtr inputLP = inLP;
 
-  if(inputLP == (*GLOBAL_EMPTY_INPUT_LOGPROP))
-    inputLP = jbbc.getJBBInput();
+  if (inputLP == (*GLOBAL_EMPTY_INPUT_LOGPROP)) inputLP = jbbc.getJBBInput();
 
-    // if the Jbbc is not a table return
+  // if the Jbbc is not a table return
 
-  TableAnalysis * tableAnalysis = jbbc.getNodeAnalysis()->getTableAnalysis();
-  if(tableAnalysis == NULL)
-   return getStatsForCANodeId(jbbc, inputLP);
+  TableAnalysis *tableAnalysis = jbbc.getNodeAnalysis()->getTableAnalysis();
+  if (tableAnalysis == NULL) return getStatsForCANodeId(jbbc, inputLP);
 
-  const ValueIdList &skeys =
-      tableAnalysis->getTableDesc()->getClusteringIndex()->getClusteringKeyCols();
+  const ValueIdList &skeys = tableAnalysis->getTableDesc()->getClusteringIndex()->getClusteringKeyCols();
 
   return getStatsForLocalPredsOnPrefixOfColList(jbbc, skeys, inputLP);
-} // AppliedStatMan::getStatsForLocalPredsOnCKPOfJBBC
+}  // AppliedStatMan::getStatsForLocalPredsOnCKPOfJBBC
 
 // get Stats after applying local predicates on the given columns of JBBC
 // if there are no predicates on the given colum set, return NULL
-EstLogPropSharedPtr AppliedStatMan::getStatsForLocalPredsOnPrefixOfColList(
-		      CANodeId jbbc,
-		      const ValueIdList colIdList,
-		      const EstLogPropSharedPtr &inLP)
-{
-
+EstLogPropSharedPtr AppliedStatMan::getStatsForLocalPredsOnPrefixOfColList(CANodeId jbbc, const ValueIdList colIdList,
+                                                                           const EstLogPropSharedPtr &inLP) {
   EstLogPropSharedPtr inputLP = inLP;
 
-  if(inputLP == (*GLOBAL_EMPTY_INPUT_LOGPROP))
-    inputLP = jbbc.getJBBInput();
+  if (inputLP == (*GLOBAL_EMPTY_INPUT_LOGPROP)) inputLP = jbbc.getJBBInput();
 
-  TableAnalysis * tableAnalysis = jbbc.getNodeAnalysis()->getTableAnalysis();
+  TableAnalysis *tableAnalysis = jbbc.getNodeAnalysis()->getTableAnalysis();
 
-  if (tableAnalysis == NULL)
-  {
+  if (tableAnalysis == NULL) {
     // apply all local predicates, if JBBC is not a table (could be a sub-query)
     return getStatsForCANodeId(jbbc, inputLP);
   }
@@ -1224,28 +1005,22 @@ EstLogPropSharedPtr AppliedStatMan::getStatsForLocalPredsOnPrefixOfColList(
   Lng32 prefixSize;
 
   // get local predicates for leading key columns
-  localPredsOnCols = tableAnalysis->getLocalPredsOnPrefixOfList(colIdList,
-				       prefixSize);
+  localPredsOnCols = tableAnalysis->getLocalPredsOnPrefixOfList(colIdList, prefixSize);
 
   return getStatsForCANodeId(jbbc, inputLP, &localPredsOnCols);
 
-} // AppliedStatMan::getStatsForLocalPredsOnPrefixOfColList
+}  // AppliedStatMan::getStatsForLocalPredsOnPrefixOfColList
 
 // get Stats after applying local predicates on the given columns of JBBC
-EstLogPropSharedPtr AppliedStatMan::getStatsForLocalPredsOnGivenCols(
-		      CANodeId jbbc,
-		      const ValueIdSet colIdSet,
-		      const EstLogPropSharedPtr &inLP)
-{
+EstLogPropSharedPtr AppliedStatMan::getStatsForLocalPredsOnGivenCols(CANodeId jbbc, const ValueIdSet colIdSet,
+                                                                     const EstLogPropSharedPtr &inLP) {
   EstLogPropSharedPtr inputLP = inLP;
 
-  if(inputLP == (*GLOBAL_EMPTY_INPUT_LOGPROP))
-    inputLP = jbbc.getJBBInput();
+  if (inputLP == (*GLOBAL_EMPTY_INPUT_LOGPROP)) inputLP = jbbc.getJBBInput();
 
-  TableAnalysis * tableAnalysis = jbbc.getNodeAnalysis()->getTableAnalysis();
+  TableAnalysis *tableAnalysis = jbbc.getNodeAnalysis()->getTableAnalysis();
 
-  if (tableAnalysis == NULL)
-  {
+  if (tableAnalysis == NULL) {
     // if jbbc is not a table, then apply all local predicates
     return getStatsForCANodeId(jbbc, inputLP);
   }
@@ -1262,41 +1037,31 @@ EstLogPropSharedPtr AppliedStatMan::getStatsForLocalPredsOnGivenCols(
   localPredsOnCols = tableAnalysis->getLocalPredsOnColumns(usedCols);
 
   return getStatsForCANodeId(jbbc, inputLP, &localPredsOnCols);
-} // AppliedStatMan::getStatsForLocalPredsOnGivenCols
+}  // AppliedStatMan::getStatsForLocalPredsOnGivenCols
 
 // get Stats after doing a join on the Clustering key columns of JBBC
-EstLogPropSharedPtr AppliedStatMan::getStatsForJoinPredsOnCKOfJBBC(
-		      const CANodeIdSet jbbSubset,
-		      CANodeId jbbc,
-		      EstLogPropSharedPtr &inLP)
-{
+EstLogPropSharedPtr AppliedStatMan::getStatsForJoinPredsOnCKOfJBBC(const CANodeIdSet jbbSubset, CANodeId jbbc,
+                                                                   EstLogPropSharedPtr &inLP) {
   EstLogPropSharedPtr inputLP = inLP;
 
-  if(inputLP == (*GLOBAL_EMPTY_INPUT_LOGPROP))
-    inputLP = jbbc.getJBBInput();
+  if (inputLP == (*GLOBAL_EMPTY_INPUT_LOGPROP)) inputLP = jbbc.getJBBInput();
 
-  TableAnalysis * tableAnalysis = jbbc.getNodeAnalysis()->getTableAnalysis();
-  if(tableAnalysis == NULL)
-   return joinJBBChildren(jbbSubset, jbbc, inputLP);
+  TableAnalysis *tableAnalysis = jbbc.getNodeAnalysis()->getTableAnalysis();
+  if (tableAnalysis == NULL) return joinJBBChildren(jbbSubset, jbbc, inputLP);
 
-  const ValueIdList &skeys =
-      tableAnalysis->getTableDesc()->getClusteringIndex()->getClusteringKeyCols();
+  const ValueIdList &skeys = tableAnalysis->getTableDesc()->getClusteringIndex()->getClusteringKeyCols();
 
   return getStatsForJoinPredsOnCols(jbbSubset, jbbc, skeys, TRUE, inputLP);
-} // AppliedStatMan::getStatsForJoinPredsOnCKOfJBBC
+}  // AppliedStatMan::getStatsForJoinPredsOnCKOfJBBC
 
 // get Stats after applying given join predicates on the JBBC
-EstLogPropSharedPtr AppliedStatMan::getStatsForGivenJoinPredsOnJBBC(
-		      const CANodeIdSet jbbSubset,
-		      CANodeId jbbc,
-		      const ValueIdSet joinPreds,
-		      const ValueIdSet localPreds,
-		      EstLogPropSharedPtr &inLP)
-{
+EstLogPropSharedPtr AppliedStatMan::getStatsForGivenJoinPredsOnJBBC(const CANodeIdSet jbbSubset, CANodeId jbbc,
+                                                                    const ValueIdSet joinPreds,
+                                                                    const ValueIdSet localPreds,
+                                                                    EstLogPropSharedPtr &inLP) {
   EstLogPropSharedPtr inputLP = inLP;
 
-  if(inputLP == (*GLOBAL_EMPTY_INPUT_LOGPROP))
-    inputLP = jbbc.getJBBInput();
+  if (inputLP == (*GLOBAL_EMPTY_INPUT_LOGPROP)) inputLP = jbbc.getJBBInput();
 
   EstLogPropSharedPtr outputEstLogProp;
 
@@ -1306,46 +1071,34 @@ EstLogPropSharedPtr AppliedStatMan::getStatsForGivenJoinPredsOnJBBC(
   // We do not want to modify the "cacheable" flag in the inLP, hence make a
   // copy of these logical properties.
 
-  EstLogPropSharedPtr nonCacheableInLP(new (HISTHEAP) EstLogProp (*inputLP));
+  EstLogPropSharedPtr nonCacheableInLP(new (HISTHEAP) EstLogProp(*inputLP));
   nonCacheableInLP->setCacheableFlag(FALSE);
 
-  Join * joinExpr = formJoinExprForJoinOnJBBC(jbbSubset,
-						 jbbc,
-                 &localPreds,
-                 &joinPreds,
-                 nonCacheableInLP,
-                 FALSE);
-                 
-  
+  Join *joinExpr = formJoinExprForJoinOnJBBC(jbbSubset, jbbc, &localPreds, &joinPreds, nonCacheableInLP, FALSE);
+
   // synthesize estimate logical properties for the join
   outputEstLogProp = joinExpr->getGroupAttr()->outputLogProp(nonCacheableInLP);
 
   return outputEstLogProp;
-} // AppliedStatMan::getStatsForGivenJoinPreds
+}  // AppliedStatMan::getStatsForGivenJoinPreds
 
-EstLogPropSharedPtr AppliedStatMan::getStatsForJoinPredsOnCols(const CANodeIdSet leftChild,
-		      CANodeId rightChild,
-		      const ValueIdList keyColList,
-		      NABoolean onlyLeadingCols,
-		      EstLogPropSharedPtr &inLP)
-{
-
+EstLogPropSharedPtr AppliedStatMan::getStatsForJoinPredsOnCols(const CANodeIdSet leftChild, CANodeId rightChild,
+                                                               const ValueIdList keyColList, NABoolean onlyLeadingCols,
+                                                               EstLogPropSharedPtr &inLP) {
   EstLogPropSharedPtr inputLP = inLP;
 
-  if(inputLP == (*GLOBAL_EMPTY_INPUT_LOGPROP))
-    inputLP = rightChild.getJBBInput();
+  if (inputLP == (*GLOBAL_EMPTY_INPUT_LOGPROP)) inputLP = rightChild.getJBBInput();
 
-  JBBC * jbbc = rightChild.getNodeAnalysis()->getJBBC();
+  JBBC *jbbc = rightChild.getNodeAnalysis()->getJBBC();
 
-  // This is Fatal. Somthing went wrong in the Analyzer 
-  CMPASSERT (jbbc != NULL);
+  // This is Fatal. Somthing went wrong in the Analyzer
+  CMPASSERT(jbbc != NULL);
 
   // get all local predicates on the right child
 
-  TableAnalysis * tableAnalysis = rightChild.getNodeAnalysis()->getTableAnalysis();
+  TableAnalysis *tableAnalysis = rightChild.getNodeAnalysis()->getTableAnalysis();
 
-  if(tableAnalysis == NULL)
-  {
+  if (tableAnalysis == NULL) {
     // if right child is not a table, then do a regular join between the two children
     return joinJBBChildren(leftChild, rightChild, inputLP);
   }
@@ -1360,49 +1113,33 @@ EstLogPropSharedPtr AppliedStatMan::getStatsForJoinPredsOnCols(const CANodeIdSet
   CANodeIdSet connectedJBBCs;
 
   if (onlyLeadingCols)
-    connectedJBBCs = tableAnalysis->getJBBCsConnectedToPrefixOfList(leftChild,
-                                              keyColList,
-                                              prefixSize,
-                                              joinPredsOfCK,
-                                              leadingColsPreds);
+    connectedJBBCs = tableAnalysis->getJBBCsConnectedToPrefixOfList(leftChild, keyColList, prefixSize, joinPredsOfCK,
+                                                                    leadingColsPreds);
   else
-    connectedJBBCs = tableAnalysis->getJBBCsConnectedToCols(leftChild,
-                                      keyColList,
-                                      joinPredsOfCK,
-                                      leadingColsPreds);
+    connectedJBBCs = tableAnalysis->getJBBCsConnectedToCols(leftChild, keyColList, joinPredsOfCK, leadingColsPreds);
 
-
-  EstLogPropSharedPtr outputLogProp = getStatsForGivenJoinPredsOnJBBC(leftChild,
-							rightChild,
-							joinPredsOfCK,
-							leadingColsPreds,
-							inputLP);
+  EstLogPropSharedPtr outputLogProp =
+      getStatsForGivenJoinPredsOnJBBC(leftChild, rightChild, joinPredsOfCK, leadingColsPreds, inputLP);
 
   return outputLogProp;
 
-} // AppliedStatMan::getStatsForJoinPredsOnCols
+}  // AppliedStatMan::getStatsForJoinPredsOnCols
 
 /*****************************************
 TO GO IN CLASS QueryAnalysis
 ******************************************/
 
-void QueryAnalysis::initializeASM()
-{
-  AppliedStatMan * appStatMan = ASM();
+void QueryAnalysis::initializeASM() {
+  AppliedStatMan *appStatMan = ASM();
 
-  if (appStatMan == NULL)
-    return;
+  if (appStatMan == NULL) return;
 
   ARRAY(JBB *) allJBBs = getJBBs();
   CollIndex remainingJBBs = allJBBs.entries();
-  for (CollIndex i = 0; remainingJBBs > 0; i++)
-  {
-    if (allJBBs.used(i))
-    {
+  for (CollIndex i = 0; remainingJBBs > 0; i++) {
+    if (allJBBs.used(i)) {
       appStatMan->setupASMCacheForJBB(*(allJBBs[i]));
-	  remainingJBBs--;
+      remainingJBBs--;
     }
   }
 }
-
-

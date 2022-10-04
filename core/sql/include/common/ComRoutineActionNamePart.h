@@ -55,118 +55,104 @@ using namespace std;
 class ComAnsiNamePart;
 class ComRoutineActionNamePart;
 
-
 // -----------------------------------------------------------------------
 // definition of class ComRoutineActionNamePart
 // -----------------------------------------------------------------------
 
-class ComRoutineActionNamePart : public ComAnsiNamePart
-{
-
+class ComRoutineActionNamePart : public ComAnsiNamePart {
   //
   // global friend functions
   //
 
-  friend ostream& operator<< (ostream &out, const ComAnsiNamePart &name);
+  friend ostream &operator<<(ostream &out, const ComAnsiNamePart &name);
 
-public:
-
+ public:
   //
   // constructors
   //
 
   // Default constructor.  This method creates an empty object.
-  ComRoutineActionNamePart (CollHeap * h=0);
+  ComRoutineActionNamePart(CollHeap *h = 0);
 
   // Copy constructors.
   // If the specified/input name is legal, construct the object
   // from the input name component; otherwise, construct an
   // empty object.
 
-  ComRoutineActionNamePart (const ComRoutineActionNamePart & orig,
-                            CollHeap * h=0) ;
+  ComRoutineActionNamePart(const ComRoutineActionNamePart &orig, CollHeap *h = 0);
 
-  ComRoutineActionNamePart (const ComUID &uudfUid,
-                            const NAString &name,
-                            formatEnum format = EXTERNAL_FORMAT,
-                            CollHeap * h=0);
+  ComRoutineActionNamePart(const ComUID &uudfUid, const NAString &name, formatEnum format = EXTERNAL_FORMAT,
+                           CollHeap *h = 0);
 
-  ComRoutineActionNamePart (const ComUID &uudfUid,
-                            const char *name,
-                            size_t nameLenInBytes,
-                            formatEnum format = EXTERNAL_FORMAT,
-                            CollHeap * h=0);
+  ComRoutineActionNamePart(const ComUID &uudfUid, const char *name, size_t nameLenInBytes,
+                           formatEnum format = EXTERNAL_FORMAT, CollHeap *h = 0);
 
-  ComRoutineActionNamePart (const ComUID &uudfUid,
-                            const char *externalNameParts,
-                            size_t externalNPLen,
-                            size_t &count,
-                            CollHeap * h=0);
+  ComRoutineActionNamePart(const ComUID &uudfUid, const char *externalNameParts, size_t externalNPLen, size_t &count,
+                           CollHeap *h = 0);
 
   //
   // virtual destructor
   //
-  virtual ~ComRoutineActionNamePart ();
+  virtual ~ComRoutineActionNamePart();
 
   //
   // virtual cast function
   //
-  virtual ComRoutineActionNamePart * castToComRoutineActionNamePart();
-  virtual const ComRoutineActionNamePart * castToComRoutineActionNamePart() const;
+  virtual ComRoutineActionNamePart *castToComRoutineActionNamePart();
+  virtual const ComRoutineActionNamePart *castToComRoutineActionNamePart() const;
 
   //
   // assignment operators
   //
 
-  ComRoutineActionNamePart& operator= (const ComRoutineActionNamePart&);
+  ComRoutineActionNamePart &operator=(const ComRoutineActionNamePart &);
 
   //
   // logical operator
   //
-  NABoolean operator== (const ComRoutineActionNamePart &rhs) const;
+  NABoolean operator==(const ComRoutineActionNamePart &rhs) const;
 
   //
   // accessors
   //
 
-  const ComUID & getUudfUID () const { return uudfUid_; }
-        ComUID & getUudfUID ()       { return uudfUid_; }
+  const ComUID &getUudfUID() const { return uudfUid_; }
+  ComUID &getUudfUID() { return uudfUid_; }
 
   // The following method returns TRUE if parameter "output" is populated.
   // By default, checks this object and the generated output to make sure
   // that they are valid.  If the input parameter "performCheck" is set to
   // FALSE, avoid checking the validity of the generated output.
-  NABoolean getRoutineActionNameStoredInOBJECTS_OBJECT_NAME(ComAnsiNamePart &output,
-                                                            ComBoolean performCheck = TRUE);
+  NABoolean getRoutineActionNameStoredInOBJECTS_OBJECT_NAME(ComAnsiNamePart &output, ComBoolean performCheck = TRUE);
 
   //
   // mutators
   //
 
-  void setUudfUID (const ComUID &uudfUid) { uudfUid_ = uudfUid; }
+  void setUudfUID(const ComUID &uudfUid) { uudfUid_ = uudfUid; }
 
-  void set (ComUID uudfUid,
-            const NAString &externalFormatRoutineActionName);
+  void set(ComUID uudfUid, const NAString &externalFormatRoutineActionName);
 
-        // The specified externalFormatRoutineActionName must be a
-        // valid name; otherwise, this object will be cleared.
+  // The specified externalFormatRoutineActionName must be a
+  // valid name; otherwise, this object will be cleared.
 
-  void clear() { ComAnsiNamePart::clear(); uudfUid_ = 0; }
+  void clear() {
+    ComAnsiNamePart::clear();
+    uudfUid_ = 0;
+  }
 
-        // Makes this object an empty object.
+  // Makes this object an empty object.
 
-
-private:
-
-  ComUID uudfUid_; // UUDF (e.g., SAS_PUT) UID
+ private:
+  ComUID uudfUid_;  // UUDF (e.g., SAS_PUT) UID
 
   // ---------------------------------------------------------------------
   // private methods
   // ---------------------------------------------------------------------
 
   // The following methods are not defined - DO NOT USE them
-  ComRoutineActionNamePart& operator= (const NAString &externalName);
+  ComRoutineActionNamePart &operator=(const NAString &externalName);
 
 };  // class ComRoutineActionNamePart
 
-#endif // COMROUTINEACTIONNAMEPART_H
+#endif  // COMROUTINEACTIONNAMEPART_H

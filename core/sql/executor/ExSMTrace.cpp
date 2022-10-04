@@ -41,41 +41,28 @@ static __thread int EXSM_NODE_NUMBER = 0;
 static __thread char *EXSM_OUTFILE_NAME = NULL;
 
 // Function to set the tracing level
-void ExSM_SetTraceLevel(uint32_t lvl)
-{
-  EXSM_TRACE_LEVEL = lvl;
-}
+void ExSM_SetTraceLevel(uint32_t lvl) { EXSM_TRACE_LEVEL = lvl; }
 
 // Function to figure out the effective trace level and trace file prefix
 // Also sets the effective trace level in SM globals.
-void ExSM_SetTraceInfo(uint32_t sessionTraceLevel, 
-                       const char *sessionTraceFilePrefix,
-                       uint32_t *effectiveTraceLevel, 
-                       const char **effectiveTraceFilePrefix)
-{
+void ExSM_SetTraceInfo(uint32_t sessionTraceLevel, const char *sessionTraceFilePrefix, uint32_t *effectiveTraceLevel,
+                       const char **effectiveTraceFilePrefix) {
   const char *smEnvTrcFilePrefix = getenv("EXSM_TRACE_FILE");
   const char *smEnvTrcLevel = getenv("EXSM_TRACE_LEVEL");
   const char *smTrcFileDefaultPrefix = "exsm.out";
-  const char *smTrcFilePrefix =
-    (sessionTraceFilePrefix == NULL) ? 
-    ((smEnvTrcFilePrefix == NULL) ? 
-     smTrcFileDefaultPrefix : 
-     smEnvTrcFilePrefix) :
-    sessionTraceFilePrefix;
-  
-  const int smTrcLevel = (sessionTraceLevel == 0) ?
-    ((smEnvTrcLevel == NULL) ?
-     EXSM_TRACE_OFF :
-     (int) strtoul(smEnvTrcLevel, NULL, 16)) :
-    sessionTraceLevel;
-  
+  const char *smTrcFilePrefix = (sessionTraceFilePrefix == NULL)
+                                    ? ((smEnvTrcFilePrefix == NULL) ? smTrcFileDefaultPrefix : smEnvTrcFilePrefix)
+                                    : sessionTraceFilePrefix;
+
+  const int smTrcLevel = (sessionTraceLevel == 0)
+                             ? ((smEnvTrcLevel == NULL) ? EXSM_TRACE_OFF : (int)strtoul(smEnvTrcLevel, NULL, 16))
+                             : sessionTraceLevel;
+
   ExSM_SetTraceLevel(smTrcLevel);
-  
-  if (effectiveTraceLevel)
-    *effectiveTraceLevel = smTrcLevel;
-  
-  if (effectiveTraceFilePrefix)
-    *effectiveTraceFilePrefix = (char *) smTrcFilePrefix;
+
+  if (effectiveTraceLevel) *effectiveTraceLevel = smTrcLevel;
+
+  if (effectiveTraceFilePrefix) *effectiveTraceFilePrefix = (char *)smTrcFilePrefix;
 }
 
 // Function to turn on/off tracing based on effective trace level.
@@ -88,30 +75,25 @@ void ExSM_SetTraceInfo(uint32_t sessionTraceLevel,
 // EXSM_NODE_NUMBER    - node number for the node the process is on
 // EXSM_TID            - thread id
 //
-void ExSM_SetTraceEnabled(bool b, ExSMGlobals *smGlobals)
-{
+void ExSM_SetTraceEnabled(bool b, ExSMGlobals *smGlobals) {
   exsm_assert(smGlobals, "Invalid SM globals pointer");
 
   // Close the output file if tracing goes from ON to OFF and the file
   // is not stdout
-  if ((EXSM_TRACE_ENABLED == true) &&
-      (b == false) && (EXSM_OUTFILE != NULL))
-  {
+  if ((EXSM_TRACE_ENABLED == true) && (b == false) && (EXSM_OUTFILE != NULL)) {
     char timeString[40];
     timeval tv;
     tm tx;
     int rc;
-    
+
     rc = gettimeofday(&tv, NULL);
     exsm_assert_rc(rc, "gettimeofday");
-      
+
     localtime_r(&tv.tv_sec, &tx);
-    sprintf(timeString, "%04d%02d%02d %02d:%02d:%02d.%06d",
-            tx.tm_year + 1900, tx.tm_mon + 1, tx.tm_mday,
-            tx.tm_hour, tx.tm_min, tx.tm_sec, (int) tv.tv_usec);
-    
-    fprintf(EXSM_OUTFILE, "%d:%d %s Trace disabled\n", 
-            EXSM_NODE_NUMBER, EXSM_TID, timeString);
+    sprintf(timeString, "%04d%02d%02d %02d:%02d:%02d.%06d", tx.tm_year + 1900, tx.tm_mon + 1, tx.tm_mday, tx.tm_hour,
+            tx.tm_min, tx.tm_sec, (int)tv.tv_usec);
+
+    fprintf(EXSM_OUTFILE, "%d:%d %s Trace disabled\n", EXSM_NODE_NUMBER, EXSM_TID, timeString);
     fflush(EXSM_OUTFILE);
     fclose(EXSM_OUTFILE);
     EXSM_OUTFILE = NULL;
@@ -119,8 +101,7 @@ void ExSM_SetTraceEnabled(bool b, ExSMGlobals *smGlobals)
 
   EXSM_TRACE_ENABLED = b;
 
-  if (b)
-  {
+  if (b) {
     // Generate a timestamp string for trace messages generated
     // internally by this function
     timeval tv;
@@ -129,10 +110,9 @@ void ExSM_SetTraceEnabled(bool b, ExSMGlobals *smGlobals)
     int rc = gettimeofday(&tv, NULL);
     exsm_assert_rc(rc, "gettimeofday");
     localtime_r(&tv.tv_sec, &tx);
-    sprintf(timeString, "%04d%02d%02d %02d:%02d:%02d.%06d",
-            tx.tm_year + 1900, tx.tm_mon + 1, tx.tm_mday,
-            tx.tm_hour, tx.tm_min, tx.tm_sec, (int) tv.tv_usec);
-    
+    sprintf(timeString, "%04d%02d%02d %02d:%02d:%02d.%06d", tx.tm_year + 1900, tx.tm_mon + 1, tx.tm_mday, tx.tm_hour,
+            tx.tm_min, tx.tm_sec, (int)tv.tv_usec);
+
     EXSM_NODE_NUMBER = smGlobals->getSQNodeNum();
     EXSM_TID = ExSM_GetThreadID();
 
@@ -150,122 +130,99 @@ void ExSM_SetTraceEnabled(bool b, ExSMGlobals *smGlobals)
     //      where <other-info> includes the node ID and process ID
     //    * If <prefix> starts with "/", it is an absolute path
     //    * Otherwise the file is placed under $TRAF_VAR
-    if (!strncmp(smGlobals->getTraceFilePrefix(), "stdout", 6))
-    {
+    if (!strncmp(smGlobals->getTraceFilePrefix(), "stdout", 6)) {
       EXSM_OUTFILE = stdout;
       strcpy(filename, "stdout");
       EXSM_OUTFILE_NAME = filename;
-      fprintf(EXSM_OUTFILE,
-              "%d:%d %s trcLvl=%x, outfile %s\n",
-              node, tid, timeString, smGlobals->getTraceLevel(), filename);
+      fprintf(EXSM_OUTFILE, "%d:%d %s trcLvl=%x, outfile %s\n", node, tid, timeString, smGlobals->getTraceLevel(),
+              filename);
       fflush(EXSM_OUTFILE);
-    }
-    else
-    {
+    } else {
       if (!strncmp(smGlobals->getTraceFilePrefix(), "/", 1))
-        sprintf(filename, "%s.%03d.%s.%d.%d.log", 
-                smGlobals->getTraceFilePrefix(), node,
-                smGlobals->getSessionID(), getpid(), tid);
+        sprintf(filename, "%s.%03d.%s.%d.%d.log", smGlobals->getTraceFilePrefix(), node, smGlobals->getSessionID(),
+                getpid(), tid);
       else
-        sprintf(filename, "%s/%s.%03d.%s.%d.%d.log", sqVar,
-                smGlobals->getTraceFilePrefix(), node,
+        sprintf(filename, "%s/%s.%03d.%s.%d.%d.log", sqVar, smGlobals->getTraceFilePrefix(), node,
                 smGlobals->getSessionID(), getpid(), tid);
     }
 
     // Now consider whether the file name has changed. After a change
     // we close the old file and open a new one.
 
-    if ((EXSM_OUTFILE_NAME == NULL) ||
-        (strcmp(filename, EXSM_OUTFILE_NAME)))
-    {
+    if ((EXSM_OUTFILE_NAME == NULL) || (strcmp(filename, EXSM_OUTFILE_NAME))) {
       // The name changed or we did not previously have a name
 
-      if (EXSM_OUTFILE)
-      {
-        fprintf(EXSM_OUTFILE,
-                "%d:%d %s File already open: old %s, new %s\n",
-                node, tid, timeString, EXSM_OUTFILE_NAME, filename);
+      if (EXSM_OUTFILE) {
+        fprintf(EXSM_OUTFILE, "%d:%d %s File already open: old %s, new %s\n", node, tid, timeString, EXSM_OUTFILE_NAME,
+                filename);
         fclose(EXSM_OUTFILE);
         EXSM_OUTFILE = NULL;
       }
 
-      if (EXSM_OUTFILE_NAME)
-      {
-        delete [] EXSM_OUTFILE_NAME;
+      if (EXSM_OUTFILE_NAME) {
+        delete[] EXSM_OUTFILE_NAME;
         EXSM_OUTFILE_NAME = NULL;
       }
 
       EXSM_OUTFILE_NAME = filename;
       EXSM_OUTFILE = fopen(filename, "w");
       exsm_assert(EXSM_OUTFILE, "Failed to open tracefile");
-      
-      fprintf(EXSM_OUTFILE, "%d:%d %s trcLvl=%x, outfile %s\n",
-              node, tid, timeString, smGlobals->getTraceLevel(), filename);
+
+      fprintf(EXSM_OUTFILE, "%d:%d %s trcLvl=%x, outfile %s\n", node, tid, timeString, smGlobals->getTraceLevel(),
+              filename);
       fflush(EXSM_OUTFILE);
-    }
-    else
-    {
+    } else {
       // Reuse the current output file. filename can be deleted
       // because it matches EXSM_OUTFILE_NAME.
 
-      delete [] filename;
+      delete[] filename;
       filename = NULL;
 
-      if (EXSM_OUTFILE == NULL)
-      {
+      if (EXSM_OUTFILE == NULL) {
         EXSM_OUTFILE = fopen(EXSM_OUTFILE_NAME, "w+");
         exsm_assert(EXSM_OUTFILE, "Failed to open tracefile");
       }
 
-      fprintf(EXSM_OUTFILE,
-              "%d:%d %s trcLvl=%x, REUSING outfile %s\n",
-              node, tid, timeString, smGlobals->getTraceLevel(), filename);
+      fprintf(EXSM_OUTFILE, "%d:%d %s trcLvl=%x, REUSING outfile %s\n", node, tid, timeString,
+              smGlobals->getTraceLevel(), filename);
       fflush(EXSM_OUTFILE);
 
-    } // if (output file changed) else ...
-  } // if (b)
+    }  // if (output file changed) else ...
+  }    // if (b)
 }
 
 // The trace function
-void ExSM_Trace(uint32_t traceLevel, const char *formatString, ...)
-{
+void ExSM_Trace(uint32_t traceLevel, const char *formatString, ...) {
   static bool printed_disabled_msg = false;
-  if (!EXSM_TRACE_ENABLED)
-  {
-    if ((EXSM_OUTFILE != NULL) && ( printed_disabled_msg == false )) 
-    {
+  if (!EXSM_TRACE_ENABLED) {
+    if ((EXSM_OUTFILE != NULL) && (printed_disabled_msg == false)) {
       char timeString[40];
       timeval tv;
       tm tx;
       int rc;
-    
+
       rc = gettimeofday(&tv, NULL);
       exsm_assert_rc(rc, "gettimeofday");
-      
+
       localtime_r(&tv.tv_sec, &tx);
-      sprintf(timeString, "%04d%02d%02d %02d:%02d:%02d.%06d",
-              tx.tm_year + 1900, tx.tm_mon + 1, tx.tm_mday,
-              tx.tm_hour, tx.tm_min, tx.tm_sec, (int) tv.tv_usec);
-    
-      fprintf(EXSM_OUTFILE, "%d:%d %s Trace disabled **\n", 
-              EXSM_NODE_NUMBER, EXSM_TID, timeString);
+      sprintf(timeString, "%04d%02d%02d %02d:%02d:%02d.%06d", tx.tm_year + 1900, tx.tm_mon + 1, tx.tm_mday, tx.tm_hour,
+              tx.tm_min, tx.tm_sec, (int)tv.tv_usec);
+
+      fprintf(EXSM_OUTFILE, "%d:%d %s Trace disabled **\n", EXSM_NODE_NUMBER, EXSM_TID, timeString);
       fflush(EXSM_OUTFILE);
       printed_disabled_msg = true;
     }
 
     return;
-  }
-  else
-  {
+  } else {
     // if tracing got enabled again, make sure we can print a disabled
     // msg again
     printed_disabled_msg = false;
   }
-  
+
   // Return early without printing anything if the global trace level
   // (EXSM_TRACE_LEVEL) does not include the wanted level (traceLevel)
-  if ((EXSM_TRACE_LEVEL & traceLevel) == 0)
-    return;
+  if ((EXSM_TRACE_LEVEL & traceLevel) == 0) return;
 
   va_list args;
   char timeString[40];
@@ -277,11 +234,10 @@ void ExSM_Trace(uint32_t traceLevel, const char *formatString, ...)
 
   rc = gettimeofday(&tv, NULL);
   exsm_assert_rc(rc, "gettimeofday");
-  
+
   localtime_r(&tv.tv_sec, &tx);
-  sprintf(timeString, "%04d%02d%02d %02d:%02d:%02d.%06d",
-          tx.tm_year + 1900, tx.tm_mon + 1, tx.tm_mday,
-          tx.tm_hour, tx.tm_min, tx.tm_sec, (int) tv.tv_usec);
+  sprintf(timeString, "%04d%02d%02d %02d:%02d:%02d.%06d", tx.tm_year + 1900, tx.tm_mon + 1, tx.tm_mday, tx.tm_hour,
+          tx.tm_min, tx.tm_sec, (int)tv.tv_usec);
 
   char buf[1024];
   va_start(args, formatString);

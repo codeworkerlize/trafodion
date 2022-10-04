@@ -12,9 +12,10 @@
 // #include <thrift/protocol/TProtocol.h>
 // #include <thrift/transport/TTransport.h>
 
-
-
-namespace apache { namespace hadoop { namespace hbase { namespace thrift {
+namespace apache {
+namespace hadoop {
+namespace hbase {
+namespace thrift {
 
 typedef std::string Text;
 
@@ -22,11 +23,9 @@ typedef std::string Bytes;
 
 typedef int32_t ScannerID;
 
-
-
-
-
-
-}}}} // namespace
+}  // namespace thrift
+}  // namespace hbase
+}  // namespace hadoop
+}  // namespace apache
 
 #endif

@@ -29,13 +29,12 @@
 // run time. It is created by the executor root, and is recorded in the trigger
 // temporary table.
 
-typedef struct
-{
-        Lng32 cpuNum;                    // cpu number in the cluster
-        Lng32 pid;                               // process id
-        void *rootTcbAddress;   // root tcb address
+typedef struct {
+  Lng32 cpuNum;          // cpu number in the cluster
+  Lng32 pid;             // process id
+  void *rootTcbAddress;  // root tcb address
 } ExecuteId;
 
 // This constant is used by the Catman when it creates the temp table
-const Int32       SIZEOF_UNIQUE_EXECUTE_ID        = sizeof(ExecuteId);
-#endif // EXECUTE_ID_TRIGGERS_H
+const Int32 SIZEOF_UNIQUE_EXECUTE_ID = sizeof(ExecuteId);
+#endif  // EXECUTE_ID_TRIGGERS_H

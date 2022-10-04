@@ -21,11 +21,10 @@
 #include <iostream>
 #include "ModifiedFieldMap.h"
 
-Int32 main()
-{
+Int32 main() {
   ModifiedFieldMap mfm();
 
   cerr << sizeof(ModifiedFieldMap) << "\n";
-  
+
   return 0;
 }

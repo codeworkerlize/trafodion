@@ -41,7 +41,7 @@
  *****************************************************************************
  */
 
-#include "common/NATraceList.h"   // gets definition of NATraceList  
+#include "common/NATraceList.h"  // gets definition of NATraceList
 #include "common/ExprNode.h"
 #include "common/ComASSERT.h"
 
@@ -84,7 +84,7 @@ class ElemDDLConstraintPK;
 class ElemDDLConstraintPKColumn;
 class ElemDDLConstraintRI;
 class ElemDDLConstraintUnique;
-class ElemDDLCreateMVOneAttributeTableList; // MV OZ
+class ElemDDLCreateMVOneAttributeTableList;  // MV OZ
 class ElemDDLDivisionClause;
 class ElemDDLFileAttr;
 class ElemDDLFileAttrAllocate;
@@ -284,7 +284,7 @@ class ElemDDLWithCheckOption;
 class ElemDDLWithGrantOption;
 class ElemDDLIndexPopulateOption;
 class ElemDDLIndexScopeOption;
-class ElemDDLQualName; // MV - RG
+class ElemDDLQualName;  // MV - RG
 class StmtDDLAddConstraint;
 class StmtDDLAddConstraintCheck;
 class StmtDDLAddConstraintPK;
@@ -326,7 +326,7 @@ class StmtDDLAlterTableHBaseOptions;
 class StmtDDLAlterMvRGroup;
 class StmtDDLAlterRoutine;
 class StmtDDLAlterTrigger;
-class StmtDDLAlterMV; 
+class StmtDDLAlterMV;
 class StmtDDLAlterUser;
 class StmtDDLAlterView;
 class StmtDDLAlterDatabase;
@@ -343,7 +343,7 @@ class StmtDDLCreateTable;
 class StmtDDLCreateHbaseTable;
 class StmtDDLCreateMvRGroup;
 class StmtDDLCreateTrigger;
-class StmtDDLCreateMV;  
+class StmtDDLCreateMV;
 class StmtDDLCreateView;
 class StmtDDLDropCatalog;
 class StmtDDLDropComponentPrivilege;
@@ -358,7 +358,7 @@ class StmtDDLDropTable;
 class StmtDDLDropHbaseTable;
 class StmtDDLDropMvRGroup;
 class StmtDDLDropTrigger;
-class StmtDDLDropMV;  
+class StmtDDLDropMV;
 class StmtDDLDropView;
 class StmtDDLGiveAll;
 class StmtDDLGiveCatalog;
@@ -383,14 +383,12 @@ class StmtDDLDropExceptionTable;
 class StmtDDLRegisterComponent;
 class StmtDDLRegisterUser;
 class StmtDDLUserGroup;
-class StmtDDLRegOrUnregObject;
 class StmtDDLCreateRole;
 class StmtDDLResourceGroup;
 class StmtDDLRoleGrant;
 class StmtDDLCleanupObjects;
 class StmtDDLAlterSchemaHDFSCache;
 class StmtDDLNamespace;
-class StmtDDLonHiveObjects;
 class StmtDDLCommentOn;
 class StmtDDLAlterSharedCache;
 class StmtDDLAlterTableTruncatePartition;
@@ -399,415 +397,388 @@ class StmtDDLAlterTableExchangePartition;
 class StmtDDLAlterTableRenamePartition;
 class StmtDDLAlterTableSplitPartition;
 
-
 class QualifiedName;
 class ElemDDLGroup;
-
 
 // -----------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------
-class ElemDDLNode : public ExprNode
-{
-
-public:
-
-  enum WhichAll {ALL_DML, ALL_DDL, ALL};
+class ElemDDLNode : public ExprNode {
+ public:
+  enum WhichAll { ALL_DML, ALL_DDL, ALL };
 
   // constructor
-  ElemDDLNode(OperatorTypeEnum otype = ELM_ANY_ELEM)
-  : ExprNode(otype)
-  {
-    setNonCacheable();
-  }
+  ElemDDLNode(OperatorTypeEnum otype = ELM_ANY_ELEM) : ExprNode(otype) { setNonCacheable(); }
 
   // virtual destructor
   virtual ~ElemDDLNode();
 
   // perform a safe type cast (return NULL pointer for illegal casts)
-  virtual ElemDDLNode                   * castToElemDDLNode();
-  virtual const ElemDDLNode             * castToElemDDLNode() const;
-  virtual ElemDDLAlterTableMove         * castToElemDDLAlterTableMove();
-  virtual ElemDDLAuthSchema             * castToElemDDLAuthSchema();
-  virtual ElemDDLLibClientFilename      * castToElemDDLLibClientFilename();
-  virtual ElemDDLLibClientName          * castToElemDDLLibClientName();
-  virtual ElemDDLLibPathName            * castToElemDDLLibPathName();
-  virtual ElemDDLColDef                 * castToElemDDLColDef();
-  virtual ElemProxyColDef               * castToElemProxyColDef();
-  virtual ElemDDLColDefault             * castToElemDDLColDefault();
-  virtual ElemDDLColHeading             * castToElemDDLColHeading();
-  virtual ElemDDLColName                * castToElemDDLColName();
-  virtual ElemDDLColNameList            * castToElemDDLColNameList();
-  virtual ElemDDLColNameListNode        * castToElemDDLColNameListNode();
-  virtual ElemDDLColRef                 * castToElemDDLColRef();
-  virtual ElemDDLColRefList             * castToElemDDLColRefList();
-  virtual ElemDDLColViewDef             * castToElemDDLColViewDef();
-  virtual ElemDDLConstraint             * castToElemDDLConstraint();
-  virtual ElemDDLConstraintAttr         * castToElemDDLConstraintAttr();
-  virtual ElemDDLConstraintAttrDroppable*
-                castToElemDDLConstraintAttrDroppable();
-  virtual ElemDDLConstraintAttrEnforced*
-                castToElemDDLConstraintAttrEnforced();
-  virtual ElemDDLConstraintCheck        * castToElemDDLConstraintCheck();
-  virtual ElemDDLConstraintName         * castToElemDDLConstraintName();
-  virtual ElemDDLConstraintNameList     * castToElemDDLConstraintNameList();
-  virtual ElemDDLConstraintNotNull      * castToElemDDLConstraintNotNull();
-  virtual ElemDDLLoggable               * castToElemDDLLoggable();
-  virtual ElemDDLLobAttrs               * castToElemDDLLobAttrs();
-  virtual ElemDDLSeabaseSerialized  * castToElemDDLSeabaseSerialized();
+  virtual ElemDDLNode *castToElemDDLNode();
+  virtual const ElemDDLNode *castToElemDDLNode() const;
+  virtual ElemDDLAlterTableMove *castToElemDDLAlterTableMove();
+  virtual ElemDDLAuthSchema *castToElemDDLAuthSchema();
+  virtual ElemDDLLibClientFilename *castToElemDDLLibClientFilename();
+  virtual ElemDDLLibClientName *castToElemDDLLibClientName();
+  virtual ElemDDLLibPathName *castToElemDDLLibPathName();
+  virtual ElemDDLColDef *castToElemDDLColDef();
+  virtual ElemProxyColDef *castToElemProxyColDef();
+  virtual ElemDDLColDefault *castToElemDDLColDefault();
+  virtual ElemDDLColHeading *castToElemDDLColHeading();
+  virtual ElemDDLColName *castToElemDDLColName();
+  virtual ElemDDLColNameList *castToElemDDLColNameList();
+  virtual ElemDDLColNameListNode *castToElemDDLColNameListNode();
+  virtual ElemDDLColRef *castToElemDDLColRef();
+  virtual ElemDDLColRefList *castToElemDDLColRefList();
+  virtual ElemDDLColViewDef *castToElemDDLColViewDef();
+  virtual ElemDDLConstraint *castToElemDDLConstraint();
+  virtual ElemDDLConstraintAttr *castToElemDDLConstraintAttr();
+  virtual ElemDDLConstraintAttrDroppable *castToElemDDLConstraintAttrDroppable();
+  virtual ElemDDLConstraintAttrEnforced *castToElemDDLConstraintAttrEnforced();
+  virtual ElemDDLConstraintCheck *castToElemDDLConstraintCheck();
+  virtual ElemDDLConstraintName *castToElemDDLConstraintName();
+  virtual ElemDDLConstraintNameList *castToElemDDLConstraintNameList();
+  virtual ElemDDLConstraintNotNull *castToElemDDLConstraintNotNull();
+  virtual ElemDDLLoggable *castToElemDDLLoggable();
+  virtual ElemDDLLobAttrs *castToElemDDLLobAttrs();
+  virtual ElemDDLSeabaseSerialized *castToElemDDLSeabaseSerialized();
   virtual NABoolean isConstraintNotNull() const { return FALSE; }
-  virtual ElemDDLConstraintPK           * castToElemDDLConstraintPK();
-  virtual ElemDDLConstraintPKColumn     * castToElemDDLConstraintPKColumn();
-  virtual ElemDDLConstraintRI           * castToElemDDLConstraintRI();
-  virtual ElemDDLConstraintUnique       * castToElemDDLConstraintUnique();
-  virtual ElemDDLCreateMVOneAttributeTableList  * castToElemDDLCreateMVOneAttributeTableList(); // MV OZ
-  virtual ElemDDLDivisionClause         * castToElemDDLDivisionClause();
-  virtual ElemDDLFileAttr               * castToElemDDLFileAttr();
-  virtual ElemDDLFileAttrAllocate       * castToElemDDLFileAttrAllocate();
-  virtual ElemDDLFileAttrAudit          * castToElemDDLFileAttrAudit();
-  virtual ElemDDLFileAttrAuditCompress  * castToElemDDLFileAttrAuditCompress();
-  virtual ElemDDLFileAttrBlockSize      * castToElemDDLFileAttrBlockSize();
-  virtual ElemDDLFileAttrBuffered       * castToElemDDLFileAttrBuffered();
-  virtual ElemDDLFileAttrClause         * castToElemDDLFileAttrClause();
-  virtual ElemDDLFileAttrClearOnPurge   * castToElemDDLFileAttrClearOnPurge();
-  virtual ElemDDLFileAttrCompression    * castToElemDDLFileAttrCompression();
-  virtual ElemDDLFileAttrDCompress      * castToElemDDLFileAttrDCompress();
-  virtual ElemDDLFileAttrDeallocate     * castToElemDDLFileAttrDeallocate();
-  virtual ElemDDLFileAttrICompress      * castToElemDDLFileAttrICompress();
-  virtual ElemDDLFileAttrList           * castToElemDDLFileAttrList();
-  virtual ElemDDLPartnAttrList          * castToElemDDLPartnAttrList();
-  virtual ElemDDLFileAttrMaxSize        * castToElemDDLFileAttrMaxSize();
-  virtual ElemDDLFileAttrExtents        * castToElemDDLFileAttrExtents();
-  virtual ElemDDLFileAttrMaxExtents     * castToElemDDLFileAttrMaxExtents();
-  virtual ElemDDLFileAttrUID		* castToElemDDLFileAttrUID();
-  virtual ElemDDLFileAttrRowFormat	* castToElemDDLFileAttrRowFormat();
-  virtual ElemDDLFileAttrColFam	* castToElemDDLFileAttrColFam();
-  virtual ElemDDLFileAttrXnRepl	* castToElemDDLFileAttrXnRepl();
-  virtual ElemDDLFileAttrStorageType	* castToElemDDLFileAttrStorageType();
-  virtual ElemDDLFileAttrNoLabelUpdate  * castToElemDDLFileAttrNoLabelUpdate();
-  virtual ElemDDLFileAttrOwner          * castToElemDDLFileAttrOwner();
+  virtual ElemDDLConstraintPK *castToElemDDLConstraintPK();
+  virtual ElemDDLConstraintPKColumn *castToElemDDLConstraintPKColumn();
+  virtual ElemDDLConstraintRI *castToElemDDLConstraintRI();
+  virtual ElemDDLConstraintUnique *castToElemDDLConstraintUnique();
+  virtual ElemDDLCreateMVOneAttributeTableList *castToElemDDLCreateMVOneAttributeTableList();  // MV OZ
+  virtual ElemDDLDivisionClause *castToElemDDLDivisionClause();
+  virtual ElemDDLFileAttr *castToElemDDLFileAttr();
+  virtual ElemDDLFileAttrAllocate *castToElemDDLFileAttrAllocate();
+  virtual ElemDDLFileAttrAudit *castToElemDDLFileAttrAudit();
+  virtual ElemDDLFileAttrAuditCompress *castToElemDDLFileAttrAuditCompress();
+  virtual ElemDDLFileAttrBlockSize *castToElemDDLFileAttrBlockSize();
+  virtual ElemDDLFileAttrBuffered *castToElemDDLFileAttrBuffered();
+  virtual ElemDDLFileAttrClause *castToElemDDLFileAttrClause();
+  virtual ElemDDLFileAttrClearOnPurge *castToElemDDLFileAttrClearOnPurge();
+  virtual ElemDDLFileAttrCompression *castToElemDDLFileAttrCompression();
+  virtual ElemDDLFileAttrDCompress *castToElemDDLFileAttrDCompress();
+  virtual ElemDDLFileAttrDeallocate *castToElemDDLFileAttrDeallocate();
+  virtual ElemDDLFileAttrICompress *castToElemDDLFileAttrICompress();
+  virtual ElemDDLFileAttrList *castToElemDDLFileAttrList();
+  virtual ElemDDLPartnAttrList *castToElemDDLPartnAttrList();
+  virtual ElemDDLFileAttrMaxSize *castToElemDDLFileAttrMaxSize();
+  virtual ElemDDLFileAttrExtents *castToElemDDLFileAttrExtents();
+  virtual ElemDDLFileAttrMaxExtents *castToElemDDLFileAttrMaxExtents();
+  virtual ElemDDLFileAttrUID *castToElemDDLFileAttrUID();
+  virtual ElemDDLFileAttrRowFormat *castToElemDDLFileAttrRowFormat();
+  virtual ElemDDLFileAttrColFam *castToElemDDLFileAttrColFam();
+  virtual ElemDDLFileAttrXnRepl *castToElemDDLFileAttrXnRepl();
+  virtual ElemDDLFileAttrStorageType *castToElemDDLFileAttrStorageType();
+  virtual ElemDDLFileAttrNoLabelUpdate *castToElemDDLFileAttrNoLabelUpdate();
+  virtual ElemDDLFileAttrOwner *castToElemDDLFileAttrOwner();
 
-  virtual ElemDDLFileAttrNamespace      * castToElemDDLFileAttrNamespace()
-  {return NULL;}
-  virtual ElemDDLFileAttrEncrypt        * castToElemDDLFileAttrEncrypt()
-  {return NULL;}
-  virtual ElemDDLFileAttrIncrBackup     * castToElemDDLFileAttrIncrBackup()
-  {return NULL;}
+  virtual ElemDDLFileAttrNamespace *castToElemDDLFileAttrNamespace() { return NULL; }
+  virtual ElemDDLFileAttrEncrypt *castToElemDDLFileAttrEncrypt() { return NULL; }
+  virtual ElemDDLFileAttrIncrBackup *castToElemDDLFileAttrIncrBackup() { return NULL; }
 
-  virtual ElemDDLFileAttrStoredDesc	* castToElemDDLFileAttrStoredDesc()
-  {return NULL;};
+  virtual ElemDDLFileAttrStoredDesc *castToElemDDLFileAttrStoredDesc() { return NULL; };
 
-  virtual ElemDDLFileAttrReadOnly     * castToElemDDLFileAttrReadOnly()
-  {return NULL;}
+  virtual ElemDDLFileAttrReadOnly *castToElemDDLFileAttrReadOnly() { return NULL; }
 
+  //++ MV
+  virtual ElemDDLFileAttrRangeLog *castToElemDDLFileAttrRangeLog();
+  virtual ElemDDLFileAttrLockOnRefresh *castToElemDDLFileAttrLockOnRefresh();
+  virtual ElemDDLFileAttrInsertLog *castToElemDDLFileAttrInsertLog();
+  virtual ElemDDLFileAttrMvsAllowed *castToElemDDLFileAttrMvsAllowed();
+  virtual ElemDDLMVFileAttrClause *castToElemDDLMVFileAttrClause();
+  virtual ElemDDLFileAttrMVCommitEach *castToElemDDLFileAttrMVCommitEach();
+  virtual ElemDDLFileAttrMvAudit *castToElemDDLFileAttrMvAudit();
 
-//++ MV
-  virtual ElemDDLFileAttrRangeLog		* castToElemDDLFileAttrRangeLog(); 
-  virtual ElemDDLFileAttrLockOnRefresh  * castToElemDDLFileAttrLockOnRefresh(); 
-  virtual ElemDDLFileAttrInsertLog		* castToElemDDLFileAttrInsertLog();
-  virtual ElemDDLFileAttrMvsAllowed		* castToElemDDLFileAttrMvsAllowed();
-  virtual ElemDDLMVFileAttrClause		* castToElemDDLMVFileAttrClause();
-  virtual ElemDDLFileAttrMVCommitEach	* castToElemDDLFileAttrMVCommitEach();
-  virtual ElemDDLFileAttrMvAudit		* castToElemDDLFileAttrMvAudit();
+  //-- MV
 
-//-- MV
-  
-  virtual ElemDDLFileAttrPOSNumPartns * castToElemDDLFileAttrPOSNumPartns();
-  virtual ElemDDLFileAttrPOSTableSize * castToElemDDLFileAttrPOSTableSize();
-  virtual ElemDDLFileAttrPOSDiskPool  * castToElemDDLFileAttrPOSDiskPool();
-  virtual ElemDDLFileAttrPOSIgnore    * castToElemDDLFileAttrPOSIgnore();
+  virtual ElemDDLFileAttrPOSNumPartns *castToElemDDLFileAttrPOSNumPartns();
+  virtual ElemDDLFileAttrPOSTableSize *castToElemDDLFileAttrPOSTableSize();
+  virtual ElemDDLFileAttrPOSDiskPool *castToElemDDLFileAttrPOSDiskPool();
+  virtual ElemDDLFileAttrPOSIgnore *castToElemDDLFileAttrPOSIgnore();
 
-  virtual ElemDDLGrantee                * castToElemDDLGrantee();
-  virtual ElemDDLKeyValue               * castToElemDDLKeyValue();
-  virtual ElemDDLKeyValueList           * castToElemDDLKeyValueList();
-  virtual ElemDDLLibrary                * castToElemDDLLibrary();
-  virtual ElemDDLLike                   * castToElemDDLLike();
-  virtual ElemDDLLikeCreateTable        * castToElemDDLLikeCreateTable();
-  virtual ElemDDLLikeOpt                * castToElemDDLLikeOpt();
-  virtual ElemDDLLikeOptWithoutConstraints * castToElemDDLLikeOptWithoutConstraints();
-  virtual ElemDDLLikeOptWithoutIndexes * castToElemDDLLikeOptWithoutIndexes();
-  virtual ElemDDLLikeOptWithHeadings    * castToElemDDLLikeOptWithHeadings();
-  virtual ElemDDLLikeOptWithHorizontalPartitions    * castToElemDDLLikeOptWithHorizontalPartitions();
-  virtual ElemDDLLikeOptWithoutSalt     * castToElemDDLLikeOptWithoutSalt();
-  virtual ElemDDLLikeSaltClause         * castToElemDDLLikeSaltClause();
-  virtual ElemDDLLikeOptWithoutDivision * castToElemDDLLikeOptWithoutDivision();
-  virtual ElemDDLLikeLimitColumnLength  * castToElemDDLLikeLimitColumnLength();
-  virtual ElemDDLLikeOptWithoutRowFormat* castToElemDDLLikeOptWithoutRowFormat();
-  virtual ElemDDLLikeOptWithoutLobColumns * castToElemDDLLikeOptWithoutLobColumns();
-  virtual ElemDDLLikeOptWithoutNamespace * castToElemDDLLikeOptWithoutNamespace();
-  virtual ElemDDLLikeOptWithoutRegionReplication    * castToElemDDLLikeOptWithoutRegionReplication();
-  virtual ElemDDLLikeOptWithoutIncrBackup    * castToElemDDLLikeOptWithoutIncrBackup();
-  virtual ElemDDLLikeOptWithData        * castToElemDDLLikeOptWithData();
-  virtual ElemDDLList                   * castToElemDDLList();
-  virtual ElemDDLLocation               * castToElemDDLLocation();
-  virtual ElemDDLOptionList             * castToElemDDLOptionList();
-  virtual ElemDDLParallelExec           * castToElemDDLParallelExec();
-  virtual ElemDDLParamDef               * castToElemDDLParamDef();
-  virtual ElemDDLPartition              * castToElemDDLPartition();
-  virtual ElemDDLPartitionV2            * castToElemDDLPartitionV2();
-  virtual ElemDDLPartitionByOpt         * castToElemDDLPartitionByOpt();
-  virtual ElemDDLPartitionByColumnList  * castToElemDDLPartitionByColumnList();
-  virtual ElemDDLPartitionClause        * castToElemDDLPartitionClause();
-  virtual ElemDDLPartitionClauseV2      * castToElemDDLPartitionClauseV2();
-  virtual ElemDDLPartitionList          * castToElemDDLPartitionList();
-  virtual ElemDDLPartitionRange         * castToElemDDLPartitionRange();
-  virtual ElemDDLPartitionSingle        * castToElemDDLPartitionSingle();
-  virtual ElemDDLPartitionSystem        * castToElemDDLPartitionSystem();  
-  virtual ElemDDLPartitionNameAndForValues * castToElemDDLPartitionNameAndForValues();
-  virtual ElemDDLPassThroughParamDef    * castToElemDDLPassThroughParamDef();
-  virtual ElemDDLPrivAct                * castToElemDDLPrivAct();
-  virtual ElemDDLPrivActAlter           * castToElemDDLPrivActAlter();
-  virtual ElemDDLPrivActAlterLibrary    * castToElemDDLPrivActAlterLibrary();
-  virtual ElemDDLPrivActAlterMV         * castToElemDDLPrivActAlterMV();
-  virtual ElemDDLPrivActAlterMVGroup    * castToElemDDLPrivActAlterMVGroup();
-  virtual ElemDDLPrivActAlterRoutine    * castToElemDDLPrivActAlterRoutine();
-  virtual ElemDDLPrivActAlterRoutineAction * castToElemDDLPrivActAlterRoutineAction();
-  virtual ElemDDLPrivActAlterSynonym    * castToElemDDLPrivActAlterSynonym();
-  virtual ElemDDLPrivActAlterTable      * castToElemDDLPrivActAlterTable();
-  virtual ElemDDLPrivActAlterTrigger    * castToElemDDLPrivActAlterTrigger();
-  virtual ElemDDLPrivActAlterView       * castToElemDDLPrivActAlterView();
-  virtual ElemDDLPrivActCreate          * castToElemDDLPrivActCreate();
-  virtual ElemDDLPrivActCreateLibrary   * castToElemDDLPrivActCreateLibrary();
-  virtual ElemDDLPrivActCreateMV        * castToElemDDLPrivActCreateMV();
-  virtual ElemDDLPrivActCreateMVGroup   * castToElemDDLPrivActCreateMVGroup();
-  virtual ElemDDLPrivActCreateProcedure * castToElemDDLPrivActCreateProcedure();
-  virtual ElemDDLPrivActCreateRoutine    * castToElemDDLPrivActCreateRoutine();
-  virtual ElemDDLPrivActCreateRoutineAction * castToElemDDLPrivActCreateRoutineAction();
-  virtual ElemDDLPrivActCreateSynonym   * castToElemDDLPrivActCreateSynonym();
-  virtual ElemDDLPrivActCreateTable     * castToElemDDLPrivActCreateTable();
-  virtual ElemDDLPrivActCreateTrigger   * castToElemDDLPrivActCreateTrigger();
-  virtual ElemDDLPrivActCreateView      * castToElemDDLPrivActCreateView();
-  virtual ElemDDLPrivActDBA             * castToElemDDLPrivActDBA();
-  virtual ElemDDLPrivActDelete          * castToElemDDLPrivActDelete();
-  virtual ElemDDLPrivActDrop            * castToElemDDLPrivActDrop();
-  virtual ElemDDLPrivActDropLibrary     * castToElemDDLPrivActDropLibrary();
-  virtual ElemDDLPrivActDropMV          * castToElemDDLPrivActDropMV();
-  virtual ElemDDLPrivActDropMVGroup     * castToElemDDLPrivActDropMVGroup();
-  virtual ElemDDLPrivActDropProcedure   * castToElemDDLPrivActDropProcedure();
-  virtual ElemDDLPrivActDropRoutine    * castToElemDDLPrivActDropRoutine();
-  virtual ElemDDLPrivActDropRoutineAction * castToElemDDLPrivActDropRoutineAction();
-  virtual ElemDDLPrivActDropSynonym     * castToElemDDLPrivActDropSynonym();
-  virtual ElemDDLPrivActDropTable       * castToElemDDLPrivActDropTable();
-  virtual ElemDDLPrivActDropTrigger     * castToElemDDLPrivActDropTrigger();
-  virtual ElemDDLPrivActDropView        * castToElemDDLPrivActDropView();
-  virtual ElemDDLPrivActInsert          * castToElemDDLPrivActInsert();
-  virtual ElemDDLPrivActMaintain        * castToElemDDLPrivActMaintain();
-  virtual ElemDDLPrivActReferences      * castToElemDDLPrivActReferences();
-  virtual ElemDDLPrivActRefresh         * castToElemDDLPrivActRefresh();
-  virtual ElemDDLPrivActReorg           * castToElemDDLPrivActReorg();
-  virtual ElemDDLPrivActSelect          * castToElemDDLPrivActSelect();
-  virtual ElemDDLPrivActTransform       * castToElemDDLPrivActTransform();
-  virtual ElemDDLPrivActUpdate          * castToElemDDLPrivActUpdate();
-  virtual ElemDDLPrivActUpdateStats     * castToElemDDLPrivActUpdateStats();
-  virtual ElemDDLPrivActAllDDL          * castToElemDDLPrivActAllDDL();
-  virtual ElemDDLPrivActAllDML          * castToElemDDLPrivActAllDML();
-  virtual ElemDDLPrivActAllOther        * castToElemDDLPrivActAllOther();
-  virtual ElemDDLPrivActUsage           * castToElemDDLPrivActUsage();
-  virtual ElemDDLPrivActWithColumns     * castToElemDDLPrivActWithColumns();
-  virtual ElemDDLPrivileges             * castToElemDDLPrivileges();  
-  virtual ElemDDLRefAct                 * castToElemDDLRefAct();
-  virtual ElemDDLRefActCascade          * castToElemDDLRefActCascade();
-  virtual ElemDDLRefActNoAction         * castToElemDDLRefActNoAction();
-  virtual ElemDDLRefActRestrict         * castToElemDDLRefActRestrict();
-  virtual ElemDDLRefActSetDefault       * castToElemDDLRefActSetDefault();
-  virtual ElemDDLRefActSetNull          * castToElemDDLRefActSetNull();
-  virtual ElemDDLRefTrigAct             * castToElemDDLRefTrigAct();
-  virtual ElemDDLRefTrigActDeleteRule   * castToElemDDLRefTrigActDeleteRule();
-  virtual ElemDDLRefTrigActUpdateRule   * castToElemDDLRefTrigActUpdateRule();
-  
-  virtual ElemDDLReferences             * castToElemDDLReferences();
-  virtual ElemDDLSaltOptionsClause      * castToElemDDLSaltOptionsClause();
-  virtual ElemDDLReplicateClause        * castToElemDDLReplicateClause();
-  virtual ElemDDLSchemaName             * castToElemDDLSchemaName();
+  virtual ElemDDLGrantee *castToElemDDLGrantee();
+  virtual ElemDDLKeyValue *castToElemDDLKeyValue();
+  virtual ElemDDLKeyValueList *castToElemDDLKeyValueList();
+  virtual ElemDDLLibrary *castToElemDDLLibrary();
+  virtual ElemDDLLike *castToElemDDLLike();
+  virtual ElemDDLLikeCreateTable *castToElemDDLLikeCreateTable();
+  virtual ElemDDLLikeOpt *castToElemDDLLikeOpt();
+  virtual ElemDDLLikeOptWithoutConstraints *castToElemDDLLikeOptWithoutConstraints();
+  virtual ElemDDLLikeOptWithoutIndexes *castToElemDDLLikeOptWithoutIndexes();
+  virtual ElemDDLLikeOptWithHeadings *castToElemDDLLikeOptWithHeadings();
+  virtual ElemDDLLikeOptWithHorizontalPartitions *castToElemDDLLikeOptWithHorizontalPartitions();
+  virtual ElemDDLLikeOptWithoutSalt *castToElemDDLLikeOptWithoutSalt();
+  virtual ElemDDLLikeSaltClause *castToElemDDLLikeSaltClause();
+  virtual ElemDDLLikeOptWithoutDivision *castToElemDDLLikeOptWithoutDivision();
+  virtual ElemDDLLikeLimitColumnLength *castToElemDDLLikeLimitColumnLength();
+  virtual ElemDDLLikeOptWithoutRowFormat *castToElemDDLLikeOptWithoutRowFormat();
+  virtual ElemDDLLikeOptWithoutLobColumns *castToElemDDLLikeOptWithoutLobColumns();
+  virtual ElemDDLLikeOptWithoutNamespace *castToElemDDLLikeOptWithoutNamespace();
+  virtual ElemDDLLikeOptWithoutRegionReplication *castToElemDDLLikeOptWithoutRegionReplication();
+  virtual ElemDDLLikeOptWithoutIncrBackup *castToElemDDLLikeOptWithoutIncrBackup();
+  virtual ElemDDLLikeOptWithData *castToElemDDLLikeOptWithData();
+  virtual ElemDDLList *castToElemDDLList();
+  virtual ElemDDLLocation *castToElemDDLLocation();
+  virtual ElemDDLOptionList *castToElemDDLOptionList();
+  virtual ElemDDLParallelExec *castToElemDDLParallelExec();
+  virtual ElemDDLParamDef *castToElemDDLParamDef();
+  virtual ElemDDLPartition *castToElemDDLPartition();
+  virtual ElemDDLPartitionV2 *castToElemDDLPartitionV2();
+  virtual ElemDDLPartitionByOpt *castToElemDDLPartitionByOpt();
+  virtual ElemDDLPartitionByColumnList *castToElemDDLPartitionByColumnList();
+  virtual ElemDDLPartitionClause *castToElemDDLPartitionClause();
+  virtual ElemDDLPartitionClauseV2 *castToElemDDLPartitionClauseV2();
+  virtual ElemDDLPartitionList *castToElemDDLPartitionList();
+  virtual ElemDDLPartitionRange *castToElemDDLPartitionRange();
+  virtual ElemDDLPartitionSingle *castToElemDDLPartitionSingle();
+  virtual ElemDDLPartitionSystem *castToElemDDLPartitionSystem();
+  virtual ElemDDLPartitionNameAndForValues *castToElemDDLPartitionNameAndForValues();
+  virtual ElemDDLPassThroughParamDef *castToElemDDLPassThroughParamDef();
+  virtual ElemDDLPrivAct *castToElemDDLPrivAct();
+  virtual ElemDDLPrivActAlter *castToElemDDLPrivActAlter();
+  virtual ElemDDLPrivActAlterLibrary *castToElemDDLPrivActAlterLibrary();
+  virtual ElemDDLPrivActAlterMV *castToElemDDLPrivActAlterMV();
+  virtual ElemDDLPrivActAlterMVGroup *castToElemDDLPrivActAlterMVGroup();
+  virtual ElemDDLPrivActAlterRoutine *castToElemDDLPrivActAlterRoutine();
+  virtual ElemDDLPrivActAlterRoutineAction *castToElemDDLPrivActAlterRoutineAction();
+  virtual ElemDDLPrivActAlterSynonym *castToElemDDLPrivActAlterSynonym();
+  virtual ElemDDLPrivActAlterTable *castToElemDDLPrivActAlterTable();
+  virtual ElemDDLPrivActAlterTrigger *castToElemDDLPrivActAlterTrigger();
+  virtual ElemDDLPrivActAlterView *castToElemDDLPrivActAlterView();
+  virtual ElemDDLPrivActCreate *castToElemDDLPrivActCreate();
+  virtual ElemDDLPrivActCreateLibrary *castToElemDDLPrivActCreateLibrary();
+  virtual ElemDDLPrivActCreateMV *castToElemDDLPrivActCreateMV();
+  virtual ElemDDLPrivActCreateMVGroup *castToElemDDLPrivActCreateMVGroup();
+  virtual ElemDDLPrivActCreateProcedure *castToElemDDLPrivActCreateProcedure();
+  virtual ElemDDLPrivActCreateRoutine *castToElemDDLPrivActCreateRoutine();
+  virtual ElemDDLPrivActCreateRoutineAction *castToElemDDLPrivActCreateRoutineAction();
+  virtual ElemDDLPrivActCreateSynonym *castToElemDDLPrivActCreateSynonym();
+  virtual ElemDDLPrivActCreateTable *castToElemDDLPrivActCreateTable();
+  virtual ElemDDLPrivActCreateTrigger *castToElemDDLPrivActCreateTrigger();
+  virtual ElemDDLPrivActCreateView *castToElemDDLPrivActCreateView();
+  virtual ElemDDLPrivActDBA *castToElemDDLPrivActDBA();
+  virtual ElemDDLPrivActDelete *castToElemDDLPrivActDelete();
+  virtual ElemDDLPrivActDrop *castToElemDDLPrivActDrop();
+  virtual ElemDDLPrivActDropLibrary *castToElemDDLPrivActDropLibrary();
+  virtual ElemDDLPrivActDropMV *castToElemDDLPrivActDropMV();
+  virtual ElemDDLPrivActDropMVGroup *castToElemDDLPrivActDropMVGroup();
+  virtual ElemDDLPrivActDropProcedure *castToElemDDLPrivActDropProcedure();
+  virtual ElemDDLPrivActDropRoutine *castToElemDDLPrivActDropRoutine();
+  virtual ElemDDLPrivActDropRoutineAction *castToElemDDLPrivActDropRoutineAction();
+  virtual ElemDDLPrivActDropSynonym *castToElemDDLPrivActDropSynonym();
+  virtual ElemDDLPrivActDropTable *castToElemDDLPrivActDropTable();
+  virtual ElemDDLPrivActDropTrigger *castToElemDDLPrivActDropTrigger();
+  virtual ElemDDLPrivActDropView *castToElemDDLPrivActDropView();
+  virtual ElemDDLPrivActInsert *castToElemDDLPrivActInsert();
+  virtual ElemDDLPrivActMaintain *castToElemDDLPrivActMaintain();
+  virtual ElemDDLPrivActReferences *castToElemDDLPrivActReferences();
+  virtual ElemDDLPrivActRefresh *castToElemDDLPrivActRefresh();
+  virtual ElemDDLPrivActReorg *castToElemDDLPrivActReorg();
+  virtual ElemDDLPrivActSelect *castToElemDDLPrivActSelect();
+  virtual ElemDDLPrivActTransform *castToElemDDLPrivActTransform();
+  virtual ElemDDLPrivActUpdate *castToElemDDLPrivActUpdate();
+  virtual ElemDDLPrivActUpdateStats *castToElemDDLPrivActUpdateStats();
+  virtual ElemDDLPrivActAllDDL *castToElemDDLPrivActAllDDL();
+  virtual ElemDDLPrivActAllDML *castToElemDDLPrivActAllDML();
+  virtual ElemDDLPrivActAllOther *castToElemDDLPrivActAllOther();
+  virtual ElemDDLPrivActUsage *castToElemDDLPrivActUsage();
+  virtual ElemDDLPrivActWithColumns *castToElemDDLPrivActWithColumns();
+  virtual ElemDDLPrivileges *castToElemDDLPrivileges();
+  virtual ElemDDLRefAct *castToElemDDLRefAct();
+  virtual ElemDDLRefActCascade *castToElemDDLRefActCascade();
+  virtual ElemDDLRefActNoAction *castToElemDDLRefActNoAction();
+  virtual ElemDDLRefActRestrict *castToElemDDLRefActRestrict();
+  virtual ElemDDLRefActSetDefault *castToElemDDLRefActSetDefault();
+  virtual ElemDDLRefActSetNull *castToElemDDLRefActSetNull();
+  virtual ElemDDLRefTrigAct *castToElemDDLRefTrigAct();
+  virtual ElemDDLRefTrigActDeleteRule *castToElemDDLRefTrigActDeleteRule();
+  virtual ElemDDLRefTrigActUpdateRule *castToElemDDLRefTrigActUpdateRule();
 
-  virtual ElemDDLSGOptions              * castToElemDDLSGOptions();
-  virtual ElemDDLSGOption               * castToElemDDLSGOption();
-  virtual ElemDDLSGOptionStartValue     * castToElemDDLSGOptionStartValue();
-  virtual ElemDDLSGOptionRestartValue   * castToElemDDLSGOptionRestartValue();
-  virtual ElemDDLSGOptionMinValue       * castToElemDDLSGOptionMinValue();
-  virtual ElemDDLSGOptionMaxValue       * castToElemDDLSGOptionMaxValue();
-  virtual ElemDDLSGOptionIncrement      * castToElemDDLSGOptionIncrement();
-  virtual ElemDDLSGOptionCacheOption    * castToElemDDLSGOptionCacheOption();
-  virtual ElemDDLSGOptionOrderOption    * castToElemDDLSGOptionOrderOption();
-  virtual ElemDDLSGOptionCycleOption    * castToElemDDLSGOptionCycleOption();
-  virtual ElemDDLSGOptionDatatype    * castToElemDDLSGOptionDatatype();
-  virtual ElemDDLSGOptionSystemOption    * castToElemDDLSGOptionSystemOption();
-  virtual ElemDDLSGOptionNextValOption  * castToElemDDLSGOptionNextValOption();
-  virtual ElemDDLStoreOpt               * castToElemDDLStoreOpt();
-  virtual ElemDDLStoreOptEntryOrder     * castToElemDDLStoreOptEntryOrder();
-  virtual ElemDDLStoreOptDefault        * castToElemDDLStoreOptDefault();
-  virtual ElemDDLStoreOptKeyColumnList  * castToElemDDLStoreOptKeyColumnList();
-  virtual ElemDDLStoreOptNondroppablePK *
-                castToElemDDLStoreOptNondroppablePK();
-  virtual ElemDDLTenantOption           * castToElemDDLTenantOption();
-  virtual ElemDDLTenantSchema           * castToElemDDLTenantSchema();
-  virtual ElemDDLTenantGroup            * castToElemDDLTenantGroup();
-  virtual ElemDDLTenantResourceGroup    * castToElemDDLTenantResourceGroup();
+  virtual ElemDDLReferences *castToElemDDLReferences();
+  virtual ElemDDLSaltOptionsClause *castToElemDDLSaltOptionsClause();
+  virtual ElemDDLReplicateClause *castToElemDDLReplicateClause();
+  virtual ElemDDLSchemaName *castToElemDDLSchemaName();
 
-  virtual ElemDDLTableFeature		* castToElemDDLTableFeature();
-  virtual ElemDDLHbaseOptions  	        * castToElemDDLHbaseOptions();
-  virtual ElemDDLLobStorageOptions  	* castToElemDDLLobStorageOptions();
+  virtual ElemDDLSGOptions *castToElemDDLSGOptions();
+  virtual ElemDDLSGOption *castToElemDDLSGOption();
+  virtual ElemDDLSGOptionStartValue *castToElemDDLSGOptionStartValue();
+  virtual ElemDDLSGOptionRestartValue *castToElemDDLSGOptionRestartValue();
+  virtual ElemDDLSGOptionMinValue *castToElemDDLSGOptionMinValue();
+  virtual ElemDDLSGOptionMaxValue *castToElemDDLSGOptionMaxValue();
+  virtual ElemDDLSGOptionIncrement *castToElemDDLSGOptionIncrement();
+  virtual ElemDDLSGOptionCacheOption *castToElemDDLSGOptionCacheOption();
+  virtual ElemDDLSGOptionOrderOption *castToElemDDLSGOptionOrderOption();
+  virtual ElemDDLSGOptionCycleOption *castToElemDDLSGOptionCycleOption();
+  virtual ElemDDLSGOptionDatatype *castToElemDDLSGOptionDatatype();
+  virtual ElemDDLSGOptionSystemOption *castToElemDDLSGOptionSystemOption();
+  virtual ElemDDLSGOptionNextValOption *castToElemDDLSGOptionNextValOption();
+  virtual ElemDDLStoreOpt *castToElemDDLStoreOpt();
+  virtual ElemDDLStoreOptEntryOrder *castToElemDDLStoreOptEntryOrder();
+  virtual ElemDDLStoreOptDefault *castToElemDDLStoreOptDefault();
+  virtual ElemDDLStoreOptKeyColumnList *castToElemDDLStoreOptKeyColumnList();
+  virtual ElemDDLStoreOptNondroppablePK *castToElemDDLStoreOptNondroppablePK();
+  virtual ElemDDLTenantOption *castToElemDDLTenantOption();
+  virtual ElemDDLTenantSchema *castToElemDDLTenantSchema();
+  virtual ElemDDLTenantGroup *castToElemDDLTenantGroup();
+  virtual ElemDDLTenantResourceGroup *castToElemDDLTenantResourceGroup();
 
-  virtual ElemDDLUdfExecutionMode       * castToElemDDLUdfExecutionMode();
-  virtual ElemDDLUdfFinalCall           * castToElemDDLUdfFinalCall();
-  virtual ElemDDLUdfOptimizationHint    * castToElemDDLUdfOptimizationHint();
-  virtual ElemDDLUdfParallelism         * castToElemDDLUdfParallelism();
-  virtual ElemDDLUdfSpecialAttributes   * castToElemDDLUdfSpecialAttributes();
-  virtual ElemDDLUdfStateAreaSize       * castToElemDDLUdfStateAreaSize();
-  virtual ElemDDLUdfVersionTag          * castToElemDDLUdfVersionTag();
-  virtual ElemDDLUdrDeterministic       * castToElemDDLUdrDeterministic();
-  virtual ElemDDLUdrExternalName        * castToElemDDLUdrExternalName();
-  virtual ElemDDLUdrExternalPath        * castToElemDDLUdrExternalPath();
-  virtual ElemDDLUdrIsolate             * castToElemDDLUdrIsolate();
-  virtual ElemDDLUdrLanguage            * castToElemDDLUdrLanguage();
-  virtual ElemDDLUdrLibrary             * castToElemDDLUdrLibrary();
-  virtual ElemDDLUdrMaxResults          * castToElemDDLUdrMaxResults();
-  virtual ElemDDLUdrParamStyle          * castToElemDDLUdrParamStyle();
-  virtual ElemDDLUdrSqlAccess           * castToElemDDLUdrSqlAccess();
-  virtual ElemDDLUdrTransaction         * castToElemDDLUdrTransaction();
-  virtual ElemDDLUdrExternalSecurity    * castToElemDDLUdrExternalSecurity();
-  virtual ElemDDLUudfParamDef           * castToElemDDLUudfParamDef();
-  virtual ElemDDLWithCheckOption        * castToElemDDLWithCheckOption();
-  virtual ElemDDLWithGrantOption        * castToElemDDLWithGrantOption();
-  virtual ElemDDLIndexPopulateOption    * castToElemDDLIndexPopulateOption();
-  virtual ElemDDLIndexScopeOption       * castToElemDDLIndexScopeOption();
-  virtual ElemDDLQualName				* castToElemDDLQualName();  // MV - RG
-  virtual StmtDDLAddConstraint          * castToStmtDDLAddConstraint();
-  virtual StmtDDLAddConstraintCheck     * castToStmtDDLAddConstraintCheck();
-  virtual StmtDDLAddConstraintPK        * castToStmtDDLAddConstraintPK();
-  virtual StmtDDLAddConstraintRI        * castToStmtDDLAddConstraintRI();
-  virtual StmtDDLAddConstraintUnique    * castToStmtDDLAddConstraintUnique(); 
-  virtual StmtDDLAlterAuditConfig       * castToStmtDDLAlterAuditConfig();
-  virtual StmtDDLAlterCatalog           * castToStmtDDLAlterCatalog();
-  virtual StmtDDLAlterSchema            * castToStmtDDLAlterSchema();
-  virtual StmtDDLAlterIndex             * castToStmtDDLAlterIndex();
-  virtual StmtDDLAlterIndexAttribute    * castToStmtDDLAlterIndexAttribute();
-  virtual StmtDDLAlterIndexHBaseOptions * castToStmtDDLAlterIndexHBaseOptions();
-  virtual StmtDDLAlterLibrary           * castToStmtDDLAlterLibrary();
-  virtual StmtDDLAlterTable             * castToStmtDDLAlterTable();
-  virtual StmtDDLAlterTableAttribute    * castToStmtDDLAlterTableAttribute();
-  virtual StmtDDLAlterTableAddColumn    * castToStmtDDLAlterTableAddColumn();
-  virtual StmtDDLAlterTableDropColumn    * castToStmtDDLAlterTableDropColumn();
-  virtual StmtDDLAlterTableAlterColumnLoggable * 
-						castToStmtDDLAlterTableAlterColumnLoggable(); //++ MV
-  virtual StmtDDLAlterTableDisableIndex * castToStmtDDLAlterTableDisableIndex();
-  virtual StmtDDLAlterTableEnableIndex * castToStmtDDLAlterTableEnableIndex();
+  virtual ElemDDLTableFeature *castToElemDDLTableFeature();
+  virtual ElemDDLHbaseOptions *castToElemDDLHbaseOptions();
+  virtual ElemDDLLobStorageOptions *castToElemDDLLobStorageOptions();
 
-  virtual StmtDDLAlterTableColumn       * castToStmtDDLAlterTableColumn();
-  virtual StmtDDLAlterTableMove         * castToStmtDDLAlterTableMove();
-  virtual StmtDDLAlterTableHDFSCache    * castToStmtDDLAlterTableHDFSCache();
-  virtual StmtDDLAlterSchemaHDFSCache * castToStmtDDLAlterSchemaHDFSCache();
-  virtual StmtDDLAlterTableHBaseOptions * castToStmtDDLAlterTableHBaseOptions();
-  virtual StmtDDLAlterTablePartition    * castToStmtDDLAlterTablePartition();
-  virtual StmtDDLAlterTableAddPartition* castToStmtDDLAlterTableAddPartition();
-  virtual StmtDDLAlterTableMountPartition* castToStmtDDLAlterTableMountPartition();
-  virtual StmtDDLAlterTableUnmountPartition* castToStmtDDLAlterTableUnmountPartition();
-  virtual StmtDDLAlterTableRename       * castToStmtDDLAlterTableRename();
-  virtual StmtDDLAlterTableStoredDesc   * castToStmtDDLAlterTableStoredDesc();
-  virtual StmtDDLAlterTableNamespace    * castToStmtDDLAlterTableNamespace();
-  virtual StmtDDLAlterTableResetDDLLock    * castToStmtDDLAlterTableResetDDLLock();
-  virtual StmtDDLAlterTableAlterColumnDefaultValue* 
-                castToStmtDDLAlterTableAlterColumnDefaultValue();
-  virtual StmtDDLAlterTableAlterColumnDatatype* 
-                castToStmtDDLAlterTableAlterColumnDatatype();
-  virtual StmtDDLAlterTableAlterColumnRename* 
-                castToStmtDDLAlterTableAlterColumnRename();
-  virtual StmtDDLAlterTableSetConstraint*
-                castToStmtDDLAlterTableSetConstraint();
-  virtual StmtDDLAlterTableToggleConstraint*
-                castToStmtDDLAlterTableToggleConstraint();
-  virtual StmtDDLAlterTableAlterColumnSetSGOption* 
-                castToStmtDDLAlterTableAlterColumnSetSGOption();
-  virtual StmtDDLAlterTableDropPartition* castToStmtDDLAlterTableDropPartition();
-  virtual StmtDDLAlterMvRGroup			* castToStmtDDLAlterMvRGroup();
-  virtual StmtDDLAlterRoutine           * castToStmtDDLAlterRoutine();
-  virtual StmtDDLAlterTrigger           * castToStmtDDLAlterTrigger();
-  virtual StmtDDLAlterMV                * castToStmtDDLAlterMV();  
-  virtual StmtDDLAlterUser              * castToStmtDDLAlterUser();
-  virtual StmtDDLAlterView              * castToStmtDDLAlterView();
-  virtual StmtDDLAlterDatabase          * castToStmtDDLAlterDatabase();
-  //partition table
-  virtual StmtDDLAlterTableTruncatePartition * castToStmtDDLAlterTableTruncatePartition();
-  virtual StmtDDLAlterTableMergePartition* castToStmtDDLAlterTableMergePartition();
+  virtual ElemDDLUdfExecutionMode *castToElemDDLUdfExecutionMode();
+  virtual ElemDDLUdfFinalCall *castToElemDDLUdfFinalCall();
+  virtual ElemDDLUdfOptimizationHint *castToElemDDLUdfOptimizationHint();
+  virtual ElemDDLUdfParallelism *castToElemDDLUdfParallelism();
+  virtual ElemDDLUdfSpecialAttributes *castToElemDDLUdfSpecialAttributes();
+  virtual ElemDDLUdfStateAreaSize *castToElemDDLUdfStateAreaSize();
+  virtual ElemDDLUdfVersionTag *castToElemDDLUdfVersionTag();
+  virtual ElemDDLUdrDeterministic *castToElemDDLUdrDeterministic();
+  virtual ElemDDLUdrExternalName *castToElemDDLUdrExternalName();
+  virtual ElemDDLUdrExternalPath *castToElemDDLUdrExternalPath();
+  virtual ElemDDLUdrIsolate *castToElemDDLUdrIsolate();
+  virtual ElemDDLUdrLanguage *castToElemDDLUdrLanguage();
+  virtual ElemDDLUdrLibrary *castToElemDDLUdrLibrary();
+  virtual ElemDDLUdrMaxResults *castToElemDDLUdrMaxResults();
+  virtual ElemDDLUdrParamStyle *castToElemDDLUdrParamStyle();
+  virtual ElemDDLUdrSqlAccess *castToElemDDLUdrSqlAccess();
+  virtual ElemDDLUdrTransaction *castToElemDDLUdrTransaction();
+  virtual ElemDDLUdrExternalSecurity *castToElemDDLUdrExternalSecurity();
+  virtual ElemDDLUudfParamDef *castToElemDDLUudfParamDef();
+  virtual ElemDDLWithCheckOption *castToElemDDLWithCheckOption();
+  virtual ElemDDLWithGrantOption *castToElemDDLWithGrantOption();
+  virtual ElemDDLIndexPopulateOption *castToElemDDLIndexPopulateOption();
+  virtual ElemDDLIndexScopeOption *castToElemDDLIndexScopeOption();
+  virtual ElemDDLQualName *castToElemDDLQualName();  // MV - RG
+  virtual StmtDDLAddConstraint *castToStmtDDLAddConstraint();
+  virtual StmtDDLAddConstraintCheck *castToStmtDDLAddConstraintCheck();
+  virtual StmtDDLAddConstraintPK *castToStmtDDLAddConstraintPK();
+  virtual StmtDDLAddConstraintRI *castToStmtDDLAddConstraintRI();
+  virtual StmtDDLAddConstraintUnique *castToStmtDDLAddConstraintUnique();
+  virtual StmtDDLAlterAuditConfig *castToStmtDDLAlterAuditConfig();
+  virtual StmtDDLAlterCatalog *castToStmtDDLAlterCatalog();
+  virtual StmtDDLAlterSchema *castToStmtDDLAlterSchema();
+  virtual StmtDDLAlterIndex *castToStmtDDLAlterIndex();
+  virtual StmtDDLAlterIndexAttribute *castToStmtDDLAlterIndexAttribute();
+  virtual StmtDDLAlterIndexHBaseOptions *castToStmtDDLAlterIndexHBaseOptions();
+  virtual StmtDDLAlterLibrary *castToStmtDDLAlterLibrary();
+  virtual StmtDDLAlterTable *castToStmtDDLAlterTable();
+  virtual StmtDDLAlterTableAttribute *castToStmtDDLAlterTableAttribute();
+  virtual StmtDDLAlterTableAddColumn *castToStmtDDLAlterTableAddColumn();
+  virtual StmtDDLAlterTableDropColumn *castToStmtDDLAlterTableDropColumn();
+  virtual StmtDDLAlterTableAlterColumnLoggable *castToStmtDDLAlterTableAlterColumnLoggable();  //++ MV
+  virtual StmtDDLAlterTableDisableIndex *castToStmtDDLAlterTableDisableIndex();
+  virtual StmtDDLAlterTableEnableIndex *castToStmtDDLAlterTableEnableIndex();
+
+  virtual StmtDDLAlterTableColumn *castToStmtDDLAlterTableColumn();
+  virtual StmtDDLAlterTableMove *castToStmtDDLAlterTableMove();
+  virtual StmtDDLAlterTableHDFSCache *castToStmtDDLAlterTableHDFSCache();
+  virtual StmtDDLAlterSchemaHDFSCache *castToStmtDDLAlterSchemaHDFSCache();
+  virtual StmtDDLAlterTableHBaseOptions *castToStmtDDLAlterTableHBaseOptions();
+  virtual StmtDDLAlterTablePartition *castToStmtDDLAlterTablePartition();
+  virtual StmtDDLAlterTableAddPartition *castToStmtDDLAlterTableAddPartition();
+  virtual StmtDDLAlterTableMountPartition *castToStmtDDLAlterTableMountPartition();
+  virtual StmtDDLAlterTableUnmountPartition *castToStmtDDLAlterTableUnmountPartition();
+  virtual StmtDDLAlterTableRename *castToStmtDDLAlterTableRename();
+  virtual StmtDDLAlterTableStoredDesc *castToStmtDDLAlterTableStoredDesc();
+  virtual StmtDDLAlterTableNamespace *castToStmtDDLAlterTableNamespace();
+  virtual StmtDDLAlterTableResetDDLLock *castToStmtDDLAlterTableResetDDLLock();
+  virtual StmtDDLAlterTableAlterColumnDefaultValue *castToStmtDDLAlterTableAlterColumnDefaultValue();
+  virtual StmtDDLAlterTableAlterColumnDatatype *castToStmtDDLAlterTableAlterColumnDatatype();
+  virtual StmtDDLAlterTableAlterColumnRename *castToStmtDDLAlterTableAlterColumnRename();
+  virtual StmtDDLAlterTableSetConstraint *castToStmtDDLAlterTableSetConstraint();
+  virtual StmtDDLAlterTableToggleConstraint *castToStmtDDLAlterTableToggleConstraint();
+  virtual StmtDDLAlterTableAlterColumnSetSGOption *castToStmtDDLAlterTableAlterColumnSetSGOption();
+  virtual StmtDDLAlterTableDropPartition *castToStmtDDLAlterTableDropPartition();
+  virtual StmtDDLAlterMvRGroup *castToStmtDDLAlterMvRGroup();
+  virtual StmtDDLAlterRoutine *castToStmtDDLAlterRoutine();
+  virtual StmtDDLAlterTrigger *castToStmtDDLAlterTrigger();
+  virtual StmtDDLAlterMV *castToStmtDDLAlterMV();
+  virtual StmtDDLAlterUser *castToStmtDDLAlterUser();
+  virtual StmtDDLAlterView *castToStmtDDLAlterView();
+  virtual StmtDDLAlterDatabase *castToStmtDDLAlterDatabase();
+  // partition table
+  virtual StmtDDLAlterTableTruncatePartition *castToStmtDDLAlterTableTruncatePartition();
+  virtual StmtDDLAlterTableMergePartition *castToStmtDDLAlterTableMergePartition();
   virtual StmtDDLAlterTableExchangePartition *castToStmtDDLAlterTableExchangePartition();
-  virtual StmtDDLAlterTableRenamePartition * castToStmtDDLAlterTableRenamePartition();
-  virtual StmtDDLAlterTableSplitPartition * castToStmtDDLAlterTableSplitPartition();
+  virtual StmtDDLAlterTableRenamePartition *castToStmtDDLAlterTableRenamePartition();
+  virtual StmtDDLAlterTableSplitPartition *castToStmtDDLAlterTableSplitPartition();
 
-  virtual StmtDDLCreateCatalog          * castToStmtDDLCreateCatalog();
-  virtual StmtDDLCreateComponentPrivilege * castToStmtDDLCreateComponentPrivilege();
-  virtual StmtDDLCreateIndex            * castToStmtDDLCreateIndex();
-  virtual StmtDDLPopulateIndex            * castToStmtDDLPopulateIndex();
-  virtual StmtDDLCreateLibrary          * castToStmtDDLCreateLibrary();
-  virtual StmtDDLCreatePackage          * castToStmtDDLCreatePackage();
-  virtual StmtDDLCreateRoutine          * castToStmtDDLCreateRoutine();
-  virtual StmtDDLCreateSchema           * castToStmtDDLCreateSchema();
-  virtual StmtDDLCreateSequence            * castToStmtDDLCreateSequence();
-  virtual StmtDDLCreateTable            * castToStmtDDLCreateTable();
-  virtual StmtDDLCreateHbaseTable            * castToStmtDDLCreateHbaseTable();
-  virtual StmtDDLCreateMvRGroup         * castToStmtDDLCreateMvRGroup();
-  virtual StmtDDLCreateTrigger          * castToStmtDDLCreateTrigger();
-  virtual StmtDDLCreateMV               * castToStmtDDLCreateMV(); 
-  virtual StmtDDLCreateView             * castToStmtDDLCreateView();
-  virtual StmtDDLDropCatalog            * castToStmtDDLDropCatalog();
-  virtual StmtDDLDropComponentPrivilege * castToStmtDDLDropComponentPrivilege();
-  virtual StmtDDLDropIndex              * castToStmtDDLDropIndex();
-  virtual StmtDDLDropLibrary            * castToStmtDDLDropLibrary();
-  virtual StmtDDLDropModule             * castToStmtDDLDropModule();
-  virtual StmtDDLDropPackage            * castToStmtDDLDropPackage();
-  virtual StmtDDLDropRoutine            * castToStmtDDLDropRoutine();
-  virtual StmtDDLDropSchema             * castToStmtDDLDropSchema();
-  virtual StmtDDLDropSequence            * castToStmtDDLDropSequence();
-  virtual StmtDDLDropSQL                * castToStmtDDLDropSQL();
-  virtual StmtDDLDropTable              * castToStmtDDLDropTable();
-  virtual StmtDDLDropHbaseTable              * castToStmtDDLDropHbaseTable();
-  virtual StmtDDLDropMvRGroup		* castToStmtDDLDropMvRGroup();
-  virtual StmtDDLDropTrigger            * castToStmtDDLDropTrigger(); 
-  virtual StmtDDLDropMV                 * castToStmtDDLDropMV();  
-  virtual StmtDDLDropView               * castToStmtDDLDropView();
-  virtual StmtDDLGiveAll                * castToStmtDDLGiveAll();
-  virtual StmtDDLGiveCatalog            * castToStmtDDLGiveCatalog();
-  virtual StmtDDLGiveObject             * castToStmtDDLGiveObject();
-  virtual StmtDDLGiveSchema             * castToStmtDDLGiveSchema();
-  virtual StmtDDLGrant                  * castToStmtDDLGrant();
-  virtual StmtDDLGrantComponentPrivilege * castToStmtDDLGrantComponentPrivilege();
-  virtual StmtDDLSchGrant		* castToStmtDDLSchGrant();
-  virtual StmtDDLRevoke                 * castToStmtDDLRevoke();
-  virtual StmtDDLRevokeComponentPrivilege * castToStmtDDLRevokeComponentPrivilege();
-  virtual StmtDDLSchRevoke              * castToStmtDDLSchRevoke();
-  virtual StmtDDLDropConstraint         * castToStmtDDLDropConstraint();
-  virtual StmtDDLRegisterCatalog        * castToStmtDDLRegisterCatalog();
-  virtual StmtDDLUnregisterCatalog      * castToStmtDDLUnregisterCatalog();
-  virtual StmtDDLCreateSynonym          * castToStmtDDLCreateSynonym();
-  virtual StmtDDLAlterSynonym           * castToStmtDDLAlterSynonym();
-  virtual StmtDDLDropSynonym            * castToStmtDDLDropSynonym();
-  virtual StmtDDLCreateExceptionTable   * castToStmtDDLCreateExceptionTable();
-  virtual StmtDDLDropExceptionTable     * castToStmtDDLDropExceptionTable();
-  virtual StmtDDLRegisterComponent      * castToStmtDDLRegisterComponent();
-  virtual StmtDDLRegisterUser           * castToStmtDDLRegisterUser();
-  virtual StmtDDLUserGroup              * castToStmtDDLUserGroup();
-  virtual StmtDDLTenant                 * castToStmtDDLTenant();
-  virtual StmtDDLRegOrUnregObject       * castToStmtDDLRegOrUnregObject();
-  virtual StmtDDLCreateRole             * castToStmtDDLCreateRole();
-  virtual StmtDDLResourceGroup          * castToStmtDDLResourceGroup();
-  virtual StmtDDLRoleGrant              * castToStmtDDLRoleGrant();
-  virtual StmtDDLCleanupObjects         * castToStmtDDLCleanupObjects();
-  virtual StmtDDLCommentOn              * castToStmtDDLCommentOn();
-  virtual StmtDDLonHiveObjects            * castToStmtDDLonHiveObjects();
+  virtual StmtDDLCreateCatalog *castToStmtDDLCreateCatalog();
+  virtual StmtDDLCreateComponentPrivilege *castToStmtDDLCreateComponentPrivilege();
+  virtual StmtDDLCreateIndex *castToStmtDDLCreateIndex();
+  virtual StmtDDLPopulateIndex *castToStmtDDLPopulateIndex();
+  virtual StmtDDLCreateLibrary *castToStmtDDLCreateLibrary();
+  virtual StmtDDLCreatePackage *castToStmtDDLCreatePackage();
+  virtual StmtDDLCreateRoutine *castToStmtDDLCreateRoutine();
+  virtual StmtDDLCreateSchema *castToStmtDDLCreateSchema();
+  virtual StmtDDLCreateSequence *castToStmtDDLCreateSequence();
+  virtual StmtDDLCreateTable *castToStmtDDLCreateTable();
+  virtual StmtDDLCreateHbaseTable *castToStmtDDLCreateHbaseTable();
+  virtual StmtDDLCreateMvRGroup *castToStmtDDLCreateMvRGroup();
+  virtual StmtDDLCreateTrigger *castToStmtDDLCreateTrigger();
+  virtual StmtDDLCreateMV *castToStmtDDLCreateMV();
+  virtual StmtDDLCreateView *castToStmtDDLCreateView();
+  virtual StmtDDLDropCatalog *castToStmtDDLDropCatalog();
+  virtual StmtDDLDropComponentPrivilege *castToStmtDDLDropComponentPrivilege();
+  virtual StmtDDLDropIndex *castToStmtDDLDropIndex();
+  virtual StmtDDLDropLibrary *castToStmtDDLDropLibrary();
+  virtual StmtDDLDropModule *castToStmtDDLDropModule();
+  virtual StmtDDLDropPackage *castToStmtDDLDropPackage();
+  virtual StmtDDLDropRoutine *castToStmtDDLDropRoutine();
+  virtual StmtDDLDropSchema *castToStmtDDLDropSchema();
+  virtual StmtDDLDropSequence *castToStmtDDLDropSequence();
+  virtual StmtDDLDropSQL *castToStmtDDLDropSQL();
+  virtual StmtDDLDropTable *castToStmtDDLDropTable();
+  virtual StmtDDLDropHbaseTable *castToStmtDDLDropHbaseTable();
+  virtual StmtDDLDropMvRGroup *castToStmtDDLDropMvRGroup();
+  virtual StmtDDLDropTrigger *castToStmtDDLDropTrigger();
+  virtual StmtDDLDropMV *castToStmtDDLDropMV();
+  virtual StmtDDLDropView *castToStmtDDLDropView();
+  virtual StmtDDLGiveAll *castToStmtDDLGiveAll();
+  virtual StmtDDLGiveCatalog *castToStmtDDLGiveCatalog();
+  virtual StmtDDLGiveObject *castToStmtDDLGiveObject();
+  virtual StmtDDLGiveSchema *castToStmtDDLGiveSchema();
+  virtual StmtDDLGrant *castToStmtDDLGrant();
+  virtual StmtDDLGrantComponentPrivilege *castToStmtDDLGrantComponentPrivilege();
+  virtual StmtDDLSchGrant *castToStmtDDLSchGrant();
+  virtual StmtDDLRevoke *castToStmtDDLRevoke();
+  virtual StmtDDLRevokeComponentPrivilege *castToStmtDDLRevokeComponentPrivilege();
+  virtual StmtDDLSchRevoke *castToStmtDDLSchRevoke();
+  virtual StmtDDLDropConstraint *castToStmtDDLDropConstraint();
+  virtual StmtDDLRegisterCatalog *castToStmtDDLRegisterCatalog();
+  virtual StmtDDLUnregisterCatalog *castToStmtDDLUnregisterCatalog();
+  virtual StmtDDLCreateSynonym *castToStmtDDLCreateSynonym();
+  virtual StmtDDLAlterSynonym *castToStmtDDLAlterSynonym();
+  virtual StmtDDLDropSynonym *castToStmtDDLDropSynonym();
+  virtual StmtDDLCreateExceptionTable *castToStmtDDLCreateExceptionTable();
+  virtual StmtDDLDropExceptionTable *castToStmtDDLDropExceptionTable();
+  virtual StmtDDLRegisterComponent *castToStmtDDLRegisterComponent();
+  virtual StmtDDLRegisterUser *castToStmtDDLRegisterUser();
+  virtual StmtDDLUserGroup *castToStmtDDLUserGroup();
+  virtual StmtDDLTenant *castToStmtDDLTenant();
+  virtual StmtDDLCreateRole *castToStmtDDLCreateRole();
+  virtual StmtDDLResourceGroup *castToStmtDDLResourceGroup();
+  virtual StmtDDLRoleGrant *castToStmtDDLRoleGrant();
+  virtual StmtDDLCleanupObjects *castToStmtDDLCleanupObjects();
+  virtual StmtDDLCommentOn *castToStmtDDLCommentOn();
 
-  virtual StmtDDLNamespace      * castToStmtDDLNamespace() {return NULL;}
-  virtual StmtDDLAlterSharedCache* castToStmtDDLAlterSharedCache() { return NULL; }
-  virtual ElemDDLGroup                  * castToElemDDLGroup();
+  virtual StmtDDLNamespace *castToStmtDDLNamespace() { return NULL; }
+  virtual StmtDDLAlterSharedCache *castToStmtDDLAlterSharedCache() { return NULL; }
+  virtual ElemDDLGroup *castToElemDDLGroup();
 
   //
   // operator
   //
 
-  virtual ElemDDLNode * operator[](CollIndex index);
+  virtual ElemDDLNode *operator[](CollIndex index);
 
-        // treats this node as an array (of one element).  For
-        // more information about the following methods, please
-        // read the descriptions of the corresponding methods
-        // in file ElemDDLList.h
+  // treats this node as an array (of one element).  For
+  // more information about the following methods, please
+  // read the descriptions of the corresponding methods
+  // in file ElemDDLList.h
 
   //
   // accessors
@@ -815,55 +786,51 @@ public:
 
   virtual CollIndex entries() const;
 
-        // treats this node as an array (of one element).
-        // Returns 1, the number of element in this array.
+  // treats this node as an array (of one element).
+  // Returns 1, the number of element in this array.
 
   virtual Int32 getArity() const;
 
-        // gets the degree of this node (the number of
-        // child parse node linking to this node).  If
-        // this node does not have any children, returns
-        // the value 0.
+  // gets the degree of this node (the number of
+  // child parse node linking to this node).  If
+  // this node does not have any children, returns
+  // the value 0.
 
-  virtual ExprNode * getChild(Lng32 index);
+  virtual ExprNode *getChild(Lng32 index);
 
-        // returns the pointer to the index child parse node.
-        // If the specified index is out-of-range, this method
-        // invokes the macro ABORT.  If this node does not have
-        // any child parse nodes, returns the NULL pointer value.
+  // returns the pointer to the index child parse node.
+  // If the specified index is out-of-range, this method
+  // invokes the macro ABORT.  If this node does not have
+  // any child parse nodes, returns the NULL pointer value.
 
-  virtual void traverseList(ElemDDLNode * pNode,
-                            void (*visitNode)(ElemDDLNode *,
-                                              CollIndex,
-                                              ElemDDLNode *));
+  virtual void traverseList(ElemDDLNode *pNode, void (*visitNode)(ElemDDLNode *, CollIndex, ElemDDLNode *));
 
-        // treat this node as a list (of one element).  The
-        // list is represented by a left linear tree.  For more
-        // information about this method, please read the
-        // description of the corresponding method in file
-        // ElemDDLList.h
+  // treat this node as a list (of one element).  The
+  // list is represented by a left linear tree.  For more
+  // information about this method, please read the
+  // description of the corresponding method in file
+  // ElemDDLList.h
 
   //
   // mutators
   //
 
-  virtual void setChild(Lng32 index, ExprNode * pChildNode);
+  virtual void setChild(Lng32 index, ExprNode *pChildNode);
 
-        // modifies the indexed pointers in this node to
-        // point to a child parse node.  If the specified
-        // index is out-of-range or if this node does not
-        // have any child parse nodes, this method invokes
-        // the macro ABORT.
+  // modifies the indexed pointers in this node to
+  // point to a child parse node.  If the specified
+  // index is out-of-range or if this node does not
+  // have any child parse nodes, this method invokes
+  // the macro ABORT.
 
   //
   // method for binding
   //
 
-  virtual ExprNode * bindNode(BindWA * pBindWA);
+  virtual ExprNode *bindNode(BindWA *pBindWA);
 
   // method to apply defaults and do object name validation
-  virtual NABoolean applyDefaultsAndValidateObject(BindWA * pBindWA,
-						   QualifiedName *qn);
+  virtual NABoolean applyDefaultsAndValidateObject(BindWA *pBindWA, QualifiedName *qn);
 
   //
   // methods for tracing
@@ -874,20 +841,18 @@ public:
   virtual const NAString displayLabel3() const;
   virtual NATraceList getDetailInfo() const;
   virtual const NAString getText() const;
-  virtual void print(FILE * f = stdout,
-                     const char * prefix = "",
-                     const char * suffix = "") const;
+  virtual void print(FILE *f = stdout, const char *prefix = "", const char *suffix = "") const;
 
-  virtual NAString getSyntax() const {ComASSERT(FALSE); return "";}
+  virtual NAString getSyntax() const {
+    ComASSERT(FALSE);
+    return "";
+  }
 
-private:
-
-}; // class ElemDDLNode
+ private:
+};  // class ElemDDLNode
 
 // -----------------------------------------------------------------------
 // definitions of inline methods for class ElemDDLNode
 // -----------------------------------------------------------------------
 
-
-#endif // ELEMDDLNODE_H
-
+#endif  // ELEMDDLNODE_H

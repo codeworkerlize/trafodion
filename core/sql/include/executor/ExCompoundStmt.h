@@ -52,38 +52,38 @@ class ex_tcb;
 //   :h1  :h2
 // In other words, it restricts any contained selects to be at most single-
 // row selects and collapses any single-row result sets into one catenated
-// result set. The "catpound statement" result schema is the concatenation 
+// result set. The "catpound statement" result schema is the concatenation
 // of the columns of any contained select statemetns: columns of result set1
 // || columns of result set2 || columns of result set3 ... (see ~/generator/
-// GenRel3GL.cpp for the "catpound statement" result row layout). 
+// GenRel3GL.cpp for the "catpound statement" result row layout).
 
-// A "catpound statement" implementation of the SQL compound statement is 
-// a correct implementation provided: 1) the single-row-selects constraint 
+// A "catpound statement" implementation of the SQL compound statement is
+// a correct implementation provided: 1) the single-row-selects constraint
 // is enforced, and 2) the "catpound" result schema is not exposed to the
 // user (eg, it must not show up in sqlci output!).
 
 // True SQL compound statements do not change the logical result of their
 // component statements. Thus, in the above example, the true SQL compound
 // statement output should look like this
-//   c1 
+//   c1
 //   ---
 //   :h1
-// 
+//
 //   c2
 //   ---
 //   :h2
 // In other words, the output of executing a compound statement is exactly
-// the same as the output of executing the contained statements one after 
+// the same as the output of executing the contained statements one after
 // another in (textual) sequential order.
 
-// Therefore, both (the current) "catpound" and (a future true SQL 
+// Therefore, both (the current) "catpound" and (a future true SQL
 // implementation of) compound statement operators must preserve this
 // logical sequential execution order. This is an important correctness
 // criteria. It means that even a parallel implementation of compound
 // statement must preserve logical execution order of the contained SQL
 // statements. In terms of the SQLMX pipelined parallel execution engine,
-// it may mean that the result sets must be delivered in order in the master 
-// executor root node's up queue. An aggressively pipelined implementation 
+// it may mean that the result sets must be delivered in order in the master
+// executor root node's up queue. An aggressively pipelined implementation
 // of a compound statement operator may execute its left and right children
 // in any order but it must deposit the left child's result in the parent's
 // up queue first before it can deliver any results from the right child.
@@ -95,26 +95,26 @@ class ex_tcb;
 // a lot more complicated in its bookkeeping because of the need to match
 // left and right join columns, the handling of nulls, no-matches, etc.
 // As a result, this catpoundstmt operator frequently crashed with orphaned
-// queue entries. 
+// queue entries.
 
 // A catpoundstmt operator should behave more like the ordered union (OU)
 // operator that was introduced  to do index maintenance
 // where two internally generated SQL statements (a delete and an insert)
 // must execute one after another. But, OU also inherits some complicated
 // whichSide generic union workUp logic that tries to parallelize (ie,
-// non-deterministically interleave) delivery of left and right child 
-// results to the parent up-queue. As described above, correct CLI result 
+// non-deterministically interleave) delivery of left and right child
+// results to the parent up-queue. As described above, correct CLI result
 // set processing demands sequential in-order delivery of result sets.
-// (It is conceivable that a future aggressively parallel compoundstmt 
+// (It is conceivable that a future aggressively parallel compoundstmt
 // operator may temporarily interleave up-queue processing, but it must
-// balance this gain with the penalty of the bookkeeping needed to allow 
+// balance this gain with the penalty of the bookkeeping needed to allow
 // it to eventually deliver result sets in textual sequential order to the
-// SQL application). In this initial implementation, we avoid inheriting 
+// SQL application). In this initial implementation, we avoid inheriting
 // the complicated OU whichSide workUp logic.
 
-// In addition, the catpoundstmt operator must also deliver and flow any 
-// tuple values from the left to the right child just like NLJ but without 
-// the complicated matching and null-handling. This left-to-right tuple 
+// In addition, the catpoundstmt operator must also deliver and flow any
+// tuple values from the left to the right child just like NLJ but without
+// the complicated matching and null-handling. This left-to-right tuple
 // flow is needed to support catpound semantics (ie, catpound result row
 // layout) and the data flow of any assignment statements.
 
@@ -125,29 +125,29 @@ class ex_tcb;
 // has no data but left child has some, it delivers the left's data result.
 // If left has no data but right has some, it delivers the right's data. If
 // both left and right have data (OK_MMORE) entries, it delivers the right's
-// up-queue entry because the catpoundstmt row layout means it has both left 
+// up-queue entry because the catpoundstmt row layout means it has both left
 // and right tupps catenated together and the left-to-right data flow means
-// those left tupps have the left's OK_MMORE data. It also enforces the 
-// catpoundstmt at-most-one-row-result constraint. If either left or right 
-// child has more than one OK_MMORE entry, it deposits a Q_SQLERROR entry 
-// in the parent's up-queue and does a cancel: flushes all OK_MMORE until 
-// a Q_NO_DATA. Thus, the 2nd child will not be executed if the 1st child 
+// those left tupps have the left's OK_MMORE data. It also enforces the
+// catpoundstmt at-most-one-row-result constraint. If either left or right
+// child has more than one OK_MMORE entry, it deposits a Q_SQLERROR entry
+// in the parent's up-queue and does a cancel: flushes all OK_MMORE until
+// a Q_NO_DATA. Thus, the 2nd child will not be executed if the 1st child
 // had any error.
 
 // It may seem that this catpoundstmt implementation may degrade in
 // performance with bigger catpoundstmts (ones that contain many component
 // statements) because of the need to flow data: left-to-right-to-parent.
 // But, on second thought, it is probably one of the most (protocol-wise)
-// efficient implementation of at-most-one-row-per-select compound 
+// efficient implementation of at-most-one-row-per-select compound
 // statements. In terms of CLI calls, sqlc will translate any (size-n)
 // compound statement
 //   exec sql begin <stmt1>; <stmt2>; ... <stmtn>; end;
-// into just one pair of CLI calls 
+// into just one pair of CLI calls
 //   { ... SQL_EXEC_ExecClose(...) ... SQL_EXEC_FetchClose(...) ... }
 // That is, a single Fetch() call fetches all the output host vars of all
-// the component statements. 
+// the component statements.
 
-// Even in the executor, the left-to-right-to-parent data flow is done 
+// Even in the executor, the left-to-right-to-parent data flow is done
 // by filling-in tupps which are pointer (not data) copies. The real data
 // copies occur at process (fragment) boundaries. The number of process
 // boundaries (and data copies) is probably the same in both catpoundstmt
@@ -156,26 +156,23 @@ class ex_tcb;
 // -----------------------------------------------------------------------
 // ExCatpoundStmtTdb
 // -----------------------------------------------------------------------
-class ExCatpoundStmtTdb : public ComTdbCompoundStmt
-{
-public:
+class ExCatpoundStmtTdb : public ComTdbCompoundStmt {
+ public:
   // ---------------------------------------------------------------------
   // Constructor is only called to instantiate an object used for
   // retrieval of the virtual table function pointer of the class while
   // unpacking. An empty constructor is enough.
   // ---------------------------------------------------------------------
-  ExCatpoundStmtTdb()
-  {}
+  ExCatpoundStmtTdb() {}
 
-  virtual ~ExCatpoundStmtTdb()
-  {}
+  virtual ~ExCatpoundStmtTdb() {}
 
   // ---------------------------------------------------------------------
   // Build a TCB for this TDB. Redefined in the Executor project.
   // ---------------------------------------------------------------------
   virtual ex_tcb *build(ex_globals *globals);
 
-private:
+ private:
   // ---------------------------------------------------------------------
   // !!!!!!! IMPORTANT -- NO DATA MEMBERS ALLOWED IN EXECUTOR TDB !!!!!!!!
   // *********************************************************************
@@ -203,91 +200,77 @@ private:
   // ---------------------------------------------------------------------
 };
 
-
 //////////////////////////////////////////////////////////////////////////////
 // CatpoundStmt TCB class.
 //////////////////////////////////////////////////////////////////////////////
-class ExCatpoundStmtTcb : public ex_tcb
-{
+class ExCatpoundStmtTcb : public ex_tcb {
   friend class ExCatpoundStmtTdb;
   friend class ExCatpoundStmtPrivateState;
 
-public:
+ public:
   // Standard TCB methods.
-  ExCatpoundStmtTcb(const ExCatpoundStmtTdb &tdb,  
-                    const ex_tcb &left,   
-                    const ex_tcb &right, 
-                    ex_globals *glob);
-        
-  ~ExCatpoundStmtTcb();  
+  ExCatpoundStmtTcb(const ExCatpoundStmtTdb &tdb, const ex_tcb &left, const ex_tcb &right, ex_globals *glob);
 
-  void freeResources() {}  
+  ~ExCatpoundStmtTcb();
+
+  void freeResources() {}
   void registerSubtasks();
 
-  virtual const ex_tcb* getChild(Int32 pos) const;
-  virtual Int32 numChildren() const { return 2; }   
+  virtual const ex_tcb *getChild(Int32 pos) const;
+  virtual Int32 numChildren() const { return 2; }
 
   ExWorkProcRetcode work();
 
-private:
+ private:
   // CS TCB specific methods.
-  
+
   ex_queue_pair getParentQueue() const { return qparent_; }
 
   ExWorkProcRetcode workDownLeft();
   ExWorkProcRetcode workLeft2Right();
   ExWorkProcRetcode workUp();
   ExWorkProcRetcode workCancel();
-  
-  static ExWorkProcRetcode sWorkDownLeft(ex_tcb *tcb)
-  { return ((ExCatpoundStmtTcb *) tcb)->workDownLeft(); }
-  static ExWorkProcRetcode sWorkLeft2Right(ex_tcb *tcb)
-  { return ((ExCatpoundStmtTcb *) tcb)->workLeft2Right(); }
-  static ExWorkProcRetcode sWorkUp(ex_tcb *tcb)
-  { return ((ExCatpoundStmtTcb *) tcb)->workUp(); }
 
-  static ExWorkProcRetcode sWorkCancel(ex_tcb *tcb)
-  { return ((ExCatpoundStmtTcb *) tcb)->workCancel(); }
+  static ExWorkProcRetcode sWorkDownLeft(ex_tcb *tcb) { return ((ExCatpoundStmtTcb *)tcb)->workDownLeft(); }
+  static ExWorkProcRetcode sWorkLeft2Right(ex_tcb *tcb) { return ((ExCatpoundStmtTcb *)tcb)->workLeft2Right(); }
+  static ExWorkProcRetcode sWorkUp(ex_tcb *tcb) { return ((ExCatpoundStmtTcb *)tcb)->workUp(); }
 
-  void      startLeftChild();
-  void      flowLeft2Right(ex_queue_entry *lentry);
-  void      flowParent2Right(queue_index pindex);
-  void      passChildReplyUp(ex_queue_entry *centry);
+  static ExWorkProcRetcode sWorkCancel(ex_tcb *tcb) { return ((ExCatpoundStmtTcb *)tcb)->workCancel(); }
 
-  void      processError(atp_struct *atp, ComDiagsArea *da);
-  void      processCardinalityError(ex_queue_entry *centry);
-  void      processEODErrorOrWarning(NABoolean isWarning);
+  void startLeftChild();
+  void flowLeft2Right(ex_queue_entry *lentry);
+  void flowParent2Right(queue_index pindex);
+  void passChildReplyUp(ex_queue_entry *centry);
 
+  void processError(atp_struct *atp, ComDiagsArea *da);
+  void processCardinalityError(ex_queue_entry *centry);
+  void processEODErrorOrWarning(NABoolean isWarning);
 
-  inline ExCatpoundStmtTdb & csTdb() const
-    { return (ExCatpoundStmtTdb &) tdb; }
+  inline ExCatpoundStmtTdb &csTdb() const { return (ExCatpoundStmtTdb &)tdb; }
 
-  inline NABoolean expectingRightRows() const
-    { return csTdb().expectingRightRows(); }
+  inline NABoolean expectingRightRows() const { return csTdb().expectingRightRows(); }
 
-  inline NABoolean expectingLeftRows() const
-    { return csTdb().expectingLeftRows(); }
+  inline NABoolean expectingLeftRows() const { return csTdb().expectingLeftRows(); }
 
-  inline NABoolean afterUpdate() const
-    { return csTdb().afterUpdate(); }
+  inline NABoolean afterUpdate() const { return csTdb().afterUpdate(); }
 
-private:
+ private:
   // CS TCB specific attributes.
   enum CSState {
-    CS_EMPTY,          // initial state
-    CS_STARTED,        // we began execution
-    CS_NOT_EMPTY,      // child has non-EOD row
-    CS_ERROR,          // encountered an error
-    CS_DONE,           // is done
-    CS_CANCELLED       // request cancelled
+    CS_EMPTY,      // initial state
+    CS_STARTED,    // we began execution
+    CS_NOT_EMPTY,  // child has non-EOD row
+    CS_ERROR,      // encountered an error
+    CS_DONE,       // is done
+    CS_CANCELLED   // request cancelled
   };
 
-  const ex_tcb *tcbLeft_;       // TCB for left child.
-  const ex_tcb *tcbRight_;      // TCB for right child.
+  const ex_tcb *tcbLeft_;   // TCB for left child.
+  const ex_tcb *tcbRight_;  // TCB for right child.
 
-  ex_queue_pair qparent_;       // Queue for parent communication.
-  ex_queue_pair qleft_;         // Queue for left child communication.
-  ex_queue_pair qright_;        // Queue for right child communication.
+  ex_queue_pair qparent_;  // Queue for parent communication.
+  ex_queue_pair qleft_;    // Queue for left child communication.
+  ex_queue_pair qright_;   // Queue for right child communication.
 
   queue_index parent2leftx_;  // index of parent down queue entry being
                               // processed by left child
@@ -297,29 +280,27 @@ private:
 //////////////////////////////////////////////////////////////////////////////
 // CatpoundStmtPrivateState class.
 //////////////////////////////////////////////////////////////////////////////
-class ExCatpoundStmtPrivateState : public ex_tcb_private_state
-{
+class ExCatpoundStmtPrivateState : public ex_tcb_private_state {
   friend class ExCatpoundStmtTcb;
-  
-public:
+
+ public:
   // Standard private state methods.
-  ExCatpoundStmtPrivateState(const ExCatpoundStmtTcb *tcb)
-  { init(); }
+  ExCatpoundStmtPrivateState(const ExCatpoundStmtTcb *tcb) { init(); }
 
-  ~ExCatpoundStmtPrivateState(){} 
+  ~ExCatpoundStmtPrivateState() {}
 
-  ex_tcb_private_state * allocate_new(const ex_tcb *tcb);
+  ex_tcb_private_state *allocate_new(const ex_tcb *tcb);
 
-private:
-  void           init();
+ private:
+  void init();
 
-private:
+ private:
   // CS Private state attributes.
-  Int64 leftrows_;            // Number of left tuples.
-  Int64 rightrows_;           // Number of right tuples.
+  Int64 leftrows_;   // Number of left tuples.
+  Int64 rightrows_;  // Number of right tuples.
 
   ExCatpoundStmtTcb::CSState leftstate_;
   ExCatpoundStmtTcb::CSState rightstate_;
 };
 
-#endif // ExCompoundStmt_h
+#endif  // ExCompoundStmt_h

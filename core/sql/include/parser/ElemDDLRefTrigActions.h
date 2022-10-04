@@ -30,7 +30,7 @@
  *               triggerred action phrase in References clause in
  *               DDL statements
  *
- *               
+ *
  * Created:      10/27/95
  * Language:     C++
  *
@@ -39,7 +39,6 @@
  *
  *****************************************************************************
  */
-
 
 #include "common/ComSmallDefs.h"
 #include "ElemDDLRefActions.h"
@@ -59,17 +58,12 @@ class ElemDDLRefTrigActUpdateRule;
 // -----------------------------------------------------------------------
 // definition of base class ElemDDLRefTrigAct
 // -----------------------------------------------------------------------
-class ElemDDLRefTrigAct : public ElemDDLNode
-{
-
-public:
-
+class ElemDDLRefTrigAct : public ElemDDLNode {
+ public:
   // default constructor
-  ElemDDLRefTrigAct(OperatorTypeEnum operatorType =
-                           ELM_ANY_REF_TRIG_ACT_RULE_ELEM,
-                           ElemDDLNode * pReferentialAction = NULL)
-  : ElemDDLNode(operatorType)
-  {
+  ElemDDLRefTrigAct(OperatorTypeEnum operatorType = ELM_ANY_REF_TRIG_ACT_RULE_ELEM,
+                    ElemDDLNode *pReferentialAction = NULL)
+      : ElemDDLNode(operatorType) {
     children_[INDEX_REFERENTIAL_ACTION] = pReferentialAction;
   }
 
@@ -77,47 +71,42 @@ public:
   virtual ~ElemDDLRefTrigAct();
 
   // cast
-  virtual ElemDDLRefTrigAct * castToElemDDLRefTrigAct();
+  virtual ElemDDLRefTrigAct *castToElemDDLRefTrigAct();
 
   // accessors
   virtual Int32 getArity() const;
-  virtual ExprNode * getChild(Lng32 index);
-  inline ElemDDLRefAct * getReferentialAction() const;
+  virtual ExprNode *getChild(Lng32 index);
+  inline ElemDDLRefAct *getReferentialAction() const;
 
   // mutator
-  virtual void setChild(Lng32 index, ExprNode * pElemDDLNode);
+  virtual void setChild(Lng32 index, ExprNode *pElemDDLNode);
 
   // methods for tracing
   virtual NATraceList getDetailInfo() const;
   virtual const NAString getText() const;
 
-private:
-
+ private:
   // pointers to child parse node
 
-  enum { INDEX_REFERENTIAL_ACTION = 0,
-         MAX_ELEM_DDL_REF_TRIG_ACT_ARITY };
+  enum { INDEX_REFERENTIAL_ACTION = 0, MAX_ELEM_DDL_REF_TRIG_ACT_ARITY };
 
-  ElemDDLNode * children_[MAX_ELEM_DDL_REF_TRIG_ACT_ARITY];
+  ElemDDLNode *children_[MAX_ELEM_DDL_REF_TRIG_ACT_ARITY];
 
-}; // class ElemDDLRefTrigAct
+};  // class ElemDDLRefTrigAct
 
 // -----------------------------------------------------------------------
 // definition of class ElemDDLRefTrigActDeleteRule
 // -----------------------------------------------------------------------
-class ElemDDLRefTrigActDeleteRule : public ElemDDLRefTrigAct
-{
-
-public:
-
+class ElemDDLRefTrigActDeleteRule : public ElemDDLRefTrigAct {
+ public:
   // constructor
-  ElemDDLRefTrigActDeleteRule(ElemDDLNode * pReferentialAction);
+  ElemDDLRefTrigActDeleteRule(ElemDDLNode *pReferentialAction);
 
   // virtual destructor
   virtual ~ElemDDLRefTrigActDeleteRule();
 
   // cast
-  virtual ElemDDLRefTrigActDeleteRule * castToElemDDLRefTrigActDeleteRule();
+  virtual ElemDDLRefTrigActDeleteRule *castToElemDDLRefTrigActDeleteRule();
 
   // accessor
   inline ComRCDeleteRule getDeleteRule() const;
@@ -126,23 +115,18 @@ public:
   virtual const NAString displayLabel1() const;
   virtual const NAString getText() const;
 
+ private:
+  ComRCDeleteRule deleteRule_;  // an enum
 
-private:
-
-  ComRCDeleteRule deleteRule_; //an enum
-
-}; // class ElemDDLRefTrigActDeleteRule
+};  // class ElemDDLRefTrigActDeleteRule
 
 // -----------------------------------------------------------------------
 // definition of class ElemDDLRefTrigActUpdateRule
 // -----------------------------------------------------------------------
-class ElemDDLRefTrigActUpdateRule : public ElemDDLRefTrigAct
-{
-
-public:
-
+class ElemDDLRefTrigActUpdateRule : public ElemDDLRefTrigAct {
+ public:
   // constructor
-  ElemDDLRefTrigActUpdateRule(ElemDDLNode * pReferentialAction);
+  ElemDDLRefTrigActUpdateRule(ElemDDLNode *pReferentialAction);
 
   // virtual destructor
   virtual ~ElemDDLRefTrigActUpdateRule();
@@ -151,18 +135,16 @@ public:
   inline ComRCUpdateRule getUpdateRule() const;
 
   // cast
-  virtual ElemDDLRefTrigActUpdateRule * castToElemDDLRefTrigActUpdateRule();
+  virtual ElemDDLRefTrigActUpdateRule *castToElemDDLRefTrigActUpdateRule();
 
   // methods for tracing
   virtual const NAString displayLabel1() const;
   virtual const NAString getText() const;
 
+ private:
+  ComRCUpdateRule updateRule_;  // an enum
 
-private:
-
-  ComRCUpdateRule updateRule_; //an enum
-
-}; // class ElemDDLRefTrigActUpdateRule
+};  // class ElemDDLRefTrigActUpdateRule
 
 // -----------------------------------------------------------------------
 // definitions of inline methods for class ElemDDLRefTrigAct
@@ -171,9 +153,7 @@ private:
 // accessor
 //
 
-inline ElemDDLRefAct *
-ElemDDLRefTrigAct::getReferentialAction() const
-{
+inline ElemDDLRefAct *ElemDDLRefTrigAct::getReferentialAction() const {
   return children_[INDEX_REFERENTIAL_ACTION]->castToElemDDLRefAct();
 }
 
@@ -185,11 +165,7 @@ ElemDDLRefTrigAct::getReferentialAction() const
 // accessor
 //
 
-inline ComRCDeleteRule
-ElemDDLRefTrigActDeleteRule::getDeleteRule() const
-{
-  return deleteRule_;
-}
+inline ComRCDeleteRule ElemDDLRefTrigActDeleteRule::getDeleteRule() const { return deleteRule_; }
 
 // -----------------------------------------------------------------------
 // definitions of inline methods for class ElemDDLRefTrigActUpdateRule
@@ -199,10 +175,6 @@ ElemDDLRefTrigActDeleteRule::getDeleteRule() const
 // accessor
 //
 
-inline ComRCUpdateRule
-ElemDDLRefTrigActUpdateRule::getUpdateRule() const
-{
-  return updateRule_;
-}
+inline ComRCUpdateRule ElemDDLRefTrigActUpdateRule::getUpdateRule() const { return updateRule_; }
 
-#endif // ELEMDDLREFTRIGACTIONS_H
+#endif  // ELEMDDLREFTRIGACTIONS_H

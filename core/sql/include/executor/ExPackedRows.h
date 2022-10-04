@@ -23,13 +23,12 @@
 #ifndef ExUnPackRows_h
 #define ExUnPackRows_h
 
-
 /* -*-C++-*-
 ******************************************************************************
 *
 * File:         ExPackedRows.h
 * Description:  UnPackRows and PackRows Operator
-*               
+*
 * Created:      66/19/97
 * Language:     C++
 *
@@ -51,9 +50,9 @@ class ExSimpleSQLBuffer;
 // class ExUnPackRowsTdb --------------------------------------------------
 // The Task Definition Block for the UnPackRows operator.  This structure is
 // produced by the generator and is passed to the executor as part of
-// a TDB tree.  This structure contains all the static information 
+// a TDB tree.  This structure contains all the static information
 // necessary to execute the UnPackRows operation.
-// 
+//
 #include "comexe/ComTdbUnPackRows.h"
 
 // -----------------------------------------------------------------------
@@ -69,27 +68,23 @@ class ex_tcb;
 // -----------------------------------------------------------------------
 // ExUnPackRowsTdb
 // -----------------------------------------------------------------------
-class ExUnPackRowsTdb : public ComTdbUnPackRows
-{
-public:
-
+class ExUnPackRowsTdb : public ComTdbUnPackRows {
+ public:
   // ---------------------------------------------------------------------
   // Constructor is only called to instantiate an object used for
   // retrieval of the virtual table function pointer of the class while
   // unpacking. An empty constructor is enough.
   // ---------------------------------------------------------------------
-  ExUnPackRowsTdb()
-  {}
+  ExUnPackRowsTdb() {}
 
-  virtual ~ExUnPackRowsTdb()
-  {}
+  virtual ~ExUnPackRowsTdb() {}
 
   // ---------------------------------------------------------------------
   // Build a TCB for this TDB. Redefined in the Executor project.
   // ---------------------------------------------------------------------
   virtual ex_tcb *build(ex_globals *globals);
 
-private:
+ private:
   // ---------------------------------------------------------------------
   // !!!!!!! IMPORTANT -- NO DATA MEMBERS ALLOWED IN EXECUTOR TDB !!!!!!!!
   // *********************************************************************
@@ -109,7 +104,7 @@ private:
   // 1. Are those data members Compiler-generated?
   //    If yes, put them in the ComTdbUnPackRows instead.
   //    If no, they should probably belong to someplace else (like TCB).
-  // 
+  //
   // 2. Are the classes those data members belong defined in the executor
   //    project?
   //    If your answer to both questions is yes, you might need to move
@@ -117,40 +112,36 @@ private:
   // ---------------------------------------------------------------------
 };
 
-
 // class ExUnPackRowsTcb --------------------------------------------------
 // The Task Control Block for the UnPackRows operator.  This structure is
 // produced during the build phase as part of the TCB tree.
-// This structure contains all the run-time information 
+// This structure contains all the run-time information
 // necessary to execute the UnPackRows operation.
-// 
-class ExUnPackRowsTcb : public ex_tcb
-{
+//
+class ExUnPackRowsTcb : public ex_tcb {
   // The Task Definition Block for the UnPackRows operator.  This struture
   // contains the static information necessary to execute the UnPackRows
   // operator.
   //
-  friend class   ExUnPackRowsTdb;
+  friend class ExUnPackRowsTdb;
 
   // The private state for the UnPackRows operator.  This structure contains
   // the information associated with a given request of the UnPackRows TCB.
   //
-  friend class   ExUnPackRowsPrivateState;
+  friend class ExUnPackRowsPrivateState;
 
-public:
-
+ public:
   // The various states of a request for the UnPackRows work methods.
   //
-  enum UnPackChildState
-  {
+  enum UnPackChildState {
     // The request has been sent to the child.
     //
-    STARTED_, 
+    STARTED_,
 
     // The request has not yet been sent to the child or
     // this entry has no request.
     //
-    EMPTY_,   
+    EMPTY_,
 
     // A cancel request has been sent to the child for this request.
     //
@@ -163,7 +154,7 @@ public:
   // It:
   //     - allocates the sql buffer pool
   //     - allocates the ATP's for its child's down queue.
-  //     - allocates the up and down queues used to communicate 
+  //     - allocates the up and down queues used to communicate
   //       with the parent.
   //     - allocates the private state associated with each entry of the
   //       parents down queue.
@@ -182,21 +173,18 @@ public:
   //    IN: Contains references to global executor information,
   //        notably the space object used to allocate objects.
   //
-  ExUnPackRowsTcb(const ExUnPackRowsTdb &unPackTdb,
-                  const ex_tcb &childTdb,    
-                  ex_globals *glob);
-          
+  ExUnPackRowsTcb(const ExUnPackRowsTdb &unPackTdb, const ex_tcb &childTdb, ex_globals *glob);
 
   // Destructor
   //
-  ~ExUnPackRowsTcb();  
+  ~ExUnPackRowsTcb();
 
   // Free up any run-time resources.
   // For UnPackRows, this frees up the buffer pool.
   // (Does not free up the queues, should it).
   // Called by the destructor.
   //
-  void freeResources(); 
+  void freeResources();
 
   // Register all the UnPackRows subtasks with the scheduler.
   //
@@ -216,60 +204,46 @@ public:
   // pass up to parent.
   //
   virtual ExWorkProcRetcode workUp();
-  
+
   // Stub to workUp() used by scheduler.
   //
-  static ExWorkProcRetcode sWorkUp(ex_tcb *tcb)
-  {
-    return ((ExUnPackRowsTcb *)tcb)->workUp(); 
-  }
-  
+  static ExWorkProcRetcode sWorkUp(ex_tcb *tcb) { return ((ExUnPackRowsTcb *)tcb)->workUp(); }
+
   // Stub to workDown() used by scheduler.
-  // 
-  static ExWorkProcRetcode sWorkDown(ex_tcb *tcb)
-  {
-    return ((ExUnPackRowsTcb *)tcb)->workDown(); 
-  }
-  
+  //
+  static ExWorkProcRetcode sWorkDown(ex_tcb *tcb) { return ((ExUnPackRowsTcb *)tcb)->workDown(); }
+
   // Stub to processCancel() used by scheduler.
   //
-  static ExWorkProcRetcode sCancel(ex_tcb *tcb)
-  {
-    return ((ExUnPackRowsTcb *)tcb)->processCancel(); 
-  }
+  static ExWorkProcRetcode sCancel(ex_tcb *tcb) { return ((ExUnPackRowsTcb *)tcb)->processCancel(); }
 
   // Return the parent queue pair.
   //
   ex_queue_pair getParentQueue() const { return qParent_; }
 
-  // Return a reference to the UnPackRows TDB associated with this 
+  // Return a reference to the UnPackRows TDB associated with this
   // UnPackRows TCB.
   //
-  inline ExUnPackRowsTdb &unPackRowsTdb() const 
-  {
-    return(ExUnPackRowsTdb &)tdb; 
-  }
+  inline ExUnPackRowsTdb &unPackRowsTdb() const { return (ExUnPackRowsTdb &)tdb; }
 
   inline ex_expr *packingFactor() { return unPackRowsTdb().packingFactor_; }
-  
-  // Return the UnPackRows expression 
+
+  // Return the UnPackRows expression
   //
   inline ex_expr *unPackColsExpr() { return unPackRowsTdb().unPackColsExpr_; }
 
   // UnPackRows has one child.
   //
-  virtual Int32 numChildren() const { return 1; }   
+  virtual Int32 numChildren() const { return 1; }
 
   // Return the child of the UnPackRows node by position.
   //
-  virtual const ex_tcb * getChild(Int32 pos) const 
-  {
-    if(pos == 0) return childTcb_;
+  virtual const ex_tcb *getChild(Int32 pos) const {
+    if (pos == 0) return childTcb_;
     return NULL;
   }
 
-protected:
-  
+ protected:
   // The child TCB of this UnPackRows node.
   //
   const ex_tcb *childTcb_;
@@ -277,28 +251,27 @@ protected:
   // The queue pair used to communicate with the parent node.
   // This queue is allocated by this node.
   //
-  ex_queue_pair  qParent_;
+  ex_queue_pair qParent_;
 
   // The queue pair used to communicate with the child node.
   // This queue is allocated by the child node.  This data
   // member is initialized by calling getParentQueue() on the child TCB.
   //
-  ex_queue_pair  childQueue_;
+  ex_queue_pair childQueue_;
 
   // next parent down queue entry to process.
   //
   queue_index processedInputs_;
-  
+
   // Buffer pool used to allocated tupps for the UnPackRows generated
   // columns.
   //
   ExSimpleSQLBuffer *pool_;
 
-
   // Atp used to hold tuple from extracting the packing factor (numRows)
   // from the packed row.
   //
-  atp_struct * numRowsAtp_;
+  atp_struct *numRowsAtp_;
   tupp numRowsTupp_;
   tupp_descriptor numRowsTuppDesc_;
   Int32 numRows_;
@@ -307,7 +280,7 @@ protected:
   // to supply the index value. This value is supplied by the value
   // of indexValue_.
   //
-  atp_struct * workAtp_;
+  atp_struct *workAtp_;
   tupp indexValueTupp_;
   tupp_descriptor indexValueTuppDesc_;
   Int32 indexValue_;
@@ -325,10 +298,10 @@ protected:
   // Process cancell requests.
   // Called when a cancel request occurs on the parents down queue.
   //
-  ExWorkProcRetcode processCancel(); 
+  ExWorkProcRetcode processCancel();
 
   // handles an error situation. If the error is nonfatal then we do not go into
-  // cancel mode. For both fatal and nonfatal errors a Q_SQLERROR reply is sent, 
+  // cancel mode. For both fatal and nonfatal errors a Q_SQLERROR reply is sent,
   // but a nonfatal error has the rownumber attribute of the Condition set to
   // ComCondition::NONFATAL_ERROR. The markvalue is used for nonfata errors since
   // we have to rewind some of the diags area. Note that the same diags area
@@ -343,15 +316,13 @@ protected:
   // (TF or ONLJ) can assign the correct rowNumber to any future error. This method is also
   // if we detect any rowset row that has raised a Nonfatal error in the CLI. Then atp will
   // be a valid value since we have a diags to send up.
-  void processSkippedRow(atp_struct *atp) ;
-   
+  void processSkippedRow(atp_struct *atp);
 };
 
-class ExUnPackRowsPrivateState : public ex_tcb_private_state
-{
+class ExUnPackRowsPrivateState : public ex_tcb_private_state {
   friend class ExUnPackRowsTcb;
-  
-  Int64 matchCount_; 
+
+  Int64 matchCount_;
   Int32 unPackCount_;
 
   Int32 numRows_;
@@ -360,38 +331,34 @@ class ExUnPackRowsPrivateState : public ex_tcb_private_state
 
   Int32 nextCLIErrorRowNum_;
 
-  void init();        
+  void init();
 
-public:
+ public:
+  ExUnPackRowsPrivateState(const ExUnPackRowsTcb *tcb);
 
-  ExUnPackRowsPrivateState(const ExUnPackRowsTcb * tcb); 
+  ex_tcb_private_state *allocate_new(const ex_tcb *tcb);
 
-  ex_tcb_private_state * allocate_new(const ex_tcb * tcb);
-
-  ~ExUnPackRowsPrivateState();  
+  ~ExUnPackRowsPrivateState();
 };
 
 // class ExUnPackRowwiseRowsTcb --------------------------------------------------
-// The Task Control Block for the UnPackRows operator for rowwise rowsets. 
-// 
-class ExUnPackRowwiseRowsTcb : public ex_tcb
-{
-  friend class   ExUnPackRowsTdb;
+// The Task Control Block for the UnPackRows operator for rowwise rowsets.
+//
+class ExUnPackRowwiseRowsTcb : public ex_tcb {
+  friend class ExUnPackRowsTdb;
 
   // The private state for the UnPackRows operator.  This structure contains
   // the information associated with a given request of the UnPackRows TCB.
   //
-  friend class   ExUnPackRowsPrivateState;
+  friend class ExUnPackRowsPrivateState;
 
-public:
-
+ public:
   // Constructor
-  ExUnPackRowwiseRowsTcb(const ExUnPackRowsTdb &unPackTdb,
-			 ex_globals *glob);
-          
-  ~ExUnPackRowwiseRowsTcb();  
+  ExUnPackRowwiseRowsTcb(const ExUnPackRowsTdb &unPackTdb, ex_globals *glob);
 
-  void freeResources(){}; 
+  ~ExUnPackRowwiseRowsTcb();
+
+  void freeResources(){};
 
   // Register all the UnPackRows subtasks with the scheduler.
   //
@@ -401,50 +368,36 @@ public:
   // pass up to parent.
   //
   virtual ExWorkProcRetcode work();
-  
+
   ex_queue_pair getParentQueue() const { return qParent_; }
 
-  inline ExUnPackRowsTdb &uprTdb() const 
-  {
-    return(ExUnPackRowsTdb &)tdb; 
-  }
+  inline ExUnPackRowsTdb &uprTdb() const { return (ExUnPackRowsTdb &)tdb; }
 
-  virtual Int32 numChildren() const { return 0; }   
+  virtual Int32 numChildren() const { return 0; }
 
-  virtual const ex_tcb * getChild(Int32 pos) const 
-  {
-    return NULL;
-  }
+  virtual const ex_tcb *getChild(Int32 pos) const { return NULL; }
 
-private:
-  enum Step
-  {
-    INITIAL_,
-    GET_INPUT_VALUES_,
-    RETURN_ROW_,
-    DONE_,
-    ERROR_,
-    CANCEL_
-  };
+ private:
+  enum Step { INITIAL_, GET_INPUT_VALUES_, RETURN_ROW_, DONE_, ERROR_, CANCEL_ };
 
   sql_buffer_pool *pool_;
 
   // The queue pair used to communicate with the parent node.
   // This queue is allocated by this node.
   //
-  ex_queue_pair  qParent_;
+  ex_queue_pair qParent_;
 
   // Atp used to hold the result of unpacking and hold the tuple used
   // to supply the index value. This value is supplied by the value
   // of indexValue_.
   //
-  atp_struct * workAtp_;
+  atp_struct *workAtp_;
   tupp rwrsInputValuesTupp_;
   tupp_descriptor rwrsInputValuesTuppDesc_;
 
   Lng32 rwrsNumRows_;
   Lng32 rwrsMaxInputRowlen_;
-  char * rwrsBufferAddr_;
+  char *rwrsBufferAddr_;
 
   Lng32 currentRowNum_;
 
@@ -454,20 +407,17 @@ private:
 // -----------------------------------------------------------------------
 // Private state
 // -----------------------------------------------------------------------
-class ExUnPackRowwiseRowsPrivateState : public ex_tcb_private_state
-{
+class ExUnPackRowwiseRowsPrivateState : public ex_tcb_private_state {
   friend class ExUnPackRowwiseRowsTcb;
 
-  void init();        
+  void init();
 
-public:
+ public:
+  ExUnPackRowwiseRowsPrivateState(const ExUnPackRowwiseRowsTcb *tcb);
 
-  ExUnPackRowwiseRowsPrivateState(const ExUnPackRowwiseRowsTcb * tcb); 
+  ex_tcb_private_state *allocate_new(const ex_tcb *tcb);
 
-  ex_tcb_private_state * allocate_new(const ex_tcb * tcb);
-
-  ~ExUnPackRowwiseRowsPrivateState();  
+  ~ExUnPackRowwiseRowsPrivateState();
 };
 
 #endif
-

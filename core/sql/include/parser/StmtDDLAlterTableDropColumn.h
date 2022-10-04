@@ -10,7 +10,7 @@
  *               The methods in this class are defined either in this
  *               header file or the source file StmtDDLAlter.C.
  *
- *               
+ *
  * Created:      1/27/98
  * Language:     C++
  *
@@ -42,7 +42,7 @@
 
 // -----------------------------------------------------------------------
 // Change history:
-// 
+//
 // -----------------------------------------------------------------------
 
 #include "StmtDDLAlterTable.h"
@@ -60,25 +60,19 @@ class StmtDDLAlterTableDropColumn;
 // -----------------------------------------------------------------------
 // definition of class StmtDDLAlterTableDropColumn
 // -----------------------------------------------------------------------
-class StmtDDLAlterTableDropColumn : public StmtDDLAlterTable
-{
-public:
-
+class StmtDDLAlterTableDropColumn : public StmtDDLAlterTable {
+ public:
   // constructor
-  StmtDDLAlterTableDropColumn(NAString &colName,
-			      CollHeap * heap = PARSERHEAP());
+  StmtDDLAlterTableDropColumn(NAString &colName, CollHeap *heap = PARSERHEAP());
 
   // virtual destructor
   virtual ~StmtDDLAlterTableDropColumn();
 
   // cast
-  virtual StmtDDLAlterTableDropColumn * castToStmtDDLAlterTableDropColumn();
+  virtual StmtDDLAlterTableDropColumn *castToStmtDDLAlterTableDropColumn();
 
   // accessors
-  const NAString &getColName() const
-  {
-    return colName_;
-  }
+  const NAString &getColName() const { return colName_; }
 
   const NABoolean dropIfExists() const { return dropIfExists_; }
   void setDropIfExists(NABoolean v) { dropIfExists_ = v; }
@@ -87,17 +81,16 @@ public:
   // please do not use the following methods
   //
 
-  StmtDDLAlterTableDropColumn();   // DO NOT USE
-  StmtDDLAlterTableDropColumn(const StmtDDLAlterTableDropColumn &);   // DO NOT USE
-  StmtDDLAlterTableDropColumn & operator=(const StmtDDLAlterTableDropColumn &);  // DO NOT USE
+  StmtDDLAlterTableDropColumn();                                                // DO NOT USE
+  StmtDDLAlterTableDropColumn(const StmtDDLAlterTableDropColumn &);             // DO NOT USE
+  StmtDDLAlterTableDropColumn &operator=(const StmtDDLAlterTableDropColumn &);  // DO NOT USE
 
-private:
-
+ private:
   NAString colName_;
 
   // drop only if column exists. Otherwise just return.
   NABoolean dropIfExists_;
 
-}; // class StmtDDLAlterTableDropColumn
+};  // class StmtDDLAlterTableDropColumn
 
-#endif // STMTDDLALTERTABLEDROPCOLUMN_H
+#endif  // STMTDDLALTERTABLEDROPCOLUMN_H

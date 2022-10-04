@@ -33,38 +33,28 @@
 #include "mxCompileUserModule.h"
 
 // constructor
-SQLJFile::SQLJFile(std::string &filename)
-  : ApplicationFile(filename), nExtracted_(0), modNamList_("")
-{
-  mdf_[0]=0;
-}
+SQLJFile::SQLJFile(std::string &filename) : ApplicationFile(filename), nExtracted_(0), modNamList_("") { mdf_[0] = 0; }
 
 // destructor
-SQLJFile::~SQLJFile()
-{
-}
+SQLJFile::~SQLJFile() {}
 
 // open SQLJ file for extraction of embedded module definitions.
 // return true if all OK.
-bool SQLJFile::openFile(Cmdline_Args &args)
-{
+bool SQLJFile::openFile(Cmdline_Args &args) {
   // put together MDFWriter invocation
   Lng32 cmdLen;
-  char cmd[1024], *cmdP=cmd, *moduleNamesOption, cmfn[L_tmpnam+40];
-  char *errFileName,errFileNm[L_tmpnam+20];
-  char *outputFileName,outputFileNm[L_tmpnam+20];
-  if ((moduleNamesOption=getModuleNamesOption(args,cmfn)) == NULL ||
-      (errFileName=getTempFileName(errFileNm)) == NULL ||
-      (outputFileName=getTempFileName(outputFileNm)) == NULL) {
+  char cmd[1024], *cmdP = cmd, *moduleNamesOption, cmfn[L_tmpnam + 40];
+  char *errFileName, errFileNm[L_tmpnam + 20];
+  char *outputFileName, outputFileNm[L_tmpnam + 20];
+  if ((moduleNamesOption = getModuleNamesOption(args, cmfn)) == NULL ||
+      (errFileName = getTempFileName(errFileNm)) == NULL || (outputFileName = getTempFileName(outputFileNm)) == NULL) {
     return ApplicationFile::openFile(args);
   }
 
   // invoke MDFWriter to extract modules
-  const char mdfWriter[]= "java sqlj.runtime.profile.util.MDFWriter";
-  cmdLen = strlen(mdfWriter) + strlen(moduleNamesOption) + 2 +
-    strlen("-CerrorFileName=") + strlen(errFileName) + 2 +
-    strlen("-CMDFList=") + strlen(outputFileName) + 1 +
-    args.application().length();
+  const char mdfWriter[] = "java sqlj.runtime.profile.util.MDFWriter";
+  cmdLen = strlen(mdfWriter) + strlen(moduleNamesOption) + 2 + strlen("-CerrorFileName=") + strlen(errFileName) + 2 +
+           strlen("-CMDFList=") + strlen(outputFileName) + 1 + args.application().length();
   // for efficiency we try to use the stack-allocated cmd variable.
   // but, no matter how big we declare it, eg: char cmd[12345],
   // it is always possible for someone like QA try something like
@@ -73,7 +63,7 @@ bool SQLJFile::openFile(Cmdline_Args &args)
   // dynamically allocate and use cmdP but "new" is very inefficient
   // compared to stack allocation. So, we try to get the best of both
   // by using stack allocation for the 90% case and use "new" only for
-  // the pathological 10% (customer is using a program generator to 
+  // the pathological 10% (customer is using a program generator to
   // invoke us or QA is simply trying to break our code) case.
   if (cmdLen > 1024) {
     cmdP = new char[cmdLen];
@@ -94,29 +84,25 @@ bool SQLJFile::openFile(Cmdline_Args &args)
   }
 
   // interpret MDFWriter's return code
-  if (rc == 0) { // MDFWriter invocation OK
+  if (rc == 0) {  // MDFWriter invocation OK
     // check MDFWriter output
-    if (ACCESS(outputFileName, READABLE) != 0) { // no extractions
+    if (ACCESS(outputFileName, READABLE) != 0) {  // no extractions
       *mxCUMptr << FAIL << DgSqlCode(-2217) << DgString0(outputFileName);
     }
     // open MDFWriter output
-    else if ((appFile_=fopen(outputFileName, "r")) == NULL) {
+    else if ((appFile_ = fopen(outputFileName, "r")) == NULL) {
       *mxCUMptr << FAIL << DgSqlCode(-2218) << DgString0(outputFileName);
-    }
-    else { // all OK
-      if (!args.keepMdf()) { 
+    } else {  // all OK
+      if (!args.keepMdf()) {
         // clean up temporary file (names of modules to extract)
         remove(modNamList_.c_str());
       }
     }
-  }
-  else if (rc == -1
-           ) { 
-    // function fails: cannot create child process 
+  } else if (rc == -1) {
+    // function fails: cannot create child process
     // or cannot get child shell's exit status
     *mxCUMptr << FAIL << DgSqlCode(-2216) << DgInt0(rc);
-  }
-  else { // unsuccessful module extraction
+  } else {  // unsuccessful module extraction
     *mxCUMptr << FAIL << DgSqlCode(-2216) << DgInt0(rc);
   }
   // report any MDFWriter errors/warnings now to avoid confusing the user
@@ -126,15 +112,13 @@ bool SQLJFile::openFile(Cmdline_Args &args)
 }
 
 // find next embedded module definition from application file
-bool 
-SQLJFile::findNextModule(std::string &modName)
-{
+bool SQLJFile::findNextModule(std::string &modName) {
   // make sure arguments are reasonable
   if (!appFile_) {
-    return false; // nothing doing
+    return false;  // nothing doing
   }
   if (fgets(mdf_, MAXMDF, appFile_) != NULL) {
-    if (strlen(mdf_) >= MAXMDF-1) { // filename is too long
+    if (strlen(mdf_) >= MAXMDF - 1) {  // filename is too long
       *mxCUMptr << WARNING << DgSqlCode(2236);
       // toss rest of line
       Int32 nxtCh;
@@ -143,37 +127,33 @@ SQLJFile::findNextModule(std::string &modName)
       } while (nxtCh != '\n' && nxtCh != EOF);
     }
     modName = mdf_;
-    return true; // found one
+    return true;  // found one
   }
-  return false; // found nothing
+  return false;  // found nothing
 }
 
 // extract embedded module definition from appFile_ into tempfile
-bool 
-SQLJFile::processModule()
-{
+bool SQLJFile::processModule() {
   // make sure arguments are reasonable
   if (!appFile_ || !args_) {
-    return false; // nothing doing
+    return false;  // nothing doing
   }
   nExtracted_++;
   // SQL compile the extracted module definition
   return mxcmpModule(mdf_);
 }
 
-// return "" or "-CMFN=modNamList_" where modNamList_ is a temp file that 
+// return "" or "-CMFN=modNamList_" where modNamList_ is a temp file that
 // has the list of module names to be extracted by MDFWriter.
 // requires: cmfn is long enough to hold "-CMFN=modNamList_".
-char* SQLJFile::getModuleNamesOption(Cmdline_Args &args, char *cmfn)
-{
-  ExtQualModuleNames* EQMNs = args.getModuleNames();
+char *SQLJFile::getModuleNamesOption(Cmdline_Args &args, char *cmfn) {
+  ExtQualModuleNames *EQMNs = args.getModuleNames();
   Int32 count;
-  if (!EQMNs || (count=EQMNs->count()) <= 0) {
-    return ""; // means extract all
-  }
-  else {
-    // create a temporary file 
-    char *modNamFil, modNam[L_tmpnam+20], templNam[L_tmpnam+26];
+  if (!EQMNs || (count = EQMNs->count()) <= 0) {
+    return "";  // means extract all
+  } else {
+    // create a temporary file
+    char *modNamFil, modNam[L_tmpnam + 20], templNam[L_tmpnam + 26];
     modNamFil = getTempFileName(modNam);
     if (!modNamFil) {
       return NULL;
@@ -183,8 +163,8 @@ char* SQLJFile::getModuleNamesOption(Cmdline_Args &args, char *cmfn)
       return NULL;
     }
     // write into temp file the names of modules to be extracted
-    for (Int32 x=0; x<count; x++) {
-      const ThreePartModuleName& modNam = EQMNs->at(x);
+    for (Int32 x = 0; x < count; x++) {
+      const ThreePartModuleName &modNam = EQMNs->at(x);
       fprintf(tFil, "%s\n", modNam.catalog.c_str());
       fprintf(tFil, "%s\n", modNam.schema.c_str());
       fprintf(tFil, "%s\n", modNam.module.c_str());
@@ -200,10 +180,9 @@ char* SQLJFile::getModuleNamesOption(Cmdline_Args &args, char *cmfn)
 }
 
 // print MDFWriter errors to cout
-void SQLJFile::printMDFWriterErrors(char *errFileName)
-{
+void SQLJFile::printMDFWriterErrors(char *errFileName) {
   char args[1024], EorW[10];
-  Int32  errNum;
+  Int32 errNum;
   FILE *errFile = fopen(errFileName, "r");
   if (errFile) {
     // accommodate case of MDFWriter dumping more entries into its errFile
@@ -212,17 +191,16 @@ void SQLJFile::printMDFWriterErrors(char *errFileName)
     ComDiagsArea *myDiags = ComDiagsArea::allocate(mxCUMptr->heap());
     while (fscanf(errFile, "%s %d ", EorW, &errNum) != EOF) {
       size_t sLen = 0;
-      if (fgets(args, 1024, errFile) == NULL) { // fgets got EOF or an error
-        args[0] = 0; // empty string
+      if (fgets(args, 1024, errFile) == NULL) {  // fgets got EOF or an error
+        args[0] = 0;                             // empty string
         *mxCUMptr << FAIL;
-      }
-      else { // fgets got something
+      } else {  // fgets got something
         sLen = strlen(args);
         // chop off terminating newline
-        if (args[sLen-1] == '\n') {
-          args[sLen-1] = 0;
+        if (args[sLen - 1] == '\n') {
+          args[sLen - 1] = 0;
         }
-        if (sLen >= 1023) { // diagnostic msg is too long
+        if (sLen >= 1023) {  // diagnostic msg is too long
           // toss rest of line
           Int32 nxtCh;
           do {
@@ -230,53 +208,49 @@ void SQLJFile::printMDFWriterErrors(char *errFileName)
           } while (nxtCh != '\n' && nxtCh != EOF);
         }
       }
-      if (!myDiags) { // no diags
+      if (!myDiags) {  // no diags
         *mxCUMptr << FAIL;
-        if (sLen >= 1023) { // diagnostic msg is too long
+        if (sLen >= 1023) {  // diagnostic msg is too long
           cerr << "Diagnostic message is over 1023 characters long." << endl;
         }
         // echo error file entry to cerr
         cerr << EorW << " " << errNum << " " << args << endl;
-      }
-      else {
-        if (sLen >= 1023) { // diagnostic msg is too long
+      } else {
+        if (sLen >= 1023) {  // diagnostic msg is too long
           *mxCUMptr << WARNING;
           *myDiags << DgSqlCode(2237);
         }
         switch (errNum) {
-        case 2224:
-        case 2225:
-        case 2226:
-          *mxCUMptr << FAIL; 
-          *myDiags << DgSqlCode(-errNum);
-          break;
-        case 2227:
-        case 2228:
-        case 2230:
-          *mxCUMptr << FAIL;
-          *myDiags << DgSqlCode(-errNum) << DgString0(args);
-          break;
-        case 2229:
-          *mxCUMptr << ERROR;
-          *myDiags << DgSqlCode(-errNum) << DgString0(args);
-          break;
-        default:
-          *mxCUMptr << (EorW[0]=='E' ? ERROR :
-                        (EorW[0]=='W' ? WARNING : FAIL));
-          *myDiags << DgSqlCode(-2231) << DgInt0(errNum) 
-                   << DgString0(EorW) << DgString1(args);
-          break;
-        } // end switch
+          case 2224:
+          case 2225:
+          case 2226:
+            *mxCUMptr << FAIL;
+            *myDiags << DgSqlCode(-errNum);
+            break;
+          case 2227:
+          case 2228:
+          case 2230:
+            *mxCUMptr << FAIL;
+            *myDiags << DgSqlCode(-errNum) << DgString0(args);
+            break;
+          case 2229:
+            *mxCUMptr << ERROR;
+            *myDiags << DgSqlCode(-errNum) << DgString0(args);
+            break;
+          default:
+            *mxCUMptr << (EorW[0] == 'E' ? ERROR : (EorW[0] == 'W' ? WARNING : FAIL));
+            *myDiags << DgSqlCode(-2231) << DgInt0(errNum) << DgString0(EorW) << DgString1(args);
+            break;
+        }  // end switch
         NADumpDiags(cerr, myDiags, TRUE);
         myDiags->clear();
-      } // end if
-    } // end while
+      }  // end if
+    }    // end while
     if (myDiags) {
       myDiags->decrRefCount();
     }
     fclose(errFile);
-  }
-  else {
+  } else {
     *mxCUMptr << FAIL << DgSqlCode(-2218) << DgString0(errFileName);
   }
   // clean up temporary file (MDFWriter errors)
@@ -284,11 +258,7 @@ void SQLJFile::printMDFWriterErrors(char *errFileName)
 }
 
 // return true iff this is a SQLJ JAR or profile file
-bool SQLJFile::isSQLJ(std::string& filename)
-{
-  return 
-    filename.rfind(".ser") != std::string::npos || // a SQLJ profile file
-    filename.rfind(".jar") != std::string::npos;   // a SQLJ jar file
+bool SQLJFile::isSQLJ(std::string &filename) {
+  return filename.rfind(".ser") != std::string::npos ||  // a SQLJ profile file
+         filename.rfind(".jar") != std::string::npos;    // a SQLJ jar file
 }
-
-

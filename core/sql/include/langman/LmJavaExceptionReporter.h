@@ -40,7 +40,7 @@
 #include "LmRoutineJava.h"
 #include "langman/LmJavaSignature.h"
 
-#define min(a,b)            (((a) < (b)) ? (a) : (b))
+#define min(a, b) (((a) < (b)) ? (a) : (b))
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -60,7 +60,7 @@ class LmJavaExceptionReporter;
 
 //////////////////////////////////////////////////////////////////////
 //
-// LmJavaExceptionReporter 
+// LmJavaExceptionReporter
 // This class is encapsulates the Java Exception reporting mechanism.
 // LmLanguageManagerJava uses this class to check for the exceptions
 // and to report them.
@@ -72,43 +72,26 @@ class LmJavaExceptionReporter;
 // pointers to the needed methods.
 //
 //////////////////////////////////////////////////////////////////////
-class LmJavaExceptionReporter : public NABasicObject
-{
-
-public:
-  LmJavaExceptionReporter(LmHandle jniEnv,
-                  LmLanguageManagerJava *lm,
-                  LmResult &result,
-                  ComDiagsArea *diagsArea);
+class LmJavaExceptionReporter : public NABasicObject {
+ public:
+  LmJavaExceptionReporter(LmHandle jniEnv, LmLanguageManagerJava *lm, LmResult &result, ComDiagsArea *diagsArea);
 
   ~LmJavaExceptionReporter();
 
-  LmResult checkGetMethodExceptions(
-    const char *rtName,
-    const char *clName,
-    ComDiagsArea *da);
+  LmResult checkGetMethodExceptions(const char *rtName, const char *clName, ComDiagsArea *da);
 
   LmResult checkNewObjectExceptions(LmHandle jobj, ComDiagsArea *da);
 
   LmResult processUserException(LmRoutineJava *handle, ComDiagsArea *diagsArea);
 
-  LmResult insertDiags(
-    ComDiagsArea *da,
-    Int32 eCode,
-    const char *a1 = NULL,
-    const char *a2 = NULL,
-    LmHandle jt = NULL);
+  LmResult insertDiags(ComDiagsArea *da, Int32 eCode, const char *a1 = NULL, const char *a2 = NULL, LmHandle jt = NULL);
 
   LmResult checkJVMException(ComDiagsArea *da, LmHandle jt = NULL);
 
-  void processJavaObjException(LmHandle returnInfoObj,
-                               int returnStatus,
-                               int callPhase,
-                               const char *errText,
-                               const char *udrName,
-                               ComDiagsArea *da);
+  void processJavaObjException(LmHandle returnInfoObj, int returnStatus, int callPhase, const char *errText,
+                               const char *udrName, ComDiagsArea *da);
 
-private:
+ private:
   LmResult loadThrowable(ComDiagsArea *diags);
 
   LmResult loadSQLException(ComDiagsArea *diags);
@@ -123,23 +106,23 @@ private:
 
   void reportInternalSPJException(LmHandle jt, char *errText, ComDiagsArea *da);
 
-private:
-  LmHandle jniEnv_;                // JNI handle. 
-  LmLanguageManagerJava *langMan_; // Langman reference
+ private:
+  LmHandle jniEnv_;                 // JNI handle.
+  LmLanguageManagerJava *langMan_;  // Langman reference
 
-  LmHandle throwableClass_;        // java.Lang.Throwable
-  LmHandle throwableToStringId_;   // toString
-  LmHandle throwableGetCauseId_;   // getCause method
+  LmHandle throwableClass_;       // java.Lang.Throwable
+  LmHandle throwableToStringId_;  // toString
+  LmHandle throwableGetCauseId_;  // getCause method
 
-  LmHandle exSQLClass_;            // java.sql.SQLException
-  LmHandle exSQLStateId_;          // getSQLState method
-  LmHandle exErrorCodeId_;         // getErrorCode method
-  LmHandle exNextExceptionId_;     // getNextException method
+  LmHandle exSQLClass_;         // java.sql.SQLException
+  LmHandle exSQLStateId_;       // getSQLState method
+  LmHandle exErrorCodeId_;      // getErrorCode method
+  LmHandle exNextExceptionId_;  // getNextException method
 
-  LmHandle exMetValFailedClass_;   // org.trafodion.sql.udr.
-                                   //  MethodValidationFailedException
-  LmHandle exGetMethodName_;       // getMethodName
-  LmHandle exGetSignature_;        // getSignature
-}; // class LmJavaExceptionReporter
+  LmHandle exMetValFailedClass_;  // org.trafodion.sql.udr.
+                                  //  MethodValidationFailedException
+  LmHandle exGetMethodName_;      // getMethodName
+  LmHandle exGetSignature_;       // getSignature
+};                                // class LmJavaExceptionReporter
 
 #endif

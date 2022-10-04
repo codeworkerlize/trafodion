@@ -47,119 +47,88 @@
 #include "ElemDDLLocation.h"
 #include "parser/ElemDDLPartitionList.h"
 #include "ItemConstValueArray.h"
-#ifndef   SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
-#define   SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
+#ifndef SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
+#define SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
 #endif
 #include "parser/SqlParserGlobals.h"
-
 
 // -----------------------------------------------------------------------
 // methods for class ElemDDLPartition
 // -----------------------------------------------------------------------
 
 // virtual destructor
-ElemDDLPartition::~ElemDDLPartition()
-{
-}
+ElemDDLPartition::~ElemDDLPartition() {}
 
 // cast
-ElemDDLPartition *
-ElemDDLPartition::castToElemDDLPartition()
-{
-  return this;
-}
+ElemDDLPartition *ElemDDLPartition::castToElemDDLPartition() { return this; }
 
 // -----------------------------------------------------------------------
 // methods for class ElemDDLPartition
 // -----------------------------------------------------------------------
 
-ElemDDLPartitionV2::ElemDDLPartitionV2( NAString &pname
-                                  , ItemExpr *partValue
-                                  , ElemDDLNode *subPart)
-  : ElemDDLNode(ELM_ANY_PARTITION_V2_ELEM)
-  , partitionName_(pname)
-  , partitionValue_(partValue)
-  , subPartition_(subPart)
-  , hasSubparition_(false)
-  , subpartitionArray_(NULL)
-  , partionValueArray_(PARSERHEAP())
-  { 
-    if (subPartition_)
-    {
-      hasSubparition_ = true;
-      subpartitionArray_ = new(PARSERHEAP())
-                         ElemDDLPartitionV2Array(PARSERHEAP());
-    }
-    numPartitions_ = 0; 
+ElemDDLPartitionV2::ElemDDLPartitionV2(NAString &pname, ItemExpr *partValue, ElemDDLNode *subPart)
+    : ElemDDLNode(ELM_ANY_PARTITION_V2_ELEM),
+      partitionName_(pname),
+      partitionValue_(partValue),
+      subPartition_(subPart),
+      hasSubparition_(false),
+      subpartitionArray_(NULL),
+      partionValueArray_(PARSERHEAP()) {
+  if (subPartition_) {
+    hasSubparition_ = true;
+    subpartitionArray_ = new (PARSERHEAP()) ElemDDLPartitionV2Array(PARSERHEAP());
   }
-
-ElemDDLPartitionV2::ElemDDLPartitionV2( Int32 numPart
-                                , ElemDDLNode* subPart)
-  : ElemDDLNode(ELM_ANY_PARTITION_ELEM)
-  , partitionName_("")
-  , numPartitions_(numPart)
-  , partitionValue_(NULL)
-  , subPartition_(subPart)
-  , hasSubparition_(false)
-  , subpartitionArray_(NULL)
-  , partionValueArray_(PARSERHEAP())
-  {
-    if (subPartition_)
-    {
-      hasSubparition_ = true;
-      subpartitionArray_ = new(PARSERHEAP())
-                         ElemDDLPartitionV2Array(PARSERHEAP());
-    }
-  }
-
-ElemDDLPartitionV2::~ElemDDLPartitionV2()
-{
-  if (subpartitionArray_)
-    NADELETE(subpartitionArray_, ElemDDLPartitionV2Array, PARSERHEAP());
+  numPartitions_ = 0;
 }
 
-short ElemDDLPartitionV2::buildPartitionValueArray(NABoolean strict)
-{
+ElemDDLPartitionV2::ElemDDLPartitionV2(Int32 numPart, ElemDDLNode *subPart)
+    : ElemDDLNode(ELM_ANY_PARTITION_ELEM),
+      partitionName_(""),
+      numPartitions_(numPart),
+      partitionValue_(NULL),
+      subPartition_(subPart),
+      hasSubparition_(false),
+      subpartitionArray_(NULL),
+      partionValueArray_(PARSERHEAP()) {
+  if (subPartition_) {
+    hasSubparition_ = true;
+    subpartitionArray_ = new (PARSERHEAP()) ElemDDLPartitionV2Array(PARSERHEAP());
+  }
+}
+
+ElemDDLPartitionV2::~ElemDDLPartitionV2() {
+  if (subpartitionArray_) NADELETE(subpartitionArray_, ElemDDLPartitionV2Array, PARSERHEAP());
+}
+
+short ElemDDLPartitionV2::buildPartitionValueArray(NABoolean strict) {
   ItemExpr *valueExpr = partitionValue_;
   NABoolean done = 0;
-  ItemExpr* child0;
+  ItemExpr *child0;
   NAString reason;
   BindWA bindWA(ActiveSchemaDB(), CmpCommon::context(), TRUE /*inDDL*/);
 
-  while (!done)
-  {
-    if (valueExpr->getOperatorType() == ITM_CONSTANT)
-    {
+  while (!done) {
+    if (valueExpr->getOperatorType() == ITM_CONSTANT) {
       partionValueArray_.insertAt(0, valueExpr);
       done = true;
-    }
-    else if (valueExpr->getOperatorType() == ITM_ITEM_LIST)
-    {
+    } else if (valueExpr->getOperatorType() == ITM_ITEM_LIST) {
       child0 = valueExpr->getChild(0)->castToItemExpr();
-      if (isSupportedOperatorType(child0->getOperatorType()) == false)
-      {
+      if (isSupportedOperatorType(child0->getOperatorType()) == false) {
         NABoolean isChildOperSuppport = false;
-        if (strict == false && child0->getOperatorType() == ITM_CAST)
-        {
-          isChildOperSuppport = isSupportedOperatorType(child0->getChild(0)->
-                                        castToItemExpr()->getOperatorType());
+        if (strict == false && child0->getOperatorType() == ITM_CAST) {
+          isChildOperSuppport = isSupportedOperatorType(child0->getChild(0)->castToItemExpr()->getOperatorType());
         }
-        if (NOT isChildOperSuppport)
-        {
+        if (NOT isChildOperSuppport) {
           reason = "unsupported operator type";
           goto error;
         }
-      }
-      else if (child0->getOperatorType() != ITM_CONSTANT)
-      {
-        if (child0->getOperatorType() == ITM_DATEFORMAT)
-        {
+      } else if (child0->getOperatorType() != ITM_CONSTANT) {
+        if (child0->getOperatorType() == ITM_DATEFORMAT) {
           child0->bindNode(&bindWA);
           child0->synthTypeAndValueId(true, true);
           child0->synthesizeType();
         }
-        if (child0->constFold() == NULL)
-        {
+        if (child0->constFold() == NULL) {
           reason = "failed to evaluate to CONSTANT";
           goto error;
         }
@@ -167,29 +136,23 @@ short ElemDDLPartitionV2::buildPartitionValueArray(NABoolean strict)
       valueExpr = valueExpr->getChild(1)->castToItemExpr();
       partionValueArray_.insertAt(0, child0);
     }
-    //valueExpr operator type is supported
-    //or valueExpr->child(0) operator type is supported
+    // valueExpr operator type is supported
+    // or valueExpr->child(0) operator type is supported
     else if (isSupportedOperatorType(valueExpr->getOperatorType()) ||
              (strict == false && valueExpr->getOperatorType() == ITM_CAST &&
-              isSupportedOperatorType(valueExpr->getChild(0)->
-                           castToItemExpr()->getOperatorType())))
-    {
-      if (valueExpr->getOperatorType() == ITM_DATEFORMAT)
-      {
+              isSupportedOperatorType(valueExpr->getChild(0)->castToItemExpr()->getOperatorType()))) {
+      if (valueExpr->getOperatorType() == ITM_DATEFORMAT) {
         valueExpr->bindNode(&bindWA);
         valueExpr->synthTypeAndValueId(true, true);
         valueExpr->synthesizeType();
       }
-      if (valueExpr->constFold() == NULL)
-      {
+      if (valueExpr->constFold() == NULL) {
         reason = "failed to evaluate to CONSTANT";
         goto error;
       }
       partionValueArray_.insertAt(0, valueExpr);
-      done = true; 
-    }
-    else 
-    {
+      done = true;
+    } else {
       reason = "unsupported operator type";
       goto error;
     }
@@ -198,91 +161,69 @@ short ElemDDLPartitionV2::buildPartitionValueArray(NABoolean strict)
   return 0;
 
 error:
-  *CmpCommon::diags() << DgSqlCode(-1129)
-                      << DgString0(reason);
+  *CmpCommon::diags() << DgSqlCode(-1129) << DgString0(reason);
   return -1;
 }
 
-NABoolean ElemDDLPartitionV2::isValidMaxValue(ColReference *valueExpr)
-{
+NABoolean ElemDDLPartitionV2::isValidMaxValue(ColReference *valueExpr) {
   const NAString &refName = valueExpr->getColRefNameObj().getColName();
 
   NAString reason;
   NABoolean error = false;
-  if (refName.compareTo("MAXVALUE", NAString::ignoreCase) != 0)
-  {
+  if (refName.compareTo("MAXVALUE", NAString::ignoreCase) != 0) {
     reason = refName + " is illegal";
     error = true;
   }
 
-  if (error)
-  {
-    *CmpCommon::diags() << DgSqlCode(-1129)
-                        << DgString0(reason);
+  if (error) {
+    *CmpCommon::diags() << DgSqlCode(-1129) << DgString0(reason);
     return false;
   }
 
   return true;
 }
 
-short ElemDDLPartitionV2::replaceWithConstValue()
-{
+short ElemDDLPartitionV2::replaceWithConstValue() {
   ItemExpr *valueExpr = partitionValue_;
-  if (valueExpr->getOperatorType() == ITM_CONSTANT)
-  {
-    if (((ConstValue*)valueExpr)->isNull())
-    {
-      *CmpCommon::diags() << DgSqlCode(-1129)
-                          << DgString0("NULL is not supported");
+  if (valueExpr->getOperatorType() == ITM_CONSTANT) {
+    if (((ConstValue *)valueExpr)->isNull()) {
+      *CmpCommon::diags() << DgSqlCode(-1129) << DgString0("NULL is not supported");
       return -1;
-    }
-    else
+    } else
       return 0;
   }
 
-  if (valueExpr->getOperatorType() == ITM_REFERENCE)
-  {
-    if (isValidMaxValue((ColReference*)valueExpr))
-    {
-      ConstValue *maxVal = new(PARSERHEAP()) ConstValue();
+  if (valueExpr->getOperatorType() == ITM_REFERENCE) {
+    if (isValidMaxValue((ColReference *)valueExpr)) {
+      ConstValue *maxVal = new (PARSERHEAP()) ConstValue();
       delete valueExpr;
       partitionValue_ = maxVal;
       return 0;
-    }
-    else
+    } else
       return -1;
   }
 
-  while (valueExpr->getOperatorType() == ITM_ITEM_LIST)
-  {
-    for (int i = 0; i < 2; i++)
-    {
+  while (valueExpr->getOperatorType() == ITM_ITEM_LIST) {
+    for (int i = 0; i < 2; i++) {
       NABoolean ifRef = false;
       ItemExpr *tmp = valueExpr->getChild(i)->castToItemExpr();
-      if (tmp)
-      {
+      if (tmp) {
         if (tmp->getOperatorType() == ITM_REFERENCE)
           ifRef = true;
-        else if (tmp->getOperatorType() == ITM_CONSTANT)
-        {
-          if (((ConstValue*)tmp)->isNull())
-          {
-            *CmpCommon::diags() << DgSqlCode(-1129)
-                                << DgString0("NULL is not supported");
+        else if (tmp->getOperatorType() == ITM_CONSTANT) {
+          if (((ConstValue *)tmp)->isNull()) {
+            *CmpCommon::diags() << DgSqlCode(-1129) << DgString0("NULL is not supported");
             return -1;
           }
         }
       }
 
-      if (ifRef)
-      {
-        if (isValidMaxValue((ColReference*)tmp))
-        {
-          ConstValue *maxVal = new(PARSERHEAP()) ConstValue();
+      if (ifRef) {
+        if (isValidMaxValue((ColReference *)tmp)) {
+          ConstValue *maxVal = new (PARSERHEAP()) ConstValue();
           delete tmp;
           valueExpr->setChild(i, maxVal);
-        }
-        else
+        } else
           return -1;
       }
     }
@@ -301,15 +242,10 @@ short ElemDDLPartitionV2::replaceWithConstValue()
 // -----------------------------------------------------------------------
 
 // constructor
-ElemDDLPartitionArray::ElemDDLPartitionArray(CollHeap *heap)
-  : LIST(ElemDDLPartition *)(heap)
-{
-}
+ElemDDLPartitionArray::ElemDDLPartitionArray(CollHeap *heap) : LIST(ElemDDLPartition *)(heap) {}
 
 // virtual destructor
-ElemDDLPartitionArray::~ElemDDLPartitionArray()
-{
-}
+ElemDDLPartitionArray::~ElemDDLPartitionArray() {}
 
 // -----------------------------------------------------------------------
 // methods for class ElemDDLPartitionV2Array
@@ -319,15 +255,10 @@ ElemDDLPartitionArray::~ElemDDLPartitionArray()
 // -----------------------------------------------------------------------
 
 // constructor
-ElemDDLPartitionV2Array::ElemDDLPartitionV2Array(CollHeap *heap)
-  : LIST(ElemDDLPartitionV2 *)(heap)
-{
-}
+ElemDDLPartitionV2Array::ElemDDLPartitionV2Array(CollHeap *heap) : LIST(ElemDDLPartitionV2 *)(heap) {}
 
 // virtual destructor
-ElemDDLPartitionV2Array::~ElemDDLPartitionV2Array()
-{
-}
+ElemDDLPartitionV2Array::~ElemDDLPartitionV2Array() {}
 
 //----------------------------------------------------------------------------
 // methods for class ElemDDLPartitionClause
@@ -337,31 +268,19 @@ ElemDDLPartitionV2Array::~ElemDDLPartitionV2Array()
 //----------------------------------------------------------------------------
 
 // virtual destructor
-ElemDDLPartitionClause::~ElemDDLPartitionClause()
-{
-}
+ElemDDLPartitionClause::~ElemDDLPartitionClause() {}
 
 // cast virtual function
-ElemDDLPartitionClause *
-ElemDDLPartitionClause::castToElemDDLPartitionClause()
-{
-  return this;
-}
+ElemDDLPartitionClause *ElemDDLPartitionClause::castToElemDDLPartitionClause() { return this; }
 
 //
 // accessors
 //
 
 // get the degree of this node
-Int32
-ElemDDLPartitionClause::getArity() const
-{
-  return MAX_ELEM_DDL_PARTITION_CLAUSE_ARITY;
-}
+Int32 ElemDDLPartitionClause::getArity() const { return MAX_ELEM_DDL_PARTITION_CLAUSE_ARITY; }
 
-ExprNode *
-ElemDDLPartitionClause::getChild(Lng32 index)
-{ 
+ExprNode *ElemDDLPartitionClause::getChild(Lng32 index) {
   ComASSERT(index >= 0 AND index < getArity());
   return children_[index];
 }
@@ -370,17 +289,12 @@ ElemDDLPartitionClause::getChild(Lng32 index)
 // mutators
 //
 
-void
-ElemDDLPartitionClause::setChild(Lng32 index, ExprNode * pChildNode)
-{
+void ElemDDLPartitionClause::setChild(Lng32 index, ExprNode *pChildNode) {
   ComASSERT(index >= 0 AND index < getArity());
-  if (pChildNode NEQ NULL)
-  {
+  if (pChildNode NEQ NULL) {
     ComASSERT(pChildNode->castToElemDDLNode() NEQ NULL);
     children_[index] = pChildNode->castToElemDDLNode();
-  }
-  else
-  {
+  } else {
     children_[index] = NULL;
   }
 }
@@ -389,35 +303,28 @@ ElemDDLPartitionClause::setChild(Lng32 index, ExprNode * pChildNode)
 // methods for tracing
 //
 
-const NAString
-ElemDDLPartitionClause::getText() const
-{
-  return "ElemDDLPartitionClause";
-}
-
+const NAString ElemDDLPartitionClause::getText() const { return "ElemDDLPartitionClause"; }
 
 // method for building text
-//virtual 
-NAString ElemDDLPartitionClause::getSyntax() const
-{
+// virtual
+NAString ElemDDLPartitionClause::getSyntax() const {
   NAString syntax = "";
-  
-  switch(partitionType_)
-  {
-  case COM_SYSTEM_PARTITIONING:
-    // this is the default - no syntax
-    break;
-  case COM_RANGE_PARTITIONING:
-    syntax += "RANGE ";
-    break;
-  case COM_HASH_V1_PARTITIONING:
-    syntax += "HASH ";
-    break;
-  case COM_HASH_V2_PARTITIONING:
-    syntax += "HASH2 ";
-    break;
-  default:
-    ComASSERT(FALSE);
+
+  switch (partitionType_) {
+    case COM_SYSTEM_PARTITIONING:
+      // this is the default - no syntax
+      break;
+    case COM_RANGE_PARTITIONING:
+      syntax += "RANGE ";
+      break;
+    case COM_HASH_V1_PARTITIONING:
+      syntax += "HASH ";
+      break;
+    case COM_HASH_V2_PARTITIONING:
+      syntax += "HASH2 ";
+      break;
+    default:
+      ComASSERT(FALSE);
   }
 
   if (isForSplit_)
@@ -425,13 +332,10 @@ NAString ElemDDLPartitionClause::getSyntax() const
   else
     syntax += "PARTITION ";
 
+  ElemDDLNode *pElemDDL = getPartitionByOption();
 
-  ElemDDLNode * pElemDDL = getPartitionByOption();
-
-  if(NULL != pElemDDL)
-  {
-    ElemDDLPartitionByColumnList * pPartitionByColList = 
-			      pElemDDL->castToElemDDLPartitionByColumnList();
+  if (NULL != pElemDDL) {
+    ElemDDLPartitionByColumnList *pPartitionByColList = pElemDDL->castToElemDDLPartitionByColumnList();
 
     ComASSERT(NULL != pPartitionByColList);
 
@@ -439,27 +343,21 @@ NAString ElemDDLPartitionClause::getSyntax() const
     syntax += "(";
     syntax += pPartitionByColList->getSyntax();
     syntax += ") ";
-
   }
 
   pElemDDL = getPartitionDefBody();
-  if(NULL != pElemDDL)
-  {
-    // pElemDDL dynamic type returned from the parser can be either an 
+  if (NULL != pElemDDL) {
+    // pElemDDL dynamic type returned from the parser can be either an
     // ElemDDLPartitionList or an ElemDDLPartitionRange
-    ElemDDLPartitionList * pPartitionList = 
-				      pElemDDL->castToElemDDLPartitionList();
+    ElemDDLPartitionList *pPartitionList = pElemDDL->castToElemDDLPartitionList();
 
     ElemDDLPartitionRange *pRange = pElemDDL->castToElemDDLPartitionRange();
 
     //++ MV
     syntax += "(";
-    if(NULL != pPartitionList) 
-    {
+    if (NULL != pPartitionList) {
       syntax += pPartitionList->getSyntax();
-    } 
-    else 
-    {
+    } else {
       ComASSERT(NULL != pRange);
       syntax += pRange->getSyntax();
     }
@@ -467,10 +365,8 @@ NAString ElemDDLPartitionClause::getSyntax() const
     //-- MV
   }
 
-
   return syntax;
-} // getSyntax()
-
+}  // getSyntax()
 
 // -----------------------------------------------------------------------
 // methods for class ElemDDLPartitionSystem
@@ -481,100 +377,77 @@ NAString ElemDDLPartitionClause::getSyntax() const
 //
 
 ElemDDLPartitionSystem::ElemDDLPartitionSystem()
-: ElemDDLPartition(ELM_PARTITION_SYSTEM_ELEM),
-  option_(ADD_OPTION),
-  locationName_(PARSERHEAP()),
-  guardianLocation_(PARSERHEAP()),
-  partitionName_(PARSERHEAP())
-{
+    : ElemDDLPartition(ELM_PARTITION_SYSTEM_ELEM),
+      option_(ADD_OPTION),
+      locationName_(PARSERHEAP()),
+      guardianLocation_(PARSERHEAP()),
+      partitionName_(PARSERHEAP()) {
   setChild(INDEX_LOCATION, NULL);
   setChild(INDEX_PARTITION_ATTR_LIST, NULL);
 
   initializeDataMembers();
 }
 
-ElemDDLPartitionSystem::ElemDDLPartitionSystem(
-     ElemDDLPartition::optionEnum option,
-     ElemDDLNode * pLocation,
-     ElemDDLNode * pPartitionAttrList)
-: ElemDDLPartition(ELM_PARTITION_SYSTEM_ELEM),
-  option_(option),
-  locationName_(PARSERHEAP()),
-  guardianLocation_(PARSERHEAP()),
-  partitionName_(PARSERHEAP())
-{
+ElemDDLPartitionSystem::ElemDDLPartitionSystem(ElemDDLPartition::optionEnum option, ElemDDLNode *pLocation,
+                                               ElemDDLNode *pPartitionAttrList)
+    : ElemDDLPartition(ELM_PARTITION_SYSTEM_ELEM),
+      option_(option),
+      locationName_(PARSERHEAP()),
+      guardianLocation_(PARSERHEAP()),
+      partitionName_(PARSERHEAP()) {
   setChild(INDEX_LOCATION, pLocation);
   setChild(INDEX_PARTITION_ATTR_LIST, pPartitionAttrList);
 
   initializeDataMembers();
 }
 
-	ElemDDLPartitionSystem::ElemDDLPartitionSystem(
-		 OperatorTypeEnum operType,
-		 ElemDDLPartition::optionEnum option,
-		 ElemDDLNode * pLocation,
-		 ElemDDLNode * pPartitionAttrList)
-	: ElemDDLPartition(operType),
-	  option_(option),
-	  locationName_(PARSERHEAP()),
-	  guardianLocation_(PARSERHEAP()),
-	  partitionName_(PARSERHEAP())
-	{
-	  setChild(INDEX_LOCATION, pLocation);
-	  setChild(INDEX_PARTITION_ATTR_LIST, pPartitionAttrList);
+ElemDDLPartitionSystem::ElemDDLPartitionSystem(OperatorTypeEnum operType, ElemDDLPartition::optionEnum option,
+                                               ElemDDLNode *pLocation, ElemDDLNode *pPartitionAttrList)
+    : ElemDDLPartition(operType),
+      option_(option),
+      locationName_(PARSERHEAP()),
+      guardianLocation_(PARSERHEAP()),
+      partitionName_(PARSERHEAP()) {
+  setChild(INDEX_LOCATION, pLocation);
+  setChild(INDEX_PARTITION_ATTR_LIST, pPartitionAttrList);
 
-	  initializeDataMembers();
-	}
+  initializeDataMembers();
+}
 
 // Virtual destructor
-ElemDDLPartitionSystem::~ElemDDLPartitionSystem()
-{
+ElemDDLPartitionSystem::~ElemDDLPartitionSystem() {
   // delete all children
-  for (Int32 i = 0; i < getArity(); i++)
-  {
+  for (Int32 i = 0; i < getArity(); i++) {
     delete getChild(i);
   }
 }
 
 // cast virtual function
-ElemDDLPartitionSystem *
-ElemDDLPartitionSystem::castToElemDDLPartitionSystem()
-{
-  return this;
-}
+ElemDDLPartitionSystem *ElemDDLPartitionSystem::castToElemDDLPartitionSystem() { return this; }
 
 //
 // accessors
 //
 
 // get the degree of this node
-Int32
-ElemDDLPartitionSystem::getArity() const
-{
-  return MAX_ELEM_DDL_PARTITION_SYSTEM_ARITY;
-}
+Int32 ElemDDLPartitionSystem::getArity() const { return MAX_ELEM_DDL_PARTITION_SYSTEM_ARITY; }
 
-ExprNode *
-ElemDDLPartitionSystem::getChild(Lng32 index)
-{ 
+ExprNode *ElemDDLPartitionSystem::getChild(Lng32 index) {
   ComASSERT(index >= 0 AND index < getArity());
   return children_[index];
 }
 
-NAString
-ElemDDLPartitionSystem::getOptionAsNAString() const
-{
-  switch (getOption())
-  {
-  case ADD_OPTION :
-    return NAString("ADD");
+NAString ElemDDLPartitionSystem::getOptionAsNAString() const {
+  switch (getOption()) {
+    case ADD_OPTION:
+      return NAString("ADD");
 
-  case DROP_OPTION :
-    return NAString("DROP");
-      
-  default :
-    ABORT("internal logic error");
-    return NAString();
+    case DROP_OPTION:
+      return NAString("DROP");
+
+    default:
+      ABORT("internal logic error");
+      return NAString();
   }
 }
 
@@ -582,38 +455,32 @@ ElemDDLPartitionSystem::getOptionAsNAString() const
 // mutators
 //
 
-void
-ElemDDLPartitionSystem::initializeDataMembers()
-{
+void ElemDDLPartitionSystem::initializeDataMembers() {
   //
   // file attributes
   //
 
-  isMaxSizeSpec_        = FALSE;
-  isMaxSizeUnbounded_   = FALSE;
+  isMaxSizeSpec_ = FALSE;
+  isMaxSizeUnbounded_ = FALSE;
   ParSetDefaultMaxSize(maxSize_, maxSizeUnit_);
 
-  isExtentSpec_         = FALSE;
+  isExtentSpec_ = FALSE;
   ParSetDefaultExtents(priExt_, secExt_);
 
-  isMaxExtentSpec_         = FALSE;
+  isMaxExtentSpec_ = FALSE;
   ParSetDefaultMaxExtents(maxExt_);
 
   //
   // location
   //
 
-  if (getChild(INDEX_LOCATION) EQU NULL)
-  {
+  if (getChild(INDEX_LOCATION) EQU NULL) {
     locationNameType_ = ElemDDLLocation::LOCATION_DEFAULT_NAME_TYPE;
-  }
-  else
-  {
-    ElemDDLLocation * pLocation = getChild(INDEX_LOCATION)->
-      castToElemDDLNode()->castToElemDDLLocation();
+  } else {
+    ElemDDLLocation *pLocation = getChild(INDEX_LOCATION)->castToElemDDLNode()->castToElemDDLLocation();
     locationName_ = pLocation->getLocationName();
     locationNameType_ = pLocation->getLocationNameType();
-	partitionName_ = pLocation->getPartitionName();
+    partitionName_ = pLocation->getPartitionName();
   }
 
   //
@@ -622,29 +489,21 @@ ElemDDLPartitionSystem::initializeDataMembers()
   // data member in this class.  Also check for duplicate clauses.
   //
 
-  if (getChild(INDEX_PARTITION_ATTR_LIST) NEQ NULL)
-  {
-    ElemDDLNode * pPartitionAttrList = getChild(INDEX_PARTITION_ATTR_LIST)
-                                       ->castToElemDDLNode();
-    for (CollIndex i = 0; i < pPartitionAttrList->entries(); i++)
-    {
+  if (getChild(INDEX_PARTITION_ATTR_LIST) NEQ NULL) {
+    ElemDDLNode *pPartitionAttrList = getChild(INDEX_PARTITION_ATTR_LIST)->castToElemDDLNode();
+    for (CollIndex i = 0; i < pPartitionAttrList->entries(); i++) {
       setPartitionAttr((*pPartitionAttrList)[i]);
     }
   }
 
-} // ElemDDLPartitionSystem::initializeDataMembers()
+}  // ElemDDLPartitionSystem::initializeDataMembers()
 
-void
-ElemDDLPartitionSystem::setChild(Lng32 index, ExprNode * pChildNode)
-{
+void ElemDDLPartitionSystem::setChild(Lng32 index, ExprNode *pChildNode) {
   ComASSERT(index >= 0 AND index < getArity());
-  if (pChildNode NEQ NULL)
-  {
+  if (pChildNode NEQ NULL) {
     ComASSERT(pChildNode->castToElemDDLNode() NEQ NULL);
     children_[index] = pChildNode->castToElemDDLNode();
-  }
-  else
-  {
+  } else {
     children_[index] = NULL;
   }
 }
@@ -654,54 +513,43 @@ ElemDDLPartitionSystem::setChild(Lng32 index, ExprNode * pChildNode)
 // specified in a file attribute or load option phrases in a PARTITION
 // clause.  This method also looks for duplicate phrases.
 //
-void
-ElemDDLPartitionSystem::setPartitionAttr(ElemDDLNode * pPartitionAttr)
-{
-  switch(pPartitionAttr->getOperatorType())
-  {
-    
-    case ELM_FILE_ATTR_EXTENT_ELEM :
-    if (isExtentSpec_)
-    {
-      // Duplicate EXTENT phrases.
-      *SqlParser_Diags << DgSqlCode(-3062);
-    }
-    isExtentSpec_ = TRUE;
-    ComASSERT(pPartitionAttr->castToElemDDLFileAttrExtents() NEQ NULL);
-    {
-      ElemDDLFileAttrExtents * pExtents =
-        pPartitionAttr->castToElemDDLFileAttrExtents();
-      priExt_        = pExtents->getPriExtents();
-      secExt_        = pExtents->getSecExtents();
-    }
-    break;
-
-    case ELM_FILE_ATTR_MAXEXTENTS_ELEM :
-    if (isMaxExtentSpec_)
-    {
-      // Duplicate MAXEXTENTS phrases.
-      *SqlParser_Diags << DgSqlCode(-3062);
-    }
-    isMaxExtentSpec_ = TRUE;
-    ComASSERT(pPartitionAttr->castToElemDDLFileAttrMaxExtents() NEQ NULL);
-    {
-      ElemDDLFileAttrMaxExtents * pMaxExtents =
-        pPartitionAttr->castToElemDDLFileAttrMaxExtents();
-	  // error checking for limits when we specify the MAXEXTENTS clause
-	  Lng32 maxext = pMaxExtents->getMaxExtents();
-	  if ((maxext <= 0) || (maxext > COM_MAX_MAXEXTENTS))
-      {
-		*SqlParser_Diags << DgSqlCode(-3191);
+void ElemDDLPartitionSystem::setPartitionAttr(ElemDDLNode *pPartitionAttr) {
+  switch (pPartitionAttr->getOperatorType()) {
+    case ELM_FILE_ATTR_EXTENT_ELEM:
+      if (isExtentSpec_) {
+        // Duplicate EXTENT phrases.
+        *SqlParser_Diags << DgSqlCode(-3062);
       }
-	  else
-	  {
-		maxExt_            = pMaxExtents->getMaxExtents();
-	  }
-    }
-	break;
-  default :
-    ABORT("internal logic error");
-    break;
+      isExtentSpec_ = TRUE;
+      ComASSERT(pPartitionAttr->castToElemDDLFileAttrExtents() NEQ NULL);
+      {
+        ElemDDLFileAttrExtents *pExtents = pPartitionAttr->castToElemDDLFileAttrExtents();
+        priExt_ = pExtents->getPriExtents();
+        secExt_ = pExtents->getSecExtents();
+      }
+      break;
+
+    case ELM_FILE_ATTR_MAXEXTENTS_ELEM:
+      if (isMaxExtentSpec_) {
+        // Duplicate MAXEXTENTS phrases.
+        *SqlParser_Diags << DgSqlCode(-3062);
+      }
+      isMaxExtentSpec_ = TRUE;
+      ComASSERT(pPartitionAttr->castToElemDDLFileAttrMaxExtents() NEQ NULL);
+      {
+        ElemDDLFileAttrMaxExtents *pMaxExtents = pPartitionAttr->castToElemDDLFileAttrMaxExtents();
+        // error checking for limits when we specify the MAXEXTENTS clause
+        Lng32 maxext = pMaxExtents->getMaxExtents();
+        if ((maxext <= 0) || (maxext > COM_MAX_MAXEXTENTS)) {
+          *SqlParser_Diags << DgSqlCode(-3191);
+        } else {
+          maxExt_ = pMaxExtents->getMaxExtents();
+        }
+      }
+      break;
+    default:
+      ABORT("internal logic error");
+      break;
   }
 }  // ElemDDLPartitionSystem::setPartitionAttr()
 
@@ -709,9 +557,7 @@ ElemDDLPartitionSystem::setPartitionAttr(ElemDDLNode * pPartitionAttr)
 // method for binding
 //
 
-ExprNode *
-ElemDDLPartitionSystem::bindNode(BindWA * /*pBindWA*/)
-{
+ExprNode *ElemDDLPartitionSystem::bindNode(BindWA * /*pBindWA*/) {
   //
   // location
   //
@@ -721,42 +567,30 @@ ElemDDLPartitionSystem::bindNode(BindWA * /*pBindWA*/)
     //
     // location clause not specified (only allowed for primary partition)
     //
-    guardianLocation_ =
-      defaultLocName.getGuardianFullyQualifiedName();
+    guardianLocation_ = defaultLocName.getGuardianFullyQualifiedName();
   else  // LOCATION clause was specified
   {
-    ComLocationName locName;         // empty object
-    switch (getLocationNameType())
-    {
-    case ElemDDLLocation::LOCATION_GUARDIAN_NAME :
-      locName.copy(getLocationName(),
-                   ComLocationName::GUARDIAN_LOCATION_NAME_FORMAT);
-      if (NOT locName.isValid())
-      {
-        // Illegal location name format.
-        *SqlParser_Diags << DgSqlCode(-3061) << DgString0(getLocationName());
-        guardianLocation_ =
-          defaultLocName.getGuardianFullyQualifiedName();
-      }
-      else  // valid location
-        guardianLocation_ =
-          locName.getGuardianFullyQualifiedName();
-      break;
+    ComLocationName locName;  // empty object
+    switch (getLocationNameType()) {
+      case ElemDDLLocation::LOCATION_GUARDIAN_NAME:
+        locName.copy(getLocationName(), ComLocationName::GUARDIAN_LOCATION_NAME_FORMAT);
+        if (NOT locName.isValid()) {
+          // Illegal location name format.
+          *SqlParser_Diags << DgSqlCode(-3061) << DgString0(getLocationName());
+          guardianLocation_ = defaultLocName.getGuardianFullyQualifiedName();
+        } else  // valid location
+          guardianLocation_ = locName.getGuardianFullyQualifiedName();
+        break;
 
-    case ElemDDLLocation::LOCATION_OSS_NAME :
-      locName.copy(getLocationName(),
-                   ComLocationName::OSS_LOCATION_NAME_FORMAT);
-      if (NOT locName.isValid())
-      {
-        // Illegal location name format.
-        *SqlParser_Diags << DgSqlCode(-3061) << DgString0(getLocationName());
-        guardianLocation_ =
-          defaultLocName.getGuardianFullyQualifiedName();
-      }
-      else  // valid location
-        guardianLocation_ =
-          locName.getGuardianFullyQualifiedName();
-      break;
+      case ElemDDLLocation::LOCATION_OSS_NAME:
+        locName.copy(getLocationName(), ComLocationName::OSS_LOCATION_NAME_FORMAT);
+        if (NOT locName.isValid()) {
+          // Illegal location name format.
+          *SqlParser_Diags << DgSqlCode(-3061) << DgString0(getLocationName());
+          guardianLocation_ = defaultLocName.getGuardianFullyQualifiedName();
+        } else  // valid location
+          guardianLocation_ = locName.getGuardianFullyQualifiedName();
+        break;
 
 #if 0
       //
@@ -816,11 +650,11 @@ ElemDDLPartitionSystem::bindNode(BindWA * /*pBindWA*/)
         }
       }
       break;
-#endif // 0
+#endif  // 0
 
-    default :
-      NAAbort("ElemDDLPartition.C", __LINE__, "internal logic error");
-      break;
+      default:
+        NAAbort("ElemDDLPartition.C", __LINE__, "internal logic error");
+        break;
     }
   }
 
@@ -832,10 +666,8 @@ ElemDDLPartitionSystem::bindNode(BindWA * /*pBindWA*/)
 // methods for tracing
 //
 
-NATraceList
-ElemDDLPartitionSystem::getDetailInfo() const
-{
-  NAString        detailText;
+NATraceList ElemDDLPartitionSystem::getDetailInfo() const {
+  NAString detailText;
   NATraceList detailTextList;
 
   detailTextList.append(displayLabel1());  // add or drop
@@ -860,84 +692,59 @@ ElemDDLPartitionSystem::getDetailInfo() const
   detailText += LongToNAString((Lng32)getMaxSize());
   detailTextList.append(detailText);
 
-  ElemDDLFileAttrMaxSize maxSizeFileAttr(getMaxSize(), 
-                                         getMaxSizeUnit());
+  ElemDDLFileAttrMaxSize maxSizeFileAttr(getMaxSize(), getMaxSizeUnit());
 
   detailText = "    max size unit: ";
-  detailText += maxSizeFileAttr.getMaxSizeUnitAsNAString();;
+  detailText += maxSizeFileAttr.getMaxSizeUnitAsNAString();
+  ;
   detailTextList.append(detailText);
 
   return detailTextList;
 }
 
-const NAString
-ElemDDLPartitionSystem::getText() const
-{
-  return "ElemDDLPartitionSystem";
-}
+const NAString ElemDDLPartitionSystem::getText() const { return "ElemDDLPartitionSystem"; }
 
-const NAString
-ElemDDLPartitionSystem::displayLabel1() const
-{
+const NAString ElemDDLPartitionSystem::displayLabel1() const {
   return NAString("Add or Drop: ") + getOptionAsNAString();
 }
 
-const NAString
-ElemDDLPartitionSystem::displayLabel2() const
-{
-  if (NOT getLocationName().isNull())
-  {
+const NAString ElemDDLPartitionSystem::displayLabel2() const {
+  if (NOT getLocationName().isNull()) {
     return NAString("Location name: ") + getLocationName();
-  }
-  else
-  {
+  } else {
     return NAString("Location name not specified.");
   }
 }
 
-const NAString
-ElemDDLPartitionSystem::displayLabel3() const
-{
-  if (NOT getLocationName().isNull())
-  {
+const NAString ElemDDLPartitionSystem::displayLabel3() const {
+  if (NOT getLocationName().isNull()) {
     return NAString("Partition name: ") + getPartitionName();
-  }
-  else
-  {
+  } else {
     return NAString("Partition name not specified.");
   }
 }
 
-
 // method for building text
-// virtual 
-NAString ElemDDLPartitionSystem::getSyntax() const
-{
-  ElemDDLPartitionSystem *ncThis = (ElemDDLPartitionSystem*)this;
-  
-  
+// virtual
+NAString ElemDDLPartitionSystem::getSyntax() const {
+  ElemDDLPartitionSystem *ncThis = (ElemDDLPartitionSystem *)this;
+
   NAString syntax = getOptionAsNAString();
   syntax += " ";
-  
 
   syntax += getLocationNode()->getSyntax();
   syntax += " ";
 
+  if (NULL != ncThis->getChild(INDEX_PARTITION_ATTR_LIST)) {
+    ElemDDLNode *pPartitionAttrList = ncThis->getChild(INDEX_PARTITION_ATTR_LIST)->castToElemDDLNode();
 
-  if (NULL != ncThis->getChild(INDEX_PARTITION_ATTR_LIST))
-  {
-    ElemDDLNode * pPartitionAttrList = 
-	    ncThis->getChild(INDEX_PARTITION_ATTR_LIST)->castToElemDDLNode();
-
-    for (CollIndex i = 0; i < pPartitionAttrList->entries(); i++)
-    {
+    for (CollIndex i = 0; i < pPartitionAttrList->entries(); i++) {
       syntax += (*pPartitionAttrList)[i]->getSyntax();
       syntax += " ";
     }
   }
   return syntax;
 }
-
 
 // -----------------------------------------------------------------------
 // methods for class ElemDDLPartitionSingle
@@ -948,16 +755,11 @@ NAString ElemDDLPartitionSystem::getSyntax() const
 //
 
 ElemDDLPartitionSingle::ElemDDLPartitionSingle()
-: ElemDDLPartitionSystem(ELM_PARTITION_SINGLE_ELEM,
-                         ADD_OPTION,
-                         NULL /*location*/,
-                         NULL /*partition option list*/)
-{
+    : ElemDDLPartitionSystem(ELM_PARTITION_SINGLE_ELEM, ADD_OPTION, NULL /*location*/, NULL /*partition option list*/) {
 }
 
 // virtual destructor
-ElemDDLPartitionSingle::~ElemDDLPartitionSingle()
-{
+ElemDDLPartitionSingle::~ElemDDLPartitionSingle() {
   //
   // Does not delete any child parse node.
   // The destructor of the base class ElemDDLPartitionSystem
@@ -966,11 +768,7 @@ ElemDDLPartitionSingle::~ElemDDLPartitionSingle()
 }
 
 // cast
-ElemDDLPartitionSingle *
-ElemDDLPartitionSingle::castToElemDDLPartitionSingle()
-{
-  return this;
-}
+ElemDDLPartitionSingle *ElemDDLPartitionSingle::castToElemDDLPartitionSingle() { return this; }
 
 // -----------------------------------------------------------------------
 // methods for class ElemDDLPartitionRange
@@ -980,80 +778,51 @@ ElemDDLPartitionSingle::castToElemDDLPartitionSingle()
 // constructors
 //
 
-ElemDDLPartitionRange::ElemDDLPartitionRange(CollHeap * heap)
-: ElemDDLPartitionSystem(ELM_PARTITION_RANGE_ELEM,
-                         ADD_OPTION,
-                         NULL /*location*/,
-                         NULL /*partition option list*/),
-  keyValueArray_(heap)
-{
+ElemDDLPartitionRange::ElemDDLPartitionRange(CollHeap *heap)
+    : ElemDDLPartitionSystem(ELM_PARTITION_RANGE_ELEM, ADD_OPTION, NULL /*location*/, NULL /*partition option list*/),
+      keyValueArray_(heap) {
   setChild(INDEX_KEY_VALUE_LIST, NULL);
 }
 
-ElemDDLPartitionRange::ElemDDLPartitionRange(
-     ElemDDLPartition::optionEnum option,
-     ElemDDLNode * pKeyValueList,
-     ElemDDLNode * pLocation,
-     ElemDDLNode * pPartitionOptionList,
-     CollHeap    * heap)
-: ElemDDLPartitionSystem(ELM_PARTITION_RANGE_ELEM,
-                         option,
-                         pLocation,
-                         pPartitionOptionList),
-  keyValueArray_(heap)
-{
-
+ElemDDLPartitionRange::ElemDDLPartitionRange(ElemDDLPartition::optionEnum option, ElemDDLNode *pKeyValueList,
+                                             ElemDDLNode *pLocation, ElemDDLNode *pPartitionOptionList, CollHeap *heap)
+    : ElemDDLPartitionSystem(ELM_PARTITION_RANGE_ELEM, option, pLocation, pPartitionOptionList), keyValueArray_(heap) {
   setChild(INDEX_KEY_VALUE_LIST, pKeyValueList);
 
   // Traverses the parse sub-tree containing the list of key values.
   // Copies pointers to these key values to keyValueArray_ for
   // easier access.
 
-  for (CollIndex i = 0; i < pKeyValueList->entries(); i++)
-  {
+  for (CollIndex i = 0; i < pKeyValueList->entries(); i++) {
     ComASSERT((*pKeyValueList)[i]->castToElemDDLKeyValue() NEQ NULL);
-    keyValueArray_.insert((*pKeyValueList)[i]->castToElemDDLKeyValue()
-                          ->getKeyValue());
+    keyValueArray_.insert((*pKeyValueList)[i]->castToElemDDLKeyValue()->getKeyValue());
   }
-
 }
 
 // virtual destructor
-ElemDDLPartitionRange::~ElemDDLPartitionRange()
-{
+ElemDDLPartitionRange::~ElemDDLPartitionRange() {
   //
   // Only deletes the child parse node(s) added specifically
   // for this class.  The destructor of the base class
   // ElemDDLPartitionSystem does the deletion(s) of the other
   // child parse node(s).
   //
-  for (Int32 i = ElemDDLPartitionSystem::getArity(); i < getArity(); i++)
-  {
+  for (Int32 i = ElemDDLPartitionSystem::getArity(); i < getArity(); i++) {
     delete getChild(i);
   }
 }
 
 // cast
-ElemDDLPartitionRange *
-ElemDDLPartitionRange::castToElemDDLPartitionRange()
-{
-  return this;
-}
+ElemDDLPartitionRange *ElemDDLPartitionRange::castToElemDDLPartitionRange() { return this; }
 
 //
 // accessors
 //
 
 // get the degree of this node
-Int32
-ElemDDLPartitionRange::getArity() const
-{
-  return MAX_ELEM_DDL_PARTITION_RANGE_ARITY;
-}
+Int32 ElemDDLPartitionRange::getArity() const { return MAX_ELEM_DDL_PARTITION_RANGE_ARITY; }
 
-ExprNode *
-ElemDDLPartitionRange::getChild(Lng32 index)
-{ 
+ExprNode *ElemDDLPartitionRange::getChild(Lng32 index) {
   ComASSERT(index >= 0 AND index < getArity());
 
   //
@@ -1062,13 +831,10 @@ ElemDDLPartitionRange::getChild(Lng32 index)
   // For more information, please read the
   // descriptions in the head file.
   //
-  if (index >= ElemDDLPartitionSystem::getArity())
-  {
+  if (index >= ElemDDLPartitionSystem::getArity()) {
     ComASSERT(index EQU INDEX_KEY_VALUE_LIST);
     return pKeyValueList_;
-  }
-  else
-  {
+  } else {
     return children_[index];
   }
 }
@@ -1077,14 +843,11 @@ ElemDDLPartitionRange::getChild(Lng32 index)
 // mutator
 //
 
-void
-ElemDDLPartitionRange::setChild(Lng32 index, ExprNode * pChildNode)
-{
+void ElemDDLPartitionRange::setChild(Lng32 index, ExprNode *pChildNode) {
   ComASSERT(index >= 0 AND index < getArity());
 
-  ElemDDLNode * pElemDDLNode = NULL;
-  if (pChildNode NEQ NULL)
-  {
+  ElemDDLNode *pElemDDLNode = NULL;
+  if (pChildNode NEQ NULL) {
     ComASSERT(pChildNode->castToElemDDLNode() NEQ NULL);
     pElemDDLNode = pChildNode->castToElemDDLNode();
   }
@@ -1095,12 +858,9 @@ ElemDDLPartitionRange::setChild(Lng32 index, ExprNode * pChildNode)
   // For more information, please read the
   // descriptions in the head file.
   //
-  if (index >= ElemDDLPartitionSystem::getArity())
-  {
+  if (index >= ElemDDLPartitionSystem::getArity()) {
     pKeyValueList_ = pElemDDLNode;
-  }
-  else
-  {
+  } else {
     children_[index] = pElemDDLNode;
   }
 }
@@ -1109,27 +869,22 @@ ElemDDLPartitionRange::setChild(Lng32 index, ExprNode * pChildNode)
 // methods for tracing
 //
 
-NATraceList
-ElemDDLPartitionRange::getDetailInfo() const
-{
+NATraceList ElemDDLPartitionRange::getDetailInfo() const {
   //
   // Note that class ElemDDLPartitionRange is derived
   // from class ElemDDLPartitionSystem.
   //
-  NAString        detailText;
+  NAString detailText;
   NATraceList detailTextList = ElemDDLPartitionSystem::getDetailInfo();
 
-  const ItemConstValueArray & keyValues = getKeyValueArray();
+  const ItemConstValueArray &keyValues = getKeyValueArray();
 
-  if (keyValues.entries() NEQ 0)
-  {
+  if (keyValues.entries() NEQ 0) {
     detailText = "Key value list [";
     detailText += LongToNAString((Lng32)keyValues.entries());
     detailText += " key value(s)]:";
     detailTextList.append(detailText);
-  }
-  else
-  {
+  } else {
     //
     // only primary (range) partition node is
     // allowed not to contain a list of key values.
@@ -1137,19 +892,18 @@ ElemDDLPartitionRange::getDetailInfo() const
     detailText = "Key value not specified.";
     detailTextList.append(detailText);
   }
-  for (CollIndex j = 0; j < keyValues.entries(); j++)
-  {
-    ConstValue * keyVal = keyValues[j];
-    
+  for (CollIndex j = 0; j < keyValues.entries(); j++) {
+    ConstValue *keyVal = keyValues[j];
+
     detailText = "  [key value ";
     detailText += LongToNAString((Lng32)j);
     detailText += "]";
     detailTextList.append(detailText);
-    
+
     detailText = "    Key value:      ";
     detailText += keyVal->getText();
     detailTextList.append(detailText);
-    
+
     detailText = "    Key value type: ";
     detailText += keyVal->getType()->getTypeSQLname();
     detailTextList.append(detailText);
@@ -1157,66 +911,49 @@ ElemDDLPartitionRange::getDetailInfo() const
 
   return detailTextList;
 
-} // ElemDDLPartitionRange::getDetailInfo()
+}  // ElemDDLPartitionRange::getDetailInfo()
 
-const NAString
-ElemDDLPartitionRange::getText() const
-{
-  return "ElemDDLPartitionRange";
-}
+const NAString ElemDDLPartitionRange::getText() const { return "ElemDDLPartitionRange"; }
 
-const NAString
-ElemDDLPartitionRange::displayLabel1() const
-{
+const NAString ElemDDLPartitionRange::displayLabel1() const {
   if (getLocationName().length() NEQ 0)
     return NAString("Location name: ") + getLocationName();
   else
     return NAString("Location name not specified.");
 }
 
-const NAString
-ElemDDLPartitionRange::displayLabel2() const
-{
+const NAString ElemDDLPartitionRange::displayLabel2() const {
   ElemDDLLocation location(getLocationNameType(), getLocationName());
-  return (NAString("Location name type: ") +
-          location.getLocationNameTypeAsNAString());
+  return (NAString("Location name type: ") + location.getLocationNameTypeAsNAString());
 }
 
-
 // method for building text
-// virtual 
-NAString ElemDDLPartitionRange::getSyntax() const
-{
-  ElemDDLPartitionRange* ncThis = (ElemDDLPartitionRange*)this;
-  
-  
+// virtual
+NAString ElemDDLPartitionRange::getSyntax() const {
+  ElemDDLPartitionRange *ncThis = (ElemDDLPartitionRange *)this;
+
   NAString syntax = getOptionAsNAString();
   syntax += " ";
-  
+
   syntax += "FIRST KEY ";
 
-  ElemDDLNode * pKeyValueList = 
-		 ncThis->getChild(INDEX_KEY_VALUE_LIST)->castToElemDDLNode();
-  
+  ElemDDLNode *pKeyValueList = ncThis->getChild(INDEX_KEY_VALUE_LIST)->castToElemDDLNode();
+
   syntax += "( ";
 
   syntax += pKeyValueList->getSyntax();
 
   syntax += ") ";
 
-  if (getLocationNode())
-    {
-      syntax += getLocationNode()->getSyntax();
-      syntax += " ";
-    }
+  if (getLocationNode()) {
+    syntax += getLocationNode()->getSyntax();
+    syntax += " ";
+  }
 
-  if (NULL != ncThis->getChild(INDEX_PARTITION_ATTR_LIST))
-  {
-    ElemDDLNode * pPartitionAttrList = 
-	    ncThis->getChild(INDEX_PARTITION_ATTR_LIST)->castToElemDDLNode();
+  if (NULL != ncThis->getChild(INDEX_PARTITION_ATTR_LIST)) {
+    ElemDDLNode *pPartitionAttrList = ncThis->getChild(INDEX_PARTITION_ATTR_LIST)->castToElemDDLNode();
 
-    for (CollIndex i = 0; i < pPartitionAttrList->entries(); i++)
-    {
+    for (CollIndex i = 0; i < pPartitionAttrList->entries(); i++) {
       syntax += (*pPartitionAttrList)[i]->getSyntax();
       syntax += " ";
     }
@@ -1224,36 +961,24 @@ NAString ElemDDLPartitionRange::getSyntax() const
   return syntax;
 }
 
-
 // -----------------------------------------------------------------------
 // methods for class ElemDDLPartitionByOpt
 // -----------------------------------------------------------------------
 
 // constructor
-ElemDDLPartitionByOpt::ElemDDLPartitionByOpt(OperatorTypeEnum operatorType)
-: ElemDDLNode(operatorType)
-{
-}
+ElemDDLPartitionByOpt::ElemDDLPartitionByOpt(OperatorTypeEnum operatorType) : ElemDDLNode(operatorType) {}
 
 // virtual destructor
-ElemDDLPartitionByOpt::~ElemDDLPartitionByOpt()
-{
-}
+ElemDDLPartitionByOpt::~ElemDDLPartitionByOpt() {}
 
 // casting
-ElemDDLPartitionByOpt *
-ElemDDLPartitionByOpt::castToElemDDLPartitionByOpt()
-{
-  return this;
-}
+ElemDDLPartitionByOpt *ElemDDLPartitionByOpt::castToElemDDLPartitionByOpt() { return this; }
 
 //
 // methods for tracing
 //
 
-NATraceList
-ElemDDLPartitionByOpt::getDetailInfo() const
-{
+NATraceList ElemDDLPartitionByOpt::getDetailInfo() const {
   NATraceList detailTextList;
 
   //
@@ -1265,13 +990,10 @@ ElemDDLPartitionByOpt::getDetailInfo() const
   return detailTextList;
 }
 
-const NAString
-ElemDDLPartitionByOpt::getText() const
-{
+const NAString ElemDDLPartitionByOpt::getText() const {
   ABORT("internal logic error");
   return "ElemDDLPartitionByOpt";
 }
-
 
 //----------------------------------------------------------------------------
 // methods for class ElemDDLPartitionByColumnList
@@ -1281,12 +1003,8 @@ ElemDDLPartitionByOpt::getText() const
 // constructor
 //
 
-ElemDDLPartitionByColumnList::ElemDDLPartitionByColumnList(
-     ElemDDLNode * partitionKeyColumnList,
-     CollHeap    * heap)
-: ElemDDLPartitionByOpt(ELM_PARTITION_BY_COLUMN_LIST_ELEM),
-  partitionKeyColumnArray_(heap)
-{
+ElemDDLPartitionByColumnList::ElemDDLPartitionByColumnList(ElemDDLNode *partitionKeyColumnList, CollHeap *heap)
+    : ElemDDLPartitionByOpt(ELM_PARTITION_BY_COLUMN_LIST_ELEM), partitionKeyColumnArray_(heap) {
   setChild(INDEX_PARTITION_KEY_COLUMN_LIST, partitionKeyColumnList);
 
   //
@@ -1297,39 +1015,25 @@ ElemDDLPartitionByColumnList::ElemDDLPartitionByColumnList(
   //
 
   ComASSERT(partitionKeyColumnList NEQ NULL);
-  for (CollIndex i = 0; i < partitionKeyColumnList->entries(); i++)
-  {
-    partitionKeyColumnArray_.insert((*partitionKeyColumnList)[i]->
-						castToElemDDLColRef());
+  for (CollIndex i = 0; i < partitionKeyColumnList->entries(); i++) {
+    partitionKeyColumnArray_.insert((*partitionKeyColumnList)[i]->castToElemDDLColRef());
   }
 }
 
 // virtual destructor
-ElemDDLPartitionByColumnList::~ElemDDLPartitionByColumnList()
-{
-}
+ElemDDLPartitionByColumnList::~ElemDDLPartitionByColumnList() {}
 
 // casting
-ElemDDLPartitionByColumnList *
-ElemDDLPartitionByColumnList::castToElemDDLPartitionByColumnList()
-{
-  return this;
-}
+ElemDDLPartitionByColumnList *ElemDDLPartitionByColumnList::castToElemDDLPartitionByColumnList() { return this; }
 
 //
 // accessors
 //
 
 // get the degree of this node
-Int32
-ElemDDLPartitionByColumnList::getArity() const
-{
-  return MAX_ELEM_DDL_PARTITION_BY_COLUMN_LIST_ARITY;
-}
+Int32 ElemDDLPartitionByColumnList::getArity() const { return MAX_ELEM_DDL_PARTITION_BY_COLUMN_LIST_ARITY; }
 
-ExprNode *
-ElemDDLPartitionByColumnList::getChild(Lng32 index)
-{ 
+ExprNode *ElemDDLPartitionByColumnList::getChild(Lng32 index) {
   ComASSERT(index >= 0 AND index < getArity());
   return children_[index];
 }
@@ -1338,17 +1042,12 @@ ElemDDLPartitionByColumnList::getChild(Lng32 index)
 // mutator
 //
 
-void
-ElemDDLPartitionByColumnList::setChild(Lng32 index, ExprNode * pChildNode)
-{
+void ElemDDLPartitionByColumnList::setChild(Lng32 index, ExprNode *pChildNode) {
   ComASSERT(index >= 0 AND index < getArity());
-  if (pChildNode NEQ NULL)
-  {
+  if (pChildNode NEQ NULL) {
     ComASSERT(pChildNode->castToElemDDLNode() NEQ NULL);
     children_[index] = pChildNode->castToElemDDLNode();
-  }
-  else
-  {
+  } else {
     children_[index] = NULL;
   }
 }
@@ -1357,18 +1056,14 @@ ElemDDLPartitionByColumnList::setChild(Lng32 index, ExprNode * pChildNode)
 // methods for tracing
 //
 
-const NAString
-ElemDDLPartitionByColumnList::displayLabel1() const
-{
+const NAString ElemDDLPartitionByColumnList::displayLabel1() const {
   return NAString("Partition by column list option");
 }
 
-NATraceList
-ElemDDLPartitionByColumnList::getDetailInfo() const
-{
-  NAString        detailText;
+NATraceList ElemDDLPartitionByColumnList::getDetailInfo() const {
+  NAString detailText;
   NATraceList detailTextList;
-  ElemDDLNode   * pPartitionKeyColumnList = getPartitionKeyColumnList();
+  ElemDDLNode *pPartitionKeyColumnList = getPartitionKeyColumnList();
 
   //
   // kind of store option
@@ -1380,8 +1075,7 @@ ElemDDLPartitionByColumnList::getDetailInfo() const
   // column name list
   //
 
-  if (pPartitionKeyColumnList EQU NULL)
-  {
+  if (pPartitionKeyColumnList EQU NULL) {
     detailTextList.append("No column name list.");
     return detailTextList;
   }
@@ -1391,113 +1085,74 @@ ElemDDLPartitionByColumnList::getDetailInfo() const
   detailText += " element(s)]:";
   detailTextList.append(detailText);
 
-  for (CollIndex i = 0; i < pPartitionKeyColumnList->entries(); i++)
-  {
+  for (CollIndex i = 0; i < pPartitionKeyColumnList->entries(); i++) {
     detailText = "[column ";
     detailText += LongToNAString((Lng32)i);
     detailText += "]";
     detailTextList.append(detailText);
 
-    detailTextList.append("    ", (*pPartitionKeyColumnList)[i]
-                                                         ->getDetailInfo());
+    detailTextList.append("    ", (*pPartitionKeyColumnList)[i]->getDetailInfo());
   }
   return detailTextList;
 }
 
-const NAString
-ElemDDLPartitionByColumnList::getText() const
-{
-  return "ElemDDLPartitionByColumnList";
-}
-
+const NAString ElemDDLPartitionByColumnList::getText() const { return "ElemDDLPartitionByColumnList"; }
 
 // method for building text
-//virtual 
-NAString ElemDDLPartitionByColumnList::getSyntax() const
-{
-  
-  const ElemDDLColRefArray & colRefArray = getPartitionKeyColumnArray();
+// virtual
+NAString ElemDDLPartitionByColumnList::getSyntax() const {
+  const ElemDDLColRefArray &colRefArray = getPartitionKeyColumnArray();
 
   NAString syntax;
-  
-  for (CollIndex i = 0; i < colRefArray.entries(); i++)
-  {
-    if (i > 0)
-      syntax += ", ";
+
+  for (CollIndex i = 0; i < colRefArray.entries(); i++) {
+    if (i > 0) syntax += ", ";
     syntax += ToAnsiIdentifier((colRefArray[i])->getColumnName());
 
-    if (colRefArray[i]->getColumnOrdering() == COM_DESCENDING_ORDER)
-      syntax += " DESC";
+    if (colRefArray[i]->getColumnOrdering() == COM_DESCENDING_ORDER) syntax += " DESC";
   }
   return syntax;
 
-} // getSyntax
+}  // getSyntax
 
-ElemDDLPartitionClauseV2::~ElemDDLPartitionClauseV2()
-{
-}
+ElemDDLPartitionClauseV2::~ElemDDLPartitionClauseV2() {}
 
-void
-ElemDDLPartitionClauseV2::setChild(Lng32 index, ExprNode * pChildNode)
-{
+void ElemDDLPartitionClauseV2::setChild(Lng32 index, ExprNode *pChildNode) {
   ComASSERT(index >= 0 AND index < getArity());
-  if (pChildNode NEQ NULL)
-  {
+  if (pChildNode NEQ NULL) {
     ComASSERT(pChildNode->castToElemDDLNode() NEQ NULL);
     children_[index] = pChildNode->castToElemDDLNode();
-  }
-  else
-  {
+  } else {
     children_[index] = NULL;
   }
 }
 
-Int32
-ElemDDLPartitionClauseV2::getArity() const
-{
-  return MAX_ELEM_DDL_PARTITION_CLAUSE_ARITY_V2;
-}
+Int32 ElemDDLPartitionClauseV2::getArity() const { return MAX_ELEM_DDL_PARTITION_CLAUSE_ARITY_V2; }
 
 // cast virtual function
-ElemDDLPartitionClauseV2 *
-ElemDDLPartitionClauseV2::castToElemDDLPartitionClauseV2()
-{
-  return this;
-}
+ElemDDLPartitionClauseV2 *ElemDDLPartitionClauseV2::castToElemDDLPartitionClauseV2() { return this; }
 
-ExprNode *
-ElemDDLPartitionClauseV2::getChild(Lng32 index)
-{ 
+ExprNode *ElemDDLPartitionClauseV2::getChild(Lng32 index) {
   ComASSERT(index >= 0 AND index < getArity());
   return children_[index];
 }
 
-const NAString
-ElemDDLPartitionClauseV2::getText() const
-{
-  return "ElemDDLPartitionClauseV2";
-}
-
+const NAString ElemDDLPartitionClauseV2::getText() const { return "ElemDDLPartitionClauseV2"; }
 
 // method for building text
-//virtual 
-NAString ElemDDLPartitionClauseV2::getSyntax() const
-{
+// virtual
+NAString ElemDDLPartitionClauseV2::getSyntax() const {
   NAString syntax = "";
   return syntax;
-} // getSyntax()
-
+}  // getSyntax()
 
 // -----------------------------------------------------------------------
 // methods for class ElemDDLPartitionNameAndForValues
 // -----------------------------------------------------------------------
 
-ElemDDLPartitionNameAndForValues::~ElemDDLPartitionNameAndForValues()
-{
-}
+ElemDDLPartitionNameAndForValues::~ElemDDLPartitionNameAndForValues() {}
 
-ElemDDLPartitionNameAndForValues * ElemDDLPartitionNameAndForValues::castToElemDDLPartitionNameAndForValues()
-{
+ElemDDLPartitionNameAndForValues *ElemDDLPartitionNameAndForValues::castToElemDDLPartitionNameAndForValues() {
   return this;
 }
 

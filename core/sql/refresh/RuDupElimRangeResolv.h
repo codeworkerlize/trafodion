@@ -28,7 +28,7 @@
 ******************************************************************************
 *
 * File:         RuDupElimRangeResolv.h
-* Description:  Definition of class CRUDupElimRangeResolver 
+* Description:  Definition of class CRUDupElimRangeResolver
 *
 *
 * Created:      07/06/2000
@@ -48,21 +48,21 @@ class CRUEmpCheckVector;
 
 //--------------------------------------------------------------------------//
 //	CRUDupElimRangeResolver
-//	
-//	This class resolves two types of duplicate conflicts:
-//	(1) Between the overlapping and subsumed ranges (in other 
-//		words, performs the range analysis). 
-//	(2) Between the single-row and range- records (cross-type
-//		duplicates). 
 //
-//	A range is called *active* if it can conflict with log records 
-//	than are encountered further during the scan. The resolver 
-//	maintains a data structure of active ranges (called *range 
+//	This class resolves two types of duplicate conflicts:
+//	(1) Between the overlapping and subsumed ranges (in other
+//		words, performs the range analysis).
+//	(2) Between the single-row and range- records (cross-type
+//		duplicates).
+//
+//	A range is called *active* if it can conflict with log records
+//	than are encountered further during the scan. The resolver
+//	maintains a data structure of active ranges (called *range
 //	collection*) in the main memory. Every range in the collection
-//	can be marked whether it screens some single-row records in the IUD 
+//	can be marked whether it screens some single-row records in the IUD
 //	log (cross-type duplicates).
 //
-//	When the collection cannot be extended any further, its contents 
+//	When the collection cannot be extended any further, its contents
 //	are *flushed* to disk, in the following order:
 //	(1) Subset Update/Delete statements are performed on the IUD
 //		log, in order to resolve cross-type duplicates. If the single-row
@@ -71,150 +71,136 @@ class CRUEmpCheckVector;
 //	    save I/O. Otherwise, the I/O is generally blind (i.e., there are
 //	    statements that might update/delete no data). Therefore, the cost
 //	    of a massive scan is traded off for the cost of blind I/O, which
-//	    was shown to be less expensive. 
+//	    was shown to be less expensive.
 //
-//	(2) The range analysis is performed, and its results 
-//		are written to the range log. The algorithm maintains 
-//		the range log incrementally, i.e., ranges that are already 
-//		there (since the previous DE) and should not be re-written 
+//	(2) The range analysis is performed, and its results
+//		are written to the range log. The algorithm maintains
+//		the range log incrementally, i.e., ranges that are already
+//		there (since the previous DE) and should not be re-written
 //		(due to new conflicts) remain intact, therefore saving I/O.
-//	
-//  The range collection holds *pointers* to the actual range boundary records. 
+//
+//  The range collection holds *pointers* to the actual range boundary records.
 //	The records themselves are stored in a separate list. They are deleted once
 //	the range analysis is performed, and the data is flushed to the range log.
-//	
+//
 //	The range resolver allows to complete the DE phase (and commit the txn)
 //	only on the range boundary. Thus, the commit can be done either when
 //	the range collection is empty, or immediately after the flush.
 //
 //--------------------------------------------------------------------------//
 
-class REFRESH_LIB_CLASS 
-CRUDupElimRangeResolver : public CRUDupElimResolver {
+class REFRESH_LIB_CLASS CRUDupElimRangeResolver : public CRUDupElimResolver {
+ private:
+  typedef CRUDupElimResolver inherited;
 
-private:
-	typedef CRUDupElimResolver inherited;
+ public:
+  CRUDupElimRangeResolver(const CRUDupElimGlobals &globals, CRUSQLDynamicStatementContainer &ctrlStmtContainer);
 
-public:
-	CRUDupElimRangeResolver(
-		const CRUDupElimGlobals &globals,
-		CRUSQLDynamicStatementContainer &ctrlStmtContainer
-	);
+  virtual ~CRUDupElimRangeResolver() {}
 
-	virtual ~CRUDupElimRangeResolver() {}
-
-	// Implementation of pure virtuals
-public:
-	//------------------------------------//
-	//	Accessors
-	//------------------------------------//
-	BOOL IsRangeCollectionEmpty() const
-	{
-		return (0 == rangeCollection_.GetSize());
-	}
+  // Implementation of pure virtuals
+ public:
+  //------------------------------------//
+  //	Accessors
+  //------------------------------------//
+  BOOL IsRangeCollectionEmpty() const { return (0 == rangeCollection_.GetSize()); }
 
 #ifdef _DEBUG
-	virtual void DumpPerformanceStatistics(CDSString &to) const;
+  virtual void DumpPerformanceStatistics(CDSString &to) const;
 #endif
 
+ public:
+  //------------------------------------//
+  //	Mutators
+  //------------------------------------//
+  virtual void Reset();
 
-public:
-	//------------------------------------//
-	//	Mutators
-	//------------------------------------//
-	virtual void Reset();
+  //-- Resolve the next duplicate conflict (including the write to disk).
+  virtual void Resolve(CRUDupElimLogScanner &scanner);
 
-	//-- Resolve the next duplicate conflict (including the write to disk).
-	virtual void Resolve(CRUDupElimLogScanner &scanner);
+  // Prepare all the SQL statements in the container (together)
+  virtual void PrepareSQL();
 
-	// Prepare all the SQL statements in the container (together)
-	virtual void PrepareSQL();
+  // IPC pack/unpack
+  virtual void LoadReply(CUOFsIpcMessageTranslator &translator);
+  virtual void StoreReply(CUOFsIpcMessageTranslator &translator);
 
-	// IPC pack/unpack
-	virtual void LoadReply(CUOFsIpcMessageTranslator &translator);
-	virtual void StoreReply(CUOFsIpcMessageTranslator &translator);
+  //---------------------------------------//
+  //	PRIVATE AREA
+  //---------------------------------------//
+ private:
+  //  Resolve() callees
 
+  // Store the pointer to the new range record
+  void InsertRangeBoundary(CRUIUDLogRecord *pRec);
 
+  // Write all the ranges in the collection to the disk,
+  // with conflicts resolved + release the memory.
+  void Flush();
 
-	//---------------------------------------//
-	//	PRIVATE AREA
-	//---------------------------------------//
-private:
-	//  Resolve() callees
+  // Flush() callees
+  void FlushCrossTypeDuplicatesToIUDLog();
+  void FlushRangesToRngLog();
 
-	// Store the pointer to the new range record
-	void InsertRangeBoundary(CRUIUDLogRecord *pRec);
+  enum RequestType {
 
-	// Write all the ranges in the collection to the disk,
-	// with conflicts resolved + release the memory.
-	void Flush(); 
+    INSERT_POST_IMAGE_RNGLOG,
+    DELETE_PREV_IMAGE_RNGLOG,
 
-	// Flush() callees
-	void FlushCrossTypeDuplicatesToIUDLog();
-	void FlushRangesToRngLog();
+    DELETE_DUPLICATE_IUDLOG,
+    UPDATE_DUPLICATE_IUDLOG,
+  };
 
-	enum RequestType {
+  void TraverseRngCollectionAndPerformRqst(RequestType req, CRURangeCollectionIterator::IterDirection dir);
 
-		INSERT_POST_IMAGE_RNGLOG,
-		DELETE_PREV_IMAGE_RNGLOG,
+  // What can we say about whether the range is in the range log
+  enum RangeMappingStatus {
 
-		DELETE_DUPLICATE_IUDLOG,
-		UPDATE_DUPLICATE_IUDLOG,
-	};
+    IS_IN_RNG_LOG,
+    MAYBE_IN_RNG_LOG
+  };
 
-	void TraverseRngCollectionAndPerformRqst(
-		RequestType req,
-		CRURangeCollectionIterator::IterDirection dir
-	);
+  RangeMappingStatus GetRangeMappingStatus(TInt32 epoch);
 
-	// What can we say about whether the range is in the range log
-	enum RangeMappingStatus {
+ private:
+  // Low-level I/O
 
-		IS_IN_RNG_LOG,
-		MAYBE_IN_RNG_LOG
-	};
+  // Insert a single record to the range log
+  void ExecuteRngLogInsert(const CRURange &rng);
 
-	RangeMappingStatus GetRangeMappingStatus(TInt32 epoch);
+  // Delete all the fragments of the range from the range log
+  void ExecuteRngLogDelete(const CRURange &rng);
 
-private:
-	// Low-level I/O
+  // Delete the cross-type duplicates from the IUD log
+  void ExecuteIUDLogDelete(const CRURange &rng);
+  BOOL CanAvoidIUDLogDelete(const CRURange &rng);
+  // Always ignore these records by setting the
+  // ignore mark to infinite
+  void ExecuteIUDLogAlwaysIgnore(const CRURange &rng);
 
-	// Insert a single record to the range log
-	void ExecuteRngLogInsert(const CRURange &rng);
+  // Mark the cross-type duplicates in the IUD log
+  void ExecuteIUDLogUpdate(const CRURange &rng);
+  BOOL CanAvoidIUDLogUpdate(const CRURange &rng);
 
-	// Delete all the fragments of the range from the range log
-	void ExecuteRngLogDelete(const CRURange &rng);
-	
-	// Delete the cross-type duplicates from the IUD log
-	void ExecuteIUDLogDelete(const CRURange &rng);
-	BOOL CanAvoidIUDLogDelete(const CRURange &rng);
-	// Always ignore these records by setting the 
-	// ignore mark to infinite
-	void ExecuteIUDLogAlwaysIgnore(const CRURange &rng);
+ private:
+  // The core data structute
+  CRURangeCollection rangeCollection_;
 
-	// Mark the cross-type duplicates in the IUD log
-	void ExecuteIUDLogUpdate(const CRURange &rng);
-	BOOL CanAvoidIUDLogUpdate(const CRURange &rng);
+  // The actual storage of the range records from the IUD log
+  CRUIUDLogRecordList rangeBoundariesList_;
 
-private:
-	// The core data structute
-	CRURangeCollection rangeCollection_;
+  // The cached globals
+  TInt32 lastDEEpoch_;
+  TInt32 endEpoch_;
+  BOOL isSingleRowResolv_;
+  BOOL isSkipCrossTypeResoultion_;
+  BOOL wasPrevDEInvocationCompleted_;
 
-	// The actual storage of the range records from the IUD log
-	CRUIUDLogRecordList rangeBoundariesList_;
-
-	// The cached globals
-	TInt32 lastDEEpoch_;
-	TInt32 endEpoch_;
-	BOOL isSingleRowResolv_;
-	BOOL isSkipCrossTypeResoultion_;
-	BOOL wasPrevDEInvocationCompleted_;
-
-	// Statistics for the number of performed IUD statements
-	Lng32 numRngLogInsert_;
-	Lng32 numRngLogDelete_;
-	Lng32 numIUDLogDelete_;
-	Lng32 numIUDLogUpdate_;
+  // Statistics for the number of performed IUD statements
+  Lng32 numRngLogInsert_;
+  Lng32 numRngLogDelete_;
+  Lng32 numIUDLogDelete_;
+  Lng32 numIUDLogUpdate_;
 };
 
 #endif

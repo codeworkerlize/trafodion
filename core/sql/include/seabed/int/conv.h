@@ -28,8 +28,8 @@
 typedef long SB_Tag_Type;
 #define PFTAG "%ld"
 #else
-typedef int  SB_Tag_Type;
+typedef int SB_Tag_Type;
 #define PFTAG "%d"
 #endif
 
-#endif // !__SB_INT_CONV_H_
+#endif  // !__SB_INT_CONV_H_

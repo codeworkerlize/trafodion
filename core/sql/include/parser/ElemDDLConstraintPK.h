@@ -28,8 +28,8 @@
  * File:         ElemDDLConstraintPK.h
  * Description:  class for Primary Key constraint definitions in DDL
  *               statements
- *    
- *           
+ *
+ *
  * Created:      4/14/95
  * Language:     C++
  *
@@ -38,7 +38,6 @@
  *
  *****************************************************************************
  */
-
 
 #include "common/ComSmallDefs.h"
 #include "ElemDDLConstraintUnique.h"
@@ -57,49 +56,39 @@ class ElemDDLConstraintPKColumn;
 // -----------------------------------------------------------------------
 // definition of class ElemDDLConstraintPK
 // -----------------------------------------------------------------------
-class ElemDDLConstraintPK : public ElemDDLConstraintUnique
-{
-
-public:
+class ElemDDLConstraintPK : public ElemDDLConstraintUnique {
+ public:
   // constructors
-  ElemDDLConstraintPK(ElemDDLNode * pColumnRefList = NULL,
-                      ComPkeySerialization ser = COM_SER_NOT_SPECIFIED,
+  ElemDDLConstraintPK(ElemDDLNode *pColumnRefList = NULL, ComPkeySerialization ser = COM_SER_NOT_SPECIFIED,
                       NABoolean isNullableSpecified = FALSE)
-  : ElemDDLConstraintUnique(ELM_CONSTRAINT_PRIMARY_KEY_ELEM,
-                            pColumnRefList),
-    ser_(ser),
-    isNullableSpecified_(isNullableSpecified)
-  { }
-  ElemDDLConstraintPK(OperatorTypeEnum operatorType,
-                      ComPkeySerialization ser = COM_SER_NOT_SPECIFIED,
+      : ElemDDLConstraintUnique(ELM_CONSTRAINT_PRIMARY_KEY_ELEM, pColumnRefList),
+        ser_(ser),
+        isNullableSpecified_(isNullableSpecified) {}
+  ElemDDLConstraintPK(OperatorTypeEnum operatorType, ComPkeySerialization ser = COM_SER_NOT_SPECIFIED,
                       NABoolean isNullableSpecified = FALSE)
-  : ElemDDLConstraintUnique(operatorType,
-                            NULL /*column_reference_list*/),
-    ser_(ser),
-    isNullableSpecified_(isNullableSpecified)
-  { }
+      : ElemDDLConstraintUnique(operatorType, NULL /*column_reference_list*/),
+        ser_(ser),
+        isNullableSpecified_(isNullableSpecified) {}
 
   // virtual destructor
   virtual ~ElemDDLConstraintPK();
 
   // cast
-  virtual ElemDDLConstraintPK * castToElemDDLConstraintPK();
+  virtual ElemDDLConstraintPK *castToElemDDLConstraintPK();
 
   // methods for tracing
   virtual const NAString displayLabel2() const;
   virtual const NAString getText() const;
 
   ComPkeySerialization ser() { return ser_; }
-  NABoolean notSerialized() 
-  { return (ser_ == ComPkeySerialization::COM_NOT_SERIALIZED); }
-  NABoolean serialized() 
-  { return (ser_ == ComPkeySerialization::COM_SERIALIZED); }
+  NABoolean notSerialized() { return (ser_ == ComPkeySerialization::COM_NOT_SERIALIZED); }
+  NABoolean serialized() { return (ser_ == ComPkeySerialization::COM_SERIALIZED); }
 
   NABoolean isNullableSpecified() { return isNullableSpecified_; }
 
-private:
+ private:
   // if set to SERIALIZED, then pkey will be encoded before passint to hbase.
-  // if set to NOT_SERIALIZED, then primary key will not be encoded before 
+  // if set to NOT_SERIALIZED, then primary key will not be encoded before
   // passing on to HBase.
   // Used when accessing external HBase tables where data may not be stored
   // in serialized mode.
@@ -109,39 +98,33 @@ private:
   // if set, primary key is nullable. Do not make pkey columns non-nullable
   // if NOT NULL is not explicitly specified.
   NABoolean isNullableSpecified_;
-}; // class ElemDDLConstraintPK
+};  // class ElemDDLConstraintPK
 
 // -----------------------------------------------------------------------
 // definition of class ElemDDLConstraintPKColumn
 // -----------------------------------------------------------------------
-class ElemDDLConstraintPKColumn : public ElemDDLConstraintPK
-{
-
-public:
-
+class ElemDDLConstraintPKColumn : public ElemDDLConstraintPK {
+ public:
   // constructor
-  ElemDDLConstraintPKColumn(ComColumnOrdering orderingSpec = COM_ASCENDING_ORDER,
-                            NABoolean isNullableSpecified = FALSE)
-       : ElemDDLConstraintPK(ELM_CONSTRAINT_PRIMARY_KEY_COLUMN_ELEM, 
-                             COM_SER_NOT_SPECIFIED, isNullableSpecified),
-         columnOrdering_(orderingSpec)
-  { }
-  
+  ElemDDLConstraintPKColumn(ComColumnOrdering orderingSpec = COM_ASCENDING_ORDER, NABoolean isNullableSpecified = FALSE)
+      : ElemDDLConstraintPK(ELM_CONSTRAINT_PRIMARY_KEY_COLUMN_ELEM, COM_SER_NOT_SPECIFIED, isNullableSpecified),
+        columnOrdering_(orderingSpec) {}
+
   // virtual destructor
   virtual ~ElemDDLConstraintPKColumn();
 
   // cast
-  virtual ElemDDLConstraintPKColumn * castToElemDDLConstraintPKColumn();
+  virtual ElemDDLConstraintPKColumn *castToElemDDLConstraintPKColumn();
 
   // accessor
   inline ComColumnOrdering getColumnOrdering() const;
 
   // methods for tracing
   virtual const NAString getText() const;
-private:
 
+ private:
   ComColumnOrdering columnOrdering_;
-}; // class ElemDDLConstraintPKColumn
+};  // class ElemDDLConstraintPKColumn
 
 // -----------------------------------------------------------------------
 // definitions of inline methods of class ElemDDLConstraintPKColumn
@@ -150,10 +133,6 @@ private:
 // accessor
 //
 
-inline ComColumnOrdering
-ElemDDLConstraintPKColumn::getColumnOrdering() const
-{
-  return columnOrdering_;
-}
+inline ComColumnOrdering ElemDDLConstraintPKColumn::getColumnOrdering() const { return columnOrdering_; }
 
 #endif /* ELEMDDLCONSTRAINTPK_H */

@@ -22,13 +22,13 @@
 //
 // @@@ END COPYRIGHT @@@
 //******************************************************************************
-/* 
+/*
 ********************************************************************************
 *
 * File:         StmtDDLAlterAuditConfig.h
 * Description:  class for parse node representing alter audit config statements
 *
-*               
+*
 * Created:      8/21/2012
 * Language:     C++
 *
@@ -43,44 +43,37 @@
 class StmtDDLAlterAuditConfig : public StmtDDLNode
 
 {
- 
-public: 
-   
-   StmtDDLAlterAuditConfig(); 
-   
-   StmtDDLAlterAuditConfig(
-      const NAString        & logName,
-      const NAString        & columns,
-      const NAString        & values); 
+ public:
+  StmtDDLAlterAuditConfig();
 
-   virtual ~StmtDDLAlterAuditConfig();
+  StmtDDLAlterAuditConfig(const NAString &logName, const NAString &columns, const NAString &values);
 
-   virtual StmtDDLAlterAuditConfig * castToStmtDDLAlterAuditConfig();
+  virtual ~StmtDDLAlterAuditConfig();
 
-//
-// method for binding
-//
+  virtual StmtDDLAlterAuditConfig *castToStmtDDLAlterAuditConfig();
 
-   ExprNode * bindNode(BindWA *bindWAPtr);
+  //
+  // method for binding
+  //
 
-// accessors
+  ExprNode *bindNode(BindWA *bindWAPtr);
 
-   inline const NAString getLogName() const;  
-   inline const NAString getColumns() const;  
-   inline const NAString getValues() const;  
+  // accessors
 
-// for tracing
+  inline const NAString getLogName() const;
+  inline const NAString getColumns() const;
+  inline const NAString getValues() const;
 
-   virtual const NAString displayLabel1() const;
-   virtual const NAString displayLabel2() const;
-   virtual const NAString getText() const;                    
+  // for tracing
 
-private:
-  
-const NAString & logName_;
-const NAString & columns_;
-const NAString & values_;
+  virtual const NAString displayLabel1() const;
+  virtual const NAString displayLabel2() const;
+  virtual const NAString getText() const;
 
+ private:
+  const NAString &logName_;
+  const NAString &columns_;
+  const NAString &values_;
 };
 
 //----------------------------------------------------------------------------
@@ -88,22 +81,13 @@ const NAString & values_;
 //----------------------------------------------------------------------------
 
 //
-// accessors 
-// 
+// accessors
+//
 
-inline const  NAString StmtDDLAlterAuditConfig::getLogName() const
-{
-   return logName_;
-}
+inline const NAString StmtDDLAlterAuditConfig::getLogName() const { return logName_; }
 
-inline const  NAString StmtDDLAlterAuditConfig::getColumns() const
-{
-   return columns_;
-}
+inline const NAString StmtDDLAlterAuditConfig::getColumns() const { return columns_; }
 
-inline const  NAString StmtDDLAlterAuditConfig::getValues() const
-{
-   return values_;
-}
+inline const NAString StmtDDLAlterAuditConfig::getValues() const { return values_; }
 
 #endif  // STMTDDLALTERAUDITCONFIG

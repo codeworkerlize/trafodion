@@ -40,8 +40,8 @@
 
 // Define shared pointer list and array types in a simliar way
 // to the current LIST and ARRAY.
-#define SHPTR_LIST(Type)   NAShPtrList<Type>
-#define SHPTR_ARRAY(Type)  NAShPtrArray<Type>
+#define SHPTR_LIST(Type)  NAShPtrList<Type>
+#define SHPTR_ARRAY(Type) NAShPtrArray<Type>
 
 // ***********************************************************************
 // NAShPtrList class
@@ -51,12 +51,10 @@
 // ***********************************************************************
 template <class T>
 class NAShPtrList : public NAList<T> {
-public:
+ public:
   NAShPtrList(CollIndex initLen = 0) : NAList<T>(initLen) {}
-  NAShPtrList(CollHeap * heap, CollIndex initLen = 0) 
-        : NAList<T>(heap, initLen) {}
-  NAShPtrList(const NAShPtrList<T> &other, CollHeap *heap=0)
-        : NAList<T>(other, heap) {}
+  NAShPtrList(CollHeap *heap, CollIndex initLen = 0) : NAList<T>(heap, initLen) {}
+  NAShPtrList(const NAShPtrList<T> &other, CollHeap *heap = 0) : NAList<T>(other, heap) {}
 
   // The destructor in the Collections base class calls deallocate(),
   // but will call the Collections deallocate() instead of the
@@ -69,8 +67,7 @@ public:
   void decrAllRefCount() {
     CollIndex maxSize = NACollection<T>::getSize();
     for (CollIndex i = 0; i < maxSize; i++) {
-      if (NACollection<T>::getUsage(i) != UNUSED_COLL_ENTRY)
-        this->usedEntry(i) = 0;
+      if (NACollection<T>::getUsage(i) != UNUSED_COLL_ENTRY) this->usedEntry(i) = 0;
     }
   }
 
@@ -90,8 +87,7 @@ public:
   // Decrement the reference count and remove a particular element
   // in the list
   NABoolean removeAt(const CollIndex index) {
-    if (index >= NAList<T>::entries())
-      return FALSE;
+    if (index >= NAList<T>::entries()) return FALSE;
 
     (*this)[index] = 0;
     return NAList<T>::removeAt(index);
@@ -106,12 +102,10 @@ public:
 // ***********************************************************************
 template <class T>
 class NAShPtrArray : public NAArray<T> {
-public:
+ public:
   NAShPtrArray(CollIndex initLen = 0) : NAArray<T>(initLen) {}
-  NAShPtrArray(CollHeap * heap, CollIndex initLen = 0) 
-        : NAArray<T>(heap, initLen) {}
-  NAShPtrArray(const NAShPtrArray<T> &other, CollHeap *heap=0)
-        : NAArray<T>(other, heap) {}
+  NAShPtrArray(CollHeap *heap, CollIndex initLen = 0) : NAArray<T>(heap, initLen) {}
+  NAShPtrArray(const NAShPtrArray<T> &other, CollHeap *heap = 0) : NAArray<T>(other, heap) {}
 
   // The destructor in the Collections base class calls deallocate(),
   // but will call the Collections deallocate() instead of the
@@ -124,8 +118,7 @@ public:
   void decrAllRefCount() {
     CollIndex maxSize = NACollection<T>::getSize();
     for (CollIndex i = 0; i < maxSize; i++) {
-      if (NAArray<T>::used(i))
-        this->usedEntry(i) = 0;
+      if (NAArray<T>::used(i)) this->usedEntry(i) = 0;
     }
   }
 
@@ -154,4 +147,4 @@ public:
   }
 };
 
-#endif // _SHAREDPTR_COLLECTIONS_H
+#endif  // _SHAREDPTR_COLLECTIONS_H

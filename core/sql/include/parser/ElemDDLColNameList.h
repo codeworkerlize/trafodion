@@ -37,7 +37,6 @@
  *****************************************************************************
  */
 
-
 #include "parser/ElemDDLList.h"
 
 // -----------------------------------------------------------------------
@@ -54,29 +53,23 @@ class ElemDDLColNameListNode;
 // -----------------------------------------------------------------------
 // definition of class ElemDDLColNameList
 // -----------------------------------------------------------------------
-class ElemDDLColNameList : public ElemDDLList
-{
-
-public:
-
+class ElemDDLColNameList : public ElemDDLList {
+ public:
   // constructor
-  ElemDDLColNameList(ElemDDLNode * commaExpr, ElemDDLNode * otherExpr)
-  : ElemDDLList(ELM_COL_NAME_LIST, commaExpr, otherExpr)
-  { }
+  ElemDDLColNameList(ElemDDLNode *commaExpr, ElemDDLNode *otherExpr)
+      : ElemDDLList(ELM_COL_NAME_LIST, commaExpr, otherExpr) {}
 
   // virtual destructor
   virtual ~ElemDDLColNameList();
 
   // cast
-  virtual ElemDDLColNameList * castToElemDDLColNameList();
+  virtual ElemDDLColNameList *castToElemDDLColNameList();
 
   // methods for tracing
   virtual const NAString getText() const;
 
-
-private:
-
-}; // class ElemDDLColNameList
+ private:
+};  // class ElemDDLColNameList
 
 // -----------------------------------------------------------------------
 // definition of class ElemDDLColNameListNode
@@ -86,41 +79,30 @@ private:
 // i.e., allows a 2-dimensional list.
 //
 
-class ElemDDLColNameListNode : public ElemDDLNode
-{
-
-public:
-
+class ElemDDLColNameListNode : public ElemDDLNode {
+ public:
   // constructor
-  ElemDDLColNameListNode(ElemDDLNode * theList)
-  : ElemDDLNode(ELM_COL_NAME_LIST_NODE)
-  {
-  columnNameList_ = theList;
-  }
+  ElemDDLColNameListNode(ElemDDLNode *theList) : ElemDDLNode(ELM_COL_NAME_LIST_NODE) { columnNameList_ = theList; }
 
   // virtual destructor
   virtual ~ElemDDLColNameListNode();
 
   // cast
-  virtual ElemDDLColNameListNode * castToElemDDLColNameListNode();
+  virtual ElemDDLColNameListNode *castToElemDDLColNameListNode();
 
   // methods for tracing
   virtual const NAString getText() const;
 
-  inline ElemDDLNode *getColumnNameList ();
-private:
+  inline ElemDDLNode *getColumnNameList();
 
+ private:
   ElemDDLNode *columnNameList_;
-}; // class ElemDDLColNameListNode
+};  // class ElemDDLColNameListNode
 
 // -----------------------------------------------------------------------
 // definitions of inline methods for class ElemDDLColNameListNode
 // -----------------------------------------------------------------------
 
-inline ElemDDLNode *ElemDDLColNameListNode::getColumnNameList ()
-  {
-    return columnNameList_;
-  }
+inline ElemDDLNode *ElemDDLColNameListNode::getColumnNameList() { return columnNameList_; }
 
-
-#endif // ELEMDDLCOLNAMELIST_H
+#endif  // ELEMDDLCOLNAMELIST_H

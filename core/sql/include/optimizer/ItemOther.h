@@ -37,8 +37,7 @@
 ******************************************************************************
 */
 
-
-#include "optimizer/RelSet.h"		// for Union (needed by ValueIdUnion flags)
+#include "optimizer/RelSet.h"  // for Union (needed by ValueIdUnion flags)
 #include "optimizer/NAColumn.h"
 #include "qmscommon/QRExprElement.h"
 #include "ItemLog.h"
@@ -66,25 +65,16 @@ class OptNormRangeSpec;
 // forward
 class Generator;
 class VEGRewritePairs;
-enum  ColumnClass;
+enum ColumnClass;
 
 // -----------------------------------------------------------------------
 // An assignment operator assigns the source value to the target. Used
 // for insert and update operations.
 // -----------------------------------------------------------------------
-class Assign : public ItemExpr
-{
-
-public:
-
-  Assign(ItemExpr *target,
-	 ItemExpr *source,
-	 NABoolean userSpecified = TRUE) :
-	 ItemExpr(ITM_ASSIGN, target, source),
-	 userSpecified_(userSpecified),
-         canBeSkipped_(FALSE),
-	 onRollback_(FALSE)
-	 {}
+class Assign : public ItemExpr {
+ public:
+  Assign(ItemExpr *target, ItemExpr *source, NABoolean userSpecified = TRUE)
+      : ItemExpr(ITM_ASSIGN, target, source), userSpecified_(userSpecified), canBeSkipped_(FALSE), onRollback_(FALSE) {}
 
   // virtual destructor
   virtual ~Assign() {}
@@ -92,27 +82,27 @@ public:
   // get the degree of this node
   virtual Int32 getArity() const;
 
-  NABoolean isUserSpecified() const	{ return userSpecified_; }
+  NABoolean isUserSpecified() const { return userSpecified_; }
   void setUserSpecified(NABoolean userSpecified) { userSpecified_ = userSpecified; }
 
-  NABoolean canBeSkipped() const	{ return canBeSkipped_; }
+  NABoolean canBeSkipped() const { return canBeSkipped_; }
   void setToBeSkipped(NABoolean canBeSkipped) { canBeSkipped_ = canBeSkipped; }
 
   ValueId getTarget() const { return child(0)->getValueId(); }
   ValueId getSource() const { return child(1)->getValueId(); }
 
   // QSTUFF
-  NABoolean onRollback() const			{ return onRollback_; }
-  void      setOnRollback(NABoolean onRollback)	{ onRollback_ = onRollback; }
+  NABoolean onRollback() const { return onRollback_; }
+  void setOnRollback(NABoolean onRollback) { onRollback_ = onRollback; }
   // QSTUFF
 
   // a virtual function for performing name binding within the query tree
-  virtual ItemExpr * bindNode(BindWA *bindWA);
+  virtual ItemExpr *bindNode(BindWA *bindWA);
 
   // these two functions enable relaxation of char type matching rules
   // for assignments
   NABoolean isRelaxCharTypeMatchRulesPossible();
-  ItemExpr* tryToRelaxCharTypeMatchRules(BindWA *bindWA);
+  ItemExpr *tryToRelaxCharTypeMatchRules(BindWA *bindWA);
 
   // a virtual function for type propagating the node
   virtual const NAType *synthesizeType();
@@ -120,33 +110,30 @@ public:
   // another virtual function for type propagating the node. This one
   // is for the benefit of internal stored procedures, which want
   // to report alternative error messages.
-  virtual const NAType *synthesizeType(const char * str1, const Lng32 int1);
+  virtual const NAType *synthesizeType(const char *str1, const Lng32 int1);
 
-  virtual NABoolean isCovered(const ValueIdSet& newExternalInputs,
-			      const GroupAttributes& newRelExprAnchorGA,
-	   	              ValueIdSet& referencedInputs,
-			      ValueIdSet& coveredSubExpr,
-			      ValueIdSet& unCoveredExpr) const;
+  virtual NABoolean isCovered(const ValueIdSet &newExternalInputs, const GroupAttributes &newRelExprAnchorGA,
+                              ValueIdSet &referencedInputs, ValueIdSet &coveredSubExpr,
+                              ValueIdSet &unCoveredExpr) const;
 
   // is any literal in this expr safely coercible to its target type?
-  virtual NABoolean isSafelyCoercible(CacheWA& cwa) const;
+  virtual NABoolean isSafelyCoercible(CacheWA &cwa) const;
 
   // change literals of a cacheable query into constant parameters
-  virtual ItemExpr* normalizeForCache(CacheWA& cwa, BindWA& bindWA);
+  virtual ItemExpr *normalizeForCache(CacheWA &cwa, BindWA &bindWA);
 
   // Each operator supports a (virtual) method for transforming its
   // query tree to a canonical form.
-  virtual ItemExpr * normalizeNode(NormWA & normWARef);
+  virtual ItemExpr *normalizeNode(NormWA &normWARef);
 
   virtual HashValue topHash();
-  virtual ItemExpr * copyTopNode(ItemExpr *derivedNode = NULL,
-				 CollHeap* outHeap = 0);
+  virtual ItemExpr *copyTopNode(ItemExpr *derivedNode = NULL, CollHeap *outHeap = 0);
 
   // virtual method to fixup tree for code generation.
-  virtual ItemExpr * preCodeGen(Generator*);
+  virtual ItemExpr *preCodeGen(Generator *);
 
   // method to do code generation
-  short codeGen(Generator*);
+  short codeGen(Generator *);
 
   // get a printable string that identifies the operator
   const NAString getText() const { return "assign"; }
@@ -154,47 +141,39 @@ public:
   // Reads column heading and tablename and set these members
   // in Dynamic Parameter (for scalar param) and Hostvar (for array param)
   // ItemExprs. Used only for JDBC/WLI BLOB/CLOB implementation.
-  ItemExpr * SetParamHeadingAndTablename(BindWA *bindWA);
+  ItemExpr *SetParamHeadingAndTablename(BindWA *bindWA);
 
   NABoolean CanChild0BeImplicitlyCast() { return FALSE; };
 
-private:
-
+ private:
   // This refers to whether the assignment was specified by the user in the
   // DML stmt (INSERT or UPDATE), *not* whether the source or target is a
   // user column!  Binder-generated Assigns (keytags, index maintenance)
   // must set this field to FALSE.
   NABoolean userSpecified_;
 
-  NABoolean onRollback_;	// QSTUFF
+  NABoolean onRollback_;  // QSTUFF
 
   // Do the actual type propagation, to be called by the public synthesizeType methods.
-  const NAType *doSynthesizeType(ValueId & targetId, ValueId & sourceId);
+  const NAType *doSynthesizeType(ValueId &targetId, ValueId &sourceId);
 
   // Assign with omitted default value columns other than COM_CURRENT_DEFAULT class types
   NABoolean canBeSkipped_;
 
-}; // class Assign
+};  // class Assign
 
 // -----------------------------------------------------------------------
 // A convert operator converts one data type to another
 // -----------------------------------------------------------------------
-class Convert : public ItemExpr
-{
-
-public:
-
-  Convert(ItemExpr *input,
-		  UInt32 lastVOAOffset = 0,
-		  Int16 vcIndicatorLength = 0,
-		  Int16 nullIndicatorLength = 0,
-		  Int16 alignment = 0) :
-	  ItemExpr(ITM_CONVERT, input)
-  {
-	  lastVOAOffset_ = lastVOAOffset;
-	  lastVcIndicatorLength_ = vcIndicatorLength;
-	  lastNullIndicatorLength_ = nullIndicatorLength;
-	  alignment_ = alignment;
+class Convert : public ItemExpr {
+ public:
+  Convert(ItemExpr *input, UInt32 lastVOAOffset = 0, Int16 vcIndicatorLength = 0, Int16 nullIndicatorLength = 0,
+          Int16 alignment = 0)
+      : ItemExpr(ITM_CONVERT, input) {
+    lastVOAOffset_ = lastVOAOffset;
+    lastVcIndicatorLength_ = vcIndicatorLength;
+    lastNullIndicatorLength_ = nullIndicatorLength;
+    alignment_ = alignment;
   }
 
   // virtual destructor
@@ -207,55 +186,46 @@ public:
   const NAString getText() const { return "convert"; }
 
   virtual HashValue topHash();
-  virtual ItemExpr * copyTopNode(ItemExpr *derivedNode = NULL,
-				 CollHeap* outHeap = 0);
+  virtual ItemExpr *copyTopNode(ItemExpr *derivedNode = NULL, CollHeap *outHeap = 0);
 
   // virtual method to fixup tree for code generation.
-  virtual ItemExpr * preCodeGen(Generator*);
+  virtual ItemExpr *preCodeGen(Generator *);
 
   // method to do code generation
-  short codeGen(Generator*);
-private:
-  UInt32 lastVOAOffset_;
-  Int16  lastVcIndicatorLength_;
-  Int16  lastNullIndicatorLength_;
-  Int16  alignment_;
-}; // class Convert
+  short codeGen(Generator *);
 
-typedef LIST(ExprValueId*) ExprValueIdList;
+ private:
+  UInt32 lastVOAOffset_;
+  Int16 lastVcIndicatorLength_;
+  Int16 lastNullIndicatorLength_;
+  Int16 alignment_;
+};  // class Convert
+
+typedef LIST(ExprValueId *) ExprValueIdList;
 // -----------------------------------------------------------------------
 // An element of a list.
 // -----------------------------------------------------------------------
-class ItemList : public ItemExpr
-{
-
-public:
-
+class ItemList : public ItemExpr {
+ public:
   ItemList(ItemExpr *commaExpr, ItemExpr *otherExpr)
-       : ItemExpr(ITM_ITEM_LIST, commaExpr, otherExpr),
-	 numOfItems_(0), constChild_(FALSE),
-         myFlags_(0)
-  {}
+      : ItemExpr(ITM_ITEM_LIST, commaExpr, otherExpr), numOfItems_(0), constChild_(FALSE), myFlags_(0) {}
 
   // virtual destructor
   virtual ~ItemList() {}
 
   // does this query's selection predicate list qualify query
   // to be cacheable after this phase?
-  NABoolean isListOfCacheableSelPred(CacheWA& cwa, ItemList *other) const;
+  NABoolean isListOfCacheableSelPred(CacheWA &cwa, ItemList *other) const;
 
   // is any literal in this expr safely coercible to its target type?
-  virtual NABoolean isSafelyCoercible(CacheWA& cwa) const;
+  virtual NABoolean isSafelyCoercible(CacheWA &cwa) const;
 
   // change literals of a cacheable query into input parameters
-  ItemExpr* normalizeListForCache(CacheWA& cwa, BindWA& bindWA,
-                                  ItemList *other);
+  ItemExpr *normalizeListForCache(CacheWA &cwa, BindWA &bindWA, ItemList *other);
 
-  virtual NABoolean isCovered(const ValueIdSet& newExternalInputs,
-			      const GroupAttributes& newRelExprAnchorGA,
-	   	              ValueIdSet& referencedInputs,
-			      ValueIdSet& coveredSubExpr,
-			      ValueIdSet& unCoveredExpr) const;
+  virtual NABoolean isCovered(const ValueIdSet &newExternalInputs, const GroupAttributes &newRelExprAnchorGA,
+                              ValueIdSet &referencedInputs, ValueIdSet &coveredSubExpr,
+                              ValueIdSet &unCoveredExpr) const;
 
   virtual Int32 getArity() const;
 
@@ -266,47 +236,40 @@ public:
   NAString getConstantTextNullReplace(NAString replacement, NABoolean reverseOrder = FALSE);
 
   virtual NABoolean duplicateMatch(const ItemExpr &other) const;
-  virtual ItemExpr * copyTopNode(ItemExpr *derivedNode = NULL,
-				 CollHeap* outHeap = 0);
+  virtual ItemExpr *copyTopNode(ItemExpr *derivedNode = NULL, CollHeap *outHeap = 0);
 
   // a virtual function for performing name binding within the query tree
-  virtual ItemExpr * bindNode(BindWA *bindWA);
+  virtual ItemExpr *bindNode(BindWA *bindWA);
 
   // a virtual function for type propagating the node
   virtual const NAType *synthesizeType();
 
-
   // method to do code generation
-  short codeGen(Generator*);
+  short codeGen(Generator *);
 
   // a helper function collecting leaves into a list
-  ExprValueIdList* collectLeaves(CollHeap* heap = 0, ExprValueIdList* = 0);
+  ExprValueIdList *collectLeaves(CollHeap *heap = 0, ExprValueIdList * = 0);
 
   // a virtual function to set resolve incomplete type status to each
   // element in the list (for charset inference)
   void setResolveIncompleteTypeStatus(NABoolean x);
 
-  Int64 &numOfItems() {return numOfItems_;}
-  NABoolean &constChild() {return constChild_;}
+  Int64 &numOfItems() { return numOfItems_; }
+  NABoolean &constChild() { return constChild_; }
 
-  virtual NABoolean hasEquivalentProperties(ItemExpr * other); 
+  virtual NABoolean hasEquivalentProperties(ItemExpr *other);
 
-  NABoolean containsHbaseVisibilityExpr()
-  { return (myFlags_ & HBASE_VISIBILITY_EXPR) != 0; }
-  void setContainsHbaseVisibilityExpr(NABoolean v)
-  { (v ? myFlags_ |= HBASE_VISIBILITY_EXPR : myFlags_ &= ~HBASE_VISIBILITY_EXPR); };
-
-protected:
-
-private:
-  enum
-  {
-    HBASE_VISIBILITY_EXPR = 0x0001
+  NABoolean containsHbaseVisibilityExpr() { return (myFlags_ & HBASE_VISIBILITY_EXPR) != 0; }
+  void setContainsHbaseVisibilityExpr(NABoolean v) {
+    (v ? myFlags_ |= HBASE_VISIBILITY_EXPR : myFlags_ &= ~HBASE_VISIBILITY_EXPR);
   };
 
+ protected:
+ private:
+  enum { HBASE_VISIBILITY_EXPR = 0x0001 };
+
   // helper to change literals of a cacheable query into input parameters
-  void parameterizeMe(CacheWA& cachewa, BindWA& bindWA, ExprValueId& child,
-                      BaseColumn *base, ConstValue *val);
+  void parameterizeMe(CacheWA &cachewa, BindWA &bindWA, ExprValueId &child, BaseColumn *base, ConstValue *val);
 
   // total number of items below me.
   // Set when IN list is created during parsing for
@@ -319,26 +282,22 @@ private:
   NABoolean constChild_;
 
   UInt32 myFlags_;
-}; // class ItemList
+};  // class ItemList
 
 // -----------------------------------------------------------------------
 // A rename operator gives an expression a new ANSI name
 // -----------------------------------------------------------------------
-class RenameCol : public ItemExpr
-{
-
-public:
-
-  RenameCol(ItemExpr *input,
-	    ColRefName *newColRefName)
-  : ItemExpr(ITM_RENAME_COL, input),
-    targetColumnClass_(USER_COLUMN)
-  { newColRefName_ = newColRefName; }
+class RenameCol : public ItemExpr {
+ public:
+  RenameCol(ItemExpr *input, ColRefName *newColRefName)
+      : ItemExpr(ITM_RENAME_COL, input), targetColumnClass_(USER_COLUMN) {
+    newColRefName_ = newColRefName;
+  }
 
   // virtual destructor
   virtual ~RenameCol() {}
 
-  const ColRefName * getNewColRefName() const { return newColRefName_; }
+  const ColRefName *getNewColRefName() const { return newColRefName_; }
 
   // MV --
   inline void setTargetColumnClass(ColumnClass colClass) { targetColumnClass_ = colClass; }
@@ -352,35 +311,29 @@ public:
 
   virtual HashValue topHash();
   virtual NABoolean duplicateMatch(const ItemExpr &other) const;
-  virtual ItemExpr * copyTopNode(ItemExpr *derivedNode = NULL,
-				 CollHeap* outHeap = 0);
+  virtual ItemExpr *copyTopNode(ItemExpr *derivedNode = NULL, CollHeap *outHeap = 0);
 
   // a virtual function for performing name binding within the query tree
-  virtual ItemExpr * bindNode(BindWA *bindWA);
+  virtual ItemExpr *bindNode(BindWA *bindWA);
 
-private:
-
+ private:
   // the parser and binder work with textual column references
-  ColRefName*  newColRefName_;
+  ColRefName *newColRefName_;
 
   // MV --
   // Force this column to be added to the RETDesc as a system column.
   ColumnClass targetColumnClass_;
 
-}; // class RenameCol
+};  // class RenameCol
 
 // -----------------------------------------------------------------------
 // A ValueIdRef is a node generated by the SQL binder to denote
 // the derivation hierarchy for ValueDescs.
 // -----------------------------------------------------------------------
 
-class ValueIdRef : public ItemExpr
-{
-
-public:
-
-  ValueIdRef(ValueId valId) : ItemExpr(ITM_VALUEIDREF),
-                              derivedFrom_(valId) {}
+class ValueIdRef : public ItemExpr {
+ public:
+  ValueIdRef(ValueId valId) : ItemExpr(ITM_VALUEIDREF), derivedFrom_(valId) {}
 
   virtual ~ValueIdRef() {}
 
@@ -389,37 +342,32 @@ public:
 
   ValueId isDerivedFrom() const { return derivedFrom_; }
 
-  virtual NABoolean isCovered(const ValueIdSet& newExternalInputs,
-			      const GroupAttributes& newRelExprAnchorGA,
-	   	              ValueIdSet& referencedInputs,
-			      ValueIdSet& coveredSubExpr,
-			      ValueIdSet& unCoveredExpr) const;
+  virtual NABoolean isCovered(const ValueIdSet &newExternalInputs, const GroupAttributes &newRelExprAnchorGA,
+                              ValueIdSet &referencedInputs, ValueIdSet &coveredSubExpr,
+                              ValueIdSet &unCoveredExpr) const;
 
   virtual HashValue topHash();
   virtual NABoolean duplicateMatch(const ItemExpr &other) const;
-  virtual ItemExpr * copyTopNode(ItemExpr *derivedNode = NULL,
-				 CollHeap* outHeap = 0);
+  virtual ItemExpr *copyTopNode(ItemExpr *derivedNode = NULL, CollHeap *outHeap = 0);
 
-  virtual OrderComparison sameOrder(ItemExpr *other,
-				    NABoolean askOther = TRUE);
+  virtual OrderComparison sameOrder(ItemExpr *other, NABoolean askOther = TRUE);
 
   // method to do code generation
-  short codeGen(Generator*);
+  short codeGen(Generator *);
 
   // get a printable string that identifies the operator
   const NAString getText() const;
 
-private:
-
+ private:
   // the ValueId from which this reference is derived
-  ValueId  derivedFrom_;
+  ValueId derivedFrom_;
 
-}; // class ValueIdRef
+};  // class ValueIdRef
 
 //! ValueIdProxy  class
 // -----------------------------------------------------------------------
 // A ValueIdProxy is a node generated by the SQL binder to represent
-// an additional outputs of the node (typically a subquery or a Multi Valued 
+// an additional outputs of the node (typically a subquery or a Multi Valued
 // function) is derived from.  So if you have a query like this:
 // select * from t where (a,b) = (select (select mvf(a) from t3) from t2)
 // and the mvf outputs 2 numbers, then the binder will assign one valueId
@@ -432,91 +380,82 @@ private:
 //
 // -----------------------------------------------------------------------
 
-class ValueIdProxy : public ItemExpr
-{
+class ValueIdProxy : public ItemExpr {
+ public:
+  //! ValueIdProxy::ValueIdProxy() constructor
+  ValueIdProxy(ValueId valId, ValueId outputId, Int32 outputNum, NABoolean transformChild = FALSE)
+      : ItemExpr(ITM_VALUEID_PROXY),
+        derivedFrom_(valId),
+        outputValueId_(outputId),
+        transformDerivedFromValueId_(transformChild),
+        outputOrdinalNumber_(outputNum) {}
 
-public:
-
-  //! ValueIdProxy::ValueIdProxy() constructor 
-  ValueIdProxy(ValueId valId, ValueId outputId, Int32 outputNum,
-               NABoolean transformChild = FALSE) : 
-                 ItemExpr(ITM_VALUEID_PROXY),
-                    derivedFrom_(valId),
-                    outputValueId_(outputId), 
-                    transformDerivedFromValueId_(transformChild), 
-                    outputOrdinalNumber_(outputNum) {}
-
-
-  //! ValueIdProxy::~ValueIdProxy() destructor 
+  //! ValueIdProxy::~ValueIdProxy() destructor
   virtual ~ValueIdProxy() {}
 
-  //! getArity() method 
+  //! getArity() method
   // get the degree of this node (it is a leaf node)
-  virtual Int32 getArity() const  { return 0 ; }
+  virtual Int32 getArity() const { return 0; }
 
-  //! needToTransformChild() method 
+  //! needToTransformChild() method
   // This method is unique to this class. It is used to mark the "parent"
   // or "source" of other valueIdProxies. For example, say we have a subquery
-  // that contains "a" and "b" in its select list. If this subquery gets 
+  // that contains "a" and "b" in its select list. If this subquery gets
   // expanded and replaces by the values in its select list, then the first
-  // valueIdProxy points to the subquery it self, it will have the 
-  // transformChild flag set, and while representing the subquery from a 
-  // transformation point of view, it only represents the output "a" from 
+  // valueIdProxy points to the subquery it self, it will have the
+  // transformChild flag set, and while representing the subquery from a
+  // transformation point of view, it only represents the output "a" from
   // a results point of view. The subsequent ValueIdProxy produced for this
   // subquery will contain the valueId for "b" as its output valueId, the
   // subquery's valueId for the derivedFrom valueId, and will not have the
-  // transformChild flag set. 
+  // transformChild flag set.
 
   // By doing this we guarantee that the subquery will only be transformed
   // once regardless of the order the valueIdProxies created from the subquery
   // are transformed.
-  
-  inline NABoolean needToTransformChild() const 
-     { return transformDerivedFromValueId_; }
 
-  //! isDerivedFrom() method 
+  inline NABoolean needToTransformChild() const { return transformDerivedFromValueId_; }
+
+  //! isDerivedFrom() method
   // This method is unique to this class. It returns the valueId of the "source"
   // of the the ValueIdProxy. For now only a subquery or MVF.
   inline ValueId isDerivedFrom() const { return derivedFrom_; }
 
-  //! getOutputId() method 
-  // This method is unique to this class. It returns the valueId the 
+  //! getOutputId() method
+  // This method is unique to this class. It returns the valueId the
   // ValueIdProxy actually will represent.
-  inline ValueId getOutputId() const   { return outputValueId_; }
+  inline ValueId getOutputId() const { return outputValueId_; }
 
-  //! getOutputNum() method 
-  // This method is unique to this class. It returns the ordinal number 
+  //! getOutputNum() method
+  // This method is unique to this class. It returns the ordinal number
   // of the ValueIdProxy. This number corresponds to the position in the
-  // select list of a subquery or the output parameter number of a MVF. 
-  inline Int32 getOutputNum() const      { return outputOrdinalNumber_; }
+  // select list of a subquery or the output parameter number of a MVF.
+  inline Int32 getOutputNum() const { return outputOrdinalNumber_; }
 
   //! generateCacheKey() method
   // append an ascii-version of the derivedFrom_ node into cachewa.qryText_
-  virtual void generateCacheKey(CacheWA& cwa) const;
+  virtual void generateCacheKey(CacheWA &cwa) const;
 
   //! hasNoLiterals() method
-  // return true if ItemExpr & its descendants have no constants 
+  // return true if ItemExpr & its descendants have no constants
   // and no noncacheable nodes
-  virtual NABoolean hasNoLiterals(CacheWA& cwa);
+  virtual NABoolean hasNoLiterals(CacheWA &cwa);
 
   //! isSafelyCoercible() method
   // is any literal in this expr safely coercible to its target type?
-  virtual NABoolean isSafelyCoercible(CacheWA& cwa) const;
+  virtual NABoolean isSafelyCoercible(CacheWA &cwa) const;
 
   //! normalizeForCache() method
-  // change literals of a cacheable query into ConstantParameters 
-  virtual ItemExpr* normalizeForCache(CacheWA& cwa, 
-                                                    BindWA& bindWA);
+  // change literals of a cacheable query into ConstantParameters
+  virtual ItemExpr *normalizeForCache(CacheWA &cwa, BindWA &bindWA);
 
-  //! isCovered() method 
+  //! isCovered() method
   // See ItemExpr.h
-  virtual NABoolean isCovered(const ValueIdSet& newExternalInputs,
-			      const GroupAttributes& newRelExprAnchorGA,
-	   	              ValueIdSet& referencedInputs,
-			      ValueIdSet& coveredSubExpr,
-			      ValueIdSet& unCoveredExpr) const;
+  virtual NABoolean isCovered(const ValueIdSet &newExternalInputs, const GroupAttributes &newRelExprAnchorGA,
+                              ValueIdSet &referencedInputs, ValueIdSet &coveredSubExpr,
+                              ValueIdSet &unCoveredExpr) const;
 
-  //! synthesizeType() method 
+  //! synthesizeType() method
   // returns the type of the outputValueId.
   virtual const NAType *synthesizeType();
 
@@ -525,82 +464,76 @@ public:
   // is called by coerceType(). It will attempt to coerce (a recursive call)
   // the type of the node we are Proxy for to the desired type.
   //
-  const NAType *pushDownType(NAType &desiredType,
-                       enum NABuiltInTypeEnum defaultQualifier);
+  const NAType *pushDownType(NAType &desiredType, enum NABuiltInTypeEnum defaultQualifier);
 
-  //! getType() method 
+  //! getType() method
   // returns the type of the outputValueId.
-  virtual const NAType &getType() const   { return outputValueId_.getType(); }
+  virtual const NAType &getType() const { return outputValueId_.getType(); }
 
-  //! topHash() method 
+  //! topHash() method
   // See ItemExpr.h
   virtual HashValue topHash();
 
   //! transformNode method
   // See ItemExpr.h
-  virtual void transformNode (NormWA & normWARef,
-                              ExprValueId & locationOfPointerToMe,
-                              ExprGroupId & introduceSemiJoinHere,
-                              const ValueIdSet & externalInputs);
+  virtual void transformNode(NormWA &normWARef, ExprValueId &locationOfPointerToMe, ExprGroupId &introduceSemiJoinHere,
+                             const ValueIdSet &externalInputs);
 
-  //! duplicateMatch() method 
+  //! duplicateMatch() method
   // See ItemExpr.h
   virtual NABoolean duplicateMatch(const ItemExpr &other) const;
 
-  //! copyTopNode() method 
+  //! copyTopNode() method
   // See ItemExpr.h
-  virtual ItemExpr * copyTopNode(ItemExpr *derivedNode = NULL,
-				 CollHeap* outHeap = 0);
+  virtual ItemExpr *copyTopNode(ItemExpr *derivedNode = NULL, CollHeap *outHeap = 0);
 
-  //! getText() method 
+  //! getText() method
   // get a printable string that identifies the operator
   virtual const NAString getText() const;
 
-
-  //! containsUDF() method 
+  //! containsUDF() method
   // return an ItemExpr pointer to the derived node if it contains a UDF
   virtual ItemExpr *containsUDF();
 
-  //! containsIsolatedUDFunction() method 
+  //! containsIsolatedUDFunction() method
   // return TRUE if the derived node contains an Isolated UDF
   virtual NABoolean containsIsolatedUDFunction();
 
-  //! containsSubquery() method 
+  //! containsSubquery() method
   // return TRUE if the derived node contains an Subquery
   virtual NABoolean containsSubquery();
 
-  //! containsValueIdProxySibling() method 
+  //! containsValueIdProxySibling() method
   // This method is unique to this class.
-  // return TRUE if the derivedFrom_ is the same in any of the 
+  // return TRUE if the derivedFrom_ is the same in any of the
   // ValueIdProxies in the siblings set.
-  virtual NABoolean containsValueIdProxySibling( const ValueIdSet &siblings);
+  virtual NABoolean containsValueIdProxySibling(const ValueIdSet &siblings);
 
-  //! setTransformChild() method 
+  //! setTransformChild() method
   // This method is unique to this class.
   // sets the transformChild_ class member to value given. Used to indicate
   // that this particular ValueIdProxy should transform the derivedFrom
   // valueId, when set to TRUE.
-  void setTransformChild(NABoolean transform) 
-    { transformDerivedFromValueId_ = transform; }
+  void setTransformChild(NABoolean transform) { transformDerivedFromValueId_ = transform; }
 
-private:
+ private:
   // Not used, not implemented:
   ValueIdProxy(ValueIdProxy &other);
   ValueIdProxy &operator=(ValueIdProxy &other);
 
   //! a flag to indicate if we need to transform the derivedFrom valueId.
-  NABoolean  transformDerivedFromValueId_;
+  NABoolean transformDerivedFromValueId_;
 
   //! the ValueId from which this reference is derived
-  ValueId  derivedFrom_;
+  ValueId derivedFrom_;
 
   //! the ValueId of the output if we know it...
-  ValueId  outputValueId_;
+  ValueId outputValueId_;
 
   //! the ordinal number of the output, ie. first, second ..
-  Int32  outputOrdinalNumber_;
+  Int32 outputOrdinalNumber_;
 
-}; // class ValueIdProxy
+};  // class ValueIdProxy
 
 // -----------------------------------------------------------------------
 // A ValueIdUnion is used whenever two or more data streams are
@@ -610,33 +543,16 @@ private:
 // by a list of ValueIdUnion item expressions. One ValueIdUnion
 // is allocated per output expression/field.
 // -----------------------------------------------------------------------
-class ValueIdUnion : public ItemExpr
-{
-
-public:
-
-  ValueIdUnion(ValueId lvid,
-	       ValueId rvid,
-	       ValueId resid,
-	       Int32 flags = Union::UNION_NONE)
-    : ItemExpr(ITM_VALUEIDUNION),
-      result_(resid),
-      flags_(flags),
-      otherFlags_(0),
-      labelValues_(NULL)
-  {
+class ValueIdUnion : public ItemExpr {
+ public:
+  ValueIdUnion(ValueId lvid, ValueId rvid, ValueId resid, Int32 flags = Union::UNION_NONE)
+      : ItemExpr(ITM_VALUEIDUNION), result_(resid), flags_(flags), otherFlags_(0), labelValues_(NULL) {
     sources_.insert(lvid);
     sources_.insert(rvid);
   }
 
   ValueIdUnion(ValueIdList vids, ValueId resid, Int32 flags = Union::UNION_NONE)
-    : ItemExpr(ITM_VALUEIDUNION),
-      result_(resid),
-      flags_(flags),
-      otherFlags_(0),
-      sources_(vids),
-      labelValues_(NULL)
-  {}
+      : ItemExpr(ITM_VALUEIDUNION), result_(resid), flags_(flags), otherFlags_(0), sources_(vids), labelValues_(NULL) {}
 
   virtual ~ValueIdUnion() {}
 
@@ -646,8 +562,7 @@ public:
   // get and set the ValueIds of the underlying sources that are
   // in corresponding positions
 
-  ValueId getLeftSource()
-  {
+  ValueId getLeftSource() {
     CMPASSERT(entries() == 2);
     return sources_[0];
   };
@@ -659,16 +574,15 @@ public:
 
   ValueId getSource(Lng32 index) const { return sources_[index]; }
 
-  void changeSource(Lng32 index, ValueId newvid) { sources_[index]= newvid; }
+  void changeSource(Lng32 index, ValueId newvid) { sources_[index] = newvid; }
 
   const ValueIdList getSources() const { return sources_; }
 
-  CollIndex entries() const { return sources_.entries();}
+  CollIndex entries() const { return sources_.entries(); }
 
   // The result contains the ValueId for the value that the union
   // produces as its result.
-  ValueId getResult()
-  {
+  ValueId getResult() {
     if (result_ == NULL_VALUE_ID)
       return getValueId();
     else
@@ -681,11 +595,10 @@ public:
   void setResult(ValueId v) { result_ = v; }
 
   // a virtual function for performing name binding within the query tree
-  virtual ItemExpr * bindNode(BindWA *bindWA);
+  virtual ItemExpr *bindNode(BindWA *bindWA);
 
   // a virtual function for type propagating the node
-  virtual const NAType * synthesizeType();
-
+  virtual const NAType *synthesizeType();
 
   // ValueIdUnion::pushDownType() -----------------------------------
   // Propogate type information down the ItemExpr tree.  This method
@@ -694,16 +607,13 @@ public:
   // This only has an affect when none of the members of the ValueIdUnion
   // could be typed bottom up.
   //
-  const NAType *pushDownType(NAType &desiredType,
-                       enum NABuiltInTypeEnum defaultQualifier);
+  const NAType *pushDownType(NAType &desiredType, enum NABuiltInTypeEnum defaultQualifier);
 
-  virtual ItemExpr * tryToDoImplicitCasting(BindWA *bindWA);
+  virtual ItemExpr *tryToDoImplicitCasting(BindWA *bindWA);
 
-  virtual NABoolean isCovered(const ValueIdSet& newExternalInputs,
-			      const GroupAttributes& newRelExprAnchorGA,
-	   	              ValueIdSet& referencedInputs,
-			      ValueIdSet& coveredSubExpr,
-			      ValueIdSet& unCoveredExpr) const;
+  virtual NABoolean isCovered(const ValueIdSet &newExternalInputs, const GroupAttributes &newRelExprAnchorGA,
+                              ValueIdSet &referencedInputs, ValueIdSet &coveredSubExpr,
+                              ValueIdSet &unCoveredExpr) const;
 
   // --------------------------------------------------------------------
   // Walk through an ItemExpr tree and gather the ValueIds of those
@@ -713,76 +623,61 @@ public:
   // that are produced in one "scope" and referenced above that "scope"
   // in the dataflow tree for the query.
   // --------------------------------------------------------------------
-  virtual void getLeafValuesForCoverTest(ValueIdSet & leafValues, 
-                                         const GroupAttributes& coveringGA,
-                                         const ValueIdSet & newExternalInputs) const;
+  virtual void getLeafValuesForCoverTest(ValueIdSet &leafValues, const GroupAttributes &coveringGA,
+                                         const ValueIdSet &newExternalInputs) const;
 
   // Vanilla implementation for normalizing a ValueIdUnion
-  virtual ItemExpr * normalizeNode(NormWA & normWARef);
+  virtual ItemExpr *normalizeNode(NormWA &normWARef);
 
   // A special variant for normalizing each child of this node
   // individually.
-  ItemExpr * normalizeSpecificChild(NormWA & normWARef, Lng32 childIndex);
+  ItemExpr *normalizeSpecificChild(NormWA &normWARef, Lng32 childIndex);
 
   virtual HashValue topHash();
   virtual NABoolean duplicateMatch(const ItemExpr &other) const;
-  virtual ItemExpr * copyTopNode(ItemExpr *derivedNode = NULL,
-				 CollHeap* outHeap = 0);
+  virtual ItemExpr *copyTopNode(ItemExpr *derivedNode = NULL, CollHeap *outHeap = 0);
 
   // A method for replacing VEGReference and VEGPredicate objects
   // with another expression that belongs to the VEG as well as to the
   // set of availableValues.
-  virtual ItemExpr * replaceVEGExpressions
-                        (const ValueIdSet& availableValues,
-                         const ValueIdSet& inputValues,
-                         NABoolean useBridgeValues = TRUE,
-                         VEGRewritePairs * lookup = NULL,
-                         NABoolean replicateExpression = FALSE,
-                         const ValueIdSet * joinInputAndPotentialOutput = NULL,
-                         const IndexDesc * iDesc = NULL,
-                         const GroupAttributes * left_ga = NULL,
-                         const GroupAttributes * right_ga = NULL);
+  virtual ItemExpr *replaceVEGExpressions(const ValueIdSet &availableValues, const ValueIdSet &inputValues,
+                                          NABoolean useBridgeValues = TRUE, VEGRewritePairs *lookup = NULL,
+                                          NABoolean replicateExpression = FALSE,
+                                          const ValueIdSet *joinInputAndPotentialOutput = NULL,
+                                          const IndexDesc *iDesc = NULL, const GroupAttributes *left_ga = NULL,
+                                          const GroupAttributes *right_ga = NULL);
 
   // method to do code generation
-  virtual short codeGen(Generator*);
+  virtual short codeGen(Generator *);
 
   // get a printable string that identifies the operator
   virtual const NAString getText() const;
-          const NAString getText(UnparseFormatEnum form) const;
+  const NAString getText(UnparseFormatEnum form) const;
 
   // Only the parent Union expr (if the parent IS a Union, that is)
   // should call setUnionFlags!
-  void setUnionFlags(Int32 f)	{ flags_ = f; }
-  Int32 getUnionFlags()		{ return flags_; }
+  void setUnionFlags(Int32 f) { flags_ = f; }
+  Int32 getUnionFlags() { return flags_; }
 
-  NABoolean isTrueUnion()
-  { return (otherFlags_ & IS_TRUE_UNION) != 0; }
-  void setIsTrueUnion(NABoolean v)
-  { (v ? otherFlags_ |= IS_TRUE_UNION : otherFlags_ &= ~IS_TRUE_UNION); };
+  NABoolean isTrueUnion() { return (otherFlags_ & IS_TRUE_UNION) != 0; }
+  void setIsTrueUnion(NABoolean v) { (v ? otherFlags_ |= IS_TRUE_UNION : otherFlags_ &= ~IS_TRUE_UNION); };
 
-  NABoolean isCastTo()
-  { return (otherFlags_ & IS_CAST_TO) != 0; }
-  void setIsCastTo(NABoolean v)
-  { (v ? otherFlags_ |= IS_CAST_TO : otherFlags_ &= ~IS_CAST_TO); };
+  NABoolean isCastTo() { return (otherFlags_ & IS_CAST_TO) != 0; }
+  void setIsCastTo(NABoolean v) { (v ? otherFlags_ |= IS_CAST_TO : otherFlags_ &= ~IS_CAST_TO); };
 
-  NABoolean isALabel()
-  { return labelValues_ != NULL; }
+  NABoolean isALabel() { return labelValues_ != NULL; }
 
   void determineLabelValues();
 
-private:
-  enum
-  {
-    IS_TRUE_UNION = 0x0001,
-    IS_CAST_TO    = 0x0002
-  };
+ private:
+  enum { IS_TRUE_UNION = 0x0001, IS_CAST_TO = 0x0002 };
 
   // ValueIds of sources that are in corresponding positions
   ValueIdList sources_;
 
-  ValueId  result_;
+  ValueId result_;
 
-  Int32 flags_;		// enum Union::UnionFlags value copied from parent Union
+  Int32 flags_;  // enum Union::UnionFlags value copied from parent Union
 
   Int32 otherFlags_;
 
@@ -795,7 +690,7 @@ private:
   // I'm not quite ready to tackle that.
   ValueIdSet *labelValues_;
 
-}; // class ValueIdUnion
+};  // class ValueIdUnion
 
 // -----------------------------------------------------------------------
 // VEG : A ValueId Equality Group
@@ -807,68 +702,63 @@ private:
 // to an equality group to be replaced by any other ValueId from
 // the same equality group.
 // -----------------------------------------------------------------------
-class VEG : public ItemExpr
-{
-public:
+class VEG : public ItemExpr {
+ public:
   VEG();
-  VEG(const ValueIdSet & vegSet);
+  VEG(const ValueIdSet &vegSet);
 
   virtual ~VEG();
 
   // get the degree of this node (it is a leaf node)
   virtual Int32 getArity() const;
 
-  void insert(const ValueId & newValue);
-  void insert(const ValueIdSet & newValues);
-  void merge(const VEG& other);
+  void insert(const ValueId &newValue);
+  void insert(const ValueIdSet &newValues);
+  void merge(const VEG &other);
 
   // A record of the normalized state. Set by the normalizer.
-  void  setNormalized()                                 { done_ = TRUE; }
-  NABoolean  isNormalized()                             { return done_; }
+  void setNormalized() { done_ = TRUE; }
+  NABoolean isNormalized() { return done_; }
 
   // Store and retrieve the ValueId of the common VEGReference
   // that should be used for referencing any member of this
   // VEG.
-  void setVEGReference(VEGReference * vegrefPtr) { vegRef_ = vegrefPtr; }
-  VEGReference * getVEGReference() const { return vegRef_; }
+  void setVEGReference(VEGReference *vegrefPtr) { vegRef_ = vegrefPtr; }
+  VEGReference *getVEGReference() const { return vegRef_; }
 
   // Store and retrieve the ValueId of the comman VEGPredicate
   // that replaces each "=" predicate subsumed by this VEG.
-  void setVEGPredicate(VEGPredicate * vegpredPtr) { vegPred_ = vegpredPtr; }
-  VEGPredicate * getVEGPredicate() const                { return vegPred_; }
+  void setVEGPredicate(VEGPredicate *vegpredPtr) { vegPred_ = vegpredPtr; }
+  VEGPredicate *getVEGPredicate() const { return vegPred_; }
 
-  Lng32 getCountOfUserSuppliedInputs() const          { return userInputs_; }
+  Lng32 getCountOfUserSuppliedInputs() const { return userInputs_; }
 
   // return a constant, hostvar or parameter that is part of this VEG
   ValueId getAConstantHostVarOrParameter() const;
 
   // return a constant that is part of this VEG
-  ValueId getAConstant(NABoolean includeCacheParam = FALSE, 
-		       NABoolean lookBeneathVEG = FALSE) const;
+  ValueId getAConstant(NABoolean includeCacheParam = FALSE, NABoolean lookBeneathVEG = FALSE) const;
 
   virtual HashValue topHash();
   virtual NABoolean duplicateMatch(const ItemExpr &other) const;
-  virtual ItemExpr * copyTopNode(ItemExpr *derivedNode = NULL,
-				 CollHeap* outHeap = 0);
+  virtual ItemExpr *copyTopNode(ItemExpr *derivedNode = NULL, CollHeap *outHeap = 0);
 
-  const ValueIdSet & getAllValues() const { return eqGroup_; }
-  ValueIdSet & getAllValuesToUpdate()     { return eqGroup_; }
+  const ValueIdSet &getAllValues() const { return eqGroup_; }
+  ValueIdSet &getAllValuesToUpdate() { return eqGroup_; }
 
   // getAllValues may not expand VegRefs which are inside
   // a VEG, this does:
-  void getAndExpandAllValues(ValueIdSet& expandedValues) const;
-
+  void getAndExpandAllValues(ValueIdSet &expandedValues) const;
 
   // Method used for keeping track of referenced values.
-  const ValueIdSet & getReferencedValues() const
-                                               { return referencedValues_; }
-  void markAsReferenced(const ValueId & vid);
+  const ValueIdSet &getReferencedValues() const { return referencedValues_; }
+  void markAsReferenced(const ValueId &vid);
 
   // Method for saving and accessing the last value for which a predicate
   // was generated.
-  void setBridgeValue(const ValueId & bridgeValueId);
-  const ValueIdSet & getBridgeValues() const { return bridgeValues_; }
-  void removeBridgeValues(const ValueIdSet & vidSet) { bridgeValues_ -= vidSet; }
+  void setBridgeValue(const ValueId &bridgeValueId);
+  const ValueIdSet &getBridgeValues() const { return bridgeValues_; }
+  void removeBridgeValues(const ValueIdSet &vidSet) { bridgeValues_ -= vidSet; }
 
   // get a printable string that identifies the operator
   const NAString getText() const;
@@ -882,25 +772,25 @@ public:
   // we change a member in the class, although the member being changed is not
   // a very important element for the class.
   //
-  NABoolean seenBefore() const                       { return seenBefore_; }
-  void markAsSeenBefore() const       { ((VEG *)this)->seenBefore_ = TRUE; }
-  void markAsNotSeenBefore() const   { ((VEG *)this)->seenBefore_ = FALSE; }
+  NABoolean seenBefore() const { return seenBefore_; }
+  void markAsSeenBefore() const { ((VEG *)this)->seenBefore_ = TRUE; }
+  void markAsNotSeenBefore() const { ((VEG *)this)->seenBefore_ = FALSE; }
 
-  void setSpecialNulls(NABoolean flag) {specialNulls_ = flag; }
-  NABoolean getSpecialNulls()	    const	{ return specialNulls_; }
+  void setSpecialNulls(NABoolean flag) { specialNulls_ = flag; }
+  NABoolean getSpecialNulls() const { return specialNulls_; }
 
-private:
+ private:
   // Set to TRUE after the transitive closure is computed.
-  NABoolean  done_;
+  NABoolean done_;
 
   // The set of all transitively related values.
   ValueIdSet eqGroup_;
 
   // The VEGReference that is allocated for this VEG.
-  VEGReference*  vegRef_;
+  VEGReference *vegRef_;
 
   // The VEGPredicate that is allocated for this VEG.
-  VEGPredicate* vegPred_;
+  VEGPredicate *vegPred_;
 
   // -- The following data is used by the predicate pushdown logic
 
@@ -931,7 +821,7 @@ private:
   // That means that nulls are equal to other nulls
   NABoolean specialNulls_;
 
-}; // class VEG
+};  // class VEG
 
 // -----------------------------------------------------------------------
 // VEGPredicate : An equality predicate
@@ -941,11 +831,10 @@ private:
 // rooted in a binary relational operator, whose children belong
 // to the same ValueId Equality Group (VEG).
 // -----------------------------------------------------------------------
-class VEGPredicate : public ItemExpr
-{
-public:
-  VEGPredicate(const ValueId & ofVEG);
-  VEGPredicate(const VEGPredicate&);
+class VEGPredicate : public ItemExpr {
+ public:
+  VEGPredicate(const ValueId &ofVEG);
+  VEGPredicate(const VEGPredicate &);
 
   virtual ~VEGPredicate();
 
@@ -956,26 +845,24 @@ public:
   virtual NABoolean isAPredicate() const;
 
   // a virtual function for type propagating the node
-  virtual const NAType * synthesizeType();
+  virtual const NAType *synthesizeType();
 
-  void replaceVEG(const ValueId & ofVEG); // used when VEGs are merged
-  VEG * getVEG() const { return ((VEG *)(veg_.getItemExpr())); }
-  VEG * getVEGToUpdate() { return ((VEG *)(veg_.getItemExpr())); }
+  void replaceVEG(const ValueId &ofVEG);  // used when VEGs are merged
+  VEG *getVEG() const { return ((VEG *)(veg_.getItemExpr())); }
+  VEG *getVEGToUpdate() { return ((VEG *)(veg_.getItemExpr())); }
 
   // ++MV - Irena
-  NABoolean getSpecialNulls()	    const	{ return specialNulls_; }
-  void	    setSpecialNulls(NABoolean flag)	{ specialNulls_ = flag; }
-  NABoolean getCompatibleNulls()	    const	{ return compatibleNulls_; }
-  void	    setCompatibleNulls(NABoolean flag)	{ compatibleNulls_ = flag; }
+  NABoolean getSpecialNulls() const { return specialNulls_; }
+  void setSpecialNulls(NABoolean flag) { specialNulls_ = flag; }
+  NABoolean getCompatibleNulls() const { return compatibleNulls_; }
+  void setCompatibleNulls(NABoolean flag) { compatibleNulls_ = flag; }
   // --MV - Irena
 
-  ValueIdSet & getPredsWithSelectivities() { return predsWithSelectivities_; };
+  ValueIdSet &getPredsWithSelectivities() { return predsWithSelectivities_; };
 
-  virtual NABoolean isCovered(const ValueIdSet& newExternalInputs,
-			      const GroupAttributes& newRelExprAnchorGA,
-	   	              ValueIdSet& referencedInputs,
-			      ValueIdSet& coveredSubExpr,
-			      ValueIdSet& unCoveredExpr) const;
+  virtual NABoolean isCovered(const ValueIdSet &newExternalInputs, const GroupAttributes &newRelExprAnchorGA,
+                              ValueIdSet &referencedInputs, ValueIdSet &coveredSubExpr,
+                              ValueIdSet &unCoveredExpr) const;
 
   // --------------------------------------------------------------------
   // Walk through an ItemExpr tree and gather the ValueIds of those
@@ -985,89 +872,70 @@ public:
   // that are produced in one "scope" and referenced above that "scope"
   // in the dataflow tree for the query.
   // --------------------------------------------------------------------
-  virtual void getLeafValuesForCoverTest(ValueIdSet & leafValues, 
-                                         const GroupAttributes& coveringGA,
-                                         const ValueIdSet & newExternalInputs) const;
+  virtual void getLeafValuesForCoverTest(ValueIdSet &leafValues, const GroupAttributes &coveringGA,
+                                         const ValueIdSet &newExternalInputs) const;
 
   // Each operator supports a (virtual) method for transforming its
   // query tree to a canonical form. The parameter setOfPredExpr is
   // supplied only when predicates are normalized.
-  virtual ItemExpr * normalizeNode(NormWA & normWARef);
+  virtual ItemExpr *normalizeNode(NormWA &normWARef);
 
   // default selectivity for VEGPredicates
-  virtual double defaultSel() ;
+  virtual double defaultSel();
 
-  virtual NABoolean applyDefaultPred(ColStatDescList & histograms,
-                                     OperatorTypeEnum exprOpCode,
-                                     ValueId predValueId,
-                                     NABoolean & globalPredicate,
-                                     CostScalar *maxSelectivity=NULL);
+  virtual NABoolean applyDefaultPred(ColStatDescList &histograms, OperatorTypeEnum exprOpCode, ValueId predValueId,
+                                     NABoolean &globalPredicate, CostScalar *maxSelectivity = NULL);
 
   // the VEG predicates are supported by the statistics synthesis functions
   virtual NABoolean synthSupportedOp() const;
 
   virtual HashValue topHash();
   virtual NABoolean duplicateMatch(const ItemExpr &other) const;
-  virtual ItemExpr * copyTopNode(ItemExpr *derivedNode = NULL,
-				 CollHeap* outHeap = 0);
+  virtual ItemExpr *copyTopNode(ItemExpr *derivedNode = NULL, CollHeap *outHeap = 0);
 
-  virtual ItemExpr * copyTopNodeNonleaf(ItemExpr*, CollHeap* outHeap) 
-     { return copyTopNodeAndValueId(outHeap); };
+  virtual ItemExpr *copyTopNodeNonleaf(ItemExpr *, CollHeap *outHeap) { return copyTopNodeAndValueId(outHeap); };
 
   // A method for replacing VEGReference and VEGPredicate objects
   // with another expression that belongs to the VEG as well as to the
   // set of availableValues.
-  virtual ItemExpr * replaceVEGExpressions
-                        (const ValueIdSet& availableValues,
-                         const ValueIdSet& inputValues,
-                         NABoolean useBridgeValues = TRUE,
-                         VEGRewritePairs * lookup = NULL,
-                         NABoolean replicateExpression = FALSE,
-                         const ValueIdSet * joinInputAndPotentialOutput = NULL,
-                         const IndexDesc *iDesc = NULL,
-                         const GroupAttributes * left_ga = NULL,
-                         const GroupAttributes * right_ga = NULL);
+  virtual ItemExpr *replaceVEGExpressions(const ValueIdSet &availableValues, const ValueIdSet &inputValues,
+                                          NABoolean useBridgeValues = TRUE, VEGRewritePairs *lookup = NULL,
+                                          NABoolean replicateExpression = FALSE,
+                                          const ValueIdSet *joinInputAndPotentialOutput = NULL,
+                                          const IndexDesc *iDesc = NULL, const GroupAttributes *left_ga = NULL,
+                                          const GroupAttributes *right_ga = NULL);
 
   // Methods used by the code generator for replacing a reference
   // to a VEGPredicate with an equality predicate that relates
   // any two members of the VEG, which also belong to availableValues.
-  ItemExpr *replaceVEGPredicate(const ValueIdSet& availableValues,
-                                const ValueIdSet& inputValues,
-				VEGRewritePairs* lookup,
-                                const ValueIdSet * joinInputAndPotentialOutput = NULL);
+  ItemExpr *replaceVEGPredicate(const ValueIdSet &availableValues, const ValueIdSet &inputValues,
+                                VEGRewritePairs *lookup, const ValueIdSet *joinInputAndPotentialOutput = NULL);
 
   // get a printable string that identifies the operator
   const NAString getText() const;
-  virtual void unparse(NAString &result,
-		       PhaseEnum phase = OPTIMIZER_PHASE,
-		       UnparseFormatEnum form = USER_FORMAT,
-		       TableDesc * tabId = NULL) const;
+  virtual void unparse(NAString &result, PhaseEnum phase = OPTIMIZER_PHASE, UnparseFormatEnum form = USER_FORMAT,
+                       TableDesc *tabId = NULL) const;
 
   // MDAM related methods
   // Performs the MDAM tree walk.  See ItemExpr.h for a detailed description.
-  DisjunctArray * mdamTreeWalk();
-
+  DisjunctArray *mdamTreeWalk();
 
   // remove non-pushabe predicates for ORC.
-  virtual ItemExpr* removeNonPushablePredicatesForORC();
+  virtual ItemExpr *removeNonPushablePredicatesForORC();
 
-private:
-
+ private:
   // Method used by the code generator for replacing a reference
   // to a VEGPredicate with an equality predicate that relates
   // any two members of the VEG, which also belong to availableValues.
-  ItemExpr* replaceVEGPredicate(const ValueIdSet& availableValues,
-                                const ValueIdSet& inputValues);
+  ItemExpr *replaceVEGPredicate(const ValueIdSet &availableValues, const ValueIdSet &inputValues);
 
   // Method used by the code generator for replacing a reference
   // to a VEGPredicate with a tree of equality predicate that
   // span all the members of the VEG.
-  ItemExpr* replaceVEGPredicateInAnOrSubtree
-               (const ValueIdSet& availableValues,
-                const ValueIdSet& inputValues);
+  ItemExpr *replaceVEGPredicateInAnOrSubtree(const ValueIdSet &availableValues, const ValueIdSet &inputValues);
 
   // A ValueId Equality Group (VEG) that is represented by this predicate
-  ValueId  veg_;
+  ValueId veg_;
 
   // ++MV - Irena
   // The flag is set according to the same flag of BiRelat, which
@@ -1082,10 +950,10 @@ private:
   // --MV - Irena
 
   // The following data member is needed by Selectivity Hints
-  // feature to assign correct user-specified selectivity after 
+  // feature to assign correct user-specified selectivity after
   // predicates have been transformed into VEG predicates.
   ValueIdSet predsWithSelectivities_;
-}; // class VEGPredicate
+};  // class VEGPredicate
 
 // -----------------------------------------------------------------------
 // A VEGReference is a special wild card generated by the SQL normalizer.
@@ -1096,208 +964,164 @@ private:
 // Its datatype is computed as the minimum of the values that belong
 // to the VEG it references.
 // -----------------------------------------------------------------------
-class VEGReference : public ItemExpr
-{
-
-public:
-
-  VEGReference(const ValueId & vegId);
+class VEGReference : public ItemExpr {
+ public:
+  VEGReference(const ValueId &vegId);
 
   virtual ~VEGReference();
 
   // get the degree of this node (it is a leaf).
   virtual Int32 getArity() const;
 
-  NABoolean referencesVegRefValue(ValueId& ofVegRef);
-  void replaceVEG(const ValueId& ofVEG); // used when VEGs are merged
-  VEG * getVEG() const { return ((VEG *)(veg_.getItemExpr())); }
-  VEG * getVEGToUpdate() { return ((VEG *)(veg_.getItemExpr())); }
+  NABoolean referencesVegRefValue(ValueId &ofVegRef);
+  void replaceVEG(const ValueId &ofVEG);  // used when VEGs are merged
+  VEG *getVEG() const { return ((VEG *)(veg_.getItemExpr())); }
+  VEG *getVEGToUpdate() { return ((VEG *)(veg_.getItemExpr())); }
 
   // a virtual function for type propagating the node
-  virtual const NAType * synthesizeType();
+  virtual const NAType *synthesizeType();
 
-  virtual NABoolean isCovered(const ValueIdSet& newExternalInputs,
-			      const GroupAttributes& newRelExprAnchorGA,
-	   	              ValueIdSet& referencedInputs,
-			      ValueIdSet& coveredSubExpr,
-			      ValueIdSet& unCoveredExpr) const;
+  virtual NABoolean isCovered(const ValueIdSet &newExternalInputs, const GroupAttributes &newRelExprAnchorGA,
+                              ValueIdSet &referencedInputs, ValueIdSet &coveredSubExpr,
+                              ValueIdSet &unCoveredExpr) const;
 
   // Each operator supports a (virtual) method for transforming its
   // query tree to a canonical form. The parameter setOfPredExpr is
   // supplied only when predicates are normalized.
-  virtual ItemExpr * normalizeNode(NormWA & normWARef);
+  virtual ItemExpr *normalizeNode(NormWA &normWARef);
 
-  virtual OrderComparison sameOrder(ItemExpr *other,
-				    NABoolean askOther = TRUE);
+  virtual OrderComparison sameOrder(ItemExpr *other, NABoolean askOther = TRUE);
 
   virtual HashValue topHash();
-  virtual NABoolean duplicateMatch(const ItemExpr & other) const;
-  virtual ItemExpr * copyTopNode(ItemExpr *derivedNode = NULL,
-				 CollHeap* outHeap = 0);
+  virtual NABoolean duplicateMatch(const ItemExpr &other) const;
+  virtual ItemExpr *copyTopNode(ItemExpr *derivedNode = NULL, CollHeap *outHeap = 0);
 
   // A method for replacing VEGReference and VEGPredicate objects
   // with another expression that belongs to the VEG as well as to the
   // set of availableValues.
-  virtual ItemExpr * replaceVEGExpressions
-                        (const ValueIdSet& availableValues,
-                         const ValueIdSet& inputValues,
-                         NABoolean useBridgeValues = TRUE,
-                         VEGRewritePairs * lookup = NULL,
-                         NABoolean replicateExpression = FALSE,
-                         const ValueIdSet * joinInputAndPotentialOutput = NULL,
-                         const IndexDesc *iDesc = NULL,
-                         const GroupAttributes * left_ga = NULL,
-                         const GroupAttributes * right_ga = NULL);
+  virtual ItemExpr *replaceVEGExpressions(const ValueIdSet &availableValues, const ValueIdSet &inputValues,
+                                          NABoolean useBridgeValues = TRUE, VEGRewritePairs *lookup = NULL,
+                                          NABoolean replicateExpression = FALSE,
+                                          const ValueIdSet *joinInputAndPotentialOutput = NULL,
+                                          const IndexDesc *iDesc = NULL, const GroupAttributes *left_ga = NULL,
+                                          const GroupAttributes *right_ga = NULL);
 
   // get a printable string that identifies the operator
   const NAString getText() const;
-  virtual void unparse(NAString &result,
-		       PhaseEnum phase = OPTIMIZER_PHASE,
-		       UnparseFormatEnum form = USER_FORMAT,
-		       TableDesc * tabId = NULL) const;
+  virtual void unparse(NAString &result, PhaseEnum phase = OPTIMIZER_PHASE, UnparseFormatEnum form = USER_FORMAT,
+                       TableDesc *tabId = NULL) const;
 
   virtual QR::ExprElement getQRExprElem() const;
 
-  virtual NABoolean calculateMinMaxUecs(ColStatDescList & histograms,
-					       CostScalar & minUec,
-					       CostScalar & maxUec);
+  virtual NABoolean calculateMinMaxUecs(ColStatDescList &histograms, CostScalar &minUec, CostScalar &maxUec);
 
   // remove non-pushabe predicates for ORC.
-  virtual ItemExpr* removeNonPushablePredicatesForORC() { return this; }
+  virtual ItemExpr *removeNonPushablePredicatesForORC() { return this; }
 
-private:
-
+ private:
   // Methods used by the code generator for replacing a reference
   // to a VEG with a reference to one of its members, which also
   // belongs to availableValues.
-  ItemExpr * replaceVEGReference(const ValueIdSet& availableValues,
-                                 const ValueIdSet& inputValues,
-                                 NABoolean useBridgeValues = TRUE, 
-                                 const IndexDesc *iDesc = NULL);
+  ItemExpr *replaceVEGReference(const ValueIdSet &availableValues, const ValueIdSet &inputValues,
+                                NABoolean useBridgeValues = TRUE, const IndexDesc *iDesc = NULL);
 
   // A ValueId Equality Group (VEG) that is represented by this VEGReference
-  ValueId  veg_;
+  ValueId veg_;
 
-}; // class VEGReference
-
+};  // class VEGReference
 
 // The ExprHistDummy class is an ItemExpr used solely to generate ValueIds to
 // identify expression histograms. These nodes are created, then bound to get
 // a ValueId. Nothing more is done with them; they have no other semantics.
-class ExprHistDummy : public ItemExpr
-{
-public:
-
+class ExprHistDummy : public ItemExpr {
+ public:
   ExprHistDummy();
   virtual ~ExprHistDummy();
 
   virtual Int32 getArity() const;
 
-  virtual void unparse(NAString &result,
-                       PhaseEnum phase = OPTIMIZER_PHASE,
-                       UnparseFormatEnum form = USER_FORMAT,
-                       TableDesc * tabId = NULL) const;
+  virtual void unparse(NAString &result, PhaseEnum phase = OPTIMIZER_PHASE, UnparseFormatEnum form = USER_FORMAT,
+                       TableDesc *tabId = NULL) const;
 
   const NAString getText() const;
 
-private:
-
+ private:
 };
 
-class BiConnectBy :public ItemExpr {
-public:
-  BiConnectBy( ItemExpr* start = NULL,
-          ItemExpr* conn = NULL)
-   :
-    ItemExpr(ITM_CONNECT_BY, start, conn),
-    noCycle_(FALSE),
-    noCache_(FALSE),
-    Cache_(FALSE),
-    nodup_(FALSE)
-  {
+class BiConnectBy : public ItemExpr {
+ public:
+  BiConnectBy(ItemExpr *start = NULL, ItemExpr *conn = NULL)
+      : ItemExpr(ITM_CONNECT_BY, start, conn), noCycle_(FALSE), noCache_(FALSE), Cache_(FALSE), nodup_(FALSE) {
     where_clause = NULL;
     order_siblings_by_clause = NULL;
   }
   virtual ~BiConnectBy() {}
 
-  ItemExpr * getStartWith() {return (ItemExpr*)child(0).getPtr(); }
-  ItemExpr * getConnectBy() {return (ItemExpr*)child(1).getPtr(); }
-  virtual ItemExpr * copyTopNode(ItemExpr *derivedNode = NULL,
-				 CollHeap* outHeap = 0);
-  NAString getStartWithString() {return startWithString_; }
-  void setStartWithString(char *v ) {startWithString_ = v; }
-  void setOrderBySibling(ItemExpr *ie) {order_siblings_by_clause = ie;}
-  ItemExpr * getOrderBySibling() { return order_siblings_by_clause; }
+  ItemExpr *getStartWith() { return (ItemExpr *)child(0).getPtr(); }
+  ItemExpr *getConnectBy() { return (ItemExpr *)child(1).getPtr(); }
+  virtual ItemExpr *copyTopNode(ItemExpr *derivedNode = NULL, CollHeap *outHeap = 0);
+  NAString getStartWithString() { return startWithString_; }
+  void setStartWithString(char *v) { startWithString_ = v; }
+  void setOrderBySibling(ItemExpr *ie) { order_siblings_by_clause = ie; }
+  ItemExpr *getOrderBySibling() { return order_siblings_by_clause; }
   void setNoCycle(NABoolean v) { noCycle_ = v; }
-  void setNoDup(NABoolean v) { nodup_= v; }
-  NABoolean getNoCycle() {return noCycle_; }
-  void setNoCache(NABoolean v) { noCache_= v; }
-  void setCache(NABoolean v) { Cache_= v; }
-  NABoolean getNoCache() {return noCache_; }
-  NABoolean getCache() {return Cache_; }
-  NABoolean getNoDup() {return nodup_; }
+  void setNoDup(NABoolean v) { nodup_ = v; }
+  NABoolean getNoCycle() { return noCycle_; }
+  void setNoCache(NABoolean v) { noCache_ = v; }
+  void setCache(NABoolean v) { Cache_ = v; }
+  NABoolean getNoCache() { return noCache_; }
+  NABoolean getCache() { return Cache_; }
+  NABoolean getNoDup() { return nodup_; }
   NAString startWithString_;
   NAString pathString_;
-  ItemExpr * where_clause;
-  ItemExpr * order_siblings_by_clause;
+  ItemExpr *where_clause;
+  ItemExpr *order_siblings_by_clause;
 
-  virtual Int32 getArity() const { return 2;}
+  virtual Int32 getArity() const { return 2; }
 
-private:
+ private:
   NABoolean noCycle_;
   NABoolean noCache_;
   NABoolean Cache_;
   NABoolean nodup_;
 };
 
+// This RangeSpecRef class is an wrapper for RangeSpec object and also holds a <key> <op> <valueset> relationship
+// which needs to be used for traversal and selectivity estimation/generating MDAM Pred for different BiRelational as
+// well.
 
-//This RangeSpecRef class is an wrapper for RangeSpec object and also holds a <key> <op> <valueset> relationship
-// which needs to be used for traversal and selectivity estimation/generating MDAM Pred for different BiRelational as well.
-
-class RangeSpecRef : public ItemExpr
-{
-public:
-
-  RangeSpecRef(OperatorTypeEnum otype,
-	       OptNormRangeSpec* range,
-	       ItemExpr *colValueId /* column Value Id  OR an ItemExpression e.g. a+1 */,
-	       ItemExpr *reConsIExpr /* Reconstructed or Rearranged Item Expression 
-					after combination of disjoint BiRel at different depth of the tree */
-	       );
+class RangeSpecRef : public ItemExpr {
+ public:
+  RangeSpecRef(OperatorTypeEnum otype, OptNormRangeSpec *range,
+               ItemExpr *colValueId /* column Value Id  OR an ItemExpression e.g. a+1 */,
+               ItemExpr *reConsIExpr /* Reconstructed or Rearranged Item Expression
+                                        after combination of disjoint BiRel at different depth of the tree */
+  );
 
   virtual ~RangeSpecRef();
   /* Kind of BiRelational: column <in> { Value Id Set } */
   /* That's why it is 2 */
   virtual Int32 getArity() const;
-  virtual ItemExpr * copyTopNode(ItemExpr *derivedNode = NULL,
-				 CollHeap* outHeap = 0);
+  virtual ItemExpr *copyTopNode(ItemExpr *derivedNode = NULL, CollHeap *outHeap = 0);
 
-  virtual void unparse(NAString &result,
-                       PhaseEnum phase = OPTIMIZER_PHASE,
-                       UnparseFormatEnum form = USER_FORMAT,
-                       TableDesc * tabId = NULL) const;
+  virtual void unparse(NAString &result, PhaseEnum phase = OPTIMIZER_PHASE, UnparseFormatEnum form = USER_FORMAT,
+                       TableDesc *tabId = NULL) const;
 
-  virtual ItemExpr* removeRangeSpecItems(NormWA* normWA = NULL);
+  virtual ItemExpr *removeRangeSpecItems(NormWA *normWA = NULL);
   // method to do code generation
   // short codeGen(Generator*);
 
   // method to generate Mdam predicates for executor.
-  // we need to implement this 
-  short mdamPredGen(Generator * generator,
-                    MdamPred ** head,
-                    MdamPred ** tail,
-                    MdamCodeGenHelper & mdamHelper,
-                    ItemExpr * parent);
-  inline OptNormRangeSpec* getRangeObject() const
-  {
-    return range_;
-  }
+  // we need to implement this
+  short mdamPredGen(Generator *generator, MdamPred **head, MdamPred **tail, MdamCodeGenHelper &mdamHelper,
+                    ItemExpr *parent);
+  inline OptNormRangeSpec *getRangeObject() const { return range_; }
   /* This method in turn calls convertToValueIdSet() */
   void getValueIdSetForReconsItemExpr(ValueIdSet &outvs);
 
   // Unfortunately, histogram processing has an anomaly that a predicate
   // of the form X <> c is handled differently than X < c OR X > c. The
-  // former representation sometimes gives a far more precise histogram 
+  // former representation sometimes gives a far more precise histogram
   // synthesis, for example in the case that c happens to be an extremal
   // value in the histogram and also is the most frequent value, with very
   // high row count.
@@ -1306,15 +1130,15 @@ public:
   // predicates in the form X < c OR X > c (sometimes in more complicated
   // ways such as (X > a AND X < c) OR (X > c AND X < b)). This method
   // transforms such a tree so X <> c is used instead. So, for example,
-  // X < c OR X > c is transformed to X <> c. And (X > a AND X < c) OR 
+  // X < c OR X > c is transformed to X <> c. And (X > a AND X < c) OR
   // (X > c AND X < b) is transformed to (X > a AND X <> c AND X < b).
-  void transformTowardNotEquals(ValueIdSet & inOutVs);
+  void transformTowardNotEquals(ValueIdSet &inOutVs);
 
   /* This method depends upon the right child pointer */
   const NAString getText() const;
   /* Tree walk is need'ed since it will be called from MaterializeDisjunct()
   and traverse through the tree, however there will be fewer disjunct(s) for MDAM,
-  so it is a shallow tree after the conversion. 
+  so it is a shallow tree after the conversion.
 
                 and
                 / \
@@ -1322,27 +1146,26 @@ public:
               /    and
   RangeSpecRef(a)  /   \
        )          /     \
-                 /       \ 
+                 /       \
    RangeSpecRef(b)       Or // Bushy here
                          / \
                         /   \
             RangeSpecRef(c) RangeSpecRef(a)
     This is the tree after the conversion, and we need to walk thru this. */
-  
-  DisjunctArray * mdamTreeWalk();
-  
-  // method to do code generation
-  short codeGen(Generator*);
 
-  ItemExpr* removeNonPushablePredicatesForORC();
+  DisjunctArray *mdamTreeWalk();
+
+  // method to do code generation
+  short codeGen(Generator *);
+
+  ItemExpr *removeNonPushablePredicatesForORC();
 
  private:
-  OptNormRangeSpec* range_;
-
+  OptNormRangeSpec *range_;
 };
 
-ItemExpr* revertBackToOldTree(  CollHeap *heap, ItemExpr* newTree);
-void revertBackToOldTreeUsingValueIdSet(  ValueIdSet& inputSet /* IN */, ValueIdSet& outputSet /* OUT */) ;
+ItemExpr *revertBackToOldTree(CollHeap *heap, ItemExpr *newTree);
+void revertBackToOldTreeUsingValueIdSet(ValueIdSet &inputSet /* IN */, ValueIdSet &outputSet /* OUT */);
 /*
 static void doNotReplaceAnItemExpression( ItemExpr* inputTree, ValueIdSet& inputSet,ItemExpr* parent=0)
 {
@@ -1354,30 +1177,30 @@ static void doNotReplaceAnItemExpression( ItemExpr* inputTree, ValueIdSet& input
 
   OperatorTypeEnum op = inputTree->getOperatorType();
   if ( (op == ITM_GREATER_EQ) OR
-	 (op == ITM_GREATER) OR
-	 (op == ITM_LESS) OR
-	 (op == ITM_LESS_EQ))
+         (op == ITM_GREATER) OR
+         (op == ITM_LESS) OR
+         (op == ITM_LESS_EQ))
     {
       BiRelat *br = (BiRelat *) inputTree;
       predDerivOfLike = br->derivativeOfLike();
       if (predDerivOfLike)
       {
-	predId += inputTree->getValueId();
-	pvalId += parent->getValueId();
-	inputSet -= predId;
-	storeSet += inputSet;
-	storeSet.intersectSet(pvalId);
-	if (!storeSet.entries())
-	{
-          inputSet += pvalId; 
-	}
+        predId += inputTree->getValueId();
+        pvalId += parent->getValueId();
+        inputSet -= predId;
+        storeSet += inputSet;
+        storeSet.intersectSet(pvalId);
+        if (!storeSet.entries())
+        {
+          inputSet += pvalId;
+        }
       } // if(2)
     } // if(3)
-  else if(op == ITM_AND ) 
+  else if(op == ITM_AND )
   {
     for (long i=0; i < (long)(inputTree->getArity()); i++)
     {
-	doNotReplaceAnItemExpression(inputTree->child(i),inputSet,inputTree);
+        doNotReplaceAnItemExpression(inputTree->child(i),inputSet,inputTree);
     }
   }
 }
@@ -1385,23 +1208,18 @@ static void doNotReplaceAnItemExpression( ItemExpr* inputTree, ValueIdSet& input
 
 // Represents the equality predicates that were derived from the transformation
 // of a single LIKE predicate.
-class LikePredDetails
-{
-public:
+class LikePredDetails {
+ public:
   // Instantiate with the value id of the original like predicate. This vid
   // will be used to identify references to the same LIKE.
   LikePredDetails(ValueId likeVid)
-    : likeVid_(likeVid),
-      exprs_()   // () inits to all NULLs
-    {}
+      : likeVid_(likeVid),
+        exprs_()  // () inits to all NULLs
+  {}
 
-  ~LikePredDetails()
-    {}
+  ~LikePredDetails() {}
 
-  ValueId getVid() const
-    {
-      return likeVid_;
-    }
+  ValueId getVid() const { return likeVid_; }
 
   // Add an ItemExpr for an equality predicate derived from this LIKE. There
   // should be only 2, for instance >= and < for a LIKE pred with a regexp
@@ -1410,62 +1228,54 @@ public:
   // If this instance already has an expression of the passed type, it is
   // overwritten with the new one. This is a common case, as duplicates are
   // often generated. They will be removed by this action.
-  void addExpr(ItemExpr* expr)
-    {
-      switch (expr->getOperatorType())
-        {
-          case ITM_GREATER_EQ:
-            exprs_[0] = expr;
-            break;
-          case ITM_GREATER:
-            exprs_[1] = expr;
-            break;
-          case ITM_LESS:
-            exprs_[2] = expr;
-            break;
-          case ITM_LESS_EQ:
-            exprs_[3] = expr;
-            break;
-          default:
-            CMPASSERT(FALSE);
-            break;
-        }
+  void addExpr(ItemExpr *expr) {
+    switch (expr->getOperatorType()) {
+      case ITM_GREATER_EQ:
+        exprs_[0] = expr;
+        break;
+      case ITM_GREATER:
+        exprs_[1] = expr;
+        break;
+      case ITM_LESS:
+        exprs_[2] = expr;
+        break;
+      case ITM_LESS_EQ:
+        exprs_[3] = expr;
+        break;
+      default:
+        CMPASSERT(FALSE);
+        break;
     }
+  }
 
   // Build and return a left-linear AND backbone of the LIKE's inequality
   // expressions.
-  ItemExpr* reconstructLikeExpr() const
-    {
-      ItemExpr* left;
-      ItemExpr* retVal = NULL;
-      for (Int16 i=0; i<4; i++)
-        {
-          if (exprs_[i])
-            {
-              if (!retVal)
-                retVal = exprs_[i];
-              else
-                {
-                  left = retVal;
-                  retVal = new(STMTHEAP) BiLogic(ITM_AND, left, exprs_[i]);
-                }
-            }
+  ItemExpr *reconstructLikeExpr() const {
+    ItemExpr *left;
+    ItemExpr *retVal = NULL;
+    for (Int16 i = 0; i < 4; i++) {
+      if (exprs_[i]) {
+        if (!retVal)
+          retVal = exprs_[i];
+        else {
+          left = retVal;
+          retVal = new (STMTHEAP) BiLogic(ITM_AND, left, exprs_[i]);
         }
-
-      return retVal;
+      }
     }
 
-private:
+    return retVal;
+  }
+
+ private:
   ValueId likeVid_;
-  ItemExpr* exprs_[4];
+  ItemExpr *exprs_[4];
 };
 
 // Restores like predicate (range predicate) handling for cardinality estimate fix.
-static void doNotReplaceAnItemExpressionForLikePredicates(ItemExpr* inputTree,
-                                                          ValueIdSet& inputSet,
-                                                          ItemExpr* parent=NULL)
-{
-  NAList<LikePredDetails*> likeList(STMTHEAP);
+static void doNotReplaceAnItemExpressionForLikePredicates(ItemExpr *inputTree, ValueIdSet &inputSet,
+                                                          ItemExpr *parent = NULL) {
+  NAList<LikePredDetails *> likeList(STMTHEAP);
   ValueIdSet vidsToRemove;
 
   // For each inequality expression in inputSet, see if it is derived from the
@@ -1475,74 +1285,55 @@ static void doNotReplaceAnItemExpressionForLikePredicates(ItemExpr* inputTree,
   // of each inequality type is maintained in LikePredDetails. The value id of
   // the inequality predicate is added to a list that will be removed from inputSet
   // after the loop, and a new predicate for each LikePredDetails will be added.
-  for (ValueId vid = inputSet.init(); inputSet.next(vid); inputSet.advance(vid))
-    {
-      ItemExpr* ie = vid.getItemExpr();
-      OperatorTypeEnum op = ie->getOperatorType();
-      if (op == ITM_GREATER_EQ ||
-          op == ITM_GREATER    ||
-          op == ITM_LESS       ||
-          op == ITM_LESS_EQ)
-        {
-          ValueId likeVid = (static_cast<BiRelat*>(ie))->originalLikeExprId();
-          if (likeVid != NULL_VALUE_ID)
-            {
-              LikePredDetails* lpd = NULL;
-              for (CollIndex i=0; i<likeList.entries() && !lpd; i++)
-                {
-                  if (likeList[i]->getVid() == likeVid)
-                    lpd = likeList[i];
-                }
-              if (!lpd)
-                {
-                  lpd = new(STMTHEAP) LikePredDetails(likeVid);
-                  likeList.insert(lpd);
-                }
-              lpd->addExpr(ie);
-
-              // Save the vids to remove and do it after loop so as not to disrupt iteration.
-              vidsToRemove += vid;
-            }
+  for (ValueId vid = inputSet.init(); inputSet.next(vid); inputSet.advance(vid)) {
+    ItemExpr *ie = vid.getItemExpr();
+    OperatorTypeEnum op = ie->getOperatorType();
+    if (op == ITM_GREATER_EQ || op == ITM_GREATER || op == ITM_LESS || op == ITM_LESS_EQ) {
+      ValueId likeVid = (static_cast<BiRelat *>(ie))->originalLikeExprId();
+      if (likeVid != NULL_VALUE_ID) {
+        LikePredDetails *lpd = NULL;
+        for (CollIndex i = 0; i < likeList.entries() && !lpd; i++) {
+          if (likeList[i]->getVid() == likeVid) lpd = likeList[i];
         }
+        if (!lpd) {
+          lpd = new (STMTHEAP) LikePredDetails(likeVid);
+          likeList.insert(lpd);
+        }
+        lpd->addExpr(ie);
+
+        // Save the vids to remove and do it after loop so as not to disrupt iteration.
+        vidsToRemove += vid;
+      }
     }
+  }
 
   // Remove the vids for the inequality preds that were derived from a LIKE pred,
   // and generate/add an AND bilogic pred for each LIKE.
   inputSet -= vidsToRemove;
-  for (CollIndex i=0; i<likeList.entries(); i++)
-    {
-      ItemExpr* likeExpr = likeList[i]->reconstructLikeExpr();
-      likeExpr->synthTypeAndValueId(FALSE);
-      inputSet += likeExpr->getValueId();
-    }
+  for (CollIndex i = 0; i < likeList.entries(); i++) {
+    ItemExpr *likeExpr = likeList[i]->reconstructLikeExpr();
+    likeExpr->synthTypeAndValueId(FALSE);
+    inputSet += likeExpr->getValueId();
+  }
 }
 
 // removes non key columns from selectionpredicates to form disjuncts.
-static void usePartofSelectionPredicatesFromTheItemExpressionTree(ValueIdSet& inputSet,
-								  ValueIdSet KeyColumnSet
-								  ) 
-{
-// This method is protected by comp_bool_144 for separate testing
-  if (CmpCommon::getDefault(COMP_BOOL_144) == DF_ON ){
-  ValueIdSet result;
-  for (ValueId predId = inputSet.init();
-       inputSet.next(predId);
-       inputSet.advance(predId) )
-  {
-    OperatorTypeEnum op = predId.getItemExpr()->getOperatorType();
-    if (op == ITM_RANGE_SPEC_FUNC )
-    {
-      predId.getItemExpr()->child(1)->findAll(ITM_INDEXCOLUMN, result, TRUE, TRUE);
+static void usePartofSelectionPredicatesFromTheItemExpressionTree(ValueIdSet &inputSet, ValueIdSet KeyColumnSet) {
+  // This method is protected by comp_bool_144 for separate testing
+  if (CmpCommon::getDefault(COMP_BOOL_144) == DF_ON) {
+    ValueIdSet result;
+    for (ValueId predId = inputSet.init(); inputSet.next(predId); inputSet.advance(predId)) {
+      OperatorTypeEnum op = predId.getItemExpr()->getOperatorType();
+      if (op == ITM_RANGE_SPEC_FUNC) {
+        predId.getItemExpr()->child(1)->findAll(ITM_INDEXCOLUMN, result, TRUE, TRUE);
+      } else
+        predId.getItemExpr()->findAll(ITM_INDEXCOLUMN, result, TRUE, TRUE);
+      if (!result.convertToBaseIds().intersectSet(KeyColumnSet).entries()) {
+        inputSet -= predId;
+      }
+      result.clear();
     }
-    else
-      predId.getItemExpr()->findAll(ITM_INDEXCOLUMN, result, TRUE, TRUE);
-    if(!result.convertToBaseIds().intersectSet(KeyColumnSet).entries())
-    {
-      inputSet -= predId;
-    }
-    result.clear();
   }
- }
 }
 
 #endif /* ITEMOTHER_H */

@@ -26,64 +26,62 @@
 #include "common/BaseTypes.h"
 #include "common/NAMemory.h"
 
-#define ARRAY_INITIAL_SIZE 0
+#define ARRAY_INITIAL_SIZE   0
 #define ARRAY_INCREMENT_SIZE 16
-template <class Elem> class ComPointerList;
-template <class Elem, class Key> class ComOrderedSet;
-template <class Elem, class Key> class ComOrderedPointerSet;
+template <class Elem>
+class ComPointerList;
+template <class Elem, class Key>
+class ComOrderedSet;
+template <class Elem, class Key>
+class ComOrderedPointerSet;
 
 // -------------------------------------------------------------------------------------
 //
 // Class ComPointerList
 //
-template <class Elem> class ComPointerList
-{
-public:
-  // Default constructor. 
+template <class Elem>
+class ComPointerList {
+ public:
+  // Default constructor.
   // Methods of this class uses the heap for pointer array allocations only.
-  ComPointerList ( CollHeap * heap = NULL
-                 , const CollIndex initSize = ARRAY_INITIAL_SIZE
-                 , const CollIndex increment = ARRAY_INCREMENT_SIZE
-                 );
-  virtual ~ComPointerList ();
+  ComPointerList(CollHeap *heap = NULL, const CollIndex initSize = ARRAY_INITIAL_SIZE,
+                 const CollIndex increment = ARRAY_INCREMENT_SIZE);
+  virtual ~ComPointerList();
 
   // Accessors
-  CollIndex entries (void) const
-    {return inUse_;};
+  CollIndex entries(void) const { return inUse_; };
 
   // Operators
-  Elem & operator[] (const CollIndex index);
-  const Elem & operator[] (const CollIndex index) const;
+  Elem &operator[](const CollIndex index);
+  const Elem &operator[](const CollIndex index) const;
 
-  // Mutators 
+  // Mutators
 
-  // Insert element at specified position. 
-  virtual void insertAt ( const Elem & element, const CollIndex index);    // Insert the element pointer into the array
+  // Insert element at specified position.
+  virtual void insertAt(const Elem &element, const CollIndex index);  // Insert the element pointer into the array
 
   // Insert element pointer at the end. Declared as NABoolean so that ComOrderedSet can override.
   // Will unconditionally return TRUE.
-  virtual NABoolean insert (const Elem & element, CollIndex & position);   // Return position of inserted element
-  virtual NABoolean insert (const Elem & element);
+  virtual NABoolean insert(const Elem &element, CollIndex &position);  // Return position of inserted element
+  virtual NABoolean insert(const Elem &element);
 
-  // Element removal. 
-  virtual void remove (const CollIndex index);              // Remove a single element pointer 
-  virtual void clear (void);                                // Remove all element pointers
+  // Element removal.
+  virtual void remove(const CollIndex index);  // Remove a single element pointer
+  virtual void clear(void);                    // Remove all element pointers
 
-protected:
-  CollHeap * heap_;         // User defined heap or NULL
-  CollIndex  inUse_;        // Number of elements in use
+ protected:
+  CollHeap *heap_;   // User defined heap or NULL
+  CollIndex inUse_;  // Number of elements in use
 
-private:
-
+ private:
   // Copy constructor, don't implement
-  ComPointerList (const ComPointerList<Elem> & rhs);
+  ComPointerList(const ComPointerList<Elem> &rhs);
 
-  Elem    ** arr_;          // Array of pointers to elements
-  CollIndex  allocated_;    // Number of allocated elements.
-  CollIndex  increment_;    // The size of the chunk for allocation
+  Elem **arr_;           // Array of pointers to elements
+  CollIndex allocated_;  // Number of allocated elements.
+  CollIndex increment_;  // The size of the chunk for allocation
 
-  void abortIfOutOfBounds (const CollIndex index) const;    // Aborts if index is out of bounds
-
+  void abortIfOutOfBounds(const CollIndex index) const;  // Aborts if index is out of bounds
 };
 
 // -------------------------------------------------------------------------------------
@@ -91,90 +89,81 @@ private:
 // Class ComOrderedPointerSet
 //
 
-template <class Elem, class Key> class ComOrderedPointerSet : public ComPointerList<Elem>
-{
-public:
-  // Default constructor. 
+template <class Elem, class Key>
+class ComOrderedPointerSet : public ComPointerList<Elem> {
+ public:
+  // Default constructor.
   // Methods of this class don't use the heap.
-  ComOrderedPointerSet ( CollHeap * heap = NULL
-                       , const CollIndex initSize = ARRAY_INITIAL_SIZE
-                       , const CollIndex increment = ARRAY_INCREMENT_SIZE
-                       )
-                       : ComPointerList<Elem> (heap, initSize, increment)
-                       , lastInserted_ (0)
-  {};
+  ComOrderedPointerSet(CollHeap *heap = NULL, const CollIndex initSize = ARRAY_INITIAL_SIZE,
+                       const CollIndex increment = ARRAY_INCREMENT_SIZE)
+      : ComPointerList<Elem>(heap, initSize, increment), lastInserted_(0){};
 
-  virtual ~ComOrderedPointerSet () {};
+  virtual ~ComOrderedPointerSet(){};
 
   // Accessors
-  CollIndex find (const Key & key) const;              // Find an element that may be in the list
+  CollIndex find(const Key &key) const;  // Find an element that may be in the list
 
   // Mutators
 
-  // Insert element pointer in the order specified by the element class' comparison operators. 
+  // Insert element pointer in the order specified by the element class' comparison operators.
   // Return TRUE if the element was inserted, FALSE if it exists in the set already.
   // Maintains lastInserted_. These two methods are intended for the situation where the element
   // already has been constructed
-  virtual NABoolean insert (const Elem & element, CollIndex & position);   // Return position of inserted element
-  virtual NABoolean insert (const Elem & element);
+  virtual NABoolean insert(const Elem &element, CollIndex &position);  // Return position of inserted element
+  virtual NABoolean insert(const Elem &element);
 
   // The next two methods are intended for the situation where the element will not be
-  // constructed if it is in the set already. insertAt should never be called without a 
+  // constructed if it is in the set already. insertAt should never be called without a
   // preceding call to findPositionToInsert.
-  NABoolean findPositionToInsert (CollIndex & position, const Key & key) const; // Return TRUE if element is there already, FALSE if not.
-  virtual void insertAt ( const Elem & element, const CollIndex index);         // Insert the element pointer into the array, maintain lastInserted_
-                                                                                
-  // Insert all elements from another pointer set. 
-  void merge (const ComOrderedPointerSet<Elem, Key> & sourceList);
+  NABoolean findPositionToInsert(CollIndex &position,
+                                 const Key &key) const;  // Return TRUE if element is there already, FALSE if not.
+  virtual void insertAt(const Elem &element,
+                        const CollIndex index);  // Insert the element pointer into the array, maintain lastInserted_
 
-  // Element removal. 
-  virtual void remove (const CollIndex index);              // Remove a single element pointer 
-  virtual void clear (void);                                // Remove all element pointers
+  // Insert all elements from another pointer set.
+  void merge(const ComOrderedPointerSet<Elem, Key> &sourceList);
 
+  // Element removal.
+  virtual void remove(const CollIndex index);  // Remove a single element pointer
+  virtual void clear(void);                    // Remove all element pointers
 
-private:
+ private:
   // Copy constructor, don't implement
-  ComOrderedPointerSet (const ComOrderedPointerSet<Elem, Key> & rhs);
+  ComOrderedPointerSet(const ComOrderedPointerSet<Elem, Key> &rhs);
 
-  CollIndex  lastInserted_; // The index of the last inserted element. Ordering optimisation.
-
+  CollIndex lastInserted_;  // The index of the last inserted element. Ordering optimisation.
 };
 
 //--------------------------------------------------------------------
 //
 // Class ComOrderedSet
 
-template <class Elem, class Key> class ComOrderedSet : public ComOrderedPointerSet<Elem, Key>
-{
-
-public:
-
+template <class Elem, class Key>
+class ComOrderedSet : public ComOrderedPointerSet<Elem, Key> {
+ public:
   // Default constructor
-  ComOrderedSet ( CollHeap * heap = NULL
-                , const CollIndex initSize = ARRAY_INITIAL_SIZE
-                , const CollIndex increment = ARRAY_INCREMENT_SIZE
-                ) 
-                : ComOrderedPointerSet<Elem, Key> (heap, initSize, increment)
-  {};
+  ComOrderedSet(CollHeap *heap = NULL, const CollIndex initSize = ARRAY_INITIAL_SIZE,
+                const CollIndex increment = ARRAY_INCREMENT_SIZE)
+      : ComOrderedPointerSet<Elem, Key>(heap, initSize, increment){};
 
-  virtual ~ComOrderedSet (void);
+  virtual ~ComOrderedSet(void);
 
   // Mutators
 
-  // Element removal. 
-  virtual void remove (const CollIndex index);              // Remove and deallocate a single entry
-  virtual void clear (void);                                // Remove and deallocate all entries
+  // Element removal.
+  virtual void remove(const CollIndex index);  // Remove and deallocate a single entry
+  virtual void clear(void);                    // Remove and deallocate all entries
 
   // Element insertion. Insert a pointer to a copy of the element
-  virtual NABoolean insert (const Elem & element, CollIndex & position);   // Return position of inserted element
-  virtual NABoolean insert (const Elem & element);
+  virtual NABoolean insert(const Elem &element, CollIndex &position);  // Return position of inserted element
+  virtual NABoolean insert(const Elem &element);
 
-  // Insert a copy of each element from another ordered set. 
-  inline void merge (const ComOrderedSet<Elem, Key> & sourceList);
+  // Insert a copy of each element from another ordered set.
+  inline void merge(const ComOrderedSet<Elem, Key> &sourceList);
 
-private:
+ private:
   // Copy constructor, don't implement
-  ComOrderedSet (const ComOrderedSet<Elem, Key> & rhs);
+  ComOrderedSet(const ComOrderedSet<Elem, Key> &rhs);
 };
 
 // -----------------------------------------------------------------------
@@ -187,4 +176,4 @@ private:
 #include "ComPointerList.cpp"
 #endif
 
-#endif // COMPOINTERLIST_H
+#endif  // COMPOINTERLIST_H

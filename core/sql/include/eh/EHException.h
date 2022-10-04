@@ -198,7 +198,6 @@ class EHCallBack;
 //
 // -----------------------------------------------------------------------
 
-
 // -----------------------------------------------------------------------
 // forward references
 // -----------------------------------------------------------------------
@@ -215,63 +214,56 @@ class NABasicObject;
         EHExceptionHandle.registerException(exceptionType)
 
 #define EH_TRY \
-	EHExceptionHandle.setjmpStatus = \
-		setjmp(EHExceptionHandle.environment.jmpBuf); \
+        EHExceptionHandle.setjmpStatus = \
+                setjmp(EHExceptionHandle.environment.jmpBuf); \
         if (EHExceptionHandle.defineTryBlock() EQU EH_NORMAL)
 
 #define EH_CATCH(exceptionType) \
         if (EHExceptionHandle.catchException(exceptionType))
 
 #define EH_THROW(exceptionType) \
-	EHExceptionHandle.throwException(exceptionType)
+        EHExceptionHandle.throwException(exceptionType)
 
 #define EH_REGISTER_THROW_CALL_BACK(pEHCallBack) \
         EHExceptionHandle.registerThrowCallBack(pEHCallBack)
 #define EH_RESET \
         EHExceptionHandle.setExceptionType(EH_NORMAL)
 */
-#define EH_END_TRY !!!EH_END_TRY_RETIRED_DO_NOT_USE_IT
-#define EH_REGISTER(exceptionType) !!!EH_REGISTER_RETIRED_DO_NOT_USE_IT
-#define EH_TRY !!!EH_TRY_RETIRED_DO_NOT_USE_IT
-#define EH_CATCH(exceptionType) !!!EH_CATCH_RETIRED_DO_NOT_USE_IT
-#define EH_THROW(exceptionType) !!!EH_THROW_RETIRED_DO_NOT_USE_IT
+#define EH_END_TRY                               !!!EH_END_TRY_RETIRED_DO_NOT_USE_IT
+#define EH_REGISTER(exceptionType)               !!!EH_REGISTER_RETIRED_DO_NOT_USE_IT
+#define EH_TRY                                   !!!EH_TRY_RETIRED_DO_NOT_USE_IT
+#define EH_CATCH(exceptionType)                  !!!EH_CATCH_RETIRED_DO_NOT_USE_IT
+#define EH_THROW(exceptionType)                  !!!EH_THROW_RETIRED_DO_NOT_USE_IT
 #define EH_REGISTER_THROW_CALL_BACK(pEHCallBack) !!!EH_REGISTER_THROW_CALL_BACK_RETIRED_DO_NOT_USE_IT
-#define EH_RESET !!!EH_RESET_RETIRED_DO_NOT_USE_IT
+#define EH_RESET                                 !!!EH_RESET_RETIRED_DO_NOT_USE_IT
 
-class EHBreakException // EH conversion.
+class EHBreakException  // EH conversion.
 {
-public:
-  EHBreakException(const char* fileName = NULL, Int32 num = 0)
-   : lineNum_(num)
-  {
-   if ( fileName ) {
-     strncpy(fileName_, fileName, sizeof(fileName_));
-     fileName_[sizeof(fileName_)-1] = 0;
-   } else
-     fileName_[0] = 0;
+ public:
+  EHBreakException(const char *fileName = NULL, Int32 num = 0) : lineNum_(num) {
+    if (fileName) {
+      strncpy(fileName_, fileName, sizeof(fileName_));
+      fileName_[sizeof(fileName_) - 1] = 0;
+    } else
+      fileName_[0] = 0;
   };
 
-  ~EHBreakException() {};
+  ~EHBreakException(){};
 
-  const char * getFileName() const        { return fileName_; }
-  const UInt32 getLineNum() const          { return lineNum_; }
+  const char *getFileName() const { return fileName_; }
+  const UInt32 getLineNum() const { return lineNum_; }
 
-private:
+ private:
   char fileName_[512];
   UInt32 lineNum_;
 
-}; // EH conversion.
-
-
-
+};  // EH conversion.
 
 // -----------------------------------------------------------------------
 // class for exception handler - !!! Obsolete class.
 // -----------------------------------------------------------------------
-class EHExceptionHandler
-{
-public:
-
+class EHExceptionHandler {
+ public:
   // ---------------------------------------------------------------------
   // public data members
   // ---------------------------------------------------------------------
@@ -324,11 +316,11 @@ public:
   void throwException(EHExceptionTypeEnum exceptionType);
 
   void registerThrowCallBack(EHCallBack *pEHCallBack);
-private:
 
+ private:
   EHExceptionJmpBufStack exceptionJmpBufStack_;
   EHExceptionTypeEnum exceptionType_;
-  EHExceptionTypeNode * pExceptionTypeList_;
+  EHExceptionTypeNode *pExceptionTypeList_;
 
   // The following flag helps to make sure that no more than one catch
   // block (of all catch blocks associating with a try block) catches
@@ -344,11 +336,6 @@ private:
 // definitions of inline methods for class EHExceptionHandler
 // -----------------------------------------------------------------------
 
-inline EHExceptionTypeEnum
-EHExceptionHandler::getExceptionType() const
-{
-  return exceptionType_;
-}
+inline EHExceptionTypeEnum EHExceptionHandler::getExceptionType() const { return exceptionType_; }
 
-#endif // EHEXCEPTION_H
-
+#endif  // EHEXCEPTION_H

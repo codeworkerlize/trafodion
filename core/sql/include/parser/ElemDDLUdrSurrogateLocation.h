@@ -29,7 +29,7 @@
 * Description:  class for UDR Surrogate Location (parse node) elements in
 *               DDL statements
 *
-*               
+*
 * Created:      07/28/2000
 * Language:     C++
 *
@@ -42,11 +42,8 @@
 #include "common/ComSmallDefs.h"
 #include "ElemDDLNode.h"
 
-class ElemDDLUdrSurrogateLocation : public ElemDDLNode
-{
-
-public:
-
+class ElemDDLUdrSurrogateLocation : public ElemDDLNode {
+ public:
   // default constructor
   ElemDDLUdrSurrogateLocation(NAString &theLocation);
 
@@ -54,26 +51,22 @@ public:
   virtual ~ElemDDLUdrSurrogateLocation();
 
   // cast
-  virtual ElemDDLUdrSurrogateLocation * castToElemDDLUdrSurrogateLocation(void);
+  virtual ElemDDLUdrSurrogateLocation *castToElemDDLUdrSurrogateLocation(void);
 
   // accessor
-  inline const NAString &getLocation(void) const
-  {
-    return locationName_;
-  }
+  inline const NAString &getLocation(void) const { return locationName_; }
 
   //
   // methods for tracing
   //
-  
+
   virtual const NAString displayLabel1() const;
   virtual NATraceList getDetailInfo() const;
   virtual const NAString getText() const;
 
-private:
+ private:
+  NAString &locationName_;
 
-  NAString & locationName_;
-
-}; // class ElemDDLUdrSurrogateLocation
+};  // class ElemDDLUdrSurrogateLocation
 
 #endif /* ELEMDDLUDRSURROGATELOCATION_H */

@@ -3,7 +3,7 @@
 /* -*-C++-*-
 **************************************************************************
 *
-* File:         TableNameMap.h        
+* File:         TableNameMap.h
 * Description:  A name map for a table
 * Created:      4/27/94
 * Language:     C++
@@ -32,7 +32,6 @@
 **************************************************************************
 */
 
-
 #include "optimizer/ColumnDesc.h"
 
 // -----------------------------------------------------------------------
@@ -53,45 +52,39 @@ class TableViewUsageList;
 //
 // The XTNM (Exposed Table Name Map) cache is a hash table of
 // TableNameMap's that permits an associative (exposed name) lookup.
-//   
+//
 // ***********************************************************************
-class TableNameMap : public NABasicObject
-{
-public:
+class TableNameMap : public NABasicObject {
+ public:
   // ---------------------------------------------------------------------
   // Constructor functions
   // ---------------------------------------------------------------------
-  TableNameMap(const CorrName& tableName,
-               ColumnDescList *columnList,
-               CollHeap * h=0)
-    : tableName_(tableName,h), 
-    columnList_(columnList), hbaseColNameSet_(h){}
+  TableNameMap(const CorrName &tableName, ColumnDescList *columnList, CollHeap *h = 0)
+      : tableName_(tableName, h), columnList_(columnList), hbaseColNameSet_(h) {}
 
   // copy ctor
-  TableNameMap (const TableNameMap &, CollHeap * h=0) ; // not written
+  TableNameMap(const TableNameMap &, CollHeap *h = 0);  // not written
 
   // ---------------------------------------------------------------------
   // Destructor function
   // ---------------------------------------------------------------------
-  ~TableNameMap()			{ delete columnList_; }
+  ~TableNameMap() { delete columnList_; }
 
   // ---------------------------------------------------------------------
   // Accessor functions
   // ---------------------------------------------------------------------
-  const CorrName& getTableName() const	{ return tableName_; }
-				   
-  ColumnDescList *getColumnList() const	{ return columnList_; }
+  const CorrName &getTableName() const { return tableName_; }
+
+  ColumnDescList *getColumnList() const { return columnList_; }
 
   // ---------------------------------------------------------------------
   // The following methods are required by the NAKeyLookup
   // ---------------------------------------------------------------------
-  const CorrName* getKey() const	{ return &tableName_; }
+  const CorrName *getKey() const { return &tableName_; }
 
-  NABoolean operator==(const TableNameMap& other) const
-					{ return this == &other; }
+  NABoolean operator==(const TableNameMap &other) const { return this == &other; }
 
-private:
-
+ private:
   CorrName tableName_;
   ColumnDescList *columnList_;
 
@@ -102,84 +95,62 @@ private:
   //  NAList<NAString> hbaseColNameList_;
   NASet<NAString> hbaseColNameSet_;
 
-}; // class TableNameMap
+};  // class TableNameMap
 
 // ***********************************************************************
 // XTNM
 //
 // A collection of TableNameMap
 // ***********************************************************************
-#define XTNM_INIT_SIZE    47		// Initial size of the XTNM cache
+#define XTNM_INIT_SIZE 47  // Initial size of the XTNM cache
 
-class XTNM : public NAKeyLookup<CorrName,TableNameMap>
-{
-public:
-
-  XTNM(CollHeap* h/*=0*/) : 
-       NAKeyLookup<CorrName,TableNameMap> (XTNM_INIT_SIZE, 
-                                           NAKeyLookupEnums::KEY_INSIDE_VALUE,
-                                           h)
-  {}
+class XTNM : public NAKeyLookup<CorrName, TableNameMap> {
+ public:
+  XTNM(CollHeap *h /*=0*/)
+      : NAKeyLookup<CorrName, TableNameMap>(XTNM_INIT_SIZE, NAKeyLookupEnums::KEY_INSIDE_VALUE, h) {}
 
   // copy ctor
-  XTNM (const XTNM & orig, CollHeap * h=0) :
-       NAKeyLookup<CorrName,TableNameMap> (orig, h) 
-  {}
+  XTNM(const XTNM &orig, CollHeap *h = 0) : NAKeyLookup<CorrName, TableNameMap>(orig, h) {}
 
   ~XTNM();
 
   // XTNM clients must use this method, not the simplistic insert()
   // inherited from NAKeyLookup!
-  void insertNames(BindWA *bindWA,
-		   CorrName& tableName,
-		   ColumnDescList *columnList = NULL);
+  void insertNames(BindWA *bindWA, CorrName &tableName, ColumnDescList *columnList = NULL);
 
-}; // class XTNM
+};  // class XTNM
 
 // ***********************************************************************
-class TableViewUsage : public NABasicObject
-{
-public:
-  TableViewUsage(const QualifiedName& tableName,
-		 ExtendedQualName::SpecialTableType type,
-  		 NABoolean isView,
-		 Int32 viewCount,
-		 CollHeap *h = CmpCommon::statementHeap())
-  : tableName_(tableName,h),
-    type_(type),
-    isView_(isView),
-    viewCount_(viewCount)
-    {}
+class TableViewUsage : public NABasicObject {
+ public:
+  TableViewUsage(const QualifiedName &tableName, ExtendedQualName::SpecialTableType type, NABoolean isView,
+                 Int32 viewCount, CollHeap *h = CmpCommon::statementHeap())
+      : tableName_(tableName, h), type_(type), isView_(isView), viewCount_(viewCount) {}
 
-  const QualifiedName& getTableName() const	{ return tableName_; }
-  ExtendedQualName::SpecialTableType getSpecialType() const  { return type_; }
-  NABoolean isView() const			{ return isView_; }
-  Int32 viewCount() const				{ return viewCount_; }
+  const QualifiedName &getTableName() const { return tableName_; }
+  ExtendedQualName::SpecialTableType getSpecialType() const { return type_; }
+  NABoolean isView() const { return isView_; }
+  Int32 viewCount() const { return viewCount_; }
 
-private:
+ private:
   const QualifiedName tableName_;
   ExtendedQualName::SpecialTableType type_;
   NABoolean isView_;
   Int32 viewCount_;
 
-}; // class TableViewUsage
+};  // class TableViewUsage
 
-class TableViewUsageList : public LIST(TableViewUsage *)
-{
-public:
-  TableViewUsageList(CollHeap *h = CmpCommon::statementHeap())
-  : LIST(TableViewUsage *)(h) {}
+class TableViewUsageList : public LIST(TableViewUsage *) {
+ public:
+  TableViewUsageList(CollHeap *h = CmpCommon::statementHeap()) : LIST(TableViewUsage *)(h) {}
 
   void display(NABoolean newline, size_t indent) const;
-  void display() const;					// useful in MSDEV
+  void display() const;  // useful in MSDEV
 
-Int32 getViewsOnTable(CollIndex begIx, CollIndex endIx, Int32 viewCount,
-  			    const QualifiedName &baseName,
-			    ExtendedQualName::SpecialTableType baseType,
-			    const QualifiedName *additionalNameToFormat,
-			    NAString &formattedListOfViewsThatUseTheBaseTable)
-			      const;
+  Int32 getViewsOnTable(CollIndex begIx, CollIndex endIx, Int32 viewCount, const QualifiedName &baseName,
+                        ExtendedQualName::SpecialTableType baseType, const QualifiedName *additionalNameToFormat,
+                        NAString &formattedListOfViewsThatUseTheBaseTable) const;
 
-}; // class TableViewUsageList
+};  // class TableViewUsageList
 
-#endif  /* TABLENAMEMAP_H */
+#endif /* TABLENAMEMAP_H */

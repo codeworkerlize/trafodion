@@ -28,7 +28,7 @@
 *
 * File:         TourTree.h
 * RCS:          $Id: TourTree.h,v 1.2.16.2 1998/07/08 21:47:39  Exp $
-*                               
+*
 * Description:  This class represents the tournament tree which is used by
 *               Replacement Selection algorithm. The tournament tree is an
 *               aggregate of TreeNode objects defined in TreeNode.h. This
@@ -42,7 +42,6 @@
 ******************************************************************************
 */
 
-
 #include "CommonStructs.h"
 #include "Const.h"
 #include "SortAlgo.h"
@@ -52,65 +51,45 @@
 #include "SortError.h"
 
 class SortUtil;
-class Tree : public SortAlgo { //SortAlgo inherits from NABasciObject
+class Tree : public SortAlgo {  // SortAlgo inherits from NABasciObject
 
- public :
-  
-  Tree(ULng32 numruns,
-       ULng32 runsize,
-       ULng32 recsize, 
-       NABoolean doNotallocRec,
-       ULng32 keysize,
-       SortScratchSpace* scratch,
-       CollHeap* heap,
-       SortError* sorterror,
-       Lng32 explainNodeId,
-       ExBMOStats *bmoStats,
-       SortUtil* sortUtil,
-       Lng32  runnum = 0,
-       NABoolean  merge = FALSE_L,NABoolean waited = FALSE_L);
-  
+ public:
+  Tree(ULng32 numruns, ULng32 runsize, ULng32 recsize, NABoolean doNotallocRec, ULng32 keysize,
+       SortScratchSpace *scratch, CollHeap *heap, SortError *sorterror, Lng32 explainNodeId, ExBMOStats *bmoStats,
+       SortUtil *sortUtil, Lng32 runnum = 0, NABoolean merge = FALSE_L, NABoolean waited = FALSE_L);
+
   ~Tree(void);
-  
-  Lng32 sortSend(void* rec, ULng32 len, void* tupp);
-  
+
+  Lng32 sortSend(void *rec, ULng32 len, void *tupp);
+
   Lng32 sortClientOutOfMem(void);
 
   Lng32 sortSendEnd();
-  
-  Lng32 sortReceive(void* rec, ULng32& len);
-  Lng32 sortReceive(void*& rec, ULng32& len, void*& tupp);
+
+  Lng32 sortReceive(void *rec, ULng32 &len);
+  Lng32 sortReceive(void *&rec, ULng32 &len, void *&tupp);
 
   Lng32 generateInterRuns(void);
 
   UInt32 getOverheadPerRecord(void);
-    
- private :
 
-  void    determineNewWinner();
+ private:
+  void determineNewWinner();
   RESULT outputWinnerToScr(void);
-  
-  TreeNode* rootNode_;
-  Record* rootRecord_;
-  TreeNode* winner_;
-  char*    keyOfLastWinner_;
-  short    height_;
+
+  TreeNode *rootNode_;
+  Record *rootRecord_;
+  TreeNode *winner_;
+  char *keyOfLastWinner_;
+  short height_;
   ULng32 numRuns_;
   ULng32 maxRuns_;
   ULng32 currentRun_;
   ULng32 winnerRun_;
   ULng32 baseRun_;
-  SortError* sortError_;
-  CollHeap* heap_;
-  SortUtil* sortUtil_;
+  SortError *sortError_;
+  CollHeap *heap_;
+  SortUtil *sortUtil_;
 };
 
 #endif
-
-
-
-
-
-
-
-

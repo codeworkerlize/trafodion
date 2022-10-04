@@ -30,8 +30,7 @@
 
 static uint32_t ExSM_ExitHandlerCount = 0;
 
-void ExSM_ExitHandler(void)
-{
+void ExSM_ExitHandler(void) {
   // SEAMONSTER PROJECT APR 2013
   // Given that this function is an exit handler and the process is
   // about to exit, there is no real need to call SM cancel or
@@ -39,20 +38,19 @@ void ExSM_ExitHandler(void)
   // decided to keep this function anyway because it might be a useful
   // building block in the future if SM semantics change or if the
   // process wants to stay alive after detaching from SM.
-  
+
   int rc = 0;
   ExSMGlobals *smGlobals = ExSMGlobals::GetExSMGlobals();
   bool smInitialized = (smGlobals ? smGlobals->getSMInitialized() : false);
 
-  EXSM_TRACE(EXSM_TRACE_EXIT,"BEGIN ExSM_ExitHandler count %d glob %p init %d",
-             (int) ExSM_ExitHandlerCount, smGlobals, (int) smInitialized);
+  EXSM_TRACE(EXSM_TRACE_EXIT, "BEGIN ExSM_ExitHandler count %d glob %p init %d", (int)ExSM_ExitHandlerCount, smGlobals,
+             (int)smInitialized);
 
   // Do nothing if any of the following are true
   // * this function was already called
   // * SM globals is NULL
   // * SM was never successfully initialized
-  if (ExSM_ExitHandlerCount > 0 || smGlobals == NULL || !smInitialized)
-  {
+  if (ExSM_ExitHandlerCount > 0 || smGlobals == NULL || !smInitialized) {
     EXSM_TRACE(EXSM_TRACE_EXIT, "Called multiple times, nothing to do");
     EXSM_TRACE(EXSM_TRACE_EXIT, "END ExSM_ExitHandler");
     return;
@@ -62,8 +60,7 @@ void ExSM_ExitHandler(void)
 
   // If this is not the reader thread, send a SHUTDOWN message to the
   // reader thread and wait for the reader thread to clean up
-  if (!pthread_equal(pthread_self(), smGlobals->getReaderThreadTID()))
-  {
+  if (!pthread_equal(pthread_self(), smGlobals->getReaderThreadTID())) {
     EXSM_TRACE(EXSM_TRACE_EXIT, "Sending SHUTDOWN msg to reader");
 
     sm_target_t target;
@@ -72,20 +69,20 @@ void ExSM_ExitHandler(void)
     target.pid = smGlobals->getMainThreadPID();
     target.id = smGlobals->getExeInternalSMID();
     target.tag = 0;
-  
+
     ExSMShortMessage m;
     m.setTarget(target);
     m.setNumValues(1);
-    m.setValue(0, (int32_t) ExSMShortMessage::SHUTDOWN);
+    m.setValue(0, (int32_t)ExSMShortMessage::SHUTDOWN);
     m.send();
 
     // Wait for reader thread to react
-    EXSM_TRACE(EXSM_TRACE_MAIN_THR|EXSM_TRACE_INIT, "BEGIN wait for reader");
+    EXSM_TRACE(EXSM_TRACE_MAIN_THR | EXSM_TRACE_INIT, "BEGIN wait for reader");
 
     struct timespec waitTime;
     clock_gettime(CLOCK_REALTIME, &waitTime);
     waitTime.tv_sec += ExSMGlobals::READER_SHUTDOWN_WAIT;
-    
+
     rc = pthread_mutex_lock(smGlobals->getReaderThreadStateLock());
     exsm_assert_rc(rc, "pthread_mutex_lock");
 
@@ -93,34 +90,29 @@ void ExSM_ExitHandler(void)
     // reader thread is done, or until the timer expires. The reader
     // thread has two states to indicate completion: DONE and
     // TERMINATED_DUE_TO_ERROR.
-    
+
     rc = 0;
     ExSMGlobals::ThreadState rstate = smGlobals->getReaderThreadState();
 
-    while (rstate != ExSMGlobals::DONE &&
-           rstate != ExSMGlobals::TERMINATED_DUE_TO_ERROR &&
-           rc == 0)
-    {
-      rc = pthread_cond_timedwait(smGlobals->getReaderThreadStateCond(),
-                                  smGlobals->getReaderThreadStateLock(),
+    while (rstate != ExSMGlobals::DONE && rstate != ExSMGlobals::TERMINATED_DUE_TO_ERROR && rc == 0) {
+      rc = pthread_cond_timedwait(smGlobals->getReaderThreadStateCond(), smGlobals->getReaderThreadStateLock(),
                                   &waitTime);
 
       rstate = smGlobals->getReaderThreadState();
-      EXSM_TRACE(EXSM_TRACE_MAIN_THR|EXSM_TRACE_INIT,
-                 "pthread_cond_timedwait returned %d reader state %s", rc,
+      EXSM_TRACE(EXSM_TRACE_MAIN_THR | EXSM_TRACE_INIT, "pthread_cond_timedwait returned %d reader state %s", rc,
                  smGlobals->getThreadStateString(rstate));
     }
-    
+
     rc = pthread_mutex_unlock(smGlobals->getReaderThreadStateLock());
     exsm_assert_rc(rc, "pthread_mutex_unlock");
-    
-    EXSM_TRACE(EXSM_TRACE_MAIN_THR|EXSM_TRACE_INIT, "END wait for reader");
 
-  } // if not reader thread
+    EXSM_TRACE(EXSM_TRACE_MAIN_THR | EXSM_TRACE_INIT, "END wait for reader");
+
+  }  // if not reader thread
 
   // This call will cancel the special ID used for executor internal
   // communcation and then call SM_finalize
   ExSM_Finalize(smGlobals);
-  
+
   EXSM_TRACE(EXSM_TRACE_EXIT, "END ExSM_ExitHandler");
 }

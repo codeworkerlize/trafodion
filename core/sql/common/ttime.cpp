@@ -27,53 +27,48 @@
 #include "common/ComCextdecs.h"
 #include "ttime.h"
 
-const char* reportTimestamp()
-{
- char buffer[26];
- int millisec;
- struct tm* tm_info;
- struct timeval tv;
+const char *reportTimestamp() {
+  char buffer[26];
+  int millisec;
+  struct tm *tm_info;
+  struct timeval tv;
 
   gettimeofday(&tv, NULL);
 
-  millisec = lrint(tv.tv_usec/1000.0); // Round to nearest millisec
-  if (millisec>=1000) { // Allow for rounding up to nearest second
-    millisec -=1000;
+  millisec = lrint(tv.tv_usec / 1000.0);  // Round to nearest millisec
+  if (millisec >= 1000) {                 // Allow for rounding up to nearest second
+    millisec -= 1000;
     tv.tv_sec++;
   }
 
- tm_info = localtime(&tv.tv_sec);
+  tm_info = localtime(&tv.tv_sec);
 
+  strftime(buffer, 26, "%Y:%m:%d %H:%M:%S", tm_info);
 
- strftime(buffer, 26, "%Y:%m:%d %H:%M:%S", tm_info);
+  static THREAD_P char buf[100];
+  sprintf(buf, "%s.%03d, ", buffer, millisec);
 
- static THREAD_P char buf[100];
- sprintf(buf, "%s.%03d, ", buffer, millisec);
-
- return buf;
+  return buf;
 }
 
-const char* reportTimeDiff(Int64 time)
-{
-   static THREAD_P char tdiff[200];
-   ULng32 ms  = (ULng32) (((time % 1000000) + 500) / 1000);
-   ULng32 sec = (ULng32) (time / 1000000);
-   ULng32 min = sec/60;
-   sec = sec % 60;
-   ULng32 hour = min/60;
-   min = min % 60;
+const char *reportTimeDiff(Int64 time) {
+  static THREAD_P char tdiff[200];
+  ULng32 ms = (ULng32)(((time % 1000000) + 500) / 1000);
+  ULng32 sec = (ULng32)(time / 1000000);
+  ULng32 min = sec / 60;
+  sec = sec % 60;
+  ULng32 hour = min / 60;
+  min = min % 60;
 
-   sprintf(tdiff, "%02u:%02u:%02u.%03u (us=%ld)", hour, min, sec, ms, time);
+  sprintf(tdiff, "%02u:%02u:%02u.%03u (us=%ld)", hour, min, sec, ms, time);
 
-   return tdiff;
+  return tdiff;
 }
 
-Int64 currentTimeStampInUsec()
-{
+Int64 currentTimeStampInUsec() {
   struct timeval tv;
 
   gettimeofday(&tv, NULL);
 
   return (Int64)(tv.tv_sec * 1000000) + tv.tv_usec;
 }
-

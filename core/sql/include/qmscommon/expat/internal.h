@@ -51,7 +51,7 @@
    #define FASTCALL __attribute__((stdcall, regparm(3)))
    and let's try this:
 */
-#define FASTCALL __attribute__((regparm(3)))
+#define FASTCALL    __attribute__((regparm(3)))
 #define PTRFASTCALL __attribute__((regparm(3)))
 #endif
 

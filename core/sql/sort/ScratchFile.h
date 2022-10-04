@@ -29,8 +29,8 @@
 *
 * Description:  This class is used to encapsulate all scratchfile related
 *               data and processing. This class implementation would be
-*               different on different OS platforms.                         
-*                              
+*               different on different OS platforms.
+*
 * Created:	    04/30/96
 * Modified:     $ $Date: 2006/11/21 05:53:06 $ (GMT)
 * Language:     C++
@@ -44,8 +44,7 @@
 #ifndef SCRATCHFILE_H
 #define SCRATCHFILE_H
 
-
 #include "ScratchFile_base.h"
 
-			#include "ScratchFile_sq.h"
+#include "ScratchFile_sq.h"
 #endif

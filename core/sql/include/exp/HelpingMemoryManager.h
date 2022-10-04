@@ -13,7 +13,7 @@
 //===----------------------------------------------------------------------===//
 
 #ifndef LLVM_HELPINGMEMORYMANAGER_H
-#define LLVM_HELPINGMEMORYMANAGER_H 
+#define LLVM_HELPINGMEMORYMANAGER_H
 
 #include "llvm/ADT/SmallVector.h"
 #include "llvm/ExecutionEngine/RTDyldMemoryManager.h"
@@ -35,11 +35,11 @@ namespace llvm {
 /// MCJIT::finalizeObject or by calling HelpingMemoryManager::finalizeMemory
 /// directly.  Clients of MCJIT should call MCJIT::finalizeObject.
 class HelpingMemoryManager : public RTDyldMemoryManager {
-  HelpingMemoryManager(const HelpingMemoryManager&) = delete;
-  void operator=(const HelpingMemoryManager&) = delete;
+  HelpingMemoryManager(const HelpingMemoryManager &) = delete;
+  void operator=(const HelpingMemoryManager &) = delete;
 
-public:
-  HelpingMemoryManager() { }
+ public:
+  HelpingMemoryManager() {}
   ~HelpingMemoryManager() override;
 
   /// \brief Allocates a memory block of (at least) the given size suitable for
@@ -47,17 +47,14 @@ public:
   ///
   /// The value of \p Alignment must be a power of two.  If \p Alignment is zero
   /// a default alignment of 16 will be used.
-  uint8_t *allocateCodeSection(uintptr_t Size, unsigned Alignment,
-                               unsigned SectionID,
-                               StringRef SectionName) override;
+  uint8_t *allocateCodeSection(uintptr_t Size, unsigned Alignment, unsigned SectionID, StringRef SectionName) override;
 
   /// \brief Allocates a memory block of (at least) the given size suitable for
   /// executable code.
   ///
   /// The value of \p Alignment must be a power of two.  If \p Alignment is zero
   /// a default alignment of 16 will be used.
-  uint8_t *allocateDataSection(uintptr_t Size, unsigned Alignment,
-                               unsigned SectionID, StringRef SectionName,
+  uint8_t *allocateDataSection(uintptr_t Size, unsigned Alignment, unsigned SectionID, StringRef SectionName,
                                bool isReadOnly) override;
 
   /// \brief Update section-specific memory permissions and other attributes.
@@ -81,9 +78,9 @@ public:
   ///
   /// This method is called from finalizeMemory.
   virtual void invalidateInstructionCache();
-  size_t getFunctionSize(void * function);
+  size_t getFunctionSize(void *function);
 
-private:
+ private:
   struct FreeMemBlock {
     // The actual block of free memory
     sys::MemoryBlock Free;
@@ -108,11 +105,9 @@ private:
     sys::MemoryBlock Near;
   };
 
-  uint8_t *allocateSection(MemoryGroup &MemGroup, uintptr_t Size,
-                           unsigned Alignment);
+  uint8_t *allocateSection(MemoryGroup &MemGroup, uintptr_t Size, unsigned Alignment);
 
-  std::error_code applyMemoryGroupPermissions(MemoryGroup &MemGroup,
-                                              unsigned Permissions);
+  std::error_code applyMemoryGroupPermissions(MemoryGroup &MemGroup, unsigned Permissions);
 
   MemoryGroup CodeMem;
   MemoryGroup RWDataMem;
@@ -120,7 +115,6 @@ private:
   SmallVector<sys::MemoryBlock, 16> funcMem;
 };
 
-}
+}  // namespace llvm
 
-#endif // LLVM_HELPINGMEMORYMANAGER_H 
-
+#endif  // LLVM_HELPINGMEMORYMANAGER_H

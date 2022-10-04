@@ -58,556 +58,321 @@
 // -----------------------------------------------------------------------
 // Global variables
 // -----------------------------------------------------------------------
-NAUnsigned              HashJoinRuleNumber;
-NAUnsigned              NestedJoinRuleNumber;
-NAUnsigned              MergeJoinRuleNumber;
-NAUnsigned              SortEnforcerRuleNumber;
+NAUnsigned HashJoinRuleNumber;
+NAUnsigned NestedJoinRuleNumber;
+NAUnsigned MergeJoinRuleNumber;
+NAUnsigned SortEnforcerRuleNumber;
 
 // -----------------------------------------------------------------------
 // Global function to add implementation rules to the rule set
 // -----------------------------------------------------------------------
 static const NAString LiteralAnyName("any name");
 
-void CreateImplementationRules(RuleSet* set)
-{
+void CreateImplementationRules(RuleSet *set) {
   Rule *r;
 
   CorrName anyCorrName(LiteralAnyName);
 
-  r = new(CmpCommon::contextHeap()) FileScanRule
-    ("File Scan implementation rule",
-     new(CmpCommon::contextHeap()) Scan(REL_SCAN, CmpCommon::contextHeap()),
-     new(CmpCommon::contextHeap())
-       FileScan(CorrName(),
-                NULL,
-                NULL,
-                REL_FILE_SCAN,
-                CmpCommon::contextHeap()));
+  r = new (CmpCommon::contextHeap()) FileScanRule(
+      "File Scan implementation rule", new (CmpCommon::contextHeap()) Scan(REL_SCAN, CmpCommon::contextHeap()),
+      new (CmpCommon::contextHeap()) FileScan(CorrName(), NULL, NULL, REL_FILE_SCAN, CmpCommon::contextHeap()));
   set->insert(r);
   set->enable(r->getNumber());
 
-  r = new(CmpCommon::contextHeap()) HbaseScanRule
-    ("Hbase Scan implementation rule",
-     new(CmpCommon::contextHeap()) Scan(REL_SCAN, CmpCommon::contextHeap()),
-     new(CmpCommon::contextHeap())
-     HbaseAccess(REL_HBASE_ACCESS, CmpCommon::contextHeap()));
+  r = new (CmpCommon::contextHeap()) HbaseScanRule(
+      "Hbase Scan implementation rule", new (CmpCommon::contextHeap()) Scan(REL_SCAN, CmpCommon::contextHeap()),
+      new (CmpCommon::contextHeap()) HbaseAccess(REL_HBASE_ACCESS, CmpCommon::contextHeap()));
   set->insert(r);
   set->enable(r->getNumber());
 
-  r = new(CmpCommon::contextHeap()) HashJoinRule
-    ("Hash join implementation rule",
-     new(CmpCommon::contextHeap())
-       WildCardOp(REL_ANY_JOIN,
-                  0,
-                  new(CmpCommon::contextHeap())
-                    CutOp(0, CmpCommon::contextHeap()),
-                  new(CmpCommon::contextHeap())
-                    CutOp(1, CmpCommon::contextHeap()),
-                  CmpCommon::contextHeap()),
-     new(CmpCommon::contextHeap())
-     HashJoin(new(CmpCommon::contextHeap())
-                CutOp(0, CmpCommon::contextHeap()),
-              new(CmpCommon::contextHeap())
-                CutOp(1, CmpCommon::contextHeap()),
-              CmpCommon::contextHeap()));
+  r = new (CmpCommon::contextHeap()) HashJoinRule(
+      "Hash join implementation rule",
+      new (CmpCommon::contextHeap())
+          WildCardOp(REL_ANY_JOIN, 0, new (CmpCommon::contextHeap()) CutOp(0, CmpCommon::contextHeap()),
+                     new (CmpCommon::contextHeap()) CutOp(1, CmpCommon::contextHeap()), CmpCommon::contextHeap()),
+      new (CmpCommon::contextHeap())
+          HashJoin(new (CmpCommon::contextHeap()) CutOp(0, CmpCommon::contextHeap()),
+                   new (CmpCommon::contextHeap()) CutOp(1, CmpCommon::contextHeap()), CmpCommon::contextHeap()));
   set->insert(r);
   set->enable(r->getNumber());
 
   HashJoinRuleNumber = r->getNumber();
 
-  r = new(CmpCommon::contextHeap())
-    MergeJoinRule(
-                  "Merge join implementation rule",
-                  new(CmpCommon::contextHeap())
-                  WildCardOp(REL_ANY_JOIN,
-                             0,
-                             new(CmpCommon::contextHeap())
-                               CutOp(0, CmpCommon::contextHeap()),
-                             new(CmpCommon::contextHeap())
-                               CutOp(1, CmpCommon::contextHeap()),
-                             CmpCommon::contextHeap()),
-                  new(CmpCommon::contextHeap())
-                  MergeJoin(new(CmpCommon::contextHeap())
-                              CutOp(0, CmpCommon::contextHeap()),
-                            new(CmpCommon::contextHeap())
-                              CutOp(1, CmpCommon::contextHeap()),
-                            REL_MERGE_JOIN,
-                            NULL,
-                            CmpCommon::contextHeap()));
+  r = new (CmpCommon::contextHeap()) MergeJoinRule(
+      "Merge join implementation rule",
+      new (CmpCommon::contextHeap())
+          WildCardOp(REL_ANY_JOIN, 0, new (CmpCommon::contextHeap()) CutOp(0, CmpCommon::contextHeap()),
+                     new (CmpCommon::contextHeap()) CutOp(1, CmpCommon::contextHeap()), CmpCommon::contextHeap()),
+      new (CmpCommon::contextHeap()) MergeJoin(new (CmpCommon::contextHeap()) CutOp(0, CmpCommon::contextHeap()),
+                                               new (CmpCommon::contextHeap()) CutOp(1, CmpCommon::contextHeap()),
+                                               REL_MERGE_JOIN, NULL, CmpCommon::contextHeap()));
   set->insert(r);
-  set->enable(r->getNumber(),
-                        set->getSecondPassNumber());
+  set->enable(r->getNumber(), set->getSecondPassNumber());
 
   // set global variable
   MergeJoinRuleNumber = r->getNumber();
 
-  r = new(CmpCommon::contextHeap()) NestedJoinRule
-    ("Nested join implementation rule",
-     new(CmpCommon::contextHeap())
-     WildCardOp(REL_ANY_JOIN,
-                0,
-                new(CmpCommon::contextHeap())
-                  CutOp(0, CmpCommon::contextHeap()),
-                new(CmpCommon::contextHeap())
-                  CutOp(1, CmpCommon::contextHeap()),
-                CmpCommon::contextHeap()),
-     new(CmpCommon::contextHeap())
-     NestedJoin(new(CmpCommon::contextHeap())
-                  CutOp(0, CmpCommon::contextHeap()),
-                new(CmpCommon::contextHeap())
-                  CutOp(1, CmpCommon::contextHeap()),
-                REL_NESTED_JOIN,
-                CmpCommon::contextHeap()));
+  r = new (CmpCommon::contextHeap()) NestedJoinRule(
+      "Nested join implementation rule",
+      new (CmpCommon::contextHeap())
+          WildCardOp(REL_ANY_JOIN, 0, new (CmpCommon::contextHeap()) CutOp(0, CmpCommon::contextHeap()),
+                     new (CmpCommon::contextHeap()) CutOp(1, CmpCommon::contextHeap()), CmpCommon::contextHeap()),
+      new (CmpCommon::contextHeap()) NestedJoin(new (CmpCommon::contextHeap()) CutOp(0, CmpCommon::contextHeap()),
+                                                new (CmpCommon::contextHeap()) CutOp(1, CmpCommon::contextHeap()),
+                                                REL_NESTED_JOIN, CmpCommon::contextHeap()));
   set->insert(r);
   set->enable(r->getNumber());
 
   NestedJoinRuleNumber = r->getNumber();
 
-  r = new(CmpCommon::contextHeap()) NestedJoinFlowRule
-    ("Nested join flow implementation rule",
-     new(CmpCommon::contextHeap())
-     Join(new(CmpCommon::contextHeap())
-            CutOp(0, CmpCommon::contextHeap()),
-          new(CmpCommon::contextHeap())
-            CutOp(1, CmpCommon::contextHeap()),
-          REL_TSJ_FLOW,
-          NULL,
-          FALSE,
-          FALSE,
-          CmpCommon::contextHeap()),
-     new(CmpCommon::contextHeap())
-     NestedJoinFlow(new(CmpCommon::contextHeap())
-                      CutOp(0, CmpCommon::contextHeap()),
-                    new(CmpCommon::contextHeap())
-                      CutOp(1, CmpCommon::contextHeap()),
-                    NULL,
-                    NULL,
-                    CmpCommon::contextHeap()));
+  r = new (CmpCommon::contextHeap()) NestedJoinFlowRule(
+      "Nested join flow implementation rule",
+      new (CmpCommon::contextHeap()) Join(new (CmpCommon::contextHeap()) CutOp(0, CmpCommon::contextHeap()),
+                                          new (CmpCommon::contextHeap()) CutOp(1, CmpCommon::contextHeap()),
+                                          REL_TSJ_FLOW, NULL, FALSE, FALSE, CmpCommon::contextHeap()),
+      new (CmpCommon::contextHeap()) NestedJoinFlow(new (CmpCommon::contextHeap()) CutOp(0, CmpCommon::contextHeap()),
+                                                    new (CmpCommon::contextHeap()) CutOp(1, CmpCommon::contextHeap()),
+                                                    NULL, NULL, CmpCommon::contextHeap()));
   set->insert(r);
   set->enable(r->getNumber());
 
-  r = new(CmpCommon::contextHeap()) HashGroupByRule
-    ("Impl: Groupby with a hash table",
-     new(CmpCommon::contextHeap())
-     WildCardOp(REL_ANY_GROUP,
-                0,
-                new(CmpCommon::contextHeap())
-                  CutOp(0, CmpCommon::contextHeap()),
-                NULL,
-                CmpCommon::contextHeap()),
-     new(CmpCommon::contextHeap())
-     HashGroupBy(new(CmpCommon::contextHeap())
-                   CutOp(0, CmpCommon::contextHeap()),
-                 REL_HASHED_GROUPBY,
-                 NULL,
-                 NULL,
-                 CmpCommon::contextHeap()));
+  r = new (CmpCommon::contextHeap()) HashGroupByRule(
+      "Impl: Groupby with a hash table",
+      new (CmpCommon::contextHeap())
+          WildCardOp(REL_ANY_GROUP, 0, new (CmpCommon::contextHeap()) CutOp(0, CmpCommon::contextHeap()), NULL,
+                     CmpCommon::contextHeap()),
+      new (CmpCommon::contextHeap()) HashGroupBy(new (CmpCommon::contextHeap()) CutOp(0, CmpCommon::contextHeap()),
+                                                 REL_HASHED_GROUPBY, NULL, NULL, CmpCommon::contextHeap()));
   set->insert(r);
   set->enable(r->getNumber());
 
-  r = new(CmpCommon::contextHeap()) SortGroupByRule
-    ("Impl: Groupby of sorted table",
-     new(CmpCommon::contextHeap())
-     WildCardOp(REL_ANY_GROUP,
-                0,
-                new(CmpCommon::contextHeap())
-                  CutOp(0, CmpCommon::contextHeap()),
-                NULL,
-                CmpCommon::contextHeap()),
-     new(CmpCommon::contextHeap())
-     SortGroupBy(new(CmpCommon::contextHeap())
-                   CutOp(0, CmpCommon::contextHeap()),
-                 REL_ORDERED_GROUPBY,
-                 NULL,
-                 NULL,
-                 CmpCommon::contextHeap()));
+  r = new (CmpCommon::contextHeap()) SortGroupByRule(
+      "Impl: Groupby of sorted table",
+      new (CmpCommon::contextHeap())
+          WildCardOp(REL_ANY_GROUP, 0, new (CmpCommon::contextHeap()) CutOp(0, CmpCommon::contextHeap()), NULL,
+                     CmpCommon::contextHeap()),
+      new (CmpCommon::contextHeap()) SortGroupBy(new (CmpCommon::contextHeap()) CutOp(0, CmpCommon::contextHeap()),
+                                                 REL_ORDERED_GROUPBY, NULL, NULL, CmpCommon::contextHeap()));
   set->insert(r);
-  set->enable(r->getNumber(),
-                        set->getSecondPassNumber());
+  set->enable(r->getNumber(), set->getSecondPassNumber());
 
-  r = new(CmpCommon::contextHeap()) AggregateRule
-    ("Impl: Aggregate with no grouping columns",
-     new(CmpCommon::contextHeap())
-     WildCardOp(REL_ANY_GROUP,
-                0,
-                new(CmpCommon::contextHeap())
-                  CutOp(0, CmpCommon::contextHeap()),
-                NULL,
-                CmpCommon::contextHeap()),
-     new(CmpCommon::contextHeap())
-     SortGroupBy(new(CmpCommon::contextHeap())
-                   CutOp(0, CmpCommon::contextHeap()),
-                 REL_ORDERED_GROUPBY,
-                 NULL,
-                 NULL,
-                 CmpCommon::contextHeap()));
+  r = new (CmpCommon::contextHeap()) AggregateRule(
+      "Impl: Aggregate with no grouping columns",
+      new (CmpCommon::contextHeap())
+          WildCardOp(REL_ANY_GROUP, 0, new (CmpCommon::contextHeap()) CutOp(0, CmpCommon::contextHeap()), NULL,
+                     CmpCommon::contextHeap()),
+      new (CmpCommon::contextHeap()) SortGroupBy(new (CmpCommon::contextHeap()) CutOp(0, CmpCommon::contextHeap()),
+                                                 REL_ORDERED_GROUPBY, NULL, NULL, CmpCommon::contextHeap()));
   set->insert(r);
   set->enable(r->getNumber());
 
-  r = new(CmpCommon::contextHeap()) PhysShortCutGroupByRule
-    ("Implement ShortCutGroupBy by a PhysicalShortCutGroupBy ",
-     new(CmpCommon::contextHeap())
-       ShortCutGroupBy(new(CmpCommon::contextHeap())
-                        CutOp(0, CmpCommon::contextHeap()),
-                       REL_SHORTCUT_GROUPBY,
-                       NULL,
-                       NULL,
-                       CmpCommon::contextHeap()),
-     new(CmpCommon::contextHeap())
-       PhysShortCutGroupBy(new(CmpCommon::contextHeap())
-                            CutOp(0, CmpCommon::contextHeap()),
-                           REL_SHORTCUT_GROUPBY,
-                           NULL,
-                           NULL,
-                           CmpCommon::contextHeap()));
+  r = new (CmpCommon::contextHeap()) PhysShortCutGroupByRule(
+      "Implement ShortCutGroupBy by a PhysicalShortCutGroupBy ",
+      new (CmpCommon::contextHeap()) ShortCutGroupBy(new (CmpCommon::contextHeap()) CutOp(0, CmpCommon::contextHeap()),
+                                                     REL_SHORTCUT_GROUPBY, NULL, NULL, CmpCommon::contextHeap()),
+      new (CmpCommon::contextHeap())
+          PhysShortCutGroupBy(new (CmpCommon::contextHeap()) CutOp(0, CmpCommon::contextHeap()), REL_SHORTCUT_GROUPBY,
+                              NULL, NULL, CmpCommon::contextHeap()));
   set->insert(r);
-  set->enable(r->getNumber(),
-                        set->getSecondPassNumber());
+  set->enable(r->getNumber(), set->getSecondPassNumber());
 
-  r = new(CmpCommon::contextHeap()) UnionRule
-    ("Implementation rule for Union nodes",
-     new(CmpCommon::contextHeap())
-       Union(new(CmpCommon::contextHeap()) CutOp(0, CmpCommon::contextHeap()),
-             new(CmpCommon::contextHeap()) CutOp(1, CmpCommon::contextHeap()),
-             NULL,
-             NULL,
-             REL_UNION,
-             CmpCommon::contextHeap()),
-     new(CmpCommon::contextHeap())
-       MergeUnion(new(CmpCommon::contextHeap())
-                    CutOp(0, CmpCommon::contextHeap()),
-                  new(CmpCommon::contextHeap())
-                    CutOp(1, CmpCommon::contextHeap()),
-                  NULL,
-                  REL_MERGE_UNION,
-                  CmpCommon::contextHeap()));
+  r = new (CmpCommon::contextHeap()) UnionRule(
+      "Implementation rule for Union nodes",
+      new (CmpCommon::contextHeap()) Union(new (CmpCommon::contextHeap()) CutOp(0, CmpCommon::contextHeap()),
+                                           new (CmpCommon::contextHeap()) CutOp(1, CmpCommon::contextHeap()), NULL,
+                                           NULL, REL_UNION, CmpCommon::contextHeap()),
+      new (CmpCommon::contextHeap()) MergeUnion(new (CmpCommon::contextHeap()) CutOp(0, CmpCommon::contextHeap()),
+                                                new (CmpCommon::contextHeap()) CutOp(1, CmpCommon::contextHeap()), NULL,
+                                                REL_MERGE_UNION, CmpCommon::contextHeap()));
   set->insert(r);
   set->enable(r->getNumber());
 
-  r = new(CmpCommon::contextHeap()) HbaseDeleteRule
-    ("Hbase Delete Implementation rule",
-     new(CmpCommon::contextHeap())
-       Delete(anyCorrName,
-              NULL,
-              REL_UNARY_DELETE,
-              new(CmpCommon::contextHeap())
-                Scan(REL_SCAN, CmpCommon::contextHeap()),
-              NULL, NULL,
-	      NULL,
-              CmpCommon::contextHeap()),
-     new(CmpCommon::contextHeap())
-       HbaseDelete(
-                 CmpCommon::contextHeap()));
+  r = new (CmpCommon::contextHeap()) HbaseDeleteRule(
+      "Hbase Delete Implementation rule",
+      new (CmpCommon::contextHeap()) Delete(anyCorrName, NULL, REL_UNARY_DELETE,
+                                            new (CmpCommon::contextHeap()) Scan(REL_SCAN, CmpCommon::contextHeap()),
+                                            NULL, NULL, NULL, CmpCommon::contextHeap()),
+      new (CmpCommon::contextHeap()) HbaseDelete(CmpCommon::contextHeap()));
   set->insert(r);
   set->enable(r->getNumber());
 
-  r = new(CmpCommon::contextHeap()) HbaseUpdateRule
-    ("Hbase Update Implementation rule",
-     new(CmpCommon::contextHeap())
-       Update(anyCorrName,
-              NULL,
-              REL_UNARY_UPDATE,
-              new(CmpCommon::contextHeap())
-                Scan(REL_SCAN, CmpCommon::contextHeap()),
-              NULL, NULL,
-              CmpCommon::contextHeap()),
-     new(CmpCommon::contextHeap())
-       HbaseUpdate(
-                 CmpCommon::contextHeap()));
+  r = new (CmpCommon::contextHeap()) HbaseUpdateRule(
+      "Hbase Update Implementation rule",
+      new (CmpCommon::contextHeap()) Update(anyCorrName, NULL, REL_UNARY_UPDATE,
+                                            new (CmpCommon::contextHeap()) Scan(REL_SCAN, CmpCommon::contextHeap()),
+                                            NULL, NULL, CmpCommon::contextHeap()),
+      new (CmpCommon::contextHeap()) HbaseUpdate(CmpCommon::contextHeap()));
   set->insert(r);
   set->enable(r->getNumber());
 
-  r = new(CmpCommon::contextHeap()) HiveInsertRule
-    ("Implementation rule for hive Insert",
-     new(CmpCommon::contextHeap())
-       Insert(anyCorrName,
-              NULL,
-              REL_LEAF_INSERT,
-              NULL,
-              NULL,
-              NULL,
-              CmpCommon::contextHeap()),
-     new(CmpCommon::contextHeap())
-     HiveInsert(anyCorrName,
-                        NULL,
-                        REL_HIVE_INSERT,
-                        NULL,
-               CmpCommon::contextHeap()));
+  r = new (CmpCommon::contextHeap()) HiveInsertRule(
+      "Implementation rule for hive Insert",
+      new (CmpCommon::contextHeap())
+          Insert(anyCorrName, NULL, REL_LEAF_INSERT, NULL, NULL, NULL, CmpCommon::contextHeap()),
+      new (CmpCommon::contextHeap()) HiveInsert(anyCorrName, NULL, REL_HIVE_INSERT, NULL, CmpCommon::contextHeap()));
   set->insert(r);
   set->enable(r->getNumber());
 
-  r = new(CmpCommon::contextHeap()) HbaseInsertRule
-    ("Implementation rule for hbase Insert",
-     new(CmpCommon::contextHeap())
-       Insert(anyCorrName,
-              NULL,
-              REL_LEAF_INSERT,
-              NULL,
-              NULL,
-              NULL,
-              CmpCommon::contextHeap()),
-     new(CmpCommon::contextHeap())
-     HbaseInsert(anyCorrName,
-                        NULL,
-                        REL_HBASE_INSERT,
-                        NULL,
-               CmpCommon::contextHeap()));
+  r = new (CmpCommon::contextHeap()) HbaseInsertRule(
+      "Implementation rule for hbase Insert",
+      new (CmpCommon::contextHeap())
+          Insert(anyCorrName, NULL, REL_LEAF_INSERT, NULL, NULL, NULL, CmpCommon::contextHeap()),
+      new (CmpCommon::contextHeap()) HbaseInsert(anyCorrName, NULL, REL_HBASE_INSERT, NULL, CmpCommon::contextHeap()));
   set->insert(r);
   set->enable(r->getNumber());
 
-  r = new(CmpCommon::contextHeap()) HbaseDeleteCursorRule
-    ("Hbase Delete using cursor",
-     new(CmpCommon::contextHeap())
-       Delete(anyCorrName,
-              NULL,
-              REL_LEAF_DELETE,
-	      NULL,
-              NULL, NULL,
-	      NULL,
-              CmpCommon::contextHeap()),
-     new(CmpCommon::contextHeap())
-       HbaseDelete(
-                 CmpCommon::contextHeap()));
+  r = new (CmpCommon::contextHeap()) HbaseDeleteCursorRule(
+      "Hbase Delete using cursor",
+      new (CmpCommon::contextHeap())
+          Delete(anyCorrName, NULL, REL_LEAF_DELETE, NULL, NULL, NULL, NULL, CmpCommon::contextHeap()),
+      new (CmpCommon::contextHeap()) HbaseDelete(CmpCommon::contextHeap()));
   set->insert(r);
   set->enable(r->getNumber());
 
-  r = new(CmpCommon::contextHeap()) HbaseUpdateCursorRule
-    ("Hbase Update using cursor",
-     new(CmpCommon::contextHeap())
-       Update(anyCorrName,
-              NULL,
-              REL_LEAF_UPDATE,
-	      NULL,
-              NULL, NULL,
-              CmpCommon::contextHeap()),
-     new(CmpCommon::contextHeap())
-       HbaseUpdate(
-                 CmpCommon::contextHeap()));
+  r = new (CmpCommon::contextHeap())
+      HbaseUpdateCursorRule("Hbase Update using cursor",
+                            new (CmpCommon::contextHeap())
+                                Update(anyCorrName, NULL, REL_LEAF_UPDATE, NULL, NULL, NULL, CmpCommon::contextHeap()),
+                            new (CmpCommon::contextHeap()) HbaseUpdate(CmpCommon::contextHeap()));
   set->insert(r);
   set->enable(r->getNumber());
 
-  r = new(CmpCommon::contextHeap()) PhysicalMapValueIdsRule
-    ("Implement MapValueIds by a PhysicalMapValueIds",
-     new(CmpCommon::contextHeap())
-     MapValueIds(new(CmpCommon::contextHeap())
-                   CutOp(0, CmpCommon::contextHeap()),
-                 CmpCommon::contextHeap()),
-     new(CmpCommon::contextHeap())
-     PhysicalMapValueIds(new(CmpCommon::contextHeap())
-                           CutOp(0, CmpCommon::contextHeap()),
-                         CmpCommon::contextHeap()));
+  r = new (CmpCommon::contextHeap()) PhysicalMapValueIdsRule(
+      "Implement MapValueIds by a PhysicalMapValueIds",
+      new (CmpCommon::contextHeap())
+          MapValueIds(new (CmpCommon::contextHeap()) CutOp(0, CmpCommon::contextHeap()), CmpCommon::contextHeap()),
+      new (CmpCommon::contextHeap()) PhysicalMapValueIds(
+          new (CmpCommon::contextHeap()) CutOp(0, CmpCommon::contextHeap()), CmpCommon::contextHeap()));
   set->insert(r);
   set->enable(r->getNumber());
 
-  r = new(CmpCommon::contextHeap()) PhysicalRelRootRule
-    ("Implement RelRoot by a PhysicalRelRoot",
-     new(CmpCommon::contextHeap())
-     RelRoot(new(CmpCommon::contextHeap())
-               CutOp(0, CmpCommon::contextHeap()),
-             REL_ROOT,
-             NULL,
-             NULL,
-             NULL,
-             NULL,
-             CmpCommon::contextHeap()),
-     new(CmpCommon::contextHeap())
-     PhysicalRelRoot(new(CmpCommon::contextHeap())
-                       CutOp(0, CmpCommon::contextHeap()),
-                     CmpCommon::contextHeap()));
+  r = new (CmpCommon::contextHeap()) PhysicalRelRootRule(
+      "Implement RelRoot by a PhysicalRelRoot",
+      new (CmpCommon::contextHeap()) RelRoot(new (CmpCommon::contextHeap()) CutOp(0, CmpCommon::contextHeap()),
+                                             REL_ROOT, NULL, NULL, NULL, NULL, CmpCommon::contextHeap()),
+      new (CmpCommon::contextHeap())
+          PhysicalRelRoot(new (CmpCommon::contextHeap()) CutOp(0, CmpCommon::contextHeap()), CmpCommon::contextHeap()));
   set->insert(r);
   set->enable(r->getNumber());
 
-  r = new(CmpCommon::contextHeap()) PhysicalTupleRule
-    ("Implement Tuple by a PhysicalTuple",
-     new(CmpCommon::contextHeap()) Tuple(NULL, CmpCommon::contextHeap()),
-     new(CmpCommon::contextHeap()) PhysicalTuple(CmpCommon::contextHeap()));
+  r = new (CmpCommon::contextHeap()) PhysicalTupleRule(
+      "Implement Tuple by a PhysicalTuple", new (CmpCommon::contextHeap()) Tuple(NULL, CmpCommon::contextHeap()),
+      new (CmpCommon::contextHeap()) PhysicalTuple(CmpCommon::contextHeap()));
   set->insert(r);
   set->enable(r->getNumber());
 
-  r = new(CmpCommon::contextHeap()) PhysicalTupleListRule
-   ("Implement TupleList by a PhysicalTupleList",
-    new(CmpCommon::contextHeap()) TupleList(NULL, CmpCommon::contextHeap()),
-    new(CmpCommon::contextHeap()) PhysicalTupleList(CmpCommon::contextHeap()));
+  r = new (CmpCommon::contextHeap())
+      PhysicalTupleListRule("Implement TupleList by a PhysicalTupleList",
+                            new (CmpCommon::contextHeap()) TupleList(NULL, CmpCommon::contextHeap()),
+                            new (CmpCommon::contextHeap()) PhysicalTupleList(CmpCommon::contextHeap()));
   set->insert(r);
   set->enable(r->getNumber());
 
-  r = new(CmpCommon::contextHeap()) SortEnforcerRule(
-       "Enforcer rule to sort a result",
-       new(CmpCommon::contextHeap())
-         CutOp(0, CmpCommon::contextHeap()),
-       new(CmpCommon::contextHeap())
-         Sort(new(CmpCommon::contextHeap())
-                CutOp(0, CmpCommon::contextHeap()),
-              CmpCommon::contextHeap()));
+  r = new (CmpCommon::contextHeap()) SortEnforcerRule(
+      "Enforcer rule to sort a result", new (CmpCommon::contextHeap()) CutOp(0, CmpCommon::contextHeap()),
+      new (CmpCommon::contextHeap())
+          Sort(new (CmpCommon::contextHeap()) CutOp(0, CmpCommon::contextHeap()), CmpCommon::contextHeap()));
   set->insert(r);
   set->enable(r->getNumber());
 
   // set global variable
   SortEnforcerRuleNumber = r->getNumber();
 
-  r = new(CmpCommon::contextHeap()) ExchangeEnforcerRule(
-       "Enforce partitioning or plan location",
-       new(CmpCommon::contextHeap())
-         CutOp(0, CmpCommon::contextHeap()),
-       new(CmpCommon::contextHeap())
-         Exchange(new(CmpCommon::contextHeap())
-                    CutOp(0, CmpCommon::contextHeap()),
-                  CmpCommon::contextHeap()));
-  set->insert(r);
-  set->enable(r->getNumber());
-
-  r = new(CmpCommon::contextHeap()) PhysicalExplainRule
-    ("Implement ExplainFunc by a PhysicalExplain",
-     new(CmpCommon::contextHeap())
-       ExplainFunc(NULL, CmpCommon::contextHeap()),
-     new(CmpCommon::contextHeap())
-       PhysicalExplain(CmpCommon::contextHeap()));
-  set->insert(r);
-  set->enable(r->getNumber());
-
-
-
-  r = new(CmpCommon::contextHeap()) PhysicalTransposeRule
-    ("Implement Transpose by a PhysicalTranspose",
-     new(CmpCommon::contextHeap())
-     Transpose(NULL,
-               NULL,
-               new(CmpCommon::contextHeap())
-               CutOp(0, CmpCommon::contextHeap()),
-               CmpCommon::contextHeap()),
-     new(CmpCommon::contextHeap())
-     PhysTranspose(new(CmpCommon::contextHeap())
-                   CutOp(0, CmpCommon::contextHeap()),
-                   CmpCommon::contextHeap()));
-  set->insert(r);
-  set->enable(r->getNumber());
-
-  r = new(CmpCommon::contextHeap()) PhysicalPackRule
-    ("Implement Pack by a PhysicalPack",
-     new(CmpCommon::contextHeap())
-     Pack(0,
-          new(CmpCommon::contextHeap()) CutOp(0,CmpCommon::contextHeap()),
-          NULL,
-          CmpCommon::contextHeap()),
-     new(CmpCommon::contextHeap())
-     PhyPack(0,
-             new(CmpCommon::contextHeap()) CutOp(0,CmpCommon::contextHeap()),
-             CmpCommon::contextHeap())
-     );
-  set->insert(r);
-  set->enable(r->getNumber());
-
-  r = new(CmpCommon::contextHeap()) PhysicalUnPackRowsRule
-    ("Implement UnPackRows by a PhysUnPackRows",
-     new(CmpCommon::contextHeap())
-     UnPackRows(0,
-                NULL,
-                NULL,
-                NULL,
-                new(CmpCommon::contextHeap())
-                CutOp(0,CmpCommon::contextHeap()),
-                NULL_VALUE_ID,
-                CmpCommon::contextHeap()),
-     new(CmpCommon::contextHeap())
-     PhysUnPackRows(new(CmpCommon::contextHeap())
-                    CutOp(0,CmpCommon::contextHeap()),
-                    CmpCommon::contextHeap())
-     );
+  r = new (CmpCommon::contextHeap()) ExchangeEnforcerRule(
+      "Enforce partitioning or plan location", new (CmpCommon::contextHeap()) CutOp(0, CmpCommon::contextHeap()),
+      new (CmpCommon::contextHeap())
+          Exchange(new (CmpCommon::contextHeap()) CutOp(0, CmpCommon::contextHeap()), CmpCommon::contextHeap()));
   set->insert(r);
   set->enable(r->getNumber());
 
   r = new (CmpCommon::contextHeap())
-          PhysCompoundStmtRule
-                ( "CompoundStmt Operator to PhysCompoundStmt operator",
-                   new (CmpCommon::contextHeap())
-                       CompoundStmt(
-                         new (CmpCommon::contextHeap())
-                           CutOp(0, CmpCommon::contextHeap()),
-                         new (CmpCommon::contextHeap())
-                           CutOp(1, CmpCommon::contextHeap()),
-                         REL_COMPOUND_STMT, CmpCommon::contextHeap()),
-                   new (CmpCommon::contextHeap())
-                       PhysCompoundStmt(new (CmpCommon::contextHeap())
-                         CutOp(0, CmpCommon::contextHeap()),
-                           new (CmpCommon::contextHeap())
-                         CutOp(1, CmpCommon::contextHeap()),
-                         REL_COMPOUND_STMT,
-                         CmpCommon::contextHeap()));
+      PhysicalExplainRule("Implement ExplainFunc by a PhysicalExplain",
+                          new (CmpCommon::contextHeap()) ExplainFunc(NULL, CmpCommon::contextHeap()),
+                          new (CmpCommon::contextHeap()) PhysicalExplain(CmpCommon::contextHeap()));
   set->insert(r);
   set->enable(r->getNumber());
 
-  r = new(CmpCommon::contextHeap()) PhysicalSequenceRule
-    ("Implement RelSequence by a PhysSequence",
-     new(CmpCommon::contextHeap())
-     RelSequence(new(CmpCommon::contextHeap())
-                 CutOp(0,CmpCommon::contextHeap()),
-                 NULL,
-                 CmpCommon::contextHeap()),
-     new(CmpCommon::contextHeap())
-     PhysSequence(new(CmpCommon::contextHeap())
-                  CutOp(0,CmpCommon::contextHeap()),
-                  CmpCommon::contextHeap())
-     );
+  r = new (CmpCommon::contextHeap()) PhysicalTransposeRule(
+      "Implement Transpose by a PhysicalTranspose",
+      new (CmpCommon::contextHeap()) Transpose(
+          NULL, NULL, new (CmpCommon::contextHeap()) CutOp(0, CmpCommon::contextHeap()), CmpCommon::contextHeap()),
+      new (CmpCommon::contextHeap())
+          PhysTranspose(new (CmpCommon::contextHeap()) CutOp(0, CmpCommon::contextHeap()), CmpCommon::contextHeap()));
   set->insert(r);
   set->enable(r->getNumber());
 
-  r = new(CmpCommon::contextHeap()) PhysicalSampleRule
-    ("Implement RelSample by a PhysSample",
-     new(CmpCommon::contextHeap())
-     RelSample(new(CmpCommon::contextHeap())
-               CutOp(0,CmpCommon::contextHeap()),
-               RelSample::ANY,
-               NULL,
-               NULL,
-               CmpCommon::contextHeap()),
-     new(CmpCommon::contextHeap())
-     PhysSample(new(CmpCommon::contextHeap())
-                CutOp(0,CmpCommon::contextHeap()),
-                RelSample::ANY,
-                CmpCommon::contextHeap())
-     );
+  r = new (CmpCommon::contextHeap()) PhysicalPackRule(
+      "Implement Pack by a PhysicalPack",
+      new (CmpCommon::contextHeap())
+          Pack(0, new (CmpCommon::contextHeap()) CutOp(0, CmpCommon::contextHeap()), NULL, CmpCommon::contextHeap()),
+      new (CmpCommon::contextHeap())
+          PhyPack(0, new (CmpCommon::contextHeap()) CutOp(0, CmpCommon::contextHeap()), CmpCommon::contextHeap()));
   set->insert(r);
   set->enable(r->getNumber());
 
-  r = new (CmpCommon::contextHeap()) PhysicalSPProxyFuncRule
-    ("Implement SPProxyFunc by a PhysicalSPProxyFunc",
-     new (CmpCommon::contextHeap())
-       SPProxyFunc(CmpCommon::contextHeap()),
-     new (CmpCommon::contextHeap())
-       PhysicalSPProxyFunc(CmpCommon::contextHeap())
-     );
+  r = new (CmpCommon::contextHeap()) PhysicalUnPackRowsRule(
+      "Implement UnPackRows by a PhysUnPackRows",
+      new (CmpCommon::contextHeap())
+          UnPackRows(0, NULL, NULL, NULL, new (CmpCommon::contextHeap()) CutOp(0, CmpCommon::contextHeap()),
+                     NULL_VALUE_ID, CmpCommon::contextHeap()),
+      new (CmpCommon::contextHeap())
+          PhysUnPackRows(new (CmpCommon::contextHeap()) CutOp(0, CmpCommon::contextHeap()), CmpCommon::contextHeap()));
   set->insert(r);
   set->enable(r->getNumber());
 
-  r = new (CmpCommon::contextHeap()) PhysicalExtractSourceRule
-    ("Implement ExtractSource by a PhysicalExtractSource",
-     new (CmpCommon::contextHeap())
-       ExtractSource(CmpCommon::contextHeap()),
-     new (CmpCommon::contextHeap())
-       PhysicalExtractSource(CmpCommon::contextHeap())
-     );
+  r = new (CmpCommon::contextHeap()) PhysCompoundStmtRule(
+      "CompoundStmt Operator to PhysCompoundStmt operator",
+      new (CmpCommon::contextHeap()) CompoundStmt(new (CmpCommon::contextHeap()) CutOp(0, CmpCommon::contextHeap()),
+                                                  new (CmpCommon::contextHeap()) CutOp(1, CmpCommon::contextHeap()),
+                                                  REL_COMPOUND_STMT, CmpCommon::contextHeap()),
+      new (CmpCommon::contextHeap()) PhysCompoundStmt(new (CmpCommon::contextHeap()) CutOp(0, CmpCommon::contextHeap()),
+                                                      new (CmpCommon::contextHeap()) CutOp(1, CmpCommon::contextHeap()),
+                                                      REL_COMPOUND_STMT, CmpCommon::contextHeap()));
   set->insert(r);
   set->enable(r->getNumber());
 
-  r = new(CmpCommon::contextHeap()) PhysicalIsolatedScalarUDFRule
-    ("Implement IsolatedScalarUDF by a PhysicalIsolatedScalarUDF",
-     new(CmpCommon::contextHeap())
-     IsolatedScalarUDF(NULL, CmpCommon::contextHeap()),
-     new(CmpCommon::contextHeap())
-                   PhysicalIsolatedScalarUDF(CmpCommon::contextHeap()));
+  r = new (CmpCommon::contextHeap()) PhysicalSequenceRule(
+      "Implement RelSequence by a PhysSequence",
+      new (CmpCommon::contextHeap()) RelSequence(new (CmpCommon::contextHeap()) CutOp(0, CmpCommon::contextHeap()),
+                                                 NULL, CmpCommon::contextHeap()),
+      new (CmpCommon::contextHeap())
+          PhysSequence(new (CmpCommon::contextHeap()) CutOp(0, CmpCommon::contextHeap()), CmpCommon::contextHeap()));
+  set->insert(r);
+  set->enable(r->getNumber());
+
+  r = new (CmpCommon::contextHeap()) PhysicalSampleRule(
+      "Implement RelSample by a PhysSample",
+      new (CmpCommon::contextHeap()) RelSample(new (CmpCommon::contextHeap()) CutOp(0, CmpCommon::contextHeap()),
+                                               RelSample::ANY, NULL, NULL, CmpCommon::contextHeap()),
+      new (CmpCommon::contextHeap()) PhysSample(new (CmpCommon::contextHeap()) CutOp(0, CmpCommon::contextHeap()),
+                                                RelSample::ANY, CmpCommon::contextHeap()));
   set->insert(r);
   set->enable(r->getNumber());
 
   r = new (CmpCommon::contextHeap())
-          PhysicalTMUDFRule
-             ("Implement a Table Mapping Function",
-              NULL,
-              NULL
-              );
+      PhysicalSPProxyFuncRule("Implement SPProxyFunc by a PhysicalSPProxyFunc",
+                              new (CmpCommon::contextHeap()) SPProxyFunc(CmpCommon::contextHeap()),
+                              new (CmpCommon::contextHeap()) PhysicalSPProxyFunc(CmpCommon::contextHeap()));
   set->insert(r);
   set->enable(r->getNumber());
 
+  r = new (CmpCommon::contextHeap())
+      PhysicalExtractSourceRule("Implement ExtractSource by a PhysicalExtractSource",
+                                new (CmpCommon::contextHeap()) ExtractSource(CmpCommon::contextHeap()),
+                                new (CmpCommon::contextHeap()) PhysicalExtractSource(CmpCommon::contextHeap()));
+  set->insert(r);
+  set->enable(r->getNumber());
 
+  r = new (CmpCommon::contextHeap())
+      PhysicalIsolatedScalarUDFRule("Implement IsolatedScalarUDF by a PhysicalIsolatedScalarUDF",
+                                    new (CmpCommon::contextHeap()) IsolatedScalarUDF(NULL, CmpCommon::contextHeap()),
+                                    new (CmpCommon::contextHeap()) PhysicalIsolatedScalarUDF(CmpCommon::contextHeap()));
+  set->insert(r);
+  set->enable(r->getNumber());
+
+  r = new (CmpCommon::contextHeap()) PhysicalTMUDFRule("Implement a Table Mapping Function", NULL, NULL);
+  set->insert(r);
+  set->enable(r->getNumber());
 }
 
 // -----------------------------------------------------------------------
@@ -616,28 +381,26 @@ void CreateImplementationRules(RuleSet* set)
 // -----------------------------------------------------------------------
 
 void copyCommonGenericUpdateFields(GenericUpdate *result,
-                                   /*const*/ GenericUpdate *bef,
-                                   NABoolean setSelectStoi = FALSE)
-{
+                                   /*const*/ GenericUpdate *bef, NABoolean setSelectStoi = FALSE) {
   result->setGroupAttr(bef->getGroupAttr());
 
-  result->updateToSelectMap()      = bef->updateToSelectMap();
-  result->newRecExpr()             = bef->newRecExpr();
-  result->newRecExprArray()        = bef->newRecExprArray();
+  result->updateToSelectMap() = bef->updateToSelectMap();
+  result->newRecExpr() = bef->newRecExpr();
+  result->newRecExprArray() = bef->newRecExprArray();
   // QSTUFF
-  result->newRecBeforeExpr()       = bef->newRecBeforeExpr();
-  result->newRecBeforeExprArray()  = bef->newRecBeforeExprArray();
+  result->newRecBeforeExpr() = bef->newRecBeforeExpr();
+  result->newRecBeforeExprArray() = bef->newRecBeforeExprArray();
   // QSTUFF
-  result->accessOptions()          = bef->accessOptions();
-  result->checkConstraints()       = bef->checkConstraints();
+  result->accessOptions() = bef->accessOptions();
+  result->checkConstraints() = bef->checkConstraints();
 
-  result->beginKeyPred()           = bef->beginKeyPred();
-  result->endKeyPred()             = bef->endKeyPred();
-  result->executorPred()           = bef->executorPred();
-  result->indexNewRecExprArrays()  = bef->indexNewRecExprArrays();
+  result->beginKeyPred() = bef->beginKeyPred();
+  result->endKeyPred() = bef->endKeyPred();
+  result->executorPred() = bef->executorPred();
+  result->indexNewRecExprArrays() = bef->indexNewRecExprArrays();
   result->indexBeginKeyPredArray() = bef->indexBeginKeyPredArray();
-  result->indexEndKeyPredArray()   = bef->indexEndKeyPredArray();
-  result->indexNumberArray()       = bef->indexNumberArray();
+  result->indexEndKeyPredArray() = bef->indexEndKeyPredArray();
+  result->indexNumberArray() = bef->indexNumberArray();
 
   result->setIndexDesc(bef->getTableDesc()->getClusteringIndex());
   result->setScanIndexDesc(bef->getScanIndexDesc());
@@ -656,12 +419,10 @@ void copyCommonGenericUpdateFields(GenericUpdate *result,
   result->setPotentialOutputValues(outputs);
 
   result->setOptStoi(bef->getOptStoi());
-  if (setSelectStoi)
-    result->getOptStoi()->getStoi()->setSelectAccess();
+  if (setSelectStoi) result->getOptStoi()->getStoi()->setSelectAccess();
 
   if (bef->currOfCursorName())
-    result->currOfCursorName() =
-      bef->currOfCursorName()->copyTree(CmpCommon::statementHeap())->castToItemExpr();
+    result->currOfCursorName() = bef->currOfCursorName()->copyTree(CmpCommon::statementHeap())->castToItemExpr();
 
   // Note that these last are not simple *copying* operations...
   result->computeUsedCols();
@@ -692,24 +453,22 @@ void copyCommonGenericUpdateFields(GenericUpdate *result,
 }
 
 void copyCommonUpdateFields(Update *result,
-			    /*const*/ Update *bef)
-{
+                            /*const*/ Update *bef) {
   result->setGroupAttr(bef->getGroupAttr());
 
-  result->mergeInsertRecExpr()          = bef->mergeInsertRecExpr();
-  result->mergeInsertRecExprArray()     = bef->mergeInsertRecExprArray();
-  result->mergeUpdatePred()             = bef->mergeUpdatePred();
+  result->mergeInsertRecExpr() = bef->mergeInsertRecExpr();
+  result->mergeInsertRecExprArray() = bef->mergeInsertRecExprArray();
+  result->mergeUpdatePred() = bef->mergeUpdatePred();
 
-  result->hbaseTagExpr()                = bef->hbaseTagExpr();
+  result->hbaseTagExpr() = bef->hbaseTagExpr();
 }
 
 void copyCommonDeleteFields(Delete *result,
-			    /*const*/ Delete *bef)
-{
+                            /*const*/ Delete *bef) {
   result->setGroupAttr(bef->getGroupAttr());
 
-  result->mergeInsertRecExpr()          = bef->mergeInsertRecExpr();
-  result->mergeInsertRecExprArray()     = bef->mergeInsertRecExprArray();
+  result->mergeInsertRecExpr() = bef->mergeInsertRecExpr();
+  result->mergeInsertRecExprArray() = bef->mergeInsertRecExprArray();
 
   result->csl() = bef->csl();
 }
@@ -718,217 +477,177 @@ void copyCommonDeleteFields(Delete *result,
 // methods for class FileScanRule
 // -----------------------------------------------------------------------
 
-FileScanRule::~FileScanRule() {} 
+FileScanRule::~FileScanRule() {}
 
 /**************************************************************************
-* Input : list of indexes of the same table
-* Output: smallest index and position of the index in the list
-* Finds smallest index based on Kb per volume which can be normalized to
-* rowSize/volumes because rowCount for the indexes are same.
-***************************************************************************/
+ * Input : list of indexes of the same table
+ * Output: smallest index and position of the index in the list
+ * Finds smallest index based on Kb per volume which can be normalized to
+ * rowSize/volumes because rowCount for the indexes are same.
+ ***************************************************************************/
 
-
-IndexDesc * findSmallestIndex(const LIST(IndexProperty *) & indexes /*in*/,
-			      CollIndex& entry/*out*/, NABoolean findNgramIndex=false)
-{
-  CostScalar minKbPerVol=csZero;
-  CostScalar kbPerVol=csZero;
-  IndexDesc * smallestIndex = NULL;
-  IndexDesc * index = NULL;
+IndexDesc *findSmallestIndex(const LIST(IndexProperty *) & indexes /*in*/, CollIndex &entry /*out*/,
+                             NABoolean findNgramIndex = false) {
+  CostScalar minKbPerVol = csZero;
+  CostScalar kbPerVol = csZero;
+  IndexDesc *smallestIndex = NULL;
+  IndexDesc *index = NULL;
   CollIndex numIndexOnlyIndexes = indexes.entries();
-  for(CollIndex i=0;i<numIndexOnlyIndexes;i++)
-    {
-      index = indexes[i]->getIndexDesc();
-      // only consider ngram index
-      if (index->isNgramIndex() != findNgramIndex)
-        continue;
-      
-      if (index->isClusteringIndex())
-	{
-	  const PartitioningFunction* physicalPartFunc =
-	    index->getPartitioningFunction();
+  for (CollIndex i = 0; i < numIndexOnlyIndexes; i++) {
+    index = indexes[i]->getIndexDesc();
+    // only consider ngram index
+    if (index->isNgramIndex() != findNgramIndex) continue;
 
-	  // if an explicit partition range has been specified 
-	  // as part of the table name to restrict the scan on user specified
-	  // partitions, then disable index scan.
-	  // This is needed since the index and base table partitions may
-	  // not be distributed the same way and an index only scan may not
-	  // restrict the partitions as intended by user.
-	  // Return the clustering index
-	  if (physicalPartFunc && 
-	      physicalPartFunc->partitionRangeRestricted())
-	    {
-	      entry = i;
-	      smallestIndex = index;
-	      break;
-	    }
-	}
+    if (index->isClusteringIndex()) {
+      const PartitioningFunction *physicalPartFunc = index->getPartitioningFunction();
 
-      kbPerVol = index->getKbPerVolume();
-      if(kbPerVol < minKbPerVol OR smallestIndex == NULL)
-      {
-	minKbPerVol = kbPerVol;
-	smallestIndex = index;
-	entry = i;
+      // if an explicit partition range has been specified
+      // as part of the table name to restrict the scan on user specified
+      // partitions, then disable index scan.
+      // This is needed since the index and base table partitions may
+      // not be distributed the same way and an index only scan may not
+      // restrict the partitions as intended by user.
+      // Return the clustering index
+      if (physicalPartFunc && physicalPartFunc->partitionRangeRestricted()) {
+        entry = i;
+        smallestIndex = index;
+        break;
       }
     }
-  return smallestIndex;
 
+    kbPerVol = index->getKbPerVolume();
+    if (kbPerVol < minKbPerVol OR smallestIndex == NULL) {
+      minKbPerVol = kbPerVol;
+      smallestIndex = index;
+      entry = i;
+    }
+  }
+  return smallestIndex;
 }
 
 /****************************************************************
-* Input : set of indexes of the same table
-* Output: smallest index
-* Finds smallest index based on Kb per volume which can be normalized to
-* rowSize/volumes because rowCount for the indexes are same.
-****************************************************************/
+ * Input : set of indexes of the same table
+ * Output: smallest index
+ * Finds smallest index based on Kb per volume which can be normalized to
+ * rowSize/volumes because rowCount for the indexes are same.
+ ****************************************************************/
 
-IndexDesc * findSmallestIndex(const SET(IndexDesc *) & indexes, NABoolean findNgramIndex=false)
-{
-  CostScalar minKbPerVol=csZero;
-  CostScalar kbPerVol=csZero;
-  IndexDesc * smallestIndex = NULL;
-  IndexDesc * index = NULL;
+IndexDesc *findSmallestIndex(const SET(IndexDesc *) & indexes, NABoolean findNgramIndex = false) {
+  CostScalar minKbPerVol = csZero;
+  CostScalar kbPerVol = csZero;
+  IndexDesc *smallestIndex = NULL;
+  IndexDesc *index = NULL;
   CollIndex numIndexOnlyIndexes = indexes.entries();
   int maxPriorityDelta = 0;
   int priorityDelta = 0;
 
-  for(CollIndex i=0;i<numIndexOnlyIndexes;i++)
-    {
-      index = indexes[i];
-      // only consider ngram index
-      if (index->isNgramIndex() != findNgramIndex)
-        continue;
-      if (index->isClusteringIndex())
-	{
-	  const PartitioningFunction* physicalPartFunc =
-	    index->getPartitioningFunction();
+  for (CollIndex i = 0; i < numIndexOnlyIndexes; i++) {
+    index = indexes[i];
+    // only consider ngram index
+    if (index->isNgramIndex() != findNgramIndex) continue;
+    if (index->isClusteringIndex()) {
+      const PartitioningFunction *physicalPartFunc = index->getPartitioningFunction();
 
-	  // if an explicit partition range has been specified 
-	  // as part of the table name to restrict the scan on user specified
-	  // partitions, then disable index scan.
-	  // This is needed since the index and base table partitions may
-	  // not be distributed the same way and an index only scan may not
-	  // restrict the partitions as intended by user.
-	  // Return the clustering index
-	  if (physicalPartFunc && 
-	      physicalPartFunc->partitionRangeRestricted())
-	    {
-	      smallestIndex = index;
-	      break;
-	    }
-	}
-
-      priorityDelta = index->indexHintPriorityDelta();
-      // check priority first, then size
-      if (priorityDelta >= maxPriorityDelta)
-      {
-        kbPerVol = index->getKbPerVolume();
-        if(kbPerVol < minKbPerVol OR
-           smallestIndex == NULL OR
-           priorityDelta > maxPriorityDelta)
-          {
-            minKbPerVol = kbPerVol;
-            smallestIndex = index;
-          }
-        maxPriorityDelta = priorityDelta;
+      // if an explicit partition range has been specified
+      // as part of the table name to restrict the scan on user specified
+      // partitions, then disable index scan.
+      // This is needed since the index and base table partitions may
+      // not be distributed the same way and an index only scan may not
+      // restrict the partitions as intended by user.
+      // Return the clustering index
+      if (physicalPartFunc && physicalPartFunc->partitionRangeRestricted()) {
+        smallestIndex = index;
+        break;
       }
     }
-  return smallestIndex;
 
+    priorityDelta = index->indexHintPriorityDelta();
+    // check priority first, then size
+    if (priorityDelta >= maxPriorityDelta) {
+      kbPerVol = index->getKbPerVolume();
+      if (kbPerVol<minKbPerVol OR smallestIndex == NULL OR priorityDelta> maxPriorityDelta) {
+        minKbPerVol = kbPerVol;
+        smallestIndex = index;
+      }
+      maxPriorityDelta = priorityDelta;
+    }
+  }
+  return smallestIndex;
 }
 
 /**************************************************************************
-* Input : list of indexes
-* Output: Most partitioned index and position of the index in the list
-***************************************************************************/
+ * Input : list of indexes
+ * Output: Most partitioned index and position of the index in the list
+ ***************************************************************************/
 
-IndexDesc * findMostPartitionedIndex(const LIST(IndexProperty *)& indexes,CollIndex& entry)
-{
+IndexDesc *findMostPartitionedIndex(const LIST(IndexProperty *) & indexes, CollIndex &entry) {
   CollIndex numPartitions = 0;
   CollIndex maxNumPartitions = 0;
-  IndexDesc * index = NULL;
-  IndexDesc * mostPartitionedIndex = NULL;
+  IndexDesc *index = NULL;
+  IndexDesc *mostPartitionedIndex = NULL;
   CollIndex numIndexOnlyIndex = indexes.entries();
-  for(CollIndex i=0;i<numIndexOnlyIndex;i++)
-    {
-      index = indexes[i]->getIndexDesc();
-      numPartitions = (index->getPartitioningFunction()?((NodeMap *)(index->
-	getPartitioningFunction()->getNodeMap()))->getNumActivePartitions():1);
-      if(numPartitions > maxNumPartitions OR mostPartitionedIndex == NULL)
-      {
-	maxNumPartitions = numPartitions;
-	mostPartitionedIndex = index;
-	entry = i;
-      }
+  for (CollIndex i = 0; i < numIndexOnlyIndex; i++) {
+    index = indexes[i]->getIndexDesc();
+    numPartitions = (index->getPartitioningFunction()
+                         ? ((NodeMap *)(index->getPartitioningFunction()->getNodeMap()))->getNumActivePartitions()
+                         : 1);
+    if (numPartitions > maxNumPartitions OR mostPartitionedIndex == NULL) {
+      maxNumPartitions = numPartitions;
+      mostPartitionedIndex = index;
+      entry = i;
     }
+  }
   return mostPartitionedIndex;
 }
 /**************************************************************************
-* Input : list of indexes
-* Output: Return TRUE if one of the index can provide a promising index join
-* plan.
-***************************************************************************/
+ * Input : list of indexes
+ * Output: Return TRUE if one of the index can provide a promising index join
+ * plan.
+ ***************************************************************************/
 // This function is never code in the code base (checked in M5):1064
-NABoolean oneViableIndexJoin(const LIST(IndexProperty *) & indexes)
-{
+NABoolean oneViableIndexJoin(const LIST(IndexProperty *) & indexes) {
   CollIndex ixCount = indexes.entries();
-  for(CollIndex i=0;i<ixCount; i++)
-  {
-    if(indexes[i]->getSelectivity() == INDEX_JOIN_VIABLE)
-    {
+  for (CollIndex i = 0; i < ixCount; i++) {
+    if (indexes[i]->getSelectivity() == INDEX_JOIN_VIABLE) {
       return TRUE;
     }
   }
   return FALSE;
 }
 
-
 /**************************************************************************
-* Input : list of indexes, order comparison enums and input context.
-* Output: Removes indexes from the list that are not promising for an index
-* join plan. Removes corresponding oc enums. Have to make sure inputEstLogProp
-* is in the error range of initialEstLogProp used to determine the promise.
-***************************************************************************/
-void removeLowSelectivityIndexJoins(	LIST(IndexProperty *)& indexes,
-					LIST(OrderComparison)& ocEnums,
-					const Context * context
-					)
-{
-
+ * Input : list of indexes, order comparison enums and input context.
+ * Output: Removes indexes from the list that are not promising for an index
+ * join plan. Removes corresponding oc enums. Have to make sure inputEstLogProp
+ * is in the error range of initialEstLogProp used to determine the promise.
+ ***************************************************************************/
+void removeLowSelectivityIndexJoins(LIST(IndexProperty *) & indexes, LIST(OrderComparison) & ocEnums,
+                                    const Context *context) {
   CostScalar inputCardinality = csOne;
   CostScalar defInputCardinality = csOne;
-  if(context->getInputLogProp())
-    inputCardinality = context->getInputLogProp()->getResultCardinality();
-  if(indexes[0]->getInputEstLogProp())
-    defInputCardinality = indexes[0]->getInputEstLogProp()->getResultCardinality();
-  if(inputCardinality > defInputCardinality * CURRSTMT_OPTDEFAULTS->acceptableInputEstLogPropError())
-  {
-    for(CollIndex i=0;i<indexes.entries();i++)
-    {
-      if(indexes[i]->getSelectivity()==EXCEEDS_BT_SCAN AND indexes.entries() >1 AND 
-         indexes[i]->getIndexDesc()->indexHintPriorityDelta()==0)
-      {
-	indexes.removeAt(i);
-	ocEnums.removeAt(i);
-	i--;
+  if (context->getInputLogProp()) inputCardinality = context->getInputLogProp()->getResultCardinality();
+  if (indexes[0]->getInputEstLogProp()) defInputCardinality = indexes[0]->getInputEstLogProp()->getResultCardinality();
+  if (inputCardinality > defInputCardinality * CURRSTMT_OPTDEFAULTS->acceptableInputEstLogPropError()) {
+    for (CollIndex i = 0; i < indexes.entries(); i++) {
+      if (indexes[i]->getSelectivity() ==
+          EXCEEDS_BT_SCAN AND indexes.entries() > 1 AND indexes[i]->getIndexDesc()->indexHintPriorityDelta() == 0) {
+        indexes.removeAt(i);
+        ocEnums.removeAt(i);
+        i--;
       }
     }
   }
 }
 
 /**************************************************************************
-* Input : list of indexes
-* Output: Return TRUE if one of the index has bad key access or in other words
-* MDAM is not viable.
-***************************************************************************/
-NABoolean oneWithMdamOff(const LIST(IndexProperty *) & indexes)
-{
+ * Input : list of indexes
+ * Output: Return TRUE if one of the index has bad key access or in other words
+ * MDAM is not viable.
+ ***************************************************************************/
+NABoolean oneWithMdamOff(const LIST(IndexProperty *) & indexes) {
   CollIndex ixCount = indexes.entries();
-  for(CollIndex i=0;i<ixCount; i++)
-  {
-    if(indexes[i]->getMdamFlag() == MDAM_OFF)
-    {
+  for (CollIndex i = 0; i < ixCount; i++) {
+    if (indexes[i]->getMdamFlag() == MDAM_OFF) {
       return TRUE;
     }
   }
@@ -936,17 +655,14 @@ NABoolean oneWithMdamOff(const LIST(IndexProperty *) & indexes)
 }
 
 /**************************************************************************
-* Input : list of indexes
-* Output: Return TRUE if one of the index has good key access or in other
-* words MDAM is viable.
-***************************************************************************/
-NABoolean oneWithMdamOn(const LIST(IndexProperty *) & indexes)
-{
+ * Input : list of indexes
+ * Output: Return TRUE if one of the index has good key access or in other
+ * words MDAM is viable.
+ ***************************************************************************/
+NABoolean oneWithMdamOn(const LIST(IndexProperty *) & indexes) {
   CollIndex ixCount = indexes.entries();
-  for(CollIndex i=0;i<ixCount; i++)
-  {
-    if(indexes[i]->getMdamFlag() == MDAM_ON)
-    {
+  for (CollIndex i = 0; i < ixCount; i++) {
+    if (indexes[i]->getMdamFlag() == MDAM_ON) {
       return TRUE;
     }
   }
@@ -954,135 +670,94 @@ NABoolean oneWithMdamOn(const LIST(IndexProperty *) & indexes)
 }
 
 /*************************************************************************
-* Input: Index list and corresponding OrderComparisons.
-* Output: Removes indexes that have bad key access unless they are partitioned
-* better than the indexes with good key access.
-*************************************************************************/
-void removeBadKeyIndexes( LIST(IndexProperty *)& indexes,
-			  LIST(OrderComparison)& ocEnums
-			  )
-{
+ * Input: Index list and corresponding OrderComparisons.
+ * Output: Removes indexes that have bad key access unless they are partitioned
+ * better than the indexes with good key access.
+ *************************************************************************/
+void removeBadKeyIndexes(LIST(IndexProperty *) & indexes, LIST(OrderComparison) & ocEnums) {
   CollIndex numOfVols = 1;
   CollIndex maxNumOfVols = 1;
-  if(oneWithMdamOff(indexes) AND oneWithMdamOn(indexes))
-  {
-    for(CollIndex i=0;i<indexes.entries();i++)
-    {
-      if(indexes[i]->getMdamFlag() == MDAM_ON)
-      {
-	numOfVols = (indexes[i]->getIndexDesc()->getPartitioningFunction()?((NodeMap *)(indexes[i]
-		->getIndexDesc()->getPartitioningFunction()->getNodeMap()))->getNumOfDP2Volumes():1);
-	if(numOfVols > maxNumOfVols)
-	{
-	  maxNumOfVols = numOfVols;
-	}
+  if (oneWithMdamOff(indexes) AND oneWithMdamOn(indexes)) {
+    for (CollIndex i = 0; i < indexes.entries(); i++) {
+      if (indexes[i]->getMdamFlag() == MDAM_ON) {
+        numOfVols = (indexes[i]->getIndexDesc()->getPartitioningFunction()
+                         ? ((NodeMap *)(indexes[i]->getIndexDesc()->getPartitioningFunction()->getNodeMap()))
+                               ->getNumOfDP2Volumes()
+                         : 1);
+        if (numOfVols > maxNumOfVols) {
+          maxNumOfVols = numOfVols;
+        }
       }
     }
 
-    if(maxNumOfVols >1)
-    {
-      for(CollIndex j=0;j<indexes.entries();j++)
-      {
-       if(indexes[j]->getMdamFlag() == MDAM_OFF AND (indexes[j]->getIndexDesc()->getPartitioningFunction() == NULL
-	OR ((NodeMap *)(indexes[j]->getIndexDesc()->getPartitioningFunction()
-		->getNodeMap()))->getNumOfDP2Volumes() <= maxNumOfVols))
-	{
-	  indexes.removeAt(j);
-	  ocEnums.removeAt(j);
-	  j--;
-	}
+    if (maxNumOfVols > 1) {
+      for (CollIndex j = 0; j < indexes.entries(); j++) {
+        if (indexes[j]->getMdamFlag() ==
+            MDAM_OFF AND(indexes[j]->getIndexDesc()->getPartitioningFunction() ==
+                         NULL OR((NodeMap *)(indexes[j]->getIndexDesc()->getPartitioningFunction()->getNodeMap()))
+                                 ->getNumOfDP2Volumes() <= maxNumOfVols)) {
+          indexes.removeAt(j);
+          ocEnums.removeAt(j);
+          j--;
+        }
       }
     }
   }
 }
 
 /*********************************************************************
-* Just a cut and pasted from FileScanRule::nextSubstitute(). Creates
-* DP2Scan for the given index.
-*********************************************************************/
-void createAndInsertDP2Scan( Context* context,
-                             const IndexDesc * idesc,
-			     Scan * bef,
-			      RuleSubstituteMemory *& memory,
-			      const Disjuncts * disjunctsPtr,
-			      OrderComparison oc,
-                             MdamFlags ixMdamFlag = UNDECIDED)
-{
+ * Just a cut and pasted from FileScanRule::nextSubstitute(). Creates
+ * DP2Scan for the given index.
+ *********************************************************************/
+void createAndInsertDP2Scan(Context *context, const IndexDesc *idesc, Scan *bef, RuleSubstituteMemory *&memory,
+                            const Disjuncts *disjunctsPtr, OrderComparison oc, MdamFlags ixMdamFlag = UNDECIDED) {
   // generate a file scan node to scan the index
 
-        FileScan *fileScan =
-            new(CmpCommon::statementHeap())
-          DP2Scan(bef->getTableName(),
-                  bef->getTableDesc(),
-                  idesc,
-                  oc==INVERSE_ORDER,
-                  bef->getBaseCardinality(),
-                  bef->accessOptions(),
-                  bef->getGroupAttr(),
-                  bef->getSelectionPred(),
-                  *disjunctsPtr);
+  FileScan *fileScan = new (CmpCommon::statementHeap())
+      DP2Scan(bef->getTableName(), bef->getTableDesc(), idesc, oc == INVERSE_ORDER, bef->getBaseCardinality(),
+              bef->accessOptions(), bef->getGroupAttr(), bef->getSelectionPred(), *disjunctsPtr);
 
+  (void)bef->copyTopNode(fileScan, CmpCommon::statementHeap());
 
-        (void) bef->copyTopNode(fileScan, CmpCommon::statementHeap());
+  fileScan->setOptStoi(bef->getOptStoi());
+  fileScan->setSingleVerticalPartitionScan(bef->isSingleVerticalPartitionScan());
+  fileScan->pkeyHvarList() = bef->pkeyHvarList();
 
-        fileScan->setOptStoi(bef->getOptStoi());
-        fileScan->setSingleVerticalPartitionScan(
-                    bef->isSingleVerticalPartitionScan());
-        fileScan->pkeyHvarList() = bef->pkeyHvarList();
+  // Set the sampling related fields
+  fileScan->sampledColumns() += bef->sampledColumns();
+  fileScan->samplePercent(bef->samplePercent());
+  fileScan->clusterSize(bef->clusterSize());
+  fileScan->setMdamFlag(ixMdamFlag);
 
-        // Set the sampling related fields
-        fileScan->sampledColumns() += bef->sampledColumns();
-        fileScan->samplePercent(bef->samplePercent());
-        fileScan->clusterSize(bef->clusterSize());
-	fileScan->setMdamFlag(ixMdamFlag);
-
-
-
-        // add the file scan to the list of substitutes
-        memory->insert(fileScan);
+  // add the file scan to the list of substitutes
+  memory->insert(fileScan);
 }
 
-void createAndInsertHbaseScan(Context* context,
-                             IndexDesc * idesc,
-			     Scan * bef,
-			     RuleSubstituteMemory *& memory,
-			     //const MaterialDisjuncts * disjunctsPtr,
-			     const Disjuncts * disjunctsPtr,
-                             const ValueIdSet &generatedCCPreds,
-			     OrderComparison oc,
-                             MdamFlags ixMdamFlag = UNDECIDED)
-{
-  // generate a hbase scan node 
+void createAndInsertHbaseScan(Context *context, IndexDesc *idesc, Scan *bef, RuleSubstituteMemory *&memory,
+                              // const MaterialDisjuncts * disjunctsPtr,
+                              const Disjuncts *disjunctsPtr, const ValueIdSet &generatedCCPreds, OrderComparison oc,
+                              MdamFlags ixMdamFlag = UNDECIDED) {
+  // generate a hbase scan node
 
-   HbaseAccess * hbaseScan = new(CmpCommon::statementHeap())
-          HbaseAccess(bef->getTableName(),
-                  bef->getTableDesc(),
-                  idesc,
-                  oc==INVERSE_ORDER,
-                  bef->getBaseCardinality(),
-                  bef->accessOptions(),
-                  bef->getGroupAttr(),
-                  bef->getSelectionPred(),
-                  *disjunctsPtr,
-                  generatedCCPreds
-                 );
+  HbaseAccess *hbaseScan = new (CmpCommon::statementHeap())
+      HbaseAccess(bef->getTableName(), bef->getTableDesc(), idesc, oc == INVERSE_ORDER, bef->getBaseCardinality(),
+                  bef->accessOptions(), bef->getGroupAttr(), bef->getSelectionPred(), *disjunctsPtr, generatedCCPreds);
 
-   idesc->getPrimaryTableDesc()->getTableColStats();
+  idesc->getPrimaryTableDesc()->getTableColStats();
 
-   (void) bef->copyTopNode(hbaseScan, CmpCommon::statementHeap());
+  (void)bef->copyTopNode(hbaseScan, CmpCommon::statementHeap());
 
-   hbaseScan->setOptStoi(bef->getOptStoi());
-   hbaseScan->setSingleVerticalPartitionScan(
-               bef->isSingleVerticalPartitionScan());
-   hbaseScan->pkeyHvarList() = bef->pkeyHvarList();
+  hbaseScan->setOptStoi(bef->getOptStoi());
+  hbaseScan->setSingleVerticalPartitionScan(bef->isSingleVerticalPartitionScan());
+  hbaseScan->pkeyHvarList() = bef->pkeyHvarList();
 
-   // Set the sampling related fields
-   hbaseScan->sampledColumns() += bef->sampledColumns();
-   hbaseScan->samplePercent(bef->samplePercent());
-   hbaseScan->clusterSize(bef->clusterSize());
-   hbaseScan->setMdamFlag(ixMdamFlag);
-   // for ngram
-   hbaseScan->setIsCreatedByNgram(idesc->isNgramIndex());
+  // Set the sampling related fields
+  hbaseScan->sampledColumns() += bef->sampledColumns();
+  hbaseScan->samplePercent(bef->samplePercent());
+  hbaseScan->clusterSize(bef->clusterSize());
+  hbaseScan->setMdamFlag(ixMdamFlag);
+  // for ngram
+  hbaseScan->setIsCreatedByNgram(idesc->isNgramIndex());
 
   /////////////////////////////////////////////////////////////////////////
   // now set the group attributes of the result's top node
@@ -1092,67 +767,45 @@ void createAndInsertHbaseScan(Context* context,
   memory->insert(hbaseScan);
 }
 
-void createAndInsertScan(Context* context,
-                         IndexDesc * idesc,
-			 Scan * bef,
-			 RuleSubstituteMemory *& memory,
-			 //const MaterialDisjuncts * disjunctsPtr,
-			 const Disjuncts * disjunctsPtr,
-                         const ValueIdSet &generatedCCPreds,
-			 OrderComparison oc,
-                         MdamFlags ixMdamFlag = UNDECIDED,
-                         NABoolean isHbase = FALSE)
-{
-   if ( !isHbase )
-     createAndInsertDP2Scan(context, idesc, bef, memory, disjunctsPtr, oc, ixMdamFlag);
-   else
-     createAndInsertHbaseScan(context, idesc, bef, memory, disjunctsPtr, generatedCCPreds, oc, ixMdamFlag);
+void createAndInsertScan(Context *context, IndexDesc *idesc, Scan *bef, RuleSubstituteMemory *&memory,
+                         // const MaterialDisjuncts * disjunctsPtr,
+                         const Disjuncts *disjunctsPtr, const ValueIdSet &generatedCCPreds, OrderComparison oc,
+                         MdamFlags ixMdamFlag = UNDECIDED, NABoolean isHbase = FALSE) {
+  if (!isHbase)
+    createAndInsertDP2Scan(context, idesc, bef, memory, disjunctsPtr, oc, ixMdamFlag);
+  else
+    createAndInsertHbaseScan(context, idesc, bef, memory, disjunctsPtr, generatedCCPreds, oc, ixMdamFlag);
 }
 
-NABoolean FileScanRule::topMatch(RelExpr * relExpr, Context *context)
-{
-  if (NOT Rule::topMatch(relExpr,context))
-    return FALSE;
+NABoolean FileScanRule::topMatch(RelExpr *relExpr, Context *context) {
+  if (NOT Rule::topMatch(relExpr, context)) return FALSE;
 
-  const Scan * bef = (Scan *) relExpr;
+  const Scan *bef = (Scan *)relExpr;
 
-  if ((bef->isHbaseTable()))
-     return FALSE; // hbase scan is handled by the HbaseScanRule
+  if ((bef->isHbaseTable())) return FALSE;  // hbase scan is handled by the HbaseScanRule
 
+  if ((bef->isHiveTable())) {
+    const ReqdPhysicalProperty *rppForMe = context->getReqdPhysicalProperty();
+    PartitioningRequirement *partReq = rppForMe->getPartitioningRequirement();
 
-  if ((bef->isHiveTable()))
-    {
-      const ReqdPhysicalProperty* rppForMe = context->getReqdPhysicalProperty();
-      PartitioningRequirement * partReq = rppForMe->getPartitioningRequirement();
-
-      // Hive table scan executes in master or ESP
-      if (rppForMe->executeInDP2())
-        return FALSE;
-    }
-  else
-    {
-      // Regular DP2Scan can only execute in DP2.
-      if (NOT context->getReqdPhysicalProperty()->executeInDP2())
-        return FALSE;
-    }
+    // Hive table scan executes in master or ESP
+    if (rppForMe->executeInDP2()) return FALSE;
+  } else {
+    // Regular DP2Scan can only execute in DP2.
+    if (NOT context->getReqdPhysicalProperty()->executeInDP2()) return FALSE;
+  }
 
   // Check for required physical properties that require an enforcer
   // operator to succeed.
-  if (relExpr->rppRequiresEnforcer(context->getReqdPhysicalProperty()))
-    return FALSE;
+  if (relExpr->rppRequiresEnforcer(context->getReqdPhysicalProperty())) return FALSE;
 
   return TRUE;
-
 }
 
-RelExpr * generateScanSubstitutes(RelExpr * before,
-                                  Context * context,
-                                  RuleSubstituteMemory *& memory, NABoolean isHbase)
-{
+RelExpr *generateScanSubstitutes(RelExpr *before, Context *context, RuleSubstituteMemory *&memory, NABoolean isHbase) {
   RelExpr *result;
 
-  if (memory == NULL)
-  {
+  if (memory == NULL) {
     // -----------------------------------------------------------------
     // this is the first call, create all possible file scans
     // -----------------------------------------------------------------
@@ -1160,20 +813,16 @@ RelExpr * generateScanSubstitutes(RelExpr * before,
     CMPASSERT(before->getOperatorType() == REL_SCAN);
 
     // input structures (readonly)
-    Scan * bef = (Scan *) before;
+    Scan *bef = (Scan *)before;
 
     NABoolean resultNeedsToBeOrdered = (context AND context->requiresOrder());
-    const ReqdPhysicalProperty* const rppForMe =
-                                context->getReqdPhysicalProperty();
-    const InputPhysicalProperty* const ippForMe =
-                                context->getInputPhysicalProperty();
+    const ReqdPhysicalProperty *const rppForMe = context->getReqdPhysicalProperty();
+    const InputPhysicalProperty *const ippForMe = context->getInputPhysicalProperty();
 
     // allocate a new memory for multiple substitutes
-    memory = new(CmpCommon::statementHeap())
-                RuleSubstituteMemory(CmpCommon::statementHeap());
+    memory = new (CmpCommon::statementHeap()) RuleSubstituteMemory(CmpCommon::statementHeap());
 
     bef->addIndexInfo();
-
 
     // Materialize the disjunct array from the logical scan's
     // (i.e. bef) selection predicates:
@@ -1183,12 +832,10 @@ RelExpr * generateScanSubstitutes(RelExpr * before,
     // and end keys for the single subset case.
     //
     ValueIdSet inSet(bef->selectionPred());
-    const ValueIdSet &generatedComputedColPreds = 
-      bef->getComputedPredicates();
+    const ValueIdSet &generatedComputedColPreds = bef->getComputedPredicates();
 
     inSet += generatedComputedColPreds;
-    Disjuncts *disjunctsPtr =  new (CmpCommon::statementHeap())
-      MaterialDisjuncts(inSet);
+    Disjuncts *disjunctsPtr = new (CmpCommon::statementHeap()) MaterialDisjuncts(inSet);
     Disjuncts *disjunctsPtr0 = disjunctsPtr;
     CMPASSERT(disjunctsPtr);
     CMPASSERT(disjunctsPtr0);
@@ -1196,394 +843,298 @@ RelExpr * generateScanSubstitutes(RelExpr * before,
     // Now create all the FileScans for this scan:
     // -----------------------------------------------------------------
 
-
     CollIndex numIndexOnlyIndexes = bef->getIndexOnlyIndexes().entries();
 
     LIST(IndexProperty *) viableIndexes(CmpCommon::statementHeap());
     LIST(OrderComparison) comparisonSet(CmpCommon::statementHeap());
 
-
-    OrderComparison oc =
-	  bef->forceInverseOrder() ? INVERSE_ORDER : SAME_ORDER;
-    CollIndex entry =0;
+    OrderComparison oc = bef->forceInverseOrder() ? INVERSE_ORDER : SAME_ORDER;
+    CollIndex entry = 0;
     NABoolean isStream = before->getGroupAttr()->isStream();
 
-    const IndexDesc* fastDeleteIndexDesc = 
-        CURRSTMT_OPTDEFAULTS->getRequiredScanDescForFastDelete();
+    const IndexDesc *fastDeleteIndexDesc = CURRSTMT_OPTDEFAULTS->getRequiredScanDescForFastDelete();
 
-    //No predicates and no requirements just select the smallest index
-    if(	CURRSTMT_OPTDEFAULTS->indexEliminationLevel() != OptDefaults::MINIMUM AND
-	resultNeedsToBeOrdered == FALSE AND
-	(ippForMe == NULL OR ippForMe->getAssumeSortedForCosting()) AND
-	rppForMe->getDp2SortOrderPartReq() == NULL AND
-	NOT  isStream AND
-	bef->selectionPred().isEmpty() AND
-        fastDeleteIndexDesc == NULL
-      )
-    {
-      IndexDesc * smallestIndex;
-      if(bef->getIndexOnlyIndexes().entries() >1)
-      {
-        smallestIndex = findSmallestIndex(
-					    bef->deriveIndexOnlyIndexDesc(), bef->isCreatedByNgram());
+    // No predicates and no requirements just select the smallest index
+    if (CURRSTMT_OPTDEFAULTS->indexEliminationLevel() != OptDefaults::MINIMUM AND resultNeedsToBeOrdered ==
+        FALSE AND(ippForMe == NULL OR ippForMe->getAssumeSortedForCosting()) AND rppForMe->getDp2SortOrderPartReq() ==
+        NULL AND NOT isStream AND bef->selectionPred().isEmpty() AND fastDeleteIndexDesc == NULL) {
+      IndexDesc *smallestIndex;
+      if (bef->getIndexOnlyIndexes().entries() > 1) {
+        smallestIndex = findSmallestIndex(bef->deriveIndexOnlyIndexDesc(), bef->isCreatedByNgram());
         // for ngram
-        if ( smallestIndex == NULL )
-          smallestIndex = bef->deriveIndexOnlyIndexDesc()[bef->getIndexOnlyIndexes().entries()-1];
-      }
-      else
+        if (smallestIndex == NULL)
+          smallestIndex = bef->deriveIndexOnlyIndexDesc()[bef->getIndexOnlyIndexes().entries() - 1];
+      } else
         smallestIndex = bef->deriveIndexOnlyIndexDesc()[0];
-      createAndInsertScan(context, smallestIndex,bef,memory,disjunctsPtr,generatedComputedColPreds,oc,MDAM_OFF,isHbase);
-    }
-    else
-    {
-      for (CollIndex i = 0; i < numIndexOnlyIndexes; i++)
-      {
-	NABoolean indexQualifies = TRUE;
+      createAndInsertScan(context, smallestIndex, bef, memory, disjunctsPtr, generatedComputedColPreds, oc, MDAM_OFF,
+                          isHbase);
+    } else {
+      for (CollIndex i = 0; i < numIndexOnlyIndexes; i++) {
+        NABoolean indexQualifies = TRUE;
 
         // hbase does not support inverse order scan
-	oc =
-	  (!isHbase && bef->forceInverseOrder()) ? INVERSE_ORDER : SAME_ORDER;
+        oc = (!isHbase && bef->forceInverseOrder()) ? INVERSE_ORDER : SAME_ORDER;
 
-	IndexProperty *ixProp = bef->getIndexOnlyIndexes()[i];
-	IndexDesc * idesc = ixProp->getIndexDesc();
+        IndexProperty *ixProp = bef->getIndexOnlyIndexes()[i];
+        IndexDesc *idesc = ixProp->getIndexDesc();
 
         // modified by yangyf for ngram
-        if ((fastDeleteIndexDesc && fastDeleteIndexDesc != idesc) || (!bef->isCreatedByNgram() && idesc->isNgramIndex()))
-           continue;
+        if ((fastDeleteIndexDesc && fastDeleteIndexDesc != idesc) ||
+            (!bef->isCreatedByNgram() && idesc->isNgramIndex()))
+          continue;
 
-	if (idesc->isClusteringIndex())
-	  {
-	    const PartitioningFunction* physicalPartFunc =
-	      idesc->getPartitioningFunction();
-	    
-	    // if an explicit partition range has been specified 
-	    // as part of the table name to restrict the scan on user
-	    // specified partitions, then disable index scan.
-	    // This is needed since the index and base table partitions may
-	    // not be distributed the same way and an index only scan may not
-	    // restrict the partitions as intended by user.
-	    // Return the clustering index.
-	    if (physicalPartFunc && 
-		physicalPartFunc->partitionRangeRestricted())
-	      {
-		viableIndexes.clear();
-		comparisonSet.clear();
-		viableIndexes.insert(ixProp);
-		comparisonSet.insert(oc);
-		
-		break;
-	      }
-	  }
+        if (idesc->isClusteringIndex()) {
+          const PartitioningFunction *physicalPartFunc = idesc->getPartitioningFunction();
 
-	// if an ordering is required, the index must supply the required
-	// order or arrangement
-	if (resultNeedsToBeOrdered)
-	{
-	  ValueIdList sortKey = idesc->getOrderOfKeyValues();
+          // if an explicit partition range has been specified
+          // as part of the table name to restrict the scan on user
+          // specified partitions, then disable index scan.
+          // This is needed since the index and base table partitions may
+          // not be distributed the same way and an index only scan may not
+          // restrict the partitions as intended by user.
+          // Return the clustering index.
+          if (physicalPartFunc && physicalPartFunc->partitionRangeRestricted()) {
+            viableIndexes.clear();
+            comparisonSet.clear();
+            viableIndexes.insert(ixProp);
+            comparisonSet.insert(oc);
 
-	  // Make sure it satisfies the required order and also
-	  // determine the scan direction. If computed column predicates
+            break;
+          }
+        }
+
+        // if an ordering is required, the index must supply the required
+        // order or arrangement
+        if (resultNeedsToBeOrdered) {
+          ValueIdList sortKey = idesc->getOrderOfKeyValues();
+
+          // Make sure it satisfies the required order and also
+          // determine the scan direction. If computed column predicates
           // select only one salt or division value, for example,
           // then make use of this to satisfy order requirements.
-          if ((rppForMe->getSortKey() != NULL) AND
-              ((oc = sortKey.satisfiesReqdOrder(
-                       *rppForMe->getSortKey(),
-                       before->getGroupAttr(),
-                       &bef->getComputedPredicates())) == DIFFERENT_ORDER))
+          if ((rppForMe->getSortKey() != NULL)
+                  AND((oc = sortKey.satisfiesReqdOrder(*rppForMe->getSortKey(), before->getGroupAttr(),
+                                                       &bef->getComputedPredicates())) == DIFFERENT_ORDER))
             indexQualifies = FALSE;
 
           // hbase does not support inverse order scan
-          if ( oc == INVERSE_ORDER && isHbase )
+          if (oc == INVERSE_ORDER && isHbase) indexQualifies = FALSE;
+
+          // make sure it satisfies the required arrangement
+          if (indexQualifies AND(rppForMe->getArrangedCols() != NULL) AND NOT sortKey.satisfiesReqdArrangement(
+                  *rppForMe->getArrangedCols(), before->getGroupAttr(), &bef->getComputedPredicates()))
             indexQualifies = FALSE;
-	  
-	  // make sure it satisfies the required arrangement
-          if (indexQualifies AND
-              (rppForMe->getArrangedCols() != NULL) AND
-              NOT sortKey.satisfiesReqdArrangement(
-                    *rppForMe->getArrangedCols(),
-                    before->getGroupAttr(),
-                    &bef->getComputedPredicates()))
+        }
+
+        // If there is a DP2 sort order partitioning requirement, make
+        // sure the physical partitioning function of the index matches it.
+        if (indexQualifies AND(rppForMe->getDp2SortOrderPartReq() != NULL)) {
+          const PartitioningFunction *physicalPartFunc = idesc->getPartitioningFunction();
+          if (physicalPartFunc == NULL) {
+            physicalPartFunc = new (CmpCommon::statementHeap()) SinglePartitionPartitioningFunction();
+          }
+
+          if (NOT rppForMe->getDp2SortOrderPartReq()->partReqAndFuncCompatible(physicalPartFunc))
             indexQualifies = FALSE;
-	}
-
-	// If there is a DP2 sort order partitioning requirement, make
-	// sure the physical partitioning function of the index matches it.
-	if (indexQualifies AND
-	    (rppForMe->getDp2SortOrderPartReq() != NULL))
-	{
-	  const PartitioningFunction* physicalPartFunc =
-          idesc->getPartitioningFunction();
-	  if (physicalPartFunc == NULL)
-	  {
-	    physicalPartFunc = new(CmpCommon::statementHeap())
-            SinglePartitionPartitioningFunction();
-	  }
-
-	  if (NOT rppForMe->getDp2SortOrderPartReq()->partReqAndFuncCompatible(
-	       physicalPartFunc))
-	    indexQualifies = FALSE;
-
-	}
+        }
 
         // Skip NJ with Hive table as the inner for now
         //
-        //if (isHiveTable AND (ippForMe != NULL))
+        // if (isHiveTable AND (ippForMe != NULL))
         //  indexQualifies = FALSE;
 
-	// If there are input physical properties, the index must be
-	// able to use the outer table ordering.
-	if (indexQualifies AND (ippForMe != NULL)
-	    AND (!(ippForMe->getAssumeSortedForCosting())))
-	{
-	  CMPASSERT((ippForMe->getNjOuterOrder() != NULL) AND
-                  NOT ippForMe->getNjOuterOrder()->isEmpty());
-	  CMPASSERT(ippForMe->getNjOuterOrderPartFunc() != NULL);
+        // If there are input physical properties, the index must be
+        // able to use the outer table ordering.
+        if (indexQualifies AND(ippForMe != NULL) AND(!(ippForMe->getAssumeSortedForCosting()))) {
+          CMPASSERT((ippForMe->getNjOuterOrder() != NULL) AND NOT ippForMe->getNjOuterOrder()->isEmpty());
+          CMPASSERT(ippForMe->getNjOuterOrderPartFunc() != NULL);
 
-	  const PartitioningFunction* physicalPartFunc =
-	    idesc->getPartitioningFunction();
-	  if (physicalPartFunc == NULL)
-	  {
-	    physicalPartFunc = new(CmpCommon::statementHeap())
-	      SinglePartitionPartitioningFunction();
-	  }
+          const PartitioningFunction *physicalPartFunc = idesc->getPartitioningFunction();
+          if (physicalPartFunc == NULL) {
+            physicalPartFunc = new (CmpCommon::statementHeap()) SinglePartitionPartitioningFunction();
+          }
 
-	  // If the outer order is a DP2 sort order, then the
-	  // njDp2OuterOrderPartFunc and the index partitioning
-	  // function must match exactly or the outer order cannot be used.
-	  const PartitioningFunction* njDp2OuterOrderPartFunc =
-	    ippForMe->getNjDp2OuterOrderPartFunc();
-	  if ((njDp2OuterOrderPartFunc != NULL) AND
-	     (njDp2OuterOrderPartFunc->
-	        comparePartFuncToFunc(*physicalPartFunc) != SAME))
-	    indexQualifies = FALSE;
+          // If the outer order is a DP2 sort order, then the
+          // njDp2OuterOrderPartFunc and the index partitioning
+          // function must match exactly or the outer order cannot be used.
+          const PartitioningFunction *njDp2OuterOrderPartFunc = ippForMe->getNjDp2OuterOrderPartFunc();
+          if ((njDp2OuterOrderPartFunc != NULL)
+                  AND(njDp2OuterOrderPartFunc->comparePartFuncToFunc(*physicalPartFunc) != SAME))
+            indexQualifies = FALSE;
 
-	  // To be able to use an outer table ordering, the outer
-	  // table partitioning function must be a replicateNoBroadcast
-	  // partitioning function or must be a grouping of the
-	  // index partitioning function.
-	  const PartitioningFunction* njOuterOrderPartFunc =
-	    ippForMe->getNjOuterOrderPartFunc();
-	  if (indexQualifies AND
-	     NOT njOuterOrderPartFunc->
-                  isAReplicateNoBroadcastPartitioningFunction() AND
-	      NOT njOuterOrderPartFunc->isAGroupingOf(*physicalPartFunc) )
-	    indexQualifies = FALSE;
+          // To be able to use an outer table ordering, the outer
+          // table partitioning function must be a replicateNoBroadcast
+          // partitioning function or must be a grouping of the
+          // index partitioning function.
+          const PartitioningFunction *njOuterOrderPartFunc = ippForMe->getNjOuterOrderPartFunc();
+          if (indexQualifies AND NOT
+                  njOuterOrderPartFunc->isAReplicateNoBroadcastPartitioningFunction()
+                      AND NOT njOuterOrderPartFunc->isAGroupingOf(*physicalPartFunc))
+            indexQualifies = FALSE;
 
-	  if (indexQualifies)
-	  {
-	    // Don't create a plan with this index unless it can use
-	    // the outer table order for reducing it's I/O cost. In
-	    // other words, the outer table order - i.e. the probes
-	    // order - must be at least partially in the same order
-	    // as the index sort key columns that are covered by
-	    // equijoin predicates.
+          if (indexQualifies) {
+            // Don't create a plan with this index unless it can use
+            // the outer table order for reducing it's I/O cost. In
+            // other words, the outer table order - i.e. the probes
+            // order - must be at least partially in the same order
+            // as the index sort key columns that are covered by
+            // equijoin predicates.
 
-	    // Determine which columns of the index sort key are
-	    // equijoin columns, up to the first column not covered
-	    // by a constant or equijoin column.
-	    ValueIdList sortKey = idesc->getOrderOfKeyValues();
-	    ValueIdList uncoveredCols;
-	    ValueIdList equiJoinCols =
-	      sortKey.findNJEquiJoinCols(
-              ippForMe->getNjOuterCharOutputs(),
-              before->getGroupAttr()->getCharacteristicInputs(),
-              uncoveredCols);
+            // Determine which columns of the index sort key are
+            // equijoin columns, up to the first column not covered
+            // by a constant or equijoin column.
+            ValueIdList sortKey = idesc->getOrderOfKeyValues();
+            ValueIdList uncoveredCols;
+            ValueIdList equiJoinCols = sortKey.findNJEquiJoinCols(
+                ippForMe->getNjOuterCharOutputs(), before->getGroupAttr()->getCharacteristicInputs(), uncoveredCols);
 
-	    if (equiJoinCols.isEmpty())
-	    {
-	      // Can't use outer table order for this index if it doesn't
-	      // have any leading equijoin columns.
-	      indexQualifies = FALSE;
-	    }
-	    else
-	    {
-	      // Determine if the leading equijoin column and the leading
-	      // column of the outer order are the same.
-	      ValueIdList njOuterOrder = *(ippForMe->getNjOuterOrder());
+            if (equiJoinCols.isEmpty()) {
+              // Can't use outer table order for this index if it doesn't
+              // have any leading equijoin columns.
+              indexQualifies = FALSE;
+            } else {
+              // Determine if the leading equijoin column and the leading
+              // column of the outer order are the same.
+              ValueIdList njOuterOrder = *(ippForMe->getNjOuterOrder());
 
-	      // Remove any inverse node on the leading equijoin column
-	      // and remember if there was one.
-	      ValueId equiJoinCol = equiJoinCols[0];
-	      ValueId noInverseEquiJoinCol =
-              equiJoinCol.getItemExpr()->removeInverseOrder()->getValueId();
-	      NABoolean equiJoinColIsDesc = FALSE;
-	      if (noInverseEquiJoinCol != equiJoinCol)
-		equiJoinColIsDesc = TRUE;
+              // Remove any inverse node on the leading equijoin column
+              // and remember if there was one.
+              ValueId equiJoinCol = equiJoinCols[0];
+              ValueId noInverseEquiJoinCol = equiJoinCol.getItemExpr()->removeInverseOrder()->getValueId();
+              NABoolean equiJoinColIsDesc = FALSE;
+              if (noInverseEquiJoinCol != equiJoinCol) equiJoinColIsDesc = TRUE;
 
-	      // Remove any inverse node on the leading outer order column
-	      // and remember if there was one.
-	      ValueId outerOrderCol = njOuterOrder[0];
-	      ValueId noInverseOuterOrderCol =
-		outerOrderCol.getItemExpr()->removeInverseOrder()->getValueId();
-	      NABoolean outerOrderColIsDesc = FALSE;
-	      if (noInverseOuterOrderCol != outerOrderCol)
-		outerOrderColIsDesc = TRUE;
+              // Remove any inverse node on the leading outer order column
+              // and remember if there was one.
+              ValueId outerOrderCol = njOuterOrder[0];
+              ValueId noInverseOuterOrderCol = outerOrderCol.getItemExpr()->removeInverseOrder()->getValueId();
+              NABoolean outerOrderColIsDesc = FALSE;
+              if (noInverseOuterOrderCol != outerOrderCol) outerOrderColIsDesc = TRUE;
 
-	      // Leading equijoin column of the index sort key and the
-	      // leading column of the outer table sort key must be
-	      // the same. If one is DESC, they must both be DESC.
-	      if ((noInverseEquiJoinCol != noInverseOuterOrderCol) OR
-	         (equiJoinColIsDesc != outerOrderColIsDesc))
-		indexQualifies = FALSE;
+              // Leading equijoin column of the index sort key and the
+              // leading column of the outer table sort key must be
+              // the same. If one is DESC, they must both be DESC.
+              if ((noInverseEquiJoinCol != noInverseOuterOrderCol) OR(equiJoinColIsDesc != outerOrderColIsDesc))
+                indexQualifies = FALSE;
 
-	    } // end if index key has leading equijoin cols
-	  } // end if index still qualifies
-	} // end if ipp exist and index still qualifies
+            }  // end if index key has leading equijoin cols
+          }    // end if index still qualifies
+        }      // end if ipp exist and index still qualifies
 
-
-	// QSTUFF
-	if (indexQualifies && before->getGroupAttr()->isStream())
-	{
-	  if (NOT idesc->isClusteringIndex())
-          {
-	    // we only test whether the condition holds for a secondary
-	    // index, the cluster index, i.e. the base table will produce
-	    // all output values
-	    ValueIdSet outputs =
-              (before->getGroupAttr()->isEmbeddedUpdate() ?
-               before->getGroupAttr()->getGenericUpdateRootOutputs() :
-               before->getGroupAttr()->getCharacteristicOutputs());
+        // QSTUFF
+        if (indexQualifies && before->getGroupAttr()->isStream()) {
+          if (NOT idesc->isClusteringIndex()) {
+            // we only test whether the condition holds for a secondary
+            // index, the cluster index, i.e. the base table will produce
+            // all output values
+            ValueIdSet outputs =
+                (before->getGroupAttr()->isEmbeddedUpdate() ? before->getGroupAttr()->getGenericUpdateRootOutputs()
+                                                            : before->getGroupAttr()->getCharacteristicOutputs());
 
             ValueIdList vegcolumns;
 
-            ((Scan *)before)->getTableDesc()->
-              getEquivVEGCols(idesc->getIndexColumns(),vegcolumns);
+            ((Scan *)before)->getTableDesc()->getEquivVEGCols(idesc->getIndexColumns(), vegcolumns);
 
             ValueIdSet columns(vegcolumns);
             outputs.removeCoveredExprs(columns);
 
+            if (NOT(outputs.isEmpty() || before->getGroupAttr()->isEmbeddedDelete())) {
+              *CmpCommon::diags() << DgSqlCode(4207) << DgTableName(idesc->getNAFileSet()->getExtFileSetName());
 
-            if (NOT (outputs.isEmpty() ||
-              before->getGroupAttr()->isEmbeddedDelete()))
-              {
-                *CmpCommon::diags() << DgSqlCode(4207)
-                  << DgTableName(idesc->getNAFileSet()->getExtFileSetName());
-
-                indexQualifies = FALSE;
-              }
+              indexQualifies = FALSE;
+            }
           }
 
-        if (indexQualifies &&
-            resultNeedsToBeOrdered &&
-            idesc->isPartitioned())
-          {
+          if (indexQualifies && resultNeedsToBeOrdered && idesc->isPartitioned()) {
             // 10-010109-0583 "select ... from stream ...order by" causes hang
             // if stream is partn'd."
 
-            //The following check is made to avoid insertion of
-            //duplicate combination of error number 4212 and its
-            //associated extFileSetName.
-            if(!((*CmpCommon::diags()).containsForFile(4212,
-			((idesc->getNAFileSet()->getExtFileSetName()).data()))))
-               *CmpCommon::diags() << DgSqlCode(4212)
-                      << DgTableName(idesc->getNAFileSet()->getExtFileSetName());
+            // The following check is made to avoid insertion of
+            // duplicate combination of error number 4212 and its
+            // associated extFileSetName.
+            if (!((*CmpCommon::diags()).containsForFile(4212, ((idesc->getNAFileSet()->getExtFileSetName()).data()))))
+              *CmpCommon::diags() << DgSqlCode(4212) << DgTableName(idesc->getNAFileSet()->getExtFileSetName());
 
             indexQualifies = FALSE;
           }
 
-         //Do not consider plans which have stream access on partitioned
-         //access paths when the flag ATTEMPT_ASYNCHRONOUS_ACCESS is
-         //OFF. This is because, the split top operator is not used.
-         //Instead, a partition access operator is used, but the PA handles
-         //multiple partitions by looking for the end-of-data from the current
-         //partition, and then sending the request to the next partition.
-         //For streams, there is no end-of-data.
+          // Do not consider plans which have stream access on partitioned
+          // access paths when the flag ATTEMPT_ASYNCHRONOUS_ACCESS is
+          // OFF. This is because, the split top operator is not used.
+          // Instead, a partition access operator is used, but the PA handles
+          // multiple partitions by looking for the end-of-data from the current
+          // partition, and then sending the request to the next partition.
+          // For streams, there is no end-of-data.
 
-        if(indexQualifies &&
-	    isStream &&
-	     idesc->isPartitioned() &&
-              CmpCommon::getDefault(ATTEMPT_ASYNCHRONOUS_ACCESS) == DF_OFF)
-	  {
-	   if(!((*CmpCommon::diags()).containsForFile(4320,
-               ((idesc->getNAFileSet()->getExtFileSetName()).data()))))
-               *CmpCommon::diags() << DgSqlCode(4320)
-               << DgTableName(idesc->getNAFileSet()->getExtFileSetName());
+          if (indexQualifies && isStream && idesc->isPartitioned() &&
+              CmpCommon::getDefault(ATTEMPT_ASYNCHRONOUS_ACCESS) == DF_OFF) {
+            if (!((*CmpCommon::diags()).containsForFile(4320, ((idesc->getNAFileSet()->getExtFileSetName()).data()))))
+              *CmpCommon::diags() << DgSqlCode(4320) << DgTableName(idesc->getNAFileSet()->getExtFileSetName());
 
-             indexQualifies = FALSE;
-         }
-     }
-      // QSTUFF
+            indexQualifies = FALSE;
+          }
+        }
+        // QSTUFF
 
-	if (indexQualifies)
-	{
+        if (indexQualifies) {
+          viableIndexes.insert(ixProp);
+          comparisonSet.insert(oc);
 
-	  viableIndexes.insert(ixProp);
-	  comparisonSet.insert(oc);
-
-
-	}  // if index qualifies
-      } // for every index
+        }  // if index qualifies
+      }    // for every index
     }
-  if(viableIndexes.entries() ==1)
-  {
-    ValueIdSet keyColSet(viableIndexes[0]->getIndexDesc()->getIndexKey());
-    usePartofSelectionPredicatesFromTheItemExpressionTree(inSet,keyColSet.convertToBaseIds());
-    disjunctsPtr0 =  new (CmpCommon::statementHeap())
-      MaterialDisjuncts(inSet);
-    CMPASSERT(disjunctsPtr0);
+    if (viableIndexes.entries() == 1) {
+      ValueIdSet keyColSet(viableIndexes[0]->getIndexDesc()->getIndexKey());
+      usePartofSelectionPredicatesFromTheItemExpressionTree(inSet, keyColSet.convertToBaseIds());
+      disjunctsPtr0 = new (CmpCommon::statementHeap()) MaterialDisjuncts(inSet);
+      CMPASSERT(disjunctsPtr0);
 
-    createAndInsertScan(context, viableIndexes[0]->getIndexDesc(),bef,memory,disjunctsPtr0,generatedComputedColPreds,
-		        comparisonSet[0],viableIndexes[0]->getMdamFlag(),isHbase);
-  }
+      createAndInsertScan(context, viableIndexes[0]->getIndexDesc(), bef, memory, disjunctsPtr0,
+                          generatedComputedColPreds, comparisonSet[0], viableIndexes[0]->getMdamFlag(), isHbase);
+    }
 
-  else if(	CURRSTMT_OPTDEFAULTS->indexEliminationLevel() != OptDefaults::MINIMUM AND
-	NOT isStream AND
-	bef->selectionPred().isEmpty() AND viableIndexes.entries() >1)
-    {
-      //No predicates so select the smallest order/part satisfying index. All the
-      //index that are in the viable index set satisfy requirements naturally.
-      IndexDesc * smallestIndex = findSmallestIndex(viableIndexes,entry, bef->isCreatedByNgram());
+    else if (CURRSTMT_OPTDEFAULTS->indexEliminationLevel() !=
+             OptDefaults::MINIMUM AND NOT isStream AND bef->selectionPred().isEmpty() AND viableIndexes.entries() > 1) {
+      // No predicates so select the smallest order/part satisfying index. All the
+      // index that are in the viable index set satisfy requirements naturally.
+      IndexDesc *smallestIndex = findSmallestIndex(viableIndexes, entry, bef->isCreatedByNgram());
       // added by yangyf for ngram
-      if (smallestIndex == NULL )
-        smallestIndex = viableIndexes[viableIndexes.entries()-1]->getIndexDesc();
-      createAndInsertScan(context, smallestIndex,bef,memory,disjunctsPtr,generatedComputedColPreds,
-                          comparisonSet[entry],MDAM_OFF, isHbase);
-      //if it is under a nested join then select the index that most number of
-      //partitions.
-      if((ippForMe!=NULL) AND (!(ippForMe->getAssumeSortedForCosting())))
-      {
-	IndexDesc * partitionedIndex =
-	      findMostPartitionedIndex(viableIndexes,entry);
-	if(partitionedIndex != smallestIndex)
-	{
-	  createAndInsertScan(context, partitionedIndex,bef,memory,disjunctsPtr,
-			      generatedComputedColPreds,comparisonSet[entry],MDAM_OFF, isHbase);
-	}
+      if (smallestIndex == NULL) smallestIndex = viableIndexes[viableIndexes.entries() - 1]->getIndexDesc();
+      createAndInsertScan(context, smallestIndex, bef, memory, disjunctsPtr, generatedComputedColPreds,
+                          comparisonSet[entry], MDAM_OFF, isHbase);
+      // if it is under a nested join then select the index that most number of
+      // partitions.
+      if ((ippForMe != NULL) AND(!(ippForMe->getAssumeSortedForCosting()))) {
+        IndexDesc *partitionedIndex = findMostPartitionedIndex(viableIndexes, entry);
+        if (partitionedIndex != smallestIndex) {
+          createAndInsertScan(context, partitionedIndex, bef, memory, disjunctsPtr, generatedComputedColPreds,
+                              comparisonSet[entry], MDAM_OFF, isHbase);
+        }
       }
-    }
-    else //there are predicates
+    } else  // there are predicates
     {
-
-      //eliminate indexes with bad key access and bad index joins
+      // eliminate indexes with bad key access and bad index joins
       CollIndex numIndex = viableIndexes.entries();
-      if(CURRSTMT_OPTDEFAULTS->indexEliminationLevel() == OptDefaults::MAXIMUM AND
-	numIndex >1 AND NOT isStream)
-      {
-	  removeLowSelectivityIndexJoins(viableIndexes,comparisonSet,context);
-	if(viableIndexes.entries() >1)
-	  removeBadKeyIndexes(viableIndexes,comparisonSet);
+      if (CURRSTMT_OPTDEFAULTS->indexEliminationLevel() == OptDefaults::MAXIMUM AND numIndex > 1 AND NOT isStream) {
+        removeLowSelectivityIndexJoins(viableIndexes, comparisonSet, context);
+        if (viableIndexes.entries() > 1) removeBadKeyIndexes(viableIndexes, comparisonSet);
       }
 
       numIndex = viableIndexes.entries();
-      for(CollIndex j=0;j<numIndex;j++)
-      {
-	createAndInsertScan(context, viableIndexes[j]->getIndexDesc(),bef,memory,disjunctsPtr0,
-		            generatedComputedColPreds,comparisonSet[j],viableIndexes[j]->getMdamFlag(), isHbase);
+      for (CollIndex j = 0; j < numIndex; j++) {
+        createAndInsertScan(context, viableIndexes[j]->getIndexDesc(), bef, memory, disjunctsPtr0,
+                            generatedComputedColPreds, comparisonSet[j], viableIndexes[j]->getMdamFlag(), isHbase);
       }
-
     }
   }
-
 
   // ---------------------------------------------------------------------
   // handle case of multiple substitutes
   // ---------------------------------------------------------------------
-  if (memory)
-  {
+  if (memory) {
     result = memory->getNextSubstitute();
 
-    if (result == NULL)
-    {
+    if (result == NULL) {
       // returned all the substitutes
       // now delete the substitute memory, so we won't be called again
       delete memory;
@@ -1592,72 +1143,53 @@ RelExpr * generateScanSubstitutes(RelExpr * before,
 
     // return the next retrieved substitute
     return result;
-  }
-  else
-    return NULL; // rule didn't fire
+  } else
+    return NULL;  // rule didn't fire
 }
 
-RelExpr * FileScanRule::nextSubstitute(RelExpr * before,
-                                      Context * context,
-                                      RuleSubstituteMemory *& memory)
-{
-   return generateScanSubstitutes(before, context, memory, FALSE);
+RelExpr *FileScanRule::nextSubstitute(RelExpr *before, Context *context, RuleSubstituteMemory *&memory) {
+  return generateScanSubstitutes(before, context, memory, FALSE);
 }
-
 
 // -----------------------------------------------------------------------
 // methods for class HbaseScanRule
 // -----------------------------------------------------------------------
 
-HbaseScanRule::~HbaseScanRule() {} 
+HbaseScanRule::~HbaseScanRule() {}
 
-NABoolean HbaseScanRule::topMatch(RelExpr * relExpr, Context *context)
-{
-  if (NOT Rule::topMatch(relExpr,context))
-    return FALSE;
+NABoolean HbaseScanRule::topMatch(RelExpr *relExpr, Context *context) {
+  if (NOT Rule::topMatch(relExpr, context)) return FALSE;
 
-  Scan * scan= (Scan *) relExpr;
-  if (scan->getTableDesc()->getNATable()->isHbaseTable() == FALSE)
-    return FALSE;
+  Scan *scan = (Scan *)relExpr;
+  if (scan->getTableDesc()->getNATable()->isHbaseTable() == FALSE) return FALSE;
 
-  const ReqdPhysicalProperty* rppForMe = context->getReqdPhysicalProperty();
+  const ReqdPhysicalProperty *rppForMe = context->getReqdPhysicalProperty();
 
   // Hbase table scan executes in master or ESP
-  if (rppForMe->executeInDP2())
-      return FALSE;
+  if (rppForMe->executeInDP2()) return FALSE;
 
   // Check for required physical properties that require an enforcer
   // operator to succeed.
-  if (relExpr->rppRequiresEnforcer(context->getReqdPhysicalProperty()))
-    return FALSE;
-
+  if (relExpr->rppRequiresEnforcer(context->getReqdPhysicalProperty())) return FALSE;
 
   return TRUE;
 }
 
-RelExpr * HbaseScanRule::nextSubstitute(RelExpr * before,
-                                        Context * context,
-                                        RuleSubstituteMemory *& memory)
-{
-   return generateScanSubstitutes(before, context, memory, TRUE);
+RelExpr *HbaseScanRule::nextSubstitute(RelExpr *before, Context *context, RuleSubstituteMemory *&memory) {
+  return generateScanSubstitutes(before, context, memory, TRUE);
 }
-
 
 // -----------------------------------------------------------------------
 // methods for class UnionRule
 // -----------------------------------------------------------------------
 
-UnionRule::~UnionRule() {} 
+UnionRule::~UnionRule() {}
 
-NABoolean UnionRule::topMatch(RelExpr * relExpr, Context * context)
-{
-
-  if (NOT Rule::topMatch(relExpr,context))
-    return FALSE;
+NABoolean UnionRule::topMatch(RelExpr *relExpr, Context *context) {
+  if (NOT Rule::topMatch(relExpr, context)) return FALSE;
 
   if (((Union *)relExpr)->getSerialUnion() &&
-      context->getReqdPhysicalProperty()->getPlanExecutionLocation() != EXECUTE_IN_MASTER)
-  {
+      context->getReqdPhysicalProperty()->getPlanExecutionLocation() != EXECUTE_IN_MASTER) {
     return FALSE;
   }
 
@@ -1667,27 +1199,21 @@ NABoolean UnionRule::topMatch(RelExpr * relExpr, Context * context)
 
   // Check for required physical properties that require an enforcer
   // operator to succeed.
-  if (relExpr->rppRequiresEnforcer(context->getReqdPhysicalProperty()))
-    return FALSE;
+  if (relExpr->rppRequiresEnforcer(context->getReqdPhysicalProperty())) return FALSE;
 
   // -----------------------------------------------------------------
   // Check whether the union can potentially satisfy the required
   // physical properties.
   // -----------------------------------------------------------------
-  if (NOT ((Union *)relExpr)->rppAreCompatibleWithOperator
-                     (context->getReqdPhysicalProperty()))
-    return FALSE;
+  if (NOT((Union *)relExpr)->rppAreCompatibleWithOperator(context->getReqdPhysicalProperty())) return FALSE;
 
   return TRUE;
 
-} // UnionRule::topMatch
+}  // UnionRule::topMatch
 
-RelExpr * UnionRule::nextSubstitute(RelExpr * before,
-                                    Context *  /* context */,
-                                    RuleSubstituteMemory *& /*memory*/)
-{
+RelExpr *UnionRule::nextSubstitute(RelExpr *before, Context * /* context */, RuleSubstituteMemory *& /*memory*/) {
   MergeUnion *result;
-  Union *bef = (Union *) before;
+  Union *bef = (Union *)before;
 
   CMPASSERT(bef->getOperatorType() == REL_UNION);
 
@@ -1695,21 +1221,19 @@ RelExpr * UnionRule::nextSubstitute(RelExpr * before,
   CMPASSERT(bef->getSelectionPred().entries() == 0);
 
   // return a physical merge union node
-  result = new(CmpCommon::statementHeap()) MergeUnion(bef->child(0),
-                                                      bef->child(1),
-                                                      bef->getUnionMap());
+  result = new (CmpCommon::statementHeap()) MergeUnion(bef->child(0), bef->child(1), bef->getUnionMap());
 
   // set flag for ngram
   result->setIsCreatedByNgram(bef->isCreatedByNgram());
-  
-  (void) bef->copyTopNode(result, CmpCommon::statementHeap());
+
+  (void)bef->copyTopNode(result, CmpCommon::statementHeap());
 
   // now set the attributes of the result's top node
   result->setCondExpr(bef->getCondExpr());
-  result->setAlternateRightChildOrderExpr(bef->getAlternateRightChildOrderExpr()); //++ MV
+  result->setAlternateRightChildOrderExpr(bef->getAlternateRightChildOrderExpr());  //++ MV
   result->setGroupAttr(bef->getGroupAttr());
   result->setUnionFlags(bef->getUnionFlags());
-  result->setControlFlags(bef->getControlFlags()); //++ Triggers -
+  result->setControlFlags(bef->getControlFlags());  //++ Triggers -
   result->setBlockStmt(before->isinBlockStmt());
 
   return result;
@@ -1719,257 +1243,203 @@ RelExpr * UnionRule::nextSubstitute(RelExpr * before,
 // methods for class SortGroupByRule
 // -----------------------------------------------------------------------
 
-SortGroupByRule::~SortGroupByRule() {} 
+SortGroupByRule::~SortGroupByRule() {}
 
-NABoolean SortGroupByRule::topMatch (RelExpr *relExpr,
-                                     Context *context)
-{
+NABoolean SortGroupByRule::topMatch(RelExpr *relExpr, Context *context) {
   // check if this rule has been disabled via RuleGuidanceCQD
   // the CQD is COMP_INT_77 and it represents a bitmap
   // below we check if the bit # 7 is ON
-  if(CURRSTMT_OPTDEFAULTS->isRuleDisabled(7))
-    return FALSE;
+  if (CURRSTMT_OPTDEFAULTS->isRuleDisabled(7)) return FALSE;
 
-  if (NOT Rule::topMatch(relExpr,context))
-    return FALSE;
+  if (NOT Rule::topMatch(relExpr, context)) return FALSE;
 
-  if (relExpr->getOperatorType() == REL_SHORTCUT_GROUPBY)
-    return FALSE;
+  if (relExpr->getOperatorType() == REL_SHORTCUT_GROUPBY) return FALSE;
 
   CMPASSERT(relExpr->getOperatorType() == REL_GROUPBY);
 
   // QSTUFF
-  CMPASSERT(NOT(relExpr->getGroupAttr()->isStream() OR
-                relExpr->getGroupAttr()->isEmbeddedUpdateOrDelete()));
+  CMPASSERT(NOT(relExpr->getGroupAttr()->isStream() OR relExpr->getGroupAttr()->isEmbeddedUpdateOrDelete()));
   // QSTUFF
 
-  GroupByAgg *grbyagg = (GroupByAgg *) relExpr;
+  GroupByAgg *grbyagg = (GroupByAgg *)relExpr;
 
   // if the groupby node is created by joingroupby rule
-  if (grbyagg->isCreatedByNgram())
-    return FALSE;
+  if (grbyagg->isCreatedByNgram()) return FALSE;
 
   // Don't apply this rule for aggregate queries with no grouping
   // columns - fire the Aggregate Rule instead.
-  if (grbyagg->groupExpr().isEmpty())
-    return FALSE;
+  if (grbyagg->groupExpr().isEmpty()) return FALSE;
 
   // must use sortGroupBy for rollup aggregates
-  if (grbyagg->isRollup())
-    return TRUE;
+  if (grbyagg->isRollup()) return TRUE;
 
   // Settings to limit Sort Group By application
   Lng32 sortGbySetting = CURRSTMT_OPTDEFAULTS->robustSortGroupBy();
-  if (context->getReqdPhysicalProperty()->getMustMatch() == NULL &&
-      sortGbySetting > 0)
-  {
-    if (grbyagg->isAPartialGroupByRoot())
-    {
+  if (context->getReqdPhysicalProperty()->getMustMatch() == NULL && sortGbySetting > 0) {
+    if (grbyagg->isAPartialGroupByRoot()) {
       // disallow sortGroupBy from partialGrpByRoot if no order requirement
-      if (sortGbySetting >= 1 && !context->requiresOrder())
-        return FALSE;
+      if (sortGbySetting >= 1 && !context->requiresOrder()) return FALSE;
 
       // disallow sortGroupBy from partialGrpByRoot if requested
-    if (sortGbySetting >= 2)
-        return FALSE;
+      if (sortGbySetting >= 2) return FALSE;
     }
 
     // disallow sortGroupBy in ESP if requested
-    if (!context->getReqdPhysicalProperty()->executeInDP2() &&
-        sortGbySetting >= 3)
-        return FALSE;
+    if (!context->getReqdPhysicalProperty()->executeInDP2() && sortGbySetting >= 3) return FALSE;
   }
 
   // Do not apply this rule if the Group By elimination rule
   // can be applied.
-  if ( grbyagg->isNotAPartialGroupBy() &&
-       grbyagg->child(0).getGroupAttr()->isUnique(grbyagg->groupExpr()) )
-    return FALSE;
+  if (grbyagg->isNotAPartialGroupBy() && grbyagg->child(0).getGroupAttr()->isUnique(grbyagg->groupExpr())) return FALSE;
 
   // can't use this algorithm if there are distinct aggregates
   const ValueIdSet &aggrs = grbyagg->aggregateExpr();
-  for (ValueId x = aggrs.init(); aggrs.next(x); aggrs.advance(x))
-    {
-      Aggregate *agg = (Aggregate *) x.getItemExpr();
+  for (ValueId x = aggrs.init(); aggrs.next(x); aggrs.advance(x)) {
+    Aggregate *agg = (Aggregate *)x.getItemExpr();
 
-      CMPASSERT(x.getItemExpr()->isAnAggregate());
+    CMPASSERT(x.getItemExpr()->isAnAggregate());
 
-      if (agg->isDistinct())
-        {
-          ValueIdSet uniqueSet = grbyagg->groupExpr();
-          uniqueSet += agg->getDistinctValueId();
-          if (NOT grbyagg->child(0).getGroupAttr()->isUnique(uniqueSet))
-            return FALSE;
-        }
+    if (agg->isDistinct()) {
+      ValueIdSet uniqueSet = grbyagg->groupExpr();
+      uniqueSet += agg->getDistinctValueId();
+      if (NOT grbyagg->child(0).getGroupAttr()->isUnique(uniqueSet)) return FALSE;
     }
+  }
 
   // Check for required physical properties that require an enforcer
   // operator to succeed.
-  if (relExpr->rppRequiresEnforcer(context->getReqdPhysicalProperty()))
-    return FALSE;
+  if (relExpr->rppRequiresEnforcer(context->getReqdPhysicalProperty())) return FALSE;
 
   // Test the eligibility of creating a plan using the given
   // partitioning and location requirements.
-  if (NOT grbyagg->rppAreCompatibleWithOperator
-                     (context->getReqdPhysicalProperty()))
-    return FALSE;
+  if (NOT grbyagg->rppAreCompatibleWithOperator(context->getReqdPhysicalProperty())) return FALSE;
 
   // if at most 1 row is being returned, then the rule matches
-  if (relExpr->getGroupAttr()->getMaxNumOfRows() <= 1)
-    return TRUE;
-
+  if (relExpr->getGroupAttr()->getMaxNumOfRows() <= 1) return TRUE;
 
   return TRUE;
 
-} // SortGroupByRule::topMatch()
+}  // SortGroupByRule::topMatch()
 
-RelExpr * SortGroupByRule::nextSubstitute(RelExpr * before,
-                                          Context * /*context*/,
-                                          RuleSubstituteMemory *& /*memory*/)
-{
+RelExpr *SortGroupByRule::nextSubstitute(RelExpr *before, Context * /*context*/, RuleSubstituteMemory *& /*memory*/) {
   SortGroupBy *result;
-  GroupByAgg *bef = (GroupByAgg *) before;
+  GroupByAgg *bef = (GroupByAgg *)before;
 
   // create a sort groupby node
-  result = new(CmpCommon::statementHeap()) SortGroupBy(bef->child(0));
+  result = new (CmpCommon::statementHeap()) SortGroupBy(bef->child(0));
 
   // now set the group attributes of the result's top node
   result->setGroupAttr(bef->getGroupAttr());
 
-  (void) bef->copyTopNode(result, CmpCommon::statementHeap());
+  (void)bef->copyTopNode(result, CmpCommon::statementHeap());
 
   // the required order is determined by SortGroupBy::createContextForAChild()
 
   return result;
-} // SortGroupByRule::nextSubstitute()
+}  // SortGroupByRule::nextSubstitute()
 
 // -----------------------------------------------------------------------
 // methods for class AggregateRule
 // -----------------------------------------------------------------------
-AggregateRule::~AggregateRule() {} 
+AggregateRule::~AggregateRule() {}
 
-NABoolean AggregateRule::topMatch (RelExpr *relExpr,
-                                   Context *context)
-{
-  if (NOT Rule::topMatch(relExpr,context))
-    return FALSE;
+NABoolean AggregateRule::topMatch(RelExpr *relExpr, Context *context) {
+  if (NOT Rule::topMatch(relExpr, context)) return FALSE;
 
-  if (relExpr->getOperatorType() == REL_SHORTCUT_GROUPBY)
-    return FALSE;
+  if (relExpr->getOperatorType() == REL_SHORTCUT_GROUPBY) return FALSE;
 
   CMPASSERT(relExpr->getOperatorType() == REL_GROUPBY);
 
   // QSTUFF
-  CMPASSERT(NOT(relExpr->getGroupAttr()->isStream() OR
-                relExpr->getGroupAttr()->isEmbeddedUpdateOrDelete()));
+  CMPASSERT(NOT(relExpr->getGroupAttr()->isStream() OR relExpr->getGroupAttr()->isEmbeddedUpdateOrDelete()));
   // QSTUFF
 
-
-  GroupByAgg *grbyagg = (GroupByAgg *) relExpr;
+  GroupByAgg *grbyagg = (GroupByAgg *)relExpr;
 
   // Don't apply this rule if there are grouping columns -
   // apply the SortGroupByRule instead.
-  if (NOT grbyagg->groupExpr().isEmpty())
-    return FALSE;
+  if (NOT grbyagg->groupExpr().isEmpty()) return FALSE;
 
   // can't use this algorithm if there are distinct aggregates
   // that aren't fake distincts
   const ValueIdSet &aggrs = grbyagg->aggregateExpr();
-  for (ValueId x = aggrs.init(); aggrs.next(x); aggrs.advance(x))
-    {
-      Aggregate *agg = (Aggregate *) x.getItemExpr();
+  for (ValueId x = aggrs.init(); aggrs.next(x); aggrs.advance(x)) {
+    Aggregate *agg = (Aggregate *)x.getItemExpr();
 
-      CMPASSERT(x.getItemExpr()->isAnAggregate());
+    CMPASSERT(x.getItemExpr()->isAnAggregate());
 
-      if (agg->isDistinct())
-        {
-          if (NOT grbyagg->child(0).getGroupAttr()->
-                             isUnique(agg->getDistinctValueId()))
-            return FALSE;
-        }
+    if (agg->isDistinct()) {
+      if (NOT grbyagg->child(0).getGroupAttr()->isUnique(agg->getDistinctValueId())) return FALSE;
     }
+  }
 
   // Check for required physical properties that require an enforcer
   // operator to succeed.
-  if (relExpr->rppRequiresEnforcer(context->getReqdPhysicalProperty()))
-    return FALSE;
+  if (relExpr->rppRequiresEnforcer(context->getReqdPhysicalProperty())) return FALSE;
 
   // Test the eligibility of creating a plan using the given
   // partitioning and location requirements.
-  if (NOT grbyagg->rppAreCompatibleWithOperator(
-                     context->getReqdPhysicalProperty()))
-    return FALSE;
+  if (NOT grbyagg->rppAreCompatibleWithOperator(context->getReqdPhysicalProperty())) return FALSE;
 
   return TRUE;
 
-} // AggregateRule::topMatch()
+}  // AggregateRule::topMatch()
 
 // -----------------------------------------------------------------------
 // methods for class PhysShortCutGroupByRule
 // -----------------------------------------------------------------------
 
-PhysShortCutGroupByRule::~PhysShortCutGroupByRule() {} 
+PhysShortCutGroupByRule::~PhysShortCutGroupByRule() {}
 
-NABoolean PhysShortCutGroupByRule::topMatch (RelExpr *relExpr,
-                                             Context *context)
-{
-  if (NOT Rule::topMatch(relExpr,context))
-    return FALSE;
+NABoolean PhysShortCutGroupByRule::topMatch(RelExpr *relExpr, Context *context) {
+  if (NOT Rule::topMatch(relExpr, context)) return FALSE;
 
   // make sure we are looking at a short cut group by
   CMPASSERT(relExpr->getOperatorType() == REL_SHORTCUT_GROUPBY);
 
   // Cast the relexpr pointer to groupbyagg type
-  GroupByAgg *grbyagg = (GroupByAgg *) relExpr;
+  GroupByAgg *grbyagg = (GroupByAgg *)relExpr;
 
   // if the groupby node is created by joingroupby rule
-  if (grbyagg->isCreatedByNgram())
-    return FALSE;
+  if (grbyagg->isCreatedByNgram()) return FALSE;
 
   // The ShortCutGroupBy transformation rule should have already
   // verified that this group by has no group by clause.
-  CMPASSERT (grbyagg->groupExpr().isEmpty());
+  CMPASSERT(grbyagg->groupExpr().isEmpty());
 
   // The ShortCutGroupBy transformation rule already verified that
   // this group by has an aggregate. Determine what type of aggregate.
   const ValueIdSet &aggrs = grbyagg->aggregateExpr();
-  CMPASSERT (NOT aggrs.isEmpty());
+  CMPASSERT(NOT aggrs.isEmpty());
   ValueId aggr_valueid = aggrs.init();
   aggrs.next(aggr_valueid);
   ItemExpr *item_expr = aggr_valueid.getItemExpr();
   OperatorTypeEnum aggrType = item_expr->getOperatorType();
 
-  if(aggrType==ITM_ANY_TRUE)
-  {
+  if (aggrType == ITM_ANY_TRUE) {
     // AnyTrueGroupByAgg can only be executed in ESP.
-    if (context->getReqdPhysicalProperty()->executeInDP2())
-      return FALSE;
+    if (context->getReqdPhysicalProperty()->executeInDP2()) return FALSE;
   }
 
   // Check for required physical properties that require an enforcer
   // operator to succeed.
-  if (relExpr->rppRequiresEnforcer(context->getReqdPhysicalProperty()))
-    return FALSE;
+  if (relExpr->rppRequiresEnforcer(context->getReqdPhysicalProperty())) return FALSE;
 
   // Test the eligibility of creating a plan using the given
   // partitioning and location requirements.
-  if (NOT grbyagg->rppAreCompatibleWithOperator
-                     (context->getReqdPhysicalProperty()))
-    return FALSE;
+  if (NOT grbyagg->rppAreCompatibleWithOperator(context->getReqdPhysicalProperty())) return FALSE;
 
   return TRUE;
 
-} // PhysShortCutGroupByRule::topMatch()
+}  // PhysShortCutGroupByRule::topMatch()
 
-RelExpr * PhysShortCutGroupByRule::nextSubstitute(RelExpr * before,
-                                     Context * /*context*/,
-                                     RuleSubstituteMemory *& /*memory*/)
-{
+RelExpr *PhysShortCutGroupByRule::nextSubstitute(RelExpr *before, Context * /*context*/,
+                                                 RuleSubstituteMemory *& /*memory*/) {
   PhysShortCutGroupBy *result;
-  ShortCutGroupBy *bef = (ShortCutGroupBy *) before;
+  ShortCutGroupBy *bef = (ShortCutGroupBy *)before;
 
   // create a physical shortcut groupby node
-  result = new(CmpCommon::statementHeap()) PhysShortCutGroupBy(bef->child(0));
+  result = new (CmpCommon::statementHeap()) PhysShortCutGroupBy(bef->child(0));
 
   // now set the group attributes of the result's top node
   result->setGroupAttr(bef->getGroupAttr());
@@ -1977,199 +1447,156 @@ RelExpr * PhysShortCutGroupByRule::nextSubstitute(RelExpr * before,
   // Copy over the shortcut groupby private fields, then
   // call the groupbyagg copytopnode to copy the groupby private fields,
   // then call the relexpr copytopnode to copy over all common fields.
-  (void) bef->copyTopNode(result, CmpCommon::statementHeap());
+  (void)bef->copyTopNode(result, CmpCommon::statementHeap());
 
   return result;
 
-} // PhysShortCutGroupByRule::nextSubstitute()
-
+}  // PhysShortCutGroupByRule::nextSubstitute()
 
 // -----------------------------------------------------------------------
 // methods for class HashGroupByRule
 // -----------------------------------------------------------------------
 
-HashGroupByRule::~HashGroupByRule() {} 
+HashGroupByRule::~HashGroupByRule() {}
 
-NABoolean HashGroupByRule::topMatch (RelExpr *relExpr,
-                                     Context *context)
-{
+NABoolean HashGroupByRule::topMatch(RelExpr *relExpr, Context *context) {
   // check if this rule has been disabled via RuleGuidanceCQD
   // the CQD is COMP_INT_77 and it represents a bitmap
   // below we check if the bit # 6 is ON
-  if(CURRSTMT_OPTDEFAULTS->isRuleDisabled(6))
-    return FALSE;
+  if (CURRSTMT_OPTDEFAULTS->isRuleDisabled(6)) return FALSE;
 
-  if (NOT Rule::topMatch(relExpr,context))
-    return FALSE;
+  if (NOT Rule::topMatch(relExpr, context)) return FALSE;
 
-  if (relExpr->getOperatorType() == REL_SHORTCUT_GROUPBY)
-    return FALSE;
+  if (relExpr->getOperatorType() == REL_SHORTCUT_GROUPBY) return FALSE;
 
   CMPASSERT(relExpr->getOperatorType() == REL_GROUPBY);
 
-  GroupByAgg *grbyagg = (GroupByAgg *) relExpr;
+  GroupByAgg *grbyagg = (GroupByAgg *)relExpr;
 
   // QSTUFF
-  CMPASSERT(NOT(relExpr->getGroupAttr()->isStream() OR
-                relExpr->getGroupAttr()->isEmbeddedUpdateOrDelete()));
+  CMPASSERT(NOT(relExpr->getGroupAttr()->isStream() OR relExpr->getGroupAttr()->isEmbeddedUpdateOrDelete()));
   // QSTUFF
-
 
   // don't apply this rule for aggregate queries
   // a sort group by will do a better job
-  if (grbyagg->groupExpr().isEmpty())
-    return FALSE;
+  if (grbyagg->groupExpr().isEmpty()) return FALSE;
 
   // Do not apply this rule if the Group By elimination rule
   // can be applied
   // or if the groupby node is created by joingroupby rule
-  if ( !grbyagg->isCreatedByNgram() && grbyagg->isNotAPartialGroupBy() &&
-       grbyagg->child(0).getGroupAttr()->isUnique(grbyagg->groupExpr()) )
+  if (!grbyagg->isCreatedByNgram() && grbyagg->isNotAPartialGroupBy() &&
+      grbyagg->child(0).getGroupAttr()->isUnique(grbyagg->groupExpr()))
     return FALSE;
 
   // can't use this algorithm if there are distinct aggregates
   const ValueIdSet &aggrs = grbyagg->aggregateExpr();
 
-  for (ValueId x = aggrs.init(); aggrs.next(x); aggrs.advance(x))
-    {
-      Aggregate *agg = (Aggregate *) x.getItemExpr();
+  for (ValueId x = aggrs.init(); aggrs.next(x); aggrs.advance(x)) {
+    Aggregate *agg = (Aggregate *)x.getItemExpr();
 
-      CMPASSERT(x.getItemExpr()->isAnAggregate());
+    CMPASSERT(x.getItemExpr()->isAnAggregate());
 
-      //if it is pivot_group(), currently, hash groupby is not supported
-      if (agg->getOperatorType() == ITM_PIVOT_GROUP)
-        return FALSE;
+    // if it is pivot_group(), currently, hash groupby is not supported
+    if (agg->getOperatorType() == ITM_PIVOT_GROUP) return FALSE;
 
-      if (agg->isDistinct())
-        {
-          ValueIdSet uniqueSet = grbyagg->groupExpr();
-         uniqueSet += agg->getDistinctValueId();
-          if (NOT grbyagg->child(0).getGroupAttr()->isUnique(uniqueSet))
-            return FALSE;
-        }
+    if (agg->isDistinct()) {
+      ValueIdSet uniqueSet = grbyagg->groupExpr();
+      uniqueSet += agg->getDistinctValueId();
+      if (NOT grbyagg->child(0).getGroupAttr()->isUnique(uniqueSet)) return FALSE;
     }
+  }
 
   // a hash groupby doesn't produce any useful ordering
-  if (context->requiresOrder())
-    return FALSE;
+  if (context->requiresOrder()) return FALSE;
 
   // a hash group cannot be pushed completely to DP2, since overflow
   // cannot be handled in DP2.
-  if (grbyagg->isNotAPartialGroupBy() AND
-      context->getReqdPhysicalProperty()->executeInDP2())
-    return FALSE;
+  if (grbyagg->isNotAPartialGroupBy() AND context->getReqdPhysicalProperty()->executeInDP2()) return FALSE;
 
   // Check for required physical properties that require an enforcer
   // operator to succeed.
-  if (relExpr->rppRequiresEnforcer(context->getReqdPhysicalProperty()))
-    return FALSE;
+  if (relExpr->rppRequiresEnforcer(context->getReqdPhysicalProperty())) return FALSE;
 
   // Test the eligibility of creating a plan using the given
   // partitioning and location requirements.
-  if (NOT grbyagg->rppAreCompatibleWithOperator(
-                     context->getReqdPhysicalProperty()))
-    return FALSE;
+  if (NOT grbyagg->rppAreCompatibleWithOperator(context->getReqdPhysicalProperty())) return FALSE;
 
   // groupby rollup is evaluated using SortGroupBy
-  if (grbyagg->isRollup())
-    return FALSE;
+  if (grbyagg->isRollup()) return FALSE;
 
   return TRUE;
 
-} // HashGroupByRule::topMatch()
+}  // HashGroupByRule::topMatch()
 
-RelExpr * HashGroupByRule::nextSubstitute(RelExpr * before,
-                                          Context * context,
-                                          RuleSubstituteMemory *& memory)
-{
+RelExpr *HashGroupByRule::nextSubstitute(RelExpr *before, Context *context, RuleSubstituteMemory *&memory) {
   HashGroupBy *result;
-  GroupByAgg *bef = (GroupByAgg *) before;
+  GroupByAgg *bef = (GroupByAgg *)before;
 
   // return a physical node
-  result = (HashGroupBy *) Rule::nextSubstitute(before,context,memory);
+  result = (HashGroupBy *)Rule::nextSubstitute(before, context, memory);
 
-  (void) bef->copyTopNode(result, CmpCommon::statementHeap());
+  (void)bef->copyTopNode(result, CmpCommon::statementHeap());
 
   return result;
-} // HashGroupByRule::nextSubstitute()
+}  // HashGroupByRule::nextSubstitute()
 
 // -- MVs
 // This method checks is the data to be inserted is ordered according to the
 // table's clustering index, so that VSBB insert can be used.
 // The code was mostly adapted from CostMethodDP2Insert::computeOperatorCost()
-NABoolean Insert::isDataSorted(Insert *bef, const Context *context)
-{
-  NABoolean probesForceSynchronousAccess; // an unused parameter for ordersMatch().
+NABoolean Insert::isDataSorted(Insert *bef, const Context *context) {
+  NABoolean probesForceSynchronousAccess;  // an unused parameter for ordersMatch().
 
-  const IndexDesc* indexDesc = bef->getTableDesc()->getClusteringIndex();
+  const IndexDesc *indexDesc = bef->getTableDesc()->getClusteringIndex();
   ValueIdList targetSortKey = indexDesc->getOrderOfKeyValues();
 
   // If a target key column is covered by a constant on the source side,
   // then we need to remove that column from the target sort key
-  removeConstantsFromTargetSortKey(&targetSortKey,
-	                           &(bef->updateToSelectMap()));
+  removeConstantsFromTargetSortKey(&targetSortKey, &(bef->updateToSelectMap()));
 
-  ValueIdSet sourceCharInputs =
-    bef->getGroupAttr()->getCharacteristicInputs();
+  ValueIdSet sourceCharInputs = bef->getGroupAttr()->getCharacteristicInputs();
   ValueIdSet targetCharInputs;
   // The char inputs are still in terms of the source. Map them to the target.
   // Note: The source char outputs in the ipp have already been mapped to
   // the target.
-  bef->updateToSelectMap().rewriteValueIdSetUp(targetCharInputs,
-					       sourceCharInputs);
+  bef->updateToSelectMap().rewriteValueIdSetUp(targetCharInputs, sourceCharInputs);
 
-  return ordersMatch(context->getInputPhysicalProperty(),
-		     indexDesc,
-		     &targetSortKey,
-		     targetCharInputs,
-		     FALSE,
-		     probesForceSynchronousAccess,
-		     TRUE);
+  return ordersMatch(context->getInputPhysicalProperty(), indexDesc, &targetSortKey, targetCharInputs, FALSE,
+                     probesForceSynchronousAccess, TRUE);
 }
 
 // -----------------------------------------------------------------------
 // methods for class HbaseDeleteRule
 // -----------------------------------------------------------------------
 
-HbaseDeleteRule::~HbaseDeleteRule() {} 
+HbaseDeleteRule::~HbaseDeleteRule() {}
 
-NABoolean HbaseDeleteRule::topMatch(RelExpr * relExpr, Context *context)
-{
+NABoolean HbaseDeleteRule::topMatch(RelExpr *relExpr, Context *context) {
   //  if (NOT ((GenericUpdate *)relExpr)->selectionPred().isEmpty())
   //    return FALSE;
 
-  if (NOT Rule::topMatch(relExpr,context))
-    return FALSE;
+  if (NOT Rule::topMatch(relExpr, context)) return FALSE;
 
-  Delete * del = (Delete *) relExpr;
-  if (del->getTableDesc()->getNATable()->isHbaseTable() == FALSE)
-    return FALSE;
+  Delete *del = (Delete *)relExpr;
+  if (del->getTableDesc()->getNATable()->isHbaseTable() == FALSE) return FALSE;
 
-  if (del->getTableDesc()->getNATable()->hasLobColumn())
-    return FALSE;
+  if (del->getTableDesc()->getNATable()->hasTrafReplicaColumn()) return FALSE;
 
-   if (del->getTableDesc()->getNATable()->hasTrafReplicaColumn())
-    return FALSE;
-  
   // HbaseDelete can only execute above DP2
-  if (context->getReqdPhysicalProperty()->executeInDP2())
-    return FALSE;
+  if (context->getReqdPhysicalProperty()->executeInDP2()) return FALSE;
 
   // if this delete was a 'first N' delete, then it needs to be
   // run as a cursor select...delete where select returns N rows.
-  if (del->isNoRollback() || del->getWasFirstN())
-    return FALSE;
+  if (del->isNoRollback() || del->getWasFirstN()) return FALSE;
 
   // Check for required physical properties that require an enforcer
   // operator to succeed.
   //  if (relExpr->rppRequiresEnforcer(context->getReqdPhysicalProperty()))
   // return FALSE;
 
-  CostScalar numberOfRowsToBeDeleted =
-    context->getInputLogProp()->getResultCardinality();
+  CostScalar numberOfRowsToBeDeleted = context->getInputLogProp()->getResultCardinality();
 
-  if ((numberOfRowsToBeDeleted > 1) &&
-      (NOT del->noCheck()) &&
+  if ((numberOfRowsToBeDeleted > 1) && (NOT del->noCheck()) &&
       (CmpCommon::getDefault(HBASE_SQL_IUD_SEMANTICS) == DF_ON) &&
       (CmpCommon::getDefault(HBASE_UPDEL_CURSOR_OPT) == DF_ON) &&
       ((ActiveSchemaDB()->getDefaults()).getAsLong(COMP_INT_74) == 0))
@@ -2178,70 +1605,55 @@ NABoolean HbaseDeleteRule::topMatch(RelExpr * relExpr, Context *context)
   return TRUE;
 }
 
-RelExpr * HbaseDeleteRule::nextSubstitute(RelExpr * before,
-                                        // QSTUFF
-                                        Context * context,
-                                        // QSTUFF
-                                        RuleSubstituteMemory *& /*memory*/)
-{
-  HbaseDelete * result;
-  Delete * bef  = (Delete *) before;
-  Scan* scan = (Scan*) before->child(0).getPtr();
+RelExpr *HbaseDeleteRule::nextSubstitute(RelExpr *before,
+                                         // QSTUFF
+                                         Context *context,
+                                         // QSTUFF
+                                         RuleSubstituteMemory *& /*memory*/) {
+  HbaseDelete *result;
+  Delete *bef = (Delete *)before;
+  Scan *scan = (Scan *)before->child(0).getPtr();
 
   // This transformation can be performed only if the table scanned
   // is the same as that being updated.
-  if (scan->getTableDesc()->getNATable() != bef->getTableDesc()->getNATable())
-    return NULL;
+  if (scan->getTableDesc()->getNATable() != bef->getTableDesc()->getNATable()) return NULL;
 
   // Build the new HbaseDelete node
-  result = new(CmpCommon::statementHeap())
-    HbaseDelete(bef->getTableName(), bef->getTableDesc());
+  result = new (CmpCommon::statementHeap()) HbaseDelete(bef->getTableName(), bef->getTableDesc());
 
   copyCommonGenericUpdateFields(result, bef);
   copyCommonDeleteFields(result, bef);
 
   /////////////////////////////////////////////////////////////////////////
-  // Setup the hbase search key. The logic is modeled based on 
+  // Setup the hbase search key. The logic is modeled based on
   // SimpleFileScanOptimizer::constructSearchKey()
   /////////////////////////////////////////////////////////////////////////
   ValueIdSet exePreds(scan->getSelectionPred());
 
   // only get the first member from the index set
-  if ( scan->deriveIndexOnlyIndexDesc().entries() == 0 )
-    return NULL;
+  if (scan->deriveIndexOnlyIndexDesc().entries() == 0) return NULL;
 
-  IndexDesc* idesc = (scan->deriveIndexOnlyIndexDesc())[0];
+  IndexDesc *idesc = (scan->deriveIndexOnlyIndexDesc())[0];
 
   ValueIdSet nonKeyColumnSet;
   idesc->getNonKeyColumnSet(nonKeyColumnSet);
 
-  ValueIdSet clusteringKeyCols(
-       idesc->getClusteringKeyCols());
+  ValueIdSet clusteringKeyCols(idesc->getClusteringKeyCols());
   ValueIdSet generatedComputedColPreds;
 
-   if (CmpCommon::getDefault(MTD_GENERATE_CC_PREDS) == DF_ON)
-    ScanKey::createComputedColumnPredicates(
-         exePreds,
-         clusteringKeyCols,
-         bef->getGroupAttr()->getCharacteristicInputs(),
-         generatedComputedColPreds);
+  if (CmpCommon::getDefault(MTD_GENERATE_CC_PREDS) == DF_ON)
+    ScanKey::createComputedColumnPredicates(exePreds, clusteringKeyCols, bef->getGroupAttr()->getCharacteristicInputs(),
+                                            generatedComputedColPreds);
 
-  SearchKey * skey = new(CmpCommon::statementHeap())
-    SearchKey(idesc->getIndexKey(),
-              idesc->getOrderOfKeyValues(),
-              bef->getGroupAttr()->getCharacteristicInputs(),
-              TRUE, // forward scan
-              exePreds,
-              nonKeyColumnSet,
-              idesc,
-              bef->getTableDesc()->getClusteringIndex());
+  SearchKey *skey = new (CmpCommon::statementHeap())
+      SearchKey(idesc->getIndexKey(), idesc->getOrderOfKeyValues(), bef->getGroupAttr()->getCharacteristicInputs(),
+                TRUE,  // forward scan
+                exePreds, nonKeyColumnSet, idesc, bef->getTableDesc()->getClusteringIndex());
   result->setSearchKey(skey);
   result->executorPred() = exePreds;
   result->beginKeyPred().clear();
 
-  if ((! skey->isUnique()) &&
-      (skey->areAllChosenPredsEqualPreds()) &&
-      (NOT bef->noCheck()) &&
+  if ((!skey->isUnique()) && (skey->areAllChosenPredsEqualPreds()) && (NOT bef->noCheck()) &&
       (CmpCommon::getDefault(HBASE_SQL_IUD_SEMANTICS) == DF_ON) &&
       (CmpCommon::getDefault(HBASE_UPDEL_CURSOR_OPT) == DF_ON) &&
       ((ActiveSchemaDB()->getDefaults()).getAsLong(COMP_INT_74) == 0))
@@ -2254,23 +1666,19 @@ RelExpr * HbaseDeleteRule::nextSubstitute(RelExpr * before,
 // methods for class HbaseDeleteCursorRule
 // -----------------------------------------------------------------------
 
-HbaseDeleteCursorRule::~HbaseDeleteCursorRule() {} 
+HbaseDeleteCursorRule::~HbaseDeleteCursorRule() {}
 
-NABoolean HbaseDeleteCursorRule::topMatch(RelExpr * relExpr, Context *context)
-{
+NABoolean HbaseDeleteCursorRule::topMatch(RelExpr *relExpr, Context *context) {
   //  if (NOT ((GenericUpdate *)relExpr)->selectionPred().isEmpty())
   //    return FALSE;
 
-  if (NOT Rule::topMatch(relExpr,context))
-    return FALSE;
+  if (NOT Rule::topMatch(relExpr, context)) return FALSE;
 
-  Delete * del = (Delete *) relExpr;
-  if (del->getTableDesc()->getNATable()->isHbaseTable() == FALSE)
-    return FALSE;
-  
+  Delete *del = (Delete *)relExpr;
+  if (del->getTableDesc()->getNATable()->isHbaseTable() == FALSE) return FALSE;
+
   // HbaseDelete can only execute above DP2
-  if (context->getReqdPhysicalProperty()->executeInDP2())
-    return FALSE;
+  if (context->getReqdPhysicalProperty()->executeInDP2()) return FALSE;
 
   CMPASSERT(relExpr->getOperatorType() == REL_LEAF_DELETE);
 
@@ -2280,32 +1688,29 @@ NABoolean HbaseDeleteCursorRule::topMatch(RelExpr * relExpr, Context *context)
   // return FALSE;
 
   return TRUE;
-
 }
 
-RelExpr * HbaseDeleteCursorRule::nextSubstitute(RelExpr * before,
-                                        // QSTUFF
-                                        Context * context,
-                                        // QSTUFF
-                                        RuleSubstituteMemory *& /*memory*/)
-{
-  HbaseDelete * result;
-  Delete * bef  = (Delete *) before;
+RelExpr *HbaseDeleteCursorRule::nextSubstitute(RelExpr *before,
+                                               // QSTUFF
+                                               Context *context,
+                                               // QSTUFF
+                                               RuleSubstituteMemory *& /*memory*/) {
+  HbaseDelete *result;
+  Delete *bef = (Delete *)before;
 
   // Build the new HbaseDelete node
-  result = new(CmpCommon::statementHeap())
-    HbaseDelete(bef->getTableName(), bef->getTableDesc());
+  result = new (CmpCommon::statementHeap()) HbaseDelete(bef->getTableName(), bef->getTableDesc());
   result->cursorHbaseOper() = TRUE;
 
   copyCommonGenericUpdateFields(result, bef);
   copyCommonDeleteFields(result, bef);
 
   /////////////////////////////////////////////////////////////////////////
-  // Setup the hbase search key. The logic is modeled based on 
+  // Setup the hbase search key. The logic is modeled based on
   // SimpleFileScanOptimizer::constructSearchKey()
   /////////////////////////////////////////////////////////////////////////
   ValueIdSet exePreds(bef->getSelectionPred());
-  const IndexDesc* idesc =  bef->getTableDesc()->getClusteringIndex();
+  const IndexDesc *idesc = bef->getTableDesc()->getClusteringIndex();
 
   ValueIdSet nonKeyColumnSet;
   idesc->getNonKeyColumnSet(nonKeyColumnSet);
@@ -2313,14 +1718,10 @@ RelExpr * HbaseDeleteCursorRule::nextSubstitute(RelExpr * before,
   ValueIdSet beginKeyPreds(bef->getBeginKeyPred());
   exePreds += beginKeyPreds;
 
-  SearchKey * skey = new(CmpCommon::statementHeap())
-    SearchKey(idesc->getIndexKey(),
-              idesc->getOrderOfKeyValues(),
-              bef->getGroupAttr()->getCharacteristicInputs(),
-              TRUE, // forward scan
-              exePreds,
-              nonKeyColumnSet,
-              idesc);
+  SearchKey *skey = new (CmpCommon::statementHeap())
+      SearchKey(idesc->getIndexKey(), idesc->getOrderOfKeyValues(), bef->getGroupAttr()->getCharacteristicInputs(),
+                TRUE,  // forward scan
+                exePreds, nonKeyColumnSet, idesc);
   result->setSearchKey(skey);
   result->executorPred() = exePreds;
   result->beginKeyPred().clear();
@@ -2332,32 +1733,25 @@ RelExpr * HbaseDeleteCursorRule::nextSubstitute(RelExpr * before,
 // methods for class HbaseUpdateRule
 // -----------------------------------------------------------------------
 
-HbaseUpdateRule::~HbaseUpdateRule() {} 
+HbaseUpdateRule::~HbaseUpdateRule() {}
 
-NABoolean HbaseUpdateRule::topMatch(RelExpr * relExpr, Context *context)
-{
+NABoolean HbaseUpdateRule::topMatch(RelExpr *relExpr, Context *context) {
   //  if (NOT ((GenericUpdate *)relExpr)->selectionPred().isEmpty())
   //    return FALSE;
 
-  if (NOT Rule::topMatch(relExpr,context))
-    return FALSE;
+  if (NOT Rule::topMatch(relExpr, context)) return FALSE;
 
-  Update * upd = (Update *) relExpr;
-  if (upd->getTableDesc()->getNATable()->isHbaseTable() == FALSE)
-    return FALSE;
+  Update *upd = (Update *)relExpr;
+  if (upd->getTableDesc()->getNATable()->isHbaseTable() == FALSE) return FALSE;
 
-   if (upd->getTableDesc()->getNATable()->hasTrafReplicaColumn())
-    return FALSE;
-  
+  if (upd->getTableDesc()->getNATable()->hasTrafReplicaColumn()) return FALSE;
+
   // HbaseUpdate can only execute above DP2
-  if (context->getReqdPhysicalProperty()->executeInDP2())
-    return FALSE;
+  if (context->getReqdPhysicalProperty()->executeInDP2()) return FALSE;
 
-  CostScalar numberOfRowsToBeUpdated =
-    context->getInputLogProp()->getResultCardinality();
+  CostScalar numberOfRowsToBeUpdated = context->getInputLogProp()->getResultCardinality();
 
-  if ((numberOfRowsToBeUpdated > 1) &&
-      (NOT upd->isMerge()) &&
+  if ((numberOfRowsToBeUpdated > 1) && (NOT upd->isMerge()) &&
       (CmpCommon::getDefault(HBASE_SQL_IUD_SEMANTICS) == DF_ON) &&
       (CmpCommon::getDefault(HBASE_UPDEL_CURSOR_OPT) == DF_ON))
     return FALSE;
@@ -2368,69 +1762,54 @@ NABoolean HbaseUpdateRule::topMatch(RelExpr * relExpr, Context *context)
   // return FALSE;
 
   return TRUE;
-
 }
 
-RelExpr * HbaseUpdateRule::nextSubstitute(RelExpr * before,
-                                        // QSTUFF
-                                        Context * context,
-                                        // QSTUFF
-                                        RuleSubstituteMemory *& /*memory*/)
-{
-  HbaseUpdate * result;
-  Update * bef  = (Update *) before;
-  Scan* scan = (Scan*) before->child(0).getPtr();
+RelExpr *HbaseUpdateRule::nextSubstitute(RelExpr *before,
+                                         // QSTUFF
+                                         Context *context,
+                                         // QSTUFF
+                                         RuleSubstituteMemory *& /*memory*/) {
+  HbaseUpdate *result;
+  Update *bef = (Update *)before;
+  Scan *scan = (Scan *)before->child(0).getPtr();
 
   // This transformation can be performed only if the table scanned
   // is the same as that being updated.
-  if (scan->getTableDesc()->getNATable() != bef->getTableDesc()->getNATable())
-    return NULL;
+  if (scan->getTableDesc()->getNATable() != bef->getTableDesc()->getNATable()) return NULL;
 
   // Build the new HbaseUpdate node
-  result = new(CmpCommon::statementHeap())
-    HbaseUpdate(bef->getTableName(), bef->getTableDesc());
+  result = new (CmpCommon::statementHeap()) HbaseUpdate(bef->getTableName(), bef->getTableDesc());
 
   copyCommonGenericUpdateFields(result, bef);
   copyCommonUpdateFields(result, bef);
 
   /////////////////////////////////////////////////////////////////////////
-  // Setup the hbase search key. The logic is modeled based on 
+  // Setup the hbase search key. The logic is modeled based on
   // SimpleFileScanOptimizer::constructSearchKey()
   /////////////////////////////////////////////////////////////////////////
   ValueIdSet exePreds(scan->getSelectionPred());
   // Use indexdesc of base table, een if the optimizer has chosen an
   // index access path for this soon to be gone scan.
-  const IndexDesc* idesc = scan->getTableDesc()->getClusteringIndex();
-  ValueIdSet clusteringKeyCols(
-       idesc->getClusteringKeyCols());
+  const IndexDesc *idesc = scan->getTableDesc()->getClusteringIndex();
+  ValueIdSet clusteringKeyCols(idesc->getClusteringKeyCols());
   ValueIdSet generatedComputedColPreds;
 
   ValueIdSet nonKeyColumnSet;
   idesc->getNonKeyColumnSet(nonKeyColumnSet);
 
   if (CmpCommon::getDefault(MTD_GENERATE_CC_PREDS) == DF_ON)
-    ScanKey::createComputedColumnPredicates(
-         exePreds,
-         clusteringKeyCols,
-         bef->getGroupAttr()->getCharacteristicInputs(),
-         generatedComputedColPreds);
+    ScanKey::createComputedColumnPredicates(exePreds, clusteringKeyCols, bef->getGroupAttr()->getCharacteristicInputs(),
+                                            generatedComputedColPreds);
 
-  SearchKey * skey = new(CmpCommon::statementHeap())
-    SearchKey(idesc->getIndexKey(),
-              idesc->getOrderOfKeyValues(),
-              bef->getGroupAttr()->getCharacteristicInputs(),
-              TRUE, // forward scan
-              exePreds,
-              nonKeyColumnSet,
-              idesc,
-              bef->getTableDesc()->getClusteringIndex());
+  SearchKey *skey = new (CmpCommon::statementHeap())
+      SearchKey(idesc->getIndexKey(), idesc->getOrderOfKeyValues(), bef->getGroupAttr()->getCharacteristicInputs(),
+                TRUE,  // forward scan
+                exePreds, nonKeyColumnSet, idesc, bef->getTableDesc()->getClusteringIndex());
   result->setSearchKey(skey);
   result->executorPred() = exePreds;
   result->beginKeyPred().clear();
 
-  if ((! skey->isUnique()) &&
-      (NOT bef->isMerge()) &&
-      (skey->areAllChosenPredsEqualPreds()) &&
+  if ((!skey->isUnique()) && (NOT bef->isMerge()) && (skey->areAllChosenPredsEqualPreds()) &&
       (CmpCommon::getDefault(HBASE_SQL_IUD_SEMANTICS) == DF_ON) &&
       (CmpCommon::getDefault(HBASE_UPDEL_CURSOR_OPT) == DF_ON))
     result = NULL;
@@ -2442,23 +1821,19 @@ RelExpr * HbaseUpdateRule::nextSubstitute(RelExpr * before,
 // methods for class HbaseUpdateCursorRule
 // -----------------------------------------------------------------------
 
-HbaseUpdateCursorRule::~HbaseUpdateCursorRule() {} 
+HbaseUpdateCursorRule::~HbaseUpdateCursorRule() {}
 
-NABoolean HbaseUpdateCursorRule::topMatch(RelExpr * relExpr, Context *context)
-{
+NABoolean HbaseUpdateCursorRule::topMatch(RelExpr *relExpr, Context *context) {
   //  if (NOT ((GenericUpdate *)relExpr)->selectionPred().isEmpty())
   //    return FALSE;
 
-  if (NOT Rule::topMatch(relExpr,context))
-    return FALSE;
+  if (NOT Rule::topMatch(relExpr, context)) return FALSE;
 
-  Update * del = (Update *) relExpr;
-  if (del->getTableDesc()->getNATable()->isHbaseTable() == FALSE)
-    return FALSE;
-  
+  Update *del = (Update *)relExpr;
+  if (del->getTableDesc()->getNATable()->isHbaseTable() == FALSE) return FALSE;
+
   // HbaseUpdate can only execute above DP2
-  if (context->getReqdPhysicalProperty()->executeInDP2())
-    return FALSE;
+  if (context->getReqdPhysicalProperty()->executeInDP2()) return FALSE;
 
   CMPASSERT(relExpr->getOperatorType() == REL_LEAF_UPDATE);
 
@@ -2468,32 +1843,29 @@ NABoolean HbaseUpdateCursorRule::topMatch(RelExpr * relExpr, Context *context)
   // return FALSE;
 
   return TRUE;
-
 }
 
-RelExpr * HbaseUpdateCursorRule::nextSubstitute(RelExpr * before,
-                                        // QSTUFF
-                                        Context * context,
-                                        // QSTUFF
-                                        RuleSubstituteMemory *& /*memory*/)
-{
-  HbaseUpdate * result;
-  Update * bef  = (Update *) before;
+RelExpr *HbaseUpdateCursorRule::nextSubstitute(RelExpr *before,
+                                               // QSTUFF
+                                               Context *context,
+                                               // QSTUFF
+                                               RuleSubstituteMemory *& /*memory*/) {
+  HbaseUpdate *result;
+  Update *bef = (Update *)before;
 
   // Build the new HbaseUpdate node
-  result = new(CmpCommon::statementHeap())
-    HbaseUpdate(bef->getTableName(), bef->getTableDesc());
+  result = new (CmpCommon::statementHeap()) HbaseUpdate(bef->getTableName(), bef->getTableDesc());
   result->cursorHbaseOper() = TRUE;
 
   copyCommonGenericUpdateFields(result, bef);
   copyCommonUpdateFields(result, bef);
 
   /////////////////////////////////////////////////////////////////////////
-  // Setup the hbase search key. The logic is modeled based on 
+  // Setup the hbase search key. The logic is modeled based on
   // SimpleFileScanOptimizer::constructSearchKey()
   /////////////////////////////////////////////////////////////////////////
   ValueIdSet exePreds(bef->getSelectionPred());
-  const IndexDesc* idesc = bef->getTableDesc()->getClusteringIndex();
+  const IndexDesc *idesc = bef->getTableDesc()->getClusteringIndex();
 
   ValueIdSet nonKeyColumnSet;
   idesc->getNonKeyColumnSet(nonKeyColumnSet);
@@ -2501,14 +1873,10 @@ RelExpr * HbaseUpdateCursorRule::nextSubstitute(RelExpr * before,
   ValueIdSet beginKeyPreds(bef->getBeginKeyPred());
   exePreds += beginKeyPreds;
 
-  SearchKey * skey = new(CmpCommon::statementHeap())
-    SearchKey(idesc->getIndexKey(),
-              idesc->getOrderOfKeyValues(),
-              bef->getGroupAttr()->getCharacteristicInputs(),
-              TRUE, // forward scan
-              exePreds,
-              nonKeyColumnSet,
-              idesc);
+  SearchKey *skey = new (CmpCommon::statementHeap())
+      SearchKey(idesc->getIndexKey(), idesc->getOrderOfKeyValues(), bef->getGroupAttr()->getCharacteristicInputs(),
+                TRUE,  // forward scan
+                exePreds, nonKeyColumnSet, idesc);
   result->setSearchKey(skey);
   result->executorPred() = exePreds;
   result->beginKeyPred().clear();
@@ -2519,91 +1887,75 @@ RelExpr * HbaseUpdateCursorRule::nextSubstitute(RelExpr * before,
 // -----------------------------------------------------------------------
 // methods for class HiveInsertRule
 // -----------------------------------------------------------------------
-HiveInsertRule::~HiveInsertRule() {} 
+HiveInsertRule::~HiveInsertRule() {}
 
-NABoolean HiveInsertRule::topMatch(RelExpr * relExpr, Context *context)
-{
-  if (NOT Rule::topMatch(relExpr,context))
-    return FALSE;
+NABoolean HiveInsertRule::topMatch(RelExpr *relExpr, Context *context) {
+  if (NOT Rule::topMatch(relExpr, context)) return FALSE;
 
   CMPASSERT(relExpr->getOperatorType() == REL_LEAF_INSERT);
-  Insert * ins= (Insert *) relExpr;
+  Insert *ins = (Insert *)relExpr;
 
-  if (ins->getTableDesc()->getNATable()->isHiveTable() == FALSE)
-    return FALSE;
+  if (ins->getTableDesc()->getNATable()->isHiveTable() == FALSE) return FALSE;
 
   // HiveInsert can only execute above DP2.
-  if (context->getReqdPhysicalProperty()->executeInDP2())
-    return FALSE;
+  if (context->getReqdPhysicalProperty()->executeInDP2()) return FALSE;
 
   // Check for required physical properties that require an enforcer
   // operator to succeed.
-  //if (relExpr->rppRequiresEnforcer(context->getReqdPhysicalProperty()))
+  // if (relExpr->rppRequiresEnforcer(context->getReqdPhysicalProperty()))
   //  return FALSE;
 
   return TRUE;
 }
 
-RelExpr * HiveInsertRule::nextSubstitute(RelExpr * before,
-                                              Context * context,
-                                              RuleSubstituteMemory *& /*mem*/)
-{
+RelExpr *HiveInsertRule::nextSubstitute(RelExpr *before, Context *context, RuleSubstituteMemory *& /*mem*/) {
   CMPASSERT(before->getOperatorType() == REL_LEAF_INSERT);
   CMPASSERT(before->getArity() == 0);
 
-  HiveInsert * result;
-  Insert * bef = (Insert *) before;
+  HiveInsert *result;
+  Insert *bef = (Insert *)before;
 
   // build the key for the insert from the expression for the new record
-  SearchKey * skey = NULL;
-  const IndexDesc * CIdesc = bef->getTableDesc()->getClusteringIndex();
-  const PartitioningFunction* insPartFunc = CIdesc->getPartitioningFunction();
+  SearchKey *skey = NULL;
+  const IndexDesc *CIdesc = bef->getTableDesc()->getClusteringIndex();
+  const PartitioningFunction *insPartFunc = CIdesc->getPartitioningFunction();
 
   ValueIdSet externalInputs = before->getGroupAttr()->getCharacteristicInputs();
 
-   NABoolean rangeLoggingRequired =
-    bef->getTableDesc()->getNATable()->getMvAttributeBitmap().getAutomaticRangeLoggingRequired();
+  NABoolean rangeLoggingRequired =
+      bef->getTableDesc()->getNATable()->getMvAttributeBitmap().getAutomaticRangeLoggingRequired();
 
-  CostScalar numberOfRowsToBeInserted =
-    context->getInputLogProp()->getResultCardinality();
+  CostScalar numberOfRowsToBeInserted = context->getInputLogProp()->getResultCardinality();
 
-  if (CIdesc->isPartitioned())
-    {
-      ValueIdSet tempNewRecExpr (bef->newRecExpr());
+  if (CIdesc->isPartitioned()) {
+    ValueIdSet tempNewRecExpr(bef->newRecExpr());
 
-      // From the new record expression, divide predicates into
-      // partitioning key predicates (on the primary index) vs. non
-      // partitioning key predicates.
-      ValueIdSet dummySet;
-      skey = new(CmpCommon::statementHeap())
-        SearchKey (CIdesc->getPartitioningKey(),
-                   CIdesc->getOrderOfPartitioningKeyValues(),
-                   externalInputs,
-                   TRUE,
-                   tempNewRecExpr,
-                   dummySet,
-                   CIdesc);
+    // From the new record expression, divide predicates into
+    // partitioning key predicates (on the primary index) vs. non
+    // partitioning key predicates.
+    ValueIdSet dummySet;
+    skey = new (CmpCommon::statementHeap())
+        SearchKey(CIdesc->getPartitioningKey(), CIdesc->getOrderOfPartitioningKeyValues(), externalInputs, TRUE,
+                  tempNewRecExpr, dummySet, CIdesc);
 
-      // insert is always a row-at-a-time operator
-      //CMPASSERT(skey->isUnique());
-    }
+    // insert is always a row-at-a-time operator
+    // CMPASSERT(skey->isUnique());
+  }
 
-  result = new(CmpCommon::statementHeap()) 
-              HiveInsert(HiveInsert(bef->getTableName(),bef->getTableDesc()));
+  result = new (CmpCommon::statementHeap()) HiveInsert(HiveInsert(bef->getTableName(), bef->getTableDesc()));
 
   copyCommonGenericUpdateFields(result, bef);
 
   result->setPartKey(skey);
-  result->rrKeyExpr()              = bef->rrKeyExpr();
-  result->rowPosInput()            = bef->rowPosInput();
-  result->partNumInput()           = bef->partNumInput();
-  result->totalNumPartsInput()     = bef->totalNumPartsInput();
-  result->reqdOrder()              = bef->reqdOrder();
+  result->rrKeyExpr() = bef->rrKeyExpr();
+  result->rowPosInput() = bef->rowPosInput();
+  result->partNumInput() = bef->partNumInput();
+  result->totalNumPartsInput() = bef->totalNumPartsInput();
+  result->reqdOrder() = bef->reqdOrder();
   result->setNoBeginCommitSTInsert(bef->noBeginSTInsert(), bef->noCommitSTInsert());
   result->enableTransformToSTI() = bef->enableTransformToSTI();
 
-  if (result->getGroupAttr()->isEmbeddedInsert())
-    result->executorPred() += bef->selectionPred();
+  if (result->getGroupAttr()->isEmbeddedInsert()) result->executorPred() += bef->selectionPred();
 
   return result;
 }
@@ -2611,96 +1963,78 @@ RelExpr * HiveInsertRule::nextSubstitute(RelExpr * before,
 // -----------------------------------------------------------------------
 // methods for class HbaseInsertRule
 // -----------------------------------------------------------------------
-HbaseInsertRule::~HbaseInsertRule() {} 
+HbaseInsertRule::~HbaseInsertRule() {}
 
-NABoolean HbaseInsertRule::topMatch(RelExpr * relExpr, Context *context)
-{
-  if (NOT Rule::topMatch(relExpr,context))
-    return FALSE;
+NABoolean HbaseInsertRule::topMatch(RelExpr *relExpr, Context *context) {
+  if (NOT Rule::topMatch(relExpr, context)) return FALSE;
 
   CMPASSERT(relExpr->getOperatorType() == REL_LEAF_INSERT);
-  Insert * ins= (Insert *) relExpr;
+  Insert *ins = (Insert *)relExpr;
 
-  if (ins->getTableDesc()->getNATable()->isHbaseTable() == FALSE)
-    return FALSE;
+  if (ins->getTableDesc()->getNATable()->isHbaseTable() == FALSE) return FALSE;
 
   // HbaseInsert can only execute above DP2.
-  if (context->getReqdPhysicalProperty()->executeInDP2())
-    return FALSE;
+  if (context->getReqdPhysicalProperty()->executeInDP2()) return FALSE;
 
   // Check for required physical properties that require an enforcer
   // operator to succeed.
-  //if (relExpr->rppRequiresEnforcer(context->getReqdPhysicalProperty()))
+  // if (relExpr->rppRequiresEnforcer(context->getReqdPhysicalProperty()))
   //  return FALSE;
 
   return TRUE;
 }
 
-RelExpr * HbaseInsertRule::nextSubstitute(RelExpr * before,
-                                              Context * context,
-                                              RuleSubstituteMemory *& /*mem*/)
-{
+RelExpr *HbaseInsertRule::nextSubstitute(RelExpr *before, Context *context, RuleSubstituteMemory *& /*mem*/) {
   CMPASSERT(before->getOperatorType() == REL_LEAF_INSERT);
   CMPASSERT(before->getArity() == 0);
 
-  HbaseInsert * result;
-  Insert * bef = (Insert *) before;
+  HbaseInsert *result;
+  Insert *bef = (Insert *)before;
 
   // build the key for the insert from the expression for the new record
-  SearchKey * skey = NULL;
-  const IndexDesc * CIdesc = bef->getTableDesc()->getClusteringIndex();
-  const PartitioningFunction* insPartFunc = CIdesc->getPartitioningFunction();
+  SearchKey *skey = NULL;
+  const IndexDesc *CIdesc = bef->getTableDesc()->getClusteringIndex();
+  const PartitioningFunction *insPartFunc = CIdesc->getPartitioningFunction();
 
   ValueIdSet externalInputs = before->getGroupAttr()->getCharacteristicInputs();
 
-   NABoolean rangeLoggingRequired =
-    bef->getTableDesc()->getNATable()->getMvAttributeBitmap().getAutomaticRangeLoggingRequired();
+  NABoolean rangeLoggingRequired =
+      bef->getTableDesc()->getNATable()->getMvAttributeBitmap().getAutomaticRangeLoggingRequired();
 
-  CostScalar numberOfRowsToBeInserted =
-    context->getInputLogProp()->getResultCardinality();
+  CostScalar numberOfRowsToBeInserted = context->getInputLogProp()->getResultCardinality();
 
-  if (CIdesc->isPartitioned())
-    {
-      ValueIdSet tempNewRecExpr (bef->newRecExpr());
+  if (CIdesc->isPartitioned()) {
+    ValueIdSet tempNewRecExpr(bef->newRecExpr());
 
-      // From the new record expression, divide predicates into
-      // partitioning key predicates (on the primary index) vs. non
-      // partitioning key predicates.
-      ValueIdSet dummySet;
-      skey = new(CmpCommon::statementHeap())
-        SearchKey (CIdesc->getPartitioningKey(),
-                   CIdesc->getOrderOfPartitioningKeyValues(),
-                   externalInputs,
-                   TRUE,
-                   tempNewRecExpr,
-                   dummySet,
-                   CIdesc);
+    // From the new record expression, divide predicates into
+    // partitioning key predicates (on the primary index) vs. non
+    // partitioning key predicates.
+    ValueIdSet dummySet;
+    skey = new (CmpCommon::statementHeap())
+        SearchKey(CIdesc->getPartitioningKey(), CIdesc->getOrderOfPartitioningKeyValues(), externalInputs, TRUE,
+                  tempNewRecExpr, dummySet, CIdesc);
 
-      // insert is always a row-at-a-time operator
-      //CMPASSERT(skey->isUnique());
-    }
+    // insert is always a row-at-a-time operator
+    // CMPASSERT(skey->isUnique());
+  }
 
-  result = new(CmpCommon::statementHeap()) 
-    HbaseInsert(bef->getTableName(),bef->getTableDesc());
+  result = new (CmpCommon::statementHeap()) HbaseInsert(bef->getTableName(), bef->getTableDesc());
 
   result->setInsertType(bef->getInsertType());
 
   DefaultToken vsbbTok = CmpCommon::getDefault(INSERT_VSBB);
-  if ((numberOfRowsToBeInserted > 1) &&
-      (vsbbTok != DF_OFF) &&
-      (result->getInsertType() != Insert::UPSERT_LOAD))
-    {
-      result->setInsertType(Insert::VSBB_INSERT_USER);
-    }
+  if ((numberOfRowsToBeInserted > 1) && (vsbbTok != DF_OFF) && (result->getInsertType() != Insert::UPSERT_LOAD)) {
+    result->setInsertType(Insert::VSBB_INSERT_USER);
+  }
 
   copyCommonGenericUpdateFields(result, bef);
 
   result->setPartKey(skey);
-  result->rrKeyExpr()              = bef->rrKeyExpr();
-  result->rowPosInput()            = bef->rowPosInput();
-  result->partNumInput()           = bef->partNumInput();
-  result->totalNumPartsInput()     = bef->totalNumPartsInput();
-  result->reqdOrder()              = bef->reqdOrder();
+  result->rrKeyExpr() = bef->rrKeyExpr();
+  result->rowPosInput() = bef->rowPosInput();
+  result->partNumInput() = bef->partNumInput();
+  result->totalNumPartsInput() = bef->totalNumPartsInput();
+  result->reqdOrder() = bef->reqdOrder();
   result->setNoBeginCommitSTInsert(bef->noBeginSTInsert(), bef->noCommitSTInsert());
   result->enableTransformToSTI() = bef->enableTransformToSTI();
   result->setIsUpsert(bef->isUpsert());
@@ -2709,8 +2043,7 @@ RelExpr * HbaseInsertRule::nextSubstitute(RelExpr * before,
   result->setWithNoConflictCheck(bef->withNoConflictCheck());
   result->setTransformedUpdateNoDtmXn(bef->transformedUpdateNoDtmXn());
 
-  if (result->getGroupAttr()->isEmbeddedInsert())
-    result->executorPred() += bef->selectionPred();
+  if (result->getGroupAttr()->isEmbeddedInsert()) result->executorPred() += bef->selectionPred();
 
   return result;
 }
@@ -2719,16 +2052,12 @@ RelExpr * HbaseInsertRule::nextSubstitute(RelExpr * before,
 // methods for class NestedJoinRule
 // -----------------------------------------------------------------------
 
-NestedJoinRule::~NestedJoinRule() {} 
+NestedJoinRule::~NestedJoinRule() {}
 
-NABoolean NestedJoinRule::topMatch(RelExpr * relExpr,
-                                   Context * context)
-{
+NABoolean NestedJoinRule::topMatch(RelExpr *relExpr, Context *context) {
+  if (NOT Rule::topMatch(relExpr, context)) return FALSE;
 
-  if (NOT Rule::topMatch(relExpr,context))
-    return FALSE;
-
-  Join *joinExpr = (Join *) relExpr;
+  Join *joinExpr = (Join *)relExpr;
 
   // Only TSJ nodes are converted to Nested Joins.
   // Join nodes for which Nested Joins are possible should have
@@ -2745,20 +2074,15 @@ NABoolean NestedJoinRule::topMatch(RelExpr * relExpr,
   // then it must use a hash join. So do not fire the nested join in
   // this case.  If this is the tuple flow for write, then this should fire.
   //
-  if (joinExpr->avoidHalloweenR2() &&
-      !joinExpr->isTSJForWrite())
-    return FALSE;
+  if (joinExpr->avoidHalloweenR2() && !joinExpr->isTSJForWrite()) return FALSE;
 
   // nested join is not supported for Full_Outer_Join
-  if (relExpr->getOperator().match(REL_ANY_FULL_JOIN))
-    return FALSE;
+  if (relExpr->getOperator().match(REL_ANY_FULL_JOIN)) return FALSE;
 
   //++MV
-  //If this node was marked in inlining for single execution ,the rule will be fired
-  //only if there is a single input request.
-  if (relExpr->getInliningInfo().isSingleExecutionForTSJ() &&
-      !context->getInputLogProp()->isCardinalityEqOne())
-  {
+  // If this node was marked in inlining for single execution ,the rule will be fired
+  // only if there is a single input request.
+  if (relExpr->getInliningInfo().isSingleExecutionForTSJ() && !context->getInputLogProp()->isCardinalityEqOne()) {
     return FALSE;
   }
   //--MV
@@ -2778,66 +2102,60 @@ NABoolean NestedJoinRule::topMatch(RelExpr * relExpr,
   //       return FALSE;
   // QSTUFF
 
-/*
-  // ********************************************************************
-  // This part is disabled until we have a better way of protecting
-  // the normalizer output TSJs, and TSJs for write, and TSJs for
-  // index joins. In other words, we should only do this heuristic
-  // for "optional" TSJ's, i.e. those that were added by the
-  // JoinToTSJRule.
-  // ********************************************************************
-  if (CURRSTMT_OPTDEFAULTS->optimizerHeuristic4() &&
-      context->getInputLogProp()->getResultCardinality() <= 1 &&
-      NOT relExpr->getOperator().match(REL_ANY_ANTI_SEMITSJ) &&
-      NOT relExpr->getOperator().match(REL_ANY_SEMITSJ) )
-     // logic of this heuristic does not apply for subqueries
-     // also we will not prune semi joins cuz they might be normalizer
-     // output (have no nontsj equivalent). Also we do not prune
-     // anti-semi-join cuz so far this is its only implementation.
+  /*
+    // ********************************************************************
+    // This part is disabled until we have a better way of protecting
+    // the normalizer output TSJs, and TSJs for write, and TSJs for
+    // index joins. In other words, we should only do this heuristic
+    // for "optional" TSJ's, i.e. those that were added by the
+    // JoinToTSJRule.
+    // ********************************************************************
+    if (CURRSTMT_OPTDEFAULTS->optimizerHeuristic4() &&
+        context->getInputLogProp()->getResultCardinality() <= 1 &&
+        NOT relExpr->getOperator().match(REL_ANY_ANTI_SEMITSJ) &&
+        NOT relExpr->getOperator().match(REL_ANY_SEMITSJ) )
+       // logic of this heuristic does not apply for subqueries
+       // also we will not prune semi joins cuz they might be normalizer
+       // output (have no nontsj equivalent). Also we do not prune
+       // anti-semi-join cuz so far this is its only implementation.
 
-  {
-    CostScalar myCardinality =
-      relExpr->child(0).getGroupAttr()->getResultCardinalityForEmptyInput();
-    //CostScalar cardinality0 =
-      //relExpr->child(0).getGroupAttr()->getResultCardinalityForEmptyInput();
-    CostScalar cardinality1 =
-      relExpr->child(1).getGroupAttr()->getResultCardinalityForEmptyInput();
+    {
+      CostScalar myCardinality =
+        relExpr->child(0).getGroupAttr()->getResultCardinalityForEmptyInput();
+      //CostScalar cardinality0 =
+        //relExpr->child(0).getGroupAttr()->getResultCardinalityForEmptyInput();
+      CostScalar cardinality1 =
+        relExpr->child(1).getGroupAttr()->getResultCardinalityForEmptyInput();
 
-    if (myCardinality > cardinality1 AND cardinality1 > 10)
-      return FALSE;
-  }
-*/
-  const ReqdPhysicalProperty* const rppForMe =
-                                context->getReqdPhysicalProperty();
+      if (myCardinality > cardinality1 AND cardinality1 > 10)
+        return FALSE;
+    }
+  */
+  const ReqdPhysicalProperty *const rppForMe = context->getReqdPhysicalProperty();
 
   // ---------------------------------------------------------------
-  // Only allow nested joins to be pushed down to dp2 if flag is on 
+  // Only allow nested joins to be pushed down to dp2 if flag is on
   // and the join node is allowed to be pushed down. Currently the
   // TSJRule sets the non-push-down flag to prevent the transformed
-  // NestedJoin (for UNARY_INSERT) from being pushed down. 
-  // 
+  // NestedJoin (for UNARY_INSERT) from being pushed down.
+  //
   // Colocation check will be done later (need to improve here).
   // Currently, NJ in DP2 for write is disabled.
   // ---------------------------------------------------------------
 
-  if (rppForMe->executeInDP2() AND 
-      ( NOT CURRSTMT_OPTDEFAULTS->pushDownDP2Requested() OR
-        joinExpr->allowPushDown() == FALSE ))
+  if (rppForMe->executeInDP2()
+          AND(NOT CURRSTMT_OPTDEFAULTS->pushDownDP2Requested() OR joinExpr->allowPushDown() == FALSE))
     return FALSE;
 
   // disallow pushdown of IM plans
-  if (rppForMe->executeInDP2() AND
-      relExpr->getInliningInfo().isDrivingIM())
-    return FALSE;
+  if (rppForMe->executeInDP2() AND relExpr->getInliningInfo().isDrivingIM()) return FALSE;
 
   // Check for required physical properties that require an enforcer
   // operator to succeed.
-  if (relExpr->rppRequiresEnforcer(rppForMe))
-    return FALSE;
+  if (relExpr->rppRequiresEnforcer(rppForMe)) return FALSE;
 
   // If nested join is being forced for this operator then return TRUE now.
-  if ((rppForMe->getMustMatch() != NULL) AND
-      (rppForMe->getMustMatch()->getOperatorType() == REL_FORCE_NESTED_JOIN))
+  if ((rppForMe->getMustMatch() != NULL) AND(rppForMe->getMustMatch()->getOperatorType() == REL_FORCE_NESTED_JOIN))
     return TRUE;
 
   // Fix genesis case 10-040524-2077 "NE:RG:mxcmp internal error when stream
@@ -2848,7 +2166,7 @@ NABoolean NestedJoinRule::topMatch(RelExpr * relExpr,
   // An Unpack node should never be the right child of a nested join as this would
   // cause the rownumber feature to  work incorrectly. We are enforcing
   // this condition below.
-  //if ((joinExpr->isRowsetIterator()) &&
+  // if ((joinExpr->isRowsetIterator()) &&
   //    (joinExpr->child(1).getGroupAttr()->getNumBaseTables() == 0) )
   //  return FALSE;
 
@@ -2860,12 +2178,10 @@ NABoolean NestedJoinRule::topMatch(RelExpr * relExpr,
   //   A merge join will not work when the query does not have equi-join
   //   predicates.
   // ---------------------------------------------------------------------
-  if (NOT CURRSTMT_OPTDEFAULTS->isHashJoinConsidered() AND
-      (NOT CURRSTMT_OPTDEFAULTS->isMergeJoinConsidered() OR
-       joinExpr->getEquiJoinPredicates().isEmpty()))
+  if (NOT CURRSTMT_OPTDEFAULTS->isHashJoinConsidered()
+          AND(NOT CURRSTMT_OPTDEFAULTS->isMergeJoinConsidered() OR joinExpr->getEquiJoinPredicates().isEmpty()))
     return TRUE;
-  else if ((CmpCommon::getDefault(COMP_BOOL_151) == DF_ON) &&
-           (NOT CURRSTMT_OPTDEFAULTS->isNestedJoinConsidered())) {
+  else if ((CmpCommon::getDefault(COMP_BOOL_151) == DF_ON) && (NOT CURRSTMT_OPTDEFAULTS->isNestedJoinConsidered())) {
     // allow mandatory nested joins even under nested_joins OFF
     // to fix genesis case 10-070215-6221, solution 10-070215-2604.
     // comp_bool_151 is a hedge if you want ALL nested_joins OFF.
@@ -2874,12 +2190,9 @@ NABoolean NestedJoinRule::topMatch(RelExpr * relExpr,
 
   // nested join is not good for filtering joins in the star join schema
   // This check already done in joinToTSJRule, but doublecheck again here
-  if (CmpCommon::getDefault(COMP_BOOL_85) == DF_OFF &&
-      (joinExpr->getSource() == Join::STAR_FILTER_JOIN) &&
+  if (CmpCommon::getDefault(COMP_BOOL_85) == DF_OFF && (joinExpr->getSource() == Join::STAR_FILTER_JOIN) &&
       !(joinExpr->derivedFromRoutineJoin()))
     return FALSE;
-
-
 
   // ---------------------------------------------------------------------
   // Fire the NJ rule for reads that are not index joins and are not
@@ -2915,77 +2228,61 @@ NABoolean NestedJoinRule::topMatch(RelExpr * relExpr,
   // Only consider NJ for cross products if there is a
   // order or arrangement requirement.Otherwise HHJ is better.
   // Now: HHJ can keep order
-  if (isACrossProduct)
-  {
-    //if ((NOT rppForMe->getSortKey() OR
-	//    (rppForMe->getSortKey()->entries() == 0)) AND
+  if (isACrossProduct) {
+    // if ((NOT rppForMe->getSortKey() OR
+    //    (rppForMe->getSortKey()->entries() == 0)) AND
 
-      if (NOT rppForMe->getArrangedCols() OR
-         (rppForMe->getArrangedCols()->entries() == 0))
-      return FALSE;
+    if (NOT rppForMe->getArrangedCols() OR(rppForMe->getArrangedCols()->entries() == 0)) return FALSE;
     // One other possible heuristic  we can have here is to require
     // that xproduct output is less than say 10% of largest table size
     // we can do this later
   }
 
-
-
   // MV --
   // If the Join was forced to some other type - fail it.
-  if (joinExpr->isPhysicalJoinTypeForced() &&
-      joinExpr->getForcedPhysicalJoinType() != Join::NESTED_JOIN_TYPE)
+  if (joinExpr->isPhysicalJoinTypeForced() && joinExpr->getForcedPhysicalJoinType() != Join::NESTED_JOIN_TYPE)
     return FALSE;
-
 
   return TRUE;
 
-} // NestedJoinRule::topMatch
+}  // NestedJoinRule::topMatch
 
-RelExpr * NestedJoinRule::nextSubstitute(RelExpr * before,
-                                         Context * context, //*context*/,
-                                         RuleSubstituteMemory *& /*memory*/)
-{
-  NestedJoin * result;
-  Join     * bef = (Join *) before;
+RelExpr *NestedJoinRule::nextSubstitute(RelExpr *before,
+                                        Context *context,  //*context*/,
+                                        RuleSubstituteMemory *& /*memory*/) {
+  NestedJoin *result;
+  Join *bef = (Join *)before;
 
   // QSTUFF
-  CMPASSERT (NOT bef->child(1).getGroupAttr()->isStream());
+  CMPASSERT(NOT bef->child(1).getGroupAttr()->isStream());
   //  CMPASSERT (NOT bef->child(1).getGroupAttr()->isEmbeddedUpdateOrDelete());
   // QSTUFF
 
-
   // build the result from the join node in the before pattern
-  result = new(CmpCommon::statementHeap())
-    NestedJoin(bef->child(0),
-               bef->child(1),
-               bef->getNestedJoinOpType(),
-               CmpCommon::statementHeap(),
-               bef->updateTableDesc(),
-               bef->updateSelectValueIdMap());
+  result = new (CmpCommon::statementHeap())
+      NestedJoin(bef->child(0), bef->child(1), bef->getNestedJoinOpType(), CmpCommon::statementHeap(),
+                 bef->updateTableDesc(), bef->updateSelectValueIdMap());
   // set flag for ngram
   result->setIsCreatedByNgram(bef->isCreatedByNgram());
-  
+
   // now set the group attributes of the result's top node
   result->setGroupAttr(before->getGroupAttr());
 
   // transfer all the join fields to the new NestedJoin
-  (void) bef->copyTopNode(result,CmpCommon::statementHeap());
+  (void)bef->copyTopNode(result, CmpCommon::statementHeap());
 
   // now we need to make sure that the order and arrangement requirement
   // , if any, can be passed to the NJ childeren
-  const ReqdPhysicalProperty* const rppForMe =
-                                context->getReqdPhysicalProperty();
+  const ReqdPhysicalProperty *const rppForMe = context->getReqdPhysicalProperty();
 
   ValueIdList dummy1, dummy2;
-  if (rppForMe->getSortKey() AND
-      rppForMe->getSortKey()->entries() > 0 AND
-      NOT result->splitOrderReq(*(rppForMe->getSortKey()),dummy1,dummy2))
+  if (rppForMe->getSortKey() AND rppForMe->getSortKey()->entries() >
+      0 AND NOT result->splitOrderReq(*(rppForMe->getSortKey()), dummy1, dummy2))
     return NULL;
 
   ValueIdSet dummy3, dummy4;
-  if (rppForMe->getArrangedCols() AND
-      rppForMe->getArrangedCols()->entries() > 0 AND
-      NOT result->splitArrangementReq(*(rppForMe->getArrangedCols()),dummy3,dummy4))
+  if (rppForMe->getArrangedCols() AND rppForMe->getArrangedCols()->entries() >
+      0 AND NOT result->splitArrangementReq(*(rppForMe->getArrangedCols()), dummy3, dummy4))
     return NULL;
 
   // Pass the original equal join expression to the physical nest join
@@ -2995,10 +2292,9 @@ RelExpr * NestedJoinRule::nextSubstitute(RelExpr * before,
 
   return result;
 
-} // NestedJoinRule::nextSubstitute()
+}  // NestedJoinRule::nextSubstitute()
 
-NABoolean NestedJoinRule::canBePruned(RelExpr * relExpr) const
-{
+NABoolean NestedJoinRule::canBePruned(RelExpr *relExpr) const {
   // We do not want to prune Nested Join Rule if expr is an AntiSemiJoin
   // since thats its only possible implementation in many cases
   // *************************************************************
@@ -3017,15 +2313,12 @@ NABoolean NestedJoinRule::canBePruned(RelExpr * relExpr) const
 // methods for class NestedJoinFlowRule
 // -----------------------------------------------------------------------
 
-NestedJoinFlowRule::~NestedJoinFlowRule() {} 
+NestedJoinFlowRule::~NestedJoinFlowRule() {}
 
-NABoolean NestedJoinFlowRule::topMatch (RelExpr *relExpr,
-                                        Context *context)
-{
-  if (NOT Rule::topMatch(relExpr, context))
-    return FALSE;
+NABoolean NestedJoinFlowRule::topMatch(RelExpr *relExpr, Context *context) {
+  if (NOT Rule::topMatch(relExpr, context)) return FALSE;
 
-  Join * joinExpr = (Join *) relExpr; // QSTUFF ?
+  Join *joinExpr = (Join *)relExpr;  // QSTUFF ?
 
   // QSTUFF
   // we can only implement embedded deletes if no join
@@ -3040,31 +2333,26 @@ NABoolean NestedJoinFlowRule::topMatch (RelExpr *relExpr,
 
   // if execution inside DP2 is intended, check a few more things.
   // NSJ is allowed to run inside DP2 only if it is inside a CS.
-  if (context->getReqdPhysicalProperty()->executeInDP2())
-  {
-     // if there is no request for pushing down, return false.
-     if ( NOT CURRSTMT_OPTDEFAULTS->pushDownDP2Requested() )
-        return FALSE;
+  if (context->getReqdPhysicalProperty()->executeInDP2()) {
+    // if there is no request for pushing down, return false.
+    if (NOT CURRSTMT_OPTDEFAULTS->pushDownDP2Requested()) return FALSE;
   }
 
   // Check for required physical properties that require an enforcer
   // operator to succeed.
-  if (relExpr->rppRequiresEnforcer(context->getReqdPhysicalProperty()))
-    return FALSE;
+  if (relExpr->rppRequiresEnforcer(context->getReqdPhysicalProperty())) return FALSE;
 
   return TRUE;
 }
 
-RelExpr * NestedJoinFlowRule::nextSubstitute(RelExpr * before,
-                                             Context * /*context*/,
-                                             RuleSubstituteMemory *& /*memory*/)
-{
-  NestedJoinFlow * result;
-  Join     * bef = (Join *) before;
+RelExpr *NestedJoinFlowRule::nextSubstitute(RelExpr *before, Context * /*context*/,
+                                            RuleSubstituteMemory *& /*memory*/) {
+  NestedJoinFlow *result;
+  Join *bef = (Join *)before;
 
   // QSTUFF
-  CMPASSERT (NOT bef->child(1).getGroupAttr()->isStream());
-  CMPASSERT (NOT bef->child(1).getGroupAttr()->isEmbeddedUpdateOrDelete());
+  CMPASSERT(NOT bef->child(1).getGroupAttr()->isStream());
+  CMPASSERT(NOT bef->child(1).getGroupAttr()->isEmbeddedUpdateOrDelete());
   // QSTUFF
 
   // A tuple substitution flow operator must not have any predicates.
@@ -3073,30 +2361,26 @@ RelExpr * NestedJoinFlowRule::nextSubstitute(RelExpr * before,
   CMPASSERT(bef->joinPred().entries() == 0);
 
   // build the result from the join node in the before pattern
-  result = new(CmpCommon::statementHeap())
-    NestedJoinFlow(bef->child(0),
-                   bef->child(1),
-                   bef->updateTableDesc(),
-                   bef->updateSelectValueIdMap());
-
+  result = new (CmpCommon::statementHeap())
+      NestedJoinFlow(bef->child(0), bef->child(1), bef->updateTableDesc(), bef->updateSelectValueIdMap());
 
   // now set the group attributes of the result's top node
   result->setGroupAttr(before->getGroupAttr());
 
   result->setBlockStmt(before->isinBlockStmt());
 
- // transfer all the join fields to the new NestedJoinFlow
-  (void) bef->copyTopNode(result,CmpCommon::statementHeap());
+  // transfer all the join fields to the new NestedJoinFlow
+  (void)bef->copyTopNode(result, CmpCommon::statementHeap());
 
   // The following code adds clustering index into GA's availableBtreeIndexes.
   // The logic is no longer needed because we can not use the availableBtreeIndexes
   // to check the partition func to the inner target table is compatible with the
   // table, because the part keys of the table is never exposed in its char. output.
 
-  //GroupAttributes* ga = bef->child(1)->getGroupAttr();
-  //RelExpr * r = bef->child(1)->castToRelExpr();
-  //if ( r->getOperatorType() == REL_UNARY_INSERT ) {
-  //   
+  // GroupAttributes* ga = bef->child(1)->getGroupAttr();
+  // RelExpr * r = bef->child(1)->castToRelExpr();
+  // if ( r->getOperatorType() == REL_UNARY_INSERT ) {
+  //
   //   Insert* insNode = (Insert*)r;
   //
   //    if ( insNode->getTableDesc()->getNATable()->isHiveTable() ) {
@@ -3108,25 +2392,21 @@ RelExpr * NestedJoinFlowRule::nextSubstitute(RelExpr * before,
 
   return result;
 
-} // NestedJoinFlowRule::nextSubstitute()
+}  // NestedJoinFlowRule::nextSubstitute()
 
 // -----------------------------------------------------------------------
 // methods for class HashJoinRule
 // -----------------------------------------------------------------------
 
-HashJoinRule::~HashJoinRule() {} 
+HashJoinRule::~HashJoinRule() {}
 
-NABoolean HashJoinRule::topMatch (RelExpr * relExpr,
-                                  Context * context)
-{
-  if (NOT Rule::topMatch(relExpr,context))
-    return FALSE;
+NABoolean HashJoinRule::topMatch(RelExpr *relExpr, Context *context) {
+  if (NOT Rule::topMatch(relExpr, context)) return FALSE;
 
-  Join * joinExpr = (Join *) relExpr;
+  Join *joinExpr = (Join *)relExpr;
 
   // Execute the hash join transformation iff this is not a tsj.
-  if ( joinExpr->isTSJ() )
-    return FALSE;
+  if (joinExpr->isTSJ()) return FALSE;
 
   // -----------------------------------------------------------------
   // Hybrid hash join cannot preserve order,
@@ -3137,56 +2417,47 @@ NABoolean HashJoinRule::topMatch (RelExpr * relExpr,
   // that order. If the join & selection predicates are empty
   // a cross product can provide the order required by the context.
   // -----------------------------------------------------------------
-  NABoolean contextRequiresOnlyLeftOrder = (context->requiresOrder() AND
-		  (NOT (joinExpr->isInnerNonSemiJoinWithNoPredicates())));
-  if (contextRequiresOnlyLeftOrder AND
-      (NOT CURRSTMT_OPTDEFAULTS->isOrderedHashJoinConsidered()))
-	return FALSE;
+  NABoolean contextRequiresOnlyLeftOrder =
+      (context->requiresOrder() AND(NOT(joinExpr->isInnerNonSemiJoinWithNoPredicates())));
+  if (contextRequiresOnlyLeftOrder AND(NOT CURRSTMT_OPTDEFAULTS->isOrderedHashJoinConsidered())) return FALSE;
 
   // Don't allow hash joins if this is not the first pass and
   // hash joins have been disabled.
-  if(NOT CURRSTMT_OPTDEFAULTS->isHashJoinConsidered() AND
-     // We no longer need to protect hash join from being turned off for pass 1
-     // because now we allow nested join in pass 1 too
-     ((CmpCommon::getDefault(COMP_BOOL_81) == DF_OFF) OR
-      (GlobalRuleSet->getCurrentPassNumber() >
-       GlobalRuleSet->getFirstPassNumber())))
+  if (NOT CURRSTMT_OPTDEFAULTS->isHashJoinConsidered() AND
+      // We no longer need to protect hash join from being turned off for pass 1
+      // because now we allow nested join in pass 1 too
+      ((CmpCommon::getDefault(COMP_BOOL_81) == DF_OFF)
+           OR(GlobalRuleSet->getCurrentPassNumber() > GlobalRuleSet->getFirstPassNumber())))
     return FALSE;
 
   // QSTUFF
   // can't yet join two streams or
   // have right child being a stream
-  if (joinExpr->getGroupAttr()->isStream())
-    return FALSE;
+  if (joinExpr->getGroupAttr()->isStream()) return FALSE;
 
   // Don't want to hash joins and GET_NEXT_N commands yet
-  if (context->getGroupAttr()->isEmbeddedUpdateOrDelete())
-    return FALSE;
+  if (context->getGroupAttr()->isEmbeddedUpdateOrDelete()) return FALSE;
   // QSTUFF
 
-  const ReqdPhysicalProperty* const rppForMe =
-                                context->getReqdPhysicalProperty();
+  const ReqdPhysicalProperty *const rppForMe = context->getReqdPhysicalProperty();
 
   // -----------------------------------------------------------------
   // Hybrid hash joins cannot be done in dp2.
   // -----------------------------------------------------------------
-  if (rppForMe->executeInDP2())
-    return FALSE;
+  if (rppForMe->executeInDP2()) return FALSE;
 
   // Check for required physical properties that require an enforcer
   // operator to succeed.
-  if (relExpr->rppRequiresEnforcer(rppForMe))
-    return FALSE;
+  if (relExpr->rppRequiresEnforcer(rppForMe)) return FALSE;
 
   // MV --
   // If the Join was forced to some other type - fail it.
-  if (joinExpr->isPhysicalJoinTypeForced() &&
-      joinExpr->getForcedPhysicalJoinType() != Join::HASH_JOIN_TYPE)
+  if (joinExpr->isPhysicalJoinTypeForced() && joinExpr->getForcedPhysicalJoinType() != Join::HASH_JOIN_TYPE)
     return FALSE;
 
   // don't consider hash joins if we don't expect to have more
   // than one row in the left child table
-  // But don't apply this rule is the join is configured to 
+  // But don't apply this rule is the join is configured to
   // avoid halloween (for Neo R2 compatibility).
 
   // Full Outer Join is supported ONLY by Hash join, so let's
@@ -3199,28 +2470,25 @@ NABoolean HashJoinRule::topMatch (RelExpr * relExpr,
   // When that problem is fixed, the COMP_BOOL_196 guard
   // must be removed.
 
-  if (joinExpr->allowHashJoin() == FALSE AND context AND
-      context->getReqdPhysicalProperty()->getMustMatch() == NULL)
+  if (joinExpr->allowHashJoin() == FALSE AND context AND context->getReqdPhysicalProperty()->getMustMatch() == NULL)
     return FALSE;
 
-  if (contextRequiresOnlyLeftOrder)
-  {
+  if (contextRequiresOnlyLeftOrder) {
     // Heuristically eliminate less promising ordered hash joins.
-    if (CURRSTMT_OPTDEFAULTS->isOrderedHashJoinControlEnabled() AND
-        (CmpCommon::getDefault(COMP_BOOL_31) == DF_OFF) AND
-        context->getInputLogProp()->getResultCardinality() <= 1)
-      {
-        // innerS is HIGH bound size estimate of inner table in OHJ plan.
-        // This max cardinality based innerS should hopefully allow us 
-        // to safely use CQD HJ_TYPE 'SYSTEM' as the default setting.
-        GroupAttributes * innerGA = relExpr->child(1).getGroupAttr();
-        CostScalar innerS = innerGA->getResultMaxCardinalityForEmptyInput() 
-          * innerGA->getCharacteristicOutputs().getRowLength();
+    if (CURRSTMT_OPTDEFAULTS
+            ->isOrderedHashJoinControlEnabled() AND(CmpCommon::getDefault(COMP_BOOL_31) == DF_OFF)
+                AND context->getInputLogProp()
+            ->getResultCardinality() <= 1) {
+      // innerS is HIGH bound size estimate of inner table in OHJ plan.
+      // This max cardinality based innerS should hopefully allow us
+      // to safely use CQD HJ_TYPE 'SYSTEM' as the default setting.
+      GroupAttributes *innerGA = relExpr->child(1).getGroupAttr();
+      CostScalar innerS =
+          innerGA->getResultMaxCardinalityForEmptyInput() * innerGA->getCharacteristicOutputs().getRowLength();
 
-        // avoid OHJ if inner table will not fit into memory
-        if (innerS > CostScalar(1024* CURRSTMT_OPTDEFAULTS->getMemoryLimitPerCPU()))
-          return FALSE;
-      }
+      // avoid OHJ if inner table will not fit into memory
+      if (innerS > CostScalar(1024 * CURRSTMT_OPTDEFAULTS->getMemoryLimitPerCPU())) return FALSE;
+    }
   }
 
   return TRUE;
@@ -3228,45 +2496,34 @@ NABoolean HashJoinRule::topMatch (RelExpr * relExpr,
 
 // internal routine, used only by HashJoinRule::nextSubstitute() to set
 // the flags in the "result" before returning.
-static RelExpr * setResult(HashJoin * result,
-			   Join     * bef,
-			   NABoolean isLeftOrdered,
-			   NABoolean isOrderedCrossProduct)
-{
+static RelExpr *setResult(HashJoin *result, Join *bef, NABoolean isLeftOrdered, NABoolean isOrderedCrossProduct) {
   // for ordred cross products order cannot be be promised
   // unless setNoOverflow flag is set. i.e in case
   // there is overflow we want to raise error rather than
   // handle the overflow.
   result->setNoOverflow(isLeftOrdered || isOrderedCrossProduct);
-  result->setIsOrderedCrossProduct(isOrderedCrossProduct) ;
+  result->setIsOrderedCrossProduct(isOrderedCrossProduct);
 
-  if (NOT (isLeftOrdered))
-    result->setReuse(FALSE); // HYBRID CANNOT DO REUSE,
+  if (NOT(isLeftOrdered)) result->setReuse(FALSE);  // HYBRID CANNOT DO REUSE,
 
   // Don't reuse the cluster for Full Outer Join (FOJ), till
   // the executor support, FOJ with cluster reuse.
 
-  if(bef->getOperatorType() == REL_FULL_JOIN)
-     result->setReuse(FALSE);
+  if (bef->getOperatorType() == REL_FULL_JOIN) result->setReuse(FALSE);
 
   // Don't reuse when under an AFTER ROW trigger !
   // This avoids the problem of reusing the trigger temporary table while
   // also inserting into that TTT in the same plan (i.e., the reused hash-table
   // does not have the newly inserted rows.)
-  if (CURRSTMT_OPTDEFAULTS->areTriggersPresent())
-    result->setReuse(FALSE);
+  if (CURRSTMT_OPTDEFAULTS->areTriggersPresent()) result->setReuse(FALSE);
 
-  if (isLeftOrdered)
-    result->setOperatorType( bef->getHashJoinOpType(isLeftOrdered));
+  if (isLeftOrdered) result->setOperatorType(bef->getHashJoinOpType(isLeftOrdered));
 
   return result;
 }
 
-RelExpr * HashJoinRule::nextSubstitute(RelExpr * before,
-                                       Context * context,
-                                       RuleSubstituteMemory *& /*memory*/)
-{
-  Join       * bef = (Join *) before;
+RelExpr *HashJoinRule::nextSubstitute(RelExpr *before, Context *context, RuleSubstituteMemory *& /*memory*/) {
+  Join *bef = (Join *)before;
 
   // Atmost only one of these two flags will be true.
   // if context->requiresOrder() is FALSE then requiresOnlyLeftOrder = FALSE
@@ -3283,31 +2540,21 @@ RelExpr * HashJoinRule::nextSubstitute(RelExpr * before,
   // satisfied by an OHJ plan or an OCP plan (in that order)
   NABoolean requiresOnlyLeftOrder = FALSE;
   NABoolean orderedCrossProduct = FALSE;
-  const ReqdPhysicalProperty* const rppForMe =
-			    context->getReqdPhysicalProperty();
+  const ReqdPhysicalProperty *const rppForMe = context->getReqdPhysicalProperty();
 
   // if context requires order then we try an OHJ first
-  if (context->requiresOrder() AND
-      (CURRSTMT_OPTDEFAULTS->isOrderedHashJoinConsidered()))
-  {
+  if (context->requiresOrder() AND(CURRSTMT_OPTDEFAULTS->isOrderedHashJoinConsidered())) {
     // Can Order or arrangement requirements be satisfied by the left
     // child alone?
 
-    ValueIdSet orderArrangementExpr, newInputs,
-      coveredExpr, referencedInputs;
+    ValueIdSet orderArrangementExpr, newInputs, coveredExpr, referencedInputs;
 
-    if (rppForMe->getSortKey())
-      orderArrangementExpr.insertList(*rppForMe->getSortKey());
-    if (rppForMe->getArrangedCols())
-      orderArrangementExpr += *rppForMe->getArrangedCols();
+    if (rppForMe->getSortKey()) orderArrangementExpr.insertList(*rppForMe->getSortKey());
+    if (rppForMe->getArrangedCols()) orderArrangementExpr += *rppForMe->getArrangedCols();
 
-    bef->child(0).getGroupAttr()->coverTest(orderArrangementExpr,
-						newInputs,
-						coveredExpr,
-						referencedInputs);
+    bef->child(0).getGroupAttr()->coverTest(orderArrangementExpr, newInputs, coveredExpr, referencedInputs);
 
-    if (coveredExpr == orderArrangementExpr)
-    {
+    if (coveredExpr == orderArrangementExpr) {
       // order required by context can be satisfied by left child alone
       requiresOnlyLeftOrder = TRUE;
     }
@@ -3321,61 +2568,47 @@ RelExpr * HashJoinRule::nextSubstitute(RelExpr * before,
   // isCrossProduct will return TRUE if the Selection/Join predicates
   // have something other than a VEG predicate. The one we saw was
   // a > predicate.
-  if ((NOT requiresOnlyLeftOrder) AND
-      bef->isInnerNonSemiJoinWithNoPredicates() AND
-      bef->getSource() == Join::STAR_KEY_JOIN AND
-      CmpCommon::getDefault(COMP_BOOL_73) == DF_OFF)
-  {
-      // satisfies the basic conditions of being
-      // an order-preserving-cross-product
-      // right now OCP plans are enabled only for
-      // joining dimension tables for a StarJoin rule.
-      orderedCrossProduct = TRUE;
+  if ((NOT requiresOnlyLeftOrder)AND bef->isInnerNonSemiJoinWithNoPredicates()
+          AND bef->getSource() == Join::STAR_KEY_JOIN AND CmpCommon::getDefault(COMP_BOOL_73) == DF_OFF) {
+    // satisfies the basic conditions of being
+    // an order-preserving-cross-product
+    // right now OCP plans are enabled only for
+    // joining dimension tables for a StarJoin rule.
+    orderedCrossProduct = TRUE;
 
-      // If the HJ is implementing a cross-product and the context
-      // requires order then check to see if the required order and
-      // arrangement can be split among the children.
-      if (context->requiresOrder())
-      {
-	// for a cross-product whose context requires order return FALSE if the
-	// ordering requirement cannot be split among the children.
-	ValueIdList dummy1, dummy2;
-	ValueIdSet dummy3, dummy4;
-	if ((rppForMe->getSortKey() AND
-	    rppForMe->getSortKey()->entries() > 0 AND
-	    NOT bef->splitOrderReq(*(rppForMe->getSortKey()),dummy1,dummy2))
-	OR
-	    (rppForMe->getArrangedCols() AND
-	    rppForMe->getArrangedCols()->entries() > 0 AND
-	    NOT bef->splitArrangementReq(*(rppForMe->getArrangedCols()),dummy3,dummy4)))
-	{
-	  // order required by context cannot be satisfied by OHJ or OCP
-	  return NULL;
-	}
+    // If the HJ is implementing a cross-product and the context
+    // requires order then check to see if the required order and
+    // arrangement can be split among the children.
+    if (context->requiresOrder()) {
+      // for a cross-product whose context requires order return FALSE if the
+      // ordering requirement cannot be split among the children.
+      ValueIdList dummy1, dummy2;
+      ValueIdSet dummy3, dummy4;
+      if ((rppForMe->getSortKey() AND rppForMe->getSortKey()->entries() >
+           0 AND NOT bef->splitOrderReq(*(rppForMe->getSortKey()), dummy1, dummy2))
+              OR(rppForMe->getArrangedCols() AND rppForMe->getArrangedCols()->entries() >
+                 0 AND NOT bef->splitArrangementReq(*(rppForMe->getArrangedCols()), dummy3, dummy4))) {
+        // order required by context cannot be satisfied by OHJ or OCP
+        return NULL;
       }
+    }
   }
 
   // if not OHJ and not OCP and context requires order
   // then no HJ node can satisfy the order req.
-  if (context->requiresOrder() AND
-      (NOT orderedCrossProduct) AND
-      (NOT requiresOnlyLeftOrder))
-	return NULL;
+  if (context->requiresOrder() AND(NOT orderedCrossProduct) AND(NOT requiresOnlyLeftOrder)) return NULL;
 
   Int32 multipleCallsToChild = FALSE;
 
-
   // Build the result tree,
   // temporarily assume a hybrid hash join when choosing an operator type
-  HashJoin   * result = new(CmpCommon::statementHeap())
-    HashJoin(bef->child(0),
-	     bef->child(1),
-	     bef->getHashJoinOpType(FALSE));
+  HashJoin *result =
+      new (CmpCommon::statementHeap()) HashJoin(bef->child(0), bef->child(1), bef->getHashJoinOpType(FALSE));
 
   result->setGroupAttr(before->getGroupAttr());
 
   // transfer all the join fields to the new HashJoin
-  (void) bef->Join::copyTopNode(result,CmpCommon::statementHeap());
+  (void)bef->Join::copyTopNode(result, CmpCommon::statementHeap());
 
   result->resolveSingleColNotInPredicate();
 
@@ -3388,59 +2621,50 @@ RelExpr * HashJoinRule::nextSubstitute(RelExpr * before,
   // Get addressability to the defaults table.
   NADefaults &defs = ActiveSchemaDB()->getDefaults();
   // OHJ_BMO_REUSE_SORTED_UECRATIO_UPPERLIMIT = 0.70
-  double BMOReuseSortedUECRatioUpperlimit =
-  defs.getAsDouble(OHJ_BMO_REUSE_SORTED_UECRATIO_UPPERLIMIT);
+  double BMOReuseSortedUECRatioUpperlimit = defs.getAsDouble(OHJ_BMO_REUSE_SORTED_UECRATIO_UPPERLIMIT);
 
   // number of parent probes
-  CostScalar probeCount =
-    MAXOF(1.,inLogProp->getResultCardinality().value());
+  CostScalar probeCount = MAXOF(1., inLogProp->getResultCardinality().value());
 
   // ---------------------------------------------------------------------
   // Determine REUSE possibility.
   // Reuse may be a good idea if this hash join gets invoked multiple
   // times and if the data returned from the right child fits in memory.
   // ---------------------------------------------------------------------
-  if ( inLogProp->getResultCardinality() > 1 )
-    {
-      // We may declare a REUSE here as a possiblity. However, later, during
-      // costing, IFF we find out that REUSE is not very useful,
-      // because the calls to the inner table are too numerous and the inputs
-      // are NOT SORTED, we will OVERTURN this decision and go with HYBRID AND
-      // NO REUSE. Since we do not have the information on whether the inputs
-      // are SORTED, we cannot make that decision here.
+  if (inLogProp->getResultCardinality() > 1) {
+    // We may declare a REUSE here as a possiblity. However, later, during
+    // costing, IFF we find out that REUSE is not very useful,
+    // because the calls to the inner table are too numerous and the inputs
+    // are NOT SORTED, we will OVERTURN this decision and go with HYBRID AND
+    // NO REUSE. Since we do not have the information on whether the inputs
+    // are SORTED, we cannot make that decision here.
 
-      // check whether the right child is dependent on the
-      // characteristic inputs of this join (set multipleCallsToChild to
-      // true if so)
-      EstLogPropSharedPtr inputLogPropForChild = result->child(1).getGroupAttr()->
-	materializeInputLogProp(
-	     context->getInputLogProp(),&multipleCallsToChild);
-      result->multipleCalls()=multipleCallsToChild;
+    // check whether the right child is dependent on the
+    // characteristic inputs of this join (set multipleCallsToChild to
+    // true if so)
+    EstLogPropSharedPtr inputLogPropForChild =
+        result->child(1).getGroupAttr()->materializeInputLogProp(context->getInputLogProp(), &multipleCallsToChild);
+    result->multipleCalls() = multipleCallsToChild;
 
-      if(NOT multipleCallsToChild)
-	result->setReuse(TRUE); // Set this to be a REUSE Candidate
+    if (NOT multipleCallsToChild) result->setReuse(TRUE);  // Set this to be a REUSE Candidate
 
-      // if, however, the inner table will be called multiple times, make sure
-      // that these calls are not so numerous that reuse becomes too expensive
-      // ********how to find order of the char inputs
-      else
-	{
-	  // Characteristic inputs are the values whose change causes
-	  // reinitialization of the table.
-	  ValueIdSet tochild =
-	    result->child(1).getGroupAttr()->getCharacteristicInputs();
-	  result->valuesGivenToChild() = tochild;
+    // if, however, the inner table will be called multiple times, make sure
+    // that these calls are not so numerous that reuse becomes too expensive
+    // ********how to find order of the char inputs
+    else {
+      // Characteristic inputs are the values whose change causes
+      // reinitialization of the table.
+      ValueIdSet tochild = result->child(1).getGroupAttr()->getCharacteristicInputs();
+      result->valuesGivenToChild() = tochild;
 
-	  // Unique entry Count for the parent probes
-	  CostScalar uniqueProbeCount =
-	    inLogProp->getAggregateUec(result->valuesGivenToChild());
+      // Unique entry Count for the parent probes
+      CostScalar uniqueProbeCount = inLogProp->getAggregateUec(result->valuesGivenToChild());
 
-	  CostScalar uniqueRatio = uniqueProbeCount/probeCount;
+      CostScalar uniqueRatio = uniqueProbeCount / probeCount;
 
-	  if(uniqueRatio <= BMOReuseSortedUECRatioUpperlimit)
-	    result->setReuse(TRUE);
-	}
-    } // end resultCardinality > 1
+      if (uniqueRatio <= BMOReuseSortedUECRatioUpperlimit) result->setReuse(TRUE);
+    }
+  }  // end resultCardinality > 1
 
   // ---------------------------------------------------------------------
   // The following code compares hybrid hash join and ordered hash join
@@ -3458,55 +2682,47 @@ RelExpr * HashJoinRule::nextSubstitute(RelExpr * before,
   if (CURRSTMT_OPTDEFAULTS->areTriggersPresent())
     if (requiresOnlyLeftOrder)
       return NULL;
-    else
-    {
+    else {
       // no cross-product ordering can be promised with triggers
-      return setResult(result,bef,FALSE,FALSE);
+      return setResult(result, bef, FALSE, FALSE);
     }
-
 
   // Check if CQS is in force (it will override CQDs and other considerations)
-  const RelExpr * mm = context->getReqdPhysicalProperty()->getMustMatch() ;
-  if (mm)
-    {
-      switch (mm->getOperatorType())
-	{
-	case REL_FORCE_ORDERED_HASH_JOIN:
-	  return setResult(result,bef,TRUE, FALSE);
-	case REL_FORCE_HYBRID_HASH_JOIN:
-	  return setResult(result,bef,FALSE, FALSE);
-	case REL_FORCE_ORDERED_CROSS_PRODUCT:
-	  return setResult(result,bef,FALSE, TRUE); 
-	default:
-	  break;
-	}
+  const RelExpr *mm = context->getReqdPhysicalProperty()->getMustMatch();
+  if (mm) {
+    switch (mm->getOperatorType()) {
+      case REL_FORCE_ORDERED_HASH_JOIN:
+        return setResult(result, bef, TRUE, FALSE);
+      case REL_FORCE_HYBRID_HASH_JOIN:
+        return setResult(result, bef, FALSE, FALSE);
+      case REL_FORCE_ORDERED_CROSS_PRODUCT:
+        return setResult(result, bef, FALSE, TRUE);
+      default:
+        break;
     }
+  }
 
   // deal with the HJ_TYPE CQD if not both join types are enabled
-  if (NOT (CURRSTMT_OPTDEFAULTS->isOrderedHashJoinConsidered() AND
-           CURRSTMT_OPTDEFAULTS->isHybridHashJoinConsidered()))
-    {
-      if (CURRSTMT_OPTDEFAULTS->isOrderedHashJoinConsidered())
-	// user wants only ordered hash joins
-	return setResult(result,bef,TRUE, FALSE);
-      else if (CURRSTMT_OPTDEFAULTS->isHybridHashJoinConsidered())
-	if (context->requiresOrder() AND (NOT orderedCrossProduct))
-	  // user wants hybrid joins, which can't be used here
-	  return NULL;
-	else
-          // user wants hybrid hash joins, disable reuse if needed
-	  return setResult(result,bef,FALSE, orderedCrossProduct);
-    }
+  if (NOT(CURRSTMT_OPTDEFAULTS->isOrderedHashJoinConsidered() AND CURRSTMT_OPTDEFAULTS->isHybridHashJoinConsidered())) {
+    if (CURRSTMT_OPTDEFAULTS->isOrderedHashJoinConsidered())
+      // user wants only ordered hash joins
+      return setResult(result, bef, TRUE, FALSE);
+    else if (CURRSTMT_OPTDEFAULTS->isHybridHashJoinConsidered())
+      if (context->requiresOrder() AND(NOT orderedCrossProduct))
+        // user wants hybrid joins, which can't be used here
+        return NULL;
+      else
+        // user wants hybrid hash joins, disable reuse if needed
+        return setResult(result, bef, FALSE, orderedCrossProduct);
+  }
 
   // use a hybrid hash join if neither reason a) nor b) above applies
-  if (NOT result->isReuse() AND
-      NOT requiresOnlyLeftOrder)
-    return setResult(result,bef,FALSE,orderedCrossProduct);
+  if (NOT result->isReuse() AND NOT requiresOnlyLeftOrder) return setResult(result, bef, FALSE, orderedCrossProduct);
 
   // bmoFactor tells how big is it? =inner-tab_size/mem_size
   double bmoFactor = 0;
-  double vBMOlimit = defs.getAsDouble(OHJ_VBMOLIMIT); // 5.0
-  double bmoMemLimit = defs.getAsDouble(BMO_MEMORY_SIZE); // 200Mb
+  double vBMOlimit = defs.getAsDouble(OHJ_VBMOLIMIT);      // 5.0
+  double bmoMemLimit = defs.getAsDouble(BMO_MEMORY_SIZE);  // 200Mb
 
   // ---------------------------------------------------------------------
   // Now we have a case where we would like to reuse or benefit from
@@ -3516,7 +2732,7 @@ RelExpr * HashJoinRule::nextSubstitute(RelExpr * before,
   // choices are reuse, refuse, or refuse to reuse ;-)
   // ---------------------------------------------------------------------
   // OHJ fixes
-  // 1) If the memoryLimit_>200MB then temorarily set memoryLimit_ to 
+  // 1) If the memoryLimit_>200MB then temorarily set memoryLimit_ to
   //    200MB. The idea is not to choose OHJ if the inner table size is
   //    > 200MB per ESP.
   if (CmpCommon::getDefault(COMP_BOOL_37) == DF_OFF) {
@@ -3529,21 +2745,20 @@ RelExpr * HashJoinRule::nextSubstitute(RelExpr * before,
     NABoolean isBMO = result->isBigMemoryOperatorSetRatio(context, 0, bmoFactor);
     // Reset memoryLimit
     CURRSTMT_OPTDEFAULTS->setMemoryLimitPerCPU(memoryLimitPerCPU);
-    if (isBMO ) 
+    if (isBMO)
       if (requiresOnlyLeftOrder)
         // can't preserve order for this large hash join
         return NULL;
-      else 
+      else
         // sacrifice reuse and do a hybrid hash join
         // order cannot be promised for orderedCrossProducts
-        return setResult(result,bef,FALSE, FALSE);
+        return setResult(result, bef, FALSE, FALSE);
     else  // Not a BMO => Great case for ordered hash join
-      if (orderedCrossProduct)
-        return setResult(result,bef,FALSE, TRUE);
-      else
-        return setResult(result,bef,TRUE, FALSE);
+        if (orderedCrossProduct)
+      return setResult(result, bef, FALSE, TRUE);
+    else
+      return setResult(result, bef, TRUE, FALSE);
   }
-
 
   // The following block of code is old and contains bugs.
   // Mask the block out for code coverage.
@@ -3555,25 +2770,24 @@ RelExpr * HashJoinRule::nextSubstitute(RelExpr * before,
   // Not a BMO => Great case for ordered hash join
   if (NOT isBMO) {
     if (orderedCrossProduct)
-      return setResult(result,bef,FALSE, TRUE);
+      return setResult(result, bef, FALSE, TRUE);
     else
-      return setResult(result,bef,TRUE, FALSE);
+      return setResult(result, bef, TRUE, FALSE);
   }
 
   // If the ratio > OHJ_VBMOLIMIT, the join is very big mem operator and there
   // is no use trying ordered hash join because of pagefaults.
 
-  if (isBMO AND bmoFactor > vBMOlimit)
-    {
-      if (requiresOnlyLeftOrder)
-	// can't preserve order for this large hash join
-	return NULL;
-      else
-	// sacrifice reuse and do a hybrid hash join
-	// (this should be a rare event, it's expensive to perform
-	// a large hash join several times over)
-	return setResult(result,bef,FALSE, FALSE); // order cannot be promised for orderedCrossProducts
-    }
+  if (isBMO AND bmoFactor > vBMOlimit) {
+    if (requiresOnlyLeftOrder)
+      // can't preserve order for this large hash join
+      return NULL;
+    else
+      // sacrifice reuse and do a hybrid hash join
+      // (this should be a rare event, it's expensive to perform
+      // a large hash join several times over)
+      return setResult(result, bef, FALSE, FALSE);  // order cannot be promised for orderedCrossProducts
+  }
 
   // Heuristics to decide between Ordered and Hybrid when
   // BMO and REUSE and operator size is between memoryLimit
@@ -3583,12 +2797,10 @@ RelExpr * HashJoinRule::nextSubstitute(RelExpr * before,
 
   // If the inner table is to be built only once, do Left-Ordered
   // (typically with Reuse).
-  if(NOT multipleCallsToChild)
-    return setResult(result,bef,TRUE, FALSE);
+  if (NOT multipleCallsToChild) return setResult(result, bef, TRUE, FALSE);
 
   // Unique entry Count for the parent probes
-  CostScalar uniqueProbeCount =
-    inLogProp->getAggregateUec (result->valuesGivenToChild());
+  CostScalar uniqueProbeCount = inLogProp->getAggregateUec(result->valuesGivenToChild());
   CostScalar UECRatio = uniqueProbeCount / probeCount;
 
   // There is no easy way to determine if the input probes from the parent
@@ -3597,56 +2809,44 @@ RelExpr * HashJoinRule::nextSubstitute(RelExpr * before,
   // The heuristics below use these defaults:
   // OHJ_BMO_REUSE_SORTED_BMOFACTOR_LIMIT = 3.0
   // OHJ_BMO_REUSE_UNSORTED_UECRATIO_UPPERLIMIT = 0.01
-  if( context->getPlan() &&
-      context->getPlan()->getPhysicalProperty() &&
-      context->getPlan()->getPhysicalProperty()->isSorted() ) //input is sorted
-    {
-      double BMOReuseSortedBmofactorLimit =
-	defs.getAsDouble(OHJ_BMO_REUSE_SORTED_BMOFACTOR_LIMIT);
+  if (context->getPlan() && context->getPlan()->getPhysicalProperty() &&
+      context->getPlan()->getPhysicalProperty()->isSorted())  // input is sorted
+  {
+    double BMOReuseSortedBmofactorLimit = defs.getAsDouble(OHJ_BMO_REUSE_SORTED_BMOFACTOR_LIMIT);
 
-      if( bmoFactor <= BMOReuseSortedBmofactorLimit) {
+    if (bmoFactor <= BMOReuseSortedBmofactorLimit) {
+      useOrderedHashJoin = UECRatio <= BMOReuseSortedUECRatioUpperlimit;
+    } else  // if bmoFactor > OHJ_BMO_REUSE_SORTED_BMOFACTOR_LIMIT
+      useOrderedHashJoin = UECRatio <= BMOReuseSortedUECRatioUpperlimit / 3;
+  } else  // input is not sorted
+  {
+    double BMOReuseUnsortedUECRatioUpperlimit = defs.getAsDouble(OHJ_BMO_REUSE_UNSORTED_UECRATIO_UPPERLIMIT);
 
-	useOrderedHashJoin = UECRatio <= BMOReuseSortedUECRatioUpperlimit ;
-      }
-      else  // if bmoFactor > OHJ_BMO_REUSE_SORTED_BMOFACTOR_LIMIT
-	useOrderedHashJoin = UECRatio <= BMOReuseSortedUECRatioUpperlimit / 3;
-    }
-  else    // input is not sorted
-    {
-      double BMOReuseUnsortedUECRatioUpperlimit =
-      	defs.getAsDouble(OHJ_BMO_REUSE_UNSORTED_UECRATIO_UPPERLIMIT) ;
+    useOrderedHashJoin = UECRatio <= BMOReuseUnsortedUECRatioUpperlimit;
+  }
 
-      useOrderedHashJoin = UECRatio <= BMOReuseUnsortedUECRatioUpperlimit ;
-    }
+  return setResult(result, bef, useOrderedHashJoin, FALSE);
+  // end Heuristics
 
-  return setResult(result,bef,useOrderedHashJoin, FALSE);
-  //end Heuristics
-
-
-} // HashJoinRule::nextSubstitute()
+}  // HashJoinRule::nextSubstitute()
 
 // -----------------------------------------------------------------------
 // methods for class MergeJoinRule
 // -----------------------------------------------------------------------
 
-MergeJoinRule::~MergeJoinRule() {} 
+MergeJoinRule::~MergeJoinRule() {}
 
-NABoolean MergeJoinRule::topMatch (RelExpr *relExpr,
-                                   Context * context)
-{
-  if (NOT Rule::topMatch(relExpr, context))
-    return FALSE;
+NABoolean MergeJoinRule::topMatch(RelExpr *relExpr, Context *context) {
+  if (NOT Rule::topMatch(relExpr, context)) return FALSE;
 
-  Join * joinExpr = (Join *) relExpr;
+  Join *joinExpr = (Join *)relExpr;
 
   // Fire the merge join rule iff this is not a tsj nor a part of a
   // compound statement.
-  if ( joinExpr->isTSJ() || relExpr->isinBlockStmt() )
-    return FALSE;
+  if (joinExpr->isTSJ() || relExpr->isinBlockStmt()) return FALSE;
 
   // avoid merge join on seabase MD tables
-  if (joinExpr->getGroupAttr()->isSeabaseMDTable())
-    return FALSE;
+  if (joinExpr->getGroupAttr()->isSeabaseMDTable()) return FALSE;
 
   // The avoidHalloweenR2 flag will be set on two Join nodes.  The join
   // used for the Subquery and the Tuple Flow Join used for write.  If
@@ -3654,104 +2854,82 @@ NABoolean MergeJoinRule::topMatch (RelExpr *relExpr,
   // then it must use a hash join. So do not fire the merge join in
   // either case.
   //
-  if (joinExpr->avoidHalloweenR2())
-    return FALSE;
+  if (joinExpr->avoidHalloweenR2()) return FALSE;
 
   // merge join is not supported for Full_Outer_Join
-  if (relExpr->getOperator().match(REL_ANY_FULL_JOIN))
-    return FALSE;
+  if (relExpr->getOperator().match(REL_ANY_FULL_JOIN)) return FALSE;
 
   // QSTUFF
   // can't do a merge join with streams
   // as we are missing end-of-data to kick of a sort
-  if (joinExpr->getGroupAttr()->isStream())
-    return FALSE;
+  if (joinExpr->getGroupAttr()->isStream()) return FALSE;
 
   // Don't want to tangle merge joins and GET_NEXT_N commands yet
-  if (context->getGroupAttr()->isEmbeddedUpdateOrDelete())
-    return FALSE;
+  if (context->getGroupAttr()->isEmbeddedUpdateOrDelete()) return FALSE;
   // QSTUFF
 
   // Allow merge joins
-  if (NOT CURRSTMT_OPTDEFAULTS->isMergeJoinConsidered())
-    return FALSE;
+  if (NOT CURRSTMT_OPTDEFAULTS->isMergeJoinConsidered()) return FALSE;
 
-  const ReqdPhysicalProperty * rppForMe = context->getReqdPhysicalProperty();
+  const ReqdPhysicalProperty *rppForMe = context->getReqdPhysicalProperty();
 
   // disallow merge join in dp2
-  if (rppForMe->executeInDP2())
-    return FALSE;
+  if (rppForMe->executeInDP2()) return FALSE;
 
   // Check for required physical properties that require an enforcer
   // operator to succeed.
-  if (relExpr->rppRequiresEnforcer(rppForMe))
-    return FALSE;
+  if (relExpr->rppRequiresEnforcer(rppForMe)) return FALSE;
 
   // MV --
   // If the Join was forced to some other type - fail it.
-  if (joinExpr->isPhysicalJoinTypeForced() &&
-      joinExpr->getForcedPhysicalJoinType() != Join::MERGE_JOIN_TYPE)
+  if (joinExpr->isPhysicalJoinTypeForced() && joinExpr->getForcedPhysicalJoinType() != Join::MERGE_JOIN_TYPE)
     return FALSE;
 
   // ---------- Merge Join Control Heuristic --------------------------
-  NABoolean checkForceMJ = 
-    ((rppForMe->getMustMatch() != NULL) AND
-     (rppForMe->getMustMatch()->getOperatorType() == REL_FORCE_MERGE_JOIN));
+  NABoolean checkForceMJ =
+      ((rppForMe->getMustMatch() != NULL) AND(rppForMe->getMustMatch()->getOperatorType() == REL_FORCE_MERGE_JOIN));
   if (!checkForceMJ &&
-      (CURRSTMT_OPTDEFAULTS->isMergeJoinControlEnabled() ||
-       CmpCommon::getDefault(COMP_BOOL_104) == DF_ON) &&
-      (CURRSTMT_OPTDEFAULTS->isNestedJoinConsidered() ||
-       CURRSTMT_OPTDEFAULTS->isHashJoinConsidered())
-      )
-  {
-    CostScalar r0 =
-      relExpr->child(0).getGroupAttr()->getResultCardinalityForEmptyInput()
-      * relExpr->child(0).getGroupAttr()->getRecordLength();
+      (CURRSTMT_OPTDEFAULTS->isMergeJoinControlEnabled() || CmpCommon::getDefault(COMP_BOOL_104) == DF_ON) &&
+      (CURRSTMT_OPTDEFAULTS->isNestedJoinConsidered() || CURRSTMT_OPTDEFAULTS->isHashJoinConsidered())) {
+    CostScalar r0 = relExpr->child(0).getGroupAttr()->getResultCardinalityForEmptyInput() *
+                    relExpr->child(0).getGroupAttr()->getRecordLength();
 
-    CostScalar r1 =
-      relExpr->child(1).getGroupAttr()->getResultCardinalityForEmptyInput()
-      * relExpr->child(1).getGroupAttr()->getRecordLength();
+    CostScalar r1 = relExpr->child(1).getGroupAttr()->getResultCardinalityForEmptyInput() *
+                    relExpr->child(1).getGroupAttr()->getRecordLength();
 
-      if ( (r1 < CostScalar(1024* CURRSTMT_OPTDEFAULTS->getMemoryLimitPerCPU()))  OR
-           ((CURRSTMT_OPTDEFAULTS->isMergeJoinControlEnabled()) &&
-            (r0 < CostScalar(1024* CURRSTMT_OPTDEFAULTS->getMemoryLimitPerCPU()))))
-        return FALSE;  //Hash is better ??unless zigzag off then one case void
+    if ((r1 < CostScalar(1024 * CURRSTMT_OPTDEFAULTS->getMemoryLimitPerCPU()))
+            OR((CURRSTMT_OPTDEFAULTS->isMergeJoinControlEnabled()) &&
+               (r0 < CostScalar(1024 * CURRSTMT_OPTDEFAULTS->getMemoryLimitPerCPU()))))
+      return FALSE;  // Hash is better ??unless zigzag off then one case void
   }
   // -------------------------------------------------------------------
 
-  if (CmpCommon::getDefault(MERGE_JOIN_ACCEPT_MULTIPLE_NJ_PROBES) == DF_OFF && 
+  if (CmpCommon::getDefault(MERGE_JOIN_ACCEPT_MULTIPLE_NJ_PROBES) == DF_OFF &&
       context->getInputLogProp()->getResultCardinality() > 1)
     return FALSE;
 
   // Consider the merge join only if there's an equi-join predicate
-  if ( joinExpr->getEquiJoinPredicates().isEmpty() )
-    return FALSE;
+  if (joinExpr->getEquiJoinPredicates().isEmpty()) return FALSE;
 
   // consider merge join only if its join predicate has no constants.
-  // otherwise, we may get the problem reported in 
+  // otherwise, we may get the problem reported in
   // genesis case 10-081117-8475 soln 10-081117-7342
   ItemExpr *constant = NULL;
-  return (NOT (joinExpr->getJoinPred().referencesAConstValue(&constant)));
+  return (NOT(joinExpr->getJoinPred().referencesAConstValue(&constant)));
 }
 
-RelExpr * MergeJoinRule::nextSubstitute(RelExpr * before,
-                                        Context * context,
-                                        RuleSubstituteMemory *& /*memory*/)
-{
-  MergeJoin * result;
-  Join      * bef = (Join *) before;
+RelExpr *MergeJoinRule::nextSubstitute(RelExpr *before, Context *context, RuleSubstituteMemory *& /*memory*/) {
+  MergeJoin *result;
+  Join *bef = (Join *)before;
 
-  result = new (CmpCommon::statementHeap())
-               MergeJoin (bef->child(0),
-                          bef->child(1),
-                          bef->getMergeJoinOpType());
+  result = new (CmpCommon::statementHeap()) MergeJoin(bef->child(0), bef->child(1), bef->getMergeJoinOpType());
 
   // Set the group attributes of the result's top node
-  result->setGroupAttr (bef->getGroupAttr());
+  result->setGroupAttr(bef->getGroupAttr());
 
   // transfer all the join fields to the new MergeJoin
-  (void) bef->copyTopNode(result,CmpCommon::statementHeap());
-  
+  (void)bef->copyTopNode(result, CmpCommon::statementHeap());
+
   result->resolveSingleColNotInPredicate();
 
   NABoolean joinStrategyIsOrderSensitive = TRUE;
@@ -3759,17 +2937,14 @@ RelExpr * MergeJoinRule::nextSubstitute(RelExpr * before,
 
   // We must have at least 1 equijoin predicate and the partitioning
   // requirement should be a compatible one.
-  if ( (NOT result->getEquiJoinPredicates().isEmpty()) AND
-      (result->parentAndChildPartReqsCompatible
-                 (context->getReqdPhysicalProperty())))
+  if ((NOT result->getEquiJoinPredicates().isEmpty())AND(
+          result->parentAndChildPartReqsCompatible(context->getReqdPhysicalProperty())))
     return result;
   else
     return NULL;
-
 }
 
-NABoolean MergeJoinRule::canBePruned(RelExpr * relExpr) const
-{
+NABoolean MergeJoinRule::canBePruned(RelExpr *relExpr) const {
   // We do not want to prune Merge Join Rule if expr is an AntiSemiJoin.
   // Since Hash Join is not possible for ASJ and so MJ may be the only
   // good alternative.
@@ -3780,29 +2955,22 @@ NABoolean MergeJoinRule::canBePruned(RelExpr * relExpr) const
 // methods for class PhysCompoundStmtRule
 // -----------------------------------------------------------------------
 
-NABoolean PhysCompoundStmtRule::topMatch(RelExpr *relExpr,
-                                      Context *context)
-{
-  if (relExpr->getOperatorType() != REL_COMPOUND_STMT)
-    return FALSE;
+NABoolean PhysCompoundStmtRule::topMatch(RelExpr *relExpr, Context *context) {
+  if (relExpr->getOperatorType() != REL_COMPOUND_STMT) return FALSE;
 
-  if (NOT Rule::topMatch(relExpr, context))
-    return FALSE;
+  if (NOT Rule::topMatch(relExpr, context)) return FALSE;
 
-   // QSTUFF
-  CMPASSERT(NOT(relExpr->getGroupAttr()->isStream() OR
-                relExpr->getGroupAttr()->isEmbeddedUpdateOrDelete()));
+  // QSTUFF
+  CMPASSERT(NOT(relExpr->getGroupAttr()->isStream() OR relExpr->getGroupAttr()->isEmbeddedUpdateOrDelete()));
   // QSTUFF
 
-  const ReqdPhysicalProperty * rppForMe = context->getReqdPhysicalProperty();
+  const ReqdPhysicalProperty *rppForMe = context->getReqdPhysicalProperty();
 
   // Check for required physical properties that require an enforcer
   // operator to succeed.
-  if (relExpr->rppRequiresEnforcer(rppForMe))
-    return FALSE;
+  if (relExpr->rppRequiresEnforcer(rppForMe)) return FALSE;
 
-  if ( CURRSTMT_OPTDEFAULTS->pushDownDP2Requested() )
-  {
+  if (CURRSTMT_OPTDEFAULTS->pushDownDP2Requested()) {
     // If this CS is to be pushed down and its total input/output
     // length is large than 36KB, we reject the request.
     //
@@ -3822,79 +2990,60 @@ NABoolean PhysCompoundStmtRule::topMatch(RelExpr *relExpr,
     // Using the CQD to increase this limit to 55000 for the DBlimits project
     // to support large rows.
 
-    if ( rppForMe->executeInDP2() == TRUE ) {
+    if (rppForMe->executeInDP2() == TRUE) {
+      Int32 limit = (CmpCommon::getDefault(GEN_DBLIMITS_LARGER_BUFSIZE) == DF_OFF) ? ROWSIZE_TO_EXECUTE_IN_DP2
+                                                                                   : ROWSIZE_TO_EXECUTE_IN_DP2_DBL;
 
-      Int32 limit =
-          (CmpCommon::getDefault(GEN_DBLIMITS_LARGER_BUFSIZE) == DF_OFF) ?
-          ROWSIZE_TO_EXECUTE_IN_DP2 : ROWSIZE_TO_EXECUTE_IN_DP2_DBL;
-
-      if ( relExpr->getGroupAttr()->getCharacteristicInputs().getRowLength() +
-           relExpr->getGroupAttr()->getCharacteristicOutputs().getRowLength()
-          > limit )
+      if (relExpr->getGroupAttr()->getCharacteristicInputs().getRowLength() +
+              relExpr->getGroupAttr()->getCharacteristicOutputs().getRowLength() >
+          limit)
         return FALSE;
 
     } else {
-      if (rppForMe->getPlanExecutionLocation() != EXECUTE_IN_MASTER)
-        return FALSE;
+      if (rppForMe->getPlanExecutionLocation() != EXECUTE_IN_MASTER) return FALSE;
     }
-  }
-  else {
-    if (rppForMe->getPlanExecutionLocation() != EXECUTE_IN_MASTER)
-      return FALSE;
+  } else {
+    if (rppForMe->getPlanExecutionLocation() != EXECUTE_IN_MASTER) return FALSE;
   }
 
   return TRUE;
-} // PhysCompoundStmtRule::topMatch
+}  // PhysCompoundStmtRule::topMatch
 
-RelExpr *PhysCompoundStmtRule::nextSubstitute(
-                             RelExpr *before,
-                             Context *context,
-                             RuleSubstituteMemory * & memory)
-{
+RelExpr *PhysCompoundStmtRule::nextSubstitute(RelExpr *before, Context *context, RuleSubstituteMemory *&memory) {
   RelExpr *result;
 
   CMPASSERT(before->getOperatorType() == REL_COMPOUND_STMT);
 
-  result = new (CmpCommon::statementHeap())
-    PhysCompoundStmt(*((CompoundStmt *)before));
+  result = new (CmpCommon::statementHeap()) PhysCompoundStmt(*((CompoundStmt *)before));
 
   result->setGroupAttr(before->getGroupAttr());
 
   result->allocateAndPrimeGroupAttributes();
 
-  result->pushdownCoveredExpr(
-               result->getGroupAttr()->getCharacteristicOutputs(),
-               result->getGroupAttr()->getCharacteristicInputs(),
-               result->selectionPred());
+  result->pushdownCoveredExpr(result->getGroupAttr()->getCharacteristicOutputs(),
+                              result->getGroupAttr()->getCharacteristicInputs(), result->selectionPred());
 
   return result;
 
-} // PhysCompoundStmtRule::nextSubstitute()
+}  // PhysCompoundStmtRule::nextSubstitute()
 
 //  -----------------------------------------------------------------------
 // methods for class PhysicalMapValueIdsRule
 // -----------------------------------------------------------------------
 
-PhysicalMapValueIdsRule::~PhysicalMapValueIdsRule() {} 
+PhysicalMapValueIdsRule::~PhysicalMapValueIdsRule() {}
 
 // This rule is context sensitive
-NABoolean PhysicalMapValueIdsRule::isContextSensitive() const
-{
-  return TRUE;
-}
+NABoolean PhysicalMapValueIdsRule::isContextSensitive() const { return TRUE; }
 
-NABoolean PhysicalMapValueIdsRule::topMatch (RelExpr *relExpr,
-                                             Context * context)
-{
+NABoolean PhysicalMapValueIdsRule::topMatch(RelExpr *relExpr, Context *context) {
   // Transform the MapValueIds to a PhysicalMapValueIds iff
   // all the selection() predicates are pushed down.
-  if (NOT Rule::topMatch(relExpr, NULL))
-    return FALSE;
+  if (NOT Rule::topMatch(relExpr, NULL)) return FALSE;
 
   // Check for required physical properties that require an enforcer
   // operator to succeed.
-  if (relExpr->rppRequiresEnforcer(context->getReqdPhysicalProperty()))
-    return FALSE;
+  if (relExpr->rppRequiresEnforcer(context->getReqdPhysicalProperty())) return FALSE;
 
   if (relExpr->selectionPred().isEmpty())
     return TRUE;
@@ -3902,15 +3051,11 @@ NABoolean PhysicalMapValueIdsRule::topMatch (RelExpr *relExpr,
     return FALSE;
 }
 
-RelExpr * PhysicalMapValueIdsRule::nextSubstitute(RelExpr * before,
-                                                  Context * ,
-                                                  RuleSubstituteMemory *& )
-{
+RelExpr *PhysicalMapValueIdsRule::nextSubstitute(RelExpr *before, Context *, RuleSubstituteMemory *&) {
   CMPASSERT(before->getOperatorType() == REL_MAP_VALUEIDS);
 
   // Simply copy the contents of the MapValueIds from the before pattern.
-  PhysicalMapValueIds * result = new(CmpCommon::statementHeap())
-    PhysicalMapValueIds(*((MapValueIds *) before));
+  PhysicalMapValueIds *result = new (CmpCommon::statementHeap()) PhysicalMapValueIds(*((MapValueIds *)before));
 
   // now set the group attributes of the result's top node
   result->setGroupAttr(before->getGroupAttr());
@@ -3918,8 +3063,7 @@ RelExpr * PhysicalMapValueIdsRule::nextSubstitute(RelExpr * before,
   return result;
 }
 
-NABoolean PhysicalMapValueIdsRule::canMatchPattern (const RelExpr *) const
-{
+NABoolean PhysicalMapValueIdsRule::canMatchPattern(const RelExpr *) const {
   // map value ids are independent of required patterns, always apply this rule
   return TRUE;
 }
@@ -3928,23 +3072,19 @@ NABoolean PhysicalMapValueIdsRule::canMatchPattern (const RelExpr *) const
 // methods for class PhysicalRelRootRule
 // -----------------------------------------------------------------------
 
-PhysicalRelRootRule::~PhysicalRelRootRule() {} 
+PhysicalRelRootRule::~PhysicalRelRootRule() {}
 
-RelExpr * PhysicalRelRootRule::nextSubstitute(RelExpr * before,
-                                              Context * /*context*/,
-                                              RuleSubstituteMemory *& /*mem*/)
-{
+RelExpr *PhysicalRelRootRule::nextSubstitute(RelExpr *before, Context * /*context*/, RuleSubstituteMemory *& /*mem*/) {
   CMPASSERT(before->getOperatorType() == REL_ROOT);
-  RelRoot * bef = (RelRoot *) before;
+  RelRoot *bef = (RelRoot *)before;
 
   // Simply copy the contents of the Materialize from the before pattern.
-  PhysicalRelRoot * result = new(CmpCommon::statementHeap())
-    PhysicalRelRoot(*bef);
+  PhysicalRelRoot *result = new (CmpCommon::statementHeap()) PhysicalRelRoot(*bef);
 
   // now set the group attributes of the result's top node
   result->setGroupAttr(before->getGroupAttr());
 
-  (void) bef->copyTopNode(result, CmpCommon::statementHeap());
+  (void)bef->copyTopNode(result, CmpCommon::statementHeap());
 
   return result;
 }
@@ -3953,45 +3093,35 @@ RelExpr * PhysicalRelRootRule::nextSubstitute(RelExpr * before,
 // methods for class PhysicalTupleRule
 // -----------------------------------------------------------------------
 
-PhysicalTupleRule::~PhysicalTupleRule() {} 
+PhysicalTupleRule::~PhysicalTupleRule() {}
 
-NABoolean PhysicalTupleRule::topMatch (RelExpr *relExpr,
-                                       Context *context)
-{
-  if (NOT Rule::topMatch(relExpr, context))
-    return FALSE;
+NABoolean PhysicalTupleRule::topMatch(RelExpr *relExpr, Context *context) {
+  if (NOT Rule::topMatch(relExpr, context)) return FALSE;
 
   // ---------------------------------------------------------------
   // allow a tuple operator to be pushed down to dp2 if flag is on
   // and do colocation check later.
   // ---------------------------------------------------------------
- if (! CURRSTMT_OPTDEFAULTS->pushDownDP2Requested() &&
-     context->getReqdPhysicalProperty()->executeInDP2())
-   return FALSE;
+  if (!CURRSTMT_OPTDEFAULTS->pushDownDP2Requested() && context->getReqdPhysicalProperty()->executeInDP2()) return FALSE;
 
   // Check for required physical properties that require an enforcer
   // operator to succeed.
-  if (relExpr->rppRequiresEnforcer(context->getReqdPhysicalProperty()))
-    return FALSE;
+  if (relExpr->rppRequiresEnforcer(context->getReqdPhysicalProperty())) return FALSE;
 
   return TRUE;
 }
 
-RelExpr * PhysicalTupleRule::nextSubstitute(RelExpr * before,
-                                            Context * /*context*/,
-                                            RuleSubstituteMemory *& /*memory*/)
-{
+RelExpr *PhysicalTupleRule::nextSubstitute(RelExpr *before, Context * /*context*/, RuleSubstituteMemory *& /*memory*/) {
   CMPASSERT(before->getOperatorType() == REL_TUPLE);
-  Tuple * bef = (Tuple *) before;
+  Tuple *bef = (Tuple *)before;
 
   // Simply copy the contents of the Tuple from the before pattern.
-  PhysicalTuple * result = new(CmpCommon::statementHeap())
-    PhysicalTuple(*((Tuple *) before));
+  PhysicalTuple *result = new (CmpCommon::statementHeap()) PhysicalTuple(*((Tuple *)before));
 
   // now set the group attributes of the result's top node
   result->setGroupAttr(before->getGroupAttr());
 
-  (void) bef->copyTopNode(result, CmpCommon::statementHeap());
+  (void)bef->copyTopNode(result, CmpCommon::statementHeap());
 
   result->setBlockStmt(before->isinBlockStmt());
 
@@ -4001,63 +3131,51 @@ RelExpr * PhysicalTupleRule::nextSubstitute(RelExpr * before,
 // -----------------------------------------------------------------------
 // methods for class PhysicalTupleListRule
 // -----------------------------------------------------------------------
-PhysicalTupleListRule::~PhysicalTupleListRule() {} 
+PhysicalTupleListRule::~PhysicalTupleListRule() {}
 
-NABoolean PhysicalTupleListRule::topMatch (RelExpr *relExpr,
-                                           Context *context)
-{
-  if (NOT Rule::topMatch(relExpr, context))
-    return FALSE;
+NABoolean PhysicalTupleListRule::topMatch(RelExpr *relExpr, Context *context) {
+  if (NOT Rule::topMatch(relExpr, context)) return FALSE;
 
   // ---------------------------------------------------------------
   // allow a tuple operator to be pushed down to dp2 if flag is on
   // and do colocation check later.
   // ---------------------------------------------------------------
- if (! CURRSTMT_OPTDEFAULTS->pushDownDP2Requested() &&
-     context->getReqdPhysicalProperty()->executeInDP2())
-   return FALSE;
+  if (!CURRSTMT_OPTDEFAULTS->pushDownDP2Requested() && context->getReqdPhysicalProperty()->executeInDP2()) return FALSE;
 
   // Check for required physical properties that require an enforcer
   // operator to succeed.
-  if (relExpr->rppRequiresEnforcer(context->getReqdPhysicalProperty()))
-    return FALSE;
+  if (relExpr->rppRequiresEnforcer(context->getReqdPhysicalProperty())) return FALSE;
 
   return TRUE;
 }
 
-RelExpr * PhysicalTupleListRule::nextSubstitute(RelExpr * before,
-                                            Context * /*context*/,
-                                            RuleSubstituteMemory *& /*memory*/)
-{
+RelExpr *PhysicalTupleListRule::nextSubstitute(RelExpr *before, Context * /*context*/,
+                                               RuleSubstituteMemory *& /*memory*/) {
   CMPASSERT(before->getOperatorType() == REL_TUPLE_LIST);
 
   // Simply copy the contents of the Tuple from the before pattern.
   // no need to call copyTopNode as the copy constructor is called
 
-  PhysicalTupleList * result = new(CmpCommon::statementHeap())
-    PhysicalTupleList( *((TupleList *) before) );
+  PhysicalTupleList *result = new (CmpCommon::statementHeap()) PhysicalTupleList(*((TupleList *)before));
 
   // now set the group attributes of the result's top node
   result->setGroupAttr(before->getGroupAttr());
 
   return result;
-} //  PhysicalTupleListRule::nextSubstitute()
+}  //  PhysicalTupleListRule::nextSubstitute()
 
 // -----------------------------------------------------------------------
 // methods for class PhysicalExplainRule
 // -----------------------------------------------------------------------
 
-PhysicalExplainRule::~PhysicalExplainRule() {} 
+PhysicalExplainRule::~PhysicalExplainRule() {}
 
-RelExpr * PhysicalExplainRule::nextSubstitute(RelExpr * before,
-                                              Context * /*context*/,
-                                              RuleSubstituteMemory *& /*mem*/)
-{
+RelExpr *PhysicalExplainRule::nextSubstitute(RelExpr *before, Context * /*context*/, RuleSubstituteMemory *& /*mem*/) {
   CMPASSERT(before->getOperatorType() == REL_EXPLAIN);
-  ExplainFunc * bef = (ExplainFunc *) before;
+  ExplainFunc *bef = (ExplainFunc *)before;
 
   // Simply copy the contents of the Explain from the before pattern.
-  PhysicalExplain *result = new(CmpCommon::statementHeap()) PhysicalExplain();
+  PhysicalExplain *result = new (CmpCommon::statementHeap()) PhysicalExplain();
 
   bef->copyTopNode(result, CmpCommon::statementHeap());
 
@@ -4068,40 +3186,32 @@ RelExpr * PhysicalExplainRule::nextSubstitute(RelExpr * before,
   return result;
 }
 
-
 // -----------------------------------------------------------------------
 // methods for class PhysicalPackRule
 // -----------------------------------------------------------------------
 
 // Destructor.
-PhysicalPackRule::~PhysicalPackRule()
-{
-}
+PhysicalPackRule::~PhysicalPackRule() {}
 
 // PhysicalPackRule::topMatch()
-NABoolean PhysicalPackRule::topMatch(RelExpr* relExpr, Context* context)
-{
+NABoolean PhysicalPackRule::topMatch(RelExpr *relExpr, Context *context) {
   // Match the node type first.
-  if (NOT Rule::topMatch(relExpr,context)) return FALSE;
+  if (NOT Rule::topMatch(relExpr, context)) return FALSE;
   CMPASSERT(relExpr->getOperatorType() == REL_PACK);
 
-  Pack* packNode = (Pack *) relExpr;
+  Pack *packNode = (Pack *)relExpr;
 
-  const ReqdPhysicalProperty* rppForMe = context->getReqdPhysicalProperty();
+  const ReqdPhysicalProperty *rppForMe = context->getReqdPhysicalProperty();
 
   // If the defaults table does not indicate that this query is to be
   // executed in DP2, return FALSE
-  if (rppForMe->executeInDP2() AND
-      NOT CURRSTMT_OPTDEFAULTS->pushDownDP2Requested())
-    return FALSE;
+  if (rppForMe->executeInDP2() AND NOT CURRSTMT_OPTDEFAULTS->pushDownDP2Requested()) return FALSE;
 
   // Check for required physical properties that require an enforcer
   // operator to succeed.
-  if (relExpr->rppRequiresEnforcer(rppForMe))
-    return FALSE;
+  if (relExpr->rppRequiresEnforcer(rppForMe)) return FALSE;
 
-  if ( CURRSTMT_OPTDEFAULTS->pushDownDP2Requested() )
-  {
+  if (CURRSTMT_OPTDEFAULTS->pushDownDP2Requested()) {
     // If the OPTS_PUSH_DOWN_DAM CQD is set to '1', and if this rowsets total input/output
     // length * packingFactorLong_ is larger than 30000 bytes, we reject the request.
 
@@ -4111,36 +3221,19 @@ NABoolean PhysicalPackRule::topMatch(RelExpr* relExpr, Context* context)
     // found to be safe after taking into consideration the additional bytes that will be added for header
     // information and control information in executor.
     //
-    if ((CmpCommon::getDefault(GEN_DBLIMITS_LARGER_BUFSIZE) == DF_OFF))
-      {
-	if ( (   ( ( relExpr->getGroupAttr()->getCharacteristicInputs().getRowLength() +
-		     relExpr->getGroupAttr()->getCharacteristicOutputs().getRowLength()
-		     ) * packNode->packingFactorLong()
-		   )
-		 > ROWSIZE_TO_EXECUTE_IN_DP2
-		 )
-	     AND
-	     rppForMe->executeInDP2()
-	     )
-	  {
-	    return FALSE;
-	  }
+    if ((CmpCommon::getDefault(GEN_DBLIMITS_LARGER_BUFSIZE) == DF_OFF)) {
+      if ((((relExpr->getGroupAttr()->getCharacteristicInputs().getRowLength() +
+             relExpr->getGroupAttr()->getCharacteristicOutputs().getRowLength()) *
+            packNode->packingFactorLong()) > ROWSIZE_TO_EXECUTE_IN_DP2) AND rppForMe->executeInDP2()) {
+        return FALSE;
       }
-    else
-      {
-	if ( (   ( ( relExpr->getGroupAttr()->getCharacteristicInputs().getRowLength() +
-		     relExpr->getGroupAttr()->getCharacteristicOutputs().getRowLength()
-		     ) * packNode->packingFactorLong()
-		   )
-		 > ROWSIZE_TO_EXECUTE_IN_DP2_DBL
-		 )
-	     AND
-	     rppForMe->executeInDP2()
-	     )
-	  {
-	    return FALSE;
-	  }
+    } else {
+      if ((((relExpr->getGroupAttr()->getCharacteristicInputs().getRowLength() +
+             relExpr->getGroupAttr()->getCharacteristicOutputs().getRowLength()) *
+            packNode->packingFactorLong()) > ROWSIZE_TO_EXECUTE_IN_DP2_DBL) AND rppForMe->executeInDP2()) {
+        return FALSE;
       }
+    }
     // For 10-050816-0628 soln. The dp2 loop happens if the data selected is more than 30,000.
     // The check above takes care of the rowset size declared in the program
     // into consideration. But, if there is mismatch between the rowsets size declared
@@ -4152,36 +3245,24 @@ NABoolean PhysicalPackRule::topMatch(RelExpr* relExpr, Context* context)
     // 100 * 10 = 1000 bytes and into an eid buffer of 31000.
     // This is because when you have "ROWSET [100] char[10]" and the corresponding column is
     // char[1000] the conversion happens after the pack node. Hence we are considering the record
-    // size of 1000 in our calculation as this is the data that needs to be transferred. 
+    // size of 1000 in our calculation as this is the data that needs to be transferred.
     // This will lead to dp2 loop since 100000 > 30000 limit which eid can work with. This check
     // will take care of this scenario.
     // Here we get the characteristic output values of pack nodes children and check if the size
     // of output is greater than 30000.
-    if ((CmpCommon::getDefault(GEN_DBLIMITS_LARGER_BUFSIZE) == DF_OFF))
-      { 
-	RowSize
-	  outputrowSize = relExpr->child(0).getGroupAttr()->getRecordLength()
-	  * packNode->packingFactorLong();
+    if ((CmpCommon::getDefault(GEN_DBLIMITS_LARGER_BUFSIZE) == DF_OFF)) {
+      RowSize outputrowSize = relExpr->child(0).getGroupAttr()->getRecordLength() * packNode->packingFactorLong();
 
-	if (outputrowSize > ROWSIZE_TO_EXECUTE_IN_DP2
-	    AND   rppForMe->executeInDP2())
-	  {
-	    return FALSE;
-	  }
+      if (outputrowSize > ROWSIZE_TO_EXECUTE_IN_DP2 AND rppForMe->executeInDP2()) {
+        return FALSE;
       }
-    else
-      {
-	RowSize
-	  outputrowSize = relExpr->child(0).getGroupAttr()->getRecordLength()
-	  * packNode->packingFactorLong();
+    } else {
+      RowSize outputrowSize = relExpr->child(0).getGroupAttr()->getRecordLength() * packNode->packingFactorLong();
 
-	if (outputrowSize > ROWSIZE_TO_EXECUTE_IN_DP2_DBL
-	    AND   rppForMe->executeInDP2())
-	  {
-	    return FALSE;
-	  }
+      if (outputrowSize > ROWSIZE_TO_EXECUTE_IN_DP2_DBL AND rppForMe->executeInDP2()) {
+        return FALSE;
       }
-
+    }
   }
   // ---------------------------------------------------------------------
   // Some limitations for now.
@@ -4193,26 +3274,23 @@ NABoolean PhysicalPackRule::topMatch(RelExpr* relExpr, Context* context)
   if (rppForMe->getSortKey()) return FALSE;
   if (rppForMe->getArrangedCols()) return FALSE;
 
-  if ((rppForMe->getPartitioningRequirement() != NULL) AND
-      (NOT(rppForMe->getPartitioningRequirement()->isRequirementExactlyOne())))
-      return FALSE;
+  if ((rppForMe->getPartitioningRequirement() != NULL)
+          AND(NOT(rppForMe->getPartitioningRequirement()->isRequirementExactlyOne())))
+    return FALSE;
 
   return TRUE;
 }
 
-RelExpr* PhysicalPackRule::nextSubstitute(RelExpr* before,
-                                          Context* /*context*/,
-                                          RuleSubstituteMemory*& memory)
-{
+RelExpr *PhysicalPackRule::nextSubstitute(RelExpr *before, Context * /*context*/, RuleSubstituteMemory *&memory) {
   CMPASSERT(before->getOperatorType() == REL_PACK);
   CMPASSERT(memory == NULL);
 
-  Pack* original = (Pack *) before;
+  Pack *original = (Pack *)before;
 
   // ---------------------------------------------------------------------
   // Create empty PhyPack substitute and copy packing factor over.
   // ---------------------------------------------------------------------
-  PhyPack* substitute = new (CmpCommon::statementHeap()) PhyPack();
+  PhyPack *substitute = new (CmpCommon::statementHeap()) PhyPack();
   original->copyTopNode(substitute);
 
   // ---------------------------------------------------------------------
@@ -4224,8 +3302,7 @@ RelExpr* PhysicalPackRule::nextSubstitute(RelExpr* before,
   return substitute;
 }
 
-NABoolean PhysicalPackRule::canMatchPattern (const RelExpr *) const
-{
+NABoolean PhysicalPackRule::canMatchPattern(const RelExpr *) const {
   // Pack is independent of required patterns, always apply this rule
   return TRUE;
 }
@@ -4236,7 +3313,7 @@ NABoolean PhysicalPackRule::canMatchPattern (const RelExpr *) const
 
 // Destructor for the PhysicalTransposeRule
 //
-PhysicalTransposeRule::~PhysicalTransposeRule() {} 
+PhysicalTransposeRule::~PhysicalTransposeRule() {}
 
 // PhysicalTransposeRule::topMatch() -------------------------------------
 // The method is used to determine if a rule should fire.  If
@@ -4249,13 +3326,10 @@ PhysicalTransposeRule::~PhysicalTransposeRule() {}
 // RelExpr *relExpr
 //  IN : The relExpr node
 //
-NABoolean PhysicalTransposeRule::topMatch (RelExpr *relExpr,
-                                           Context *context)
-{
+NABoolean PhysicalTransposeRule::topMatch(RelExpr *relExpr, Context *context) {
   // Check to see if this relExpr matches the Rules pattern.
   //
-  if (NOT Rule::topMatch(relExpr,context))
-    return FALSE;
+  if (NOT Rule::topMatch(relExpr, context)) return FALSE;
 
   // If it matched, then this must be a Transpose node.
   //
@@ -4282,22 +3356,18 @@ NABoolean PhysicalTransposeRule::topMatch (RelExpr *relExpr,
 
   // Check for required physical properties that require an enforcer
   // operator to succeed.
-  if (relExpr->rppRequiresEnforcer(rppForMe))
-    return FALSE;
+  if (relExpr->rppRequiresEnforcer(rppForMe)) return FALSE;
 
   // A set of valueIds containing the sortKeys, arrangedCols,
   // and partitioningKeys.
   //
   ValueIdSet allOrderColumns;
 
-  if (rppForMe->getSortKey())
-    allOrderColumns.insertList(*rppForMe->getSortKey());
+  if (rppForMe->getSortKey()) allOrderColumns.insertList(*rppForMe->getSortKey());
 
-  if (rppForMe->getArrangedCols())
-    allOrderColumns += *rppForMe->getArrangedCols();
+  if (rppForMe->getArrangedCols()) allOrderColumns += *rppForMe->getArrangedCols();
 
-  if (rppForMe->getPartitioningRequirement() &&
-      rppForMe->getPartitioningKey().entries() > 0)
+  if (rppForMe->getPartitioningRequirement() && rppForMe->getPartitioningKey().entries() > 0)
     allOrderColumns += rppForMe->getPartitioningKey();
 
   // If any of the order columns or partitioning columns are the
@@ -4314,14 +3384,12 @@ NABoolean PhysicalTransposeRule::topMatch (RelExpr *relExpr,
 
   // If there are references to the generated columns in the
   // ordering/partitioning columns, then the rule cannot fire.
-  if (allOrderColumns.referencesOneValueFromTheSet(transVals))
-    return FALSE;
+  if (allOrderColumns.referencesOneValueFromTheSet(transVals)) return FALSE;
 
   // If there are no physical requirements, then this rule can fire.
   //
   return TRUE;
-} // PhysicalTranspose::topMatch()
-
+}  // PhysicalTranspose::topMatch()
 
 // PhysicalTransposeRule::nextSubstitute() ---------------------------------
 // Generate the result of the application of a rule.
@@ -4355,10 +3423,7 @@ NABoolean PhysicalTransposeRule::topMatch (RelExpr *relExpr,
 // topMatch() has returned TRUE and has qualified this binding in this context
 // for this rule.
 //
-RelExpr * PhysicalTransposeRule::nextSubstitute(RelExpr * before,
-                                                Context * /*context*/,
-                                                RuleSubstituteMemory *& memory)
-{
+RelExpr *PhysicalTransposeRule::nextSubstitute(RelExpr *before, Context * /*context*/, RuleSubstituteMemory *&memory) {
   // Just to make sure things are working as expected.
   //   (If these asserts are every taken out, the compiler will
   //    likely complain about not using the 'memory' parameter)
@@ -4368,21 +3433,18 @@ RelExpr * PhysicalTransposeRule::nextSubstitute(RelExpr * before,
 
   // We know at this point that the binding is a Transpose node.
   //
-  Transpose * transBinding = (Transpose *) before;
+  Transpose *transBinding = (Transpose *)before;
 
   // Create an empty PhysTranspose node and simply copy the
   // contents of the Transpose from the before pattern.
   //
-  PhysTranspose *substitute = new(CmpCommon::statementHeap())
-    PhysTranspose();
+  PhysTranspose *substitute = new (CmpCommon::statementHeap()) PhysTranspose();
 
   // Copy the transpose value expressions from the (before) transpose node.
   //
   substitute->setTransUnionVectorSize(transBinding->transUnionVectorSize());
 
-  substitute->transUnionVector() =
-    new (CmpCommon::statementHeap())
-    ValueIdList[transBinding->transUnionVectorSize()];
+  substitute->transUnionVector() = new (CmpCommon::statementHeap()) ValueIdList[transBinding->transUnionVectorSize()];
 
   for (CollIndex i = 0; i < transBinding->transUnionVectorSize(); i++)
     substitute->transUnionVector()[i] = transBinding->transUnionVector()[i];
@@ -4402,7 +3464,7 @@ RelExpr * PhysicalTransposeRule::nextSubstitute(RelExpr * before,
 
 // Destructor for the PhysicalUnPackRowsRule
 //
-PhysicalUnPackRowsRule::~PhysicalUnPackRowsRule() {} 
+PhysicalUnPackRowsRule::~PhysicalUnPackRowsRule() {}
 
 // PhysicalUnPackRowsRule::topMatch() -------------------------------------
 // The method is used to determine if a rule should fire.  If
@@ -4415,13 +3477,10 @@ PhysicalUnPackRowsRule::~PhysicalUnPackRowsRule() {}
 // RelExpr *relExpr
 //  IN : The relExpr node
 //
-NABoolean PhysicalUnPackRowsRule::topMatch (RelExpr *relExpr,
-                                            Context *context)
-{
+NABoolean PhysicalUnPackRowsRule::topMatch(RelExpr *relExpr, Context *context) {
   // Check to see if this relExpr matches the Rules pattern.
   //
-  if (NOT Rule::topMatch(relExpr,context))
-    return FALSE;
+  if (NOT Rule::topMatch(relExpr, context)) return FALSE;
 
   // If it matched, then this must be an UnPackRows node.
   //
@@ -4447,15 +3506,12 @@ NABoolean PhysicalUnPackRowsRule::topMatch (RelExpr *relExpr,
 
   // Check for required physical properties that require an enforcer
   // operator to succeed.
-  if (relExpr->rppRequiresEnforcer(rppForMe))
-    return FALSE;
+  if (relExpr->rppRequiresEnforcer(rppForMe)) return FALSE;
 
   // We check whether above-DP2 unpacking is allowed only if
   // the source is a table.
   //
-  if ( UnPackRowsNode->unPackedTable() )
-  {
-
+  if (UnPackRowsNode->unPackedTable()) {
     // If the size of the input row is larger than about 31000 / 2,
     // then the UnPackRows node should be performed in DP2.  This is
     // because the File System has a buffer limit (EXPAND_LIMIT) equal
@@ -4472,21 +3528,16 @@ NABoolean PhysicalUnPackRowsRule::topMatch (RelExpr *relExpr,
     //
     const Int32 expandLimit = 31000;
 
-    RowSize inputRowSize =
-      UnPackRowsNode->child(0).getGroupAttr()->getRecordLength();
+    RowSize inputRowSize = UnPackRowsNode->child(0).getGroupAttr()->getRecordLength();
 
-    if((NOT rppForMe->executeInDP2()) AND
-       (inputRowSize > (expandLimit/2)))
-      return FALSE;
-  }
-  else { // we're a rowset unpack
+    if ((NOT rppForMe->executeInDP2())AND(inputRowSize > (expandLimit / 2))) return FALSE;
+  } else {  // we're a rowset unpack
     // rowset unpack should run in master because it's inefficient and
     // risky to send rowsets from master to an ESP. An ESP eventually
     // flows the rowset's data back to the master. An ESP parallel plan
     // fragment with a large rowset can exceed IPC size limit and crash
     // at run-time (see genesis case 10-060510-3471).
-    if (UnPackRowsNode->child(0).getGroupAttr()->
-        getResultCardinalityForEmptyInput() >
+    if (UnPackRowsNode->child(0).getGroupAttr()->getResultCardinalityForEmptyInput() >
         ActiveSchemaDB()->getDefaults().getAsLong(COMP_INT_5)) {
       if (rppForMe->getPlanExecutionLocation() != EXECUTE_IN_MASTER) {
         return FALSE;
@@ -4499,14 +3550,11 @@ NABoolean PhysicalUnPackRowsRule::topMatch (RelExpr *relExpr,
   //
   ValueIdSet allOrderColumns;
 
-  if (rppForMe->getSortKey())
-    allOrderColumns.insertList(*rppForMe->getSortKey());
+  if (rppForMe->getSortKey()) allOrderColumns.insertList(*rppForMe->getSortKey());
 
-  if (rppForMe->getArrangedCols())
-    allOrderColumns += *rppForMe->getArrangedCols();
+  if (rppForMe->getArrangedCols()) allOrderColumns += *rppForMe->getArrangedCols();
 
-  if (rppForMe->getPartitioningRequirement() &&
-      rppForMe->getPartitioningKey().entries() > 0)
+  if (rppForMe->getPartitioningRequirement() && rppForMe->getPartitioningKey().entries() > 0)
     allOrderColumns += rppForMe->getPartitioningKey();
 
   // If any of the order columns or partitioning columns are the
@@ -4515,19 +3563,15 @@ NABoolean PhysicalUnPackRowsRule::topMatch (RelExpr *relExpr,
 
   // If there are no requirements, then this rule should fire.
   //
-  if (NOT allOrderColumns.isEmpty())
-    return FALSE;
+  if (NOT allOrderColumns.isEmpty()) return FALSE;
 
-  if (rppForMe->executeInDP2())
-  {
-     // if we are a rowsetIterator, return false.
-    if (UnPackRowsNode->isRowsetIterator())
-        return FALSE;
+  if (rppForMe->executeInDP2()) {
+    // if we are a rowsetIterator, return false.
+    if (UnPackRowsNode->isRowsetIterator()) return FALSE;
   }
 
   return TRUE;
-} // PhysicalUnPackRows::topMatch()
-
+}  // PhysicalUnPackRows::topMatch()
 
 // PhysicalUnPackRowsRule::nextSubstitute() ---------------------------------
 // Generate the result of the application of a rule.
@@ -4561,10 +3605,7 @@ NABoolean PhysicalUnPackRowsRule::topMatch (RelExpr *relExpr,
 // ::topMatch() has returned TRUE and has qualified this binding in this
 // context for this rule.
 //
-RelExpr * PhysicalUnPackRowsRule::nextSubstitute(RelExpr * before,
-                                                 Context * /*context*/,
-                                                 RuleSubstituteMemory *& memory)
-{
+RelExpr *PhysicalUnPackRowsRule::nextSubstitute(RelExpr *before, Context * /*context*/, RuleSubstituteMemory *&memory) {
   // Just to make sure things are working as expected.
   //   (If these asserts are every taken out, the compiler will
   //    likely complain about not using the 'memory' parameter)
@@ -4579,8 +3620,7 @@ RelExpr * PhysicalUnPackRowsRule::nextSubstitute(RelExpr * before,
   // Create an empty PhysUnPackRows node and simply copy the
   // contents of the UnPackRows from the before pattern.
   //
-  PhysUnPackRows *substitute = new(CmpCommon::statementHeap())
-    PhysUnPackRows();
+  PhysUnPackRows *substitute = new (CmpCommon::statementHeap()) PhysUnPackRows();
 
   // Copy the UnPackRows value expressions from the (before) UnPackRows node.
   //
@@ -4596,13 +3636,12 @@ RelExpr * PhysicalUnPackRowsRule::nextSubstitute(RelExpr * before,
 
   substitute->setTolerateNonFatalError(unPackBinding->getTolerateNonFatalError());
 
-
   substitute->setRowwiseRowset(unPackBinding->rowwiseRowset());
   substitute->setRwrsInputSizeExpr(unPackBinding->rwrsInputSizeExpr());
   substitute->setRwrsMaxInputRowlenExpr(unPackBinding->rwrsMaxInputRowlenExpr());
   substitute->setRwrsBufferAddrExpr(unPackBinding->rwrsBufferAddrExpr());
   substitute->setRwrsOutputVids(unPackBinding->rwrsOutputVids());
-  
+
   // Now copy the field defined in the RelExpr and ExprNode classes.
   //
   substitute->selectionPred() = unPackBinding->selectionPred();
@@ -4612,8 +3651,7 @@ RelExpr * PhysicalUnPackRowsRule::nextSubstitute(RelExpr * before,
   return substitute;
 }
 
-NABoolean PhysicalUnPackRowsRule::canMatchPattern (const RelExpr *) const
-{
+NABoolean PhysicalUnPackRowsRule::canMatchPattern(const RelExpr *) const {
   // UnPack is independent of required patterns, always apply this rule
   return TRUE;
 }
@@ -4622,79 +3660,62 @@ NABoolean PhysicalUnPackRowsRule::canMatchPattern (const RelExpr *) const
 // methods for class SortEnforcerRule
 // -----------------------------------------------------------------------
 
-SortEnforcerRule::~SortEnforcerRule() {} 
+SortEnforcerRule::~SortEnforcerRule() {}
 
-NABoolean SortEnforcerRule::topMatch (RelExpr *  /* relExpr */,
-                                      Context *context)
-{
+NABoolean SortEnforcerRule::topMatch(RelExpr * /* relExpr */, Context *context) {
   const ReqdPhysicalProperty *rppForMe = context->getReqdPhysicalProperty();
 
   // QSTUFF
   // can't sort streams
-  if (context->getGroupAttr()->isStream()){
+  if (context->getGroupAttr()->isStream()) {
     return FALSE;
   }
 
   // Don't want to tangle sorts and GET_NEXT_N commands yet
-  if (context->getGroupAttr()->isEmbeddedUpdateOrDelete())
-    return FALSE;
+  if (context->getGroupAttr()->isEmbeddedUpdateOrDelete()) return FALSE;
   // QSTUFF  ^^
 
   // If no required physical properties, there won't be any sort
   // requirement to sort for, so return FALSE. Note there can only
   // be no rpp if the operator the rule is firing on is RelRoot.
-  if (rppForMe == NULL)
-    return FALSE;
+  if (rppForMe == NULL) return FALSE;
 
   // make sure a sort order is required
-  if (NOT  context->requiresOrder())
-    return FALSE;
+  if (NOT context->requiresOrder()) return FALSE;
 
   //  don't run in DP2
-  if (rppForMe->executeInDP2())
-    return FALSE;
+  if (rppForMe->executeInDP2()) return FALSE;
 
-  PartitioningRequirement* partReqForMe =
-    rppForMe->getPartitioningRequirement();
+  PartitioningRequirement *partReqForMe = rppForMe->getPartitioningRequirement();
 
   // If a partitioning requirement exists and it requires broadcast
   // replication, then return FALSE. Only an exchange operator
   // can satisfy a broadcast replication partitioning requirement.
-  if ((partReqForMe != NULL) AND
-      partReqForMe->isRequirementReplicateViaBroadcast())
-    return FALSE;
+  if ((partReqForMe != NULL) AND partReqForMe->isRequirementReplicateViaBroadcast()) return FALSE;
 
-  SortOrderTypeEnum sortOrderTypeReq =
-    rppForMe->getSortOrderTypeReq();
+  SortOrderTypeEnum sortOrderTypeReq = rppForMe->getSortOrderTypeReq();
 
   // If a sort order type requirement of ESP_NO_SORT, DP2, or
   // DP2_OR_ESP_NO_SORT exists, then return FALSE now.
   // A sort operator can only produce a sort order type of
   // ESP_VIA_SORT.
-  if ((sortOrderTypeReq == ESP_NO_SORT_SOT) OR
-      (sortOrderTypeReq == DP2_SOT) OR
-      (sortOrderTypeReq == DP2_OR_ESP_NO_SORT_SOT))
+  if ((sortOrderTypeReq == ESP_NO_SORT_SOT) OR(sortOrderTypeReq == DP2_SOT)
+          OR(sortOrderTypeReq == DP2_OR_ESP_NO_SORT_SOT))
     return FALSE;
 
   return TRUE;
 }
 
-RelExpr * SortEnforcerRule::nextSubstitute(RelExpr * before,
-                                           Context * context,
-                                           RuleSubstituteMemory *&)
-{
-  const ReqdPhysicalProperty* const rppForMe =
-    context->getReqdPhysicalProperty();
-  Sort *result = new(CmpCommon::statementHeap()) Sort(before);
+RelExpr *SortEnforcerRule::nextSubstitute(RelExpr *before, Context *context, RuleSubstituteMemory *&) {
+  const ReqdPhysicalProperty *const rppForMe = context->getReqdPhysicalProperty();
+  Sort *result = new (CmpCommon::statementHeap()) Sort(before);
 
   // store the required orders in the sort node
-  if (rppForMe->getSortKey())
-  {
+  if (rppForMe->getSortKey()) {
     result->getSortKey() = *rppForMe->getSortKey();
   }
 
-  if (rppForMe->getArrangedCols())
-  {
+  if (rppForMe->getArrangedCols()) {
     result->getArrangedCols() = *rppForMe->getArrangedCols();
   }
 
@@ -4702,10 +3723,7 @@ RelExpr * SortEnforcerRule::nextSubstitute(RelExpr * before,
   return result;
 }
 
-Int32 SortEnforcerRule::promiseForOptimization(RelExpr *,
-                                               Guidance *,
-                                               Context *)
-{
+Int32 SortEnforcerRule::promiseForOptimization(RelExpr *, Guidance *, Context *) {
   // A sort enforcer is less promising than an implementation or
   // a transformation rule. This way, we will optimize the expressions
   // with a required order before trying the enforcer. When we try the
@@ -4717,43 +3735,32 @@ Int32 SortEnforcerRule::promiseForOptimization(RelExpr *,
 // methods for class ExchangeEnforcerRule
 // -----------------------------------------------------------------------
 
-ExchangeEnforcerRule::~ExchangeEnforcerRule() {} 
+ExchangeEnforcerRule::~ExchangeEnforcerRule() {}
 
-NABoolean ExchangeEnforcerRule::topMatch(RelExpr *  /* relExpr */,
-                                         Context *context)
-{
+NABoolean ExchangeEnforcerRule::topMatch(RelExpr * /* relExpr */, Context *context) {
   const ReqdPhysicalProperty *rppForMe = context->getReqdPhysicalProperty();
 
   // If no required physical properties, there won't be any location
   // or partitioning requirement to enforce, so return FALSE.
   // Note there can only be no rpp if the operator the rule is firing
   // on is RelRoot.
-  if (rppForMe == NULL)
-    return FALSE;
+  if (rppForMe == NULL) return FALSE;
 
   // the exchange enforcer itself can't run in DP2, in all other cases
   // it could enforce either location or partitioning
-  if (rppForMe->executeInDP2())
-    return FALSE;
+  if (rppForMe->executeInDP2()) return FALSE;
 
   return TRUE;
 }
 
-RelExpr * ExchangeEnforcerRule::nextSubstitute(RelExpr * before,
-                                               Context * context,
-                                               RuleSubstituteMemory *&)
-{
-  Exchange *result = new(CmpCommon::statementHeap())
-    Exchange(before);
+RelExpr *ExchangeEnforcerRule::nextSubstitute(RelExpr *before, Context *context, RuleSubstituteMemory *&) {
+  Exchange *result = new (CmpCommon::statementHeap()) Exchange(before);
 
   result->setGroupAttr(before->getGroupAttr());
   return result;
 }
 
-Int32 ExchangeEnforcerRule::promiseForOptimization(RelExpr *,
-                                                   Guidance *,
-                                                   Context *)
-{
+Int32 ExchangeEnforcerRule::promiseForOptimization(RelExpr *, Guidance *, Context *) {
   // A sort enforcer is less promising than an implementation or
   // a transformation rule. This way, we will optimize the expressions
   // with a required order before trying the enforcer. When we try the
@@ -4766,7 +3773,7 @@ Int32 ExchangeEnforcerRule::promiseForOptimization(RelExpr *,
 // -----------------------------------------------------------------------
 // Destructor for the PhysicalSequenceRule
 //
-PhysicalSequenceRule::~PhysicalSequenceRule() {} 
+PhysicalSequenceRule::~PhysicalSequenceRule() {}
 
 // PhysicalSequenceRule::topMatch() ----------------------------------
 // The method is used to determine if a rule should fire.  If
@@ -4779,13 +3786,10 @@ PhysicalSequenceRule::~PhysicalSequenceRule() {}
 // RelExpr *relExpr
 //  IN : The relExpr node
 //
-NABoolean PhysicalSequenceRule::topMatch (RelExpr *relExpr,
-                                          Context *context)
-{
+NABoolean PhysicalSequenceRule::topMatch(RelExpr *relExpr, Context *context) {
   // Check to see if this relExpr matches the Rules pattern.
   //
-  if (NOT Rule::topMatch(relExpr,context))
-    return FALSE;
+  if (NOT Rule::topMatch(relExpr, context)) return FALSE;
 
   // If it matched, then this must be an RelSequence node.
   //
@@ -4803,40 +3807,32 @@ NABoolean PhysicalSequenceRule::topMatch (RelExpr *relExpr,
   // For now, the sequence node can not execute in DP2, since it
   // allocates a bunch of memory.
   //
-  if(rppForMe->executeInDP2()) {
+  if (rppForMe->executeInDP2()) {
     return FALSE;
   }
 
   // Check for required physical properties that require an enforcer
   // operator to succeed.
-  if (relExpr->rppRequiresEnforcer(rppForMe))
-    return FALSE;
+  if (relExpr->rppRequiresEnforcer(rppForMe)) return FALSE;
 
-  ValueIdList reqdOrder =
-    sequenceNode->mapSortKey(sequenceNode->partition());
+  ValueIdList reqdOrder = sequenceNode->mapSortKey(sequenceNode->partition());
 
   reqdOrder.insert(sequenceNode->mapSortKey(sequenceNode->requiredOrder()));
 
   // The sequence node will produce its results in the order of the
   // required order.
   //
-  if(rppForMe->getSortKey() AND
-     (reqdOrder.satisfiesReqdOrder(
-       *rppForMe->getSortKey()) == DIFFERENT_ORDER))
-  {
+  if (rppForMe->getSortKey() AND(reqdOrder.satisfiesReqdOrder(*rppForMe->getSortKey()) == DIFFERENT_ORDER)) {
     return FALSE;
   }
 
-  if(rppForMe->getArrangedCols() AND
-     (reqdOrder.satisfiesReqdArrangement(
-         *rppForMe->getArrangedCols()) == DIFFERENT_ORDER))
-  {
+  if (rppForMe->getArrangedCols()
+          AND(reqdOrder.satisfiesReqdArrangement(*rppForMe->getArrangedCols()) == DIFFERENT_ORDER)) {
     return FALSE;
   }
 
   return TRUE;
-} // PhysicalSequenceRule::topMatch()
-
+}  // PhysicalSequenceRule::topMatch()
 
 // PhysicalSequenceRule::nextSubstitute() ----------------------------
 // Generate the result of the application of a rule.  This method
@@ -4871,10 +3867,7 @@ NABoolean PhysicalSequenceRule::topMatch (RelExpr *relExpr,
 // returned TRUE and has qualified this binding in this context for
 // this rule.
 //
-RelExpr * PhysicalSequenceRule::nextSubstitute(RelExpr * before,
-                                               Context * /*context*/,
-                                               RuleSubstituteMemory *& memory)
-{
+RelExpr *PhysicalSequenceRule::nextSubstitute(RelExpr *before, Context * /*context*/, RuleSubstituteMemory *&memory) {
   // Just to make sure things are working as expected.
   //   (If these asserts are every taken out, the compiler will
   //    likely complain about not using the 'memory' parameter)
@@ -4889,8 +3882,7 @@ RelExpr * PhysicalSequenceRule::nextSubstitute(RelExpr * before,
   // Create an empty PhysSequence node and simply copy the
   // contents of the RelSequence from the before pattern.
   //
-  PhysSequence *substitute = new(CmpCommon::statementHeap())
-    PhysSequence();
+  PhysSequence *substitute = new (CmpCommon::statementHeap()) PhysSequence();
 
   // Copy the expressions from the (before) RelSequence node.
   //
@@ -4914,11 +3906,10 @@ RelExpr * PhysicalSequenceRule::nextSubstitute(RelExpr * before,
   substitute->setGroupAttr(relSequenceBinding->getGroupAttr());
   substitute->child(0) = relSequenceBinding->child(0);
 
-  substitute->retrieveCachedHistoryInfo((RelSequence *) relSequenceBinding);
+  substitute->retrieveCachedHistoryInfo((RelSequence *)relSequenceBinding);
 
   return substitute;
 }
-
 
 // -----------------------------------------------------------------------
 // methods for class PhysicalSampleRule
@@ -4926,7 +3917,7 @@ RelExpr * PhysicalSequenceRule::nextSubstitute(RelExpr * before,
 
 // Destructor for the PhysicalSampleRule
 //
-PhysicalSampleRule::~PhysicalSampleRule() {} 
+PhysicalSampleRule::~PhysicalSampleRule() {}
 
 // PhysicalSampleRule::topMatch() -------------------------------------
 // The method is used to determine if a rule should fire.  If
@@ -4939,13 +3930,10 @@ PhysicalSampleRule::~PhysicalSampleRule() {}
 // RelExpr *relExpr
 //  IN : The relExpr node
 //
-NABoolean PhysicalSampleRule::topMatch (RelExpr *relExpr,
-                                        Context *context)
-{
+NABoolean PhysicalSampleRule::topMatch(RelExpr *relExpr, Context *context) {
   // Check to see if this relExpr matches the Rules pattern.
   //
-  if (NOT Rule::topMatch(relExpr,context))
-    return FALSE;
+  if (NOT Rule::topMatch(relExpr, context)) return FALSE;
 
   // If it matched, then this must be a RelSample node.
   //
@@ -4966,9 +3954,7 @@ NABoolean PhysicalSampleRule::topMatch (RelExpr *relExpr,
   // force the SampleScanRule::nextSubstitute (but not necessarily the
   // topMatch method) to be applied before this Rule.
   //
-  if (sampleNode->sampleType() == RelSample::CLUSTER &&
-      sampleNode->sampleScanSucceeded())
-  {
+  if (sampleNode->sampleType() == RelSample::CLUSTER && sampleNode->sampleScanSucceeded()) {
     return FALSE;
   }
 
@@ -4976,32 +3962,24 @@ NABoolean PhysicalSampleRule::topMatch (RelExpr *relExpr,
 
   // Check for required physical properties that require an enforcer
   // operator to succeed.
-  if (relExpr->rppRequiresEnforcer(rppForMe))
-    return FALSE;
+  if (relExpr->rppRequiresEnforcer(rppForMe)) return FALSE;
 
-  ValueIdList reqdOrder =
-    sampleNode->mapSortKey(sampleNode->requiredOrder());
+  ValueIdList reqdOrder = sampleNode->mapSortKey(sampleNode->requiredOrder());
 
   // The Sample node will produce its results in the order of the
   // required order.
   //
-  if(rppForMe->getSortKey() AND
-     (reqdOrder.satisfiesReqdOrder(
-       *rppForMe->getSortKey()) == DIFFERENT_ORDER))
-  {
+  if (rppForMe->getSortKey() AND(reqdOrder.satisfiesReqdOrder(*rppForMe->getSortKey()) == DIFFERENT_ORDER)) {
     return FALSE;
   }
 
-  if(rppForMe->getArrangedCols() AND
-     (reqdOrder.satisfiesReqdArrangement(
-        *rppForMe->getArrangedCols()) == DIFFERENT_ORDER))
-  {
+  if (rppForMe->getArrangedCols()
+          AND(reqdOrder.satisfiesReqdArrangement(*rppForMe->getArrangedCols()) == DIFFERENT_ORDER)) {
     return FALSE;
   }
 
   return TRUE;
-} // PhysicalSample::topMatch()
-
+}  // PhysicalSample::topMatch()
 
 // PhysicalSampleRule::nextSubstitute() ---------------------------------
 // Generate the result of the application of a rule.
@@ -5035,10 +4013,7 @@ NABoolean PhysicalSampleRule::topMatch (RelExpr *relExpr,
 // ::topMatch() has returned TRUE and has qualified this binding in this
 // context for this rule.
 //
-RelExpr * PhysicalSampleRule::nextSubstitute(RelExpr * before,
-                                             Context * /*context*/,
-                                             RuleSubstituteMemory *& memory)
-{
+RelExpr *PhysicalSampleRule::nextSubstitute(RelExpr *before, Context * /*context*/, RuleSubstituteMemory *&memory) {
   // Just to make sure things are working as expected.
   //   (If these asserts are every taken out, the compiler will
   //    likely complain about not using the 'memory' parameter)
@@ -5063,17 +4038,14 @@ RelExpr * PhysicalSampleRule::nextSubstitute(RelExpr * before,
   // force the SampleScanRule::nextSubstitute (but not necessarily the
   // topMatch method) to be applied before this Rule's nextSubstitute.
   //
-  if (sampleBinding->sampleType() == RelSample::CLUSTER &&
-      sampleBinding->sampleScanSucceeded())
-  {
+  if (sampleBinding->sampleType() == RelSample::CLUSTER && sampleBinding->sampleScanSucceeded()) {
     return NULL;
   }
 
   // Create an empty PhysSample node and simply copy the
   // contents of the RelSample from the before pattern.
   //
-  PhysSample *substitute = new(CmpCommon::statementHeap())
-    PhysSample();
+  PhysSample *substitute = new (CmpCommon::statementHeap()) PhysSample();
 
   // Copy the RelSample value expressions from the (before) UnPackRows node.
   //
@@ -5097,106 +4069,81 @@ RelExpr * PhysicalSampleRule::nextSubstitute(RelExpr * before,
 // -----------------------------------------------------------------------
 // methods for class PhysicalSPProxyFuncRule
 // -----------------------------------------------------------------------
-PhysicalSPProxyFuncRule::~PhysicalSPProxyFuncRule()
-{}
+PhysicalSPProxyFuncRule::~PhysicalSPProxyFuncRule() {}
 
-NABoolean PhysicalSPProxyFuncRule::topMatch(RelExpr *relExpr,
-                                            Context *context)
-{
-  if (NOT Rule::topMatch(relExpr,context))
-    return FALSE;
-  
+NABoolean PhysicalSPProxyFuncRule::topMatch(RelExpr *relExpr, Context *context) {
+  if (NOT Rule::topMatch(relExpr, context)) return FALSE;
+
   return TRUE;
 }
 
-RelExpr *PhysicalSPProxyFuncRule::nextSubstitute(RelExpr *before,
-                                                 Context *context,
-                                                 RuleSubstituteMemory *&)
-{
+RelExpr *PhysicalSPProxyFuncRule::nextSubstitute(RelExpr *before, Context *context, RuleSubstituteMemory *&) {
   // Create a new physical node and copy all attributes. The parent
   // class method RelExpr::copyTopNode() does a "deeper" copy than the
   // RelExpr copy constructor.
-  PhysicalSPProxyFunc *result = new (CmpCommon::statementHeap()) 
-                                                     PhysicalSPProxyFunc();
+  PhysicalSPProxyFunc *result = new (CmpCommon::statementHeap()) PhysicalSPProxyFunc();
 
   before->copyTopNode(result, CmpCommon::statementHeap());
 
   // Some fields are not copied and need to be filled in.
   result->setGroupAttr(before->getGroupAttr());
-  
+
   return result;
 }
 
 // -----------------------------------------------------------------------
 // methods for class PhysicalExtractSourceRule
 // -----------------------------------------------------------------------
-PhysicalExtractSourceRule::~PhysicalExtractSourceRule() {} 
+PhysicalExtractSourceRule::~PhysicalExtractSourceRule() {}
 
-NABoolean PhysicalExtractSourceRule::topMatch(RelExpr *relExpr,
-                                              Context *context)
-{
-  if (NOT Rule::topMatch(relExpr,context))
-    return FALSE;
+NABoolean PhysicalExtractSourceRule::topMatch(RelExpr *relExpr, Context *context) {
+  if (NOT Rule::topMatch(relExpr, context)) return FALSE;
   return TRUE;
 }
 
-RelExpr *PhysicalExtractSourceRule::nextSubstitute(RelExpr *before,
-                                                   Context *context,
-                                                   RuleSubstituteMemory *&)
-{
+RelExpr *PhysicalExtractSourceRule::nextSubstitute(RelExpr *before, Context *context, RuleSubstituteMemory *&) {
   // Create a new physical node and copy all attributes. The parent
   // class method RelExpr::copyTopNode() does a "deeper" copy than the
   // RelExpr copy constructor.
-  PhysicalExtractSource *result = new (CmpCommon::statementHeap()) 
-                                                    PhysicalExtractSource();
+  PhysicalExtractSource *result = new (CmpCommon::statementHeap()) PhysicalExtractSource();
   before->copyTopNode(result, CmpCommon::statementHeap());
-  
+
   // Some fields are not copied and need to be filled in.
   result->setGroupAttr(before->getGroupAttr());
-  
-  return (RelExpr *) result;
+
+  return (RelExpr *)result;
 }
 
-PhysicalIsolatedScalarUDFRule::~PhysicalIsolatedScalarUDFRule() {} 
+PhysicalIsolatedScalarUDFRule::~PhysicalIsolatedScalarUDFRule() {}
 
-NABoolean PhysicalIsolatedScalarUDFRule::topMatch (RelExpr *relExpr,
-                                                Context *context)
-{
-  if (NOT Rule::topMatch(relExpr, context))
-    return FALSE;
+NABoolean PhysicalIsolatedScalarUDFRule::topMatch(RelExpr *relExpr, Context *context) {
+  if (NOT Rule::topMatch(relExpr, context)) return FALSE;
 
-  const ReqdPhysicalProperty* const rppForMe =
-    context->getReqdPhysicalProperty();
+  const ReqdPhysicalProperty *const rppForMe = context->getReqdPhysicalProperty();
 
   // UDFs cannot execute in DP2 so if we are asked to do so, refuse.
-  if (rppForMe->executeInDP2())
-    return FALSE;
+  if (rppForMe->executeInDP2()) return FALSE;
 
   // Check for required physical properties that require an enforcer
   // operator to succeed.
-  if (relExpr->rppRequiresEnforcer(rppForMe))
-    return FALSE;
+  if (relExpr->rppRequiresEnforcer(rppForMe)) return FALSE;
 
-  if ((rppForMe->getPartitioningRequirement() != NULL) AND
-      (NOT(rppForMe->getPartitioningRequirement()->isRequirementExactlyOne()))
-      AND
-      (NOT(rppForMe->getPartitioningRequirement()->isRequirementReplicateNoBroadcast())))
+  if ((rppForMe->getPartitioningRequirement() != NULL)
+          AND(NOT(rppForMe->getPartitioningRequirement()->isRequirementExactlyOne()))
+              AND(NOT(rppForMe->getPartitioningRequirement()->isRequirementReplicateNoBroadcast())))
     return FALSE;
-
 
   return TRUE;
 }
 
-RelExpr * PhysicalIsolatedScalarUDFRule::nextSubstitute(RelExpr * before,
-                                            Context * /*context*/,
-                                            RuleSubstituteMemory *& /*memory*/)
-{
+RelExpr *PhysicalIsolatedScalarUDFRule::nextSubstitute(RelExpr *before, Context * /*context*/,
+                                                       RuleSubstituteMemory *& /*memory*/) {
   CMPASSERT(before->getOperatorType() == REL_ISOLATED_SCALAR_UDF);
-  IsolatedScalarUDF * bef = (IsolatedScalarUDF *) before;
+  IsolatedScalarUDF *bef = (IsolatedScalarUDF *)before;
 
   // Simply copy the contents of the IsolatedScalarUDF from the before pattern.
-  PhysicalIsolatedScalarUDF *result = new (CmpCommon::statementHeap())
-    PhysicalIsolatedScalarUDF(CmpCommon::statementHeap());
+  PhysicalIsolatedScalarUDF *result =
+      new (CmpCommon::statementHeap()) PhysicalIsolatedScalarUDF(CmpCommon::statementHeap());
 
   bef->copyTopNode(result, CmpCommon::statementHeap());
 
@@ -5206,54 +4153,41 @@ RelExpr * PhysicalIsolatedScalarUDFRule::nextSubstitute(RelExpr * before,
   return result;
 }
 
-PhysicalTMUDFRule::~PhysicalTMUDFRule() {} 
+PhysicalTMUDFRule::~PhysicalTMUDFRule() {}
 
-NABoolean PhysicalTMUDFRule::topMatch (RelExpr *relExpr,
-                                       Context *context)
-{
-  if (NOT relExpr->getOperator().match(REL_ANY_TABLE_MAPPING_UDF))
-    return FALSE;
-  if (relExpr->isPhysical())
-    return FALSE;
+NABoolean PhysicalTMUDFRule::topMatch(RelExpr *relExpr, Context *context) {
+  if (NOT relExpr->getOperator().match(REL_ANY_TABLE_MAPPING_UDF)) return FALSE;
+  if (relExpr->isPhysical()) return FALSE;
 
-  if (context->getReqdPhysicalProperty()->executeInDP2())
-    return FALSE;
+  if (context->getReqdPhysicalProperty()->executeInDP2()) return FALSE;
 
-  const ReqdPhysicalProperty* const rppForMe =
-    context->getReqdPhysicalProperty();
-  
+  const ReqdPhysicalProperty *const rppForMe = context->getReqdPhysicalProperty();
+
   // Check for required physical properties that require an enforcer
   // operator to succeed.
-  if (relExpr->rppRequiresEnforcer(rppForMe))
-    return FALSE;
+  if (relExpr->rppRequiresEnforcer(rppForMe)) return FALSE;
 
   return TRUE;
 }
 
-RelExpr * PhysicalTMUDFRule::nextSubstitute(RelExpr * before,
-                                            Context * /*context*/,
-                                            RuleSubstituteMemory *& /*memory*/)
-{
+RelExpr *PhysicalTMUDFRule::nextSubstitute(RelExpr *before, Context * /*context*/, RuleSubstituteMemory *& /*memory*/) {
   CMPASSERT(before->getOperator().match(REL_ANY_TABLE_MAPPING_UDF));
-  TableMappingUDF * bef = (TableMappingUDF *) before;
+  TableMappingUDF *bef = (TableMappingUDF *)before;
 
   // Simply copy the contents of the TableMappingUDF from the before pattern.
-  PhysicalTableMappingUDF *result = new (CmpCommon::statementHeap())
-    PhysicalTableMappingUDF(before->getArity(), CmpCommon::statementHeap());
+  PhysicalTableMappingUDF *result =
+      new (CmpCommon::statementHeap()) PhysicalTableMappingUDF(before->getArity(), CmpCommon::statementHeap());
   bef->TableMappingUDF::copyTopNode(result, CmpCommon::statementHeap());
 
   // now set the group attributes of the result's top node
   result->setGroupAttr(before->getGroupAttr());
-  for (Int32 i=0; i < before->getArity(); i++)
-    result->child(i) = before->child(i);
+  for (Int32 i = 0; i < before->getArity(); i++) result->child(i) = before->child(i);
 
   return result;
 }
 
-NABoolean PhysicalTMUDFRule::canMatchPattern (const RelExpr *pattern) const
-{
-  switch (pattern->getOperatorType())
-    {
+NABoolean PhysicalTMUDFRule::canMatchPattern(const RelExpr *pattern) const {
+  switch (pattern->getOperatorType()) {
     case REL_ANY_TABLE_MAPPING_UDF:
     case REL_ANY_LEAF_TABLE_MAPPING_UDF:
     case REL_ANY_UNARY_TABLE_MAPPING_UDF:
@@ -5265,6 +4199,5 @@ NABoolean PhysicalTMUDFRule::canMatchPattern (const RelExpr *pattern) const
         return FALSE;
       else
         return pattern->getOperator().match(REL_ANY_TABLE_MAPPING_UDF);
-    }
+  }
 }
-

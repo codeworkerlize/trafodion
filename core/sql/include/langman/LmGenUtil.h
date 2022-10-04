@@ -38,4 +38,4 @@
 
 LmResult setLMObjectMapping(const char *routineSig, ComBoolean objMapArray[], ComUInt32 total);
 
-#endif // LMGENUTIL_H
+#endif  // LMGENUTIL_H

@@ -37,13 +37,12 @@
 
 // -----------------------------------------------------------------------
 
-
-#include  "ex_stdh.h"
-#include  "ComTdb.h"
-#include  "ex_tcb.h"
-#include  "ex_expr.h"
-#include  "str.h"
-#include  "ex_key_object.h"
+#include "ex_stdh.h"
+#include "ComTdb.h"
+#include "ex_tcb.h"
+#include "ex_expr.h"
+#include "str.h"
+#include "ex_key_object.h"
 
 
 KeyObject::KeyObject(ex_expr * lkey_expr, ex_expr * hkey_expr,
@@ -65,5 +64,4 @@ short KeyObject::getNextKeys(char * lkey_buffer, short * lkey_excluded,
   return 0;
 }
 
-
-#endif  
+#endif

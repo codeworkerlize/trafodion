@@ -164,7 +164,6 @@ using namespace std;
 #include "parser/StmtCompilationMode.h"
 #include "StmtDMLSetTransaction.h"
 
-#include "parser/StmtDDLonHiveObjects.h"
 // -- triggers
 #include "optimizer/Triggers.h"
 #include "ItemNAType.h"
@@ -794,7 +793,6 @@ static void setPartionInfo(RelExpr *re)
 %token <tokval> TOK_GZIP
 %token <tokval> TOK_HAVING
 %token <tokval> TOK_HIVE
-%token <tokval> TOK_HIVEMD
 %token <tokval> TOK_QUALIFY
 %token <tokval> TOK_HEADER
 %token <tokval> TOK_TRAFODION
@@ -1465,7 +1463,6 @@ static void setPartionInfo(RelExpr *re)
 %token <tokval> TOK_HASH2               /* Tandem extension */
 %token <tokval> TOK_HASHPARTFUNC        /* Tandem extension */
 %token <tokval> TOK_HASH2PARTFUNC       /* Tandem extension */
-%token <tokval> TOK_HIVEPARTFUNC        /* Tandem extension */
 %token <tokval> TOK_HEADING             /* Tandem extension */
 %token <tokval> TOK_HEADINGS            /* Tandem extension */
 %token <tokval> TOK_ICOMPRESS           /* Tandem extension */
@@ -2707,17 +2704,13 @@ static void setPartionInfo(RelExpr *re)
 %type <pStmtDDL>                register_component_statement
 %type <pStmtDDL>                register_user_statement
 %type <pStmtDDL>                register_tenant_statement
-%type <pStmtDDL>                register_hive_statement
 %type <pStmtDDL>                register_user_group_statement
 %type <pStmtDDL>                alter_tenant_statement
 %type <pStmtDDL>                alter_user_group_statement
-%type <pStmtDDL>                register_hbase_statement
 %type <boolean>                 optional_internal_clause
 %type <pStmtDDL>                unregister_component_statement
 %type <pStmtDDL>		unregister_user_statement
 %type <pStmtDDL>		unregister_tenant_statement
-%type <pStmtDDL>		unregister_hive_statement
-%type <pStmtDDL>		unregister_hbase_statement
 %type <pStmtDDL>                unregister_user_group_statement
 %type <tokval>                  create_or_register_tenant
 %type <tokval>                  drop_or_unregister_tenant
@@ -11409,15 +11402,7 @@ misc_function :
                                                       SQLInt(PARSERHEAP(), FALSE, FALSE)));
                                 }
 
-     | TOK_HIVEPARTFUNC '(' value_expression_list TOK_FOR value_expression ')'
-                                {
-                                  $$ = new (PARSERHEAP())
-                                    Modulus(new (PARSERHEAP())
-                                                 HiveHash($3),
-                                                 new (PARSERHEAP())
-                                                 Cast($5, new (PARSERHEAP())
-                                                      SQLInt(FALSE, FALSE)));
-                                }
+
 
      | TOK_RRPARTFUNC '(' value_expression TOK_FOR value_expression ')'
                                 {
@@ -13664,22 +13649,7 @@ blob_type : TOK_BLOB blob_optional_left_len_right
                                                    0);
 		}
             }
-          | TOK_CLOB clob_optional_left_len_right char_set
-            {
-              if( ModuleCheck(LM_LOB, "CLOB"))
-                YYERROR;
-	      if (CmpCommon::getDefault(TRAF_CLOB_AS_VARCHAR) == DF_ON)
-		{
-		  $$ = new (PARSERHEAP()) SQLVarChar(PARSERHEAP(), $2);
-                  ((SQLVarChar*)$$)->setClientDataType("CLOB");
-		}
-	      else
-		{
-                  $$ = new (PARSERHEAP()) SQLClob (PARSERHEAP(),  $2 ,$3,
-                                                   Lob_Invalid_Storage,TRUE,
-                                                   0); 
-		}
-            }
+
  
 
 blob_optional_left_len_right: '(' NUMERIC_LITERAL_EXACT_NO_SCALE optional_lob_unit optional_lob_bytes')'
@@ -13700,19 +13670,7 @@ blob_optional_left_len_right: '(' NUMERIC_LITERAL_EXACT_NO_SCALE optional_lob_un
 	 
 	}
 
-	| empty
-	{ 
 
-	  if (CmpCommon::getDefault(TRAF_BLOB_AS_VARCHAR) == DF_ON)
-	    {
-	      $$ = (Int64)CmpCommon::getDefaultNumeric(TRAF_MAX_CHARACTER_COL_LENGTH );
-	    }
-	  else
-	    {
-	      $$ = (Int64)CmpCommon::getDefaultNumeric(LOB_MAX_SIZE)*1024*1024;
-	  
-	    }
-        }
 
 /* type int64 */
 optional_lob_unit :   TOK_K {$$ = 1024;}
@@ -13737,19 +13695,7 @@ clob_optional_left_len_right: '(' NUMERIC_LITERAL_EXACT_NO_SCALE optional_lob_un
 	  delete $2;
 	}
 
-	| empty
-	{
 
-	  if (CmpCommon::getDefault(TRAF_CLOB_AS_VARCHAR) == DF_ON)
-	    {
-	      $$ = (Int64)CmpCommon::getDefaultNumeric(TRAF_MAX_CHARACTER_COL_LENGTH );
-	    }
-	  else
-	    {
-             $$ = (Int64)CmpCommon::getDefaultNumeric(LOB_MAX_SIZE)*1024*1024; 
-
-	    }
-        }
 
 /* type na_type */
 boolean_type : TOK_BOOLEAN
@@ -16619,20 +16565,12 @@ sql_schema_definition_statement :
               | cleanup_objects_statement
                                 {
                                 }
-              | register_hive_statement
-                                {
-                                }
-              | unregister_hive_statement
+
 
               | create_namespace_statement
                                 {
                                 }
-              | register_hbase_statement
-                                {
-                                }
-              | unregister_hbase_statement
-                                {
-                                }
+
               | comment_on_statement
                                 {
                                 }
@@ -17080,11 +17018,7 @@ interactive_query_expression:
                                 {
 				  $$ = finalize($1);
 				}
-/*              | exe_util_hive_truncate
-                                {
-				  $$ = finalize($1);
-				}
-*/
+
               | exe_util_get_uid
                                 {
 				  $$ = finalize($1);
@@ -35648,8 +35582,6 @@ cleanup_object_identifier : object_identifier
                        | TOK_PRIVATE TOK_SCHEMA   { $$ = new (PARSERHEAP()) NAString("SCHEMA_P"); }
                        | TOK_SHARED TOK_SCHEMA   { $$ = new (PARSERHEAP()) NAString("SCHEMA_S"); }
                        | TOK_OBJECT { $$ = new (PARSERHEAP()) NAString("OBJECT");}
-                       | TOK_HIVE TOK_TABLE { $$ = new (PARSERHEAP()) NAString("HIVE_TABLE");}
-                       | TOK_HIVE TOK_VIEW { $$ = new (PARSERHEAP()) NAString("HIVE_VIEW");}
                        | TOK_HBASE TOK_TABLE { $$ = new (PARSERHEAP()) NAString("HBASE_TABLE");}
 
 optional_cleanup_partition_name : TOK_PARTITION identifier
@@ -39500,113 +39432,10 @@ nsk_node_name: BACKSLASH_SYSTEM_NAME
                 delete $1;
                }
 
-/* type pStmtDDL */
-// Syntax: 
-// register [internal] hive {table|view|schema} 
-//          [if not exists] <obj-name> [cascade]
-//
-register_hive_statement : TOK_REGISTER optional_internal_clause TOK_HIVE object_identifier optional_if_not_registered_clause ddl_qualified_name optional_cascade
-                          {
-                            if (NOT ((*$4 == "TABLE") ||
-                                     (*$4 == "VIEW") ||
-                                     (*$4 == "SCHEMA")))
-                              {
-                                YYERROR;
-                              }
-      
-                            if ($7 && (*$4 != "VIEW"))
-                              {
-                                YYERROR;
-                              }
 
-                            $$ = new (PARSERHEAP())
-                              StmtDDLRegOrUnregObject(
-                                   *$6,
-                                   StmtDDLRegOrUnregObject::HIVE,
-                                   TRUE, // register
-                                   (*$4 == "TABLE" ? COM_BASE_TABLE_OBJECT
-                                    : (*$4 == "VIEW" ? COM_VIEW_OBJECT
-                                       : COM_SHARED_SCHEMA_OBJECT)),
-                                   $5, // if not exists?
-                                   $2, // is internal registration?
-                                   $7, // is cascade?
-                                   FALSE,
-                                   PARSERHEAP());
-                            delete $6;
-                          }
 
-// Syntax: 
-// unregister [internal] hive {table|view|schema} 
-//            [if exists] <obj-name> [cascade]
-//
-unregister_hive_statement : TOK_UNREGISTER optional_internal_clause TOK_HIVE object_identifier optional_if_registered_clause ddl_qualified_name optional_cascade optional_cleanup
-                              {
-                                if (NOT ((*$4 == "TABLE") ||
-                                         (*$4 == "VIEW") ||
-                                         (*$4 == "SCHEMA")))
-                                  {
-                                    YYERROR;
-                                  }
-                                
-                                if ($7 &&
-                                    (*$4 != "VIEW"))
-                                  {
-                                    YYERROR;
-                                  }
-                                
-                                $$ = new (PARSERHEAP())
-                                  StmtDDLRegOrUnregObject(
-                                       *$6,
-                                       StmtDDLRegOrUnregObject::HIVE,
-                                       FALSE, // unregister
-                                       (*$4 == "TABLE" ? COM_BASE_TABLE_OBJECT
-                                        : (*$4 == "VIEW" ? COM_VIEW_OBJECT
-                                           : COM_SHARED_SCHEMA_OBJECT)),
-                                       $5, // if exists?
-                                       $2, // is internal unregister?
-                                       $7, // is cascade?
-                                       $8, // is cleanup?
-                                       PARSERHEAP());
-                                delete $6;
-                              }
 
-/* type pStmtDDL */
-// Syntax: register [internal] hbase table [if not exists] <table-name> 
-register_hbase_statement : TOK_REGISTER optional_internal_clause TOK_HBASE TOK_TABLE optional_if_not_registered_clause ddl_qualified_name
-                          {
-                            StmtDDLRegOrUnregObject *pNode = new (PARSERHEAP())
-                              StmtDDLRegOrUnregObject(
-                                   *$6,
-                                   StmtDDLRegOrUnregObject::HBASE,
-                                   TRUE, // register
-                                   COM_BASE_TABLE_OBJECT,
-                                   $5, // if not exists?
-                                   $2, // is internal registration?
-                                   FALSE,
-                                   FALSE,
-                                   PARSERHEAP());
 
-                            $$ = pNode;
-                            delete $6;
-                          }
-
-/* type pStmtDDL */
-// Syntax: unregister [internal] hbase table [if exists] <table-name>
-unregister_hbase_statement : TOK_UNREGISTER optional_internal_clause TOK_HBASE TOK_TABLE optional_if_registered_clause ddl_qualified_name optional_cleanup
-                              {
-                                $$ = new (PARSERHEAP())
-                                  StmtDDLRegOrUnregObject(
-                                       *$6,
-                                       StmtDDLRegOrUnregObject::HBASE,
-                                       FALSE, // unregister
-                                       COM_BASE_TABLE_OBJECT,
-                                       $5, // if exists?
-                                       $2, // is internal unregister?
-                                       FALSE,
-                                       $7, // is cleanup?
-                                       PARSERHEAP());
-                                delete $6;
-                              }
 
 /* type boolean */
 optional_internal_clause : empty
@@ -41128,7 +40957,6 @@ nonreserved_func_word:  TOK_ABS
                       | TOK_GREATEST
                       | TOK_GROUPING_ID
                       | TOK_HASHPARTFUNC
-                      | TOK_HIVEPARTFUNC
                       | TOK_HASH2PARTFUNC
                       | TOK_HBASE_AUTHS
                       | TOK_HBASE_VISIBILITY
@@ -41137,7 +40965,6 @@ nonreserved_func_word:  TOK_ABS
                       | TOK_HEX
                       | TOK_HBASE_ROWID
                       | TOK_HIVE
-                      | TOK_HIVEMD
                       | TOK_INET_ATON
                       | TOK_INET_NTOA
                       | TOK_INITIAL

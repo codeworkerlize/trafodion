@@ -41,9 +41,6 @@
 // NAError_stub_for_breakpoints() (in NAError.h/BaseTypes.cpp) before
 // quitting the process completely
 
-void NAExit (Int32 status);  // fn body is in BaseTypes.cpp
-
+void NAExit(Int32 status);  // fn body is in BaseTypes.cpp
 
 #endif /* NAEXIT_H */
-
-

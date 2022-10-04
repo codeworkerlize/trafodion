@@ -60,8 +60,8 @@ class NAString;
 //    redefine the operator[] method for that new operator and allocate
 //    space for the additional children in that particular class
 // -----------------------------------------------------------------------
-const Int32 MAX_REL_ARITY = 2; // join, union
-const Int32 MAX_ITM_ARITY = 3; // like, between predicates have arity 3
+const Int32 MAX_REL_ARITY = 2;  // join, union
+const Int32 MAX_ITM_ARITY = 3;  // like, between predicates have arity 3
 
 // -----------------------------------------------------------------------
 //   Group index
@@ -72,48 +72,60 @@ const Int32 MAX_ITM_ARITY = 3; // like, between predicates have arity 3
 // -----------------------------------------------------------------------
 
 typedef CollIndex CascadesGroupId;
-const   CollIndex INVALID_GROUP_ID = NULL_COLL_INDEX;
+const CollIndex INVALID_GROUP_ID = NULL_COLL_INDEX;
 
 // -----------------------------------------------------------------------
 // value of a hash function
 // -----------------------------------------------------------------------
 
-class HashValue : public NABasicObject
-{
-public:
-
+class HashValue : public NABasicObject {
+ public:
   HashValue(ULng32 v = 0x0) { val_ = v; }
 
-  inline NABoolean operator == (const HashValue &other)
-  { return (val_ == other.val_); }
+  inline NABoolean operator==(const HashValue &other) { return (val_ == other.val_); }
 
   // hash values are combined with other hash values or other values by
   // using the operator ^=
-  inline HashValue & operator ^= (const HashValue & other)
-  { val_ ^= other.val_; return *this; }
-  inline HashValue & operator ^= (UInt32 other)
-  { val_ ^= (ULng32) other; return *this; }
-  inline HashValue & operator ^= (unsigned short other)
-  { val_ ^= (ULng32) other; return *this; }
-  inline HashValue & operator ^= (unsigned char other)
-  { val_ ^= (ULng32) other; return *this; }
-  inline HashValue & operator ^= (Int32 other)
-  { val_ ^= (ULng32) other; return *this; }
-  inline HashValue & operator ^= (short other)
-  { val_ ^= (ULng32) other; return *this; }
-  inline HashValue & operator ^= (char other)
-  { val_ ^= (ULng32) other; return *this; }
-  inline HashValue & operator ^= (void * other)
-  { val_ ^= (ULng32)((Long) other); return *this; }
-  HashValue & operator ^= (const NAString & other);
-  HashValue & operator ^= (const ValueId & other);
-  HashValue & operator ^= (const ValueIdSet & other);
-  HashValue & operator ^= (const CANodeIdSet & other);
+  inline HashValue &operator^=(const HashValue &other) {
+    val_ ^= other.val_;
+    return *this;
+  }
+  inline HashValue &operator^=(UInt32 other) {
+    val_ ^= (ULng32)other;
+    return *this;
+  }
+  inline HashValue &operator^=(unsigned short other) {
+    val_ ^= (ULng32)other;
+    return *this;
+  }
+  inline HashValue &operator^=(unsigned char other) {
+    val_ ^= (ULng32)other;
+    return *this;
+  }
+  inline HashValue &operator^=(Int32 other) {
+    val_ ^= (ULng32)other;
+    return *this;
+  }
+  inline HashValue &operator^=(short other) {
+    val_ ^= (ULng32)other;
+    return *this;
+  }
+  inline HashValue &operator^=(char other) {
+    val_ ^= (ULng32)other;
+    return *this;
+  }
+  inline HashValue &operator^=(void *other) {
+    val_ ^= (ULng32)((Long)other);
+    return *this;
+  }
+  HashValue &operator^=(const NAString &other);
+  HashValue &operator^=(const ValueId &other);
+  HashValue &operator^=(const ValueIdSet &other);
+  HashValue &operator^=(const CANodeIdSet &other);
 
   inline ULng32 getValue() { return val_; }
 
-private:
-
+ private:
   ULng32 val_;
 };
 
@@ -124,9 +136,8 @@ private:
 //  NOTE: easy to remember values are assigned for debugging only!!
 // -----------------------------------------------------------------------
 
-typedef enum COMPARE_RESULT
-{
-  UNDEFINED = -3, // for partial orderings
+typedef enum COMPARE_RESULT {
+  UNDEFINED = -3,  // for partial orderings
   INCOMPATIBLE = -2,
   LESS = -1,
   SAME = 0,
@@ -142,45 +153,37 @@ inline char * compare_result_string (COMPARE_RESULT c)
     return (c == MORE ? "more" :
             c == LESS ? "less" :
             c == SAME ? "same" :
-	    c == INCOMPATIBLE ? "incompatible" :
+            c == INCOMPATIBLE ? "incompatible" :
             "undefined");
 } // compare_result_string
 */
 
-inline COMPARE_RESULT reverse_compare_result (COMPARE_RESULT c)
-{
-    return (c == MORE ? LESS :
-            c == LESS ? MORE :
-            c); // SAME or UNDEFINED (don't use with INCOMPATIBLE)
-} // reverse_compare_result
+inline COMPARE_RESULT reverse_compare_result(COMPARE_RESULT c) {
+  return (c == MORE ? LESS : c == LESS ? MORE : c);  // SAME or UNDEFINED (don't use with INCOMPATIBLE)
+}  // reverse_compare_result
 
-inline COMPARE_RESULT combine_compare_results (
-        COMPARE_RESULT c1, COMPARE_RESULT c2)
-{
-  if (c1 == INCOMPATIBLE OR
-      c2 == INCOMPATIBLE)       return INCOMPATIBLE;
-  else if (c1 == UNDEFINED OR
-	   c2 == UNDEFINED)     return UNDEFINED;
-  else if (c1 == SAME)          return c2;
-  else if (c2 == SAME)          return c1;
-  else if (c1 == c2)            return c1;
-  else                          return UNDEFINED;
-} // combine_compare_results
+inline COMPARE_RESULT combine_compare_results(COMPARE_RESULT c1, COMPARE_RESULT c2) {
+  if (c1 == INCOMPATIBLE OR c2 == INCOMPATIBLE)
+    return INCOMPATIBLE;
+  else if (c1 == UNDEFINED OR c2 == UNDEFINED)
+    return UNDEFINED;
+  else if (c1 == SAME)
+    return c2;
+  else if (c2 == SAME)
+    return c1;
+  else if (c1 == c2)
+    return c1;
+  else
+    return UNDEFINED;
+}  // combine_compare_results
 
 // -----------------------------------------------------------------------
 // Sort order: same, inverse, different
 // -----------------------------------------------------------------------
 
-typedef enum OrderComparison
-{
-  SAME_ORDER,
-  INVERSE_ORDER,
-  DIFFERENT_ORDER
-} OrderComparison;
+typedef enum OrderComparison { SAME_ORDER, INVERSE_ORDER, DIFFERENT_ORDER } OrderComparison;
 
-inline OrderComparison combineOrderComparisons(OrderComparison o1,
-					       OrderComparison o2)
-{
+inline OrderComparison combineOrderComparisons(OrderComparison o1, OrderComparison o2) {
   if (o1 == o2)
     return o1;
   else
@@ -202,17 +205,15 @@ inline OrderComparison combineOrderComparisons(OrderComparison o1,
 //
 // -----------------------------------------------------------------------
 
-class ReferenceCounter : public NABasicObject
-{
-public:
-
+class ReferenceCounter : public NABasicObject {
+ public:
   // ---------------------------------------------------------------------
   //  Constructor/Assignment/Destructor
   // ---------------------------------------------------------------------
-  ReferenceCounter ();
-  ReferenceCounter (const ReferenceCounter&);
-  ReferenceCounter& operator= (const ReferenceCounter&);
-  virtual ~ReferenceCounter ();
+  ReferenceCounter();
+  ReferenceCounter(const ReferenceCounter &);
+  ReferenceCounter &operator=(const ReferenceCounter &);
+  virtual ~ReferenceCounter();
 
   // ---------------------------------------------------------------------
   //  Manipulation of reference counter
@@ -221,10 +222,9 @@ public:
   void decrementReferenceCount(Int32 delta = 1);
   Int32 getReferenceCount() const;
 
-private:
-
+ private:
   Int32 referenceCount_;
 
-}; // ReferenceCounter
+};  // ReferenceCounter
 
 #endif /* CASCADESBASIC_H */

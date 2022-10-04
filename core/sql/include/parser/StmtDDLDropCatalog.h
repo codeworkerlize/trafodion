@@ -38,7 +38,6 @@
  *****************************************************************************
  */
 
-
 #include "common/ComSmallDefs.h"
 #include "StmtDDLNode.h"
 
@@ -55,39 +54,33 @@ class StmtDDLDropCatalog;
 // -----------------------------------------------------------------------
 // Create Catalog statement
 // -----------------------------------------------------------------------
-class StmtDDLDropCatalog : public StmtDDLNode
-{
-
-public:
-
+class StmtDDLDropCatalog : public StmtDDLNode {
+ public:
   // constructor
-  StmtDDLDropCatalog(const NAString & catalogName,
-                    ComDropBehavior dropBehavior);
+  StmtDDLDropCatalog(const NAString &catalogName, ComDropBehavior dropBehavior);
 
   // virtual destructor
   virtual ~StmtDDLDropCatalog();
 
   // cast
-  virtual StmtDDLDropCatalog * castToStmtDDLDropCatalog();
+  virtual StmtDDLDropCatalog *castToStmtDDLDropCatalog();
 
   // accessor
-  inline const NAString & getCatalogName() const;
+  inline const NAString &getCatalogName() const;
   inline ComDropBehavior getDropBehavior() const;
 
   // for binding
-  ExprNode * bindNode(BindWA *bindWAPtr);
+  ExprNode *bindNode(BindWA *bindWAPtr);
 
   // for tracing
   virtual const NAString displayLabel1() const;
   virtual const NAString getText() const;
 
-
-private:
-
+ private:
   NAString catalogName_;
   ComDropBehavior dropBehavior_;
 
-}; // class StmtDDLDropCatalog
+};  // class StmtDDLDropCatalog
 
 // -----------------------------------------------------------------------
 // definitions of inline methods for class StmtDDLDropCatalog
@@ -97,16 +90,8 @@ private:
 // accessor
 //
 
-inline const NAString &
-StmtDDLDropCatalog::getCatalogName() const
-{
-  return catalogName_;
-}
+inline const NAString &StmtDDLDropCatalog::getCatalogName() const { return catalogName_; }
 
-inline ComDropBehavior
-StmtDDLDropCatalog::getDropBehavior() const
-{
-  return dropBehavior_;
-}
+inline ComDropBehavior StmtDDLDropCatalog::getDropBehavior() const { return dropBehavior_; }
 
-#endif // STMTDDLDROPCATALOG_H
+#endif  // STMTDDLDROPCATALOG_H

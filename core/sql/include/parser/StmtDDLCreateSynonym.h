@@ -1,8 +1,8 @@
 #ifndef STMTDDLCREATESYNONYM_H
 #define STMTDDLCREATESYNONYM_H
-/* 
+/*
 ******************************************************************************
-* 
+*
 * File:          StmtDDLCreateSynonym.h
 * RCS:           $Id:
 * Description:   class for parse node representing create synonym
@@ -11,9 +11,9 @@
 *
 * Created:       01/27/06
 * Language:      C++
-* 
 *
-* 
+*
+*
 // @@@ START COPYRIGHT @@@
 //
 // Licensed to the Apache Software Foundation (ASF) under one
@@ -43,51 +43,45 @@
 class StmtDDLCreateSynonym : public StmtDDLNode
 
 {
- 
-public: 
-   
-// constructor
+ public:
+  // constructor
 
-   StmtDDLCreateSynonym();
-   StmtDDLCreateSynonym (const QualifiedName & synonymname,
-		         const QualifiedName & objectreference,
-                         ElemDDLNode *pOwner);
+  StmtDDLCreateSynonym();
+  StmtDDLCreateSynonym(const QualifiedName &synonymname, const QualifiedName &objectreference, ElemDDLNode *pOwner);
 
-// Virtual Destructor  
+  // Virtual Destructor
   virtual ~StmtDDLCreateSynonym();
 
-// Cast 
+  // Cast
 
-virtual StmtDDLCreateSynonym * castToStmtDDLCreateSynonym();
+  virtual StmtDDLCreateSynonym *castToStmtDDLCreateSynonym();
 
-//
-// method for binding
-//
+  //
+  // method for binding
+  //
 
-ExprNode * bindNode(BindWA *bindWAPtr);
+  ExprNode *bindNode(BindWA *bindWAPtr);
 
-// accessors
+  // accessors
 
-inline const NAString getSynonymName() const;
-inline const NAString getObjectReference() const ;
+  inline const NAString getSynonymName() const;
+  inline const NAString getObjectReference() const;
 
-inline const NABoolean isOwnerSpecified() const;
-inline const ElemDDLGrantee *getOwner() const;
+  inline const NABoolean isOwnerSpecified() const;
+  inline const ElemDDLGrantee *getOwner() const;
 
-// for tracing
+  // for tracing
 
-virtual const NAString displayLabel1() const;
-virtual const NAString displayLabel2() const;
-virtual const NAString getText() const;                    
+  virtual const NAString displayLabel1() const;
+  virtual const NAString displayLabel2() const;
+  virtual const NAString getText() const;
 
-// mutator
+  // mutator
 
-private:
-  
+ private:
   QualifiedName synonymName_;
   QualifiedName objectReference_;
-   ElemDDLGrantee *pOwner_;
-
+  ElemDDLGrantee *pOwner_;
 };
 
 //----------------------------------------------------------------------------
@@ -95,31 +89,21 @@ private:
 //----------------------------------------------------------------------------
 
 //
-// accessors 
-// 
+// accessors
+//
 
-inline const  NAString StmtDDLCreateSynonym::getSynonymName() const
-{
-   NAString synonymName = synonymName_.getQualifiedNameAsAnsiString();
-   return synonymName;
+inline const NAString StmtDDLCreateSynonym::getSynonymName() const {
+  NAString synonymName = synonymName_.getQualifiedNameAsAnsiString();
+  return synonymName;
 }
 
-inline const  NAString StmtDDLCreateSynonym::getObjectReference() const 
-{
-   NAString objectReference =  objectReference_.getQualifiedNameAsAnsiString();
-   return objectReference;
-}   
-
-inline const NABoolean
-StmtDDLCreateSynonym::isOwnerSpecified() const
-{
-  return pOwner_ ? TRUE : FALSE;
+inline const NAString StmtDDLCreateSynonym::getObjectReference() const {
+  NAString objectReference = objectReference_.getQualifiedNameAsAnsiString();
+  return objectReference;
 }
 
-inline const ElemDDLGrantee *
-StmtDDLCreateSynonym::getOwner() const
-{
-  return pOwner_;
-}
+inline const NABoolean StmtDDLCreateSynonym::isOwnerSpecified() const { return pOwner_ ? TRUE : FALSE; }
+
+inline const ElemDDLGrantee *StmtDDLCreateSynonym::getOwner() const { return pOwner_; }
 
 #endif  // STMTDDLCREATESYNONYM_H

@@ -41,44 +41,42 @@
 #include "RuTaskExecutor.h"
 
 class REFRESH_LIB_CLASS CRURcReleaseTaskExecutor : public CRUTaskExecutor {
+ private:
+  typedef CRUTaskExecutor inherited;
 
-private:
-	typedef CRUTaskExecutor inherited;
+ public:
+  CRURcReleaseTaskExecutor(CRUTask *pParentTask);
+  ~CRURcReleaseTaskExecutor() {}
 
-public:
-	CRURcReleaseTaskExecutor(CRUTask *pParentTask);
-	~CRURcReleaseTaskExecutor() {}
+ public:
+  //-- Implementation of pure virtual functions
+  virtual void Work();
 
-public:
-	//-- Implementation of pure virtual functions
-	virtual void Work();
+  virtual void Init();
 
-	virtual void Init();
+ public:
+  // These functions serialize/de-serialize the executor's context
+  // for the message communication with the remote server process
 
-public:
-	// These functions serialize/de-serialize the executor's context 
-	// for the message communication with the remote server process
+  // Used in the main process side
+  virtual void StoreRequest(CUOFsIpcMessageTranslator &translator){};
+  virtual void LoadReply(CUOFsIpcMessageTranslator &translator){};
 
-	// Used in the main process side
-	virtual void StoreRequest(CUOFsIpcMessageTranslator &translator) {};
-	virtual void LoadReply(CUOFsIpcMessageTranslator &translator) {};
-	
-	// Used in the remote process side
-	virtual void LoadRequest(CUOFsIpcMessageTranslator &translator) {};
-	virtual void StoreReply(CUOFsIpcMessageTranslator &translator) {};
+  // Used in the remote process side
+  virtual void LoadRequest(CUOFsIpcMessageTranslator &translator){};
+  virtual void StoreReply(CUOFsIpcMessageTranslator &translator){};
 
-protected:
-	//-- Implementation of pure virtual
+ protected:
+  //-- Implementation of pure virtual
 
-	virtual Lng32 GetIpcBufferSize() const
-	{
-		return 0;	// The task is always performed locally
-	}
+  virtual Lng32 GetIpcBufferSize() const {
+    return 0;  // The task is always performed locally
+  }
 
-private:
-	//-- Prevent copying
-	CRURcReleaseTaskExecutor(const CRURcReleaseTaskExecutor &other);
-	CRURcReleaseTaskExecutor &operator = (const CRURcReleaseTaskExecutor &other);
+ private:
+  //-- Prevent copying
+  CRURcReleaseTaskExecutor(const CRURcReleaseTaskExecutor &other);
+  CRURcReleaseTaskExecutor &operator=(const CRURcReleaseTaskExecutor &other);
 };
 
 #endif

@@ -32,7 +32,7 @@
  *               The methods in this class are defined either in this
  *               header file or the source file StmtDDLAlter.C.
  *
- *               
+ *
  * Created:      9/20/95
  * Language:     C++
  *
@@ -41,7 +41,6 @@
  *
  *****************************************************************************
  */
-
 
 #include "StmtDDLAlterTable.h"
 
@@ -58,45 +57,32 @@ class StmtDDLAlterTableMove;
 // -----------------------------------------------------------------------
 // definition of class StmtDDLAlterTableMove
 // -----------------------------------------------------------------------
-class StmtDDLAlterTableMove : public StmtDDLAlterTable
-{
-
-public:
-
+class StmtDDLAlterTableMove : public StmtDDLAlterTable {
+ public:
   // constructor
-  StmtDDLAlterTableMove(ElemDDLNode * pMoveAction)
-  : StmtDDLAlterTable(DDL_ALTER_TABLE_MOVE,
-                    pMoveAction)
-  { }
+  StmtDDLAlterTableMove(ElemDDLNode *pMoveAction) : StmtDDLAlterTable(DDL_ALTER_TABLE_MOVE, pMoveAction) {}
 
   // virtual destructor
   virtual ~StmtDDLAlterTableMove();
 
   // cast
-  virtual StmtDDLAlterTableMove * castToStmtDDLAlterTableMove();
+  virtual StmtDDLAlterTableMove *castToStmtDDLAlterTableMove();
 
   // accessor
-  inline ElemDDLAlterTableMove * getMoveAction() const;
+  inline ElemDDLAlterTableMove *getMoveAction() const;
 
   // method for tracing
   virtual const NAString getText() const;
 
-
-private:
-
-  
-
-}; // class StmtDDLAlterTableMove
+ private:
+};  // class StmtDDLAlterTableMove
 
 // -----------------------------------------------------------------------
 // definitions of inline methods for class StmtDDLAlterTableMove
 // -----------------------------------------------------------------------
 
-inline
-ElemDDLAlterTableMove *
-StmtDDLAlterTableMove::getMoveAction() const
-{
+inline ElemDDLAlterTableMove *StmtDDLAlterTableMove::getMoveAction() const {
   return getAlterTableAction()->castToElemDDLAlterTableMove();
 }
 
-#endif // STMTDDLALTERTABLEMOVE_H
+#endif  // STMTDDLALTERTABLEMOVE_H

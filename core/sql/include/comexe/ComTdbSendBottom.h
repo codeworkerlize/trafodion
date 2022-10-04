@@ -65,8 +65,8 @@ class ComTdbSendBottom : public ComTdb {
   virtual const char *getExpressionName(Int32 pos) const;
 
   virtual ex_send_bottom_tcb *buildInstance(ExExeStmtGlobals *glob, ExEspFragInstanceDir *espInstanceDir,
-                                            const ExFragKey &myKey, const ExFragKey &parentKey,
-                                            int myHandle, Lng32 parentInstanceNum, NABoolean isLocal) {
+                                            const ExFragKey &myKey, const ExFragKey &parentKey, int myHandle,
+                                            Lng32 parentInstanceNum, NABoolean isLocal) {
     return NULL;
   }
   // its executor twin is used, ignore

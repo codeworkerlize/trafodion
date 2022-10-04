@@ -53,7 +53,7 @@
 // The NSK compiler doesn't like forward declarations of "struct" and
 // the NT compiler doesn't like forward "class" followed by "struct".
 // Sigh.
-#define FWD_STRUCT struct
+#define FWD_STRUCT          struct
 #define MAX_CLIENT_INFO_LEN 255
 
 class ExEspMsgObj;
@@ -90,9 +90,8 @@ class TimeoutData;
 // Enum type for message streams used by ESPs
 // (see IpcMessageTypeEnum in file IpcMessageType.h)
 // -----------------------------------------------------------------------
-enum ESPMessageTypeEnum
-{
-  IPC_MSG_SQLESP_LOW = IPC_MSG_SQLESP_FIRST, // from IpcMessageType.h
+enum ESPMessageTypeEnum {
+  IPC_MSG_SQLESP_LOW = IPC_MSG_SQLESP_FIRST,  // from IpcMessageType.h
   IPC_MSG_SQLESP_CONTROL_REQUEST,
   IPC_MSG_SQLESP_CONTROL_REPLY,
   IPC_MSG_SQLESP_DATA_REQUEST,
@@ -251,36 +250,35 @@ const IpcMessageObjVersion CurrEspReplyMessageVersion = 100;
 //   someday). Right now they are for aestetic reasons only, to symbolize
 //   the fact that NSK sends the transaction id automatically.
 // -----------------------------------------------------------------------
-enum ESPMessageObjTypeEnum
-{
-  ESP_INPUT_DATA_HDR                 = 101,
-  ESP_CONTINUE_HDR                   = 102,
-  ESP_RETURN_DATA_HDR                = 103,
-  ESP_LOAD_FRAGMENT_HDR              = 104,
-  ESP_FIXUP_FRAGMENT_HDR             = 106,
-  ESP_RELEASE_FRAGMENT_HDR           = 107,
-  ESP_OPEN_HDR                       = 108,
-  ESP_PARTITION_INPUT_DATA_HDR       = 110,
-  ESP_WORK_TRANSACTION_HDR           = 111,
-  ESP_RELEASE_TRANSACTION_HDR        = 112,
-  ESP_CANCEL_HDR                     = 113,
-  ESP_LATE_CANCEL_HDR                = 114,
-  ESP_RETURN_STATUS_HDR              = 120,
-  ESP_RETURN_CANCEL_HDR              = 121,
+enum ESPMessageObjTypeEnum {
+  ESP_INPUT_DATA_HDR = 101,
+  ESP_CONTINUE_HDR = 102,
+  ESP_RETURN_DATA_HDR = 103,
+  ESP_LOAD_FRAGMENT_HDR = 104,
+  ESP_FIXUP_FRAGMENT_HDR = 106,
+  ESP_RELEASE_FRAGMENT_HDR = 107,
+  ESP_OPEN_HDR = 108,
+  ESP_PARTITION_INPUT_DATA_HDR = 110,
+  ESP_WORK_TRANSACTION_HDR = 111,
+  ESP_RELEASE_TRANSACTION_HDR = 112,
+  ESP_CANCEL_HDR = 113,
+  ESP_LATE_CANCEL_HDR = 114,
+  ESP_RETURN_STATUS_HDR = 120,
+  ESP_RETURN_CANCEL_HDR = 121,
 
-  ESP_FRAGMENT_KEY                   = 140,
-  ESP_INPUT_SQL_BUFFER               = 151,
-  ESP_OUTPUT_SQL_BUFFER              = 152,
-  ESP_PROCESS_IDS_OF_FRAG            = 160,
-  ESP_LATE_NAME_INFO                 = 161,
-  ESP_DIAGNOSTICS_AREA               = IPC_SQL_DIAG_AREA,
-  ESP_STATISTICS                     = 185,
-  ESP_FRAGMENT                       = 190,
-  ESP_TRANSID                        = 195,
-  ESP_TIMEOUT_DATA                   = 198,
-  ESP_SM_DOWNLOAD_INFO               = 199,
-  ESP_RESOURCE_INFO                  = 200,
-  ESP_SECURITY_INFO                  = 220
+  ESP_FRAGMENT_KEY = 140,
+  ESP_INPUT_SQL_BUFFER = 151,
+  ESP_OUTPUT_SQL_BUFFER = 152,
+  ESP_PROCESS_IDS_OF_FRAG = 160,
+  ESP_LATE_NAME_INFO = 161,
+  ESP_DIAGNOSTICS_AREA = IPC_SQL_DIAG_AREA,
+  ESP_STATISTICS = 185,
+  ESP_FRAGMENT = 190,
+  ESP_TRANSID = 195,
+  ESP_TIMEOUT_DATA = 198,
+  ESP_SM_DOWNLOAD_INFO = 199,
+  ESP_RESOURCE_INFO = 200,
+  ESP_SECURITY_INFO = 220
 };
 
 const char *getESPMessageObjTypeString(ESPMessageObjTypeEnum t);
@@ -303,8 +301,7 @@ const IpcMessageObjVersion CurrOutputSqlBufferVersion = 100;
 const IpcMessageObjVersion CurrProcessIdsOfFragVersion = 100;
 const IpcMessageObjVersion CurrResolvedNameObjVersion = 101;
 const IpcMessageObjVersion Pre1800ResolvedNameObjVersion = 100;
-const IpcMessageObjVersion CurrDiagnosticsAreaVersion =
-                                            IpcCurrSqlDiagnosticsAreaVersion;
+const IpcMessageObjVersion CurrDiagnosticsAreaVersion = IpcCurrSqlDiagnosticsAreaVersion;
 const IpcMessageObjVersion CurrStatisticsVersion = 100;
 const IpcMessageObjVersion CurrFragmentVersion = 100;
 const IpcMessageObjVersion CurrTransidVersion = 100;
@@ -322,74 +319,58 @@ typedef Int32 ExIpcMsgBoolean;
 // -----------------------------------------------------------------------
 // Base class for all objects sent to an ESP
 // -----------------------------------------------------------------------
-class ExEspMsgObj : public IpcMessageObj
-{
-public:
-   ExEspMsgObj(ESPMessageObjTypeEnum objType,
-		     IpcMessageObjVersion objVersion,
-		     NAMemory *heap) :
-       IpcMessageObj(objType,objVersion), heap_(heap) {}
+class ExEspMsgObj : public IpcMessageObj {
+ public:
+  ExEspMsgObj(ESPMessageObjTypeEnum objType, IpcMessageObjVersion objVersion, NAMemory *heap)
+      : IpcMessageObj(objType, objVersion), heap_(heap) {}
 
-  ExEspMsgObj(IpcBufferedMsgStream* msgStream) :
-       IpcMessageObj(msgStream), heap_(NULL) {}
+  ExEspMsgObj(IpcBufferedMsgStream *msgStream) : IpcMessageObj(msgStream), heap_(NULL) {}
 
   // the real reason for the existence of this object: manage the heap
   void operator delete(void *p);
 
-
   // accessor method (mostly for derived classes)
-  inline NAMemory * getHeap() const                  { return heap_; }
+  inline NAMemory *getHeap() const { return heap_; }
 
   // Override some virtual functions from IpcMessageObj, so that the
   // heap_ member does not get sent in a message, that it does not
   // get overwritten when an object is unpacked, and that our operator
   // delete (see above) is called when an object is no longer needed.
   virtual IpcMessageObjSize packObjIntoMessage(IpcMessageBufferPtr buffer);
-  virtual void unpackObj(IpcMessageObjType objType,
-			 IpcMessageObjVersion objVersion,
-			 NABoolean sameEndianness,
-			 IpcMessageObjSize objSize,
-			 IpcConstMessageBufferPtr buffer);
+  virtual void unpackObj(IpcMessageObjType objType, IpcMessageObjVersion objVersion, NABoolean sameEndianness,
+                         IpcMessageObjSize objSize, IpcConstMessageBufferPtr buffer);
   virtual IpcMessageRefCount decrRefCount();
 
-private:
+ private:
   // the heap on which this object is allocated on
   // (a NULL pointer for the heap indicates that the object is allocated
   // directly inside a message buffer with the copyless IPC protocol)
-  NAMemory * heap_;       // not really used when sending the object, but
-  void * fillerFor64Bit_; // a filler for 64 bits may someday avoid a copy
+  NAMemory *heap_;        // not really used when sending the object, but
+  void *fillerFor64Bit_;  // a filler for 64 bits may someday avoid a copy
 };
 
 // -----------------------------------------------------------------------
 // Base class for all request messages to ESPs
 // -----------------------------------------------------------------------
-class ExEspRequestHeader : public ExEspMsgObj
-{
-public:
-
+class ExEspRequestHeader : public ExEspMsgObj {
+ public:
   // constructor
-  ExEspRequestHeader(ESPMessageObjTypeEnum objType,
-		     IpcMessageObjVersion objVersion,
-		     NAMemory *heap);
+  ExEspRequestHeader(ESPMessageObjTypeEnum objType, IpcMessageObjVersion objVersion, NAMemory *heap);
 
   // constructor used to perform copyless receive, maps packed objects in place
-  ExEspRequestHeader(IpcBufferedMsgStream* msgStream);
+  ExEspRequestHeader(IpcBufferedMsgStream *msgStream);
 };
 
 // -----------------------------------------------------------------------
 // Base class for all reply messages from ESPs
 // -----------------------------------------------------------------------
-class ExEspReplyHeader : public ExEspMsgObj
-{
-public:
-
+class ExEspReplyHeader : public ExEspMsgObj {
+ public:
   // constructor
-  ExEspReplyHeader(ESPMessageObjTypeEnum objType,
-		   IpcMessageObjVersion objVersion,
-		   NAMemory *heap);
+  ExEspReplyHeader(ESPMessageObjTypeEnum objType, IpcMessageObjVersion objVersion, NAMemory *heap);
 
   // constructor used to perform copyless receive, maps packed objects in place
-  ExEspReplyHeader(IpcBufferedMsgStream* msgStream);
+  ExEspReplyHeader(IpcBufferedMsgStream *msgStream);
 };
 
 // -----------------------------------------------------------------------
@@ -403,12 +384,11 @@ public:
 //
 // An input TupMsgBuffer.
 // -----------------------------------------------------------------------
-struct ExEspInputDataReqHeader : public ExEspRequestHeader
-{
+struct ExEspInputDataReqHeader : public ExEspRequestHeader {
   ExEspInputDataReqHeader(NAMemory *heap);
 
   // constructor used to perform copyless receive, maps packed objects in place
-  ExEspInputDataReqHeader(IpcBufferedMsgStream* msgStream);
+  ExEspInputDataReqHeader(IpcBufferedMsgStream *msgStream);
 
   // method needed to pack and unpack this object
   IpcMessageObjSize packedLength();
@@ -416,12 +396,12 @@ struct ExEspInputDataReqHeader : public ExEspRequestHeader
   // data members
 
   int handle_;
-  Int32  myInstanceNum_;
-  char   endianness_; // big-endian, little endian
-  char   spare1_;
-  Int16  spare2_;
+  Int32 myInstanceNum_;
+  char endianness_;  // big-endian, little endian
+  char spare1_;
+  Int16 spare2_;
   UInt32 injectErrorAtQueueFreq_;
-  Int32  spare3_, spare4_, spare5_;
+  Int32 spare3_, spare4_, spare5_;
 };
 
 // -----------------------------------------------------------------------
@@ -438,12 +418,11 @@ struct ExEspInputDataReqHeader : public ExEspRequestHeader
 //
 // None.
 // -----------------------------------------------------------------------
-struct ExEspContinueReqHeader : public ExEspRequestHeader
-{
+struct ExEspContinueReqHeader : public ExEspRequestHeader {
   ExEspContinueReqHeader(NAMemory *heap);
 
   // constructor used to perform copyless receive, maps packed objects in place
-  ExEspContinueReqHeader(IpcBufferedMsgStream* msgStream);
+  ExEspContinueReqHeader(IpcBufferedMsgStream *msgStream);
 
   // method needed to pack and unpack this object
   IpcMessageObjSize packedLength();
@@ -452,7 +431,7 @@ struct ExEspContinueReqHeader : public ExEspRequestHeader
 
   int handle_;
   Int32 myInstanceNum_;
-  char endianness_; // big-endian, little endian
+  char endianness_;  // big-endian, little endian
   char spare1_;
   Int16 spare2_;
   Int32 spare3_;
@@ -469,20 +448,19 @@ struct ExEspContinueReqHeader : public ExEspRequestHeader
 //
 // An output TupMsgBuffer and a SQL Diagnostics area.
 // -----------------------------------------------------------------------
-struct ExEspReturnDataReplyHeader : public ExEspReplyHeader
-{
+struct ExEspReturnDataReplyHeader : public ExEspReplyHeader {
   ExEspReturnDataReplyHeader(NAMemory *heap);
 
   // constructor used to perform copyless receive, maps packed objects in place
-  ExEspReturnDataReplyHeader(IpcBufferedMsgStream* msgStream);
+  ExEspReturnDataReplyHeader(IpcBufferedMsgStream *msgStream);
 
   // method needed to pack and unpack this object
   IpcMessageObjSize packedLength();
 
   // data members
 
-  ExIpcMsgBoolean stopSendingData_; // server saturated, continue requests only
-  char endianness_; // big-endian, little endian
+  ExIpcMsgBoolean stopSendingData_;  // server saturated, continue requests only
+  char endianness_;                  // big-endian, little endian
   char spare1_;
   Int16 spare2_;
   Int32 spare3_, spare4_;
@@ -498,8 +476,7 @@ struct ExEspReturnDataReplyHeader : public ExEspReplyHeader
 //
 // An ExFragmentData object (see file ex_load_esp.h).
 // -----------------------------------------------------------------------
-struct ExEspLoadFragmentReqHeader : public ExEspRequestHeader
-{
+struct ExEspLoadFragmentReqHeader : public ExEspRequestHeader {
   ExEspLoadFragmentReqHeader(NAMemory *heap);
 
   // method needed to pack and unpack this object
@@ -523,10 +500,8 @@ struct ExEspLoadFragmentReqHeader : public ExEspRequestHeader
 // Zero or 1 ExMsgTimeoutData object.
 // Zero or 1 ExSMDownloadInfo objects
 // -----------------------------------------------------------------------
-struct ExEspFixupFragmentReqHeader : public ExEspRequestHeader
-{
-  enum Flags
-  {
+struct ExEspFixupFragmentReqHeader : public ExEspRequestHeader {
+  enum Flags {
     // indicates that stat collection at runtime is enabled.
     // Set when fixup request is sent from master to esps.
     // Used to collect stats info at fixup time (like num opens).
@@ -544,26 +519,22 @@ struct ExEspFixupFragmentReqHeader : public ExEspRequestHeader
   // method needed to pack and unpack this object
   IpcMessageObjSize packedLength();
 
-  NABoolean statsEnabled() {return (flags_ & STATS_ENABLED) != 0;};
-  void setStatsEnabled(NABoolean v)
-  { (v ? flags_ |= STATS_ENABLED : flags_ &= ~STATS_ENABLED); };
-  void setPersistentOpens(Lng32 v)
-  {
-    switch (v)
-    {
-    case 0:
-      flags_ &= ~(PERSISTENT_OPENS_1 || PERSISTENT_OPENS_2);
-      break;
-    case 1:
-      flags_ |= PERSISTENT_OPENS_1;
-      break;
-    case 2:
-      flags_ |= PERSISTENT_OPENS_2;
-      break;
+  NABoolean statsEnabled() { return (flags_ & STATS_ENABLED) != 0; };
+  void setStatsEnabled(NABoolean v) { (v ? flags_ |= STATS_ENABLED : flags_ &= ~STATS_ENABLED); };
+  void setPersistentOpens(Lng32 v) {
+    switch (v) {
+      case 0:
+        flags_ &= ~(PERSISTENT_OPENS_1 || PERSISTENT_OPENS_2);
+        break;
+      case 1:
+        flags_ |= PERSISTENT_OPENS_1;
+        break;
+      case 2:
+        flags_ |= PERSISTENT_OPENS_2;
+        break;
     }
   }
-  Lng32 getPersistentOpens()
-  {
+  Lng32 getPersistentOpens() {
     if (flags_ & PERSISTENT_OPENS_1)
       return 1;
     else if (flags_ & PERSISTENT_OPENS_2)
@@ -572,62 +543,38 @@ struct ExEspFixupFragmentReqHeader : public ExEspRequestHeader
       return 0;
   }
 
-  void setEspFixupPriority(IpcPriority p)
-  {
-    espFixupPriority_ = (short)p;
-  }
-  IpcPriority getEspFixupPriority()
-  {
-    return (IpcPriority)espFixupPriority_;
-  }
+  void setEspFixupPriority(IpcPriority p) { espFixupPriority_ = (short)p; }
+  IpcPriority getEspFixupPriority() { return (IpcPriority)espFixupPriority_; }
 
-  void setEspExecutePriority(IpcPriority p)
-  {
-    espExecutePriority_ = (short)p;
-  }
-  IpcPriority getEspExecutePriority()
-  {
-    return (IpcPriority)espExecutePriority_;
-  }
-  void setMaxPollingInterval(Lng32 p)
-  {
-    maxPollingInterval_ = p;
-  }
-  Lng32 getMaxPollingInterval()
-  {
-    return maxPollingInterval_;
-  }
+  void setEspExecutePriority(IpcPriority p) { espExecutePriority_ = (short)p; }
+  IpcPriority getEspExecutePriority() { return (IpcPriority)espExecutePriority_; }
+  void setMaxPollingInterval(Lng32 p) { maxPollingInterval_ = p; }
+  Lng32 getMaxPollingInterval() { return maxPollingInterval_; }
 
-  void setEspFreeMemTimeout(Lng32 p)
-  {
-    espFreeMemTimeout_ = p;
-  }
-  Lng32 getEspFreeMemTimeout()
-  {
-    return espFreeMemTimeout_;
-  }
-  void setEspCloseErrorLogging(NABoolean v)
-  { (v ? flags_ |= ESP_CLOSE_ERROR_LOGGING : flags_ &= ~ESP_CLOSE_ERROR_LOGGING); };
-  NABoolean getEspCloseErrorLogging() {return (flags_ & ESP_CLOSE_ERROR_LOGGING) != 0;};
-
+  void setEspFreeMemTimeout(Lng32 p) { espFreeMemTimeout_ = p; }
+  Lng32 getEspFreeMemTimeout() { return espFreeMemTimeout_; }
+  void setEspCloseErrorLogging(NABoolean v) {
+    (v ? flags_ |= ESP_CLOSE_ERROR_LOGGING : flags_ &= ~ESP_CLOSE_ERROR_LOGGING);
+  };
+  NABoolean getEspCloseErrorLogging() { return (flags_ & ESP_CLOSE_ERROR_LOGGING) != 0; };
 
   // data members
 
-  ExFragKey        key_;
-  Lng32             numOfParentInstances_;
+  ExFragKey key_;
+  Lng32 numOfParentInstances_;
 
-  UInt32           flags_;
+  UInt32 flags_;
 
   // priority that ESP should execute the stmt at.
   // ESP changes its own priority to this value after 'fixup' stage.
   // Once the query is finished after release fragment request, priority is
   // changed back to the original fixup priority value which is saved
   // in esp stmt globals after fixup stage.
-  short            espExecutePriority_;
-  short            espFixupPriority_;
+  short espExecutePriority_;
+  short espFixupPriority_;
 
-  Lng32             maxPollingInterval_;
-  Lng32             espFreeMemTimeout_;
+  Lng32 maxPollingInterval_;
+  Lng32 espFreeMemTimeout_;
 };
 
 // -----------------------------------------------------------------------
@@ -640,10 +587,8 @@ struct ExEspFixupFragmentReqHeader : public ExEspRequestHeader
 //
 // None.
 // -----------------------------------------------------------------------
-struct ExEspReleaseFragmentReqHeader : public ExEspRequestHeader
-{
-  enum Flags
-  {
+struct ExEspReleaseFragmentReqHeader : public ExEspRequestHeader {
+  enum Flags {
     // delete all relatives within stmt as well?
     DELETE_STMT = 0x0001,
 
@@ -656,22 +601,20 @@ struct ExEspReleaseFragmentReqHeader : public ExEspRequestHeader
   // method needed to pack and unpack this object
   IpcMessageObjSize packedLength();
 
-  NABoolean deleteStmt() {return (flags_ & DELETE_STMT) != 0;};
-  void setDeleteStmt(NABoolean v)
-  { (v ? flags_ |= DELETE_STMT : flags_ &= ~DELETE_STMT); };
+  NABoolean deleteStmt() { return (flags_ & DELETE_STMT) != 0; };
+  void setDeleteStmt(NABoolean v) { (v ? flags_ |= DELETE_STMT : flags_ &= ~DELETE_STMT); };
 
-  NABoolean closeAllOpens() {return (flags_ & CLOSE_ALL_OPENS) != 0;};
-  void setCloseAllOpens(NABoolean v)
-  { (v ? flags_ |= CLOSE_ALL_OPENS : flags_ &= ~CLOSE_ALL_OPENS); };
+  NABoolean closeAllOpens() { return (flags_ & CLOSE_ALL_OPENS) != 0; };
+  void setCloseAllOpens(NABoolean v) { (v ? flags_ |= CLOSE_ALL_OPENS : flags_ &= ~CLOSE_ALL_OPENS); };
 
   // data members
 
-  ExFragKey       key_;
-  Int32           idleTimeout_;
-  UInt32          flags_;
-  ExIpcMsgBoolean detachFromMaster_; // does master need my service any more?
-  Int32           spare1_;
-  Int32           spare2_;
+  ExFragKey key_;
+  Int32 idleTimeout_;
+  UInt32 flags_;
+  ExIpcMsgBoolean detachFromMaster_;  // does master need my service any more?
+  Int32 spare1_;
+  Int32 spare2_;
 };
 
 // -----------------------------------------------------------------------
@@ -685,38 +628,33 @@ struct ExEspReleaseFragmentReqHeader : public ExEspRequestHeader
 //
 // None.
 // -----------------------------------------------------------------------
-struct ExEspOpenReqHeader : public ExEspRequestHeader
-{
+struct ExEspOpenReqHeader : public ExEspRequestHeader {
   ExEspOpenReqHeader(NAMemory *heap);
 
   // constructor used to perform copyless receive, maps packed objects in place
-  ExEspOpenReqHeader(IpcBufferedMsgStream* msgStream);
+  ExEspOpenReqHeader(IpcBufferedMsgStream *msgStream);
 
   // method needed to pack and unpack this object
   IpcMessageObjSize packedLength();
 
   // typedef for open types
-  typedef enum
-  {
-    NORMAL = 0,
-    PARALLEL_EXTRACT
-  } ExIpcOpenTypes;
+  typedef enum { NORMAL = 0, PARALLEL_EXTRACT } ExIpcOpenTypes;
 
   // method to get/set open types
-  ExIpcOpenTypes getOpenType() { return (ExIpcOpenTypes) openType_; }
+  ExIpcOpenTypes getOpenType() { return (ExIpcOpenTypes)openType_; }
   void setOpenType(ExIpcOpenTypes type) { openType_ = type; }
 
   // data members
 
-  ExFragKey            key_;
+  ExFragKey key_;
   // the parent need to say which instance number it has (for repartitioning)
-  Int32                myInstanceNum_;
-  char                 endianness_; // big-endian, little endian
-  char                 openType_;   // type of open
-  Int16                spare2_;
-  Int64                statID_; // ID assigned to parent stat entry.
-  Int32                spare3_;
-  Int32                spare4_;
+  Int32 myInstanceNum_;
+  char endianness_;  // big-endian, little endian
+  char openType_;    // type of open
+  Int16 spare2_;
+  Int64 statID_;  // ID assigned to parent stat entry.
+  Int32 spare3_;
+  Int32 spare4_;
 };
 
 // -----------------------------------------------------------------------
@@ -731,8 +669,7 @@ struct ExEspOpenReqHeader : public ExEspRequestHeader
 //
 // An input TupMsgBuffer.
 // -----------------------------------------------------------------------
-struct ExEspPartInputDataReqHeader : public ExEspRequestHeader
-{
+struct ExEspPartInputDataReqHeader : public ExEspRequestHeader {
   ExEspPartInputDataReqHeader(NAMemory *heap);
 
   // method needed to pack and unpack this object
@@ -740,7 +677,7 @@ struct ExEspPartInputDataReqHeader : public ExEspRequestHeader
 
   // data members
 
-  ExFragKey        key_;
+  ExFragKey key_;
 
   // This flag indicates whether the ESP may get more partitions assigned
   // to it dynamically or whether this assignment is permanent over the
@@ -749,14 +686,14 @@ struct ExEspPartInputDataReqHeader : public ExEspRequestHeader
   // reply after it is done working on the request if staticAssignment_
   // is set to FALSE. Once a static assignment is set, its remains in
   // place indefinitely.
-  ExIpcMsgBoolean  staticAssignment_;
+  ExIpcMsgBoolean staticAssignment_;
 
   // This boolean data member indicates whether the ESP should do work
   // as a result of receiving this request or whether the request is
   // simply sent because there is no more work for the ESP. The latter
   // happens if work is assigned dynamically and the ESP keeps asking
   // for more assignments.
-  ExIpcMsgBoolean  askForMoreWorkWhenDone_;
+  ExIpcMsgBoolean askForMoreWorkWhenDone_;
 
   Int32 spare1_;
   Int32 spare2_;
@@ -774,8 +711,7 @@ struct ExEspPartInputDataReqHeader : public ExEspRequestHeader
 //
 // An ExMsgTransId object.
 // -----------------------------------------------------------------------
-struct ExEspWorkReqHeader : public ExEspRequestHeader
-{
+struct ExEspWorkReqHeader : public ExEspRequestHeader {
   ExEspWorkReqHeader(NAMemory *heap);
 
   // method needed to pack and unpack this object
@@ -783,9 +719,9 @@ struct ExEspWorkReqHeader : public ExEspRequestHeader
 
   // data members
 
-  ExFragKey        key_;
-  Int32            spare1_;
-  Int32            spare2_;
+  ExFragKey key_;
+  Int32 spare1_;
+  Int32 spare2_;
 };
 
 // -----------------------------------------------------------------------
@@ -797,43 +733,39 @@ struct ExEspWorkReqHeader : public ExEspRequestHeader
 //
 // None.
 // -----------------------------------------------------------------------
-struct ExEspReleaseWorkReqHeader : public ExEspRequestHeader
-{
-  enum Flags
-    {
-      // indicates that the savepoint need to be committed.
-      SAVEPOINT_COMMIT = 0x0001,
+struct ExEspReleaseWorkReqHeader : public ExEspRequestHeader {
+  enum Flags {
+    // indicates that the savepoint need to be committed.
+    SAVEPOINT_COMMIT = 0x0001,
 
-      // indicates that the savepoint need to be aborted due to an error.
-      SAVEPOINT_ROLLBACK  = 0x0002
-    };
+    // indicates that the savepoint need to be aborted due to an error.
+    SAVEPOINT_ROLLBACK = 0x0002
+  };
 
   ExEspReleaseWorkReqHeader(NAMemory *heap);
 
   // method needed to pack and unpack this object
   IpcMessageObjSize packedLength();
 
-  Int64 getSavepointId() const                        { return savepointId_; }
-  void setSavepointId(Int64 sid)                      { savepointId_ = sid; }
-  
-  NABoolean savepointCommit() {return (flags_ & SAVEPOINT_COMMIT) != 0;};
-  void setSavepointCommit(NABoolean v)
-  { (v ? flags_ |= SAVEPOINT_COMMIT : flags_ &= ~SAVEPOINT_COMMIT); };
+  Int64 getSavepointId() const { return savepointId_; }
+  void setSavepointId(Int64 sid) { savepointId_ = sid; }
 
-  NABoolean savepointRollback() {return (flags_ & SAVEPOINT_ROLLBACK) != 0;};
-  void setSavepointRollback(NABoolean v)
-  { (v ? flags_ |= SAVEPOINT_ROLLBACK : flags_ &= ~SAVEPOINT_ROLLBACK); };
+  NABoolean savepointCommit() { return (flags_ & SAVEPOINT_COMMIT) != 0; };
+  void setSavepointCommit(NABoolean v) { (v ? flags_ |= SAVEPOINT_COMMIT : flags_ &= ~SAVEPOINT_COMMIT); };
+
+  NABoolean savepointRollback() { return (flags_ & SAVEPOINT_ROLLBACK) != 0; };
+  void setSavepointRollback(NABoolean v) { (v ? flags_ |= SAVEPOINT_ROLLBACK : flags_ &= ~SAVEPOINT_ROLLBACK); };
 
   // data members
 
-  ExFragKey        key_;
-  ExIpcMsgBoolean  allWorkRequests_;
-  Int32            inactiveTimeout_;
-  Int32            flags_;
+  ExFragKey key_;
+  ExIpcMsgBoolean allWorkRequests_;
+  Int32 inactiveTimeout_;
+  Int32 flags_;
 
   // if this request is part of a savepoint, the next field contains the
   // id of that savepoint.
-  Int64            savepointId_;
+  Int64 savepointId_;
 };
 
 // -----------------------------------------------------------------------
@@ -847,18 +779,17 @@ struct ExEspReleaseWorkReqHeader : public ExEspRequestHeader
 //
 // An input TupMsgBuffer.
 // -----------------------------------------------------------------------
-struct ExEspCancelReqHeader : public ExEspRequestHeader
-{
+struct ExEspCancelReqHeader : public ExEspRequestHeader {
   ExEspCancelReqHeader(NAMemory *heap);
 
   // constructor used to perform copyless receive, maps packed objects in place
-  ExEspCancelReqHeader(IpcBufferedMsgStream* msgStream);
+  ExEspCancelReqHeader(IpcBufferedMsgStream *msgStream);
 
   // method needed to pack and unpack this object
   IpcMessageObjSize packedLength();
 
   // data members
-  char endianness_; // big-endian, little endian
+  char endianness_;  // big-endian, little endian
   int handle_;
   Int32 myInstanceNum_;
   Int32 spare1_;
@@ -874,19 +805,17 @@ struct ExEspCancelReqHeader : public ExEspRequestHeader
 //
 //  none.
 // -----------------------------------------------------------------------
-struct ExEspCancelReplyHeader : public ExEspReplyHeader
-{
+struct ExEspCancelReplyHeader : public ExEspReplyHeader {
   ExEspCancelReplyHeader(NAMemory *heap);
 
   // constructor used to perform copyless receive, maps packed objects in place
-  ExEspCancelReplyHeader(IpcBufferedMsgStream* msgStream);
+  ExEspCancelReplyHeader(IpcBufferedMsgStream *msgStream);
 
   // method needed to pack and unpack this object
   IpcMessageObjSize packedLength();
 
   Int32 spare1_;
   Int32 spare2_;
-
 };
 
 // -----------------------------------------------------------------------
@@ -902,12 +831,11 @@ struct ExEspCancelReplyHeader : public ExEspReplyHeader
 //
 // An input TupMsgBuffer.
 // -----------------------------------------------------------------------
-struct ExEspLateCancelReqHeader : public ExEspRequestHeader
-{
+struct ExEspLateCancelReqHeader : public ExEspRequestHeader {
   ExEspLateCancelReqHeader(NAMemory *heap);
 
   // constructor used for copyless receive
-  ExEspLateCancelReqHeader(IpcBufferedMsgStream* msgStream);
+  ExEspLateCancelReqHeader(IpcBufferedMsgStream *msgStream);
 
   // method needed to pack and unpack this object
   IpcMessageObjSize packedLength();
@@ -930,9 +858,7 @@ struct ExEspLateCancelReqHeader : public ExEspRequestHeader
 //
 // An SQL Diagnostics Area.
 // -----------------------------------------------------------------------
-struct ExEspReturnStatusReplyHeader : public ExEspReplyHeader
-{
-
+struct ExEspReturnStatusReplyHeader : public ExEspReplyHeader {
   // possible return states for the instance (one status reply header
   // is sent for each instance)
   //
@@ -952,19 +878,18 @@ struct ExEspReturnStatusReplyHeader : public ExEspReplyHeader
   // for the communication protocol to avoid cascading errors. It is
   // not always possible to know the state of the ESP instance from
   // the error returned in the diagnostics area.
-  enum
-  {
+  enum {
     INSTANCE_DOWNLOADED = 111,
-    INSTANCE_READY      = 112,
-    INSTANCE_ACTIVE     = 113,
-    INSTANCE_RELEASED   = 114,
-    INSTANCE_BROKEN     = 115
+    INSTANCE_READY = 112,
+    INSTANCE_ACTIVE = 113,
+    INSTANCE_RELEASED = 114,
+    INSTANCE_BROKEN = 115
   };
 
   ExEspReturnStatusReplyHeader(NAMemory *heap);
 
   // constructor used to perform copyless receive, maps packed objects in place
-  ExEspReturnStatusReplyHeader(IpcBufferedMsgStream* msgStream);
+  ExEspReturnStatusReplyHeader(IpcBufferedMsgStream *msgStream);
 
   // method needed to pack and unpack this object
   IpcMessageObjSize packedLength();
@@ -973,7 +898,7 @@ struct ExEspReturnStatusReplyHeader : public ExEspReplyHeader
 
   // the status reply contains both the input key data and the resulting
   // fragment instance handle
-  ExFragKey            key_;
+  ExFragKey key_;
 
   // assigned handle; if a NULL handle is passed back this means that
   // no instance is downloaded (either a serious error occurred or
@@ -981,8 +906,8 @@ struct ExEspReturnStatusReplyHeader : public ExEspReplyHeader
   int handle_;
 
   // return the state of the instance (as a long, enums are not portable)
-  Int32                instanceState_;
-  char endianness_; // big-endian, little endian
+  Int32 instanceState_;
+  char endianness_;  // big-endian, little endian
   char spare1_;
   Int16 spare2_;
   Int32 spare3_;
@@ -994,181 +919,127 @@ struct ExEspReturnStatusReplyHeader : public ExEspReplyHeader
 // This class is a wrapper around the sql_buffer class which is common
 // between the filesystem interface and the ESP message interface.
 // -----------------------------------------------------------------------
-class TupMsgBuffer : public ExEspMsgObj
-{
-public:
-
-  enum InOut
-    {
-      MSG_IN,
-      MSG_OUT
-    };
+class TupMsgBuffer : public ExEspMsgObj {
+ public:
+  enum InOut { MSG_IN, MSG_OUT };
 
   // constructor with a given buffer length
   TupMsgBuffer(Lng32 bufferLen, InOut inOut, NAMemory *heap);
 
   // Constructor used to create a packed send message object.
-  TupMsgBuffer(Lng32 bufferLen,
-               InOut inOut,
-               IpcBufferedMsgStream* msgStream);
+  TupMsgBuffer(Lng32 bufferLen, InOut inOut, IpcBufferedMsgStream *msgStream);
 
   // Constructor used to perform copyless receive. maps packed objects in place.
-  TupMsgBuffer(IpcBufferedMsgStream* msgStream);
+  TupMsgBuffer(IpcBufferedMsgStream *msgStream);
 
   ~TupMsgBuffer();
 
   // get a pointer to the sql_buffer object associated with this object
   // derived classes can implement this differently
-  inline SqlBuffer *get_sql_buffer()               { return theBuffer_; }
+  inline SqlBuffer *get_sql_buffer() { return theBuffer_; }
 
   // virtual methods needed for the base class
   IpcMessageObjSize packedLength();
   IpcMessageObjSize packObjIntoMessage(IpcMessageBufferPtr buffer);
-  void unpackObj(IpcMessageObjType objType,
-		 IpcMessageObjVersion objVersion,
-		 NABoolean sameEndianness,
-		 IpcMessageObjSize objSize,
-		 IpcConstMessageBufferPtr buffer);
+  void unpackObj(IpcMessageObjType objType, IpcMessageObjVersion objVersion, NABoolean sameEndianness,
+                 IpcMessageObjSize objSize, IpcConstMessageBufferPtr buffer);
 
   // determine if TupMsgBuffer in IpcMessageBuffer is available for recycle.
-  virtual NABoolean msgObjIsFree()
-    { return theBuffer_->isFree(); }
+  virtual NABoolean msgObjIsFree() { return theBuffer_->isFree(); }
 
   // deal with transport issues, change pointers to offsets, etc.
-  virtual void prepMsgObjForSend()
-    { theBuffer_->drivePack(); }
+  virtual void prepMsgObjForSend() { theBuffer_->drivePack(); }
 
-private:
-
-  SqlBuffer  *theBuffer_;
-  Int32       filler64BitPtr_;
-  Int32       allocSize_; //may be larger than sql_buffer's size
-  char        endianness_; // big-endian, little endian
-  char        spare1_;
-  Int16       spare2_;
-  Int32       spare3_;
-  Int32       spare4_;
+ private:
+  SqlBuffer *theBuffer_;
+  Int32 filler64BitPtr_;
+  Int32 allocSize_;  // may be larger than sql_buffer's size
+  char endianness_;  // big-endian, little endian
+  char spare1_;
+  Int16 spare2_;
+  Int32 spare3_;
+  Int32 spare4_;
 };
 
 // -----------------------------------------------------------------------
 // The process ids of the instances of a fragment, in a form that can
 // be shipped in a message.
 // -----------------------------------------------------------------------
-class ExProcessIdsOfFrag : public ExEspMsgObj
-{
-public:
-
+class ExProcessIdsOfFrag : public ExEspMsgObj {
+ public:
   ExProcessIdsOfFrag(NAMemory *heap, ExFragId fragId = 0);
 
   virtual ~ExProcessIdsOfFrag() {}
 
   // accessor functions
-  inline CollIndex entries() const       { return processIds_.entries(); }
-  inline ExFragId getFragId() const              { return fragmentId_; }
-  inline const IpcProcessId & operator[] (CollIndex i) const
-                                                { return processIds_[i]; }
-  inline const IpcProcessId & getProcessId(CollIndex i) const
-                                                { return processIds_[i]; }
+  inline CollIndex entries() const { return processIds_.entries(); }
+  inline ExFragId getFragId() const { return fragmentId_; }
+  inline const IpcProcessId &operator[](CollIndex i) const { return processIds_[i]; }
+  inline const IpcProcessId &getProcessId(CollIndex i) const { return processIds_[i]; }
   // add another process id at the end of the list
-  inline void addProcessId(const IpcProcessId &newPid)
-                                           { processIds_.insert(newPid); }
+  inline void addProcessId(const IpcProcessId &newPid) { processIds_.insert(newPid); }
 
   // method needed to pack and unpack this object
   IpcMessageObjSize packedLength();
   IpcMessageObjSize packObjIntoMessage(IpcMessageBufferPtr buffer);
-  void unpackObj(IpcMessageObjType objType,
-		 IpcMessageObjVersion objVersion,
-		 NABoolean sameEndianness,
-		 IpcMessageObjSize objSize,
-		 IpcConstMessageBufferPtr buffer);
+  void unpackObj(IpcMessageObjType objType, IpcMessageObjVersion objVersion, NABoolean sameEndianness,
+                 IpcMessageObjSize objSize, IpcConstMessageBufferPtr buffer);
 
   // operator == is needed for objects that are stored in collections
-  inline NABoolean operator == (const ExProcessIdsOfFrag &other) const
-                              { return fragmentId_ == other.fragmentId_; }
+  inline NABoolean operator==(const ExProcessIdsOfFrag &other) const { return fragmentId_ == other.fragmentId_; }
 
-private:
-
-  ExFragId            fragmentId_;
-  Int64               spare_;
-  LIST(IpcProcessId)  processIds_;
+ private:
+  ExFragId fragmentId_;
+  Int64 spare_;
+  LIST(IpcProcessId) processIds_;
 };
 
 // -----------------------------------------------------------------------
 // Outside of a message, it is more convenient to keep multiple
 // ExProcessIdsOfFrag objects in a list.
 // -----------------------------------------------------------------------
-class ExProcessIdsOfFragList : public LIST(ExProcessIdsOfFrag *)
-{
-public:
-
+class ExProcessIdsOfFragList : public LIST(ExProcessIdsOfFrag *) {
+ public:
   ExProcessIdsOfFragList(NAMemory *heap) : LIST(ExProcessIdsOfFrag *)(heap) {}
 
   // find an entry with a particular fragment id
-  ExProcessIdsOfFrag * findEntry(ExFragId fragId) const;
+  ExProcessIdsOfFrag *findEntry(ExFragId fragId) const;
 
   // how many instances does this fragment have
-  inline Lng32 getNumOfInstances(ExFragId fragId) const
-                                  { return findEntry(fragId)->entries(); }
+  inline Lng32 getNumOfInstances(ExFragId fragId) const { return findEntry(fragId)->entries(); }
 
   // get the process id of a fragment instance
-  inline const IpcProcessId & getProcessId(ExFragId fragId,
-					   CollIndex instanceNum) const
-                  { return findEntry(fragId)->getProcessId(instanceNum); }
-
+  inline const IpcProcessId &getProcessId(ExFragId fragId, CollIndex instanceNum) const {
+    return findEntry(fragId)->getProcessId(instanceNum);
+  }
 };
 
 // -----------------------------------------------------------------------
 // The generated data of a fragment, in a form that can be shipped in
 // a message.
 // -----------------------------------------------------------------------
-class ExMsgFragment : public ExEspMsgObj
-{
-public:
-
-  ExMsgFragment(NAMemory *heap); // for objects that get unpacked from a msg
-  ExMsgFragment(
-       const ExFragKey                &key,
-       ExFragDir::ExFragEntryType      fragType,
-       ExFragId                        parentId,
-       Lng32                           topNodeOffset,
-       IpcMessageObjSize               fragmentLength,
-       char                           *fragment,
-       Lng32                           numTemps,
-       unsigned short                  mxv,
-       unsigned short                  planVersion,
-       NABoolean                       needsTransaction,
-       ULng32                          injectErrorAtExprFreq,
-       NAMemory                       *heap,
-       NABoolean                       takeOwnership,
-       NABoolean                       displayInGui,
-       const char                     *queryId,
-       Lng32                           queryIdLen,
-       Lng32                           userID,
-       const char                     *userName,
-       Lng32                           userNameLen,
-       const char                     *tenantName,
-       Lng32                           tenantNameLen,
-       const char                     *needToWorkVec,
-       Lng32                           needToWorkVecLen,
-       IpcMessageObjSize               compressedLength);
+class ExMsgFragment : public ExEspMsgObj {
+ public:
+  ExMsgFragment(NAMemory *heap);  // for objects that get unpacked from a msg
+  ExMsgFragment(const ExFragKey &key, ExFragDir::ExFragEntryType fragType, ExFragId parentId, Lng32 topNodeOffset,
+                IpcMessageObjSize fragmentLength, char *fragment, Lng32 numTemps, unsigned short mxv,
+                unsigned short planVersion, NABoolean needsTransaction, ULng32 injectErrorAtExprFreq, NAMemory *heap,
+                NABoolean takeOwnership, NABoolean displayInGui, const char *queryId, Lng32 queryIdLen, Lng32 userID,
+                const char *userName, Lng32 userNameLen, const char *tenantName, Lng32 tenantNameLen,
+                const char *needToWorkVec, Lng32 needToWorkVecLen, IpcMessageObjSize compressedLength);
   ~ExMsgFragment();
 
-  inline const ExFragKey & getKey() const                 { return key_; }
-  inline ExFragDir::ExFragEntryType getFragType() const
-                { return (ExFragDir::ExFragEntryType) f_.fragType_; }
-  inline ExFragId getParentId() const           { return f_.parentId_; }
-  inline Lng32 getTopNodeOffset() const       { return f_.topNodeOffset_; }
-  inline IpcMessageObjSize getFragmentLength() const
-                                            { return f_.fragmentLength_; }
-  inline char *getFragment() const                   { return fragment_; }
-  inline Lng32 getNumTemps() const                 { return f_.numTemps_; }
-  inline NABoolean getNeedsTransaction() const
-                              { return (NABoolean) f_.needsTransaction_; }
-  inline NABoolean getDisplayInGui() const
-                                  { return (NABoolean) f_.displayInGui_; }
+  inline const ExFragKey &getKey() const { return key_; }
+  inline ExFragDir::ExFragEntryType getFragType() const { return (ExFragDir::ExFragEntryType)f_.fragType_; }
+  inline ExFragId getParentId() const { return f_.parentId_; }
+  inline Lng32 getTopNodeOffset() const { return f_.topNodeOffset_; }
+  inline IpcMessageObjSize getFragmentLength() const { return f_.fragmentLength_; }
+  inline char *getFragment() const { return fragment_; }
+  inline Lng32 getNumTemps() const { return f_.numTemps_; }
+  inline NABoolean getNeedsTransaction() const { return (NABoolean)f_.needsTransaction_; }
+  inline NABoolean getDisplayInGui() const { return (NABoolean)f_.displayInGui_; }
 
-  inline ULng32 getInjectErrorAtExpr() const
-                                       { return f_.injectErrorAtExprFreq_; }
+  inline ULng32 getInjectErrorAtExpr() const { return f_.injectErrorAtExprFreq_; }
 
   inline UInt16 getMxvOfOriginator() const { return f_.mxvOfOriginator_; }
 
@@ -1188,57 +1059,52 @@ public:
 
   NABoolean needToWork(ULng32 espIdx);
 
-  void displayNeedToWorkVec(ostream& out);
+  void displayNeedToWorkVec(ostream &out);
 
   // method needed to pack and unpack this object
   IpcMessageObjSize packedLength();
   IpcMessageObjSize packObjIntoMessage(IpcMessageBufferPtr buffer);
-  void unpackObj(IpcMessageObjType objType,
-		 IpcMessageObjVersion objVersion,
-		 NABoolean sameEndianness,
-		 IpcMessageObjSize objSize,
-		 IpcConstMessageBufferPtr buffer);
+  void unpackObj(IpcMessageObjType objType, IpcMessageObjVersion objVersion, NABoolean sameEndianness,
+                 IpcMessageObjSize objSize, IpcConstMessageBufferPtr buffer);
 
-private:
-
+ private:
   // data members
 
   // unique identifier of the fragment
-  ExFragKey         key_;
+  ExFragKey key_;
 
   // pointer to the fragment
-  char              *fragment_;
+  char *fragment_;
 
   // to make packing/unpacking easier, put all fixed size stuff into a struct
-  struct
-  {
+  struct {
     // data from the master's fragment directory
-    Int32             fragType_; // really ExFragDir::ExFragEntryType
-    ExFragId          parentId_;
-    Int32             topNodeOffset_;
+    Int32 fragType_;  // really ExFragDir::ExFragEntryType
+    ExFragId parentId_;
+    Int32 topNodeOffset_;
     IpcMessageObjSize fragmentLength_;
 
-    Int32             numTemps_;
-    ExIpcMsgBoolean   needsTransaction_;
-    ExIpcMsgBoolean   iOwnTheFragment_; // TRUE means destructor deletes frag
-    ExIpcMsgBoolean   displayInGui_;
-    UInt32            injectErrorAtExprFreq_;
-    UInt16            mxvOfOriginator_;
-    UInt16            planVersion_;
-    char             *queryId_;
-    Lng32             queryIdLen_;
+    Int32 numTemps_;
+    ExIpcMsgBoolean needsTransaction_;
+    ExIpcMsgBoolean iOwnTheFragment_;  // TRUE means destructor deletes frag
+    ExIpcMsgBoolean displayInGui_;
+    UInt32 injectErrorAtExprFreq_;
+    UInt16 mxvOfOriginator_;
+    UInt16 planVersion_;
+    char *queryId_;
+    Lng32 queryIdLen_;
     IpcMessageObjSize compressedLength_;
-    Lng32             userID_;
-    char             *userName_;
-    Lng32             userNameLen_;
-    char             *tenantName_;
-    Lng32             tenantNameLen_;
-    char*             needToWorkVec_; // A char array indicating whether
-                                      // each esp should perform the work:
-                                      //   0 (no work) 
-                                      //   1 (work)
-    Lng32             needToWorkVecLen_;
-    Int32             reserved[6];
+    Lng32 userID_;
+    char *userName_;
+    Lng32 userNameLen_;
+    char *tenantName_;
+    Lng32 tenantNameLen_;
+    char *needToWorkVec_;  // A char array indicating whether
+                           // each esp should perform the work:
+                           //   0 (no work)
+                           //   1 (work)
+    Lng32 needToWorkVecLen_;
+    Int32 reserved[6];
   } f_;
 };
 
@@ -1248,63 +1114,48 @@ private:
 
 const Int64 ExInvalidInt64Transid = -1;
 
-class ExMsgTransId : public ExEspMsgObj
-{
-public:
-
-  ExMsgTransId(NAMemory *heap,
-	       Int64 tid = ExInvalidInt64Transid,
-               Int64 sid = -1, Int64 psid = -1);
+class ExMsgTransId : public ExEspMsgObj {
+ public:
+  ExMsgTransId(NAMemory *heap, Int64 tid = ExInvalidInt64Transid, Int64 sid = -1, Int64 psid = -1);
   ~ExMsgTransId();
 
   // accessor methods
-  Int64 getTransIdAsInt() const                       { return localTransId_; }
-  void setTransId(Int64 tid)                          { localTransId_ = tid; }
+  Int64 getTransIdAsInt() const { return localTransId_; }
+  void setTransId(Int64 tid) { localTransId_ = tid; }
 
-  Int64 getSavepointId() const                        { return savepointId_; }
-  void setSavepointId(Int64 sid)                      { savepointId_ = sid; }
-  Int64 getPSavepointId() const                        { return pSavepointId_; }
-  void setPSavepointId(Int64 sid)                      { pSavepointId_ = sid; }
+  Int64 getSavepointId() const { return savepointId_; }
+  void setSavepointId(Int64 sid) { savepointId_ = sid; }
+  Int64 getPSavepointId() const { return pSavepointId_; }
+  void setPSavepointId(Int64 sid) { pSavepointId_ = sid; }
 
   // method needed to pack and unpack this object
   IpcMessageObjSize packedLength();
 
-private:
-
+ private:
   Int64 localTransId_;
   Int64 originatingTransId_;
   Int64 savepointId_;
   Int64 pSavepointId_;
 };
 
-
-
-class ExMsgTimeoutData : public ExEspMsgObj
-{
-public:
-
-  ExMsgTimeoutData(TimeoutData *toData, NAMemory *heap );
+class ExMsgTimeoutData : public ExEspMsgObj {
+ public:
+  ExMsgTimeoutData(TimeoutData *toData, NAMemory *heap);
   ~ExMsgTimeoutData();
 
   // accessor methods
-  TimeoutData       * getTimeoutData() { return timeoutData_; } ;
+  TimeoutData *getTimeoutData() { return timeoutData_; };
 
   // methods needed to pack and unpack this object
   IpcMessageObjSize packedLength();
   IpcMessageObjSize packObjIntoMessage(IpcMessageBufferPtr buffer);
-  void unpackObj(IpcMessageObjType objType,
-		 IpcMessageObjVersion objVersion,
-		 NABoolean sameEndianness,
-		 IpcMessageObjSize objSize,
-		 IpcConstMessageBufferPtr buffer);
+  void unpackObj(IpcMessageObjType objType, IpcMessageObjVersion objVersion, NABoolean sameEndianness,
+                 IpcMessageObjSize objSize, IpcConstMessageBufferPtr buffer);
 
-private:
-
-  TimeoutData       * timeoutData_;
-  ExIpcMsgBoolean   iOwnTD_; // TRUE means destructor deletes timeoutData_
+ private:
+  TimeoutData *timeoutData_;
+  ExIpcMsgBoolean iOwnTD_;  // TRUE means destructor deletes timeoutData_
 };
-
-
 
 //-------------------------------------------------------------------------
 // A message object to hold SeaMonster properties for the query
@@ -1314,29 +1165,23 @@ private:
 // * SM trace level
 // * SM trace file prefix
 //-------------------------------------------------------------------------
-class ExSMDownloadInfo : public ExEspMsgObj
-{
-public:
-
+class ExSMDownloadInfo : public ExEspMsgObj {
+ public:
   // Constructor to send a message
-  ExSMDownloadInfo(NAMemory *heap, Int64 smQueryID, Int32 smTraceLevel,
-                   const char *smTraceFilePrefix, Int32 flags);
+  ExSMDownloadInfo(NAMemory *heap, Int64 smQueryID, Int32 smTraceLevel, const char *smTraceFilePrefix, Int32 flags);
 
   // Constructor to receive a message
   ExSMDownloadInfo(NAMemory *heap);
 
-  ExSMDownloadInfo(); // Do not implement
+  ExSMDownloadInfo();  // Do not implement
 
   virtual ~ExSMDownloadInfo();
 
   // Virtual methods needed to pack and unpack this object
   IpcMessageObjSize packedLength();
   IpcMessageObjSize packObjIntoMessage(IpcMessageBufferPtr buffer);
-  void unpackObj(IpcMessageObjType objType,
-		 IpcMessageObjVersion objVersion,
-		 NABoolean sameEndianness,
-		 IpcMessageObjSize objSize,
-		 IpcConstMessageBufferPtr buffer);
+  void unpackObj(IpcMessageObjType objType, IpcMessageObjVersion objVersion, NABoolean sameEndianness,
+                 IpcMessageObjSize objSize, IpcConstMessageBufferPtr buffer);
 
   // Accessor methods
   Int64 getQueryID() const { return smQueryID_; }
@@ -1344,40 +1189,32 @@ public:
   Int32 getFlags() const { return flags_; }
   const char *getTraceFilePrefix() const { return smTraceFilePrefix_; }
 
-private:
+ private:
   Int64 smQueryID_;
   Int32 smTraceLevel_;
   char *smTraceFilePrefix_;
   Int32 flags_;
 };
 
-class ExMsgResourceInfo : public ExEspMsgObj
-{
-public:
-
-  ExMsgResourceInfo(const ExScratchFileOptions *sfo,
-		    NAMemory *heap);
+class ExMsgResourceInfo : public ExEspMsgObj {
+ public:
+  ExMsgResourceInfo(const ExScratchFileOptions *sfo, NAMemory *heap);
   ~ExMsgResourceInfo();
 
   // accessor methods
-  const ExScratchFileOptions * getScratchFileOptions() const { return sfo_; }
+  const ExScratchFileOptions *getScratchFileOptions() const { return sfo_; }
 
   // method needed to pack and unpack this object
   IpcMessageObjSize packedLength();
   IpcMessageObjSize packObjIntoMessage(IpcMessageBufferPtr buffer);
-  void unpackObj(IpcMessageObjType objType,
-		 IpcMessageObjVersion objVersion,
-		 NABoolean sameEndianness,
-		 IpcMessageObjSize objSize,
-		 IpcConstMessageBufferPtr buffer);
+  void unpackObj(IpcMessageObjType objType, IpcMessageObjVersion objVersion, NABoolean sameEndianness,
+                 IpcMessageObjSize objSize, IpcConstMessageBufferPtr buffer);
 
-private:
-
-  const ExScratchFileOptions * sfo_;
-  Int32                      totalNameLength_;
-  Int32                      spare_;
-  char                       * bufferForDependentObjects_;
-
+ private:
+  const ExScratchFileOptions *sfo_;
+  Int32 totalNameLength_;
+  Int32 spare_;
+  char *bufferForDependentObjects_;
 };
 
 // ----------------------------------------------------------
@@ -1389,30 +1226,24 @@ private:
 // - The packing/unpacking function implementations should consider
 //   that the sender uses buffered stream and the recipient uses
 //   unbuffered stream.
-class ExMsgSecurityInfo : public ExEspMsgObj
-{
-public:
-
+class ExMsgSecurityInfo : public ExEspMsgObj {
+ public:
   ExMsgSecurityInfo(NAMemory *heap);
   ~ExMsgSecurityInfo();
 
   // pack/unpack methods
   IpcMessageObjSize packedLength();
   IpcMessageObjSize packObjIntoMessage(IpcMessageBufferPtr buffer);
-  void unpackObj(IpcMessageObjType objType,
-		 IpcMessageObjVersion objVersion,
-		 NABoolean sameEndianness,
-		 IpcMessageObjSize objSize,
-		 IpcConstMessageBufferPtr buffer);
+  void unpackObj(IpcMessageObjType objType, IpcMessageObjVersion objVersion, NABoolean sameEndianness,
+                 IpcMessageObjSize objSize, IpcConstMessageBufferPtr buffer);
 
   // accessor methods
-  char * getSecurityKey() { return securityKey_; } ;
+  char *getSecurityKey() { return securityKey_; };
   void setSecurityKey(char *str) { securityKey_ = str; };
-  char * getAuthID() { return authid_; } ;
+  char *getAuthID() { return authid_; };
   void setAuthID(char *str) { authid_ = str; };
 
-private:
-
+ private:
   char *securityKey_;
   char *authid_;
 };

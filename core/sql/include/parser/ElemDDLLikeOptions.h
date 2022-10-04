@@ -28,7 +28,7 @@
  * File:         ElemDDLLikeOptions.h
  * Description:  classes for options in Like clause in DDL statements
  *
- *               
+ *
  * Created:      6/5/95
  * Language:     C++
  *
@@ -37,7 +37,6 @@
  *
  *****************************************************************************
  */
-
 
 #include "common/BaseTypes.h"
 #include "ElemDDLNode.h"
@@ -59,423 +58,308 @@ class ElemDDLLikeOptWithDivision;
 // -----------------------------------------------------------------------
 // definition of base class ElemDDLLikeOpt
 // -----------------------------------------------------------------------
-class ElemDDLLikeOpt : public ElemDDLNode
-{
-
-public:
-
+class ElemDDLLikeOpt : public ElemDDLNode {
+ public:
   // default constructor
-  ElemDDLLikeOpt(OperatorTypeEnum operatorType = ELM_ANY_LIKE_OPT_ELEM)
-  : ElemDDLNode(operatorType)
-  { }
+  ElemDDLLikeOpt(OperatorTypeEnum operatorType = ELM_ANY_LIKE_OPT_ELEM) : ElemDDLNode(operatorType) {}
 
   // virtual destructor
   virtual ~ElemDDLLikeOpt();
 
   // cast
-  virtual ElemDDLLikeOpt * castToElemDDLLikeOpt();
+  virtual ElemDDLLikeOpt *castToElemDDLLikeOpt();
 
   // method for tracing
   virtual const NAString getText() const;
 
-private:
-
-}; // class ElemDDLLikeOpt
+ private:
+};  // class ElemDDLLikeOpt
 
 // -----------------------------------------------------------------------
 // definition of class ElemDDLLikeOptWithoutConstraints
 // -----------------------------------------------------------------------
-class ElemDDLLikeOptWithoutConstraints : public ElemDDLLikeOpt
-{
-
-public:
-
+class ElemDDLLikeOptWithoutConstraints : public ElemDDLLikeOpt {
+ public:
   // constructor
-  ElemDDLLikeOptWithoutConstraints()
-  : ElemDDLLikeOpt(ELM_LIKE_OPT_WITHOUT_CONSTRAINTS_ELEM)
-  { }
+  ElemDDLLikeOptWithoutConstraints() : ElemDDLLikeOpt(ELM_LIKE_OPT_WITHOUT_CONSTRAINTS_ELEM) {}
 
   // virtual destructor
   virtual ~ElemDDLLikeOptWithoutConstraints();
 
   // cast
-  virtual ElemDDLLikeOptWithoutConstraints *
-    castToElemDDLLikeOptWithoutConstraints();
+  virtual ElemDDLLikeOptWithoutConstraints *castToElemDDLLikeOptWithoutConstraints();
 
   // method for tracing
   virtual const NAString getText() const;
 
-
-private:
-
-}; // class ElemDDLLikeOptWithoutConstraints
+ private:
+};  // class ElemDDLLikeOptWithoutConstraints
 
 // -----------------------------------------------------------------------
 // definition of class ElemDDLLikeOptWithoutIndexes
 // -----------------------------------------------------------------------
-class ElemDDLLikeOptWithoutIndexes : public ElemDDLLikeOpt
-{
-public:
-
+class ElemDDLLikeOptWithoutIndexes : public ElemDDLLikeOpt {
+ public:
   // constructor
-  ElemDDLLikeOptWithoutIndexes()
-  : ElemDDLLikeOpt(ELM_LIKE_OPT_WITHOUT_INDEXES_ELEM)
-  { }
+  ElemDDLLikeOptWithoutIndexes() : ElemDDLLikeOpt(ELM_LIKE_OPT_WITHOUT_INDEXES_ELEM) {}
 
-  //virtual destructor
+  // virtual destructor
   virtual ~ElemDDLLikeOptWithoutIndexes();
 
-  //cast
-  virtual ElemDDLLikeOptWithoutIndexes *
-  castToElemDDLLikeOptWithoutIndexes();
-  //method for tracing
+  // cast
+  virtual ElemDDLLikeOptWithoutIndexes *castToElemDDLLikeOptWithoutIndexes();
+  // method for tracing
   virtual const NAString getText() const;
 };
 
 // -----------------------------------------------------------------------
 // definition of class ElemDDLLikeOptWithHeadings
 // -----------------------------------------------------------------------
-class ElemDDLLikeOptWithHeadings : public ElemDDLLikeOpt
-{
-
-public:
-
+class ElemDDLLikeOptWithHeadings : public ElemDDLLikeOpt {
+ public:
   // constructor
-  ElemDDLLikeOptWithHeadings()
-  : ElemDDLLikeOpt(ELM_LIKE_OPT_WITH_HEADINGS_ELEM)
-  { }
+  ElemDDLLikeOptWithHeadings() : ElemDDLLikeOpt(ELM_LIKE_OPT_WITH_HEADINGS_ELEM) {}
 
   // virtual destructor
   virtual ~ElemDDLLikeOptWithHeadings();
 
   // cast
-  virtual ElemDDLLikeOptWithHeadings * castToElemDDLLikeOptWithHeadings();
+  virtual ElemDDLLikeOptWithHeadings *castToElemDDLLikeOptWithHeadings();
 
   // method for tracing
   virtual const NAString getText() const;
 
-
-private:
-
-}; // class ElemDDLLikeOptWithHeadings
-
+ private:
+};  // class ElemDDLLikeOptWithHeadings
 
 // -----------------------------------------------------------------------
 // definition of class ElemDDLLikeOptWithHorizontalPartitions
 // -----------------------------------------------------------------------
-class ElemDDLLikeOptWithHorizontalPartitions : public ElemDDLLikeOpt
-{
-
-public:
-
+class ElemDDLLikeOptWithHorizontalPartitions : public ElemDDLLikeOpt {
+ public:
   // constructor
-  ElemDDLLikeOptWithHorizontalPartitions()
-    : ElemDDLLikeOpt(ELM_LIKE_OPT_WITH_HORIZONTAL_PARTITIONS_ELEM)
-  { }
+  ElemDDLLikeOptWithHorizontalPartitions() : ElemDDLLikeOpt(ELM_LIKE_OPT_WITH_HORIZONTAL_PARTITIONS_ELEM) {}
 
   // virtual destructor
   virtual ~ElemDDLLikeOptWithHorizontalPartitions();
 
   // cast
-  virtual ElemDDLLikeOptWithHorizontalPartitions *
-    castToElemDDLLikeOptWithHorizontalPartitions();
+  virtual ElemDDLLikeOptWithHorizontalPartitions *castToElemDDLLikeOptWithHorizontalPartitions();
 
   // method for tracing
   virtual const NAString getText() const;
 
-
-private:
-
-}; // class ElemDDLLikeOptWithHorizontalPartitions
-
+ private:
+};  // class ElemDDLLikeOptWithHorizontalPartitions
 
 // -----------------------------------------------------------------------
 // definition of class ElemDDLLikeOptWithoutSalt
 // -----------------------------------------------------------------------
-class ElemDDLLikeOptWithoutSalt : public ElemDDLLikeOpt
-{
-
-public:
-
+class ElemDDLLikeOptWithoutSalt : public ElemDDLLikeOpt {
+ public:
   // constructor
-  ElemDDLLikeOptWithoutSalt()
-    : ElemDDLLikeOpt(ELM_LIKE_OPT_WITHOUT_SALT_ELEM)
-  { }
+  ElemDDLLikeOptWithoutSalt() : ElemDDLLikeOpt(ELM_LIKE_OPT_WITHOUT_SALT_ELEM) {}
 
   // virtual destructor
   virtual ~ElemDDLLikeOptWithoutSalt();
 
   // cast
-  virtual ElemDDLLikeOptWithoutSalt *
-    castToElemDDLLikeOptWithoutSalt();
+  virtual ElemDDLLikeOptWithoutSalt *castToElemDDLLikeOptWithoutSalt();
 
   // method for tracing
   virtual const NAString getText() const;
 
-
-private:
-
-}; // class ElemDDLLikeOptWithoutSalt
-
+ private:
+};  // class ElemDDLLikeOptWithoutSalt
 
 // -----------------------------------------------------------------------
 // definition of class ElemDDLLikeSaltClause
 // -----------------------------------------------------------------------
-class ElemDDLLikeSaltClause : public ElemDDLLikeOpt
-{
-
-public:
-
+class ElemDDLLikeSaltClause : public ElemDDLLikeOpt {
+ public:
   // constructor
-  ElemDDLLikeSaltClause(ElemDDLSaltOptionsClause * saltClause)
-    : ElemDDLLikeOpt(ELM_LIKE_OPT_SALT_CLAUSE_ELEM),
-      saltClause_(saltClause)
-  { }
+  ElemDDLLikeSaltClause(ElemDDLSaltOptionsClause *saltClause)
+      : ElemDDLLikeOpt(ELM_LIKE_OPT_SALT_CLAUSE_ELEM), saltClause_(saltClause) {}
 
   // virtual destructor
   virtual ~ElemDDLLikeSaltClause();
 
   // cast
-  virtual ElemDDLLikeSaltClause *
-    castToElemDDLLikeSaltClause();
+  virtual ElemDDLLikeSaltClause *castToElemDDLLikeSaltClause();
 
   // method for tracing
   virtual const NAString getText() const;
 
-  ElemDDLSaltOptionsClause * getSaltClause()
-  { return saltClause_; };
+  ElemDDLSaltOptionsClause *getSaltClause() { return saltClause_; };
 
+ private:
+  ElemDDLSaltOptionsClause *saltClause_;
 
-private:
-
-  ElemDDLSaltOptionsClause * saltClause_;
-
-}; // class ElemDDLLikeOptWithoutSalt
+};  // class ElemDDLLikeOptWithoutSalt
 
 // -----------------------------------------------------------------------
 // definition of class ElemDDLLikeOptWithoutDivision
 // -----------------------------------------------------------------------
-class ElemDDLLikeOptWithoutDivision : public ElemDDLLikeOpt
-{
-
-public:
-
+class ElemDDLLikeOptWithoutDivision : public ElemDDLLikeOpt {
+ public:
   // constructor
-  ElemDDLLikeOptWithoutDivision()
-    : ElemDDLLikeOpt(ELM_LIKE_OPT_WITHOUT_DIVISION_ELEM)
-  { }
+  ElemDDLLikeOptWithoutDivision() : ElemDDLLikeOpt(ELM_LIKE_OPT_WITHOUT_DIVISION_ELEM) {}
 
   // virtual destructor
   virtual ~ElemDDLLikeOptWithoutDivision();
 
   // cast
-  virtual ElemDDLLikeOptWithoutDivision *
-    castToElemDDLLikeOptWithoutDivision();
+  virtual ElemDDLLikeOptWithoutDivision *castToElemDDLLikeOptWithoutDivision();
 
   // method for tracing
   virtual const NAString getText() const;
 
-
-private:
-
-}; // class ElemDDLLikeOptWithoutDivision
+ private:
+};  // class ElemDDLLikeOptWithoutDivision
 
 // -----------------------------------------------------------------------
 // definition of class ElemDDLLikeLimitColumnLength
 // -----------------------------------------------------------------------
-class ElemDDLLikeLimitColumnLength : public ElemDDLLikeOpt
-{
-
-public:
-
+class ElemDDLLikeLimitColumnLength : public ElemDDLLikeOpt {
+ public:
   // constructor
   ElemDDLLikeLimitColumnLength(UInt32 limit)
-    : ElemDDLLikeOpt(ELM_LIKE_OPT_LIMIT_COLUMN_LENGTH),
-      columnLengthLimit_(limit)
-  { }
+      : ElemDDLLikeOpt(ELM_LIKE_OPT_LIMIT_COLUMN_LENGTH), columnLengthLimit_(limit) {}
 
   // virtual destructor
   virtual ~ElemDDLLikeLimitColumnLength();
 
   // cast
-  virtual ElemDDLLikeLimitColumnLength *
-    castToElemDDLLikeLimitColumnLength();
+  virtual ElemDDLLikeLimitColumnLength *castToElemDDLLikeLimitColumnLength();
 
   // method for tracing
   virtual const NAString getText() const;
 
-  UInt32 getColumnLengthLimit()
-  { return columnLengthLimit_; };
+  UInt32 getColumnLengthLimit() { return columnLengthLimit_; };
 
+ private:
+  UInt32 columnLengthLimit_;  // in bytes
 
-private:
-
-  UInt32 columnLengthLimit_; // in bytes
-
-}; // class ElemDDLLikeLimitColumnLength
+};  // class ElemDDLLikeLimitColumnLength
 
 // -----------------------------------------------------------------------
 // definition of class ElemDDLLikeOptWithoutRowFormat
 // -----------------------------------------------------------------------
-class ElemDDLLikeOptWithoutRowFormat : public ElemDDLLikeOpt
-{
-
-public:
-
+class ElemDDLLikeOptWithoutRowFormat : public ElemDDLLikeOpt {
+ public:
   // constructor
-  ElemDDLLikeOptWithoutRowFormat()
-    : ElemDDLLikeOpt(ELM_LIKE_OPT_WITHOUT_ROW_FORMAT_ELEM)
-  { }
+  ElemDDLLikeOptWithoutRowFormat() : ElemDDLLikeOpt(ELM_LIKE_OPT_WITHOUT_ROW_FORMAT_ELEM) {}
 
   // virtual destructor
   virtual ~ElemDDLLikeOptWithoutRowFormat();
 
   // cast
-  virtual ElemDDLLikeOptWithoutRowFormat *
-    castToElemDDLLikeOptWithoutRowFormat();
+  virtual ElemDDLLikeOptWithoutRowFormat *castToElemDDLLikeOptWithoutRowFormat();
 
   // method for tracing
   virtual const NAString getText() const;
 
-
-private:
-
-}; // class ElemDDLLikeOptWithoutRowFormat
+ private:
+};  // class ElemDDLLikeOptWithoutRowFormat
 
 // -----------------------------------------------------------------------
 // definition of class ElemDDLLikeOptWithoutLobColumns
 // -----------------------------------------------------------------------
-class ElemDDLLikeOptWithoutLobColumns : public ElemDDLLikeOpt
-{
-
-public:
-
+class ElemDDLLikeOptWithoutLobColumns : public ElemDDLLikeOpt {
+ public:
   // constructor
-  ElemDDLLikeOptWithoutLobColumns()
-    : ElemDDLLikeOpt(ELM_LIKE_OPT_WITHOUT_LOB_COLUMNS)
-  { }
+  ElemDDLLikeOptWithoutLobColumns() : ElemDDLLikeOpt(ELM_LIKE_OPT_WITHOUT_LOB_COLUMNS) {}
 
   // virtual destructor
   virtual ~ElemDDLLikeOptWithoutLobColumns();
 
   // cast
-  virtual ElemDDLLikeOptWithoutLobColumns *
-    castToElemDDLLikeOptWithoutLobColumns();
+  virtual ElemDDLLikeOptWithoutLobColumns *castToElemDDLLikeOptWithoutLobColumns();
 
   // method for tracing
   virtual const NAString getText() const;
 
-
-private:
-
-}; // class ElemDDLLikeOptWithoutLobColumns
+ private:
+};  // class ElemDDLLikeOptWithoutLobColumns
 
 // -----------------------------------------------------------------------
 // definition of class ElemDDLLikeOptWithoutNamespace
 // -----------------------------------------------------------------------
-class ElemDDLLikeOptWithoutNamespace : public ElemDDLLikeOpt
-{
-
-public:
-
+class ElemDDLLikeOptWithoutNamespace : public ElemDDLLikeOpt {
+ public:
   // constructor
-  ElemDDLLikeOptWithoutNamespace()
-    : ElemDDLLikeOpt(ELM_LIKE_OPT_WITHOUT_NAMESPACE)
-  { }
+  ElemDDLLikeOptWithoutNamespace() : ElemDDLLikeOpt(ELM_LIKE_OPT_WITHOUT_NAMESPACE) {}
 
   // virtual destructor
   virtual ~ElemDDLLikeOptWithoutNamespace();
 
   // cast
-  virtual ElemDDLLikeOptWithoutNamespace *
-    castToElemDDLLikeOptWithoutNamespace();
+  virtual ElemDDLLikeOptWithoutNamespace *castToElemDDLLikeOptWithoutNamespace();
 
   // method for tracing
   virtual const NAString getText() const;
 
-
-private:
-
-}; // class ElemDDLLikeOptWithoutNamespace
+ private:
+};  // class ElemDDLLikeOptWithoutNamespace
 
 // -----------------------------------------------------------------------
 // definition of class ElemDDLLikeOptWithData
 // -----------------------------------------------------------------------
-class ElemDDLLikeOptWithData : public ElemDDLLikeOpt
-{
-public:
-  //constructor
-  ElemDDLLikeOptWithData()
-    : ElemDDLLikeOpt(ELM_LIKE_OPT_WITH_DATA)
-  {}
+class ElemDDLLikeOptWithData : public ElemDDLLikeOpt {
+ public:
+  // constructor
+  ElemDDLLikeOptWithData() : ElemDDLLikeOpt(ELM_LIKE_OPT_WITH_DATA) {}
 
-  //virtual destructor
+  // virtual destructor
   virtual ~ElemDDLLikeOptWithData();
 
-  //cast
-  virtual ElemDDLLikeOptWithData *
-    castToElemDDLLikeOptWithData();
+  // cast
+  virtual ElemDDLLikeOptWithData *castToElemDDLLikeOptWithData();
 
-  //method for tracing
+  // method for tracing
   virtual const NAString getText() const;
 
-private:
-}; //class ElemDDLLikeOptWithData
+ private:
+};  // class ElemDDLLikeOptWithData
 
 // -----------------------------------------------------------------------
 // definition of class ElemDDLLikeOptWithoutRegionReplication
 // -----------------------------------------------------------------------
-class ElemDDLLikeOptWithoutRegionReplication : public ElemDDLLikeOpt
-{
-
-public:
-
+class ElemDDLLikeOptWithoutRegionReplication : public ElemDDLLikeOpt {
+ public:
   // constructor
-  ElemDDLLikeOptWithoutRegionReplication()
-  : ElemDDLLikeOpt(ELM_LIKE_OPT_WITHOUT_REGION_REPLICATION)
-  { }
+  ElemDDLLikeOptWithoutRegionReplication() : ElemDDLLikeOpt(ELM_LIKE_OPT_WITHOUT_REGION_REPLICATION) {}
 
   // virtual destructor
   virtual ~ElemDDLLikeOptWithoutRegionReplication();
 
   // cast
-  virtual ElemDDLLikeOptWithoutRegionReplication *
-    castToElemDDLLikeOptWithoutRegionReplication();
+  virtual ElemDDLLikeOptWithoutRegionReplication *castToElemDDLLikeOptWithoutRegionReplication();
 
   // method for tracing
   virtual const NAString getText() const;
 
-
-private:
-
-}; // class ElemDDLLikeOptWithoutConstraints
+ private:
+};  // class ElemDDLLikeOptWithoutConstraints
 
 // -----------------------------------------------------------------------
 // definition of class ElemDDLLikeOptWithoutRegionReplication
 // -----------------------------------------------------------------------
-class ElemDDLLikeOptWithoutIncrBackup : public ElemDDLLikeOpt
-{
-
-public:
-
+class ElemDDLLikeOptWithoutIncrBackup : public ElemDDLLikeOpt {
+ public:
   // constructor
-  ElemDDLLikeOptWithoutIncrBackup()
-  : ElemDDLLikeOpt(ELM_LIKE_OPT_WITHOUT_INCREMENTAL_BACKUP)
-  { }
+  ElemDDLLikeOptWithoutIncrBackup() : ElemDDLLikeOpt(ELM_LIKE_OPT_WITHOUT_INCREMENTAL_BACKUP) {}
 
   // virtual destructor
   virtual ~ElemDDLLikeOptWithoutIncrBackup();
 
   // cast
-  virtual ElemDDLLikeOptWithoutIncrBackup *
-    castToElemDDLLikeOptWithoutIncrBackup();
+  virtual ElemDDLLikeOptWithoutIncrBackup *castToElemDDLLikeOptWithoutIncrBackup();
 
   // method for tracing
   virtual const NAString getText() const;
 
+ private:
+};  // class ElemDDLLikeOptWithoutConstraints
 
-private:
-
-}; // class ElemDDLLikeOptWithoutConstraints
-
-#endif // ELEMDDLLIKEOPTIONS_H
+#endif  // ELEMDDLLIKEOPTIONS_H

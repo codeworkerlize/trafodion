@@ -51,58 +51,47 @@
 #include "GroupAttr.h"
 
 // Helper function to allocate a string in the plan
-char *AllocStringInSpace(ComSpace &space, const char *s)
-{
+char *AllocStringInSpace(ComSpace &space, const char *s) {
   char *result = space.allocateAndCopyToAlignedSpace(s, str_len(s));
   return result;
 }
 
 // Helper function to allocate binary data in the plan. The data
 // will be preceded by a 4-byte length field
-char *AllocDataInSpace(ComSpace &space, const char *data, UInt32 len)
-{
+char *AllocDataInSpace(ComSpace &space, const char *data, UInt32 len) {
   char *result = space.allocateAndCopyToAlignedSpace(data, len, 4);
   return result;
 }
 
 // A helper function to add optional data from a UDR TDB
 // instance into the description string for EXPLAIN output.
-static void addOptionalData(Queue *optData, NAString &description)
-{
-  if (optData == NULL)
-    return;
+static void addOptionalData(Queue *optData, NAString &description) {
+  if (optData == NULL) return;
 
   char buf[128];
   Int32 i = 0;
   const char *s = NULL;
 
   optData->position();
-  while ((s = (const char *) optData->getNext()) != NULL)
-  {
+  while ((s = (const char *)optData->getNext()) != NULL) {
     // Each data element is prefixed by a 4-byte length field
     UInt32 len = 0;
     str_cpy_all((char *)&len, s, 4);
-    if (len > 0)
-    {
+    if (len > 0) {
       sprintf(buf, "optional_data[%d]: ", i++);
       description += buf;
 
       // Create a buffer containing at most 200 bytes of data
-      if (len > 200)
-        len = 200;
+      if (len > 200) len = 200;
       char truncatedBuf[201];
-      str_cpy_all(truncatedBuf, s + 4, (Lng32) len);
+      str_cpy_all(truncatedBuf, s + 4, (Lng32)len);
       truncatedBuf[len] = 0;
 
       // Change NULL bytes and non-ASCII characters to a dot for
       // display purposes. Also change colons to dots because tools
       // that parse EXPLAIN output consider colon a token delimiter.
-      for (UInt32 j = 0; j < len; j++)
-      {
-        if (truncatedBuf[j] == 0 ||
-            !isascii(truncatedBuf[j]) || 
-            truncatedBuf[j] == ':')
-        {
+      for (UInt32 j = 0; j < len; j++) {
+        if (truncatedBuf[j] == 0 || !isascii(truncatedBuf[j]) || truncatedBuf[j] == ':') {
           truncatedBuf[j] = '.';
         }
       }
@@ -110,41 +99,32 @@ static void addOptionalData(Queue *optData, NAString &description)
       description += truncatedBuf;
       description += " ";
 
-    } // if (len > 0)
-  } // for each data element
+    }  // if (len > 0)
+  }    // for each data element
 }
 
-
-ExplainTuple *IsolatedNonTableUDR::addSpecificExplainInfo(ExplainTupleMaster *explainTuple, 
-                                             ComTdb *tdb, 
-                                             Generator *generator)
-{
-
+ExplainTuple *IsolatedNonTableUDR::addSpecificExplainInfo(ExplainTupleMaster *explainTuple, ComTdb *tdb,
+                                                          Generator *generator) {
   ULng32 i;
   char buf[128];
   const QualifiedName &qname = getEffectiveNARoutine()->getSqlName();
   NAString ansiName = qname.getQualifiedNameAsString();
- 
+
   NAString description = "routine_name: ";
   description += ansiName;
 
   description += " parameter_modes: ";
   const ULng32 numParams = getEffectiveNARoutine()->getParamCount();
 
-  if (numParams == 0)
-  {
+  if (numParams == 0) {
     description += "none";
-  }
-  else
-  {
-    for (i = 0; i < numParams; i++)
-    {
+  } else {
+    for (i = 0; i < numParams; i++) {
       const NAColumnArray &formalParams = getEffectiveNARoutine()->getParams();
       const NAColumn &c = *(formalParams[i]);
       ComColumnDirection dir = ((NAColumn &)c).getColumnMode();
 
-      switch (dir)
-      {
+      switch (dir) {
         case COM_INPUT_COLUMN:
           description += COM_INPUT_COLUMN_LIT;
           break;
@@ -155,8 +135,7 @@ ExplainTuple *IsolatedNonTableUDR::addSpecificExplainInfo(ExplainTupleMaster *ex
           description += COM_INOUT_COLUMN_LIT;
           break;
         case COM_UNKNOWN_DIRECTION:
-        default:
-        {
+        default: {
           NAString msg = "No parameter mode specified for routine ";
           msg += ansiName;
           GenAssert(FALSE, msg.data());
@@ -164,12 +143,11 @@ ExplainTuple *IsolatedNonTableUDR::addSpecificExplainInfo(ExplainTupleMaster *ex
         }
       }
 
-    } // for each SQL parameter
-  } // if numParams > 0
+    }  // for each SQL parameter
+  }    // if numParams > 0
 
   description += " sql_access_mode: ";
-  switch (getEffectiveNARoutine()->getSqlAccess())
-  {
+  switch (getEffectiveNARoutine()->getSqlAccess()) {
     case COM_NO_SQL:
       description += "NO SQL";
       break;
@@ -183,14 +161,13 @@ ExplainTuple *IsolatedNonTableUDR::addSpecificExplainInfo(ExplainTupleMaster *ex
       description += "MODIFIES SQL DATA";
       break;
     case COM_UNKNOWN_ROUTINE_SQL_ACCESS:
-    default:
-    {
+    default: {
       NAString msg = "No SQL access mode specified for routine ";
       msg += ansiName;
       GenAssert(FALSE, msg.data());
       break;
     }
-  } // switch on SQL access mode
+  }  // switch on SQL access mode
 
   description += " external_name: ";
   description += getEffectiveNARoutine()->getExternalName();
@@ -206,8 +183,7 @@ ExplainTuple *IsolatedNonTableUDR::addSpecificExplainInfo(ExplainTupleMaster *ex
   description += (sigLen > 0 ? getEffectiveNARoutine()->getSignature() : "(none)");
 
   description += " language: ";
-  switch (getEffectiveNARoutine()->getLanguage())
-  {
+  switch (getEffectiveNARoutine()->getLanguage()) {
     case COM_LANGUAGE_JAVA:
       description += "JAVA";
       break;
@@ -221,18 +197,16 @@ ExplainTuple *IsolatedNonTableUDR::addSpecificExplainInfo(ExplainTupleMaster *ex
       description += "SQL";
       break;
     case COM_UNKNOWN_ROUTINE_LANGUAGE:
-    default:
-    {
+    default: {
       NAString msg = "No language specified for routine ";
       msg += ansiName;
       GenAssert(FALSE, msg.data());
       break;
     }
-  } // switch on language type
+  }  // switch on language type
 
   description += " parameter_style: ";
-  switch (getEffectiveNARoutine()->getParamStyle())
-  {
+  switch (getEffectiveNARoutine()->getParamStyle()) {
     case COM_STYLE_JAVA_CALL:
       description += "JAVA";
       break;
@@ -252,8 +226,7 @@ ExplainTuple *IsolatedNonTableUDR::addSpecificExplainInfo(ExplainTupleMaster *ex
       description += "C++";
       break;
     case COM_UNKNOWN_ROUTINE_PARAM_STYLE:
-    default:
-    {
+    default: {
       NAString msg = "No parameter style specified for routine ";
       msg += ansiName;
       GenAssert(FALSE, msg.data());
@@ -262,8 +235,7 @@ ExplainTuple *IsolatedNonTableUDR::addSpecificExplainInfo(ExplainTupleMaster *ex
   }
 
   description += " external_security: ";
-  switch (getEffectiveNARoutine()->getExternalSecurity())
-  {
+  switch (getEffectiveNARoutine()->getExternalSecurity()) {
     case COM_ROUTINE_EXTERNAL_SECURITY_INVOKER:
       description += "INVOKER";
       break;
@@ -271,8 +243,7 @@ ExplainTuple *IsolatedNonTableUDR::addSpecificExplainInfo(ExplainTupleMaster *ex
       description += "DEFINER";
       break;
     case COM_ROUTINE_EXTERNAL_SECURITY_IMPLEMENTATION_DEFINED:
-    default:
-    {
+    default: {
       NAString msg = "No external security specified for routine ";
       msg += ansiName;
       GenAssert(FALSE, msg.data());
@@ -280,7 +251,7 @@ ExplainTuple *IsolatedNonTableUDR::addSpecificExplainInfo(ExplainTupleMaster *ex
     }
   }
 
-  ComTdbUdr &udrTdb = *((ComTdbUdr *) tdb);
+  ComTdbUdr &udrTdb = *((ComTdbUdr *)tdb);
 #if 0
   // On Neo, CQDs are not exposed so this block of code is commented out.
   description += " runtime_options: ";
@@ -291,7 +262,7 @@ ExplainTuple *IsolatedNonTableUDR::addSpecificExplainInfo(ExplainTupleMaster *ex
 #endif
 
   ComSInt32 maxRS = getEffectiveNARoutine()->getMaxResults();
-  sprintf(buf, "%d", (Int32) maxRS);
+  sprintf(buf, "%d", (Int32)maxRS);
   description += " max_result_sets: ";
   description += buf;
 
@@ -304,18 +275,14 @@ ExplainTuple *IsolatedNonTableUDR::addSpecificExplainInfo(ExplainTupleMaster *ex
   return explainTuple;
 }
 
-
-ExplainTuple *SPProxyFunc::addExplainInfo(ComTdb *tdb, 
-                                          ExplainTuple *leftChild,
-                                          ExplainTuple *rightChild,
-                                          Generator *generator)
-{
-  ExplainTupleMaster *explainTuple = (ExplainTupleMaster *)
-    RelExpr::addExplainInfo(tdb, leftChild, rightChild, generator);
+ExplainTuple *SPProxyFunc::addExplainInfo(ComTdb *tdb, ExplainTuple *leftChild, ExplainTuple *rightChild,
+                                          Generator *generator) {
+  ExplainTupleMaster *explainTuple =
+      (ExplainTupleMaster *)RelExpr::addExplainInfo(tdb, leftChild, rightChild, generator);
 
   NAString description = "";
 
-  ComTdbUdr &udrTdb = *((ComTdbUdr *) tdb);
+  ComTdbUdr &udrTdb = *((ComTdbUdr *)tdb);
 
   addOptionalData(udrTdb.getOptionalData(), description);
 
@@ -324,35 +291,28 @@ ExplainTuple *SPProxyFunc::addExplainInfo(ComTdb *tdb,
   return explainTuple;
 }
 
-ExplainTuple *PhysicalTableMappingUDF::addSpecificExplainInfo(ExplainTupleMaster *explainTuple, 
-                                             ComTdb *tdb, 
-                                             Generator *generator)
-{
-
+ExplainTuple *PhysicalTableMappingUDF::addSpecificExplainInfo(ExplainTupleMaster *explainTuple, ComTdb *tdb,
+                                                              Generator *generator) {
   ULng32 i;
   NAString name = getUserTableName().getCorrNameAsString();
-  const NAColumnArray & formalInputParams = getScalarInputParams();
-  const NAColumnArray & outputColumns = getOutputParams();
+  const NAColumnArray &formalInputParams = getScalarInputParams();
+  const NAColumnArray &outputColumns = getOutputParams();
 
   NAString description = "TMUDF_name: ";
   description += name;
 
   description += " input_parameters: ";
-  for (CollIndex i=0; i<formalInputParams.entries(); i++)
-    {
-      if (i > 0)
-        description += ", ";
-      description += formalInputParams[i]->getColName();
-    }
+  for (CollIndex i = 0; i < formalInputParams.entries(); i++) {
+    if (i > 0) description += ", ";
+    description += formalInputParams[i]->getColName();
+  }
 
   description += " result_columns: ";
-  for (CollIndex o=0; o<outputColumns.entries(); o++)
-    {
-      if (o > 0)
-        description += ", ";
-      description += outputColumns[o]->getColName();
-    }
-  
+  for (CollIndex o = 0; o < outputColumns.entries(); o++) {
+    if (o > 0) description += ", ";
+    description += outputColumns[o]->getColName();
+  }
+
   description += " external_name: ";
   description += getNARoutine()->getExternalName();
 
@@ -363,7 +323,7 @@ ExplainTuple *PhysicalTableMappingUDF::addSpecificExplainInfo(ExplainTupleMaster
   if (getNARoutine()->getLanguage() == COM_LANGUAGE_JAVA)
     description += getNARoutine()->getExternalPath();
   else
-    description += getNARoutine()->getFile(); // CPP
+    description += getNARoutine()->getFile();  // CPP
   description += " ";
 
   explainTuple->setDescription(description);
@@ -372,23 +332,19 @@ ExplainTuple *PhysicalTableMappingUDF::addSpecificExplainInfo(ExplainTupleMaster
   return explainTuple;
 }
 
-static ULng32 min_sql_buffer_overhead()
-{
+static ULng32 min_sql_buffer_overhead() {
   // When we compute buffer sizes for IPC messages, we sometimes want
   // to know how much SqlBuffer overhead is required to send one data
   // row plus a NO_DATA indicator. This function returns the number of
   // bookkeeping bytes required. The bookkeeping consists of SqlBuffer
   // class members, two control rows, and one data row.
-  const ULng32 bufferPad = 
-    sizeof(SqlBuffer)
-    + (2 * (sizeof(ControlInfo) + sizeof(tupp_descriptor)))
-    + sizeof(tupp_descriptor)   // for the data row
-    + 100                       // just to be safe
-    ;
+  const ULng32 bufferPad = sizeof(SqlBuffer) + (2 * (sizeof(ControlInfo) + sizeof(tupp_descriptor))) +
+                           sizeof(tupp_descriptor)  // for the data row
+                           + 100                    // just to be safe
+      ;
 
   return bufferPad;
 }
-
 
 //--------------------------------------------------------------------------
 // Our code generator for UDR operators is implemented by a static
@@ -399,29 +355,14 @@ static ULng32 min_sql_buffer_overhead()
 // RelExpr classes has a codeGen() method that calls this udr_codegen()
 // function.
 //--------------------------------------------------------------------------
-static short udr_codegen(Generator *generator,
-                             RelExpr &relExpr,
-                             ComTdbUdr *&newTdb,
-                             const RoutineDesc *rdesc,
-                             const ValueIdList *inVids,
-                             const ValueIdList *outVids,
-                             const NAColumnArray *inColumns,
-                             const NAColumnArray *outColumns,
-                             const NAColumnArray *formalColumns,
-                             Cardinality estimatedRowCount,
-                             ULng32 downQueueMaxSize,
-                             ULng32 upQueueMaxSize,
-                             ULng32 outputBufferSize,
-                             ULng32 requestBufferSize,
-                             ULng32 replyBufferSize,
-                             ULng32 numOutputBuffers,
-                             const char *runtimeOptsFromCaller,
-                             const char *runtimeOptDelimsFromCaller,
-                             ComTdb ** childTdbs,
-                             Queue *optionalData,
-                             tmudr::UDRInvocationInfo *udrInvocationInfo,
-                             tmudr::UDRPlanInfo *udrPlanInfo)
-{
+static short udr_codegen(Generator *generator, RelExpr &relExpr, ComTdbUdr *&newTdb, const RoutineDesc *rdesc,
+                         const ValueIdList *inVids, const ValueIdList *outVids, const NAColumnArray *inColumns,
+                         const NAColumnArray *outColumns, const NAColumnArray *formalColumns,
+                         Cardinality estimatedRowCount, ULng32 downQueueMaxSize, ULng32 upQueueMaxSize,
+                         ULng32 outputBufferSize, ULng32 requestBufferSize, ULng32 replyBufferSize,
+                         ULng32 numOutputBuffers, const char *runtimeOptsFromCaller,
+                         const char *runtimeOptDelimsFromCaller, ComTdb **childTdbs, Queue *optionalData,
+                         tmudr::UDRInvocationInfo *udrInvocationInfo, tmudr::UDRPlanInfo *udrPlanInfo) {
   CmpContext *cmpContext = generator->currentCmpContext();
   Space *space = generator->getSpace();
   ExpGenerator *exp_gen = generator->getExpGenerator();
@@ -431,7 +372,7 @@ static short udr_codegen(Generator *generator,
   ex_expr *output_expr = NULL;
   ex_expr *scan_expr = NULL;
   ex_expr *proj_expr = NULL;
-  ex_expr ** childInput_exprs = NULL ;
+  ex_expr **childInput_exprs = NULL;
   ULng32 i;
   ULng32 requestRowLen = 0;
   ULng32 replyRowLen = 0;
@@ -450,69 +391,54 @@ static short udr_codegen(Generator *generator,
 
   OperatorTypeEnum relExprType = relExpr.getOperatorType();
   NABoolean isResultSet = (relExprType == REL_SP_PROXY ? TRUE : FALSE);
-  
+
   const ULng32 numInValues = (inVids ? inVids->entries() : 0);
   const ULng32 numOutValues = (outVids ? outVids->entries() : 0);
-  
-  ULng32 totalNumParams = (rdesc ? 
-                               (rdesc->getInParamColumnList().entries() +
-                                rdesc->getOutputColumnList().entries()) : 
-                               (numInValues + numOutValues));
-  if (relExpr.castToTableMappingUDF())
-    totalNumParams = (numInValues + numOutValues);
+
+  ULng32 totalNumParams = (rdesc ? (rdesc->getInParamColumnList().entries() + rdesc->getOutputColumnList().entries())
+                                 : (numInValues + numOutValues));
+  if (relExpr.castToTableMappingUDF()) totalNumParams = (numInValues + numOutValues);
 
   // If we have a PhysicalSPProxyFunc, using the udr_codegen() method, the
   // rdesc will be NULL since it does not have any metadata to go with it.
 
-  if (rdesc)
-  {
-     metadata = rdesc->getNARoutine();
+  if (rdesc) {
+    metadata = rdesc->getNARoutine();
 
-       // if this is a universal function this returns the NARoutine 
-       // for the action otherwise it returns the metadata for the 
-       // parent function.
-     effectiveMetadata = rdesc->getEffectiveNARoutine();  
-    
-     // Make sure we actually have something to work with.
-     CMPASSERT(metadata);
-     CMPASSERT(effectiveMetadata);
+    // if this is a universal function this returns the NARoutine
+    // for the action otherwise it returns the metadata for the
+    // parent function.
+    effectiveMetadata = rdesc->getEffectiveNARoutine();
+
+    // Make sure we actually have something to work with.
+    CMPASSERT(metadata);
+    CMPASSERT(effectiveMetadata);
   }
-  
+
   // Sanity checks on input arguments
-  if (numInValues > 0)
-  {
+  if (numInValues > 0) {
     GenAssert(inVids, "Input ValueId list is required");
-    GenAssert(inVids->entries() == numInValues,
-              "Input ValueId list contains wrong number of elements");
+    GenAssert(inVids->entries() == numInValues, "Input ValueId list contains wrong number of elements");
     GenAssert(inColumns, "Input column array is required");
-    GenAssert(inColumns->entries() >= numInValues,
-              "Input column array has to few elements");
+    GenAssert(inColumns->entries() >= numInValues, "Input column array has to few elements");
   }
-  
-  if (numOutValues > 0)
-  {
+
+  if (numOutValues > 0) {
     GenAssert(outVids, "Output ValueId list is required");
-    GenAssert(outVids->entries() == numOutValues,
-              "Output ValueId list contains wrong number of elements");
+    GenAssert(outVids->entries() == numOutValues, "Output ValueId list contains wrong number of elements");
     GenAssert(outColumns, "Output column array is required");
-    GenAssert(outColumns->entries() == numOutValues,
-              "Output column array contains wrong number of elements");
+    GenAssert(outColumns->entries() == numOutValues, "Output column array contains wrong number of elements");
   }
-  
-  if (formalColumns)
-  {
-    GenAssert(formalColumns->entries() >= numInValues,
-              "Formal column array has too few elements");
-    GenAssert(formalColumns->entries() >= numOutValues,
-              "Formal column array has too few elements");
-    if (effectiveMetadata)
-    {
-      GenAssert(formalColumns->entries() ==
-                (ComUInt32) (effectiveMetadata->getParamCount()),
+
+  if (formalColumns) {
+    GenAssert(formalColumns->entries() >= numInValues, "Formal column array has too few elements");
+    GenAssert(formalColumns->entries() >= numOutValues, "Formal column array has too few elements");
+    if (effectiveMetadata) {
+      GenAssert(formalColumns->entries() == (ComUInt32)(effectiveMetadata->getParamCount()),
                 "Formal column array contains wrong number of elements");
-    } 
+    }
   }
-  
+
   //----------------------------------------------------------------------
   //
   // Returned ATP layout:
@@ -531,81 +457,71 @@ static short udr_codegen(Generator *generator,
   //   If the operator has any input or output parameters then a work ATP
   //   will be used to copy the input/output values to/from message
   //   buffers.
-  // 
+  //
   //   The CRI descriptor for the work ATP will have 2, 3, or 4 tupps:
   //     - Constants
   //     - Temps
   //     - OPTIONAL request data
   //     - OPTIONAL reply data
   //
-  //   ex_expr::eval() takes two ATPs as input and numbers them 0 and 1. 
-  //   When evaluating expressions involving the work ATP, the work ATP 
+  //   ex_expr::eval() takes two ATPs as input and numbers them 0 and 1.
+  //   When evaluating expressions involving the work ATP, the work ATP
   //   will always be passed in as ATP number 1.
-  // 
+  //
   //----------------------------------------------------------------------
 
   ULng32 numChildInputs = 0;
   ULng32 numChildInputCols = 0;
-  TableMappingUDFChildInfo* childInfo = NULL;
-  if (relExpr.castToTableMappingUDF())
-  {
+  TableMappingUDFChildInfo *childInfo = NULL;
+  if (relExpr.castToTableMappingUDF()) {
     numChildInputs = relExpr.getArity();
-    if (numChildInputs == 1)
-    {
-      PhysicalTableMappingUDF * op = (PhysicalTableMappingUDF *) (&relExpr);
+    if (numChildInputs == 1) {
+      PhysicalTableMappingUDF *op = (PhysicalTableMappingUDF *)(&relExpr);
 
       childInfo = op->getChildInfo(0);
       numChildInputCols = childInfo->getOutputs().entries();
-      childInput_exprs = new(space)ex_expr*[1];
+      childInput_exprs = new (space) ex_expr *[1];
     }
   }
-  
+
   const Int32 workAtpNumber = 1;
   ex_cri_desc *given_desc = generator->getCriDesc(Generator::DOWN);
   ex_cri_desc *returned_desc = NULL;
   ex_cri_desc *work_cri_desc = NULL;
-  
+
   // Set the returned_desc pointer
-  if (numOutValues > 0)
-  {
-    returned_desc = new (space)
-      ex_cri_desc((unsigned short) (given_desc->noTuples() + 1), space);
-  }
-  else
-  {
+  if (numOutValues > 0) {
+    returned_desc = new (space) ex_cri_desc((unsigned short)(given_desc->noTuples() + 1), space);
+  } else {
     returned_desc = given_desc;
   }
-  
+
   // Setup local variables related to the work ATP
   unsigned short numWorkTupps = 0;
   unsigned short requestTuppIndex = 0;
   unsigned short replyTuppIndex = 0;
   unsigned short childInputTuppIndex = 0;
-  if ((numInValues + numOutValues) > 0)
-  {
+  if ((numInValues + numOutValues) > 0) {
     numWorkTupps = 2;
-    
-    if (numInValues > 0)
-    {
+
+    if (numInValues > 0) {
       numWorkTupps++;
       requestTuppIndex = 2;
     }
-    
-    if (numOutValues > 0)
-    {
+
+    if (numOutValues > 0) {
       numWorkTupps++;
       replyTuppIndex = (numInValues > 0 ? 3 : 2);
     }
 
-    if ((numChildInputs == 1)&&(numChildInputCols > 0))
-    {
+    if ((numChildInputs == 1) && (numChildInputCols > 0)) {
       numWorkTupps++;
-      childInputTuppIndex = numWorkTupps - 1 ;
+      childInputTuppIndex = numWorkTupps - 1;
     }
 
     work_cri_desc = new (space) ex_cri_desc(numWorkTupps, space);
   }
-  
+
   //----------------------------------------------------------------------
   // Process each input value
   //
@@ -614,142 +530,126 @@ static short udr_codegen(Generator *generator,
   // conversions may be necessary if the input type is not supported
   // by the Language Manager
   //----------------------------------------------------------------------
-  ComRoutineLanguage routineLanguage =
-    (metadata ? metadata->getLanguage() : COM_UNKNOWN_ROUTINE_LANGUAGE);
-  ComRoutineParamStyle paramStyle =
-    (metadata ? metadata->getParamStyle() : COM_UNKNOWN_ROUTINE_PARAM_STYLE);
+  ComRoutineLanguage routineLanguage = (metadata ? metadata->getLanguage() : COM_UNKNOWN_ROUTINE_LANGUAGE);
+  ComRoutineParamStyle paramStyle = (metadata ? metadata->getParamStyle() : COM_UNKNOWN_ROUTINE_PARAM_STYLE);
 
   // FIXME only support aligned format for SPJ now
   ExpTupleDesc::TupleDataFormat inputTDF = ExpTupleDesc::SQLARK_EXPLODED_FORMAT;
-  if (CmpCommon::getDefault(SP_ALIGNED_FORMAT) == DF_ON
-      && routineLanguage == COM_LANGUAGE_JAVA
-      && paramStyle == COM_STYLE_JAVA_CALL)
-  {
+  if (CmpCommon::getDefault(SP_ALIGNED_FORMAT) == DF_ON && routineLanguage == COM_LANGUAGE_JAVA &&
+      paramStyle == COM_STYLE_JAVA_CALL) {
     inputTDF = ExpTupleDesc::SQLMX_ALIGNED_FORMAT;
   }
 
-  if (numInValues > 0)
-  {
+  if (numInValues > 0) {
     // requestVids represents input parameter values in the message buffer
     ValueIdList requestVids;
-    
-    for (i = 0; i < numInValues; i++)
-    {
+
+    for (i = 0; i < numInValues; i++) {
       ItemExpr &inputExpr = *((*inVids)[i].getItemExpr());
       const NAType &inputType = (*inVids)[i].getType();
       const NAColumn &c = *((*inColumns)[i]);
       const NAType &formalType = *(c.getType());
       ItemExpr *lmExpr = NULL;
-      
-      LmExprResult lmResult = CreateLmInputExpr (
-        formalType,         // [IN] UDR param type
-        inputExpr,          // [IN] Actual input value
-        routineLanguage,    // [IN] Routine language
-        paramStyle,         // [IN] Parameter style
-        cmpContext,         // [IN] Compilation context
-        lmExpr              // [OUT] Returned expression
-        );
-      GenAssert(lmResult == LmExprOK && lmExpr != NULL,
-                "Error building expression tree for LM input value");
-      
+
+      LmExprResult lmResult = CreateLmInputExpr(formalType,       // [IN] UDR param type
+                                                inputExpr,        // [IN] Actual input value
+                                                routineLanguage,  // [IN] Routine language
+                                                paramStyle,       // [IN] Parameter style
+                                                cmpContext,       // [IN] Compilation context
+                                                lmExpr            // [OUT] Returned expression
+      );
+      GenAssert(lmResult == LmExprOK && lmExpr != NULL, "Error building expression tree for LM input value");
+
       lmExpr->bindNode(generator->getBindWA());
       requestVids.insert(lmExpr->getValueId());
-      
-    } // for (i = 0; i < numInValues; i++)
-    
+
+    }  // for (i = 0; i < numInValues; i++)
+
     // Generate an expression to move input data into the request
-    // buffer. After this call returns, the MapTable has request 
+    // buffer. After this call returns, the MapTable has request
     // values in the work ATP at index requestTuppIndex.
-    exp_gen->generateContiguousMoveExpr (
-      requestVids,                          // [IN] source ValueIds
-      TRUE,                                 // [IN] add convert nodes?
-      workAtpNumber,                        // [IN] target atp number (0 or 1)
-      requestTuppIndex,                     // [IN] target tupp index
-      inputTDF,                             // [IN] target tuple data format
-      requestRowLen,                        // [OUT] target tuple length
-      &input_expr,                          // [OUT] move expression
-      &requestTupleDesc,                    // [optional OUT] target tuple desc
-      ExpTupleDesc::LONG_FORMAT             // [optional IN] target desc format
-      );
-    
+    exp_gen->generateContiguousMoveExpr(requestVids,               // [IN] source ValueIds
+                                        TRUE,                      // [IN] add convert nodes?
+                                        workAtpNumber,             // [IN] target atp number (0 or 1)
+                                        requestTuppIndex,          // [IN] target tupp index
+                                        inputTDF,                  // [IN] target tuple data format
+                                        requestRowLen,             // [OUT] target tuple length
+                                        &input_expr,               // [OUT] move expression
+                                        &requestTupleDesc,         // [optional OUT] target tuple desc
+                                        ExpTupleDesc::LONG_FORMAT  // [optional IN] target desc format
+    );
+
     //
     // Add the tuple descriptor for request values to the work ATP
     //
     work_cri_desc->setTupleDescriptor(requestTuppIndex, requestTupleDesc);
 
     combinedRequestChildOutputRowLen = requestRowLen;
-    
-  } // if (numInValues > 0)
 
-  if ((numChildInputs == 1)&&(numChildInputCols > 0))
-  {
+  }  // if (numInValues > 0)
+
+  if ((numChildInputs == 1) && (numChildInputCols > 0)) {
     // requestVids represents values in the message buffer
     ValueIdList childRequestVids;
-    const ValueIdList& childVals = childInfo->getOutputs();
+    const ValueIdList &childVals = childInfo->getOutputs();
 
-    for (i = 0; i < childVals.entries(); i++)
-    {
+    for (i = 0; i < childVals.entries(); i++) {
       ItemExpr &inputExpr = *(childVals[i].getItemExpr());
       const NAType &inputType = childVals[i].getType();
       const NAColumn &c = *(childInfo->getInputTabCols()[i]);
       const NAType &formalType = childVals[i].getType();
       ItemExpr *lmExpr = NULL;
-      
-      LmExprResult lmResult = CreateLmInputExpr (
-        formalType,         // [IN] UDR param type
-        inputExpr,          // [IN] Actual input value
-        routineLanguage,    // [IN] Routine language
-        paramStyle,         // [IN] Parameter style
-        cmpContext,         // [IN] Compilation context
-        lmExpr              // [OUT] Returned expression
-        );
-      GenAssert(lmResult == LmExprOK && lmExpr != NULL,
-                "Error building expression tree for LM child Input value");
-      
+
+      LmExprResult lmResult = CreateLmInputExpr(formalType,       // [IN] UDR param type
+                                                inputExpr,        // [IN] Actual input value
+                                                routineLanguage,  // [IN] Routine language
+                                                paramStyle,       // [IN] Parameter style
+                                                cmpContext,       // [IN] Compilation context
+                                                lmExpr            // [OUT] Returned expression
+      );
+      GenAssert(lmResult == LmExprOK && lmExpr != NULL, "Error building expression tree for LM child Input value");
+
       lmExpr->bindNode(generator->getBindWA());
       childRequestVids.insert(lmExpr->getValueId());
-      
-    } // for (i = 0; i < numInValues; i++)
-    
+
+    }  // for (i = 0; i < numInValues; i++)
+
     // Generate an expression to move input data into the request
-    // buffer. After this call returns, the MapTable has request 
+    // buffer. After this call returns, the MapTable has request
     // values in the work ATP at index requestTuppIndex.
-    exp_gen->generateContiguousMoveExpr (
-      childRequestVids,                     // [IN] source ValueIds
-      TRUE,                                 // [IN] add convert nodes?
-      workAtpNumber,                        // [IN] target atp number (0 or 1)
-      childInputTuppIndex,                  // [IN] target tupp index
-      inputTDF,                             // [IN] target tuple data format
-      childInputRowLen,                     // [OUT] target tuple length
-      &childInput_exprs[0],                     // [OUT] move expression
-      &childInputTupleDesc,                 // [optional OUT] target tuple desc
-      ExpTupleDesc::LONG_FORMAT             // [optional IN] target desc format
-      );
-    
+    exp_gen->generateContiguousMoveExpr(childRequestVids,          // [IN] source ValueIds
+                                        TRUE,                      // [IN] add convert nodes?
+                                        workAtpNumber,             // [IN] target atp number (0 or 1)
+                                        childInputTuppIndex,       // [IN] target tupp index
+                                        inputTDF,                  // [IN] target tuple data format
+                                        childInputRowLen,          // [OUT] target tuple length
+                                        &childInput_exprs[0],      // [OUT] move expression
+                                        &childInputTupleDesc,      // [optional OUT] target tuple desc
+                                        ExpTupleDesc::LONG_FORMAT  // [optional IN] target desc format
+    );
+
     //
     // Add the tuple descriptor for request values to the work ATP
     //
     work_cri_desc->setTupleDescriptor(childInputTuppIndex, childInputTupleDesc);
 
-    combinedRequestChildOutputRowLen =
-      MAXOF(combinedRequestChildOutputRowLen, childInputRowLen);
-    
-  } // if ((numChildInputs == 1)&&(numChildInputCols > 0))
-  
+    combinedRequestChildOutputRowLen = MAXOF(combinedRequestChildOutputRowLen, childInputRowLen);
+
+  }  // if ((numChildInputs == 1)&&(numChildInputCols > 0))
+
   //----------------------------------------------------------------------
   // Process each output value
   //
-  // Generate new ValueIds for reply values. Reply values are 
+  // Generate new ValueIds for reply values. Reply values are
   // values that arrive in a message buffer. We will end up making a
   // copy of the reply values and putting those values in our output
   // row. The results of that copy are considered "output" values and
   // our binder already created ValueIds for the output values. When
-  // copying reply values to the output row type conversions may be 
-  // necessary if the formal parameter type is not supported by the 
+  // copying reply values to the output row type conversions may be
+  // necessary if the formal parameter type is not supported by the
   // Language Manager and/or UDR server.
   //----------------------------------------------------------------------
-  if (numOutValues > 0)
-  {
+  if (numOutValues > 0) {
     // Create two new ValueId lists
     // - Reply values that came back from the server
     // - Output values that will be returned to the parent.
@@ -757,111 +657,98 @@ static short udr_codegen(Generator *generator,
     //   values and perform any LM-required type conversions.
     //   Note that ValueIds for our output row were already
     //   created during binding. The cast nodes we introduce
-    //   here will have different ValueIds. We will later 
+    //   here will have different ValueIds. We will later
     //   account for this when we generate the move expression
     //   by making sure that the output ValueIds created during
     //   binding refer to the outputs of the move expression
-    
+
     ValueIdList replyVids;
     ValueIdList tempOutputVids;
-    
-    for (i = 0; i < numOutValues; i++)
-    {
+
+    for (i = 0; i < numOutValues; i++) {
       const NAColumn &c = *((*outColumns)[i]);
       const NAType &formalType = *(c.getType());
       ItemExpr *replyValue = NULL;
       ItemExpr *outputValue = NULL;
-      
-      LmExprResult lmResult = CreateLmOutputExpr(
-        formalType,         // [IN] UDR param type
-        routineLanguage,    // [IN] Routine language
-        paramStyle,         // [IN] Parameter style
-        cmpContext,         // [IN] Compilation context
-        replyValue,         // [OUT] Returned expression for reply value
-        outputValue,        // [OUT] Returned expression for output value
-        isResultSet
-        );
-      GenAssert(lmResult == LmExprOK && replyValue != NULL
-                && outputValue != NULL,
+
+      LmExprResult lmResult = CreateLmOutputExpr(formalType,       // [IN] UDR param type
+                                                 routineLanguage,  // [IN] Routine language
+                                                 paramStyle,       // [IN] Parameter style
+                                                 cmpContext,       // [IN] Compilation context
+                                                 replyValue,       // [OUT] Returned expression for reply value
+                                                 outputValue,      // [OUT] Returned expression for output value
+                                                 isResultSet);
+      GenAssert(lmResult == LmExprOK && replyValue != NULL && outputValue != NULL,
                 "Error building expression tree for LM output value");
-      
+
       replyValue->synthTypeAndValueId();
       replyValue->bindNode(generator->getBindWA());
       replyVids.insert(replyValue->getValueId());
-      
+
       outputValue->bindNode(generator->getBindWA());
       tempOutputVids.insert(outputValue->getValueId());
-      
-    } // for (i = 0; i < numOutValues; i++)
-    
+
+    }  // for (i = 0; i < numOutValues; i++)
+
     // Add reply columns to the MapTable. After this call the MapTable
     // has reply values in the work ATP at index replyTuppIndex.
-    exp_gen->processValIdList(
-      replyVids,                             // [IN] ValueIdList
-      ExpTupleDesc::SQLARK_EXPLODED_FORMAT,  // [IN] tuple data format
-      replyRowLen,                           // [OUT] tuple length 
-      workAtpNumber,                         // [IN] atp number
-      replyTuppIndex,                        // [IN] index into atp
-      &replyTupleDesc,                       // [optional OUT] tuple desc
-      ExpTupleDesc::LONG_FORMAT              // [optional IN] desc format
-      );
-    
+    exp_gen->processValIdList(replyVids,                             // [IN] ValueIdList
+                              ExpTupleDesc::SQLARK_EXPLODED_FORMAT,  // [IN] tuple data format
+                              replyRowLen,                           // [OUT] tuple length
+                              workAtpNumber,                         // [IN] atp number
+                              replyTuppIndex,                        // [IN] index into atp
+                              &replyTupleDesc,                       // [optional OUT] tuple desc
+                              ExpTupleDesc::LONG_FORMAT              // [optional IN] desc format
+    );
+
     // Add the tuple descriptor for reply values to the work ATP
     work_cri_desc->setTupleDescriptor(replyTuppIndex, replyTupleDesc);
-    
+
     // Generate the expression to move reply values out of the message
-    // buffer into an output buffer. After this call returns, the 
+    // buffer into an output buffer. After this call returns, the
     // MapTable has reply values in ATP 0 at the last index.
-    exp_gen->generateContiguousMoveExpr(
-      tempOutputVids,                       // [IN] source ValueIds
-      FALSE,                                // [IN] add convert nodes?
-      0,                                    // [IN] target atp number
-      returned_desc->noTuples() - 1,        // [IN] target tupp index
-      ExpTupleDesc::SQLARK_EXPLODED_FORMAT, // [IN] target tuple format
-      outputRowLen,                         // [OUT] target tuple length
-      &output_expr,                         // [OUT] move expression
-      &outputTupleDesc,                     // [optional OUT] target tuple desc
-      ExpTupleDesc::LONG_FORMAT             // [optional IN] target desc format
-      );
-    
-  } // if (numOutValues > 0)
-  
+    exp_gen->generateContiguousMoveExpr(tempOutputVids,                        // [IN] source ValueIds
+                                        FALSE,                                 // [IN] add convert nodes?
+                                        0,                                     // [IN] target atp number
+                                        returned_desc->noTuples() - 1,         // [IN] target tupp index
+                                        ExpTupleDesc::SQLARK_EXPLODED_FORMAT,  // [IN] target tuple format
+                                        outputRowLen,                          // [OUT] target tuple length
+                                        &output_expr,                          // [OUT] move expression
+                                        &outputTupleDesc,                      // [optional OUT] target tuple desc
+                                        ExpTupleDesc::LONG_FORMAT              // [optional IN] target desc format
+    );
+
+  }  // if (numOutValues > 0)
+
   // We can now remove all appended map tables
   generator->removeAll(last_map_table);
-  
+
   // Put declared outputs in the MapTable. After this call the
   // MapTable has declared output values in ATP 0 at the last index.
-  if (numOutValues > 0)
-  {
-    exp_gen->processValIdList (
-      *outVids,                              // [IN] ValueIdList
-      ExpTupleDesc::SQLARK_EXPLODED_FORMAT,  // [IN] tuple data format
-      outputRowLen,                          // [OUT] tuple length 
-      0,                                     // [IN] atp number
-      returned_desc->noTuples() - 1,         // [IN] index into atp
-      &outputTupleDesc,                      // [optional OUT] tuple desc
-      ExpTupleDesc::LONG_FORMAT              // [optional IN] tuple desc format
-      );
+  if (numOutValues > 0) {
+    exp_gen->processValIdList(*outVids,                              // [IN] ValueIdList
+                              ExpTupleDesc::SQLARK_EXPLODED_FORMAT,  // [IN] tuple data format
+                              outputRowLen,                          // [OUT] tuple length
+                              0,                                     // [IN] atp number
+                              returned_desc->noTuples() - 1,         // [IN] index into atp
+                              &outputTupleDesc,                      // [optional OUT] tuple desc
+                              ExpTupleDesc::LONG_FORMAT              // [optional IN] tuple desc format
+    );
   }
-  
+
   // Generate an expression object for the selection predicate if one
   // is required
-  if (!(relExpr.selectionPred().isEmpty()))
-  {
-    ItemExpr *pred = relExpr.selectionPred().rebuildExprTree(ITM_AND,
-                                                             TRUE,
-                                                             TRUE);
-    exp_gen->generateExpr(pred->getValueId(),
-                          ex_expr::exp_SCAN_PRED,
-                          &scan_expr);
+  if (!(relExpr.selectionPred().isEmpty())) {
+    ItemExpr *pred = relExpr.selectionPred().rebuildExprTree(ITM_AND, TRUE, TRUE);
+    exp_gen->generateExpr(pred->getValueId(), ex_expr::exp_SCAN_PRED, &scan_expr);
   }
-  
+
   //----------------------------------------------------------------------
   // *** DONE WITH MAP TABLES AND GENERATING EXPRESSIONS ***
   //----------------------------------------------------------------------
-  
+
   // Now we can start preparing data that goes in the TDB.
-  
+
   // Make sure all buffer sizes are large enough to accomodate two
   // control rows plus one data row.
   const ULng32 bufferPad = min_sql_buffer_overhead();
@@ -873,7 +760,7 @@ static short udr_codegen(Generator *generator,
   // output buffer is used to store result rows that are inserted
   // in the up queue to the parent
   outputBufferSize = MAXOF(outputBufferSize, outputRowLen + bufferPad);
-  
+
   //
   // Now we start preparing the metadata the will go into the TDB.
   // Before we create the TDB we prepare metadata for the routine
@@ -887,7 +774,7 @@ static short udr_codegen(Generator *generator,
   char *path = NULL;
   char *librarySqlName = NULL;
   Int64 libraryRedefTime = NULL;
-  char * libraryBlobHandle;
+  char *libraryBlobHandle;
   char *librarySchName = NULL;
   Int32 libraryVersion = 0;
   Int64 libraryObjUID = 0;
@@ -902,11 +789,10 @@ static short udr_codegen(Generator *generator,
   ComSInt32 statesize = 0;
   UInt32 udrFlags = 0;
   NABoolean isUUDF = ((rdesc == NULL) ? FALSE : rdesc->isUUDFRoutine());
-  
+
   if (relExprType == REL_SP_PROXY)
     udrFlags |= UDR_RESULT_SET;
-  else if (relExpr.castToTableMappingUDF())
-  {
+  else if (relExpr.castToTableMappingUDF()) {
     udrFlags |= UDR_TMUDF;
   }
 
@@ -921,10 +807,9 @@ static short udr_codegen(Generator *generator,
   // COM_NO_TRANSACTION_REQUIRED.
   ComRoutineTransactionAttributes txAttrs = COM_NO_TRANSACTION_REQUIRED;
 
-  if (metadata && effectiveMetadata )
-  {
-    // getSqlName will always return the name of the Function regardless 
-    // which NARoutine we access, so we will always get the original 
+  if (metadata && effectiveMetadata) {
+    // getSqlName will always return the name of the Function regardless
+    // which NARoutine we access, so we will always get the original
     // Function name here and not the one of the Action.
 
     txAttrs = effectiveMetadata->getTxAttrs();
@@ -932,16 +817,13 @@ static short udr_codegen(Generator *generator,
     const QualifiedName &qname = metadata->getSqlName();
     sqlName = AllocStringInSpace(*space, qname.getQualifiedNameAsAnsiString());
 
-    // For now the parent function Metadata is used to to initiate the 
+    // For now the parent function Metadata is used to to initiate the
     // call. It is unclear yet how the Actions metadata should alter this
     // if different... For now we use all the parents info!! XXX
-    if ( relExprType != REL_ISOLATED_SCALAR_UDF )
-    {
-       routineEntryName = AllocStringInSpace(*space, metadata->getMethodName());
-    }
-    else 
-    {
-       routineEntryName = AllocStringInSpace(*space, metadata->getDllEntryPoint());
+    if (relExprType != REL_ISOLATED_SCALAR_UDF) {
+      routineEntryName = AllocStringInSpace(*space, metadata->getMethodName());
+    } else {
+      routineEntryName = AllocStringInSpace(*space, metadata->getDllEntryPoint());
     }
 
     // Class name for Java, unqualified DLL name for C/C++
@@ -957,8 +839,8 @@ static short udr_codegen(Generator *generator,
     const ComObjectName &libName = metadata->getLibrarySqlName();
     librarySqlName = AllocStringInSpace(*space, libName.getExternalName());
     libraryRedefTime = metadata->getLibRedefTime();
-    libraryBlobHandle = AllocStringInSpace (*space,metadata->getLibBlobHandle());
-    librarySchName = AllocStringInSpace(*space,metadata->getLibSchName());
+    libraryBlobHandle = AllocStringInSpace(*space, metadata->getLibBlobHandle());
+    librarySchName = AllocStringInSpace(*space, metadata->getLibSchName());
     libraryVersion = metadata->getLibVersion();
     libraryObjUID = metadata->getLibObjUID();
     rtype = metadata->getRoutineType();
@@ -969,49 +851,37 @@ static short udr_codegen(Generator *generator,
 
     maxrs = metadata->getMaxResults();
     statesize = metadata->getStateAreaSize();
-    
-    if (metadata->isDeterministic())
-      udrFlags |= UDR_DETERMINISTIC;
-    if (metadata->isIsolate())
-      udrFlags |= UDR_ISOLATE;
-    if (metadata->isCallOnNull())
-      udrFlags |= UDR_CALL_ON_NULL;
-    if (metadata->isExtraCall())
-      udrFlags |= UDR_EXTRA_CALL;
 
-    if (metadata->getLanguage() == COM_LANGUAGE_JAVA)
-      {
-        javaDebugPort = relExpr.getDefault(UDR_JVM_DEBUG_PORT);
-        if (javaDebugPort != 0)
-          {
+    if (metadata->isDeterministic()) udrFlags |= UDR_DETERMINISTIC;
+    if (metadata->isIsolate()) udrFlags |= UDR_ISOLATE;
+    if (metadata->isCallOnNull()) udrFlags |= UDR_CALL_ON_NULL;
+    if (metadata->isExtraCall()) udrFlags |= UDR_EXTRA_CALL;
+
+    if (metadata->getLanguage() == COM_LANGUAGE_JAVA) {
+      javaDebugPort = relExpr.getDefault(UDR_JVM_DEBUG_PORT);
+      if (javaDebugPort != 0) {
 #ifndef _DEBUG
-            // in a release build, only DB__ROOT can debug the JVM
-            if (!ComUser::isRootUserID())
-              {
-                // a user other than DB__ROOT is trying to debug
-                // a UDR, don't allow it and issue a warning
-                javaDebugPort = 0;
-                *(CmpCommon::diags()) << DgSqlCode(1260);
-              }
-            else
+        // in a release build, only DB__ROOT can debug the JVM
+        if (!ComUser::isRootUserID()) {
+          // a user other than DB__ROOT is trying to debug
+          // a UDR, don't allow it and issue a warning
+          javaDebugPort = 0;
+          *(CmpCommon::diags()) << DgSqlCode(1260);
+        } else
 #endif
-              javaDebugTimeout = relExpr.getDefault(UDR_JVM_DEBUG_TIMEOUT);
-          }
+          javaDebugTimeout = relExpr.getDefault(UDR_JVM_DEBUG_TIMEOUT);
       }
-  }  // if (metadata && effectiveMetadata) 
+    }
+  }  // if (metadata && effectiveMetadata)
 
 #ifdef _DEBUG
   const char *value = getenv("UDR_GEN_NO_TX_REQD");
-  if (value && value[0] != 0 && value[0] != '0')
-    txAttrs = COM_NO_TRANSACTION_REQUIRED;
+  if (value && value[0] != 0 && value[0] != '0') txAttrs = COM_NO_TRANSACTION_REQUIRED;
 #endif
-  if (runtimeOptsFromCaller)
-  {
-    GenAssert(runtimeOptDelimsFromCaller,
-              "Invalid runtime option delimiter string passed in");
+  if (runtimeOptsFromCaller) {
+    GenAssert(runtimeOptDelimsFromCaller, "Invalid runtime option delimiter string passed in");
     runtimeOptions = AllocStringInSpace(*space, runtimeOptsFromCaller);
-    runtimeOptionDelimiters = AllocStringInSpace(*space,
-                                                 runtimeOptDelimsFromCaller);
+    runtimeOptionDelimiters = AllocStringInSpace(*space, runtimeOptDelimsFromCaller);
   }
 
   Int32 udrSerInvocationInfoLen = 0;
@@ -1019,122 +889,68 @@ static short udr_codegen(Generator *generator,
   Int32 udrSerPlanInfoLen = 0;
   char *udrSerPlanInfo = NULL;
 
-  try
-    {
-      int tempLen = 0;
-      char *tempBuffer = NULL;
+  try {
+    int tempLen = 0;
+    char *tempBuffer = NULL;
 
-      if (udrInvocationInfo)
-        {
-          ExpTupleDesc *inputTupleDescs[2];
+    if (udrInvocationInfo) {
+      ExpTupleDesc *inputTupleDescs[2];
 
-          GenAssert(udrInvocationInfo->getNumTableInputs() <= 1,
-                    "this method is not yet ready for multiple input tables");
-          if (udrInvocationInfo->getNumTableInputs() == 1)
-            inputTupleDescs[0] = childInputTupleDesc;
+      GenAssert(udrInvocationInfo->getNumTableInputs() <= 1, "this method is not yet ready for multiple input tables");
+      if (udrInvocationInfo->getNumTableInputs() == 1) inputTupleDescs[0] = childInputTupleDesc;
 
-          // store the computed offsets and record lengths
-          // in the UDRInvocationInfo, to be used by the UDR
-          TMUDFInternalSetup::setOffsets(udrInvocationInfo,
-                                         requestTupleDesc,
-                                         replyTupleDesc,
-                                         inputTupleDescs);
-          
-          // Serialize the UDRInvocationInfo object, so that we
-          // can pass it to the UDR at runtime. This could be in
-          // another process (e.g. ESP, tdm_udrserv, or even to
-          // a Java program.
-          udrSerInvocationInfoLen = tempLen = udrInvocationInfo->serializedLength();
-          udrSerInvocationInfo = tempBuffer = space->allocateAlignedSpace(tempLen);
-          udrInvocationInfo->serialize(tempBuffer, tempLen);
-        } 
- 
-      if (udrPlanInfo)
-        {
-          // same for UDRPlanInfo
-          udrSerPlanInfoLen = tempLen = udrPlanInfo->serializedLength();
-          udrSerPlanInfo = tempBuffer = space->allocateAlignedSpace(tempLen);
-          udrPlanInfo->serialize(tempBuffer, tempLen);
-        } 
+      // store the computed offsets and record lengths
+      // in the UDRInvocationInfo, to be used by the UDR
+      TMUDFInternalSetup::setOffsets(udrInvocationInfo, requestTupleDesc, replyTupleDesc, inputTupleDescs);
+
+      // Serialize the UDRInvocationInfo object, so that we
+      // can pass it to the UDR at runtime. This could be in
+      // another process (e.g. ESP, tdm_udrserv, or even to
+      // a Java program.
+      udrSerInvocationInfoLen = tempLen = udrInvocationInfo->serializedLength();
+      udrSerInvocationInfo = tempBuffer = space->allocateAlignedSpace(tempLen);
+      udrInvocationInfo->serialize(tempBuffer, tempLen);
     }
-  catch (tmudr::UDRException e)
-    {
-      TMUDFDllInteraction::processReturnStatus(
-           e,
-           (udrInvocationInfo ?
-            udrInvocationInfo->getUDRName().data() :
-            "unknown"));
+
+    if (udrPlanInfo) {
+      // same for UDRPlanInfo
+      udrSerPlanInfoLen = tempLen = udrPlanInfo->serializedLength();
+      udrSerPlanInfo = tempBuffer = space->allocateAlignedSpace(tempLen);
+      udrPlanInfo->serialize(tempBuffer, tempLen);
     }
- 
+  } catch (tmudr::UDRException e) {
+    TMUDFDllInteraction::processReturnStatus(e,
+                                             (udrInvocationInfo ? udrInvocationInfo->getUDRName().data() : "unknown"));
+  }
+
   // Create a TDB
-  ComTdbUdr *tdb = new (space) ComTdbUdr (
-    sqlName,
-    routineEntryName,
-    sig,
-    container,
-    path,
-    librarySqlName,
-    libraryRedefTime,
-    libraryBlobHandle,
-    librarySchName,
-    libraryVersion,
-    runtimeOptions,
-    runtimeOptionDelimiters,
-    
-    udrFlags,
-    numInValues,
-    numOutValues,
-    totalNumParams,
-    maxrs,
-    statesize,
-    rtype,
-    routineLanguage,
-    pstyle,
-    sqlmode,
-    txAttrs,
-    
-    extSecurity,
-    ownerId,
+  ComTdbUdr *tdb = new (space)
+      ComTdbUdr(sqlName, routineEntryName, sig, container, path, librarySqlName, libraryRedefTime, libraryBlobHandle,
+                librarySchName, libraryVersion, runtimeOptions, runtimeOptionDelimiters,
 
-    estimatedRowCount,
-    given_desc,
-    returned_desc,
-    work_cri_desc,
-    downQueueMaxSize,
-    upQueueMaxSize,
-    
-    (Lng32) numOutputBuffers,
-    outputBufferSize,
-    requestBufferSize,
-    replyBufferSize,
-    
-    input_expr,
-    output_expr,
-    scan_expr,
-    proj_expr,
-    requestTuppIndex,
-    replyTuppIndex,
-    requestRowLen,
-    replyRowLen,
-    outputRowLen,
+                udrFlags, numInValues, numOutValues, totalNumParams, maxrs, statesize, rtype, routineLanguage, pstyle,
+                sqlmode, txAttrs,
 
-    numChildInputs,
-    childInput_exprs,
-    childTdbs,
+                extSecurity, ownerId,
 
-    optionalData,
+                estimatedRowCount, given_desc, returned_desc, work_cri_desc, downQueueMaxSize, upQueueMaxSize,
 
-    udrSerInvocationInfoLen,
-    udrSerInvocationInfo,
-    udrSerPlanInfoLen,
-    udrSerPlanInfo,
+                (Lng32)numOutputBuffers, outputBufferSize, requestBufferSize, replyBufferSize,
 
-    javaDebugPort,
-    javaDebugTimeout,
+                input_expr, output_expr, scan_expr, proj_expr, requestTuppIndex, replyTuppIndex, requestRowLen,
+                replyRowLen, outputRowLen,
 
-    space
-    
-    );
+                numChildInputs, childInput_exprs, childTdbs,
+
+                optionalData,
+
+                udrSerInvocationInfoLen, udrSerInvocationInfo, udrSerPlanInfoLen, udrSerPlanInfo,
+
+                javaDebugPort, javaDebugTimeout,
+
+                space
+
+      );
 
   tdb->setRecordLength(relExpr.getGroupAttr()->getRecordLength());
   // 256 is enough for the number of method parameters (see
@@ -1147,8 +963,7 @@ static short udr_codegen(Generator *generator,
   //     and &outColumns would appear in the obj_mapping's stack space.
   // ComBoolean obj_mapping[256];
   ComBoolean *objMapping = NULL;
-  if (sig)
-  {
+  if (sig) {
     // Extract "objMapping" values from the Java method
     // signature. Each value is a boolean flag. We allocate a buffer
     // of flags, one for each parameter and one for the return
@@ -1158,72 +973,61 @@ static short udr_codegen(Generator *generator,
     objMapping = new (space) ComBoolean[totalNumParams];
     LmResult outcome = setLMObjectMapping(sig, objMapping, totalNumParams);
   }
-  
+
   // Add column metadata to the TDB. If a formal column array was
   // passed in, we use those column descriptions. Otherwise we go in
   // order through the input column array followed by the output
   // column array.
-  for (i = 0; i < totalNumParams; i++)
-  {
+  for (i = 0; i < totalNumParams; i++) {
     const NAColumn *c;
     Int16 flags = 0;
-    
-    if (formalColumns &&
-        totalNumParams == formalColumns->entries())
-    {
+
+    if (formalColumns && totalNumParams == formalColumns->entries()) {
       // formalColumns was passed in and it is expected to contain
       // totalNumParams elements
       c = (*formalColumns)[i];
-      
+
       ComColumnDirection dir = ((NAColumn *)c)->getColumnMode();
-      switch (dir)
-      {
-      case COM_INPUT_COLUMN:
-        flags |= UDR_PARAM_IN;
-        break;
-      case COM_OUTPUT_COLUMN:
-        flags |= UDR_PARAM_OUT;
-        break;
-      case COM_INOUT_COLUMN:
-        flags |= UDR_PARAM_IN;
-        flags |= UDR_PARAM_OUT;
-        break;
+      switch (dir) {
+        case COM_INPUT_COLUMN:
+          flags |= UDR_PARAM_IN;
+          break;
+        case COM_OUTPUT_COLUMN:
+          flags |= UDR_PARAM_OUT;
+          break;
+        case COM_INOUT_COLUMN:
+          flags |= UDR_PARAM_IN;
+          flags |= UDR_PARAM_OUT;
+          break;
       }
-    }
-    else if (i < numInValues)
-    {
+    } else if (i < numInValues) {
       // formalColumns was not passed in. We use the inColumns array
       // first while i is less then numInValues.
       c = (*inColumns)[i];
       flags |= UDR_PARAM_IN;
-    }
-    else
-    {
+    } else {
       // formalColumns was not passed in. We use the outColumns array
       // now that i is greater than or equal to numInValues.
       c = (*outColumns)[i - numInValues];
       flags |= UDR_PARAM_OUT;
     }
-    
+
     GenAssert(c, "Unable to locate column description");
-    
+
     const NAType &t = *(c->getType());
-    
-    if (t.supportsSQLnullLogical())
-      flags |= UDR_PARAM_NULLABLE;
-    
-    if (objMapping && objMapping[i])
-      flags |= UDR_PARAM_LM_OBJ_TYPE;
-    
+
+    if (t.supportsSQLnullLogical()) flags |= UDR_PARAM_NULLABLE;
+
+    if (objMapping && objMapping[i]) flags |= UDR_PARAM_LM_OBJ_TYPE;
+
     // The type information that we want at runtime is not exactly
     // what the NAType is storing in its fields. Here we ask the
     // expression generator to convert the NAType to an equivalent
     // Attributes object, then put relevant info from the Attributes
     // object into a UdrFormalParamInfo object which gets written into
     // the plan.
-    Attributes *attr =
-      exp_gen->convertNATypeToAttributes(t, generator->wHeap());
-    
+    Attributes *attr = exp_gen->convertNATypeToAttributes(t, generator->wHeap());
+
     Int16 type = attr->getDatatype();
 
     // $$$$ It's not clear why we need to know whether the LM type
@@ -1232,60 +1036,52 @@ static short udr_codegen(Generator *generator,
     // into the plan unconditionally without asking LM. If we do that,
     // then the LmTypeSupportsScale/Precision functions could probably
     // be removed.
-    Int16 prec = (Int16) (LmTypeSupportsPrecision(t) ?
-                          attr->getPrecision() : 0);
-    Int16 scale = (Int16) (LmTypeSupportsScale(t) ? attr->getScale() : 0);
+    Int16 prec = (Int16)(LmTypeSupportsPrecision(t) ? attr->getPrecision() : 0);
+    Int16 scale = (Int16)(LmTypeSupportsScale(t) ? attr->getScale() : 0);
 
-    Int16 encodingCharSet = (Int16) CharInfo::UnknownCharSet;
-    Int16 collation = (Int16) CharInfo::UNKNOWN_COLLATION;
+    Int16 encodingCharSet = (Int16)CharInfo::UnknownCharSet;
+    Int16 collation = (Int16)CharInfo::UNKNOWN_COLLATION;
 
-    if (t.getTypeQualifier() == NA_CHARACTER_TYPE)
-    {
-      const CharType &chType = * ((CharType*) c->getType());
-      encodingCharSet = (Int16) chType.getEncodingCharSet();
-      collation = (Int16) chType.getCollation();
+    if (t.getTypeQualifier() == NA_CHARACTER_TYPE) {
+      const CharType &chType = *((CharType *)c->getType());
+      encodingCharSet = (Int16)chType.getEncodingCharSet();
+      collation = (Int16)chType.getCollation();
     }
-    
+
     char *paramName = AllocStringInSpace(*space, c->getColName().data());
 
-    UdrFormalParamInfo *info = new (space) 
-      UdrFormalParamInfo(type, prec, scale, flags,
-                         encodingCharSet, collation, paramName);
-    
+    UdrFormalParamInfo *info =
+        new (space) UdrFormalParamInfo(type, prec, scale, flags, encodingCharSet, collation, paramName);
+
     tdb->setFormalParamInfo(i, info);
-    
-  } // for (i = 0; i < totalNumParams; i++)
 
+  }  // for (i = 0; i < totalNumParams; i++)
 
-  // Add child Input Table Info to the TDB. 
-  if (numChildInputs == 1)
-  {
-    const NAColumnArray& childInputCols = childInfo->getInputTabCols();
-    UdrColumnDescInfoPtr* childColInfo =  (UdrColumnDescInfoPtr *)
-      (space->allocateAlignedSpace(numChildInputCols * sizeof(UdrColumnDescInfoPtr)));
+  // Add child Input Table Info to the TDB.
+  if (numChildInputs == 1) {
+    const NAColumnArray &childInputCols = childInfo->getInputTabCols();
+    UdrColumnDescInfoPtr *childColInfo =
+        (UdrColumnDescInfoPtr *)(space->allocateAlignedSpace(numChildInputCols * sizeof(UdrColumnDescInfoPtr)));
 
-    for (i = 0; i < numChildInputCols; i++)
-    {
+    for (i = 0; i < numChildInputCols; i++) {
       const NAColumn *c;
       Int16 flags = 0;
-     
+
       c = childInputCols[i];
       const NAType &t = *(c->getType());
-      
-      if (t.supportsSQLnullLogical())
-        flags |= UDR_PARAM_NULLABLE;
+
+      if (t.supportsSQLnullLogical()) flags |= UDR_PARAM_NULLABLE;
 
       flags |= UDR_PARAM_IN;
-      
+
       // The type information that we want at runtime is not exactly
       // what the NAType is storing in its fields. Here we ask the
       // expression generator to convert the NAType to an equivalent
       // Attributes object, then put relevant info from the Attributes
       // object into a UdrFormalParamInfo object which gets written into
       // the plan.
-      Attributes *attr =
-        exp_gen->convertNATypeToAttributes(t, generator->wHeap());
-      
+      Attributes *attr = exp_gen->convertNATypeToAttributes(t, generator->wHeap());
+
       Int16 type = attr->getDatatype();
 
       // $$$$ It's not clear why we need to know whether the LM type
@@ -1294,73 +1090,61 @@ static short udr_codegen(Generator *generator,
       // into the plan unconditionally without asking LM. If we do that,
       // then the LmTypeSupportsScale/Precision functions could probably
       // be removed.
-      Int16 prec = (Int16) (LmTypeSupportsPrecision(t) ?
-                            attr->getPrecision() : 0);
-      Int16 scale = (Int16) (LmTypeSupportsScale(t) ? attr->getScale() : 0);
+      Int16 prec = (Int16)(LmTypeSupportsPrecision(t) ? attr->getPrecision() : 0);
+      Int16 scale = (Int16)(LmTypeSupportsScale(t) ? attr->getScale() : 0);
 
-      Int16 encodingCharSet = (Int16) CharInfo::UnknownCharSet;
-      Int16 collation = (Int16) CharInfo::UNKNOWN_COLLATION;
+      Int16 encodingCharSet = (Int16)CharInfo::UnknownCharSet;
+      Int16 collation = (Int16)CharInfo::UNKNOWN_COLLATION;
 
-      if (t.getTypeQualifier() == NA_CHARACTER_TYPE)
-      {
-        const CharType &chType = * ((CharType*) c->getType());
-        encodingCharSet = (Int16) chType.getEncodingCharSet();
-        collation = (Int16) chType.getCollation();
+      if (t.getTypeQualifier() == NA_CHARACTER_TYPE) {
+        const CharType &chType = *((CharType *)c->getType());
+        encodingCharSet = (Int16)chType.getEncodingCharSet();
+        collation = (Int16)chType.getCollation();
       }
-      
+
       char *paramName = AllocStringInSpace(*space, c->getColName().data());
 
-      UdrColumnDescInfo *info = new (space) 
-        UdrColumnDescInfo(type, prec, scale, flags,
-                          encodingCharSet, collation, paramName);
-      childColInfo[i] = info;   
-    } // for (i = 0; i < numChildInputCols; i++)
+      UdrColumnDescInfo *info =
+          new (space) UdrColumnDescInfo(type, prec, scale, flags, encodingCharSet, collation, paramName);
+      childColInfo[i] = info;
+    }  // for (i = 0; i < numChildInputCols; i++)
 
-    char *childName = 
-      AllocStringInSpace(*space, childInfo->getInputTabName().data());
+    char *childName = AllocStringInSpace(*space, childInfo->getInputTabName().data());
 
-    UdrTableDescInfo * childTabDescInfo = new (space)
-      UdrTableDescInfo(childName, (UInt16)numChildInputCols, childInputRowLen,
-                       childInputTuppIndex, childColInfo);
-    tdb->setTableDescInfo(0,childTabDescInfo);
+    UdrTableDescInfo *childTabDescInfo = new (space)
+        UdrTableDescInfo(childName, (UInt16)numChildInputCols, childInputRowLen, childInputTuppIndex, childColInfo);
+    tdb->setTableDescInfo(0, childTabDescInfo);
   }
-  
+
   generator->initTdbFields(tdb);
-  
+
   // Generate EXPLAIN info.
-  if ((!generator->explainDisabled())&&(numChildInputs == 0)) 
-  {
+  if ((!generator->explainDisabled()) && (numChildInputs == 0)) {
     generator->setExplainTuple(relExpr.addExplainInfo(tdb, 0, 0, generator));
   }
-  
+
   // Tell the generator about our in/out rows and the new TDB
   generator->setCriDesc(given_desc, Generator::DOWN);
   generator->setCriDesc(returned_desc, Generator::UP);
   generator->setGenObj(&relExpr, tdb);
 
-  if (txAttrs == COM_TRANSACTION_REQUIRED)
-  {
+  if (txAttrs == COM_TRANSACTION_REQUIRED) {
     generator->setTransactionFlag(-1);
     // Do not infer that any transaction started can be in READ ONLY
     // mode if UDRs are present.
     generator->setNeedsReadWriteTransaction(TRUE);
-  }
-  else
-  {
+  } else {
     generator->setTransactionFlag(0);
   }
 
   // Return a TDB pointer to the caller
   newTdb = tdb;
-  if (objMapping)
-    NADELETEBASICARRAY(objMapping, space);
+  if (objMapping) NADELETEBASICARRAY(objMapping, space);
   return 0;
-  
-} // udr_codegen()
 
-short
-IsolatedScalarUDF::codeGen(Generator *generator)
-{
+}  // udr_codegen()
+
+short IsolatedScalarUDF::codeGen(Generator *generator) {
   short result = 0;
   Space *space = generator->getSpace();
 
@@ -1374,16 +1158,15 @@ IsolatedScalarUDF::codeGen(Generator *generator)
   CMPASSERT(getRoutineDesc());
 
   // Get the effective metadata. This will return the same pointer
-  // as above unless if we are a UUDF in which case the effective 
+  // as above unless if we are a UUDF in which case the effective
   // metadata is that of the action. So in the case of a non UUDF routine
   // the actionMetadata and the metadata references point to the same thing.
-  const NARoutine &effectiveMetadata =
-    *(getRoutineDesc()->getEffectiveNARoutine());
+  const NARoutine &effectiveMetadata = *(getRoutineDesc()->getEffectiveNARoutine());
 
   // Get the list of inputs ValueIds that the UDF needs.
   const ValueIdList &inVids = getProcInputParamsVids();
   // Get the list of outputs ValueIds that the UDF produces.
-  // for scalar, this should always be one, even if we produce a 
+  // for scalar, this should always be one, even if we produce a
   // Multi Valued output (it will be implemented as single Tuple/SqlRecord.
   const ValueIdList &outVids = getProcOutParams();
 
@@ -1394,9 +1177,8 @@ IsolatedScalarUDF::codeGen(Generator *generator)
   const NAColumnArray &inColumns = effectiveMetadata.getInParams();
 
   // These are the Formal Output Columns from Metadata
-  const NAColumnArray &outColumns =  effectiveMetadata.getOutParams();
- 
-  
+  const NAColumnArray &outColumns = effectiveMetadata.getOutParams();
+
   // These are All the Formal Columns from Metadata
   const NAColumnArray &formalColumns = effectiveMetadata.getParams();
 
@@ -1411,7 +1193,6 @@ IsolatedScalarUDF::codeGen(Generator *generator)
   const ULng32 outputBufferSize = defaultBufferSize;
   const ULng32 requestBufferSize = defaultBufferSize;
   const ULng32 replyBufferSize = defaultBufferSize;
-
 
   // We could get by with one buffer in the output pool for standalone
   // CALL statements because they always return one row. However by
@@ -1434,25 +1215,22 @@ IsolatedScalarUDF::codeGen(Generator *generator)
   // The TDB stores but makes no use of this estimated row count
   Cardinality estimatedRowCount = 1;
 
-
   // Create the collection of optional strings
 
-  Int32 dataEntries = (Int32) effectiveMetadata.getDataNumEntries();
+  Int32 dataEntries = (Int32)effectiveMetadata.getDataNumEntries();
 
   Int32 passThruIndex = 0;  // SMD metadata tables
 
-  if (CmpCommon::getDefault(COMP_BOOL_191) == DF_ON)
-    passThruIndex = 1;    // user metadata tables
-  
+  if (CmpCommon::getDefault(COMP_BOOL_191) == DF_ON) passThruIndex = 1;  // user metadata tables
+
   Queue *optionalDataQ = new (space) Queue(space);
   const char *optionalBuf = NULL;
 
   // Provide pass-through inputs for UUDFs.  UUDFs can have any name.
-  if (getRoutineDesc()->isUUDFRoutine())
-  {
+  if (getRoutineDesc()->isUUDFRoutine()) {
     // [0] Null-terminated action name (for SAS, format or model name).
     //
-    // For now, the first pass-through input for a universal function is always the 
+    // For now, the first pass-through input for a universal function is always the
     // action name. Eventually we should make the code consistent with the ES
     // which says the action name is provided in the UDRINFO structure.
     //
@@ -1464,7 +1242,7 @@ IsolatedScalarUDF::codeGen(Generator *generator)
     // always use the name stored in the RelExpr.
 
     // This name has to be from syntax, it cannot be the name
-    // stored in metadata. Sas wants BEST9. to be passed through, 
+    // stored in metadata. Sas wants BEST9. to be passed through,
     // not just BEST!
     // We store the syntax name in the RoutineDesc
     NAString s0;
@@ -1477,57 +1255,51 @@ IsolatedScalarUDF::codeGen(Generator *generator)
     s0.toUpper();
     optionalBuf = AllocDataInSpace(*space, s0, s0.length() + 1);
     optionalDataQ->insert(optionalBuf);
-    
+
     NAString rName(getRoutineName().getObjectName());
     rName.toUpper();
     // SAS_SCORE and SAS_PUT actions have special handling that is performed here.
-    if (rName == "SAS_SCORE" || rName == "SAS_PUT")
-    {
+    if (rName == "SAS_SCORE" || rName == "SAS_PUT") {
       // [1] The SAS XML string (not null-terminated)
       if (CmpCommon::getDefault(COMP_BOOL_191) == DF_OFF)
-        passThruIndex = 1; // SMD metadata tables
+        passThruIndex = 1;  // SMD metadata tables
       else
-        passThruIndex = 2; // user metadata tables
-      
+        passThruIndex = 2;  // user metadata tables
+
       Int32 index = passThruIndex - 1;
-  
-      if (dataEntries >= index+1 && (effectiveMetadata.getDataSize(index) != 0))
-      {
+
+      if (dataEntries >= index + 1 && (effectiveMetadata.getDataSize(index) != 0)) {
         optionalBuf =
-          AllocDataInSpace(*space, effectiveMetadata.getData(index), 
-                           (UInt32) effectiveMetadata.getDataSize(index));
-      }
-      else
-      {
+            AllocDataInSpace(*space, effectiveMetadata.getData(index), (UInt32)effectiveMetadata.getDataSize(index));
+      } else {
         optionalBuf = AllocDataInSpace(*space, "", 0);
       }
-  
+
       optionalDataQ->insert(optionalBuf);
-      
-      if (rName == "SAS_SCORE")
-      {
+
+      if (rName == "SAS_SCORE") {
         // [2] Null-terminated model DLL name
         // [3] Null-terminated model DLL entry point
         const NAString &s2 = effectiveMetadata.getDllName();
         optionalBuf = AllocDataInSpace(*space, s2, s2.length() + 1);
         optionalDataQ->insert(optionalBuf);
-        
+
         const NAString &s3 = effectiveMetadata.getDllEntryPoint();
         optionalBuf = AllocDataInSpace(*space, s3, s3.length() + 1);
         optionalDataQ->insert(optionalBuf);
       }
-  
-      else // SAS_PUT
+
+      else  // SAS_PUT
       {
         // [2] Provide locale as a pass-through input. For now we
         // will always provide a value of 0.
         ComSInt32 locale = getRoutineDesc()->getLocale();
-        optionalBuf = AllocDataInSpace(*space, (char *) &locale, 4);
+        optionalBuf = AllocDataInSpace(*space, (char *)&locale, 4);
         optionalDataQ->insert(optionalBuf);
       }
-  
-    } // SAS_PUT or SAS_SCORE
-  } // Is UUDF
+
+    }  // SAS_PUT or SAS_SCORE
+  }    // Is UUDF
 
   // Get pass-through inputs from the effective metadata. Initial
   // elements in the pass-through collection might have been processed
@@ -1558,17 +1330,14 @@ IsolatedScalarUDF::codeGen(Generator *generator)
   // compiler, perhaps in catman or in the binder but that hasn't been
   // done.
 
-  for (Int32 i = passThruIndex; i < dataEntries; i++)
-  {
+  for (Int32 i = passThruIndex; i < dataEntries; i++) {
     Int64 dataSize = effectiveMetadata.getDataSize(i);
-    if (dataSize < 0)
-      dataSize = 0;
+    if (dataSize < 0) dataSize = 0;
 
     const char *data = "";
-    if (dataSize > 0)
-      data = effectiveMetadata.getData(i);
+    if (dataSize > 0) data = effectiveMetadata.getData(i);
 
-    optionalBuf = AllocDataInSpace(*space, data, (UInt32) dataSize);
+    optionalBuf = AllocDataInSpace(*space, data, (UInt32)dataSize);
     optionalDataQ->insert(optionalBuf);
   }
 
@@ -1577,39 +1346,32 @@ IsolatedScalarUDF::codeGen(Generator *generator)
   ComTdbUdr *newTdb = NULL;
 
   result = udr_codegen(generator,
-                           *this,              // RelExpr &relExpr
-                           newTdb,             // ComTdbUdr *&newTdb
-                           getRoutineDesc(),   // Pointer to the RoutineDesc
-                           &inVids,            // ValueIdList *inVids
-                           &outVids,           // ValueIdList *outVids
-                           &inColumns,         // NAColumnArray *inColumns
-                           &outColumns,        // NAColumnArray *outColumns
-                           &formalColumns,     // NAColumnArray *formalColumns
-                           estimatedRowCount,
-                           downQueueMaxSize,
-                           upQueueMaxSize,
-                           outputBufferSize,
-                           requestBufferSize,
-                           replyBufferSize,
-                           numOutputBuffers,
-                           NULL,               // const char *runtimeOpts
-                           NULL,               // const char *runtimeOptDelims
-                           NULL,               // TMUDF only
-                           optionalDataQ,
-                           NULL,               // TMUDF only
-                           NULL);              // TMUDF only
-  
-  if (effectiveMetadata.getRoutineID() > 0)
-    {
-      generator->objectUids().insert(effectiveMetadata.getRoutineID());
-      generator->objectUids().insert(metadata.getLibObjUID());
-    }
+                       *this,             // RelExpr &relExpr
+                       newTdb,            // ComTdbUdr *&newTdb
+                       getRoutineDesc(),  // Pointer to the RoutineDesc
+                       &inVids,           // ValueIdList *inVids
+                       &outVids,          // ValueIdList *outVids
+                       &inColumns,        // NAColumnArray *inColumns
+                       &outColumns,       // NAColumnArray *outColumns
+                       &formalColumns,    // NAColumnArray *formalColumns
+                       estimatedRowCount, downQueueMaxSize, upQueueMaxSize, outputBufferSize, requestBufferSize,
+                       replyBufferSize, numOutputBuffers,
+                       NULL,  // const char *runtimeOpts
+                       NULL,  // const char *runtimeOptDelims
+                       NULL,  // TMUDF only
+                       optionalDataQ,
+                       NULL,   // TMUDF only
+                       NULL);  // TMUDF only
+
+  if (effectiveMetadata.getRoutineID() > 0) {
+    generator->objectUids().insert(effectiveMetadata.getRoutineID());
+    generator->objectUids().insert(metadata.getLibObjUID());
+  }
 
   return result;
 }
 
-short CallSP::codeGen(Generator *generator)
-{
+short CallSP::codeGen(Generator *generator) {
   short result = 0;
   const NARoutine &metadata = *(getNARoutine());
 
@@ -1677,51 +1439,40 @@ short CallSP::codeGen(Generator *generator)
   ComTdbUdr *newTdb = NULL;
 
   result = udr_codegen(generator,
-                       *this,              // RelExpr &relExpr
-                       newTdb,             // ComTdbUdr *&newTdb
-                       getRoutineDesc(),   // NARoutine *metadata
-                       &inVids,            // ValueIdList *inVids
-                       &outVids,           // ValueIdList *outVids
-                       &inColumns,         // NAColumnArray *inColumns
-                       &outColumns,        // NAColumnArray *outColumns
-                       &formalColumns,     // NAColumnArray *formalColumns
-                       estimatedRowCount,
-                       downQueueMaxSize,
-                       upQueueMaxSize,
-                       outputBufferSize,
-                       requestBufferSize,
-                       replyBufferSize,
-                       numOutputBuffers,
-                       opts.data(),
-                       delims.data(),
-                       NULL,                // TMUDF only
+                       *this,             // RelExpr &relExpr
+                       newTdb,            // ComTdbUdr *&newTdb
+                       getRoutineDesc(),  // NARoutine *metadata
+                       &inVids,           // ValueIdList *inVids
+                       &outVids,          // ValueIdList *outVids
+                       &inColumns,        // NAColumnArray *inColumns
+                       &outColumns,       // NAColumnArray *outColumns
+                       &formalColumns,    // NAColumnArray *formalColumns
+                       estimatedRowCount, downQueueMaxSize, upQueueMaxSize, outputBufferSize, requestBufferSize,
+                       replyBufferSize, numOutputBuffers, opts.data(), delims.data(),
+                       NULL,  // TMUDF only
                        optionalData,
-                       NULL,                // TMUDF only
-                       NULL);               // TMUDF only
+                       NULL,   // TMUDF only
+                       NULL);  // TMUDF only
 
-  if (metadata.getRoutineID() > 0)
-    {
-      generator->objectUids().insert(metadata.getRoutineID());
-      generator->objectUids().insert(metadata.getLibObjUID());
-    }
+  if (metadata.getRoutineID() > 0) {
+    generator->objectUids().insert(metadata.getRoutineID());
+    generator->objectUids().insert(metadata.getLibObjUID());
+  }
 
   generator->setFoundAnUpdate(TRUE);
 
   return result;
 
-} // CallSP::codeGen()
+}  // CallSP::codeGen()
 
-
-short PhysicalSPProxyFunc::codeGen(Generator *generator)
-{
+short PhysicalSPProxyFunc::codeGen(Generator *generator) {
   short result = 0;
   ComUInt32 i = 0;
 
   Space *space = generator->getSpace();
 
   const ValueIdList &outVids = getTableDesc()->getColumnList();
-  const NAColumnArray &outColumns =
-    getTableDesc()->getNATable()->getNAColumnArray();
+  const NAColumnArray &outColumns = getTableDesc()->getNATable()->getNAColumnArray();
 
   const ULng32 requestBufferSize = 0;
   const ULng32 replyBufferSize = getDefault(GEN_UDRRS_BUFFER_SIZE);
@@ -1740,14 +1491,11 @@ short PhysicalSPProxyFunc::codeGen(Generator *generator)
   // write these strings into the plan.
   Queue *optionalData = NULL;
   ComUInt32 numStrings = getNumOptionalStrings();
-  if (numStrings > 0)
-  {
+  if (numStrings > 0) {
     optionalData = new (space) Queue(space);
-    for (i = 0; i < numStrings; i++)
-    {
+    for (i = 0; i < numStrings; i++) {
       const char *s = getOptionalString(i);
-      if (s)
-      {
+      if (s) {
         const char *s2 = AllocDataInSpace(*space, s, str_len(s));
         optionalData->insert(s2);
       }
@@ -1759,54 +1507,45 @@ short PhysicalSPProxyFunc::codeGen(Generator *generator)
   ComTdbUdr *newTdb = NULL;
 
   result = udr_codegen(generator,
-                       *this,              // RelExpr &relExpr
-                       newTdb,             // ComTdbUdr *&newTdb
-                       NULL,               // RoutineDesc *rdesc
-                       NULL,               // ValueIdList *inVids
-                       &outVids,           // ValueIdList *outVids
-                       NULL,               // NAColumnArray *inColumns
-                       &outColumns,        // NAColumnArray *outColumns
-                       NULL,               // NAColumnArray *formalColumns
-                       estimatedRowCount,
-                       downQueueMaxSize,
-                       upQueueMaxSize,
-                       outputBufferSize,
-                       requestBufferSize,
-                       replyBufferSize,
-                       numOutputBuffers,
-                       NULL,               // const char *runtimeOpts
-                       NULL,               // const char *runtimeOptDelims
-                       NULL,               // TMUDF only
+                       *this,        // RelExpr &relExpr
+                       newTdb,       // ComTdbUdr *&newTdb
+                       NULL,         // RoutineDesc *rdesc
+                       NULL,         // ValueIdList *inVids
+                       &outVids,     // ValueIdList *outVids
+                       NULL,         // NAColumnArray *inColumns
+                       &outColumns,  // NAColumnArray *outColumns
+                       NULL,         // NAColumnArray *formalColumns
+                       estimatedRowCount, downQueueMaxSize, upQueueMaxSize, outputBufferSize, requestBufferSize,
+                       replyBufferSize, numOutputBuffers,
+                       NULL,  // const char *runtimeOpts
+                       NULL,  // const char *runtimeOptDelims
+                       NULL,  // TMUDF only
                        optionalData,
-                       NULL,               // TMUDF only
-                       NULL);              // TMUDF only
+                       NULL,   // TMUDF only
+                       NULL);  // TMUDF only
 
   return result;
 
-} // PhysicalSPProxyFunc::codeGen()
+}  // PhysicalSPProxyFunc::codeGen()
 
+////////////////////////////////////////////////////////////////////////////
+//
+// Returned atp layout:
+//
+// |------------------------------|
+// | input data  |  sql table row |
+// | ( I tupps ) |  ( 1 tupp )    |
+// |------------------------------|
+// <-- returned row to parent ---->
+//
+// input data:        the atp input to this node by its parent.
+// sql table row:     tupp where the row read from sql table is moved.
+//
+// Input to child:    I tupps
+//
+////////////////////////////////////////////////////////////////////////////
 
-  ////////////////////////////////////////////////////////////////////////////
-  //
-  // Returned atp layout:
-  //
-  // |------------------------------|
-  // | input data  |  sql table row |
-  // | ( I tupps ) |  ( 1 tupp )    |
-  // |------------------------------|
-  // <-- returned row to parent ---->
-  //
-  // input data:        the atp input to this node by its parent.
-  // sql table row:     tupp where the row read from sql table is moved.
-  //
-  // Input to child:    I tupps
-  //
-  ////////////////////////////////////////////////////////////////////////////
-
-short
-PhysicalTableMappingUDF::codeGen(Generator *generator)
-{
-
+short PhysicalTableMappingUDF::codeGen(Generator *generator) {
   short result = 0;
   Space *space = generator->getSpace();
 
@@ -1823,11 +1562,10 @@ PhysicalTableMappingUDF::codeGen(Generator *generator)
   const NAColumnArray &inColumns = getScalarInputParams();
 
   // These are the Formal Output Columns from DLL/Metadata
-  const NAColumnArray &outColumns =  getOutputParams();
+  const NAColumnArray &outColumns = getOutputParams();
 
   const ULng32 downQueueMaxSize = getDefault(GEN_UDR_SIZE_DOWN);
   const ULng32 upQueueMaxSize = getDefault(GEN_UDR_SIZE_UP);
-
 
   const ULng32 defaultBufferSize = getDefault(GEN_UDR_BUFFER_SIZE);
   const ULng32 outputBufferSize = defaultBufferSize;
@@ -1838,46 +1576,38 @@ PhysicalTableMappingUDF::codeGen(Generator *generator)
   // The TDB stores but makes no use of this estimated row count
   Cardinality estimatedRowCount = 1;
 
-
   // Create the collection of optional strings
 
-  Int32 dataEntries = (Int32) metadata.getDataNumEntries();
-  Int32 passThruIndex = 1; // Sub_ID 0 is never sent to the Routine
+  Int32 dataEntries = (Int32)metadata.getDataNumEntries();
+  Int32 passThruIndex = 1;  // Sub_ID 0 is never sent to the Routine
   Queue *optionalDataQ = new (space) Queue(space);
   const char *optionalBuf = NULL;
   ComUInt32 tmpLen = 0;
 
   // Provide pass-through input
-  // Get the text element from the effective 
-  if (dataEntries >= passThruIndex)
-  {
-    for (Int32 i=passThruIndex; i< dataEntries; i++)
-    {
-       if (metadata.getDataSize(i) != 0)
-       {
-          optionalBuf = AllocDataInSpace(*space, metadata.getData(i), 
-                                 (UInt32) metadata.getDataSize(i));
-       }
-       else
-          optionalBuf = AllocDataInSpace(*space, "", 0);
+  // Get the text element from the effective
+  if (dataEntries >= passThruIndex) {
+    for (Int32 i = passThruIndex; i < dataEntries; i++) {
+      if (metadata.getDataSize(i) != 0) {
+        optionalBuf = AllocDataInSpace(*space, metadata.getData(i), (UInt32)metadata.getDataSize(i));
+      } else
+        optionalBuf = AllocDataInSpace(*space, "", 0);
 
-       optionalDataQ->insert(optionalBuf);
+      optionalDataQ->insert(optionalBuf);
     }
   }
 
   Int32 numChildren = getArity();
-  ex_cri_desc * givenDesc = generator->getCriDesc(Generator::DOWN);
-  ComTdb ** childTdbs = (ComTdb**) new (space) ComTdb*[numChildren];
-  ex_cri_desc ** childDescs =
-    new (generator->wHeap()) ex_cri_desc* [numChildren];
+  ex_cri_desc *givenDesc = generator->getCriDesc(Generator::DOWN);
+  ComTdb **childTdbs = (ComTdb **)new (space) ComTdb *[numChildren];
+  ex_cri_desc **childDescs = new (generator->wHeap()) ex_cri_desc *[numChildren];
   ExplainTuple *firstExplainTuple = 0;
   ExplainTuple *secondExplainTuple = 0;
 
   short shiftIdx = 0;
-  short numInputTupps = (short) givenDesc->noTuples();
+  short numInputTupps = (short)givenDesc->noTuples();
 
-  for (Int32 i=0; i<numChildren; i++)
-  {
+  for (Int32 i = 0; i < numChildren; i++) {
     // Allocate a new map table for this child.
     //
     MapTable *localMapTable = generator->appendAtEnd();
@@ -1898,9 +1628,9 @@ PhysicalTableMappingUDF::codeGen(Generator *generator)
     // but more than two are very unlikely to ever be supported.
     child(i)->codeGen(generator);
     childTdbs[i] = (ComTdb *)(generator->getGenObj());
-    if (i==0)
+    if (i == 0)
       firstExplainTuple = generator->getExplainTuple();
-    else if (i==1)
+    else if (i == 1)
       secondExplainTuple = generator->getExplainTuple();
     else
       // fix or just remove the assert if we ever get here
@@ -1912,64 +1642,46 @@ PhysicalTableMappingUDF::codeGen(Generator *generator)
   ComTdbUdr *newTdb = NULL;
 
   result = udr_codegen(generator,
-                           *this,              // RelExpr &relExpr
-                           newTdb,             // ComTdbUdr *&newTdb
-                           getRoutineDesc(),   // Pointer to the RoutineDesc
-                           &inVids,            // ValueIdList *inVids
-                           &outVids,           // ValueIdList *outVids
-                           &inColumns,         // NAColumnArray *inColumns
-                           &outColumns,        // NAColumnArray *outColumns
-                           NULL,	       // NAColumnArray *formalColumns
-                           estimatedRowCount,
-                           downQueueMaxSize,
-                           upQueueMaxSize,
-                           outputBufferSize,
-                           requestBufferSize,
-                           replyBufferSize,
-                           numOutputBuffers,
-                           NULL,               // const char *runtimeOpts
-                           NULL,               // const char *runtimeOptDelims
-                           childTdbs,          // array of child TDBs (TMUDF only)
-                           optionalDataQ,
-                           getInvocationInfo(),
-                           planInfo_);
+                       *this,             // RelExpr &relExpr
+                       newTdb,            // ComTdbUdr *&newTdb
+                       getRoutineDesc(),  // Pointer to the RoutineDesc
+                       &inVids,           // ValueIdList *inVids
+                       &outVids,          // ValueIdList *outVids
+                       &inColumns,        // NAColumnArray *inColumns
+                       &outColumns,       // NAColumnArray *outColumns
+                       NULL,              // NAColumnArray *formalColumns
+                       estimatedRowCount, downQueueMaxSize, upQueueMaxSize, outputBufferSize, requestBufferSize,
+                       replyBufferSize, numOutputBuffers,
+                       NULL,       // const char *runtimeOpts
+                       NULL,       // const char *runtimeOptDelims
+                       childTdbs,  // array of child TDBs (TMUDF only)
+                       optionalDataQ, getInvocationInfo(), planInfo_);
 
-  if(!generator->explainDisabled()) {
-    generator->setExplainTuple(
-         addExplainInfo(newTdb, firstExplainTuple, secondExplainTuple, generator));
+  if (!generator->explainDisabled()) {
+    generator->setExplainTuple(addExplainInfo(newTdb, firstExplainTuple, secondExplainTuple, generator));
   }
 
-  if (metadata.getRoutineID() > 0)
-    {
-      generator->objectUids().insert(metadata.getRoutineID());
-      generator->objectUids().insert(metadata.getLibObjUID());
-    }
+  if (metadata.getRoutineID() > 0) {
+    generator->objectUids().insert(metadata.getRoutineID());
+    generator->objectUids().insert(metadata.getLibObjUID());
+  }
 
   return result;
 }
 
-TrafDesc *TableMappingUDF::createVirtualTableDesc()
-{
-
+TrafDesc *TableMappingUDF::createVirtualTableDesc() {
   Int32 numOutputCols = getNARoutine()->getOutParamCount();
-  ComTdbVirtTableColumnInfo* outColsInfo = 
-    new (HEAP) ComTdbVirtTableColumnInfo[numOutputCols];
+  ComTdbVirtTableColumnInfo *outColsInfo = new (HEAP) ComTdbVirtTableColumnInfo[numOutputCols];
 
-  for (CollIndex i = 0; i < (CollIndex) numOutputCols; i++)
-  {
-    const NAColumn* outCol = getNARoutine()->getOutParams()[i];
+  for (CollIndex i = 0; i < (CollIndex)numOutputCols; i++) {
+    const NAColumn *outCol = getNARoutine()->getOutParams()[i];
     outColsInfo[i].colName = outCol->getColName().data();
     outColsInfo[i].datatype = outCol->getType()->getFSDatatype();
     outColsInfo[i].length = outCol->getType()->getNominalSize();
-    outColsInfo[i].nullable = (Lng32) outCol->getType()->supportsSQLnull();
+    outColsInfo[i].nullable = (Lng32)outCol->getType()->supportsSQLnull();
   }
-  TrafDesc * table_desc =
-    Generator::createVirtualTableDesc(getRoutineName().getQualifiedNameAsString().data(),
-                                      NULL, // let it decide what heap to use
-                                      numOutputCols,
-				      outColsInfo,
-				      0,
-				      NULL);
+  TrafDesc *table_desc = Generator::createVirtualTableDesc(getRoutineName().getQualifiedNameAsString().data(),
+                                                           NULL,  // let it decide what heap to use
+                                                           numOutputCols, outColsInfo, 0, NULL);
   return table_desc;
 }
-

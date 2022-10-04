@@ -37,7 +37,6 @@
 
 // -----------------------------------------------------------------------
 
-
 #include "common/Platform.h"
 #include <stdlib.h>
 #include "executor/ex_stdh.h"
@@ -75,28 +74,25 @@
 // Methods for class ExEspFragInstanceDir
 // -----------------------------------------------------------------------
 
-ExEspFragInstanceDir::ExEspFragInstanceDir(CliGlobals *cliGlobals,
-					   NAHeap *heap,
-                                           StatsGlobals *statsGlobals,
+ExEspFragInstanceDir::ExEspFragInstanceDir(CliGlobals *cliGlobals, NAHeap *heap, StatsGlobals *statsGlobals,
                                            IpcThreadInfo *mainThreadInfo)
-  : instances_(heap),
-    cliGlobals_(cliGlobals),
-    heap_(heap),
-    statsGlobals_(statsGlobals),
-    userIDEstablished_(FALSE),
-    localStatsHeap_(NULL),
-    mainThreadInfo_(mainThreadInfo),
-    mutex_(true, (mainThreadInfo != NULL))
-{
+    : instances_(heap),
+      cliGlobals_(cliGlobals),
+      heap_(heap),
+      statsGlobals_(statsGlobals),
+      userIDEstablished_(FALSE),
+      localStatsHeap_(NULL),
+      mainThreadInfo_(mainThreadInfo),
+      mutex_(true, (mainThreadInfo != NULL)) {
   // If this is not Linux, database user ID is the same as process ID
   // so our database identity is already established
 
   numActiveInstances_ = 0;
-  highWaterMark_      = 0;
-  numMasters_         = 1;
+  highWaterMark_ = 0;
+  numMasters_ = 1;
   int error;
 
-  //Phandle wrapper in porting layer
+  // Phandle wrapper in porting layer
   NAProcessHandle phandle;
 
   phandle.getmine();
@@ -106,65 +102,51 @@ ExEspFragInstanceDir::ExEspFragInstanceDir(CliGlobals *cliGlobals,
 
   tid_ = GETTID();
   NABoolean reportError = FALSE;
-  char msg[256];;
-  if ((statsGlobals_ == NULL)
-     || ((statsGlobals_ != NULL) &&  (statsGlobals_->getInitError(pid_, reportError))))
-  {
-    if (statsGlobals_ == NULL)
-    {
-         snprintf(msg, sizeof(msg), 
-          "statsGlobals_ == NULL in ESP initialization");
-         SQLMXLoggingArea::logExecRtInfo(__FILE__, __LINE__, msg, 0);
+  char msg[256];
+  ;
+  if ((statsGlobals_ == NULL) || ((statsGlobals_ != NULL) && (statsGlobals_->getInitError(pid_, reportError)))) {
+    if (statsGlobals_ == NULL) {
+      snprintf(msg, sizeof(msg), "statsGlobals_ == NULL in ESP initialization");
+      SQLMXLoggingArea::logExecRtInfo(__FILE__, __LINE__, msg, 0);
     }
     if (reportError) {
-         snprintf(msg, sizeof(msg), 
-          "Version mismatch or Pid %d,%d is higher than the configured pid max %d",
-           cpu_, pid_, statsGlobals_->getConfiguredPidMax()); 
-         SQLMXLoggingArea::logExecRtInfo(__FILE__, __LINE__, msg, 0);
+      snprintf(msg, sizeof(msg), "Version mismatch or Pid %d,%d is higher than the configured pid max %d", cpu_, pid_,
+               statsGlobals_->getConfiguredPidMax());
+      SQLMXLoggingArea::logExecRtInfo(__FILE__, __LINE__, msg, 0);
     }
     exit(0);
     /*statsGlobals_ = NULL;
 
-    statsHeap_ = new (heap_) 
+    statsHeap_ = new (heap_)
         NAHeap("Process Stats Heap", (NAHeap *)heap_,
         8192,
         0);
     semId_ = -1;*/
-  }
-  else
-  {
+  } else {
     error = statsGlobals_->openStatsSemaphoreWithRetry(semId_);
-    if (error != 0)
-    {
-        snprintf(msg, sizeof(msg),
-        "openStatsSemaphore failed after retry, the process will exit");
-        SQLMXLoggingArea::logExecRtInfo(__FILE__, __LINE__, msg, 0);
-        exit(0);
-//        statsGlobals_ = NULL;
-//        statsHeap_ = (NAHeap *)heap_;
-    }
-    else
-    {
+    if (error != 0) {
+      snprintf(msg, sizeof(msg), "openStatsSemaphore failed after retry, the process will exit");
+      SQLMXLoggingArea::logExecRtInfo(__FILE__, __LINE__, msg, 0);
+      exit(0);
+      //        statsGlobals_ = NULL;
+      //        statsHeap_ = (NAHeap *)heap_;
+    } else {
       bool reincarnated;
       cliGlobals_->setStatsGlobals(statsGlobals_);
       cliGlobals_->setSemId(semId_);
       error = statsGlobals_->getStatsSemaphore(semId_, pid_);
       statsHeap_ = (NAHeap *)statsGlobals->getStatsHeap()->allocateHeapMemory(sizeof *statsHeap_);
-      statsHeap_ = new (statsHeap_, statsGlobals->getStatsHeap()) 
-        NAHeap("Process Stats Heap", statsGlobals->getStatsHeap(),
-        8192,
-        0);
+      statsHeap_ = new (statsHeap_, statsGlobals->getStatsHeap())
+          NAHeap("Process Stats Heap", statsGlobals->getStatsHeap(), 8192, 0);
       // We need to set up the cliGlobals, since addProcess will call getRTSSemaphore
       // and it uses these members
       cliGlobals_->setStatsHeap(statsHeap_);
       reincarnated = statsGlobals_->addProcess(pid_, statsHeap_);
-      ExProcessStats *processStats = 
-           statsGlobals_->getExProcessStats(pid_);
+      ExProcessStats *processStats = statsGlobals_->getExProcessStats(pid_);
       processStats->setStartTime(cliGlobals_->myStartTime());
       cliGlobals_->setExProcessStats(processStats);
       statsGlobals_->releaseStatsSemaphore(semId_, pid_);
-      if (reincarnated)
-         statsGlobals_->logProcessDeath(cpu_, pid_, "Process reincarnated before RIP");
+      if (reincarnated) statsGlobals_->logProcessDeath(cpu_, pid_, "Process reincarnated before RIP");
     }
   }
   cliGlobals_->setStatsHeap(statsHeap_);
@@ -177,34 +159,27 @@ ExEspFragInstanceDir::ExEspFragInstanceDir(CliGlobals *cliGlobals,
   // add the instance trace to global trace repository
   traceRef_ = NULL;
   ExeTraceInfo *ti = cliGlobals_->getExeTraceInfo();
-  if (ti)
-    {
-      Int32 lineWidth = 42; // temp
-      void *regdTrace;
-      char traceDesc[80];
-      sprintf(traceDesc, "Trace plan fragment instance state changes");
-      Int32 ret = ti->addTrace("FragmentInstance", this, NumFiTraceElements, 3,
-                               this, getALine,
-                               &fiTidx_,
-                               lineWidth, traceDesc, &regdTrace);
-      if (ret == 0)
-      {
-        // trace info added successfully, now add entry fields
-        ti->addTraceField(regdTrace, "FragInst#", 0,
-                          ExeTrace::TR_INT32); 
-        ti->addTraceField(regdTrace, "State             ", 1, ExeTrace::TR_STRING);
-        ti->addTraceField(regdTrace, "Line#", 2, ExeTrace::TR_INT32);
-        traceRef_ = (ExeTrace*) regdTrace;
-      }
+  if (ti) {
+    Int32 lineWidth = 42;  // temp
+    void *regdTrace;
+    char traceDesc[80];
+    sprintf(traceDesc, "Trace plan fragment instance state changes");
+    Int32 ret = ti->addTrace("FragmentInstance", this, NumFiTraceElements, 3, this, getALine, &fiTidx_, lineWidth,
+                             traceDesc, &regdTrace);
+    if (ret == 0) {
+      // trace info added successfully, now add entry fields
+      ti->addTraceField(regdTrace, "FragInst#", 0, ExeTrace::TR_INT32);
+      ti->addTraceField(regdTrace, "State             ", 1, ExeTrace::TR_STRING);
+      ti->addTraceField(regdTrace, "Line#", 2, ExeTrace::TR_INT32);
+      traceRef_ = (ExeTrace *)regdTrace;
     }
+  }
 }
 
-ExEspFragInstanceDir::~ExEspFragInstanceDir()
-{
+ExEspFragInstanceDir::~ExEspFragInstanceDir() {
   // if we come here we are exiting or abending from the process,
   // no point in making error checks
-  if (statsGlobals_ != NULL)
-  {
+  if (statsGlobals_ != NULL) {
     int error = statsGlobals_->getStatsSemaphore(semId_, pid_);
     statsGlobals_->removeProcess(pid_);
     statsGlobals_->releaseStatsSemaphore(semId_, pid_);
@@ -213,47 +188,36 @@ ExEspFragInstanceDir::~ExEspFragInstanceDir()
   }
 }
 
-int ExEspFragInstanceDir::findHandle(
-					    const ExFragKey &key) const
-{
+int ExEspFragInstanceDir::findHandle(const ExFragKey &key) const {
   NAMutexScope ms(mutex_);
 
-  for (CollIndex i = 0; i < highWaterMark_; i++)
-    {
-      if (instances_.used(i) && instances_[i]->key_ == key)
-	return instances_[i]->handle_;
-    }
+  for (CollIndex i = 0; i < highWaterMark_; i++) {
+    if (instances_.used(i) && instances_[i]->key_ == key) return instances_[i]->handle_;
+  }
   return NullFragInstanceHandle;
 }
 
-int ExEspFragInstanceDir::addEntry(ExMsgFragment *msgFragment,
-						    IpcConnection *connection,
-                                                    ComDiagsArea &da)
-{
+int ExEspFragInstanceDir::addEntry(ExMsgFragment *msgFragment, IpcConnection *connection, ComDiagsArea &da) {
   NAMutexScope ms(mutex_);
   int result = instances_.unusedIndex();
-  ExEspFragInstance *inst = new(heap_) ExEspFragInstance;
+  ExEspFragInstance *inst = new (heap_) ExEspFragInstance;
   const ExFragKey &key = msgFragment->getKey();
 
-  inst->key_           = key;
-  inst->handle_        = result;
-  inst->fragType_      = msgFragment->getFragType();
-  inst->parentKey_     = ExFragKey(key.getProcessId(),
-				   key.getStatementHandle(),
-				   msgFragment->getParentId());
-  inst->controlConn_   = connection;
+  inst->key_ = key;
+  inst->handle_ = result;
+  inst->fragType_ = msgFragment->getFragType();
+  inst->parentKey_ = ExFragKey(key.getProcessId(), key.getStatementHandle(), msgFragment->getParentId());
+  inst->controlConn_ = connection;
   inst->topNodeOffset_ = msgFragment->getTopNodeOffset();
-  inst->msgFragment_   = msgFragment;
-  inst->localRootTdb_  = (ex_split_bottom_tdb *)
-                           (msgFragment->getFragment() + inst->topNodeOffset_);
+  inst->msgFragment_ = msgFragment;
+  inst->localRootTdb_ = (ex_split_bottom_tdb *)(msgFragment->getFragment() + inst->topNodeOffset_);
   inst->mxvOfOriginator_ = msgFragment->getMxvOfOriginator();
-  inst->planVersion_   = msgFragment->getPlanVersion();
-  inst->queryId_ = (char *) msgFragment->getQueryId();
+  inst->planVersion_ = msgFragment->getPlanVersion();
+  inst->queryId_ = (char *)msgFragment->getQueryId();
   inst->queryIdLen_ = msgFragment->getQueryIdLen();
-  inst->localRootTcb_  = NULL;
+  inst->localRootTcb_ = NULL;
   inst->espInstanceThread_ = NULL;
 
-      
 #if 0
   {
      fstream& out=getPrintHandle();
@@ -262,140 +226,98 @@ int ExEspFragInstanceDir::addEntry(ExMsgFragment *msgFragment,
   }
 #endif
 
-  if (msgFragment->getFragType() == ExFragDir::ESP)
-    {
-      NAHeap *fragHeap = new(heap_) NAHeap("ESP Fragment Heap",
-					   (NAHeap *) heap_,32768);
-      Space * fragSpace = new(fragHeap) Space(Space::EXECUTOR_SPACE);
-      fragSpace->setParent(fragHeap);
-      if (multiThreadedEsp())
-         fragHeap->setThreadSafe();
-      NAString tenantName(msgFragment->getTenantName(),
-                          msgFragment->getTenantNameLen());
+  if (msgFragment->getFragType() == ExFragDir::ESP) {
+    NAHeap *fragHeap = new (heap_) NAHeap("ESP Fragment Heap", (NAHeap *)heap_, 32768);
+    Space *fragSpace = new (fragHeap) Space(Space::EXECUTOR_SPACE);
+    fragSpace->setParent(fragHeap);
+    if (multiThreadedEsp()) fragHeap->setThreadSafe();
+    NAString tenantName(msgFragment->getTenantName(), msgFragment->getTenantNameLen());
 
+    // Make sure this process is part of the cgroup for
+    // the specified tenant. Note: This assumes that the
+    // clients of this ESP never send concurrent fragments
+    // belonging to different tenants.
+    cliGlobals_->currContext()->getTenantCGroup().setOrAlterCGroup(tenantName.data(), da);
 
-      // Make sure this process is part of the cgroup for
-      // the specified tenant. Note: This assumes that the
-      // clients of this ESP never send concurrent fragments
-      // belonging to different tenants.
-      cliGlobals_->currContext()->getTenantCGroup().setOrAlterCGroup(
-           tenantName.data(),
-           da);
-
-      // allocate the globals in their own heap, like the master
-      // executor does it
-      inst->globals_ = new(fragHeap) ExEspStmtGlobals(
-	   (short) msgFragment->getNumTemps(),
-	   cliGlobals_,
-	   msgFragment->getDisplayInGui(),
-	   fragSpace,
-	   fragHeap,
-	   this,
-	   inst->handle_,
-	   msgFragment->getInjectErrorAtExpr(),
-           multiThreadedEsp(),
-           inst->queryId_,
-           inst->queryIdLen_);
-    }
-  else
-    inst->globals_ = NULL; // no globals needed for DP2 fragments
+    // allocate the globals in their own heap, like the master
+    // executor does it
+    inst->globals_ = new (fragHeap) ExEspStmtGlobals(
+        (short)msgFragment->getNumTemps(), cliGlobals_, msgFragment->getDisplayInGui(), fragSpace, fragHeap, this,
+        inst->handle_, msgFragment->getInjectErrorAtExpr(), multiThreadedEsp(), inst->queryId_, inst->queryIdLen_);
+  } else
+    inst->globals_ = NULL;  // no globals needed for DP2 fragments
 
   inst->numSendBottomRequests_ = 0;
-  inst->numSendBottomCancels_  = 0;
+  inst->numSendBottomCancels_ = 0;
   inst->numLateCancelRequests_ = 0;
-  inst->displayInGui_  = msgFragment->getDisplayInGui();
+  inst->displayInGui_ = msgFragment->getDisplayInGui();
 
-  instances_.insertAt(result,inst);
+  instances_.insertAt(result, inst);
   setFiState(result, DOWNLOADED, __LINE__);
-  if (result >= highWaterMark_)
-    highWaterMark_ = result + 1;
+  if (result >= highWaterMark_) highWaterMark_ = result + 1;
   return result;
 }
 
-void ExEspFragInstanceDir::fixupEntry(int handle,
-				      Lng32 numOfParentInstances,
-				      ComDiagsArea &da)
-{
+void ExEspFragInstanceDir::fixupEntry(int handle, Lng32 numOfParentInstances, ComDiagsArea &da) {
   NAMutexScope ms(mutex_);
   ExEspFragInstance *entry = NULL;
   FragmentInstanceState entryState = UNUSED;
 
-  if (handle != NullFragInstanceHandle AND instances_.used(handle))
-    {
-      entry = instances_[handle];
-      entryState = entry->fiState_;
-    }
+  if (handle != NullFragInstanceHandle AND instances_.used(handle)) {
+    entry = instances_[handle];
+    entryState = entry->fiState_;
+  }
 
-  switch (entryState)
-    {
-    case DOWNLOADED:
-      {
-        if (checkPlanVersion(entry, da)) 
-        {
-           // ERROR: there was a plan versioning error
-           break;    
-        }
-        ComTdb *rootTdb = entry->localRootTdb_;
-
-        // Set up reallocation space for unpacking. Use the space managed
-        // by the globals of the entry.
-        //
-        //rootTdb->setReallocator(entry->globals_->getSpace());
-        void *base = (void *)entry->msgFragment_->getFragment();
-
-        ComTdb dummyTdb;
-        if ( (rootTdb = (ex_split_bottom_tdb *)
-              rootTdb->driveUnpack(base,&dummyTdb,
-				   entry->globals_->getSpace())) == NULL )
-        {
-          // ERROR during unpacking. Most likely case is verison-unsupported.
-          //
-          entryState = setFiState(handle, BROKEN, __LINE__);
-          break;
-        }
-        else
-        {
-          // The root tdb might have been relocated after unpacking due to a
-          // version upgrade.
-          //
-          entry->localRootTdb_ = (ex_split_bottom_tdb *)(rootTdb);
-          entryState = setFiState(handle, UNPACKED, __LINE__);
- 
-          // continue to next case
-        }
+  switch (entryState) {
+    case DOWNLOADED: {
+      if (checkPlanVersion(entry, da)) {
+        // ERROR: there was a plan versioning error
+        break;
       }
+      ComTdb *rootTdb = entry->localRootTdb_;
+
+      // Set up reallocation space for unpacking. Use the space managed
+      // by the globals of the entry.
+      //
+      // rootTdb->setReallocator(entry->globals_->getSpace());
+      void *base = (void *)entry->msgFragment_->getFragment();
+
+      ComTdb dummyTdb;
+      if ((rootTdb = (ex_split_bottom_tdb *)rootTdb->driveUnpack(base, &dummyTdb, entry->globals_->getSpace())) ==
+          NULL) {
+        // ERROR during unpacking. Most likely case is verison-unsupported.
+        //
+        entryState = setFiState(handle, BROKEN, __LINE__);
+        break;
+      } else {
+        // The root tdb might have been relocated after unpacking due to a
+        // version upgrade.
+        //
+        entry->localRootTdb_ = (ex_split_bottom_tdb *)(rootTdb);
+        entryState = setFiState(handle, UNPACKED, __LINE__);
+
+        // continue to next case
+      }
+    }
     case UNPACKED:
-      if (multiThreadedEsp())
-        {
-          // start a thread for this new instance
-          entry->espInstanceThread_ =
-            new (heap_) ExEspInstanceThread(heap_,
-                                            this,
-                                            entry,
-                                            handle,
-                                            0 /*prevWaitTime*/);
-          entry->espInstanceThread_->start();
-        }
-      entry->localRootTcb_ =
-	entry->localRootTdb_->buildESPTcbTree(entry->globals_,
-					      this,
-					      entry->key_,
-					      entry->parentKey_,
-					      handle,
-					      numOfParentInstances);
+      if (multiThreadedEsp()) {
+        // start a thread for this new instance
+        entry->espInstanceThread_ = new (heap_) ExEspInstanceThread(heap_, this, entry, handle, 0 /*prevWaitTime*/);
+        entry->espInstanceThread_->start();
+      }
+      entry->localRootTcb_ = entry->localRootTdb_->buildESPTcbTree(entry->globals_, this, entry->key_,
+                                                                   entry->parentKey_, handle, numOfParentInstances);
       entry->globals_->takeGlobalDiagsArea(da);
-      if (da.mainSQLCODE() >= 0)
-	{
-	  entryState = setFiState(handle, BUILT, __LINE__);
-	}
-      else
-      // if there is any error, do not change the state to BROKEN but
-      // break out so that the executor master will wait and receive
-      // replies from all ESPs.   (CR # 10-020919-5026)
+      if (da.mainSQLCODE() >= 0) {
+        entryState = setFiState(handle, BUILT, __LINE__);
+      } else
+        // if there is any error, do not change the state to BROKEN but
+        // break out so that the executor master will wait and receive
+        // replies from all ESPs.   (CR # 10-020919-5026)
         break;
 
       // continue to next case
-      
+
     case BUILT:
     case FIXED_UP:
     case READY_INACTIVE:
@@ -403,248 +325,197 @@ void ExEspFragInstanceDir::fixupEntry(int handle,
       entry->globals_->takeGlobalDiagsArea(da);
 
       if (da.mainSQLCODE() < 0)
-	// Fixup failed, let master executor redrive when it receives
-	// the diags area
-	entryState = setFiState(handle, BUILT, __LINE__);
-      else 
-        // Statement is now definitely fixed up, it stays ready
-        // for work if it was ready before the fixup.
-        if (entryState == BUILT)
-          entryState = setFiState(handle, FIXED_UP, __LINE__);
-      break; // leave the switch here, rest is error handling
-      
+        // Fixup failed, let master executor redrive when it receives
+        // the diags area
+        entryState = setFiState(handle, BUILT, __LINE__);
+      else
+          // Statement is now definitely fixed up, it stays ready
+          // for work if it was ready before the fixup.
+          if (entryState == BUILT)
+        entryState = setFiState(handle, FIXED_UP, __LINE__);
+      break;  // leave the switch here, rest is error handling
+
     case ACTIVE:
     case BROKEN:
     case UNUSED:
     default:
       ex_assert(FALSE, "Wrong state for downloaded frag");
       // this is a serious error, don't use this statement any more
-      if (entry)
-	entryState = setFiState(handle, BROKEN, __LINE__);
+      if (entry) entryState = setFiState(handle, BROKEN, __LINE__);
       // $$$$ set Diagnostics area
-    }
+  }
 }
 
-void ExEspFragInstanceDir::openedSendBottom(
-     int handle)
-{
+void ExEspFragInstanceDir::openedSendBottom(int handle) {
   NAMutexScope ms(mutex_);
 
-  if (instances_[handle]->fiState_ == FIXED_UP)
-    {
-      // now that we are linked up (at least partially)
-      // with our clients, we are ready to do work
-      setFiState(handle, READY_INACTIVE, __LINE__);
-    }
+  if (instances_[handle]->fiState_ == FIXED_UP) {
+    // now that we are linked up (at least partially)
+    // with our clients, we are ready to do work
+    setFiState(handle, READY_INACTIVE, __LINE__);
+  }
 }
 
-// The following "started" and "finshed" methods are partially 
-// responsible for handling the normal ESP fragment instance 
-// state transitions of 
+// The following "started" and "finshed" methods are partially
+// responsible for handling the normal ESP fragment instance
+// state transitions of
 //    READY_INACTIVE -> ACTIVE -> RELEASING_WORK -> READY_INACTIVE
 // Specifically, these methods handle the first two transitions.
 // See ExEspFragInstanceDir::work for the code handling the final
-// transition: RELEASING_WORK -> READY_INACTIVE.  
+// transition: RELEASING_WORK -> READY_INACTIVE.
 
-void ExEspFragInstanceDir::startedSendBottomRequest(
-     int handle)
-{
+void ExEspFragInstanceDir::startedSendBottomRequest(int handle) {
   NAMutexScope ms(mutex_);
 
-  ex_assert(instances_.used(handle),
-	    "handle: ExEspFragInstanceDir::startedSendBottomRequest");
+  ex_assert(instances_.used(handle), "handle: ExEspFragInstanceDir::startedSendBottomRequest");
 
   instances_[handle]->numSendBottomRequests_++;
 
-  if (instances_[handle]->fiState_ == READY_INACTIVE)
-    {
-      ex_assert(instances_[handle]->numSendBottomRequests_ == 1,
-		"count: ExEspFragInstanceDir::startedSendBottomRequest");
-      setFiState(handle, ACTIVE, __LINE__);
-      numActiveInstances_++;
-    }
+  if (instances_[handle]->fiState_ == READY_INACTIVE) {
+    ex_assert(instances_[handle]->numSendBottomRequests_ == 1, "count: ExEspFragInstanceDir::startedSendBottomRequest");
+    setFiState(handle, ACTIVE, __LINE__);
+    numActiveInstances_++;
+  }
 }
 
-void ExEspFragInstanceDir::finishedSendBottomRequest(
-     int handle)
-{
+void ExEspFragInstanceDir::finishedSendBottomRequest(int handle) {
   NAMutexScope ms(mutex_);
 
-  ex_assert(instances_.used(handle),
-	    "handle: ExEspFragInstanceDir::finishedSendBottomRequest");
+  ex_assert(instances_.used(handle), "handle: ExEspFragInstanceDir::finishedSendBottomRequest");
   ex_assert(instances_[handle]->numSendBottomRequests_ > 0,
-	    "requests: ExEspFragInstanceDir::finishedSendBottomRequest");
+            "requests: ExEspFragInstanceDir::finishedSendBottomRequest");
 
   instances_[handle]->numSendBottomRequests_--;
 
   finishedRequest(handle, TRUE);
 }
 
-void ExEspFragInstanceDir::startedSendBottomCancel(
-     int handle)
-{
+void ExEspFragInstanceDir::startedSendBottomCancel(int handle) {
   NAMutexScope ms(mutex_);
 
-  ex_assert(instances_.used(handle),
-	    "handle: ExEspFragInstanceDir::startedSendBottomCancel");
+  ex_assert(instances_.used(handle), "handle: ExEspFragInstanceDir::startedSendBottomCancel");
 
   instances_[handle]->numSendBottomCancels_++;
 
-  if (instances_[handle]->fiState_ == READY_INACTIVE)
-    {
-      ex_assert(instances_[handle]->numSendBottomCancels_ == 1,
-		"count: ExEspFragInstanceDir::startedSendBottomCancel");
-      setFiState(handle, ACTIVE, __LINE__);
-      numActiveInstances_++;
-    }
+  if (instances_[handle]->fiState_ == READY_INACTIVE) {
+    ex_assert(instances_[handle]->numSendBottomCancels_ == 1, "count: ExEspFragInstanceDir::startedSendBottomCancel");
+    setFiState(handle, ACTIVE, __LINE__);
+    numActiveInstances_++;
+  }
 }
 
-void ExEspFragInstanceDir::finishedSendBottomCancel(
-     int handle)
-{
+void ExEspFragInstanceDir::finishedSendBottomCancel(int handle) {
   NAMutexScope ms(mutex_);
 
-  ex_assert(instances_.used(handle),
-	    "handle: ExEspFragInstanceDir::finishedSendBottomCancel");
-  ex_assert(instances_[handle]->numSendBottomCancels_ > 0,
-	    "requests: ExEspFragInstanceDir::finishedSendBottomCancel");
+  ex_assert(instances_.used(handle), "handle: ExEspFragInstanceDir::finishedSendBottomCancel");
+  ex_assert(instances_[handle]->numSendBottomCancels_ > 0, "requests: ExEspFragInstanceDir::finishedSendBottomCancel");
 
   instances_[handle]->numSendBottomCancels_--;
 
   finishedRequest(handle);
 }
 
-void ExEspFragInstanceDir::startedLateCancelRequest(
-     int handle)
-{
+void ExEspFragInstanceDir::startedLateCancelRequest(int handle) {
   NAMutexScope ms(mutex_);
 
-  ex_assert(instances_.used(handle),
-	    "handle: ExEspFragInstanceDir::startedLateCancelRequest");
+  ex_assert(instances_.used(handle), "handle: ExEspFragInstanceDir::startedLateCancelRequest");
 
   instances_[handle]->numLateCancelRequests_++;
 }
 
-void ExEspFragInstanceDir::finishedLateCancelRequest(
-     int handle)
-{
+void ExEspFragInstanceDir::finishedLateCancelRequest(int handle) {
   NAMutexScope ms(mutex_);
 
-  ex_assert(instances_.used(handle),
-	    "handle: ExEspFragInstanceDir::finishedLateCancelRequest");
+  ex_assert(instances_.used(handle), "handle: ExEspFragInstanceDir::finishedLateCancelRequest");
   ex_assert(instances_[handle]->numLateCancelRequests_ > 0,
-	    "requests: ExEspFragInstanceDir::finishedLateCancelRequest");
+            "requests: ExEspFragInstanceDir::finishedLateCancelRequest");
 
   instances_[handle]->numLateCancelRequests_--;
 
   finishedRequest(handle);
 }
 
-// This method handles the ACTIVE->RELEASING_WORK transition that 
+// This method handles the ACTIVE->RELEASING_WORK transition that
 // happens when the ESP runs out of work to do.  The RELEASING_WORK
 // state might be only temporary, e.g., if this ESP is on the right
 // side of a flow node and will get more probes later.
-// The other way to transition ACTIVE->RELEASING_WORK is 
+// The other way to transition ACTIVE->RELEASING_WORK is
 // for split_bottom to get a ESP_RELEASE_TRANSACTION_HDR message.
 // Even in this case, the RELEASING_WORK state might be temporary,
-// for example it might be to allow a temporary suspension of the 
+// for example it might be to allow a temporary suspension of the
 // transaction.
-void ExEspFragInstanceDir::finishedRequest(
-     int handle,
-     NABoolean testAllQueues)
-{
+void ExEspFragInstanceDir::finishedRequest(int handle, NABoolean testAllQueues) {
   NAMutexScope ms(mutex_);
 
-  if (instances_[handle]->numSendBottomRequests_ <= 0 &&
-      instances_[handle]->numLateCancelRequests_ <= 0 &&
-      instances_[handle]->numSendBottomCancels_  <= 0 &&
-      instances_[handle]->fiState_ == ACTIVE            &&
-      instances_[handle]->globals_->anySendTopMsgesOut() == FALSE)
-    {
-      // if all requests from client are finished or canceled, and
-      // and if there are no pending messages to servers (these can
-      // be eager send top continue messages that haven't got the empty 
-      // reply yet), and if this entry is still in the
-      // active state, then signal to the ESP fragment directory to
-      // deactivate this fragment and to reply to its work request.
-      setFiState(handle, RELEASING_WORK, __LINE__);
+  if (instances_[handle]->numSendBottomRequests_ <= 0 && instances_[handle]->numLateCancelRequests_ <= 0 &&
+      instances_[handle]->numSendBottomCancels_ <= 0 && instances_[handle]->fiState_ == ACTIVE &&
+      instances_[handle]->globals_->anySendTopMsgesOut() == FALSE) {
+    // if all requests from client are finished or canceled, and
+    // and if there are no pending messages to servers (these can
+    // be eager send top continue messages that haven't got the empty
+    // reply yet), and if this entry is still in the
+    // active state, then signal to the ESP fragment directory to
+    // deactivate this fragment and to reply to its work request.
+    setFiState(handle, RELEASING_WORK, __LINE__);
 
-      if (testAllQueues)
-        instances_[handle]->localRootTcb_->testAllQueues();
-    }
+    if (testAllQueues) instances_[handle]->localRootTcb_->testAllQueues();
+  }
 }
 
-Lng32 ExEspFragInstanceDir::numLateCancelRequests(int handle)
-{
+Lng32 ExEspFragInstanceDir::numLateCancelRequests(int handle) {
   NAMutexScope ms(mutex_);
 
   return instances_[handle]->numLateCancelRequests_;
 }
 
-void ExEspFragInstanceDir::releaseEntry(int handle)
-{
+void ExEspFragInstanceDir::releaseEntry(int handle) {
   NAMutexScope ms(mutex_);
   ExEspFragInstance *entry;
 
-  if (handle != NullFragInstanceHandle AND instances_.used(handle))
-    {
-      entry = instances_[handle];
-    }
-  else
-    {
-      // error
-      ex_assert(FALSE,"Fragment instance not found");
-      return;
-    }
+  if (handle != NullFragInstanceHandle AND instances_.used(handle)) {
+    entry = instances_[handle];
+  } else {
+    // error
+    ex_assert(FALSE, "Fragment instance not found");
+    return;
+  }
 
   // loop again over all entries to remove the DP2 fragments that were
   // used by this one
   ExFragId fragId = entry->key_.getFragId();
-  
-  for (CollIndex i = 0; i < highWaterMark_; i++)
-    {
-      if (instances_.used(i) AND
-	  instances_[i]->fragType_ == ExFragDir::DP2 AND
-	  instances_[i]->parentKey_ == entry->key_)
-	{
-	  setFiState(i, RELEASING, __LINE__);
-	}
+
+  for (CollIndex i = 0; i < highWaterMark_; i++) {
+    if (instances_.used(i) AND instances_[i]->fragType_ == ExFragDir::DP2 AND instances_[i]->parentKey_ ==
+        entry->key_) {
+      setFiState(i, RELEASING, __LINE__);
     }
-  
+  }
+
   // now remove the entry itself
   setFiState(handle, RELEASING, __LINE__);
 }
 
-void ExEspFragInstanceDir::releaseOrphanEntries()
-{
+void ExEspFragInstanceDir::releaseOrphanEntries() {
   NAMutexScope ms(mutex_);
 
-  for (CollIndex i = 0; i < highWaterMark_; i++)
-    {
-      if (instances_.used(i) AND
-	  NOT instances_[i]->controlConn_->isConnected())
-	{
-	  setFiState(i, RELEASING, __LINE__);
-	}
+  for (CollIndex i = 0; i < highWaterMark_; i++) {
+    if (instances_.used(i) AND NOT instances_[i]->controlConn_->isConnected()) {
+      setFiState(i, RELEASING, __LINE__);
     }
+  }
 }
 
-void ExEspFragInstanceDir::hasTransidReleaseRequest(
-     int handle)
-{
+void ExEspFragInstanceDir::hasTransidReleaseRequest(int handle) {
   NAConditionalMutexScope cms(&mutex_);
   ExEspFragInstance *entry;
 
-  if (handle != NullFragInstanceHandle AND instances_.used(handle))
-    {
-      entry = instances_[handle];
-    }
-  else
-    {
-      // error
-      ex_assert(FALSE,"Fragment instance not found");
-      return;
-    }
+  if (handle != NullFragInstanceHandle AND instances_.used(handle)) {
+    entry = instances_[handle];
+  } else {
+    // error
+    ex_assert(FALSE, "Fragment instance not found");
+    return;
+  }
 
   // - at beginning of query execution, master sends a work request msg to
   // all the esps. The esp does not reply to the work msg but instead leave it
@@ -685,9 +556,7 @@ void ExEspFragInstanceDir::hasTransidReleaseRequest(
     // 1. the path where finishedRequest() is called before esp receives
     //    release work msg, or
     // 2. no consumer esp opened this esp as server.
-    assert(entry->fiState_ == RELEASING_WORK ||
-	   entry->fiState_ == READY_INACTIVE ||
-	   entry->fiState_ == FIXED_UP);
+    assert(entry->fiState_ == RELEASING_WORK || entry->fiState_ == READY_INACTIVE || entry->fiState_ == FIXED_UP);
 
   // if esp inactive timeout is turned on, then start the
   // inactive timestamp counter for this esp.
@@ -696,244 +565,202 @@ void ExEspFragInstanceDir::hasTransidReleaseRequest(
   // can be used by only one statement. thus esp becomes
   // inactive if it receives the release work msg.
   //
-  if (getEnvironment()->getInactiveTimeout() > 0)
-    getEnvironment()->setInactiveTimestamp();
+  if (getEnvironment()->getInactiveTimeout() > 0) getEnvironment()->setInactiveTimestamp();
 }
 
-void ExEspFragInstanceDir::hasReleaseRequest(
-     int handle)
-{
+void ExEspFragInstanceDir::hasReleaseRequest(int handle) {
   NAMutexScope ms(mutex_);
 
-  ex_assert((handle != NullFragInstanceHandle) && instances_.used(handle),
-           "Fragment instance not found");
-  
- ExEspFragInstance *entry = instances_[handle];
+  ex_assert((handle != NullFragInstanceHandle) && instances_.used(handle), "Fragment instance not found");
 
- setFiState(handle, WAIT_TO_RELEASE, __LINE__);
+  ExEspFragInstance *entry = instances_[handle];
+
+  setFiState(handle, WAIT_TO_RELEASE, __LINE__);
 }
 
-
-
-void ExEspFragInstanceDir::work(Int64 prevWaitTime)
-{
+void ExEspFragInstanceDir::work(Int64 prevWaitTime) {
   ULng32 startSeqNo;
   char errorBuf[200];
   int retcode;
 
-  NABoolean transactionRestored; 
+  NABoolean transactionRestored;
 
   // The following DO loop can be forced to execute again by setting
   // loopAgain to TRUE
   NABoolean loopAgain = FALSE;
-  do
-    {
+  do {
+    loopAgain = FALSE;
+
+    // -----------------------------------------------------------------
+    // remember the I/O sequence number when we start
+    // -----------------------------------------------------------------
+    startSeqNo = getEnvironment()->getAllConnections()->getCompletionSeqenceNo();
+
+    // -----------------------------------------------------------------
+    // Call the work() method once for each active instance.
+    // NOTE: if the instances can wake each other up, then they must
+    // artificially bump the external I/O completion count
+    // (see, for example, the local send top/bottom nodes).
+    // -----------------------------------------------------------------
+    for (CollIndex currInst = 0; currInst < highWaterMark_; currInst++) {
+      if (instances_.used(currInst)) {
+        switch (instances_[currInst]->fiState_) {
+          case RELEASING_WORK:
+            // - an esp instance can become RELEASING_WORK state from
+            // two paths:
+            //
+            // 1. finishedRequest(): esp has no work left to do. all queues
+            // are empty. but master has not sent the release work msg
+            // yet. note that in the past esp will do an early reply to
+            // master's work request. then depending on the timings
+            // master may send another work request or master may not
+            // do anything further with this esp (not even a release work
+            // msg). but that is not the case any more. esp no longer
+            // does early reply to the work request. instead, even if
+            // esp has no work to do, it will just sit idle until master
+            // sends release work msg. so esp will always receives an
+            // release work msg from master.
+            //
+            // 2. hasTransidReleaseRequest(): esp receives release work
+            // msg from master.
+            //
+
+            // dependent on whether the TCB tree has some requests from
+            // send bottom nodes or not, set its state to ACTIVE or
+            // READY_INACTIVE (restoreTransaction() will prevent
+            // active fragment instances from working when they don't
+            // have a work message)
+            if ((instances_[currInst]->numSendBottomRequests_ > 0) ||
+                (instances_[currInst]->numSendBottomCancels_ > 0) ||
+                (instances_[currInst]->numLateCancelRequests_ > 0)) {
+              setFiState(currInst, ACTIVE, __LINE__);
+            } else {
+              setFiState(currInst, READY_INACTIVE, __LINE__);
+              // decrement the global number of active fragment
+              // instances per ESP
+              numActiveInstances_--;
+
+              // we shouldn't need to work on this fragment instance
+              // anymore
+              break;
+            }
+
+            // fall through to the next case
+
+          case ACTIVE:
+
+#ifdef NA_DEBUG_GUI
+            if (instances_[currInst]->displayInGui_ == 1) instances_[currInst]->globals_->getScheduler()->startGui();
+#endif
+            // To help debugging (dumps): Put current SB TCB in cli globals
+            cliGlobals_->setRootTcb(instances_[currInst]->localRootTcb_);
+
+            // -------------------------------------------------------
+            // Call the scheduler work procedure for this fragment
+            // instance, but not before restoring its transid.
+            // -------------------------------------------------------
+
+            transactionRestored = instances_[currInst]->globals_->restoreTransaction();
+            if (transactionRestored ||
+                // Allow working without a transaction, otherwise
+                // "continue" messages might never get their replies.
+                (instances_[currInst]->numSendBottomRequests_ > 0) ||
+                // The test below covers the case where the work
+                // request finished and released the transaction
+                // before the cancel request was received.
+                (instances_[currInst]->numSendBottomCancels_ > 0) ||
+                (instances_[currInst]->numLateCancelRequests_ > 0)) {
+              if (!transactionRestored) {
+                // transactionRestored is FALSE if a transid is required
+                // for this request to work, but the transid is currently
+                // -1, i.e., no work request has been sent to this ESP
+                // yet. In this case, no new requests should be posted to
+                // DP2 (solution #10-060628-7424).
+                instances_[currInst]->globals_->setNoNewRequest(TRUE);
+              }
+
+              // -----------------------------------------------------
+              // This is where we do the actual work
+              // -----------------------------------------------------
+              if (multiThreadedEsp()) {
+                ExEspInstanceThread *espInstanceThread = getEspInstanceThread(currInst);
+
+                assert(espInstanceThread);
+                espInstanceThread->resume();
+                break;
+              } else {
+                ExWorkProcRetcode retcode = instances_[currInst]->globals_->getScheduler()->work(prevWaitTime);
+
+                if (retcode == WORK_BAD_ERROR) {
+                  setFiState(currInst, GOING_FATAL, __LINE__);
+
+                  // Force the loop to execute again so that error
+                  // processing can continue
+                  loopAgain = TRUE;
+                }
+              }
+            }
+#ifdef NA_DEBUG_GUI
+            if (instances_[currInst]->fiState_ != ACTIVE && instances_[currInst]->displayInGui_ == 1)
+              instances_[currInst]->globals_->getScheduler()->stopGui();
+#endif
+            break;
+
+          case WAIT_TO_RELEASE: {
+            ExEspStmtGlobals *espGlobals = instances_[currInst]->globals_;
+            if (espGlobals->anyCancelMsgesOut() || espGlobals->anySendTopMsgesOut()) {
+              if (espGlobals->getSMQueryID() > 0) {
+                EXSM_TRACE(EXSM_TRACE_IO_ALL, "WAIT_TO_RELEASE inst %d", (int)currInst);
+                EXSM_TRACE(EXSM_TRACE_IO_ALL, " sndt msgs %d cancel msgs %d", (int)espGlobals->numSendTopMsgesOut(),
+                           (int)espGlobals->numCancelMsgesOut());
+              }
+
+              // Must stay in WAIT_TO_RELEASE state.  Must let other
+              // frag instances (which might be hosted in this ESP
+              // process) work, so wait for I/O completion outside
+              // the scope of this frag instance (i.e., in the caller
+              // of this ExExpFragInstanceDir::work method.)
+            } else {
+              // Ready now to reply to release work request and
+              // change state to RELEASING_WORK.
+              hasTransidReleaseRequest(currInst);
+            }
+            break;
+          }
+
+          case RELEASING: {
+            // release any outstanding messages before destroying the
+            // instance (to avoid hangs in the master Executor)
+            ExEspFragInstance *fi = instances_[currInst];
+            if (fi->localRootTcb_)  // if root tcb is still around
+              fi->localRootTcb_->releaseWorkRequest();
+            if (multiThreadedEsp()) {
+              ExEspInstanceThread *espInstanceThread = getEspInstanceThread(currInst);
+              if (espInstanceThread != NULL) {
+                espInstanceThread->stop();
+                NADELETE(espInstanceThread, ExEspInstanceThread, heap_);
+              }
+            }
+            destroyEntry(currInst);
+            break;
+          }
+
+          case GOING_FATAL:
+            if (instances_[currInst]->localRootTcb_->reportErrorToMaster()) setFiState(currInst, BROKEN, __LINE__);
+            break;
+
+          case BROKEN:
+            // waiting for message from master to release.
+            break;
+
+        }  // switch
+      }    // if instance is used and not suspended
+    }      // loop over fragment instances
+    if (multiThreadedEsp()) {
       loopAgain = FALSE;
-
-      // -----------------------------------------------------------------
-      // remember the I/O sequence number when we start
-      // -----------------------------------------------------------------
-      startSeqNo =
-	getEnvironment()->getAllConnections()->getCompletionSeqenceNo();
-
-      // -----------------------------------------------------------------
-      // Call the work() method once for each active instance.
-      // NOTE: if the instances can wake each other up, then they must
-      // artificially bump the external I/O completion count
-      // (see, for example, the local send top/bottom nodes).
-      // -----------------------------------------------------------------
-      for (CollIndex currInst = 0; currInst < highWaterMark_; currInst++)
-	{
-
-	  if (instances_.used(currInst))
-            {
-	    switch (instances_[currInst]->fiState_)
-	      {
-	      case RELEASING_WORK:
-		// - an esp instance can become RELEASING_WORK state from
-		// two paths:
-		//
-		// 1. finishedRequest(): esp has no work left to do. all queues
-		// are empty. but master has not sent the release work msg
-		// yet. note that in the past esp will do an early reply to
-		// master's work request. then depending on the timings
-		// master may send another work request or master may not
-		// do anything further with this esp (not even a release work
-		// msg). but that is not the case any more. esp no longer
-		// does early reply to the work request. instead, even if
-		// esp has no work to do, it will just sit idle until master
-		// sends release work msg. so esp will always receives an
-		// release work msg from master.
-		//
-		// 2. hasTransidReleaseRequest(): esp receives release work
-		// msg from master.
-		//
-
-		// dependent on whether the TCB tree has some requests from
-		// send bottom nodes or not, set its state to ACTIVE or
-		// READY_INACTIVE (restoreTransaction() will prevent
-		// active fragment instances from working when they don't
-		// have a work message)
-		if ((instances_[currInst]->numSendBottomRequests_ > 0) ||
-                    (instances_[currInst]->numSendBottomCancels_  > 0)  ||
-                    (instances_[currInst]->numLateCancelRequests_ > 0)
-                   )
-		  {
-		    setFiState(currInst, ACTIVE, __LINE__);
-		  }
-		else
-		  {
-		    setFiState(currInst, READY_INACTIVE, __LINE__);
-		    // decrement the global number of active fragment
-		    // instances per ESP
-		    numActiveInstances_--;
-
-		    // we shouldn't need to work on this fragment instance
-		    // anymore
-		    break;
-		  }
-
-		// fall through to the next case
-
-	      case ACTIVE:
-
-#ifdef NA_DEBUG_GUI
-		if (instances_[currInst]->displayInGui_ == 1)
-		  instances_[currInst]->globals_->getScheduler()->startGui();
-#endif
-		// To help debugging (dumps): Put current SB TCB in cli globals
-		cliGlobals_->setRootTcb(instances_[currInst]->localRootTcb_);
-
-		// -------------------------------------------------------
-		// Call the scheduler work procedure for this fragment
-		// instance, but not before restoring its transid.
-		// -------------------------------------------------------
-
-                transactionRestored = 
-                       instances_[currInst]->globals_->restoreTransaction();
-                if ( transactionRestored ||
-                        // Allow working without a transaction, otherwise
-                        // "continue" messages might never get their replies.
-                     (instances_[currInst]->numSendBottomRequests_ > 0)   ||
-                        // The test below covers the case where the work
-                        // request finished and released the transaction
-                        // before the cancel request was received.
-                     (instances_[currInst]->numSendBottomCancels_  > 0)   ||
-                     (instances_[currInst]->numLateCancelRequests_ > 0)
-                   )
-		  {
-                    if (!transactionRestored)
-                    {
-                       // transactionRestored is FALSE if a transid is required
-                       // for this request to work, but the transid is currently
-                       // -1, i.e., no work request has been sent to this ESP
-                       // yet. In this case, no new requests should be posted to
-                       // DP2 (solution #10-060628-7424). 
-                       instances_[currInst]->globals_->setNoNewRequest(TRUE);
-                    }
- 
-		    // -----------------------------------------------------
-		    // This is where we do the actual work
-		    // -----------------------------------------------------
-                    if (multiThreadedEsp()) {
-                       ExEspInstanceThread *espInstanceThread = getEspInstanceThread(currInst);
-
-                       assert(espInstanceThread);
-                       espInstanceThread->resume();
-                       break;
-                    }  
-                    else {
-                       ExWorkProcRetcode retcode = 
-		          instances_[currInst]->globals_->getScheduler()->work(prevWaitTime);
-
-		       if (retcode == WORK_BAD_ERROR) {
-		          setFiState(currInst, GOING_FATAL, __LINE__);
-
-                          // Force the loop to execute again so that error
-                          // processing can continue
-                          loopAgain = TRUE;
-                       }
-                    }
-                  }
-#ifdef NA_DEBUG_GUI
-		if (instances_[currInst]->fiState_ != ACTIVE &&
-                    instances_[currInst]->displayInGui_ == 1)
-		  instances_[currInst]->globals_->getScheduler()->stopGui();
-#endif
-                break;
-
-
-              case WAIT_TO_RELEASE:
-                {
-                  ExEspStmtGlobals *espGlobals = instances_[currInst]->globals_;
-                  if (espGlobals->anyCancelMsgesOut() || 
-                      espGlobals->anySendTopMsgesOut())
-                    {
-                      if (espGlobals->getSMQueryID() > 0)
-                      {
-                        EXSM_TRACE(EXSM_TRACE_IO_ALL,
-                                   "WAIT_TO_RELEASE inst %d",
-                                   (int) currInst);
-                        EXSM_TRACE(EXSM_TRACE_IO_ALL, 
-                                   " sndt msgs %d cancel msgs %d",
-                                   (int) espGlobals->numSendTopMsgesOut(),
-                                   (int) espGlobals->numCancelMsgesOut());
-                      }
-
-                      // Must stay in WAIT_TO_RELEASE state.  Must let other 
-                      // frag instances (which might be hosted in this ESP 
-                      // process) work, so wait for I/O completion outside 
-                      // the scope of this frag instance (i.e., in the caller
-                      // of this ExExpFragInstanceDir::work method.)
-                    }
-                  else
-                    {
-                      // Ready now to reply to release work request and 
-                      // change state to RELEASING_WORK.
-                      hasTransidReleaseRequest(currInst);
-                    }
-                  break; 
-                }
-              
-              case RELEASING:
-                {
-		  // release any outstanding messages before destroying the
-		  // instance (to avoid hangs in the master Executor)
-		  ExEspFragInstance * fi = instances_[currInst];
-		  if (fi->localRootTcb_)  // if root tcb is still around
-		    fi->localRootTcb_->releaseWorkRequest();
-                  if (multiThreadedEsp())
-                    {
-                      ExEspInstanceThread *espInstanceThread = getEspInstanceThread(currInst);
-                      if (espInstanceThread != NULL)
-                        {
-                          espInstanceThread->stop(); 
-                          NADELETE(espInstanceThread, ExEspInstanceThread, heap_);
-                        }
-                    }
-		  destroyEntry(currInst);
-		  break;
-                }
-
-              case GOING_FATAL:
-                if (instances_[currInst]->localRootTcb_->reportErrorToMaster())
-                  setFiState(currInst, BROKEN, __LINE__);
-                break;
-
-              case BROKEN:
-		// waiting for message from master to release.
-                break;
-
-	      } // switch
-            } // if instance is used and not suspended
-	} // loop over fragment instances
-        if (multiThreadedEsp()) 
-        {
-           loopAgain = FALSE;
-           getEnvironment()->getAllConnections()->setMultiThreaded();
-        }
-    } while (loopAgain || getEnvironment()->getAllConnections()->
-             getCompletionSeqenceNo() != startSeqNo);
+      getEnvironment()->getAllConnections()->setMultiThreaded();
+    }
+  } while (loopAgain || getEnvironment()->getAllConnections()->getCompletionSeqenceNo() != startSeqNo);
   // clean up the completed MasterEspMessages
   getEnvironment()->deleteCompletedMessages();
 
@@ -945,9 +772,7 @@ void ExEspFragInstanceDir::work(Int64 prevWaitTime)
   // or this method may cause a deadlock.
 }
 
-ExEspFragInstanceDir::ExEspFragInstance * ExEspFragInstanceDir::findEntry(
-     const ExFragKey &key)
-{
+ExEspFragInstanceDir::ExEspFragInstance *ExEspFragInstanceDir::findEntry(const ExFragKey &key) {
   NAMutexScope ms(mutex_);
 
   CollIndex numEntries = instances_.entries();
@@ -962,99 +787,83 @@ ExEspFragInstanceDir::ExEspFragInstance * ExEspFragInstanceDir::findEntry(
   return NULL;
 }
 
-void ExEspFragInstanceDir::destroyEntry(int handle)
-{
+void ExEspFragInstanceDir::destroyEntry(int handle) {
   NAMutexScope ms(mutex_);
   ExEspFragInstance *entry = instances_[handle];
 
   // tcb tree will be deleted by glob->deleteMe().
   entry->localRootTcb_ = NULL;
-  entry->queryId_ = NULL; // deleted by MsgFragment destructor
+  entry->queryId_ = NULL;  // deleted by MsgFragment destructor
 
+  if (entry->globals_) {
+    Space *sp = entry->globals_->getSpace();
+    NAHeap *hp = (NAHeap *)entry->globals_->getDefaultHeap();
 
-  if (entry->globals_)
-    {
-      Space    *sp = entry->globals_->getSpace();
-      NAHeap *hp = (NAHeap *)entry->globals_->getDefaultHeap();
+    entry->globals_->deleteMe(FALSE);
 
-      entry->globals_->deleteMe(FALSE);
-
-      entry->globals_ = NULL;
-      NADELETE(sp, Space, hp);
-      NADELETE(hp, NAHeap, heap_);
-    }
+    entry->globals_ = NULL;
+    NADELETE(sp, Space, hp);
+    NADELETE(hp, NAHeap, heap_);
+  }
 
   entry->msgFragment_->decrRefCount();
   entry->msgFragment_ = NULL;
-
 
   // delete the entry itself and remove it from the collection
   // (sorry, no destructors are called)
   heap_->deallocateMemory(entry);
   instances_.remove(handle);
 
-  if (instances_.entries() == 0)
-    {
-      // this esp has been released by all statements and is now available
-      getEnvironment()->setIdleTimestamp();
-      this->traceIdleMemoryUsage();
-    }
+  if (instances_.entries() == 0) {
+    // this esp has been released by all statements and is now available
+    getEnvironment()->setIdleTimestamp();
+    this->traceIdleMemoryUsage();
+  }
 
   // adjust the high water mark, if needed
-  while (highWaterMark_ > 0 AND NOT instances_.used(highWaterMark_-1))
-    highWaterMark_--;
+  while (highWaterMark_ > 0 AND NOT instances_.used(highWaterMark_ - 1)) highWaterMark_--;
 }
 
-void ExEspFragInstanceDir::traceIdleMemoryUsage()
-{
+void ExEspFragInstanceDir::traceIdleMemoryUsage() {
   static bool first_time = true, mem_trace = false;
   static FILE *traceFile, *procStatusFile;
   static NAHeap *exHeap, *ipcHeap, *contextHeap;
   static UInt32 count = 0;
   static pid_t myPid;
   char fileName[32], buffer[1024], *currPtr;
-  ULng32 memPeak, memSize; // VMSize in KB
+  ULng32 memPeak, memSize;  // VMSize in KB
   time_t timeInSecs;
   tm *localTime;
   Int32 success;
   size_t bytesRead;
-  if (first_time)
-  {
-    char * env_var = getenv("ESP_IDLE_MEMORY_TRACE");
-    if (env_var && *env_var == '1')
-      mem_trace = true;
+  if (first_time) {
+    char *env_var = getenv("ESP_IDLE_MEMORY_TRACE");
+    if (env_var && *env_var == '1') mem_trace = true;
     first_time = false;
   }
-  if (mem_trace)
-  {
+  if (mem_trace) {
     count += 1;
-    if (count == 1)
-    {
+    if (count == 1) {
       contextHeap = cliGlobals_->currContext()->exHeap();
       traceFile = fopen("espmemuse.log", "r+");
-      if (traceFile == NULL)
-      {
+      if (traceFile == NULL) {
         traceFile = fopen("espmemuse.log", "a");
-        if (traceFile == NULL)
-        {
+        if (traceFile == NULL) {
           fprintf(stderr, "ESP_IDLE_MEMORY_TRACE errno %d opening espmemuse.log by pid %d\n", errno, myPid);
           mem_trace = false;
           return;
-        }
-        else
+        } else
           fprintf(traceFile, "TIME,PID,INST,EXAllSize,Cnt,TotSize,AllHW,IPCAllSz,Cnt,CONTEXTAllSize,VmSz,VmPk\n");
       }
       myPid = getpid();
       sprintf(fileName, "/proc/%d/status", myPid);
       procStatusFile = fopen(fileName, "r");
-      if (procStatusFile == NULL)
-      {
+      if (procStatusFile == NULL) {
         fprintf(stderr, "ESP_IDLE_MEMORY_TRACE errno %d opening /proc/%d/status\n", errno, myPid);
         mem_trace = false;
         return;
       }
-    }
-    else
+    } else
       success = fseek(procStatusFile, 0, SEEK_SET);
     bytesRead = fread(buffer, 1, 1024, procStatusFile);
     currPtr = strstr(buffer, "VmPeak");
@@ -1063,82 +872,59 @@ void ExEspFragInstanceDir::traceIdleMemoryUsage()
     sscanf(currPtr, "%*s %u kB", &memSize);
     timeInSecs = time(0);
     localTime = localtime(&timeInSecs);
-    success = fseek(traceFile, 0, SEEK_END); // append to end of file
-    fprintf(traceFile, "%d:%02d:%02d,%d,%d,", localTime->tm_hour,
-            localTime->tm_min, localTime->tm_sec, myPid, count);
-    fprintf(traceFile, PFSZ "," PFSZ "," PFSZ "," PFSZ ",%ld,%ld\n",
-            heap_->getAllocSize(),
-            heap_->getAllocCnt(),
-            heap_->getTotalSize(),
-            heap_->getHighWaterMark(),
-            (Long)memSize * 1024,
-            (Long)memPeak * 1024);
+    success = fseek(traceFile, 0, SEEK_END);  // append to end of file
+    fprintf(traceFile, "%d:%02d:%02d,%d,%d,", localTime->tm_hour, localTime->tm_min, localTime->tm_sec, myPid, count);
+    fprintf(traceFile, PFSZ "," PFSZ "," PFSZ "," PFSZ ",%ld,%ld\n", heap_->getAllocSize(), heap_->getAllocCnt(),
+            heap_->getTotalSize(), heap_->getHighWaterMark(), (Long)memSize * 1024, (Long)memPeak * 1024);
     fflush(traceFile);
   }
 }
 
-Lng32 ExEspFragInstanceDir::checkPlanVersion(const ExEspFragInstance * entry, ComDiagsArea& da)
-{
-   VersionErrorCode versionError = VERSION_NO_ERROR;
+Lng32 ExEspFragInstanceDir::checkPlanVersion(const ExEspFragInstance *entry, ComDiagsArea &da) {
+  VersionErrorCode versionError = VERSION_NO_ERROR;
 
-   return versionError;
+  return versionError;
 }
 
-NAHeap *ExEspFragInstanceDir::getLocalStatsHeap()
-{
-  if (localStatsHeap_ == NULL)
-    {
-      // Need to initialize it first.  See if the 
-      // other stats heap is local.  If so, just use it.
-      if (statsGlobals_ == NULL)
-        localStatsHeap_ = statsHeap_;
-      else
-          localStatsHeap_ = new (heap_) 
-            NAHeap("Process Local Stats Heap", (NAHeap *)heap_,
-            8192, 0);
-    }
+NAHeap *ExEspFragInstanceDir::getLocalStatsHeap() {
+  if (localStatsHeap_ == NULL) {
+    // Need to initialize it first.  See if the
+    // other stats heap is local.  If so, just use it.
+    if (statsGlobals_ == NULL)
+      localStatsHeap_ = statsHeap_;
+    else
+      localStatsHeap_ = new (heap_) NAHeap("Process Local Stats Heap", (NAHeap *)heap_, 8192, 0);
+  }
   return localStatsHeap_;
 }
 
-void ExEspFragInstanceDir::setDatabaseUserID(Int32 userID,
-                                             const char *userName)
-{
+void ExEspFragInstanceDir::setDatabaseUserID(Int32 userID, const char *userName) {
   ex_assert(cliGlobals_, "CliGlobals pointer should not be NULL");
 
   ContextCli *context = cliGlobals_->currContext();
   ex_assert(context, "ContextCli pointer should not be NULL");
-  
-  if (userIDEstablished_ == TRUE)
-    {
-      // close all (shared) opens if switching user by passing "true"
-      context->setDatabaseUserInESP(userID, userName, true);
-    }
-  else
-    {
-      context->setDatabaseUserInESP(userID, userName, false);
-      userIDEstablished_ = TRUE;
-    }
+
+  if (userIDEstablished_ == TRUE) {
+    // close all (shared) opens if switching user by passing "true"
+    context->setDatabaseUserInESP(userID, userName, true);
+  } else {
+    context->setDatabaseUserInESP(userID, userName, false);
+    userIDEstablished_ = TRUE;
+  }
 }
 
-void ExEspFragInstanceDir::initFiStateTrace()
-{
-  for (fiTidx_ = 0; fiTidx_ < NumFiTraceElements; fiTidx_++)
-  {
+void ExEspFragInstanceDir::initFiStateTrace() {
+  for (fiTidx_ = 0; fiTidx_ < NumFiTraceElements; fiTidx_++) {
     fiStateTrace_[fiTidx_].fragId_ = UNUSED_COLL_ENTRY;
     fiStateTrace_[fiTidx_].fiState_ = UNUSED;
     fiStateTrace_[fiTidx_].lineNum_ = __LINE__;
   }
 }
 
-enum ExEspFragInstanceDir::FragmentInstanceState 
-ExEspFragInstanceDir::setFiState(int fragId, 
-                   enum ExEspFragInstanceDir::FragmentInstanceState newState, 
-                   Int32 linenum)
-{
-  if (newState != instances_[fragId]->fiState_)
-  {
-    if (++fiTidx_ >= NumFiTraceElements) 
-      fiTidx_ = 0;
+enum ExEspFragInstanceDir::FragmentInstanceState ExEspFragInstanceDir::setFiState(
+    int fragId, enum ExEspFragInstanceDir::FragmentInstanceState newState, Int32 linenum) {
+  if (newState != instances_[fragId]->fiState_) {
+    if (++fiTidx_ >= NumFiTraceElements) fiTidx_ = 0;
     instances_[fragId]->fiState_ = newState;
     fiStateTrace_[fiTidx_].fragId_ = fragId;
     fiStateTrace_[fiTidx_].fiState_ = newState;
@@ -1151,47 +937,32 @@ ExEspFragInstanceDir::setFiState(int fragId,
   return newState;
 }
 
-Int32
-ExEspFragInstanceDir::printALiner(Int32 lineno, char *buf)
-{
+Int32 ExEspFragInstanceDir::printALiner(Int32 lineno, char *buf) {
   Int32 rv = 0;
   const char *stateName = "UNKNOWN";
-  if (lineno >= NumFiTraceElements)
-    return rv; 
+  if (lineno >= NumFiTraceElements) return rv;
 
   FiStateTrace *fi = &fiStateTrace_[lineno];
-  if ((FiStateTrace *)NULL == fi)
-     return rv;
-  if ((UNUSED <= fi->fiState_) && (fi->fiState_ <= BROKEN))
-     stateName = FragmentInstanceStateName[fi->fiState_];
-  rv = sprintf(buf, "%.4d  %9d %.15s %6d\n", lineno, fi->fragId_,
-               stateName,
-               fi->lineNum_);
+  if ((FiStateTrace *)NULL == fi) return rv;
+  if ((UNUSED <= fi->fiState_) && (fi->fiState_ <= BROKEN)) stateName = FragmentInstanceStateName[fi->fiState_];
+  rv = sprintf(buf, "%.4d  %9d %.15s %6d\n", lineno, fi->fragId_, stateName, fi->lineNum_);
   return rv;
 }
 
-void ExEspFragInstanceDir::rescheduleAll()
-{
+void ExEspFragInstanceDir::rescheduleAll() {
   for (CollIndex i = 0; i < highWaterMark_; i++)
-    if (instances_.used(i))
-      {
-        instances_[i]->globals_->getScheduler()->scheduleAllTasks();
-      }
+    if (instances_.used(i)) {
+      instances_[i]->globals_->getScheduler()->scheduleAllTasks();
+    }
 }
 
-NABoolean ExEspFragInstanceDir::allInstanceAreFree()
-{
+NABoolean ExEspFragInstanceDir::allInstanceAreFree() {
   NABoolean ret = TRUE;
 
   for (CollIndex i = 0; i < highWaterMark_; i++)
-    if (instances_.used(i))
-    {
-      if (instances_[i] != NULL &&
-          instances_[i]->fiState_ != UNUSED &&
-          instances_[i]->fiState_ != READY_INACTIVE &&
-          instances_[i]->fiState_ != GOING_FATAL &&
-          instances_[i]->fiState_ != BROKEN)
-      {
+    if (instances_.used(i)) {
+      if (instances_[i] != NULL && instances_[i]->fiState_ != UNUSED && instances_[i]->fiState_ != READY_INACTIVE &&
+          instances_[i]->fiState_ != GOING_FATAL && instances_[i]->fiState_ != BROKEN) {
         ret = FALSE;
         break;
       }
@@ -1204,36 +975,24 @@ NABoolean ExEspFragInstanceDir::allInstanceAreFree()
 // Methods for class ExEspControlMessage
 // -----------------------------------------------------------------------
 
-ExEspControlMessage::ExEspControlMessage(
-     ExEspFragInstanceDir *fragInstanceDir,
-     IpcEnvironment       *ipcEnvironment,
-     CollHeap             *heap) : IpcMessageStream(
-                                               ipcEnvironment,
-					       IPC_MSG_SQLESP_CONTROL_REPLY,
-					       CurrEspReplyMessageVersion,
-					       0,
-					       TRUE)
-{
-  fragInstanceDir_      = fragInstanceDir;
-  heap_                 = heap;
-  hasRequest_           = FALSE;
+ExEspControlMessage::ExEspControlMessage(ExEspFragInstanceDir *fragInstanceDir, IpcEnvironment *ipcEnvironment,
+                                         CollHeap *heap)
+    : IpcMessageStream(ipcEnvironment, IPC_MSG_SQLESP_CONTROL_REPLY, CurrEspReplyMessageVersion, 0, TRUE) {
+  fragInstanceDir_ = fragInstanceDir;
+  heap_ = heap;
+  hasRequest_ = FALSE;
   connectionForRequest_ = NULL;
 }
 
-ExEspControlMessage::~ExEspControlMessage()
-{
+ExEspControlMessage::~ExEspControlMessage() {
   // do nothing
 }
 
-void ExEspControlMessage::actOnSend(IpcConnection *connection)
-{
+void ExEspControlMessage::actOnSend(IpcConnection *connection) {
   // do nothing
-  if (getState() == ERROR_STATE)  
-  {
-    ex_assert(FALSE,"Error while replying to a control message from master");
-  }
-  else
-  {
+  if (getState() == ERROR_STATE) {
+    ex_assert(FALSE, "Error while replying to a control message from master");
+  } else {
     if (connection && connection->getLastSentMsg())
       incReplyMsg(connection->getLastSentMsg()->getMessageLength());
     else
@@ -1241,33 +1000,27 @@ void ExEspControlMessage::actOnSend(IpcConnection *connection)
   }
 }
 
-void ExEspControlMessage::actOnSendAllComplete()
-{
+void ExEspControlMessage::actOnSendAllComplete() {
   // start another receive operation for the next request
   clearAllObjects();
   receive(FALSE);
 }
 
-void ExEspControlMessage::actOnReceive(IpcConnection *connection)
-{
-  if (getState() == ERROR_STATE)
-    {
-      ex_assert(FALSE,"Error while receiving a control message from master");
-    }
+void ExEspControlMessage::actOnReceive(IpcConnection *connection) {
+  if (getState() == ERROR_STATE) {
+    ex_assert(FALSE, "Error while receiving a control message from master");
+  }
   hasRequest_ = TRUE;
   connectionForRequest_ = connection;
 
   // In the single-threaded model, we do quite a bit of work in the
   // callback. In the multi-threaded model, we move this work into
   // the main thread.
-  if (!getThreadInfo())
-    workOnReceivedMessage();
+  if (!getThreadInfo()) workOnReceivedMessage();
 }
 
-void ExEspControlMessage::workOnReceivedMessage()
-{
-  if (!hasRequest_)
-    return;
+void ExEspControlMessage::workOnReceivedMessage() {
+  if (!hasRequest_) return;
 
   ComDiagsArea *da = ComDiagsArea::allocate(heap_);
   IpcConnection *connection = connectionForRequest_;
@@ -1275,135 +1028,110 @@ void ExEspControlMessage::workOnReceivedMessage()
   hasRequest_ = FALSE;
   connectionForRequest_ = NULL;
 
-  if (getType() == IPC_MSG_SQLESP_CONTROL_REQUEST)
-    {
-      ex_assert(getVersion() == CurrEspRequestMessageVersion,
-		"Invalid request msg version");
-      while (moreObjects() && da->mainSQLCODE() >= 0)
-	{
-	  switch (getNextObjType())
-	    {
-	    case ESP_LOAD_FRAGMENT_HDR:
-	      actOnLoadFragmentReq(connection,*da);
-	      break;
+  if (getType() == IPC_MSG_SQLESP_CONTROL_REQUEST) {
+    ex_assert(getVersion() == CurrEspRequestMessageVersion, "Invalid request msg version");
+    while (moreObjects() && da->mainSQLCODE() >= 0) {
+      switch (getNextObjType()) {
+        case ESP_LOAD_FRAGMENT_HDR:
+          actOnLoadFragmentReq(connection, *da);
+          break;
 
-	    case ESP_FIXUP_FRAGMENT_HDR:
-            {
-	      actOnFixupFragmentReq(*da);
+        case ESP_FIXUP_FRAGMENT_HDR: {
+          actOnFixupFragmentReq(*da);
 
-              // The fragment is fixed up. If the query uses
-              // SeaMonster we send a SeaMonster reply back to the
-              // master in addition to replying on the Guardian
-              // control connection.
-              //
-              // One FIXUP_REPLY is sent from ESP to master each time
-              // an ESP successfully fixes up a fragment. There is no
-              // interesting content in these messages. But they need
-              // to flow from ESP to master as an SM "go message".
-              //
-              // Without these replies flowing from ESP to master, if
-              // the master were to send a data request to the ESP,
-              // the receiving SM service might report that ESP
-              // preposts are not yet available.
+          // The fragment is fixed up. If the query uses
+          // SeaMonster we send a SeaMonster reply back to the
+          // master in addition to replying on the Guardian
+          // control connection.
+          //
+          // One FIXUP_REPLY is sent from ESP to master each time
+          // an ESP successfully fixes up a fragment. There is no
+          // interesting content in these messages. But they need
+          // to flow from ESP to master as an SM "go message".
+          //
+          // Without these replies flowing from ESP to master, if
+          // the master were to send a data request to the ESP,
+          // the receiving SM service might report that ESP
+          // preposts are not yet available.
 
-              // First see if the query uses SM
-              bool queryUsesSM = false;
-              Int64 smQueryID = 0;
-              if (fragInstanceDir_ &&
-                  fragInstanceDir_->instances_.used(currHandle_))
-              {
-                ExEspFragInstanceDir::ExEspFragInstance *inst =
-                  fragInstanceDir_->instances_[currHandle_];
-                ex_split_bottom_tdb *splitBottomTdb = inst->localRootTdb_;
-                ex_assert(splitBottomTdb, "Invalid split bottom TDB pointer");
+          // First see if the query uses SM
+          bool queryUsesSM = false;
+          Int64 smQueryID = 0;
+          if (fragInstanceDir_ && fragInstanceDir_->instances_.used(currHandle_)) {
+            ExEspFragInstanceDir::ExEspFragInstance *inst = fragInstanceDir_->instances_[currHandle_];
+            ex_split_bottom_tdb *splitBottomTdb = inst->localRootTdb_;
+            ex_assert(splitBottomTdb, "Invalid split bottom TDB pointer");
 
-                if (splitBottomTdb->getQueryUsesSM() && fragInstanceDir_->getEnvironment()->smEnabled())
-                {
-                  queryUsesSM = true;
-                  if (inst->globals_)
-                    smQueryID = inst->globals_->getSMQueryID();
-                }
-              }
+            if (splitBottomTdb->getQueryUsesSM() && fragInstanceDir_->getEnvironment()->smEnabled()) {
+              queryUsesSM = true;
+              if (inst->globals_) smQueryID = inst->globals_->getSMQueryID();
+            }
+          }
 
-              if (queryUsesSM &&
-                  da->mainSQLCODE() >= 0)
-              {
-                // Send the SM fixup reply
-                ex_assert(environment_, "Invalid IpcEnvironment pointer");
-                ex_assert(environment_->getControlConnection(),
-                          "Invalid control connection pointer");
+          if (queryUsesSM && da->mainSQLCODE() >= 0) {
+            // Send the SM fixup reply
+            ex_assert(environment_, "Invalid IpcEnvironment pointer");
+            ex_assert(environment_->getControlConnection(), "Invalid control connection pointer");
 
-                IpcConnection *conn =
-                  environment_->getControlConnection()->getConnection();
-                ex_assert(conn, "Invalid IpcConnection pointer");
+            IpcConnection *conn = environment_->getControlConnection()->getConnection();
+            ex_assert(conn, "Invalid IpcConnection pointer");
 
-                const GuaProcessHandle &phandle =
-                  conn->getOtherEnd().getPhandle();
-                int otherCPU, otherPID, otherNode_unused;
-                SB_Int64_Type seqNum = -1;
-                phandle.decompose(otherCPU, otherPID, otherNode_unused
-                                 , seqNum
-                                 );
-                
-                sm_target_t target;
-                memset(&target, 0, sizeof(target));
-                
-                // Note: Seaquest node number is the old CPU number
-                target.node = ExSM_GetNodeID(otherCPU);
-                target.pid = otherPID;
-                target.verifier = seqNum;
-                target.id = (smQueryID > 0 ? smQueryID :
-                             ExSMGlobals::getExeInternalSMID());
-                
-                EXSM_TRACE(EXSM_TRACE_MAIN_THR,
-                           "Sending FIXUP REPLY to node %d pid %d "
-                           "seqNum %" PRId64 "id %" PRId64,
-                           (int) target.node, (int) target.pid, 
-                           seqNum, target.id);
+            const GuaProcessHandle &phandle = conn->getOtherEnd().getPhandle();
+            int otherCPU, otherPID, otherNode_unused;
+            SB_Int64_Type seqNum = -1;
+            phandle.decompose(otherCPU, otherPID, otherNode_unused, seqNum);
 
-                ExSMShortMessage m;
-                m.setTarget(target);
-                m.setNumValues(1);
-                m.setValue(0, ExSMShortMessage::FIXUP_REPLY);
-                int32_t rc = m.send();
+            sm_target_t target;
+            memset(&target, 0, sizeof(target));
 
-                if (rc != 0)
-                {
-                  *da << DgSqlCode(-EXE_SM_FUNCTION_ERROR)
-                  << DgString0("ExSM_SendShortMessage")
-                  << DgInt0((Lng32) rc)
-                  << DgInt1((Lng32) getpid())
-                  << DgString1(fragInstanceDir_->getCliGlobals()->myProcessNameString())
-                  << DgNskCode((Lng32) 10000 + abs(rc));
-                }
-              } // if (queryUsesSM)
+            // Note: Seaquest node number is the old CPU number
+            target.node = ExSM_GetNodeID(otherCPU);
+            target.pid = otherPID;
+            target.verifier = seqNum;
+            target.id = (smQueryID > 0 ? smQueryID : ExSMGlobals::getExeInternalSMID());
 
-            } // case ESP_FIXUP_FRAGMENT_HDR
-            break;
-            
-	    case ESP_RELEASE_FRAGMENT_HDR:
-	      actOnReleaseFragmentReq(*da);
-	      break;
+            EXSM_TRACE(EXSM_TRACE_MAIN_THR,
+                       "Sending FIXUP REPLY to node %d pid %d "
+                       "seqNum %" PRId64 "id %" PRId64,
+                       (int)target.node, (int)target.pid, seqNum, target.id);
 
-	    case ESP_PARTITION_INPUT_DATA_HDR:
-	    case ESP_WORK_TRANSACTION_HDR:
-	    case ESP_RELEASE_TRANSACTION_HDR:
-	      da->decrRefCount();
-	      actOnReqForSplitBottom(connection);
-	      return; // don't reply, split bottom node will do this
+            ExSMShortMessage m;
+            m.setTarget(target);
+            m.setNumValues(1);
+            m.setValue(0, ExSMShortMessage::FIXUP_REPLY);
+            int32_t rc = m.send();
 
-	    default:
-	      ex_assert(FALSE, "Invalid request for an ESP control connection");
-	    }
-	}
+            if (rc != 0) {
+              *da << DgSqlCode(-EXE_SM_FUNCTION_ERROR) << DgString0("ExSM_SendShortMessage") << DgInt0((Lng32)rc)
+                  << DgInt1((Lng32)getpid()) << DgString1(fragInstanceDir_->getCliGlobals()->myProcessNameString())
+                  << DgNskCode((Lng32)10000 + abs(rc));
+            }
+          }  // if (queryUsesSM)
 
+        }  // case ESP_FIXUP_FRAGMENT_HDR
+        break;
+
+        case ESP_RELEASE_FRAGMENT_HDR:
+          actOnReleaseFragmentReq(*da);
+          break;
+
+        case ESP_PARTITION_INPUT_DATA_HDR:
+        case ESP_WORK_TRANSACTION_HDR:
+        case ESP_RELEASE_TRANSACTION_HDR:
+          da->decrRefCount();
+          actOnReqForSplitBottom(connection);
+          return;  // don't reply, split bottom node will do this
+
+        default:
+          ex_assert(FALSE, "Invalid request for an ESP control connection");
+      }
     }
-  else
-    {
-      // is this an error or is this a system message?
-      ex_assert(FALSE,"Internal error");
-      // set diagnostics area and reply $$$$
-    }
+
+  } else {
+    // is this an error or is this a system message?
+    ex_assert(FALSE, "Internal error");
+    // set diagnostics area and reply $$$$
+  }
 
   // done with receiving, now build the reply
   clearAllObjects();
@@ -1411,70 +1139,54 @@ void ExEspControlMessage::workOnReceivedMessage()
   setType(IPC_MSG_SQLESP_CONTROL_REPLY);
   setVersion(CurrEspReplyMessageVersion);
 
-  ExEspReturnStatusReplyHeader *replyHeader =
-    new(heap_) ExEspReturnStatusReplyHeader(heap_);
+  ExEspReturnStatusReplyHeader *replyHeader = new (heap_) ExEspReturnStatusReplyHeader(heap_);
 
-  replyHeader->key_    = currKey_;
+  replyHeader->key_ = currKey_;
   replyHeader->handle_ = currHandle_;
 
-  if (currHandle_ == NullFragInstanceHandle)
-    {
-      replyHeader->instanceState_ =
-	ExEspReturnStatusReplyHeader::INSTANCE_RELEASED;
+  if (currHandle_ == NullFragInstanceHandle) {
+    replyHeader->instanceState_ = ExEspReturnStatusReplyHeader::INSTANCE_RELEASED;
+  } else {
+    switch (fragInstanceDir_->instances_[currHandle_]->fiState_) {
+      case ExEspFragInstanceDir::UNUSED:
+        replyHeader->instanceState_ = ExEspReturnStatusReplyHeader::INSTANCE_RELEASED;
+        break;
+
+      case ExEspFragInstanceDir::DOWNLOADED:
+      case ExEspFragInstanceDir::UNPACKED:
+      case ExEspFragInstanceDir::BUILT:
+        replyHeader->instanceState_ = ExEspReturnStatusReplyHeader::INSTANCE_DOWNLOADED;
+        break;
+
+      case ExEspFragInstanceDir::FIXED_UP:
+      case ExEspFragInstanceDir::READY_INACTIVE:
+        replyHeader->instanceState_ = ExEspReturnStatusReplyHeader::INSTANCE_READY;
+        break;
+
+      case ExEspFragInstanceDir::ACTIVE:
+        replyHeader->instanceState_ = ExEspReturnStatusReplyHeader::INSTANCE_ACTIVE;
+        break;
+
+      case ExEspFragInstanceDir::BROKEN:
+      default:
+        replyHeader->instanceState_ = ExEspReturnStatusReplyHeader::INSTANCE_BROKEN;
+        break;
     }
-  else
-    {
-      switch(fragInstanceDir_->instances_[currHandle_]->fiState_)
-	{
-	case ExEspFragInstanceDir::UNUSED:
-	  replyHeader->instanceState_ =
-	    ExEspReturnStatusReplyHeader::INSTANCE_RELEASED;
-	  break;
-
-	case ExEspFragInstanceDir::DOWNLOADED:
-	case ExEspFragInstanceDir::UNPACKED:
-	case ExEspFragInstanceDir::BUILT:
-	  replyHeader->instanceState_ =
-	    ExEspReturnStatusReplyHeader::INSTANCE_DOWNLOADED;
-	  break;
-
-	case ExEspFragInstanceDir::FIXED_UP:
-	case ExEspFragInstanceDir::READY_INACTIVE:
-	  replyHeader->instanceState_ =
-	    ExEspReturnStatusReplyHeader::INSTANCE_READY;
-	  break;
-
-	case ExEspFragInstanceDir::ACTIVE:
-	  replyHeader->instanceState_ =
-	    ExEspReturnStatusReplyHeader::INSTANCE_ACTIVE;
-	  break;
-
-	case ExEspFragInstanceDir::BROKEN:
-	default:
-	  replyHeader->instanceState_ =
-	    ExEspReturnStatusReplyHeader::INSTANCE_BROKEN;
-	  break;
-
-	}
-    }
+  }
 
   *this << *replyHeader;
   replyHeader->decrRefCount();
 
   // pack the SQL diagnostics area into the reply message
-  if (da->mainSQLCODE())
-    *this << *da;
+  if (da->mainSQLCODE()) *this << *da;
   da->decrRefCount();
-  
+
   // the individual cases have initialized a reply message,
   // now send the reply back to the client
   send(FALSE);
 }
 
-void ExEspControlMessage::actOnLoadFragmentReq(
-     IpcConnection *connection,
-     ComDiagsArea &da)
-{
+void ExEspControlMessage::actOnLoadFragmentReq(IpcConnection *connection, ComDiagsArea &da) {
   ExEspLoadFragmentReqHeader receivedRequest(heap_);
   int assignedHandle = NullFragInstanceHandle;
 
@@ -1487,53 +1199,47 @@ void ExEspControlMessage::actOnLoadFragmentReq(
   environment_->clearInactiveTimestamp();
 
   // make sure at least one fragment follows the header
-  ex_assert(moreObjects() AND getNextObjType() == ESP_FRAGMENT,
-	    "Load message without following fragment");
+  ex_assert(moreObjects() AND getNextObjType() == ESP_FRAGMENT, "Load message without following fragment");
 
   // 1 or more fragments may follow
-  while (moreObjects() AND getNextObjType() == ESP_FRAGMENT)
-  {
-    ExMsgFragment *msgFragment = new(heap_) ExMsgFragment(heap_);
-    
+  while (moreObjects() AND getNextObjType() == ESP_FRAGMENT) {
+    ExMsgFragment *msgFragment = new (heap_) ExMsgFragment(heap_);
+
     // get the fragment object out of the message and add it to the
     // global fragment directory
     *this >> *msgFragment;
-    
+
     // On Linux if this is the first fragment seen by this ESP, set
     // the database user identity for this process
-      Int32 userID = msgFragment->getDatabaseUserID();
-      const char *userName = msgFragment->getDatabaseUserName();
-    if (!fragInstanceDir_->getUserIDEstablished())
-    {
+    Int32 userID = msgFragment->getDatabaseUserID();
+    const char *userName = msgFragment->getDatabaseUserName();
+    if (!fragInstanceDir_->getUserIDEstablished()) {
     }
-      fragInstanceDir_->setDatabaseUserID(userID, userName);
-    
-    int newHandle =
-      fragInstanceDir_->addEntry(msgFragment,connection,da);
-    
-    if (msgFragment->getFragType() == ExFragDir::ESP)
-    {
+    fragInstanceDir_->setDatabaseUserID(userID, userName);
+
+    int newHandle = fragInstanceDir_->addEntry(msgFragment, connection, da);
+
+    if (msgFragment->getFragType() == ExFragDir::ESP) {
       // remember the key and handle of this download request
       // (ignore downloaded DP2 fragments, they always come as
       // dependents of ESP fragments)
       currHandle_ = newHandle;
-      currKey_    = msgFragment->getKey();
+      currKey_ = msgFragment->getKey();
     }
-    
-  } // while more objects
-  
+
+  }  // while more objects
+
   // the reply is handled by the caller
 }
 
-void ExEspControlMessage::actOnFixupFragmentReq(ComDiagsArea &da)
-{
+void ExEspControlMessage::actOnFixupFragmentReq(ComDiagsArea &da) {
   ExEspFixupFragmentReqHeader receivedRequest(fragInstanceDir_->heap_);
   ExProcessIdsOfFragList *poflist = NULL;
   ExResolvedNameObj *lnio = NULL;
   ExMsgResourceInfo *ri = NULL;
-  ExMsgTimeoutData * td = NULL;  
-  ExEspStmtGlobals  *glob = NULL;
-  CollHeap          *instHeap;
+  ExMsgTimeoutData *td = NULL;
+  ExEspStmtGlobals *glob = NULL;
+  CollHeap *instHeap;
 
   *this >> receivedRequest;
 
@@ -1542,113 +1248,90 @@ void ExEspControlMessage::actOnFixupFragmentReq(ComDiagsArea &da)
   environment_->setMaxPollingInterval(maxPollingInterval);
   environment_->setPersistentOpens(persistentOpens > 0);
 
-  currKey_    = receivedRequest.key_;
+  currKey_ = receivedRequest.key_;
   currHandle_ = fragInstanceDir_->findHandle(receivedRequest.key_);
-  if (currHandle_ != NullFragInstanceHandle)
-    {
-      glob = fragInstanceDir_->getGlobals(currHandle_);
-      instHeap = glob->getDefaultHeap();
+  if (currHandle_ != NullFragInstanceHandle) {
+    glob = fragInstanceDir_->getGlobals(currHandle_);
+    instHeap = glob->getDefaultHeap();
 
-      // are process ids of child fragments following the header?
-      if (moreObjects() AND getNextObjType() == ESP_PROCESS_IDS_OF_FRAG)
-	{
-	  poflist = new(instHeap) ExProcessIdsOfFragList(instHeap);
+    // are process ids of child fragments following the header?
+    if (moreObjects() AND getNextObjType() == ESP_PROCESS_IDS_OF_FRAG) {
+      poflist = new (instHeap) ExProcessIdsOfFragList(instHeap);
 
-	  // 1 or more list of input fragment process ids may follow
-	  while (moreObjects() AND
-		 getNextObjType() == ESP_PROCESS_IDS_OF_FRAG)
-	    {
-	      ExProcessIdsOfFrag *pof =
-		new(instHeap) ExProcessIdsOfFrag(instHeap);
-	      
-	      *this >> *pof;
-	      poflist->insert(pof);
-	    }
-	}
+      // 1 or more list of input fragment process ids may follow
+      while (moreObjects() AND getNextObjType() == ESP_PROCESS_IDS_OF_FRAG) {
+        ExProcessIdsOfFrag *pof = new (instHeap) ExProcessIdsOfFrag(instHeap);
 
-      if (moreObjects() AND getNextObjType() == ESP_RESOURCE_INFO)
-	{
-	  ri = new(instHeap) ExMsgResourceInfo(NULL,instHeap);
-
-	  *this >> *ri;
-	}
-
-      
-
-      if (moreObjects() AND getNextObjType() == ESP_TIMEOUT_DATA)
-	{
-	  td = new(instHeap) ExMsgTimeoutData( NULL, instHeap );
-
-	  *this >> *td;
-	}
-
-      
-
-      if (moreObjects() && getNextObjType() == ESP_SM_DOWNLOAD_INFO)
-      {
-        // Create a new object to hold SeaMonster properties for this
-        // query and store a pointer to the object in statement
-        // globals
-        ExSMDownloadInfo *info = new (instHeap)
-          ExSMDownloadInfo(instHeap);
-        *this >> *info;
-        glob->setSMDownloadInfo(info);
+        *this >> *pof;
+        poflist->insert(pof);
       }
-
-      // remember the input fragment process ids in the globals for this
-      // fragment entry
-      glob->setPidFragList(poflist);
-
-      glob->setResourceInfo(ri);
-      if ( td ) * glob->getTimeoutData() = td->getTimeoutData() ;  
-
-      glob->setStatsEnabled(receivedRequest.statsEnabled());
-      fragInstanceDir_->fixupEntry(currHandle_,
-				   receivedRequest.numOfParentInstances_,
-                                   da);
     }
-  else
-    {
-      ex_assert(FALSE,"entry not found, set diags area and reply");
-      // $$$$ entry not found set diagnostics area
-      // $$$$ may have to remove extra message objects to be
-      //      able to send a reply
+
+    if (moreObjects() AND getNextObjType() == ESP_RESOURCE_INFO) {
+      ri = new (instHeap) ExMsgResourceInfo(NULL, instHeap);
+
+      *this >> *ri;
     }
+
+    if (moreObjects() AND getNextObjType() == ESP_TIMEOUT_DATA) {
+      td = new (instHeap) ExMsgTimeoutData(NULL, instHeap);
+
+      *this >> *td;
+    }
+
+    if (moreObjects() && getNextObjType() == ESP_SM_DOWNLOAD_INFO) {
+      // Create a new object to hold SeaMonster properties for this
+      // query and store a pointer to the object in statement
+      // globals
+      ExSMDownloadInfo *info = new (instHeap) ExSMDownloadInfo(instHeap);
+      *this >> *info;
+      glob->setSMDownloadInfo(info);
+    }
+
+    // remember the input fragment process ids in the globals for this
+    // fragment entry
+    glob->setPidFragList(poflist);
+
+    glob->setResourceInfo(ri);
+    if (td) *glob->getTimeoutData() = td->getTimeoutData();
+
+    glob->setStatsEnabled(receivedRequest.statsEnabled());
+    fragInstanceDir_->fixupEntry(currHandle_, receivedRequest.numOfParentInstances_, da);
+  } else {
+    ex_assert(FALSE, "entry not found, set diags area and reply");
+    // $$$$ entry not found set diagnostics area
+    // $$$$ may have to remove extra message objects to be
+    //      able to send a reply
+  }
 
   // if fixup priority has been sent, save that so my priority could be restored to
   // this value.
-  if (receivedRequest.getEspFixupPriority() > 0)
-    {
-      glob->setMyFixupPriority((IpcPriority)receivedRequest.getEspFixupPriority());
-    }
+  if (receivedRequest.getEspFixupPriority() > 0) {
+    glob->setMyFixupPriority((IpcPriority)receivedRequest.getEspFixupPriority());
+  }
 
   // if execute priority has been sent, set my priority to that value.
-  if (receivedRequest.getEspExecutePriority() > 0)
-    {
-      Lng32 rc = 0;
+  if (receivedRequest.getEspExecutePriority() > 0) {
+    Lng32 rc = 0;
 
-      // get my current priority and save it in stmt globals.
-      // If an error is returned, ignore and leave priorities as is.
-      //      long p;
-      //rc = ComRtGetProcessPriority(p);
-      //      if (rc == 0) // no error
-      //	{
-      // set the execute priority
-      rc = 
-	ComRtSetProcessPriority(receivedRequest.getEspExecutePriority(), 
-				FALSE);
-      if (rc != 0)
-	{
-	  // don't do anything.
-	}
-      //	}
+    // get my current priority and save it in stmt globals.
+    // If an error is returned, ignore and leave priorities as is.
+    //      long p;
+    // rc = ComRtGetProcessPriority(p);
+    //      if (rc == 0) // no error
+    //	{
+    // set the execute priority
+    rc = ComRtSetProcessPriority(receivedRequest.getEspExecutePriority(), FALSE);
+    if (rc != 0) {
+      // don't do anything.
     }
+    //	}
+  }
 
   // the reply is handled by the caller
 }
 
-void ExEspControlMessage::actOnReleaseFragmentReq(ComDiagsArea & /*da*/)
-{
+void ExEspControlMessage::actOnReleaseFragmentReq(ComDiagsArea & /*da*/) {
   // esp being released by master is regarded as idle but not inactive
   environment_->setInactiveTimeout(0);
   environment_->clearInactiveTimestamp();
@@ -1657,332 +1340,280 @@ void ExEspControlMessage::actOnReleaseFragmentReq(ComDiagsArea & /*da*/)
 
   *this >> receivedRequest;
 
-  currKey_    = receivedRequest.key_;
+  currKey_ = receivedRequest.key_;
   currHandle_ = fragInstanceDir_->findHandle(receivedRequest.key_);
 
   ExEspStmtGlobals *glob = NULL;
   IpcPriority myFixupPriority = 0;
 
-  if (receivedRequest.deleteStmt())
-    {
-      // delete all fragment instances that come from the same statement
-      // as the given key
-      ExFragKey wildCardKey = currKey_;
-      for (CollIndex i = 0; i < fragInstanceDir_->highWaterMark_; i++)
-	{
-	  if (fragInstanceDir_->instances_.used(i))
-	    {
-	      if (glob == NULL)
-		{
-		  glob = fragInstanceDir_->getGlobals(i);
-		  if (glob)
-		    {
-		      myFixupPriority = glob->getMyFixupPriority();
-		      glob->setCloseAllOpens(receivedRequest.closeAllOpens());
-		    }
-		}
+  if (receivedRequest.deleteStmt()) {
+    // delete all fragment instances that come from the same statement
+    // as the given key
+    ExFragKey wildCardKey = currKey_;
+    for (CollIndex i = 0; i < fragInstanceDir_->highWaterMark_; i++) {
+      if (fragInstanceDir_->instances_.used(i)) {
+        if (glob == NULL) {
+          glob = fragInstanceDir_->getGlobals(i);
+          if (glob) {
+            myFixupPriority = glob->getMyFixupPriority();
+            glob->setCloseAllOpens(receivedRequest.closeAllOpens());
+          }
+        }
 
-	      const ExFragKey &instKey =
-		fragInstanceDir_->instances_[i]->key_;
+        const ExFragKey &instKey = fragInstanceDir_->instances_[i]->key_;
 
-	      // alter the wild card key such that it uses a matching
-	      // fragment id, but keeps its old process id and
-	      // statement handle
-	      wildCardKey.setFragId(instKey.getFragId());
-	      
-	      // now, if the wild card key is equal to the key in this entry,
-	      // it belongs to the process/statement to be released
-	      if (wildCardKey == instKey)
-		fragInstanceDir_->releaseEntry(i);
-	    }
-	}
+        // alter the wild card key such that it uses a matching
+        // fragment id, but keeps its old process id and
+        // statement handle
+        wildCardKey.setFragId(instKey.getFragId());
+
+        // now, if the wild card key is equal to the key in this entry,
+        // it belongs to the process/statement to be released
+        if (wildCardKey == instKey) fragInstanceDir_->releaseEntry(i);
+      }
     }
-  else
-    {
-      // delete a particular fragment instance, indicated by the key and handle
-      if (currHandle_ != NullFragInstanceHandle)
-	{
-	  glob = fragInstanceDir_->getGlobals(currHandle_);
-	  if (glob)
-	    {
-	      myFixupPriority = glob->getMyFixupPriority();
-	      glob->setCloseAllOpens(receivedRequest.closeAllOpens());
-	    }
+  } else {
+    // delete a particular fragment instance, indicated by the key and handle
+    if (currHandle_ != NullFragInstanceHandle) {
+      glob = fragInstanceDir_->getGlobals(currHandle_);
+      if (glob) {
+        myFixupPriority = glob->getMyFixupPriority();
+        glob->setCloseAllOpens(receivedRequest.closeAllOpens());
+      }
 
-	  fragInstanceDir_->releaseEntry(currHandle_);
-	}
-      else
-	{
-	  // $$$$ entry not found, can probably ignore this??? assert for now
-	  ex_assert(FALSE,"Couldn't find frag entry to release");
-	}
+      fragInstanceDir_->releaseEntry(currHandle_);
+    } else {
+      // $$$$ entry not found, can probably ignore this??? assert for now
+      ex_assert(FALSE, "Couldn't find frag entry to release");
     }
+  }
 
-  if (receivedRequest.detachFromMaster_)
-    {
-      fragInstanceDir_->numMasters_--;
-    }
+  if (receivedRequest.detachFromMaster_) {
+    fragInstanceDir_->numMasters_--;
+  }
 
   // change my priority back to my 'fixup' priority.
-  if (myFixupPriority > 0)
-    {
-      Lng32 rc = 
-	ComRtSetProcessPriority(myFixupPriority, FALSE);
-      if (rc != 0)
-	{
-	  // ignore error.
-	}
+  if (myFixupPriority > 0) {
+    Lng32 rc = ComRtSetProcessPriority(myFixupPriority, FALSE);
+    if (rc != 0) {
+      // ignore error.
     }
-  
+  }
+
   // how long to keep idle esp alive
   environment_->setStopAfter(receivedRequest.idleTimeout_);
 
   // the reply is handled by the caller
 }
 
-void ExEspControlMessage::actOnReqForSplitBottom(IpcConnection *connection)
-{
+void ExEspControlMessage::actOnReqForSplitBottom(IpcConnection *connection) {
   NABoolean changePri = FALSE;
-  switch (getNextObjType())
-    {
-    case ESP_PARTITION_INPUT_DATA_HDR:
-      {
-	ExEspPartInputDataReqHeader receivedRequest(fragInstanceDir_->heap_);
-	
-	*this >> receivedRequest;
-	currKey_ = receivedRequest.key_;
-      }
-      break;
+  switch (getNextObjType()) {
+    case ESP_PARTITION_INPUT_DATA_HDR: {
+      ExEspPartInputDataReqHeader receivedRequest(fragInstanceDir_->heap_);
 
-    case ESP_WORK_TRANSACTION_HDR:
-      {
-	ExEspWorkReqHeader receivedRequest(fragInstanceDir_->heap_);
+      *this >> receivedRequest;
+      currKey_ = receivedRequest.key_;
+    } break;
 
-	*this >> receivedRequest;
-	currKey_ = receivedRequest.key_;
-      }
-      break;
+    case ESP_WORK_TRANSACTION_HDR: {
+      ExEspWorkReqHeader receivedRequest(fragInstanceDir_->heap_);
 
-    case ESP_RELEASE_TRANSACTION_HDR:
-      {
-	ExEspReleaseWorkReqHeader receivedRequest(fragInstanceDir_->heap_);
+      *this >> receivedRequest;
+      currKey_ = receivedRequest.key_;
+    } break;
 
-	*this >> receivedRequest;
-	currKey_ = receivedRequest.key_;
+    case ESP_RELEASE_TRANSACTION_HDR: {
+      ExEspReleaseWorkReqHeader receivedRequest(fragInstanceDir_->heap_);
 
-	changePri = TRUE;
+      *this >> receivedRequest;
+      currKey_ = receivedRequest.key_;
 
-	// how long to keep inactive esp alive
-	environment_->setInactiveTimeout(receivedRequest.inactiveTimeout_);
-      }
-      break;
+      changePri = TRUE;
+
+      // how long to keep inactive esp alive
+      environment_->setInactiveTimeout(receivedRequest.inactiveTimeout_);
+    } break;
 
     default:
-      ex_assert(0,"Invalid object type for split bottom node received");
-    }
+      ex_assert(0, "Invalid object type for split bottom node received");
+  }
 
   currHandle_ = fragInstanceDir_->findHandle(currKey_);
 
-  if (currHandle_ != NullFragInstanceHandle)
-    {
-      ex_split_bottom_tcb * splitBottom =
-	fragInstanceDir_->getTopTcb(currHandle_);
+  if (currHandle_ != NullFragInstanceHandle) {
+    ex_split_bottom_tcb *splitBottom = fragInstanceDir_->getTopTcb(currHandle_);
 
-      if (changePri)
-	{
-	  // change my priority back to my 'fixup' priority.
-	  ExEspStmtGlobals *glob = fragInstanceDir_->getGlobals(currHandle_);
-	  IpcPriority myFixupPriority = glob->getMyFixupPriority();
-	  if (myFixupPriority > 0)
-	    {
-	      Lng32 rc = 
-		ComRtSetProcessPriority(myFixupPriority, FALSE);
-	      if (rc != 0)
-		{
-		  // ignore error.
-		}
+    if (changePri) {
+      // change my priority back to my 'fixup' priority.
+      ExEspStmtGlobals *glob = fragInstanceDir_->getGlobals(currHandle_);
+      IpcPriority myFixupPriority = glob->getMyFixupPriority();
+      if (myFixupPriority > 0) {
+        Lng32 rc = ComRtSetProcessPriority(myFixupPriority, FALSE);
+        if (rc != 0) {
+          // ignore error.
+        }
 
-	      // reset priority indication in global
-	      glob->setMyFixupPriority(0);
-	      
-	    }
-	}
-
-      if (splitBottom)
-	{
-	  giveMessageTo(*splitBottom->getMessageStream(),connection);
-
-	  // start another receive operation for the next request
-	  receive(FALSE);
-	}
-      else
-	{
-	  ex_assert(FALSE,"entry is in wrong state to receive part input");
-	}
+        // reset priority indication in global
+        glob->setMyFixupPriority(0);
+      }
     }
-  else
-    {
-      ex_assert(FALSE,"entry to receive part. input not found");
+
+    if (splitBottom) {
+      giveMessageTo(*splitBottom->getMessageStream(), connection);
+
+      // start another receive operation for the next request
+      receive(FALSE);
+    } else {
+      ex_assert(FALSE, "entry is in wrong state to receive part input");
     }
+  } else {
+    ex_assert(FALSE, "entry to receive part. input not found");
+  }
 
   // the reply is handled by the split bottom node
 }
 
-void ExEspControlMessage::incReplyMsg(Int64 msgBytes)
-{
+void ExEspControlMessage::incReplyMsg(Int64 msgBytes) {
   ExStatisticsArea *statsArea;
 
-  if (currHandle_ != NullFragInstanceHandle)
-  {
+  if (currHandle_ != NullFragInstanceHandle) {
     if ((statsArea = fragInstanceDir_->getGlobals(currHandle_)->getStatsArea()) != NULL)
       statsArea->incReplyMsg(msgBytes);
   }
 }
 
 // search for the active tcb in the fragment whose security key matches the one provided.
-ex_split_bottom_tcb *ExEspFragInstanceDir::getExtractTop(const char *securityKey)
-{
+ex_split_bottom_tcb *ExEspFragInstanceDir::getExtractTop(const char *securityKey) {
   CollIndex numEntries = instances_.entries();
-  for (CollIndex i = 0; i < numEntries; i++)
-  {
+  for (CollIndex i = 0; i < numEntries; i++) {
     ex_split_bottom_tcb *top = instances_[i]->localRootTcb_;
-    if (top && top->splitBottomTdb().getExtractProducerFlag()) 
-    {
-      if (!str_cmp_c(top->splitBottomTdb().getExtractSecurityKey(), securityKey)) 
-        return top;
+    if (top && top->splitBottomTdb().getExtractProducerFlag()) {
+      if (!str_cmp_c(top->splitBottomTdb().getExtractSecurityKey(), securityKey)) return top;
     }
   }
   return NULL;
 }
 
-ExEspInstanceThread::ExEspInstanceThread(NAHeap *heap, 
-                      ExEspFragInstanceDir *instanceDir, 
-                      ExEspFragInstanceDir::ExEspFragInstance *instance,
-                      CollIndex instanceIndex, 
-                      Int64 prevWaitTime)
-     : IpcThreadInfo("EspInstanceThread", instanceIndex, -1)
-    ,heap_(heap)
-    ,instanceDir_(instanceDir)
-    ,instanceIndex_(instanceIndex)
-    ,instance_(instance)
-    ,prevWaitTime_(prevWaitTime)
-    ,suspended_(FALSE)
-{
-   int retcode;
+ExEspInstanceThread::ExEspInstanceThread(NAHeap *heap, ExEspFragInstanceDir *instanceDir,
+                                         ExEspFragInstanceDir::ExEspFragInstance *instance, CollIndex instanceIndex,
+                                         Int64 prevWaitTime)
+    : IpcThreadInfo("EspInstanceThread", instanceIndex, -1),
+      heap_(heap),
+      instanceDir_(instanceDir),
+      instanceIndex_(instanceIndex),
+      instance_(instance),
+      prevWaitTime_(prevWaitTime),
+      suspended_(FALSE) {
+  int retcode;
 
-   retcode = pthread_attr_init(&thread_attr_);
-   if (retcode != 0) {
-      char errorBuf[200];
-      snprintf(errorBuf, sizeof(errorBuf), "Error %d in pthread_attr_init of instance %d", retcode, instanceIndex_);
-      ex_assert(retcode == 0, errorBuf);
-   }
-/*
-   retcode = pthread_attr_setdetachstate(&thread_attr_, PTHREAD_CREATE_DETACHED);
-   if (retcode != 0) {
-      char errorBuf[200];
-      snprintf(errorBuf, sizeof(errorBuf), "Error %d in pthread_attr_setdetachstate of instance %d", retcode, instanceIndex_);
-      ex_assert(retcode == 0, errorBuf);
-   }
-*/
-   instance_->espInstanceThread_ = this;
+  retcode = pthread_attr_init(&thread_attr_);
+  if (retcode != 0) {
+    char errorBuf[200];
+    snprintf(errorBuf, sizeof(errorBuf), "Error %d in pthread_attr_init of instance %d", retcode, instanceIndex_);
+    ex_assert(retcode == 0, errorBuf);
+  }
+  /*
+     retcode = pthread_attr_setdetachstate(&thread_attr_, PTHREAD_CREATE_DETACHED);
+     if (retcode != 0) {
+        char errorBuf[200];
+        snprintf(errorBuf, sizeof(errorBuf), "Error %d in pthread_attr_setdetachstate of instance %d", retcode,
+     instanceIndex_); ex_assert(retcode == 0, errorBuf);
+     }
+  */
+  instance_->espInstanceThread_ = this;
 }
 
-ExEspInstanceThread::~ExEspInstanceThread()
-{
-   int retcode;
-   retcode = pthread_attr_destroy(&thread_attr_);
+ExEspInstanceThread::~ExEspInstanceThread() {
+  int retcode;
+  retcode = pthread_attr_destroy(&thread_attr_);
 }
 
+void ExEspInstanceThread::run() {
+  ExWorkProcRetcode retcode;
 
-void ExEspInstanceThread::run()
-{
-   ExWorkProcRetcode retcode;
+  tid_ = GETTID();
+  GetCliGlobals()->getEnvironment()->addThreadInfo(this);
+  tidIsSet_ = true;
 
-   tid_ = GETTID();
-   GetCliGlobals()->getEnvironment()->addThreadInfo(this);
-   tidIsSet_ = true;
+  // wait for the initial go-ahead, indicating that the fragment
+  // instance is fixed up and ready to execute
+  suspended_ = TRUE;
+  wait();
 
-   // wait for the initial go-ahead, indicating that the fragment
-   // instance is fixed up and ready to execute
-   suspended_ = TRUE;
-   wait();
+  do {
+    suspended_ = FALSE;
+    QRLogger::log(CAT_SQL_EXE, LL_DEBUG, "ExEspInstanceThread %d of %d,%d running scheduler", tid_,
+                  GetCliGlobals()->myCpu(), GetCliGlobals()->myPin());
 
-   do
-   {
-      suspended_ = FALSE;
-      QRLogger::log(CAT_SQL_EXE, LL_DEBUG, "ExEspInstanceThread %d of %d,%d running scheduler", tid_, GetCliGlobals()->myCpu(), GetCliGlobals()->myPin());
+    // ---------------------------
+    // call the actual work method
+    // ---------------------------
+    retcode = instance_->globals_->getScheduler()->work(prevWaitTime_);
 
-      // ---------------------------
-      // call the actual work method
-      // ---------------------------
-      retcode = instance_->globals_->getScheduler()->work(prevWaitTime_);
-
-      if (retcode == WORK_BAD_ERROR) {
-         instanceDir_->setFiState(instanceIndex_, ExEspFragInstanceDir::GOING_FATAL, __LINE__);
-         return;
-      }
-      suspended_ = TRUE;
-      QRLogger::log(CAT_SQL_EXE, LL_DEBUG, "ExEspInstanceThread %d of %d,%d suspending", tid_, GetCliGlobals()->myCpu(), GetCliGlobals()->myPin());
-      wait();
-      suspended_ = FALSE;
-   } while (TRUE);
-}
-
-pid_t ExEspInstanceThread::start()
-{
-   int retcode;
-
-   retcode = pthread_create(&threadId_, &thread_attr_, espThreadStart, (void *)this);
-   if (retcode != 0) {
-      char errorBuf[200];
-      snprintf(errorBuf, sizeof(errorBuf), "Error %d in pthread_create %d", retcode, instanceIndex_);
-      ex_assert(retcode == 0, errorBuf);
-   }
-
-   // Do a spin lock until the thread has set the tid_ field and also
-   // has registered itself with the IPC environment. This allows us
-   // to create message streams on behalf of the new thread during
-   // fixup.
-   while (tidIsSet_ == false)
-      sched_yield();
-
-   return tid_;
-}
-
-void ExEspInstanceThread::stop()
-{
-   int retcode;
-   void *threadReturn;
-   
-   QRLogger::log(CAT_SQL_EXE, LL_DEBUG, "ExEspInstanceThread %d of %d,%d stopping", tid_, GetCliGlobals()->myCpu(), GetCliGlobals()->myPin());
-   GetCliGlobals()->getEnvironment()->removeThreadInfo(this);
-   retcode = pthread_cancel(threadId_);
-   if (retcode != 0) {
-      char errorBuf[200];
-      snprintf(errorBuf, sizeof(errorBuf), "Error %d in pthread_cancel %d", retcode, instanceIndex_);
-      ex_assert(retcode == 0, errorBuf);
-   }
-   retcode = pthread_join(threadId_, &threadReturn);
-   if (retcode != 0) {
-      char errorBuf[200];
-      snprintf(errorBuf, sizeof(errorBuf), "Error %d in pthread_join %d", retcode, instanceIndex_);
-      ex_assert(retcode == 0, errorBuf);
-   }
-   instance_->espInstanceThread_ = NULL;
-   return;
-}
-
-void ExEspInstanceThread::resume()
-{
-   if (! suspended_)
+    if (retcode == WORK_BAD_ERROR) {
+      instanceDir_->setFiState(instanceIndex_, ExEspFragInstanceDir::GOING_FATAL, __LINE__);
       return;
-   QRLogger::log(CAT_SQL_EXE, LL_DEBUG, "ExEspInstanceThread %d of %d,%d resuming", tid_, GetCliGlobals()->myCpu(), GetCliGlobals()->myPin());
-   IpcThreadInfo::resume();
+    }
+    suspended_ = TRUE;
+    QRLogger::log(CAT_SQL_EXE, LL_DEBUG, "ExEspInstanceThread %d of %d,%d suspending", tid_, GetCliGlobals()->myCpu(),
+                  GetCliGlobals()->myPin());
+    wait();
+    suspended_ = FALSE;
+  } while (TRUE);
 }
 
-static void *espThreadStart(void *arg)
-{
-   ExEspInstanceThread *espInstance = (ExEspInstanceThread *)arg;
-   espInstance->run();
-   return (void *)espInstance; 
+pid_t ExEspInstanceThread::start() {
+  int retcode;
+
+  retcode = pthread_create(&threadId_, &thread_attr_, espThreadStart, (void *)this);
+  if (retcode != 0) {
+    char errorBuf[200];
+    snprintf(errorBuf, sizeof(errorBuf), "Error %d in pthread_create %d", retcode, instanceIndex_);
+    ex_assert(retcode == 0, errorBuf);
+  }
+
+  // Do a spin lock until the thread has set the tid_ field and also
+  // has registered itself with the IPC environment. This allows us
+  // to create message streams on behalf of the new thread during
+  // fixup.
+  while (tidIsSet_ == false) sched_yield();
+
+  return tid_;
+}
+
+void ExEspInstanceThread::stop() {
+  int retcode;
+  void *threadReturn;
+
+  QRLogger::log(CAT_SQL_EXE, LL_DEBUG, "ExEspInstanceThread %d of %d,%d stopping", tid_, GetCliGlobals()->myCpu(),
+                GetCliGlobals()->myPin());
+  GetCliGlobals()->getEnvironment()->removeThreadInfo(this);
+  retcode = pthread_cancel(threadId_);
+  if (retcode != 0) {
+    char errorBuf[200];
+    snprintf(errorBuf, sizeof(errorBuf), "Error %d in pthread_cancel %d", retcode, instanceIndex_);
+    ex_assert(retcode == 0, errorBuf);
+  }
+  retcode = pthread_join(threadId_, &threadReturn);
+  if (retcode != 0) {
+    char errorBuf[200];
+    snprintf(errorBuf, sizeof(errorBuf), "Error %d in pthread_join %d", retcode, instanceIndex_);
+    ex_assert(retcode == 0, errorBuf);
+  }
+  instance_->espInstanceThread_ = NULL;
+  return;
+}
+
+void ExEspInstanceThread::resume() {
+  if (!suspended_) return;
+  QRLogger::log(CAT_SQL_EXE, LL_DEBUG, "ExEspInstanceThread %d of %d,%d resuming", tid_, GetCliGlobals()->myCpu(),
+                GetCliGlobals()->myPin());
+  IpcThreadInfo::resume();
+}
+
+static void *espThreadStart(void *arg) {
+  ExEspInstanceThread *espInstance = (ExEspInstanceThread *)arg;
+  espInstance->run();
+  return (void *)espInstance;
 }

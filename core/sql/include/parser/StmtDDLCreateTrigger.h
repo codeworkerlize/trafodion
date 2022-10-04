@@ -38,7 +38,7 @@
 
 // -----------------------------------------------------------------------
 // Change history:
-// 
+//
 // $Log: StmtDDLCreateTrigger.h,v $
 // Revision 1.0  1998/01/21 14:57:46
 // Initial revision
@@ -67,30 +67,19 @@ class StmtDDLCreateTrigger;
 // -----------------------------------------------------------------------
 // Create Trigger statement
 // -----------------------------------------------------------------------
-class StmtDDLCreateTrigger : public StmtDDLNode
-{
-
-public:
-
+class StmtDDLCreateTrigger : public StmtDDLNode {
+ public:
   // initialize constructor
-  StmtDDLCreateTrigger(const QualifiedName & aTriggerName,
-		       ParNameLocList  * nameLocList,
-		       NABoolean       isAfter,
-		       NABoolean       hasRowOrTableInRefClause,
-		       ComOperation    iud_event,
-		       ElemDDLNode     * columnList,
-		       const QualifiedName & aTableName,
-		       NAString        * oldName,
-		       NAString        * newName,
-		       NABoolean       isStatement,
-                       ElemDDLNode     * pOwner,
-		       CollHeap        * heap = PARSERHEAP());
+  StmtDDLCreateTrigger(const QualifiedName &aTriggerName, ParNameLocList *nameLocList, NABoolean isAfter,
+                       NABoolean hasRowOrTableInRefClause, ComOperation iud_event, ElemDDLNode *columnList,
+                       const QualifiedName &aTableName, NAString *oldName, NAString *newName, NABoolean isStatement,
+                       ElemDDLNode *pOwner, CollHeap *heap = PARSERHEAP());
 
   // virtual destructor
   virtual ~StmtDDLCreateTrigger();
 
   // cast
-  virtual StmtDDLCreateTrigger * castToStmtDDLCreateTrigger();
+  virtual StmtDDLCreateTrigger *castToStmtDDLCreateTrigger();
 
   //
   // accessors
@@ -98,85 +87,84 @@ public:
 
   // methods relating to parse tree
   virtual Int32 getArity() const;
-  virtual ExprNode * getChild(Lng32 index);
+  virtual ExprNode *getChild(Lng32 index);
 
-  inline const ElemDDLColRefArray & getColRefArray() const;
-  inline ElemDDLColRefArray & getColRefArray();
+  inline const ElemDDLColRefArray &getColRefArray() const;
+  inline ElemDDLColRefArray &getColRefArray();
 
-        // returns a NAList of ElemDDLColRef parse nodes.
+  // returns a NAList of ElemDDLColRef parse nodes.
 
   inline const NAString getTriggerName() const;
-  inline const QualifiedName & getTriggerNameAsQualifiedName() const;
-  inline       QualifiedName & getTriggerNameAsQualifiedName() ;
+  inline const QualifiedName &getTriggerNameAsQualifiedName() const;
+  inline QualifiedName &getTriggerNameAsQualifiedName();
 
-  inline const ElemDDLColRefArray & getPartitionKeyColRefArray() const;
-  inline       ElemDDLColRefArray & getPartitionKeyColRefArray();
+  inline const ElemDDLColRefArray &getPartitionKeyColRefArray() const;
+  inline ElemDDLColRefArray &getPartitionKeyColRefArray();
 
-        // returns column name list in partition by clause if
-        // specified; otherwise, an empty array is returned.
+  // returns column name list in partition by clause if
+  // specified; otherwise, an empty array is returned.
 
   inline const NAString getTableName() const;
-  inline const QualifiedName& getTableNameObject() const;
-
+  inline const QualifiedName &getTableNameObject() const;
 
   inline NABoolean isAfter() const;
 
-        // returns TRUE if and only if this is an AFTER trigger 
+  // returns TRUE if and only if this is an AFTER trigger
 
-  inline NABoolean hasRowORTableInRefClause () const;
+  inline NABoolean hasRowORTableInRefClause() const;
 
-        // Set to TRUE if and only if either or both keywords ROW
-        // or TABLE appear in the referencing clause
+  // Set to TRUE if and only if either or both keywords ROW
+  // or TABLE appear in the referencing clause
 
   inline NABoolean isStatement() const;
 
-        // returns TRUE if and only if this is a STATEMENT (not ROW) trigger 
+  // returns TRUE if and only if this is a STATEMENT (not ROW) trigger
 
   inline NABoolean isOwnerSpecified() const;
 
-        // returns TRUE if the BY <owner> phrase appears
-        // in the Create statement; returns FALSE otherwise.
+  // returns TRUE if the BY <owner> phrase appears
+  // in the Create statement; returns FALSE otherwise.
 
   inline ComOperation getIUDEvent() const;
 
-        // Return the IUD event ( COM_INSERT, COM_UPDATE, COM_DELETE )
+  // Return the IUD event ( COM_INSERT, COM_UPDATE, COM_DELETE )
 
   inline NABoolean areColumnsImplicit() const;
 
-        // Return TRUE if and only if Columns are defined implicitly
+  // Return TRUE if and only if Columns are defined implicitly
 
-  inline const NAString * getOldName() const;
-  inline const NAString * getNewName() const;
+  inline const NAString *getOldName() const;
+  inline const NAString *getNewName() const;
 
   // Is this the name of the OLD or NEW transition table name?
-  NABoolean isOldTransitionName(const NAString& tableName);
-  NABoolean isNewTransitionName(const NAString& tableName);
-  NABoolean isTransitionName(const NAString& tableName);
-       
-       //  Return the OLD / NEW correlation name
+  NABoolean isOldTransitionName(const NAString &tableName);
+  NABoolean isNewTransitionName(const NAString &tableName);
+  NABoolean isTransitionName(const NAString &tableName);
+
+  //  Return the OLD / NEW correlation name
   //
   // mutators
   //
 
-  void setChild(Lng32 index, ExprNode * newNode);
+  void setChild(Lng32 index, ExprNode *newNode);
 
-  void setAction( RelExpr * actionExpression );
+  void setAction(RelExpr *actionExpression);
 
   //
   // method for binding
   //
 
-  ExprNode * bindNode(BindWA * pBindWA);
-  RelExpr  * bindRowTrigger(BindWA *pBindWA); // Fix the pipelined values for row triggers.
+  ExprNode *bindNode(BindWA *pBindWA);
+  RelExpr *bindRowTrigger(BindWA *pBindWA);  // Fix the pipelined values for row triggers.
 
   //
   // method for collecting information
   //
-  
+
   void synthesize();
 
-        // collects information in the parse sub-tree and
-        // copy/move them to the current parse node.
+  // collects information in the parse sub-tree and
+  // copy/move them to the current parse node.
 
   //
   // methods for tracing
@@ -187,65 +175,59 @@ public:
   virtual NATraceList getDetailInfo() const;
   virtual const NAString getText() const;
 
+  inline const ParNameLocList &getNameLocList() const;
+  inline ParNameLocList &getNameLocList();
 
-  inline const ParNameLocList & getNameLocList() const;
-  inline       ParNameLocList & getNameLocList();
-
-        // returns a list of locations of names appearing in
-        // the statement input string.  The list helps with
-        // the computing of the trigger text.
+  // returns a list of locations of names appearing in
+  // the statement input string.  The list helps with
+  // the computing of the trigger text.
 
   inline void setEndPosition(const StringPos endPos);
 
-        // sets the ending position (the position of the
-        // last character) of the statement (within the
-        // input string)
-  
+  // sets the ending position (the position of the
+  // last character) of the statement (within the
+  // input string)
+
   inline void setStartPosition(const StringPos startPos);
 
-        // sets the starting position (the position of the
-        // first character) of the statement (within the
-        // input string)
+  // sets the starting position (the position of the
+  // first character) of the statement (within the
+  // input string)
 
   inline const StringPos getEndPosition() const;
 
-        // returns the ending position (the position of the last
-        // character) of the statement (within the input string)
-  
+  // returns the ending position (the position of the last
+  // character) of the statement (within the input string)
+
   inline const StringPos getStartPosition() const;
 
-        // returns the starting position (the position of the
-        // first character) of the statement (within the
-        // input string)
-  
-  inline const RelExpr * getActionExpression() const;
-  inline       RelExpr * getActionExpression();
+  // returns the starting position (the position of the
+  // first character) of the statement (within the
+  // input string)
 
-        // returns the pointer pointing to the parse sub-tree
-        // representing the action expression in the trigger
-        // definition.
+  inline const RelExpr *getActionExpression() const;
+  inline RelExpr *getActionExpression();
 
+  // returns the pointer pointing to the parse sub-tree
+  // representing the action expression in the trigger
+  // definition.
 
-  void setHasCSInAction ();
-        // does the trigger referencing clause include ROW or TABLE
-        // keyword
-
+  void setHasCSInAction();
+  // does the trigger referencing clause include ROW or TABLE
+  // keyword
 
   inline const ElemDDLGrantee *getOwner() const;
-        // returns pointer to the optional "by owner"
-        // (in the form of an ElemDDLGrantee).
+  // returns pointer to the optional "by owner"
+  // (in the form of an ElemDDLGrantee).
 
-  NABoolean actionHasCompoundStatement () const;
-        // does the trigger action has a compound statement
+  NABoolean actionHasCompoundStatement() const;
+  // does the trigger action has a compound statement
 
-  inline void setBodyType(Int32 bodyType)
-  { bodyType_ = bodyType; }
-  inline const Int32 getBodyType() const
-  { return bodyType_; }
+  inline void setBodyType(Int32 bodyType) { bodyType_ = bodyType; }
+  inline const Int32 getBodyType() const { return bodyType_; }
 
-  inline void setBody(NAString *body)
-  { body_ = body; }
-  inline const NAString * getBody() const { return body_; }
+  inline void setBody(NAString *body) { body_ = body; }
+  inline const NAString *getBody() const { return body_; }
 
   inline void setReplace(NABoolean isReplace) { isReplace_ = isReplace; }
   inline const NABoolean isReplace() const { return isReplace_; }
@@ -253,18 +235,17 @@ public:
   // pointers to child parse nodes
   //
 
-  enum { TRIGGER_OPTIONAL_UPDATE_COLUMN_LIST = 0,
-	 TRIGGER_ACTION_EXPRESSION,
-         TRIGGER_OPTIONAL_OWNER,
-         MAX_STMT_DDL_CREATE_TRIGGER_ARITY };
+  enum {
+    TRIGGER_OPTIONAL_UPDATE_COLUMN_LIST = 0,
+    TRIGGER_ACTION_EXPRESSION,
+    TRIGGER_OPTIONAL_OWNER,
+    MAX_STMT_DDL_CREATE_TRIGGER_ARITY
+  };
 
-
-private:
-
+ private:
   // ---------------------------------------------------------------------
   // private methods
   // ---------------------------------------------------------------------
-
 
   // ---------------------------------------------------------------------
   // private data members
@@ -272,25 +253,25 @@ private:
 
   NABoolean isAfter_;
 
-        // Set to TRUE if and only if this is an AFTER trigger
+  // Set to TRUE if and only if this is an AFTER trigger
 
   NABoolean hasCSInAction_;
-        // Set to TRUE if an only if this trigger has CS in action
+  // Set to TRUE if an only if this trigger has CS in action
 
   NABoolean hasRowORTableInRefClause_;
 
-       // Set to TRUE if and only if either or both keywords ROW
-       // or TABLE appear in the referencing clause
+  // Set to TRUE if and only if either or both keywords ROW
+  // or TABLE appear in the referencing clause
 
   NABoolean isStatement_;
 
-        // Set to TRUE if and only if this is a STATEMENT trigger
+  // Set to TRUE if and only if this is a STATEMENT trigger
 
-  ElemDDLGrantee * pOwner_;
+  ElemDDLGrantee *pOwner_;
 
   ComOperation iudEvent_;
 
-        // Set to one of: 1 - Insert, 2 - Update, 3 - Delete .
+  // Set to one of: 1 - Insert, 2 - Update, 3 - Delete .
 
   // trigger name can only be a simple name
   QualifiedName triggerQualName_;
@@ -306,23 +287,23 @@ private:
   ElemDDLColRefArray columnRefArray_;
 
   // From the REFERENCING clause: NEW and OLD names
-  NAString * oldName_;
-  NAString * newName_;
+  NAString *oldName_;
+  NAString *newName_;
 
   //
   // information about the position of the name within the input
   // string (to help with computing the trigger text)
   //
 
-  ParNameLocList * nameLocListPtr_;
+  ParNameLocList *nameLocListPtr_;
   StringPos startPos_;
   StringPos endPos_;
 
   //
   //  The child-nodes
   //
-  ElemDDLNode * pColumnList_ ;
-  RelExpr     * pActionExpression_;
+  ElemDDLNode *pColumnList_;
+  RelExpr *pActionExpression_;
 
   //
   // if triggers body is procedure or sql
@@ -333,177 +314,76 @@ private:
 
   NABoolean isReplace_;
 
-}; // class StmtDDLCreateTrigger
+};  // class StmtDDLCreateTrigger
 
 // -----------------------------------------------------------------------
 // definitions of inline methods for class StmtDDLCreateTrigger
 // -----------------------------------------------------------------------
 
-inline QualifiedName &
-StmtDDLCreateTrigger::getTriggerNameAsQualifiedName()
-{
-  return triggerQualName_;
-}
+inline QualifiedName &StmtDDLCreateTrigger::getTriggerNameAsQualifiedName() { return triggerQualName_; }
 
-inline const QualifiedName & 
-StmtDDLCreateTrigger::getTriggerNameAsQualifiedName() const
-{
-  return triggerQualName_;
-}
+inline const QualifiedName &StmtDDLCreateTrigger::getTriggerNameAsQualifiedName() const { return triggerQualName_; }
 
-inline const ElemDDLColRefArray &
-StmtDDLCreateTrigger::getColRefArray() const
-{
-  return columnRefArray_;
-}
+inline const ElemDDLColRefArray &StmtDDLCreateTrigger::getColRefArray() const { return columnRefArray_; }
 
-inline ElemDDLColRefArray &
-StmtDDLCreateTrigger::getColRefArray()
-{
-  return columnRefArray_;
-}
+inline ElemDDLColRefArray &StmtDDLCreateTrigger::getColRefArray() { return columnRefArray_; }
 
+inline const RelExpr *StmtDDLCreateTrigger::getActionExpression() const { return pActionExpression_; }
 
-inline const RelExpr *
-StmtDDLCreateTrigger::getActionExpression() const
-{
-  return pActionExpression_;
-}
-
-inline RelExpr *
-StmtDDLCreateTrigger::getActionExpression()
-{
-  return pActionExpression_;
-}
+inline RelExpr *StmtDDLCreateTrigger::getActionExpression() { return pActionExpression_; }
 
 // get trigger name
-inline const NAString 
-StmtDDLCreateTrigger::getTriggerName() const
-{
+inline const NAString StmtDDLCreateTrigger::getTriggerName() const {
   return triggerQualName_.getQualifiedNameAsAnsiString();
 }
 
 // is this an AFTER trigger ?
-inline NABoolean
-StmtDDLCreateTrigger::isAfter() const
-{
-  return isAfter_;
-}
+inline NABoolean StmtDDLCreateTrigger::isAfter() const { return isAfter_; }
 
 // does the trigger action has a compound statement
-inline NABoolean
-StmtDDLCreateTrigger::actionHasCompoundStatement() const
-{
-  return hasCSInAction_;
-}
+inline NABoolean StmtDDLCreateTrigger::actionHasCompoundStatement() const { return hasCSInAction_; }
 
 // does the trigger action has a compound statement
-inline void
-StmtDDLCreateTrigger::setHasCSInAction ()
-{
-  hasCSInAction_ = TRUE;
-}
+inline void StmtDDLCreateTrigger::setHasCSInAction() { hasCSInAction_ = TRUE; }
 
 // is either or both keywords ROW
 // or TABLE appear in the referencing clause?
-inline NABoolean
-StmtDDLCreateTrigger::hasRowORTableInRefClause() const
-{
-  return hasRowORTableInRefClause_;
-}
+inline NABoolean StmtDDLCreateTrigger::hasRowORTableInRefClause() const { return hasRowORTableInRefClause_; }
 
 // is this a STATEMENT trigger ?
-inline NABoolean
-StmtDDLCreateTrigger::isStatement() const
-{
-  return isStatement_;
-}
+inline NABoolean StmtDDLCreateTrigger::isStatement() const { return isStatement_; }
 
 // return type of event
-inline ComOperation
-StmtDDLCreateTrigger::getIUDEvent() const
-{
-  return iudEvent_;
-}
+inline ComOperation StmtDDLCreateTrigger::getIUDEvent() const { return iudEvent_; }
 
 // Are columns defined implicitly (in case of an UPDATE)
-inline NABoolean
-StmtDDLCreateTrigger::areColumnsImplicit() const
-{
-  return ( pColumnList_ == NULL ? TRUE : FALSE ) ;
-}
+inline NABoolean StmtDDLCreateTrigger::areColumnsImplicit() const { return (pColumnList_ == NULL ? TRUE : FALSE); }
 
-inline const NAString *
-StmtDDLCreateTrigger::getOldName() const 
-{ 
-  return oldName_;
-}
+inline const NAString *StmtDDLCreateTrigger::getOldName() const { return oldName_; }
 
-inline const NAString * 
-StmtDDLCreateTrigger::getNewName() const 
-{ 
-  return newName_;
-}
+inline const NAString *StmtDDLCreateTrigger::getNewName() const { return newName_; }
 
-inline const NAString
-StmtDDLCreateTrigger::getTableName() const
-{
+inline const NAString StmtDDLCreateTrigger::getTableName() const {
   return tableQualName_.getQualifiedNameAsAnsiString();
 }
 
-inline const QualifiedName&
-StmtDDLCreateTrigger::getTableNameObject() const
-{
-  return tableQualName_;
-}
+inline const QualifiedName &StmtDDLCreateTrigger::getTableNameObject() const { return tableQualName_; }
 
+inline const ParNameLocList &StmtDDLCreateTrigger::getNameLocList() const { return *nameLocListPtr_; }
 
-inline const ParNameLocList & StmtDDLCreateTrigger::getNameLocList() const
-{
-  return *nameLocListPtr_;
-}
+inline ParNameLocList &StmtDDLCreateTrigger::getNameLocList() { return *nameLocListPtr_; }
 
-inline ParNameLocList & StmtDDLCreateTrigger::getNameLocList()
-{
-  return *nameLocListPtr_;
-}
+inline void StmtDDLCreateTrigger::setEndPosition(const StringPos endPos) { endPos_ = endPos; }
 
+inline void StmtDDLCreateTrigger::setStartPosition(const StringPos startPos) { startPos_ = startPos; }
 
-inline void StmtDDLCreateTrigger::setEndPosition(const StringPos endPos)
-{
-  endPos_ = endPos;
-}
+inline const StringPos StmtDDLCreateTrigger::getEndPosition() const { return endPos_; }
 
-inline void StmtDDLCreateTrigger::setStartPosition(const StringPos startPos)
-{
-  startPos_ = startPos;
-}
+inline const StringPos StmtDDLCreateTrigger::getStartPosition() const { return startPos_; }
 
-inline const StringPos StmtDDLCreateTrigger::getEndPosition() const
-{
-  return endPos_;
-}
-
-inline const StringPos StmtDDLCreateTrigger::getStartPosition() const
-{
-  return startPos_;
-}
-
-inline NABoolean
-StmtDDLCreateTrigger::isOwnerSpecified() const
-{
-  return pOwner_ ? TRUE : FALSE;
-}
+inline NABoolean StmtDDLCreateTrigger::isOwnerSpecified() const { return pOwner_ ? TRUE : FALSE; }
 
 // Not used by Triggers
-inline const ElemDDLGrantee *
-StmtDDLCreateTrigger::getOwner() const
-{
-  return pOwner_;
-}
+inline const ElemDDLGrantee *StmtDDLCreateTrigger::getOwner() const { return pOwner_; }
 
-#endif // STMTDDLCREATETRIGGER_H
-
-
-
-
+#endif  // STMTDDLCREATETRIGGER_H

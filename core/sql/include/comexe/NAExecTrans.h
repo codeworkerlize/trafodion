@@ -2,7 +2,7 @@
 ****************************************************************************
 *
 * File:         NAExecTrans.h
-* Description:  
+* Description:
 *
 * Created:      5/6/98
 * Language:     C++
@@ -47,6 +47,5 @@
 //   return TRUE, if there is a transaction, transId will hold transaction Id
 //   return FALSE, if there is no transaction
 // Other values for command are not supported at this time.
-NABoolean NAExecTrans(Int64* transId = NULL); // IN/OUT
+NABoolean NAExecTrans(Int64 *transId = NULL);  // IN/OUT
 #endif
-

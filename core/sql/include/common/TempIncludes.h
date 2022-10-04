@@ -39,10 +39,8 @@
 
 // -----------------------------------------------------------------------
 
-extern "C"
-{
-  void tempInit(void);
+extern "C" {
+void tempInit(void);
 }
- 
-#endif // TEMPINCLUDES_H
 
+#endif  // TEMPINCLUDES_H

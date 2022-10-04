@@ -37,24 +37,23 @@
 
 #include "LmJavaType.h"
 
-// Note: The methods in this file are called directly (without using the 
+// Note: The methods in this file are called directly (without using the
 // LmJavaSignature class) by code in 'sqlutils' directory. The reason for sqlutils
-// to take this approach was because it does not include code from the 'common' directory, 
-// which is required in LmJavaSignature class. Hence the helper files were created to 
-// implement the below methods without having to include 'common' code. 
+// to take this approach was because it does not include code from the 'common' directory,
+// which is required in LmJavaSignature class. Hence the helper files were created to
+// implement the below methods without having to include 'common' code.
 // So, any change to the signatures in this file will impact the 'sqlutils' code.
 
-
 // A helper function to unpack (decode) an encoded Java signature.
-// Input: encodedSignature (the encoded signature),  unpackedSignature (pointing at the pre-allocated space receiving the unpacked signature)
-// Output: unpackedSignature (unpacked signature)
-Int32 unpackSignature(const char* encodedSignature, char *unpackedSignature);
+// Input: encodedSignature (the encoded signature),  unpackedSignature (pointing at the pre-allocated space receiving
+// the unpacked signature) Output: unpackedSignature (unpacked signature)
+Int32 unpackSignature(const char *encodedSignature, char *unpackedSignature);
 
 // A helper function to return the size if an encoded string is unpacked.
 // Input: encodedSignature (the encoded signature)
 // Return: - the size if the encoded signature is unpacked
-//		   - the total number of parameters present in the 
+//		   - the total number of parameters present in the
 //           packed method signature
-Int32 getUnpackedSignatureSize(const char* encodedSignature, Int32 *numParams=NULL);
+Int32 getUnpackedSignatureSize(const char *encodedSignature, Int32 *numParams = NULL);
 
 #endif

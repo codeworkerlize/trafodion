@@ -37,13 +37,13 @@ class NAMemory;
 // There is exactly one reader and one writer
 //
 // The reader never writes, the writer never reads
-// 
+//
 // Queue elements are stored in a circular array
-// 
+//
 // Two indexes head_ and tail_ track the head and tail entries
-// 
+//
 // head_ and tail_ are allowed to wrap around
-// 
+//
 // The queue is empty when head_ == tail_
 //
 // The number of entries is (tail_ - head_). If tail_ happens to
@@ -60,11 +60,11 @@ class NAMemory;
 // size_ is always a power of 2. This makes modulo arithmetic fast.
 //
 // The ex_queue protocol must be followed when adding or removing:
-// 
+//
 //   Before adding, make sure the queue is not full
-// 
+//
 //   Before removing, make sure the queue is not empty
-// 
+//
 //   First the caller modifies a queue element and then
 //   does the add or remove. The add or remove only does
 //   an increment of head_ or tail_
@@ -78,49 +78,40 @@ class NAMemory;
 //    1. Modification of a queue element
 //    2. Increment of the data member tail_ (for insert) or
 //       head_ (for remove)
-// 
+//
 //   Without a compiler memory barrier, steps 1 and 2 could be
 //   reordered. The compiler memory barrier is implemented with the
 //   following gcc directive:
 //
 //     asm volatile("" : : : "memory");
 
-class ExSMQueue
-{
-public:
-  class Entry
-  {
-  public:
+class ExSMQueue {
+ public:
+  class Entry {
+   public:
     void *getData() { return data_; }
     void setData(void *data) { data_ = data; }
 
-  protected:
+   protected:
     Entry() {}
     virtual ~Entry() {}
     void *data_;
   };
-  
+
   ExSMQueue(uint32_t initialSize, NAMemory *heap);
-  
-  ExSMQueue(); // Do not implement
-  
+
+  ExSMQueue();  // Do not implement
+
   // If the queue is used to store pointers, this destructor will not
   // delete the objects pointed to. The user of queue is responsible
   // for deleting objects before calling this destructor.
   virtual ~ExSMQueue();
-  
-  Entry &getTailEntry() const
-  {
-    return queue_[tail_ & mask_];
-  }
-  
-  uint32_t getTailIndex() const
-  {
-    return tail_;
-  }
 
-  void insert()
-  {
+  Entry &getTailEntry() const { return queue_[tail_ & mask_]; }
+
+  uint32_t getTailIndex() const { return tail_; }
+
+  void insert() {
     // We assert that queue is never full when insert() is called. The
     // assert will only fail if the caller does not test isFull()
     // before calling insert().
@@ -130,30 +121,21 @@ public:
     tail_++;
   }
 
-  Entry &getQueueEntry(uint32_t i) const
-  {
+  Entry &getQueueEntry(uint32_t i) const {
     exsm_assert(!isVacant(i), "getQueueEntry called for vacant entry");
     return queue_[i & mask_];
   }
 
-  Entry &getHeadEntry() const
-  {
+  Entry &getHeadEntry() const {
     exsm_assert(!isEmpty(), "getHeadEntry called for empty queue");
     return queue_[head_ & mask_];
   }
-  
-  uint32_t getHeadIndex() const
-  {
-    return head_;
-  }
-  
-  bool entryExists(uint32_t i) const
-  {
-    return (!isVacant(i));
-  }
 
-  void removeHead()
-  {
+  uint32_t getHeadIndex() const { return head_; }
+
+  bool entryExists(uint32_t i) const { return (!isVacant(i)); }
+
+  void removeHead() {
     // We assert that queue is never empty when removeHead() is
     // called. The assert will only fail if the caller does not test
     // isEmpty() before calling removeHead().
@@ -165,23 +147,21 @@ public:
 
   uint32_t getSize() const { return size_; }
   uint32_t getLength() const { return tail_ - head_; }
-  
+
   bool isFull() const { return (getLength() == mask_); }
   bool isEmpty() const { return (head_ == tail_); }
 
-  bool isVacant(uint32_t i) const
-  {
+  bool isVacant(uint32_t i) const {
     // We have two cases to consider
     // * There is no wraparound and head_ <= tail_
     // * tail_ has wrapped around before head_
     if (head_ <= tail_)
       return !((head_ <= i) && (i < tail_));
     else
-      return !((head_ <= i) || (i < tail_));  
+      return !((head_ <= i) || (i < tail_));
   }
 
-private:
-
+ private:
   uint32_t head_;
   uint32_t tail_;
   uint32_t size_;
@@ -193,7 +173,7 @@ private:
   Entry *queue_;
 
   NAMemory *heap_;
- 
-}; // class ExSMQueue
 
-#endif // EXSM_QUEUE_H
+};  // class ExSMQueue
+
+#endif  // EXSM_QUEUE_H

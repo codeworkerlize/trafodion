@@ -32,7 +32,7 @@
  *               therefore, class ElemDDLOptionList also
  *               represents a left linear tree.
  *
- *               
+ *
  * Created:      9/18/95
  * Language:     C++
  *
@@ -41,7 +41,6 @@
  *
  *****************************************************************************
  */
-
 
 #include "parser/ElemDDLList.h"
 
@@ -58,34 +57,25 @@ class ElemDDLOptionList;
 // -----------------------------------------------------------------------
 // definition of class ElemDDLOptionList
 // -----------------------------------------------------------------------
-class ElemDDLOptionList : public ElemDDLList
-{
-
-public:
-
+class ElemDDLOptionList : public ElemDDLList {
+ public:
   // constructor
-  ElemDDLOptionList(ElemDDLNode * commaExpr,
-                           ElemDDLNode * otherExpr)
-  : ElemDDLList(ELM_OPTION_LIST, commaExpr, otherExpr)
-  { }
+  ElemDDLOptionList(ElemDDLNode *commaExpr, ElemDDLNode *otherExpr)
+      : ElemDDLList(ELM_OPTION_LIST, commaExpr, otherExpr) {}
 
   // virtual destructor
   virtual ~ElemDDLOptionList();
 
   // cast
-  virtual ElemDDLOptionList * castToElemDDLOptionList();
+  virtual ElemDDLOptionList *castToElemDDLOptionList();
 
   // method for tracing
   virtual const NAString getText() const;
 
-
   // method for building text
   virtual NAString getSyntax() const;
 
+ private:
+};  // class ElemDDLOptionList
 
-private:
-
-}; // class ElemDDLOptionList
-
-
-#endif // ELEMDDLOPTIONLIST_H
+#endif  // ELEMDDLOPTIONLIST_H

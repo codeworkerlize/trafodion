@@ -218,7 +218,6 @@ protected:
 
 };
 
-
 #endif
 
-#endif // if 0
+#endif  // if 0

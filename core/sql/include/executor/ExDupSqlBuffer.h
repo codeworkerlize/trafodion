@@ -34,16 +34,12 @@
 
 #include "ExSimpleSqlBuffer.h"
 
-class ExDupSqlBuffer : public ExSimpleSQLBuffer
-{
-public:
-
-  ExDupSqlBuffer(UInt32 numTuples, UInt32 tupleSize, UInt32 nReserve,
-                 NAMemory* heap);
+class ExDupSqlBuffer : public ExSimpleSQLBuffer {
+ public:
+  ExDupSqlBuffer(UInt32 numTuples, UInt32 tupleSize, UInt32 nReserve, NAMemory *heap);
 
   // Constructor that is similar to the sql_buffer_pool ctor
-  ExDupSqlBuffer(UInt32 numBuffers, UInt32 bufferSize, UInt32 nReserve,
-                 UInt32 tupleSize, NAMemory* heap);
+  ExDupSqlBuffer(UInt32 numBuffers, UInt32 bufferSize, UInt32 nReserve, UInt32 tupleSize, NAMemory *heap);
 
   ~ExDupSqlBuffer();
 
@@ -52,7 +48,7 @@ public:
   bool advance(void);
 
   // Get the current tuple in the duplicate list.
-  bool current(tupp& tp) const;
+  bool current(tupp &tp) const;
 
   // Allocate a tuple in the duplicate list.  True => success.
   bool getDupTuple(tupp &tp);
@@ -71,70 +67,45 @@ public:
   // tuples are reclaimed from the used list.
   void finishDups(void);
 
-private:
+ private:
   // Linked list of duplicate tuples.  Tuples in the duplicate list
   // start with a zero reference count.  Unreferenced tuples aren't
-  // reclaimed until the duplicate list is combined with the 
+  // reclaimed until the duplicate list is combined with the
   // ExSimpleSQLBuffer::usedList_ used list.  The current position
   // is used to iterate through the duplicate list.
-  ExSimpleSQLBufferEntry * dupCurrent_;
-  ExSimpleSQLBufferEntry * dupHead_;
-  ExSimpleSQLBufferEntry * dupTail_;
-  UInt32 maxDups_;    // Max duplicate list size
-  UInt32 nDups_;      // Duplicate list size
+  ExSimpleSQLBufferEntry *dupCurrent_;
+  ExSimpleSQLBufferEntry *dupHead_;
+  ExSimpleSQLBufferEntry *dupTail_;
+  UInt32 maxDups_;  // Max duplicate list size
+  UInt32 nDups_;    // Duplicate list size
 };
 
-inline
-bool
-ExDupSqlBuffer::advance(void)
-{
+inline bool ExDupSqlBuffer::advance(void) {
   bool haveCurrent = (dupCurrent_ != NULL);
 
-  if (haveCurrent)
-  {
+  if (haveCurrent) {
     dupCurrent_ = dupCurrent_->getNext();
   }
 
   return haveCurrent;
 }
 
-inline
-bool
-ExDupSqlBuffer::current(tupp& tp) const
-{
+inline bool ExDupSqlBuffer::current(tupp &tp) const {
   bool haveDup = (dupCurrent_ != NULL);
 
-  if (haveDup)
-  {
+  if (haveDup) {
     tp = dupCurrent_->getTupDesc();
-  }
-  else
-  {
+  } else {
     tp = NULL;
   }
 
   return haveDup;
 }
 
-inline
-bool
-ExDupSqlBuffer::getTuple(tupp &tp)
-{
-  return (getFreeTuple(tp) == 0);
-}
+inline bool ExDupSqlBuffer::getTuple(tupp &tp) { return (getFreeTuple(tp) == 0); }
 
-inline
-bool
-ExDupSqlBuffer::hasDups(void)
-{
-  return (dupHead_ != NULL);
-}
+inline bool ExDupSqlBuffer::hasDups(void) { return (dupHead_ != NULL); }
 
-inline
-void
-ExDupSqlBuffer::rewind(void)
-{
-  dupCurrent_ = dupHead_;
-}
+inline void ExDupSqlBuffer::rewind(void) { dupCurrent_ = dupHead_; }
 
 #endif

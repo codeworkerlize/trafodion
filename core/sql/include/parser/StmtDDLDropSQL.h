@@ -38,7 +38,6 @@
  *****************************************************************************
  */
 
-
 #include "common/ComSmallDefs.h"
 #include "StmtDDLNode.h"
 
@@ -55,11 +54,8 @@ class StmtDDLDropSQL;
 // -----------------------------------------------------------------------
 // Drop SQL  statement
 // -----------------------------------------------------------------------
-class StmtDDLDropSQL : public StmtDDLNode
-{
-
-public:
-
+class StmtDDLDropSQL : public StmtDDLNode {
+ public:
   // constructor
   StmtDDLDropSQL(ComDropBehavior dropBehavior);
 
@@ -67,7 +63,7 @@ public:
   virtual ~StmtDDLDropSQL();
 
   // cast
-  virtual StmtDDLDropSQL * castToStmtDDLDropSQL();
+  virtual StmtDDLDropSQL *castToStmtDDLDropSQL();
 
   // accessor
   inline ComDropBehavior getDropBehavior() const;
@@ -75,28 +71,14 @@ public:
   // for tracing
   virtual const NAString getText() const;
 
-private:
-
+ private:
   ComDropBehavior dropBehavior_;
 
-}; // class StmtDDLDropSQL
-
+};  // class StmtDDLDropSQL
 
 // -----------------------------------------------------------------------
 // definitions of inline methods for class StmtDDLDropSQL
 // -----------------------------------------------------------------------
-inline ComDropBehavior
-StmtDDLDropSQL::getDropBehavior() const
-{
-  return dropBehavior_;
-}
+inline ComDropBehavior StmtDDLDropSQL::getDropBehavior() const { return dropBehavior_; }
 
-#endif // STMTDDLDROPSQL_H
-
-
-
-
-
-
-
-
+#endif  // STMTDDLDROPSQL_H

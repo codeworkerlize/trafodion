@@ -33,8 +33,8 @@
  *****************************************************************************
  */
 
-#ifndef   SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
-#define   SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
+#ifndef SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
+#define SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
 #endif
 #include "parser/SqlParserGlobals.h"
 #include "optimizer/ObjectNames.h"
@@ -52,45 +52,36 @@ class ElemDDLTenantGroup;
 // A temporary parse node to contain a group name and an optional
 // configuration section
 // -----------------------------------------------------------------------
-class ElemDDLTenantGroup : public ElemDDLNode
-{
-
-public:
-
+class ElemDDLTenantGroup : public ElemDDLNode {
+ public:
   // default constructor
-  ElemDDLTenantGroup(const NAString & groupName,
-                     const char *     pConfig,
-                           CollHeap *heap=PARSERHEAP())
-    : ElemDDLNode(ELM_TENANT_GROUP_ELEM),
-      groupName_(groupName,heap)
-  {
+  ElemDDLTenantGroup(const NAString &groupName, const char *pConfig, CollHeap *heap = PARSERHEAP())
+      : ElemDDLNode(ELM_TENANT_GROUP_ELEM), groupName_(groupName, heap) {
     if (pConfig == NULL)
       config_ = NAString("", heap);
     else
-      config_  = NAString(pConfig, heap);
+      config_ = NAString(pConfig, heap);
   }
-      
+
   // copy ctor
-  ElemDDLTenantGroup (const ElemDDLTenantGroup & orig, CollHeap * heap=PARSERHEAP()) ; // not written
+  ElemDDLTenantGroup(const ElemDDLTenantGroup &orig, CollHeap *heap = PARSERHEAP());  // not written
 
   // virtual destructor
   virtual ~ElemDDLTenantGroup() {}
 
   // cast
-  virtual ElemDDLTenantGroup * castToElemDDLTenantGroup() { return this; };
+  virtual ElemDDLTenantGroup *castToElemDDLTenantGroup() { return this; };
 
   // accessors
 
   const NAString getGroupName() const { return groupName_; }
   const NAString getConfig() const { return config_; }
 
-private:
+ private:
+  NAString groupName_;
+  NAString config_;
 
-  NAString   groupName_;
-  NAString   config_;
-
-}; // class ElemDDLTenantGroup
-
+};  // class ElemDDLTenantGroup
 
 #if 0
 class ElemDDLTenantGroupList : public ElemDDLList
@@ -112,5 +103,3 @@ private:
 #endif
 
 #endif /* ELEMDDLTENANTGROUP_H */
-
-

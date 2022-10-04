@@ -27,18 +27,17 @@
 
 class ExSMTask;
 
-class ExSMReadyList
-{
-public:
+class ExSMReadyList {
+ public:
   ExSMReadyList();
   virtual ~ExSMReadyList();
   void add(ExSMTask *t);
   void remove(ExSMTask *t);
   ExSMTask *getFirst();
 
-protected:
+ protected:
   ExSMTask *head_;
 
-}; // class ExSMReadyList
+};  // class ExSMReadyList
 
-#endif // EXSM_READYLIST_H
+#endif  // EXSM_READYLIST_H

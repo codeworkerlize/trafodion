@@ -2,7 +2,6 @@
 #ifndef COMSQLCMPDBG_H
 #define COMSQLCMPDBG_H
 
-
 #include "common/Platform.h"
 
 class ExScheduler;

@@ -36,7 +36,6 @@
  *****************************************************************************
  */
 
-
 #include "common/ComLocationNames.h"
 #include "ElemDDLLocation.h"
 #include "StmtDDLNode.h"
@@ -54,20 +53,16 @@ class StmtDDLGiveCatalog;
 // -----------------------------------------------------------------------
 // Give Catalog statement
 // -----------------------------------------------------------------------
-class StmtDDLGiveCatalog : public StmtDDLNode
-{
-
-public:
-
+class StmtDDLGiveCatalog : public StmtDDLNode {
+ public:
   // default constructor
-  StmtDDLGiveCatalog(const NAString & aCatalogName,
-                     const NAString & aUserID);
+  StmtDDLGiveCatalog(const NAString &aCatalogName, const NAString &aUserID);
 
   // virtual destructor
   virtual ~StmtDDLGiveCatalog();
 
   // cast
-  virtual StmtDDLGiveCatalog * castToStmtDDLGiveCatalog();
+  virtual StmtDDLGiveCatalog *castToStmtDDLGiveCatalog();
 
   //
   // accessors
@@ -75,26 +70,23 @@ public:
 
   virtual Int32 getArity() const;
 
-  inline const NAString & getCatalogName() const;
+  inline const NAString &getCatalogName() const;
 
-  virtual ExprNode * getChild(Lng32 index);
+  virtual ExprNode *getChild(Lng32 index);
 
-  inline const NAString & getUserID() const;
-
+  inline const NAString &getUserID() const;
 
   // mutator
-  virtual void setChild(Lng32 index, ExprNode * pChildNode);
+  virtual void setChild(Lng32 index, ExprNode *pChildNode);
   // for binding
-  ExprNode * bindNode(BindWA *bindWAPtr);
+  ExprNode *bindNode(BindWA *bindWAPtr);
 
   // for tracing
   virtual const NAString displayLabel1() const;
   virtual const NAString displayLabel2() const;
   virtual const NAString getText() const;
 
-
-private:
-
+ private:
   // ---------------------------------------------------------------------
   // private methods
   // ---------------------------------------------------------------------
@@ -103,14 +95,14 @@ private:
   // mutator
   //
 
-  void setAttribute(ElemDDLNode * pAttrNode);
+  void setAttribute(ElemDDLNode *pAttrNode);
 
-        // Get the information in the parse node pointed by parameter
-        // pAttrNode.  Update the corresponding data member (in this
-        // class) accordingly.  Also check for duplicate clauses.
-        // Get the information in the parse node pointed by parameter
-        // pAttrNode.  Update the corresponding data member (in this
-        // class) accordingly.  Also check for duplicate clauses.
+  // Get the information in the parse node pointed by parameter
+  // pAttrNode.  Update the corresponding data member (in this
+  // class) accordingly.  Also check for duplicate clauses.
+  // Get the information in the parse node pointed by parameter
+  // pAttrNode.  Update the corresponding data member (in this
+  // class) accordingly.  Also check for duplicate clauses.
 
   // ---------------------------------------------------------------------
   // private data members
@@ -124,12 +116,11 @@ private:
 
   // pointer to child parse node
 
-  enum { INDEX_GIVE_CATALOG_ATTRIBUTE_LIST = 0,
-         MAX_STMT_DDL_GIVE_CATALOG_ARITY };
+  enum { INDEX_GIVE_CATALOG_ATTRIBUTE_LIST = 0, MAX_STMT_DDL_GIVE_CATALOG_ARITY };
 
-  ElemDDLNode * attributeList_;
+  ElemDDLNode *attributeList_;
 
-}; // class StmtDDLGiveCatalog
+};  // class StmtDDLGiveCatalog
 
 // -----------------------------------------------------------------------
 // definitions of inline methods for class StmtDDLGiveCatalog
@@ -139,17 +130,8 @@ private:
 // accessors
 //
 
-inline const NAString &
-StmtDDLGiveCatalog::getCatalogName() const
-{
-  return catalogName_;
-}
+inline const NAString &StmtDDLGiveCatalog::getCatalogName() const { return catalogName_; }
 
-inline const NAString &
-StmtDDLGiveCatalog::getUserID() const
-{
-  return userID_;
-}
+inline const NAString &StmtDDLGiveCatalog::getUserID() const { return userID_; }
 
-
-#endif // STMTDDLGIVECATALOG_H
+#endif  // STMTDDLGIVECATALOG_H

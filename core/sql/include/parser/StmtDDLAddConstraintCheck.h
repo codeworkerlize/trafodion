@@ -42,7 +42,7 @@
  *               Non-inline methods of classes defined in this header
  *               file are defined in the source file StmtDDLAlter.C.
  *
- *               
+ *
  * Created:      6/15/95
  * Language:     C++
  *
@@ -51,7 +51,6 @@
  *
  *****************************************************************************
  */
-
 
 #include "common/ComASSERT.h"
 #include "ElemDDLConstraintCheck.h"
@@ -72,21 +71,17 @@ class StmtDDLAddConstraintCheck;
 // -----------------------------------------------------------------------
 // definition of class ParCheckConstraintColUsage
 // -----------------------------------------------------------------------
-class ParCheckConstraintColUsage : public NABasicObject
-{
-public:
-
+class ParCheckConstraintColUsage : public NABasicObject {
+ public:
   // default constructor
-  ParCheckConstraintColUsage(CollHeap * h=PARSERHEAP());
+  ParCheckConstraintColUsage(CollHeap *h = PARSERHEAP());
 
   // initialize constructor
-  ParCheckConstraintColUsage(const ColRefName &colName,
-                             const NABoolean isInSelectList,
-                             CollHeap * h=PARSERHEAP());
+  ParCheckConstraintColUsage(const ColRefName &colName, const NABoolean isInSelectList, CollHeap *h = PARSERHEAP());
 
   // copy ctor
-  ParCheckConstraintColUsage (const ParCheckConstraintColUsage &,
-                              CollHeap * h=PARSERHEAP()) ; // not written
+  ParCheckConstraintColUsage(const ParCheckConstraintColUsage &,
+                             CollHeap *h = PARSERHEAP());  // not written
 
   // virtual destructor
   virtual ~ParCheckConstraintColUsage();
@@ -96,23 +91,23 @@ public:
   //
 
   NABoolean operator==(const ParCheckConstraintColUsage &rhs) const;
-  
+
   //
   // accessors
   //
-  
-  inline const NAString & getColumnName() const;
 
-        // returns the referenced column name in internal format.
+  inline const NAString &getColumnName() const;
 
-  inline const QualifiedName & getTableQualName() const;
+  // returns the referenced column name in internal format.
 
-        // returns the referenced table name in QualifedName format.
+  inline const QualifiedName &getTableQualName() const;
+
+  // returns the referenced table name in QualifedName format.
 
   inline NABoolean isInSelectList() const;
 
-        // returns TRUE if the referenced column is in a SELECT list;
-        // returns FALSE otherwise.
+  // returns TRUE if the referenced column is in a SELECT list;
+  // returns FALSE otherwise.
 
   //
   // mutators
@@ -122,33 +117,27 @@ public:
   inline void setIsInSelectList(const NABoolean setting);
   inline void setTableName(const QualifiedName &tableQualName);
 
-private:
-  
+ private:
   QualifiedName tableName_;
-  NAString      columnName_;
-  NABoolean     isInSelectList_;
-  
-}; // class ParCheckConstraintColUsage
+  NAString columnName_;
+  NABoolean isInSelectList_;
+
+};  // class ParCheckConstraintColUsage
 
 // -----------------------------------------------------------------------
 // definition of class ParCheckConstraintColUsageList
 // -----------------------------------------------------------------------
 
-class ParCheckConstraintColUsageList: private LIST(ParCheckConstraintColUsage *)
-{
-public:
- 
+class ParCheckConstraintColUsageList : private LIST(ParCheckConstraintColUsage *) {
+ public:
   //
   // constructors
   //
 
-  ParCheckConstraintColUsageList(CollHeap * heap = PARSERHEAP())
-  : LIST(ParCheckConstraintColUsage *)(heap),
-  heap_(heap)
-  { }
+  ParCheckConstraintColUsageList(CollHeap *heap = PARSERHEAP())
+      : LIST(ParCheckConstraintColUsage *)(heap), heap_(heap) {}
 
-  ParCheckConstraintColUsageList(const ParCheckConstraintColUsageList &rhs,
-                                 CollHeap * heap = PARSERHEAP());
+  ParCheckConstraintColUsageList(const ParCheckConstraintColUsageList &rhs, CollHeap *heap = PARSERHEAP());
 
   //
   // virtual destructor
@@ -160,67 +149,59 @@ public:
   // operators
   //
 
-  ParCheckConstraintColUsageList & operator=
-    (const ParCheckConstraintColUsageList &rhs);
+  ParCheckConstraintColUsageList &operator=(const ParCheckConstraintColUsageList &rhs);
 
-  inline const ParCheckConstraintColUsage & operator[](CollIndex index) const;
-  inline       ParCheckConstraintColUsage & operator[](CollIndex index);
+  inline const ParCheckConstraintColUsage &operator[](CollIndex index) const;
+  inline ParCheckConstraintColUsage &operator[](CollIndex index);
 
   //
   // accessors
   //
-  
+
   inline CollIndex entries() const;
 
-  inline const ParCheckConstraintColUsage * const find(const ColRefName &
-                                                       colName) const;
-  ParCheckConstraintColUsage * const find(const ColRefName &colName);
+  inline const ParCheckConstraintColUsage *const find(const ColRefName &colName) const;
+  ParCheckConstraintColUsage *const find(const ColRefName &colName);
 
-        // returns the pointer pointing to the ParCheckConstraintColUsage
-        // element in the list containing the specified colName;
-        // returns the NULL pointer value if not found.
+  // returns the pointer pointing to the ParCheckConstraintColUsage
+  // element in the list containing the specified colName;
+  // returns the NULL pointer value if not found.
 
   //
   // mutators
   //
-  
+
   void clear();
 
-        // removes all objects pointed by elements in this list and then
-        // removes all elements (pointers) in this list.
+  // removes all objects pointed by elements in this list and then
+  // removes all elements (pointers) in this list.
 
   void insert(const ColRefName &columnName, const NABoolean isInSelectList);
 
-        // 1. If columeName is not in the list, inserts it to the end of
-        //    the list.
-        // 2. If the columnName is already in the list; there are two cases:
-        //    a.  If the (existing) field isInSelectList in the element
-        //        already contains the TRUE value, does nothing.
-        //    b.  Otherwise, update the (existing) field with the value
-        //        in the specified parameter isInSelectList.
+  // 1. If columeName is not in the list, inserts it to the end of
+  //    the list.
+  // 2. If the columnName is already in the list; there are two cases:
+  //    a.  If the (existing) field isInSelectList in the element
+  //        already contains the TRUE value, does nothing.
+  //    b.  Otherwise, update the (existing) field with the value
+  //        in the specified parameter isInSelectList.
 
-private:
-
+ private:
   void copy(const ParCheckConstraintColUsageList &rhs);
 
   // heap in which the objects (pointed to by the pointers in this
   // list) are allocated.
   //
-  CollHeap * heap_;
+  CollHeap *heap_;
 
-}; // class ParCheckConstraintColUsageList
+};  // class ParCheckConstraintColUsageList
 
 // -----------------------------------------------------------------------
 // definition of class ParCheckConstraintUsages
 // -----------------------------------------------------------------------
-class ParCheckConstraintUsages : public NABasicObject
-{
-public:
-
-  ParCheckConstraintUsages(CollHeap * heap = PARSERHEAP())
-  : tableUsages_(heap),
-  columnUsages_(heap)
-  { }
+class ParCheckConstraintUsages : public NABasicObject {
+ public:
+  ParCheckConstraintUsages(CollHeap *heap = PARSERHEAP()) : tableUsages_(heap), columnUsages_(heap) {}
 
   // virtual destructor
   virtual ~ParCheckConstraintUsages();
@@ -228,21 +209,20 @@ public:
   //
   // accessors
   //
-  
-  inline const ParCheckConstraintColUsageList & getColumnUsageList() const;
-  inline       ParCheckConstraintColUsageList & getColumnUsageList();
-  
-        // returns a list of column usages appearing in the search
-        // condition of the check constraint definition.
 
-  inline const ParTableUsageList & getTableUsageList() const;
-  inline       ParTableUsageList & getTableUsageList();
+  inline const ParCheckConstraintColUsageList &getColumnUsageList() const;
+  inline ParCheckConstraintColUsageList &getColumnUsageList();
 
-        // returns a list of table names appearing in the search
-        // condition of the check constraint definition.
+  // returns a list of column usages appearing in the search
+  // condition of the check constraint definition.
 
-private:
+  inline const ParTableUsageList &getTableUsageList() const;
+  inline ParTableUsageList &getTableUsageList();
 
+  // returns a list of table names appearing in the search
+  // condition of the check constraint definition.
+
+ private:
   //
   // check constraint table usages information
   //
@@ -252,132 +232,122 @@ private:
   //
   // check constraint column usages information
   //
-  
+
   ParCheckConstraintColUsageList columnUsages_;
-  
-}; // class ParCheckConstraintUsages
+
+};  // class ParCheckConstraintUsages
 
 // -----------------------------------------------------------------------
 // definition of class StmtDDLAddConstraintCheck
 // -----------------------------------------------------------------------
-class StmtDDLAddConstraintCheck : public StmtDDLAddConstraint
-{
-
-public:
-
+class StmtDDLAddConstraintCheck : public StmtDDLAddConstraint {
+ public:
   // constructors
-  StmtDDLAddConstraintCheck(ElemDDLNode * pElemDDLConstraintCheck);
-  StmtDDLAddConstraintCheck(const QualifiedName & tableQualName,
-                            ElemDDLNode * pElemDDLConstraintCheck);
+  StmtDDLAddConstraintCheck(ElemDDLNode *pElemDDLConstraintCheck);
+  StmtDDLAddConstraintCheck(const QualifiedName &tableQualName, ElemDDLNode *pElemDDLConstraintCheck);
 
   // virtual destructor
   virtual ~StmtDDLAddConstraintCheck();
 
   // cast
-  virtual StmtDDLAddConstraintCheck * castToStmtDDLAddConstraintCheck();
+  virtual StmtDDLAddConstraintCheck *castToStmtDDLAddConstraintCheck();
 
   //
   // accessors
   //
 
-  ElemDDLConstraintCheck * getElemDDLConstraintCheck() const
-  {
-    ElemDDLConstraintCheck *elem =
-      getAlterTableAction()->castToElemDDLConstraintCheck();
+  ElemDDLConstraintCheck *getElemDDLConstraintCheck() const {
+    ElemDDLConstraintCheck *elem = getAlterTableAction()->castToElemDDLConstraintCheck();
     ComASSERT(elem);
     return elem;
   }
 
-  virtual NABoolean isConstraintNotNull() const
-  { return getElemDDLConstraintCheck()->isConstraintNotNull(); }
-  
-  inline const ParCheckConstraintColUsageList & getColumnUsageList() const;
-  inline       ParCheckConstraintColUsageList & getColumnUsageList();
+  virtual NABoolean isConstraintNotNull() const { return getElemDDLConstraintCheck()->isConstraintNotNull(); }
 
-        // returns a list of column usages appearing in the search
-        // condition of the check constraint definition.
-  
+  inline const ParCheckConstraintColUsageList &getColumnUsageList() const;
+  inline ParCheckConstraintColUsageList &getColumnUsageList();
+
+  // returns a list of column usages appearing in the search
+  // condition of the check constraint definition.
+
   inline const StringPos getEndPosition() const;
 
-        // returns the ending position (the position of the
-        // last character) of the search condition (within
-        // the input string)
-  
-  inline const ParNameLocList & getNameLocList() const;
-  inline       ParNameLocList & getNameLocList();
+  // returns the ending position (the position of the
+  // last character) of the search condition (within
+  // the input string)
 
-        // returns a list of locations of names appearing in
-        // the statement input string.  The list helps with
-        // the computing of the view text.
+  inline const ParNameLocList &getNameLocList() const;
+  inline ParNameLocList &getNameLocList();
 
-  ItemExpr * getSearchCondition() const;
+  // returns a list of locations of names appearing in
+  // the statement input string.  The list helps with
+  // the computing of the view text.
 
-        // returns the pointer pointing to the parse sub-tree
-        // representing the search condition in the check
-        // constraint definition.
-  
+  ItemExpr *getSearchCondition() const;
+
+  // returns the pointer pointing to the parse sub-tree
+  // representing the search condition in the check
+  // constraint definition.
+
   inline const StringPos getStartPosition() const;
 
-        // returns the starting position (the position of the
-        // first character) of the search condition (within the
-        // input string)
+  // returns the starting position (the position of the
+  // first character) of the search condition (within the
+  // input string)
 
-  inline const ParTableUsageList & getTableUsageList() const;
-  inline       ParTableUsageList & getTableUsageList();
+  inline const ParTableUsageList &getTableUsageList() const;
+  inline ParTableUsageList &getTableUsageList();
 
-        // returns a list of table names appearing in the search
-        // condition of the check constraint definition.
-  
+  // returns a list of table names appearing in the search
+  // condition of the check constraint definition.
+
   //
   // mutators
   //
-  
+
   inline void setEndPosition(const StringPos endPos);
 
-        // sets the ending position (the position of the
-        // last character) of the search condition (within
-        // the input string)
-  
+  // sets the ending position (the position of the
+  // last character) of the search condition (within
+  // the input string)
+
   inline void setStartPosition(const StringPos startPos);
 
-        // sets the starting position (the position of the
-        // first character) of the search condition (within
-        // the input string)
+  // sets the starting position (the position of the
+  // first character) of the search condition (within
+  // the input string)
 
   //
   // method for binding
   //
-  
-  virtual ExprNode * bindNode(BindWA * pBindWA);
-  
+
+  virtual ExprNode *bindNode(BindWA *pBindWA);
+
   //
   // method for tracing
   //
-  
+
   virtual const NAString getText() const;
 
-
-private:
-
+ private:
   // ---------------------------------------------------------------------
   // private methods
   // ---------------------------------------------------------------------
 
   StmtDDLAddConstraintCheck();  // DO NOT USE
-  StmtDDLAddConstraintCheck(const NAString & tableName,
-                            ElemDDLNode *);                     // DO NOT USE
-  StmtDDLAddConstraintCheck(const StmtDDLAddConstraintCheck &); // DO NOT USE
-  StmtDDLAddConstraintCheck & operator =
-        (const StmtDDLAddConstraintCheck &); //DO NOT USE
+  StmtDDLAddConstraintCheck(const NAString &tableName,
+                            ElemDDLNode *);                                 // DO NOT USE
+  StmtDDLAddConstraintCheck(const StmtDDLAddConstraintCheck &);             // DO NOT USE
+  StmtDDLAddConstraintCheck &operator=(const StmtDDLAddConstraintCheck &);  // DO NOT USE
 
-  void init(ElemDDLNode * pElemDDLConstraintCheck);
-  
-        // initialize method invoked by the constructors
-  
+  void init(ElemDDLNode *pElemDDLConstraintCheck);
+
+  // initialize method invoked by the constructors
+
   // ---------------------------------------------------------------------
   // private data members
   // ---------------------------------------------------------------------
-  
+
   //
   // information about the position of the name within the input
   // string (to help with computing the view text)
@@ -388,8 +358,8 @@ private:
   //
   // positions of the create view statement within the input
   // string (to help with computing the view text)
-  // 
-  
+  //
+
   StringPos startPos_;
   StringPos endPos_;
 
@@ -399,7 +369,7 @@ private:
 
   ParCheckConstraintUsages usages_;
 
-}; // class StmtDDLAddConstraintCheck
+};  // class StmtDDLAddConstraintCheck
 
 // -----------------------------------------------------------------------
 // definitions of inline methods for class ParCheckConstraintColUsage
@@ -409,45 +379,21 @@ private:
 // accessors
 //
 
-inline const NAString &
-ParCheckConstraintColUsage::getColumnName() const
-{
-  return columnName_;
-}
+inline const NAString &ParCheckConstraintColUsage::getColumnName() const { return columnName_; }
 
-inline const QualifiedName &
-ParCheckConstraintColUsage::getTableQualName() const
-{
-  return tableName_;
-}
+inline const QualifiedName &ParCheckConstraintColUsage::getTableQualName() const { return tableName_; }
 
-inline NABoolean
-ParCheckConstraintColUsage::isInSelectList() const
-{
-  return isInSelectList_;
-}
+inline NABoolean ParCheckConstraintColUsage::isInSelectList() const { return isInSelectList_; }
 
 //
 // mutators
 //
 
-inline void
-ParCheckConstraintColUsage::setColumnName(const NAString &colName)
-{
-  columnName_ = colName;
-}
+inline void ParCheckConstraintColUsage::setColumnName(const NAString &colName) { columnName_ = colName; }
 
-inline void
-ParCheckConstraintColUsage::setIsInSelectList(const NABoolean setting)
-{
-  isInSelectList_ = setting;
-}
+inline void ParCheckConstraintColUsage::setIsInSelectList(const NABoolean setting) { isInSelectList_ = setting; }
 
-inline void
-ParCheckConstraintColUsage::setTableName(const QualifiedName &tableQualName)
-{
-  tableName_ = tableQualName;
-}
+inline void ParCheckConstraintColUsage::setTableName(const QualifiedName &tableQualName) { tableName_ = tableQualName; }
 
 // -----------------------------------------------------------------------
 // definitions of inline methods for class ParCheckConstraintColUsageList
@@ -456,15 +402,11 @@ ParCheckConstraintColUsage::setTableName(const QualifiedName &tableQualName)
 // operators
 //
 
-inline const ParCheckConstraintColUsage &
-ParCheckConstraintColUsageList::operator[](CollIndex index) const
-{
+inline const ParCheckConstraintColUsage &ParCheckConstraintColUsageList::operator[](CollIndex index) const {
   return *(LIST(ParCheckConstraintColUsage *)::operator[](index));
 }
 
-inline ParCheckConstraintColUsage &
-ParCheckConstraintColUsageList::operator[](CollIndex index)
-{
+inline ParCheckConstraintColUsage &ParCheckConstraintColUsageList::operator[](CollIndex index) {
   return *(LIST(ParCheckConstraintColUsage *)::operator[](index));
 }
 
@@ -472,15 +414,11 @@ ParCheckConstraintColUsageList::operator[](CollIndex index)
 // accessors
 //
 
-inline CollIndex
-ParCheckConstraintColUsageList::entries() const
-{
+inline CollIndex ParCheckConstraintColUsageList::entries() const {
   return LIST(ParCheckConstraintColUsage *)::entries();
 }
 
-inline const ParCheckConstraintColUsage * const
-ParCheckConstraintColUsageList::find(const ColRefName &colName) const
-{
+inline const ParCheckConstraintColUsage *const ParCheckConstraintColUsageList::find(const ColRefName &colName) const {
   return ((ParCheckConstraintColUsageList *)this)->find(colName);
 }
 
@@ -491,29 +429,15 @@ ParCheckConstraintColUsageList::find(const ColRefName &colName) const
 // accessors
 //
 
-inline const ParCheckConstraintColUsageList &
-ParCheckConstraintUsages::getColumnUsageList() const
-{
+inline const ParCheckConstraintColUsageList &ParCheckConstraintUsages::getColumnUsageList() const {
   return columnUsages_;
-}
-     
-inline ParCheckConstraintColUsageList &
-ParCheckConstraintUsages::getColumnUsageList()
-{
-  return columnUsages_;
-}
-  
-inline const ParTableUsageList &
-ParCheckConstraintUsages::getTableUsageList() const
-{
-  return tableUsages_;
 }
 
-inline ParTableUsageList &
-ParCheckConstraintUsages::getTableUsageList()
-{
-  return tableUsages_;
-}
+inline ParCheckConstraintColUsageList &ParCheckConstraintUsages::getColumnUsageList() { return columnUsages_; }
+
+inline const ParTableUsageList &ParCheckConstraintUsages::getTableUsageList() const { return tableUsages_; }
+
+inline ParTableUsageList &ParCheckConstraintUsages::getTableUsageList() { return tableUsages_; }
 
 // -----------------------------------------------------------------------
 // definitions of inline methods for class StmtDDLAddConstraint
@@ -523,68 +447,34 @@ ParCheckConstraintUsages::getTableUsageList()
 // accessors
 //
 
-inline const ParCheckConstraintColUsageList &
-StmtDDLAddConstraintCheck::getColumnUsageList() const
-{
+inline const ParCheckConstraintColUsageList &StmtDDLAddConstraintCheck::getColumnUsageList() const {
   return usages_.getColumnUsageList();
 }
 
-inline ParCheckConstraintColUsageList &
-StmtDDLAddConstraintCheck::getColumnUsageList()
-{
+inline ParCheckConstraintColUsageList &StmtDDLAddConstraintCheck::getColumnUsageList() {
   return usages_.getColumnUsageList();
 }
 
-inline const StringPos
-StmtDDLAddConstraintCheck::getEndPosition() const
-{
-  return endPos_;
-}
+inline const StringPos StmtDDLAddConstraintCheck::getEndPosition() const { return endPos_; }
 
-inline const ParNameLocList &
-StmtDDLAddConstraintCheck::getNameLocList() const
-{
-  return nameLocList_;
-}
+inline const ParNameLocList &StmtDDLAddConstraintCheck::getNameLocList() const { return nameLocList_; }
 
-inline ParNameLocList &
-StmtDDLAddConstraintCheck::getNameLocList()
-{
-  return nameLocList_;
-}
+inline ParNameLocList &StmtDDLAddConstraintCheck::getNameLocList() { return nameLocList_; }
 
-inline const StringPos
-StmtDDLAddConstraintCheck::getStartPosition() const
-{
-  return startPos_;
-}
+inline const StringPos StmtDDLAddConstraintCheck::getStartPosition() const { return startPos_; }
 
-inline const ParTableUsageList &
-StmtDDLAddConstraintCheck::getTableUsageList() const
-{
+inline const ParTableUsageList &StmtDDLAddConstraintCheck::getTableUsageList() const {
   return usages_.getTableUsageList();
 }
 
-inline ParTableUsageList &
-StmtDDLAddConstraintCheck::getTableUsageList()
-{
-  return usages_.getTableUsageList();
-}
+inline ParTableUsageList &StmtDDLAddConstraintCheck::getTableUsageList() { return usages_.getTableUsageList(); }
 
 //
 // mutators
 //
 
-inline void
-StmtDDLAddConstraintCheck::setEndPosition(const StringPos endPos)
-{
-  endPos_ = endPos;
-}
+inline void StmtDDLAddConstraintCheck::setEndPosition(const StringPos endPos) { endPos_ = endPos; }
 
-inline void
-StmtDDLAddConstraintCheck::setStartPosition(const StringPos startPos)
-{
-  startPos_ = startPos;
-}
+inline void StmtDDLAddConstraintCheck::setStartPosition(const StringPos startPos) { startPos_ = startPos; }
 
-#endif // STMTDDLADDCONSTRAINTCHECK_H
+#endif  // STMTDDLADDCONSTRAINTCHECK_H

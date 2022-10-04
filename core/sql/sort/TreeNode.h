@@ -27,10 +27,10 @@
 *
 * File:         TreeNode.h
 * RCS:          $Id: TreeNode.h,v 1.2.16.2 1998/07/08 21:47:43  Exp $
-*                               
-* Description:  This class represents the TreeNode objects which make up the 
+*
+* Description:  This class represents the TreeNode objects which make up the
 *               tournament used by Replacement Selection algorithm.
-*               
+*
 * Created:	    05/20/96
 * Modified:     $ $Date: 1998/07/08 21:47:43 $ (GMT)
 * Language:     C++
@@ -49,61 +49,42 @@
 #include "SortError.h"
 
 class TreeNode : public NABasicObject {
+ public:
+  TreeNode();
+  ~TreeNode();
 
- public :
-   TreeNode();
-   ~TreeNode();
+  void initialize(ULng32 nodenum, ULng32 associatedrun, TreeNode *fi, TreeNode *fe, Record *rec, CollHeap *heap,
+                  SortError *sorterror, SortScratchSpace *scratch, NABoolean merge, NABoolean waited);
+  void deallocate();
 
-   void initialize(ULng32 nodenum,
-                   ULng32 associatedrun,
-                   TreeNode *fi,
-                   TreeNode *fe,
-                   Record   *rec,
-                   CollHeap* heap,  
-                   SortError* sorterror,
-                   SortScratchSpace* scratch,
-                   NABoolean merge,
-                   NABoolean waited);
-   void deallocate();
-   
-   //NABoolean setRecord(void* rec, ULng32 reclen,  ULng32 keylen, Int16 numberOfBytesForRecordSize);
-   NABoolean setRecordTupp(void *rec, ULng32 reclen,
-                           ULng32 keylen, void* tupp,
-                           Int16 numberOfBytesForRecordSize);
-   NABoolean getRecord(void* rec, ULng32 reclen);  
- 
-   RESULT inputScr(ULng32 keylen, ULng32 reclen,
-                  SortScratchSpace *scratch,
-                  ULng32 &actRecLen,
-                  //ULng32 keySize,
-                  NABoolean waited = FALSE,
-                  Int16 numberOfBytesForRecordSize = 0);
-   RESULT outputScr(ULng32 run, ULng32 reclen,
-                       SortScratchSpace *scratch, NABoolean waited = FALSE);
+  // NABoolean setRecord(void* rec, ULng32 reclen,  ULng32 keylen, Int16 numberOfBytesForRecordSize);
+  NABoolean setRecordTupp(void *rec, ULng32 reclen, ULng32 keylen, void *tupp, Int16 numberOfBytesForRecordSize);
+  NABoolean getRecord(void *rec, ULng32 reclen);
 
-   TreeNode *getFe();
-   TreeNode *getFi();
-   
-   void setLoser(TreeNode *node);
-   TreeNode *getLoser();
-   char* getKey();
-   ULng32 getRun();
-   void setRun(ULng32 run);
+  RESULT inputScr(ULng32 keylen, ULng32 reclen, SortScratchSpace *scratch, ULng32 &actRecLen,
+                  // ULng32 keySize,
+                  NABoolean waited = FALSE, Int16 numberOfBytesForRecordSize = 0);
+  RESULT outputScr(ULng32 run, ULng32 reclen, SortScratchSpace *scratch, NABoolean waited = FALSE);
 
-   Record * &record()
-   {
-     return record_;
-   }
+  TreeNode *getFe();
+  TreeNode *getFi();
 
-   SortMergeNode *sortMergeNode_; //adapter to read the run from scratch.
-  
- private :
+  void setLoser(TreeNode *node);
+  TreeNode *getLoser();
+  char *getKey();
+  ULng32 getRun();
+  void setRun(ULng32 run);
 
-  char     *key_;
-  Record   *record_;
+  Record *&record() { return record_; }
+
+  SortMergeNode *sortMergeNode_;  // adapter to read the run from scratch.
+
+ private:
+  char *key_;
+  Record *record_;
   TreeNode *fi_;
-  TreeNode *fe_; 
- 
+  TreeNode *fe_;
+
   TreeNode *loser_;
   ULng32 run_;
   ULng32 nodenum_;
@@ -113,14 +94,3 @@ class TreeNode : public NABasicObject {
 };
 
 #endif
-
-
-
-
-
-
-
-
-
-
-

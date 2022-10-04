@@ -57,28 +57,26 @@ enum HostVarRole {
   HV_IS_INPUT_OUTPUT  // A variable appearing in a SET statement of a Compound Statement
 };
 
-
 // default constructor makes this empty
 // how about a method to clear the vector -- clear() already does this
 
-class HostVarRole_vec : public  ARRAY(HostVarRole)
-{
-friend ostream& operator<<(ostream&, HostVarRole_vec &);
-public:
+class HostVarRole_vec : public ARRAY(HostVarRole) {
+  friend ostream &operator<<(ostream &, HostVarRole_vec &);
 
-   HostVarRole_vec(NAHeap* heap):ARRAY(HostVarRole)(heap) {};
+ public:
+  HostVarRole_vec(NAHeap *heap) : ARRAY(HostVarRole)(heap){};
 
-   void setFirstUnassignedTo(HostVarRole theRole);
-   void setLastUnassignedTo(HostVarRole theRole);
-   void setLastNunassignedTo(UInt32  count, HostVarRole theRole);
-   void setAllAssignedInputTo(HostVarRole theRole);
-   void addUnassigned();
+  void setFirstUnassignedTo(HostVarRole theRole);
+  void setLastUnassignedTo(HostVarRole theRole);
+  void setLastNunassignedTo(UInt32 count, HostVarRole theRole);
+  void setAllAssignedInputTo(HostVarRole theRole);
+  void addUnassigned();
 
-   void addARole(HostVarRole theRole);
-   void add_indicator();
+  void addARole(HostVarRole theRole);
+  void add_indicator();
 };
 
 // These global declarations must be done after the above class definitions!
-extern THREAD_P HostVarRole_vec *TheHostVarRoles;    // SqlParserGlobals.h
+extern THREAD_P HostVarRole_vec *TheHostVarRoles;  // SqlParserGlobals.h
 
-#endif // HVROLES_H
+#endif  // HVROLES_H

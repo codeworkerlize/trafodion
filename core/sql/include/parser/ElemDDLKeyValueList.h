@@ -28,8 +28,8 @@
  * File:         ElemDDLKeyValueList.h
  * Description:  class for lists of Key Value elements in First Key
  *               clause in DDL statements
- *               
- *               
+ *
+ *
  * Created:      4/7/95
  * Language:     C++
  *
@@ -38,7 +38,6 @@
  *
  *****************************************************************************
  */
-
 
 #include "parser/ElemDDLList.h"
 
@@ -55,22 +54,17 @@ class ElemDDLKeyValueList;
 // -----------------------------------------------------------------------
 // A list of key value elements in First Key clause in DDL statement.
 // -----------------------------------------------------------------------
-class ElemDDLKeyValueList : public ElemDDLList
-{
-
-public:
-
+class ElemDDLKeyValueList : public ElemDDLList {
+ public:
   // constructor
-  ElemDDLKeyValueList(ElemDDLNode * commaExpr,
-                             ElemDDLNode * otherExpr)
-  : ElemDDLList(ELM_KEY_VALUE_LIST, commaExpr, otherExpr)
-  { }
+  ElemDDLKeyValueList(ElemDDLNode *commaExpr, ElemDDLNode *otherExpr)
+      : ElemDDLList(ELM_KEY_VALUE_LIST, commaExpr, otherExpr) {}
 
   // virtual destructor
   virtual ~ElemDDLKeyValueList();
 
   // cast
-  virtual ElemDDLKeyValueList * castToElemDDLKeyValueList();
+  virtual ElemDDLKeyValueList *castToElemDDLKeyValueList();
 
   // method for tracing
   virtual const NAString getText() const;
@@ -78,9 +72,7 @@ public:
   // method for building text
   virtual NAString getSyntax() const;
 
+ private:
+};  // class ElemDDLKeyValueList
 
-private:
-
-}; // class ElemDDLKeyValueList
-
-#endif // ELEMDDLKEYVALUELIST_H
+#endif  // ELEMDDLKEYVALUELIST_H

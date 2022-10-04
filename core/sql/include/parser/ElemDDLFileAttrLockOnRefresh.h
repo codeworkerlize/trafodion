@@ -29,7 +29,7 @@
 * Description:  class for Lock On Refresh File Attribute (parse node)
 *               elements in DDL statements
 *
-*               
+*
 * Created:      3/29/2000
 * Language:     C++
 *
@@ -39,33 +39,22 @@
 ******************************************************************************
 */
 
-
 #include "ElemDDLFileAttr.h"
 
-class ElemDDLFileAttrLockOnRefresh : public ElemDDLFileAttr
-{
-
-public:
-
+class ElemDDLFileAttrLockOnRefresh : public ElemDDLFileAttr {
+ public:
   // default constructor
   ElemDDLFileAttrLockOnRefresh(NABoolean lockOnRefresh)
-	  : ElemDDLFileAttr(ELM_FILE_ATTR_LOCK_ON_REFRESH_ELEM),
-	    isLockOnRefresh_(lockOnRefresh)
-  {
-  }
+      : ElemDDLFileAttr(ELM_FILE_ATTR_LOCK_ON_REFRESH_ELEM), isLockOnRefresh_(lockOnRefresh) {}
 
   // virtual destructor
   virtual ~ElemDDLFileAttrLockOnRefresh();
 
   // cast
-  virtual ElemDDLFileAttrLockOnRefresh * castToElemDDLFileAttrLockOnRefresh();
+  virtual ElemDDLFileAttrLockOnRefresh *castToElemDDLFileAttrLockOnRefresh();
 
   // accessor
-  NABoolean
-  isLockOnRefresh() const
-  {
-	  return isLockOnRefresh_;
-  }
+  NABoolean isLockOnRefresh() const { return isLockOnRefresh_; }
 
   // member functions for tracing
   virtual const NAString getText() const;
@@ -74,12 +63,9 @@ public:
   // method for building text
   virtual NAString getSyntax() const;
 
-
-
-private:
-
+ private:
   const NABoolean isLockOnRefresh_;
 
-}; // class ElemDDLFileAttrLockOnRefresh
+};  // class ElemDDLFileAttrLockOnRefresh
 
-#endif // ELEMDDLFILEATTRRANGELOG_H
+#endif  // ELEMDDLFILEATTRRANGELOG_H

@@ -126,11 +126,9 @@
 //   to w:/nskgmake/optimizer/Makefile for the
 //   yosrelease build to succeed.  The Optimizer
 //   group will provide a more permanent solution.
-#if 0 // temporary
-#include "TriggerDB.cpp"  
-#include "optimizer/Triggers.h"  
-#include "OptTrigger.cpp"  
+#if 0  // temporary
+#include "TriggerDB.cpp"
+#include "optimizer/Triggers.h"
+#include "OptTrigger.cpp"
 #include "InliningInfo.cpp"
-#endif // 0 - temporary
-
-
+#endif  // 0 - temporary

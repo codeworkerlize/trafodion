@@ -69,17 +69,15 @@ private:
 // definition of class ComSqlTextHandle
 // -----------------------------------------------------------------------
 
-class ComSqlTextHandle
-{
-public:
-
-  ComSqlTextHandle() {};
+class ComSqlTextHandle {
+ public:
+  ComSqlTextHandle(){};
 
   inline char getDoubleQuote() const;
   inline char getPeriod() const;
   inline char getSpace() const;
   inline char getUnderscore() const;
-  
+
   NABoolean isDigit(const char &aChar) const;
   NABoolean isDoubleQuote(const char &aChar) const;
   NABoolean isIdentifierPart(const char &aChar) const;
@@ -95,8 +93,7 @@ public:
   NABoolean isSqlSpecialChar(const char &aChar) const;
   NABoolean isUnderscore(const char &aChar) const;
 
-private:
-
+ private:
 };
 
 //
@@ -116,29 +113,12 @@ static ComSqlTextHandleInitializer ComSqlTextHandleInit;
 // definitions of inline methods
 // -----------------------------------------------------------------------
 
+inline char ComSqlTextHandle::getDoubleQuote() const { return '"'; }
 
-inline char
-ComSqlTextHandle::getDoubleQuote() const
-{
-  return '"';
-}
+inline char ComSqlTextHandle::getPeriod() const { return '.'; }
 
-inline char
-ComSqlTextHandle::getPeriod() const
-{
-  return '.';
-}
+inline char ComSqlTextHandle::getSpace() const { return ' '; }
 
-inline char
-ComSqlTextHandle::getSpace() const
-{
-  return ' ';
-}
+inline char ComSqlTextHandle::getUnderscore() const { return '_'; }
 
-inline char
-ComSqlTextHandle::getUnderscore() const
-{
-  return '_';
-}
-
-#endif // COMSQLTEXT_H
+#endif  // COMSQLTEXT_H

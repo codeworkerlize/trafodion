@@ -26,13 +26,13 @@
  *****************************************************************************
  *
  * File:         StmtDDLAlterTableNamespace.h
- * Description:  class for Alter Table <table-name> namespace 
+ * Description:  class for Alter Table <table-name> namespace
  *               DDL statements
  *
  *               The methods in this class are defined either in this
  *               header file or the source file StmtDDLAlter.C.
  *
- *               
+ *
  * Created:      5/16/2007
  * Language:     C++
  *
@@ -41,7 +41,6 @@
  *
  *****************************************************************************
  */
-
 
 #include "StmtDDLAlterTable.h"
 
@@ -58,45 +57,33 @@ class StmtDDLAlterTableNamespace;
 // -----------------------------------------------------------------------
 // definition of class StmtDDLAlterTableNamespace
 // -----------------------------------------------------------------------
-class StmtDDLAlterTableNamespace : public StmtDDLAlterTable
-{
-
-public:
-
+class StmtDDLAlterTableNamespace : public StmtDDLAlterTable {
+ public:
   // constructor
-  StmtDDLAlterTableNamespace(const QualifiedName & objectName)
-  : StmtDDLAlterTable(DDL_ALTER_TABLE_NAMESPACE),
-    objName_(objectName, PARSERHEAP())
-  { }
+  StmtDDLAlterTableNamespace(const QualifiedName &objectName)
+      : StmtDDLAlterTable(DDL_ALTER_TABLE_NAMESPACE), objName_(objectName, PARSERHEAP()) {}
 
   // virtual destructor
   virtual ~StmtDDLAlterTableNamespace();
 
   // cast
-  virtual StmtDDLAlterTableNamespace * castToStmtDDLAlterTableNamespace();
+  virtual StmtDDLAlterTableNamespace *castToStmtDDLAlterTableNamespace();
 
   // accessors
-  inline const QualifiedName & getObjName() const;
+  inline const QualifiedName &getObjName() const;
 
   // method for tracing
   virtual const NAString getText() const;
 
+ private:
+  QualifiedName objName_;
 
-private:
-
-  QualifiedName   objName_;
-
-}; // class StmtDDLAlterTableNamespace
+};  // class StmtDDLAlterTableNamespace
 
 // -----------------------------------------------------------------------
 // definitions of inline methods for class StmtDDLAlterTableNamespace
 // -----------------------------------------------------------------------
 
-inline
-const QualifiedName &
-StmtDDLAlterTableNamespace::getObjName() const
-{
-  return objName_;
-}
+inline const QualifiedName &StmtDDLAlterTableNamespace::getObjName() const { return objName_; }
 
-#endif // STMTDDLALTERTABLENAMESPACE_H
+#endif  // STMTDDLALTERTABLENAMESPACE_H

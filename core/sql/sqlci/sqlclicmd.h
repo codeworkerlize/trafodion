@@ -43,69 +43,74 @@
 
 // abstract class for all SqlCliCmds
 class SqlCliCmd : public SqlciNode {
-public:
+ public:
   SqlCliCmd();
   virtual ~SqlCliCmd();
-  virtual short process(SqlciEnv * sqlci_env) = 0;
+  virtual short process(SqlciEnv *sqlci_env) = 0;
 };
 
 class CheckViolation : public SqlCliCmd {
-public:
+ public:
   CheckViolation();
   virtual ~CheckViolation();
-  virtual short process(SqlciEnv * sqlci_env);
+  virtual short process(SqlciEnv *sqlci_env);
 };
 
 class ResetViolation : public SqlCliCmd {
-private:
+ private:
   enum ComRoutineSQLAccess mode_;
-public:
+
+ public:
   ResetViolation(enum ComRoutineSQLAccess mode);
   virtual ~ResetViolation();
-  virtual short process(SqlciEnv * sqlci_env);
+  virtual short process(SqlciEnv *sqlci_env);
 };
 
 class CreateContext : public SqlCliCmd {
-private:
+ private:
   NABoolean noAutoXact_;
-public:
+
+ public:
   CreateContext();
   CreateContext(NABoolean noAutoXact);
   virtual ~CreateContext();
-  virtual short process(SqlciEnv * sqlci_env);
+  virtual short process(SqlciEnv *sqlci_env);
 };
 
 class CurrentContext : public SqlCliCmd {
-public:
+ public:
   CurrentContext();
   virtual ~CurrentContext();
-  virtual short process(SqlciEnv * sqlciEnv);
+  virtual short process(SqlciEnv *sqlciEnv);
 };
 
 class SwitchContext : public SqlCliCmd {
-public:
+ public:
   SwitchContext(Lng32 ctxHandle);
   virtual ~SwitchContext();
-  virtual short process(SqlciEnv * sqlci_env);
-private:
+  virtual short process(SqlciEnv *sqlci_env);
+
+ private:
   Lng32 ctxHdl_;
 };
 
 class DeleteContext : public SqlCliCmd {
-public:
+ public:
   DeleteContext(Lng32 ctxHandle);
   virtual ~DeleteContext();
-  virtual short process(SqlciEnv * sqlci_env);
-private:
+  virtual short process(SqlciEnv *sqlci_env);
+
+ private:
   Lng32 ctxHdl_;
 };
-    
+
 class ResetContext : public SqlCliCmd {
-public:
+ public:
   ResetContext(Lng32 ctxHandle);
   virtual ~ResetContext();
-  virtual short process(SqlciEnv * sqlci_env);
-private:
+  virtual short process(SqlciEnv *sqlci_env);
+
+ private:
   Lng32 ctxHdl_;
 };
 

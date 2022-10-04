@@ -2,7 +2,7 @@
 ****************************************************************************
 *
 * File:         HashRow.h
-* Description:  
+* Description:
 *
 * Created:      5/6/98
 * Language:     C++
@@ -53,9 +53,10 @@ class HashRow {
   friend class HashTableCursor;
   friend class HashTable;
   friend class HashBufferSerial;
-public:
-  inline HashRow() {};
-  inline ~HashRow() {};
+
+ public:
+  inline HashRow(){};
+  inline ~HashRow(){};
   void print(ULng32 rowlength);
   inline SimpleHashValue hashValue() const { return hashValue_ & MASK31; }
 
@@ -67,32 +68,26 @@ public:
   // Set the hash value to the raw hash value (no masking)
   inline void setHashValueRaw(SimpleHashValue hv) { hashValue_ = hv; }
 
-  inline NABoolean bitSet() const { return ((hashValue_ & ~MASK31) != 0L) ; }
-  inline void setBit(NABoolean val)
-	 { if ( val ) hashValue_ |= ~MASK31 ; else hashValue_ &= MASK31 ;}
-inline void setNext (HashRow *next) {next_ = next;}
-inline HashRow *next() const {return next_;}
+  inline NABoolean bitSet() const { return ((hashValue_ & ~MASK31) != 0L); }
+  inline void setBit(NABoolean val) {
+    if (val)
+      hashValue_ |= ~MASK31;
+    else
+      hashValue_ &= MASK31;
+  }
+  inline void setNext(HashRow *next) { next_ = next; }
+  inline HashRow *next() const { return next_; }
 
-inline char *getData() const {
-  return ((char *)this) + sizeof(HashRow);
-}
+  inline char *getData() const { return ((char *)this) + sizeof(HashRow); }
 
-inline UInt32 getRowLength() const {
-  return *((UInt32 *)getData());
-}
+  inline UInt32 getRowLength() const { return *((UInt32 *)getData()); }
 
-private:
-inline void setRowLength(UInt32 rowLen) {
-  *((UInt32 *)getData()) = rowLen;
-}
+ private:
+  inline void setRowLength(UInt32 rowLen) { *((UInt32 *)getData()) = rowLen; }
 
 #ifdef CHECK_EYE
-  inline void setEye() {
-    eye_ = 42424242;
-  }
-  inline void checkEye() {
-    assert(eye_ == 42424242);
-  }
+  inline void setEye() { eye_ = 42424242; }
+  inline void checkEye() { assert(eye_ == 42424242); }
 
   UInt32 eye_;
 #else
@@ -101,7 +96,7 @@ inline void setRowLength(UInt32 rowLen) {
 #endif
 
   SimpleHashValue hashValue_;
-  HashRow * next_;
+  HashRow *next_;
 };
 
 #endif

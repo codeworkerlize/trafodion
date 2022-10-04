@@ -40,63 +40,62 @@
 #include "CliMsgObj.h"
 #include "cli/sqlcli.h"
 // allocate memory from the heap and duplicate the string
-static char * dupCharStar(NAMemory *heap, char *source){
+static char *dupCharStar(NAMemory *heap, char *source) {
   char *target = NULL;
-  if(source){
+  if (source) {
     Int32 length = str_len(source);
-    if(heap){
-	target = (char *)heap->allocateMemory(length+1);
+    if (heap) {
+      target = (char *)heap->allocateMemory(length + 1);
+    } else {
+      target = ::new char[length + 1];
     }
-    else {
-	target = ::new char[length+1];
-    }
-    str_cpy_all(target, source, length+1);
+    str_cpy_all(target, source, length + 1);
   }
   return target;
 }
 
 // return memory of the string to the heap
-static void deallocateCharStar(NAMemory *heap, char *text){
-  if(text){
-    if(heap){
+static void deallocateCharStar(NAMemory *heap, char *text) {
+  if (text) {
+    if (heap) {
       heap->deallocateMemory(text);
-    }
-    else{
-      ::delete [] text;
+    } else {
+      ::delete[] text;
     }
   }
 }
 
 // CtrlStmtComplexObject defintions
-CtrlStmtComplexObject::CtrlStmtComplexObject(NAMemory * heap, char * sqlText, Int16 sqlTextCharSet,
-						CtrlStmtComplexObject *ctrlObj) :
-  ctrlObj_(ctrlObj), ComplexObject(heap, CtrlStmtComplexObjectType) {
-  if(sqlText){
-    sqlText_ = dupCharStar(heap, sqlText); 
+CtrlStmtComplexObject::CtrlStmtComplexObject(NAMemory *heap, char *sqlText, Int16 sqlTextCharSet,
+                                             CtrlStmtComplexObject *ctrlObj)
+    : ctrlObj_(ctrlObj), ComplexObject(heap, CtrlStmtComplexObjectType) {
+  if (sqlText) {
+    sqlText_ = dupCharStar(heap, sqlText);
     sqlTextCharSet_ = sqlTextCharSet;
-  }
-  else
+  } else
     sqlTextCharSet_ = (Int16)SQLCHARSETCODE_UNKNOWN;
 }
-  
-CtrlStmtComplexObject::CtrlStmtComplexObject(char * sqlText, Int16 sqlTextCharSet,
-						CtrlStmtComplexObject *ctrlObj) :
-  ctrlObj_(ctrlObj), ComplexObject(NULL, CtrlStmtComplexObjectType) {
-  if(sqlText){
+
+CtrlStmtComplexObject::CtrlStmtComplexObject(char *sqlText, Int16 sqlTextCharSet, CtrlStmtComplexObject *ctrlObj)
+    : ctrlObj_(ctrlObj), ComplexObject(NULL, CtrlStmtComplexObjectType) {
+  if (sqlText) {
     sqlText_ = dupCharStar(NULL, sqlText);
     sqlTextCharSet_ = sqlTextCharSet;
-  }
-  else
+  } else
     sqlTextCharSet_ = (Int16)SQLCHARSETCODE_UNKNOWN;
 }
-    
-CtrlStmtComplexObject::CtrlStmtComplexObject(NAMemory *heap) :
-  sqlText_(NULL), sqlTextCharSet_((Int16)SQLCHARSETCODE_UNKNOWN), ctrlObj_(NULL),
-  ComplexObject(heap, CtrlStmtComplexObjectType) {}
-  
-CtrlStmtComplexObject::CtrlStmtComplexObject() :
-  sqlText_(NULL), sqlTextCharSet_((Int16)SQLCHARSETCODE_UNKNOWN), ctrlObj_(NULL),
-  ComplexObject(NULL, CtrlStmtComplexObjectType) {}
+
+CtrlStmtComplexObject::CtrlStmtComplexObject(NAMemory *heap)
+    : sqlText_(NULL),
+      sqlTextCharSet_((Int16)SQLCHARSETCODE_UNKNOWN),
+      ctrlObj_(NULL),
+      ComplexObject(heap, CtrlStmtComplexObjectType) {}
+
+CtrlStmtComplexObject::CtrlStmtComplexObject()
+    : sqlText_(NULL),
+      sqlTextCharSet_((Int16)SQLCHARSETCODE_UNKNOWN),
+      ctrlObj_(NULL),
+      ComplexObject(NULL, CtrlStmtComplexObjectType) {}
 
 CtrlStmtComplexObject::~CtrlStmtComplexObject() {
   NAMemory *heap = getHeap();
@@ -104,15 +103,14 @@ CtrlStmtComplexObject::~CtrlStmtComplexObject() {
 }
 
 void CtrlStmtComplexObject::freeSubObjects() {
-  if(ctrlObj_){
+  if (ctrlObj_) {
     ctrlObj_->freeSubObjects();
     delete ctrlObj_;
   }
 }
 
-void CtrlStmtComplexObject::sharedOperationSequence(MessageOperator *msgOp,
-						     InputContainer *input,
-						     OutputContainer *output){
+void CtrlStmtComplexObject::sharedOperationSequence(MessageOperator *msgOp, InputContainer *input,
+                                                    OutputContainer *output) {
   baseOperation(msgOp, input, output);
   msgOp->setInputOutputForNextOperation(input, output);
 
@@ -124,60 +122,63 @@ void CtrlStmtComplexObject::sharedOperationSequence(MessageOperator *msgOp,
   msgOp->execute(&ctrlObjWrap, input, output);
 }
 
-char * CtrlStmtComplexObject::getSqlText(){
-  return sqlText_;
-}
+char *CtrlStmtComplexObject::getSqlText() { return sqlText_; }
 
-Int16 CtrlStmtComplexObject::getSqlTextCharSet(){
-  return sqlTextCharSet_;
-}
+Int16 CtrlStmtComplexObject::getSqlTextCharSet() { return sqlTextCharSet_; }
 
-CtrlStmtComplexObject * CtrlStmtComplexObject::getCtrlStmt(){
-  return ctrlObj_;
-}
+CtrlStmtComplexObject *CtrlStmtComplexObject::getCtrlStmt() { return ctrlObj_; }
 
-void CtrlStmtComplexObject::dump(){
-  if(sqlText_)
-    cout << sqlText_ << endl;
-  if(ctrlObj_){
+void CtrlStmtComplexObject::dump() {
+  if (sqlText_) cout << sqlText_ << endl;
+  if (ctrlObj_) {
     ctrlObj_->dump();
   }
 }
 
 // TransAttr definitions
 
-TransAttrComplexObject::TransAttrComplexObject(NAMemory *heap, TransMode::AccessMode mode, 
-			   TransMode::IsolationLevel isoLv, Lng32 diagSize,
-			   TransMode::RollbackMode rollbackMode, Lng32 autoabortInterval ) :
-mode_(mode), isoLv_(isoLv), diagSize_(diagSize), 
-rollbackMode_(rollbackMode), autoabortInterval_(autoabortInterval),
-ComplexObject(heap, TransAttrComplexObjectType){}
+TransAttrComplexObject::TransAttrComplexObject(NAMemory *heap, TransMode::AccessMode mode,
+                                               TransMode::IsolationLevel isoLv, Lng32 diagSize,
+                                               TransMode::RollbackMode rollbackMode, Lng32 autoabortInterval)
+    : mode_(mode),
+      isoLv_(isoLv),
+      diagSize_(diagSize),
+      rollbackMode_(rollbackMode),
+      autoabortInterval_(autoabortInterval),
+      ComplexObject(heap, TransAttrComplexObjectType) {}
 
-TransAttrComplexObject::TransAttrComplexObject(TransMode::AccessMode mode, 
-			   TransMode::IsolationLevel isoLv, Lng32 diagSize,
-			   TransMode::RollbackMode rollbackMode, Lng32 autoabortInterval) :
-mode_(mode), isoLv_(isoLv), diagSize_(diagSize), 
-rollbackMode_(rollbackMode), autoabortInterval_(autoabortInterval),
-ComplexObject(NULL, TransAttrComplexObjectType){}
+TransAttrComplexObject::TransAttrComplexObject(TransMode::AccessMode mode, TransMode::IsolationLevel isoLv,
+                                               Lng32 diagSize, TransMode::RollbackMode rollbackMode,
+                                               Lng32 autoabortInterval)
+    : mode_(mode),
+      isoLv_(isoLv),
+      diagSize_(diagSize),
+      rollbackMode_(rollbackMode),
+      autoabortInterval_(autoabortInterval),
+      ComplexObject(NULL, TransAttrComplexObjectType) {}
 
-TransAttrComplexObject::TransAttrComplexObject(NAMemory *heap) :
-mode_(TransMode::AM_NOT_SPECIFIED_), isoLv_(TransMode::IL_NOT_SPECIFIED_), 
-diagSize_(-1), rollbackMode_(TransMode::ROLLBACK_MODE_NOT_SPECIFIED_), 
-autoabortInterval_(-1), ComplexObject(heap, TransAttrComplexObjectType){}
+TransAttrComplexObject::TransAttrComplexObject(NAMemory *heap)
+    : mode_(TransMode::AM_NOT_SPECIFIED_),
+      isoLv_(TransMode::IL_NOT_SPECIFIED_),
+      diagSize_(-1),
+      rollbackMode_(TransMode::ROLLBACK_MODE_NOT_SPECIFIED_),
+      autoabortInterval_(-1),
+      ComplexObject(heap, TransAttrComplexObjectType) {}
 
-TransAttrComplexObject::TransAttrComplexObject() :
-mode_(TransMode::AM_NOT_SPECIFIED_), isoLv_(TransMode::IL_NOT_SPECIFIED_), 
-diagSize_(-1), rollbackMode_(TransMode::ROLLBACK_MODE_NOT_SPECIFIED_), 
-autoabortInterval_(-1), ComplexObject(NULL, TransAttrComplexObjectType){}
+TransAttrComplexObject::TransAttrComplexObject()
+    : mode_(TransMode::AM_NOT_SPECIFIED_),
+      isoLv_(TransMode::IL_NOT_SPECIFIED_),
+      diagSize_(-1),
+      rollbackMode_(TransMode::ROLLBACK_MODE_NOT_SPECIFIED_),
+      autoabortInterval_(-1),
+      ComplexObject(NULL, TransAttrComplexObjectType) {}
 
 TransAttrComplexObject::~TransAttrComplexObject() {}
 
 void TransAttrComplexObject::freeSubObjects() {}
 
-void TransAttrComplexObject::sharedOperationSequence(MessageOperator *msgOp,
-								InputContainer *input,
-								OutputContainer *output){
-  
+void TransAttrComplexObject::sharedOperationSequence(MessageOperator *msgOp, InputContainer *input,
+                                                     OutputContainer *output) {
   baseOperation(msgOp, input, output);
   msgOp->setInputOutputForNextOperation(input, output);
 
@@ -213,50 +214,45 @@ Lng32 TransAttrComplexObject::getAutoabortInterval() { return autoabortInterval_
 
 void TransAttrComplexObject::setAccessMode(TransMode::AccessMode mode) { mode_ = mode; }
 
-void TransAttrComplexObject::setRollbackMode(TransMode::RollbackMode rollbackMode) 
-					{ rollbackMode_ = rollbackMode; }
+void TransAttrComplexObject::setRollbackMode(TransMode::RollbackMode rollbackMode) { rollbackMode_ = rollbackMode; }
 
-void TransAttrComplexObject::setIsolationLevel(TransMode::IsolationLevel isoLv) {
-  isoLv_ = isoLv; 
-}
+void TransAttrComplexObject::setIsolationLevel(TransMode::IsolationLevel isoLv) { isoLv_ = isoLv; }
 
 void TransAttrComplexObject::setDiagSize(Lng32 diagSize) { diagSize_ = diagSize; }
 
-void TransAttrComplexObject::setAutoabortInterval(Lng32 autoabortInterval) 
-		  { autoabortInterval_ = autoabortInterval; }
+void TransAttrComplexObject::setAutoabortInterval(Lng32 autoabortInterval) { autoabortInterval_ = autoabortInterval; }
 
-void TransAttrComplexObject::dump(){
+void TransAttrComplexObject::dump() {
   cout << "TRANSACTION ";
-  const char * strOfIsoLv = getStrOfIsolationLevel(isoLv_);
-  if(strOfIsoLv){
+  const char *strOfIsoLv = getStrOfIsolationLevel(isoLv_);
+  if (strOfIsoLv) {
     cout << "ISOLATION LEVEL " << strOfIsoLv << " ";
   }
-  const char * strOfMode = getStrOfAccessMode(mode_);
-  if(strOfMode){
+  const char *strOfMode = getStrOfAccessMode(mode_);
+  if (strOfMode) {
     cout << strOfMode << " ";
   }
-  const char * strOfRbMode = getStrOfRollbackMode(rollbackMode_);
-  if(strOfRbMode){
+  const char *strOfRbMode = getStrOfRollbackMode(rollbackMode_);
+  if (strOfRbMode) {
     cout << strOfRbMode << " ";
   }
-  if(diagSize_ > 0){
+  if (diagSize_ > 0) {
     cout << "Diagnostic Size" << diagSize_;
   }
-  if(autoabortInterval_ !=  -1){
+  if (autoabortInterval_ != -1) {
     cout << "Autoabort Interval" << autoabortInterval_;
   }
 }
 
-ComplexObject * CliComplexObjectFactory::manufacture(NAMemory *heap, 
-								     ComplexObjectType objType){
-  switch(objType){
-  case CtrlStmtComplexObjectType:
-    return new (heap) CtrlStmtComplexObject(heap);
-    break;
-  case TransAttrComplexObjectType:
-    return new (heap) TransAttrComplexObject(heap);
-    break;
-  default:
-    return NULL;
+ComplexObject *CliComplexObjectFactory::manufacture(NAMemory *heap, ComplexObjectType objType) {
+  switch (objType) {
+    case CtrlStmtComplexObjectType:
+      return new (heap) CtrlStmtComplexObject(heap);
+      break;
+    case TransAttrComplexObjectType:
+      return new (heap) TransAttrComplexObject(heap);
+      break;
+    default:
+      return NULL;
   }
-}   
+}

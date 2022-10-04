@@ -29,7 +29,7 @@
 * Description:  class forUDR SQL Access (parse node) elements in
 *               DDL statements
 *
-*               
+*
 * Created:      10/08/1999
 * Language:     C++
 *
@@ -42,11 +42,8 @@
 #include "common/ComSmallDefs.h"
 #include "ElemDDLNode.h"
 
-class ElemDDLUdrSqlAccess : public ElemDDLNode
-{
-
-public:
-
+class ElemDDLUdrSqlAccess : public ElemDDLNode {
+ public:
   // default constructor
   ElemDDLUdrSqlAccess(ComRoutineSQLAccess theSqlAccess);
 
@@ -54,25 +51,21 @@ public:
   virtual ~ElemDDLUdrSqlAccess(void);
 
   // cast
-  virtual ElemDDLUdrSqlAccess * castToElemDDLUdrSqlAccess(void);
+  virtual ElemDDLUdrSqlAccess *castToElemDDLUdrSqlAccess(void);
 
   // accessor
-  inline const ComRoutineSQLAccess getSqlAccess(void) const
-  {
-    return sqlAccess_;
-  }
+  inline const ComRoutineSQLAccess getSqlAccess(void) const { return sqlAccess_; }
 
   //
   // methods for tracing
   //
-  
+
   virtual NATraceList getDetailInfo() const;
   virtual const NAString getText() const;
 
-private:
-
+ private:
   ComRoutineSQLAccess sqlAccess_;
 
-}; // class ElemDDLUdrSqlAccess
+};  // class ElemDDLUdrSqlAccess
 
 #endif /* ELEMDDLUDRSQLACCESS_H */

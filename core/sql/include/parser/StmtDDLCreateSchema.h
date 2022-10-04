@@ -39,7 +39,6 @@
  *****************************************************************************
  */
 
-
 #include "ElemDDLSchemaName.h"
 #include "StmtDDLNode.h"
 
@@ -53,47 +52,39 @@ class StmtDDLCreateSchema;
 // -----------------------------------------------------------------------
 // None.
 
-
 // -----------------------------------------------------------------------
 // Create Schema statement
 // -----------------------------------------------------------------------
-class StmtDDLCreateSchema : public StmtDDLNode
-{
-public:
-
+class StmtDDLCreateSchema : public StmtDDLNode {
+ public:
   // initialize constructor
-  StmtDDLCreateSchema(const ElemDDLSchemaName & aSchemaName,
-                      ComSchemaClass schemaClass,
-                      CharType* pCharType,
-                      NAString *namespace1 = NULL,
-                      NAString *encrypt = NULL,
-                      NABoolean storedDesc = FALSE,
-                      NABoolean incrBackupEnabled = FALSE,
-                      CollHeap    * heap = PARSERHEAP());
+  StmtDDLCreateSchema(const ElemDDLSchemaName &aSchemaName, ComSchemaClass schemaClass, CharType *pCharType,
+                      NAString *namespace1 = NULL, NAString *encrypt = NULL, NABoolean storedDesc = FALSE,
+                      NABoolean incrBackupEnabled = FALSE, CollHeap *heap = PARSERHEAP());
 
   // virtual destructor
   virtual ~StmtDDLCreateSchema();
 
   // cast
-  virtual StmtDDLCreateSchema * castToStmtDDLCreateSchema();
+  virtual StmtDDLCreateSchema *castToStmtDDLCreateSchema();
 
   //
   // accessors
   //
 
-  inline const NAString & getAuthorizationID() const;
+  inline const NAString &getAuthorizationID() const;
   inline ComSchemaClass getSchemaClass() const;
 
-  inline const NAString & getSchemaName() const;
-  inline const SchemaName & getSchemaNameAsQualifiedName() const;
-  inline       SchemaName & getSchemaNameAsQualifiedName();
+  inline const NAString &getSchemaName() const;
+  inline const SchemaName &getSchemaNameAsQualifiedName() const;
+  inline SchemaName &getSchemaNameAsQualifiedName();
 
   NABoolean createIfNotExists() { return createIfNotExists_; }
   void setCreateIfNotExists(NABoolean v) { createIfNotExists_ = v; }
 
   NAString *getNamespace() const { return namespace_; }
 
-  NABoolean useEncryption() const { return useEncryption_;}
+  NABoolean useEncryption() const { return useEncryption_; }
   NAString encryptionOptions() const { return encryptionOptions_; }
   NABoolean encryptRowid() const { return encryptRowid_; }
   NABoolean encryptData() const { return encryptData_; }
@@ -107,7 +98,7 @@ public:
   //
 
   // method for processing
-  ExprNode * bindNode(BindWA *bindWAPtr);
+  ExprNode *bindNode(BindWA *bindWAPtr);
 
   // method for collecting information
   void synthesize();
@@ -117,10 +108,9 @@ public:
   virtual const NAString displayLabel2() const;
   virtual const NAString getText() const;
 
-  const CharType* getCharType() const;
+  const CharType *getCharType() const;
 
-private:
-
+ private:
   // ---------------------------------------------------------------------
   // private methods
   // ---------------------------------------------------------------------
@@ -128,15 +118,15 @@ private:
   //
   // please do not use the following methods
   //
-  
-  StmtDDLCreateSchema();                                         // DO NOT USE
-  StmtDDLCreateSchema(const StmtDDLCreateSchema &);              // DO NOT USE
-  StmtDDLCreateSchema & operator=(const StmtDDLCreateSchema &);  // DO NOT USE
+
+  StmtDDLCreateSchema();                                        // DO NOT USE
+  StmtDDLCreateSchema(const StmtDDLCreateSchema &);             // DO NOT USE
+  StmtDDLCreateSchema &operator=(const StmtDDLCreateSchema &);  // DO NOT USE
 
   // ---------------------------------------------------------------------
   // private data members
   // ---------------------------------------------------------------------
-  
+
   NAString schemaName_;
   NAString authorizationID_;
   SchemaName schemaQualName_;
@@ -155,7 +145,7 @@ private:
 
   // if TRUE, then all tables within this schema have incremental backup enabled
   NABoolean incrBackupEnabled_;
-}; // class StmtDDLCreateSchema
+};  // class StmtDDLCreateSchema
 
 // -----------------------------------------------------------------------
 // definitions of inline methods for class StmtDDLCreateSchema
@@ -164,40 +154,16 @@ private:
 //
 // accessors
 //
-inline SchemaName &
-StmtDDLCreateSchema::getSchemaNameAsQualifiedName() 
-{
-  return schemaQualName_;
-}
+inline SchemaName &StmtDDLCreateSchema::getSchemaNameAsQualifiedName() { return schemaQualName_; }
 
-inline const SchemaName &
-StmtDDLCreateSchema::getSchemaNameAsQualifiedName() const
-{
-  return schemaQualName_;
-}
+inline const SchemaName &StmtDDLCreateSchema::getSchemaNameAsQualifiedName() const { return schemaQualName_; }
 
-inline const NAString &
-StmtDDLCreateSchema::getAuthorizationID() const
-{
-  return authorizationID_;
-}
+inline const NAString &StmtDDLCreateSchema::getAuthorizationID() const { return authorizationID_; }
 
-inline ComSchemaClass
-StmtDDLCreateSchema::getSchemaClass() const
-{
-  return schemaClass_;
-}
+inline ComSchemaClass StmtDDLCreateSchema::getSchemaClass() const { return schemaClass_; }
 
-inline const NAString &
-StmtDDLCreateSchema::getSchemaName() const
-{
-  return schemaName_;
-}
+inline const NAString &StmtDDLCreateSchema::getSchemaName() const { return schemaName_; }
 
-inline const CharType*
-StmtDDLCreateSchema::getCharType() const
-{
-  return pCharType_;
-}
+inline const CharType *StmtDDLCreateSchema::getCharType() const { return pCharType_; }
 
-#endif // STMTDDLCREATESCHEMA_H
+#endif  // STMTDDLCREATESCHEMA_H

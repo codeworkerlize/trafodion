@@ -26,13 +26,13 @@
 *
 * File:         RuSQLStatementContainer.cpp
 * Description:  Implementation of class CRUSQLStatementContainer
-*				
+*
 *
 * Created:      09/08/2000
 * Language:     C++
-* 
 *
-* 
+*
+*
 ******************************************************************************
 */
 
@@ -42,74 +42,60 @@
 #include "RuException.h"
 #include "uofsIpcMessageTranslator.h"
 
-
-
 //--------------------------------------------------------------------------//
 //	CRUSQLStatementContainer::StoreData()
 //--------------------------------------------------------------------------//
-void CRUSQLStatementContainer::
-StoreData(CUOFsIpcMessageTranslator &translator)
-{
-	short size = GetNumOfStmt();
-	
-	translator.WriteBlock(&size,sizeof(short));
-	
-	for (Int32 i=0;i<GetNumOfStmt();i++)
-	{
-		GetStmt(i).StoreData(translator);
-	}
+void CRUSQLStatementContainer::StoreData(CUOFsIpcMessageTranslator &translator) {
+  short size = GetNumOfStmt();
+
+  translator.WriteBlock(&size, sizeof(short));
+
+  for (Int32 i = 0; i < GetNumOfStmt(); i++) {
+    GetStmt(i).StoreData(translator);
+  }
 }
 
 //--------------------------------------------------------------------------//
 //	CRUSQLStatementContainer::LoadData()
 //--------------------------------------------------------------------------//
-void CRUSQLStatementContainer::
-	LoadData(CUOFsIpcMessageTranslator &translator)
-{
-	short size;
-	
-	translator.ReadBlock(&size,sizeof(short));
-	
-	RUASSERT(size <= GetNumOfStmt());
+void CRUSQLStatementContainer::LoadData(CUOFsIpcMessageTranslator &translator) {
+  short size;
 
-	for (Int32 i=0;i<GetNumOfStmt();i++)
-	{
-		GetStmt(i).LoadData(translator);
-	}
+  translator.ReadBlock(&size, sizeof(short));
+
+  RUASSERT(size <= GetNumOfStmt());
+
+  for (Int32 i = 0; i < GetNumOfStmt(); i++) {
+    GetStmt(i).LoadData(translator);
+  }
 }
 
 //--------------------------------------------------------------------------//
 //	CRUSQLStatementContainer::Stmt::StoreData()
 //--------------------------------------------------------------------------//
-void CRUSQLStatementContainer::Stmt::
-StoreData(CUOFsIpcMessageTranslator &translator)
-{
-	translator.WriteBlock(&executionCounter_,sizeof(Lng32));
+void CRUSQLStatementContainer::Stmt::StoreData(CUOFsIpcMessageTranslator &translator) {
+  translator.WriteBlock(&executionCounter_, sizeof(Lng32));
 }
 
 //--------------------------------------------------------------------------//
 //	CRUSQLStatementContainer::Stmt::LoadData()
 //--------------------------------------------------------------------------//
-void CRUSQLStatementContainer::Stmt::
-	LoadData(CUOFsIpcMessageTranslator &translator)
-{
-	translator.ReadBlock(&executionCounter_,sizeof(Lng32));
+void CRUSQLStatementContainer::Stmt::LoadData(CUOFsIpcMessageTranslator &translator) {
+  translator.ReadBlock(&executionCounter_, sizeof(Lng32));
 }
 
 //--------------------------------------------------------------------------//
 //	CRUSQLStatementContainer::Stmt::ExecuteQuery()
 //--------------------------------------------------------------------------//
-Lng32 CRUSQLStatementContainer::Stmt::ExecuteUpdate()
-{
-	executionCounter_++;
-	return GetPreparedStatement()->ExecuteUpdate();
+Lng32 CRUSQLStatementContainer::Stmt::ExecuteUpdate() {
+  executionCounter_++;
+  return GetPreparedStatement()->ExecuteUpdate();
 }
 
 //--------------------------------------------------------------------------//
 //	CRUSQLStatementContainer::Stmt::ExecuteQuery()
 //--------------------------------------------------------------------------//
-CDMResultSet *CRUSQLStatementContainer::Stmt::ExecuteQuery()
-{
-	executionCounter_++;
-	return GetPreparedStatement()->ExecuteQuery();
+CDMResultSet *CRUSQLStatementContainer::Stmt::ExecuteQuery() {
+  executionCounter_++;
+  return GetPreparedStatement()->ExecuteQuery();
 }

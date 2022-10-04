@@ -27,9 +27,9 @@
 #include "common/NAWinNT.h"
 
 struct _scanfbuf {
-        NAWchar *_ptr;
-        UInt32   _cnt;
-        };
+  NAWchar *_ptr;
+  UInt32 _cnt;
+};
 
 typedef struct _scanfbuf SCANBUF;
 
@@ -39,23 +39,22 @@ typedef struct _scanfbuf SCANBUF;
 Int32 na_swscanf(const NAWchar *str, NAWchar const *fmt, ...);
 
 struct _sprintf_buf {
-        NAWchar *_ptr;
-         Int32   _cnt;
-        };
+  NAWchar *_ptr;
+  Int32 _cnt;
+};
 
 typedef struct _sprintf_buf SPRINTF_BUF;
 
 #define _w _cnt
 
-Int32
-na_wsprintf(NAWchar *str, NAWchar const *fmt, ...);
+Int32 na_wsprintf(NAWchar *str, NAWchar const *fmt, ...);
 
-#if (defined(NA_C89) || defined(NA_WINNT)) 
-typedef UInt64  u_quad_t;
+#if (defined(NA_C89) || defined(NA_WINNT))
+typedef UInt64 u_quad_t;
 typedef Int64 quad_t;
 #endif
 
 typedef unsigned short u_short;
-typedef UInt32   u_int;
+typedef UInt32 u_int;
 
 #endif

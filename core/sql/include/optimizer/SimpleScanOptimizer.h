@@ -43,23 +43,20 @@
 // 1.- Builds a key for the access method
 // 2.- Computes the cost for the access method
 // -----------------------------------------------------------------------
-class SimpleFileScanOptimizer : public ScanOptimizer
-{
+class SimpleFileScanOptimizer : public ScanOptimizer {
   friend class MDAMCostWA;
   friend class MDAMOptimalDisjunctPrefixWA;
   friend class MdamTrace;
-public:
 
+ public:
   // Constructor
   //
-  SimpleFileScanOptimizer(const FileScan& assocFileScan
-                          ,const CostScalar& resultSetCardinality
-                          ,const Context& myContext
-                          ,const ValueIdSet &externalInputs);
+  SimpleFileScanOptimizer(const FileScan &assocFileScan, const CostScalar &resultSetCardinality,
+                          const Context &myContext, const ValueIdSet &externalInputs);
 
   // Copy constructor, never called, not implemented!
   //
-  SimpleFileScanOptimizer(const SimpleFileScanOptimizer &sfso, CollHeap *h=0); 
+  SimpleFileScanOptimizer(const SimpleFileScanOptimizer &sfso, CollHeap *h = 0);
 
   // Destructor
   //
@@ -71,9 +68,10 @@ public:
   // 2.- Computes and returns the cost of the access method.
   // 3.- Computes the number of blocks to read per access.
   // -----------------------------------------------------------------------
-  virtual Cost * optimize(SearchKey*& searchKeyPtr   // out
-			  ,MdamKey*&  mdamKeyPtr     // out
-			  );
+  virtual Cost *optimize(SearchKey *&searchKeyPtr  // out
+                         ,
+                         MdamKey *&mdamKeyPtr  // out
+  );
 
   // Compute the Cost for this single subset Scan using the simple costing model.
   // OUTPUTS:
@@ -84,29 +82,26 @@ public:
   // FileScan node and passed to DP2 by the executor, DP2 uses it to
   // decide whether it will do read ahead or not.
   //
-  Cost* scmComputeCostForSingleSubset();
-
+  Cost *scmComputeCostForSingleSubset();
 
   // decide whether in a debug mode for ORC costing
-  static NABoolean decideDebugModeForORCCosting(const IndexDesc*);
+  static NABoolean decideDebugModeForORCCosting(const IndexDesc *);
 
   // decide whether in a debug mode for Parquet costing
-  static NABoolean decideDebugModeForParquetCosting(const IndexDesc*);
+  static NABoolean decideDebugModeForParquetCosting(const IndexDesc *);
 
   // Return the cached value for single subset size
   // The size of the single subset scanned by this Scan node.
   // Computed and cached by computeSingleSubsetSize()
   //
-  inline const CostScalar &getSingleSubsetSize() const
-                                                  { return singleSubsetSize_; }
+  inline const CostScalar &getSingleSubsetSize() const { return singleSubsetSize_; }
 
-private:
-
+ private:
   // Construct the Search Key (MDAM or Single Subset)
   // (for now just the Single subset is considered)
   // Return pointer to search key and cache in local datamember.
   //
-  SearchKey * constructSearchKey();
+  SearchKey *constructSearchKey();
 
   // Return the cached pointer to the single subset search key.
   // The value was cached in constructSearchKey()
@@ -115,13 +110,9 @@ private:
 
   // Returns True if probes are in Full order otherwise False.
   // Sets a partialy order flag if probes are partially ordered.
-  NABoolean
-  ordersMatch(const InputPhysicalProperty* ipp,
-            const IndexDesc* indexDesc,
-            const ValueIdList* innerOrder,
-            const ValueIdSet& charInputs,
-            NABoolean partiallyInOrderOK,
-            NABoolean& probesForceSynchronousAccess) ;
+  NABoolean ordersMatch(const InputPhysicalProperty *ipp, const IndexDesc *indexDesc, const ValueIdList *innerOrder,
+                        const ValueIdSet &charInputs, NABoolean partiallyInOrderOK,
+                        NABoolean &probesForceSynchronousAccess);
 
   // Compute the size (in rows) of the single subset scanned by this
   // scan node.  Cache the size in a local data member and also cache the
@@ -130,11 +121,10 @@ private:
   void computeSingleSubsetSize();
 
   // Return the cached set of single subset predicates.
-  // The key predicates which define the single subset. 
+  // The key predicates which define the single subset.
   // Computed and cached by computeSingleSubsetSize()
   //
-  inline const ValueIdSet &getSingleSubsetPreds() const
-                                                 { return singleSubsetPreds_; }
+  inline const ValueIdSet &getSingleSubsetPreds() const { return singleSubsetPreds_; }
   // Does the partitioning function associated with this scan
   // represent logical sub-partitioning.
   // (If so, we must consider the extra predicates from the
@@ -147,12 +137,12 @@ private:
 
   // is the leading hive sort key column covered by the single subset predicate?
   NABoolean isLeadingHiveSortKeyColCovered();
-  
+
   // Get any extra key predicates from the partitioning function.  The
   // partitioning function will provide extra key predicates when it
   // represents logical sub-partitioning.
   //
-  const ValueIdSet& getPartitioningKeyPredicates() const;
+  const ValueIdSet &getPartitioningKeyPredicates() const;
 
   // Estimate the number of blocks that DP2 needs to read per access
   // for this Scan. This value is captured by the FileScan Node and
@@ -160,8 +150,8 @@ private:
   // will do read ahead or not.
   //
   // Side-Affects - sets the numberOfBlocksToReadPerAccess_ data member
-  // of ScanOptimizer.  
-  // 
+  // of ScanOptimizer.
+  //
   void computeNumberOfBlocksToReadPerAccess(FileScanBasicCost *basicCostPtr);
 
   // Compute the Cost for this single subset Scan.
@@ -179,7 +169,7 @@ private:
   // FileScan node and passed to DP2 by the executor, DP2 uses it to
   // decide whether it will do read ahead or not.
   //
-  Cost * computeCostForSingleSubset();
+  Cost *computeCostForSingleSubset();
 
   // Determine if a shareable BasicCost object is available and usable.
   //
@@ -191,10 +181,10 @@ private:
   // If a shared basic cost object is not available, create a new one
   // and return it as a nonshared basic cost object.
   //
-  // OUTPUTS: 
-  // Return - NABoolean 
+  // OUTPUTS:
+  // Return - NABoolean
   //     - TRUE if a usable shared BasicCost object was available.
-  //     - FALSE if a nonusable or new BasicCost object. 
+  //     - FALSE if a nonusable or new BasicCost object.
   // *&basicCostPtr - set to the BasicCost object (shared or new)
   //
   NABoolean getSharedCostObject(FileScanBasicCost *&basicCostPtr);
@@ -219,7 +209,7 @@ private:
 
   // Estimate the amount (in KBytes) of data read per scan (partition).
   // Include the index blocks which must be read.
-  // 
+  //
   // Need to read to every index level except the root (always in cache?)
   //
   // Even if there are no rows expected in the result set, the index
@@ -232,7 +222,7 @@ private:
   // a partition (this include index and data blocks)
   //
   CostScalar estimateSeqKBReadPerScan() const;
-  
+
   // Computes the cost vectors (First and Last Row) for this scan.
   // Computes:
   //    - KBytes
@@ -256,18 +246,15 @@ private:
   // OUTPUTS: lastRow SimpleCostVectors of the BasicCost
   // object are populated.
   //
-  Cost* scmComputeCostVectors();
-  Cost* scmComputeCostVectorsMultiProbes(); 
-  Cost* scmComputeCostVectorsForHbase();
-  Cost* scmComputeCostVectorsMultiProbesForHbase();
-
-
-
+  Cost *scmComputeCostVectors();
+  Cost *scmComputeCostVectorsMultiProbes();
+  Cost *scmComputeCostVectorsForHbase();
+  Cost *scmComputeCostVectorsMultiProbesForHbase();
 
   // Compute the sequential KBytes accessed to produce the first and
-  // last rows. 
+  // last rows.
   //
-  // OUTPUTS: 
+  // OUTPUTS:
   // seqKBFR - The number of KBytes to be accessed to produce the first row.
   // seqKBLR - The number of KBytes to be accessed to produce the last row.
   //
@@ -276,7 +263,7 @@ private:
   // Estimate CPU Instructions (includes Per Request, Per Row and Per KB
   // number of CPU Instructions) for First and Last row accessed.
   //
-  // Inputs: 
+  // Inputs:
   //
   //    seeksPerScan - The number of seeks to be performed by this Scan
   //    (single partition).
@@ -297,16 +284,11 @@ private:
   // cpuInstructionsFR - Number of CPU instructions to access the First row.
   // cpuInstructionsLR - Number of CPU instructions to access the Last row.
   //
-  void 
-  estimateCPUInstructions(const CostScalar &seeksPerScan,
-                          const CostScalar &rowsPerScanFR,
-                          const CostScalar &rowsPerScanLR,
-                          const CostScalar &selectedrowsPerScanFR,
-                          const CostScalar &selectedrowsPerScanLR,
-                          const CostScalar &seqKBFR,
-                          const CostScalar &seqKBLR,
-                          CostScalar &cpuInstructionsFR,
-                          CostScalar &cpuInstructionsLR) const;
+  void estimateCPUInstructions(const CostScalar &seeksPerScan, const CostScalar &rowsPerScanFR,
+                               const CostScalar &rowsPerScanLR, const CostScalar &selectedrowsPerScanFR,
+                               const CostScalar &selectedrowsPerScanLR, const CostScalar &seqKBFR,
+                               const CostScalar &seqKBLR, CostScalar &cpuInstructionsFR,
+                               CostScalar &cpuInstructionsLR) const;
 
   // Estimate the number of CPU instructions used for each request.
   // This includes performing a binary search of each index block,
@@ -378,7 +360,7 @@ private:
   // Return the cached value of the recordSizeinKB for this Scan.  Value
   // was initialized from the IndexDesc of the associated FileScan.
   //
-  inline const CostScalar &getRecordSizeInKb() const { return recordSizeInKb_;}
+  inline const CostScalar &getRecordSizeInKb() const { return recordSizeInKb_; }
 
   // Return the cached value of the blockSizeinKB for this Scan.  Value
   // was initialized from the IndexDesc of the associated FileScan.
@@ -399,8 +381,7 @@ private:
   // Scan.  Value was initialized from the IndexDesc of the associated
   // FileScan.
   //
-  inline const CostScalar &getEstimatedRecordsPerBlock() const
-                                         { return estimatedRecordsPerBlock_; }
+  inline const CostScalar &getEstimatedRecordsPerBlock() const { return estimatedRecordsPerBlock_; }
 
   // Addtional methods for Multiprobe scans
   //
@@ -422,7 +403,7 @@ private:
 
   // Estimate the amount (in KBytes) of data read per scan (partition).
   // Include the index blocks which must be read.
-  // 
+  //
   // Consider these cases:
   //   Full Cache Benefit - Duplicate probes always get a cache hit.
   //   No Cache Benefit   - Duplicate probes never get a cache hit.
@@ -474,8 +455,7 @@ private:
   //
   // Return Value: void - Computed values are cached in data members.
   //
-  void categorizeMultiProbes(NABoolean *isAnIndexJoin=NULL);
-
+  void categorizeMultiProbes(NABoolean *isAnIndexJoin = NULL);
 
   // -----------------------------------------------------------------------
   // This is taken from ScanOptimizer.h
@@ -492,23 +472,21 @@ private:
   //              we don't attempt MDAM in an index join). This is
   //              not a correctness issue, it is an efficiency issue.
   // -----------------------------------------------------------------------
-  void
-  categorizeProbes(CostScalar& successfulProbes /* out */
-		   ,CostScalar& uniqueSuccProbes /* out */
-		   ,CostScalar& duplicateSuccProbes /* out */
-		   ,CostScalar& failedProbes /* out */
-		   ,CostScalar& uniqueFailedProbes           
-		   ,const CostScalar& probes
-		   ,const ValueIdSet& preds
-		   ,const Histograms& outerHistograms
-                   ,const NABoolean isMDAM
-                   ,CostScalar * dataRows = NULL
-	           ,NABoolean * isAnIndexJoin=NULL
-		   ) const;
+  void categorizeProbes(CostScalar &successfulProbes /* out */
+                        ,
+                        CostScalar &uniqueSuccProbes /* out */
+                        ,
+                        CostScalar &duplicateSuccProbes /* out */
+                        ,
+                        CostScalar &failedProbes /* out */
+                        ,
+                        CostScalar &uniqueFailedProbes, const CostScalar &probes, const ValueIdSet &preds,
+                        const Histograms &outerHistograms, const NABoolean isMDAM, CostScalar *dataRows = NULL,
+                        NABoolean *isAnIndexJoin = NULL) const;
 
-  // Estimate the number of different index blocks visited for 
+  // Estimate the number of different index blocks visited for
   // MultiProbe Scan. This method will use the number of unique probes
-  // and total key length of index columns instead of universal "rule 
+  // and total key length of index columns instead of universal "rule
   // of thumb" from IndexDesc::getEstimatedIndexBlocksLowerBound()
   void estimateIndexBlockUsageMultiProbeScan();
 
@@ -521,13 +499,12 @@ private:
   //
   // Returns: The estimated real and effective row count.
   //
-  void estimateEffTotalRowCount(CostScalar &realRowCount,
-                                CostScalar &effRowCount) const;
+  void estimateEffTotalRowCount(CostScalar &realRowCount, CostScalar &effRowCount) const;
 
   // Compute the sequential KBytes accessed to produce the first and
-  // last rows. 
+  // last rows.
   //
-  // OUTPUTS: 
+  // OUTPUTS:
   // seqKBFR - The number of KBytes to be accessed to produce the first row.
   // seqKBLR - The number of KBytes to be accessed to produce the last row.
   //
@@ -536,7 +513,7 @@ private:
   // Estimate CPU Instructions (includes Per Request, Per Row and Per KB
   // number of CPU Instructions) for First and Last row accessed.
   //
-  // Inputs: 
+  // Inputs:
   //
   //    seeksPerScan - The number of seeks to be performed by this Scan
   //    (single partition).
@@ -557,21 +534,16 @@ private:
   // cpuInstructionsFR - Number of CPU instructions to access the First row.
   // cpuInstructionsLR - Number of CPU instructions to access the Last row.
   //
-  void estimateCPUInstructionsMultiProbe(
-                  const CostScalar &seeksPerScan,
-                  const CostScalar &rowsPerScanFR,
-                  const CostScalar &rowsPerScanLR,
-                  const CostScalar &selectedRowsPerScanFR,
-                  const CostScalar &selectedRowsPerScanLR,
-                  const CostScalar &seqKBFR,
-                  const CostScalar &seqKBLR,
-                  CostScalar &cpuInstructionsFR,
-                  CostScalar &cpuInstructionsLR) const;
+  void estimateCPUInstructionsMultiProbe(const CostScalar &seeksPerScan, const CostScalar &rowsPerScanFR,
+                                         const CostScalar &rowsPerScanLR, const CostScalar &selectedRowsPerScanFR,
+                                         const CostScalar &selectedRowsPerScanLR, const CostScalar &seqKBFR,
+                                         const CostScalar &seqKBLR, CostScalar &cpuInstructionsFR,
+                                         CostScalar &cpuInstructionsLR) const;
 
   CostScalar getProbeCacheCostAdjFactor() const;
-  NABoolean  isProbeCacheApplicable() const;
+  NABoolean isProbeCacheApplicable() const;
 
-private:
+ private:
   // Private Data members -
   // Cache these values from IndexDesc in this class.
   //
@@ -589,16 +561,15 @@ private:
   //
   ValueIdSet singleSubsetPreds_;
 
-  // Will be constructed during constructSearchKey() 
+  // Will be constructed during constructSearchKey()
   // This search key is not owned by this object and will therefore
   // not be destroyed when the destructor of this object is called.
   // This search key will be returned to the caller
   //
   SearchKey *searchKey_;
 
-  
-  // 
-  // Is the leading non-constant, non-salt, or non-divisioning key 
+  //
+  // Is the leading non-constant, non-salt, or non-divisioning key
   // column covered by the single subset predicate?
   NABoolean isLeadingKeyColCovered(const ValueIdList *Keys);
 
@@ -606,15 +577,15 @@ private:
   // For Multiprobe scans
   //
 
-  inline const CostScalar getFailedProbes() const     { return failedProbes_; }
+  inline const CostScalar getFailedProbes() const { return failedProbes_; }
 
   // Return the cached value of number of data rows.  This is the
   // number of rows produced by all successful probes.
   // The value was cached in categorizeMultiProbes().
-  // 
+  //
   // For MultiProbe Scans
   //
-  inline const CostScalar &getDataRows() const            { return dataRows_; }
+  inline const CostScalar &getDataRows() const { return dataRows_; }
 
   // Return the cached value of effective total row count.  This is the
   // size of the bounding subset of all probes.  Typically this will be
@@ -625,8 +596,7 @@ private:
   //
   //  For MultiProbe Scans
   //
-  inline const CostScalar &getEffectiveTotalRowCount() const
-                                            { return effectiveTotalRowCount_; }
+  inline const CostScalar &getEffectiveTotalRowCount() const { return effectiveTotalRowCount_; }
 
   // Return the cached value of real total row count.
   // The value was cached in computeCostVectorsMultiProbes().
@@ -643,35 +613,32 @@ private:
   //
   //  For MultiProbe Scans
   //
-  inline const CostScalar &getIndexBlocksLowerBound() const
-                                            { return indexBlocksLowerBound_; }
+  inline const CostScalar &getIndexBlocksLowerBound() const { return indexBlocksLowerBound_; }
 
   // Return the cached value of number of blocks for each successful
   // probe.  This is the estimated number of blocks produced by each
   // successful probe on average.
   // The value was cached in categorizeMultiProbes().
-  // 
+  //
   // For MultiProbe Scans
   //
-  inline const CostScalar &getBlksPerSuccProbe() const
-                                                 { return blksPerSuccProbe_; }
+  inline const CostScalar &getBlksPerSuccProbe() const { return blksPerSuccProbe_; }
 
   // Return the value of partialy order probes flag.
   // The value was cached in orderMatch().
-  inline const NABoolean  getPartialOrderProbesFlag() const
-                                               { return partialOrderProbes_; }
+  inline const NABoolean getPartialOrderProbesFlag() const { return partialOrderProbes_; }
 
   // This is the number of probes (probes_) that do not result in
   // data.  failedProbes = probes - successfulProbes.  The value is
   // cached in categorizeMultiProbes().
-  // 
+  //
   // For MultiProbe Scans
   //
   CostScalar failedProbes_;
 
   // This is the number of rows produced by all successful probes.
   // The value is cached in categorizeMultiProbes().
-  // 
+  //
   // For MultiProbe Scans
   //
   CostScalar dataRows_;
@@ -705,7 +672,7 @@ private:
   // This is the estimated number of blocks produced by each
   // successful probe on average.  The value is cached in
   // categorizeMultiProbes().
-  // 
+  //
   // For MultiProbe Scans
   //
   CostScalar blksPerSuccProbe_;
@@ -716,6 +683,6 @@ private:
   // Indicates if the probes are partially in order.
   NABoolean partialOrderProbes_;
 
-}; // class SimpleFileScanOptimizer
+};  // class SimpleFileScanOptimizer
 
 #endif

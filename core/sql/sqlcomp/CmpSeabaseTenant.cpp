@@ -58,7 +58,7 @@
 #include "sqlcomp/PrivMgrComponentPrivileges.h"
 #include "seabed/ms.h"
 #include <string>
-#include "NAClusterInfo.cpp"
+// #include "NAClusterInfo.cpp"
 #include "cli/Globals.h"
 #include "executor/TenantHelper_JNI.h"
 #include "sqlcomp/CmpSeabaseDDLauth.h"

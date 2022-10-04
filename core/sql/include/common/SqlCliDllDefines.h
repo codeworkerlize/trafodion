@@ -19,4 +19,3 @@
 //
 // @@@ END COPYRIGHT @@@
 #include "common/DllExportDefines.h"
-

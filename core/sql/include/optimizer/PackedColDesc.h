@@ -53,7 +53,7 @@
 // |------------------|
 // |callFromCatMan_   |
 // |packedAPDescList_ |->-------------------------------------- ...
-// |------------------|   |                  |              |       
+// |------------------|   |                  |              |
 //                     |---------------|  |------------| |------------|
 //                     |PackedAPDesc   |  |PackedAPDesc| |PackedAPDesc|
 //                     |---------------|  |------------| |------------|
@@ -75,7 +75,7 @@
 
 // Class PackedColDesc ---------------------------------------------------
 // This class object is used to describe how a column of a packed table
-// is layed out.  The layout of a packed table is illustrated in the 
+// is layed out.  The layout of a packed table is illustrated in the
 // following diagram:
 //
 //
@@ -156,25 +156,15 @@
 //
 //   NAType *type_: A pointer to the type of the packed data.
 //
-class PackedColDesc : public NABasicObject
-{
-public:
-  
+class PackedColDesc : public NABasicObject {
+ public:
   // The constructor.  Intialize the PackedColDesc to be empty with the
   // exception of the position and the type of the column to be packed.
   // It is up to the user to ensure that the packing information is
   // properly set.
   //
-  PackedColDesc(Lng32 position,
-                       const NAType *type)
-    : position_(position),
-      dataOffset_(0),
-      dataSize_(0),
-      totalSize_(0),
-      nullBitmapPresent_(FALSE),
-      type_(type)
-  {
-  };
+  PackedColDesc(Lng32 position, const NAType *type)
+      : position_(position), dataOffset_(0), dataSize_(0), totalSize_(0), nullBitmapPresent_(FALSE), type_(type){};
 
   // Generate the packing info for this column given a packing factor.
   //
@@ -186,15 +176,14 @@ public:
 
   // Accessor methods of data memners
   //
-  Lng32 getPosition() const { return position_;};
-  Lng32 getDataOffset() const { return dataOffset_;};
-  Lng32 getDataSize() const { return dataSize_;};
-  Lng32 getTotalSize() const { return totalSize_;};
-  NABoolean isNullBitmapPresent() const { return nullBitmapPresent_;};
+  Lng32 getPosition() const { return position_; };
+  Lng32 getDataOffset() const { return dataOffset_; };
+  Lng32 getDataSize() const { return dataSize_; };
+  Lng32 getTotalSize() const { return totalSize_; };
+  NABoolean isNullBitmapPresent() const { return nullBitmapPresent_; };
   const NAType *getType() const { return type_; };
 
-private:
-
+ private:
   // The ordinal position of the column in the table.
   //
   Lng32 position_;
@@ -222,25 +211,20 @@ private:
   //
   const NAType *type_;
 };
-  
+
 // A List of PackedColDesc objects.
 //
-class PackedColDescList : public LIST(PackedColDesc *)
-{
-public:
-
-  PackedColDescList(Lng32 numElements = 0)
-    : LIST(PackedColDesc *)(CmpCommon::statementHeap(), numElements) {};
-    
+class PackedColDescList : public LIST(PackedColDesc *) {
+ public:
+  PackedColDescList(Lng32 numElements = 0) : LIST(PackedColDesc *)(CmpCommon::statementHeap(), numElements){};
 };
-
 
 // class PackedAPDesc ------------------------------------------------
 // This class object is used to describe how a particular access path
 // (read vertical partition) is 'packed'. It is typically accessed
 // through the PackedTableDesc class. The data members are:
 //
-//   long keySize_:  The size of the key for this access path.  The 
+//   long keySize_:  The size of the key for this access path.  The
 //   key size should be the same for each access path of a table.
 //   Currently, the only supported key size for packed tables is 8.
 //
@@ -254,26 +238,19 @@ public:
 //   (currently 32000 bytes).  These two limits are somewhat arbitrary.  The
 //   first limits a row of an access path to fit within a block.  The second
 //   is needed due to the way inserts into packed VP Tables is done.  The
-//   complete packed row is buffered in DP2 and the split into the VP's. 
+//   complete packed row is buffered in DP2 and the split into the VP's.
 //   Having this buffer bigger than 32K may cause problems.
 //
 //   PackedColDescList cols_: A list of PackedColDesc's describing how each
 //   of the columns of this AP is packed.
 //
-class PackedAPDesc : public NABasicObject
-{
-public:
-
+class PackedAPDesc : public NABasicObject {
+ public:
   // Constructor - create an empty PackedAPDesc.
   //
 
   PackedAPDesc(Lng32 keySize, Lng32 packingFactor = 0)
-        : keySize_(keySize),
-          packingScheme_(0),
-          packingFactor_(packingFactor)
-  {};
-
-
+      : keySize_(keySize), packingScheme_(0), packingFactor_(packingFactor){};
 
   // The size of the key for this AP.
   //
@@ -319,15 +296,14 @@ public:
   //
   PackedColDesc *getPackingInfoForColumn(Lng32 position);
 
-private:
-
+ private:
   // The size of the key for this access path.  The key size should
   // be the same for each access path of a table. Currently, the only
   // supported key size for packed tables is 8.
   //
   Lng32 keySize_;
 
-  // The packing factor for this access path.  Currently, the packing 
+  // The packing factor for this access path.  Currently, the packing
   // factor must be the same for all access paths of a table.  The
   // packing factor is determined based on two limiting factors.
   // First the packed row from each access path (vertical partition)
@@ -337,12 +313,11 @@ private:
   // These two limits are somewhat arbitrary.  The first limits a row of an
   // access path to fit within a block.  The second is needed due to the way
   // inserts into packed VP Tables is done.  The complete packed row is
-  // buffered in DP2 and the split into the VP's.  Having this buffer 
+  // buffered in DP2 and the split into the VP's.  Having this buffer
   // bigger than 32K may cause problems.
   //
   Lng32 packingFactor_;
   Lng32 packingScheme_;
-
 
   // A list of PackedColDesc's describing how each of the columns of
   // this AP is packed.
@@ -350,16 +325,12 @@ private:
   PackedColDescList cols_;
 };
 
-
 // A list of PackedApDesc objects.
 //
-class PackedAPDescList : public LIST(PackedAPDesc *)
-{
-public:
-  PackedAPDescList(CollHeap *h = 0)
-    : LIST(PackedAPDesc *)(h) {};
-  PackedAPDescList(Lng32 numElements, CollHeap *h = 0)
-    : LIST(PackedAPDesc *)(h, numElements) {};
+class PackedAPDescList : public LIST(PackedAPDesc *) {
+ public:
+  PackedAPDescList(CollHeap *h = 0) : LIST(PackedAPDesc *)(h){};
+  PackedAPDescList(Lng32 numElements, CollHeap *h = 0) : LIST(PackedAPDesc *)(h, numElements){};
 };
 
 // class PackedTableDesc ------------------------------------------------
@@ -386,30 +357,24 @@ public:
 //   variable ("PACKING_OFF").
 //
 //
-class PackedTableDesc : public NABasicObject
-{
-public:
-
+class PackedTableDesc : public NABasicObject {
+ public:
   // The default constructor.  This version of the constructor
   // is called only from catman. (see description of callFromCatMan_ above)
   //
-  PackedTableDesc()
-    { callFromCatMan_ = TRUE; };
+  PackedTableDesc() { callFromCatMan_ = TRUE; };
 
   // Constructor called from the binder.  Constructs and populates a
   // PackedTableDesc given a NATable.  The result will indicate if the
   // table can be packed and if so, will describe how each of the columns
-  // of each of the access paths (read vertical partitions) of this table 
+  // of each of the access paths (read vertical partitions) of this table
   // is packed.
   //
   PackedTableDesc(const NATable *naTable, CollHeap *h);
 
   // Used to add an AP to this PackedTableDesc.
   //
-  void addAP(PackedAPDesc *apDesc) 
-    {
-      packedAPDescList_.insert(apDesc);
-    };
+  void addAP(PackedAPDesc *apDesc) { packedAPDescList_.insert(apDesc); };
 
   // Generate the packing information for this table.
   //
@@ -425,13 +390,13 @@ public:
   // must be the same for all AP's of a table, so return the packing
   // factor of the first AP.
   //
-  Lng32 getPackingFactor() { return packedAPDescList_[0]->getPackingFactor();};
+  Lng32 getPackingFactor() { return packedAPDescList_[0]->getPackingFactor(); };
 
   // return a reference to the list of PackedAPDesc objects for this table.
   //
   const PackedAPDescList &getAPDescList() const { return packedAPDescList_; };
 
-private:
+ private:
   // A list of PackedAPDesc objects describing how the access paths
   // (read vertical partitions) of this table are packed.
   //

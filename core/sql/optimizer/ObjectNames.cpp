@@ -33,12 +33,11 @@
 ******************************************************************************
 */
 
+#define SQLPARSERGLOBALS_FLAGS              // must precede all #include's
+#define SQLPARSERGLOBALS_CONTEXT_AND_DIAGS  // must be first
+#define SQLPARSERGLOBALS_NADEFAULTS         // must be first
 
-#define  SQLPARSERGLOBALS_FLAGS	// must precede all #include's
-#define  SQLPARSERGLOBALS_CONTEXT_AND_DIAGS	// must be first
-#define  SQLPARSERGLOBALS_NADEFAULTS		// must be first
-
-#include "common/NAWinNT.h"				// platform-independent stuff
+#include "common/NAWinNT.h"  // platform-independent stuff
 
 #include "optimizer/ObjectNames.h"
 #include "common/ComMPLoc.h"
@@ -57,8 +56,7 @@
 
 #include "common/ComResWords.h"
 
-#include "parser/SqlParserGlobals.h"			// must be last
-
+#include "parser/SqlParserGlobals.h"  // must be last
 
 // -----------------------------------------------------------------------
 // Context variable for "getXxxAsAnsiString()" methods simplifies the
@@ -78,24 +76,20 @@
 // See ToAnsiIdentifier() in NAString.C for details of this operation.
 // -----------------------------------------------------------------------
 static THREAD_P NABoolean formatAsAnsiIdentifier = FALSE;
-#define FORMAT(s) formatAsAnsiIdentifier ? ToAnsiIdentifier(s) : s
+#define FORMAT(s)           formatAsAnsiIdentifier ? ToAnsiIdentifier(s) : s
 #define FORMAT_NO_ASSERT(s) formatAsAnsiIdentifier ? ToAnsiIdentifier(s, FALSE) : s
 
 // -----------------------------------------------------------------------
 // Function GetAnsiNameCharSet()
 // -----------------------------------------------------------------------
-CharInfo::CharSet GetAnsiNameCharSet()
-{
-  return OBJECTNAMECHARSET;
-}
+CharInfo::CharSet GetAnsiNameCharSet() { return OBJECTNAMECHARSET; }
 
 // -----------------------------------------------------------------------
 // Methods for class CatalogName
 // -----------------------------------------------------------------------
 
 // See .h file comments re Genesis 10-970902-0878.
-void CatalogName::setNamePosition(StringPos namePos, NABoolean setDelimited)
-{
+void CatalogName::setNamePosition(StringPos namePos, NABoolean setDelimited) {
   namePos_ = namePos;
   isDelimited_ = setDelimited;
 }
@@ -104,8 +98,7 @@ void CatalogName::setNamePosition(StringPos namePos, NABoolean setDelimited)
 // Methods for class QualifiedName
 // -----------------------------------------------------------------------
 
-NABoolean QualifiedName::operator==(const NAString& simpleName) const
-{
+NABoolean QualifiedName::operator==(const NAString &simpleName) const {
   // This method is just syntactic sugar to compare if QualifiedName is empty
   CMPASSERT(simpleName == (const char *)"");
   // Ignore the name space attribute - i.e. use this name space.
@@ -114,22 +107,19 @@ NABoolean QualifiedName::operator==(const NAString& simpleName) const
   return *this == rhs;
 }
 
-QualifiedName & QualifiedName::operator=(const QualifiedName& rhs)
-{
+QualifiedName &QualifiedName::operator=(const QualifiedName &rhs) {
   if (&rhs == this) return *this;
-  setCatalogName (rhs.getCatalogName ());
-  setSchemaName  (rhs.getSchemaName  ());
-  setObjectName  (rhs.getObjectName  ());
-  setObjectNameSpace (rhs.getObjectNameSpace());
+  setCatalogName(rhs.getCatalogName());
+  setSchemaName(rhs.getSchemaName());
+  setObjectName(rhs.getObjectName());
+  setObjectNameSpace(rhs.getObjectNameSpace());
   setNamePosition(rhs.getNamePosition(), FALSE);
-  setIsDelimited (rhs.isDelimited    ());
-  flagbits_          = rhs.flagbits_ ;
+  setIsDelimited(rhs.isDelimited());
+  flagbits_ = rhs.flagbits_;
   return *this;
 }
 
-NAString QualifiedName::getQualifiedNameAsString(NABoolean formatForDisplay,
-						 NABoolean externalDisplay) const
-{
+NAString QualifiedName::getQualifiedNameAsString(NABoolean formatForDisplay, NABoolean externalDisplay) const {
   // Preallocate a result buffer that'll be big enough most of the time
   // (so += won't reallocate+copy most of the time).
   NAString result((NASize_T)40, CmpCommon::statementHeap());
@@ -138,39 +128,30 @@ NAString QualifiedName::getQualifiedNameAsString(NABoolean formatForDisplay,
   // (in a join), e.g.  In that case, do NOT prepend "cat.sch." to colrefname
   // which would yield the incorrect string "cat.sch..col".
   //
-  if (NOT getObjectName().isNull()) 
-  {
+  if (NOT getObjectName().isNull()) {
     // If volatile, only output the object part of the external name.
     // cat/sch names are internal.
-    if ((formatForDisplay) &&
-	(isVolatile()))
-      {
-	result += FORMAT(getObjectName());
+    if ((formatForDisplay) && (isVolatile())) {
+      result += FORMAT(getObjectName());
+    } else {
+      if (NOT getCatalogName().isNull() && NOT externalDisplay) {
+        if ((SqlParser_NADefaults_Glob != NULL) AND(SqlParser_NADefaults_Glob->NAMETYPE_ == DF_SHORTANSI)
+                AND(*getCatalogName().data() == '\\')) {
+          formatAsAnsiIdentifier = FALSE;
+        }
+        result = FORMAT(getCatalogName());
+        result += ".";
+        CMPASSERT(NOT getSchemaName().isNull());
       }
-    else
-      {
-	if (NOT getCatalogName().isNull() && NOT externalDisplay) 
-	  {
-	    if ((SqlParser_NADefaults_Glob != NULL) AND
-		(SqlParser_NADefaults_Glob->NAMETYPE_ == DF_SHORTANSI) AND
-		(*getCatalogName().data() == '\\'))
-	      {
-		formatAsAnsiIdentifier = FALSE;
-	      }
-	    result = FORMAT(getCatalogName());
-	    result += ".";
-	    CMPASSERT(NOT getSchemaName().isNull());
-	  }
-	
-	if (NOT getSchemaName().isNull())
-	  {
-	    result += FORMAT(getSchemaName());
-	    result += ".";
-	  }
-	result += FORMAT(getObjectName());
+
+      if (NOT getSchemaName().isNull()) {
+        result += FORMAT(getSchemaName());
+        result += ".";
       }
+      result += FORMAT(getObjectName());
+    }
   }
-  
+
   return result;
 }
 
@@ -233,20 +214,17 @@ NAString QualifiedName::getQualifiedNameAsString(NABoolean formatForDisplay,
 // down to a size that might result in a reserved word.
 // -----------------------------------------------------------------------
 //
-static void makeSafeFilenamePart(NAString &ns, const NAString &prefix)
-{
+static void makeSafeFilenamePart(NAString &ns, const NAString &prefix) {
   size_t len = ns.length();
-  for (size_t i=0; i<len; i++) {
-    if (!isalnum(ns[i]) && ns[i] != '_')
-      ns[i] = '_';
+  for (size_t i = 0; i < len; i++) {
+    if (!isalnum(ns[i]) && ns[i] != '_') ns[i] = '_';
   }
 
-  if (!len || !isalpha(ns[(size_t)0]))	// must begin with an alphabetic
+  if (!len || !isalpha(ns[(size_t)0]))  // must begin with an alphabetic
     ns.prepend(prefix);
 }
 
-const NAString QualifiedName::getQualifiedNameAsAnsiNTFilenameString() const
-{
+const NAString QualifiedName::getQualifiedNameAsAnsiNTFilenameString() const {
   // Preallocate a result buffer that'll be big enough most of the time
   // (so += won't reallocate+copy most of the time).
   NAString result((NASize_T)40, CmpCommon::statementHeap());
@@ -255,38 +233,38 @@ const NAString QualifiedName::getQualifiedNameAsAnsiNTFilenameString() const
   NAString schName(CmpCommon::statementHeap());
   NAString objName(CmpCommon::statementHeap());
 
-  formatAsAnsiIdentifier = TRUE;	// put quotes on delimited identifiers
+  formatAsAnsiIdentifier = TRUE;  // put quotes on delimited identifiers
 
-  if ( NOT getCatalogName().isNull() ) {
+  if (NOT getCatalogName().isNull()) {
     catName = FORMAT(getCatalogName());
     makeSafeFilenamePart(catName, "SQLMX_DEFAULT_CATALOG_");
   }
-  if ( NOT getSchemaName().isNull() ) {
+  if (NOT getSchemaName().isNull()) {
     schName = FORMAT(getSchemaName());
     makeSafeFilenamePart(schName, "SQLMX_DEFAULT_SCHEMA_");
   }
-  if ( NOT getObjectName().isNull() ) {
+  if (NOT getObjectName().isNull()) {
     objName = FORMAT(getObjectName());
   }
   makeSafeFilenamePart(objName, "SQLMX_DEFAULT_FILE_");
 
-  formatAsAnsiIdentifier = FALSE;	// reset to initial value
+  formatAsAnsiIdentifier = FALSE;  // reset to initial value
 
   size_t totlen = catName.length() + schName.length() + objName.length() + 2;
 
-  if ( totlen > 255 ) {					// need to truncate
+  if (totlen > 255) {  // need to truncate
     // +1 so round off doesn't give us less than what we need to chop
-    size_t chopLen = totlen - 255 + 1;  
-             
-    if ( catName.length() - chopLen/2 <= 0 )		// cat too short
-      schName.remove( schName.length() - chopLen );
-    else if ( schName.length() - chopLen/2 <= 0 )	// sch too short
-      catName.remove( catName.length() - chopLen );
-    else {						// chop from both
+    size_t chopLen = totlen - 255 + 1;
+
+    if (catName.length() - chopLen / 2 <= 0)  // cat too short
+      schName.remove(schName.length() - chopLen);
+    else if (schName.length() - chopLen / 2 <= 0)  // sch too short
+      catName.remove(catName.length() - chopLen);
+    else {  // chop from both
       // remember position starts at 0 and length is 1 more
       chopLen /= 2;
-      catName.remove( catName.length() - chopLen - 1 );
-      schName.remove( schName.length() - chopLen - 1 );
+      catName.remove(catName.length() - chopLen - 1);
+      schName.remove(schName.length() - chopLen - 1);
     }
   }
 
@@ -304,34 +282,24 @@ const NAString QualifiedName::getQualifiedNameAsAnsiNTFilenameString() const
 }
 
 const NAString QualifiedName::getQualifiedNameAsAnsiString(NABoolean formatForDisplay,
-							   NABoolean externalDisplay) const
-{
+                                                           NABoolean externalDisplay) const {
   formatAsAnsiIdentifier = TRUE;
-  NAString result(getQualifiedNameAsString(formatForDisplay, externalDisplay), 
-                  CmpCommon::statementHeap());
+  NAString result(getQualifiedNameAsString(formatForDisplay, externalDisplay), CmpCommon::statementHeap());
   formatAsAnsiIdentifier = FALSE;
   return result;
 }
 
-SchemaName::SchemaName(const NAString & schemaName,
-                       const NAString & catalogName,
-                       CollHeap * h,
-                       StringPos namePos) :
-    CatalogName(catalogName, h, namePos),
-    schemaName_(schemaName, h)
-{ 
-  if ((NOT getCatalogName().isNull()) && (getSchemaName().isNull()))
-    {
-      *(CmpCommon::diags()) << DgSqlCode(-8009);
-    }
+SchemaName::SchemaName(const NAString &schemaName, const NAString &catalogName, CollHeap *h, StringPos namePos)
+    : CatalogName(catalogName, h, namePos), schemaName_(schemaName, h) {
+  if ((NOT getCatalogName().isNull()) && (getSchemaName().isNull())) {
+    *(CmpCommon::diags()) << DgSqlCode(-8009);
+  }
 
-  CMPASSERT(getCatalogName().isNull() OR NOT getSchemaName().isNull()); 
+  CMPASSERT(getCatalogName().isNull() OR NOT getSchemaName().isNull());
 }
 
-NABoolean SchemaName::matchDefaultPublicSchema()
-{
-  if (schemaName_.isNull())
-    return TRUE;
+NABoolean SchemaName::matchDefaultPublicSchema() {
+  if (schemaName_.isNull()) return TRUE;
 
   NABoolean matched = FALSE;
 
@@ -349,43 +317,37 @@ NABoolean SchemaName::matchDefaultPublicSchema()
   NAString pubSch = pubSchema.getSchemaNamePart().getInternalName();
 
   // if catalog was not specified
-  NAString catName = (catalogName_.isNull()? defCat:catalogName_);
-  pubCat = (pubCat.isNull()? defCat:pubCat);
+  NAString catName = (catalogName_.isNull() ? defCat : catalogName_);
+  pubCat = (pubCat.isNull() ? defCat : pubCat);
 
-  if (((catName==defCat) && (schemaName_==defSch)) ||
-      ((catName==pubCat) && (schemaName_==pubSch)))
+  if (((catName == defCat) && (schemaName_ == defSch)) || ((catName == pubCat) && (schemaName_ == pubSch)))
     matched = TRUE;
 
   return matched;
 }
 
-const NAString SchemaName::getSchemaNameAsAnsiString() const
-{
+const NAString SchemaName::getSchemaNameAsAnsiString() const {
   QualifiedName q("X", getSchemaName(), getCatalogName());
   NAString result(q.getQualifiedNameAsAnsiString(), CmpCommon::statementHeap());
-  CMPASSERT(result[result.length()-1] == 'X');
-  result.remove(result.length()-2);		// remove the '.X'
+  CMPASSERT(result[result.length() - 1] == 'X');
+  result.remove(result.length() - 2);  // remove the '.X'
   return result;
 }
-
-
 
 // ODBC SHORTANSI -- the actual MPLoc is encoded in the schName
 // using underscore delimiters, i.e. "systemName_volumeName_subvolName".
 // We make a real MPLoc out of that.
-NABoolean QualifiedName::applyShortAnsiDefault(NAString& catName,
-					       NAString& schName) const
-{
+NABoolean QualifiedName::applyShortAnsiDefault(NAString &catName, NAString &schName) const {
   ComMPLoc loc;
-  loc.parse(schName, ComMPLoc::SUBVOL, TRUE/*SHORTANSI*/);
+  loc.parse(schName, ComMPLoc::SUBVOL, TRUE /*SHORTANSI*/);
 
   if (loc.isValid(ComMPLoc::SUBVOL)) {
     catName = loc.getSysDotVol();
     schName = loc.getSubvolName();
     return TRUE;
   }
-  //else schName actually was a real Ansi schema,
-  //so we return cat & schName unchanged.
+  // else schName actually was a real Ansi schema,
+  // so we return cat & schName unchanged.
   //## Is this the desired behavior, or does this represent an undetected error?
   return FALSE;
 }
@@ -398,44 +360,37 @@ NABoolean QualifiedName::applyShortAnsiDefault(NAString& catName,
 // If NAMETYPE is NSK, the SchemaDB puts the current MPLOC into the defCatSch;
 // so this method has to handle **only one** tiny NSK naming detail.
 //
-Int32 QualifiedName::extractAndDefaultNameParts(const SchemaName& defCatSch
-					     , NAString& catName 	// OUT
-					     , NAString& schName	// OUT
-					     , NAString& objName	// OUT
-                                             ) const
-{
+Int32 QualifiedName::extractAndDefaultNameParts(const SchemaName &defCatSch, NAString &catName  // OUT
+                                                ,
+                                                NAString &schName  // OUT
+                                                ,
+                                                NAString &objName  // OUT
+) const {
   catName = getCatalogName();
   schName = getSchemaName();
   objName = getObjectName();
-  CMPASSERT(NOT objName.isNull());		// no default for this!
+  CMPASSERT(NOT objName.isNull());  // no default for this!
 
   {
     if (catName.isNull()) {
-      if((ActiveSchemaDB()->getDefaults().schSetToUserID()) &&
-         (SqlParser_NAMETYPE == DF_SHORTANSI))
-      {
-        // If NAMETYPE is SHORTANSI and  schema is not set 
-        // in DEFAULTS table or by user, for dml, catName  
-        // gets \SYS.$VOL from set or default MPLOC. 
-        catName =  SqlParser_MPLOC.getSysDotVol();
-      }
-      else
-      {
-      // If NAMETYPE NSK, catName will become  \SYS.$VOL
+      if ((ActiveSchemaDB()->getDefaults().schSetToUserID()) && (SqlParser_NAMETYPE == DF_SHORTANSI)) {
+        // If NAMETYPE is SHORTANSI and  schema is not set
+        // in DEFAULTS table or by user, for dml, catName
+        // gets \SYS.$VOL from set or default MPLOC.
+        catName = SqlParser_MPLOC.getSysDotVol();
+      } else {
+        // If NAMETYPE NSK, catName will become  \SYS.$VOL
         catName = defCatSch.getCatalogName();
       }
     }
 
     if (schName.isNull()) {
-      if((ActiveSchemaDB()->getDefaults().schSetToUserID()) &&
-         (SqlParser_NAMETYPE == DF_SHORTANSI))
-      {
-        // If NAMETYPE is SHORTANSI and  schema is not set 
-        // in DEFAULTS table or by user, for dml, schName  
-        // gets subvol from set or default MPLOC. 
-        schName =  SqlParser_MPLOC.getSubvolName();
-      }
-      else
+      if ((ActiveSchemaDB()->getDefaults().schSetToUserID()) && (SqlParser_NAMETYPE == DF_SHORTANSI)) {
+        // If NAMETYPE is SHORTANSI and  schema is not set
+        // in DEFAULTS table or by user, for dml, schName
+        // gets subvol from set or default MPLOC.
+        schName = SqlParser_MPLOC.getSubvolName();
+      } else
         schName = defCatSch.getSchemaName();
     }
   }
@@ -446,14 +401,13 @@ Int32 QualifiedName::extractAndDefaultNameParts(const SchemaName& defCatSch
   Int32 defaultMatches = 0;
   if (catName == defCatSch.getCatalogName()) {
     defaultMatches++;
-    if (schName == defCatSch.getSchemaName())
-      defaultMatches++;
+    if (schName == defCatSch.getSchemaName()) defaultMatches++;
   }
 
-  // Next comes support for table name resolution for SHORTANSI nametype, 
-  // implemented as internal feature for ODBC use only. 
+  // Next comes support for table name resolution for SHORTANSI nametype,
+  // implemented as internal feature for ODBC use only.
   //
-  // For the name resolution of table name when nametype is SHORTANSI, 
+  // For the name resolution of table name when nametype is SHORTANSI,
   // check is made to see if schName contains an '_', thus ensuring
   // the method applyShortAnsiDefault is called only once.
   // Correct syntax for schName is "systemName_volumeName_subvolName"
@@ -470,46 +424,31 @@ Int32 QualifiedName::extractAndDefaultNameParts(const SchemaName& defCatSch
 // Applies the default catalog & schema to *this -- if either name part of this
 // is empty, it is filled in (updated) with the default.
 //
-Int32 QualifiedName::applyDefaults(const SchemaName& defCatSch)
-{
-  return extractAndDefaultNameParts( defCatSch 
-				   , catalogName_
-                                   , schemaName_
-                                   , objectName_
-                                   );
+Int32 QualifiedName::applyDefaults(const SchemaName &defCatSch) {
+  return extractAndDefaultNameParts(defCatSch, catalogName_, schemaName_, objectName_);
 }
 
 // This function copies the above applyDefaults() function
-// and includes checking for the object existence and 
+// and includes checking for the object existence and
 // search in the public schema if necessary.
-// This is used to replace the above function when 
+// This is used to replace the above function when
 // we need to consider PUBLIC_SCHEMA_NAME
-Int32 QualifiedName::applyDefaultsValidate(const SchemaName& defCatSch,
-                                         ComAnsiNameSpace nameSpace)
-{
+Int32 QualifiedName::applyDefaultsValidate(const SchemaName &defCatSch, ComAnsiNameSpace nameSpace) {
   // need to try public schema if it is specified
   // and the object schema is not specified
   NAString publicSchema = "";
   CmpCommon::getDefault(PUBLIC_SCHEMA_NAME, publicSchema, FALSE);
   ComSchemaName pubSchema(publicSchema);
   NAString pubSchemaIntName = "";
-  if ( getSchemaName().isNull() && 
-       !pubSchema.isEmpty() )
-  {
+  if (getSchemaName().isNull() && !pubSchema.isEmpty()) {
     pubSchemaIntName = pubSchema.getSchemaNamePart().getInternalName();
   }
 
-  Int32 ret = extractAndDefaultNameParts( defCatSch 
-				                              , catalogName_
-                                      , schemaName_
-                                      , objectName_
-                                   );
+  Int32 ret = extractAndDefaultNameParts(defCatSch, catalogName_, schemaName_, objectName_);
 
-  // try public schema if the table does not exist 
-  if (!pubSchemaIntName.isNull())
-  {
-    *(CmpCommon::diags()) << DgSqlCode(-4222)
-                          << DgString0("Public Access Schema");
+  // try public schema if the table does not exist
+  if (!pubSchemaIntName.isNull()) {
+    *(CmpCommon::diags()) << DgSqlCode(-4222) << DgString0("Public Access Schema");
   }
 
   return ret;
@@ -522,31 +461,22 @@ Int32 QualifiedName::applyDefaultsValidate(const SchemaName& defCatSch,
 //
 // This code cloned for CorrName::applyPrototype below.
 //
-QualifiedName::QualifiedName(const NAString &ansiString, 
-                             Int32 minNameParts,
-                             CollHeap * h, 
-                             BindWA *bindWA) :
-     SchemaName(h),
-     objectName_(h),
-     objectNameSpace_(COM_UNKNOWN_NAME),
-     flagbits_(0)
-{
+QualifiedName::QualifiedName(const NAString &ansiString, Int32 minNameParts, CollHeap *h, BindWA *bindWA)
+    : SchemaName(h), objectName_(h), objectNameSpace_(COM_UNKNOWN_NAME), flagbits_(0) {
   if (HasMPLocPrefix(ansiString.data())) {
     ComMPLoc loc(ansiString);
     catalogName_ = loc.getSysDotVol();
     schemaName_ = loc.getSubvolName();
     objectName_ = loc.getFileName();
-  }
-  else
-  {
+  } else {
     CmpContext *cmpContext = bindWA ? bindWA->currentCmpContext() : NULL;
     Parser parser(cmpContext);
     NAString ns("TABLE " + ansiString + ";", CmpCommon::statementHeap());
     // save the current parserflags setting
-    ULng32 savedParserFlags = Get_SqlParser_Flags (0xFFFFFFFF);
+    ULng32 savedParserFlags = Get_SqlParser_Flags(0xFFFFFFFF);
     StmtQuery *stmt = (StmtQuery *)parser.parseDML(ns, ns.length(), GetAnsiNameCharSet());
-    // Restore parser flags settings 
-    Set_SqlParser_Flags (savedParserFlags);
+    // Restore parser flags settings
+    Set_SqlParser_Flags(savedParserFlags);
     if (stmt) {
       CMPASSERT(stmt->getOperatorType() == STM_QUERY);
       *this = stmt->getQueryExpression()->getScanNode()->getTableName().getQualifiedNameObj();
@@ -562,204 +492,154 @@ QualifiedName::QualifiedName(const NAString &ansiString,
 
   Int32 nameParts = 0;
   if (minNameParts > 0) {
-    nameParts = getCatalogName() != "" ? 3 :
-		getSchemaName()  != "" ? 2 :
-		getObjectName()  != "" ? 1 : 0;
+    nameParts = getCatalogName() != "" ? 3 : getSchemaName() != "" ? 2 : getObjectName() != "" ? 1 : 0;
     CMPASSERT(nameParts >= minNameParts);
   }
 
-  if (bindWA && nameParts < 3)
-    applyDefaults(bindWA->getDefaultSchema());
-} // end of QualifiedName::QualifiedName 
+  if (bindWA && nameParts < 3) applyDefaults(bindWA->getDefaultSchema());
+}  // end of QualifiedName::QualifiedName
 
-QualifiedName::QualifiedName(const ComObjectName &comObjNam, CollHeap * h)
-: SchemaName (comObjNam.getSchemaNamePart ().getInternalName(),
-	      comObjNam.getCatalogNamePart().getInternalName(), h),
-  objectName_(comObjNam.getObjectNamePart ().getInternalName(), h),
-  objectNameSpace_(comObjNam.getNameSpace()),
-  flagbits_(0)
-{}
+QualifiedName::QualifiedName(const ComObjectName &comObjNam, CollHeap *h)
+    : SchemaName(comObjNam.getSchemaNamePart().getInternalName(), comObjNam.getCatalogNamePart().getInternalName(), h),
+      objectName_(comObjNam.getObjectNamePart().getInternalName(), h),
+      objectNameSpace_(comObjNam.getNameSpace()),
+      flagbits_(0) {}
 
 // See comments for ComMPLoc::getMPName(int *lenArray).
 // The array size of 5 is CollationInfo::MAX_NAME_PARTS + 1.
 //
-const NAString QualifiedName::getQualifiedNameAsAnsiString(
-					    size_t *lenArray /* array[5] */
-					    ) const
-{
+const NAString QualifiedName::getQualifiedNameAsAnsiString(size_t *lenArray /* array[5] */
+) const {
   lenArray[0] = lenArray[1] = lenArray[2] = lenArray[3] = lenArray[4] = 0;
-  NAString n( getQualifiedNameAsAnsiString(), CmpCommon::statementHeap());
+  NAString n(getQualifiedNameAsAnsiString(), CmpCommon::statementHeap());
 
-  lenArray[1] = n.length();	// [1] = length of full name
+  lenArray[1] = n.length();  // [1] = length of full name
   size_t a = 1;
   size_t i = 0;
   const char *s = n.data();
   for (NABoolean quoted = FALSE; *s; i++, s++) {
-    if (*s == '"')
-      quoted = !quoted;
+    if (*s == '"') quoted = !quoted;
     if (*s == '.' && !quoted) {
-      lenArray[++a] = i + 1;	// [2] thru [4] = offsets of trailing name parts
+      lenArray[++a] = i + 1;  // [2] thru [4] = offsets of trailing name parts
     }
   }
-  lenArray[0] = a;		// [0] = the count of size_t's being returned
-   				// (length + up to 3 offsets)
-				// (aka the number of nameparts)
-  return n;			// Return the external-format string as well.
+  lenArray[0] = a;  // [0] = the count of size_t's being returned
+                    // (length + up to 3 offsets)
+                    // (aka the number of nameparts)
+  return n;         // Return the external-format string as well.
 }
 
 // If any parts of the name were defaulted (input param = nbr)
 //  and NAMETYPE was specified as other than ANSI
 //    return FALSE;  else return TRUE.
 
-NABoolean QualifiedName::verifyAnsiNameQualification(
-			 Int32 nbrPartsDefaulted) const
-{
+NABoolean QualifiedName::verifyAnsiNameQualification(Int32 nbrPartsDefaulted) const {
   if (nbrPartsDefaulted > 0)
-    if ((SqlParser_NADefaults_Glob != NULL) AND
-        (SqlParser_NADefaults_Glob->NAMETYPE_ != DF_ANSI))
-      return FALSE;
+    if ((SqlParser_NADefaults_Glob != NULL) AND(SqlParser_NADefaults_Glob->NAMETYPE_ != DF_ANSI)) return FALSE;
 
   return TRUE;
-
 }
 
-NABoolean QualifiedName::isHive(const NAString &catName) 
-{
+NABoolean QualifiedName::isHive(const NAString &catName) {
   NAString hiveDefCatName = "";
   CmpCommon::getDefault(HIVE_CATALOG, hiveDefCatName, FALSE);
   hiveDefCatName.toUpper();
-  
+
   if (CmpCommon::getDefault(MODE_SEAHIVE) == DF_ON &&
-      ((NOT catName.isNull()) &&
-       ((catName == HIVE_SYSTEM_CATALOG) ||
-	(catName == hiveDefCatName))))
+      ((NOT catName.isNull()) && ((catName == HIVE_SYSTEM_CATALOG) || (catName == hiveDefCatName))))
     return TRUE;
 
   return FALSE;
 }
 
-NABoolean QualifiedName::isHive() const
-{
-  return isHive(getCatalogName());
+NABoolean QualifiedName::isHive() const { return isHive(getCatalogName()); }
+
+NABoolean QualifiedName::isHbase(const NAString &catName) { return CmpSeabaseDDL::isHbase(catName); }
+
+NABoolean QualifiedName::isHbase() const { return isHbase(getCatalogName()); }
+
+NABoolean QualifiedName::isSeabase(const NAString &catName) { return CmpSeabaseDDL::isSeabase(catName); }
+
+NABoolean QualifiedName::isSeabase() const { return isSeabase(getCatalogName()); }
+
+NABoolean QualifiedName::isSeabaseMD() const {
+  return CmpSeabaseDDL::isSeabaseMD(getCatalogName(), getSchemaName(), getObjectName());
 }
 
-NABoolean QualifiedName::isHbase(const NAString &catName) 
-{
-  return CmpSeabaseDDL::isHbase(catName);
+NABoolean QualifiedName::isSeabasePrivMgrMD() const {
+  return CmpSeabaseDDL::isSeabasePrivMgrMD(getCatalogName(), getSchemaName());
 }
 
-NABoolean QualifiedName::isHbase() const
-{
-  return isHbase(getCatalogName());
+NABoolean QualifiedName::isSeabaseReservedSchema() const {
+  return CmpSeabaseDDL::isSeabaseReservedSchema(getCatalogName(), getSchemaName());
 }
 
-NABoolean QualifiedName::isSeabase(const NAString &catName) 
-{
-  return CmpSeabaseDDL::isSeabase(catName);
+NABoolean QualifiedName::isHbaseMappedName() const {
+  return ((isSeabase(getCatalogName())) && (ComIsHbaseMappedSchemaName(getSchemaName())));
 }
 
-NABoolean QualifiedName::isSeabase() const
-{
-  return isSeabase(getCatalogName());
-}
-
-NABoolean QualifiedName::isSeabaseMD() const
-{
-  return CmpSeabaseDDL::isSeabaseMD(
-				     getCatalogName(), getSchemaName(), getObjectName());
-}
-
-NABoolean QualifiedName::isSeabasePrivMgrMD() const
-{
-  return CmpSeabaseDDL::isSeabasePrivMgrMD
-    (getCatalogName(), getSchemaName());
-}
-
-NABoolean QualifiedName::isSeabaseReservedSchema() const
-{
-  return CmpSeabaseDDL::isSeabaseReservedSchema(
-       getCatalogName(), getSchemaName());
-}
-
-NABoolean QualifiedName::isHbaseMappedName() const
-{
-  return ((isSeabase(getCatalogName())) &&
-          (ComIsHbaseMappedSchemaName(getSchemaName())));
-}
-
-NABoolean QualifiedName::isHbaseCell() const
-{
+NABoolean QualifiedName::isHbaseCell() const {
   if (isHbase() && (getSchemaName() == HBASE_CELL_SCHEMA))
     return TRUE;
   else
     return FALSE;
 }
 
-NABoolean QualifiedName::isHbaseRow() const
-{
+NABoolean QualifiedName::isHbaseRow() const {
   if (isHbase() && (getSchemaName() == HBASE_ROW_SCHEMA))
     return TRUE;
   else
     return FALSE;
 }
 
-NABoolean QualifiedName::isHbaseCellOrRow() const
-{
-  if (isHbase() && 
-      ((getSchemaName() == HBASE_CELL_SCHEMA) || 
-       (getSchemaName() == HBASE_ROW_SCHEMA)))
+NABoolean QualifiedName::isHbaseCellOrRow() const {
+  if (isHbase() && ((getSchemaName() == HBASE_CELL_SCHEMA) || (getSchemaName() == HBASE_ROW_SCHEMA)))
     return TRUE;
   else
     return FALSE;
 }
 
-NABoolean QualifiedName::isLOBDesc() const
-{
-  if ((getObjectName().index(LOB_DESC_HANDLE_PREFIX) == 0) || (getObjectName().index(LOB_DESC_CHUNK_PREFIX) ==0))
+NABoolean QualifiedName::isLOBDesc() const {
+  if ((getObjectName().index(LOB_DESC_HANDLE_PREFIX) == 0) || (getObjectName().index(LOB_DESC_CHUNK_PREFIX) == 0))
     return TRUE;
-      
+
   else
     return FALSE;
-  
 }
 // -----------------------------------------------------------------------
 // Methods for class CorrName
 // -----------------------------------------------------------------------
 
-ULng32 CorrName::hash() const
-{
+ULng32 CorrName::hash() const {
   if (corrName_ != (const char *)"") {
     if (formatAsAnsiIdentifier)
-       return ToAnsiIdentifier(corrName_).hash();
+      return ToAnsiIdentifier(corrName_).hash();
     else
-       return corrName_.hash();
+      return corrName_.hash();
   } else
     return getQualifiedNameObj().hash();
 }
 
+CorrName &CorrName::operator=(const CorrName &rhs) {
+  if (this == &rhs) return *this;
 
-CorrName & CorrName::operator = (const CorrName & rhs)
-{
-  if (this==&rhs) return *this ;
+  qualName_ = rhs.qualName_;
+  corrName_ = rhs.corrName_;
+  // ct-bug-10-030102-3803 -Begin
+  ugivenName_ = rhs.ugivenName_;
+  // ct-bug-10-030102-3803 -End
+  bound_ = rhs.bound_;
+  flagbits_ = rhs.flagbits_;
+  prototype_ = rhs.prototype_;
+  defaultMatchCount_ = rhs.defaultMatchCount_;
 
-  qualName_          = rhs.qualName_ ;
-  corrName_          = rhs.corrName_ ;
-  //ct-bug-10-030102-3803 -Begin
-  ugivenName_        = rhs.ugivenName_ ;
-  //ct-bug-10-030102-3803 -End
-  bound_             = rhs.bound_ ;
-  flagbits_          = rhs.flagbits_ ;
-  prototype_         = rhs.prototype_ ;
-  defaultMatchCount_ = rhs.defaultMatchCount_ ; 
-
-  return *this ;
+  return *this;
 }
 
-void CorrName::setCorrName(const NAString& corrName)
-{
+void CorrName::setCorrName(const NAString &corrName) {
   // This used to be called only by Parser, and these asserts worked fine.
   // Now called by RI and IM binding, these asserts are no longer valid.
-  // 
+  //
   //   CMPASSERT(corrName != "");		// parameter nonempty
   //   CMPASSERT(corrName_ == ""		// prev name empty
   //	    // kludge for SQLMP(NSK) name; initial (non-ANSI) release only ##
@@ -767,12 +647,9 @@ void CorrName::setCorrName(const NAString& corrName)
   //	   );
   corrName_ = corrName;
 }
-//ct-bug-10-030102-3803 -Begin
-void CorrName::setUgivenName(const NAString& ugivenName)
-{
-  ugivenName_ = ugivenName;
-}
-//ct-bug-10-030102-3803 -End
+// ct-bug-10-030102-3803 -Begin
+void CorrName::setUgivenName(const NAString &ugivenName) { ugivenName_ = ugivenName; }
+// ct-bug-10-030102-3803 -End
 
 // We come here from syntax like
 //	SELECT * FROM :hv PROTOTYPE 'cat.sch.tbl';  -- host variable, static SQL
@@ -803,8 +680,7 @@ void CorrName::setUgivenName(const NAString& ugivenName)
 // (note that not having a proto is not an error).
 // If error in proto, node is left unbound and bindWA errStatus is set.
 //
-void CorrName::applyPrototype(BindWA *bindWA)
-{
+void CorrName::applyPrototype(BindWA *bindWA) {
   if (nodeIsBound()) return;
   HostVar *proto = getPrototype();
   if (!proto) {
@@ -824,8 +700,8 @@ void CorrName::applyPrototype(BindWA *bindWA)
     }
     // upcase value returned by getenv
     Int32 len = strlen(value);
-    char * ucValue = new (bindWA->wHeap()) char[len+1];
-    str_cpy_convert(ucValue, value, len, -1/*upshift*/);
+    char *ucValue = new (bindWA->wHeap()) char[len + 1];
+    str_cpy_convert(ucValue, value, len, -1 /*upshift*/);
     ucValue[len] = 0;
     proto->getPrototypeValue() = ucValue;
     // do not free "ucValue" here, it is still used in "proto"
@@ -835,32 +711,29 @@ void CorrName::applyPrototype(BindWA *bindWA)
 
   // defines can not be used on linux platform
   if (proto->isDefine()) {
-      *CmpCommon::diags() << DgSqlCode(-4155) << DgString0(proto->getName());
-      bindWA->setErrStatus();
-      return;
+    *CmpCommon::diags() << DgSqlCode(-4155) << DgString0(proto->getName());
+    bindWA->setErrStatus();
+    return;
   }
 
   CMPASSERT(!proto->getPrototypeValue().isNull());
 
   // Some of the following code is cloned from the QualifiedName ctor above
   Parser parser(bindWA->currentCmpContext());
-  NAString ns("TABLE " + proto->getPrototypeValue() + ";",
-              CmpCommon::statementHeap());
+  NAString ns("TABLE " + proto->getPrototypeValue() + ";", CmpCommon::statementHeap());
   // save the current parserflags setting
-  ULng32 savedParserFlags = Get_SqlParser_Flags (0xFFFFFFFF);
+  ULng32 savedParserFlags = Get_SqlParser_Flags(0xFFFFFFFF);
   StmtQuery *stmt = (StmtQuery *)parser.parseDML(ns, ns.length(), GetAnsiNameCharSet());
-  // Restore parser flags settings 
-  Set_SqlParser_Flags (savedParserFlags);
+  // Restore parser flags settings
+  Set_SqlParser_Flags(savedParserFlags);
   if (stmt) {
     CMPASSERT(stmt->getOperatorType() == STM_QUERY);
-    CorrName &protoCorrName = 
-      		stmt->getQueryExpression()->getScanNode()->getTableName();
+    CorrName &protoCorrName = stmt->getQueryExpression()->getScanNode()->getTableName();
 
     // Unless the hostvar type was forced directly,
     // copy the special table type to me, the prototype may be a
     // resource fork
-    if (getSpecialType() == ExtendedQualName::NORMAL_TABLE)
-      setSpecialType(protoCorrName);
+    if (getSpecialType() == ExtendedQualName::NORMAL_TABLE) setSpecialType(protoCorrName);
 
     // This if-test prevents pathologies such as
     //	   SELECT col FROM :hv1 PROTOTYPE ':hv2 PROTOTYPE ''tbl''';
@@ -873,25 +746,22 @@ void CorrName::applyPrototype(BindWA *bindWA)
     HostVar *proto2 = protoCorrName.getPrototype();
     CMPASSERT(!proto2 || !proto->isEnvVar());
     if (!proto2 || proto2->isEnvVar()) {
-
       if (proto2) {
         // Here if proto2->isEnvVar.
-	// Recurse (once only; the assertion above ensures that)
-	// to get the value of the var, parse it and all.
-	protoCorrName.applyPrototype(bindWA);
-	if (bindWA->errStatus()) return;
+        // Recurse (once only; the assertion above ensures that)
+        // to get the value of the var, parse it and all.
+        protoCorrName.applyPrototype(bindWA);
+        if (bindWA->errStatus()) return;
       }
 
-      #ifndef NDEBUG
-	if (getenv("HV_DEBUG"))
-	  cout << "HostVar/Prototype: parsed (" 
-	       << (Int32)proto->nodeIsBound() << ") "
-	       << proto->getName() << " " 
-	       << protoCorrName.getExposedNameAsAnsiString() << endl;
-      #endif
+#ifndef NDEBUG
+      if (getenv("HV_DEBUG"))
+        cout << "HostVar/Prototype: parsed (" << (Int32)proto->nodeIsBound() << ") " << proto->getName() << " "
+             << protoCorrName.getExposedNameAsAnsiString() << endl;
+#endif
 
       // assert *before* overwriting with 0
-	//      CMPASSERT(!getQualifiedNameObj().getNamePosition());
+      //      CMPASSERT(!getQualifiedNameObj().getNamePosition());
       getQualifiedNameObj() = protoCorrName.getQualifiedNameObj();
 
       proto->setPrototypeType(HostVar::QUALIFIEDNAME);
@@ -902,58 +772,55 @@ void CorrName::applyPrototype(BindWA *bindWA)
   }
 
   if (!nodeIsBound()) {
-    // Clear parser syntax error and emit "Prototype value not valid"
-    #ifndef NDEBUG
-      if (!getenv("HV_DEBUG"))
-    #endif
-    CmpCommon::diags()->clear();
-    *CmpCommon::diags() << DgSqlCode(-4087) 
-      << DgString0(proto->getPrototypeValue());
+// Clear parser syntax error and emit "Prototype value not valid"
+#ifndef NDEBUG
+    if (!getenv("HV_DEBUG"))
+#endif
+      CmpCommon::diags()->clear();
+    *CmpCommon::diags() << DgSqlCode(-4087) << DgString0(proto->getPrototypeValue());
     bindWA->setErrStatus();
   }
 
   delete stmt;
 
-} // applyPrototype
+}  // applyPrototype
 
-// First, always calls applyPrototype -- so may fill in one or more of 
+// First, always calls applyPrototype -- so may fill in one or more of
 // this's name parts -- hence this method is not const.
 //
-// Second, delegates to QualifiedName::extractAndDefaultNameParts 
+// Second, delegates to QualifiedName::extractAndDefaultNameParts
 // to fill in the return name parts --
 // *EXCEPT* in the case that this CorrName contains a correlation name,
 // masking a qualified name like "c.s.t", -- then we always return 0
 // and the name parts are *not* filled in with defaults (they're meaningless).
 //
-Int32 CorrName::extractAndDefaultNameParts(BindWA *bindWA,
-					 const SchemaName& defCatSch,
-					 NAString& catName,	// OUT
-					 NAString& schName,	// OUT
-					 NAString& objName)	// OUT
+Int32 CorrName::extractAndDefaultNameParts(BindWA *bindWA, const SchemaName &defCatSch,
+                                           NAString &catName,  // OUT
+                                           NAString &schName,  // OUT
+                                           NAString &objName)  // OUT
 {
   // For performance, avoid redoing work if we've done it before
-  if (defaultMatchCount_ < 0) {		// initially -1
-  
+  if (defaultMatchCount_ < 0) {  // initially -1
+
     applyPrototype(bindWA);
     // if (!nodeIsBound()) return -1;	// caller will check bindWA-errStatus()
 
-    if (getCorrNameAsString() == "") {	// CorrName is "qual", not "corr"
-      CMPASSERT(NOT isFabricated());  	// only corr names can be fabricated
+    if (getCorrNameAsString() == "") {  // CorrName is "qual", not "corr"
+      CMPASSERT(NOT isFabricated());    // only corr names can be fabricated
       defaultMatchCount_ = getQualifiedNameObj().applyDefaults(defCatSch);
       // override schema, if default schema is "from" schema
       // increase count so columns like t.a will be valid
-      if ( bindWA->overrideSchemaEnabled()
-        && (bindWA->getOsFromSchema() == defCatSch.getSchemaName()) 
-        && (bindWA->getOsToSchema() == getQualifiedNameObj().getSchemaName()) )
+      if (bindWA->overrideSchemaEnabled() && (bindWA->getOsFromSchema() == defCatSch.getSchemaName()) &&
+          (bindWA->getOsToSchema() == getQualifiedNameObj().getSchemaName()))
         defaultMatchCount_++;
     } else
-      defaultMatchCount_ = 0;		// "corr" masks "qual", always return 0
+      defaultMatchCount_ = 0;  // "corr" masks "qual", always return 0
   }
 
-  catName = getQualifiedNameObj().getCatalogName();		// OUT
-  schName = getQualifiedNameObj().getSchemaName();		// OUT
-  objName = getQualifiedNameObj().getObjectName();		// OUT
-  
+  catName = getQualifiedNameObj().getCatalogName();  // OUT
+  schName = getQualifiedNameObj().getSchemaName();   // OUT
+  objName = getQualifiedNameObj().getObjectName();   // OUT
+
   return defaultMatchCount_;
 }
 
@@ -961,117 +828,70 @@ Int32 CorrName::extractAndDefaultNameParts(BindWA *bindWA,
 // *even if* this CorrName contains a correlation name string.
 // (And thus it's not safe to set the defaultMatchCount_ member.)
 //
-Int32 CorrName::applyDefaults(BindWA *bindWA,
-			    const SchemaName& defCatSch)
-{
-  if (defaultMatchCount_ >= 0) return defaultMatchCount_;	// for perf
+Int32 CorrName::applyDefaults(BindWA *bindWA, const SchemaName &defCatSch) {
+  if (defaultMatchCount_ >= 0) return defaultMatchCount_;  // for perf
 
   applyPrototype(bindWA);
   // if (!nodeIsBound()) return -1;	// caller will check bindWA-errStatus()
 
-  if (isFabricated()) return (defaultMatchCount_ = 0);	// assignment, not ==
+  if (isFabricated()) return (defaultMatchCount_ = 0);  // assignment, not ==
 
   Int32 retval = getQualifiedNameObj().applyDefaults(defCatSch);
-  if (retval == -1)         // Only NSK platform will return -1
-   bindWA->setErrStatus();
+  if (retval == -1)  // Only NSK platform will return -1
+    bindWA->setErrStatus();
   return retval;
 }
 
-NABoolean CorrName::isHive() const
-{
-  return getQualifiedNameObj().isHive();
-}
+NABoolean CorrName::isHive() const { return getQualifiedNameObj().isHive(); }
 
-NABoolean CorrName::isInHiveDefaultSchema() const
-{
-  return (isHive() &&
-          getQualifiedNameObj().getSchemaName() ==
-                                  HIVE_SYSTEM_SCHEMA);
-}
+NABoolean CorrName::isSeabase() const { return getQualifiedNameObj().isSeabase(); }
 
-NABoolean CorrName::isSeabase() const
-{
-  return getQualifiedNameObj().isSeabase();
-}
+NABoolean CorrName::isSeabaseMD() const { return getQualifiedNameObj().isSeabaseMD(); }
 
-NABoolean CorrName::isSeabaseMD() const
-{
-  return getQualifiedNameObj().isSeabaseMD();
-}
+NABoolean CorrName::isSeabasePrivMgrMD() const { return getQualifiedNameObj().isSeabasePrivMgrMD(); }
 
-NABoolean CorrName::isSeabasePrivMgrMD() const
-{
-  return getQualifiedNameObj().isSeabasePrivMgrMD();
-}
+NABoolean CorrName::isHbase() const { return getQualifiedNameObj().isHbase(); }
 
-NABoolean CorrName::isHbase() const
-{
-  return getQualifiedNameObj().isHbase();
-}
+NABoolean CorrName::isHbaseCell() const { return getQualifiedNameObj().isHbaseCell(); }
 
-NABoolean CorrName::isHbaseCell() const
-{
-  return getQualifiedNameObj().isHbaseCell();
-}
+NABoolean CorrName::isHbaseRow() const { return getQualifiedNameObj().isHbaseRow(); }
 
-NABoolean CorrName::isHbaseRow() const
-{
- return getQualifiedNameObj().isHbaseRow();
-}
+NABoolean CorrName::isHbaseMap() const { return getQualifiedNameObj().isHbaseMappedName(); }
 
-NABoolean CorrName::isHbaseMap() const
-{
-  return getQualifiedNameObj().isHbaseMappedName();
-}
-
-NAString CorrName::getCorrNameAsString() const
-{
-  return FORMAT(corrName_);
-}
+NAString CorrName::getCorrNameAsString() const { return FORMAT(corrName_); }
 
 //## inline?
-NAString CorrName::getQualifiedNameAsString(NABoolean formatForDisplay) const
-{
+NAString CorrName::getQualifiedNameAsString(NABoolean formatForDisplay) const {
   return getQualifiedNameObj().getQualifiedNameAsString(formatForDisplay);
 }
 
 //## inline?
-const NAString CorrName::getText() const
-{
+const NAString CorrName::getText() const {
   NAString result = getExtendedQualNameObj().getText();
-  if (getCorrNameAsString() != "")
-    result += NAString(" ") + ToAnsiIdentifier(getCorrNameAsString());
+  if (getCorrNameAsString() != "") result += NAString(" ") + ToAnsiIdentifier(getCorrNameAsString());
   return result;
 }
 
 // See ANSI 6.3.
 // Fabricated names do not get exposed.
-const NAString CorrName::getExposedNameAsString
-(NABoolean debug,
- NABoolean formatForDisplay) const
-{
+const NAString CorrName::getExposedNameAsString(NABoolean debug, NABoolean formatForDisplay) const {
   if (isFabricated() AND NOT debug)
     return "";
   else if (NOT getCorrNameAsString().isNull())
     return getCorrNameAsString();
   else
-    return getQualifiedNameAsString(formatForDisplay);		//##forceAnsi
+    return getQualifiedNameAsString(formatForDisplay);  //##forceAnsi
 }
 
-const NAString CorrName::getExposedNameAsAnsiString
-(NABoolean debug,
- NABoolean formatForDisplay) const
-{
+const NAString CorrName::getExposedNameAsAnsiString(NABoolean debug, NABoolean formatForDisplay) const {
   formatAsAnsiIdentifier = TRUE;
-  NAString result(getExposedNameAsString(debug, formatForDisplay), 
-    CmpCommon::statementHeap());
+  NAString result(getExposedNameAsString(debug, formatForDisplay), CmpCommon::statementHeap());
   formatAsAnsiIdentifier = FALSE;
   return result;
 }
 
-const NAString CorrName::getExposedNameAsStringWithPartitionNames() const
-{
-    if (isFabricated())
+const NAString CorrName::getExposedNameAsStringWithPartitionNames() const {
+  if (isFabricated())
     return "";
   else if (NOT getCorrNameAsString().isNull())
     return getCorrNameAsString();
@@ -1084,10 +904,8 @@ const NAString CorrName::getExposedNameAsStringWithPartitionNames() const
 // contained in a ColRefName, we are placing the comparision of all
 // other data members in this method. This method will be called
 // by the new == operator.
-NABoolean CorrName::isEqualWithPartnClauseSkipped(const CorrName& other) const
-{
-  if (isFabricated() ^ other.isFabricated())
-    return FALSE;
+NABoolean CorrName::isEqualWithPartnClauseSkipped(const CorrName &other) const {
+  if (isFabricated() ^ other.isFabricated()) return FALSE;
 
   NABoolean result;
   if (!corrName_.isNull()) {
@@ -1098,10 +916,10 @@ NABoolean CorrName::isEqualWithPartnClauseSkipped(const CorrName& other) const
       result = thisQual == other.getQualifiedNameObj();
     }
   } else if (!other.corrName_.isNull()) {
-      QualifiedName otherQual(other.corrName_);
-      result = getQualifiedNameObj() == otherQual;
+    QualifiedName otherQual(other.corrName_);
+    result = getQualifiedNameObj() == otherQual;
   } else {
-      result = getQualifiedNameObj() == other.getQualifiedNameObj();
+    result = getQualifiedNameObj() == other.getQualifiedNameObj();
   }
   //  // The names must match, and
   //  // the special types must match OR one of them must be "normal" --
@@ -1119,7 +937,7 @@ NABoolean CorrName::isEqualWithPartnClauseSkipped(const CorrName& other) const
   // or if we were reusing (cached) NATables across queries --
   // neither of which we are currently doing.
   // So, the names must match, and that's all!
-  
+
   return result;
 }
 // Real comparison operator
@@ -1128,58 +946,50 @@ NABoolean CorrName::isEqualWithPartnClauseSkipped(const CorrName& other) const
 // Then modify CorrName::isEmpty() and RETDesc.C and TableNameMap.C accordingly
 // (emulate the setSpecialType() logic).
 //
-NABoolean CorrName::operator==(const CorrName& other) const
-{
+NABoolean CorrName::operator==(const CorrName &other) const {
   // if two corrnames have different Partition clauses then they are different.
-  // This is needed because we are caching natables for which PARTITION or LOCATION 
+  // This is needed because we are caching natables for which PARTITION or LOCATION
   // clause is specified.
-  if (getPartnClause() != other.getPartnClause())
-    return FALSE;
+  if (getPartnClause() != other.getPartnClause()) return FALSE;
 
   return isEqualWithPartnClauseSkipped(other);
 }
 
+PartitionClause &PartitionClause::operator=(const PartitionClause &rhs) {
+  if (this == &rhs) return *this;
 
-PartitionClause & PartitionClause::operator=(const PartitionClause & rhs)
-{
-  if (this==&rhs) return *this ;
+  partName_ = rhs.partName_;
+  beginPartNumber_ = rhs.beginPartNumber_;
+  endPartNumber_ = rhs.endPartNumber_;
+  locationName_ = rhs.locationName_;
 
-  partName_          = rhs.partName_ ;
-  beginPartNumber_   = rhs.beginPartNumber_ ;
-  endPartNumber_     = rhs.endPartNumber_ ;
-  locationName_	     = rhs.locationName_;
-
-  partnNameSpecified_  = rhs.partnNameSpecified_;
-  partnNumSpecified_   = rhs.partnNumSpecified_;
+  partnNameSpecified_ = rhs.partnNameSpecified_;
+  partnNumSpecified_ = rhs.partnNumSpecified_;
   partnRangeSpecified_ = rhs.partnRangeSpecified_;
-  partnValsSpecified_  = rhs.partnValsSpecified_;
+  partnValsSpecified_ = rhs.partnValsSpecified_;
   partitionV2_ = rhs.partitionV2_;
   partnVals_ = rhs.partnVals_;
 
-  return *this ;
+  return *this;
 }
 // -----------------------------------------------------------------------
 // Methods for class ExtendedQualName
 // -----------------------------------------------------------------------
 
-NABoolean ExtendedQualName::operator==(const ExtendedQualName& other) const
-{
-  if ((getQualifiedNameObj() != other.getQualifiedNameObj()) ||
-      (getPartnClause() != other.getPartnClause()))
-  {
+NABoolean ExtendedQualName::operator==(const ExtendedQualName &other) const {
+  if ((getQualifiedNameObj() != other.getQualifiedNameObj()) || (getPartnClause() != other.getPartnClause())) {
     // different name
     return FALSE;
   }
- 
+
   SpecialTableType thisType = getSpecialType();
   SpecialTableType otherType = other.getSpecialType();
 
-  if (thisType == otherType)
-  {
+  if (thisType == otherType) {
     // name & special-type are the same
     return TRUE;
   }
-  
+
   // We reach this point when the only difference between the two objects
   // is in the special-type.
   //
@@ -1192,82 +1002,57 @@ NABoolean ExtendedQualName::operator==(const ExtendedQualName& other) const
   // equal. This will lead creation of only one NATable object for the MV
   // object.
 
-  if ((thisType == NORMAL_TABLE && otherType == MV_TABLE) ||
-      (thisType == MV_TABLE && otherType == NORMAL_TABLE))
-  {
+  if ((thisType == NORMAL_TABLE && otherType == MV_TABLE) || (thisType == MV_TABLE && otherType == NORMAL_TABLE)) {
     return TRUE;
   }
 
   return FALSE;
 }
 
-NAString ExtendedQualName::getExtendedQualifiedNameAsString() const
-{
-
-  if (hasPartnClause())
-  {
+NAString ExtendedQualName::getExtendedQualifiedNameAsString() const {
+  if (hasPartnClause()) {
     // Preallocate a result buffer that'll be big enough most of the time
     // (so += won't reallocate+copy most of the time).
     NAString result((NASize_T)65, CmpCommon::statementHeap());
     result = getQualifiedNameObj().getQualifiedNameAsString();
-    if (!(getPartnClause().getPartitionName().isNull()))
-    {
+    if (!(getPartnClause().getPartitionName().isNull())) {
       result += " : PARTITION NAME ";
       result += getPartnClause().getPartitionName();
-    }
-    else if (getPartnClause().getPartitionNumber() > 0)
-    {
+    } else if (getPartnClause().getPartitionNumber() > 0) {
       result += " : PARTITION NUMBER ";
       char buf[10];
       sprintf(buf, "%d", getPartnClause().getPartitionNumber());
       result += buf;
 
-      if (getPartnClause().getEndPartitionNumber() > 0)
-	{
-	  char buf[12];
-	  sprintf(buf, ",%d", getPartnClause().getEndPartitionNumber());
-	  result += buf;
-	}
-    }
-    else if (!(getPartnClause().getLocationName().isNull()))
-    {
+      if (getPartnClause().getEndPartitionNumber() > 0) {
+        char buf[12];
+        sprintf(buf, ",%d", getPartnClause().getEndPartitionNumber());
+        result += buf;
+      }
+    } else if (!(getPartnClause().getLocationName().isNull())) {
       result += " : LOCATION NAME ";
       result += getPartnClause().getLocationName();
     }
-    return result ;
-  }
-  else
+    return result;
+  } else
     return getQualifiedNameObj().getQualifiedNameAsString();
-  
 }
 
 // -----------------------------------------------------------------------
 // Methods for class ColRefName
 // -----------------------------------------------------------------------
 
-NABoolean ColRefName::operator==(const ColRefName& other) const
-{
-  return (isStar()         == other.isStar() &&
-  	  getColName()     == other.getColName() &&
-	  getCorrNameObj().isEqualWithPartnClauseSkipped(other.getCorrNameObj()));
+NABoolean ColRefName::operator==(const ColRefName &other) const {
+  return (isStar() == other.isStar() && getColName() == other.getColName() &&
+          getCorrNameObj().isEqualWithPartnClauseSkipped(other.getCorrNameObj()));
 }
 
+NABoolean ColRefName::operator!=(const ColRefName &other) const { return NOT operator==(other); }
 
-NABoolean ColRefName::operator!=(const ColRefName& other) const
-{
-  return NOT operator==(other);
-}
-
-NABoolean ColRefName::isQualified() const
-{
-  return corrName_ != "";
-}
+NABoolean ColRefName::isQualified() const { return corrName_ != ""; }
 
 NAString intRenPat("_X_");
-const NAString ColRefName::getColRefAsString(const NAString& col,
-                                             const NAString& corr,
-                                             NABoolean removeIntCorrName)
-{
+const NAString ColRefName::getColRefAsString(const NAString &col, const NAString &corr, NABoolean removeIntCorrName) {
   // if removeIntCorrName is set and corr is of the format:
   //   "_X_<...>_X_"
   // then it a name generated for an internal derived table.
@@ -1276,59 +1061,43 @@ const NAString ColRefName::getColRefAsString(const NAString& col,
   // does not have an explicit user specified name associated with it.
   // Remove this name before returning the string
 
-  if (corr == (const char *)"") 
+  if (corr == (const char *)"")
     return col;
-  else
-    {
-      NAString returnVal;
-      if (removeIntCorrName)
-        {
-          if ((corr.length() > (2 * intRenPat.length()+2)) &&
-              (corr.data()[0] == '\"') &&
-              (corr.data()[corr.length()-1] == '\"') &&
-              (corr(1, intRenPat.length()) == intRenPat) &&
-              (corr(corr.length() - intRenPat.length() - 1, intRenPat.length()) == intRenPat))
-            {
-              returnVal = col;
-              return returnVal;
-            }
-        }
-
-      returnVal.append(corr);
-      returnVal.append(".");
-      returnVal.append(col);
-      return returnVal;
+  else {
+    NAString returnVal;
+    if (removeIntCorrName) {
+      if ((corr.length() > (2 * intRenPat.length() + 2)) && (corr.data()[0] == '\"') &&
+          (corr.data()[corr.length() - 1] == '\"') && (corr(1, intRenPat.length()) == intRenPat) &&
+          (corr(corr.length() - intRenPat.length() - 1, intRenPat.length()) == intRenPat)) {
+        returnVal = col;
+        return returnVal;
+      }
     }
+
+    returnVal.append(corr);
+    returnVal.append(".");
+    returnVal.append(col);
+    return returnVal;
+  }
 }
 
-const NAString ColRefName::getColRefAsString(NABoolean debug,
-					     NABoolean formatForDisplay,
-                                             NABoolean removeIntCorrName) const
-{
+const NAString ColRefName::getColRefAsString(NABoolean debug, NABoolean formatForDisplay,
+                                             NABoolean removeIntCorrName) const {
   // Call static method to return "col", "corr.col", or "cat.sch.tbl.col"
   NAString tmp(FORMAT_NO_ASSERT(getColName()), CmpCommon::statementHeap());
-  return getColRefAsString(tmp, 
-			   corrName_.getExposedNameAsString
-			   (debug,
-			    formatForDisplay),
-                           removeIntCorrName);
+  return getColRefAsString(tmp, corrName_.getExposedNameAsString(debug, formatForDisplay), removeIntCorrName);
 }
 
-const NAString ColRefName::getColRefAsAnsiString(NABoolean debug,
-						 NABoolean formatForDisplay,
-                                                 NABoolean removeIntCorrName) const
-{
+const NAString ColRefName::getColRefAsAnsiString(NABoolean debug, NABoolean formatForDisplay,
+                                                 NABoolean removeIntCorrName) const {
   formatAsAnsiIdentifier = TRUE;
-  NAString result(getColRefAsString(debug,
-                                    formatForDisplay, removeIntCorrName), 
-		  CmpCommon::statementHeap());
+  NAString result(getColRefAsString(debug, formatForDisplay, removeIntCorrName), CmpCommon::statementHeap());
   formatAsAnsiIdentifier = FALSE;
   return result;
 }
 
-const NAString ColRefName::getColNameAsAnsiString() const
-{
-  NAString tempColHeading(CmpCommon::statementHeap()); 
+const NAString ColRefName::getColNameAsAnsiString() const {
+  NAString tempColHeading(CmpCommon::statementHeap());
   tempColHeading = ToAnsiIdentifier(getColName());
   char buff[ComAnsiNamePart::MAX_IDENTIFIER_EXT_LEN];
   char *finalptr = buff;
@@ -1339,21 +1108,17 @@ const NAString ColRefName::getColNameAsAnsiString() const
   // This will change a name of the form "a""b"  to    a"b
   size_t i = 0;
   size_t f = 0;
-  if (initptr[i] == '"')
-    {
+  if (initptr[i] == '"') {
+    i++;
+    while (i < (len - 1)) {
+      finalptr[f] = initptr[i];
+      if ((initptr[i] == '"') && (initptr[i + 1] == '"')) i++;
       i++;
-      while (i < (len - 1))
-	{
-	  finalptr[f] = initptr[i];
-	  if ((initptr[i] == '"') &&
-	      (initptr[i+1] == '"'))
-	    i++;
-	  i++;
-	  f++;
-	}
-      finalptr[f] = '\0';
-      tempColHeading = buff;
-    } // delimited name
+      f++;
+    }
+    finalptr[f] = '\0';
+    tempColHeading = buff;
+  }  // delimited name
 
   return tempColHeading;
 }
@@ -1365,56 +1130,45 @@ const NAString ColRefName::getColNameAsAnsiString() const
 
 // Find the table names in the specified RETDesc.
 // Returns TRUE if found.
-NABoolean TableRefName::lookupTableName(RETDesc *retDesc)
-{
-	if (retDesc == NULL)
-		return FALSE;
+NABoolean TableRefName::lookupTableName(RETDesc *retDesc) {
+  if (retDesc == NULL) return FALSE;
 
-	if (getColumnList() != NULL)    // Have we already found this one?
-		return FALSE;
-									// Lookup the table name in the RETDesc
-	ColumnDescList *columnList = retDesc->getQualColumnList(getTableCorr());
-	if (columnList == NULL)
-		return FALSE;
+  if (getColumnList() != NULL)  // Have we already found this one?
+    return FALSE;
+  // Lookup the table name in the RETDesc
+  ColumnDescList *columnList = retDesc->getQualColumnList(getTableCorr());
+  if (columnList == NULL) return FALSE;
 
-	setColumnList(columnList);      // Save the pointer to the ColumnDescList
-	return TRUE;                    // One reference less to find.
+  setColumnList(columnList);  // Save the pointer to the ColumnDescList
+  return TRUE;                // One reference less to find.
 }
 
-// Add to the RETDesc of the current BindScope new columns, 
+// Add to the RETDesc of the current BindScope new columns,
 // each with the information found by lookupTableName(), but with the refName
 // as a correlation name to the table.
-void TableRefName::bindRefColumns(BindWA *bindWA) const
-{
-	if (getColumnList() == NULL)
-		return;    // REFERENCING an unused transition name.
+void TableRefName::bindRefColumns(BindWA *bindWA) const {
+  if (getColumnList() == NULL) return;  // REFERENCING an unused transition name.
 
-	RETDesc *currentRETDesc = bindWA->getCurrentScope()->getRETDesc();
-	// Create a new CorrName for the table, with the refName as a correllation
-	// name. Since it's the same table for all columns, take the table name
-	// from the first column.
-	const ColumnDesc *firstCol = getColumnList()->at(0);
-	CorrName updatedCorrName(firstCol->getColRefNameObj().getCorrNameObj());
-	updatedCorrName.setCorrName(getRefName());
+  RETDesc *currentRETDesc = bindWA->getCurrentScope()->getRETDesc();
+  // Create a new CorrName for the table, with the refName as a correllation
+  // name. Since it's the same table for all columns, take the table name
+  // from the first column.
+  const ColumnDesc *firstCol = getColumnList()->at(0);
+  CorrName updatedCorrName(firstCol->getColRefNameObj().getCorrNameObj());
+  updatedCorrName.setCorrName(getRefName());
 
-	// Insert this CorrName into the XTNM of the current BindScope.
-//	bindWA->getCurrentScope()->getXTNM()->insertNames(bindWA,updatedCorrName);
-	
-	for (CollIndex i=0; i<getColumnList()->entries(); i++) 
-	{
-		// For each column of the table
-		const ColumnDesc *currentCol = getColumnList()->at(i);			
-		// Create a new column ref, with the updated corellation name.
-		ColRefName renamedColumn(currentCol->getColRefNameObj().getColName(), 
-								 updatedCorrName);
+  // Insert this CorrName into the XTNM of the current BindScope.
+  //	bindWA->getCurrentScope()->getXTNM()->insertNames(bindWA,updatedCorrName);
 
-		// Add it to the RETDesc of the current scope.
-		currentRETDesc->addColumn(bindWA, 
-								  renamedColumn, 
-								  currentCol->getValueId(), 
-								  USER_COLUMN, 
-								  currentCol->getHeading());
-	}
+  for (CollIndex i = 0; i < getColumnList()->entries(); i++) {
+    // For each column of the table
+    const ColumnDesc *currentCol = getColumnList()->at(i);
+    // Create a new column ref, with the updated corellation name.
+    ColRefName renamedColumn(currentCol->getColRefNameObj().getColName(), updatedCorrName);
+
+    // Add it to the RETDesc of the current scope.
+    currentRETDesc->addColumn(bindWA, renamedColumn, currentCol->getValueId(), USER_COLUMN, currentCol->getHeading());
+  }
 }
 
 // -----------------------------------------------------------------------
@@ -1423,18 +1177,13 @@ void TableRefName::bindRefColumns(BindWA *bindWA) const
 
 // Default Ctor, make the LIST allocated it's internal data from the
 // statement heap instead of the system heap.
-TableRefList::TableRefList(CollHeap *heap) :
-	LIST(TableRefName)(heap)
-	{}
+TableRefList::TableRefList(CollHeap *heap) : LIST(TableRefName)(heap) {}
 
-const TableRefName *TableRefList::findTable(const CorrName& tableCorr) const
-{
-	for (CollIndex i=0; i<entries(); i++)
-	{
-		if (at(i).getTableCorr() == tableCorr)
-			return &at(i);
-	}
-	return NULL;
+const TableRefName *TableRefList::findTable(const CorrName &tableCorr) const {
+  for (CollIndex i = 0; i < entries(); i++) {
+    if (at(i).getTableCorr() == tableCorr) return &at(i);
+  }
+  return NULL;
 }
 
 // -----------------------------------------------------------------------
@@ -1443,221 +1192,186 @@ const TableRefName *TableRefList::findTable(const CorrName& tableCorr) const
 
 // Display/print, for debugging.
 
-void CatalogName::display()   const { print(); }	
-void CorrName::display()      const { print(); }	
-void ColRefName::display()    const { print(); }	
-void ExtendedQualName::display()      const { print(); }	
+void CatalogName::display() const { print(); }
+void CorrName::display() const { print(); }
+void ColRefName::display() const { print(); }
+void ExtendedQualName::display() const { print(); }
 
-void CatalogName::print(FILE* ofd, const char* indent, const char* title) const
-{
+void CatalogName::print(FILE *ofd, const char *indent, const char *title) const {
 #ifndef NDEBUG
-  fprintf(ofd,"catalog=%s%s",
-	  getCatalogName().data(),
-	  indent);	// just to prevent warnings
-  if (strcmp(title,"")) fprintf(ofd,"\n");
+  fprintf(ofd, "catalog=%s%s", getCatalogName().data(),
+          indent);  // just to prevent warnings
+  if (strcmp(title, "")) fprintf(ofd, "\n");
 #endif
 }
 
-void SchemaName::print(FILE* ofd, const char* indent, const char* title) const
-{
+void SchemaName::print(FILE *ofd, const char *indent, const char *title) const {
 #ifndef NDEBUG
-  fprintf(ofd,"c=%s s=%s%s",
-	  getCatalogName().data(),
-	  getSchemaName().data(),
-	  indent);	// just to prevent warnings
-  if (strcmp(title,"")) fprintf(ofd,"\n");
+  fprintf(ofd, "c=%s s=%s%s", getCatalogName().data(), getSchemaName().data(),
+          indent);  // just to prevent warnings
+  if (strcmp(title, "")) fprintf(ofd, "\n");
 #endif
 }
 
-void QualifiedName::print(FILE* ofd, const char* indent, const char* title) const
-{
+void QualifiedName::print(FILE *ofd, const char *indent, const char *title) const {
 #ifndef NDEBUG
-  fprintf(ofd,"c=%s s=%s o=%s%s",
-	  getCatalogName().data(),
-	  getSchemaName().data(),
-	  getObjectName().data(),
-	  indent);	// just to prevent warnings
-  if (strcmp(title,"")) fprintf(ofd,"\n");
+  fprintf(ofd, "c=%s s=%s o=%s%s", getCatalogName().data(), getSchemaName().data(), getObjectName().data(),
+          indent);  // just to prevent warnings
+  if (strcmp(title, "")) fprintf(ofd, "\n");
 #endif
 }
 
-NABoolean QualifiedName::isHistograms() const
-{
-   return (getObjectName() == HBASE_HIST_NAME);
+NABoolean QualifiedName::isHistograms() const { return (getObjectName() == HBASE_HIST_NAME); }
+
+NABoolean QualifiedName::isHistogramIntervals() const { return (getObjectName() == HBASE_HISTINT_NAME); }
+
+NABoolean QualifiedName::isHistogramTable() const {
+  const NAString objName = getObjectName();
+  return (objName == HBASE_HIST_NAME || objName == HBASE_HISTINT_NAME || objName == HBASE_PERS_SAMP_NAME);
 }
 
-NABoolean QualifiedName::isHistogramIntervals() const
-{
-   return (getObjectName() == HBASE_HISTINT_NAME);
+void fixupVTable(QualifiedName *targetQName) {
+  // The first 8 bytes is the pointer to the virtual table.
+  // Fix the ptr by copying the clean version from qName,
+  // whose vritual table ptr is guaranteed valid in this
+  // process.
+  static QualifiedName qName;
+
+  if (targetQName) memcpy((char *)targetQName, (char *)&qName, sizeof(void *));
 }
 
-NABoolean QualifiedName::isHistogramTable() const
-{
-   const NAString objName = getObjectName();
-   return (objName == HBASE_HIST_NAME || 
-           objName == HBASE_HISTINT_NAME ||
-           objName == HBASE_PERS_SAMP_NAME );
-}
-
-void fixupVTable(QualifiedName* targetQName) 
-{
-   // The first 8 bytes is the pointer to the virtual table.
-   // Fix the ptr by copying the clean version from qName, 
-   // whose vritual table ptr is guaranteed valid in this
-   // process.
-   static QualifiedName qName;
-
-   if ( targetQName )
-      memcpy((char*)targetQName, (char*)&qName, sizeof(void*));
-}
-
-void ExtendedQualName::print(FILE* ofd, const char* indent, const char* title) const
-{
+void ExtendedQualName::print(FILE *ofd, const char *indent, const char *title) const {
 #ifndef NDEBUG
-  fprintf(ofd,"%s ", getLocationName().data());
+  fprintf(ofd, "%s ", getLocationName().data());
   getQualifiedNameObj().print(ofd, indent, "");
-  if (strcmp(title,"")) fprintf(ofd,"\n");
+  if (strcmp(title, "")) fprintf(ofd, "\n");
 #endif
 }
 
-void CorrName::print(FILE* ofd, const char* indent, const char* title) const
-{
+void CorrName::print(FILE *ofd, const char *indent, const char *title) const {
 #ifndef NDEBUG
-  fprintf(ofd,"%s ", getExposedNameAsString().data());
-  if (isFabricated())
-    fprintf(ofd,"(%s) ", getExposedNameAsString(TRUE).data());
+  fprintf(ofd, "%s ", getExposedNameAsString().data());
+  if (isFabricated()) fprintf(ofd, "(%s) ", getExposedNameAsString(TRUE).data());
   getQualifiedNameObj().print(ofd, indent, "");
-  if (strcmp(title,"")) fprintf(ofd,"\n");
+  if (strcmp(title, "")) fprintf(ofd, "\n");
 #endif
 }
 
-void ColRefName::print(FILE* ofd, const char* indent, const char* title,
-		       NABoolean brief) const
-{
+void ColRefName::print(FILE *ofd, const char *indent, const char *title, NABoolean brief) const {
 #ifndef NDEBUG
-  if (strcmp(title, "")) fprintf(ofd,"%s ", title);
-  fprintf(ofd,"%s", getColRefAsString().data());
-  if (isFabricated())
-    fprintf(ofd," (%s)", getColRefAsString(TRUE).data());
+  if (strcmp(title, "")) fprintf(ofd, "%s ", title);
+  fprintf(ofd, "%s", getColRefAsString().data());
+  if (isFabricated()) fprintf(ofd, " (%s)", getColRefAsString(TRUE).data());
   if (brief) return;
-  fprintf(ofd," ");
+  fprintf(ofd, " ");
   getCorrNameObj().print(ofd, indent, "");
-  if (strcmp(title,"")) fprintf(ofd,"\n");
+  if (strcmp(title, "")) fprintf(ofd, "\n");
 #endif
 }
 
 // ++MV
-ComAnsiNameSpace ExtendedQualName::convSpecialTableTypeToAnsiNameSpace( const SpecialTableType type )
-{
-  switch (type)
-  {
-  case  NORMAL_TABLE:
-  case  LOAD_TABLE:
-  case  ISP_TABLE:
-  case  MV_TABLE:
-  case  PARTITION_TABLE:
-  case  TRIGTEMP_TABLE:
-  case  VIRTUAL_TABLE:
-  case  MVS_UMD:
-    return COM_TABLE_NAME;
-  case  INDEX_TABLE:
-    return COM_INDEX_NAME;
-  case  IUD_LOG_TABLE:
-    return COM_IUD_LOG_TABLE_NAME;
-  case  RANGE_LOG_TABLE:
-    return COM_RANGE_LOG_TABLE_NAME;
-  case SCHEMA_SECURITY_TABLE:
-    return COM_SCHEMA_LABEL_NAME;
-  case  EXCEPTION_TABLE:
-    return COM_EXCEPTION_TABLE_NAME;
-  case GHOST_TABLE:
-  case GHOST_MV_TABLE:
-    return COM_GHOST_TABLE_NAME;
-  case GHOST_INDEX_TABLE:
-    return COM_GHOST_INDEX_NAME;
-  case  GHOST_IUD_LOG_TABLE:
-    return COM_GHOST_IUD_LOG_TABLE_NAME;
-  case SG_TABLE:
-    return COM_SEQUENCE_GENERATOR_NAME;
-  case LIBRARY_TABLE:   // not really a table, but that is what we call 3 part names
-    return COM_LIBRARY_NAME; 
-  default:
-    return COM_UNKNOWN_NAME;
+ComAnsiNameSpace ExtendedQualName::convSpecialTableTypeToAnsiNameSpace(const SpecialTableType type) {
+  switch (type) {
+    case NORMAL_TABLE:
+    case LOAD_TABLE:
+    case ISP_TABLE:
+    case MV_TABLE:
+    case PARTITION_TABLE:
+    case TRIGTEMP_TABLE:
+    case VIRTUAL_TABLE:
+    case MVS_UMD:
+      return COM_TABLE_NAME;
+    case INDEX_TABLE:
+      return COM_INDEX_NAME;
+    case IUD_LOG_TABLE:
+      return COM_IUD_LOG_TABLE_NAME;
+    case RANGE_LOG_TABLE:
+      return COM_RANGE_LOG_TABLE_NAME;
+    case SCHEMA_SECURITY_TABLE:
+      return COM_SCHEMA_LABEL_NAME;
+    case EXCEPTION_TABLE:
+      return COM_EXCEPTION_TABLE_NAME;
+    case GHOST_TABLE:
+    case GHOST_MV_TABLE:
+      return COM_GHOST_TABLE_NAME;
+    case GHOST_INDEX_TABLE:
+      return COM_GHOST_INDEX_NAME;
+    case GHOST_IUD_LOG_TABLE:
+      return COM_GHOST_IUD_LOG_TABLE_NAME;
+    case SG_TABLE:
+      return COM_SEQUENCE_GENERATOR_NAME;
+    case LIBRARY_TABLE:  // not really a table, but that is what we call 3 part names
+      return COM_LIBRARY_NAME;
+    default:
+      return COM_UNKNOWN_NAME;
   }
 }
 
-ComAnsiNameSpace ExtendedQualName::getAnsiNameSpace() const
-{
+ComAnsiNameSpace ExtendedQualName::getAnsiNameSpace() const {
   return convSpecialTableTypeToAnsiNameSpace(getSpecialType());
 }
 
 // In the display tool, it is usefull to know the special type also.
-const NAString ExtendedQualName::getSpecialTypeName() const
-{
+const NAString ExtendedQualName::getSpecialTypeName() const {
   NAString result;
 
-  switch (getSpecialType())
-  {
-    case  MV_TABLE:
+  switch (getSpecialType()) {
+    case MV_TABLE:
       result += "MV";
       break;
 
-    case  TRIGTEMP_TABLE:
+    case TRIGTEMP_TABLE:
       result += "TrigTemp";
       break;
-    case  INDEX_TABLE:
+    case INDEX_TABLE:
       result += "Index";
       break;
 
-    case  IUD_LOG_TABLE:
+    case IUD_LOG_TABLE:
       result += "IudLog";
       break;
 
-    case  RANGE_LOG_TABLE:
+    case RANGE_LOG_TABLE:
       result += "RangeLog";
       break;
 
-    case  EXCEPTION_TABLE:
+    case EXCEPTION_TABLE:
       result += "Exception";
       break;
 
-    case  GHOST_TABLE:
+    case GHOST_TABLE:
       result += "GhostTable";
       break;
 
-    case  GHOST_INDEX_TABLE:
+    case GHOST_INDEX_TABLE:
       result += "GhostIndex";
       break;
 
-    case  GHOST_MV_TABLE:
+    case GHOST_MV_TABLE:
       result += "GhostMV";
       break;
 
-    case  LIBRARY_TABLE:
+    case LIBRARY_TABLE:
       result += "Library";
       break;
 
-    default: ;
+    default:;
   }
 
   return result;
 }
 
-const NAString ExtendedQualName::getText() const
-{
-  NAString result(getQualifiedNameObj().getQualifiedNameAsAnsiString(TRUE), 
-                  CmpCommon::statementHeap());
+const NAString ExtendedQualName::getText() const {
+  NAString result(getQualifiedNameObj().getQualifiedNameAsAnsiString(TRUE), CmpCommon::statementHeap());
   return result;
 }
 
-const NAString ExtendedQualName::getTextWithSpecialType() const
-{
+const NAString ExtendedQualName::getTextWithSpecialType() const {
   NAString tableType(getSpecialTypeName());
 
   if (tableType == "")
     return getText();
-  else
-  {
+  else {
     NAString tableName(getText());
     tableName += " (";
     tableName += tableType;
@@ -1669,26 +1383,20 @@ const NAString ExtendedQualName::getTextWithSpecialType() const
 // --MV
 // For NAKeyLookup
 
-ULng32 hashKey(const QualifiedName& name) { return name.hash(); }
-ULng32 hashKey(const ExtendedQualName& name) { return name.hash(); }
-ULng32 hashKey(const CorrName&      name) { return name.hash(); }
-ULng32 hashKey(const ColRefName&    name) { return name.hash(); }
-
-
+ULng32 hashKey(const QualifiedName &name) { return name.hash(); }
+ULng32 hashKey(const ExtendedQualName &name) { return name.hash(); }
+ULng32 hashKey(const CorrName &name) { return name.hash(); }
+ULng32 hashKey(const ColRefName &name) { return name.hash(); }
 
 // For TaskMonitor display
-ostream& operator<< (ostream& out, TaskMonitor t)
-{
-// return the time in microseconds. The unit indicator ("ms") should be "us".
-// But we right now we keep it as "ms".
+ostream &operator<<(ostream &out, TaskMonitor t) {
+  // return the time in microseconds. The unit indicator ("ms") should be "us".
+  // But we right now we keep it as "ms".
 
   out.fixed;
   out.precision(6);
 
-  return out<< "Time = " <<
-  ((double) t.timer()) / CLOCKS_PER_SEC
-  << " us (microsecond)" <<
-   "\tET = " << t.elapsed_time() << " s" << 
-  " \tCounts = "<<t.count()<<" \tGoodCnts = "<<t.goodcount();
+  return out << "Time = " << ((double)t.timer()) / CLOCKS_PER_SEC << " us (microsecond)"
+             << "\tET = " << t.elapsed_time() << " s"
+             << " \tCounts = " << t.count() << " \tGoodCnts = " << t.goodcount();
 }
-

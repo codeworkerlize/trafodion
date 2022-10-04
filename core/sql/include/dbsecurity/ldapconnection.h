@@ -1,4 +1,4 @@
-#if ! defined(LDAPCONNECTION_H)
+#if !defined(LDAPCONNECTION_H)
 #define LDAPCONNECTION_H
 
 //*********************************************************************
@@ -45,74 +45,63 @@
 // *              Derivable:   Yes                                             *
 // *                                                                           *
 // *****************************************************************************
-class LdapConnection
-{
-  public:
-    LdapConnection();
-    LdapConnection( const LdapConnection & other );
-    LdapConnection & operator = ( const LdapConnection & other );
-    virtual ~LdapConnection();
+class LdapConnection {
+ public:
+  LdapConnection();
+  LdapConnection(const LdapConnection &other);
+  LdapConnection &operator=(const LdapConnection &other);
+  virtual ~LdapConnection();
 
-    int openConnection();
-    int closeConnection();
-    int updateConnection();
-    int reopenConnection();
-    void checkLDAPConfig(void); 
+  int openConnection();
+  int closeConnection();
+  int updateConnection();
+  int reopenConnection();
+  void checkLDAPConfig(void);
 
-    int addDefaultConfig();
-    int prepareConfigTxt();
-    int initConnection();
+  int addDefaultConfig();
+  int prepareConfigTxt();
+  int initConnection();
 
-    void addNode( LdapConfigNode *configNode ) 
-      { ldapConfigNodes_.push_back(configNode); };
+  void addNode(LdapConfigNode *configNode) { ldapConfigNodes_.push_back(configNode); };
 
-    vector<LdapConfigNode *> * getLdapConfigNodes() 
-      { return &ldapConfigNodes_; }
+  vector<LdapConfigNode *> *getLdapConfigNodes() { return &ldapConfigNodes_; }
 
-    LdapConfigNode * getDefaultConfigNode() 
-      { return defaultConfigNode_; };
+  LdapConfigNode *getDefaultConfigNode() { return defaultConfigNode_; };
 
-    LdapConfigNode * getSearchUserIdConfigNode() 
-      { return searchUserIdConfigNode_; };
+  LdapConfigNode *getSearchUserIdConfigNode() { return searchUserIdConfigNode_; };
 
-    vector<LdapConfigNode *> * getSearchUniqueIdConfigNode() 
-      { return &searchUniqueIdConfigNode_; };
+  vector<LdapConfigNode *> *getSearchUniqueIdConfigNode() { return &searchUniqueIdConfigNode_; };
 
-    LdapConfigNode * getAuthConfigNode() 
-      { return authConfigNode_; };
+  LdapConfigNode *getAuthConfigNode() { return authConfigNode_; };
 
-    LdapConfigNode * getUserFoundNode() 
-      { return userFoundNode_; };
+  LdapConfigNode *getUserFoundNode() { return userFoundNode_; };
 
-    short getTotalActiveNodes() 
-      { return totalActiveNodes_; };
+  short getTotalActiveNodes() { return totalActiveNodes_; };
 
-    int setDefaultConfigNode();
-    int setSearchConfigNode();
-    int setAuthConfigNode();
-    
-    void setUserFoundNode(LdapConfigNode *node)
-      { userFoundNode_ = node; }
+  int setDefaultConfigNode();
+  int setSearchConfigNode();
+  int setAuthConfigNode();
 
-    bool isValid()
-      { return isValid_; } 
+  void setUserFoundNode(LdapConfigNode *node) { userFoundNode_ = node; }
 
-  private:
-    bool isValid_;  // true iff this object represents a valid connection
-    vector<LdapConfigNode *> ldapConfigNodes_; 
-    LdapConfigNode *defaultConfigNode_;
-    LdapConfigNode *searchUserIdConfigNode_;
-    vector<LdapConfigNode *> searchUniqueIdConfigNode_;
-    LdapConfigNode *authConfigNode_;
-    LdapConfigNode *userFoundNode_;
+  bool isValid() { return isValid_; }
 
-    short totalActiveNodes_;
-    long long lastUpdateTimestamp_;
+ private:
+  bool isValid_;  // true iff this object represents a valid connection
+  vector<LdapConfigNode *> ldapConfigNodes_;
+  LdapConfigNode *defaultConfigNode_;
+  LdapConfigNode *searchUserIdConfigNode_;
+  vector<LdapConfigNode *> searchUniqueIdConfigNode_;
+  LdapConfigNode *authConfigNode_;
+  LdapConfigNode *userFoundNode_;
 
-    int loadConfigParams();
-    int loadConfigNodes();
-    int checkConfigNodes();
-    int searchAuthGroup(LdapConfigNode *node);
+  short totalActiveNodes_;
+  long long lastUpdateTimestamp_;
+
+  int loadConfigParams();
+  int loadConfigNodes();
+  int checkConfigNodes();
+  int searchAuthGroup(LdapConfigNode *node);
 };
 
 #endif

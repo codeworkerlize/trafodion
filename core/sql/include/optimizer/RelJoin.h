@@ -36,7 +36,6 @@
 ******************************************************************************
 */
 
-
 #include "optimizer/ObjectNames.h"
 #include "optimizer/RelExpr.h"
 #include "ReqGen.h"
@@ -106,66 +105,59 @@ class CostMethodHashJoin;
 // is evaluated on the scan of the inner table.
 // -----------------------------------------------------------------------
 
-class Join : public RelExpr
-{
-
-public:
-
+class Join : public RelExpr {
+ public:
   // constructor
-  Join(RelExpr *leftChild,
-              RelExpr *rightChild,
-              OperatorTypeEnum otype = REL_JOIN,
-              ItemExpr *joinPred = NULL,
-              NABoolean isNaturalJoin = FALSE,
-              NABoolean isTransformComplete = FALSE,
-              CollHeap *oHeap = CmpCommon::statementHeap(),
-              TableDesc *updateTableDesc = NULL,
-              ValueIdMap *updateSelectValueIdMap = NULL)
-  : RelExpr(otype, leftChild, rightChild, oHeap)
-  , joinPredTree_(joinPred)
-  , isNaturalJoin_(isNaturalJoin)
-  , transformComplete_(isTransformComplete)
-  , updateTableDesc_(updateTableDesc)
-  , updateSelectValueIdMap_(updateSelectValueIdMap)
-  , leftHasUniqueMatches_(FALSE)
-  , rightHasUniqueMatches_(FALSE)
-  , considerTSJ_(TRUE)
-  , tsjAfterSQO_(FALSE)
-  , tsjForWrite_(FALSE)
-  , tsjForUndo_(FALSE)
-  , tsjForSetNFError_(FALSE)
-  , tsjForMerge_(FALSE)
-  , tsjForMergeWithInsert_(FALSE)
-  , tsjForMergeUpsert_(FALSE)
-  , derivedFromRoutineJoin_(FALSE)
-  , joinFromPTRule_(FALSE)
-  , joinFromMJSynthLogProp_(FALSE)
-  , joinForZigZag_(FALSE)
-  // QSTUFF
-  , cursorUpdate_(FALSE)
-  // QSTUFF
-  , forcePhysicalJoinType_(NO_FORCING)
-  , rowsetRowCountArraySize_(0)
-  , avoidHalloweenR2_(FALSE)
-  , sourceType_(GENERAL)
-  , candidateForSubqueryUnnest_(FALSE)
-  , candidateForSubqueryLeftJoinConversion_(FALSE)
-  , candidateForSemiJoinTransform_(FALSE)
-  , halloweenForceSort_(NO_SELF_REFERENCE)
-  , floatingJoin_(FALSE)
-  , isIntersect_(FALSE)
-  , isIndexJoin_(FALSE)
-  , allowPushDown_(TRUE)
-  , tsjForSideTreeInsert_(FALSE)
-  , enableTransformToSTI_(FALSE)
-  , isForTrafLoadPrep_(FALSE)
-  , beforeJoinPredOnOuterOnly_(FALSE)
-  , compositeUnnestJoin_(FALSE)
-  , vid2rowcountMap_(oHeap)
-  { }
+  Join(RelExpr *leftChild, RelExpr *rightChild, OperatorTypeEnum otype = REL_JOIN, ItemExpr *joinPred = NULL,
+       NABoolean isNaturalJoin = FALSE, NABoolean isTransformComplete = FALSE,
+       CollHeap *oHeap = CmpCommon::statementHeap(), TableDesc *updateTableDesc = NULL,
+       ValueIdMap *updateSelectValueIdMap = NULL)
+      : RelExpr(otype, leftChild, rightChild, oHeap),
+        joinPredTree_(joinPred),
+        isNaturalJoin_(isNaturalJoin),
+        transformComplete_(isTransformComplete),
+        updateTableDesc_(updateTableDesc),
+        updateSelectValueIdMap_(updateSelectValueIdMap),
+        leftHasUniqueMatches_(FALSE),
+        rightHasUniqueMatches_(FALSE),
+        considerTSJ_(TRUE),
+        tsjAfterSQO_(FALSE),
+        tsjForWrite_(FALSE),
+        tsjForUndo_(FALSE),
+        tsjForSetNFError_(FALSE),
+        tsjForMerge_(FALSE),
+        tsjForMergeWithInsert_(FALSE),
+        tsjForMergeUpsert_(FALSE),
+        derivedFromRoutineJoin_(FALSE),
+        joinFromPTRule_(FALSE),
+        joinFromMJSynthLogProp_(FALSE),
+        joinForZigZag_(FALSE)
+        // QSTUFF
+        ,
+        cursorUpdate_(FALSE)
+        // QSTUFF
+        ,
+        forcePhysicalJoinType_(NO_FORCING),
+        rowsetRowCountArraySize_(0),
+        avoidHalloweenR2_(FALSE),
+        sourceType_(GENERAL),
+        candidateForSubqueryUnnest_(FALSE),
+        candidateForSubqueryLeftJoinConversion_(FALSE),
+        candidateForSemiJoinTransform_(FALSE),
+        halloweenForceSort_(NO_SELF_REFERENCE),
+        floatingJoin_(FALSE),
+        isIntersect_(FALSE),
+        isIndexJoin_(FALSE),
+        allowPushDown_(TRUE),
+        tsjForSideTreeInsert_(FALSE),
+        enableTransformToSTI_(FALSE),
+        isForTrafLoadPrep_(FALSE),
+        beforeJoinPredOnOuterOnly_(FALSE),
+        compositeUnnestJoin_(FALSE),
+        vid2rowcountMap_(oHeap) {}
 
   // copy ctor
-  Join (const Join &) ; // not written
+  Join(const Join &);  // not written
 
   // virtual destructor
   virtual ~Join() {}
@@ -174,32 +166,32 @@ public:
   virtual Int32 getArity() const;
 
   // append an ascii-version of RelExpr into cachewa.qryText_
-  virtual void generateCacheKey(CacheWA& cwa) const;
+  virtual void generateCacheKey(CacheWA &cwa) const;
 
   // is this entire expression cacheable after this phase?
-  virtual NABoolean isCacheableExpr(CacheWA& cwa);
+  virtual NABoolean isCacheableExpr(CacheWA &cwa);
 
   // change literals of a cacheable query into ConstantParameters
-  virtual RelExpr* normalizeForCache(CacheWA& cwa, BindWA& bwa);
+  virtual RelExpr *normalizeForCache(CacheWA &cwa, BindWA &bwa);
 
   // set and augment and destructively get the join predicate as parse tree
-  void setJoinPredTree(ItemExpr *joinPred)      { joinPredTree_ = joinPred; }
+  void setJoinPredTree(ItemExpr *joinPred) { joinPredTree_ = joinPred; }
   void addJoinPredTree(ItemExpr *joinPred);
-  ItemExpr * removeJoinPredTree();
+  ItemExpr *removeJoinPredTree();
 
-  ItemExpr * getJoinPredTree() {return joinPredTree_; }
+  ItemExpr *getJoinPredTree() { return joinPredTree_; }
 
-  void setJoinPred(const ValueIdSet & joinPred) { joinPred_ += joinPred; };
+  void setJoinPred(const ValueIdSet &joinPred) { joinPred_ += joinPred; };
 
   // return a (short-lived) read/write reference to the join predicate
-  inline ValueIdSet & joinPred() { return joinPred_; }
+  inline ValueIdSet &joinPred() { return joinPred_; }
 
   // return a constant reference to the join predicate
-  inline const ValueIdSet & getJoinPred() const { return joinPred_; }
+  inline const ValueIdSet &getJoinPred() const { return joinPred_; }
 
   // This join should not be transformed to TSJ later (for performance
   // reasons only). If already been transformed, that's fine.
-  inline void doNotTransformToTSJ() {considerTSJ_ = FALSE; }
+  inline void doNotTransformToTSJ() { considerTSJ_ = FALSE; }
 
   // return TRUE if OK to transform to TSJ (performance reasons only)
   inline NABoolean canTransformToTSJ() { return considerTSJ_; }
@@ -247,8 +239,8 @@ public:
   NABoolean isNonRoutineTSJ() const;
 
   NABoolean derivedFromRoutineJoin() const { return derivedFromRoutineJoin_; }
-  void setDerivedFromRoutineJoin() { derivedFromRoutineJoin_ = TRUE;}
-  
+  void setDerivedFromRoutineJoin() { derivedFromRoutineJoin_ = TRUE; }
+
   // What type of join method is used?
   NABoolean isHashJoin() const;
   OperatorTypeEnum getBaseHashType() const;
@@ -266,8 +258,7 @@ public:
   NABoolean isIntersect() const { return isIntersect_; }
   void setIsIntersect() { isIntersect_ = TRUE; }
 
-  NABoolean beforeJoinPredOnOuterOnly() const
-  { return beforeJoinPredOnOuterOnly_; }
+  NABoolean beforeJoinPredOnOuterOnly() const { return beforeJoinPredOnOuterOnly_; }
   void setBeforeJoinPredOnOuterOnly() { beforeJoinPredOnOuterOnly_ = TRUE; }
 
   // Accessor method for returning any required order that was specified.
@@ -275,57 +266,50 @@ public:
   // insert statement that specified an ORDER BY clause. The required
   // order would be transferred to a TSJ or TSJFlow node when the TSJ
   // or TSJFlow rule fired.
-  const ValueIdList & getReqdOrder() const { return reqdOrder_; }
+  const ValueIdList &getReqdOrder() const { return reqdOrder_; }
   // Mutator for the the required order. Called by the TSJ or TSJFlow rule.
-  void setReqdOrder(ValueIdList reqdOrder)
-    { reqdOrder_ = reqdOrder;  }
+  void setReqdOrder(ValueIdList reqdOrder) { reqdOrder_ = reqdOrder; }
 
   // a virtual function for performing name binding within the query tree
-  virtual RelExpr * bindNode(BindWA *bindWAPtr);
+  virtual RelExpr *bindNode(BindWA *bindWAPtr);
 
   // MV --
   // We currently want to block LOJ queries, although they are incremental
-  NABoolean virtual isIncrementalMV() { return !isLeftJoin(); } // was return TURE;
-  void virtual collectMVInformation(MVInfoForDDL *mvInfo,
-									NABoolean isNormalized);
+  NABoolean virtual isIncrementalMV() { return !isLeftJoin(); }  // was return TURE;
+  void virtual collectMVInformation(MVInfoForDDL *mvInfo, NABoolean isNormalized);
 
   // null instantiated part of the output list
-  ValueIdList & nullInstantiatedOutput() { return nullInstantiatedOutput_; }
-  const ValueIdList & nullInstantiatedOutput() const { return nullInstantiatedOutput_; }
+  ValueIdList &nullInstantiatedOutput() { return nullInstantiatedOutput_; }
+  const ValueIdList &nullInstantiatedOutput() const { return nullInstantiatedOutput_; }
 
   // null instantiated part of the output list for RIGHT JOIN
-  ValueIdList & nullInstantiatedForRightJoinOutput()
-  { return nullInstantiatedForRightJoinOutput_; }
-  const ValueIdList & nullInstantiatedForRightJoinOutput() const
-  { return nullInstantiatedForRightJoinOutput_; }
-  ValueId addNullInstIndicatorVar(BindWA *bindWA,
-                                  ItemExpr *indicatorVal = NULL);
+  ValueIdList &nullInstantiatedForRightJoinOutput() { return nullInstantiatedForRightJoinOutput_; }
+  const ValueIdList &nullInstantiatedForRightJoinOutput() const { return nullInstantiatedForRightJoinOutput_; }
+  ValueId addNullInstIndicatorVar(BindWA *bindWA, ItemExpr *indicatorVal = NULL);
 
-//++MV
+  //++MV
   // Used for translating the required sort key to the right
   // child sort key and backwards
   // For more information see NestedJoin::synthPhysicalProperty()
-  ValueIdMap & rightChildMapForLeftJoin() { return rightChildMapForLeftJoin_; }
-  const ValueIdMap & rightChildMapForLeftJoin() const { return rightChildMapForLeftJoin_; }
+  ValueIdMap &rightChildMapForLeftJoin() { return rightChildMapForLeftJoin_; }
+  const ValueIdMap &rightChildMapForLeftJoin() const { return rightChildMapForLeftJoin_; }
   void BuildRightChildMapForLeftJoin();
 
   // Building similar information for right joins.
   // Used for translating the required sort key to the right
   // child sort key and backwards
   // For more information see NestedJoin::synthPhysicalProperty()
-  ValueIdMap & leftChildMapForRightJoin() { return leftChildMapForRightJoin_; }
-  const ValueIdMap & leftChildMapForRightJoin() const
-  { return leftChildMapForRightJoin_; }
+  ValueIdMap &leftChildMapForRightJoin() { return leftChildMapForRightJoin_; }
+  const ValueIdMap &leftChildMapForRightJoin() const { return leftChildMapForRightJoin_; }
   void BuildLeftChildMapForRightJoin();
 
-  GenericUpdate* getFirstIUDNode(RelExpr* currentNode);
+  GenericUpdate *getFirstIUDNode(RelExpr *currentNode);
 
-//--MV
+  //--MV
 
   // Each operator supports a (virtual) method for transforming its
   // scalar expressions to a canonical form
-  virtual void transformNode(NormWA & normWARef,
-                             ExprGroupId & locationOfPointerToMe);
+  virtual void transformNode(NormWA &normWARef, ExprGroupId &locationOfPointerToMe);
 
   // a method used during subquery transformation for pulling up predicates
   // towards the root of the transformed subquery tree
@@ -336,33 +320,27 @@ public:
   // subquery tree after the predicate pull up is complete.
   virtual void recomputeOuterReferences();
 
-  enum TransformationType
-    { NO_TRANSFORMATION = 0,
-      SEMI_JOIN_TO_INNER_JOIN,
-      UNNESTING };
+  enum TransformationType { NO_TRANSFORMATION = 0, SEMI_JOIN_TO_INNER_JOIN, UNNESTING };
   // A left-linear tree of Inner Joins is one in which no Inner Join
   // has another Inner Join as its right child. This method implements
   // a transformation rule that produces a left-linear tree of Inner Joins.
   // It replaces, if possible, T1 IJ (T2 IJ T3) with a left-linear sequence
   // T1 IJ T2 IJ T3.
-  Join * leftLinearizeJoinTree(
-       NormWA & normWARef, 
-       TransformationType transformationType = NO_TRANSFORMATION,
-       NABoolean includeIntersects = FALSE);
+  Join *leftLinearizeJoinTree(NormWA &normWARef, TransformationType transformationType = NO_TRANSFORMATION,
+                              NABoolean includeIntersects = FALSE);
 
   // Reorder the join tree based on increasing estimated rowcount,
   //   i.e. join smallest tables first.
-  virtual RelExpr * reorderTree(NABoolean & treeModified,
-	  NABoolean doReorderJoin);
+  virtual RelExpr *reorderTree(NABoolean &treeModified, NABoolean doReorderJoin);
 
   // Each operator supports a (virtual) method for rewriting its
   // value expressions.
-  virtual void rewriteNode(NormWA & normWARef);
+  virtual void rewriteNode(NormWA &normWARef);
 
   // Each operator supports a (virtual) method for performing
   // predicate pushdown and computing a "minimal" set of
   // characteristic input and characteristic output values.
-  virtual RelExpr * normalizeNode(NormWA & normWARef);
+  virtual RelExpr *normalizeNode(NormWA &normWARef);
 
   // used by subquery unnesting. This method creates a Filter node above
   // node Y where Y is given by TSJ(X,GroupBy(Y)), for all TSJs introduced
@@ -370,15 +348,14 @@ public:
   // This filter node is created only if the node Y contains outer references
   // The purpose of the filter node is to prevent pushdown of outer references
   // during the normalize phase.
-  void createAFilterGrandChildIfNeeded(NormWA & normWARef) ;
+  void createAFilterGrandChildIfNeeded(NormWA &normWARef);
 
   // subqueries are unnested in this method
-  virtual RelExpr * semanticQueryOptimizeNode(NormWA & normWARef);
-
+  virtual RelExpr *semanticQueryOptimizeNode(NormWA &normWARef);
 
   // A normalizer method for determining whether a left join can be
   // transformed to an inner join.
-  NABoolean canConvertLeftJoinToInnerJoin(NormWA & normWARef) ;
+  NABoolean canConvertLeftJoinToInnerJoin(NormWA &normWARef);
 
   // Methods used for outer join transformations in the normalizer
   void convertToNotOuterJoin();
@@ -388,10 +365,9 @@ public:
   // A method for converting an ordinary join to a tsj
   void convertToTsj();
 
-  void computeRequiredResources(RequiredResources & reqResources,
-                                       EstLogPropSharedPtr & inLP = (*GLOBAL_EMPTY_INPUT_LOGPROP));
-  virtual void computeMyRequiredResources(RequiredResources & reqResources,
-                                      EstLogPropSharedPtr & inLP);
+  void computeRequiredResources(RequiredResources &reqResources,
+                                EstLogPropSharedPtr &inLP = (*GLOBAL_EMPTY_INPUT_LOGPROP));
+  virtual void computeMyRequiredResources(RequiredResources &reqResources, EstLogPropSharedPtr &inLP);
 
   // Map tables: Map a logical op type to a physical/logical op type.
   //             Used by implementation/transformation rules.
@@ -402,40 +378,29 @@ public:
   OperatorTypeEnum getHashJoinOpType(NABoolean isNoOverflow = false);
   OperatorTypeEnum getMergeJoinOpType();
 
-  // helper function used in 
-  //   HashJoinRule::topMatch() and 
+  // helper function used in
+  //   HashJoinRule::topMatch() and
   //   JoinToTSJRule::topMatch()
   // to make sure that only one of them is turned off
   NABoolean allowHashJoin();
 
   // MV --
   // Allow forcing the physical implementation of the Join.
-  enum PhysicalJoinType
-    { NO_FORCING = 0,
-      NESTED_JOIN_TYPE,
-      HASH_JOIN_TYPE,
-      MERGE_JOIN_TYPE,
-      TSJ_JOIN_TYPE };
-  void forcePhysicalJoinType(PhysicalJoinType type)
-    { forcePhysicalJoinType_ = type; }
-  NABoolean isPhysicalJoinTypeForced() const
-    { return forcePhysicalJoinType_ != NO_FORCING; }
-  PhysicalJoinType getForcedPhysicalJoinType() const
-    { return forcePhysicalJoinType_; }
+  enum PhysicalJoinType { NO_FORCING = 0, NESTED_JOIN_TYPE, HASH_JOIN_TYPE, MERGE_JOIN_TYPE, TSJ_JOIN_TYPE };
+  void forcePhysicalJoinType(PhysicalJoinType type) { forcePhysicalJoinType_ = type; }
+  NABoolean isPhysicalJoinTypeForced() const { return forcePhysicalJoinType_ != NO_FORCING; }
+  PhysicalJoinType getForcedPhysicalJoinType() const { return forcePhysicalJoinType_; }
 
   // Used to determine the origin of special joins such as the ones produced
   // by the LSRs
-  enum JoinSourceType
-    { GENERAL = 0,     // The general case. The source was not specified
-      STAR_FACT,       // Type1 star join plan and this join to the fact table as inner
-      STAR_KEY_JOIN,   // Type1 star join plan and this join dimension key-join tables
-      STAR_FILTER_JOIN // Type1 star join plan and this join dimension table after the fact
-    };
-  void setSource(JoinSourceType type)
-    { sourceType_ = type; }
-  JoinSourceType getSource() const
-    { return sourceType_; }
-
+  enum JoinSourceType {
+    GENERAL = 0,      // The general case. The source was not specified
+    STAR_FACT,        // Type1 star join plan and this join to the fact table as inner
+    STAR_KEY_JOIN,    // Type1 star join plan and this join dimension key-join tables
+    STAR_FILTER_JOIN  // Type1 star join plan and this join dimension table after the fact
+  };
+  void setSource(JoinSourceType type) { sourceType_ = type; }
+  JoinSourceType getSource() const { return sourceType_; }
 
   // Indicates whether we should apply any transformation rules
   // on this JOIN subtree.
@@ -444,67 +409,55 @@ public:
 
   // Method to push down predicates from a join node into the
   // children
-  virtual
-  void pushdownCoveredExpr(const ValueIdSet & outputExprOnOperator,
-                           const ValueIdSet & newExternalInputs,
-                           ValueIdSet& predOnOperator,
-			   const ValueIdSet * nonPredExprOnOperator = NULL,
-                           Lng32 childId = (-MAX_REL_ARITY) );
+  virtual void pushdownCoveredExpr(const ValueIdSet &outputExprOnOperator, const ValueIdSet &newExternalInputs,
+                                   ValueIdSet &predOnOperator, const ValueIdSet *nonPredExprOnOperator = NULL,
+                                   Lng32 childId = (-MAX_REL_ARITY));
 
-  void pushdownCoveredExprSQO(const ValueIdSet & outputExpr,
-                           const ValueIdSet & newExternalInputs,
-                           ValueIdSet& predOnOperator,
-			   ValueIdSet & nonPredExprOnOperator,
-                           NABoolean keepPredsNotCoveredByChild0,
-			   NABoolean keepPredsNotCoveredByChild1);
+  void pushdownCoveredExprSQO(const ValueIdSet &outputExpr, const ValueIdSet &newExternalInputs,
+                              ValueIdSet &predOnOperator, ValueIdSet &nonPredExprOnOperator,
+                              NABoolean keepPredsNotCoveredByChild0, NABoolean keepPredsNotCoveredByChild1);
 
   // The set of values that I can potentially produce as output.
-  virtual void getPotentialOutputValues(ValueIdSet & vs) const;
+  virtual void getPotentialOutputValues(ValueIdSet &vs) const;
 
   // add local predicates for the purposes of GUI display
-  virtual void addLocalExpr(LIST(ExprNode *) &xlist,
-                            LIST(NAString) &llist) const;
+  virtual void addLocalExpr(LIST(ExprNode *) & xlist, LIST(NAString) & llist) const;
 
   virtual HashValue topHash();
-  virtual NABoolean duplicateMatch(const RelExpr & other) const;
-  virtual RelExpr * copyTopNode(RelExpr *derivedNode = NULL,
-                                CollHeap* outHeap = 0);
+  virtual NABoolean duplicateMatch(const RelExpr &other) const;
+  virtual RelExpr *copyTopNode(RelExpr *derivedNode = NULL, CollHeap *outHeap = 0);
 
   // synthesize logical properties
-  virtual void synthLogProp(NormWA * normWAPtr = NULL);
+  virtual void synthLogProp(NormWA *normWAPtr = NULL);
 
   // synthesize constraints
-  void synthConstraints(NormWA * normWAPtr);
+  void synthConstraints(NormWA *normWAPtr);
 
   // synthesize estimated logical properties
-  void synthEstLogProp(const EstLogPropSharedPtr& inputEstLogProp);
+  void synthEstLogProp(const EstLogPropSharedPtr &inputEstLogProp);
 
-  CostScalar
-  doCardSanityChecks(const EstLogPropSharedPtr& inLP,
-                     ColStatDescList & joinStatDescList,
-                     CostScalar newRowCount);
+  CostScalar doCardSanityChecks(const EstLogPropSharedPtr &inLP, ColStatDescList &joinStatDescList,
+                                CostScalar newRowCount);
 
-  CostScalar
-  estimateMaxCardinality(const EstLogPropSharedPtr& inLP,
-                         ColStatDescList & joinStatDescList);
+  CostScalar estimateMaxCardinality(const EstLogPropSharedPtr &inLP, ColStatDescList &joinStatDescList);
 
   CostScalar computeMinEstRCForGroup();
 
   // get the highest reduction from local predicates for cols of this join
-  CostScalar highestReductionForCols(ValueIdSet colSet) ;
+  CostScalar highestReductionForCols(ValueIdSet colSet);
 
   // synthesize estimated log. properties for TSJ operators only
-  void synthEstLogPropForTSJ (const EstLogPropSharedPtr& inputEstLogProp);
+  void synthEstLogPropForTSJ(const EstLogPropSharedPtr &inputEstLogProp);
 
   // methods to split the order and arrangement req between the
   // two join childs.
-  NABoolean splitOrderReq(const ValueIdList& myOrderReq, /*IN*/
-                          ValueIdList& orderReqOfChild0, /*OUT*/
-                          ValueIdList& orderReqOfChild1  /*OUT*/) const;
+  NABoolean splitOrderReq(const ValueIdList &myOrderReq, /*IN*/
+                          ValueIdList &orderReqOfChild0, /*OUT*/
+                          ValueIdList &orderReqOfChild1 /*OUT*/) const;
 
-  NABoolean splitArrangementReq(const ValueIdSet& myArrangReq, /*IN*/
-                                ValueIdSet& ArrangReqOfChild0, /*OUT*/
-                                ValueIdSet& ArrangReqOfChild1  /*OUT*/) const;
+  NABoolean splitArrangementReq(const ValueIdSet &myArrangReq, /*IN*/
+                                ValueIdSet &ArrangReqOfChild0, /*OUT*/
+                                ValueIdSet &ArrangReqOfChild1 /*OUT*/) const;
 
   // ---------------------------------------------------------------------
   // Split any sort or arrangement requirements between the left and
@@ -512,10 +465,8 @@ public:
   // passed in requirement generator object, and return those that
   // are for the right child.
   // ---------------------------------------------------------------------
-  void splitSortReqsForLeftChild(const ReqdPhysicalProperty* rppForMe,
-                                 RequirementGenerator &rg,
-                                 ValueIdList& reqdOrder1,
-                                 ValueIdSet& reqdArr1) const;
+  void splitSortReqsForLeftChild(const ReqdPhysicalProperty *rppForMe, RequirementGenerator &rg,
+                                 ValueIdList &reqdOrder1, ValueIdSet &reqdArr1) const;
 
   // ---------------------------------------------------------------------
   // Split any sort or arrangement requirements between the left and
@@ -523,10 +474,8 @@ public:
   // passed in requirement generator object, and return those that
   // are for the left child.
   // ---------------------------------------------------------------------
-  void splitSortReqsForRightChild(const ReqdPhysicalProperty* rppForMe,
-                                  RequirementGenerator &rg,
-                                  ValueIdList& reqdOrder0,
-                                  ValueIdSet& reqdArr0) const;
+  void splitSortReqsForRightChild(const ReqdPhysicalProperty *rppForMe, RequirementGenerator &rg,
+                                  ValueIdList &reqdOrder0, ValueIdSet &reqdArr0) const;
 
   // ---------------------------------------------------------------------
   // Methods used by the optimizer for equijoin predicates.
@@ -534,162 +483,129 @@ public:
   // When synthesising logical properties
   void findEquiJoinPredicates();
   // By an implementation rule
-  void separateEquiAndNonEquiJoinPredicates
-           (const NABoolean joinStrategyIsOrderSensitive = FALSE);
+  void separateEquiAndNonEquiJoinPredicates(const NABoolean joinStrategyIsOrderSensitive = FALSE);
 
-  const ValueIdSet& getEquiJoinPredicates() const
-                                           { return equiJoinPredicates_; }
+  const ValueIdSet &getEquiJoinPredicates() const { return equiJoinPredicates_; }
 
-  ValueIdMap getEquiJoinExpressions() const
-                                           { return equiJoinExpressions_; }
+  ValueIdMap getEquiJoinExpressions() const { return equiJoinExpressions_; }
 
-  const ValueIdList& getEquiJoinExprFromChild0() const
-                           { return equiJoinExpressions_.getTopValues(); }
+  const ValueIdList &getEquiJoinExprFromChild0() const { return equiJoinExpressions_.getTopValues(); }
 
-  const ValueIdList& getEquiJoinExprFromChild1() const
-                        { return equiJoinExpressions_.getBottomValues(); }
+  const ValueIdList &getEquiJoinExprFromChild1() const { return equiJoinExpressions_.getBottomValues(); }
 
-  const ValueIdSet& getPredicatesToBeRemoved() const
-                                           { return predicatesToBeRemoved_; }
+  const ValueIdSet &getPredicatesToBeRemoved() const { return predicatesToBeRemoved_; }
 
-  const ValueIdMap& getOriginalEquiJoinExpressions() const
-                        { return originalEquiJoinExpressions_; }
-  void setOriginalEquiJoinExpressions(const ValueIdMap& x)
-                        { originalEquiJoinExpressions_ = x; }
+  const ValueIdMap &getOriginalEquiJoinExpressions() const { return originalEquiJoinExpressions_; }
+  void setOriginalEquiJoinExpressions(const ValueIdMap &x) { originalEquiJoinExpressions_ = x; }
 
   // data members for joins that are parents of an update
-  TableDesc * updateTableDesc()               { return updateTableDesc_; }
-  void setUpdateTableDesc(TableDesc *utd) { updateTableDesc_ = utd;}
-  ValueIdMap * updateSelectValueIdMap() { return updateSelectValueIdMap_;}
-  void setUpdateSelectValueIdMap(ValueIdMap * m) { updateSelectValueIdMap_ = m;}
+  TableDesc *updateTableDesc() { return updateTableDesc_; }
+  void setUpdateTableDesc(TableDesc *utd) { updateTableDesc_ = utd; }
+  ValueIdMap *updateSelectValueIdMap() { return updateSelectValueIdMap_; }
+  void setUpdateSelectValueIdMap(ValueIdMap *m) { updateSelectValueIdMap_ = m; }
 
   // After the logical properties of a join have been synthesized
   // we can ask if the a each from the first or second child is
   // guaranteed to have a single match from the other child.
-  NABoolean rowsFromLeftHaveUniqueMatch() const
-                 { return leftHasUniqueMatches_; };
-  NABoolean rowsFromRightHaveUniqueMatch() const
-                 { return rightHasUniqueMatches_; };
-  NABoolean eitherChildHasUniqueMatch() const
-                 { return leftHasUniqueMatches_ | rightHasUniqueMatches_; };
+  NABoolean rowsFromLeftHaveUniqueMatch() const { return leftHasUniqueMatches_; };
+  NABoolean rowsFromRightHaveUniqueMatch() const { return rightHasUniqueMatches_; };
+  NABoolean eitherChildHasUniqueMatch() const { return leftHasUniqueMatches_ | rightHasUniqueMatches_; };
 
   // When commuting a join the left and right private members need
   // to be exchanged of fliped.
   void flipChildren();
 
-  inline void setTSJAfterSQO() { tsjAfterSQO_ = TRUE;}
-  inline NABoolean isTSJAfterSQO() {return tsjAfterSQO_;}
-  
+  inline void setTSJAfterSQO() { tsjAfterSQO_ = TRUE; }
+  inline NABoolean isTSJAfterSQO() { return tsjAfterSQO_; }
+
   // Accessor for the tsjForWrite flag.
   NABoolean isTSJForWrite() const { return tsjForWrite_; }
   // Mutator for the tsjForWrite flag.
-  void setTSJForWrite(NABoolean tsjForWrite)
-    { tsjForWrite_ = tsjForWrite;  }
+  void setTSJForWrite(NABoolean tsjForWrite) { tsjForWrite_ = tsjForWrite; }
 
   // Accessor for the allowPushDown flag.
   NABoolean allowPushDown() const { return allowPushDown_; }
   // Mutator for the allowPushDown flag.
-  void setAllowPushDown(NABoolean allowPushDown)
-    { allowPushDown_ = allowPushDown;  }
+  void setAllowPushDown(NABoolean allowPushDown) { allowPushDown_ = allowPushDown; }
 
   // Accessor for the tsjForUndo flag.
   NABoolean isTSJForUndo() const { return tsjForUndo_; }
   // Mutator for the tsjForUndo flag.
-  void setTSJForUndo(NABoolean tsjForUndo)
-    { tsjForUndo_ = tsjForUndo;  }
+  void setTSJForUndo(NABoolean tsjForUndo) { tsjForUndo_ = tsjForUndo; }
   // Accessor for the tsjForSetNFError flag.
   NABoolean isTSJForSetNFError() const { return tsjForSetNFError_; }
   // Mutator for the tsjForSetNFError flag.
-  void setTSJForSetNFError(NABoolean tsjForSetNFError)
-    { tsjForSetNFError_ = tsjForSetNFError;  }
+  void setTSJForSetNFError(NABoolean tsjForSetNFError) { tsjForSetNFError_ = tsjForSetNFError; }
   // Accessor for the tsjForMerge flag.
   NABoolean isTSJForMerge() const { return tsjForMerge_; }
   // Mutator for the tsjForMerge flag.
-  void setTSJForMerge(NABoolean tsjForMerge)
-    { tsjForMerge_ = tsjForMerge;  }
+  void setTSJForMerge(NABoolean tsjForMerge) { tsjForMerge_ = tsjForMerge; }
 
   // Accessor for the tsjForMergeWithInsert flag.
   NABoolean isTSJForMergeWithInsert() const { return tsjForMergeWithInsert_; }
   // Mutator for the tsjForMergeWithInsert flag.
-  void setTSJForMergeWithInsert(NABoolean tsjForMergeWithInsert)
-    { tsjForMergeWithInsert_ = tsjForMergeWithInsert;  }
+  void setTSJForMergeWithInsert(NABoolean tsjForMergeWithInsert) { tsjForMergeWithInsert_ = tsjForMergeWithInsert; }
 
-   NABoolean isTSJForMergeUpsert() const { return tsjForMergeUpsert_; }
+  NABoolean isTSJForMergeUpsert() const { return tsjForMergeUpsert_; }
   // Mutator for the tsjForMergeUpsert flag.
-  void setTSJForMergeUpsert(NABoolean tsjForMergeUpsert)
-    { tsjForMergeUpsert_ = tsjForMergeUpsert;  }
+  void setTSJForMergeUpsert(NABoolean tsjForMergeUpsert) { tsjForMergeUpsert_ = tsjForMergeUpsert; }
 
   // Accessor for the tsjForSideTree flag.
   NABoolean isTSJForSideTreeInsert() const { return tsjForSideTreeInsert_; }
   // Mutator for the tsjForSideTreeInsert flag.
-  void setTSJForSideTreeInsert(NABoolean tsjForSideTreeInsert)
-    { tsjForSideTreeInsert_ = tsjForSideTreeInsert;  }
+  void setTSJForSideTreeInsert(NABoolean tsjForSideTreeInsert) { tsjForSideTreeInsert_ = tsjForSideTreeInsert; }
 
-  NABoolean enableTransformToSTI() const { return enableTransformToSTI_;}
-  void setEnableTransformToSTI(NABoolean v)
-  { enableTransformToSTI_ = v; }
+  NABoolean enableTransformToSTI() const { return enableTransformToSTI_; }
+  void setEnableTransformToSTI(NABoolean v) { enableTransformToSTI_ = v; }
 
   // ---------------------------------------------------------------------
   // A method that interprets the CONTROL QUERY SHAPE ... to decide
   // whether a matching partitions plan or a replicate child1 plan
   // is desired by the user.
   // ---------------------------------------------------------------------
-  JoinForceWildCard::forcedPlanEnum getParallelJoinPlanToEnforce
-         (const ReqdPhysicalProperty* const rppForJoin) const;
+  JoinForceWildCard::forcedPlanEnum getParallelJoinPlanToEnforce(const ReqdPhysicalProperty *const rppForJoin) const;
 
   // ---------------------------------------------------------------------
   // A virtual function that decides if ESP parallelism is allowed
   // by the settings in the defaults table, or if the number of
   // ESPs is being forced for the join operator.
   // ---------------------------------------------------------------------
-  virtual DefaultToken getParallelControlSettings (
-            const ReqdPhysicalProperty* const rppForMe, /*IN*/
-            Lng32& numOfESPs, /*OUT*/
-            float& allowedDeviation, /*OUT*/
-            NABoolean& numOfESPsForced /*OUT*/) const;
+  virtual DefaultToken getParallelControlSettings(const ReqdPhysicalProperty *const rppForMe, /*IN*/
+                                                  Lng32 &numOfESPs,                           /*OUT*/
+                                                  float &allowedDeviation,                    /*OUT*/
+                                                  NABoolean &numOfESPsForced /*OUT*/) const;
 
   // ---------------------------------------------------------------------
   // Pre-code generation.
   // ---------------------------------------------------------------------
-  virtual RelExpr * preCodeGen(Generator * generator,
-                               const ValueIdSet &externalInputs,
-                               ValueIdSet &pulledNewInputs);
+  virtual RelExpr *preCodeGen(Generator *generator, const ValueIdSet &externalInputs, ValueIdSet &pulledNewInputs);
 
   // -----------------------------------------------------
   // generate CONTROL QUERY SHAPE fragment for this node.
   // -----------------------------------------------------
-  virtual short generateShape(CollHeap * space, char * buf, NAString * shapeStr = NULL);
+  virtual short generateShape(CollHeap *space, char *buf, NAString *shapeStr = NULL);
 
-  enum ParallelJoinTypeDetail
-    { PAR_NONE = 0, // no additional detail, vanilla join
-      PAR_SB,       // Skew Buster (reported as type 1, but really mix of type 1 and 2
-      PAR_OCB,      // OCB - Outer Child Broadcast, TYPE2 with reversed roles
-      PAR_OCR,      // OCR - Outer Child Repartitioning, TYPE1 nested join
-      PAR_N2J       // N**2 opens join, nested parallel  TYPE2 non-OCB join
-    };
+  enum ParallelJoinTypeDetail {
+    PAR_NONE = 0,  // no additional detail, vanilla join
+    PAR_SB,        // Skew Buster (reported as type 1, but really mix of type 1 and 2
+    PAR_OCB,       // OCB - Outer Child Broadcast, TYPE2 with reversed roles
+    PAR_OCR,       // OCR - Outer Child Repartitioning, TYPE1 nested join
+    PAR_N2J        // N**2 opens join, nested parallel  TYPE2 non-OCB join
+  };
 
   // use only after phys props have been synthesized
   // and expression is no longer in MEMO
   Int32 getParallelJoinType(ParallelJoinTypeDetail *optionalDetail = NULL) const;
 
   // special handling for the case values are to be instantiated.
-  short instantiateValuesForLeftJoin(Generator * generator,
-                                     short atp, short atp_index,
-                                     ex_expr ** lj_expr,
-                                     ex_expr ** ni_expr,
-                                     ULng32 * rowlen,
-				     MapTable ** newMapTable,
-				     ExpTupleDesc::TupleDataFormat tdf = ExpTupleDesc::UNINITIALIZED_FORMAT);
+  short instantiateValuesForLeftJoin(Generator *generator, short atp, short atp_index, ex_expr **lj_expr,
+                                     ex_expr **ni_expr, ULng32 *rowlen, MapTable **newMapTable,
+                                     ExpTupleDesc::TupleDataFormat tdf = ExpTupleDesc::UNINITIALIZED_FORMAT);
 
   // special handling for the case values are to be instantiated.
-  short instantiateValuesForRightJoin(Generator * generator,
-                                     short atp, short atp_index,
-                                     ex_expr ** rj_expr,
-                                     ex_expr ** ni_expr,
-                                     ULng32 * rowlen,
-				     MapTable ** newMapTable,
-				     ExpTupleDesc::TupleDataFormat tdf = ExpTupleDesc::UNINITIALIZED_FORMAT);
-
+  short instantiateValuesForRightJoin(Generator *generator, short atp, short atp_index, ex_expr **rj_expr,
+                                      ex_expr **ni_expr, ULng32 *rowlen, MapTable **newMapTable,
+                                      ExpTupleDesc::TupleDataFormat tdf = ExpTupleDesc::UNINITIALIZED_FORMAT);
 
   // get a printable string that identifies the operator
   virtual const NAString getText() const;
@@ -697,10 +613,7 @@ public:
   // adds Explain information to this node. Implemented in
   // Generator/GenExplain.C
 
-  ExplainTuple *addSpecificExplainInfo(ExplainTupleMaster *explainTuple,
-					      ComTdb * tdb,
-					      Generator *generator);
-
+  ExplainTuple *addSpecificExplainInfo(ExplainTupleMaster *explainTuple, ComTdb *tdb, Generator *generator);
 
   // QSTUFF
   inline void setCursorUpdate(NABoolean b) { cursorUpdate_ = b; }
@@ -710,16 +623,16 @@ public:
   inline void setRowsetRowCountArraySize(Lng32 b) { rowsetRowCountArraySize_ = b; }
   inline Lng32 getRowsetRowCountArraySize() { return rowsetRowCountArraySize_; }
 
-//////////////////////////////////////////////////////
-  virtual NABoolean pilotAnalysis(QueryAnalysis* qa);
+  //////////////////////////////////////////////////////
+  virtual NABoolean pilotAnalysis(QueryAnalysis *qa);
   virtual NABoolean isASpoilerJoin();
   virtual NABoolean canBePartOfJBB();
-  virtual void jbbAnalysis(QueryAnalysis* qa);
-  virtual void jbbJoinDependencyAnalysis(ValueIdSet & predsWithDependencies);
-  virtual void predAnalysis(QueryAnalysis* qa);
-  virtual RelExpr* convertToMultiJoinSubtree(QueryAnalysis* qa);
-  virtual EstLogPropSharedPtr setJBBInput(EstLogPropSharedPtr & inLP = (*GLOBAL_EMPTY_INPUT_LOGPROP));
-  void analyseJoinBackBone(JBB* jbb);
+  virtual void jbbAnalysis(QueryAnalysis *qa);
+  virtual void jbbJoinDependencyAnalysis(ValueIdSet &predsWithDependencies);
+  virtual void predAnalysis(QueryAnalysis *qa);
+  virtual RelExpr *convertToMultiJoinSubtree(QueryAnalysis *qa);
+  virtual EstLogPropSharedPtr setJBBInput(EstLogPropSharedPtr &inLP = (*GLOBAL_EMPTY_INPUT_LOGPROP));
+  void analyseJoinBackBone(JBB *jbb);
   virtual void primeGroupAnalysis();
 
   // read comment about joinFromPTRule_ member
@@ -733,41 +646,26 @@ public:
   inline NABoolean isJoinForZigZag() const { return joinForZigZag_; }
   inline void setJoinForZigZag(NABoolean b = TRUE) { joinForZigZag_ = b; }
 
-  inline NABoolean avoidHalloweenR2() const
-  { return avoidHalloweenR2_; }
-  inline void setAvoidHalloweenR2(NABoolean b = TRUE)
-  { avoidHalloweenR2_ = b; }
+  inline NABoolean avoidHalloweenR2() const { return avoidHalloweenR2_; }
+  inline void setAvoidHalloweenR2(NABoolean b = TRUE) { avoidHalloweenR2_ = b; }
 
-  enum HalloweenJoinSortType {
-    NO_SELF_REFERENCE,
-    NOT_FORCED,
-    FORCED
-  };
+  enum HalloweenJoinSortType { NO_SELF_REFERENCE, NOT_FORCED, FORCED };
 
-  inline void setHalloweenForceSort(HalloweenJoinSortType h)
-  { halloweenForceSort_ = h; }
+  inline void setHalloweenForceSort(HalloweenJoinSortType h) { halloweenForceSort_ = h; }
 
-  inline HalloweenJoinSortType getHalloweenForceSort() const
-  { return halloweenForceSort_; }
+  inline HalloweenJoinSortType getHalloweenForceSort() const { return halloweenForceSort_; }
 
-  
-  inline NABoolean candidateForSubqueryUnnest() const 
-  { return candidateForSubqueryUnnest_; }
-  inline void setCandidateForSubqueryUnnest(NABoolean b) 
-  { candidateForSubqueryUnnest_ = b; }
+  inline NABoolean candidateForSubqueryUnnest() const { return candidateForSubqueryUnnest_; }
+  inline void setCandidateForSubqueryUnnest(NABoolean b) { candidateForSubqueryUnnest_ = b; }
 
-  inline NABoolean candidateForSubqueryLeftJoinConversion() const 
-  { return candidateForSubqueryLeftJoinConversion_; }
-  inline void setCandidateForSubqueryLeftJoinConversion(NABoolean b) 
-  { candidateForSubqueryLeftJoinConversion_ = b; }
+  inline NABoolean candidateForSubqueryLeftJoinConversion() const { return candidateForSubqueryLeftJoinConversion_; }
+  inline void setCandidateForSubqueryLeftJoinConversion(NABoolean b) { candidateForSubqueryLeftJoinConversion_ = b; }
 
-  inline NABoolean candidateForSemiJoinTransform() const 
-  { return candidateForSemiJoinTransform_; }
-  inline void setCandidateForSemiJoinTransform(NABoolean b) 
-  { candidateForSemiJoinTransform_ = b; }
+  inline NABoolean candidateForSemiJoinTransform() const { return candidateForSemiJoinTransform_; }
+  inline void setCandidateForSemiJoinTransform(NABoolean b) { candidateForSemiJoinTransform_ = b; }
 
- // matches and flows compRefOpt constraints up the query tree. 
-  virtual void processCompRefOptConstraints(NormWA * normWAPtr) ;
+  // matches and flows compRefOpt constraints up the query tree.
+  virtual void processCompRefOptConstraints(NormWA *normWAPtr);
 
   NABoolean allowPushDown_;
   // ----------------------------------------------------------------------
@@ -782,163 +680,125 @@ public:
   // SQO methods
 
   // used to eliminate redundant joins during SQO
-  RelExpr* eliminateRedundantJoin(NormWA &normWARef);
+  RelExpr *eliminateRedundantJoin(NormWA &normWARef);
 
   // used to transform semijoins to innerjoins during SQO
-  RelExpr* transformSemiJoin(NormWA& NormWARef); 
+  RelExpr *transformSemiJoin(NormWA &NormWARef);
 
   // used to pull up preds that reference aggrs from this join
   // to the grby that is being moved up.
-  NABoolean pullUpPredsWithAggrs(GroupByAgg* grbyNode, MapValueIds *mapNode=NULL);
+  NABoolean pullUpPredsWithAggrs(GroupByAgg *grbyNode, MapValueIds *mapNode = NULL);
 
   // one of two main transformations for subquery unnesting
-  GroupByAgg* pullUpGroupByTransformation(NormWA& NormWARef);
+  GroupByAgg *pullUpGroupByTransformation(NormWA &NormWARef);
 
   // the other main transformation for subquery unnesting
-  GroupByAgg* moveUpGroupByTransformation(GroupByAgg* newGrby, 
-					  NormWA & normWARef);
+  GroupByAgg *moveUpGroupByTransformation(GroupByAgg *newGrby, NormWA &normWARef);
 
   // heuristic to unnest subquery if inner table has keyed access.
-  NABoolean applyInnerKeyedAccessHeuristic(const GroupByAgg* newGrby, 
-					       NormWA & normWARef);
+  NABoolean applyInnerKeyedAccessHeuristic(const GroupByAgg *newGrby, NormWA &normWARef);
 
-  NABoolean unnestingDoEarlyGrouping(NormWA& NormWARef);
-  Join* scalarAggrToGroupByTransformation(NormWA& NormWARef);
-  NABoolean subqueryUnnestFinalize(NormWA& NormWARef);
+  NABoolean unnestingDoEarlyGrouping(NormWA &NormWARef);
+  Join *scalarAggrToGroupByTransformation(NormWA &NormWARef);
+  NABoolean subqueryUnnestFinalize(NormWA &NormWARef);
 
-  virtual NABoolean prepareMeForCSESharing(
-       const ValueIdSet &outputsToAdd,
-       const ValueIdSet &predicatesToRemove,
-       const ValueIdSet &commonPredicatesToAdd,
-       const ValueIdSet &inputsToRemove,
-       ValueIdSet &valuesForVEGRewrite,
-       ValueIdSet &keyColumns,
-       CSEInfo *info);
+  virtual NABoolean prepareMeForCSESharing(const ValueIdSet &outputsToAdd, const ValueIdSet &predicatesToRemove,
+                                           const ValueIdSet &commonPredicatesToAdd, const ValueIdSet &inputsToRemove,
+                                           ValueIdSet &valuesForVEGRewrite, ValueIdSet &keyColumns, CSEInfo *info);
 
   // Detect whether rows coming from the ith child contain multi-column skew for
   // a set of join predicates. The output argument vidOfEquiJoinWithSkew is the
   // valueId of a particular join predicate chosen by the method for use by the
   // skew buster.
-  NABoolean childNodeContainMultiColumnSkew(
-                        CollIndex i,                 // IN: which child
-                        const ValueIdSet& joinPreds, // IN: the join predicate
-                        double mc_threshold,         // IN: the mc skew threshold
-                        double sc_threshold,         // IN: the single column skew
-                        Lng32 countOfPipelines,      // IN: countofpipelines
-                                                     // threshold
-                        SkewedValueList** skLis,     // OUT: the skew list
-                        ValueId& vidOfEquiJoinWithSkew // OUT
-                                 ) const;
+  NABoolean childNodeContainMultiColumnSkew(CollIndex i,                    // IN: which child
+                                            const ValueIdSet &joinPreds,    // IN: the join predicate
+                                            double mc_threshold,            // IN: the mc skew threshold
+                                            double sc_threshold,            // IN: the single column skew
+                                            Lng32 countOfPipelines,         // IN: countofpipelines
+                                                                            // threshold
+                                            SkewedValueList **skLis,        // OUT: the skew list
+                                            ValueId &vidOfEquiJoinWithSkew  // OUT
+  ) const;
 
-   // This method assumes a MC skew list is available at child i and
-   // filters out those skew values which frequencies are below the threshold.
-   // Each item in skList contains the run-time version of hash for the MC skew.
-   NABoolean childNodeContainMultiColumnSkew(
-                      CollIndex i,                 // IN: which child to work on
-                      const ValueIdSet& joinPreds, // IN: the join predicate
-                      double mc_threshold,         // IN: multi-column threshold
-                      Lng32 countOfPipelines,      // IN:
-                      SkewedValueList** skList     // OUT: the skew list
-                               ) ;
-
+  // This method assumes a MC skew list is available at child i and
+  // filters out those skew values which frequencies are below the threshold.
+  // Each item in skList contains the run-time version of hash for the MC skew.
+  NABoolean childNodeContainMultiColumnSkew(CollIndex i,                  // IN: which child to work on
+                                            const ValueIdSet &joinPreds,  // IN: the join predicate
+                                            double mc_threshold,          // IN: multi-column threshold
+                                            Lng32 countOfPipelines,       // IN:
+                                            SkewedValueList **skList      // OUT: the skew list
+  );
 
   // Detect whether rows coming from the ith child contain skew for a
   // join predicate. This method assumes that there is only one join
   // predicate.
-  NABoolean childNodeContainSkew(
-                        CollIndex i,                 // IN: which child
-                        const ValueIdSet& joinPreds, // IN: the join predicate
-                        double sc_threshold,         // IN: the single column skew
-                                                     // threshold
-                        SkewedValueList** skLis      // OUT: the skew list
-                                 ) const;
+  NABoolean childNodeContainSkew(CollIndex i,                  // IN: which child
+                                 const ValueIdSet &joinPreds,  // IN: the join predicate
+                                 double sc_threshold,          // IN: the single column skew
+                                                               // threshold
+                                 SkewedValueList **skLis       // OUT: the skew list
+  ) const;
 
   const MergeType getMergeTypeToBeUsedForSynthLogProperties();
-  const MCSkewedValueList * getMCSkewedValueListForJoinPreds(ValueIdList & colGroup);
+  const MCSkewedValueList *getMCSkewedValueListForJoinPreds(ValueIdList &colGroup);
 
   virtual void resolveSingleColNotInPredicate();
 
-  void rewriteNotInPredicate(ValueIdSet & origSet, ValueIdSet & newSet);
+  void rewriteNotInPredicate(ValueIdSet &origSet, ValueIdSet &newSet);
   void rewriteNotInPredicate();
 
-  const ValueIdSet& getExtraHubNonEssentialOutputs() const
-                                  { return extraHubNonEssentialOutputs_; }
+  const ValueIdSet &getExtraHubNonEssentialOutputs() const { return extraHubNonEssentialOutputs_; }
 
-  void addExtraHubNonEssentialOutputs(const ValueIdSet& vidSet)
-          { extraHubNonEssentialOutputs_ += vidSet; }
+  void addExtraHubNonEssentialOutputs(const ValueIdSet &vidSet) { extraHubNonEssentialOutputs_ += vidSet; }
 
-  NABoolean getIsForTrafLoadPrep() const
-  {
-    return isForTrafLoadPrep_;
-  }
+  NABoolean getIsForTrafLoadPrep() const { return isForTrafLoadPrep_; }
 
-  void setIsForTrafLoadPrep(NABoolean isForTrafLoadPrep)
-  {
-    isForTrafLoadPrep_ = isForTrafLoadPrep;
-  }
+  void setIsForTrafLoadPrep(NABoolean isForTrafLoadPrep) { isForTrafLoadPrep_ = isForTrafLoadPrep; }
 
   // find equal join base columnns.
-  void findEquiJoinBaseColumns(const ValueIdList& columnList, NABoolean forOuter, 
-                               ValueIdSet& joinCols);
+  void findEquiJoinBaseColumns(const ValueIdList &columnList, NABoolean forOuter, ValueIdSet &joinCols);
 
   NABoolean dopReductionRTFeasible();
 
   virtual NABoolean isUniqueOper();
 
-  ItemExpr * buildDefaultOrderByForRownum(BindWA * bindWA);
+  ItemExpr *buildDefaultOrderByForRownum(BindWA *bindWA);
 
-  NABoolean compositeUnnestJoin() const
-  {
-    return compositeUnnestJoin_;
-  }
+  NABoolean compositeUnnestJoin() const { return compositeUnnestJoin_; }
 
-  void setCompositeUnnestJoin()
-  {
-    compositeUnnestJoin_ = TRUE;
-  }
+  void setCompositeUnnestJoin() { compositeUnnestJoin_ = TRUE; }
 
   // gets CorrName of Rename or Scan as far down on leftmost side
   // used by composite unnest
-  const CorrName& getLeftMostCorrName();
+  const CorrName &getLeftMostCorrName();
 
+  //////////////////////////////////////////////////////
 
-//////////////////////////////////////////////////////
+ protected:
+  void clearEquiJoinPredicates() { equiJoinPredicates_.clear(); }
 
-protected:
+  void storeEquiJoinPredicates(const ValueIdSet &newPredicates) { equiJoinPredicates_ = newPredicates; }
 
-  void clearEquiJoinPredicates()          { equiJoinPredicates_.clear(); }
+  void clearPredicatesToBeRemoved() { predicatesToBeRemoved_.clear(); }
 
-  void storeEquiJoinPredicates(const ValueIdSet& newPredicates)
-                                  { equiJoinPredicates_ = newPredicates; }
+  void setPredicatesToBeRemoved(const ValueIdSet &preds) { predicatesToBeRemoved_ = preds; }
 
-  void clearPredicatesToBeRemoved()    { predicatesToBeRemoved_.clear(); }
+  NABoolean hasRIMatchingPredicates(const ValueIdList &fkCols, const ValueIdList &ucCols, const TableDesc *compRefTabId,
+                                    ValueIdSet &matchingPreds) const;
 
-  void setPredicatesToBeRemoved(const ValueIdSet& preds)
-				       { predicatesToBeRemoved_ = preds; }
+  NABoolean matchRIConstraint(GroupAttributes &leftGA, GroupAttributes &rightGA, NormWA *normWAPtr);
 
-  NABoolean hasRIMatchingPredicates(const ValueIdList& fkCols, 
-				    const ValueIdList& ucCols,
-				    const TableDesc* compRefTabId,
-				    ValueIdSet & matchingPreds) const;
+  NABoolean hasMatchingRIConstraint(ValueId fkId, ValueId ukId, NormWA *normWAPtr);
 
-  NABoolean matchRIConstraint(GroupAttributes& leftGA, 
-			      GroupAttributes& rightGA,
-			      NormWA * normWAPtr);
+  ValueIdSet &equiJoinPredicates() { return equiJoinPredicates_; }
 
-  NABoolean hasMatchingRIConstraint(ValueId fkId, 
-				    ValueId ukId,
-				    NormWA * normWAPtr);
+  NABoolean singleColumnjoinPredOKforSB(ValueIdSet &joinPreds);
+  NABoolean multiColumnjoinPredOKforSB(ValueIdSet &joinPreds);
 
-  ValueIdSet & equiJoinPredicates() { return equiJoinPredicates_; }
+  NABoolean assignRTStats(NAArray<Int64> &rtStats, Int32 &order);
 
-  NABoolean singleColumnjoinPredOKforSB(ValueIdSet& joinPreds);
-  NABoolean multiColumnjoinPredOKforSB(ValueIdSet& joinPreds);
-
-  NABoolean assignRTStats(NAArray<Int64>& rtStats, Int32& order);
-    
-
-private:
-
+ private:
   // ---------------------------------------------------------------------
   // PRIVATE METHODS.
   // ----------------------------------------------------------------------
@@ -949,7 +809,7 @@ private:
   // to
   //   t1.c = t2.c and t1.c is not null and t2.c is not null
   // ----------------------------------------------------------------------
-  void tryToRewriteJoinPredicate(NormWA & normWARef);
+  void tryToRewriteJoinPredicate(NormWA &normWARef);
 
   // ----------------------------------------------------------------------
   // A method that is used for checking whether an outer join can be
@@ -958,23 +818,20 @@ private:
   // the result. For example, T1 LJ T2 ... where T2.a = 5 eliminates all
   // those rows from the result in which T2.a contains a null value.
   // ----------------------------------------------------------------------
-  NABoolean outerJoinIsConvertible(const ValueIdSet & whereClausePreds) const;
-  NABoolean eliminatesNullValues(const ItemExpr *, const GroupAttributes & ) const;
+  NABoolean outerJoinIsConvertible(const ValueIdSet &whereClausePreds) const;
+  NABoolean eliminatesNullValues(const ItemExpr *, const GroupAttributes &) const;
 
-  void normalizeNullInstantiatedForRightJoinOutput(NormWA & normWARef);
+  void normalizeNullInstantiatedForRightJoinOutput(NormWA &normWARef);
 
   // Helper method for left and full outer joins
   // The method simulates the behavior of left join
   // ----------------------------------------------------------------------
-  void
-  instantiateLeftHistsWithNULLs(ValueIdSet EqLocalPreds, /*in*/
-                                CollIndex outerRefCount, /*in*/
-                                ColStatDescList &joinStatDescList, /*in*/
-                                const ColStatDescList &leftColStatsList, /*in*/
-                                CostScalar &oJoinResultRows /*in, out*/,
-                                CostScalar initialRowcount /*in*/,
-                                CollIndex &rootStatIndex,
-                                NAList<CollIndex>& statsToMerge);
+  void instantiateLeftHistsWithNULLs(ValueIdSet EqLocalPreds,                 /*in*/
+                                     CollIndex outerRefCount,                 /*in*/
+                                     ColStatDescList &joinStatDescList,       /*in*/
+                                     const ColStatDescList &leftColStatsList, /*in*/
+                                     CostScalar &oJoinResultRows /*in, out*/, CostScalar initialRowcount /*in*/,
+                                     CollIndex &rootStatIndex, NAList<CollIndex> &statsToMerge);
 
   // ----------------------------------------------------------------------
   // Helper method for full outer joins
@@ -982,25 +839,19 @@ private:
   // it is the second part of full outer join, where right histograms
   // are being NULL instantiated
   // ----------------------------------------------------------------------
-  void
-  instantiateRightHistsWithNULLs(CollIndex outerRefCount, /*in*/
-                              ColStatDescList &innerJoinCopy, /*in*/
-                              ColStatDescList &joinStatDescList, /*in*/
-                              const ColStatDescList &rightColStatsList, /*in*/
-                              CostScalar &oJoinResultRows /*in, out*/,
-                              CostScalar initialRowcount /*in*/,
-                              CollIndex rootStatIndex,
-                              NAList<CollIndex> statsToMerge);
+  void instantiateRightHistsWithNULLs(CollIndex outerRefCount,                  /*in*/
+                                      ColStatDescList &innerJoinCopy,           /*in*/
+                                      ColStatDescList &joinStatDescList,        /*in*/
+                                      const ColStatDescList &rightColStatsList, /*in*/
+                                      CostScalar &oJoinResultRows /*in, out*/, CostScalar initialRowcount /*in*/,
+                                      CollIndex rootStatIndex, NAList<CollIndex> statsToMerge);
 
   // ---------------------------------------------------------------------
   // Common synthEstLogProp code form Joins and TSJs
   // ---------------------------------------------------------------------
-  CostScalar commonSynthEst(const EstLogPropSharedPtr& myEstProps,
-                            const EstLogPropSharedPtr& intermedEstProps,
-                            CollIndex & outerRefCount,
-                            const ColStatDescList & leftColStatsList,
-                            const ColStatDescList & rightColStatsList,
-                            ColStatDescList & joinStatDescList,
+  CostScalar commonSynthEst(const EstLogPropSharedPtr &myEstProps, const EstLogPropSharedPtr &intermedEstProps,
+                            CollIndex &outerRefCount, const ColStatDescList &leftColStatsList,
+                            const ColStatDescList &rightColStatsList, ColStatDescList &joinStatDescList,
                             CostScalar initialCardinality);
 
   // return information about a child's partitioning function
@@ -1016,23 +867,23 @@ private:
   // QSTUFF
 
   // Flags.
-  NABoolean  isNaturalJoin_;
+  NABoolean isNaturalJoin_;
 
   // Indicates that this subtree should not be transformed further.
-  NABoolean  transformComplete_;
+  NABoolean transformComplete_;
 
   // Indicates to (or not to) consider TSJ transformation for this
   // Join Node
-  NABoolean  considerTSJ_;
+  NABoolean considerTSJ_;
 
   // Flag to indicate that this is an indexJoin
-  NABoolean  isIndexJoin_;
+  NABoolean isIndexJoin_;
 
-  NABoolean  floatingJoin_;
+  NABoolean floatingJoin_;
 
-  NABoolean  isIntersect_;
+  NABoolean isIntersect_;
 
-  ItemExpr   * joinPredTree_;
+  ItemExpr *joinPredTree_;
   ValueIdSet joinPred_;
 
   // ---------------------------------------------------------------------
@@ -1042,7 +893,6 @@ private:
   // ---------------------------------------------------------------------
   ValueIdList nullInstantiatedOutput_;
 
-
   // ---------------------------------------------------------------------
   // Expressions that cause the instantiation of null values in order to
   // null augment the row that is to be preserved.
@@ -1050,9 +900,7 @@ private:
   // ---------------------------------------------------------------------
   ValueIdList nullInstantiatedForRightJoinOutput_;
 
-
-
-//MV++
+  // MV++
   // ---------------------------------------------------------------------
   // Used for translating the required sort key to the right
   // child sort key and backwards
@@ -1061,7 +909,7 @@ private:
   ValueIdMap rightChildMapForLeftJoin_;
 
   ValueIdMap leftChildMapForRightJoin_;
-//MV--
+  // MV--
 
   // ---------------------------------------------------------------------
   // Equijoin predicates. They are a subset of the joinPred_.
@@ -1088,8 +936,8 @@ private:
   // on the update side to be rewritten in terms of the select query
   // and vice versa.
   // ---------------------------------------------------------------------
-  TableDesc * updateTableDesc_;
-  ValueIdMap * updateSelectValueIdMap_;
+  TableDesc *updateTableDesc_;
+  ValueIdMap *updateSelectValueIdMap_;
 
   // ---------------------------------------------------------------------
   // Temp member to indicate if this join is a direct or indirect result
@@ -1115,23 +963,23 @@ private:
   NABoolean leftHasUniqueMatches_;
   NABoolean rightHasUniqueMatches_;
 
-  ValueIdList reqdOrder_;       // ORDER BY list from an INSERT node
+  ValueIdList reqdOrder_;  // ORDER BY list from an INSERT node
 
   NABoolean tsjAfterSQO_;  // this is a mandatory tsj which couldn't be unnested
-  
-  NABoolean tsjForWrite_;  // is the TSJ for an Insert, Update, or Delete?
-  NABoolean tsjForUndo_; // is this Tsj used above undo node
 
-  NABoolean tsjForSetNFError_; // is this TSJ used for setting rowindexes
-                               //for NF errors
+  NABoolean tsjForWrite_;  // is the TSJ for an Insert, Update, or Delete?
+  NABoolean tsjForUndo_;   // is this Tsj used above undo node
+
+  NABoolean tsjForSetNFError_;  // is this TSJ used for setting rowindexes
+                                // for NF errors
   // this tsj is used to move source rows to target for MERGE sql operator.
   NABoolean tsjForMerge_;
 
   // this tsj is used to move source rows to target for MERGE sql operator
-  // and the merge statement has an INSERT clause. 
+  // and the merge statement has an INSERT clause.
   NABoolean tsjForMergeWithInsert_;
 
-   // this tsj is used to flow rows from source RelExpr to merge that is
+  // this tsj is used to flow rows from source RelExpr to merge that is
   // implementing an upsert.
   NABoolean tsjForMergeUpsert_;
 
@@ -1139,7 +987,7 @@ private:
 
   // this tsj is used to insert rows using the sidetree insert method.
   NABoolean tsjForSideTreeInsert_;
-  
+
   // this tsj is used for a 'no rollback' query which could be executed as
   // a sidetree insert.
   NABoolean enableTransformToSTI_;
@@ -1185,49 +1033,46 @@ private:
 
   HalloweenJoinSortType halloweenForceSort_;
 
-
   // if TRUE, it denotes that this Join was created as during subquery
-  // transformation in the transform phase to express a subquery in terms 
+  // transformation in the transform phase to express a subquery in terms
   // of a join, and that this join is a candidate for subquery unnesting
   // during SemanticQueryOptimization
 
-  NABoolean candidateForSubqueryUnnest_ ;
+  NABoolean candidateForSubqueryUnnest_;
 
   // if TRUE, it denotes that this Join needs to be converted to a Left Join
   // during the SemanticQueryOptimization phase, if this join gets unnested.
 
-  NABoolean candidateForSubqueryLeftJoinConversion_ ;
+  NABoolean candidateForSubqueryLeftJoinConversion_;
 
-  // if TRUE, it denotes that this Join is a candidate for the 
+  // if TRUE, it denotes that this Join is a candidate for the
   // semijoin-to-innerjoin (+ possible groupby) transformation. The actual
   // transformation occurs during SemanticQueryOptimization. This
   // flag is set to TRUE only for SemiJoins
 
-  NABoolean candidateForSemiJoinTransform_ ;
+  NABoolean candidateForSemiJoinTransform_;
 
   // This ValueIdSet contains all the equijoin preds from this
-  // join that are no longer needed because we have a found 
+  // join that are no longer needed because we have a found
   // FK-UK (foreign key-unique key) join and this predicate is
   // guaranteed truw by the RI constraint. This determination is
   // done during synthLogProp() tree walk, but the actual removal
   // of preds is done during the SQO tree walk. We use this list to
   // transmit the set of removable preds from from synthLogProp to SQO.
-  // We like to do the removal in SQO because (a) the removal is an 
+  // We like to do the removal in SQO because (a) the removal is an
   // process in SQO and (b) if something goes wrong the SQO phase has logic
   // to go back to the old tree, while synthLogProp() is not an expendable
   // step and does not have such logic.
 
   ValueIdSet predicatesToBeRemoved_;
 
-  // when a join becomes an extra hub then the essential outputs of the 
+  // when a join becomes an extra hub then the essential outputs of the
   // child that became an extra hub are no longer essential so they are
   // saved as extraHubNonEssentialOutputs_ of the join node
   ValueIdSet extraHubNonEssentialOutputs_;
 
-
-
   NABoolean isForTrafLoadPrep_;
-  
+
   // used for HJ and MJ (later). Causes beforeJoinPred to be evaluated prior
   // to equi join pred in work() method.
   NABoolean beforeJoinPredOnOuterOnly_;
@@ -1236,68 +1081,52 @@ private:
   // Used to generate a predicate joining the left and right unnest operands.
   NABoolean compositeUnnestJoin_;
 
-protected:
-
+ protected:
   // A map from valudId (join predicate) to row count
   ValueIdCostScalarArray vid2rowcountMap_;
 
-}; // class Join
+};  // class Join
 
 // -----------------------------------------------------------------------
 // Nested Join Operator : Physical Operator
 // -----------------------------------------------------------------------
 
-class NestedJoin : public Join
-{
-
-public:
-
+class NestedJoin : public Join {
+ public:
   // constructor
-  NestedJoin(RelExpr *leftChild,
-                    RelExpr *rightChild,
-                    OperatorTypeEnum otype = REL_NESTED_JOIN,
-                    CollHeap *oHeap = CmpCommon::statementHeap(),
-                    TableDesc *updTableDesc = NULL,
-                    ValueIdMap *updateSelectValueIdMap = NULL);
+  NestedJoin(RelExpr *leftChild, RelExpr *rightChild, OperatorTypeEnum otype = REL_NESTED_JOIN,
+             CollHeap *oHeap = CmpCommon::statementHeap(), TableDesc *updTableDesc = NULL,
+             ValueIdMap *updateSelectValueIdMap = NULL);
 
   // copy ctor
-  NestedJoin (const NestedJoin &) ; // not written
+  NestedJoin(const NestedJoin &);  // not written
 
   // virtual destructor
   virtual ~NestedJoin() {}
 
   // get a printable string that identifies the operator
-  virtual NABoolean isLogical () const;
+  virtual NABoolean isLogical() const;
   virtual NABoolean isPhysical() const;
 
-  virtual RelExpr * copyTopNode(RelExpr *derivedNode = NULL,
-                                CollHeap* outHeap = 0);
+  virtual RelExpr *copyTopNode(RelExpr *derivedNode = NULL, CollHeap *outHeap = 0);
 
   // Cascades-related functions
-  virtual PlanWorkSpace* allocateWorkSpace() const;
-  virtual CostMethod* costMethod() const;
-  virtual Context* createContextForAChild(Context* myContext,
-                     PlanWorkSpace* pws,
-                     Lng32& childIndex);
-  virtual NABoolean findOptimalSolution(Context* myContext,
-                                        PlanWorkSpace* pws);
+  virtual PlanWorkSpace *allocateWorkSpace() const;
+  virtual CostMethod *costMethod() const;
+  virtual Context *createContextForAChild(Context *myContext, PlanWorkSpace *pws, Lng32 &childIndex);
+  virtual NABoolean findOptimalSolution(Context *myContext, PlanWorkSpace *pws);
 
-  virtual PhysicalProperty* synthPhysicalProperty(const Context* myContext,
-                                                  const Lng32     planNumber,
-                                                  PlanWorkSpace  *pws);
+  virtual PhysicalProperty *synthPhysicalProperty(const Context *myContext, const Lng32 planNumber, PlanWorkSpace *pws);
   // method to do code generation
   // method to do code generation
-  RelExpr * preCodeGen(Generator * generator,
-                       const ValueIdSet &externalInputs,
-                       ValueIdSet &pulledNewInputs);
+  RelExpr *preCodeGen(Generator *generator, const ValueIdSet &externalInputs, ValueIdSet &pulledNewInputs);
 
-  virtual short codeGen(Generator*);
+  virtual short codeGen(Generator *);
 
   // Accessor for the probesInOrder flag.
   NABoolean probesInOrder() const { return probesInOrder_; }
   // Mutator for the probesInOrder flag.
-  void setProbesInOrder(NABoolean probesInOrder)
-    { probesInOrder_ = probesInOrder;  }
+  void setProbesInOrder(NABoolean probesInOrder) { probesInOrder_ = probesInOrder; }
 
   // -----------------------------------------------------------------------
   // Generate the partitioning requirements for the left child of a
@@ -1308,94 +1137,83 @@ public:
   // not be generated because the user is attempting to force something that
   // is not possible, the method returns FALSE. Otherwise, it returns TRUE.
   // -----------------------------------------------------------------------
-  NABoolean genLeftChildPartReq(
-              Context* myContext, // IN
-              PlanWorkSpace* pws, // IN
-              const PartitioningFunction* physicalPartFunc, // IN
-              PartitioningRequirement* &logicalPartReq) ; // OUT
+  NABoolean genLeftChildPartReq(Context *myContext,                            // IN
+                                PlanWorkSpace *pws,                            // IN
+                                const PartitioningFunction *physicalPartFunc,  // IN
+                                PartitioningRequirement *&logicalPartReq);     // OUT
 
   // ----------------------------------------------------------------------
   // Generate any sort requirement for the left child of a nested join that
   // is for a write operation - i.e. Insert, Update, or Delete.
   // The generated sort requirement is returned.
   // ----------------------------------------------------------------------
-  ValueIdList genWriteOpLeftChildSortReq() ;
+  ValueIdList genWriteOpLeftChildSortReq();
 
   // ---------------------------------------------------------------------
   // Generate the requirements for the right child of a nested join.
   // Returns the generated requirements if they were feasible, otherwise
   // NULL is returned.
   // ---------------------------------------------------------------------
-  ReqdPhysicalProperty* genRightChildReqs(
-                          const PhysicalProperty* sppForChild, // IN
-                          const ReqdPhysicalProperty* rppForMe, // IN 
-                          NABoolean avoidNSquareOpens) ; // IN
+  ReqdPhysicalProperty *genRightChildReqs(const PhysicalProperty *sppForChild,   // IN
+                                          const ReqdPhysicalProperty *rppForMe,  // IN
+                                          NABoolean avoidNSquareOpens);          // IN
 
   // ---------------------------------------------------------------------
   // Generate an input physical property object to contain the sort
   // order of the left child and related group attributes and
   // partitioning functions.
   // ---------------------------------------------------------------------
-  InputPhysicalProperty* generateIpp(const PhysicalProperty* sppForChild,
-                                     NABoolean isPlan0=FALSE) ;
+  InputPhysicalProperty *generateIpp(const PhysicalProperty *sppForChild, NABoolean isPlan0 = FALSE);
 
   const NAString getText() const;
 
-  virtual NABoolean currentPlanIsAcceptable(Lng32 planNo,
-            const ReqdPhysicalProperty* const rppForMe) const;
+  virtual NABoolean currentPlanIsAcceptable(Lng32 planNo, const ReqdPhysicalProperty *const rppForMe) const;
 
-  virtual NABoolean OCBJoinIsFeasible(const Context* myContext) const;
-  virtual NABoolean OCRJoinIsFeasible(const Context* myContext) const;
+  virtual NABoolean OCBJoinIsFeasible(const Context *myContext) const;
+  virtual NABoolean OCRJoinIsFeasible(const Context *myContext) const;
 
-  virtual NABoolean okToAttemptESPParallelism (
-            const Context* myContext, /*IN*/
-            PlanWorkSpace* pws, /*IN*/
-            Lng32& numOfESPs, /*OUT*/
-            float& allowedDeviation, /*OUT*/
-            NABoolean& numOfESPsForced /*OUT*/) ;
+  virtual NABoolean okToAttemptESPParallelism(const Context *myContext, /*IN*/
+                                              PlanWorkSpace *pws,       /*IN*/
+                                              Lng32 &numOfESPs,         /*OUT*/
+                                              float &allowedDeviation,  /*OUT*/
+                                              NABoolean &numOfESPsForced /*OUT*/);
 
-  virtual PlanPriority computeOperatorPriority
-    (const Context* context,
-     PlanWorkSpace *pws=NULL,
-     Lng32 planNumber=0);
+  virtual PlanPriority computeOperatorPriority(const Context *context, PlanWorkSpace *pws = NULL, Lng32 planNumber = 0);
 
-  //determines if inner table probes just one partition or all of them
- NABoolean allPartitionsProbed();
+  // determines if inner table probes just one partition or all of them
+  NABoolean allPartitionsProbed();
 
   // -----------------------------------------------------------------------
   // Performs mapping on the partitioning function, from the join to the
   // designated child.
   // -----------------------------------------------------------------------
-  virtual PartitioningFunction* mapPartitioningFunction(
-                          const PartitioningFunction* partFunc,
-                          NABoolean rewriteForChild0) ;
+  virtual PartitioningFunction *mapPartitioningFunction(const PartitioningFunction *partFunc,
+                                                        NABoolean rewriteForChild0);
 
- // determine if probeCache is applicable
- NABoolean isProbeCacheApplicable(PlanExecutionEnum loc) const;
+  // determine if probeCache is applicable
+  NABoolean isProbeCacheApplicable(PlanExecutionEnum loc) const;
 
-private:
+ private:
   // return the part. fuction for the clustering index (i.e., the base table)
-  virtual 
-  PartitioningFunction * getClusteringIndexPartFuncForRightChild() const;
+  virtual PartitioningFunction *getClusteringIndexPartFuncForRightChild() const;
 
-  virtual const NATable* getNATableForRightChild() const;
+  virtual const NATable *getNATableForRightChild() const;
 
-  virtual const IndexDesc* getClusteringIndexIndexDescForRightChild() const;
+  virtual const IndexDesc *getClusteringIndexIndexDescForRightChild() const;
 
   NABoolean JoinPredicateCoversChild1PartKey() const;
-  NABoolean JoinPredicateCoversChild1PartKey(const ValueIdSet& child1PartKey) const;
+  NABoolean JoinPredicateCoversChild1PartKey(const ValueIdSet &child1PartKey) const;
 
-  // check the sort order for the source as sppForChild0 and the target table. 
-  NABoolean checkCompleteSortOrder(const PhysicalProperty* sppForChild0);
+  // check the sort order for the source as sppForChild0 and the target table.
+  NABoolean checkCompleteSortOrder(const PhysicalProperty *sppForChild0);
 
-private:
+ private:
   // Set to TRUE if the probes to the inner table are at least partially
   // in order. Default is FALSE.
   NABoolean probesInOrder_;
 
   CostMethodNestedJoin *pCostMethod_;
-}; // class NestedJoin
-
+};  // class NestedJoin
 
 // -----------------------------------------------------------------------
 // The NestedJoinFlow operator emulates the dataflow that is established
@@ -1405,37 +1223,27 @@ private:
 // output and has no predicates.
 // -----------------------------------------------------------------------
 
-class NestedJoinFlow : public NestedJoin
-{
-
-public:
-
+class NestedJoinFlow : public NestedJoin {
+ public:
   // constructor
-  NestedJoinFlow(RelExpr  *leftChild,
-                        RelExpr  *rightChild,
-                        TableDesc *updTableDesc,
-                        ValueIdMap *updateSelectValueIdMap,
-                        CollHeap *oHeap = CmpCommon::statementHeap());
+  NestedJoinFlow(RelExpr *leftChild, RelExpr *rightChild, TableDesc *updTableDesc, ValueIdMap *updateSelectValueIdMap,
+                 CollHeap *oHeap = CmpCommon::statementHeap());
 
   // copy ctor
-  NestedJoinFlow (const NestedJoinFlow &) ; // not written
+  NestedJoinFlow(const NestedJoinFlow &);  // not written
 
   // Cascades-related functions
-  virtual CostMethod* costMethod() const;
+  virtual CostMethod *costMethod() const;
 
-  virtual RelExpr * preCodeGen(Generator * generator,
-                               const ValueIdSet &externalInputs,
-                               ValueIdSet &pulledNewInputs);
-  virtual short codeGen(Generator*);
+  virtual RelExpr *preCodeGen(Generator *generator, const ValueIdSet &externalInputs, ValueIdSet &pulledNewInputs);
+  virtual short codeGen(Generator *);
 
-  virtual RelExpr * copyTopNode(RelExpr *derivedNode = NULL,
-                                CollHeap* outHeap = 0);
+  virtual RelExpr *copyTopNode(RelExpr *derivedNode = NULL, CollHeap *outHeap = 0);
 
-private:
+ private:
   NABoolean sendEODtoTgt_;
   CostMethodNestedJoinFlow *pCostMethod_;
-}; // class NestedJoinFlow
-
+};  // class NestedJoinFlow
 
 // -----------------------------------------------------------------------
 // Merge Join Operator : Physical Operator
@@ -1444,72 +1252,50 @@ private:
 // or a left merge join (REL_LEFT_MERGE_JOIN).
 // -----------------------------------------------------------------------
 
-class MergeJoin : public Join
-{
-
-public:
-
+class MergeJoin : public Join {
+ public:
   // constructor
-  MergeJoin(RelExpr *leftChild,
-                   RelExpr *rightChild,
-                   OperatorTypeEnum otype = REL_MERGE_JOIN,
-                   ItemExpr *joinPred = NULL,
-                   CollHeap *oHeap = CmpCommon::statementHeap());
+  MergeJoin(RelExpr *leftChild, RelExpr *rightChild, OperatorTypeEnum otype = REL_MERGE_JOIN, ItemExpr *joinPred = NULL,
+            CollHeap *oHeap = CmpCommon::statementHeap());
 
   // copy ctor
-  MergeJoin (const MergeJoin &) ; // not written
+  MergeJoin(const MergeJoin &);  // not written
 
   // virtual destructor
-  virtual ~MergeJoin() { }
+  virtual ~MergeJoin() {}
 
-  virtual NABoolean isLogical () const;
+  virtual NABoolean isLogical() const;
   virtual NABoolean isPhysical() const;
 
-  virtual RelExpr * copyTopNode(RelExpr *derivedNode = NULL,
-                                CollHeap* outHeap = 0);
+  virtual RelExpr *copyTopNode(RelExpr *derivedNode = NULL, CollHeap *outHeap = 0);
 
   // Cascades-related functions
-  virtual CostMethod* costMethod() const;
-  virtual Context* createContextForAChild(Context* myContext,
-                     PlanWorkSpace* pws,
-                     Lng32& childIndex);
-  virtual NABoolean findOptimalSolution(Context* myContext,
-                                        PlanWorkSpace* pws);
+  virtual CostMethod *costMethod() const;
+  virtual Context *createContextForAChild(Context *myContext, PlanWorkSpace *pws, Lng32 &childIndex);
+  virtual NABoolean findOptimalSolution(Context *myContext, PlanWorkSpace *pws);
 
-  virtual NABoolean currentPlanIsAcceptable(Lng32 planNo,
-            const ReqdPhysicalProperty* const rppForMe) const;
+  virtual NABoolean currentPlanIsAcceptable(Lng32 planNo, const ReqdPhysicalProperty *const rppForMe) const;
 
-  virtual PhysicalProperty* synthPhysicalProperty(const Context* myContext,
-                                                  const Lng32     planNumber,
-                                                  PlanWorkSpace  *pws);
+  virtual PhysicalProperty *synthPhysicalProperty(const Context *myContext, const Lng32 planNumber, PlanWorkSpace *pws);
 
   // method to do code generation
-  RelExpr * preCodeGen(Generator * generator,
-                       const ValueIdSet &externalInputs,
-                       ValueIdSet &pulledNewInputs);
-  virtual short codeGen(Generator*);
+  RelExpr *preCodeGen(Generator *generator, const ValueIdSet &externalInputs, ValueIdSet &pulledNewInputs);
+  virtual short codeGen(Generator *);
 
   // get a printable string that identifies the operator
   const NAString getText() const;
 
-  virtual void addLocalExpr(LIST(ExprNode *) &xlist,
-                            LIST(NAString) &llist) const;
+  virtual void addLocalExpr(LIST(ExprNode *) & xlist, LIST(NAString) & llist) const;
 
   // Accessor functions
-  inline const ValueIdList & getLeftSortOrder() const
-                                           { return leftSortOrder_; }
-  inline const ValueIdList & getRightSortOrder() const
-                                           { return rightSortOrder_; }
-  inline ValueIdList & orderedMJPreds()    { return orderedMJPreds_; }
-  inline const ValueIdList & getOrderedMJPreds() const
-                                           { return orderedMJPreds_; }
+  inline const ValueIdList &getLeftSortOrder() const { return leftSortOrder_; }
+  inline const ValueIdList &getRightSortOrder() const { return rightSortOrder_; }
+  inline ValueIdList &orderedMJPreds() { return orderedMJPreds_; }
+  inline const ValueIdList &getOrderedMJPreds() const { return orderedMJPreds_; }
 
-  inline const ValueIdList & getCandidateLeftSortOrder() const
-                                       { return candidateLeftSortOrder_; }
-  inline const ValueIdList & getCandidateRightSortOrder() const
-                                       { return candidateRightSortOrder_; }
-  inline const ValueIdList & getCandidateMJPreds() const
-                                       { return candidateMJPreds_; }
+  inline const ValueIdList &getCandidateLeftSortOrder() const { return candidateLeftSortOrder_; }
+  inline const ValueIdList &getCandidateRightSortOrder() const { return candidateRightSortOrder_; }
+  inline const ValueIdList &getCandidateMJPreds() const { return candidateMJPreds_; }
 
   NABoolean &leftUnique() { return leftUnique_; }
   NABoolean &rightUnique() { return rightUnique_; }
@@ -1518,55 +1304,40 @@ public:
   // Method for checking whether parent partitioning requirements are
   // compatible with the Merge Join's partitioning requirements.
   // ---------------------------------------------------------------------
-  NABoolean parentAndChildPartReqsCompatible
-               (const ReqdPhysicalProperty* const rppForMe) const;
+  NABoolean parentAndChildPartReqsCompatible(const ReqdPhysicalProperty *const rppForMe) const;
 
   // Manipulation Methods
-  inline void setOrderedMJPreds (const ValueIdList &op)  { orderedMJPreds_ = op; }
-  inline void setLeftSortOrder (const ValueIdList &so)   { leftSortOrder_  = so; }
-  inline void setRightSortOrder (const ValueIdList &so)  { rightSortOrder_ = so; }
-  inline void setCandidateLeftSortOrder (const ValueIdList &so)
-                                         { candidateLeftSortOrder_ = so; }
-  inline void setCandidateRightSortOrder (const ValueIdList &so)
-                                         { candidateRightSortOrder_ = so; }
-  inline void setCandidateMJPreds (const ValueIdList &p)
-                                         { candidateMJPreds_ = p; }
+  inline void setOrderedMJPreds(const ValueIdList &op) { orderedMJPreds_ = op; }
+  inline void setLeftSortOrder(const ValueIdList &so) { leftSortOrder_ = so; }
+  inline void setRightSortOrder(const ValueIdList &so) { rightSortOrder_ = so; }
+  inline void setCandidateLeftSortOrder(const ValueIdList &so) { candidateLeftSortOrder_ = so; }
+  inline void setCandidateRightSortOrder(const ValueIdList &so) { candidateRightSortOrder_ = so; }
+  inline void setCandidateMJPreds(const ValueIdList &p) { candidateMJPreds_ = p; }
 
   // From the ordering this is provided as input, and a set of predicates,
   // generate new sort orders that contains only the children that are
   // covered by the predicates.
   // merge join predicates.
-  void generateSortOrders (const ValueIdList & ordering,
-                           const ValueIdSet & preds,
-                           ValueIdList  &leftSortOrder,
-                           ValueIdList  &rightSortOrder,
-                           ValueIdList  &orderedMJPreds,
-                           NABoolean    &completelyCovered) const;
+  void generateSortOrders(const ValueIdList &ordering, const ValueIdSet &preds, ValueIdList &leftSortOrder,
+                          ValueIdList &rightSortOrder, ValueIdList &orderedMJPreds, NABoolean &completelyCovered) const;
 
   // Generate a arrangement requirement, and possible a sort order
   // requirement, that is compatible with any existing required order
   // or arrangement.  Used only for creating an arrangement
   // requirement for the right child when we try the right child first.
   // This needs a seperate method because it is very complex.
-  void genRightChildArrangementReq(
-         const ReqdPhysicalProperty* const rppForMe,
-         RequirementGenerator &rg) const;
+  void genRightChildArrangementReq(const ReqdPhysicalProperty *const rppForMe, RequirementGenerator &rg) const;
 
   // -----------------------------------------------------------------------
   // Performs mapping on the partitioning function, from the join to the
   // designated child.
   // -----------------------------------------------------------------------
-  virtual PartitioningFunction* mapPartitioningFunction(
-                          const PartitioningFunction* partFunc,
-                          NABoolean rewriteForChild0) ;
+  virtual PartitioningFunction *mapPartitioningFunction(const PartitioningFunction *partFunc,
+                                                        NABoolean rewriteForChild0);
 
-  virtual PlanPriority computeOperatorPriority
-    (const Context* context,
-     PlanWorkSpace *pws=NULL,
-     Lng32 planNumber=0);
+  virtual PlanPriority computeOperatorPriority(const Context *context, PlanWorkSpace *pws = NULL, Lng32 planNumber = 0);
 
-private:
-
+ private:
   ValueIdList leftSortOrder_;   // sort order for left child
   ValueIdList rightSortOrder_;  // sort order for right child
   ValueIdList orderedMJPreds_;  // ordered list of merge join preds
@@ -1587,7 +1358,7 @@ private:
   ValueIdList candidateRightSortOrder_;
   ValueIdList candidateMJPreds_;
   CostMethodMergeJoin *pCostMethod_;
-}; // class MergeJoin
+};  // class MergeJoin
 
 // -----------------------------------------------------------------------
 // Hash Join : Physical Operator
@@ -1597,61 +1368,44 @@ private:
 // Or now it may also represent REL_HYBRID_HASH_JOIN and REL_ORDERED_HASH_JOIN
 // -----------------------------------------------------------------------
 
-class HashJoin : public Join
-{
-
-public:
-
+class HashJoin : public Join {
+ public:
   // constructor
-  HashJoin(RelExpr *leftChild,
-                  RelExpr *rightChild,
-                  OperatorTypeEnum otype = REL_HASH_JOIN,
-                  ItemExpr *joinPred = NULL,
-                  CollHeap *oHeap = CmpCommon::statementHeap());
+  HashJoin(RelExpr *leftChild, RelExpr *rightChild, OperatorTypeEnum otype = REL_HASH_JOIN, ItemExpr *joinPred = NULL,
+           CollHeap *oHeap = CmpCommon::statementHeap());
 
-  HashJoin(RelExpr *leftChild,
-                  RelExpr *rightChild,
-                  CollHeap *oHeap = CmpCommon::statementHeap());
+  HashJoin(RelExpr *leftChild, RelExpr *rightChild, CollHeap *oHeap = CmpCommon::statementHeap());
 
   // virtual destructor
-  virtual ~HashJoin() { }
+  virtual ~HashJoin() {}
 
   // Special method added to check for ordered cross product called by
   // RequiredPhysicalProperty::satisfied() to ensure that if a CQS has
   // requested an ordered cross product, then one is being produced.
   virtual NABoolean patternMatch(const RelExpr &other) const;
 
-  virtual NABoolean isLogical () const;
+  virtual NABoolean isLogical() const;
   virtual NABoolean isPhysical() const;
 
-  virtual RelExpr * copyTopNode(RelExpr *derivedNode = NULL,
-                                CollHeap* outHeap = 0);
+  virtual RelExpr *copyTopNode(RelExpr *derivedNode = NULL, CollHeap *outHeap = 0);
 
   // cost functions
-  virtual CostMethod* costMethod() const;
-  virtual Context* createContextForAChild(Context* myContext,
-                     PlanWorkSpace* pws,
-                     Lng32& childIndex);
-  virtual CostLimit* computeCostLimit(const Context* myContext,
-                                            PlanWorkSpace* pws);
+  virtual CostMethod *costMethod() const;
+  virtual Context *createContextForAChild(Context *myContext, PlanWorkSpace *pws, Lng32 &childIndex);
+  virtual CostLimit *computeCostLimit(const Context *myContext, PlanWorkSpace *pws);
 
-  virtual NABoolean currentPlanIsAcceptable(Lng32 planNo,
-            const ReqdPhysicalProperty* const rppForMe) const;
+  virtual NABoolean currentPlanIsAcceptable(Lng32 planNo, const ReqdPhysicalProperty *const rppForMe) const;
 
-  virtual PhysicalProperty* synthPhysicalProperty(const Context* myContext,
-                                                  const Lng32     planNumber,
-                                                  PlanWorkSpace  *pws);
+  virtual PhysicalProperty *synthPhysicalProperty(const Context *myContext, const Lng32 planNumber, PlanWorkSpace *pws);
 
   // method to do code generation
-  virtual RelExpr * preCodeGen(Generator * generator,
-                               const ValueIdSet &externalInputs,
-                               ValueIdSet &pulledNewInputs);
-  virtual short codeGen(Generator*);
+  virtual RelExpr *preCodeGen(Generator *generator, const ValueIdSet &externalInputs, ValueIdSet &pulledNewInputs);
+  virtual short codeGen(Generator *);
 
   // A variation of codeGen used when we can use the UniqueHashJoin
   // for this Join.
   //
-  short codeGenForUnique(Generator*);
+  short codeGenForUnique(Generator *);
 
   // A helper method to determine if this Join can use the
   // UniqueHashJoin TCB.
@@ -1661,140 +1415,99 @@ public:
   // get a printable string that identifies the operator
   const NAString getText() const;
 
-  virtual void addLocalExpr(LIST(ExprNode *) &xlist,
-                            LIST(NAString) &llist) const;
+  virtual void addLocalExpr(LIST(ExprNode *) & xlist, LIST(NAString) & llist) const;
 
-  //This is the original isBMO method.
-  virtual NABoolean isBigMemoryOperator(const PlanWorkSpace* pws,
-                                        const Lng32 planNumber);
+  // This is the original isBMO method.
+  virtual NABoolean isBigMemoryOperator(const PlanWorkSpace *pws, const Lng32 planNumber);
 
   virtual CostScalar getEstimatedRunTimeMemoryUsage(Generator *generator, NABoolean perNode, Lng32 *numStreams = NULL);
 
-  inline ValueIdSet & checkInputValues() { return checkInputValues_;}
-  inline ValueIdSet & moveInputValues()  { return moveInputValues_;}
+  inline ValueIdSet &checkInputValues() { return checkInputValues_; }
+  inline ValueIdSet &moveInputValues() { return moveInputValues_; }
 
   // The method gets refined since HJ may be a BMO depending on its inputs.
   // Ratio is the ratio of file-size/memorysize. If the ratio >=1 it
   // is a BMO, if the ratio <1, it is not, and if the ratio > 5 it
   // is a VBMO (Very Big Memory Operator). Default is an improbable value.
-  NABoolean isBigMemoryOperatorSetRatio(const Context* context,
-                                        const Lng32 planNumber,
-					double & ratio);
+  NABoolean isBigMemoryOperatorSetRatio(const Context *context, const Lng32 planNumber, double &ratio);
   // isLeftOrdered has been renamed to noOverflow. Ordered Hash Join or
   // NoOverflow join is an alternative hash join to the hybrid hash join.
-  inline NABoolean isNoOverflow() {return isNoOverflow_;}
-  inline void setNoOverflow(NABoolean isNoOverflow)
-  {
-    isNoOverflow_ = isNoOverflow;
-  }
+  inline NABoolean isNoOverflow() { return isNoOverflow_; }
+  inline void setNoOverflow(NABoolean isNoOverflow) { isNoOverflow_ = isNoOverflow; }
 
-  inline NABoolean isReuse() {return reuse_;}
-  inline void setReuse(NABoolean reuse){reuse_ = reuse;}
-  inline Int32 & multipleCalls() {return multipleCalls_;}
-  inline NABoolean isOrderedCrossProduct() {return isOrderedCrossProduct_;}
-  inline void setIsOrderedCrossProduct(NABoolean flag){isOrderedCrossProduct_= flag;}
+  inline NABoolean isReuse() { return reuse_; }
+  inline void setReuse(NABoolean reuse) { reuse_ = reuse; }
+  inline Int32 &multipleCalls() { return multipleCalls_; }
+  inline NABoolean isOrderedCrossProduct() { return isOrderedCrossProduct_; }
+  inline void setIsOrderedCrossProduct(NABoolean flag) { isOrderedCrossProduct_ = flag; }
   inline NABoolean returnRightOrdered() { return returnRightOrdered_; }
-  inline void setReturnRightOrdered(NABoolean flag) { returnRightOrdered_ = flag ; }
+  inline void setReturnRightOrdered(NABoolean flag) { returnRightOrdered_ = flag; }
 
-  virtual NABoolean okToAttemptESPParallelism (
-            const Context* myContext, /*IN*/
-            PlanWorkSpace* pws, /*IN*/
-            Lng32& numOfESPs, /*OUT*/
-            float& allowedDeviation, /*OUT*/
-            NABoolean& numOfESPsForced /*OUT*/) ;
+  virtual NABoolean okToAttemptESPParallelism(const Context *myContext, /*IN*/
+                                              PlanWorkSpace *pws,       /*IN*/
+                                              Lng32 &numOfESPs,         /*OUT*/
+                                              float &allowedDeviation,  /*OUT*/
+                                              NABoolean &numOfESPsForced /*OUT*/);
 
-  ExpTupleDesc::TupleDataFormat determineInternalFormat( const ValueIdList & rightList,
-                                                         const ValueIdList & leftList,
-                                                         RelExpr * relExpr,
-                                                         NABoolean & resizeCifRecord,
-                                                         Generator * generator,
-                                                         NABoolean bmo_affinity,
-                                                         NABoolean & considerBufferDefrag,
-                                                         NABoolean uniqueHJ = FALSE);
-
+  ExpTupleDesc::TupleDataFormat determineInternalFormat(const ValueIdList &rightList, const ValueIdList &leftList,
+                                                        RelExpr *relExpr, NABoolean &resizeCifRecord,
+                                                        Generator *generator, NABoolean bmo_affinity,
+                                                        NABoolean &considerBufferDefrag, NABoolean uniqueHJ = FALSE);
 
   // -----------------------------------------------------------------------
   // Performs mapping on the partitioning function, from the join to the
   // designated child.
   // -----------------------------------------------------------------------
-  virtual PartitioningFunction* mapPartitioningFunction(
-                          const PartitioningFunction* partFunc,
-                          NABoolean rewriteForChild0) ;
-  inline ValueIdSet & valuesGivenToChild() { return valuesGivenToChild_; }
+  virtual PartitioningFunction *mapPartitioningFunction(const PartitioningFunction *partFunc,
+                                                        NABoolean rewriteForChild0);
+  inline ValueIdSet &valuesGivenToChild() { return valuesGivenToChild_; }
 
-
-  virtual PlanPriority computeOperatorPriority
-    (const Context* context,
-     PlanWorkSpace *pws=NULL,
-     Lng32 planNumber=0);
+  virtual PlanPriority computeOperatorPriority(const Context *context, PlanWorkSpace *pws = NULL, Lng32 planNumber = 0);
 
   // Test whether the skewed values exist in the output of the left
   // child of this join. If so, the pointer to skew value list is returned
   // in argument x.
-  virtual NABoolean isSkewBusterFeasible( SkewedValueList** x, Lng32 countOfPipelines, ValueId&);
+  virtual NABoolean isSkewBusterFeasible(SkewedValueList **x, Lng32 countOfPipelines, ValueId &);
 
-  //NOT IN optimization methods - start
-  inline ValueIdSet& getCheckInnerNullExpr() 
-  { 
-    return checkInnerNullExpr_; 
-  }
+  // NOT IN optimization methods - start
+  inline ValueIdSet &getCheckInnerNullExpr() { return checkInnerNullExpr_; }
 
-  inline ValueIdSet& getCheckOuterNullExpr() 
-  { 
-    return checkOuterNullExpr_; 
-  }
-  
+  inline ValueIdSet &getCheckOuterNullExpr() { return checkOuterNullExpr_; }
+
   // add check outer and inner Null expressions
   void addCheckNullExpressions(CollHeap *wHeap);
 
-  void addNullToSkewedList(SkewedValueList** skList);
+  void addNullToSkewedList(SkewedValueList **skList);
 
   virtual void resolveSingleColNotInPredicate();
 
-  NABoolean getIsNotInSubqTransform() const
-  {
-    return isNotInSubqTransform_;
-  }
+  NABoolean getIsNotInSubqTransform() const { return isNotInSubqTransform_; }
 
-  void setIsNotInSubqTransform( NABoolean v)
-  {
-    isNotInSubqTransform_ = v;
-  }
+  void setIsNotInSubqTransform(NABoolean v) { isNotInSubqTransform_ = v; }
 
-  NABoolean getRequireOneBroadcast() const
-  {
-    return requireOneBroadcast_;
-  }
+  NABoolean getRequireOneBroadcast() const { return requireOneBroadcast_; }
 
-  void setRequireOneBroadcast( NABoolean v)
-  {
-    requireOneBroadcast_ = v;
-  }
+  void setRequireOneBroadcast(NABoolean v) { requireOneBroadcast_ = v; }
 
-  //NOT IN optimization methods - end
-
+  // NOT IN optimization methods - end
 
   // Added for support of the MIN/MAX optimization
   // for HashJoin. Min and Max values are computed
   // during readInnerChild phase and passed to outer
   // before starting the read from the outer child
 
-  // The list of surrogate values representing the 
+  // The list of surrogate values representing the
   // min and max values to be computed.
   // These are system generated hostvars which
   // will be replaced (mapped) to the actual min max
   // values during codeGen();
-  inline const ValueIdList& getMinMaxHostvars() { return minMaxVals_; }
+  inline const ValueIdList &getMinMaxHostvars() { return minMaxVals_; }
 
-  inline const NAList<CostScalar>& getInnerChildUecs() 
-          { return innerChildUecs_; }
+  inline const NAList<CostScalar> &getInnerChildUecs() { return innerChildUecs_; }
 
   // The list of values for which min and max
   // values are computed.
-  inline const ValueIdList& getMinMaxCols()
-  {
-    return minMaxCols_;
-  }
+  inline const ValueIdList &getMinMaxCols() { return minMaxCols_; }
 
   // During PreCodeGen, the generator maintains a list of
   // values which are candidates for min/max optimization.
@@ -1806,14 +1519,11 @@ public:
   inline CollIndex getEndMinMaxIndex() const { return endMinMaxIndex_; }
   inline void setEndMinMaxIndex(CollIndex i) { endMinMaxIndex_ = i; }
 
-  NABoolean getInnerAccessOnePartition() const
-   { return innerAccessOnePartition_;} ;
+  NABoolean getInnerAccessOnePartition() const { return innerAccessOnePartition_; };
 
-  void setInnerAccessOnePartition(NABoolean x)
-   { innerAccessOnePartition_ = x;} ;
+  void setInnerAccessOnePartition(NABoolean x) { innerAccessOnePartition_ = x; };
 
-private:
-
+ private:
   // ValueIdSet used to check if input values to be given to right child
   // have changed from previous input. Created/filled by preCodeGen.
   ValueIdSet checkInputValues_;
@@ -1822,7 +1532,7 @@ private:
   // (next time) if they have changed. Created by preCodeGen.
   ValueIdSet moveInputValues_;
 
-  ValueIdSet valuesGivenToChild_; // values whose change causes reuse of the table
+  ValueIdSet valuesGivenToChild_;  // values whose change causes reuse of the table
 
   // True if the join is Ordered/noOverflow hash join, false if it is Hybrid.
   // False by default.
@@ -1852,8 +1562,8 @@ private:
   // Requires (left) Ordered Hash Join and Key-Uniqueness of the left rows !!
   NABoolean returnRightOrdered_;
 
-  // hash anti semi join check ouyer and inner Null expressions for a query like "select * from 
-  // T1 where a NOT IN (select b from T2);", 
+  // hash anti semi join check ouyer and inner Null expressions for a query like "select * from
+  // T1 where a NOT IN (select b from T2);",
   // the check inner null expression is  ISNULL(<inner clumn>);
   // the check outer null expression is  ISNOTNULL(<outer clumn>);
   ValueIdSet checkInnerNullExpr_;
@@ -1870,14 +1580,14 @@ private:
   // during readInnerChild phase and passed to outer
   // before starting the read from the outer child
 
-  // The list of surrogate values representing the 
+  // The list of surrogate values representing the
   // min and max values to be computed.
   // These are system generated hostvars which
-  // will be replaced (mapped) to the actual min max 
+  // will be replaced (mapped) to the actual min max
   // values during codeGen();
   //
   // The values in this list can be host vars generated
-  // eitgher for consumption in split_bottom node or in 
+  // eitgher for consumption in split_bottom node or in
   // the scan node based on the following condition.
   //   type-1 HJ:      the host vars are for split_bottom.
   //   non-type-1 HJ:  the host vars are for scan.
@@ -1887,7 +1597,7 @@ private:
   // values are computed.
   ValueIdList minMaxCols_;
 
-  // The list of Uecs of the columns in the inner table 
+  // The list of Uecs of the columns in the inner table
   // for which min/max values are to be computed.
   NAList<CostScalar> innerChildUecs_;
 
@@ -1903,7 +1613,6 @@ private:
   // only when the join is immediately above the inner table.
   NABoolean innerAccessOnePartition_;
   CostMethodHashJoin *pCostMethod_;
-}; // class HashJoin
+};  // class HashJoin
 
 #endif /* RELJOIN_H */
-

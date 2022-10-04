@@ -43,26 +43,20 @@ class QmpPublish;
 void extractDefineAndThenPutEnvIfFound(char *);
 
 //============================================================================
-class MvQueryRewriteServer : public NABasicObject
-{
-public:
+class MvQueryRewriteServer : public NABasicObject {
+ public:
+  static char *getProcessName(IpcServerType serverType, char *nodeName, short cpu, CollHeap *heap = NULL);
 
-  static char* getProcessName(IpcServerType serverType,
-                              char* nodeName,
-                              short cpu,
-                              CollHeap* heap = NULL);
+  static void setHeap(CollHeap *heap) {
+    heap_ = heap;
+    heapHasBeenSet_ = TRUE;
+  }
 
-  static void setHeap(CollHeap* heap)
-    {
-      heap_ = heap;
-      heapHasBeenSet_ = TRUE;
-    }
+  static IpcEnvironment *getIpcEnv();
 
-  static IpcEnvironment* getIpcEnv();
+  static NABoolean processExists(const short *processHandle);
 
-  static NABoolean processExists(const short* processHandle);
-
-  static void getSegmentName(Int32 segmentNumber, char* segmentName);
+  static void getSegmentName(Int32 segmentNumber, char *segmentName);
 
   /**
    * Creates or reuses a server process of the class specified by \c serverClass.
@@ -73,18 +67,15 @@ public:
    *        allocateServerProcess.
    * @return Pointer to the server process.
    */
-  static IpcServer* createServerProcess(IpcServerClass* serverClass,
-                                        Int32 segmentNumber,
-                                        short cpu,
+  static IpcServer *createServerProcess(IpcServerClass *serverClass, Int32 segmentNumber, short cpu,
                                         NABoolean usesTran);
   /**
    * Returns a pointer to a QMS server.
    * @param publishDest Whether publishing public, private, or both.
-   * @param checkQms Whether or not to check if existing qms process is alive. 
+   * @param checkQms Whether or not to check if existing qms process is alive.
    * @return Pointer to the QMS instance.
    */
-  static IpcServer* getQmsServer(DefaultToken publishDest,
-                                 NABoolean checkQms = FALSE);
+  static IpcServer *getQmsServer(DefaultToken publishDest, NABoolean checkQms = FALSE);
 
   /**
    * Checks to see if the QMS server in use is still alive. This is invoked
@@ -92,11 +83,11 @@ public:
    */
   static void checkQmsServer();
 
- /**
+  /**
    * Returns a pointer to a QMM server.
    * @return Pointer to the QMM instance.
    */
-  static IpcServer* getQmmServer();
+  static IpcServer *getQmmServer();
 
   /**
    * Sets the QMM server to \c NULL. This is called when QMM is discovered to
@@ -105,13 +96,13 @@ public:
    */
   static void resetQmmServer();
 
- /**
+  /**
    * Returns a pointer to a QMP server.
    * @return Pointer to the QMP instance.
    */
-  static IpcServer* getQmpServer();
+  static IpcServer *getQmpServer();
 
-  static void getFormattedTimestamp(char* buffer);
+  static void getFormattedTimestamp(char *buffer);
 
   /**
    * Sends a MATCH message to the indicated QMS process, and receives a response
@@ -125,14 +116,10 @@ public:
    * @return Pointer to message object containing result descriptor. This will
    *         be null if an error occurred.
    */
-  static QRXmlMessageObj* sendMatchMessage(IpcServer* qms,
-                                           XMLString* qryDescText,
-                                           CollHeap* heap);
+  static QRXmlMessageObj *sendMatchMessage(IpcServer *qms, XMLString *qryDescText, CollHeap *heap);
 
-  static QR::QRRequestResult sendPublishMessage(const NAString* descriptorText,
-                                                const NAString& serverName,
-                                                IpcServer*& server,
-                                                CollHeap * heap);
+  static QR::QRRequestResult sendPublishMessage(const NAString *descriptorText, const NAString &serverName,
+                                                IpcServer *&server, CollHeap *heap);
 
   /**
    * Requests initialization of the passed QMS server.
@@ -141,7 +128,7 @@ public:
    * @param heap Heap to use for any allocations.
    * @return Result returned from QMS reflecting its initialization status.
    */
-  static QRRequestResult initQms(IpcServer* qmsServer, CollHeap* heap);
+  static QRRequestResult initQms(IpcServer *qmsServer, CollHeap *heap);
 
   /**
    * Sends an IPC message to QMS to initialize itself.
@@ -150,34 +137,31 @@ public:
    * @param heap Heap used to allocate the message stream object.
    * @return Status responsed returned in a message from QMS.
    */
-  static QRRequestResult sendInitializeMessage(IpcServer* server,
-                                               CollHeap * heap);
+  static QRRequestResult sendInitializeMessage(IpcServer *server, CollHeap *heap);
 
-protected:
-  static void formatTimestamp(
-    char          *buffer,    // Output
-    Int64          GMT_Time); // Input
+ protected:
+  static void formatTimestamp(char *buffer,     // Output
+                              Int64 GMT_Time);  // Input
 
-private:
+ private:
   // Static class, no instances -- make ctor private and undefined
   MvQueryRewriteServer();
 
-  static CollHeap* heap_;
+  static CollHeap *heap_;
   static NABoolean heapHasBeenSet_;
   static NAString fileNamePrefix_;
 
   // IPC objects.
-  static IpcEnvironment* ipcEnv_;
-  static IpcServerClass* qmsServerClass_;
-  static IpcServer* qmsServer_;
+  static IpcEnvironment *ipcEnv_;
+  static IpcServerClass *qmsServerClass_;
+  static IpcServer *qmsServer_;
 
-  static IpcServerClass* qmmServerClass_;
-  static IpcServer* qmmServer_;
+  static IpcServerClass *qmmServerClass_;
+  static IpcServer *qmmServer_;
 
-  static IpcServerClass* qmpServerClass_;
-  static IpcServer* qmpServer_;
+  static IpcServerClass *qmpServerClass_;
+  static IpcServer *qmpServer_;
 
 };  // MvQueryRewriteServer
 
-#endif // QUERYREWRITESERVERHANDLER_H
-
+#endif  // QUERYREWRITESERVERHANDLER_H

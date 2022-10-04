@@ -26,9 +26,9 @@
  *****************************************************************************
  *
  * File:         <file>
- * Description:  
- *               
- *               
+ * Description:
+ *
+ *
  * Created:      //95
  * Language:     C++
  *
@@ -37,7 +37,6 @@
  *
  *****************************************************************************
  */
-
 
 #include "common/BaseTypes.h"
 #include "common/Collections.h"
@@ -50,75 +49,53 @@
 class ExprValueId;
 class TableDesc;
 
-enum ItemExprShapeEnum { LEFT_LINEAR_TREE,
-			 RIGHT_LINEAR_TREE,
-			 BUSHY_TREE
-		       };
-
-
+enum ItemExprShapeEnum { LEFT_LINEAR_TREE, RIGHT_LINEAR_TREE, BUSHY_TREE };
 
 // -----------------------------------------------------------------------
 // a list of item expressions (takes a tree of item exprs as constructor
 // argument)
 // -----------------------------------------------------------------------
-class ItemExprList : public LIST(ItemExpr *)
-{
-
-public:
+class ItemExprList : public LIST(ItemExpr *) {
+ public:
+  // Constructor
+  ItemExprList(CollHeap *h /*=0*/) : LIST(ItemExpr *)(h), heap_(h) {}
 
   // Constructor
-  ItemExprList(CollHeap* h/*=0*/)
-    : LIST(ItemExpr *)(h), heap_(h) {}
-  
-  // Constructor
-  ItemExprList(Lng32 numberOfElements, CollHeap* h) 
-    : LIST(ItemExpr *)(h, numberOfElements), heap_(h) {}
-  
-  ItemExprList(ItemExpr *tree, CollHeap* h,
-	       OperatorTypeEnum backBoneType = ITM_ITEM_LIST,
-	       NABoolean flattenSubqueries = TRUE,
-	       NABoolean flattenUDFs = TRUE)
-    : LIST(ItemExpr *)(h), heap_(h)
-  {
+  ItemExprList(Lng32 numberOfElements, CollHeap *h) : LIST(ItemExpr *)(h, numberOfElements), heap_(h) {}
+
+  ItemExprList(ItemExpr *tree, CollHeap *h, OperatorTypeEnum backBoneType = ITM_ITEM_LIST,
+               NABoolean flattenSubqueries = TRUE, NABoolean flattenUDFs = TRUE)
+      : LIST(ItemExpr *)(h), heap_(h) {
     insertTree(tree, backBoneType, flattenSubqueries, flattenUDFs);
   }
 
   // Insert an ItemExpr tree
-  void insertTree(ItemExpr *tree,
-                  OperatorTypeEnum backBoneType = ITM_ITEM_LIST,
-		  NABoolean flattenSubqueries = TRUE,
-		  NABoolean flattenUDFs = TRUE);
+  void insertTree(ItemExpr *tree, OperatorTypeEnum backBoneType = ITM_ITEM_LIST, NABoolean flattenSubqueries = TRUE,
+                  NABoolean flattenUDFs = TRUE);
 
-  void addMember(ItemExpr* x) { insert(x); };
+  void addMember(ItemExpr *x) { insert(x); };
 
-  // convert the list to an ItemExpr *. if there is more then one node in the 
-  // list, the result will be an ItemList that can be either a 
+  // convert the list to an ItemExpr *. if there is more then one node in the
+  // list, the result will be an ItemList that can be either a
   // LEFT_LINEAR_TREE or a RIGHT_LINEAR_TREE
-  // Note: does not support BUSHY_TREE. 
-  ItemExpr * 
-  convertToItemExpr(ItemExprShapeEnum treeShape = LEFT_LINEAR_TREE) const;
+  // Note: does not support BUSHY_TREE.
+  ItemExpr *convertToItemExpr(ItemExprShapeEnum treeShape = LEFT_LINEAR_TREE) const;
 
   // create a comma separated string list in argument 'result'
-  virtual void unparse(NAString &result,
-                       PhaseEnum phase = OPTIMIZER_PHASE,
-                       UnparseFormatEnum form = USER_FORMAT,
-                       TableDesc * tabId = NULL) const;
+  virtual void unparse(NAString &result, PhaseEnum phase = OPTIMIZER_PHASE, UnparseFormatEnum form = USER_FORMAT,
+                       TableDesc *tabId = NULL) const;
 
   // ---------------------------------------------------------------------
-  // Print 
+  // Print
   // ---------------------------------------------------------------------
   void display() const;
 
-  void print( FILE* ofd = stdout,
-	      const char* indent = DEFAULT_INDENT,
-              const char* title = "ItemExprList") const;
+  void print(FILE *ofd = stdout, const char *indent = DEFAULT_INDENT, const char *title = "ItemExprList") const;
 
-  
-private:
+ private:
+  CollHeap *heap_;
 
-  CollHeap * heap_;
-
-}; // ItemExprList
+};  // ItemExprList
 
 // -----------------------------------------------------------------------
 // Pseudo collection class to treat a tree as a list of items. The list
@@ -127,16 +104,11 @@ private:
 // of the list).
 // -----------------------------------------------------------------------
 
-class ItemExprTreeAsList : public NABasicObject
-{
-
-public:
-
+class ItemExprTreeAsList : public NABasicObject {
+ public:
   // make a new object that allows viewing a given tree
   // as a list
-  ItemExprTreeAsList(ExprValueId *treePtr,
-		     OperatorTypeEnum op,
-		     ItemExprShapeEnum shape = RIGHT_LINEAR_TREE);
+  ItemExprTreeAsList(ExprValueId *treePtr, OperatorTypeEnum op, ItemExprShapeEnum shape = RIGHT_LINEAR_TREE);
 
   // return number of entries
   Lng32 entries() const;
@@ -148,21 +120,19 @@ public:
   void insertAtTop(ItemExpr *treeToInsert);
 
   // remove an element that is given by its value
-  ItemExpr * remove(ItemExpr *treeToRemove);
+  ItemExpr *remove(ItemExpr *treeToRemove);
 
   // check whether an element is in the tree
   NABoolean contains(const ItemExpr *treeToCheck);
 
   // index access
-  ItemExpr * operator [] (CollIndex i);
+  ItemExpr *operator[](CollIndex i);
 
-private:
-
+ private:
   ExprValueId *treePtr_;
   OperatorTypeEnum operator_;
   ItemExprShapeEnum shape_;
 
-}; // ItemExprTreeAsList
+};  // ItemExprTreeAsList
 
 #endif /* ITEMEXPRLIST_H */
-

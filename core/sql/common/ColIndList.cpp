@@ -41,22 +41,20 @@
 //*-------	isPrefixOf
 //*---------------------------------------------------
 // Checks is this is a prefix of other, in any order.
-NABoolean 
-ColIndList::isPrefixOf(const ColIndList& other) const
-{
+NABoolean ColIndList::isPrefixOf(const ColIndList &other) const {
   size_t mySize = entries();
   size_t otherSize = other.entries();
-  
+
   if (mySize > otherSize) {
     return FALSE;
   }
-  
+
   for (size_t i = 0; i < mySize; i++) {
-    if (!contains(other[i] )) {
+    if (!contains(other[i])) {
       return FALSE;
     }
   }
-  
+
   return TRUE;
 }
 
@@ -64,21 +62,19 @@ ColIndList::isPrefixOf(const ColIndList& other) const
 //*-------	isOrderedPrefixOf
 //*---------------------------------------------------
 // Checks is this is a prefix of other, in the same order.
-NABoolean
-ColIndList::isOrderedPrefixOf(const ColIndList& other) const
-{
+NABoolean ColIndList::isOrderedPrefixOf(const ColIndList &other) const {
   size_t mySize = entries();
   size_t otherSize = other.entries();
-  
+
   if (mySize > otherSize) {
     return FALSE;
   }
-  
+
   for (size_t i = 0; i < mySize; i++) {
-    if (this->at(i) != other[i] ) {
+    if (this->at(i) != other[i]) {
       return FALSE;
     }
   }
-  
+
   return TRUE;
 }

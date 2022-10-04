@@ -38,7 +38,7 @@
 *
 *****************************************************************************
 */
-#undef  UDRUNLOAD_INSTANTIATE
+#undef UDRUNLOAD_INSTANTIATE
 #define UDRUNLOAD_INSTANTIATE
 
 #include "udrextrn.h"
@@ -49,24 +49,16 @@
 
 #include "udrdecs.h"
 
-void processAnUnLoadMessage(UdrGlobals *UdrGlob,
-                            UdrServerReplyStream &msgStream,
-                            UdrUnloadMsg &request)
-{
-
+void processAnUnLoadMessage(UdrGlobals *UdrGlob, UdrServerReplyStream &msgStream, UdrUnloadMsg &request) {
   Lng32 error;
   const char *moduleName = "processAnUnLoadMessage";
   char errorText[MAXERRTEXT];
 
   ComDiagsArea *diags = ComDiagsArea::allocate(UdrGlob->getIpcHeap());
 
-  doMessageBox(UdrGlob, TRACE_SHOW_DIALOGS,
-               UdrGlob->showLoad_, moduleName);
+  doMessageBox(UdrGlob, TRACE_SHOW_DIALOGS, UdrGlob->showLoad_, moduleName);
 
-  if (UdrGlob->verbose_ &&
-      UdrGlob->traceLevel_ >= TRACE_IPMS &&
-      UdrGlob->showUnload_)
-  {
+  if (UdrGlob->verbose_ && UdrGlob->traceLevel_ >= TRACE_IPMS && UdrGlob->showUnload_) {
     ServerDebug("[UdrServ (%s)]  Receive Unload Request", moduleName);
   }
 
@@ -77,8 +69,7 @@ void processAnUnLoadMessage(UdrGlobals *UdrGlob,
   // Find the SPInfo instance associated with the incoming UDR handle
   SPInfo *sp = UdrGlob->getSPList()->spFind(request.getHandle());
 
-  if (sp == NULL)
-  {
+  if (sp == NULL) {
     //
     // No SPInfo exists for this UDR handle. Could be because the
     // handle is invalid or because this is an out-of-sequence UNLOAD
@@ -87,41 +78,30 @@ void processAnUnLoadMessage(UdrGlobals *UdrGlob,
     // create a dummy SPInfo instance so that when the LOAD arrives we
     // know to ignore it.
     //
-    if (UdrHandleIsValid(request.getHandle()))
-    {
+    if (UdrHandleIsValid(request.getHandle())) {
       char buf[100];
       convertInt64ToAscii(request.getHandle(), buf);
       *diags << DgSqlCode(UDR_ERR_UNEXPECTED_UNLOAD);
       *diags << DgString0(buf);
-      sp = new (UdrGlob->getUdrHeap()) SPInfo(UdrGlob,
-                                              UdrGlob->getUdrHeap(),
-                                              request.getHandle());
+      sp = new (UdrGlob->getUdrHeap()) SPInfo(UdrGlob, UdrGlob->getUdrHeap(), request.getHandle());
       sp->setSPInfoState(SPInfo::UNLOADING);
-    }
-    else
-    {
+    } else {
       *diags << DgSqlCode(-UDR_ERR_MISSING_UDRHANDLE);
       *diags << DgString0("Unload Message");
     }
-  } // if (sp == NULL)
+  }  // if (sp == NULL)
 
-  if (sp)
-  {
+  if (sp) {
     LmRoutine *lmr = sp->getLMHandle();
-    if (lmr == NULL && sp->isLoaded())
-    {
+    if (lmr == NULL && sp->isLoaded()) {
       *diags << DgSqlCode(-UDR_ERR_MISSING_LMROUTINE);
       *diags << DgString0("Unload Message");
     }
 
-    if (UdrGlob->verbose_ &&
-        UdrGlob->traceLevel_ >= TRACE_IPMS &&
-        UdrGlob->showUnload_)
-    {
-      ServerDebug("[UdrServ (%s)]  Call SPInfo::releaseSP",
-                  moduleName);
+    if (UdrGlob->verbose_ && UdrGlob->traceLevel_ >= TRACE_IPMS && UdrGlob->showUnload_) {
+      ServerDebug("[UdrServ (%s)]  Call SPInfo::releaseSP", moduleName);
     }
-    
+
     //
     // releaseSP will contact Language Manager to unload the SP and
     // will also invoke the SPInfo destructor.
@@ -129,16 +109,10 @@ void processAnUnLoadMessage(UdrGlobals *UdrGlob,
     error = sp->releaseSP(TRUE, *diags);
     sp = NULL;
 
-    if (error != 0)
-    {
-      sprintf(errorText,
-              "(%.30s) UDR Unload Error: %d",
-              moduleName, (Lng32) error);
-      ServerDebug("[UdrServ (%s)]  %s\n",
-                  "releaseSP", errorText);
-      doMessageBox(UdrGlob, TRACE_SHOW_DIALOGS,
-                   UdrGlob->showLoad_,
-                   errorText);
+    if (error != 0) {
+      sprintf(errorText, "(%.30s) UDR Unload Error: %d", moduleName, (Lng32)error);
+      ServerDebug("[UdrServ (%s)]  %s\n", "releaseSP", errorText);
+      doMessageBox(UdrGlob, TRACE_SHOW_DIALOGS, UdrGlob->showLoad_, errorText);
     }
   }
 
@@ -146,15 +120,10 @@ void processAnUnLoadMessage(UdrGlobals *UdrGlob,
   // Build a reply and send it
   //
   msgStream.clearAllObjects();
-  UdrUnloadReply *reply = new (UdrGlob->getIpcHeap())
-    UdrUnloadReply(UdrGlob->getIpcHeap());
+  UdrUnloadReply *reply = new (UdrGlob->getIpcHeap()) UdrUnloadReply(UdrGlob->getIpcHeap());
 
-  if (reply == NULL)
-  {
-    controlErrorReply(UdrGlob, msgStream,
-                      UDR_ERR_MESSAGE_PROCESSING,
-                      INVOKE_ERR_NO_REPLY_BUFFER,
-                      NULL);
+  if (reply == NULL) {
+    controlErrorReply(UdrGlob, msgStream, UDR_ERR_MESSAGE_PROCESSING, INVOKE_ERR_NO_REPLY_BUFFER, NULL);
     return;
   }
 
@@ -162,36 +131,29 @@ void processAnUnLoadMessage(UdrGlobals *UdrGlob,
 
   msgStream << *reply;
 
-  if (diags && diags->getNumber() > 0)
-  {
+  if (diags && diags->getNumber() > 0) {
     msgStream << *diags;
     UdrGlob->numErrUDR_++;
     UdrGlob->numErrSP_++;
     UdrGlob->numErrUnloadSP_++;
   }
 
-  if (UdrGlob->verbose_ &&
-      UdrGlob->traceLevel_ >= TRACE_IPMS &&
-      UdrGlob->showUnload_)
-  {
+  if (UdrGlob->verbose_ && UdrGlob->traceLevel_ >= TRACE_IPMS && UdrGlob->showUnload_) {
     ServerDebug("[UdrServ (%s)] Send Unload Reply", moduleName);
   }
 
 #ifdef _DEBUG
-  if (UdrGlob && UdrGlob->getJavaLM())
-  {
-    sleepIfPropertySet(*(UdrGlob->getJavaLM()),
-                       "MXUDR_UNLOAD_DELAY", diags);
+  if (UdrGlob && UdrGlob->getJavaLM()) {
+    sleepIfPropertySet(*(UdrGlob->getJavaLM()), "MXUDR_UNLOAD_DELAY", diags);
   }
-#endif // _DEBUG
+#endif  // _DEBUG
 
   sendControlReply(UdrGlob, msgStream, NULL);
 
-  if (diags)
-  {
+  if (diags) {
     diags->decrRefCount();
   }
 
   reply->decrRefCount();
 
-} // processAnUnLoadMessage
+}  // processAnUnLoadMessage

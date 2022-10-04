@@ -67,11 +67,14 @@ class ExSimpleSQLBufferEntry {
   friend class ExSimpleSQLBuffer;
   friend class ExDupSqlBuffer;
 
-private:
+ private:
   // init - Initializes an entry by setting initializing the tupp
   // descriptor and setting the next field to NULL.
   //
-  void init(Int32 size) { tuppDesc_.init(size, 0, data_); next_ = 0; };
+  void init(Int32 size) {
+    tuppDesc_.init(size, 0, data_);
+    next_ = 0;
+  };
 
   // setNext - Sets the next_ field, which points to the next entry
   // in the linked list.
@@ -90,14 +93,14 @@ private:
 
   // getTupDesc - Return a pointer to the tupp_descriptor
   tupp_descriptor *getTupDesc() { return &tuppDesc_; };
-  
-private:
+
+ private:
   // tuppDesc_ - The tupp descriptor for this tuple. Is initialized in
   // init.
   //
   tupp_descriptor tuppDesc_;
 
-  // next_ - The next pointer for maintaining linked lists of 
+  // next_ - The next pointer for maintaining linked lists of
   // ExSimpleSQLBufferEntrys.  The constructor sets this to NULL.  Users
   // must explicitly manipulate this field via the setNext() and getNext()
   // methods.
@@ -116,7 +119,7 @@ private:
 // ExSimpleSQLBuffer
 //
 class ExSimpleSQLBuffer : public ExGod {
-public:
+ public:
   // ExSimpleSQLBuffer - constructor
   //
   ExSimpleSQLBuffer(Int32 numTuples, Int32 tupleSize, NAMemory *);
@@ -141,22 +144,21 @@ public:
   // getTupleSize - returns the data size of each tupp in the buffer
   //
   ULng32 getTupleSize() const { return tupleSize_; };
-  
+
   void reinitializeTuples(void);
 
-protected:
+ protected:
   // Get an entry from the free list.  Reclaim unreferenced
   // tuples if the free list is empty.
-  ExSimpleSQLBufferEntry * getFreeEntry(void);
+  ExSimpleSQLBufferEntry *getFreeEntry(void);
 
-  ExSimpleSQLBufferEntry * getUsedList(void) { return usedList_; }
+  ExSimpleSQLBufferEntry *getUsedList(void) { return usedList_; }
 
-  void setUsedList(ExSimpleSQLBufferEntry * entry)
-    { usedList_ = entry; }
+  void setUsedList(ExSimpleSQLBufferEntry *entry) { usedList_ = entry; }
 
-private:
+ private:
   // Common constructor initialization code
-  void init(CollHeap * heap);
+  void init(CollHeap *heap);
 
   // Move unreferenced tuples from the used list to the free list.
   void reclaimTuples(void);
@@ -184,14 +186,12 @@ private:
   // empty, a pass over the usedList_ move all unreferenced tuples from
   // the usedList_ to the freeList_.
   //
-  ExSimpleSQLBufferEntry * freeList_;
-  ExSimpleSQLBufferEntry * usedList_;
+  ExSimpleSQLBufferEntry *freeList_;
+  ExSimpleSQLBufferEntry *usedList_;
 
-  // data_ - Buffer memory allocated from the heap in the constructor. 
-  // 
+  // data_ - Buffer memory allocated from the heap in the constructor.
+  //
   char *data_;
 };
 
 #endif
-
-

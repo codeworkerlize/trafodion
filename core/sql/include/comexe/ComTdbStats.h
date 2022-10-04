@@ -24,7 +24,7 @@
 ****************************************************************************
 *
 * File:         ComTdbStats.h
-* Description:  
+* Description:
 *
 * Created:      12/1/1999
 * Language:     C++
@@ -46,57 +46,53 @@ class StatsDesc;
 class StatsTuple;
 class ExMasterStats;
 
-// class to hold cost to be returned. 
-// Used to populate the struct QueryCostInfo defined in cli/sqlcli.h 
-class QueryCostInfo
-{
-public:
+// class to hold cost to be returned.
+// Used to populate the struct QueryCostInfo defined in cli/sqlcli.h
+class QueryCostInfo {
+ public:
   QueryCostInfo()
-       : cpuTime_(0),
-	 ioTime_(0),
-	 msgTime_(0),
-	 idleTime_(0),
-         numSeqIOs_(0),
-	 numRandIOs_(0),
-	 totalTime_(0),
-	 cardinality_(0),
-	 totalMem_(0),
-	 resourceUsage_(0),
-	 maxCpuUsage_(0)
-  {}
-  
-  double cpuTime()       { return cpuTime_;}
-  double ioTime()        { return ioTime_;}
-  double msgTime()       { return msgTime_;}
-  double idleTime()      { return idleTime_;}
-  double numSeqIOs()     { return numSeqIOs_;}
-  double numRandIOs()    { return numRandIOs_;}
-  double totalTime()     { return totalTime_;}
-  double cardinality()   { return cardinality_;}
-  double totalMem()      { return totalMem_;}
-  short  resourceUsage() { return resourceUsage_; }
+      : cpuTime_(0),
+        ioTime_(0),
+        msgTime_(0),
+        idleTime_(0),
+        numSeqIOs_(0),
+        numRandIOs_(0),
+        totalTime_(0),
+        cardinality_(0),
+        totalMem_(0),
+        resourceUsage_(0),
+        maxCpuUsage_(0) {}
+
+  double cpuTime() { return cpuTime_; }
+  double ioTime() { return ioTime_; }
+  double msgTime() { return msgTime_; }
+  double idleTime() { return idleTime_; }
+  double numSeqIOs() { return numSeqIOs_; }
+  double numRandIOs() { return numRandIOs_; }
+  double totalTime() { return totalTime_; }
+  double cardinality() { return cardinality_; }
+  double totalMem() { return totalMem_; }
+  short resourceUsage() { return resourceUsage_; }
   short maxCpuUsage() { return maxCpuUsage_; }
 
-  void setCostInfo(double cpuT, double ioT, double msgT,
-		   double idleT, double numSeqIOs, double numRandIOs,
-                   double totalT, double cardinality, double totalM,
-                   short maxCU)
-  {
-    cpuTime_       = cpuT;
-    ioTime_        = ioT;
-    msgTime_       = msgT;
-    idleTime_      = idleT;
-    numSeqIOs_     = numSeqIOs;
-    numRandIOs_    = numRandIOs;
-    totalTime_     = totalT;
-    cardinality_   = cardinality;
-    totalMem_      = totalM;
-    maxCpuUsage_   = maxCU;
+  void setCostInfo(double cpuT, double ioT, double msgT, double idleT, double numSeqIOs, double numRandIOs,
+                   double totalT, double cardinality, double totalM, short maxCU) {
+    cpuTime_ = cpuT;
+    ioTime_ = ioT;
+    msgTime_ = msgT;
+    idleTime_ = idleT;
+    numSeqIOs_ = numSeqIOs;
+    numRandIOs_ = numRandIOs;
+    totalTime_ = totalT;
+    cardinality_ = cardinality;
+    totalMem_ = totalM;
+    maxCpuUsage_ = maxCU;
   };
-  
+
   void setResourceUsage(short ru) { resourceUsage_ = ru; }
   void translateToExternalFormat(SQL_QUERY_COST_INFO *query_cost_info);
-private:
+
+ private:
   double cpuTime_;
   double ioTime_;
   double msgTime_;
@@ -106,114 +102,88 @@ private:
   double totalTime_;
   double cardinality_;
   double totalMem_;
-  short  resourceUsage_;
-  short  maxCpuUsage_;
-  char   fillerCost_[12];
+  short resourceUsage_;
+  short maxCpuUsage_;
+  char fillerCost_[12];
 };
 // -----------------------------------------------------------------------
 //  CompilationStatsData
 //
 //   Data gathered from the CompilationStats class in the compiler.
-//   Used to populate the SQL_COMPILATION_STATS_DATA struct in cli/sqlcli.h 
+//   Used to populate the SQL_COMPILATION_STATS_DATA struct in cli/sqlcli.h
 // -----------------------------------------------------------------------
-class CompilationStatsData : public NAVersionedObject
-{
-public:
+class CompilationStatsData : public NAVersionedObject {
+ public:
   CompilationStatsData()
-    : NAVersionedObject(-1),
-      compileStartTime_(0),
-      compileEndTime_(0),
-      compilerId_(NULL),      
-      cmpCpuTotal_(0),
-      cmpCpuBinder_(0),
-      cmpCpuNormalizer_(0),
-      cmpCpuAnalyzer_(0),
-      cmpCpuOptimizer_(0),
-      cmpCpuGenerator_(0),
-      metadataCacheHits_(0),
-      metadataCacheLookups_(0),
-      queryCacheState_(0),
-      histogramCacheHits_(0),
-      histogramCacheLookups_(0),
-      stmtHeapSize_(0),
-      cxtHeapSize_(0),
-      optTasks_(0),
-      optContexts_(0),
-      isRecompile_(0),
-      compileInfo_(NULL),
-      compileInfoLen_(0)
-  {};
+      : NAVersionedObject(-1),
+        compileStartTime_(0),
+        compileEndTime_(0),
+        compilerId_(NULL),
+        cmpCpuTotal_(0),
+        cmpCpuBinder_(0),
+        cmpCpuNormalizer_(0),
+        cmpCpuAnalyzer_(0),
+        cmpCpuOptimizer_(0),
+        cmpCpuGenerator_(0),
+        metadataCacheHits_(0),
+        metadataCacheLookups_(0),
+        queryCacheState_(0),
+        histogramCacheHits_(0),
+        histogramCacheLookups_(0),
+        stmtHeapSize_(0),
+        cxtHeapSize_(0),
+        optTasks_(0),
+        optContexts_(0),
+        isRecompile_(0),
+        compileInfo_(NULL),
+        compileInfoLen_(0){};
 
-   CompilationStatsData(Int64 compileStartTime,
-                         Int64 compileEndTime,
-                         char *compilerId,                  
-                         Lng32 cmpCpuTotal,
-                         Lng32 cmpCpuBinder,
-                         Lng32 cmpCpuNormalizer,
-                         Lng32 cmpCpuAnalyzer,
-                         Lng32 cmpCpuOptimizer,
-                         Lng32 cmpCpuGenerator,
-                         ULng32 metadataCacheHits,
-                         ULng32 metadataCacheLookups,
-                         Int32 queryCacheState,
-                         ULng32 histogramCacheHits,
-                         ULng32 histogramCacheLookups,
-                         Lng32 stmtHeapSize,
-                         Lng32 cxtHeapSize,
-                         Lng32 optTasks,
-                         Lng32 optContexts,
-                         short isRecompile,
-                         char *compileInfo,
-                         Int32 compileInfoLen)
-    : NAVersionedObject(-1),
-      compileStartTime_(compileStartTime),
-      compileEndTime_(compileEndTime),
-      compilerId_(compilerId),      
-      cmpCpuTotal_(cmpCpuTotal),
-      cmpCpuBinder_(cmpCpuBinder),
-      cmpCpuNormalizer_(cmpCpuNormalizer),
-      cmpCpuAnalyzer_(cmpCpuAnalyzer),
-      cmpCpuOptimizer_(cmpCpuOptimizer),
-      cmpCpuGenerator_(cmpCpuGenerator),
-      metadataCacheHits_(metadataCacheHits),
-      metadataCacheLookups_(metadataCacheLookups),
-      queryCacheState_(queryCacheState),
-      histogramCacheHits_(histogramCacheHits),
-      histogramCacheLookups_(histogramCacheLookups),
-      stmtHeapSize_(stmtHeapSize),
-      cxtHeapSize_(cxtHeapSize),
-      optTasks_(optTasks),
-      optContexts_(optContexts),
-      isRecompile_(isRecompile),
-      compileInfo_(compileInfo),
-      compileInfoLen_(compileInfoLen)
-  {};
+  CompilationStatsData(Int64 compileStartTime, Int64 compileEndTime, char *compilerId, Lng32 cmpCpuTotal,
+                       Lng32 cmpCpuBinder, Lng32 cmpCpuNormalizer, Lng32 cmpCpuAnalyzer, Lng32 cmpCpuOptimizer,
+                       Lng32 cmpCpuGenerator, ULng32 metadataCacheHits, ULng32 metadataCacheLookups,
+                       Int32 queryCacheState, ULng32 histogramCacheHits, ULng32 histogramCacheLookups,
+                       Lng32 stmtHeapSize, Lng32 cxtHeapSize, Lng32 optTasks, Lng32 optContexts, short isRecompile,
+                       char *compileInfo, Int32 compileInfoLen)
+      : NAVersionedObject(-1),
+        compileStartTime_(compileStartTime),
+        compileEndTime_(compileEndTime),
+        compilerId_(compilerId),
+        cmpCpuTotal_(cmpCpuTotal),
+        cmpCpuBinder_(cmpCpuBinder),
+        cmpCpuNormalizer_(cmpCpuNormalizer),
+        cmpCpuAnalyzer_(cmpCpuAnalyzer),
+        cmpCpuOptimizer_(cmpCpuOptimizer),
+        cmpCpuGenerator_(cmpCpuGenerator),
+        metadataCacheHits_(metadataCacheHits),
+        metadataCacheLookups_(metadataCacheLookups),
+        queryCacheState_(queryCacheState),
+        histogramCacheHits_(histogramCacheHits),
+        histogramCacheLookups_(histogramCacheLookups),
+        stmtHeapSize_(stmtHeapSize),
+        cxtHeapSize_(cxtHeapSize),
+        optTasks_(optTasks),
+        optContexts_(optContexts),
+        isRecompile_(isRecompile),
+        compileInfo_(compileInfo),
+        compileInfoLen_(compileInfoLen){};
 
- 
-  CompilationStatsData& 
-  operator=(CompilationStatsData &csd);
+  CompilationStatsData &operator=(CompilationStatsData &csd);
 
   // ---------------------------------------------------------------------
   // Redefine virtual functions required for Versioning.
   //----------------------------------------------------------------------
-  virtual unsigned char getClassVersionID()
-  {
-    return 1;
-  }
+  virtual unsigned char getClassVersionID() { return 1; }
 
-  virtual void populateImageVersionIDArray()
-  {
-    setImageVersionID(0,getClassVersionID());
-  }
+  virtual void populateImageVersionIDArray() { setImageVersionID(0, getClassVersionID()); }
 
   virtual short getClassSize() { return (short)sizeof(CompilationStatsData); }
 
-  Long pack(void * space);
-  Lng32 unpack(void *, void * reallocator);
+  Long pack(void *space);
+  Lng32 unpack(void *, void *reallocator);
 
   Int64 compileStartTime() { return compileStartTime_; }
   Int64 compileEndTime() { return compileEndTime_; }
-  char *compilerId() { return (char*)compilerId_.getPointer(); }  
+  char *compilerId() { return (char *)compilerId_.getPointer(); }
   Lng32 cmpCpuTotal() { return cmpCpuTotal_; }
   Lng32 cmpCpuBinder() { return cmpCpuBinder_; }
   Lng32 cmpCpuNormalizer() { return cmpCpuNormalizer_; }
@@ -230,45 +200,41 @@ public:
   Lng32 optTasks() { return optTasks_; }
   Lng32 optContexts() { return optContexts_; }
   short isRecompile() { return isRecompile_; }
-  char *compileInfo() { return (char*)compileInfo_.getPointer(); }  
+  char *compileInfo() { return (char *)compileInfo_.getPointer(); }
   Int32 compileInfoLen() { return compileInfoLen_; }
   //
   // these values are found after the object is created and added back in
-  void setCmpCpuGenerator(Lng32 cmpCpuGenerator ) 
-    { cmpCpuGenerator_ = cmpCpuGenerator; }
-  void setCmpCpuTotal(Lng32 cmpCpuTotal ) 
-    { cmpCpuTotal_ = cmpCpuTotal; }
-  void setCompileEndTime(Int64 endTime)
-    { compileEndTime_ = endTime; }
-  void translateToExternalFormat(SQL_COMPILATION_STATS_DATA *cmpData, 
-          Int64 cmpStartTime, Int64 cmpEndTime);
+  void setCmpCpuGenerator(Lng32 cmpCpuGenerator) { cmpCpuGenerator_ = cmpCpuGenerator; }
+  void setCmpCpuTotal(Lng32 cmpCpuTotal) { cmpCpuTotal_ = cmpCpuTotal; }
+  void setCompileEndTime(Int64 endTime) { compileEndTime_ = endTime; }
+  void translateToExternalFormat(SQL_COMPILATION_STATS_DATA *cmpData, Int64 cmpStartTime, Int64 cmpEndTime);
 
-private:  
-  Int64 compileStartTime_;                          //  0 -  7
-  Int64 compileEndTime_;                            //  8 - 15
-  NABasicPtr compilerId_;                           // 16 - 23
-  Int32 cmpCpuTotal_;                               // 24 - 27 
-  Int32 cmpCpuBinder_;                              // 28 - 31
-  Int32 cmpCpuNormalizer_;                          // 32 - 35
-  Int32 cmpCpuAnalyzer_;                            // 36 - 39
-  Int32 cmpCpuOptimizer_;                           // 40 - 43
-  Int32 cmpCpuGenerator_;                           // 44 - 47
-  Int32 metadataCacheHits_;                         // 48 - 51
-  Int32 metadataCacheLookups_;                      // 52 - 55
-  Int32 queryCacheState_;                           // 56 - 59
-  Int32 histogramCacheHits_;                        // 60 - 63
-  Int32 histogramCacheLookups_;                     // 64 - 67
-  Int32 stmtHeapSize_;                              // 68 - 71
-  Int32 cxtHeapSize_;                               // 72 - 75
-  Int32 optTasks_;                                  // 76 - 79
-  Int32 optContexts_;                               // 80 - 83
-  Int16 isRecompile_;                               // 84 - 85
+ private:
+  Int64 compileStartTime_;       //  0 -  7
+  Int64 compileEndTime_;         //  8 - 15
+  NABasicPtr compilerId_;        // 16 - 23
+  Int32 cmpCpuTotal_;            // 24 - 27
+  Int32 cmpCpuBinder_;           // 28 - 31
+  Int32 cmpCpuNormalizer_;       // 32 - 35
+  Int32 cmpCpuAnalyzer_;         // 36 - 39
+  Int32 cmpCpuOptimizer_;        // 40 - 43
+  Int32 cmpCpuGenerator_;        // 44 - 47
+  Int32 metadataCacheHits_;      // 48 - 51
+  Int32 metadataCacheLookups_;   // 52 - 55
+  Int32 queryCacheState_;        // 56 - 59
+  Int32 histogramCacheHits_;     // 60 - 63
+  Int32 histogramCacheLookups_;  // 64 - 67
+  Int32 stmtHeapSize_;           // 68 - 71
+  Int32 cxtHeapSize_;            // 72 - 75
+  Int32 optTasks_;               // 76 - 79
+  Int32 optContexts_;            // 80 - 83
+  Int16 isRecompile_;            // 84 - 85
 
-  Int16 fillBoundary_;                              // 86 - 87
+  Int16 fillBoundary_;  // 86 - 87
 
-  NABasicPtr compileInfo_;                          // 88 - 95
-  Int32 compileInfoLen_;                            // 96 - 99
-  char filler_[42];                                 // 100 - 141
+  NABasicPtr compileInfo_;  // 88 - 95
+  Int32 compileInfoLen_;    // 96 - 99
+  char filler_[42];         // 100 - 141
 };
 
 // ---------------------------------------------------------------------
@@ -277,12 +243,11 @@ private:
 // ---------------------------------------------------------------------
 typedef NAVersionedObjectPtrTempl<CompilationStatsData> CompilationStatsDataPtr;
 
-class CompilerStatsInfo
-{
-public:
+class CompilerStatsInfo {
+ public:
   CompilerStatsInfo();
 
-  CompilerStatsInfo& operator=(CompilerStatsInfo&);
+  CompilerStatsInfo &operator=(CompilerStatsInfo &);
 
   UInt16 &totalOps() { return totalOps_; }
   UInt16 &exchangeOps() { return exchangeOps_; }
@@ -313,28 +278,28 @@ public:
   double &estBmoMemPerNode() { return estBmoMemPerNode_; }
 
   NABoolean mandatoryCrossProduct() { return (flags_ & MANDATORY_CROSS_PRODUCT) != 0; }
-  void setMandatoryCrossProduct(NABoolean v)      
-  { (v ? flags_ |= MANDATORY_CROSS_PRODUCT : flags_ &= ~MANDATORY_CROSS_PRODUCT); }
+  void setMandatoryCrossProduct(NABoolean v) {
+    (v ? flags_ |= MANDATORY_CROSS_PRODUCT : flags_ &= ~MANDATORY_CROSS_PRODUCT);
+  }
 
   NABoolean missingStats() { return (flags_ & MISSING_STATS) != 0; }
-  void setMissingStats(NABoolean v)      
-  { (v ? flags_ |= MISSING_STATS : flags_ &= ~MISSING_STATS); }
+  void setMissingStats(NABoolean v) { (v ? flags_ |= MISSING_STATS : flags_ &= ~MISSING_STATS); }
 
   NABoolean fullScanOnTable() { return (flags_ & FULL_SCAN_ON_TABLE) != 0; }
-  void setFullScanOnTable(NABoolean v)      
-  { (v ? flags_ |= FULL_SCAN_ON_TABLE : flags_ &= ~FULL_SCAN_ON_TABLE); }
+  void setFullScanOnTable(NABoolean v) { (v ? flags_ |= FULL_SCAN_ON_TABLE : flags_ &= ~FULL_SCAN_ON_TABLE); }
 
   NABoolean highDp2MxBufferUsage() { return (flags_ & HIGH_DP2_MX_BUFFER_USAGE) != 0; }
-  void setHighDp2MxBufferUsage(NABoolean v)      
-  { (v ? flags_ |= HIGH_DP2_MX_BUFFER_USAGE : flags_ &= ~HIGH_DP2_MX_BUFFER_USAGE); }
+  void setHighDp2MxBufferUsage(NABoolean v) {
+    (v ? flags_ |= HIGH_DP2_MX_BUFFER_USAGE : flags_ &= ~HIGH_DP2_MX_BUFFER_USAGE);
+  }
   void translateToExternalFormat(SQL_QUERY_COMPILER_STATS_INFO *query_comp_stats_info, short xnNeeded);
-private:
-  enum
-  {
-    MANDATORY_CROSS_PRODUCT   = 0x0001,
-    MISSING_STATS             = 0x0002,
-    FULL_SCAN_ON_TABLE        = 0x0004,
-    HIGH_DP2_MX_BUFFER_USAGE  = 0x0008
+
+ private:
+  enum {
+    MANDATORY_CROSS_PRODUCT = 0x0001,
+    MISSING_STATS = 0x0002,
+    FULL_SCAN_ON_TABLE = 0x0004,
+    HIGH_DP2_MX_BUFFER_USAGE = 0x0008
   };
 
   UInt16 totalOps_;
@@ -348,7 +313,7 @@ private:
   UInt16 dop_;
   UInt16 collectStatsType_;
 
-  UInt32  affinityNumber_;
+  UInt32 affinityNumber_;
 
   Int32 totalFragmentSize_;
   Int32 masterFragmentSize_;
@@ -363,7 +328,7 @@ private:
   // a full table scan.
   double dp2RowsAccessedForFullScan_;
 
-  UInt32 flags_;  
+  UInt32 flags_;
 
   UInt16 bmo_;
   UInt16 udr_;
@@ -373,42 +338,41 @@ private:
   Int16 subqueryType_;
   double bmoMemLimitPerNode_;
   double estBmoMemPerNode_;
-  char   filler_[32];
+  char filler_[32];
 };
 
 // the enum values assigned to the enums must be the same as the
 // position of the corresponding record in StatsVirtTableColumnInfo.
 // Values are 0 based, so first entry (TDB_ID) gets enum of 0.
-enum StatType
-{
-  STAT_MOD_NAME       =  0,
-  STAT_STATEMENT_NAME =  1,
-  STAT_PLAN_ID        =  2,
-  STAT_TDB_ID         =  3,
-  STAT_FRAG_NUM       =  4,
-  STAT_INST_NUM       =  5,
-  STAT_SUB_INST_NUM   =  6,
-  STAT_LINE_NUM       =  7,
-  STAT_PARENT_TDB_ID  =  8,
-  STAT_LC_TDB_ID      =  9,
-  STAT_RC_TDB_ID      = 10,
-  STAT_SEQ_NUM        = 11,
-  STAT_TDB_NAME       = 12,
-  STAT_WORK_CALLS     = 13,
-  STAT_EST_ROWS       = 14, 
-  STAT_ACT_ROWS       = 15,
-  STAT_UP_Q_SZ        = 16,
-  STAT_DN_Q_SZ        = 17,
-  STAT_VAL1_TXT       = 18,
-  STAT_VAL1           = 19,
-  STAT_VAL2_TXT       = 20,
-  STAT_VAL2           = 21,
-  STAT_VAL3_TXT       = 22,
-  STAT_VAL3           = 23,
-  STAT_VAL4_TXT       = 24,
-  STAT_VAL4           = 25,
-  STAT_TEXT           = 26,
-  STAT_VARIABLE_INFO  = 27
+enum StatType {
+  STAT_MOD_NAME = 0,
+  STAT_STATEMENT_NAME = 1,
+  STAT_PLAN_ID = 2,
+  STAT_TDB_ID = 3,
+  STAT_FRAG_NUM = 4,
+  STAT_INST_NUM = 5,
+  STAT_SUB_INST_NUM = 6,
+  STAT_LINE_NUM = 7,
+  STAT_PARENT_TDB_ID = 8,
+  STAT_LC_TDB_ID = 9,
+  STAT_RC_TDB_ID = 10,
+  STAT_SEQ_NUM = 11,
+  STAT_TDB_NAME = 12,
+  STAT_WORK_CALLS = 13,
+  STAT_EST_ROWS = 14,
+  STAT_ACT_ROWS = 15,
+  STAT_UP_Q_SZ = 16,
+  STAT_DN_Q_SZ = 17,
+  STAT_VAL1_TXT = 18,
+  STAT_VAL1 = 19,
+  STAT_VAL2_TXT = 20,
+  STAT_VAL2 = 21,
+  STAT_VAL3_TXT = 22,
+  STAT_VAL3 = 23,
+  STAT_VAL4_TXT = 24,
+  STAT_VAL4 = 25,
+  STAT_TEXT = 26,
+  STAT_VARIABLE_INFO = 27
 };
 
 // -----------------------------------------------------------------------
@@ -465,43 +429,573 @@ enum StatType
 // The statistics table uses SQLARK_EXPLODED_FORMAT tuple format.
 // The column offset information comments can be useful for debugging.
 // -----------------------------------------------------------------------
-static const ComTdbVirtTableColumnInfo statsVirtTableColumnInfo[] =
-  {                                                                               // offset
-    { "MOD_NAME",       0, COM_USER_COLUMN, REC_BYTE_F_ASCII,     60, TRUE , SQLCHARSETCODE_UNKNOWN, 0, 0, 0, 0, 0, 0, 0, COM_NO_DEFAULT, "" ,NULL,NULL ,COM_UNKNOWN_DIRECTION_LIT, 0},  //    0
-    { "STATEMENT_NAME", 1, COM_USER_COLUMN, REC_BYTE_F_ASCII,     60, TRUE , SQLCHARSETCODE_UNKNOWN, 0, 0, 0, 0, 0, 0, 0, COM_NO_DEFAULT, "" ,NULL,NULL, COM_UNKNOWN_DIRECTION_LIT,0},  //   62
-    { "PLAN_ID",        2, COM_USER_COLUMN, REC_BIN64_SIGNED,      8, FALSE, SQLCHARSETCODE_UNKNOWN, 0, 0, 0, 0, 0, 0, 0, COM_NO_DEFAULT, "" ,NULL,NULL, COM_UNKNOWN_DIRECTION_LIT,0},  //  124
-    { "TDB_ID",         3, COM_USER_COLUMN, REC_BIN32_UNSIGNED,    4, FALSE, SQLCHARSETCODE_UNKNOWN, 0, 0, 0, 0, 0, 0, 0, COM_NO_DEFAULT, "" ,NULL,NULL, COM_UNKNOWN_DIRECTION_LIT,0},  //  136
-    { "FRAG_NUM",       4, COM_USER_COLUMN, REC_BIN32_UNSIGNED,    4, FALSE, SQLCHARSETCODE_UNKNOWN, 0, 0, 0, 0, 0, 0, 0, COM_NO_DEFAULT, "" ,NULL,NULL, COM_UNKNOWN_DIRECTION_LIT,0},  //  140
-    { "INST_NUM",       5, COM_USER_COLUMN, REC_BIN32_UNSIGNED,    4, FALSE, SQLCHARSETCODE_UNKNOWN, 0, 0, 0, 0, 0, 0, 0, COM_NO_DEFAULT, "" ,NULL,NULL, COM_UNKNOWN_DIRECTION_LIT,0},  //  144
-    { "SUB_INST_NUM",   6, COM_USER_COLUMN, REC_BIN32_UNSIGNED,    4, FALSE, SQLCHARSETCODE_UNKNOWN, 0, 0, 0, 0, 0, 0, 0, COM_NO_DEFAULT, "" ,NULL,NULL, COM_UNKNOWN_DIRECTION_LIT,0},  //  148
-    { "LINE_NUM",       7, COM_USER_COLUMN, REC_BIN32_UNSIGNED,    4, FALSE, SQLCHARSETCODE_UNKNOWN, 0, 0, 0, 0, 0, 0, 0, COM_NO_DEFAULT, "" ,NULL,NULL, COM_UNKNOWN_DIRECTION_LIT,0},  //  152
-    { "PARENT_TDB_ID", 8, COM_USER_COLUMN, REC_BIN32_UNSIGNED,    4, TRUE , SQLCHARSETCODE_UNKNOWN, 0, 0, 0, 0, 0, 0, 0, COM_NO_DEFAULT, "" ,NULL,NULL, COM_UNKNOWN_DIRECTION_LIT,0},  //  156
-    { "LC_TDB_ID",      9, COM_USER_COLUMN, REC_BIN32_UNSIGNED,    4, TRUE , SQLCHARSETCODE_UNKNOWN, 0, 0, 0, 0, 0, 0, 0, COM_NO_DEFAULT, "" ,NULL,NULL, COM_UNKNOWN_DIRECTION_LIT,0},  //  156
-    { "RC_TDB_ID",      10, COM_USER_COLUMN, REC_BIN32_UNSIGNED,    4, TRUE , SQLCHARSETCODE_UNKNOWN, 0, 0, 0, 0, 0, 0, 0, COM_NO_DEFAULT, "" ,NULL,NULL, COM_UNKNOWN_DIRECTION_LIT,0},  //  156
-    { "SEQ_NUM",        11, COM_USER_COLUMN, REC_BIN32_UNSIGNED,    4, TRUE , SQLCHARSETCODE_UNKNOWN, 0, 0, 0, 0, 0, 0, 0, COM_NO_DEFAULT, "" ,NULL,NULL, COM_UNKNOWN_DIRECTION_LIT,0},  //  164
-    { "TDB_NAME",       12, COM_USER_COLUMN, REC_BYTE_F_ASCII,     24, FALSE, SQLCHARSETCODE_UNKNOWN, 0, 0, 0, 0, 0, 0, 0, COM_NO_DEFAULT, "" ,NULL,NULL, COM_UNKNOWN_DIRECTION_LIT,0},  //  172
-    { "WORK_CALLS",    13, COM_USER_COLUMN, REC_BIN64_SIGNED,      8, FALSE, SQLCHARSETCODE_UNKNOWN, 0, 0, 0, 0, 0, 0, 0, COM_NO_DEFAULT, "" ,NULL,NULL, COM_UNKNOWN_DIRECTION_LIT,0},  //  196
-    { "EST_ROWS",        14, COM_USER_COLUMN, REC_BIN64_SIGNED,      8, FALSE, SQLCHARSETCODE_UNKNOWN, 0, 0, 0, 0, 0, 0, 0, COM_NO_DEFAULT, "" ,NULL,NULL, COM_UNKNOWN_DIRECTION_LIT,0},  //  208
-    { "ACT_ROWS",        15, COM_USER_COLUMN, REC_BIN64_SIGNED,      8, FALSE, SQLCHARSETCODE_UNKNOWN, 0, 0, 0, 0, 0, 0, 0, COM_NO_DEFAULT, "" ,NULL,NULL, COM_UNKNOWN_DIRECTION_LIT,0},  //  216
-    { "UP_Q_SZ",            16, COM_USER_COLUMN, REC_BIN32_UNSIGNED,    4, TRUE , SQLCHARSETCODE_UNKNOWN, 0, 0, 0, 0, 0, 0, 0, COM_NO_DEFAULT, "" ,NULL,NULL, COM_UNKNOWN_DIRECTION_LIT,0},  //  224
-    { "DN_Q_SZ",           17, COM_USER_COLUMN, REC_BIN32_UNSIGNED,    4, TRUE , SQLCHARSETCODE_UNKNOWN, 0, 0, 0, 0, 0, 0, 0, COM_NO_DEFAULT, "" ,NULL,NULL, COM_UNKNOWN_DIRECTION_LIT,0},  //  232
-    { "VAL1_TXT",        18, COM_USER_COLUMN, REC_BYTE_F_ASCII,     16, TRUE , SQLCHARSETCODE_UNKNOWN, 0, 0, 0, 0, 0, 0, 0, COM_NO_DEFAULT, "" ,NULL,NULL, COM_UNKNOWN_DIRECTION_LIT,0},  //  240
-    { "VAL1",                19, COM_USER_COLUMN, REC_BIN64_SIGNED,      8, TRUE , SQLCHARSETCODE_UNKNOWN, 0, 0, 0, 0, 0, 0, 0, COM_NO_DEFAULT, "" ,NULL,NULL, COM_UNKNOWN_DIRECTION_LIT,0},  //  258
-    { "VAL2_TXT",        20, COM_USER_COLUMN, REC_BYTE_F_ASCII,     16, TRUE , SQLCHARSETCODE_UNKNOWN, 0, 0, 0, 0, 0, 0, 0, COM_NO_DEFAULT, "" ,NULL,NULL, COM_UNKNOWN_DIRECTION_LIT,0},  //  272
-    { "VAL2",                21, COM_USER_COLUMN, REC_BIN64_SIGNED,      8, TRUE , SQLCHARSETCODE_UNKNOWN, 0, 0, 0, 0, 0, 0, 0, COM_NO_DEFAULT, "" ,NULL,NULL, COM_UNKNOWN_DIRECTION_LIT,0},  //  290
-    { "VAL3_TXT",        22, COM_USER_COLUMN, REC_BYTE_F_ASCII,     16, TRUE , SQLCHARSETCODE_UNKNOWN, 0, 0, 0, 0, 0, 0, 0, COM_NO_DEFAULT, "" ,NULL,NULL, COM_UNKNOWN_DIRECTION_LIT,0},  //  304
-    { "VAL3",                23, COM_USER_COLUMN, REC_BIN64_SIGNED,      8, TRUE , SQLCHARSETCODE_UNKNOWN, 0, 0, 0, 0, 0, 0, 0, COM_NO_DEFAULT, "" ,NULL,NULL, COM_UNKNOWN_DIRECTION_LIT,0},  //  322
-    { "VAL4_TXT",         24, COM_USER_COLUMN, REC_BYTE_F_ASCII,     16, TRUE , SQLCHARSETCODE_UNKNOWN, 0, 0, 0, 0, 0, 0, 0, COM_NO_DEFAULT, "" ,NULL,NULL, COM_UNKNOWN_DIRECTION_LIT,0},  //  336
-    { "VAL4",                25, COM_USER_COLUMN, REC_BIN64_SIGNED,      8, TRUE , SQLCHARSETCODE_UNKNOWN, 0, 0, 0, 0, 0, 0, 0, COM_NO_DEFAULT, "" ,NULL,NULL, COM_UNKNOWN_DIRECTION_LIT,0},  //  354
-    { "TEXT",                26, COM_USER_COLUMN, REC_BYTE_F_ASCII,     60, TRUE , SQLCHARSETCODE_UTF8, 0, 0, 0, 0, 0, 0, 0, COM_NO_DEFAULT, "",NULL,NULL, COM_UNKNOWN_DIRECTION_LIT,0},  //  368
-    { "VARIABLE_INFO",  27, COM_USER_COLUMN, REC_BYTE_V_ASCII,   3000, FALSE, SQLCHARSETCODE_UTF8, 0, 0, 0, 0, 0, 0, 0, COM_NO_DEFAULT, "",NULL,NULL,COM_UNKNOWN_DIRECTION_LIT,0}   //  430
+static const ComTdbVirtTableColumnInfo statsVirtTableColumnInfo[] = {
+    // offset
+    {"MOD_NAME",
+     0,
+     COM_USER_COLUMN,
+     REC_BYTE_F_ASCII,
+     60,
+     TRUE,
+     SQLCHARSETCODE_UNKNOWN,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     COM_NO_DEFAULT,
+     "",
+     NULL,
+     NULL,
+     COM_UNKNOWN_DIRECTION_LIT,
+     0},  //    0
+    {"STATEMENT_NAME",
+     1,
+     COM_USER_COLUMN,
+     REC_BYTE_F_ASCII,
+     60,
+     TRUE,
+     SQLCHARSETCODE_UNKNOWN,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     COM_NO_DEFAULT,
+     "",
+     NULL,
+     NULL,
+     COM_UNKNOWN_DIRECTION_LIT,
+     0},  //   62
+    {"PLAN_ID",
+     2,
+     COM_USER_COLUMN,
+     REC_BIN64_SIGNED,
+     8,
+     FALSE,
+     SQLCHARSETCODE_UNKNOWN,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     COM_NO_DEFAULT,
+     "",
+     NULL,
+     NULL,
+     COM_UNKNOWN_DIRECTION_LIT,
+     0},  //  124
+    {"TDB_ID",
+     3,
+     COM_USER_COLUMN,
+     REC_BIN32_UNSIGNED,
+     4,
+     FALSE,
+     SQLCHARSETCODE_UNKNOWN,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     COM_NO_DEFAULT,
+     "",
+     NULL,
+     NULL,
+     COM_UNKNOWN_DIRECTION_LIT,
+     0},  //  136
+    {"FRAG_NUM",
+     4,
+     COM_USER_COLUMN,
+     REC_BIN32_UNSIGNED,
+     4,
+     FALSE,
+     SQLCHARSETCODE_UNKNOWN,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     COM_NO_DEFAULT,
+     "",
+     NULL,
+     NULL,
+     COM_UNKNOWN_DIRECTION_LIT,
+     0},  //  140
+    {"INST_NUM",
+     5,
+     COM_USER_COLUMN,
+     REC_BIN32_UNSIGNED,
+     4,
+     FALSE,
+     SQLCHARSETCODE_UNKNOWN,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     COM_NO_DEFAULT,
+     "",
+     NULL,
+     NULL,
+     COM_UNKNOWN_DIRECTION_LIT,
+     0},  //  144
+    {"SUB_INST_NUM",
+     6,
+     COM_USER_COLUMN,
+     REC_BIN32_UNSIGNED,
+     4,
+     FALSE,
+     SQLCHARSETCODE_UNKNOWN,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     COM_NO_DEFAULT,
+     "",
+     NULL,
+     NULL,
+     COM_UNKNOWN_DIRECTION_LIT,
+     0},  //  148
+    {"LINE_NUM",
+     7,
+     COM_USER_COLUMN,
+     REC_BIN32_UNSIGNED,
+     4,
+     FALSE,
+     SQLCHARSETCODE_UNKNOWN,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     COM_NO_DEFAULT,
+     "",
+     NULL,
+     NULL,
+     COM_UNKNOWN_DIRECTION_LIT,
+     0},  //  152
+    {"PARENT_TDB_ID",
+     8,
+     COM_USER_COLUMN,
+     REC_BIN32_UNSIGNED,
+     4,
+     TRUE,
+     SQLCHARSETCODE_UNKNOWN,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     COM_NO_DEFAULT,
+     "",
+     NULL,
+     NULL,
+     COM_UNKNOWN_DIRECTION_LIT,
+     0},  //  156
+    {"LC_TDB_ID",
+     9,
+     COM_USER_COLUMN,
+     REC_BIN32_UNSIGNED,
+     4,
+     TRUE,
+     SQLCHARSETCODE_UNKNOWN,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     COM_NO_DEFAULT,
+     "",
+     NULL,
+     NULL,
+     COM_UNKNOWN_DIRECTION_LIT,
+     0},  //  156
+    {"RC_TDB_ID",
+     10,
+     COM_USER_COLUMN,
+     REC_BIN32_UNSIGNED,
+     4,
+     TRUE,
+     SQLCHARSETCODE_UNKNOWN,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     COM_NO_DEFAULT,
+     "",
+     NULL,
+     NULL,
+     COM_UNKNOWN_DIRECTION_LIT,
+     0},  //  156
+    {"SEQ_NUM",
+     11,
+     COM_USER_COLUMN,
+     REC_BIN32_UNSIGNED,
+     4,
+     TRUE,
+     SQLCHARSETCODE_UNKNOWN,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     COM_NO_DEFAULT,
+     "",
+     NULL,
+     NULL,
+     COM_UNKNOWN_DIRECTION_LIT,
+     0},  //  164
+    {"TDB_NAME",
+     12,
+     COM_USER_COLUMN,
+     REC_BYTE_F_ASCII,
+     24,
+     FALSE,
+     SQLCHARSETCODE_UNKNOWN,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     COM_NO_DEFAULT,
+     "",
+     NULL,
+     NULL,
+     COM_UNKNOWN_DIRECTION_LIT,
+     0},  //  172
+    {"WORK_CALLS",
+     13,
+     COM_USER_COLUMN,
+     REC_BIN64_SIGNED,
+     8,
+     FALSE,
+     SQLCHARSETCODE_UNKNOWN,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     COM_NO_DEFAULT,
+     "",
+     NULL,
+     NULL,
+     COM_UNKNOWN_DIRECTION_LIT,
+     0},  //  196
+    {"EST_ROWS",
+     14,
+     COM_USER_COLUMN,
+     REC_BIN64_SIGNED,
+     8,
+     FALSE,
+     SQLCHARSETCODE_UNKNOWN,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     COM_NO_DEFAULT,
+     "",
+     NULL,
+     NULL,
+     COM_UNKNOWN_DIRECTION_LIT,
+     0},  //  208
+    {"ACT_ROWS",
+     15,
+     COM_USER_COLUMN,
+     REC_BIN64_SIGNED,
+     8,
+     FALSE,
+     SQLCHARSETCODE_UNKNOWN,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     COM_NO_DEFAULT,
+     "",
+     NULL,
+     NULL,
+     COM_UNKNOWN_DIRECTION_LIT,
+     0},  //  216
+    {"UP_Q_SZ",
+     16,
+     COM_USER_COLUMN,
+     REC_BIN32_UNSIGNED,
+     4,
+     TRUE,
+     SQLCHARSETCODE_UNKNOWN,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     COM_NO_DEFAULT,
+     "",
+     NULL,
+     NULL,
+     COM_UNKNOWN_DIRECTION_LIT,
+     0},  //  224
+    {"DN_Q_SZ",
+     17,
+     COM_USER_COLUMN,
+     REC_BIN32_UNSIGNED,
+     4,
+     TRUE,
+     SQLCHARSETCODE_UNKNOWN,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     COM_NO_DEFAULT,
+     "",
+     NULL,
+     NULL,
+     COM_UNKNOWN_DIRECTION_LIT,
+     0},  //  232
+    {"VAL1_TXT",
+     18,
+     COM_USER_COLUMN,
+     REC_BYTE_F_ASCII,
+     16,
+     TRUE,
+     SQLCHARSETCODE_UNKNOWN,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     COM_NO_DEFAULT,
+     "",
+     NULL,
+     NULL,
+     COM_UNKNOWN_DIRECTION_LIT,
+     0},  //  240
+    {"VAL1",
+     19,
+     COM_USER_COLUMN,
+     REC_BIN64_SIGNED,
+     8,
+     TRUE,
+     SQLCHARSETCODE_UNKNOWN,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     COM_NO_DEFAULT,
+     "",
+     NULL,
+     NULL,
+     COM_UNKNOWN_DIRECTION_LIT,
+     0},  //  258
+    {"VAL2_TXT",
+     20,
+     COM_USER_COLUMN,
+     REC_BYTE_F_ASCII,
+     16,
+     TRUE,
+     SQLCHARSETCODE_UNKNOWN,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     COM_NO_DEFAULT,
+     "",
+     NULL,
+     NULL,
+     COM_UNKNOWN_DIRECTION_LIT,
+     0},  //  272
+    {"VAL2",
+     21,
+     COM_USER_COLUMN,
+     REC_BIN64_SIGNED,
+     8,
+     TRUE,
+     SQLCHARSETCODE_UNKNOWN,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     COM_NO_DEFAULT,
+     "",
+     NULL,
+     NULL,
+     COM_UNKNOWN_DIRECTION_LIT,
+     0},  //  290
+    {"VAL3_TXT",
+     22,
+     COM_USER_COLUMN,
+     REC_BYTE_F_ASCII,
+     16,
+     TRUE,
+     SQLCHARSETCODE_UNKNOWN,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     COM_NO_DEFAULT,
+     "",
+     NULL,
+     NULL,
+     COM_UNKNOWN_DIRECTION_LIT,
+     0},  //  304
+    {"VAL3",
+     23,
+     COM_USER_COLUMN,
+     REC_BIN64_SIGNED,
+     8,
+     TRUE,
+     SQLCHARSETCODE_UNKNOWN,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     COM_NO_DEFAULT,
+     "",
+     NULL,
+     NULL,
+     COM_UNKNOWN_DIRECTION_LIT,
+     0},  //  322
+    {"VAL4_TXT",
+     24,
+     COM_USER_COLUMN,
+     REC_BYTE_F_ASCII,
+     16,
+     TRUE,
+     SQLCHARSETCODE_UNKNOWN,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     COM_NO_DEFAULT,
+     "",
+     NULL,
+     NULL,
+     COM_UNKNOWN_DIRECTION_LIT,
+     0},  //  336
+    {"VAL4",
+     25,
+     COM_USER_COLUMN,
+     REC_BIN64_SIGNED,
+     8,
+     TRUE,
+     SQLCHARSETCODE_UNKNOWN,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     COM_NO_DEFAULT,
+     "",
+     NULL,
+     NULL,
+     COM_UNKNOWN_DIRECTION_LIT,
+     0},  //  354
+    {"TEXT",
+     26,
+     COM_USER_COLUMN,
+     REC_BYTE_F_ASCII,
+     60,
+     TRUE,
+     SQLCHARSETCODE_UTF8,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     COM_NO_DEFAULT,
+     "",
+     NULL,
+     NULL,
+     COM_UNKNOWN_DIRECTION_LIT,
+     0},  //  368
+    {"VARIABLE_INFO",
+     27,
+     COM_USER_COLUMN,
+     REC_BYTE_V_ASCII,
+     3000,
+     FALSE,
+     SQLCHARSETCODE_UTF8,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     COM_NO_DEFAULT,
+     "",
+     NULL,
+     NULL,
+     COM_UNKNOWN_DIRECTION_LIT,
+     0}  //  430
 };
 
-static const ComTdbVirtTableKeyInfo statsVirtTableKeyInfo[] =
-{
-  // indexname keyseqnumber tablecolnumber ordering
-  {    NULL,          1,            0,            0 , 0, NULL, NULL }
-};
+static const ComTdbVirtTableKeyInfo statsVirtTableKeyInfo[] = {
+    // indexname keyseqnumber tablecolnumber ordering
+    {NULL, 1, 0, 0, 0, NULL, NULL}};
 
 //
 // Task Definition Block for Stats Function:
@@ -510,13 +1004,11 @@ static const ComTdbVirtTableKeyInfo statsVirtTableKeyInfo[] =
 //
 // -  projExpr - to project out the needed output values.
 //////////////////////////////////////////////////////////////////////////
-class ComTdbStats : public ComTdb
-{
+class ComTdbStats : public ComTdb {
   friend class ExStatsTcb;
   friend class ExQryInvalidStatsTcb;
 
-public:
-
+ public:
   // Constructors
 
   // Default constructor (used in ComTdb::fixupVTblPtr() to extract
@@ -525,37 +1017,21 @@ public:
   ComTdbStats();
 
   // Constructor used by the generator.
-  ComTdbStats(ULng32 tupleLen,
-	      ULng32 returnedTuplelen,
-	      ULng32 inputTuplelen,
-	      ex_cri_desc *criDescParentDown,
-	      ex_cri_desc *criDescParentUp,
-	      queue_index queueSizeDown,
-	      queue_index queueSizeUp,
-	      Lng32 numBuffers,
-	      ULng32 bufferSize,
-	      ex_expr *scanExpr,
-	      ex_expr *inputExpr,
-	      ex_expr *projExpr,
-	      ex_cri_desc *workCriDesc,
-	      UInt16 stats_row_atp_index,
-	      UInt16 input_row_atp_index
-	      );
-  
+  ComTdbStats(ULng32 tupleLen, ULng32 returnedTuplelen, ULng32 inputTuplelen, ex_cri_desc *criDescParentDown,
+              ex_cri_desc *criDescParentUp, queue_index queueSizeDown, queue_index queueSizeUp, Lng32 numBuffers,
+              ULng32 bufferSize, ex_expr *scanExpr, ex_expr *inputExpr, ex_expr *projExpr, ex_cri_desc *workCriDesc,
+              UInt16 stats_row_atp_index, UInt16 input_row_atp_index);
+
   // This always returns TRUE for now
   Int32 orderedQueueProtocol() const { return -1; };
 
   // ---------------------------------------------------------------------
   // Redefine virtual functions required for Versioning.
   //----------------------------------------------------------------------
-  virtual unsigned char getClassVersionID()
-  {
-    return 1;
-  }
+  virtual unsigned char getClassVersionID() { return 1; }
 
-  virtual void populateImageVersionIDArray()
-  {
-    setImageVersionID(1,getClassVersionID());
+  virtual void populateImageVersionIDArray() {
+    setImageVersionID(1, getClassVersionID());
     ComTdb::populateImageVersionIDArray();
   }
 
@@ -563,7 +1039,7 @@ public:
 
   // Pack and Unpack routines
   Long pack(void *);
-  Lng32 unpack(void *, void * reallocator);
+  Lng32 unpack(void *, void *reallocator);
 
   // For the GUI, Does nothing right now
   void display() const {};
@@ -577,9 +1053,9 @@ public:
 
   // A predicate to be applied to each tuple contained in the
   // statement whose stats info is being returned.
-  inline ex_expr *getScanExpr() const { return scanExpr_;};
+  inline ex_expr *getScanExpr() const { return scanExpr_; };
 
-  inline ex_expr *getInputExpr() const { return inputExpr_;};
+  inline ex_expr *getInputExpr() const { return inputExpr_; };
 
   // Virtual routines to provide a consistent interface to TDB's
 
@@ -592,86 +1068,64 @@ public:
 
   // numExpressions always returns 2 for ComTdbStats
   virtual Int32 numExpressions() const { return 2; };
-  
+
   // The names of the expressions
-  virtual const char * getExpressionName(Int32) const;
+  virtual const char *getExpressionName(Int32) const;
 
   // The expressions themselves
-  virtual ex_expr* getExpressionNode(Int32);
+  virtual ex_expr *getExpressionNode(Int32);
 
-  static Int32 getVirtTableNumCols()
-  {
-    return sizeof(statsVirtTableColumnInfo)/sizeof(ComTdbVirtTableColumnInfo);
+  static Int32 getVirtTableNumCols() { return sizeof(statsVirtTableColumnInfo) / sizeof(ComTdbVirtTableColumnInfo); }
+
+  static ComTdbVirtTableColumnInfo *getVirtTableColumnInfo() {
+    return (ComTdbVirtTableColumnInfo *)statsVirtTableColumnInfo;
   }
 
-  static ComTdbVirtTableColumnInfo * getVirtTableColumnInfo()
-  {
-    return (ComTdbVirtTableColumnInfo*)statsVirtTableColumnInfo;
-  }
-  
-  static Int32 getVirtTableNumKeys()
-  {
-    return sizeof(statsVirtTableKeyInfo)/sizeof(ComTdbVirtTableKeyInfo);
-  }
+  static Int32 getVirtTableNumKeys() { return sizeof(statsVirtTableKeyInfo) / sizeof(ComTdbVirtTableKeyInfo); }
 
-  static ComTdbVirtTableKeyInfo * getVirtTableKeyInfo()
-  {
-    return (ComTdbVirtTableKeyInfo *)statsVirtTableKeyInfo;
-  }
+  static ComTdbVirtTableKeyInfo *getVirtTableKeyInfo() { return (ComTdbVirtTableKeyInfo *)statsVirtTableKeyInfo; }
 
-protected:
-
-  ExExprPtr scanExpr_;                                           // 00-07
-  ExExprPtr projExpr_;                                           // 08-15
+ protected:
+  ExExprPtr scanExpr_;  // 00-07
+  ExExprPtr projExpr_;  // 08-15
 
   // A contiguous move expression which when evaluated will place values
   // for the params (Module Name and Statement Pattern) in the paramsTuple_
   // of the TCB for this node.
-  ExExprPtr inputExpr_;                                          // 16-23
+  ExExprPtr inputExpr_;  // 16-23
 
   // Length of stats tuple to be allocated
-  Int32 tupleLen_;                                               // 24-27
+  Int32 tupleLen_;  // 24-27
 
-  Int32 returnedTupleLen_;                                       // 28-31
+  Int32 returnedTupleLen_;  // 28-31
 
-  Int32 inputTupleLen_;                                          // 32-35 
+  Int32 inputTupleLen_;  // 32-35
 
-  Int32 filler0ComTdbStats_;                                     // 36-39 unused
+  Int32 filler0ComTdbStats_;  // 36-39 unused
 
-  ExCriDescPtr workCriDesc_;                                     // 40-47
+  ExCriDescPtr workCriDesc_;  // 40-47
 
   // position in workAtp where stats row will be created.
-  UInt16 statsTupleAtpIndex_;                                    // 48-49
+  UInt16 statsTupleAtpIndex_;  // 48-49
 
   // position in workAtp where input row will be created.
-  UInt16 inputTupleAtpIndex_;                                    // 50-51
+  UInt16 inputTupleAtpIndex_;  // 50-51
 
-  char fillersComTdbStats_[44];                                  // 52-95 unused
+  char fillersComTdbStats_[44];  // 52-95 unused
 
-private:
- 
-  inline Attributes * getAttrModName();
-  inline Attributes * getAttrStmtName();
- 
+ private:
+  inline Attributes *getAttrModName();
+  inline Attributes *getAttrStmtName();
 };
 
-
-inline Attributes * ComTdbStats::getAttrModName()
-{
+inline Attributes *ComTdbStats::getAttrModName() {
   // The moduleName is the first attribute in the tuple.
-  return
-    workCriDesc_->
-      getTupleDescriptor(getInputTupleAtpIndex())->getAttr(0);
+  return workCriDesc_->getTupleDescriptor(getInputTupleAtpIndex())->getAttr(0);
 };
 
-inline Attributes * ComTdbStats::getAttrStmtName()
-{
+inline Attributes *ComTdbStats::getAttrStmtName() {
   // The statement Pattern is the second attribute in the tuple.
-  return
-    workCriDesc_->
-      getTupleDescriptor(getInputTupleAtpIndex())->getAttr(1);
+  return workCriDesc_->getTupleDescriptor(getInputTupleAtpIndex())->getAttr(1);
 };
 
 #endif
-
-

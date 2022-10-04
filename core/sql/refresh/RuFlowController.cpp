@@ -26,13 +26,13 @@
 *
 * File:         RuFlowController.cpp
 * Description:  Implementation of class CRUFlowController
-*				
+*
 *
 * Created:      05/07/2000
 * Language:     C++
-* 
 *
-* 
+*
+*
 ******************************************************************************
 */
 
@@ -47,15 +47,8 @@
 //	Constructor
 //--------------------------------------------------------------------------//
 
-CRUFlowController::
-CRUFlowController(CRUDependenceGraph &dg, 
-				  TInt32 maxParallelism) :
-	inherited(),
-	dg_(dg),
-	maxParallelism_(maxParallelism),
-	nRunningTasks_(0),
-	didTaskFailuresHappen_(FALSE)
-{}
+CRUFlowController::CRUFlowController(CRUDependenceGraph &dg, TInt32 maxParallelism)
+    : inherited(), dg_(dg), maxParallelism_(maxParallelism), nRunningTasks_(0), didTaskFailuresHappen_(FALSE) {}
 
 //--------------------------------------------------------------------------//
 //	CRUFlowController::HandleRequest()
@@ -63,23 +56,20 @@ CRUFlowController(CRUDependenceGraph &dg,
 //	The main request switch
 //--------------------------------------------------------------------------//
 
-void CRUFlowController::HandleRequest(CRURuntimeControllerRqst *pRqst)
-{
-	switch (pRqst->GetType())
-	{
-	case CRURuntimeControllerRqst::SCHEDULE:
-		{
-			HandleScheduleRqst();
-			break;
-		}
-	case CRURuntimeControllerRqst::FINISH_TASK:
-		{
-			HandleFinishTaskRqst(pRqst);
-			break;
-		}
-		
-	default: RUASSERT(FALSE);	// illegal request
-	}
+void CRUFlowController::HandleRequest(CRURuntimeControllerRqst *pRqst) {
+  switch (pRqst->GetType()) {
+    case CRURuntimeControllerRqst::SCHEDULE: {
+      HandleScheduleRqst();
+      break;
+    }
+    case CRURuntimeControllerRqst::FINISH_TASK: {
+      HandleFinishTaskRqst(pRqst);
+      break;
+    }
+
+    default:
+      RUASSERT(FALSE);  // illegal request
+  }
 }
 
 //--------------------------------------------------------------------------//
@@ -91,49 +81,43 @@ void CRUFlowController::HandleRequest(CRURuntimeControllerRqst *pRqst)
 //
 //	 Process the SCHEDULE request.
 //
-//	 The first request is originated by the utility, 
-//	 in order to ignite the execution. 
+//	 The first request is originated by the utility,
+//	 in order to ignite the execution.
 //
-//	 The following ones can be initiated either by the flow  
-//	 controller itself (upon task completion), or by the peer  
+//	 The following ones can be initiated either by the flow
+//	 controller itself (upon task completion), or by the peer
 //	 controller (when there is room for additional parallelism).
 //
 //--------------------------------------------------------------------------//
 
-void CRUFlowController::HandleScheduleRqst()
-{
-	CRUTask *pScheduledTask = NULL;
+void CRUFlowController::HandleScheduleRqst() {
+  CRUTask *pScheduledTask = NULL;
 
-	RUASSERT(nRunningTasks_ <= maxParallelism_);
+  RUASSERT(nRunningTasks_ <= maxParallelism_);
 
-	if (nRunningTasks_ != maxParallelism_)
-	{
-		dg_.Schedule();		// Find a ready task to run
+  if (nRunningTasks_ != maxParallelism_) {
+    dg_.Schedule();  // Find a ready task to run
 
-		pScheduledTask = dg_.GetScheduledTask();
-		if (NULL != pScheduledTask)
-		{
-			// Initiate the scheduled task's execution ...
-			nRunningTasks_++;
-			RouteScheduledTask(pScheduledTask);
-			return;
-		}
-	}
+    pScheduledTask = dg_.GetScheduledTask();
+    if (NULL != pScheduledTask) {
+      // Initiate the scheduled task's execution ...
+      nRunningTasks_++;
+      RouteScheduledTask(pScheduledTask);
+      return;
+    }
+  }
 
-	// Cannot schedule a new task (for whatever reason).
-	// If some tasks are still being executed, await their completion.
-	if (nRunningTasks_ > 0)
-	{
-		GetPeerController()->PostRequest(
-			new CRURuntimeControllerRqst(CRURuntimeControllerRqst::AWAIT_EVENT)
-		);
+  // Cannot schedule a new task (for whatever reason).
+  // If some tasks are still being executed, await their completion.
+  if (nRunningTasks_ > 0) {
+    GetPeerController()->PostRequest(new CRURuntimeControllerRqst(CRURuntimeControllerRqst::AWAIT_EVENT));
 
-		return;
-	}
+    return;
+  }
 
-	// All the tasks complete. Do not post new requests.
-	// Execution over!
-	RUASSERT(TRUE == dg_.AreAllTasksComplete());
+  // All the tasks complete. Do not post new requests.
+  // Execution over!
+  RUASSERT(TRUE == dg_.AreAllTasksComplete());
 }
 
 //--------------------------------------------------------------------------//
@@ -144,30 +128,20 @@ void CRUFlowController::HandleScheduleRqst()
 //
 //--------------------------------------------------------------------------//
 
-void CRUFlowController::RouteScheduledTask(CRUTask *pScheduledTask)
-{
-	CRURuntimeControllerRqst *pRqst = NULL;
+void CRUFlowController::RouteScheduledTask(CRUTask *pScheduledTask) {
+  CRURuntimeControllerRqst *pRqst = NULL;
 
-	if (0 != pScheduledTask->GetStatus())
-	{
-		// Something is wrong with this task, don't pass it to the peer
-		pRqst = new CRURuntimeControllerRqst(
-			CRURuntimeControllerRqst::FINISH_TASK,
-			pScheduledTask
-		);
+  if (0 != pScheduledTask->GetStatus()) {
+    // Something is wrong with this task, don't pass it to the peer
+    pRqst = new CRURuntimeControllerRqst(CRURuntimeControllerRqst::FINISH_TASK, pScheduledTask);
 
-		this->PostRequest(pRqst);
-	}
-	else
-	{
-		// Post the new request for task execution to the peer
-		pRqst = new CRURuntimeControllerRqst(
-			CRURuntimeControllerRqst::START_TASK,
-			pScheduledTask
-		);
+    this->PostRequest(pRqst);
+  } else {
+    // Post the new request for task execution to the peer
+    pRqst = new CRURuntimeControllerRqst(CRURuntimeControllerRqst::START_TASK, pScheduledTask);
 
-		GetPeerController()->PostRequest(pRqst);
-	}
+    GetPeerController()->PostRequest(pRqst);
+  }
 }
 
 //--------------------------------------------------------------------------//
@@ -179,39 +153,34 @@ void CRUFlowController::RouteScheduledTask(CRUTask *pScheduledTask)
 //
 //	 Process the FINISH_TASK request.
 //
-//	 This request is generated by the peer controller upon task completion, 
+//	 This request is generated by the peer controller upon task completion,
 //	 or by myself if a doomed task is scheduled.
 //
 //--------------------------------------------------------------------------//
 
-void CRUFlowController::HandleFinishTaskRqst(CRURuntimeControllerRqst *pRqst)
-{
-	nRunningTasks_--;
+void CRUFlowController::HandleFinishTaskRqst(CRURuntimeControllerRqst *pRqst) {
+  nRunningTasks_--;
 
-	CRUTask &task = pRqst->GetTask();
+  CRUTask &task = pRqst->GetTask();
 
-	if (0 != task.GetStatus())
-	{
-		if (TRUE == NeedToReportTaskFailure(task))
-		{
-			// Raise the flag only if some failures were reported.
-			didTaskFailuresHappen_ = TRUE;
+  if (0 != task.GetStatus()) {
+    if (TRUE == NeedToReportTaskFailure(task)) {
+      // Raise the flag only if some failures were reported.
+      didTaskFailuresHappen_ = TRUE;
 
-			CRUJournal &journal = CRUGlobals::GetInstance()->GetJournal();
-			journal.LogError(task.GetErrorDesc());
-		}
+      CRUJournal &journal = CRUGlobals::GetInstance()->GetJournal();
+      journal.LogError(task.GetErrorDesc());
+    }
 
-		// Propagate the error to the neighbors
-		NotifyTaskEnvironmentOnFailure(task);
-	}
+    // Propagate the error to the neighbors
+    NotifyTaskEnvironmentOnFailure(task);
+  }
 
-	// Remove the task from the graph, together with the adjacent edges
-	dg_.Reduce(&task);
+  // Remove the task from the graph, together with the adjacent edges
+  dg_.Reduce(&task);
 
-	// Initiate the next scheduling event to keep things going
-	this->PostRequest(
-		new CRURuntimeControllerRqst(CRURuntimeControllerRqst::SCHEDULE)
-	);
+  // Initiate the next scheduling event to keep things going
+  this->PostRequest(new CRURuntimeControllerRqst(CRURuntimeControllerRqst::SCHEDULE));
 }
 
 //--------------------------------------------------------------------------//
@@ -223,46 +192,42 @@ void CRUFlowController::HandleFinishTaskRqst(CRURuntimeControllerRqst *pRqst)
 //
 //--------------------------------------------------------------------------//
 
-void CRUFlowController::NotifyTaskEnvironmentOnFailure(CRUTask &task)
-{
-	RUASSERT (0 != task.GetStatus());
+void CRUFlowController::NotifyTaskEnvironmentOnFailure(CRUTask &task) {
+  RUASSERT(0 != task.GetStatus());
 
-	DSListPosition pos;
+  DSListPosition pos;
 
-	CRUTaskList &succList = task.GetTasksThatDependOnMe();
-	CRUTaskList &predList = task.GetTasksThatIDependOn();
+  CRUTaskList &succList = task.GetTasksThatDependOnMe();
+  CRUTaskList &predList = task.GetTasksThatIDependOn();
 
-	// Notify the successors 
-	pos = succList.GetHeadPosition();
-	while (NULL != pos)
-	{
-		CRUTask *pSuccTask = succList.GetNext(pos);
-		
-		// No task can complete while the successor is being 
-		RUASSERT(FALSE == pSuccTask->IsRunning());
+  // Notify the successors
+  pos = succList.GetHeadPosition();
+  while (NULL != pos) {
+    CRUTask *pSuccTask = succList.GetNext(pos);
 
-		pSuccTask->HandlePredecessorFailure(task);
-	}
+    // No task can complete while the successor is being
+    RUASSERT(FALSE == pSuccTask->IsRunning());
 
-	// Notify the predecessors, if any
-	pos = predList.GetHeadPosition();
-	while (NULL != pos)
-	{
-		CRUTask *pPredTask = predList.GetNext(pos);
+    pSuccTask->HandlePredecessorFailure(task);
+  }
 
-		if (FALSE == pPredTask->IsRunning())
-		{
-			// Backward error propagation. 
-			// The predecessor may be running 
-			// (I received the error from the other predecessor)
-			pPredTask->HandleSuccessorFailure(task);
-		}
-	}
+  // Notify the predecessors, if any
+  pos = predList.GetHeadPosition();
+  while (NULL != pos) {
+    CRUTask *pPredTask = predList.GetNext(pos);
+
+    if (FALSE == pPredTask->IsRunning()) {
+      // Backward error propagation.
+      // The predecessor may be running
+      // (I received the error from the other predecessor)
+      pPredTask->HandleSuccessorFailure(task);
+    }
+  }
 }
 
 //--------------------------------------------------------------------------//
 //	CRUFlowController::NeedToReportTaskFailure()
-//	
+//
 //	Report about two kinds of failed tasks:
 //	(1) Refresh tasks (which contain the failed MVs' names).
 //	(2) Other tasks that have caused errors by themselves (i.e., do not
@@ -270,24 +235,19 @@ void CRUFlowController::NotifyTaskEnvironmentOnFailure(CRUTask &task)
 //
 //--------------------------------------------------------------------------//
 
-BOOL CRUFlowController::NeedToReportTaskFailure(CRUTask &task)
-{
-	Lng32 status = task.GetStatus();
-	RUASSERT(0 != status);
+BOOL CRUFlowController::NeedToReportTaskFailure(CRUTask &task) {
+  Lng32 status = task.GetStatus();
+  RUASSERT(0 != status);
 
-	if (CRUTask::REFRESH == task.GetType())
-	{
-		return TRUE;
-	}
+  if (CRUTask::REFRESH == task.GetType()) {
+    return TRUE;
+  }
 
-	status = -status;	// SQL errors are negative
+  status = -status;  // SQL errors are negative
 
-	if (IDS_RU_TASK_PREDECESSOR_PROBLEM == status
-		||
-		IDS_RU_OBSOLETE_PROBLEM == status)
-	{
-		return FALSE;
-	}
+  if (IDS_RU_TASK_PREDECESSOR_PROBLEM == status || IDS_RU_OBSOLETE_PROBLEM == status) {
+    return FALSE;
+  }
 
-	return TRUE;
+  return TRUE;
 }

@@ -47,5 +47,4 @@ VPROC (PRODNUMMXCI,DATE1MXCI,MXCI_CC_LABEL)
 #define VERS_CV_MIN 0
 #define VERS_CV_UPD 1
 
-VERS_BIN (mxlobsrvr)
-
+VERS_BIN(mxlobsrvr)

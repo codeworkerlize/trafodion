@@ -44,90 +44,64 @@
 
 THREAD_P FILE *ComSafePrinter::outfile_ = NULL;
 
-ComSafePrinter::ComSafePrinter()
-{
-}
+ComSafePrinter::ComSafePrinter() {}
 
-ComSafePrinter::~ComSafePrinter()
-{
-}
+ComSafePrinter::~ComSafePrinter() {}
 
-Int32 ComSafePrinter::vsnPrintf(char *str, size_t n,
-                              const char *format, va_list args)
-{
-
-  if (!str || n == 0 || !format)
-  {
+Int32 ComSafePrinter::vsnPrintf(char *str, size_t n, const char *format, va_list args) {
+  if (!str || n == 0 || !format) {
     return 0;
   }
 
-  Int32 targetLen = (n > INT_MAX ? INT_MAX : (Int32) n);
+  Int32 targetLen = (n > INT_MAX ? INT_MAX : (Int32)n);
   Int32 result = -1;
 
-
   // Otherwise we buffer data in a temporary file
-  if (!outfile_)
-  {
+  if (!outfile_) {
     outfile_ = tmpfile();
 #ifdef _DEBUG
-    if (!outfile_)
-    {
-      fprintf(stderr,
-              "*** WARNING: ComSafePrinter temp file could not be created");
+    if (!outfile_) {
+      fprintf(stderr, "*** WARNING: ComSafePrinter temp file could not be created");
     }
 #endif
   }
 
-  if (outfile_)
-  {
+  if (outfile_) {
     rewind(outfile_);
     result = vfprintf(outfile_, format, args);
   }
 
-  if (result > 0)
-  {
+  if (result > 0) {
     Int32 totalLength = result;
     Int32 numWritten = 0;
 
-    if (totalLength < targetLen)
-    {
+    if (totalLength < targetLen) {
       numWritten = vsprintf(str, format, args);
-      if (numWritten == totalLength)
-      {
+      if (numWritten == totalLength) {
         result = numWritten;
-      }
-      else
-      {
+      } else {
         result = -1;
       }
-    }
-    else
-    {
+    } else {
       rewind(outfile_);
-      numWritten = (Int32) fread(str, sizeof(char), targetLen - 1, outfile_);
-      if (numWritten == (targetLen - 1))
-      {
+      numWritten = (Int32)fread(str, sizeof(char), targetLen - 1, outfile_);
+      if (numWritten == (targetLen - 1)) {
         str[targetLen - 1] = 0;
         result = numWritten;
-      }
-      else
-      {
+      } else {
         result = -1;
       }
     }
   }
-  
+
   return result;
 
+}  // ComSafePrinter::vsnPrintf()
 
-} // ComSafePrinter::vsnPrintf()
-
-Int32 ComSafePrinter::snPrintf(char *str, size_t n, const char *format, ...)
-{
+Int32 ComSafePrinter::snPrintf(char *str, size_t n, const char *format, ...) {
   va_list args;
   va_start(args, format);
   Int32 result = vsnPrintf(str, n, format, args);
   va_end(args);
   return result;
 }
-

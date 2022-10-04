@@ -61,25 +61,21 @@
 extern void my_mpi_fclose();
 #include "common/SCMVersHelp.h"
 DEFINE_DOVERS(mxsscp)
-void  runServer(Int32 argc, char **argv);
+void runServer(Int32 argc, char **argv);
 
-
-Int32 main(Int32 argc, char **argv)
-{
+Int32 main(Int32 argc, char **argv) {
   dovers(argc, argv);
   msg_debug_hook("mxsscp", "mxsscp.hook");
   try {
     file_init_attach(&argc, &argv, TRUE, (char *)"");
-  }
-  catch (SB_Fatal_Excep &e) {
+  } catch (SB_Fatal_Excep &e) {
     SQLMXLoggingArea::logExecRtInfo(__FILE__, __LINE__, e.what(), 0);
     exit(1);
   }
 
   try {
     file_mon_process_startup(true);
-  }
-  catch (SB_Fatal_Excep &e) {
+  } catch (SB_Fatal_Excep &e) {
     SQLMXLoggingArea::logExecRtInfo(__FILE__, __LINE__, e.what(), 0);
     exit(1);
   }
@@ -103,49 +99,33 @@ Int32 main(Int32 argc, char **argv)
   Int32 fdOut = -1;
   Int32 fdErr = -1;
 
-  if (stdOutFile && stdOutFile[0])
-  {
-    fdOut = open(stdOutFile,
-                 O_WRONLY | O_APPEND | O_CREAT | O_SYNC,
-                 S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
-    if (fdOut >= 0)
-    {
+  if (stdOutFile && stdOutFile[0]) {
+    fdOut = open(stdOutFile, O_WRONLY | O_APPEND | O_CREAT | O_SYNC, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
+    if (fdOut >= 0) {
       fprintf(stderr, "[Redirecting MXSSCP stdout to %s]\n", stdOutFile);
       fflush(stderr);
       dup2(fdOut, fileno(stdout));
-    }
-    else
-    {
-      fprintf(stderr, "*** WARNING: could not open %s for redirection: %s.\n",
-              stdOutFile, strerror(errno));
+    } else {
+      fprintf(stderr, "*** WARNING: could not open %s for redirection: %s.\n", stdOutFile, strerror(errno));
     }
   }
 
-  if (stdErrFile && stdErrFile[0])
-  {
-    fdErr = open(stdErrFile,
-                 O_WRONLY | O_APPEND | O_CREAT | O_SYNC,
-                 S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
-    if (fdErr >= 0)
-    {
+  if (stdErrFile && stdErrFile[0]) {
+    fdErr = open(stdErrFile, O_WRONLY | O_APPEND | O_CREAT | O_SYNC, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
+    if (fdErr >= 0) {
       fprintf(stderr, "[Redirecting MXUDR stderr to %s]\n", stdErrFile);
       fflush(stderr);
       dup2(fdErr, fileno(stderr));
-    }
-    else
-    {
-      fprintf(stderr, "*** WARNING: could not open %s for redirection: %s.\n",
-              stdErrFile, strerror(errno));
+    } else {
+      fprintf(stderr, "*** WARNING: could not open %s for redirection: %s.\n", stdErrFile, strerror(errno));
     }
   }
   runServer(argc, argv);
 
-  if (fdOut >= 0)
-  {
+  if (fdOut >= 0) {
     close(fdOut);
   }
-  if (fdErr >= 0)
-  {
+  if (fdErr >= 0) {
     close(fdErr);
   }
 #else
@@ -154,8 +134,7 @@ Int32 main(Int32 argc, char **argv)
   return 0;
 }
 
-void runServer(Int32 argc, char **argv)
-{
+void runServer(Int32 argc, char **argv) {
   Int32 shmid;
   StatsGlobals *statsGlobals = NULL;
   void *statsGlobalsAddr;
@@ -167,11 +146,9 @@ void runServer(Int32 argc, char **argv)
 
   long maxSegSize = STATS_MAX_SEG_SIZE;
   char *envSegSize = getenv("RMS_SHARED_SEG_SIZE_MB");
-  if (envSegSize)
-  {
-    maxSegSize = (long) str_atoi(envSegSize, str_len(envSegSize));
-    if (maxSegSize < 32)
-      maxSegSize = 32;
+  if (envSegSize) {
+    maxSegSize = (long)str_atoi(envSegSize, str_len(envSegSize));
+    if (maxSegSize < 32) maxSegSize = 32;
     maxSegSize *= 1024 * 1024;
   }
   long maxStatsSegSize = maxSegSize;
@@ -181,9 +158,8 @@ void runServer(Int32 argc, char **argv)
   // The shared cache area is to be located after the RMS area.
   long maxMetaCacheSegSize = SHARED_CACHE_SEG_SIZE;
   envSegSize = getenv("SHARED_CACHE_SEG_SIZE");
-  if (envSegSize)
-  {
-    maxMetaCacheSegSize = (long) str_atoi(envSegSize, str_len(envSegSize));
+  if (envSegSize) {
+    maxMetaCacheSegSize = (long)str_atoi(envSegSize, str_len(envSegSize));
     maxMetaCacheSegSize *= 1024 * 1024;
   }
   maxSegSize += maxMetaCacheSegSize;
@@ -191,96 +167,65 @@ void runServer(Int32 argc, char **argv)
   long enableHugePages = 0;
   int shmFlag = RMS_SHMFLAGS;
   char *envShmHugePages = getenv("SQ_RMS_ENABLE_HUGEPAGES");
-  if (envShmHugePages != NULL)
-  {
-     enableHugePages = (long) str_atoi(envShmHugePages,
-                         str_len(envShmHugePages));
-     if (enableHugePages > 0)
-       shmFlag =  shmFlag | SHM_HUGETLB;
+  if (envShmHugePages != NULL) {
+    enableHugePages = (long)str_atoi(envShmHugePages, str_len(envShmHugePages));
+    if (enableHugePages > 0) shmFlag = shmFlag | SHM_HUGETLB;
   }
   now = time(NULL);
   nowtm = localtime(&now);
   strftime(tmbuf, sizeof tmbuf, "%Y-%m-%d %H:%M:%S ", nowtm);
 
   if ((shmid = shmget((key_t)getStatsSegmentId(),
-                         0,  // size doesn't matter unless we are creating.
-                         shmFlag)) == -1)
-  {
-    if (errno == ENOENT)
-    {
+                      0,  // size doesn't matter unless we are creating.
+                      shmFlag)) == -1) {
+    if (errno == ENOENT) {
       // Normal case, segment does not exist yet. Try to create.
       bool didCreate = true;
-      if ((shmid = shmget((key_t)getStatsSegmentId(),
-                                maxSegSize,
-                                shmFlag | IPC_CREAT)) == -1)
-      {
-        if (enableHugePages > 0)
-        {
+      if ((shmid = shmget((key_t)getStatsSegmentId(), maxSegSize, shmFlag | IPC_CREAT)) == -1) {
+        if (enableHugePages > 0) {
           enableHugePages = 0;
           // try again withouf hugepages
-          shmFlag =  shmFlag & ~SHM_HUGETLB;
-          if ((shmid = shmget((key_t)getStatsSegmentId(),
-                                    maxSegSize,
-                                    shmFlag | IPC_CREAT)) == -1)
-            didCreate = false;
-        }
-        else 
+          shmFlag = shmFlag & ~SHM_HUGETLB;
+          if ((shmid = shmget((key_t)getStatsSegmentId(), maxSegSize, shmFlag | IPC_CREAT)) == -1) didCreate = false;
+        } else
           didCreate = false;
       }
 
-      if (didCreate)
-      {
-        cout << tmbuf 
-             << " RMS Shared segment id = " 
-             << shmid << ", key = " 
-             << (key_t)getStatsSegmentId() ;
+      if (didCreate) {
+        cout << tmbuf << " RMS Shared segment id = " << shmid << ", key = " << (key_t)getStatsSegmentId();
         if (enableHugePages > 0)
           cout << ", created with huge pages support." << endl;
         else
           cout << ", created without huge pages support." << endl;
 
         createStatsGlobals = TRUE;
-      }
-      else
-      {
-        cout << tmbuf
-             << " Shmget failed, key = "
-             << getStatsSegmentId()
-             <<", Error code: "
-             << errno
-             << " ("
-             << strerror(errno)
-             << ")" << endl;
+      } else {
+        cout << tmbuf << " Shmget failed, key = " << getStatsSegmentId() << ", Error code: " << errno << " ("
+             << strerror(errno) << ")" << endl;
         exit(errno);
       }
-    } // if ENOENT (i.e., attempting creation.)
+    }  // if ENOENT (i.e., attempting creation.)
+  } else {
+    cout << tmbuf << " RMS Shared segment exists, attaching to it, shmid=" << shmid
+         << ", key=" << (key_t)getStatsSegmentId() << "\n";
   }
-  else
-  {
-     cout << tmbuf << " RMS Shared segment exists, attaching to it, shmid="<< shmid << ", key=" << (key_t)getStatsSegmentId() << "\n";
-  }
-  if ((statsGlobalsAddr = shmat(shmid, getRmsSharedMemoryAddr(), SHM_RND))
-		== (void *)-1)
-  {
-    cout << tmbuf << "Shmat failed, shmid=" <<shmid << ", key=" << (key_t) getStatsSegmentId() << ", Error code : "  << errno << "(" << strerror(errno) << ")\n";
+  if ((statsGlobalsAddr = shmat(shmid, getRmsSharedMemoryAddr(), SHM_RND)) == (void *)-1) {
+    cout << tmbuf << "Shmat failed, shmid=" << shmid << ", key=" << (key_t)getStatsSegmentId()
+         << ", Error code : " << errno << "(" << strerror(errno) << ")\n";
     exit(errno);
   }
   gRmsSharedMemoryAddr_ = statsGlobalsAddr;
   char *statsGlobalsStartAddr = (char *)statsGlobalsAddr;
-  if (createStatsGlobals)
-  {
-     short envType = StatsGlobals::RTS_GLOBAL_ENV;
-     statsGlobals = new (statsGlobalsStartAddr)
-             StatsGlobals((void *)statsGlobalsAddr, envType, maxStatsSegSize);
-     cliGlobals->setSharedMemId(shmid);
-     // We really should not squirrel the statsGlobals pointer away like
-     // this until the StatsGloblas is initialized, but
-     // statsGlobals->init() needs it ......
-     cliGlobals->setStatsGlobals(statsGlobals);
-     statsGlobals->init();
-  }
-  else
-  {
+  if (createStatsGlobals) {
+    short envType = StatsGlobals::RTS_GLOBAL_ENV;
+    statsGlobals = new (statsGlobalsStartAddr) StatsGlobals((void *)statsGlobalsAddr, envType, maxStatsSegSize);
+    cliGlobals->setSharedMemId(shmid);
+    // We really should not squirrel the statsGlobals pointer away like
+    // this until the StatsGloblas is initialized, but
+    // statsGlobals->init() needs it ......
+    cliGlobals->setStatsGlobals(statsGlobals);
+    statsGlobals->init();
+  } else {
     statsGlobals = (StatsGlobals *)statsGlobalsAddr;
     cliGlobals->setSharedMemId(shmid);
     cliGlobals->setStatsGlobals(statsGlobals);
@@ -289,18 +234,16 @@ void runServer(Int32 argc, char **argv)
   Int32 rmsDeadLockSecs;
   char *envRmsDeadLockSecs = getenv("RMS_DEADLOCK_TOLERATE_SECS");
   if (envRmsDeadLockSecs) {
-     rmsDeadLockSecs = atoi(envRmsDeadLockSecs);
-     if (rmsDeadLockSecs < 1)
-        rmsDeadLockSecs = 1;
-     statsGlobals->setRmsDeadLockSecs(rmsDeadLockSecs);
+    rmsDeadLockSecs = atoi(envRmsDeadLockSecs);
+    if (rmsDeadLockSecs < 1) rmsDeadLockSecs = 1;
+    statsGlobals->setRmsDeadLockSecs(rmsDeadLockSecs);
   }
   char *envDumpRmsDeadLock = getenv("RMS_DEADLOCK_PROCESS_DUMP");
-  if ((envDumpRmsDeadLock != NULL) &&
-      (strcmp(envDumpRmsDeadLock, "N") == 0))
-     statsGlobals->setDumpRmsDeadLockProcess(FALSE);
+  if ((envDumpRmsDeadLock != NULL) && (strcmp(envDumpRmsDeadLock, "N") == 0))
+    statsGlobals->setDumpRmsDeadLockProcess(FALSE);
   else
-     statsGlobals->setDumpRmsDeadLockProcess(TRUE);
-        
+    statsGlobals->setDumpRmsDeadLockProcess(TRUE);
+
   unsigned short dmlLockArraySize;
   char *envDMLLockArraySize = getenv("DML_LOCK_ARRAY_SIZE");
   if (envDMLLockArraySize) {
@@ -326,41 +269,31 @@ void runServer(Int32 argc, char **argv)
 
   XPROCESSHANDLE_GETMINE_(statsGlobals->getSscpProcHandle());
   NAHeap *sscpHeap = cliGlobals->getExecutorMemory();
-  IpcEnvironment  *sscpIpcEnv = new (sscpHeap) IpcEnvironment(sscpHeap, cliGlobals->getEventConsumed(),
-      FALSE, IPC_SQLSSCP_SERVER, FALSE, TRUE);
+  IpcEnvironment *sscpIpcEnv =
+      new (sscpHeap) IpcEnvironment(sscpHeap, cliGlobals->getEventConsumed(), FALSE, IPC_SQLSSCP_SERVER, FALSE, TRUE);
 
   SscpGlobals *sscpGlobals = NULL;
 
   sscpGlobals = new (sscpHeap) SscpGlobals(sscpHeap, statsGlobals);
 
-  // Initialize ObjectCache after the semaphore is setup 
+  // Initialize ObjectCache after the semaphore is setup
   // RMS Shared segment can be turned off completely.
-  // However, epochCache is not made optional though it can be turned off. 
-  // Hence, ObjectEpochCache is obtained here just to initialize it 
+  // However, epochCache is not made optional though it can be turned off.
+  // Hence, ObjectEpochCache is obtained here just to initialize it
   // in RMS Heap
   ObjectEpochCache *epochCache = statsGlobals->getObjectEpochCache();
 
   // Currently open $RECEIVE with 256
-  SscpGuaReceiveControlConnection *cc =
-	 new(sscpHeap) SscpGuaReceiveControlConnection(sscpIpcEnv,
-					  sscpGlobals,
-                                           256);
+  SscpGuaReceiveControlConnection *cc = new (sscpHeap) SscpGuaReceiveControlConnection(sscpIpcEnv, sscpGlobals, 256);
   sscpIpcEnv->setControlConnection(cc);
-  while (TRUE)
-  {
-     while (cc->getConnection() == NULL)
-      cc->wait(IpcInfiniteTimeout);
+  while (TRUE) {
+    while (cc->getConnection() == NULL) cc->wait(IpcInfiniteTimeout);
 
 #ifdef _DEBUG_RTS
-    cerr << "No. of Requesters-1 "  << cc->getNumRequestors() << " \n";
+    cerr << "No. of Requesters-1 " << cc->getNumRequestors() << " \n";
 #endif
-    while (cc->getNumRequestors() > 0)
-    {
+    while (cc->getNumRequestors() > 0) {
       sscpIpcEnv->getAllConnections()->waitOnAll(IpcInfiniteTimeout);
-    } // Inner while
+    }  // Inner while
   }
 }  // runServer
-
-
-
-

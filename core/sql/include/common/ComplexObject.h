@@ -61,16 +61,14 @@ class EnumObjectContainer;
 class EmptyComplexObject;
 // begin abstract class declarations:
 // abstract class of Packer, UnPacker and Lengther
-class MessageOperator{
-protected:
+class MessageOperator {
+ protected:
   MessageOperator();
   virtual ~MessageOperator();
-public:
-  virtual void execute(ObjectContainer *objWrap,
-		  InputContainer *input,
-		  OutputContainer *output) = 0;
-  virtual void setInputOutputForNextOperation(InputContainer *input,
-					 OutputContainer *output) = 0;
+
+ public:
+  virtual void execute(ObjectContainer *objWrap, InputContainer *input, OutputContainer *output) = 0;
+  virtual void setInputOutputForNextOperation(InputContainer *input, OutputContainer *output) = 0;
 };
 
 // abstract class of Inputs/Outputs Objects to MessageOperator::execute
@@ -79,27 +77,25 @@ public:
 // virtual void pack(Packer *, PackerInput *, PackerOutput *,
 //                   InputContainer *, OutputContainer *)
 // depends on what you needs.
-class ObjectContainer{
-protected:
+class ObjectContainer {
+ protected:
   ObjectContainer();
   virtual ~ObjectContainer();
-public:
-  virtual void pack(Packer *packer, PackerInput *input,
-		    PackerOutput *output) = 0;
-  virtual void unPack(UnPacker *unPacker, UnPackerInput *input,
-		      UnPackerOutput *output) = 0;
-  virtual void length(Lengther *lengther, LengtherInput *input,
-		      LengtherOutput *output) = 0;
+
+ public:
+  virtual void pack(Packer *packer, PackerInput *input, PackerOutput *output) = 0;
+  virtual void unPack(UnPacker *unPacker, UnPackerInput *input, UnPackerOutput *output) = 0;
+  virtual void length(Lengther *lengther, LengtherInput *input, LengtherOutput *output) = 0;
 };
 
-class InputContainer{
-protected:
+class InputContainer {
+ protected:
   InputContainer();
   virtual ~InputContainer();
 };
 
-class OutputContainer{
-protected:
+class OutputContainer {
+ protected:
   OutputContainer();
   virtual ~OutputContainer();
 };
@@ -113,41 +109,38 @@ protected:
 // depends on what you need
 
 enum ComplexObjectType {
-	InvalidComplexObjectType, EmptyComplexObjectType /* mark null pointer */,
-	CtrlStmtComplexObjectType, TransAttrComplexObjectType
+  InvalidComplexObjectType,
+  EmptyComplexObjectType /* mark null pointer */,
+  CtrlStmtComplexObjectType,
+  TransAttrComplexObjectType
 };
 
 class ComplexObject {
-protected:
+ protected:
   ComplexObject(NAMemory *heap, ComplexObjectType type);
   virtual ~ComplexObject();
-  void baseOperation(MessageOperator *msgOp, InputContainer *input,
-		     OutputContainer *output);
-public:
-  virtual void pack(Packer *packer, PackerInput *input,
-		    PackerOutput *output);
-  virtual void unPack(UnPacker *unPacker, UnPackerInput *input,
-		      UnPackerOutput *output);
-  virtual void length(Lengther *lengther, LengtherInput *input,
-		      LengtherOutput *output);
-  virtual void sharedOperationSequence(MessageOperator *msgOp,
-				       InputContainer *input,
-				       OutputContainer *output) = 0;
-  virtual NAMemory * getHeap();
+  void baseOperation(MessageOperator *msgOp, InputContainer *input, OutputContainer *output);
+
+ public:
+  virtual void pack(Packer *packer, PackerInput *input, PackerOutput *output);
+  virtual void unPack(UnPacker *unPacker, UnPackerInput *input, UnPackerOutput *output);
+  virtual void length(Lengther *lengther, LengtherInput *input, LengtherOutput *output);
+  virtual void sharedOperationSequence(MessageOperator *msgOp, InputContainer *input, OutputContainer *output) = 0;
+  virtual NAMemory *getHeap();
   ComplexObjectType getType();
   void operator delete(void *p);
 
   virtual void freeSubObjects() = 0;
-  static ComplexObject *manufacture(NAMemory *heap, char * bufferPtr,
-    ComplexObjectFactory *factory);
-private:
+  static ComplexObject *manufacture(NAMemory *heap, char *bufferPtr, ComplexObjectFactory *factory);
+
+ private:
   NAMemory *heap_;
   ComplexObjectType type_;
 };
 
-class ComplexObjectFactory{
-public:
-  virtual ComplexObject * manufacture(NAMemory *heap, ComplexObjectType objType) = 0;
+class ComplexObjectFactory {
+ public:
+  virtual ComplexObject *manufacture(NAMemory *heap, ComplexObjectType objType) = 0;
 };
 
 // end of abstract class declarations
@@ -157,244 +150,221 @@ public:
 // Pattern, However, NSK security does not allow global variables.
 
 // Packer related class declarations
-class Packer : public MessageOperator{
-public:
+class Packer : public MessageOperator {
+ public:
   Packer();
   virtual ~Packer();
-  virtual void execute(ObjectContainer *objWrap, InputContainer *input,
-		  OutputContainer *output);
-  virtual void setInputOutputForNextOperation(InputContainer *input,
-					 OutputContainer *output);
+  virtual void execute(ObjectContainer *objWrap, InputContainer *input, OutputContainer *output);
+  virtual void setInputOutputForNextOperation(InputContainer *input, OutputContainer *output);
 };
 
-class PackerInput : public InputContainer{
-public:
-  PackerInput(char * bufferPtr, IpcMessageObjSize accMsgSize);
+class PackerInput : public InputContainer {
+ public:
+  PackerInput(char *bufferPtr, IpcMessageObjSize accMsgSize);
   virtual ~PackerInput();
-  char * getBufferPtr();
+  char *getBufferPtr();
   IpcMessageObjSize getAccMsgSize();
-  void setBufferPtr(char * bufferPtr);
+  void setBufferPtr(char *bufferPtr);
   void setAccMsgSize(IpcMessageObjSize accMsgSize);
-private:
+
+ private:
   char *bufferPtr_;
   IpcMessageObjSize accMsgSize_;
 };
 
-class PackerOutput : public OutputContainer{
-public:
+class PackerOutput : public OutputContainer {
+ public:
   PackerOutput();
   virtual ~PackerOutput();
-  char * getBufferPtr();
+  char *getBufferPtr();
   IpcMessageObjSize getCurrMsgSize();
-  void setBufferPtr(char * bufferPtr);
+  void setBufferPtr(char *bufferPtr);
   void setCurrMsgSize(IpcMessageObjSize currMsgSize);
-private:
+
+ private:
   char *bufferPtr_;
   IpcMessageObjSize currMsgSize_;
 };
 
 // UnPacker related class declartions
-class UnPacker : public MessageOperator{
-private:
+class UnPacker : public MessageOperator {
+ private:
   NAMemory *heap_;
-  ComplexObjectFactory * factory_;
-public:
+  ComplexObjectFactory *factory_;
+
+ public:
   UnPacker(NAMemory *heap, ComplexObjectFactory *factory);
   virtual ~UnPacker();
-  virtual void execute(ObjectContainer *objWrap, InputContainer *input,
-		  OutputContainer *output);
-  virtual void setInputOutputForNextOperation(InputContainer *input,
-					 OutputContainer *output);
-  NAMemory * getHeap();
-  ComplexObjectFactory * getFactory();
+  virtual void execute(ObjectContainer *objWrap, InputContainer *input, OutputContainer *output);
+  virtual void setInputOutputForNextOperation(InputContainer *input, OutputContainer *output);
+  NAMemory *getHeap();
+  ComplexObjectFactory *getFactory();
 };
 
-class UnPackerInput : public InputContainer{
-public:
-  UnPackerInput(char * bufferPtr);
+class UnPackerInput : public InputContainer {
+ public:
+  UnPackerInput(char *bufferPtr);
   virtual ~UnPackerInput();
-  char * getBufferPtr();
-  void setBufferPtr(char * bufferPtr);
-private:
+  char *getBufferPtr();
+  void setBufferPtr(char *bufferPtr);
+
+ private:
   char *bufferPtr_;
 };
 
-class UnPackerOutput : public OutputContainer{
-public:
+class UnPackerOutput : public OutputContainer {
+ public:
   UnPackerOutput();
   virtual ~UnPackerOutput();
-  char * getBufferPtr();
-  void setBufferPtr(char * bufferPtr);
-private:
+  char *getBufferPtr();
+  void setBufferPtr(char *bufferPtr);
+
+ private:
   char *bufferPtr_;
 };
 
 // Lengther related class declarations
-class Lengther : public MessageOperator{
-public:
+class Lengther : public MessageOperator {
+ public:
   Lengther();
   virtual ~Lengther();
-  virtual void execute(ObjectContainer *objWrap, InputContainer *input,
-		   OutputContainer *output);
-  virtual void setInputOutputForNextOperation(InputContainer *input,
-					 OutputContainer *output);
+  virtual void execute(ObjectContainer *objWrap, InputContainer *input, OutputContainer *output);
+  virtual void setInputOutputForNextOperation(InputContainer *input, OutputContainer *output);
 };
 
-class LengtherInput : public InputContainer{
-public:
+class LengtherInput : public InputContainer {
+ public:
   LengtherInput(IpcMessageObjSize accMsgSize);
   virtual ~LengtherInput();
   IpcMessageObjSize getAccMsgSize();
   void setAccMsgSize(IpcMessageObjSize accMsgSize);
-private:
+
+ private:
   IpcMessageObjSize accMsgSize_;
 };
 
-class LengtherOutput : public OutputContainer{
-public:
+class LengtherOutput : public OutputContainer {
+ public:
   LengtherOutput();
   virtual ~LengtherOutput();
   IpcMessageObjSize getCurrMsgSize();
   void setCurrMsgSize(IpcMessageObjSize currMsgSize);
-private:
+
+ private:
   IpcMessageObjSize currMsgSize_;
 };
 
 // object container class declarations
 // stack-allocated class declarations
-typedef ComplexObject * ComplexObjectPtr;
+typedef ComplexObject *ComplexObjectPtr;
 
 // contains the pointer to a ComplexObject
-class ComplexObjectPtrContainer : public ObjectContainer{
-public:
-  ComplexObjectPtrContainer(ComplexObjectPtr * objectPtr);
+class ComplexObjectPtrContainer : public ObjectContainer {
+ public:
+  ComplexObjectPtrContainer(ComplexObjectPtr *objectPtr);
   virtual ~ComplexObjectPtrContainer();
   ComplexObjectPtr *getComplexObjectPtr();
   void setComplexObjectPtr(ComplexObjectPtr *objectPtr);
-  virtual void pack(Packer *packer, PackerInput *input,
-		    PackerOutput *output);
-  virtual void unPack(UnPacker *unPacker, UnPackerInput *input,
-		      UnPackerOutput *output);
-  virtual void length(Lengther *lengther, LengtherInput *input,
-		      LengtherOutput *output);
-private:
-  ComplexObjectPtr * objectPtr_;
+  virtual void pack(Packer *packer, PackerInput *input, PackerOutput *output);
+  virtual void unPack(UnPacker *unPacker, UnPackerInput *input, UnPackerOutput *output);
+  virtual void length(Lengther *lengther, LengtherInput *input, LengtherOutput *output);
+
+ private:
+  ComplexObjectPtr *objectPtr_;
 };
 
-class Int16ObjectContainer : public ObjectContainer{
-public:
+class Int16ObjectContainer : public ObjectContainer {
+ public:
   Int16ObjectContainer(Int16 *value);
   virtual ~Int16ObjectContainer();
-  Int16* getValue();
-  void setValue(Int16* value);
-  virtual void pack(Packer *packer, PackerInput *input,
-		    PackerOutput *output);
-  virtual void unPack(UnPacker *unPacker, UnPackerInput *input,
-		      UnPackerOutput *output);
-  virtual void length(Lengther *lengther, LengtherInput *input,
-		      LengtherOutput *output);
-private:
+  Int16 *getValue();
+  void setValue(Int16 *value);
+  virtual void pack(Packer *packer, PackerInput *input, PackerOutput *output);
+  virtual void unPack(UnPacker *unPacker, UnPackerInput *input, UnPackerOutput *output);
+  virtual void length(Lengther *lengther, LengtherInput *input, LengtherOutput *output);
+
+ private:
   Int16 *value_;
 };
 
-class IntegerObjectContainer : public ObjectContainer{
-public:
+class IntegerObjectContainer : public ObjectContainer {
+ public:
   IntegerObjectContainer(Int32 *value);
   virtual ~IntegerObjectContainer();
-  Int32* getValue();
+  Int32 *getValue();
   void setValue(Int32 *value);
-  virtual void pack(Packer *packer, PackerInput *input,
-		    PackerOutput *output);
-  virtual void unPack(UnPacker *unPacker, UnPackerInput *input,
-		      UnPackerOutput *output);
-  virtual void length(Lengther *lengther, LengtherInput *input,
-		      LengtherOutput *output);
-private:
+  virtual void pack(Packer *packer, PackerInput *input, PackerOutput *output);
+  virtual void unPack(UnPacker *unPacker, UnPackerInput *input, UnPackerOutput *output);
+  virtual void length(Lengther *lengther, LengtherInput *input, LengtherOutput *output);
+
+ private:
   Int32 *value_;
 };
 
-class LongObjectContainer : public ObjectContainer{
-public:
+class LongObjectContainer : public ObjectContainer {
+ public:
   LongObjectContainer(Lng32 *value);
   virtual ~LongObjectContainer();
-  Lng32* getValue();
+  Lng32 *getValue();
   void setValue(Lng32 *value);
-  virtual void pack(Packer *packer, PackerInput *input,
-		    PackerOutput *output);
-  virtual void unPack(UnPacker *unPacker, UnPackerInput *input,
-		      UnPackerOutput *output);
-  virtual void length(Lengther *lengther, LengtherInput *input,
-		      LengtherOutput *output);
-private:
+  virtual void pack(Packer *packer, PackerInput *input, PackerOutput *output);
+  virtual void unPack(UnPacker *unPacker, UnPackerInput *input, UnPackerOutput *output);
+  virtual void length(Lengther *lengther, LengtherInput *input, LengtherOutput *output);
+
+ private:
   Lng32 *value_;
 };
 
-typedef char * CharPtr;
+typedef char *CharPtr;
 
-class CharPtrObjectContainer : public ObjectContainer{
-public:
+class CharPtrObjectContainer : public ObjectContainer {
+ public:
   CharPtrObjectContainer(CharPtr *charPtr);
   virtual ~CharPtrObjectContainer();
-  CharPtr * getCharPtr();
+  CharPtr *getCharPtr();
   void setCharPtr(CharPtr *charPtr);
-  virtual void pack(Packer *packer, PackerInput *input,
-		    PackerOutput *output);
-  virtual void unPack(UnPacker *unPacker, UnPackerInput *input,
-		      UnPackerOutput *output);
-  virtual void length(Lengther *lengther, LengtherInput *input,
-		      LengtherOutput *output);
-private:
+  virtual void pack(Packer *packer, PackerInput *input, PackerOutput *output);
+  virtual void unPack(UnPacker *unPacker, UnPackerInput *input, UnPackerOutput *output);
+  virtual void length(Lengther *lengther, LengtherInput *input, LengtherOutput *output);
+
+ private:
   IpcMessageObjSize packedStringLength();
   CharPtr *charPtr_;
 };
 
-class EnumObjectContainer : public ObjectContainer{
-public:
+class EnumObjectContainer : public ObjectContainer {
+ public:
   EnumObjectContainer(ComplexObjectType *value);
   virtual ~EnumObjectContainer();
-  ComplexObjectType * getValue();
-  void setValue(ComplexObjectType * value);
-  virtual void pack(Packer *packer, PackerInput *input,
-		    PackerOutput *output);
-  virtual void unPack(UnPacker *unPacker, UnPackerInput *input,
-		      UnPackerOutput *output);
-  virtual void length(Lengther *lengther, LengtherInput *input,
-		      LengtherOutput *output);
-private:
-  ComplexObjectType *value_; // use ComplexObjectType as our enum proxy, assuming all enums
-                             // occupy same number of bytes.
+  ComplexObjectType *getValue();
+  void setValue(ComplexObjectType *value);
+  virtual void pack(Packer *packer, PackerInput *input, PackerOutput *output);
+  virtual void unPack(UnPacker *unPacker, UnPackerInput *input, UnPackerOutput *output);
+  virtual void length(Lengther *lengther, LengtherInput *input, LengtherOutput *output);
+
+ private:
+  ComplexObjectType *value_;  // use ComplexObjectType as our enum proxy, assuming all enums
+                              // occupy same number of bytes.
 };
 
-
-class NopObjectContainer : public ObjectContainer{
-public:
+class NopObjectContainer : public ObjectContainer {
+ public:
   NopObjectContainer();
   virtual ~NopObjectContainer();
-  virtual void pack(Packer *packer, PackerInput *input,
-		    PackerOutput *output);
-  virtual void unPack(UnPacker *unPacker, UnPackerInput *input,
-		      UnPackerOutput *output);
-  virtual void length(Lengther *lengther, LengtherInput *input,
-		      LengtherOutput *output);
+  virtual void pack(Packer *packer, PackerInput *input, PackerOutput *output);
+  virtual void unPack(UnPacker *unPacker, UnPackerInput *input, UnPackerOutput *output);
+  virtual void length(Lengther *lengther, LengtherInput *input, LengtherOutput *output);
 };
 
 // complex object class declarations
 // could have used singleton pattern, but NSK security does not allow globals
 class EmptyComplexObject : public ComplexObject {
-public:
+ public:
   EmptyComplexObject(NAMemory *heap);
   EmptyComplexObject();
   virtual ~EmptyComplexObject();
   virtual void freeSubObjects();
-  virtual void sharedOperationSequence(MessageOperator *msgOp,
-				       InputContainer *input,
-				       OutputContainer *output);
+  virtual void sharedOperationSequence(MessageOperator *msgOp, InputContainer *input, OutputContainer *output);
 };
 
 #endif /* _COMPLEX_OBECT_H_ */
-
-
-
-
-
-

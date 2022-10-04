@@ -48,64 +48,42 @@
 // -----------------------------------------------------------------------
 
 // virtual destructor
-ElemDDLLike::~ElemDDLLike()
-{
+ElemDDLLike::~ElemDDLLike() {
   // delete all children
-  for (Int32 i = 0; i < MAX_ELEM_DDL_LIKE_ARITY; i++)
-  {
+  for (Int32 i = 0; i < MAX_ELEM_DDL_LIKE_ARITY; i++) {
     delete getChild(i);
   }
 }
 
 // cast
-ElemDDLLike *
-ElemDDLLike::castToElemDDLLike()
-{
-  return this;
-}
+ElemDDLLike *ElemDDLLike::castToElemDDLLike() { return this; }
 
 // accessors
 
 // get the degree of this node
-Int32
-ElemDDLLike::getArity() const
-{
-  return MAX_ELEM_DDL_LIKE_ARITY;
-}
+Int32 ElemDDLLike::getArity() const { return MAX_ELEM_DDL_LIKE_ARITY; }
 
-ExprNode *
-ElemDDLLike::getChild(Lng32 index)
-{ 
+ExprNode *ElemDDLLike::getChild(Lng32 index) {
   ComASSERT(index >= 0 AND index < MAX_ELEM_DDL_LIKE_ARITY);
   return pLikeOptions_;
 }
 
 // mutators
 
-void
-ElemDDLLike::setChild(Lng32 index, ExprNode * pChildNode)
-{
+void ElemDDLLike::setChild(Lng32 index, ExprNode *pChildNode) {
   ComASSERT(index EQU INDEX_LIKE_OPT_LIST);
-  if (pChildNode NEQ NULL)
-  {
+  if (pChildNode NEQ NULL) {
     ComASSERT(pChildNode->castToElemDDLNode() NEQ NULL);
     pLikeOptions_ = pChildNode->castToElemDDLNode();
-  }
-  else
+  } else
     pLikeOptions_ = NULL;
 }
 
 // methods for tracing
 
-const NAString
-ElemDDLLike::getText() const
-{
-  return "ElemDDLLike";
-}
+const NAString ElemDDLLike::getText() const { return "ElemDDLLike"; }
 
-const NAString
-ElemDDLLike::displayLabel1() const
-{
+const NAString ElemDDLLike::displayLabel1() const {
   if (getSourceTableName().length() NEQ 0)
     return NAString("Source table name: ") + getSourceTableName();
   else
@@ -117,47 +95,25 @@ ElemDDLLike::displayLabel1() const
 // -----------------------------------------------------------------------
 
 // constructor
-ElemDDLLikeCreateTable::ElemDDLLikeCreateTable(
-     const CorrName & sourceTableName,
-     ElemDDLNode * pLikeOptions,
-     NABoolean forExtTable,
-     CollHeap * h)
-: ElemDDLLike(ELM_LIKE_CREATE_TABLE_ELEM,
-              sourceTableName,
-              pLikeOptions,
-              h),
-  forExtTable_(forExtTable)
-{
-  if (pLikeOptions NEQ NULL)
-  {
-    for (CollIndex index = 0; index < pLikeOptions->entries(); index++)
-    {
-      if ((*pLikeOptions)[index] != NULL)
-        likeOptions_.setLikeOption((*pLikeOptions)[index]
-                                    ->castToElemDDLLikeOpt());
+ElemDDLLikeCreateTable::ElemDDLLikeCreateTable(const CorrName &sourceTableName, ElemDDLNode *pLikeOptions,
+                                               NABoolean forExtTable, CollHeap *h)
+    : ElemDDLLike(ELM_LIKE_CREATE_TABLE_ELEM, sourceTableName, pLikeOptions, h), forExtTable_(forExtTable) {
+  if (pLikeOptions NEQ NULL) {
+    for (CollIndex index = 0; index < pLikeOptions->entries(); index++) {
+      if ((*pLikeOptions)[index] != NULL) likeOptions_.setLikeOption((*pLikeOptions)[index]->castToElemDDLLikeOpt());
     }
   }
 }
 
 // virtual destructor
-ElemDDLLikeCreateTable::~ElemDDLLikeCreateTable()
-{
-}
+ElemDDLLikeCreateTable::~ElemDDLLikeCreateTable() {}
 
 // cast
-ElemDDLLikeCreateTable *
-ElemDDLLikeCreateTable::castToElemDDLLikeCreateTable()
-{
-  return this;
-}
+ElemDDLLikeCreateTable *ElemDDLLikeCreateTable::castToElemDDLLikeCreateTable() { return this; }
 
 // methods for tracing
 
-const NAString
-ElemDDLLikeCreateTable::getText() const
-{
-  return "ElemDDLLikeCreateTable";
-}
+const NAString ElemDDLLikeCreateTable::getText() const { return "ElemDDLLikeCreateTable"; }
 
 //
 // End of File

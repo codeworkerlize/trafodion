@@ -67,7 +67,7 @@
 //#include "MjvBuilder.cpp"
 //#include "mdam.cpp"
 //#include "memo.cpp"
-//includes below are in optall1.cpp
+// includes below are in optall1.cpp
 //#include "NAClusterInfo.cpp"
 //#include "NAColumn.cpp"
 //#include "NAFileSet.cpp"
@@ -114,8 +114,8 @@
 //#include "tasks.cpp"
 //// need reordering
 //#include "AccessSets.cpp"
-//#include "TriggerDB.cpp"  
-//#include "optimizer/Triggers.h"  
-//#include "OptTrigger.cpp"  
+//#include "TriggerDB.cpp"
+//#include "optimizer/Triggers.h"
+//#include "OptTrigger.cpp"
 //#include "InliningInfo.cpp"
 #include "OptHints.cpp"

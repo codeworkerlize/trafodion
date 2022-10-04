@@ -51,4 +51,4 @@
 #include "common/IntervalType.h"
 #include "common/MiscType.h"
 #include "common/NumericType.h"
-#endif // COMINCLUDES_HDR
+#endif  // COMINCLUDES_HDR

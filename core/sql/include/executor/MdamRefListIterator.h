@@ -5,8 +5,8 @@
 *
 * File:         MdamRefListIterator.h
 * Description:  MDAM Reference List Iterator
-*               
-*               
+*
+*
 * Created:      9/11/96
 * Language:     C++
 *
@@ -50,31 +50,25 @@
 // This iterator is safe to use even if the reference list entries are
 // being deleted.
 // *****************************************************************************
-class MdamRefListIterator 
-{
-
-public:
-
+class MdamRefListIterator {
+ public:
   // Constructor.
-  MdamRefListIterator(const MdamRefList * RefListPtr);
-  
+  MdamRefListIterator(const MdamRefList *RefListPtr);
+
   // Iteration operator returns a boolean that indicates if there was or
   // was not a "next" entry and the corresponding disjunct number.
-  NABoolean operator () (Int32 & disjunctNum_);
+  NABoolean operator()(Int32 &disjunctNum_);
 
   // Iteration operator returns a pointer to the next entry.
-  MdamRefListEntry * operator()();
+  MdamRefListEntry *operator()();
 
-private:
-
+ private:
   // Pointer to the reference list.
-  const MdamRefList * currentListPtr_;
+  const MdamRefList *currentListPtr_;
 
   // Pointer to the current entry on the list.
-  MdamRefListEntry * currentEntryPtr_;
+  MdamRefListEntry *currentEntryPtr_;
 
-}; // class MdamRefListIterator
-
+};  // class MdamRefListIterator
 
 #endif /* MDAMREFLISTITERATOR_H */
-

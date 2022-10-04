@@ -41,7 +41,7 @@
 
 // -----------------------------------------------------------------------
 
-#include "Stats.h"  /* includes CostScalar.h, Collections.h, ValueDesc.h ... */
+#include "Stats.h" /* includes CostScalar.h, Collections.h, ValueDesc.h ... */
 #include "optimizer/NATable.h"
 #include "common/SharedPtr.h"
 #include "common/SharedPtrCollections.h"
@@ -50,7 +50,7 @@
 //  Contents of this file
 // -----------------------------------------------------------------------
 class MultiColumnUecList;
-class ColStatDesc ;
+class ColStatDesc;
 class ColStatDescList;
 
 // needed as a forward reference -- not contained in this file!
@@ -60,10 +60,8 @@ class CardinalityHint;
 class Join;
 
 // useful defn we use here & in PartKeyDist.[h cpp]
-typedef LIST(EncodedValue) EncodedValueList ;
+typedef LIST(EncodedValue) EncodedValueList;
 typedef SharedPtr<ColStatDesc> ColStatDescSharedPtr;
-
-
 
 // -----------------------------------------------------------------------
 // Multi-column uec list
@@ -78,24 +76,21 @@ typedef SharedPtr<ColStatDesc> ColStatDescSharedPtr;
 // the one copy that's maintained for all ColStatDesc's.
 // -----------------------------------------------------------------------
 
-#define MultiColumnUecListIterator NAHashDictionaryIterator<ValueIdSet,CostScalar>
+#define MultiColumnUecListIterator NAHashDictionaryIterator<ValueIdSet, CostScalar>
 
-class MultiColumnUecList : public HASHDICTIONARY(ValueIdSet,CostScalar)
-{
-public:
-  static ULng32 HashFunction (const ValueIdSet & input) ;
+class MultiColumnUecList : public HASHDICTIONARY(ValueIdSet, CostScalar) {
+ public:
+  static ULng32 HashFunction(const ValueIdSet &input);
 
-  MultiColumnUecList (const StatsList   & initStats,
-                      const ValueIdList & tableColumns ) ;
+  MultiColumnUecList(const StatsList &initStats, const ValueIdList &tableColumns);
 
-  virtual ~MultiColumnUecList() {} ;
+  virtual ~MultiColumnUecList(){};
 
   // given a ValueIdSet of table columns, returns the stored groupUec (if
   // it exists), else returns csMinusOne
-  CostScalar lookup (const ValueIdSet & key) const ;
+  CostScalar lookup(const ValueIdSet &key) const;
 
-  void initializeMCUecForUniqueIndxes(TableDesc &table,
-				      const CostScalar & tableRowcount);
+  void initializeMCUecForUniqueIndxes(TableDesc &table, const CostScalar &tableRowcount);
 
   // -----------------------------------------------------------------------
   // useMCUecforCorrPreds
@@ -129,14 +124,12 @@ public:
   // avoid creating too large of an estimate in cases where we join
   // together columns of the same table).
   //
-  NABoolean useMCUecForCorrPreds (
-       NAHashDictionary<ValueId, CostScalar> & predReductions, /* in/mod */
-       const CollIndex numPredicates,                          /* in */
-       const CostScalar& oldRowCount,                          /* in */
-       const CostScalar& newRowCount,                          /* in */
-       NABoolean largeTabStatsNeeded,
-       const ColStatDescList & source,
-       CostScalar & reductionAdjustment)  ;               /* out */
+  NABoolean useMCUecForCorrPreds(NAHashDictionary<ValueId, CostScalar> &predReductions, /* in/mod */
+                                 const CollIndex numPredicates,                         /* in */
+                                 const CostScalar &oldRowCount,                         /* in */
+                                 const CostScalar &newRowCount,                         /* in */
+                                 NABoolean largeTabStatsNeeded, const ColStatDescList &source,
+                                 CostScalar &reductionAdjustment); /* out */
 
   // -----------------------------------------------------------------------
   // getUecForMCJoin
@@ -172,67 +165,55 @@ public:
   // in joinValueIdPairs are returned to the calling function, which will have to
   // apply single-column selectivity for them.
   //
-  NABoolean getUecForMCJoin (LIST(ValueIdList) & joinValueIdPairs,       /* in/out */
-                             const NABoolean     largeTableNeedsStats,   /*   in   */
-                             const Join * expr,
-                             CostScalar        & prodMaxInitUec,         /*   out  */
-                             CostScalar        & maxMultiColUec,	 /* out */
-			     CostScalar        & baseRCForMaxMCUEC,	 /* out */
-			     CostScalar        & leftMCUec,	 /* out */
-			     NABoolean	       & checkForLowBound,       /* out   */
-                             NABoolean         & joinOnUnique,
-                             const ColStatDescList & colStats,
-                             CostScalar        redFromSC=csMinusOne);       
+  NABoolean getUecForMCJoin(LIST(ValueIdList) & joinValueIdPairs,         /* in/out */
+                            const NABoolean largeTableNeedsStats,         /*   in   */
+                            const Join *expr, CostScalar &prodMaxInitUec, /*   out  */
+                            CostScalar &maxMultiColUec,                   /* out */
+                            CostScalar &baseRCForMaxMCUEC,                /* out */
+                            CostScalar &leftMCUec,                        /* out */
+                            NABoolean &checkForLowBound,                  /* out   */
+                            NABoolean &joinOnUnique, const ColStatDescList &colStats,
+                            CostScalar redFromSC = csMinusOne);
 
   //------------------------------------------------------------------
-  // Determine if the join predicates consist of column sets where one 
-  // of the sides is unique and shares relationship "similar" to PK/FK 
-  // with the other side. If so, return the cardinality of non-unique 
-  // side. This feature is OFF by default if there are more than one 
+  // Determine if the join predicates consist of column sets where one
+  // of the sides is unique and shares relationship "similar" to PK/FK
+  // with the other side. If so, return the cardinality of non-unique
+  // side. This feature is OFF by default if there are more than one
   // joining columns. It'll be controlled by COMP_BOOL_149.
   //------------------------------------------------------------------
-  CostScalar getRowcountOfNonUniqueColSet(const Join *expr, 
-                                    ValueIdList lhsColList, 
-                                    ValueIdList rhsColList, 
-                                    NABoolean leftUnique, 
-                                    NABoolean rightUnique);
-
-
+  CostScalar getRowcountOfNonUniqueColSet(const Join *expr, ValueIdList lhsColList, ValueIdList rhsColList,
+                                          NABoolean leftUnique, NABoolean rightUnique);
 
   // -----------------------------------------------------------------
   // isMCStatsUseful is used to determine if there is any possibility
-  // of optimizer benefiting from multi-column stats. The MC stats 
+  // of optimizer benefiting from multi-column stats. The MC stats
   // are said to be not helpful, if any subset of given column set
   // is orthogonal. More heuristics can be added later to determine
   // usefulness of MC stats
   // -----------------------------------------------------------------
-  NABoolean
-    isMCStatsUseful(ValueIdSet columnSet,
-                    TableDesc * tableDesc) const;
+  NABoolean isMCStatsUseful(ValueIdSet columnSet, TableDesc *tableDesc) const;
 
   // ------------------------------------------------------------------
-  // Combine MC UEC of subset of columns from columns with reduction to get 
+  // Combine MC UEC of subset of columns from columns with reduction to get
   // MC UEC of larger set
   // ------------------------------------------------------------------
 
-  NABoolean createMCStatsForColumnSet(ValueIdSet colsWithReduction, 
-                                      ValueIdSet & cumulativeColSetWithMCUEC,
-                                      CostScalar & maxMultiColUec,
-                                      CostScalar baseRowCount
-                                      );
+  NABoolean createMCStatsForColumnSet(ValueIdSet colsWithReduction, ValueIdSet &cumulativeColSetWithMCUEC,
+                                      CostScalar &maxMultiColUec, CostScalar baseRowCount);
   // -----------------------------------------------------------------------
   // findMatchingColumns
   //
   // subroutine of getUecForMCJoin; used to find correspondences between
   // lists of table columns w.r.t. the join predicates
   // -----------------------------------------------------------------------
-  ValueIdSet findMatchingColumns (const ValueIdSet        & t1Cols,     /* in  */
-                                  const LIST(ValueIdList) & joinPairs,  /* in  */
-                                  LIST(ValueIdList) & remainingPairs,   /* out */
-                                  CostScalar        & maxInitUecProduct, /* out */
-                                  CostScalar        & minInitUecProduct, /* out */
-                                  NABoolean	    & checkForLowBound	/* out */
-				  ) const ;
+  ValueIdSet findMatchingColumns(const ValueIdSet &t1Cols,            /* in  */
+                                 const LIST(ValueIdList) & joinPairs, /* in  */
+                                 LIST(ValueIdList) & remainingPairs,  /* out */
+                                 CostScalar &maxInitUecProduct,       /* out */
+                                 CostScalar &minInitUecProduct,       /* out */
+                                 NABoolean &checkForLowBound          /* out */
+  ) const;
 
   // -----------------------------------------------------------------------
   // largestSubset
@@ -244,127 +225,108 @@ public:
   // multicolumn uec information
   //
   // if there are ties, return the one with largest correlation
-  ValueIdSet largestSubset (const ValueIdSet & columns) const ;
-
-
+  ValueIdSet largestSubset(const ValueIdSet &columns) const;
 
   //---------------------------------------------------------------------
-  //MultiColumnUecList::getListOfSubsetsContainsColumn
+  // MultiColumnUecList::getListOfSubsetsContainsColumn
   //
-  //Input: columnList
-  //Output: List of ValueIdSet that contains the last column in the list
-  //and other columns from the columnList only
-  //Constraints: ColumnId that is passed in can be VegRef that contains
+  // Input: columnList
+  // Output: List of ValueIdSet that contains the last column in the list
+  // and other columns from the columnList only
+  // Constraints: ColumnId that is passed in can be VegRef that contains
   //             the base id for that column at the first level or it can
   //             be a the id corresponding to a index on the table.
   //---------------------------------------------------------------------
-  LIST(ValueIdSet) * getListOfSubsetsContainsColumns(
-    const ValueIdList & columns,
-    LIST(CostScalar)& uecCount
-    ) const;
+  LIST(ValueIdSet) * getListOfSubsetsContainsColumns(const ValueIdList &columns, LIST(CostScalar) & uecCount) const;
 
   //---------------------------------------------------------------------
-  //MultiColumnUecList::findDenom
+  // MultiColumnUecList::findDenom
   //
-  //Input: list of columns
-  //Output: Boolean. if there is a multi-column histogram exactly matching
-  //the input then return true or return false
-  //Constraints: ValueIds for the columns need to be base valueIds.
+  // Input: list of columns
+  // Output: Boolean. if there is a multi-column histogram exactly matching
+  // the input then return true or return false
+  // Constraints: ValueIds for the columns need to be base valueIds.
   //---------------------------------------------------------------------
-  NABoolean findDenom(const ValueIdSet & columns)const;
+  NABoolean findDenom(const ValueIdSet &columns) const;
 
   // add the <table-column-valueidset, uec-value> pairs from OTHER into
   // THIS (the ones that aren't already there)
-  void insertList (const MultiColumnUecList * other) ;
+  void insertList(const MultiColumnUecList *other);
 
   void insertMappedList(const MultiColumnUecList *other,
-                        const ValueIdMap &map); // map is used in "up" direction
+                        const ValueIdMap &map);  // map is used in "up" direction
 
   // this routine answers whether there's any bona fide multi-column
   // information contained in this list -- i.e., any
   // <valueidset,costscalar> pairs where the valueidset has more than one
   // entry
-  NABoolean containsMCinfo() const ;
+  NABoolean containsMCinfo() const;
 
   // display the contents of the MultiColumnUecList
-  void print (FILE *f = stdout,
-	      const char * prefix = DEFAULT_INDENT,
-	      const char * suffix = "") const ;
-  void display () const ;
+  void print(FILE *f = stdout, const char *prefix = DEFAULT_INDENT, const char *suffix = "") const;
+  void display() const;
   // inserts a <table-column-valueidset, uec-value> pair
   // returns TRUE if successful, FALSE if not successful (e.g., already exists)
   // ==> private because no one should ever change this object!
   // made public, to handle updateMCUecForUniqueIndexes -
 
-  NABoolean insertPair (const ValueIdSet & key, const CostScalar & groupUec) ;
-
+  NABoolean insertPair(const ValueIdSet &key, const CostScalar &groupUec);
 
   // updates groupUec for columns in the Multi-column Uec list
   // This will be used only if no multi-col uec exists for the unique
   // index or if the uec for unique index is not equal to the row count
   // as it should be
 
-  NABoolean updatePair (const ValueIdSet & columns,
-				const CostScalar & groupUec);
+  NABoolean updatePair(const ValueIdSet &columns, const CostScalar &groupUec);
 
   // Following method creates multi-col UEC for larger set of columns
   // using partial overlapping multi-col UECs.
   // For example, if MC-UEC available - (a, b, c) (c, d).
   // Then MC (a, b, c, d) = MC (a, b, c) * MC (c, d) / MC (c)
-  NABoolean createMCUECWithOverlappingColSets(ValueIdSet & remainingCols,
-    					       ValueIdSet & cumulativeColSetWithMCUEC,
-					       CostScalar & multiColUec,
-					       CostScalar oldRowcount);
-
+  NABoolean createMCUECWithOverlappingColSets(ValueIdSet &remainingCols, ValueIdSet &cumulativeColSetWithMCUEC,
+                                              CostScalar &multiColUec, CostScalar oldRowcount);
 
   // Following method creates multi-col UEC for larger set of columns
   // using partial disjoint multi-col UECs.
   // For example, if MC-UEC available - (a, b) (c, d).
   // Then MC (a, b, c, d) = MC (a, b) * MC (c, d)
-  NABoolean createMCUECWithDisjointColSets(ValueIdSet & remainingCols,
-    					    ValueIdSet & cumulativeColSetWithMCUEC,
-					    CostScalar & multiColUec,
-					    CostScalar oldRowCount);
+  NABoolean createMCUECWithDisjointColSets(ValueIdSet &remainingCols, ValueIdSet &cumulativeColSetWithMCUEC,
+                                           CostScalar &multiColUec, CostScalar oldRowCount);
 
   // In the following method, we shall create a new MC list.
   // This list contains MC-UEC for only those column set, which include
   // all columns of colsWithReductions and atmost one column from
   // cumulativeColSetWithMCUEC
 
-  MultiColumnUecList * createMCListForRemainingCols(
-				ValueIdSet colsWithReductions,
-				ValueIdSet cumulativeColSetWithMCUEC);
+  MultiColumnUecList *createMCListForRemainingCols(ValueIdSet colsWithReductions, ValueIdSet cumulativeColSetWithMCUEC);
 
-  MultiColumnUecList () ; // added 05/23/05.
+  MultiColumnUecList();  // added 05/23/05.
 
-private:
-
+ private:
   // this class should never create an uninitialized object!
   // this class should never be copied!
   // Commented because we need to create a temporary MultiColumnUecList
   // in the method createMCListForRemainingCols - 05/23/05
   // MultiColumnUecList () ;
-  MultiColumnUecList (const MultiColumnUecList & other) ;
+  MultiColumnUecList(const MultiColumnUecList &other);
 };
 
-#define MultiColumnSkewedValueListsIterator NAHashDictionaryIterator<ValueIdList,MCSkewedValueList>
+#define MultiColumnSkewedValueListsIterator NAHashDictionaryIterator<ValueIdList, MCSkewedValueList>
 
-class MultiColumnSkewedValueLists : public HASHDICTIONARY(ValueIdList,MCSkewedValueList)
-{
-public:
-  static ULng32 HashFunction (const ValueIdList & input) ;
+class MultiColumnSkewedValueLists : public HASHDICTIONARY(ValueIdList, MCSkewedValueList) {
+ public:
+  static ULng32 HashFunction(const ValueIdList &input);
 
-  MultiColumnSkewedValueLists ();
-  MultiColumnSkewedValueLists (const StatsList   & initStats,
-			     const ValueIdList & tableColumns ) ;
+  MultiColumnSkewedValueLists();
+  MultiColumnSkewedValueLists(const StatsList &initStats, const ValueIdList &tableColumns);
 
-  virtual ~MultiColumnSkewedValueLists() { };
+  virtual ~MultiColumnSkewedValueLists(){};
 
   // This method will retrieve skew values if found, otherwise NULL is returned.
-  const MCSkewedValueList* getMCSkewedValueList(ValueIdSet colSet, ValueIdList & colGroup);
+  const MCSkewedValueList *getMCSkewedValueList(ValueIdSet colSet, ValueIdList &colGroup);
 
-private:
-  MultiColumnSkewedValueLists (const MultiColumnSkewedValueLists & other) ;
+ private:
+  MultiColumnSkewedValueLists(const MultiColumnSkewedValueLists &other);
 };
 
 // -----------------------------------------------------------------------
@@ -372,154 +334,129 @@ private:
 //  that makes up this column statistics object, as well as a pointer
 //  to the ColStats structure.
 // -----------------------------------------------------------------------
-class ColStatDesc : public NABasicObject
-{
+class ColStatDesc : public NABasicObject {
   friend class TableDesc;
 
-protected:
-
+ protected:
   // copy method
-  void copy (const ColStatDesc& other) ;
+  void copy(const ColStatDesc &other);
 
   // deallocate method
-  void deallocate () ;
+  void deallocate();
 
-public:
-
+ public:
   // the following enum is used only in synchronizeStats()
-  enum SynchSpecialFlag { DO_NOTHING_SPECIAL, DO_NOT_REDUCE_UEC, SET_UEC_TO_ONE } ;
+  enum SynchSpecialFlag { DO_NOTHING_SPECIAL, DO_NOT_REDUCE_UEC, SET_UEC_TO_ONE };
 
   // default constructor
-  ColStatDesc (NAMemory * h=HISTHEAP) :
-       column_(), VEGcolumn_(), nonVegEquals_(h), colStats_(0), modified_(FALSE), 
-		 inputCard_(1.0)
-  { }
+  ColStatDesc(NAMemory *h = HISTHEAP)
+      : column_(), VEGcolumn_(), nonVegEquals_(h), colStats_(0), modified_(FALSE), inputCard_(1.0) {}
 
   // constructor
-  ColStatDesc (const ColStatsSharedPtr& stats, const ValueIdList& columnList, NAMemory * h=HISTHEAP) ;
+  ColStatDesc(const ColStatsSharedPtr &stats, const ValueIdList &columnList, NAMemory *h = HISTHEAP);
 
   // constructor used to create a ColStatDesc for a generated column.
-  ColStatDesc (const ColStatsSharedPtr& stats, const ValueId & column, NAMemory * h=HISTHEAP) ;
+  ColStatDesc(const ColStatsSharedPtr &stats, const ValueId &column, NAMemory *h = HISTHEAP);
 
   // virtual destructor
   ~ColStatDesc() { deallocate(); }
 
-
   // copy constructor
-  ColStatDesc (const ColStatDesc& other, NAMemory * h=HISTHEAP) :
-       nonVegEquals_(h)
-  { copy(other); }
+  ColStatDesc(const ColStatDesc &other, NAMemory *h = HISTHEAP) : nonVegEquals_(h) { copy(other); }
 
   // assignment operator
-  inline ColStatDesc & operator= (const ColStatDesc& other)
-  {
-    if ( &other != this )             // support a=a
-      { deallocate(); copy(other); }
+  inline ColStatDesc &operator=(const ColStatDesc &other) {
+    if (&other != this)  // support a=a
+    {
+      deallocate();
+      copy(other);
+    }
     return *this;
   }
 
   // comparison operator
-  NABoolean operator== (const ColStatDesc& other) const
-  { return (column_ == other.column_) ; }
+  NABoolean operator==(const ColStatDesc &other) const { return (column_ == other.column_); }
 
   // accessor functions (all const)
-  inline const ValueId & getColumn () const               { return column_; }
-  inline const ValueId & getVEGColumn () const            { return VEGcolumn_; }
-  inline const ColStatsSharedPtr getColStats () const            { return colStats_; }
-  inline NABoolean isModified () const                    { return modified_; }
-  inline NABoolean isFromInnerTable () const              { return fromInnerTable_; }
+  inline const ValueId &getColumn() const { return column_; }
+  inline const ValueId &getVEGColumn() const { return VEGcolumn_; }
+  inline const ColStatsSharedPtr getColStats() const { return colStats_; }
+  inline NABoolean isModified() const { return modified_; }
+  inline NABoolean isFromInnerTable() const { return fromInnerTable_; }
 
-  inline const ValueIdSet & getMergeState() const         { return mergeState_; }
-  inline const SHPTR_LIST(ColStatDescSharedPtr)&
-               getNonVegEquals() const                    { return nonVegEquals_; }
+  inline const ValueIdSet &getMergeState() const { return mergeState_; }
+  inline const SHPTR_LIST(ColStatDescSharedPtr) & getNonVegEquals() const { return nonVegEquals_; }
 
-  inline const ValueIdSet & getAppliedPreds () const      { return appliedPreds_; }
-  inline NABoolean isPredicateApplied (const ValueId & newPredicate) const
-                                { return appliedPreds_.contains( newPredicate ); }
-  NABoolean isSimilarPredicateApplied ( const OperatorTypeEnum op ) const;
+  inline const ValueIdSet &getAppliedPreds() const { return appliedPreds_; }
+  inline NABoolean isPredicateApplied(const ValueId &newPredicate) const {
+    return appliedPreds_.contains(newPredicate);
+  }
+  NABoolean isSimilarPredicateApplied(const OperatorTypeEnum op) const;
 
-  NABoolean derivOfLikeAndSimilarPredApp(const ItemExpr * pred ) ;
+  NABoolean derivOfLikeAndSimilarPredApp(const ItemExpr *pred);
 
-  CostScalar selForRelativeRange (const OperatorTypeEnum op,
-                                  const ValueId  & column,
-                                  ItemExpr *newPred) const;
+  CostScalar selForRelativeRange(const OperatorTypeEnum op, const ValueId &column, ItemExpr *newPred) const;
 
   inline NABoolean isExpressionHistogram() const { return colStats_->isExpressionHistogram(); }
 
-  NABoolean expressionMatches(ItemExpr * expr);
+  NABoolean expressionMatches(ItemExpr *expr);
 
   // these accessor functions return access to the private data members
-  ColStatsSharedPtr getColStatsToModify () ;
-  inline ValueId & VEGColumn ()                           { return VEGcolumn_; }
-  inline ValueIdSet & mergeState ()                       { return mergeState_; }
-  inline SHPTR_LIST(ColStatDescSharedPtr)& nonVegEquals () { return nonVegEquals_; }
-  inline ValueIdSet & appliedPreds ()                     { return appliedPreds_; }
+  ColStatsSharedPtr getColStatsToModify();
+  inline ValueId &VEGColumn() { return VEGcolumn_; }
+  inline ValueIdSet &mergeState() { return mergeState_; }
+  inline SHPTR_LIST(ColStatDescSharedPtr) & nonVegEquals() { return nonVegEquals_; }
+  inline ValueIdSet &appliedPreds() { return appliedPreds_; }
 
   // manipulation functions
-  inline void setModified (NABoolean flag=TRUE)           { modified_ = flag; }
-  inline void setFromInnerTable (NABoolean flag=TRUE)     { fromInnerTable_ = flag; }
-  inline void setColStats (const ColStatsSharedPtr& stats) { colStats_ = stats; }
+  inline void setModified(NABoolean flag = TRUE) { modified_ = flag; }
+  inline void setFromInnerTable(NABoolean flag = TRUE) { fromInnerTable_ = flag; }
+  inline void setColStats(const ColStatsSharedPtr &stats) { colStats_ = stats; }
   void generateExpressionHistogramMergeState();
 
-  inline void setExprColRefs(const ValueIdSet & exprColRefs) { exprColRefs_ = exprColRefs; }
+  inline void setExprColRefs(const ValueIdSet &exprColRefs) { exprColRefs_ = exprColRefs; }
 
-  inline void addToAppliedPreds (const ValueId & newPredicate)
-    { appliedPreds_.insert( newPredicate ); }
-  inline void removeFromAppliedPreds (const ValueId & newPredicate)
-    { appliedPreds_.remove( newPredicate ); }
+  inline void addToAppliedPreds(const ValueId &newPredicate) { appliedPreds_.insert(newPredicate); }
+  inline void removeFromAppliedPreds(const ValueId &newPredicate) { appliedPreds_.remove(newPredicate); }
 
   // apply the following selectivity to the column statistics
-  void applySel (const CostScalar & selectivity) ;
+  void applySel(const CostScalar &selectivity);
 
-  void applySelIfSpecifiedViaHint(ItemExpr * pred, const CostScalar & oldRowcount);
+  void applySelIfSpecifiedViaHint(ItemExpr *pred, const CostScalar &oldRowcount);
 
-  void setInputCard (CostScalar rows) {inputCard_ = rows; }
+  void setInputCard(CostScalar rows) { inputCard_ = rows; }
 
-  CostScalar getInputCard()  { return inputCard_; }
+  CostScalar getInputCard() { return inputCard_; }
 
-  void mapUpAndCopy (const ColStatDesc& other, ValueIdMap &map) ;
+  void mapUpAndCopy(const ColStatDesc &other, ValueIdMap &map);
 
   // synchronize/map the RowCount and UEC change of one set of aggregate
   // statistics with the current set of aggregate statistics
-  void synchronizeStats (const CostScalar & baseRowcount,
-                         const CostScalar & newRowcount,
-                         SynchSpecialFlag=DO_NOTHING_SPECIAL) ;
+  void synchronizeStats(const CostScalar &baseRowcount, const CostScalar &newRowcount,
+                        SynchSpecialFlag = DO_NOTHING_SPECIAL);
 
   // modify statistics by applying the effect of the provided predicate
-  NABoolean modifyStats (ItemExpr * pred,
-                         ItemExpr * lhs,
-                         ItemExpr * rhs,
-                         ConstValue * constant,
-                         NABoolean negate,
-                         CostScalar &newRowcount,
-                         CostScalar *maxSelectivity=NULL);
+  NABoolean modifyStats(ItemExpr *pred, ItemExpr *lhs, ItemExpr *rhs, ConstValue *constant, NABoolean negate,
+                        CostScalar &newRowcount, CostScalar *maxSelectivity = NULL);
 
   // merge twoColStatDescs from the same table
- NABoolean mergeColStatDescOfSameTable(ColStatDescSharedPtr &rightColStats,
-                                       OperatorTypeEnum opType = ITM_FIRST_ITEM_OP);
+  NABoolean mergeColStatDescOfSameTable(ColStatDescSharedPtr &rightColStats,
+                                        OperatorTypeEnum opType = ITM_FIRST_ITEM_OP);
 
- // merge two ColStatDesc's
-  void mergeColStatDesc(ColStatDescSharedPtr& mergedStatDesc,
-			MergeType mergeMethod,
-			NABoolean forceMerge = FALSE,
-                        OperatorTypeEnum opType = ITM_FIRST_ITEM_OP,
-                        NABoolean mergeFVs=TRUE) ;
+  // merge two ColStatDesc's
+  void mergeColStatDesc(ColStatDescSharedPtr &mergedStatDesc, MergeType mergeMethod, NABoolean forceMerge = FALSE,
+                        OperatorTypeEnum opType = ITM_FIRST_ITEM_OP, NABoolean mergeFVs = TRUE);
 
   // -----------------------------------------------------------------------
   // Reduce uec by correct amount, instead of what we've done in the past.
   // -----------------------------------------------------------------------
-  static CostScalar
-  calculateCorrectResultUec (const CostScalar & baseRows,
-                             const CostScalar & newRows,
-                             const CostScalar & baseUec) ;
+  static CostScalar calculateCorrectResultUec(const CostScalar &baseRows, const CostScalar &newRows,
+                                              const CostScalar &baseUec);
 
   // display the colStats_ inside the colstatdesc:
-  void print (FILE *f = stdout,
-	      const char * prefix = DEFAULT_INDENT,
-	      const char * suffix = "",
-              CollHeap *c=NULL, char *buf=NULL,
-              NABoolean hideDetail=FALSE) const ;
-  void display () const ;
+  void print(FILE *f = stdout, const char *prefix = DEFAULT_INDENT, const char *suffix = "", CollHeap *c = NULL,
+             char *buf = NULL, NABoolean hideDetail = FALSE) const;
+  void display() const;
 
   // ------------------------------------------------------------------------
   // The first four private members are worthy of a little discussion and
@@ -555,13 +492,13 @@ public:
   // For expression histograms, we do things a bit differently.
   //
   // Since an expression is not a fixed column in the table, it does not have
-  // an invariant ValueId. So, 'column_' and 'VEGcolumn_' are meaningless. 
+  // an invariant ValueId. So, 'column_' and 'VEGcolumn_' are meaningless.
   // We set them to NULL_VALUE_ID.
-  // 
+  //
   // For 'mergeState_', we manufacture a dummy expression for each
   // expression histogram and bind that. The resulting ValueId is then
   // inserted into 'mergeState_' and represents that expression histogram.
-  // That allows the existing logic concerning 'mergeState_' to work 
+  // That allows the existing logic concerning 'mergeState_' to work
   // equally well for expression histograms and regular histograms
   // (which is good since one might be merged into the other!).
   //
@@ -570,8 +507,7 @@ public:
   // histograms.
   // ------------------------------------------------------------------------
 
-private:
-
+ private:
   // compress the ColStats for local predicates on a column
   // The local predicates should involve a constant
   // e.g.
@@ -579,31 +515,30 @@ private:
   // * t1.col1 < 3
   // * t1.col1 > 1
   // * t1.col1 > 1 and t1.col1 < 3
-  void compressColStatsForQueryPreds(ItemExpr * lowerBound,
-                                     ItemExpr * upperBound,
-                                     NABoolean  hasJoinPred = FALSE)
-  { colStats_->compressColStatsForQueryPreds(lowerBound, upperBound, hasJoinPred); };
+  void compressColStatsForQueryPreds(ItemExpr *lowerBound, ItemExpr *upperBound, NABoolean hasJoinPred = FALSE) {
+    colStats_->compressColStatsForQueryPreds(lowerBound, upperBound, hasJoinPred);
+  };
 
-  ValueId column_;              // identify the base table column(s) of which
+  ValueId column_;  // identify the base table column(s) of which
   //                            // these statistics is/are comprised
-  ValueId VEGcolumn_;           // identify the equivalent VEG (corresponding
+  ValueId VEGcolumn_;  // identify the equivalent VEG (corresponding
   //                            // to base table columns) of which these stats
   //                            // are comprised
-  ValueIdSet mergeState_;       // indicate which histograms have been merged
+  ValueIdSet mergeState_;  // indicate which histograms have been merged
   //                            // (so far)
-  SHPTR_LIST(ColStatDescSharedPtr) // pointers to ColStatDescs that were EQ-merged
-               nonVegEquals_;      // to create this ColStatDesc, even though they
+  SHPTR_LIST(ColStatDescSharedPtr)  // pointers to ColStatDescs that were EQ-merged
+  nonVegEquals_;                    // to create this ColStatDesc, even though they
   //                               // were not both contained in a single VEG.
-  NABoolean    fromInnerTable_; // used in nonVegEquals_ related OR processing
-  ValueIdSet   appliedPreds_;   // All Predicates applied to this ColStats
+  NABoolean fromInnerTable_;    // used in nonVegEquals_ related OR processing
+  ValueIdSet appliedPreds_;     // All Predicates applied to this ColStats
   ColStatsSharedPtr colStats_;  // reference to ColStats structure
-  NABoolean    modified_;       // FALSE => the Colstats structure has not yet
+  NABoolean modified_;          // FALSE => the Colstats structure has not yet
   //                            // been modified
-  CostScalar  inputCard_;	// any input cardinality which could be reflected
-				// in this colStat
-  ValueIdSet exprColRefs_;      // for expressions histograms, contains the ValueIds
-                                // of columns referenced by this instance of the
-                                // expression; for regular histograms, this is empty                             
+  CostScalar inputCard_;  // any input cardinality which could be reflected
+                          // in this colStat
+  ValueIdSet exprColRefs_;  // for expressions histograms, contains the ValueIds
+                            // of columns referenced by this instance of the
+                            // expression; for regular histograms, this is empty
 };
 
 // -----------------------------------------------------------------------
@@ -617,32 +552,29 @@ private:
 //
 // -----------------------------------------------------------------------
 
+class ColStatDescList : public SHPTR_LIST(ColStatDescSharedPtr) {
+ public:
+  ColStatDescList(NAMemory *h = 0)
+      : SHPTR_LIST(ColStatDescSharedPtr)(h),
+        uecList_(NULL),
+        useCapForLowBound_(FALSE),
+        joinOnSingleCol_(FALSE),
+        scanRowCountWithoutHint_(-1.0),
+        mcSkewedValueLists_(NULL),
+        hasExpressionHistogram_(FALSE) {}
 
-class ColStatDescList: public SHPTR_LIST (ColStatDescSharedPtr)
-{
-public:
-
-  ColStatDescList (NAMemory* h=0) : SHPTR_LIST(ColStatDescSharedPtr)(h), uecList_(NULL),
-    useCapForLowBound_ (FALSE),
-    joinOnSingleCol_(FALSE),
-    scanRowCountWithoutHint_ (-1.0),
-    mcSkewedValueLists_(NULL),
-    hasExpressionHistogram_(FALSE)
-    {}
-
-  ColStatDescList (const ColStatDescList & other, NAMemory* h/*=0*/) :
-    SHPTR_LIST(ColStatDescSharedPtr)(other,h),
-    uecList_(other.uecList_),
-    useCapForLowBound_ (other.useCapForLowBound_),
-    joinOnSingleCol_ (other.joinOnSingleCol_),
-    scanRowCountWithoutHint_(other.scanRowCountWithoutHint_),
-    joinedCols_(other.joinedCols_), 
-    mcSkewedValueLists_(other.mcSkewedValueLists_),
-    hasExpressionHistogram_(other.hasExpressionHistogram_)
-    {}
+  ColStatDescList(const ColStatDescList &other, NAMemory *h /*=0*/)
+      : SHPTR_LIST(ColStatDescSharedPtr)(other, h),
+        uecList_(other.uecList_),
+        useCapForLowBound_(other.useCapForLowBound_),
+        joinOnSingleCol_(other.joinOnSingleCol_),
+        scanRowCountWithoutHint_(other.scanRowCountWithoutHint_),
+        joinedCols_(other.joinedCols_),
+        mcSkewedValueLists_(other.mcSkewedValueLists_),
+        hasExpressionHistogram_(other.hasExpressionHistogram_) {}
 
   // should the destructor do anything?  for now, no
-  virtual ~ColStatDescList () {}
+  virtual ~ColStatDescList() {}
 
   // Returns TRUE if at least one of the histograms is a
   // fake histogram. A fake histogram is a histogram that
@@ -658,12 +590,12 @@ public:
   // ColStatDescList. The ColStatDesc could have also been merged
   // with the other colStatDesc
 
-  NABoolean contains(const ValueId & column) const;
+  NABoolean contains(const ValueId &column) const;
 
   // Returns TRUE if the full column set is contained in this
-  // ColStatDescList. 
+  // ColStatDescList.
 
-  NABoolean contains(const ValueIdList & colList) const;
+  NABoolean contains(const ValueIdList &colList) const;
 
   // Returns the (possibly multi-column) uec value for the
   // ValueId-specified column(s) in the parameter list.
@@ -671,7 +603,7 @@ public:
   // NB: in the case where we cannot find uec information for one or more
   // of 'columns' (i.e., histogram isn't available), this method returns
   // -1.  Anyone using this method should check for this value!
-  CostScalar getAggregateUec (const ValueIdSet & columns) const ;
+  CostScalar getAggregateUec(const ValueIdSet &columns) const;
 
   // set base uec for all columns in their colAnalysis
   void setBaseUecForAllCols();
@@ -681,23 +613,20 @@ public:
   // getColStatDescIndexForColWithMaxUec(leftColIndex, leftLeafValues)
   // From the given ValueIdSet, the method returns the index of the histogram
   // with max UEC
-  NABoolean getColStatDescIndexForColWithMaxUec(CollIndex & leftColIndex,
-        const ValueIdSet & leftLeafValues) const;
+  NABoolean getColStatDescIndexForColWithMaxUec(CollIndex &leftColIndex, const ValueIdSet &leftLeafValues) const;
 
-  void addToAppliedPredsOfAllCSDs(const ValueIdSet & colSet,
-        const ValueId & newPredicate);
+  void addToAppliedPredsOfAllCSDs(const ValueIdSet &colSet, const ValueId &newPredicate);
 
   // some usages of CSDL want to be able to create and then delete individual
   // CSDL's -- for these users, we have an explicit destroy function
-  void destroy () ;
+  void destroy();
 
-  inline ColStatDescList & operator = (const ColStatDescList &other)
-    {
-      this->SHPTR_LIST(ColStatDescSharedPtr)::operator = ( other );
-      uecList_ = other.uecList_ ;
-      mcSkewedValueLists_ = other.mcSkewedValueLists_;
-      return *this;
-    }
+  inline ColStatDescList &operator=(const ColStatDescList &other) {
+    this->SHPTR_LIST(ColStatDescSharedPtr)::operator=(other);
+    uecList_ = other.uecList_;
+    mcSkewedValueLists_ = other.mcSkewedValueLists_;
+    return *this;
+  }
 
   // ---------------------------------------------------------------------
   // Methods for doing Deep Copies of the ColStatDescs whose pointers are
@@ -711,34 +640,25 @@ public:
   //    changed flag, allowing it to be either left alone (the default) or
   //    cleared.
   // ---------------------------------------------------------------------
-  void appendDeepCopy   (const ColStatDescList & source,
-                         const CollIndex firstN,
-                         const CostScalar & scale = 1,
-                         const NABoolean shapeChangedMask = TRUE) ;
+  void appendDeepCopy(const ColStatDescList &source, const CollIndex firstN, const CostScalar &scale = 1,
+                      const NABoolean shapeChangedMask = TRUE);
 
-  void makeDeepCopy     (const ColStatDescList & source,
-                         const CostScalar & scale = 1,
-                         const NABoolean shapeChangedMask = TRUE) ;
+  void makeDeepCopy(const ColStatDescList &source, const CostScalar &scale = 1,
+                    const NABoolean shapeChangedMask = TRUE);
 
-  void prependDeepCopy  (const ColStatDescList & source,
-                         const CollIndex firstN,
-                         const CostScalar & scale = 1,
-                         const NABoolean shapeChangedMask = TRUE) ;
+  void prependDeepCopy(const ColStatDescList &source, const CollIndex firstN, const CostScalar &scale = 1,
+                       const NABoolean shapeChangedMask = TRUE);
 
-  void insertDeepCopy   (const ColStatDescSharedPtr & source,
-                         const CostScalar & scale = 1,
-                         const NABoolean shapeChangedMask = TRUE) ;
+  void insertDeepCopy(const ColStatDescSharedPtr &source, const CostScalar &scale = 1,
+                      const NABoolean shapeChangedMask = TRUE);
 
-  void insertDeepCopyAt (const CollIndex entry,
-                         const ColStatDescSharedPtr & source,
-                         const CostScalar & scale = 1,
-                         const NABoolean shapeChangedMask = TRUE) ;
-  void makeMappedDeepCopy(
-                         const ColStatDescList & source,
-                         ValueIdMap &map, // map source "up"
-                         NABoolean includeUnmappedColumns);
+  void insertDeepCopyAt(const CollIndex entry, const ColStatDescSharedPtr &source, const CostScalar &scale = 1,
+                        const NABoolean shapeChangedMask = TRUE);
+  void makeMappedDeepCopy(const ColStatDescList &source,
+                          ValueIdMap &map,  // map source "up"
+                          NABoolean includeUnmappedColumns);
 
-  void removeDeepCopyAt (const CollIndex entry) ;
+  void removeDeepCopyAt(const CollIndex entry);
 
   void computeMaxFreq(NABoolean forced = FALSE);
 
@@ -747,13 +667,9 @@ public:
   // where the column is being equated to a constant or the right child
   // of the join is a constant.
 
-  void addColStatDescForVirtualCol(const CostScalar & uec,
-				    const CostScalar & rowCount,
-				    const ValueId  colId,
-				    const ValueId vegCol,
-				    const ValueId mergeState,
-                                    const RelExpr * expr,
-                                    NABoolean defineVirtual = TRUE);
+  void addColStatDescForVirtualCol(const CostScalar &uec, const CostScalar &rowCount, const ValueId colId,
+                                   const ValueId vegCol, const ValueId mergeState, const RelExpr *expr,
+                                   NABoolean defineVirtual = TRUE);
 
   // ---------------------------------------------------------------------
   // Method for estimating the Cardinality, given a set of predicates
@@ -762,27 +678,17 @@ public:
   // estimateCardinality takes special actions when it is invoked against
   // the children of ITM_AND and ITM_OR operators.
   // ---------------------------------------------------------------------
-  CostScalar estimateCardinality (const CostScalar & initalRowCount,
-				  const ValueIdSet & setOfPredicates,
-				  const ValueIdSet & outerReferences,
-                                  const Join * expr,
-				  const SelectivityHint * selHint,
-				  const CardinalityHint * cardHint,
-				  CollIndex & numOuterColStats,
-				  ValueIdSet & unresolvedPreds,
-				  MergeType mergeMethod =
-				  INNER_JOIN_MERGE,
-				  OperatorTypeEnum exprOpCode =
-				  ITM_FIRST_ITEM_OP , // no-op value
-                                  CostScalar *maxSelectivity=NULL);
-
+  CostScalar estimateCardinality(const CostScalar &initalRowCount, const ValueIdSet &setOfPredicates,
+                                 const ValueIdSet &outerReferences, const Join *expr, const SelectivityHint *selHint,
+                                 const CardinalityHint *cardHint, CollIndex &numOuterColStats,
+                                 ValueIdSet &unresolvedPreds, MergeType mergeMethod = INNER_JOIN_MERGE,
+                                 OperatorTypeEnum exprOpCode = ITM_FIRST_ITEM_OP,  // no-op value
+                                 CostScalar *maxSelectivity = NULL);
 
   // Adjust the rowcount based on the cardinality / selectivity / count(*) hint
-  CostScalar adjustRowcountWithHint(const CardinalityHint * cardHint, 
-                                    const SelectivityHint * selHint, 
-				    const ValueIdSet & setOfPredicates,
-                                    CostScalar & newRowCount, 
-				    const CostScalar & initialRowCount);
+  CostScalar adjustRowcountWithHint(const CardinalityHint *cardHint, const SelectivityHint *selHint,
+                                    const ValueIdSet &setOfPredicates, CostScalar &newRowCount,
+                                    const CostScalar &initialRowCount);
 
   void copyAndScaleHistograms(CostScalar scale);
 
@@ -793,59 +699,49 @@ public:
   CostScalar getUEC(ValueId col);
 
   // get maximum frequency for the given column set
-  CostScalar getMaxOfMaxFreqOfCol(const ValueIdSet & baseColSet) ;
+  CostScalar getMaxOfMaxFreqOfCol(const ValueIdSet &baseColSet);
 
   // get maximum frequency for the given column set
-  CostScalar getMinOfMaxFreqOfCol(const ValueIdSet & baseColSet) ;
+  CostScalar getMinOfMaxFreqOfCol(const ValueIdSet &baseColSet);
 
   // get max frequency of the leaves of Case expression
-  CostScalar getMaxFreqForCaseExpr(const ValueIdSet & leafValues);
+  CostScalar getMaxFreqForCaseExpr(const ValueIdSet &leafValues);
 
-  void addToJoinedCols (const ValueIdSet & newPredCols)
-  { joinedCols_.insert( newPredCols ); }
+  void addToJoinedCols(const ValueIdSet &newPredCols) { joinedCols_.insert(newPredCols); }
 
-  void clearJoinedCols ()
-  { joinedCols_.clear(); }
+  void clearJoinedCols() { joinedCols_.clear(); }
 
   ValueIdSet getJoinedCols() { return joinedCols_; }
 
-  CostScalar getUecOfJoiningCols(ValueIdSet & joinedColSet) const;
+  CostScalar getUecOfJoiningCols(ValueIdSet &joinedColSet) const;
 
-// Returns the minimum UEC from the given column set
-  CostScalar getMinUec(const ValueIdSet & baseColSet) const;
+  // Returns the minimum UEC from the given column set
+  CostScalar getMinUec(const ValueIdSet &baseColSet) const;
 
-// Returns the maximum UEC from the given column set
-  CostScalar getMaxUecForCaseExpr(const ValueIdSet & baseColSet) const;
+  // Returns the maximum UEC from the given column set
+  CostScalar getMaxUecForCaseExpr(const ValueIdSet &baseColSet) const;
 
   // Returns the maximum UEC from the given leaf value set
-  CostScalar getMaxUec(const ValueIdSet & leafValueSet) const;
-
+  CostScalar getMaxUec(const ValueIdSet &leafValueSet) const;
 
   // returns cardinality of busiest stream based on the given list
   // of histograms
 
-  CostScalar getCardOfBusiestStream(const PartitioningFunction* partFunc,
-						Lng32 numOfParts,
-						GroupAttributes  * grpAttr,
-						Lng32 countOfCPUs = 1);
+  CostScalar getCardOfBusiestStream(const PartitioningFunction *partFunc, Lng32 numOfParts, GroupAttributes *grpAttr,
+                                    Lng32 countOfCPUs = 1);
 
- CostScalar  getCardOfBusiestStreamForUnderNJ(CANodeIdSet * outerNodeSet,
-                                              const PartitioningFunction* pf,
-                                              Lng32 numOfParts,
-                                              GroupAttributes * gr,
-                                              Lng32 countOfCpus = 1);
-  
- void addRecentlyJoinedCols(CollIndex startIdx,
-                            CollIndex stopIdx);
+  CostScalar getCardOfBusiestStreamForUnderNJ(CANodeIdSet *outerNodeSet, const PartitioningFunction *pf,
+                                              Lng32 numOfParts, GroupAttributes *gr, Lng32 countOfCpus = 1);
 
- void compressColStatsToSingleInt();
+  void addRecentlyJoinedCols(CollIndex startIdx, CollIndex stopIdx);
 
- void insertByPosition(const StatsList & other,
-                       const NAColumnArray &columnList,
-                       const NAHashDictionary<NAString, ValueIdSet> & interestingExpressions,
-                       const ValueIdList &tableColList);
+  void compressColStatsToSingleInt();
 
-private:
+  void insertByPosition(const StatsList &other, const NAColumnArray &columnList,
+                        const NAHashDictionary<NAString, ValueIdSet> &interestingExpressions,
+                        const ValueIdList &tableColList);
+
+ private:
   // ---------------------------------------------------------------------
   // The following five routines are private subroutines of
   // estimateCardinality() :
@@ -864,110 +760,82 @@ private:
   // ---------------------------------------------------------------------
   // Given a VEG predicate, merge all histograms belonging to the same
   // equivalence class.
-  NABoolean applyVEGPred (ItemExpr *VEGpred,
-                          CostScalar & newRowcount,
-			  CollIndex & numOuterColStats,
-			  MergeType mergeMethod = INNER_JOIN_MERGE,
-			  OperatorTypeEnum exprOpCode = ITM_FIRST_ITEM_OP,
-                          CostScalar *maxSelectivity=NULL);
+  NABoolean applyVEGPred(ItemExpr *VEGpred, CostScalar &newRowcount, CollIndex &numOuterColStats,
+                         MergeType mergeMethod = INNER_JOIN_MERGE, OperatorTypeEnum exprOpCode = ITM_FIRST_ITEM_OP,
+                         CostScalar *maxSelectivity = NULL);
   // ---------------------------------------------------------------------
   // Apply a bi-relational predicate to the set of column statistics.
-  NABoolean applyPred (ItemExpr *biRelatpred,
-                       CostScalar & newRowcount,
-		       CollIndex & numOuterColStats,
-		       MergeType mergeMethod = INNER_JOIN_MERGE,
-                       OperatorTypeEnum exprOpCode = ITM_FIRST_ITEM_OP,
-                       CostScalar *maxSelectivity=NULL);
+  NABoolean applyPred(ItemExpr *biRelatpred, CostScalar &newRowcount, CollIndex &numOuterColStats,
+                      MergeType mergeMethod = INNER_JOIN_MERGE, OperatorTypeEnum exprOpCode = ITM_FIRST_ITEM_OP,
+                      CostScalar *maxSelectivity = NULL);
 
   // ---------------------------------------------------------------------
   // Apply a predicate having 'default' selectivity to the given column
   // statistics.
-  void applyDefaultPred (ItemExpr * pred, CostScalar & newRowcount,
-                         OperatorTypeEnum exprOpCode = ITM_FIRST_ITEM_OP,
-                         CostScalar *maxSelectivity=NULL);
+  void applyDefaultPred(ItemExpr *pred, CostScalar &newRowcount, OperatorTypeEnum exprOpCode = ITM_FIRST_ITEM_OP,
+                        CostScalar *maxSelectivity = NULL);
 
   // ---------------------------------------------------------------------
   // Apply BiLogicPreds ITM_OR and ITM_AND
 
-  CostScalar applyBiLogicPred(CostScalar & tempRowCount,
-			      ValueIdSet & BiLogicPreds,
-			      const ValueIdSet & outerReferences,
-                                              const Join * expr,
-			      const SelectivityHint * selHint,
-			      const CardinalityHint * cardHint,
-			      CollIndex & numOuterColStats,
-			      ValueIdSet & unresolvedPreds,
-			      MergeType mergeMethod,
-			      NAHashDictionary<ValueId, CostScalar> & biLogicPredReductions,
-			      OperatorTypeEnum exprOpCode = ITM_FIRST_ITEM_OP,
-			      CostScalar *maxSelectivity=NULL);
+  CostScalar applyBiLogicPred(CostScalar &tempRowCount, ValueIdSet &BiLogicPreds, const ValueIdSet &outerReferences,
+                              const Join *expr, const SelectivityHint *selHint, const CardinalityHint *cardHint,
+                              CollIndex &numOuterColStats, ValueIdSet &unresolvedPreds, MergeType mergeMethod,
+                              NAHashDictionary<ValueId, CostScalar> &biLogicPredReductions,
+                              OperatorTypeEnum exprOpCode = ITM_FIRST_ITEM_OP, CostScalar *maxSelectivity = NULL);
 
   // ---------------------------------------------------------------------
   // Use multi-column uec to find the resulting rowcount from multiple
   // predicates on correlated columns within a single table, if possible.
-  void useMultiUecIfCorrelatedPreds (
-     CostScalar & newRowcount,		  // in/out
-     const CostScalar & oldRowcount,	  // in
-     CollIndex predCount,		  // in : quick check : proceed if >=2
-     const CollIndexList &joinHistograms, // in : histograms used in MC Join
-     CollIndex startIndex,		  // in : 1st idx of CSDL to look at
-     CollIndex stopIndex,		  // in : idx of CSDL+1 to look at
-     NAHashDictionary<ValueId, CostScalar> & biLogicPredReductions);
+  void useMultiUecIfCorrelatedPreds(CostScalar &newRowcount,              // in/out
+                                    const CostScalar &oldRowcount,        // in
+                                    CollIndex predCount,                  // in : quick check : proceed if >=2
+                                    const CollIndexList &joinHistograms,  // in : histograms used in MC Join
+                                    CollIndex startIndex,                 // in : 1st idx of CSDL to look at
+                                    CollIndex stopIndex,                  // in : idx of CSDL+1 to look at
+                                    NAHashDictionary<ValueId, CostScalar> &biLogicPredReductions);
 
   // ---------------------------------------------------------------------
   // Use multi-column uec to find the resulting rowcount from a
   // multi-column join between two tables, if possible.
-  void useMultiUecIfMultipleJoins (
-     CostScalar & newRowcount,        /* in/out */
-     const CostScalar & oldRowcount,  /* in */
-     CollIndex startIndex,            /* in : first index of CSDL */
-     CollIndex stopIndex,             /* in : last index of CSDL+1 */
-     CollIndexList & joinHistograms,  /* out */
-     const Join * expr,
-     MergeType mergeMethod
-     );
+  void useMultiUecIfMultipleJoins(CostScalar &newRowcount,       /* in/out */
+                                  const CostScalar &oldRowcount, /* in */
+                                  CollIndex startIndex,          /* in : first index of CSDL */
+                                  CollIndex stopIndex,           /* in : last index of CSDL+1 */
+                                  CollIndexList &joinHistograms, /* out */
+                                  const Join *expr, MergeType mergeMethod);
 
   // ---------------------------------------------------------------------
-  void computeRowRedFactor(MergeType mergeMethod, 
-                            CollIndex numOuterColStats,
-                            CostScalar rowcountBeforePreds,
-                            CollIndex & predCountSC, 
-                            CollIndex & predCountMC, 
-                            CostScalar & rowRedProduct);
+  void computeRowRedFactor(MergeType mergeMethod, CollIndex numOuterColStats, CostScalar rowcountBeforePreds,
+                           CollIndex &predCountSC, CollIndex &predCountMC, CostScalar &rowRedProduct);
 
-public:
-
-    CostScalar getHighestUecReductionByLocalPreds(ValueIdSet &cols) const;
+ public:
+  CostScalar getHighestUecReductionByLocalPreds(ValueIdSet &cols) const;
 
   // synchronize the RowCount of all the histograms in the list (those
   // with array indices from 0..loopLimit-1)
-  void synchronizeStats ( const CostScalar & baseRowcount,
-                          const CostScalar & newRowcount,
-			  CollIndex loopLimit ) ;
+  void synchronizeStats(const CostScalar &baseRowcount, const CostScalar &newRowcount, CollIndex loopLimit);
 
   // this version doesn't care what the original rowcount was originally
   // supposed to be -- it just does the work of setting all histograms to
   // have newRowcount as the rowcount
-  void synchronizeStats ( const CostScalar & newRowcount,
-                          CollIndex loopLimit ) ;
+  void synchronizeStats(const CostScalar &newRowcount, CollIndex loopLimit);
 
   // Used only by Join::synthEstLogProp to do inner-equi-joins of any
   // columns appearing as outer references from both children of the
   // join
-  CostScalar mergeListPairwise() ;
+  CostScalar mergeListPairwise();
 
   // Used for mapping a histogram to a range-partitioned table so that we
   // can determine which partitions in a query are active
   // -- returns TRUE if everything's OK, FALSE otherwise
-  NABoolean divideHistogramAtPartitionBoundaries
-     (const ValueIdList            & listOfPartKeys,     /*in*/
-      const ValueIdList            & listOfPartKeyOrders,/*in*/
-      const LIST(EncodedValueList *) & listOfPartBounds,   /*in*/
-      ValueId       & keyCorrespondingToOutputRows,      /*out*/
-      NABoolean     & isKeyAscending,                    /*out*/
-      ColStats      & outputRows,                        /*out*/
-      CollIndexList & outputFactors) const ;             /*out*/
-
+  NABoolean divideHistogramAtPartitionBoundaries(const ValueIdList &listOfPartKeys,                 /*in*/
+                                                 const ValueIdList &listOfPartKeyOrders,            /*in*/
+                                                 const LIST(EncodedValueList *) & listOfPartBounds, /*in*/
+                                                 ValueId &keyCorrespondingToOutputRows,             /*out*/
+                                                 NABoolean &isKeyAscending,                         /*out*/
+                                                 ColStats &outputRows,                              /*out*/
+                                                 CollIndexList &outputFactors) const;               /*out*/
 
   // ------------------------------------------------------------------------
   // methods to access individual CSD's within the CSDL via various
@@ -982,39 +850,36 @@ public:
   // . getSingleColStatsForVEGPred()
   // ------------------------------------------------------------------------
 
-  NABoolean getColStatDescIndexForColumn (CollIndex& index, /* output */
-                                          const ValueId& column) const ;
+  NABoolean getColStatDescIndexForColumn(CollIndex &index, /* output */
+                                         const ValueId &column) const;
 
-
-  NABoolean getColStatDescIndexForColumn (CollIndex& index, /* output */
-                                          const ValueId& column,
-                                          NAColumnArray& partKeyColArray) const ;
+  NABoolean getColStatDescIndexForColumn(CollIndex &index, /* output */
+                                         const ValueId &column, NAColumnArray &partKeyColArray) const;
 
   // Get the Index of the ColStatDesc which has the given
   // valueID as a VEGColumn.  Does not assume that 'value'
   // must be a BASECOL, VEGREF, etc.
   //
-  NABoolean getColStatDescIndex (CollIndex& index, /* output */
-                                 const ValueId& value) const ;
+  NABoolean getColStatDescIndex(CollIndex &index, /* output */
+                                const ValueId &value) const;
 
   // This is used in the scan costing:
   // Returns the ColStats corresponding to the given column
   // This should be used to find the single column histogram
   // associated with columns. It returns NULL if the
   // histogram does not exist.
-  ColStatsSharedPtr getColStatsPtrForColumn (const ValueId& column) const ;
+  ColStatsSharedPtr getColStatsPtrForColumn(const ValueId &column) const;
 
-  ColStatsSharedPtr getColStatsPtrForPredicate (const ValueId& predicate) const ;
+  ColStatsSharedPtr getColStatsPtrForPredicate(const ValueId &predicate) const;
 
-  ColStatsSharedPtr getColStatsPtrForVEGGroup (const ValueIdSet& VEGGroup) const ;
+  ColStatsSharedPtr getColStatsPtrForVEGGroup(const ValueIdSet &VEGGroup) const;
 
-  ColStatDescSharedPtr getColStatsDescPtrForColumn(const ValueId& inputColumn) const;
+  ColStatDescSharedPtr getColStatsDescPtrForColumn(const ValueId &inputColumn) const;
 
   // This is used in join costing:
   // Given one VEG predicate, retrieve the first single column ColStats with
   // a column in the VEG predicate.
-  ColStatsSharedPtr getSingleColStatsForVEGPred (const ValueId& VEGPred) const ;
-
+  ColStatsSharedPtr getSingleColStatsForVEGPred(const ValueId &VEGPred) const;
 
   // ------------------------------------------------------------------------
   // internal consistency checking
@@ -1022,142 +887,107 @@ public:
 
   // Verify that the CSDL's internal semantics are being maintained!
   // --> loop from array index startIndex..endIndex-1
-  void verifyInternalConsistency (CollIndex startIndex, CollIndex endIndex) const ;
+  void verifyInternalConsistency(CollIndex startIndex, CollIndex endIndex) const;
 
   // Enforce the CSDL's internal semantics if they're not being maintained!
   // --> loop from array index startIndex..endIndex-1
   // --> if "printNoStatsWarning" is TRUE, then print the 6008's re: no stats
   // when there should be
-  void enforceInternalConsistency (CollIndex startIndex,
-                                   CollIndex endIndex,
-                                   NABoolean printNoStatsWarning = FALSE) ;
-
+  void enforceInternalConsistency(CollIndex startIndex, CollIndex endIndex, NABoolean printNoStatsWarning = FALSE);
 
   // ------------------------------------------------------------------------
   // looking at aggregate attributes over all ColStatDesc's in the CSDL
   // ------------------------------------------------------------------------
 
   // return the set of all applied preds to members
-  ValueIdSet appliedPreds () const;
+  ValueIdSet appliedPreds() const;
 
   // return the set of all VEGColumns of members
-  ValueIdSet VEGColumns () const;
-
+  ValueIdSet VEGColumns() const;
 
   // ------------------------------------------------------------------------
   // displaying debugging information
   // ------------------------------------------------------------------------
 
   // Display each colstatdesc in the list:
-  void print (ValueIdList selectListCols,
-              FILE *f = stdout,
-	      const char * prefix = DEFAULT_INDENT,
-	      const char * suffix = "",
-              CollHeap *c=NULL, char *buf=NULL,
-              NABoolean hideDetail=FALSE) const ;
-  void display () const ;
+  void print(ValueIdList selectListCols, FILE *f = stdout, const char *prefix = DEFAULT_INDENT, const char *suffix = "",
+             CollHeap *c = NULL, char *buf = NULL, NABoolean hideDetail = FALSE) const;
+  void display() const;
 
   // used by RelExpr::showQueryStats()
-  void showQueryStats(CollHeap *c, char *buf, ValueIdList selectListCols) const
-    { print(selectListCols, stdout, DEFAULT_INDENT, "", c, buf,
-            TRUE/*hideDetail*/); 
-    }
+  void showQueryStats(CollHeap *c, char *buf, ValueIdList selectListCols) const {
+    print(selectListCols, stdout, DEFAULT_INDENT, "", c, buf, TRUE /*hideDetail*/);
+  }
 
   // a utility routine used by mergeStats and applyDefaultPred
-  NABoolean identifyMergeCandidates(ItemExpr * VEGpred,
-				    CollIndex & rootStatIndex,
-				    CollIndexList & statsToMerge) const ;
+  NABoolean identifyMergeCandidates(ItemExpr *VEGpred, CollIndex &rootStatIndex, CollIndexList &statsToMerge) const;
 
   // It is a helper method used while computing left joins. The method locates
   // histograms that have been joined to right child using inner join and
   // now need to be null augmented to simulate the left join
   // ---------------------------------------------------------------------------
-  NABoolean
-  locateHistogramToNULLAugment(ValueIdSet EqLocalPreds, 
-                                NAList<CollIndex> &statsToMerge, 
-                                CollIndex &rootStatIndex, 
-                                CollIndex outerRefCount);
+  NABoolean locateHistogramToNULLAugment(ValueIdSet EqLocalPreds, NAList<CollIndex> &statsToMerge,
+                                         CollIndex &rootStatIndex, CollIndex outerRefCount);
 
   // --------------------------------------------------------------------
   // It is a helper method used by left joins. It merges the rows
-  // from the left side that did not match the right child back into 
-  // the joined histograms. 
+  // from the left side that did not match the right child back into
+  // the joined histograms.
   // -------------------------------------------------------------------
-  CostScalar 
-  computeLeftOuterJoinRC(NABoolean &foundFlag /*in and out*/,
-                         const ColStatDescList &leftColStatsList,
-                         CollIndex rootStatIndex);
+  CostScalar computeLeftOuterJoinRC(NABoolean &foundFlag /*in and out*/, const ColStatDescList &leftColStatsList,
+                                    CollIndex rootStatIndex);
 
   // --------------------------------------------------------------------
   // It is a helper method used by full outer joins. It merges the rows
-  // from the right side that did not match the left child back into 
-  // the joined histograms. 
+  // from the right side that did not match the left child back into
+  // the joined histograms.
   // -------------------------------------------------------------------
-  CostScalar 
-  computeFullOuterJoinRC(NABoolean &foundFlag /*in and out*/,
-                        const ColStatDescList &origColStatsList,
-                        CollIndex rootStatIndex);
+  CostScalar computeFullOuterJoinRC(NABoolean &foundFlag /*in and out*/, const ColStatDescList &origColStatsList,
+                                    CollIndex rootStatIndex);
 
   // ----------------------------------------------------------------------------------
-  // This is a helper method used by left joins. 
+  // This is a helper method used by left joins.
   // The method is called after the the rows from the left histograms of the joining column,
-  // that did not match the right side are merged back into the join result. 
+  // that did not match the right side are merged back into the join result.
   // In the following method, the histograms from the remaining columns are synchronized
   // to have the same row count
   // --------------------------------------------------------------------------------
-  void
-  synchronizeHistsWithOJRC(NAList<CollIndex> &statsToMerge, 
-                          CollIndex startIndex,
-                          CollIndex stopIndex,
-                          CollIndex rootStatIndex, 
-                          const ColStatDescList &leftColStatsList,
-                          CostScalar &oJoinResultRows, 
-                          CostScalar &baseRows);
+  void synchronizeHistsWithOJRC(NAList<CollIndex> &statsToMerge, CollIndex startIndex, CollIndex stopIndex,
+                                CollIndex rootStatIndex, const ColStatDescList &leftColStatsList,
+                                CostScalar &oJoinResultRows, CostScalar &baseRows);
 
   // -----------------------------------------------------------------------
-  // This is a helper method for left joins. It is used to 
+  // This is a helper method for left joins. It is used to
   // NULL instantiate the right histogram rows from the other side with NULLs
   // ------------------------------------------------------------------------
-  void
-  nullInstantiateHists(CollIndex startIndex, 
-                      CollIndex stopIndex,
-                      CostScalar &oJoinResultRows,
-                      ValueIdList &nulledVIds);
+  void nullInstantiateHists(CollIndex startIndex, CollIndex stopIndex, CostScalar &oJoinResultRows,
+                            ValueIdList &nulledVIds);
 
-  const MCSkewedValueList * getMCSkewedValueListForCols(ValueIdSet cols, ValueIdList &colGroup);
-  CostScalar getAvgRowcountForNonSkewedMCValues(ValueIdSet cols, MCSkewedValueList* mCSkewedValueList);
+  const MCSkewedValueList *getMCSkewedValueListForCols(ValueIdSet cols, ValueIdList &colGroup);
+  CostScalar getAvgRowcountForNonSkewedMCValues(ValueIdSet cols, MCSkewedValueList *mCSkewedValueList);
 
-private:
+ private:
   // a utility routine used by applyPred
-  NABoolean identifyMergeCandidates(ItemExpr * operand,
-				    CollIndexList & statsToMerge) const ;
+  NABoolean identifyMergeCandidates(ItemExpr *operand, CollIndexList &statsToMerge) const;
 
   // a wrapper around ItemExpr::getLeafValueIfUseStats which considers
   // whether any expression histogram matches the operand before drilling
-  // down into functions. Returns the CollIndex of the matching 
+  // down into functions. Returns the CollIndex of the matching
   // expression histogram if found.
-  ItemExpr * getNodeForStats(ItemExpr * operand,
-                             CollIndex start,
-                             CollIndex & match /* out */,
-                             NABoolean digIntoInstantiateNull = TRUE);
+  ItemExpr *getNodeForStats(ItemExpr *operand, CollIndex start, CollIndex &match /* out */,
+                            NABoolean digIntoInstantiateNull = TRUE);
 
   // a utility routine for merging a specified set of members in the given
   // ColStatDescList
-  void mergeSpecifiedStatDescs (const CollIndexList & statsToMerge,
-                                CollIndex rootIndex,
-                                MergeType mergeMethod,
-                                CollIndex numOuterColStats,
-                                CostScalar & newRowcount,
-                                CostScalar & newUec,
-                                NABoolean forVEGPred,
-				OperatorTypeEnum opType = ITM_FIRST_ITEM_OP) ;
+  void mergeSpecifiedStatDescs(const CollIndexList &statsToMerge, CollIndex rootIndex, MergeType mergeMethod,
+                               CollIndex numOuterColStats, CostScalar &newRowcount, CostScalar &newUec,
+                               NABoolean forVEGPred, OperatorTypeEnum opType = ITM_FIRST_ITEM_OP);
 
   // Prior to any Join's predicate analysis, a ColStatDescList is built
   // that contains the cross-product of the left and right tables.
   //
   // Knowledge of that cross-producting is incorporated in formulas that
   // evaluate VEG and Equality predicates.
-
 
   // We maintain multi-column uec information in order to accurately
   // estimate rowcounts for joins involving multiple predicates, the
@@ -1166,9 +996,9 @@ private:
   // read-only; that is, only one such list exists for all
   // ColStatDescList's, and no CSDL has the rights to modify it.
 
-  MultiColumnUecList * uecList_ ;
+  MultiColumnUecList *uecList_;
 
-  MultiColumnSkewedValueLists * mcSkewedValueLists_;
+  MultiColumnSkewedValueLists *mcSkewedValueLists_;
 
   // We also maintain a flag to indicate that we could have used multi-column
   // information, but as it is unavailable, we shall put a cap on the lower
@@ -1195,52 +1025,47 @@ private:
   NABoolean hasExpressionHistogram_;
 
   // the following are methods for accessing ColStatDescList data members
-public:
-  inline void setUecList (const MultiColumnUecList * list)
-    {
-      if ( list != NULL )
-        uecList_ = const_cast<MultiColumnUecList*>(list) ;
-    }
+ public:
+  inline void setUecList(const MultiColumnUecList *list) {
+    if (list != NULL) uecList_ = const_cast<MultiColumnUecList *>(list);
+  }
 
-  inline void insertIntoUecList (const MultiColumnUecList * other)
-    {
-      if ( uecList_ == NULL )
-        setUecList (other) ;
-      else
-        uecList_->insertList (other) ;
-    }
+  inline void insertIntoUecList(const MultiColumnUecList *other) {
+    if (uecList_ == NULL)
+      setUecList(other);
+    else
+      uecList_->insertList(other);
+  }
 
-  inline const MultiColumnUecList * getUecList() const   { return uecList_ ; }
+  inline const MultiColumnUecList *getUecList() const { return uecList_; }
 
-  inline MultiColumnUecList * uecList() { return uecList_ ; }
+  inline MultiColumnUecList *uecList() { return uecList_; }
 
-  inline void setMCSkewedValueLists (const MultiColumnSkewedValueLists* list)
-    {
-      if ( list != NULL )
-        mcSkewedValueLists_ = const_cast<MultiColumnSkewedValueLists*>(list) ;
-    }
+  inline void setMCSkewedValueLists(const MultiColumnSkewedValueLists *list) {
+    if (list != NULL) mcSkewedValueLists_ = const_cast<MultiColumnSkewedValueLists *>(list);
+  }
 
-  inline const MultiColumnSkewedValueLists * getMCSkewedValueLists() const   { return mcSkewedValueLists_ ; }
+  inline const MultiColumnSkewedValueLists *getMCSkewedValueLists() const { return mcSkewedValueLists_; }
 
-  inline MultiColumnSkewedValueLists * mcSkewedValueLists() { return mcSkewedValueLists_ ; }
+  inline MultiColumnSkewedValueLists *mcSkewedValueLists() { return mcSkewedValueLists_; }
 
-  inline NABoolean isCapForLowBound () const       { return useCapForLowBound_; }
+  inline NABoolean isCapForLowBound() const { return useCapForLowBound_; }
 
-  inline void setCapForLowBound (NABoolean flag=TRUE)    { useCapForLowBound_ = flag; }
+  inline void setCapForLowBound(NABoolean flag = TRUE) { useCapForLowBound_ = flag; }
 
-  inline NABoolean isJoinOnSingleCol () const  { return joinOnSingleCol_; }
+  inline NABoolean isJoinOnSingleCol() const { return joinOnSingleCol_; }
 
-  inline void setJoinOnSingleCol (NABoolean flag = TRUE) { joinOnSingleCol_ = flag; }
+  inline void setJoinOnSingleCol(NABoolean flag = TRUE) { joinOnSingleCol_ = flag; }
 
-  void setInputCard (CostScalar rows);
+  void setInputCard(CostScalar rows);
 
-  inline CostScalar getScanRowCountWithoutHint () const       { return scanRowCountWithoutHint_; }
+  inline CostScalar getScanRowCountWithoutHint() const { return scanRowCountWithoutHint_; }
 
-  inline void setScanRowCountWithoutHint (CostScalar scanRowCountWithoutHint)
-    { scanRowCountWithoutHint_ = scanRowCountWithoutHint; }
+  inline void setScanRowCountWithoutHint(CostScalar scanRowCountWithoutHint) {
+    scanRowCountWithoutHint_ = scanRowCountWithoutHint;
+  }
 
   inline void setHasExpressionHistogram() { hasExpressionHistogram_ = TRUE; }
 };
-
 
 #endif /* COLSTATDESC_H */

@@ -39,17 +39,13 @@
 // -----------------------------------------------------------------------
 // Constructor and destructor.
 // -----------------------------------------------------------------------
-HeapID::HeapID()
-{
+HeapID::HeapID() {
   // Assign a unique ID.
   heapNum = HeapLogRoot::assignHeapNum();
 }
 
-HeapID::~HeapID()
-{
-  if (heapNum >= 0 &&
-      HeapLogRoot::log != NULL)
-    HeapLogRoot::deleteLogSegment(heapNum, TRUE);
+HeapID::~HeapID() {
+  if (heapNum >= 0 && HeapLogRoot::log != NULL) HeapLogRoot::deleteLogSegment(heapNum, TRUE);
 }
 
 #endif

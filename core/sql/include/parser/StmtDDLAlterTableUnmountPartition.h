@@ -32,7 +32,7 @@
  *               The methods in this class are defined either in this
  *               header file or the source file StmtDDLAlter.C.
  *
- *               
+ *
  * Created:      9/20/95
  * Language:     C++
  *
@@ -41,7 +41,6 @@
  *
  *****************************************************************************
  */
-
 
 #include "StmtDDLAlterTable.h"
 #include "ElemDDLPartitionNameAndForValues.h"
@@ -58,28 +57,20 @@ class StmtDDLAlterTableUnmountPartition;
 // -----------------------------------------------------------------------
 // definition of class StmtDDLAlterTableUnmountPartition
 // -----------------------------------------------------------------------
-class StmtDDLAlterTableUnmountPartition : public StmtDDLAlterTable
-{
-  friend void StmtDDLAlterTableUnmountParititon_visit(ElemDDLNode* pThisNode,
-    CollIndex index,
-    ElemDDLNode* pElement);
+class StmtDDLAlterTableUnmountPartition : public StmtDDLAlterTable {
+  friend void StmtDDLAlterTableUnmountParititon_visit(ElemDDLNode *pThisNode, CollIndex index, ElemDDLNode *pElement);
 
-public:
-
+ public:
   // constructor
-  StmtDDLAlterTableUnmountPartition(ElemDDLNode* pPartitionAction);
-
+  StmtDDLAlterTableUnmountPartition(ElemDDLNode *pPartitionAction);
 
   // virtual destructor
   virtual ~StmtDDLAlterTableUnmountPartition();
 
   // cast
-  virtual StmtDDLAlterTableUnmountPartition* castToStmtDDLAlterTableUnmountPartition();
+  virtual StmtDDLAlterTableUnmountPartition *castToStmtDDLAlterTableUnmountPartition();
 
-  ElemDDLPartitionNameAndForValuesArray& getPartitionNameAndForValuesArray()
-  {
-    return partNameAndForValuesArray_;
-  }
+  ElemDDLPartitionNameAndForValuesArray &getPartitionNameAndForValuesArray() { return partNameAndForValuesArray_; }
 
   // This method collects information in the parse sub-tree and copies it
   // to the current parse node.
@@ -88,11 +79,9 @@ public:
   // method for tracing
   virtual const NAString getText() const;
 
-private:
+ private:
   ElemDDLPartitionNameAndForValuesArray partNameAndForValuesArray_;
 
-}; // class StmtDDLAlterTableUnmountPartition
+};  // class StmtDDLAlterTableUnmountPartition
 
-
-
-#endif // STMTDDLALTERTABLEUNMOUNTPARTITION_H
+#endif  // STMTDDLALTERTABLEUNMOUNTPARTITION_H

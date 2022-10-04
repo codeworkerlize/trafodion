@@ -51,40 +51,30 @@
 // This is a departure from the way other RelExpr's are organized.
 //
 
-
 ///////////////////////////////////////////////////////////////////////////
-//      
+//
 //            RelSample Class
 //
 //
 ///////////////////////////////////////////////////////////////////////////
 
-RelSample::RelSample(RelExpr *child, 
-                     SampleTypeEnum sampleType, 
-                     ItemExpr *balanceExpr,
-                     ItemExpr *requiredOrder,
+RelSample::RelSample(RelExpr *child, SampleTypeEnum sampleType, ItemExpr *balanceExpr, ItemExpr *requiredOrder,
                      CollHeap *oHeap)
-  : RelExpr(REL_SAMPLE, child, NULL, oHeap), 
-    balanceExprTree_(balanceExpr),
-    sampleType_(sampleType),
-    sampleScanSucceeded_(FALSE),
-    requiredOrderTree_(requiredOrder)
-{
+    : RelExpr(REL_SAMPLE, child, NULL, oHeap),
+      balanceExprTree_(balanceExpr),
+      sampleType_(sampleType),
+      sampleScanSucceeded_(FALSE),
+      requiredOrderTree_(requiredOrder) {
   setNonCacheable();
-  if (balanceExprTree_ != NULL) 
-  {
+  if (balanceExprTree_ != NULL) {
     ((ItmBalance *)balanceExprTree_)->propagateSampleType(sampleType);
     ((ItmBalance *)balanceExprTree_)->rearrangeChildren();
   }
 }
 
-RelSample::~RelSample()
-{
-}
+RelSample::~RelSample() {}
 
-ItemExpr *
-RelSample::removeRequiredOrderTree()
-{
+ItemExpr *RelSample::removeRequiredOrderTree() {
   ItemExpr *requiredOrderTree = requiredOrderTree_;
 
   requiredOrderTree_ = NULL;
@@ -92,67 +82,52 @@ RelSample::removeRequiredOrderTree()
   return requiredOrderTree;
 }
 
-
-Float32 RelSample::getSamplePercent() const
-{
+Float32 RelSample::getSamplePercent() const {
   // Call ONLY if: RANDOM or CLUSTER sampling and relative size
   // and NOT stratified sampling
-  if (sampleType() != RANDOM &&
-      sampleType() != CLUSTER)
-    return -1.0;
+  if (sampleType() != RANDOM && sampleType() != CLUSTER) return -1.0;
 
-  ItmBalance * balExp = NULL;
+  ItmBalance *balExp = NULL;
 
   if (balanceExprTree_ != NULL)
     balExp = (ItmBalance *)balanceExprTree_;
-  else
-  {
-    if (NOT balanceExpr().isEmpty())
-    {
+  else {
+    if (NOT balanceExpr().isEmpty()) {
       ValueId exprId;
       balanceExpr().getFirst(exprId);
       balExp = (ItmBalance *)(exprId.getItemExpr());
     }
   }
 
-  if (balExp != NULL) 
-  {
-    if ((balExp->isAbsolute() == TRUE) OR 
-        (balExp->getNextBalance() != NULL))
-      return -1.0;
-    
+  if (balExp != NULL) {
+    if ((balExp->isAbsolute() == TRUE) OR(balExp->getNextBalance() != NULL)) return -1.0;
+
     double size = balExp->getSampleConstValue();
-    size = size / 100; // Size specified as percent
+    size = size / 100;  // Size specified as percent
     return (float)size;
   }
   return -1.0;
 }
 
-Lng32 RelSample::getClusterSize() const
-{
+Lng32 RelSample::getClusterSize() const {
   // Call ONLY if: CLUSTER sampling
   // and NOT stratified sampling
-  if (sampleType() != CLUSTER)
-    return -1;
+  if (sampleType() != CLUSTER) return -1;
 
-  ItmBalance * balExp = NULL;
+  ItmBalance *balExp = NULL;
 
   if (balanceExprTree_ != NULL)
     balExp = (ItmBalance *)balanceExprTree_;
-  else
-  {
-    if (NOT balanceExpr().isEmpty())
-    {
+  else {
+    if (NOT balanceExpr().isEmpty()) {
       ValueId exprId;
       balanceExpr().getFirst(exprId);
       balExp = (ItmBalance *)(exprId.getItemExpr());
     }
   }
 
-  if (balExp != NULL) 
-  {
-    if (balExp->getNextBalance() != NULL)
-      return -1;
+  if (balExp != NULL) {
+    if (balExp->getNextBalance() != NULL) return -1;
 
     double size = balExp->getClusterConstValue();
     return (Lng32)size;
@@ -160,8 +135,7 @@ Lng32 RelSample::getClusterSize() const
   return -1;
 }
 
-NABoolean RelSample::isSimpleRandomRelative() const
-{
+NABoolean RelSample::isSimpleRandomRelative() const {
   // True only if: RANDOM sampling and relative size
   // and NOT stratified sampling (except for random
   // sample of a single stratum).
@@ -183,12 +157,11 @@ NABoolean RelSample::isSimpleRandomRelative() const
 // Outputs: A HashValue of this node and all nodes in the
 // derivation chain below (towards the base class) this node.
 //
-HashValue RelSample::topHash()
-{
+HashValue RelSample::topHash() {
   // Compute a hash value of the derivation chain below this node.
   //
   HashValue result = RelExpr::topHash();
-  
+
   result ^= sampleType();
   result ^= balanceExpr();
   result ^= sampledColumns();
@@ -211,32 +184,26 @@ HashValue RelSample::topHash()
 // In order to match, this node must match all the way down the
 // derivation chain to the RelExpr class.
 //
-NABoolean
-RelSample::duplicateMatch(const RelExpr & other) const
-{
+NABoolean RelSample::duplicateMatch(const RelExpr &other) const {
   // Compare this node with 'other' down the derivation chain.
   //
-  if (!RelExpr::duplicateMatch(other))
-    return FALSE;
-  
+  if (!RelExpr::duplicateMatch(other)) return FALSE;
+
   // Cast the RelExpr to a RelSample node.
   //
-  RelSample &o = (RelSample &) other;
-  
-  // If the sampling type and sample size expressions are same then the 
+  RelSample &o = (RelSample &)other;
+
+  // If the sampling type and sample size expressions are same then the
   // nodes are identical
   //
-  if (!(sampleType() == o.sampleType()))
-    return FALSE;
-  
-  if(!(balanceExpr() == o.balanceExpr()))
-    return FALSE;
-  
-  // If the required order keys are not the same 
+  if (!(sampleType() == o.sampleType())) return FALSE;
+
+  if (!(balanceExpr() == o.balanceExpr())) return FALSE;
+
+  // If the required order keys are not the same
   // then the nodes are not identical
   //
-  if (!(requiredOrder() == o.requiredOrder()))
-    return FALSE;
+  if (!(requiredOrder() == o.requiredOrder())) return FALSE;
 
   return TRUE;
 }
@@ -257,47 +224,40 @@ RelSample::duplicateMatch(const RelExpr & other) const
 // from a copyTopNode method on a class derived from this one. If it
 // is NULL, then this is the top of the derivation chain and an UnPackRows
 // node must be constructed.
-// 
+//
 // In either case, the relevant data members must be copied to 'derivedNode'
 // and 'derivedNode' is passed to the copyTopNode method of the class
 // below this one in the derivation chain (RelExpr::copyTopNode() in this
 // case).
-// 
-RelExpr *
-RelSample::copyTopNode(RelExpr *derivedNode, CollHeap *outHeap)
-{
+//
+RelExpr *RelSample::copyTopNode(RelExpr *derivedNode, CollHeap *outHeap) {
   RelSample *result;
-  
+
   if (derivedNode == NULL)
     // This is the top of the derivation chain
-    result = new (outHeap) RelSample(child(0), 
-                                     sampleType(), 
-                                     balanceExprTree()
-                                     );
+    result = new (outHeap) RelSample(child(0), sampleType(), balanceExprTree());
   else
     // A node has already been constructed as a derived class.
-    result = (RelSample *) derivedNode;
-  
+    result = (RelSample *)derivedNode;
+
   // Copy the relavant fields.
-  
+
   result->sampleType_ = sampleType();
 
   result->sampleScanSucceeded_ = sampleScanSucceeded();
-  
-  if (balanceExprTree() != NULL)
-    result->balanceExprTree() = balanceExprTree()->copyTree(outHeap)->castToItemExpr();
-  
+
+  if (balanceExprTree() != NULL) result->balanceExprTree() = balanceExprTree()->copyTree(outHeap)->castToItemExpr();
+
   result->balanceExpr() = balanceExpr();
-  
+
   result->sampledColumns() = sampledColumns();
 
   result->requiredOrder() = requiredOrder();
-  
+
   // Copy any data members from the classes lower in the derivation chain.
   //
   return RelExpr::copyTopNode(result, outHeap);
 }
-
 
 // RelSample::addLocalExpr() -----------------------------------------------
 // Insert into a list of expressions all the expressions of this node and
@@ -319,24 +279,20 @@ RelSample::copyTopNode(RelExpr *derivedNode, CollHeap *outHeap)
 // It then calls RelExpr::addLocalExpr() which will add any RelExpr
 // expressions to the list.
 //
-void RelSample::addLocalExpr(LIST(ExprNode *) &xlist,
-                             LIST(NAString) &llist) const
-{
-  if (sampledColumns().entries() > 0)
-  {
+void RelSample::addLocalExpr(LIST(ExprNode *) & xlist, LIST(NAString) & llist) const {
+  if (sampledColumns().entries() > 0) {
     xlist.insert(sampledColumns().rebuildExprTree(ITM_ITEM_LIST));
     llist.insert("sampled_columns");
   }
-  
-  if (balanceExprTree() || balanceExpr().entries() > 0)
-  {
-    if (balanceExprTree_) 
+
+  if (balanceExprTree() || balanceExpr().entries() > 0) {
+    if (balanceExprTree_)
       xlist.insert(balanceExprTree_);
-    else 
+    else
       xlist.insert(balanceExpr().rebuildExprTree(ITM_ITEM_LIST));
     llist.insert("balance_expression");
   }
-  
+
   if (requiredOrderTree_) {
     xlist.insert(requiredOrderTree_);
     llist.insert("required_order");
@@ -345,7 +301,7 @@ void RelSample::addLocalExpr(LIST(ExprNode *) &xlist,
     llist.insert("required_order");
   }
 
-  RelExpr::addLocalExpr(xlist,llist);
+  RelExpr::addLocalExpr(xlist, llist);
 }
 
 // RelSample::getPotentialOutputValues() ---------------------------------
@@ -358,13 +314,9 @@ void RelSample::addLocalExpr(LIST(ExprNode *) &xlist,
 //
 // The potential outputs for the RelSample node are the new columns
 // generated by the RelSample node. The new columns generated by RelSample
-// node are "Sampled" versions of all the potential outputs of its child. 
+// node are "Sampled" versions of all the potential outputs of its child.
 //
-void 
-RelSample::getPotentialOutputValues(ValueIdSet & outputValues) const
-{
-  outputValues += sampledColumns();
-} 
+void RelSample::getPotentialOutputValues(ValueIdSet &outputValues) const { outputValues += sampledColumns(); }
 
 // RelSample::pushdownCoveredExpr() ------------------------------------
 //
@@ -383,45 +335,39 @@ RelSample::getPotentialOutputValues(ValueIdSet & outputValues) const
 //    assigned new predicates or is expected to compute some of the
 //    expressions that are required by its parent.
 //
-// For the sample operator, only the balance expression contains references 
+// For the sample operator, only the balance expression contains references
 // to any outputs produced by the child. These expressions refer to the unsampled
 // columns and therefore can be pushed down. However, the predicatesOnParent if
-// they exist refer to the sampled columns and therefore they will not be pushed 
-// down. 
+// they exist refer to the sampled columns and therefore they will not be pushed
+// down.
 // ---------------------------------------------------------------------
 
-void 
-RelSample::pushdownCoveredExpr(const ValueIdSet &outputExpr,
-                               const ValueIdSet &newExternalInputs,
-                               ValueIdSet &predicatesOnParent,
-			       const ValueIdSet *setOfValuesReqdByParent,
-                               Lng32 childIndex
-                              )
-{
+void RelSample::pushdownCoveredExpr(const ValueIdSet &outputExpr, const ValueIdSet &newExternalInputs,
+                                    ValueIdSet &predicatesOnParent, const ValueIdSet *setOfValuesReqdByParent,
+                                    Lng32 childIndex) {
   ValueIdSet exprOnParent;
-  if (setOfValuesReqdByParent)
-    exprOnParent = *setOfValuesReqdByParent;
+  if (setOfValuesReqdByParent) exprOnParent = *setOfValuesReqdByParent;
   exprOnParent += outputExpr;
   ValueId refVal;
   ValueIdSet outputSet;
-  
+
   // Prune from the sampledColumns() ValueIdSet, those expressions
   // that are not needed above (in setOfValuesReqdByParent) or by
   // the selectionPred.
   //
-  for(ValueId sampleCol = sampledColumns().init(); sampledColumns().next(sampleCol);
-  sampledColumns().advance(sampleCol)) {
-    if(!exprOnParent.referencesTheGivenValue(sampleCol, refVal) &&
-      !selectionPred().referencesTheGivenValue(sampleCol, refVal)) {
+  for (ValueId sampleCol = sampledColumns().init(); sampledColumns().next(sampleCol);
+       sampledColumns().advance(sampleCol)) {
+    if (!exprOnParent.referencesTheGivenValue(sampleCol, refVal) &&
+        !selectionPred().referencesTheGivenValue(sampleCol, refVal)) {
       sampledColumns() -= sampleCol;
     }
   }
-  
+
   // Remove all expressions from exprOnParent.  They
   // can't be pushed down!
   //
   exprOnParent.clear();
-  
+
   // Add all the values required for the Sample expressions
   // to the values required by the parent.  These expression
   // can't be pushed down either, but attempting to push them
@@ -430,43 +376,32 @@ RelSample::pushdownCoveredExpr(const ValueIdSet &outputExpr,
   outputSet += sampledColumns();
 
   exprOnParent += balanceExpr();
-  
+
   exprOnParent.insertList(requiredOrder());
 
-  RelExpr::pushdownCoveredExpr(outputSet,
-                               newExternalInputs,
-                               predicatesOnParent,
-			       &exprOnParent,
-                               childIndex);
-  
-} // RelSample::pushdownCoveredExpr
+  RelExpr::pushdownCoveredExpr(outputSet, newExternalInputs, predicatesOnParent, &exprOnParent, childIndex);
 
-Context* RelSample::createContextForAChild(Context* myContext,
-                                           PlanWorkSpace* pws,
-                                           Lng32& childIndex)
-{
+}  // RelSample::pushdownCoveredExpr
+
+Context *RelSample::createContextForAChild(Context *myContext, PlanWorkSpace *pws, Lng32 &childIndex) {
   // ---------------------------------------------------------------------
-  // If one Context has been generated for each child, return NULL 
+  // If one Context has been generated for each child, return NULL
   // to signal completion.
   // ---------------------------------------------------------------------
-  if (pws->getCountOfChildContexts() == getArity())
-    return NULL;
+  if (pws->getCountOfChildContexts() == getArity()) return NULL;
 
   childIndex = 0;
 
   Lng32 planNumber = 0;
-  const ReqdPhysicalProperty* rppForMe = myContext->getReqdPhysicalProperty();
-  PartitioningRequirement* partReqForMe = 
-    rppForMe->getPartitioningRequirement();
+  const ReqdPhysicalProperty *rppForMe = myContext->getReqdPhysicalProperty();
+  PartitioningRequirement *partReqForMe = rppForMe->getPartitioningRequirement();
 
   // If a partitioning requirement exists and it requires broadcast
   // replication, then return NULL now. Only an exchange operator
   // can satisfy a broadcast replication partitioning requirement.
-  if ((partReqForMe != NULL) AND
-      partReqForMe->isRequirementReplicateViaBroadcast())
-    return NULL;
+  if ((partReqForMe != NULL) AND partReqForMe->isRequirementReplicateViaBroadcast()) return NULL;
 
-  RequirementGenerator rg(child(0),rppForMe);
+  RequirementGenerator rg(child(0), rppForMe);
 
   // ---------------------------------------------------------------------
   // Add the order requirements needed for this RelSample node
@@ -481,40 +416,34 @@ Context* RelSample::createContextForAChild(Context* myContext,
   // Shouldn't/Can't add a sort order type requirement
   // if we are in DP2
   if (rppForMe->executeInDP2())
-    rg.addSortKey(requiredOrder(),NO_SOT);
+    rg.addSortKey(requiredOrder(), NO_SOT);
   else
-    rg.addSortKey(requiredOrder(),ESP_SOT);
+    rg.addSortKey(requiredOrder(), ESP_SOT);
 
   // Can not execute absolute sampling in parallel
   //
-  if(!isSimpleRandomRelative())
-    rg.addNumOfPartitions(1);
+  if (!isSimpleRandomRelative()) rg.addNumOfPartitions(1);
 
   // ---------------------------------------------------------------------
   // Done adding all the requirements together, now see whether it worked
   // and give up if it is not possible to satisfy them
   // ---------------------------------------------------------------------
-  if (NOT rg.checkFeasibility())
-    return NULL;
+  if (NOT rg.checkFeasibility()) return NULL;
 
   // ---------------------------------------------------------------------
   // Compute the cost limit to be applied to the child.
   // ---------------------------------------------------------------------
-  CostLimit* costLimit = computeCostLimit(myContext, pws);
-  
+  CostLimit *costLimit = computeCostLimit(myContext, pws);
+
   // ---------------------------------------------------------------------
   // Get a Context for optimizing the child.
   // Search for an existing Context in the CascadesGroup to which the
-  // child belongs that requires the same properties as those in 
+  // child belongs that requires the same properties as those in
   // rppForChild. Reuse it, if found. Otherwise, create a new Context
   // that contains rppForChild as the required physical properties..
   // ---------------------------------------------------------------------
-  Context* result = shareContext(childIndex,
-                                 rg.produceRequirement(),
-                                 myContext->getInputPhysicalProperty(), 
-                                 costLimit, 
-                                 myContext,
-                                 myContext->getInputLogProp());
+  Context *result = shareContext(childIndex, rg.produceRequirement(), myContext->getInputPhysicalProperty(), costLimit,
+                                 myContext, myContext->getInputLogProp());
 
   // ---------------------------------------------------------------------
   // Store the Context for the child in the PlanWorkSpace.
@@ -522,8 +451,8 @@ Context* RelSample::createContextForAChild(Context* myContext,
   pws->storeChildContext(childIndex, planNumber, result);
 
   return result;
-  
-} // RelSample::createContextForAChild()
+
+}  // RelSample::createContextForAChild()
 
 // RelSample::removeBalanceExprTree() -------------------------------------
 // Return the sizeExprTree_ ItemExpr tree and set to NULL,
@@ -537,9 +466,7 @@ Context* RelSample::createContextForAChild(Context* myContext,
 // Called by RelSample::bindNode(). The value of sizeExprTree_ is not
 // needed after the binder.
 //
-ItemExpr *
-RelSample::removeBalanceExprTree()
-{
+ItemExpr *RelSample::removeBalanceExprTree() {
   ItemExpr *result = balanceExprTree();
   balanceExprTree_ = (ItemExpr *)NULL;
   return result;
@@ -579,24 +506,21 @@ RelSample::removeBalanceExprTree()
 //    IN : a reference to the location that contains a pointer to
 //         the RelExpr that is currently being processed.
 //
-void RelSample::transformNode(NormWA &normWARef,
-                              ExprGroupId &locationOfPointerToMe)
-{
-  CMPASSERT( this == locationOfPointerToMe );
-  
+void RelSample::transformNode(NormWA &normWARef, ExprGroupId &locationOfPointerToMe) {
+  CMPASSERT(this == locationOfPointerToMe);
+
   // If this node has already been transformed, we are done.
   //
-  if (nodeIsTransformed())
-    return;
-  
+  if (nodeIsTransformed()) return;
+
   // Make sure that it is only transformed once.
   //
   markAsTransformed();
-  
-  //Sample node does not pull up the predicates and so the equality 
-  //predicates on below this node are not true above this node,
-  //so create a new VEGRegion when transfroming the child 
-  normWARef.allocateAndSetVEGRegion(IMPORT_AND_EXPORT,this);
+
+  // Sample node does not pull up the predicates and so the equality
+  // predicates on below this node are not true above this node,
+  // so create a new VEGRegion when transfroming the child
+  normWARef.allocateAndSetVEGRegion(IMPORT_AND_EXPORT, this);
 
   // transformNode takes up a bound tree and turns into a transformed
   // tree. For a RelExpr that means the following.
@@ -608,28 +532,21 @@ void RelSample::transformNode(NormWA &normWARef,
   //        required inputs are modified
   //    + the required inputs of the node itself are changed from
   //        being a sufficient set to being a sufficient minimal set.
-  //       
+  //
   // Transform the child.
   // Pull up their transformed predicates
   // recompute their required inputs.
   //
-  child(0)->transformNode(normWARef, child(0)); 
-  
-  if(balanceExpr().transformNode(normWARef,
-    child(0),
-    getGroupAttr()->getCharacteristicInputs())) 
-  {
+  child(0)->transformNode(normWARef, child(0));
+
+  if (balanceExpr().transformNode(normWARef, child(0), getGroupAttr()->getCharacteristicInputs())) {
     // -----------------------------------------------------------------
     // Transform my new child
     // -----------------------------------------------------------------
     child(0)->transformNode(normWARef, child(0));
   }
-  
-  if(requiredOrder().
-     transformNode(normWARef,
-                   child(0),
-                   getGroupAttr()->getCharacteristicInputs())) {
 
+  if (requiredOrder().transformNode(normWARef, child(0), getGroupAttr()->getCharacteristicInputs())) {
     // The requiredOrder list apparently had some subqueries that had
     // not been processed before (is this possible?). Normalize the
     // new tree that has become our child.
@@ -643,13 +560,12 @@ void RelSample::transformNode(NormWA &normWARef,
   // of whoever my children are now.
   //
   pullUpPreds();
-  
 
   // transform the selection predicates
   //
   transformSelectPred(normWARef, locationOfPointerToMe);
-  
-} // RelSample::transformNode()
+
+}  // RelSample::transformNode()
 
 // RelSample::rewriteNode() ---------------------------------------------
 // rewriteNode() is the virtual function that computes
@@ -661,36 +577,30 @@ void RelSample::transformNode(NormWA &normWARef,
 // NormWA & normWARef
 //    IN : a pointer to the normalizer work area
 //
-void RelSample::rewriteNode(NormWA & normWARef)
-{
-
+void RelSample::rewriteNode(NormWA &normWARef) {
   // locate the VEGRegion that was created for this node during transformation
   normWARef.locateAndSetVEGRegion(this);
 
-  child(0)->rewriteNode(normWARef); 
+  child(0)->rewriteNode(normWARef);
 
   balanceExpr().normalizeNode(normWARef);
 
   requiredOrder().normalizeNode(normWARef);
-  
+
   normWARef.restoreOriginalVEGRegion();
-  
+
   selectionPred().normalizeNode(normWARef);
 
   // rewrite expression in the group attributes
   getGroupAttr()->normalizeInputsAndOutputs(normWARef);
 
-} // RelSample::rewriteNode()
+}  // RelSample::rewriteNode()
 
-
-RelExpr * RelSample::normalizeNode(NormWA & normWARef)
-{
-  if (nodeIsNormalized())
-    return this;
+RelExpr *RelSample::normalizeNode(NormWA &normWARef) {
+  if (nodeIsNormalized()) return this;
   markAsNormalized();
 
-  pushdownCoveredExpr(getGroupAttr()->getCharacteristicOutputs(),
-                      getGroupAttr()->getCharacteristicInputs(),
+  pushdownCoveredExpr(getGroupAttr()->getCharacteristicOutputs(), getGroupAttr()->getCharacteristicInputs(),
                       selectionPred());
 
   // locate the VEGRegion that was created for this node during transformation
@@ -705,20 +615,18 @@ RelExpr * RelSample::normalizeNode(NormWA & normWARef)
   return this;
 }
 
-
 // RelSample::pullUpPreds() --------------------------------------------
 // is redefined to disallow the pullup of predicates
 // from the operator's child. The outputs of the sample operator
-// are "sampled" versions of the outputs of its child. 
+// are "sampled" versions of the outputs of its child.
 //
-void RelSample::pullUpPreds()
-{
+void RelSample::pullUpPreds() {
   // ---------------------------------------------------------------------
   // Simply don't pull up child's selection predicates. Still need to tell
   // child to recompute its outer references due to the warning below.
   // ---------------------------------------------------------------------
   child(0)->recomputeOuterReferences();
-  
+
   // ---------------------------------------------------------------------
   // WARNING: One rule that this procedure must follow is
   // that recomputeOuterReferences() must be called on the children even
@@ -736,8 +644,7 @@ void RelSample::pullUpPreds()
 //
 // Side Effects: sets the characteristicInputs of the groupAttr.
 //
-void RelSample::recomputeOuterReferences()
-{
+void RelSample::recomputeOuterReferences() {
   // This is virtual method on RelExpr.
   // When this is called it is assumed that the children have already
   // been transformed.
@@ -747,45 +654,41 @@ void RelSample::recomputeOuterReferences()
   // That implies that the group attributes have already been allocated
   // and the required inputs is a sufficient (but not necessarilly minimum)
   // set of external values needed to evaluate all expressions in this subtree.
-  // 
+  //
   // Delete all those input values that are no longer referenced on
-  // this operator because the predicates that reference them have 
+  // this operator because the predicates that reference them have
   // been pulled up.
   //
-  ValueIdSet outerRefs = getGroupAttr()->getCharacteristicInputs(); 
-  
+  ValueIdSet outerRefs = getGroupAttr()->getCharacteristicInputs();
+
   // The set of valueIds need by this node.
   //
   ValueIdSet allMyExpr(getSelectionPred());
-  
+
   allMyExpr += balanceExpr();
 
   allMyExpr.insertList(requiredOrder());
-  
-  
+
   // Remove from outerRefs those valueIds that are not needed
   // by all my expressions
   //
   allMyExpr.weedOutUnreferenced(outerRefs);
-  
+
   // Add to outerRefs those that my children need.
   //
   outerRefs += child(0).getPtr()->getGroupAttr()->getCharacteristicInputs();
-  
+
   // set my Character Inputs to this new minimal set.
   //
   getGroupAttr()->setCharacteristicInputs(outerRefs);
-} // RelSample::recomputeOuterReferences()  
+}  // RelSample::recomputeOuterReferences()
 
-
-CostScalar RelSample::computeResultSize(const CostScalar &childCardinality)
-{
-
+CostScalar RelSample::computeResultSize(const CostScalar &childCardinality) {
   // CostScalar resultSize;
-  
-  // Compute the result size based on the size expression. 
+
+  // Compute the result size based on the size expression.
   // For now, set it to the child cardinality
-  
+
   CMPASSERT(balanceExpr().entries() == 1);
 
   ValueId balanceRoot;
@@ -795,10 +698,9 @@ CostScalar RelSample::computeResultSize(const CostScalar &childCardinality)
   ItmBalance *balanceExpr = (ItmBalance *)balanceRoot.getItemExpr();
 
   CostScalar resultSize = balanceExpr->computeResultSize(childCardinality);
-  
+
   return resultSize;
 }
-
 
 // RelSample::synthEstLogProp() ------------------------------------------
 // synthesize estimated logical properties given a specific set of
@@ -810,100 +712,79 @@ CostScalar RelSample::computeResultSize(const CostScalar &childCardinality)
 //    IN : A set of input logical properties used to estimate the logical
 //         properities of this node.
 //
-void RelSample::synthEstLogProp(const EstLogPropSharedPtr& inputEstLogProp)
-{
-  if (getGroupAttr()->isPropSynthesized(inputEstLogProp) == TRUE) 
-    return;
-  
+void RelSample::synthEstLogProp(const EstLogPropSharedPtr &inputEstLogProp) {
+  if (getGroupAttr()->isPropSynthesized(inputEstLogProp) == TRUE) return;
+
   // Get the estimated logical properties of the child. To be used
   // to estimate the logical properties of this node.
   //
-  EstLogPropSharedPtr childEstProp  = child(0).outputLogProp(inputEstLogProp);
+  EstLogPropSharedPtr childEstProp = child(0).outputLogProp(inputEstLogProp);
   const ColStatDescList &childColStats = childEstProp->getColStats();
 
-  CostScalar rowCount = 
-    computeResultSize(childEstProp->getResultCardinality());
+  CostScalar rowCount = computeResultSize(childEstProp->getResultCardinality());
 
-  for(CollIndex i = 0; i < childColStats.entries(); i++) {
+  for (CollIndex i = 0; i < childColStats.entries(); i++) {
     ColStatDescSharedPtr columnStatDesc = childColStats[i];
     CostScalar oldCount = columnStatDesc->getColStats()->getRowcount();
 
-    if (oldCount != rowCount)
-      columnStatDesc->synchronizeStats(oldCount, rowCount);
+    if (oldCount != rowCount) columnStatDesc->synchronizeStats(oldCount, rowCount);
   }
 
-  EstLogPropSharedPtr myEstProps =
-    synthEstLogPropForUnaryLeafOp(inputEstLogProp,
-                                  childColStats,
-                                  rowCount);
+  EstLogPropSharedPtr myEstProps = synthEstLogPropForUnaryLeafOp(inputEstLogProp, childColStats, rowCount);
 
   // Set the logical properties of this node.
   //
   getGroupAttr()->addInputOutputLogProp(inputEstLogProp, myEstProps);
-  
-} // RelSample::synthEstLogProp
 
+}  // RelSample::synthEstLogProp
 
 // RelSample::synthLogProp ----------------------------------------------
 // synthesize logical properties
 //
-void
-RelSample::synthLogProp(NormWA * normWAPtr)
-{
+void RelSample::synthLogProp(NormWA *normWAPtr) {
   // check to see whether properties are already synthesized.
-  if (getGroupAttr()->existsLogExprForSynthesis()) 
-    return;
-  
+  if (getGroupAttr()->existsLogExprForSynthesis()) return;
+
   RelExpr::synthLogProp(normWAPtr);
-  
+
   ValueIdSet nonRIConstraints;
-  for (ValueId x= child(0).getGroupAttr()->getConstraints().init();
-       child(0).getGroupAttr()->getConstraints().next(x);
-       child(0).getGroupAttr()->getConstraints().advance(x) )
-    {
-      if ((x.getItemExpr()->getOperatorType() != ITM_COMP_REF_OPT_CONSTRAINT) &&
-	  (x.getItemExpr()->getOperatorType() != ITM_REF_OPT_CONSTRAINT))
-	  nonRIConstraints += x;
-    }
+  for (ValueId x = child(0).getGroupAttr()->getConstraints().init(); child(0).getGroupAttr()->getConstraints().next(x);
+       child(0).getGroupAttr()->getConstraints().advance(x)) {
+    if ((x.getItemExpr()->getOperatorType() != ITM_COMP_REF_OPT_CONSTRAINT) &&
+        (x.getItemExpr()->getOperatorType() != ITM_REF_OPT_CONSTRAINT))
+      nonRIConstraints += x;
+  }
   getGroupAttr()->addConstraints(nonRIConstraints);
-  getGroupAttr()->addSuitableRefOptConstraints
-    (child(0).getGroupAttr()->getConstraints());
+  getGroupAttr()->addSuitableRefOptConstraints(child(0).getGroupAttr()->getConstraints());
 
-} // RelSample::synthLogProp()
-
-
+}  // RelSample::synthLogProp()
 
 // RelSample::bindNode - Bind the RelSample node.
 // This node is generated by the parser when it encounters a SAMPLE
 // clause. This node has two item expressions:
-// 
-// sizeExprTree(): This expression contains either a simple size 
-// expression containing a size, type and normal/oversampling field 
-// or a tree of IfThenElse nodes each with a predicate on a column 
-// and a simple size expression followed by an optional else part. 
 //
-// skipPeriodTree(): This is a simple size expression with no reference 
+// sizeExprTree(): This expression contains either a simple size
+// expression containing a size, type and normal/oversampling field
+// or a tree of IfThenElse nodes each with a predicate on a column
+// and a simple size expression followed by an optional else part.
+//
+// skipPeriodTree(): This is a simple size expression with no reference
 // to any inputs or outputs of this node or its child. The reason to make
-// this into an expression is only to reuse the SampleSize ItemExpr. 
+// this into an expression is only to reuse the SampleSize ItemExpr.
 // However, this "expression" is really not an expression and hence need not
 // treated as one (e.g., there is no need to bind, normalize, etc. Similarly
-// no need to check for outer references, etc). 
+// no need to check for outer references, etc).
 //
-RelExpr *RelSample::bindNode(BindWA *bindWA)
-{
-  
+RelExpr *RelSample::bindNode(BindWA *bindWA) {
   // If this node has already been bound, we are done.
   //
-  if (nodeIsBound())
-    return this;
-  
+  if (nodeIsBound()) return this;
+
   // Bind the child nodes.
   //
   bindChildren(bindWA);
-  if (bindWA->errStatus())
-    return this;
-  
-  
+  if (bindWA->errStatus()) return this;
+
   // If this is a random sample on an HBase table, push the sampling down into
   // the Scan node and remove the Sample node from the tree. For HBase, we
   // perform sampling via a row filter on the HBase side.
@@ -922,170 +803,142 @@ RelExpr *RelSample::bindNode(BindWA *bindWA)
   // timeout.
   //
   Float32 trafSampleRate = getSamplePercent();
-  RelExpr* myChild = child(0);
-  if (myChild->getOperatorType() == REL_SCAN &&
-      (static_cast<Scan*>(myChild))->isHbaseTable() &&
-      isSimpleRandomRelative() &&
-      trafSampleRate <= 1.0f)
-    {
-      ULng32 returnInterval =
-          ActiveSchemaDB()->getDefaults().getAsULong(USTAT_HBASE_SAMPLE_RETURN_INTERVAL);
-      Lng32 cacheMin = CmpCommon::getDefaultNumeric(HBASE_NUM_CACHE_ROWS_MIN);
-      if (trafSampleRate < cacheMin / (Float32)returnInterval)
-        {
-          Float32 hbaseSampleRate = cacheMin / (Float32)returnInterval;
-          trafSampleRate /= hbaseSampleRate;
+  RelExpr *myChild = child(0);
+  if (myChild->getOperatorType() == REL_SCAN && (static_cast<Scan *>(myChild))->isHbaseTable() &&
+      isSimpleRandomRelative() && trafSampleRate <= 1.0f) {
+    ULng32 returnInterval = ActiveSchemaDB()->getDefaults().getAsULong(USTAT_HBASE_SAMPLE_RETURN_INTERVAL);
+    Lng32 cacheMin = CmpCommon::getDefaultNumeric(HBASE_NUM_CACHE_ROWS_MIN);
+    if (trafSampleRate < cacheMin / (Float32)returnInterval) {
+      Float32 hbaseSampleRate = cacheMin / (Float32)returnInterval;
+      trafSampleRate /= hbaseSampleRate;
 
-          // The parser function literalOfNumericWithScale() is used to get the
-          // correct form of the ConstValue (a fixed numeric) required for the
-          // ITM_BALANCE sample percentage operand. That function expects a heap-
-          // allocated NAString (which it deletes) containing the percentage in
-          // text form.
-          static const int BUF_SIZE = 20;
-          char buf[BUF_SIZE];
-          snprintf(buf, BUF_SIZE, "%f", trafSampleRate * 100);  // Express as a percentage
-          NAString* percentStrPtr = new(STMTHEAP) NAString(buf, STMTHEAP);
-          ExprNode* oldConst = balanceExprTree_->getChild(1);
-          balanceExprTree_->setChild(1, literalOfNumericWithScale(percentStrPtr, '+'));
-          delete oldConst;
-          (static_cast<Scan*>(myChild))->samplePercent(hbaseSampleRate);
-        }
-      else
-        {
-          (static_cast<Scan*>(myChild))->samplePercent(trafSampleRate);
-          return myChild;
-        }
+      // The parser function literalOfNumericWithScale() is used to get the
+      // correct form of the ConstValue (a fixed numeric) required for the
+      // ITM_BALANCE sample percentage operand. That function expects a heap-
+      // allocated NAString (which it deletes) containing the percentage in
+      // text form.
+      static const int BUF_SIZE = 20;
+      char buf[BUF_SIZE];
+      snprintf(buf, BUF_SIZE, "%f", trafSampleRate * 100);  // Express as a percentage
+      NAString *percentStrPtr = new (STMTHEAP) NAString(buf, STMTHEAP);
+      ExprNode *oldConst = balanceExprTree_->getChild(1);
+      balanceExprTree_->setChild(1, literalOfNumericWithScale(percentStrPtr, '+'));
+      delete oldConst;
+      (static_cast<Scan *>(myChild))->samplePercent(hbaseSampleRate);
+    } else {
+      (static_cast<Scan *>(myChild))->samplePercent(trafSampleRate);
+      return myChild;
     }
-
-  ItemExpr *requiredOrderTree = removeRequiredOrderTree();
-  
-  if(requiredOrderTree) {
-    bindWA->getCurrentScope()->context()->inOrderBy() = TRUE;
-    requiredOrderTree->convertToValueIdList(requiredOrder(),
-                                            bindWA,
-                                            ITM_ITEM_LIST);
-    bindWA->getCurrentScope()->context()->inOrderBy() = FALSE;
-    if(bindWA->errStatus())
-      return this;
   }
 
-  // Bind the balanceExprTree. This expression may contain a tree 
+  ItemExpr *requiredOrderTree = removeRequiredOrderTree();
+
+  if (requiredOrderTree) {
+    bindWA->getCurrentScope()->context()->inOrderBy() = TRUE;
+    requiredOrderTree->convertToValueIdList(requiredOrder(), bindWA, ITM_ITEM_LIST);
+    bindWA->getCurrentScope()->context()->inOrderBy() = FALSE;
+    if (bindWA->errStatus()) return this;
+  }
+
+  // Bind the balanceExprTree. This expression may contain a tree
   // of Balance expressions.
   //
   ItemExpr *boundBalanceExpr = removeBalanceExprTree()->bindNode(bindWA);
 
-  if (bindWA->errStatus())
-    return this;
+  if (bindWA->errStatus()) return this;
 
   if (boundBalanceExpr != NULL) {
     balanceExpr().insert(boundBalanceExpr->getValueId());
 
-    if(((ItmBalance *)boundBalanceExpr)->checkErrors()) {
+    if (((ItmBalance *)boundBalanceExpr)->checkErrors()) {
       bindWA->setErrStatus();
       return this;
     }
   }
-  
+
   // Generate the selection predicate from the balance expression only
-  // if there is a balance expression tree and there is no else clause. 
+  // if there is a balance expression tree and there is no else clause.
   //
   NABoolean hasReturnTrue = FALSE;
-  ItmBalance * nextBalanceNode = (ItmBalance *)boundBalanceExpr;
-  
-  while ((nextBalanceNode != NULL) AND (hasReturnTrue == FALSE))
-  {
-    if (nextBalanceNode->getPredicate()->getOperatorType() == ITM_RETURN_TRUE)
-      hasReturnTrue = TRUE;
+  ItmBalance *nextBalanceNode = (ItmBalance *)boundBalanceExpr;
+
+  while ((nextBalanceNode != NULL) AND(hasReturnTrue == FALSE)) {
+    if (nextBalanceNode->getPredicate()->getOperatorType() == ITM_RETURN_TRUE) hasReturnTrue = TRUE;
     nextBalanceNode = (ItmBalance *)nextBalanceNode->getNextBalance();
   }
-  
-  if (hasReturnTrue == FALSE)
-  {
+
+  if (hasReturnTrue == FALSE) {
     nextBalanceNode = (ItmBalance *)boundBalanceExpr;
     ItemExpr *pred;
     ItemExpr *orexpr = NULL;
-    
-    while (nextBalanceNode != NULL)
-    {  
+
+    while (nextBalanceNode != NULL) {
       pred = nextBalanceNode->getPredicate();
-      
+
       if (orexpr != NULL)
         orexpr = new (CmpCommon::statementHeap()) BiLogic(ITM_OR, orexpr, pred);
       else
         orexpr = pred;
 
       nextBalanceNode = (ItmBalance *)nextBalanceNode->getNextBalance();
-    }    
-    // Now synthesize type 
-    if (orexpr)
-      orexpr->synthTypeAndValueId(TRUE);  // redrive Type Synthesis
-    
+    }
+    // Now synthesize type
+    if (orexpr) orexpr->synthTypeAndValueId(TRUE);  // redrive Type Synthesis
+
     addSelPredTree(orexpr);
   }
 
   // Construct the RETDesc for this node.
   //
-  RETDesc *resultTable = new(bindWA->wHeap()) RETDesc(bindWA);
-  
+  RETDesc *resultTable = new (bindWA->wHeap()) RETDesc(bindWA);
+
   // Add the columns from the child to the RETDesc.
-  // 
+  //
   const RETDesc &childTable = *child(0)->getRETDesc();
-  
+
   const ColumnDescList *sysColList = childTable.getSystemColumnList();
-  
+
   CollIndex i = 0;
-  for(i = 0; i < sysColList->entries(); i++) 
-  {
+  for (i = 0; i < sysColList->entries(); i++) {
     ValueId columnValueId = sysColList->at(i)->getValueId();
-    ItemExpr *newColumn = new (bindWA->wHeap()) 
-      NotCovered (columnValueId.getItemExpr());
+    ItemExpr *newColumn = new (bindWA->wHeap()) NotCovered(columnValueId.getItemExpr());
     newColumn->synthTypeAndValueId();
-    
-    resultTable->addColumn(bindWA,
-      sysColList->at(i)->getColRefNameObj(),
-      newColumn->getValueId(),
-      SYSTEM_COLUMN,
-      sysColList->at(i)->getHeading());
+
+    resultTable->addColumn(bindWA, sysColList->at(i)->getColRefNameObj(), newColumn->getValueId(), SYSTEM_COLUMN,
+                           sysColList->at(i)->getHeading());
     sampledColumns() += newColumn->getValueId();
   }
-  
-  for(i = 0; i < childTable.getDegree(); i++) 
-  {
+
+  for (i = 0; i < childTable.getDegree(); i++) {
     ValueId columnValueId = childTable.getValueId(i);
-    ItemExpr *newColumn = new (bindWA->wHeap()) 
-      NotCovered (columnValueId.getItemExpr());
+    ItemExpr *newColumn = new (bindWA->wHeap()) NotCovered(columnValueId.getItemExpr());
     newColumn->synthTypeAndValueId();
-    
-    resultTable->addColumn(bindWA,
-      childTable.getColRefNameObj(i),
-      newColumn->getValueId(),
-      USER_COLUMN,
-      childTable.getHeading(i));
+
+    resultTable->addColumn(bindWA, childTable.getColRefNameObj(i), newColumn->getValueId(), USER_COLUMN,
+                           childTable.getHeading(i));
     sampledColumns() += newColumn->getValueId();
   }
-  
+
   // Set the return descriptor
   //
   setRETDesc(resultTable);
   bindWA->getCurrentScope()->setRETDesc(resultTable);
-  
+
   //
   // Bind the base class.
   //
   return bindSelf(bindWA);
-} // RelSample::bindNode()
+}  // RelSample::bindNode()
 
 // -----------------------------------------------------------------------
 // RelSample::semanticQueryOptimizeNode()
-// This instance of the SQO virtual method is the same as the base class 
+// This instance of the SQO virtual method is the same as the base class
 // implementation except that it also keeps track of which
 // VEGRegion we are currently in.
 // -----------------------------------------------------------------------
-RelExpr * RelSample::semanticQueryOptimizeNode(NormWA & normWARef)
-{
-  if (nodeIsSemanticQueryOptimized())
-    return this;
-  markAsSemanticQueryOptimized() ;
+RelExpr *RelSample::semanticQueryOptimizeNode(NormWA &normWARef) {
+  if (nodeIsSemanticQueryOptimized()) return this;
+  markAsSemanticQueryOptimized();
 
   normWARef.locateAndSetVEGRegion(this);
   // ---------------------------------------------------------------------
@@ -1097,98 +950,70 @@ RelExpr * RelSample::semanticQueryOptimizeNode(NormWA & normWARef)
 
   return this;
 
-} // RelSample::semanticQueryOptimizeNode()
-
+}  // RelSample::semanticQueryOptimizeNode()
 
 /////////////////////////////////////////////////////////////////////////////////////
 //
-// Methods of the PhysSample 
+// Methods of the PhysSample
 //
 /////////////////////////////////////////////////////////////////////////////////////
-PhysSample::PhysSample(RelExpr *child /*= NULL*/,
-                       RelSample::SampleTypeEnum type /*= ANY*/,
+PhysSample::PhysSample(RelExpr *child /*= NULL*/, RelSample::SampleTypeEnum type /*= ANY*/,
                        CollHeap *oHeap /*= CmpCommon::statementHeap()*/)
-: RelSample(child, type, NULL, NULL, oHeap)
-{
+    : RelSample(child, type, NULL, NULL, oHeap) {
   if (oHeap)
     pCostMethod_ = new (oHeap) CostMethodSample();
   else
     pCostMethod_ = new (CmpCommon::statementHeap()) CostMethodSample();
 };
 
-PhysSample::~PhysSample()
-{
-};
+PhysSample::~PhysSample(){};
 
-
-RelExpr *
-PhysSample::copyTopNode(RelExpr *derivedNode, CollHeap *oHeap)
-{
+RelExpr *PhysSample::copyTopNode(RelExpr *derivedNode, CollHeap *oHeap) {
   PhysSample *result;
-  
+
   if (derivedNode == NULL)
     result = new (oHeap) PhysSample();
   else
     result = (PhysSample *)derivedNode;
-  
-  return RelSample::copyTopNode(result, oHeap);
-  
-}
 
+  return RelSample::copyTopNode(result, oHeap);
+}
 
 // PhysSample::costMethod()
 // Obtain a pointer to a CostMethod object providing access
 // to the cost estimation functions for nodes of this type.
-CostMethod*
-PhysSample::costMethod() const
-{
+CostMethod *PhysSample::costMethod() const {
   /*static THREAD_P CostMethodSample *m = NULL;
   if (m == NULL)
     m = new (GetCliGlobals()->exCollHeap())  CostMethodSample();
   return m;*/
   return pCostMethod_;
-} // PhysSample::costMethod()
+}  // PhysSample::costMethod()
 
-
-ValueIdList
-RelSample::mapSortKey(const ValueIdList &sortKey) const
-{
-
+ValueIdList RelSample::mapSortKey(const ValueIdList &sortKey) const {
   ValueIdMap sampColsMap;
 
-  for(ValueId sampleCol = sampledColumns().init();
-      sampledColumns().next(sampleCol);
-      sampledColumns().advance(sampleCol)) {
-
+  for (ValueId sampleCol = sampledColumns().init(); sampledColumns().next(sampleCol);
+       sampledColumns().advance(sampleCol)) {
     CMPASSERT(sampleCol.getItemExpr()->getOperatorType() == ITM_NOTCOVERED);
 
-    sampColsMap.addMapEntry(sampleCol, 
-                            sampleCol.getItemExpr()->child(0)->getValueId());
+    sampColsMap.addMapEntry(sampleCol, sampleCol.getItemExpr()->child(0)->getValueId());
   }
 
   ValueIdList newSortKey;
-  
+
   sampColsMap.mapValueIdListUp(newSortKey, sortKey);
-  
+
   return newSortKey;
 }
 
-PhysicalProperty *
-PhysSample::synthPhysicalProperty(const Context *context,
-                                  const Lng32 pn,
-                                  PlanWorkSpace  *pws)
-{
-
-  const PhysicalProperty * const sppOfChild =
-    context->getPhysicalPropertyOfSolutionForChild(0);
+PhysicalProperty *PhysSample::synthPhysicalProperty(const Context *context, const Lng32 pn, PlanWorkSpace *pws) {
+  const PhysicalProperty *const sppOfChild = context->getPhysicalPropertyOfSolutionForChild(0);
 
   // for now, simply propagate the physical property
-  PhysicalProperty *samplePP = new(CmpCommon::statementHeap()) 
-    PhysicalProperty(*sppOfChild,
-                     mapSortKey(sppOfChild->getSortKey()),
-                     sppOfChild->getSortOrderType(),
-                     sppOfChild->getDp2SortOrderPartFunc());
-  
-  return samplePP;
-} //  PhysSample::synthPhysicalProperty() 
+  PhysicalProperty *samplePP = new (CmpCommon::statementHeap())
+      PhysicalProperty(*sppOfChild, mapSortKey(sppOfChild->getSortKey()), sppOfChild->getSortOrderType(),
+                       sppOfChild->getDp2SortOrderPartFunc());
 
+  return samplePP;
+}  //  PhysSample::synthPhysicalProperty()

@@ -25,7 +25,7 @@
  *
  * File:         ex_timeout.h
  * Description:  Executor's TDB and the TCB for the "set timeout" statement
- *               
+ *
  * Created:      12/27/1999
  * Language:     C++
  *
@@ -41,7 +41,7 @@
 #include "executor/ex_stdh.h"
 #include "comexe/ComTdb.h"
 #include "executor/ex_tcb.h"
-#include  "ex_error.h"
+#include "ex_error.h"
 
 #include "common/Int64.h"
 
@@ -63,10 +63,8 @@ class ex_tcb;
 // -----------------------------------------------------------------------
 // ExTimeoutTdb
 // -----------------------------------------------------------------------
-class ExTimeoutTdb : public ComTdbTimeout
-{
-public:
-
+class ExTimeoutTdb : public ComTdbTimeout {
+ public:
   // ---------------------------------------------------------------------
   // Constructor is only called to instantiate an object used for
   // retrieval of the virtual table function pointer of the class while
@@ -81,7 +79,7 @@ public:
   // ---------------------------------------------------------------------
   virtual ex_tcb *build(ex_globals *globals);
 
-private:
+ private:
   // ---------------------------------------------------------------------
   // !!!!!!! IMPORTANT -- NO DATA MEMBERS ALLOWED IN EXECUTOR TDB !!!!!!!!
   // *********************************************************************
@@ -101,7 +99,7 @@ private:
   // 1. Are those data members Compiler-generated?
   //    If yes, put them in the ComTdbTimeout instead.
   //    If no, they should probably belong to someplace else (like TCB).
-  // 
+  //
   // 2. Are the classes those data members belong defined in the executor
   //    project?
   //    If your answer to both questions is yes, you might need to move
@@ -109,67 +107,53 @@ private:
   // ---------------------------------------------------------------------
 };
 
-
 //
 // TCB: Task control block
 //
-class ExTimeoutTcb : public ex_tcb
-{
+class ExTimeoutTcb : public ex_tcb {
   friend class ExTimeoutTdb;
   friend class ExTimeoutPrivateState;
 
-public:
-
+ public:
   // ctor
-  ExTimeoutTcb(const ExTimeoutTdb & timeout_tdb, 
-	       ExMasterStmtGlobals * glob = 0);
+  ExTimeoutTcb(const ExTimeoutTdb &timeout_tdb, ExMasterStmtGlobals *glob = 0);
 
   ~ExTimeoutTcb();  // dtor
 
   virtual short work();  // do the actual work ...
 
-  ex_queue_pair getParentQueue() const{return qparent_;};
+  ex_queue_pair getParentQueue() const { return qparent_; };
 
-  inline Int32 orderedQueueProtocol() 
-    const{return ((const ExTimeoutTdb &)tdb).orderedQueueProtocol();}
+  inline Int32 orderedQueueProtocol() const { return ((const ExTimeoutTdb &)tdb).orderedQueueProtocol(); }
 
   void freeResources(){};
-  
-  Int32 numChildren() const { return 0; }   
-  const ex_tcb* getChild(Int32 /*pos*/) const { return 0; }
 
-private:
+  Int32 numChildren() const { return 0; }
+  const ex_tcb *getChild(Int32 /*pos*/) const { return 0; }
 
+ private:
   // holds the ANSI name of the table (for which the timeout value is set)
-  char * theTableName_;
+  char *theTableName_;
 
-  ex_queue_pair	qparent_;
+  ex_queue_pair qparent_;
 
-  atp_struct * workAtp_;
-  
-  inline ExTimeoutTdb & timeoutTdb() 
-    const{return (ExTimeoutTdb &) tdb;};
-  inline ex_expr * timeoutValueExpr() const 
-  { return timeoutTdb().timeoutValueExpr_; };
+  atp_struct *workAtp_;
+
+  inline ExTimeoutTdb &timeoutTdb() const { return (ExTimeoutTdb &)tdb; };
+  inline ex_expr *timeoutValueExpr() const { return timeoutTdb().timeoutValueExpr_; };
 
   // if diagsArea is not NULL, then its error code is used.
   // Otherwise, err is used to handle error.
-  void handleErrors(ex_queue_entry *pentry_down,  
-		    ComDiagsArea* diagsArea,
-		    ExeErrorCode err = EXE_INTERNAL_ERROR);
+  void handleErrors(ex_queue_entry *pentry_down, ComDiagsArea *diagsArea, ExeErrorCode err = EXE_INTERNAL_ERROR);
 };
 
-
-class ExTimeoutPrivateState : public ex_tcb_private_state
-{
+class ExTimeoutPrivateState : public ex_tcb_private_state {
   friend class ExTimeoutTcb;
-  
-public:	
-  ExTimeoutPrivateState(const ExTimeoutTcb * tcb); //constructor
-  ~ExTimeoutPrivateState();	// destructor
-  ex_tcb_private_state * allocate_new(const ex_tcb * tcb);
-  
-};
 
+ public:
+  ExTimeoutPrivateState(const ExTimeoutTcb *tcb);  // constructor
+  ~ExTimeoutPrivateState();                        // destructor
+  ex_tcb_private_state *allocate_new(const ex_tcb *tcb);
+};
 
 #endif

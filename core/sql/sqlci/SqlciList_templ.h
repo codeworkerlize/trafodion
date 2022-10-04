@@ -29,9 +29,9 @@
  *
  * File:         SqlciList_templ.h
  * RCS:          $Id: SqlciList_templ.h,v 1.3.16.1 1997/12/16 19:13:30  Exp $
- * Description:  
- *               
- *               
+ * Description:
+ *
+ *
  * Created:      4/15/95
  * Modified:     $ $Date: 1997/12/16 19:13:30 $ (GMT)
  * Language:     C++
@@ -45,35 +45,37 @@
 
 #include "common/Platform.h"
 
-template <class T> class SqlciList {
-
+template <class T>
+class SqlciList {
   class list_entry {
-  friend class SqlciList<T>;
-    T * elem;
-    list_entry * prev;
-    list_entry * next;
-  public:
-    list_entry(T * elem_, list_entry * prev_, list_entry * next_)
-      {elem = elem_; prev = prev_; next = next_;};
-    ~list_entry()
-      {
-	if (elem)
-	  delete elem;
-	elem = 0;
-      }
+    friend class SqlciList<T>;
+    T *elem;
+    list_entry *prev;
+    list_entry *next;
+
+   public:
+    list_entry(T *elem_, list_entry *prev_, list_entry *next_) {
+      elem = elem_;
+      prev = prev_;
+      next = next_;
+    };
+    ~list_entry() {
+      if (elem) delete elem;
+      elem = 0;
+    }
   };
 
-  list_entry * head; 
-  list_entry * curr_entry; // initialized with getFirst() and incremented
+  list_entry *head;
+  list_entry *curr_entry;  // initialized with getFirst() and incremented
                            // by getNext() only.
-public:
+ public:
   SqlciList();
   ~SqlciList();
-  void append(T * elem);
-  void remove(const char * value);
-  T * get(char * value);
-  T * getFirst();
-  T * getNext();
+  void append(T *elem);
+  void remove(const char *value);
+  T *get(char *value);
+  T *getFirst();
+  T *getNext();
 };
 
 #if defined(NA_COMPILE_INSTANTIATE)

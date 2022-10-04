@@ -39,9 +39,9 @@
 class QRGroupLattice;
 
 #ifdef _MEMSHAREDPTR
-typedef QRIntrusiveSharedPtr<QRGroupLattice>  QRGroupLatticePtr;
+typedef QRIntrusiveSharedPtr<QRGroupLattice> QRGroupLatticePtr;
 #else
-typedef QRGroupLattice*  QRGroupLatticePtr;
+typedef QRGroupLattice *QRGroupLatticePtr;
 #endif
 
 /**
@@ -54,111 +54,100 @@ typedef QRGroupLattice*  QRGroupLatticePtr;
  * These MVs are returned in a list of candidates. A candidate with grouping
  * columns/expressions exactly matching those of the MV are marked as preferred.
  */
-class QRGroupLattice : public NAIntrusiveSharedPtrObject
-{
-  public:
-    QRGroupLattice(CollHeap* heap, ADD_MEMCHECK_ARGS_DECL(CollIndex maxNumKeys));
+class QRGroupLattice : public NAIntrusiveSharedPtrObject {
+ public:
+  QRGroupLattice(CollHeap *heap, ADD_MEMCHECK_ARGS_DECL(CollIndex maxNumKeys));
 
-    virtual ~QRGroupLattice();
+  virtual ~QRGroupLattice();
 
-    /**
-     * Creates and inserts a node representing an MV's primary and dependent 
-     * grouping columns into the lattice index.
-     *
-     * @param mvDetails Details of the MV for which the node is being created.
-     * @param jbb The JBB from which to take the grouping columns.
-     */
-    void insert(QRJoinSubGraphMapPtr map, const QRJBBPtr jbb);
+  /**
+   * Creates and inserts a node representing an MV's primary and dependent
+   * grouping columns into the lattice index.
+   *
+   * @param mvDetails Details of the MV for which the node is being created.
+   * @param jbb The JBB from which to take the grouping columns.
+   */
+  void insert(QRJoinSubGraphMapPtr map, const QRJBBPtr jbb);
 
-    /**
-     * Removes an MV from the grouping lattice index. The affected node in the
-     * lattice index is determined using a key list derived from the MV's primary
-     * and dependent grouping columns. The MV is removed from the node, and if
-     * there are no other MVs in the node, the node is removed from the lattice.
-     *
-     * @param map The SubGraphMap of the MV for which is to be removed.
-     */
-    void remove(QRJoinSubGraphMapPtr map);
+  /**
+   * Removes an MV from the grouping lattice index. The affected node in the
+   * lattice index is determined using a key list derived from the MV's primary
+   * and dependent grouping columns. The MV is removed from the node, and if
+   * there are no other MVs in the node, the node is removed from the lattice.
+   *
+   * @param map The SubGraphMap of the MV for which is to be removed.
+   */
+  void remove(QRJoinSubGraphMapPtr map);
 
-    /**
-     * Searches the group lattice for MVs having a grouping list that is a
-     * superset of that of the passed query JBB. An improper superset (exact
-     * match) causes the candidate to be marked as preferred. Only the primary 
-     * grouping columns of the JBB are checked.
-     *
-     * @param queryJbb The query JBB being matched.
-     * @param candidates List of MV candidates that match the query based on
-     *                   primary grouping columns/expressions.
-     * @param map The subGraphMap that defines the JBBSubset of the matching 
-     *                 MV candidates.
-     * @param minimizedGroupingList The minimized GroupBy list in case of 
-     *                 IndirectGroupBy.
-     */
-    MVCandidatesForJBBSubsetPtr search(QRJBBPtr		      queryJbb, 
-				       MVCandidatesForJBBPtr  mvCandidates, 
-				       QRJoinSubGraphMapPtr   map,
-                                       ElementPtrList*        minimizedGroupingList);
+  /**
+   * Searches the group lattice for MVs having a grouping list that is a
+   * superset of that of the passed query JBB. An improper superset (exact
+   * match) causes the candidate to be marked as preferred. Only the primary
+   * grouping columns of the JBB are checked.
+   *
+   * @param queryJbb The query JBB being matched.
+   * @param candidates List of MV candidates that match the query based on
+   *                   primary grouping columns/expressions.
+   * @param map The subGraphMap that defines the JBBSubset of the matching
+   *                 MV candidates.
+   * @param minimizedGroupingList The minimized GroupBy list in case of
+   *                 IndirectGroupBy.
+   */
+  MVCandidatesForJBBSubsetPtr search(QRJBBPtr queryJbb, MVCandidatesForJBBPtr mvCandidates, QRJoinSubGraphMapPtr map,
+                                     ElementPtrList *minimizedGroupingList);
 
-    /**
-     * Builds a specification of the group lattice using the DOT language, from
-     * which a visual representation can be rendered. This graph will show
-     * directed edges in the direction of parent to child.
-     *
-     * @param tag Text appended to the lines preceding and following the
-     *            DOT text.
-     */
-    void dumpLattice(const char* tag = "");
+  /**
+   * Builds a specification of the group lattice using the DOT language, from
+   * which a visual representation can be rendered. This graph will show
+   * directed edges in the direction of parent to child.
+   *
+   * @param tag Text appended to the lines preceding and following the
+   *            DOT text.
+   */
+  void dumpLattice(const char *tag = "");
 
-    void reportStats(NAString& text);
+  void reportStats(NAString &text);
 
-    /**
-    * Collect data on query (MV) groups with shared join+GroupBy.
-    */
-    void collectMVGroups(WorkloadAnalysisPtr workload, Int32 minQueriesPerMV, CollHeap* heap);
+  /**
+   * Collect data on query (MV) groups with shared join+GroupBy.
+   */
+  void collectMVGroups(WorkloadAnalysisPtr workload, Int32 minQueriesPerMV, CollHeap *heap);
 
-  private:
-    // Copy construction/assignment not defined.
-    QRGroupLattice(const QRGroupLattice&);
-    QRGroupLattice& operator=(const QRGroupLattice&);
+ private:
+  // Copy construction/assignment not defined.
+  QRGroupLattice(const QRGroupLattice &);
+  QRGroupLattice &operator=(const QRGroupLattice &);
 
-    /**
-     * Gets the list of lattice keys from the grouping columns in the passed JBB.
-     *
-     * @param latticeKeys The lattice key list to put the keys in. Any prior
-     *                    contents are removed.
-     * @param map Used only to get MV name if logging a failure.
-     * @param jbb JBB containing the grouping columns to use.
-     * @param primaryOnly TRUE if only the primary grouping columns should be used.
-     * @param insertMode TRUE if this is an Insert operation, FALSE if its a Search.
-     * @return TRUE if OK, FALSE if some keys not found (in search mode only)
-     */
-    NABoolean getGroupingLatticeKeys(LatticeKeyList&         latticeKeys,
-                                     QRJoinSubGraphMapPtr    map,
-				     DescriptorDetailsPtr    queryDetails, 
-                                     const QRJBBPtr          jbb,
-                                     NABoolean               primaryOnly,
-                                     NABoolean               insertMode);
+  /**
+   * Gets the list of lattice keys from the grouping columns in the passed JBB.
+   *
+   * @param latticeKeys The lattice key list to put the keys in. Any prior
+   *                    contents are removed.
+   * @param map Used only to get MV name if logging a failure.
+   * @param jbb JBB containing the grouping columns to use.
+   * @param primaryOnly TRUE if only the primary grouping columns should be used.
+   * @param insertMode TRUE if this is an Insert operation, FALSE if its a Search.
+   * @return TRUE if OK, FALSE if some keys not found (in search mode only)
+   */
+  NABoolean getGroupingLatticeKeys(LatticeKeyList &latticeKeys, QRJoinSubGraphMapPtr map,
+                                   DescriptorDetailsPtr queryDetails, const QRJBBPtr jbb, NABoolean primaryOnly,
+                                   NABoolean insertMode);
 
-    LatticeIndexablePtr elementToKey(const QRElementPtr    element, 
-                                     QRJoinSubGraphMapPtr  map,
-			             DescriptorDetailsPtr  queryDetails, 
-                                     NABoolean             insertMode,
-                                     NABoolean             isRecursive = FALSE);
+  LatticeIndexablePtr elementToKey(const QRElementPtr element, QRJoinSubGraphMapPtr map,
+                                   DescriptorDetailsPtr queryDetails, NABoolean insertMode,
+                                   NABoolean isRecursive = FALSE);
 
-    QRElementPtr keyToElement(LatticeIndexablePtr key, QRJoinSubGraphMapPtr map);
+  QRElementPtr keyToElement(LatticeIndexablePtr key, QRJoinSubGraphMapPtr map);
 
-    NABoolean elementListToKeyList(const ElementPtrList& elementList, 
-                                   LatticeKeyList&       keyList,
-                                   QRJoinSubGraphMapPtr  map,
-				   DescriptorDetailsPtr  queryDetails, 
-                                   NABoolean             insertMode);
+  NABoolean elementListToKeyList(const ElementPtrList &elementList, LatticeKeyList &keyList, QRJoinSubGraphMapPtr map,
+                                 DescriptorDetailsPtr queryDetails, NABoolean insertMode);
 
-private:
-    /** Lattice index storing grouping columns for MVs. */
-    QRLatticeIndexPtr lattice_;
-    QRElementHash     reverseKeyHash_;
+ private:
+  /** Lattice index storing grouping columns for MVs. */
+  QRLatticeIndexPtr lattice_;
+  QRElementHash reverseKeyHash_;
 
-    CollHeap* heap_;
-}; // QRGroupLattice
+  CollHeap *heap_;
+};  // QRGroupLattice
 
-#endif  /* _QRGROUPLATTICE_H_ */
+#endif /* _QRGROUPLATTICE_H_ */

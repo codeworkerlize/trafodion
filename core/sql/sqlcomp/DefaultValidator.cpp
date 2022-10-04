@@ -46,7 +46,7 @@
 #include "common/ComSqlText.h"
 
 #include "common/ComSchemaName.h"  // for ComSchemaName
-#include "optimizer/BindWA.h"                // for extractOverrideSchemas()
+#include "optimizer/BindWA.h"      // for extractOverrideSchemas()
 
 #include "parser/SqlParserGlobals.h"  // must be last
 

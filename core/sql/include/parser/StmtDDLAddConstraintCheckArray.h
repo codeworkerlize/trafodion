@@ -6,8 +6,8 @@
  * File:         StmtDDLAddConstraintCheckArray.h
  * Description:  class for an array of pointers pointing to instances of
  *               class StmtDDLAddConstraintCheck
- *               
- *               
+ *
+ *
  * Created:      6/21/95
  * Language:     C++
  *
@@ -37,11 +37,10 @@
  *****************************************************************************
  */
 
-
 #include "common/Collections.h"
 #include "StmtDDLAddConstraintCheck.h"
-#ifndef   SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
-#define   SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
+#ifndef SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
+#define SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
 #endif
 #include "parser/SqlParserGlobals.h"
 
@@ -58,23 +57,15 @@ class StmtDDLAddConstraintCheckArray;
 // -----------------------------------------------------------------------
 // Definition of class StmtDDLAddConstraintCheckArray
 // -----------------------------------------------------------------------
-class StmtDDLAddConstraintCheckArray
-: public LIST(StmtDDLAddConstraintCheck *)
-{
-
-public:
-
+class StmtDDLAddConstraintCheckArray : public LIST(StmtDDLAddConstraintCheck *) {
+ public:
   // constructor
-  StmtDDLAddConstraintCheckArray(CollHeap *heap = PARSERHEAP())
-    : LIST(StmtDDLAddConstraintCheck *)(heap)
-  {
-  }
+  StmtDDLAddConstraintCheckArray(CollHeap *heap = PARSERHEAP()) : LIST(StmtDDLAddConstraintCheck *)(heap) {}
 
   // virtual destructor
   virtual ~StmtDDLAddConstraintCheckArray();
 
-private:
-
-}; // class StmtDDLAddConstraintCheckArray
+ private:
+};  // class StmtDDLAddConstraintCheckArray
 
 #endif /* STMTDDLADDCONSTRAINTCHECKARRAY_H */

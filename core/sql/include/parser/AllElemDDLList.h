@@ -26,7 +26,7 @@
  * File:         AllElemDDLList.h
  * Description:  a header file that includes ElemDDLList.h and all header
  *               files that define classes derived from class ElemDDLList.
- *               
+ *
  * Created:      9/19/95
  * Language:     C++
  *
@@ -35,7 +35,6 @@
  *
  *****************************************************************************
  */
-
 
 #include "parser/ElemDDLList.h"
 

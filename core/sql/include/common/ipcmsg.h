@@ -26,7 +26,7 @@
  * File:         IpcMsg.h
  * Description:  Classes to establish and perform data exchange between
  *               processes using the NSK messaging API.
- * 
+ *
  * Created:      6/25/99
  * Language:     C++
  *
@@ -44,17 +44,12 @@
 // A Guardian connection on the client side that connects to a server
 // by opening its process file
 // -----------------------------------------------------------------------
-class GuaMsgConnectionToServer : public IpcConnection
-{
+class GuaMsgConnectionToServer : public IpcConnection {
   friend class IpcGuardianServer;
 
-public:
-
-  GuaMsgConnectionToServer(IpcEnvironment *env,
-			const IpcProcessId &procId,
-			NABoolean usesTransactions,
-			unsigned short nowaitDepth,
-                        char *eye = (char *)eye_GUA_MSG_CONNECTION_TO_SERVER);
+ public:
+  GuaMsgConnectionToServer(IpcEnvironment *env, const IpcProcessId &procId, NABoolean usesTransactions,
+                           unsigned short nowaitDepth, char *eye = (char *)eye_GUA_MSG_CONNECTION_TO_SERVER);
 
   virtual ~GuaMsgConnectionToServer();
 
@@ -68,7 +63,7 @@ public:
   // wait until a send or receive operation completed
   // return TRUE only if an interrupt was received
   virtual WaitReturnStatus wait(IpcTimeout timeout, UInt32 *eventConsumed, IpcAwaitiox *ipcAwaitiox = NULL);
-  
+
   virtual GuaMsgConnectionToServer *castToGuaMsgConnectionToServer();
 
   virtual Int32 numQueuedSendMessages();
@@ -85,17 +80,16 @@ public:
   inline short getFileNumForLogging() const { return openFile_; }
 
   // struct is public only to make the compiler happy
-  struct ActiveIOQueueEntry
-  {
+  struct ActiveIOQueueEntry {
     // TRUE if an I/O is in progress for this entry, FALSE otherwise
-    NABoolean         inUse_;
-    
-    //TRUE if we want to check for a reply to this message
-    NABoolean         expectReply_;
+    NABoolean inUse_;
 
-    //the message id returned by MSG_LINK_ for this queue entry
+    // TRUE if we want to check for a reply to this message
+    NABoolean expectReply_;
+
+    // the message id returned by MSG_LINK_ for this queue entry
     UInt32 msgid_;
-   
+
     // how many bytes have been sent in this operation (0 for a READX)
     IpcMessageObjSize bytesSent_;
 
@@ -105,39 +99,38 @@ public:
     // what's the offset in buffer_ where the I/O buffer started
     IpcMessageObjSize offset_;
 
-    //pointer to the CBA to be used for the read data buffer
-    void * readDataCBAPtr_;
-    
-    //pointer to the CBA to be used for the write data buffer
-    void * writeDataCBAPtr_;
-    
+    // pointer to the CBA to be used for the read data buffer
+    void *readDataCBAPtr_;
+
+    // pointer to the CBA to be used for the write data buffer
+    void *writeDataCBAPtr_;
+
     // the message buffer to be sent
-    IpcMessageBuffer  *buffer_;
-    
+    IpcMessageBuffer *buffer_;
+
     // the message buffer to be received
     IpcMessageBuffer *readBuffer_;
-    
-    //pointer to the CBA to be used for the control buffer
-    void * controlCBAPtr_;
-    
-    //contains control info to sent to/received from the server
-    void * controlBuf_;
+
+    // pointer to the CBA to be used for the control buffer
+    void *controlCBAPtr_;
+
+    // contains control info to sent to/received from the server
+    void *controlBuf_;
 
     // This is used to keep track of the transid associated with
     // the message, in case the transaction needs to be aborted
     // if the server connection dies.
-    Int64  transid_;
+    Int64 transid_;
   };
 
   // Used after fatal error to avoid deadlock.
   virtual void setFatalError(IpcMessageStreamBase *msgStream);
 
-private:
-
+ private:
   // ---------------------------------------------------------------------
   // The send and receive queues of a Guardian connection to a server are
   // managed like this:
-  // 
+  //
   // - Guardian Send operations are started in the order they are
   //   they are called, but may complete in any order.
   // - The send() method places the new message at the end of the send
@@ -168,10 +161,10 @@ private:
 
   // open file number to the server
   GuaFileNumber openFile_;
-  
+
   // how many WRITEREADX operations can be active at a time, also the
   // number of entries in the circular array activeIOs_
-  unsigned short    nowaitDepth_;
+  unsigned short nowaitDepth_;
 
   // Max size of a raw message sent through this connection (this value
   // MUST NOT be larger than the max message size of the server's control
@@ -184,28 +177,28 @@ private:
   // numOutstandingIOs_ and remove entries by calling removeHead().
   ActiveIOQueueEntry *activeIOs_;
 
-  //This is the entry we will check next for completion of I/O from the activeIOs_ array;
-  //we will go in a round robin fashion wrapping around after nowaitDepth_-1
-  //the first entry we see with entry.inUse_ ==TRUE we will check for IO completion
+  // This is the entry we will check next for completion of I/O from the activeIOs_ array;
+  // we will go in a round robin fashion wrapping around after nowaitDepth_-1
+  // the first entry we see with entry.inUse_ ==TRUE we will check for IO completion
   unsigned short currentEntry_;
-  
+
   // the index of the last entry allocated (initially, set to nowaitDepth_ - 1)
-  unsigned short    lastAllocatedEntry_;
+  unsigned short lastAllocatedEntry_;
 
   // Number of outstanding WRITEREADX operations.
   // Must be less than nowaitDepth_ if no out-of-band data is sent and
   // may be less or equal to nowaitDepth_ if out-of-band data has been sent.
-  unsigned short    numOutstandingIOs_;
+  unsigned short numOutstandingIOs_;
 
   // pointer to a buffer that is currently being sent in chunks and total
   // number of bytes sent for that buffer
-  IpcMessageBuffer  *partiallySentBuffer_;
+  IpcMessageBuffer *partiallySentBuffer_;
   IpcMessageObjSize chunkBytesSent_;
 
   // pointer to a buffer that is currently being received in chunks and total
   // number of bytes requested/actually received for that buffer; also
   // remember whether that buffer had its receive callback added yet
-  IpcMessageBuffer  *partiallyReceivedBuffer_;
+  IpcMessageBuffer *partiallyReceivedBuffer_;
   IpcMessageObjSize chunkBytesRequested_;
   IpcMessageObjSize chunkBytesReceived_;
 
@@ -217,15 +210,15 @@ private:
   IpcMessageBuffer **sendCallbackBufferList_;
 
   // does the connection propagate transaction ids to the server?
-  NABoolean         usesTransactions_;
+  NABoolean usesTransactions_;
 
-  // on certain path errors, need to stop transaction in progress. 
+  // on certain path errors, need to stop transaction in progress.
   // This is to fix the bug reported in solution 10-030508-6267.
-  NABoolean         abortXnOnPathErrors_;
+  NABoolean abortXnOnPathErrors_;
 
   // information about the error returned from Guardian in case the
   // connection is in the ERROR state
-  GuaErrorNumber    guaErrorInfo_;
+  GuaErrorNumber guaErrorInfo_;
 
   // private methods
 
@@ -245,20 +238,19 @@ private:
   void addressUnwire(ActiveIOQueueEntry &entry);
 
   // open/close the connected server process
-  void openPhandle(char * processName = NULL);
+  void openPhandle(char *processName = NULL);
   void closePhandle();
 
   // setup the requestheader before sending message
   // through MSG_LINK_
-  short setupRequestInfo(void* controlInfo, Int64 transid);
-  
-  //reset acb info after message is received
+  short setupRequestInfo(void *controlInfo, Int64 transid);
+
+  // reset acb info after message is received
   void resetAfterReply(UInt32 msgid, short error, Int64 *transid);
 
-  //put the msgid into the acb so that on exit
-  //the file system cleans up
+  // put the msgid into the acb so that on exit
+  // the file system cleans up
   void putMsgIdinACB(UInt32 msgid);
-
 };
 
-#endif //IPCMSGH
+#endif  // IPCMSGH

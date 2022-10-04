@@ -37,7 +37,7 @@
  *               ElemDDLPartitionList also represents a left linear
  *               tree.
  *
- *               
+ *
  * Created:      4/7/95
  * Language:     C++
  *
@@ -46,7 +46,6 @@
  *
  *****************************************************************************
  */
-
 
 #include "parser/ElemDDLList.h"
 
@@ -64,22 +63,17 @@ class ElemDDLPartitionList;
 // A list of partition elements specified in DDL statement
 // associating with PARTITION.
 // -----------------------------------------------------------------------
-class ElemDDLPartitionList : public ElemDDLList
-{
-
-public:
-
+class ElemDDLPartitionList : public ElemDDLList {
+ public:
   // constructor
-  ElemDDLPartitionList(ElemDDLNode * commaExpr,
-                              ElemDDLNode * otherExpr)
-  : ElemDDLList(ELM_PARTITION_LIST, commaExpr, otherExpr)
-  { }
+  ElemDDLPartitionList(ElemDDLNode *commaExpr, ElemDDLNode *otherExpr)
+      : ElemDDLList(ELM_PARTITION_LIST, commaExpr, otherExpr) {}
 
   // virtual destructor
   virtual ~ElemDDLPartitionList();
 
   // cast
-  virtual ElemDDLPartitionList * castToElemDDLPartitionList();
+  virtual ElemDDLPartitionList *castToElemDDLPartitionList();
 
   // method for tracing
   virtual const NAString getText() const;
@@ -87,11 +81,7 @@ public:
   // method for building text
   virtual NAString getSyntax() const;
 
+ private:
+};  // class ElemDDLPartitionList
 
-
-private:
-
-}; // class ElemDDLPartitionList
-
-
-#endif // ELEMDDLPARTITIONLIST_H
+#endif  // ELEMDDLPARTITIONLIST_H

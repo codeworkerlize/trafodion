@@ -79,13 +79,13 @@ extern NAUnsigned JoinLeftShiftRuleNumber;
 // Set this to a reasonable limit for the number of rules and increase
 // it as we run out of space.
 //
-#define MAX_RULE_COUNT 100
+#define MAX_RULE_COUNT    100
 #define MAX_NUM_OF_PASSES 2
 
 // -----------------------------------------------------------------------
 // global function to reinit the rule set
 // -----------------------------------------------------------------------
-extern void ReinitRuleSet(RuleSet*);
+extern void ReinitRuleSet(RuleSet *);
 
 // -----------------------------------------------------------------------
 //     Rules
@@ -162,33 +162,26 @@ extern void ReinitRuleSet(RuleSet*);
 //     and its children.
 // -----------------------------------------------------------------------
 
-class Rule : public NABasicObject
-{
+class Rule : public NABasicObject {
+  friend class RuleSet;
 
-friend class RuleSet;
-
-public:
-
-  Rule (const char * name,
-	RelExpr * pattern,
-	RelExpr * substitute);
+ public:
+  Rule(const char *name, RelExpr *pattern, RelExpr *substitute);
 
   // copy ctor
-  Rule (const Rule &) ; // not written
+  Rule(const Rule &);  // not written
 
-  virtual ~Rule ();
-  virtual void print (FILE * f = stdout,
-		      const char * prefix = "",
-		      const char * suffix = "");
+  virtual ~Rule();
+  virtual void print(FILE *f = stdout, const char *prefix = "", const char *suffix = "");
 
   void display();
 
   // methods to get instance variables / data members
-// method is used by debug code and therefore not exercised in mainline code
-  inline const char * getName () const                   { return name_; }
-  inline RelExpr * getPattern () const                { return pattern_; }
-  inline NAUnsigned getNumber() const              { return ruleNumber_; }
-  inline RelExpr * getSubstitute () const          { return substitute_; }
+  // method is used by debug code and therefore not exercised in mainline code
+  inline const char *getName() const { return name_; }
+  inline RelExpr *getPattern() const { return pattern_; }
+  inline NAUnsigned getNumber() const { return ruleNumber_; }
+  inline RelExpr *getSubstitute() const { return substitute_; }
 
   // ---------------------------------------------------------------------
   // Specify some properties of the rule that help scheduling it with
@@ -214,92 +207,76 @@ public:
   virtual NABoolean isContextSensitive() const;
   virtual NABoolean isPassSensitive() const;
   virtual NABoolean isPatternSensitive() const;
-  virtual NABoolean canBePruned(RelExpr * expr) const;
+  virtual NABoolean canBePruned(RelExpr *expr) const;
 
   // a quick check - without materializing a binding -
   // whether the rule can fire
-  virtual NABoolean topMatch (RelExpr * relExpr,
-			      Context *context);
+  virtual NABoolean topMatch(RelExpr *relExpr, Context *context);
 
   // get the result(s) of firing the rule
-  virtual RelExpr * nextSubstitute(RelExpr * before,
-				   Context * context,
-				   RuleSubstituteMemory * & memory);
+  virtual RelExpr *nextSubstitute(RelExpr *before, Context *context, RuleSubstituteMemory *&memory);
 
   // for transformation rules:
   // guidance for exploring and optimizing substitute
 
-  virtual Guidance * guidanceForExploringSubstitute(Guidance * guidance);
+  virtual Guidance *guidanceForExploringSubstitute(Guidance *guidance);
 
-  virtual Guidance * guidanceForOptimizingSubstitute(Guidance * guidance,
-						     Context * context);
+  virtual Guidance *guidanceForOptimizingSubstitute(Guidance *guidance, Context *context);
 
   // for implementation rules:
   // guidance for exploring and optimizing children
 
-  virtual Guidance * guidanceForExploringChild(Guidance * guidance,
-					       Context * context,
-					       Lng32 childIndex);
+  virtual Guidance *guidanceForExploringChild(Guidance *guidance, Context *context, Lng32 childIndex);
 
-  virtual Guidance * guidanceForOptimizingChild(Guidance * guidance,
-						Context * context,
-						Lng32 childIndex);
+  virtual Guidance *guidanceForOptimizingChild(Guidance *guidance, Context *context, Lng32 childIndex);
 
   // only for transformation rules, ie. if top op-arg is logical
   // default value is 10000, resulting in exhaustive search
-  virtual Int32 promiseForExploration(RelExpr * relExpr,
-				      RelExpr * pattern,
-				      Guidance * guidance);
+  virtual Int32 promiseForExploration(RelExpr *relExpr, RelExpr *pattern, Guidance *guidance);
 
   // for all rules; determine promise for applying this rule on relExpr
   // default value is 10000, resulting in exhaustive search
-  virtual Int32 promiseForOptimization(RelExpr * relExpr,
-				       Guidance * guidance,
-				       Context * context);
+  virtual Int32 promiseForOptimization(RelExpr *relExpr, Guidance *guidance, Context *context);
 
   // A quick check to determine whether the firing of this rule can
   // potentially generate an expression which matches the specified mustMatch
   // pattern.
-  virtual NABoolean canMatchPattern (const RelExpr * pattern) const;
+  virtual NABoolean canMatchPattern(const RelExpr *pattern) const;
 
-private:
+ private:
+  const char *name_;       // for tracing and debugging
+  RelExpr *pattern_;       // pattern to match
+  RelExpr *substitute_;    // replacement for pattern
+  NAUnsigned ruleNumber_;  // for easy access
 
-  const char	      * name_;	// for tracing and debugging
-  RelExpr	* pattern_;	// pattern to match
-  RelExpr	* substitute_;	// replacement for pattern
-  NAUnsigned      ruleNumber_;  // for easy access
-
-  void prepare();	// check rule and prepare it for use
+  void prepare();  // check rule and prepare it for use
 
   // gather information about leaf nodes and bind matching leaf nodes together
-  static RelExpr *checkAndBindPattern(RelExpr * patt,
-				      ARRAY(CutOp *) & leaves,
-				      ARRAY(WildCardOp *) & wildcards,
-				      NABoolean isSubstitute = FALSE);
+  static RelExpr *checkAndBindPattern(RelExpr *patt, ARRAY(CutOp *) & leaves, ARRAY(WildCardOp *) & wildcards,
+                                      NABoolean isSubstitute = FALSE);
 
-}; // Rule
+};  // Rule
 
 // -----------------------------------------------------------------------
 // A rule subset identifies a subset of the global "rule_set" to be applied
 // in a certain phase or with a certain guidance
 // -----------------------------------------------------------------------
 
-class RuleSubset : public SUBARRAY(Rule *)
-{
-public:
+class RuleSubset : public SUBARRAY(Rule *) {
+ public:
+  RuleSubset(CollHeap *h);
 
-  RuleSubset(CollHeap* h);
-
-  RuleSubset(ARRAY(Rule *) *superset,CollHeap* h) :
-    SUBARRAY(Rule *)(superset,h) {}
+  RuleSubset(ARRAY(Rule *) * superset, CollHeap *h) : SUBARRAY(Rule *)(superset, h) {}
 
   // copy ctor
-  RuleSubset (const RuleSubset & orig, CollHeap * h=0) ; // not written
+  RuleSubset(const RuleSubset &orig, CollHeap *h = 0);  // not written
 
   virtual ~RuleSubset() {}
 
-  inline RuleSubset & operator = (const RuleSubset &other)
-    { SUBARRAY(Rule *)::operator = (other); return *this; }
+  inline RuleSubset &operator=(const RuleSubset &other) {
+    SUBARRAY(Rule *)::operator=(other);
+    return *this;
+  }
 
   void display();
 };
@@ -307,17 +284,15 @@ public:
 // -----------------------------------------------------------------------
 // The set of rules used in Cascades
 // -----------------------------------------------------------------------
-class RuleSet : public NABasicObject
-{
-friend class RuleSubset;
+class RuleSet : public NABasicObject {
+  friend class RuleSubset;
 
-public:
-
+ public:
   // constructor
-  RuleSet(Int32 approxNumRules, CollHeap* h);
+  RuleSet(Int32 approxNumRules, CollHeap *h);
 
   // copy ctor
-  RuleSet (const RuleSet &) ; // not written
+  RuleSet(const RuleSet &);  // not written
 
   // destructor
   ~RuleSet();
@@ -333,27 +308,26 @@ public:
   // passes, sensitive to the OPTIMIZATION_LEVEL desired, as specified
   // in the defaults table.
   // ---------------------------------------------------------------------
-  static Lng32 getFirstPassNumber()                           { return 1; }
-  static Lng32 getSecondPassNumber()                          { return 2; }
+  static Lng32 getFirstPassNumber() { return 1; }
+  static Lng32 getSecondPassNumber() { return 2; }
 
   // Methods for dealing with the total number of passes.
   void setTotalPasses();
-  inline Lng32 getTotalNumberOfPasses() const      { return totalPasses_; }
+  inline Lng32 getTotalNumberOfPasses() const { return totalPasses_; }
 
-  inline Lng32 getLastPassNumber() const           { return totalPasses_; }
+  inline Lng32 getLastPassNumber() const { return totalPasses_; }
 
   // Methods dealing with the current pass number.
-  inline void initializeCurrentPassNumber()          { currentPass_ = 0; }
-// method is called in an old code path not exercised any more
-// this gets called when RelExpr::optimize was used as the optimization
-// driver. The new driver (for quite some time now) is RelExpr::optimize2
-  inline void incrementCurrentPassNumber()             { currentPass_++; }
+  inline void initializeCurrentPassNumber() { currentPass_ = 0; }
+  // method is called in an old code path not exercised any more
+  // this gets called when RelExpr::optimize was used as the optimization
+  // driver. The new driver (for quite some time now) is RelExpr::optimize2
+  inline void incrementCurrentPassNumber() { currentPass_++; }
 
-  inline Lng32 getCurrentPassNumber() const        { return currentPass_; }
+  inline Lng32 getCurrentPassNumber() const { return currentPass_; }
 
   // Check whether the optimizer is in its last pass.
-  inline NABoolean inLastPass() const
-               { return (getCurrentPassNumber() == getLastPassNumber()); }
+  inline NABoolean inLastPass() const { return (getCurrentPassNumber() == getLastPassNumber()); }
 
   // done before optimizing a query, reset rule set to initial state
   void initializeFirstPass();
@@ -368,87 +342,71 @@ public:
 
   // return a (sub) set of currently applicable rules
   // (see also Guidance::applicableRules())
-  const RuleSubset * applicableRules()
-   {
-     CMPASSERT( (currentPass_ >= getFirstPassNumber()) AND
-             (currentPass_ <= getLastPassNumber()) );
-     return passNRules_[currentPass_];
-   }
+  const RuleSubset *applicableRules() {
+    CMPASSERT((currentPass_ >= getFirstPassNumber()) AND(currentPass_ <= getLastPassNumber()));
+    return passNRules_[currentPass_];
+  }
 
   // used to recognize first pass rules for the use
   // in optimization Level 1
-  const RuleSubset * getPassNRules(Lng32 passNum)
-   {
-     CMPASSERT( (passNum >= getFirstPassNumber()) AND
-             (passNum <= getLastPassNumber()) );
-     return passNRules_[passNum];
-   }
+  const RuleSubset *getPassNRules(Lng32 passNum) {
+    CMPASSERT((passNum >= getFirstPassNumber()) AND(passNum <= getLastPassNumber()));
+    return passNRules_[passNum];
+  }
 
   // get a rule
-  Rule * rule(NAUnsigned ruleNo) { return allRules_[ruleNo]; }
+  Rule *rule(NAUnsigned ruleNo) { return allRules_[ruleNo]; }
 
   // insert a new rule into the rule set
-  void insert(Rule * r);
+  void insert(Rule *r);
 
   // enable a rule for a certain optimization pass starting from
   // fromPass upto and including toPassIncl.
-  void enable(NAUnsigned ruleNo,
-	      Lng32 fromPass,
-	      Lng32 toPassIncl);
+  void enable(NAUnsigned ruleNo, Lng32 fromPass, Lng32 toPassIncl);
 
-  void enable(NAUnsigned ruleNo, Lng32 fromPass)
-                         { enable(ruleNo, fromPass, MAX_NUM_OF_PASSES); }
+  void enable(NAUnsigned ruleNo, Lng32 fromPass) { enable(ruleNo, fromPass, MAX_NUM_OF_PASSES); }
 
-  void enable(NAUnsigned ruleNo)
-             { enable(ruleNo, getFirstPassNumber(), MAX_NUM_OF_PASSES); }
+  void enable(NAUnsigned ruleNo) { enable(ruleNo, getFirstPassNumber(), MAX_NUM_OF_PASSES); }
 
   // disable a rule for a certain optimization pass starting from
   // fromPass upto and including toPassIncl.
-  void disable(NAUnsigned ruleNo,
-	      Lng32 fromPass,
-	      Lng32 toPassIncl);
+  void disable(NAUnsigned ruleNo, Lng32 fromPass, Lng32 toPassIncl);
 
-  void disable(NAUnsigned ruleNo, Lng32 fromPass)
-                         { disable(ruleNo, fromPass, MAX_NUM_OF_PASSES); }
+  void disable(NAUnsigned ruleNo, Lng32 fromPass) { disable(ruleNo, fromPass, MAX_NUM_OF_PASSES); }
 
-  void disable(NAUnsigned ruleNo)
-             { disable(ruleNo, getFirstPassNumber(), MAX_NUM_OF_PASSES); }
+  void disable(NAUnsigned ruleNo) { disable(ruleNo, getFirstPassNumber(), MAX_NUM_OF_PASSES); }
 
   // accessor functions
-  inline Lng32 getCountOfRules() const       { return allRules_.entries(); }
-// method is used in debugging and therefore not exercised in mainline code
-  inline Int32 getRuleApplCount() const            { return ruleApplCount_; }
-  inline void bumpRuleApplCount()                     { ruleApplCount_++; }
+  inline Lng32 getCountOfRules() const { return allRules_.entries(); }
+  // method is used in debugging and therefore not exercised in mainline code
+  inline Int32 getRuleApplCount() const { return ruleApplCount_; }
+  inline void bumpRuleApplCount() { ruleApplCount_++; }
 
-  inline const RuleSubset & oldRules()                { return oldRules_; }
-  inline const RuleSubset & transformationRules()   { return transRules_; }
-  inline const RuleSubset & implementationRules()    { return implRules_; }
-  inline const RuleSubset & enforcerRules()      { return enforcerRules_; }
-  inline const RuleSubset & contextSensitiveRules()
-                                         { return contextSensitiveRules_; }
-  inline const RuleSubset & passSensitiveRules()
-                                            { return passSensitiveRules_; }
-  inline const RuleSubset & patternSensitiveRules ()
-                                         { return patternSensitiveRules_; }
+  inline const RuleSubset &oldRules() { return oldRules_; }
+  inline const RuleSubset &transformationRules() { return transRules_; }
+  inline const RuleSubset &implementationRules() { return implRules_; }
+  inline const RuleSubset &enforcerRules() { return enforcerRules_; }
+  inline const RuleSubset &contextSensitiveRules() { return contextSensitiveRules_; }
+  inline const RuleSubset &passSensitiveRules() { return passSensitiveRules_; }
+  inline const RuleSubset &patternSensitiveRules() { return patternSensitiveRules_; }
 
-private:
-
-  ARRAY(Rule *)       allRules_;      // array with all the rules in it
+ private:
+  ARRAY(Rule *) allRules_;  // array with all the rules in it
   // the subsets below don't have to be distinct in any way
-  ARRAY(RuleSubset *) passNRules_;    // rules for pass n
-  RuleSubset          oldRules_;      // rules used in previous passes
+  ARRAY(RuleSubset *) passNRules_;  // rules for pass n
+  RuleSubset oldRules_;             // rules used in previous passes
 
-  Lng32                currentPass_;   // current pass of optimization
-  Lng32                totalPasses_;   // total number of optimization passes
-                                      // for this statement
-  Int32                 ruleApplCount_; // statistics on rule applications
+  Lng32 currentPass_;    // current pass of optimization
+  Lng32 totalPasses_;    // total number of optimization passes
+                         // for this statement
+  Int32 ruleApplCount_;  // statistics on rule applications
 
-  RuleSubset          transRules_;    // all transformation rules
-  RuleSubset          implRules_;     // all implementation rules
-  RuleSubset          enforcerRules_; // all enforcer rules
-  RuleSubset          contextSensitiveRules_; // all context sensitive rules
-  RuleSubset          passSensitiveRules_; // all rules that look at the pass #
-  RuleSubset          patternSensitiveRules_; // rules using the expl. pattern
+  RuleSubset transRules_;             // all transformation rules
+  RuleSubset implRules_;              // all implementation rules
+  RuleSubset enforcerRules_;          // all enforcer rules
+  RuleSubset contextSensitiveRules_;  // all context sensitive rules
+  RuleSubset passSensitiveRules_;     // all rules that look at the pass #
+  RuleSubset patternSensitiveRules_;  // rules using the expl. pattern
 };
 
 // -----------------------------------------------------------------------
@@ -464,60 +422,54 @@ private:
 // then just return the rest in subsequent calls
 // -----------------------------------------------------------------------
 
-class RuleSubstituteMemory : public LIST(RelExpr *)
-{
-
-public:
-
-  RuleSubstituteMemory(CollHeap* h) : LIST(RelExpr *)(h)
-    {}
+class RuleSubstituteMemory : public LIST(RelExpr *) {
+ public:
+  RuleSubstituteMemory(CollHeap *h) : LIST(RelExpr *)(h) {}
 
   // copy ctor
-  RuleSubstituteMemory (const RuleSubstituteMemory &) ; // not written
+  RuleSubstituteMemory(const RuleSubstituteMemory &);  // not written
 
   virtual ~RuleSubstituteMemory();
 
-  RelExpr * getNextSubstitute();
+  RelExpr *getNextSubstitute();
 };
 
 // -----------------------------------------------------------------------
 // an applicable rule that has a certain promise value
 // -----------------------------------------------------------------------
-struct RuleWithPromise
-{
-  Int32   promise;
-  Int32   tieBreaker;// used to break ties if promise is equal
-  Rule    * rule;
+struct RuleWithPromise {
+  Int32 promise;
+  Int32 tieBreaker;  // used to break ties if promise is equal
+  Rule *rule;
 };
 
 // -----------------------------------------------------------------------
 // This class associates a set of rules with a context.  This mapping
 // shows which rules have been applied for a given context.
 // -----------------------------------------------------------------------
-class RulesPerContext : public NABasicObject
-{
-public:
-  RulesPerContext (const Context* const context,CollHeap* h);
+class RulesPerContext : public NABasicObject {
+ public:
+  RulesPerContext(const Context *const context, CollHeap *h);
 
   // copy ctor
-  RulesPerContext (const RulesPerContext &) ; // not written
+  RulesPerContext(const RulesPerContext &);  // not written
 
-// destructors a generally not called for objects involved in
-// optimization (unless the class is heavy weight). This is 
-// because the entire statement heap is discarded at the end
-// of compilation.
+  // destructors a generally not called for objects involved in
+  // optimization (unless the class is heavy weight). This is
+  // because the entire statement heap is discarded at the end
+  // of compilation.
   ~RulesPerContext() {}
 
   // Accessor methods
-  inline const Context* getContext() const { return context_; }
-  inline const RuleSubset & getTriedRules() const { return triedRules_; }
+  inline const Context *getContext() const { return context_; }
+  inline const RuleSubset &getTriedRules() const { return triedRules_; }
 
   // Manipulation methods
   inline RuleSubset &triedRules() { return triedRules_; }
 
-private:
-  const Context* const context_;
-  RuleSubset  triedRules_;
+ private:
+  const Context *const context_;
+  RuleSubset triedRules_;
 
 };  // RulesPerContext
 
@@ -525,40 +477,31 @@ private:
 // This class contains a collection of mappings between a context
 // and a set of rules applied on this context.
 // -----------------------------------------------------------------------
-class RulesPerContextList : public LIST (RulesPerContext *)
-{
-public:
-
-  RulesPerContextList(CollHeap* h) : LIST(RulesPerContext *)(h)
-    {}
+class RulesPerContextList : public LIST(RulesPerContext *) {
+ public:
+  RulesPerContextList(CollHeap *h) : LIST(RulesPerContext *)(h) {}
 
   // copy ctor
-  //RulesPerContextList (const RulesPerContextList &) ; // not written
+  // RulesPerContextList (const RulesPerContextList &) ; // not written
 
   // Has this rule been applied for a given context?
-  NABoolean applied (const Context* const context,
-		     NAUnsigned ruleNumber) const;
+  NABoolean applied(const Context *const context, NAUnsigned ruleNumber) const;
 
   // Get the rules that were tried for this context
-  const RuleSubset & getTriedRules(const Context* const context) const;
+  const RuleSubset &getTriedRules(const Context *const context) const;
 
   // Has this rule been applied in a previous context with the specified
   // set of input logical properties?
-  NABoolean applied (const EstLogPropSharedPtr& inputLogProp,
-		     NAUnsigned ruleNumber) const;
+  NABoolean applied(const EstLogPropSharedPtr &inputLogProp, NAUnsigned ruleNumber) const;
 
   // Add the following rule for the specified context
-  void addRule (const Context* const context,
-		NAUnsigned ruleNumber);
+  void addRule(const Context *const context, NAUnsigned ruleNumber);
 
   // Remove the following rule for the specified context
-  void removeRule (const Context* const context,
-		NAUnsigned ruleNumber);
+  void removeRule(const Context *const context, NAUnsigned ruleNumber);
 
-private:
-
+ private:
 };
-
 
 /*
 // -----------------------------------------------------------------------
@@ -567,22 +510,20 @@ private:
 //     Search guidance is created by a rule.  Guidance is distinguished
 //     from properties as it applies to the search, not to the
 //     intermediate results of the operator trees being manipulated.  A
-		     NAUnsigned ruleNumber) const;
+                     NAUnsigned ruleNumber) const;
 
   // Add the following rule for the specified context
-  void addRule (const Context* const context, 
-		NAUnsigned ruleNumber);
+  void addRule (const Context* const context,
+                NAUnsigned ruleNumber);
 
   // Remove the following rule for the specified context
-  void removeRule (const Context* const context, 
-		NAUnsigned ruleNumber);
+  void removeRule (const Context* const context,
+                NAUnsigned ruleNumber);
 
 private:
-  
+
 };
 */
-
-
 
 // -----------------------------------------------------------------------
 //     Search guidance
@@ -598,17 +539,15 @@ private:
 //     in rules' promise and condition functions.
 // -----------------------------------------------------------------------
 
-class Guidance : public ReferenceCounter
-{
-public:
-
+class Guidance : public ReferenceCounter {
+ public:
   // I guess we just use the default, built-in ctors for this class ...
   // (is this really a good idea?)
 
   virtual ~Guidance();
 
   // return a (sub) set of currently applicable rules
-  virtual const RuleSubset * applicableRules();
+  virtual const RuleSubset *applicableRules();
 
 };  // Guidance
 
@@ -627,10 +566,10 @@ public:
 
 // To get rid of annoying warnings, MSVC requires the following (int) casts:
 //
-const Int32 AlwaysBetterPromise        = (Int32) 99000;
-const Int32 DefaultImplRulePromise     = (Int32) 20000;
-const Int32 DefaultTransRulePromise    = (Int32) 10000;
-const Int32 DefaultEnforcerRulePromise = (Int32) 5000;
-const Int32 NoPromise                  = (Int32) 0;
+const Int32 AlwaysBetterPromise = (Int32)99000;
+const Int32 DefaultImplRulePromise = (Int32)20000;
+const Int32 DefaultTransRulePromise = (Int32)10000;
+const Int32 DefaultEnforcerRulePromise = (Int32)5000;
+const Int32 NoPromise = (Int32)0;
 
-#endif // RULE_H
+#endif  // RULE_H

@@ -23,14 +23,13 @@
 #ifndef EX_DDL_H
 #define EX_DDL_H
 
-
 /* -*-C++-*-
  *****************************************************************************
  *
  * File:         ex_ddl.h
  * Description:  DDL statements (get executed in mxcmp)
- *               
- *               
+ *
+ *
  * Created:      7/10/95
  * Language:     C++
  *
@@ -60,27 +59,23 @@ class ex_tcb;
 // -----------------------------------------------------------------------
 // ExDDLTdb
 // -----------------------------------------------------------------------
-class ExDDLTdb : public ComTdbDDL
-{
-public:
-
+class ExDDLTdb : public ComTdbDDL {
+ public:
   // ---------------------------------------------------------------------
   // Constructor is only called to instantiate an object used for
   // retrieval of the virtual table function pointer of the class while
   // unpacking. An empty constructor is enough.
   // ---------------------------------------------------------------------
-  ExDDLTdb()
-  {}
+  ExDDLTdb() {}
 
-  virtual ~ExDDLTdb()
-  {}
+  virtual ~ExDDLTdb() {}
 
   // ---------------------------------------------------------------------
   // Build a TCB for this TDB. Redefined in the Executor project.
   // ---------------------------------------------------------------------
   virtual ex_tcb *build(ex_globals *globals);
 
-private:
+ private:
   // ---------------------------------------------------------------------
   // !!!!!!! IMPORTANT -- NO DATA MEMBERS ALLOWED IN EXECUTOR TDB !!!!!!!!
   // *********************************************************************
@@ -100,39 +95,34 @@ private:
   // 1. Are those data members Compiler-generated?
   //    If yes, put them in the ComTdbDLL instead.
   //    If no, they should probably belong to someplace else (like TCB).
-  // 
+  //
   // 2. Are the classes those data members belong defined in the executor
   //    project?
   //    If your answer to both questions is yes, you might need to move
   //    the classes to the comexe project.
   // ---------------------------------------------------------------------
 };
-
 
 // -----------------------------------------------------------------------
 // ExDDLwithStatusTdb
 // -----------------------------------------------------------------------
-class ExDDLwithStatusTdb : public ComTdbDDLwithStatus
-{
-public:
-
+class ExDDLwithStatusTdb : public ComTdbDDLwithStatus {
+ public:
   // ---------------------------------------------------------------------
   // Constructor is only called to instantiate an object used for
   // retrieval of the virtual table function pointer of the class while
   // unpacking. An empty constructor is enough.
   // ---------------------------------------------------------------------
-  ExDDLwithStatusTdb()
-  {}
+  ExDDLwithStatusTdb() {}
 
-  virtual ~ExDDLwithStatusTdb()
-  {}
+  virtual ~ExDDLwithStatusTdb() {}
 
   // ---------------------------------------------------------------------
   // Build a TCB for this TDB. Redefined in the Executor project.
   // ---------------------------------------------------------------------
   virtual ex_tcb *build(ex_globals *globals);
 
-private:
+ private:
   // ---------------------------------------------------------------------
   // !!!!!!! IMPORTANT -- NO DATA MEMBERS ALLOWED IN EXECUTOR TDB !!!!!!!!
   // *********************************************************************
@@ -152,7 +142,7 @@ private:
   // 1. Are those data members Compiler-generated?
   //    If yes, put them in the ComTdbDLL instead.
   //    If no, they should probably belong to someplace else (like TCB).
-  // 
+  //
   // 2. Are the classes those data members belong defined in the executor
   //    project?
   //    If your answer to both questions is yes, you might need to move
@@ -160,30 +150,18 @@ private:
   // ---------------------------------------------------------------------
 };
 
-
 //
 // Task control block
 //
-class ExDDLTcb : public ex_tcb
-{
+class ExDDLTcb : public ex_tcb {
   friend class ExDDLTdb;
   friend class ExDDLPrivateState;
 
-public:
-  enum Step
-  {
-    EMPTY_,
-    REQUEST_SENT_,
-    RETURNING_DATA_,
-    DONE_,
-    HANDLE_ERROR_,
-    CANCELLED_,
-    RETURNING_LEAKS_
-  };
+ public:
+  enum Step { EMPTY_, REQUEST_SENT_, RETURNING_DATA_, DONE_, HANDLE_ERROR_, CANCELLED_, RETURNING_LEAKS_ };
 
   // Constructor
-  ExDDLTcb(const ComTdbDDL & ddl_tdb,
-	   ex_globals * glob = 0);
+  ExDDLTcb(const ComTdbDDL &ddl_tdb, ex_globals *glob = 0);
 
   ~ExDDLTcb();
 
@@ -195,60 +173,56 @@ public:
   void freeResources();
 
   Int32 numChildren() const;
-  const ex_tcb* getChild(Int32 pos) const;
+  const ex_tcb *getChild(Int32 pos) const;
 
-protected:
+ protected:
   void handleErrors(ex_queue_entry *pentry_down, ComDiagsArea *da, Int32 error);
 
-  ex_queue_pair	qparent_;
+  ex_queue_pair qparent_;
 
   unsigned short tcbFlags_;
 
-  atp_struct * workAtp_;
+  atp_struct *workAtp_;
 
   // VO, plan versioning support
   // Some operations, like showshape, may require a downrev compiler.
-  // This is not detected until execution time though. 
+  // This is not detected until execution time though.
   COM_VERSION compilerVersion_;
 
-  const inline COM_VERSION getCompilerVersion (void) const { return compilerVersion_; };
-  inline void setCompilerVersion (COM_VERSION version)     { compilerVersion_ = version; };
-  ExSqlComp * getArkcmp (void);
+  const inline COM_VERSION getCompilerVersion(void) const { return compilerVersion_; };
+  inline void setCompilerVersion(COM_VERSION version) { compilerVersion_ = version; };
+  ExSqlComp *getArkcmp(void);
 
   // Return the stmt Globals, which can be either the master executor
-  // one, or ESP one, depending on the execution location of the DDL. 
-  ExExeStmtGlobals* getExeStmtGlobals();
+  // one, or ESP one, depending on the execution location of the DDL.
+  ExExeStmtGlobals *getExeStmtGlobals();
 
-  // Return the CLI Globals 
-  CliGlobals* getCliGlobals()
-  {
-     ExExeStmtGlobals* stmtGlobals = getExeStmtGlobals();
-     return (stmtGlobals)? stmtGlobals->getCliGlobals() : NULL;
+  // Return the CLI Globals
+  CliGlobals *getCliGlobals() {
+    ExExeStmtGlobals *stmtGlobals = getExeStmtGlobals();
+    return (stmtGlobals) ? stmtGlobals->getCliGlobals() : NULL;
   }
 
   // Return the CLI context
-  ContextCli * currContext (void)
-  { 
-     CliGlobals* cliGlobals = getCliGlobals();
-     return (cliGlobals) ? cliGlobals->currContext() : NULL;
+  ContextCli *currContext(void) {
+    CliGlobals *cliGlobals = getCliGlobals();
+    return (cliGlobals) ? cliGlobals->currContext() : NULL;
   };
 
-  char* getQueryIdInfo(Lng32& len);
+  char *getQueryIdInfo(Lng32 &len);
 
-  inline ExDDLTdb & ddlTdb() const{return (ExDDLTdb &) tdb;};
+  inline ExDDLTdb &ddlTdb() const { return (ExDDLTdb &)tdb; };
 };
 
 //
 // Task control block
 //
-class ExDDLwithStatusTcb : public ExDDLTcb
-{
+class ExDDLwithStatusTcb : public ExDDLTcb {
   friend class ExDDLTdb;
   friend class ExDDLPrivateState;
 
-public:
-  enum Step
-  {
+ public:
+  enum Step {
     NOT_STARTED_,
     SETUP_INITIAL_REQ_,
     CALL_EMBEDDED_CMP_,
@@ -264,72 +238,69 @@ public:
   };
 
   // Constructor
-  ExDDLwithStatusTcb(const ComTdbDDL & ddl_tdb,
-                     ex_globals * glob = 0);
+  ExDDLwithStatusTcb(const ComTdbDDL &ddl_tdb, ex_globals *glob = 0);
 
-  ~ExDDLwithStatusTcb()
-    {}
+  ~ExDDLwithStatusTcb() {}
 
   virtual short work();
 
-  ComDiagsArea * getDiagsArea() { return diagsArea_; }
-  inline ExDDLwithStatusTdb & ddlTdb() const{return (ExDDLwithStatusTdb &) tdb;};
+  ComDiagsArea *getDiagsArea() { return diagsArea_; }
+  inline ExDDLwithStatusTdb &ddlTdb() const { return (ExDDLwithStatusTdb &)tdb; };
 
  private:
   Step step_;
   Lng32 ddlStep_;
   Lng32 ddlSubstep_;
 
-  char * upgdMsg_;
+  char *upgdMsg_;
 
-  ExSqlComp * cmp_;
-  char * replyBuf_;
+  ExSqlComp *cmp_;
+  char *replyBuf_;
   ULng32 replyBufLen_;
 
-  CmpDDLwithStatusInfo * mdi_;
-  CmpDDLwithStatusInfo * replyDWS_;
+  CmpDDLwithStatusInfo *mdi_;
+  CmpDDLwithStatusInfo *replyDWS_;
 
   Int64 startTime_;
   Int64 endTime_;
   Int64 queryStartTime_;
 
-  char * data_;
+  char *data_;
   size_t dataLen_;
 
   NABoolean callEmbeddedCmp_;
 
   Int32 numEntries_;
   Int32 currEntry_;
-  char * currPtr_;
+  char *currPtr_;
 
-  ComDiagsArea * diagsArea_;
+  ComDiagsArea *diagsArea_;
 };
 
-class ExDDLPrivateState : public ex_tcb_private_state
-{
+class ExDDLPrivateState : public ex_tcb_private_state {
   friend class ExDDLTcb;
   friend class ExDDLwithStatusTcb;
   friend class ExDescribeTcb;
-  
-public:	
-  ExDDLPrivateState(const ExDDLTcb * tcb); //constructor
-  ~ExDDLPrivateState();	// destructor
-  ex_tcb_private_state * allocate_new(const ex_tcb * tcb);
-protected:
+
+ public:
+  ExDDLPrivateState(const ExDDLTcb *tcb);  // constructor
+  ~ExDDLPrivateState();                    // destructor
+  ex_tcb_private_state *allocate_new(const ex_tcb *tcb);
+
+ protected:
   void init();
   ExDDLTcb::Step step_;
   Int64 matches_;
 
   // the request and reply objects used to send and receive
   // data from arkcmp.
-  void * request_;
-  void * reply_;
+  void *request_;
+  void *reply_;
 
-  char * dataPtr_;
+  char *dataPtr_;
   ULng32 dataLen_;
   ULng32 currLen_;
 };
-
 
 ////////////////////////////////////////////////////////////////////
 // classes ExDescribeTdb, ExDescribeTcb, ExDescribePrivateState
@@ -349,27 +320,23 @@ class ex_tcb;
 // -----------------------------------------------------------------------
 // ExDescribeTdb
 // -----------------------------------------------------------------------
-class ExDescribeTdb : public ComTdbDescribe
-{
-public:
-
+class ExDescribeTdb : public ComTdbDescribe {
+ public:
   // ---------------------------------------------------------------------
   // Constructor is only called to instantiate an object used for
   // retrieval of the virtual table function pointer of the class while
   // unpacking. An empty constructor is enough.
   // ---------------------------------------------------------------------
-  ExDescribeTdb()
-  {}
+  ExDescribeTdb() {}
 
-  virtual ~ExDescribeTdb()
-  {}
+  virtual ~ExDescribeTdb() {}
 
   // ---------------------------------------------------------------------
   // Build a TCB for this TDB. Redefined in the Executor project.
   // ---------------------------------------------------------------------
   virtual ex_tcb *build(ex_globals *globals);
 
-private:
+ private:
   // ---------------------------------------------------------------------
   // !!!!!!! IMPORTANT -- NO DATA MEMBERS ALLOWED IN EXECUTOR TDB !!!!!!!!
   // *********************************************************************
@@ -389,7 +356,7 @@ private:
   // 1. Are those data members Compiler-generated?
   //    If yes, put them in the ComTdbDescribe instead.
   //    If no, they should probably belong to someplace else (like TCB).
-  // 
+  //
   // 2. Are the classes those data members belong defined in the executor
   //    project?
   //    If your answer to both questions is yes, you might need to move
@@ -397,18 +364,14 @@ private:
   // ---------------------------------------------------------------------
 };
 
-
-class ExDescribeTcb : public ExDDLTcb
-{
-public:
-  ExDescribeTcb(const ExDescribeTdb & describe_tdb,
-		ex_globals * glob = 0);
+class ExDescribeTcb : public ExDDLTcb {
+ public:
+  ExDescribeTcb(const ExDescribeTdb &describe_tdb, ex_globals *glob = 0);
 
   short work();
 
-private:
-
-  inline ExDescribeTdb & describeTdb() const{return (ExDescribeTdb &) tdb;};
+ private:
+  inline ExDescribeTdb &describeTdb() const { return (ExDescribeTdb &)tdb; };
 
   Lng32 returnLeaks(short &error);
 };
@@ -417,33 +380,20 @@ private:
 // This work method is defined in ex_control.cpp, alongwith other
 // SHOWSET stmt methods.
 ///////////////////////////////////////////////////////////////////
-class ExShowEnvvarsTcb : public ExDescribeTcb
-{
-public:
-  ExShowEnvvarsTcb(const ExDescribeTdb & describe_tdb,
-		   ex_globals * glob = 0);
+class ExShowEnvvarsTcb : public ExDescribeTcb {
+ public:
+  ExShowEnvvarsTcb(const ExDescribeTdb &describe_tdb, ex_globals *glob = 0);
 
   virtual short work();
 
-protected:
-  enum Step
-  {
-    EMPTY_,
-    RETURN_HEADER_,
-    RETURNING_VALUE_,
-    DONE_,
-    HANDLE_ERROR_,
-    CANCELLED_
-  };
-  
-  inline ExDescribeTdb & showTdb() const{return (ExDescribeTdb &) tdb;};
+ protected:
+  enum Step { EMPTY_, RETURN_HEADER_, RETURNING_VALUE_, DONE_, HANDLE_ERROR_, CANCELLED_ };
 
-  short moveRowToUpQueue(Lng32 tuppIndex,
-			 const char * row, 
-			 Lng32 len = 0, 
-			 short * rc = NULL);
-    
-private:
+  inline ExDescribeTdb &showTdb() const { return (ExDescribeTdb &)tdb; };
+
+  short moveRowToUpQueue(Lng32 tuppIndex, const char *row, Lng32 len = 0, short *rc = NULL);
+
+ private:
   Step step_;
 
   Lng32 currEnvvar_;
@@ -452,27 +402,23 @@ private:
 // -----------------------------------------------------------------------
 // ExProcessVolatileTableTdb
 // -----------------------------------------------------------------------
-class ExProcessVolatileTableTdb : public ComTdbProcessVolatileTable
-{
-public:
-
+class ExProcessVolatileTableTdb : public ComTdbProcessVolatileTable {
+ public:
   // ---------------------------------------------------------------------
   // Constructor is only called to instantiate an object used for
   // retrieval of the virtual table function pointer of the class while
   // unpacking. An empty constructor is enough.
   // ---------------------------------------------------------------------
-  ExProcessVolatileTableTdb()
-  {}
+  ExProcessVolatileTableTdb() {}
 
-  virtual ~ExProcessVolatileTableTdb()
-  {}
+  virtual ~ExProcessVolatileTableTdb() {}
 
   // ---------------------------------------------------------------------
   // Build a TCB for this TDB. Redefined in the Executor project.
   // ---------------------------------------------------------------------
   virtual ex_tcb *build(ex_globals *globals);
 
-private:
+ private:
   // ---------------------------------------------------------------------
   // !!!!!!! IMPORTANT -- NO DATA MEMBERS ALLOWED IN EXECUTOR TDB !!!!!!!!
   // *********************************************************************
@@ -492,7 +438,7 @@ private:
   // 1. Are those data members Compiler-generated?
   //    If yes, put them in the ComTdbDLL instead.
   //    If no, they should probably belong to someplace else (like TCB).
-  // 
+  //
   // 2. Are the classes those data members belong defined in the executor
   //    project?
   //    If your answer to both questions is yes, you might need to move
@@ -500,30 +446,23 @@ private:
   // ---------------------------------------------------------------------
 };
 
-class ExProcessVolatileTableTcb : public ExDDLTcb
-{
+class ExProcessVolatileTableTcb : public ExDDLTcb {
   friend class ExProcessVolatileTableTdb;
   friend class ExExeUtilPrivateState;
 
-public:
+ public:
   // Constructor
-  ExProcessVolatileTableTcb(const ComTdbProcessVolatileTable & exe_util_tdb,
-			    ex_globals * glob = 0);
+  ExProcessVolatileTableTcb(const ComTdbProcessVolatileTable &exe_util_tdb, ex_globals *glob = 0);
 
   virtual short work();
 
-  ExProcessVolatileTableTdb & pvtTdb() const
-  {
-    return (ExProcessVolatileTableTdb &) tdb;
-  };
+  ExProcessVolatileTableTdb &pvtTdb() const { return (ExProcessVolatileTableTdb &)tdb; };
 
-  virtual ex_tcb_private_state * allocatePstates(
-       Lng32 &numElems,      // inout, desired/actual elements
-       Lng32 &pstateLength); // out, length of one element
+  virtual ex_tcb_private_state *allocatePstates(Lng32 &numElems,       // inout, desired/actual elements
+                                                Lng32 &pstateLength);  // out, length of one element
 
-private:
-  enum Step
-  {
+ private:
+  enum Step {
     INITIAL_,
     SEND_DDL_EXPR_,
     ADD_TO_VOL_TAB_LIST_,
@@ -536,44 +475,38 @@ private:
   };
 
   Step step_;
-
 };
 
-class ExProcessVolatileTablePrivateState : public ex_tcb_private_state
-{
+class ExProcessVolatileTablePrivateState : public ex_tcb_private_state {
   friend class ExProcessVolatileTableTcb;
-  
-public:	
+
+ public:
   ExProcessVolatileTablePrivateState();
-  ~ExProcessVolatileTablePrivateState();	// destructor
-protected:
+  ~ExProcessVolatileTablePrivateState();  // destructor
+ protected:
 };
 
 //////////////////////////////////////////////////////////////////////////
 // -----------------------------------------------------------------------
 // ExProcessInMemoryTableTdb
 // -----------------------------------------------------------------------
-class ExProcessInMemoryTableTdb : public ComTdbProcessInMemoryTable
-{
-public:
-
+class ExProcessInMemoryTableTdb : public ComTdbProcessInMemoryTable {
+ public:
   // ---------------------------------------------------------------------
   // Constructor is only called to instantiate an object used for
   // retrieval of the virtual table function pointer of the class while
   // unpacking. An empty constructor is enough.
   // ---------------------------------------------------------------------
-  ExProcessInMemoryTableTdb()
-  {}
+  ExProcessInMemoryTableTdb() {}
 
-  virtual ~ExProcessInMemoryTableTdb()
-  {}
+  virtual ~ExProcessInMemoryTableTdb() {}
 
   // ---------------------------------------------------------------------
   // Build a TCB for this TDB. Redefined in the Executor project.
   // ---------------------------------------------------------------------
   virtual ex_tcb *build(ex_globals *globals);
 
-private:
+ private:
   // ---------------------------------------------------------------------
   // !!!!!!! IMPORTANT -- NO DATA MEMBERS ALLOWED IN EXECUTOR TDB !!!!!!!!
   // *********************************************************************
@@ -593,7 +526,7 @@ private:
   // 1. Are those data members Compiler-generated?
   //    If yes, put them in the ComTdbDLL instead.
   //    If no, they should probably belong to someplace else (like TCB).
-  // 
+  //
   // 2. Are the classes those data members belong defined in the executor
   //    project?
   //    If your answer to both questions is yes, you might need to move
@@ -601,30 +534,23 @@ private:
   // ---------------------------------------------------------------------
 };
 
-class ExProcessInMemoryTableTcb : public ExDDLTcb
-{
+class ExProcessInMemoryTableTcb : public ExDDLTcb {
   friend class ExProcessInMemoryTableTdb;
   friend class ExExeUtilPrivateState;
 
-public:
+ public:
   // Constructor
-  ExProcessInMemoryTableTcb(const ComTdbProcessInMemoryTable & exe_util_tdb,
-			    ex_globals * glob = 0);
+  ExProcessInMemoryTableTcb(const ComTdbProcessInMemoryTable &exe_util_tdb, ex_globals *glob = 0);
 
   virtual short work();
 
-  ExProcessInMemoryTableTdb & pimtTdb() const
-  {
-    return (ExProcessInMemoryTableTdb &) tdb;
-  };
+  ExProcessInMemoryTableTdb &pimtTdb() const { return (ExProcessInMemoryTableTdb &)tdb; };
 
-  virtual ex_tcb_private_state * allocatePstates(
-       Lng32 &numElems,      // inout, desired/actual elements
-       Lng32 &pstateLength); // out, length of one element
+  virtual ex_tcb_private_state *allocatePstates(Lng32 &numElems,       // inout, desired/actual elements
+                                                Lng32 &pstateLength);  // out, length of one element
 
-private:
-  enum Step
-  {
+ private:
+  enum Step {
     INITIAL_,
     CREATE_VOLATILE_SCHEMA_,
     SET_VOLATILE_SCHEMA_USAGE_CQD_,
@@ -640,19 +566,13 @@ private:
   NABoolean volSchCreatedHere_;
 };
 
-class ExProcessInMemoryTablePrivateState : public ex_tcb_private_state
-{
+class ExProcessInMemoryTablePrivateState : public ex_tcb_private_state {
   friend class ExProcessInMemoryTableTcb;
-  
-public:	
+
+ public:
   ExProcessInMemoryTablePrivateState();
-  ~ExProcessInMemoryTablePrivateState();	// destructor
-protected:
+  ~ExProcessInMemoryTablePrivateState();  // destructor
+ protected:
 };
 
-
-
 #endif
-
-
-

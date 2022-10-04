@@ -34,7 +34,6 @@
 //
 SB_Export const char *SB_get_label_errno(int value);
 
-
 //
 // Get label for MS_Mon_ConfigType (MS_Mon_ConfigType_<value>)
 //
@@ -105,6 +104,4 @@ SB_Export const char *SB_get_label_ms_mon_shutdownlevel(int value);
 //
 SB_Export const char *SB_get_label_ms_mon_shutdownlevel_short(int value);
 
-
-#endif // !__SB_LABELMAPS_H_
-
+#endif  // !__SB_LABELMAPS_H_

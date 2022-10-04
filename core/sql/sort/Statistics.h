@@ -28,10 +28,10 @@
 *
 * File:         Statistics.h
 * RCS:          $Id: Statistics.h,v 1.3 1998/08/10 15:33:44  Exp $
-*                               
-* Description:  This file contains the definitions of various structures 
+*
+* Description:  This file contains the definitions of various structures
 *               common to more than one class in ArkSort.
-*    
+*
 * Created:      12/12/96
 * Modified:     $ $Date: 1998/08/10 15:33:44 $ (GMT)
 * Language:     C++
@@ -45,66 +45,64 @@
 #include "common/Platform.h"
 
 // fix later UNIBR4
-  #ifdef max
-    #undef max
-  #endif
-  #ifdef min
-    #undef min
-  #endif
+#ifdef max
+#undef max
+#endif
+#ifdef min
+#undef min
+#endif
 
 #include "common/Int64.h"
 
 class SortStatistics {
-  public :
+ public:
+  SortStatistics();
+  ~SortStatistics();
+  Lng32 getStatMemSizeB() const;
+  Int64 getStatNumRecs() const;
+  Lng32 getStatRecLen() const;
+  Lng32 getStatRunSize() const;
+  Lng32 getStatNumRuns() const;
+  Lng32 getStatNumInitRuns() const;
+  Lng32 getStatFirstMergeOrder() const;
+  Lng32 getStatFinalMergeOrder() const;
+  Lng32 getStatMergeOrder() const;
+  Lng32 getStatNumInterPasses() const;
+  Lng32 getStatNumCompares() const;
+  Lng32 getStatNumDupRecs() const;
+  Int64 getStatBeginSortTime() const;
+  Int64 getStatElapsedTime() const;
+  Int64 getStatIoWaitTime() const;
+  Lng32 getStatScrBlockSize() const;
+  Lng32 getStatScrNumBlocks() const;
+  Lng32 getStatScrNumWrites() const;
+  Lng32 getStatScrNumReads() const;
+  Lng32 getStatScrAwaitIo() const;
 
-   SortStatistics();
-   ~SortStatistics();
-   Lng32 getStatMemSizeB() const;
-   Int64 getStatNumRecs() const;
-   Lng32 getStatRecLen() const;
-   Lng32 getStatRunSize() const;   
-   Lng32 getStatNumRuns() const;
-   Lng32 getStatNumInitRuns() const;
-   Lng32 getStatFirstMergeOrder() const;
-   Lng32 getStatFinalMergeOrder() const;
-   Lng32 getStatMergeOrder() const;
-   Lng32 getStatNumInterPasses() const;
-   Lng32 getStatNumCompares() const;
-   Lng32 getStatNumDupRecs() const;
-   Int64 getStatBeginSortTime() const;
-   Int64 getStatElapsedTime() const;
-   Int64 getStatIoWaitTime() const;
-   Lng32 getStatScrBlockSize() const;
-   Lng32 getStatScrNumBlocks() const;
-   Lng32 getStatScrNumWrites() const;
-   Lng32 getStatScrNumReads() const;
-   Lng32 getStatScrAwaitIo() const;
+  friend class SortUtil;
 
-   friend class SortUtil;
+ private:
+  Lng32 memSizeB_;
+  Int64 numRecs_;
+  Lng32 recLen_;
+  Lng32 runSize_;  // number of nodes in the tournament tree
+  Lng32 numRuns_;
 
-  private :
-
-   Lng32 memSizeB_;
-   Int64 numRecs_;
-   Lng32 recLen_;
-   Lng32 runSize_;           // number of nodes in the tournament tree
-   Lng32 numRuns_;
-
-   Lng32 numInitRuns_;
-   Lng32 firstMergeOrder_;
-   Lng32 finalMergeOrder_;
-   Lng32 mergeOrder_;
-   Lng32 numInterPasses_;  
-   Lng32 numCompares_; 
-   Lng32 numDupRecs_;
-   Int64 beginSortTime_;
-   Int64 ioWaitTime_; //hr min sec millisec microsec in each respective word
-   Int64 elapsedTime_;    // in seconds
-   Lng32 scrBlockSize_;
-   Lng32 scrNumBlocks_;
-   Lng32 scrNumWrites_;
-   Lng32 scrNumReads_; 
-   Lng32 scrNumAwaitio_;
+  Lng32 numInitRuns_;
+  Lng32 firstMergeOrder_;
+  Lng32 finalMergeOrder_;
+  Lng32 mergeOrder_;
+  Lng32 numInterPasses_;
+  Lng32 numCompares_;
+  Lng32 numDupRecs_;
+  Int64 beginSortTime_;
+  Int64 ioWaitTime_;   // hr min sec millisec microsec in each respective word
+  Int64 elapsedTime_;  // in seconds
+  Lng32 scrBlockSize_;
+  Lng32 scrNumBlocks_;
+  Lng32 scrNumWrites_;
+  Lng32 scrNumReads_;
+  Lng32 scrNumAwaitio_;
 };
 
 #endif

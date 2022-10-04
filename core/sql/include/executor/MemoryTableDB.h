@@ -5,9 +5,9 @@
 // ***************************************************************************
 //
 // File:         MemoryTableDB.h
-// Description:  
-//               
-//               
+// Description:
+//
+//
 // Created:      9/2/2021
 // Language:     C++
 //
@@ -53,87 +53,81 @@ class HTableCache;
 class HTableRow;
 
 class MemoryTableDB : public NABasicObject {
-public:
+ public:
   MemoryTableDB(NAMemory *heap);
-  NAMemory* getHeap() { return heap_; }
+  NAMemory *getHeap() { return heap_; }
 
   void insert(char *tableName);
   void remove(const char *tableName);
-  HTableCache* getHTableCache(char *tableName);
+  HTableCache *getHTableCache(char *tableName);
 
-  NAHashDictionary<NAString, HTableCache> * tableNameToCacheEntryMap() { return tableNameToCacheEntryMap_; }
+  NAHashDictionary<NAString, HTableCache> *tableNameToCacheEntryMap() { return tableNameToCacheEntryMap_; }
 
   int entries() { return tableNameToCacheEntryMap_->entries(); }
   int entriesEnabled() { return tableNameToCacheEntryMap_->entriesEnabled(); }
 
   bool contains(char *tableName);
 
-private:
+ private:
   NAHashDictionary<NAString, HTableCache> *tableNameToCacheEntryMap_;
-  NAMemory* heap_;
+  NAMemory *heap_;
 };
 
 class HTableRow : public NABasicObject {
-public:
+ public:
   HTableRow() = default;
-  HTableRow(NAMemory *heap)
-   :heap_(heap) {
-     //QRINFO("NAMemory::trace : HTableRow::HTableRow heap_:%p, this:%p called", heap_, this);
-     key = NULL;
-   }
+  HTableRow(NAMemory *heap) : heap_(heap) {
+    // QRINFO("NAMemory::trace : HTableRow::HTableRow heap_:%p, this:%p called", heap_, this);
+    key = NULL;
+  }
   ~HTableRow();
 
-  long size() { return (key?key->length():0) + value.len; }
+  long size() { return (key ? key->length() : 0) + value.len; }
 
   NAMemory *heap_;
   NAString *key;
-  HbaseStr value; 
+  HbaseStr value;
 };
 
 class HTableCache : public NABasicObject {
-public:
+ public:
   HTableCache(NAMemory *heap);
   HTableCache() = default;
   ~HTableCache();
-  NAMemory* getHeap() { return heap_; }
-  bool insert(HbaseStr& rowID, HbaseStr& colValue);
-  Int32 startGet(const HbaseStr& rowID, NAList<HTableRow*> &kvArray);
-  Int32 startGets(const NAList<HbaseStr> *rowIDs, NAList<HTableRow*> &kvArray);
-  Int32 startGets(const HbaseStr& rowIDs, const UInt32 keyLen, NAList<HTableRow*> &kvArray);
-  Int32 getStartPos(const Text& startRow);
-  //NABoolean isLargerOrEqual(const HbaseStr &key1, const Text &key2);
+  NAMemory *getHeap() { return heap_; }
+  bool insert(HbaseStr &rowID, HbaseStr &colValue);
+  Int32 startGet(const HbaseStr &rowID, NAList<HTableRow *> &kvArray);
+  Int32 startGets(const NAList<HbaseStr> *rowIDs, NAList<HTableRow *> &kvArray);
+  Int32 startGets(const HbaseStr &rowIDs, const UInt32 keyLen, NAList<HTableRow *> &kvArray);
+  Int32 getStartPos(const Text &startRow);
+  // NABoolean isLargerOrEqual(const HbaseStr &key1, const Text &key2);
   NABoolean isLargerOrEqual(const NAString *key1, const Text &key2);
-  Int32 fetchRows(Int32 numReqRows, Int32 &fetchStartPos,
-                  NAList<HTableRow*> &kvArray,
-                  const Text& stopRow);
-
+  Int32 fetchRows(Int32 numReqRows, Int32 &fetchStartPos, NAList<HTableRow *> &kvArray, const Text &stopRow);
 
   // recode the date size stored in cache
-  template<iteratorEntryType Type>
+  template <iteratorEntryType Type>
   pair<long, long> tableSize() {
     long totalSize = 0;
-    //long rowCount = 0;
-    NAHashDictionaryIteratorNoCopy<NAString, HTableRow> 
-       itorForAll(*keyValueMap_, Type);
-    
-    NAString* key = NULL;
-    HTableRow* value = NULL;
+    // long rowCount = 0;
+    NAHashDictionaryIteratorNoCopy<NAString, HTableRow> itorForAll(*keyValueMap_, Type);
+
+    NAString *key = NULL;
+    HTableRow *value = NULL;
     itorForAll.getNext(key, value);
-    while(key) {
-      if ( value ) {
+    while (key) {
+      if (value) {
         totalSize += value->size();
-        //rowCount++;
+        // rowCount++;
       }
       itorForAll.getNext(key, value);
     }
     return pair<long, long>(totalSize, table_ ? table_->entries() : 0);
   }
 
-private:
-  NAMemory* heap_;
+ private:
+  NAMemory *heap_;
   NAHashDictionary<NAString, HTableRow> *keyValueMap_;
-  NAArray<HTableRow*> *table_;
+  NAArray<HTableRow *> *table_;
 };
 
 #endif
-

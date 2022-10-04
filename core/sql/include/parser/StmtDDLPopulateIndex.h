@@ -29,7 +29,7 @@
  * Description:  class representing Populate Index Statement parser nodes
  *
  *
- * Created:     
+ * Created:
  * Language:     C++
  *
  *
@@ -37,7 +37,6 @@
  *
  *****************************************************************************
  */
-
 
 #include "ElemDDLNode.h"
 #include "common/NAString.h"
@@ -57,23 +56,18 @@ class StmtDDLPopulateIndex;
 // -----------------------------------------------------------------------
 // Populate Index statement
 // -----------------------------------------------------------------------
-class StmtDDLPopulateIndex : public StmtDDLNode
-{
-
-public:
-
+class StmtDDLPopulateIndex : public StmtDDLNode {
+ public:
   // initialize constructor
-  StmtDDLPopulateIndex(NABoolean populateAll, NABoolean populateAllUnique,
-                       NABoolean purgedataSpecified,
-		       const NAString &anIndexName, // dummy name, if populateAll*
-		       const QualifiedName & aTableName,
-		       CollHeap    * heap = PARSERHEAP());
-  
+  StmtDDLPopulateIndex(NABoolean populateAll, NABoolean populateAllUnique, NABoolean purgedataSpecified,
+                       const NAString &anIndexName,  // dummy name, if populateAll*
+                       const QualifiedName &aTableName, CollHeap *heap = PARSERHEAP());
+
   // virtual destructor
   virtual ~StmtDDLPopulateIndex();
 
   // cast
-  virtual StmtDDLPopulateIndex * castToStmtDDLPopulateIndex();
+  virtual StmtDDLPopulateIndex *castToStmtDDLPopulateIndex();
 
   //
   // accessors
@@ -81,33 +75,32 @@ public:
 
   // methods relating to parse tree
   virtual Int32 getArity() const;
-  virtual ExprNode * getChild(Lng32 index);
+  virtual ExprNode *getChild(Lng32 index);
 
-  inline const QualifiedName & getOrigTableNameAsQualifiedName() const;
-  inline       QualifiedName & getOrigTableNameAsQualifiedName();
+  inline const QualifiedName &getOrigTableNameAsQualifiedName() const;
+  inline QualifiedName &getOrigTableNameAsQualifiedName();
 
-  inline const NAString & getIndexName() const;
-  inline const NAString & getPartitionName() const;
-  inline const QualifiedName & getIndexNameAsQualifiedName() const;
-  inline       QualifiedName & getIndexNameAsQualifiedName() ;
+  inline const NAString &getIndexName() const;
+  inline const NAString &getPartitionName() const;
+  inline const QualifiedName &getIndexNameAsQualifiedName() const;
+  inline QualifiedName &getIndexNameAsQualifiedName();
 
-  inline const QualifiedName & getTableNameAsQualifiedName() const;
-  inline       QualifiedName & getTableNameAsQualifiedName() ;
+  inline const QualifiedName &getTableNameAsQualifiedName() const;
+  inline QualifiedName &getTableNameAsQualifiedName();
 
   // returns table name, in external format.
   const NAString getTableName() const;
 
-
-  ExprNode * bindNode(BindWA * pBindWA);
+  ExprNode *bindNode(BindWA *pBindWA);
 
   //
   // method for collecting information
   //
-  
+
   void synthesize();
 
-        // collects information in the parse sub-tree and
-        // copy/move them to the current parse node.
+  // collects information in the parse sub-tree and
+  // copy/move them to the current parse node.
 
   //
   // methods for tracing
@@ -125,10 +118,9 @@ public:
   NABoolean purgedataSpecified() { return purgedataSpecified_; }
   NABoolean populateIndexOnPartition() { return populateIndexOnPartition_; }
   void setIsPopulateIndexOnPartition() { populateIndexOnPartition_ = TRUE; }
-  void setPartitionName(NAString & paritionName) { partitionName_ = paritionName; }
+  void setPartitionName(NAString &paritionName) { partitionName_ = paritionName; }
 
-private:
-
+ private:
   // ---------------------------------------------------------------------
   // private methods
   // ---------------------------------------------------------------------
@@ -140,10 +132,10 @@ private:
   //
   // please do not use the following methods
   //
-  
-  StmtDDLPopulateIndex();                                        // DO NOT USE
-  StmtDDLPopulateIndex(const StmtDDLPopulateIndex &);              // DO NOT USE
-  StmtDDLPopulateIndex & operator=(const StmtDDLPopulateIndex &);  // DO NOT USE
+
+  StmtDDLPopulateIndex();                                         // DO NOT USE
+  StmtDDLPopulateIndex(const StmtDDLPopulateIndex &);             // DO NOT USE
+  StmtDDLPopulateIndex &operator=(const StmtDDLPopulateIndex &);  // DO NOT USE
 
   // ---------------------------------------------------------------------
   // private data members
@@ -163,58 +155,26 @@ private:
 
   QualifiedName tableQualName_;
 
-}; // class StmtDDLPopulateIndex
+};  // class StmtDDLPopulateIndex
 
 // -----------------------------------------------------------------------
 // definitions of inline methods for class StmtDDLPopulateIndex
 // -----------------------------------------------------------------------
-inline QualifiedName &
-StmtDDLPopulateIndex::getOrigTableNameAsQualifiedName()
-{
-  return origTableQualName_;
-}
+inline QualifiedName &StmtDDLPopulateIndex::getOrigTableNameAsQualifiedName() { return origTableQualName_; }
 
-inline const QualifiedName &
-StmtDDLPopulateIndex::getOrigTableNameAsQualifiedName() const
-{
-  return origTableQualName_;
-}
+inline const QualifiedName &StmtDDLPopulateIndex::getOrigTableNameAsQualifiedName() const { return origTableQualName_; }
 
-inline QualifiedName &
-StmtDDLPopulateIndex::getIndexNameAsQualifiedName()
-{
-  return indexQualName_;
-}
+inline QualifiedName &StmtDDLPopulateIndex::getIndexNameAsQualifiedName() { return indexQualName_; }
 
-inline const QualifiedName & 
-StmtDDLPopulateIndex::getIndexNameAsQualifiedName() const
-{
-  return indexQualName_;
-}
+inline const QualifiedName &StmtDDLPopulateIndex::getIndexNameAsQualifiedName() const { return indexQualName_; }
 
-inline QualifiedName & 
-StmtDDLPopulateIndex::getTableNameAsQualifiedName()
-{
-  return tableQualName_;
-}
+inline QualifiedName &StmtDDLPopulateIndex::getTableNameAsQualifiedName() { return tableQualName_; }
 
-inline const QualifiedName & 
-StmtDDLPopulateIndex::getTableNameAsQualifiedName() const
-{
-  return tableQualName_;
-}
+inline const QualifiedName &StmtDDLPopulateIndex::getTableNameAsQualifiedName() const { return tableQualName_; }
 
 // get index name
-inline const NAString &
-StmtDDLPopulateIndex::getIndexName() const
-{
-  return indexName_;
-}
+inline const NAString &StmtDDLPopulateIndex::getIndexName() const { return indexName_; }
 
-inline const NAString &
-StmtDDLPopulateIndex::getPartitionName() const
-{
-  return partitionName_;
-}
+inline const NAString &StmtDDLPopulateIndex::getPartitionName() const { return partitionName_; }
 
-#endif // STMTDDLPOPULATEINDEX_H
+#endif  // STMTDDLPOPULATEINDEX_H

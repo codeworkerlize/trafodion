@@ -28,29 +28,24 @@
 #include "ExSMQueue.h"
 #include "common/Ipc.h"
 
-ExSMTask::ExSMTask(const sm_target_t &receiver,
-                   uint32_t queueSize,
-                   int32_t *scheduledAddr,
-                   NAMemory *heap,
-                   ex_tcb *tcb,
+ExSMTask::ExSMTask(const sm_target_t &receiver, uint32_t queueSize, int32_t *scheduledAddr, NAMemory *heap, ex_tcb *tcb,
                    SMConnection *smConnection)
-  : inQueue_(NULL)
-  , outQueue_(NULL)
-  , receiver_(receiver)
-  , scheduledAddr_(scheduledAddr)
-  , heap_(heap)
-  , tcb_(tcb)
-  , receiveCount_(0)
-  , smConnection_(smConnection)
-  , hashBucketNext_(NULL)
-  , readyListNext_(NULL)
-  , readyListPrev_(NULL)
-  , recvChunk_buffer_(NULL)
-  , recvChunk_msgSize_(0)
-  , recvChunk_chunkSize_(0)
-  , recvChunk_bytesSoFar_(0)
-  , sendChunk_ackArrived_(false)
-{
+    : inQueue_(NULL),
+      outQueue_(NULL),
+      receiver_(receiver),
+      scheduledAddr_(scheduledAddr),
+      heap_(heap),
+      tcb_(tcb),
+      receiveCount_(0),
+      smConnection_(smConnection),
+      hashBucketNext_(NULL),
+      readyListNext_(NULL),
+      readyListPrev_(NULL),
+      recvChunk_buffer_(NULL),
+      recvChunk_msgSize_(0),
+      recvChunk_chunkSize_(0),
+      recvChunk_bytesSoFar_(0),
+      sendChunk_ackArrived_(false) {
   exsm_assert(heap_, "Invalid NAMemory pointer");
 
   // In the queue constructors we add 1 to the passed in size because
@@ -68,35 +63,29 @@ ExSMTask::ExSMTask(const sm_target_t &receiver,
   exsm_assert(outQueue_, "Failed to allocate output task queue");
 }
 
-ExSMTask::~ExSMTask()
-{
-  if (recvChunk_buffer_)
-  {
+ExSMTask::~ExSMTask() {
+  if (recvChunk_buffer_) {
     // If recvChunk_buffer_ is not NULL, the task was waiting for an
     // arrival that never came. The arrival never made its way to the
     // task output queue. No one else has a pointer to this buffer so
     // the task needs to release the buffer before going away.
-    IpcMessageBuffer *msgBuf = (IpcMessageBuffer *) recvChunk_buffer_;
+    IpcMessageBuffer *msgBuf = (IpcMessageBuffer *)recvChunk_buffer_;
     msgBuf->decrRefCount();
     recvChunk_buffer_ = NULL;
   }
 
-  if (inQueue_)
-  {
-    while (!inQueue_->isEmpty())
-    {
+  if (inQueue_) {
+    while (!inQueue_->isEmpty()) {
       ExSMQueue::Entry &entry = inQueue_->getHeadEntry();
-      IpcMessageBuffer *msgBuf = (IpcMessageBuffer *) entry.getData();
+      IpcMessageBuffer *msgBuf = (IpcMessageBuffer *)entry.getData();
       exsm_assert(msgBuf, "Invalid msgBuf pointer in SM queue entry");
-      exsm_assert(msgBuf->getRefCount() == 1,
-                  "Ref count should be 1 for buffer in SM task queue");
+      exsm_assert(msgBuf->getRefCount() == 1, "Ref count should be 1 for buffer in SM task queue");
       msgBuf->decrRefCount();
       inQueue_->removeHead();
     }
   }
 
-  if (outQueue_)
-  {
+  if (outQueue_) {
     ExSMTaskList *taskList = ExSMGlobals::GetExSMGlobals()->getSMTaskList();
     bool taskListLocked = false;
 
@@ -108,25 +97,21 @@ ExSMTask::~ExSMTask()
     // locations. In other words, in any code path where the output
     // queue can become empty, we lock the task list and remove the
     // task from the completed task queue.
-    if (!outQueue_->isEmpty())
-    {
+    if (!outQueue_->isEmpty()) {
       taskList->lock();
       taskListLocked = true;
     }
 
-    while (!outQueue_->isEmpty())
-    {
+    while (!outQueue_->isEmpty()) {
       ExSMQueue::Entry &entry = outQueue_->getHeadEntry();
-      IpcMessageBuffer *msgBuf = (IpcMessageBuffer *) entry.getData();
+      IpcMessageBuffer *msgBuf = (IpcMessageBuffer *)entry.getData();
       exsm_assert(msgBuf, "Invalid msgBuf pointer in SM queue entry");
-      exsm_assert(msgBuf->getRefCount() == 1,
-                  "Ref count should be 1 for buffer in SM task queue");
+      exsm_assert(msgBuf->getRefCount() == 1, "Ref count should be 1 for buffer in SM task queue");
       msgBuf->decrRefCount();
       outQueue_->removeHead();
     }
-  
-    if (taskListLocked)
-    {
+
+    if (taskListLocked) {
       // NOTE: The SM ready list is accessed by both threads (main and
       // reader) but does not have its own lock. By convention,
       // modifications to the ready list are always performed while
@@ -137,60 +122,46 @@ ExSMTask::~ExSMTask()
       taskList->unlock();
     }
 
-  } // if (outQueue_)
+  }  // if (outQueue_)
 
   delete inQueue_;
   delete outQueue_;
 }
 
 // Methods for RECEIVE chunk protocol
-void ExSMTask::recvChunk_Enter(void *buffer, uint32_t msgSize,
-                               uint32_t chunkSize)
-{
+void ExSMTask::recvChunk_Enter(void *buffer, uint32_t msgSize, uint32_t chunkSize) {
   recvChunk_buffer_ = buffer;
   recvChunk_bytesSoFar_ = 0;
   recvChunk_msgSize_ = msgSize;
   recvChunk_chunkSize_ = chunkSize;
 }
 
-void ExSMTask::recvChunk_Exit()
-{
+void ExSMTask::recvChunk_Exit() {
   recvChunk_buffer_ = NULL;
   recvChunk_bytesSoFar_ = 0;
   recvChunk_msgSize_ = 0;
   recvChunk_chunkSize_ = 0;
 }
 
-void ExSMTask::recvChunk_Receive(uint32_t bytesReceived)
-{
-  recvChunk_bytesSoFar_ += bytesReceived;
-}
+void ExSMTask::recvChunk_Receive(uint32_t bytesReceived) { recvChunk_bytesSoFar_ += bytesReceived; }
 
-void *ExSMTask::recvChunk_GetPrepostAddr() const
-{
+void *ExSMTask::recvChunk_GetPrepostAddr() const {
   void *result = NULL;
-  IpcMessageBuffer *msgBuf = (IpcMessageBuffer *) recvChunk_buffer_;
-  if (msgBuf)
-    result = msgBuf->data(recvChunk_bytesSoFar_);
+  IpcMessageBuffer *msgBuf = (IpcMessageBuffer *)recvChunk_buffer_;
+  if (msgBuf) result = msgBuf->data(recvChunk_bytesSoFar_);
   return result;
 }
 
-bool ExSMTask::recvChunk_MoreExpected() const
-{
-  return (recvChunk_bytesSoFar_ < recvChunk_msgSize_);
-}
+bool ExSMTask::recvChunk_MoreExpected() const { return (recvChunk_bytesSoFar_ < recvChunk_msgSize_); }
 
 // Methods for SEND chunk protocol
-void ExSMTask::sendChunk_SetAckArrived(bool b)
-{
+void ExSMTask::sendChunk_SetAckArrived(bool b) {
   bool notify = false;
-  if (sendChunk_ackArrived_ == false && b == true)
-    notify = true;
+  if (sendChunk_ackArrived_ == false && b == true) notify = true;
 
   sendChunk_ackArrived_ = b;
 
-  if (notify)
-  {
+  if (notify) {
     exsm_assert(scheduledAddr_, "Invalid scheduledAddr_ pointer");
     *scheduledAddr_ = 1;
   }

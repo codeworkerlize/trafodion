@@ -39,7 +39,7 @@
  *               The methods in this class are defined either in this
  *               header file or the source file StmtDDLAlter.C.
  *
- *               
+ *
  * Created:      6/15/95
  * Language:     C++
  *
@@ -48,7 +48,6 @@
  *
  *****************************************************************************
  */
-
 
 #include "optimizer/ObjectNames.h"
 #include "StmtDDLAlterTable.h"
@@ -66,81 +65,68 @@ class ElemDDLConstraint;
 // -----------------------------------------------------------------------
 // definition of class StmtDDLAddConstraint
 // -----------------------------------------------------------------------
-class StmtDDLAddConstraint : public StmtDDLAlterTable
-{
-
-public:
-
+class StmtDDLAddConstraint : public StmtDDLAlterTable {
+ public:
   // constructors
   inline StmtDDLAddConstraint();
   inline StmtDDLAddConstraint(OperatorTypeEnum operType);
 
-  StmtDDLAddConstraint(OperatorTypeEnum operType,
-                              ElemDDLNode * pAddConstraintAction)
-  : StmtDDLAlterTable(operType,
-                    pAddConstraintAction)
-  { }
+  StmtDDLAddConstraint(OperatorTypeEnum operType, ElemDDLNode *pAddConstraintAction)
+      : StmtDDLAlterTable(operType, pAddConstraintAction) {}
 
-  StmtDDLAddConstraint(OperatorTypeEnum operType,
-                              const QualifiedName & tableQualName,
-                              ElemDDLNode * pAddConstraintAction)
-  : StmtDDLAlterTable(operType,
-                    tableQualName,
-                    pAddConstraintAction)
-  { }
+  StmtDDLAddConstraint(OperatorTypeEnum operType, const QualifiedName &tableQualName, ElemDDLNode *pAddConstraintAction)
+      : StmtDDLAlterTable(operType, tableQualName, pAddConstraintAction) {}
 
   // virtual destructor
   virtual ~StmtDDLAddConstraint();
 
   // cast
-  virtual StmtDDLAddConstraint * castToStmtDDLAddConstraint();
+  virtual StmtDDLAddConstraint *castToStmtDDLAddConstraint();
 
   //
   // accessors
   //
-  
-  inline ElemDDLConstraint * getConstraint() const;
+
+  inline ElemDDLConstraint *getConstraint() const;
   const NAString getConstraintName() const;
-  const QualifiedName & getConstraintNameAsQualifiedName() const;
-        QualifiedName & getConstraintNameAsQualifiedName();
+  const QualifiedName &getConstraintNameAsQualifiedName() const;
+  QualifiedName &getConstraintNameAsQualifiedName();
   NABoolean isDeferrable() const;
   NABoolean isDroppable() const;
-  
+
   NABoolean isDroppableSpecifiedExplicitly() const;
 
-        // returns TRUE if the user specified the DROPPABLE clause
-        // explicitly; returns FALSE otherwise (including the case
-        // when the user specified the NOT DROPPABLE clause explicitly).
+  // returns TRUE if the user specified the DROPPABLE clause
+  // explicitly; returns FALSE otherwise (including the case
+  // when the user specified the NOT DROPPABLE clause explicitly).
 
   NABoolean isNotDroppableSpecifiedExplicitly() const;
 
-        // returns TRUE if the user specified the NOT DROPPABLE clause
-        // explicitly; returns FALSE otherwise (including the case
-        // when the user specified the DROPPABLE clause explicitly).
+  // returns TRUE if the user specified the NOT DROPPABLE clause
+  // explicitly; returns FALSE otherwise (including the case
+  // when the user specified the DROPPABLE clause explicitly).
 
   //
   // mutators
   //
 
   void setDroppableFlag(const NABoolean setting);
-  
+
   //
   // methods for tracing
   //
-  
+
   virtual NATraceList getDetailInfo() const;
   virtual const NAString getText() const;
-  
+
   //
   // definition of method bindNode() for clas StmtDDLAddConstraint
   //
-  
-  virtual ExprNode * bindNode(BindWA * pBindWA);
 
+  virtual ExprNode *bindNode(BindWA *pBindWA);
 
-private:
-
-}; // class StmtDDLAddConstraint
+ private:
+};  // class StmtDDLAddConstraint
 
 // -----------------------------------------------------------------------
 // definitions of inline methods for class StmtDDLAddConstraint
@@ -149,10 +135,8 @@ private:
 // accessor
 //
 
-inline ElemDDLConstraint *
-StmtDDLAddConstraint::getConstraint() const
-{
+inline ElemDDLConstraint *StmtDDLAddConstraint::getConstraint() const {
   return getAlterTableAction()->castToElemDDLConstraint();
 }
 
-#endif // STMTDDLADDCONSTRAINT_H
+#endif  // STMTDDLADDCONSTRAINT_H

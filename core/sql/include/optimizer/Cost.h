@@ -52,7 +52,6 @@
 #include "sqlcomp/DefaultConstants.h"
 #include "optimizer/opt.h"
 
-
 // -----------------------------------------------------------------------
 // Forward references.
 // -----------------------------------------------------------------------
@@ -77,8 +76,6 @@ class ScmElapsedTimeCostLimit;
 class CostPrimitives;
 class PerformanceGoal;
 
-
-
 const Lng32 NORMAL_PLAN_PRIORITY = 0;  // must remain zero
 const Lng32 INDEX_HINT_PRIORITY = 100;
 const Lng32 JOIN_IMPLEMENTATION_HINT_PRIORITY = 100;
@@ -92,39 +89,30 @@ const Lng32 SORT_FIRST_N_PRIORITY = BLOCKING_OPS_FIRST_N_PRIORITY;
 const Lng32 MATERIALIZE_FIRST_N_PRIORITY = BLOCKING_OPS_FIRST_N_PRIORITY;
 const Lng32 MVQR_FAVORITE_PRIORITY = INTERACTIVE_ACCESS_PRIORITY;
 
-class PlanPriority
-{
-
-public:
+class PlanPriority {
+ public:
   // -----------------------------------------------------------------------
   // constructors (no need for a destructor, it's just a long-wrapper) xxx
   // -----------------------------------------------------------------------
 
-  PlanPriority()
-    : level_(0), demotionLevel_(0), riskPremium_(1.0)
-  {}
+  PlanPriority() : level_(0), demotionLevel_(0), riskPremium_(1.0) {}
 
-  PlanPriority(const Lng32 val, const Lng32 demotion, CostScalar premium=1.0)
-    : level_(val),   //xxx make def value
-      demotionLevel_(demotion), //xxx make def value
-      riskPremium_(premium)
-  {}
+  PlanPriority(const Lng32 val, const Lng32 demotion, CostScalar premium = 1.0)
+      : level_(val),               // xxx make def value
+        demotionLevel_(demotion),  // xxx make def value
+        riskPremium_(premium) {}
 
   // Copy constructor.
   PlanPriority(const PlanPriority &other)
-    : level_(other.level_),
-      demotionLevel_(other.demotionLevel_),
-      riskPremium_(other.riskPremium_)
-  {}
+      : level_(other.level_), demotionLevel_(other.demotionLevel_), riskPremium_(other.riskPremium_) {}
 
   // ----------------------------------------------------------------------
   // overloaded operators
   // ----------------------------------------------------------------------
 
   // assignment
-  inline PlanPriority & operator = (const PlanPriority &other)
-  {
-    level_ = other.level_ ;
+  inline PlanPriority &operator=(const PlanPriority &other) {
+    level_ = other.level_;
     demotionLevel_ = other.demotionLevel_;
     riskPremium_ = other.riskPremium_;
     return *this;
@@ -135,153 +123,123 @@ public:
   // ----------------------------------------------------------------------
 
   // op +
-  inline PlanPriority operator + (const PlanPriority &other) const
-  {
-    PlanPriority result(level_ + other.level_, 
-                        demotionLevel_ + other.demotionLevel_);
+  inline PlanPriority operator+(const PlanPriority &other) const {
+    PlanPriority result(level_ + other.level_, demotionLevel_ + other.demotionLevel_);
     return result;
   }
 
   // op +=
-  inline PlanPriority & operator += (const PlanPriority &other)
-  {
-    level_ = level_ + other.level_ ;
-    demotionLevel_ = demotionLevel_ + other.demotionLevel_ ;
-    return *this ;
+  inline PlanPriority &operator+=(const PlanPriority &other) {
+    level_ = level_ + other.level_;
+    demotionLevel_ = demotionLevel_ + other.demotionLevel_;
+    return *this;
   }
 
   // op -
-  inline PlanPriority operator - (const PlanPriority &other) const
-  {
-    PlanPriority result(level_ - other.level_, 
-                        demotionLevel_ - other.demotionLevel_);
+  inline PlanPriority operator-(const PlanPriority &other) const {
+    PlanPriority result(level_ - other.level_, demotionLevel_ - other.demotionLevel_);
     return result;
   }
-
 
   // ----------------------------------------------------------------------
   // comparison of PlanPriority objects
   // ----------------------------------------------------------------------
 
   // op ==
-  inline NABoolean operator == (const PlanPriority &other) const
-  {
-    return ((level_ == other.level_) && (demotionLevel_ == other.demotionLevel_)) ;
+  inline NABoolean operator==(const PlanPriority &other) const {
+    return ((level_ == other.level_) && (demotionLevel_ == other.demotionLevel_));
   }
 
   // op !=
-  inline NABoolean operator != (const PlanPriority &other) const
-  {
-    return NOT ( *this == other ) ;
-  }
+  inline NABoolean operator!=(const PlanPriority &other) const { return NOT(*this == other); }
 
   // op <
-  inline NABoolean operator <  (const PlanPriority &other) const
-  {
+  inline NABoolean operator<(const PlanPriority &other) const {
     if (level_ == other.level_)
       return (demotionLevel_ < other.demotionLevel_);
     else
-      return ( level_ < other.level_ ) ;
+      return (level_ < other.level_);
   }
 
   // op <=
-  inline NABoolean operator <=  (const PlanPriority &other) const
-  {
+  inline NABoolean operator<=(const PlanPriority &other) const {
     if (level_ == other.level_)
       return (demotionLevel_ <= other.demotionLevel_);
     else
-      return ( level_ < other.level_ ) ;
+      return (level_ < other.level_);
   }
 
   // op >
-  inline NABoolean operator >  (const PlanPriority &other) const
-  {
+  inline NABoolean operator>(const PlanPriority &other) const {
     if (level_ == other.level_)
       return (demotionLevel_ > other.demotionLevel_);
     else
-      return ( level_ > other.level_ ) ;
+      return (level_ > other.level_);
   }
 
   // op >=
-  inline NABoolean operator >=  (const PlanPriority &other) const
-  {
+  inline NABoolean operator>=(const PlanPriority &other) const {
     if (level_ == other.level_)
       return (demotionLevel_ >= other.demotionLevel_);
     else
-      return ( level_ > other.level_ ) ;
+      return (level_ > other.level_);
   }
 
-  inline NABoolean isNormal () const
-  {
-      return ((level_ == NORMAL_PLAN_PRIORITY) AND 
-               demotionLevel_ == NORMAL_PLAN_PRIORITY);
+  inline NABoolean isNormal() const {
+    return ((level_ == NORMAL_PLAN_PRIORITY) AND demotionLevel_ == NORMAL_PLAN_PRIORITY);
   }
 
   // Reset to normal priority levels
-  inline void resetToNormal()
-  {
+  inline void resetToNormal() {
     level_ = NORMAL_PLAN_PRIORITY;
     demotionLevel_ = NORMAL_PLAN_PRIORITY;
   }
 
   // Rollup is simple now. Add priority level
-  inline void rollUpUnary(const PlanPriority &childPriority)
-  {
+  inline void rollUpUnary(const PlanPriority &childPriority) {
     level_ += childPriority.level_;
     demotionLevel_ += childPriority.demotionLevel_;
     // a way of rolling up risk premiums without intruding into cost details
-    if (CmpCommon::getDefault(COMP_BOOL_178) == DF_OFF)
-      riskPremium_ *= childPriority.riskPremium_;
+    if (CmpCommon::getDefault(COMP_BOOL_178) == DF_OFF) riskPremium_ *= childPriority.riskPremium_;
   }
 
-  inline void rollUpBinary(const PlanPriority &childPriority0,
-                           const PlanPriority &childPriority1)
-  {
+  inline void rollUpBinary(const PlanPriority &childPriority0, const PlanPriority &childPriority1) {
     level_ += childPriority0.level_ + childPriority1.level_;
     demotionLevel_ += childPriority0.demotionLevel_ + childPriority1.demotionLevel_;
   }
 
   // Combine siblings is simple now. Add priority level
-  inline void combine(const PlanPriority &childPriority)
-  {
+  inline void combine(const PlanPriority &childPriority) {
     level_ += childPriority.level_;
     demotionLevel_ += childPriority.demotionLevel_;
   }
 
   // Increment the priority level by a certain value
-  inline void incrementLevels(Lng32 val, Lng32 dem)
-  {
+  inline void incrementLevels(Lng32 val, Lng32 dem) {
     level_ += val;
     demotionLevel_ += dem;
   }
 
   // Avoid using this method as much as possible except for display purposes
-  inline Lng32 getLevel() const
-  {
-    return level_ ;
-  }
+  inline Lng32 getLevel() const { return level_; }
 
   // Avoid using this method as much as possible except for display purposes
   // With current exception of using it in cost based pruning
-  inline Lng32 getDemotionLevel() const
-  {
-    return demotionLevel_ ;
-  }
+  inline Lng32 getDemotionLevel() const { return demotionLevel_; }
 
   // risk premium accessor
   CostScalar riskPremium() const { return riskPremium_; }
 
-private:
-
+ private:
   Lng32 level_;
   Lng32 demotionLevel_;  // monotonically decreasing level
   // xxx for now level_ override demotionLevel_. Later on we will orthoganalize this
-  CostScalar riskPremium_; 
+  CostScalar riskPremium_;
   // multiplicative factor used to inflate cost of risky operator.
   // = 1.0 for non-risky (ie, robust) operator.
   // > 1.0 for risky operator like nested join.
 
-}; // class PlanPriority
+};  // class PlanPriority
 
 //<pb>
 // -----------------------------------------------------------------------
@@ -291,10 +249,8 @@ private:
 // information on the resource usage of an operation to Cascades.
 //
 // -----------------------------------------------------------------------
-class Cost : public NABasicObject
-{
-public:
-
+class Cost : public NABasicObject {
+ public:
   // ---------------------------------------------------------------------
   // Constructors.
   // ---------------------------------------------------------------------
@@ -311,87 +267,81 @@ public:
   // 10-16-2006: In order to integrate SCM, we are adding another member
   // to Cost class.
   // ---------------------------------------------------------------------
-  Cost(const SimpleCostVector* currentProcessFirstRowCost,
-       const SimpleCostVector* currentProcessLastRowCost,
-       const SimpleCostVector* currentProcessBlockingCost,
-       const Lng32 countOfCPUs,
-       const Lng32 planFragmentsPerCPU);
+  Cost(const SimpleCostVector *currentProcessFirstRowCost, const SimpleCostVector *currentProcessLastRowCost,
+       const SimpleCostVector *currentProcessBlockingCost, const Lng32 countOfCPUs, const Lng32 planFragmentsPerCPU);
 
   //-----------------------------------------------------------
   //  Constructor for SCM.
   //-----------------------------------------------------------
-  Cost(const SimpleCostVector* currentProcessScmCost);
+  Cost(const SimpleCostVector *currentProcessScmCost);
 
   //-----------------------------------------------------------
   //  Cost Constructor used in SCM code.
   //-----------------------------------------------------------
-  Cost(const SimpleCostVector* currentProcessScmCost,
-	     const SimpleCostVector* currentOpDebugInfo);
+  Cost(const SimpleCostVector *currentProcessScmCost, const SimpleCostVector *currentOpDebugInfo);
 
-   //-----------------------------------------------------------
+  //-----------------------------------------------------------
   //  Constructor for an empty Cost object.  Used primarily for
   // initializing a resulting Cost object during a roll-up.
   //-----------------------------------------------------------
   Cost()
-    :
-      cpfr_(),
-      cplr_(),
-      cpScmlr_(),
-      cpScmDbg_(),
-      cpbc1_(),
-      cpbcTotal_(),
-      //jopfr_(),
-      //joplr_(),
-      totalCost_(),
-      countOfCPUs_(1),
-      planFragmentsPerCPU_(1),
-      priority_() {}
+      : cpfr_(),
+        cplr_(),
+        cpScmlr_(),
+        cpScmDbg_(),
+        cpbc1_(),
+        cpbcTotal_(),
+        // jopfr_(),
+        // joplr_(),
+        totalCost_(),
+        countOfCPUs_(1),
+        planFragmentsPerCPU_(1),
+        priority_() {}
 
   //----------------------------------------------------------------------
   // Copy constructor.
   //----------------------------------------------------------------------
   Cost(const Cost &other)
-    : cpfr_(other.cpfr_),
-      cplr_(other.cplr_),
-      cpScmlr_(other.cpScmlr_),
-      cpScmDbg_(other.cpScmDbg_),
-      cpbc1_(other.cpbc1_),
-      cpbcTotal_(other.cpbcTotal_),
-      //jopfr_(other.opfr_),
-      //joplr_(other.oplr_),
-      totalCost_(other.totalCost_),
-      countOfCPUs_(other.countOfCPUs_),
-      planFragmentsPerCPU_(other.planFragmentsPerCPU_),
-      priority_(other.priority_) {}
+      : cpfr_(other.cpfr_),
+        cplr_(other.cplr_),
+        cpScmlr_(other.cpScmlr_),
+        cpScmDbg_(other.cpScmDbg_),
+        cpbc1_(other.cpbc1_),
+        cpbcTotal_(other.cpbcTotal_),
+        // jopfr_(other.opfr_),
+        // joplr_(other.oplr_),
+        totalCost_(other.totalCost_),
+        countOfCPUs_(other.countOfCPUs_),
+        planFragmentsPerCPU_(other.planFragmentsPerCPU_),
+        priority_(other.priority_) {}
 
   //--------------------------------
   //  Effective virtual constructor.
   //--------------------------------
-  virtual Cost* duplicate();
+  virtual Cost *duplicate();
 
   // ---------------------------------------------------------------------
   // Virtual destructor function.
   // ---------------------------------------------------------------------
-  virtual ~Cost ();
+  virtual ~Cost();
 
   // ---------------------------------------------------------------------
   // Accessor methods.
   // ---------------------------------------------------------------------
-  inline const SimpleCostVector& getCpfr()        const { return cpfr_; }
-  inline const SimpleCostVector& getCplr()        const { return cplr_; }
-  inline const SimpleCostVector& getScmCplr()     const { return cpScmlr_; }
-  inline const SimpleCostVector& getScmDbg()     const { return cpScmDbg_; }
-  inline const SimpleCostVector& getCpbcTotal()   const { return cpbcTotal_; }
-  inline const SimpleCostVector& getCpbc1()       const { return cpbc1_; }
-//jo  inline const SimpleCostVector& getOpfr()        const { return opfr_; }
-//jo  inline const SimpleCostVector& getOplr()        const { return oplr_; }
-  inline const SimpleCostVector& getTotalCost()   const { return totalCost_; }
+  inline const SimpleCostVector &getCpfr() const { return cpfr_; }
+  inline const SimpleCostVector &getCplr() const { return cplr_; }
+  inline const SimpleCostVector &getScmCplr() const { return cpScmlr_; }
+  inline const SimpleCostVector &getScmDbg() const { return cpScmDbg_; }
+  inline const SimpleCostVector &getCpbcTotal() const { return cpbcTotal_; }
+  inline const SimpleCostVector &getCpbc1() const { return cpbc1_; }
+  // jo  inline const SimpleCostVector& getOpfr()        const { return opfr_; }
+  // jo  inline const SimpleCostVector& getOplr()        const { return oplr_; }
+  inline const SimpleCostVector &getTotalCost() const { return totalCost_; }
 
-  inline Lng32                    getCountOfCPUs() const {return countOfCPUs_;}
+  inline Lng32 getCountOfCPUs() const { return countOfCPUs_; }
 
-  inline Lng32                    getPlanFragmentsPerCPU() const
-                                            {return planFragmentsPerCPU_;}
-  inline const PlanPriority& getPlanPriority()   const {return priority_;}
+  inline Lng32 getPlanFragmentsPerCPU() const { return planFragmentsPerCPU_; }
+  inline const PlanPriority &getPlanPriority() const { return priority_; }
 
   // ---------------------------------------------------------------------
   // Mutator methods.
@@ -405,38 +355,34 @@ public:
   // any changes made to the vector of the handle are directly propagated
   // to the corresponding vector stored in the Cost object itself.
   // ---------------------------------------------------------------------
-  inline SimpleCostVector& cpfr()                        { return cpfr_; }
-  inline SimpleCostVector& cplr()                        { return cplr_; }
-  inline SimpleCostVector& cpScmlr()                     { return cpScmlr_; }
-  inline SimpleCostVector& cpScmDbg()                     { return cpScmDbg_; }
-  inline SimpleCostVector& cpbcTotal()             { return cpbcTotal_; }
-  inline SimpleCostVector& cpbc1()                      { return cpbc1_; }
-//jo  inline SimpleCostVector& opfr()                        { return opfr_; }
-//jo  inline SimpleCostVector& oplr()                        { return oplr_; }
-  inline SimpleCostVector& totalCost()              { return totalCost_; }
-  inline Lng32& countOfCPUs()                       {return countOfCPUs_; }
-  inline Lng32& planFragmentsPerCPU()       {return planFragmentsPerCPU_; }
-  inline PlanPriority& planPriority()                { return priority_; }
+  inline SimpleCostVector &cpfr() { return cpfr_; }
+  inline SimpleCostVector &cplr() { return cplr_; }
+  inline SimpleCostVector &cpScmlr() { return cpScmlr_; }
+  inline SimpleCostVector &cpScmDbg() { return cpScmDbg_; }
+  inline SimpleCostVector &cpbcTotal() { return cpbcTotal_; }
+  inline SimpleCostVector &cpbc1() { return cpbc1_; }
+  // jo  inline SimpleCostVector& opfr()                        { return opfr_; }
+  // jo  inline SimpleCostVector& oplr()                        { return oplr_; }
+  inline SimpleCostVector &totalCost() { return totalCost_; }
+  inline Lng32 &countOfCPUs() { return countOfCPUs_; }
+  inline Lng32 &planFragmentsPerCPU() { return planFragmentsPerCPU_; }
+  inline PlanPriority &planPriority() { return priority_; }
 
   // ---------------------------------------------------------------------
   // Method for accessing a cost vector as a function of the given
   // performance goal.
   // ---------------------------------------------------------------------
-  const SimpleCostVector& getCostVector
-                            (const PerformanceGoal* const perfGoal) const;
+  const SimpleCostVector &getCostVector(const PerformanceGoal *const perfGoal) const;
 
   // ---------------------------------------------------------------------
   // Comparison function, mandated by Cascades.
   // ---------------------------------------------------------------------
-  COMPARE_RESULT compareCosts
-	             (const Cost & other,
-	              const ReqdPhysicalProperty* const rpp = NULL) const;
+  COMPARE_RESULT compareCosts(const Cost &other, const ReqdPhysicalProperty *const rpp = NULL) const;
 
   // ---------------------------------------------------------------------
   // Method for representing the cost in terms of an elapsed time.
   // ---------------------------------------------------------------------
-  ElapsedTime convertToElapsedTime
-	             (const ReqdPhysicalProperty* const rpp = NULL) const;
+  ElapsedTime convertToElapsedTime(const ReqdPhysicalProperty *const rpp = NULL) const;
 
   // This method is to be used only for displaying total cost information
   // in the context of explain, visual debugger, etc. This is NOT to be used
@@ -444,8 +390,7 @@ public:
   // internal costs used during plan computation use very different units than
   // the total cost displayed externally to the user, and so these cannot be
   // used interchangably.
-  ElapsedTime displayTotalCost 
-                    (const ReqdPhysicalProperty* const rpp = NULL) const;
+  ElapsedTime displayTotalCost(const ReqdPhysicalProperty *const rpp = NULL) const;
 
   // ---------------------------------------------------------------------
   // Method for returning the detailed cost components as a descriptive string
@@ -455,90 +400,71 @@ public:
   // -----------------------------------------------------------------------
   // This method returns cost information to WMS (and possibly other callers).
   // -----------------------------------------------------------------------
-  void getExternalCostAttr(double &cpuTime, double &ioTime,
-                           double &msgTime, double &idleTime,
-                           double &numSeqIOs, double &numRandIOs,
-                           double &totalTime, Lng32 &probes) const;
+  void getExternalCostAttr(double &cpuTime, double &ioTime, double &msgTime, double &idleTime, double &numSeqIOs,
+                           double &numRandIOs, double &totalTime, Lng32 &probes) const;
 
   // ---------------------------------------------------------------------
   // Method for returning OCM cost atrributes.
   // ---------------------------------------------------------------------
-  void getOcmCostAttr(double &cpu, double &io, 
-                      double &msg, double &idleTime,
-                      Lng32 &probes) const;
+  void getOcmCostAttr(double &cpu, double &io, double &msg, double &idleTime, Lng32 &probes) const;
 
   // ---------------------------------------------------------------------
   // Method for returning NCM cost atrributes.
   // ---------------------------------------------------------------------
-  void getScmCostAttr(double &tcProc, double &tcProd,
-                      double &tcSent, double &ioRand,
-                      double &ioSeq, Lng32 &probes) const;
+  void getScmCostAttr(double &tcProc, double &tcProd, double &tcSent, double &ioRand, double &ioSeq,
+                      Lng32 &probes) const;
 
   // ---------------------------------------------------------------------
   // Method for returning NCM debug information.
   // ---------------------------------------------------------------------
-  void getScmDebugAttr(double &dbg1, double &dbg2,
-		       double &dbg3, double &dbg4) const;
+  void getScmDebugAttr(double &dbg1, double &dbg2, double &dbg3, double &dbg4) const;
 
   // ---------------------------------------------------------------------
   // Comparison function for SCM, mandated by Cascades.
   // ---------------------------------------------------------------------
-  COMPARE_RESULT scmCompareCosts
-	             (const Cost & other,
-	              const ReqdPhysicalProperty* const rpp = NULL) const;
+  COMPARE_RESULT scmCompareCosts(const Cost &other, const ReqdPhysicalProperty *const rpp = NULL) const;
 
   // ---------------------------------------------------------------------
-  // Method to compute the total cost represented by the 
+  // Method to compute the total cost represented by the
   // cpScmlr SimpleCostVector of "this" Cost object.
   // ---------------------------------------------------------------------
-  CostScalar scmComputeTotalCost 
-	             (const ReqdPhysicalProperty* const rpp = NULL) const;
+  CostScalar scmComputeTotalCost(const ReqdPhysicalProperty *const rpp = NULL) const;
 
   // ---------------------------------------------------------------------
   // Method for converting a cost to cost limit.
   // ---------------------------------------------------------------------
-  CostLimit* convertToCostLimit
-	             (const ReqdPhysicalProperty* const rpp = NULL) const;
+  CostLimit *convertToCostLimit(const ReqdPhysicalProperty *const rpp = NULL) const;
 
   // ---------------------------------------------------------------------
   // Overloaded addition for Cost.
   // ---------------------------------------------------------------------
-  Cost& operator +=(const Cost & other);
+  Cost &operator+=(const Cost &other);
 
-  void mergeOtherChildCost(const Cost& otherChildCost);
+  void mergeOtherChildCost(const Cost &otherChildCost);
 
   // ---------------------------------------------------------------------
   // Default implementations of plan priority computation
   // ---------------------------------------------------------------------
 
   // For use with leaf operators
-  PlanPriority computePlanPriority( RelExpr* op,
-                                          const Context* myContext);
+  PlanPriority computePlanPriority(RelExpr *op, const Context *myContext);
 
   // For use with unary operators
-  PlanPriority computePlanPriority( RelExpr* op,
-                                          const Context* myContext,
-                                          const Cost* childCost);
+  PlanPriority computePlanPriority(RelExpr *op, const Context *myContext, const Cost *childCost);
 
   // For use with binary operators
-  PlanPriority computePlanPriority( RelExpr* op,
-                                          const Context* myContext,
-                                          const Cost* child0Cost,
-                                          const Cost* child1Cost,
-                                    PlanWorkSpace *pws=NULL,
-                                    Lng32 planNumber=0);
+  PlanPriority computePlanPriority(RelExpr *op, const Context *myContext, const Cost *child0Cost,
+                                   const Cost *child1Cost, PlanWorkSpace *pws = NULL, Lng32 planNumber = 0);
 
   // ---------------------------------------------------------------------
   // Functions for debugging.
   // ---------------------------------------------------------------------
 
-  void print(FILE * f = stdout,
-	     const char * prefix = "", const char * suffix = "") const;
+  void print(FILE *f = stdout, const char *prefix = "", const char *suffix = "") const;
 
   void display() const;
-//<pb>
-private:
-
+  //<pb>
+ private:
   // ---------------------------------------------------------------------
   // PRIVATE DATA.
   // ---------------------------------------------------------------------
@@ -648,7 +574,7 @@ private:
   //  Note that for repeat counts greater than one, this vector represents
   // the average usage per probe.
   // ---------------------------------------------------------------------
-  //jo SimpleCostVector opfr_;
+  // jo SimpleCostVector opfr_;
 
   //----------------------------------------------------------------------
   // oplr_:  Overlapped Process Last Row Cost.
@@ -659,7 +585,7 @@ private:
   //  Note that for repeat counts greater than one, this vector represents
   // the total usage for all probes.
   //----------------------------------------------------------------------
-  //jo SimpleCostVector oplr_;
+  // jo SimpleCostVector oplr_;
 
   //----------------------------------------------------------------------
   // totalCost_:  the total cost for performing an operation.
@@ -695,70 +621,60 @@ private:
   // ---------------------------------------------------------------------
   PlanPriority priority_;
 
-}; // class Cost
+};  // class Cost
 
 //---------------------------------------------------------------
 //  Needed for passing pointers to costs as reference parameters.
 //---------------------------------------------------------------
-typedef Cost* CostPtr;
+typedef Cost *CostPtr;
 //<pb>
 //------------------------------------------------------------------------
 //  A HashJoinCost object contains intermediate resource usage vectors and
 // variables computed during hash join preliminary costing which final
 // roll-up costing will also use.
 //------------------------------------------------------------------------
-class HashJoinCost : public Cost
-{
-public:
-
+class HashJoinCost : public Cost {
+ public:
   //---------------
   //  Constructors.
   //---------------
-  HashJoinCost(const SimpleCostVector* currentProcessFirstRowCost,
-               const SimpleCostVector* currentProcessLastRowCost,
-               const SimpleCostVector* currentProcessBlockingCost,
-               const Lng32              countOfCPUs,
-               const Lng32              planFragmentsPerCPU,
-               const CostScalar &      stage2WorkFractionForFR_,
-               const CostScalar &      stage3WorkFractionForFR_,
-               const SimpleCostVector* stage2Cost,
-               const SimpleCostVector* stage3Cost,
-               const SimpleCostVector* stage1BkCost,
-               const SimpleCostVector* stage2BkCost,
-               const SimpleCostVector* stage3BkCost);
+  HashJoinCost(const SimpleCostVector *currentProcessFirstRowCost, const SimpleCostVector *currentProcessLastRowCost,
+               const SimpleCostVector *currentProcessBlockingCost, const Lng32 countOfCPUs,
+               const Lng32 planFragmentsPerCPU, const CostScalar &stage2WorkFractionForFR_,
+               const CostScalar &stage3WorkFractionForFR_, const SimpleCostVector *stage2Cost,
+               const SimpleCostVector *stage3Cost, const SimpleCostVector *stage1BkCost,
+               const SimpleCostVector *stage2BkCost, const SimpleCostVector *stage3BkCost);
 
   //-----------------------------------------------
   //  Constructor for an empty HashJoinCost object.
   //-----------------------------------------------
   HashJoinCost()
-    : Cost(),
-      stage2WorkFractionForFR_( csOne ),
-      stage3WorkFractionForFR_( csZero ),
-      stage2Cost_(),
-      stage3Cost_(),
-      stage1BkCost_(),
-      stage2BkCost_(),
-      stage3BkCost_()
-  {}
+      : Cost(),
+        stage2WorkFractionForFR_(csOne),
+        stage3WorkFractionForFR_(csZero),
+        stage2Cost_(),
+        stage3Cost_(),
+        stage1BkCost_(),
+        stage2BkCost_(),
+        stage3BkCost_() {}
 
   //-------------------
   //  Copy constructor.
   //-------------------
   HashJoinCost(const HashJoinCost &other)
-    : Cost(other),
-      stage2WorkFractionForFR_(other.stage2WorkFractionForFR_),
-      stage3WorkFractionForFR_(other.stage3WorkFractionForFR_),
-      stage2Cost_(other.stage2Cost_),
-      stage3Cost_(other.stage3Cost_),
-      stage1BkCost_(other.stage1BkCost_),
-      stage2BkCost_(other.stage2BkCost_),
-      stage3BkCost_(other.stage3BkCost_)
-  {}
+      : Cost(other),
+        stage2WorkFractionForFR_(other.stage2WorkFractionForFR_),
+        stage3WorkFractionForFR_(other.stage3WorkFractionForFR_),
+        stage2Cost_(other.stage2Cost_),
+        stage3Cost_(other.stage3Cost_),
+        stage1BkCost_(other.stage1BkCost_),
+        stage2BkCost_(other.stage2BkCost_),
+        stage3BkCost_(other.stage3BkCost_) {}
 
   //--------------------------------
   //  Effective virtual constructor.
   //--------------------------------
-  virtual Cost* duplicate();
+  virtual Cost *duplicate();
 
   //-------------
   //  Destructor.
@@ -768,21 +684,18 @@ public:
   //---------------------
   //  Accessor Functions.
   //---------------------
-  inline const SimpleCostVector& getStage2Cost() const { return stage2Cost_; }
-  inline const SimpleCostVector& getStage3Cost() const { return stage3Cost_; }
+  inline const SimpleCostVector &getStage2Cost() const { return stage2Cost_; }
+  inline const SimpleCostVector &getStage3Cost() const { return stage3Cost_; }
 
-  inline const SimpleCostVector& getStage1BKCost() const {return stage1BkCost_;}
-  inline const SimpleCostVector& getStage2BKCost() const {return stage2BkCost_;}
-  inline const SimpleCostVector& getStage3BKCost() const {return stage3BkCost_;}
+  inline const SimpleCostVector &getStage1BKCost() const { return stage1BkCost_; }
+  inline const SimpleCostVector &getStage2BKCost() const { return stage2BkCost_; }
+  inline const SimpleCostVector &getStage3BKCost() const { return stage3BkCost_; }
 
-  inline const CostScalar& getStage2WorkFractionForFR() const
-                                            { return stage2WorkFractionForFR_; }
+  inline const CostScalar &getStage2WorkFractionForFR() const { return stage2WorkFractionForFR_; }
 
-  inline const CostScalar& getStage3WorkFractionForFR() const
-                                            { return stage3WorkFractionForFR_; }
+  inline const CostScalar &getStage3WorkFractionForFR() const { return stage3WorkFractionForFR_; }
 
-private:
-
+ private:
   // -------------
   // PRIVATE DATA.
   // -------------
@@ -829,7 +742,7 @@ private:
   SimpleCostVector stage2BkCost_;
 
   SimpleCostVector stage3BkCost_;
-}; // class HashJoinCost
+};  // class HashJoinCost
 //<pb>
 //------------------------------------------------------------------------------
 //  A HashGroupByCost object contains the grouping factor for this Hash GroupBy
@@ -838,40 +751,29 @@ private:
 // below the Hash GroupBy operator becomes blocking activity as part of the
 // roll-up
 //------------------------------------------------------------------------------
-class HashGroupByCost : public Cost
-{
-public:
-
+class HashGroupByCost : public Cost {
+ public:
   //---------------
   //  Constructors.
   //---------------
-  HashGroupByCost(const SimpleCostVector* currentProcessFirstRowCost,
-                  const SimpleCostVector* currentProcessLastRowCost,
-                  const SimpleCostVector* currentProcessBlockingCost,
-                  const Lng32              countOfCPUs,
-                  const Lng32              planFragmentsPerCPU,
-                  const CostScalar &      groupingFactor);
+  HashGroupByCost(const SimpleCostVector *currentProcessFirstRowCost, const SimpleCostVector *currentProcessLastRowCost,
+                  const SimpleCostVector *currentProcessBlockingCost, const Lng32 countOfCPUs,
+                  const Lng32 planFragmentsPerCPU, const CostScalar &groupingFactor);
 
   //--------------------------------------------------
   //  Constructor for an empty HashGroupByCost object.
   //--------------------------------------------------
-  HashGroupByCost()
-    : Cost(),
-      groupingFactor_( csOne )
-  {}
+  HashGroupByCost() : Cost(), groupingFactor_(csOne) {}
 
   //-------------------
   //  Copy constructor.
   //-------------------
-  HashGroupByCost(const HashGroupByCost &other)
-    : Cost(other),
-      groupingFactor_(other.groupingFactor_)
-  {}
+  HashGroupByCost(const HashGroupByCost &other) : Cost(other), groupingFactor_(other.groupingFactor_) {}
 
   //--------------------------------
   //  Effective virtual constructor.
   //--------------------------------
-  virtual Cost* duplicate();
+  virtual Cost *duplicate();
 
   //-------------
   //  Destructor.
@@ -883,8 +785,7 @@ public:
   //---------------------
   inline CostScalar getGroupingFactor() const { return groupingFactor_; }
 
-private:
-
+ private:
   // -------------
   // PRIVATE DATA.
   // -------------
@@ -894,23 +795,20 @@ private:
   // inclusive.
   //--------------------------------------------------------------------
   CostScalar groupingFactor_;
-
 };
 //<pb>
 // -----------------------------------------------------------------------
 // Specify how to weigh (and therefore, to compare) cost objects
 // --- abstract base class ---
 // -----------------------------------------------------------------------
-class CostWeight : public NABasicObject
-{
-public:
-
+class CostWeight : public NABasicObject {
+ public:
   virtual ~CostWeight() {}
 
   // ---------------------------------------------------------------------
   // Type-safe pointer casts used for run-time type identification.
   // ---------------------------------------------------------------------
-  virtual ResourceConsumptionWeight* castToResourceConsumptionWeight() const;
+  virtual ResourceConsumptionWeight *castToResourceConsumptionWeight() const;
 
   // ---------------------------------------------------------------------
   // Virtual method that returns the number of elements in the CostWeight.
@@ -920,45 +818,38 @@ public:
   // ---------------------------------------------------------------------
   // Virtual method for converting a CostVector to a floating point value.
   // ---------------------------------------------------------------------
-  virtual double convertToFloatingPointValue(const CostVector& cv) const = 0;
+  virtual double convertToFloatingPointValue(const CostVector &cv) const = 0;
 
   // ---------------------------------------------------------------------
   // Virtual method for converting a CostVector to an elapsed time.
   // ---------------------------------------------------------------------
-  virtual ElapsedTime convertToElapsedTime(const CostVector& cv) const = 0;
+  virtual ElapsedTime convertToElapsedTime(const CostVector &cv) const = 0;
 
   // ---------------------------------------------------------------------
   // Virtual method for converting a CostVector to a CostLimit.
   // ---------------------------------------------------------------------
-  virtual CostLimit* convertToCostLimit(const CostVector& cv) const = 0;
+  virtual CostLimit *convertToCostLimit(const CostVector &cv) const = 0;
 
   // ---------------------------------------------------------------------
   // Virtual method for comapring two cost vectors.
   // ---------------------------------------------------------------------
-  virtual COMPARE_RESULT compareCostVectors(const CostVector& cv1,
-				            const CostVector& cv2) const = 0;
+  virtual COMPARE_RESULT compareCostVectors(const CostVector &cv1, const CostVector &cv2) const = 0;
 
-}; // class CostWeight
+};  // class CostWeight
 //<pb>
 // -----------------------------------------------------------------------
 // use weighing factors to determine the scalar cost
 // -----------------------------------------------------------------------
-class ResourceConsumptionWeight : public CostWeight
-{
-public:
-
-  ResourceConsumptionWeight(
-    const CostScalar & cpuWeight =	csZero,
-    const CostScalar & IOWeight             = csZero,
-    const CostScalar & MSGWeight            = csZero,
-    const CostScalar & IdleTimeWeight         = csZero,
-    const CostScalar & numProbesWeight     = csZero
-    );
+class ResourceConsumptionWeight : public CostWeight {
+ public:
+  ResourceConsumptionWeight(const CostScalar &cpuWeight = csZero, const CostScalar &IOWeight = csZero,
+                            const CostScalar &MSGWeight = csZero, const CostScalar &IdleTimeWeight = csZero,
+                            const CostScalar &numProbesWeight = csZero);
 
   // ---------------------------------------------------------------------
   // Type-safe pointer casts used for run-time type identification.
   // ---------------------------------------------------------------------
-  virtual ResourceConsumptionWeight* castToResourceConsumptionWeight() const;
+  virtual ResourceConsumptionWeight *castToResourceConsumptionWeight() const;
 
   // ---------------------------------------------------------------------
   // Virtual method that returns the number of elements in the CostWeight.
@@ -968,92 +859,80 @@ public:
   // ---------------------------------------------------------------------
   // Virtual method for converting a CostVector to a floating point value.
   // ---------------------------------------------------------------------
-  virtual double convertToFloatingPointValue(const CostVector& cv) const;
+  virtual double convertToFloatingPointValue(const CostVector &cv) const;
 
   // ---------------------------------------------------------------------
   // Convert the given CostVector to an elapsed time provided it
   // has the same number of entries() as this CostWeight.
   // ---------------------------------------------------------------------
-  virtual ElapsedTime convertToElapsedTime(const CostVector& scv) const;
+  virtual ElapsedTime convertToElapsedTime(const CostVector &scv) const;
 
   // ---------------------------------------------------------------------
   // Virtual method for converting a Cost to a CostLimit.
   // ---------------------------------------------------------------------
-  virtual CostLimit* convertToCostLimit(const CostVector& cv) const;
+  virtual CostLimit *convertToCostLimit(const CostVector &cv) const;
 
   // ---------------------------------------------------------------------
   // Virtual method for comparing two cost vectors.
   // ---------------------------------------------------------------------
-  virtual COMPARE_RESULT compareCostVectors(const CostVector& cv1,
-				            const CostVector& cv2) const;
+  virtual COMPARE_RESULT compareCostVectors(const CostVector &cv1, const CostVector &cv2) const;
 
   // A method that provides access to a specific entry.
-  CostScalar operator[] (Lng32 ix) const;
+  CostScalar operator[](Lng32 ix) const;
 
-private:
+ private:
   CostScalar weighFactors_[COUNT_OF_SIMPLE_COST_COUNTERS];
 
-}; // class ResourceConsumptionWeight
+};  // class ResourceConsumptionWeight
 //<pb>
 // -----------------------------------------------------------------------
 // Specify  a cost limit
 // --- abstract base class ---
 // -----------------------------------------------------------------------
-class CostLimit : public NABasicObject
-{
-public:
-
+class CostLimit : public NABasicObject {
+ public:
   virtual ~CostLimit() {}
 
   // ---------------------------------------------------------------------
   // Virtual copy constructor.
   // ---------------------------------------------------------------------
-  virtual CostLimit* copy() const = 0;
+  virtual CostLimit *copy() const = 0;
 
   // ---------------------------------------------------------------------
   // Type-safe pointer casts used for run-time type identification.
   // ---------------------------------------------------------------------
-  virtual ElapsedTimeCostLimit* castToElapsedTimeCostLimit() const;
+  virtual ElapsedTimeCostLimit *castToElapsedTimeCostLimit() const;
 
   // ---------------------------------------------------------------------
   // Get a double precision value for the limit.
   // ---------------------------------------------------------------------
-  virtual double getValue(const ReqdPhysicalProperty* const rpp) const = 0;
+  virtual double getValue(const ReqdPhysicalProperty *const rpp) const = 0;
 
-  virtual double getCachedValue () = 0;
-  virtual void   setCachedValue (double val) = 0;
+  virtual double getCachedValue() = 0;
+  virtual void setCachedValue(double val) = 0;
   // ---------------------------------------------------------------------
   // Comparison function for costs and cost limits.
   // ---------------------------------------------------------------------
-  virtual COMPARE_RESULT compareCostLimits
-                       (CostLimit* other,
-	                const ReqdPhysicalProperty* const rpp = NULL) = 0;
+  virtual COMPARE_RESULT compareCostLimits(CostLimit *other, const ReqdPhysicalProperty *const rpp = NULL) = 0;
 
-  virtual COMPARE_RESULT compareWithCost
-                           (const Cost & other,
-	                    const ReqdPhysicalProperty* const rpp = NULL) = 0;
+  virtual COMPARE_RESULT compareWithCost(const Cost &other, const ReqdPhysicalProperty *const rpp = NULL) = 0;
 
-  virtual COMPARE_RESULT compareWithPlanCost
-                           (CascadesPlan* plan,
-	                    const ReqdPhysicalProperty* const rpp = NULL) = 0;
+  virtual COMPARE_RESULT compareWithPlanCost(CascadesPlan *plan, const ReqdPhysicalProperty *const rpp = NULL) = 0;
 
-  virtual void ancestorAccum(const Cost& otherCost,
-                             const ReqdPhysicalProperty* const rpp = NULL) = 0;
+  virtual void ancestorAccum(const Cost &otherCost, const ReqdPhysicalProperty *const rpp = NULL) = 0;
 
-  virtual void otherKinAccum(const Cost& otherCost) = 0;
+  virtual void otherKinAccum(const Cost &otherCost) = 0;
 
-  virtual void tryToReduce(const Cost& otherCost,
-                           const ReqdPhysicalProperty* const rpp = NULL) = 0;
+  virtual void tryToReduce(const Cost &otherCost, const ReqdPhysicalProperty *const rpp = NULL) = 0;
 
-  virtual void unilaterallyReduce(const ElapsedTime & timeReduction) = 0;
+  virtual void unilaterallyReduce(const ElapsedTime &timeReduction) = 0;
 
-  virtual const PlanPriority& priorityLimit() const = 0;
+  virtual const PlanPriority &priorityLimit() const = 0;
 
   virtual void setUpperLimit(ElapsedTime ul) = 0;
 
-private:
-
-}; // class CostLimit
+ private:
+};  // class CostLimit
 //<pb>
 //------------------------------------------------------------------------------
 // class ElapsedTimeCostLimit
@@ -1082,83 +961,66 @@ private:
 //  We can also reduce the upper limit unilaterally for some operators with
 // known child costs.
 //------------------------------------------------------------------------------
-class ElapsedTimeCostLimit : public CostLimit
-{
-public:
-
+class ElapsedTimeCostLimit : public CostLimit {
+ public:
   //--------------
   //  Constructors
   //--------------
-  ElapsedTimeCostLimit(const ElapsedTime& limit,
-                       const PlanPriority& priorityLimit,
-                       const Cost*        ancestorCost,
-                       const Cost*        otherKinCost)
-  : upperLimit_(limit),cachedValue_(0.0),priorityLimit_(priorityLimit)
-  {
-    CMPASSERT(   ancestorCost != NULL
-              && otherKinCost != NULL
-              && ancestorCost != otherKinCost);
+  ElapsedTimeCostLimit(const ElapsedTime &limit, const PlanPriority &priorityLimit, const Cost *ancestorCost,
+                       const Cost *otherKinCost)
+      : upperLimit_(limit), cachedValue_(0.0), priorityLimit_(priorityLimit) {
+    CMPASSERT(ancestorCost != NULL && otherKinCost != NULL && ancestorCost != otherKinCost);
 
     ancestorCost_ = new STMTHEAP Cost(*ancestorCost);
     otherKinCost_ = new STMTHEAP Cost(*otherKinCost);
   }
 
-  ElapsedTimeCostLimit(const ElapsedTimeCostLimit& other)
-  : upperLimit_(other.upperLimit_),
-    priorityLimit_(other.priorityLimit_),
-    ancestorCost_(new(CmpCommon::statementHeap()) Cost(*other.ancestorCost_)),
-    otherKinCost_(new(CmpCommon::statementHeap()) Cost(*other.otherKinCost_)),
-    cachedValue_(other.cachedValue_)
-    {};
+  ElapsedTimeCostLimit(const ElapsedTimeCostLimit &other)
+      : upperLimit_(other.upperLimit_),
+        priorityLimit_(other.priorityLimit_),
+        ancestorCost_(new (CmpCommon::statementHeap()) Cost(*other.ancestorCost_)),
+        otherKinCost_(new (CmpCommon::statementHeap()) Cost(*other.otherKinCost_)),
+        cachedValue_(other.cachedValue_){};
 
   //------------
   //  Destructor
   //------------
-  virtual ~ElapsedTimeCostLimit()
-    { delete ancestorCost_; delete otherKinCost_; }
+  virtual ~ElapsedTimeCostLimit() {
+    delete ancestorCost_;
+    delete otherKinCost_;
+  }
 
+  virtual CostLimit *copy() const { return new (CmpCommon::statementHeap()) ElapsedTimeCostLimit(*this); }
 
-  virtual CostLimit* copy() const
-    { return new(CmpCommon::statementHeap()) ElapsedTimeCostLimit(*this); }
+  virtual double getValue(const ReqdPhysicalProperty *const rpp) const;
 
-  virtual double getValue(const ReqdPhysicalProperty* const rpp) const;
+  double getCachedValue() { return cachedValue_; }
+  void setCachedValue(double val) { cachedValue_ = val; }
 
-  double getCachedValue (){ return cachedValue_; }
-  void   setCachedValue (double val) { cachedValue_ = val; }
+  virtual COMPARE_RESULT compareCostLimits(CostLimit *other, const ReqdPhysicalProperty *const rpp = NULL);
 
-  virtual COMPARE_RESULT compareCostLimits
-                           (CostLimit* other,
-                            const ReqdPhysicalProperty* const rpp = NULL);
+  virtual COMPARE_RESULT compareWithCost(const Cost &other, const ReqdPhysicalProperty *const rpp = NULL);
 
-  virtual COMPARE_RESULT compareWithCost
-                           (const Cost & other,
-	                    const ReqdPhysicalProperty* const rpp = NULL);
+  virtual COMPARE_RESULT compareWithPlanCost(CascadesPlan *plan, const ReqdPhysicalProperty *const rpp = NULL);
 
-  virtual COMPARE_RESULT compareWithPlanCost
-                           (CascadesPlan* plan,
-	                    const ReqdPhysicalProperty* const rpp = NULL);
+  virtual void ancestorAccum(const Cost &otherCost, const ReqdPhysicalProperty *const rpp = NULL);
 
-  virtual void ancestorAccum(const Cost& otherCost,
-                             const ReqdPhysicalProperty* const rpp = NULL);
+  virtual void otherKinAccum(const Cost &otherCost);
 
-  virtual void otherKinAccum(const Cost& otherCost);
+  virtual void tryToReduce(const Cost &otherCost, const ReqdPhysicalProperty *const rpp = NULL);
 
-  virtual void tryToReduce(const Cost& otherCost,
-                           const ReqdPhysicalProperty* const rpp = NULL);
-
-  virtual void unilaterallyReduce(const ElapsedTime & timeReduction);
+  virtual void unilaterallyReduce(const ElapsedTime &timeReduction);
 
   // ---------------------------------------------------------------------
   // Type-safe pointer casts used for run-time type identification.
   // ---------------------------------------------------------------------
-  virtual ElapsedTimeCostLimit* castToElapsedTimeCostLimit() const;
+  virtual ElapsedTimeCostLimit *castToElapsedTimeCostLimit() const;
 
-  virtual const PlanPriority& priorityLimit() const {return priorityLimit_;}
+  virtual const PlanPriority &priorityLimit() const { return priorityLimit_; }
 
   void setUpperLimit(ElapsedTime ul) { upperLimit_ = ul; }
 
-private:
-
+ private:
   //--------------------------------------------------------------------
   //  Upper limit for elapsed time of all operators in final query tree.
   //--------------------------------------------------------------------
@@ -1172,19 +1034,18 @@ private:
   //--------------------------------------------------------------------------
   //  Accumulated cost of all operators on path from root to current operator.
   //--------------------------------------------------------------------------
-  Cost* ancestorCost_;
+  Cost *ancestorCost_;
 
   //-------------------------------------------------------------
   //  Accumulated cost of all known siblings, cousins and uncles.
   //-------------------------------------------------------------
-  Cost* otherKinCost_;
+  Cost *otherKinCost_;
 
   // This is cached value of getValue() method for this costLimit.
   // It is used to cpeed up compare operations.
   double cachedValue_;
 
-}; // class ElapsedTimeCostLimit
-
+};  // class ElapsedTimeCostLimit
 
 //<pb>
 // -------------------------------------------------------------------
@@ -1193,82 +1054,66 @@ private:
 // of CostLimit abstract class. This is very similar to OCM (Old Cost Model)
 // implementation ElapsedTimeCostLimit.
 // ---------------------------------------------------------------------
-class ScmElapsedTimeCostLimit : public CostLimit
-{
-public:
-
+class ScmElapsedTimeCostLimit : public CostLimit {
+ public:
   //--------------
   //  Constructors
   //--------------
-  ScmElapsedTimeCostLimit(const ElapsedTime& limit,
-                          const PlanPriority& priorityLimit,
-                          const Cost*         ancestorCost,
-                          const Cost*         otherKinCost)
-  : upperLimit_(limit),cachedValue_(0.0),priorityLimit_(priorityLimit)
-  {
-    CMPASSERT(   ancestorCost != NULL
-              && otherKinCost != NULL
-              && ancestorCost != otherKinCost);
+  ScmElapsedTimeCostLimit(const ElapsedTime &limit, const PlanPriority &priorityLimit, const Cost *ancestorCost,
+                          const Cost *otherKinCost)
+      : upperLimit_(limit), cachedValue_(0.0), priorityLimit_(priorityLimit) {
+    CMPASSERT(ancestorCost != NULL && otherKinCost != NULL && ancestorCost != otherKinCost);
 
     ancestorCost_ = new STMTHEAP Cost(*ancestorCost);
     otherKinCost_ = new STMTHEAP Cost(*otherKinCost);
   }
 
-  ScmElapsedTimeCostLimit(const ScmElapsedTimeCostLimit& other)
-  : upperLimit_(other.upperLimit_),
-    priorityLimit_(other.priorityLimit_),
-    ancestorCost_(new(CmpCommon::statementHeap()) Cost(*other.ancestorCost_)),
-    otherKinCost_(new(CmpCommon::statementHeap()) Cost(*other.otherKinCost_)),
-    cachedValue_(other.cachedValue_)
-    {};
+  ScmElapsedTimeCostLimit(const ScmElapsedTimeCostLimit &other)
+      : upperLimit_(other.upperLimit_),
+        priorityLimit_(other.priorityLimit_),
+        ancestorCost_(new (CmpCommon::statementHeap()) Cost(*other.ancestorCost_)),
+        otherKinCost_(new (CmpCommon::statementHeap()) Cost(*other.otherKinCost_)),
+        cachedValue_(other.cachedValue_){};
 
   //------------
   //  Destructor
   //------------
-  virtual ~ScmElapsedTimeCostLimit()
-    { delete ancestorCost_; delete otherKinCost_; }
+  virtual ~ScmElapsedTimeCostLimit() {
+    delete ancestorCost_;
+    delete otherKinCost_;
+  }
 
-  virtual CostLimit* copy() const
-    { return new(CmpCommon::statementHeap()) ScmElapsedTimeCostLimit(*this); }
+  virtual CostLimit *copy() const { return new (CmpCommon::statementHeap()) ScmElapsedTimeCostLimit(*this); }
 
-  virtual double getValue(const ReqdPhysicalProperty* const rpp) const;
+  virtual double getValue(const ReqdPhysicalProperty *const rpp) const;
 
-  double getCachedValue (){ return cachedValue_; }
-  void   setCachedValue (double val) { cachedValue_ = val; }
+  double getCachedValue() { return cachedValue_; }
+  void setCachedValue(double val) { cachedValue_ = val; }
 
-  virtual COMPARE_RESULT compareCostLimits
-                           (CostLimit* other,
-                            const ReqdPhysicalProperty* const rpp = NULL);
+  virtual COMPARE_RESULT compareCostLimits(CostLimit *other, const ReqdPhysicalProperty *const rpp = NULL);
 
-  virtual COMPARE_RESULT compareWithCost
-                           (const Cost & other,
-                            const ReqdPhysicalProperty* const rpp = NULL);
+  virtual COMPARE_RESULT compareWithCost(const Cost &other, const ReqdPhysicalProperty *const rpp = NULL);
 
-  virtual COMPARE_RESULT compareWithPlanCost
-                           (CascadesPlan* plan,
-                            const ReqdPhysicalProperty* const rpp = NULL);
+  virtual COMPARE_RESULT compareWithPlanCost(CascadesPlan *plan, const ReqdPhysicalProperty *const rpp = NULL);
 
-  virtual void ancestorAccum(const Cost& otherCost,
-                             const ReqdPhysicalProperty* const rpp = NULL);
+  virtual void ancestorAccum(const Cost &otherCost, const ReqdPhysicalProperty *const rpp = NULL);
 
-  virtual void otherKinAccum(const Cost& otherCost);
+  virtual void otherKinAccum(const Cost &otherCost);
 
-  virtual void tryToReduce(const Cost& otherCost,
-                           const ReqdPhysicalProperty* const rpp = NULL);
+  virtual void tryToReduce(const Cost &otherCost, const ReqdPhysicalProperty *const rpp = NULL);
 
-  virtual void unilaterallyReduce(const ElapsedTime & timeReduction);
+  virtual void unilaterallyReduce(const ElapsedTime &timeReduction);
 
   // ---------------------------------------------------------------------
   // Type-safe pointer casts used for run-time type identification.
   // ---------------------------------------------------------------------
-  //virtual ScmElapsedTimeCostLimit* castToScmElapsedTimeCostLimit() const;
+  // virtual ScmElapsedTimeCostLimit* castToScmElapsedTimeCostLimit() const;
 
-  virtual const PlanPriority& priorityLimit() const {return priorityLimit_;}
+  virtual const PlanPriority &priorityLimit() const { return priorityLimit_; }
 
   void setUpperLimit(ElapsedTime ul) { upperLimit_ = ul; }
 
-private:
-
+ private:
   //--------------------------------------------------------------------
   //  Upper limit for elapsed time of all operators in final query tree.
   //--------------------------------------------------------------------
@@ -1282,19 +1127,18 @@ private:
   //--------------------------------------------------------------------------
   //  Accumulated cost of all operators on path from root to current operator.
   //--------------------------------------------------------------------------
-  Cost* ancestorCost_;
+  Cost *ancestorCost_;
 
   //-------------------------------------------------------------
   //  Accumulated cost of all known siblings, cousins and uncles.
   //-------------------------------------------------------------
-  Cost* otherKinCost_;
+  Cost *otherKinCost_;
 
   // This is cached value of getValue() method for this costLimit.
   // It is used to cpeed up compare operations.
   double cachedValue_;
 
-}; // class ScmElapsedTimeCostLimit
-
+};  // class ScmElapsedTimeCostLimit
 
 // -------------------------------------------------------------------
 //                             CONSTANTS
@@ -1383,7 +1227,6 @@ private:
 // -----------------------------------------------------------------------
 //#define CPUCOST_SUBSET_OPEN (20)
 
-
 // -----------------------------------------------------------------------
 // Assume 10 instructions for establishing a reference to a tuple
 // in the executor's address space. This includes the copying of
@@ -1433,10 +1276,8 @@ private:
 //    another operator.
 // ---------------------------------------------------------------------------
 
-class CostPrimitives
-{
-public:
-
+class CostPrimitives {
+ public:
   // -------------------------------------------------------------------------
   // To copy one instance of vidset from one memory location to another.
   //
@@ -1444,7 +1285,7 @@ public:
   // stored together in a contiguous piece of memory. Thus, we need to copy
   // each individual value over one after another.
   // -------------------------------------------------------------------------
-  static double cpuCostForCopySet (const ValueIdSet & vidset);
+  static double cpuCostForCopySet(const ValueIdSet &vidset);
 
   // -------------------------------------------------------------------------
   // To copy a row from one memory location to another.
@@ -1453,7 +1294,7 @@ public:
   // in a contiguous piece of memory. We could exploit the memcpy function and
   // save some overhead in theory.
   // -------------------------------------------------------------------------
-  static double cpuCostForCopyRow (Lng32 byteCount);
+  static double cpuCostForCopyRow(Lng32 byteCount);
 
   // -------------------------------------------------------------------------
   // To compare two instances of vidset. Comparison operators represented
@@ -1470,7 +1311,7 @@ public:
   // to TRUE and FALSE, it can adjust this to an average value assuming only
   // half the cost is incurred when evaluated to FALSE.
   // -------------------------------------------------------------------------
-  static double cpuCostForCompare (const ValueIdSet & vidset);
+  static double cpuCostForCompare(const ValueIdSet &vidset);
 
   // -------------------------------------------------------------------------
   // To evaluate the Like comparison operation. vid must be associated with
@@ -1480,7 +1321,7 @@ public:
   // $$$ Like is a subclass of Function and we should be able to obtain its
   // $$$ cost from there.
   // -------------------------------------------------------------------------
-  static double cpuCostForLikeCompare (const ValueId & vid);
+  static double cpuCostForLikeCompare(const ValueId &vid);
 
   // -------------------------------------------------------------------------
   // To evaluate an arithmetic expression specified by vid.
@@ -1489,7 +1330,7 @@ public:
   // be made up of +,-,*,/,**, summing up the their costs along the way. It
   // treats any nodes other than those given above as leaf nodes.
   // -------------------------------------------------------------------------
-  static double cpuCostForEvalArithExpr (const ValueId & vid);
+  static double cpuCostForEvalArithExpr(const ValueId &vid);
 
   // -------------------------------------------------------------------------
   // To evaluate the function specified by vid. vid must be associated with
@@ -1502,7 +1343,7 @@ public:
   // $$$ the cost of evaluating a function as private members of the class of
   // $$$ the function itself. Changes in ItemFunc.h need to be made.
   // -------------------------------------------------------------------------
-  static double cpuCostForEvalFunc (const ValueId & vid);
+  static double cpuCostForEvalFunc(const ValueId &vid);
 
   // -------------------------------------------------------------------------
   // To evaluate the set of predicates given as vidset and AND the results.
@@ -1518,7 +1359,7 @@ public:
   // expressions on the two sides of the comparison operator is not accounted
   // for in the cost computed.
   // -------------------------------------------------------------------------
-  static double cpuCostForEvalPred (const ValueIdSet & vidset);
+  static double cpuCostForEvalPred(const ValueIdSet &vidset);
 
   // -------------------------------------------------------------------------
   // To evaluate the expression specified by vid. The method is going to walk
@@ -1528,7 +1369,7 @@ public:
   // $$$ In the first release of CostPrimitives.C, the implementation of this
   // $$$ method is just a stub which returns a cost of 0.
   // -------------------------------------------------------------------------
-  static double cpuCostForEvalExpr (const ValueId & vid);
+  static double cpuCostForEvalExpr(const ValueId &vid);
 
   // -------------------------------------------------------------------------
   // To encode an instance of vidset.
@@ -1543,7 +1384,7 @@ public:
   // $$$ so that we don't have to synthesize a CompEncode object just to get
   // $$$ its cost.
   // -------------------------------------------------------------------------
-  static double cpuCostForEncode (const ValueIdSet & vidset);
+  static double cpuCostForEncode(const ValueIdSet &vidset);
 
   // -------------------------------------------------------------------------
   // To hash a set of keys stored as vidset.
@@ -1557,7 +1398,7 @@ public:
   // $$$ so that we don't have to synthesize a Hash object just to get its
   // $$$ cost.
   // -------------------------------------------------------------------------
-  static double cpuCostForHash (const ValueIdSet & vidset);
+  static double cpuCostForHash(const ValueIdSet &vidset);
 
   // -------------------------------------------------------------------------
   // To aggregate a row incrementally to the set of aggregates in vidset.
@@ -1568,89 +1409,68 @@ public:
   // not nested and any arithmetic expressions within the aggregates have been
   // evaluated and stored.
   // -------------------------------------------------------------------------
-  static double cpuCostForAggrRow (const ValueIdSet & vidset);
+  static double cpuCostForAggrRow(const ValueIdSet &vidset);
 
   // -------------------------------------------------------------------------
   // Basic cost factors used in the formulae to combine costs.
   // -------------------------------------------------------------------------
-  static double getBasicCostFactor (Lng32 mscf);
+  static double getBasicCostFactor(Lng32 mscf);
 
-private:
-
+ private:
 };
-
 
 // -----------------------------------------------------------------------
 // This class is used for storing and propagating DP2 costing
 // data that is computed during synthesis of the DP2 leaf operators.
 // -----------------------------------------------------------------------
-class DP2CostDataThatDependsOnSPP : public NABasicObject
-{
-public:
+class DP2CostDataThatDependsOnSPP : public NABasicObject {
+ public:
   DP2CostDataThatDependsOnSPP()
-     : highestLeadingPartitionColumnCovered_(-1)
-    ,repeatCountForOperatorsInDP2_( csMinusOne )
-    ,countOfCPUsExecutingDP2s_(-1)
-    ,probesAtBusiestStream_ (csOne)
-    ,rCountState(UNKNOWN)
-  {}
+      : highestLeadingPartitionColumnCovered_(-1),
+        repeatCountForOperatorsInDP2_(csMinusOne),
+        countOfCPUsExecutingDP2s_(-1),
+        probesAtBusiestStream_(csOne),
+        rCountState(UNKNOWN) {}
 
-
-
-enum repeatCountSTATE
-{
-   KEYCOLS_COVERED_BY_CONST=1,
-   KEYCOLS_COVERED_BY_PROBE_COLS_CONST,
-   KEYCOLS_NOT_COVERED,
-   UPDATE_OPERATION,
-   UNKNOWN
-};
+  enum repeatCountSTATE {
+    KEYCOLS_COVERED_BY_CONST = 1,
+    KEYCOLS_COVERED_BY_PROBE_COLS_CONST,
+    KEYCOLS_NOT_COVERED,
+    UPDATE_OPERATION,
+    UNKNOWN
+  };
   // -----------------------------------------------------------------------
   // Accessors:
   // -----------------------------------------------------------------------
 
-  CostScalar getProbesAtBusiestStream() const
-  { return probesAtBusiestStream_;}
-  Lng32 getHighestLeadingPartitionColumnCovered() const
-  { return highestLeadingPartitionColumnCovered_; }
+  CostScalar getProbesAtBusiestStream() const { return probesAtBusiestStream_; }
+  Lng32 getHighestLeadingPartitionColumnCovered() const { return highestLeadingPartitionColumnCovered_; }
 
-  CostScalar getRepeatCountForOperatorsInDP2() const
-  { return repeatCountForOperatorsInDP2_; }
+  CostScalar getRepeatCountForOperatorsInDP2() const { return repeatCountForOperatorsInDP2_; }
 
-  Lng32 getCountOfCPUsExecutingDP2s() const
-  { return countOfCPUsExecutingDP2s_; }
+  Lng32 getCountOfCPUsExecutingDP2s() const { return countOfCPUsExecutingDP2s_; }
 
   // -----------------------------------------------------------------------
   // Mutators:
   // -----------------------------------------------------------------------
 
-  void setProbesAtBusiestStream(const CostScalar & rc)
-      { probesAtBusiestStream_ = rc;}
-  void setHighestLeadingPartitionColumnCovered(Lng32 hlpcc)
-  {  highestLeadingPartitionColumnCovered_ = hlpcc; }
+  void setProbesAtBusiestStream(const CostScalar &rc) { probesAtBusiestStream_ = rc; }
+  void setHighestLeadingPartitionColumnCovered(Lng32 hlpcc) { highestLeadingPartitionColumnCovered_ = hlpcc; }
 
-  void  setRepeatCountForOperatorsInDP2(const CostScalar & rc)
-  {  repeatCountForOperatorsInDP2_ = rc; }
+  void setRepeatCountForOperatorsInDP2(const CostScalar &rc) { repeatCountForOperatorsInDP2_ = rc; }
 
-  void setRepeatCountState(const repeatCountSTATE rs)
-  { rCountState=rs;}
-  
-  repeatCountSTATE getRepeatCountState()
-  { return rCountState;}
+  void setRepeatCountState(const repeatCountSTATE rs) { rCountState = rs; }
 
-  void  setCountOfCPUsExecutingDP2s(Lng32 countCpus)
-  { countOfCPUsExecutingDP2s_ = countCpus; }
+  repeatCountSTATE getRepeatCountState() { return rCountState; }
 
+  void setCountOfCPUsExecutingDP2s(Lng32 countCpus) { countOfCPUsExecutingDP2s_ = countCpus; }
 
-private:
+ private:
   Lng32 highestLeadingPartitionColumnCovered_;
   CostScalar repeatCountForOperatorsInDP2_;
   Lng32 countOfCPUsExecutingDP2s_;
   CostScalar probesAtBusiestStream_;
   repeatCountSTATE rCountState;
-
 };
-
-
 
 #endif /* COST_HDR */

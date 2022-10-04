@@ -43,40 +43,22 @@
 // LMC as a handle to LM clients.
 //
 //////////////////////////////////////////////////////////////////////
-class SQLLM_LIB_FUNC LmRoutineCSqlRow : public LmRoutineC
-{
+class SQLLM_LIB_FUNC LmRoutineCSqlRow : public LmRoutineC {
   friend class LmLanguageManagerC;
-  
-public:
-  virtual LmResult invokeRoutine(void *inputRow,
-				 void *outputRow,
-                                 ComDiagsArea *da);
 
-protected:
-  LmRoutineCSqlRow(
-    const char   *sqlName,
-    const char   *externalName,
-    const char   *librarySqlName,
-    ComUInt32    numSqlParam,
-    char         *routineSig,
-    ComUInt32    maxResultSets,
-    ComRoutineTransactionAttributes transactionAttrs,
-    ComRoutineSQLAccess sqlAccessMode,
-    ComRoutineExternalSecurity externalSecurity,
-    Int32        routineOwnerId,
-    const char   *parentQid,
-    ComUInt32    inputRowLen,
-    ComUInt32    outputRowLen,
-    const char   *currentUserName,
-    const char   *sessionUserName,
-    LmParameter  *parameters,
-    LmLanguageManagerC *lm,
-    LmHandle     routine,
-    LmContainer  *container,
-    ComDiagsArea *diagsArea);
+ public:
+  virtual LmResult invokeRoutine(void *inputRow, void *outputRow, ComDiagsArea *da);
+
+ protected:
+  LmRoutineCSqlRow(const char *sqlName, const char *externalName, const char *librarySqlName, ComUInt32 numSqlParam,
+                   char *routineSig, ComUInt32 maxResultSets, ComRoutineTransactionAttributes transactionAttrs,
+                   ComRoutineSQLAccess sqlAccessMode, ComRoutineExternalSecurity externalSecurity, Int32 routineOwnerId,
+                   const char *parentQid, ComUInt32 inputRowLen, ComUInt32 outputRowLen, const char *currentUserName,
+                   const char *sessionUserName, LmParameter *parameters, LmLanguageManagerC *lm, LmHandle routine,
+                   LmContainer *container, ComDiagsArea *diagsArea);
 
   virtual ~LmRoutineCSqlRow();
 
-}; // class LmRoutineCSqlRow
+};  // class LmRoutineCSqlRow
 
 #endif

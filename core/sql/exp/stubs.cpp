@@ -35,16 +35,12 @@
  *****************************************************************************
  */
 
-extern "C"
-void SQL_EXEC_IsVolumeUseful_Internal__FCPCc(void){};
+extern "C" void SQL_EXEC_IsVolumeUseful_Internal__FCPCc(void){};
 
-extern "C"
-void SQL_EXEC_GetListOfVolumes_Internal__Fv(void){};
+extern "C" void SQL_EXEC_GetListOfVolumes_Internal__Fv(void){};
 
-void CmpAssertInternal(const char*, const char*, Int32){};
+void CmpAssertInternal(const char *, const char *, Int32){};
 
-extern "C"
-void contextHeap__9CmpCommonSFv(void){};
+extern "C" void contextHeap__9CmpCommonSFv(void){};
 
-extern "C"
-void init(void){};
+extern "C" void init(void){};

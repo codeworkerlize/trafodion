@@ -25,7 +25,7 @@
 /* -*-C++-*-
 **************************************************************************
 *
-* File:         ColumnNameMap.h        
+* File:         ColumnNameMap.h
 * Description:  A name map for a Column
 * Created:      4/27/94
 * Language:     C++
@@ -63,120 +63,99 @@ class XCNM;
 // The XCNM (Exposed Column Name Map) cache is a hash table of
 // ColumnNameMaps that permits an associative lookup for column
 // names that are qualified by an exposed table or correlation name.
-// There is one entry in the XCNM for each column of every table 
+// There is one entry in the XCNM for each column of every table
 // whose name is exposed in a given scope.
-// 
+//
 // ***********************************************************************
-class ColumnNameMap : public NABasicObject
-{
-public:
+class ColumnNameMap : public NABasicObject {
+ public:
   // ---------------------------------------------------------------------
   // Constructor functions
   // ---------------------------------------------------------------------
-  ColumnNameMap(const NAString& colRefName, 	// simple name of input value
-                const ValueId& valId,
-                CollHeap * h=0)
-              : colRefName_(colRefName,h),
-                valId_(valId),
-                columnDesc_(NULL),
-		duplicateFlag_(FALSE),
-                qualColAmbiguousFlag_(FALSE) 
-  {}
+  ColumnNameMap(const NAString &colRefName,  // simple name of input value
+                const ValueId &valId, CollHeap *h = 0)
+      : colRefName_(colRefName, h),
+        valId_(valId),
+        columnDesc_(NULL),
+        duplicateFlag_(FALSE),
+        qualColAmbiguousFlag_(FALSE) {}
 
-  ColumnNameMap(const NAString& colRefName, 	// simple name of column
-                ColumnDesc *columnDesc,
-                CollHeap * h=0,
-		NABoolean dup = FALSE,
-		NABoolean qualColAmbi = FALSE)
-              : colRefName_(colRefName, h),
-                valId_(columnDesc->getValueId()),
-                columnDesc_(columnDesc),
-		duplicateFlag_(dup),
-		qualColAmbiguousFlag_(qualColAmbi)
-  {}
-    
-  ColumnNameMap(const ColRefName& colRefName,  // colRefName including corrName
-                ColumnDesc *columnDesc,
-                CollHeap * h=0,
-		NABoolean dup = FALSE,
-		NABoolean qualColAmbi = FALSE)
-              : colRefName_(colRefName.getColName(), 
-			    colRefName.getCorrNameObj(), h),
-                valId_(columnDesc->getValueId()),
-                columnDesc_(columnDesc),
-		duplicateFlag_(dup),
-		qualColAmbiguousFlag_(qualColAmbi)
-  {}
+  ColumnNameMap(const NAString &colRefName,  // simple name of column
+                ColumnDesc *columnDesc, CollHeap *h = 0, NABoolean dup = FALSE, NABoolean qualColAmbi = FALSE)
+      : colRefName_(colRefName, h),
+        valId_(columnDesc->getValueId()),
+        columnDesc_(columnDesc),
+        duplicateFlag_(dup),
+        qualColAmbiguousFlag_(qualColAmbi) {}
+
+  ColumnNameMap(const ColRefName &colRefName,  // colRefName including corrName
+                ColumnDesc *columnDesc, CollHeap *h = 0, NABoolean dup = FALSE, NABoolean qualColAmbi = FALSE)
+      : colRefName_(colRefName.getColName(), colRefName.getCorrNameObj(), h),
+        valId_(columnDesc->getValueId()),
+        columnDesc_(columnDesc),
+        duplicateFlag_(dup),
+        qualColAmbiguousFlag_(qualColAmbi) {}
 
   // copy ctor
-  ColumnNameMap (const ColumnNameMap & cnm, CollHeap * h=0) 
-       : colRefName_(cnm.colRefName_, h),
-         valId_(cnm.valId_),
-         columnDesc_(cnm.columnDesc_),
-         duplicateFlag_(cnm.duplicateFlag_),
-	 qualColAmbiguousFlag_(cnm.qualColAmbiguousFlag_)
-  {}
+  ColumnNameMap(const ColumnNameMap &cnm, CollHeap *h = 0)
+      : colRefName_(cnm.colRefName_, h),
+        valId_(cnm.valId_),
+        columnDesc_(cnm.columnDesc_),
+        duplicateFlag_(cnm.duplicateFlag_),
+        qualColAmbiguousFlag_(cnm.qualColAmbiguousFlag_) {}
 
   // ---------------------------------------------------------------------
   // Accessor functions
   // ---------------------------------------------------------------------
-  const ColRefName& getColRefNameObj() const 	{ return colRefName_; }
+  const ColRefName &getColRefNameObj() const { return colRefName_; }
 
-  ColumnDesc *getColumnDesc() const 		{ return columnDesc_; }
+  ColumnDesc *getColumnDesc() const { return columnDesc_; }
 
-  ValueId getValueId() const 			{ return valId_; }
+  ValueId getValueId() const { return valId_; }
 
-  NABoolean isDuplicate() const 		{ return duplicateFlag_; }
-  void setDuplicateFlag() 			{ duplicateFlag_ = TRUE; }
+  NABoolean isDuplicate() const { return duplicateFlag_; }
+  void setDuplicateFlag() { duplicateFlag_ = TRUE; }
 
-  NABoolean isQualifiedColumnAmbiguous()        
-  { return qualColAmbiguousFlag_; }
-  
-  void setQualifiedColumnAmbiguousFlag()        
-  {  qualColAmbiguousFlag_ = TRUE; }
+  NABoolean isQualifiedColumnAmbiguous() { return qualColAmbiguousFlag_; }
+
+  void setQualifiedColumnAmbiguousFlag() { qualColAmbiguousFlag_ = TRUE; }
 
   // ---------------------------------------------------------------------
   // Display/print, for debugging.
   // ---------------------------------------------------------------------
-  void print(FILE* ofd = stdout,
-	     const char* indent = DEFAULT_INDENT,
-             const char* title = "ColumnNameMap")
-  {
+  void print(FILE *ofd = stdout, const char *indent = DEFAULT_INDENT, const char *title = "ColumnNameMap") {
     if (strcmp(title, "")) {
       BUMP_INDENT(indent);
-      fprintf(ofd,"%s%s %s",NEW_INDENT,title,NEW_INDENT);
+      fprintf(ofd, "%s%s %s", NEW_INDENT, title, NEW_INDENT);
     }
     colRefName_.print(ofd, indent, "", TRUE /* brief */);
-    fprintf(ofd," %u%s",
-      CollIndex(valId_),
-      isDuplicate()? " dup" : "");
+    fprintf(ofd, " %u%s", CollIndex(valId_), isDuplicate() ? " dup" : "");
     if (columnDesc_) {
       if (columnDesc_->getColRefNameObj() != colRefName_) {
-	fprintf(ofd, " ");
-	columnDesc_->print(ofd, indent, "");
+        fprintf(ofd, " ");
+        columnDesc_->print(ofd, indent, "");
       }
       CMPASSERT(columnDesc_->getValueId() == valId_);
     } else
-      fprintf(ofd," (input value)");
-    if (strcmp(title, "")) fprintf(ofd,"\n");
-  } // print()
+      fprintf(ofd, " (input value)");
+    if (strcmp(title, "")) fprintf(ofd, "\n");
+  }  // print()
 
   void display() { print(); }
 
   // ---------------------------------------------------------------------
   // The following methods are required for each descriptor.
   // ---------------------------------------------------------------------
-  const ColRefName* getKey() const	{ return &colRefName_; }
+  const ColRefName *getKey() const { return &colRefName_; }
 
-  NABoolean operator==(const ColumnNameMap& other) const
-					{ return this == &other; }
+  NABoolean operator==(const ColumnNameMap &other) const { return this == &other; }
 
-private:
+ private:
   // ---------------------------------------------------------------------
   // Column name
   // ---------------------------------------------------------------------
   ColRefName colRefName_;
-  
+
   // ---------------------------------------------------------------------
   // Column descriptor
   // ---------------------------------------------------------------------
@@ -196,7 +175,7 @@ private:
 
   NABoolean qualColAmbiguousFlag_;
 
-}; // class ColumnNameMap
+};  // class ColumnNameMap
 
 // ***********************************************************************
 // Implementation for inline functions
@@ -208,25 +187,19 @@ private:
 // The Exposed Column Name Map for name lookup
 // ***********************************************************************
 // -- Initial size of the XCNM cache
-#define XCNM_INIT_SIZE    61
+#define XCNM_INIT_SIZE 61
 
-class XCNM : public NAKeyLookup<ColRefName,ColumnNameMap>
-{
-public:
-  XCNM(CollHeap* h/*=0*/) : 
-    NAKeyLookup<ColRefName,ColumnNameMap> (XCNM_INIT_SIZE, 
-					   NAKeyLookupEnums::KEY_INSIDE_VALUE,
-					   h)
-    {}
+class XCNM : public NAKeyLookup<ColRefName, ColumnNameMap> {
+ public:
+  XCNM(CollHeap *h /*=0*/)
+      : NAKeyLookup<ColRefName, ColumnNameMap>(XCNM_INIT_SIZE, NAKeyLookupEnums::KEY_INSIDE_VALUE, h) {}
 
   // copy ctor
-  XCNM (const XCNM & orig, CollHeap * h=0) :
-       NAKeyLookup<ColRefName,ColumnNameMap> (orig, h) 
-  {}
-  
+  XCNM(const XCNM &orig, CollHeap *h = 0) : NAKeyLookup<ColRefName, ColumnNameMap>(orig, h) {}
+
   ~XCNM() { clearAndDestroy(); }
-private:
-}; // class XCNM
 
+ private:
+};  // class XCNM
 
-#endif  /* COLUMNNAMEMAP_H */
+#endif /* COLUMNNAMEMAP_H */

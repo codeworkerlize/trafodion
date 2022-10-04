@@ -31,22 +31,20 @@
 /************************************************************************
 class CompilationStats
 
-Singleton class to collect information about this Query compilation 
+Singleton class to collect information about this Query compilation
 and to be logged into the repository after the compilation is complete.
 
 ************************************************************************/
-class CompilationStats
-{
-public:
+class CompilationStats {
+ public:
   CompilationStats();
 
-  ~CompilationStats() {};
+  ~CompilationStats(){};
 
   void takeSnapshotOfCounters();
 
   // Used to count the CPU path length for each compilation phase
-  enum CompilationPhase
-  {
+  enum CompilationPhase {
     CMP_PHASE_ALL = 0,
     CMP_PHASE_PARSER,
     CMP_PHASE_BINDER,
@@ -64,7 +62,7 @@ public:
   Int64 compileEndTime();
 
   // pass in a buffer of size COMPILER_ID_LEN
-  void getCompilerId(char *cmpId, int len); 
+  void getCompilerId(char *cmpId, int len);
   //
   // metadata cache counters
   ULng32 metadataCacheHits();
@@ -74,20 +72,17 @@ public:
   Int32 getQueryCacheState();
   //
   // histogram counters
-  ULng32 histogramCacheHits(); 
+  ULng32 histogramCacheHits();
   ULng32 histogramCacheLookups();
   //
   // statement heap
-  static inline size_t stmtHeapCurrentSize()
-    { return CmpCommon::statementHeap()->getAllocSize(); }
+  static inline size_t stmtHeapCurrentSize() { return CmpCommon::statementHeap()->getAllocSize(); }
   //
   // context heap
-  static inline size_t cxtHeapCurrentSize()
-    { return CmpCommon::contextHeap()->getAllocSize(); }
+  static inline size_t cxtHeapCurrentSize() { return CmpCommon::contextHeap()->getAllocSize(); }
   //
   // optimization tasks
-  static inline Lng32 optimizationTasks()
-    { return CURRSTMT_OPTDEFAULTS->getTaskCount(); }
+  static inline Lng32 optimizationTasks() { return CURRSTMT_OPTDEFAULTS->getTaskCount(); }
   //
   // optimization contexts
   void incrOptContexts();
@@ -100,43 +95,36 @@ public:
   NABoolean isRecompile();
 
   // pass in a buffer of size CompilationStats::MAX_COMPILER_INFO_LEN
-  void getCompileInfo(char *cmpInfo); 
+  void getCompileInfo(char *cmpInfo);
   Int32 getCompileInfoLen();
-    
+
   void enterCmpPhase(CompilationPhase phase);
-  void exitCmpPhase(CompilationPhase phase);  
-  Lng32 cmpPhaseLength(CompilationPhase phase);  
+  void exitCmpPhase(CompilationPhase phase);
+  Lng32 cmpPhaseLength(CompilationPhase phase);
   //
   // maximum # of characters for compiler info
   enum { MAX_COMPILER_INFO_LEN = 4096 };
-  
-  enum QCacheState
-  {
+
+  enum QCacheState {
     QCSTATE_UNKNOWN = -1,
     QCSTATE_TEXT = 0,
     QCSTATE_TEMPLATE,
     QCSTATE_MISS_NONCACHEABLE,
     QCSTATE_MISS_CACHEABLE,
     QCSTATE_NUM_STATES
-  };  
+  };
 
   //  the valid phases only go up to one before CMP_NUM_PHASES
-  inline
-  NABoolean isValidPhase(CompilationPhase phase) 
-  {
-    return (phase >= CMP_PHASE_ALL && phase < CMP_NUM_PHASES);
-  }
+  inline NABoolean isValidPhase(CompilationPhase phase) { return (phase >= CMP_PHASE_ALL && phase < CMP_NUM_PHASES); }
 
   // valid QCacheState up to one before QCSTATE_NUM_STATUSES
-  inline
-  NABoolean isValidQCacheState(QCacheState state)
-  {
+  inline NABoolean isValidQCacheState(QCacheState state) {
     return (state >= QCSTATE_TEXT && state < QCSTATE_NUM_STATES);
   }
 
   void dumpToFile();
 
-private:
+ private:
   // timestamp for start/end time of this compilation
   Int64 compileStartTime_;
   Int64 compileEndTime_;
@@ -166,5 +154,4 @@ private:
   QCacheStats qCacheStatsBegin_;
 };
 
-#endif // COMPILATIONSTATS_H
-
+#endif  // COMPILATIONSTATS_H

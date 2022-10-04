@@ -37,7 +37,6 @@
 ******************************************************************************
 */
 
-
 #include "ComMvDefs.h"
 #include "optimizer/RelMisc.h"
 #include "Refresh.h"
@@ -56,7 +55,7 @@ class MultiDeltaRefreshMatrixRow;
 class MavRelRootBuilder;
 struct MinMaxColExtraInfo;
 
-// Forward references 
+// Forward references
 class LogsInfo;
 class DeltaDefinitionPtrList;
 class IntegerList;
@@ -72,55 +71,48 @@ class RelSequence;
 //----------------------------------------------------------------------------
 // The MvRefreshBuilder class hierarchy is responsible for the actual
 // inlining work of building the refresh RelExpr trees.
-// For ON REQUEST MVs, if the refresh is not pipelined, only one object is 
-// built and used. In case of pipelined refresh, several objects are built, 
+// For ON REQUEST MVs, if the refresh is not pipelined, only one object is
+// built and used. In case of pipelined refresh, several objects are built,
 // each for a single level of MV refresh.
 // The MvRefreshBuilder class itself is abstract.
 // Here is the class hierarchy:
 // MvRefreshBuilder :
-//     MvRecomputeBuilder   
+//     MvRecomputeBuilder
 //     MjvBuilder (defined in MjvBuilder.h/cpp)
 //         MjvImmInsertBuilder
 //         MjvImmDeleteBuilder
 //         MjvImmDirectUpdateBuilder
-//     MavBuilder     
+//     MavBuilder
 //         MultiDeltaMavBuilder
 //         MvMultiTxnMavBuilder
 //         MinMaxMavBuilder
 //         PipelinedMavBuilder
 //----------------------------------------------------------------------------
-class MvRefreshBuilder : public NABasicObject
-{
-public:
+class MvRefreshBuilder : public NABasicObject {
+ public:
+  MvRefreshBuilder(const CorrName &mvName, MVInfoForDML *mvInfo, Refresh *refreshNode, BindWA *bindWA);
 
-  MvRefreshBuilder(const CorrName&  mvName,
-		   MVInfoForDML    *mvInfo,
-		   Refresh	   *refreshNode,
-		   BindWA          *bindWA);
-
-private:
+ private:
   // Copy Ctor and = operator are not implemented.
-  MvRefreshBuilder(const MvRefreshBuilder& other);
-  MvRefreshBuilder& operator=(const MvRefreshBuilder& other);
+  MvRefreshBuilder(const MvRefreshBuilder &other);
+  MvRefreshBuilder &operator=(const MvRefreshBuilder &other);
 
-public:
+ public:
   enum { MAX_EPOCH_FOR_UNION_BACKBONE = 50 };
 
-public:
+ public:
   virtual ~MvRefreshBuilder();
 
   // Accessors to private data members
-  const CorrName&     getMvCorrName()  const { return mvCorrName_; }
-  Refresh            *getRefreshNode() const { return refreshNode_; }
-  MVInfoForDML       *getMvInfo()      const { return mvInfo_; }
-  Lng32		      getPhase()       const { return phase_; }
-  const DeltaDefinitionPtrList *getDeltaDefList() const 
-  { return deltaDefList_;}
-  void  setDeltaDefList(const DeltaDefinitionPtrList *deltaDef)
-  { deltaDefList_ = deltaDef;}
+  const CorrName &getMvCorrName() const { return mvCorrName_; }
+  Refresh *getRefreshNode() const { return refreshNode_; }
+  MVInfoForDML *getMvInfo() const { return mvInfo_; }
+  Lng32 getPhase() const { return phase_; }
+  const DeltaDefinitionPtrList *getDeltaDefList() const { return deltaDefList_; }
+  void setDeltaDefList(const DeltaDefinitionPtrList *deltaDef) { deltaDefList_ = deltaDef; }
 
   // Build the refresh RelExpr tree. This pure virtual method is respossible
-  // for building the main refresh tree. This is done differently for every 
+  // for building the main refresh tree. This is done differently for every
   // refresh type.
   virtual RelExpr *buildRefreshTree() = 0;
 
@@ -128,38 +120,29 @@ public:
   // the logs instead. This is the basic implementation that handles the IUD
   // log and the range log. It is overridden by MvMultiTxnMavBuilder for
   // that special case.
-  virtual RelExpr *buildLogsScanningBlock(const QualifiedName&  baseTable);
+  virtual RelExpr *buildLogsScanningBlock(const QualifiedName &baseTable);
 
   virtual NABoolean needAlternateCIorder() const;
-  
-  virtual Union *buildUnionBetweenRangeAndIudBlocks(RelExpr *scanIUDLogBlock,
-						    RelExpr *scanRangeLogBlock) const;
 
-protected:
+  virtual Union *buildUnionBetweenRangeAndIudBlocks(RelExpr *scanIUDLogBlock, RelExpr *scanRangeLogBlock) const;
 
-  virtual RelRoot *buildRootWithUniformSelectList(RelExpr *topNode,
-					          ItemExpr *opExpr,
-					          const CorrName *nameOverride,
+ protected:
+  virtual RelRoot *buildRootWithUniformSelectList(RelExpr *topNode, ItemExpr *opExpr, const CorrName *nameOverride,
                                                   NABoolean forRange) const;
 
-  LogsInfo &getLogsInfo() const
-  {
+  LogsInfo &getLogsInfo() const {
     CMPASSERT(logsInfo_);
     return *logsInfo_;
   }
 
   // Prepare for Multi-Delta refresh (both MAV and MJV)
-  MultiDeltaRefreshMatrix *prepareProductMatrix(NABoolean supportPhases, 
-                                                NABoolean checkOnlyInserts);
+  MultiDeltaRefreshMatrix *prepareProductMatrix(NABoolean supportPhases, NABoolean checkOnlyInserts);
 
   // Prepare a single join product according to the product matrix row.
-  RelRoot *prepareProductFromMatrix(
-			  const MultiDeltaRefreshMatrix& productMatrix,
-			  RelRoot *rawJoinProduct,
-			  Int32 rowNumber,
-			  NABoolean isLast);
+  RelRoot *prepareProductFromMatrix(const MultiDeltaRefreshMatrix &productMatrix, RelRoot *rawJoinProduct,
+                                    Int32 rowNumber, NABoolean isLast);
 
-  // Any reason not to implement multi-delta optimization? 
+  // Any reason not to implement multi-delta optimization?
   // (implemented differently by MAV and MJV)
   virtual NABoolean avoidMultiDeltaOptimization() { return FALSE; };
 
@@ -167,12 +150,10 @@ protected:
   // ----------------------------------------------------
 
   virtual RelExpr *buildReadIudLogBlock();
- 
+
   virtual Int32 getNumOfScansInUnionBackbone() const;
 
-  void fixScanCardinality(RelExpr *node,
-    			  double cardinalityFactor, 
-			  Cardinality cardinality) const;
+  void fixScanCardinality(RelExpr *node, double cardinalityFactor, Cardinality cardinality) const;
 
   // Construct the appropriate expression for the Op@ virtual column.
   // The value of this column is 1 for inserted rows, and -1 for deleted rows.
@@ -183,9 +164,9 @@ protected:
 
   virtual ItemExpr *buildSelectionListForScanOnIudLog() const;
 
-  virtual ItemExpr *buildBaseTableColumnList(Lng32 specialFlags=0) const;
+  virtual ItemExpr *buildBaseTableColumnList(Lng32 specialFlags = 0) const;
 
-  // Have a uniform select list over the IUD log 
+  // Have a uniform select list over the IUD log
   virtual RelRoot *buildRootOverIUDLog(RelExpr *topNode) const;
 
   // Methods called internally for reading the range log
@@ -195,19 +176,18 @@ protected:
 
   // Construct a join between the base table and the range log
   virtual RelExpr *buildReadRangesBlock() const;
-  
+
   virtual ItemExpr *buildEndRangeVector() const;
 
   virtual ItemExpr *buildBeginRangeVector() const;
-  
+
   // Construct a join between the base table and the range log
   virtual RelExpr *buildReadRangeLogBlock() const;
-  
+
   // buildReadRangeLogBlock() callee
   virtual RelRoot *buildRootOverRangeBlock(RelExpr *topNode) const;
   // buildReadRangeLogBlock() callee
-  virtual RelExpr *buildJoinBaseTableWithRangeLog(RelExpr *scanRangeLog, 
-						  RelExpr *scanBaseTable) const;
+  virtual RelExpr *buildJoinBaseTableWithRangeLog(RelExpr *scanRangeLog, RelExpr *scanBaseTable) const;
 
   // Used by buildUnionWithRangeLog(), Overridden by MvMultiTxnMavBuilder
   virtual ItemExpr *buildSelectionPredicateForScanOnRangeLog() const;
@@ -216,16 +196,12 @@ protected:
   // Overridden by MvMultiTxnMavBuilder for additional predicates.
   virtual ItemExpr *buildRangeLogJoinPredicate() const;
 
-  virtual ItemExpr *buildRangeLogJoinPredicateWithCols(
-					       ItemExpr *rangeType,
-					       ItemExpr *baseCI,
-					       ItemExpr *beginRangeCI,
-					       ItemExpr *endRangeCI) const;
-
+  virtual ItemExpr *buildRangeLogJoinPredicateWithCols(ItemExpr *rangeType, ItemExpr *baseCI, ItemExpr *beginRangeCI,
+                                                       ItemExpr *endRangeCI) const;
 
   virtual NABoolean useUnionBakeboneToMergeEpochs() const;
 
-  virtual RelExpr  *buildUnionBakeboneToMergeEpochs(RelExpr *topNode) const;
+  virtual RelExpr *buildUnionBakeboneToMergeEpochs(RelExpr *topNode) const;
 
   virtual Int32 isGroupByAprefixOfTableCKeyColumns() const { return FALSE; }
 
@@ -235,85 +211,74 @@ protected:
   NABoolean wasFullDE() const;
 
   // The statement heap (taken from bindWA).
-  CollHeap		*heap_;
+  CollHeap *heap_;
 
   BindWA *bindWA_;
 
-private:
-
+ private:
   // Data members.
-  // ---------------------------------------------------- 
+  // ----------------------------------------------------
   // The name of the MV being refreshed.
-  CorrName		 mvCorrName_;
+  CorrName mvCorrName_;
   // The Delta Definitions of the logs used.
-  const DeltaDefinitionPtrList *deltaDefList_;  
+  const DeltaDefinitionPtrList *deltaDefList_;
   // Which phase of multi-delta refresh is this invocation?
-  Lng32		         phase_;			 
-  MVInfoForDML		*mvInfo_;
-  Refresh		*refreshNode_;
-  LogsInfo		*logsInfo_;
+  Lng32 phase_;
+  MVInfoForDML *mvInfo_;
+  Refresh *refreshNode_;
+  LogsInfo *logsInfo_;
 
 };  // class MvRefreshBuilder
 
 //----------------------------------------------------------------------------
 // The simplest Refresh tree: RECOMPUTE.
 //----------------------------------------------------------------------------
-class MvRecomputeBuilder : public MvRefreshBuilder
-{
-public:
-  MvRecomputeBuilder(const CorrName&	     mvName,
-		     MVInfoForDML	    *mvInfo,
-		     NABoolean		     noDeleteOnRecompute,
-		     BindWA                 *bindWA)
-  : MvRefreshBuilder(mvName, mvInfo, NULL, bindWA),
-    noDeleteOnRecompute_(noDeleteOnRecompute)
-  {}
+class MvRecomputeBuilder : public MvRefreshBuilder {
+ public:
+  MvRecomputeBuilder(const CorrName &mvName, MVInfoForDML *mvInfo, NABoolean noDeleteOnRecompute, BindWA *bindWA)
+      : MvRefreshBuilder(mvName, mvInfo, NULL, bindWA), noDeleteOnRecompute_(noDeleteOnRecompute) {}
 
   virtual ~MvRecomputeBuilder() {}
 
-private:
+ private:
   // Copy Ctor and = operator are not implemented.
-  MvRecomputeBuilder(const MvRecomputeBuilder& other);
-  MvRecomputeBuilder& operator=(const MvRecomputeBuilder& other);
+  MvRecomputeBuilder(const MvRecomputeBuilder &other);
+  MvRecomputeBuilder &operator=(const MvRecomputeBuilder &other);
 
-public:
+ public:
   virtual RelExpr *buildRefreshTree();
 
-private:
-
-
+ private:
   RelExpr *buildInsertToMvSubTree() const;
   RelExpr *buildDeleteFromMvSubTree() const;
 
-private:
-  NABoolean		  noDeleteOnRecompute_;
+ private:
+  NABoolean noDeleteOnRecompute_;
 
 };  // class MvRecomputeBuilder
 
 //----------------------------------------------------------------------------
-// Builds the refresh tree of a single-delta MAV. 
+// Builds the refresh tree of a single-delta MAV.
 // This MAV reads the logs of its base tables for the refresh operation.
 //----------------------------------------------------------------------------
-class MavBuilder : public MvRefreshBuilder
-{
-public:
-  MavBuilder(const CorrName&  mvName,
-	     MVInfoForDML    *mvInfo,
-	     Refresh	     *refreshNode,
-	     NABoolean	      isProjectingMvDelta,
-	     BindWA          *bindWA);
+class MavBuilder : public MvRefreshBuilder {
+ public:
+  MavBuilder(const CorrName &mvName, MVInfoForDML *mvInfo, Refresh *refreshNode, NABoolean isProjectingMvDelta,
+             BindWA *bindWA);
 
-private:
+ private:
   // Copy Ctor and = operator are not implemented.
-  MavBuilder(const MavBuilder& other);
-  MavBuilder& operator=(const MavBuilder& other);
+  MavBuilder(const MavBuilder &other);
+  MavBuilder &operator=(const MavBuilder &other);
 
-public:
-  enum  GroupOpNumbers { GOP_INSERT = 1, 
-			 GOP_DELETE, 
-			 GOP_UPDATE,
-			 GOP_MINMAX_RECOMPUTE_FROM_UPDATE,
-			 GOP_MINMAX_RECOMPUTE_FROM_INSERT };
+ public:
+  enum GroupOpNumbers {
+    GOP_INSERT = 1,
+    GOP_DELETE,
+    GOP_UPDATE,
+    GOP_MINMAX_RECOMPUTE_FROM_UPDATE,
+    GOP_MINMAX_RECOMPUTE_FROM_INSERT
+  };
 
   virtual ~MavBuilder() {}
 
@@ -321,57 +286,53 @@ public:
   // This method is overridden by every sub-class.
   virtual RelExpr *buildRefreshTree();
 
-  static const char *getVirtualOpColumnName()  { return virtualOpColumnName_; }
+  static const char *getVirtualOpColumnName() { return virtualOpColumnName_; }
   static const char *getVirtualGopColumnName() { return virtualGopColumnName_; }
   static const char *getVirtualIsLastColName() { return virtualIsLastColumnName_; }
 
   // These are correlation names to "tables".
-  static const char *getSysDeltaName()  { return sysDeltaName_; }
-  static const char *getSysCalcName()   { return sysCalcName_; }
-  static const char *getSysMavName()    { return sysMavName_; }
-  static const char *getStartCtxName()  { return startCtxName_; }
-  static const char *getEndCtxName()    { return endCtxName_; }
+  static const char *getSysDeltaName() { return sysDeltaName_; }
+  static const char *getSysCalcName() { return sysCalcName_; }
+  static const char *getSysMavName() { return sysMavName_; }
+  static const char *getStartCtxName() { return startCtxName_; }
+  static const char *getEndCtxName() { return endCtxName_; }
   static const char *getMinMaxMavName() { return minMaxMavName_; }
 
-  // These are name suffixes of extra aggregate columns added for each 
+  // These are name suffixes of extra aggregate columns added for each
   // Min/Max column.
   static const char *getExtraColSuffixForIns() { return extraColSuffixForIns_; }
   static const char *getExtraColSuffixForDel() { return extraColSuffixForDel_; }
 
-protected:  
-
+ protected:
   // Internal methods used by buildRefreshTree().
 
-  // The actual building of the refresh tree, that is the same for all 
+  // The actual building of the refresh tree, that is the same for all
   // MAV sub-classes.
-  RelExpr *buildTheMavRefreshTree(RelExpr         *mvSelectTree,
-				  DeltaDefinition *deltaDef);
+  RelExpr *buildTheMavRefreshTree(RelExpr *mvSelectTree, DeltaDefinition *deltaDef);
 
   // build the left side of the refresh tree - the DCB.
   RelExpr *buildDeltaCalculationBlock(RelExpr *mvSelectTree);
 
   // Construct a selection predicate on the MAV group by columns.
-  ItemExpr *buildGroupByColumnsPredicate(const NAString& table1Name, 
-					 const NAString& table2Name = "",
-					 const NABoolean ignoreAlias = FALSE) const;
+  ItemExpr *buildGroupByColumnsPredicate(const NAString &table1Name, const NAString &table2Name = "",
+                                         const NABoolean ignoreAlias = FALSE) const;
 
   // build the right side of the refresh tree - the DPB.
-  RelExpr  *buildDeltaProcessingBlock(DeltaDefinition *deltaDef);
+  RelExpr *buildDeltaProcessingBlock(DeltaDefinition *deltaDef);
 
   // Build the Delta Processing Block Insert sub-tree.
-  RelExpr  *buildDPBInsert(DeltaDefinition *deltaDef, RelExpr *topNode) const;
-  RelExpr  *buildDPBInsertNodes(const NAString& sourceTable) const;
+  RelExpr *buildDPBInsert(DeltaDefinition *deltaDef, RelExpr *topNode) const;
+  RelExpr *buildDPBInsertNodes(const NAString &sourceTable) const;
 
   // Build the Delta Processing Block Delete sub-tree.
-  RelExpr  *buildDPBDelete(RelExpr *topNode);
-  
+  RelExpr *buildDPBDelete(RelExpr *topNode);
+
   // Build the Delta Processing Block Update sub-tree.
   // The Update expressions are of the form:
   // (a is a MAV aggregate column, b is a MAV groupby column)
-  // SET   expressions: a = tableForSet.a 
+  // SET   expressions: a = tableForSet.a
   // WHERE expressions: b = tableForWhere.b
-  RelExpr  *buildDPBUpdate(const NAString& tableForSet,
-			   const NAString& tableForWhere) const;
+  RelExpr *buildDPBUpdate(const NAString &tableForSet, const NAString &tableForWhere) const;
 
   // Build a stack of 5 RelRoot nodes to calculate the SYS_CALC columns.
   RelExpr *buildLotsOfRootsForCalcCalculation(RelExpr *topNode, RelExpr *mvSelectTree);
@@ -379,33 +340,32 @@ protected:
   NABoolean isProjectingMvDelta() const { return isProjectingMvDelta_; }
 
   virtual NABoolean useUnionBakeboneToMergeEpochs() const;
-	
+
   virtual Int32 isGroupByAprefixOfTableCKeyColumns() const;
-  
+
   // Accessors for static data members
-  const char *getGopTableName()  const { return gopTableName_; }
-  const char *getGopCol1Name()   const { return gopCol1Name_; }
-  const char *getGopCol2Name()   const { return gopCol2Name_; }
+  const char *getGopTableName() const { return gopTableName_; }
+  const char *getGopCol1Name() const { return gopCol1Name_; }
+  const char *getGopCol2Name() const { return gopCol2Name_; }
 
-private:
-
+ private:
   // All the methods below are used for the generic support of MIN/MAX.
 
   // Delta Processing Block
   RelExpr *buildDPBMinMaxIfCondition(const RelExpr *updateNode) const;
-  
-  RelExpr *createSignal() const; 
+
+  RelExpr *createSignal() const;
 
   // Builds a Signal for this class.
   // Overridden by MinMaxOptimizedMavBuilder.
   virtual RelExpr *buildMinMaxRecomputationBlock() const;
 
-private:
+ private:
   // TRUE if this is not the top most refresh builder.
-  NABoolean       isProjectingMvDelta_;
+  NABoolean isProjectingMvDelta_;
 
   // TRUE when there is no need to check if the Min/Max value was deleted.
-  NABoolean       canSkipMinMax_;
+  NABoolean canSkipMinMax_;
 
   // This attribute has lazy evaluation, thus we use int instead of boolean.
   // -1 is unintialized, 0 is false,1 is true
@@ -413,7 +373,7 @@ private:
 
   // This is needed for accessing the NATable of the base tables for
   // MIN/MAX optimizations.
-  BindWA *pBindWA; 
+  BindWA *pBindWA;
 
   // "Virtual" columns are columns that are manualy added to the RETDesc.
   static const char virtualOpColumnName_[];
@@ -427,145 +387,119 @@ private:
   static const char startCtxName_[];
   static const char endCtxName_[];
   static const char minMaxMavName_[];
-  
+
   // These names are used in pipelined refresh, for the TupleList join.
   static const char gopTableName_[];
   static const char gopCol1Name_[];
   static const char gopCol2Name_[];
 
-  // These are name suffixes of extra aggregate columns added for each 
+  // These are name suffixes of extra aggregate columns added for each
   // Min/Max column.
   static const char extraColSuffixForIns_[];
   static const char extraColSuffixForDel_[];
 };  // class MavBuilder
 
-
 //----------------------------------------------------------------------------
-class MinMaxOptimizedMavBuilder : public MavBuilder
-{
-
-public:
-  MinMaxOptimizedMavBuilder(const CorrName&  mvName,
-		   MVInfoForDML    *mvInfo,
-		   Refresh         *refreshNode,
-		   NABoolean        isProjectingMvDelta,
-		   BindWA          *bindWA)
-  : MavBuilder(mvName, mvInfo, refreshNode, isProjectingMvDelta, bindWA)
-  {}
+class MinMaxOptimizedMavBuilder : public MavBuilder {
+ public:
+  MinMaxOptimizedMavBuilder(const CorrName &mvName, MVInfoForDML *mvInfo, Refresh *refreshNode,
+                            NABoolean isProjectingMvDelta, BindWA *bindWA)
+      : MavBuilder(mvName, mvInfo, refreshNode, isProjectingMvDelta, bindWA) {}
 
   virtual ~MinMaxOptimizedMavBuilder() {}
 
-private:
+ private:
   // Copy Ctor and = operator are not implemented.
-  MinMaxOptimizedMavBuilder(const MinMaxOptimizedMavBuilder& other);
-  MinMaxOptimizedMavBuilder& operator=(const MinMaxOptimizedMavBuilder& other);
+  MinMaxOptimizedMavBuilder(const MinMaxOptimizedMavBuilder &other);
+  MinMaxOptimizedMavBuilder &operator=(const MinMaxOptimizedMavBuilder &other);
 
-protected:
+ protected:
   virtual RelExpr *buildMinMaxRecomputationBlock() const;
 
-  void fixGroupingColumns(RelRoot* pRoot) const;
+  void fixGroupingColumns(RelRoot *pRoot) const;
 
-  void removeGroupingColsFromSelectList(RelRoot* pRoot) const;
-}; // MinMaxOptimizedMavBuilder
-
+  void removeGroupingColsFromSelectList(RelRoot *pRoot) const;
+};  // MinMaxOptimizedMavBuilder
 
 //----------------------------------------------------------------------------
-class MultiDeltaMavBuilder : public MavBuilder
-{
-public:
-  MultiDeltaMavBuilder(const CorrName&  mvName,
-		       MVInfoForDML    *mvInfo,
-		       Refresh         *refreshNode,
-		       NABoolean        isProjectingMvDelta,
-		       BindWA          *bindWA)
-  : MavBuilder(mvName, mvInfo, refreshNode, isProjectingMvDelta, bindWA),
-    isDuplicatesOptimized_(FALSE)
-  {}
+class MultiDeltaMavBuilder : public MavBuilder {
+ public:
+  MultiDeltaMavBuilder(const CorrName &mvName, MVInfoForDML *mvInfo, Refresh *refreshNode,
+                       NABoolean isProjectingMvDelta, BindWA *bindWA)
+      : MavBuilder(mvName, mvInfo, refreshNode, isProjectingMvDelta, bindWA), isDuplicatesOptimized_(FALSE) {}
 
-private:
+ private:
   // Copy Ctor and = operator are not implemented.
-  MultiDeltaMavBuilder(const MultiDeltaMavBuilder& other);
-  MultiDeltaMavBuilder& operator=(const MultiDeltaMavBuilder& other);
+  MultiDeltaMavBuilder(const MultiDeltaMavBuilder &other);
+  MultiDeltaMavBuilder &operator=(const MultiDeltaMavBuilder &other);
 
-public:
-
+ public:
   virtual ~MultiDeltaMavBuilder() {}
 
   virtual RelExpr *buildRefreshTree();
 
-protected:
-  // Any reason not to implement multi-delta optimization? 
+ protected:
+  // Any reason not to implement multi-delta optimization?
   // (implemented differently by MAV and MJV)
   virtual NABoolean avoidMultiDeltaOptimization();
 
   virtual NABoolean isTableExpressionPresent(RelExpr *currentNode);
 
-private:
-  void bindJoinProduct(RelRoot  *product, NABoolean isSignPlus);
+ private:
+  void bindJoinProduct(RelRoot *product, NABoolean isSignPlus);
 
-  RelExpr *buildRawDeltaCalculationTree(
-			  const MultiDeltaRefreshMatrix& productMatrix);
+  RelExpr *buildRawDeltaCalculationTree(const MultiDeltaRefreshMatrix &productMatrix);
 
-  void prepareRetdescForUnion(RETDesc  *retDesc, NABoolean isSignPlus);
+  void prepareRetdescForUnion(RETDesc *retDesc, NABoolean isSignPlus);
 
-  NABoolean collectOpExpressions(RETDesc           *retDesc,
-	    		         const ColumnDesc  *columnDesc,
-				 ItemExpr          *&newOpExpr);
+  NABoolean collectOpExpressions(RETDesc *retDesc, const ColumnDesc *columnDesc, ItemExpr *&newOpExpr);
 
   RelExpr *getMvSelectTree() { return mvSelectTree_; }
 
-private:
+ private:
   NABoolean isDuplicatesOptimized_;
   RelExpr *mvSelectTree_;
 };  // class MultiDeltaMavBuilder
 
 //----------------------------------------------------------------------------
-class MvMultiTxnMavBuilder : public MavBuilder
-{
-public:
-  MvMultiTxnMavBuilder(const CorrName&  mvName,
-		       MVInfoForDML    *mvInfo,
-		       Refresh	       *refreshNode,
-		       NABoolean        isProjectingMvDelta,
-		       BindWA          *bindWA)
-  : MavBuilder(mvName, mvInfo, refreshNode, isProjectingMvDelta, bindWA),
-    pMultiTxnClause_(refreshNode->getNRowsClause())
-  {}
+class MvMultiTxnMavBuilder : public MavBuilder {
+ public:
+  MvMultiTxnMavBuilder(const CorrName &mvName, MVInfoForDML *mvInfo, Refresh *refreshNode,
+                       NABoolean isProjectingMvDelta, BindWA *bindWA)
+      : MavBuilder(mvName, mvInfo, refreshNode, isProjectingMvDelta, bindWA),
+        pMultiTxnClause_(refreshNode->getNRowsClause()) {}
 
-private:
+ private:
   // Copy Ctor and = operator are not implemented.
-  MvMultiTxnMavBuilder(const MvMultiTxnMavBuilder& other);
-  MvMultiTxnMavBuilder& operator=(const MvMultiTxnMavBuilder& other);
+  MvMultiTxnMavBuilder(const MvMultiTxnMavBuilder &other);
+  MvMultiTxnMavBuilder &operator=(const MvMultiTxnMavBuilder &other);
 
-public:
-
+ public:
   virtual ~MvMultiTxnMavBuilder() {}
 
   virtual RelExpr *buildRefreshTree();
 
-  RelExpr *buildLogsScanningBlock(const QualifiedName& baseTable);
+  RelExpr *buildLogsScanningBlock(const QualifiedName &baseTable);
 
-protected:
-
-  virtual RelExpr  *buildReadPreviousContext();
+ protected:
+  virtual RelExpr *buildReadPreviousContext();
 
   RelExpr *buildErrorOnNoContext(RelExpr *topNode);
   RelExpr *buildPhase1SelectList(RelExpr *topNode, const NATable *baseNaTable);
 
-  virtual RelExpr  *buildReadIudLogBlock() ;
+  virtual RelExpr *buildReadIudLogBlock();
 
   // buildReadIudLogBlock callee
   virtual ItemExpr *buildSelectionPredicateForScanOnIudLog() const;
 
   virtual NABoolean needAlternateCIorder() const;
 
-  virtual Union	   *buildUnionBetweenRangeAndIudBlocks(RelExpr *scanIUDLogBlock,
-						       RelExpr *scanRangeLogBlock) const;
+  virtual Union *buildUnionBetweenRangeAndIudBlocks(RelExpr *scanIUDLogBlock, RelExpr *scanRangeLogBlock) const;
 
   virtual ItemExpr *buildSelectionPredicateForScanOnRangeLog() const;
 
   virtual ItemExpr *buildCatchupSelectionPredicateForScanOnRangeLog() const;
-  
+
   virtual ItemExpr *buildPhase1SelectionPredicateForScanOnRangeLog() const;
 
   virtual ItemExpr *buildSelectionListForScanOnIudLog() const;
@@ -574,22 +508,19 @@ protected:
 
   virtual ItemExpr *addContextPredicatesOnIUDLog() const;
 
-  virtual NAString *getSequenceByPrefixColName() const
-  {
-    return NULL;
-  }
+  virtual NAString *getSequenceByPrefixColName() const { return NULL; }
 
   virtual NABoolean useUnionBakeboneToMergeEpochs() const;
 
   virtual RelSequence *buildSequenceOnScan(RelExpr *topNode, ItemExpr *isLastExpr) const;
-  
-  virtual RelRoot  *buildRootOverSequence(RelExpr *topNode, ItemExpr *isLastExpr) const;
+
+  virtual RelRoot *buildRootOverSequence(RelExpr *topNode, ItemExpr *isLastExpr) const;
 
   virtual ItemExpr *buildSequenceIsLastExpr() const;
 
-  virtual RelExpr  *buildInsertContextNode();
+  virtual RelExpr *buildInsertContextNode();
 
-  virtual RelExpr  *buildInsertContextTree(RelExpr  *leftTopNode);
+  virtual RelExpr *buildInsertContextTree(RelExpr *leftTopNode);
 
   const NRowsClause *pMultiTxnClause_;
 
@@ -600,116 +531,93 @@ protected:
 //----------------------------------------------------------------------------
 //----------------------------------------------------------------------------
 // Exclude from coverage testing - used only with range loggiing
-class MultiTxnDEMavBuilder : public MvMultiTxnMavBuilder
-{
-public:
-    MultiTxnDEMavBuilder(const CorrName&  mvName,
-		     MVInfoForDML    *mvInfo,
-		     Refresh	     *refreshNode,
-		     NABoolean	      isProjectingMvDelta,
-		     BindWA          *bindWA)
-  : MvMultiTxnMavBuilder(mvName, mvInfo, refreshNode, isProjectingMvDelta, bindWA)
-  {}
+class MultiTxnDEMavBuilder : public MvMultiTxnMavBuilder {
+ public:
+  MultiTxnDEMavBuilder(const CorrName &mvName, MVInfoForDML *mvInfo, Refresh *refreshNode,
+                       NABoolean isProjectingMvDelta, BindWA *bindWA)
+      : MvMultiTxnMavBuilder(mvName, mvInfo, refreshNode, isProjectingMvDelta, bindWA) {}
 
-private:
+ private:
   // Copy Ctor and = operator are not implemented.
-  MultiTxnDEMavBuilder(const MultiTxnDEMavBuilder& other);
-  MultiTxnDEMavBuilder& operator=(const MultiTxnDEMavBuilder& other);
+  MultiTxnDEMavBuilder(const MultiTxnDEMavBuilder &other);
+  MultiTxnDEMavBuilder &operator=(const MultiTxnDEMavBuilder &other);
 
-public:
-
+ public:
   virtual ~MultiTxnDEMavBuilder() {}
 
-protected:
-  virtual const char  *getVirtualRangeSpecialCol() const { return virtualRangeSpecialCol_; }
-  
-  virtual NAString    *getSequenceByPrefixColName() const 
-  { 
-    return new(heap_) NAString(sequenceByPrefixColName_); 
-  }
+ protected:
+  virtual const char *getVirtualRangeSpecialCol() const { return virtualRangeSpecialCol_; }
 
-  virtual NAString    *getLastNotNullPrefixColName() const 
-  { 
-    return new(heap_) NAString(lastNotNullPrefixColName_); 
-  }
-  
+  virtual NAString *getSequenceByPrefixColName() const { return new (heap_) NAString(sequenceByPrefixColName_); }
+
+  virtual NAString *getLastNotNullPrefixColName() const { return new (heap_) NAString(lastNotNullPrefixColName_); }
+
   // The Range of values that @SPECIAL can recieve
-  enum {
-    VIRTUAL_BEGIN_RANGE,		
-    TABLE_ROWS,			
-    IUD_LOG_ROWS		
-  };
+  enum { VIRTUAL_BEGIN_RANGE, TABLE_ROWS, IUD_LOG_ROWS };
 
-  // Have a uniform select list over the IUD log 
-  virtual RelRoot     *buildRootOverIUDLog(RelExpr *topNode) const;
+  // Have a uniform select list over the IUD log
+  virtual RelRoot *buildRootOverIUDLog(RelExpr *topNode) const;
 
-  // Have a uniform select list over the Range log 
-  virtual RelRoot     *buildRootOverRangeBlock(RelExpr *topNode) const;
+  // Have a uniform select list over the Range log
+  virtual RelRoot *buildRootOverRangeBlock(RelExpr *topNode) const;
 
-  ItemExpr	      *buildComputedTableSyskey(ItemExpr *colExpr) const;
+  ItemExpr *buildComputedTableSyskey(ItemExpr *colExpr) const;
 
-  void		      buildSortKeyColumnsForRangeBlock(ItemExprList &sortKeyCols) const;
+  void buildSortKeyColumnsForRangeBlock(ItemExprList &sortKeyCols) const;
 
-  void		      addSyskeyToSortKeyColumnsForRangeBlock(ItemExprList &sortKeyCols) const;
-  
-  RelRoot	      *buildRootWithFilterForEmptyRanges(RelExpr  *topNode) const;
+  void addSyskeyToSortKeyColumnsForRangeBlock(ItemExprList &sortKeyCols) const;
+
+  RelRoot *buildRootWithFilterForEmptyRanges(RelExpr *topNode) const;
 
   virtual RelSequence *buildSequenceOnScan(RelExpr *topNode, ItemExpr *isLastExpr) const;
 
-  virtual RelRoot     *buildRootOverSequence(RelExpr *topNode, ItemExpr *isLastExpr) const;
+  virtual RelRoot *buildRootOverSequence(RelExpr *topNode, ItemExpr *isLastExpr) const;
 
-  RelRoot	      *buildFinalRootOverSequence(RelExpr *topNode) const;
+  RelRoot *buildFinalRootOverSequence(RelExpr *topNode) const;
 
-  ItemExpr	      *buildSelectionOverSequence() const;
+  ItemExpr *buildSelectionOverSequence() const;
 
-  ItemExpr	      *buildIsCoveredByRange() const;
-  
-  ItemExpr	      *buildIsPhysicallyCoveredByRangeBoundries() const;
-  
+  ItemExpr *buildIsCoveredByRange() const;
+
+  ItemExpr *buildIsPhysicallyCoveredByRangeBoundries() const;
+
   // buildReadRangeLogBlock() callee
-  virtual RelExpr     *buildJoinBaseTableWithRangeLog(RelExpr *scanRangeLog, 
-						      RelExpr *scanBaseTable) const;
+  virtual RelExpr *buildJoinBaseTableWithRangeLog(RelExpr *scanRangeLog, RelExpr *scanBaseTable) const;
 
-  virtual RelExpr     *buildReadRangeLogBlock() const;
+  virtual RelExpr *buildReadRangeLogBlock() const;
 
-private:
-  static const char   virtualRangeSpecialCol_[];
-  static const char   sequenceByPrefixColName_[];
-  static const char   lastNotNullPrefixColName_[];
+ private:
+  static const char virtualRangeSpecialCol_[];
+  static const char sequenceByPrefixColName_[];
+  static const char lastNotNullPrefixColName_[];
 
 };  // MultiTxnDEMavBuilder
 
 //----------------------------------------------------------------------------
-// Builds the refresh tree of a single-delta pipelined MAV. 
+// Builds the refresh tree of a single-delta pipelined MAV.
 // This MAV gets its input pipelined by the refresh tree of the used MV.
-class PipelinedMavBuilder : public MavBuilder
-{
-public:
-  PipelinedMavBuilder(const CorrName&      mvName,
-		      MVInfoForDML        *mvInfo,
-		      Refresh	          *refreshNode,
-		      NABoolean	           isProjectingMvDelta,
-		      const QualifiedName *pipeliningSource,
-		      BindWA              *bindWA);
+class PipelinedMavBuilder : public MavBuilder {
+ public:
+  PipelinedMavBuilder(const CorrName &mvName, MVInfoForDML *mvInfo, Refresh *refreshNode, NABoolean isProjectingMvDelta,
+                      const QualifiedName *pipeliningSource, BindWA *bindWA);
 
-private:
+ private:
   // Copy Ctor and = operator are not implemented.
-  PipelinedMavBuilder(const PipelinedMavBuilder& other);
-  PipelinedMavBuilder& operator=(const PipelinedMavBuilder& other);
+  PipelinedMavBuilder(const PipelinedMavBuilder &other);
+  PipelinedMavBuilder &operator=(const PipelinedMavBuilder &other);
 
-public:
+ public:
   virtual ~PipelinedMavBuilder() {}
 
   // called by Refresh::bindnode() for building the next level refresh tree
   // and connecting it as a "view" that is projecting the data.
   RelExpr *buildAndConnectPipeliningRefresh(RelExpr *pipeliningTree);
 
-protected:
-  QualifiedName *getPipeliningSource()
-  { return getDeltaDefList()->at(0)->getTableName(); }
+ protected:
+  QualifiedName *getPipeliningSource() { return getDeltaDefList()->at(0)->getTableName(); }
 
   // Methods called by buildAndConnectPipeliningRefresh().
-  // ---------------------------------------------------- 
+  // ----------------------------------------------------
   RelExpr *buildJoinWithTupleList(RelExpr *topNode);
   RelRoot *buildRenameToLog(RelExpr *topNode);
 
@@ -718,81 +626,72 @@ protected:
 //----------------------------------------------------------------------------
 //----------------------------------------------------------------------------
 //----------------------------------------------------------------------------
-class LogsInfo : public NABasicObject
-{
-public:
-
-  LogsInfo(DeltaDefinition &deltaDef,
-				  MVInfoForDML    *mvInfo,
-				  BindWA	  *bindWA);
+class LogsInfo : public NABasicObject {
+ public:
+  LogsInfo(DeltaDefinition &deltaDef, MVInfoForDML *mvInfo, BindWA *bindWA);
 
   virtual ~LogsInfo();
 
-private:
+ private:
   // Copy Ctor and = operator are not implemented.
-  LogsInfo(const LogsInfo& other);
-  LogsInfo& operator=(const LogsInfo& other);
+  LogsInfo(const LogsInfo &other);
+  LogsInfo &operator=(const LogsInfo &other);
 
-public:
-
+ public:
   DeltaDefinition &getDeltaDefinition() { return deltaDef_; }
 
-  MvIudLog	  &getMvIudlog() { return *currentMvIudlog_; }
-  
-  IntegerList	  *getBaseTableDirectionVector() { return baseTableDirectionVector_; }
+  MvIudLog &getMvIudlog() { return *currentMvIudlog_; }
 
-  BindWA	  *getBindWA() { return bindWA_; }
+  IntegerList *getBaseTableDirectionVector() { return baseTableDirectionVector_; }
 
-  const NATable   *getBaseNaTable() { return currentMvIudlog_->getSubjectNaTable(); }
+  BindWA *getBindWA() { return bindWA_; }
 
-  const NATable   *getIudLogNaTable() { return currentMvIudlog_->getNaTable(); }
+  const NATable *getBaseNaTable() { return currentMvIudlog_->getSubjectNaTable(); }
 
-  const NATable   *getRangeNaLogTable() 
-  {
+  const NATable *getIudLogNaTable() { return currentMvIudlog_->getNaTable(); }
+
+  const NATable *getRangeNaLogTable() {
     CMPASSERT(rangeNaTable_);
-    return rangeNaTable_; 
+    return rangeNaTable_;
   }
 
-  const CorrName  &getBaseTableName() { return currentMvIudlog_->getSubjectTableName(); }
+  const CorrName &getBaseTableName() { return currentMvIudlog_->getSubjectTableName(); }
 
-  const CorrName  &getIudLogTableName() { return *currentMvIudlog_->getTableName(); }
+  const CorrName &getIudLogTableName() { return *currentMvIudlog_->getTableName(); }
 
-  const CorrName  &getRangeLogTableName() 
-  { 
+  const CorrName &getRangeLogTableName() {
     CMPASSERT(rangeTableName_);
-    return *rangeTableName_; 
+    return *rangeTableName_;
   }
 
-private:
+ private:
   // Given the base table name, construct the range log name from it.
-  CorrName        *calcRangeLogName(const CorrName &theTable, CollHeap *heap) const;
+  CorrName *calcRangeLogName(const CorrName &theTable, CollHeap *heap) const;
 
-  
   DeltaDefinition &deltaDef_;
-  MvIudLog	  *currentMvIudlog_;
-  IntegerList	  *baseTableDirectionVector_;
-  MVInfoForDML    *mvInfo_;
-  BindWA	  *bindWA_;
+  MvIudLog *currentMvIudlog_;
+  IntegerList *baseTableDirectionVector_;
+  MVInfoForDML *mvInfo_;
+  BindWA *bindWA_;
 
-  NATable	  *rangeNaTable_;
-  CorrName	  *rangeTableName_;
+  NATable *rangeNaTable_;
+  CorrName *rangeTableName_;
 };
 
 //----------------------------------------------------------------------------
 //----------------------------------------------------------------------------
 //----------------------------------------------------------------------------
-class MultiDeltaRefreshMatrixRow : public NABasicObject
-{
-private:
-  enum rowSign  { SIGN_MINUS = 0, SIGN_PLUS=1 };
-  enum scanType { SCAN_TABLE = 0, SCAN_DELTA=1 };
+class MultiDeltaRefreshMatrixRow : public NABasicObject {
+ private:
+  enum rowSign { SIGN_MINUS = 0, SIGN_PLUS = 1 };
+  enum scanType { SCAN_TABLE = 0, SCAN_DELTA = 1 };
 
-public:
+ public:
   // Ctor for creating an all-but-last SCAN_TABLE row.
   MultiDeltaRefreshMatrixRow(Int32 length, Int32 maxLength, CollHeap *heap);
 
   // Copy Ctor.
-  MultiDeltaRefreshMatrixRow(const MultiDeltaRefreshMatrixRow& other);
+  MultiDeltaRefreshMatrixRow(const MultiDeltaRefreshMatrixRow &other);
 
   // Dtor
   virtual ~MultiDeltaRefreshMatrixRow() {}
@@ -803,34 +702,28 @@ public:
   void addColumn(scanType type = SCAN_TABLE);
 
   // Accessors
-  NABoolean  isSignPlus() const 
-    { return sign_==SIGN_PLUS; }
-  
-  NABoolean  isScanOnDelta(CollIndex i) const 
-    { return tableScanTypes_[i]==SCAN_DELTA; }
+  NABoolean isSignPlus() const { return sign_ == SIGN_PLUS; }
+
+  NABoolean isScanOnDelta(CollIndex i) const { return tableScanTypes_[i] == SCAN_DELTA; }
 
 #ifndef NDEBUG
   void display() const;
-  void print(FILE* ofd = stdout,
-	     const char* indent = DEFAULT_INDENT,
-	     const char* title = "MultiDeltaRefreshMatrixRow") const;
+  void print(FILE *ofd = stdout, const char *indent = DEFAULT_INDENT,
+             const char *title = "MultiDeltaRefreshMatrixRow") const;
 #endif
 
-private:
-  rowSign	  sign_;           // The sign of this matrix row.
-  Int32		  currentLength_;  // How many tables so far.
-  Int32		  maxLength_;      // The array size.
-  ARRAY(scanType) tableScanTypes_; // The matrix row itself.
-  CollHeap       *heap_;           // Used by the copy Ctor.
-};  // class MultiDeltaRefreshMatrixRow
+ private:
+  rowSign sign_;                    // The sign of this matrix row.
+  Int32 currentLength_;             // How many tables so far.
+  Int32 maxLength_;                 // The array size.
+  ARRAY(scanType) tableScanTypes_;  // The matrix row itself.
+  CollHeap *heap_;                  // Used by the copy Ctor.
+};                                  // class MultiDeltaRefreshMatrixRow
 
 //----------------------------------------------------------------------------
-class MultiDeltaRefreshMatrix : public NABasicObject
-{
-public:
-  MultiDeltaRefreshMatrix(Int32	        maxNumOfRows,
-                          MVJoinGraph  *joinGraph,
-			  CollHeap     *heap);
+class MultiDeltaRefreshMatrix : public NABasicObject {
+ public:
+  MultiDeltaRefreshMatrix(Int32 maxNumOfRows, MVJoinGraph *joinGraph, CollHeap *heap);
 
   virtual ~MultiDeltaRefreshMatrix();
 
@@ -842,30 +735,29 @@ public:
   // Accessors
   const MultiDeltaRefreshMatrixRow *getRow(Int32 i) const;
 
-  Int32       getNumOfRows() const { return numOfRows_; }
-  Int32       getRowLength() const { return currentRowLength_; }
-  NABoolean isLastPhase()  const { return isLastPhase_; }
-  Lng32      getTableIndexFor(Int32 index) const { return tableIndexMapping_[index];}
-  Int32       getFirstRowForThisPhase()   const { return firstRowForThisPhase_; }
-  Int32       getNumOfRowsForThisPhase()  const { return numOfRowsForThisPhase_; }
-  void      setPhasesSupported(NABoolean supported) { isPhasesSupported_ = supported; }
-  NABoolean isPhasesSupported()     const { return isPhasesSupported_; }
-  NABoolean isTooManyDeltasError()  const { return TooManyDeltasError_; }
+  Int32 getNumOfRows() const { return numOfRows_; }
+  Int32 getRowLength() const { return currentRowLength_; }
+  NABoolean isLastPhase() const { return isLastPhase_; }
+  Lng32 getTableIndexFor(Int32 index) const { return tableIndexMapping_[index]; }
+  Int32 getFirstRowForThisPhase() const { return firstRowForThisPhase_; }
+  Int32 getNumOfRowsForThisPhase() const { return numOfRowsForThisPhase_; }
+  void setPhasesSupported(NABoolean supported) { isPhasesSupported_ = supported; }
+  NABoolean isPhasesSupported() const { return isPhasesSupported_; }
+  NABoolean isTooManyDeltasError() const { return TooManyDeltasError_; }
   NABoolean isDuplicatesOptimized() const { return isDuplicatesOptimized_; }
-  void      disableDuplicateOptimization() { isDuplicatesOptimized_ = FALSE; }
+  void disableDuplicateOptimization() { isDuplicatesOptimized_ = FALSE; }
 
 #ifndef NDEBUG
   void display() const;
-  void print(FILE* ofd = stdout,
-	     const char* indent = DEFAULT_INDENT,
-	     const char* title = "MultiDeltaRefreshMatrix") const;
+  void print(FILE *ofd = stdout, const char *indent = DEFAULT_INDENT,
+             const char *title = "MultiDeltaRefreshMatrix") const;
 #endif
 
-private:
-  Int32	    numOfRows_;              // How many rows so far.
-  Int32	    currentRowLength_;       // How many tables so far.
-  Int32	    maxRowLength_;           // No. of tables in join product
-  CollHeap *heap_;                   // The binder (statement) heap.
+ private:
+  Int32 numOfRows_;         // How many rows so far.
+  Int32 currentRowLength_;  // How many tables so far.
+  Int32 maxRowLength_;      // No. of tables in join product
+  CollHeap *heap_;          // The binder (statement) heap.
   // The actual matrix is an array of matrix rows.
   ARRAY(MultiDeltaRefreshMatrixRow *) theMatrix_;
   // The mapping from the tableIndex to the array of used objects in MVInfo.
@@ -874,26 +766,25 @@ private:
 
   // data members for division to phases.
   NABoolean isPhasesSupported_;      // Do we need to support divition to phases?
-  Int32	    thisPhase_;              // PHASE parameter to refresh.
+  Int32 thisPhase_;                  // PHASE parameter to refresh.
   NABoolean isLastPhase_;            // Are more phases needed?
-  Int32	    firstRowForThisPhase_;   // Where does this phase start?
-  Int32	    numOfRowsForThisPhase_;  // Ho many rows in this phase?
+  Int32 firstRowForThisPhase_;       // Where does this phase start?
+  Int32 numOfRowsForThisPhase_;      // Ho many rows in this phase?
   NABoolean TooManyDeltasError_;     // Abort rather than risk an optimizer crash.
   NABoolean isDuplicatesOptimized_;  // Do not build full matrix, since duplicates
                                      // are eliminated elsewhere.
 
   // Heuristic parameters taken from the Defaults table:
   // Maximum number of tables in a join for doing everything in one phase.
-  Int32       maxJoinSizeForSinglePhase_;  // Default is 3
+  Int32 maxJoinSizeForSinglePhase_;  // Default is 3
   // Minimum join size for doing a single matrix row per phase.
-  Int32       minJoinSizeForSingleProductPerPhase_; // Default is 8
+  Int32 minJoinSizeForSingleProductPerPhase_;  // Default is 8
   // When the join size is between the two parameters above - how many
   // matrix rows to do per phase.
-  Int32       phaseSizeForMidRange_;       // Default is 6
+  Int32 phaseSizeForMidRange_;  // Default is 6
   // If there are too many deltas, the optimizer may explode.
-  Int32       maxDeltasThreshold_;         // Default is 31 rows (Six deltas)
+  Int32 maxDeltasThreshold_;  // Default is 31 rows (Six deltas)
 
 };  // class MultiDeltaRefreshMatrix
-
 
 #endif

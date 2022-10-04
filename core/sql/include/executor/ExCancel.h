@@ -48,27 +48,23 @@ class ex_tcb;
 // -----------------------------------------------------------------------
 // ExCancelTdb -- Task Definition Block
 // -----------------------------------------------------------------------
-class ExCancelTdb : public ComTdbCancel
-{
-public:
-
+class ExCancelTdb : public ComTdbCancel {
+ public:
   // ---------------------------------------------------------------------
   // Constructor is only called to instantiate an object used for
   // retrieval of the virtual table function pointer of the class while
   // unpacking. An empty constructor is enough.
   // ---------------------------------------------------------------------
-  ExCancelTdb()
-  {}
+  ExCancelTdb() {}
 
-  virtual ~ExCancelTdb()
-  {}
+  virtual ~ExCancelTdb() {}
 
   // ---------------------------------------------------------------------
   // Build a TCB for this TDB. Redefined in the Executor project.
   // ---------------------------------------------------------------------
   virtual ex_tcb *build(ex_globals *globals);
 
-private:
+ private:
   // ---------------------------------------------------------------------
   // !!!!!!! IMPORTANT -- NO DATA MEMBERS ALLOWED IN EXECUTOR TDB !!!!!!!!
   // *********************************************************************
@@ -88,7 +84,7 @@ private:
   // 1. Are those data members Compiler-generated?
   //    If yes, put them in the appropriate ComTdb subclass instead.
   //    If no, they should probably belong to someplace else (like TCB).
-  // 
+  //
   // 2. Are the classes those data members belong defined in the executor
   //    project?
   //    If your answer to both questions is yes, you might need to move
@@ -99,69 +95,58 @@ private:
 //
 // Task control block
 //
-class ExCancelTcb : public ex_tcb
-{
-
-public:
+class ExCancelTcb : public ex_tcb {
+ public:
   // Constructor
-  ExCancelTcb(const ExCancelTdb & cancel_tdb, ex_globals *glob);
-  
-  ~ExCancelTcb();  
-  
-  void registerSubtasks(); // add extra event for IPC I/O completion
+  ExCancelTcb(const ExCancelTdb &cancel_tdb, ex_globals *glob);
+
+  ~ExCancelTcb();
+
+  void registerSubtasks();  // add extra event for IPC I/O completion
 
   void freeResources();  // free resources
-  
+
   ExWorkProcRetcode work();
 
-  ex_queue_pair getParentQueue() const { return qparent_;}
+  ex_queue_pair getParentQueue() const { return qparent_; }
 
-  virtual Int32 numChildren() const { return 0; }   
+  virtual Int32 numChildren() const { return 0; }
 
-  virtual const ex_tcb* getChild(Int32 /*pos*/) const { return NULL; }
+  virtual const ex_tcb *getChild(Int32 /*pos*/) const { return NULL; }
 
-  inline void tickleSchedulerWork(NABoolean noteCompletion = FALSE)
-    {
-      if (noteCompletion)
-	ioSubtask_->scheduleAndNoteCompletion();
-      else
-	ioSubtask_->schedule();
-    }
+  inline void tickleSchedulerWork(NABoolean noteCompletion = FALSE) {
+    if (noteCompletion)
+      ioSubtask_->scheduleAndNoteCompletion();
+    else
+      ioSubtask_->schedule();
+  }
 
-private:
+ private:
   /////////////////////////////////////////////////////
   // Private methods.
   /////////////////////////////////////////////////////
 
-  inline ExCancelTdb & cancelTdb() const 
-      { return (ExCancelTdb &) tdb; }
+  inline ExCancelTdb &cancelTdb() const { return (ExCancelTdb &)tdb; }
 
-  void reportError(ComDiagsArea *da, 
-                   bool addCondition = false, Lng32 SQLCode = 0,
-                   char *nodeName = NULL, short cpu = -1);
+  void reportError(ComDiagsArea *da, bool addCondition = false, Lng32 SQLCode = 0, char *nodeName = NULL,
+                   short cpu = -1);
 
   /////////////////////////////////////////////////////
   // Private data.
   /////////////////////////////////////////////////////
 
-  ex_queue_pair  qparent_;
+  ex_queue_pair qparent_;
 
-  enum CancelStep 
-  {
-    NOT_STARTED, 
-    SEND_MESSAGE,
-    GET_REPLY, 
-    DONE
-  };
+  enum CancelStep { NOT_STARTED, SEND_MESSAGE, GET_REPLY, DONE };
 
   CancelStep step_;
   ExSubtask *ioSubtask_;
-  IpcServer * cbServer_;
+  IpcServer *cbServer_;
   CancelMsgStream *cancelStream_;
   char nodeName_[32];
   short cpu_;
   int pid_;
-  bool retryQidNotActive_;  
+  bool retryQidNotActive_;
   Int32 retryCount_;
 };
 
@@ -169,43 +154,35 @@ private:
 // The message stream used by ExCancelTcb to let the control broker (MXSSMP)
 // know that a query must be cancelled.
 // -----------------------------------------------------------------------
-class CancelMsgStream : public IpcMessageStream
-{
-public:
-
+class CancelMsgStream : public IpcMessageStream {
+ public:
   // constructor
-  CancelMsgStream(IpcEnvironment *env, 
-                  ExCancelTcb *cancelTcb,
-                  ExSsmpManager *ssmpManager)
+  CancelMsgStream(IpcEnvironment *env, ExCancelTcb *cancelTcb, ExSsmpManager *ssmpManager)
 
-      : IpcMessageStream(env,
-                         IPC_MSG_SSMP_REQUEST,
-                         CurrSsmpRequestMessageVersion,
+      : IpcMessageStream(env, IPC_MSG_SSMP_REQUEST, CurrSsmpRequestMessageVersion,
 #ifndef USE_SB_NEW_RI
-                         RTS_STATS_MSG_BUF_SIZE, 
+                         RTS_STATS_MSG_BUF_SIZE,
 #else
                          env->getGuaMaxMsgIOSize(),
 #endif
-                         TRUE)
-      , cancelTcb_(cancelTcb)
-      , ssmpManager_(ssmpManager)
-  {
+                         TRUE),
+        cancelTcb_(cancelTcb),
+        ssmpManager_(ssmpManager) {
   }
-  
+
   // method called upon send complete
   virtual void actOnSend(IpcConnection *conn);
   virtual void actOnSendAllComplete();
- 
+
   // method called upon receive complete
   virtual void actOnReceive(IpcConnection *conn);
   virtual void actOnReceiveAllComplete();
 
   void delinkConnection(IpcConnection *conn);
 
-private:
+ private:
   ExCancelTcb *cancelTcb_;
   ExSsmpManager *ssmpManager_;
 };
-
 
 #endif  // EX_CANCEL_H

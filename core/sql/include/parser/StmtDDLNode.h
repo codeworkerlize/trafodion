@@ -38,7 +38,6 @@
  *****************************************************************************
  */
 
-
 #include "optimizer/ObjectNames.h"
 #include "ElemDDLNode.h"
 #include "cli/sqlcli.h"
@@ -51,18 +50,14 @@ class StmtDDLNode;
 // -----------------------------------------------------------------------
 // Helpful Definitions. Moved to optimizer/ObjectNames.h
 // -----------------------------------------------------------------------
-//typedef LIST(const NAString *)                     ConstStringList;
+// typedef LIST(const NAString *)                     ConstStringList;
 
 // -----------------------------------------------------------------------
 // A generic node for DDL statements.
 // -----------------------------------------------------------------------
-class StmtDDLNode : public ElemDDLNode
-{
-
-public:
-
-  enum PARTITION_INDEX_TYPE
-  {
+class StmtDDLNode : public ElemDDLNode {
+ public:
+  enum PARTITION_INDEX_TYPE {
     PARTITION_INDEX_NONE = -1,
     PARTITION_INDEX_NORMAL = 0,
     PARTITION_INDEX_LOCAL,
@@ -75,29 +70,26 @@ public:
   virtual ~StmtDDLNode();
 
   // cast
-  virtual       StmtDDLNode * castToStmtDDLNode();
-  virtual const StmtDDLNode * castToStmtDDLNode() const;
+  virtual StmtDDLNode *castToStmtDDLNode();
+  virtual const StmtDDLNode *castToStmtDDLNode() const;
 
   // method for processing
-  virtual ExprNode * bindNode(BindWA *);
+  virtual ExprNode *bindNode(BindWA *);
 
   // methods for tracing
   virtual const NAString getText() const;
-  virtual void unparse(NAString &result,
-		       PhaseEnum phase = OPTIMIZER_PHASE,
-		       UnparseFormatEnum form = USER_FORMAT,
-		       TableDesc * tabId = NULL) const;
-
+  virtual void unparse(NAString &result, PhaseEnum phase = OPTIMIZER_PHASE, UnparseFormatEnum form = USER_FORMAT,
+                       TableDesc *tabId = NULL) const;
 
   //++ MV OZ
-  // sometimes the statement is called from withing the catalog and is for 
+  // sometimes the statement is called from withing the catalog and is for
   // different table typed that differ form regular tables.
   // this I call - an expertise.
 
   // since these methods were added long after the whole system was up
   // if you want to relly on them be sure you set the field properly
   inline void setExpertiseTableType(ComTableType tableType);
-  inline void setExpertiseObjectClass(ComObjectClass  objectClass);
+  inline void setExpertiseObjectClass(ComObjectClass objectClass);
 
   inline ComTableType getTableType() const;
   inline ComObjectClass getObjectClass() const;
@@ -139,26 +131,26 @@ public:
   NABoolean isPartition() { return isPartition_; }
   NABoolean isPartition() const { return isPartition_; }
   void setIsPartition(NABoolean p) { isPartition_ = p; }
-private:
 
-  ComTableType	  tableType_;
-  ComObjectClass  objectClass_;
+ private:
+  ComTableType tableType_;
+  ComObjectClass objectClass_;
 
   // if this DDL operation was specified using VOLATILE syntax.
   NABoolean isVolatile_;
-  
+
   // this object was only created in mxcmp memory(catman cache, NAtable
   // cache. It doesn't exist in metadata or physical labels.
   // Used to test different access plans without actually creating
-  // the object. 
-  NABoolean        inMemoryObjectDefn_;
+  // the object.
+  NABoolean inMemoryObjectDefn_;
 
   // if this node is to be processed as an ExeUtil expr.
   NABoolean exeUtil_;
 
   // if this DDL operation was specified using GHOST syntax.
   NABoolean isGhostObject_;
-  
+
   // if this DDL operation was specified using EXTERNAL syntax.
   NABoolean isExternal_;
 
@@ -173,32 +165,18 @@ private:
   NABoolean ddlXns_;
 
   NABoolean isPartition_;
-}; // class StmtDDLNode
+};  // class StmtDDLNode
 
 // -----------------------------------------------------------------------
 // definitions of inline methods for class StmtDDLNode
 // -----------------------------------------------------------------------
 
-inline void StmtDDLNode::setExpertiseTableType(ComTableType tableType)
-{
-  tableType_ = tableType;
-}
+inline void StmtDDLNode::setExpertiseTableType(ComTableType tableType) { tableType_ = tableType; }
 
-inline void StmtDDLNode::setExpertiseObjectClass(ComObjectClass  objectClass)
-{
-  objectClass_ = objectClass;
-}
+inline void StmtDDLNode::setExpertiseObjectClass(ComObjectClass objectClass) { objectClass_ = objectClass; }
 
-inline ComTableType StmtDDLNode::getTableType() const 
-{
-  return tableType_ ;
-}
+inline ComTableType StmtDDLNode::getTableType() const { return tableType_; }
 
-inline ComObjectClass StmtDDLNode::getObjectClass() const 
-{
-  return objectClass_ ;
-}
+inline ComObjectClass StmtDDLNode::getObjectClass() const { return objectClass_; }
 
-#endif // STMTDDLNODE_H
-
-
+#endif  // STMTDDLNODE_H

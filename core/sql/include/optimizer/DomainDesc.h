@@ -3,7 +3,7 @@
 /* -*-C++-*-
 **************************************************************************
 *
-* File:         DomainDesc.h        
+* File:         DomainDesc.h
 * Description:  A Domain descriptor
 * Created:      4/27/94
 * Language:     C++
@@ -37,7 +37,7 @@
 // -----------------------------------------------------------------------
 
 #include "common/BaseTypes.h"
-#include "common/CmpCommon.h"		// CMPASSERT
+#include "common/CmpCommon.h"  // CMPASSERT
 #include "common/Collections.h"
 #include "common/NAType.h"
 
@@ -58,27 +58,26 @@ class SchemaDB;
 // A descriptor for a Domain
 // ***********************************************************************
 
-class DomainDesc : public NABasicObject
-{
-public:
-
+class DomainDesc : public NABasicObject {
+ public:
   // ---------------------------------------------------------------------
   // Constructor functions
   // ---------------------------------------------------------------------
-  DomainDesc(SchemaDB *schemaDB,
-             const NAType& refToType);
+  DomainDesc(SchemaDB *schemaDB, const NAType &refToType);
 
   // ---------------------------------------------------------------------
   // Accessor functions
   // ---------------------------------------------------------------------
-  const NAType& getType() const 	{ return *type_; }
-  
-  void changeType(const NAType *type)	{ CMPASSERT(type); type_ = type; }
+  const NAType &getType() const { return *type_; }
 
-  NAString getTypeSQLname(NABoolean terse = FALSE) const 
-				{ return getType().getTypeSQLname(terse); }
+  void changeType(const NAType *type) {
+    CMPASSERT(type);
+    type_ = type;
+  }
 
-  const NAString getDomainName() const	{ return getTypeSQLname(); }
+  NAString getTypeSQLname(NABoolean terse = FALSE) const { return getType().getTypeSQLname(terse); }
+
+  const NAString getDomainName() const { return getTypeSQLname(); }
 
   // ---------------------------------------------------------------------
   // A default value may be associated with a column.
@@ -89,16 +88,14 @@ public:
   // ---------------------------------------------------------------------
   // The following methods are required for each descriptor.
   // ---------------------------------------------------------------------
-  NABoolean operator==(const DomainDesc& other) const
-	     { return (getTypeSQLname() == other.getTypeSQLname()); }
+  NABoolean operator==(const DomainDesc &other) const { return (getTypeSQLname() == other.getTypeSQLname()); }
 
-private:
-
+ private:
   // ---------------------------------------------------------------------
   // The actual descriptor for the type.
   // ---------------------------------------------------------------------
   const NAType *type_;
-  
+
   // ---------------------------------------------------------------------
   // The default value is stored in a buffer that is of the nominal
   // size for the data type to which this column belongs (maximum size
@@ -107,7 +104,7 @@ private:
   // ---------------------------------------------------------------------
   ////	void  *defaultvalue_;
 
-}; // class DomainDesc
+};  // class DomainDesc
 
 // ***********************************************************************
 // Implementation for inline functions
@@ -139,10 +136,9 @@ private:
 // A collection of descriptors for a Domain
 // ***********************************************************************
 
-class DomainDescList : public LIST(DomainDesc *)
-{
-public:
-  DomainDescList(CollHeap* h/*=0*/) :  LIST(DomainDesc *)(h)  {}
-}; // class DomainDescList
+class DomainDescList : public LIST(DomainDesc *) {
+ public:
+  DomainDescList(CollHeap *h /*=0*/) : LIST(DomainDesc *)(h) {}
+};  // class DomainDescList
 
 #endif /* DOMAINDESC_H */

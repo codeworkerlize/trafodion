@@ -101,8 +101,6 @@ class CmpSeabaseMDcleanup : public CmpSeabaseDDL {
   short cleanupInconsistentPartitionEntries(ExeCliInterface *cliInterface, ExpHbaseInterface *ehi,
                                             CmpDDLwithStatusInfo *dws);
 
-  short cleanupInconsistentHiveEntries(ExeCliInterface *cliInterface, ExpHbaseInterface *ehi);
-
   short cleanupInconsistentPrivEntries(ExeCliInterface *cliInterface, ExpHbaseInterface *ehi);
 
   short cleanupInconsistentGroupEntries(ExeCliInterface *cliInterface, ExpHbaseInterface *ehi);
@@ -126,7 +124,6 @@ class CmpSeabaseMDcleanup : public CmpSeabaseDDL {
     INCONSISTENT_OBJECTS_ENTRIES,
     INCONSISTENT_PARTITIONS_ENTRIES,
     VIEWS_ENTRIES,
-    HIVE_ENTRIES,
     PRIV_ENTRIES,
     GROUP_ENTRIES,
     INCONSISTENT_TEXT_ENTRIES,

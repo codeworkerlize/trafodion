@@ -24,7 +24,7 @@
 ****************************************************************************
 *
 * File:         HashBufferHeader.h
-* Description:  
+* Description:
 *
 * Created:      5/6/98
 * Language:     C++
@@ -48,36 +48,30 @@
 class HashBufferHeader {
   friend class HashBuffer;
   friend class HashBufferSerial;
-private:
+
+ private:
   HashBufferHeader();
- ~HashBufferHeader() {};
+  ~HashBufferHeader(){};
   inline ULng32 getRowCount() const;
   inline void setRowCount(ULng32 rowCount);
   inline void incRowCount();
 
-  ULng32 rowCount_;      // # rows in buffer (pointer to next free row)
-  ULng32 bucketCount_;   // the buffer contains row from bucketCount_
-                                // buckets. This is used in phase 3 on the
-                                // hash join. If the cluster is a inner during
-                                // this phase and there was a cluster split,
-                                // not all rows in the buffer are chained
+  ULng32 rowCount_;     // # rows in buffer (pointer to next free row)
+  ULng32 bucketCount_;  // the buffer contains row from bucketCount_
+                        // buckets. This is used in phase 3 on the
+                        // hash join. If the cluster is a inner during
+                        // this phase and there was a cluster split,
+                        // not all rows in the buffer are chained
 };
 
 /////////////////////////////////////////////////////////////////////////////
 // inline functions of HashBufferHeader
 /////////////////////////////////////////////////////////////////////////////
 
-inline ULng32 HashBufferHeader::getRowCount() const {
-  return rowCount_;
-};
+inline ULng32 HashBufferHeader::getRowCount() const { return rowCount_; };
 
-inline void HashBufferHeader::setRowCount(ULng32 rowCount) {
-  rowCount_ = rowCount;
-};
+inline void HashBufferHeader::setRowCount(ULng32 rowCount) { rowCount_ = rowCount; };
 
-inline void HashBufferHeader::incRowCount() {
-  rowCount_++;
-};
+inline void HashBufferHeader::incRowCount() { rowCount_++; };
 
 #endif
-

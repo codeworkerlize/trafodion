@@ -38,34 +38,27 @@
 ******************************************************************************
 */
 
-#ifndef   SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
-#define   SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
+#ifndef SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
+#define SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
 #endif
 #include "parser/SqlParserGlobals.h"
 
 #include "common/ComSmallDefs.h"
 #include "ElemDDLNode.h"
 
-class ElemDDLUdfVersionTag : public ElemDDLNode
-{
-
-public:
-
+class ElemDDLUdfVersionTag : public ElemDDLNode {
+ public:
   // default constructor
-  ElemDDLUdfVersionTag(const NAString &theVersionTag,
-                       CollHeap * h = PARSERHEAP());
+  ElemDDLUdfVersionTag(const NAString &theVersionTag, CollHeap *h = PARSERHEAP());
 
   // virtual destructor
   virtual ~ElemDDLUdfVersionTag();
 
   // cast
-  virtual ElemDDLUdfVersionTag * castToElemDDLUdfVersionTag(void);
+  virtual ElemDDLUdfVersionTag *castToElemDDLUdfVersionTag(void);
 
   // accessor
-  inline const NAString &getVersionTag(void) const
-  {
-    return versionTag_;
-  }
+  inline const NAString &getVersionTag(void) const { return versionTag_; }
 
   //
   // methods for tracing
@@ -74,10 +67,9 @@ public:
   virtual NATraceList getDetailInfo() const;
   virtual const NAString getText() const;
 
-private:
-
+ private:
   NAString versionTag_;
 
-}; // class ElemDDLUdfVersionTag
+};  // class ElemDDLUdfVersionTag
 
 #endif /* ELEMDDLUDFVERSIONTAG_H */

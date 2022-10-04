@@ -32,8 +32,8 @@
 ******************************************************************************
 */
 
-#define   SQLPARSERGLOBALS_FLAGS	// must precede all #include's
-#define   SQLPARSERGLOBALS_NADEFAULTS
+#define SQLPARSERGLOBALS_FLAGS  // must precede all #include's
+#define SQLPARSERGLOBALS_NADEFAULTS
 
 #include "Debug.h"
 #include "optimizer/Sqlcomp.h"
@@ -60,7 +60,7 @@
 #include "comexe/ComTdbSendTop.h"
 #include "common/DatetimeType.h"
 #include "common/SequenceGeneratorAttributes.h"
-#include "parser/SqlParserGlobals.h"	
+#include "parser/SqlParserGlobals.h"
 #include "AppliedStatMan.h"
 #include "generator/Generator.h"
 #include "arkcmp/CmpStatement.h"
@@ -83,51 +83,43 @@
 // methods for class ExprGroupId
 // -----------------------------------------------------------------------
 
-ExprGroupId::ExprGroupId()
-{
+ExprGroupId::ExprGroupId() {
   groupIdMode_ = STANDALONE;
-  node_        = NULL;
-  groupId_     = INVALID_GROUP_ID;
+  node_ = NULL;
+  groupId_ = INVALID_GROUP_ID;
 }
 
-ExprGroupId::ExprGroupId(const ExprGroupId & other)
-{
+ExprGroupId::ExprGroupId(const ExprGroupId &other) {
   groupIdMode_ = other.groupIdMode_;
-  node_        = other.node_;
-  groupId_     = other.groupId_;
+  node_ = other.node_;
+  groupId_ = other.groupId_;
 }
 
-ExprGroupId::ExprGroupId(RelExpr *node)
-{
+ExprGroupId::ExprGroupId(RelExpr *node) {
   groupIdMode_ = STANDALONE;
-  node_        = node;
-  groupId_     = INVALID_GROUP_ID;
+  node_ = node;
+  groupId_ = INVALID_GROUP_ID;
 }
 
-ExprGroupId::ExprGroupId(CascadesGroupId groupId)
-{
+ExprGroupId::ExprGroupId(CascadesGroupId groupId) {
   groupIdMode_ = MEMOIZED;
-  node_        = NULL;
-  groupId_     = groupId;
+  node_ = NULL;
+  groupId_ = groupId;
 }
 
-ExprGroupId & ExprGroupId::operator = (const ExprGroupId & other)
-{
+ExprGroupId &ExprGroupId::operator=(const ExprGroupId &other) {
   groupIdMode_ = other.groupIdMode_;
-  node_        = other.node_;
-  groupId_     = other.groupId_;
+  node_ = other.node_;
+  groupId_ = other.groupId_;
   return *this;
 }
 
-ExprGroupId & ExprGroupId::operator = (RelExpr * other)
-{
-  if (groupIdMode_ == MEMOIZED)
-    {
-      // Trying to assign an actual pointer to an ExprGroupId that
-      // is in CascadesMemo. This is materialization of a binding.
-      groupIdMode_ = BINDING;
-    }
-  else if (groupIdMode_ == BINDING)
+ExprGroupId &ExprGroupId::operator=(RelExpr *other) {
+  if (groupIdMode_ == MEMOIZED) {
+    // Trying to assign an actual pointer to an ExprGroupId that
+    // is in CascadesMemo. This is materialization of a binding.
+    groupIdMode_ = BINDING;
+  } else if (groupIdMode_ == BINDING)
     // sanity check, can't directly overwrite another binding
     ABORT("Didn't call BINDING::release_expr()");
 
@@ -136,8 +128,7 @@ ExprGroupId & ExprGroupId::operator = (RelExpr * other)
   return *this;
 }
 
-ExprGroupId & ExprGroupId::operator = (CascadesGroupId other)
-{
+ExprGroupId &ExprGroupId::operator=(CascadesGroupId other) {
   // The expression is now (again) in CascadesMemo without participating in
   // a binding. This may happen when an expression is copied into CascadesMemo
   // (groupIdMode_ was STANDALONE) or when a binding is released (groupIdMode_
@@ -153,8 +144,7 @@ ExprGroupId & ExprGroupId::operator = (CascadesGroupId other)
   return *this;
 }
 
-NABoolean ExprGroupId::operator == (const ExprGroupId &other) const
-{
+NABoolean ExprGroupId::operator==(const ExprGroupId &other) const {
   // if the two operands have mode ...	 	then do this:
   // ----------------------------------------   ------------------
   // STANDALONE-STANDALONE:			ptrs must match
@@ -165,36 +155,28 @@ NABoolean ExprGroupId::operator == (const ExprGroupId &other) const
   // BINDING-BINDING:				ptrs must match
 
   if (node_ == NULL OR other.getPtr() == NULL)
-    return (groupId_ == other.getGroupId());    // cases with (x)
+    return (groupId_ == other.getGroupId());  // cases with (x)
   else
-    return (node_ == other.getPtr());           // ptrs must match
+    return (node_ == other.getPtr());  // ptrs must match
 }
 
-NABoolean ExprGroupId::operator == (const RelExpr *other) const
-{
+NABoolean ExprGroupId::operator==(const RelExpr *other) const {
   CMPASSERT(groupIdMode_ != MEMOIZED);
   return node_ == other;
 }
 
-CascadesGroupId ExprGroupId::getGroupId() const
- { return ((groupIdMode_ != STANDALONE)? groupId_ : INVALID_GROUP_ID); }
+CascadesGroupId ExprGroupId::getGroupId() const { return ((groupIdMode_ != STANDALONE) ? groupId_ : INVALID_GROUP_ID); }
 
-void ExprGroupId::releaseBinding()
-{
-  if (groupIdMode_ != BINDING)
-    ABORT("binding to release was not established");
+void ExprGroupId::releaseBinding() {
+  if (groupIdMode_ != BINDING) ABORT("binding to release was not established");
 
   groupIdMode_ = MEMOIZED;
   node_ = NULL;
 }
 
-void ExprGroupId::convertBindingToStandalone()
-{
-  groupIdMode_ = STANDALONE;
-}
+void ExprGroupId::convertBindingToStandalone() { groupIdMode_ = STANDALONE; }
 
-void ExprGroupId::setGroupAttr(GroupAttributes *gaPtr)
-{
+void ExprGroupId::setGroupAttr(GroupAttributes *gaPtr) {
   // If the expression is either in the standalone mode or is
   // a part of a binding, then store the Group Attributes
   // in the node. Group attributes in Cascades can not be set through
@@ -202,10 +184,9 @@ void ExprGroupId::setGroupAttr(GroupAttributes *gaPtr)
 
   CMPASSERT(groupIdMode_ == STANDALONE);
   node_->setGroupAttr(gaPtr);
-} // ExprGroupId::setGroupAttr()
+}  // ExprGroupId::setGroupAttr()
 
-GroupAttributes * ExprGroupId::getGroupAttr() const
-{
+GroupAttributes *ExprGroupId::getGroupAttr() const {
   CMPASSERT(node_ != NULL OR groupIdMode_ == MEMOIZED);
 
   // If the expression is either in the standalone mode or is
@@ -215,21 +196,19 @@ GroupAttributes * ExprGroupId::getGroupAttr() const
     return node_->getGroupAttr();
   else
     // otherwise, use the Cascades group's group attributes
-    return  (*CURRSTMT_OPTGLOBALS->memo)[groupId_]->getGroupAttr();
-} // ExprGroupId::getGroupAttr()
+    return (*CURRSTMT_OPTGLOBALS->memo)[groupId_]->getGroupAttr();
+}  // ExprGroupId::getGroupAttr()
 
 // shortcut to get the output estimated log props out of the group
 // attributes
-EstLogPropSharedPtr ExprGroupId::outputLogProp(const EstLogPropSharedPtr& inputLogProp)
-{
+EstLogPropSharedPtr ExprGroupId::outputLogProp(const EstLogPropSharedPtr &inputLogProp) {
   return getGroupAttr()->outputLogProp(inputLogProp);
 }
 
 // a shortcut to get the bound expression, if it exists ...
 // or the first logical expression inserted in the Cascades Group or NULL.
 // Note:  The last log expr in the list is the first one inserted.
-RelExpr * ExprGroupId::getLogExpr() const
-{
+RelExpr *ExprGroupId::getLogExpr() const {
   if (node_ != NULL)
     return node_;
   else if (groupId_ != INVALID_GROUP_ID)
@@ -237,8 +216,7 @@ RelExpr * ExprGroupId::getLogExpr() const
   return 0;
 }
 
-RelExpr * ExprGroupId::getFirstLogExpr() const
-{
+RelExpr *ExprGroupId::getFirstLogExpr() const {
   if (node_ != NULL)
     return node_;
   else if (groupId_ != INVALID_GROUP_ID)
@@ -252,66 +230,65 @@ RelExpr * ExprGroupId::getFirstLogExpr() const
 
 THREAD_P ObjectCounter (*RelExpr::counter_)(0);
 
-RelExpr::RelExpr(OperatorTypeEnum otype,
-		 RelExpr  *leftChild,
-		 RelExpr  *rightChild,
-		 CollHeap *outHeap)
-     : ExprNode(otype)
-  ,selection_(NULL)
-  ,RETDesc_(NULL)
-  ,groupAttr_(NULL)
-  ,groupId_(INVALID_GROUP_ID)
-  ,groupNext_(NULL)
-  ,bucketNext_(NULL)
-  ,operatorCost_(NULL)
-  ,rollUpCost_(NULL)
-  ,physProp_(NULL)
-  ,estRowsUsed_((Cardinality)-1)
-  ,inputCardinality_((Cardinality)-1)
-  ,maxCardEst_((Cardinality)-1)
-  ,contextInsensRules_(outHeap)
-  ,contextSensRules_(outHeap)
-  ,accessSet0_(NULL) // Triggers --
-  ,accessSet1_(NULL)
-  ,uniqueColumnsTree_(NULL) //++MV
-  ,cardConstraint_(NULL) //++MV
-  ,isinBlockStmt_(FALSE)
-  ,firstNRows_(-1)
-  ,flags_(0)
-  ,rowsetIterator_(FALSE)
-  ,tolerateNonFatalError_(UNSPECIFIED_)
-  ,hint_(NULL)
-  ,markedForElimination_(FALSE)
-  ,isExtraHub_(FALSE)
-  ,potential_(-1)
-  ,seenIUD_(FALSE)
-  ,parentTaskId_(0)
-  ,stride_(0)
-  ,birthId_(0)
-  ,memoExprId_(0)
-  ,sourceMemoExprId_(0)
-  ,sourceGroupId_(0)
-  ,costLimit_(-1)
-  ,cachedTupleFormat_(ExpTupleDesc::UNINITIALIZED_FORMAT)
-  ,cachedResizeCIFRecord_(FALSE)
-  ,dopReduced_(FALSE)
-  ,optHbaseAccessOptions_(NULL)
-  ,originalExpr_(NULL)
-  ,biConnectBy_(NULL)
-  ,rtDataUsed_(-1)
-  ,order_(-1)
-  ,operKey_(outHeap)
-  ,parent_(NULL)
-  ,isCreatedByNgram_(FALSE) // For ngram
-  ,needOutput_(TRUE)
-  ,needPushDownLimit_(FALSE)
-  ,partnVals_(NULL)
-  ,isPartitionV2_(FALSE)
-  ,isPartnValsSpecified_(FALSE)
-  ,isPartnNameSpecified_(FALSE)
-  ,partnName_(outHeap)
-{
-
+RelExpr::RelExpr(OperatorTypeEnum otype, RelExpr *leftChild, RelExpr *rightChild, CollHeap *outHeap)
+    : ExprNode(otype),
+      selection_(NULL),
+      RETDesc_(NULL),
+      groupAttr_(NULL),
+      groupId_(INVALID_GROUP_ID),
+      groupNext_(NULL),
+      bucketNext_(NULL),
+      operatorCost_(NULL),
+      rollUpCost_(NULL),
+      physProp_(NULL),
+      estRowsUsed_((Cardinality)-1),
+      inputCardinality_((Cardinality)-1),
+      maxCardEst_((Cardinality)-1),
+      contextInsensRules_(outHeap),
+      contextSensRules_(outHeap),
+      accessSet0_(NULL)  // Triggers --
+      ,
+      accessSet1_(NULL),
+      uniqueColumnsTree_(NULL)  //++MV
+      ,
+      cardConstraint_(NULL)  //++MV
+      ,
+      isinBlockStmt_(FALSE),
+      firstNRows_(-1),
+      flags_(0),
+      rowsetIterator_(FALSE),
+      tolerateNonFatalError_(UNSPECIFIED_),
+      hint_(NULL),
+      markedForElimination_(FALSE),
+      isExtraHub_(FALSE),
+      potential_(-1),
+      seenIUD_(FALSE),
+      parentTaskId_(0),
+      stride_(0),
+      birthId_(0),
+      memoExprId_(0),
+      sourceMemoExprId_(0),
+      sourceGroupId_(0),
+      costLimit_(-1),
+      cachedTupleFormat_(ExpTupleDesc::UNINITIALIZED_FORMAT),
+      cachedResizeCIFRecord_(FALSE),
+      dopReduced_(FALSE),
+      optHbaseAccessOptions_(NULL),
+      originalExpr_(NULL),
+      biConnectBy_(NULL),
+      rtDataUsed_(-1),
+      order_(-1),
+      operKey_(outHeap),
+      parent_(NULL),
+      isCreatedByNgram_(FALSE)  // For ngram
+      ,
+      needOutput_(TRUE),
+      needPushDownLimit_(FALSE),
+      partnVals_(NULL),
+      isPartitionV2_(FALSE),
+      isPartnValsSpecified_(FALSE),
+      isPartnNameSpecified_(FALSE),
+      partnName_(outHeap) {
   child_[0] = leftChild;
   child_[1] = rightChild;
   (*counter_).incrementCounter();
@@ -320,48 +297,44 @@ RelExpr::RelExpr(OperatorTypeEnum otype,
   // QSTUFF
   if (outHeap)
     pRelExprCostMethod_ = new (outHeap) CostMethodFixedCostPerRow(1.0  // constant cost for the node
-                                                                 , 0.0  // cost per child row
-                                                                 , 0.0  // cost per output row
-                                                                 );
+                                                                  ,
+                                                                  0.0  // cost per child row
+                                                                  ,
+                                                                  0.0  // cost per output row
+    );
   else
     pRelExprCostMethod_ = new (CmpCommon::statementHeap()) CostMethodFixedCostPerRow(1.0  // constant cost for the node
-                                                                                    , 0.0  // cost per child row
-                                                                                    , 0.0  // cost per output row
-                                                                                    );
+                                                                                     ,
+                                                                                     0.0  // cost per child row
+                                                                                     ,
+                                                                                     0.0  // cost per output row
+    );
 }
 
-RelExpr::~RelExpr()
-{
+RelExpr::~RelExpr() {
   // the group attributes maintain a reference count
-  if (groupAttr_ != NULL)
-    groupAttr_->decrementReferenceCount();
+  if (groupAttr_ != NULL) groupAttr_->decrementReferenceCount();
 
   // these data structures are always owned by the tree
   delete selection_;
 
   // delete all children, if this is a standalone query
   // (NOTE: can't use the virtual function getArity() in a destructor!!!)
-  for (Lng32 i = 0; i < MAX_REL_ARITY; i++)
-    {
-      if (child(i).getMode() == ExprGroupId::STANDALONE)
-	{
-	  // the input was not obtained from CascadesMemo, so delete it
-	  if (child(i).getPtr() != NULL)
-	    delete child(i).getPtr();
-	}
+  for (Lng32 i = 0; i < MAX_REL_ARITY; i++) {
+    if (child(i).getMode() == ExprGroupId::STANDALONE) {
+      // the input was not obtained from CascadesMemo, so delete it
+      if (child(i).getPtr() != NULL) delete child(i).getPtr();
     }
+  }
   (*counter_).decrementCounter();
 
-  delete cardConstraint_; //++MV
+  delete cardConstraint_;  //++MV
 
   if (hint_) delete hint_;
-} // RelExpr::~RelExpr()
+}  // RelExpr::~RelExpr()
 
-
-Int32 RelExpr::getArity() const
-{
-  switch (getOperatorType())
-    {
+Int32 RelExpr::getArity() const {
+  switch (getOperatorType()) {
     case REL_SCAN:
       return 0;
 
@@ -387,40 +360,29 @@ Int32 RelExpr::getArity() const
     default:
       ABORT("RelExpr with unknown arity encountered");
       return 0;
-    }
+  }
 }
 
-void RelExpr::deleteInstance()
-{
+void RelExpr::deleteInstance() {
   Int32 nc = getArity();
   // avoid deleting the children by resetting all child pointers first
-  for (Lng32 i = 0; i < nc; i++)
-    {
-      child(i) = (RelExpr *) NULL;
-    }
+  for (Lng32 i = 0; i < nc; i++) {
+    child(i) = (RelExpr *)NULL;
+  }
   delete this;
-} // RelExpr::deleteInstance()
+}  // RelExpr::deleteInstance()
 
-TableMappingUDF *RelExpr::castToTableMappingUDF()
-{
-  return NULL;
-}
+TableMappingUDF *RelExpr::castToTableMappingUDF() { return NULL; }
 
-ExprNode * RelExpr::getChild(Lng32 index)
-{
-  return child(index);
-} // RelExpr::getChild()
+ExprNode *RelExpr::getChild(Lng32 index) { return child(index); }  // RelExpr::getChild()
 
-void RelExpr::setChild(Lng32 index, ExprNode * newChild)
-{
-  if (newChild)
-    {
-      CMPASSERT(newChild->castToRelExpr());
-      child(index) = newChild->castToRelExpr();
-    }
-  else
+void RelExpr::setChild(Lng32 index, ExprNode *newChild) {
+  if (newChild) {
+    CMPASSERT(newChild->castToRelExpr());
+    child(index) = newChild->castToRelExpr();
+  } else
     child(index) = (RelExpr *)NULL;
-} // RelExpr::setChild()
+}  // RelExpr::setChild()
 
 // get TableDesc from the expression. It could be directly
 // attached to the expression, as in Scan, or could be a
@@ -428,24 +390,16 @@ void RelExpr::setChild(Lng32 index, ExprNode * newChild)
 // which do not have a tableDesc attached to them, like Join
 // it would be NULL
 
-TableDesc*
-RelExpr::getTableDescForExpr()
-{
-  TableDesc * tableDesc = NULL;
+TableDesc *RelExpr::getTableDescForExpr() {
+  TableDesc *tableDesc = NULL;
 
-  if (getOperatorType() == REL_SCAN)
-  {
-	tableDesc = ((Scan *)this)->getTableDesc();
-  }
-  else
-  {
-	if(getGroupAttr()->getGroupAnalysis() &&
-	   getGroupAttr()->getGroupAnalysis()->getNodeAnalysis() )
-	{
-	  TableAnalysis * tableAnalysis = getGroupAttr()->getGroupAnalysis()->getNodeAnalysis()->getTableAnalysis();
-	  if (tableAnalysis)
-		tableDesc = tableAnalysis->getTableDesc();
-	}
+  if (getOperatorType() == REL_SCAN) {
+    tableDesc = ((Scan *)this)->getTableDesc();
+  } else {
+    if (getGroupAttr()->getGroupAnalysis() && getGroupAttr()->getGroupAnalysis()->getNodeAnalysis()) {
+      TableAnalysis *tableAnalysis = getGroupAttr()->getGroupAnalysis()->getNodeAnalysis()->getTableAnalysis();
+      if (tableAnalysis) tableDesc = tableAnalysis->getTableDesc();
+    }
   }
 
   return tableDesc;
@@ -457,82 +411,68 @@ RelExpr::getTableDescForExpr()
 // (2) we are resetting number of joined tables, which should not be done once it is
 // set during optimization phases
 
-void RelExpr::clearLogExprForSynthDuringAnalysis()
-{
-	Int32 numChildren = getArity();
+void RelExpr::clearLogExprForSynthDuringAnalysis() {
+  Int32 numChildren = getArity();
 
-	if (numChildren >= 1) 
-	{
-		GroupAttributes * grp = getGroupAttr();
-		grp->setLogExprForSynthesis(NULL); 
-		grp->resetNumJoinedTables(1);
-	}
+  if (numChildren >= 1) {
+    GroupAttributes *grp = getGroupAttr();
+    grp->setLogExprForSynthesis(NULL);
+    grp->resetNumJoinedTables(1);
+  }
 
-	// clear the log expr for all children
-	for (Lng32 i = 0; i < numChildren; i++)
-	{
-		// only if the child is not a CascadesGroup or NULL
-		if (child(i).getPtr() != NULL)
-		{
-			child(i)->clearLogExprForSynthDuringAnalysis();
-		}
-	}           
+  // clear the log expr for all children
+  for (Lng32 i = 0; i < numChildren; i++) {
+    // only if the child is not a CascadesGroup or NULL
+    if (child(i).getPtr() != NULL) {
+      child(i)->clearLogExprForSynthDuringAnalysis();
+    }
+  }
 }
 
-void RelExpr::releaseBindingTree(NABoolean memoIsMoribund)
-{
+void RelExpr::releaseBindingTree(NABoolean memoIsMoribund) {
   Int32 nc = getArity();
 
-  for (Lng32 i = 0; i < nc; i++)
-    {
-      if (memoIsMoribund || child(i).getMode() == ExprGroupId::BINDING)
-	{
-	  // recursively release the bindings of the children's children
-	  if (child(i).getPtr() != NULL)
-	    child(i)->releaseBindingTree(memoIsMoribund);
+  for (Lng32 i = 0; i < nc; i++) {
+    if (memoIsMoribund || child(i).getMode() == ExprGroupId::BINDING) {
+      // recursively release the bindings of the children's children
+      if (child(i).getPtr() != NULL) child(i)->releaseBindingTree(memoIsMoribund);
 
-	  // release the bindings to the children
-	  child(i).convertBindingToStandalone();
-	}
-    } // for each child
+      // release the bindings to the children
+      child(i).convertBindingToStandalone();
+    }
+  }  // for each child
 
   // indicate that this expression is no longer part of CascadesMemo,
   // (although its groupNext_ and bucketNext_ pointers are still valid)
   groupId_ = INVALID_GROUP_ID;
 
-  if (memoIsMoribund)
-    {
-      groupAttr_ = NULL;
-      groupNext_ = bucketNext_ = NULL;
-    }
-
+  if (memoIsMoribund) {
+    groupAttr_ = NULL;
+    groupNext_ = bucketNext_ = NULL;
+  }
 }
 
-void RelExpr::addSelPredTree(ItemExpr *selpred)
-{
+void RelExpr::addSelPredTree(ItemExpr *selpred) {
   ExprValueId sel = selection_;
   ItemExprTreeAsList(&sel, ITM_AND).insert(selpred);
   selection_ = sel.getPtr();
-} // RelExpr::addSelPredTree()
+}  // RelExpr::addSelPredTree()
 
-ItemExpr * RelExpr::removeSelPredTree()
-{
-  ItemExpr * result = selection_;
+ItemExpr *RelExpr::removeSelPredTree() {
+  ItemExpr *result = selection_;
   selection_ = NULL;
   return result;
-} // RelExpr::removeSelPredTree()
+}  // RelExpr::removeSelPredTree()
 
 //++ MV -
-void RelExpr::addUniqueColumnsTree(ItemExpr *uniqueColumnsTree)
-{
+void RelExpr::addUniqueColumnsTree(ItemExpr *uniqueColumnsTree) {
   ExprValueId t = uniqueColumnsTree_;
 
   ItemExprTreeAsList(&t, ITM_ITEM_LIST).insert(uniqueColumnsTree);
   uniqueColumnsTree_ = t.getPtr();
 }
 
-ItemExpr *RelExpr::removeUniqueColumnsTree()
-{
+ItemExpr *RelExpr::removeUniqueColumnsTree() {
   ItemExpr *result = uniqueColumnsTree_;
   uniqueColumnsTree_ = NULL;
 
@@ -540,23 +480,19 @@ ItemExpr *RelExpr::removeUniqueColumnsTree()
 }
 // MV--
 
-void RelExpr::setGroupAttr(GroupAttributes *gaPtr)
-{
+void RelExpr::setGroupAttr(GroupAttributes *gaPtr) {
   // the new group attributes are now used in one more place
-  if (gaPtr != NULL)
-    gaPtr->incrementReferenceCount();
+  if (gaPtr != NULL) gaPtr->incrementReferenceCount();
 
   // the old group attributes are now used in one place less than before
   // NOTE: old and new group attribute pointers may be the same
-  if (groupAttr_ != NULL)
-    groupAttr_->decrementReferenceCount();
+  if (groupAttr_ != NULL) groupAttr_->decrementReferenceCount();
 
   // now assign the new group attribute pointer to the local data member
   groupAttr_ = gaPtr;
 }
 
-NABoolean RelExpr::reconcileGroupAttr(GroupAttributes *newGroupAttr)
-{
+NABoolean RelExpr::reconcileGroupAttr(GroupAttributes *newGroupAttr) {
   // make sure the new group attributes have all the information needed
   // and are not inconsistent
   newGroupAttr->reconcile(*groupAttr_);
@@ -565,93 +501,77 @@ NABoolean RelExpr::reconcileGroupAttr(GroupAttributes *newGroupAttr)
   // ones
   setGroupAttr(newGroupAttr);
 
-  return FALSE; // no re-optimization for now
+  return FALSE;  // no re-optimization for now
 }
 
-RelExpr * RelExpr::castToRelExpr()
-{
-  return this;
-}
+RelExpr *RelExpr::castToRelExpr() { return this; }
 
-const RelExpr * RelExpr::castToRelExpr() const
-{
-  return this;
-}
+const RelExpr *RelExpr::castToRelExpr() const { return this; }
 
-NABoolean RelExpr::isLogical() const   { return TRUE;  }
+NABoolean RelExpr::isLogical() const { return TRUE; }
 
-NABoolean RelExpr::isPhysical() const  { return FALSE; }
+NABoolean RelExpr::isPhysical() const { return FALSE; }
 
-NABoolean RelExpr::isCutOp() const     { return FALSE; }
+NABoolean RelExpr::isCutOp() const { return FALSE; }
 
 NABoolean RelExpr::isSubtreeOp() const { return FALSE; }
 
-NABoolean RelExpr::isWildcard() const  { return FALSE; }
+NABoolean RelExpr::isWildcard() const { return FALSE; }
 
-ItemExpr * RelExpr::selectList()
-{
+ItemExpr *RelExpr::selectList() {
   // RelRoot redefines this virtual method (see BindRelExpr.cpp);
   // Tuple and Union use this standard method.
   RETDesc *rd = getRETDesc();
   if (rd) {
     ValueIdList vids;
     const ColumnDescList &cols = *rd->getColumnList();
-    for (CollIndex i = 0; i < cols.entries(); i++)
-      vids.insert(cols[i]->getValueId());
+    for (CollIndex i = 0; i < cols.entries(); i++) vids.insert(cols[i]->getValueId());
     return vids.rebuildExprTree(ITM_ITEM_LIST);
   }
   return NULL;
 }
 
-SimpleHashValue RelExpr::hash()
-{
+SimpleHashValue RelExpr::hash() {
   // this method is just defined to have a hash method in ExprNode
   // without referencing class HashValue (which is too complicated
   // for the common code directory)
   return treeHash().getValue();
 }
 
-HashValue RelExpr::topHash()
-{
-  HashValue result = (Int32) getOperatorType();
+HashValue RelExpr::topHash() {
+  HashValue result = (Int32)getOperatorType();
 
   // hash the required input and output values from the GroupAttributes
-  if (groupAttr_ != NULL)
-    result ^= groupAttr_->hash();
+  if (groupAttr_ != NULL) result ^= groupAttr_->hash();
 
   // hash the ValueIdSet of the selection predicates
   result ^= predicates_;
 
   // the other data members are not significant for the hash function
-  //CMPASSERT(selection_ == NULL); // this method doesn't work in the parser
+  // CMPASSERT(selection_ == NULL); // this method doesn't work in the parser
 
   return result;
 }
 
 // this method is not virtual, since combining the hash values of the
 // top node and its children should be independent of the actual node
-HashValue RelExpr::treeHash()
-{
+HashValue RelExpr::treeHash() {
   HashValue result = topHash();
   Int32 maxc = getArity();
 
-  for (Lng32 i = 0; i < maxc; i++)
-    {
-      if (child(i).getMode() == ExprGroupId::MEMOIZED)
-	// use the numbers of the input CascadesGroup
-	result ^= child(i).getGroupId();
-      else
-	// call this method recursively for the children
-	result ^= child(i)->treeHash();
-    }
+  for (Lng32 i = 0; i < maxc; i++) {
+    if (child(i).getMode() == ExprGroupId::MEMOIZED)
+      // use the numbers of the input CascadesGroup
+      result ^= child(i).getGroupId();
+    else
+      // call this method recursively for the children
+      result ^= child(i)->treeHash();
+  }
 
   return result;
 }
 
-NABoolean RelExpr::patternMatch(const RelExpr & other) const
-{
-  return getOperator().match(other.getOperator());
-}
+NABoolean RelExpr::patternMatch(const RelExpr &other) const { return getOperator().match(other.getOperator()); }
 
 // Checks if the selection preds at this join node are of the
 // form FKtable.col1 = UKTable.col1 and FKtable.col1 = UKTable.col1
@@ -662,11 +582,8 @@ NABoolean RelExpr::patternMatch(const RelExpr & other) const
 // type predicates back to the caller, so that it can be used
 // to adjust the selection preds and equiJoinPreds in the join
 // node.
-NABoolean Join::hasRIMatchingPredicates(const ValueIdList& fkCols,
-					const ValueIdList& ucCols,
-					const TableDesc * compRefTabId,
-					ValueIdSet & matchingPreds) const
-{
+NABoolean Join::hasRIMatchingPredicates(const ValueIdList &fkCols, const ValueIdList &ucCols,
+                                        const TableDesc *compRefTabId, ValueIdSet &matchingPreds) const {
   // if the size of the fkCols does not match with ucCols then something is wrong.
   // We also assume below that corresponding cols have identical positions
   // in the two valueidlists and that all entries here are in terms of VEG.
@@ -677,8 +594,7 @@ NABoolean Join::hasRIMatchingPredicates(const ValueIdList& fkCols,
   // for example there may be a predicate on the fktable and some
   // other table which is being joined up above. Since the fktable
   // is below this join, this join will have that predicate.
-  if ((getSelectionPredicates().entries() < fkCols.entries()))
-      return FALSE;
+  if ((getSelectionPredicates().entries() < fkCols.entries())) return FALSE;
 
   ValueIdList localFKCols(fkCols);
   ValueIdList localUCCols(ucCols);
@@ -688,100 +604,74 @@ NABoolean Join::hasRIMatchingPredicates(const ValueIdList& fkCols,
   compRefTabNonUCCols -= localUCColsSet;
 
   NABoolean matchFound = FALSE;
-  const ValueIdSet& selPreds = getSelectionPredicates();
+  const ValueIdSet &selPreds = getSelectionPredicates();
   matchingPreds.clear();
 
-  for (ValueId x = selPreds.init();
-	    selPreds.next(x);
-	    selPreds.advance(x))
-  {
+  for (ValueId x = selPreds.init(); selPreds.next(x); selPreds.advance(x)) {
     ItemExpr *ie = x.getItemExpr();
     matchFound = FALSE;
-    if (ie->getOperatorType() == ITM_VEG_PREDICATE)
-    {
+    if (ie->getOperatorType() == ITM_VEG_PREDICATE) {
       ValueId vegRef = ((VEGPredicate *)ie)->getVEG()->getVEGReference()->getValueId();
       CollIndex fkidx = localFKCols.index(vegRef);
-      if ((fkidx != NULL_COLL_INDEX)&&(localUCCols[fkidx] == vegRef))
-      {
-	localFKCols.removeAt(fkidx);
-	localUCCols.removeAt(fkidx);
-	matchingPreds.insert(x);
+      if ((fkidx != NULL_COLL_INDEX) && (localUCCols[fkidx] == vegRef)) {
+        localFKCols.removeAt(fkidx);
+        localUCCols.removeAt(fkidx);
+        matchingPreds.insert(x);
       }
-      if (compRefTabNonUCCols.contains(vegRef))
-      {
-	// return false on a predicate
-	// of the form fktable.x = uniquetable.x where x  is a nonkey column.
-	  matchingPreds.clear();
-	  return FALSE;
+      if (compRefTabNonUCCols.contains(vegRef)) {
+        // return false on a predicate
+        // of the form fktable.x = uniquetable.x where x  is a nonkey column.
+        matchingPreds.clear();
+        return FALSE;
       }
-    }
-    else if ((ie->getOperatorType() == ITM_EQUAL)&&
-	    (ie->child(0)->getOperatorType() == ITM_VEG_REFERENCE)&&
-	    (ie->child(1)->getOperatorType() == ITM_VEG_REFERENCE))
-    {
+    } else if ((ie->getOperatorType() == ITM_EQUAL) && (ie->child(0)->getOperatorType() == ITM_VEG_REFERENCE) &&
+               (ie->child(1)->getOperatorType() == ITM_VEG_REFERENCE)) {
       ValueId vegRef0 = ((VEGReference *)ie->child(0).getPtr())->getValueId();
       ValueId vegRef1 = ((VEGReference *)ie->child(1).getPtr())->getValueId();
       ValueId ukVid = NULL_COLL_INDEX;
       CollIndex fkidx = localFKCols.index(vegRef0);
-      if (fkidx == NULL_COLL_INDEX)
-      {
-	CollIndex fkidx = localFKCols.index(vegRef1);
-	if (fkidx != NULL_COLL_INDEX)
-	  ukVid = vegRef0;
+      if (fkidx == NULL_COLL_INDEX) {
+        CollIndex fkidx = localFKCols.index(vegRef1);
+        if (fkidx != NULL_COLL_INDEX) ukVid = vegRef0;
+      } else
+        ukVid = vegRef1;
+      if ((fkidx != NULL_COLL_INDEX) && (localUCCols[fkidx] == ukVid)) {
+        localFKCols.removeAt(fkidx);
+        localUCCols.removeAt(fkidx);
+        matchingPreds.insert(x);
       }
-      else
-	ukVid = vegRef1;
-      if ((fkidx != NULL_COLL_INDEX)&&(localUCCols[fkidx] == ukVid))
-      {
-	localFKCols.removeAt(fkidx);
-	localUCCols.removeAt(fkidx);
-	matchingPreds.insert(x);
-      }
-    }
-    else
-    {
+    } else {
       matchingPreds.clear();
-      return FALSE; // not a VEG Pred (revisit for char-varchar)
+      return FALSE;  // not a VEG Pred (revisit for char-varchar)
     }
   }
   if (localFKCols.isEmpty())
-    return TRUE ; // all preds have a match with a FK-UC column pair.
-  else
-  {
+    return TRUE;  // all preds have a match with a FK-UC column pair.
+  else {
     matchingPreds.clear();
     return FALSE;
   }
 }
 
-void Join::findEquiJoinBaseColumns(const ValueIdList& columnList, 
-                                   NABoolean forOuter, 
-                                   ValueIdSet& joinCols)
-{
-   ValueIdSet joinExpr = (forOuter) ?
-                getEquiJoinExprFromChild0() :
-                getEquiJoinExprFromChild1();
+void Join::findEquiJoinBaseColumns(const ValueIdList &columnList, NABoolean forOuter, ValueIdSet &joinCols) {
+  ValueIdSet joinExpr = (forOuter) ? getEquiJoinExprFromChild0() : getEquiJoinExprFromChild1();
 
-   // eq-join columns 
-   joinExpr.findAllReferencedBaseCols(joinCols);
+  // eq-join columns
+  joinExpr.findAllReferencedBaseCols(joinCols);
 
-   ValueIdSet colListAsSet(columnList);
-   ValueIdSet baseCols;
-   colListAsSet.findAllReferencedBaseCols(baseCols);
+  ValueIdSet colListAsSet(columnList);
+  ValueIdSet baseCols;
+  colListAsSet.findAllReferencedBaseCols(baseCols);
 
-   joinCols.intersectSet(baseCols);
+  joinCols.intersectSet(baseCols);
 }
-
-
 
 // Special method added to check for ordered cross product called by
 // RequiredPhysicalProperty::satisfied() to ensure that if a CQS has
 // requested an ordered cross product, then one is being produced.
-NABoolean HashJoin::patternMatch(const RelExpr &other) const
-{
+NABoolean HashJoin::patternMatch(const RelExpr &other) const {
   if (other.getOperator() == REL_FORCE_ORDERED_CROSS_PRODUCT)
-    return ((HashJoin *) this)->isOrderedCrossProduct();
-
-
+    return ((HashJoin *)this)->isOrderedCrossProduct();
 
   else
     return RelExpr::patternMatch(other);
@@ -791,62 +681,46 @@ NABoolean HashJoin::patternMatch(const RelExpr &other) const
 // (are the same logical or physical expression). This method provides
 // the generic part for determining a match. It can be called by
 // redefined virtual methods of derived classes.
-NABoolean RelExpr::duplicateMatch(const RelExpr & other) const
-{
-  if (getOperatorType() != other.getOperatorType())
-    return FALSE;
+NABoolean RelExpr::duplicateMatch(const RelExpr &other) const {
+  if (getOperatorType() != other.getOperatorType()) return FALSE;
 
-  CMPASSERT(selection_ == NULL); // this method doesn't work in the parser
+  CMPASSERT(selection_ == NULL);  // this method doesn't work in the parser
 
-  if (predicates_ != other.predicates_)
-    return FALSE;
+  if (predicates_ != other.predicates_) return FALSE;
 
-  if (rowsetIterator_ != other.rowsetIterator_)
-    return FALSE;
+  if (rowsetIterator_ != other.rowsetIterator_) return FALSE;
 
-  if (tolerateNonFatalError_ != other.tolerateNonFatalError_)
-    return FALSE;
+  if (tolerateNonFatalError_ != other.tolerateNonFatalError_) return FALSE;
 
   Int32 maxc = getArity();
 
   // determine whether the children match
-  for (Lng32 i = 0; i < maxc; i++)
-    {
-      // different situations, depending on whether the child
-      // and the other node's child is in state MEMOIZED,
-      // BINDING, or STANDALONE. See ExprGroupId::operator ==
-      // for an explanation for each of the cases
+  for (Lng32 i = 0; i < maxc; i++) {
+    // different situations, depending on whether the child
+    // and the other node's child is in state MEMOIZED,
+    // BINDING, or STANDALONE. See ExprGroupId::operator ==
+    // for an explanation for each of the cases
 
-      if (child(i).getMode() == ExprGroupId::MEMOIZED OR
-	  other.child(i).getMode() == ExprGroupId::MEMOIZED)
-	{
-	  // cases marked (x) in ExprGroupId::operator ==
-	  // (groups must match)
-	  if (NOT (child(i) == other.child(i)))
-	    return FALSE;
-	}
-      else
-	{
-	  // outside of CascadesMemo or in a CascadesBinding, then
-	  //  call this method recursively for the children
-	  if (NOT child(i)->duplicateMatch(*other.child(i).getPtr()))
-	    return FALSE;
-	}
+    if (child(i).getMode() == ExprGroupId::MEMOIZED OR other.child(i).getMode() == ExprGroupId::MEMOIZED) {
+      // cases marked (x) in ExprGroupId::operator ==
+      // (groups must match)
+      if (NOT(child(i) == other.child(i))) return FALSE;
+    } else {
+      // outside of CascadesMemo or in a CascadesBinding, then
+      //  call this method recursively for the children
+      if (NOT child(i)->duplicateMatch(*other.child(i).getPtr())) return FALSE;
     }
+  }
 
   return TRUE;
 }
 const CorrName RelExpr::invalid = CorrName("~X~invalid");
 
-RelExpr * RelExpr::copyTopNode(RelExpr *derivedNode,CollHeap* outHeap)
-{
+RelExpr *RelExpr::copyTopNode(RelExpr *derivedNode, CollHeap *outHeap) {
   RelExpr *result;
 
   if (derivedNode == NULL)
-    result = new (outHeap) RelExpr(getOperatorType(),
-				   NULL,
-				   NULL,
-				   outHeap);
+    result = new (outHeap) RelExpr(getOperatorType(), NULL, NULL, outHeap);
   else
     result = derivedNode;
 
@@ -858,8 +732,7 @@ RelExpr * RelExpr::copyTopNode(RelExpr *derivedNode,CollHeap* outHeap)
   result->predicates_ = predicates_;
 
   // copy pointer to the selection expression tree (Parser only)
-  if (selection_ != NULL)
-    result->selection_ = selection_->copyTree(outHeap)->castToItemExpr();
+  if (selection_ != NULL) result->selection_ = selection_->copyTree(outHeap)->castToItemExpr();
 
   // copy possible index column hints for non-VEG equality predicates
   result->possibleIndexColumns_ = possibleIndexColumns_;
@@ -874,9 +747,7 @@ RelExpr * RelExpr::copyTopNode(RelExpr *derivedNode,CollHeap* outHeap)
 
   result->setUniqueColumns(getUniqueColumns());
 
-  if (uniqueColumnsTree_ != NULL)
-    result->uniqueColumnsTree_ =
-      uniqueColumnsTree_->copyTree(outHeap)->castToItemExpr();
+  if (uniqueColumnsTree_ != NULL) result->uniqueColumnsTree_ = uniqueColumnsTree_->copyTree(outHeap)->castToItemExpr();
   //--MV -
 
   // leave any physical properties or CascadesMemo-related data
@@ -900,10 +771,10 @@ RelExpr * RelExpr::copyTopNode(RelExpr *derivedNode,CollHeap* outHeap)
 
   // set the expression's potential
   result->potential_ = potential_;
-  
+
   // copy cascades trace info
-  result->parentTaskId_ = parentTaskId_; 
-  result->stride_ = stride_; 
+  result->parentTaskId_ = parentTaskId_;
+  result->stride_ = stride_;
   result->birthId_ = birthId_;
   result->memoExprId_ = memoExprId_;
   result->sourceMemoExprId_ = sourceMemoExprId_;
@@ -918,8 +789,7 @@ RelExpr * RelExpr::copyTopNode(RelExpr *derivedNode,CollHeap* outHeap)
   result->originalExpr_ = this;
   result->parent_ = parent_;
 
-  if (partnVals_ != NULL)
-    result->partnVals_ = partnVals_->copyTree(outHeap)->castToItemExpr();
+  if (partnVals_ != NULL) result->partnVals_ = partnVals_->copyTree(outHeap)->castToItemExpr();
 
   result->partnName_ = partnName_;
   result->isPartitionV2_ = isPartitionV2_;
@@ -931,13 +801,11 @@ RelExpr * RelExpr::copyTopNode(RelExpr *derivedNode,CollHeap* outHeap)
 
 // this method is not virtual, since combining the copies of the
 // top node and its children should be independent of the actual node
-RelExpr * RelExpr::copyTree(CollHeap* outHeap)
-{
-  RelExpr * result = copyTopNode(0,outHeap);
+RelExpr *RelExpr::copyTree(CollHeap *outHeap) {
+  RelExpr *result = copyTopNode(0, outHeap);
   Int32 arity = getArity();
 
-  for (Lng32 i = 0; i < arity; i++)
-    result->child(i) = child(i)->copyTree(outHeap);
+  for (Lng32 i = 0; i < arity; i++) result->child(i) = child(i)->copyTree(outHeap);
 
   return result;
 }
@@ -946,74 +814,57 @@ RelExpr * RelExpr::copyTree(CollHeap* outHeap)
 // except that it copies the RETDesc and groupAttr pointers too
 // this is method is used to get a copy of the original tree before
 // inserting it to Cascades.
-RelExpr * RelExpr::copyRelExprTree(CollHeap* outHeap)
-{
-  RelExpr * result = copyTopNode(0,outHeap);
+RelExpr *RelExpr::copyRelExprTree(CollHeap *outHeap) {
+  RelExpr *result = copyTopNode(0, outHeap);
   result->setGroupAttr(new (outHeap) GroupAttributes(*(getGroupAttr())));
   result->setRETDesc(getRETDesc());
   result->getGroupAttr()->setLogExprForSynthesis(result);
 
   Int32 arity = getArity();
 
-  for (Lng32 i = 0; i < arity; i++)
-    result->child(i) = child(i)->copyRelExprTree(outHeap);
+  for (Lng32 i = 0; i < arity; i++) result->child(i) = child(i)->copyRelExprTree(outHeap);
 
   return result;
 }
 
-const RelExpr * RelExpr::getOriginalExpr(NABoolean transitive) const
-{
-  if (originalExpr_ == NULL)
-    return this;
+const RelExpr *RelExpr::getOriginalExpr(NABoolean transitive) const {
+  if (originalExpr_ == NULL) return this;
 
   RelExpr *result = originalExpr_;
 
-  while (result->originalExpr_ && transitive)
-    result = result->originalExpr_;
+  while (result->originalExpr_ && transitive) result = result->originalExpr_;
 
   return result;
 }
 
-RelExpr * RelExpr::getOriginalExpr(NABoolean transitive)
-{
-  if (originalExpr_ == NULL)
-    return this;
+RelExpr *RelExpr::getOriginalExpr(NABoolean transitive) {
+  if (originalExpr_ == NULL) return this;
 
   RelExpr *result = originalExpr_;
 
-  while (result->originalExpr_ && transitive)
-    result = result->originalExpr_;
+  while (result->originalExpr_ && transitive) result = result->originalExpr_;
 
   return result;
 }
 
-void RelExpr::setBlockStmtRecursively(NABoolean x)
-{
+void RelExpr::setBlockStmtRecursively(NABoolean x) {
   setBlockStmt(x);
   Int32 arity = getArity();
 
-  for (Lng32 i = 0; i < arity; i++)
-    child(i)->setBlockStmtRecursively(x);
+  for (Lng32 i = 0; i < arity; i++) child(i)->setBlockStmtRecursively(x);
 }
 
 // -----------------------------------------------------------------------
 // create or share an optimization goal for a child group
 // -----------------------------------------------------------------------
-Context * RelExpr::shareContext(Lng32 childIndex,
-				const ReqdPhysicalProperty* const reqdPhys,
-				const InputPhysicalProperty* const inputPhys,
-				CostLimit* costLimit,
-				Context * parentContext,
-				const EstLogPropSharedPtr& inputLogProp,
-				RelExpr *explicitlyRequiredShape) const
-{
+Context *RelExpr::shareContext(Lng32 childIndex, const ReqdPhysicalProperty *const reqdPhys,
+                               const InputPhysicalProperty *const inputPhys, CostLimit *costLimit,
+                               Context *parentContext, const EstLogPropSharedPtr &inputLogProp,
+                               RelExpr *explicitlyRequiredShape) const {
   // no need to do the job if costLimit id already negative
-  if ( costLimit AND
-       CURRSTMT_OPTDEFAULTS->OPHpruneWhenCLExceeded() AND
-       costLimit->getValue(reqdPhys) < 0 )
-    return NULL;
+  if (costLimit AND CURRSTMT_OPTDEFAULTS->OPHpruneWhenCLExceeded() AND costLimit->getValue(reqdPhys) < 0) return NULL;
 
-  const ReqdPhysicalProperty* searchForRPP;
+  const ReqdPhysicalProperty *searchForRPP;
 
   // if the required physical properties are empty, don't use them
   if (reqdPhys != NULL AND reqdPhys->isEmpty())
@@ -1026,157 +877,111 @@ Context * RelExpr::shareContext(Lng32 childIndex,
   // requirement to match a child node of the mustMatch pattern
   RelExpr *childMustMatch = explicitlyRequiredShape;
 
-  if (parentContext->getReqdPhysicalProperty() != NULL AND
-      parentContext->getReqdPhysicalProperty()->getMustMatch() != NULL AND
-      explicitlyRequiredShape == NULL)
-    {
-      const RelExpr *parentMustMatch =
-	parentContext->getReqdPhysicalProperty()->getMustMatch();
+  if (parentContext->getReqdPhysicalProperty() != NULL AND parentContext->getReqdPhysicalProperty()->getMustMatch() !=
+      NULL AND explicitlyRequiredShape == NULL) {
+    const RelExpr *parentMustMatch = parentContext->getReqdPhysicalProperty()->getMustMatch();
 
-      // Reuse the parent's pattern if this node is a map value ids
-      // node and the required pattern isn't. This is because a map value
-      // ids node, PACK node and UNPACK node is essentially a no-op and
-      // does not need to be specified in CONTROL QUERY SHAPE.
-      // Sorry for putting this DBI code into
-      // places where particular operator types shouldn't be known.
-      // It's the summer of 1997 and we have a deadline for FCS.
-      // Its (almost) summer of 2003 and I am adding the same thingy
-      // for FIRST_N operator.
-      if (((getOperatorType() == REL_MAP_VALUEIDS) &&
-	   (parentMustMatch->getOperatorType() != REL_MAP_VALUEIDS)) ||
-	   ((getOperatorType() == REL_PACK) AND
-		(parentMustMatch->getOperatorType() != REL_PACK)) ||
-	   ((getOperatorType() == REL_UNPACKROWS) AND
-		(parentMustMatch->getOperatorType() != REL_UNPACKROWS)) ||
-	  ((getOperatorType() == REL_FIRST_N) AND
-	   (parentMustMatch->getOperatorType() != REL_FIRST_N)) ||
-	  (CURRSTMT_OPTDEFAULTS->ignoreExchangesInCQS() AND
-	   (getOperatorType() == REL_EXCHANGE) AND
-	   (parentMustMatch->getOperatorType() != REL_FORCE_EXCHANGE)) ||
-	  (CURRSTMT_OPTDEFAULTS->ignoreSortsInCQS() AND
-	   (getOperatorType() == REL_SORT) AND
-	   (parentMustMatch->getOperatorType() != REL_SORT)))
-	{
-	  childMustMatch = (RelExpr *) parentMustMatch;
-	}
-      else
-	{
-	  // If the "must match" pattern specifies something other than
-	  // a cut op for child "childIndex" then this is our new "must match".
-	  if (childIndex < parentMustMatch->getArity() AND
-	      NOT parentMustMatch->child(childIndex)->isCutOp())
-	    childMustMatch = parentMustMatch->child(childIndex);
-	}
+    // Reuse the parent's pattern if this node is a map value ids
+    // node and the required pattern isn't. This is because a map value
+    // ids node, PACK node and UNPACK node is essentially a no-op and
+    // does not need to be specified in CONTROL QUERY SHAPE.
+    // Sorry for putting this DBI code into
+    // places where particular operator types shouldn't be known.
+    // It's the summer of 1997 and we have a deadline for FCS.
+    // Its (almost) summer of 2003 and I am adding the same thingy
+    // for FIRST_N operator.
+    if (((getOperatorType() == REL_MAP_VALUEIDS) && (parentMustMatch->getOperatorType() != REL_MAP_VALUEIDS)) ||
+        ((getOperatorType() == REL_PACK) AND(parentMustMatch->getOperatorType() != REL_PACK)) ||
+        ((getOperatorType() == REL_UNPACKROWS) AND(parentMustMatch->getOperatorType() != REL_UNPACKROWS)) ||
+        ((getOperatorType() == REL_FIRST_N) AND(parentMustMatch->getOperatorType() != REL_FIRST_N)) ||
+        (CURRSTMT_OPTDEFAULTS->ignoreExchangesInCQS() AND(getOperatorType() == REL_EXCHANGE)
+             AND(parentMustMatch->getOperatorType() != REL_FORCE_EXCHANGE)) ||
+        (CURRSTMT_OPTDEFAULTS->ignoreSortsInCQS() AND(getOperatorType() == REL_SORT)
+             AND(parentMustMatch->getOperatorType() != REL_SORT))) {
+      childMustMatch = (RelExpr *)parentMustMatch;
+    } else {
+      // If the "must match" pattern specifies something other than
+      // a cut op for child "childIndex" then this is our new "must match".
+      if (childIndex < parentMustMatch->getArity() AND NOT parentMustMatch->child(childIndex)->isCutOp())
+        childMustMatch = parentMustMatch->child(childIndex);
     }
+  }
 
-  if (childMustMatch != NULL OR
-      searchForRPP AND searchForRPP->getMustMatch() != NULL)
-    {
-      // we have to change the "must match" attribute of searchForRPP
-      // add the "mustMatch" requirement
-      if (searchForRPP != NULL)
-	{
-	  searchForRPP = new (CmpCommon::statementHeap())
-	                     ReqdPhysicalProperty(*searchForRPP,
-				                  childMustMatch);
-	}
-      else
-	searchForRPP = new (CmpCommon::statementHeap())
-	                   ReqdPhysicalProperty(childMustMatch);
-    }
+  if (childMustMatch != NULL OR searchForRPP AND searchForRPP->getMustMatch() != NULL) {
+    // we have to change the "must match" attribute of searchForRPP
+    // add the "mustMatch" requirement
+    if (searchForRPP != NULL) {
+      searchForRPP = new (CmpCommon::statementHeap()) ReqdPhysicalProperty(*searchForRPP, childMustMatch);
+    } else
+      searchForRPP = new (CmpCommon::statementHeap()) ReqdPhysicalProperty(childMustMatch);
+  }
 
-  return (*CURRSTMT_OPTGLOBALS->memo)[child(childIndex).getGroupId()]->shareContext(searchForRPP,
-                                                               inputPhys,
-							       costLimit,
-							       parentContext,
-							       inputLogProp);
-} // RelExpr::shareContext()
+  return (*CURRSTMT_OPTGLOBALS->memo)[child(childIndex).getGroupId()]->shareContext(searchForRPP, inputPhys, costLimit,
+                                                                                    parentContext, inputLogProp);
+}  // RelExpr::shareContext()
 
-ULng32 RelExpr::getDefault(DefaultConstants id)
-{
-  return ActiveSchemaDB()->getDefaults().getAsULong(id);
-}
+ULng32 RelExpr::getDefault(DefaultConstants id) { return ActiveSchemaDB()->getDefaults().getAsULong(id); }
 
-void RelExpr::addLocalExpr(LIST(ExprNode *) &xlist,
-			   LIST(NAString) &llist) const
-{
-  if (selection_ != NULL OR
-      NOT predicates_.isEmpty())
-    {
-      if (predicates_.isEmpty())
-	xlist.insert(selection_);
-      else
-	xlist.insert(predicates_.rebuildExprTree());
-      llist.insert("selection_predicates");
-    }
-  if(NOT uniqueColumns_.isEmpty())
-  {
+void RelExpr::addLocalExpr(LIST(ExprNode *) & xlist, LIST(NAString) & llist) const {
+  if (selection_ != NULL OR NOT predicates_.isEmpty()) {
+    if (predicates_.isEmpty())
+      xlist.insert(selection_);
+    else
+      xlist.insert(predicates_.rebuildExprTree());
+    llist.insert("selection_predicates");
+  }
+  if (NOT uniqueColumns_.isEmpty()) {
     xlist.insert(uniqueColumns_.rebuildExprTree());
     llist.insert("uniqueColumns_");
   }
 }
 
-//QSTUFF
-// we must pushdown the outputs of a genericupdate root to its
-// descendants to ensure that only those required output values are
-// tested against indexes when selecting an index for a stream scan
-// followed by an embedded update. Since we may allow for unions and
-// for inner updates we just follow the isEmbeddedUpdate() thread once
-// we reach a generic update root.
+// QSTUFF
+//  we must pushdown the outputs of a genericupdate root to its
+//  descendants to ensure that only those required output values are
+//  tested against indexes when selecting an index for a stream scan
+//  followed by an embedded update. Since we may allow for unions and
+//  for inner updates we just follow the isEmbeddedUpdate() thread once
+//  we reach a generic update root.
 
-void RelExpr::pushDownGenericUpdateRootOutputs( const ValueIdSet &outputs)
-{
+void RelExpr::pushDownGenericUpdateRootOutputs(const ValueIdSet &outputs) {
+  ValueIdSet rootOutputs = getGroupAttr()->isGenericUpdateRoot() ? getGroupAttr()->getCharacteristicOutputs() : outputs;
 
-  ValueIdSet rootOutputs =
-    getGroupAttr()->isGenericUpdateRoot() ?
-    getGroupAttr()->getCharacteristicOutputs() : outputs;
-
-
-  for (Int32 i=0; i < getArity(); i++) {
-    if (child(i)->castToRelExpr()->getGroupAttr()->isEmbeddedUpdateOrDelete()){
-      child(i)->castToRelExpr()->
-        pushDownGenericUpdateRootOutputs(rootOutputs);
+  for (Int32 i = 0; i < getArity(); i++) {
+    if (child(i)->castToRelExpr()->getGroupAttr()->isEmbeddedUpdateOrDelete()) {
+      child(i)->castToRelExpr()->pushDownGenericUpdateRootOutputs(rootOutputs);
     }
   }
 
-  if (NOT rootOutputs.isEmpty()){
+  if (NOT rootOutputs.isEmpty()) {
     getGroupAttr()->setGenericUpdateRootOutputs(rootOutputs);
   }
 }
 
-//QSTUFF
+// QSTUFF
 
-void RelExpr::needSortedNRows(NABoolean val)
-{ 
+void RelExpr::needSortedNRows(NABoolean val) {
   // The operators listed below can create OR propogate a GET_N
   // request. Other operatots will turn a GET_N request into GET_ALL
   // There are a few exceptions like right side of NJ for semi join etc.
   // but these are not relevant for FirstN sort
-  // This method should only in the generator since we are using 
+  // This method should only in the generator since we are using
   // physical node types.
   OperatorTypeEnum operatorType = getOperatorType();
-  if ((operatorType != REL_FIRST_N) &&
-      (operatorType != REL_EXCHANGE) &&
-      (operatorType != REL_MERGE_UNION) &&
-      (operatorType != REL_PROBE_CACHE) &&
-      (operatorType != REL_ROOT) && 
-      (operatorType != REL_LEFT_NESTED_JOIN) &&
-      (operatorType != REL_LEFT_TSJ) &&
-      (operatorType != REL_MAP_VALUEIDS))
-    return ;
-      
-  if ((operatorType == REL_LEFT_NESTED_JOIN) || 
-      (operatorType == REL_LEFT_TSJ)) {
-    // left side of left tsj propagates a GET_N request if afterPred is empty.
-    if (getSelectionPred().isEmpty())
-      child(0)->castToRelExpr()->needSortedNRows(val);
+  if ((operatorType != REL_FIRST_N) && (operatorType != REL_EXCHANGE) && (operatorType != REL_MERGE_UNION) &&
+      (operatorType != REL_PROBE_CACHE) && (operatorType != REL_ROOT) && (operatorType != REL_LEFT_NESTED_JOIN) &&
+      (operatorType != REL_LEFT_TSJ) && (operatorType != REL_MAP_VALUEIDS))
+    return;
 
-    return ;
+  if ((operatorType == REL_LEFT_NESTED_JOIN) || (operatorType == REL_LEFT_TSJ)) {
+    // left side of left tsj propagates a GET_N request if afterPred is empty.
+    if (getSelectionPred().isEmpty()) child(0)->castToRelExpr()->needSortedNRows(val);
+
+    return;
   }
- 
-  for (Int32 i=0; i < getArity(); i++) {
-    if (child(i))
-      child(i)->castToRelExpr()->needSortedNRows(val);
+
+  for (Int32 i = 0; i < getArity(); i++) {
+    if (child(i)) child(i)->castToRelExpr()->needSortedNRows(val);
   }
 }
 
@@ -1246,48 +1051,39 @@ void RelExpr::needSortedNRows(NABoolean val)
 //                                                              8/14/1998
 //
 // -----------------------------------------------------------------------
-void RelExpr::computeValuesReqdForPredicates(const ValueIdSet& setOfExpr,
-					     ValueIdSet& reqdValues,
-                                             NABoolean addInstNull)
-{
-  for (ValueId exprId = setOfExpr.init();
-       setOfExpr.next(exprId);
-       setOfExpr.advance(exprId))
-  {
-    if (exprId.getItemExpr()->getOperatorType() == ITM_VEG_PREDICATE)
-    {
-      VEG * vegPtr = ((VEGPredicate *)(exprId.getItemExpr()))->getVEG();
+void RelExpr::computeValuesReqdForPredicates(const ValueIdSet &setOfExpr, ValueIdSet &reqdValues,
+                                             NABoolean addInstNull) {
+  for (ValueId exprId = setOfExpr.init(); setOfExpr.next(exprId); setOfExpr.advance(exprId)) {
+    if (exprId.getItemExpr()->getOperatorType() == ITM_VEG_PREDICATE) {
+      VEG *vegPtr = ((VEGPredicate *)(exprId.getItemExpr()))->getVEG();
       reqdValues += vegPtr->getVEGReference()->getValueId();
 
       // If the VEG for this VEGPredicate contains a member that is
       // another VEGReference, add it to reqdValues in order to ensure
       // that it gets retrieved.
       //
-      for (ValueId x = vegPtr->getAllValues().init();
-           vegPtr->getAllValues().next(x);
-           vegPtr->getAllValues().advance(x))
-      {
+      for (ValueId x = vegPtr->getAllValues().init(); vegPtr->getAllValues().next(x);
+           vegPtr->getAllValues().advance(x)) {
         OperatorTypeEnum optype = x.getItemExpr()->getOperatorType();
-        if ( optype == ITM_VEG_REFERENCE )
-             // **********************************************************
-             // Note: this "if" used to have the following cases as well.
-             //       We feel that they might not be necessary any more.
-             // || optype == ITM_INSTANTIATE_NULL ||
-             // optype == ITM_UNPACKCOL )
-             // **********************************************************
+        if (optype == ITM_VEG_REFERENCE)
+          // **********************************************************
+          // Note: this "if" used to have the following cases as well.
+          //       We feel that they might not be necessary any more.
+          // || optype == ITM_INSTANTIATE_NULL ||
+          // optype == ITM_UNPACKCOL )
+          // **********************************************************
           reqdValues += x;
-        else if ( addInstNull && optype == ITM_INSTANTIATE_NULL ) 
-          { // part of fix to soln 10-090618-2434: a full outer join
-            //   select ... from t1 inner join t2 on ... 
-            //   full outer join t3 on ... where t2.RGN = 'EMEA'
-            // whose selection predicate "t2.RGN = <constant>" must have
-            // its null-instantiated "t.RGN" column added to reqdValues.
-            reqdValues += x;
-          }
-      } // end inner for
-    } // endif is a VEGPredicate
-    else
-    {
+        else if (addInstNull &&
+                 optype == ITM_INSTANTIATE_NULL) {  // part of fix to soln 10-090618-2434: a full outer join
+          //   select ... from t1 inner join t2 on ...
+          //   full outer join t3 on ... where t2.RGN = 'EMEA'
+          // whose selection predicate "t2.RGN = <constant>" must have
+          // its null-instantiated "t.RGN" column added to reqdValues.
+          reqdValues += x;
+        }
+      }  // end inner for
+    }    // endif is a VEGPredicate
+    else {
       // Not a VEGPred (either a "normal" pred or a "real" value). In
       // any case, just add the value to the required values set. (For
       // a "normal" pred, it means the boolean value for the predicate
@@ -1295,27 +1091,18 @@ void RelExpr::computeValuesReqdForPredicates(const ValueIdSet& setOfExpr,
       //
       reqdValues += exprId;
     }
-  } // end outer for
-} // computeValuesReqdForPredicates()
+  }  // end outer for
+}  // computeValuesReqdForPredicates()
 
-void RelExpr::computeValuesReqdForOutput(const ValueIdSet& setOfExpr,
-                                         const ValueIdSet& newExternalInputs,
-                                         ValueIdSet& reqdValues)
-{
+void RelExpr::computeValuesReqdForOutput(const ValueIdSet &setOfExpr, const ValueIdSet &newExternalInputs,
+                                         ValueIdSet &reqdValues) {
   // if VEGPreds are in the output, get the underlying VEGRefs
   computeValuesReqdForPredicates(setOfExpr, reqdValues);
 
   const GroupAttributes emptyGA;
-  for (ValueId exprId = setOfExpr.init();
-       setOfExpr.next(exprId);
-       setOfExpr.advance(exprId))
-  {
-    if  ((exprId.getType().getTypeQualifier() == NA_CHARACTER_TYPE) &&
-         (exprId.getType().getNominalSize() > CONST_32K))
-    {
-        exprId.getItemExpr()->getLeafValuesForCoverTest(reqdValues, 
-                                                        emptyGA, 
-                                                        newExternalInputs);
+  for (ValueId exprId = setOfExpr.init(); setOfExpr.next(exprId); setOfExpr.advance(exprId)) {
+    if ((exprId.getType().getTypeQualifier() == NA_CHARACTER_TYPE) && (exprId.getType().getNominalSize() > CONST_32K)) {
+      exprId.getItemExpr()->getLeafValuesForCoverTest(reqdValues, emptyGA, newExternalInputs);
     }
   }
 }
@@ -1323,401 +1110,313 @@ void RelExpr::computeValuesReqdForOutput(const ValueIdSet& setOfExpr,
 // -----------------------------------------------------------------------
 // RelExpr::pushdownCoveredExpr()
 // -----------------------------------------------------------------------
-void RelExpr::pushdownCoveredExpr(const ValueIdSet & outputExpr,
-                                  const ValueIdSet & newExternalInputs,
-                                  ValueIdSet & predicatesOnParent,
-				  const ValueIdSet * setOfValuesReqdByParent,
-				  Lng32 childIndex
-		                 )
-{
+void RelExpr::pushdownCoveredExpr(const ValueIdSet &outputExpr, const ValueIdSet &newExternalInputs,
+                                  ValueIdSet &predicatesOnParent, const ValueIdSet *setOfValuesReqdByParent,
+                                  Lng32 childIndex) {
   ValueIdSet exprToEvalOnParent, outputSet, extraHubNonEssOutputs;
-  Int32 firstChild, lastChild; // loop bounds
-  Int32 iter;                  // loop index variable
+  Int32 firstChild, lastChild;  // loop bounds
+  Int32 iter;                   // loop index variable
   NABoolean optimizeOutputs;
 
+  if (getArity() == 0) return;  // we don't do anything for leaf nodes..
 
-  if (getArity() == 0 ) return; // we don't do anything for leaf nodes..
-
-  if ((getOperator().match(REL_ANY_TSJ) ) ||
-      (getOperator().match(REL_ANY_GEN_UPDATE) ) )
+  if ((getOperator().match(REL_ANY_TSJ)) || (getOperator().match(REL_ANY_GEN_UPDATE)))
     optimizeOutputs = FALSE;
   else
     optimizeOutputs = TRUE;
 
-
-  if (getOperator().match(REL_ANY_JOIN) &&
-      isExtraHub())
+  if (getOperator().match(REL_ANY_JOIN) && isExtraHub())
     extraHubNonEssOutputs = ((Join *)this)->getExtraHubNonEssentialOutputs();
- 
-    
+
   // -----------------------------------------------------------------
   // Should the pushdown be attempted on a specific child?
   // -----------------------------------------------------------------
-  if ( (childIndex >= 0) AND (childIndex < getArity()) )
-    {                             // yes, a child index is given
-      firstChild = (Int32)childIndex;
-      lastChild = firstChild + 1;
-    }
-  else                            // no, perform pushdown on all
-    {
-      firstChild = 0;
-      lastChild  = getArity();
-    }
+  if ((childIndex >= 0) AND(childIndex < getArity())) {  // yes, a child index is given
+    firstChild = (Int32)childIndex;
+    lastChild = firstChild + 1;
+  } else  // no, perform pushdown on all
+  {
+    firstChild = 0;
+    lastChild = getArity();
+  }
 
   // ---------------------------------------------------------------------
   // Examine the set of values required by the parent. Replace each
   // VEGPredicate with a VEGReferences for its VEG; if its VEG
   // contains other VEGReferences, add them to exprToEvalOnParent.
   // ---------------------------------------------------------------------
-  if (setOfValuesReqdByParent)
-    computeValuesReqdForPredicates(*setOfValuesReqdByParent,
-                                 exprToEvalOnParent);
+  if (setOfValuesReqdByParent) computeValuesReqdForPredicates(*setOfValuesReqdByParent, exprToEvalOnParent);
 
-  computeValuesReqdForOutput(outputExpr,newExternalInputs,outputSet);
-
+  computeValuesReqdForOutput(outputExpr, newExternalInputs, outputSet);
 
   // ---------------------------------------------------------------------
   // Are there any predicates that can be pushed down?
   // ---------------------------------------------------------------------
-  if ( (getArity() > 0) AND (NOT predicatesOnParent.isEmpty()) )
-    {
-      // -----------------------------------------------------------------
-      // 1) Figure out which predicates could be push to which child.
-      //    Try to give all predicates to all children.
-      // 2) Modify predOnParent to be those predicates that no could
-      //    could take.
-      // 3) Add to the selectionPred() of each child those predicates
-      //    it could take (if it is not a cut operator)
-      // 4) Add to exprToEvalOnParent the predicates that could not
-      //    be push down to any child (predOnParent)
-      // 5) Recompute the input and outputs for each child given this
-      //    set of exprOnParent.
-      // -----------------------------------------------------------------
-      // Allocate an array to contain the ValueIds of external inputs
-      // that are referenced in the given expressions.
-      // -----------------------------------------------------------------
-      ValueIdSet referencedInputs[MAX_REL_ARITY];
-      // -----------------------------------------------------------------
-      // Allocate an array to contain the ValueIds of the roots of
-      // sub-expressions that are covered by
-      // a) the Group Attributes of a child and
-      // b) the new external inputs.
-      // Note that the containing expression is not covered for each
-      // such sub-expression.
-      // -----------------------------------------------------------------
-      ValueIdSet coveredSubExprNotUsed[MAX_REL_ARITY];
-      // -----------------------------------------------------------------
-      // Allocate an array to contain the ValueIds of predicates that
-      // can be pushed down to a specific child.
-      // -----------------------------------------------------------------
-      ValueIdSet predPushSet[MAX_REL_ARITY];
-      // -----------------------------------------------------------------
-      // Allocate an array to contain the ValueIds of predicates from
-      // non-VEG equality predicates that might be useful hints for
-      // index selection.
-      // -----------------------------------------------------------------
-      ValueIdSet possibleIndexColumnsPushSet[MAX_REL_ARITY];
-      // -----------------------------------------------------------------
-      // Check which predicate factors are fully covered by a certain
-      // child. Gather their ValueIds in predPushSet.
-      // -----------------------------------------------------------------
-      const ValueIdSet emptySet;
-      // -----------------------------------------------------------------
-      // Join predicates can be pushed below a GU root as the comment a
-      // few lines below does applies only to selection predicates
-      // and not join predicates. The comment below indicates that in
-      // some cases we do not wish to push a user provided predicate on
-      // select below the GU root. These user provided predicates are
-      // stored as selection predicates.
-      // For MTS deletes, an anti-semi-join is used to glue the
-      // inlined tree. For such joins all predicates that are pulled
-      // are stored as join predicates. The change below facilitates
-      // a push down of those predicates. The firstChild condition below
-      // ensures that we are considering join predicates here (see
-      // Join::pushDownCoveredExpr)
-      // -----------------------------------------------------------------
-      NABoolean pushPredicateBelowGURoot = FALSE;
+  if ((getArity() > 0) AND(NOT predicatesOnParent.isEmpty())) {
+    // -----------------------------------------------------------------
+    // 1) Figure out which predicates could be push to which child.
+    //    Try to give all predicates to all children.
+    // 2) Modify predOnParent to be those predicates that no could
+    //    could take.
+    // 3) Add to the selectionPred() of each child those predicates
+    //    it could take (if it is not a cut operator)
+    // 4) Add to exprToEvalOnParent the predicates that could not
+    //    be push down to any child (predOnParent)
+    // 5) Recompute the input and outputs for each child given this
+    //    set of exprOnParent.
+    // -----------------------------------------------------------------
+    // Allocate an array to contain the ValueIds of external inputs
+    // that are referenced in the given expressions.
+    // -----------------------------------------------------------------
+    ValueIdSet referencedInputs[MAX_REL_ARITY];
+    // -----------------------------------------------------------------
+    // Allocate an array to contain the ValueIds of the roots of
+    // sub-expressions that are covered by
+    // a) the Group Attributes of a child and
+    // b) the new external inputs.
+    // Note that the containing expression is not covered for each
+    // such sub-expression.
+    // -----------------------------------------------------------------
+    ValueIdSet coveredSubExprNotUsed[MAX_REL_ARITY];
+    // -----------------------------------------------------------------
+    // Allocate an array to contain the ValueIds of predicates that
+    // can be pushed down to a specific child.
+    // -----------------------------------------------------------------
+    ValueIdSet predPushSet[MAX_REL_ARITY];
+    // -----------------------------------------------------------------
+    // Allocate an array to contain the ValueIds of predicates from
+    // non-VEG equality predicates that might be useful hints for
+    // index selection.
+    // -----------------------------------------------------------------
+    ValueIdSet possibleIndexColumnsPushSet[MAX_REL_ARITY];
+    // -----------------------------------------------------------------
+    // Check which predicate factors are fully covered by a certain
+    // child. Gather their ValueIds in predPushSet.
+    // -----------------------------------------------------------------
+    const ValueIdSet emptySet;
+    // -----------------------------------------------------------------
+    // Join predicates can be pushed below a GU root as the comment a
+    // few lines below does applies only to selection predicates
+    // and not join predicates. The comment below indicates that in
+    // some cases we do not wish to push a user provided predicate on
+    // select below the GU root. These user provided predicates are
+    // stored as selection predicates.
+    // For MTS deletes, an anti-semi-join is used to glue the
+    // inlined tree. For such joins all predicates that are pulled
+    // are stored as join predicates. The change below facilitates
+    // a push down of those predicates. The firstChild condition below
+    // ensures that we are considering join predicates here (see
+    // Join::pushDownCoveredExpr)
+    // -----------------------------------------------------------------
+    NABoolean pushPredicateBelowGURoot = FALSE;
 
-      if ((getGroupAttr()->isGenericUpdateRoot() AND
-	  getOperator() == REL_ANTI_SEMITSJ AND
-	  firstChild == 1 ) OR
-	  (NOT (getGroupAttr()->isGenericUpdateRoot())))
-      {
-	pushPredicateBelowGURoot = TRUE;
-      }
+    if ((getGroupAttr()->isGenericUpdateRoot() AND getOperator() == REL_ANTI_SEMITSJ AND firstChild == 1)
+            OR(NOT(getGroupAttr()->isGenericUpdateRoot()))) {
+      pushPredicateBelowGURoot = TRUE;
+    }
 
-      for (iter = firstChild; iter < lastChild; iter++)
-	{
-        if (NOT child(iter).getPtr()->isCutOp()){
-           if( child(iter).getPtr()->getOperator().match(REL_EXE_UTIL))
-           {
-             if(((ExeUtilExpr*)(child(iter).getPtr()))->getExeUtilType() == ExeUtilExpr::CONNECT_BY_)
-                  {
-                     if(  ((ExeUtilConnectby*)(child(iter).getPtr()))->isDual() == TRUE  ) 
-                       continue;
-                  }
-           }
-
-          // QSTUFF
-          // we don't push predicates beyond the root of a generic
-          // update tree. This is done by pretending that those
-          // predicates are not covered by any child. This is
-          // required to allows us to distinguish between the
-          // following two types of expressions:
-          // select * from (delete from x) y where y.x > 3;
-          // select * from (delete from x where x.x > 3) y;
-
-          if (pushPredicateBelowGURoot ) {
-            // QSTUFF
-            child(iter).getGroupAttr()->coverTest(predicatesOnParent,
-              newExternalInputs,
-              predPushSet[iter],
-              referencedInputs[iter],
-              &coveredSubExprNotUsed[iter]);
-            // QSTUFF            
-            ValueIdSet dummyReferencedInputs;
-            child(iter).getGroupAttr()->coverTest(possibleIndexColumns_,
-              newExternalInputs,
-              possibleIndexColumnsPushSet[iter],
-              dummyReferencedInputs,
-              &possibleIndexColumnsPushSet[iter]);            
+    for (iter = firstChild; iter < lastChild; iter++) {
+      if (NOT child(iter).getPtr()->isCutOp()) {
+        if (child(iter).getPtr()->getOperator().match(REL_EXE_UTIL)) {
+          if (((ExeUtilExpr *)(child(iter).getPtr()))->getExeUtilType() == ExeUtilExpr::CONNECT_BY_) {
+            if (((ExeUtilConnectby *)(child(iter).getPtr()))->isDual() == TRUE) continue;
           }
+        }
+
+        // QSTUFF
+        // we don't push predicates beyond the root of a generic
+        // update tree. This is done by pretending that those
+        // predicates are not covered by any child. This is
+        // required to allows us to distinguish between the
+        // following two types of expressions:
+        // select * from (delete from x) y where y.x > 3;
+        // select * from (delete from x where x.x > 3) y;
+
+        if (pushPredicateBelowGURoot) {
           // QSTUFF
+          child(iter).getGroupAttr()->coverTest(predicatesOnParent, newExternalInputs, predPushSet[iter],
+                                                referencedInputs[iter], &coveredSubExprNotUsed[iter]);
+          // QSTUFF
+          ValueIdSet dummyReferencedInputs;
+          child(iter).getGroupAttr()->coverTest(possibleIndexColumns_, newExternalInputs,
+                                                possibleIndexColumnsPushSet[iter], dummyReferencedInputs,
+                                                &possibleIndexColumnsPushSet[iter]);
         }
-          else
-            // ----------------------------------------------------------
-            // If this is a cutop these predicates were already pushed
-            // down to the child during predicate pushdown. Compute
-            // which predicates were pushable so that we can remove them
-            // from predOnParent and avoid creating a new group that will
-            // later be merged
-            // ----------------------------------------------------------
+        // QSTUFF
+      } else
+          // ----------------------------------------------------------
+          // If this is a cutop these predicates were already pushed
+          // down to the child during predicate pushdown. Compute
+          // which predicates were pushable so that we can remove them
+          // from predOnParent and avoid creating a new group that will
+          // later be merged
+          // ----------------------------------------------------------
 
-            // QSTUFF
-            // for more explanation please see comment above
+          // QSTUFF
+          // for more explanation please see comment above
 
-          if ( pushPredicateBelowGURoot ) {
-              // QSTUFF
-              child(iter).getGroupAttr()->coverTest(predicatesOnParent,
-                emptySet,
-                predPushSet[iter],
-                referencedInputs[iter],
-                &coveredSubExprNotUsed[iter]);
-              // QSTUFF
-            }
-            // QSTUFF
-      } // for loop to perform coverTest()
-      // -----------------------------------------------------------------
-      // From the original set of predicates, delete all those predicates
-      // that will be pushed down. The remaining predicates will be
-      // evaluated on the parent (this node).
-      // -----------------------------------------------------------------
-      for (iter = firstChild; iter < lastChild; iter++)
-		predicatesOnParent -= predPushSet[iter];
+          if (pushPredicateBelowGURoot) {
+        // QSTUFF
+        child(iter).getGroupAttr()->coverTest(predicatesOnParent, emptySet, predPushSet[iter], referencedInputs[iter],
+                                              &coveredSubExprNotUsed[iter]);
+        // QSTUFF
+      }
+      // QSTUFF
+    }  // for loop to perform coverTest()
+    // -----------------------------------------------------------------
+    // From the original set of predicates, delete all those predicates
+    // that will be pushed down. The remaining predicates will be
+    // evaluated on the parent (this node).
+    // -----------------------------------------------------------------
+    for (iter = firstChild; iter < lastChild; iter++) predicatesOnParent -= predPushSet[iter];
 
-      // -----------------------------------------------------------------
-      // Add the predicates that could not be pushed to any child to the
-      // set of expressions to evaluate on the parent.
-      // -----------------------------------------------------------------
-      computeValuesReqdForPredicates(predicatesOnParent,
-                                     exprToEvalOnParent);
+    // -----------------------------------------------------------------
+    // Add the predicates that could not be pushed to any child to the
+    // set of expressions to evaluate on the parent.
+    // -----------------------------------------------------------------
+    computeValuesReqdForPredicates(predicatesOnParent, exprToEvalOnParent);
 
-      // -----------------------------------------------------------------
-      // Check for equality predicates that could not be pushed down.
-      // This may happen if we have an equality predicate that was not
-      // transformed into a VEG predicate. 
-      //
-      // If there are column references in the equality predicate, it
-      // may prove useful to tell the leaf nodes about it, as the equality
-      // predicate might be pushed down later during a Join to TSJ 
-      // transformation. Telling the leaf nodes about it might allow the
-      // use of an index in this case (see Scan::addIndexInfo; this is
-      // called once at the beginning of optimization, before any Join
-      // to TSJ transformations have been attempted).
-      // -----------------------------------------------------------------
-      if (CmpCommon::getDefault(COMP_BOOL_194) == DF_ON)
+    // -----------------------------------------------------------------
+    // Check for equality predicates that could not be pushed down.
+    // This may happen if we have an equality predicate that was not
+    // transformed into a VEG predicate.
+    //
+    // If there are column references in the equality predicate, it
+    // may prove useful to tell the leaf nodes about it, as the equality
+    // predicate might be pushed down later during a Join to TSJ
+    // transformation. Telling the leaf nodes about it might allow the
+    // use of an index in this case (see Scan::addIndexInfo; this is
+    // called once at the beginning of optimization, before any Join
+    // to TSJ transformations have been attempted).
+    // -----------------------------------------------------------------
+    if (CmpCommon::getDefault(COMP_BOOL_194) == DF_ON) {
+      ValueId pred;
+      for (pred = predicatesOnParent.init(); predicatesOnParent.next(pred); predicatesOnParent.advance(pred)) {
+        ItemExpr *ie = pred.getItemExpr();
+        if (ie->getOperatorType() == ITM_EQUAL)  // non-VEG, equality predicate
         {
-          ValueId pred;
-          for (pred = predicatesOnParent.init();
-               predicatesOnParent.next(pred);
-               predicatesOnParent.advance(pred))
-            {
-              ItemExpr * ie = pred.getItemExpr();
-              if (ie->getOperatorType() == ITM_EQUAL) // non-VEG, equality predicate
-                {
-                  for (iter = firstChild; iter < lastChild; iter++)
-                    {
-                      for (CollIndex i = 0; i < ie->getArity(); i++)
-                        {
-                          // If the child is covered, it might contain a column reference
-                          // that is useful for index selection. Push that down.
-                          ItemExpr * ieChildi = ie->child(i);
-                          if (coveredSubExprNotUsed[iter].contains(ieChildi->getValueId()))
-                            {
-                              possibleIndexColumnsPushSet[iter] += ieChildi->getValueId();
-                            }
-                        }
-                    } 
-                }     
+          for (iter = firstChild; iter < lastChild; iter++) {
+            for (CollIndex i = 0; i < ie->getArity(); i++) {
+              // If the child is covered, it might contain a column reference
+              // that is useful for index selection. Push that down.
+              ItemExpr *ieChildi = ie->child(i);
+              if (coveredSubExprNotUsed[iter].contains(ieChildi->getValueId())) {
+                possibleIndexColumnsPushSet[iter] += ieChildi->getValueId();
+              }
             }
+          }
         }
+      }
+    }
 
+    // -----------------------------------------------------------------
+    // Perform predicate pushdown
+    // -----------------------------------------------------------------
+    for (iter = firstChild; iter < lastChild; iter++) {
+      if (NOT child(iter).getPtr()->isCutOp()) {
+        // check for connectby using dual
+        if (child(iter).getPtr()->getOperator().match(REL_EXE_UTIL)) {
+          if (((ExeUtilExpr *)(child(iter).getPtr()))->getExeUtilType() == ExeUtilExpr::CONNECT_BY_) {
+            if (((ExeUtilConnectby *)(child(iter).getPtr()))->isDual() == TRUE) continue;
+          }
+        }
+        // ---------------------------------------------------------
+        // Reassign predicate factors to the appropriate children
+        // ---------------------------------------------------------
+        child(iter).getPtr()->selectionPred().insert(predPushSet[iter]);
+        // ---------------------------------------------------------
+        // Add the input values that are referenced by the predicates
+        // that were pushed down in the above step, to the Group
+        // Attributes of the child.
+        // We need to call coverTest again to figure out which inputs
+        // are needed for the predicates that will be pushdown.
+        // ---------------------------------------------------------
+        ValueIdSet inputsNeededByPredicates;
+        child(iter).getGroupAttr()->coverTest(predPushSet[iter], referencedInputs[iter], predPushSet[iter],
+                                              inputsNeededByPredicates, &coveredSubExprNotUsed[iter]);
+        child(iter).getPtr()->getGroupAttr()->addCharacteristicInputs(inputsNeededByPredicates);
+        ValueIdSet essChildOutputs;
+        child(iter).getPtr()->getEssentialOutputsFromChildren(essChildOutputs);
+        // ----------------------------------------------------------
+        // Have the child compute what output it can provide for
+        // the expressions that remain on the parent
+        // ----------------------------------------------------------
+
+        // TBD: Fix the hack described in
+        // GroupAttributes::resolveCharacteristicOutputs()
+        if (iter == 1 AND getOperator().match(REL_ANY_LEFT_JOIN))
+          child(iter).getPtr()->getGroupAttr()->computeCharacteristicIO(
+              newExternalInputs, exprToEvalOnParent, outputSet, essChildOutputs, &(getSelectionPred()), TRUE,
+              optimizeOutputs, &extraHubNonEssOutputs);
+        else
+          child(iter).getPtr()->getGroupAttr()->computeCharacteristicIO(newExternalInputs, exprToEvalOnParent,
+                                                                        outputSet, essChildOutputs, NULL, FALSE,
+                                                                        optimizeOutputs, &extraHubNonEssOutputs);
+
+        // pass down index column hints for non-VEG equality predicates
+        child(iter).getPtr()->addToPossibleIndexColumns(possibleIndexColumnsPushSet[iter]);
+      };
+    }  // for loop to pushdown predicates
+  }    // endif (NOT predicatesOnParent.isEmpty())
+  else {
+    // ---------------------------------------------------------------------
+    // Compute the characteristic inputs and outputs of each child
+    // ---------------------------------------------------------------------
+
+    for (iter = firstChild; iter < lastChild; iter++) {
       // -----------------------------------------------------------------
-      // Perform predicate pushdown
+      // Ignore CutOps because they exist simply to facilitate
+      // pattern matching. Their Group Attributes are actually those
+      // of the CascadesGroup. So, don't mess with them!
       // -----------------------------------------------------------------
-      for (iter = firstChild; iter < lastChild; iter++)
-	{
-          if (NOT child(iter).getPtr()->isCutOp())
-            {
-               //check for connectby using dual
-               if( child(iter).getPtr()->getOperator().match(REL_EXE_UTIL))
-               {
-                  if(((ExeUtilExpr*)(child(iter).getPtr()))->getExeUtilType() == ExeUtilExpr::CONNECT_BY_)
-                  {
-                     if(  ((ExeUtilConnectby*)(child(iter).getPtr()))->isDual() == TRUE  ) 
-                       continue;
-                  }
-               }
-	      // ---------------------------------------------------------
-	      // Reassign predicate factors to the appropriate children
-	      // ---------------------------------------------------------
-	      child(iter).getPtr()->selectionPred().insert(predPushSet[iter]);
-	      // ---------------------------------------------------------
-	      // Add the input values that are referenced by the predicates
-	      // that were pushed down in the above step, to the Group
-	      // Attributes of the child.
-              // We need to call coverTest again to figure out which inputs
-              // are needed for the predicates that will be pushdown.
-	      // ---------------------------------------------------------
-              ValueIdSet inputsNeededByPredicates;
-  	      child(iter).getGroupAttr()->coverTest(predPushSet[iter],
-  						    referencedInputs[iter],
-  						    predPushSet[iter],
-  						    inputsNeededByPredicates,
-  						    &coveredSubExprNotUsed[iter]);
-	      child(iter).getPtr()->getGroupAttr()->addCharacteristicInputs
-	                                            (inputsNeededByPredicates);
-	      ValueIdSet essChildOutputs;
-	      child(iter).getPtr()->getEssentialOutputsFromChildren
-	       (essChildOutputs);
-              // ----------------------------------------------------------
-              // Have the child compute what output it can provide for
-              // the expressions that remain on the parent
-              // ----------------------------------------------------------
+      if (NOT child(iter).getPtr()->isCutOp()) {
+        // check for connectby using dual
+        if (child(iter).getPtr()->getOperator().match(REL_EXE_UTIL)) {
+          if (((ExeUtilExpr *)(child(iter).getPtr()))->getExeUtilType() == ExeUtilExpr::CONNECT_BY_) {
+            if (((ExeUtilConnectby *)(child(iter).getPtr()))->isDual() == TRUE) continue;
+          }
+        }
+        ValueIdSet essChildOutputs;
+        child(iter).getPtr()->getEssentialOutputsFromChildren(essChildOutputs);
 
-	     // TBD: Fix the hack described in 
-	     // GroupAttributes::resolveCharacteristicOutputs()
-	     if(iter==1 AND getOperator().match(REL_ANY_LEFT_JOIN))
-	          child(iter).getPtr()->getGroupAttr()->computeCharacteristicIO
-	                                              (newExternalInputs,
-						       exprToEvalOnParent,
-						       outputSet,
-						       essChildOutputs,
-						       &(getSelectionPred()),
-						       TRUE,
-						       optimizeOutputs,
-                                                       &extraHubNonEssOutputs
-						       );
-	     else
-		 child(iter).getPtr()->getGroupAttr()->computeCharacteristicIO
-	                                              (newExternalInputs,
-						       exprToEvalOnParent,
-						       outputSet,
-						       essChildOutputs,
-						       NULL,
-						       FALSE,
-						       optimizeOutputs,
-                                                       &extraHubNonEssOutputs
-                                                       );
+        // TBD: Fix the hack described in
+        // GroupAttributes::resolveCharacteristicOutputs()
+        child(iter).getPtr()->getGroupAttr()->computeCharacteristicIO(newExternalInputs, exprToEvalOnParent, outputSet,
+                                                                      essChildOutputs, NULL, FALSE, optimizeOutputs,
+                                                                      &extraHubNonEssOutputs);
+      }
+    }  // for loop to compute characteristic inputs and outputs
+  }    // endelse predicatesOnParent is empty
 
-            // pass down index column hints for non-VEG equality predicates
-            child(iter).getPtr()->addToPossibleIndexColumns(possibleIndexColumnsPushSet[iter]);
-            };
-	} // for loop to pushdown predicates
-    } // endif (NOT predicatesOnParent.isEmpty())
-  else
-    {
-      // ---------------------------------------------------------------------
-      // Compute the characteristic inputs and outputs of each child
-      // ---------------------------------------------------------------------
-      
-
-      for (iter = firstChild; iter < lastChild; iter++)
-	{
-	  // -----------------------------------------------------------------
-	  // Ignore CutOps because they exist simply to facilitate
-	  // pattern matching. Their Group Attributes are actually those
-	  // of the CascadesGroup. So, don't mess with them!
-	  // -----------------------------------------------------------------
-	  if (NOT child(iter).getPtr()->isCutOp())
-	  {
-           //check for connectby using dual
-           if( child(iter).getPtr()->getOperator().match(REL_EXE_UTIL))
-           {
-             if(((ExeUtilExpr*)(child(iter).getPtr()))->getExeUtilType() == ExeUtilExpr::CONNECT_BY_)
-                  {
-                     if(  ((ExeUtilConnectby*)(child(iter).getPtr()))->isDual() == TRUE  ) 
-                       continue;
-                  }
-           }
-	    ValueIdSet essChildOutputs;
-	    child(iter).getPtr()->getEssentialOutputsFromChildren
-	       (essChildOutputs);
-
-	    // TBD: Fix the hack described in 
-	    // GroupAttributes::resolveCharacteristicOutputs()
-	    child(iter).getPtr()->getGroupAttr()->computeCharacteristicIO
-	                                            (newExternalInputs,
-                                                     exprToEvalOnParent,
-						     outputSet,
-						     essChildOutputs,
-						     NULL,
-						     FALSE,
-						     optimizeOutputs,
-                                                     &extraHubNonEssOutputs
-						     );
-
-	  }
-	} // for loop to compute characteristic inputs and outputs
-    } // endelse predicatesOnParent is empty
-
-} // RelExpr::pushdownCoveredExpr()
+}  // RelExpr::pushdownCoveredExpr()
 
 // -----------------------------------------------------------------------
 // A virtual method for computing output values that an operator can
 // produce potentially.
 // -----------------------------------------------------------------------
-void RelExpr::getPotentialOutputValues(ValueIdSet & outputValues) const
-{
+void RelExpr::getPotentialOutputValues(ValueIdSet &outputValues) const {
   outputValues.clear();
   Int32 nc = getArity();
   // For operators that are not leaves, clear the potential outputs
   // and rebuild them.
   if (nc > 0)
-    for (Lng32 i = 0; i < nc; i++)
-      outputValues += child(i).getGroupAttr()->getCharacteristicOutputs();
+    for (Lng32 i = 0; i < nc; i++) outputValues += child(i).getGroupAttr()->getCharacteristicOutputs();
   else
     outputValues += getGroupAttr()->getCharacteristicOutputs();
 
-} // RelExpr::getPotentialOutputValues()
+}  // RelExpr::getPotentialOutputValues()
 
-void RelExpr::getPotentialOutputValuesAsVEGs(ValueIdSet& outputs) const
-{
-  getPotentialOutputValues(outputs);
-}
-
+void RelExpr::getPotentialOutputValuesAsVEGs(ValueIdSet &outputs) const { getPotentialOutputValues(outputs); }
 
 // -----------------------------------------------------------------------
 // primeGroupAttributes()
 // Initialize the Characteristic Inputs And Outputs of this operator.
 // -----------------------------------------------------------------------
-void RelExpr::primeGroupAttributes()
-{
+void RelExpr::primeGroupAttributes() {
   // Ignore CutOps because they exist simply to facilitate
   // pattern matching. Their Group Attributes are actually those
   // of the CascadesGroup. So, don't mess with them.
-  if (isCutOp())
-    return;
+  if (isCutOp()) return;
 
   // The method sets the characteristic outputs of a node to its
   // potential outputs and sets the required input to the values
@@ -1729,7 +1428,7 @@ void RelExpr::primeGroupAttributes()
   getGroupAttr()->setCharacteristicOutputs(outputValues);
 
   recomputeOuterReferences();
-} // RelExpr::primeGroupAttributes()
+}  // RelExpr::primeGroupAttributes()
 
 // -----------------------------------------------------------------------
 // allocateAndPrimeGroupAttributes()
@@ -1741,62 +1440,51 @@ void RelExpr::primeGroupAttributes()
 // introduced child are recursively primed with the Characteristic
 // Inputs and Outputs of the operators of which it is the parent.
 // -----------------------------------------------------------------------
-void RelExpr::allocateAndPrimeGroupAttributes()
-{
+void RelExpr::allocateAndPrimeGroupAttributes() {
   Int32 nc = getArity();
 
-  for (Lng32 i = 0; i < nc; i++)
-    {
-      CMPASSERT(child(i).getMode() == ExprGroupId::STANDALONE);
-      // Terminate the recursive descent upon reaching a CutOp.
-      // Ignore CutOps because they exist simply to facilitate
-      // pattern matching. Their Group Attributes are actually
-      // those for the CascadesGroup that they belong to and
-      // must not change.
-      if (NOT child(i)->isCutOp())
-	{
-	  if (child(i).getGroupAttr() == NULL)
-	    {
-	      // A CutOp must have Group Attributes.
-	      child(i)->setGroupAttr(new (CmpCommon::statementHeap())
-				         GroupAttributes());
-	    }
-	  // Assign my Characteristic Inputs to my child.
-	  // This is done in order to ensure that they are propagated
-	  // recursively to all my children who are not CutOps.
-	  child(i).getPtr()->getGroupAttr()
-             ->addCharacteristicInputs
-                 (getGroupAttr()->getCharacteristicInputs());
-	  // Recompute the potential inputs/outputs for each real child
-	  // recursively.
-          // Terminate the recursive descent upon encountering an
-	  // operator whose arity == 0
-	  child(i).getPtr()->allocateAndPrimeGroupAttributes();
-	  // Prime the Group Attributes of the child.
-	  // The following call primes the child's Characteristic Outputs.
-	  // It ensures that the inputs are minimal and outputs are maximal.
-	  child(i).getPtr()->primeGroupAttributes();
+  for (Lng32 i = 0; i < nc; i++) {
+    CMPASSERT(child(i).getMode() == ExprGroupId::STANDALONE);
+    // Terminate the recursive descent upon reaching a CutOp.
+    // Ignore CutOps because they exist simply to facilitate
+    // pattern matching. Their Group Attributes are actually
+    // those for the CascadesGroup that they belong to and
+    // must not change.
+    if (NOT child(i)->isCutOp()) {
+      if (child(i).getGroupAttr() == NULL) {
+        // A CutOp must have Group Attributes.
+        child(i)->setGroupAttr(new (CmpCommon::statementHeap()) GroupAttributes());
+      }
+      // Assign my Characteristic Inputs to my child.
+      // This is done in order to ensure that they are propagated
+      // recursively to all my children who are not CutOps.
+      child(i).getPtr()->getGroupAttr()->addCharacteristicInputs(getGroupAttr()->getCharacteristicInputs());
+      // Recompute the potential inputs/outputs for each real child
+      // recursively.
+      // Terminate the recursive descent upon encountering an
+      // operator whose arity == 0
+      child(i).getPtr()->allocateAndPrimeGroupAttributes();
+      // Prime the Group Attributes of the child.
+      // The following call primes the child's Characteristic Outputs.
+      // It ensures that the inputs are minimal and outputs are maximal.
+      child(i).getPtr()->primeGroupAttributes();
       // Now compute the GroupAnalysis fields
       child(i).getPtr()->primeGroupAnalysis();
-	} // endif child is not a CutOp
+    }  // endif child is not a CutOp
 
-    } // for loop
+  }  // for loop
 
-} // RelExpr::allocateAndPrimeGroupAttributes()
+}  // RelExpr::allocateAndPrimeGroupAttributes()
 
-void RelExpr::getEssentialOutputsFromChildren(ValueIdSet & essOutputs)
-{
+void RelExpr::getEssentialOutputsFromChildren(ValueIdSet &essOutputs) {
   Int32 nc = getArity();
-  for (Lng32 i = 0; i < nc; i++)
-  {
-    essOutputs += child(i).getGroupAttr()->
-      getEssentialCharacteristicOutputs();
+  for (Lng32 i = 0; i < nc; i++) {
+    essOutputs += child(i).getGroupAttr()->getEssentialCharacteristicOutputs();
   }
 }
 
-void RelExpr::fixEssentialCharacteristicOutputs()
-{
-  ValueIdSet essChildOutputs,nonEssOutputs;
+void RelExpr::fixEssentialCharacteristicOutputs() {
+  ValueIdSet essChildOutputs, nonEssOutputs;
   getEssentialOutputsFromChildren(essChildOutputs);
   getGroupAttr()->getNonEssentialCharacteristicOutputs(nonEssOutputs);
   nonEssOutputs.intersectSet(essChildOutputs);
@@ -1805,27 +1493,21 @@ void RelExpr::fixEssentialCharacteristicOutputs()
 
 // do some analysis on the initial plan
 // this is called at the end of the analysis phase
-void RelExpr::analyzeInitialPlan()
-{
+void RelExpr::analyzeInitialPlan() {
   Int32 nc = getArity();
 
-  for (Lng32 i = 0; i < nc; i++)
-  {
+  for (Lng32 i = 0; i < nc; i++) {
     child(i)->analyzeInitialPlan();
   }
-
 }
 
-double RelExpr::calculateNoOfLogPlans(Lng32& numOfMergedExprs)
-{
+double RelExpr::calculateNoOfLogPlans(Lng32 &numOfMergedExprs) {
   double result = 1;
   Int32 nc = getArity();
-  CascadesGroup* group;
+  CascadesGroup *group;
 
-  for (Lng32 i = 0; i < nc; i++)
-  {
-    if (getGroupId() == child(i).getGroupId())
-    {
+  for (Lng32 i = 0; i < nc; i++) {
+    if (getGroupId() == child(i).getGroupId()) {
       // This is  a recursive reference of an expression to itself
       // due to a group merge. We cannot call this method on the
       // child, as we would end up calling this method on ourselves
@@ -1835,108 +1517,86 @@ double RelExpr::calculateNoOfLogPlans(Lng32& numOfMergedExprs)
       // a merged expression. Our caller will then know what to do
       // to calculate the correct number of logical expressions.
       numOfMergedExprs++;
-    }
-    else
-    {
+    } else {
       group = (*CURRSTMT_OPTGLOBALS->memo)[child(i).getGroupId()];
       result *= group->calculateNoOfLogPlans();
     }
-  } // for each child
+  }  // for each child
 
   return result;
 }
 
 // This function is called before any optimization starts
 // i.e. applied to the normalizer output (reorderJoinTree OK)
-double RelExpr::calculateSubTreeComplexity
-                 (NABoolean& enableJoinToTSJRuleOnPass1)
-{
-
+double RelExpr::calculateSubTreeComplexity(NABoolean &enableJoinToTSJRuleOnPass1) {
   double result = 0;
-  Int32 freeLeaves = 1; // # of subtree legs that can permutate
-  RelExpr* expr = this;
+  Int32 freeLeaves = 1;  // # of subtree legs that can permutate
+  RelExpr *expr = this;
 
-  while (expr)
-  {
-    if (expr->getGroupAttr()->isEmbeddedUpdateOrDelete() OR
-	expr->getGroupAttr()->isStream())
-    {
+  while (expr) {
+    if (expr->getGroupAttr()->isEmbeddedUpdateOrDelete() OR expr->getGroupAttr()->isStream()) {
       enableJoinToTSJRuleOnPass1 = TRUE;
     }
     Int32 nc = expr->getArity();
 
     // The multi-join case
-    if (expr->getOperatorType() == REL_MULTI_JOIN)
-    {
-      for (Int32 i = 0; i < nc; i++)
-      {
-        CascadesGroup* groupi = (*CURRSTMT_OPTGLOBALS->memo)[expr->child(i).getGroupId()];
+    if (expr->getOperatorType() == REL_MULTI_JOIN) {
+      for (Int32 i = 0; i < nc; i++) {
+        CascadesGroup *groupi = (*CURRSTMT_OPTGLOBALS->memo)[expr->child(i).getGroupId()];
 
-	RelExpr * expri = groupi->getFirstLogExpr();
+        RelExpr *expri = groupi->getFirstLogExpr();
 
-        result += expri->
-          calculateSubTreeComplexity(enableJoinToTSJRuleOnPass1);
-
+        result += expri->calculateSubTreeComplexity(enableJoinToTSJRuleOnPass1);
       }
       freeLeaves = nc;
       // end the while loop
       expr = NULL;
     }
     // Not multi-join, and not leaf
-    else if (nc > 0)
-    {
-      if (nc == 1)
-      {
+    else if (nc > 0) {
+      if (nc == 1) {
         // no permutation can take place across groupbys
-        if (expr->getOperator().match(REL_ANY_GROUP))
-        {
-          if (freeLeaves > 1)
-          {
+        if (expr->getOperator().match(REL_ANY_GROUP)) {
+          if (freeLeaves > 1) {
             // compute the last permuatation set contribution
             // to the complexity and start a new one
-            result += freeLeaves * pow(2,freeLeaves-1);
+            result += freeLeaves * pow(2, freeLeaves - 1);
             freeLeaves = 1;  // start again
           }
         }
       }
-      if (nc == 2)
-      {
+      if (nc == 2) {
         double child1Complexity;
-        CascadesGroup* group1 = (*CURRSTMT_OPTGLOBALS->memo)[expr->child(1).getGroupId()];
-        if (group1->getGroupAttr()->getNumBaseTables() > 1)
-        {
+        CascadesGroup *group1 = (*CURRSTMT_OPTGLOBALS->memo)[expr->child(1).getGroupId()];
+        if (group1->getGroupAttr()->getNumBaseTables() > 1) {
           // Only one log expr exist in the group at this point
-          RelExpr * expr1 = group1->getFirstLogExpr();
-          child1Complexity =
-            expr1->calculateSubTreeComplexity(enableJoinToTSJRuleOnPass1);
+          RelExpr *expr1 = group1->getFirstLogExpr();
+          child1Complexity = expr1->calculateSubTreeComplexity(enableJoinToTSJRuleOnPass1);
 
-		  // adding this comp_bool guard in case this fix causes regressions
-		  // and we need to disable this fix. Should be taken out in a subsequent
-		  // release. (say 2.2)
-		 if (CmpCommon::getDefault(COMP_BOOL_123) == DF_OFF)
-		 {
-			  // The factor 2 accounts for the fact that the join could be a
-			  // join or a TSJ i.e. two possible logical choices.
-			  if (expr->getOperator().match(REL_ANY_NON_TSJ_JOIN))
-				child1Complexity = 2*child1Complexity ;
-		 }
+          // adding this comp_bool guard in case this fix causes regressions
+          // and we need to disable this fix. Should be taken out in a subsequent
+          // release. (say 2.2)
+          if (CmpCommon::getDefault(COMP_BOOL_123) == DF_OFF) {
+            // The factor 2 accounts for the fact that the join could be a
+            // join or a TSJ i.e. two possible logical choices.
+            if (expr->getOperator().match(REL_ANY_NON_TSJ_JOIN)) child1Complexity = 2 * child1Complexity;
+          }
 
-	  // add the right child subtree contribution to complexity
+          // add the right child subtree contribution to complexity
           result += child1Complexity;
         }
         // only REL_ANY_NON_TSJ_JOINs can permutate
         if (expr->getOperator().match(REL_ANY_NON_TSJ_JOIN))
           freeLeaves++;  // still in same permutation set
-        else
-        {
+        else {
           // compute the last permuatation set contribution
           // to the complexity and start a new one
-          result += freeLeaves * pow(2,freeLeaves-1);
+          result += freeLeaves * pow(2, freeLeaves - 1);
           freeLeaves = 1;  // start again
         }
       }
       // we do not handle VPJoin yet (nc==3)
-      CascadesGroup* group0 = (*CURRSTMT_OPTGLOBALS->memo)[expr->child(0).getGroupId()];
+      CascadesGroup *group0 = (*CURRSTMT_OPTGLOBALS->memo)[expr->child(0).getGroupId()];
       // Only one log expr exist in the group at this point
       expr = group0->getFirstLogExpr();
     }
@@ -1945,75 +1605,58 @@ double RelExpr::calculateSubTreeComplexity
       expr = NULL;
   }
   // add last permutation set contribution
-  result += freeLeaves * pow(2,freeLeaves-1);
+  result += freeLeaves * pow(2, freeLeaves - 1);
   return result;
-
 }
 
 // calculate a query's MJ complexity,
 // shoud be called after MJ rewrite
-double RelExpr::calculateQueryMJComplexity(double &n,double &n2,double &n3,double &n4)
-{
+double RelExpr::calculateQueryMJComplexity(double &n, double &n2, double &n3, double &n4) {
   double result = 0;
   Int32 nc = getArity();
-  Int32 freeLeaves = nc; // # of subtree legs that can permutate
- 
-  RelExpr * expr = this;
+  Int32 freeLeaves = nc;  // # of subtree legs that can permutate
 
-  if (getOperatorType() == REL_MULTI_JOIN)
-  {
-    for (Int32 i = 0; i < nc; i++)
-    {
-      RelExpr * expri = expr->child(i);
+  RelExpr *expr = this;
+
+  if (getOperatorType() == REL_MULTI_JOIN) {
+    for (Int32 i = 0; i < nc; i++) {
+      RelExpr *expri = expr->child(i);
 
       NABoolean childIsFullOuterJoinOrTSJ =
-        child(i)->getGroupAnalysis()->getNodeAnalysis()->
-          getJBBC()->isFullOuterJoinOrTSJJBBC();
-          
+          child(i)->getGroupAnalysis()->getNodeAnalysis()->getJBBC()->isFullOuterJoinOrTSJJBBC();
 
-      if (childIsFullOuterJoinOrTSJ)
-      {
+      if (childIsFullOuterJoinOrTSJ) {
         NABoolean childIsOuterMost =
-          !(child(i)->getGroupAnalysis()->getNodeAnalysis()->
-              getJBBC()->getOriginalParentJoin());
-        
-        if(childIsOuterMost)
-          freeLeaves--;
+            !(child(i)->getGroupAnalysis()->getNodeAnalysis()->getJBBC()->getOriginalParentJoin());
+
+        if (childIsOuterMost) freeLeaves--;
       }
 
-      result += expri->
-        calculateQueryMJComplexity(n, n2, n3, n4);
+      result += expri->calculateQueryMJComplexity(n, n2, n3, n4);
     }
-    //only do this for multijoins since only the children
-    //of the multijoin will be permuted.
-    //Note: This assumes the query tree to be the multijoinized
-    //tree produced after multijoin rewrite in the Analyzer
+    // only do this for multijoins since only the children
+    // of the multijoin will be permuted.
+    // Note: This assumes the query tree to be the multijoinized
+    // tree produced after multijoin rewrite in the Analyzer
     n += freeLeaves;
-    n2 += pow(freeLeaves,2);
-    n3 += pow(freeLeaves,3);
-    n4 += pow(freeLeaves,4);
-    result += freeLeaves * pow(2,freeLeaves-1);
-  }
-  else if(nc > 0)
-  {
-    if (nc == 1)
-    {
-      RelExpr * expr0 = expr->child(0);
+    n2 += pow(freeLeaves, 2);
+    n3 += pow(freeLeaves, 3);
+    n4 += pow(freeLeaves, 4);
+    result += freeLeaves * pow(2, freeLeaves - 1);
+  } else if (nc > 0) {
+    if (nc == 1) {
+      RelExpr *expr0 = expr->child(0);
 
-      result += expr0->
-        calculateQueryMJComplexity(n, n2, n3, n4);      
-    }
-    else if (nc == 2)
-    {
+      result += expr0->calculateQueryMJComplexity(n, n2, n3, n4);
+    } else if (nc == 2) {
       // only for joins, not for union
       // these will only be TSJ or Full Outer Joins
       // other joins become part of JBB
-      if (expr->getOperator().match(REL_ANY_JOIN))
-      {
-        RelExpr * expr0 = expr->child(0);
+      if (expr->getOperator().match(REL_ANY_JOIN)) {
+        RelExpr *expr0 = expr->child(0);
         result += expr0->calculateQueryMJComplexity(n, n2, n3, n4);
 
-        RelExpr * expr1 = expr->child(1);
+        RelExpr *expr1 = expr->child(1);
         result += expr1->calculateQueryMJComplexity(n, n2, n3, n4);
       }
     }
@@ -2022,35 +1665,27 @@ double RelExpr::calculateQueryMJComplexity(double &n,double &n2,double &n3,doubl
   return result;
 }
 
-
 // -----------------------------------------------------------------------
 //  the following method is used to created a list of all scan operators
 //  in order by size.
 // -----------------------------------------------------------------------
-void
-RelExpr::makeListBySize(LIST(CostScalar) & orderedList, // order list of size
-                        NABoolean  recompute)           // recompute memory
-                                                        // limit -not used
+void RelExpr::makeListBySize(LIST(CostScalar) & orderedList,  // order list of size
+                             NABoolean recompute)             // recompute memory
+                                                              // limit -not used
 {
   Int32 nc = getArity();
-  RelExpr * expr       = this;
+  RelExpr *expr = this;
   CostScalar size = 0;
 
-  if (recompute)
-  {
+  if (recompute) {
     // this needs to be filled in if this ever is redriven by costing
     CMPASSERT(NOT recompute);
-  }
-  else
-  {
-    if (expr->getOperatorType() == REL_SCAN  OR
-        expr->getOperatorType() == REL_GROUPBY)
-    {
+  } else {
+    if (expr->getOperatorType() == REL_SCAN OR expr->getOperatorType() == REL_GROUPBY) {
       //++MV, use the global empty input logical properties instead of
-      //initializing a new one
-      size =
-       expr->getGroupAttr()->outputLogProp((*GLOBAL_EMPTY_INPUT_LOGPROP))->getResultCardinality()
-                    * expr->getGroupAttr()->getRecordLength() / 1024;
+      // initializing a new one
+      size = expr->getGroupAttr()->outputLogProp((*GLOBAL_EMPTY_INPUT_LOGPROP))->getResultCardinality() *
+             expr->getGroupAttr()->getRecordLength() / 1024;
     }
   }
 
@@ -2058,170 +1693,136 @@ RelExpr::makeListBySize(LIST(CostScalar) & orderedList, // order list of size
   {
     CollIndex idx = 0;
 
-    for (idx = 0; idx < orderedList.entries(); idx++)
-    {
+    for (idx = 0; idx < orderedList.entries(); idx++) {
       // list should be ordered by increasing estimated rowcount.
-      if (orderedList[idx] >= size)
-      {
-        orderedList.insertAt (idx, size);
+      if (orderedList[idx] >= size) {
+        orderedList.insertAt(idx, size);
         break;
       }
     }
 
     // insert at end of list
-    if (idx >= orderedList.entries())
-    {
-      orderedList.insertAt (orderedList.entries(), size);
+    if (idx >= orderedList.entries()) {
+      orderedList.insertAt(orderedList.entries(), size);
     }
-
   }
 
-  for (Lng32 i = 0; i < nc; i++)
-  {
-    CascadesGroup* group1 = (*CURRSTMT_OPTGLOBALS->memo)[expr->child(i).getGroupId()];
+  for (Lng32 i = 0; i < nc; i++) {
+    CascadesGroup *group1 = (*CURRSTMT_OPTGLOBALS->memo)[expr->child(i).getGroupId()];
     // Only one log expr exist in the group at this point
     // if onlyMemoryOps is ever set true, we will have to traverse
     // the tree differently
-    RelExpr * expr1 = group1->getFirstLogExpr();
+    RelExpr *expr1 = group1->getFirstLogExpr();
     expr1->makeListBySize(orderedList, recompute);
   }
 }
 
 // Default implementation every RelExpr returns normal priority
-PlanPriority RelExpr::computeOperatorPriority
-(const Context* context,
- PlanWorkSpace *pws,
- Lng32 planNumber)
-{
-  PlanPriority result; // This will create normal plan priority
+PlanPriority RelExpr::computeOperatorPriority(const Context *context, PlanWorkSpace *pws, Lng32 planNumber) {
+  PlanPriority result;  // This will create normal plan priority
   return result;
 }
 
 // -----------------------------------------------------------------------
 // Method for debugging
 // -----------------------------------------------------------------------
-void RelExpr::print(FILE * f,
-		    const char * prefix,
-		    const char * suffix) const
-{
+void RelExpr::print(FILE *f, const char *prefix, const char *suffix) const {
 #ifndef NDEBUG
-  ExprNode::print(f,prefix,suffix);
+  ExprNode::print(f, prefix, suffix);
 
-  fprintf(f,"%sRelational Expression:\n",prefix);
+  fprintf(f, "%sRelational Expression:\n", prefix);
 
   if (selection_ != NULL)
-    selection_->print(f,prefix,suffix);
+    selection_->print(f, prefix, suffix);
   else
-    predicates_.print(f,prefix,suffix);
+    predicates_.print(f, prefix, suffix);
 
   // print children or input equivalence classes
   Int32 nc = getArity();
-  for (Lng32 i = 0; i < nc; i++)
-    {
-      fprintf(f,"%sExpression input %d:\n",prefix,i);
-      if (child(i).getMode() == ExprGroupId::MEMOIZED)
-	{
-	  fprintf(f,
-		  "%s    input eq. class #%d\n",
-		  prefix,
-		  child(i).getGroupId());
-	}
+  for (Lng32 i = 0; i < nc; i++) {
+    fprintf(f, "%sExpression input %d:\n", prefix, i);
+    if (child(i).getMode() == ExprGroupId::MEMOIZED) {
+      fprintf(f, "%s    input eq. class #%d\n", prefix, child(i).getGroupId());
+    } else {
+      if (child(i).getPtr() != NULL)
+        child(i)->print(f, CONCAT(prefix, "    "));
       else
-	{
-	  if (child(i).getPtr() != NULL)
-	    child(i)->print(f,CONCAT(prefix,"    "));
-	  else
-	    fprintf(f,"%snonexistent child\n",prefix);
-	}
+        fprintf(f, "%snonexistent child\n", prefix);
     }
+  }
 #endif
 }
 
-Int32 RelExpr::nodeCount() const
-{
-  Int32 result = 1; // start from me.
+Int32 RelExpr::nodeCount() const {
+  Int32 result = 1;  // start from me.
   Int32 nc = getArity();
   for (Lng32 i = 0; i < nc; i++)
-	  if (child(i).getPtr() != NULL)
-		result += child(i)->nodeCount();
+    if (child(i).getPtr() != NULL) result += child(i)->nodeCount();
 
   return result;
 }
 
-NABoolean RelExpr::containsNode(OperatorTypeEnum nodeType)
-{
-  if (getOperatorType() == nodeType)
-    return TRUE;
+NABoolean RelExpr::containsNode(OperatorTypeEnum nodeType) {
+  if (getOperatorType() == nodeType) return TRUE;
 
   Int32 nc = getArity();
-  for (Int32 i = 0; i < nc; i++)
-    {
-    
-      if (child(i).getPtr() != NULL &&
-          child(i)->containsNode(nodeType))
-        return TRUE;
-    }
-    
+  for (Int32 i = 0; i < nc; i++) {
+    if (child(i).getPtr() != NULL && child(i)->containsNode(nodeType)) return TRUE;
+  }
+
   return FALSE;
 }
 
-double RelExpr::computeMemoryQuota(NABoolean inMaster,
-                                   NABoolean perNode,
-                                   double BMOsMemoryLimit, // in MB 
-                                   UInt16 totalNumBMOs, // per query 
-                                   double totalBMOsMemoryUsage, // for all BMOs per node in bytes 
-                                   UInt16 numBMOsPerFragment, // per fragment
-                                   double bmoMemoryUsage, // for the current BMO/Operator per node in bytes
-                                   Lng32 numStreams,
-                                   double &bmoQuotaRatio
-                                   ) 
-{
-   if ( perNode == TRUE ) {
-      Lng32 exeMem = Lng32(BMOsMemoryLimit/(1024*1024));
+double RelExpr::computeMemoryQuota(NABoolean inMaster, NABoolean perNode,
+                                   double BMOsMemoryLimit,       // in MB
+                                   UInt16 totalNumBMOs,          // per query
+                                   double totalBMOsMemoryUsage,  // for all BMOs per node in bytes
+                                   UInt16 numBMOsPerFragment,    // per fragment
+                                   double bmoMemoryUsage,        // for the current BMO/Operator per node in bytes
+                                   Lng32 numStreams, double &bmoQuotaRatio) {
+  if (perNode == TRUE) {
+    Lng32 exeMem = Lng32(BMOsMemoryLimit / (1024 * 1024));
 
-     // the quota is allocated in 2 parts
-     // The constant part divided equally across all bmo operators
-     // The variable part allocated in proportion of the given BMO operator
-     // estimated memory usage to the total estimated memory usage of all BMOs
-   
-     // The ratio can be capped by the CQD
-     double equalQuotaShareRatio = 0;
-     equalQuotaShareRatio = ActiveSchemaDB()->getDefaults().getAsDouble(BMO_MEMORY_EQUAL_QUOTA_SHARE_RATIO);
-     double constMemQuota = 0;
-     double variableMemLimit = exeMem;
-     if (equalQuotaShareRatio > 0 && totalNumBMOs > 1) {
-        constMemQuota = (exeMem * equalQuotaShareRatio )/ totalNumBMOs;
-        variableMemLimit = (1-equalQuotaShareRatio) * exeMem;
-     }
-     double bmoMemoryRatio = bmoMemoryUsage / totalBMOsMemoryUsage;
-     bmoQuotaRatio = bmoMemoryRatio;
-     double bmoMemoryQuotaPerNode = constMemQuota + (variableMemLimit * bmoMemoryRatio);
-     double numInstancesPerNode = numStreams / MINOF(MAXOF(CURRCONTEXT_CLUSTERINFO->getTotalNumberOfCPUs(), 1), numStreams);
-     double bmoMemoryQuotaPerInstance =  bmoMemoryQuotaPerNode / numInstancesPerNode;
-     return bmoMemoryQuotaPerInstance;
+    // the quota is allocated in 2 parts
+    // The constant part divided equally across all bmo operators
+    // The variable part allocated in proportion of the given BMO operator
+    // estimated memory usage to the total estimated memory usage of all BMOs
+
+    // The ratio can be capped by the CQD
+    double equalQuotaShareRatio = 0;
+    equalQuotaShareRatio = ActiveSchemaDB()->getDefaults().getAsDouble(BMO_MEMORY_EQUAL_QUOTA_SHARE_RATIO);
+    double constMemQuota = 0;
+    double variableMemLimit = exeMem;
+    if (equalQuotaShareRatio > 0 && totalNumBMOs > 1) {
+      constMemQuota = (exeMem * equalQuotaShareRatio) / totalNumBMOs;
+      variableMemLimit = (1 - equalQuotaShareRatio) * exeMem;
+    }
+    double bmoMemoryRatio = bmoMemoryUsage / totalBMOsMemoryUsage;
+    bmoQuotaRatio = bmoMemoryRatio;
+    double bmoMemoryQuotaPerNode = constMemQuota + (variableMemLimit * bmoMemoryRatio);
+    double numInstancesPerNode =
+        numStreams / MINOF(MAXOF(CURRCONTEXT_CLUSTERINFO->getTotalNumberOfCPUs(), 1), numStreams);
+    double bmoMemoryQuotaPerInstance = bmoMemoryQuotaPerNode / numInstancesPerNode;
+    return bmoMemoryQuotaPerInstance;
   } else {
-     // the old way to compute quota 
-     Lng32 exeMem = getExeMemoryAvailable(inMaster);
-     bmoQuotaRatio = BMOQuotaRatio::NO_RATIO;
-     return exeMem / numBMOsPerFragment; 
+    // the old way to compute quota
+    Lng32 exeMem = getExeMemoryAvailable(inMaster);
+    bmoQuotaRatio = BMOQuotaRatio::NO_RATIO;
+    return exeMem / numBMOsPerFragment;
   }
 }
 
-Lng32 RelExpr::getExeMemoryAvailable(NABoolean inMaster) const
-{
-   Lng32 exeMemAvailMB = 
-      ActiveSchemaDB()->getDefaults().getAsLong(EXE_MEMORY_AVAILABLE_IN_MB);
-   return exeMemAvailMB;
+Lng32 RelExpr::getExeMemoryAvailable(NABoolean inMaster) const {
+  Lng32 exeMemAvailMB = ActiveSchemaDB()->getDefaults().getAsLong(EXE_MEMORY_AVAILABLE_IN_MB);
+  return exeMemAvailMB;
 }
 
 // -----------------------------------------------------------------------
 // methods for class RelExprList
 // -----------------------------------------------------------------------
-void RelExprList::insertOrderByRowcount (RelExpr * expr)
-{
+void RelExprList::insertOrderByRowcount(RelExpr *expr) {
   Int32 i = 0;
   NABoolean done = FALSE;
-
 
   // QSTUFF
   // insert stream expression as the left most expression
@@ -2229,66 +1830,47 @@ void RelExprList::insertOrderByRowcount (RelExpr * expr)
   // assumes that only one stream and one embedded update clause
   // is in the statement
 
-  if (expr->getGroupAttr()->isStream() ||
-    expr->getGroupAttr()->isEmbeddedUpdateOrDelete())
-  {
-    insertAt(0,expr);
+  if (expr->getGroupAttr()->isStream() || expr->getGroupAttr()->isEmbeddedUpdateOrDelete()) {
+    insertAt(0, expr);
     done = TRUE;
   }
   // QSTUFF
 
-  while (!done && i < (Int32)entries())
-  {
-    CostScalar thisCard = (*this)[i]->
-                            getGroupAttr()->
-                              getResultCardinalityForEmptyInput();
-    CostScalar exprCard = expr->
-                            getGroupAttr()->
-                              getResultCardinalityForEmptyInput();
+  while (!done && i < (Int32)entries()) {
+    CostScalar thisCard = (*this)[i]->getGroupAttr()->getResultCardinalityForEmptyInput();
+    CostScalar exprCard = expr->getGroupAttr()->getResultCardinalityForEmptyInput();
 
-    NABoolean increasing =
-       ((ActiveSchemaDB()->getDefaults()).getAsULong(COMP_INT_90)==1);
+    NABoolean increasing = ((ActiveSchemaDB()->getDefaults()).getAsULong(COMP_INT_90) == 1);
 
     // list should be ordered by increasing estimated rowcount.
-    if (((thisCard >= exprCard ) && increasing) ||
-        ((thisCard < exprCard ) && !increasing))
-    {
+    if (((thisCard >= exprCard) && increasing) || ((thisCard < exprCard) && !increasing)) {
       // QSTUFF
       // stream and nested updates or deletes expressions should always be
       // left most, i.e of lowest cost
 
-      if (
-        (*this)[i]->getGroupAttr()->isStream() ||
-        (*this)[i]->getGroupAttr()->isEmbeddedUpdateOrDelete())
-        i++;
+      if ((*this)[i]->getGroupAttr()->isStream() || (*this)[i]->getGroupAttr()->isEmbeddedUpdateOrDelete()) i++;
       // QSTUFF
 
-      insertAt (i, expr);
+      insertAt(i, expr);
       done = TRUE;
-    }
-    else
+    } else
       i++;
   }
 
   // insert at end of list
-  if (!done) insertAt (entries(), expr);
+  if (!done) insertAt(entries(), expr);
 }
 
-NABoolean RelExprList::operator== (const RelExprList &other) const
-{
-  if (entries() != other.entries())
-    return FALSE;
+NABoolean RelExprList::operator==(const RelExprList &other) const {
+  if (entries() != other.entries()) return FALSE;
 
-  for (Lng32 i = 0; i < (Lng32)entries(); i++)
-  {
-    if ((*this)[i] != other[i])
-      return FALSE;
+  for (Lng32 i = 0; i < (Lng32)entries(); i++) {
+    if ((*this)[i] != other[i]) return FALSE;
   }
   return TRUE;
 }
 
-NABoolean RelExprList::operator!= (const RelExprList &other) const
-{
+NABoolean RelExprList::operator!=(const RelExprList &other) const {
   if ((*this) == other)
     return FALSE;
   else
@@ -2301,63 +1883,52 @@ NABoolean RelExprList::operator!= (const RelExprList &other) const
 
 CutOp::~CutOp() {}
 
-void CutOp::print(FILE * f,
-		  const char * prefix,
-		  const char *) const
-{
+void CutOp::print(FILE *f, const char *prefix, const char *) const {
 #ifndef NDEBUG
   if (getGroupId() == INVALID_GROUP_ID)
     fprintf(f, "%sLeaf (%d)\n", prefix, index_);
   else
-    fprintf(f, "%sLeaf (%d, bound to group #%d)\n",
-	    prefix, index_, getGroupId());
+    fprintf(f, "%sLeaf (%d, bound to group #%d)\n", prefix, index_, getGroupId());
 
   return;
 #endif
 }
 
-Int32 CutOp::getArity () const { return 0; }
+Int32 CutOp::getArity() const { return 0; }
 
 NABoolean CutOp::isCutOp() const { return TRUE; }
 
-const NAString CutOp::getText() const
-{
+const NAString CutOp::getText() const {
   char theText[TEXT_DISPLAY_LENGTH];
 
   if (getGroupId() == INVALID_GROUP_ID)
     sprintf(theText, "Cut (%d)", index_);
+  else if (index_ < 99)
+    sprintf(theText, "Cut (%d, #%d)", index_, getGroupId());
   else
-    if (index_ < 99)
-      sprintf(theText, "Cut (%d, #%d)", index_, getGroupId());
-    else
-      // don't display funny indexes (>= 99)
-      sprintf(theText, "Cut (#%d)", getGroupId());
+    // don't display funny indexes (>= 99)
+    sprintf(theText, "Cut (#%d)", getGroupId());
 
   return NAString(theText);
 }
 
-RelExpr * CutOp::copyTopNode(RelExpr * derivedNode, CollHeap* outHeap)
-{
-  if (getGroupId() == INVALID_GROUP_ID)
-    {
-      // this is a standalone cut operator (e.g. in the tree of a
-      // CONTROL QUERY SHAPE directive), return a copy of it
-      CMPASSERT(derivedNode == NULL);
-      CutOp* result = new (outHeap)CutOp(index_, outHeap);
-      return RelExpr::copyTopNode(result,outHeap);
-    }
-  else
-    {
-      // CutOps are shared among the pattern and the substitute of
-      // a rule. Often the substitute is produced by calling the copyTree()
-      // method on the "before" expression or a part of it. This implementation
-      // of copyTopNode() makes it possible to do that.
-      return this;
-    }
+RelExpr *CutOp::copyTopNode(RelExpr *derivedNode, CollHeap *outHeap) {
+  if (getGroupId() == INVALID_GROUP_ID) {
+    // this is a standalone cut operator (e.g. in the tree of a
+    // CONTROL QUERY SHAPE directive), return a copy of it
+    CMPASSERT(derivedNode == NULL);
+    CutOp *result = new (outHeap) CutOp(index_, outHeap);
+    return RelExpr::copyTopNode(result, outHeap);
+  } else {
+    // CutOps are shared among the pattern and the substitute of
+    // a rule. Often the substitute is produced by calling the copyTree()
+    // method on the "before" expression or a part of it. This implementation
+    // of copyTopNode() makes it possible to do that.
+    return this;
+  }
 }
 
-void CutOp::setGroupIdAndAttr(CascadesGroupId groupId)
-{
+void CutOp::setGroupIdAndAttr(CascadesGroupId groupId) {
   setGroupId(groupId);
 
   // set the group attributes of the leaf node to match the group
@@ -2367,18 +1938,14 @@ void CutOp::setGroupIdAndAttr(CascadesGroupId groupId)
     setGroupAttr((*CURRSTMT_OPTGLOBALS->memo)[groupId]->getGroupAttr());
 }
 
-void CutOp::setExpr(RelExpr *e)
-{
+void CutOp::setExpr(RelExpr *e) {
   expr_ = e;
-  if (expr_ == NULL)
-    {
-      setGroupIdAndAttr(INVALID_GROUP_ID);
-    }
-  else
-    {
-      setGroupAttr(expr_->getGroupAttr());	  // ##shouldn't this line..
-      // setGroupIdAndAttr(expr_->getGroupId());  // ##..be replaced by this?
-    }
+  if (expr_ == NULL) {
+    setGroupIdAndAttr(INVALID_GROUP_ID);
+  } else {
+    setGroupAttr(expr_->getGroupAttr());  // ##shouldn't this line..
+    // setGroupIdAndAttr(expr_->getGroupId());  // ##..be replaced by this?
+  }
 }
 
 // -----------------------------------------------------------------------
@@ -2393,7 +1960,7 @@ NABoolean SubtreeOp::isSubtreeOp() const { return TRUE; }
 
 const NAString SubtreeOp::getText() const { return NAString("Tree Op"); }
 
-RelExpr * SubtreeOp::copyTopNode(RelExpr *, CollHeap*) { return this; }
+RelExpr *SubtreeOp::copyTopNode(RelExpr *, CollHeap *) { return this; }
 
 // -----------------------------------------------------------------------
 // methods for class WildCardOp
@@ -2401,10 +1968,8 @@ RelExpr * SubtreeOp::copyTopNode(RelExpr *, CollHeap*) { return this; }
 
 WildCardOp::~WildCardOp() {}
 
-Int32 WildCardOp::getArity() const
-{
-  switch (getOperatorType())
-    {
+Int32 WildCardOp::getArity() const {
+  switch (getOperatorType()) {
     case REL_ANY_LEAF_OP:
     case REL_FORCE_ANY_SCAN:
     case REL_ANY_ROUTINE:
@@ -2450,15 +2015,13 @@ Int32 WildCardOp::getArity() const
     default:
       ABORT("WildCardOp with unknown arity encountered");
       return 0;
-    }
+  }
 }
 
 NABoolean WildCardOp::isWildcard() const { return TRUE; }
 
-const NAString WildCardOp::getText() const
-{
-  switch (getOperatorType())
-    {
+const NAString WildCardOp::getText() const {
+  switch (getOperatorType()) {
     case ANY_REL_OR_ITM_OP:
       return "ANY_REL_OR_ITM_OP";
     case REL_ANY_LEAF_OP:
@@ -2517,62 +2080,49 @@ const NAString WildCardOp::getText() const
       return "REL_FORCE_MERGE_JOIN";
     default:
       return "unknown??";
-    }
+  }
 }
 
-RelExpr * WildCardOp::copyTopNode(RelExpr * derivedNode,
-				  CollHeap* outHeap)
-{
+RelExpr *WildCardOp::copyTopNode(RelExpr *derivedNode, CollHeap *outHeap) {
   if (corrNode_ != NULL)
     return corrNode_->copyTopNode(0, outHeap);
-  else
-    {
-      if (derivedNode != NULL)
-	return derivedNode;
-      else
-	{
-	  WildCardOp* result;
+  else {
+    if (derivedNode != NULL)
+      return derivedNode;
+    else {
+      WildCardOp *result;
 
-	  result = new (outHeap) WildCardOp(getOperatorType(),
-					    0,
-					    NULL,
-					    NULL,
-					    outHeap);
-	  return RelExpr::copyTopNode(result,outHeap);
-	}
+      result = new (outHeap) WildCardOp(getOperatorType(), 0, NULL, NULL, outHeap);
+      return RelExpr::copyTopNode(result, outHeap);
     }
+  }
 
-  return NULL; // shouldn't really reach here
+  return NULL;  // shouldn't really reach here
 }
 
 // -----------------------------------------------------------------------
 // member functions for class ScanForceWildCard
 // -----------------------------------------------------------------------
 
-ScanForceWildCard::ScanForceWildCard(CollHeap * outHeap) :
-  WildCardOp(REL_FORCE_ANY_SCAN),
-  exposedName_(outHeap),
-  indexName_(outHeap)
-{initializeScanOptions();}
+ScanForceWildCard::ScanForceWildCard(CollHeap *outHeap)
+    : WildCardOp(REL_FORCE_ANY_SCAN), exposedName_(outHeap), indexName_(outHeap) {
+  initializeScanOptions();
+}
 
-ScanForceWildCard::ScanForceWildCard(const NAString& exposedName,
-				     CollHeap *outHeap) :
-  WildCardOp(REL_FORCE_ANY_SCAN,0,NULL,NULL,outHeap),
-  exposedName_(exposedName, outHeap),
-  indexName_(outHeap)
-{initializeScanOptions();}
+ScanForceWildCard::ScanForceWildCard(const NAString &exposedName, CollHeap *outHeap)
+    : WildCardOp(REL_FORCE_ANY_SCAN, 0, NULL, NULL, outHeap), exposedName_(exposedName, outHeap), indexName_(outHeap) {
+  initializeScanOptions();
+}
 
-ScanForceWildCard::ScanForceWildCard(const NAString& exposedName,
-				     const NAString& indexName,
-				     CollHeap *outHeap) :
-  WildCardOp(REL_FORCE_ANY_SCAN,0,NULL,NULL,outHeap),
-  exposedName_(exposedName, outHeap),
-  indexName_(indexName, outHeap)
-{initializeScanOptions();}
+ScanForceWildCard::ScanForceWildCard(const NAString &exposedName, const NAString &indexName, CollHeap *outHeap)
+    : WildCardOp(REL_FORCE_ANY_SCAN, 0, NULL, NULL, outHeap),
+      exposedName_(exposedName, outHeap),
+      indexName_(indexName, outHeap) {
+  initializeScanOptions();
+}
 
-ScanForceWildCard::~ScanForceWildCard()
-{
-  collHeap()->deallocateMemory((void*)enumAlgorithms_);
+ScanForceWildCard::~ScanForceWildCard() {
+  collHeap()->deallocateMemory((void *)enumAlgorithms_);
   // delete enumAlgorithms_ from the same heap were the
   // ScanForceWildCard object belong
 }
@@ -2580,8 +2130,7 @@ ScanForceWildCard::~ScanForceWildCard()
 //----------------------------------------------------------
 // initialize class members
 //----------------------------------------------------------
-void ScanForceWildCard::initializeScanOptions()
-{
+void ScanForceWildCard::initializeScanOptions() {
   mdamStatus_ = UNDEFINED;
   direction_ = UNDEFINED;
   indexStatus_ = UNDEFINED;
@@ -2595,9 +2144,7 @@ void ScanForceWildCard::initializeScanOptions()
 // get the enumeration algorithm (density) for column
 // if beyound specified columns return COLUMN_SYSTEM
 //----------------------------------------------------------
-ScanForceWildCard::scanOptionEnum
-  ScanForceWildCard::getEnumAlgorithmForColumn(CollIndex column) const
-{
+ScanForceWildCard::scanOptionEnum ScanForceWildCard::getEnumAlgorithmForColumn(CollIndex column) const {
   if (column >= numMdamColumns_)
     return ScanForceWildCard::COLUMN_SYSTEM;
   else
@@ -2608,78 +2155,56 @@ ScanForceWildCard::scanOptionEnum
 // set the following scan option. return FALSE only if
 // such option does not exist.
 //----------------------------------------------------------
-NABoolean ScanForceWildCard::setScanOptions(ScanForceWildCard::scanOptionEnum option)
-{
-  if (option == INDEX_SYSTEM)
-    {
-      indexStatus_ = INDEX_SYSTEM;
-      return TRUE;
-    }
-  else if (option == MDAM_SYSTEM)
-    {
-      mdamStatus_ = MDAM_SYSTEM;
-      return TRUE;
-    }
-  else if (option == MDAM_OFF)
-    {
-      mdamStatus_ = MDAM_OFF;
-      return TRUE;
-    }
-  else if (option == MDAM_FORCED)
-    {
-      mdamStatus_ = MDAM_FORCED;
-      return TRUE;
-    }
-  else if (option == DIRECTION_FORWARD)
-    {
-      direction_ = DIRECTION_FORWARD;
-      return TRUE;
-    }
-  else if (option == DIRECTION_REVERSED)
-    {
-      direction_ = DIRECTION_REVERSED;
-      return TRUE;
-    }
-  else if (option == DIRECTION_SYSTEM)
-    {
-      direction_ = DIRECTION_SYSTEM;
-      return TRUE;
-    }
-  else return FALSE;
+NABoolean ScanForceWildCard::setScanOptions(ScanForceWildCard::scanOptionEnum option) {
+  if (option == INDEX_SYSTEM) {
+    indexStatus_ = INDEX_SYSTEM;
+    return TRUE;
+  } else if (option == MDAM_SYSTEM) {
+    mdamStatus_ = MDAM_SYSTEM;
+    return TRUE;
+  } else if (option == MDAM_OFF) {
+    mdamStatus_ = MDAM_OFF;
+    return TRUE;
+  } else if (option == MDAM_FORCED) {
+    mdamStatus_ = MDAM_FORCED;
+    return TRUE;
+  } else if (option == DIRECTION_FORWARD) {
+    direction_ = DIRECTION_FORWARD;
+    return TRUE;
+  } else if (option == DIRECTION_REVERSED) {
+    direction_ = DIRECTION_REVERSED;
+    return TRUE;
+  } else if (option == DIRECTION_SYSTEM) {
+    direction_ = DIRECTION_SYSTEM;
+    return TRUE;
+  } else
+    return FALSE;
 }
 
-
-NABoolean ScanForceWildCard::setIndexName(const NAString& value)
-{
-  if (value != "")
-    {
-      indexName_ = value;
-      return TRUE;
-    }
-  else
-    return FALSE;		// Error should be nonempty string
+NABoolean ScanForceWildCard::setIndexName(const NAString &value) {
+  if (value != "") {
+    indexName_ = value;
+    return TRUE;
+  } else
+    return FALSE;  // Error should be nonempty string
 }
 
 //----------------------------------------------------------
 // set the columns options based on passed values
 //----------------------------------------------------------
-NABoolean ScanForceWildCard::
-  setColumnOptions(CollIndex numColumns,
-		   ScanForceWildCard::scanOptionEnum* columnAlgorithms,
-		   ScanForceWildCard::scanOptionEnum mdamColumnsStatus)
-{
+NABoolean ScanForceWildCard::setColumnOptions(CollIndex numColumns, ScanForceWildCard::scanOptionEnum *columnAlgorithms,
+                                              ScanForceWildCard::scanOptionEnum mdamColumnsStatus) {
   mdamStatus_ = MDAM_FORCED;
   mdamColumnsStatus_ = mdamColumnsStatus;
   numMdamColumns_ = numColumns;
   // delete enumAlgorithms_ from the same heap were the
   // ScanForceWildCard object belong
-  collHeap()->deallocateMemory((void*)enumAlgorithms_);
+  collHeap()->deallocateMemory((void *)enumAlgorithms_);
   // allocate enumAlgorithms_[numMdamColumns] in the same heap
   // were the ScanForceWildCard object belong
-  enumAlgorithms_ = (ScanForceWildCard::scanOptionEnum*)
-    collHeap()->allocateMemory(sizeof(ScanForceWildCard::scanOptionEnum)*numMdamColumns_);
-  for (CollIndex i=0; i<numMdamColumns_; i++)
-    enumAlgorithms_[i] = columnAlgorithms[i];
+  enumAlgorithms_ = (ScanForceWildCard::scanOptionEnum *)collHeap()->allocateMemory(
+      sizeof(ScanForceWildCard::scanOptionEnum) * numMdamColumns_);
+  for (CollIndex i = 0; i < numMdamColumns_; i++) enumAlgorithms_[i] = columnAlgorithms[i];
   return TRUE;
 }
 
@@ -2688,23 +2213,20 @@ NABoolean ScanForceWildCard::
 // here options for particular columns are not passed
 // and hence COLUMN_SYSTEM is assigned
 //----------------------------------------------------------
-NABoolean ScanForceWildCard::
-  setColumnOptions(CollIndex numColumns,
-		   ScanForceWildCard::scanOptionEnum mdamColumnsStatus)
-{
+NABoolean ScanForceWildCard::setColumnOptions(CollIndex numColumns,
+                                              ScanForceWildCard::scanOptionEnum mdamColumnsStatus) {
   mdamStatus_ = MDAM_FORCED;
   mdamColumnsStatus_ = mdamColumnsStatus;
   numMdamColumns_ = numColumns;
   // delete enumAlgorithms_ from the same heap were the
   // ScanForceWildCard object belong
-  collHeap()->deallocateMemory((void*)enumAlgorithms_);
+  collHeap()->deallocateMemory((void *)enumAlgorithms_);
   // allocate enumAlgorithms_[numMdamColumns] in the same heap
   // were the ScanForceWildCard object belong
-  enumAlgorithms_ = (ScanForceWildCard::scanOptionEnum*)
-    collHeap()->allocateMemory(sizeof(ScanForceWildCard::scanOptionEnum)*numMdamColumns_);
-  //enumAlgorithms_ = new scanOptionEnum[numMdamColumns_];
-  for (CollIndex i=0; i<numMdamColumns_; i++)
-    enumAlgorithms_[i] = COLUMN_SYSTEM;
+  enumAlgorithms_ = (ScanForceWildCard::scanOptionEnum *)collHeap()->allocateMemory(
+      sizeof(ScanForceWildCard::scanOptionEnum) * numMdamColumns_);
+  // enumAlgorithms_ = new scanOptionEnum[numMdamColumns_];
+  for (CollIndex i = 0; i < numMdamColumns_; i++) enumAlgorithms_[i] = COLUMN_SYSTEM;
   return TRUE;
 }
 
@@ -2712,17 +2234,13 @@ NABoolean ScanForceWildCard::
 // check if the forced scan options conflict with the Mdam
 // Master switch status
 //----------------------------------------------------------
-NABoolean ScanForceWildCard::doesThisCoflictMasterSwitch() const
-{
-  char* globalMdamStatus = getenv("MDAM");
-  if (globalMdamStatus != NULL)
-    {
-      if (strcmp(globalMdamStatus,"OFF")==0 )
-	{
-	  if ((mdamStatus_ == MDAM_FORCED)||(mdamStatus_ == MDAM_SYSTEM))
-	    return TRUE;
-	}
+NABoolean ScanForceWildCard::doesThisCoflictMasterSwitch() const {
+  char *globalMdamStatus = getenv("MDAM");
+  if (globalMdamStatus != NULL) {
+    if (strcmp(globalMdamStatus, "OFF") == 0) {
+      if ((mdamStatus_ == MDAM_FORCED) || (mdamStatus_ == MDAM_SYSTEM)) return TRUE;
     }
+  }
   return FALSE;
 }
 
@@ -2731,157 +2249,107 @@ NABoolean ScanForceWildCard::doesThisCoflictMasterSwitch() const
 // return FALSE if a conflict between the options of
 // the two objects exists.
 //----------------------------------------------------------
-NABoolean ScanForceWildCard::mergeScanOptions(const ScanForceWildCard &other)
-{
-  if ((other.exposedName_ != "")
-      &&(other.exposedName_ != exposedName_))
-    {
-      if (exposedName_ == "")
-	{
-	  exposedName_ = other.exposedName_;
-	}
-      else
-	return FALSE; // conflict
-    }
+NABoolean ScanForceWildCard::mergeScanOptions(const ScanForceWildCard &other) {
+  if ((other.exposedName_ != "") && (other.exposedName_ != exposedName_)) {
+    if (exposedName_ == "") {
+      exposedName_ = other.exposedName_;
+    } else
+      return FALSE;  // conflict
+  }
 
-  if ((other.indexName_ != "")
-      &&(other.indexName_ != indexName_))
-    {
-      if (indexName_ == "")
-	{
-	  indexName_ = other.indexName_;
-	}
-      else
-	return FALSE; // conflict
-    }
+  if ((other.indexName_ != "") && (other.indexName_ != indexName_)) {
+    if (indexName_ == "") {
+      indexName_ = other.indexName_;
+    } else
+      return FALSE;  // conflict
+  }
 
-  if (other.indexStatus_ == INDEX_SYSTEM)
-    {
-      indexStatus_ = INDEX_SYSTEM;
-    }
+  if (other.indexStatus_ == INDEX_SYSTEM) {
+    indexStatus_ = INDEX_SYSTEM;
+  }
 
-  if (indexStatus_ == INDEX_SYSTEM)
-    {
-      if (indexName_ != "")
-	return FALSE;  // conflict
-    }
+  if (indexStatus_ == INDEX_SYSTEM) {
+    if (indexName_ != "") return FALSE;  // conflict
+  }
 
-  if ((other.mdamStatus_ == MDAM_OFF)
-      &&(mdamStatus_ != MDAM_OFF))
-    {
-      if (mdamStatus_ == UNDEFINED)
-	{
-	  mdamStatus_ = other.mdamStatus_;
-	}
-      else
-	return FALSE; // conflict
-    }
+  if ((other.mdamStatus_ == MDAM_OFF) && (mdamStatus_ != MDAM_OFF)) {
+    if (mdamStatus_ == UNDEFINED) {
+      mdamStatus_ = other.mdamStatus_;
+    } else
+      return FALSE;  // conflict
+  }
 
-  if ((other.mdamStatus_ == MDAM_SYSTEM)
-      &&(mdamStatus_ != MDAM_SYSTEM))
-    {
-      if (mdamStatus_ == UNDEFINED)
-	{
-	  mdamStatus_ = other.mdamStatus_;
-	}
-      else
-	return FALSE; // conflict
-    }
+  if ((other.mdamStatus_ == MDAM_SYSTEM) && (mdamStatus_ != MDAM_SYSTEM)) {
+    if (mdamStatus_ == UNDEFINED) {
+      mdamStatus_ = other.mdamStatus_;
+    } else
+      return FALSE;  // conflict
+  }
 
-  if ((other.mdamStatus_ == MDAM_FORCED)
-      &&(mdamStatus_ != MDAM_FORCED))
-    {
-      if (mdamStatus_ == UNDEFINED)
-	{
-	  mdamStatus_ = other.mdamStatus_;
-	}
-      else
-	return FALSE; // conflict
-    }
+  if ((other.mdamStatus_ == MDAM_FORCED) && (mdamStatus_ != MDAM_FORCED)) {
+    if (mdamStatus_ == UNDEFINED) {
+      mdamStatus_ = other.mdamStatus_;
+    } else
+      return FALSE;  // conflict
+  }
 
-  if (other.numMdamColumns_ > 0)
-    {
-      if ((mdamStatus_ == UNDEFINED)||(mdamStatus_ == MDAM_FORCED))
-	{
-	  if (numMdamColumns_ == other.numMdamColumns_)
-	    {
-	      for (CollIndex i=0; i<numMdamColumns_; i++)
-		{
-		  if (enumAlgorithms_[i] != other.enumAlgorithms_[i])
-		    return FALSE;	// conflict
-		}
-	      if (other.mdamColumnsStatus_ != mdamColumnsStatus_)
-		return FALSE;		// conflict
-	    }
-	  else if (numMdamColumns_ == 0) // i.e. enumAlgorithm is NULL
-	    {
-	      numMdamColumns_ = other.numMdamColumns_;
-	      collHeap()->deallocateMemory((void*)enumAlgorithms_);
-	      //delete enumAlgorithms_;
-	      enumAlgorithms_ = (ScanForceWildCard::scanOptionEnum*)
-		collHeap()->allocateMemory(sizeof(ScanForceWildCard::scanOptionEnum)*numMdamColumns_);
-	      //enumAlgorithms_ = new scanOptionEnum[numMdamColumns_];
-	      for (CollIndex i=0; i<numMdamColumns_; i++)
-		{
-		  enumAlgorithms_[i] = other.enumAlgorithms_[i];
-		}
-	    }
-	  else
-	    return FALSE;	// coflict
-	}
-      else
-	return FALSE; // conflict
-    }
+  if (other.numMdamColumns_ > 0) {
+    if ((mdamStatus_ == UNDEFINED) || (mdamStatus_ == MDAM_FORCED)) {
+      if (numMdamColumns_ == other.numMdamColumns_) {
+        for (CollIndex i = 0; i < numMdamColumns_; i++) {
+          if (enumAlgorithms_[i] != other.enumAlgorithms_[i]) return FALSE;  // conflict
+        }
+        if (other.mdamColumnsStatus_ != mdamColumnsStatus_) return FALSE;  // conflict
+      } else if (numMdamColumns_ == 0)                                     // i.e. enumAlgorithm is NULL
+      {
+        numMdamColumns_ = other.numMdamColumns_;
+        collHeap()->deallocateMemory((void *)enumAlgorithms_);
+        // delete enumAlgorithms_;
+        enumAlgorithms_ = (ScanForceWildCard::scanOptionEnum *)collHeap()->allocateMemory(
+            sizeof(ScanForceWildCard::scanOptionEnum) * numMdamColumns_);
+        // enumAlgorithms_ = new scanOptionEnum[numMdamColumns_];
+        for (CollIndex i = 0; i < numMdamColumns_; i++) {
+          enumAlgorithms_[i] = other.enumAlgorithms_[i];
+        }
+      } else
+        return FALSE;  // coflict
+    } else
+      return FALSE;  // conflict
+  }
 
-  if (other.mdamColumnsStatus_ != UNDEFINED)
-    {
-      if (mdamColumnsStatus_ == UNDEFINED)
-	{
-	  mdamColumnsStatus_ = other.mdamColumnsStatus_;
-	}
-      if (mdamColumnsStatus_ != other.mdamColumnsStatus_)
-	{
-	  return FALSE; // conflict
-	}
+  if (other.mdamColumnsStatus_ != UNDEFINED) {
+    if (mdamColumnsStatus_ == UNDEFINED) {
+      mdamColumnsStatus_ = other.mdamColumnsStatus_;
     }
+    if (mdamColumnsStatus_ != other.mdamColumnsStatus_) {
+      return FALSE;  // conflict
+    }
+  }
 
-  if ((other.direction_ == DIRECTION_FORWARD)
-      &&(direction_ != DIRECTION_FORWARD))
-    {
-      if (direction_ == UNDEFINED)
-	{
-	  direction_ = other.direction_;
-	}
-      else
-	return FALSE; // conflict
-    }
+  if ((other.direction_ == DIRECTION_FORWARD) && (direction_ != DIRECTION_FORWARD)) {
+    if (direction_ == UNDEFINED) {
+      direction_ = other.direction_;
+    } else
+      return FALSE;  // conflict
+  }
 
-  if ((other.direction_ == DIRECTION_REVERSED)
-      &&(direction_ != DIRECTION_REVERSED))
-    {
-      if (direction_ == UNDEFINED)
-	{
-	  direction_ = other.direction_;
-	}
-      else
-	return FALSE; // conflict
-    }
+  if ((other.direction_ == DIRECTION_REVERSED) && (direction_ != DIRECTION_REVERSED)) {
+    if (direction_ == UNDEFINED) {
+      direction_ = other.direction_;
+    } else
+      return FALSE;  // conflict
+  }
 
-  if ((other.direction_ == DIRECTION_SYSTEM)
-      &&(direction_ != DIRECTION_SYSTEM))
-    {
-      if (direction_ == UNDEFINED)
-	{
-	  direction_ = other.direction_;
-	}
-      else
-	return FALSE; // conflict
-    }
+  if ((other.direction_ == DIRECTION_SYSTEM) && (direction_ != DIRECTION_SYSTEM)) {
+    if (direction_ == UNDEFINED) {
+      direction_ = other.direction_;
+    } else
+      return FALSE;  // conflict
+  }
 
-  if (other.numberOfBlocksToReadPerAccess_ > 0)
-    {
-      numberOfBlocksToReadPerAccess_ = other.numberOfBlocksToReadPerAccess_;
-    }
+  if (other.numberOfBlocksToReadPerAccess_ > 0) {
+    numberOfBlocksToReadPerAccess_ = other.numberOfBlocksToReadPerAccess_;
+  }
 
   return TRUE;
 }
@@ -2891,39 +2359,29 @@ NABoolean ScanForceWildCard::mergeScanOptions(const ScanForceWildCard &other)
 // system choice unless MDAM is forced then the default is
 // the base table.
 //----------------------------------------------------------
-void ScanForceWildCard::prepare()
-{
-  if (mdamStatus_ != ScanForceWildCard::MDAM_FORCED)
-    {
-      if (indexName_ == "")
-	{
-	  indexStatus_ = ScanForceWildCard::INDEX_SYSTEM;
-	}
+void ScanForceWildCard::prepare() {
+  if (mdamStatus_ != ScanForceWildCard::MDAM_FORCED) {
+    if (indexName_ == "") {
+      indexStatus_ = ScanForceWildCard::INDEX_SYSTEM;
     }
-  else // mdam is forced
-    {
-      if ((indexName_ == "") &&
-	  (indexStatus_ != ScanForceWildCard::INDEX_SYSTEM))
-        {
-  	  indexName_ = exposedName_;
-	}
+  } else  // mdam is forced
+  {
+    if ((indexName_ == "") && (indexStatus_ != ScanForceWildCard::INDEX_SYSTEM)) {
+      indexName_ = exposedName_;
     }
-  if (mdamColumnsStatus_ == ScanForceWildCard::UNDEFINED)
-   {
-     mdamColumnsStatus_ = ScanForceWildCard::MDAM_COLUMNS_REST_BY_SYSTEM;
-   }
+  }
+  if (mdamColumnsStatus_ == ScanForceWildCard::UNDEFINED) {
+    mdamColumnsStatus_ = ScanForceWildCard::MDAM_COLUMNS_REST_BY_SYSTEM;
+  }
 
   return;
 }
 
-RelExpr * ScanForceWildCard::copyTopNode(RelExpr *derivedNode,
-					 CollHeap* outHeap)
-{
+RelExpr *ScanForceWildCard::copyTopNode(RelExpr *derivedNode, CollHeap *outHeap) {
   ScanForceWildCard *temp;
-  if (derivedNode != NULL)
-    ABORT("No support for classes derived from ScanForceWildcard");
+  if (derivedNode != NULL) ABORT("No support for classes derived from ScanForceWildcard");
 
-  temp = new (outHeap) ScanForceWildCard(exposedName_,indexName_,outHeap);
+  temp = new (outHeap) ScanForceWildCard(exposedName_, indexName_, outHeap);
   temp->direction_ = direction_;
   temp->indexStatus_ = indexStatus_;
   temp->mdamStatus_ = mdamStatus_;
@@ -2931,32 +2389,28 @@ RelExpr * ScanForceWildCard::copyTopNode(RelExpr *derivedNode,
   temp->numMdamColumns_ = numMdamColumns_;
   temp->numberOfBlocksToReadPerAccess_ = numberOfBlocksToReadPerAccess_;
   temp->enumAlgorithms_ = new (outHeap) scanOptionEnum[numMdamColumns_];
-  for (CollIndex i=0; i<numMdamColumns_; i++)
-    {
-      temp->enumAlgorithms_[i]=enumAlgorithms_[i];
-    }
+  for (CollIndex i = 0; i < numMdamColumns_; i++) {
+    temp->enumAlgorithms_[i] = enumAlgorithms_[i];
+  }
   RelExpr *result = temp;
-  WildCardOp::copyTopNode(result,outHeap);
+  WildCardOp::copyTopNode(result, outHeap);
 
   return result;
 }
 
-const NAString ScanForceWildCard::getText() const
-{
+const NAString ScanForceWildCard::getText() const {
   NAString result("forced scan", CmpCommon::statementHeap());
 
-  if (exposedName_ != "")
-    {
-      result += "(";
-      result += exposedName_;
+  if (exposedName_ != "") {
+    result += "(";
+    result += exposedName_;
 
-      if (indexName_ != "")
-	{
-	  result += ", index ";
-	  result += indexName_;
-	}
-      result += ")";
+    if (indexName_ != "") {
+      result += ", index ";
+      result += indexName_;
     }
+    result += ")";
+  }
 
   return result;
 }
@@ -2965,40 +2419,26 @@ const NAString ScanForceWildCard::getText() const
 // member functions for class JoinForceWildCard
 // -----------------------------------------------------------------------
 
-JoinForceWildCard::JoinForceWildCard(OperatorTypeEnum type,
-				     RelExpr *child0,
-				     RelExpr *child1,
-				     forcedPlanEnum plan,
-				     Int32 numOfEsps,
-				     CollHeap *outHeap) :
-     WildCardOp(type, 0, child0, child1,outHeap)
-{
+JoinForceWildCard::JoinForceWildCard(OperatorTypeEnum type, RelExpr *child0, RelExpr *child1, forcedPlanEnum plan,
+                                     Int32 numOfEsps, CollHeap *outHeap)
+    : WildCardOp(type, 0, child0, child1, outHeap) {
   plan_ = plan;
   numOfEsps_ = numOfEsps;
 }
 
 JoinForceWildCard::~JoinForceWildCard() {}
 
-RelExpr * JoinForceWildCard::copyTopNode(RelExpr *derivedNode,
-					 CollHeap* outHeap)
-{
+RelExpr *JoinForceWildCard::copyTopNode(RelExpr *derivedNode, CollHeap *outHeap) {
   RelExpr *result;
-  if (derivedNode != NULL)
-    ABORT("No support for classes derived from JoinForceWildcard");
+  if (derivedNode != NULL) ABORT("No support for classes derived from JoinForceWildcard");
 
-  result = new(outHeap) JoinForceWildCard(getOperatorType(),
-					  NULL,
-					  NULL,
-					  plan_,
-					  numOfEsps_,
-					  outHeap);
-  WildCardOp::copyTopNode(result,outHeap);
+  result = new (outHeap) JoinForceWildCard(getOperatorType(), NULL, NULL, plan_, numOfEsps_, outHeap);
+  WildCardOp::copyTopNode(result, outHeap);
 
   return result;
 }
 
-const NAString JoinForceWildCard::getText() const
-{
+const NAString JoinForceWildCard::getText() const {
   NAString result("forced", CmpCommon::statementHeap());
 
   if (plan_ == FORCED_PLAN0)
@@ -3014,8 +2454,7 @@ const NAString JoinForceWildCard::getText() const
   else if (plan_ == FORCED_INDEXJOIN)
     result += " indexjoin";
 
-  switch (getOperatorType())
-    {
+  switch (getOperatorType()) {
     case REL_FORCE_NESTED_JOIN:
       result += " nested join";
       break;
@@ -3034,7 +2473,7 @@ const NAString JoinForceWildCard::getText() const
     default:
       result += " join";
       break;
-    }
+  }
 
   return result;
 }
@@ -3043,40 +2482,27 @@ const NAString JoinForceWildCard::getText() const
 // member functions for class ExchangeForceWildCard
 // -----------------------------------------------------------------------
 
-ExchangeForceWildCard::ExchangeForceWildCard(RelExpr *child0,
-					     forcedExchEnum which,
-					     forcedLogPartEnum whatLogPart,
-					     Lng32 numBottomEsps,
-					     CollHeap *outHeap) :
-     WildCardOp(REL_FORCE_EXCHANGE, 0, child0, NULL, outHeap),
-     which_(which),
-     whatLogPart_(whatLogPart),
-     howMany_(numBottomEsps)
-{
-}
+ExchangeForceWildCard::ExchangeForceWildCard(RelExpr *child0, forcedExchEnum which, forcedLogPartEnum whatLogPart,
+                                             Lng32 numBottomEsps, CollHeap *outHeap)
+    : WildCardOp(REL_FORCE_EXCHANGE, 0, child0, NULL, outHeap),
+      which_(which),
+      whatLogPart_(whatLogPart),
+      howMany_(numBottomEsps) {}
 
 ExchangeForceWildCard::~ExchangeForceWildCard() {}
 
-RelExpr * ExchangeForceWildCard::copyTopNode(RelExpr *derivedNode,
-					 CollHeap* outHeap)
-{
+RelExpr *ExchangeForceWildCard::copyTopNode(RelExpr *derivedNode, CollHeap *outHeap) {
   RelExpr *result;
-  if (derivedNode != NULL)
-    ABORT("No support for classes derived from ExchangeForceWildcard");
+  if (derivedNode != NULL) ABORT("No support for classes derived from ExchangeForceWildcard");
 
-  result = new(outHeap) ExchangeForceWildCard(NULL,
-					      which_,
-					      whatLogPart_,
-					      howMany_,
-					      outHeap);
-  WildCardOp::copyTopNode(result,outHeap);
+  result = new (outHeap) ExchangeForceWildCard(NULL, which_, whatLogPart_, howMany_, outHeap);
+  WildCardOp::copyTopNode(result, outHeap);
 
   return result;
 }
 
-const NAString ExchangeForceWildCard::getText() const
-{
-  NAString result("forced",CmpCommon::statementHeap());
+const NAString ExchangeForceWildCard::getText() const {
+  NAString result("forced", CmpCommon::statementHeap());
 
   if (which_ == FORCED_PA)
     result += " PA";
@@ -3094,83 +2520,60 @@ const NAString ExchangeForceWildCard::getText() const
 // member functions for class UDFForceWildCard
 // -----------------------------------------------------------------------
 
-UDFForceWildCard::UDFForceWildCard(OperatorTypeEnum op, CollHeap *outHeap) :
-  WildCardOp(op, 0, NULL, NULL, outHeap),
-  functionName_(outHeap),
-  actionName_(outHeap)
-{}
+UDFForceWildCard::UDFForceWildCard(OperatorTypeEnum op, CollHeap *outHeap)
+    : WildCardOp(op, 0, NULL, NULL, outHeap), functionName_(outHeap), actionName_(outHeap) {}
 
-UDFForceWildCard::UDFForceWildCard(const NAString& functionName, 
-                                   const NAString& actionName, 
-                                   CollHeap *outHeap) :
-  WildCardOp(REL_FORCE_ANY_SCALAR_UDF, 0, NULL, NULL, outHeap),
-  functionName_(functionName, outHeap),
-  actionName_(actionName, outHeap)
-{}
+UDFForceWildCard::UDFForceWildCard(const NAString &functionName, const NAString &actionName, CollHeap *outHeap)
+    : WildCardOp(REL_FORCE_ANY_SCALAR_UDF, 0, NULL, NULL, outHeap),
+      functionName_(functionName, outHeap),
+      actionName_(actionName, outHeap) {}
 
-UDFForceWildCard::~UDFForceWildCard()
-{
-}
+UDFForceWildCard::~UDFForceWildCard() {}
 
 //----------------------------------------------------------
 // merge with another UDFForceWildCard object.
 // return FALSE if a conflict between the options of
 // the two objects exists.
 //----------------------------------------------------------
-NABoolean UDFForceWildCard::mergeUDFOptions(const UDFForceWildCard &other)
-{
-  if ((other.functionName_ != "")
-      &&(other.functionName_ != functionName_))
-    {
-      if (functionName_ == "")
-	{
-	  functionName_ = other.functionName_;
-	}
-      else
-	return FALSE; // conflict
-    }
-  if ((other.actionName_ != "")
-      &&(other.actionName_ != actionName_))
-    {
-      if (actionName_ == "")
-	{
-	  actionName_ = other.actionName_;
-	}
-      else
-	return FALSE; // conflict
-    }
+NABoolean UDFForceWildCard::mergeUDFOptions(const UDFForceWildCard &other) {
+  if ((other.functionName_ != "") && (other.functionName_ != functionName_)) {
+    if (functionName_ == "") {
+      functionName_ = other.functionName_;
+    } else
+      return FALSE;  // conflict
+  }
+  if ((other.actionName_ != "") && (other.actionName_ != actionName_)) {
+    if (actionName_ == "") {
+      actionName_ = other.actionName_;
+    } else
+      return FALSE;  // conflict
+  }
 
   return TRUE;
 }
 
-RelExpr * UDFForceWildCard::copyTopNode(RelExpr *derivedNode,
-					 CollHeap* outHeap)
-{
+RelExpr *UDFForceWildCard::copyTopNode(RelExpr *derivedNode, CollHeap *outHeap) {
   UDFForceWildCard *temp;
-  if (derivedNode != NULL)
-    ABORT("No support for classes derived from UDFForceWildCard");
+  if (derivedNode != NULL) ABORT("No support for classes derived from UDFForceWildCard");
 
-  temp = new (outHeap) UDFForceWildCard(functionName_,actionName_,outHeap);
+  temp = new (outHeap) UDFForceWildCard(functionName_, actionName_, outHeap);
   RelExpr *result = temp;
-  WildCardOp::copyTopNode(result,outHeap);
+  WildCardOp::copyTopNode(result, outHeap);
 
   return result;
 }
 
-const NAString UDFForceWildCard::getText() const
-{
+const NAString UDFForceWildCard::getText() const {
   NAString result("forced UDF", CmpCommon::statementHeap());
-  if (functionName_ != "")
-    {
-      result += "(";
-      result += functionName_;
-      if (actionName_ != "")
-        {
-          result += ", ";
-          result += actionName_;
-        }
-      result += ")";
+  if (functionName_ != "") {
+    result += "(";
+    result += functionName_;
+    if (actionName_ != "") {
+      result += ", ";
+      result += actionName_;
     }
+    result += ")";
+  }
   return result;
 }
 
@@ -3180,61 +2583,51 @@ const NAString UDFForceWildCard::getText() const
 
 ControlAbstractClass::~ControlAbstractClass() {}
 
-NABoolean ControlAbstractClass::duplicateMatch(const RelExpr & other) const
-{
-  if (NOT RelExpr::duplicateMatch(other))
-    return FALSE;
+NABoolean ControlAbstractClass::duplicateMatch(const RelExpr &other) const {
+  if (NOT RelExpr::duplicateMatch(other)) return FALSE;
 
-  ControlAbstractClass &o = (ControlAbstractClass &) other;
+  ControlAbstractClass &o = (ControlAbstractClass &)other;
 
   // We do NOT need to compare sqlText's here
-  return (token_ == o.token_     AND value_ == o.value_ AND
-  	  dynamic_ == o.dynamic_ AND reset_ == o.reset_);
+  return (token_ == o.token_ AND value_ == o.value_ AND dynamic_ == o.dynamic_ AND reset_ == o.reset_);
 }
 
-RelExpr *ControlAbstractClass::copyTopNode(RelExpr *derivedNode, CollHeap *h)
-{
+RelExpr *ControlAbstractClass::copyTopNode(RelExpr *derivedNode, CollHeap *h) {
   CMPASSERT(derivedNode);
   ((ControlAbstractClass *)derivedNode)->reset_ = reset_;
   return derivedNode;
 }
 
-NABoolean ControlAbstractClass::alterArkcmpEnvNow() const
-{ 
-  return NOT (dynamic() || CmpCommon::context()->GetMode() == STMT_DYNAMIC); 
+NABoolean ControlAbstractClass::alterArkcmpEnvNow() const {
+  return NOT(dynamic() || CmpCommon::context()->GetMode() == STMT_DYNAMIC);
 }
 
-StaticOnly ControlAbstractClass::isAStaticOnlyStatement() const
-{
+StaticOnly ControlAbstractClass::isAStaticOnlyStatement() const {
   if (dynamic_) return NOT_STATIC_ONLY;
-  return (getOperatorType() == REL_CONTROL_QUERY_DEFAULT) ?
-    STATIC_ONLY_WITH_WORK_FOR_PREPROCESSOR : STATIC_ONLY_VANILLA;
+  return (getOperatorType() == REL_CONTROL_QUERY_DEFAULT) ? STATIC_ONLY_WITH_WORK_FOR_PREPROCESSOR
+                                                          : STATIC_ONLY_VANILLA;
 }
 
-static void removeLeadingSpace(NAString &sqlText)
-{
+static void removeLeadingSpace(NAString &sqlText) {
   if (!sqlText.isNull() && isspace((unsigned char)sqlText[size_t(0)])) sqlText.remove(0, 1);  // For VS2003
 }
 
-static NABoolean beginsWithKeyword(NAString &sqlText, const char *kwd,
-				   NABoolean thenRemoveIt = TRUE)
-{
+static NABoolean beginsWithKeyword(NAString &sqlText, const char *kwd, NABoolean thenRemoveIt = TRUE) {
   // Assumes Prettify has been called, so only one space (at most) btw tokens.
   // If this is called more than once, the second time in the text might begin
   // with a delimiting space.
   removeLeadingSpace(sqlText);
 
-  size_t len = strlen(kwd) + 1;		// +1 for delimiter (space)
+  size_t len = strlen(kwd) + 1;  // +1 for delimiter (space)
   if (sqlText.length() > len) {
-  NAString tmp(sqlText,CmpCommon::statementHeap());
+    NAString tmp(sqlText, CmpCommon::statementHeap());
     tmp.remove(len);
-    char c = tmp[--len];		// delimiter
+    char c = tmp[--len];  // delimiter
     if (!isalnum(c) && c != '_') {
-      tmp.remove(len);			// remove the delimiter 'c' from tmp
+      tmp.remove(len);  // remove the delimiter 'c' from tmp
       if (tmp == kwd) {
-	if (thenRemoveIt)
-	  sqlText.remove(0, len);	// leave delimiter, now at beginning
-	return TRUE;
+        if (thenRemoveIt) sqlText.remove(0, len);  // leave delimiter, now at beginning
+        return TRUE;
       }
     }
   }
@@ -3245,11 +2638,9 @@ static NABoolean beginsWithKeyword(NAString &sqlText, const char *kwd,
 // Convert a dynamic stmt's text of  "SET SCHEMA 'x.y';"
 // into the static "CONTROL QUERY DEFAULT SCHEMA 'x.y';"
 // for its round-trip to executor and back here as a SQLTEXT_STATIC_COMPILE.
-void ControlAbstractClass::rewriteControlText(
-					NAString &sqlText, CharInfo::CharSet sqlTextCharSet,
-					ControlAbstractClass *ctrl)
-{
-  PrettifySqlText(sqlText);	// trim, upcase where okay, cvt tabs to spaces
+void ControlAbstractClass::rewriteControlText(NAString &sqlText, CharInfo::CharSet sqlTextCharSet,
+                                              ControlAbstractClass *ctrl) {
+  PrettifySqlText(sqlText);  // trim, upcase where okay, cvt tabs to spaces
 
   if (beginsWithKeyword(sqlText, "PROCEDURE")) {
     size_t rp = sqlText.index(')');
@@ -3260,41 +2651,39 @@ void ControlAbstractClass::rewriteControlText(
 
   // if SHOWSHAPE or SHOWPLAN, remove them from the beginning.
   // beginsWithKeyword will remove the keyword, if found.
-  if ((beginsWithKeyword(sqlText, "SHOWSHAPE")) ||
-      (beginsWithKeyword(sqlText, "SHOWPLAN"))) {
+  if ((beginsWithKeyword(sqlText, "SHOWSHAPE")) || (beginsWithKeyword(sqlText, "SHOWPLAN"))) {
     removeLeadingSpace(sqlText);
   }
 
   if (ctrl->dynamic()) {
-    if ((beginsWithKeyword(sqlText, "SET")) &&
-	(ctrl->getOperatorType() != REL_SET_SESSION_DEFAULT))
+    if ((beginsWithKeyword(sqlText, "SET")) && (ctrl->getOperatorType() != REL_SET_SESSION_DEFAULT))
       sqlText.prepend(getControlTextPrefix(ctrl));
-  }
-  else {
-    if (beginsWithKeyword(sqlText, "DECLARE"))
-      sqlText.prepend(getControlTextPrefix(ctrl));
+  } else {
+    if (beginsWithKeyword(sqlText, "DECLARE")) sqlText.prepend(getControlTextPrefix(ctrl));
   }
 
   //## We'll have to fix SqlParser.y, I think, if this stmt appears in
   //## a compound stmt (IF ... THEN SET SCHEMA 'x' ... ELSE SET SCHEMA 'y' ...)
-  if (ctrl->getOperatorType() != REL_SET_SESSION_DEFAULT)
-    {
-      if ((NOT beginsWithKeyword(sqlText, "CONTROL", FALSE)) &&
-	  (NOT beginsWithKeyword(sqlText, "CQD", FALSE)))
-	CMPASSERT(0);
-    }
+  if (ctrl->getOperatorType() != REL_SET_SESSION_DEFAULT) {
+    if ((NOT beginsWithKeyword(sqlText, "CONTROL", FALSE)) && (NOT beginsWithKeyword(sqlText, "CQD", FALSE)))
+      CMPASSERT(0);
+  }
 }
 
-NAString ControlAbstractClass::getControlTextPrefix(
-     const ControlAbstractClass *ctrl)
-{
+NAString ControlAbstractClass::getControlTextPrefix(const ControlAbstractClass *ctrl) {
   switch (ctrl->getOperatorType()) {
-    case REL_CONTROL_QUERY_SHAPE:	return "CONTROL QUERY SHAPE";
-    case REL_CONTROL_QUERY_DEFAULT:	return "CONTROL QUERY DEFAULT";
-    case REL_CONTROL_TABLE:		return "CONTROL TABLE";
-    case REL_CONTROL_SESSION:		return "CONTROL SESSION";
-    case REL_SET_SESSION_DEFAULT:	return "SET SESSION DEFAULT";
-    default:				return "CONTROL ??";
+    case REL_CONTROL_QUERY_SHAPE:
+      return "CONTROL QUERY SHAPE";
+    case REL_CONTROL_QUERY_DEFAULT:
+      return "CONTROL QUERY DEFAULT";
+    case REL_CONTROL_TABLE:
+      return "CONTROL TABLE";
+    case REL_CONTROL_SESSION:
+      return "CONTROL SESSION";
+    case REL_SET_SESSION_DEFAULT:
+      return "SET SESSION DEFAULT";
+    default:
+      return "CONTROL ??";
   }
 }
 
@@ -3302,33 +2691,27 @@ NAString ControlAbstractClass::getControlTextPrefix(
 // member functions for class ControlQueryShape
 // -----------------------------------------------------------------------
 
-RelExpr * ControlQueryShape::copyTopNode(RelExpr *derivedNode,
-					 CollHeap *h)
-{
+RelExpr *ControlQueryShape::copyTopNode(RelExpr *derivedNode, CollHeap *h) {
   ControlQueryShape *result;
 
   if (derivedNode == NULL)
-    result = new (h) ControlQueryShape(NULL, getSqlText(), getSqlTextCharSet(), holdShape_,
-				       dynamic_, ignoreExchange_,
-				       ignoreSort_, h);
+    result = new (h) ControlQueryShape(NULL, getSqlText(), getSqlTextCharSet(), holdShape_, dynamic_, ignoreExchange_,
+                                       ignoreSort_, h);
   else
-    result = (ControlQueryShape *) derivedNode;
+    result = (ControlQueryShape *)derivedNode;
 
-  return ControlAbstractClass::copyTopNode(result,h);
+  return ControlAbstractClass::copyTopNode(result, h);
 }
 
-const NAString ControlQueryShape::getText() const
-{
+const NAString ControlQueryShape::getText() const {
   NAString result(getControlTextPrefix(this));
 
-  if (ignoreExchange_)
-    {
-      if (ignoreSort_)
-	result += " WITHOUT ENFORCERS";
-      else
-	result += " WITHOUT EXCHANGE";
-    }
-  else if (ignoreSort_)
+  if (ignoreExchange_) {
+    if (ignoreSort_)
+      result += " WITHOUT ENFORCERS";
+    else
+      result += " WITHOUT EXCHANGE";
+  } else if (ignoreSort_)
     result += " WITHOUT SORT";
 
   return result;
@@ -3338,94 +2721,59 @@ const NAString ControlQueryShape::getText() const
 // member functions for class ControlQueryDefault
 // -----------------------------------------------------------------------
 
-ControlQueryDefault::ControlQueryDefault(
-     const NAString &sqlText, CharInfo::CharSet sqlTextCharSet,
-     const NAString &token,
-     const NAString &value,
-     NABoolean dyn,
-     Lng32 holdOrRestoreCQD,
-     CollHeap *h,
-     Int32 reset):
-   ControlAbstractClass(REL_CONTROL_QUERY_DEFAULT, sqlText, sqlTextCharSet, token, value,
-                        dyn, h, reset),
-   holdOrRestoreCQD_(holdOrRestoreCQD),
-   attrEnum_(__INVALID_DEFAULT_ATTRIBUTE)
-{}
+ControlQueryDefault::ControlQueryDefault(const NAString &sqlText, CharInfo::CharSet sqlTextCharSet,
+                                         const NAString &token, const NAString &value, NABoolean dyn,
+                                         Lng32 holdOrRestoreCQD, CollHeap *h, Int32 reset)
+    : ControlAbstractClass(REL_CONTROL_QUERY_DEFAULT, sqlText, sqlTextCharSet, token, value, dyn, h, reset),
+      holdOrRestoreCQD_(holdOrRestoreCQD),
+      attrEnum_(__INVALID_DEFAULT_ATTRIBUTE) {}
 
-RelExpr * ControlQueryDefault::copyTopNode(RelExpr *derivedNode,
-					   CollHeap *h)
-{
+RelExpr *ControlQueryDefault::copyTopNode(RelExpr *derivedNode, CollHeap *h) {
   RelExpr *result;
 
   if (derivedNode == NULL) {
     result = new (h) ControlQueryDefault(sqlText_, sqlTextCharSet_, token_, value_, dynamic_, holdOrRestoreCQD_, h);
     ((ControlQueryDefault *)result)->attrEnum_ = attrEnum_;
-  }
-  else
+  } else
     result = derivedNode;
 
-  return ControlAbstractClass::copyTopNode(result,h);
+  return ControlAbstractClass::copyTopNode(result, h);
 }
 
-const NAString ControlQueryDefault::getText() const
-{
-  return getControlTextPrefix(this);
-}
+const NAString ControlQueryDefault::getText() const { return getControlTextPrefix(this); }
 
 // -----------------------------------------------------------------------
 // member functions for class ControlQueryDefaults
 // -----------------------------------------------------------------------
 
-ControlQueryDefaults::ControlQueryDefaults(
-     const NAString &sqlText, 
-     CharInfo::CharSet sqlTextCharSet,
-     const NAList<GroupOfNAString*> *cqds,
-     Lng32 holdOrRestoreCQD,
-     Int32 reset,
-     CollHeap *h) :
-     ControlQueryDefault(sqlText, sqlTextCharSet, "", "",
-                         FALSE, holdOrRestoreCQD, h, reset),
-                         cqds_((NAList<GroupOfNAString*>*)cqds)
-{}
+ControlQueryDefaults::ControlQueryDefaults(const NAString &sqlText, CharInfo::CharSet sqlTextCharSet,
+                                           const NAList<GroupOfNAString *> *cqds, Lng32 holdOrRestoreCQD, Int32 reset,
+                                           CollHeap *h)
+    : ControlQueryDefault(sqlText, sqlTextCharSet, "", "", FALSE, holdOrRestoreCQD, h, reset),
+      cqds_((NAList<GroupOfNAString *> *)cqds) {}
 
-RelExpr * ControlQueryDefaults::copyTopNode(RelExpr *derivedNode,
-                                            CollHeap *h)
-{
+RelExpr *ControlQueryDefaults::copyTopNode(RelExpr *derivedNode, CollHeap *h) {
   RelExpr *result;
 
   if (derivedNode == NULL) {
-    result = new (h) ControlQueryDefaults(
-         sqlText_, sqlTextCharSet_, cqds_);
-  }
-  else
+    result = new (h) ControlQueryDefaults(sqlText_, sqlTextCharSet_, cqds_);
+  } else
     result = derivedNode;
 
-  return ControlQueryDefault::copyTopNode(result,h);
+  return ControlQueryDefault::copyTopNode(result, h);
 }
 
-const NAString ControlQueryDefaults::getText() const
-{
-  return getControlTextPrefix(this);
-}
+const NAString ControlQueryDefaults::getText() const { return getControlTextPrefix(this); }
 
 // -----------------------------------------------------------------------
 // member functions for class ControlTable
 // -----------------------------------------------------------------------
 
-ControlTable::ControlTable(
-     CorrName *tableName,
-     const NAString &sqlText, CharInfo::CharSet sqlTextCharSet,
-     const NAString &token,
-     const NAString &value,
-     NABoolean dyn,
-     CollHeap *h):
-   ControlAbstractClass(REL_CONTROL_TABLE, sqlText, sqlTextCharSet, token, value, dyn, h),
-   tableName_(tableName)
-{}
+ControlTable::ControlTable(CorrName *tableName, const NAString &sqlText, CharInfo::CharSet sqlTextCharSet,
+                           const NAString &token, const NAString &value, NABoolean dyn, CollHeap *h)
+    : ControlAbstractClass(REL_CONTROL_TABLE, sqlText, sqlTextCharSet, token, value, dyn, h), tableName_(tableName) {}
 
-RelExpr * ControlTable::copyTopNode(RelExpr *derivedNode,
-				    CollHeap *h)
-{
+RelExpr *ControlTable::copyTopNode(RelExpr *derivedNode, CollHeap *h) {
   RelExpr *result;
 
   if (derivedNode == NULL)
@@ -3433,30 +2781,20 @@ RelExpr * ControlTable::copyTopNode(RelExpr *derivedNode,
   else
     result = derivedNode;
 
-  return ControlAbstractClass::copyTopNode(result,h);
+  return ControlAbstractClass::copyTopNode(result, h);
 }
 
-const NAString ControlTable::getText() const
-{
-  return getControlTextPrefix(this);
-}
+const NAString ControlTable::getText() const { return getControlTextPrefix(this); }
 
 // -----------------------------------------------------------------------
 // member functions for class ControlSession
 // -----------------------------------------------------------------------
 
-ControlSession::ControlSession(
-     const NAString &sqlText, CharInfo::CharSet sqlTextCharSet,
-     const NAString &token,
-     const NAString &value,
-     NABoolean dyn,
-     CollHeap *h):
-   ControlAbstractClass(REL_CONTROL_SESSION, sqlText, sqlTextCharSet, token, value, dyn, h)
-{}
+ControlSession::ControlSession(const NAString &sqlText, CharInfo::CharSet sqlTextCharSet, const NAString &token,
+                               const NAString &value, NABoolean dyn, CollHeap *h)
+    : ControlAbstractClass(REL_CONTROL_SESSION, sqlText, sqlTextCharSet, token, value, dyn, h) {}
 
-RelExpr * ControlSession::copyTopNode(RelExpr *derivedNode,
-				      CollHeap *h)
-{
+RelExpr *ControlSession::copyTopNode(RelExpr *derivedNode, CollHeap *h) {
   RelExpr *result;
 
   if (derivedNode == NULL)
@@ -3464,29 +2802,20 @@ RelExpr * ControlSession::copyTopNode(RelExpr *derivedNode,
   else
     result = derivedNode;
 
-  return ControlAbstractClass::copyTopNode(result,h);
+  return ControlAbstractClass::copyTopNode(result, h);
 }
 
-const NAString ControlSession::getText() const
-{
-  return getControlTextPrefix(this);
-}
+const NAString ControlSession::getText() const { return getControlTextPrefix(this); }
 
 // -----------------------------------------------------------------------
 // member functions for class SetSessionDefault
 // -----------------------------------------------------------------------
 
-SetSessionDefault::SetSessionDefault(
-     const NAString &sqlText, CharInfo::CharSet sqlTextCharSet,
-     const NAString &token,
-     const NAString &value,
-     CollHeap *h):
-     ControlAbstractClass(REL_SET_SESSION_DEFAULT, sqlText, sqlTextCharSet, token, value, TRUE, h)
-{}
+SetSessionDefault::SetSessionDefault(const NAString &sqlText, CharInfo::CharSet sqlTextCharSet, const NAString &token,
+                                     const NAString &value, CollHeap *h)
+    : ControlAbstractClass(REL_SET_SESSION_DEFAULT, sqlText, sqlTextCharSet, token, value, TRUE, h) {}
 
-RelExpr * SetSessionDefault::copyTopNode(RelExpr *derivedNode,
-					 CollHeap *h)
-{
+RelExpr *SetSessionDefault::copyTopNode(RelExpr *derivedNode, CollHeap *h) {
   RelExpr *result;
 
   if (derivedNode == NULL)
@@ -3494,130 +2823,104 @@ RelExpr * SetSessionDefault::copyTopNode(RelExpr *derivedNode,
   else
     result = derivedNode;
 
-  return ControlAbstractClass::copyTopNode(result,h);
+  return ControlAbstractClass::copyTopNode(result, h);
 }
 
-const NAString SetSessionDefault::getText() const
-{
-  return getControlTextPrefix(this);
-}
+const NAString SetSessionDefault::getText() const { return getControlTextPrefix(this); }
 
 // -----------------------------------------------------------------------
 // member functions for class OSIMControl
 // -----------------------------------------------------------------------
-OSIMControl::OSIMControl(OptimizerSimulator::osimMode mode,
-                                       NAString & localDir,
-                                       NABoolean force,
-                                       CollHeap * oHeap)
-                                       //the real work is done in OSIMControl::bindNode() to control OSIM.
-                                       //We set operator type to REL_SET_SESSION_DEFAULT,
-                                       //so as not to define dummy OSIMControl::codeGen() and OSIMControl::work(),
-                                       //which will do nothing there,  
-                       : ControlAbstractClass(REL_SET_SESSION_DEFAULT, NAString("DUMMYSQLTEXT", oHeap), 
-                                                           CharInfo::ISO88591, NAString("OSIM", oHeap), 
-                                                           NAString("DUMMYVALUE", oHeap), TRUE, oHeap)
-                       , targetMode_(mode), osimLocalDir_(localDir, oHeap), forceLoad_(force)
-{}
+OSIMControl::OSIMControl(OptimizerSimulator::osimMode mode, NAString &localDir, NABoolean force, CollHeap *oHeap)
+    // the real work is done in OSIMControl::bindNode() to control OSIM.
+    // We set operator type to REL_SET_SESSION_DEFAULT,
+    // so as not to define dummy OSIMControl::codeGen() and OSIMControl::work(),
+    // which will do nothing there,
+    : ControlAbstractClass(REL_SET_SESSION_DEFAULT, NAString("DUMMYSQLTEXT", oHeap), CharInfo::ISO88591,
+                           NAString("OSIM", oHeap), NAString("DUMMYVALUE", oHeap), TRUE, oHeap),
+      targetMode_(mode),
+      osimLocalDir_(localDir, oHeap),
+      forceLoad_(force) {}
 
+RelExpr *OSIMControl::copyTopNode(RelExpr *derivedNode, CollHeap *h) {
+  RelExpr *result;
 
-RelExpr * OSIMControl::copyTopNode(RelExpr *derivedNode, CollHeap *h )
-{
-      RelExpr *result;
+  if (derivedNode == NULL)
+    result = new (h) OSIMControl(targetMode_, osimLocalDir_, forceLoad_, h);
+  else
+    result = derivedNode;
 
-      if (derivedNode == NULL)
-          result = new (h) OSIMControl(targetMode_, osimLocalDir_, forceLoad_, h);
-      else
-          result = derivedNode;
-          
-      return ControlAbstractClass::copyTopNode(result,h);
+  return ControlAbstractClass::copyTopNode(result, h);
 }
 
 // -----------------------------------------------------------------------
 // member functions for class Sort
 // -----------------------------------------------------------------------
-Sort::Sort(RelExpr *child,
-           CollHeap *oHeap /*= CmpCommon::statementHeap()*/)
-:RelExpr(REL_SORT,child,NULL,oHeap),
- sortNRows_(FALSE), 
- topNRows_(0),
- collectNFErrors_(FALSE),
- forcedHalloweenProtection_(FALSE),
- checkAccessToSelfRefTable_(FALSE),
- ignoreTrailingBlank_(FALSE)
-{   
+Sort::Sort(RelExpr *child, CollHeap *oHeap /*= CmpCommon::statementHeap()*/)
+    : RelExpr(REL_SORT, child, NULL, oHeap),
+      sortNRows_(FALSE),
+      topNRows_(0),
+      collectNFErrors_(FALSE),
+      forcedHalloweenProtection_(FALSE),
+      checkAccessToSelfRefTable_(FALSE),
+      ignoreTrailingBlank_(FALSE) {
   if (oHeap)
     pCostMethod_ = new (oHeap) CostMethodSort();
   else
     pCostMethod_ = new (CmpCommon::statementHeap()) CostMethodSort();
 }
 
-Sort::Sort(RelExpr *child,
-           const ValueIdList &sortKey,
-           CollHeap *oHeap /*= CmpCommon::statementHeap()*/)
-:RelExpr(REL_SORT,child, NULL, oHeap),
- sortKey_(sortKey),
- sortNRows_(FALSE), 
- topNRows_(0),
- collectNFErrors_(FALSE),
- forcedHalloweenProtection_(FALSE),
- checkAccessToSelfRefTable_(FALSE),
- ignoreTrailingBlank_(FALSE)
-{   
+Sort::Sort(RelExpr *child, const ValueIdList &sortKey, CollHeap *oHeap /*= CmpCommon::statementHeap()*/)
+    : RelExpr(REL_SORT, child, NULL, oHeap),
+      sortKey_(sortKey),
+      sortNRows_(FALSE),
+      topNRows_(0),
+      collectNFErrors_(FALSE),
+      forcedHalloweenProtection_(FALSE),
+      checkAccessToSelfRefTable_(FALSE),
+      ignoreTrailingBlank_(FALSE) {
   if (oHeap)
     pCostMethod_ = new (oHeap) CostMethodSort();
   else
     pCostMethod_ = new (CmpCommon::statementHeap()) CostMethodSort();
 }
 
-Sort::Sort(RelExpr *child,
-           const ValueIdSet &arrangedCols)
-:RelExpr(REL_SORT,child),
- arrangedCols_(arrangedCols),
- sortNRows_(FALSE), 
- topNRows_(0),
- forcedHalloweenProtection_(FALSE),
- checkAccessToSelfRefTable_(FALSE),
- collectNFErrors_(FALSE),
- ignoreTrailingBlank_(FALSE)
-{
+Sort::Sort(RelExpr *child, const ValueIdSet &arrangedCols)
+    : RelExpr(REL_SORT, child),
+      arrangedCols_(arrangedCols),
+      sortNRows_(FALSE),
+      topNRows_(0),
+      forcedHalloweenProtection_(FALSE),
+      checkAccessToSelfRefTable_(FALSE),
+      collectNFErrors_(FALSE),
+      ignoreTrailingBlank_(FALSE) {
   pCostMethod_ = new (CmpCommon::statementHeap()) CostMethodSort();
-}   
-
-Sort::~Sort()
-{
 }
 
-Int32 Sort::getArity() const { return 1;}
+Sort::~Sort() {}
 
-NABoolean Sort::isUniqueOper()
-{
+Int32 Sort::getArity() const { return 1; }
+
+NABoolean Sort::isUniqueOper() {
   NABoolean childUnique = FALSE;
-  if (child(0) && child(0)->castToRelExpr())
-  {
+  if (child(0) && child(0)->castToRelExpr()) {
     RelExpr *childExpr = child(0)->castToRelExpr();
-    if (childExpr->getOperator().match(REL_ANY_HBASE))
-    {
-      if (childExpr->getOperatorType() == REL_HBASE_ACCESS)
-      {
+    if (childExpr->getOperator().match(REL_ANY_HBASE)) {
+      if (childExpr->getOperatorType() == REL_HBASE_ACCESS) {
         HbaseAccess *ha = (HbaseAccess *)childExpr;
         childUnique = ha->uniqueHbaseOper();
-      }
-      else
-      {
+      } else {
         GenericUpdate *gu = (GenericUpdate *)childExpr;
         childUnique = gu->uniqueHbaseOper();
       }
-    }
-    else
-    {
+    } else {
       childUnique = child(0)->isUniqueOper();
     }
   }
   return childUnique;
 }
 
-HashValue Sort::topHash()
-{
+HashValue Sort::topHash() {
   HashValue result = RelExpr::topHash();
 
   result ^= sortKey_;
@@ -3626,28 +2929,23 @@ HashValue Sort::topHash()
   return result;
 }
 
-NABoolean Sort::duplicateMatch(const RelExpr & other) const
-{
-  if (NOT RelExpr::duplicateMatch(other))
-    return FALSE;
+NABoolean Sort::duplicateMatch(const RelExpr &other) const {
+  if (NOT RelExpr::duplicateMatch(other)) return FALSE;
 
-  Sort &o = (Sort &) other;
+  Sort &o = (Sort &)other;
 
-  if (NOT (sortKey_ == o.sortKey_) OR
-      NOT(arrangedCols_ == o.arrangedCols_))
-    return FALSE;
+  if (NOT(sortKey_ == o.sortKey_) OR NOT(arrangedCols_ == o.arrangedCols_)) return FALSE;
 
   return TRUE;
 }
 
-RelExpr * Sort::copyTopNode(RelExpr *derivedNode, CollHeap* outHeap)
-{
+RelExpr *Sort::copyTopNode(RelExpr *derivedNode, CollHeap *outHeap) {
   Sort *result;
 
   if (derivedNode == NULL)
     result = new (outHeap) Sort(NULL, sortKey_, outHeap);
   else
-    result = (Sort *) derivedNode;
+    result = (Sort *)derivedNode;
 
   // copy arranged columns
   result->arrangedCols_ = arrangedCols_;
@@ -3655,222 +2953,178 @@ RelExpr * Sort::copyTopNode(RelExpr *derivedNode, CollHeap* outHeap)
   return RelExpr::copyTopNode(result, outHeap);
 }
 
-NABoolean Sort::isLogical() const  { return FALSE; }
+NABoolean Sort::isLogical() const { return FALSE; }
 
-NABoolean Sort::isPhysical() const { return TRUE;  }
+NABoolean Sort::isPhysical() const { return TRUE; }
 
-const NAString Sort::getText() const
-{
-  return "sort";
-}
+const NAString Sort::getText() const { return "sort"; }
 
-PlanPriority Sort::computeOperatorPriority
-(const Context* context,
- PlanWorkSpace *pws,
- Lng32 planNumber)
-{
-  const PhysicalProperty* spp = context->getPlan()->getPhysicalProperty();
+PlanPriority Sort::computeOperatorPriority(const Context *context, PlanWorkSpace *pws, Lng32 planNumber) {
+  const PhysicalProperty *spp = context->getPlan()->getPhysicalProperty();
   Lng32 degreeOfParallelism = spp->getCountOfPartitions();
   double val = 1;
-  if (degreeOfParallelism <= 1)
-    {
-      // serial plans are risky. exact an insurance premium from serial plans.
-      val = CURRSTMT_OPTDEFAULTS->riskPremiumSerial();
-    }
+  if (degreeOfParallelism <= 1) {
+    // serial plans are risky. exact an insurance premium from serial plans.
+    val = CURRSTMT_OPTDEFAULTS->riskPremiumSerial();
+  }
   CostScalar premium(val);
   PlanPriority result(0, 0, premium);
 
-  if (QueryAnalysis::Instance() AND
-      QueryAnalysis::Instance()->optimizeForFirstNRows())
-    result.incrementLevels(SORT_FIRST_N_PRIORITY,0);
+  if (QueryAnalysis::Instance() AND QueryAnalysis::Instance()->optimizeForFirstNRows())
+    result.incrementLevels(SORT_FIRST_N_PRIORITY, 0);
 
   // For the option of Max Degree of Parallelism we can either use the
   // value set in comp_int_9 (if positive) or we use the number of CPUs
   // if the CQD is set to -1, or feature is disabled if CQD is 0 (default).
   Lng32 maxDegree = ActiveSchemaDB()->getDefaults().getAsLong(COMP_INT_9);
-  if (CURRSTMT_OPTDEFAULTS->maxParallelismIsFeasible() OR ( maxDegree == -1) )
-  {
+  if (CURRSTMT_OPTDEFAULTS->maxParallelismIsFeasible() OR(maxDegree == -1)) {
     // if CQD is set to -1 this mean use the number of CPUs
     maxDegree = spp->getCurrentCountOfCPUs();
   }
-  if (maxDegree > 1) // CQD set to 0 means feature is OFF
+  if (maxDegree > 1)  // CQD set to 0 means feature is OFF
   {
-    if (degreeOfParallelism < maxDegree)
-      result.incrementLevels(0,-10); // need to replace with constant
+    if (degreeOfParallelism < maxDegree) result.incrementLevels(0, -10);  // need to replace with constant
   }
 
   return result;
 }
 
-void Sort::addLocalExpr(LIST(ExprNode *) &xlist,
-			LIST(NAString) &llist) const
-{
-  if (sortKey_.entries() > 0)
-    {
-      xlist.insert(sortKey_.rebuildExprTree(ITM_ITEM_LIST));
-      llist.insert("sort_key");
-    }
+void Sort::addLocalExpr(LIST(ExprNode *) & xlist, LIST(NAString) & llist) const {
+  if (sortKey_.entries() > 0) {
+    xlist.insert(sortKey_.rebuildExprTree(ITM_ITEM_LIST));
+    llist.insert("sort_key");
+  }
 
-  if (PartialSortKeyFromChild_.entries() > 0)
-    {
-      xlist.insert(PartialSortKeyFromChild_.rebuildExprTree(ITM_ITEM_LIST));
-      llist.insert("PartialSort_FromChild");
-    }
+  if (PartialSortKeyFromChild_.entries() > 0) {
+    xlist.insert(PartialSortKeyFromChild_.rebuildExprTree(ITM_ITEM_LIST));
+    llist.insert("PartialSort_FromChild");
+  }
 
-//  if (NOT arrangedCols_.isEmpty())
-//    {
-//      xlist.insert(arrangedCols_.rebuildExprTree(ITM_ITEM_LIST));
-//      llist.insert("arranged_cols");
-//    }
+  //  if (NOT arrangedCols_.isEmpty())
+  //    {
+  //      xlist.insert(arrangedCols_.rebuildExprTree(ITM_ITEM_LIST));
+  //      llist.insert("arranged_cols");
+  //    }
 
-  RelExpr::addLocalExpr(xlist,llist);
+  RelExpr::addLocalExpr(xlist, llist);
 }
 
-void Sort::needSortedNRows(NABoolean val)
-{
+void Sort::needSortedNRows(NABoolean val) {
   sortNRows_ = val;
-  // Sort changes a GET_N to GET_ALL, so it does not propagate a 
+  // Sort changes a GET_N to GET_ALL, so it does not propagate a
   // Get_N request. It can simply act on one.
 }
 
 // -----------------------------------------------------------------------
 // member functions for class SortFromTop
 // -----------------------------------------------------------------------
-RelExpr * SortFromTop::copyTopNode(RelExpr *derivedNode, CollHeap* outHeap)
-{
+RelExpr *SortFromTop::copyTopNode(RelExpr *derivedNode, CollHeap *outHeap) {
   SortFromTop *result;
 
   if (derivedNode == NULL)
     result = new (outHeap) SortFromTop(NULL, outHeap);
   else
-    result = (SortFromTop *) derivedNode;
+    result = (SortFromTop *)derivedNode;
 
   result->getSortRecExpr() = getSortRecExpr();
 
   return Sort::copyTopNode(result, outHeap);
 }
 
-const NAString SortFromTop::getText() const
-{
-  return "sort_from_top";
-}
+const NAString SortFromTop::getText() const { return "sort_from_top"; }
 
 // -----------------------------------------------------------------------
 // member functions for class Exchange
 // -----------------------------------------------------------------------
-Exchange::Exchange(RelExpr *childSubtree,
-                   CollHeap *oHeap /*= CmpCommon::statementHeap()*/)
-: RelExpr(REL_EXCHANGE,childSubtree, NULL, oHeap),
-  topPartFunc_(NULL),
-  bottomPartFunc_(NULL),
-  bottomLocIsSet_(FALSE),
-  isRedundant_(FALSE),
-  skipRedundancyCheck_(FALSE),
-  indexDesc_(NULL),
-  partSearchKey_(NULL),
-  DP2TransactionIndicator_(FALSE),
-  numBMOs_(0),
-  BMOsMemoryUsage_(0),
-  isOverReverseScan_(FALSE),
-  extractSelectList_(NULL),
-  isExtractProducer_(FALSE),
-  isExtractConsumer_(FALSE),
-  upMessageBufferLength_(0),
-  downMessageBufferLength_(0),
-  forcedHalloweenProtection_(FALSE),
-  halloweenSortIsMyChild_(FALSE),
-  hash2RepartitioningWithSameKey_(FALSE),
-  isAnESPAccess_(FALSE),
-  pcgEspFragment_(this, oHeap),
-  overridePartExpr_(NULL),
-  filterInputs_(oHeap)
-{   
+Exchange::Exchange(RelExpr *childSubtree, CollHeap *oHeap /*= CmpCommon::statementHeap()*/)
+    : RelExpr(REL_EXCHANGE, childSubtree, NULL, oHeap),
+      topPartFunc_(NULL),
+      bottomPartFunc_(NULL),
+      bottomLocIsSet_(FALSE),
+      isRedundant_(FALSE),
+      skipRedundancyCheck_(FALSE),
+      indexDesc_(NULL),
+      partSearchKey_(NULL),
+      DP2TransactionIndicator_(FALSE),
+      numBMOs_(0),
+      BMOsMemoryUsage_(0),
+      isOverReverseScan_(FALSE),
+      extractSelectList_(NULL),
+      isExtractProducer_(FALSE),
+      isExtractConsumer_(FALSE),
+      upMessageBufferLength_(0),
+      downMessageBufferLength_(0),
+      forcedHalloweenProtection_(FALSE),
+      halloweenSortIsMyChild_(FALSE),
+      hash2RepartitioningWithSameKey_(FALSE),
+      isAnESPAccess_(FALSE),
+      pcgEspFragment_(this, oHeap),
+      overridePartExpr_(NULL),
+      filterInputs_(oHeap) {
   if (oHeap)
     pCostMethod_ = new (oHeap) CostMethodExchange();
   else
     pCostMethod_ = new (CmpCommon::statementHeap()) CostMethodExchange();
 }
 
+Exchange::~Exchange() {}
 
-Exchange::~Exchange()
-{
-}
+Int32 Exchange::getArity() const { return 1; }
 
-Int32 Exchange::getArity() const { return 1;}
-
-NABoolean Exchange::isUniqueOper()
-{
+NABoolean Exchange::isUniqueOper() {
   NABoolean childUnique = FALSE;
-  if (child(0) && child(0)->castToRelExpr())
-  {
+  if (child(0) && child(0)->castToRelExpr()) {
     RelExpr *childExpr = child(0)->castToRelExpr();
-    if (childExpr->getOperator().match(REL_ANY_HBASE))
-    {
-      if (childExpr->getOperatorType() == REL_HBASE_ACCESS)
-      {
+    if (childExpr->getOperator().match(REL_ANY_HBASE)) {
+      if (childExpr->getOperatorType() == REL_HBASE_ACCESS) {
         HbaseAccess *ha = (HbaseAccess *)childExpr;
         childUnique = ha->uniqueHbaseOper();
-      }
-      else
-      {
+      } else {
         GenericUpdate *gu = (GenericUpdate *)childExpr;
         childUnique = gu->uniqueHbaseOper();
       }
-    }
-    else
-    {
+    } else {
       childUnique = child(0)->isUniqueOper();
     }
   }
   return childUnique;
 }
 
-RelExpr * Exchange::copyTopNode(RelExpr *derivedNode, CollHeap* outHeap)
-{
+RelExpr *Exchange::copyTopNode(RelExpr *derivedNode, CollHeap *outHeap) {
   Exchange *result;
 
-  if (derivedNode == NULL)
-    {
-      result = new (outHeap) Exchange(NULL, outHeap);
-    }
-  else
-    result = (Exchange *) derivedNode;
+  if (derivedNode == NULL) {
+    result = new (outHeap) Exchange(NULL, outHeap);
+  } else
+    result = (Exchange *)derivedNode;
 
-  result->upMessageBufferLength_=upMessageBufferLength_;
-  result->downMessageBufferLength_=downMessageBufferLength_;
+  result->upMessageBufferLength_ = upMessageBufferLength_;
+  result->downMessageBufferLength_ = downMessageBufferLength_;
   result->hash2RepartitioningWithSameKey_ = hash2RepartitioningWithSameKey_;
   result->minMaxExprs_ = minMaxExprs_;
   result->filterInputs_ = filterInputs_;
 
-  if (halloweenSortIsMyChild_) 
-    result->markHalloweenSortIsMyChild();
+  if (halloweenSortIsMyChild_) result->markHalloweenSortIsMyChild();
 
   return RelExpr::copyTopNode(result, outHeap);
 }
 
-NABoolean Exchange::isLogical() const  { return FALSE; }
+NABoolean Exchange::isLogical() const { return FALSE; }
 
-NABoolean Exchange::isPhysical() const { return TRUE;  }
+NABoolean Exchange::isPhysical() const { return TRUE; }
 
-NABoolean Exchange::isAPA() const
-{
-  if (NOT isDP2Exchange() OR bottomPartFunc_ == NULL)
-    return FALSE;
+NABoolean Exchange::isAPA() const {
+  if (NOT isDP2Exchange() OR bottomPartFunc_ == NULL) return FALSE;
 
-  const LogPhysPartitioningFunction *lpf = bottomPartFunc_->
-    castToLogPhysPartitioningFunction();
+  const LogPhysPartitioningFunction *lpf = bottomPartFunc_->castToLogPhysPartitioningFunction();
 
   return (lpf == NULL OR NOT lpf->getUsePapa());
 }
 
-NABoolean Exchange::isAPAPA() const
-{
-  return (isDP2Exchange() AND bottomPartFunc_ AND NOT isAPA());
-}
+NABoolean Exchange::isAPAPA() const { return (isDP2Exchange() AND bottomPartFunc_ AND NOT isAPA()); }
 
-const NAString Exchange::getText() const
-{
-  NAString result("exchange",CmpCommon::statementHeap());
+const NAString Exchange::getText() const {
+  NAString result("exchange", CmpCommon::statementHeap());
 
   if (isAPA())
     result = "pa_exchange";
@@ -3881,131 +3135,97 @@ const NAString Exchange::getText() const
   else if (isEspExchange())
     result = "esp_exchange";
 
-  const PartitioningFunction *topPartFunc =
-    getTopPartitioningFunction();
-  const PartitioningFunction *bottomPartFunc =
-    getBottomPartitioningFunction();
+  const PartitioningFunction *topPartFunc = getTopPartitioningFunction();
+  const PartitioningFunction *bottomPartFunc = getBottomPartitioningFunction();
 
   Lng32 topNumParts = ANY_NUMBER_OF_PARTITIONS;
   Lng32 bottomNumParts = ANY_NUMBER_OF_PARTITIONS;
 
-  if (topPartFunc)
-    topNumParts = topPartFunc->getCountOfPartitions();
-  if (bottomPartFunc)
-    bottomNumParts = bottomPartFunc->getCountOfPartitions();
+  if (topPartFunc) topNumParts = topPartFunc->getCountOfPartitions();
+  if (bottomPartFunc) bottomNumParts = bottomPartFunc->getCountOfPartitions();
 
-  if (topNumParts != ANY_NUMBER_OF_PARTITIONS OR
-      bottomNumParts != ANY_NUMBER_OF_PARTITIONS)
-    {
-      char str[TEXT_DISPLAY_LENGTH];
-      sprintf(str," %d:%d",topNumParts,bottomNumParts);
-      result += str;
-    }
+  if (topNumParts != ANY_NUMBER_OF_PARTITIONS OR bottomNumParts != ANY_NUMBER_OF_PARTITIONS) {
+    char str[TEXT_DISPLAY_LENGTH];
+    sprintf(str, " %d:%d", topNumParts, bottomNumParts);
+    result += str;
+  }
 
-  if (bottomPartFunc AND isDP2Exchange())
-    {
-      const LogPhysPartitioningFunction *lpf =
-          bottomPartFunc->castToLogPhysPartitioningFunction();
-      if (lpf)
-	{
-	  if (lpf->getUsePapa())
-	    {
-	      char str[TEXT_DISPLAY_LENGTH];
-	      sprintf(str," with %d PA(s)",lpf->getNumOfClients());
-	      result += str;
-	    }
-	  switch (lpf->getLogPartType())
-	    {
-	    case LogPhysPartitioningFunction::LOGICAL_SUBPARTITIONING:
-	      result += ", log. subpart.";
-	      break;
-	    case LogPhysPartitioningFunction::HORIZONTAL_PARTITION_SLICING:
-	      result += ", slicing";
-	      break;
-	    case LogPhysPartitioningFunction::PA_GROUPED_REPARTITIONING:
-	      result += ", repartitioned";
-	      break;
-	    default:
-	      break;
-	    }
-	}
+  if (bottomPartFunc AND isDP2Exchange()) {
+    const LogPhysPartitioningFunction *lpf = bottomPartFunc->castToLogPhysPartitioningFunction();
+    if (lpf) {
+      if (lpf->getUsePapa()) {
+        char str[TEXT_DISPLAY_LENGTH];
+        sprintf(str, " with %d PA(s)", lpf->getNumOfClients());
+        result += str;
+      }
+      switch (lpf->getLogPartType()) {
+        case LogPhysPartitioningFunction::LOGICAL_SUBPARTITIONING:
+          result += ", log. subpart.";
+          break;
+        case LogPhysPartitioningFunction::HORIZONTAL_PARTITION_SLICING:
+          result += ", slicing";
+          break;
+        case LogPhysPartitioningFunction::PA_GROUPED_REPARTITIONING:
+          result += ", repartitioned";
+          break;
+        default:
+          break;
+      }
     }
+  }
   return result;
 }
 
-PlanPriority Exchange::computeOperatorPriority
-(const Context* context,
- PlanWorkSpace *pws,
- Lng32 planNumber)
-{
+PlanPriority Exchange::computeOperatorPriority(const Context *context, PlanWorkSpace *pws, Lng32 planNumber) {
   PlanPriority result;
 
-  OperatorTypeEnum parOperType = context->getCurrentAncestor()->getPlan()->
-                                   getPhysicalExpr()->getOperatorType();
+  OperatorTypeEnum parOperType = context->getCurrentAncestor()->getPlan()->getPhysicalExpr()->getOperatorType();
 
   Lng32 cqdValue = ActiveSchemaDB()->getDefaults().getAsLong(COMP_INT_9);
-  if ((cqdValue == -2) AND
-      ((parOperType == REL_ROOT) OR
-       (parOperType == REL_FIRST_N)))
-    result.incrementLevels(10,0);
+  if ((cqdValue == -2) AND((parOperType == REL_ROOT) OR(parOperType == REL_FIRST_N))) result.incrementLevels(10, 0);
 
   return result;
 }
 
-void Exchange::addLocalExpr(LIST(ExprNode *) &xlist,
-			    LIST(NAString) &llist) const
-{
-  const PartitioningFunction *topPartFunc =
-    getTopPartitioningFunction();
+void Exchange::addLocalExpr(LIST(ExprNode *) & xlist, LIST(NAString) & llist) const {
+  const PartitioningFunction *topPartFunc = getTopPartitioningFunction();
 
-  if (topPartFunc AND topPartFunc->getCountOfPartitions() > 1 AND
-      topPartFunc->getPartitioningExpression())
-    {
-      if (overridePartExpr_)
-        xlist.insert(overridePartExpr_);
-      else
-        xlist.insert(topPartFunc->getPartitioningExpression());
-      llist.insert("partitioning_expression");
-    }
+  if (topPartFunc AND topPartFunc->getCountOfPartitions() > 1 AND topPartFunc->getPartitioningExpression()) {
+    if (overridePartExpr_)
+      xlist.insert(overridePartExpr_);
+    else
+      xlist.insert(topPartFunc->getPartitioningExpression());
+    llist.insert("partitioning_expression");
+  }
 
-  if (NOT sortKeyForMyOutput_.isEmpty())
-    {
-      xlist.insert(sortKeyForMyOutput_.rebuildExprTree(ITM_ITEM_LIST));
-      llist.insert("merged_order");
-    }
+  if (NOT sortKeyForMyOutput_.isEmpty()) {
+    xlist.insert(sortKeyForMyOutput_.rebuildExprTree(ITM_ITEM_LIST));
+    llist.insert("merged_order");
+  }
 
-  RelExpr::addLocalExpr(xlist,llist);
+  RelExpr::addLocalExpr(xlist, llist);
 }
 
 // -----------------------------------------------------------------------
 // member functions for class Join
 // -----------------------------------------------------------------------
-Int32 Join::getArity() const { return 2;}
+Int32 Join::getArity() const { return 2; }
 
-NABoolean Join::isUniqueOper()
-{
-  NABoolean childUnique[2] = {FALSE,FALSE};
+NABoolean Join::isUniqueOper() {
+  NABoolean childUnique[2] = {FALSE, FALSE};
 
-  for (Int32 i = 0; i < getArity(); ++i)
-  {
-    if (child(i) && child(i)->castToRelExpr())
-    {
+  for (Int32 i = 0; i < getArity(); ++i) {
+    if (child(i) && child(i)->castToRelExpr()) {
       RelExpr *childExpr = child(i)->castToRelExpr();
-      if (childExpr->getOperator().match(REL_ANY_HBASE))
-      {
-        if (childExpr->getOperatorType() == REL_HBASE_ACCESS)
-        {
+      if (childExpr->getOperator().match(REL_ANY_HBASE)) {
+        if (childExpr->getOperatorType() == REL_HBASE_ACCESS) {
           HbaseAccess *ha = (HbaseAccess *)childExpr;
           childUnique[i] = ha->uniqueHbaseOper();
-        }
-        else
-        {
+        } else {
           GenericUpdate *gu = (GenericUpdate *)childExpr;
           childUnique[i] = gu->uniqueHbaseOper();
         }
-      }
-      else
-      {
+      } else {
         childUnique[i] = child(i)->isUniqueOper();
       }
     }
@@ -4013,17 +3233,15 @@ NABoolean Join::isUniqueOper()
   return (childUnique[0] && childUnique[1]);
 }
 
-// helper function used in 
-//   HashJoinRule::topMatch() and 
+// helper function used in
+//   HashJoinRule::topMatch() and
 //   JoinToTSJRule::topMatch()
 // to make sure that only one of them is turned off.
-// Otherwise, error 2235 "pass one skipped, but cannot produce a plan 
+// Otherwise, error 2235 "pass one skipped, but cannot produce a plan
 // in pass two, originated from file ../optimizer/opt.cpp"
-NABoolean Join::allowHashJoin()
-{
+NABoolean Join::allowHashJoin() {
   // HJ is only implementation for full outer join
-  NABoolean fullOuterJoin = 
-    (CmpCommon::getDefault(COMP_BOOL_196) != DF_ON) AND isFullOuterJoin();
+  NABoolean fullOuterJoin = (CmpCommon::getDefault(COMP_BOOL_196) != DF_ON) AND isFullOuterJoin();
 
   if (fullOuterJoin) return TRUE;
 
@@ -4031,38 +3249,33 @@ NABoolean Join::allowHashJoin()
   if (avoidHalloweenR2()) return TRUE;
 
   // favor NJ when only one row from outer for sure
-  Cardinality minrows, outerLimit; 
+  Cardinality minrows, outerLimit;
   GroupAttributes *oGrpAttr = child(0).getGroupAttr();
   NABoolean hasConstraint = oGrpAttr->hasCardConstraint(minrows, outerLimit);
   // outerLimit was set to INFINITE_CARDINALITY if no constraint
-  CostScalar outerRows(outerLimit); 
+  CostScalar outerRows(outerLimit);
   // if it has no constraint and outer is 1 table
   if (!hasConstraint && oGrpAttr->getNumBaseTables() == 1) {
     // use max cardinality estimate
     outerRows = oGrpAttr->getResultMaxCardinalityForEmptyInput();
   }
-  NABoolean favorNJ = 
-    CURRSTMT_OPTDEFAULTS->isNestedJoinConsidered() AND
-    (outerRows <= 1) AND
-    GlobalRuleSet->getCurrentPassNumber() >
-    GlobalRuleSet->getFirstPassNumber();
+  NABoolean favorNJ = CURRSTMT_OPTDEFAULTS->isNestedJoinConsidered() AND(outerRows <= 1)
+                          AND GlobalRuleSet->getCurrentPassNumber() > GlobalRuleSet->getFirstPassNumber();
 
   // If there exists an ORC or Parquet table, do not shut down HJ
-  if ( child(1).getGroupAttr()->computeNumOfHiveColumnarTables(ORC) > 0  ||
-       child(1).getGroupAttr()->computeNumOfHiveColumnarTables(PARQUET) > 0 )
+  if (child(1).getGroupAttr()->computeNumOfHiveColumnarTables(ORC) > 0 ||
+      child(1).getGroupAttr()->computeNumOfHiveColumnarTables(PARQUET) > 0)
     favorNJ = FALSE;
- 
+
   if (favorNJ) {
-    return FALSE; // disallow HJ
+    return FALSE;  // disallow HJ
   }
 
-  return TRUE; // allow HJ
+  return TRUE;  // allow HJ
 }
 
-OperatorTypeEnum Join::getTSJJoinOpType()
-{
-  switch (getOperatorType())
-    {
+OperatorTypeEnum Join::getTSJJoinOpType() {
+  switch (getOperatorType()) {
     case REL_JOIN:
     case REL_ROUTINE_JOIN:
       return REL_TSJ;
@@ -4074,15 +3287,12 @@ OperatorTypeEnum Join::getTSJJoinOpType()
       return REL_ANTI_SEMITSJ;
     default:
       ABORT("Unsupported join type in Join::getTSJJoinOpType()");
-      return REL_NESTED_JOIN;    // Return makes MSVC happy.
-    } // switch
-} // Join::getNestedJoinOpType()
+      return REL_NESTED_JOIN;  // Return makes MSVC happy.
+  }                            // switch
+}  // Join::getNestedJoinOpType()
 
-
-OperatorTypeEnum Join::getNestedJoinOpType()
-{
-  switch (getOperatorType())
-    {
+OperatorTypeEnum Join::getNestedJoinOpType() {
+  switch (getOperatorType()) {
     case REL_JOIN:
     case REL_ROUTINE_JOIN:
     case REL_TSJ:
@@ -4098,54 +3308,46 @@ OperatorTypeEnum Join::getNestedJoinOpType()
       return REL_NESTED_ANTI_SEMIJOIN;
     default:
       ABORT("Unsupported join type in Join::getNestedJoinOpType()");
-      return REL_NESTED_JOIN;    // Return makes MSVC happy.
-    } // switch
-} // Join::getNestedJoinOpType()
+      return REL_NESTED_JOIN;  // Return makes MSVC happy.
+  }                            // switch
+}  // Join::getNestedJoinOpType()
 
-OperatorTypeEnum Join::getHashJoinOpType(NABoolean isNoOverflow)
-{
-  if(isNoOverflow)
-  {
-      switch (getOperatorType())
-    {
-    case REL_JOIN:
-      return REL_ORDERED_HASH_JOIN;
-    case REL_LEFT_JOIN:
-      return REL_LEFT_ORDERED_HASH_JOIN;
-    case REL_SEMIJOIN:
-      return REL_ORDERED_HASH_SEMIJOIN;
-    case REL_ANTI_SEMIJOIN:
-      return REL_ORDERED_HASH_ANTI_SEMIJOIN;
-    default:
-      ABORT("Unsupported join type in Join::getHashJoinOpType()");
-      return REL_ORDERED_HASH_JOIN;     // return makes MSVC happy.
-      } // switch
-  }
-  else
-  {
-
-    switch (getOperatorType())
-      {
+OperatorTypeEnum Join::getHashJoinOpType(NABoolean isNoOverflow) {
+  if (isNoOverflow) {
+    switch (getOperatorType()) {
       case REL_JOIN:
-	return REL_HYBRID_HASH_JOIN;
+        return REL_ORDERED_HASH_JOIN;
       case REL_LEFT_JOIN:
-	return REL_LEFT_HYBRID_HASH_JOIN;
-      case REL_FULL_JOIN:
-	return REL_FULL_HYBRID_HASH_JOIN;
+        return REL_LEFT_ORDERED_HASH_JOIN;
       case REL_SEMIJOIN:
-	return REL_HYBRID_HASH_SEMIJOIN;
+        return REL_ORDERED_HASH_SEMIJOIN;
       case REL_ANTI_SEMIJOIN:
-	return REL_HYBRID_HASH_ANTI_SEMIJOIN;
+        return REL_ORDERED_HASH_ANTI_SEMIJOIN;
       default:
-	ABORT("Unsupported join type in Join::getHashJoinOpType()");
-	return REL_HYBRID_HASH_JOIN;     // return makes MSVC happy.
-      } // switch
-  }//else
+        ABORT("Unsupported join type in Join::getHashJoinOpType()");
+        return REL_ORDERED_HASH_JOIN;  // return makes MSVC happy.
+    }                                  // switch
+  } else {
+    switch (getOperatorType()) {
+      case REL_JOIN:
+        return REL_HYBRID_HASH_JOIN;
+      case REL_LEFT_JOIN:
+        return REL_LEFT_HYBRID_HASH_JOIN;
+      case REL_FULL_JOIN:
+        return REL_FULL_HYBRID_HASH_JOIN;
+      case REL_SEMIJOIN:
+        return REL_HYBRID_HASH_SEMIJOIN;
+      case REL_ANTI_SEMIJOIN:
+        return REL_HYBRID_HASH_ANTI_SEMIJOIN;
+      default:
+        ABORT("Unsupported join type in Join::getHashJoinOpType()");
+        return REL_HYBRID_HASH_JOIN;  // return makes MSVC happy.
+    }                                 // switch
+  }                                   // else
 
-} // Join::getHashJoinOpType()
+}  // Join::getHashJoinOpType()
 
-NABoolean Join::isCrossProduct() const
-{
+NABoolean Join::isCrossProduct() const {
   // only for our beloved inner non semi joins (for now)
   if (NOT isInnerNonSemiJoin()) return FALSE;
 
@@ -4162,30 +3364,23 @@ NABoolean Join::isCrossProduct() const
   newJoinPreds.lookForVEGPredicates(VEGEqPreds);
 
   // remove those VEGPredicates that are covered by the input values
-  VEGEqPreds.removeCoveredExprs(getGroupAttr()->
-				getCharacteristicInputs());
-  VEGEqPreds.removeUnCoveredExprs(child(0).getGroupAttr()->
-                                  getCharacteristicOutputs());
-  VEGEqPreds.removeUnCoveredExprs(child(1).getGroupAttr()->
-                                  getCharacteristicOutputs());
+  VEGEqPreds.removeCoveredExprs(getGroupAttr()->getCharacteristicInputs());
+  VEGEqPreds.removeUnCoveredExprs(child(0).getGroupAttr()->getCharacteristicOutputs());
+  VEGEqPreds.removeUnCoveredExprs(child(1).getGroupAttr()->getCharacteristicOutputs());
   if (VEGEqPreds.isEmpty())
-    return TRUE;    // is a cross product
+    return TRUE;  // is a cross product
   else
     return FALSE;
 }
 
-NABoolean Join::isOuterJoin() const
-{
-  if(isLeftJoin() || isRightJoin() || isFullOuterJoin())
-    return TRUE;
+NABoolean Join::isOuterJoin() const {
+  if (isLeftJoin() || isRightJoin() || isFullOuterJoin()) return TRUE;
 
   return FALSE;
 }
 
-NABoolean RelExpr::isAnyJoin() const
-{
-   switch (getOperatorType())
-   {
+NABoolean RelExpr::isAnyJoin() const {
+  switch (getOperatorType()) {
     case REL_JOIN:
     case REL_ROUTINE_JOIN:
     case REL_LEFT_JOIN:
@@ -4211,92 +3406,50 @@ NABoolean RelExpr::isAnyJoin() const
 
     default:
       return FALSE;
-   }
+  }
 }
 
-NABoolean Join::isInnerNonSemiJoinWithNoPredicates() const
-{
-  if (isInnerNonSemiJoin() AND
-      getSelectionPred().isEmpty() AND
-      getJoinPred().isEmpty())
-      return TRUE;
+NABoolean Join::isInnerNonSemiJoinWithNoPredicates() const {
+  if (isInnerNonSemiJoin() AND getSelectionPred().isEmpty() AND getJoinPred().isEmpty())
+    return TRUE;
   else
     return FALSE;
 }
 
+NABoolean Join::isInnerJoin() const { return getOperator().match(REL_ANY_INNER_JOIN); }
 
-NABoolean Join:: isInnerJoin() const
-{
-  return getOperator().match(REL_ANY_INNER_JOIN);
+NABoolean Join::isInnerNonSemiJoin() const {
+  return getOperator().match(REL_ANY_INNER_JOIN) AND NOT getOperator().match(REL_ANY_SEMIJOIN);
 }
 
-NABoolean Join::isInnerNonSemiJoin() const
-{
-  return getOperator().match(REL_ANY_INNER_JOIN) AND
-    NOT getOperator().match(REL_ANY_SEMIJOIN);
+NABoolean Join::isInnerNonSemiNonTSJJoin() const {
+  return (getOperator().match(REL_ANY_INNER_JOIN) AND NOT getOperator().match(REL_ANY_SEMIJOIN))AND NOT getOperator()
+      .match(REL_ANY_TSJ);
+}
+NABoolean Join::isLeftJoin() const { return getOperator().match(REL_ANY_LEFT_JOIN); }
+
+NABoolean Join::isRightJoin() const { return getOperator().match(REL_ANY_RIGHT_JOIN); }
+
+NABoolean Join::isFullOuterJoin() const { return (getOperator().match(REL_ANY_FULL_JOIN)); }
+
+NABoolean Join::isSemiJoin() const { return getOperator().match(REL_ANY_SEMIJOIN); }
+
+NABoolean Join::isAntiSemiJoin() const { return getOperator().match(REL_ANY_ANTI_SEMIJOIN); }
+
+NABoolean Join::isTSJ() const { return getOperator().match(REL_ANY_TSJ); }
+
+NABoolean Join::isRoutineJoin() const { return (getOperator() == REL_ROUTINE_JOIN); }
+
+NABoolean Join::isNonRoutineTSJ() const {
+  return (getOperator().match(REL_ANY_TSJ) && (getOperator() != REL_ROUTINE_JOIN));
 }
 
-NABoolean Join::isInnerNonSemiNonTSJJoin() const
-{
-  return (getOperator().match(REL_ANY_INNER_JOIN) AND
-    NOT getOperator().match(REL_ANY_SEMIJOIN)) AND
-    NOT getOperator().match(REL_ANY_TSJ);
-}
-NABoolean Join::isLeftJoin() const
-{
-  return getOperator().match(REL_ANY_LEFT_JOIN);
-}
+NABoolean Join::isNestedJoin() const { return getOperator().match(REL_ANY_NESTED_JOIN); }
 
-NABoolean Join::isRightJoin() const
-{
-  return getOperator().match(REL_ANY_RIGHT_JOIN);
-}
+NABoolean Join::isHashJoin() const { return getOperator().match(REL_ANY_HASH_JOIN); }
 
-NABoolean Join::isFullOuterJoin() const
-{
-  return (getOperator().match(REL_ANY_FULL_JOIN));
-}
-
-NABoolean Join::isSemiJoin() const
-{
-  return getOperator().match(REL_ANY_SEMIJOIN);
-}
-
-NABoolean Join::isAntiSemiJoin() const
-{
-  return getOperator().match(REL_ANY_ANTI_SEMIJOIN);
-}
-
-NABoolean Join::isTSJ() const
-{
-  return getOperator().match(REL_ANY_TSJ);
-}
-
-NABoolean Join::isRoutineJoin() const
-{
-  return (getOperator() == REL_ROUTINE_JOIN);
-}
-
-NABoolean Join::isNonRoutineTSJ() const
-{
-  return ( getOperator().match(REL_ANY_TSJ) && 
-          ( getOperator() != REL_ROUTINE_JOIN));
-}
-
-NABoolean Join::isNestedJoin() const
-{
-  return getOperator().match(REL_ANY_NESTED_JOIN);
-}
-
-NABoolean Join::isHashJoin() const
-{
-  return getOperator().match(REL_ANY_HASH_JOIN);
-}
-
-OperatorTypeEnum Join::getBaseHashType() const
-{
-  switch (getOperatorType())
-    {
+OperatorTypeEnum Join::getBaseHashType() const {
+  switch (getOperatorType()) {
     case REL_HASH_JOIN:
     case REL_LEFT_HASH_JOIN:
     case REL_HASH_SEMIJOIN:
@@ -4319,18 +3472,13 @@ OperatorTypeEnum Join::getBaseHashType() const
 
     default:
       return INVALID_OPERATOR_TYPE;
-    } // switch
-} // Join::getBaseHashType
+  }  // switch
+}  // Join::getBaseHashType
 
-NABoolean Join::isMergeJoin() const
-{
-  return getOperator().match(REL_ANY_MERGE_JOIN);
-}
+NABoolean Join::isMergeJoin() const { return getOperator().match(REL_ANY_MERGE_JOIN); }
 
-OperatorTypeEnum Join::getMergeJoinOpType()
-{
-  switch (getOperatorType())
-    {
+OperatorTypeEnum Join::getMergeJoinOpType() {
+  switch (getOperatorType()) {
     case REL_JOIN:
       return REL_MERGE_JOIN;
     case REL_LEFT_JOIN:
@@ -4342,32 +3490,29 @@ OperatorTypeEnum Join::getMergeJoinOpType()
     default:
       ABORT("Unsupported join type in Join::getMergeJoinOpType()");
       return REL_MERGE_JOIN;  // return makes MSVC happy.
-    } // switch
-} // Join::getMergeJoinOpType()
+  }                           // switch
+}  // Join::getMergeJoinOpType()
 
-void Join::pushdownCoveredExpr(const ValueIdSet & outputExpr,
-                               const ValueIdSet & newExternalInputs,
-                               ValueIdSet & predicatesOnParent,
-			       const ValueIdSet * setOfValuesReqdByParent,
-			       Lng32 childIndex
-		              )
-{
-  #ifdef NDEBUG
+void Join::pushdownCoveredExpr(const ValueIdSet &outputExpr, const ValueIdSet &newExternalInputs,
+                               ValueIdSet &predicatesOnParent, const ValueIdSet *setOfValuesReqdByParent,
+                               Lng32 childIndex) {
+#ifdef NDEBUG
   NAString pushdownDebugStr(CmpCommon::statementHeap());
-    #define PUSHDOWN_DEBUG_SAVE(str)
-  #else
-    Int32 PUSHDOWN_DEBUG = !!getenv("PUSHDOWN_DEBUG");
-    NAString pushdownDebugStr, pushdownDebugTmp;
-    #define PUSHDOWN_DEBUG_SAVE(str)					      \
-      { if (PUSHDOWN_DEBUG)						      \
-	{ pushdownDebugTmp = "";					      \
-	  predicatesOnParent.unparse(pushdownDebugTmp);			      \
-	  pushdownDebugStr += NAString("\n") + str + ": " + pushdownDebugTmp; \
-	  if (PUSHDOWN_DEBUG == 99) cerr << pushdownDebugStr << endl;	      \
-	}								      \
-      }
-    PUSHDOWN_DEBUG_SAVE("J1");
-  #endif
+#define PUSHDOWN_DEBUG_SAVE(str)
+#else
+  Int32 PUSHDOWN_DEBUG = !!getenv("PUSHDOWN_DEBUG");
+  NAString pushdownDebugStr, pushdownDebugTmp;
+#define PUSHDOWN_DEBUG_SAVE(str)                                          \
+  {                                                                       \
+    if (PUSHDOWN_DEBUG) {                                                 \
+      pushdownDebugTmp = "";                                              \
+      predicatesOnParent.unparse(pushdownDebugTmp);                       \
+      pushdownDebugStr += NAString("\n") + str + ": " + pushdownDebugTmp; \
+      if (PUSHDOWN_DEBUG == 99) cerr << pushdownDebugStr << endl;         \
+    }                                                                     \
+  }
+  PUSHDOWN_DEBUG_SAVE("J1");
+#endif
 #if 0
     if ( CmpCommon::context()->isConnectByDual() ) {
       if(child(0).getPtr()->getOperator().match(REL_CONNECT_BY))
@@ -4402,59 +3547,47 @@ void Join::pushdownCoveredExpr(const ValueIdSet & outputExpr,
   CMPASSERT(childIndex < 0);
 
   NABoolean isATSJFlag = isTSJ();
-  ValueIdSet exprOnParent ;
-  if (setOfValuesReqdByParent)
-    exprOnParent = *setOfValuesReqdByParent;
+  ValueIdSet exprOnParent;
+  if (setOfValuesReqdByParent) exprOnParent = *setOfValuesReqdByParent;
 
-  if (isFullOuterJoin())
-    {
-      // For Full Outer Join, we cannot push down the selctionPred()
-      // or the  joinPred() to either child0 or child1.
-      // Note that for FOJ, predicates are not pulled up.
+  if (isFullOuterJoin()) {
+    // For Full Outer Join, we cannot push down the selctionPred()
+    // or the  joinPred() to either child0 or child1.
+    // Note that for FOJ, predicates are not pulled up.
 
-      // ---------------------------------------------------------------------
-      // STEP 1: We cannot pushdown join predicates to either child,
-      //         so compute values required to evaluate the joinPred()
-      //         here at the parent (the Join) and add
-      //         it to exprOnParent.
-      //
-      // ---------------------------------------------------------------------
-      computeValuesReqdForPredicates(joinPred(),
-				     exprOnParent, TRUE);
+    // ---------------------------------------------------------------------
+    // STEP 1: We cannot pushdown join predicates to either child,
+    //         so compute values required to evaluate the joinPred()
+    //         here at the parent (the Join) and add
+    //         it to exprOnParent.
+    //
+    // ---------------------------------------------------------------------
+    computeValuesReqdForPredicates(joinPred(), exprOnParent, TRUE);
 
-      // ---------------------------------------------------------------------
-      // STEP 2: We cannot pushdown selectionPred()  to either child,
-      //         so compute values required to evaluate the selectionPred()
-      //         here at the parent (the Join) and add
-      //         it to exprOnParent.
-      //
-      // ---------------------------------------------------------------------
-      computeValuesReqdForPredicates(selectionPred(),
-				     exprOnParent, TRUE);
+    // ---------------------------------------------------------------------
+    // STEP 2: We cannot pushdown selectionPred()  to either child,
+    //         so compute values required to evaluate the selectionPred()
+    //         here at the parent (the Join) and add
+    //         it to exprOnParent.
+    //
+    // ---------------------------------------------------------------------
+    computeValuesReqdForPredicates(selectionPred(), exprOnParent, TRUE);
 
-      // ---------------------------------------------------------------------
-      // STEP 3: Calling pushdownCoveredExpr on an empty set, so that the child
-      // inputs and outputs are set properly.
-      // ---------------------------------------------------------------------
-      ValueIdSet emptySet;
+    // ---------------------------------------------------------------------
+    // STEP 3: Calling pushdownCoveredExpr on an empty set, so that the child
+    // inputs and outputs are set properly.
+    // ---------------------------------------------------------------------
+    ValueIdSet emptySet;
 
-       RelExpr::pushdownCoveredExpr(outputExpr,
-				   newExternalInputs,
-				   emptySet,
-				   &exprOnParent,
-				   0);
+    RelExpr::pushdownCoveredExpr(outputExpr, newExternalInputs, emptySet, &exprOnParent, 0);
 
-      // ---------------------------------------------------------------------
-      // STEP 4: Calling pushdownCoveredExpr on an empty set, so that the child
-      // inputs and outputs are set properly.
-      // ---------------------------------------------------------------------
-      RelExpr::pushdownCoveredExpr(outputExpr,
-				   newExternalInputs,
-				   emptySet,
-				   &exprOnParent,
-				   1);
+    // ---------------------------------------------------------------------
+    // STEP 4: Calling pushdownCoveredExpr on an empty set, so that the child
+    // inputs and outputs are set properly.
+    // ---------------------------------------------------------------------
+    RelExpr::pushdownCoveredExpr(outputExpr, newExternalInputs, emptySet, &exprOnParent, 1);
 
-    } // if (isFullOuterJoin())
+  }  // if (isFullOuterJoin())
   // -----------------------------------------------------------------------
   // It might not be obvious, but it turns out that pushing down of
   // predicates in a Left Join is quite similar to that in an Anti-Semi
@@ -4466,11 +3599,10 @@ void Join::pushdownCoveredExpr(const ValueIdSet & outputExpr,
   // we *should* return. (An Anti-Semi Join returns rows from the left
   // which do *not* join with rows from the right).
   // -----------------------------------------------------------------------
-  else if ((isLeftJoin() || isAntiSemiJoin()) && (!isFullOuterJoin()))
-    {
-      // ---------------------------------------------------------------------
-      // STEP 1: Try to push down the given predicatesOnParent to first child.
-      // ---------------------------------------------------------------------
+  else if ((isLeftJoin() || isAntiSemiJoin()) && (!isFullOuterJoin())) {
+    // ---------------------------------------------------------------------
+    // STEP 1: Try to push down the given predicatesOnParent to first child.
+    // ---------------------------------------------------------------------
 
     // ---------------------------------------------------------------------
     // STEP 1A: Gather all values the left child must still produce even if
@@ -4480,15 +3612,13 @@ void Join::pushdownCoveredExpr(const ValueIdSet & outputExpr,
     // outer join. Join predicates can only be pushed to the second. Make
     // sure the first child produces what we need for the join predicates.
     // ---------------------------------------------------------------------
-    computeValuesReqdForPredicates(joinPred(),
-                                   exprOnParent);
+    computeValuesReqdForPredicates(joinPred(), exprOnParent);
 
     // ---------------------------------------------------------------------
     // If this is a TSJ, the left child should also produce those values
     // that the parent needs to give as inputs to the second child.
     // ---------------------------------------------------------------------
-    if (isATSJFlag)
-         exprOnParent += child(1).getGroupAttr()->getCharacteristicInputs();
+    if (isATSJFlag) exprOnParent += child(1).getGroupAttr()->getCharacteristicInputs();
 
     // ---------------------------------------------------------------------
     // This seems to be the only difference between the case of a Left Join
@@ -4498,75 +3628,69 @@ void Join::pushdownCoveredExpr(const ValueIdSet & outputExpr,
     // like VEGPred(VEG{T1.a,T2.a}).
     // ---------------------------------------------------------------------
     ValueIdSet VEGEqPreds1;
-    if (isLeftJoin())
-    {
-    // ---------------------------------------------------------------------
-    // Find all the VEGPreds in predicatesOnParent. VEGPred(VEG{T1.a,T2.a})
-    // will be pushed down to Scan T1 even if T2.a is not available there.
-    // Therefore, we still need to keep a copy of this type of predicates
-    // here at this Join node where both T1.a and T2.a will be available.
-    // ---------------------------------------------------------------------
-    predicatesOnParent.lookForVEGPredicates(VEGEqPreds1);
+    if (isLeftJoin()) {
+      // ---------------------------------------------------------------------
+      // Find all the VEGPreds in predicatesOnParent. VEGPred(VEG{T1.a,T2.a})
+      // will be pushed down to Scan T1 even if T2.a is not available there.
+      // Therefore, we still need to keep a copy of this type of predicates
+      // here at this Join node where both T1.a and T2.a will be available.
+      // ---------------------------------------------------------------------
+      predicatesOnParent.lookForVEGPredicates(VEGEqPreds1);
 
-    // ---------------------------------------------------------------------
-    // Remove those VEGPreds that are covered by the input values, since
-    // VEGPred(VEG{T1.a,3}) needn't be retained at this Join node after it's
-    // pushed down to Scan T1.
-    // ---------------------------------------------------------------------
-    VEGEqPreds1.removeCoveredExprs(newExternalInputs);
+      // ---------------------------------------------------------------------
+      // Remove those VEGPreds that are covered by the input values, since
+      // VEGPred(VEG{T1.a,3}) needn't be retained at this Join node after it's
+      // pushed down to Scan T1.
+      // ---------------------------------------------------------------------
+      VEGEqPreds1.removeCoveredExprs(newExternalInputs);
 
-    // ---------------------------------------------------------------------
-    // Remove those VEGPreds which are not covered at second child. For
-    // example VEGPred(VEG{T1.a,T2.a}) in JOIN2 of ((T1 JOIN1 T2) JOIN2 T3)
-    // is not covered at the second child. The predicate should be pushed
-    // down to the first child without being retained at JOIN2. Note that
-    // since predicatesOnParent are selection predicates evaluated after
-    // a Left Join, they are in terms of the null-instantiated outputs from
-    // the Join rather than direct outputs from the second child.
-    // ---------------------------------------------------------------------
-    VEGEqPreds1.removeUnCoveredExprs(nullInstantiatedOutput());
-    PUSHDOWN_DEBUG_SAVE("J2");
+      // ---------------------------------------------------------------------
+      // Remove those VEGPreds which are not covered at second child. For
+      // example VEGPred(VEG{T1.a,T2.a}) in JOIN2 of ((T1 JOIN1 T2) JOIN2 T3)
+      // is not covered at the second child. The predicate should be pushed
+      // down to the first child without being retained at JOIN2. Note that
+      // since predicatesOnParent are selection predicates evaluated after
+      // a Left Join, they are in terms of the null-instantiated outputs from
+      // the Join rather than direct outputs from the second child.
+      // ---------------------------------------------------------------------
+      VEGEqPreds1.removeUnCoveredExprs(nullInstantiatedOutput());
+      PUSHDOWN_DEBUG_SAVE("J2");
 
-    // ---------------------------------------------------------------------
-    // ??? First child not needed ??? since we are trying to push down to
-    // child0, if it's uncovered, it wouldn't be pushed down anyway.
-    //VEGEqPreds1.removeUnCoveredExprs(
-    //                 child(0).getGroupAttr()->getCharacteristicOutputs());
-    // ---------------------------------------------------------------------
+      // ---------------------------------------------------------------------
+      // ??? First child not needed ??? since we are trying to push down to
+      // child0, if it's uncovered, it wouldn't be pushed down anyway.
+      // VEGEqPreds1.removeUnCoveredExprs(
+      //                 child(0).getGroupAttr()->getCharacteristicOutputs());
+      // ---------------------------------------------------------------------
 
-    // ---------------------------------------------------------------------
-    // Since these VEGEqPreds1 will be added back to predicatesOnParent
-    // after the attempt to push down to first child, make sure the first
-    // child produces the required values to evaluate them.
-    // ---------------------------------------------------------------------
-    computeValuesReqdForPredicates(VEGEqPreds1,
-                                   exprOnParent);
-    } // endif (isLeftJoin())
+      // ---------------------------------------------------------------------
+      // Since these VEGEqPreds1 will be added back to predicatesOnParent
+      // after the attempt to push down to first child, make sure the first
+      // child produces the required values to evaluate them.
+      // ---------------------------------------------------------------------
+      computeValuesReqdForPredicates(VEGEqPreds1, exprOnParent);
+    }  // endif (isLeftJoin())
 
     // ---------------------------------------------------------------------
     // STEP 1B: Perform pushdown to the first child, and add VEGEqPreds
     // back to predicatesOnParent after the push down.
     // ---------------------------------------------------------------------
-    RelExpr::pushdownCoveredExpr(outputExpr,
-                                 newExternalInputs,
-                                 predicatesOnParent,
-				 &exprOnParent,
-                                 0);
+    RelExpr::pushdownCoveredExpr(outputExpr, newExternalInputs, predicatesOnParent, &exprOnParent, 0);
 
     // ---------------------------------------------------------------------
     // All selection predicates could be pushed to the first child for an
     // Anti-Semi Join should those predicates should involve columns from
     // the second child by definition.
     // ---------------------------------------------------------------------
-    if (isAntiSemiJoin())
-    {
-      CMPASSERT(predicatesOnParent.isEmpty()
-		// QSTUFF
-		OR getGroupAttr()->isGenericUpdateRoot()
-		// QSTUFF
-	  );
-    }
-    else
+    if (isAntiSemiJoin()) {
+      CMPASSERT(predicatesOnParent
+                    .isEmpty()
+                // QSTUFF
+                OR getGroupAttr()
+                    ->isGenericUpdateRoot()
+                // QSTUFF
+      );
+    } else
       predicatesOnParent += VEGEqPreds1;
     PUSHDOWN_DEBUG_SAVE("J3");
 
@@ -4581,7 +3705,8 @@ void Join::pushdownCoveredExpr(const ValueIdSet & outputExpr,
     // ---------------------------------------------------------------------
     if (setOfValuesReqdByParent)
       exprOnParent = *setOfValuesReqdByParent;
-    else exprOnParent.clear();
+    else
+      exprOnParent.clear();
 
     // ---------------------------------------------------------------------
     // Since the remaining predicatesOnParent could not be pushed down to
@@ -4591,10 +3716,8 @@ void Join::pushdownCoveredExpr(const ValueIdSet & outputExpr,
     // ---------------------------------------------------------------------
     ValueIdSet inputs = newExternalInputs;
     ValueIdSet inputsTakenOut;
-    if (isLeftJoin())
-    {
-      computeValuesReqdForPredicates(predicatesOnParent,
-                                     exprOnParent);
+    if (isLeftJoin()) {
+      computeValuesReqdForPredicates(predicatesOnParent, exprOnParent);
 
       // -------------------------------------------------------------------
       // Special case: If this left join is the right child of a Nested
@@ -4620,12 +3743,9 @@ void Join::pushdownCoveredExpr(const ValueIdSet & outputExpr,
     // ---------------------------------------------------------------------
     ValueIdSet VEGEqPreds2;
     ValueIdSet availableInputs = inputs;
-    if (isATSJFlag)
-    {
+    if (isATSJFlag) {
       availableInputs += child(0).getGroupAttr()->getCharacteristicOutputs();
-    }
-    else
-    {
+    } else {
       // -------------------------------------------------------------------
       // First, find all the VEGPreds in join predicates. This is similar to
       // what we did above with predicatesOnParent. VEGPred(VEG{T1.a,T2.a})
@@ -4640,7 +3760,7 @@ void Join::pushdownCoveredExpr(const ValueIdSet & outputExpr,
       // VEGPred(VEG{T2.a,3}) needn't be retained at this Join node after
       // pushed down to Scan T2. (There is an exception to this. See later.)
       // -------------------------------------------------------------------
-      VEGEqPreds2.removeCoveredExprs(availableInputs); //newExternalInputs
+      VEGEqPreds2.removeCoveredExprs(availableInputs);  // newExternalInputs
 
       // -------------------------------------------------------------------
       // Remove those VEGPreds which are not covered at first child. For
@@ -4648,16 +3768,14 @@ void Join::pushdownCoveredExpr(const ValueIdSet & outputExpr,
       // is not covered at the first child. The predicate could be pushed
       // down to the second child without being retained at JOIN2.
       // -------------------------------------------------------------------
-      VEGEqPreds2.removeUnCoveredExprs(
-                       child(0).getGroupAttr()->getCharacteristicOutputs());
+      VEGEqPreds2.removeUnCoveredExprs(child(0).getGroupAttr()->getCharacteristicOutputs());
 
       // -------------------------------------------------------------------
       // Since these predicates will be added back to the join predicates
       // after the attempt to push down to second child, make sure the second
       // child produces the required values to evaluate them.
       // -------------------------------------------------------------------
-      computeValuesReqdForPredicates(VEGEqPreds2,
-                                     exprOnParent);
+      computeValuesReqdForPredicates(VEGEqPreds2, exprOnParent);
     }
 
     // ---------------------------------------------------------------------
@@ -4673,7 +3791,7 @@ void Join::pushdownCoveredExpr(const ValueIdSet & outputExpr,
     // ---------------------------------------------------------------------
     ValueIdSet joinPredsThatStay;
     joinPredsThatStay = joinPred();
-    ValueIdSet availableValues = availableInputs; //newExternalInputs
+    ValueIdSet availableValues = availableInputs;  // newExternalInputs
     availableValues += child(0).getGroupAttr()->getCharacteristicOutputs();
     joinPredsThatStay.removeUnCoveredExprs(availableValues);
 
@@ -4681,8 +3799,7 @@ void Join::pushdownCoveredExpr(const ValueIdSet & outputExpr,
     // However, we don't want VEGPred like VEGPred(VEG{T2.a,10}) which
     // actually does not reference an output of T1.
     // ---------------------------------------------------------------------
-    joinPredsThatStay.removeUnReferencedVEGPreds(
-                       child(0).getGroupAttr()->getCharacteristicOutputs());
+    joinPredsThatStay.removeUnReferencedVEGPreds(child(0).getGroupAttr()->getCharacteristicOutputs());
 
     // ---------------------------------------------------------------------
     // Also, if some inputs have been taken out deliberately, we want to
@@ -4692,8 +3809,7 @@ void Join::pushdownCoveredExpr(const ValueIdSet & outputExpr,
     // in evaluating the predicates pushed down to it. The same predicate
     // must be re-evaluated at this JOIN node.
     // ---------------------------------------------------------------------
-    if (NOT inputsTakenOut.isEmpty())
-    {
+    if (NOT inputsTakenOut.isEmpty()) {
       ValueIdSet moreJoinPredsThatStay;
       joinPred().lookForVEGPredicates(moreJoinPredsThatStay);
       moreJoinPredsThatStay.removeUnReferencedVEGPreds(inputsTakenOut);
@@ -4705,8 +3821,7 @@ void Join::pushdownCoveredExpr(const ValueIdSet & outputExpr,
     // after the attempt to push down to second child, make sure the second
     // child produces the required values to evaluate them.
     // ---------------------------------------------------------------------
-    computeValuesReqdForPredicates(joinPredsThatStay,
-                                   exprOnParent);
+    computeValuesReqdForPredicates(joinPredsThatStay, exprOnParent);
 
     //----------------------------------------------------------------------
     // Solution 10-030728-8252: check if the second child could produce
@@ -4721,12 +3836,7 @@ void Join::pushdownCoveredExpr(const ValueIdSet & outputExpr,
     // STEP 2B: Perform pushdown to the second child, and add reqd preds
     // back to the join predicates after the push down.
     // ---------------------------------------------------------------------
-    RelExpr::pushdownCoveredExpr(outputExpr,
-                                 availableInputs,
-                                 joinPred(),
-				 &exprOnParent,
-                                 1);
-
+    RelExpr::pushdownCoveredExpr(outputExpr, availableInputs, joinPred(), &exprOnParent, 1);
 
     // ---------------------------------------------------------------------
     // Add back those predicates which must stay with the JOIN even after
@@ -4736,8 +3846,7 @@ void Join::pushdownCoveredExpr(const ValueIdSet & outputExpr,
     joinPred() += joinPredsThatStay;
     PUSHDOWN_DEBUG_SAVE("J4");
 
-  }
-  else
+  } else
   // -----------------------------------------------------------------------
   // For other types of Join's: Semi and Inner (either TSJ or non-TSJ),
   // processing is quite similar. Inner Joins has no join prediciates. For
@@ -4750,22 +3859,21 @@ void Join::pushdownCoveredExpr(const ValueIdSet & outputExpr,
   {
     ValueIdSet predicates1 = predicatesOnParent;
     ValueIdSet predicates2 = predicatesOnParent;
-    if (isSemiJoin())
-    {
+    if (isSemiJoin()) {
       // Join predicates in a Semi-Join are "as pushable as" its selection
       // predicates.
       //
       predicates1 += joinPred();
       predicates2 += joinPred();
-    }
-    else
-    {
+    } else {
       // Inner Join should have no join predicates.
-      CMPASSERT(joinPred().isEmpty()
-		// QSTUFF
-		OR getGroupAttr()->isGenericUpdateRoot()
-		// QSTUFF
-	  );
+      CMPASSERT(joinPred()
+                    .isEmpty()
+                // QSTUFF
+                OR getGroupAttr()
+                    ->isGenericUpdateRoot()
+                // QSTUFF
+      );
     }
 
     // ---------------------------------------------------------------------
@@ -4798,8 +3906,7 @@ void Join::pushdownCoveredExpr(const ValueIdSet & outputExpr,
     // is not covered at the first child. The predicate could be pushed
     // down to the second child without being retained at JOIN2.
     // ---------------------------------------------------------------------
-    VEGEqPreds.removeUnCoveredExprs(
-		       child(0).getGroupAttr()->getCharacteristicOutputs());
+    VEGEqPreds.removeUnCoveredExprs(child(0).getGroupAttr()->getCharacteristicOutputs());
 
     // ---------------------------------------------------------------------
     // Remove those VEGPreds which are not covered at second child. For
@@ -4807,32 +3914,25 @@ void Join::pushdownCoveredExpr(const ValueIdSet & outputExpr,
     // is not covered at the second child. The predicate could be pushed
     // down to the first child without being retained at JOIN2.
     // ---------------------------------------------------------------------
-    VEGEqPreds.removeUnCoveredExprs(
-                       child(1).getGroupAttr()->getCharacteristicOutputs());
+    VEGEqPreds.removeUnCoveredExprs(child(1).getGroupAttr()->getCharacteristicOutputs());
 
     // ---------------------------------------------------------------------
     // Since these predicates will be retained at the Join (or pushed down
     // to the second child in the case of a TSJ), make sure the first
     // child produces the required values to evaluate them.
     // ---------------------------------------------------------------------
-    computeValuesReqdForPredicates(VEGEqPreds,
-                                   exprOnParent);
+    computeValuesReqdForPredicates(VEGEqPreds, exprOnParent);
 
     // ---------------------------------------------------------------------
     // First child of a TSJ should produce inputs required from the second
     // child as well.
     // ---------------------------------------------------------------------
-    if (isATSJFlag)
-       exprOnParent += child(1).getGroupAttr()->getCharacteristicInputs();
+    if (isATSJFlag) exprOnParent += child(1).getGroupAttr()->getCharacteristicInputs();
 
     // ---------------------------------------------------------------------
     // STEP 2: Try pushing down to the first child.
     // ---------------------------------------------------------------------
-    RelExpr::pushdownCoveredExpr(outputExpr,
-                                 newExternalInputs,
-                                 predicates1,
-				 &exprOnParent,
-                                 0);
+    RelExpr::pushdownCoveredExpr(outputExpr, newExternalInputs, predicates1, &exprOnParent, 0);
     PUSHDOWN_DEBUG_SAVE("J5");
 
     // ---------------------------------------------------------------------
@@ -4848,14 +3948,15 @@ void Join::pushdownCoveredExpr(const ValueIdSet & outputExpr,
     // child by now. Also get rid of the join predicates which have been
     // pushed down.
     // ---------------------------------------------------------------------
-    if (isSemiJoin())
-    {
+    if (isSemiJoin()) {
       joinPred().intersectSet(predicates1);
-      CMPASSERT(predicatesOnParent.isEmpty()
-		// QSTUFF
-		OR getGroupAttr()->isGenericUpdateRoot()
-		// QSTUFF
-	  );
+      CMPASSERT(predicatesOnParent
+                    .isEmpty()
+                // QSTUFF
+                OR getGroupAttr()
+                    ->isGenericUpdateRoot()
+                // QSTUFF
+      );
     }
 
     // ---------------------------------------------------------------------
@@ -4863,11 +3964,11 @@ void Join::pushdownCoveredExpr(const ValueIdSet & outputExpr,
     // Join. Everything remaining should be pushable to the right child.
     // Therefore, we don't need the right child to output values required
     // for evaluating VEGEqPreds, unless it's an required output from the
-    // 
+    //
     // We do not want to push the predicate down to the right child now for
-    // the RoutineJoin. That will happen later when the RoutineJoin gets 
+    // the RoutineJoin. That will happen later when the RoutineJoin gets
     // transfered back to a TSJ/nested join by the optimizer impl rules.
-    // 
+    //
     // The reason we don't want it pushed here is so that the analyzer does
     // not have to differentiate what imputs are required for predicates and
     // which is required for a UDF. By knowing what inputs are required for
@@ -4875,25 +3976,20 @@ void Join::pushdownCoveredExpr(const ValueIdSet & outputExpr,
     // that might be cheaper. We will attempt to push the predicate during
     // the optimizer phase..
     // ---------------------------------------------------------------------
-    if (!isRoutineJoin())
-    {
-       ValueIdSet availableInputs = newExternalInputs;
-       if (isATSJFlag)
-       {
-         if (setOfValuesReqdByParent)
-	   exprOnParent = *setOfValuesReqdByParent;
-         else exprOnParent.clear();
-         availableInputs += child(0).getGroupAttr()->getCharacteristicOutputs();
-       }
+    if (!isRoutineJoin()) {
+      ValueIdSet availableInputs = newExternalInputs;
+      if (isATSJFlag) {
+        if (setOfValuesReqdByParent)
+          exprOnParent = *setOfValuesReqdByParent;
+        else
+          exprOnParent.clear();
+        availableInputs += child(0).getGroupAttr()->getCharacteristicOutputs();
+      }
 
-       // ---------------------------------------------------------------------
-       // STEP 3: Try pushing to second child now.
-       // ---------------------------------------------------------------------
-       RelExpr::pushdownCoveredExpr(outputExpr,
-                                 availableInputs,
-                                 predicates2,
-				 &exprOnParent,
-                                 1);
+      // ---------------------------------------------------------------------
+      // STEP 3: Try pushing to second child now.
+      // ---------------------------------------------------------------------
+      RelExpr::pushdownCoveredExpr(outputExpr, availableInputs, predicates2, &exprOnParent, 1);
     }
 
     // ---------------------------------------------------------------------
@@ -4903,8 +3999,7 @@ void Join::pushdownCoveredExpr(const ValueIdSet & outputExpr,
     predicatesOnParent.intersectSet(predicates2);
     PUSHDOWN_DEBUG_SAVE("J7");
 
-    if (isSemiJoin())
-    {
+    if (isSemiJoin()) {
       // -------------------------------------------------------------------
       // set joinPred to have those predicates that were not pushed down to
       // the second child.
@@ -4922,75 +4017,67 @@ void Join::pushdownCoveredExpr(const ValueIdSet & outputExpr,
         // If it is a TSJ all join predicates should be pushable, no preds
         // should be remaining in joinPred().
         // -----------------------------------------------------------------
-        CMPASSERT(joinPred().isEmpty()
-		  // QSTUFF
-		  OR getGroupAttr()->isGenericUpdateRoot()
-		  // QSTUFF
-		);
-    }
-    else
-    {
+        CMPASSERT(joinPred()
+                      .isEmpty()
+                  // QSTUFF
+                  OR getGroupAttr()
+                      ->isGenericUpdateRoot()
+                  // QSTUFF
+        );
+    } else {
       // -------------------------------------------------------------------
       // If this is a inner-join that is not a TSJ we need to add all the
       // true join VEGPreds back to selection predicates.
       // -------------------------------------------------------------------
-      if (NOT isATSJFlag OR isRoutineJoin())
-      {
+      if (NOT isATSJFlag OR isRoutineJoin()) {
         predicatesOnParent += VEGEqPreds;
         PUSHDOWN_DEBUG_SAVE("J9");
-      }
-      else
+      } else
         // -----------------------------------------------------------------
         // If it is a TSJ all selection predicates should be pushable, no
         // preds should remain.
         // -----------------------------------------------------------------
-        CMPASSERT(predicatesOnParent.isEmpty()
-		  // QSTUFF
-		  OR getGroupAttr()->isGenericUpdateRoot()
-		  // QSTUFF
-		);
+        CMPASSERT(predicatesOnParent
+                      .isEmpty()
+                  // QSTUFF
+                  OR getGroupAttr()
+                      ->isGenericUpdateRoot()
+                  // QSTUFF
+        );
     }
   }
-} // Join::pushdownCoveredExpr
+}  // Join::pushdownCoveredExpr
 
 // --------------------------------------------------------------------------
 // Join::pushdownCoveredExprSQO
 // Rules for pushdown from Join during the SemanticQueryOptimize(SQO)
-// subphase are different in two ways from the usual. 
-// 1) If left child does not cover any part of a 
+// subphase are different in two ways from the usual.
+// 1) If left child does not cover any part of a
 // VEGPred it will still be retained in the Join, so that it can be pulled
 // further up the query tree as we apply this transformation at other levels
 // In the usual rules, the VEGPred will be pushed down to the right child
-// without being retained at the Join. This behaviour is controlled by the 
-// boolean input parameter keepPredsNotCoveredByChild0. Similarly preds not 
-// covered by the right child can also be retained at the Join. This is 
+// without being retained at the Join. This behaviour is controlled by the
+// boolean input parameter keepPredsNotCoveredByChild0. Similarly preds not
+// covered by the right child can also be retained at the Join. This is
 // controlled by keepPredsNotCoveredByChild1.
-// 2) If left child is a semiJoin or a TSJ we do not push any predicates 
-// down that side as those selection predicates are supposed to be empty 
+// 2) If left child is a semiJoin or a TSJ we do not push any predicates
+// down that side as those selection predicates are supposed to be empty
 // at this phase of compilation.
 // ---------------------------------------------------------------------------
-void Join::pushdownCoveredExprSQO(const ValueIdSet & outputExpr,
-                               const ValueIdSet & newExternalInputs,
-                               ValueIdSet & predicatesOnParent,
-			       ValueIdSet & setOfValuesReqdByParent,
-			       NABoolean keepPredsNotCoveredByChild0,
-			       NABoolean keepPredsNotCoveredByChild1
-		              )
-{
-
+void Join::pushdownCoveredExprSQO(const ValueIdSet &outputExpr, const ValueIdSet &newExternalInputs,
+                                  ValueIdSet &predicatesOnParent, ValueIdSet &setOfValuesReqdByParent,
+                                  NABoolean keepPredsNotCoveredByChild0, NABoolean keepPredsNotCoveredByChild1) {
   ValueIdSet exprOnParent1 = setOfValuesReqdByParent;
-  ValueIdSet exprOnParent  = setOfValuesReqdByParent;
+  ValueIdSet exprOnParent = setOfValuesReqdByParent;
   ValueIdSet exprOnParent2 = setOfValuesReqdByParent;
 
- 
   ValueIdSet predicates1 = predicatesOnParent;
   ValueIdSet predicates2 = predicatesOnParent;
-  
-  if (isLeftJoin())
-    {
-      // ---------------------------------------------------------------------
-      // STEP 1: Try to push down the given predicatesOnParent to first child.
-      // ---------------------------------------------------------------------
+
+  if (isLeftJoin()) {
+    // ---------------------------------------------------------------------
+    // STEP 1: Try to push down the given predicatesOnParent to first child.
+    // ---------------------------------------------------------------------
 
     // ---------------------------------------------------------------------
     // STEP 1A: Gather all values the left child must still produce even if
@@ -5000,9 +4087,7 @@ void Join::pushdownCoveredExprSQO(const ValueIdSet & outputExpr,
     // outer join. Join predicates can only be pushed to the second. Make
     // sure the first child produces what we need for the join predicates.
     // ---------------------------------------------------------------------
-    computeValuesReqdForPredicates(joinPred(),
-                                   exprOnParent);
-
+    computeValuesReqdForPredicates(joinPred(), exprOnParent);
 
     ValueIdSet VEGEqPreds1;
 
@@ -5030,27 +4115,20 @@ void Join::pushdownCoveredExprSQO(const ValueIdSet & outputExpr,
     // a Left Join, they are in terms of the null-instantiated outputs from
     // the Join rather than direct outputs from the second child.
     // ---------------------------------------------------------------------
-    if (NOT keepPredsNotCoveredByChild1)
-      VEGEqPreds1.removeUnCoveredExprs(nullInstantiatedOutput());
+    if (NOT keepPredsNotCoveredByChild1) VEGEqPreds1.removeUnCoveredExprs(nullInstantiatedOutput());
 
     // ---------------------------------------------------------------------
     // Since these VEGEqPreds1 will be added back to predicatesOnParent
     // after the attempt to push down to first child, make sure the first
     // child produces the required values to evaluate them.
     // ---------------------------------------------------------------------
-    computeValuesReqdForPredicates(VEGEqPreds1,
-                                   exprOnParent);
+    computeValuesReqdForPredicates(VEGEqPreds1, exprOnParent);
 
     // ---------------------------------------------------------------------
     // STEP 1B: Perform pushdown to the first child, and add VEGEqPreds
     // back to predicatesOnParent after the push down.
     // ---------------------------------------------------------------------
-    RelExpr::pushdownCoveredExpr(outputExpr,
-				  newExternalInputs,
-				  predicatesOnParent,
-				  &exprOnParent,
-				  0);
-
+    RelExpr::pushdownCoveredExpr(outputExpr, newExternalInputs, predicatesOnParent, &exprOnParent, 0);
 
     // ---------------------------------------------------------------------
     // All selection predicates could be pushed to the first child for an
@@ -5079,9 +4157,7 @@ void Join::pushdownCoveredExprSQO(const ValueIdSet & outputExpr,
     // ---------------------------------------------------------------------
     ValueIdSet inputs = newExternalInputs;
     ValueIdSet inputsTakenOut;
-    computeValuesReqdForPredicates(predicatesOnParent,
-                                     exprOnParent);
-
+    computeValuesReqdForPredicates(predicatesOnParent, exprOnParent);
 
     // ---------------------------------------------------------------------
     // Also, if this is NOT a TSJ, there are some join predicates which need
@@ -5091,40 +4167,37 @@ void Join::pushdownCoveredExprSQO(const ValueIdSet & outputExpr,
     // ---------------------------------------------------------------------
     ValueIdSet VEGEqPreds2;
     ValueIdSet availableInputs = inputs;
-      // -------------------------------------------------------------------
-      // First, find all the VEGPreds in join predicates. This is similar to
-      // what we did above with predicatesOnParent. VEGPred(VEG{T1.a,T2.a})
-      // will be pushed down to Scan T2 even if T1.a is not available there.
-      // Therefore, we still need to keep a copy of this type of predicates
-      // here at this Join node where both T1.a and T2.a will be available.
-      // -------------------------------------------------------------------
-      joinPred().lookForVEGPredicates(VEGEqPreds2);
+    // -------------------------------------------------------------------
+    // First, find all the VEGPreds in join predicates. This is similar to
+    // what we did above with predicatesOnParent. VEGPred(VEG{T1.a,T2.a})
+    // will be pushed down to Scan T2 even if T1.a is not available there.
+    // Therefore, we still need to keep a copy of this type of predicates
+    // here at this Join node where both T1.a and T2.a will be available.
+    // -------------------------------------------------------------------
+    joinPred().lookForVEGPredicates(VEGEqPreds2);
 
-      // -------------------------------------------------------------------
-      // Remove those VEGPreds that are covered by the input values, since
-      // VEGPred(VEG{T2.a,3}) needn't be retained at this Join node after
-      // pushed down to Scan T2. (There is an exception to this. See later.)
-      // -------------------------------------------------------------------
-      VEGEqPreds2.removeCoveredExprs(availableInputs); //newExternalInputs
+    // -------------------------------------------------------------------
+    // Remove those VEGPreds that are covered by the input values, since
+    // VEGPred(VEG{T2.a,3}) needn't be retained at this Join node after
+    // pushed down to Scan T2. (There is an exception to this. See later.)
+    // -------------------------------------------------------------------
+    VEGEqPreds2.removeCoveredExprs(availableInputs);  // newExternalInputs
 
-      // -------------------------------------------------------------------
-      // Remove those VEGPreds which are not covered at first child. For
-      // example VEGPred(VEG{T2.a,T3.a}) in JOIN1 of (T1 JOIN1 (T2 JOIN2 T3))
-      // is not covered at the first child. The predicate could be pushed
-      // down to the second child without being retained at JOIN2.
-      // -------------------------------------------------------------------
-      if (NOT keepPredsNotCoveredByChild0)
-        VEGEqPreds2.removeUnCoveredExprs(
-                       child(0).getGroupAttr()->getCharacteristicOutputs());
+    // -------------------------------------------------------------------
+    // Remove those VEGPreds which are not covered at first child. For
+    // example VEGPred(VEG{T2.a,T3.a}) in JOIN1 of (T1 JOIN1 (T2 JOIN2 T3))
+    // is not covered at the first child. The predicate could be pushed
+    // down to the second child without being retained at JOIN2.
+    // -------------------------------------------------------------------
+    if (NOT keepPredsNotCoveredByChild0)
+      VEGEqPreds2.removeUnCoveredExprs(child(0).getGroupAttr()->getCharacteristicOutputs());
 
-      // -------------------------------------------------------------------
-      // Since these predicates will be added back to the join predicates
-      // after the attempt to push down to second child, make sure the second
-      // child produces the required values to evaluate them.
-      // -------------------------------------------------------------------
-      computeValuesReqdForPredicates(VEGEqPreds2,
-                                     exprOnParent);
-    
+    // -------------------------------------------------------------------
+    // Since these predicates will be added back to the join predicates
+    // after the attempt to push down to second child, make sure the second
+    // child produces the required values to evaluate them.
+    // -------------------------------------------------------------------
+    computeValuesReqdForPredicates(VEGEqPreds2, exprOnParent);
 
     // ---------------------------------------------------------------------
     // Now, there are additional join predicates that must be retained
@@ -5139,7 +4212,7 @@ void Join::pushdownCoveredExprSQO(const ValueIdSet & outputExpr,
     // ---------------------------------------------------------------------
     ValueIdSet joinPredsThatStay;
     joinPredsThatStay = joinPred();
-    ValueIdSet availableValues = availableInputs; //newExternalInputs
+    ValueIdSet availableValues = availableInputs;  // newExternalInputs
     availableValues += child(0).getGroupAttr()->getCharacteristicOutputs();
     joinPredsThatStay.removeUnCoveredExprs(availableValues);
 
@@ -5148,8 +4221,7 @@ void Join::pushdownCoveredExprSQO(const ValueIdSet & outputExpr,
     // actually does not reference an output of T1.
     // ---------------------------------------------------------------------
     if (NOT keepPredsNotCoveredByChild0)
-      joinPredsThatStay.removeUnReferencedVEGPreds(
-                       child(0).getGroupAttr()->getCharacteristicOutputs());
+      joinPredsThatStay.removeUnReferencedVEGPreds(child(0).getGroupAttr()->getCharacteristicOutputs());
 
     // ---------------------------------------------------------------------
     // Also, if some inputs have been taken out deliberately, we want to
@@ -5159,8 +4231,7 @@ void Join::pushdownCoveredExprSQO(const ValueIdSet & outputExpr,
     // in evaluating the predicates pushed down to it. The same predicate
     // must be re-evaluated at this JOIN node.
     // ---------------------------------------------------------------------
-    if (NOT inputsTakenOut.isEmpty())
-    {
+    if (NOT inputsTakenOut.isEmpty()) {
       ValueIdSet moreJoinPredsThatStay;
       joinPred().lookForVEGPredicates(moreJoinPredsThatStay);
       moreJoinPredsThatStay.removeUnReferencedVEGPreds(inputsTakenOut);
@@ -5172,8 +4243,7 @@ void Join::pushdownCoveredExprSQO(const ValueIdSet & outputExpr,
     // after the attempt to push down to second child, make sure the second
     // child produces the required values to evaluate them.
     // ---------------------------------------------------------------------
-    computeValuesReqdForPredicates(joinPredsThatStay,
-                                   exprOnParent);
+    computeValuesReqdForPredicates(joinPredsThatStay, exprOnParent);
 
     //----------------------------------------------------------------------
     // Solution 10-030728-8252: check if the second child could produce
@@ -5188,11 +4258,7 @@ void Join::pushdownCoveredExprSQO(const ValueIdSet & outputExpr,
     // STEP 2B: Perform pushdown to the second child, and add reqd preds
     // back to the join predicates after the push down.
     // ---------------------------------------------------------------------
-     RelExpr::pushdownCoveredExpr(outputExpr,
-				  availableInputs,
-				  joinPred(),
-				  &exprOnParent,
-				  1);
+    RelExpr::pushdownCoveredExpr(outputExpr, availableInputs, joinPred(), &exprOnParent, 1);
     // ---------------------------------------------------------------------
     // Add back those predicates which must stay with the JOIN even after
     // they are pushed to the second child.
@@ -5200,149 +4266,112 @@ void Join::pushdownCoveredExprSQO(const ValueIdSet & outputExpr,
     joinPred() += VEGEqPreds2;
     joinPred() += joinPredsThatStay;
 
-  } 
-  else 
-  {
-  // STEP 1: Gather all values the children must still produce even if
-  //         predicates are pushed down.
-  //
-  // Find all the "true join VEGPreds" in predicates. E.g, VEGPred(VEG{
-  // T1.a,T2.a}) will be pushed down to Scan T1 and to Scan T2 even if
-  // not both values are availble at either node. Therefore, we still
-  // need to keep a copy of this type of predicates here at this Join node
-  // where both T1.a and T2.a will be available. That means the children
-  // need to provide these values to the Join node. The only exception is
-  // when we are doing a TSJ. The predicates are then all pushed to the
-  // right child, and the right child could then *not* provide the value
-  // to the Join node if it's not a required output from the Join.
-  // ---------------------------------------------------------------------
-  ValueIdSet VEGEqPreds;
-  predicates1.lookForVEGPredicates(VEGEqPreds);
+  } else {
+    // STEP 1: Gather all values the children must still produce even if
+    //         predicates are pushed down.
+    //
+    // Find all the "true join VEGPreds" in predicates. E.g, VEGPred(VEG{
+    // T1.a,T2.a}) will be pushed down to Scan T1 and to Scan T2 even if
+    // not both values are availble at either node. Therefore, we still
+    // need to keep a copy of this type of predicates here at this Join node
+    // where both T1.a and T2.a will be available. That means the children
+    // need to provide these values to the Join node. The only exception is
+    // when we are doing a TSJ. The predicates are then all pushed to the
+    // right child, and the right child could then *not* provide the value
+    // to the Join node if it's not a required output from the Join.
+    // ---------------------------------------------------------------------
+    ValueIdSet VEGEqPreds;
+    predicates1.lookForVEGPredicates(VEGEqPreds);
 
-  // ---------------------------------------------------------------------
-  // Remove those VEGPreds that are covered by the input values, since
-  // VEGPred(VEG{T1.a,3}) needn't be retained at this Join node after
-  // it's pushed down to Scan T1.
-  // ---------------------------------------------------------------------
-  VEGEqPreds.removeCoveredExprs(newExternalInputs);
+    // ---------------------------------------------------------------------
+    // Remove those VEGPreds that are covered by the input values, since
+    // VEGPred(VEG{T1.a,3}) needn't be retained at this Join node after
+    // it's pushed down to Scan T1.
+    // ---------------------------------------------------------------------
+    VEGEqPreds.removeCoveredExprs(newExternalInputs);
 
-  // ---------------------------------------------------------------------
-  // Remove those VEGPreds which are not covered at first child. For
-  // example VEGPred(VEG{T2.a,T3.a}) in JOIN1 of (T1 JOIN1 (T2 JOIN2 T3))
-  // is not covered at the first child. The predicate could be pushed
-  // down to the second child without being retained at JOIN2.
-  // ---------------------------------------------------------------------
-  if (NOT keepPredsNotCoveredByChild0)
-    VEGEqPreds.removeUnCoveredExprs(
-		       child(0).getGroupAttr()->getCharacteristicOutputs());
+    // ---------------------------------------------------------------------
+    // Remove those VEGPreds which are not covered at first child. For
+    // example VEGPred(VEG{T2.a,T3.a}) in JOIN1 of (T1 JOIN1 (T2 JOIN2 T3))
+    // is not covered at the first child. The predicate could be pushed
+    // down to the second child without being retained at JOIN2.
+    // ---------------------------------------------------------------------
+    if (NOT keepPredsNotCoveredByChild0)
+      VEGEqPreds.removeUnCoveredExprs(child(0).getGroupAttr()->getCharacteristicOutputs());
 
-  // ---------------------------------------------------------------------
-  // Remove those VEGPreds which are not covered at second child. For
-  // example VEGPred(VEG{T1.a,T2.a}) in JOIN2 of ((T1 JOIN1 T2) JOIN2 T3)
-  // is not covered at the second child. The predicate could be pushed
-  // down to the first child without being retained at JOIN2.
-  // ---------------------------------------------------------------------
-  if (NOT keepPredsNotCoveredByChild1)
-    VEGEqPreds.removeUnCoveredExprs(
-                     child(1).getGroupAttr()->getCharacteristicOutputs());
+    // ---------------------------------------------------------------------
+    // Remove those VEGPreds which are not covered at second child. For
+    // example VEGPred(VEG{T1.a,T2.a}) in JOIN2 of ((T1 JOIN1 T2) JOIN2 T3)
+    // is not covered at the second child. The predicate could be pushed
+    // down to the first child without being retained at JOIN2.
+    // ---------------------------------------------------------------------
+    if (NOT keepPredsNotCoveredByChild1)
+      VEGEqPreds.removeUnCoveredExprs(child(1).getGroupAttr()->getCharacteristicOutputs());
 
-  // ---------------------------------------------------------------------
-  // Since these predicates will be retained at the Join (or pushed down
-  // to the second child in the case of a TSJ), make sure the first
-  // child produces the required values to evaluate them.
-  // ---------------------------------------------------------------------
+    // ---------------------------------------------------------------------
+    // Since these predicates will be retained at the Join (or pushed down
+    // to the second child in the case of a TSJ), make sure the first
+    // child produces the required values to evaluate them.
+    // ---------------------------------------------------------------------
 
-  computeValuesReqdForPredicates(VEGEqPreds,
-                                 exprOnParent);
+    computeValuesReqdForPredicates(VEGEqPreds, exprOnParent);
 
-  // ---------------------------------------------------------------------
-  // STEP 2: Try pushing down to the first child.
-  // ---------------------------------------------------------------------
+    // ---------------------------------------------------------------------
+    // STEP 2: Try pushing down to the first child.
+    // ---------------------------------------------------------------------
 
-   
     if (child(0).getPtr()->getOperator().match(REL_ANY_SEMIJOIN) ||
-	child(0).getPtr()->getOperator().match(REL_ANY_TSJ))
-    {
-      computeValuesReqdForPredicates(predicates1,
-				     exprOnParent1);
+        child(0).getPtr()->getOperator().match(REL_ANY_TSJ)) {
+      computeValuesReqdForPredicates(predicates1, exprOnParent1);
       ValueIdSet emptySet;
-      RelExpr::pushdownCoveredExpr(outputExpr,
-				   newExternalInputs,
-				   emptySet,
-				   &exprOnParent1,
-				   0);
-    }
-    else
-    {
-      RelExpr::pushdownCoveredExpr(outputExpr,
-				   newExternalInputs,
-				   predicates1,
-				   &exprOnParent,
-				   0);
+      RelExpr::pushdownCoveredExpr(outputExpr, newExternalInputs, emptySet, &exprOnParent1, 0);
+    } else {
+      RelExpr::pushdownCoveredExpr(outputExpr, newExternalInputs, predicates1, &exprOnParent, 0);
     }
 
+    // ---------------------------------------------------------------------
+    // Find subset of predicatesOnParent which have *not* been pushed down
+    // to first child.
+    // ---------------------------------------------------------------------
+    predicatesOnParent.intersectSet(predicates1);
 
-  // ---------------------------------------------------------------------
-  // Find subset of predicatesOnParent which have *not* been pushed down
-  // to first child.
-  // ---------------------------------------------------------------------
-  predicatesOnParent.intersectSet(predicates1);
-
-
-  // ---------------------------------------------------------------------
-  // STEP 3: Try pushing to second child now.
-  // ---------------------------------------------------------------------
+    // ---------------------------------------------------------------------
+    // STEP 3: Try pushing to second child now.
+    // ---------------------------------------------------------------------
 
     if (child(1).getPtr()->getOperator().match(REL_ANY_SEMIJOIN) ||
         (child(1).getPtr()->getOperator().match(REL_ANY_TSJ) &&
-        (child(1).getPtr()->getOperator() != REL_ROUTINE_JOIN)))
-    {
-      computeValuesReqdForPredicates(predicates2,
-				     exprOnParent2);
+         (child(1).getPtr()->getOperator() != REL_ROUTINE_JOIN))) {
+      computeValuesReqdForPredicates(predicates2, exprOnParent2);
       ValueIdSet emptySet;
-      RelExpr::pushdownCoveredExpr(outputExpr,
-				   newExternalInputs,
-				   emptySet,
-				   &exprOnParent2,
-				   1);
-    }
-    else
-    {
-      // We do not want to push predicates to the right child of a 
+      RelExpr::pushdownCoveredExpr(outputExpr, newExternalInputs, emptySet, &exprOnParent2, 1);
+    } else {
+      // We do not want to push predicates to the right child of a
       // routineJoin.
-      if (!isRoutineJoin())
-      {
-        RelExpr::pushdownCoveredExpr(outputExpr,
-                                     newExternalInputs,
-                                     predicates2,
-                                     &exprOnParent,
-                                     1);
+      if (!isRoutineJoin()) {
+        RelExpr::pushdownCoveredExpr(outputExpr, newExternalInputs, predicates2, &exprOnParent, 1);
       }
     }
 
-  // ---------------------------------------------------------------------
-  // Find subset of predicatesOnParent which have *not* been pushed down
-  // to second child.
-  // ---------------------------------------------------------------------
-  predicatesOnParent.intersectSet(predicates2);
+    // ---------------------------------------------------------------------
+    // Find subset of predicatesOnParent which have *not* been pushed down
+    // to second child.
+    // ---------------------------------------------------------------------
+    predicatesOnParent.intersectSet(predicates2);
 
-  
-  // -------------------------------------------------------------------
-  // If this is a inner-join that is not a TSJ we need to add all the
-  // true join VEGPreds back to selection predicates.
-  // -------------------------------------------------------------------
-  
-  predicatesOnParent += VEGEqPreds;
+    // -------------------------------------------------------------------
+    // If this is a inner-join that is not a TSJ we need to add all the
+    // true join VEGPreds back to selection predicates.
+    // -------------------------------------------------------------------
+
+    predicatesOnParent += VEGEqPreds;
   }
 
-} // Join::pushdownCoveredExprSQO
+}  // Join::pushdownCoveredExprSQO
 
-
-void Join::getPotentialOutputValues(ValueIdSet & outputValues) const
-{
+void Join::getPotentialOutputValues(ValueIdSet &outputValues) const {
   outputValues.clear();
-  switch (getOperatorType())
-    {
+  switch (getOperatorType()) {
     case REL_JOIN:
     case REL_MERGE_JOIN:
     case REL_NESTED_JOIN:
@@ -5351,40 +4380,37 @@ void Join::getPotentialOutputValues(ValueIdSet & outputValues) const
     case REL_ORDERED_HASH_JOIN:
     case REL_INDEX_JOIN:
     case REL_ROUTINE_JOIN:
-    case REL_TSJ:
-      {
-	// Potentially, all the values that are produced by
-	// my left child as well as my right child.
-	outputValues += child(0).getGroupAttr()->getCharacteristicOutputs();
-	outputValues += child(1).getGroupAttr()->getCharacteristicOutputs();
-	break;
-      }
+    case REL_TSJ: {
+      // Potentially, all the values that are produced by
+      // my left child as well as my right child.
+      outputValues += child(0).getGroupAttr()->getCharacteristicOutputs();
+      outputValues += child(1).getGroupAttr()->getCharacteristicOutputs();
+      break;
+    }
     case REL_LEFT_JOIN:
     case REL_LEFT_NESTED_JOIN:
     case REL_LEFT_MERGE_JOIN:
     case REL_LEFT_ORDERED_HASH_JOIN:
     case REL_LEFT_HYBRID_HASH_JOIN:
-    case REL_LEFT_TSJ:
-      {
-	// Potentially, all the values that are produced by
-	// my left child and all null instantiated values from
-	// my right child.
-	outputValues += child(0).getGroupAttr()->getCharacteristicOutputs();
-	outputValues.insertList(nullInstantiatedOutput());
- 	break;
-      }
+    case REL_LEFT_TSJ: {
+      // Potentially, all the values that are produced by
+      // my left child and all null instantiated values from
+      // my right child.
+      outputValues += child(0).getGroupAttr()->getCharacteristicOutputs();
+      outputValues.insertList(nullInstantiatedOutput());
+      break;
+    }
     case REL_FULL_JOIN:
     case REL_UNION_JOIN:
-    case REL_FULL_HYBRID_HASH_JOIN:
-      {
-	// Potentially, all the values that are produced by
-	// my left child and the right child. Since it's a FULL_OUTER_JOIN
-	// all null instantiated values from my right and left child.
+    case REL_FULL_HYBRID_HASH_JOIN: {
+      // Potentially, all the values that are produced by
+      // my left child and the right child. Since it's a FULL_OUTER_JOIN
+      // all null instantiated values from my right and left child.
 
-	outputValues.insertList(nullInstantiatedOutput());
-	outputValues.insertList(nullInstantiatedForRightJoinOutput());
-	break;
-      }
+      outputValues.insertList(nullInstantiatedOutput());
+      outputValues.insertList(nullInstantiatedForRightJoinOutput());
+      break;
+    }
     case REL_SEMIJOIN:
     case REL_ANTI_SEMIJOIN:
     case REL_SEMITSJ:
@@ -5398,36 +4424,31 @@ void Join::getPotentialOutputValues(ValueIdSet & outputValues) const
     case REL_ORDERED_HASH_SEMIJOIN:
     case REL_ORDERED_HASH_ANTI_SEMIJOIN:
     case REL_NESTED_SEMIJOIN:
-    case REL_NESTED_ANTI_SEMIJOIN:
-      {
-	// No value from my right child can appear in my output.
-	outputValues += child(0).getGroupAttr()->getCharacteristicOutputs();
-	break;
-      }
+    case REL_NESTED_ANTI_SEMIJOIN: {
+      // No value from my right child can appear in my output.
+      outputValues += child(0).getGroupAttr()->getCharacteristicOutputs();
+      break;
+    }
     case REL_TSJ_FLOW:
-    case REL_NESTED_JOIN_FLOW:
-      {
-	// No value from my left child can appear in my output.
-	outputValues += child(1).getGroupAttr()->getCharacteristicOutputs();
-	break;
-      }
-    default:
-      {
-	ABORT("Unsupported join type in Join::getPotentialOutputValues()");
-	break;
-      }
-    } // switch
-} // Join::getPotentialOutputValues()
+    case REL_NESTED_JOIN_FLOW: {
+      // No value from my left child can appear in my output.
+      outputValues += child(1).getGroupAttr()->getCharacteristicOutputs();
+      break;
+    }
+    default: {
+      ABORT("Unsupported join type in Join::getPotentialOutputValues()");
+      break;
+    }
+  }  // switch
+}  // Join::getPotentialOutputValues()
 
-CostScalar Join::computeMinEstRCForGroup()
-{
-  CostScalar minCard =  csOne;
+CostScalar Join::computeMinEstRCForGroup() {
+  CostScalar minCard = csOne;
 
-  GroupAttributes * ga = getGroupAttr();
+  GroupAttributes *ga = getGroupAttr();
 
-  RelExpr * logExpr = ga->getLogExprForSynthesis();
-  if (logExpr != NULL)
-  {
+  RelExpr *logExpr = ga->getLogExprForSynthesis();
+  if (logExpr != NULL) {
     logExpr->finishSynthEstLogProp();
     minCard = ga->getMinChildEstRowCount();
   }
@@ -5436,13 +4457,11 @@ CostScalar Join::computeMinEstRCForGroup()
 }
 
 // get the highest reduction from local predicates for cols of this join
-CostScalar
-Join::highestReductionForCols(ValueIdSet colSet) 
-{
+CostScalar Join::highestReductionForCols(ValueIdSet colSet) {
   // if the child is anything other than scan, then we assume the reduction to be 1
-  // but before that we still need to see if the column set that we are looking for 
+  // but before that we still need to see if the column set that we are looking for
   // belongs to this child or not.
-  // since we don't know to which child tableOne belongs, we shall look at both left 
+  // since we don't know to which child tableOne belongs, we shall look at both left
   // and right histograms for the columns. Start with the left child
   ColStatDescList completeList = child(0).outputLogProp((*GLOBAL_EMPTY_INPUT_LOGPROP))->colStats();
   ColStatDescList rightColStatList = child(1).outputLogProp((*GLOBAL_EMPTY_INPUT_LOGPROP))->colStats();
@@ -5450,16 +4469,15 @@ Join::highestReductionForCols(ValueIdSet colSet)
   // form a complete list of histograms from both sides
   completeList.makeDeepCopy(rightColStatList);
   // Compute reduction for this column set
-  CostScalar highestUecRedByLocalPreds = highestUecRedByLocalPreds = completeList.getHighestUecReductionByLocalPreds(colSet);
+  CostScalar highestUecRedByLocalPreds = highestUecRedByLocalPreds =
+      completeList.getHighestUecReductionByLocalPreds(colSet);
   return highestUecRedByLocalPreds;
 }
 
-const NAString Join::getText() const
-{
+const NAString Join::getText() const {
   NAString result;
 
-  switch (getOperatorType())
-    {
+  switch (getOperatorType()) {
     case REL_JOIN:
       result += "join";
       break;
@@ -5506,24 +4524,20 @@ const NAString Join::getText() const
     default:
       result += "UNKNOWN??";
       break;
-    } // switch
+  }  // switch
 
-    if(CmpCommon::getDefault(COMP_BOOL_183) == DF_ON)
-    {
-      Int32 potential = getPotential();
-      if(potential < 0)
-      {
-        result += "_-"+ istring(-1*potential);
-      }
-      else
-        result += "_" + istring(potential);
-    }
+  if (CmpCommon::getDefault(COMP_BOOL_183) == DF_ON) {
+    Int32 potential = getPotential();
+    if (potential < 0) {
+      result += "_-" + istring(-1 * potential);
+    } else
+      result += "_" + istring(potential);
+  }
 
-    return result;
-} // Join::getText()
+  return result;
+}  // Join::getText()
 
-HashValue Join::topHash()
-{
+HashValue Join::topHash() {
   HashValue result = RelExpr::topHash();
 
   result ^= joinPred_;
@@ -5531,96 +4545,67 @@ HashValue Join::topHash()
   return result;
 }
 
-NABoolean Join::duplicateMatch(const RelExpr & other) const
-{
-  if (!RelExpr::duplicateMatch(other))
-    return FALSE;
+NABoolean Join::duplicateMatch(const RelExpr &other) const {
+  if (!RelExpr::duplicateMatch(other)) return FALSE;
 
-  Join &o = (Join &) other;
+  Join &o = (Join &)other;
 
-  if (joinPred_ != o.joinPred_)
-    return FALSE;
+  if (joinPred_ != o.joinPred_) return FALSE;
 
   // Temp member to seperate joins PTRule from others in cascades memo
-  if (joinFromPTRule_ != o.joinFromPTRule_)
-    return FALSE;
+  if (joinFromPTRule_ != o.joinFromPTRule_) return FALSE;
 
-  if (joinForZigZag_ != o.joinForZigZag_)
-    return FALSE;
+  if (joinForZigZag_ != o.joinForZigZag_) return FALSE;
 
-  if (avoidHalloweenR2_ != o.avoidHalloweenR2_)
-    return FALSE;
+  if (avoidHalloweenR2_ != o.avoidHalloweenR2_) return FALSE;
 
-  if (halloweenForceSort_ != o.halloweenForceSort_)
-    return FALSE;
+  if (halloweenForceSort_ != o.halloweenForceSort_) return FALSE;
 
   return TRUE;
 }
 
-const CorrName& Join::getLeftMostCorrName()
-{
-  RelExpr *result = child(0)->castToRelExpr();  
+const CorrName &Join::getLeftMostCorrName() {
+  RelExpr *result = child(0)->castToRelExpr();
 
   while (result) {
-    if ((result->getOperatorType() == REL_SCAN) ||
-	(result->getOperatorType() == REL_RENAME_TABLE)) 
-      break;
+    if ((result->getOperatorType() == REL_SCAN) || (result->getOperatorType() == REL_RENAME_TABLE)) break;
     result = result->child(0);
   }
   return result->getTableName();
 }
 
- 
-RelExpr * Intersect::copyTopNode(RelExpr *derivedNode, CollHeap* outHeap)
-{
+RelExpr *Intersect::copyTopNode(RelExpr *derivedNode, CollHeap *outHeap) {
   RelExpr *result;
 
-  if (derivedNode == NULL)
-    {
-      result = new (outHeap) Intersect(NULL,
-                                        NULL
-                                        );
-    }
-  else
+  if (derivedNode == NULL) {
+    result = new (outHeap) Intersect(NULL, NULL);
+  } else
     result = derivedNode;
 
   return RelExpr::copyTopNode(result, outHeap);
 }
 
-RelExpr * Except::copyTopNode(RelExpr *derivedNode, CollHeap* outHeap)
-{
+RelExpr *Except::copyTopNode(RelExpr *derivedNode, CollHeap *outHeap) {
   RelExpr *result;
 
-  if (derivedNode == NULL)
-    {
-      result = new (outHeap) Except(NULL,
-                                        NULL
-                                        );
-    }
-  else
+  if (derivedNode == NULL) {
+    result = new (outHeap) Except(NULL, NULL);
+  } else
     result = derivedNode;
 
   return RelExpr::copyTopNode(result, outHeap);
 }
 
-RelExpr * Join::copyTopNode(RelExpr *derivedNode, CollHeap* outHeap)
-{
+RelExpr *Join::copyTopNode(RelExpr *derivedNode, CollHeap *outHeap) {
   Join *result;
 
   if (derivedNode == NULL)
-    result = new (outHeap) Join(NULL,
-			        NULL,
-			        getOperatorType(),
-				NULL,
-				FALSE,
-				FALSE,
-				outHeap);
+    result = new (outHeap) Join(NULL, NULL, getOperatorType(), NULL, FALSE, FALSE, outHeap);
   else
-    result = (Join *) derivedNode;
+    result = (Join *)derivedNode;
 
   // copy join predicate parse tree (parser only)
-  if (joinPredTree_ != NULL)
-    result->joinPredTree_ = joinPredTree_->copyTree(outHeap)->castToItemExpr();
+  if (joinPredTree_ != NULL) result->joinPredTree_ = joinPredTree_->copyTree(outHeap)->castToItemExpr();
 
   result->joinPred_ = joinPred_;
 
@@ -5632,19 +4617,18 @@ RelExpr * Join::copyTopNode(RelExpr *derivedNode, CollHeap* outHeap)
   result->equiJoinPredicates_ = equiJoinPredicates_;
   result->equiJoinExpressions_ = equiJoinExpressions_;
 
-  result->nullInstantiatedOutput() =  nullInstantiatedOutput();
+  result->nullInstantiatedOutput() = nullInstantiatedOutput();
 
-  result->nullInstantiatedForRightJoinOutput() =
-    nullInstantiatedForRightJoinOutput();
+  result->nullInstantiatedForRightJoinOutput() = nullInstantiatedForRightJoinOutput();
 
-  result->transformComplete_ =  transformComplete_;
+  result->transformComplete_ = transformComplete_;
 
   // Copy the required order, if any, that originated from an insert node
   result->reqdOrder_ = reqdOrder_;
 
   // copy flag that marks a mandatory TSJ which could not be unnested
   result->tsjAfterSQO_ = tsjAfterSQO_;
-  
+
   // Copy the flag that indicates if this is a TSJ for a write operation
   result->tsjForWrite_ = tsjForWrite_;
   result->tsjForUndo_ = tsjForUndo_;
@@ -5665,7 +4649,6 @@ RelExpr * Join::copyTopNode(RelExpr *derivedNode, CollHeap* outHeap)
 
   result->sourceType_ = sourceType_;
 
-
   result->rowsetRowCountArraySize_ = rowsetRowCountArraySize_;
 
   result->avoidHalloweenR2_ = avoidHalloweenR2_;
@@ -5680,14 +4663,13 @@ RelExpr * Join::copyTopNode(RelExpr *derivedNode, CollHeap* outHeap)
 
   result->predicatesToBeRemoved_ = predicatesToBeRemoved_;
 
-//++MV
+  //++MV
   result->rightChildMapForLeftJoin_ = rightChildMapForLeftJoin_;
-//--MV
+  //--MV
 
   result->isIndexJoin_ = isIndexJoin_;
 
-  if(!result->isInnerNonSemiJoin())
-    result->floatingJoin_ = floatingJoin_;
+  if (!result->isInnerNonSemiJoin()) result->floatingJoin_ = floatingJoin_;
 
   result->isIntersect_ = isIntersect_;
 
@@ -5706,43 +4688,35 @@ RelExpr * Join::copyTopNode(RelExpr *derivedNode, CollHeap* outHeap)
   return RelExpr::copyTopNode(result, outHeap);
 }
 
-void Join::addJoinPredTree(ItemExpr *joinPred)
-{
+void Join::addJoinPredTree(ItemExpr *joinPred) {
   ExprValueId j = joinPredTree_;
 
   ItemExprTreeAsList(&j, ITM_AND).insert(joinPred);
   joinPredTree_ = j.getPtr();
 }
 
-ItemExpr * Join::removeJoinPredTree()
-{
-  ItemExpr * result = joinPredTree_;
+ItemExpr *Join::removeJoinPredTree() {
+  ItemExpr *result = joinPredTree_;
 
   joinPredTree_ = NULL;
 
   return result;
 }
 
-void Join::addLocalExpr(LIST(ExprNode *) &xlist,
-			LIST(NAString) &llist) const
-{
-  if (joinPredTree_ != NULL OR
-      NOT joinPred_.isEmpty())
-    {
-      if (joinPred_.isEmpty())
-	xlist.insert(joinPredTree_);
-      else
-	xlist.insert(joinPred_.rebuildExprTree());
-      llist.insert("other_join_predicates");
-    }
+void Join::addLocalExpr(LIST(ExprNode *) & xlist, LIST(NAString) & llist) const {
+  if (joinPredTree_ != NULL OR NOT joinPred_.isEmpty()) {
+    if (joinPred_.isEmpty())
+      xlist.insert(joinPredTree_);
+    else
+      xlist.insert(joinPred_.rebuildExprTree());
+    llist.insert("other_join_predicates");
+  }
 
-  RelExpr::addLocalExpr(xlist,llist);
+  RelExpr::addLocalExpr(xlist, llist);
 }
 
-void Join::convertToTsj()
-{
-  switch (getOperatorType())
-    {
+void Join::convertToTsj() {
+  switch (getOperatorType()) {
     case REL_JOIN:
       setOperatorType(REL_TSJ);
       break;
@@ -5758,13 +4732,11 @@ void Join::convertToTsj()
     default:
       ABORT("Internal error: Join::convertTsj()");
       break;
-    }
-} // Join::convertToTsj()
+  }
+}  // Join::convertToTsj()
 
-void Join::convertToNotTsj()
-{
-  switch (getOperatorType())
-    {
+void Join::convertToNotTsj() {
+  switch (getOperatorType()) {
     case REL_TSJ:
     case REL_TSJ_FLOW:
     case REL_ROUTINE_JOIN:
@@ -5782,13 +4754,11 @@ void Join::convertToNotTsj()
     default:
       ABORT("Internal error: Join::convertTsj()");
       break;
-    }
-} // Join::convertToNotTsj()
+  }
+}  // Join::convertToNotTsj()
 
-void Join::convertToNotOuterJoin()
-{
-  switch (getOperatorType())
-    {
+void Join::convertToNotOuterJoin() {
+  switch (getOperatorType()) {
     case REL_LEFT_JOIN:
       setOperatorType(REL_JOIN);
       break;
@@ -5798,63 +4768,50 @@ void Join::convertToNotOuterJoin()
     default:
       ABORT("Internal error: Join::convertOuterJoin()");
       break;
-    } // end switch
-} // Join::convertToNotOuterJoin()
+  }  // end switch
+}  // Join::convertToNotOuterJoin()
 
 // ----------------------------------------------------------------------------
 // This procedure gets called when synthesising logical properties.
 // It finds all the equijoin predicates and saves them in equiJoinPredicates_
 // But leaves them in the originating selectionPred()/joinPred()
 // ---------------------------------------------------------------------------
-void Join::findEquiJoinPredicates()
-{
-  ValueIdSet  allJoinPredicates;
-  ValueId     leftExprId, rightExprId;
-  NABoolean   predicateIsOrderPreserving;
-  ItemExpr*   expr;
+void Join::findEquiJoinPredicates() {
+  ValueIdSet allJoinPredicates;
+  ValueId leftExprId, rightExprId;
+  NABoolean predicateIsOrderPreserving;
+  ItemExpr *expr;
 
   equiJoinPredicates_.clear();
   equiJoinExpressions_.clear();
 
   // If this is a TSJ there is nothing to analyze. All join predicates
   // have been pushed down to the second child.
-  if(isTSJ())
-    return;
+  if (isTSJ()) return;
 
-  if (isInnerNonSemiJoin())
-    {
-      allJoinPredicates = selectionPred();
-      CMPASSERT(joinPred().isEmpty());
-    }
-  else
-    {
-      // for an outer or semi join, the ON clause is stored in "joinPred"
-      // while the WHERE clause is stored in "selectionPred".
-      allJoinPredicates = joinPred();
-    }
+  if (isInnerNonSemiJoin()) {
+    allJoinPredicates = selectionPred();
+    CMPASSERT(joinPred().isEmpty());
+  } else {
+    // for an outer or semi join, the ON clause is stored in "joinPred"
+    // while the WHERE clause is stored in "selectionPred".
+    allJoinPredicates = joinPred();
+  }
 
   // remove any predicates covered by the inputs
-  allJoinPredicates.removeCoveredExprs(getGroupAttr()->
-				          getCharacteristicInputs());
+  allJoinPredicates.removeCoveredExprs(getGroupAttr()->getCharacteristicInputs());
 
-  for (ValueId exprId = allJoinPredicates.init();
-       allJoinPredicates.next(exprId);
-       allJoinPredicates.advance(exprId))
-    {
-      expr = exprId.getItemExpr();
+  for (ValueId exprId = allJoinPredicates.init(); allJoinPredicates.next(exprId); allJoinPredicates.advance(exprId)) {
+    expr = exprId.getItemExpr();
 
-      if (expr->isAnEquiJoinPredicate(child(0).getGroupAttr(),
-				      child(1).getGroupAttr(),
-                                      getGroupAttr(),
-				      leftExprId, rightExprId,
-				      predicateIsOrderPreserving))
-	{
-	  equiJoinPredicates_ += exprId;
-	  equiJoinExpressions_.addMapEntry(leftExprId, rightExprId);
-	}
+    if (expr->isAnEquiJoinPredicate(child(0).getGroupAttr(), child(1).getGroupAttr(), getGroupAttr(), leftExprId,
+                                    rightExprId, predicateIsOrderPreserving)) {
+      equiJoinPredicates_ += exprId;
+      equiJoinExpressions_.addMapEntry(leftExprId, rightExprId);
     }
+  }
 
-} // Join::findEquiJoinPredicates()
+}  // Join::findEquiJoinPredicates()
 
 // ---------------------------------------------------------------------------
 // separateEquiAndNonEquiJoinPredicates is called from the Join
@@ -5864,78 +4821,61 @@ void Join::findEquiJoinPredicates()
 // the selectioPred() or joinPred() where they came from.
 // ---------------------------------------------------------------------------
 
-void Join::separateEquiAndNonEquiJoinPredicates
-               (const NABoolean joinStrategyIsOrderSensitive)
-{
-  ValueId     leftExprId, rightExprId;
-  NABoolean   predicateIsOrderPreserving;
-  ItemExpr*   expr;
+void Join::separateEquiAndNonEquiJoinPredicates(const NABoolean joinStrategyIsOrderSensitive) {
+  ValueId leftExprId, rightExprId;
+  NABoolean predicateIsOrderPreserving;
+  ItemExpr *expr;
 
   // equiJoinPredicates_ has all the equijoin predicates found
   // when synthesing logical properties. It is a subset of
   // either selectionPred() or joinPred()
 
-  ValueIdSet  foundEquiJoinPredicates = equiJoinPredicates_;
+  ValueIdSet foundEquiJoinPredicates = equiJoinPredicates_;
   equiJoinPredicates_.clear();
   equiJoinExpressions_.clear();
 
   // remove any predicates covered by the inputs
-  foundEquiJoinPredicates.removeCoveredExprs(getGroupAttr()->
-				          getCharacteristicInputs());
+  foundEquiJoinPredicates.removeCoveredExprs(getGroupAttr()->getCharacteristicInputs());
 
-  for (ValueId exprId = foundEquiJoinPredicates.init();
-       foundEquiJoinPredicates.next(exprId);
-       foundEquiJoinPredicates.advance(exprId))
-    {
-      expr = exprId.getItemExpr();
+  for (ValueId exprId = foundEquiJoinPredicates.init(); foundEquiJoinPredicates.next(exprId);
+       foundEquiJoinPredicates.advance(exprId)) {
+    expr = exprId.getItemExpr();
 
-      if (expr->isAnEquiJoinPredicate(child(0).getGroupAttr(),
-				      child(1).getGroupAttr(),
-                                      getGroupAttr(),
-				      leftExprId, rightExprId,
-				      predicateIsOrderPreserving))
-	{
-	  if ( (NOT joinStrategyIsOrderSensitive) OR
-               (joinStrategyIsOrderSensitive AND predicateIsOrderPreserving) )
-	    {
-	      equiJoinPredicates_ += exprId;
-	      equiJoinExpressions_.addMapEntry(leftExprId, rightExprId);
-	    }
-	}
-     else
-        {
-          CMPASSERT(0); // We knew it was an equijoin predicate already
-        }
+    if (expr->isAnEquiJoinPredicate(child(0).getGroupAttr(), child(1).getGroupAttr(), getGroupAttr(), leftExprId,
+                                    rightExprId, predicateIsOrderPreserving)) {
+      if ((NOT joinStrategyIsOrderSensitive)OR(joinStrategyIsOrderSensitive AND predicateIsOrderPreserving)) {
+        equiJoinPredicates_ += exprId;
+        equiJoinExpressions_.addMapEntry(leftExprId, rightExprId);
+      }
+    } else {
+      CMPASSERT(0);  // We knew it was an equijoin predicate already
     }
+  }
 
-  if (isInnerNonSemiJoin())
-    {
-      selectionPred() -= equiJoinPredicates_;
-      CMPASSERT(joinPred().isEmpty());
-    }
-  else
-    {
-      // for an outer or semi join, the ON clause is stored in "joinPred"
-      // while the WHERE clause is stored in "selectionPred".
-      joinPred() -= equiJoinPredicates_;
-    }
+  if (isInnerNonSemiJoin()) {
+    selectionPred() -= equiJoinPredicates_;
+    CMPASSERT(joinPred().isEmpty());
+  } else {
+    // for an outer or semi join, the ON clause is stored in "joinPred"
+    // while the WHERE clause is stored in "selectionPred".
+    joinPred() -= equiJoinPredicates_;
+  }
 
   // Since we have changed the set of equijoin predicates we will consider
   // we should resyhtnesize the left/rightHasUnqiueMatches_ flags
   synthConstraints(NULL);
 
-} // Join::separateEquiAndNonEquiJoinPredicates()
+}  // Join::separateEquiAndNonEquiJoinPredicates()
 
-void Join::flipChildren()
-{
+void Join::flipChildren() {
   NABoolean flipUnique;
-  flipUnique             = leftHasUniqueMatches_;
-  leftHasUniqueMatches_  = rightHasUniqueMatches_;
+  flipUnique = leftHasUniqueMatches_;
+  leftHasUniqueMatches_ = rightHasUniqueMatches_;
   rightHasUniqueMatches_ = flipUnique;
 
   equiJoinExpressions_.flipSides();
 
-} // Join::flipChildren()
+}  // Join::flipChildren()
 
 // ---------------------------------------------------------------------------
 // get the parallel join type and return additional info (optional)
@@ -5946,80 +4886,61 @@ void Join::flipChildren()
 //                entire table on the other side)
 // ---------------------------------------------------------------------------
 
-Int32 Join::getParallelJoinType(ParallelJoinTypeDetail *optionalDetail) const
-{
+Int32 Join::getParallelJoinType(ParallelJoinTypeDetail *optionalDetail) const {
   Int32 result = 0;
   ParallelJoinTypeDetail detailedType = Join::PAR_NONE;
   const PartitioningFunction *mpf = NULL;
   const PartitioningFunction *cpf = NULL;
 
-  if (getPhysicalProperty())
-    mpf = getPhysicalProperty()->getPartitioningFunction();
+  if (getPhysicalProperty()) mpf = getPhysicalProperty()->getPartitioningFunction();
 
-  if (mpf == NULL OR mpf->getCountOfPartitions() <= 1)
-    {
-      // no parallelism or unknown parallelism, not a parallel join
-      if (optionalDetail)
-        *optionalDetail = detailedType;
+  if (mpf == NULL OR mpf->getCountOfPartitions() <= 1) {
+    // no parallelism or unknown parallelism, not a parallel join
+    if (optionalDetail) *optionalDetail = detailedType;
 
-      return 0;
-    }
+    return 0;
+  }
 
-  if (child(1)->getPhysicalProperty())
-    cpf = child(1)->getPhysicalProperty()->getPartitioningFunction();
+  if (child(1)->getPhysicalProperty()) cpf = child(1)->getPhysicalProperty()->getPartitioningFunction();
 
-  CMPASSERT( cpf );
-  if (cpf->castToLogPhysPartitioningFunction())
-  {
+  CMPASSERT(cpf);
+  if (cpf->castToLogPhysPartitioningFunction()) {
     // only the child of a join in DP2 can have a logphys part func
     DCMPASSERT(getPhysicalProperty()->executeInDP2());
 
-    cpf = cpf->castToLogPhysPartitioningFunction()->
-      getPhysPartitioningFunction();
+    cpf = cpf->castToLogPhysPartitioningFunction()->getPhysPartitioningFunction();
   }
 
-  if (cpf->isAReplicateViaBroadcastPartitioningFunction() OR
-      cpf->isAReplicateNoBroadcastPartitioningFunction())
-  {
+  if (cpf->isAReplicateViaBroadcastPartitioningFunction() OR cpf->isAReplicateNoBroadcastPartitioningFunction()) {
     // Right child replicates, now check my own partitioning
     // function to see whether this node just passes on the
     // replication function.
 
-    if (mpf->castToLogPhysPartitioningFunction())
-    {
+    if (mpf->castToLogPhysPartitioningFunction()) {
       // only a join in DP2 can have a logphys part func
       DCMPASSERT(getPhysicalProperty()->executeInDP2());
 
       // check the physical part. func of the join in DP2
-      mpf = mpf->castToLogPhysPartitioningFunction()->
-        getPhysPartitioningFunction();
+      mpf = mpf->castToLogPhysPartitioningFunction()->getPhysPartitioningFunction();
     }
 
-
-    if (NOT mpf->isAReplicateViaBroadcastPartitioningFunction() AND
-        NOT mpf->isAReplicateNoBroadcastPartitioningFunction())
-    {
+    if (NOT mpf->isAReplicateViaBroadcastPartitioningFunction()
+            AND NOT mpf->isAReplicateNoBroadcastPartitioningFunction()) {
       // See if the right child REALLY replicates data. If this is
       // a nested join and the chosen plan was a "preferred probing
       // order" plan, then this is really a type 1 join, because a
       // ppo plan always demands the two tables be logically
       // partitioned the same way.
-      if (isNestedJoin() && ((NestedJoin*)this)->probesInOrder())
-        {
-          result = 1;
-          detailedType = PAR_OCR;
-        }
-      else
-        {
-          // right child replicates data, and the node itself doesn't,
-          // this is a type 2 join
-          result = 2;
-          if (isNestedJoin())
-            detailedType = PAR_N2J;
-        }
-    }
-    else
-    {
+      if (isNestedJoin() && ((NestedJoin *)this)->probesInOrder()) {
+        result = 1;
+        detailedType = PAR_OCR;
+      } else {
+        // right child replicates data, and the node itself doesn't,
+        // this is a type 2 join
+        result = 2;
+        if (isNestedJoin()) detailedType = PAR_N2J;
+      }
+    } else {
       // Both the right child and the parent replicate data.
       // This is not a parallel join, it is a join that simply
       // passes its replication requirement down to both of its
@@ -6028,34 +4949,25 @@ Int32 Join::getParallelJoinType(ParallelJoinTypeDetail *optionalDetail) const
       // (TYPE1 or TYPE2).
       result = 0;
     }
-  }
-  else
-  {
+  } else {
     // right child is partitioned, but does not replicate, parallel type 1 join or SkewBuster or OCB
     PartitioningFunction *opf = NULL;
 
-    if (child(0)->getPhysicalProperty())
-      opf = child(0)->getPhysicalProperty()->getPartitioningFunction();
+    if (child(0)->getPhysicalProperty()) opf = child(0)->getPhysicalProperty()->getPartitioningFunction();
 
-    if (opf->isAReplicateViaBroadcastPartitioningFunction())
-      {
-        // this is an OCB join, which is considered type2
-        result = 2;
-        detailedType = PAR_OCB;
-      }
-    else
-      {
-        // the regular TYPE1 join (including SkewBuster)
-        result = 1;
+    if (opf->isAReplicateViaBroadcastPartitioningFunction()) {
+      // this is an OCB join, which is considered type2
+      result = 2;
+      detailedType = PAR_OCB;
+    } else {
+      // the regular TYPE1 join (including SkewBuster)
+      result = 1;
 
-        if (opf->isASkewedDataPartitioningFunction())
-          detailedType = PAR_SB;
-
-      }
+      if (opf->isASkewedDataPartitioningFunction()) detailedType = PAR_SB;
+    }
   }
 
-  if (optionalDetail)
-    *optionalDetail = detailedType;
+  if (optionalDetail) *optionalDetail = detailedType;
 
   return result;
 }
@@ -6064,40 +4976,30 @@ Int32 Join::getParallelJoinType(ParallelJoinTypeDetail *optionalDetail) const
 // Method to split the order req between the two join children.
 // return FALSE if not possible
 // ---------------------------------------------------------------------
-NABoolean Join::splitOrderReq(
-                  const ValueIdList& myOrderReq, /*IN*/
-                        ValueIdList& orderReqOfChild0, /*OUT*/
-                        ValueIdList& orderReqOfChild1  /*OUT*/) const
-{
+NABoolean Join::splitOrderReq(const ValueIdList &myOrderReq, /*IN*/
+                              ValueIdList &orderReqOfChild0, /*OUT*/
+                              ValueIdList &orderReqOfChild1 /*OUT*/) const {
   NABoolean partOfChild0List = TRUE;
   ValueId exprId;
 
-  GroupAttributes* child0GA = child(0).getGroupAttr();
-  GroupAttributes* child1GA = child(1).getGroupAttr();
+  GroupAttributes *child0GA = child(0).getGroupAttr();
+  GroupAttributes *child1GA = child(1).getGroupAttr();
 
   orderReqOfChild0.clear();
   orderReqOfChild1.clear();
 
-  for (CollIndex ix = 0; ix < myOrderReq.entries(); ix++)
-  {
+  for (CollIndex ix = 0; ix < myOrderReq.entries(); ix++) {
     exprId = myOrderReq.at(ix);
 
     // dummy variables for the cover test
-    ValueIdSet newInputs,referencedInputs,
-               coveredSubExpr,uncoveredExpr;
-    NABoolean coveredByChild0 =
-      child0GA->covers(exprId,
-                       newInputs,
-                       referencedInputs,
-                       &coveredSubExpr,
-                       &uncoveredExpr);
+    ValueIdSet newInputs, referencedInputs, coveredSubExpr, uncoveredExpr;
+    NABoolean coveredByChild0 = child0GA->covers(exprId, newInputs, referencedInputs, &coveredSubExpr, &uncoveredExpr);
 
-    if (NOT coveredByChild0)
-      partOfChild0List = FALSE;
+    if (NOT coveredByChild0) partOfChild0List = FALSE;
 
     if (partOfChild0List)
-      orderReqOfChild0.insertAt(orderReqOfChild0.entries(),exprId);
-    else // i.e. NOT partOfChild0List
+      orderReqOfChild0.insertAt(orderReqOfChild0.entries(), exprId);
+    else  // i.e. NOT partOfChild0List
     {
       //++MV
       // For left join we need to translate the required sort key to
@@ -6106,193 +5008,135 @@ NABoolean Join::splitOrderReq(
       // cause the cover test to fail and therefore the optimization that merge
       // the left child sort key with the right child sort key will fail
       // For more information see NestedJoin::synthPhysicalProperty()
-      if (isLeftJoin())
-      {
-	const ValueIdMap &map = rightChildMapForLeftJoin();
-	ValueId tempExprId = exprId;
-	map.mapValueIdDown(tempExprId, exprId);
+      if (isLeftJoin()) {
+        const ValueIdMap &map = rightChildMapForLeftJoin();
+        ValueId tempExprId = exprId;
+        map.mapValueIdDown(tempExprId, exprId);
       }
       //--MV
 
       coveredSubExpr.clear();
       uncoveredExpr.clear();
       NABoolean coveredByChild1 =
-      child1GA->covers(exprId,
-                       newInputs,
-                       referencedInputs,
-                       &coveredSubExpr,
-                       &uncoveredExpr);
+          child1GA->covers(exprId, newInputs, referencedInputs, &coveredSubExpr, &uncoveredExpr);
 
-      if (coveredByChild1)
-      {
-        orderReqOfChild1.insertAt(orderReqOfChild1.entries(),exprId);
-      }
-      else // i.e NOT (partOfChild0List || coveredByChild1)
+      if (coveredByChild1) {
+        orderReqOfChild1.insertAt(orderReqOfChild1.entries(), exprId);
+      } else  // i.e NOT (partOfChild0List || coveredByChild1)
       {
         orderReqOfChild0.clear();
         orderReqOfChild1.clear();
         return FALSE;
       }
     }
-  } // end for all expressions in the required order
+  }  // end for all expressions in the required order
 
   // Check to see if it is possible to split the order
-  if (child0GA->isUnique(orderReqOfChild0) OR
-      (child0GA->getMaxNumOfRows() <= 1) OR
-      (orderReqOfChild1.entries() == 0))
-  {
+  if (child0GA->isUnique(orderReqOfChild0) OR(child0GA->getMaxNumOfRows() <= 1) OR(orderReqOfChild1.entries() == 0)) {
     return TRUE;
-  }
-  else
-  {
+  } else {
     orderReqOfChild0.clear();
     orderReqOfChild1.clear();
     return FALSE;
   }
-} // end splitOrderReq()
+}  // end splitOrderReq()
 
 // ---------------------------------------------------------------------
 // method to split the arrangement req between the two join childs.
 // return FALSE if not possible
 // ---------------------------------------------------------------------
-NABoolean Join::splitArrangementReq(
-                  const ValueIdSet& myArrangReq, /*IN*/
-                        ValueIdSet& ArrangReqOfChild0, /*OUT*/
-                        ValueIdSet& ArrangReqOfChild1  /*OUT*/) const
-{
+NABoolean Join::splitArrangementReq(const ValueIdSet &myArrangReq, /*IN*/
+                                    ValueIdSet &ArrangReqOfChild0, /*OUT*/
+                                    ValueIdSet &ArrangReqOfChild1 /*OUT*/) const {
   ArrangReqOfChild0.clear();
   ArrangReqOfChild1.clear();
 
   ValueId exprId;
 
-  GroupAttributes* child0GA = child(0).getGroupAttr();
-  GroupAttributes* child1GA = child(1).getGroupAttr();
+  GroupAttributes *child0GA = child(0).getGroupAttr();
+  GroupAttributes *child1GA = child(1).getGroupAttr();
 
-  for (exprId = myArrangReq.init();
-       myArrangReq.next(exprId);
-       myArrangReq.advance(exprId))
-  {
+  for (exprId = myArrangReq.init(); myArrangReq.next(exprId); myArrangReq.advance(exprId)) {
     // dummy variables for the cover test
-    ValueIdSet newInputs,referencedInputs,
-               coveredSubExpr,uncoveredExpr;
+    ValueIdSet newInputs, referencedInputs, coveredSubExpr, uncoveredExpr;
 
     // First we see if this element is covered by child 0
-    if (child0GA->covers(exprId,
-                         newInputs,
-                         referencedInputs,
-                         &coveredSubExpr,
-                         &uncoveredExpr))
-    {
+    if (child0GA->covers(exprId, newInputs, referencedInputs, &coveredSubExpr, &uncoveredExpr)) {
       ArrangReqOfChild0.insert(exprId);
     }
     // Only if an element is not covered by Child0 then we check
     // Child1. i.e. if it is covered by both we bill it to Child0.
-    else
-    {
+    else {
       coveredSubExpr.clear();
       uncoveredExpr.clear();
-      if (child1GA->covers(exprId,
-                           newInputs,
-                           referencedInputs,
-                           &coveredSubExpr,
-                           &uncoveredExpr))
-      {
+      if (child1GA->covers(exprId, newInputs, referencedInputs, &coveredSubExpr, &uncoveredExpr)) {
         ArrangReqOfChild1.insert(exprId);
-      }
-      else
-      {
+      } else {
         // If the expression was not covered soley by one of the children, then
         // we must give up. For example, "T1.a * T2.a" needs both children.
         ArrangReqOfChild0.clear();
         ArrangReqOfChild1.clear();
         return FALSE;
       }
-    } // end if not covered by child0
-  } // end for all expressions in the required arrangement
+    }  // end if not covered by child0
+  }    // end for all expressions in the required arrangement
 
   // Check to see if it is possible to split the arrangement
-  if (child0GA->isUnique(ArrangReqOfChild0) OR
-      (child0GA->getMaxNumOfRows() <= 1) OR
-      (ArrangReqOfChild1.entries() == 0))
-  {
+  if (child0GA->isUnique(ArrangReqOfChild0) OR(child0GA->getMaxNumOfRows() <= 1) OR(ArrangReqOfChild1.entries() == 0)) {
     return TRUE;
-  }
-  else
-  {
+  } else {
     ArrangReqOfChild0.clear();
     ArrangReqOfChild1.clear();
     return FALSE;
   }
-} // end splitArrangementReq()
+}  // end splitArrangementReq()
 
-NABoolean Join::ownsVEGRegions() const 
-{
-  return isLeftJoin() OR isAntiSemiJoin() OR isFullOuterJoin();
-}
+NABoolean Join::ownsVEGRegions() const { return isLeftJoin() OR isAntiSemiJoin() OR isFullOuterJoin(); }
 
-PlanPriority NestedJoin::computeOperatorPriority
-    (const Context* context,
-     PlanWorkSpace *pws,
-     Lng32 planNumber)
-{
-  const PhysicalProperty* spp = context->getPlan()->getPhysicalProperty();
+PlanPriority NestedJoin::computeOperatorPriority(const Context *context, PlanWorkSpace *pws, Lng32 planNumber) {
+  const PhysicalProperty *spp = context->getPlan()->getPhysicalProperty();
   Lng32 degreeOfParallelism = spp->getCountOfPartitions();
   NABoolean applySerialPremium = TRUE;
 
   double val;
   Cardinality minrows, maxrows;
 
-  CostScalar expectedrows = 
-    child(0).getGroupAttr()->getResultCardinalityForEmptyInput();
+  CostScalar expectedrows = child(0).getGroupAttr()->getResultCardinalityForEmptyInput();
 
-  if (child(0).getGroupAttr()->hasCardConstraint(minrows, maxrows) && 
-     (maxrows <= ActiveSchemaDB()->getDefaults().getAsLong(COMP_INT_99)
-       OR CostScalar(maxrows) < CostScalar(1.2) * expectedrows))
-    {
-      // a nested join with at most N outer rows is NOT risky
-      val = 1.0;
+  if (child(0).getGroupAttr()->hasCardConstraint(minrows, maxrows) &&
+      (maxrows <= ActiveSchemaDB()->getDefaults().getAsLong(COMP_INT_99)
+                      OR CostScalar(maxrows) < CostScalar(1.2) * expectedrows)) {
+    // a nested join with at most N outer rows is NOT risky
+    val = 1.0;
 
-      // In this case premium for serial plan can be waived because cost of
-      // starting ESPs over weighs any benefit we get from parallel plan.
-      // Fix is controlled by COMP_BOOL_75, default value is ON.
-      if (CmpCommon::getDefault(COMP_BOOL_75) == DF_ON)
-        applySerialPremium = FALSE;
+    // In this case premium for serial plan can be waived because cost of
+    // starting ESPs over weighs any benefit we get from parallel plan.
+    // Fix is controlled by COMP_BOOL_75, default value is ON.
+    if (CmpCommon::getDefault(COMP_BOOL_75) == DF_ON) applySerialPremium = FALSE;
+  } else if (context->getInputLogProp() && context->getInputLogProp()->getResultCardinality().value() > 1) {
+    // temporary workaround until we cost HJ under NJ correctly
+    val = 1.0;
+  } else {
+    // a nested join with more than N outer rows is considered risky
+    val = CURRSTMT_OPTDEFAULTS->riskPremiumNJ();
+    // nested join cache should have a lower risk premium
+    GroupAttributes &rightGA = *child(1).getGroupAttr();
+    NABoolean probeIsUnique = rightGA.isUnique(rightGA.getCharacteristicInputs());
+    NABoolean isTypeOfSemiJoin = isSemiJoin() || isAntiSemiJoin();
+
+    if ((probeIsUnique || isTypeOfSemiJoin) && (rowsFromRightHaveUniqueMatch() == FALSE) &&
+        (getOperatorType() != REL_NESTED_JOIN_FLOW) && (isTSJForWrite() == FALSE) &&
+        (getGroupAttr()->isEmbeddedUpdateOrDelete() == FALSE) && (!spp->executeInDP2()) &&
+        (CmpCommon::getDefault(NESTED_JOIN_CACHE) != DF_OFF)) {
+      double red = ActiveSchemaDB()->getDefaults().getAsDouble(COMP_INT_89);
+      if (red > 1) {
+        // reduce risk premium because it's a nested join cache operator
+        val = 1 + (val - 1) / red;
+      }
     }
-  else if (context->getInputLogProp() && 
-           context->getInputLogProp()->getResultCardinality().value() > 1)
-    {
-      // temporary workaround until we cost HJ under NJ correctly
-      val = 1.0;
-    }
-  else
-    {
-      // a nested join with more than N outer rows is considered risky
-      val = CURRSTMT_OPTDEFAULTS->riskPremiumNJ();
-      // nested join cache should have a lower risk premium
-      GroupAttributes &rightGA = *child(1).getGroupAttr();
-      NABoolean probeIsUnique = rightGA.isUnique(rightGA.getCharacteristicInputs());
-      NABoolean isTypeOfSemiJoin = isSemiJoin() || isAntiSemiJoin();
+  }
 
-      if ((probeIsUnique  || isTypeOfSemiJoin)              &&
-          (rowsFromRightHaveUniqueMatch() == FALSE)         &&
-          (getOperatorType() != REL_NESTED_JOIN_FLOW)       &&
-          (isTSJForWrite() == FALSE )                       &&  
-          (getGroupAttr()->
-           isEmbeddedUpdateOrDelete() == FALSE )       &&
-          (!spp->executeInDP2())                       &&
-          (CmpCommon::getDefault(NESTED_JOIN_CACHE) != DF_OFF))
-        {
-          double red=ActiveSchemaDB()->getDefaults().getAsDouble(COMP_INT_89);
-          if (red > 1) 
-            {
-              // reduce risk premium because it's a nested join cache operator
-              val = 1 + (val - 1) / red;
-            }
-        }
-    }
-
-  if (degreeOfParallelism <= 1 && applySerialPremium)
-    {
+  if (degreeOfParallelism <= 1 && applySerialPremium) {
     // serial plans are risky. exact an insurance premium from serial plans.
     val *= CURRSTMT_OPTDEFAULTS->riskPremiumSerial();
   }
@@ -6300,25 +5144,22 @@ PlanPriority NestedJoin::computeOperatorPriority
   PlanPriority result(0, 0, premium);
 
   // esp parallelism priority logic below does not apply to operators in dp2
-  if(spp->executeInDP2())
-    return result;
+  if (spp->executeInDP2()) return result;
 
   // For the option of Max Degree of Parallelism we can either use the
   // value set in comp_int_9 (if positive) or we use the number of CPUs
   // if the CQD is set to -1, or feature is disabled if CQD is 0 (default).
   Lng32 maxDegree = ActiveSchemaDB()->getDefaults().getAsLong(COMP_INT_9);
-  if (CURRSTMT_OPTDEFAULTS->maxParallelismIsFeasible() OR (maxDegree == -1) )
-  {
+  if (CURRSTMT_OPTDEFAULTS->maxParallelismIsFeasible() OR(maxDegree == -1)) {
     // if CQD is set to -1 this mean use the number of CPUs
     maxDegree = spp->getCurrentCountOfCPUs();
   }
-  if (maxDegree > 1) // CQD set to 0 means feature is OFF
+  if (maxDegree > 1)  // CQD set to 0 means feature is OFF
   {
-    if (degreeOfParallelism < maxDegree)
-      result.incrementLevels(0,-10); // need to replace with constant
+    if (degreeOfParallelism < maxDegree) result.incrementLevels(0, -10);  // need to replace with constant
   }
 
-    // fix for SAP case 10-100602-2913, soln 10-100602-0803
+  // fix for SAP case 10-100602-2913, soln 10-100602-0803
   // long-running select for DSO activation, query plan for empty table
 
   // if nested join has
@@ -6327,7 +5168,7 @@ PlanPriority NestedJoin::computeOperatorPriority
   // 3) prefer_key_nested_join is set, and
   // 4) table's predicate (including pushed join pred) forms begin/end
   //    key on table, and
-  // 5) tuple list is of reasonable size (<= tuplelist_size_threshold), 
+  // 5) tuple list is of reasonable size (<= tuplelist_size_threshold),
   //    and
   // 6) table is small or has no stats
   // then give nested join plan higher priority
@@ -6335,8 +5176,7 @@ PlanPriority NestedJoin::computeOperatorPriority
   //   push it by 2 if it has a unique key predicate
 
   // is prefer_key_nested_join active?
-  NABoolean prefer_key_nested_join = 
-    (CmpCommon::getDefault(SAP_PREFER_KEY_NESTED_JOIN) == DF_ON);
+  NABoolean prefer_key_nested_join = (CmpCommon::getDefault(SAP_PREFER_KEY_NESTED_JOIN) == DF_ON);
   if (prefer_key_nested_join) {
     GroupAttributes *grpAttr0 = child(0).getGroupAttr();
     GroupAttributes *grpAttr1 = child(1).getGroupAttr();
@@ -6346,9 +5186,8 @@ PlanPriority NestedJoin::computeOperatorPriority
     // is left child guaranteed small?
     NABoolean leftIsSmall = FALSE;
     Cardinality minLeft, maxLeft;
-    if (grpAttr0->hasCardConstraint(minLeft,maxLeft) AND
-        maxLeft <= ActiveSchemaDB()->getDefaults().getAsLong
-        (SAP_TUPLELIST_SIZE_THRESHOLD)) {
+    if (grpAttr0->hasCardConstraint(minLeft, maxLeft)
+            AND maxLeft <= ActiveSchemaDB()->getDefaults().getAsLong(SAP_TUPLELIST_SIZE_THRESHOLD)) {
       leftIsSmall = TRUE;
     }
 
@@ -6357,14 +5196,11 @@ PlanPriority NestedJoin::computeOperatorPriority
     NABoolean rightIsTable = pws->getScanLeaf(1, planNumber, rScan);
 
     // is right table small?
-    NABoolean isSmallTable = 
-      grpAttr1->getResultCardinalityForEmptyInput() <= 
-      ActiveSchemaDB()->getDefaults().getAsLong
-      (SAP_KEY_NJ_TABLE_SIZE_THRESHOLD);
+    NABoolean isSmallTable = grpAttr1->getResultCardinalityForEmptyInput() <=
+                             ActiveSchemaDB()->getDefaults().getAsLong(SAP_KEY_NJ_TABLE_SIZE_THRESHOLD);
 
     // prefer this nested_join iff all above conditions are met
     if (leftIsSmall && rightIsTable && isSmallTable && rScan) {
-
       // is predicate on unique key or prefix key?
       NABoolean hasUniqKeyPred = FALSE;
       NABoolean hasPrefixKeyPred = FALSE;
@@ -6377,12 +5213,11 @@ PlanPriority NestedJoin::computeOperatorPriority
       // TBD: take care of MDAM case
 
       // push priority by 2 if it has a unique key predicate
-      if (hasUniqKeyPred)
-        result.incrementLevels(2,0);
+      if (hasUniqKeyPred) result.incrementLevels(2, 0);
 
       // push priority by 1 if it has a prefix key predicate
       else if (hasPrefixKeyPred)
-        result.incrementLevels(1,0);
+        result.incrementLevels(1, 0);
     }
   }
 
@@ -6392,35 +5227,23 @@ PlanPriority NestedJoin::computeOperatorPriority
 // -----------------------------------------------------------------------
 // member functions for class NestedJoinFlow
 // -----------------------------------------------------------------------
-NestedJoinFlow::NestedJoinFlow(RelExpr  *leftChild,
-                               RelExpr  *rightChild,
-                               TableDesc *updTableDesc,
-                               ValueIdMap *updateSelectValueIdMap,
-                               CollHeap *oHeap /*= CmpCommon::statementHeap()*/)
-: NestedJoin(leftChild, rightChild, REL_NESTED_JOIN_FLOW,
-             oHeap, updTableDesc, updateSelectValueIdMap),
-  sendEODtoTgt_(FALSE)
-{
+NestedJoinFlow::NestedJoinFlow(RelExpr *leftChild, RelExpr *rightChild, TableDesc *updTableDesc,
+                               ValueIdMap *updateSelectValueIdMap, CollHeap *oHeap /*= CmpCommon::statementHeap()*/)
+    : NestedJoin(leftChild, rightChild, REL_NESTED_JOIN_FLOW, oHeap, updTableDesc, updateSelectValueIdMap),
+      sendEODtoTgt_(FALSE) {
   if (oHeap)
     pCostMethod_ = new (oHeap) CostMethodNestedJoinFlow();
   else
     pCostMethod_ = new (CmpCommon::statementHeap()) CostMethodNestedJoinFlow();
 }
 
-RelExpr * NestedJoinFlow::copyTopNode(RelExpr *derivedNode, CollHeap* outHeap)
-{
+RelExpr *NestedJoinFlow::copyTopNode(RelExpr *derivedNode, CollHeap *outHeap) {
   NestedJoinFlow *result;
 
-  if (derivedNode == NULL)
-    {
-      result = new (outHeap) NestedJoinFlow(NULL,
-					    NULL,
-					    NULL,
-					    NULL,
-					    outHeap);
-    }
-  else
-    result = (NestedJoinFlow*)derivedNode;
+  if (derivedNode == NULL) {
+    result = new (outHeap) NestedJoinFlow(NULL, NULL, NULL, NULL, outHeap);
+  } else
+    result = (NestedJoinFlow *)derivedNode;
 
   result->sendEODtoTgt_ = sendEODtoTgt_;
 
@@ -6430,30 +5253,23 @@ RelExpr * NestedJoinFlow::copyTopNode(RelExpr *derivedNode, CollHeap* outHeap)
 // -----------------------------------------------------------------------
 // member functions for class NestedJoin
 // -----------------------------------------------------------------------
-NestedJoin::NestedJoin(RelExpr *leftChild,
-                       RelExpr *rightChild,
-                       OperatorTypeEnum otype /*= REL_NESTED_JOIN*/,
-                       CollHeap *oHeap /*= CmpCommon::statementHeap()*/,
-                       TableDesc *updTableDesc /*= NULL*/,
+NestedJoin::NestedJoin(RelExpr *leftChild, RelExpr *rightChild, OperatorTypeEnum otype /*= REL_NESTED_JOIN*/,
+                       CollHeap *oHeap /*= CmpCommon::statementHeap()*/, TableDesc *updTableDesc /*= NULL*/,
                        ValueIdMap *updateSelectValueIdMap /*= NULL*/)
-: Join(leftChild, rightChild, otype, NULL, FALSE, FALSE,
-       oHeap, updTableDesc, updateSelectValueIdMap),
-  probesInOrder_(FALSE)
-{
+    : Join(leftChild, rightChild, otype, NULL, FALSE, FALSE, oHeap, updTableDesc, updateSelectValueIdMap),
+      probesInOrder_(FALSE) {
   if (oHeap)
     pCostMethod_ = new (oHeap) CostMethodNestedJoin();
-  else 
+  else
     pCostMethod_ = new (CmpCommon::statementHeap()) CostMethodNestedJoin();
 }
 
-NABoolean NestedJoin::isLogical()  const {return FALSE;}
+NABoolean NestedJoin::isLogical() const { return FALSE; }
 
-NABoolean NestedJoin::isPhysical() const {return TRUE;}
+NABoolean NestedJoin::isPhysical() const { return TRUE; }
 
-const NAString NestedJoin::getText() const
-{
-  switch (getOperatorType())
-    {
+const NAString NestedJoin::getText() const {
+  switch (getOperatorType()) {
     case REL_NESTED_JOIN:
       return "nested_join";
     case REL_LEFT_NESTED_JOIN:
@@ -6466,29 +5282,22 @@ const NAString NestedJoin::getText() const
       return "tuple_flow";
     default:
       return "UNKNOWN??";
-    } // switch
-} // NestedJoin::getText()
+  }  // switch
+}  // NestedJoin::getText()
 
-RelExpr * NestedJoin::copyTopNode(RelExpr *derivedNode, CollHeap* outHeap)
-{
+RelExpr *NestedJoin::copyTopNode(RelExpr *derivedNode, CollHeap *outHeap) {
   RelExpr *result;
 
-  if (derivedNode == NULL)
-    {
-      result = new (outHeap) NestedJoin(NULL,
-				        NULL,
-				        getOperatorType(),
-					outHeap);
-    }
-  else
+  if (derivedNode == NULL) {
+    result = new (outHeap) NestedJoin(NULL, NULL, getOperatorType(), outHeap);
+  } else
     result = derivedNode;
 
   return Join::copyTopNode(result, outHeap);
 }
 
-NABoolean NestedJoin::allPartitionsProbed()
-{
-  return TRUE;//all partitions probed
+NABoolean NestedJoin::allPartitionsProbed() {
+  return TRUE;  // all partitions probed
 }
 
 // Conditions to check before applying the nested join probing cache:
@@ -6504,103 +5313,81 @@ NABoolean NestedJoin::allPartitionsProbed()
 //   8. The right child does not contain non-deterministic UDRs
 //   9. This is not an indexjoin
 //  10. At least 1 row will fit in each instance of probe cache
-NABoolean NestedJoin::isProbeCacheApplicable(PlanExecutionEnum loc) const
-{
+NABoolean NestedJoin::isProbeCacheApplicable(PlanExecutionEnum loc) const {
   NABoolean result = FALSE;
   GroupAttributes &rightGA = *child(1).getGroupAttr();
   NABoolean probeIsUnique = rightGA.isUnique(rightGA.getCharacteristicInputs());
-  if (isIndexJoin())
-    return result;
+  if (isIndexJoin()) return result;
 
-  if ( !probeIsUnique ) {
-     // dig deep into the right child to see if the searchKey associated with the
-     // only Scan node is unique. If it is unique, we also declare the probe is
-     // unique (i.e., for each probe, there is at most one row returned). The
-     // probe uniqueness property check is for the current implementation in executor
-     // where only one entry per probe in the hash table in probe cache is allocated.
+  if (!probeIsUnique) {
+    // dig deep into the right child to see if the searchKey associated with the
+    // only Scan node is unique. If it is unique, we also declare the probe is
+    // unique (i.e., for each probe, there is at most one row returned). The
+    // probe uniqueness property check is for the current implementation in executor
+    // where only one entry per probe in the hash table in probe cache is allocated.
 
-     RelExpr *childExpr = child(1);
+    RelExpr *childExpr = child(1);
 
-     // skip over Exchange nodes
-     while (childExpr && (childExpr->getOperator() == REL_EXCHANGE))
-        childExpr = childExpr->child(0);
+    // skip over Exchange nodes
+    while (childExpr && (childExpr->getOperator() == REL_EXCHANGE)) childExpr = childExpr->child(0);
 
-     if (childExpr)
-        {
-           OperatorTypeEnum x = childExpr->getOperator();
-           if (x == REL_HBASE_ACCESS || x == REL_HBASE_COPROC_AGGR)
-           {
-             HbaseAccess *hbscan = (HbaseAccess*)childExpr;
-             const SearchKey *skey = hbscan->getSearchKey();
-             if (skey && skey->isUnique())
-               probeIsUnique = TRUE;
-           }
-        }
+    if (childExpr) {
+      OperatorTypeEnum x = childExpr->getOperator();
+      if (x == REL_HBASE_ACCESS || x == REL_HBASE_COPROC_AGGR) {
+        HbaseAccess *hbscan = (HbaseAccess *)childExpr;
+        const SearchKey *skey = hbscan->getSearchKey();
+        if (skey && skey->isUnique()) probeIsUnique = TRUE;
+      }
+    }
   }
 
   NABoolean isTypeOfSemiJoin = isSemiJoin() || isAntiSemiJoin();
 
-  if
-    ((probeIsUnique  || isTypeOfSemiJoin)                  &&
-     (getOperatorType() != REL_NESTED_JOIN_FLOW)           &&
-     (isTSJForWrite() == FALSE )                           &&
-     (getGroupAttr()->
-        isEmbeddedUpdateOrDelete() == FALSE )              &&
-     loc != EXECUTE_IN_DP2                                 &&
-     (CmpCommon::getDefault(NESTED_JOIN_CACHE) != DF_OFF)  &&
-     (rightGA.getHasNonDeterministicUDRs() == FALSE))
-    {
-      if (! rowsFromRightHaveUniqueMatch())
-        {
-          // big if passed and we have a chance of duplicate probes from the left
-          result = TRUE;
-        }
-      else
-        {
-          // If left probes are unique, there isn't a reason for a probe
-          // cache. However, we might be able to pull up some predicate from
-          // the right into the ProbeCache, which might give us non-unique
-          // probes. The code below targets a specific case (ALM 4783):
-          //
-          //   NestedJoin
-          //   /       \
+  if ((probeIsUnique || isTypeOfSemiJoin) && (getOperatorType() != REL_NESTED_JOIN_FLOW) &&
+      (isTSJForWrite() == FALSE) && (getGroupAttr()->isEmbeddedUpdateOrDelete() == FALSE) && loc != EXECUTE_IN_DP2 &&
+      (CmpCommon::getDefault(NESTED_JOIN_CACHE) != DF_OFF) && (rightGA.getHasNonDeterministicUDRs() == FALSE)) {
+    if (!rowsFromRightHaveUniqueMatch()) {
+      // big if passed and we have a chance of duplicate probes from the left
+      result = TRUE;
+    } else {
+      // If left probes are unique, there isn't a reason for a probe
+      // cache. However, we might be able to pull up some predicate from
+      // the right into the ProbeCache, which might give us non-unique
+      // probes. The code below targets a specific case (ALM 4783):
+      //
+      //   NestedJoin
+      //   /       \
           //          Aggregate (one equi-join pred is a HAVING pred)
-          //
-          // We can't detect this in the optimizer (where the nested join
-          // may point to a filter or a MEMO group), but that's fine, since
-          // we don't really want to give this unusual case a cost advantage.
-          RelExpr *childExpr = child(1);
-          
-          // skip over Exchange and MapValueIds nodes
-          while (childExpr &&
-                 (childExpr->getOperator() == REL_EXCHANGE ||
-                  childExpr->getOperator() == REL_MAP_VALUEIDS))
-            childExpr = childExpr->child(0);
-          
-          if (childExpr && 
-              childExpr->getOperator().match(REL_ANY_GROUP) &&
-              CmpCommon::getDefault(NESTED_JOIN_CACHE_PREDS) != DF_OFF)
-            {
-              GroupByAgg *childGB = (GroupByAgg *) childExpr;
+      //
+      // We can't detect this in the optimizer (where the nested join
+      // may point to a filter or a MEMO group), but that's fine, since
+      // we don't really want to give this unusual case a cost advantage.
+      RelExpr *childExpr = child(1);
 
-              if (childGB->groupExpr().isEmpty() &&
-                  ! childGB->selectionPred().isEmpty())
-                // This is a scalar aggregate with a HAVING predicate,
-                // at least we know that there is a reasonable chance that
-                // we can pull up a HAVING predicate into the probe cache
-                // in method GroupByAgg::tryToPullUpPredicatesInPreCodeGen()
-                result = TRUE;
-            }
-        }
+      // skip over Exchange and MapValueIds nodes
+      while (childExpr && (childExpr->getOperator() == REL_EXCHANGE || childExpr->getOperator() == REL_MAP_VALUEIDS))
+        childExpr = childExpr->child(0);
+
+      if (childExpr && childExpr->getOperator().match(REL_ANY_GROUP) &&
+          CmpCommon::getDefault(NESTED_JOIN_CACHE_PREDS) != DF_OFF) {
+        GroupByAgg *childGB = (GroupByAgg *)childExpr;
+
+        if (childGB->groupExpr().isEmpty() && !childGB->selectionPred().isEmpty())
+          // This is a scalar aggregate with a HAVING predicate,
+          // at least we know that there is a reasonable chance that
+          // we can pull up a HAVING predicate into the probe cache
+          // in method GroupByAgg::tryToPullUpPredicatesInPreCodeGen()
+          result = TRUE;
+      }
     }
+  }
 
   if (result) {
-     double  memoryLimitPerInstance =
-      ActiveSchemaDB()->getDefaults().getAsLong(EXE_MEMORY_FOR_PROBE_CACHE_IN_MB) * 1024 * 1024;
-     Lng32 innerTupleLen = rightGA.getCharacteristicOutputs().getRowLength() ;
-     Lng32 probeLen = rightGA.getCharacteristicInputs().getRowLength() ;
-     if (probeLen + innerTupleLen > memoryLimitPerInstance)
-       result = FALSE;
+    double memoryLimitPerInstance =
+        ActiveSchemaDB()->getDefaults().getAsLong(EXE_MEMORY_FOR_PROBE_CACHE_IN_MB) * 1024 * 1024;
+    Lng32 innerTupleLen = rightGA.getCharacteristicOutputs().getRowLength();
+    Lng32 probeLen = rightGA.getCharacteristicInputs().getRowLength();
+    if (probeLen + innerTupleLen > memoryLimitPerInstance) result = FALSE;
   }
   return result;
 }
@@ -6608,28 +5395,24 @@ NABoolean NestedJoin::isProbeCacheApplicable(PlanExecutionEnum loc) const
 // -----------------------------------------------------------------------
 // member functions for class MergeJoin
 // -----------------------------------------------------------------------
-MergeJoin::MergeJoin(RelExpr *leftChild,
-                     RelExpr *rightChild,
-                     OperatorTypeEnum otype /*= REL_MERGE_JOIN*/,
-                     ItemExpr *joinPred /*= NULL*/,
-                     CollHeap *oHeap /*= CmpCommon::statementHeap()*/)
-: Join (leftChild, rightChild, otype, joinPred, FALSE, FALSE, oHeap),
-  leftUnique_(FALSE), rightUnique_(FALSE), deadLockIsPossible_(FALSE)
-{
+MergeJoin::MergeJoin(RelExpr *leftChild, RelExpr *rightChild, OperatorTypeEnum otype /*= REL_MERGE_JOIN*/,
+                     ItemExpr *joinPred /*= NULL*/, CollHeap *oHeap /*= CmpCommon::statementHeap()*/)
+    : Join(leftChild, rightChild, otype, joinPred, FALSE, FALSE, oHeap),
+      leftUnique_(FALSE),
+      rightUnique_(FALSE),
+      deadLockIsPossible_(FALSE) {
   if (oHeap)
     pCostMethod_ = new (oHeap) CostMethodMergeJoin();
   else
     pCostMethod_ = new (CmpCommon::statementHeap()) CostMethodMergeJoin();
 }
 
-NABoolean MergeJoin::isLogical()  const {return FALSE;}
+NABoolean MergeJoin::isLogical() const { return FALSE; }
 
-NABoolean MergeJoin::isPhysical() const {return TRUE;}
+NABoolean MergeJoin::isPhysical() const { return TRUE; }
 
-const NAString MergeJoin::getText() const
-{
-  switch (getOperatorType())
-    {
+const NAString MergeJoin::getText() const {
+  switch (getOperatorType()) {
     case REL_MERGE_JOIN:
       return "merge_join";
     case REL_LEFT_MERGE_JOIN:
@@ -6640,47 +5423,35 @@ const NAString MergeJoin::getText() const
       return "merge_anti_semi_join";
     default:
       return "UNKNOWN merge join??";
-    } // switch
-} // MergeJoin::getText()
+  }  // switch
+}  // MergeJoin::getText()
 
-RelExpr * MergeJoin::copyTopNode(RelExpr *derivedNode, CollHeap* outHeap)
-{
+RelExpr *MergeJoin::copyTopNode(RelExpr *derivedNode, CollHeap *outHeap) {
   RelExpr *result;
 
   if (derivedNode == NULL)
-    result = new (outHeap) MergeJoin(NULL,
-				     NULL,
-				     getOperatorType(),
-				     NULL,
-				     outHeap);
+    result = new (outHeap) MergeJoin(NULL, NULL, getOperatorType(), NULL, outHeap);
   else
     result = derivedNode;
 
   return Join::copyTopNode(result, outHeap);
 }
 
-void MergeJoin::addLocalExpr(LIST(ExprNode *) &xlist,
-			     LIST(NAString) &llist) const
-{
+void MergeJoin::addLocalExpr(LIST(ExprNode *) & xlist, LIST(NAString) & llist) const {
   xlist.insert(orderedMJPreds_.rebuildExprTree());
   llist.insert("merge_join_predicate");
 
-  Join::addLocalExpr(xlist,llist);
+  Join::addLocalExpr(xlist, llist);
 }
 
-PlanPriority MergeJoin::computeOperatorPriority
-(const Context* context,
- PlanWorkSpace *pws,
- Lng32 planNumber)
-{
-  const PhysicalProperty* spp = context->getPlan()->getPhysicalProperty();
+PlanPriority MergeJoin::computeOperatorPriority(const Context *context, PlanWorkSpace *pws, Lng32 planNumber) {
+  const PhysicalProperty *spp = context->getPlan()->getPhysicalProperty();
   Lng32 degreeOfParallelism = spp->getCountOfPartitions();
   double val = CURRSTMT_OPTDEFAULTS->riskPremiumMJ();
-  if (degreeOfParallelism <= 1)
-    {
-      // serial plans are risky. exact an insurance premium from serial plans.
-      val *= CURRSTMT_OPTDEFAULTS->riskPremiumSerial();
-    }
+  if (degreeOfParallelism <= 1) {
+    // serial plans are risky. exact an insurance premium from serial plans.
+    val *= CURRSTMT_OPTDEFAULTS->riskPremiumSerial();
+  }
   CostScalar premium(val);
   PlanPriority result(0, 0, premium);
 
@@ -6688,15 +5459,13 @@ PlanPriority MergeJoin::computeOperatorPriority
   // value set in comp_int_9 (if positive) or we use the number of CPUs
   // if the CQD is set to -1, or feature is disabled if CQD is 0 (default).
   Lng32 maxDegree = ActiveSchemaDB()->getDefaults().getAsLong(COMP_INT_9);
-  if (CURRSTMT_OPTDEFAULTS->maxParallelismIsFeasible() OR (maxDegree == -1) )
-  {
+  if (CURRSTMT_OPTDEFAULTS->maxParallelismIsFeasible() OR(maxDegree == -1)) {
     // if CQD is set to -1 this mean use the number of CPUs
     maxDegree = spp->getCurrentCountOfCPUs();
   }
-  if (maxDegree > 1) // CQD set to 0 means feature is OFF
+  if (maxDegree > 1)  // CQD set to 0 means feature is OFF
   {
-    if (degreeOfParallelism < maxDegree)
-      result.incrementLevels(0,-10); // need to replace with constant
+    if (degreeOfParallelism < maxDegree) result.incrementLevels(0, -10);  // need to replace with constant
   }
 
   return result;
@@ -6705,52 +5474,51 @@ PlanPriority MergeJoin::computeOperatorPriority
 // -----------------------------------------------------------------------
 // member functions for class HashJoin
 // -----------------------------------------------------------------------
-HashJoin::HashJoin(RelExpr *leftChild,
-                   RelExpr *rightChild,
-                   OperatorTypeEnum otype /*= REL_HASH_JOIN*/,
-                   ItemExpr *joinPred /*= NULL*/,
-                   CollHeap *oHeap /*= CmpCommon::statementHeap()*/)
-: Join (leftChild, rightChild, otype, joinPred, FALSE, FALSE, oHeap),
-  isNoOverflow_(FALSE), reuse_(FALSE), multipleCalls_(-1),
-  isOrderedCrossProduct_(FALSE), returnRightOrdered_(FALSE),
-  isNotInSubqTransform_(FALSE),
-  requireOneBroadcast_(FALSE),
-  startMinMaxIndex_(0), endMinMaxIndex_(0),
-  innerAccessOnePartition_(FALSE),
-  innerChildUecs_(oHeap)
-{
+HashJoin::HashJoin(RelExpr *leftChild, RelExpr *rightChild, OperatorTypeEnum otype /*= REL_HASH_JOIN*/,
+                   ItemExpr *joinPred /*= NULL*/, CollHeap *oHeap /*= CmpCommon::statementHeap()*/)
+    : Join(leftChild, rightChild, otype, joinPred, FALSE, FALSE, oHeap),
+      isNoOverflow_(FALSE),
+      reuse_(FALSE),
+      multipleCalls_(-1),
+      isOrderedCrossProduct_(FALSE),
+      returnRightOrdered_(FALSE),
+      isNotInSubqTransform_(FALSE),
+      requireOneBroadcast_(FALSE),
+      startMinMaxIndex_(0),
+      endMinMaxIndex_(0),
+      innerAccessOnePartition_(FALSE),
+      innerChildUecs_(oHeap) {
   if (oHeap)
     pCostMethod_ = new (oHeap) CostMethodHashJoin;
   else
     pCostMethod_ = new (CmpCommon::statementHeap()) CostMethodHashJoin;
 }
 
-HashJoin::HashJoin(RelExpr *leftChild,
-                   RelExpr *rightChild,
-                   CollHeap *oHeap /*= CmpCommon::statementHeap()*/)
-: Join (leftChild, rightChild, REL_HASH_JOIN, NULL, FALSE, FALSE, oHeap),
-  isNoOverflow_(FALSE), reuse_(FALSE), multipleCalls_(-1),
-  isOrderedCrossProduct_(FALSE), returnRightOrdered_(FALSE),
-  isNotInSubqTransform_(FALSE),
-  requireOneBroadcast_(FALSE),
-  startMinMaxIndex_(0), endMinMaxIndex_(0),
-  innerAccessOnePartition_(FALSE),
-  innerChildUecs_(oHeap)
-{
+HashJoin::HashJoin(RelExpr *leftChild, RelExpr *rightChild, CollHeap *oHeap /*= CmpCommon::statementHeap()*/)
+    : Join(leftChild, rightChild, REL_HASH_JOIN, NULL, FALSE, FALSE, oHeap),
+      isNoOverflow_(FALSE),
+      reuse_(FALSE),
+      multipleCalls_(-1),
+      isOrderedCrossProduct_(FALSE),
+      returnRightOrdered_(FALSE),
+      isNotInSubqTransform_(FALSE),
+      requireOneBroadcast_(FALSE),
+      startMinMaxIndex_(0),
+      endMinMaxIndex_(0),
+      innerAccessOnePartition_(FALSE),
+      innerChildUecs_(oHeap) {
   if (oHeap)
     pCostMethod_ = new (oHeap) CostMethodHashJoin;
   else
     pCostMethod_ = new (CmpCommon::statementHeap()) CostMethodHashJoin;
 }
 
-NABoolean HashJoin::isLogical()  const { return FALSE; }
+NABoolean HashJoin::isLogical() const { return FALSE; }
 
 NABoolean HashJoin::isPhysical() const { return TRUE; }
 
-const NAString HashJoin::getText() const
-{
-  switch (getOperatorType())
-    {
+const NAString HashJoin::getText() const {
+  switch (getOperatorType()) {
     case REL_HASH_JOIN:
       return "hash_join";
     case REL_LEFT_HASH_JOIN:
@@ -6760,13 +5528,12 @@ const NAString HashJoin::getText() const
     case REL_HASH_ANTI_SEMIJOIN:
       return "hash_anti_semi_join";
 
-    case REL_HYBRID_HASH_JOIN:
-     {
-        if(((HashJoin *)this)->isOrderedCrossProduct())
-          return "ordered_cross_product";
-        else
-          return "hybrid_hash_join";
-      }
+    case REL_HYBRID_HASH_JOIN: {
+      if (((HashJoin *)this)->isOrderedCrossProduct())
+        return "ordered_cross_product";
+      else
+        return "hybrid_hash_join";
+    }
     case REL_LEFT_HYBRID_HASH_JOIN:
       return "left_hybrid_hash_join";
     case REL_FULL_HYBRID_HASH_JOIN:
@@ -6776,13 +5543,12 @@ const NAString HashJoin::getText() const
     case REL_HYBRID_HASH_ANTI_SEMIJOIN:
       return "hybrid_hash_anti_semi_join";
 
-    case REL_ORDERED_HASH_JOIN:
-      {
-	if (getEquiJoinPredicates().isEmpty())
-          return "ordered_cross_product";
-        else
-	  return "ordered_hash_join";
-      }
+    case REL_ORDERED_HASH_JOIN: {
+      if (getEquiJoinPredicates().isEmpty())
+        return "ordered_cross_product";
+      else
+        return "ordered_hash_join";
+    }
     case REL_LEFT_ORDERED_HASH_JOIN:
       return "left_ordered_hash_join";
     case REL_ORDERED_HASH_SEMIJOIN:
@@ -6791,258 +5557,203 @@ const NAString HashJoin::getText() const
       return "ordered_hash_anti_semi_join";
     default:
       return "UNKNOWN hash join??";
-    } // switch
-} // HashJoin::getText()
+  }  // switch
+}  // HashJoin::getText()
 
-
-
-
-RelExpr * HashJoin::copyTopNode(RelExpr *derivedNode, CollHeap* outHeap)
-{
+RelExpr *HashJoin::copyTopNode(RelExpr *derivedNode, CollHeap *outHeap) {
   RelExpr *result;
 
   if (derivedNode == NULL) {
-    result = new (outHeap) HashJoin(NULL,
-				    NULL,
-				    getOperatorType(),
-				    NULL,
-				    outHeap);
+    result = new (outHeap) HashJoin(NULL, NULL, getOperatorType(), NULL, outHeap);
     ((HashJoin *)result)->setIsOrderedCrossProduct(isOrderedCrossProduct());
     ((HashJoin *)result)->setReuse(isReuse());
     ((HashJoin *)result)->setNoOverflow(isNoOverflow());
-  }
-  else
+  } else
     result = derivedNode;
 
-  ((HashJoin*)result)->isNotInSubqTransform_ = isNotInSubqTransform_;
-  ((HashJoin*)result)->requireOneBroadcast_  = requireOneBroadcast_;
+  ((HashJoin *)result)->isNotInSubqTransform_ = isNotInSubqTransform_;
+  ((HashJoin *)result)->requireOneBroadcast_ = requireOneBroadcast_;
 
-  ((HashJoin*)result)->innerAccessOnePartition_ = innerAccessOnePartition_;
+  ((HashJoin *)result)->innerAccessOnePartition_ = innerAccessOnePartition_;
 
-  ((HashJoin*)result)->minMaxVals_ = minMaxVals_;
+  ((HashJoin *)result)->minMaxVals_ = minMaxVals_;
 
   return Join::copyTopNode(result, outHeap);
 }
 
-PlanPriority HashJoin::computeOperatorPriority
-(const Context* context,
- PlanWorkSpace *pws,
- Lng32 planNumber)
-{
-  const PhysicalProperty* spp = context->getPlan()->getPhysicalProperty();
+PlanPriority HashJoin::computeOperatorPriority(const Context *context, PlanWorkSpace *pws, Lng32 planNumber) {
+  const PhysicalProperty *spp = context->getPlan()->getPhysicalProperty();
   Lng32 degreeOfParallelism = spp->getCountOfPartitions();
   double val = 1;
-  if (degreeOfParallelism <= 1 && getInnerAccessOnePartition() == FALSE ) 
-    {
-      // serial plans are risky. exact an insurance premium from serial plans.
-      // The exception is when only one partition is accessed.
-      val = CURRSTMT_OPTDEFAULTS->riskPremiumSerial();
-    }
+  if (degreeOfParallelism <= 1 && getInnerAccessOnePartition() == FALSE) {
+    // serial plans are risky. exact an insurance premium from serial plans.
+    // The exception is when only one partition is accessed.
+    val = CURRSTMT_OPTDEFAULTS->riskPremiumSerial();
+  }
   CostScalar premium(val);
   PlanPriority result(0, 0, premium);
 
-  if (QueryAnalysis::Instance() AND
-      QueryAnalysis::Instance()->optimizeForFirstNRows())
-    result.incrementLevels(HASH_JOIN_FIRST_N_PRIORITY,0);
+  if (QueryAnalysis::Instance() AND QueryAnalysis::Instance()->optimizeForFirstNRows())
+    result.incrementLevels(HASH_JOIN_FIRST_N_PRIORITY, 0);
 
   // For the option of Max Degree of Parallelism we can either use the
   // value set in comp_int_9 (if positive) or we use the number of CPUs
   // if the CQD is set to -1, or feature is disabled if CQD is 0 (default).
   Lng32 maxDegree = ActiveSchemaDB()->getDefaults().getAsLong(COMP_INT_9);
-  if (CURRSTMT_OPTDEFAULTS->maxParallelismIsFeasible() OR (maxDegree == -1) )
-  {
+  if (CURRSTMT_OPTDEFAULTS->maxParallelismIsFeasible() OR(maxDegree == -1)) {
     // if CQD is set to -1 this mean use the number of CPUs
     maxDegree = spp->getCurrentCountOfCPUs();
   }
-  if (maxDegree > 1) // CQD set to 0 means feature is OFF
+  if (maxDegree > 1)  // CQD set to 0 means feature is OFF
   {
-    if (degreeOfParallelism < maxDegree)
-      result.incrementLevels(0,-10); // need to replace with constant
+    if (degreeOfParallelism < maxDegree) result.incrementLevels(0, -10);  // need to replace with constant
   }
 
   return result;
 }
 
-void HashJoin::addLocalExpr(LIST(ExprNode *) &xlist,
-			    LIST(NAString) &llist) const
-{
-  if (NOT getEquiJoinPredicates().isEmpty())
-  {
-  xlist.insert(getEquiJoinPredicates().rebuildExprTree());
+void HashJoin::addLocalExpr(LIST(ExprNode *) & xlist, LIST(NAString) & llist) const {
+  if (NOT getEquiJoinPredicates().isEmpty()) {
+    xlist.insert(getEquiJoinPredicates().rebuildExprTree());
     llist.insert("hash_join_predicates");
   }
 
-  if (NOT valuesGivenToChild_.isEmpty())
-  {
+  if (NOT valuesGivenToChild_.isEmpty()) {
     xlist.insert(valuesGivenToChild_.rebuildExprTree(ITM_ITEM_LIST));
     llist.insert("reuse_comparison_values");
   }
 
-  if (NOT checkInnerNullExpr_.isEmpty())
-  {
+  if (NOT checkInnerNullExpr_.isEmpty()) {
     xlist.insert(checkInnerNullExpr_.rebuildExprTree());
     llist.insert("check_inner_null_expr");
   }
-  
-  if (NOT checkOuterNullExpr_.isEmpty())
-  {
+
+  if (NOT checkOuterNullExpr_.isEmpty()) {
     xlist.insert(checkOuterNullExpr_.rebuildExprTree());
     llist.insert("check_outer_null_expr");
   }
 
-  Join::addLocalExpr(xlist,llist);
+  Join::addLocalExpr(xlist, llist);
 }
-void HashJoin::resolveSingleColNotInPredicate()
-{
-
-  if (!isAntiSemiJoin() ||
-      !isHashJoin())
-  {
+void HashJoin::resolveSingleColNotInPredicate() {
+  if (!isAntiSemiJoin() || !isHashJoin()) {
     return;
   }
 
   ValueIdSet jPred = joinPred();
-  short notinCount=0;
-  
-  for (	ValueId valId = jPred.init(); 
-	jPred.next(valId); 
-	jPred.advance(valId))
-  {
-    ItemExpr * itmExpr = valId.getItemExpr();
-    
-    if (itmExpr->getOperatorType() == ITM_NOT_IN)
-    {
-      if (((NotIn*)itmExpr)->getEquivEquiPredicate() == NULL_VALUE_ID)
-      {
-        ((NotIn*)itmExpr)->cacheEquivEquiPredicate();
+  short notinCount = 0;
 
+  for (ValueId valId = jPred.init(); jPred.next(valId); jPred.advance(valId)) {
+    ItemExpr *itmExpr = valId.getItemExpr();
+
+    if (itmExpr->getOperatorType() == ITM_NOT_IN) {
+      if (((NotIn *)itmExpr)->getEquivEquiPredicate() == NULL_VALUE_ID) {
+        ((NotIn *)itmExpr)->cacheEquivEquiPredicate();
       }
 
       // use cached value ids
-      equiJoinPredicates() += ((NotIn*)itmExpr)->getEquivEquiPredicate();
-        
-      joinPred() -=valId;
-      joinPred() += ((NotIn*)itmExpr)->getEquivEquiPredicate();
+      equiJoinPredicates() += ((NotIn *)itmExpr)->getEquivEquiPredicate();
+
+      joinPred() -= valId;
+      joinPred() += ((NotIn *)itmExpr)->getEquivEquiPredicate();
 
       notinCount++;
 
-      setIsNotInSubqTransform(TRUE); 
-      setRequireOneBroadcast(((NotIn*)itmExpr)->getIsOneInnerBroadcastRequired());
+      setIsNotInSubqTransform(TRUE);
+      setRequireOneBroadcast(((NotIn *)itmExpr)->getIsOneInnerBroadcastRequired());
     }
   }
 
+  DCMPASSERT(notinCount <= 1);
+}  // void HashJoin::resolveSingleColNotInPredicate()
 
-  DCMPASSERT(notinCount <=1);
-}//void HashJoin::resolveSingleColNotInPredicate()
-
-
-void Join::resolveSingleColNotInPredicate()
-{
+void Join::resolveSingleColNotInPredicate() {
   // applies only to anti_semi_joins
   if (!isAntiSemiJoin()) {
-    return; 
+    return;
   }
 
   short notinCount = 0;
 
   ValueIdSet jPred = joinPred();
 
-  for (	ValueId valId = jPred.init(); 
-	jPred.next(valId); 
-	jPred.advance(valId))
-  {
-    ItemExpr * itmExpr = valId.getItemExpr();
+  for (ValueId valId = jPred.init(); jPred.next(valId); jPred.advance(valId)) {
+    ItemExpr *itmExpr = valId.getItemExpr();
 
-    if (itmExpr->getOperatorType() == ITM_NOT_IN)
-    {
-      if (((NotIn*)itmExpr)->getEquivNonEquiPredicate() == NULL_VALUE_ID )
-      {
-        ((NotIn*)itmExpr)->cacheEquivNonEquiPredicate();
+    if (itmExpr->getOperatorType() == ITM_NOT_IN) {
+      if (((NotIn *)itmExpr)->getEquivNonEquiPredicate() == NULL_VALUE_ID) {
+        ((NotIn *)itmExpr)->cacheEquivNonEquiPredicate();
       }
-      
-      //use cached valueids
+
+      // use cached valueids
       joinPred() -= valId;
-      joinPred() += ((NotIn*)itmExpr)->getEquivNonEquiPredicate();
+      joinPred() += ((NotIn *)itmExpr)->getEquivNonEquiPredicate();
 
       notinCount++;
     }
   }
 
+  DCMPASSERT(notinCount <= 1);
 
-  DCMPASSERT(notinCount <=1);
+}  // void Join::resolveSingleColNotInPredicate()
 
-}//void Join::resolveSingleColNotInPredicate()
-
-
-// Join::rewriteNotInPredicate() 
+// Join::rewriteNotInPredicate()
 // is method is called right after the predicates are pushed down and
 // the goal is to make sure that only the NotIn predicate is present.
 // in any other preduicate exist besides the NotIn Predicate than we can not
-// optimize the hash anti semi join when the outer column is nullable and may 
+// optimize the hash anti semi join when the outer column is nullable and may
 // have null values
-void Join::rewriteNotInPredicate()
-{
+void Join::rewriteNotInPredicate() {
   // applies only to anti_semi_joins
-  if (!isAntiSemiJoin()) 
-  {
-    return; 
+  if (!isAntiSemiJoin()) {
+    return;
   }
 
   ValueIdSet jPred = joinPred();
 
-  ItemExpr * notinExpr=NULL;
+  ItemExpr *notinExpr = NULL;
 
   NABoolean otherPredicatesExist = FALSE;
-  for (	ValueId valId = jPred.init(); 
-	jPred.next(valId); 
-	jPred.advance(valId))
-  {
-    ItemExpr * itmExpr = valId.getItemExpr();
-    if (itmExpr->getOperatorType() != ITM_NOT_IN)
-    {
+  for (ValueId valId = jPred.init(); jPred.next(valId); jPred.advance(valId)) {
+    ItemExpr *itmExpr = valId.getItemExpr();
+    if (itmExpr->getOperatorType() != ITM_NOT_IN) {
       otherPredicatesExist = TRUE;
-    }
-    else
-    {
+    } else {
       // assert if we already encoutered a not in
       DCMPASSERT(notinExpr == NULL);
       notinExpr = itmExpr;
     }
   }
 
-  if (notinExpr)
-  {
-    //single column
-    DCMPASSERT (notinExpr->child(0)->getOperatorType() != ITM_ITEM_LIST);
+  if (notinExpr) {
+    // single column
+    DCMPASSERT(notinExpr->child(0)->getOperatorType() != ITM_ITEM_LIST);
     const NAType &outerType = notinExpr->child(0)->getValueId().getType();
 
-    GroupAttributes * leftChildGrpAttr = child(0).getGroupAttr();
-    GroupAttributes * rightChildGrpAttr = child(1).getGroupAttr();
+    GroupAttributes *leftChildGrpAttr = child(0).getGroupAttr();
+    GroupAttributes *rightChildGrpAttr = child(1).getGroupAttr();
     const ValueIdSet &inputs = getGroupAttr()->getCharacteristicInputs();
     ValueIdSet refs;
 
     ValueId valId = notinExpr->getValueId();
 
-    if ((outerType.supportsSQLnull() && 
-        !((NotIn*)notinExpr)->getOuterNullFilteringDetected() &&
-        otherPredicatesExist) ||
-        //fix for solution Id:10-100331-9194 
-        //select count(*) from h2_data_1k_37 where col_lar2 <> all (select col_id from
-        //h2_data_1k_37 where col_id=100) ;
-        //NotIn(VEGRef(col_lar2),VEGRef(col_id=100)) is in the join prdicate and in t he characteristc
-        //outputs of the child. changing it to euipredicate may lead to wrong results
-        //the below code will change the NotIn(a,b) predicate to NOT(a<>B is true) when the predicate is covered 
-        //by one of of children
-        leftChildGrpAttr->covers(valId, inputs, refs) || 
-        rightChildGrpAttr->covers(valId, inputs, refs))
-    {
+    if ((outerType.supportsSQLnull() && !((NotIn *)notinExpr)->getOuterNullFilteringDetected() &&
+         otherPredicatesExist) ||
+        // fix for solution Id:10-100331-9194
+        // select count(*) from h2_data_1k_37 where col_lar2 <> all (select col_id from
+        // h2_data_1k_37 where col_id=100) ;
+        // NotIn(VEGRef(col_lar2),VEGRef(col_id=100)) is in the join prdicate and in t he characteristc
+        // outputs of the child. changing it to euipredicate may lead to wrong results
+        // the below code will change the NotIn(a,b) predicate to NOT(a<>B is true) when the predicate is covered
+        // by one of of children
+        leftChildGrpAttr->covers(valId, inputs, refs) || rightChildGrpAttr->covers(valId, inputs, refs)) {
       ValueId tmpId = ((NotIn *)notinExpr)->createEquivNonEquiPredicate();
-      ItemExpr * tmpItemExpr = tmpId.getItemExpr();
+      ItemExpr *tmpItemExpr = tmpId.getItemExpr();
       valId.replaceItemExpr(tmpItemExpr);
     }
   }
-  
-}//Join::rewriteNotInPredicate()
+
+}  // Join::rewriteNotInPredicate()
 
 // Join::rewriteNotInPredicate( ValueIdSet & origVidSet, ValueIdSet & newVidSet)
 // if both the outer and the inner columns are not nullable or are nullable but
@@ -7052,14 +5763,12 @@ void Join::rewriteNotInPredicate()
 // this method is called right after the pull up of the predicates in join::transformNode()
 // in the case of anti semi join the inner predicates are pulled and added to join pred
 // and the outer predicates are pulled and added to selectionPredicates
-// When we look for outer NUll filetering predicates we look in the selection predocates 
+// When we look for outer NUll filetering predicates we look in the selection predocates
 // and when we look inner NULL filtering predicates we look in the join predicates
-void Join::rewriteNotInPredicate( ValueIdSet & origVidSet, ValueIdSet & newVidSet)
-{
+void Join::rewriteNotInPredicate(ValueIdSet &origVidSet, ValueIdSet &newVidSet) {
   // applies only to anti_semi_joins
-  if (!isAntiSemiJoin()) 
-  {
-    return; 
+  if (!isAntiSemiJoin()) {
+    return;
   }
 
   ValueIdSet jPred = joinPred();
@@ -7067,238 +5776,182 @@ void Join::rewriteNotInPredicate( ValueIdSet & origVidSet, ValueIdSet & newVidSe
 
   short notinCount = 0;
 
-  for (	ValueId valId = joinPred().init(); 
-	joinPred().next(valId); 
-	joinPred().advance(valId))
-  {
-    ItemExpr * itmExpr = valId.getItemExpr();
- 
-    if (itmExpr->getOperatorType() == ITM_NOT_IN)
-    {
-      //single column
-      if (itmExpr->child(0)->getOperatorType() != ITM_ITEM_LIST)
-      {
+  for (ValueId valId = joinPred().init(); joinPred().next(valId); joinPred().advance(valId)) {
+    ItemExpr *itmExpr = valId.getItemExpr();
+
+    if (itmExpr->getOperatorType() == ITM_NOT_IN) {
+      // single column
+      if (itmExpr->child(0)->getOperatorType() != ITM_ITEM_LIST) {
         const NAType &innerType = itmExpr->child(1)->getValueId().getType();
         const NAType &outerType = itmExpr->child(0)->getValueId().getType();
 
         selPred -= valId;
         jPred -= valId;
 
-        NABoolean child0IsNotNullable = selPred.isNotNullable(itmExpr->child(0)) ;
-        NABoolean child1IsNotNullable = jPred.isNotNullable(itmExpr->child(1)) ;
-        
+        NABoolean child0IsNotNullable = selPred.isNotNullable(itmExpr->child(0));
+        NABoolean child1IsNotNullable = jPred.isNotNullable(itmExpr->child(1));
+
         if ((!innerType.supportsSQLnull() || child1IsNotNullable) &&
-              (!outerType.supportsSQLnull() || child0IsNotNullable) )
-        {
+            (!outerType.supportsSQLnull() || child0IsNotNullable)) {
           origVidSet += valId;
           // we can change the not in predicate to an equi-predicate in this case
-          newVidSet  += ((NotIn *)itmExpr)->createEquivEquiPredicate();
-        }
-        else
-        { 
+          newVidSet += ((NotIn *)itmExpr)->createEquivEquiPredicate();
+        } else {
           // outer refrences case are not handled by optimization
           ValueIdSet rightSideofPred;
           ValueIdSet tempSet;
 
           rightSideofPred.insert(itmExpr->child(1)->getValueId());
-          
-          rightSideofPred.getReferencedPredicates(child(0)->getGroupAttr()->getCharacteristicOutputs(), tempSet) ;
 
-          if (!tempSet.isEmpty())
-          {
-             origVidSet += valId;
-             // we can change the not in predicate to an equi-predicate in this case
-             newVidSet  += ((NotIn *)itmExpr)->createEquivNonEquiPredicate();
-          }
-          else
-          {
-            if (CmpCommon::getDefault(NOT_IN_OUTER_OPTIMIZATION) == DF_OFF)
-            {
-              //NOT_IN_OUTER_OPTIMIZATION == OFF ==> if outer is nullable and may have NULL values
+          rightSideofPred.getReferencedPredicates(child(0)->getGroupAttr()->getCharacteristicOutputs(), tempSet);
+
+          if (!tempSet.isEmpty()) {
+            origVidSet += valId;
+            // we can change the not in predicate to an equi-predicate in this case
+            newVidSet += ((NotIn *)itmExpr)->createEquivNonEquiPredicate();
+          } else {
+            if (CmpCommon::getDefault(NOT_IN_OUTER_OPTIMIZATION) == DF_OFF) {
+              // NOT_IN_OUTER_OPTIMIZATION == OFF ==> if outer is nullable and may have NULL values
               //			       change to Non equi-predicate here
-              if ( outerType.supportsSQLnull() &&  
-                 !child0IsNotNullable) 
-              {
+              if (outerType.supportsSQLnull() && !child0IsNotNullable) {
                 origVidSet += valId;
                 // we can change the not in predicate to an equi-predicate in this case
-                newVidSet  += ((NotIn *)itmExpr)->createEquivNonEquiPredicate();
+                newVidSet += ((NotIn *)itmExpr)->createEquivNonEquiPredicate();
               }
-            }
-            else
-            {
+            } else {
               // case where outer or inner columns (or both) is nullable and may have NULL values
               // optimizer will decide depending on the type of join
               // hash join      ==> equi-predicate with cancel expression when inner is nullbale
               //		    ==> filter to filter out NULL values coming from outer side
               //		    ==> when inner is not empty
-              //		    ==> NUILL values coming from outer side are not filtered out when 
+              //		    ==> NUILL values coming from outer side are not filtered out when
               //		    ==> inner is empty
               // non hash join  ==> Non equi-predicate
-              if (child0IsNotNullable)
-              {
-                ((NotIn*)itmExpr)->setOuterNullFilteringDetected(TRUE);
+              if (child0IsNotNullable) {
+                ((NotIn *)itmExpr)->setOuterNullFilteringDetected(TRUE);
               }
-              if (child1IsNotNullable)
-              {
-                ((NotIn*)itmExpr)->setInnerNullFilteringDetected(TRUE);
+              if (child1IsNotNullable) {
+                ((NotIn *)itmExpr)->setInnerNullFilteringDetected(TRUE);
               }
             }
           }
         }
-      }
-      else
-      {
-        ValueIdSet predSet ;
-        //ValueIdSet jPreds;
-        //ValueIdSet selPred;
+      } else {
+        ValueIdSet predSet;
+        // ValueIdSet jPreds;
+        // ValueIdSet selPred;
 
-        //jPreds = joinPred();
-        //selPred = selectionPred();
+        // jPreds = joinPred();
+        // selPred = selectionPred();
 
-        predSet = NotIn::rewriteMultiColNotInPredicate( valId, 
-                                                        joinPred(),
-                                                        selectionPred());
-        
-        DCMPASSERT(predSet.entries() >0);
-        
+        predSet = NotIn::rewriteMultiColNotInPredicate(valId, joinPred(), selectionPred());
+
+        DCMPASSERT(predSet.entries() > 0);
+
         origVidSet += valId;
-        
-        newVidSet += predSet;
 
+        newVidSet += predSet;
       }
-      
+
       notinCount++;
 
-    }//if (itmExpr->getOperatorType() == ITM_NOT_IN)
- 
+    }  // if (itmExpr->getOperatorType() == ITM_NOT_IN)
   }
-  DCMPASSERT(notinCount <=1);
+  DCMPASSERT(notinCount <= 1);
 
-}//void Join::rewriteNotInPredicate()
+}  // void Join::rewriteNotInPredicate()
 
 // -----------------------------------------------------------------------
 // member functions for class Intersect
 // -----------------------------------------------------------------------
 
-Intersect::Intersect(RelExpr *leftChild,
-	     RelExpr *rightChild)
-: RelExpr(REL_INTERSECT, leftChild, rightChild)
-{ }
+Intersect::Intersect(RelExpr *leftChild, RelExpr *rightChild) : RelExpr(REL_INTERSECT, leftChild, rightChild) {}
 
 Intersect::~Intersect() {}
 
 Int32 Intersect::getArity() const { return 2; }
 
-const NAString Intersect::getText() const
-{
-  return "intersect";
-}
+const NAString Intersect::getText() const { return "intersect"; }
 
 // -----------------------------------------------------------------------
 // // member functions for class Except
 // // -----------------------------------------------------------------------
-Except::Except(RelExpr *leftChild,
-             RelExpr *rightChild)
-: RelExpr(REL_EXCEPT, leftChild, rightChild)
-{ }
+Except::Except(RelExpr *leftChild, RelExpr *rightChild) : RelExpr(REL_EXCEPT, leftChild, rightChild) {}
 
 Except::~Except() {}
 
 Int32 Except::getArity() const { return 2; }
 
-const NAString Except::getText() const
-{
-  return "except";
-}
+const NAString Except::getText() const { return "except"; }
 
 // -----------------------------------------------------------------------
 // member functions for class Union
 // -----------------------------------------------------------------------
-Union::Union(RelExpr *leftChild,
-	     RelExpr *rightChild,
-	     UnionMap *unionMap,
-	     ItemExpr *condExpr,
-	     OperatorTypeEnum otype,
-         CollHeap *oHeap,
-         NABoolean sysGenerated,
-         NABoolean mayBeCacheable
-         )
-: RelExpr(otype, leftChild, rightChild, oHeap),
-  condExprTree_(condExpr)
-  ,trigExceptExprTree_(NULL)
-  ,previousIF_(NULL)
-  ,flags_(0)
-  ,leftList_(NULL)
-  ,rightList_(NULL)
-  ,currentChild_(-1)
-  ,alternateRightChildOrderExprTree_(NULL) //++MV
-  ,isSystemGenerated_(sysGenerated)
-  ,isSerialUnion_(FALSE)
-  ,variablesSet_(oHeap)
-{
-  if ( NOT mayBeCacheable )
-    setNonCacheable();
+Union::Union(RelExpr *leftChild, RelExpr *rightChild, UnionMap *unionMap, ItemExpr *condExpr, OperatorTypeEnum otype,
+             CollHeap *oHeap, NABoolean sysGenerated, NABoolean mayBeCacheable)
+    : RelExpr(otype, leftChild, rightChild, oHeap),
+      condExprTree_(condExpr),
+      trigExceptExprTree_(NULL),
+      previousIF_(NULL),
+      flags_(0),
+      leftList_(NULL),
+      rightList_(NULL),
+      currentChild_(-1),
+      alternateRightChildOrderExprTree_(NULL)  //++MV
+      ,
+      isSystemGenerated_(sysGenerated),
+      isSerialUnion_(FALSE),
+      variablesSet_(oHeap) {
+  if (NOT mayBeCacheable) setNonCacheable();
 
-  if (unionMap != NULL)
-    {
-      unionMap_ = unionMap;
-      unionMap_->count_++;
-    }
-   else
-      unionMap_ = new (oHeap) UnionMap;
+  if (unionMap != NULL) {
+    unionMap_ = unionMap;
+    unionMap_->count_++;
+  } else
+    unionMap_ = new (oHeap) UnionMap;
 
-   condExpr_.clear();
-   trigExceptExpr_.clear();
-   alternateRightChildOrderExpr_.clear(); //++MV
-   variablesSet_.clear();
-   controlFlags_ = 0; //++ Triggers -
+  condExpr_.clear();
+  trigExceptExpr_.clear();
+  alternateRightChildOrderExpr_.clear();  //++MV
+  variablesSet_.clear();
+  controlFlags_ = 0;  //++ Triggers -
 }
 
-Union::~Union() { if (unionMap_->count_ == 0) delete unionMap_;}
+Union::~Union() {
+  if (unionMap_->count_ == 0) delete unionMap_;
+}
 
 Int32 Union::getArity() const { return 2; }
 
-void Union::rewriteUnionExpr(const ValueIdSet &unionExpr,
-                             ValueIdSet &leftExpr,
-                             ValueIdSet &rightExpr) const
-{
+void Union::rewriteUnionExpr(const ValueIdSet &unionExpr, ValueIdSet &leftExpr, ValueIdSet &rightExpr) const {
   // walk the original selection predicates and rewrite them in terms
   // of the mapped value ids of the union's inputs
-  for (ValueId x = unionExpr.init(); unionExpr.next(x); unionExpr.advance(x))
-    {
-      ValueId newLeftExpr =
-	x.getItemExpr()->mapAndRewrite(getLeftMap(),TRUE);
-      ValueId newRightExpr =
-	x.getItemExpr()->mapAndRewrite(getRightMap(),TRUE);
+  for (ValueId x = unionExpr.init(); unionExpr.next(x); unionExpr.advance(x)) {
+    ValueId newLeftExpr = x.getItemExpr()->mapAndRewrite(getLeftMap(), TRUE);
+    ValueId newRightExpr = x.getItemExpr()->mapAndRewrite(getRightMap(), TRUE);
 
-      leftExpr += newLeftExpr;
-      rightExpr += newRightExpr;
-    }
-} // Union::rewriteExprs()
+    leftExpr += newLeftExpr;
+    rightExpr += newRightExpr;
+  }
+}  // Union::rewriteExprs()
 
-void Union::pushdownCoveredExpr(const ValueIdSet & outputExpr,
-                                const ValueIdSet & newExternalInputs,
-                                ValueIdSet & predicatesOnParent,
-				const ValueIdSet * setOfValuesReqdByParent,
-			        Lng32 // childIndex ignored
-		               )
-{
+void Union::pushdownCoveredExpr(const ValueIdSet &outputExpr, const ValueIdSet &newExternalInputs,
+                                ValueIdSet &predicatesOnParent, const ValueIdSet *setOfValuesReqdByParent,
+                                Lng32  // childIndex ignored
+) {
   ValueIdSet resultSet = outputExpr;
-  if (setOfValuesReqdByParent)
-    resultSet += *setOfValuesReqdByParent;
+  if (setOfValuesReqdByParent) resultSet += *setOfValuesReqdByParent;
   resultSet += getGroupAttr()->getCharacteristicInputs();
 
   // alternateRightChildOrderExpr expressions should not be pushed down
-  resultSet.insertList(alternateRightChildOrderExpr()); // ++MV
+  resultSet.insertList(alternateRightChildOrderExpr());  // ++MV
   // ---------------------------------------------------------------------
   // Not all the output columns from the union may be needed.
   // Map the required input list to the corresponding left
   // and right required outputs list
   // ---------------------------------------------------------------------
   ValueIdSet valuesRequiredFromLeft, valuesRequiredFromRight;
-  rewriteUnionExpr(resultSet,
-               valuesRequiredFromLeft,
-               valuesRequiredFromRight);
+  rewriteUnionExpr(resultSet, valuesRequiredFromLeft, valuesRequiredFromRight);
 
   // ---------------------------------------------------------------------
   // Rewrite selectionPred()
@@ -7310,56 +5963,41 @@ void Union::pushdownCoveredExpr(const ValueIdSet & outputExpr,
   // empty set for the first argument indicates that there are no
   // non-essential outputs, (in other words, outputs that are
   // simply passed through)
-  RelExpr::pushdownCoveredExpr(emptySet,
-                               newExternalInputs,
-                               leftPred,
-			       &valuesRequiredFromLeft,
-                               0
-                               );
+  RelExpr::pushdownCoveredExpr(emptySet, newExternalInputs, leftPred, &valuesRequiredFromLeft, 0);
 
   // push the right predicates to the right subtree
-  RelExpr::pushdownCoveredExpr(emptySet,
-                               newExternalInputs,
-                               rightPred,
-			       &valuesRequiredFromRight,
-                               1
-                               );
+  RelExpr::pushdownCoveredExpr(emptySet, newExternalInputs, rightPred, &valuesRequiredFromRight, 1);
 
   // Verify that all the predicates were pushed
   leftPred -= child(0)->selectionPred();
 
-  CMPASSERT( leftPred.isEmpty() );
+  CMPASSERT(leftPred.isEmpty());
 
   rightPred -= child(1)->selectionPred();
-  CMPASSERT( rightPred.isEmpty() );
+  CMPASSERT(rightPred.isEmpty());
 
   // All the predicates have been pushed down to the children.
   predicatesOnParent.clear();
 
-  if (CmpCommon::getDefault(UNION_MAP_REDUCTION) == DF_ON)
-     trimUnionMap();
+  if (CmpCommon::getDefault(UNION_MAP_REDUCTION) == DF_ON) trimUnionMap();
 
-} // Union::pushdownCoveredExpr
+}  // Union::pushdownCoveredExpr
 
-void Union::getPotentialOutputValues(ValueIdSet & outputValues) const
-{
+void Union::getPotentialOutputValues(ValueIdSet &outputValues) const {
   outputValues.clear();
   //
   // The output of the union is defined by the ValueIdUnion
   // expressions that are maintained in the colMapTable_.
   //
   Lng32 ne = unionMap_->colMapTable_.entries();
-  for (Lng32 index = 0; index < ne; index++)
-    {
-      // Accumulate the ValueIds of the result of the union
-      // in the set provided by the caller.
-      outputValues += ((ValueIdUnion *) (unionMap_->colMapTable_[index].getItemExpr()))->getResult();
-    }
-} // Union::getPotentialOutputValues()
+  for (Lng32 index = 0; index < ne; index++) {
+    // Accumulate the ValueIds of the result of the union
+    // in the set provided by the caller.
+    outputValues += ((ValueIdUnion *)(unionMap_->colMapTable_[index].getItemExpr()))->getResult();
+  }
+}  // Union::getPotentialOutputValues()
 
-
-HashValue Union::topHash()
-{
+HashValue Union::topHash() {
   HashValue result = RelExpr::topHash();
 
   // result ^= colMapTable_;
@@ -7367,46 +6005,34 @@ HashValue Union::topHash()
   return result;
 }
 
-NABoolean Union::duplicateMatch(const RelExpr & other) const
-{
-  if (NOT RelExpr::duplicateMatch(other))
-    return FALSE;
+NABoolean Union::duplicateMatch(const RelExpr &other) const {
+  if (NOT RelExpr::duplicateMatch(other)) return FALSE;
 
-  Union &o = (Union &) other;
+  Union &o = (Union &)other;
 
-  if (NOT ((unionMap_ == o.unionMap_) AND
-	   (condExpr_ == o.condExpr_) AND
-	   (trigExceptExpr_ == o.trigExceptExpr_) AND
-	   (alternateRightChildOrderExpr_ == o.alternateRightChildOrderExpr_))) //++MV
+  if (NOT((unionMap_ == o.unionMap_) AND(condExpr_ == o.condExpr_) AND(trigExceptExpr_ == o.trigExceptExpr_)
+              AND(alternateRightChildOrderExpr_ == o.alternateRightChildOrderExpr_)))  //++MV
     return FALSE;
 
   return TRUE;
 }
 
-RelExpr * Union::copyTopNode(RelExpr *derivedNode, CollHeap* outHeap)
-{
+RelExpr *Union::copyTopNode(RelExpr *derivedNode, CollHeap *outHeap) {
   Union *result;
 
   if (derivedNode == NULL)
-    result = new (outHeap) Union(NULL,
-				 NULL,
-				 unionMap_,
-				 NULL,
-				 getOperatorType(),
-                 outHeap);
+    result = new (outHeap) Union(NULL, NULL, unionMap_, NULL, getOperatorType(), outHeap);
   else
-    result = (Union *) derivedNode;
+    result = (Union *)derivedNode;
 
-  if (condExprTree_ != NULL)
-    result->condExprTree_ = condExprTree_->copyTree(outHeap)->castToItemExpr();
+  if (condExprTree_ != NULL) result->condExprTree_ = condExprTree_->copyTree(outHeap)->castToItemExpr();
 
   if (trigExceptExprTree_ != NULL)
     result->trigExceptExprTree_ = trigExceptExprTree_->copyTree(outHeap)->castToItemExpr();
 
   //++MV -
   if (alternateRightChildOrderExprTree_ != NULL)
-    result->alternateRightChildOrderExprTree_ =
-      alternateRightChildOrderExprTree_->copyTree(outHeap)->castToItemExpr();
+    result->alternateRightChildOrderExprTree_ = alternateRightChildOrderExprTree_->copyTree(outHeap)->castToItemExpr();
   //--MV -
 
   result->condExpr_ = condExpr_;
@@ -7418,153 +6044,132 @@ RelExpr * Union::copyTopNode(RelExpr *derivedNode, CollHeap* outHeap)
 
   result->isSystemGenerated_ = isSystemGenerated_;
 
-  if (getSerialUnion())
-  {
+  if (getSerialUnion()) {
     result->setSerialUnion();
   }
   return RelExpr::copyTopNode(result, outHeap);
 }
 
-void Union::addValueIdUnion(ValueId vidUnion, CollHeap* heap)
-{
-  ValueIdUnion *xvid = (ValueIdUnion *) vidUnion.getItemExpr();
+void Union::addValueIdUnion(ValueId vidUnion, CollHeap *heap) {
+  ValueIdUnion *xvid = (ValueIdUnion *)vidUnion.getItemExpr();
 
   CMPASSERT(vidUnion.getItemExpr()->getOperatorType() == ITM_VALUEIDUNION);
 
   // This method is only called by the binder when it is first
   // building the unionMap
-  if(unionMap_->count_ > 1)
-    {
+  if (unionMap_->count_ > 1) {
     unionMap_->count_--;
     unionMap_ = new (heap) UnionMap;
-    }
+  }
 
   CMPASSERT(unionMap_->count_ == 1);
-
 
   // add the value id to the list of value ids for ValueIdUnion expressions
   // and also add entries to the two maps that describe the same information
   unionMap_->colMapTable_.insert(vidUnion);
-  unionMap_->leftColMap_.addMapEntry(vidUnion,xvid->getLeftSource());
-  unionMap_->rightColMap_.addMapEntry(vidUnion,xvid->getRightSource());
+  unionMap_->leftColMap_.addMapEntry(vidUnion, xvid->getLeftSource());
+  unionMap_->rightColMap_.addMapEntry(vidUnion, xvid->getRightSource());
 }
 
 //++ Triggers -
-void Union::setNoOutputs()
-{
+void Union::setNoOutputs() {
   CMPASSERT(flags_ == UNION_BLOCKED || flags_ == UNION_ORDERED);
 
   controlFlags_ |= NO_OUTPUTS;
 }
 
-NABoolean Union::isALabeledUnion() const
-{
-  if (unionMap_)
-    {
-      const ValueIdList &vl(unionMap_->colMapTable_);
+NABoolean Union::isALabeledUnion() const {
+  if (unionMap_) {
+    const ValueIdList &vl(unionMap_->colMapTable_);
 
-      for (CollIndex i=0; i<vl.entries(); i++)
-        if (static_cast<ValueIdUnion *>(vl[i].getItemExpr())->isALabel())
-          return TRUE;
-    }
+    for (CollIndex i = 0; i < vl.entries(); i++)
+      if (static_cast<ValueIdUnion *>(vl[i].getItemExpr())->isALabel()) return TRUE;
+  }
   return FALSE;
 }
 
-void Union::addLocalExpr(LIST(ExprNode *) &xlist,
-			 LIST(NAString) &llist) const
-{
-  if (condExprTree_ != NULL)
-  {
+void Union::addLocalExpr(LIST(ExprNode *) & xlist, LIST(NAString) & llist) const {
+  if (condExprTree_ != NULL) {
     xlist.insert(condExprTree_);
     llist.insert("condExprTree");
   }
 
-  if (NOT condExpr_.isEmpty())
-  {
+  if (NOT condExpr_.isEmpty()) {
     xlist.insert(condExpr_.rebuildExprTree());
     llist.insert("condExpr");
   }
 
-  if (trigExceptExprTree_ != NULL)
-  {
+  if (trigExceptExprTree_ != NULL) {
     xlist.insert(trigExceptExprTree_);
     llist.insert("trigExceptExprTree");
   }
 
-  if (NOT trigExceptExpr_.isEmpty())
-  {
+  if (NOT trigExceptExpr_.isEmpty()) {
     xlist.insert(trigExceptExpr_.rebuildExprTree());
     llist.insert("trigExceptExpr");
   }
 
-  if (alternateRightChildOrderExprTree_ != NULL)
-  {
+  if (alternateRightChildOrderExprTree_ != NULL) {
     xlist.insert(alternateRightChildOrderExprTree_);
     llist.insert("alternateRightChildOrderExprTree");
   }
 
-  if (NOT alternateRightChildOrderExpr_.isEmpty())
-  {
+  if (NOT alternateRightChildOrderExpr_.isEmpty()) {
     xlist.insert(alternateRightChildOrderExpr_.rebuildExprTree());
     llist.insert("alternateRightChildOrderExpr");
   }
 
-  RelExpr::addLocalExpr(xlist,llist);
+  RelExpr::addLocalExpr(xlist, llist);
 }
 
-const NAString Union::getText() const
-{
+const NAString Union::getText() const {
   NAString text;
-  switch (getUnionFlags())
-  {
-	case UNION_ORDERED    : text += "ordered_union"; break;
-	case UNION_BLOCKED    : text += "blocked_union"; break;
-	case UNION_COND_UNARY : text += "unary_union"; break;
-	default               : text += "merge_union"; break;
+  switch (getUnionFlags()) {
+    case UNION_ORDERED:
+      text += "ordered_union";
+      break;
+    case UNION_BLOCKED:
+      text += "blocked_union";
+      break;
+    case UNION_COND_UNARY:
+      text += "unary_union";
+      break;
+    default:
+      text += "merge_union";
+      break;
   }
 
-  if (getOperatorType() == REL_MERGE_UNION)
-	  text += " (phys.)";
+  if (getOperatorType() == REL_MERGE_UNION) text += " (phys.)";
 
   return text;
 }
 
-ItemExpr *Union::getCondExprTree()
-{
-  return condExprTree_;
-}
+ItemExpr *Union::getCondExprTree() { return condExprTree_; }
 
-void Union::addCondExprTree(ItemExpr *condExpr)
-{
+void Union::addCondExprTree(ItemExpr *condExpr) {
   ExprValueId t = condExprTree_;
 
   ItemExprTreeAsList(&t, ITM_ITEM_LIST).insert(condExpr);
   condExprTree_ = t.getPtr();
 }
 
-ItemExpr *Union::removeCondExprTree()
-{
+ItemExpr *Union::removeCondExprTree() {
   ItemExpr *result = condExprTree_;
   condExprTree_ = NULL;
 
   return result;
 }
 
-ItemExpr *Union::getTrigExceptExprTree()
-{
-  return trigExceptExprTree_;
-}
+ItemExpr *Union::getTrigExceptExprTree() { return trigExceptExprTree_; }
 
-void Union::addTrigExceptExprTree(ItemExpr *trigExceptExpr)
-{
+void Union::addTrigExceptExprTree(ItemExpr *trigExceptExpr) {
   ExprValueId t = trigExceptExprTree_;
 
   ItemExprTreeAsList(&t, ITM_ITEM_LIST).insert(trigExceptExpr);
   trigExceptExprTree_ = t.getPtr();
 }
 
-ItemExpr *Union::removeTrigExceptExprTree()
-{
+ItemExpr *Union::removeTrigExceptExprTree() {
   ItemExpr *result = trigExceptExprTree_;
   trigExceptExprTree_ = NULL;
 
@@ -7575,22 +6180,19 @@ ItemExpr *Union::removeTrigExceptExprTree()
 // returns either the left or right list of value ids associated with the node.
 // It returns the left one if we are currently visiting the left child.
 // Otherwise we return the right one.
-AssignmentStHostVars *Union::getCurrentList(BindWA *bindWA)
-{
+AssignmentStHostVars *Union::getCurrentList(BindWA *bindWA) {
   if (currentChild_ == 0) {
     if (!leftList_) {
       leftList_ = new (bindWA->wHeap()) AssignmentStHostVars(bindWA);
     }
     return leftList_;
-  }
-  else {
-   if (!rightList_) {
-     rightList_ = new (bindWA->wHeap()) AssignmentStHostVars(bindWA);
-   }
-   return rightList_;
+  } else {
+    if (!rightList_) {
+      rightList_ = new (bindWA->wHeap()) AssignmentStHostVars(bindWA);
+    }
+    return rightList_;
   }
 }
-
 
 // When we are in a CompoundStatement and we have IF statements in it,
 // we must create a RETDesc for this Union node (which is
@@ -7602,16 +6204,15 @@ AssignmentStHostVars *Union::getCurrentList(BindWA *bindWA)
 // SET :a = ... only appears in one branch, then the ValueIdUnion associated
 // with that SET statement must reference the value id of :a that existed before
 // this IF statement).
-RETDesc * Union::createReturnTable(AssignmentStArea *assignArea, BindWA *bindWA)
-{
-  AssignmentStHostVars * leftList =  leftList_;
-  AssignmentStHostVars * rightList = rightList_;
+RETDesc *Union::createReturnTable(AssignmentStArea *assignArea, BindWA *bindWA) {
+  AssignmentStHostVars *leftList = leftList_;
+  AssignmentStHostVars *rightList = rightList_;
   NABoolean foundAMatch = FALSE;
   AssignmentStHostVars *globalList = assignArea->getAssignmentStHostVars();
   NAString const *nameOfLeftVar;
 
   RETDesc *resultTable = new (bindWA->wHeap()) RETDesc(bindWA);
-  ColRefName *refName =  new (bindWA->wHeap()) ColRefName();
+  ColRefName *refName = new (bindWA->wHeap()) ColRefName();
 
   AssignmentStHostVars *listOfPreviousIF = NULL;
 
@@ -7620,20 +6221,17 @@ RETDesc * Union::createReturnTable(AssignmentStArea *assignArea, BindWA *bindWA)
   // within the IF statement
 
   if (previousIF_) {
-
     short currentChild = previousIF_->currentChild();
 
     if (currentChild == 0) {
       listOfPreviousIF = previousIF_->leftList();
-    }
-    else {
+    } else {
       listOfPreviousIF = previousIF_->rightList();
     }
   }
 
   // Scan the left list and look for matches in the right List
   while (leftList && (leftList->var())) {
-
     foundAMatch = FALSE;
 
     nameOfLeftVar = &(leftList->var()->getName());
@@ -7641,15 +6239,14 @@ RETDesc * Union::createReturnTable(AssignmentStArea *assignArea, BindWA *bindWA)
     rightList = rightList_;
 
     while (rightList && rightList->var()) {
+      NAString const *nameOfRightVar = &(rightList->var()->getName());
 
-       NAString const *nameOfRightVar = &(rightList->var()->getName());
+      if (*nameOfLeftVar == *nameOfRightVar) {
+        foundAMatch = TRUE;
+        break;
+      }
 
-       if (*nameOfLeftVar == *nameOfRightVar) {
-	 foundAMatch = TRUE;
-	 break;
-       }
-
-       rightList = rightList->next();
+      rightList = rightList->next();
     }
 
     AssignmentStHostVars *ptrLeftVar = globalList->findVar(*nameOfLeftVar);
@@ -7658,30 +6255,25 @@ RETDesc * Union::createReturnTable(AssignmentStArea *assignArea, BindWA *bindWA)
     // If we found a match, we create a ValueIdUnion node of the paired match; otherwise
     // we pair the current value id of the variable in question with the value id it
     // had before the IF statement. If the variable does not have a value id, we bind it.
-    ValueId value ;
+    ValueId value;
     if (foundAMatch) {
       value = rightList->currentValueId();
-    }
-    else {
+    } else {
       ValueIdList list = ptrLeftVar->valueIds();
       if (list.entries() > 0) {
         value = ptrLeftVar->currentValueId();
-      }
-      else {
-	// Get a value id for this variable.
-	ItemExpr *expr = ptrLeftVar->var()->bindNode(bindWA);
-	if (bindWA->errStatus()) {
+      } else {
+        // Get a value id for this variable.
+        ItemExpr *expr = ptrLeftVar->var()->bindNode(bindWA);
+        if (bindWA->errStatus()) {
           return NULL;
-	}
+        }
 
-	value = expr->getValueId();
+        value = expr->getValueId();
       }
     }
 
-    ValueIdUnion *vidUnion = new (bindWA->wHeap())
-        ValueIdUnion(leftList->currentValueId(),
-                     value,
-	             NULL_VALUE_ID);
+    ValueIdUnion *vidUnion = new (bindWA->wHeap()) ValueIdUnion(leftList->currentValueId(), value, NULL_VALUE_ID);
     vidUnion->bindNode(bindWA);
     if (bindWA->errStatus()) {
       delete vidUnion;
@@ -7689,7 +6281,7 @@ RETDesc * Union::createReturnTable(AssignmentStArea *assignArea, BindWA *bindWA)
     }
 
     ValueId valId = vidUnion->getValueId();
-    addValueIdUnion(valId,bindWA->wHeap());
+    addValueIdUnion(valId, bindWA->wHeap());
 
     resultTable->addColumn(bindWA, *refName, valId);
 
@@ -7703,34 +6295,32 @@ RETDesc * Union::createReturnTable(AssignmentStArea *assignArea, BindWA *bindWA)
     }
 
     leftList = leftList->next();
-  } // while
+  }  // while
 
   // We now search the right list and do a similar processing for the variables on
   // the right side that are not on the left
   rightList = rightList_;
 
   while (rightList && (rightList->var())) {
+    foundAMatch = FALSE;
 
-   foundAMatch = FALSE;
+    NAString const *nameOfRightVar = &(rightList->var()->getName());
 
-   NAString const *nameOfRightVar = &(rightList->var()->getName());
+    AssignmentStHostVars *ptrRightVar = globalList->findVar(*nameOfRightVar);
+    CMPASSERT(ptrRightVar);
 
-   AssignmentStHostVars *ptrRightVar = globalList->findVar(*nameOfRightVar);
-   CMPASSERT(ptrRightVar);
+    leftList = leftList_;
 
-   leftList = leftList_;
+    while (leftList && (leftList->var())) {
+      nameOfLeftVar = &(leftList->var()->getName());
 
-   while (leftList && (leftList->var())) {
+      if (*nameOfLeftVar == *nameOfRightVar) {
+        foundAMatch = TRUE;
+        break;
+      }
 
-     nameOfLeftVar = &(leftList->var()->getName());
-
-     if (*nameOfLeftVar == *nameOfRightVar) {
-       foundAMatch = TRUE;
-       break;
-     }
-
-     leftList = leftList->next();
-   }
+      leftList = leftList->next();
+    }
 
     // Create the ValueIdUnion of the two value ids
     if (!foundAMatch) {
@@ -7738,16 +6328,13 @@ RETDesc * Union::createReturnTable(AssignmentStArea *assignArea, BindWA *bindWA)
       ValueIdList list = ptrRightVar->valueIds();
       if (list.entries() > 0) {
         value = ptrRightVar->currentValueId();
-      }
-      else {
-	// Get a value id for this variable.
-	ItemExpr *expr = ptrRightVar->var()->bindNode(bindWA);
-	value = expr->getValueId();
+      } else {
+        // Get a value id for this variable.
+        ItemExpr *expr = ptrRightVar->var()->bindNode(bindWA);
+        value = expr->getValueId();
       }
 
-      ValueIdUnion *vidUnion = new (bindWA->wHeap())
-        ValueIdUnion(value, rightList->currentValueId(),
-	             NULL_VALUE_ID);
+      ValueIdUnion *vidUnion = new (bindWA->wHeap()) ValueIdUnion(value, rightList->currentValueId(), NULL_VALUE_ID);
       vidUnion->bindNode(bindWA);
       if (bindWA->errStatus()) {
         delete vidUnion;
@@ -7772,57 +6359,54 @@ RETDesc * Union::createReturnTable(AssignmentStArea *assignArea, BindWA *bindWA)
 
     rightList = rightList->next();
 
-  } // while
+  }  // while
 
   return resultTable;
 }
 
 //++ MV -
-void Union::addAlternateRightChildOrderExprTree(ItemExpr *alternateRightChildOrderExprTree)
-{
+void Union::addAlternateRightChildOrderExprTree(ItemExpr *alternateRightChildOrderExprTree) {
   ExprValueId t = alternateRightChildOrderExprTree_;
 
   ItemExprTreeAsList(&t, ITM_ITEM_LIST).insert(alternateRightChildOrderExprTree);
   alternateRightChildOrderExprTree_ = t.getPtr();
 }
 
-ItemExpr *Union::removeAlternateRightChildOrderExprTree()
-{
+ItemExpr *Union::removeAlternateRightChildOrderExprTree() {
   ItemExpr *result = alternateRightChildOrderExprTree_;
   alternateRightChildOrderExprTree_ = NULL;
 
   return result;
 }
 
-RelExpr *Union::xformPartitionPruning(BindWA* bindWA, RelExpr *gu, OperatorTypeEnum op)
-{
-    Int32 arity = getArity();
-    for (Int32 i = 0; i < arity; i++) {
-        if (child(i)) {
-            RelExpr *relExpr = child(i)->castToRelExpr();
-            if (relExpr->getOperatorType() != REL_UNION) {
-                CMPASSERT(relExpr->getOperatorType() == REL_SCAN);
-                const CorrName& oriCN = relExpr->getTableName();
-                if (op == REL_UNARY_DELETE) {
-                    RelExpr *delExpr = new (bindWA->wHeap())Delete(CorrName(oriCN,
-                        bindWA->wHeap()), NULL, REL_UNARY_DELETE, relExpr);
-                    child(i) = delExpr;
-                } else if (op == REL_UNARY_UPDATE) {
-                    ItemExpr *updRecExpr = ((GenericUpdate *)gu)->recExprTree()->copyTree(bindWA->wHeap());
-                    RelExpr *updExpr = new (bindWA->wHeap())Update(CorrName(oriCN,
-                         bindWA->wHeap()), NULL, REL_UNARY_UPDATE, relExpr, updRecExpr);
-                    child(i) = updExpr;
-                } else {
-                    CMPASSERT(1==0);
-                }
-            } else {
-                relExpr->xformPartitionPruning(bindWA, gu, op);
-            }
+RelExpr *Union::xformPartitionPruning(BindWA *bindWA, RelExpr *gu, OperatorTypeEnum op) {
+  Int32 arity = getArity();
+  for (Int32 i = 0; i < arity; i++) {
+    if (child(i)) {
+      RelExpr *relExpr = child(i)->castToRelExpr();
+      if (relExpr->getOperatorType() != REL_UNION) {
+        CMPASSERT(relExpr->getOperatorType() == REL_SCAN);
+        const CorrName &oriCN = relExpr->getTableName();
+        if (op == REL_UNARY_DELETE) {
+          RelExpr *delExpr =
+              new (bindWA->wHeap()) Delete(CorrName(oriCN, bindWA->wHeap()), NULL, REL_UNARY_DELETE, relExpr);
+          child(i) = delExpr;
+        } else if (op == REL_UNARY_UPDATE) {
+          ItemExpr *updRecExpr = ((GenericUpdate *)gu)->recExprTree()->copyTree(bindWA->wHeap());
+          RelExpr *updExpr = new (bindWA->wHeap())
+              Update(CorrName(oriCN, bindWA->wHeap()), NULL, REL_UNARY_UPDATE, relExpr, updRecExpr);
+          child(i) = updExpr;
+        } else {
+          CMPASSERT(1 == 0);
         }
+      } else {
+        relExpr->xformPartitionPruning(bindWA, gu, op);
+      }
     }
+  }
 
-    markAsUnBound();
-    return this;
+  markAsUnBound();
+  return this;
 }
 
 // MV--
@@ -7830,25 +6414,19 @@ RelExpr *Union::xformPartitionPruning(BindWA* bindWA, RelExpr *gu, OperatorTypeE
 // -----------------------------------------------------------------------
 // member functions for class MergeUnion
 // -----------------------------------------------------------------------
-MergeUnion::MergeUnion(RelExpr *leftChild,
-                       RelExpr *rightChild,
-                       UnionMap *unionMap /*= NULL*/,
-                       OperatorTypeEnum otype /*= REL_MERGE_UNION*/,
-                       CollHeap *oHeap /*= CmpCommon::statementHeap()*/)
-: Union(leftChild, rightChild, unionMap, NULL, otype, oHeap),
- mergeExpr_(NULL)
-{
+MergeUnion::MergeUnion(RelExpr *leftChild, RelExpr *rightChild, UnionMap *unionMap /*= NULL*/,
+                       OperatorTypeEnum otype /*= REL_MERGE_UNION*/, CollHeap *oHeap /*= CmpCommon::statementHeap()*/)
+    : Union(leftChild, rightChild, unionMap, NULL, otype, oHeap), mergeExpr_(NULL) {
   pCostMethod_ = new (oHeap) CostMethodMergeUnion();
 }
 
 MergeUnion::~MergeUnion() {}
 
-NABoolean MergeUnion::isLogical()  const { return FALSE; }
+NABoolean MergeUnion::isLogical() const { return FALSE; }
 
 NABoolean MergeUnion::isPhysical() const { return TRUE; }
 
-HashValue MergeUnion::topHash()
-{
+HashValue MergeUnion::topHash() {
   HashValue result = Union::topHash();
 
   // result ^= mergeExpr_;
@@ -7856,64 +6434,50 @@ HashValue MergeUnion::topHash()
   return result;
 }
 
-NABoolean MergeUnion::duplicateMatch(const RelExpr & other) const
-{
-  if (!RelExpr::duplicateMatch(other))
-    return FALSE;
+NABoolean MergeUnion::duplicateMatch(const RelExpr &other) const {
+  if (!RelExpr::duplicateMatch(other)) return FALSE;
 
-  MergeUnion &o = (MergeUnion &) other;
+  MergeUnion &o = (MergeUnion &)other;
 
   // if (mergeExpr_ != o.mergeExpr_)
 
   ABORT("duplicateMatch shouldn't be called for physical nodes");
   return FALSE;
-
 }
 
-RelExpr * MergeUnion::copyTopNode(RelExpr *derivedNode, CollHeap* outHeap)
-{
+RelExpr *MergeUnion::copyTopNode(RelExpr *derivedNode, CollHeap *outHeap) {
   MergeUnion *result;
 
   if (derivedNode == NULL)
-    result = new (outHeap) MergeUnion(NULL,
-				      NULL,
-				      new (outHeap)UnionMap(*getUnionMap()),
-				      getOperatorType(),
-				      outHeap);
+    result = new (outHeap) MergeUnion(NULL, NULL, new (outHeap) UnionMap(*getUnionMap()), getOperatorType(), outHeap);
   else
-    result = (MergeUnion *) derivedNode;
+    result = (MergeUnion *)derivedNode;
 
   result->mergeExpr_ = mergeExpr_;
 
   return Union::copyTopNode(result, outHeap);
 }
 
-void MergeUnion::setSortOrder(const ValueIdList &newSortOrder)
-{
+void MergeUnion::setSortOrder(const ValueIdList &newSortOrder) {
   sortOrder_ = newSortOrder;
   buildMergeExpr();
 }
 
-void MergeUnion::addLocalExpr(LIST(ExprNode *) &xlist,
-			      LIST(NAString) &llist) const
-{
-  if (sortOrder_.entries() > 0)
-    {
-      xlist.insert(sortOrder_.rebuildExprTree(ITM_ITEM_LIST));
-      llist.insert("sort_order");
-    }
+void MergeUnion::addLocalExpr(LIST(ExprNode *) & xlist, LIST(NAString) & llist) const {
+  if (sortOrder_.entries() > 0) {
+    xlist.insert(sortOrder_.rebuildExprTree(ITM_ITEM_LIST));
+    llist.insert("sort_order");
+  }
 
-  if (mergeExpr_ != NULL)
-    {
-      xlist.insert(mergeExpr_);
-      llist.insert("merge_expr");
-    }
+  if (mergeExpr_ != NULL) {
+    xlist.insert(mergeExpr_);
+    llist.insert("merge_expr");
+  }
 
-  Union::addLocalExpr(xlist,llist);
+  Union::addLocalExpr(xlist, llist);
 }
 
-void MergeUnion::buildMergeExpr()
-{
+void MergeUnion::buildMergeExpr() {
   // ---------------------------------------------------------------------
   // build the merge expression (an expression that tells which of the
   // two input rows, left or right, should be returned next) by creating
@@ -7923,58 +6487,46 @@ void MergeUnion::buildMergeExpr()
   ItemExpr *rightList = NULL;
   BiRelat *result = NULL;
 
-  if (sortOrder_.entries() > 0)
-    {
-      for (Lng32 i = 0; i < (Lng32)sortOrder_.entries(); i++)
-	{
-	  ItemExpr *leftItem;
-	  ItemExpr *rightItem;
+  if (sortOrder_.entries() > 0) {
+    for (Lng32 i = 0; i < (Lng32)sortOrder_.entries(); i++) {
+      ItemExpr *leftItem;
+      ItemExpr *rightItem;
 
-	  leftItem = sortOrder_[i].getItemExpr()->
-	    mapAndRewrite(getLeftMap(),TRUE).getItemExpr();
-	  rightItem = sortOrder_[i].getItemExpr()->
-	    mapAndRewrite(getRightMap(),TRUE).getItemExpr();
+      leftItem = sortOrder_[i].getItemExpr()->mapAndRewrite(getLeftMap(), TRUE).getItemExpr();
+      rightItem = sortOrder_[i].getItemExpr()->mapAndRewrite(getRightMap(), TRUE).getItemExpr();
 
-          // swap left and right if DESC is specified.
-          if(leftItem->getOperatorType() == ITM_INVERSE)
-          {
-            // both streams must be sorted according to the same order.
-            CMPASSERT(rightItem->getOperatorType() == ITM_INVERSE);
-            ItemExpr *temp = leftItem;
-            leftItem = rightItem;
-            rightItem = temp;
-          }
+      // swap left and right if DESC is specified.
+      if (leftItem->getOperatorType() == ITM_INVERSE) {
+        // both streams must be sorted according to the same order.
+        CMPASSERT(rightItem->getOperatorType() == ITM_INVERSE);
+        ItemExpr *temp = leftItem;
+        leftItem = rightItem;
+        rightItem = temp;
+      }
 
-	  // add the newly formed fields of the sort key to the
-	  // left and right lists of sort keys
-	  if (leftList != NULL)
-	    {
-	      leftList = new (CmpCommon::statementHeap())
-		             ItemList(leftList,leftItem);
-	      rightList = new (CmpCommon::statementHeap())
-		              ItemList(rightList,rightItem);
-	    }
-	  else
-	    {
-	      // both left and right list must be NULL
-	      leftList = leftItem;
-	      rightList = rightItem;
-	    }
-	}
-
-      result = new (CmpCommon::statementHeap())
-	           BiRelat(ITM_LESS_EQ,leftList,rightList);
-      // make the comparison such that NULLs compare greater than instead
-      // of making the expression result NULL
-      result->setSpecialNulls(TRUE);
-
-      result->synthTypeAndValueId();
+      // add the newly formed fields of the sort key to the
+      // left and right lists of sort keys
+      if (leftList != NULL) {
+        leftList = new (CmpCommon::statementHeap()) ItemList(leftList, leftItem);
+        rightList = new (CmpCommon::statementHeap()) ItemList(rightList, rightItem);
+      } else {
+        // both left and right list must be NULL
+        leftList = leftItem;
+        rightList = rightItem;
+      }
     }
+
+    result = new (CmpCommon::statementHeap()) BiRelat(ITM_LESS_EQ, leftList, rightList);
+    // make the comparison such that NULLs compare greater than instead
+    // of making the expression result NULL
+    result->setSpecialNulls(TRUE);
+
+    result->synthTypeAndValueId();
+  }
 
   // store the result in the merge expression
   mergeExpr_ = result;
 }
-
 
 // -----------------------------------------------------------------------
 // member functions for class GroupByAgg
@@ -7984,40 +6536,28 @@ GroupByAgg::~GroupByAgg() {}
 
 Int32 GroupByAgg::getArity() const { return 1; }
 
-NABoolean GroupByAgg::isUniqueOper()
-{
+NABoolean GroupByAgg::isUniqueOper() {
   NABoolean childUnique = FALSE;
-  if (child(0) && child(0)->castToRelExpr())
-  {
+  if (child(0) && child(0)->castToRelExpr()) {
     RelExpr *childExpr = child(0)->castToRelExpr();
-    if (childExpr->getOperator().match(REL_ANY_HBASE))
-    {
-      if (childExpr->getOperatorType() == REL_HBASE_ACCESS)
-      {
+    if (childExpr->getOperator().match(REL_ANY_HBASE)) {
+      if (childExpr->getOperatorType() == REL_HBASE_ACCESS) {
         HbaseAccess *ha = (HbaseAccess *)childExpr;
         childUnique = ha->uniqueHbaseOper();
-      }
-      else
-      {
+      } else {
         GenericUpdate *gu = (GenericUpdate *)childExpr;
         childUnique = gu->uniqueHbaseOper();
       }
-    }
-    else
-    {
+    } else {
       childUnique = child(0)->isUniqueOper();
     }
   }
   return childUnique;
 }
 
-void GroupByAgg::pushdownCoveredExpr(const ValueIdSet & outputExpr,
-                                  const ValueIdSet & newExternalInputs,
-                                  ValueIdSet & predicatesOnParent,
-				  const ValueIdSet * setOfValuesReqdByParent,
-				  Lng32 childIndex
-		                 )
-{
+void GroupByAgg::pushdownCoveredExpr(const ValueIdSet &outputExpr, const ValueIdSet &newExternalInputs,
+                                     ValueIdSet &predicatesOnParent, const ValueIdSet *setOfValuesReqdByParent,
+                                     Lng32 childIndex) {
   // ---------------------------------------------------------------------
   // predicates can only be pushed down if the group by did contain
   // a group by clause or if this is a scalar groupby for a subquery that
@@ -8031,8 +6571,7 @@ void GroupByAgg::pushdownCoveredExpr(const ValueIdSet & outputExpr,
   ValueIdSet exprOnParent;
   ValueIdSet emptySet;
 
-  if (NOT groupExpr().isEmpty() || containsNullRejectingPredicates())
-    pushablePredicates = predicatesOnParent;
+  if (NOT groupExpr().isEmpty() || containsNullRejectingPredicates()) pushablePredicates = predicatesOnParent;
 #if 0
   else
     computeValuesReqdForPredicates(predicatesOnParent,
@@ -8045,27 +6584,20 @@ void GroupByAgg::pushdownCoveredExpr(const ValueIdSet & outputExpr,
   // ---------------------------------------------------------------------
   getValuesRequiredForEvaluatingAggregate(exprOnParent);
   exprOnParent += groupExpr();
-  if (extraOrderExpr().entries() > 0)
-     exprOnParent.insertList(extraOrderExpr());
+  if (extraOrderExpr().entries() > 0) exprOnParent.insertList(extraOrderExpr());
 
   // ---------------------------------------------------------------------
-  RelExpr::pushdownCoveredExpr(emptySet,
-                               newExternalInputs,
-                               pushablePredicates,
-			       &exprOnParent,
-                               childIndex
-                               );
+  RelExpr::pushdownCoveredExpr(emptySet, newExternalInputs, pushablePredicates, &exprOnParent, childIndex);
 
   // ---------------------------------------------------------------------
   // Set the value of predicatesOnParent appropriately.
   // ---------------------------------------------------------------------
   if (NOT groupExpr().isEmpty() || containsNullRejectingPredicates())
-      predicatesOnParent.intersectSet(pushablePredicates);
+    predicatesOnParent.intersectSet(pushablePredicates);
 
-} // GroupByAgg::pushdownCoveredExpr
+}  // GroupByAgg::pushdownCoveredExpr
 
-void GroupByAgg::getPotentialOutputValues(ValueIdSet & outputValues) const
-{
+void GroupByAgg::getPotentialOutputValues(ValueIdSet &outputValues) const {
   outputValues.clear();
 
   // Assign the grouping expressions and the aggregate functions
@@ -8081,103 +6613,80 @@ void GroupByAgg::getPotentialOutputValues(ValueIdSet & outputValues) const
   //	{ example query: select * from S where (select A,B from T) < (100,200) }
   // then add value ids 10 and 11 to our characteristic outputs.
   //
-  for (ValueId aggid = aggregateExpr().init();
-       aggregateExpr().next(aggid);
-       aggregateExpr().advance(aggid))
-    {
-      ItemExpr *aggie = aggid.getItemExpr();
-      if (aggie->getOperatorType() == ITM_ONE_ROW)
-        {
-	  ValueIdSet moreAvailableOutputs;
-	  aggie->child(0)->convertToValueIdSet(moreAvailableOutputs,
-					       NULL, ITM_ITEM_LIST, FALSE);
-	  outputValues += moreAvailableOutputs;
-	}
+  for (ValueId aggid = aggregateExpr().init(); aggregateExpr().next(aggid); aggregateExpr().advance(aggid)) {
+    ItemExpr *aggie = aggid.getItemExpr();
+    if (aggie->getOperatorType() == ITM_ONE_ROW) {
+      ValueIdSet moreAvailableOutputs;
+      aggie->child(0)->convertToValueIdSet(moreAvailableOutputs, NULL, ITM_ITEM_LIST, FALSE);
+      outputValues += moreAvailableOutputs;
     }
-} // GroupByAgg::getPotentialOutputValues()
+  }
+}  // GroupByAgg::getPotentialOutputValues()
 
-const NAString GroupByAgg::getText() const
-{
-  if (NOT groupExpr().isEmpty())
-    {
-      if (isNotAPartialGroupBy())
-	return "groupby";
-      else if (isAPartialGroupByRoot())
-	return "partial_groupby_root";
-      else if (isAPartialGroupByNonLeaf())
-	return "partial_groupby_non_leaf";
-      else
-	return "partial_groupby_leaf";
-    }
- else
-   {
-      if (isNotAPartialGroupBy())
-	return "scalar_aggr";
-      else if (isAPartialGroupByRoot())
-	return "partial_aggr_root";
-      else if (isAPartialGroupByNonLeaf())
-	return "partial_aggr_non_leaf";
-      else
-	return "partial_aggr_leaf";
-   }
+const NAString GroupByAgg::getText() const {
+  if (NOT groupExpr().isEmpty()) {
+    if (isNotAPartialGroupBy())
+      return "groupby";
+    else if (isAPartialGroupByRoot())
+      return "partial_groupby_root";
+    else if (isAPartialGroupByNonLeaf())
+      return "partial_groupby_non_leaf";
+    else
+      return "partial_groupby_leaf";
+  } else {
+    if (isNotAPartialGroupBy())
+      return "scalar_aggr";
+    else if (isAPartialGroupByRoot())
+      return "partial_aggr_root";
+    else if (isAPartialGroupByNonLeaf())
+      return "partial_aggr_non_leaf";
+    else
+      return "partial_aggr_leaf";
+  }
 
-} // GroupByAgg::getText()
+}  // GroupByAgg::getText()
 
-HashValue GroupByAgg::topHash()
-{
+HashValue GroupByAgg::topHash() {
   HashValue result = RelExpr::topHash();
 
   result ^= groupExpr_;
   result ^= aggregateExpr_;
-  result ^= (Int32) formEnum_;        // MSVC requires cast.
+  result ^= (Int32)formEnum_;  // MSVC requires cast.
 
   return result;
 }
 
-NABoolean GroupByAgg::duplicateMatch(const RelExpr & other) const
-{
-  if (!RelExpr::duplicateMatch(other))
-    return FALSE;
+NABoolean GroupByAgg::duplicateMatch(const RelExpr &other) const {
+  if (!RelExpr::duplicateMatch(other)) return FALSE;
 
-  GroupByAgg &o = (GroupByAgg &) other;
+  GroupByAgg &o = (GroupByAgg &)other;
 
-  if (groupExpr_     != o.groupExpr_ OR
-      aggregateExpr_ != o.aggregateExpr_ OR
-      formEnum_ != o.formEnum_ )
-
-    return FALSE;
+  if (groupExpr_ != o.groupExpr_ OR aggregateExpr_ != o.aggregateExpr_ OR formEnum_ != o.formEnum_) return FALSE;
 
   return TRUE;
 }
 
-RelExpr * GroupByAgg::copyTopNode(RelExpr *derivedNode, CollHeap* outHeap)
-{
+RelExpr *GroupByAgg::copyTopNode(RelExpr *derivedNode, CollHeap *outHeap) {
   GroupByAgg *result;
 
   if (derivedNode == NULL)
-    result = new (outHeap) GroupByAgg(NULL,
-		                      getOperatorType(),
-				      NULL,
-				      NULL,
-				      outHeap);
+    result = new (outHeap) GroupByAgg(NULL, getOperatorType(), NULL, NULL, outHeap);
   else
-    result = (GroupByAgg *) derivedNode;
+    result = (GroupByAgg *)derivedNode;
 
   // copy parse tree nodes (parser only)
-  if (groupExprTree_ != NULL)
-    result->groupExprTree_ = groupExprTree_->copyTree(outHeap);
-  if (aggregateExprTree_ != NULL)
-    result->aggregateExprTree_ = aggregateExprTree_->copyTree(outHeap);
+  if (groupExprTree_ != NULL) result->groupExprTree_ = groupExprTree_->copyTree(outHeap);
+  if (aggregateExprTree_ != NULL) result->aggregateExprTree_ = aggregateExprTree_->copyTree(outHeap);
 
-  result->groupExpr_     = groupExpr_;
+  result->groupExpr_ = groupExpr_;
   result->rollupGroupExprList_ = rollupGroupExprList_;
   result->aggregateExpr_ = aggregateExpr_;
-  result->formEnum_      = formEnum_;
+  result->formEnum_ = formEnum_;
   result->gbAggPushedBelowTSJ_ = gbAggPushedBelowTSJ_;
   result->gbAnalysis_ = gbAnalysis_;
-  result->requiresMoveUp_ = requiresMoveUp_ ;
+  result->requiresMoveUp_ = requiresMoveUp_;
   result->leftUniqueExpr_ = leftUniqueExpr_;
-  result->containsNullRejectingPredicates_ = containsNullRejectingPredicates_ ;
+  result->containsNullRejectingPredicates_ = containsNullRejectingPredicates_;
   result->parentRootSelectList_ = parentRootSelectList_;
   result->isMarkedForElimination_ = isMarkedForElimination_;
 
@@ -8186,49 +6695,44 @@ RelExpr * GroupByAgg::copyTopNode(RelExpr *derivedNode, CollHeap* outHeap)
 
   result->feasibleToPushdownAggr_ = feasibleToPushdownAggr_;
   result->isRollup_ = isRollup_;
-  result->extraGrpOrderby_= extraGrpOrderby_;
-  result->extraOrderExpr_= extraOrderExpr_;
-  result->parallelAggrPushdown_= parallelAggrPushdown_;
+  result->extraGrpOrderby_ = extraGrpOrderby_;
+  result->extraOrderExpr_ = extraOrderExpr_;
+  result->parallelAggrPushdown_ = parallelAggrPushdown_;
 
   return RelExpr::copyTopNode(result, outHeap);
 }
 
-void GroupByAgg::addGroupExprTree(ItemExpr *groupExpr)
-{
+void GroupByAgg::addGroupExprTree(ItemExpr *groupExpr) {
   ExprValueId g = groupExprTree_;
 
   ItemExprTreeAsList(&g, ITM_ITEM_LIST).insert(groupExpr);
   groupExprTree_ = g.getPtr();
 }
 
-ItemExpr * GroupByAgg::removeGroupExprTree()
-{
-  ItemExpr * result = groupExprTree_;
+ItemExpr *GroupByAgg::removeGroupExprTree() {
+  ItemExpr *result = groupExprTree_;
 
   groupExprTree_ = NULL;
 
   return result;
 }
 
-void GroupByAgg::addAggregateExprTree(ItemExpr *aggrExpr)
-{
+void GroupByAgg::addAggregateExprTree(ItemExpr *aggrExpr) {
   ExprValueId g = groupExprTree_;
 
   ItemExprTreeAsList(&g, ITM_ITEM_LIST).insert(aggrExpr);
   groupExprTree_ = g.getPtr();
 }
 
-ItemExpr * GroupByAgg::removeAggregateExprTree()
-{
-  ItemExpr * result = aggregateExprTree_;
+ItemExpr *GroupByAgg::removeAggregateExprTree() {
+  ItemExpr *result = aggregateExprTree_;
 
   aggregateExprTree_ = NULL;
 
   return result;
 }
 
-void GroupByAgg::getValuesRequiredForEvaluatingAggregate(ValueIdSet& relevantValues)
-{
+void GroupByAgg::getValuesRequiredForEvaluatingAggregate(ValueIdSet &relevantValues) {
   // Find the values that are needed to evaluate aggregate functions.
   // NOTE: this should normally just be the direct children of the
   // aggregate functions. However, some aggregate functions such as
@@ -8239,111 +6743,92 @@ void GroupByAgg::getValuesRequiredForEvaluatingAggregate(ValueIdSet& relevantVal
   // anyTrueGreater(a,b), anyTrueLess(a,b), anyTrueGreaterEq(a,b), ...
 
   // for each aggregate expression in the groupby node
-  for (ValueId x = aggregateExpr_.init();
-       aggregateExpr_.next(x);
-       aggregateExpr_.advance(x))
-    {
-      Aggregate *agg = (Aggregate *) x.getItemExpr();
-      Lng32 nc = agg->getArity();
+  for (ValueId x = aggregateExpr_.init(); aggregateExpr_.next(x); aggregateExpr_.advance(x)) {
+    Aggregate *agg = (Aggregate *)x.getItemExpr();
+    Lng32 nc = agg->getArity();
 
-      // handle special cases for special aggregate functions
-      switch (agg->getOperatorType())
-	{
-	case ITM_ANY_TRUE:
-	case ITM_ANY_TRUE_MAX:
-	  {
-	    ItemExpr *boolInput = agg->child(0);
+    // handle special cases for special aggregate functions
+    switch (agg->getOperatorType()) {
+      case ITM_ANY_TRUE:
+      case ITM_ANY_TRUE_MAX: {
+        ItemExpr *boolInput = agg->child(0);
 
-	    // if the child is a binary comparison operator, then
-	    // require both of the children instead of the comparison op.
-	    switch (boolInput->getOperatorType())
-	      {
-	      case ITM_EQUAL:
-	      case ITM_NOT_EQUAL:
-	      case ITM_LESS:
-	      case ITM_LESS_EQ:
-	      case ITM_GREATER:
-	      case ITM_GREATER_EQ:
-		relevantValues += boolInput->child(0)->getValueId();
-		relevantValues += boolInput->child(1)->getValueId();
-		break;
-              case ITM_VEG_PREDICATE:
-                {
-                  VEG * vegPtr = ((VEGPredicate *)boolInput)->getVEG();
-                  relevantValues += vegPtr->getVEGReference()->getValueId();
-		}
-                break;
-	      default:
+        // if the child is a binary comparison operator, then
+        // require both of the children instead of the comparison op.
+        switch (boolInput->getOperatorType()) {
+          case ITM_EQUAL:
+          case ITM_NOT_EQUAL:
+          case ITM_LESS:
+          case ITM_LESS_EQ:
+          case ITM_GREATER:
+          case ITM_GREATER_EQ:
+            relevantValues += boolInput->child(0)->getValueId();
+            relevantValues += boolInput->child(1)->getValueId();
+            break;
+          case ITM_VEG_PREDICATE: {
+            VEG *vegPtr = ((VEGPredicate *)boolInput)->getVEG();
+            relevantValues += vegPtr->getVEGReference()->getValueId();
+          } break;
+          default:
 
-		// might not happen right now: an anyTrue with something
-		// other than a binary comparison operator
-		relevantValues += boolInput->getValueId();
-		break;
-	      }
-	  }
+            // might not happen right now: an anyTrue with something
+            // other than a binary comparison operator
+            relevantValues += boolInput->getValueId();
+            break;
+        }
+      }
 
-	  break;
+      break;
 
-        case ITM_ONE_ROW:
-         {
-           // collect leaf values into relevant Values
-           ValueIdSet AvailableOutputs_;
-           agg->child(0)->convertToValueIdSet(AvailableOutputs_,
-                          NULL, ITM_ITEM_LIST, FALSE);
-           relevantValues += AvailableOutputs_;
-           break;
-         }
-	default:
-	  {
-	    // all other aggregate functions are handled here
-            //
-            // If we are doing a distinct aggregate we need the
-            // distinct value id. E.g. sum(distinct x*x) with distinct
-            //                         valueId x, means we eliminate
-            //                         distinct x's first, then compute sum(x*x)
-            if(agg->isDistinct())
-              relevantValues += agg->getDistinctValueId();
-            else
-              relevantValues += agg->child(0)->getValueId();
+      case ITM_ONE_ROW: {
+        // collect leaf values into relevant Values
+        ValueIdSet AvailableOutputs_;
+        agg->child(0)->convertToValueIdSet(AvailableOutputs_, NULL, ITM_ITEM_LIST, FALSE);
+        relevantValues += AvailableOutputs_;
+        break;
+      }
+      default: {
+        // all other aggregate functions are handled here
+        //
+        // If we are doing a distinct aggregate we need the
+        // distinct value id. E.g. sum(distinct x*x) with distinct
+        //                         valueId x, means we eliminate
+        //                         distinct x's first, then compute sum(x*x)
+        if (agg->isDistinct())
+          relevantValues += agg->getDistinctValueId();
+        else
+          relevantValues += agg->child(0)->getValueId();
 
-	    // for each child of this particular aggregate expression
-	    for (Lng32 i = 1; i < nc; i++)
-	      {
-		// add the value id of that child to "relevantValues"
-		relevantValues += agg->child(i)->getValueId();
-	      }
-	  }
-	  break;
-	}
+        // for each child of this particular aggregate expression
+        for (Lng32 i = 1; i < nc; i++) {
+          // add the value id of that child to "relevantValues"
+          relevantValues += agg->child(i)->getValueId();
+        }
+      } break;
     }
+  }
 }
 
-void GroupByAgg::addLocalExpr(LIST(ExprNode *) &xlist,
-			      LIST(NAString) &llist) const
-{
-  if (groupExprTree_ != NULL OR
-      NOT groupExpr_.isEmpty())
-    {
-      if (groupExpr_.isEmpty())
-	xlist.insert(groupExprTree_);
-      else if (isRollup() && (NOT rollupGroupExprList_.isEmpty()))
- 	xlist.insert(rollupGroupExprList_.rebuildExprTree(ITM_ITEM_LIST));
-      else
-	xlist.insert(groupExpr_.rebuildExprTree(ITM_ITEM_LIST));
-      llist.insert("grouping_columns");
-    }
+void GroupByAgg::addLocalExpr(LIST(ExprNode *) & xlist, LIST(NAString) & llist) const {
+  if (groupExprTree_ != NULL OR NOT groupExpr_.isEmpty()) {
+    if (groupExpr_.isEmpty())
+      xlist.insert(groupExprTree_);
+    else if (isRollup() && (NOT rollupGroupExprList_.isEmpty()))
+      xlist.insert(rollupGroupExprList_.rebuildExprTree(ITM_ITEM_LIST));
+    else
+      xlist.insert(groupExpr_.rebuildExprTree(ITM_ITEM_LIST));
+    llist.insert("grouping_columns");
+  }
 
-  if (aggregateExprTree_ != NULL OR
-      NOT aggregateExpr_.isEmpty())
-    {
-      if (aggregateExpr_.isEmpty())
-	xlist.insert(aggregateExprTree_);
-      else
-	xlist.insert(aggregateExpr_.rebuildExprTree(ITM_ITEM_LIST));
-      llist.insert("aggregates");
-    }
+  if (aggregateExprTree_ != NULL OR NOT aggregateExpr_.isEmpty()) {
+    if (aggregateExpr_.isEmpty())
+      xlist.insert(aggregateExprTree_);
+    else
+      xlist.insert(aggregateExpr_.rebuildExprTree(ITM_ITEM_LIST));
+    llist.insert("aggregates");
+  }
 
-  RelExpr::addLocalExpr(xlist,llist);
+  RelExpr::addLocalExpr(xlist, llist);
 }
 
 // -----------------------------------------------------------------------
@@ -8351,25 +6836,17 @@ void GroupByAgg::addLocalExpr(LIST(ExprNode *) &xlist,
 // evaluated in stages, for example, a partial aggregation followed
 // by finalization, then do not split this GroupByAgg.
 // -----------------------------------------------------------------------
- NABoolean GroupByAgg::aggregateEvaluationCanBeStaged() const
-{
-  for (ValueId aggrId = aggregateExpr().init();
-       aggregateExpr().next(aggrId);
-       aggregateExpr().advance(aggrId))
-    {
-      CMPASSERT(aggrId.getItemExpr()->isAnAggregate());
-      if (groupExpr().isEmpty() && 
-	  (aggrId.getItemExpr()->getOperatorType() == ITM_ONEROW))
-	    return FALSE;
+NABoolean GroupByAgg::aggregateEvaluationCanBeStaged() const {
+  for (ValueId aggrId = aggregateExpr().init(); aggregateExpr().next(aggrId); aggregateExpr().advance(aggrId)) {
+    CMPASSERT(aggrId.getItemExpr()->isAnAggregate());
+    if (groupExpr().isEmpty() && (aggrId.getItemExpr()->getOperatorType() == ITM_ONEROW)) return FALSE;
 
-      if (NOT ((Aggregate *)aggrId.getItemExpr())->evaluationCanBeStaged())
-	return FALSE;
-    }
+    if (NOT((Aggregate *)aggrId.getItemExpr())->evaluationCanBeStaged()) return FALSE;
+  }
   return TRUE;
-} // GroupByAgg::aggregateEvaluationCanBeStaged()
+}  // GroupByAgg::aggregateEvaluationCanBeStaged()
 
-NABoolean GroupByAgg::executeInDP2() const
-{
+NABoolean GroupByAgg::executeInDP2() const {
   CMPASSERT(getPhysicalProperty());
   return getPhysicalProperty()->executeInDP2();
 }
@@ -8381,28 +6858,27 @@ NABoolean GroupByAgg::executeInDP2() const
 // Could make this a virtual method on RelExpr if we want to support
 // this for other operators as well.
 NABoolean GroupByAgg::tryToPullUpPredicatesInPreCodeGen(
-     const ValueIdSet &valuesAvailableInParent,    // pull preds that are covered by these
-     ValueIdSet       &pulledPredicates,           // return the pulled-up preds
-     ValueIdMap       *optionalMap)                // optional map to rewrite preds
+    const ValueIdSet &valuesAvailableInParent,  // pull preds that are covered by these
+    ValueIdSet &pulledPredicates,               // return the pulled-up preds
+    ValueIdMap *optionalMap)                    // optional map to rewrite preds
 {
   // other item expressions needed by the child (excluding
   // selection preds), this is where we make use of the knowledge
-  // that we are dealing with a groupby. 
+  // that we are dealing with a groupby.
   ValueIdSet myLocalExpr;
   ValueIdSet myNewInputs(getGroupAttr()->getCharacteristicInputs());
   ValueIdSet mappedValuesAvailableInParent;
-  ValueIdSet tempPulledPreds(selectionPred()); // be optimistic
+  ValueIdSet tempPulledPreds(selectionPred());  // be optimistic
 
   myLocalExpr += child(0).getGroupAttr()->getCharacteristicInputs();
   myLocalExpr += groupExpr();
   myLocalExpr += aggregateExpr();
   // make sure we can still produce our characteristic outputs too
   myLocalExpr += getGroupAttr()->getCharacteristicOutputs();
-          
+
   // consider only preds that we can evaluate in the parent
   if (optionalMap)
-    optionalMap->mapValueIdSetDown(valuesAvailableInParent,
-                                   mappedValuesAvailableInParent);
+    optionalMap->mapValueIdSetDown(valuesAvailableInParent, mappedValuesAvailableInParent);
   else
     mappedValuesAvailableInParent = valuesAvailableInParent;
   tempPulledPreds.removeUnCoveredExprs(mappedValuesAvailableInParent);
@@ -8410,69 +6886,57 @@ NABoolean GroupByAgg::tryToPullUpPredicatesInPreCodeGen(
   // add the rest to myLocalExpr
   myLocalExpr += selectionPred();
   myLocalExpr -= tempPulledPreds;
-              
+
   // see which of the char. inputs are needed by my local expressions
   myLocalExpr.weedOutUnreferenced(myNewInputs);
-          
+
   // pull up predicates only if that reduces my char. inputs
-  if (NOT (myNewInputs == getGroupAttr()->getCharacteristicInputs()))
-    {
-      ValueIdSet selPredOnlyInputs(getGroupAttr()->getCharacteristicInputs());
-          
-      // inputs only used by selection predicates
-      selPredOnlyInputs -= myNewInputs;
+  if (NOT(myNewInputs == getGroupAttr()->getCharacteristicInputs())) {
+    ValueIdSet selPredOnlyInputs(getGroupAttr()->getCharacteristicInputs());
 
-      // loop through the selection predicates and pull
-      // those up that reference myNewInputs
-      for (ValueId x=tempPulledPreds.init();
-           tempPulledPreds.next(x);
-           tempPulledPreds.advance(x))
-        {
-          if (x.getItemExpr()->referencesOneValueFrom(selPredOnlyInputs))
-            {
-              // keep this predicate in tempPulledPreds and
-              // remove it from the selection predicates
-              selectionPred() -= x;
-            }
-          else
-            {
-              // this predicate stays on the local node,
-              // remove it from tempPulledPreds
-              tempPulledPreds -= x;
-            }
-        }
+    // inputs only used by selection predicates
+    selPredOnlyInputs -= myNewInputs;
+
+    // loop through the selection predicates and pull
+    // those up that reference myNewInputs
+    for (ValueId x = tempPulledPreds.init(); tempPulledPreds.next(x); tempPulledPreds.advance(x)) {
+      if (x.getItemExpr()->referencesOneValueFrom(selPredOnlyInputs)) {
+        // keep this predicate in tempPulledPreds and
+        // remove it from the selection predicates
+        selectionPred() -= x;
+      } else {
+        // this predicate stays on the local node,
+        // remove it from tempPulledPreds
+        tempPulledPreds -= x;
+      }
     }
-  else
-    {
-      // no predicates get pulled up
-      tempPulledPreds.clear();
-    }
+  } else {
+    // no predicates get pulled up
+    tempPulledPreds.clear();
+  }
 
-  if (!tempPulledPreds.isEmpty())
-    {
-      // return pulled predicates
-      if (optionalMap)
-        {
-          ValueIdSet rewrittenPulledPreds;
+  if (!tempPulledPreds.isEmpty()) {
+    // return pulled predicates
+    if (optionalMap) {
+      ValueIdSet rewrittenPulledPreds;
 
-          optionalMap->rewriteValueIdSetUp(rewrittenPulledPreds, tempPulledPreds);
-          pulledPredicates += rewrittenPulledPreds;
-        }
-      else
-        pulledPredicates += tempPulledPreds;
+      optionalMap->rewriteValueIdSetUp(rewrittenPulledPreds, tempPulledPreds);
+      pulledPredicates += rewrittenPulledPreds;
+    } else
+      pulledPredicates += tempPulledPreds;
 
-      // just remove pulled up predicates from char. input
-      ValueIdSet newInputs(getGroupAttr()->getCharacteristicInputs());
-      myLocalExpr += selectionPred();
-      myLocalExpr -= tempPulledPreds;
-      myLocalExpr.weedOutUnreferenced(newInputs);
-      
-      // adjust char. inputs - this is not exactly
-      // good style, just overwriting the char. inputs, but
-      // hopefully we'll get away with it at this stage in
-      // the processing
-      getGroupAttr()->setCharacteristicInputs(newInputs);
-    }
+    // just remove pulled up predicates from char. input
+    ValueIdSet newInputs(getGroupAttr()->getCharacteristicInputs());
+    myLocalExpr += selectionPred();
+    myLocalExpr -= tempPulledPreds;
+    myLocalExpr.weedOutUnreferenced(newInputs);
+
+    // adjust char. inputs - this is not exactly
+    // good style, just overwriting the char. inputs, but
+    // hopefully we'll get away with it at this stage in
+    // the processing
+    getGroupAttr()->setCharacteristicInputs(newInputs);
+  }
 
   // note that we removed these predicates from our node, it's the
   // caller's responsibility to take them
@@ -8482,91 +6946,69 @@ NABoolean GroupByAgg::tryToPullUpPredicatesInPreCodeGen(
 // -----------------------------------------------------------------------
 // member functions for class SortGroupBy
 // -----------------------------------------------------------------------
-SortGroupBy::SortGroupBy(RelExpr *child,
-                         OperatorTypeEnum otype /*= REL_ORDERED_GROUPBY*/,
-                         ItemExpr *groupExpr /*= NULL*/,
-                         ItemExpr *aggregateExpr /*= NULL*/,
+SortGroupBy::SortGroupBy(RelExpr *child, OperatorTypeEnum otype /*= REL_ORDERED_GROUPBY*/,
+                         ItemExpr *groupExpr /*= NULL*/, ItemExpr *aggregateExpr /*= NULL*/,
                          CollHeap *oHeap /*= CmpCommon::statementHeap()*/)
-: GroupByAgg(child,otype,groupExpr,aggregateExpr, oHeap)
-{
+    : GroupByAgg(child, otype, groupExpr, aggregateExpr, oHeap) {
   if (oHeap)
     pCostMethod_ = new (oHeap) CostMethodSortGroupBy();
   else
     pCostMethod_ = new (CmpCommon::statementHeap()) CostMethodSortGroupBy();
 }
 
-
 SortGroupBy::~SortGroupBy() {}
 
-NABoolean SortGroupBy::isLogical()  const {return FALSE;}
+NABoolean SortGroupBy::isLogical() const { return FALSE; }
 
-NABoolean SortGroupBy::isPhysical() const {return TRUE;}
+NABoolean SortGroupBy::isPhysical() const { return TRUE; }
 
-const NAString SortGroupBy::getText() const
-{
+const NAString SortGroupBy::getText() const {
   if (isRollup())
     return "sort_" + GroupByAgg::getText() + "_rollup";
   else
     return "sort_" + GroupByAgg::getText();
 }
 
-RelExpr * SortGroupBy::copyTopNode(RelExpr *derivedNode, CollHeap* outHeap)
-{
+RelExpr *SortGroupBy::copyTopNode(RelExpr *derivedNode, CollHeap *outHeap) {
   RelExpr *result;
 
   if (derivedNode == NULL)
-    result = new (outHeap) SortGroupBy(NULL,
-				       getOperatorType(),
-				       NULL,
-				       NULL,
-				       outHeap);
+    result = new (outHeap) SortGroupBy(NULL, getOperatorType(), NULL, NULL, outHeap);
   else
     result = derivedNode;
 
   return GroupByAgg::copyTopNode(result, outHeap);
 }
 
-PlanPriority ShortCutGroupBy::computeOperatorPriority
-(const Context* context,
- PlanWorkSpace *pws,
- Lng32 planNumber)
-{
+PlanPriority ShortCutGroupBy::computeOperatorPriority(const Context *context, PlanWorkSpace *pws, Lng32 planNumber) {
   // For min(X) or max(X) where X is the first clustering key column,
   // allow shortcutgroupby plan to compete with other plans based on cost.
   // Specifically, match the priority of the wave fix so that a
-  // shortcutgroupby plan can cost compete with the parallel 
+  // shortcutgroupby plan can cost compete with the parallel
   // partialgroupby plan.
   PlanPriority result;
-  if (QueryAnalysis::Instance() &&
-      QueryAnalysis::Instance()->dontSurfTheWave()) {
-   // do this only if the wave fix is a competing plan
+  if (QueryAnalysis::Instance() && QueryAnalysis::Instance()->dontSurfTheWave()) {
+    // do this only if the wave fix is a competing plan
     result.incrementLevels(10, 0);
   }
   return result;
 }
 
-PlanPriority SortGroupBy::computeOperatorPriority
-(const Context* context,
- PlanWorkSpace *pws,
- Lng32 planNumber)
-{
-  const PhysicalProperty* spp = context->getPlan()->getPhysicalProperty();
+PlanPriority SortGroupBy::computeOperatorPriority(const Context *context, PlanWorkSpace *pws, Lng32 planNumber) {
+  const PhysicalProperty *spp = context->getPlan()->getPhysicalProperty();
   Lng32 degreeOfParallelism = spp->getCountOfPartitions();
   double val = 1;
-  if (degreeOfParallelism <= 1)
-    {
-      // serial plans are risky. exact an insurance premium from serial plans.
-      val = CURRSTMT_OPTDEFAULTS->riskPremiumSerial();
+  if (degreeOfParallelism <= 1) {
+    // serial plans are risky. exact an insurance premium from serial plans.
+    val = CURRSTMT_OPTDEFAULTS->riskPremiumSerial();
 
-      // when dontSurfTheWave is ON, 
-      // consider serial sort_partial_aggr_nonleaf risky 
-      if (QueryAnalysis::Instance() &&
-          QueryAnalysis::Instance()->dontSurfTheWave() &&
-          isAPartialGroupByNonLeaf() && val <= 1)
-        {
-          val = 1.1; 
-        }
+    // when dontSurfTheWave is ON,
+    // consider serial sort_partial_aggr_nonleaf risky
+    if (QueryAnalysis::Instance() && QueryAnalysis::Instance()->dontSurfTheWave() && isAPartialGroupByNonLeaf() &&
+        val <= 1) {
+      val = 1.1;
     }
+  }
   CostScalar premium(val);
   PlanPriority result(0, 0, premium);
 
@@ -8581,39 +7023,31 @@ PlanPriority SortGroupBy::computeOperatorPriority
   // each dp2 is fixed up and then starts execution. Due to serial
   // fixup a dp2 is fixed up, and then we move to the next dp2 causing
   // the wave pattern.
-  if (QueryAnalysis::Instance() &&
-      QueryAnalysis::Instance()->dontSurfTheWave())
-  {
+  if (QueryAnalysis::Instance() && QueryAnalysis::Instance()->dontSurfTheWave()) {
     if (isAPartialGroupByLeaf2() && spp->executeInDP2())
       result.incrementLevels(10, 0);
-    else if (isAPartialGroupByLeaf1() &&
-            (degreeOfParallelism>1) &&
-            (!spp->executeInDP2()))
+    else if (isAPartialGroupByLeaf1() && (degreeOfParallelism > 1) && (!spp->executeInDP2()))
       result.incrementLevels(5, 0);
   }
   // WaveFix End
 
   // The remaining part of the code in this function relates to parallelism
   // priority and not applicable to scalar aggregates
-  if (groupExpr().isEmpty())
-    return result;
+  if (groupExpr().isEmpty()) return result;
 
-  if(spp->executeInDP2())
-    return result;
+  if (spp->executeInDP2()) return result;
 
   // For the option of Max Degree of Parallelism we can either use the
   // value set in comp_int_9 (if positive) or we use the number of CPUs
   // if the CQD is set to -1, or feature is disabled if CQD is 0 (default).
   Lng32 maxDegree = ActiveSchemaDB()->getDefaults().getAsLong(COMP_INT_9);
-  if (CURRSTMT_OPTDEFAULTS->maxParallelismIsFeasible() OR (maxDegree == -1) )
-  {
+  if (CURRSTMT_OPTDEFAULTS->maxParallelismIsFeasible() OR(maxDegree == -1)) {
     // if CQD is set to -1 this mean use the number of CPUs
     maxDegree = spp->getCurrentCountOfCPUs();
   }
-  if (maxDegree > 1) // CQD set to 0 means feature is OFF
+  if (maxDegree > 1)  // CQD set to 0 means feature is OFF
   {
-    if (degreeOfParallelism < maxDegree)
-      result.incrementLevels(0,-10); // need to replace with constant
+    if (degreeOfParallelism < maxDegree) result.incrementLevels(0, -10);  // need to replace with constant
   }
 
   return result;
@@ -8623,28 +7057,20 @@ PlanPriority SortGroupBy::computeOperatorPriority
 // member functions for class ShortCutGroupBy
 // -----------------------------------------------------------------------
 
-const NAString ShortCutGroupBy::getText() const
-{
-  return "shortcut_" + GroupByAgg::getText();
-}
+const NAString ShortCutGroupBy::getText() const { return "shortcut_" + GroupByAgg::getText(); }
 
-RelExpr * ShortCutGroupBy::copyTopNode(RelExpr *derivedNode, CollHeap* outHeap)
-{
+RelExpr *ShortCutGroupBy::copyTopNode(RelExpr *derivedNode, CollHeap *outHeap) {
   ShortCutGroupBy *result;
 
   if (derivedNode == NULL)
     // This is the top of the derivation chain
     // Create an empty ShortCutGroupBy node.
     //
-    result = new (outHeap) ShortCutGroupBy(NULL,
-					  getOperatorType(),
-					  NULL,
-					  NULL,
-					  outHeap);
+    result = new (outHeap) ShortCutGroupBy(NULL, getOperatorType(), NULL, NULL, outHeap);
   else
     // A node has already been constructed as a derived class.
     //
-    result = (ShortCutGroupBy *) derivedNode;
+    result = (ShortCutGroupBy *)derivedNode;
 
   // Copy the relevant fields.
 
@@ -8662,38 +7088,28 @@ RelExpr * ShortCutGroupBy::copyTopNode(RelExpr *derivedNode, CollHeap* outHeap)
 // -----------------------------------------------------------------------
 // member functions for class PhysShortCutGroupBy
 // -----------------------------------------------------------------------
-PhysShortCutGroupBy::PhysShortCutGroupBy(RelExpr *child,
-                                         OperatorTypeEnum otype /*= REL_SHORTCUT_GROUPBY*/,
-                                         ItemExpr *groupExpr /*= NULL*/,
-                                         ItemExpr *aggregateExpr /*= NULL*/,
+PhysShortCutGroupBy::PhysShortCutGroupBy(RelExpr *child, OperatorTypeEnum otype /*= REL_SHORTCUT_GROUPBY*/,
+                                         ItemExpr *groupExpr /*= NULL*/, ItemExpr *aggregateExpr /*= NULL*/,
                                          CollHeap *oHeap /*= CmpCommon::statementHeap()*/)
-: ShortCutGroupBy(child,otype,groupExpr,aggregateExpr, oHeap)
-{
+    : ShortCutGroupBy(child, otype, groupExpr, aggregateExpr, oHeap) {
   if (oHeap)
     pCostMethod_ = new (oHeap) CostMethodShortCutGroupBy();
   else
     pCostMethod_ = new (CmpCommon::statementHeap()) CostMethodShortCutGroupBy();
 }
 
-
-RelExpr * PhysShortCutGroupBy::copyTopNode(RelExpr *derivedNode,
-                                           CollHeap* outHeap)
-{
+RelExpr *PhysShortCutGroupBy::copyTopNode(RelExpr *derivedNode, CollHeap *outHeap) {
   RelExpr *result;
 
   if (derivedNode == NULL)
     // This is the top of the derivation chain
     // Create an empty ShortCutGroupBy node.
     //
-    result = new (outHeap) PhysShortCutGroupBy(NULL,
-					       getOperatorType(),
-					       NULL,
-					       NULL,
-					       outHeap);
+    result = new (outHeap) PhysShortCutGroupBy(NULL, getOperatorType(), NULL, NULL, outHeap);
   else
     // A node has already been constructed as a derived class.
     //
-    result = (PhysShortCutGroupBy *) derivedNode;
+    result = (PhysShortCutGroupBy *)derivedNode;
 
   // PhysShortCutGroupBy has no data members.
 
@@ -8702,17 +7118,13 @@ RelExpr * PhysShortCutGroupBy::copyTopNode(RelExpr *derivedNode,
   return ShortCutGroupBy::copyTopNode(result, outHeap);
 }
 
-
 // -----------------------------------------------------------------------
 // member functions for class HashGroupBy
 // -----------------------------------------------------------------------
-HashGroupBy::HashGroupBy(RelExpr *child,
-                         OperatorTypeEnum otype /*= REL_HASHED_GROUPBY*/,
-                         ItemExpr *groupExpr /*= NULL*/,
-                         ItemExpr *aggregateExpr /*= NULL*/,
+HashGroupBy::HashGroupBy(RelExpr *child, OperatorTypeEnum otype /*= REL_HASHED_GROUPBY*/,
+                         ItemExpr *groupExpr /*= NULL*/, ItemExpr *aggregateExpr /*= NULL*/,
                          CollHeap *oHeap /*= CmpCommon::statementHeap()*/)
-: GroupByAgg(child,otype,groupExpr,aggregateExpr,oHeap)
-{ 
+    : GroupByAgg(child, otype, groupExpr, aggregateExpr, oHeap) {
   if (oHeap)
     pCostMethod_ = new (oHeap) CostMethodHashGroupBy();
   else
@@ -8721,43 +7133,28 @@ HashGroupBy::HashGroupBy(RelExpr *child,
 
 HashGroupBy::~HashGroupBy() {}
 
-NABoolean HashGroupBy::isLogical()  const {return FALSE;}
+NABoolean HashGroupBy::isLogical() const { return FALSE; }
 
-NABoolean HashGroupBy::isPhysical() const {return TRUE;}
+NABoolean HashGroupBy::isPhysical() const { return TRUE; }
 
-const NAString HashGroupBy::getText() const
-{
-  return "hash_" + GroupByAgg::getText();
-}
+const NAString HashGroupBy::getText() const { return "hash_" + GroupByAgg::getText(); }
 
-RelExpr * HashGroupBy::copyTopNode(RelExpr *derivedNode, CollHeap* outHeap)
-{
+RelExpr *HashGroupBy::copyTopNode(RelExpr *derivedNode, CollHeap *outHeap) {
   RelExpr *result;
 
   if (derivedNode == NULL)
-    result = new (outHeap) HashGroupBy(NULL,
-				       getOperatorType(),
-				       NULL,
-				       NULL,
-				       outHeap);
+    result = new (outHeap) HashGroupBy(NULL, getOperatorType(), NULL, NULL, outHeap);
   else
     result = derivedNode;
 
   return GroupByAgg::copyTopNode(result, outHeap);
 }
 
-
-PlanPriority HashGroupBy::computeOperatorPriority
-(const Context* context,
- PlanWorkSpace *pws,
- Lng32 planNumber)
-{
-  const PhysicalProperty* spp = context->getPlan()->getPhysicalProperty();
+PlanPriority HashGroupBy::computeOperatorPriority(const Context *context, PlanWorkSpace *pws, Lng32 planNumber) {
+  const PhysicalProperty *spp = context->getPlan()->getPhysicalProperty();
   Lng32 degreeOfParallelism = spp->getCountOfPartitions();
   double val = 1;
-  if (degreeOfParallelism <= 1)
-    {
-
+  if (degreeOfParallelism <= 1) {
     // Don't command premium for serial hash partial groupby plan if :
     // 1. Operator is partial group by root
     // 2. process < 5K rows
@@ -8765,49 +7162,43 @@ PlanPriority HashGroupBy::computeOperatorPriority
     // The idea is either premium has been already applied for groupby leaf level
     // or leaf is running in parallel, we don't need to run root also in parallel
 
-       if ( isAPartialGroupByRoot() && 
-            CostScalar((ActiveSchemaDB()->getDefaults()).
-              getAsULong(GROUP_BY_PARTIAL_ROOT_THRESHOLD)) >=
-                  this->getChild0Cardinality(context) )
-          val = 1;
-       else
-          // serial plans are risky. extract an insurance premium from serial plans.
+    if (isAPartialGroupByRoot() &&
+        CostScalar((ActiveSchemaDB()->getDefaults()).getAsULong(GROUP_BY_PARTIAL_ROOT_THRESHOLD)) >=
+            this->getChild0Cardinality(context))
+      val = 1;
+    else
+      // serial plans are risky. extract an insurance premium from serial plans.
 
-          val = CURRSTMT_OPTDEFAULTS->riskPremiumSerial();
-    }
+      val = CURRSTMT_OPTDEFAULTS->riskPremiumSerial();
+  }
 
   CostScalar premium(val);
   PlanPriority result(0, 0, premium);
 
-  if (QueryAnalysis::Instance() AND
-      QueryAnalysis::Instance()->optimizeForFirstNRows())
-    result.incrementLevels(HASH_GROUP_BY_FIRST_N_PRIORITY,0);
+  if (QueryAnalysis::Instance() AND QueryAnalysis::Instance()->optimizeForFirstNRows())
+    result.incrementLevels(HASH_GROUP_BY_FIRST_N_PRIORITY, 0);
 
   // The remaining part of the code in this funtion relates to parallelism
   // priority and not applicable to scalar aggregates
-  if (groupExpr().isEmpty())
-    return result;
+  if (groupExpr().isEmpty()) return result;
 
   // esp parallelism priority logic does not apply to operators in dp2
-  if(spp->executeInDP2())
-    return result;
+  if (spp->executeInDP2()) return result;
 
   // For the option of Max Degree of Parallelism we can either use the
   // value set in comp_int_9 (if positive) or we use the number of CPUs
   // if the CQD is set to -1, or feature is disabled if CQD is 0 (default).
   Lng32 maxDegree = ActiveSchemaDB()->getDefaults().getAsLong(COMP_INT_9);
-  if (CURRSTMT_OPTDEFAULTS->maxParallelismIsFeasible() OR (maxDegree == -1) )
-  {
+  if (CURRSTMT_OPTDEFAULTS->maxParallelismIsFeasible() OR(maxDegree == -1)) {
     // if CQD is set to -1 this mean use the number of CPUs
     maxDegree = spp->getCurrentCountOfCPUs();
   }
-  if (maxDegree > 1) // CQD set to 0 means feature is OFF
+  if (maxDegree > 1)  // CQD set to 0 means feature is OFF
   {
-    if (degreeOfParallelism < maxDegree)
-      result.incrementLevels(0,-10); // need to replace with constant
+    if (degreeOfParallelism < maxDegree) result.incrementLevels(0, -10);  // need to replace with constant
   }
 
-  //cout<<maxDegree<<"-------"<<spp->getCountOfPartitions()<<endl;
+  // cout<<maxDegree<<"-------"<<spp->getCountOfPartitions()<<endl;
 
   return result;
 }
@@ -8815,31 +7206,23 @@ PlanPriority HashGroupBy::computeOperatorPriority
 // -----------------------------------------------------------------------
 // member functions for class HbasePushdownAggr
 // -----------------------------------------------------------------------
-HbasePushdownAggr::~HbasePushdownAggr()
-{}
+HbasePushdownAggr::~HbasePushdownAggr() {}
 
-const NAString HbasePushdownAggr::getText() const
-{
-  NABoolean isMonarch = 
-    (getTableDesc() && getTableDesc()->getNATable()
-     ? getTableDesc()->getNATable()->isMonarch() : FALSE);
+const NAString HbasePushdownAggr::getText() const {
+  NABoolean isMonarch =
+      (getTableDesc() && getTableDesc()->getNATable() ? getTableDesc()->getNATable()->isMonarch() : FALSE);
 
   return (isMonarch ? "monarch_aggr" : "hbase_aggr");
 }
 
-ExplainTuple*
-HbasePushdownAggr::addSpecificExplainInfo(ExplainTupleMaster* explainTuple,
-  ComTdb* tdb,
-  Generator* generator)
-{
+ExplainTuple *HbasePushdownAggr::addSpecificExplainInfo(ExplainTupleMaster *explainTuple, ComTdb *tdb,
+                                                        Generator *generator) {
   GroupByAgg::addSpecificExplainInfo(explainTuple, tdb, generator);
   explainTuple->setTableName(getIndexDesc()->getNAFileSet()->getFileSetName().getObjectName());
-  return(explainTuple);
+  return (explainTuple);
 }
 
-
-RelExpr * HbasePushdownAggr::copyTopNode(RelExpr *derivedNode, CollHeap* outHeap)
-{
+RelExpr *HbasePushdownAggr::copyTopNode(RelExpr *derivedNode, CollHeap *outHeap) {
   RelExpr *result;
 
   if (derivedNode == NULL)
@@ -8847,102 +7230,74 @@ RelExpr * HbasePushdownAggr::copyTopNode(RelExpr *derivedNode, CollHeap* outHeap
   else
     result = derivedNode;
 
-  ((HbasePushdownAggr*)result)->stoi_ = stoi_;
+  ((HbasePushdownAggr *)result)->stoi_ = stoi_;
 
   return GroupByAgg::copyTopNode(result, outHeap);
 }
-
-
-
-
 
 // -----------------------------------------------------------------------
 // member functions for class Scan
 // -----------------------------------------------------------------------
 
-void Scan::getPotentialOutputValues(ValueIdSet & outputValues) const
-{
+void Scan::getPotentialOutputValues(ValueIdSet &outputValues) const {
   outputValues.clear();
   //
   // Assign the set of columns that belong to the table to be scanned
   // as the output values that can be produced by this scan.
   //
-  if (potentialOutputs_.isEmpty())
-    {
-      outputValues.insertList( getTableDesc()->getColumnList() );
+  if (potentialOutputs_.isEmpty()) {
+    outputValues.insertList(getTableDesc()->getColumnList());
 
-      //      outputValues.insertList( getTableDesc()->hbaseAttrList() );
+    //      outputValues.insertList( getTableDesc()->hbaseAttrList() );
 
-      outputValues.insertList( getTableDesc()->hbaseTagList() );
-      outputValues.insertList( getTableDesc()->hbaseTSList() );
-      outputValues.insertList( getTableDesc()->hbaseVersionList() );
-      outputValues.insertList( getTableDesc()->hbaseRowidList() );
-    }
-  else
+    outputValues.insertList(getTableDesc()->hbaseTagList());
+    outputValues.insertList(getTableDesc()->hbaseTSList());
+    outputValues.insertList(getTableDesc()->hbaseVersionList());
+    outputValues.insertList(getTableDesc()->hbaseRowidList());
+  } else
     outputValues = potentialOutputs_;
 
   outputValues += getExtraOutputColumns();
-} // Scan::getPotentialOutputValues()
+}  // Scan::getPotentialOutputValues()
 
-void Scan::getPotentialOutputValuesAsVEGs(ValueIdSet& outputs) const
-{
+void Scan::getPotentialOutputValuesAsVEGs(ValueIdSet &outputs) const {
   outputs.clear();
-  ValueIdSet tempSet ;
+  ValueIdSet tempSet;
 
   getPotentialOutputValues(tempSet);
-  getTableDesc()->getEquivVEGCols(tempSet, outputs); 
+  getTableDesc()->getEquivVEGCols(tempSet, outputs);
 }
 
+Int32 Scan::getArity() const { return 0; }
 
-
-Int32 Scan::getArity() const { return 0;}
-
-NABoolean Scan::isHiveTable() const 
-{
-  return (getTableDesc() && getTableDesc()->getNATable() ?
-	  getTableDesc()->getNATable()->isHiveTable() :
-	  FALSE);
+NABoolean Scan::isHiveTable() const {
+  return (getTableDesc() && getTableDesc()->getNATable() ? getTableDesc()->getNATable()->isHiveTable() : FALSE);
 }
 
-NABoolean Scan::isHiveOrcTable() const 
-{
-  return (getTableDesc() && getTableDesc()->getNATable() ?
-	  getTableDesc()->getNATable()->isORC() :
-	  FALSE);
+NABoolean Scan::isHiveOrcTable() const {
+  return (getTableDesc() && getTableDesc()->getNATable() ? getTableDesc()->getNATable()->isORC() : FALSE);
 }
 
-NABoolean Scan::isHiveParquetTable() const 
-{
-  return (getTableDesc() && getTableDesc()->getNATable() ?
-	  getTableDesc()->getNATable()->isParquet() :
-	  FALSE);
+NABoolean Scan::isHiveParquetTable() const {
+  return (getTableDesc() && getTableDesc()->getNATable() ? getTableDesc()->getNATable()->isParquet() : FALSE);
 }
 
-NABoolean Scan::isHiveExtTable() const
-{
-  return (getTableDesc() && getTableDesc()->getNATable() ?
-	  (getTableDesc()->getNATable()->isParquet() ||
-	  getTableDesc()->getNATable()->isORC() ||
-	  getTableDesc()->getNATable()->isAvro()):
-	  FALSE);
+NABoolean Scan::isHiveExtTable() const {
+  return (getTableDesc() && getTableDesc()->getNATable()
+              ? (getTableDesc()->getNATable()->isParquet() || getTableDesc()->getNATable()->isORC() ||
+                 getTableDesc()->getNATable()->isAvro())
+              : FALSE);
 }
 
-NABoolean Scan::isHbaseTable() const 
-{
-  return (getTableDesc() && getTableDesc()->getNATable() ?
-	  getTableDesc()->getNATable()->isHbaseTable() :
-	  FALSE);
+NABoolean Scan::isHbaseTable() const {
+  return (getTableDesc() && getTableDesc()->getNATable() ? getTableDesc()->getNATable()->isHbaseTable() : FALSE);
 }
 
-NABoolean Scan::isSeabaseTable() const 
-{
-  return (getTableDesc() && getTableDesc()->getNATable() ?
-	  getTableDesc()->getNATable()->isSeabaseTable() :
-	  FALSE);
+NABoolean Scan::isSeabaseTable() const {
+  return (getTableDesc() && getTableDesc()->getNATable() ? getTableDesc()->getNATable()->isSeabaseTable() : FALSE);
 }
 
-const NAString Scan::getText() const
-{
+const NAString Scan::getText() const {
   NAString op(CmpCommon::statementHeap());
 
   if (isSampleScan() == TRUE)
@@ -8952,8 +7307,7 @@ const NAString Scan::getText() const
   return op + userTableName_.getTextWithSpecialType();
 }
 
-HashValue Scan::topHash()
-{
+HashValue Scan::topHash() {
   HashValue result = RelExpr::topHash();
 
   result ^= getTableDesc();
@@ -8963,50 +7317,40 @@ HashValue Scan::topHash()
   return result;
 }
 
-NABoolean Scan::duplicateMatch(const RelExpr & other) const
-{
-  if (NOT RelExpr::duplicateMatch(other))
-    return FALSE;
+NABoolean Scan::duplicateMatch(const RelExpr &other) const {
+  if (NOT RelExpr::duplicateMatch(other)) return FALSE;
 
-  Scan &o = (Scan &) other;
+  Scan &o = (Scan &)other;
 
-  if (NOT (userTableName_ == o.userTableName_) OR
-      NOT (getTableDesc() == o.getTableDesc()) OR
-      NOT (potentialOutputs_ == o.potentialOutputs_) OR
-      ((forcedIndexInfo_ OR o.forcedIndexInfo_) AND (
-      //just comparing the entries is probably not enough????
-      NOT (indexOnlyIndexes_.entries() == o.indexOnlyIndexes_.entries()) OR
-      NOT (possibleIndexJoins_ == o.possibleIndexJoins_) OR
-      NOT (numIndexJoins_ == o.numIndexJoins_)))
-      OR
-      NOT (suppressHints_ == o.suppressHints_) OR
-      NOT (isSingleVPScan_ == o.isSingleVPScan_) OR
-      NOT (getExtraOutputColumns() == o.getExtraOutputColumns()) OR
-      NOT (samplePercent() == o.samplePercent()) OR
-      NOT (clusterSize() == o.clusterSize()))
+  if (NOT(userTableName_ == o.userTableName_) OR NOT(getTableDesc() == o.getTableDesc())
+          OR NOT(potentialOutputs_ == o.potentialOutputs_) OR((forcedIndexInfo_ OR o.forcedIndexInfo_)AND(
+              // just comparing the entries is probably not enough????
+              NOT(indexOnlyIndexes_.entries() == o.indexOnlyIndexes_.entries())
+                  OR NOT(possibleIndexJoins_ == o.possibleIndexJoins_) OR NOT(numIndexJoins_ == o.numIndexJoins_)))
+              OR NOT(suppressHints_ == o.suppressHints_) OR NOT(isSingleVPScan_ == o.isSingleVPScan_)
+                  OR NOT(getExtraOutputColumns() == o.getExtraOutputColumns())
+                      OR NOT(samplePercent() == o.samplePercent()) OR NOT(clusterSize() == o.clusterSize()))
     return FALSE;
 
   return TRUE;
 }
 
-RelExpr * Scan::copyTopNode(RelExpr *derivedNode, CollHeap* outHeap)
-{
+RelExpr *Scan::copyTopNode(RelExpr *derivedNode, CollHeap *outHeap) {
   Scan *result;
 
   if (derivedNode == NULL)
-    result = new (outHeap)
-                 Scan(userTableName_, getTableDesc(), REL_SCAN, outHeap);
+    result = new (outHeap) Scan(userTableName_, getTableDesc(), REL_SCAN, outHeap);
   else
-    result = (Scan *) derivedNode;
+    result = (Scan *)derivedNode;
 
-  result->baseCardinality_  = baseCardinality_;
+  result->baseCardinality_ = baseCardinality_;
   result->potentialOutputs_ = potentialOutputs_;
-  result->numIndexJoins_    = numIndexJoins_;
-  result->accessOptions_    = accessOptions_;
-  result->pkeyHvarList_     = pkeyHvarList_;
+  result->numIndexJoins_ = numIndexJoins_;
+  result->accessOptions_ = accessOptions_;
+  result->pkeyHvarList_ = pkeyHvarList_;
   result->setOptStoi(stoi_);
   result->samplePercent(samplePercent());
-  result->suppressHints_    = suppressHints_;
+  result->suppressHints_ = suppressHints_;
   result->clusterSize(clusterSize());
   result->scanFlags_ = scanFlags_;
   result->setExtraOutputColumns(getExtraOutputColumns());
@@ -9020,149 +7364,118 @@ RelExpr * Scan::copyTopNode(RelExpr *derivedNode, CollHeap* outHeap)
   return RelExpr::copyTopNode(result, outHeap);
 }
 
-void Scan::copyIndexInfo(RelExpr *derivedNode)
-{
-  CMPASSERT (derivedNode != NULL AND
-      derivedNode->getOperatorType() == REL_SCAN);
+void Scan::copyIndexInfo(RelExpr *derivedNode) {
+  CMPASSERT(derivedNode != NULL AND derivedNode->getOperatorType() == REL_SCAN);
 
-  Scan * scan = (Scan *)derivedNode;
+  Scan *scan = (Scan *)derivedNode;
   forcedIndexInfo_ = scan->forcedIndexInfo_;
-  if (NOT scan->getIndexOnlyIndexes().isEmpty() OR
-      scan->getPossibleIndexJoins().entries() > 0)
-  {
+  if (NOT scan->getIndexOnlyIndexes().isEmpty() OR scan->getPossibleIndexJoins().entries() > 0) {
     // first copy the possible index join info
-    const LIST(ScanIndexInfo *) & ixJoins = scan->getPossibleIndexJoins();
-    for (CollIndex i = 0; i < ixJoins.entries(); i++)
-    {
-      ScanIndexInfo * ix = new (CmpCommon::statementHeap())
-	ScanIndexInfo(*(ixJoins[i]));
+    const LIST(ScanIndexInfo *) &ixJoins = scan->getPossibleIndexJoins();
+    for (CollIndex i = 0; i < ixJoins.entries(); i++) {
+      ScanIndexInfo *ix = new (CmpCommon::statementHeap()) ScanIndexInfo(*(ixJoins[i]));
       possibleIndexJoins_.insert(ix);
     }
 
     // now, copy the index descriptors
-    const SET(IndexProperty *) & ixDescs = scan->getIndexOnlyIndexes();
+    const SET(IndexProperty *) &ixDescs = scan->getIndexOnlyIndexes();
 
-    for (CollIndex j = 0; j <ixDescs.entries(); j++)
-    {
+    for (CollIndex j = 0; j < ixDescs.entries(); j++) {
       indexOnlyIndexes_.insert(ixDescs[j]);
     }
   }
   generatedCCPreds_ = scan->generatedCCPreds_;
 }
 
-void Scan::removeIndexInfo()
-{
-	possibleIndexJoins_.clear();
-	indexOnlyIndexes_.clear();
-        indexJoinScans_.clear();
-        generatedCCPreds_.clear();
-	forcedIndexInfo_ = FALSE;
+void Scan::removeIndexInfo() {
+  possibleIndexJoins_.clear();
+  indexOnlyIndexes_.clear();
+  indexJoinScans_.clear();
+  generatedCCPreds_.clear();
+  forcedIndexInfo_ = FALSE;
 }
 
 /*******************************************************
-* Generates set of IndexDesc from the set of IndexProperty
-********************************************************/
+ * Generates set of IndexDesc from the set of IndexProperty
+ ********************************************************/
 
-const SET(IndexDesc *) & Scan::deriveIndexOnlyIndexDesc()
-{
-    indexOnlyScans_.clear();
-    CollIndex ixCount = indexOnlyIndexes_.entries();
-    for(CollIndex i=0; i< ixCount; i++)
-    {
-      indexOnlyScans_.insert(indexOnlyIndexes_[i]->getIndexDesc());
-    }
-    return indexOnlyScans_;
-
+const SET(IndexDesc *) & Scan::deriveIndexOnlyIndexDesc() {
+  indexOnlyScans_.clear();
+  CollIndex ixCount = indexOnlyIndexes_.entries();
+  for (CollIndex i = 0; i < ixCount; i++) {
+    indexOnlyScans_.insert(indexOnlyIndexes_[i]->getIndexDesc());
+  }
+  return indexOnlyScans_;
 }
 
 /*******************************************************
-* Generates set of IndexDesc from the set of ScanIndexInfo
-********************************************************/
-const SET(IndexDesc *) & Scan::deriveIndexJoinIndexDesc()
-{
-    indexJoinScans_.clear();
-    CollIndex ijCount = possibleIndexJoins_.entries();
-    for(CollIndex i=0; i< ijCount; i++)
-    {
-      ScanIndexInfo *ixi = possibleIndexJoins_[i];
-      CollIndex uixCount = ixi->usableIndexes_.entries();
-      for(CollIndex j=0; j < uixCount; j++)
-      {
-        if (ixi->usableIndexes_[j]->getIndexDesc())
-          indexJoinScans_.insert(ixi->usableIndexes_[j]->getIndexDesc());
-      }
+ * Generates set of IndexDesc from the set of ScanIndexInfo
+ ********************************************************/
+const SET(IndexDesc *) & Scan::deriveIndexJoinIndexDesc() {
+  indexJoinScans_.clear();
+  CollIndex ijCount = possibleIndexJoins_.entries();
+  for (CollIndex i = 0; i < ijCount; i++) {
+    ScanIndexInfo *ixi = possibleIndexJoins_[i];
+    CollIndex uixCount = ixi->usableIndexes_.entries();
+    for (CollIndex j = 0; j < uixCount; j++) {
+      if (ixi->usableIndexes_[j]->getIndexDesc()) indexJoinScans_.insert(ixi->usableIndexes_[j]->getIndexDesc());
     }
-    return indexJoinScans_;
+  }
+  return indexJoinScans_;
 }
 
-void Scan::addIndexInfo()
-{
+void Scan::addIndexInfo() {
   // don't do this twice, return if already set
-  if (NOT indexOnlyIndexes_.isEmpty() OR
-      possibleIndexJoins_.entries() > 0)
-    return;
+  if (NOT indexOnlyIndexes_.isEmpty() OR possibleIndexJoins_.entries() > 0) return;
 
   forcedIndexInfo_ = FALSE;
-  const TableDesc     * tableDesc = getTableDesc();
-  const LIST(IndexDesc *) & ixlist = tableDesc->getIndexes();
+  const TableDesc *tableDesc = getTableDesc();
+  const LIST(IndexDesc *) &ixlist = tableDesc->getIndexes();
   ValueIdSet preds = selectionPred();
   // changing back to old predicate tree:
-  if ((CmpCommon::getDefault(RANGESPEC_TRANSFORMATION) == DF_ON ) &&
-      (preds.entries()))
-  {
+  if ((CmpCommon::getDefault(RANGESPEC_TRANSFORMATION) == DF_ON) && (preds.entries())) {
     ValueIdList selectionPredList(preds);
-    ItemExpr *inputItemExprTree = selectionPredList.rebuildExprTree(ITM_AND,FALSE,FALSE);
-    ItemExpr * resultOld = revertBackToOldTree(CmpCommon::statementHeap(), inputItemExprTree);
+    ItemExpr *inputItemExprTree = selectionPredList.rebuildExprTree(ITM_AND, FALSE, FALSE);
+    ItemExpr *resultOld = revertBackToOldTree(CmpCommon::statementHeap(), inputItemExprTree);
     preds.clear();
     resultOld->convertToValueIdSet(preds, NULL, ITM_AND);
-    doNotReplaceAnItemExpressionForLikePredicates(resultOld,preds,resultOld);
+    doNotReplaceAnItemExpressionForLikePredicates(resultOld, preds, resultOld);
   }
 
+  if (CmpCommon::getDefault(MTD_GENERATE_CC_PREDS) == DF_ON) {
+    // compute predicates on computed columns from regular predicates, based
+    // on the definition of the computed column. Example:
+    // - regular predicate: a = 99
+    // - computed column definition: "_SALT_" = HASH2PARTFUNC(a,2)
+    // - computed predicate: "_SALT_" = HASH2PARTFUNC(99,2);
+    ValueIdSet clusteringKeyCols(getTableDesc()->getClusteringIndex()->getClusteringKeyCols());
+    ValueIdSet selectionPreds(preds);
 
-  if (CmpCommon::getDefault(MTD_GENERATE_CC_PREDS) == DF_ON)
-    {
-      // compute predicates on computed columns from regular predicates, based
-      // on the definition of the computed column. Example: 
-      // - regular predicate: a = 99
-      // - computed column definition: "_SALT_" = HASH2PARTFUNC(a,2)
-      // - computed predicate: "_SALT_" = HASH2PARTFUNC(99,2);
-      ValueIdSet clusteringKeyCols(
-           getTableDesc()->getClusteringIndex()->getClusteringKeyCols());
-      ValueIdSet selectionPreds(preds);
-
-      ScanKey::createComputedColumnPredicates(
-           selectionPreds,
-           clusteringKeyCols,
-           getGroupAttr()->getCharacteristicInputs(),
-           generatedCCPreds_);
-    }
+    ScanKey::createComputedColumnPredicates(selectionPreds, clusteringKeyCols,
+                                            getGroupAttr()->getCharacteristicInputs(), generatedCCPreds_);
+  }
 
   // a shortcut for tables with no indexes
   // or snapshot timestamp is specified.
-  if ((ixlist.entries() == 1)||
-      (tableDesc->isPartitionNameSpecified()) ||
-      (getOptHbaseAccessOptions() &&
-       getOptHbaseAccessOptions()->tsSpecified()) ||
+  if ((ixlist.entries() == 1) || (tableDesc->isPartitionNameSpecified()) ||
+      (getOptHbaseAccessOptions() && getOptHbaseAccessOptions()->tsSpecified()) ||
       (tableDesc->hbaseTSList().entries() > 0) ||
-      (getOptHbaseAccessOptions() && 
-       (NOT getOptHbaseAccessOptions()->hbaseAuths().isNull())) ||
-      (getInliningInfo().isEffUpsertLj())) // here we mean scan that is eff.
-    //upsert LJ's right child
-    {
-      // that's easy, there is only one index (the base table)
-      // and that index better have everything we need
-      IndexJoinSelectivityEnum junk;
-      MdamFlags flag=ixlist[0]->pruneMdam(preds,TRUE,junk);;
-      IndexProperty * ixProp = new(CmpCommon::statementHeap())
-			       IndexProperty(ixlist[0],
-					     flag);
-      indexOnlyIndexes_.insert(ixProp);
-      return;
-    }
+      (getOptHbaseAccessOptions() && (NOT getOptHbaseAccessOptions()->hbaseAuths().isNull())) ||
+      (getInliningInfo().isEffUpsertLj()))  // here we mean scan that is eff.
+  // upsert LJ's right child
+  {
+    // that's easy, there is only one index (the base table)
+    // and that index better have everything we need
+    IndexJoinSelectivityEnum junk;
+    MdamFlags flag = ixlist[0]->pruneMdam(preds, TRUE, junk);
+    ;
+    IndexProperty *ixProp = new (CmpCommon::statementHeap()) IndexProperty(ixlist[0], flag);
+    indexOnlyIndexes_.insert(ixProp);
+    return;
+  }
 
   // all the value ids that are required by the scan and its parents
   ValueIdSet requiredValueIds(getGroupAttr()->getCharacteristicOutputs());
-
 
   // VEGPreds can have two forms, an  A IS NOT NULL form and an A=B form
   // when expanded in the generator. If an index does not provide a
@@ -9173,12 +7486,9 @@ void Scan::addIndexInfo()
   addBaseColsFromVEGPreds(requiredValueIds);
 
   // using old predicate tree:
-  if ((CmpCommon::getDefault(RANGESPEC_TRANSFORMATION) == DF_ON ) &&
-      (preds.entries()))
-  {
+  if ((CmpCommon::getDefault(RANGESPEC_TRANSFORMATION) == DF_ON) && (preds.entries())) {
     requiredValueIds += preds;
-  }
-  else
+  } else
     // selection predicates are also required, add them to requiredValueIds
     requiredValueIds += selectionPred();
 
@@ -9196,63 +7506,48 @@ void Scan::addIndexInfo()
   // ---------------------------------------------------------------------
   // get the clustering key columns and transform them into VEGies
   CMPASSERT(tableDesc);
-  tableDesc->getEquivVEGCols(
-       tableDesc->getClusteringIndex()->getIndexKey(),
-       clusteringKeyColList);
+  tableDesc->getEquivVEGCols(tableDesc->getClusteringIndex()->getIndexKey(), clusteringKeyColList);
   clusteringKeyColumns = clusteringKeyColList;
 
   // get the VEGPredicates from the list of VEGReferences; they are
   // the join predicates between indexes (who all contain the clustering key)
-  for (ValueId x = clusteringKeyColumns.init();
-       clusteringKeyColumns.next(x);
-       clusteringKeyColumns.advance(x))
-    {
-      // clustering key columns must be VEGReferences
-      CMPASSERT(x.getItemExpr()->getOperatorType() == ITM_VEG_REFERENCE);
+  for (ValueId x = clusteringKeyColumns.init(); clusteringKeyColumns.next(x); clusteringKeyColumns.advance(x)) {
+    // clustering key columns must be VEGReferences
+    CMPASSERT(x.getItemExpr()->getOperatorType() == ITM_VEG_REFERENCE);
 
-      if (((VEGReference *) x.getItemExpr())->getVEG()->getSpecialNulls())
-        ((VEGReference *) x.getItemExpr())
-               ->getVEG()->getVEGPredicate()->setSpecialNulls(TRUE);
+    if (((VEGReference *)x.getItemExpr())->getVEG()->getSpecialNulls())
+      ((VEGReference *)x.getItemExpr())->getVEG()->getVEGPredicate()->setSpecialNulls(TRUE);
 
-      // find the corresponding VEGPredicate and add it to the join preds
-      indexJoinPreds += ((VEGReference *) x.getItemExpr())->
-	getVEG()->getVEGPredicate()->getValueId();
-    }
-
+    // find the corresponding VEGPredicate and add it to the join preds
+    indexJoinPreds += ((VEGReference *)x.getItemExpr())->getVEG()->getVEGPredicate()->getValueId();
+  }
 
   const NABoolean updatingCol = tableDesc->getColUpdated().entries() > 0;
   const NABoolean unlimitedIndexJoinsAllowed =
-          ((ActiveControlDB()->getRequiredShape() AND
-	    ActiveControlDB()->getRequiredShape()->getShape() AND
-	    NOT ActiveControlDB()->getRequiredShape()->getShape()->isCutOp())
-           OR
-           (getGroupAttr()->isEmbeddedUpdateOrDelete())
-           OR
-	   (getGroupAttr()->isStream())
-          );
+      ((ActiveControlDB()
+            ->getRequiredShape() AND ActiveControlDB()
+            ->getRequiredShape()
+            ->getShape() AND NOT ActiveControlDB()
+            ->getRequiredShape()
+            ->getShape()
+            ->isCutOp())OR(getGroupAttr()->isEmbeddedUpdateOrDelete()) OR(getGroupAttr()->isStream()));
 
-		      
-  const TableAnalysis * tAnalysis = getTableDesc()->getTableAnalysis();
+  const TableAnalysis *tAnalysis = getTableDesc()->getTableAnalysis();
 
   // with this CQD value set, try to consider minimum indexes possible
   // if ixProp is no better than any of indexOnlyIndexes_ - don't add
   // it. If ixProp is better than some of this set - remove them.
-  NABoolean tryToEliminateIndex = 
-             CURRSTMT_OPTDEFAULTS->indexEliminationLevel() == OptDefaults::AGGRESSIVE
-             AND NOT unlimitedIndexJoinsAllowed 
-             AND tAnalysis;
+  NABoolean tryToEliminateIndex = CURRSTMT_OPTDEFAULTS->indexEliminationLevel() ==
+                                  OptDefaults::AGGRESSIVE AND NOT unlimitedIndexJoinsAllowed AND tAnalysis;
 
-  CostScalar indexEliminationThreshold = 
-                ActiveSchemaDB()->getDefaults().getAsLong(INDEX_ELIMINATION_THRESHOLD); 
+  CostScalar indexEliminationThreshold = ActiveSchemaDB()->getDefaults().getAsLong(INDEX_ELIMINATION_THRESHOLD);
 
-
-  NABoolean printIndexElimination = 
-         CmpCommon::getDefault(NSK_DBG_PRINT_INDEX_ELIMINATION) == DF_ON &&
-         CmpCommon::getDefault(NSK_DBG) == DF_ON;
+  NABoolean printIndexElimination =
+      CmpCommon::getDefault(NSK_DBG_PRINT_INDEX_ELIMINATION) == DF_ON && CmpCommon::getDefault(NSK_DBG) == DF_ON;
 
   ostream &out = CURRCONTEXT_OPTDEBUG->stream();
 
-  if ( printIndexElimination ) {
+  if (printIndexElimination) {
     out << endl << "call addIndexInfo()" << endl;
     out << "tryToEliminateIndex=" << (Lng32)tryToEliminateIndex << endl;
   }
@@ -9260,465 +7555,372 @@ void Scan::addIndexInfo()
   // ---------------------------------------------------------------------
   // For each index, check whether it provides any useful values
   // ---------------------------------------------------------------------
-  for (CollIndex indexNo = 0; indexNo < ixlist.entries(); indexNo++)
-    {
-      IndexDesc *idesc = ixlist[indexNo];
+  for (CollIndex indexNo = 0; indexNo < ixlist.entries(); indexNo++) {
+    IndexDesc *idesc = ixlist[indexNo];
 
-      NABoolean dummy; // halloweenProtection is decided using updateableIndex
-      // in GU::normalizeNode. Here this parameter is not used.
-      // Determine if this index can be used for a scan during an update.
-      if (updatingCol AND NOT updateableIndex(idesc, preds, dummy))
-        continue;
+    NABoolean dummy;  // halloweenProtection is decided using updateableIndex
+    // in GU::normalizeNode. Here this parameter is not used.
+    // Determine if this index can be used for a scan during an update.
+    if (updatingCol AND NOT updateableIndex(idesc, preds, dummy)) continue;
 
-      ValueIdSet indexColumns(idesc->getIndexColumns());
-      ValueIdSet referencedInputs;
-      ValueIdSet coveredSubexpr;
-      ValueIdSet unCoveredExpr;
-      GroupAttributes indexOnlyGA;
-      NABoolean indexOnlyScan;
+    ValueIdSet indexColumns(idesc->getIndexColumns());
+    ValueIdSet referencedInputs;
+    ValueIdSet coveredSubexpr;
+    ValueIdSet unCoveredExpr;
+    GroupAttributes indexOnlyGA;
+    NABoolean indexOnlyScan;
 
-      // make group attributes for an index scan
-      indexOnlyGA.addCharacteristicOutputs(idesc->getIndexColumns());
-      indexOnlyGA.addCharacteristicOutputs(extraOutputColumns_);
-      // ROWID can be covered with first index
-      if (indexNo == 0 && tableDesc->hbaseRowidList().entries() > 0)
-        indexOnlyGA.addCharacteristicOutputs(tableDesc->hbaseRowidList());
+    // make group attributes for an index scan
+    indexOnlyGA.addCharacteristicOutputs(idesc->getIndexColumns());
+    indexOnlyGA.addCharacteristicOutputs(extraOutputColumns_);
+    // ROWID can be covered with first index
+    if (indexNo == 0 && tableDesc->hbaseRowidList().entries() > 0)
+      indexOnlyGA.addCharacteristicOutputs(tableDesc->hbaseRowidList());
 
-      // does the index cover all required values, and if not, which
-      // ones does it cover and which ones are not covered
-      indexOnlyScan = requiredValueIds.isCovered(
-	   getGroupAttr()->getCharacteristicInputs(),
-	   indexOnlyGA,
-	   referencedInputs,
-	   coveredSubexpr,
-	   unCoveredExpr);
+    // does the index cover all required values, and if not, which
+    // ones does it cover and which ones are not covered
+    indexOnlyScan = requiredValueIds.isCovered(getGroupAttr()->getCharacteristicInputs(), indexOnlyGA, referencedInputs,
+                                               coveredSubexpr, unCoveredExpr);
 
-      // ngram needs join with base table to get the records
-      if (indexOnlyScan && idesc->isNgramIndex())
+    // ngram needs join with base table to get the records
+    if (indexOnlyScan && idesc->isNgramIndex()) indexOnlyScan = FALSE;
+
+    // if this is a sample scan (currently these are only CLUSTER
+    // sampling scans) then do not choose index only scan.  Also,
+    // due to an artifact of sampling, the 'isCovered' test above
+    // will not return TRUE even for the ClusteringIndex, so force
+    // it to be true for the ClusteringIndex.  Note that
+    // ClusterIndex means that this is the basetable access path.
+    //
+    if (isSampleScan()) {
+      if (idesc->isClusteringIndex()) {
+        // Force it to be TRUE for the basetable access path.
+        // This overrides the value of 'indexOnlyScan' produced
+        // above since for sample scans, the isCovered test will
+        // always fail, even for the basetable.
+        //
+        indexOnlyScan = TRUE;
+      } else {
         indexOnlyScan = FALSE;
+      }
+    }
 
-      // if this is a sample scan (currently these are only CLUSTER
-      // sampling scans) then do not choose index only scan.  Also,
-      // due to an artifact of sampling, the 'isCovered' test above
-      // will not return TRUE even for the ClusteringIndex, so force
-      // it to be true for the ClusteringIndex.  Note that
-      // ClusterIndex means that this is the basetable access path.
-      //
-      if (isSampleScan())
-        {
-          if (idesc->isClusteringIndex())
-            {
-              // Force it to be TRUE for the basetable access path.
-              // This overrides the value of 'indexOnlyScan' produced
-              // above since for sample scans, the isCovered test will
-              // always fail, even for the basetable.
-              //
-              indexOnlyScan = TRUE;
-            }
-          else
-            {
-              indexOnlyScan = FALSE;
-            }
+    // if the user specified IN EXCLUSIVE MODE option for this select,
+    // then do not choose index only scan. This is needed so the base
+    // table row could be locked in exclusive mode.
+    if ((indexOnlyScan) && (!idesc->isClusteringIndex()) && (accessOptions().lockMode() == EXCLUSIVE_))
+      indexOnlyScan = FALSE;
+
+    // pruneMdam() returns a flag indicating if the index would have
+    // has good enough key access for MDAM access to be viable. For index
+    // join indexes it also returns a IndexJoinSelectivityEnum that
+    // indicates if the index join is going to exceed the cost of just
+    // scanning the base table.
+    if (indexOnlyScan) {
+      // this index supplies all the info we need, consider
+      // it for an index only scan later
+      IndexJoinSelectivityEnum junk;
+      MdamFlags flag = idesc->pruneMdam(preds, TRUE, junk);
+      IndexProperty *ixProp = new (CmpCommon::statementHeap()) IndexProperty(idesc, flag);
+      if (tryToEliminateIndex) {
+        // with this CQD value set, try to consider minimum indexes possible
+        // if ixProp is no better than any of indexOnlyIndexes_ - don't add
+        // it. If ixProp is better than some of this set - remove them.
+        ixProp->updatePossibleIndexes(indexOnlyIndexes_, this);
+      } else
+        indexOnlyIndexes_.insert(ixProp);
+    } else {
+      GroupAttributes indexGA;
+      ValueIdSet ijCoveredPredicates;
+      if (numIndexJoins_ < MAX_NUM_INDEX_JOINS AND NOT unlimitedIndexJoinsAllowed) {
+        // Is any of the predicates covered by key columns of the
+        // alternate index?
+        ValueIdList userKeyColumns(idesc->getIndexKey());
+        CollIndex numSecondaryIndexKey =
+            idesc->getNAFileSet()->getCountOfColumns(TRUE,    // key columns only
+                                                     TRUE,    // user-specified key columns only
+                                                     FALSE,   // don't exclude system columns
+                                                     FALSE);  // don't exclude salt/divisioning columns
+        CollIndex numClusteringKey = userKeyColumns.entries() - numSecondaryIndexKey;
+        if (NOT idesc->isUniqueIndex()) {
+          CollIndex entry = userKeyColumns.entries() - 1;
+          for (CollIndex i = 0; i < numClusteringKey; i++) {
+            userKeyColumns.removeAt(entry);
+            entry--;
+          }
+        }
+        indexGA.addCharacteristicOutputs(userKeyColumns);
+
+        ValueIdSet ijReferencedInputs;
+        ValueIdSet ijUnCoveredExpr;
+
+        ValueId vid;
+        ValueIdSet disjuncts;
+
+        // Multi-Index OR optimization requires that the index information
+        // is maintained for disjuncts as well. So here we check if the
+        // predicate is of the form A OR B OR C. If it is, then the top
+        // operator is the OR operator. The optimization is considered only
+        // in this case. So if the predicate has an OR on top of the item
+        // expression, then we check if the disjuncts are covered by the
+        // index.
+
+        if (preds.entries() == 1) {
+          preds.getFirst(vid);
+          if (vid.getItemExpr()->getOperatorType() == ITM_OR) {
+            vid.getItemExpr()->convertToValueIdSet(disjuncts, NULL, ITM_OR, FALSE);
+          } else
+            disjuncts = preds;
+        } else
+          disjuncts = preds;
+
+        // add in index column hints from non-VEG equality predicates
+        disjuncts += possibleIndexColumns();
+
+        disjuncts.isCovered(getGroupAttr()->getCharacteristicInputs(), indexGA, ijReferencedInputs, ijCoveredPredicates,
+                            ijUnCoveredExpr);
+
+        // we only care about predicates that are entirely covered,
+        // parts of predicates (like constants) that are covered
+        // don't help in this context
+        ijCoveredPredicates.intersectSet(disjuncts);
+      }
+      // This index does not provide all required values.
+      // However, it might be useful to join this index with another
+      // one (most likely the clustering index) to get the rest
+      // of the required values. If this is promising at all, then
+      // add this index to a list of possible index joins.
+      // In that list of possible index joins, group all indexes
+      // that provide the same set of output values (but different
+      // orders) together.
+      if (numIndexJoins_ < MAX_NUM_INDEX_JOINS AND(unlimitedIndexJoinsAllowed OR NOT ijCoveredPredicates.isEmpty())) {
+        // changing back to old predicate tree:
+        ValueIdSet selectionpreds;
+        if ((CmpCommon::getDefault(RANGESPEC_TRANSFORMATION) == DF_ON) && (selectionPred().entries())) {
+          ValueIdList selectionPredList(selectionPred());
+          ItemExpr *inputItemExprTree = selectionPredList.rebuildExprTree(ITM_AND, FALSE, FALSE);
+          ItemExpr *resultOld = revertBackToOldTree(CmpCommon::statementHeap(), inputItemExprTree);
+          resultOld->convertToValueIdSet(selectionpreds, NULL, ITM_AND);
+          doNotReplaceAnItemExpressionForLikePredicates(resultOld, selectionpreds, resultOld);
         }
 
-      // if the user specified IN EXCLUSIVE MODE option for this select,
-      // then do not choose index only scan. This is needed so the base
-      // table row could be locked in exclusive mode.
-      if ((indexOnlyScan) &&
-	  (! idesc->isClusteringIndex()) &&
-	  (accessOptions().lockMode() == EXCLUSIVE_))
-	indexOnlyScan = FALSE;
+        // For now, only consider indexes that covers one of the selection
+        // predicates unless control query shape is in effect.
+        // NOTE: we should also consider indexes that potentially
+        // could provide an interesting order or partitioning. To do
+        // that, we would have to check whether their first key column
+        // or any of their partitioning key columns is used.
+        // For exclusive mode, any index can be called a usable index of
+        // of another, only if it produces the same characteristic
+        // outputs as the main index, and also both indexes have the same
+        // uncovered expressions. This is because, in exclusive mode the
+        // base (clustering key) index must always be read even if the
+        // alternate index is index only, because the locks on the
+        // base index are required for exclusive mode.
+        // We can test the index only case with exclusive mode by
+        // requiring the uncovered expressions to be the same
+        // (both would be NULL for index only).
 
-      //pruneMdam() returns a flag indicating if the index would have
-      //has good enough key access for MDAM access to be viable. For index
-      //join indexes it also returns a IndexJoinSelectivityEnum that
-      //indicates if the index join is going to exceed the cost of just
-      //scanning the base table.
-      if (indexOnlyScan)
-	{
-	  // this index supplies all the info we need, consider
-	  // it for an index only scan later
-	  IndexJoinSelectivityEnum junk;
-	  MdamFlags flag=idesc->pruneMdam(preds,TRUE,junk);
-	  IndexProperty * ixProp = new(CmpCommon::statementHeap())
-			       IndexProperty(idesc,
-					     flag);
-          if (tryToEliminateIndex) 
-          {
-            // with this CQD value set, try to consider minimum indexes possible
-            // if ixProp is no better than any of indexOnlyIndexes_ - don't add
-            // it. If ixProp is better than some of this set - remove them.
-            ixProp->updatePossibleIndexes(indexOnlyIndexes_, this);
-          }
-          else
-	    indexOnlyIndexes_.insert(ixProp);
-	}
-      else
-	{
-	  GroupAttributes indexGA;
-	  ValueIdSet ijCoveredPredicates;
-	  if(numIndexJoins_ < MAX_NUM_INDEX_JOINS AND
-             NOT unlimitedIndexJoinsAllowed)
-	  {
-	    //Is any of the predicates covered by key columns of the
-	    //alternate index?
-	    ValueIdList userKeyColumns(idesc->getIndexKey());
-            CollIndex numSecondaryIndexKey = 
-              idesc->getNAFileSet()->getCountOfColumns(
-                   TRUE,   // key columns only
-                   TRUE,   // user-specified key columns only
-                   FALSE,  // don't exclude system columns
-                   FALSE); // don't exclude salt/divisioning columns
-	    CollIndex numClusteringKey = 
-              userKeyColumns.entries() - numSecondaryIndexKey;
-	    if(NOT idesc->isUniqueIndex())
-	    {
-	      CollIndex entry = userKeyColumns.entries() -1;
-	      for(CollIndex i=0;i<numClusteringKey;i++)
-	      {
-		userKeyColumns.removeAt(entry);
-		entry--;
-	      }
-	    }
-	    indexGA.addCharacteristicOutputs(userKeyColumns);
+        // we now have the following information ready:
+        // - coveredSubexpr are the values that the index can deliver
+        //   (+ clustering key columns)
+        // - unCoveredExpr are the values that the right child of the
+        //   index join should deliver (+ clustering key values)
+        // - we know the clustering key VEGies, whose VEGPredicates
+        //   serve as join predicates between the indexes
+        // - we can find out the selection predicates covered
+        //   by the index by intersecting them with coveredSubexpr
 
-	    ValueIdSet ijReferencedInputs;
-	    ValueIdSet ijUnCoveredExpr;
+        ValueIdSet newOutputsFromIndex(coveredSubexpr);
+        ValueIdSet newIndexPredicates(coveredSubexpr);
+        ValueIdSet newOutputsFromRightScan(unCoveredExpr);
 
-            ValueId vid;
-            ValueIdSet disjuncts;
+        newOutputsFromIndex += clusteringKeyColumns;
+        if (CmpCommon::getDefault(RANGESPEC_TRANSFORMATION) == DF_ON) {
+          newOutputsFromIndex -= selectionpreds;
+        } else
+          newOutputsFromIndex -= selectionPred();
+        newOutputsFromIndex -= getGroupAttr()->getCharacteristicInputs();
+        if (CmpCommon::getDefault(RANGESPEC_TRANSFORMATION) == DF_ON) {
+          newIndexPredicates.intersectSet(selectionpreds);
+          newOutputsFromRightScan -= selectionpreds;
+        } else {
+          newIndexPredicates.intersectSet(selectionPred());
+          newOutputsFromRightScan -= selectionPred();
+        }
+        newOutputsFromRightScan += clusteringKeyColumns;
 
-            // Multi-Index OR optimization requires that the index information
-            // is maintained for disjuncts as well. So here we check if the
-            // predicate is of the form A OR B OR C. If it is, then the top
-            // operator is the OR operator. The optimization is considered only
-            // in this case. So if the predicate has an OR on top of the item
-            // expression, then we check if the disjuncts are covered by the
-            // index.
+        NABoolean idescAbsorbed = FALSE;
 
-            if (preds.entries() == 1)
-            {
-               preds.getFirst(vid);
-               if (vid.getItemExpr()->getOperatorType() ==  ITM_OR)
-               {
-                  vid.getItemExpr()->convertToValueIdSet(disjuncts,
-                                                         NULL,
-                                                         ITM_OR,
-                                                         FALSE);
-               }
-               else
-                 disjuncts=preds;
-            }
+        // does another index have the same covered values?
+        for (CollIndex i = 0; i < possibleIndexJoins_.entries(); i++) {
+          NABoolean isASupersetIndex = possibleIndexJoins_[i]->outputsFromIndex_.contains(newOutputsFromIndex) &&
+                                       possibleIndexJoins_[i]->indexPredicates_.contains(newIndexPredicates);
+
+          NABoolean isASubsetIndex = newOutputsFromIndex.contains(possibleIndexJoins_[i]->outputsFromIndex_) &&
+                                     newIndexPredicates.contains(possibleIndexJoins_[i]->indexPredicates_);
+
+          NABoolean isASuperOrSubsetIndex = isASupersetIndex || isASubsetIndex;
+
+          NABoolean produceSameIndexOutputs = isASupersetIndex && isASubsetIndex;
+
+          if ((possibleIndexJoins_[i]->inputsToIndex_ == referencedInputs) &&
+              ((accessOptions().lockMode() != EXCLUSIVE_) ||
+               possibleIndexJoins_[i]->outputsFromRightScan_ == newOutputsFromRightScan)) {
+            ScanIndexInfo *ixi = possibleIndexJoins_[i];
+
+            IndexJoinSelectivityEnum isGoodIndexJoin = INDEX_JOIN_VIABLE;
+            MdamFlags mdamFlag =
+                idesc->pruneMdam(ixi->indexPredicates_, FALSE, isGoodIndexJoin, getGroupAttr(), &(ixi->inputsToIndex_));
+            IndexProperty *ixProp;
+            if (getGroupAttr()->getInputLogPropList().entries() > 0)
+              ixProp = new (CmpCommon::statementHeap())
+                  IndexProperty(idesc, mdamFlag, isGoodIndexJoin, (getGroupAttr()->getInputLogPropList())[0]);
             else
-               disjuncts=preds;
+              ixProp = new (CmpCommon::statementHeap()) IndexProperty(idesc, mdamFlag, isGoodIndexJoin);
 
-	    // add in index column hints from non-VEG equality predicates
-	    disjuncts += possibleIndexColumns();
+            if (!tryToEliminateIndex || idesc->indexHintPriorityDelta() > 0) {
+              if (produceSameIndexOutputs && ixi->indexPredicates_ == newIndexPredicates) {
+                ixi->usableIndexes_.insert(ixProp);
+                idescAbsorbed = TRUE;
+                break;
+              }
 
-	    disjuncts.isCovered(
-	      getGroupAttr()->getCharacteristicInputs(),
-	      indexGA,
-	      ijReferencedInputs,
-	      ijCoveredPredicates,
-	      ijUnCoveredExpr);
+            } else {
+              CANodeId tableId = tAnalysis->getNodeAnalysis()->getId();
 
-	    // we only care about predicates that are entirely covered,
-	    // parts of predicates (like constants) that are covered
-	    // don't help in this context
-	    ijCoveredPredicates.intersectSet(disjuncts);
-	  }
-	  // This index does not provide all required values.
-	  // However, it might be useful to join this index with another
-	  // one (most likely the clustering index) to get the rest
-	  // of the required values. If this is promising at all, then
-	  // add this index to a list of possible index joins.
-	  // In that list of possible index joins, group all indexes
-	  // that provide the same set of output values (but different
-	  // orders) together.
-	  if (numIndexJoins_ < MAX_NUM_INDEX_JOINS AND
-	      (unlimitedIndexJoinsAllowed OR NOT ijCoveredPredicates.isEmpty()))
-	  {
-	    // changing back to old predicate tree:
-	    ValueIdSet selectionpreds;
-	    if((CmpCommon::getDefault(RANGESPEC_TRANSFORMATION) == DF_ON ) &&
-	       (selectionPred().entries()))
-	    {
-	      ValueIdList selectionPredList(selectionPred());
-	      ItemExpr *inputItemExprTree = selectionPredList.rebuildExprTree(ITM_AND,FALSE,FALSE);
-	      ItemExpr * resultOld = revertBackToOldTree(CmpCommon::statementHeap(), inputItemExprTree);
-	      resultOld->convertToValueIdSet(selectionpreds, NULL, ITM_AND);
-	      doNotReplaceAnItemExpressionForLikePredicates(resultOld,selectionpreds,resultOld);
-	    }
+              // keep the index that provides the maximal coverage of the
+              // predicate. Do this only when the output from one index is
+              // the super set of the other. For example (a,b) in I1
+              // (CREATE INDEX T1 on T(a, b)) is a superset of (a) in I2
+              // (CREATE INDEX T2 on T(a)).
+              if (isASuperOrSubsetIndex && !produceSameIndexOutputs) {
+                // Score the index's coverage by computing the remaining length of the
+                // key columns not covering the index predicates. The one with remaining
+                // length of 0 is the best.
 
-	      // For now, only consider indexes that covers one of the selection
-	      // predicates unless control query shape is in effect.
-              // NOTE: we should also consider indexes that potentially
-              // could provide an interesting order or partitioning. To do
-              // that, we would have to check whether their first key column
-              // or any of their partitioning key columns is used.
-              // For exclusive mode, any index can be called a usable index of
-              // of another, only if it produces the same characteristic
-              // outputs as the main index, and also both indexes have the same
-              // uncovered expressions. This is because, in exclusive mode the
-	      // base (clustering key) index must always be read even if the
-	      // alternate index is index only, because the locks on the
-	      // base index are required for exclusive mode.
-	      // We can test the index only case with exclusive mode by
-	      // requiring the uncovered expressions to be the same
-	      // (both would be NULL for index only).
+                ValueIdSet indexCols;
+                newIndexPredicates.findAllReferencedIndexCols(indexCols);
 
-	      // we now have the following information ready:
-	      // - coveredSubexpr are the values that the index can deliver
-	      //   (+ clustering key columns)
-	      // - unCoveredExpr are the values that the right child of the
-	      //   index join should deliver (+ clustering key values)
-	      // - we know the clustering key VEGies, whose VEGPredicates
-	      //   serve as join predicates between the indexes
-	      // - we can find out the selection predicates covered
-	      //   by the index by intersecting them with coveredSubexpr
+                Lng32 currentPrefixLen = idesc->getIndexKey().findPrefixLength(indexCols);
 
-	      ValueIdSet newOutputsFromIndex(coveredSubexpr);
-	      ValueIdSet newIndexPredicates(coveredSubexpr);
-	      ValueIdSet newOutputsFromRightScan(unCoveredExpr);
+                Lng32 currentSuffixLen = idesc->getIndexKey().entries() - currentPrefixLen;
 
-	      newOutputsFromIndex += clusteringKeyColumns;
-	      if(CmpCommon::getDefault(RANGESPEC_TRANSFORMATION) == DF_ON )
-	      {
-		newOutputsFromIndex -= selectionpreds;
-	      }
-	      else
-		newOutputsFromIndex -= selectionPred();
-              newOutputsFromIndex -= getGroupAttr()->
-	                               getCharacteristicInputs();
-	      if(CmpCommon::getDefault(RANGESPEC_TRANSFORMATION) == DF_ON )
-	      {
-		newIndexPredicates.intersectSet(selectionpreds);
-		newOutputsFromRightScan -= selectionpreds;
-	      }
-	      else
-	      {
-		newIndexPredicates.intersectSet(selectionPred());
-		newOutputsFromRightScan -= selectionPred();
-	      }
-	      newOutputsFromRightScan += clusteringKeyColumns;
+                Lng32 previousPrefixLen =
+                    ixi->usableIndexes_[0]->getIndexDesc()->getIndexKey().findPrefixLength(indexCols);
 
-              NABoolean idescAbsorbed = FALSE;
+                Lng32 previousSuffixLen =
+                    ixi->usableIndexes_[0]->getIndexDesc()->getIndexKey().entries() - previousPrefixLen;
 
+                if (currentSuffixLen < previousSuffixLen) {
+                  if (printIndexElimination)
+                    out << "Eliminate index join heuristics 1: remove "
+                        << ixi->usableIndexes_[0]->getIndexDesc()->getExtIndexName().data() << endl;
 
-              // does another index have the same covered values?
-              for (CollIndex i = 0; i < possibleIndexJoins_.entries(); i++)
-                {
-                  NABoolean isASupersetIndex =
-                      possibleIndexJoins_[i]->outputsFromIndex_.contains(newOutputsFromIndex) &&
-                      possibleIndexJoins_[i]->indexPredicates_.contains(newIndexPredicates);
+                  ixi = new (CmpCommon::statementHeap())
+                      ScanIndexInfo(referencedInputs, newOutputsFromIndex, newIndexPredicates, indexJoinPreds,
+                                    newOutputsFromRightScan, idesc->getIndexKey(), ixProp, idesc->isNgramIndex());
 
-                  NABoolean isASubsetIndex =
-                      newOutputsFromIndex.contains(possibleIndexJoins_[i]->outputsFromIndex_) &&
-                      newIndexPredicates.contains(possibleIndexJoins_[i]->indexPredicates_);
+                  possibleIndexJoins_[i] = ixi;
 
-                  NABoolean isASuperOrSubsetIndex = isASupersetIndex || isASubsetIndex;
+                } else {
+                  // do nothing. The current index is less useful.
+                  if (printIndexElimination)
+                    out << "Eliminate index join heuristics 1: remove " << idesc->getExtIndexName().data() << endl;
+                }
 
-                  NABoolean produceSameIndexOutputs = isASupersetIndex && isASubsetIndex;
+                idescAbsorbed = TRUE;
 
-                  if ((possibleIndexJoins_[i]->inputsToIndex_ == referencedInputs)
-		      && ((accessOptions().lockMode() != EXCLUSIVE_)
-			  || possibleIndexJoins_[i]->outputsFromRightScan_ ==
-			  newOutputsFromRightScan))
-                    {
-                      ScanIndexInfo *ixi = possibleIndexJoins_[i];
+              } else
+                  // if no index is a prefix of the other and the two do not produce
+                  // same output, pick one with high selectivity.
+                  if (!isASuperOrSubsetIndex && !produceSameIndexOutputs) {
+                // two indexes do not produce the same outputs. Select
+                // one with the most selectivity.
 
-		      IndexJoinSelectivityEnum isGoodIndexJoin = INDEX_JOIN_VIABLE;
-		      MdamFlags mdamFlag = idesc->pruneMdam(ixi->indexPredicates_,FALSE,
-						 isGoodIndexJoin,
-						 getGroupAttr(),&(ixi->inputsToIndex_));
-		      IndexProperty * ixProp;
-		      if(getGroupAttr()->getInputLogPropList().entries() >0)
-			 ixProp = new(CmpCommon::statementHeap())
-					      IndexProperty(idesc, mdamFlag, isGoodIndexJoin,
-					      (getGroupAttr()->getInputLogPropList())[0]);
-		      else
-                        ixProp = new(CmpCommon::statementHeap())
-                           IndexProperty(idesc, mdamFlag, isGoodIndexJoin);
+                CostScalar rowsToScan;
 
-                      if ( !tryToEliminateIndex || idesc->indexHintPriorityDelta() > 0) {
+                CostScalar currentDataAccess =
+                    computeCpuResourceForIndexJoin(tableId, idesc, newIndexPredicates, rowsToScan);
 
-                         if ( produceSameIndexOutputs && ixi->indexPredicates_ == newIndexPredicates )
-                         {
-                             ixi->usableIndexes_.insert(ixProp);
-                             idescAbsorbed = TRUE;
-                             break;
-                         } 
+                if (rowsToScan > indexEliminationThreshold) break;
 
-                      } else {
+                CostScalar previousDataAccess = computeCpuResourceForIndexJoin(
+                    tableId, ixi->usableIndexes_[0]->getIndexDesc(), ixi->indexPredicates_, rowsToScan);
 
-                         CANodeId tableId = tAnalysis->getNodeAnalysis()->getId();
+                if (currentDataAccess < previousDataAccess) {
+                  if (printIndexElimination)
+                    out << "Eliminate index join heuristics 2: remove "
+                        << ixi->usableIndexes_[0]->getIndexDesc()->getExtIndexName().data() << endl;
 
-                         // keep the index that provides the maximal coverage of the
-                         // predicate. Do this only when the output from one index is
-                         // the super set of the other. For example (a,b) in I1 
-                         // (CREATE INDEX T1 on T(a, b)) is a superset of (a) in I2 
-                         // (CREATE INDEX T2 on T(a)). 
-                         if ( isASuperOrSubsetIndex && !produceSameIndexOutputs ) {
-   
-                             // Score the index's coverage by computing the remaining length of the 
-                             // key columns not covering the index predicates. The one with remaining
-                             // length of 0 is the best.
+                  ixi = new (CmpCommon::statementHeap())
+                      ScanIndexInfo(referencedInputs, newOutputsFromIndex, newIndexPredicates, indexJoinPreds,
+                                    newOutputsFromRightScan, idesc->getIndexKey(), ixProp, idesc->isNgramIndex());
 
-                             ValueIdSet indexCols;
-                             newIndexPredicates.findAllReferencedIndexCols(indexCols);
+                  possibleIndexJoins_[i] = ixi;
+                } else {
+                  // do nothing. The current index is less useful.
+                  if (printIndexElimination)
+                    out << "Eliminate index join heuristics 2: remove " << idesc->getExtIndexName().data() << endl;
+                }
 
-                             Lng32 currentPrefixLen =
-                                     idesc->getIndexKey().findPrefixLength(indexCols);
-   
-                             Lng32 currentSuffixLen = idesc->getIndexKey().entries() - currentPrefixLen;
-   
-                             Lng32 previousPrefixLen = 
-                                  ixi->usableIndexes_[0]->getIndexDesc()
-                                     ->getIndexKey().findPrefixLength(indexCols);
-   
-                             Lng32 previousSuffixLen = ixi->usableIndexes_[0]->getIndexDesc()
-                                     ->getIndexKey().entries() - previousPrefixLen;
-   
-                             if ( currentSuffixLen < previousSuffixLen ) {
-   
-                               if ( printIndexElimination )
-                                  out << "Eliminate index join heuristics 1: remove " 
-                                      << ixi->usableIndexes_[0]->getIndexDesc()->getExtIndexName().data() 
-                                      << endl;
+                idescAbsorbed = TRUE;
 
-                               ixi = new (CmpCommon::statementHeap())
-                                          ScanIndexInfo(referencedInputs, newOutputsFromIndex,
-                                          newIndexPredicates, indexJoinPreds,
-                                          newOutputsFromRightScan, idesc->getIndexKey(),
-                                          ixProp, idesc->isNgramIndex());
-   
-                                possibleIndexJoins_[i] = ixi;
+              } else {
+                // must be produceSameIndexOutputs when reach here.
+                CMPASSERT(produceSameIndexOutputs);
 
+                // Another index produces the same characteristic
+                // outputs. Combine the two indexes in a single
+                // scan. Add this index to the list of indexes,
+                // everything else should be set already
+                if (possibleIndexJoins_[i]->indexPredicates_ == newIndexPredicates &&
+                    ixProp->compareIndexPromise(ixi->usableIndexes_[0]) == MORE) {
+                  if (printIndexElimination)
+                    out << "Eliminate index join heuristics 0: remove "
+                        << ixi->usableIndexes_[0]->getIndexDesc()->getExtIndexName().data() << endl;
 
-                             } else {
-                                // do nothing. The current index is less useful.
-                                 if ( printIndexElimination )
-                                    out << "Eliminate index join heuristics 1: remove " 
-                                        << idesc->getExtIndexName().data() 
-                                        << endl;
-                               }
+                  ixi = new (CmpCommon::statementHeap())
+                      ScanIndexInfo(referencedInputs, newOutputsFromIndex, newIndexPredicates, indexJoinPreds,
+                                    newOutputsFromRightScan, idesc->getIndexKey(), ixProp, idesc->isNgramIndex());
 
-                             idescAbsorbed = TRUE;
+                  possibleIndexJoins_[i] = ixi;
 
-                         } else 
-                         // if no index is a prefix of the other and the two do not produce
-                         // same output, pick one with high selectivity.
-                         if ( !isASuperOrSubsetIndex && !produceSameIndexOutputs ) {
+                  idescAbsorbed = TRUE;
+                }
+              }
 
-                            // two indexes do not produce the same outputs. Select
-                            // one with the most selectivity.
+              break;
+            }  // try to eliminate this index from consideration
+          }    // found another index join with the same covered values
+        }      // for loop: does another index join have the same covered values?
 
-                            CostScalar rowsToScan;
+        if (!idescAbsorbed) {
+          // create a new index info struct and add this into the
+          // possible index joins list
+          IndexJoinSelectivityEnum isGoodIndexJoin = INDEX_JOIN_VIABLE;
 
-                            CostScalar currentDataAccess = 
-                                computeCpuResourceForIndexJoin(tableId, idesc, 
-                                                               newIndexPredicates, rowsToScan);
+          MdamFlags mdamFlag =
+              idesc->pruneMdam(newIndexPredicates, FALSE, isGoodIndexJoin, getGroupAttr(), &referencedInputs);
 
-                            if ( rowsToScan > indexEliminationThreshold )
-                              break;
+          IndexProperty *ixProp =
+              (getGroupAttr()->getInputLogPropList().entries() > 0)
+                  ? new (CmpCommon::statementHeap())
+                        IndexProperty(idesc, mdamFlag, isGoodIndexJoin, (getGroupAttr()->getInputLogPropList())[0])
+                  : new (CmpCommon::statementHeap()) IndexProperty(idesc, mdamFlag, isGoodIndexJoin);
 
-                            CostScalar previousDataAccess = 
-                                  computeCpuResourceForIndexJoin(tableId, 
-                                                                ixi->usableIndexes_[0]->getIndexDesc(),
-                                                                ixi->indexPredicates_, rowsToScan);
+          ScanIndexInfo *ixi = new (CmpCommon::statementHeap())
+              ScanIndexInfo(referencedInputs, newOutputsFromIndex, newIndexPredicates, indexJoinPreds,
+                            newOutputsFromRightScan, idesc->getIndexKey(), ixProp, idesc->isNgramIndex());
 
+          possibleIndexJoins_.insert(ixi);
 
-                            if ( currentDataAccess < previousDataAccess ) {
-   
-                               if ( printIndexElimination )
-                                  out << "Eliminate index join heuristics 2: remove " 
-                                      << ixi->usableIndexes_[0]->getIndexDesc()->getExtIndexName().data() 
-                                      << endl;
+        }  // !idescAbsorbed
+      }    // index delivers new values
+    }      // not indexOnly access
+  }        // for each index
 
-                               ixi = new (CmpCommon::statementHeap()) 
-                                       ScanIndexInfo(referencedInputs, newOutputsFromIndex,
-                                                     newIndexPredicates, indexJoinPreds, 
-                                                     newOutputsFromRightScan, idesc->getIndexKey(),
-                                                     ixProp, idesc->isNgramIndex());
-
-                               possibleIndexJoins_[i] = ixi;
-                             } else {
-
-                                // do nothing. The current index is less useful.
-                                if ( printIndexElimination )
-                                  out << "Eliminate index join heuristics 2: remove " 
-                                      << idesc->getExtIndexName().data() << endl;
-                             }
-
-                             idescAbsorbed = TRUE;
-
-                         } else {
-   
-                           // must be produceSameIndexOutputs when reach here. 
-                           CMPASSERT(produceSameIndexOutputs);
-
-                           // Another index produces the same characteristic
-                           // outputs. Combine the two indexes in a single
-                           // scan. Add this index to the list of indexes,
-                           // everything else should be set already
-                           if ( possibleIndexJoins_[i]->indexPredicates_ == newIndexPredicates &&
-                                ixProp->compareIndexPromise(ixi->usableIndexes_[0]) == MORE ) 
-                           {
-                               if ( printIndexElimination )
-                                  out << "Eliminate index join heuristics 0: remove " 
-                                      << ixi->usableIndexes_[0]->getIndexDesc()->getExtIndexName().data() 
-                                      << endl;
-
-                               ixi = new (CmpCommon::statementHeap()) 
-                                       ScanIndexInfo(referencedInputs, newOutputsFromIndex,
-                                                     newIndexPredicates, indexJoinPreds, 
-                                                     newOutputsFromRightScan, idesc->getIndexKey(),
-                                                     ixProp, idesc->isNgramIndex());
-
-                               possibleIndexJoins_[i] = ixi;
-
-                               idescAbsorbed = TRUE;
-                           }
-                         }
-
-                         break;
-                      } // try to eliminate this index from consideration
-                    } // found another index join with the same covered values
-		} // for loop: does another index join have the same covered values?
-
-	      if (!idescAbsorbed)
-		{
-		  // create a new index info struct and add this into the
-		  // possible index joins list
-		  IndexJoinSelectivityEnum isGoodIndexJoin = INDEX_JOIN_VIABLE;
-
-		  MdamFlags mdamFlag = idesc->pruneMdam(newIndexPredicates,FALSE,
-						 isGoodIndexJoin,
-						 getGroupAttr(),&referencedInputs);
-
-		  IndexProperty * ixProp = (getGroupAttr()->getInputLogPropList().entries() >0) ?
-			new(CmpCommon::statementHeap())
-					      IndexProperty(idesc, mdamFlag, isGoodIndexJoin,
-					      (getGroupAttr()->getInputLogPropList())[0])
-		        :
-			new(CmpCommon::statementHeap())
-					      IndexProperty(idesc, mdamFlag, isGoodIndexJoin);
-
-                  ScanIndexInfo *ixi = new (CmpCommon::statementHeap()) 
-                                ScanIndexInfo(referencedInputs, newOutputsFromIndex,
-                                              newIndexPredicates, indexJoinPreds, 
-                                              newOutputsFromRightScan, idesc->getIndexKey(),
-                                              ixProp, idesc->isNgramIndex());
-
-		  possibleIndexJoins_.insert(ixi);
-
-		} // !idescAbsorbed 
-	    } // index delivers new values
-	} // not indexOnly access
-    } // for each index
-
-                               
-  if ( printIndexElimination ) {
+  if (printIndexElimination) {
     out << "# of index join scans=" << possibleIndexJoins_.entries() << endl;
     out << "# of index only scans=" << indexOnlyIndexes_.entries() << endl;
     out << "==================" << endl;
@@ -9726,172 +7928,142 @@ void Scan::addIndexInfo()
 
   CMPASSERT(indexOnlyIndexes_.entries() > 0);
 
-} // Scan::addIndexInfo
+}  // Scan::addIndexInfo
 
-void Scan::setTableAttributes(CANodeId nodeId)
-{
-  NodeAnalysis * nodeAnalysis = nodeId.getNodeAnalysis();
+void Scan::setTableAttributes(CANodeId nodeId) {
+  NodeAnalysis *nodeAnalysis = nodeId.getNodeAnalysis();
 
-  if (nodeAnalysis == NULL)
-    return;
+  if (nodeAnalysis == NULL) return;
 
-  TableAnalysis * tableAnalysis = nodeAnalysis->getTableAnalysis();
+  TableAnalysis *tableAnalysis = nodeAnalysis->getTableAnalysis();
 
-  if (tableAnalysis == NULL)
-    return;
+  if (tableAnalysis == NULL) return;
 
-  TableDesc * tableDesc = tableAnalysis->getTableDesc();
-  const CorrName& name = tableDesc->getNATable()->getTableName();
+  TableDesc *tableDesc = tableAnalysis->getTableDesc();
+  const CorrName &name = tableDesc->getNATable()->getTableName();
 
   setTableName((CorrName &)name);
   setTableDesc(tableDesc);
-  setBaseCardinality(MIN_ONE (tableDesc->getNATable()->getEstRowCount())) ;
+  setBaseCardinality(MIN_ONE(tableDesc->getNATable()->getEstRowCount()));
 }
 
-NABoolean Scan::updateableIndex(IndexDesc *idx, ValueIdSet& preds, 
-                                NABoolean & needsHalloweenProtection)
-{
+NABoolean Scan::updateableIndex(IndexDesc *idx, ValueIdSet &preds, NABoolean &needsHalloweenProtection) {
   //
   // Returns TRUE if the index (idx) can be used for a scan during an UPDATE.
   // Returns TRUE with needsHalloweenProtection also set to TRUE, if the index
   // needs a blocking sort for Halloween protection
-  // Otherwise, returns FALSE to prevent use of this index. 
-  // Using the index in this case requires Halloween protection, but is likely 
+  // Otherwise, returns FALSE to prevent use of this index.
+  // Using the index in this case requires Halloween protection, but is likely
   // inefficient since there are no useful preds on the index key columns, so
   // we don't add this index to list of candidates.
   //
 
   // The conditions of when this index returns TRUE can also be expressed as
-  // returns true for an index if it is 
-  // a) a unique/clustering index or 
-  // b) has a unique predicate on its key or 
-  // c) has an equals or range predicate on all the index columns that 
+  // returns true for an index if it is
+  // a) a unique/clustering index or
+  // b) has a unique predicate on its key or
+  // c) has an equals or range predicate on all the index columns that
   // get updated. If one of the key columns being updated has a range predicate
   // then needsHalloweenProtection is set to TRUE.
   // Note that if a key column is being updated and has no predicate on it then
   // we return FALSE.
 
-  // preds has predicate in non-RangeSpec form, 
+  // preds has predicate in non-RangeSpec form,
   // while pred will be in RangeSpec form if feature is enabled.
   ValueIdSet pred = getSelectionPredicates(), dummySet;
 
-  SearchKey searchKey(idx->getIndexKey(),
-	              idx->getOrderOfKeyValues(),
-	              getGroupAttr()->getCharacteristicInputs(),
-		      TRUE,
-		      pred,
-                      dummySet, // needed by the interface but not used here
-                      idx
-                      );
+  SearchKey searchKey(idx->getIndexKey(), idx->getOrderOfKeyValues(), getGroupAttr()->getCharacteristicInputs(), TRUE,
+                      pred,
+                      dummySet,  // needed by the interface but not used here
+                      idx);
 
   // Unique index is OK to use.
-  if (searchKey.isUnique())
-    return TRUE;
-  
+  if (searchKey.isUnique()) return TRUE;
+
   const ValueIdList colUpdated = getTableDesc()->getColUpdated();
   const ValueIdList indexKey = idx->getIndexKey();
 
   // Determine if the columns being updated are key columns. Each key
   // column being updated must have an associated equality clause in
   // the WHERE clause of the UPDATE for it to be used.
-  for (CollIndex i = 0; i < colUpdated.entries(); i++)
-  {
+  for (CollIndex i = 0; i < colUpdated.entries(); i++) {
     ItemExpr *updateCol = colUpdated[i].getItemExpr();
     CMPASSERT(updateCol->getOperatorType() == ITM_BASECOLUMN);
-    for (CollIndex j = 0; j < indexKey.entries(); j++)
-    {
+    for (CollIndex j = 0; j < indexKey.entries(); j++) {
       ItemExpr *keyCol = indexKey[j].getItemExpr();
-      ItemExpr *baseCol = ((IndexColumn*)keyCol)->getDefinition().getItemExpr();
+      ItemExpr *baseCol = ((IndexColumn *)keyCol)->getDefinition().getItemExpr();
       CMPASSERT(baseCol->getOperatorType() == ITM_BASECOLUMN);
-      if (getGroupAttr()->isEmbeddedUpdate()){
-        if (((BaseColumn*)updateCol)->getColNumber() ==
-            ((BaseColumn*)baseCol)->getColNumber())
-          return FALSE;
+      if (getGroupAttr()->isEmbeddedUpdate()) {
+        if (((BaseColumn *)updateCol)->getColNumber() == ((BaseColumn *)baseCol)->getColNumber()) return FALSE;
       }
-      if ((NOT(idx->isUniqueIndex() || idx->isClusteringIndex()) && 
+      if ((NOT(idx->isUniqueIndex() || idx->isClusteringIndex()) &&
            (CmpCommon::getDefault(UPDATE_CLUSTERING_OR_UNIQUE_INDEX_KEY) != DF_AGGRESSIVE)) ||
-          (CmpCommon::getDefault(UPDATE_CLUSTERING_OR_UNIQUE_INDEX_KEY) == DF_OFF))
-      {
-        if (((BaseColumn*)updateCol)->getColNumber() ==
-            ((BaseColumn*)baseCol)->getColNumber()) 
-        {
-          if (preds.containsAsEquiLocalPred(baseCol->getValueId()) || 
-              preds.containsAsRangeLocalPred(baseCol->getValueId()))
-          {
+          (CmpCommon::getDefault(UPDATE_CLUSTERING_OR_UNIQUE_INDEX_KEY) == DF_OFF)) {
+        if (((BaseColumn *)updateCol)->getColNumber() == ((BaseColumn *)baseCol)->getColNumber()) {
+          if (preds.containsAsEquiLocalPred(baseCol->getValueId()) ||
+              preds.containsAsRangeLocalPred(baseCol->getValueId())) {
             needsHalloweenProtection = TRUE;
             return TRUE;
-          }
-          else 
-          {
+          } else {
             needsHalloweenProtection = FALSE;
           }
-        } // index key col is being updated
-      } // not a clustering or unique index
-    } // loop over index key cols
-  } // loop over cols being updated
+        }  // index key col is being updated
+      }    // not a clustering or unique index
+    }      // loop over index key cols
+  }        // loop over cols being updated
 
   return TRUE;
-} // Scan::updateableIndex
+}  // Scan::updateableIndex
 
-NABoolean Scan::requiresHalloweenForUpdateUsingIndexScan()
-{ 
-  // Returns TRUE if any index that is in the list of indexes that will be 
-  // added later in addIndexInfo() to drive the scan for an UPDATE requires 
-  // Halloween protection. This is decided by using Scan::updateableIndex(). 
-  // If this method returns TRUE we will use a sort node to prevent the 
+NABoolean Scan::requiresHalloweenForUpdateUsingIndexScan() {
+  // Returns TRUE if any index that is in the list of indexes that will be
+  // added later in addIndexInfo() to drive the scan for an UPDATE requires
+  // Halloween protection. This is decided by using Scan::updateableIndex().
+  // If this method returns TRUE we will use a sort node to prevent the
   // "Halloween Update Problem".
 
   // preds are in RangeSpec form
   ValueIdSet preds = getSelectionPredicates();
-  const ValueIdList & colUpdated = getTableDesc()->getColUpdated();
-  const LIST(IndexDesc *) & ixlist = getTableDesc()->getIndexes();
-  
+  const ValueIdList &colUpdated = getTableDesc()->getColUpdated();
+  const LIST(IndexDesc *) &ixlist = getTableDesc()->getIndexes();
+
   if ((colUpdated.entries() == 0) || (preds.entries() == 0) ||
-      (ixlist.entries() == 1) || // this is the clustering index
-      (CmpCommon::getDefault(UPDATE_CLUSTERING_OR_UNIQUE_INDEX_KEY) 
-       == DF_AGGRESSIVE)) // this setting means no Halloween protection
+      (ixlist.entries() == 1) ||  // this is the clustering index
+      (CmpCommon::getDefault(UPDATE_CLUSTERING_OR_UNIQUE_INDEX_KEY) ==
+       DF_AGGRESSIVE))  // this setting means no Halloween protection
     return FALSE;
- 
-  if (CmpCommon::getDefault(RANGESPEC_TRANSFORMATION) == DF_ON)
-  {
+
+  if (CmpCommon::getDefault(RANGESPEC_TRANSFORMATION) == DF_ON) {
     ValueIdList selectionPredList(preds);
-    ItemExpr *inputItemExprTree = 
-      selectionPredList.rebuildExprTree(ITM_AND,FALSE,FALSE);
-    ItemExpr * resultOld = revertBackToOldTree(STMTHEAP, 
-                                               inputItemExprTree);
+    ItemExpr *inputItemExprTree = selectionPredList.rebuildExprTree(ITM_AND, FALSE, FALSE);
+    ItemExpr *resultOld = revertBackToOldTree(STMTHEAP, inputItemExprTree);
     preds.clear();
     resultOld->convertToValueIdSet(preds, NULL, ITM_AND);
-    doNotReplaceAnItemExpressionForLikePredicates(resultOld,preds,
-                                                  resultOld);
+    doNotReplaceAnItemExpressionForLikePredicates(resultOld, preds, resultOld);
   }
-  
-  NABoolean needsHalloweenProtection ;
-  for (CollIndex indexNo = 0; indexNo < ixlist.entries(); indexNo++)
-  {
+
+  NABoolean needsHalloweenProtection;
+  for (CollIndex indexNo = 0; indexNo < ixlist.entries(); indexNo++) {
     IndexDesc *idx = ixlist[indexNo];
-    if (idx->isClusteringIndex() || 
-        (idx->isUniqueIndex() && 
-         (CmpCommon::getDefault(UPDATE_CLUSTERING_OR_UNIQUE_INDEX_KEY) 
-          == DF_ON)))
-      continue ; // skip this idesc
-    
+    if (idx->isClusteringIndex() ||
+        (idx->isUniqueIndex() && (CmpCommon::getDefault(UPDATE_CLUSTERING_OR_UNIQUE_INDEX_KEY) == DF_ON)))
+      continue;  // skip this idesc
+
     needsHalloweenProtection = FALSE;
-    if(updateableIndex(idx, preds, needsHalloweenProtection) && 
-       needsHalloweenProtection)
-      return TRUE; // if even one index requires Halloween, then we add the sort
+    if (updateableIndex(idx, preds, needsHalloweenProtection) && needsHalloweenProtection)
+      return TRUE;  // if even one index requires Halloween, then we add the sort
   }
   return FALSE;
 }
 
 // how many index descriptors can be used with this scan node?
-CollIndex Scan::numUsableIndexes()
-{
+CollIndex Scan::numUsableIndexes() {
   // start with the index-only indexes
   CollIndex result = indexOnlyIndexes_.entries();
 
   // for each index join, count all the indexes that result in equivalent
   // characteristics inputs and outputs
-  for (CollIndex i=0; i < possibleIndexJoins_.entries(); i++)
+  for (CollIndex i = 0; i < possibleIndexJoins_.entries(); i++)
     result += possibleIndexJoins_[i]->usableIndexes_.entries();
 
   return result;
@@ -9901,77 +8073,61 @@ CollIndex Scan::numUsableIndexes()
 // between 0 and numUsableIndexes()-1. It returns the associated IndexDesc
 // and - depending on whether it is an index-only scan or an index join -
 // the appropriate information class (optional).
-IndexDesc * Scan::getUsableIndex(CollIndex indexNum,
-				 IndexProperty **indexOnlyInfo,
-				 ScanIndexInfo **indexJoinInfo)
-{
-  IndexDesc     *result           = NULL;
+IndexDesc *Scan::getUsableIndex(CollIndex indexNum, IndexProperty **indexOnlyInfo, ScanIndexInfo **indexJoinInfo) {
+  IndexDesc *result = NULL;
   IndexProperty *locIndexOnlyInfo = NULL;
   ScanIndexInfo *locIndexJoinInfo = NULL;
 
-  if (indexNum < indexOnlyIndexes_.entries())
-    {
-      // indexNum corresponds to an index-only scan
-      locIndexOnlyInfo = indexOnlyIndexes_[indexNum];
-      result = locIndexOnlyInfo->getIndexDesc();
-    }
-  else
-    {
-      // search for index desc "indexNum" in the index joins
-      // (which is a list of sets of index descs, making this
-      // method somewhat complex)
-      indexNum -= indexOnlyIndexes_.entries();
-      CollIndex ixJoinIx = 0;
-      CollIndex numIndexJoins = possibleIndexJoins_.entries();
+  if (indexNum < indexOnlyIndexes_.entries()) {
+    // indexNum corresponds to an index-only scan
+    locIndexOnlyInfo = indexOnlyIndexes_[indexNum];
+    result = locIndexOnlyInfo->getIndexDesc();
+  } else {
+    // search for index desc "indexNum" in the index joins
+    // (which is a list of sets of index descs, making this
+    // method somewhat complex)
+    indexNum -= indexOnlyIndexes_.entries();
+    CollIndex ixJoinIx = 0;
+    CollIndex numIndexJoins = possibleIndexJoins_.entries();
 
-      if (numIndexJoins > 0)
-	{
-	  // loop over the list of index joins, counting index descs until
-	  // we find the right index join
-	  while (ixJoinIx < numIndexJoins)
-	    {
-	      ScanIndexInfo *si = possibleIndexJoins_[ixJoinIx];
+    if (numIndexJoins > 0) {
+      // loop over the list of index joins, counting index descs until
+      // we find the right index join
+      while (ixJoinIx < numIndexJoins) {
+        ScanIndexInfo *si = possibleIndexJoins_[ixJoinIx];
 
-	      if (indexNum >= si->usableIndexes_.entries())
-		{
-		  // not there yet, go on to the next index join
-		  indexNum -= si->usableIndexes_.entries();
-		  ixJoinIx++;
-		}
-	      else
-		{
-		  // now we have reached the right index join (if
-		  // any), select an index
-		  locIndexJoinInfo = si;
-		  result = si->usableIndexes_[indexNum]->getIndexDesc();
-		  break;
-		}
-	    }
-	}
+        if (indexNum >= si->usableIndexes_.entries()) {
+          // not there yet, go on to the next index join
+          indexNum -= si->usableIndexes_.entries();
+          ixJoinIx++;
+        } else {
+          // now we have reached the right index join (if
+          // any), select an index
+          locIndexJoinInfo = si;
+          result = si->usableIndexes_[indexNum]->getIndexDesc();
+          break;
+        }
+      }
     }
+  }
 
   // return information or NULL for not found
-  if (indexOnlyInfo)
-    *indexOnlyInfo = locIndexOnlyInfo;
-  if (indexJoinInfo)
-    *indexJoinInfo = locIndexJoinInfo;
+  if (indexOnlyInfo) *indexOnlyInfo = locIndexOnlyInfo;
+  if (indexJoinInfo) *indexJoinInfo = locIndexJoinInfo;
   return result;
 }
 
-void Scan::getRequiredVerticalPartitions
-           (SET(IndexDesc  *) & requiredVPs,
-            SET(ValueIdSet *) & columnsProvidedByVP) const
-{
+void Scan::getRequiredVerticalPartitions(SET(IndexDesc *) & requiredVPs,
+                                         SET(ValueIdSet *) & columnsProvidedByVP) const {
   // We get requiredVPs and columnsProvidedByVP passed to us that have
   // no entries.  We have to populate them with the vertical partitions
   // required to service the query and the columns that each of those
   // VPs will provide.  Each entry in columnsProvidedByVP is related to
   // the corresponding entry in requiredVPs
-  CMPASSERT(requiredVPs.entries() == 0 &&
-            columnsProvidedByVP.entries() == 0);
+  CMPASSERT(requiredVPs.entries() == 0 && columnsProvidedByVP.entries() == 0);
 
-  const TableDesc * tableDesc = getTableDesc();
-  const LIST(IndexDesc *) & allVPs = tableDesc->getVerticalPartitions();
+  const TableDesc *tableDesc = getTableDesc();
+  const LIST(IndexDesc *) &allVPs = tableDesc->getVerticalPartitions();
 
 #ifdef OLD
   // Get all the value ids that are required by the scan and its parents
@@ -10020,8 +8176,7 @@ void Scan::getRequiredVerticalPartitions
   // -----------------------------------------------------------------
   // remaining expressions on parent
   ValueIdSet requiredValueIdsMembers;
-  RelExpr::computeValuesReqdForPredicates(VEGEqPreds,
-                                 requiredValueIdsMembers);
+  RelExpr::computeValuesReqdForPredicates(VEGEqPreds, requiredValueIdsMembers);
 
   ValueIdSet requiredValueIds;
   requiredValueIds.replaceVEGExpressionsAndCopy(requiredValueIdsMembers);
@@ -10031,11 +8186,10 @@ void Scan::getRequiredVerticalPartitions
   // Replace each VEGPredicate with a VEGReferences for its VEG; if its
   // VEG contains other VEGReferences, add them to requiredValueIds.
   // ---------------------------------------------------------------------
-  RelExpr::computeValuesReqdForPredicates(getGroupAttr()->getCharacteristicOutputs(),
-				 requiredValueIds);
+  RelExpr::computeValuesReqdForPredicates(getGroupAttr()->getCharacteristicOutputs(), requiredValueIds);
 
   requiredValueIds += getSelectionPred();
-  requiredValueIds -= VEGEqPreds;   // delete all VEGPredicates
+  requiredValueIds -= VEGEqPreds;  // delete all VEGPredicates
 
   // The following code gets all the leaf node value ids.  It deletes the
   // characteristic input list of value ids from the leaf value ids.  It
@@ -10053,14 +8207,10 @@ void Scan::getRequiredVerticalPartitions
 
   // Remove all basecolumns (logical columns)
   //
-  for(ValueId expr = requiredValueIds.init();
-      requiredValueIds.next(expr);
-      requiredValueIds.advance(expr)) {
-
+  for (ValueId expr = requiredValueIds.init(); requiredValueIds.next(expr); requiredValueIds.advance(expr)) {
     ItemExpr *ie = expr.getItemExpr();
 
-    if(ie->getOperatorType() == ITM_BASECOLUMN)
-      requiredValueIds -= expr;
+    if (ie->getOperatorType() == ITM_BASECOLUMN) requiredValueIds -= expr;
   }
 
   // the values that are covered by every vertical partition (such as
@@ -10078,8 +8228,7 @@ void Scan::getRequiredVerticalPartitions
   // find out the subset of values that are always covered
   // ---------------------------------------------------------------------
   // get the clustering key columns and transform them into VEGies
-  tableDesc->getEquivVEGCols(tableDesc->getClusteringIndex()->getIndexKey(),
-                             clusteringKeyColList);
+  tableDesc->getEquivVEGCols(tableDesc->getClusteringIndex()->getIndexKey(), clusteringKeyColList);
   clusteringKeyColumns = clusteringKeyColList;
 
   // make group attributes that get the original scan node's char.
@@ -10088,16 +8237,11 @@ void Scan::getRequiredVerticalPartitions
   // denominator of all VP attributes
   alwaysCoveredGA.addCharacteristicOutputs(clusteringKeyColumns);
 
-  requiredValueIds.isCovered(
-       getGroupAttr()->getCharacteristicInputs(),
-       alwaysCoveredGA,
-       dummyReferencedInputs,
-       alwaysCovered,
-       dummyUnCoveredExpr);
+  requiredValueIds.isCovered(getGroupAttr()->getCharacteristicInputs(), alwaysCoveredGA, dummyReferencedInputs,
+                             alwaysCovered, dummyUnCoveredExpr);
 
   // alwaysCovered now contains a set of values that should be covered
   // by every vertical partition
-
 
   ValueIdSet remainingValueIds = requiredValueIds;
 
@@ -10105,115 +8249,89 @@ void Scan::getRequiredVerticalPartitions
   // For each vertical partition, check whether it provides any useful
   // values
   // ---------------------------------------------------------------------
-  for (CollIndex indexNo = 0; indexNo < allVPs.entries(); indexNo++)
-    {
-      IndexDesc *idesc = allVPs[indexNo];
+  for (CollIndex indexNo = 0; indexNo < allVPs.entries(); indexNo++) {
+    IndexDesc *idesc = allVPs[indexNo];
 
-      ValueIdSet indexColumns(idesc->getIndexColumns());
-      ValueIdSet *coveredSubexpr = new (CmpCommon::statementHeap())
-                                       ValueIdSet();
-      ValueIdSet noCharacteristicInputs;
-      GroupAttributes vpGroupAttributes;
-      NABoolean onlyOneVPRequired;
+    ValueIdSet indexColumns(idesc->getIndexColumns());
+    ValueIdSet *coveredSubexpr = new (CmpCommon::statementHeap()) ValueIdSet();
+    ValueIdSet noCharacteristicInputs;
+    GroupAttributes vpGroupAttributes;
+    NABoolean onlyOneVPRequired;
 
-      // make group attributes for a vertical partition scan
-      vpGroupAttributes.addCharacteristicOutputs(idesc->getIndexColumns());
+    // make group attributes for a vertical partition scan
+    vpGroupAttributes.addCharacteristicOutputs(idesc->getIndexColumns());
 
-      // does the index cover all required values, and if not, which
-      // ones does it cover
-      onlyOneVPRequired = requiredValueIds.isCovered(noCharacteristicInputs,
-                                                     vpGroupAttributes,
-                                                     dummyReferencedInputs,
-                                                     *coveredSubexpr,
-                                                     dummyUnCoveredExpr);
+    // does the index cover all required values, and if not, which
+    // ones does it cover
+    onlyOneVPRequired = requiredValueIds.isCovered(noCharacteristicInputs, vpGroupAttributes, dummyReferencedInputs,
+                                                   *coveredSubexpr, dummyUnCoveredExpr);
 
-      if (onlyOneVPRequired)
-        {
-          // This vertical partition supplies all the required values.
-          // That means we have all the required vertical partitions
-          // and we are done.  In fact, if we had selected other VPs
-          // before we need to clear them out along with the columns
-          // they provide.
-          // There should not be any selection predicates in this list
-          // since they should have been eliminated from
-          // requiredValueIdsby the leaf value id code earlier.
-          requiredVPs.clear();
-          columnsProvidedByVP.clear();
+    if (onlyOneVPRequired) {
+      // This vertical partition supplies all the required values.
+      // That means we have all the required vertical partitions
+      // and we are done.  In fact, if we had selected other VPs
+      // before we need to clear them out along with the columns
+      // they provide.
+      // There should not be any selection predicates in this list
+      // since they should have been eliminated from
+      // requiredValueIdsby the leaf value id code earlier.
+      requiredVPs.clear();
+      columnsProvidedByVP.clear();
+      requiredVPs.insert(idesc);
+      columnsProvidedByVP.insert(coveredSubexpr);
+      return;
+    } else {
+      if (remainingValueIds.entries() > 0) {
+        coveredSubexpr->clear();
+
+        requiredValueIds.isCovered(noCharacteristicInputs, vpGroupAttributes, dummyReferencedInputs, *coveredSubexpr,
+                                   dummyUnCoveredExpr);
+
+        // This vertical partition does not provide all required values.
+        // Normally we wouldn't expect it to.  But does it provide a
+        // column value other than the clustering key?  If it does, it's in!
+        // We should take out the selection predicates since we will
+        // not be evaluating any predicates in the VP scan.
+        if ((*coveredSubexpr != alwaysCovered) && ((*coveredSubexpr).entries() > 0)) {
           requiredVPs.insert(idesc);
+          *coveredSubexpr -= getSelectionPred();
           columnsProvidedByVP.insert(coveredSubexpr);
-          return;
-        }
-      else
-        {
-          if(remainingValueIds.entries() > 0) {
-            coveredSubexpr->clear();
+        }  // VP delivers column values
 
-            requiredValueIds.isCovered(noCharacteristicInputs,
-                                       vpGroupAttributes,
-                                       dummyReferencedInputs,
-                                       *coveredSubexpr,
-                                       dummyUnCoveredExpr);
-
-
-            // This vertical partition does not provide all required values.
-            // Normally we wouldn't expect it to.  But does it provide a
-            // column value other than the clustering key?  If it does, it's in!
-            // We should take out the selection predicates since we will
-            // not be evaluating any predicates in the VP scan.
-            if ( (*coveredSubexpr != alwaysCovered) &&
-                 ((*coveredSubexpr).entries() > 0) )
-              {
-                requiredVPs.insert(idesc);
-                *coveredSubexpr -= getSelectionPred();
-                columnsProvidedByVP.insert(coveredSubexpr);
-              } // VP delivers column values
-
-            remainingValueIds -= *coveredSubexpr;
-          }
-        } // not onlyOneVPRequired
-    } // for each VP
+        remainingValueIds -= *coveredSubexpr;
+      }
+    }  // not onlyOneVPRequired
+  }    // for each VP
 
   return;
 
-} // Scan::getRequiredVerticalPartitions
+}  // Scan::getRequiredVerticalPartitions
 
-void Scan::addBaseColsFromVEGPreds(ValueIdSet &vs) const
-{
+void Scan::addBaseColsFromVEGPreds(ValueIdSet &vs) const {
   // get all the base columns of the table (no VEGies)
   ValueIdSet baseCols(tabId_->getColumnList());
 
-  for (ValueId x = getSelectionPred().init();
-       getSelectionPred().next(x);
-       getSelectionPred().advance(x))
-    {
-      ItemExpr *ie = x.getItemExpr();
+  for (ValueId x = getSelectionPred().init(); getSelectionPred().next(x); getSelectionPred().advance(x)) {
+    ItemExpr *ie = x.getItemExpr();
 
-      if (ie->getOperatorType() == ITM_VEG_PREDICATE)
-	{
-	  // get the VEG members
-	  ValueIdSet vegMembers(
-	       ((VEGPredicate *)ie)->getVEG()->getAllValues());
+    if (ie->getOperatorType() == ITM_VEG_PREDICATE) {
+      // get the VEG members
+      ValueIdSet vegMembers(((VEGPredicate *)ie)->getVEG()->getAllValues());
 
-	  // filter out the base columns of this table that are VEG members
-	  // and add them to the output parameter
-	  vegMembers.intersectSet(baseCols);
-	  vs += vegMembers;
-	}
+      // filter out the base columns of this table that are VEG members
+      // and add them to the output parameter
+      vegMembers.intersectSet(baseCols);
+      vs += vegMembers;
     }
+  }
 }
 
-void Scan::addLocalExpr(LIST(ExprNode *) &xlist,
-			LIST(NAString) &llist) const
-{
-  RelExpr::addLocalExpr(xlist,llist);
-}
+void Scan::addLocalExpr(LIST(ExprNode *) & xlist, LIST(NAString) & llist) const { RelExpr::addLocalExpr(xlist, llist); }
 
-
-NABoolean Scan::reconcileGroupAttr(GroupAttributes *newGroupAttr)
-{
+NABoolean Scan::reconcileGroupAttr(GroupAttributes *newGroupAttr) {
   addIndexInfo();
-  const SET(IndexDesc *) & indexOnlyScans = deriveIndexOnlyIndexDesc();
-  const SET(IndexDesc *) & indexJoinScans = deriveIndexJoinIndexDesc();
+  const SET(IndexDesc *) &indexOnlyScans = deriveIndexOnlyIndexDesc();
+  const SET(IndexDesc *) &indexJoinScans = deriveIndexJoinIndexDesc();
   // we add the available indexes on this scan node to the
   // new GroupAttrs availableBtreeIndexes
   newGroupAttr->addToAvailableBtreeIndexes(indexOnlyScans);
@@ -10231,128 +8349,98 @@ NABoolean Scan::reconcileGroupAttr(GroupAttributes *newGroupAttr)
 // and defaults.
 // Input : Context
 // --------------------------------------------------------------------
-NABoolean Scan::isMdamEnabled(const Context *context)
-{
+NABoolean Scan::isMdamEnabled(const Context *context) {
   NABoolean mdamIsEnabled = TRUE;
 
-    // -----------------------------------------------------------------------
-    // Check the status of the enabled/disabled flag in
-    // the defaults:
-    // -----------------------------------------------------------------------
-    if (CmpCommon::getDefault(MDAM_SCAN_METHOD) == DF_OFF)
+  // -----------------------------------------------------------------------
+  // Check the status of the enabled/disabled flag in
+  // the defaults:
+  // -----------------------------------------------------------------------
+  if (CmpCommon::getDefault(MDAM_SCAN_METHOD) == DF_OFF) mdamIsEnabled = FALSE;
+
+  // do not allow MDAM scan against ORC table.
+  if (getTableDesc() && getTableDesc()->getNATable()->isORC()) mdamIsEnabled = FALSE;
+
+  // -----------------------------------------------------------------------
+  // Mdam can also be disabled for a particular scan via Control
+  // Query Shape. The information is passed by the context.
+  // -----------------------------------------------------------------------
+  if (mdamIsEnabled) {
+    const ReqdPhysicalProperty *propertyPtr = context->getReqdPhysicalProperty();
+    if (propertyPtr && propertyPtr->getMustMatch() &&
+        (propertyPtr->getMustMatch()->getOperatorType() == REL_FORCE_ANY_SCAN)) {
+      ScanForceWildCard *scanForcePtr = (ScanForceWildCard *)propertyPtr->getMustMatch();
+      if (scanForcePtr->getMdamStatus() == ScanForceWildCard::MDAM_OFF) mdamIsEnabled = FALSE;
+    }
+  }
+
+  // -----------------------------------------------------------------------
+  // Mdam can also be disabled for a particular table via a Control
+  // Table command.
+  // -----------------------------------------------------------------------
+  if (mdamIsEnabled) {
+    const NAString *val = ActiveControlDB()->getControlTableValue(getTableName().getUgivenName(), "MDAM");
+    if ((val) && (*val == "OFF"))  // CT in effect
+    {
       mdamIsEnabled = FALSE;
-
-
-    // do not allow MDAM scan against ORC table.
-    if (getTableDesc() && getTableDesc()->getNATable()->isORC())
-       mdamIsEnabled = FALSE;
-
-    // -----------------------------------------------------------------------
-    // Mdam can also be disabled for a particular scan via Control
-    // Query Shape. The information is passed by the context.
-    // -----------------------------------------------------------------------
-    if (mdamIsEnabled)
-	  {
-        const ReqdPhysicalProperty* propertyPtr =
-            context->getReqdPhysicalProperty();
-        if ( propertyPtr
-             && propertyPtr->getMustMatch()
-             && (propertyPtr->getMustMatch()->getOperatorType()
-                 == REL_FORCE_ANY_SCAN))
-		  {
-            ScanForceWildCard* scanForcePtr =
-              (ScanForceWildCard*)propertyPtr->getMustMatch();
-            if (scanForcePtr->getMdamStatus() == ScanForceWildCard::MDAM_OFF)
-              mdamIsEnabled = FALSE;
-		  }
-	   }
-
-    // -----------------------------------------------------------------------
-    // Mdam can also be disabled for a particular table via a Control
-    // Table command.
-    // -----------------------------------------------------------------------
-    if (mdamIsEnabled)
-      {
-        const NAString * val =
-          ActiveControlDB()->getControlTableValue(getTableName().getUgivenName(), "MDAM");
-        if ((val) && (*val == "OFF")) // CT in effect
-          {
-            mdamIsEnabled = FALSE;
-          }
-      }
-    return mdamIsEnabled;
+    }
+  }
+  return mdamIsEnabled;
 }
 // 10-040128-2749 -end
 
 // -----------------------------------------------------------------------
 // methods for class ScanIndexInfo
 // -----------------------------------------------------------------------
-ScanIndexInfo::ScanIndexInfo(const ScanIndexInfo & other) :
-  outputsFromIndex_ (other.outputsFromIndex_),
-  indexPredicates_  (other.indexPredicates_),
-  joinPredicates_   (other.joinPredicates_),
-  outputsFromRightScan_ (other.outputsFromRightScan_),
-  transformationDone_   (other.transformationDone_),
-  indexColumns_ (other.indexColumns_),
-  usableIndexes_        (other.usableIndexes_)
-{}
+ScanIndexInfo::ScanIndexInfo(const ScanIndexInfo &other)
+    : outputsFromIndex_(other.outputsFromIndex_),
+      indexPredicates_(other.indexPredicates_),
+      joinPredicates_(other.joinPredicates_),
+      outputsFromRightScan_(other.outputsFromRightScan_),
+      transformationDone_(other.transformationDone_),
+      indexColumns_(other.indexColumns_),
+      usableIndexes_(other.usableIndexes_) {}
 
-ScanIndexInfo::ScanIndexInfo(
-              const ValueIdSet& inputsToIndex,
-              const ValueIdSet& outputsFromIndex,
-              const ValueIdSet& indexPredicates,
-              const ValueIdSet& joinPredicates,
-              const ValueIdSet& outputsFromRightScan,
-              const ValueIdSet& indexColumns,
-              IndexProperty* ixProp,
-              NABoolean isNgramIndex
-             ) :
-   inputsToIndex_(inputsToIndex),
-   outputsFromIndex_(outputsFromIndex),
-   indexPredicates_(indexPredicates),
-   joinPredicates_(joinPredicates),
-   outputsFromRightScan_(outputsFromRightScan),
-   indexColumns_(indexColumns),
-   transformationDone_(FALSE),
-   usableIndexes_(CmpCommon::statementHeap()),
-   isNgramIndex_(isNgramIndex)
-{
-   usableIndexes_.insert(ixProp);
+ScanIndexInfo::ScanIndexInfo(const ValueIdSet &inputsToIndex, const ValueIdSet &outputsFromIndex,
+                             const ValueIdSet &indexPredicates, const ValueIdSet &joinPredicates,
+                             const ValueIdSet &outputsFromRightScan, const ValueIdSet &indexColumns,
+                             IndexProperty *ixProp, NABoolean isNgramIndex)
+    : inputsToIndex_(inputsToIndex),
+      outputsFromIndex_(outputsFromIndex),
+      indexPredicates_(indexPredicates),
+      joinPredicates_(joinPredicates),
+      outputsFromRightScan_(outputsFromRightScan),
+      indexColumns_(indexColumns),
+      transformationDone_(FALSE),
+      usableIndexes_(CmpCommon::statementHeap()),
+      isNgramIndex_(isNgramIndex) {
+  usableIndexes_.insert(ixProp);
 }
-
 
 // -----------------------------------------------------------------------
 // methods for class FileScan
 // -----------------------------------------------------------------------
 
-FileScan::FileScan(const CorrName& tableName,
-		   TableDesc * tableDescPtr,
-		   const IndexDesc *indexDescPtr,
-		   const NABoolean isReverseScan,
-		   const Cardinality& baseCardinality,
-		   StmtLevelAccessOptions& accessOpts,
-		   GroupAttributes * groupAttributesPtr,
-		   const ValueIdSet& selectionPredicates,
-		   const Disjuncts& disjuncts,
-                   const ValueIdSet& generatedCCPreds,
-                   OperatorTypeEnum otype) :
-     Scan (tableName, tableDescPtr, otype),
-     indexDesc_(indexDescPtr),
-     reverseScan_(isReverseScan),
-     executorPredTree_(NULL),
-     mdamKeyPtr_(NULL),
-     disjunctsPtr_(&disjuncts),
-     pathKeys_(NULL),
-     partKeys_(NULL),
-     estRowsAccessed_ (0),
-     mdamFlag_(UNDECIDED),
-     skipRowsToPreventHalloween_(FALSE),
-     doUseSearchKey_(TRUE),
-     computedNumOfActivePartitions_(-1),
-     useParquetCppReader_(FALSE)
-{
+FileScan::FileScan(const CorrName &tableName, TableDesc *tableDescPtr, const IndexDesc *indexDescPtr,
+                   const NABoolean isReverseScan, const Cardinality &baseCardinality,
+                   StmtLevelAccessOptions &accessOpts, GroupAttributes *groupAttributesPtr,
+                   const ValueIdSet &selectionPredicates, const Disjuncts &disjuncts,
+                   const ValueIdSet &generatedCCPreds, OperatorTypeEnum otype)
+    : Scan(tableName, tableDescPtr, otype),
+      indexDesc_(indexDescPtr),
+      reverseScan_(isReverseScan),
+      executorPredTree_(NULL),
+      mdamKeyPtr_(NULL),
+      disjunctsPtr_(&disjuncts),
+      pathKeys_(NULL),
+      partKeys_(NULL),
+      estRowsAccessed_(0),
+      mdamFlag_(UNDECIDED),
+      skipRowsToPreventHalloween_(FALSE),
+      doUseSearchKey_(TRUE),
+      computedNumOfActivePartitions_(-1),
+      useParquetCppReader_(FALSE) {
   // Set the filescan properties:
-
 
   // Set the base cardinality to that for the logical scan
   setBaseCardinality(baseCardinality);
@@ -10369,176 +8457,143 @@ FileScan::FileScan(const CorrName& tableName,
   selectionPred().insert(selectionPredicates);
 
   // Get the predicates on the partitioning key:
-  if (getIndexDesc() && getIndexDesc()->isPartitioned())
-    {
-      ValueIdSet externalInputs = getGroupAttr()->getCharacteristicInputs();
-      ValueIdSet dummySet;
-      ValueIdSet selPreds(selectionPredicates);
+  if (getIndexDesc() && getIndexDesc()->isPartitioned()) {
+    ValueIdSet externalInputs = getGroupAttr()->getCharacteristicInputs();
+    ValueIdSet dummySet;
+    ValueIdSet selPreds(selectionPredicates);
 
-      // Create and set the Searchkey for the partitioning key:
-      partKeys_ =  new (CmpCommon::statementHeap())
-                   SearchKey(indexDesc_->getPartitioningKey(),
-                                     indexDesc_->getOrderOfPartitioningKeyValues(),
-                                     externalInputs,
-                                     NOT getReverseScan(),
-                                     selPreds,
-                                     disjuncts,
-                                     dummySet, // needed by interface but not used here
-                                     indexDesc_
-                                   );
+    // Create and set the Searchkey for the partitioning key:
+    partKeys_ = new (CmpCommon::statementHeap())
+        SearchKey(indexDesc_->getPartitioningKey(), indexDesc_->getOrderOfPartitioningKeyValues(), externalInputs,
+                  NOT getReverseScan(), selPreds, disjuncts,
+                  dummySet,  // needed by interface but not used here
+                  indexDesc_);
 
-   
-      if ( indexDesc_->getPartitioningFunction() &&
-           indexDesc_->getPartitioningFunction()->castToRangePartitioningFunction() ) 
-      {
-         const RangePartitioningFunction* rangePartFunc =
-              indexDesc_->getPartitioningFunction()->castToRangePartitioningFunction();
+    if (indexDesc_->getPartitioningFunction() &&
+        indexDesc_->getPartitioningFunction()->castToRangePartitioningFunction()) {
+      const RangePartitioningFunction *rangePartFunc =
+          indexDesc_->getPartitioningFunction()->castToRangePartitioningFunction();
 
-         computedNumOfActivePartitions_ = 
-             rangePartFunc->computeNumOfActivePartitions(partKeys_, tableDescPtr);
-      }
+      computedNumOfActivePartitions_ = rangePartFunc->computeNumOfActivePartitions(partKeys_, tableDescPtr);
     }
+  }
   setComputedPredicates(generatedCCPreds);
 
   pFileScanCostMethod_ = new (CmpCommon::statementHeap()) CostMethodFileScan();
-} // FileScan()
+}  // FileScan()
 
-FileScan::FileScan(const CorrName& name,
-                   TableDesc * tabId,
-                   const IndexDesc *indexDesc,
-                   OperatorTypeEnum otype /*= REL_FILE_SCAN*/,
-                   CollHeap *oHeap /*= CmpCommon::statementHeap()*/)
-: Scan (name, tabId, otype, oHeap), indexDesc_(indexDesc),
-  executorPredTree_(NULL),  reverseScan_(FALSE),
-  mdamKeyPtr_(NULL),
-  disjunctsPtr_(NULL),
-  pathKeys_(NULL),
-  partKeys_(NULL),
-  numberOfBlocksToReadPerAccess_ (-1),
-  estRowsAccessed_ (0), 
-  mdamFlag_(UNDECIDED),
-  skipRowsToPreventHalloween_(FALSE),
-  probes_(0),
-  successfulProbes_(0),
-  uniqueProbes_(0),
-  duplicateSuccProbes_(0),
-  failedProbes_(0),
-  tuplesProcessed_(0),
-  computedNumOfActivePartitions_(-1)
-{
+FileScan::FileScan(const CorrName &name, TableDesc *tabId, const IndexDesc *indexDesc,
+                   OperatorTypeEnum otype /*= REL_FILE_SCAN*/, CollHeap *oHeap /*= CmpCommon::statementHeap()*/)
+    : Scan(name, tabId, otype, oHeap),
+      indexDesc_(indexDesc),
+      executorPredTree_(NULL),
+      reverseScan_(FALSE),
+      mdamKeyPtr_(NULL),
+      disjunctsPtr_(NULL),
+      pathKeys_(NULL),
+      partKeys_(NULL),
+      numberOfBlocksToReadPerAccess_(-1),
+      estRowsAccessed_(0),
+      mdamFlag_(UNDECIDED),
+      skipRowsToPreventHalloween_(FALSE),
+      probes_(0),
+      successfulProbes_(0),
+      uniqueProbes_(0),
+      duplicateSuccProbes_(0),
+      failedProbes_(0),
+      tuplesProcessed_(0),
+      computedNumOfActivePartitions_(-1) {
   if (oHeap)
     pFileScanCostMethod_ = new (oHeap) CostMethodFileScan();
-  else 
+  else
     pFileScanCostMethod_ = new (CmpCommon::statementHeap()) CostMethodFileScan();
 }
 
-void FileScan::getPotentialOutputValues(ValueIdSet & outputValues) const
-{
+void FileScan::getPotentialOutputValues(ValueIdSet &outputValues) const {
   outputValues.clear();
   //
   // Assign the set of columns that belong to the index to be scanned
   // as the output values that can be produced by this scan.
   //
-  outputValues.insertList( getIndexDesc()->getIndexColumns() );
+  outputValues.insertList(getIndexDesc()->getIndexColumns());
 
   // MV --
   // Add the CurrentEpoch column as well.
   outputValues.insert(getExtraOutputColumns());
-} // FileScan::getPotentialOutputValues()
+}  // FileScan::getPotentialOutputValues()
 
-NABoolean FileScan::patternMatch(const RelExpr & other) const
-{
+NABoolean FileScan::patternMatch(const RelExpr &other) const {
   // handle the special case of a pattern to force a
   // specific table or index
-  if (other.getOperatorType() == REL_FORCE_ANY_SCAN)
-    {
-      ScanForceWildCard &w = (ScanForceWildCard &) other;
+  if (other.getOperatorType() == REL_FORCE_ANY_SCAN) {
+    ScanForceWildCard &w = (ScanForceWildCard &)other;
 
-      if (w.getExposedName() != "")
-        {
-          QualifiedName wName(w.getExposedName(), 1 /* minimal 1 part name */);
+    if (w.getExposedName() != "") {
+      QualifiedName wName(w.getExposedName(), 1 /* minimal 1 part name */);
 
-          if (getTableName().getCorrNameAsString() != "")
-             {
-                // query uses a correlation name, compare that with the wildcard
-                // as a string
-                if (wName.getQualifiedNameAsAnsiString() != 
-                     ToAnsiIdentifier(getTableName().getCorrNameAsString()))
-                  return FALSE;
-             }
-          else
-             {
-               // no correlation name used in the query, compare catalog, schema
-               // and table parts separately, if they exist in the wildcard
-               const NAString& catName = wName.getCatalogName();
-               const NAString& schName = wName.getSchemaName();
-               const QualifiedName& x  = getTableName().
-                             getExtendedQualNameObj().getQualifiedNameObj();
-   
-               if ((catName.length() > 0 && x.getCatalogName() != catName) ||
-                   (schName.length() > 0 && x.getSchemaName()  != schName) ||
-                   x.getObjectName() != wName.getObjectName())
-                 return FALSE;
-             }
+      if (getTableName().getCorrNameAsString() != "") {
+        // query uses a correlation name, compare that with the wildcard
+        // as a string
+        if (wName.getQualifiedNameAsAnsiString() != ToAnsiIdentifier(getTableName().getCorrNameAsString()))
+          return FALSE;
+      } else {
+        // no correlation name used in the query, compare catalog, schema
+        // and table parts separately, if they exist in the wildcard
+        const NAString &catName = wName.getCatalogName();
+        const NAString &schName = wName.getSchemaName();
+        const QualifiedName &x = getTableName().getExtendedQualNameObj().getQualifiedNameObj();
+
+        if ((catName.length() > 0 && x.getCatalogName() != catName) ||
+            (schName.length() > 0 && x.getSchemaName() != schName) || x.getObjectName() != wName.getObjectName())
+          return FALSE;
       }
+    }
 
-      // if an index name was specified in the wildcard, check for it
-      if (w.getIndexName() != "")
-      {
-        NAString forcedIndexName(w.getIndexName(),
-                                 CmpCommon::statementHeap());
+    // if an index name was specified in the wildcard, check for it
+    if (w.getIndexName() != "") {
+      NAString forcedIndexName(w.getIndexName(), CmpCommon::statementHeap());
 
-        // The user can specify the index to be the base table in the
-        // Control Query Shape statement by using the table name (object
-        // name or correlation) as the index name. Ex: scan('t1','t1',..)
-        // since t1 might be a correlation name, its necessary to check
-        // for the corresponding object name and not the table correlation
-        // name when searching for the index match.
-        if (forcedIndexName == w.getExposedName())
-          forcedIndexName =  ToAnsiIdentifier(
-                  getTableName().getQualifiedNameObj().getObjectName()
-                                             );
+      // The user can specify the index to be the base table in the
+      // Control Query Shape statement by using the table name (object
+      // name or correlation) as the index name. Ex: scan('t1','t1',..)
+      // since t1 might be a correlation name, its necessary to check
+      // for the corresponding object name and not the table correlation
+      // name when searching for the index match.
+      if (forcedIndexName == w.getExposedName())
+        forcedIndexName = ToAnsiIdentifier(getTableName().getQualifiedNameObj().getObjectName());
 
-        // get the three-part name of the index
-        const NAString &ixName = indexDesc_->getNAFileSet()->getExtFileSetName();
+      // get the three-part name of the index
+      const NAString &ixName = indexDesc_->getNAFileSet()->getExtFileSetName();
 
-        // Declare a match if either the index name in w is equal to
-        // indexName or if it is equal to the last part of indexName.
-        //if (w.getIndexName() != ixName)
-        if (forcedIndexName != ixName)
-        {
-          QualifiedName ixNameQ(ixName, 1);
+      // Declare a match if either the index name in w is equal to
+      // indexName or if it is equal to the last part of indexName.
+      // if (w.getIndexName() != ixName)
+      if (forcedIndexName != ixName) {
+        QualifiedName ixNameQ(ixName, 1);
 
-          if ( ToAnsiIdentifier(ixNameQ.getObjectName()) != forcedIndexName )
-            return FALSE;
-        }
+        if (ToAnsiIdentifier(ixNameQ.getObjectName()) != forcedIndexName) return FALSE;
       }
+    }
 
-      return TRUE;
-  }
-  else
+    return TRUE;
+  } else
     return RelExpr::patternMatch(other);
 }
 
-NABoolean FileScan::duplicateMatch(const RelExpr & other) const
-{
-  if (!Scan::duplicateMatch(other))
-    return FALSE;
+NABoolean FileScan::duplicateMatch(const RelExpr &other) const {
+  if (!Scan::duplicateMatch(other)) return FALSE;
 
-  FileScan &o = (FileScan &) other;
+  FileScan &o = (FileScan &)other;
 
-  if (//beginKeyPred_      != o.beginKeyPred_ OR
-      //endKeyPred_        != o.endKeyPred_ OR
-      retrievedCols_     != o.retrievedCols_ OR
-      getExecutorPredicates() != o.getExecutorPredicates())
+  if (  // beginKeyPred_      != o.beginKeyPred_ OR
+        // endKeyPred_        != o.endKeyPred_ OR
+      retrievedCols_ != o.retrievedCols_ OR getExecutorPredicates() != o.getExecutorPredicates())
     return FALSE;
 
   return TRUE;
 }
 
-RelExpr * FileScan::copyTopNode(RelExpr *derivedNode, CollHeap* outHeap)
-{
-
+RelExpr *FileScan::copyTopNode(RelExpr *derivedNode, CollHeap *outHeap) {
   // $$$ Function needs to be updated with new fields
   // added to the filescan.
   // If you need to use this function please update it
@@ -10548,13 +8603,9 @@ RelExpr * FileScan::copyTopNode(RelExpr *derivedNode, CollHeap* outHeap)
   FileScan *result;
 
   if (derivedNode == NULL)
-    result = new(outHeap) FileScan(getTableName(),
-				   getTableDesc(),
-				   getIndexDesc(),
-				   REL_FILE_SCAN,
-				   outHeap);
+    result = new (outHeap) FileScan(getTableName(), getTableDesc(), getIndexDesc(), REL_FILE_SCAN, outHeap);
   else
-    result = (FileScan *) derivedNode;
+    result = (FileScan *)derivedNode;
 
   result->setBaseCardinality(getBaseCardinality());
   result->setEstRowsAccessed(getEstRowsAccessed());
@@ -10571,16 +8622,11 @@ RelExpr * FileScan::copyTopNode(RelExpr *derivedNode, CollHeap* outHeap)
   return Scan::copyTopNode(result, outHeap);
 }
 
-NABoolean FileScan::isLogical() const  { return FALSE; }
+NABoolean FileScan::isLogical() const { return FALSE; }
 
-NABoolean FileScan::isPhysical() const { return TRUE;  }
+NABoolean FileScan::isPhysical() const { return TRUE; }
 
-PlanPriority FileScan::computeOperatorPriority
-(const Context* context,
- PlanWorkSpace *pws,
- Lng32 planNumber)
-{
-
+PlanPriority FileScan::computeOperatorPriority(const Context *context, PlanWorkSpace *pws, Lng32 planNumber) {
   PlanPriority result;
 
   // ---------------------------------------------------------------------
@@ -10589,24 +8635,17 @@ PlanPriority FileScan::computeOperatorPriority
   // Similarly if under firstN optimization mode then give preference to
   // plans that avoid full table scans
   // ---------------------------------------------------------------------
-  NABoolean interactiveAccess =
-    (CmpCommon::getDefault(INTERACTIVE_ACCESS) == DF_ON) OR
-    ( QueryAnalysis::Instance() AND
-      QueryAnalysis::Instance()->optimizeForFirstNRows());
+  NABoolean interactiveAccess = (CmpCommon::getDefault(INTERACTIVE_ACCESS) == DF_ON)
+      OR(QueryAnalysis::Instance() AND QueryAnalysis::Instance()->optimizeForFirstNRows());
   int indexPriorityDelta = getIndexDesc()->indexHintPriorityDelta();
 
-  if (interactiveAccess)
-  {
-    if(getMdamKeyPtr())
-    {
+  if (interactiveAccess) {
+    if (getMdamKeyPtr()) {
       // We have MDAM. Give this a preference
-      result.incrementLevels(INTERACTIVE_ACCESS_MDAM_PRIORITY,0);
-    }
-    else if(getSearchKeyPtr() AND
-            getSearchKeyPtr()->getKeyPredicates().entries())
-    {
+      result.incrementLevels(INTERACTIVE_ACCESS_MDAM_PRIORITY, 0);
+    } else if (getSearchKeyPtr() AND getSearchKeyPtr()->getKeyPredicates().entries()) {
       // We have direct index access. Give this a preference
-      result.incrementLevels(INTERACTIVE_ACCESS_PRIORITY,0);
+      result.incrementLevels(INTERACTIVE_ACCESS_PRIORITY, 0);
     }
   }
 
@@ -10618,25 +8657,20 @@ PlanPriority FileScan::computeOperatorPriority
 }
 
 // currently only used by MV query rewrite
-PlanPriority PhysicalMapValueIds::computeOperatorPriority
-(const Context* context,
- PlanWorkSpace *pws,
- Lng32 planNumber)
-{
+PlanPriority PhysicalMapValueIds::computeOperatorPriority(const Context *context, PlanWorkSpace *pws,
+                                                          Lng32 planNumber) {
   PlanPriority result;
 
-  // is this MVI wraps one of the favorite MVs 
+  // is this MVI wraps one of the favorite MVs
   // (included in the MVQR_REWRITE_CANDIDATES default)
-  if (includesFavoriteMV())
-  {
-     result.incrementLevels(MVQR_FAVORITE_PRIORITY,0);
+  if (includesFavoriteMV()) {
+    result.incrementLevels(MVQR_FAVORITE_PRIORITY, 0);
   }
 
   return result;
 }
 
-const NAString FileScan::getText() const
-{
+const NAString FileScan::getText() const {
   // ---------------------------------------------------------------------
   // returns:
   //
@@ -10648,72 +8682,52 @@ const NAString FileScan::getText() const
   // ---------------------------------------------------------------------
 
   NAString op(CmpCommon::statementHeap());
-  NAString tname(getTableName().getText(),CmpCommon::statementHeap());
+  NAString tname(getTableName().getText(), CmpCommon::statementHeap());
 
-  if (isSampleScan() == TRUE)
-    op = "sample_";
-  if (indexDesc_ == NULL OR indexDesc_->isClusteringIndex())
-    {
-      if (isHiveTable())
-        {
-          NABoolean isOrc = 
-            (getTableDesc() && getTableDesc()->getNATable() &&
-             getTableDesc()->getNATable()->isORC());
+  if (isSampleScan() == TRUE) op = "sample_";
+  if (indexDesc_ == NULL OR indexDesc_->isClusteringIndex()) {
+    if (isHiveTable()) {
+      NABoolean isOrc = (getTableDesc() && getTableDesc()->getNATable() && getTableDesc()->getNATable()->isORC());
 
-          NABoolean isParquet = 
-            (getTableDesc() && getTableDesc()->getNATable() &&
-             getTableDesc()->getNATable()->isParquet());
+      NABoolean isParquet =
+          (getTableDesc() && getTableDesc()->getNATable() && getTableDesc()->getNATable()->isParquet());
 
-          NABoolean isAvro = 
-            (getTableDesc() && getTableDesc()->getNATable() &&
-             getTableDesc()->getNATable()->isAvro());
+      NABoolean isAvro = (getTableDesc() && getTableDesc()->getNATable() && getTableDesc()->getNATable()->isAvro());
 
-          if (isOrc)
-            op += "orc_scan ";
-          else if (isParquet)
-            op += "parquet_scan ";
-          else if (isAvro)
-            op += "avro_scan ";
-          else
-            op += "hive_scan ";
-        }
+      if (isOrc)
+        op += "orc_scan ";
+      else if (isParquet)
+        op += "parquet_scan ";
+      else if (isAvro)
+        op += "avro_scan ";
       else
-	op += "file_scan ";
-    }
-  else {
+        op += "hive_scan ";
+    } else
+      op += "file_scan ";
+  } else {
     op += "index_scan ";
-    tname = indexDesc_->getIndexName().getQualifiedNameAsString() +
-	    "(" + tname + ")";
+    tname = indexDesc_->getIndexName().getQualifiedNameAsString() + "(" + tname + ")";
   }
 
-  if (reverseScan_)
-    op += NAString("rev ");
+  if (reverseScan_) op += NAString("rev ");
 
   return op + tname;
 }
 
-const NAString FileScan::getTypeText() const
-{
+const NAString FileScan::getTypeText() const {
   NAString descr(CmpCommon::statementHeap());
-  NAString tname(getTableName().getText(),CmpCommon::statementHeap());
+  NAString tname(getTableName().getText(), CmpCommon::statementHeap());
 
-  if (isSampleScan() == TRUE)
-    descr = "sample ";
+  if (isSampleScan() == TRUE) descr = "sample ";
 
-  if (reverseScan_)
-    descr += NAString("reverse ");
+  if (reverseScan_) descr += NAString("reverse ");
 
-  if (isFullScanPresent() && !getMdamKeyPtr())
-  {
+  if (isFullScanPresent() && !getMdamKeyPtr()) {
     descr += "full scan ";
-    if (getMdamKeyPtr())
-      descr += "limited by mdam ";
-  }
-  else
-  {
+    if (getMdamKeyPtr()) descr += "limited by mdam ";
+  } else {
     descr += "subset scan ";
-    if (getMdamKeyPtr())
-      descr += "limited by mdam ";
+    if (getMdamKeyPtr()) descr += "limited by mdam ";
   }
 
   descr += "of ";
@@ -10722,166 +8736,134 @@ const NAString FileScan::getTypeText() const
     descr += "table ";
   else {
     descr += "index ";
-    tname = indexDesc_->getIndexName().getQualifiedNameAsString() +
-	    "(" + tname + ")";
+    tname = indexDesc_->getIndexName().getQualifiedNameAsString() + "(" + tname + ")";
   }
   descr += tname;
 
   return descr;
 }
 
-void FileScan::addLocalExpr(LIST(ExprNode *) &xlist,
-			    LIST(NAString) &llist) const
-{
-  if (getIndexDesc() != NULL && !isHiveTable())
-    {
-      const ValueIdList& keyColumns = getIndexDesc()->getIndexKey();
-      xlist.insert(keyColumns.rebuildExprTree());
-      llist.insert("key_columns");
+void FileScan::addLocalExpr(LIST(ExprNode *) & xlist, LIST(NAString) & llist) const {
+  if (getIndexDesc() != NULL && !isHiveTable()) {
+    const ValueIdList &keyColumns = getIndexDesc()->getIndexKey();
+    xlist.insert(keyColumns.rebuildExprTree());
+    llist.insert("key_columns");
+  }
 
-    }
+  if (NOT getScanPreCond().isEmpty()) {
+    xlist.insert(getScanPreCond().rebuildExprTree());
+    llist.insert("scan_preconditions");
+  }
 
-  if (NOT getScanPreCond().isEmpty())
-    {
-      xlist.insert(getScanPreCond().rebuildExprTree());
-      llist.insert("scan_preconditions");
-    }
-
-  if (executorPredTree_ != NULL OR
-      NOT getExecutorPredicates().isEmpty())
-    {
-      if (getExecutorPredicates().isEmpty())
-	xlist.insert(executorPredTree_);
-      else
-	xlist.insert(getExecutorPredicates().rebuildExprTree());
-      llist.insert("executor_predicates");
-    }
+  if (executorPredTree_ != NULL OR NOT getExecutorPredicates().isEmpty()) {
+    if (getExecutorPredicates().isEmpty())
+      xlist.insert(executorPredTree_);
+    else
+      xlist.insert(getExecutorPredicates().rebuildExprTree());
+    llist.insert("executor_predicates");
+  }
 
   // -----------------------------------------------------------------------
   // Display key information
   // -----------------------------------------------------------------------
-  if (getMdamKeyPtr() != NULL)
-    {
-      // Mdam access!
-      const CollIndex columns = getIndexDesc()->getIndexKey().entries();
-      const CollIndex disjEntries =
-        getMdamKeyPtr()->getKeyDisjunctEntries();
+  if (getMdamKeyPtr() != NULL) {
+    // Mdam access!
+    const CollIndex columns = getIndexDesc()->getIndexKey().entries();
+    const CollIndex disjEntries = getMdamKeyPtr()->getKeyDisjunctEntries();
 
-      // If we are in the optimizer, obtain key preds from
-      // the disjuncts,
-      // else obtain them from the column order list array:
-      if (NOT nodeIsPreCodeGenned())
-        {
-          // We are in the optimizer...
-          // For every disjunct
-          for (CollIndex i=0;
-               i < disjEntries;
-               i++)
-            {
-              ColumnOrderList kpbc(getIndexDesc()->getIndexKey());
-              getMdamKeyPtr()->getKeyPredicatesByColumn(kpbc,i);
+    // If we are in the optimizer, obtain key preds from
+    // the disjuncts,
+    // else obtain them from the column order list array:
+    if (NOT nodeIsPreCodeGenned()) {
+      // We are in the optimizer...
+      // For every disjunct
+      for (CollIndex i = 0; i < disjEntries; i++) {
+        ColumnOrderList kpbc(getIndexDesc()->getIndexKey());
+        getMdamKeyPtr()->getKeyPredicatesByColumn(kpbc, i);
 
-              // gather the key predicates:
-              ValueIdSet keyPreds;
+        // gather the key predicates:
+        ValueIdSet keyPreds;
 
-              for (CollIndex j=0; j < columns; j++)
-                {
-                  if (kpbc[j])
-                    {
-                      keyPreds.insert(*(kpbc[j]));
-                    }
-                }
-
-              // display this disjunct key preds. into the GUI:
-              xlist.insert(keyPreds.rebuildExprTree());
-              llist.insert("mdam_disjunct");
-            } // for every disjunct
+        for (CollIndex j = 0; j < columns; j++) {
+          if (kpbc[j]) {
+            keyPreds.insert(*(kpbc[j]));
+          }
         }
+
+        // display this disjunct key preds. into the GUI:
+        xlist.insert(keyPreds.rebuildExprTree());
+        llist.insert("mdam_disjunct");
+      }  // for every disjunct
+    } else {
+      // we are after the generator...
+
+      const ColumnOrderListPtrArray &columnOrderListPtrArray = getMdamKeyPtr()->getColumnOrderListPtrArray();
+
+      // we are in the generator, obtain the key preds
+      // from thr column order list:
+      ValueIdSet *predsPtr = NULL;
+      for (CollIndex n = 0; n < columnOrderListPtrArray.entries(); n++) {
+        // get the list of key predicates associated with the n disjunct:
+        const ColumnOrderList &columnOrderList = *columnOrderListPtrArray[n];
+        // get predicates for column order i:
+
+        // gather the key predicates:
+        ValueIdSet keyPreds;
+
+        const ValueIdSet *predsPtr = NULL;
+        for (CollIndex i = 0; i < columnOrderList.entries(); i++) {
+          predsPtr = columnOrderList[i];
+          if (predsPtr) {
+            keyPreds.insert(*predsPtr);
+          }
+        }
+
+        // display this disjunct key preds. into the GUI:
+        xlist.insert(keyPreds.rebuildExprTree());
+        llist.insert("mdam_disjunct");
+      }
+    }  // mdam after the generator
+
+  }                                    // mdam access
+  else if (getSearchKeyPtr() != NULL)  // Is Single subset access?
+  {
+    // yes!
+    // display preds from search key only if begin/end keys are
+    // not generated yet (e.g. during optimization)
+    if (getBeginKeyPred()
+            .isEmpty() AND getEndKeyPred()
+            .isEmpty() AND pathKeys_ AND NOT pathKeys_->getKeyPredicates()
+            .isEmpty()) {
+      xlist.insert(pathKeys_->getKeyPredicates().rebuildExprTree());
+      if (pathKeys_ == partKeys_)
+        llist.insert("key_and_part_key_preds");
       else
-        {
-          // we are after the generator...
-
-          const ColumnOrderListPtrArray &columnOrderListPtrArray =
-            getMdamKeyPtr()->getColumnOrderListPtrArray();
-
-          // we are in the generator, obtain the key preds
-          // from thr column order list:
-          ValueIdSet *predsPtr = NULL;
-          for (CollIndex n = 0; n < columnOrderListPtrArray.entries(); n++)
-            {
-              // get the list of key predicates associated with the n disjunct:
-              const ColumnOrderList &columnOrderList =
-                *columnOrderListPtrArray[n];
-              	      // get predicates for column order i:
-
-              // gather the key predicates:
-              ValueIdSet keyPreds;
-
-              const ValueIdSet *predsPtr = NULL;
-              for (CollIndex i = 0; i < columnOrderList.entries(); i++)
-                {
-                  predsPtr = columnOrderList[i];
-                  if (predsPtr)
-                    {
-                      keyPreds.insert(*predsPtr);
-                    }
-                }
-
-              // display this disjunct key preds. into the GUI:
-              xlist.insert(keyPreds.rebuildExprTree());
-              llist.insert("mdam_disjunct");
-            }
-        } // mdam after the generator
-
-
-
-    } // mdam access
-  else if (getSearchKeyPtr() != NULL)   // Is Single subset access?
-    {
-      // yes!
-      // display preds from search key only if begin/end keys are
-      // not generated yet (e.g. during optimization)
-      if (getBeginKeyPred().isEmpty() AND
-          getEndKeyPred().isEmpty() AND
-          pathKeys_ AND NOT pathKeys_->getKeyPredicates().isEmpty())
-        {
-          xlist.insert(pathKeys_->getKeyPredicates().rebuildExprTree());
-          if (pathKeys_ == partKeys_)
-            llist.insert("key_and_part_key_preds");
-          else
-            llist.insert("key_predicates");
-        }
+        llist.insert("key_predicates");
     }
+  }
 
   // display part key preds only if different from clustering key preds
-  if (partKeys_ AND pathKeys_ != partKeys_ AND
-      NOT partKeys_->getKeyPredicates().isEmpty())
-    {
-      xlist.insert(partKeys_->getKeyPredicates().rebuildExprTree());
-      llist.insert("part_key_predicates");
-    }
+  if (partKeys_ AND pathKeys_ != partKeys_ AND NOT partKeys_->getKeyPredicates().isEmpty()) {
+    xlist.insert(partKeys_->getKeyPredicates().rebuildExprTree());
+    llist.insert("part_key_predicates");
+  }
 
-  if (NOT getBeginKeyPred().isEmpty() && NOT isHiveTable())
-    {
-      xlist.insert(getBeginKeyPred().rebuildExprTree());
-      llist.insert("begin_key");
-    }
-  if (NOT getEndKeyPred().isEmpty() && NOT isHiveTable())
-    {
-      xlist.insert(getEndKeyPred().rebuildExprTree());
-      llist.insert("end_key");
-    }
+  if (NOT getBeginKeyPred().isEmpty() && NOT isHiveTable()) {
+    xlist.insert(getBeginKeyPred().rebuildExprTree());
+    llist.insert("begin_key");
+  }
+  if (NOT getEndKeyPred().isEmpty() && NOT isHiveTable()) {
+    xlist.insert(getEndKeyPred().rebuildExprTree());
+    llist.insert("end_key");
+  }
 
+  // xlist.insert(retrievedCols_.rebuildExprTree(ITM_ITEM_LIST));
+  // llist.insert("retrieved_cols");
 
-
-    // xlist.insert(retrievedCols_.rebuildExprTree(ITM_ITEM_LIST));
-    // llist.insert("retrieved_cols");
-
-  RelExpr::addLocalExpr(xlist,llist);
+  RelExpr::addLocalExpr(xlist, llist);
 }
 
-const Disjuncts& FileScan::getDisjuncts() const
-{
+const Disjuncts &FileScan::getDisjuncts() const {
   CMPASSERT(disjunctsPtr_ != NULL);
   return *disjunctsPtr_;
 }
@@ -10890,94 +8872,71 @@ const Disjuncts& FileScan::getDisjuncts() const
 // methods for class HbaseAccess
 // -----------------------------------------------------------------------
 
-HbaseAccess::HbaseAccess(CorrName &corrName,
-			 OperatorTypeEnum otype,
-			 CollHeap *oHeap)
-  : FileScan(corrName, NULL, NULL, otype, oHeap),
-    listOfSearchKeys_(oHeap),
-    snpType_(SNP_NONE),
-    retHbaseColRefSet_(oHeap),
-    opList_(oHeap)
-{
+HbaseAccess::HbaseAccess(CorrName &corrName, OperatorTypeEnum otype, CollHeap *oHeap)
+    : FileScan(corrName, NULL, NULL, otype, oHeap),
+      listOfSearchKeys_(oHeap),
+      snpType_(SNP_NONE),
+      retHbaseColRefSet_(oHeap),
+      opList_(oHeap) {
   accessType_ = SELECT_;
   uniqueHbaseOper_ = FALSE;
   uniqueRowsetHbaseOper_ = FALSE;
 }
 
-HbaseAccess::HbaseAccess(CorrName &corrName,
-			 TableDesc *tableDesc,
-			 IndexDesc *idx,
-                         const NABoolean isReverseScan,
-                         const Cardinality& baseCardinality,
-                         StmtLevelAccessOptions& accessOptions,
-                         GroupAttributes * groupAttributesPtr,
-                         const ValueIdSet& selectionPredicates,
-                         const Disjuncts& disjuncts,
-                         const ValueIdSet& generatedCCPreds,
-			 OperatorTypeEnum otype,
+HbaseAccess::HbaseAccess(CorrName &corrName, TableDesc *tableDesc, IndexDesc *idx, const NABoolean isReverseScan,
+                         const Cardinality &baseCardinality, StmtLevelAccessOptions &accessOptions,
+                         GroupAttributes *groupAttributesPtr, const ValueIdSet &selectionPredicates,
+                         const Disjuncts &disjuncts, const ValueIdSet &generatedCCPreds, OperatorTypeEnum otype,
                          CollHeap *oHeap)
-  : FileScan(corrName, tableDesc, idx, 
-             isReverseScan, baseCardinality,
-             accessOptions, groupAttributesPtr,
-             selectionPredicates, disjuncts,
-             generatedCCPreds,
-             otype),
-    listOfSearchKeys_(oHeap),
-    snpType_(SNP_NONE),
-    retHbaseColRefSet_(oHeap),
-    opList_(oHeap)
-{
+    : FileScan(corrName, tableDesc, idx, isReverseScan, baseCardinality, accessOptions, groupAttributesPtr,
+               selectionPredicates, disjuncts, generatedCCPreds, otype),
+      listOfSearchKeys_(oHeap),
+      snpType_(SNP_NONE),
+      retHbaseColRefSet_(oHeap),
+      opList_(oHeap) {
   accessType_ = SELECT_;
-  //setTableDesc(tableDesc);
+  // setTableDesc(tableDesc);
   uniqueHbaseOper_ = FALSE;
   uniqueRowsetHbaseOper_ = FALSE;
 }
 
-HbaseAccess::HbaseAccess(CorrName &corrName,
-			 NABoolean isRW, NABoolean isCW,
-			 CollHeap *oHeap)
-  : FileScan(corrName, NULL, NULL, REL_HBASE_ACCESS, oHeap),
-    isRW_(isRW),
-    isCW_(isCW),
-    listOfSearchKeys_(oHeap),
-    snpType_(SNP_NONE),
-    retHbaseColRefSet_(oHeap),
-    opList_(oHeap)
-{
+HbaseAccess::HbaseAccess(CorrName &corrName, NABoolean isRW, NABoolean isCW, CollHeap *oHeap)
+    : FileScan(corrName, NULL, NULL, REL_HBASE_ACCESS, oHeap),
+      isRW_(isRW),
+      isCW_(isCW),
+      listOfSearchKeys_(oHeap),
+      snpType_(SNP_NONE),
+      retHbaseColRefSet_(oHeap),
+      opList_(oHeap) {
   accessType_ = SELECT_;
   uniqueHbaseOper_ = FALSE;
   uniqueRowsetHbaseOper_ = FALSE;
 }
 
-HbaseAccess::HbaseAccess( OperatorTypeEnum otype,
-			  CollHeap *oHeap)
-  : FileScan(CorrName(), NULL, NULL, otype, oHeap),
-    listOfSearchKeys_(oHeap),
-    snpType_(SNP_NONE),
-    retHbaseColRefSet_(oHeap),
-    opList_(oHeap)
-{
+HbaseAccess::HbaseAccess(OperatorTypeEnum otype, CollHeap *oHeap)
+    : FileScan(CorrName(), NULL, NULL, otype, oHeap),
+      listOfSearchKeys_(oHeap),
+      snpType_(SNP_NONE),
+      retHbaseColRefSet_(oHeap),
+      opList_(oHeap) {
   accessType_ = SELECT_;
   uniqueHbaseOper_ = FALSE;
   uniqueRowsetHbaseOper_ = FALSE;
 }
 
-//! HbaseAccess::~HbaseAccess Destructor 
-HbaseAccess::~HbaseAccess()
-{
-}
+//! HbaseAccess::~HbaseAccess Destructor
+HbaseAccess::~HbaseAccess() {}
 
-//! HbaseAccess::copyTopNode method 
-RelExpr * HbaseAccess::copyTopNode(RelExpr *derivedNode, CollHeap* outHeap)
-{
+//! HbaseAccess::copyTopNode method
+RelExpr *HbaseAccess::copyTopNode(RelExpr *derivedNode, CollHeap *outHeap) {
   HbaseAccess *result;
 
   if (derivedNode == NULL)
     result = new (outHeap) HbaseAccess(REL_HBASE_ACCESS, outHeap);
   else
-    result = (HbaseAccess *) derivedNode;
+    result = (HbaseAccess *)derivedNode;
 
-  //result->corrName_ = corrName_;
+  // result->corrName_ = corrName_;
   result->accessType_ = accessType_;
   result->isRW_ = isRW_;
   result->isCW_ = isCW_;
@@ -10985,7 +8944,7 @@ RelExpr * HbaseAccess::copyTopNode(RelExpr *derivedNode, CollHeap* outHeap)
   result->setTableDesc(getTableDesc());
   result->setIndexDesc(getIndexDesc());
 
-  //result->setTableDesc(getTableDesc());
+  // result->setTableDesc(getTableDesc());
   result->listOfSearchKeys_ = listOfSearchKeys_;
 
   result->retColRefSet_ = retColRefSet_;
@@ -10997,134 +8956,106 @@ RelExpr * HbaseAccess::copyTopNode(RelExpr *derivedNode, CollHeap* outHeap)
   //  return BuiltinTableValuedFunction::copyTopNode(result, outHeap);
 }
 
-const NAString HbaseAccess::getText() const
-{
+const NAString HbaseAccess::getText() const {
   NAString op(CmpCommon::statementHeap());
-  NAString tname(getTableName().getText(),CmpCommon::statementHeap());
+  NAString tname(getTableName().getText(), CmpCommon::statementHeap());
 
   NAString sampleOpt(CmpCommon::statementHeap());
-  if (isSampleScan())
-    sampleOpt = "sample_";
+  if (isSampleScan()) sampleOpt = "sample_";
 
-  NABoolean isMonarch = 
-    (getTableDesc() && getTableDesc()->getNATable()
-     ? getTableDesc()->getNATable()->isMonarch() : FALSE);
-  
-  if (getIndexDesc() == NULL OR getIndexDesc()->isClusteringIndex())
-    {
-      if (isSeabaseTable())
-	{
-	  if (uniqueRowsetHbaseOper())
-            if (isMonarch)
-              (op += "monarch_vsbb_") += sampleOpt += "scan ";
-            else
-              (op += "trafodion_vsbb_") += sampleOpt += "scan ";
-	  else
-            if (isMonarch)
-              (op += "monarch_") += sampleOpt += "scan ";
-          else
-              (op += "trafodion_") += sampleOpt += "scan ";
-	}
-      else
-	(op += "hbase_") += sampleOpt += "scan ";
-    }
-  else 
-    {
-      if (isSeabaseTable())
+  NABoolean isMonarch =
+      (getTableDesc() && getTableDesc()->getNATable() ? getTableDesc()->getNATable()->isMonarch() : FALSE);
+
+  if (getIndexDesc() == NULL OR getIndexDesc()->isClusteringIndex()) {
+    if (isSeabaseTable()) {
+      if (uniqueRowsetHbaseOper())
         if (isMonarch)
-          (op += "monarch_index_") += sampleOpt += "scan ";
+          (op += "monarch_vsbb_") += sampleOpt += "scan ";
         else
-          (op += "trafodion_index_") += sampleOpt += "scan ";
+          (op += "trafodion_vsbb_") += sampleOpt += "scan ";
+      else if (isMonarch)
+        (op += "monarch_") += sampleOpt += "scan ";
       else
-	(op += "hbase_index_") += sampleOpt += "scan ";
- 
-      tname = getIndexDesc()->getIndexName().getQualifiedNameAsString() +
-	"(" + tname + ")";
-    }
-  
-  if (getReverseScan())
-    op += NAString("rev ");
+        (op += "trafodion_") += sampleOpt += "scan ";
+    } else
+      (op += "hbase_") += sampleOpt += "scan ";
+  } else {
+    if (isSeabaseTable())
+      if (isMonarch)
+        (op += "monarch_index_") += sampleOpt += "scan ";
+      else
+        (op += "trafodion_index_") += sampleOpt += "scan ";
+    else
+      (op += "hbase_index_") += sampleOpt += "scan ";
+
+    tname = getIndexDesc()->getIndexName().getQualifiedNameAsString() + "(" + tname + ")";
+  }
+
+  if (getReverseScan()) op += NAString("rev ");
 
   return op + tname;
 }
 
-RelExpr *HbaseAccess::bindNode(BindWA *bindWA)
-{
-  if (nodeIsBound())
-    {
-      bindWA->getCurrentScope()->setRETDesc(getRETDesc());
-      return this;
-    }
+RelExpr *HbaseAccess::bindNode(BindWA *bindWA) {
+  if (nodeIsBound()) {
+    bindWA->getCurrentScope()->setRETDesc(getRETDesc());
+    return this;
+  }
 
   CorrName &corrName = getTableName();
-  NATable * naTable = NULL;
+  NATable *naTable = NULL;
 
-  naTable = bindWA->getSchemaDB()->getNATableDB()->
-    get(&corrName.getExtendedQualNameObj());
+  naTable = bindWA->getSchemaDB()->getNATableDB()->get(&corrName.getExtendedQualNameObj());
 
-  if ( !naTable || bindWA->errStatus())
-    {
-      *CmpCommon::diags()
-	<< DgSqlCode(-1388)
-        << DgString0("Object")
-	<< DgString1(corrName.getExposedNameAsAnsiString());
-      
-      bindWA->setErrStatus();
-      return this;
-    }
-  
+  if (!naTable || bindWA->errStatus()) {
+    *CmpCommon::diags() << DgSqlCode(-1388) << DgString0("Object") << DgString1(corrName.getExposedNameAsAnsiString());
+
+    bindWA->setErrStatus();
+    return this;
+  }
+
   // Allocate a TableDesc and attach it to this.
   //
-  TableDesc * td = bindWA->createTableDesc(naTable, corrName);
-  if (! td || bindWA->errStatus())
-    return this;
-  
+  TableDesc *td = bindWA->createTableDesc(naTable, corrName);
+  if (!td || bindWA->errStatus()) return this;
+
   setTableDesc(td);
   setIndexDesc(td->getClusteringIndex());
-  if (bindWA->errStatus())
-    return this;
-  
-  RelExpr * re = NULL;
+  if (bindWA->errStatus()) return this;
+
+  RelExpr *re = NULL;
   //  re = BuiltinTableValuedFunction::bindNode(bindWA);
   re = Scan::bindNode(bindWA);
-  if (bindWA->errStatus())
-    return this;
+  if (bindWA->errStatus()) return this;
 
   return re;
 }
 
-void HbaseAccess::getPotentialOutputValues(
-     ValueIdSet & outputValues) const
-{
+void HbaseAccess::getPotentialOutputValues(ValueIdSet &outputValues) const {
   outputValues.clear();
 
   // since this is a physical operator, it only generates the index columns
-  outputValues.insertList( getIndexDesc()->getIndexColumns() );
+  outputValues.insertList(getIndexDesc()->getIndexColumns());
 
-  outputValues.insertList( getTableDesc()->hbaseTagList() );
-  outputValues.insertList( getTableDesc()->hbaseTSList() );
-  outputValues.insertList( getTableDesc()->hbaseVersionList() );
-  outputValues.insertList( getTableDesc()->hbaseRowidList() );
+  outputValues.insertList(getTableDesc()->hbaseTagList());
+  outputValues.insertList(getTableDesc()->hbaseTSList());
+  outputValues.insertList(getTableDesc()->hbaseVersionList());
+  outputValues.insertList(getTableDesc()->hbaseRowidList());
   //  outputValues.insertList( getTableDesc()->hbaseAttrList() );
-  
-} // HbaseAccess::getPotentialOutputValues()
 
-void
-HbaseAccess::synthEstLogProp(const EstLogPropSharedPtr& inputEstLogProp)
-{
-  if (getGroupAttr()->isPropSynthesized(inputEstLogProp))
-    return;
+}  // HbaseAccess::getPotentialOutputValues()
+
+void HbaseAccess::synthEstLogProp(const EstLogPropSharedPtr &inputEstLogProp) {
+  if (getGroupAttr()->isPropSynthesized(inputEstLogProp)) return;
 
   // Create a new Output Log Property with cardinality of 10 for now.
   EstLogPropSharedPtr myEstProps(new (HISTHEAP) EstLogProp(10));
 
   getGroupAttr()->addInputOutputLogProp(inputEstLogProp, myEstProps);
 
-} // HbaseAccess::synthEstLogProp
+}  // HbaseAccess::synthEstLogProp
 
-void
-HbaseAccess::synthLogProp(NormWA * normWAPtr)
-{
+void HbaseAccess::synthLogProp(NormWA *normWAPtr) {
   // Check to see whether this GA has already been associated
   // with a logExpr for synthesis.  If so, no need to resynthesize
   //  for this equivalent log. expression.
@@ -11132,34 +9063,16 @@ HbaseAccess::synthLogProp(NormWA * normWAPtr)
 
   RelExpr::synthLogProp(normWAPtr);
 
-} // HbaseAccess::synthLogProp()
+}  // HbaseAccess::synthLogProp()
 
 // -----------------------------------------------------------------------
 // methods for class HbaseDelete
 // -----------------------------------------------------------------------
 
-HbaseDelete::HbaseDelete(CorrName &corrName,
-			 RelExpr *scan,
-			 CollHeap *oHeap)
-  : Delete(corrName, NULL, REL_HBASE_DELETE, scan, NULL, NULL, NULL, oHeap),
-    corrName_(corrName), 
-    listOfSearchKeys_(oHeap) 
-{ 
-   hbaseOper() = TRUE;
-   if (oHeap)
-     pCostMethod_ = new (oHeap) CostMethodHbaseDelete();
-   else
-     pCostMethod_ = new (CmpCommon::statementHeap()) CostMethodHbaseDelete();
-}
- 
-
-HbaseDelete::HbaseDelete(CorrName &corrName,
-			 TableDesc *tableDesc,
-			 CollHeap *oHeap)
-  : Delete(corrName, tableDesc, REL_HBASE_DELETE, NULL, NULL, NULL, NULL,oHeap),
-    corrName_(corrName),
-    listOfSearchKeys_(oHeap) 
-{
+HbaseDelete::HbaseDelete(CorrName &corrName, RelExpr *scan, CollHeap *oHeap)
+    : Delete(corrName, NULL, REL_HBASE_DELETE, scan, NULL, NULL, NULL, oHeap),
+      corrName_(corrName),
+      listOfSearchKeys_(oHeap) {
   hbaseOper() = TRUE;
   if (oHeap)
     pCostMethod_ = new (oHeap) CostMethodHbaseDelete();
@@ -11167,10 +9080,10 @@ HbaseDelete::HbaseDelete(CorrName &corrName,
     pCostMethod_ = new (CmpCommon::statementHeap()) CostMethodHbaseDelete();
 }
 
-HbaseDelete::HbaseDelete( CollHeap *oHeap)
-  : Delete(CorrName(""), NULL, REL_HBASE_DELETE, NULL, NULL, NULL, NULL, oHeap),
-    listOfSearchKeys_(oHeap) 
-{
+HbaseDelete::HbaseDelete(CorrName &corrName, TableDesc *tableDesc, CollHeap *oHeap)
+    : Delete(corrName, tableDesc, REL_HBASE_DELETE, NULL, NULL, NULL, NULL, oHeap),
+      corrName_(corrName),
+      listOfSearchKeys_(oHeap) {
   hbaseOper() = TRUE;
   if (oHeap)
     pCostMethod_ = new (oHeap) CostMethodHbaseDelete();
@@ -11178,20 +9091,26 @@ HbaseDelete::HbaseDelete( CollHeap *oHeap)
     pCostMethod_ = new (CmpCommon::statementHeap()) CostMethodHbaseDelete();
 }
 
-//! HbaseDelete::~HbaseDelete Destructor 
-HbaseDelete::~HbaseDelete()
-{
+HbaseDelete::HbaseDelete(CollHeap *oHeap)
+    : Delete(CorrName(""), NULL, REL_HBASE_DELETE, NULL, NULL, NULL, NULL, oHeap), listOfSearchKeys_(oHeap) {
+  hbaseOper() = TRUE;
+  if (oHeap)
+    pCostMethod_ = new (oHeap) CostMethodHbaseDelete();
+  else
+    pCostMethod_ = new (CmpCommon::statementHeap()) CostMethodHbaseDelete();
 }
 
-//! HbaseDelete::copyTopNode method 
-RelExpr * HbaseDelete::copyTopNode(RelExpr *derivedNode, CollHeap* outHeap)
-{
+//! HbaseDelete::~HbaseDelete Destructor
+HbaseDelete::~HbaseDelete() {}
+
+//! HbaseDelete::copyTopNode method
+RelExpr *HbaseDelete::copyTopNode(RelExpr *derivedNode, CollHeap *outHeap) {
   HbaseDelete *result;
 
   if (derivedNode == NULL)
     result = new (outHeap) HbaseDelete(corrName_, getTableDesc(), outHeap);
   else
-    result = (HbaseDelete *) derivedNode;
+    result = (HbaseDelete *)derivedNode;
 
   result->corrName_ = corrName_;
   result->setTableDesc(getTableDesc());
@@ -11203,32 +9122,26 @@ RelExpr * HbaseDelete::copyTopNode(RelExpr *derivedNode, CollHeap* outHeap)
   return Delete::copyTopNode(result, outHeap);
 }
 
-RelExpr *HbaseDelete::bindNode(BindWA *bindWA)
-{
-  if (nodeIsBound())
-    {
-      bindWA->getCurrentScope()->setRETDesc(getRETDesc());
-      return this;
-    }
-
-  RelExpr * re = NULL;
-  re = Delete::bindNode(bindWA);
-  if (bindWA->errStatus())
+RelExpr *HbaseDelete::bindNode(BindWA *bindWA) {
+  if (nodeIsBound()) {
+    bindWA->getCurrentScope()->setRETDesc(getRETDesc());
     return this;
+  }
+
+  RelExpr *re = NULL;
+  re = Delete::bindNode(bindWA);
+  if (bindWA->errStatus()) return this;
 
   return re;
 }
 
-//! HbaseDelete::getText method 
-const NAString HbaseDelete::getText() const
-{
-  NABoolean isSeabase = 
-    (getTableDesc() && getTableDesc()->getNATable() ? 
-     getTableDesc()->getNATable()->isSeabaseTable() : FALSE);
+//! HbaseDelete::getText method
+const NAString HbaseDelete::getText() const {
+  NABoolean isSeabase =
+      (getTableDesc() && getTableDesc()->getNATable() ? getTableDesc()->getNATable()->isSeabaseTable() : FALSE);
 
-  NABoolean isMonarch = 
-    (getTableDesc() && getTableDesc()->getNATable() ? 
-     getTableDesc()->getNATable()->isMonarch() : FALSE);
+  NABoolean isMonarch =
+      (getTableDesc() && getTableDesc()->getNATable() ? getTableDesc()->getNATable()->isMonarch() : FALSE);
 
   NAString text;
 
@@ -11239,54 +9152,27 @@ const NAString HbaseDelete::getText() const
   else
     text = "trafodion_";
 
-  if (uniqueRowsetHbaseOper())
-    text += "vsbb_";
+  if (uniqueRowsetHbaseOper()) text += "vsbb_";
 
   text += "delete";
 
   return text;
 }
 
-Int32 HbaseDelete::getArity() const
-{
-  return 0;
-}
+Int32 HbaseDelete::getArity() const { return 0; }
 
-void HbaseDelete::getPotentialOutputValues(
-     ValueIdSet & outputValues) const
-{
+void HbaseDelete::getPotentialOutputValues(ValueIdSet &outputValues) const {
   outputValues.clear();
   // since this is a physical operator, it only generates the index columns
-  if (getScanIndexDesc())
-    outputValues.insertList(getScanIndexDesc()->getIndexColumns());
-} // HbaseDelete::getPotentialOutputValues()
+  if (getScanIndexDesc()) outputValues.insertList(getScanIndexDesc()->getIndexColumns());
+}  // HbaseDelete::getPotentialOutputValues()
 
 // -----------------------------------------------------------------------
 // methods for class HbaseUpdate
 // -----------------------------------------------------------------------
 
-HbaseUpdate::HbaseUpdate(CorrName &corrName,
-			 RelExpr *scan,
-			 CollHeap *oHeap)
-  : UpdateCursor(corrName, NULL, REL_HBASE_UPDATE, scan, oHeap),
-    corrName_(corrName), 
-    listOfSearchKeys_(oHeap) 
-{ 
-   hbaseOper() = TRUE;
-   if (oHeap)
-     pCostMethod_ = new (oHeap) CostMethodHbaseUpdate();
-   else
-     pCostMethod_ = new (CmpCommon::statementHeap()) CostMethodHbaseUpdate();
-}
- 
-
-HbaseUpdate::HbaseUpdate(CorrName &corrName,
-			 TableDesc *tableDesc,
-			 CollHeap *oHeap)
-  : UpdateCursor(corrName, tableDesc, REL_HBASE_UPDATE, NULL, oHeap),
-    corrName_(corrName),
-    listOfSearchKeys_(oHeap) 
-{
+HbaseUpdate::HbaseUpdate(CorrName &corrName, RelExpr *scan, CollHeap *oHeap)
+    : UpdateCursor(corrName, NULL, REL_HBASE_UPDATE, scan, oHeap), corrName_(corrName), listOfSearchKeys_(oHeap) {
   hbaseOper() = TRUE;
   if (oHeap)
     pCostMethod_ = new (oHeap) CostMethodHbaseUpdate();
@@ -11294,10 +9180,8 @@ HbaseUpdate::HbaseUpdate(CorrName &corrName,
     pCostMethod_ = new (CmpCommon::statementHeap()) CostMethodHbaseUpdate();
 }
 
-HbaseUpdate::HbaseUpdate( CollHeap *oHeap)
-  : UpdateCursor(CorrName(""), NULL, REL_HBASE_UPDATE, NULL, oHeap),
-    listOfSearchKeys_(oHeap) 
-{
+HbaseUpdate::HbaseUpdate(CorrName &corrName, TableDesc *tableDesc, CollHeap *oHeap)
+    : UpdateCursor(corrName, tableDesc, REL_HBASE_UPDATE, NULL, oHeap), corrName_(corrName), listOfSearchKeys_(oHeap) {
   hbaseOper() = TRUE;
   if (oHeap)
     pCostMethod_ = new (oHeap) CostMethodHbaseUpdate();
@@ -11305,20 +9189,26 @@ HbaseUpdate::HbaseUpdate( CollHeap *oHeap)
     pCostMethod_ = new (CmpCommon::statementHeap()) CostMethodHbaseUpdate();
 }
 
-//! HbaseUpdate::~HbaseUpdate Destructor 
-HbaseUpdate::~HbaseUpdate()
-{
+HbaseUpdate::HbaseUpdate(CollHeap *oHeap)
+    : UpdateCursor(CorrName(""), NULL, REL_HBASE_UPDATE, NULL, oHeap), listOfSearchKeys_(oHeap) {
+  hbaseOper() = TRUE;
+  if (oHeap)
+    pCostMethod_ = new (oHeap) CostMethodHbaseUpdate();
+  else
+    pCostMethod_ = new (CmpCommon::statementHeap()) CostMethodHbaseUpdate();
 }
 
-//! HbaseUpdate::copyTopNode method 
-RelExpr * HbaseUpdate::copyTopNode(RelExpr *derivedNode, CollHeap* outHeap)
-{
+//! HbaseUpdate::~HbaseUpdate Destructor
+HbaseUpdate::~HbaseUpdate() {}
+
+//! HbaseUpdate::copyTopNode method
+RelExpr *HbaseUpdate::copyTopNode(RelExpr *derivedNode, CollHeap *outHeap) {
   HbaseUpdate *result;
 
   if (derivedNode == NULL)
     result = new (outHeap) HbaseUpdate(corrName_, getTableDesc(), outHeap);
   else
-    result = (HbaseUpdate *) derivedNode;
+    result = (HbaseUpdate *)derivedNode;
 
   result->corrName_ = corrName_;
   result->setTableDesc(getTableDesc());
@@ -11330,196 +9220,153 @@ RelExpr * HbaseUpdate::copyTopNode(RelExpr *derivedNode, CollHeap* outHeap)
   return Update::copyTopNode(result, outHeap);
 }
 
-RelExpr *HbaseUpdate::bindNode(BindWA *bindWA)
-{
-  if (nodeIsBound())
-    {
-      bindWA->getCurrentScope()->setRETDesc(getRETDesc());
-      return this;
-    }
-
-  RelExpr * re = NULL;
-  re = Update::bindNode(bindWA);
-  if (bindWA->errStatus())
+RelExpr *HbaseUpdate::bindNode(BindWA *bindWA) {
+  if (nodeIsBound()) {
+    bindWA->getCurrentScope()->setRETDesc(getRETDesc());
     return this;
+  }
+
+  RelExpr *re = NULL;
+  re = Update::bindNode(bindWA);
+  if (bindWA->errStatus()) return this;
 
   return re;
 }
 
-//! HbaseUpdate::getText method 
-const NAString HbaseUpdate::getText() const
-{
-  NABoolean isSeabase = 
-    (getTableDesc() && getTableDesc()->getNATable() ? 
-     getTableDesc()->getNATable()->isSeabaseTable() : FALSE);
+//! HbaseUpdate::getText method
+const NAString HbaseUpdate::getText() const {
+  NABoolean isSeabase =
+      (getTableDesc() && getTableDesc()->getNATable() ? getTableDesc()->getNATable()->isSeabaseTable() : FALSE);
 
-  NABoolean isMonarch = 
-    (getTableDesc() && getTableDesc()->getNATable() ? 
-     getTableDesc()->getNATable()->isMonarch() : FALSE);
+  NABoolean isMonarch =
+      (getTableDesc() && getTableDesc()->getNATable() ? getTableDesc()->getNATable()->isMonarch() : FALSE);
 
   NAString text;
-  if (isMerge())
-    {
-      text = (isSeabase ? "trafodion_merge" : "hbase_merge");
-    }
-  else
-    {
-      if (isMonarch)
-        text = "monarch_";
-      else if (NOT isSeabase)
-	text = "hbase_";
-      else
-	text = "trafodion_";
-      
-      if (uniqueRowsetHbaseOper())
-	text += "vsbb_";
-      
-      text += "update";
-    }
-  
+  if (isMerge()) {
+    text = (isSeabase ? "trafodion_merge" : "hbase_merge");
+  } else {
+    if (isMonarch)
+      text = "monarch_";
+    else if (NOT isSeabase)
+      text = "hbase_";
+    else
+      text = "trafodion_";
+
+    if (uniqueRowsetHbaseOper()) text += "vsbb_";
+
+    text += "update";
+  }
+
   return text;
 }
 
-Int32 HbaseUpdate::getArity() const
-{
-  return 0;
-}
+Int32 HbaseUpdate::getArity() const { return 0; }
 
-void HbaseUpdate::getPotentialOutputValues(
-     ValueIdSet & outputValues) const
-{
+void HbaseUpdate::getPotentialOutputValues(ValueIdSet &outputValues) const {
   outputValues.clear();
   // Include the index columns from the original Scan, if any
-  if (getScanIndexDesc())
-    outputValues.insertList(getScanIndexDesc()->getIndexColumns());
+  if (getScanIndexDesc()) outputValues.insertList(getScanIndexDesc()->getIndexColumns());
 
   // Include the index columns from the updated table, if any
-  if (getIndexDesc())
-  outputValues.insertList (getIndexDesc()->getIndexColumns());
+  if (getIndexDesc()) outputValues.insertList(getIndexDesc()->getIndexColumns());
 
-} // HbaseUpdate::getPotentialOutputValues()
-
+}  // HbaseUpdate::getPotentialOutputValues()
 
 // -----------------------------------------------------------------------
 // Member functions for DP2 Scan
 // -----------------------------------------------------------------------
-DP2Scan::DP2Scan(const CorrName& tableName,
-		 TableDesc * tableDescPtr,
-		 const IndexDesc *indexDescPtr,
-		 const NABoolean isReverseScan,
-		 const Cardinality& baseCardinality,
-		 StmtLevelAccessOptions& accessOpts,
-		 GroupAttributes * groupAttributesPtr,
-		 const ValueIdSet& selectionPredicates,
-		 const Disjuncts& disjuncts)
-       :  FileScan(tableName,
-		   tableDescPtr,
-		   indexDescPtr,
-		   isReverseScan,
-		   baseCardinality,
-		   accessOpts,
-		   groupAttributesPtr,
-		   selectionPredicates,
-		   disjuncts,
-                   ValueIdSet())
-{
+DP2Scan::DP2Scan(const CorrName &tableName, TableDesc *tableDescPtr, const IndexDesc *indexDescPtr,
+                 const NABoolean isReverseScan, const Cardinality &baseCardinality, StmtLevelAccessOptions &accessOpts,
+                 GroupAttributes *groupAttributesPtr, const ValueIdSet &selectionPredicates, const Disjuncts &disjuncts)
+    : FileScan(tableName, tableDescPtr, indexDescPtr, isReverseScan, baseCardinality, accessOpts, groupAttributesPtr,
+               selectionPredicates, disjuncts, ValueIdSet()) {
   pCostMethod_ = new (CmpCommon::statementHeap()) CostMethodDP2Scan();
 }
 
-DP2Scan::DP2Scan(const CorrName & name,
-                 TableDesc *tableDesc,
-                 const IndexDesc *indexDesc,
+DP2Scan::DP2Scan(const CorrName &name, TableDesc *tableDesc, const IndexDesc *indexDesc,
                  OperatorTypeEnum otype /*= REL_FILE_SCAN*/)
-: FileScan (name, tableDesc, indexDesc, otype)
-{
+    : FileScan(name, tableDesc, indexDesc, otype) {
   pCostMethod_ = new (CmpCommon::statementHeap()) CostMethodDP2Scan();
 }
 
 // --------------------------------------------------
 // methods for class Describe
 // --------------------------------------------------
-void Describe::getPotentialOutputValues(ValueIdSet & outputValues) const
-{
+void Describe::getPotentialOutputValues(ValueIdSet &outputValues) const {
   outputValues.clear();
   //
   // Assign the set of columns that belong to the index to be scanned
   // as the output values that can be produced by this scan.
   //
-  outputValues.insertList( getTableDesc()->getClusteringIndex()->getIndexColumns() );
-} // Describe::getPotentialOutputValues()
+  outputValues.insertList(getTableDesc()->getClusteringIndex()->getIndexColumns());
+}  // Describe::getPotentialOutputValues()
 
 // -----------------------------------------------------------------------
 // methods for class RelRoot
 // -----------------------------------------------------------------------
 
-RelRoot::RelRoot(RelExpr *input,
-		 OperatorTypeEnum otype,
-		 ItemExpr *compExpr,
-		 ItemExpr *orderBy,
-		 ItemExpr *updateCol,
-		 RelExpr *reqdShape,
-		 CollHeap *oHeap)
-  : RelExpr(otype, input, NULL, oHeap),
-    compExprTree_(compExpr),
-    orderByTree_(orderBy),
-    updateColTree_(updateCol),
-    reqdShape_(reqdShape),
-    viewStoiList_(CmpCommon::statementHeap()),
-    ddlStoiList_(CmpCommon::statementHeap()),
-    stoiUdrList_(CmpCommon::statementHeap()),
-    udfList_(CmpCommon::statementHeap()),
-    securityKeySet_(CmpCommon::statementHeap()),
-    trueRoot_(FALSE),
-    subRoot_(FALSE),
-    displayTree_(FALSE),
-    exeDisplay_(FALSE),
-    outputVarCnt_(-1),
-    inputVarTree_(NULL),
-    outputVarTree_(NULL),
-    updatableSelect_(TRUE),
-    updateCurrentOf_(FALSE),
-    currOfCursorName_(NULL),
-    rollbackOnError_(FALSE),
-    readOnlyTransIsOK_(FALSE),
-    needFirstSortedRows_(FALSE),
-    numSimpleVar_(0),
-    numHostVar_(0),
-    childOperType_(NO_OPERATOR_TYPE),
-    hostArraysArea_(NULL),
-    assignmentStTree_(NULL),
-    assignList_(NULL),
-    isRootOfInternalRefresh_(FALSE),
-    isQueryNonCacheable_(FALSE),
-    pMvBindContextForScope_(NULL),
-    parentForRowsetReqdOrder_(NULL),
-    isEmptySelectList_(FALSE),
-    isDontOpenNewScope_(FALSE),
-    triggersList_(NULL),
-    spOutParams_(NULL),
-    downrevCompileMXV_(COM_VERS_CURR_PLAN),
-    numExtractStreams_(0),
-    numBMOs_(0),
-    BMOsMemoryUsage_(0),
-    nBMOsMemoryUsage_(0),
-    uninitializedMvList_(NULL),
-    allOrderByRefsInGby_(FALSE),
-    avoidHalloween_(FALSE),
-    containsOnStatementMV_(FALSE),
-    containsLRU_(FALSE),
-    disableESPParallelism_(FALSE),
-    hasOlapFunctions_(FALSE),
-    hasTDFunctions_(FALSE),
-    isAnalyzeOnly_(FALSE),
-    hasMandatoryXP_(FALSE),
-    partReqType_(ANY_PARTITIONING),
-    partitionByTree_(NULL),
-    predExprTree_(NULL),
-    firstNRowsParam_(NULL),
-    isOlapMultiWindowTopRoot_(FALSE),
-    hasPotentialMultipleOlapWindows_(FALSE),
-    firstNPredUsed_(FALSE),
-    flags_(0)
-{
+RelRoot::RelRoot(RelExpr *input, OperatorTypeEnum otype, ItemExpr *compExpr, ItemExpr *orderBy, ItemExpr *updateCol,
+                 RelExpr *reqdShape, CollHeap *oHeap)
+    : RelExpr(otype, input, NULL, oHeap),
+      compExprTree_(compExpr),
+      orderByTree_(orderBy),
+      updateColTree_(updateCol),
+      reqdShape_(reqdShape),
+      viewStoiList_(CmpCommon::statementHeap()),
+      ddlStoiList_(CmpCommon::statementHeap()),
+      stoiUdrList_(CmpCommon::statementHeap()),
+      udfList_(CmpCommon::statementHeap()),
+      securityKeySet_(CmpCommon::statementHeap()),
+      trueRoot_(FALSE),
+      subRoot_(FALSE),
+      displayTree_(FALSE),
+      exeDisplay_(FALSE),
+      outputVarCnt_(-1),
+      inputVarTree_(NULL),
+      outputVarTree_(NULL),
+      updatableSelect_(TRUE),
+      updateCurrentOf_(FALSE),
+      currOfCursorName_(NULL),
+      rollbackOnError_(FALSE),
+      readOnlyTransIsOK_(FALSE),
+      needFirstSortedRows_(FALSE),
+      numSimpleVar_(0),
+      numHostVar_(0),
+      childOperType_(NO_OPERATOR_TYPE),
+      hostArraysArea_(NULL),
+      assignmentStTree_(NULL),
+      assignList_(NULL),
+      isRootOfInternalRefresh_(FALSE),
+      isQueryNonCacheable_(FALSE),
+      pMvBindContextForScope_(NULL),
+      parentForRowsetReqdOrder_(NULL),
+      isEmptySelectList_(FALSE),
+      isDontOpenNewScope_(FALSE),
+      triggersList_(NULL),
+      spOutParams_(NULL),
+      downrevCompileMXV_(COM_VERS_CURR_PLAN),
+      numExtractStreams_(0),
+      numBMOs_(0),
+      BMOsMemoryUsage_(0),
+      nBMOsMemoryUsage_(0),
+      uninitializedMvList_(NULL),
+      allOrderByRefsInGby_(FALSE),
+      avoidHalloween_(FALSE),
+      containsOnStatementMV_(FALSE),
+      containsLRU_(FALSE),
+      disableESPParallelism_(FALSE),
+      hasOlapFunctions_(FALSE),
+      hasTDFunctions_(FALSE),
+      isAnalyzeOnly_(FALSE),
+      hasMandatoryXP_(FALSE),
+      partReqType_(ANY_PARTITIONING),
+      partitionByTree_(NULL),
+      predExprTree_(NULL),
+      firstNRowsParam_(NULL),
+      isOlapMultiWindowTopRoot_(FALSE),
+      hasPotentialMultipleOlapWindows_(FALSE),
+      firstNPredUsed_(FALSE),
+      flags_(0) {
   accessOptions().accessType() = TransMode::ACCESS_TYPE_NOT_SPECIFIED_;
   accessOptions().lockMode() = LOCK_MODE_NOT_SPECIFIED_;
   isCIFOn_ = FALSE;
@@ -11529,78 +9376,70 @@ RelRoot::RelRoot(RelExpr *input,
     pRelRootCostMethod_ = new (CmpCommon::statementHeap()) CostMethodRelRoot();
 }
 
-RelRoot::RelRoot(RelExpr *input,
-		 TransMode::AccessType at,
-		 LockMode lm,
-		 OperatorTypeEnum otype,
-		 ItemExpr *compExpr,
-		 ItemExpr *orderBy,
-		 ItemExpr *updateCol,
-		 RelExpr *reqdShape,
-		 CollHeap *oHeap)
-  : RelExpr(otype, input, NULL, oHeap),
-    compExprTree_(compExpr),
-    orderByTree_(orderBy),
-    updateColTree_(updateCol),
-    reqdShape_(reqdShape),
-    viewStoiList_(CmpCommon::statementHeap()),
-    ddlStoiList_(CmpCommon::statementHeap()),
-    stoiUdrList_(CmpCommon::statementHeap()),
-    udfList_(CmpCommon::statementHeap()),
-    securityKeySet_(CmpCommon::statementHeap()),
-    trueRoot_(FALSE),
-    subRoot_(FALSE),
-    displayTree_(FALSE),
-    exeDisplay_(FALSE),
-    outputVarCnt_(-1),
-    inputVarTree_(NULL),
-    outputVarTree_(NULL),
-    updatableSelect_(TRUE),
-    updateCurrentOf_(FALSE),
-    currOfCursorName_(NULL),
-    rollbackOnError_(FALSE),
-    readOnlyTransIsOK_(FALSE),
-    needFirstSortedRows_(FALSE),
-    numSimpleVar_(0),
-    numHostVar_(0),
-    childOperType_(NO_OPERATOR_TYPE),
-    hostArraysArea_(NULL),
-    assignmentStTree_(NULL),
-    assignList_(NULL),
-    isRootOfInternalRefresh_(FALSE),
-    isQueryNonCacheable_(FALSE),
-    pMvBindContextForScope_(NULL),
-    parentForRowsetReqdOrder_(NULL),
-    isEmptySelectList_(FALSE),
-    isDontOpenNewScope_(FALSE),
-    triggersList_(NULL),
-    spOutParams_(NULL),
-    downrevCompileMXV_(COM_VERS_CURR_PLAN),
-    numExtractStreams_(0),
-    numBMOs_(0),
-    BMOsMemoryUsage_(0),
-    nBMOsMemoryUsage_(0),
-    uninitializedMvList_(NULL),
-    allOrderByRefsInGby_(FALSE),
-    avoidHalloween_(FALSE),
-    containsOnStatementMV_(FALSE),
-    containsLRU_(FALSE),
-    disableESPParallelism_(FALSE),
-    hasOlapFunctions_(FALSE),
-    hasTDFunctions_(FALSE),
-    isAnalyzeOnly_(FALSE),
-    hasMandatoryXP_(FALSE),
-    partReqType_(ANY_PARTITIONING),
-    partitionByTree_(NULL),
-    predExprTree_(NULL),
-    firstNRowsParam_(NULL),
-    isOlapMultiWindowTopRoot_(FALSE),
-    hasPotentialMultipleOlapWindows_(FALSE),
-    firstNPredUsed_(FALSE),
-    flags_(0)
-{
+RelRoot::RelRoot(RelExpr *input, TransMode::AccessType at, LockMode lm, OperatorTypeEnum otype, ItemExpr *compExpr,
+                 ItemExpr *orderBy, ItemExpr *updateCol, RelExpr *reqdShape, CollHeap *oHeap)
+    : RelExpr(otype, input, NULL, oHeap),
+      compExprTree_(compExpr),
+      orderByTree_(orderBy),
+      updateColTree_(updateCol),
+      reqdShape_(reqdShape),
+      viewStoiList_(CmpCommon::statementHeap()),
+      ddlStoiList_(CmpCommon::statementHeap()),
+      stoiUdrList_(CmpCommon::statementHeap()),
+      udfList_(CmpCommon::statementHeap()),
+      securityKeySet_(CmpCommon::statementHeap()),
+      trueRoot_(FALSE),
+      subRoot_(FALSE),
+      displayTree_(FALSE),
+      exeDisplay_(FALSE),
+      outputVarCnt_(-1),
+      inputVarTree_(NULL),
+      outputVarTree_(NULL),
+      updatableSelect_(TRUE),
+      updateCurrentOf_(FALSE),
+      currOfCursorName_(NULL),
+      rollbackOnError_(FALSE),
+      readOnlyTransIsOK_(FALSE),
+      needFirstSortedRows_(FALSE),
+      numSimpleVar_(0),
+      numHostVar_(0),
+      childOperType_(NO_OPERATOR_TYPE),
+      hostArraysArea_(NULL),
+      assignmentStTree_(NULL),
+      assignList_(NULL),
+      isRootOfInternalRefresh_(FALSE),
+      isQueryNonCacheable_(FALSE),
+      pMvBindContextForScope_(NULL),
+      parentForRowsetReqdOrder_(NULL),
+      isEmptySelectList_(FALSE),
+      isDontOpenNewScope_(FALSE),
+      triggersList_(NULL),
+      spOutParams_(NULL),
+      downrevCompileMXV_(COM_VERS_CURR_PLAN),
+      numExtractStreams_(0),
+      numBMOs_(0),
+      BMOsMemoryUsage_(0),
+      nBMOsMemoryUsage_(0),
+      uninitializedMvList_(NULL),
+      allOrderByRefsInGby_(FALSE),
+      avoidHalloween_(FALSE),
+      containsOnStatementMV_(FALSE),
+      containsLRU_(FALSE),
+      disableESPParallelism_(FALSE),
+      hasOlapFunctions_(FALSE),
+      hasTDFunctions_(FALSE),
+      isAnalyzeOnly_(FALSE),
+      hasMandatoryXP_(FALSE),
+      partReqType_(ANY_PARTITIONING),
+      partitionByTree_(NULL),
+      predExprTree_(NULL),
+      firstNRowsParam_(NULL),
+      isOlapMultiWindowTopRoot_(FALSE),
+      hasPotentialMultipleOlapWindows_(FALSE),
+      firstNPredUsed_(FALSE),
+      flags_(0) {
   accessOptions().accessType() = at;
-  accessOptions().lockMode()   = lm;
+  accessOptions().lockMode() = lm;
   isCIFOn_ = FALSE;
   if (oHeap)
     pRelRootCostMethod_ = new (oHeap) CostMethodRelRoot();
@@ -11612,85 +9451,83 @@ RelRoot::RelRoot(RelExpr *input,
 // rather than having to maintain this??? 			##
 // Is it because of the "numXXXVar_(0)" lines below, 		##
 // or should those be   "numXXXVar_(other.numXXXVar_)" ?	##
-RelRoot::RelRoot(const RelRoot & other)
-  : RelExpr(REL_ROOT, other.child(0)),
-    compExprTree_(other.compExprTree_),
-    orderByTree_(other.orderByTree_),
-    updateColTree_(other.updateColTree_),
-    reqdShape_(other.reqdShape_),
-    viewStoiList_(other.viewStoiList_),
-    ddlStoiList_(other.ddlStoiList_),
-    stoiUdrList_(other.stoiUdrList_),
-    udfList_(other.udfList_),
-    securityKeySet_(other.securityKeySet_),
-    trueRoot_(other.trueRoot_),
-    subRoot_(other.subRoot_),
-    displayTree_(other.displayTree_),
-    exeDisplay_(other.exeDisplay_),
-    outputVarCnt_(other.outputVarCnt_),
-    inputVarTree_(other.inputVarTree_),
-    outputVarTree_(other.outputVarTree_),
-    updatableSelect_(other.updatableSelect_),
-    updateCurrentOf_(other.updateCurrentOf_),
-    currOfCursorName_(other.currOfCursorName_),
-    rollbackOnError_(other.rollbackOnError_),
-    readOnlyTransIsOK_(other.readOnlyTransIsOK_),
-    needFirstSortedRows_(other.needFirstSortedRows_),
-    isRootOfInternalRefresh_(other.isRootOfInternalRefresh_),
-    isQueryNonCacheable_(other.isQueryNonCacheable_),
-    pMvBindContextForScope_(other.pMvBindContextForScope_),
-    isEmptySelectList_(other.isEmptySelectList_),
-    isDontOpenNewScope_(other.isDontOpenNewScope_),
-    //    oltOptInfo_(other.oltOptInfo_),
-    numSimpleVar_(0),						//## bug?
-    numHostVar_(0),						//## bug?
-    childOperType_(other.childOperType_),
-    hostArraysArea_(other.hostArraysArea_),
-    assignmentStTree_(other.assignmentStTree_),
-    assignList_(other.assignList_),
-    triggersList_(other.triggersList_),
-    compExpr_(other.compExpr_),
-    reqdOrder_(other.reqdOrder_),
-    partArrangement_(other.partArrangement_),
-    updateCol_(other.updateCol_),
-    inputVars_(other.inputVars_),
-    accessOptions_(other.accessOptions_),
-    pkeyList_(other.pkeyList_),
-    rowsetReqdOrder_(other.rowsetReqdOrder_),
-    parentForRowsetReqdOrder_(other.parentForRowsetReqdOrder_),
-    spOutParams_ (NULL), // Raj P - 12/2000 - stored procedures (for java)
-    downrevCompileMXV_(COM_VERS_CURR_PLAN),
-    uninitializedMvList_(other.uninitializedMvList_),
-    allOrderByRefsInGby_(other.allOrderByRefsInGby_),
-    numExtractStreams_(other.numExtractStreams_),
-    numBMOs_(other.numBMOs_),
-    BMOsMemoryUsage_(other.BMOsMemoryUsage_),
-    nBMOsMemoryUsage_(other.nBMOsMemoryUsage_),
-    avoidHalloween_(other.avoidHalloween_),
-    disableESPParallelism_(other.disableESPParallelism_),
-    containsOnStatementMV_(other.containsOnStatementMV_),
-    containsLRU_(other.containsLRU_),
-    hasOlapFunctions_(other.hasOlapFunctions_),
-    hasTDFunctions_(other.hasTDFunctions_ ),
-    isAnalyzeOnly_(FALSE),
-    hasMandatoryXP_(other.hasMandatoryXP_),
-    partReqType_(other.partReqType_),
-    partitionByTree_(other.partitionByTree_),
-    isCIFOn_(other.isCIFOn_),
-    predExprTree_(other.predExprTree_),
-    firstNRowsParam_(other.firstNRowsParam_),
-    isOlapMultiWindowTopRoot_(other.isOlapMultiWindowTopRoot_),
-    hasPotentialMultipleOlapWindows_(other.hasPotentialMultipleOlapWindows_),
-    firstNPredUsed_(other.firstNPredUsed_),
-    flags_(other.flags_)
-{
-  oltOptInfo() = ((RelRoot&)other).oltOptInfo();
+RelRoot::RelRoot(const RelRoot &other)
+    : RelExpr(REL_ROOT, other.child(0)),
+      compExprTree_(other.compExprTree_),
+      orderByTree_(other.orderByTree_),
+      updateColTree_(other.updateColTree_),
+      reqdShape_(other.reqdShape_),
+      viewStoiList_(other.viewStoiList_),
+      ddlStoiList_(other.ddlStoiList_),
+      stoiUdrList_(other.stoiUdrList_),
+      udfList_(other.udfList_),
+      securityKeySet_(other.securityKeySet_),
+      trueRoot_(other.trueRoot_),
+      subRoot_(other.subRoot_),
+      displayTree_(other.displayTree_),
+      exeDisplay_(other.exeDisplay_),
+      outputVarCnt_(other.outputVarCnt_),
+      inputVarTree_(other.inputVarTree_),
+      outputVarTree_(other.outputVarTree_),
+      updatableSelect_(other.updatableSelect_),
+      updateCurrentOf_(other.updateCurrentOf_),
+      currOfCursorName_(other.currOfCursorName_),
+      rollbackOnError_(other.rollbackOnError_),
+      readOnlyTransIsOK_(other.readOnlyTransIsOK_),
+      needFirstSortedRows_(other.needFirstSortedRows_),
+      isRootOfInternalRefresh_(other.isRootOfInternalRefresh_),
+      isQueryNonCacheable_(other.isQueryNonCacheable_),
+      pMvBindContextForScope_(other.pMvBindContextForScope_),
+      isEmptySelectList_(other.isEmptySelectList_),
+      isDontOpenNewScope_(other.isDontOpenNewScope_),
+      //    oltOptInfo_(other.oltOptInfo_),
+      numSimpleVar_(0),  //## bug?
+      numHostVar_(0),    //## bug?
+      childOperType_(other.childOperType_),
+      hostArraysArea_(other.hostArraysArea_),
+      assignmentStTree_(other.assignmentStTree_),
+      assignList_(other.assignList_),
+      triggersList_(other.triggersList_),
+      compExpr_(other.compExpr_),
+      reqdOrder_(other.reqdOrder_),
+      partArrangement_(other.partArrangement_),
+      updateCol_(other.updateCol_),
+      inputVars_(other.inputVars_),
+      accessOptions_(other.accessOptions_),
+      pkeyList_(other.pkeyList_),
+      rowsetReqdOrder_(other.rowsetReqdOrder_),
+      parentForRowsetReqdOrder_(other.parentForRowsetReqdOrder_),
+      spOutParams_(NULL),  // Raj P - 12/2000 - stored procedures (for java)
+      downrevCompileMXV_(COM_VERS_CURR_PLAN),
+      uninitializedMvList_(other.uninitializedMvList_),
+      allOrderByRefsInGby_(other.allOrderByRefsInGby_),
+      numExtractStreams_(other.numExtractStreams_),
+      numBMOs_(other.numBMOs_),
+      BMOsMemoryUsage_(other.BMOsMemoryUsage_),
+      nBMOsMemoryUsage_(other.nBMOsMemoryUsage_),
+      avoidHalloween_(other.avoidHalloween_),
+      disableESPParallelism_(other.disableESPParallelism_),
+      containsOnStatementMV_(other.containsOnStatementMV_),
+      containsLRU_(other.containsLRU_),
+      hasOlapFunctions_(other.hasOlapFunctions_),
+      hasTDFunctions_(other.hasTDFunctions_),
+      isAnalyzeOnly_(FALSE),
+      hasMandatoryXP_(other.hasMandatoryXP_),
+      partReqType_(other.partReqType_),
+      partitionByTree_(other.partitionByTree_),
+      isCIFOn_(other.isCIFOn_),
+      predExprTree_(other.predExprTree_),
+      firstNRowsParam_(other.firstNRowsParam_),
+      isOlapMultiWindowTopRoot_(other.isOlapMultiWindowTopRoot_),
+      hasPotentialMultipleOlapWindows_(other.hasPotentialMultipleOlapWindows_),
+      firstNPredUsed_(other.firstNPredUsed_),
+      flags_(other.flags_) {
+  oltOptInfo() = ((RelRoot &)other).oltOptInfo();
   setRETDesc(other.getRETDesc());
   pRelRootCostMethod_ = new (CmpCommon::statementHeap()) CostMethodRelRoot();
 }
 
-RelRoot::~RelRoot()
-{
+RelRoot::~RelRoot() {
   //	Explicitly deleting our members is deliberately not being done --
   //	we should allocate all RelExpr's on the appropriate heap
   //	(as a NABasicObject) and free the (stmt) heap all in one blow.
@@ -11702,23 +9539,18 @@ RelRoot::~RelRoot()
 
 Int32 RelRoot::getArity() const { return 1; }
 
-void RelRoot::getPotentialOutputValues(ValueIdSet & outputValues) const
-{
+void RelRoot::getPotentialOutputValues(ValueIdSet &outputValues) const {
   outputValues.clear();
   //
   // Assign the select list as the outputs
   //
   outputValues.insertList(compExpr());
-} // RelRoot::getPotentialOutputValues()
+}  // RelRoot::getPotentialOutputValues()
 
-
-void RelRoot::pushdownCoveredExpr(const ValueIdSet & outputExpr,
-                                  const ValueIdSet & newExternalInputs,
-                                  ValueIdSet & predicatesOnParent,
-				  const ValueIdSet * setOfValuesReqdByParent,
-				  Lng32   //childIndex ignored
-		                 )
-{
+void RelRoot::pushdownCoveredExpr(const ValueIdSet &outputExpr, const ValueIdSet &newExternalInputs,
+                                  ValueIdSet &predicatesOnParent, const ValueIdSet *setOfValuesReqdByParent,
+                                  Lng32  // childIndex ignored
+) {
   //---------------------------------------------------------------------
   // case 10-030708-7671: In the case of a cast, the RelRoot operator
   // needs to ask for original expression it is casting; if it asks for
@@ -11731,7 +9563,6 @@ void RelRoot::pushdownCoveredExpr(const ValueIdSet & outputExpr,
 
   updateOutputs.replaceCastExprWithOriginal(originalOutputs, this);
 
-
   ValueIdSet myCharInput = getGroupAttr()->getCharacteristicInputs();
 
   // since the orderby list is not a subset of the select list include it.
@@ -11740,43 +9571,34 @@ void RelRoot::pushdownCoveredExpr(const ValueIdSet & outputExpr,
   allMyExpr.insertList(orderByList);
 
   // add the primary key columns, if they are to be returned.
-  if (updatableSelect() == TRUE)
-  {
+  if (updatableSelect() == TRUE) {
     allMyExpr.insertList(pkeyList());
   }
   // ---------------------------------------------------------------------
-  RelExpr::pushdownCoveredExpr(updateOutputs,
-                               myCharInput,
-                               predicatesOnParent,
-			       &allMyExpr
-                               );
+  RelExpr::pushdownCoveredExpr(updateOutputs, myCharInput, predicatesOnParent, &allMyExpr);
 
   // All expressions should have been pushed
   CMPASSERT(predicatesOnParent.isEmpty());
 
-} // RelRoot::pushdownCoveredExpr
+}  // RelRoot::pushdownCoveredExpr
 
-const NAString RelRoot::getText() const
-{
-	NAString result("root");
+const NAString RelRoot::getText() const {
+  NAString result("root");
 
 #ifdef DEBUG_TRIGGERS
-	char totalNodes[20];
-	sprintf(totalNodes, "(total %d nodes)", nodeCount());
-	result += totalNodes;
+  char totalNodes[20];
+  sprintf(totalNodes, "(total %d nodes)", nodeCount());
+  result += totalNodes;
 
-	if (isDontOpenNewScope())
-		result += "(no_scope)";
+  if (isDontOpenNewScope()) result += "(no_scope)";
 
-	if (isEmptySelectList())
-		result += "(empty_select_list)";
+  if (isEmptySelectList()) result += "(empty_select_list)";
 #endif
 
-	return result;
+  return result;
 }
 
-HashValue RelRoot::topHash()
-{
+HashValue RelRoot::topHash() {
   HashValue result = RelExpr::topHash();
 
   // it's not (yet) needed to produce a really good hash value for this node
@@ -11787,55 +9609,37 @@ HashValue RelRoot::topHash()
   return result;
 }
 
-NABoolean RelRoot::duplicateMatch(const RelExpr & other) const
-{
-  if (!RelExpr::duplicateMatch(other))
-    return FALSE;
+NABoolean RelRoot::duplicateMatch(const RelExpr &other) const {
+  if (!RelExpr::duplicateMatch(other)) return FALSE;
 
-  RelRoot &o = (RelRoot &) other;
+  RelRoot &o = (RelRoot &)other;
 
-  if (NOT (compExpr_ == o.compExpr_) OR
-      NOT (inputVars_ == o.inputVars_))
-    return FALSE;
+  if (NOT(compExpr_ == o.compExpr_) OR NOT(inputVars_ == o.inputVars_)) return FALSE;
 
-  if (avoidHalloween_ != o.avoidHalloween_)
-    return FALSE;
+  if (avoidHalloween_ != o.avoidHalloween_) return FALSE;
 
-  if (disableESPParallelism_ != o.disableESPParallelism_)
-    return FALSE;
+  if (disableESPParallelism_ != o.disableESPParallelism_) return FALSE;
 
-  if (isAnalyzeOnly_ != o.isAnalyzeOnly_)
-    return FALSE;
+  if (isAnalyzeOnly_ != o.isAnalyzeOnly_) return FALSE;
 
   return TRUE;
 }
 
-RelExpr * RelRoot::copyTopNode(RelExpr *derivedNode, CollHeap* outHeap)
-{
+RelExpr *RelRoot::copyTopNode(RelExpr *derivedNode, CollHeap *outHeap) {
   RelRoot *result;
 
   if (derivedNode == NULL)
-    result = new (outHeap) RelRoot(NULL,
-				   getOperatorType(),
-				   NULL,
-				   NULL,
-				   NULL,
-				   NULL,
-				   outHeap);
+    result = new (outHeap) RelRoot(NULL, getOperatorType(), NULL, NULL, NULL, NULL, outHeap);
   else
-    result = (RelRoot *) derivedNode;
+    result = (RelRoot *)derivedNode;
 
-  if (compExprTree_ != NULL)
-    result->compExprTree_ = compExprTree_->copyTree(outHeap)->castToItemExpr();
+  if (compExprTree_ != NULL) result->compExprTree_ = compExprTree_->copyTree(outHeap)->castToItemExpr();
 
-  if (inputVarTree_ != NULL)
-    result->inputVarTree_ = inputVarTree_->copyTree(outHeap)->castToItemExpr();
+  if (inputVarTree_ != NULL) result->inputVarTree_ = inputVarTree_->copyTree(outHeap)->castToItemExpr();
 
-  if (outputVarTree_ != NULL)
-    result->outputVarTree_ = outputVarTree_->copyTree(outHeap)->castToItemExpr();
+  if (outputVarTree_ != NULL) result->outputVarTree_ = outputVarTree_->copyTree(outHeap)->castToItemExpr();
 
-  if (predExprTree_ != NULL)
-    result->predExprTree_ = predExprTree_->copyTree(outHeap)->castToItemExpr();
+  if (predExprTree_ != NULL) result->predExprTree_ = predExprTree_->copyTree(outHeap)->castToItemExpr();
 
   result->compExpr_ = compExpr_;
   result->inputVars_ = inputVars_;
@@ -11844,8 +9648,7 @@ RelExpr * RelRoot::copyTopNode(RelExpr *derivedNode, CollHeap* outHeap)
 
   result->updatableSelect_ = updatableSelect_;
   result->updateCurrentOf_ = updateCurrentOf_;
-  if (currOfCursorName())
-    result->currOfCursorName_ = currOfCursorName()->copyTree(outHeap)->castToItemExpr();
+  if (currOfCursorName()) result->currOfCursorName_ = currOfCursorName()->copyTree(outHeap)->castToItemExpr();
 
   result->rollbackOnError_ = rollbackOnError_;
 
@@ -11860,16 +9663,14 @@ RelExpr * RelRoot::copyTopNode(RelExpr *derivedNode, CollHeap* outHeap)
   result->parentForRowsetReqdOrder_ = parentForRowsetReqdOrder_;
 
   // Raj P - 12/2000 stored procedures (for java)
-  if ( spOutParams_ )
-  {
-    result->spOutParams_ = new ItemExprList (outHeap);
+  if (spOutParams_) {
+    result->spOutParams_ = new ItemExprList(outHeap);
     (*result->spOutParams_) = *spOutParams_;
   }
 
-  if( uninitializedMvList_ )
-  {
-      result->uninitializedMvList_ = new UninitializedMvNameList (outHeap);
-      result->uninitializedMvList_->insert( *uninitializedMvList_ );
+  if (uninitializedMvList_) {
+    result->uninitializedMvList_ = new UninitializedMvNameList(outHeap);
+    result->uninitializedMvList_->insert(*uninitializedMvList_);
   }
 
   result->setDownrevCompileMXV(getDownrevCompileMXV());
@@ -11888,14 +9689,13 @@ RelExpr * RelRoot::copyTopNode(RelExpr *derivedNode, CollHeap* outHeap)
 
   result->isAnalyzeOnly_ = isAnalyzeOnly_;
 
-  result->hasMandatoryXP_ = hasMandatoryXP_ ;
+  result->hasMandatoryXP_ = hasMandatoryXP_;
 
-  if (partitionByTree_ != NULL)
-    result->partitionByTree_ = partitionByTree_->copyTree(outHeap)->castToItemExpr();
-  
-  result->partReqType_ = partReqType_ ;
+  if (partitionByTree_ != NULL) result->partitionByTree_ = partitionByTree_->copyTree(outHeap)->castToItemExpr();
 
-  result->isQueryNonCacheable_ = isQueryNonCacheable_; 
+  result->partReqType_ = partReqType_;
+
+  result->isQueryNonCacheable_ = isQueryNonCacheable_;
 
   result->firstNRowsParam_ = firstNRowsParam_;
   result->firstNPredUsed_ = firstNPredUsed_;
@@ -11905,245 +9705,204 @@ RelExpr * RelRoot::copyTopNode(RelExpr *derivedNode, CollHeap* outHeap)
   return RelExpr::copyTopNode(result, outHeap);
 }
 
-void RelRoot::addCompExprTree(ItemExpr *compExpr)
-{
+void RelRoot::addCompExprTree(ItemExpr *compExpr) {
   ExprValueId c = compExprTree_;
 
   ItemExprTreeAsList(&c, ITM_ITEM_LIST).insert(compExpr);
   compExprTree_ = c.getPtr();
 }
 
-ItemExpr * RelRoot::removeCompExprTree()
-{
-  ItemExpr * result = compExprTree_;
+ItemExpr *RelRoot::removeCompExprTree() {
+  ItemExpr *result = compExprTree_;
 
   compExprTree_ = NULL;
 
   return result;
 }
 
-void RelRoot::addPredExprTree(ItemExpr *predExpr)
-{
+void RelRoot::addPredExprTree(ItemExpr *predExpr) {
   ExprValueId c = predExprTree_;
 
   ItemExprTreeAsList(&c, ITM_ITEM_LIST).insert(predExpr);
   predExprTree_ = c.getPtr();
 }
 
-ItemExpr * RelRoot::removePredExprTree()
-{
-  ItemExpr * result = predExprTree_;
+ItemExpr *RelRoot::removePredExprTree() {
+  ItemExpr *result = predExprTree_;
 
   predExprTree_ = NULL;
 
   return result;
 }
 
-void RelRoot::addInputVarTree(ItemExpr *inputVar)
-{
+void RelRoot::addInputVarTree(ItemExpr *inputVar) {
   ExprValueId c = inputVarTree_;
 
   ItemExprTreeAsList(&c, ITM_ITEM_LIST).insert(inputVar);
   inputVarTree_ = c.getPtr();
 }
 
-void RelRoot::addAtTopOfInputVarTree(ItemExpr *inputVar)
-{
+void RelRoot::addAtTopOfInputVarTree(ItemExpr *inputVar) {
   ExprValueId c = inputVarTree_;
 
   ItemExprTreeAsList(&c, ITM_ITEM_LIST).insertAtTop(inputVar);
   inputVarTree_ = c.getPtr();
 }
 
-ItemExpr * RelRoot::removeInputVarTree()
-{
-  ItemExpr * result = inputVarTree_;
+ItemExpr *RelRoot::removeInputVarTree() {
+  ItemExpr *result = inputVarTree_;
 
   inputVarTree_ = NULL;
 
   return result;
 }
 
-void RelRoot::addOutputVarTree(ItemExpr *outputVar)
-{
+void RelRoot::addOutputVarTree(ItemExpr *outputVar) {
   if (!outputVarTree_) {
-    outputVarTree_ = new(CmpCommon::statementHeap()) ItemList(outputVar, NULL);
-  }
-  else {
+    outputVarTree_ = new (CmpCommon::statementHeap()) ItemList(outputVar, NULL);
+  } else {
     ItemExpr *start = outputVarTree_;
     while (start->child(1)) {
-	  start = start->child(1);
+      start = start->child(1);
     }
-    start->child(1) = new(CmpCommon::statementHeap()) ItemList(outputVar, NULL);
+    start->child(1) = new (CmpCommon::statementHeap()) ItemList(outputVar, NULL);
   }
 }
 
 // Used by Assignment Statement in a Compound Statement. It adds a host variable
 // to assignmentStTree_
-void RelRoot::addAssignmentStTree(ItemExpr *inputOutputVar)
-{
+void RelRoot::addAssignmentStTree(ItemExpr *inputOutputVar) {
   if (!assignmentStTree_) {
-     assignmentStTree_ = new(CmpCommon::statementHeap()) ItemList(inputOutputVar, NULL);
-  }
-  else {
+    assignmentStTree_ = new (CmpCommon::statementHeap()) ItemList(inputOutputVar, NULL);
+  } else {
     ItemExpr *start = assignmentStTree_;
     while (start->child(1)) {
-       start = start->child(1);
+      start = start->child(1);
     }
-    start->child(1) = new(CmpCommon::statementHeap()) ItemList(inputOutputVar, NULL);
+    start->child(1) = new (CmpCommon::statementHeap()) ItemList(inputOutputVar, NULL);
   }
 }
 
-ItemExpr * RelRoot::removeOutputVarTree()
-{
-  ItemExpr * result = outputVarTree_;
+ItemExpr *RelRoot::removeOutputVarTree() {
+  ItemExpr *result = outputVarTree_;
 
   outputVarTree_ = NULL;
 
   return result;
 }
 
-void RelRoot::addOrderByTree(ItemExpr *orderBy)
-{
+void RelRoot::addOrderByTree(ItemExpr *orderBy) {
   ExprValueId c = orderByTree_;
 
   ItemExprTreeAsList(&c, ITM_ITEM_LIST).insert(orderBy);
   orderByTree_ = c.getPtr();
 }
 
-ItemExpr * RelRoot::removeOrderByTree()
-{
-  ItemExpr * result = orderByTree_;
+ItemExpr *RelRoot::removeOrderByTree() {
+  ItemExpr *result = orderByTree_;
 
   orderByTree_ = NULL;
 
   return result;
 }
 
-void RelRoot::addPartitionByTree(ItemExpr *partBy)
-{
+void RelRoot::addPartitionByTree(ItemExpr *partBy) {
   ExprValueId c = partitionByTree_;
 
   ItemExprTreeAsList(&c, ITM_ITEM_LIST).insert(partBy);
   partitionByTree_ = c.getPtr();
 }
 
-ItemExpr * RelRoot::removePartitionByTree()
-{
-  ItemExpr * result = partitionByTree_;
+ItemExpr *RelRoot::removePartitionByTree() {
+  ItemExpr *result = partitionByTree_;
 
   partitionByTree_ = NULL;
 
   return result;
 }
 
-void RelRoot::addUpdateColTree(ItemExpr *updateCol)
-{
+void RelRoot::addUpdateColTree(ItemExpr *updateCol) {
   ExprValueId c = updateColTree_;
 
   ItemExprTreeAsList(&c, ITM_ITEM_LIST).insert(updateCol);
   updateColTree_ = c.getPtr();
 }
 
-ItemExpr * RelRoot::removeUpdateColTree()
-{
-  ItemExpr * result = updateColTree_;
+ItemExpr *RelRoot::removeUpdateColTree() {
+  ItemExpr *result = updateColTree_;
 
   updateColTree_ = NULL;
 
   return result;
 }
 
-void RelRoot::addLocalExpr(LIST(ExprNode *) &xlist,
-			   LIST(NAString) &llist) const
-{
-  if (compExprTree_ != NULL OR
-      compExpr_.entries() == 0)
+void RelRoot::addLocalExpr(LIST(ExprNode *) & xlist, LIST(NAString) & llist) const {
+  if (compExprTree_ != NULL OR compExpr_.entries() == 0)
     xlist.insert(compExprTree_);
   else
     xlist.insert(compExpr_.rebuildExprTree(ITM_ITEM_LIST));
   llist.insert("select_list");
 
-  if (inputVarTree_ != NULL OR
-      inputVars_.entries() > 0)
-    {
-      if (inputVars_.entries() == 0)
-	xlist.insert(inputVarTree_);
-      else
-	xlist.insert(inputVars_.rebuildExprTree(ITM_ITEM_LIST));
-      llist.insert("input_variables");
-    }
+  if (inputVarTree_ != NULL OR inputVars_.entries() > 0) {
+    if (inputVars_.entries() == 0)
+      xlist.insert(inputVarTree_);
+    else
+      xlist.insert(inputVars_.rebuildExprTree(ITM_ITEM_LIST));
+    llist.insert("input_variables");
+  }
 
-  if (orderByTree_ != NULL OR
-      reqdOrder_.entries() > 0)
-    {
-      if (reqdOrder_.entries() == 0)
-	xlist.insert(orderByTree_);
-      else
-	xlist.insert(reqdOrder_.rebuildExprTree(ITM_ITEM_LIST));
-      llist.insert("order_by");
-    }
+  if (orderByTree_ != NULL OR reqdOrder_.entries() > 0) {
+    if (reqdOrder_.entries() == 0)
+      xlist.insert(orderByTree_);
+    else
+      xlist.insert(reqdOrder_.rebuildExprTree(ITM_ITEM_LIST));
+    llist.insert("order_by");
+  }
 
-    if ((partitionByTree_ != NULL) OR 
-        (partArrangement_.entries() > 0))
-    {
-      if (partArrangement_.entries() == 0)
-	xlist.insert(partitionByTree_);
-      else
-	xlist.insert(partArrangement_.rebuildExprTree(ITM_ITEM_LIST));
-      llist.insert("partition_by");
-    }
+  if ((partitionByTree_ != NULL) OR(partArrangement_.entries() > 0)) {
+    if (partArrangement_.entries() == 0)
+      xlist.insert(partitionByTree_);
+    else
+      xlist.insert(partArrangement_.rebuildExprTree(ITM_ITEM_LIST));
+    llist.insert("partition_by");
+  }
 
+  if (updateColTree_ != NULL OR updateCol_.entries() > 0) {
+    if (updateCol_.entries() == 0)
+      xlist.insert(updateColTree_);
+    else
+      xlist.insert(updateCol_.rebuildExprTree(ITM_ITEM_LIST));
+    llist.insert("update_col");
+  }
 
-  if (updateColTree_ != NULL OR
-      updateCol_.entries() > 0)
-    {
-      if (updateCol_.entries() == 0)
-	xlist.insert(updateColTree_);
-      else
-	xlist.insert(updateCol_.rebuildExprTree(ITM_ITEM_LIST));
-      llist.insert("update_col");
-    }
+  if (reqdShape_ != NULL) {
+    xlist.insert(reqdShape_);
+    llist.insert("must_match");
+  }
 
-  if (reqdShape_ != NULL)
-    {
-      xlist.insert(reqdShape_);
-      llist.insert("must_match");
-    }
-
-  RelExpr::addLocalExpr(xlist,llist);
+  RelExpr::addLocalExpr(xlist, llist);
 }
 
 //----------------------------------------------------------------------------
 //++ MV OZ
-NABoolean RelRoot::hasMvBindContext() const
-{
-  return (NULL != pMvBindContextForScope_) ? TRUE : FALSE;
-}
+NABoolean RelRoot::hasMvBindContext() const { return (NULL != pMvBindContextForScope_) ? TRUE : FALSE; }
 
-MvBindContext * RelRoot::getMvBindContext() const
-{
-  return pMvBindContextForScope_;
-}
+MvBindContext *RelRoot::getMvBindContext() const { return pMvBindContextForScope_; }
 
-void RelRoot::setMvBindContext(MvBindContext * pMvBindContext)
-{
-  pMvBindContextForScope_ = pMvBindContext;
-}
+void RelRoot::setMvBindContext(MvBindContext *pMvBindContext) { pMvBindContextForScope_ = pMvBindContext; }
 
-NABoolean RelRoot::addOneRowAggregates(BindWA* bindWA, NABoolean forceGroupByAgg)
-{
+NABoolean RelRoot::addOneRowAggregates(BindWA *bindWA, NABoolean forceGroupByAgg) {
   NABoolean groupByAggNodeAdded = FALSE;
-  RelExpr * childOfRoot = child(0);
+  RelExpr *childOfRoot = child(0);
   GroupByAgg *aggNode = NULL;
   // If the One Row Subquery is already enforced by a scalar aggregate
   // then we do not need to add an additional one row aggregate. The exceptions to
   // this rule is if we have count(t1.a) where t1 itself is a one row subquery.
   // Note that the count is needed in order to have a groupby below the root node.
-  // See soln. 10-071105-8680 
+  // See soln. 10-071105-8680
   // Another exception is when the select list has say max(a) + select a from t1
   // In this case there is a onerowsubquery in the select list but it is a child
-  // of BiArith. Due to all these exceptions we are simply going to scan the select 
+  // of BiArith. Due to all these exceptions we are simply going to scan the select
   // list. As soon as we find something other than an aggregate we take the safe
   // way out and add a one row aggregate.
   // Also if the groupby is non scalar then we need to add a one row aggregate.
@@ -12151,72 +9910,52 @@ NABoolean RelRoot::addOneRowAggregates(BindWA* bindWA, NABoolean forceGroupByAgg
   // Still another exception is if there is a [last 0] on top of this node. We
   // need an extra GroupByAgg node with one row aggregates in this case so
   // we can put the FirstN node underneath that.
-  if (!forceGroupByAgg &&
-      (childOfRoot->getOperatorType() == REL_GROUPBY))
-    {
-      aggNode = (GroupByAgg *)childOfRoot;
+  if (!forceGroupByAgg && (childOfRoot->getOperatorType() == REL_GROUPBY)) {
+    aggNode = (GroupByAgg *)childOfRoot;
 
-      if (!aggNode->groupExpr().isEmpty())
+    if (!aggNode->groupExpr().isEmpty()) aggNode = NULL;
+
+    // Check to see if the compExpr contains a subquery.
+    for (CollIndex i = 0; i < compExpr().entries(); i++)
+      if (compExpr()[i].getItemExpr()->containsOpType(ITM_ROW_SUBQUERY)) {
         aggNode = NULL;
-
-      // Check to see if the compExpr contains a subquery.
-      for (CollIndex i=0; i < compExpr().entries(); i++) 
-	if (compExpr()[i].getItemExpr()->containsOpType(ITM_ROW_SUBQUERY))
-        {
-	  aggNode = NULL ;
-          break;
-        }
-
-    }
-  if (aggNode)
-    return groupByAggNodeAdded;
+        break;
+      }
+  }
+  if (aggNode) return groupByAggNodeAdded;
 
   const RETDesc *oldTable = getRETDesc();
-  RETDesc *resultTable = new(bindWA->wHeap()) RETDesc(bindWA);
-  
-  
+  RETDesc *resultTable = new (bindWA->wHeap()) RETDesc(bindWA);
+
   // Transform select list such that that each item has a oneRow parent.
-  for (CollIndex selectListIndex=0; 
-       selectListIndex < compExpr().entries(); 
-       selectListIndex++)
-  {
-  
+  for (CollIndex selectListIndex = 0; selectListIndex < compExpr().entries(); selectListIndex++) {
     ItemExpr *colExpr = compExpr()[selectListIndex].getItemExpr();
 
     // Build a new OneRow aggregate on top of the existing expression.
-    ItemExpr *newColExpr = new(bindWA->wHeap()) 
-      Aggregate(ITM_ONEROW, colExpr);
+    ItemExpr *newColExpr = new (bindWA->wHeap()) Aggregate(ITM_ONEROW, colExpr);
 
     newColExpr->bindNode(bindWA);
 
     ColumnNameMap *xcnmEntry = oldTable->findColumn(compExpr()[selectListIndex]);
 
-    if (xcnmEntry)	// ## I don't recall when this case occurs...
-      resultTable->addColumn(bindWA,
-	  		     xcnmEntry->getColRefNameObj(),
-	  		     newColExpr->getValueId(),
-			     USER_COLUMN,
-			     xcnmEntry->getColumnDesc()->getHeading());
-    else
-    {
+    if (xcnmEntry)  // ## I don't recall when this case occurs...
+      resultTable->addColumn(bindWA, xcnmEntry->getColRefNameObj(), newColExpr->getValueId(), USER_COLUMN,
+                             xcnmEntry->getColumnDesc()->getHeading());
+    else {
       ColRefName colRefName;
-      resultTable->addColumn(bindWA,
-	                      colRefName,
-			      newColExpr->getValueId());
+      resultTable->addColumn(bindWA, colRefName, newColExpr->getValueId());
     }
 
     // Replace the select list expression with the new one.
     compExpr()[selectListIndex] = newColExpr->getValueId();
   }
- 
 
-  ValueIdSet aggregateExpr(compExpr()) ;
+  ValueIdSet aggregateExpr(compExpr());
   GroupByAgg *newGrby = NULL;
-  newGrby = new(bindWA->wHeap())
-	                 GroupByAgg(childOfRoot, aggregateExpr);
+  newGrby = new (bindWA->wHeap()) GroupByAgg(childOfRoot, aggregateExpr);
 
-  newGrby->bindNode(bindWA) ;
-  child(0) = newGrby ;
+  newGrby->bindNode(bindWA);
+  child(0) = newGrby;
   groupByAggNodeAdded = TRUE;
   // Set the return descriptor
   //
@@ -12228,10 +9967,9 @@ NABoolean RelRoot::addOneRowAggregates(BindWA* bindWA, NABoolean forceGroupByAgg
 // member functions for class PhysicalRelRoot
 // -----------------------------------------------------------------------
 
-NABoolean PhysicalRelRoot::isLogical()  const { return FALSE; }
+NABoolean PhysicalRelRoot::isLogical() const { return FALSE; }
 
 NABoolean PhysicalRelRoot::isPhysical() const { return TRUE; }
-
 
 // -----------------------------------------------------------------------
 // methods for class Tuple
@@ -12239,26 +9977,17 @@ NABoolean PhysicalRelRoot::isPhysical() const { return TRUE; }
 
 THREAD_P Lng32 Tuple::idCounter_(0);
 
-Tuple::Tuple(OperatorTypeEnum oper, ItemExpr *tupleExpr /*= NULL*/,
-             CollHeap *oHeap /*= CmpCommon::statementHeap()*/)
-: RelExpr(oper,NULL,NULL,oHeap),
-  tupleExprTree_(tupleExpr),
-  rejectPredicates_(FALSE)
-{
+Tuple::Tuple(OperatorTypeEnum oper, ItemExpr *tupleExpr /*= NULL*/, CollHeap *oHeap /*= CmpCommon::statementHeap()*/)
+    : RelExpr(oper, NULL, NULL, oHeap), tupleExprTree_(tupleExpr), rejectPredicates_(FALSE) {
   id_ = ++idCounter_;
 }
 
-Tuple::Tuple(ItemExpr *tupleExpr /*= NULL*/,
-             CollHeap *oHeap /*= CmpCommon::statementHeap()*/)
-: RelExpr(REL_TUPLE,NULL,NULL,oHeap),
-  tupleExprTree_(tupleExpr),
-  rejectPredicates_(FALSE)
-{
+Tuple::Tuple(ItemExpr *tupleExpr /*= NULL*/, CollHeap *oHeap /*= CmpCommon::statementHeap()*/)
+    : RelExpr(REL_TUPLE, NULL, NULL, oHeap), tupleExprTree_(tupleExpr), rejectPredicates_(FALSE) {
   id_ = ++idCounter_;
 }
 
-Tuple::Tuple(const Tuple & other) : RelExpr(other.getOperatorType())
-{
+Tuple::Tuple(const Tuple &other) : RelExpr(other.getOperatorType()) {
   selectionPred() = other.getSelectionPred();
 
   tupleExprTree_ = other.tupleExprTree_;
@@ -12276,14 +10005,12 @@ Int32 Tuple::getArity() const { return 0; }
 // A virtual method for computing output values that an operator can
 // produce potentially.
 // -----------------------------------------------------------------------
-void Tuple::getPotentialOutputValues(ValueIdSet & outputValues) const
-{
+void Tuple::getPotentialOutputValues(ValueIdSet &outputValues) const {
   outputValues.clear();
-  outputValues.insertList( tupleExpr() );
-} // Tuple::getPotentialOutputValues()
+  outputValues.insertList(tupleExpr());
+}  // Tuple::getPotentialOutputValues()
 
-HashValue Tuple::topHash()
-{
+HashValue Tuple::topHash() {
   HashValue result = RelExpr::topHash();
 
   result ^= tupleExpr_.entries();
@@ -12291,33 +10018,27 @@ HashValue Tuple::topHash()
   return result;
 }
 
-NABoolean Tuple::duplicateMatch(const RelExpr & other) const
-{
-  if (!RelExpr::duplicateMatch(other))
-    return FALSE;
+NABoolean Tuple::duplicateMatch(const RelExpr &other) const {
+  if (!RelExpr::duplicateMatch(other)) return FALSE;
 
-  Tuple &o = (Tuple &) other;
+  Tuple &o = (Tuple &)other;
 
-  if (NOT (tupleExpr_ == o.tupleExpr_))
-    return FALSE;
+  if (NOT(tupleExpr_ == o.tupleExpr_)) return FALSE;
 
-  if (NOT (id_ == o.id_))
-    return FALSE;
+  if (NOT(id_ == o.id_)) return FALSE;
 
   return TRUE;
 }
 
-RelExpr * Tuple::copyTopNode(RelExpr *derivedNode, CollHeap* outHeap)
-{
+RelExpr *Tuple::copyTopNode(RelExpr *derivedNode, CollHeap *outHeap) {
   Tuple *result;
 
   if (derivedNode == NULL)
-    result = new (outHeap) Tuple(NULL,outHeap);
+    result = new (outHeap) Tuple(NULL, outHeap);
   else
-    result = (Tuple *) derivedNode;
+    result = (Tuple *)derivedNode;
 
-  if (tupleExprTree_ != NULL)
-    result->tupleExprTree_ = tupleExprTree_->copyTree(outHeap)->castToItemExpr();
+  if (tupleExprTree_ != NULL) result->tupleExprTree_ = tupleExprTree_->copyTree(outHeap)->castToItemExpr();
 
   result->tupleExpr_ = tupleExpr_;
 
@@ -12326,79 +10047,69 @@ RelExpr * Tuple::copyTopNode(RelExpr *derivedNode, CollHeap* outHeap)
   return RelExpr::copyTopNode(result, outHeap);
 }
 
-void Tuple::addTupleExprTree(ItemExpr *tupleExpr)
-{
+void Tuple::addTupleExprTree(ItemExpr *tupleExpr) {
   ExprValueId t = tupleExprTree_;
 
   ItemExprTreeAsList(&t, ITM_ITEM_LIST).insert(tupleExpr);
   tupleExprTree_ = t.getPtr();
 }
 
-ItemExpr * Tuple::removeTupleExprTree()
-{
-  ItemExpr * result = tupleExprTree_;
+ItemExpr *Tuple::removeTupleExprTree() {
+  ItemExpr *result = tupleExprTree_;
 
   tupleExprTree_ = NULL;
 
   return result;
 }
 
-void Tuple::addLocalExpr(LIST(ExprNode *) &xlist,
-			 LIST(NAString) &llist) const
-{
-  if (tupleExprTree_ != NULL OR
-      NOT tupleExpr_.isEmpty())
-    {
-      if(tupleExpr_.isEmpty())
-	xlist.insert(tupleExprTree_);
-      else
-	xlist.insert(tupleExpr_.rebuildExprTree(ITM_ITEM_LIST));
-      llist.insert("tuple_expr");
-    }
+void Tuple::addLocalExpr(LIST(ExprNode *) & xlist, LIST(NAString) & llist) const {
+  if (tupleExprTree_ != NULL OR NOT tupleExpr_.isEmpty()) {
+    if (tupleExpr_.isEmpty())
+      xlist.insert(tupleExprTree_);
+    else
+      xlist.insert(tupleExpr_.rebuildExprTree(ITM_ITEM_LIST));
+    llist.insert("tuple_expr");
+  }
 
-  RelExpr::addLocalExpr(xlist,llist);
+  RelExpr::addLocalExpr(xlist, llist);
 }
 
-const NAString Tuple::getText() const
-{
+const NAString Tuple::getText() const {
   NAString tmp("values ", CmpCommon::statementHeap());
-  if (tupleExprTree()) tupleExprTree()->unparse(tmp);
-  else                 ((ValueIdList &)tupleExpr()).unparse(tmp);
+  if (tupleExprTree())
+    tupleExprTree()->unparse(tmp);
+  else
+    ((ValueIdList &)tupleExpr()).unparse(tmp);
   return tmp;
 }
 
 // -----------------------------------------------------------------------
 // methods for class TupleList
 // -----------------------------------------------------------------------
-TupleList::TupleList(const TupleList & other) : Tuple(other)
-{
+TupleList::TupleList(const TupleList &other) : Tuple(other) {
   castToList_ = other.castToList_;
   flags_ = other.flags_;
 }
 
-RelExpr * TupleList::copyTopNode(RelExpr *derivedNode, CollHeap* outHeap)
-{
+RelExpr *TupleList::copyTopNode(RelExpr *derivedNode, CollHeap *outHeap) {
   TupleList *result;
 
   if (derivedNode == NULL)
-    result = new (outHeap) TupleList(NULL,outHeap);
+    result = new (outHeap) TupleList(NULL, outHeap);
   else
-    result = (TupleList *) derivedNode;
+    result = (TupleList *)derivedNode;
 
   result->castToList() = castToList();
 
   return Tuple::copyTopNode(result, outHeap);
 }
 
-void TupleList::addLocalExpr(LIST(ExprNode *) &xlist,
-			 LIST(NAString) &llist) const
-{
-  Tuple::addLocalExpr(xlist,llist);
+void TupleList::addLocalExpr(LIST(ExprNode *) & xlist, LIST(NAString) & llist) const {
+  Tuple::addLocalExpr(xlist, llist);
 }
 
-const NAString TupleList::getText() const
-{
-  NAString tmp("TupleList",CmpCommon::statementHeap());
+const NAString TupleList::getText() const {
+  NAString tmp("TupleList", CmpCommon::statementHeap());
 
   return tmp;
 }
@@ -12407,62 +10118,48 @@ const NAString TupleList::getText() const
 // member functions for class PhysicalTuple
 // -----------------------------------------------------------------------
 
-NABoolean PhysicalTuple::isLogical()  const { return FALSE; }
+NABoolean PhysicalTuple::isLogical() const { return FALSE; }
 
 NABoolean PhysicalTuple::isPhysical() const { return TRUE; }
 
 // -----------------------------------------------------------------------
 // Member functions for class FirstN
 // -----------------------------------------------------------------------
-NABoolean FirstN::isUniqueOper()
-{
+NABoolean FirstN::isUniqueOper() {
   NABoolean childUnique = FALSE;
-  if (child(0) && child(0)->castToRelExpr())
-  {
+  if (child(0) && child(0)->castToRelExpr()) {
     RelExpr *childExpr = child(0)->castToRelExpr();
-    if (childExpr->getOperator().match(REL_ANY_HBASE))
-    {
-      if (childExpr->getOperatorType() == REL_HBASE_ACCESS)
-      {
+    if (childExpr->getOperator().match(REL_ANY_HBASE)) {
+      if (childExpr->getOperatorType() == REL_HBASE_ACCESS) {
         HbaseAccess *ha = (HbaseAccess *)childExpr;
         childUnique = ha->uniqueHbaseOper();
-      }
-      else
-      {
+      } else {
         GenericUpdate *gu = (GenericUpdate *)childExpr;
         childUnique = gu->uniqueHbaseOper();
       }
-    }
-    else
-    {
+    } else {
       childUnique = child(0)->isUniqueOper();
     }
   }
   return childUnique;
-
 }
 
-RelExpr * FirstN::copyTopNode(RelExpr *derivedNode,
-			      CollHeap* outHeap)
-{
+RelExpr *FirstN::copyTopNode(RelExpr *derivedNode, CollHeap *outHeap) {
   FirstN *result;
 
   if (derivedNode == NULL) {
-    result = new (outHeap) FirstN(NULL, getFirstNRows(), isFirstN(), getFirstNRowsParam(),
-                                  outHeap);
+    result = new (outHeap) FirstN(NULL, getFirstNRows(), isFirstN(), getFirstNRowsParam(), outHeap);
     result->setCanExecuteInDp2(canExecuteInDp2());
     result->setFirstNPredUsed(firstNPredUsed());
-  }
-  else
-    result = (FirstN *) derivedNode;
+  } else
+    result = (FirstN *)derivedNode;
 
   result->reqdOrder().insert(reqdOrder());
 
   return RelExpr::copyTopNode(result, outHeap);
 }
 
-const NAString FirstN::getText() const
-{
+const NAString FirstN::getText() const {
   NAString result(CmpCommon::statementHeap());
 
   result = "FirstN";
@@ -12474,51 +10171,40 @@ const NAString FirstN::getText() const
 // This method will only search nodes with one child. We do not expect the child First N
 // to occur below a join or union type node. This method will unwind as soon as the first
 // FirstN child is found.
-static NABoolean haveChildFirstNInDp2 (RelExpr * node)
-{
+static NABoolean haveChildFirstNInDp2(RelExpr *node) {
   if (node->getArity() != 1) return FALSE;
-  if (node->child(0))
-  {
-    if (node->child(0)->getOperatorType() == REL_FIRST_N)
-    {  // child is FirstN
-      FirstN * innerFirstN = (FirstN *) node->child(0)->castToRelExpr();
-	if (innerFirstN->canExecuteInDp2())
-	  return TRUE;
-	else
-	  return FALSE;
-    }
-    else
-    {  // have child but it is not FirstN
+  if (node->child(0)) {
+    if (node->child(0)->getOperatorType() == REL_FIRST_N) {  // child is FirstN
+      FirstN *innerFirstN = (FirstN *)node->child(0)->castToRelExpr();
+      if (innerFirstN->canExecuteInDp2())
+        return TRUE;
+      else
+        return FALSE;
+    } else {  // have child but it is not FirstN
       return (haveChildFirstNInDp2(node->child(0)));
     }
-  }
-  else
+  } else
     return FALSE;  // no child even though arity is 1!
 }
 
-RelExpr * FirstN::bindNode(BindWA *bindWA)
-{
-  if (nodeIsBound())
-    {
-      bindWA->getCurrentScope()->setRETDesc(getRETDesc());
-      return this;
-    }
+RelExpr *FirstN::bindNode(BindWA *bindWA) {
+  if (nodeIsBound()) {
+    bindWA->getCurrentScope()->setRETDesc(getRETDesc());
+    return this;
+  }
 
-  if (bindWA->isEmbeddedIUDStatement() && haveChildFirstNInDp2(this))
-    {
-      setCanExecuteInDp2(TRUE);
-    }
+  if (bindWA->isEmbeddedIUDStatement() && haveChildFirstNInDp2(this)) {
+    setCanExecuteInDp2(TRUE);
+  }
 
   return RelExpr::bindNode(bindWA);
 }
 
-NABoolean FirstN::computeRowsAffected() const
-{
-    if (child(0))
-    {
-      return child(0)->castToRelExpr()->computeRowsAffected();
-    }
-    return FALSE;
+NABoolean FirstN::computeRowsAffected() const {
+  if (child(0)) {
+    return child(0)->castToRelExpr()->computeRowsAffected();
+  }
+  return FALSE;
 }
 // member functions for class Filter
 // -----------------------------------------------------------------------
@@ -12527,35 +10213,29 @@ Filter::~Filter() {}
 
 Int32 Filter::getArity() const { return 1; }
 
-HashValue Filter::topHash()
-{
+HashValue Filter::topHash() {
   HashValue result = RelExpr::topHash();
 
   return result;
 }
 
-NABoolean Filter::duplicateMatch(const RelExpr & other) const
-{
-  return RelExpr::duplicateMatch(other);
-}
+NABoolean Filter::duplicateMatch(const RelExpr &other) const { return RelExpr::duplicateMatch(other); }
 
-RelExpr * Filter::copyTopNode(RelExpr *derivedNode, CollHeap* outHeap)
-{
+RelExpr *Filter::copyTopNode(RelExpr *derivedNode, CollHeap *outHeap) {
   Filter *result;
 
   if (derivedNode == NULL)
     result = new (outHeap) Filter(NULL, outHeap);
   else
-    result = (Filter *) derivedNode;
+    result = (Filter *)derivedNode;
 
   return RelExpr::copyTopNode(result, outHeap);
 }
 
-void Filter::getPotentialOutputValues(ValueIdSet & outputValues) const
-{
+void Filter::getPotentialOutputValues(ValueIdSet &outputValues) const {
   outputValues.clear();
   outputValues += child(0)->getGroupAttr()->getCharacteristicOutputs();
-} // Filter::getPotentialOutputValues()
+}  // Filter::getPotentialOutputValues()
 
 const NAString Filter::getText() const { return "filter"; }
 
@@ -12567,14 +10247,12 @@ Rename::~Rename() {}
 
 Int32 Rename::getArity() const { return 1; }
 
-HashValue Rename::topHash()
-{
+HashValue Rename::topHash() {
   ABORT("Hash functions can't be called in the parser");
   return 0x0;
 }
 
-NABoolean Rename::duplicateMatch(const RelExpr & /* other */) const
-{
+NABoolean Rename::duplicateMatch(const RelExpr & /* other */) const {
   ABORT("Duplicate match doesn't work in the parser");
   return FALSE;
 }
@@ -12585,45 +10263,36 @@ NABoolean Rename::duplicateMatch(const RelExpr & /* other */) const
 
 RenameTable::~RenameTable() {}
 
-const NAString RenameTable::getText() const
-{
-  return ("rename_as " + newTableName_.getCorrNameAsString());
-}
+const NAString RenameTable::getText() const { return ("rename_as " + newTableName_.getCorrNameAsString()); }
 
-RelExpr * RenameTable::copyTopNode(RelExpr *derivedNode, CollHeap* outHeap)
-{
+RelExpr *RenameTable::copyTopNode(RelExpr *derivedNode, CollHeap *outHeap) {
   RenameTable *result;
 
   if (derivedNode == NULL)
     result = new (outHeap) RenameTable(TRUE, NULL, newTableName_, NULL, outHeap);
   else
-    result = (RenameTable *) derivedNode;
+    result = (RenameTable *)derivedNode;
 
-  if (newColNamesTree_ != NULL)
-    result->newColNamesTree_ = newColNamesTree_->copyTree(outHeap)->castToItemExpr();
+  if (newColNamesTree_ != NULL) result->newColNamesTree_ = newColNamesTree_->copyTree(outHeap)->castToItemExpr();
 
-  if (viewNATable_ != NULL)
-    result->viewNATable_ = viewNATable_;
+  if (viewNATable_ != NULL) result->viewNATable_ = viewNATable_;
 
   return RelExpr::copyTopNode(result, outHeap);
 }
 
-ItemExpr * RenameTable::removeColNameTree()
-{
-  ItemExpr * result = newColNamesTree_;
+ItemExpr *RenameTable::removeColNameTree() {
+  ItemExpr *result = newColNamesTree_;
 
   newColNamesTree_ = NULL;
 
   return result;
 }
 
-void RenameTable::addLocalExpr(LIST(ExprNode *) &xlist,
-			       LIST(NAString) &llist) const
-{
+void RenameTable::addLocalExpr(LIST(ExprNode *) & xlist, LIST(NAString) & llist) const {
   xlist.insert(newColNamesTree_);
   llist.insert("new_col_names");
 
-  RelExpr::addLocalExpr(xlist,llist);
+  RelExpr::addLocalExpr(xlist, llist);
 }
 
 // -----------------------------------------------------------------------
@@ -12632,33 +10301,26 @@ void RenameTable::addLocalExpr(LIST(ExprNode *) &xlist,
 
 RenameReference::~RenameReference() {}
 
-const NAString RenameReference::getText() const
-{
+const NAString RenameReference::getText() const {
   NAString text("rename_ref");
-  for (CollIndex i=0; i<tableReferences_.entries(); i++)
-	  text += " " + tableReferences_[i].getRefName();
+  for (CollIndex i = 0; i < tableReferences_.entries(); i++) text += " " + tableReferences_[i].getRefName();
   return text;
 }
 
-RelExpr * RenameReference::copyTopNode(RelExpr *derivedNode, CollHeap* outHeap)
-{
+RelExpr *RenameReference::copyTopNode(RelExpr *derivedNode, CollHeap *outHeap) {
   RenameReference *result;
 
-  if (derivedNode == NULL)
-  {
-    TableRefList *tableRef = new(outHeap) TableRefList(tableReferences_);
+  if (derivedNode == NULL) {
+    TableRefList *tableRef = new (outHeap) TableRefList(tableReferences_);
     result = new (outHeap) RenameReference(NULL, *tableRef, outHeap);
-  }
-  else
-    result = (RenameReference *) derivedNode;
+  } else
+    result = (RenameReference *)derivedNode;
 
   return RelExpr::copyTopNode(result, outHeap);
 }
 
-void RenameReference::addLocalExpr(LIST(ExprNode *) &xlist,
-			       LIST(NAString) &llist) const
-{
-  RelExpr::addLocalExpr(xlist,llist);
+void RenameReference::addLocalExpr(LIST(ExprNode *) & xlist, LIST(NAString) & llist) const {
+  RelExpr::addLocalExpr(xlist, llist);
 }
 
 // -----------------------------------------------------------------------
@@ -12667,170 +10329,145 @@ void RenameReference::addLocalExpr(LIST(ExprNode *) &xlist,
 
 BeforeTrigger::~BeforeTrigger() {}
 
-Int32 BeforeTrigger::getArity() const
-{
-	if (child(0) == NULL)
-		return 0;
-	else
-		return 1;
+Int32 BeforeTrigger::getArity() const {
+  if (child(0) == NULL)
+    return 0;
+  else
+    return 1;
 }
 
-const NAString BeforeTrigger::getText() const
-{
+const NAString BeforeTrigger::getText() const {
   NAString text("before_trigger: ");
 
   if (signal_)
-	text += "Signal";
+    text += "Signal";
   else
-	text += "Set";
+    text += "Set";
 
   return text;
 }
 
-RelExpr * BeforeTrigger::copyTopNode(RelExpr *derivedNode, CollHeap* outHeap)
-{
+RelExpr *BeforeTrigger::copyTopNode(RelExpr *derivedNode, CollHeap *outHeap) {
   BeforeTrigger *result;
 
-  if (derivedNode == NULL)
-  {
-	  TableRefList *tableRef   = new(outHeap) TableRefList(tableReferences_);
-	  ItemExpr     *whenClause = NULL;
-	  if (whenClause_ != NULL)
-		  whenClause = whenClause_->copyTree(outHeap);
+  if (derivedNode == NULL) {
+    TableRefList *tableRef = new (outHeap) TableRefList(tableReferences_);
+    ItemExpr *whenClause = NULL;
+    if (whenClause_ != NULL) whenClause = whenClause_->copyTree(outHeap);
 
-	  if (isSignal_)
-	  {
-		RaiseError *signalClause = (RaiseError *)signal_->copyTree(outHeap);
-		result = new (outHeap) BeforeTrigger(*tableRef, whenClause, signalClause, outHeap);
-	  }
-	  else
-	  {
-		CMPASSERT(setList_ != NULL);  // Must have either SET or SIGNAL clause.
-		ItemExprList *setList = new(outHeap) ItemExprList(setList_->entries(), outHeap);
-		for (CollIndex i=0; i<setList_->entries(); i++)
-		  setList->insert(setList_->at(i)->copyTree(outHeap));
+    if (isSignal_) {
+      RaiseError *signalClause = (RaiseError *)signal_->copyTree(outHeap);
+      result = new (outHeap) BeforeTrigger(*tableRef, whenClause, signalClause, outHeap);
+    } else {
+      CMPASSERT(setList_ != NULL);  // Must have either SET or SIGNAL clause.
+      ItemExprList *setList = new (outHeap) ItemExprList(setList_->entries(), outHeap);
+      for (CollIndex i = 0; i < setList_->entries(); i++) setList->insert(setList_->at(i)->copyTree(outHeap));
 
-		result = new (outHeap) BeforeTrigger(*tableRef, whenClause, setList, outHeap);
-	  }
-  }
-  else
-    result = (BeforeTrigger *) derivedNode;
+      result = new (outHeap) BeforeTrigger(*tableRef, whenClause, setList, outHeap);
+    }
+  } else
+    result = (BeforeTrigger *)derivedNode;
 
   return RelExpr::copyTopNode(result, outHeap);
 }
 
-void BeforeTrigger::addLocalExpr(LIST(ExprNode *) &xlist,
-			       LIST(NAString) &llist) const
-{
-  if (whenClause_ != NULL)
-  {
-	llist.insert("WHEN clause");
-	xlist.insert(whenClause_);
+void BeforeTrigger::addLocalExpr(LIST(ExprNode *) & xlist, LIST(NAString) & llist) const {
+  if (whenClause_ != NULL) {
+    llist.insert("WHEN clause");
+    xlist.insert(whenClause_);
   }
 
-  if (signal_)
-  {
-	llist.insert("SIGNAL clause");
-	xlist.insert(signal_);
-  }
-  else
-  {
-	for (CollIndex i=0; i<setList_->entries(); i++)
-	{
-		llist.insert("SET clause");
-		xlist.insert(setList_->at(i));
-	}
+  if (signal_) {
+    llist.insert("SIGNAL clause");
+    xlist.insert(signal_);
+  } else {
+    for (CollIndex i = 0; i < setList_->entries(); i++) {
+      llist.insert("SET clause");
+      xlist.insert(setList_->at(i));
+    }
   }
 
-  RelExpr::addLocalExpr(xlist,llist);
+  RelExpr::addLocalExpr(xlist, llist);
 }
-
 
 // -----------------------------------------------------------------------
 // member functions for class MapValueIds
 // -----------------------------------------------------------------------
-MapValueIds::MapValueIds(RelExpr  *child /*= NULL*/,
-                         CollHeap *oHeap /*= CmpCommon::statementHeap()*/)
-: RelExpr(REL_MAP_VALUEIDS,child,NULL,oHeap), 
-  includesFavoriteMV_(FALSE),
-  cseRef_(NULL)
-{
+MapValueIds::MapValueIds(RelExpr *child /*= NULL*/, CollHeap *oHeap /*= CmpCommon::statementHeap()*/)
+    : RelExpr(REL_MAP_VALUEIDS, child, NULL, oHeap), includesFavoriteMV_(FALSE), cseRef_(NULL) {
   if (oHeap)
-    pCostMethod_ = new (oHeap) CostMethodFixedCostPerRow(0.001     // constant cost for the node
-                                                        , 0.0       // cost per child row
-                                                        , 0.0       // cost per output row
-                                                        );
-  else 
-    pCostMethod_ = new (CmpCommon::statementHeap()) CostMethodFixedCostPerRow(0.001     // constant cost for the node
-                                                                             , 0.0       // cost per child row
-                                                                             , 0.0       // cost per output row
-                                                                             );
+    pCostMethod_ = new (oHeap) CostMethodFixedCostPerRow(0.001  // constant cost for the node
+                                                         ,
+                                                         0.0  // cost per child row
+                                                         ,
+                                                         0.0  // cost per output row
+    );
+  else
+    pCostMethod_ = new (CmpCommon::statementHeap()) CostMethodFixedCostPerRow(0.001  // constant cost for the node
+                                                                              ,
+                                                                              0.0  // cost per child row
+                                                                              ,
+                                                                              0.0  // cost per output row
+    );
 }
 
-MapValueIds::MapValueIds(RelExpr *child,
-                         const ValueIdSet &identity,
-                         CollHeap *oHeap /*= CmpCommon::statementHeap()*/)
-: RelExpr(REL_MAP_VALUEIDS,child,NULL,oHeap),
-  map_(identity), includesFavoriteMV_(FALSE),
-  cseRef_(NULL)
-{
+MapValueIds::MapValueIds(RelExpr *child, const ValueIdSet &identity, CollHeap *oHeap /*= CmpCommon::statementHeap()*/)
+    : RelExpr(REL_MAP_VALUEIDS, child, NULL, oHeap), map_(identity), includesFavoriteMV_(FALSE), cseRef_(NULL) {
   if (oHeap)
-    pCostMethod_ = new (oHeap) CostMethodFixedCostPerRow(0.001     // constant cost for the node
-                                                        , 0.0       // cost per child row
-                                                        , 0.0       // cost per output row
-                                                        );
-  else 
-    pCostMethod_ = new (CmpCommon::statementHeap()) CostMethodFixedCostPerRow(0.001     // constant cost for the node
-                                                                             , 0.0       // cost per child row
-                                                                             , 0.0       // cost per output row
-                                                                             );
+    pCostMethod_ = new (oHeap) CostMethodFixedCostPerRow(0.001  // constant cost for the node
+                                                         ,
+                                                         0.0  // cost per child row
+                                                         ,
+                                                         0.0  // cost per output row
+    );
+  else
+    pCostMethod_ = new (CmpCommon::statementHeap()) CostMethodFixedCostPerRow(0.001  // constant cost for the node
+                                                                              ,
+                                                                              0.0  // cost per child row
+                                                                              ,
+                                                                              0.0  // cost per output row
+    );
 }
 
-MapValueIds::MapValueIds(RelExpr *child,
-                         const ValueIdMap &map,
-                         CollHeap *oHeap /*= CmpCommon::statementHeap()*/)
-: RelExpr(REL_MAP_VALUEIDS,child,NULL,oHeap),
-  map_(map), includesFavoriteMV_(FALSE),
-  cseRef_(NULL)
-{
+MapValueIds::MapValueIds(RelExpr *child, const ValueIdMap &map, CollHeap *oHeap /*= CmpCommon::statementHeap()*/)
+    : RelExpr(REL_MAP_VALUEIDS, child, NULL, oHeap), map_(map), includesFavoriteMV_(FALSE), cseRef_(NULL) {
   if (oHeap)
-    pCostMethod_ = new (oHeap) CostMethodFixedCostPerRow(0.001     // constant cost for the node
-                                                        , 0.0       // cost per child row
-                                                        , 0.0       // cost per output row
-                                                        );
-  else 
-    pCostMethod_ = new (CmpCommon::statementHeap()) CostMethodFixedCostPerRow(0.001     // constant cost for the node
-                                                                             , 0.0       // cost per child row
-                                                                             , 0.0       // cost per output row
-                                                                             );
+    pCostMethod_ = new (oHeap) CostMethodFixedCostPerRow(0.001  // constant cost for the node
+                                                         ,
+                                                         0.0  // cost per child row
+                                                         ,
+                                                         0.0  // cost per output row
+    );
+  else
+    pCostMethod_ = new (CmpCommon::statementHeap()) CostMethodFixedCostPerRow(0.001  // constant cost for the node
+                                                                              ,
+                                                                              0.0  // cost per child row
+                                                                              ,
+                                                                              0.0  // cost per output row
+    );
 }
 
-MapValueIds::MapValueIds(const MapValueIds & other)
-: RelExpr(REL_MAP_VALUEIDS, other.child(0)),
-  map_(other.map_),
-  valuesNeededForVEGRewrite_(other.valuesNeededForVEGRewrite_),
-  includesFavoriteMV_(other.includesFavoriteMV_),
-  cseRef_(other.cseRef_)
-{
-  pCostMethod_ = new (CmpCommon::statementHeap()) CostMethodFixedCostPerRow(0.001     // constant cost for the node
-                                                                           , 0.0       // cost per child row
-                                                                           , 0.0       // cost per output row
-                                                                           );
+MapValueIds::MapValueIds(const MapValueIds &other)
+    : RelExpr(REL_MAP_VALUEIDS, other.child(0)),
+      map_(other.map_),
+      valuesNeededForVEGRewrite_(other.valuesNeededForVEGRewrite_),
+      includesFavoriteMV_(other.includesFavoriteMV_),
+      cseRef_(other.cseRef_) {
+  pCostMethod_ = new (CmpCommon::statementHeap()) CostMethodFixedCostPerRow(0.001  // constant cost for the node
+                                                                            ,
+                                                                            0.0  // cost per child row
+                                                                            ,
+                                                                            0.0  // cost per output row
+  );
 }
 
-MapValueIds::~MapValueIds()
-{
-}
+MapValueIds::~MapValueIds() {}
 
 Int32 MapValueIds::getArity() const { return 1; }
 
-void MapValueIds::pushdownCoveredExpr(
-     const ValueIdSet & outputExpr,
-     const ValueIdSet & newExternalInputs,
-     ValueIdSet & predicatesOnParent,
-     const ValueIdSet * setOfValuesReqdByParent,
-     Lng32 childIndex)
-{
+void MapValueIds::pushdownCoveredExpr(const ValueIdSet &outputExpr, const ValueIdSet &newExternalInputs,
+                                      ValueIdSet &predicatesOnParent, const ValueIdSet *setOfValuesReqdByParent,
+                                      Lng32 childIndex) {
   // ---------------------------------------------------------------------
   // Since the MapValueIds node rewrites predicates, the characteristic
   // outputs of the node usually make no sense to the child node. For
@@ -12838,8 +10475,7 @@ void MapValueIds::pushdownCoveredExpr(
   // passing them down to the children.
   // ---------------------------------------------------------------------
   ValueIdSet requiredValues;
-  if (setOfValuesReqdByParent)
-    requiredValues = *setOfValuesReqdByParent;
+  if (setOfValuesReqdByParent) requiredValues = *setOfValuesReqdByParent;
   ValueIdSet translatedOutputs;
   ValueIdSet predsRewrittenForChild;
   ValueIdSet outputValues(outputExpr);
@@ -12847,129 +10483,108 @@ void MapValueIds::pushdownCoveredExpr(
   // first subtract the outputs from the required values, then add back
   // the translated outputs
   outputValues -= getGroupAttr()->getCharacteristicOutputs();
-  getMap().rewriteValueIdSetDown(getGroupAttr()->getCharacteristicOutputs(),
-				 translatedOutputs);
+  getMap().rewriteValueIdSetDown(getGroupAttr()->getCharacteristicOutputs(), translatedOutputs);
   outputValues += translatedOutputs;
 
   translatedOutputs.clear();
   requiredValues -= getGroupAttr()->getCharacteristicOutputs();
-  getMap().rewriteValueIdSetDown(getGroupAttr()->getCharacteristicOutputs(),
-				 translatedOutputs);
+  getMap().rewriteValueIdSetDown(getGroupAttr()->getCharacteristicOutputs(), translatedOutputs);
   requiredValues += translatedOutputs;
 
-  if (cseRef_)
-    {
-      // If this MapValueIds node represents a common subexpression,
-      // then don't try to push predicates again that already have
-      // been pushed down before. VEGPredicates may not be pushable
-      // at all to the rewritten child, and other predicates might
-      // be duplicated with different ValueIds for the internal
-      // operators such as "=", "+", ">".
-      predicatesOnParent -= cseRef_->getPushedPredicates();
+  if (cseRef_) {
+    // If this MapValueIds node represents a common subexpression,
+    // then don't try to push predicates again that already have
+    // been pushed down before. VEGPredicates may not be pushable
+    // at all to the rewritten child, and other predicates might
+    // be duplicated with different ValueIds for the internal
+    // operators such as "=", "+", ">".
+    predicatesOnParent -= cseRef_->getPushedPredicates();
 
-      // Note: This code may be applicable to "regular" MapValueIds as
-      // well.
+    // Note: This code may be applicable to "regular" MapValueIds as
+    // well.
 
-      // Look for VEGPredicates. Those are difficult, because
-      // a) the ValueIdMap in our operator may not have an entry to
-      //    rewrite them, it only has an entry for the VEGRef
-      // b) it may be incorrect to just rewrite the predicate to
-      //    the corresponding VEGPredicate of the child (if any)
-      // c) since we duplicate VEGPredicates, the VEGPredicate may
-      //    have already been pushed down (probably through other
-      //    means) and another pushdown may be unnecessary
-      // d) there may be cases where it is simply not possible
-      //    to push a VEGPredicate down through this node
-      for (ValueId g=predicatesOnParent.init();
-           predicatesOnParent.next(g);
-           predicatesOnParent.advance(g))
-        if (g.getItemExpr()->getOperatorType() == ITM_VEG_PREDICATE)
-          {
-            VEG *veg =
-              static_cast<VEGPredicate *>(g.getItemExpr())->getVEG();
-            ValueId vegRef(veg->getVEGReference()->getValueId());
+    // Look for VEGPredicates. Those are difficult, because
+    // a) the ValueIdMap in our operator may not have an entry to
+    //    rewrite them, it only has an entry for the VEGRef
+    // b) it may be incorrect to just rewrite the predicate to
+    //    the corresponding VEGPredicate of the child (if any)
+    // c) since we duplicate VEGPredicates, the VEGPredicate may
+    //    have already been pushed down (probably through other
+    //    means) and another pushdown may be unnecessary
+    // d) there may be cases where it is simply not possible
+    //    to push a VEGPredicate down through this node
+    for (ValueId g = predicatesOnParent.init(); predicatesOnParent.next(g); predicatesOnParent.advance(g))
+      if (g.getItemExpr()->getOperatorType() == ITM_VEG_PREDICATE) {
+        VEG *veg = static_cast<VEGPredicate *>(g.getItemExpr())->getVEG();
+        ValueId vegRef(veg->getVEGReference()->getValueId());
 
-            if (newExternalInputs.contains(vegRef))
-              {
-                // We are trying to push down a VEGPred and we are at
-                // the same time offering the VEGRef as a new
-                // characteristic input.  Example: We want to push
-                // VEGPred_2(a=b) down and we offer its corresponding
-                // VEGRef_1(a,b) as an input. The map in our
-                // MapValueIds node maps VEGRef_1(a,b) on the top to
-                // VEGRef_99(x,y) on the bottom. Note that either one
-                // of the VEGies might contain a constant that the
-                // other one doesn't contain. Note also that the
-                // MapValueIds node doesn't map characteristic inputs,
-                // those are passed unchanged to the child. So, we need
-                // to generate a predicate for the child that:
-                // a) represents the semantics of VEGPred_2(a,b)
-                // b) compares the new characteristic input
-                //    VEGRef_1(a,b) with some value in the child
-                // c) doesn't change the members of the existing
-                //    VEGies.
-                // The best solution is probably an equals predicate
-                // between the characteristic input and the VEGRef
-                // (or other expression) that is the child's equivalent.
-                // Example:  VEGRef_1(a,b) = VEGRef_99(x,y)
-                ValueId bottomVal;
-                ItemExpr *eqPred = NULL;
+        if (newExternalInputs.contains(vegRef)) {
+          // We are trying to push down a VEGPred and we are at
+          // the same time offering the VEGRef as a new
+          // characteristic input.  Example: We want to push
+          // VEGPred_2(a=b) down and we offer its corresponding
+          // VEGRef_1(a,b) as an input. The map in our
+          // MapValueIds node maps VEGRef_1(a,b) on the top to
+          // VEGRef_99(x,y) on the bottom. Note that either one
+          // of the VEGies might contain a constant that the
+          // other one doesn't contain. Note also that the
+          // MapValueIds node doesn't map characteristic inputs,
+          // those are passed unchanged to the child. So, we need
+          // to generate a predicate for the child that:
+          // a) represents the semantics of VEGPred_2(a,b)
+          // b) compares the new characteristic input
+          //    VEGRef_1(a,b) with some value in the child
+          // c) doesn't change the members of the existing
+          //    VEGies.
+          // The best solution is probably an equals predicate
+          // between the characteristic input and the VEGRef
+          // (or other expression) that is the child's equivalent.
+          // Example:  VEGRef_1(a,b) = VEGRef_99(x,y)
+          ValueId bottomVal;
+          ItemExpr *eqPred = NULL;
 
-                map_.mapValueIdDown(vegRef, bottomVal);
+          map_.mapValueIdDown(vegRef, bottomVal);
 
-                if (vegRef != bottomVal && bottomVal != NULL_VALUE_ID)
-                  {
-                    eqPred = new(CmpCommon::statementHeap()) BiRelat(
-                         ITM_EQUAL,
-                         vegRef.getItemExpr(),
-                         bottomVal.getItemExpr(),
-                         veg->getSpecialNulls());
-                    eqPred->synthTypeAndValueId();
-                    // replace g with the new equals predicate
-                    // when we do the actual rewrite below
-                    map_.addMapEntry(g, eqPred->getValueId());
-                  }
-              }
-            else
-              {
-                // Don't push down VEGPredicates on columns that are
-                // characteristic outputs of the MapValueIds. Those
-                // predicates (or their equivalents) should have
-                // already been pushed down.
-                ValueIdSet vegMembers(veg->getAllValues());
-
-                vegMembers += vegRef;
-                vegMembers.intersectSet(
-                     getGroupAttr()->getCharacteristicOutputs());
-                if (!vegMembers.isEmpty())
-                  {
-                    // a VEGPred on one of my characteristic outputs,
-
-                    // assume that my child tree already has the
-                    // associated VEGPreds and remove this predicate
-                    // silently
-                    predicatesOnParent -= g;
-                  }
-                // else leave the predicate and let the code below deal
-                // with it, this will probably end up in a failed assert
-                // below for predsRewrittenForChild.isEmpty()
-              }
+          if (vegRef != bottomVal && bottomVal != NULL_VALUE_ID) {
+            eqPred = new (CmpCommon::statementHeap())
+                BiRelat(ITM_EQUAL, vegRef.getItemExpr(), bottomVal.getItemExpr(), veg->getSpecialNulls());
+            eqPred->synthTypeAndValueId();
+            // replace g with the new equals predicate
+            // when we do the actual rewrite below
+            map_.addMapEntry(g, eqPred->getValueId());
           }
-    }
+        } else {
+          // Don't push down VEGPredicates on columns that are
+          // characteristic outputs of the MapValueIds. Those
+          // predicates (or their equivalents) should have
+          // already been pushed down.
+          ValueIdSet vegMembers(veg->getAllValues());
+
+          vegMembers += vegRef;
+          vegMembers.intersectSet(getGroupAttr()->getCharacteristicOutputs());
+          if (!vegMembers.isEmpty()) {
+            // a VEGPred on one of my characteristic outputs,
+
+            // assume that my child tree already has the
+            // associated VEGPreds and remove this predicate
+            // silently
+            predicatesOnParent -= g;
+          }
+          // else leave the predicate and let the code below deal
+          // with it, this will probably end up in a failed assert
+          // below for predsRewrittenForChild.isEmpty()
+        }
+      }
+  }
 
   // rewrite the predicates so they can be applied in the child node
-  getMap().rewriteValueIdSetDown(predicatesOnParent,predsRewrittenForChild);
+  getMap().rewriteValueIdSetDown(predicatesOnParent, predsRewrittenForChild);
 
   // use the standard method with the new required values
-  RelExpr::pushdownCoveredExpr(outputValues,
-                               newExternalInputs,
-                               predsRewrittenForChild,
-			       &requiredValues,
-                               childIndex);
+  RelExpr::pushdownCoveredExpr(outputValues, newExternalInputs, predsRewrittenForChild, &requiredValues, childIndex);
 
   // eliminate any VEGPredicates that got duplicated in the parent
-  if (NOT child(0)->isCutOp())
-    predsRewrittenForChild -= child(0)->selectionPred();
+  if (NOT child(0)->isCutOp()) predsRewrittenForChild -= child(0)->selectionPred();
 
   // all predicates must have been pushed down!!
   CMPASSERT(predsRewrittenForChild.isEmpty());
@@ -12978,22 +10593,17 @@ void MapValueIds::pushdownCoveredExpr(
   // Remove entries from the map that are no longer required since
   // they no longer appear in the outputs.
   NABoolean matchWithTopValues = FALSE;
-  if (child(0)->isCutOp() || 
-      child(0)->getOperatorType() == REL_FILTER ||
-      child(0)->getOperatorType() == REL_MAP_VALUEIDS )
-  {
+  if (child(0)->isCutOp() || child(0)->getOperatorType() == REL_FILTER ||
+      child(0)->getOperatorType() == REL_MAP_VALUEIDS) {
     matchWithTopValues = TRUE;
     getMap().removeUnusedEntries(getGroupAttr()->getCharacteristicOutputs(), matchWithTopValues);
-  }
-  else
-  {
+  } else {
     getMap().removeUnusedEntries(child(0)->getGroupAttr()->getCharacteristicOutputs(), matchWithTopValues);
   }
 
-} // MapValueIds::pushdownCoveredExpr
+}  // MapValueIds::pushdownCoveredExpr
 
-void MapValueIds::getPotentialOutputValues(ValueIdSet & outputValues) const
-{
+void MapValueIds::getPotentialOutputValues(ValueIdSet &outputValues) const {
   outputValues.clear();
   //
   // The output of the MapValueId is given by the ValueIds
@@ -13001,29 +10611,23 @@ void MapValueIds::getPotentialOutputValues(ValueIdSet & outputValues) const
   // table.
   //
   outputValues.insertList((getMap2()).getTopValues());
-} // MapValueIds::getPotentialOutputValues()
+}  // MapValueIds::getPotentialOutputValues()
 
-void MapValueIds::addSameMapEntries(const ValueIdSet & newTopBottomValues)
-{
-  for (ValueId x = newTopBottomValues.init();
-	    newTopBottomValues.next(x);
-	    newTopBottomValues.advance(x))
-    addMapEntry(x,x);
+void MapValueIds::addSameMapEntries(const ValueIdSet &newTopBottomValues) {
+  for (ValueId x = newTopBottomValues.init(); newTopBottomValues.next(x); newTopBottomValues.advance(x))
+    addMapEntry(x, x);
 }
 
-void MapValueIds::addLocalExpr(LIST(ExprNode *) &xlist,
-			       LIST(NAString) &llist) const
-{
+void MapValueIds::addLocalExpr(LIST(ExprNode *) & xlist, LIST(NAString) & llist) const {
   xlist.insert(map_.getTopValues().rebuildExprTree(ITM_ITEM_LIST));
   llist.insert("upper_values");
   xlist.insert(map_.getBottomValues().rebuildExprTree(ITM_ITEM_LIST));
   llist.insert("lower_values");
 
-  RelExpr::addLocalExpr(xlist,llist);
+  RelExpr::addLocalExpr(xlist, llist);
 }
 
-HashValue MapValueIds::topHash()
-{
+HashValue MapValueIds::topHash() {
   HashValue result = RelExpr::topHash();
 
   result ^= map_.getTopValues();
@@ -13032,33 +10636,27 @@ HashValue MapValueIds::topHash()
   return result;
 }
 
-NABoolean MapValueIds::duplicateMatch(const RelExpr & other) const
-{
-  if (NOT RelExpr::duplicateMatch(other))
-    return FALSE;
+NABoolean MapValueIds::duplicateMatch(const RelExpr &other) const {
+  if (NOT RelExpr::duplicateMatch(other)) return FALSE;
 
-  MapValueIds &o = (MapValueIds &) other;
+  MapValueIds &o = (MapValueIds &)other;
 
-  if (includesFavoriteMV_ != o.includesFavoriteMV_)
-    return FALSE;
+  if (includesFavoriteMV_ != o.includesFavoriteMV_) return FALSE;
 
-  if (cseRef_ != o.cseRef_)
-    return FALSE;
+  if (cseRef_ != o.cseRef_) return FALSE;
 
-  if (map_ != o.map_)
-    return FALSE;
+  if (map_ != o.map_) return FALSE;
 
   return TRUE;
 }
 
-RelExpr * MapValueIds::copyTopNode(RelExpr *derivedNode, CollHeap* outHeap)
-{
+RelExpr *MapValueIds::copyTopNode(RelExpr *derivedNode, CollHeap *outHeap) {
   MapValueIds *result;
 
   if (derivedNode == NULL)
-    result = new (outHeap) MapValueIds(NULL,map_,outHeap);
+    result = new (outHeap) MapValueIds(NULL, map_, outHeap);
   else
-    result = static_cast<MapValueIds*>(derivedNode);
+    result = static_cast<MapValueIds *>(derivedNode);
 
   result->includesFavoriteMV_ = includesFavoriteMV_;
   result->cseRef_ = cseRef_;
@@ -13066,126 +10664,100 @@ RelExpr * MapValueIds::copyTopNode(RelExpr *derivedNode, CollHeap* outHeap)
   return RelExpr::copyTopNode(result, outHeap);
 }
 
-const NAString MapValueIds::getText() const
-{
-    return "map_value_ids";
-//    return "expr";
+const NAString MapValueIds::getText() const {
+  return "map_value_ids";
+  //    return "expr";
 }
 
 // -----------------------------------------------------------------------
 // Member functions for class PhysicalMapValueIds
 // -----------------------------------------------------------------------
 
-NABoolean PhysicalMapValueIds::isLogical() const  { return FALSE; }
+NABoolean PhysicalMapValueIds::isLogical() const { return FALSE; }
 
 NABoolean PhysicalMapValueIds::isPhysical() const { return TRUE; }
-
 
 // -----------------------------------------------------------------------
 // Member functions for class Describe
 // -----------------------------------------------------------------------
 
-RelExpr * Describe::copyTopNode(RelExpr *derivedNode, CollHeap* outHeap)
-{
+RelExpr *Describe::copyTopNode(RelExpr *derivedNode, CollHeap *outHeap) {
   Describe *result;
 
   if (derivedNode == NULL)
-    result = new (outHeap)
-                 Describe(originalQuery_, getDescribedTableName(), format_, labelAnsiNameSpace_);
+    result = new (outHeap) Describe(originalQuery_, getDescribedTableName(), format_, labelAnsiNameSpace_);
   else
-    result = (Describe *) derivedNode;
+    result = (Describe *)derivedNode;
 
   return RelExpr::copyTopNode(result, outHeap);
 }
 
-const NAString Describe::getText() const
-{
-  return "describe";
-}
+const NAString Describe::getText() const { return "describe"; }
 
 // -----------------------------------------------------------------------
 // Member functions for class ProbeCache
 // -----------------------------------------------------------------------
 
-NABoolean ProbeCache::isLogical()  const { return FALSE; }
+NABoolean ProbeCache::isLogical() const { return FALSE; }
 
 NABoolean ProbeCache::isPhysical() const { return TRUE; }
 
 Int32 ProbeCache::getArity() const { return 1; }
 
-RelExpr * ProbeCache::copyTopNode(RelExpr *derivedNode, CollHeap* outHeap)
-{
+RelExpr *ProbeCache::copyTopNode(RelExpr *derivedNode, CollHeap *outHeap) {
   ProbeCache *result;
 
   if (derivedNode == NULL)
-    result = new (outHeap)
-                 ProbeCache(NULL, numCachedProbes_, outHeap);
+    result = new (outHeap) ProbeCache(NULL, numCachedProbes_, outHeap);
   else
-    result = (ProbeCache *) derivedNode;
+    result = (ProbeCache *)derivedNode;
 
   result->numCachedProbes_ = numCachedProbes_;
-  result->numInnerTuples_  = numInnerTuples_;
+  result->numInnerTuples_ = numInnerTuples_;
 
   return RelExpr::copyTopNode(result, outHeap);
 }
 
-const NAString ProbeCache::getText() const
-{
-  return "probe_cache";
-}
+const NAString ProbeCache::getText() const { return "probe_cache"; }
 
 // -----------------------------------------------------------------------
 // Member functions for class ControlRunningQuery
 // -----------------------------------------------------------------------
 
-NABoolean ControlRunningQuery::isLogical()  const { return TRUE; }
+NABoolean ControlRunningQuery::isLogical() const { return TRUE; }
 
 NABoolean ControlRunningQuery::isPhysical() const { return TRUE; }
 
 Int32 ControlRunningQuery::getArity() const { return 0; }
 
-RelExpr * ControlRunningQuery::copyTopNode(RelExpr *derivedNode, 
-                                           CollHeap* outHeap)
-{
+RelExpr *ControlRunningQuery::copyTopNode(RelExpr *derivedNode, CollHeap *outHeap) {
   ControlRunningQuery *result = NULL;
-  
-  if (derivedNode == NULL)
-  {
-    switch (qs_)
-    {
+
+  if (derivedNode == NULL) {
+    switch (qs_) {
       case ControlNidPid:
-        result = new (outHeap) ControlRunningQuery(nid_, pid_, 
-                                ControlNidPid, action_, forced_, outHeap);
+        result = new (outHeap) ControlRunningQuery(nid_, pid_, ControlNidPid, action_, forced_, outHeap);
         break;
       case ControlPname:
-        result = new (outHeap) 
-              ControlRunningQuery(pname_, ControlPname, action_, forced_, 
-                                  outHeap);
+        result = new (outHeap) ControlRunningQuery(pname_, ControlPname, action_, forced_, outHeap);
         break;
       case ControlQid:
-        result = new (outHeap)
-              ControlRunningQuery(queryId_, ControlQid, action_, forced_,
-                                  outHeap);
+        result = new (outHeap) ControlRunningQuery(queryId_, ControlQid, action_, forced_, outHeap);
         break;
       default:
         CMPASSERT(0);
     }
     result->setComment(comment_);
-  }
-  else
-    result = (ControlRunningQuery *) derivedNode;
-  
+  } else
+    result = (ControlRunningQuery *)derivedNode;
+
   return RelExpr::copyTopNode(result, outHeap);
 }
 
-const NAString ControlRunningQuery::getText() const
-{
-  return "control_running_query";
-}
+const NAString ControlRunningQuery::getText() const { return "control_running_query"; }
 
-void ControlRunningQuery::setComment(NAString &comment)
-{
-  NAString cancelComment (comment, CmpCommon::statementHeap());
+void ControlRunningQuery::setComment(NAString &comment) {
+  NAString cancelComment(comment, CmpCommon::statementHeap());
   comment_ = cancelComment;
 }
 
@@ -13193,11 +10765,9 @@ void ControlRunningQuery::setComment(NAString &comment)
 // member functions for class CSEInfo (helper for CommonSubExprRef)
 // -----------------------------------------------------------------------
 
-Int32 CSEInfo::getTotalNumRefs(Int32 restrictToSingleConsumer) const
-{
+Int32 CSEInfo::getTotalNumRefs(Int32 restrictToSingleConsumer) const {
   // shortcut for main query
-  if (cseId_ == CmpStatement::getCSEIdForMainQuery())
-    return 1;
+  if (cseId_ == CmpStatement::getCSEIdForMainQuery()) return 1;
 
   // Calculate how many times we will evaluate this common subexpression
   // at runtime:
@@ -13211,64 +10781,49 @@ Int32 CSEInfo::getTotalNumRefs(Int32 restrictToSingleConsumer) const
   CollIndex minc = 0;
   CollIndex maxc = consumers_.entries();
 
-  if (restrictToSingleConsumer >= 0)
-    {
-      // count only the executions resulting from a single consumer
-      minc = restrictToSingleConsumer;
-      maxc = minc + 1;
-    }
+  if (restrictToSingleConsumer >= 0) {
+    // count only the executions resulting from a single consumer
+    minc = restrictToSingleConsumer;
+    maxc = minc + 1;
+  }
 
   // loop over all consumers or look at just one
-  for (CollIndex c=minc; c<maxc; c++)
-    {
-      if (isShared(c))
-        {
-          sharedConsumers = TRUE;
-        }
-      else
-        {
-          CommonSubExprRef *consumer = getConsumer(c);
-          CSEInfo *parentInfo = CmpCommon::statement()->getCSEInfoById(
-               consumer->getParentCSEId());
-          NABoolean duplicateDueToSharedConsumer = FALSE;
+  for (CollIndex c = minc; c < maxc; c++) {
+    if (isShared(c)) {
+      sharedConsumers = TRUE;
+    } else {
+      CommonSubExprRef *consumer = getConsumer(c);
+      CSEInfo *parentInfo = CmpCommon::statement()->getCSEInfoById(consumer->getParentCSEId());
+      NABoolean duplicateDueToSharedConsumer = FALSE;
 
-          // Don't double-count consumers that originate from the
-          // same parent CSE, have the same lexical ref number from
-          // the parent, and are shared.
-          if (parentInfo->isShared(
-                   consumer->getParentConsumerId()))
-            {
-              for (CollIndex d=0; d<countsByCSE.entries(); d++)
-                if (countsByCSE[d].getInfo() == parentInfo &&
-                    countsByCSE[d].getLexicalCount() ==
-                    consumer->getLexicalRefNumFromParent())
-                  {
-                    duplicateDueToSharedConsumer = TRUE;
-                    break;
-                  }
+      // Don't double-count consumers that originate from the
+      // same parent CSE, have the same lexical ref number from
+      // the parent, and are shared.
+      if (parentInfo->isShared(consumer->getParentConsumerId())) {
+        for (CollIndex d = 0; d < countsByCSE.entries(); d++)
+          if (countsByCSE[d].getInfo() == parentInfo &&
+              countsByCSE[d].getLexicalCount() == consumer->getLexicalRefNumFromParent()) {
+            duplicateDueToSharedConsumer = TRUE;
+            break;
+          }
 
-              // First consumer from this parent CSE with this lexical
-              // ref number, remember that we are going to count
-              // it. Note that we are use the lexical ref "count" in
-              // CountedCSEInfo as the lexical ref number in this
-              // method, so the name "count" means "ref number" in
-              // this context.
-              if (!duplicateDueToSharedConsumer)
-                countsByCSE.insert(
-                     CountedCSEInfo(
-                          parentInfo,
-                          consumer->getLexicalRefNumFromParent()));
-            } // parent consumer is shared
+        // First consumer from this parent CSE with this lexical
+        // ref number, remember that we are going to count
+        // it. Note that we are use the lexical ref "count" in
+        // CountedCSEInfo as the lexical ref number in this
+        // method, so the name "count" means "ref number" in
+        // this context.
+        if (!duplicateDueToSharedConsumer)
+          countsByCSE.insert(CountedCSEInfo(parentInfo, consumer->getLexicalRefNumFromParent()));
+      }  // parent consumer is shared
 
-          if (!duplicateDueToSharedConsumer)
-            {
-              // recursively determine number of times the parent of
-              // this consumer gets executed
-              result += parentInfo->getTotalNumRefs(
-                   consumer->getParentConsumerId());
-            }
-        } // consumer is not shared
-    } // loop over consumer(s)
+      if (!duplicateDueToSharedConsumer) {
+        // recursively determine number of times the parent of
+        // this consumer gets executed
+        result += parentInfo->getTotalNumRefs(consumer->getParentConsumerId());
+      }
+    }  // consumer is not shared
+  }    // loop over consumer(s)
 
   if (sharedConsumers)
     // all the shared consumers are handled by evaluating the CSE once
@@ -13277,10 +10832,8 @@ Int32 CSEInfo::getTotalNumRefs(Int32 restrictToSingleConsumer) const
   return result;
 }
 
-CSEInfo::CSEAnalysisOutcome CSEInfo::getAnalysisOutcome(Int32 id) const
-{
-  if (idOfAnalyzingConsumer_ != id &&
-      analysisOutcome_ == CREATE_TEMP)
+CSEInfo::CSEAnalysisOutcome CSEInfo::getAnalysisOutcome(Int32 id) const {
+  if (idOfAnalyzingConsumer_ != id && analysisOutcome_ == CREATE_TEMP)
     // only the analyzing consumer creates and reads the temp, the
     // others only read it
     return TEMP;
@@ -13288,88 +10841,72 @@ CSEInfo::CSEAnalysisOutcome CSEInfo::getAnalysisOutcome(Int32 id) const
     return analysisOutcome_;
 }
 
-Int32 CSEInfo::addChildCSE(CSEInfo *childInfo, NABoolean addLexicalRef)
-{
+Int32 CSEInfo::addChildCSE(CSEInfo *childInfo, NABoolean addLexicalRef) {
   Int32 result = -1;
   CollIndex foundIndex = NULL_COLL_INDEX;
 
   // look for an existing entry
-  for (CollIndex i=0;
-       i<childCSEs_.entries() && foundIndex == NULL_COLL_INDEX;
-       i++)
-    if (childCSEs_[i].getInfo() == childInfo)
-      foundIndex = i;
+  for (CollIndex i = 0; i < childCSEs_.entries() && foundIndex == NULL_COLL_INDEX; i++)
+    if (childCSEs_[i].getInfo() == childInfo) foundIndex = i;
 
-  if (foundIndex == NULL_COLL_INDEX)
-    {
-      // create a new entry
-      foundIndex = childCSEs_.entries();
-      childCSEs_.insert(CountedCSEInfo(childInfo));
-    }           
+  if (foundIndex == NULL_COLL_INDEX) {
+    // create a new entry
+    foundIndex = childCSEs_.entries();
+    childCSEs_.insert(CountedCSEInfo(childInfo));
+  }
 
-  if (addLexicalRef)
-    {
-      // The return value for a lexical ref is the count of lexical
-      // refs for this particular parent/child CSE relationship so far
-      // (0 if this is the first one). Note that we can't say anything
-      // abount counts for expanded refs at this time, those will be
-      // handled later, during the transform phase of the normalizer.
-      result = childCSEs_[foundIndex].getLexicalCount();
-      childCSEs_[foundIndex].incrementLexicalCount();
-    }
+  if (addLexicalRef) {
+    // The return value for a lexical ref is the count of lexical
+    // refs for this particular parent/child CSE relationship so far
+    // (0 if this is the first one). Note that we can't say anything
+    // abount counts for expanded refs at this time, those will be
+    // handled later, during the transform phase of the normalizer.
+    result = childCSEs_[foundIndex].getLexicalCount();
+    childCSEs_[foundIndex].incrementLexicalCount();
+  }
 
   return result;
 }
 
-void CSEInfo::addCSERef(CommonSubExprRef *cse)
-{
+void CSEInfo::addCSERef(CommonSubExprRef *cse) {
   CMPASSERT(name_ == cse->getName());
   cse->setId(consumers_.entries());
   consumers_.insert(cse);
-  if (cse->isALexicalRef())
-    numLexicalRefs_++;
+  if (cse->isALexicalRef()) numLexicalRefs_++;
 }
 
-void CSEInfo::replaceConsumerWithAnAlternative(CommonSubExprRef *c)
-{
+void CSEInfo::replaceConsumerWithAnAlternative(CommonSubExprRef *c) {
   Int32 idToReplace = c->getId();
 
-  if (consumers_[idToReplace] != c)
-    {
-      CollIndex foundPos = alternativeConsumers_.index(c);
+  if (consumers_[idToReplace] != c) {
+    CollIndex foundPos = alternativeConsumers_.index(c);
 
-      CMPASSERT(foundPos != NULL_COLL_INDEX);
-      CMPASSERT(consumers_[idToReplace]->getOriginalRef() ==
-                c->getOriginalRef());
-      // c moves from the list of copies to the real list and another
-      // consumer moves the opposite way
-      alternativeConsumers_.removeAt(foundPos);
-      alternativeConsumers_.insert(consumers_[idToReplace]);
-      consumers_[idToReplace] = c;
-    }
+    CMPASSERT(foundPos != NULL_COLL_INDEX);
+    CMPASSERT(consumers_[idToReplace]->getOriginalRef() == c->getOriginalRef());
+    // c moves from the list of copies to the real list and another
+    // consumer moves the opposite way
+    alternativeConsumers_.removeAt(foundPos);
+    alternativeConsumers_.insert(consumers_[idToReplace]);
+    consumers_[idToReplace] = c;
+  }
 }
 
 // -----------------------------------------------------------------------
 // member functions for class CommonSubExprRef
 // -----------------------------------------------------------------------
 
-NABoolean CommonSubExprRef::isAChildOfTheMainQuery() const
-{
+NABoolean CommonSubExprRef::isAChildOfTheMainQuery() const {
   return (parentCSEId_ == CmpStatement::getCSEIdForMainQuery());
 }
 
-CommonSubExprRef::~CommonSubExprRef()
-{
-}
+CommonSubExprRef::~CommonSubExprRef() {}
 
-Int32 CommonSubExprRef::getArity() const
-{
+Int32 CommonSubExprRef::getArity() const {
   // always return 1 for now, that may change in the future
   return 1;
 }
 
-void CommonSubExprRef::addToCmpStatement(NABoolean lexicalRef)
-{
+void CommonSubExprRef::addToCmpStatement(NABoolean lexicalRef) {
   NABoolean alreadySeen = TRUE;
 
   // look up whether a CSE with this name already exists
@@ -13381,24 +10918,19 @@ void CommonSubExprRef::addToCmpStatement(NABoolean lexicalRef)
   // before the bind phase)
   CMPASSERT(isALexicalRef() == lexicalRef);
 
-  if (!info)
-    {
-      // make a new object to hold a list of all references
-      // to this CSE (the first one of them will be "this")
-      info = new(CmpCommon::statementHeap())
-        CSEInfo(internalName_,
-                CmpCommon::statementHeap());
-      alreadySeen = FALSE;
-    }
+  if (!info) {
+    // make a new object to hold a list of all references
+    // to this CSE (the first one of them will be "this")
+    info = new (CmpCommon::statementHeap()) CSEInfo(internalName_, CmpCommon::statementHeap());
+    alreadySeen = FALSE;
+  }
 
   info->addCSERef(this);
 
-  if (!alreadySeen)
-    CmpCommon::statement()->addCSEInfo(info);
+  if (!alreadySeen) CmpCommon::statement()->addCSEInfo(info);
 }
 
-void CommonSubExprRef::addParentRef(CommonSubExprRef *parentRef)
-{
+void CommonSubExprRef::addParentRef(CommonSubExprRef *parentRef) {
   // Establish the parent/child relationship between two
   // CommonSubExprRef nodes, or between the main query and a
   // CommonSubExprRef node (parentRef == NULL). Also, record
@@ -13411,11 +10943,9 @@ void CommonSubExprRef::addParentRef(CommonSubExprRef *parentRef)
   //   parent CSE and parent ref
 
   // parent info is for a parent CSE or for the main query
-  CSEInfo *parentInfo =
-    (parentRef ? CmpCommon::statement()->getCSEInfo(parentRef->getName())
-               : CmpCommon::statement()->getCSEInfoForMainQuery());
-  CSEInfo *childInfo =
-    CmpCommon::statement()->getCSEInfo(getName());
+  CSEInfo *parentInfo = (parentRef ? CmpCommon::statement()->getCSEInfo(parentRef->getName())
+                                   : CmpCommon::statement()->getCSEInfoForMainQuery());
+  CSEInfo *childInfo = CmpCommon::statement()->getCSEInfo(getName());
 
   CMPASSERT(parentInfo && childInfo);
 
@@ -13425,8 +10955,7 @@ void CommonSubExprRef::addParentRef(CommonSubExprRef *parentRef)
   // lexical refs, the other refs will be handled later, in the SQO
   // phase. This is since expanded refs may be processed before their
   // lexical ref and we may not know this value yet.
-  lexicalRefNumFromParent_ =
-    parentInfo->addChildCSE(childInfo, isALexicalRef());
+  lexicalRefNumFromParent_ = parentInfo->addChildCSE(childInfo, isALexicalRef());
 
   parentCSEId_ = parentInfo->getCSEId();
   if (parentRef)
@@ -13435,29 +10964,23 @@ void CommonSubExprRef::addParentRef(CommonSubExprRef *parentRef)
     parentRefId_ = -1;  // main query does not have a CommonSubExprRef
 }
 
-NABoolean CommonSubExprRef::isFirstReference() const
-{
+NABoolean CommonSubExprRef::isFirstReference() const {
   return (CmpCommon::statement()->getCSEInfo(internalName_) == NULL);
 }
 
-void CommonSubExprRef::addLocalExpr(LIST(ExprNode *) &xlist,
-                                    LIST(NAString) &llist) const
-{
-  if (NOT columnList_.isEmpty())
-    {
-      xlist.insert(columnList_.rebuildExprTree(ITM_ITEM_LIST));
-      llist.insert("column_list");
-    }
+void CommonSubExprRef::addLocalExpr(LIST(ExprNode *) & xlist, LIST(NAString) & llist) const {
+  if (NOT columnList_.isEmpty()) {
+    xlist.insert(columnList_.rebuildExprTree(ITM_ITEM_LIST));
+    llist.insert("column_list");
+  }
 
-  if(NOT pushedPredicates_.isEmpty())
-  {
+  if (NOT pushedPredicates_.isEmpty()) {
     xlist.insert(pushedPredicates_.rebuildExprTree());
     llist.insert("pushed_predicates");
   }
 }
 
-HashValue CommonSubExprRef::topHash()
-{
+HashValue CommonSubExprRef::topHash() {
   HashValue result = RelExpr::topHash();
 
   result ^= internalName_;
@@ -13468,77 +10991,62 @@ HashValue CommonSubExprRef::topHash()
   return result;
 }
 
-NABoolean CommonSubExprRef::duplicateMatch(const RelExpr & other) const
-{
-  if (NOT RelExpr::duplicateMatch(other))
-    return FALSE;
+NABoolean CommonSubExprRef::duplicateMatch(const RelExpr &other) const {
+  if (NOT RelExpr::duplicateMatch(other)) return FALSE;
 
   const CommonSubExprRef &o = static_cast<const CommonSubExprRef &>(other);
 
-  return (internalName_ == o.internalName_ &&
-          id_ == o.id_ &&
-          columnList_ == o.columnList_ &&
+  return (internalName_ == o.internalName_ && id_ == o.id_ && columnList_ == o.columnList_ &&
           pushedPredicates_ == o.pushedPredicates_);
 }
 
-RelExpr * CommonSubExprRef::copyTopNode(RelExpr *derivedNode,
-                                        CollHeap* outHeap)
-{
+RelExpr *CommonSubExprRef::copyTopNode(RelExpr *derivedNode, CollHeap *outHeap) {
   CommonSubExprRef *result = NULL;
 
   if (derivedNode == NULL)
-    result = new (outHeap) CommonSubExprRef(NULL,
-                                            internalName_.data(),
-                                            outHeap);
+    result = new (outHeap) CommonSubExprRef(NULL, internalName_.data(), outHeap);
   else
     result = static_cast<CommonSubExprRef *>(derivedNode);
 
   // copy fields that are common for bound and unbound nodes
   result->hbAccessOptionsFromCTE_ = hbAccessOptionsFromCTE_;
 
-  if (nodeIsBound())
-    {
-      // if the node is bound, we assume that the copy is serving the same function
-      // as the original, as an alternative, create an "alternative ref"
-      result->setId(id_);
+  if (nodeIsBound()) {
+    // if the node is bound, we assume that the copy is serving the same function
+    // as the original, as an alternative, create an "alternative ref"
+    result->setId(id_);
 
-      result->parentCSEId_ = parentCSEId_;
-      result->parentRefId_ = parentRefId_;
-      result->lexicalRefNumFromParent_ = lexicalRefNumFromParent_;
-      result->columnList_ = columnList_;
-      result->nonVEGColumns_ = nonVEGColumns_;
-      result->commonInputs_ = commonInputs_;
-      result->pushedPredicates_ = pushedPredicates_;
-      result->nonSharedPredicates_ = nonSharedPredicates_;
-      result->cseEstLogProps_ = cseEstLogProps_;
-      // don't copy the tempScan_
+    result->parentCSEId_ = parentCSEId_;
+    result->parentRefId_ = parentRefId_;
+    result->lexicalRefNumFromParent_ = lexicalRefNumFromParent_;
+    result->columnList_ = columnList_;
+    result->nonVEGColumns_ = nonVEGColumns_;
+    result->commonInputs_ = commonInputs_;
+    result->pushedPredicates_ = pushedPredicates_;
+    result->nonSharedPredicates_ = nonSharedPredicates_;
+    result->cseEstLogProps_ = cseEstLogProps_;
+    // don't copy the tempScan_
 
-      // Mark this as an alternative ref, not that this does not
-      // change the status of lexical vs. expanded ref
-      result->isAnExpansionOf_ = isAnExpansionOf_;
-      result->isAnAlternativeOf_ =
-        ( isAnAlternativeOf_ ? isAnAlternativeOf_ : this);
+    // Mark this as an alternative ref, not that this does not
+    // change the status of lexical vs. expanded ref
+    result->isAnExpansionOf_ = isAnExpansionOf_;
+    result->isAnAlternativeOf_ = (isAnAlternativeOf_ ? isAnAlternativeOf_ : this);
 
-      CmpCommon::statement()->getCSEInfo(internalName_)->
-        registerAnAlternativeConsumer(result);
-    }
-  else
-    {
-      // If the node is not bound, we assume that we created an
-      // "expanded" reference to a common subexpression in a tree that
-      // itself is a reference to a CTE (Common Table Expression).
-      // See the comment in RelMisc.h for method isAnExpandedRef()
-      // to explain the term "expanded" ref.
-      result->isAnExpansionOf_ =
-        (isAnExpansionOf_ ? isAnExpansionOf_ : this);
-      result->addToCmpStatement(FALSE);
-    }
+    CmpCommon::statement()->getCSEInfo(internalName_)->registerAnAlternativeConsumer(result);
+  } else {
+    // If the node is not bound, we assume that we created an
+    // "expanded" reference to a common subexpression in a tree that
+    // itself is a reference to a CTE (Common Table Expression).
+    // See the comment in RelMisc.h for method isAnExpandedRef()
+    // to explain the term "expanded" ref.
+    result->isAnExpansionOf_ = (isAnExpansionOf_ ? isAnExpansionOf_ : this);
+    result->addToCmpStatement(FALSE);
+  }
 
   return result;
 }
 
-const NAString CommonSubExprRef::getText() const
-{
+const NAString CommonSubExprRef::getText() const {
   NAString result("cse ");
   char buf[20];
 
@@ -13550,37 +11058,29 @@ const NAString CommonSubExprRef::getText() const
   return result;
 }
 
-Union * CommonSubExprRef::makeUnion(RelExpr *lc,
-                                    RelExpr *rc,
-                                    NABoolean blocked)
-{
+Union *CommonSubExprRef::makeUnion(RelExpr *lc, RelExpr *rc, NABoolean blocked) {
   // Make a regular or blocked union with no characteristic outputs
   Union *result;
   ValueIdSet newInputs(lc->getGroupAttr()->getCharacteristicInputs());
 
-  result = new(CmpCommon::statementHeap()) Union(lc, rc);
+  result = new (CmpCommon::statementHeap()) Union(lc, rc);
 
   newInputs += rc->getGroupAttr()->getCharacteristicInputs();
 
   result->setGroupAttr(new (CmpCommon::statementHeap()) GroupAttributes());
   result->getGroupAttr()->addCharacteristicInputs(newInputs);
 
-  if(blocked)
-    result->setBlockedUnion();
+  if (blocked) result->setBlockedUnion();
 
   return result;
 }
 
-void CommonSubExprRef::display()
-{
+void CommonSubExprRef::display() {
   if (isAChildOfTheMainQuery())
-    printf("Parent: main query, lexical ref %d\n",
-           lexicalRefNumFromParent_);
+    printf("Parent: main query, lexical ref %d\n", lexicalRefNumFromParent_);
   else
     printf("Parent: %s(consumer %d, lexical ref %d)\n",
-           CmpCommon::statement()->getCSEInfoById(
-                parentCSEId_)->getName().data(),
-           parentRefId_,
+           CmpCommon::statement()->getCSEInfoById(parentCSEId_)->getName().data(), parentRefId_,
            lexicalRefNumFromParent_);
   printf("Original columns:\n");
   columnList_.display();
@@ -13594,141 +11094,105 @@ void CommonSubExprRef::display()
   nonVEGColumns_.display();
 }
 
-void CommonSubExprRef::displayAll(const char *optionalId)
-{
+void CommonSubExprRef::displayAll(const char *optionalId) {
   const LIST(CSEInfo *) *cses = CmpCommon::statement()->getCSEInfoList();
 
   if (cses)
-    for (CollIndex i=0; i<cses->entries(); i++)
-      if (!optionalId ||
-          strlen(optionalId) == 0 ||
-          cses->at(i)->getName() == optionalId)
-        {
-          CSEInfo *info = cses->at(i);
-          CollIndex nc = info->getNumConsumers();
-          NABoolean isMainQuery =
-            (info->getCSEId() == CmpStatement::getCSEIdForMainQuery());
+    for (CollIndex i = 0; i < cses->entries(); i++)
+      if (!optionalId || strlen(optionalId) == 0 || cses->at(i)->getName() == optionalId) {
+        CSEInfo *info = cses->at(i);
+        CollIndex nc = info->getNumConsumers();
+        NABoolean isMainQuery = (info->getCSEId() == CmpStatement::getCSEIdForMainQuery());
 
-          if (isMainQuery)
-            {
-              printf("\n\n==========================\n");
-              printf("MainQuery:\n");
-            }
-          else
-            {
-              printf("\n\n==========================\n");
-              printf("CSE: %s (%d consumers, %d lexical ref(s), %d total execution(s))\n",
-                     info->getName().data(),
-                     nc,
-                     info->getNumLexicalRefs(),
-                     info->getTotalNumRefs());
-            }
+        if (isMainQuery) {
+          printf("\n\n==========================\n");
+          printf("MainQuery:\n");
+        } else {
+          printf("\n\n==========================\n");
+          printf("CSE: %s (%d consumers, %d lexical ref(s), %d total execution(s))\n", info->getName().data(), nc,
+                 info->getNumLexicalRefs(), info->getTotalNumRefs());
+        }
 
-          const LIST(CountedCSEInfo) &children(info->getChildCSEs());
+        const LIST(CountedCSEInfo) & children(info->getChildCSEs());
 
-          for (CollIndex j=0; j<children.entries(); j++)
-            printf("       references CSE: %s %d times\n",
-                   children[j].getInfo()->getName().data(),
-                   children[j].getLexicalCount());
+        for (CollIndex j = 0; j < children.entries(); j++)
+          printf("       references CSE: %s %d times\n", children[j].getInfo()->getName().data(),
+                 children[j].getLexicalCount());
 
-          if (info->getIdOfAnalyzingConsumer() >= 0)
-            {
-              const char *outcome = "?";
-              ValueIdList cols;
-              CommonSubExprRef *consumer =
-                info->getConsumer(info->getIdOfAnalyzingConsumer());
-              const ValueIdList &cCols(consumer->getColumnList());
+        if (info->getIdOfAnalyzingConsumer() >= 0) {
+          const char *outcome = "?";
+          ValueIdList cols;
+          CommonSubExprRef *consumer = info->getConsumer(info->getIdOfAnalyzingConsumer());
+          const ValueIdList &cCols(consumer->getColumnList());
 
-              switch (info->getAnalysisOutcome(0))
-                {
-                case CSEInfo::UNKNOWN_ANALYSIS:
-                  outcome = "UNKNOWN";
-                  break;
-                case CSEInfo::EXPAND:
-                  outcome = "EXPAND";
-                  break;
-                case CSEInfo::CREATE_TEMP:
-                  outcome = "CREATE_TEMP";
-                  break;
-                case CSEInfo::TEMP:
-                  outcome = "TEMP";
-                  break;
-                case CSEInfo::ERROR:
-                  outcome = "ERROR";
-                  break;
-                default:
-                  outcome = "???";
-                  break;
-                }
+          switch (info->getAnalysisOutcome(0)) {
+            case CSEInfo::UNKNOWN_ANALYSIS:
+              outcome = "UNKNOWN";
+              break;
+            case CSEInfo::EXPAND:
+              outcome = "EXPAND";
+              break;
+            case CSEInfo::CREATE_TEMP:
+              outcome = "CREATE_TEMP";
+              break;
+            case CSEInfo::TEMP:
+              outcome = "TEMP";
+              break;
+            case CSEInfo::ERROR:
+              outcome = "ERROR";
+              break;
+            default:
+              outcome = "???";
+              break;
+          }
 
-              printf("  analyzed by consumer %d, outcome: %s\n",
-                     info->getIdOfAnalyzingConsumer(),
-                     outcome);
+          printf("  analyzed by consumer %d, outcome: %s\n", info->getIdOfAnalyzingConsumer(), outcome);
 
-              makeValueIdListFromBitVector(
-                   cols,
-                   cCols,
-                   info->getNeededColumns());
-              printf("\n  columns of temp table:\n");
-              cols.display();
-              printf("\n  commonPredicates:\n");
-              info->getCommonPredicates().display();
-              if (info->getVEGRefsWithDifferingConstants().entries() > 0)
-                {
-                  printf("\n  vegRefsWithDifferingConstants:\n");
-                  info->getVEGRefsWithDifferingConstants().display();
-                }
-              if (info->getVEGRefsWithDifferingInputs().entries() > 0)
-                {
-                  printf("\n  vegRefsWithDifferingInputs:\n");
-                  info->getVEGRefsWithDifferingInputs().display();
-                }
-              if (info->getCSETreeKeyColumns().entries() > 0)
-                {
-                  ValueIdList keyCols;
+          makeValueIdListFromBitVector(cols, cCols, info->getNeededColumns());
+          printf("\n  columns of temp table:\n");
+          cols.display();
+          printf("\n  commonPredicates:\n");
+          info->getCommonPredicates().display();
+          if (info->getVEGRefsWithDifferingConstants().entries() > 0) {
+            printf("\n  vegRefsWithDifferingConstants:\n");
+            info->getVEGRefsWithDifferingConstants().display();
+          }
+          if (info->getVEGRefsWithDifferingInputs().entries() > 0) {
+            printf("\n  vegRefsWithDifferingInputs:\n");
+            info->getVEGRefsWithDifferingInputs().display();
+          }
+          if (info->getCSETreeKeyColumns().entries() > 0) {
+            ValueIdList keyCols;
 
-                  makeValueIdListFromBitVector(
-                       keyCols,
-                       cCols,
-                       info->getCSETreeKeyColumns());
-                  printf("\n  CSE key columns:\n");
-                  keyCols.display();
-                }
-              printf("\n  DDL of temp table:\n%s\n",
-                     info->getTempTableDDL().data());
-            } // analyzed
-          else if (info->getAnalysisOutcome(0) ==
-                   CSEInfo::ELIMINATED_IN_BINDER)
-            printf("  eliminated in the binder\n");
-          else if (!isMainQuery)
-            printf("  not yet analyzed\n");
+            makeValueIdListFromBitVector(keyCols, cCols, info->getCSETreeKeyColumns());
+            printf("\n  CSE key columns:\n");
+            keyCols.display();
+          }
+          printf("\n  DDL of temp table:\n%s\n", info->getTempTableDDL().data());
+        }  // analyzed
+        else if (info->getAnalysisOutcome(0) == CSEInfo::ELIMINATED_IN_BINDER)
+          printf("  eliminated in the binder\n");
+        else if (!isMainQuery)
+          printf("  not yet analyzed\n");
 
-          for (int c=0; c<nc; c++)
-            {
-              printf("\n\n----- Consumer %d:\n", c);
-              info->getConsumer(c)->display();
-            }
-        } // a CSE we want to display
+        for (int c = 0; c < nc; c++) {
+          printf("\n\n----- Consumer %d:\n", c);
+          info->getConsumer(c)->display();
+        }
+      }  // a CSE we want to display
 }
 
-void CommonSubExprRef::makeValueIdListFromBitVector(ValueIdList &tgt,
-                                                    const ValueIdList &src,
-                                                    const NABitVector &vec)
-{
-  for (CollIndex b=0; vec.nextUsed(b); b++)
-    tgt.insert(src[b]);
+void CommonSubExprRef::makeValueIdListFromBitVector(ValueIdList &tgt, const ValueIdList &src, const NABitVector &vec) {
+  for (CollIndex b = 0; vec.nextUsed(b); b++) tgt.insert(src[b]);
 }
-
 
 // -----------------------------------------------------------------------
 // member functions for class GenericUpdate
 // -----------------------------------------------------------------------
 
-
 GenericUpdate::~GenericUpdate() {}
 
-Int32 GenericUpdate::getArity() const
-{
+Int32 GenericUpdate::getArity() const {
   if (getOperator().match(REL_ANY_LEAF_GEN_UPDATE))
     return 0;
   else if (getOperator().match(REL_ANY_UNARY_GEN_UPDATE))
@@ -13736,25 +11200,19 @@ Int32 GenericUpdate::getArity() const
   else
     ABORT("Don't know opcode in GenericUpdate::getArity()");
 
-  return 0;    // return makes MSVC happy.
+  return 0;  // return makes MSVC happy.
 }
 
-void GenericUpdate::getPotentialOutputValues(ValueIdSet & outputValues) const
-{
+void GenericUpdate::getPotentialOutputValues(ValueIdSet &outputValues) const {
   outputValues = potentialOutputs_;
-  if (producedMergeIUDIndicator_ != NULL_VALUE_ID)
-    outputValues += producedMergeIUDIndicator_;
+  if (producedMergeIUDIndicator_ != NULL_VALUE_ID) outputValues += producedMergeIUDIndicator_;
 }
 
-const NAString GenericUpdate::getUpdTableNameText() const
-{
-  return updatedTableName_.getTextWithSpecialType();
-}
+const NAString GenericUpdate::getUpdTableNameText() const { return updatedTableName_.getTextWithSpecialType(); }
 
-void GenericUpdate::computeUsedCols()
-{
-  ValueIdSet          requiredValueIds(newRecExpr_);
-  ValueIdSet          coveredExprs;
+void GenericUpdate::computeUsedCols() {
+  ValueIdSet requiredValueIds(newRecExpr_);
+  ValueIdSet coveredExprs;
 
   // ---------------------------------------------------------------------
   // Call the "coverTest" method, offering it all the index columns
@@ -13765,13 +11223,11 @@ void GenericUpdate::computeUsedCols()
   // ---------------------------------------------------------------------
 
   // use the clustering index, unless set otherwise
-  if (indexDesc_ == NULL)
-    indexDesc_ = getTableDesc()->getClusteringIndex();
+  if (indexDesc_ == NULL) indexDesc_ = getTableDesc()->getClusteringIndex();
 
-  if (isMerge())
-    {
-      requiredValueIds.insertList(mergeInsertRecExpr_);
-    }
+  if (isMerge()) {
+    requiredValueIds.insertList(mergeInsertRecExpr_);
+  }
 
   requiredValueIds.insertList(beginKeyPred_);
   requiredValueIds.insertList(endKeyPred_);
@@ -13782,123 +11238,99 @@ void GenericUpdate::computeUsedCols()
   // QSTUFF
 
   getGroupAttr()->coverTest(requiredValueIds,
-			    indexDesc_->getIndexColumns(), // all index columns
-			    coveredExprs,                  // dummy parameter
-			    usedColumns_);                 // needed index cols
+                            indexDesc_->getIndexColumns(),  // all index columns
+                            coveredExprs,                   // dummy parameter
+                            usedColumns_);                  // needed index cols
 
   // usedColumns_ is now set correctly
-} // GenericUpdate::computeUsedCols
+}  // GenericUpdate::computeUsedCols
 
+const NAString GenericUpdate::getText() const { return ("GenericUpdate " + getUpdTableNameText()); }
 
-const NAString GenericUpdate::getText() const
-{
-  return ("GenericUpdate " + getUpdTableNameText());
-}
-
-HashValue GenericUpdate::topHash()
-{
+HashValue GenericUpdate::topHash() {
   HashValue result = RelExpr::topHash();
 
   result ^= newRecExpr_;
 
-  if (isMerge())
-    result ^= mergeInsertRecExpr_;
+  if (isMerge()) result ^= mergeInsertRecExpr_;
 
   // result ^= keyExpr_;
 
   return result;
 }
 
-NABoolean GenericUpdate::duplicateMatch(const RelExpr & other) const
-{
-  if (NOT RelExpr::duplicateMatch(other))
-    return FALSE;
+NABoolean GenericUpdate::duplicateMatch(const RelExpr &other) const {
+  if (NOT RelExpr::duplicateMatch(other)) return FALSE;
 
-  GenericUpdate &o = (GenericUpdate &) other;
+  GenericUpdate &o = (GenericUpdate &)other;
 
-  if (newRecExpr_ != o.newRecExpr_ OR
-      (isMerge() && 
-       ((mergeInsertRecExpr_ != o.mergeInsertRecExpr_) OR
-        (mergeUpdatePred_ != o.mergeUpdatePred_))       ) OR
-      precondition_ != o.precondition_ OR
-      NOT (beginKeyPred_ == o.beginKeyPred_) OR
-      NOT (endKeyPred_   == o.endKeyPred_))
+  if (newRecExpr_ !=
+      o.newRecExpr_ OR(isMerge() && ((mergeInsertRecExpr_ != o.mergeInsertRecExpr_)
+                                         OR(mergeUpdatePred_ != o.mergeUpdatePred_))) OR precondition_ !=
+      o.precondition_ OR NOT(beginKeyPred_ == o.beginKeyPred_) OR NOT(endKeyPred_ == o.endKeyPred_))
     return FALSE;
 
   // later, replace this with the getTableDesc() ???
-  if (NOT (updatedTableName_ == o.updatedTableName_))
-    return FALSE;
+  if (NOT(updatedTableName_ == o.updatedTableName_)) return FALSE;
 
-  if (mtsStatement_ != o.mtsStatement_)
-    return FALSE;
+  if (mtsStatement_ != o.mtsStatement_) return FALSE;
 
-  if (noRollback_ != o.noRollback_)
-    return FALSE;
+  if (noRollback_ != o.noRollback_) return FALSE;
 
-  if (avoidHalloweenR2_ != o.avoidHalloweenR2_)
-    return FALSE;
+  if (avoidHalloweenR2_ != o.avoidHalloweenR2_) return FALSE;
 
-  if (avoidHalloween_ != o.avoidHalloween_)
-    return FALSE;
+  if (avoidHalloween_ != o.avoidHalloween_) return FALSE;
 
-  if (halloweenCannotUseDP2Locks_ != o.halloweenCannotUseDP2Locks_)
-    return FALSE;
+  if (halloweenCannotUseDP2Locks_ != o.halloweenCannotUseDP2Locks_) return FALSE;
 
   return TRUE;
 }
 
-RelExpr * GenericUpdate::copyTopNode(RelExpr *derivedNode, CollHeap* outHeap)
-{
+RelExpr *GenericUpdate::copyTopNode(RelExpr *derivedNode, CollHeap *outHeap) {
   GenericUpdate *result;
 
   if (derivedNode == NULL)
-    result = new (outHeap)
-                 GenericUpdate(updatedTableName_,
-		               getTableDesc(),
-		               getOperatorType(),
-			       NULL,
-			       NULL, NULL,
-			       outHeap);
+    result =
+        new (outHeap) GenericUpdate(updatedTableName_, getTableDesc(), getOperatorType(), NULL, NULL, NULL, outHeap);
   else
-    result = (GenericUpdate *) derivedNode;
+    result = (GenericUpdate *)derivedNode;
 
   result->setIndexDesc((IndexDesc *)getIndexDesc());
 
-  if (newRecExprTree_)
-    result->newRecExprTree_ = newRecExprTree_->copyTree(outHeap)->castToItemExpr();
+  if (newRecExprTree_) result->newRecExprTree_ = newRecExprTree_->copyTree(outHeap)->castToItemExpr();
 
   // ## Should usedColumns_ be copied here?  Is it missing deliberately or only by mistake?
-  result->updateToSelectMap_	  = updateToSelectMap_;
-  result->newRecExpr_   	  = newRecExpr_;
-  result->newRecExprArray_ 	  = newRecExprArray_;
+  result->updateToSelectMap_ = updateToSelectMap_;
+  result->newRecExpr_ = newRecExpr_;
+  result->newRecExprArray_ = newRecExprArray_;
   // QSTUFF
-  result->newRecBeforeExpr_   	  = newRecBeforeExpr_;
-  result->newRecBeforeExprArray_  = newRecBeforeExprArray_;
+  result->newRecBeforeExpr_ = newRecBeforeExpr_;
+  result->newRecBeforeExprArray_ = newRecBeforeExprArray_;
   // QSTUFF
 
-  result->mergeInsertRecExpr_ 	  = mergeInsertRecExpr_;
-  result->mergeInsertRecExprArray_ 	  = mergeInsertRecExprArray_;
-  result->mergeUpdatePred_ 	  = mergeUpdatePred_;
+  result->mergeInsertRecExpr_ = mergeInsertRecExpr_;
+  result->mergeInsertRecExprArray_ = mergeInsertRecExprArray_;
+  result->mergeUpdatePred_ = mergeUpdatePred_;
 
-  result->beginKeyPred_ 	  = beginKeyPred_;
-  result->endKeyPred_   	  = endKeyPred_;
-  result->executorPred_ 	  = executorPred_;
-  result->potentialOutputs_ 	  = potentialOutputs_;
-  result->indexNewRecExprArrays_  = indexNewRecExprArrays_;
+  result->beginKeyPred_ = beginKeyPred_;
+  result->endKeyPred_ = endKeyPred_;
+  result->executorPred_ = executorPred_;
+  result->potentialOutputs_ = potentialOutputs_;
+  result->indexNewRecExprArrays_ = indexNewRecExprArrays_;
   result->indexBeginKeyPredArray_ = indexBeginKeyPredArray_;
-  result->indexEndKeyPredArray_   = indexEndKeyPredArray_;
-  result->indexNumberArray_ 	  = indexNumberArray_;
-  result->scanIndexDesc_          = scanIndexDesc_;
-  result->accessOptions_ 	  = accessOptions_;
+  result->indexEndKeyPredArray_ = indexEndKeyPredArray_;
+  result->indexNumberArray_ = indexNumberArray_;
+  result->scanIndexDesc_ = scanIndexDesc_;
+  result->accessOptions_ = accessOptions_;
   result->checkCnstrntOfPartv2BaseTable_ = checkCnstrntOfPartv2BaseTable_;
-  result->checkConstraints_ 	  = checkConstraints_;
-  result->rowsAffected_ 	  = rowsAffected_;
+  result->checkConstraints_ = checkConstraints_;
+  result->rowsAffected_ = rowsAffected_;
   result->setOptStoi(stoi_);
   result->setNoFlow(noFlow_);
   result->setMtsStatement(mtsStatement_);
   result->setNoRollbackOperation(noRollback_);
   result->setAvoidHalloweenR2(avoidHalloweenR2_);
-  result->avoidHalloween_         = avoidHalloween_;
+  result->avoidHalloween_ = avoidHalloween_;
   result->halloweenCannotUseDP2Locks_ = halloweenCannotUseDP2Locks_;
   result->setIsMergeUpdate(isMergeUpdate_);
   result->setIsMergeDelete(isMergeDelete_);
@@ -13915,12 +11347,10 @@ RelExpr * GenericUpdate::copyTopNode(RelExpr *derivedNode, CollHeap* outHeap)
   result->useMVCC() = useMVCC();
   result->useSSCC() = useSSCC();
 
-  if (currOfCursorName())
-    result->currOfCursorName_ = currOfCursorName()->copyTree(outHeap)->castToItemExpr();
+  if (currOfCursorName()) result->currOfCursorName_ = currOfCursorName()->copyTree(outHeap)->castToItemExpr();
 
   result->setPartQualPreCond(partQualPreCond_);
-  if (preconditionTree_)
-    result->preconditionTree_ = preconditionTree_->copyTree(outHeap)->castToItemExpr();
+  if (preconditionTree_) result->preconditionTree_ = preconditionTree_->copyTree(outHeap)->castToItemExpr();
   result->setPrecondition(precondition_);
   result->exprsInDerivedClasses_ = exprsInDerivedClasses_;
   result->producedMergeIUDIndicator_ = producedMergeIUDIndicator_;
@@ -13931,189 +11361,145 @@ RelExpr * GenericUpdate::copyTopNode(RelExpr *derivedNode, CollHeap* outHeap)
   return RelExpr::copyTopNode(result, outHeap);
 }
 
-PlanPriority GenericUpdate::computeOperatorPriority
-(const Context* context,
- PlanWorkSpace *pws,
- Lng32 planNumber)
-{
-
+PlanPriority GenericUpdate::computeOperatorPriority(const Context *context, PlanWorkSpace *pws, Lng32 planNumber) {
   PlanPriority result;
 
-  NABoolean interactiveAccess =
-    (CmpCommon::getDefault(INTERACTIVE_ACCESS) == DF_ON) OR
-    ( QueryAnalysis::Instance() AND
-      QueryAnalysis::Instance()->optimizeForFirstNRows());
+  NABoolean interactiveAccess = (CmpCommon::getDefault(INTERACTIVE_ACCESS) == DF_ON)
+      OR(QueryAnalysis::Instance() AND QueryAnalysis::Instance()->optimizeForFirstNRows());
 
   return result;
 }
 
-void GenericUpdate::addNewRecExprTree(ItemExpr *expr)
-{
+void GenericUpdate::addNewRecExprTree(ItemExpr *expr) {
   ExprValueId newRec = newRecExprTree_;
   ItemExprTreeAsList(&newRec, ITM_AND).insert(expr);
   newRecExprTree_ = newRec.getPtr();
 }
 
-
-ItemExpr * GenericUpdate::removeNewRecExprTree()
-{
-  ItemExpr * result = newRecExprTree_;
+ItemExpr *GenericUpdate::removeNewRecExprTree() {
+  ItemExpr *result = newRecExprTree_;
 
   newRecExprTree_ = NULL;
 
   return result;
 }
 
-void GenericUpdate::addLocalExpr(LIST(ExprNode *) &xlist,
-				 LIST(NAString) &llist) const
-{
+void GenericUpdate::addLocalExpr(LIST(ExprNode *) & xlist, LIST(NAString) & llist) const {
+  if (newRecExprTree_ != NULL OR NOT newRecExpr_.isEmpty()) {
+    if (newRecExpr_.isEmpty())
+      xlist.insert(newRecExprTree_);
+    else
+      xlist.insert(newRecExpr_.rebuildExprTree(ITM_ITEM_LIST));
+    llist.insert("new_rec_expr");
+  }
 
-  if (newRecExprTree_ != NULL OR
-      NOT newRecExpr_.isEmpty())
-    {
-      if (newRecExpr_.isEmpty())
-	xlist.insert(newRecExprTree_);
-      else
-	xlist.insert(newRecExpr_.rebuildExprTree(ITM_ITEM_LIST));
-      llist.insert("new_rec_expr");
-    }
+  if ((isMerge()) && (NOT mergeInsertRecExpr_.isEmpty())) {
+    xlist.insert(mergeInsertRecExpr_.rebuildExprTree(ITM_ITEM_LIST));
+    llist.insert("merge_insert_rec_expr");
+  }
 
-  if ((isMerge()) &&
-      (NOT mergeInsertRecExpr_.isEmpty()))
-    {
-      xlist.insert(mergeInsertRecExpr_.rebuildExprTree(ITM_ITEM_LIST));
-      llist.insert("merge_insert_rec_expr");
-    }
-
-  if ((isMerge()) &&
-      (NOT mergeUpdatePred_.isEmpty()))
-    {
-      xlist.insert(mergeUpdatePred_.rebuildExprTree(ITM_ITEM_LIST));
-      llist.insert("merge_update_where_pred");
-    }
+  if ((isMerge()) && (NOT mergeUpdatePred_.isEmpty())) {
+    xlist.insert(mergeUpdatePred_.rebuildExprTree(ITM_ITEM_LIST));
+    llist.insert("merge_update_where_pred");
+  }
 
   Int32 indexNo = 0;
-  for(; indexNo < (Int32)indexNewRecExprArrays_.entries(); indexNo++) {
+  for (; indexNo < (Int32)indexNewRecExprArrays_.entries(); indexNo++) {
     ValueIdArray array = indexNewRecExprArrays_[indexNo];
     ValueIdList list;
-    for(Int32 i = 0; i < (Int32)array.entries(); i++)
-      list.insert(array[i]);
+    for (Int32 i = 0; i < (Int32)array.entries(); i++) list.insert(array[i]);
     xlist.insert(list.rebuildExprTree(ITM_ITEM_LIST));
     llist.insert("new idx rec expr");
   }
 
-  if (executorPredTree_ != NULL OR
-      NOT executorPred_.isEmpty())
-    {
-      if (executorPred_.isEmpty())
-	xlist.insert(executorPredTree_);
-      else
-	xlist.insert(executorPred_.rebuildExprTree());
-      llist.insert("predicate");
-    }
+  if (executorPredTree_ != NULL OR NOT executorPred_.isEmpty()) {
+    if (executorPred_.isEmpty())
+      xlist.insert(executorPredTree_);
+    else
+      xlist.insert(executorPred_.rebuildExprTree());
+    llist.insert("predicate");
+  }
 
   // display preds from search key only if begin/end keys are
   // not generated yet (e.g. during optimization)
-  if (beginKeyPred_.isEmpty() AND endKeyPred_.isEmpty() AND
-      pathKeys_ AND NOT pathKeys_->getKeyPredicates().isEmpty())
-    {
-      xlist.insert(pathKeys_->getKeyPredicates().rebuildExprTree());
-      if (pathKeys_ == partKeys_)
-	llist.insert("key_and_part_key_preds");
-      else
-	llist.insert("key_predicates");
-    }
+  if (beginKeyPred_.isEmpty() AND endKeyPred_.isEmpty() AND pathKeys_ AND NOT pathKeys_->getKeyPredicates().isEmpty()) {
+    xlist.insert(pathKeys_->getKeyPredicates().rebuildExprTree());
+    if (pathKeys_ == partKeys_)
+      llist.insert("key_and_part_key_preds");
+    else
+      llist.insert("key_predicates");
+  }
 
   // display part key preds only if different from clustering key preds
-  if (partKeys_ AND pathKeys_ != partKeys_ AND
-      NOT partKeys_->getKeyPredicates().isEmpty())
-    {
-      xlist.insert(partKeys_->getKeyPredicates().rebuildExprTree());
-      llist.insert("part_key_predicates");
-    }
+  if (partKeys_ AND pathKeys_ != partKeys_ AND NOT partKeys_->getKeyPredicates().isEmpty()) {
+    xlist.insert(partKeys_->getKeyPredicates().rebuildExprTree());
+    llist.insert("part_key_predicates");
+  }
 
-  if (NOT beginKeyPred_.isEmpty())
-    {
-      xlist.insert(beginKeyPred_.rebuildExprTree(ITM_AND));
-      llist.insert("begin_key");
-    }
+  if (NOT beginKeyPred_.isEmpty()) {
+    xlist.insert(beginKeyPred_.rebuildExprTree(ITM_AND));
+    llist.insert("begin_key");
+  }
 
-  for(indexNo = 0; indexNo < (Int32)indexBeginKeyPredArray_.entries(); indexNo++){
-    if(NOT indexBeginKeyPredArray_[indexNo].isEmpty()) {
-      xlist.insert(indexBeginKeyPredArray_[indexNo]
-		   .rebuildExprTree(ITM_ITEM_LIST));
+  for (indexNo = 0; indexNo < (Int32)indexBeginKeyPredArray_.entries(); indexNo++) {
+    if (NOT indexBeginKeyPredArray_[indexNo].isEmpty()) {
+      xlist.insert(indexBeginKeyPredArray_[indexNo].rebuildExprTree(ITM_ITEM_LIST));
       llist.insert("index_begin_key");
     }
   }
 
-  if (NOT endKeyPred_.isEmpty())
-    {
-      xlist.insert(endKeyPred_.rebuildExprTree(ITM_AND));
-      llist.insert("end_key");
-    }
+  if (NOT endKeyPred_.isEmpty()) {
+    xlist.insert(endKeyPred_.rebuildExprTree(ITM_AND));
+    llist.insert("end_key");
+  }
 
-  for(indexNo = 0; indexNo < (Int32)indexEndKeyPredArray_.entries(); indexNo++) {
-    if(NOT indexEndKeyPredArray_[indexNo].isEmpty()) {
-      xlist.insert(indexEndKeyPredArray_[indexNo]
-		   .rebuildExprTree(ITM_ITEM_LIST));
+  for (indexNo = 0; indexNo < (Int32)indexEndKeyPredArray_.entries(); indexNo++) {
+    if (NOT indexEndKeyPredArray_[indexNo].isEmpty()) {
+      xlist.insert(indexEndKeyPredArray_[indexNo].rebuildExprTree(ITM_ITEM_LIST));
       llist.insert("index_end_key");
     }
   }
 
-  if (CmpCommon::getDefault(TRAF_UPSERT_THROUGH_PARTITIONS) == DF_OFF &&
-      NOT getCheckConstraints().isEmpty())
-    {
-      xlist.insert(getCheckConstraints().rebuildExprTree(ITM_AND));
-      llist.insert("check_constraint");
-    }
+  if (CmpCommon::getDefault(TRAF_UPSERT_THROUGH_PARTITIONS) == DF_OFF && NOT getCheckConstraints().isEmpty()) {
+    xlist.insert(getCheckConstraints().rebuildExprTree(ITM_AND));
+    llist.insert("check_constraint");
+  }
 
-  if (partQualPreCond_.entries() > 0)
-    {
-      xlist.insert(partQualPreCond_.rebuildExprTree(ITM_AND));
-      llist.insert("partQualPreCond");
-    }
+  if (partQualPreCond_.entries() > 0) {
+    xlist.insert(partQualPreCond_.rebuildExprTree(ITM_AND));
+    llist.insert("partQualPreCond");
+  }
 
-  if (preconditionTree_ != NULL OR
-      precondition_.entries() > 0)
-    {
-      if (preconditionTree_ != NULL)
-        xlist.insert(preconditionTree_);
-      else
-        xlist.insert(precondition_.rebuildExprTree(ITM_AND));
-      llist.insert("precondition");
-    }
+  if (preconditionTree_ != NULL OR precondition_.entries() > 0) {
+    if (preconditionTree_ != NULL)
+      xlist.insert(preconditionTree_);
+    else
+      xlist.insert(precondition_.rebuildExprTree(ITM_AND));
+    llist.insert("precondition");
+  }
 
-  RelExpr::addLocalExpr(xlist,llist);
+  RelExpr::addLocalExpr(xlist, llist);
 }
 
-NABoolean GenericUpdate::updateCurrentOf()
-{
+NABoolean GenericUpdate::updateCurrentOf() {
   return currOfCursorName() != NULL
-	   #ifndef NDEBUG
-	     || getenv("FORCE_UPD_CURR_OF")
-	   #endif
-	   ;
+#ifndef NDEBUG
+         || getenv("FORCE_UPD_CURR_OF")
+#endif
+      ;
 }
 
 //++MV - returns the GenericUpdateOutputFunction's that are in the
 // potential outputs
 
-NABoolean GenericUpdate::getOutputFunctionsForMV(ValueId &valueId,
-                                                 OperatorTypeEnum opType) const
-{
-  const ValueIdSet& outputs = getGroupAttr()->getCharacteristicOutputs();
-  for (ValueId vid= outputs.init();
-       outputs.next(vid);
-       outputs.advance(vid) )
-  {
+NABoolean GenericUpdate::getOutputFunctionsForMV(ValueId &valueId, OperatorTypeEnum opType) const {
+  const ValueIdSet &outputs = getGroupAttr()->getCharacteristicOutputs();
+  for (ValueId vid = outputs.init(); outputs.next(vid); outputs.advance(vid)) {
     ItemExpr *expr = vid.getItemExpr();
 
-    if (expr->getOperatorType() == ITM_CAST)
-      expr = expr->child(0);
+    if (expr->getOperatorType() == ITM_CAST) expr = expr->child(0);
 
-    if (expr->getOperator().match(opType) && 
-        expr->isAGenericUpdateOutputFunction() )
-    {
+    if (expr->getOperator().match(opType) && expr->isAGenericUpdateOutputFunction()) {
       valueId = vid;
       return TRUE;
     }
@@ -14122,19 +11508,15 @@ NABoolean GenericUpdate::getOutputFunctionsForMV(ValueId &valueId,
   return FALSE;
 }
 
-NABoolean GenericUpdate::computeRowsAffected() const
-{
+NABoolean GenericUpdate::computeRowsAffected() const {
   if (rowsAffected_ == GenericUpdate::COMPUTE_ROWSAFFECTED)
     return TRUE;
   else
     return FALSE;
 };
 
-void GenericUpdate::configTSJforHalloween( Join* tsj, OperatorTypeEnum opType,
-                                           CostScalar inputCardinality)
-{
-  if (avoidHalloween())
-  {
+void GenericUpdate::configTSJforHalloween(Join *tsj, OperatorTypeEnum opType, CostScalar inputCardinality) {
+  if (avoidHalloween()) {
     // If we use DP2's FELOCKSELF (i.e., DP2Locks) method to
     // protect against Halloween, then lock escalation will
     // be disabled in the Generator.  So DP2 wants us to use
@@ -14144,59 +11526,44 @@ void GenericUpdate::configTSJforHalloween( Join* tsj, OperatorTypeEnum opType,
     // If the estimates are too low, then there may be
     // runtime errors.
 
-    const PartitioningFunction *partFunc = getTableDesc()->
-      getClusteringIndex()->getPartitioningFunction();
-    const Lng32 numParts = partFunc ? partFunc->getCountOfPartitions() :
-                          1;
+    const PartitioningFunction *partFunc = getTableDesc()->getClusteringIndex()->getPartitioningFunction();
+    const Lng32 numParts = partFunc ? partFunc->getCountOfPartitions() : 1;
     const Lng32 maxLocksAllParts = 25000 * numParts;
 
-    if ((opType == REL_LEAF_INSERT) &&
-        (inputCardinality < maxLocksAllParts)
-             &&
-         ! getHalloweenCannotUseDP2Locks() &&
-         (CmpCommon::getDefault(BLOCK_TO_PREVENT_HALLOWEEN) != DF_ON)
-       )
+    if ((opType == REL_LEAF_INSERT) && (inputCardinality < maxLocksAllParts) && !getHalloweenCannotUseDP2Locks() &&
+        (CmpCommon::getDefault(BLOCK_TO_PREVENT_HALLOWEEN) != DF_ON))
       tsj->setHalloweenForceSort(Join::NOT_FORCED);
     else
       tsj->setHalloweenForceSort(Join::FORCED);
   }
 }
 
-void GenericUpdate::pushdownCoveredExpr(const ValueIdSet &outputExpr,
-				   const ValueIdSet &newExternalInputs,
-				   ValueIdSet &predicatesOnParent,
-				   const ValueIdSet *setOfValuesReqdByParent,
-				    Lng32 childIndex
-				  )
-{
-
+void GenericUpdate::pushdownCoveredExpr(const ValueIdSet &outputExpr, const ValueIdSet &newExternalInputs,
+                                        ValueIdSet &predicatesOnParent, const ValueIdSet *setOfValuesReqdByParent,
+                                        Lng32 childIndex) {
   // ---------------------------------------------------------------------
   // determine the set of local expressions that need to be evaluated
   // - assign expressions (reference source & target cols)
   // - source cols alone (in case order is required)
   // - characteristic outputs for this node
   // ---------------------------------------------------------------------
-  // QSTUFF ?? again need to understand details 
+  // QSTUFF ?? again need to understand details
   ValueIdSet localExprs(newRecExpr());
 
-  if (setOfValuesReqdByParent)
-    localExprs += *setOfValuesReqdByParent;
+  if (setOfValuesReqdByParent) localExprs += *setOfValuesReqdByParent;
 
   // QSTUFF
   localExprs.insertList(newRecBeforeExpr());
   // QSTUFF
 
- 
-  if (isMerge())
-    {
-      localExprs.insertList(mergeInsertRecExpr());
-    }
+  if (isMerge()) {
+    localExprs.insertList(mergeInsertRecExpr());
+  }
 
   localExprs.insertList(beginKeyPred());
 
   localExprs.insertList(updateToSelectMap().getBottomValues());
-  if (setOfValuesReqdByParent)
-    localExprs += *setOfValuesReqdByParent ;
+  if (setOfValuesReqdByParent) localExprs += *setOfValuesReqdByParent;
   localExprs += exprsInDerivedClasses_;
 
   // ---------------------------------------------------------------------
@@ -14205,44 +11572,32 @@ void GenericUpdate::pushdownCoveredExpr(const ValueIdSet &outputExpr,
   // these expressions.
   // Since an GenericUpdate has no predicates, supply an empty set.
   // ---------------------------------------------------------------------
- RelExpr::pushdownCoveredExpr(	outputExpr,
-				newExternalInputs,
-				predicatesOnParent,
-				&localExprs);
+  RelExpr::pushdownCoveredExpr(outputExpr, newExternalInputs, predicatesOnParent, &localExprs);
 
-/*to fix jira 18-20180111-2901  
- *For query " insert into to t1 select seqnum(seq1, next) from t1;", there is no SORT as left child of TSJ, and it 
- *is a self-referencing updates Halloween problem. In NestedJoin::genWriteOpLeftChildSortReq(), child(0)
- *producing no outputs for this query, which means that there is no column to sort on. So we solve this by 
- *having the source for Halloween insert produce at least one output column always.
- * */
-  if (avoidHalloween() && child(0) &&
-      child(0)->getOperatorType() == REL_SCAN &&
-      child(0)->getGroupAttr())
-    {
-      if (child(0)->getGroupAttr()->getCharacteristicOutputs().isEmpty())
-        {
-          ValueId exprId;
-          ValueId atLeastOne;
+  /*to fix jira 18-20180111-2901
+   *For query " insert into to t1 select seqnum(seq1, next) from t1;", there is no SORT as left child of TSJ, and it
+   *is a self-referencing updates Halloween problem. In NestedJoin::genWriteOpLeftChildSortReq(), child(0)
+   *producing no outputs for this query, which means that there is no column to sort on. So we solve this by
+   *having the source for Halloween insert produce at least one output column always.
+   * */
+  if (avoidHalloween() && child(0) && child(0)->getOperatorType() == REL_SCAN && child(0)->getGroupAttr()) {
+    if (child(0)->getGroupAttr()->getCharacteristicOutputs().isEmpty()) {
+      ValueId exprId;
+      ValueId atLeastOne;
 
-          ValueIdSet output_source = child(0)->getTableDescForExpr()->getColumnList();
-          for (exprId = output_source.init();
-               output_source.next(exprId);
-               output_source.advance(exprId))
-            {
-              atLeastOne = exprId;
-              if (!(exprId.getItemExpr()->doesExprEvaluateToConstant(FALSE, TRUE)))
-                {
-                  child(0)->getGroupAttr()->addCharacteristicOutputs(exprId);
-                  break;
-                }
-            }
-         if (child(0)->getGroupAttr()->getCharacteristicOutputs().isEmpty())
-           {
-             child(0)->getGroupAttr()->addCharacteristicOutputs(atLeastOne);
-           }
+      ValueIdSet output_source = child(0)->getTableDescForExpr()->getColumnList();
+      for (exprId = output_source.init(); output_source.next(exprId); output_source.advance(exprId)) {
+        atLeastOne = exprId;
+        if (!(exprId.getItemExpr()->doesExprEvaluateToConstant(FALSE, TRUE))) {
+          child(0)->getGroupAttr()->addCharacteristicOutputs(exprId);
+          break;
         }
-    }	
+      }
+      if (child(0)->getGroupAttr()->getCharacteristicOutputs().isEmpty()) {
+        child(0)->getGroupAttr()->addCharacteristicOutputs(atLeastOne);
+      }
+    }
+  }
 }
 
 /*
@@ -14262,124 +11617,98 @@ NABoolean Insert::reconcileGroupAttr(GroupAttributes *newGroupAttr)
 // -----------------------------------------------------------------------
 // member functions for class Insert
 // -----------------------------------------------------------------------
-Insert::Insert(const CorrName &name,
-        TableDesc *tabId,
-        OperatorTypeEnum otype,
-        RelExpr *child ,
-        ItemExpr *insertCols ,
-        ItemExpr *orderBy ,
-        CollHeap *oHeap ,
-        InsertType insertType,
-        NABoolean createUstatSample)
- : GenericUpdate(name,tabId,otype,child,NULL,NULL,oHeap),
-   insertColTree_(insertCols),
-   orderByTree_(orderBy),
-   targetUserColPosList_(NULL),
-   bufferedInsertsAllowed_(FALSE),
-   insertType_(insertType),
-   noBeginSTInsert_(FALSE),
-   noCommitSTInsert_(FALSE),
-   enableTransformToSTI_(FALSE),
-   enableAqrWnrEmpty_(FALSE),
-   systemGeneratesIdentityValue_(FALSE),
-   insertSelectQuery_(FALSE),
-   boundView_(NULL),
-   overwriteHiveTable_(FALSE),
-   isSequenceFile_(FALSE),
-   isUpsert_(FALSE),
-   isTrafLoadPrep_(FALSE),
-   createUstatSample_(createUstatSample),
-   xformedEffUpsert_(FALSE),
-   transformedUpdateNoDtmXn_(FALSE),
-   noConflictCheck_(FALSE),
-   noRepeatableRead_(FALSE),
-   baseColRefs_(NULL),
-   partColVals_(NULL),
-   isLastPart_(FALSE),
-   isSpecifyPartition_(FALSE)
-{
+Insert::Insert(const CorrName &name, TableDesc *tabId, OperatorTypeEnum otype, RelExpr *child, ItemExpr *insertCols,
+               ItemExpr *orderBy, CollHeap *oHeap, InsertType insertType, NABoolean createUstatSample)
+    : GenericUpdate(name, tabId, otype, child, NULL, NULL, oHeap),
+      insertColTree_(insertCols),
+      orderByTree_(orderBy),
+      targetUserColPosList_(NULL),
+      bufferedInsertsAllowed_(FALSE),
+      insertType_(insertType),
+      noBeginSTInsert_(FALSE),
+      noCommitSTInsert_(FALSE),
+      enableTransformToSTI_(FALSE),
+      enableAqrWnrEmpty_(FALSE),
+      systemGeneratesIdentityValue_(FALSE),
+      insertSelectQuery_(FALSE),
+      boundView_(NULL),
+      overwriteHiveTable_(FALSE),
+      isSequenceFile_(FALSE),
+      isUpsert_(FALSE),
+      isTrafLoadPrep_(FALSE),
+      createUstatSample_(createUstatSample),
+      xformedEffUpsert_(FALSE),
+      transformedUpdateNoDtmXn_(FALSE),
+      noConflictCheck_(FALSE),
+      noRepeatableRead_(FALSE),
+      baseColRefs_(NULL),
+      partColVals_(NULL),
+      isLastPart_(FALSE),
+      isSpecifyPartition_(FALSE) {
   insert_a_tuple_ = FALSE;
-  if ( child ) {
-    if ( child->getOperatorType() == REL_TUPLE ) {
+  if (child) {
+    if (child->getOperatorType() == REL_TUPLE) {
       insert_a_tuple_ = TRUE;
       if (!name.isLocationNameSpecified()) {
         setCacheableNode(CmpMain::PARSE);
       }
-    }
-    else if ( child->getOperatorType() == REL_TUPLE_LIST &&
-              !name.isLocationNameSpecified() ) {
+    } else if (child->getOperatorType() == REL_TUPLE_LIST && !name.isLocationNameSpecified()) {
       setCacheableNode(CmpMain::PARSE);
     }
+  } else
+      // this is a patch to pass regression for maximum parallelism project,
+      // if we insert a default values not a real tuple the child is NULL
+      // but we'd like to identify is as a tuple insert. March,2006
+      if (CmpCommon::getDefault(COMP_BOOL_66) == DF_OFF) {
+    insert_a_tuple_ = TRUE;
   }
-  else
-	// this is a patch to pass regression for maximum parallelism project,
-	// if we insert a default values not a real tuple the child is NULL
-	// but we'd like to identify is as a tuple insert. March,2006
-	if (CmpCommon::getDefault(COMP_BOOL_66) == DF_OFF)
-	{
-       insert_a_tuple_ = TRUE;
-	}
 }
 
 Insert::~Insert() {}
 
-void Insert::addInsertColTree(ItemExpr *expr)
-{
+void Insert::addInsertColTree(ItemExpr *expr) {
   ExprValueId newCol = insertColTree_;
   ItemExprTreeAsList(&newCol, ITM_AND).insert(expr);
   insertColTree_ = newCol.getPtr();
 }
 
-ItemExpr * Insert::removeInsertColTree()
-{
-  ItemExpr * result = insertColTree_;
+ItemExpr *Insert::removeInsertColTree() {
+  ItemExpr *result = insertColTree_;
 
   insertColTree_ = NULL;
 
   return result;
 }
 
-ItemExpr * Insert::getInsertColTree()
-{
-  return insertColTree_;
-}
+ItemExpr *Insert::getInsertColTree() { return insertColTree_; }
 
-const NAString Insert::getText() const
-{
-  NAString text("insert",CmpCommon::statementHeap());
+const NAString Insert::getText() const {
+  NAString text("insert", CmpCommon::statementHeap());
 
   return (text + " " + getUpdTableNameText());
 }
 
-RelExpr * Insert::copyTopNode(RelExpr *derivedNode, CollHeap* outHeap)
-{
+RelExpr *Insert::copyTopNode(RelExpr *derivedNode, CollHeap *outHeap) {
   Insert *result;
 
   if (derivedNode == NULL)
-    result = new (outHeap) Insert(getTableName(),
-				  getTableDesc(),
-				  getOperatorType(),
-				  NULL,
-				  NULL,
-				  NULL,
-				  outHeap,
-				  getInsertType());
+    result = new (outHeap)
+        Insert(getTableName(), getTableDesc(), getOperatorType(), NULL, NULL, NULL, outHeap, getInsertType());
   else
-    result = (Insert *) derivedNode;
+    result = (Insert *)derivedNode;
 
   result->rrKeyExpr() = rrKeyExpr();
   result->partNumInput() = partNumInput();
   result->rowPosInput() = rowPosInput();
   result->totalNumPartsInput() = totalNumPartsInput();
-  result->reqdOrder()  = reqdOrder();
+  result->reqdOrder() = reqdOrder();
 
-  result->noBeginSTInsert_  = noBeginSTInsert_;
+  result->noBeginSTInsert_ = noBeginSTInsert_;
   result->noCommitSTInsert_ = noCommitSTInsert_;
   result->enableTransformToSTI() = enableTransformToSTI();
-  result->enableAqrWnrEmpty()    = enableAqrWnrEmpty();
+  result->enableAqrWnrEmpty() = enableAqrWnrEmpty();
 
-  if (insertColTree_ != NULL)
-    result->insertColTree_ = insertColTree_->copyTree(outHeap)->castToItemExpr();
+  if (insertColTree_ != NULL) result->insertColTree_ = insertColTree_->copyTree(outHeap)->castToItemExpr();
 
   result->insertATuple() = insertATuple();
   result->setInsertSelectQuery(isInsertSelectQuery());
@@ -14398,8 +11727,7 @@ RelExpr * Insert::copyTopNode(RelExpr *derivedNode, CollHeap* outHeap)
   return GenericUpdate::copyTopNode(result, outHeap);
 }
 
-void Insert::setNoBeginCommitSTInsert(NABoolean noBeginSTI, NABoolean noCommitSTI)
-{
+void Insert::setNoBeginCommitSTInsert(NABoolean noBeginSTI, NABoolean noCommitSTI) {
   noBeginSTInsert_ = noBeginSTI;
   noCommitSTInsert_ = noCommitSTI;
 }
@@ -14407,89 +11735,64 @@ void Insert::setNoBeginCommitSTInsert(NABoolean noBeginSTI, NABoolean noCommitST
 // -----------------------------------------------------------------------
 // member functions for class Update
 // -----------------------------------------------------------------------
-Update::Update(const CorrName &name,
-               TableDesc *tabId,
-               OperatorTypeEnum otype,
-               RelExpr *child,
-               ItemExpr *newRecExpr,
-               ItemExpr *currOfCursorName,
-               CollHeap *oHeap)
-     : GenericUpdate(name,tabId,otype,child,newRecExpr,currOfCursorName,oHeap),
-       hbaseTagExprList_(NULL),
-       estRowsAccessed_(0)
-{
+Update::Update(const CorrName &name, TableDesc *tabId, OperatorTypeEnum otype, RelExpr *child, ItemExpr *newRecExpr,
+               ItemExpr *currOfCursorName, CollHeap *oHeap)
+    : GenericUpdate(name, tabId, otype, child, newRecExpr, currOfCursorName, oHeap),
+      hbaseTagExprList_(NULL),
+      estRowsAccessed_(0) {
   setCacheableNode(CmpMain::BIND);
 
-  if ((newRecExpr) &&
-      (((newRecExpr->getOperatorType() == ITM_ASSIGN) &&
-        (newRecExpr->child(1)->getOperatorType() == ITM_HBASE_VISIBILITY_SET)) ||
-       ((newRecExpr->getOperatorType() == ITM_ITEM_LIST) &&
-        (((ItemList*)newRecExpr)->containsHbaseVisibilityExpr()))))
-    {
-      ItemExpr * newIE = NULL;
-      if ((newRecExpr->getOperatorType() == ITM_ASSIGN) &&
-          (newRecExpr->child(1)->getOperatorType() == ITM_HBASE_VISIBILITY_SET))
-        {
-          hbaseTagExprList_.addMember(newRecExpr->child(1));
-          newIE = NULL;
-        }
-      else
-        {
-          ItemExprList iel(newRecExpr, oHeap);
-          ItemExprList newIEL(oHeap);
-          for (int i = 0; i < iel.entries(); i++)
-            {
-              ItemExpr * ie = iel[i];
-              
-              if ((ie->getOperatorType() == ITM_ASSIGN) &&
-                  (ie->child(1)->getOperatorType() == ITM_HBASE_VISIBILITY_SET))
-                {
-                  hbaseTagExprList_.addMember(ie->child(1));
-                }
-              else
-                {
-                  newIEL.addMember(ie);
-                }
-            } // for
-          
-          if (newIEL.entries() > 0)
-            {
-              *CmpCommon::diags()
-                << DgSqlCode(-3242)
-                << DgString0("Cannot mix column update and visibility expression clauses.");
-              CMPASSERT(0);
+  if ((newRecExpr) && (((newRecExpr->getOperatorType() == ITM_ASSIGN) &&
+                        (newRecExpr->child(1)->getOperatorType() == ITM_HBASE_VISIBILITY_SET)) ||
+                       ((newRecExpr->getOperatorType() == ITM_ITEM_LIST) &&
+                        (((ItemList *)newRecExpr)->containsHbaseVisibilityExpr())))) {
+    ItemExpr *newIE = NULL;
+    if ((newRecExpr->getOperatorType() == ITM_ASSIGN) &&
+        (newRecExpr->child(1)->getOperatorType() == ITM_HBASE_VISIBILITY_SET)) {
+      hbaseTagExprList_.addMember(newRecExpr->child(1));
+      newIE = NULL;
+    } else {
+      ItemExprList iel(newRecExpr, oHeap);
+      ItemExprList newIEL(oHeap);
+      for (int i = 0; i < iel.entries(); i++) {
+        ItemExpr *ie = iel[i];
 
-              newIE = newIEL.convertToItemExpr();
-            }
-        } // else
-  
-      removeNewRecExprTree();
-      addNewRecExprTree(newIE);
-    } // newRecExpr
+        if ((ie->getOperatorType() == ITM_ASSIGN) && (ie->child(1)->getOperatorType() == ITM_HBASE_VISIBILITY_SET)) {
+          hbaseTagExprList_.addMember(ie->child(1));
+        } else {
+          newIEL.addMember(ie);
+        }
+      }  // for
+
+      if (newIEL.entries() > 0) {
+        *CmpCommon::diags() << DgSqlCode(-3242)
+                            << DgString0("Cannot mix column update and visibility expression clauses.");
+        CMPASSERT(0);
+
+        newIE = newIEL.convertToItemExpr();
+      }
+    }  // else
+
+    removeNewRecExprTree();
+    addNewRecExprTree(newIE);
+  }  // newRecExpr
 }
 
 Update::~Update() {}
 
-const NAString Update::getText() const
-{
-  NAString text("update",CmpCommon::statementHeap());
+const NAString Update::getText() const {
+  NAString text("update", CmpCommon::statementHeap());
 
   return (text + " " + getUpdTableNameText());
 }
 
-RelExpr * Update::copyTopNode(RelExpr *derivedNode, CollHeap* outHeap)
-{
+RelExpr *Update::copyTopNode(RelExpr *derivedNode, CollHeap *outHeap) {
   Update *result;
 
   if (derivedNode == NULL)
-    result = new (outHeap) Update(getTableName(),
-				  getTableDesc(),
-				  getOperatorType(),
-				  NULL,
-				  NULL, NULL,
-				  outHeap);
+    result = new (outHeap) Update(getTableName(), getTableDesc(), getOperatorType(), NULL, NULL, NULL, outHeap);
   else
-    result = (Update *) derivedNode;
+    result = (Update *)derivedNode;
 
   result->setEstRowsAccessed(getEstRowsAccessed());
   result->hbaseTagExprList_ = hbaseTagExprList_;
@@ -14501,56 +11804,43 @@ RelExpr * Update::copyTopNode(RelExpr *derivedNode, CollHeap* outHeap)
 // -----------------------------------------------------------------------
 // member functions for class MergeUpdate
 // -----------------------------------------------------------------------
-MergeUpdate::MergeUpdate(const CorrName &name,
-			 TableDesc *tabId,
-			 OperatorTypeEnum otype,
-			 RelExpr *child,
-			 ItemExpr *setExpr,
-			 ItemExpr *insertCols,
-			 ItemExpr *insertValues,
-			 CollHeap *oHeap,
-			 ItemExpr *where,
-			 ItemExpr *andpred)
-     : Update(name,tabId,otype,child,setExpr,NULL,oHeap),
-       insertCols_(insertCols), insertValues_(insertValues),
-       where_(where), andpred_(andpred), xformedUpsert_(FALSE), needsBindScope_(TRUE)
-{
+MergeUpdate::MergeUpdate(const CorrName &name, TableDesc *tabId, OperatorTypeEnum otype, RelExpr *child,
+                         ItemExpr *setExpr, ItemExpr *insertCols, ItemExpr *insertValues, CollHeap *oHeap,
+                         ItemExpr *where, ItemExpr *andpred)
+    : Update(name, tabId, otype, child, setExpr, NULL, oHeap),
+      insertCols_(insertCols),
+      insertValues_(insertValues),
+      where_(where),
+      andpred_(andpred),
+      xformedUpsert_(FALSE),
+      needsBindScope_(TRUE) {
   setCacheableNode(CmpMain::BIND);
-  
+
   setIsMergeUpdate(TRUE);
 
   // if there is a WHERE NOT MATCHED INSERT action, then the scan
   // has to take place in the merge node at run time, so we have
   // to suppress the TSJ transformation on this node
-  if (insertValues)
-    setNoFlow(TRUE);
+  if (insertValues) setNoFlow(TRUE);
 }
 
 MergeUpdate::~MergeUpdate() {}
 
-const NAString MergeUpdate::getText() const
-{
-  NAString text("merge_update",CmpCommon::statementHeap());
+const NAString MergeUpdate::getText() const {
+  NAString text("merge_update", CmpCommon::statementHeap());
 
   return (text + " " + getUpdTableNameText());
 }
 
-RelExpr * MergeUpdate::copyTopNode(RelExpr *derivedNode, CollHeap* outHeap)
-{
+RelExpr *MergeUpdate::copyTopNode(RelExpr *derivedNode, CollHeap *outHeap) {
   MergeUpdate *result;
 
   if (derivedNode == NULL)
-    result = new (outHeap) MergeUpdate(getTableName(),
-				       getTableDesc(),
-				       getOperatorType(),
-				       child(0),
-				       NULL,
-				       insertCols(), insertValues(),
-				       outHeap, where_);
+    result = new (outHeap) MergeUpdate(getTableName(), getTableDesc(), getOperatorType(), child(0), NULL, insertCols(),
+                                       insertValues(), outHeap, where_);
   else
-    result = (MergeUpdate *) derivedNode;
-  if (xformedUpsert())
-    result->setXformedUpsert();
+    result = (MergeUpdate *)derivedNode;
+  if (xformedUpsert()) result->setXformedUpsert();
 
   return Update::copyTopNode(result, outHeap);
 }
@@ -14559,43 +11849,33 @@ RelExpr * MergeUpdate::copyTopNode(RelExpr *derivedNode, CollHeap* outHeap)
 // member functions for class Delete
 // -----------------------------------------------------------------------
 
-Delete::Delete(const CorrName &name, TableDesc *tabId, OperatorTypeEnum otype,
-               RelExpr *child, ItemExpr *newRecExpr,
-               ItemExpr *currOfCursorName, 
-	       ConstStringList * csl,
-	       CollHeap *oHeap)
-  : GenericUpdate(name,tabId,otype,child,newRecExpr,currOfCursorName,oHeap),
-    wasFirstN_(FALSE),
-    csl_(csl),estRowsAccessed_(0),needConvertToAsj_(TRUE)
-{
+Delete::Delete(const CorrName &name, TableDesc *tabId, OperatorTypeEnum otype, RelExpr *child, ItemExpr *newRecExpr,
+               ItemExpr *currOfCursorName, ConstStringList *csl, CollHeap *oHeap)
+    : GenericUpdate(name, tabId, otype, child, newRecExpr, currOfCursorName, oHeap),
+      wasFirstN_(FALSE),
+      csl_(csl),
+      estRowsAccessed_(0),
+      needConvertToAsj_(TRUE) {
   setCacheableNode(CmpMain::BIND);
 }
 
 Delete::~Delete() {}
 
-const NAString Delete::getText() const
-{
-  NAString text("delete",CmpCommon::statementHeap());
+const NAString Delete::getText() const {
+  NAString text("delete", CmpCommon::statementHeap());
 
   return (text + " " + getUpdTableNameText());
 }
 
-RelExpr * Delete::copyTopNode(RelExpr *derivedNode, CollHeap* outHeap)
-{
+RelExpr *Delete::copyTopNode(RelExpr *derivedNode, CollHeap *outHeap) {
   Delete *result;
 
   if (derivedNode == NULL)
-    result = new (outHeap) Delete(getTableName(),
-				  getTableDesc(),
-				  getOperatorType(),
-				  NULL,
-				  NULL, NULL,
-				  csl_,
-				  outHeap);
+    result = new (outHeap) Delete(getTableName(), getTableDesc(), getOperatorType(), NULL, NULL, NULL, csl_, outHeap);
   else
-    result = (Delete *) derivedNode;
+    result = (Delete *)derivedNode;
 
-  result->wasFirstN_          = wasFirstN_;
+  result->wasFirstN_ = wasFirstN_;
   result->csl() = csl();
   result->setEstRowsAccessed(getEstRowsAccessed());
 
@@ -14605,49 +11885,35 @@ RelExpr * Delete::copyTopNode(RelExpr *derivedNode, CollHeap* outHeap)
 // -----------------------------------------------------------------------
 // member functions for class MergeDelete
 // -----------------------------------------------------------------------
-MergeDelete::MergeDelete(const CorrName &name,
-			 TableDesc *tabId,
-			 OperatorTypeEnum otype,
-			 RelExpr *child,
-			 ItemExpr *insertCols,
-			 ItemExpr *insertValues,
-			 CollHeap *oHeap)
-  : Delete(name,tabId,otype,child,NULL,NULL,NULL,oHeap),
-       insertCols_(insertCols), insertValues_(insertValues)
-{
+MergeDelete::MergeDelete(const CorrName &name, TableDesc *tabId, OperatorTypeEnum otype, RelExpr *child,
+                         ItemExpr *insertCols, ItemExpr *insertValues, CollHeap *oHeap)
+    : Delete(name, tabId, otype, child, NULL, NULL, NULL, oHeap), insertCols_(insertCols), insertValues_(insertValues) {
   setCacheableNode(CmpMain::BIND);
-  
+
   setIsMergeDelete(TRUE);
 
   // if there is a WHERE NOT MATCHED INSERT action, then the scan
   // has to take place in the merge node at run time, so we have
   // to suppress the TSJ transformation on this node
-  if (insertValues)
-    setNoFlow(TRUE);
+  if (insertValues) setNoFlow(TRUE);
 }
 
 MergeDelete::~MergeDelete() {}
 
-const NAString MergeDelete::getText() const
-{
-  NAString text("merge_delete",CmpCommon::statementHeap());
+const NAString MergeDelete::getText() const {
+  NAString text("merge_delete", CmpCommon::statementHeap());
 
   return (text + " " + getUpdTableNameText());
 }
 
-RelExpr * MergeDelete::copyTopNode(RelExpr *derivedNode, CollHeap* outHeap)
-{
+RelExpr *MergeDelete::copyTopNode(RelExpr *derivedNode, CollHeap *outHeap) {
   MergeDelete *result;
 
   if (derivedNode == NULL)
-    result = new (outHeap) MergeDelete(getTableName(),
-				       getTableDesc(),
-				       getOperatorType(),
-				       child(0),
-				       insertCols(), insertValues(),
-				       outHeap);
+    result = new (outHeap)
+        MergeDelete(getTableName(), getTableDesc(), getOperatorType(), child(0), insertCols(), insertValues(), outHeap);
   else
-    result = (MergeDelete *) derivedNode;
+    result = (MergeDelete *)derivedNode;
 
   return Delete::copyTopNode(result, outHeap);
 }
@@ -14662,17 +11928,13 @@ NABoolean InsertCursor::isLogical() const { return FALSE; }
 
 NABoolean InsertCursor::isPhysical() const { return TRUE; }
 
-const NAString InsertCursor::getText() const
-{
-  NAString text("insert",  CmpCommon::statementHeap());
+const NAString InsertCursor::getText() const {
+  NAString text("insert", CmpCommon::statementHeap());
 
-  if ((insertType_ == VSBB_INSERT_SYSTEM) ||
-      (insertType_ == VSBB_INSERT_USER))
+  if ((insertType_ == VSBB_INSERT_SYSTEM) || (insertType_ == VSBB_INSERT_USER))
     text = text + "_vsbb";
-  else if ((insertType_ == VSBB_LOAD) ||
-	   (insertType_ == VSBB_LOAD_APPEND) ||
-	   (insertType_ == VSBB_LOAD_NO_DUP_KEY_CHECK) ||
-	   (insertType_ == VSBB_LOAD_APPEND_NO_DUP_KEY_CHECK))
+  else if ((insertType_ == VSBB_LOAD) || (insertType_ == VSBB_LOAD_APPEND) ||
+           (insertType_ == VSBB_LOAD_NO_DUP_KEY_CHECK) || (insertType_ == VSBB_LOAD_APPEND_NO_DUP_KEY_CHECK))
     text = text + "_sidetree";
   else if (insertType_ == VSBB_LOAD_AUDITED)
     text = text + "_sidetree_audited";
@@ -14682,16 +11944,11 @@ const NAString InsertCursor::getText() const
   return (text + " " + getUpdTableNameText());
 }
 
-RelExpr * InsertCursor::copyTopNode(RelExpr *derivedNode, CollHeap* outHeap)
-{
+RelExpr *InsertCursor::copyTopNode(RelExpr *derivedNode, CollHeap *outHeap) {
   RelExpr *result;
 
   if (derivedNode == NULL)
-    result = new (outHeap) InsertCursor(getTableName(),
-				        getTableDesc(),
-				        getOperatorType(),
-					NULL,
-					outHeap);
+    result = new (outHeap) InsertCursor(getTableName(), getTableDesc(), getOperatorType(), NULL, outHeap);
   else
     result = derivedNode;
 
@@ -14701,25 +11958,19 @@ RelExpr * InsertCursor::copyTopNode(RelExpr *derivedNode, CollHeap* outHeap)
 // -----------------------------------------------------------------------
 // member functions for class HiveInsert
 // -----------------------------------------------------------------------
-const NAString HiveInsert::getText() const
-{
-  NAString text("hive_insert",  CmpCommon::statementHeap());
+const NAString HiveInsert::getText() const {
+  NAString text("hive_insert", CmpCommon::statementHeap());
 
   text += " (physical)";
 
   return (text + " " + getUpdTableNameText());
 }
 
-RelExpr * HiveInsert::copyTopNode(RelExpr *derivedNode, CollHeap* outHeap)
-{
+RelExpr *HiveInsert::copyTopNode(RelExpr *derivedNode, CollHeap *outHeap) {
   RelExpr *result;
 
   if (derivedNode == NULL)
-    result = new (outHeap) HiveInsert(getTableName(),
-				        getTableDesc(),
-				        getOperatorType(),
-					NULL,
-					outHeap);
+    result = new (outHeap) HiveInsert(getTableName(), getTableDesc(), getOperatorType(), NULL, outHeap);
   else
     result = derivedNode;
 
@@ -14729,81 +11980,62 @@ RelExpr * HiveInsert::copyTopNode(RelExpr *derivedNode, CollHeap* outHeap)
 // -----------------------------------------------------------------------
 // member functions for class HbaseInsert
 // -----------------------------------------------------------------------
-const NAString HbaseInsert::getText() const
-{
-  NABoolean isSeabase = 
-    (getTableDesc() && getTableDesc()->getNATable() ? 
-     getTableDesc()->getNATable()->isSeabaseTable() : FALSE);
+const NAString HbaseInsert::getText() const {
+  NABoolean isSeabase =
+      (getTableDesc() && getTableDesc()->getNATable() ? getTableDesc()->getNATable()->isSeabaseTable() : FALSE);
 
-  NABoolean isMonarch = 
-    (getTableDesc() && getTableDesc()->getNATable() ? 
-     getTableDesc()->getNATable()->isMonarch() : FALSE);
+  NABoolean isMonarch =
+      (getTableDesc() && getTableDesc()->getNATable() ? getTableDesc()->getNATable()->isMonarch() : FALSE);
 
   NAString text;
 
   if (NOT isSeabase)
     text = "hbase_";
-  else
-    {
-      if (isMonarch)
-        text = "monarch_";
-      else
-        text = "trafodion_";
-    }
+  else {
+    if (isMonarch)
+      text = "monarch_";
+    else
+      text = "trafodion_";
+  }
 
-  if (isUpsert())
-    {
-      if (getInsertType() == Insert::UPSERT_LOAD)
-        {
-          if (getIsTrafLoadPrep())
-            text += "load_preparation";
-          else
-            text += "load";
-        }
-      else if (vsbbInsert())
-	text += "vsbb_upsert";
+  if (isUpsert()) {
+    if (getInsertType() == Insert::UPSERT_LOAD) {
+      if (getIsTrafLoadPrep())
+        text += "load_preparation";
       else
-        text += "upsert";
-    }
-  else
-    {
-      if (vsbbInsert())
-	text += "vsbb_upsert";
-      else
-        text += "insert";
-    }
-  
+        text += "load";
+    } else if (vsbbInsert())
+      text += "vsbb_upsert";
+    else
+      text += "upsert";
+  } else {
+    if (vsbbInsert())
+      text += "vsbb_upsert";
+    else
+      text += "insert";
+  }
+
   return (text + " " + getUpdTableNameText());
 }
 
-RelExpr * HbaseInsert::copyTopNode(RelExpr *derivedNode, CollHeap* outHeap)
-{
+RelExpr *HbaseInsert::copyTopNode(RelExpr *derivedNode, CollHeap *outHeap) {
   HbaseInsert *result;
 
   if (derivedNode == NULL)
-    result = new (outHeap) HbaseInsert(getTableName(),
-				        getTableDesc(),
-				        getOperatorType(),
-					NULL,
-					outHeap);
+    result = new (outHeap) HbaseInsert(getTableName(), getTableDesc(), getOperatorType(), NULL, outHeap);
   else
-    result = (HbaseInsert *) derivedNode;
-  
+    result = (HbaseInsert *)derivedNode;
+
   result->returnRow_ = returnRow_;
 
   return Insert::copyTopNode(result, outHeap);
 }
 
-RelExpr * HBaseBulkLoadPrep::copyTopNode(RelExpr *derivedNode, CollHeap* outHeap)
-{
+RelExpr *HBaseBulkLoadPrep::copyTopNode(RelExpr *derivedNode, CollHeap *outHeap) {
   RelExpr *result;
 
   if (derivedNode == NULL)
-    result = new (outHeap) HbaseInsert(getTableName(),
-                                        getTableDesc(),
-                                        getOperatorType(),
-                                        NULL,
-                                        outHeap);
+    result = new (outHeap) HbaseInsert(getTableName(), getTableDesc(), getOperatorType(), NULL, outHeap);
   else
     result = derivedNode;
 
@@ -14819,24 +12051,17 @@ NABoolean UpdateCursor::isLogical() const { return FALSE; }
 
 NABoolean UpdateCursor::isPhysical() const { return TRUE; }
 
-const NAString UpdateCursor::getText() const
-{
-  NAString text("cursor_update",CmpCommon::statementHeap());
+const NAString UpdateCursor::getText() const {
+  NAString text("cursor_update", CmpCommon::statementHeap());
 
   return (text + " " + getUpdTableNameText());
 }
 
-
-RelExpr * UpdateCursor::copyTopNode(RelExpr *derivedNode, CollHeap* outHeap)
-{
+RelExpr *UpdateCursor::copyTopNode(RelExpr *derivedNode, CollHeap *outHeap) {
   RelExpr *result;
 
   if (derivedNode == NULL)
-    result = new (outHeap) UpdateCursor(getTableName(),
-				        getTableDesc(),
-				        getOperatorType(),
-					NULL,
-					outHeap);
+    result = new (outHeap) UpdateCursor(getTableName(), getTableDesc(), getOperatorType(), NULL, outHeap);
   else
     result = derivedNode;
 
@@ -14853,72 +12078,53 @@ NABoolean DeleteCursor::isLogical() const { return FALSE; }
 
 NABoolean DeleteCursor::isPhysical() const { return TRUE; }
 
-const NAString DeleteCursor::getText() const
-{
-  NAString text("cursor_delete",CmpCommon::statementHeap());
+const NAString DeleteCursor::getText() const {
+  NAString text("cursor_delete", CmpCommon::statementHeap());
 
   return (text + " " + getUpdTableNameText());
 }
 
-RelExpr * DeleteCursor::copyTopNode(RelExpr *derivedNode, CollHeap* outHeap)
-{
+RelExpr *DeleteCursor::copyTopNode(RelExpr *derivedNode, CollHeap *outHeap) {
   RelExpr *result;
 
   if (derivedNode == NULL)
-    result = new (outHeap) DeleteCursor(getTableName(),
-				        getTableDesc(),
-				        getOperatorType(),
-					NULL,
-					outHeap);
+    result = new (outHeap) DeleteCursor(getTableName(), getTableDesc(), getOperatorType(), NULL, outHeap);
   else
     result = derivedNode;
 
   return Delete::copyTopNode(result, outHeap);
 }
 
-
 /////////////////////////////////////////////////////////////////////
 
-void
-RelExpr::unparse(NAString &result,
-		 PhaseEnum /* phase */,
-		 UnparseFormatEnum /* form */,
-		 TableDesc * tabId) const
-{
+void RelExpr::unparse(NAString &result, PhaseEnum /* phase */, UnparseFormatEnum /* form */, TableDesc *tabId) const {
   result += getText();
 
 #ifndef NDEBUG
-  if (getenv("UNPARSE_FULL"))
-    {
-      if (selection_)
-	{
-	  result += "[";
-	  selection_->unparse(result /*, phase, form */);
-	  result += "]";
-	}
-      if (predicates_.entries())
-	{
-	  result += "{";
-	  predicates_.unparse(result /*, phase, form */);
-	  result += "}";
-	}
+  if (getenv("UNPARSE_FULL")) {
+    if (selection_) {
+      result += "[";
+      selection_->unparse(result /*, phase, form */);
+      result += "]";
     }
+    if (predicates_.entries()) {
+      result += "{";
+      predicates_.unparse(result /*, phase, form */);
+      result += "}";
+    }
+  }
 #endif
 
   Int32 maxi = getArity();
-  if (maxi)
-    {
-      result += "(";
-      for (Lng32 i = 0; i < maxi; i++)
-	{
-	  if (i > 0)
-	    result += ", ";
-          if ( child(i).getPtr() == NULL )
-            continue;
-	  child(i)->unparse(result);
-	}
-      result += ")";
+  if (maxi) {
+    result += "(";
+    for (Lng32 i = 0; i < maxi; i++) {
+      if (i > 0) result += ", ";
+      if (child(i).getPtr() == NULL) continue;
+      child(i)->unparse(result);
     }
+    result += ")";
+  }
 }
 
 // -----------------------------------------------------------------------
@@ -14928,9 +12134,7 @@ RelExpr::unparse(NAString &result,
 // Transpose::~Transpose() -----------------------------------------------
 // The destructor
 //
-Transpose::~Transpose()
-{
-}
+Transpose::~Transpose() {}
 
 // Transpose::topHash() --------------------------------------------------
 // Compute a hash value for a chain of derived RelExpr nodes.
@@ -14944,8 +12148,7 @@ Transpose::~Transpose()
 // Outputs: A HashValue of this node and all nodes in the
 // derivation chain below (towards the base class) this node.
 //
-HashValue Transpose::topHash()
-{
+HashValue Transpose::topHash() {
   // Compute a hash value of the derivation chain below this node.
   //
   HashValue result = RelExpr::topHash();
@@ -14954,7 +12157,7 @@ HashValue Transpose::topHash()
   // data members at this point. The other data members do not
   // live past the binder.
   //
-  for(CollIndex i = 0; i < transUnionVectorSize(); i++) {
+  for (CollIndex i = 0; i < transUnionVectorSize(); i++) {
     result ^= transUnionVector()[i];
   }
 
@@ -14978,27 +12181,22 @@ HashValue Transpose::topHash()
 // needs to be compared is transUnionVals_. The other data members
 // do not exist passed the binder.
 //
-NABoolean
-Transpose::duplicateMatch(const RelExpr & other) const
-{
+NABoolean Transpose::duplicateMatch(const RelExpr &other) const {
   // Compare this node with 'other' down the derivation chain.
   //
-  if (!RelExpr::duplicateMatch(other))
-    return FALSE;
+  if (!RelExpr::duplicateMatch(other)) return FALSE;
 
   // Cast the RelExpr to a Transpose node. (This must be a Transpose node)
   //
-  Transpose &o = (Transpose &) other;
+  Transpose &o = (Transpose &)other;
 
   // If the transUnionVectors are the same size and have the same entries,
   // then the nodes are identical
   //
-  if(transUnionVectorSize() != o.transUnionVectorSize())
-    return FALSE;
+  if (transUnionVectorSize() != o.transUnionVectorSize()) return FALSE;
 
-  for(CollIndex i = 0; i < transUnionVectorSize(); i++) {
-    if (!(transUnionVector()[i] == o.transUnionVector()[i]))
-      return FALSE;
+  for (CollIndex i = 0; i < transUnionVectorSize(); i++) {
+    if (!(transUnionVector()[i] == o.transUnionVector()[i])) return FALSE;
   }
 
   return TRUE;
@@ -15026,47 +12224,40 @@ Transpose::duplicateMatch(const RelExpr & other) const
 // below this one in the derivation chain (RelExpr::copyTopNode() in this
 // case).
 //
-RelExpr *
-Transpose::copyTopNode(RelExpr *derivedNode, CollHeap *outHeap)
-{
+RelExpr *Transpose::copyTopNode(RelExpr *derivedNode, CollHeap *outHeap) {
   Transpose *result;
 
   if (derivedNode == NULL)
     // This is the top of the derivation chain
     // Create an empty Transpose node.
     //
-    result = new (outHeap) Transpose(NULL,NULL,NULL,outHeap);
+    result = new (outHeap) Transpose(NULL, NULL, NULL, outHeap);
   else
     // A node has already been constructed as a derived class.
     //
-    result = (Transpose *) derivedNode;
+    result = (Transpose *)derivedNode;
 
   // Copy the relavant fields.
 
   result->transUnionVectorSize_ = transUnionVectorSize();
 
-  result->transUnionVector() =
-    new (outHeap) ValueIdList[transUnionVectorSize()];
+  result->transUnionVector() = new (outHeap) ValueIdList[transUnionVectorSize()];
 
-  for(CollIndex i = 0; i < transUnionVectorSize(); i++) {
+  for (CollIndex i = 0; i < transUnionVectorSize(); i++) {
     result->transUnionVector()[i] = transUnionVector()[i];
   }
 
   // copy pointer to expressions
   // These are not available after bindNode()
   //
-  if (transValsTree_ != NULL)
-    result->transValsTree_ = transValsTree_->copyTree(outHeap)->castToItemExpr();
+  if (transValsTree_ != NULL) result->transValsTree_ = transValsTree_->copyTree(outHeap)->castToItemExpr();
 
-  if (keyCol_ != NULL)
-    result->keyCol_ = keyCol_->copyTree(outHeap)->castToItemExpr();
-
+  if (keyCol_ != NULL) result->keyCol_ = keyCol_->copyTree(outHeap)->castToItemExpr();
 
   // Copy any data members from the classes lower in the derivation chain.
   //
   return RelExpr::copyTopNode(result, outHeap);
 }
-
 
 // Transpose::addLocalExpr() -----------------------------------------------
 // Insert into a list of expressions all the expressions of this node and
@@ -15089,11 +12280,8 @@ Transpose::copyTopNode(RelExpr *derivedNode, CollHeap *outHeap)
 // It then calls RelExpr::addLocalExpr() which will add any RelExpr
 // expressions to the list.
 //
-void Transpose::addLocalExpr(LIST(ExprNode *) &xlist,
-			     LIST(NAString) &llist) const
-{
-
-  for(CollIndex i = 0; i < transUnionVectorSize(); i++) {
+void Transpose::addLocalExpr(LIST(ExprNode *) & xlist, LIST(NAString) & llist) const {
+  for (CollIndex i = 0; i < transUnionVectorSize(); i++) {
     if (NOT transUnionVector()[i].isEmpty()) {
       xlist.insert(transUnionVector()[i].rebuildExprTree());
       llist.insert("transpose_union_vector");
@@ -15103,7 +12291,7 @@ void Transpose::addLocalExpr(LIST(ExprNode *) &xlist,
   // This is only available as an ItemExpr tree.  It is never
   // stored as a ValueIdSet.  This is not available after bindNode().
   //
-  if(transValsTree_) {
+  if (transValsTree_) {
     xlist.insert(transValsTree_);
     llist.insert("transpose_values");
   }
@@ -15111,12 +12299,12 @@ void Transpose::addLocalExpr(LIST(ExprNode *) &xlist,
   // This is only available as an ItemExpr tree.  It is never
   // stored as a ValueIdSet.  This is not available after bindNode().
   //
-  if(keyCol_) {
+  if (keyCol_) {
     xlist.insert(keyCol_);
     llist.insert("key_column");
   }
 
-  RelExpr::addLocalExpr(xlist,llist);
+  RelExpr::addLocalExpr(xlist, llist);
 }
 
 // Transpose::getPotentialOutputValues() ---------------------------------
@@ -15132,25 +12320,22 @@ void Transpose::addLocalExpr(LIST(ExprNode *) &xlist,
 // child node.  The new columns generated by transpose are the key
 // column and the value colunms (one for each transpose group).
 //
-void
-Transpose::getPotentialOutputValues(ValueIdSet & outputValues) const
-{
+void Transpose::getPotentialOutputValues(ValueIdSet &outputValues) const {
   // Make sure the ValueIdSet is empty.
   //
   outputValues.clear();
 
   // Add the values generated by the transpose node.
   //
-  for(CollIndex i = 0; i < transUnionVectorSize(); i++) {
-    outputValues.insertList( transUnionVector()[i] );
+  for (CollIndex i = 0; i < transUnionVectorSize(); i++) {
+    outputValues.insertList(transUnionVector()[i]);
   }
 
   // Add the values produced by the child.
   //
   outputValues += child(0).getGroupAttr()->getCharacteristicOutputs();
 
-} // Transpose::getPotentialOutputValues()
-
+}  // Transpose::getPotentialOutputValues()
 
 // Transpose::pushdownCoveredExpr() ------------------------------------
 //
@@ -15195,29 +12380,22 @@ Transpose::getPotentialOutputValues(ValueIdSet & outputValues) const
 //         the pushdown is attempted on all the children.
 //
 // ---------------------------------------------------------------------
-void Transpose::pushdownCoveredExpr(const ValueIdSet &outputExpr,
-			       const ValueIdSet &newExternalInputs,
-			       ValueIdSet &predicatesOnParent,
-			       const ValueIdSet *setOfValuesReqdByParent,
-			       Lng32 childIndex
-			       )
-{
-
+void Transpose::pushdownCoveredExpr(const ValueIdSet &outputExpr, const ValueIdSet &newExternalInputs,
+                                    ValueIdSet &predicatesOnParent, const ValueIdSet *setOfValuesReqdByParent,
+                                    Lng32 childIndex) {
   ValueIdSet exprOnParent;
-  if (setOfValuesReqdByParent)
-    exprOnParent = *setOfValuesReqdByParent;
+  if (setOfValuesReqdByParent) exprOnParent = *setOfValuesReqdByParent;
 
   // Add all the values required for the transpose expressions
   // to the values required by the parent.
   // Don't add the valueIds of the ValueIdUnion nodes, but the
   // valueIds of the contents of the ValueIdUnion nodes.
   //
-  for(CollIndex v = 0; v < transUnionVectorSize(); v++) {
+  for (CollIndex v = 0; v < transUnionVectorSize(); v++) {
     ValueIdList &valIdList = transUnionVector()[v];
 
-    for(CollIndex i = 0; i < valIdList.entries(); i++) {
-      ValueIdUnion *valIdu = ((ValueIdUnion *)valIdList[i].
-			      getValueDesc()->getItemExpr());
+    for (CollIndex i = 0; i < valIdList.entries(); i++) {
+      ValueIdUnion *valIdu = ((ValueIdUnion *)valIdList[i].getValueDesc()->getItemExpr());
 
       exprOnParent.insertList(valIdu->getSources());
     }
@@ -15225,14 +12403,10 @@ void Transpose::pushdownCoveredExpr(const ValueIdSet &outputExpr,
 
   ValueIdSet pushablePredicates(predicatesOnParent);
 
-  RelExpr::pushdownCoveredExpr(outputExpr,
-                               newExternalInputs,
-                               pushablePredicates,
-			       &exprOnParent,
-                               childIndex);
+  RelExpr::pushdownCoveredExpr(outputExpr, newExternalInputs, pushablePredicates, &exprOnParent, childIndex);
 
   predicatesOnParent.intersectSet(pushablePredicates);
-} // Transpose::pushdownCoveredExpr
+}  // Transpose::pushdownCoveredExpr
 
 // Transpose::removeTransValsTree() -------------------------------------
 // Return the transValsTree_ ItemExpr tree and set to NULL,
@@ -15246,9 +12420,7 @@ void Transpose::pushdownCoveredExpr(const ValueIdSet &outputExpr,
 // Called by Transpose::bindNode(). The value of transValsTree_ is not
 // needed after the binder.
 //
-const ItemExpr *
-Transpose::removeTransValsTree()
-{
+const ItemExpr *Transpose::removeTransValsTree() {
   ItemExpr *result = transValsTree_;
   transValsTree_ = (ItemExpr *)NULL;
   return result;
@@ -15266,9 +12438,7 @@ Transpose::removeTransValsTree()
 // Call by Transpose::bindNode(). The value of keyCol_ is not
 // needed after the binder.
 //
-const ItemExpr *
-Transpose::removeKeyCol()
-{
+const ItemExpr *Transpose::removeKeyCol() {
   ItemExpr *result = keyCol_;
   keyCol_ = (ItemExpr *)NULL;
   return result;
@@ -15282,16 +12452,11 @@ Transpose::removeKeyCol()
 // column. This column is later used to determine the UEC of the final
 // transpose column.
 
-ValueId Transpose::getSourceColFromExprForUec(ValueId sourceValId,
-					      const ColStatDescList & childColStatsList)
-{
-
-  if (sourceValId.getItemExpr()->getOperatorType() == ITM_VEG_REFERENCE)
-    return sourceValId;
+ValueId Transpose::getSourceColFromExprForUec(ValueId sourceValId, const ColStatDescList &childColStatsList) {
+  if (sourceValId.getItemExpr()->getOperatorType() == ITM_VEG_REFERENCE) return sourceValId;
 
   ValueIdSet vegCols;
-  sourceValId.getItemExpr()->
-    findAll(ITM_VEG_REFERENCE, vegCols, TRUE, TRUE);
+  sourceValId.getItemExpr()->findAll(ITM_VEG_REFERENCE, vegCols, TRUE, TRUE);
 
   // case 1 : expression with a constant, return sourceValId
   // case 2 :(only one expr) concentrates on simple expressions only
@@ -15299,60 +12464,47 @@ ValueId Transpose::getSourceColFromExprForUec(ValueId sourceValId,
   // where EXPR1 , EXPR2 is VEGREF or EXPR we will assume the max UEC
   // admist the list of base columns found will be used.
   // This is an approximation but better that the worst case.
-  if (vegCols.entries() == 0)
-  {
+  if (vegCols.entries() == 0) {
     // case 1
     return sourceValId;
   }
-  if(vegCols.entries() == 1)
-  {
+  if (vegCols.entries() == 1) {
     // case 2
     // There is only one get that.
     vegCols.getFirst(sourceValId);
-  }
-  else
-  {
-    //case 3
-    //Initialize for safety.
+  } else {
+    // case 3
+    // Initialize for safety.
     vegCols.getFirst(sourceValId);
-    //CostScalars are initialized by their constructor to zero.
-    CostScalar currentMaxUEC,currentUEC;
+    // CostScalars are initialized by their constructor to zero.
+    CostScalar currentMaxUEC, currentUEC;
     CollIndex index = NULL_COLL_INDEX;
 
-    for(ValueId currentValId = vegCols.init()
-	;vegCols.next(currentValId)
-	;vegCols.advance(currentValId))
-    {
-       index = NULL_COLL_INDEX;
-       childColStatsList.getColStatDescIndex(index, currentValId);
-       if (index == NULL_COLL_INDEX) continue;
+    for (ValueId currentValId = vegCols.init(); vegCols.next(currentValId); vegCols.advance(currentValId)) {
+      index = NULL_COLL_INDEX;
+      childColStatsList.getColStatDescIndex(index, currentValId);
+      if (index == NULL_COLL_INDEX) continue;
 
-       currentUEC = childColStatsList[index]->getColStats()
-		       ->getTotalUec();
-       //get the UEC and find the max and corresponding valueID
-       //and assign it ti sourceValId.
-       if(currentUEC > currentMaxUEC)
-       {
-	   currentMaxUEC = currentUEC;
-	   sourceValId = currentValId;
-       }
-    }// end of for
-  }//end of elsif
+      currentUEC = childColStatsList[index]->getColStats()->getTotalUec();
+      // get the UEC and find the max and corresponding valueID
+      // and assign it ti sourceValId.
+      if (currentUEC > currentMaxUEC) {
+        currentMaxUEC = currentUEC;
+        sourceValId = currentValId;
+      }
+    }  // end of for
+  }    // end of elsif
   return sourceValId;
 }
 
-PhysTranspose::PhysTranspose(RelExpr *child /*= NULL*/,
-                             CollHeap *oHeap /*= CmpCommon::statementHeap()*/)
-: Transpose(NULL,NULL,child,oHeap)
-{
+PhysTranspose::PhysTranspose(RelExpr *child /*= NULL*/, CollHeap *oHeap /*= CmpCommon::statementHeap()*/)
+    : Transpose(NULL, NULL, child, oHeap) {
   pCostMethod_ = new (oHeap) CostMethodTranspose();
 }
 
 // The destructor
 //
-PhysTranspose::~PhysTranspose()
-{
-}
+PhysTranspose::~PhysTranspose() {}
 
 // PhysTranspose::copyTopNode ----------------------------------------------
 // Copy a chain of derived nodes (Calls Transpose::copyTopNode).
@@ -15376,20 +12528,18 @@ PhysTranspose::~PhysTranspose()
 // below this one in the derivation chain (Transpose::copyTopNode() in this
 // case).
 //
-RelExpr *
-PhysTranspose::copyTopNode(RelExpr *derivedNode, CollHeap *outHeap)
-{
+RelExpr *PhysTranspose::copyTopNode(RelExpr *derivedNode, CollHeap *outHeap) {
   PhysTranspose *result;
 
   if (derivedNode == NULL)
     // This is the top of the derivation chain
     // Generate an empty PhysTranspose node.
     //
-    result = new (outHeap) PhysTranspose(NULL,outHeap);
+    result = new (outHeap) PhysTranspose(NULL, outHeap);
   else
     // A node has already been constructed as a derived class.
     //
-    result = (PhysTranspose *) derivedNode;
+    result = (PhysTranspose *)derivedNode;
 
   // PhysTranspose has no data members.
 
@@ -15403,15 +12553,11 @@ PhysTranspose::copyTopNode(RelExpr *derivedNode, CollHeap *outHeap)
 // -----------------------------------------------------------------------
 
 // Constructor
-Pack::Pack(ULng32 pf,
-           RelExpr* child,
-           ItemExpr* packingExprTree,
-           CollHeap* oHeap)
- : RelExpr(REL_PACK,child,NULL,oHeap),
-   packingFactorLong_(pf),
-   packingFactorTree_(NULL),
-   packingExprTree_(packingExprTree)
-{
+Pack::Pack(ULng32 pf, RelExpr *child, ItemExpr *packingExprTree, CollHeap *oHeap)
+    : RelExpr(REL_PACK, child, NULL, oHeap),
+      packingFactorLong_(pf),
+      packingFactorTree_(NULL),
+      packingExprTree_(packingExprTree) {
   setNonCacheable();
   packingFactor().clear();
   packingExpr().clear();
@@ -15419,24 +12565,20 @@ Pack::Pack(ULng32 pf,
 }
 
 // Destructor.
-Pack::~Pack()
-{
-}
+Pack::~Pack() {}
 
 // -----------------------------------------------------------------------
 // Pack:: some Accessors/Mutators.
 // -----------------------------------------------------------------------
 
-ItemExpr* Pack::removePackingFactorTree()
-{
-  ItemExpr* pf = packingFactorTree_;
+ItemExpr *Pack::removePackingFactorTree() {
+  ItemExpr *pf = packingFactorTree_;
   packingFactorTree_ = NULL;
   return pf;
 }
 
-ItemExpr* Pack::removePackingExprTree()
-{
-  ItemExpr* pe = packingExprTree_;
+ItemExpr *Pack::removePackingExprTree() {
+  ItemExpr *pe = packingExprTree_;
   packingExprTree_ = NULL;
   return pe;
 }
@@ -15444,16 +12586,12 @@ ItemExpr* Pack::removePackingExprTree()
 // -----------------------------------------------------------------------
 // Pack::getText()
 // -----------------------------------------------------------------------
-const NAString Pack::getText() const
-{
-  return "PACK";
-}
+const NAString Pack::getText() const { return "PACK"; }
 
 // -----------------------------------------------------------------------
 // Pack::topHash()
 // -----------------------------------------------------------------------
-HashValue Pack::topHash()
-{
+HashValue Pack::topHash() {
   // The base class's topHash deals with inputs/outputs and operator type.
   HashValue result = RelExpr::topHash();
 
@@ -15468,52 +12606,46 @@ HashValue Pack::topHash()
 // -----------------------------------------------------------------------
 // Pack::duplicateMatch()
 // -----------------------------------------------------------------------
-NABoolean Pack::duplicateMatch(const RelExpr& other) const
-{
+NABoolean Pack::duplicateMatch(const RelExpr &other) const {
   // Assume optimizer already matches inputs/outputs in Group Attributes.
 
   // Base class checks for operator type, predicates and children.
-  if(NOT RelExpr::duplicateMatch(other)) return FALSE;
+  if (NOT RelExpr::duplicateMatch(other)) return FALSE;
 
   // Base class implementation already makes sure other is a Pack node.
-  Pack& otherPack = (Pack &) other;
+  Pack &otherPack = (Pack &)other;
 
   // If the required order keys are not the same
   // then the nodes are not identical
   //
-  if (!(requiredOrder() == otherPack.requiredOrder()))
-    return FALSE;
+  if (!(requiredOrder() == otherPack.requiredOrder())) return FALSE;
 
   // Packing factor is the only remaining thing to check.
-  return (packingFactor_ == otherPack.packingFactor() AND
-                                 packingExpr_ == otherPack.packingExpr());
+  return (packingFactor_ == otherPack.packingFactor() AND packingExpr_ == otherPack.packingExpr());
 }
 
 // -----------------------------------------------------------------------
 // Pack::copyTopNode()
 // -----------------------------------------------------------------------
-RelExpr* Pack::copyTopNode(RelExpr* derivedNode, CollHeap* outHeap)
-{
-  Pack* result;
+RelExpr *Pack::copyTopNode(RelExpr *derivedNode, CollHeap *outHeap) {
+  Pack *result;
 
   // This the real node we want to copy. Construct a new Pack node.
-  if(derivedNode == NULL)
-  {
-    result = new (outHeap) Pack (packingFactorLong(),NULL,NULL,outHeap);
+  if (derivedNode == NULL) {
+    result = new (outHeap) Pack(packingFactorLong(), NULL, NULL, outHeap);
     result->packingFactor() = packingFactor();
     result->packingExpr() = packingExpr();
-    //result->setRequiredOrder(requiredOrder());
+    // result->setRequiredOrder(requiredOrder());
     result->requiredOrder() = requiredOrder();
     result->setFirstNRows(getFirstNRows());
-  }
-  else
+  } else
   // ---------------------------------------------------------------------
   // The real node we want to copy is of a derived class. The duplicate
   // has already been made and store in derived node. All I need to do is
   // to copy the members stored with this base class.
   // ---------------------------------------------------------------------
   {
-    result = (Pack *) derivedNode;
+    result = (Pack *)derivedNode;
     result->packingFactorLong() = packingFactorLong();
     result->packingFactor() = packingFactor();
     result->packingExpr() = packingExpr();
@@ -15523,14 +12655,13 @@ RelExpr* Pack::copyTopNode(RelExpr* derivedNode, CollHeap* outHeap)
   }
 
   // Call base class to make copies of its own data members.
-  return RelExpr::copyTopNode(result,outHeap);
+  return RelExpr::copyTopNode(result, outHeap);
 }
 
 // -----------------------------------------------------------------------
 // Pack::getPotentialOutputValues()
 // -----------------------------------------------------------------------
-void Pack::getPotentialOutputValues(ValueIdSet& outputValues) const
-{
+void Pack::getPotentialOutputValues(ValueIdSet &outputValues) const {
   // Just the outputs of the packing expression.
   outputValues.clear();
   outputValues.insertList(packingExpr_);
@@ -15540,11 +12671,9 @@ void Pack::getPotentialOutputValues(ValueIdSet& outputValues) const
 // Pack::getNonPackedExpr() returns the non-packed sub-expressions of the
 // packing expression.
 // -----------------------------------------------------------------------
-void Pack::getNonPackedExpr(ValueIdSet& vidset)
-{
-  for(CollIndex i = 0; i < packingExpr().entries(); i++)
-  {
-    ItemExpr* packItem = packingExpr().at(i).getItemExpr();
+void Pack::getNonPackedExpr(ValueIdSet &vidset) {
+  for (CollIndex i = 0; i < packingExpr().entries(); i++) {
+    ItemExpr *packItem = packingExpr().at(i).getItemExpr();
     vidset.insert(packItem->child(0)->getValueId());
   }
 }
@@ -15555,34 +12684,22 @@ void Pack::getNonPackedExpr(ValueIdSet& vidset)
 // default implementation. It is expected in the first phase, nothing
 // can be pushed down though.
 // -----------------------------------------------------------------------
-void Pack::pushdownCoveredExpr(const ValueIdSet& outputExpr,
-                               const ValueIdSet& newExternalInputs,
-                               ValueIdSet& predOnOperator,
-			       const ValueIdSet* nonPredExprOnOperator,
-			       Lng32 childId)
-{
+void Pack::pushdownCoveredExpr(const ValueIdSet &outputExpr, const ValueIdSet &newExternalInputs,
+                               ValueIdSet &predOnOperator, const ValueIdSet *nonPredExprOnOperator, Lng32 childId) {
   ValueIdSet exprNeededByOperator;
   getNonPackedExpr(exprNeededByOperator);
-  if (nonPredExprOnOperator)
-    exprNeededByOperator += *nonPredExprOnOperator;
+  if (nonPredExprOnOperator) exprNeededByOperator += *nonPredExprOnOperator;
   exprNeededByOperator.insertList(requiredOrder());
 
-  RelExpr::pushdownCoveredExpr(outputExpr,
-                               newExternalInputs,
-                               predOnOperator,
-			       &exprNeededByOperator,
-                               childId);
+  RelExpr::pushdownCoveredExpr(outputExpr, newExternalInputs, predOnOperator, &exprNeededByOperator, childId);
 }
 
 // -----------------------------------------------------------------------
 // Pack::addLocalExpr() adds the packing expressions to be displayed by
 // the GUI debugger.
 // -----------------------------------------------------------------------
-void Pack::addLocalExpr(LIST(ExprNode*)& xlist,
-                        LIST(NAString)& llist) const
-{
-  if(packingExprTree_ != NULL)
-  {
+void Pack::addLocalExpr(LIST(ExprNode *) & xlist, LIST(NAString) & llist) const {
+  if (packingExprTree_ != NULL) {
     xlist.insert(packingExprTree_);
     llist.insert("pack_expr_tree");
   }
@@ -15592,109 +12709,90 @@ void Pack::addLocalExpr(LIST(ExprNode*)& xlist,
     llist.insert("required_order");
   }
 
-  if(NOT packingExpr_.isEmpty())
-  {
+  if (NOT packingExpr_.isEmpty()) {
     xlist.insert(packingExpr_.rebuildExprTree());
     llist.insert("pack_expr");
   }
 
-  RelExpr::addLocalExpr(xlist,llist);
+  RelExpr::addLocalExpr(xlist, llist);
 }
 
 // -----------------------------------------------------------------------
 // methods for class PhyPack
 // -----------------------------------------------------------------------
-PhyPack::PhyPack(ULng32 packingFactor /*= 0*/,
-                 RelExpr* child /*= NULL*/,
-                 CollHeap* oHeap /*= CmpCommon::statementHeap()*/)
-: Pack(packingFactor,child,NULL,oHeap)
-{
+PhyPack::PhyPack(ULng32 packingFactor /*= 0*/, RelExpr *child /*= NULL*/,
+                 CollHeap *oHeap /*= CmpCommon::statementHeap()*/)
+    : Pack(packingFactor, child, NULL, oHeap) {
   if (oHeap)
-    pCostMethod_ = new (oHeap) CostMethodFixedCostPerRow(0.,0.,0.);
+    pCostMethod_ = new (oHeap) CostMethodFixedCostPerRow(0., 0., 0.);
   else
-    pCostMethod_ = new (CmpCommon::statementHeap()) CostMethodFixedCostPerRow(0.,0.,0.);
+    pCostMethod_ = new (CmpCommon::statementHeap()) CostMethodFixedCostPerRow(0., 0., 0.);
 }
 
 // Destructor.
-PhyPack::~PhyPack()
-{
-}
+PhyPack::~PhyPack() {}
 
 // -----------------------------------------------------------------------
 // PhyPack::copyTopNode()
 // -----------------------------------------------------------------------
-RelExpr* PhyPack::copyTopNode(RelExpr* derivedNode, CollHeap* outHeap)
-{
-  PhyPack* result;
+RelExpr *PhyPack::copyTopNode(RelExpr *derivedNode, CollHeap *outHeap) {
+  PhyPack *result;
 
   // This the real node we want to copy. Construct a new PhyPack node.
-  if(derivedNode == NULL)
-  {
-    result = new (outHeap) PhyPack (0,NULL,outHeap);
-  }
-  else
+  if (derivedNode == NULL) {
+    result = new (outHeap) PhyPack(0, NULL, outHeap);
+  } else
   // ---------------------------------------------------------------------
   // The real node we want to copy is of a derived class. The duplicate
   // has already been made and store in derived node. All I need to do is
   // to copy the members stored with this base class.
   // ---------------------------------------------------------------------
   {
-    result = (PhyPack *) derivedNode;
+    result = (PhyPack *)derivedNode;
   }
 
   // Tell base class to copy its members. PhyPack has no added members.
-  return Pack::copyTopNode(result,outHeap);
+  return Pack::copyTopNode(result, outHeap);
 }
-
 
 // -----------------------------------------------------------------------
 // methods for class Rowset
 // -----------------------------------------------------------------------
 // Constructor
-Rowset::Rowset(ItemExpr *inputHostvars, ItemExpr *indexExpr,
-               ItemExpr *sizeExpr, RelExpr * childExpr, CollHeap* oHeap)
- : RelExpr(REL_ROWSET,childExpr,NULL,oHeap),
-   inputHostvars_(inputHostvars),
-   indexExpr_(indexExpr),
-   sizeExpr_(sizeExpr)
-{
+Rowset::Rowset(ItemExpr *inputHostvars, ItemExpr *indexExpr, ItemExpr *sizeExpr, RelExpr *childExpr, CollHeap *oHeap)
+    : RelExpr(REL_ROWSET, childExpr, NULL, oHeap),
+      inputHostvars_(inputHostvars),
+      indexExpr_(indexExpr),
+      sizeExpr_(sizeExpr) {
   setNonCacheable();
-} // Rowset::Rowset()
+}  // Rowset::Rowset()
 
 // Destructor.
-Rowset::~Rowset()
-{
-} // Rowset::~Rowset()
+Rowset::~Rowset() {}  // Rowset::~Rowset()
 
-RelExpr * Rowset::copyTopNode(RelExpr *derivedNode,
-                              CollHeap* oHeap)
-{
+RelExpr *Rowset::copyTopNode(RelExpr *derivedNode, CollHeap *oHeap) {
   Rowset *result;
 
   if (derivedNode == NULL)
     result = new (oHeap) Rowset(inputHostvars_, indexExpr_, sizeExpr_, NULL, oHeap);
   else {
-    result = (Rowset *) derivedNode;
+    result = (Rowset *)derivedNode;
   }
 
-  return RelExpr::copyTopNode(result,oHeap);
-} // Rowset::copyTopNode()
+  return RelExpr::copyTopNode(result, oHeap);
+}  // Rowset::copyTopNode()
 
-Int32 Rowset::getArity() const
-{
-  return 0; // This is a leaf node
-} // Rowset::getArity()
+Int32 Rowset::getArity() const {
+  return 0;  // This is a leaf node
+}  // Rowset::getArity()
 
-
-const NAString Rowset::getText() const
-{
-  NAString result("RowSet",CmpCommon::statementHeap());
+const NAString Rowset::getText() const {
+  NAString result("RowSet", CmpCommon::statementHeap());
 
   if (sizeExpr_) {
     if (sizeExpr_->getOperatorType() == ITM_CONSTANT) {
       char str[TEXT_DISPLAY_LENGTH];
-      sprintf(str, " " PF64,
-              ((ConstValue *)sizeExpr_)->getExactNumericValue());
+      sprintf(str, " " PF64, ((ConstValue *)sizeExpr_)->getExactNumericValue());
       result += str;
     } else if (sizeExpr_->getOperatorType() == ITM_HOSTVAR)
       result += " " + ((HostVar *)sizeExpr_)->getName();
@@ -15703,138 +12801,102 @@ const NAString Rowset::getText() const
   }
 
   result += " (";
-  for (ItemExpr *hostVarTree = inputHostvars_;
-       hostVarTree != NULL;
-       hostVarTree = hostVarTree->child(1)) {
-    if (inputHostvars_ != hostVarTree)
-      result += ", ";
+  for (ItemExpr *hostVarTree = inputHostvars_; hostVarTree != NULL; hostVarTree = hostVarTree->child(1)) {
+    if (inputHostvars_ != hostVarTree) result += ", ";
 
     HostVar *hostVar = (HostVar *)hostVarTree->getChild(0);
     result += hostVar->getName();
   }
   result += ")";
 
-  if (indexExpr_)
-    result += ("KEY BY " +
-               ((ColReference *)indexExpr_)->getColRefNameObj().getColName());
+  if (indexExpr_) result += ("KEY BY " + ((ColReference *)indexExpr_)->getColRefNameObj().getColName());
 
   return result;
 }
 
 // returns the name of the exposed index of the Rowset
-const NAString Rowset::getIndexName() const
-{
-     // A hack to check if the Rowset has an index expression
-     NAString result("",CmpCommon::statementHeap());
+const NAString Rowset::getIndexName() const {
+  // A hack to check if the Rowset has an index expression
+  NAString result("", CmpCommon::statementHeap());
 
-     if (indexExpr_)
-       result += ((ColReference *)indexExpr_)->getColRefNameObj().getColName();
-     return(result);
+  if (indexExpr_) result += ((ColReference *)indexExpr_)->getColRefNameObj().getColName();
+  return (result);
 }
 
 // -----------------------------------------------------------------------
 // methods for class Rowset
 // -----------------------------------------------------------------------
 // Constructor
-RowsetRowwise::RowsetRowwise(RelExpr * childExpr,
-			     CollHeap* oHeap)
- : Rowset(NULL, NULL, NULL, childExpr, oHeap)
-{
-} // RowsetRowwise::RowsetRowwise()
+RowsetRowwise::RowsetRowwise(RelExpr *childExpr, CollHeap *oHeap)
+    : Rowset(NULL, NULL, NULL, childExpr, oHeap) {}  // RowsetRowwise::RowsetRowwise()
 
-RelExpr * RowsetRowwise::copyTopNode(RelExpr *derivedNode,
-				     CollHeap* oHeap)
-{
+RelExpr *RowsetRowwise::copyTopNode(RelExpr *derivedNode, CollHeap *oHeap) {
   Rowset *result;
 
   if (derivedNode == NULL)
     result = new (oHeap) RowsetRowwise(NULL, oHeap);
   else {
-    result = (RowsetRowwise *) derivedNode;
+    result = (RowsetRowwise *)derivedNode;
   }
 
-  return Rowset::copyTopNode(result,oHeap);
-} // RowsetRowwise::copyTopNode()
+  return Rowset::copyTopNode(result, oHeap);
+}  // RowsetRowwise::copyTopNode()
 
-const NAString RowsetRowwise::getText() const
-{
-  NAString result("RowSet Rowwise",CmpCommon::statementHeap());
+const NAString RowsetRowwise::getText() const {
+  NAString result("RowSet Rowwise", CmpCommon::statementHeap());
 
   return result;
 }
 
-Int32 RowsetRowwise::getArity() const
-{
-  return 1; 
-} // Rowset::getArity()
+Int32 RowsetRowwise::getArity() const { return 1; }  // Rowset::getArity()
 
-RowsetFor::RowsetFor(RelExpr  *child,
-                     ItemExpr *inputSizeExpr,
-                     ItemExpr *outputSizeExpr,
-                     ItemExpr *indexExpr,
-		     ItemExpr *maxSizeExpr,
-		     ItemExpr *maxInputRowlen,
-		     ItemExpr *rwrsBuffer,
-		     ItemExpr *partnNum,
+RowsetFor::RowsetFor(RelExpr *child, ItemExpr *inputSizeExpr, ItemExpr *outputSizeExpr, ItemExpr *indexExpr,
+                     ItemExpr *maxSizeExpr, ItemExpr *maxInputRowlen, ItemExpr *rwrsBuffer, ItemExpr *partnNum,
                      CollHeap *oHeap)
-  : RelExpr(REL_ROWSETFOR,child,NULL,oHeap),
-    inputSizeExpr_(inputSizeExpr),
-    outputSizeExpr_(outputSizeExpr),
-    indexExpr_(indexExpr),
-    maxSizeExpr_(maxSizeExpr),
-    maxInputRowlen_(maxInputRowlen),
-    rwrsBuffer_(rwrsBuffer),
-    partnNum_(partnNum),
-    rowwiseRowset_(FALSE),
-    packedFormat_(FALSE),
-    compressed_(FALSE),
-    dcompressInMaster_(FALSE),
-    compressInMaster_(FALSE),
-    partnNumInBuffer_(FALSE)
-{
-  setNonCacheable(); 
+    : RelExpr(REL_ROWSETFOR, child, NULL, oHeap),
+      inputSizeExpr_(inputSizeExpr),
+      outputSizeExpr_(outputSizeExpr),
+      indexExpr_(indexExpr),
+      maxSizeExpr_(maxSizeExpr),
+      maxInputRowlen_(maxInputRowlen),
+      rwrsBuffer_(rwrsBuffer),
+      partnNum_(partnNum),
+      rowwiseRowset_(FALSE),
+      packedFormat_(FALSE),
+      compressed_(FALSE),
+      dcompressInMaster_(FALSE),
+      compressInMaster_(FALSE),
+      partnNumInBuffer_(FALSE) {
+  setNonCacheable();
 }
 
 // Destructor.
-RowsetFor::~RowsetFor()
-{
-}
+RowsetFor::~RowsetFor() {}
 
-RelExpr * RowsetFor::copyTopNode(RelExpr *derivedNode,
-                                 CollHeap* oHeap)
-{
+RelExpr *RowsetFor::copyTopNode(RelExpr *derivedNode, CollHeap *oHeap) {
   RowsetFor *result;
 
   if (derivedNode == NULL)
-    result = new (oHeap) RowsetFor(NULL, inputSizeExpr_, outputSizeExpr_,
-                                   indexExpr_, 
-				   maxSizeExpr_, maxInputRowlen_,
-				   rwrsBuffer_, partnNum_, oHeap);
+    result = new (oHeap) RowsetFor(NULL, inputSizeExpr_, outputSizeExpr_, indexExpr_, maxSizeExpr_, maxInputRowlen_,
+                                   rwrsBuffer_, partnNum_, oHeap);
   else
-    result = (RowsetFor *) derivedNode;
+    result = (RowsetFor *)derivedNode;
 
   result->rowwiseRowset_ = rowwiseRowset_;
-  result->setBufferAttributes(packedFormat_,
-			      compressed_, dcompressInMaster_,
-			      compressInMaster_, partnNumInBuffer_);
+  result->setBufferAttributes(packedFormat_, compressed_, dcompressInMaster_, compressInMaster_, partnNumInBuffer_);
 
-  return RelExpr::copyTopNode(result,oHeap);
+  return RelExpr::copyTopNode(result, oHeap);
 }
 
-Int32 RowsetFor::getArity() const
-{
-  return 1;
-} // RowsetFor::getArity()
+Int32 RowsetFor::getArity() const { return 1; }  // RowsetFor::getArity()
 
-const NAString RowsetFor::getText() const
-{
+const NAString RowsetFor::getText() const {
   NAString result("RowSetFor ", CmpCommon::statementHeap());
 
   if (inputSizeExpr_) {
     if (inputSizeExpr_->getOperatorType() == ITM_CONSTANT) {
       char str[TEXT_DISPLAY_LENGTH];
-      sprintf(str, PF64,
-              ((ConstValue *)inputSizeExpr_)->getExactNumericValue());
+      sprintf(str, PF64, ((ConstValue *)inputSizeExpr_)->getExactNumericValue());
       result += "INPUT SIZE ";
       result += str;
     } else if (inputSizeExpr_->getOperatorType() == ITM_HOSTVAR)
@@ -15842,15 +12904,13 @@ const NAString RowsetFor::getText() const
     else
       result += "INPUT SIZE ??";
 
-    if (outputSizeExpr_ || indexExpr_)
-      result += ",";
+    if (outputSizeExpr_ || indexExpr_) result += ",";
   }
 
   if (outputSizeExpr_) {
     if (outputSizeExpr_->getOperatorType() == ITM_CONSTANT) {
       char str[TEXT_DISPLAY_LENGTH];
-      sprintf(str, PF64,
-              ((ConstValue *)outputSizeExpr_)->getExactNumericValue());
+      sprintf(str, PF64, ((ConstValue *)outputSizeExpr_)->getExactNumericValue());
       result += "OUTPUT SIZE ";
       result += str;
     } else if (outputSizeExpr_->getOperatorType() == ITM_HOSTVAR)
@@ -15858,14 +12918,10 @@ const NAString RowsetFor::getText() const
     else
       result += "OUTPUT SIZE ??";
 
-    if (indexExpr_)
-      result += ",";
-
+    if (indexExpr_) result += ",";
   }
 
-  if (indexExpr_)
-    result += ("KEY BY " +
-               ((ColReference *)indexExpr_)->getColRefNameObj().getColName());
+  if (indexExpr_) result += ("KEY BY " + ((ColReference *)indexExpr_)->getColRefNameObj().getColName());
 
   return result;
 }
@@ -15874,50 +12930,40 @@ const NAString RowsetFor::getText() const
 // methods for class RowsetInto
 // -----------------------------------------------------------------------
 // Constructor
-RowsetInto::RowsetInto(RelExpr *child, ItemExpr *outputHostvars,
-                       ItemExpr *sizeExpr, CollHeap* oHeap)
- : RelExpr(REL_ROWSET_INTO,child,NULL,oHeap),
-   outputHostvars_(outputHostvars),
-   sizeExpr_(sizeExpr),
-   requiredOrderTree_(NULL)
-{
+RowsetInto::RowsetInto(RelExpr *child, ItemExpr *outputHostvars, ItemExpr *sizeExpr, CollHeap *oHeap)
+    : RelExpr(REL_ROWSET_INTO, child, NULL, oHeap),
+      outputHostvars_(outputHostvars),
+      sizeExpr_(sizeExpr),
+      requiredOrderTree_(NULL) {
   setNonCacheable();
-   requiredOrder_.clear();
-} // RowsetInto::RowsetInto()
+  requiredOrder_.clear();
+}  // RowsetInto::RowsetInto()
 
 // Destructor.
-RowsetInto::~RowsetInto()
-{
-} // RowsetInto::~RowsetInto()
+RowsetInto::~RowsetInto() {}  // RowsetInto::~RowsetInto()
 
-RelExpr * RowsetInto::copyTopNode(RelExpr *derivedNode,
-                                  CollHeap* oHeap)
-{
+RelExpr *RowsetInto::copyTopNode(RelExpr *derivedNode, CollHeap *oHeap) {
   RowsetInto *result;
 
   if (derivedNode == NULL)
     result = new (oHeap) RowsetInto(NULL, outputHostvars_, sizeExpr_, oHeap);
   else
-    result = (RowsetInto *) derivedNode;
+    result = (RowsetInto *)derivedNode;
 
-  return RelExpr::copyTopNode(result,oHeap);
-} // RowsetInto::copyTopNode()
+  return RelExpr::copyTopNode(result, oHeap);
+}  // RowsetInto::copyTopNode()
 
-Int32 RowsetInto::getArity() const
-{
-  return 1; // This select-list root node
-} // RowsetInto::getArity()
+Int32 RowsetInto::getArity() const {
+  return 1;  // This select-list root node
+}  // RowsetInto::getArity()
 
-
-const NAString RowsetInto::getText() const
-{
-  NAString result("RowsetINTO",CmpCommon::statementHeap());
+const NAString RowsetInto::getText() const {
+  NAString result("RowsetINTO", CmpCommon::statementHeap());
 
   if (sizeExpr_) {
     if (sizeExpr_->getOperatorType() == ITM_CONSTANT) {
       char str[TEXT_DISPLAY_LENGTH];
-      sprintf(str, " " PF64 ,
-              ((ConstValue *)sizeExpr_)->getExactNumericValue());
+      sprintf(str, " " PF64, ((ConstValue *)sizeExpr_)->getExactNumericValue());
       result += str;
     } else if (sizeExpr_->getOperatorType() == ITM_HOSTVAR)
       result += " " + ((HostVar *)sizeExpr_)->getName();
@@ -15926,11 +12972,8 @@ const NAString RowsetInto::getText() const
   }
 
   result += " (";
-  for (ItemExpr *hostVarTree = outputHostvars_;
-       hostVarTree != NULL;
-       hostVarTree = hostVarTree->child(1)) {
-    if (outputHostvars_ != hostVarTree)
-      result += ", ";
+  for (ItemExpr *hostVarTree = outputHostvars_; hostVarTree != NULL; hostVarTree = hostVarTree->child(1)) {
+    if (outputHostvars_ != hostVarTree) result += ", ";
 
     HostVar *hostVar = (HostVar *)hostVarTree->getChild(0);
     result += hostVar->getName();
@@ -15940,344 +12983,280 @@ const NAString RowsetInto::getText() const
   return result;
 }
 
-
-NABoolean RelExpr::treeContainsEspExchange()
-{
+NABoolean RelExpr::treeContainsEspExchange() {
   Lng32 nc = getArity();
-  if (nc > 0)
-  {
+  if (nc > 0) {
     if ((getOperatorType() == REL_EXCHANGE) &&
-        (child(0)->castToRelExpr()->getPhysicalProperty()->getPlanExecutionLocation()
-            != EXECUTE_IN_DP2))
-    {
+        (child(0)->castToRelExpr()->getPhysicalProperty()->getPlanExecutionLocation() != EXECUTE_IN_DP2)) {
       return TRUE;
     }
 
-    for (Lng32 i = 0; i < nc; i++)
-    {
-      if (child(i)->treeContainsEspExchange())
-        return TRUE;
+    for (Lng32 i = 0; i < nc; i++) {
+      if (child(i)->treeContainsEspExchange()) return TRUE;
     }
   }
   return FALSE;
 }
 
-NABoolean Exchange::areProbesHashed(const ValueIdSet pkey)
-{
+NABoolean Exchange::areProbesHashed(const ValueIdSet pkey) {
   return getGroupAttr()->getCharacteristicInputs().contains(pkey);
 }
 
-
-void Exchange::computeBufferLength(const Context *myContext,
-                                   const CostScalar &numConsumers,
-                                   const CostScalar &numProducers,
-                                   CostScalar &upMessageBufferLength,
-                                   CostScalar &downMessageBufferLength)
-{
-
-  CostScalar numDownBuffers = (Int32) ActiveSchemaDB()->getDefaults().getAsULong
-                              (GEN_SNDT_NUM_BUFFERS);
-  CostScalar numUpBuffers = (Int32) ActiveSchemaDB()->getDefaults().getAsULong
-                                 (GEN_SNDB_NUM_BUFFERS);
+void Exchange::computeBufferLength(const Context *myContext, const CostScalar &numConsumers,
+                                   const CostScalar &numProducers, CostScalar &upMessageBufferLength,
+                                   CostScalar &downMessageBufferLength) {
+  CostScalar numDownBuffers = (Int32)ActiveSchemaDB()->getDefaults().getAsULong(GEN_SNDT_NUM_BUFFERS);
+  CostScalar numUpBuffers = (Int32)ActiveSchemaDB()->getDefaults().getAsULong(GEN_SNDB_NUM_BUFFERS);
   CostScalar maxOutDegree = MAXOF(numConsumers, numProducers);
 
-  CostScalar upSizeOverride = ActiveSchemaDB()->getDefaults().getAsLong
-                             (GEN_SNDT_BUFFER_SIZE_UP);
+  CostScalar upSizeOverride = ActiveSchemaDB()->getDefaults().getAsLong(GEN_SNDT_BUFFER_SIZE_UP);
 
-  // The adjustment is a fudge factor to improve scalability by 
+  // The adjustment is a fudge factor to improve scalability by
   // reducing the buffer size
-  // "penalty" when the number of connections is high due 
-  //to a high degree of parallelism.
+  // "penalty" when the number of connections is high due
+  // to a high degree of parallelism.
   // The net result is to increase the memory "floor" and "ceiling"
-   // (that are base d on the
-   // number of connections) by up to fourfold. 
-   //Too high a ceiling can cause memory pressure,
-   // a high level of paging activity, etc., 
-   //while too low a ceiling can cause a large
-   // number of IPC messages and dispatches, and a 
-   // resultant increase in path lengt h.
-   // The adjustment attempts to strike a balance between 
-   // the two opposing clusters  of performance factors.
+  // (that are base d on the
+  // number of connections) by up to fourfold.
+  // Too high a ceiling can cause memory pressure,
+  // a high level of paging activity, etc.,
+  // while too low a ceiling can cause a large
+  // number of IPC messages and dispatches, and a
+  // resultant increase in path lengt h.
+  // The adjustment attempts to strike a balance between
+  // the two opposing clusters  of performance factors.
 
   CostScalar adjMaxNumConnections =
-    maxOutDegree < 32 || upSizeOverride == 1 || upSizeOverride > 2 ? maxOutDegree :
-    maxOutDegree < 64 ? 32 :
-    maxOutDegree < 128 ? 40 :
-    maxOutDegree < 256 ? 50 : 
-    maxOutDegree < 512 ? 64 : 70;
+      maxOutDegree < 32 || upSizeOverride == 1 || upSizeOverride > 2
+          ? maxOutDegree
+          : maxOutDegree < 64 ? 32 : maxOutDegree < 128 ? 40 : maxOutDegree < 256 ? 50 : maxOutDegree < 512 ? 64 : 70;
 
   CostScalar overhead = CostScalar(50);
 
   // compute numProbes, probeSize, cardinality, outputSize
-  CostScalar downRecordLength = getGroupAttr()->
-                   getCharacteristicInputs().getRowLength();
+  CostScalar downRecordLength = getGroupAttr()->getCharacteristicInputs().getRowLength();
 
-  CostScalar upRecordLength = getGroupAttr()->
-             getCharacteristicOutputs().getRowLength();
+  CostScalar upRecordLength = getGroupAttr()->getCharacteristicOutputs().getRowLength();
 
-  const CostScalar & numOfProbes =
-  ( myContext->getInputLogProp()->getResultCardinality() ).minCsOne();
+  const CostScalar &numOfProbes = (myContext->getInputLogProp()->getResultCardinality()).minCsOne();
 
   // use no more than 50 KB and try to send all rows down in a single message
-  CostScalar reasonableBufferSpace1 =
-    CostScalar(50000) / (maxOutDegree * numDownBuffers);
+  CostScalar reasonableBufferSpace1 = CostScalar(50000) / (maxOutDegree * numDownBuffers);
 
-  reasonableBufferSpace1 =
-    MINOF(reasonableBufferSpace1,
-           (downRecordLength + overhead) * numOfProbes);
+  reasonableBufferSpace1 = MINOF(reasonableBufferSpace1, (downRecordLength + overhead) * numOfProbes);
 
-  const EstLogPropSharedPtr inputLP    = myContext->getInputLogProp();
-  CostScalar numRowsUp = child(0).outputLogProp(inputLP)->
-                         getResultCardinality();
+  const EstLogPropSharedPtr inputLP = myContext->getInputLogProp();
+  CostScalar numRowsUp = child(0).outputLogProp(inputLP)->getResultCardinality();
 
-  const PartitioningFunction* const parentPartFunc =
-    myContext->getPlan()->getPhysicalProperty()->getPartitioningFunction();
+  const PartitioningFunction *const parentPartFunc =
+      myContext->getPlan()->getPhysicalProperty()->getPartitioningFunction();
 
-  if (parentPartFunc->isAReplicateViaBroadcastPartitioningFunction())
-     numRowsUp = numRowsUp * numConsumers;
+  if (parentPartFunc->isAReplicateViaBroadcastPartitioningFunction()) numRowsUp = numRowsUp * numConsumers;
 
   // check for an overriding define for the buffer size
-  CostScalar downSizeOverride = ActiveSchemaDB()->getDefaults().getAsLong
-                                 (GEN_SNDT_BUFFER_SIZE_DOWN);
+  CostScalar downSizeOverride = ActiveSchemaDB()->getDefaults().getAsLong(GEN_SNDT_BUFFER_SIZE_DOWN);
 
-  if (downSizeOverride.isGreaterThanZero())
-    reasonableBufferSpace1 = downSizeOverride;
+  if (downSizeOverride.isGreaterThanZero()) reasonableBufferSpace1 = downSizeOverride;
 
   // we MUST be able to fit at least one row into a buffer
 
-  CostScalar controlAppendedLength= ComTdbSendTop::minSendBufferSize(
-                                     (Lng32)downRecordLength.getValue());
-  downMessageBufferLength =
-    MAXOF(controlAppendedLength,
-          reasonableBufferSpace1);
+  CostScalar controlAppendedLength = ComTdbSendTop::minSendBufferSize((Lng32)downRecordLength.getValue());
+  downMessageBufferLength = MAXOF(controlAppendedLength, reasonableBufferSpace1);
 
   // Total size of output buffer that needs to be sent to the parent.
-  CostScalar totalBufferSize = upRecordLength *  numRowsUp;
+  CostScalar totalBufferSize = upRecordLength * numRowsUp;
 
   // Divide this by number of connections to get total buffer per connection.
-  CostScalar bufferSizePerConnection = totalBufferSize / adjMaxNumConnections; 
+  CostScalar bufferSizePerConnection = totalBufferSize / adjMaxNumConnections;
 
   // Aim for a situation where atleast 80 messages are sent per connection.
   CostScalar reasonableBufferSpace2 =
-               bufferSizePerConnection / ActiveSchemaDB()
-                 ->getDefaults().getAsLong(GEN_EXCHANGE_MSG_COUNT);
+      bufferSizePerConnection / ActiveSchemaDB()->getDefaults().getAsLong(GEN_EXCHANGE_MSG_COUNT);
 
-  // Now Esp has numUpBuffers of size reasonableBufferSpace2 per 
-  // each stream (connection), so total memory to be allocated 
+  // Now Esp has numUpBuffers of size reasonableBufferSpace2 per
+  // each stream (connection), so total memory to be allocated
   // in this Esp would be:
   // reasonableBufferSpace2 * numUpBuffers * maxOutDegree.
   // We need to apply ceiling and floor to this memory i.e.:
   // 4MB > reasonableBufferSpace2 * numUpBuffers * maxOutDegree > 50KB.
   // OR divide both ceiling and floor by numUpBuffers * maxOutDegree.
-  Int32 maxMemKB = ActiveSchemaDB()
-                   ->getDefaults().getAsLong(GEN_EXCHANGE_MAX_MEM_IN_KB);
-  if (maxMemKB <= 0) maxMemKB = 4000;   // 4MB if not set or negative
+  Int32 maxMemKB = ActiveSchemaDB()->getDefaults().getAsLong(GEN_EXCHANGE_MAX_MEM_IN_KB);
+  if (maxMemKB <= 0) maxMemKB = 4000;  // 4MB if not set or negative
   CostScalar maxMem1 = maxMemKB * 1000;
   CostScalar maxMem2 = maxMemKB * 4000;
-  CostScalar ceiling = MINOF(maxMem1 /
-                             (numUpBuffers * adjMaxNumConnections),
-                             maxMem2 /
-                             (numUpBuffers * maxOutDegree));
+  CostScalar ceiling = MINOF(maxMem1 / (numUpBuffers * adjMaxNumConnections), maxMem2 / (numUpBuffers * maxOutDegree));
 
-  CostScalar floor   =  MINOF(CostScalar(50000) / 
-                             (numUpBuffers * adjMaxNumConnections), 
-                             CostScalar(200000) / 
-                              (numUpBuffers * maxOutDegree));
-    
+  CostScalar floor = MINOF(CostScalar(50000) / (numUpBuffers * adjMaxNumConnections),
+                           CostScalar(200000) / (numUpBuffers * maxOutDegree));
+
   // Apply the floor.
-  reasonableBufferSpace2 =
-     MAXOF(floor, reasonableBufferSpace2);
+  reasonableBufferSpace2 = MAXOF(floor, reasonableBufferSpace2);
 
   // Apply the ceiling.
-  reasonableBufferSpace2 =
-   MINOF(ceiling, reasonableBufferSpace2);
+  reasonableBufferSpace2 = MINOF(ceiling, reasonableBufferSpace2);
 
   // Make sure the floor is at least 5K to avoid performance problem.
-  reasonableBufferSpace2 =
-   MAXOF(CostScalar(5000), reasonableBufferSpace2);
+  reasonableBufferSpace2 = MAXOF(CostScalar(5000), reasonableBufferSpace2);
 
   // Make sure that it is at most 31k-1356
-  reasonableBufferSpace2 =
-   MINOF( reasonableBufferSpace2, 31 * 1024 - 1356);
- 
-  if (upSizeOverride.isGreaterThanZero())
-    reasonableBufferSpace2 = upSizeOverride;
+  reasonableBufferSpace2 = MINOF(reasonableBufferSpace2, 31 * 1024 - 1356);
+
+  if (upSizeOverride.isGreaterThanZero()) reasonableBufferSpace2 = upSizeOverride;
 
   // we MUST be able to fit at least one row into a buffer
-  controlAppendedLength = ComTdbSendTop::minReceiveBufferSize(
-                                       (Lng32) (upRecordLength.getValue()) );
-  upMessageBufferLength =
-    MAXOF(  controlAppendedLength, reasonableBufferSpace2);
-  
-  // convert Buffers to kilo bytes
-  upMessageBufferLength_= upMessageBufferLength = upMessageBufferLength/CostScalar(1024);
-  downMessageBufferLength_ = downMessageBufferLength = downMessageBufferLength/ CostScalar(1024);  
-} // Exchange::computeBufferLength()
+  controlAppendedLength = ComTdbSendTop::minReceiveBufferSize((Lng32)(upRecordLength.getValue()));
+  upMessageBufferLength = MAXOF(controlAppendedLength, reasonableBufferSpace2);
 
+  // convert Buffers to kilo bytes
+  upMessageBufferLength_ = upMessageBufferLength = upMessageBufferLength / CostScalar(1024);
+  downMessageBufferLength_ = downMessageBufferLength = downMessageBufferLength / CostScalar(1024);
+}  // Exchange::computeBufferLength()
 
 //////////////////////////////////////////////////////////////////////
 // Class pcgEspFragment related methods
 //////////////////////////////////////////////////////////////////////
-pcgEspFragment::pcgEspFragment(RelExpr* relExpr, CollHeap* heap) :
-     root_(relExpr),
-     childEsps_(heap), 
-     valid_(FALSE),
-     totalRows_(csZero), 
-     newDoP_(0),
-     commonDoP_(0), 
-     desirableDoP_(0),
-     totalDataSize_(0),
-     numOfHiveTables_(0),
-     numOfOperators_(0)
-{}
+pcgEspFragment::pcgEspFragment(RelExpr *relExpr, CollHeap *heap)
+    : root_(relExpr),
+      childEsps_(heap),
+      valid_(FALSE),
+      totalRows_(csZero),
+      newDoP_(0),
+      commonDoP_(0),
+      desirableDoP_(0),
+      totalDataSize_(0),
+      numOfHiveTables_(0),
+      numOfOperators_(0) {}
 
-void pcgEspFragment::addChild(Exchange* esp)
-{
-   CollIndex newIndex = childEsps_.entries();
-   childEsps_.insertAt(newIndex, esp);
+void pcgEspFragment::addChild(Exchange *esp) {
+  CollIndex newIndex = childEsps_.entries();
+  childEsps_.insertAt(newIndex, esp);
 }
 
-
-void pcgEspFragment::accumulateData(RelExpr* relExpr, NABoolean useRTstats) 
-{
-   if ( !useRTstats )
-     totalRows_ = relExpr->getEstRowsUsed();
-   else {
-     // populate totalDataSize_ with R
-     totalDataSize_ += relExpr->getRTDataUsed();
-   }
+void pcgEspFragment::accumulateData(RelExpr *relExpr, NABoolean useRTstats) {
+  if (!useRTstats)
+    totalRows_ = relExpr->getEstRowsUsed();
+  else {
+    // populate totalDataSize_ with R
+    totalDataSize_ += relExpr->getRTDataUsed();
+  }
 }
 
-void pcgEspFragment::selfDiscover() 
-{
-   RelExpr* fragmentRoot = getRoot();
+void pcgEspFragment::selfDiscover() {
+  RelExpr *fragmentRoot = getRoot();
 
-   if  ( fragmentRoot->getOperatorType() == REL_EXCHANGE ) 
-     fragmentRoot = fragmentRoot->child(0);
+  if (fragmentRoot->getOperatorType() == REL_EXCHANGE) fragmentRoot = fragmentRoot->child(0);
 
-   numOfHiveTables_ = fragmentRoot->findHiveTables(TRUE /*esp frag*/);
-   numOfOperators_ = fragmentRoot->findNumOperators(TRUE /*esp frag*/);
+  numOfHiveTables_ = fragmentRoot->findHiveTables(TRUE /*esp frag*/);
+  numOfOperators_ = fragmentRoot->findNumOperators(TRUE /*esp frag*/);
 }
 
-void pcgEspFragment::computeDesirableDoP(NABoolean isRoot) 
-{
-   if ( !isRoot ) {
-      // compute some info (#of operators, and # of hive tables) 
-      // that is needed later on in this method.
-      selfDiscover();
-   
-      float workUnit;
-   
-      ActiveSchemaDB()-> 
-         getDefaults().getFloat(DOP_ADJUST_WORK_UNIT, workUnit);
-   
-      if ( workUnit == 0.0 )
-        desirableDoP_ = CURRSTMT_OPTDEFAULTS->getDefaultDegreeOfParallelism();
-      else {
-        // based on the total run-time data processed at this framgnet, 
-        // find a good DoP. 
-        CostScalar dataSize = getTotalDataSize();
-        desirableDoP_ = (Int32)ceil(dataSize.getValue() / workUnit);
-   
-        desirableDoP_ = MAXOF(desirableDoP_, 1);
+void pcgEspFragment::computeDesirableDoP(NABoolean isRoot) {
+  if (!isRoot) {
+    // compute some info (#of operators, and # of hive tables)
+    // that is needed later on in this method.
+    selfDiscover();
 
-        Lng32 numSQNodes = CmpCommon::context()->getNumOfSMPs();
-   
-        double minESPsPerNode =
-                getDefaultAsDouble(DOP_ADJUST_MIN_NUM_ESPS_PER_NODE);
-   
-        // only increase the dop for fragments with more # of operators
-        // than # of hive tables (as an insurance).
-        if ( getNumOfOperators() > getNumOfHiveTables() ) 
-          desirableDoP_ = MAXOF(desirableDoP_, 
-                                (Int32)ceil(minESPsPerNode*numSQNodes));
-   
-        Lng32 upLimit = 0;
-   
-        if ( getNumOfHiveTables() > 0 ) {
-   
-          double numESPsPerDataNode = 
-              getDefaultAsDouble(HIVE_NUM_ESPS_PER_DATANODE);
-   
-          upLimit = (Lng32) ceil(numESPsPerDataNode * numSQNodes);
-        } else  {
-          NADefaults &defs = ActiveSchemaDB()->getDefaults();
-          NABoolean fakeEnv = FALSE;
-          upLimit = CURRSTMT_OPTDEFAULTS->getTotalNumberOfCPUs();
-        } 
-        
-        if ( desirableDoP_ > upLimit )
-           desirableDoP_ = upLimit;
+    float workUnit;
+
+    ActiveSchemaDB()->getDefaults().getFloat(DOP_ADJUST_WORK_UNIT, workUnit);
+
+    if (workUnit == 0.0)
+      desirableDoP_ = CURRSTMT_OPTDEFAULTS->getDefaultDegreeOfParallelism();
+    else {
+      // based on the total run-time data processed at this framgnet,
+      // find a good DoP.
+      CostScalar dataSize = getTotalDataSize();
+      desirableDoP_ = (Int32)ceil(dataSize.getValue() / workUnit);
+
+      desirableDoP_ = MAXOF(desirableDoP_, 1);
+
+      Lng32 numSQNodes = CmpCommon::context()->getNumOfSMPs();
+
+      double minESPsPerNode = getDefaultAsDouble(DOP_ADJUST_MIN_NUM_ESPS_PER_NODE);
+
+      // only increase the dop for fragments with more # of operators
+      // than # of hive tables (as an insurance).
+      if (getNumOfOperators() > getNumOfHiveTables())
+        desirableDoP_ = MAXOF(desirableDoP_, (Int32)ceil(minESPsPerNode * numSQNodes));
+
+      Lng32 upLimit = 0;
+
+      if (getNumOfHiveTables() > 0) {
+        double numESPsPerDataNode = getDefaultAsDouble(HIVE_NUM_ESPS_PER_DATANODE);
+
+        upLimit = (Lng32)ceil(numESPsPerDataNode * numSQNodes);
+      } else {
+        NADefaults &defs = ActiveSchemaDB()->getDefaults();
+        NABoolean fakeEnv = FALSE;
+        upLimit = CURRSTMT_OPTDEFAULTS->getTotalNumberOfCPUs();
       }
-   } else 
-     desirableDoP_ = 1;
 
+      if (desirableDoP_ > upLimit) desirableDoP_ = upLimit;
+    }
+  } else
+    desirableDoP_ = 1;
 
-   ostream* out = openDopAdjustDebugOutput();
+  ostream *out = openDopAdjustDebugOutput();
 
-   if ( out ) {
+  if (out) {
+    RelExpr *root = getRoot();
+    *out << "pcg fragment info: root order=" << root->getOrder();
+    *out << ", #operators=" << numOfOperators_;
+    *out << ", #hiveTables=" << numOfHiveTables_;
+    *out << ", new dop=" << desirableDoP_;
+    *out << endl;
+  }
 
-      RelExpr* root = getRoot();
-      *out << "pcg fragment info: root order=" << root->getOrder();
-      *out << ", #operators=" << numOfOperators_ ;
-      *out << ", #hiveTables=" << numOfHiveTables_;
-      *out << ", new dop=" << desirableDoP_;
-      *out << endl;
-   }
+  closeDopAdjustDebugOutput(out);
 
-   closeDopAdjustDebugOutput(out);
+  Int32 entries = childEsps_.entries();
 
-   Int32 entries = childEsps_.entries();
-
-   // Recursively perform the operation on all child fragments
-   for ( Int32 i=0; i<entries; i++ ) {
-     Exchange* xch = childEsps_[i];
-     pcgEspFragment* currentEspFragPCG = xch->getEspFragPCG();
-     currentEspFragPCG->computeDesirableDoP(FALSE);
-   }
+  // Recursively perform the operation on all child fragments
+  for (Int32 i = 0; i < entries; i++) {
+    Exchange *xch = childEsps_[i];
+    pcgEspFragment *currentEspFragPCG = xch->getEspFragPCG();
+    currentEspFragPCG->computeDesirableDoP(FALSE);
+  }
 }
 
-NABoolean pcgEspFragment::performDopReduction()
-{
-   Lng32 newDoP = getDesirableDoP();
+NABoolean pcgEspFragment::performDopReduction() {
+  Lng32 newDoP = getDesirableDoP();
 
-   RelExpr* root = getRoot();
+  RelExpr *root = getRoot();
 
-   // Since the part func of an Exchange is the top partition function,
-   // we will skip the adjustment for it. The part func of the child of the
-   // exchange has to be adjusted, all the way to the bottom exchanges.
-   // Please refer to RelExpr::adjustTopPartFuncRecursively().
-   if ( root->getOperator() == REL_EXCHANGE ) {
-     root = root->child(0);
-   }
+  // Since the part func of an Exchange is the top partition function,
+  // we will skip the adjustment for it. The part func of the child of the
+  // exchange has to be adjusted, all the way to the bottom exchanges.
+  // Please refer to RelExpr::adjustTopPartFuncRecursively().
+  if (root->getOperator() == REL_EXCHANGE) {
+    root = root->child(0);
+  }
 
-   ostream* out = openDopAdjustDebugOutput();
+  ostream *out = openDopAdjustDebugOutput();
 
-   if ( out ) {
-      *out << "root order=" << root->getOrder();
-      *out << ", new dop=" << newDoP << endl;
-   }
+  if (out) {
+    *out << "root order=" << root->getOrder();
+    *out << ", new dop=" << newDoP << endl;
+  }
 
-   closeDopAdjustDebugOutput(out);
+  closeDopAdjustDebugOutput(out);
 
-   // If the current fragment is not partitioned, then do not adjust.
-   // We may adjust a serial fragment into a hash2(rand) later on (TBD). 
-   if ( root->getPhysicalProperty()->isPartitioned() )
-      root->adjustTopPartFuncRecursively(newDoP);
+  // If the current fragment is not partitioned, then do not adjust.
+  // We may adjust a serial fragment into a hash2(rand) later on (TBD).
+  if (root->getPhysicalProperty()->isPartitioned()) root->adjustTopPartFuncRecursively(newDoP);
 
-   // Recursively perform the reduction on all child fragments
-   Int32 entries = childEsps_.entries();
-   for ( Int32 i=0; i<entries; i++ ) {
-     Exchange* xch = childEsps_[i];
-     pcgEspFragment* currentEspFragPCG = xch->getEspFragPCG();
-     currentEspFragPCG->performDopReduction();
-   }
-   
-   return TRUE;
+  // Recursively perform the reduction on all child fragments
+  Int32 entries = childEsps_.entries();
+  for (Int32 i = 0; i < entries; i++) {
+    Exchange *xch = childEsps_[i];
+    pcgEspFragment *currentEspFragPCG = xch->getEspFragPCG();
+    currentEspFragPCG->performDopReduction();
+  }
+
+  return TRUE;
 }
 
-NABoolean RelExpr::isExplainStmt(OperatorTypeEnum op)
-{
+NABoolean RelExpr::isExplainStmt(OperatorTypeEnum op) {
   switch (op) {
     case REL_EXPLAIN:
     case REL_EXE_UTIL:
@@ -16288,8 +13267,7 @@ NABoolean RelExpr::isExplainStmt(OperatorTypeEnum op)
   return FALSE;
 }
 
-NABoolean RelExpr::isControlStmt(OperatorTypeEnum op)
-{
+NABoolean RelExpr::isControlStmt(OperatorTypeEnum op) {
   switch (op) {
     case REL_SET_SESSION_DEFAULT:
     case REL_CONTROL_SESSION:
@@ -16303,8 +13281,7 @@ NABoolean RelExpr::isControlStmt(OperatorTypeEnum op)
   return FALSE;
 }
 
-NABoolean RelExpr::isUnaryIUDStmt(OperatorTypeEnum op)
-{
+NABoolean RelExpr::isUnaryIUDStmt(OperatorTypeEnum op) {
   switch (op) {
     case REL_UNARY_UPDATE:
     case REL_UNARY_DELETE:
@@ -16316,8 +13293,7 @@ NABoolean RelExpr::isUnaryIUDStmt(OperatorTypeEnum op)
   return FALSE;
 }
 
-NABoolean RelExpr::isTransactionStmt(OperatorTypeEnum op)
-{
+NABoolean RelExpr::isTransactionStmt(OperatorTypeEnum op) {
   switch (op) {
     case REL_TRANSACTION:
       return TRUE;
@@ -16327,8 +13303,7 @@ NABoolean RelExpr::isTransactionStmt(OperatorTypeEnum op)
   return FALSE;
 }
 
-NABoolean RelExpr::isStatisticsStmt(OperatorTypeEnum op)
-{
+NABoolean RelExpr::isStatisticsStmt(OperatorTypeEnum op) {
   switch (op) {
     case REL_STATISTICS:
       return TRUE;
@@ -16338,8 +13313,7 @@ NABoolean RelExpr::isStatisticsStmt(OperatorTypeEnum op)
   return FALSE;
 }
 
-NABoolean RelExpr::isDDLStmt(OperatorTypeEnum op)
-{
+NABoolean RelExpr::isDDLStmt(OperatorTypeEnum op) {
   switch (op) {
     case REL_DDL:
       return TRUE;
@@ -16349,23 +13323,22 @@ NABoolean RelExpr::isDDLStmt(OperatorTypeEnum op)
   return FALSE;
 }
 
-NABoolean RelExpr::isHashJoin()
-{
+NABoolean RelExpr::isHashJoin() {
   switch (getOperatorType()) {
     case REL_ANY_HASH_JOIN:
     case REL_FORCE_HASH_JOIN:
     case REL_FORCE_HYBRID_HASH_JOIN:
     case REL_FORCE_ORDERED_HASH_JOIN:
 
-/*
-    case REL_HASH_JOIN:
-    case REL_LEFT_HASH_JOIN:
-    case REL_ORDERED_HASH_JOIN:
-    case REL_LEFT_ORDERED_HASH_JOIN:
-    case REL_HYBRID_HASH_JOIN:
-    case REL_LEFT_HYBRID_HASH_JOIN:
-    case REL_FULL_HYBRID_HASH_JOIN:
-*/
+      /*
+          case REL_HASH_JOIN:
+          case REL_LEFT_HASH_JOIN:
+          case REL_ORDERED_HASH_JOIN:
+          case REL_LEFT_ORDERED_HASH_JOIN:
+          case REL_HYBRID_HASH_JOIN:
+          case REL_LEFT_HYBRID_HASH_JOIN:
+          case REL_FULL_HYBRID_HASH_JOIN:
+      */
       return TRUE;
 
     default:
@@ -16375,144 +13348,110 @@ NABoolean RelExpr::isHashJoin()
   return FALSE;
 }
 
-Int32 Scan::findHiveTables(NABoolean x)
-{
-  return (getTableDesc()->getNATable()->isHiveTable()) ?
-     1 : 0;
-}
+Int32 Scan::findHiveTables(NABoolean x) { return (getTableDesc()->getNATable()->isHiveTable()) ? 1 : 0; }
 
 // find number of hive tables in an esp fragment.
-Int32 RelExpr::findHiveTables(NABoolean inEspFragment)
-{
+Int32 RelExpr::findHiveTables(NABoolean inEspFragment) {
   Int32 hiveTables = 0;
 
-  if ( inEspFragment && getOperatorType() == REL_EXCHANGE )
-    return 0;
+  if (inEspFragment && getOperatorType() == REL_EXCHANGE) return 0;
 
   Int32 nc = getArity();
 
-  for (Lng32 i = 0; i < nc; i++)
-  {
-     hiveTables += child(i)->findHiveTables(inEspFragment);
+  for (Lng32 i = 0; i < nc; i++) {
+    hiveTables += child(i)->findHiveTables(inEspFragment);
   }
- 
+
   return hiveTables;
 }
 
-void Scan::collectTableNames(NAString& queryData)
-{
-   CorrName& cName = getTableName();
-   queryData += cName.getQualifiedNameAsString(TRUE /*for display*/);
-   queryData += ",";
+void Scan::collectTableNames(NAString &queryData) {
+  CorrName &cName = getTableName();
+  queryData += cName.getQualifiedNameAsString(TRUE /*for display*/);
+  queryData += ",";
 }
 
-void RelExpr::collectTableNames(NAString& queryData)
-{
+void RelExpr::collectTableNames(NAString &queryData) {
   Int32 nc = getArity();
 
-  for (Lng32 i = 0; i < nc; i++)
-  {
-     child(i)->collectTableNames(queryData);
+  for (Lng32 i = 0; i < nc; i++) {
+    child(i)->collectTableNames(queryData);
   }
-} 
+}
 
 // find number of operators in an esp fragment.
-Int32 RelExpr::findNumOperators(NABoolean inEspFragment)
-{
-  if ( inEspFragment && getOperatorType() == REL_EXCHANGE )
-    return 0;
+Int32 RelExpr::findNumOperators(NABoolean inEspFragment) {
+  if (inEspFragment && getOperatorType() == REL_EXCHANGE) return 0;
 
   Int32 ops = 1;
 
   Int32 nc = getArity();
 
-  for (Lng32 i = 0; i < nc; i++)
-  {
-     ops += child(i)->findNumOperators(inEspFragment);
+  for (Lng32 i = 0; i < nc; i++) {
+    ops += child(i)->findNumOperators(inEspFragment);
   }
- 
+
   return ops;
 }
 
+NABoolean RelRoot::dopReductionRTFeasible() {
+  if (CURRSTMT_OPTDEFAULTS->getRequiredESPs() > 0) return FALSE;
 
-NABoolean RelRoot::dopReductionRTFeasible()
-{
-   if ( CURRSTMT_OPTDEFAULTS->getRequiredESPs() > 0 )  
-      return FALSE;
+  if (CmpCommon::context()->getCIClass() == CmpContextInfo::CMPCONTEXT_TYPE_META) return FALSE;
 
-   if (CmpCommon::context()->getCIClass() == 
-           CmpContextInfo::CMPCONTEXT_TYPE_META)
-      return FALSE;
+  if (IdentifyMyself::GetMyName() != I_AM_EMBEDDED_SQL_COMPILER) return FALSE;
 
-   if ( IdentifyMyself::GetMyName() != I_AM_EMBEDDED_SQL_COMPILER )
-      return FALSE;
+  if (RelExpr::isControlStmt(childOperType()) || RelExpr::isExplainStmt(childOperType()) ||
+      RelExpr::isStatisticsStmt(childOperType()) || RelExpr::isUnaryIUDStmt(childOperType()) ||
+      RelExpr::isDDLStmt(childOperType()) || RelExpr::isTransactionStmt(childOperType()))
+    return FALSE;
 
-   if ( RelExpr::isControlStmt(childOperType()) || 
-        RelExpr::isExplainStmt(childOperType()) ||
-        RelExpr::isStatisticsStmt(childOperType()) ||
-        RelExpr::isUnaryIUDStmt(childOperType()) ||
-        RelExpr::isDDLStmt(childOperType()) ||
-        RelExpr::isTransactionStmt(childOperType()) )
-     return FALSE;
-
-   return child(0)->dopReductionRTFeasible();
+  return child(0)->dopReductionRTFeasible();
 }
 
-NABoolean RelExpr::dopReductionRTFeasible()
-{
+NABoolean RelExpr::dopReductionRTFeasible() {
   Int32 nc = getArity();
 
-  for (Lng32 i = 0; i < nc; i++)
-  {
-     if ( !child(i)->dopReductionRTFeasible() )
-       return FALSE;
+  for (Lng32 i = 0; i < nc; i++) {
+    if (!child(i)->dopReductionRTFeasible()) return FALSE;
   }
 
   return TRUE;
 }
 
-NABoolean Join::dopReductionRTFeasible()
-{
-  if ( updateTableDesc() ) 
-    return FALSE;
+NABoolean Join::dopReductionRTFeasible() {
+  if (updateTableDesc()) return FALSE;
 
   return RelExpr::dopReductionRTFeasible();
 }
 
-NABoolean Exchange::dopReductionRTFeasible()
-{
-   if ( getExtractProducerFlag() || getExtractConsumerFlag() )
-      return FALSE;
+NABoolean Exchange::dopReductionRTFeasible() {
+  if (getExtractProducerFlag() || getExtractConsumerFlag()) return FALSE;
 
-   return child(0)->dopReductionRTFeasible();
+  return child(0)->dopReductionRTFeasible();
 }
 
-
-// Traverse the RelExpr tree rooted at this in post-order serach 
-// and assign the run-time data to each of the node in the tree. 
-// Note that ExId is stored in ComTdb as explainNodeId_. Its value is 
+// Traverse the RelExpr tree rooted at this in post-order serach
+// and assign the run-time data to each of the node in the tree.
+// Note that ExId is stored in ComTdb as explainNodeId_. Its value is
 // generated through RelExpr::addExplainInf(), which is a post-order
 // traversal of the query tree previously compilied. Here we assume
 // that the query tree and the current RelExpr tree are the same.
-NABoolean RelExpr::assignRTStats(NAArray<Int64>& rtStats, Int32& order)
-{
+NABoolean RelExpr::assignRTStats(NAArray<Int64> &rtStats, Int32 &order) {
   Int32 nc = getArity();
 
-  for (Lng32 i = 0; i < nc; i++)
-  {
-     if ( !child(i)->assignRTStats(rtStats, order) )
-       return FALSE;
+  for (Lng32 i = 0; i < nc; i++) {
+    if (!child(i)->assignRTStats(rtStats, order)) return FALSE;
   }
   return assignRTStatsPostProcessing(rtStats, order);
 }
 
 // MapValueIds is skipped for assignment.
-NABoolean MapValueIds::assignRTStats(NAArray<Int64>& rtStats, Int32& order)
-{
-  ostream* out = openDopAdjustDebugOutput();
+NABoolean MapValueIds::assignRTStats(NAArray<Int64> &rtStats, Int32 &order) {
+  ostream *out = openDopAdjustDebugOutput();
 
-  if ( out ) {
-     *out << "MapValueId: current order=" << order << endl;
+  if (out) {
+    *out << "MapValueId: current order=" << order << endl;
   }
 
   closeDopAdjustDebugOutput(out);
@@ -16521,65 +13460,60 @@ NABoolean MapValueIds::assignRTStats(NAArray<Int64>& rtStats, Int32& order)
 }
 
 // Hash join is handled specially.
-NABoolean Join::assignRTStats(NAArray<Int64>& rtStats, Int32& order)
-{
-  if ( !isHashJoin() ) 
-     return RelExpr::assignRTStats(rtStats, order);
+NABoolean Join::assignRTStats(NAArray<Int64> &rtStats, Int32 &order) {
+  if (!isHashJoin()) return RelExpr::assignRTStats(rtStats, order);
 
   Int32 nc = getArity();
 
   // hash join processes child1 first
-  for (Lng32 i = nc-1; i >= 0; i--)
-  {
-     if ( !child(i)->assignRTStats(rtStats, order) )
-       return FALSE;
+  for (Lng32 i = nc - 1; i >= 0; i--) {
+    if (!child(i)->assignRTStats(rtStats, order)) return FALSE;
   }
 
   return assignRTStatsPostProcessing(rtStats, order);
 }
 
-NABoolean RelExpr::assignRTStatsPostProcessing(NAArray<Int64>& rtStats, Int32& order)
-{
-  ostream* out = openDopAdjustDebugOutput();
+NABoolean RelExpr::assignRTStatsPostProcessing(NAArray<Int64> &rtStats, Int32 &order) {
+  ostream *out = openDopAdjustDebugOutput();
 
   // If the visiting order is beyond the number of valid entries or
   // does not access a valid entry in the array, bail out.
-  if ( rtStats.entries() < order || !rtStats.used(order) ) {
-    if ( out ) {
-       *out << "order out of range or rtstats entry not defined." << endl;
-       *out << "rtStats.entries()=" << rtStats.entries() << endl;
-       *out << "order=" << order << endl;
-       *out << "rtStats.used(order)=" << rtStats.used(order) << endl;
-       closeDopAdjustDebugOutput(out);
+  if (rtStats.entries() < order || !rtStats.used(order)) {
+    if (out) {
+      *out << "order out of range or rtstats entry not defined." << endl;
+      *out << "rtStats.entries()=" << rtStats.entries() << endl;
+      *out << "order=" << order << endl;
+      *out << "rtStats.used(order)=" << rtStats.used(order) << endl;
+      closeDopAdjustDebugOutput(out);
     }
     return FALSE;
   }
 
   // If the data used is negative, bail out. The entry is set to
-  // -1 after being visted earlier. 
-  if ( (rtStats[order]) < 0 ) {
-    if ( out ) {
-       *out << "rtstats entry has been used." << endl;
-       *out << "order=" << order << endl;
-       closeDopAdjustDebugOutput(out);
+  // -1 after being visted earlier.
+  if ((rtStats[order]) < 0) {
+    if (out) {
+      *out << "rtstats entry has been used." << endl;
+      *out << "order=" << order << endl;
+      closeDopAdjustDebugOutput(out);
     }
     return FALSE;
   }
 
   setRTDataUsed(rtStats[order]);
 
-  if ( out ) {
-     *out << "entry assigned: order=" << order;
-     *out << ", " << getText().data();
-     *out << ", stats=" << rtStats[order] << endl;
+  if (out) {
+    *out << "entry assigned: order=" << order;
+    *out << ", " << getText().data();
+    *out << ", stats=" << rtStats[order] << endl;
   }
 
-  rtStats[order] = -1;  // Record the fact that the entry has been 
-                        // visited 
-                        
-  setOrder(order); // record the traversal order
- 
-  order++;  // post-order 
+  rtStats[order] = -1;  // Record the fact that the entry has been
+                        // visited
+
+  setOrder(order);  // record the traversal order
+
+  order++;  // post-order
 
   closeDopAdjustDebugOutput(out);
 
@@ -16589,66 +13523,55 @@ NABoolean RelExpr::assignRTStatsPostProcessing(NAArray<Int64>& rtStats, Int32& o
 // Recursively adjust top partition function
 // for this fragment (i.e., anything connectet, excluding
 // any child Exchange node)
-void RelExpr::adjustTopPartFuncRecursively(Lng32 newDop)
-{
-  ((PhysicalProperty*)getPhysicalProperty())
-         ->scaleNumberOfPartitions(newDop, FALSE);
+void RelExpr::adjustTopPartFuncRecursively(Lng32 newDop) {
+  ((PhysicalProperty *)getPhysicalProperty())->scaleNumberOfPartitions(newDop, FALSE);
 
   setDopReduced(TRUE);
 
   // if we have reach one of the bottom exhange nodes, stop
-  if ( getOperator() == REL_EXCHANGE )
-     return;
+  if (getOperator() == REL_EXCHANGE) return;
 
   Int32 nc = getArity();
 
-  for (Lng32 i = 0; i < nc; i++)
-  {
-     child(i)->adjustTopPartFuncRecursively(newDop);
+  for (Lng32 i = 0; i < nc; i++) {
+    child(i)->adjustTopPartFuncRecursively(newDop);
   }
 }
 
 // Recuvsively call the method on each RelExpr node, accumulating
 // data from each node.
-void RelExpr::prepareDopReduction(Generator* generator, NABoolean useRTstats)
-{
-  pcgEspFragment* currentEspFragmentPCG = 
-             generator->getCurrentEspFragmentPCG();
+void RelExpr::prepareDopReduction(Generator *generator, NABoolean useRTstats) {
+  pcgEspFragment *currentEspFragmentPCG = generator->getCurrentEspFragmentPCG();
 
   currentEspFragmentPCG->accumulateData(this, useRTstats);
 
   Int32 nc = getArity();
 
-  for (Lng32 i = 0; i < nc; i++)
-  {
-     child(i)->prepareDopReduction(generator, useRTstats);
+  for (Lng32 i = 0; i < nc; i++) {
+    child(i)->prepareDopReduction(generator, useRTstats);
   }
 }
 
-void Exchange::prepareDopReduction(Generator* generator, NABoolean useRTstats)
-{
-  pcgEspFragment* parentEspFragPCG = generator->getCurrentEspFragmentPCG();
+void Exchange::prepareDopReduction(Generator *generator, NABoolean useRTstats) {
+  pcgEspFragment *parentEspFragPCG = generator->getCurrentEspFragmentPCG();
 
   parentEspFragPCG->accumulateData(this, useRTstats);
   parentEspFragPCG->addChild(this);
 
-  pcgEspFragment* currentEspFragPCG = getEspFragPCG();
+  pcgEspFragment *currentEspFragPCG = getEspFragPCG();
   generator->setCurrentEspFragmentPCG(currentEspFragPCG);
 
   child(0)->prepareDopReduction(generator, useRTstats);
 
   // Restore the pcg esp fragment
   generator->setCurrentEspFragmentPCG(parentEspFragPCG);
-
 }
 
 // Required Resource Estimate Methods - Begin
-void RelExpr::computeRequiredResources(RequiredResources & reqResources, EstLogPropSharedPtr & inLP)
-{
+void RelExpr::computeRequiredResources(RequiredResources &reqResources, EstLogPropSharedPtr &inLP) {
   Int32 nc = getArity();
 
-  for (Lng32 i = 0; i < nc; i++)
-  {
+  for (Lng32 i = 0; i < nc; i++) {
     if (child(i))
       child(i)->computeRequiredResources(reqResources, inLP);
     else
@@ -16658,8 +13581,7 @@ void RelExpr::computeRequiredResources(RequiredResources & reqResources, EstLogP
   computeMyRequiredResources(reqResources, inLP);
 }
 
-void Join::computeRequiredResources(RequiredResources & reqResources, EstLogPropSharedPtr & inLP)
-{
+void Join::computeRequiredResources(RequiredResources &reqResources, EstLogPropSharedPtr &inLP) {
   Int32 nc = getArity();
 
   if (child(0))
@@ -16669,11 +13591,9 @@ void Join::computeRequiredResources(RequiredResources & reqResources, EstLogProp
 
   EstLogPropSharedPtr inputForRight = inLP;
 
-  EstLogPropSharedPtr leftOutput =
-    child(0).getGroupAttr()->outputLogProp(inLP);
+  EstLogPropSharedPtr leftOutput = child(0).getGroupAttr()->outputLogProp(inLP);
 
-  if(isTSJ())
-  {
+  if (isTSJ()) {
     inputForRight = leftOutput;
   }
 
@@ -16682,72 +13602,52 @@ void Join::computeRequiredResources(RequiredResources & reqResources, EstLogProp
   else
     child(1).getLogExpr()->computeRequiredResources(reqResources, inputForRight);
 
-
   computeMyRequiredResources(reqResources, inLP);
 }
 
-void RequiredResources::accumulate(CostScalar memRsrcs,
-                                   CostScalar cpuRsrcs,
-                                   CostScalar dataAccessCost,
-                                   CostScalar maxCard)
-{
+void RequiredResources::accumulate(CostScalar memRsrcs, CostScalar cpuRsrcs, CostScalar dataAccessCost,
+                                   CostScalar maxCard) {
   memoryResources_ += memRsrcs;
   cpuResources_ += cpuRsrcs;
   dataAccessCost_ += dataAccessCost;
 
-  if(maxOperMemReq_ < memRsrcs)
-    maxOperMemReq_ = memRsrcs;
+  if (maxOperMemReq_ < memRsrcs) maxOperMemReq_ = memRsrcs;
 
-  if(maxOperCPUReq_ < cpuRsrcs)
-    maxOperCPUReq_ = cpuRsrcs;
+  if (maxOperCPUReq_ < cpuRsrcs) maxOperCPUReq_ = cpuRsrcs;
 
-  if(maxOperDataAccessCost_ < dataAccessCost)
-    maxOperDataAccessCost_ = dataAccessCost;
+  if (maxOperDataAccessCost_ < dataAccessCost) maxOperDataAccessCost_ = dataAccessCost;
 
-  if(maxMaxCardinality_ < maxCard)
-    maxMaxCardinality_ = maxCard;
+  if (maxMaxCardinality_ < maxCard) maxMaxCardinality_ = maxCard;
 }
 
-void RelExpr::computeMyRequiredResources(RequiredResources & reqResources, EstLogPropSharedPtr & inLP)
-{
+void RelExpr::computeMyRequiredResources(RequiredResources &reqResources, EstLogPropSharedPtr &inLP) {
   CostScalar cpuResourcesRequired = csZero;
   CostScalar A = csOne;
-  CostScalar B (getDefaultAsDouble(WORK_UNIT_ESP_DATA_COPY_COST));
+  CostScalar B(getDefaultAsDouble(WORK_UNIT_ESP_DATA_COPY_COST));
 
   Int32 nc = getArity();
 
-  for (Lng32 i = 0; i < nc; i++)
-  {
-    GroupAttributes * childGroupAttr = child(i).getGroupAttr();
-    CostScalar childCardinality =
-      childGroupAttr->outputLogProp(inLP)->getResultCardinality();
+  for (Lng32 i = 0; i < nc; i++) {
+    GroupAttributes *childGroupAttr = child(i).getGroupAttr();
+    CostScalar childCardinality = childGroupAttr->outputLogProp(inLP)->getResultCardinality();
     CostScalar childRecordSize = childGroupAttr->getCharacteristicOutputs().getRowLength();
 
-    cpuResourcesRequired +=
-      (A * childCardinality) +
-      (B * childCardinality * childRecordSize );
+    cpuResourcesRequired += (A * childCardinality) + (B * childCardinality * childRecordSize);
   }
 
   CostScalar myMaxCard = getGroupAttr()->getResultMaxCardinalityForInput(inLP);
 
-  reqResources.accumulate(csZero,
-                          cpuResourcesRequired,
-                          csZero,
-                          myMaxCard);
+  reqResources.accumulate(csZero, cpuResourcesRequired, csZero, myMaxCard);
 }
 
-void RelRoot::computeMyRequiredResources(RequiredResources & reqResources, EstLogPropSharedPtr & inLP)
-{
-
-  if (hasOrderBy())
-  {
+void RelRoot::computeMyRequiredResources(RequiredResources &reqResources, EstLogPropSharedPtr &inLP) {
+  if (hasOrderBy()) {
     CostScalar memoryResourcesRequired = csZero;
 
-    GroupAttributes * childGroupAttr = child(0).getGroupAttr();
-    CostScalar childCardinality =
-      childGroupAttr->outputLogProp(inLP)->getResultCardinality();
+    GroupAttributes *childGroupAttr = child(0).getGroupAttr();
+    CostScalar childCardinality = childGroupAttr->outputLogProp(inLP)->getResultCardinality();
     CostScalar childRecordSize = childGroupAttr->getCharacteristicOutputs().getRowLength();
-    memoryResourcesRequired  = (childCardinality * childRecordSize);
+    memoryResourcesRequired = (childCardinality * childRecordSize);
 
     reqResources.accumulate(memoryResourcesRequired, csZero, csZero);
   }
@@ -16756,17 +13656,14 @@ void RelRoot::computeMyRequiredResources(RequiredResources & reqResources, EstLo
   RelExpr::computeMyRequiredResources(reqResources, inLP);
 }
 
-void MultiJoin::computeMyRequiredResources(RequiredResources & reqResources, EstLogPropSharedPtr & inLP)
-{
+void MultiJoin::computeMyRequiredResources(RequiredResources &reqResources, EstLogPropSharedPtr &inLP) {
   // get the subset analysis for this MultiJoin
-  JBBSubsetAnalysis * subsetAnalysis = getJBBSubset().getJBBSubsetAnalysis();
+  JBBSubsetAnalysis *subsetAnalysis = getJBBSubset().getJBBSubsetAnalysis();
 
-  subsetAnalysis->computeRequiredResources(this,reqResources, inLP);
+  subsetAnalysis->computeRequiredResources(this, reqResources, inLP);
 }
 
-
-void Join::computeMyRequiredResources(RequiredResources & reqResources, EstLogPropSharedPtr & inLP)
-{
+void Join::computeMyRequiredResources(RequiredResources &reqResources, EstLogPropSharedPtr &inLP) {
   CostScalar memoryResourcesRequired = csZero;
 
   // only get the max card for this join. The contribution from the children
@@ -16774,17 +13671,15 @@ void Join::computeMyRequiredResources(RequiredResources & reqResources, EstLogPr
   // child(i)->computeRequiredResources() is called (i=0,1). These two calls
   // will call ::computeMyRequiredResoruce() of the corresponding RelExpr.
   //
-  GroupAttributes * myGroupAttr = getGroupAttr();
+  GroupAttributes *myGroupAttr = getGroupAttr();
 
   CostScalar myMaxCard = myGroupAttr->getResultMaxCardinalityForInput(inLP);
 
   reqResources.accumulate(csZero, csZero, csZero, myMaxCard);
 
-  if(!isTSJ())
-  {
-    GroupAttributes * innerChildGroupAttr = child(1).getGroupAttr();
-    CostScalar innerChildCardinality =
-      innerChildGroupAttr->outputLogProp(inLP)->getResultCardinality();
+  if (!isTSJ()) {
+    GroupAttributes *innerChildGroupAttr = child(1).getGroupAttr();
+    CostScalar innerChildCardinality = innerChildGroupAttr->outputLogProp(inLP)->getResultCardinality();
     CostScalar innerChildRecordSize = innerChildGroupAttr->getCharacteristicOutputs().getRowLength();
     memoryResourcesRequired = (innerChildCardinality * innerChildRecordSize);
 
@@ -16792,47 +13687,39 @@ void Join::computeMyRequiredResources(RequiredResources & reqResources, EstLogPr
 
     // add the cpu resources
     RelExpr::computeMyRequiredResources(reqResources, inLP);
-  }
-  else{
+  } else {
     // isTSJ() == TRUE
     CostScalar cpuResourcesRequired = csZero;
     CostScalar A = csOne;
-    CostScalar B (getDefaultAsDouble(WORK_UNIT_ESP_DATA_COPY_COST));
+    CostScalar B(getDefaultAsDouble(WORK_UNIT_ESP_DATA_COPY_COST));
 
     Int32 nc = getArity();
     EstLogPropSharedPtr inputForChild = inLP;
 
-    for (Lng32 i = 0; i < nc; i++)
-    {
-      GroupAttributes * childGroupAttr = child(i).getGroupAttr();
-      CostScalar childCardinality =
-        childGroupAttr->outputLogProp(inputForChild)->getResultCardinality();
+    for (Lng32 i = 0; i < nc; i++) {
+      GroupAttributes *childGroupAttr = child(i).getGroupAttr();
+      CostScalar childCardinality = childGroupAttr->outputLogProp(inputForChild)->getResultCardinality();
       CostScalar childRecordSize = childGroupAttr->getCharacteristicOutputs().getRowLength();
 
-      cpuResourcesRequired += (B * childCardinality * childRecordSize );
+      cpuResourcesRequired += (B * childCardinality * childRecordSize);
 
       // do this only for the left child
-      if(i < 1)
-        cpuResourcesRequired += (A * childCardinality);
+      if (i < 1) cpuResourcesRequired += (A * childCardinality);
 
       inputForChild = child(i).getGroupAttr()->outputLogProp(inputForChild);
     }
 
-    reqResources.accumulate(csZero,
-                            cpuResourcesRequired,
-                            csZero);
+    reqResources.accumulate(csZero, cpuResourcesRequired, csZero);
   }
 }
 
-void GroupByAgg::computeMyRequiredResources(RequiredResources & reqResources, EstLogPropSharedPtr & inLP)
-{
-  CostScalar memoryResourcesRequired  = csZero;
+void GroupByAgg::computeMyRequiredResources(RequiredResources &reqResources, EstLogPropSharedPtr &inLP) {
+  CostScalar memoryResourcesRequired = csZero;
 
-  GroupAttributes * childGroupAttr = child(0).getGroupAttr();
-  CostScalar childCardinality =
-    childGroupAttr->outputLogProp(inLP)->getResultCardinality();
+  GroupAttributes *childGroupAttr = child(0).getGroupAttr();
+  CostScalar childCardinality = childGroupAttr->outputLogProp(inLP)->getResultCardinality();
   CostScalar childRecordSize = childGroupAttr->getCharacteristicOutputs().getRowLength();
-  memoryResourcesRequired  = (childCardinality * childRecordSize);
+  memoryResourcesRequired = (childCardinality * childRecordSize);
 
   reqResources.accumulate(memoryResourcesRequired, csZero, csZero);
 
@@ -16840,70 +13727,52 @@ void GroupByAgg::computeMyRequiredResources(RequiredResources & reqResources, Es
   RelExpr::computeMyRequiredResources(reqResources, inLP);
 }
 
-void Scan::computeMyRequiredResources(RequiredResources & reqResources, EstLogPropSharedPtr & inLP)
-{
-  if(!(QueryAnalysis::Instance() &&
-       QueryAnalysis::Instance()->isAnalysisON()))
-    return;
+void Scan::computeMyRequiredResources(RequiredResources &reqResources, EstLogPropSharedPtr &inLP) {
+  if (!(QueryAnalysis::Instance() && QueryAnalysis::Instance()->isAnalysisON())) return;
 
-  if ( getTableDesc()->getNATable()->isHbaseTable()) 
-    reqResources.incrementNumOfHBaseTables();
+  if (getTableDesc()->getNATable()->isHbaseTable()) reqResources.incrementNumOfHBaseTables();
 
-  if ( getTableDesc()->getNATable()->isHiveTable()) {
+  if (getTableDesc()->getNATable()->isHiveTable()) {
     reqResources.incrementNumOfHiveTables();
 
-    if ( CmpCommon::getDefault(HIVE_SCAN_RESOURCES_INCLUSION) != DF_ON ) 
-      return;
+    if (CmpCommon::getDefault(HIVE_SCAN_RESOURCES_INCLUSION) != DF_ON) return;
   }
 
-  //Get a handle to ASM
-  AppliedStatMan * appStatMan = QueryAnalysis::ASM();
-  const TableAnalysis * tAnalysis = getTableDesc()->getTableAnalysis();
+  // Get a handle to ASM
+  AppliedStatMan *appStatMan = QueryAnalysis::ASM();
+  const TableAnalysis *tAnalysis = getTableDesc()->getTableAnalysis();
   CANodeId tableId = tAnalysis->getNodeAnalysis()->getId();
 
   // Find index joins and index-only scans
   addIndexInfo();
 
   // Base table scan is one of the index only scans.
-  CostScalar cpuCostIndexOnlyScan = 
-                computeCpuResourceForIndexOnlyScans(tableId);
+  CostScalar cpuCostIndexOnlyScan = computeCpuResourceForIndexOnlyScans(tableId);
 
-  CostScalar cpuCostIndexJoinScan = 
-                computeCpuResourceForIndexJoinScans(tableId);
+  CostScalar cpuCostIndexJoinScan = computeCpuResourceForIndexJoinScans(tableId);
 
   CostScalar cpuResourcesRequired = cpuCostIndexOnlyScan;
 
-
-  if ( cpuCostIndexJoinScan < cpuResourcesRequired )
-    cpuResourcesRequired = cpuCostIndexJoinScan;
+  if (cpuCostIndexJoinScan < cpuResourcesRequired) cpuResourcesRequired = cpuCostIndexJoinScan;
 
   CostScalar dataAccessCost = tAnalysis->getFactTableNJAccessCost();
-  if(dataAccessCost < 0)
-  {
-    CostScalar rowsToScan = appStatMan->
-                   getStatsForLocalPredsOnCKPOfJBBC(tableId)->
-                     getResultCardinality();
+  if (dataAccessCost < 0) {
+    CostScalar rowsToScan = appStatMan->getStatsForLocalPredsOnCKPOfJBBC(tableId)->getResultCardinality();
 
     CostScalar numOfProbes(csZero);
 
     // skip this for fact table under nested join
-    dataAccessCost =
-      tAnalysis->computeDataAccessCostForTable(numOfProbes, rowsToScan);
+    dataAccessCost = tAnalysis->computeDataAccessCostForTable(numOfProbes, rowsToScan);
   }
 
   CostScalar myMaxCard = getGroupAttr()->getResultMaxCardinalityForInput(inLP);
-  reqResources.accumulate(csZero, cpuResourcesRequired, 
-                          dataAccessCost, myMaxCard
-                         );
-
+  reqResources.accumulate(csZero, cpuResourcesRequired, dataAccessCost, myMaxCard);
 }
 // Required Resource Estimate Methods - End
 
-CostScalar
-Scan::computeCpuResourceRequired(const CostScalar& rowsToScan, const CostScalar& rowSize)
-{
+CostScalar Scan::computeCpuResourceRequired(const CostScalar &rowsToScan, const CostScalar &rowSize) {
   CostScalar A = csOne;
-  CostScalar B (getDefaultAsDouble(WORK_UNIT_ESP_DATA_COPY_COST));
+  CostScalar B(getDefaultAsDouble(WORK_UNIT_ESP_DATA_COPY_COST));
 
   CostScalar cpuResourcesRequired = (B * rowsToScan * rowSize);
   cpuResourcesRequired += (A * rowsToScan);
@@ -16911,62 +13780,51 @@ Scan::computeCpuResourceRequired(const CostScalar& rowsToScan, const CostScalar&
   return cpuResourcesRequired;
 }
 
-CostScalar Scan::computeCpuResourceForIndexOnlyScans(CANodeId tableId)
-{
+CostScalar Scan::computeCpuResourceForIndexOnlyScans(CANodeId tableId) {
   // If index only scans are available, find the most
   // promising index and compute the CPU resource for it.
 
-  const SET(IndexProperty *)& indexOnlyScans = getIndexOnlyIndexes();
+  const SET(IndexProperty *) &indexOnlyScans = getIndexOnlyIndexes();
 
-  IndexProperty* smallestIndex = findSmallestIndex(indexOnlyScans);
+  IndexProperty *smallestIndex = findSmallestIndex(indexOnlyScans);
 
-  if ( !smallestIndex )
-    return COSTSCALAR_MAX;
+  if (!smallestIndex) return COSTSCALAR_MAX;
 
-  IndexDesc* iDesc = smallestIndex->getIndexDesc();
+  IndexDesc *iDesc = smallestIndex->getIndexDesc();
 
   const ValueIdList &ikeys = iDesc->getIndexKey();
 
-  AppliedStatMan * appStatMan = QueryAnalysis::ASM();
+  AppliedStatMan *appStatMan = QueryAnalysis::ASM();
 
-  EstLogPropSharedPtr estLpropPtr = appStatMan->
-                  getStatsForLocalPredsOnPrefixOfColList(tableId, ikeys);
+  EstLogPropSharedPtr estLpropPtr = appStatMan->getStatsForLocalPredsOnPrefixOfColList(tableId, ikeys);
 
-  if ( !(estLpropPtr.get()) )
-    return COSTSCALAR_MAX;
+  if (!(estLpropPtr.get())) return COSTSCALAR_MAX;
 
-  return computeCpuResourceRequired(estLpropPtr->getResultCardinality(), 
-                                    iDesc->getRecordLength()
-                                   );
+  return computeCpuResourceRequired(estLpropPtr->getResultCardinality(), iDesc->getRecordLength());
 }
 
-
-CostScalar Scan::computeCpuResourceForIndexJoinScans(CANodeId tableId)
-{
- // If index scans are available, find the index with most promising and
+CostScalar Scan::computeCpuResourceForIndexJoinScans(CANodeId tableId) {
+  // If index scans are available, find the index with most promising and
   // compute the CPU resource for it.
-  const LIST(ScanIndexInfo *)& scanIndexJoins = getPossibleIndexJoins();
+  const LIST(ScanIndexInfo *) &scanIndexJoins = getPossibleIndexJoins();
 
-  if ( scanIndexJoins.entries() == 0 )
-    return COSTSCALAR_MAX;
+  if (scanIndexJoins.entries() == 0) return COSTSCALAR_MAX;
 
-  IndexProperty* smallestIndex = findSmallestIndex(scanIndexJoins);
-  IndexDesc* iDesc = smallestIndex->getIndexDesc();
+  IndexProperty *smallestIndex = findSmallestIndex(scanIndexJoins);
+  IndexDesc *iDesc = smallestIndex->getIndexDesc();
 
   CostScalar rowsToScan;
   return computeCpuResourceForIndexJoin(tableId, iDesc, iDesc->getIndexKey(), rowsToScan);
 }
 
-CostScalar Scan::computeCpuResourceForIndexJoin(CANodeId tableId, IndexDesc* iDesc, 
-                                                ValueIdSet& indexPredicates, 
-                                                CostScalar& rowsToScan)
-{
+CostScalar Scan::computeCpuResourceForIndexJoin(CANodeId tableId, IndexDesc *iDesc, ValueIdSet &indexPredicates,
+                                                CostScalar &rowsToScan) {
   ValueIdList ikeysCovered;
 
   UInt32 sz = iDesc->getIndexKey().entries();
-  for (CollIndex i=0; i<sz; i++) {
+  for (CollIndex i = 0; i < sz; i++) {
     ValueId x = iDesc->getIndexKey()[i];
-    if ( indexPredicates.containsAsEquiLocalPred(x) )
+    if (indexPredicates.containsAsEquiLocalPred(x))
       ikeysCovered.insertAt(i, x);
     else
       break;
@@ -16975,16 +13833,13 @@ CostScalar Scan::computeCpuResourceForIndexJoin(CANodeId tableId, IndexDesc* iDe
   return computeCpuResourceForIndexJoin(tableId, iDesc, ikeysCovered, rowsToScan);
 }
 
-CostScalar 
-Scan::computeCpuResourceForIndexJoin(CANodeId tableId, IndexDesc* iDesc, 
-                                     const ValueIdList& ikeys, CostScalar& rowsToScan)
-{
-  AppliedStatMan * appStatMan = QueryAnalysis::ASM();
+CostScalar Scan::computeCpuResourceForIndexJoin(CANodeId tableId, IndexDesc *iDesc, const ValueIdList &ikeys,
+                                                CostScalar &rowsToScan) {
+  AppliedStatMan *appStatMan = QueryAnalysis::ASM();
 
-  EstLogPropSharedPtr estLpropPtr = appStatMan->
-                  getStatsForLocalPredsOnPrefixOfColList(tableId, ikeys);
+  EstLogPropSharedPtr estLpropPtr = appStatMan->getStatsForLocalPredsOnPrefixOfColList(tableId, ikeys);
 
-  if ( !(estLpropPtr.get()) ) {
+  if (!(estLpropPtr.get())) {
     rowsToScan = COSTSCALAR_MAX;
     return COSTSCALAR_MAX;
   }
@@ -17001,124 +13856,104 @@ Scan::computeCpuResourceForIndexJoin(CANodeId tableId, IndexDesc* iDesc,
   return cpuResourceForIndex + cpuResourceForBaseTable;
 }
 
-IndexProperty* Scan::findSmallestIndex(const SET(IndexProperty *)& indexes) const
-{
-   CollIndex entries = indexes.entries();
+IndexProperty *Scan::findSmallestIndex(const SET(IndexProperty *) & indexes) const {
+  CollIndex entries = indexes.entries();
 
-   if ( entries == 0 ) return NULL;
+  if (entries == 0) return NULL;
 
-   IndexProperty* smallestIndex = indexes[0];
+  IndexProperty *smallestIndex = indexes[0];
 
-   for (CollIndex i=1; i<entries; i++ ) {
-     IndexProperty* current = indexes[i];
+  for (CollIndex i = 1; i < entries; i++) {
+    IndexProperty *current = indexes[i];
 
-     if ( smallestIndex->compareIndexPromise(current) == LESS ) {
-        smallestIndex = current;
-     }
-   }
+    if (smallestIndex->compareIndexPromise(current) == LESS) {
+      smallestIndex = current;
+    }
+  }
 
-   return smallestIndex;
+  return smallestIndex;
 }
 
-IndexProperty* Scan::findSmallestIndex(const LIST(ScanIndexInfo *)& possibleIndexJoins) const
-{
-   CollIndex entries = possibleIndexJoins_.entries();
+IndexProperty *Scan::findSmallestIndex(const LIST(ScanIndexInfo *) & possibleIndexJoins) const {
+  CollIndex entries = possibleIndexJoins_.entries();
 
-   if ( entries == 0 ) return NULL;
+  if (entries == 0) return NULL;
 
-   IndexProperty* smallestIndex = 
-            findSmallestIndex(possibleIndexJoins[0]->usableIndexes_);
+  IndexProperty *smallestIndex = findSmallestIndex(possibleIndexJoins[0]->usableIndexes_);
 
-   for (CollIndex i=1; i<entries; i++ ) {
-     
-      IndexProperty* current = 
-            findSmallestIndex(possibleIndexJoins[i]->usableIndexes_);
-                        
-      if ( smallestIndex->compareIndexPromise(current) == LESS ) {
-          smallestIndex = current;
-      }
-   }
+  for (CollIndex i = 1; i < entries; i++) {
+    IndexProperty *current = findSmallestIndex(possibleIndexJoins[i]->usableIndexes_);
 
-   return smallestIndex;
+    if (smallestIndex->compareIndexPromise(current) == LESS) {
+      smallestIndex = current;
+    }
+  }
+
+  return smallestIndex;
 }
 
-Lng32 FileScan::getTotalColumnWidthForExecPreds() const
-{
-  TableDesc * tdesc = getTableDesc();
+Lng32 FileScan::getTotalColumnWidthForExecPreds() const {
+  TableDesc *tdesc = getTableDesc();
 
-  const TableAnalysis* tAnalysis = tdesc->getTableAnalysis();
-  const ValueIdSet & usedCols = tAnalysis->getUsedCols() ;
+  const TableAnalysis *tAnalysis = tdesc->getTableAnalysis();
+  const ValueIdSet &usedCols = tAnalysis->getUsedCols();
 
-
-     return usedCols.getRowLength();
+  return usedCols.getRowLength();
 }
 
-void FileScan::findNestedJoinPredicates(ValueIdSet& njPreds)
-{
+void FileScan::findNestedJoinPredicates(ValueIdSet &njPreds) {
   njPreds = selectionPred();
 
-  const ValueIdSet& ci =getGroupAttr()->getCharacteristicInputs();
+  const ValueIdSet &ci = getGroupAttr()->getCharacteristicInputs();
 
   // remove all those that do not require ci
   njPreds.removeUnReferencedVEGPreds(ci);
 }
 
-
 // This function checks if the passed RelExpr is a UDF rule created by a CQS
-// (REL_FORCE_ANY_SCALAR_UDF).  If not, then RelExpr::patternMatch() is called. 
-// If the CQS rule includes the UDF name this name is checked against the routine 
+// (REL_FORCE_ANY_SCALAR_UDF).  If not, then RelExpr::patternMatch() is called.
+// If the CQS rule includes the UDF name this name is checked against the routine
 // name of this physical isolated scalar UDF.  If the CQS rule includes the action
 // name, then this is checked against the action name of this physical isolated
 // scalar UDF as well.  The function returns TRUE if so, otherwise FALSE.
-NABoolean PhysicalIsolatedScalarUDF::patternMatch(const RelExpr & other) const
-{
+NABoolean PhysicalIsolatedScalarUDF::patternMatch(const RelExpr &other) const {
   // Check if CQS is a scalar UDF rule.
-  if (other.getOperatorType() == REL_FORCE_ANY_SCALAR_UDF)
-    {
-      UDFForceWildCard &w = (UDFForceWildCard &) other;
+  if (other.getOperatorType() == REL_FORCE_ANY_SCALAR_UDF) {
+    UDFForceWildCard &w = (UDFForceWildCard &)other;
 
-      // Check function name, if specified in UDFForceWildCard.
-      if (w.getFunctionName() != "")
-        {
-          QualifiedName funcName(w.getFunctionName(), 1 /* minimal 1 part name */);
+    // Check function name, if specified in UDFForceWildCard.
+    if (w.getFunctionName() != "") {
+      QualifiedName funcName(w.getFunctionName(), 1 /* minimal 1 part name */);
 
-          // Compare catalog, schema and udf parts separately, 
-          // if they exist in the wildcard
-          const NAString& catName = funcName.getCatalogName();
-          const NAString& schName = funcName.getSchemaName();
-          const QualifiedName& x  = getRoutineName();
-   
-          if ((catName.length() > 0 && x.getCatalogName() != catName) ||
-              (schName.length() > 0 && x.getSchemaName()  != schName) ||
-              x.getObjectName() != funcName.getObjectName())
-            return FALSE;
-        }
-      // Check action name, if specified in UDFForceWildCard.
-      if (w.getActionName() != "")
-        {
-          NAString actionName = w.getActionName();
+      // Compare catalog, schema and udf parts separately,
+      // if they exist in the wildcard
+      const NAString &catName = funcName.getCatalogName();
+      const NAString &schName = funcName.getSchemaName();
+      const QualifiedName &x = getRoutineName();
 
-          if (getActionNARoutine() &&
-              getActionNARoutine()->getActionName())
-            {
-              // Compare only object parts.  Right now actions don't support catalogs and schemas.
-              // This is because action names can have a leading '$' as part of name.
-              const NAString& x = *(getActionNARoutine()->getActionName());
-   
-              if (x != actionName)
-                return FALSE;
-            }
-          else return FALSE;
-        }
+      if ((catName.length() > 0 && x.getCatalogName() != catName) ||
+          (schName.length() > 0 && x.getSchemaName() != schName) || x.getObjectName() != funcName.getObjectName())
+        return FALSE;
+    }
+    // Check action name, if specified in UDFForceWildCard.
+    if (w.getActionName() != "") {
+      NAString actionName = w.getActionName();
+
+      if (getActionNARoutine() && getActionNARoutine()->getActionName()) {
+        // Compare only object parts.  Right now actions don't support catalogs and schemas.
+        // This is because action names can have a leading '$' as part of name.
+        const NAString &x = *(getActionNARoutine()->getActionName());
+
+        if (x != actionName) return FALSE;
+      } else
+        return FALSE;
+    }
     return TRUE;
-  }
-  else
+  } else
     return RelExpr::patternMatch(other);
 }
 
-
-const NAString RelExpr::getCascadesTraceInfoStr() 
-{
+const NAString RelExpr::getCascadesTraceInfoStr() {
   NAString result("RelExpr Cascades Trace Info:\n");
   result += " parent taskid: " + istring(getParentTaskId()) + "\n";
   result += " sub taskid: " + istring(getSubTaskId()) + "\n";
@@ -17127,18 +13962,16 @@ const NAString RelExpr::getCascadesTraceInfoStr()
   result += " source memo exprid: " + istring(sourceMemoExprId_) + "\n";
   result += " source groupid: " + istring(sourceGroupId_) + "\n";
   char costLimitStr[50];
-  sprintf(costLimitStr," cost limit %g\n", costLimit_);
+  sprintf(costLimitStr, " cost limit %g\n", costLimit_);
   result += costLimitStr;
   return result;
 }
 
 // remember the creator and source of this relexpr for cascades display gui
-void RelExpr::setCascadesTraceInfo(RelExpr *src)
-{
-  CascadesTask * currentTask = CURRSTMT_OPTDEFAULTS->getCurrentTask();
-  if (currentTask)
-  {
-    // current task created this relexpr 
+void RelExpr::setCascadesTraceInfo(RelExpr *src) {
+  CascadesTask *currentTask = CURRSTMT_OPTDEFAULTS->getCurrentTask();
+  if (currentTask) {
+    // current task created this relexpr
     parentTaskId_ = currentTask->getParentTaskId();
     stride_ = currentTask->getSubTaskId();
 
@@ -17147,747 +13980,609 @@ void RelExpr::setCascadesTraceInfo(RelExpr *src)
 
     // remember my source
     sourceGroupId_ = currentTask->getGroupId();
-    if (src)
-      sourceMemoExprId_ = src->memoExprId_;
+    if (src) sourceMemoExprId_ = src->memoExprId_;
 
     // remember current task's context's CostLimit
-    Context * context = currentTask->getContext();
-    if(context && context->getCostLimit())
-      costLimit_ = context->getCostLimit()->getCachedValue();
+    Context *context = currentTask->getContext();
+    if (context && context->getCostLimit()) costLimit_ = context->getCostLimit()->getCachedValue();
   }
   // get my MemoExprId and advance it
   memoExprId_ = CURRSTMT_OPTDEFAULTS->updateGetMemoExprCount();
 }
 
-NABoolean Join::childNodeContainSkew(
-                      CollIndex i,                 // IN: which child
-                      const ValueIdSet& joinPreds, // IN: the join predicate
-                      double threshold,            // IN: the threshold
-                      SkewedValueList** skList      // OUT: the skew list
-                               ) const
-{
-   // Can not deal with multicolumn skew in this method.
-   if ( joinPreds.entries() != 1 )
-      return FALSE;
+NABoolean Join::childNodeContainSkew(CollIndex i,                  // IN: which child
+                                     const ValueIdSet &joinPreds,  // IN: the join predicate
+                                     double threshold,             // IN: the threshold
+                                     SkewedValueList **skList      // OUT: the skew list
+) const {
+  // Can not deal with multicolumn skew in this method.
+  if (joinPreds.entries() != 1) return FALSE;
 
-   NABoolean statsExist; // a place holder
+  NABoolean statsExist;  // a place holder
 
-   Int32 skews = 0;
-   for(ValueId vid = joinPreds.init(); joinPreds.next(vid); joinPreds.advance(vid)) {
-      *skList = child(i).getGroupAttr()-> getSkewedValues(vid, threshold,
-                    statsExist,
-                    (*GLOBAL_EMPTY_INPUT_LOGPROP),
-                    isLeftJoin()/* include skewed NULLs only for left outer join */
-                                                         );
+  Int32 skews = 0;
+  for (ValueId vid = joinPreds.init(); joinPreds.next(vid); joinPreds.advance(vid)) {
+    *skList = child(i).getGroupAttr()->getSkewedValues(vid, threshold, statsExist, (*GLOBAL_EMPTY_INPUT_LOGPROP),
+                                                       isLeftJoin() /* include skewed NULLs only for left outer join */
+    );
 
-      if (*skList == NULL || (*skList)->entries() == 0)
-         break;
-      else
-         skews++;
-    }
+    if (*skList == NULL || (*skList)->entries() == 0)
+      break;
+    else
+      skews++;
+  }
 
-   return ( skews == joinPreds.entries() );
+  return (skews == joinPreds.entries());
 }
 
-
-// 
+//
 // Check if some join column is of a SQL type whose run-time
 // implementation has a limitation for SB to work.
 //
-// return 
+// return
 //   TRUE: no limitation
 //   FALSE: has limitation and SB should not be applied
 //
-NABoolean Join::singleColumnjoinPredOKforSB(ValueIdSet& joinPreds)
-{
-  ValueId vId((CollIndex)0); joinPreds.next(vId);
+NABoolean Join::singleColumnjoinPredOKforSB(ValueIdSet &joinPreds) {
+  ValueId vId((CollIndex)0);
+  joinPreds.next(vId);
 
-  ItemExpr* iePtr = vId.getItemExpr();
+  ItemExpr *iePtr = vId.getItemExpr();
 
   if (iePtr->getOperatorType() == ITM_INSTANTIATE_NULL) {
-     iePtr = iePtr -> child(0);
+    iePtr = iePtr->child(0);
   }
 
   ValueIdSet vidSet;
 
   switch (iePtr->getOperatorType()) {
-     case ITM_EQUAL: // this case is used to handle char type when
+    case ITM_EQUAL:  // this case is used to handle char type when
                      // no VEG is formed for a char predicate,
                      // or joins involving subqueries.
-     case ITM_VEG_PREDICATE:
-     case ITM_VEG_REFERENCE:
+    case ITM_VEG_PREDICATE:
+    case ITM_VEG_REFERENCE:
 
-       // We only care columns of type ITM_BASECOLUMN (columns belonging to
-       // base tables or table-valued stored procedures, see comment on class
-       // BaseColumn).
-       iePtr->findAll(ITM_BASECOLUMN, vidSet, TRUE, TRUE);
+      // We only care columns of type ITM_BASECOLUMN (columns belonging to
+      // base tables or table-valued stored procedures, see comment on class
+      // BaseColumn).
+      iePtr->findAll(ITM_BASECOLUMN, vidSet, TRUE, TRUE);
 
-       // If no such columns can be found. Do not bother to continue further,
-       // as only base table columns have the potential to be big and skewed.
-       if ( vidSet.entries() == 0 )
-          return FALSE;
+      // If no such columns can be found. Do not bother to continue further,
+      // as only base table columns have the potential to be big and skewed.
+      if (vidSet.entries() == 0) return FALSE;
 
-       break;
+      break;
 
-     default:
-       return FALSE;
+    default:
+      return FALSE;
   }
 
-  ValueId colVid((CollIndex)0); vidSet.next(colVid);
+  ValueId colVid((CollIndex)0);
+  vidSet.next(colVid);
 
-  if ( !colVid.getType().isSkewBusterSupportedType() )
-    return FALSE;
+  if (!colVid.getType().isSkewBusterSupportedType()) return FALSE;
 
   // Additional test
-  if ( colVid.getType().getTypeQualifier() == NA_NUMERIC_TYPE &&
-       colVid.getType().getTypeName() == LiteralNumeric ) {
+  if (colVid.getType().getTypeQualifier() == NA_NUMERIC_TYPE && colVid.getType().getTypeName() == LiteralNumeric) {
+    // Exact decimal numeric such as NUMERIC(18,15) can be handled, if
+    // all columns involved in join are of the exact same precision and
+    // and scale. The comparison ignores NULL attribute of the type (ALM 4953).
+    for (ValueId x = vidSet.init(); vidSet.next(x); vidSet.advance(x)) {
+      if (NOT((NumericType &)(colVid.getType())).equalIgnoreNull(x.getType())) return FALSE;
+    }
 
-      // Exact decimal numeric such as NUMERIC(18,15) can be handled, if
-      // all columns involved in join are of the exact same precision and
-      // and scale. The comparison ignores NULL attribute of the type (ALM 4953).
-      for(ValueId x = vidSet.init(); vidSet.next(x); vidSet.advance(x))
-      {
-        if ( NOT ((NumericType&)(colVid.getType())).equalIgnoreNull(x.getType()))
-           return FALSE;
-      }
-
-      return TRUE;
-  } else 
-  if ( DFS2REC::isAnyCharacter(colVid.getType().getFSDatatype()) ) {
-
-     if ( ((const CharType&)colVid.getType()).getStrCharLimit() > 
-          (Lng32) CmpCommon::getDefaultNumeric(USTAT_MAX_CHAR_BOUNDARY_LEN) )
-        return FALSE;
+    return TRUE;
+  } else if (DFS2REC::isAnyCharacter(colVid.getType().getFSDatatype())) {
+    if (((const CharType &)colVid.getType()).getStrCharLimit() >
+        (Lng32)CmpCommon::getDefaultNumeric(USTAT_MAX_CHAR_BOUNDARY_LEN))
+      return FALSE;
   }
 
   return TRUE;
 }
 
-
-NABoolean Join::multiColumnjoinPredOKforSB(ValueIdSet& joinPreds)
-{
-   for(ValueId x = joinPreds.init(); joinPreds.next(x); joinPreds.advance(x))
-   {
-      ValueIdSet dummy(x);
-      if ( !singleColumnjoinPredOKforSB(dummy) )
-        return FALSE;
-   }
-   return TRUE;
+NABoolean Join::multiColumnjoinPredOKforSB(ValueIdSet &joinPreds) {
+  for (ValueId x = joinPreds.init(); joinPreds.next(x); joinPreds.advance(x)) {
+    ValueIdSet dummy(x);
+    if (!singleColumnjoinPredOKforSB(dummy)) return FALSE;
+  }
+  return TRUE;
 }
 
 // The new way to capture MC skews. All such skews have been computed during
-// update stats. 
-NABoolean Join::childNodeContainMultiColumnSkew(
-                      CollIndex i,                 // IN: which child to work on
-                      const ValueIdSet& joinPreds, // IN: the join predicate
-                      double mc_threshold,         // IN: multi-column threshold
-                      Lng32 countOfPipelines,      // IN:
-                      SkewedValueList** skList     // OUT: the skew list
-                               ) 
-{
-   if (joinPreds.entries() <= 1)
-       return FALSE;
+// update stats.
+NABoolean Join::childNodeContainMultiColumnSkew(CollIndex i,                  // IN: which child to work on
+                                                const ValueIdSet &joinPreds,  // IN: the join predicate
+                                                double mc_threshold,          // IN: multi-column threshold
+                                                Lng32 countOfPipelines,       // IN:
+                                                SkewedValueList **skList      // OUT: the skew list
+) {
+  if (joinPreds.entries() <= 1) return FALSE;
 
-   const ColStatDescList& theColList =
-          child(i).outputLogProp((*GLOBAL_EMPTY_INPUT_LOGPROP))->colStats();
-
+  const ColStatDescList &theColList = child(i).outputLogProp((*GLOBAL_EMPTY_INPUT_LOGPROP))->colStats();
 
   ValueId col;
   ValueIdSet lhsCols;
 
   CollIndex index = NULL_COLL_INDEX;
 
-  const ValueIdSet& joiningCols = (i==0) ? 
-            getEquiJoinExprFromChild0() : getEquiJoinExprFromChild1() ;
+  const ValueIdSet &joiningCols = (i == 0) ? getEquiJoinExprFromChild0() : getEquiJoinExprFromChild1();
 
-  for (col = joiningCols.init();
-             joiningCols.next(col);
-             joiningCols.advance(col) )
-  {
+  for (col = joiningCols.init(); joiningCols.next(col); joiningCols.advance(col)) {
     theColList.getColStatDescIndex(index, col);
-    if (index != NULL_COLL_INDEX)
-       lhsCols.insert(theColList[index]->getColumn());
+    if (index != NULL_COLL_INDEX) lhsCols.insert(theColList[index]->getColumn());
   }
 
+  ValueIdList dummyList;
 
-   ValueIdList dummyList;
+  const MCSkewedValueList *mcSkewList = ((ColStatDescList &)theColList).getMCSkewedValueListForCols(lhsCols, dummyList);
 
-   const MCSkewedValueList* mcSkewList =
-          ((ColStatDescList&)theColList).getMCSkewedValueListForCols(lhsCols, dummyList);
+  if (mcSkewList == NULL) return FALSE;
 
-   if ( mcSkewList == NULL )
-      return FALSE;
+  // Apply the frequency threshold to each MC skew and store those passing
+  // the thredhold test to the new skList
 
-   // Apply the frequency threshold to each MC skew and store those passing
-   // the thredhold test to the new skList 
+  CostScalar rc = child(i).getGroupAttr()->getResultCardinalityForEmptyInput();
 
-   CostScalar rc = child(i).getGroupAttr()->getResultCardinalityForEmptyInput();
+  CostScalar thresholdFrequency = rc * mc_threshold;
 
-   CostScalar thresholdFrequency = rc * mc_threshold;
+  *skList = new (CmpCommon::statementHeap()) SkewedValueList((CmpCommon::statementHeap()));
 
-   *skList = new (CmpCommon::statementHeap()) 
-                  SkewedValueList((CmpCommon::statementHeap()));
+  for (CollIndex i = 0; i < mcSkewList->entries(); i++) {
+    MCSkewedValue *itm = mcSkewList->at(i);
 
-   for ( CollIndex i=0; i<mcSkewList->entries(); i++ ) {
-      MCSkewedValue* itm = mcSkewList->at(i);
+    if (itm->getFrequency() >= thresholdFrequency) {
+      // Use an EncodedValue object to represent the current MC skew
+      // and transfer the hash value to it. The hash value is
+      // computed in EncodedValue::computeRunTimeHashValue() and is
+      // the run-time version! No modification should be done to it
+      // from this point on.
+      EncodedValue mcSkewed = itm->getHash();
 
-      if ( itm->getFrequency() >= thresholdFrequency ) {
+      (*skList)->insertInOrder(mcSkewed);
+    }
+  }
 
-        // Use an EncodedValue object to represent the current MC skew
-        // and transfer the hash value to it. The hash value is 
-        // computed in EncodedValue::computeRunTimeHashValue() and is 
-        // the run-time version! No modification should be done to it 
-        // from this point on. 
-        EncodedValue mcSkewed = itm->getHash();
+  // Set the run-time hash status flag so that we will not try to build
+  // the run-time hash again in
+  // SkewedDataPartitioningFunction::buildHashListForSkewedValues().
+  (*skList)->setComputeFinalHash(FALSE);
 
-        (*skList)->insertInOrder(mcSkewed);
-      }
-   }
+  if ((*skList)->entries() == 0) return FALSE;
 
-   // Set the run-time hash status flag so that we will not try to build
-   // the run-time hash again in 
-   // SkewedDataPartitioningFunction::buildHashListForSkewedValues().
-   (*skList)->setComputeFinalHash(FALSE);
-   
-   if ( (*skList)->entries() == 0)
-     return FALSE;
-
-   return TRUE;
+  return TRUE;
 }
 
 // The old way to guess MC skews and repartition the data stream on one
 // of the columns with least skews.
-NABoolean Join::childNodeContainMultiColumnSkew(
-                      CollIndex i,                 // IN: which child to work on
-                      const ValueIdSet& joinPreds, // IN: the join predicate
-                      double mc_threshold,         // IN: multi-column threshold
-                      double sc_threshold,         // IN: single-column threshold
-                      Lng32 countOfPipelines,     // IN: 
-                      SkewedValueList** skList,    // OUT: the skew list
-                      ValueId& vidOfEquiJoinWithSkew // OUT: the valueId of the column
-                                                     // whose skew list is returned
-                               ) const
-{
-   if (joinPreds.entries() <= 1)
-     return FALSE;
+NABoolean Join::childNodeContainMultiColumnSkew(CollIndex i,                    // IN: which child to work on
+                                                const ValueIdSet &joinPreds,    // IN: the join predicate
+                                                double mc_threshold,            // IN: multi-column threshold
+                                                double sc_threshold,            // IN: single-column threshold
+                                                Lng32 countOfPipelines,         // IN:
+                                                SkewedValueList **skList,       // OUT: the skew list
+                                                ValueId &vidOfEquiJoinWithSkew  // OUT: the valueId of the column
+                                                                                // whose skew list is returned
+) const {
+  if (joinPreds.entries() <= 1) return FALSE;
 
-   typedef SkewedValueList* SkewedValueListPtr;
+  typedef SkewedValueList *SkewedValueListPtr;
 
-   SkewedValueList** skewLists;
-   skewLists =
-          new(CmpCommon::statementHeap()) SkewedValueListPtr[joinPreds.entries()];
+  SkewedValueList **skewLists;
+  skewLists = new (CmpCommon::statementHeap()) SkewedValueListPtr[joinPreds.entries()];
 
-   CostScalar* skewFactors =
-          new(CmpCommon::statementHeap()) CostScalar[joinPreds.entries()];
+  CostScalar *skewFactors = new (CmpCommon::statementHeap()) CostScalar[joinPreds.entries()];
 
-   // A list of valueIdSets, each valueIdSet element contains a set of 
-   // columns from the join predicates. Each set has all columns from the
-   // same table participating in the join predicates.
-   ARRAY(ValueIdSet) mcArray(CmpCommon::statementHeap(), joinPreds.entries());
+  // A list of valueIdSets, each valueIdSet element contains a set of
+  // columns from the join predicates. Each set has all columns from the
+  // same table participating in the join predicates.
+  ARRAY(ValueIdSet) mcArray(CmpCommon::statementHeap(), joinPreds.entries());
 
-   Int32 skews = 0, leastSkewList = 0;
-   EncodedValue mostFreqVal;
+  Int32 skews = 0, leastSkewList = 0;
+  EncodedValue mostFreqVal;
 
-   CostScalar productOfSkewFactors = csOne;
-   CostScalar productOfUecs = csOne;
-   CostScalar minOfSkewFactor = csMinusOne;
-   CostScalar rc = csMinusOne;
-   CostScalar currentSkew;
-   CollIndex j = 0;
-   NABoolean statsExist;
+  CostScalar productOfSkewFactors = csOne;
+  CostScalar productOfUecs = csOne;
+  CostScalar minOfSkewFactor = csMinusOne;
+  CostScalar rc = csMinusOne;
+  CostScalar currentSkew;
+  CollIndex j = 0;
+  NABoolean statsExist;
 
-   for(ValueId vid = joinPreds.init(); joinPreds.next(vid); joinPreds.advance(vid))
-   {
-      // Get the skew values for the join predicate in question. 
-      skewLists[skews] = child(i).getGroupAttr()-> getSkewedValues(vid, sc_threshold,
-                    statsExist,
-                    (*GLOBAL_EMPTY_INPUT_LOGPROP),
-                    isLeftJoin() /* include skewed NULLs only for left outer join */
-                                                                   );
+  for (ValueId vid = joinPreds.init(); joinPreds.next(vid); joinPreds.advance(vid)) {
+    // Get the skew values for the join predicate in question.
+    skewLists[skews] =
+        child(i).getGroupAttr()->getSkewedValues(vid, sc_threshold, statsExist, (*GLOBAL_EMPTY_INPUT_LOGPROP),
+                                                 isLeftJoin() /* include skewed NULLs only for left outer join */
+        );
 
-      // When the skew list is null, there are two possibilities. 
-      // 1. No stats exists, here we assume the worse (stats has not been updated), and
-      // move to the next join predicate.
-      // 2. The stats is present but we could not detect skews (e.g., the skews are
-      // too small to pass the threshold test). We return FALSE to indicate that the
-      // column is good enough to smooth out the potential skews in other columns.
-      if ( skewLists[skews] == NULL ) {
-        if ( !statsExist )
-          continue;
-        else
-          return FALSE; // no stats exist
-      }
+    // When the skew list is null, there are two possibilities.
+    // 1. No stats exists, here we assume the worse (stats has not been updated), and
+    // move to the next join predicate.
+    // 2. The stats is present but we could not detect skews (e.g., the skews are
+    // too small to pass the threshold test). We return FALSE to indicate that the
+    // column is good enough to smooth out the potential skews in other columns.
+    if (skewLists[skews] == NULL) {
+      if (!statsExist)
+        continue;
+      else
+        return FALSE;  // no stats exist
+    }
 
-      // Pick the shortest skew list seen so far. The final shortest skew list
-      // will be used for run-time skew detection.
-      if ( skews == 0 ||
-           (skewLists[skews] && 
-           skewLists[skews] -> entries() < skewLists[leastSkewList] -> entries()
-           )
-         ) 
-      {
+    // Pick the shortest skew list seen so far. The final shortest skew list
+    // will be used for run-time skew detection.
+    if (skews == 0 || (skewLists[skews] && skewLists[skews]->entries() < skewLists[leastSkewList]->entries())) {
+      // Obtain the colstat for the child of the join predicate on
+      // the other side of the join.
+      CollIndex brSide = (i == 0) ? 1 : 0;
+      ColStatsSharedPtr colStats =
+          child(brSide).getGroupAttr()->getColStatsForSkewDetection(vid, (*GLOBAL_EMPTY_INPUT_LOGPROP));
 
-        // Obtain the colstat for the child of the join predicate on 
-        // the other side of the join.
-        CollIndex brSide = (i==0) ? 1 : 0;
-        ColStatsSharedPtr colStats = child(brSide).getGroupAttr()->
-              getColStatsForSkewDetection(vid, (*GLOBAL_EMPTY_INPUT_LOGPROP));
+      if (colStats == NULL) return FALSE;  // no stats exist for the inner. assume the worst
 
-        if ( colStats == NULL )
-          return FALSE; // no stats exist for the inner. assume the worst
+      // get the skew list
+      const FrequentValueList &skInner = colStats->getFrequentValues();
 
-        // get the skew list 
-        const FrequentValueList & skInner = colStats->getFrequentValues();
+      CollIndex index = 0;
+      const SkewedValueList &newList = *skewLists[skews];
 
-        CollIndex index = 0;
-        const SkewedValueList& newList = *skewLists[skews];
+      CostScalar totalFreq = csZero;
 
-        CostScalar totalFreq = csZero;
+      const NAType *nt = newList.getNAType();
+      NABoolean useHash = nt->useHashRepresentation();
 
-        const NAType* nt = newList.getNAType();
-        NABoolean useHash = nt->useHashRepresentation();
+      for (CollIndex index = 0; index < skInner.entries(); index++) {
+        const FrequentValue &fv = skInner[index];
 
-        for (CollIndex index = 0; index < skInner.entries(); index++)
-        {
+        EncodedValue skew = (useHash) ? fv.getHash() : fv.getEncodedValue();
 
-           const FrequentValue& fv = skInner[index];
-
-          EncodedValue skew = ( useHash ) ? fv.getHash() :  fv.getEncodedValue();
-
-           if ( nt->getTypeQualifier() == NA_NUMERIC_TYPE &&
-                nt->getTypeName() == LiteralNumeric ) {
-
-             skew = fv.getEncodedValue().computeHashForNumeric((SQLNumeric*)nt);
-           }
-
-           if ( newList.contains(skew) )
-             //totalFreq += fv.getFrequency() * fv.getProbability();
-             totalFreq += fv.getFrequency() ;
-     
+        if (nt->getTypeQualifier() == NA_NUMERIC_TYPE && nt->getTypeName() == LiteralNumeric) {
+          skew = fv.getEncodedValue().computeHashForNumeric((SQLNumeric *)nt);
         }
 
-        CostScalar totalInnerBroadcastInBytes =
-               totalFreq * child(brSide).getGroupAttr()->getRecordLength() *
-               countOfPipelines ; 
-
-        if (totalInnerBroadcastInBytes >= 
-            ActiveSchemaDB()->getDefaults()
-              .getAsLong(MC_SKEW_INNER_BROADCAST_THRESHOLD))
-          // ACX QUERY 5 and 8 have skews on the inner side. Better
-          // to bet on partitioning on all columns to handle the dual skews.
-          // This has been proved by the performance run on 3/21/2012: a 
-          // 6% degradation when partition on the remaining non-skew column.
-          return FALSE; 
-     
-
-        leastSkewList = skews;
-        vidOfEquiJoinWithSkew = vid;
+        if (newList.contains(skew))
+          // totalFreq += fv.getFrequency() * fv.getProbability();
+          totalFreq += fv.getFrequency();
       }
 
+      CostScalar totalInnerBroadcastInBytes =
+          totalFreq * child(brSide).getGroupAttr()->getRecordLength() * countOfPipelines;
 
-      // Get the skew factor for the join predicate in question.
-      skewFactors[skews] = currentSkew = child(i).getGroupAttr()->
-                        getSkewnessFactor(vid, mostFreqVal, (*GLOBAL_EMPTY_INPUT_LOGPROP));
+      if (totalInnerBroadcastInBytes >= ActiveSchemaDB()->getDefaults().getAsLong(MC_SKEW_INNER_BROADCAST_THRESHOLD))
+        // ACX QUERY 5 and 8 have skews on the inner side. Better
+        // to bet on partitioning on all columns to handle the dual skews.
+        // This has been proved by the performance run on 3/21/2012: a
+        // 6% degradation when partition on the remaining non-skew column.
+        return FALSE;
 
-      // We compute SFa * SFb * SFc ... here
-      productOfSkewFactors *= currentSkew;
+      leastSkewList = skews;
+      vidOfEquiJoinWithSkew = vid;
+    }
 
-      // Obtain the colstat for the ith child of the join predicate.
-      ColStatsSharedPtr colStats = child(i).getGroupAttr()->
-                     getColStatsForSkewDetection(vid, (*GLOBAL_EMPTY_INPUT_LOGPROP));
-     
-      if ( colStats == NULL )
-          return FALSE; // no stats exist. Can not make the decision. return FALSE. 
+    // Get the skew factor for the join predicate in question.
+    skewFactors[skews] = currentSkew =
+        child(i).getGroupAttr()->getSkewnessFactor(vid, mostFreqVal, (*GLOBAL_EMPTY_INPUT_LOGPROP));
 
-      // Compute UECa * UECb * UECc ... here
-      productOfUecs *= colStats->getTotalUec();
+    // We compute SFa * SFb * SFc ... here
+    productOfSkewFactors *= currentSkew;
 
-      // get the RC of the table
-      if ( rc == csMinusOne )
-         rc = colStats->getRowcount();
+    // Obtain the colstat for the ith child of the join predicate.
+    ColStatsSharedPtr colStats =
+        child(i).getGroupAttr()->getColStatsForSkewDetection(vid, (*GLOBAL_EMPTY_INPUT_LOGPROP));
 
-      // Compute the minimal of the skew factors seen so far
-      if ( currentSkew.isGreaterThanZero() ) {
-        if ( minOfSkewFactor == csMinusOne || minOfSkewFactor > currentSkew )
-           minOfSkewFactor = currentSkew;
+    if (colStats == NULL) return FALSE;  // no stats exist. Can not make the decision. return FALSE.
+
+    // Compute UECa * UECb * UECc ... here
+    productOfUecs *= colStats->getTotalUec();
+
+    // get the RC of the table
+    if (rc == csMinusOne) rc = colStats->getRowcount();
+
+    // Compute the minimal of the skew factors seen so far
+    if (currentSkew.isGreaterThanZero()) {
+      if (minOfSkewFactor == csMinusOne || minOfSkewFactor > currentSkew) minOfSkewFactor = currentSkew;
+    }
+
+    skews++;
+
+    // Collect join columns in this predicate into joinColumns data structure.
+    ValueIdSet joinColumns;
+    vid.getItemExpr()->findAll(ITM_BASECOLUMN, joinColumns, TRUE, FALSE);
+
+    // Separate out columns in the join predicates and group them per table.
+    //
+    // For example, if join predicates are t.a=s.b and t.b=s.b and t.c = s.c,
+    // we will have
+    //
+    //              mcArray[0] = {t.a, t.b, t.c},
+    //              mcArray[1] = {s.a, s.b, s.c},
+    //
+    // at the end of the loop over join predicates.
+    //
+    j = 0;
+    for (ValueId x = joinColumns.init(); joinColumns.next(x); joinColumns.advance(x)) {
+      if (!mcArray.used(j))
+        mcArray.insertAt(j, x);
+      else {
+        ValueIdSet &mcSet = mcArray[j];
+        mcSet.insert(x);
       }
 
-      skews++;
+      j++;
+    }
+  }  // end of the loop of join predicates
 
-     // Collect join columns in this predicate into joinColumns data structure.
-     ValueIdSet joinColumns;
-     vid.getItemExpr() -> findAll(ITM_BASECOLUMN, joinColumns, TRUE, FALSE);
+  // Now we can find the multi-column UEC, using one of the two multi-column
+  // ValueIdSets (one for each side of the equi-join predicate). The colstats
+  // list for the side of the child contains the stats (including the mc ones).
+  // one of the mc ones is what we are looking for.
+  //
+  ColStatDescList colStatDescList =
+      child(i).getGroupAttr()->outputLogProp((*GLOBAL_EMPTY_INPUT_LOGPROP))->getColStats();
 
-     // Separate out columns in the join predicates and group them per table.
-     //
-     // For example, if join predicates are t.a=s.b and t.b=s.b and t.c = s.c,
-     // we will have 
-     //
-     //              mcArray[0] = {t.a, t.b, t.c},
-     //              mcArray[1] = {s.a, s.b, s.c},
-     //
-     // at the end of the loop over join predicates.
-     //
-     j = 0;
-     for(ValueId x = joinColumns.init(); joinColumns.next(x); joinColumns.advance(x))
-     {
-        if ( !mcArray.used(j) )
-           mcArray.insertAt(j, x);
-        else {
-           ValueIdSet& mcSet = mcArray[j];
-           mcSet.insert(x);
-        }
+  CostScalar mcUec = csMinusOne;
 
-        j++;
-     }
-   } // end of the loop of join predicates
+  const MultiColumnUecList *uecList = colStatDescList.getUecList();
 
-                
-   // Now we can find the multi-column UEC, using one of the two multi-column 
-   // ValueIdSets (one for each side of the equi-join predicate). The colstats
-   // list for the side of the child contains the stats (including the mc ones).
-   // one of the mc ones is what we are looking for.
-   // 
-   ColStatDescList colStatDescList =
-         child(i).getGroupAttr()->
-                    outputLogProp((*GLOBAL_EMPTY_INPUT_LOGPROP))->getColStats();
-   
-   CostScalar mcUec = csMinusOne;
+  for (j = 0; j < mcArray.entries() && mcUec == csMinusOne && uecList; j++) {
+    const ValueIdSet &mc = mcArray[j];
 
-   const MultiColumnUecList* uecList = colStatDescList.getUecList();
+    // Do a look up with mc.
+    if (uecList) mcUec = uecList->lookup(mc);
+  }
 
-   for(j=0; j < mcArray.entries() && mcUec == csMinusOne && uecList; j++)
-   {
-       const ValueIdSet& mc = mcArray[j];
+  //
+  // Compute the final value of
+  //  min( (SFa * SFb * ... *min(UECa * UECb..,RC))/UEC(abc..),
+  //        SFa, SFb, ..., )
+  //  = min(productOfSkewFactors * min(productOfUecs, RC)/mcUEC,
+  //        minOfSkewFactor)
+  //
+  //  min(productOfUecs, RC)/mcUEC = 1 when mcUEC is not found
+  //
+  CostScalar mcSkewFactor;
+  if (mcUec == csMinusOne || mcUec == csZero)
+    mcSkewFactor = MINOF(productOfSkewFactors, minOfSkewFactor);
+  else
+    mcSkewFactor = MINOF(productOfSkewFactors * MINOF(productOfUecs, rc) / mcUec, minOfSkewFactor);
 
-       // Do a look up with mc.
-       if ( uecList )
-          mcUec = uecList->lookup(mc);
-   }
-
-   //
-   // Compute the final value of 
-   //  min( (SFa * SFb * ... *min(UECa * UECb..,RC))/UEC(abc..), 
-   //        SFa, SFb, ..., )
-   //  = min(productOfSkewFactors * min(productOfUecs, RC)/mcUEC, 
-   //        minOfSkewFactor)   
-   // 
-   //  min(productOfUecs, RC)/mcUEC = 1 when mcUEC is not found
-   // 
-   CostScalar mcSkewFactor;
-   if ( mcUec == csMinusOne || mcUec == csZero )
-     mcSkewFactor = MINOF(productOfSkewFactors, minOfSkewFactor);
-   else 
-     mcSkewFactor = MINOF( 
-               productOfSkewFactors * MINOF(productOfUecs, rc) / mcUec,
-               minOfSkewFactor
-                      );
-
-   if ( mcSkewFactor > mc_threshold ) 
-   {
-       *skList = skewLists[leastSkewList];
-       return TRUE;
-   } else
-       return FALSE;
+  if (mcSkewFactor > mc_threshold) {
+    *skList = skewLists[leastSkewList];
+    return TRUE;
+  } else
+    return FALSE;
 }
 
 //
-// The content of this method is lifted from 
-// DP2InsertCursorRule::nextSubstitute(). 
+// The content of this method is lifted from
+// DP2InsertCursorRule::nextSubstitute().
 // A Note has been added in that method so that any changes
 // to it should be "copied" here.
 //
-NABoolean Insert::isSideTreeInsertFeasible()
-{
-   // Sidetree insert is only supported for key sequenced, non-compressed,
-   // non-audited tables with blocksize equal to 4K.
-   // Return error, if this is not the case.
+NABoolean Insert::isSideTreeInsertFeasible() {
+  // Sidetree insert is only supported for key sequenced, non-compressed,
+  // non-audited tables with blocksize equal to 4K.
+  // Return error, if this is not the case.
 
-   Insert::InsertType itype = getInsertType();
+  Insert::InsertType itype = getInsertType();
 
-   // Sidetree insert requested?
-   if (itype != Insert::VSBB_LOAD )
-     return FALSE;
+  // Sidetree insert requested?
+  if (itype != Insert::VSBB_LOAD) return FALSE;
 
-   if ((getTableDesc()->getClusteringIndex()->getNAFileSet()
-           ->isCompressed()) ||
-        (getTableDesc()->getClusteringIndex()->getNAFileSet()
-           ->getBlockSize() < 4096) ||
-          (NOT getTableDesc()->getClusteringIndex()->getNAFileSet()
-           ->isKeySequenced()) ||
-         (getTableDesc()->getClusteringIndex()->getNAFileSet() ->isAudited())
-      )
-   {
-      return FALSE;
-   }
+  if ((getTableDesc()->getClusteringIndex()->getNAFileSet()->isCompressed()) ||
+      (getTableDesc()->getClusteringIndex()->getNAFileSet()->getBlockSize() < 4096) ||
+      (NOT getTableDesc()->getClusteringIndex()->getNAFileSet()->isKeySequenced()) ||
+      (getTableDesc()->getClusteringIndex()->getNAFileSet()->isAudited())) {
+    return FALSE;
+  }
 
-   if ( !getInliningInfo().hasPipelinedActions() ) 
-     return TRUE;
+  if (!getInliningInfo().hasPipelinedActions()) return TRUE;
 
-   if (getInliningInfo().isEffectiveGU() ||
-       getTolerateNonFatalError() == RelExpr::NOT_ATOMIC_)
-      return FALSE;
+  if (getInliningInfo().isEffectiveGU() || getTolerateNonFatalError() == RelExpr::NOT_ATOMIC_) return FALSE;
 
+  // SideInsert is not allowed when there are pipelined actions (RI,
+  // IM or triggers) except MV range logging. This means the only rows
+  // projected are the very first and last rows as the beginning and
+  // end of the range.
 
-   // SideInsert is not allowed when there are pipelined actions (RI,
-   // IM or triggers) except MV range logging. This means the only rows
-   // projected are the very first and last rows as the beginning and
-   // end of the range.
+  NABoolean rangeLoggingRequired =
+      getTableDesc()->getNATable()->getMvAttributeBitmap().getAutomaticRangeLoggingRequired();
 
-   NABoolean rangeLoggingRequired =
-        getTableDesc()->getNATable()->getMvAttributeBitmap().
-          getAutomaticRangeLoggingRequired();
+  if (getInliningInfo().isProjectMidRangeRows() || !rangeLoggingRequired) return FALSE;
 
-   if (getInliningInfo().isProjectMidRangeRows() || !rangeLoggingRequired)
-      return FALSE;
-
-   return TRUE;
+  return TRUE;
 }
 
 // big memory growth percent (to be used by SSD overlow enhancement project)
-short RelExpr::bmoGrowthPercent(CostScalar e, CostScalar m) 
-{
+short RelExpr::bmoGrowthPercent(CostScalar e, CostScalar m) {
   // bmo growth is 10% if 100*abs(maxcard-expected)/expected <= 100%
   // otherwise its 25%
   CostScalar expectedRows = e.minCsOne();
   CostScalar maxRows = m.minCsOne();
   CostScalar difference = maxRows - expectedRows;
-  CostScalar uncertainty = 
-    (_ABSOLUTE_VALUE_(difference.value()) / expectedRows.value()) * 100;
+  CostScalar uncertainty = (_ABSOLUTE_VALUE_(difference.value()) / expectedRows.value()) * 100;
   if (uncertainty <= 100)
     return 10;
   else
     return 25;
 }
 
+CostScalar RelExpr::getChild0Cardinality(const Context *context) {
+  EstLogPropSharedPtr inLogProp = context->getInputLogProp();
+  EstLogPropSharedPtr ch0OutputLogProp = child(0).outputLogProp(inLogProp);
 
-CostScalar RelExpr::getChild0Cardinality(const Context* context)
-{
-   EstLogPropSharedPtr inLogProp = context->getInputLogProp();
-   EstLogPropSharedPtr ch0OutputLogProp = child(0).outputLogProp(inLogProp);
+  const CostScalar ch0RowCount = (ch0OutputLogProp) ? (ch0OutputLogProp->getResultCardinality()).minCsOne() : csOne;
 
-   const CostScalar ch0RowCount =
-      (ch0OutputLogProp) ? 
-                 (ch0OutputLogProp->getResultCardinality()).minCsOne() :
-                 csOne;
-
-   return ch0RowCount;
+  return ch0RowCount;
 }
 
-ostream* openDopAdjustDebugOutput()
-{
-   ostream* out = NULL;
+ostream *openDopAdjustDebugOutput() {
+  ostream *out = NULL;
 
-   switch ( CmpCommon::getDefault(DOP_ADJUST_DEBUG) ) {
-     case DF_FILE: 
-      {
-        char buf[128];
-        snprintf(buf, sizeof(buf), "/tmp/dop.rtstats.info.%d", getpid());
-        out = new fstream(buf, std::fstream::out | std::fstream::app);
-      }
-      break;
+  switch (CmpCommon::getDefault(DOP_ADJUST_DEBUG)) {
+    case DF_FILE: {
+      char buf[128];
+      snprintf(buf, sizeof(buf), "/tmp/dop.rtstats.info.%d", getpid());
+      out = new fstream(buf, std::fstream::out | std::fstream::app);
+    } break;
 
-     case DF_STDOUT: 
+    case DF_STDOUT:
       out = &cout;
       break;
 
-     default:
+    default:
       break;
-   }
+  }
 
-   return out;
+  return out;
 }
 
-void closeDopAdjustDebugOutput(ostream* out)
-{
-  if ( out && out != &cout ) {
-    fstream* fout = (fstream*)out;
+void closeDopAdjustDebugOutput(ostream *out) {
+  if (out && out != &cout) {
+    fstream *fout = (fstream *)out;
     fout->close();
     delete fout;
   }
 }
 
-RtStatsControl::RtStatsControl(enum RtStatsControl::ControlType x, 
-                               CollHeap * oHeap)
-   : ControlAbstractClass(REL_SET_SESSION_DEFAULT, 
-                          NAString("DUMMYSQLTEXT", oHeap), 
-                          CharInfo::ISO88591, NAString("STATS", oHeap), 
-                          NAString("DUMMYVALUE", oHeap), TRUE, oHeap)
-   ,controlType_(x)
-{
+RtStatsControl::RtStatsControl(enum RtStatsControl::ControlType x, CollHeap *oHeap)
+    : ControlAbstractClass(REL_SET_SESSION_DEFAULT, NAString("DUMMYSQLTEXT", oHeap), CharInfo::ISO88591,
+                           NAString("STATS", oHeap), NAString("DUMMYVALUE", oHeap), TRUE, oHeap),
+      controlType_(x) {}
+
+RelExpr *RtStatsControl::copyTopNode(RelExpr *derivedNode, CollHeap *h) {
+  RelExpr *result;
+
+  if (derivedNode == NULL)
+    result = new (h) RtStatsControl(controlType_, h);
+  else
+    result = derivedNode;
+
+  return ControlAbstractClass::copyTopNode(result, h);
 }
 
-RelExpr* RtStatsControl::copyTopNode(RelExpr *derivedNode, CollHeap *h)
-{
-   RelExpr *result;
+NABoolean RtStatsControl::performControl(NAString &errorData) {
+  NABoolean result = FALSE;
 
-   if (derivedNode == NULL)
-       result = new (h) RtStatsControl(controlType_, h);
-   else
-       result = derivedNode;
-          
-   return ControlAbstractClass::copyTopNode(result,h);
+  NAString dir;
+  NABoolean isLocal = RelExpr::findRtStatsStorePath(dir);
+
+  if (isLocal) return FALSE;
+
+  switch (controlType_) {
+    case REMOVE: {
+      break;
+    }
+    default:
+      break;
+  }
+  return result;
 }
 
-NABoolean RtStatsControl::performControl(NAString& errorData)
-{
-   NABoolean result = FALSE;
- 
-   NAString dir;
-   NABoolean isLocal = RelExpr::findRtStatsStorePath(dir);
+NABoolean RelExpr::isValidRtStatsFileName(char *filename) {
+  // the format should be : act_data.{digit}20
+  if (strncmp(filename, "act_data.", 9) != 0) return FALSE;
 
-   if ( isLocal )
-     return FALSE;
+  filename += 9;
 
-   switch ( controlType_ ) 
-   {
-     case REMOVE:
-      {
-       break;
-      }
-     default:
-       break;
-   }
-   return result;
-}
+  if (strlen(filename) != 20) return FALSE;
 
+  for (Int32 i = 0; i < 20; i++) {
+    if (!isDigit8859_1(filename[i])) return FALSE;
+  }
 
-NABoolean RelExpr::isValidRtStatsFileName(char* filename)
-{
-   // the format should be : act_data.{digit}20
-   if ( strncmp(filename, "act_data.", 9) != 0 )
-     return FALSE;
-
-   filename += 9;
-
-   if ( strlen(filename) != 20 )
-     return FALSE;
-
-   for (Int32 i=0; i<20; i++) {
-     if ( !isDigit8859_1(filename[i]) )
-       return FALSE;
-   }
-
-   return TRUE;
+  return TRUE;
 }
 
 // return TRUE if it is a local path
 //        FASLE it is a hdfs path
-NABoolean RelExpr::findRtStatsStorePath(NAString& path)
-{
-   // form the path in hdfs to read the RT stats for the query
-   CmpCommon::getDefault(DOP_ADJUST_RTSTATS_LOCAL_FILE, path, FALSE);
+NABoolean RelExpr::findRtStatsStorePath(NAString &path) {
+  // form the path in hdfs to read the RT stats for the query
+  CmpCommon::getDefault(DOP_ADJUST_RTSTATS_LOCAL_FILE, path, FALSE);
 
-   if ( path.length() > 0 ) {
-      return TRUE;
-   } else {
-                
-      CmpCommon::getDefault(DOP_ADJUST_RTSTATS_HDFS_PATH, path, FALSE);
-      char* pathStr = (char *)path.data();
-                
-      if ( pathStr[strlen(pathStr)-1] != '/' )
-        path.append('/');
+  if (path.length() > 0) {
+    return TRUE;
+  } else {
+    CmpCommon::getDefault(DOP_ADJUST_RTSTATS_HDFS_PATH, path, FALSE);
+    char *pathStr = (char *)path.data();
 
-      return FALSE;
-   }
-   return FALSE;
+    if (pathStr[strlen(pathStr) - 1] != '/') path.append('/');
+
+    return FALSE;
+  }
+  return FALSE;
 }
 
-NAString *RelExpr::getKey()
-{
-
-   if (operKey_.length() == 0)
-   {
-     char keyBuffer[30];
-     snprintf(keyBuffer, sizeof(keyBuffer), "%ld", (Int64)this);
-     operKey_ = keyBuffer;
-   }
-   return &operKey_;
+NAString *RelExpr::getKey() {
+  if (operKey_.length() == 0) {
+    char keyBuffer[30];
+    snprintf(keyBuffer, sizeof(keyBuffer), "%ld", (Int64)this);
+    operKey_ = keyBuffer;
+  }
+  return &operKey_;
 }
 
-// Find an exchange node on the reverse path back to stopPtr such 
-// that the top partitioning function of the exchange contains the 
+// Find an exchange node on the reverse path back to stopPtr such
+// that the top partitioning function of the exchange contains the
 // value Id vid. If there are multple such exchange nodes, the one
 // cloest to stopPtr is returned.
 // Return NULL if no such node exists.
-Exchange* 
-FileScan::findMergePointer(RelExpr* stopPtr, ValueId vid, 
-                           NABoolean isChile1Broadcasting, 
-                           NABoolean& espSeen,
-                           NABoolean& innerIsOK)
-{
-   Exchange* mergePoint = NULL;
+Exchange *FileScan::findMergePointer(RelExpr *stopPtr, ValueId vid, NABoolean isChile1Broadcasting, NABoolean &espSeen,
+                                     NABoolean &innerIsOK) {
+  Exchange *mergePoint = NULL;
 
-   RelExpr* ptr = this;
+  RelExpr *ptr = this;
 
-   espSeen = FALSE;
-   innerIsOK = TRUE;
+  espSeen = FALSE;
+  innerIsOK = TRUE;
 
-   while (ptr && ptr != stopPtr) {
+  while (ptr && ptr != stopPtr) {
+    if (ptr->getOperatorType() == REL_EXCHANGE) {
+      espSeen = TRUE;
 
-      if ( ptr->getOperatorType() == REL_EXCHANGE )    
-      { 
-        espSeen = TRUE;
+      const PartitioningFunction *partf = ((Exchange *)ptr)->getTopPartitioningFunction();
 
-        const PartitioningFunction * partf = 
-           ((Exchange*)ptr)->getTopPartitioningFunction(); 
+      if (partf) {
+        const ValueIdSet &vset = partf->getPartitioningKey();
 
-        if ( partf ) {
-          const ValueIdSet& vset = partf->getPartitioningKey();
+        // cout << "part key at this exchange";
+        // vset.display();
 
-          //cout << "part key at this exchange";
-          //vset.display();
-
-          if (
-               partf->isARandomPartitioningFunction() ||
-               vset.containsTheGivenValue(vid) ||
-               isChile1Broadcasting
-             )
-          {
-            mergePoint = (Exchange*)ptr;
-          }
+        if (partf->isARandomPartitioningFunction() || vset.containsTheGivenValue(vid) || isChile1Broadcasting) {
+          mergePoint = (Exchange *)ptr;
         }
       }
+    }
 
-      ptr = ptr->getParent();
-   }
+    ptr = ptr->getParent();
+  }
 
-   // ptr is stopPtr and should be a hash join
-   if ( !ptr || !(ptr->isHashJoin()) )
-     return NULL;
+  // ptr is stopPtr and should be a hash join
+  if (!ptr || !(ptr->isHashJoin())) return NULL;
 
-   Int32 maxNumOfTables = 
-          ActiveSchemaDB()->getDefaults()
-              .getAsLong(RANGE_OPTIMIZED_SCAN_MAX_INNER_TABLES);
+  Int32 maxNumOfTables = ActiveSchemaDB()->getDefaults().getAsLong(RANGE_OPTIMIZED_SCAN_MAX_INNER_TABLES);
 
-   RelExpr* c1 = ptr->child(1) ;
+  RelExpr *c1 = ptr->child(1);
 
-   if ( maxNumOfTables > 1 ) 
-   {
-     Int32 tables = c1->getGroupAttr()->getNumBaseTables();
+  if (maxNumOfTables > 1) {
+    Int32 tables = c1->getGroupAttr()->getNumBaseTables();
 
-     if ( tables > maxNumOfTables )
-       innerIsOK = FALSE;
+    if (tables > maxNumOfTables) innerIsOK = FALSE;
 
-   } else {
+  } else {
+    // make sure the inner of the hashj is a scan or
+    // an exchange on top of a scan
+    if (c1->getOperatorType() == REL_EXCHANGE) c1 = c1->child(0);
 
-     // make sure the inner of the hashj is a scan or 
-     // an exchange on top of a scan
-     if ( c1->getOperatorType() == REL_EXCHANGE )    
-        c1 = c1->child(0) ;
+    if (c1->getOperatorType() != REL_FILE_SCAN) innerIsOK = FALSE;
+  }
 
-     if ( c1->getOperatorType() != REL_FILE_SCAN ) 
-       innerIsOK = FALSE;
-   }
-
-   return (Exchange*)mergePoint;
+  return (Exchange *)mergePoint;
 }
-  
-  
+
 // Setup parent_ pointer for each and every RelExpr node
-// reachable from this. 
-void RelExpr::establishReverseParentPointers(RelExpr* parent)
-{
+// reachable from this.
+void RelExpr::establishReverseParentPointers(RelExpr *parent) {
   setParent(parent);
 
   Int32 arity = getArity();
@@ -17897,130 +14592,103 @@ void RelExpr::establishReverseParentPointers(RelExpr* parent)
   }
 }
 
-void 
-RelExpr::collectNumNativeParquetScans(Int32& totalScans, Int32& numNativeParquetScans)
-{
+void RelExpr::collectNumNativeParquetScans(Int32 &totalScans, Int32 &numNativeParquetScans) {
   Int32 arity = getArity();
 
-  if ( arity == 0 )
-  {
-     if ( getOperatorType() == REL_FILE_SCAN ) {
+  if (arity == 0) {
+    if (getOperatorType() == REL_FILE_SCAN) {
+      totalScans++;
 
-        totalScans++;
+      FileScan *fileScan = (FileScan *)this;
 
-        FileScan* fileScan = (FileScan*)this;
+      if (fileScan->isHiveParquetTable() && fileScan->canUseParquetCppReader()) numNativeParquetScans++;
+    }
 
-        if (fileScan->isHiveParquetTable() &&
-            fileScan->canUseParquetCppReader())
-          numNativeParquetScans++;
-     } 
-
-     return;
+    return;
   }
 
   for (Lng32 i = 0; i < arity; i++) {
-     child(i)->
-        collectNumNativeParquetScans(totalScans, numNativeParquetScans);
+    child(i)->collectNumNativeParquetScans(totalScans, numNativeParquetScans);
   }
 }
 
 // For now, we can use Cpp reader for parquet scans only if
 // we can do so for every Parquet scan oeprator in the query.
-NABoolean RelExpr::decideUseCppReaderForParquetScans()
-{
+NABoolean RelExpr::decideUseCppReaderForParquetScans() {
   Int32 totalScans = 0;
-  Int32 numNativeParquetScans= 0;
+  Int32 numNativeParquetScans = 0;
 
   collectNumNativeParquetScans(totalScans, numNativeParquetScans);
   return (totalScans > 0 && totalScans == numNativeParquetScans);
 }
 
-void RelExpr::collectNumOrcScans(Int32& totalScans, Int32& numOrcScans)
-{
+void RelExpr::collectNumOrcScans(Int32 &totalScans, Int32 &numOrcScans) {
   Int32 arity = getArity();
 
-  if ( arity == 0 )
-  {
-     if ( getOperatorType() == REL_FILE_SCAN ) {
+  if (arity == 0) {
+    if (getOperatorType() == REL_FILE_SCAN) {
+      totalScans++;
 
-        totalScans++;
+      FileScan *fileScan = (FileScan *)this;
 
-        FileScan* fileScan = (FileScan*)this;
+      if (fileScan->isHiveOrcTable()) numOrcScans++;
+    }
 
-        if (fileScan->isHiveOrcTable())
-          numOrcScans++;
-     } 
-
-     return;
+    return;
   }
 
   for (Lng32 i = 0; i < arity; i++) {
-     child(i)->collectNumOrcScans(totalScans, numOrcScans);
+    child(i)->collectNumOrcScans(totalScans, numOrcScans);
   }
 }
 
-NABoolean RelExpr::decideAllScansAreORCScans()
-{
+NABoolean RelExpr::decideAllScansAreORCScans() {
   Int32 totalScans = 0;
   Int32 numOrcScans = 0;
 
   collectNumOrcScans(totalScans, numOrcScans);
   return (totalScans > 0 && totalScans == numOrcScans);
 }
-  
-void Exchange::addScanFilterInput(ScanFilterInput& v)
-{ 
-   if ( !filterInputs_.contains(v) )
-      filterInputs_.insert(v); 
-}
-  
-NABoolean 
-ScanFilterInput::operator==(const ScanFilterInput& other) const
-{
-   return ( minVar_ == other.getMinVar() &&
-            maxVar_ == other.getMaxVar() &&
-            rangeOfValuesVar_ == other.getRangeOfValuesVar()
-          );
+
+void Exchange::addScanFilterInput(ScanFilterInput &v) {
+  if (!filterInputs_.contains(v)) filterInputs_.insert(v);
 }
 
-void Union::trimUnionMap()
-{
-   const ValueIdSet& co = getGroupAttr()->getCharacteristicOutputs();
-   unionMap_->trim(co);  
+NABoolean ScanFilterInput::operator==(const ScanFilterInput &other) const {
+  return (minVar_ == other.getMinVar() && maxVar_ == other.getMaxVar() &&
+          rangeOfValuesVar_ == other.getRangeOfValuesVar());
 }
 
-void UnionMap::trim(const ValueIdSet& charOutputs)
-{
-   for (Int32 i=colMapTable_.entries()-1; i>=0; i-- ) {
-      if ( !charOutputs.containsTheGivenValue(colMapTable_[i]) ) {
-         colMapTable_.removeAt(i);
-         leftColMap_.removeAt(i);
-         rightColMap_.removeAt(i);
-      }
-   }
+void Union::trimUnionMap() {
+  const ValueIdSet &co = getGroupAttr()->getCharacteristicOutputs();
+  unionMap_->trim(co);
 }
 
-Int32 RelExpr::maxForcedDoP()
-{
+void UnionMap::trim(const ValueIdSet &charOutputs) {
+  for (Int32 i = colMapTable_.entries() - 1; i >= 0; i--) {
+    if (!charOutputs.containsTheGivenValue(colMapTable_[i])) {
+      colMapTable_.removeAt(i);
+      leftColMap_.removeAt(i);
+      rightColMap_.removeAt(i);
+    }
+  }
+}
+
+Int32 RelExpr::maxForcedDoP() {
   Int32 currentMaxDop = myMaxForcedDoP();
 
   Int32 arity = getArity();
 
   for (Lng32 i = 0; i < arity; i++) {
-     Int32 childForcedDoP = child(i)->maxForcedDoP();
-     if ( currentMaxDop < childForcedDoP )
-        currentMaxDop = childForcedDoP;
+    Int32 childForcedDoP = child(i)->maxForcedDoP();
+    if (currentMaxDop < childForcedDoP) currentMaxDop = childForcedDoP;
   }
   return currentMaxDop;
 }
 
-
-short  ConnectBy::setPathItemExpr(ItemExpr *ie, BindWA *bindWA, NAString del)
-{
-  ItemExpr * newOp = NULL;
-  newOp =
-    new (bindWA->wHeap())
-    Cast(ie,  new (bindWA->wHeap()) SQLVarChar(bindWA->wHeap(), 1000, FALSE) );
+short ConnectBy::setPathItemExpr(ItemExpr *ie, BindWA *bindWA, NAString del) {
+  ItemExpr *newOp = NULL;
+  newOp = new (bindWA->wHeap()) Cast(ie, new (bindWA->wHeap()) SQLVarChar(bindWA->wHeap(), 1000, FALSE));
   setPathItemExpr(newOp);
   newOp->convertToValueIdSet(pathItemList(), bindWA, ITM_ITEM_LIST);
   if (bindWA->errStatus()) {
@@ -18028,31 +14696,24 @@ short  ConnectBy::setPathItemExpr(ItemExpr *ie, BindWA *bindWA, NAString del)
   }
   pathDel_ = del;
   ValueIdSet leftExpr, rightExpr;
-  rewriteUnionExpr(pathItemList(),leftExpr,rightExpr);
-  for(ValueId x = leftExpr.init();
-      leftExpr.next(x);
-      leftExpr.advance(x) )
-  {
+  rewriteUnionExpr(pathItemList(), leftExpr, rightExpr);
+  for (ValueId x = leftExpr.init(); leftExpr.next(x); leftExpr.advance(x)) {
     leftPathItemList() += x;
   }
-  for(ValueId x = rightExpr.init();
-      rightExpr.next(x);
-      rightExpr.advance(x) )
-  {
+  for (ValueId x = rightExpr.init(); rightExpr.next(x); rightExpr.advance(x)) {
     rightPathItemList() += x;
-    //change the charset of path pseudo column
-    const NAType *targetType = &x.getType(); 
+    // change the charset of path pseudo column
+    const NAType *targetType = &x.getType();
     short typeChanged = 0;
     CharInfo::CharSet child_cs = CharInfo::ISO88591;
-    if ( targetType->getTypeQualifier() == NA_CHARACTER_TYPE )
-    {
-      //get the charset
-       child_cs = ((const CharType*)targetType)->getCharSet() ;
-       if(child_cs != CharInfo::ISO88591) typeChanged = 1;
+    if (targetType->getTypeQualifier() == NA_CHARACTER_TYPE) {
+      // get the charset
+      child_cs = ((const CharType *)targetType)->getCharSet();
+      if (child_cs != CharInfo::ISO88591) typeChanged = 1;
     }
-    if( typeChanged == 1 ) {
-      const NAType * newCastType = &pathVid_.getType();
-      ((CharType*)newCastType)->setCharSet(child_cs);
+    if (typeChanged == 1) {
+      const NAType *newCastType = &pathVid_.getType();
+      ((CharType *)newCastType)->setCharSet(child_cs);
       pathVid_.changeType(newCastType);
     }
   }
@@ -18060,22 +14721,18 @@ short  ConnectBy::setPathItemExpr(ItemExpr *ie, BindWA *bindWA, NAString del)
   return 0;
 }
 
-
-RelExpr * ConnectBy::bindNode(BindWA *bindWA)
-{
-  if (nodeIsBound())
-    {
-      bindWA->getCurrentScope()->setRETDesc(getRETDesc());
-      return this;
-    }
-  if ((connectByMap_ != NULL) && (connectByMap_->count_ > 1))
-    {
-       connectByMap_->count_--;
-       connectByMap_ = new (CmpCommon::statementHeap()) ConnectByMap;
-    }
-  //get the startwith itemexpr
-  ItemExpr* startwithItem= ((BiConnectBy*)getBiConnectBy())->getStartWith(); 
-  if(startwithItem) {
+RelExpr *ConnectBy::bindNode(BindWA *bindWA) {
+  if (nodeIsBound()) {
+    bindWA->getCurrentScope()->setRETDesc(getRETDesc());
+    return this;
+  }
+  if ((connectByMap_ != NULL) && (connectByMap_->count_ > 1)) {
+    connectByMap_->count_--;
+    connectByMap_ = new (CmpCommon::statementHeap()) ConnectByMap;
+  }
+  // get the startwith itemexpr
+  ItemExpr *startwithItem = ((BiConnectBy *)getBiConnectBy())->getStartWith();
+  if (startwithItem) {
     startwithItem->setIsStartWithExpr(TRUE);
     child(0)->addSelPredTree(startwithItem);
   }
@@ -18083,45 +14740,40 @@ RelExpr * ConnectBy::bindNode(BindWA *bindWA)
   child(0) = child(0)->bindNode(bindWA);
   if (bindWA->errStatus()) return this;
 
-  //by default use the materialize node
-  //so each time it will populate data into memory first
-  //then search in the memory
+  // by default use the materialize node
+  // so each time it will populate data into memory first
+  // then search in the memory
   NABoolean useMat = TRUE;
 
-  //there are some use cases that don't want to use materialize
-  //in long run, we need the optimizer to decide
-  //now use simple heriustics
+  // there are some use cases that don't want to use materialize
+  // in long run, we need the optimizer to decide
+  // now use simple heriustics
 
-  //if there is no PRIOR column specified, it typically used with DUAL table
-  //so no need to do mat
-  ItemExpr* connectbyItem = ((BiConnectBy*)getBiConnectBy())->getConnectBy();
-  if(connectbyItem)
-  {
-    if(((BiConnectByRelat*)connectbyItem)->getParentColIE()==NULL)
-      useMat = FALSE;
+  // if there is no PRIOR column specified, it typically used with DUAL table
+  // so no need to do mat
+  ItemExpr *connectbyItem = ((BiConnectBy *)getBiConnectBy())->getConnectBy();
+  if (connectbyItem) {
+    if (((BiConnectByRelat *)connectbyItem)->getParentColIE() == NULL) useMat = FALSE;
   }
-  //if isDual()
-  //turn off HASH_JOIN for MANTIS 11520
+  // if isDual()
+  // turn off HASH_JOIN for MANTIS 11520
   CmpCommon::context()->resetConnectByDual();
-  if(isDual())
-    CmpCommon::context()->setConnectByDual();
-  //if user use NO CACHE in the connect by clause
-  //no use of mat 
-  //This is the way that at field, the user can impact the execution plan
-  //CQD is never a good way for Application
-  if((BiConnectBy*)getBiConnectBy())
-  {
-    if(((BiConnectBy*)getBiConnectBy())->getNoCache() == TRUE)
-      useMat = FALSE;
+  if (isDual()) CmpCommon::context()->setConnectByDual();
+  // if user use NO CACHE in the connect by clause
+  // no use of mat
+  // This is the way that at field, the user can impact the execution plan
+  // CQD is never a good way for Application
+  if ((BiConnectBy *)getBiConnectBy()) {
+    if (((BiConnectBy *)getBiConnectBy())->getNoCache() == TRUE) useMat = FALSE;
   }
 
-  ConnectByTempTable * mat;
-  if(useMat) {
-    //add a temp table for right child
-    //it is the materialize opertor
-    //Now it is named as CONNECT BY TEMP TABLE
-    //Since it is highly implemented as ConnectBy required, not general 
-    //Once we can enhance it in a genric way, we can rename it as Materialize operator
+  ConnectByTempTable *mat;
+  if (useMat) {
+    // add a temp table for right child
+    // it is the materialize opertor
+    // Now it is named as CONNECT BY TEMP TABLE
+    // Since it is highly implemented as ConnectBy required, not general
+    // Once we can enhance it in a genric way, we can rename it as Materialize operator
     mat = new (bindWA->wHeap()) ConnectByTempTable(child(1));
     setChild(1, mat);
   }
@@ -18130,126 +14782,117 @@ RelExpr * ConnectBy::bindNode(BindWA *bindWA)
 
   BindContext *context = bindWA->getCurrentScope()->context();
   if (context) {
-    context->connectBy()  = this;
+    context->connectBy() = this;
   }
- 
-  //CONNECT BY can also define predicate 
-  if(connectbyItem) {
+
+  // CONNECT BY can also define predicate
+  if (connectbyItem) {
     connectbyItem->setIsConnectByExpr(TRUE);
     addCondExprTree(connectbyItem);
-  } 
+  }
 
-  nocycle_ = ((BiConnectBy*)getBiConnectBy())->getNoCycle(); 
-  useCache_ = ((BiConnectBy*)getBiConnectBy())->getCache(); 
+  nocycle_ = ((BiConnectBy *)getBiConnectBy())->getNoCycle();
+  useCache_ = ((BiConnectBy *)getBiConnectBy())->getCache();
 
-  //The result table is a union of child 0 and child 1
+  // The result table is a union of child 0 and child 1
   const RETDesc &leftTable = *child(0)->getRETDesc();
   const RETDesc &rightTable = *child(1)->getRETDesc();
 
-  RETDesc *resultTable =  new (bindWA->wHeap()) RETDesc(bindWA);
+  RETDesc *resultTable = new (bindWA->wHeap()) RETDesc(bindWA);
 
   for (CollIndex i = 0; i < leftTable.getDegree(); i++) {
-      ValueIdUnion *vidUnion = new (bindWA->wHeap())
-      ValueIdUnion(leftTable.getValueId(i),
-                   rightTable.getValueId(i),
-                   NULL_VALUE_ID
-                   );
-      vidUnion->bindNode(bindWA);
-      if (bindWA->errStatus()) {
-        return this;
-      }
-      ValueId valId = vidUnion->getValueId();
-      addValueIdUnion(valId, bindWA->wHeap());
-      resultTable->addColumn(bindWA, leftTable.getColRefNameObj(i), valId);
-  }
-
-  //add level column
-#if 1
-  NAType *intt = new(bindWA->wHeap()) SQLInt(bindWA->wHeap(),FALSE,FALSE); 
-  NATypeToItem *levelItem = new (bindWA->wHeap()) 
-                                      NATypeToItem (intt); 
-  ItemExpr *levelCol = levelItem->bindNode(bindWA); 
-#else
-  ItemExpr *levelCol =  new (bindWA->wHeap()) HostVar("_LEVEL",new(bindWA->wHeap()) SQLInt(bindWA->wHeap(),FALSE,FALSE));
-  levelCol->bindNode(bindWA);
-#endif
-  if (bindWA->errStatus())
-    return NULL;
-  ValueId lvlVid = levelCol->getValueId();
-  ColRefName cvalName("LEVEL", bindWA->wHeap());
-  resultTable->addColumn(bindWA, cvalName, lvlVid, SYSTEM_COLUMN); 
-  pseudoColList().insert(lvlVid); 
-  
-  //add iscycle column
-  ItemExpr *iscycleCol =  new (bindWA->wHeap()) HostVar("_CONNECT_BY_ISCYCLE",new(bindWA->wHeap()) SQLInt(bindWA->wHeap(),FALSE,FALSE)); 
-  iscycleCol->bindNode(bindWA);
-  if (bindWA->errStatus())
-    return NULL;
-  ValueId iscycleVid = iscycleCol->getValueId();
-  ColRefName cvalName1("CONNECT_BY_ISCYCLE", bindWA->wHeap());
-  resultTable->addColumn(bindWA, cvalName1, iscycleVid, SYSTEM_COLUMN); 
-  pseudoColList().insert(iscycleVid); 
-
-  //add isleaf column
-  ItemExpr *isleafCol =  new (bindWA->wHeap()) HostVar("_CONNECT_BY_ISLEAF",new(bindWA->wHeap()) SQLInt(bindWA->wHeap(),FALSE,FALSE)); 
-  isleafCol->bindNode(bindWA); 
-  if (bindWA->errStatus())
-    return NULL;
-  ValueId isleafVid = isleafCol->getValueId();
-  ColRefName cvalName2("CONNECT_BY_ISLEAF", bindWA->wHeap());
-  resultTable->addColumn(bindWA, cvalName2, isleafVid, SYSTEM_COLUMN); 
-  pseudoColList().insert(isleafVid); 
-
-  NAType *intt1 = new(bindWA->wHeap()) SQLInt(bindWA->wHeap(),FALSE,FALSE); 
-  NATypeToItem *rownumItem = new (bindWA->wHeap()) 
-                                      NATypeToItem (intt1); 
-  ItemExpr *rownumCol = rownumItem->bindNode(bindWA); 
-  rownumCol->bindNode(bindWA); 
-  if (bindWA->errStatus()) 
-    return NULL; 
-  ValueId rnlVid = rownumCol->getValueId(); 
-  ColRefName cvalName3("ROWNUM", bindWA->wHeap()); 
-  resultTable->addColumn(bindWA, cvalName3, rnlVid, SYSTEM_COLUMN); 
-  pseudoColList().insert(rnlVid);
-
-  //add PATH column 
-  //Make this optional
-#if 1
-  NAType *nt = new(bindWA->wHeap())  SQLVarChar(bindWA->wHeap(), 3000);
-  NATypeToItem *paramTypeItem = new (bindWA->wHeap())
-                                      NATypeToItem (nt);
-  ItemExpr *outputExprToBind = NULL;
-  outputExprToBind = paramTypeItem->bindNode (bindWA);
-#else
-   ItemExpr *outputExprToBind =  new (bindWA->wHeap()) HostVar("_CONNECT_BY_PATH",
-     new(bindWA->wHeap()) SQLVarChar(bindWA->wHeap(), 3000));
-   outputExprToBind->bindNode(bindWA);
-#endif
-  if ( bindWA->errStatus ())
-    {
+    ValueIdUnion *vidUnion =
+        new (bindWA->wHeap()) ValueIdUnion(leftTable.getValueId(i), rightTable.getValueId(i), NULL_VALUE_ID);
+    vidUnion->bindNode(bindWA);
+    if (bindWA->errStatus()) {
       return this;
     }
+    ValueId valId = vidUnion->getValueId();
+    addValueIdUnion(valId, bindWA->wHeap());
+    resultTable->addColumn(bindWA, leftTable.getColRefNameObj(i), valId);
+  }
+
+  // add level column
+#if 1
+  NAType *intt = new (bindWA->wHeap()) SQLInt(bindWA->wHeap(), FALSE, FALSE);
+  NATypeToItem *levelItem = new (bindWA->wHeap()) NATypeToItem(intt);
+  ItemExpr *levelCol = levelItem->bindNode(bindWA);
+#else
+  ItemExpr *levelCol =
+      new (bindWA->wHeap()) HostVar("_LEVEL", new (bindWA->wHeap()) SQLInt(bindWA->wHeap(), FALSE, FALSE));
+  levelCol->bindNode(bindWA);
+#endif
+  if (bindWA->errStatus()) return NULL;
+  ValueId lvlVid = levelCol->getValueId();
+  ColRefName cvalName("LEVEL", bindWA->wHeap());
+  resultTable->addColumn(bindWA, cvalName, lvlVid, SYSTEM_COLUMN);
+  pseudoColList().insert(lvlVid);
+
+  // add iscycle column
+  ItemExpr *iscycleCol =
+      new (bindWA->wHeap()) HostVar("_CONNECT_BY_ISCYCLE", new (bindWA->wHeap()) SQLInt(bindWA->wHeap(), FALSE, FALSE));
+  iscycleCol->bindNode(bindWA);
+  if (bindWA->errStatus()) return NULL;
+  ValueId iscycleVid = iscycleCol->getValueId();
+  ColRefName cvalName1("CONNECT_BY_ISCYCLE", bindWA->wHeap());
+  resultTable->addColumn(bindWA, cvalName1, iscycleVid, SYSTEM_COLUMN);
+  pseudoColList().insert(iscycleVid);
+
+  // add isleaf column
+  ItemExpr *isleafCol =
+      new (bindWA->wHeap()) HostVar("_CONNECT_BY_ISLEAF", new (bindWA->wHeap()) SQLInt(bindWA->wHeap(), FALSE, FALSE));
+  isleafCol->bindNode(bindWA);
+  if (bindWA->errStatus()) return NULL;
+  ValueId isleafVid = isleafCol->getValueId();
+  ColRefName cvalName2("CONNECT_BY_ISLEAF", bindWA->wHeap());
+  resultTable->addColumn(bindWA, cvalName2, isleafVid, SYSTEM_COLUMN);
+  pseudoColList().insert(isleafVid);
+
+  NAType *intt1 = new (bindWA->wHeap()) SQLInt(bindWA->wHeap(), FALSE, FALSE);
+  NATypeToItem *rownumItem = new (bindWA->wHeap()) NATypeToItem(intt1);
+  ItemExpr *rownumCol = rownumItem->bindNode(bindWA);
+  rownumCol->bindNode(bindWA);
+  if (bindWA->errStatus()) return NULL;
+  ValueId rnlVid = rownumCol->getValueId();
+  ColRefName cvalName3("ROWNUM", bindWA->wHeap());
+  resultTable->addColumn(bindWA, cvalName3, rnlVid, SYSTEM_COLUMN);
+  pseudoColList().insert(rnlVid);
+
+  // add PATH column
+  // Make this optional
+#if 1
+  NAType *nt = new (bindWA->wHeap()) SQLVarChar(bindWA->wHeap(), 3000);
+  NATypeToItem *paramTypeItem = new (bindWA->wHeap()) NATypeToItem(nt);
+  ItemExpr *outputExprToBind = NULL;
+  outputExprToBind = paramTypeItem->bindNode(bindWA);
+#else
+  ItemExpr *outputExprToBind =
+      new (bindWA->wHeap()) HostVar("_CONNECT_BY_PATH", new (bindWA->wHeap()) SQLVarChar(bindWA->wHeap(), 3000));
+  outputExprToBind->bindNode(bindWA);
+#endif
+  if (bindWA->errStatus()) {
+    return this;
+  }
 
   ValueId pathVid = outputExprToBind->getValueId();
   ColRefName cpathName("CONNECT_BY_PATH", bindWA->wHeap());
-  resultTable->addColumn(bindWA, cpathName, pathVid, SYSTEM_COLUMN); 
-  pseudoPathColList().insert(pathVid); 
+  resultTable->addColumn(bindWA, cpathName, pathVid, SYSTEM_COLUMN);
+  pseudoPathColList().insert(pathVid);
   pathVid_ = pathVid;
 
   setRETDesc(resultTable);
   bindWA->getCurrentScope()->setRETDesc(resultTable);
   getGroupAttr()->addCharacteristicOutputs(pseudoPathColList());
 
-  ItemExpr* connbyItem = ((BiConnectBy*)getBiConnectBy())->getConnectBy();
+  ItemExpr *connbyItem = ((BiConnectBy *)getBiConnectBy())->getConnectBy();
   ItemExprList collParentsCols(bindWA->wHeap());
   ValueIdList originParentCols;
   ValueIdList originChildCols;
-  ((BiRelat*)connbyItem)->getAllParentColIE(collParentsCols);
-  for (CollIndex i = 0; i < collParentsCols.entries(); i++)
-  {
+  ((BiRelat *)connbyItem)->getAllParentColIE(collParentsCols);
+  for (CollIndex i = 0; i < collParentsCols.entries(); i++) {
     collParentsCols[i]->bindNode(bindWA);
     if (bindWA->errStatus()) {
-        return this;
+      return this;
     }
     const ValueId vid1 = collParentsCols[i]->getValueId();
     originParentCols.insert(vid1);
@@ -18257,12 +14900,11 @@ RelExpr * ConnectBy::bindNode(BindWA *bindWA)
   }
 
   ItemExprList collChildCols(bindWA->wHeap());
-  ((BiRelat*)connbyItem)->getAllChildColIE(collChildCols);
-  for (CollIndex i = 0; i < collChildCols.entries(); i++)
-  {
+  ((BiRelat *)connbyItem)->getAllChildColIE(collChildCols);
+  for (CollIndex i = 0; i < collChildCols.entries(); i++) {
     collChildCols[i]->bindNode(bindWA);
     if (bindWA->errStatus()) {
-        return this;
+      return this;
     }
     const ValueId vidc = collChildCols[i]->getValueId();
     originChildCols.insert(vidc);
@@ -18270,14 +14912,12 @@ RelExpr * ConnectBy::bindNode(BindWA *bindWA)
   }
 
   ItemExpr *orderSiblingsBy = removeOrderSiblingsTree();
-  //ValueIdList orderBylist;
-  if(orderSiblingsBy) 
-  {
+  // ValueIdList orderBylist;
+  if (orderSiblingsBy) {
     orderSiblingsBy->convertToValueIdList(reqdOrder(), bindWA, ITM_ITEM_LIST);
-  } 
+  }
 
-  for (CollIndex i = 0; i < originParentCols.entries(); i++)
-  {
+  for (CollIndex i = 0; i < originParentCols.entries(); i++) {
     ValueIdUnion *valIdUnion = (ValueIdUnion *)originChildCols[i].getItemExpr();
     ValueId newVid = valIdUnion->getRightSource();
     parentColList().insert(newVid);
@@ -18289,43 +14929,38 @@ RelExpr * ConnectBy::bindNode(BindWA *bindWA)
     childColList().insert(leftChildVid);
 
     char hvName[30];
-    sprintf(hvName,"_prior_HostVar%d%d",i,newVid1.toUInt32());
-    HostVar *hv = new(bindWA->wHeap()) HostVar(hvName, &newVid.getType(), TRUE);
+    sprintf(hvName, "_prior_HostVar%d%d", i, newVid1.toUInt32());
+    HostVar *hv = new (bindWA->wHeap()) HostVar(hvName, &newVid.getType(), TRUE);
     hv->bindNode(bindWA);
-       if (bindWA->errStatus()) {
-         return this;
-       }
-    priorValues().insert( hv->getValueId());
+    if (bindWA->errStatus()) {
+      return this;
+    }
+    priorValues().insert(hv->getValueId());
     priorCols().insert(newVid);
 
-    BiRelat *eqExpr = new (bindWA->wHeap()) BiRelat(ITM_EQUAL,
-        newVid.getItemExpr(),
-        hv, FALSE, FALSE);
-     eqExpr->setIsConnectByExpr(TRUE);
-     eqExpr->bindNode(bindWA);
-       if (bindWA->errStatus()) {
-         return this;
-       }
-    priorPred().insert( eqExpr->getValueId());
+    BiRelat *eqExpr = new (bindWA->wHeap()) BiRelat(ITM_EQUAL, newVid.getItemExpr(), hv, FALSE, FALSE);
+    eqExpr->setIsConnectByExpr(TRUE);
+    eqExpr->bindNode(bindWA);
+    if (bindWA->errStatus()) {
+      return this;
+    }
+    priorPred().insert(eqExpr->getValueId());
 
-
-    if(!useMat)
+    if (!useMat)
       child(1)->selectionPred() += eqExpr->getValueId();
-    else
-    {
+    else {
       mat->keyColumns() = priorCols();
       mat->probeValues() = priorValues();
-      //by default, set 1000 bucket
-      //So the hash table can save up to 10000 rows
-      //Need a way to change this easier
+      // by default, set 1000 bucket
+      // So the hash table can save up to 10000 rows
+      // Need a way to change this easier
       mat->setBucketNum(1000);
       mat->selectionPred() += eqExpr->getValueId();
     }
-   }
+  }
   ItemExpr *condExprTree = connectbyItem;
-  //ItemExpr *condExprTree = removeCondExprTree();
-  if (condExprTree)
-  {
+  // ItemExpr *condExprTree = removeCondExprTree();
+  if (condExprTree) {
     condExprTree->convertToValueIdSet(condExpr(), bindWA, ITM_ITEM_LIST);
     if (bindWA->errStatus()) {
       return NULL;
@@ -18336,56 +14971,48 @@ RelExpr * ConnectBy::bindNode(BindWA *bindWA)
   return bindSelf(bindWA);
 }
 
-RelExpr * ConnectBy::copyTopNode(RelExpr *derivedNode,
-                              CollHeap* outHeap)
-{
+RelExpr *ConnectBy::copyTopNode(RelExpr *derivedNode, CollHeap *outHeap) {
   ConnectBy *result;
 
   if (derivedNode == NULL) {
-    result = new (outHeap) ConnectBy(NULL, NULL,  outHeap);
-  }
-  else
-    result = (ConnectBy *) derivedNode;
+    result = new (outHeap) ConnectBy(NULL, NULL, outHeap);
+  } else
+    result = (ConnectBy *)derivedNode;
 
   result->pseduoColList_ = pseduoColList_;
   result->pseudoPathColList_ = pseudoPathColList_;
-  result->pathColList_ = pathColList_ ;
+  result->pathColList_ = pathColList_;
   result->leftPathColList_ = leftPathColList_;
-  result->rightPathColList_=rightPathColList_;
-  result->pathDel_=pathDel_;
-  result->pathVid_=pathVid_;
+  result->rightPathColList_ = rightPathColList_;
+  result->pathDel_ = pathDel_;
+  result->pathVid_ = pathVid_;
   result->priorPredicates_ = priorPredicates_;
   result->priorVids_ = priorVids_;
   result->priorHostVarsVids_ = priorHostVarsVids_;
   result->priorCols_ = priorCols_;
-  result->nocycle_= nocycle_;
+  result->nocycle_ = nocycle_;
   result->useCache_ = useCache_;
-  result->isDual_= isDual_;
-  if(connectByMap_ != NULL)
-  {
+  result->isDual_ = isDual_;
+  if (connectByMap_ != NULL) {
     result->connectByMap_ = connectByMap_->copyTree(outHeap);
-  }
-  else
+  } else
     result->connectByMap_ = connectByMap_;
   result->condExprTree_ = condExprTree_;
   result->condExpr_ = condExpr_;
-  if(biConnectBy_)
-  {
+  if (biConnectBy_) {
     result->biConnectBy_ = biConnectBy_->copyTree(outHeap)->castToItemExpr();
   }
   result->orderSiblingsItem_ = orderSiblingsItem_;
-  result->orderSiblings_ = orderSiblings_ ;
+  result->orderSiblings_ = orderSiblings_;
   return RelExpr::copyTopNode(result, outHeap);
 }
 
-short ConnectBy::setOrderSiblingsItemExpr(ItemExpr *ie, BindWA * ba)
-{
-  addOrderSiblingsTree(ie); 
+short ConnectBy::setOrderSiblingsItemExpr(ItemExpr *ie, BindWA *ba) {
+  addOrderSiblingsTree(ie);
   return 0;
 }
 
-const NAString ConnectBy::getText() const
-{
+const NAString ConnectBy::getText() const {
   NAString result(CmpCommon::statementHeap());
 
   result = "ConnectBy";
@@ -18393,32 +15020,28 @@ const NAString ConnectBy::getText() const
   return result;
 }
 
-ItemExpr * BiConnectBy::copyTopNode(ItemExpr *derivedNode, CollHeap* outHeap)
-{
+ItemExpr *BiConnectBy::copyTopNode(ItemExpr *derivedNode, CollHeap *outHeap) {
   BiConnectBy *result;
-  BiConnectBy  *result2;
-	
+  BiConnectBy *result2;
+
   if (derivedNode == NULL)
-    result = new (outHeap) BiConnectBy(NULL,NULL);
+    result = new (outHeap) BiConnectBy(NULL, NULL);
   else
-    result = (BiConnectBy*)derivedNode;
-  result->noCycle_=noCycle_;
+    result = (BiConnectBy *)derivedNode;
+  result->noCycle_ = noCycle_;
   result2 = (BiConnectBy *)ItemExpr::copyTopNode(result, outHeap);
   return result2;
 }
 
-void ConnectByMap::normalizeSpecificChild(NormWA & normWARef, Lng32 childIndex)
-{
-  ValueIdUnion * viduPtr;  
-  for (CollIndex index = 0; index < colMapTable_.entries(); index++)
-    {
-      viduPtr = ((ValueIdUnion *)(colMapTable_[index].getItemExpr()));
-      CMPASSERT(viduPtr->getOperatorType() == ITM_VALUEIDUNION);
-      viduPtr->normalizeSpecificChild(normWARef, childIndex);
-    }
-  
-  switch (childIndex)
-    {
+void ConnectByMap::normalizeSpecificChild(NormWA &normWARef, Lng32 childIndex) {
+  ValueIdUnion *viduPtr;
+  for (CollIndex index = 0; index < colMapTable_.entries(); index++) {
+    viduPtr = ((ValueIdUnion *)(colMapTable_[index].getItemExpr()));
+    CMPASSERT(viduPtr->getOperatorType() == ITM_VALUEIDUNION);
+    viduPtr->normalizeSpecificChild(normWARef, childIndex);
+  }
+
+  switch (childIndex) {
     case 0:
       leftColMap_.normalizeNode(normWARef);
       break;
@@ -18428,255 +15051,185 @@ void ConnectByMap::normalizeSpecificChild(NormWA & normWARef, Lng32 childIndex)
     default:
       CMPASSERT(childIndex < 2);
       break;
-    }
+  }
 }
 
-void ConnectBy::rewriteUnionExpr(const ValueIdSet &unionExpr,
-                             ValueIdSet &leftExpr,
-                             ValueIdSet &rightExpr) const
-{
-
-  for (ValueId x = unionExpr.init(); unionExpr.next(x); unionExpr.advance(x))
-    {
-      ValueId newLeftExpr =
-	x.getItemExpr()->mapAndRewrite(getLeftMap(),TRUE);
-      ValueId newRightExpr =
-	x.getItemExpr()->mapAndRewrite(getRightMap(),TRUE);
-      if(x.isStartWithPred() == FALSE && x.isConnectByPred() == FALSE ) 
-      {
-        leftExpr += newLeftExpr;
-        rightExpr += newRightExpr;
-      }
+void ConnectBy::rewriteUnionExpr(const ValueIdSet &unionExpr, ValueIdSet &leftExpr, ValueIdSet &rightExpr) const {
+  for (ValueId x = unionExpr.init(); unionExpr.next(x); unionExpr.advance(x)) {
+    ValueId newLeftExpr = x.getItemExpr()->mapAndRewrite(getLeftMap(), TRUE);
+    ValueId newRightExpr = x.getItemExpr()->mapAndRewrite(getRightMap(), TRUE);
+    if (x.isStartWithPred() == FALSE && x.isConnectByPred() == FALSE) {
+      leftExpr += newLeftExpr;
+      rightExpr += newRightExpr;
     }
-}  
-
-void ConnectByTempTable::rewriteExpr(const ValueIdSet &unionExpr,
-                             ValueIdSet &outExpr )const
-{
-    for (ValueId x = unionExpr.init(); unionExpr.next(x); unionExpr.advance(x))
-    {
-      if(x.isStartWithPred() == FALSE && x.isConnectByPred() == FALSE )
-      {
-        outExpr += x;
-      }
-    }
+  }
 }
 
-void ConnectBy::addValueIdUnion(ValueId vidUnion, CollHeap* heap)
-{
-  ValueIdUnion *xvid = (ValueIdUnion *) vidUnion.getItemExpr();
+void ConnectByTempTable::rewriteExpr(const ValueIdSet &unionExpr, ValueIdSet &outExpr) const {
+  for (ValueId x = unionExpr.init(); unionExpr.next(x); unionExpr.advance(x)) {
+    if (x.isStartWithPred() == FALSE && x.isConnectByPred() == FALSE) {
+      outExpr += x;
+    }
+  }
+}
+
+void ConnectBy::addValueIdUnion(ValueId vidUnion, CollHeap *heap) {
+  ValueIdUnion *xvid = (ValueIdUnion *)vidUnion.getItemExpr();
 
   CMPASSERT(vidUnion.getItemExpr()->getOperatorType() == ITM_VALUEIDUNION);
 
-  if(connectByMap_->count_ > 1)
-    {
+  if (connectByMap_->count_ > 1) {
     connectByMap_->count_--;
     connectByMap_ = new (heap) ConnectByMap;
-    }
+  }
 
   CMPASSERT(connectByMap_->count_ == 1);
 
   connectByMap_->colMapTable_.insert(vidUnion);
-  connectByMap_->leftColMap_.addMapEntry(vidUnion,xvid->getLeftSource());
-  connectByMap_->rightColMap_.addMapEntry(vidUnion,xvid->getRightSource());
+  connectByMap_->leftColMap_.addMapEntry(vidUnion, xvid->getLeftSource());
+  connectByMap_->rightColMap_.addMapEntry(vidUnion, xvid->getRightSource());
 }
 
-void ConnectBy::trimUnionMap()
-{
-   const ValueIdSet& co = getGroupAttr()->getCharacteristicOutputs();
-   connectByMap_->trim(co);  
+void ConnectBy::trimUnionMap() {
+  const ValueIdSet &co = getGroupAttr()->getCharacteristicOutputs();
+  connectByMap_->trim(co);
 }
 
-void ConnectByMap::trim(const ValueIdSet& charOutputs)
-{
-   for (Int32 i=colMapTable_.entries()-1; i>=0; i-- ) {
-      if ( !charOutputs.containsTheGivenValue(colMapTable_[i]) ) {
-         colMapTable_.removeAt(i);
-         leftColMap_.removeAt(i);
-         rightColMap_.removeAt(i);
-      }
-   }
+void ConnectByMap::trim(const ValueIdSet &charOutputs) {
+  for (Int32 i = colMapTable_.entries() - 1; i >= 0; i--) {
+    if (!charOutputs.containsTheGivenValue(colMapTable_[i])) {
+      colMapTable_.removeAt(i);
+      leftColMap_.removeAt(i);
+      rightColMap_.removeAt(i);
+    }
+  }
 }
-ConnectByMap* ConnectByMap::copyTree(CollHeap* h)
-{
-  ConnectByMap* result = new(h) ConnectByMap();
-  for(int i=0; i < colMapTable().entries();i++ )
-    result->colMapTable().insert(colMapTable()[i]);
+ConnectByMap *ConnectByMap::copyTree(CollHeap *h) {
+  ConnectByMap *result = new (h) ConnectByMap();
+  for (int i = 0; i < colMapTable().entries(); i++) result->colMapTable().insert(colMapTable()[i]);
   return result;
 }
 
-void ConnectBy::getPotentialOutputValues(ValueIdSet & outputValues) const
-{
+void ConnectBy::getPotentialOutputValues(ValueIdSet &outputValues) const {
   outputValues.clear();
 
   Lng32 ne = connectByMap_->colMapTable_.entries();
-  for (Lng32 index = 0; index < ne; index++)
-    {
-      outputValues += ((ValueIdUnion *) (connectByMap_->colMapTable_[index].getItemExpr()))->getResult();
-    }
+  for (Lng32 index = 0; index < ne; index++) {
+    outputValues += ((ValueIdUnion *)(connectByMap_->colMapTable_[index].getItemExpr()))->getResult();
+  }
   outputValues += leftPathItemList();
   outputValues += rightPathItemList();
   outputValues += pathVid_;
-  for(int i=0; i<pseudoColList().entries();i++)
-    outputValues += pseudoColList()[i];
+  for (int i = 0; i < pseudoColList().entries(); i++) outputValues += pseudoColList()[i];
+}
+void ConnectBy::recomputeOuterReferences() {
+  if (NOT getGroupAttr()->getCharacteristicInputs().isEmpty()) {
+    ValueIdSet outerRefs = getGroupAttr()->getCharacteristicInputs();
 
-}  
-void ConnectBy::recomputeOuterReferences()
-{
+    ValueIdSet exprSet = getSelectionPred();
+    exprSet += child(0)->getGroupAttr()->getCharacteristicInputs();
+    exprSet += child(1)->getGroupAttr()->getCharacteristicInputs();
+    exprSet.insertList(getLeftMap().getBottomValues());
+    exprSet.insertList(getRightMap().getBottomValues());
+    exprSet.insertList(parentColList());
+    exprSet.insertList(rchildColList());
+    exprSet.insertList(childColList());
+    exprSet.insertList(condExpr());
+    exprSet.insertList(pathItemList());
+    exprSet.insertList(reqdOrder());
+    exprSet.weedOutUnreferenced(outerRefs);
 
-  if (NOT getGroupAttr()->getCharacteristicInputs().isEmpty())
-    {
-      ValueIdSet outerRefs = getGroupAttr()->getCharacteristicInputs();
- 
-      ValueIdSet exprSet = getSelectionPred();
-      exprSet += child(0)->getGroupAttr()->getCharacteristicInputs();
-      exprSet += child(1)->getGroupAttr()->getCharacteristicInputs();
-      exprSet.insertList(getLeftMap().getBottomValues());
-      exprSet.insertList(getRightMap().getBottomValues());
-      exprSet.insertList(parentColList());
-      exprSet.insertList(rchildColList());
-      exprSet.insertList(childColList());
-      exprSet.insertList(condExpr());
-      exprSet.insertList(pathItemList());
-      exprSet.insertList(reqdOrder());
-      exprSet.weedOutUnreferenced(outerRefs);
-
-      getGroupAttr()->setCharacteristicInputs(outerRefs);
-    }
-} 
-
-RelExpr* ConnectBy::normalizeForCache(CacheWA& cwa, BindWA& bindWA)
-{
-  return RelExpr::normalizeForCache(cwa, bindWA);
+    getGroupAttr()->setCharacteristicInputs(outerRefs);
+  }
 }
 
-void ConnectByTempTable::pushdownCoveredExpr(const ValueIdSet & outputExpr,
-                                const ValueIdSet & newExternalInputs,
-                                ValueIdSet & predicatesOnParent,
-                                const ValueIdSet * setOfValuesReqdByParent,
-                                Lng32 cid // childIndex ignored
-                               )
-{
+RelExpr *ConnectBy::normalizeForCache(CacheWA &cwa, BindWA &bindWA) { return RelExpr::normalizeForCache(cwa, bindWA); }
 
+void ConnectByTempTable::pushdownCoveredExpr(const ValueIdSet &outputExpr, const ValueIdSet &newExternalInputs,
+                                             ValueIdSet &predicatesOnParent, const ValueIdSet *setOfValuesReqdByParent,
+                                             Lng32 cid  // childIndex ignored
+) {
   ValueIdSet resultSet = outputExpr;
-  if (setOfValuesReqdByParent)
-    resultSet += *setOfValuesReqdByParent;
+  if (setOfValuesReqdByParent) resultSet += *setOfValuesReqdByParent;
   resultSet += getGroupAttr()->getCharacteristicInputs();
 
-  ValueIdSet newPred ;
-  rewriteExpr(predicatesOnParent, newPred );
-  RelExpr::pushdownCoveredExpr(outputExpr,
-                               newExternalInputs,
-                               newPred,
-                               setOfValuesReqdByParent,
-                               cid 
-                               );
-
+  ValueIdSet newPred;
+  rewriteExpr(predicatesOnParent, newPred);
+  RelExpr::pushdownCoveredExpr(outputExpr, newExternalInputs, newPred, setOfValuesReqdByParent, cid);
 }
 
-
-void ConnectBy::pushdownCoveredExpr(const ValueIdSet & outputExpr,
-                                const ValueIdSet & newExternalInputs,
-                                ValueIdSet & predicatesOnParent,
-				const ValueIdSet * setOfValuesReqdByParent,
-			        Lng32 // childIndex ignored
-		               )
-{
+void ConnectBy::pushdownCoveredExpr(const ValueIdSet &outputExpr, const ValueIdSet &newExternalInputs,
+                                    ValueIdSet &predicatesOnParent, const ValueIdSet *setOfValuesReqdByParent,
+                                    Lng32  // childIndex ignored
+) {
   ValueIdSet resultSet = outputExpr;
-  if (setOfValuesReqdByParent)
-    resultSet += *setOfValuesReqdByParent;
+  if (setOfValuesReqdByParent) resultSet += *setOfValuesReqdByParent;
   resultSet += getGroupAttr()->getCharacteristicInputs();
   resultSet += pathItemList();
   resultSet += priorUsedCols();
   resultSet += pathVid_;
-  for(int i=0; i <colMapTable().entries(); i++)
-  {
+  for (int i = 0; i < colMapTable().entries(); i++) {
     resultSet += colMapTable()[i];
   }
 
   ValueIdSet valuesRequiredFromLeft, valuesRequiredFromRight;
-  rewriteUnionExpr(resultSet,
-               valuesRequiredFromLeft,
-               valuesRequiredFromRight);
+  rewriteUnionExpr(resultSet, valuesRequiredFromLeft, valuesRequiredFromRight);
 
   ValueIdSet leftPred, rightPred, emptySet;
   rewriteUnionExpr(predicatesOnParent, leftPred, rightPred);
 
-  RelExpr::pushdownCoveredExpr(emptySet,
-                               newExternalInputs,
-                               leftPred,
-			       &valuesRequiredFromLeft,
-                               0
-                               );
+  RelExpr::pushdownCoveredExpr(emptySet, newExternalInputs, leftPred, &valuesRequiredFromLeft, 0);
 
-  RelExpr::pushdownCoveredExpr(emptySet,
-                               newExternalInputs,
-                               rightPred,
-			       &valuesRequiredFromRight,
-                               1
-                               );
+  RelExpr::pushdownCoveredExpr(emptySet, newExternalInputs, rightPred, &valuesRequiredFromRight, 1);
 
   leftPred -= child(0)->selectionPred();
 
-  CMPASSERT( leftPred.isEmpty() );
+  CMPASSERT(leftPred.isEmpty());
 
   rightPred -= child(1)->selectionPred();
-  CMPASSERT( rightPred.isEmpty() );
+  CMPASSERT(rightPred.isEmpty());
 
   predicatesOnParent.clear();
-}  
-
-void ConnectBy::addCondExprTree(ItemExpr *condExpr)
-{
-  condExprTree_ = condExpr;
 }
 
-ItemExpr *ConnectBy::getCondExprTree()
-{
-  return condExprTree_;
-}
+void ConnectBy::addCondExprTree(ItemExpr *condExpr) { condExprTree_ = condExpr; }
 
-ItemExpr *ConnectBy::removeCondExprTree()
-{
+ItemExpr *ConnectBy::getCondExprTree() { return condExprTree_; }
+
+ItemExpr *ConnectBy::removeCondExprTree() {
   ItemExpr *result = condExprTree_;
   condExprTree_ = NULL;
   return result;
 }
 
-ItemExpr *ConnectBy::removeOrderSiblingsTree()
-{
+ItemExpr *ConnectBy::removeOrderSiblingsTree() {
   ItemExpr *result = orderSiblingsItem_;
   condExprTree_ = NULL;
   return result;
 }
 
-RelExpr* ConnectByTempTable::bindNode (BindWA* bindWA)
-{
-    if (nodeIsBound())
-    {
-      bindWA->getCurrentScope()->setRETDesc(getRETDesc());
-      return this;
-    }
+RelExpr *ConnectByTempTable::bindNode(BindWA *bindWA) {
+  if (nodeIsBound()) {
+    bindWA->getCurrentScope()->setRETDesc(getRETDesc());
+    return this;
+  }
 
   return RelExpr::bindNode(bindWA);
 }
 
-RelExpr* ConnectByTempTable::copyTopNode(RelExpr *derivedNode ,
-                                CollHeap* outHeap )
-{
+RelExpr *ConnectByTempTable::copyTopNode(RelExpr *derivedNode, CollHeap *outHeap) {
   ConnectByTempTable *result;
 
   if (derivedNode == NULL)
-    result = new (outHeap) ConnectByTempTable(NULL,NULL);
+    result = new (outHeap) ConnectByTempTable(NULL, NULL);
   else
-    result = (ConnectByTempTable*)derivedNode;
-  result->keyColumns_=keyColumns_;
-  result->bucketNum_=bucketNum_;
+    result = (ConnectByTempTable *)derivedNode;
+  result->keyColumns_ = keyColumns_;
+  result->bucketNum_ = bucketNum_;
   return result;
 }
 
-const NAString ConnectByTempTable::getText() const
-{
+const NAString ConnectByTempTable::getText() const {
   NAString result(CmpCommon::statementHeap());
 
   result = "ConnectByHashTable";
@@ -18684,29 +15237,25 @@ const NAString ConnectByTempTable::getText() const
   return result;
 }
 
-RelExpr* RelRoot::isDDLExpr()
-{
-   RelExpr* c0 = child(0)->castToRelExpr();
+RelExpr *RelRoot::isDDLExpr() {
+  RelExpr *c0 = child(0)->castToRelExpr();
 
-   if ( !c0 ) 
-     return NULL;
+  if (!c0) return NULL;
 
-   switch (c0->getOperatorType()) {
-     case REL_DDL:
-        return c0;
-      
-     case REL_EXCHANGE:
-      {
-        RelExpr* cc0 = c0->child(0)->castToRelExpr();
-        if ( cc0 && cc0->getOperatorType() == REL_DDL )
-          return cc0;
-      }
+  switch (c0->getOperatorType()) {
+    case REL_DDL:
+      return c0;
 
+    case REL_EXCHANGE: {
+      RelExpr *cc0 = c0->child(0)->castToRelExpr();
+      if (cc0 && cc0->getOperatorType() == REL_DDL) return cc0;
+    }
+
+    break;
+
+    default:
       break;
+  }
 
-    default: 
-      break;
-   }
-        
-   return NULL;
+  return NULL;
 }

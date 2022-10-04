@@ -48,7 +48,7 @@ class CRUIUDLogRecord;
 //	CRURangeBoundaryPair
 //
 //	This class stores the *pointers* to a range's boundaries (Begin-range
-//	and End-range records).	The actual storage of the boundaries' data 
+//	and End-range records).	The actual storage of the boundaries' data
 //	is outside the classes implemented in this file. It is performed by
 //	CRUDupElimRangeResolver, which handles (and optimizes) the memory
 //	management for the "range" part of the Duplicate Elimination algorithm.
@@ -56,41 +56,32 @@ class CRUIUDLogRecord;
 //--------------------------------------------------------------------------//
 
 class REFRESH_LIB_CLASS CRURangeBoundaryPair {
+ public:
+  CRURangeBoundaryPair() : pBRRec_(NULL), pERRec_(NULL) {}
+  virtual ~CRURangeBoundaryPair() {}
 
-public:
-	CRURangeBoundaryPair() : pBRRec_(NULL), pERRec_(NULL) {}
-	virtual ~CRURangeBoundaryPair() {}
+ public:
+  const CRUIUDLogRecord *GetBRRecord() const { return pBRRec_; }
+  const CRUIUDLogRecord *GetERRecord() const { return pERRec_; }
 
-public:
-	const CRUIUDLogRecord *GetBRRecord() const
-	{
-		return pBRRec_;
-	}
-	const CRUIUDLogRecord *GetERRecord() const
-	{
-		return pERRec_;
-	}
+ public:
+  void SetBRRecord(const CRUIUDLogRecord *pBRRec) {
+    RUASSERT(NULL != pBRRec);
+    pBRRec_ = pBRRec;
+  }
+  void SetERRecord(const CRUIUDLogRecord *pERRec) {
+    RUASSERT(NULL != pERRec);
+    pERRec_ = pERRec;
+  }
 
-public:
-	void SetBRRecord(const CRUIUDLogRecord *pBRRec)
-	{
-		RUASSERT(NULL != pBRRec);
-		pBRRec_ = pBRRec;
-	}
-	void SetERRecord(const CRUIUDLogRecord *pERRec)
-	{
-		RUASSERT(NULL != pERRec);
-		pERRec_ = pERRec;
-	}
+ private:
+  //-- Prevent copying
+  CRURangeBoundaryPair(const CRURangeBoundaryPair &other);
+  CRURangeBoundaryPair &operator=(const CRURangeBoundaryPair &other);
 
-private:
-	//-- Prevent copying
-	CRURangeBoundaryPair(const CRURangeBoundaryPair &other);
-	CRURangeBoundaryPair &operator = (const CRURangeBoundaryPair &other);
-
-private:
-	const CRUIUDLogRecord *pBRRec_;	// Begin-range
-	const CRUIUDLogRecord *pERRec_;	// End-range
+ private:
+  const CRUIUDLogRecord *pBRRec_;  // Begin-range
+  const CRUIUDLogRecord *pERRec_;  // End-range
 };
 
 //--------------------------------------------------------------------------//
@@ -98,65 +89,45 @@ private:
 //
 //	The range analysis algorithm can split a range into a number of disjoint
 //	fragments. Each of these fragments can be either open or closed on both
-//	boundaries. All the range's fragments will be finally written to the 
-//	range log, each as a separate range. 
+//	boundaries. All the range's fragments will be finally written to the
+//	range log, each as a separate range.
 //
 //--------------------------------------------------------------------------//
 
 class REFRESH_LIB_CLASS CRURangeFragment {
+ public:
+  CRURangeFragment() : bp_(), type_(IS_BR_INCLUDED | IS_ER_INCLUDED) {}
 
-public:
-	CRURangeFragment() :
-	  bp_(), type_(IS_BR_INCLUDED | IS_ER_INCLUDED) {}
+  virtual ~CRURangeFragment() {}
 
-	virtual ~CRURangeFragment() {}
+ public:
+  enum BoundaryBitmap {
 
-public:
-	enum BoundaryBitmap {
+    IS_BR_INCLUDED = 0x1,
+    IS_ER_INCLUDED = 0x2
+  };
 
-		IS_BR_INCLUDED = 0x1,
-		IS_ER_INCLUDED = 0x2
-	};
+  const CRUIUDLogRecord *GetBRRecord() const { return bp_.GetBRRecord(); }
+  const CRUIUDLogRecord *GetERRecord() const { return bp_.GetERRecord(); }
 
-	const CRUIUDLogRecord *GetBRRecord() const
-	{
-		return bp_.GetBRRecord();
-	}
-	const CRUIUDLogRecord *GetERRecord() const
-	{
-		return bp_.GetERRecord();
-	}
+  // The boundaries' bitmap
+  Lng32 GetType() const { return type_; }
 
-	// The boundaries' bitmap
-	Lng32 GetType() const 
-	{ 
-		return type_; 
-	}
+ public:
+  void SetBRRecord(const CRUIUDLogRecord *pBRRec) { bp_.SetBRRecord(pBRRec); }
+  void SetERRecord(const CRUIUDLogRecord *pERRec) { bp_.SetERRecord(pERRec); }
 
-public:
-	void SetBRRecord(const CRUIUDLogRecord *pBRRec)
-	{
-		bp_.SetBRRecord(pBRRec);
-	}
-	void SetERRecord(const CRUIUDLogRecord *pERRec)
-	{
-		bp_.SetERRecord(pERRec);
-	}
+  // Mark the lower/upper boundary (or both) as unincluded into the range
+  void UnsetTypeBit(unsigned short mask) { type_ &= ~mask; }
 
-	// Mark the lower/upper boundary (or both) as unincluded into the range
-	void UnsetTypeBit(unsigned short mask)
-	{
-		type_ &= ~ mask;
-	}
+ private:
+  //-- Prevent copying
+  CRURangeFragment(const CRURangeFragment &other);
+  CRURangeFragment &operator=(const CRURangeFragment &other);
 
-private:
-	//-- Prevent copying
-	CRURangeFragment(const CRURangeFragment &other);
-	CRURangeFragment &operator = (const CRURangeFragment &other);
-
-private:
-	CRURangeBoundaryPair bp_;
-	Lng32 type_;
+ private:
+  CRURangeBoundaryPair bp_;
+  Lng32 type_;
 };
 
 // Delcare the class CRURangeFragment with this macro
@@ -165,19 +136,19 @@ DECLARE_PTRLIST(REFRESH_LIB_CLASS, CRURangeFragment);
 //--------------------------------------------------------------------------//
 //	CRURange
 //
-//	This class represents a single range, originally logged into the 
-//	IUD log, throughout the processing by the Duplicate Elimination 
+//	This class represents a single range, originally logged into the
+//	IUD log, throughout the processing by the Duplicate Elimination
 //	algorithm.
 //
-//	The range's original boundaries will be stored in the *original 
-//	boundary pair*. 
+//	The range's original boundaries will be stored in the *original
+//	boundary pair*.
 //
 //	Before the active ranges in the memory are flushed to the disk,
 //	the range analysis is performed between them. Following it, a range
 //	can be split into a number of fragments. Therefore, the class contains
-//	a *fragment list*. Every fragment of the range is disjoint with every 
-//	other fragment (of this or other range). Each fragment will become 
-//	a separate record in the range log. For efficient identification of 
+//	a *fragment list*. Every fragment of the range is disjoint with every
+//	other fragment (of this or other range). Each fragment will become
+//	a separate record in the range log. For efficient identification of
 //	all of the fragments that belong to the same range, they will have
 //	the same *range Id*, which is equal to the syskey of the original
 //	range's Begin-range record.
@@ -194,117 +165,88 @@ DECLARE_PTRLIST(REFRESH_LIB_CLASS, CRURangeFragment);
 //--------------------------------------------------------------------------//
 
 class REFRESH_LIB_CLASS CRURange {
+ public:
+  CRURange();
+  virtual ~CRURange() {}
 
-public:
-	CRURange();
-	virtual ~CRURange() {}
+  //-------------------------------//
+  //	Accessors
+  //-------------------------------//
+ public:
+  const CRUIUDLogRecord *GetBRRecord() const { return origBoundaryPair_.GetBRRecord(); }
 
-	//-------------------------------//
-	//	Accessors
-	//-------------------------------//		
-public:
-	const CRUIUDLogRecord *GetBRRecord() const
-	{
-		return origBoundaryPair_.GetBRRecord();
-	}
+  const CRUIUDLogRecord *GetERRecord() const { return origBoundaryPair_.GetERRecord(); }
 
-	const CRUIUDLogRecord *GetERRecord() const
-	{
-		return origBoundaryPair_.GetERRecord();
-	}
+  const CRURangeFragmentList &GetFragmentList() const { return fragmentList_; }
 
-	const CRURangeFragmentList &GetFragmentList() const
-	{
-		return fragmentList_;
-	}
+  TInt32 GetEpoch() const { return epoch_; }
+  TInt64 GetRangeId() const { return rangeId_; }
 
-	TInt32 GetEpoch() const
-	{
-		return epoch_;
-	}
-	TInt64 GetRangeId() const
-	{
-		return rangeId_;
-	}
+  BOOL IsUpdateOfScreenedRecordsRequired() const { return isUpdateOfScreenedRecordsRequired_; }
+  BOOL IsDeleteOfScreenedRecordsRequired() const { return isDeleteOfScreenedRecordsRequired_; }
 
-	BOOL IsUpdateOfScreenedRecordsRequired() const
-	{
-		return isUpdateOfScreenedRecordsRequired_;
-	}
-	BOOL IsDeleteOfScreenedRecordsRequired() const
-	{
-		return isDeleteOfScreenedRecordsRequired_;
-	}
+  //-------------------------------//
+  //	Mutators
+  //-------------------------------//
+ public:
+  void SetBRRecord(const CRUIUDLogRecord *pBRRec);
+  void SetERRecord(const CRUIUDLogRecord *pERRec);
 
-	//-------------------------------//
-	//	Mutators
-	//-------------------------------//		
-public:
-	void SetBRRecord(const CRUIUDLogRecord *pBRRec);
-	void SetERRecord(const CRUIUDLogRecord *pERRec);
+  //-- Duplicates resolution --//
 
-	//-- Duplicates resolution --//
+  // Applicable only if the whole delta is scanned
+  void PerformCrossTypeDE(CRUIUDLogRecord *pRec);
 
-	// Applicable only if the whole delta is scanned
-	void PerformCrossTypeDE(CRUIUDLogRecord *pRec);
+  // The other range must be "younger" than me
+  void PerformRangeAnalysis(const CRURange &other);
 
-	// The other range must be "younger" than me
-	void PerformRangeAnalysis(const CRURange &other);
+  // Initialize the fragment list
+  void PrepareForFlush();
 
-	// Initialize the fragment list
-	void PrepareForFlush();
+ private:
+  //-- Prevent copying
+  CRURange(const CRURange &other);
+  CRURange &operator=(const CRURange &other);
 
-private:
-	//-- Prevent copying
-	CRURange(const CRURange &other);
-	CRURange &operator = (const CRURange &other);
+ private:
+  BOOL IsClusteringKeyCovered(const CRUIUDLogRecord *pRec) const;
 
-private:
-	BOOL IsClusteringKeyCovered(const CRUIUDLogRecord *pRec) const;
+ private:
+  // PerformRangeAnalysis() callees
 
-private:
-	// PerformRangeAnalysis() callees 
+  // Indicator of where the record lies with regards to the range
+  enum ExposureType {
 
-	// Indicator of where the record lies with regards to the range
-	enum ExposureType {
-		
-		SMALLER_EXPOSED = 0,
-		NOT_EXPOSED,
-		GREATER_EXPOSED
-	};
-		
-	void PerformRAIfMyBRIsSmallerExposed(
-		const CRURange &otherRange,
-		ExposureType erExpType);
+    SMALLER_EXPOSED = 0,
+    NOT_EXPOSED,
+    GREATER_EXPOSED
+  };
 
-	void PerformRAIfMyBRIsNotExposed(
-		const CRURange &otherRange,
-		ExposureType erExpType);
+  void PerformRAIfMyBRIsSmallerExposed(const CRURange &otherRange, ExposureType erExpType);
 
-	void CutMyFragmentFromBegin(const CRURange &otherRange);
-	void CutMyFragmentFromEnd(const CRURange &otherRange);
-	void SplitMyFragment(const CRURange &otherRange);
-	void RemoveMyFragment();
+  void PerformRAIfMyBRIsNotExposed(const CRURange &otherRange, ExposureType erExpType);
 
-	ExposureType GetExposureType(
-		const CRUIUDLogRecord &rec, 
-		const CRURange &otherRange
-	);
+  void CutMyFragmentFromBegin(const CRURange &otherRange);
+  void CutMyFragmentFromEnd(const CRURange &otherRange);
+  void SplitMyFragment(const CRURange &otherRange);
+  void RemoveMyFragment();
 
-private:
-	CRURangeBoundaryPair origBoundaryPair_;
-	CRURangeFragmentList fragmentList_;
+  ExposureType GetExposureType(const CRUIUDLogRecord &rec, const CRURange &otherRange);
 
-	TInt32 epoch_;
-	TInt64 rangeId_;
+ private:
+  CRURangeBoundaryPair origBoundaryPair_;
+  CRURangeFragmentList fragmentList_;
 
-	// Applicable only if the whole delta is scanned
-	BOOL isUpdateOfScreenedRecordsRequired_;
-	BOOL isDeleteOfScreenedRecordsRequired_;
+  TInt32 epoch_;
+  TInt64 rangeId_;
 
-	// State variables for the range analysis
-	DSListPosition myPos_;
-	CRURangeFragment *pMyFragment_;
+  // Applicable only if the whole delta is scanned
+  BOOL isUpdateOfScreenedRecordsRequired_;
+  BOOL isDeleteOfScreenedRecordsRequired_;
+
+  // State variables for the range analysis
+  DSListPosition myPos_;
+  CRURangeFragment *pMyFragment_;
 };
 
 // Delcare the class CRURangeList with this macro

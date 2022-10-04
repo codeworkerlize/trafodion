@@ -53,96 +53,73 @@
 // -----------------------------------------------------------------------
 
 StmtDDLNode::StmtDDLNode(OperatorTypeEnum otype)
-     : ElemDDLNode(otype),
-       tableType_(COM_REGULAR_TABLE),
-       objectClass_(COM_CLASS_USER_TABLE),
-       isVolatile_(FALSE),
-       exeUtil_(FALSE),
-       isGhostObject_(FALSE),
-       inMemoryObjectDefn_(FALSE),
-       isExternal_(FALSE),
-       isImplicitExternal_(FALSE),
-       ddlXns_(FALSE),
-       isPartition_(FALSE)
-{ 
+    : ElemDDLNode(otype),
+      tableType_(COM_REGULAR_TABLE),
+      objectClass_(COM_CLASS_USER_TABLE),
+      isVolatile_(FALSE),
+      exeUtil_(FALSE),
+      isGhostObject_(FALSE),
+      inMemoryObjectDefn_(FALSE),
+      isExternal_(FALSE),
+      isImplicitExternal_(FALSE),
+      ddlXns_(FALSE),
+      isPartition_(FALSE) {
   ddlXns_ = (CmpCommon::getDefault(DDL_TRANSACTIONS) == DF_ON);
 }
 
 // virtual destructor
 // To improve performance, do not use inline with virtual destructor
-StmtDDLNode::~StmtDDLNode()
-{
-}
+StmtDDLNode::~StmtDDLNode() {}
 
 //
 // cast virtual functions
 //
 
-StmtDDLNode *
-StmtDDLNode::castToStmtDDLNode()
-{
-  return this;
-}
+StmtDDLNode *StmtDDLNode::castToStmtDDLNode() { return this; }
 
-const StmtDDLNode *
-StmtDDLNode::castToStmtDDLNode() const
-{
-  return this;
-}
+const StmtDDLNode *StmtDDLNode::castToStmtDDLNode() const { return this; }
 
 //
 // methods for tracing
 //
 
-const NAString
-StmtDDLNode::getText() const
-{
+const NAString StmtDDLNode::getText() const {
   NAAbort("StmtDDLNode.C", __LINE__, "internal logic error");
   return "StmtDDLNode";
 }
 
-void
-StmtDDLNode::unparse(NAString &result,
-		     PhaseEnum /*phase*/,
-                     UnparseFormatEnum /*form*/,
-		     TableDesc * tabId) const
-{
+void StmtDDLNode::unparse(NAString &result, PhaseEnum /*phase*/, UnparseFormatEnum /*form*/, TableDesc *tabId) const {
   result += "a DDL statement";
 }
 
-NABoolean StmtDDLNode::performParallelOp(Lng32 numPartitions)
-{
+NABoolean StmtDDLNode::performParallelOp(Lng32 numPartitions) {
   // PerformParallelOp
-  NABoolean ppo = FALSE; 
+  NABoolean ppo = FALSE;
 
-  // The CQD USE_PARALLEL_FOR_NUM_PARTITIONS specifies the number of 
+  // The CQD USE_PARALLEL_FOR_NUM_PARTITIONS specifies the number of
   // partitions that must exist before
   // performing the create in parallel.
   Lng32 numParts = CmpCommon::getDefaultLong(USE_PARALLEL_FOR_NUM_PARTITIONS);
   NAString pos;
   CmpCommon::getDefault(POS, pos, 0);
-  
-  // Parallel Create logic should be executed only if POS and 
-  // ATTEMPT_ESP_PARALLELISM are not turned OFF and table involved has 
+
+  // Parallel Create logic should be executed only if POS and
+  // ATTEMPT_ESP_PARALLELISM are not turned OFF and table involved has
   // multiple partitions.
-  if ((CmpCommon::getDefault(POS) != DF_OFF) && (!IsNAStringSpaceOrEmpty(pos))
-      && (CmpCommon::getDefault(ATTEMPT_ESP_PARALLELISM) != DF_OFF) 
-      && (numPartitions >= numParts) 
-      && (numPartitions > 1))
-    {
-      // Check to see if parallel creation of labels is required
-      // Parallel creations should not happen if POS_NUM_OF_PARTNS is set 
-      // to 1 ( single partition table).
-      
-      if (CmpCommon::getDefault(POS_NUM_OF_PARTNS,0) == DF_SYSTEM ) 
-	ppo = TRUE;
-      else
-	{  // Not DF_SYSTEM - get numeric POS_NUM_OF_PARTNS
-	  Lng32 posnumpartns = CmpCommon::getDefaultLong(POS_NUM_OF_PARTNS);
-	  if (posnumpartns > 1)
-	    ppo = TRUE;
-	}
-    }  
+  if ((CmpCommon::getDefault(POS) != DF_OFF) && (!IsNAStringSpaceOrEmpty(pos)) &&
+      (CmpCommon::getDefault(ATTEMPT_ESP_PARALLELISM) != DF_OFF) && (numPartitions >= numParts) &&
+      (numPartitions > 1)) {
+    // Check to see if parallel creation of labels is required
+    // Parallel creations should not happen if POS_NUM_OF_PARTNS is set
+    // to 1 ( single partition table).
+
+    if (CmpCommon::getDefault(POS_NUM_OF_PARTNS, 0) == DF_SYSTEM)
+      ppo = TRUE;
+    else {  // Not DF_SYSTEM - get numeric POS_NUM_OF_PARTNS
+      Lng32 posnumpartns = CmpCommon::getDefaultLong(POS_NUM_OF_PARTNS);
+      if (posnumpartns > 1) ppo = TRUE;
+    }
+  }
 
   return ppo;
 }
@@ -155,24 +132,19 @@ NABoolean StmtDDLNode::performParallelOp(Lng32 numPartitions)
 // constructor
 //
 
-StmtDDLGrant::StmtDDLGrant(ElemDDLNode * pPrivileges,
-                           const QualifiedName & objectName,
-                           ElemDDLNode * pGranteeList,
-                           ElemDDLNode * pWithGrantOption,
-                           ElemDDLNode * pByGrantorOption,
-                           QualifiedName * actionName,
-                           CollHeap    * heap)
-: StmtDDLNode(DDL_GRANT),
-  objectName_(heap),
-  objectQualName_(objectName, heap),
-  isAllPrivileges_(FALSE),
-  isWithGrantOptionSpec_(FALSE),
-  privActArray_(heap),
-  actionQualName_(actionName),
-  granteeArray_(heap),
-  isByGrantorOptionSpec_(FALSE),
-  byGrantor_(NULL)
-{
+StmtDDLGrant::StmtDDLGrant(ElemDDLNode *pPrivileges, const QualifiedName &objectName, ElemDDLNode *pGranteeList,
+                           ElemDDLNode *pWithGrantOption, ElemDDLNode *pByGrantorOption, QualifiedName *actionName,
+                           CollHeap *heap)
+    : StmtDDLNode(DDL_GRANT),
+      objectName_(heap),
+      objectQualName_(objectName, heap),
+      isAllPrivileges_(FALSE),
+      isWithGrantOptionSpec_(FALSE),
+      privActArray_(heap),
+      actionQualName_(actionName),
+      granteeArray_(heap),
+      isByGrantorOptionSpec_(FALSE),
+      byGrantor_(NULL) {
   setChild(INDEX_PRIVILEGES, pPrivileges);
   setChild(INDEX_GRANTEE_LIST, pGranteeList);
   setChild(INDEX_WITH_GRANT_OPTION, pWithGrantOption);
@@ -186,21 +158,16 @@ StmtDDLGrant::StmtDDLGrant(ElemDDLNode * pPrivileges,
   //
 
   ComASSERT(pPrivileges NEQ NULL);
-  ElemDDLPrivileges * pPrivsNode = pPrivileges->castToElemDDLPrivileges();
+  ElemDDLPrivileges *pPrivsNode = pPrivileges->castToElemDDLPrivileges();
   ComASSERT(pPrivsNode NEQ NULL);
-  if (pPrivsNode->isAllPrivileges())
-  {
+  if (pPrivsNode->isAllPrivileges()) {
     isAllPrivileges_ = TRUE;
-  }
-  else
-  {
-    ElemDDLNode * pPrivActs = pPrivsNode->getPrivilegeActionList();
-    for (CollIndex i = 0; i < pPrivActs->entries(); i++)
-    {
+  } else {
+    ElemDDLNode *pPrivActs = pPrivsNode->getPrivilegeActionList();
+    for (CollIndex i = 0; i < pPrivActs->entries(); i++) {
       ElemDDLPrivAct *pPrivAct = (*pPrivActs)[i]->castToElemDDLPrivAct();
       privActArray_.insert(pPrivAct);
-      if (pPrivAct->isDDLPriv())
-         privActArray_.setHasDDLPriv(TRUE);
+      if (pPrivAct->isDDLPriv()) privActArray_.setHasDDLPriv(TRUE);
     }
   }
 
@@ -211,59 +178,43 @@ StmtDDLGrant::StmtDDLGrant(ElemDDLNode * pPrivileges,
   //
 
   ComASSERT(pGranteeList NEQ NULL);
-  for (CollIndex i = 0; i < pGranteeList->entries(); i++)
-  {
+  for (CollIndex i = 0; i < pGranteeList->entries(); i++) {
     granteeArray_.insert((*pGranteeList)[i]->castToElemDDLGrantee());
   }
 
   //
   // looks for With Grant option phrase
   //
-  
-  if (pWithGrantOption NEQ NULL)
-  {
+
+  if (pWithGrantOption NEQ NULL) {
     isWithGrantOptionSpec_ = TRUE;
   }
-  
-  if ( pByGrantorOption NEQ NULL )
-  {
+
+  if (pByGrantorOption NEQ NULL) {
     isByGrantorOptionSpec_ = TRUE;
     byGrantor_ = pByGrantorOption->castToElemDDLGrantee();
   }
 
-
-} // StmtDDLGrant::StmtDDLGrant()
+}  // StmtDDLGrant::StmtDDLGrant()
 
 // virtual destructor
-StmtDDLGrant::~StmtDDLGrant()
-{
+StmtDDLGrant::~StmtDDLGrant() {
   // delete all children
-  for (Int32 i = 0; i < getArity(); i++)
-  {
+  for (Int32 i = 0; i < getArity(); i++) {
     delete getChild(i);
   }
 }
 
 // cast
-StmtDDLGrant *
-StmtDDLGrant::castToStmtDDLGrant()
-{
-  return this;
-}
+StmtDDLGrant *StmtDDLGrant::castToStmtDDLGrant() { return this; }
 
 //
 // accessors
 //
 
-Int32
-StmtDDLGrant::getArity() const
-{
-  return MAX_STMT_DDL_GRANT_ARITY;
-}
+Int32 StmtDDLGrant::getArity() const { return MAX_STMT_DDL_GRANT_ARITY; }
 
-ExprNode *
-StmtDDLGrant::getChild(Lng32 index) 
-{
+ExprNode *StmtDDLGrant::getChild(Lng32 index) {
   ComASSERT(index >= 0 AND index < getArity());
   return children_[index];
 }
@@ -272,17 +223,12 @@ StmtDDLGrant::getChild(Lng32 index)
 // mutators
 //
 
-void
-StmtDDLGrant::setChild(Lng32 index, ExprNode * pChildNode)
-{
+void StmtDDLGrant::setChild(Lng32 index, ExprNode *pChildNode) {
   ComASSERT(index >= 0 AND index < getArity());
-  if (pChildNode NEQ NULL)
-  {
+  if (pChildNode NEQ NULL) {
     ComASSERT(pChildNode->castToElemDDLNode() NEQ NULL);
-    children_[index] = pChildNode->castToElemDDLNode(); 
-  }
-  else
-  {
+    children_[index] = pChildNode->castToElemDDLNode();
+  } else {
     children_[index] = NULL;
   }
 }
@@ -291,57 +237,46 @@ StmtDDLGrant::setChild(Lng32 index, ExprNode * pChildNode)
 // methods for tracing
 //
 
-const NAString
-StmtDDLGrant::displayLabel1() const
-{
-  return NAString("Object name: ") + getObjectName();
-}
+const NAString StmtDDLGrant::displayLabel1() const { return NAString("Object name: ") + getObjectName(); }
 
-NATraceList
-StmtDDLGrant::getDetailInfo() const
-{
-  NAString        detailText;
+NATraceList StmtDDLGrant::getDetailInfo() const {
+  NAString detailText;
   NATraceList detailTextList;
 
   //
   // object name
   //
 
-  detailTextList.append(displayLabel1());   // object name
+  detailTextList.append(displayLabel1());  // object name
 
   //
   // privileges
   //
 
-  StmtDDLGrant * localThis = (StmtDDLGrant *)this;
+  StmtDDLGrant *localThis = (StmtDDLGrant *)this;
 
-  detailTextList.append(localThis->getChild(INDEX_PRIVILEGES)
-                                 ->castToElemDDLNode()
-                                 ->castToElemDDLPrivileges()
-                                 ->getDetailInfo());
+  detailTextList.append(
+      localThis->getChild(INDEX_PRIVILEGES)->castToElemDDLNode()->castToElemDDLPrivileges()->getDetailInfo());
 
   //
   // grantee list
   //
 
-  const ElemDDLGranteeArray & granteeArray = getGranteeArray();
+  const ElemDDLGranteeArray &granteeArray = getGranteeArray();
 
   detailText = "Grantee list [";
   detailText += LongToNAString((Lng32)granteeArray.entries());
   detailText += " element(s)]";
   detailTextList.append(detailText);
 
-  for (CollIndex i = 0; i < granteeArray.entries(); i++)
-  {
+  for (CollIndex i = 0; i < granteeArray.entries(); i++) {
     detailText = "[grantee ";
     detailText += LongToNAString((Lng32)i);
     detailText += "]";
     detailTextList.append(detailText);
-  
-    ComASSERT(granteeArray[i] NEQ NULL AND
-              granteeArray[i]->castToElemDDLGrantee() NEQ NULL);
-    detailTextList.append("    ", granteeArray[i]->castToElemDDLGrantee()
-                                                 ->getDetailInfo());
+
+    ComASSERT(granteeArray[i] NEQ NULL AND granteeArray[i]->castToElemDDLGrantee() NEQ NULL);
+    detailTextList.append("    ", granteeArray[i]->castToElemDDLGrantee()->getDetailInfo());
   }
 
   //
@@ -354,54 +289,42 @@ StmtDDLGrant::getDetailInfo() const
 
   return detailTextList;
 
-} // StmtDDLGrant::getDetailInfo
+}  // StmtDDLGrant::getDetailInfo
 
-const NAString
-StmtDDLGrant::getText() const
-{
-  return "StmtDDLGrant";
-}
+const NAString StmtDDLGrant::getText() const { return "StmtDDLGrant"; }
 
 // -----------------------------------------------------------------------
 // methods for class StmtDDLGrantArray
 // -----------------------------------------------------------------------
 
 // virtual destructor
-StmtDDLGrantArray::~StmtDDLGrantArray()
-{
-}
-
+StmtDDLGrantArray::~StmtDDLGrantArray() {}
 
 // -----------------------------------------------------------------------
 // member functions for class StmtDDLSchGrant
 // -----------------------------------------------------------------------
-StmtDDLSchGrant::StmtDDLSchGrant(ElemDDLNode * pPrivileges,
-                           const ElemDDLSchemaName & aSchemaNameParseNode,
-                           ElemDDLNode * pGranteeList,
-                           ElemDDLNode * pWithGrantOption,
-			   ElemDDLNode * pByGrantorOption,
-                           CollHeap    * heap)
-: StmtDDLNode(DDL_GRANT_SCHEMA),
-  schemaName_(heap),
-  schemaQualName_(aSchemaNameParseNode.getSchemaName(), heap),
-  isAllDMLPrivileges_(FALSE),
-  isAllDDLPrivileges_(FALSE),
-  isAllOtherPrivileges_(FALSE),
-  isWithGrantOptionSpec_(FALSE),
-  privActArray_(heap),
-  granteeArray_(heap),
-  isByGrantorOptionSpec_(FALSE),
-  byGrantor_(NULL)
-{
-  if (schemaQualName_.getSchemaName().isNull())
-  {
+StmtDDLSchGrant::StmtDDLSchGrant(ElemDDLNode *pPrivileges, const ElemDDLSchemaName &aSchemaNameParseNode,
+                                 ElemDDLNode *pGranteeList, ElemDDLNode *pWithGrantOption,
+                                 ElemDDLNode *pByGrantorOption, CollHeap *heap)
+    : StmtDDLNode(DDL_GRANT_SCHEMA),
+      schemaName_(heap),
+      schemaQualName_(aSchemaNameParseNode.getSchemaName(), heap),
+      isAllDMLPrivileges_(FALSE),
+      isAllDDLPrivileges_(FALSE),
+      isAllOtherPrivileges_(FALSE),
+      isWithGrantOptionSpec_(FALSE),
+      privActArray_(heap),
+      granteeArray_(heap),
+      isByGrantorOptionSpec_(FALSE),
+      byGrantor_(NULL) {
+  if (schemaQualName_.getSchemaName().isNull()) {
     schemaQualName_ = ActiveSchemaDB()->getDefaultSchema();
   }
   setChild(INDEX_PRIVILEGES, pPrivileges);
   setChild(INDEX_GRANTEE_LIST, pGranteeList);
   setChild(INDEX_WITH_GRANT_OPTION, pWithGrantOption);
   setChild(INDEX_BY_GRANTOR_OPTION, pByGrantorOption);
-  //objectName_ = objectQualName_.getQualifiedNameAsAnsiString();
+  // objectName_ = objectQualName_.getQualifiedNameAsAnsiString();
   //
   // inserts pointers to parse nodes representing privilege
   // actions to privActArray_ so the user can access the
@@ -409,40 +332,33 @@ StmtDDLSchGrant::StmtDDLSchGrant(ElemDDLNode * pPrivileges,
   //
 
   ComASSERT(pPrivileges NEQ NULL);
-  ElemDDLPrivileges * pPrivsNode = pPrivileges->castToElemDDLPrivileges();
+  ElemDDLPrivileges *pPrivsNode = pPrivileges->castToElemDDLPrivileges();
   ComASSERT(pPrivsNode NEQ NULL);
 
   // If columns level privileges specified, throw an error
-  if (pPrivsNode->containsColumnPrivs())
-  {
+  if (pPrivsNode->containsColumnPrivs()) {
     *SqlParser_Diags << DgSqlCode(-3028);
     return;
   }
 
-  if (pPrivsNode->isAllPrivileges())
-  {
+  if (pPrivsNode->isAllPrivileges()) {
     isAllDMLPrivileges_ = TRUE;
     isAllDDLPrivileges_ = TRUE;
     isAllOtherPrivileges_ = TRUE;
   }
-  if (pPrivsNode->isAllDMLPrivileges())
-  {
+  if (pPrivsNode->isAllDMLPrivileges()) {
     isAllDMLPrivileges_ = TRUE;
   }
-  if (pPrivsNode->isAllDDLPrivileges())
-  {
+  if (pPrivsNode->isAllDDLPrivileges()) {
     isAllDDLPrivileges_ = TRUE;
   }
-  if (pPrivsNode->isAllOtherPrivileges())
-  {
+  if (pPrivsNode->isAllOtherPrivileges()) {
     isAllOtherPrivileges_ = TRUE;
   }
 
-  ElemDDLNode * pPrivActs = pPrivsNode->getPrivilegeActionList();
-  if (pPrivActs)
-  {
-    for (CollIndex i = 0; i < pPrivActs->entries(); i++)
-    {
+  ElemDDLNode *pPrivActs = pPrivsNode->getPrivilegeActionList();
+  if (pPrivActs) {
+    for (CollIndex i = 0; i < pPrivActs->entries(); i++) {
       privActArray_.insert((*pPrivActs)[i]->castToElemDDLPrivAct());
     }
   }
@@ -454,58 +370,43 @@ StmtDDLSchGrant::StmtDDLSchGrant(ElemDDLNode * pPrivileges,
   //
 
   ComASSERT(pGranteeList NEQ NULL);
-  for (CollIndex i = 0; i < pGranteeList->entries(); i++)
-  {
+  for (CollIndex i = 0; i < pGranteeList->entries(); i++) {
     granteeArray_.insert((*pGranteeList)[i]->castToElemDDLGrantee());
   }
 
   //
   // looks for With Grant option phrase
   //
-  
-  if (pWithGrantOption NEQ NULL)
-  {
+
+  if (pWithGrantOption NEQ NULL) {
     isWithGrantOptionSpec_ = TRUE;
   }
 
-  if ( pByGrantorOption NEQ NULL )
-  {
+  if (pByGrantorOption NEQ NULL) {
     isByGrantorOptionSpec_ = TRUE;
     byGrantor_ = pByGrantorOption->castToElemDDLGrantee();
   }
 
-} // StmtDDLSchGrant::StmtDDLSchGrant()
+}  // StmtDDLSchGrant::StmtDDLSchGrant()
 
 // virtual destructor
-StmtDDLSchGrant::~StmtDDLSchGrant()
-{
+StmtDDLSchGrant::~StmtDDLSchGrant() {
   // delete all children
-  for (Int32 i = 0; i < getArity(); i++)
-  {
+  for (Int32 i = 0; i < getArity(); i++) {
     delete getChild(i);
   }
 }
 
 // cast
-StmtDDLSchGrant *
-StmtDDLSchGrant::castToStmtDDLSchGrant()
-{
-  return this;
-}
+StmtDDLSchGrant *StmtDDLSchGrant::castToStmtDDLSchGrant() { return this; }
 
 //
 // accessors
 //
 
-Int32
-StmtDDLSchGrant::getArity() const
-{
-  return MAX_STMT_DDL_GRANT_ARITY;
-}
+Int32 StmtDDLSchGrant::getArity() const { return MAX_STMT_DDL_GRANT_ARITY; }
 
-ExprNode *
-StmtDDLSchGrant::getChild(Lng32 index) 
-{
+ExprNode *StmtDDLSchGrant::getChild(Lng32 index) {
   ComASSERT(index >= 0 AND index < getArity());
   return children_[index];
 }
@@ -514,17 +415,12 @@ StmtDDLSchGrant::getChild(Lng32 index)
 // mutators
 //
 
-void
-StmtDDLSchGrant::setChild(Lng32 index, ExprNode * pChildNode)
-{
+void StmtDDLSchGrant::setChild(Lng32 index, ExprNode *pChildNode) {
   ComASSERT(index >= 0 AND index < getArity());
-  if (pChildNode NEQ NULL)
-  {
+  if (pChildNode NEQ NULL) {
     ComASSERT(pChildNode->castToElemDDLNode() NEQ NULL);
-    children_[index] = pChildNode->castToElemDDLNode(); 
-  }
-  else
-  {
+    children_[index] = pChildNode->castToElemDDLNode();
+  } else {
     children_[index] = NULL;
   }
 }
@@ -533,57 +429,46 @@ StmtDDLSchGrant::setChild(Lng32 index, ExprNode * pChildNode)
 // methods for tracing
 //
 
-const NAString
-StmtDDLSchGrant::displayLabel1() const
-{
-  return NAString("Schema Name ") + getSchemaName();
-}
+const NAString StmtDDLSchGrant::displayLabel1() const { return NAString("Schema Name ") + getSchemaName(); }
 
-NATraceList
-StmtDDLSchGrant::getDetailInfo() const
-{
-  NAString        detailText;
+NATraceList StmtDDLSchGrant::getDetailInfo() const {
+  NAString detailText;
   NATraceList detailTextList;
 
   //
   // object name
   //
 
-  detailTextList.append(displayLabel1());   // object name
+  detailTextList.append(displayLabel1());  // object name
 
   //
   // privileges
   //
 
-  StmtDDLSchGrant * localThis = (StmtDDLSchGrant *)this;
+  StmtDDLSchGrant *localThis = (StmtDDLSchGrant *)this;
 
-  detailTextList.append(localThis->getChild(INDEX_PRIVILEGES)
-                                 ->castToElemDDLNode()
-                                 ->castToElemDDLPrivileges()
-                                 ->getDetailInfo());
+  detailTextList.append(
+      localThis->getChild(INDEX_PRIVILEGES)->castToElemDDLNode()->castToElemDDLPrivileges()->getDetailInfo());
 
   //
   // grantee list
   //
 
-  const ElemDDLGranteeArray & granteeArray = getGranteeArray();
+  const ElemDDLGranteeArray &granteeArray = getGranteeArray();
 
   detailText = "Grantee list [";
   detailText += LongToNAString((Lng32)granteeArray.entries());
   detailText += " element(s)]";
   detailTextList.append(detailText);
 
-  for (CollIndex i = 0; i < granteeArray.entries(); i++)
-  {
+  for (CollIndex i = 0; i < granteeArray.entries(); i++) {
     detailText = "[grantee ";
     detailText += LongToNAString((Lng32)i);
     detailText += "]";
     detailTextList.append(detailText);
-  
-    ComASSERT(granteeArray[i] NEQ NULL AND
-              granteeArray[i]->castToElemDDLGrantee() NEQ NULL);
-    detailTextList.append("    ", granteeArray[i]->castToElemDDLGrantee()
-                                                 ->getDetailInfo());
+
+    ComASSERT(granteeArray[i] NEQ NULL AND granteeArray[i]->castToElemDDLGrantee() NEQ NULL);
+    detailTextList.append("    ", granteeArray[i]->castToElemDDLGrantee()->getDetailInfo());
   }
 
   //
@@ -596,22 +481,16 @@ StmtDDLSchGrant::getDetailInfo() const
 
   return detailTextList;
 
-} // StmtDDLGrant::getDetailInfo
+}  // StmtDDLGrant::getDetailInfo
 
-const NAString
-StmtDDLSchGrant::getText() const
-{
-  return "StmtDDLSchGrant";
-}
+const NAString StmtDDLSchGrant::getText() const { return "StmtDDLSchGrant"; }
 
 // -----------------------------------------------------------------------
 // methods for class StmtDDLSchGrantArray
 // -----------------------------------------------------------------------
 
 // virtual destructor
-StmtDDLSchGrantArray::~StmtDDLSchGrantArray()
-{
-}
+StmtDDLSchGrantArray::~StmtDDLSchGrantArray() {}
 
 // -----------------------------------------------------------------------
 // methods for class StmtDDLGrantComponentPrivilege
@@ -621,21 +500,19 @@ StmtDDLSchGrantArray::~StmtDDLSchGrantArray()
 // constructor
 //
 
-StmtDDLGrantComponentPrivilege::StmtDDLGrantComponentPrivilege (const ConstStringList * pComponentPrivilegeNameList,
-                                                                const NAString & componentName,
-                                                                const NAString & userRoleName,
-                                                                const NABoolean isWithGrantOptionClauseSpecified,
-                                                                ElemDDLNode * pOptionalGrantedBy,
-                                                                CollHeap * heap) // default is PARSERHEAP()
-  : StmtDDLNode(DDL_GRANT_COMPONENT_PRIVILEGE),
-    pComponentPrivilegeNameList_(pComponentPrivilegeNameList),
-    componentName_(componentName, heap),
-    userRoleName_(userRoleName, heap),
-    isWithGrantOptionSpec_(isWithGrantOptionClauseSpecified),
-    grantedBy_(NULL)
-{
-  if ( pOptionalGrantedBy NEQ NULL )
-  {
+StmtDDLGrantComponentPrivilege::StmtDDLGrantComponentPrivilege(const ConstStringList *pComponentPrivilegeNameList,
+                                                               const NAString &componentName,
+                                                               const NAString &userRoleName,
+                                                               const NABoolean isWithGrantOptionClauseSpecified,
+                                                               ElemDDLNode *pOptionalGrantedBy,
+                                                               CollHeap *heap)  // default is PARSERHEAP()
+    : StmtDDLNode(DDL_GRANT_COMPONENT_PRIVILEGE),
+      pComponentPrivilegeNameList_(pComponentPrivilegeNameList),
+      componentName_(componentName, heap),
+      userRoleName_(userRoleName, heap),
+      isWithGrantOptionSpec_(isWithGrantOptionClauseSpecified),
+      grantedBy_(NULL) {
+  if (pOptionalGrantedBy NEQ NULL) {
     grantedBy_ = pOptionalGrantedBy->castToElemDDLGrantee();
   }
 }
@@ -644,69 +521,57 @@ StmtDDLGrantComponentPrivilege::StmtDDLGrantComponentPrivilege (const ConstStrin
 // virtual destructor
 //
 
-StmtDDLGrantComponentPrivilege::~StmtDDLGrantComponentPrivilege()
-{
-  if (pComponentPrivilegeNameList_ NEQ NULL)
-    delete pComponentPrivilegeNameList_;
+StmtDDLGrantComponentPrivilege::~StmtDDLGrantComponentPrivilege() {
+  if (pComponentPrivilegeNameList_ NEQ NULL) delete pComponentPrivilegeNameList_;
 }
 
 // virtual safe cast-down function
-StmtDDLGrantComponentPrivilege *
-StmtDDLGrantComponentPrivilege::castToStmtDDLGrantComponentPrivilege()
-{
-  return this;
-}
-
+StmtDDLGrantComponentPrivilege *StmtDDLGrantComponentPrivilege::castToStmtDDLGrantComponentPrivilege() { return this; }
 
 //
 // methods for tracing
 //
 
-
-const NAString StmtDDLGrantComponentPrivilege::displayLabel1() const
-{
+const NAString StmtDDLGrantComponentPrivilege::displayLabel1() const {
   NAString aLabel("Component name: ");
   aLabel += getComponentName();
   return aLabel;
 }
 
-const NAString StmtDDLGrantComponentPrivilege::displayLabel2() const
-{
+const NAString StmtDDLGrantComponentPrivilege::displayLabel2() const {
   NAString aLabel("User role name: ");
   aLabel += getUserRoleName();
   return aLabel;
 }
 
-NATraceList StmtDDLGrantComponentPrivilege::getDetailInfo() const
-{
-  NAString        detailText;
+NATraceList StmtDDLGrantComponentPrivilege::getDetailInfo() const {
+  NAString detailText;
   NATraceList detailTextList;
 
   //
   // component name
   //
 
-  detailTextList.append(displayLabel1());   // component name
+  detailTextList.append(displayLabel1());  // component name
 
   //
   // user role name
   //
 
-  detailTextList.append(displayLabel2());   // user role name
+  detailTextList.append(displayLabel2());  // user role name
 
   //
   // component privilege name list
   //
 
-  const ConstStringList & privs = getComponentPrivilegeNameList();
+  const ConstStringList &privs = getComponentPrivilegeNameList();
 
   detailText = "Component Privilege Name List [";
   detailText += LongToNAString((Lng32)privs.entries());
   detailText += " element(s)]";
   detailTextList.append(detailText);
 
-  for (CollIndex i = 0; i < privs.entries(); i++)
-  {
+  for (CollIndex i = 0; i < privs.entries(); i++) {
     detailText = "[";
     detailText += LongToNAString((Lng32)i);
     detailText += "] ";
@@ -724,13 +589,9 @@ NATraceList StmtDDLGrantComponentPrivilege::getDetailInfo() const
 
   return detailTextList;
 
-} // StmtDDLGrantComponentPrivilege::getDetailInfo
+}  // StmtDDLGrantComponentPrivilege::getDetailInfo
 
-const NAString StmtDDLGrantComponentPrivilege::getText()
-{
-  return "StmtDDLGrantComponentPrivilege";
-}
-
+const NAString StmtDDLGrantComponentPrivilege::getText() { return "StmtDDLGrantComponentPrivilege"; }
 
 // -----------------------------------------------------------------------
 // methods for class StmtDDLRevokeComponentPrivilege
@@ -740,21 +601,19 @@ const NAString StmtDDLGrantComponentPrivilege::getText()
 // constructor
 //
 
-StmtDDLRevokeComponentPrivilege::StmtDDLRevokeComponentPrivilege (const ConstStringList * pComponentPrivilegeNameList,
-                                                                  const NAString & componentName,
-                                                                  const NAString & userRoleName,
-                                                                  const NABoolean isGrantOptionForClauseSpecified,
-                                                                  ElemDDLNode * pOptionalGrantedBy,
-                                                                  CollHeap * heap) // default is PARSERHEAP()
-  : StmtDDLNode(DDL_REVOKE_COMPONENT_PRIVILEGE),
-    pComponentPrivilegeNameList_(pComponentPrivilegeNameList), // shallow copy
-    componentName_(componentName, heap),                       // deep copy
-    userRoleName_(userRoleName, heap),                         // deep copy
-    isGrantOptionForSpec_(isGrantOptionForClauseSpecified),
-    grantedBy_(NULL)
-{
-  if ( pOptionalGrantedBy NEQ NULL )
-  {
+StmtDDLRevokeComponentPrivilege::StmtDDLRevokeComponentPrivilege(const ConstStringList *pComponentPrivilegeNameList,
+                                                                 const NAString &componentName,
+                                                                 const NAString &userRoleName,
+                                                                 const NABoolean isGrantOptionForClauseSpecified,
+                                                                 ElemDDLNode *pOptionalGrantedBy,
+                                                                 CollHeap *heap)  // default is PARSERHEAP()
+    : StmtDDLNode(DDL_REVOKE_COMPONENT_PRIVILEGE),
+      pComponentPrivilegeNameList_(pComponentPrivilegeNameList),  // shallow copy
+      componentName_(componentName, heap),                        // deep copy
+      userRoleName_(userRoleName, heap),                          // deep copy
+      isGrantOptionForSpec_(isGrantOptionForClauseSpecified),
+      grantedBy_(NULL) {
+  if (pOptionalGrantedBy NEQ NULL) {
     grantedBy_ = pOptionalGrantedBy->castToElemDDLGrantee();
   }
 }
@@ -763,16 +622,12 @@ StmtDDLRevokeComponentPrivilege::StmtDDLRevokeComponentPrivilege (const ConstStr
 // virtual destructor
 //
 
-StmtDDLRevokeComponentPrivilege::~StmtDDLRevokeComponentPrivilege()
-{
-  if (pComponentPrivilegeNameList_ NEQ NULL)
-    delete pComponentPrivilegeNameList_;
+StmtDDLRevokeComponentPrivilege::~StmtDDLRevokeComponentPrivilege() {
+  if (pComponentPrivilegeNameList_ NEQ NULL) delete pComponentPrivilegeNameList_;
 }
 
 // virtual safe cast-down function
-StmtDDLRevokeComponentPrivilege *
-StmtDDLRevokeComponentPrivilege::castToStmtDDLRevokeComponentPrivilege()
-{
+StmtDDLRevokeComponentPrivilege *StmtDDLRevokeComponentPrivilege::castToStmtDDLRevokeComponentPrivilege() {
   return this;
 }
 
@@ -780,51 +635,46 @@ StmtDDLRevokeComponentPrivilege::castToStmtDDLRevokeComponentPrivilege()
 // methods for tracing
 //
 
-
-const NAString StmtDDLRevokeComponentPrivilege::displayLabel1() const
-{
+const NAString StmtDDLRevokeComponentPrivilege::displayLabel1() const {
   NAString aLabel("Component name: ");
   aLabel += getComponentName();
   return aLabel;
 }
 
-const NAString StmtDDLRevokeComponentPrivilege::displayLabel2() const
-{
+const NAString StmtDDLRevokeComponentPrivilege::displayLabel2() const {
   NAString aLabel("User rol name: ");
   aLabel += getUserRoleName();
   return aLabel;
 }
 
-NATraceList StmtDDLRevokeComponentPrivilege::getDetailInfo() const
-{
-  NAString        detailText;
+NATraceList StmtDDLRevokeComponentPrivilege::getDetailInfo() const {
+  NAString detailText;
   NATraceList detailTextList;
 
   //
   // component name
   //
 
-  detailTextList.append(displayLabel1());   // component name
+  detailTextList.append(displayLabel1());  // component name
 
   //
   // user role name
   //
 
-  detailTextList.append(displayLabel2());   // user role name
+  detailTextList.append(displayLabel2());  // user role name
 
   //
   // component privilege name list
   //
 
-  const ConstStringList & privs = getComponentPrivilegeNameList();
+  const ConstStringList &privs = getComponentPrivilegeNameList();
 
   detailText = "Component Privilege Name List [";
   detailText += LongToNAString((Lng32)privs.entries());
   detailText += " element(s)]";
   detailTextList.append(detailText);
 
-  for (CollIndex i = 0; i < privs.entries(); i++)
-  {
+  for (CollIndex i = 0; i < privs.entries(); i++) {
     detailText = "[";
     detailText += LongToNAString((Lng32)i);
     detailText += "] ";
@@ -842,13 +692,9 @@ NATraceList StmtDDLRevokeComponentPrivilege::getDetailInfo() const
 
   return detailTextList;
 
-} // StmtDDLRevokeComponentPrivilege::getDetailInfo
+}  // StmtDDLRevokeComponentPrivilege::getDetailInfo
 
-const NAString StmtDDLRevokeComponentPrivilege::getText()
-{
-  return "StmtDDLRevokeComponentPrivilege";
-}
-
+const NAString StmtDDLRevokeComponentPrivilege::getText() { return "StmtDDLRevokeComponentPrivilege"; }
 
 // -----------------------------------------------------------------------
 // member functions for class StmtDDLRevoke
@@ -858,37 +704,30 @@ const NAString StmtDDLRevokeComponentPrivilege::getText()
 // constructor
 //
 
-StmtDDLRevoke::StmtDDLRevoke(NABoolean isGrantOptionFor,
-                             ElemDDLNode * pPrivileges,
-                             const QualifiedName & objectName,
-                             ElemDDLNode * pGranteeList,
-                             ComDropBehavior dropBehavior,
-                             ElemDDLNode * pByGrantorOption,
-                             QualifiedName * actionName,
-                             CollHeap    * heap)
-: StmtDDLNode(DDL_REVOKE),
-  objectName_(heap),
-  objectQualName_(objectName, heap),
-  isAllPrivileges_(FALSE),
-  isGrantOptionForSpec_(isGrantOptionFor),
-  dropBehavior_(dropBehavior),
-  privActArray_(heap),
-  actionQualName_(actionName),
-  granteeArray_(heap),
-  isByGrantorOptionSpec_(FALSE),
-  byGrantor_(NULL)
-{
-  
+StmtDDLRevoke::StmtDDLRevoke(NABoolean isGrantOptionFor, ElemDDLNode *pPrivileges, const QualifiedName &objectName,
+                             ElemDDLNode *pGranteeList, ComDropBehavior dropBehavior, ElemDDLNode *pByGrantorOption,
+                             QualifiedName *actionName, CollHeap *heap)
+    : StmtDDLNode(DDL_REVOKE),
+      objectName_(heap),
+      objectQualName_(objectName, heap),
+      isAllPrivileges_(FALSE),
+      isGrantOptionForSpec_(isGrantOptionFor),
+      dropBehavior_(dropBehavior),
+      privActArray_(heap),
+      actionQualName_(actionName),
+      granteeArray_(heap),
+      isByGrantorOptionSpec_(FALSE),
+      byGrantor_(NULL) {
   setChild(INDEX_PRIVILEGES, pPrivileges);
   setChild(INDEX_GRANTEE_LIST, pGranteeList);
   setChild(INDEX_BY_GRANTOR_OPTION, pByGrantorOption);
- 
+
   //
-  // Fully expand the name. 
+  // Fully expand the name.
   //
-  origObjectName_ = objectQualName_.getQualifiedNameAsAnsiString();  
+  origObjectName_ = objectQualName_.getQualifiedNameAsAnsiString();
   objectName_ = objectQualName_.getQualifiedNameAsAnsiString();
- 
+
   //
   // inserts pointers to parse nodes representing privilege
   // actions to privActArray_ so the user can access the
@@ -896,21 +735,16 @@ StmtDDLRevoke::StmtDDLRevoke(NABoolean isGrantOptionFor,
   //
 
   ComASSERT(pPrivileges NEQ NULL);
-  ElemDDLPrivileges * pPrivsNode = pPrivileges->castToElemDDLPrivileges();
+  ElemDDLPrivileges *pPrivsNode = pPrivileges->castToElemDDLPrivileges();
   ComASSERT(pPrivsNode NEQ NULL);
-  if (pPrivsNode->isAllPrivileges())
-  {
+  if (pPrivsNode->isAllPrivileges()) {
     isAllPrivileges_ = TRUE;
-  }
-  else
-  {
-    ElemDDLNode * pPrivActs = pPrivsNode->getPrivilegeActionList();
-    for (CollIndex i = 0; i < pPrivActs->entries(); i++)
-    {
+  } else {
+    ElemDDLNode *pPrivActs = pPrivsNode->getPrivilegeActionList();
+    for (CollIndex i = 0; i < pPrivActs->entries(); i++) {
       ElemDDLPrivAct *pPrivAct = (*pPrivActs)[i]->castToElemDDLPrivAct();
       privActArray_.insert(pPrivAct);
-      if (pPrivAct->isDDLPriv())
-         privActArray_.setHasDDLPriv(TRUE);
+      if (pPrivAct->isDDLPriv()) privActArray_.setHasDDLPriv(TRUE);
     }
   }
 
@@ -921,49 +755,35 @@ StmtDDLRevoke::StmtDDLRevoke(NABoolean isGrantOptionFor,
   //
 
   ComASSERT(pGranteeList NEQ NULL);
-  for (CollIndex i = 0; i < pGranteeList->entries(); i++)
-  {
+  for (CollIndex i = 0; i < pGranteeList->entries(); i++) {
     granteeArray_.insert((*pGranteeList)[i]->castToElemDDLGrantee());
   }
 
-  if ( pByGrantorOption NEQ NULL )
-  {
+  if (pByGrantorOption NEQ NULL) {
     isByGrantorOptionSpec_ = TRUE;
     byGrantor_ = pByGrantorOption->castToElemDDLGrantee();
   }
 
-} // StmtDDLRevoke::StmtDDLRevoke()
+}  // StmtDDLRevoke::StmtDDLRevoke()
 
 // virtual destructor
-StmtDDLRevoke::~StmtDDLRevoke()
-{
+StmtDDLRevoke::~StmtDDLRevoke() {
   // delete all children
-  for (Int32 i = 0; i < getArity(); i++)
-  {
+  for (Int32 i = 0; i < getArity(); i++) {
     delete getChild(i);
   }
 }
 
 // cast
-StmtDDLRevoke *
-StmtDDLRevoke::castToStmtDDLRevoke()
-{
-  return this;
-}
+StmtDDLRevoke *StmtDDLRevoke::castToStmtDDLRevoke() { return this; }
 
 //
 // accessors
 //
 
-Int32
-StmtDDLRevoke::getArity() const
-{
-  return MAX_STMT_DDL_REVOKE_ARITY;
-}
+Int32 StmtDDLRevoke::getArity() const { return MAX_STMT_DDL_REVOKE_ARITY; }
 
-ExprNode *
-StmtDDLRevoke::getChild(Lng32 index) 
-{
+ExprNode *StmtDDLRevoke::getChild(Lng32 index) {
   ComASSERT(index >= 0 AND index < getArity());
   return children_[index];
 }
@@ -972,17 +792,12 @@ StmtDDLRevoke::getChild(Lng32 index)
 // mutators
 //
 
-void
-StmtDDLRevoke::setChild(Lng32 index, ExprNode * pChildNode)
-{
+void StmtDDLRevoke::setChild(Lng32 index, ExprNode *pChildNode) {
   ComASSERT(index >= 0 AND index < getArity());
-  if (pChildNode NEQ NULL)
-  {
+  if (pChildNode NEQ NULL) {
     ComASSERT(pChildNode->castToElemDDLNode() NEQ NULL);
-    children_[index] = pChildNode->castToElemDDLNode(); 
-  }
-  else
-  {
+    children_[index] = pChildNode->castToElemDDLNode();
+  } else {
     children_[index] = NULL;
   }
 }
@@ -991,75 +806,61 @@ StmtDDLRevoke::setChild(Lng32 index, ExprNode * pChildNode)
 // methods for tracing
 //
 
-const NAString
-StmtDDLRevoke::displayLabel1() const
-{
-  return NAString("Object name: ") + getObjectName();
-}
+const NAString StmtDDLRevoke::displayLabel1() const { return NAString("Object name: ") + getObjectName(); }
 
-const NAString
-StmtDDLRevoke::displayLabel2() const
-{
+const NAString StmtDDLRevoke::displayLabel2() const {
   NAString label2("Drop behavior: ");
-  switch (getDropBehavior())
-  {
-  case COM_CASCADE_DROP_BEHAVIOR :
-    return label2 + "Cascade";
+  switch (getDropBehavior()) {
+    case COM_CASCADE_DROP_BEHAVIOR:
+      return label2 + "Cascade";
 
-  case COM_RESTRICT_DROP_BEHAVIOR :
-    return label2 + "Restrict";
+    case COM_RESTRICT_DROP_BEHAVIOR:
+      return label2 + "Restrict";
 
-  default :
-    ABORT("internal logic error");
-    return NAString();
+    default:
+      ABORT("internal logic error");
+      return NAString();
   }
 }
 
-NATraceList
-StmtDDLRevoke::getDetailInfo() const
-{
-  NAString        detailText;
+NATraceList StmtDDLRevoke::getDetailInfo() const {
+  NAString detailText;
   NATraceList detailTextList;
 
   //
   // object name
   //
 
-  detailTextList.append(displayLabel1());   // object name
+  detailTextList.append(displayLabel1());  // object name
 
   //
   // privileges
   //
 
-  StmtDDLRevoke * localThis = (StmtDDLRevoke *)this;
+  StmtDDLRevoke *localThis = (StmtDDLRevoke *)this;
 
-  detailTextList.append(localThis->getChild(INDEX_PRIVILEGES)
-                                 ->castToElemDDLNode()
-                                 ->castToElemDDLPrivileges()
-                                 ->getDetailInfo());
+  detailTextList.append(
+      localThis->getChild(INDEX_PRIVILEGES)->castToElemDDLNode()->castToElemDDLPrivileges()->getDetailInfo());
 
   //
   // grantee list
   //
 
-  const ElemDDLGranteeArray & granteeArray = getGranteeArray();
+  const ElemDDLGranteeArray &granteeArray = getGranteeArray();
 
   detailText = "Grantee list [";
   detailText += LongToNAString((Lng32)granteeArray.entries());
   detailText += " element(s)]";
   detailTextList.append(detailText);
 
-  for (CollIndex i = 0; i < granteeArray.entries(); i++)
-  {
+  for (CollIndex i = 0; i < granteeArray.entries(); i++) {
     detailText = "[grantee ";
     detailText += LongToNAString((Lng32)i);
     detailText += "]";
     detailTextList.append(detailText);
-  
-    ComASSERT(granteeArray[i] NEQ NULL AND
-              granteeArray[i]->castToElemDDLGrantee() NEQ NULL);
-    detailTextList.append("    ", granteeArray[i]->castToElemDDLGrantee()
-                                                 ->getDetailInfo());
+
+    ComASSERT(granteeArray[i] NEQ NULL AND granteeArray[i]->castToElemDDLGrantee() NEQ NULL);
+    detailTextList.append("    ", granteeArray[i]->castToElemDDLGrantee()->getDetailInfo());
   }
 
   //
@@ -1074,20 +875,13 @@ StmtDDLRevoke::getDetailInfo() const
   // drop behavior
   //
 
-  detailTextList.append(displayLabel2());   // drop behavior
-
+  detailTextList.append(displayLabel2());  // drop behavior
 
   return detailTextList;
 
-} // StmtDDLRevoke::getDetailInfo
+}  // StmtDDLRevoke::getDetailInfo
 
-const NAString
-StmtDDLRevoke::getText() const
-{
-  return "StmtDDLRevoke";
-}
-
-
+const NAString StmtDDLRevoke::getText() const { return "StmtDDLRevoke"; }
 
 // -----------------------------------------------------------------------
 // member functions for class StmtDDLSchRevoke
@@ -1097,31 +891,25 @@ StmtDDLRevoke::getText() const
 // constructor
 //
 
-StmtDDLSchRevoke::StmtDDLSchRevoke(NABoolean isGrantOptionFor,
-                             ElemDDLNode * pPrivileges,
-                             const ElemDDLSchemaName & aSchemaNameParseNode,
-                             ElemDDLNode * pGranteeList,
-                             ComDropBehavior dropBehavior,
-			     ElemDDLNode * pByGrantorOption,
-                             CollHeap    * heap)
-: StmtDDLNode(DDL_REVOKE_SCHEMA),
-  schemaName_(heap),
-  schemaQualName_(aSchemaNameParseNode.getSchemaName(), heap),
-  isAllDDLPrivileges_(FALSE),
-  isAllDMLPrivileges_(FALSE),
-  isAllOtherPrivileges_(FALSE),
-  isGrantOptionForSpec_(isGrantOptionFor),
-  dropBehavior_(dropBehavior),
-  privActArray_(heap),
-  granteeArray_(heap),
-  isByGrantorOptionSpec_(FALSE),
-  byGrantor_(NULL)
-{
-  
+StmtDDLSchRevoke::StmtDDLSchRevoke(NABoolean isGrantOptionFor, ElemDDLNode *pPrivileges,
+                                   const ElemDDLSchemaName &aSchemaNameParseNode, ElemDDLNode *pGranteeList,
+                                   ComDropBehavior dropBehavior, ElemDDLNode *pByGrantorOption, CollHeap *heap)
+    : StmtDDLNode(DDL_REVOKE_SCHEMA),
+      schemaName_(heap),
+      schemaQualName_(aSchemaNameParseNode.getSchemaName(), heap),
+      isAllDDLPrivileges_(FALSE),
+      isAllDMLPrivileges_(FALSE),
+      isAllOtherPrivileges_(FALSE),
+      isGrantOptionForSpec_(isGrantOptionFor),
+      dropBehavior_(dropBehavior),
+      privActArray_(heap),
+      granteeArray_(heap),
+      isByGrantorOptionSpec_(FALSE),
+      byGrantor_(NULL) {
   setChild(INDEX_PRIVILEGES, pPrivileges);
   setChild(INDEX_GRANTEE_LIST, pGranteeList);
   setChild(INDEX_BY_GRANTOR_OPTION, pByGrantorOption);
-        
+
   //
   // inserts pointers to parse nodes representing privilege
   // actions to privActArray_ so the user can access the
@@ -1129,40 +917,33 @@ StmtDDLSchRevoke::StmtDDLSchRevoke(NABoolean isGrantOptionFor,
   //
 
   ComASSERT(pPrivileges NEQ NULL);
-  ElemDDLPrivileges * pPrivsNode = pPrivileges->castToElemDDLPrivileges();
+  ElemDDLPrivileges *pPrivsNode = pPrivileges->castToElemDDLPrivileges();
   ComASSERT(pPrivsNode NEQ NULL);
-  
+
   // If columns level privileges specified, throw an error
-  if (pPrivsNode->containsColumnPrivs())
-  {
+  if (pPrivsNode->containsColumnPrivs()) {
     *SqlParser_Diags << DgSqlCode(-3028);
     return;
   }
 
-  if (pPrivsNode->isAllPrivileges())
-  {
+  if (pPrivsNode->isAllPrivileges()) {
     isAllDDLPrivileges_ = TRUE;
     isAllDMLPrivileges_ = TRUE;
     isAllOtherPrivileges_ = TRUE;
   }
-  if (pPrivsNode->isAllDDLPrivileges())
-  {
+  if (pPrivsNode->isAllDDLPrivileges()) {
     isAllDDLPrivileges_ = TRUE;
   }
-  if (pPrivsNode->isAllDMLPrivileges())
-  {
+  if (pPrivsNode->isAllDMLPrivileges()) {
     isAllDMLPrivileges_ = TRUE;
   }
-  if (pPrivsNode->isAllOtherPrivileges())
-  {
+  if (pPrivsNode->isAllOtherPrivileges()) {
     isAllOtherPrivileges_ = TRUE;
   }
 
-  ElemDDLNode * pPrivActs = pPrivsNode->getPrivilegeActionList();
-  if (pPrivActs)
-  {
-    for (CollIndex i = 0; i < pPrivActs->entries(); i++)
-    {
+  ElemDDLNode *pPrivActs = pPrivsNode->getPrivilegeActionList();
+  if (pPrivActs) {
+    for (CollIndex i = 0; i < pPrivActs->entries(); i++) {
       privActArray_.insert((*pPrivActs)[i]->castToElemDDLPrivAct());
     }
   }
@@ -1174,49 +955,35 @@ StmtDDLSchRevoke::StmtDDLSchRevoke(NABoolean isGrantOptionFor,
   //
 
   ComASSERT(pGranteeList NEQ NULL);
-  for (CollIndex i = 0; i < pGranteeList->entries(); i++)
-  {
+  for (CollIndex i = 0; i < pGranteeList->entries(); i++) {
     granteeArray_.insert((*pGranteeList)[i]->castToElemDDLGrantee());
-  } 
+  }
 
-  if ( pByGrantorOption NEQ NULL )
-  {
+  if (pByGrantorOption NEQ NULL) {
     isByGrantorOptionSpec_ = TRUE;
     byGrantor_ = pByGrantorOption->castToElemDDLGrantee();
   }
 
-} // StmtDDLSchRevoke::StmtDDLSchRevoke()
+}  // StmtDDLSchRevoke::StmtDDLSchRevoke()
 
 // virtual destructor
-StmtDDLSchRevoke::~StmtDDLSchRevoke()
-{
+StmtDDLSchRevoke::~StmtDDLSchRevoke() {
   // delete all children
-  for (Int32 i = 0; i < getArity(); i++)
-  {
+  for (Int32 i = 0; i < getArity(); i++) {
     delete getChild(i);
   }
 }
 
 // cast
-StmtDDLSchRevoke *
-StmtDDLSchRevoke::castToStmtDDLSchRevoke()
-{
-  return this;
-}
+StmtDDLSchRevoke *StmtDDLSchRevoke::castToStmtDDLSchRevoke() { return this; }
 
 //
 // accessors
 //
 
-Int32
-StmtDDLSchRevoke::getArity() const
-{
-  return MAX_STMT_DDL_REVOKE_ARITY;
-}
+Int32 StmtDDLSchRevoke::getArity() const { return MAX_STMT_DDL_REVOKE_ARITY; }
 
-ExprNode *
-StmtDDLSchRevoke::getChild(Lng32 index) 
-{
+ExprNode *StmtDDLSchRevoke::getChild(Lng32 index) {
   ComASSERT(index >= 0 AND index < getArity());
   return children_[index];
 }
@@ -1225,17 +992,12 @@ StmtDDLSchRevoke::getChild(Lng32 index)
 // mutators
 //
 
-void
-StmtDDLSchRevoke::setChild(Lng32 index, ExprNode * pChildNode)
-{
+void StmtDDLSchRevoke::setChild(Lng32 index, ExprNode *pChildNode) {
   ComASSERT(index >= 0 AND index < getArity());
-  if (pChildNode NEQ NULL)
-  {
+  if (pChildNode NEQ NULL) {
     ComASSERT(pChildNode->castToElemDDLNode() NEQ NULL);
-    children_[index] = pChildNode->castToElemDDLNode(); 
-  }
-  else
-  {
+    children_[index] = pChildNode->castToElemDDLNode();
+  } else {
     children_[index] = NULL;
   }
 }
@@ -1244,76 +1006,61 @@ StmtDDLSchRevoke::setChild(Lng32 index, ExprNode * pChildNode)
 // methods for tracing
 //
 
+const NAString StmtDDLSchRevoke::displayLabel1() const { return NAString("Schema name: ") + getSchemaName(); }
 
-const NAString
-StmtDDLSchRevoke::displayLabel1() const
-{
-  return NAString("Schema name: ") + getSchemaName();
-}
-
-const NAString
-StmtDDLSchRevoke::displayLabel2() const
-{
+const NAString StmtDDLSchRevoke::displayLabel2() const {
   NAString label2("Drop behavior: ");
-  switch (getDropBehavior())
-  {
-  case COM_CASCADE_DROP_BEHAVIOR :
-    return label2 + "Cascade";
+  switch (getDropBehavior()) {
+    case COM_CASCADE_DROP_BEHAVIOR:
+      return label2 + "Cascade";
 
-  case COM_RESTRICT_DROP_BEHAVIOR :
-    return label2 + "Restrict";
+    case COM_RESTRICT_DROP_BEHAVIOR:
+      return label2 + "Restrict";
 
-  default :
-    ABORT("internal logic error");
-    return NAString();
+    default:
+      ABORT("internal logic error");
+      return NAString();
   }
 }
 
-NATraceList
-StmtDDLSchRevoke::getDetailInfo() const
-{
-  NAString        detailText;
+NATraceList StmtDDLSchRevoke::getDetailInfo() const {
+  NAString detailText;
   NATraceList detailTextList;
 
   //
   // object name
   //
 
-  detailTextList.append(displayLabel1());   // object name
+  detailTextList.append(displayLabel1());  // object name
 
   //
   // privileges
   //
 
-  StmtDDLSchRevoke * localThis = (StmtDDLSchRevoke *)this;
+  StmtDDLSchRevoke *localThis = (StmtDDLSchRevoke *)this;
 
-  detailTextList.append(localThis->getChild(INDEX_PRIVILEGES)
-                                 ->castToElemDDLNode()
-                                 ->castToElemDDLPrivileges()
-                                 ->getDetailInfo());
+  detailTextList.append(
+      localThis->getChild(INDEX_PRIVILEGES)->castToElemDDLNode()->castToElemDDLPrivileges()->getDetailInfo());
 
   //
   // grantee list
   //
 
-  const ElemDDLGranteeArray & granteeArray = getGranteeArray();
+  const ElemDDLGranteeArray &granteeArray = getGranteeArray();
 
   detailText = "Grantee list [";
   detailText += LongToNAString((Lng32)granteeArray.entries());
   detailText += " element(s)]";
   detailTextList.append(detailText);
 
-  for (CollIndex i = 0; i < granteeArray.entries(); i++)
-  {
+  for (CollIndex i = 0; i < granteeArray.entries(); i++) {
     detailText = "[grantee ";
     detailText += LongToNAString((Lng32)i);
     detailText += "]";
     detailTextList.append(detailText);
-  
-    ComASSERT(granteeArray[i] NEQ NULL AND
-              granteeArray[i]->castToElemDDLGrantee() NEQ NULL);
-    detailTextList.append("    ", granteeArray[i]->castToElemDDLGrantee()
-                                                 ->getDetailInfo());
+
+    ComASSERT(granteeArray[i] NEQ NULL AND granteeArray[i]->castToElemDDLGrantee() NEQ NULL);
+    detailTextList.append("    ", granteeArray[i]->castToElemDDLGrantee()->getDetailInfo());
   }
 
   //
@@ -1328,19 +1075,13 @@ StmtDDLSchRevoke::getDetailInfo() const
   // drop behavior
   //
 
-  detailTextList.append(displayLabel2());   // drop behavior
-
+  detailTextList.append(displayLabel2());  // drop behavior
 
   return detailTextList;
 
-} // StmtDDLSchRevoke::getDetailInfo
+}  // StmtDDLSchRevoke::getDetailInfo
 
-const NAString
-StmtDDLSchRevoke::getText() const
-{
-  return "StmtDDLSchRevoke";
-}
-
+const NAString StmtDDLSchRevoke::getText() const { return "StmtDDLSchRevoke"; }
 
 // -----------------------------------------------------------------------
 // methods for class StmtDDLRegisterComponent
@@ -1349,94 +1090,64 @@ StmtDDLSchRevoke::getText() const
 //
 // constructors used for (UN)REGISTER COMPONENT
 //
-StmtDDLRegisterComponent::StmtDDLRegisterComponent(StmtDDLRegisterComponent::RegisterComponentType eRegComponentParseNodeType,
-                                                   const NAString & sComponentName,
-                                                   const NABoolean isSystem,
-                                                   const NAString & sDetailInfo,
-                                                   CollHeap * heap)
-  : StmtDDLNode(DDL_REGISTER_COMPONENT),
-    registerComponentType_(eRegComponentParseNodeType),
-    componentName_(sComponentName, heap),
-    isSystem_(isSystem),
-    componentDetailInfo_(sDetailInfo, heap)
-{
-} 
-StmtDDLRegisterComponent::StmtDDLRegisterComponent(StmtDDLRegisterComponent::RegisterComponentType eRegComponentParseNodeType,
-                                                   const NAString & sComponentName,
-                                                   ComDropBehavior dropBehavior, 
-                                                   CollHeap * heap)
-  : StmtDDLNode(DDL_REGISTER_COMPONENT),
-    registerComponentType_(eRegComponentParseNodeType),
-    componentName_(sComponentName, heap),
-    dropBehavior_(dropBehavior),
-    componentDetailInfo_(heap)
-{
-} 
+StmtDDLRegisterComponent::StmtDDLRegisterComponent(
+    StmtDDLRegisterComponent::RegisterComponentType eRegComponentParseNodeType, const NAString &sComponentName,
+    const NABoolean isSystem, const NAString &sDetailInfo, CollHeap *heap)
+    : StmtDDLNode(DDL_REGISTER_COMPONENT),
+      registerComponentType_(eRegComponentParseNodeType),
+      componentName_(sComponentName, heap),
+      isSystem_(isSystem),
+      componentDetailInfo_(sDetailInfo, heap) {}
+StmtDDLRegisterComponent::StmtDDLRegisterComponent(
+    StmtDDLRegisterComponent::RegisterComponentType eRegComponentParseNodeType, const NAString &sComponentName,
+    ComDropBehavior dropBehavior, CollHeap *heap)
+    : StmtDDLNode(DDL_REGISTER_COMPONENT),
+      registerComponentType_(eRegComponentParseNodeType),
+      componentName_(sComponentName, heap),
+      dropBehavior_(dropBehavior),
+      componentDetailInfo_(heap) {}
 
 //
 // virtual destructor
 //
-StmtDDLRegisterComponent::~StmtDDLRegisterComponent()
-{
-}
+StmtDDLRegisterComponent::~StmtDDLRegisterComponent() {}
 
 //
 // cast
 //
-StmtDDLRegisterComponent *
-StmtDDLRegisterComponent::castToStmtDDLRegisterComponent()
-{
-  return this;
-}
-
+StmtDDLRegisterComponent *StmtDDLRegisterComponent::castToStmtDDLRegisterComponent() { return this; }
 
 //
 // methods for tracing
 //
 
-
-const NAString
-StmtDDLRegisterComponent::displayLabel1() const
-{
+const NAString StmtDDLRegisterComponent::displayLabel1() const {
   NAString aLabel("UNREGISTER COMPONENT");
-  if (getRegisterComponentType() == StmtDDLRegisterComponent::REGISTER_COMPONENT)
-  {
+  if (getRegisterComponentType() == StmtDDLRegisterComponent::REGISTER_COMPONENT) {
     aLabel = "REGISTER COMPONENT";
-    if (isSystem())
-      aLabel += " (SYSTEM)";
+    if (isSystem()) aLabel += " (SYSTEM)";
   }
   aLabel += " - External Component name: ";
   aLabel += getExternalComponentName();
-  if (getRegisterComponentType() == StmtDDLRegisterComponent::UNREGISTER_COMPONENT)
-  {
-     aLabel += " Drop behavior: ";
-     if (dropBehavior_ == COM_CASCADE_DROP_BEHAVIOR)
-        aLabel += "CASCADE";
-     else
-        aLabel += "RESTRICT";
+  if (getRegisterComponentType() == StmtDDLRegisterComponent::UNREGISTER_COMPONENT) {
+    aLabel += " Drop behavior: ";
+    if (dropBehavior_ == COM_CASCADE_DROP_BEHAVIOR)
+      aLabel += "CASCADE";
+    else
+      aLabel += "RESTRICT";
   }
   return aLabel;
 }
 
-const NAString
-StmtDDLRegisterComponent::displayLabel2() const
-{
-  if (NOT getRegisterComponentDetailInfo().isNull())
-  {
+const NAString StmtDDLRegisterComponent::displayLabel2() const {
+  if (NOT getRegisterComponentDetailInfo().isNull()) {
     return NAString("Detail Information: ") + getRegisterComponentDetailInfo();
-  }
-  else
-  {
+  } else {
     return NAString("No Detail Information (i.e., an empty string).");
   }
 }
 
-const NAString
-StmtDDLRegisterComponent::getText() const
-{
-  return "StmtDDLRegisterComponent";
-}
-
+const NAString StmtDDLRegisterComponent::getText() const { return "StmtDDLRegisterComponent"; }
 
 //
 // End of File

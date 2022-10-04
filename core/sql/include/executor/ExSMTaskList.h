@@ -30,9 +30,8 @@ class ExSMTask;
 class ExSMTaskList;
 class ExSMQueue;
 
-class ExSMTaskList
-{
-public:
+class ExSMTaskList {
+ public:
   ExSMTaskList();
 
   virtual ~ExSMTaskList();
@@ -45,12 +44,9 @@ public:
 
   uint32_t getNumTasks() { return numTasks_; }
 
-  ExSMTask *findTask(const sm_target_t &target,
-                     bool doLock,
-                     bool doTrace);
+  ExSMTask *findTask(const sm_target_t &target, bool doLock, bool doTrace);
 
-protected:
-
+ protected:
   ExSMTask **buckets_;
   uint32_t numBuckets_;
   uint32_t numTasks_;
@@ -59,6 +55,6 @@ protected:
 
   pthread_mutex_t taskListMutex_;
 
-}; // class ExSMTaskList
+};  // class ExSMTaskList
 
-#endif // EXSM_TASKLIST_H
+#endif  // EXSM_TASKLIST_H

@@ -36,21 +36,20 @@
 ******************************************************************************
 */
 
-#include <Collections.h> 
+#include <Collections.h>
 
 //-----------------------------------------------------------------------------
 // class ColIndList
 // ----------------
 // This is a list of longs representing a list of column numbers. It is used
 // to represent clustering indexes.
-class ColIndList : public LIST(Lng32)
-{
-public:
- ColIndList() : LIST(Lng32)(NULL) {} // on C++ heap
- ColIndList(LIST(Lng32) list) : LIST(Lng32)(list,NULL) {}
+class ColIndList : public LIST(Lng32) {
+ public:
+  ColIndList() : LIST(Lng32)(NULL) {}  // on C++ heap
+  ColIndList(LIST(Lng32) list) : LIST(Lng32)(list, NULL) {}
   virtual ~ColIndList() {}
-  NABoolean isPrefixOf(const ColIndList& other) const;
-  NABoolean isOrderedPrefixOf(const ColIndList& other) const;
+  NABoolean isPrefixOf(const ColIndList &other) const;
+  NABoolean isOrderedPrefixOf(const ColIndList &other) const;
 };
 
 #endif

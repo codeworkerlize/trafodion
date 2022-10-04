@@ -6,7 +6,7 @@
  *
  * File:         Debug.h
  * Description:  DBG() and DBGDECL() macro definitions for C debugging.
- *               
+ *
  * Language:     C++
  *
 // @@@ START COPYRIGHT @@@
@@ -57,21 +57,22 @@
  *  DBGDECL (static int icnt = 0;)
  *  if (x>y) DBG (printf("foo"); icnt++;)
  *  DBG (if (x>y) {printf("foo"); icnt++;})
-*/
+ */
 
 #ifndef NDEBUG
-  #include <stdlib.h>		      /* for getenv() */
-  #define DBG(statement_list)         {statement_list}
-  #define DBGDECL(declaration_list)   declaration_list
+#include <stdlib.h> /* for getenv() */
+#define DBG(statement_list) \
+  { statement_list }
+#define DBGDECL(declaration_list) declaration_list
 #else
-  #define DBG(statement_list)         ;
-  #define DBGDECL(declaration_list)   /* no declaration */
+#define DBG(statement_list)       ;
+#define DBGDECL(declaration_list) /* no declaration */
 #endif
 
 // This "ignore" is for symmetry in the using code; it just looks nicer.
-#define DBGDECLDBG(ignore)	      DBGDECL( static THREAD_P Int32 DBG__ = 0; )
-#define DBGSETDBG(envvar)	      DBG( DBG__ = !!getenv(envvar); )
-#define DBGIFB(b,statement_list)      DBG( if (b) {statement_list} )
-#define DBGIF(statement_list)	      DBGIFB(DBG__,statement_list)
+#define DBGDECLDBG(ignore)        DBGDECL(static THREAD_P Int32 DBG__ = 0;)
+#define DBGSETDBG(envvar)         DBG(DBG__ = !!getenv(envvar);)
+#define DBGIFB(b, statement_list) DBG(if (b){statement_list})
+#define DBGIF(statement_list)     DBGIFB(DBG__, statement_list)
 
-#endif // DEBUG_H
+#endif  // DEBUG_H

@@ -38,7 +38,6 @@
  *****************************************************************************
  */
 
-
 #include "ElemDDLNode.h"
 #include "parser/ElemDDLColRefArray.h"
 #include "ElemDDLDivisionClause.h"
@@ -63,26 +62,18 @@ class StmtDDLCreateIndex;
 // -----------------------------------------------------------------------
 // Create Index statement
 // -----------------------------------------------------------------------
-class StmtDDLCreateIndex : public StmtDDLNode
-{
-
-public:
-
-
+class StmtDDLCreateIndex : public StmtDDLNode {
+ public:
   // initialize constructor
-  StmtDDLCreateIndex(NABoolean isUnique,
-                     const NAString & anIndexName,
-                     const QualifiedName & aTableName,
-                     ElemDDLNode * pColumnList,
-                     ElemDDLNode * pAttributeList,
-                     ElemDDLNode * pAddnlTableColList,
-                     CollHeap    * heap = PARSERHEAP());
+  StmtDDLCreateIndex(NABoolean isUnique, const NAString &anIndexName, const QualifiedName &aTableName,
+                     ElemDDLNode *pColumnList, ElemDDLNode *pAttributeList, ElemDDLNode *pAddnlTableColList,
+                     CollHeap *heap = PARSERHEAP());
 
   // virtual destructor
   virtual ~StmtDDLCreateIndex();
 
   // cast
-  virtual StmtDDLCreateIndex * castToStmtDDLCreateIndex();
+  virtual StmtDDLCreateIndex *castToStmtDDLCreateIndex();
 
   //
   // accessors
@@ -90,146 +81,146 @@ public:
 
   // methods relating to parse tree
   virtual Int32 getArity() const;
-  virtual ExprNode * getChild(Lng32 index);
+  virtual ExprNode *getChild(Lng32 index);
 
-  inline const ElemDDLColRefArray & getColRefArray() const;
-  inline ElemDDLColRefArray & getColRefArray();
+  inline const ElemDDLColRefArray &getColRefArray() const;
+  inline ElemDDLColRefArray &getColRefArray();
 
-        // returns a NAList of ElemDDLColRef parse nodes.
+  // returns a NAList of ElemDDLColRef parse nodes.
 
-  inline const ElemDDLColRefArray & getAddnlColRefArray() const;
-  inline ElemDDLColRefArray & getAddnlColRefArray();
+  inline const ElemDDLColRefArray &getAddnlColRefArray() const;
+  inline ElemDDLColRefArray &getAddnlColRefArray();
 
-  inline const ParDDLFileAttrsCreateIndex & getFileAttributes() const;
-  inline       ParDDLFileAttrsCreateIndex & getFileAttributes();
+  inline const ParDDLFileAttrsCreateIndex &getFileAttributes() const;
+  inline ParDDLFileAttrsCreateIndex &getFileAttributes();
 
-        // returns the object containing the file attributes
-        // associating with the index being created.  Please
-        // note that some file attributes in the returned
-        // object only apply to the primary partition of the
-        // index.
+  // returns the object containing the file attributes
+  // associating with the index being created.  Please
+  // note that some file attributes in the returned
+  // object only apply to the primary partition of the
+  // index.
 
-  inline const NAString & getGuardianLocation() const;
+  inline const NAString &getGuardianLocation() const;
 
-        // returns an empty string unless the parse node
-        // is bound (the method bindNode is invoked).
-        // After the parse node is bound, returns the
-        // location of the primary partition in Guardian
-        // physical device name format.  If the LOCATION
-        // clause is not specified, a default location is
-        // used.
+  // returns an empty string unless the parse node
+  // is bound (the method bindNode is invoked).
+  // After the parse node is bound, returns the
+  // location of the primary partition in Guardian
+  // physical device name format.  If the LOCATION
+  // clause is not specified, a default location is
+  // used.
 
-  inline const QualifiedName & getOrigTableNameAsQualifiedName() const;
-  inline       QualifiedName & getOrigTableNameAsQualifiedName();
+  inline const QualifiedName &getOrigTableNameAsQualifiedName() const;
+  inline QualifiedName &getOrigTableNameAsQualifiedName();
 
-  inline const NAString & getIndexName() const;
-  inline const QualifiedName & getIndexNameAsQualifiedName() const;
-  inline       QualifiedName & getIndexNameAsQualifiedName() ;
+  inline const NAString &getIndexName() const;
+  inline const QualifiedName &getIndexNameAsQualifiedName() const;
+  inline QualifiedName &getIndexNameAsQualifiedName();
 
-  inline const QualifiedName & getTableNameAsQualifiedName() const;
-  inline       QualifiedName & getTableNameAsQualifiedName() ;
+  inline const QualifiedName &getTableNameAsQualifiedName() const;
+  inline QualifiedName &getTableNameAsQualifiedName();
 
-  inline const NAString & getLocation() const;
+  inline const NAString &getLocation() const;
 
-        // returns location name if specified; otherwise,
-        // an empty string is returned.
+  // returns location name if specified; otherwise,
+  // an empty string is returned.
 
   inline NAString getLocationName() const;
 
-        // returns location name if specified; otherwise,
-        // an empty string is returned.
+  // returns location name if specified; otherwise,
+  // an empty string is returned.
 
   inline NAString getPartitionName() const;
-        // returns the partition name if specified; otherwise
-        // an empty string is returned.
+  // returns the partition name if specified; otherwise
+  // an empty string is returned.
 
   ElemDDLLocation::locationNameTypeEnum getLocationNameType() const;
 
-        // returns the type of the specified location name;
-        // e.g., a Guardian device name.  If location clause
-        // is not specified, the returned value has no meaning.
+  // returns the type of the specified location name;
+  // e.g., a Guardian device name.  If location clause
+  // is not specified, the returned value has no meaning.
 
-  inline const NAString & getParallelExecConfigFileName() const;
+  inline const NAString &getParallelExecConfigFileName() const;
 
-        // returns the name of the config. file specified
-        // in the Parallel Execution clause; returns an
-        // empty string if the clause does not appear.
+  // returns the name of the config. file specified
+  // in the Parallel Execution clause; returns an
+  // empty string if the clause does not appear.
 
-  inline const ElemDDLPartitionArray & getPartitionArray() const;
-  inline ElemDDLPartitionArray & getPartitionArray();
+  inline const ElemDDLPartitionArray &getPartitionArray() const;
+  inline ElemDDLPartitionArray &getPartitionArray();
 
-        // returns a NAList of ElemDDLPartition parse nodes.
-        // If Partition clause not specified, the list is empty.
+  // returns a NAList of ElemDDLPartition parse nodes.
+  // If Partition clause not specified, the list is empty.
 
-  inline const ElemDDLColRefArray & getPartitionKeyColRefArray() const;
-  inline       ElemDDLColRefArray & getPartitionKeyColRefArray();
+  inline const ElemDDLColRefArray &getPartitionKeyColRefArray() const;
+  inline ElemDDLColRefArray &getPartitionKeyColRefArray();
 
-        // returns column name list in partition by clause if
-        // specified; otherwise, an empty array is returned.
+  // returns column name list in partition by clause if
+  // specified; otherwise, an empty array is returned.
 
   const NAString getTableName() const;
 
-        // returns table name, in external format.
+  // returns table name, in external format.
 
   inline NABoolean isAttributeSpecified() const;
 
-        // returns TRUE if the index file attribute clause appears;
-        // returns FALSE otherwise.
+  // returns TRUE if the index file attribute clause appears;
+  // returns FALSE otherwise.
 
   inline NABoolean isLocationSpecified() const;
 
-        // returns TRUE if location clause is specified;
-        // returns FALSE otherwise.
+  // returns TRUE if location clause is specified;
+  // returns FALSE otherwise.
 
   inline NABoolean isPopulateOptionSpecified() const;
-        
-        // return TRUE if IsPopulate clause appear;
-        // return FALSE otherwise.
 
-inline NABoolean isNoPopulateOptionSpecified() const;
-        
-        // return TRUE if IsNoPopulate clause appear;
-        // return FALSE otherwise.
-    
+  // return TRUE if IsPopulate clause appear;
+  // return FALSE otherwise.
+
+  inline NABoolean isNoPopulateOptionSpecified() const;
+
+  // return TRUE if IsNoPopulate clause appear;
+  // return FALSE otherwise.
+
   inline NABoolean isParallelExecutionClauseSpecified() const;
 
-        // returns TRUE if the parallel execution clause appears;
-        // returns FALSE otherwise.
+  // returns TRUE if the parallel execution clause appears;
+  // returns FALSE otherwise.
 
   inline NABoolean isParallelExecutionEnabled() const;
 
-        // returns TRUE if the parallel execution clause appears
-        // with ON option; returns FALSE otherwise.
+  // returns TRUE if the parallel execution clause appears
+  // with ON option; returns FALSE otherwise.
 
   inline ComPartitioningScheme getPartitioningScheme() const;
-        //
-        // Returns the partitioning scheme (could be HASH or RANGE)
-        //
+  //
+  // Returns the partitioning scheme (could be HASH or RANGE)
+  //
 
   inline NABoolean isPartitionSpecified() const;
 
-        // returns TRUE if the partition clause appears;
-        // returns FALSE otherwise.
+  // returns TRUE if the partition clause appears;
+  // returns FALSE otherwise.
 
   inline NABoolean isPartitionBySpecified() const;
 
-        // returns TRUE if the index is partition local clause appears;
-        // returns FALSE otherwise.
+  // returns TRUE if the index is partition local clause appears;
+  // returns FALSE otherwise.
 
   inline NABoolean isPartLocalOptSpecified() const;
 
-        // returns TRUE if the index is partition global clause appears;
-        // returns FALSE otherwise.
+  // returns TRUE if the index is partition global clause appears;
+  // returns FALSE otherwise.
 
   inline NABoolean isPartGlobalOptSpecified() const;
 
-        // returns TRUE if the PARTITION BY clause appears;
-        // returns FALSE otherwise.
+  // returns TRUE if the PARTITION BY clause appears;
+  // returns FALSE otherwise.
 
   inline NABoolean isUniqueSpecified() const;
 
-        // returns TRUE if the Unique keyword is specified;
-        // returns FALSE otherwise.
+  // returns TRUE if the Unique keyword is specified;
+  // returns FALSE otherwise.
   inline NABoolean isNgramSpecified() const;
 
   inline NABoolean isNumRowsSpecified() const;
@@ -237,49 +228,48 @@ inline NABoolean isNoPopulateOptionSpecified() const;
 
   inline NABoolean isDivisionClauseSpecified() const;
 
-        // returns TRUE if the DIVISION {BY|AS} clause appears;
-        // returns FALSE otherwise.
+  // returns TRUE if the DIVISION {BY|AS} clause appears;
+  // returns FALSE otherwise.
 
   inline NABoolean isHbaseOptionsSpecified() const;
 
-        // returns TRUE if HBASE_OPTIONS clause appears;
-        // returns FALSE otherwise.
-
+  // returns TRUE if HBASE_OPTIONS clause appears;
+  // returns FALSE otherwise.
 
   inline ElemDDLDivisionClause::divisionTypeEnum getDivisionType() const;
-  inline ItemExprList * getDivisionExprList();
+  inline ItemExprList *getDivisionExprList();
 
-  inline       ElemDDLSaltOptionsClause * getSaltOptions();
+  inline ElemDDLSaltOptionsClause *getSaltOptions();
 
   // this will return NULL in all cases as Traf 0.9 since SALT calumns
   // cannot be be explicitly specified in the CREATE INDEX statement
   // Only SALT LIKE TABLE is supported for an index
-  inline       ElemDDLColRefArray * getSaltColRefArray();
+  inline ElemDDLColRefArray *getSaltColRefArray();
 
-  inline       ElemDDLHbaseOptions * getHbaseOptionsClause();
+  inline ElemDDLHbaseOptions *getHbaseOptionsClause();
 
-  inline void setNgram(NABoolean isNgram) {isNgram_ = isNgram;}
-  
+  inline void setNgram(NABoolean isNgram) { isNgram_ = isNgram; }
+
   //
   // mutators
   //
 
-  void setChild(Lng32 index, ExprNode * newNode);
+  void setChild(Lng32 index, ExprNode *newNode);
 
   //
   // method for binding
   //
 
-  ExprNode * bindNode(BindWA * pBindWA);
+  ExprNode *bindNode(BindWA *pBindWA);
 
   //
   // method for collecting information
   //
-  
+
   void synthesize();
 
-        // collects information in the parse sub-tree and
-        // copy/move them to the current parse node.
+  // collects information in the parse sub-tree and
+  // copy/move them to the current parse node.
 
   //
   // methods for tracing
@@ -302,64 +292,64 @@ inline NABoolean isNoPopulateOptionSpecified() const;
 
   void setPartitionIndexType(PARTITION_INDEX_TYPE type) { partitionIndexType_ = type; }
   inline PARTITION_INDEX_TYPE getPartitionIndexType() const;
-private:
 
+ private:
   // ---------------------------------------------------------------------
   // private methods
   // ---------------------------------------------------------------------
 
-  void setFileAttributes(ElemDDLFileAttrClause * pFileAttrClause);
+  void setFileAttributes(ElemDDLFileAttrClause *pFileAttrClause);
 
-        // Copies the information in the specified file
-        // attribute clause (pointed to by pFileAttrClause)
-        // to data member fileAttributes_ in this object.
-        // 
-        // This method can only be invoked during the
-        // construction of this object when the (file)
-        // attributes clause appears.
+  // Copies the information in the specified file
+  // attribute clause (pointed to by pFileAttrClause)
+  // to data member fileAttributes_ in this object.
+  //
+  // This method can only be invoked during the
+  // construction of this object when the (file)
+  // attributes clause appears.
 
-  void setIndexOption(ElemDDLNode * pOption);
+  void setIndexOption(ElemDDLNode *pOption);
 
-        // Copies the information in an Index Option parse node
-        // pointed to by pOption to this object.  An index option
-        // parse node represents a Location clause, a Partition
-        // clause, a File Attribute clause, or a load option.
-        // This method should only be invoked from a constructor.
+  // Copies the information in an Index Option parse node
+  // pointed to by pOption to this object.  An index option
+  // parse node represents a Location clause, a Partition
+  // clause, a File Attribute clause, or a load option.
+  // This method should only be invoked from a constructor.
 
-  void setPartitions(ElemDDLPartitionClause * pPartitionClause);
+  void setPartitions(ElemDDLPartitionClause *pPartitionClause);
 
-        // Copies the information in the specified partition
-        // clause (pointed to by pPartitionClause) to this object.
-        //
-        // This method is only invoked during the contruction of
-        // this object when the partition clause appears.
+  // Copies the information in the specified partition
+  // clause (pointed to by pPartitionClause) to this object.
+  //
+  // This method is only invoked during the contruction of
+  // this object when the partition clause appears.
 
-  void setPrimaryPartition(ElemDDLNode * pFirstSecondaryPartitionNode);
+  void setPrimaryPartition(ElemDDLNode *pFirstSecondaryPartitionNode);
 
-        // Allocates the primary partition node and inserts its
-        // pointer at the beginning of the partitionArray_.  The
-        // kind of the primary partition node must be the same
-        // as that of the specified secondary partition node.
-        //
-        // This method is only invoked during the construction
-        // of this object when the partition clause appears.
+  // Allocates the primary partition node and inserts its
+  // pointer at the beginning of the partitionArray_.  The
+  // kind of the primary partition node must be the same
+  // as that of the specified secondary partition node.
+  //
+  // This method is only invoked during the construction
+  // of this object when the partition clause appears.
 
-  void setSecondaryPartition(ElemDDLPartition * pSecondaryPartitionNode);
+  void setSecondaryPartition(ElemDDLPartition *pSecondaryPartitionNode);
 
-        // Copies the information of the specified secondary
-        // partition (pointed to by pSecondaryPartitionNode)
-        // to this object.
-        //
-        // This method is only invoked during the construction
-        // of this object when the partition clause appears.
+  // Copies the information of the specified secondary
+  // partition (pointed to by pSecondaryPartitionNode)
+  // to this object.
+  //
+  // This method is only invoked during the construction
+  // of this object when the partition clause appears.
 
   //
   // please do not use the following methods
   //
-  
-  StmtDDLCreateIndex();                                        // DO NOT USE
-  StmtDDLCreateIndex(const StmtDDLCreateIndex &);              // DO NOT USE
-  StmtDDLCreateIndex & operator=(const StmtDDLCreateIndex &);  // DO NOT USE
+
+  StmtDDLCreateIndex();                                       // DO NOT USE
+  StmtDDLCreateIndex(const StmtDDLCreateIndex &);             // DO NOT USE
+  StmtDDLCreateIndex &operator=(const StmtDDLCreateIndex &);  // DO NOT USE
 
   // ---------------------------------------------------------------------
   // private data members
@@ -367,8 +357,8 @@ private:
 
   NABoolean isUnique_;
 
-        // Set to TRUE if the keyword UNIQUE is specified;
-        // set to FALSE otherwise.
+  // Set to TRUE if the keyword UNIQUE is specified;
+  // set to FALSE otherwise.
 
   // set to TRUE if the keywork NGRAM is specified
   // set to FALSE otherwise
@@ -411,7 +401,7 @@ private:
   //
   // Optional Partition Type
   //
-  ComPartitioningScheme partitioningScheme_ ;
+  ComPartitioningScheme partitioningScheme_;
 
   //
   // PARTITION clause
@@ -449,8 +439,8 @@ private:
   NABoolean isParallelExec_;  // TRUE (ON); FALSE (OFF)
   NABoolean isPopulated_;     // True if populate option is specified, false if no populate is specified.
   NABoolean isNoPopulated_;   // True if no populate option is specified, false otherwise.
-  Int32       populateCount_ ;  // to prevent user to enter the populate clause multiple times.
-  Int32       noPopulateCount_; // to prevent user to enter the no populate clause multiple times.
+  Int32 populateCount_;       // to prevent user to enter the populate clause multiple times.
+  Int32 noPopulateCount_;     // to prevent user to enter the no populate clause multiple times.
   NAString configFileName_;
 
   NABoolean isPartLocalIndex_;
@@ -471,19 +461,15 @@ private:
   //   is not part of the parse tree.
   //
 
-  ElemDDLPartition * pPrimaryPartition_;
+  ElemDDLPartition *pPrimaryPartition_;
 
   //
   // pointers to child parse nodes
   //
 
-  enum { INDEX_COLUMN_REF_LIST = 0,
-         INDEX_OPTION_LIST,
-         INDEX_ADDNL_COLUMN_REF_LIST,
-         MAX_STMT_DDL_CREATE_INDEX_ARITY };
+  enum { INDEX_COLUMN_REF_LIST = 0, INDEX_OPTION_LIST, INDEX_ADDNL_COLUMN_REF_LIST, MAX_STMT_DDL_CREATE_INDEX_ARITY };
 
-
-  ElemDDLNode * children_[MAX_STMT_DDL_CREATE_INDEX_ARITY];
+  ElemDDLNode *children_[MAX_STMT_DDL_CREATE_INDEX_ARITY];
 
   // TRUE if the index is to be created on a ghost table
   NABoolean isIndexOnGhostTable_;
@@ -497,306 +483,137 @@ private:
 
   // the type of partition index
   PARTITION_INDEX_TYPE partitionIndexType_;
-}; // class StmtDDLCreateIndex
+};  // class StmtDDLCreateIndex
 
 // -----------------------------------------------------------------------
 // definitions of inline methods for class StmtDDLCreateIndex
 // -----------------------------------------------------------------------
-inline QualifiedName &
-StmtDDLCreateIndex::getOrigTableNameAsQualifiedName()
-{
-  return origTableQualName_;
-}
+inline QualifiedName &StmtDDLCreateIndex::getOrigTableNameAsQualifiedName() { return origTableQualName_; }
 
-inline const QualifiedName &
-StmtDDLCreateIndex::getOrigTableNameAsQualifiedName() const
-{
-  return origTableQualName_;
-}
+inline const QualifiedName &StmtDDLCreateIndex::getOrigTableNameAsQualifiedName() const { return origTableQualName_; }
 
-inline QualifiedName &
-StmtDDLCreateIndex::getIndexNameAsQualifiedName()
-{
-  return indexQualName_;
-}
+inline QualifiedName &StmtDDLCreateIndex::getIndexNameAsQualifiedName() { return indexQualName_; }
 
-inline const QualifiedName & 
-StmtDDLCreateIndex::getIndexNameAsQualifiedName() const
-{
-  return indexQualName_;
-}
+inline const QualifiedName &StmtDDLCreateIndex::getIndexNameAsQualifiedName() const { return indexQualName_; }
 
-inline QualifiedName & 
-StmtDDLCreateIndex::getTableNameAsQualifiedName()
-{
-  return tableQualName_;
-}
+inline QualifiedName &StmtDDLCreateIndex::getTableNameAsQualifiedName() { return tableQualName_; }
 
-inline const QualifiedName & 
-StmtDDLCreateIndex::getTableNameAsQualifiedName() const
-{
-  return tableQualName_;
-}
+inline const QualifiedName &StmtDDLCreateIndex::getTableNameAsQualifiedName() const { return tableQualName_; }
 
-inline const ElemDDLColRefArray &
-StmtDDLCreateIndex::getColRefArray() const
-{
-  return columnRefArray_;
-}
+inline const ElemDDLColRefArray &StmtDDLCreateIndex::getColRefArray() const { return columnRefArray_; }
 
-inline ElemDDLColRefArray &
-StmtDDLCreateIndex::getColRefArray()
-{
-  return columnRefArray_;
-}
+inline ElemDDLColRefArray &StmtDDLCreateIndex::getColRefArray() { return columnRefArray_; }
 
-inline const ElemDDLColRefArray &
-StmtDDLCreateIndex::getAddnlColRefArray() const
-{
-  return addnlColumnRefArray_;
-}
+inline const ElemDDLColRefArray &StmtDDLCreateIndex::getAddnlColRefArray() const { return addnlColumnRefArray_; }
 
-inline ElemDDLColRefArray &
-StmtDDLCreateIndex::getAddnlColRefArray()
-{
-  return addnlColumnRefArray_;
-}
+inline ElemDDLColRefArray &StmtDDLCreateIndex::getAddnlColRefArray() { return addnlColumnRefArray_; }
 
-inline const ParDDLFileAttrsCreateIndex &
-StmtDDLCreateIndex::getFileAttributes() const
-{
-  return fileAttributes_;
-}
+inline const ParDDLFileAttrsCreateIndex &StmtDDLCreateIndex::getFileAttributes() const { return fileAttributes_; }
 
-inline ParDDLFileAttrsCreateIndex &
-StmtDDLCreateIndex::getFileAttributes()
-{
-  return fileAttributes_;
-}
+inline ParDDLFileAttrsCreateIndex &StmtDDLCreateIndex::getFileAttributes() { return fileAttributes_; }
 
-inline const NAString &
-StmtDDLCreateIndex::getGuardianLocation() const
-{
-  return guardianLocation_;
-}
+inline const NAString &StmtDDLCreateIndex::getGuardianLocation() const { return guardianLocation_; }
 
 // get index name
-inline const NAString &
-StmtDDLCreateIndex::getIndexName() const
-{
-  return indexName_;
-}
+inline const NAString &StmtDDLCreateIndex::getIndexName() const { return indexName_; }
 
-inline const NAString &
-StmtDDLCreateIndex::getLocation() const
-{
-  return locationName_;
-}
+inline const NAString &StmtDDLCreateIndex::getLocation() const { return locationName_; }
 
-inline NAString
-StmtDDLCreateIndex::getLocationName() const
-{
-  return locationName_;
-}
+inline NAString StmtDDLCreateIndex::getLocationName() const { return locationName_; }
 
-inline NAString
-StmtDDLCreateIndex::getPartitionName() const
-{
-  return partitionName_;
-}
+inline NAString StmtDDLCreateIndex::getPartitionName() const { return partitionName_; }
 
-inline ElemDDLLocation::locationNameTypeEnum
-StmtDDLCreateIndex::getLocationNameType() const
-{
+inline ElemDDLLocation::locationNameTypeEnum StmtDDLCreateIndex::getLocationNameType() const {
   return locationNameType_;
 }
 
 // get config. file name specified in Parallel Execution clause
-inline const NAString &
-StmtDDLCreateIndex::getParallelExecConfigFileName() const
-{
-  return configFileName_;
-}
+inline const NAString &StmtDDLCreateIndex::getParallelExecConfigFileName() const { return configFileName_; }
 
-inline NABoolean StmtDDLCreateIndex::isDivisionClauseSpecified() const
-{
-  return isDivisionClauseSpec_;
-}
+inline NABoolean StmtDDLCreateIndex::isDivisionClauseSpecified() const { return isDivisionClauseSpec_; }
 
 // is HBASE_OPTIONS specified?
-inline NABoolean StmtDDLCreateIndex::isHbaseOptionsSpecified() const
-{
-  return isHbaseOptionsSpec_;
+inline NABoolean StmtDDLCreateIndex::isHbaseOptionsSpecified() const { return isHbaseOptionsSpec_; }
+
+inline ElemDDLDivisionClause::divisionTypeEnum StmtDDLCreateIndex::getDivisionType() const {
+  return (pDivisionClauseParseNode_ EQU NULL ? ElemDDLDivisionClause::UNKNOWN_DIVISION_TYPE
+                                             : pDivisionClauseParseNode_->getDivisionType());
 }
 
-
-inline ElemDDLDivisionClause::divisionTypeEnum StmtDDLCreateIndex::getDivisionType() const
-{
-  return ( pDivisionClauseParseNode_ EQU NULL
-           ? ElemDDLDivisionClause::UNKNOWN_DIVISION_TYPE
-           : pDivisionClauseParseNode_->getDivisionType() );
+inline ItemExprList *StmtDDLCreateIndex::getDivisionExprList() {
+  return (pDivisionClauseParseNode_ EQU NULL ? NULL : pDivisionClauseParseNode_->getDivisionExprList());
 }
 
-inline ItemExprList * StmtDDLCreateIndex::getDivisionExprList()
-{
-  return ( pDivisionClauseParseNode_ EQU NULL
-           ? NULL
-           : pDivisionClauseParseNode_->getDivisionExprList() );
-}
+inline ElemDDLHbaseOptions *StmtDDLCreateIndex::getHbaseOptionsClause() { return pHbaseOptionsParseNode_; }
 
-inline ElemDDLHbaseOptions * StmtDDLCreateIndex::getHbaseOptionsClause()
-{
-  return pHbaseOptionsParseNode_;
-}
+inline ElemDDLSaltOptionsClause *StmtDDLCreateIndex::getSaltOptions() { return pSaltOptions_; }
 
-inline ElemDDLSaltOptionsClause * StmtDDLCreateIndex::getSaltOptions()
-{
-  return pSaltOptions_;
-}
-
-inline ElemDDLColRefArray * StmtDDLCreateIndex::getSaltColRefArray()
-{
-  return ( pSaltOptions_ EQU NULL
-           ? NULL
-           : &pSaltOptions_->getSaltColRefArray() );
+inline ElemDDLColRefArray *StmtDDLCreateIndex::getSaltColRefArray() {
+  return (pSaltOptions_ EQU NULL ? NULL : &pSaltOptions_->getSaltColRefArray());
 }
 
 //
 // Returns partitioning scheme set by default or by "<partition-type> PARTITION" syntax
 //
 
-inline ComPartitioningScheme StmtDDLCreateIndex::getPartitioningScheme() const
-{ 
-  return partitioningScheme_; 
-} 
+inline ComPartitioningScheme StmtDDLCreateIndex::getPartitioningScheme() const { return partitioningScheme_; }
 
 // returns an array of pointers pointing
 // to Partition parse nodes (each Partition
 // parse node contains all legal attributes
 // associating with a partition)
-inline const ElemDDLPartitionArray &
-StmtDDLCreateIndex::getPartitionArray() const
-{
-  return partitionArray_;
-}
-inline ElemDDLPartitionArray &
-StmtDDLCreateIndex::getPartitionArray()
-{
-  return partitionArray_;
-}
+inline const ElemDDLPartitionArray &StmtDDLCreateIndex::getPartitionArray() const { return partitionArray_; }
+inline ElemDDLPartitionArray &StmtDDLCreateIndex::getPartitionArray() { return partitionArray_; }
 
 // get column name list in partition by clause
-inline const ElemDDLColRefArray &
-StmtDDLCreateIndex::getPartitionKeyColRefArray() const
-{
+inline const ElemDDLColRefArray &StmtDDLCreateIndex::getPartitionKeyColRefArray() const {
   return partitionKeyColRefArray_;
 }
 
 // get column name list in partition by clause
-inline ElemDDLColRefArray &
-StmtDDLCreateIndex::getPartitionKeyColRefArray()
-{
-  return partitionKeyColRefArray_;
-}
+inline ElemDDLColRefArray &StmtDDLCreateIndex::getPartitionKeyColRefArray() { return partitionKeyColRefArray_; }
 
 // is the attributes clause specified?
-inline NABoolean
-StmtDDLCreateIndex::isAttributeSpecified() const
-{
-  return isAttributeClauseSpec_;
-}
+inline NABoolean StmtDDLCreateIndex::isAttributeSpecified() const { return isAttributeClauseSpec_; }
 
 // is location clause specified?
-inline NABoolean
-StmtDDLCreateIndex::isLocationSpecified() const
-{
-  return isLocationClauseSpec_;
-}
+inline NABoolean StmtDDLCreateIndex::isLocationSpecified() const { return isLocationClauseSpec_; }
 
 // is the parallel execution clause specified?
-inline NABoolean
-StmtDDLCreateIndex::isParallelExecutionClauseSpecified() const
-{
+inline NABoolean StmtDDLCreateIndex::isParallelExecutionClauseSpecified() const {
   return isParallelExecutionClauseSpec_;
 }
 
-inline NABoolean
-StmtDDLCreateIndex::isParallelExecutionEnabled() const
-{
-  return isParallelExec_;
-}
+inline NABoolean StmtDDLCreateIndex::isParallelExecutionEnabled() const { return isParallelExec_; }
 
 // is the partition clause specified?
-inline NABoolean
-StmtDDLCreateIndex::isPartitionSpecified() const
-{
-  return isPartitionClauseSpec_;
-}
+inline NABoolean StmtDDLCreateIndex::isPartitionSpecified() const { return isPartitionClauseSpec_; }
 
 // is the no populate clause specified ?
-inline NABoolean
-StmtDDLCreateIndex::isNoPopulateOptionSpecified() const
-{
-  return isNoPopulated_;
-}
+inline NABoolean StmtDDLCreateIndex::isNoPopulateOptionSpecified() const { return isNoPopulated_; }
 
 // is the populate clause specified ?
-inline NABoolean
-StmtDDLCreateIndex::isPopulateOptionSpecified() const
-{
-  return isPopulated_ ;
-}
+inline NABoolean StmtDDLCreateIndex::isPopulateOptionSpecified() const { return isPopulated_; }
 
 // is PARTITION BY clause specified?
-inline NABoolean
-StmtDDLCreateIndex::isPartitionBySpecified() const
-{
-  return isPartitionByClauseSpec_;
-}
+inline NABoolean StmtDDLCreateIndex::isPartitionBySpecified() const { return isPartitionByClauseSpec_; }
 
-inline NABoolean
-StmtDDLCreateIndex::isPartLocalOptSpecified() const
-{
-  return isPartLocalIndex_ ;
-}
+inline NABoolean StmtDDLCreateIndex::isPartLocalOptSpecified() const { return isPartLocalIndex_; }
 
-inline NABoolean
-StmtDDLCreateIndex::isPartGlobalOptSpecified() const
-{
-  return isPartGlobalIndex_ ;
-}
+inline NABoolean StmtDDLCreateIndex::isPartGlobalOptSpecified() const { return isPartGlobalIndex_; }
 
 // is the unique keyword specified?
-inline NABoolean
-StmtDDLCreateIndex::isUniqueSpecified() const
-{
-  return isUnique_;
-}
+inline NABoolean StmtDDLCreateIndex::isUniqueSpecified() const { return isUnique_; }
 
 // is the ngram keyword specified?
-inline NABoolean
-StmtDDLCreateIndex::isNgramSpecified() const
-{
-  return isNgram_;
-}
+inline NABoolean StmtDDLCreateIndex::isNgramSpecified() const { return isNgram_; }
 
+NABoolean StmtDDLCreateIndex::isNumRowsSpecified() const { return isNumRowsSpecified_; }
 
-NABoolean 
-StmtDDLCreateIndex::isNumRowsSpecified() const
-{
-  return isNumRowsSpecified_;
-}
+inline double StmtDDLCreateIndex::getNumRows() const { return numRows_; }
 
-inline double StmtDDLCreateIndex::getNumRows() const
-{
-  return numRows_;
-}
-
-inline StmtDDLNode::PARTITION_INDEX_TYPE
-StmtDDLCreateIndex::getPartitionIndexType() const
-{
+inline StmtDDLNode::PARTITION_INDEX_TYPE StmtDDLCreateIndex::getPartitionIndexType() const {
   return partitionIndexType_;
 }
 
-
-#endif // STMTDDLCREATEINDEX_H
+#endif  // STMTDDLCREATEINDEX_H

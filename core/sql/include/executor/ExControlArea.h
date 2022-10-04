@@ -58,57 +58,48 @@ class Queue;
 // -----------------------------------------------------------------------
 // An entry in the Control Area (represents one CONTROL statement)
 // -----------------------------------------------------------------------
-class ExControlEntry : public NABasicObject
-{
-public:
-  enum ResendType { UPON_ALL /*default */ , UPON_CMP_CRASH, UPON_CTX_SWITCH };
+class ExControlEntry : public NABasicObject {
+ public:
+  enum ResendType { UPON_ALL /*default */, UPON_CMP_CRASH, UPON_CTX_SWITCH };
 
-public:
-
-  ExControlEntry(CollHeap * heap,
-  		 ControlQueryType cqt,
-		 Int32 reset = 0,
-		 char * sqlText = NULL, Int32 lenX = 0, Int16 sqlTextCharSet = (Int16)0/*SQLCHARSETCODE_UNKNOWN*/,
-		 char * value1  = NULL, Int32 len1 = 0,
-		 char * value2  = NULL, Int32 len2 = 0,
-		 char * value3  = NULL, Int32 len3 = 0,
-                 Int16 actionType = ComTdbControl::NONE_,
-		 ResendType resendType = ExControlEntry::UPON_ALL,
+ public:
+  ExControlEntry(CollHeap *heap, ControlQueryType cqt, Int32 reset = 0, char *sqlText = NULL, Int32 lenX = 0,
+                 Int16 sqlTextCharSet = (Int16)0 /*SQLCHARSETCODE_UNKNOWN*/, char *value1 = NULL, Int32 len1 = 0,
+                 char *value2 = NULL, Int32 len2 = 0, char *value3 = NULL, Int32 len3 = 0,
+                 Int16 actionType = ComTdbControl::NONE_, ResendType resendType = ExControlEntry::UPON_ALL,
                  NABoolean isNonResettable = FALSE);
 
   ~ExControlEntry();
 
-  ControlQueryType type() const	{ return cqt_; }
-  Int32  getNumValues() const	{ return numValues_; }
-  Int32  getReset() const	{ return reset_; }
-  void   setReset(Int32 r)	{ reset_ = r; }
-  char * getSqlText()           { return sqlText_; }
-  Int32  getSqlTextLen()        { return lenX_; }
-  Int16  getSqlTextCharSet()    { return sqlTextCharSet_; }
-  char * getValue(Int32 i);
-  Int32    getLen(Int32 i);
-  Int32    match(ControlQueryType cqt, const char * value1, const char * value2,
-	       Int32 reset = 0
-	      );
+  ControlQueryType type() const { return cqt_; }
+  Int32 getNumValues() const { return numValues_; }
+  Int32 getReset() const { return reset_; }
+  void setReset(Int32 r) { reset_ = r; }
+  char *getSqlText() { return sqlText_; }
+  Int32 getSqlTextLen() { return lenX_; }
+  Int16 getSqlTextCharSet() { return sqlTextCharSet_; }
+  char *getValue(Int32 i);
+  Int32 getLen(Int32 i);
+  Int32 match(ControlQueryType cqt, const char *value1, const char *value2, Int32 reset = 0);
 
   ResendType getResendType();
   Int16 getActionType() { return actionType_; }
   NABoolean isNonResettable() { return nonResettable_; }
 
-private:
+ private:
   ResendType resendType_;
-  CollHeap * heap_;
+  CollHeap *heap_;
   ControlQueryType cqt_;
   Int32 reset_;
 
   Int32 numValues_;
 
-  char * sqlText_;
-  Int16  sqlTextCharSet_;
-  Int16  actionType_;
-  char * value1_;
-  char * value2_;
-  char * value3_;
+  char *sqlText_;
+  Int16 sqlTextCharSet_;
+  Int16 actionType_;
+  char *value1_;
+  char *value2_;
+  char *value3_;
   Int32 lenX_;
   Int32 len1_;
   Int32 len2_;
@@ -119,33 +110,26 @@ private:
 // -----------------------------------------------------------------------
 // The area (list) of CONTROL statements issued so far
 // -----------------------------------------------------------------------
-class ExControlArea : public NABasicObject
-{
-public:
+class ExControlArea : public NABasicObject {
+ public:
   ExControlArea(ContextCli *context, CollHeap *heap);
 
   ~ExControlArea();
 
-  void addControl(ControlQueryType type,
-		  Int32 reset = 0,
-		  const char * sqlText = NULL, Int32 lenX = 0,
-		  const char * value1  = NULL, Int32 len1 = 0,
-		  const char * value2  = NULL, Int32 len2 = 0,
-		  const char * value3  = NULL, Int32 len3 = 0,
-                  Int16 actionType = ComTdbControl::NONE_,
-		  ExControlEntry::ResendType resendType = ExControlEntry::UPON_ALL,
-                  NABoolean isNonResettable = FALSE);
-  Queue * getControlList() { return controlList_; }
+  void addControl(ControlQueryType type, Int32 reset = 0, const char *sqlText = NULL, Int32 lenX = 0,
+                  const char *value1 = NULL, Int32 len1 = 0, const char *value2 = NULL, Int32 len2 = 0,
+                  const char *value3 = NULL, Int32 len3 = 0, Int16 actionType = ComTdbControl::NONE_,
+                  ExControlEntry::ResendType resendType = ExControlEntry::UPON_ALL, NABoolean isNonResettable = FALSE);
+  Queue *getControlList() { return controlList_; }
 
   static const char *getText(ControlQueryType cqt);
 
-private:
+ private:
   ContextCli *context_;
   CollHeap *heap_;
   Queue *controlList_;
   void *resetAllQueueEntry_;
-  void * sysDefResetQueueEntry_;
+  void *sysDefResetQueueEntry_;
 };
 
 #endif /* EXCONTROLAREA_H */
-

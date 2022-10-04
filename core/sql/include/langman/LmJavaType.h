@@ -61,74 +61,63 @@ class LmParameter;
 // (3) COM_DATETIME_FSDT through COM_DATETIME_FSDT + 2 are implicitly
 //     reserved for data/time types.
 //////////////////////////////////////////////////////////////////////
-class LmJavaType
-{
-public:
+class LmJavaType {
+ public:
   enum Type {
-    JT_NONE          = COM_UNKNOWN_FSDT -1,
-    JT_VOID          = COM_UNKNOWN_FSDT,
-    JT_TINY          = COM_SIGNED_BIN8_FSDT,
-    JT_SHORT         = COM_SIGNED_BIN16_FSDT,
-    JT_INT           = COM_SIGNED_BIN32_FSDT,
-    JT_LONG          = COM_SIGNED_BIN64_FSDT,
-    JT_FLOAT         = COM_FLOAT32_FSDT,
-    JT_DOUBLE        = COM_FLOAT64_FSDT,
-    JT_LANG_STRING   = COM_VCHAR_DBL_FSDT,
-    JT_MATH_BIGDEC   = COM_SIGNED_DECIMAL_FSDT,
-    JT_SQL_DATE      = COM_DATETIME_FSDT + 0,
-    JT_SQL_TIME      = COM_DATETIME_FSDT + 1,
+    JT_NONE = COM_UNKNOWN_FSDT - 1,
+    JT_VOID = COM_UNKNOWN_FSDT,
+    JT_TINY = COM_SIGNED_BIN8_FSDT,
+    JT_SHORT = COM_SIGNED_BIN16_FSDT,
+    JT_INT = COM_SIGNED_BIN32_FSDT,
+    JT_LONG = COM_SIGNED_BIN64_FSDT,
+    JT_FLOAT = COM_FLOAT32_FSDT,
+    JT_DOUBLE = COM_FLOAT64_FSDT,
+    JT_LANG_STRING = COM_VCHAR_DBL_FSDT,
+    JT_MATH_BIGDEC = COM_SIGNED_DECIMAL_FSDT,
+    JT_SQL_DATE = COM_DATETIME_FSDT + 0,
+    JT_SQL_TIME = COM_DATETIME_FSDT + 1,
     JT_SQL_TIMESTAMP = COM_DATETIME_FSDT + 2,
-    JT_LANG_INTEGER  = JT_INT + COM_LAST_FSDT,
-    JT_LANG_LONG     = JT_LONG + COM_LAST_FSDT,
-    JT_LANG_FLOAT    = JT_FLOAT + COM_LAST_FSDT,
-    JT_LANG_DOUBLE   = JT_DOUBLE + COM_LAST_FSDT,
+    JT_LANG_INTEGER = JT_INT + COM_LAST_FSDT,
+    JT_LANG_LONG = JT_LONG + COM_LAST_FSDT,
+    JT_LANG_FLOAT = JT_FLOAT + COM_LAST_FSDT,
+    JT_LANG_DOUBLE = JT_DOUBLE + COM_LAST_FSDT,
     JT_SQL_RESULTSET = COM_LAST_FSDT + COM_LAST_FSDT + 1,
     JT_LAST = JT_SQL_RESULTSET
   };
 
-  struct TypeElement
-  {
-    Type  javaIdx;                // Java type index. This is LM type.
-    const char  *javaTypeName;    // Java encoded type.
-    Lng32  javaTypeNameLen;       // Length of encoded Java type.
-    const char  *javaText;        // Java type in normal text.
-    Lng32  javaTextLen;           // Length of javaText.
+  struct TypeElement {
+    Type javaIdx;              // Java type index. This is LM type.
+    const char *javaTypeName;  // Java encoded type.
+    Lng32 javaTypeNameLen;     // Length of encoded Java type.
+    const char *javaText;      // Java type in normal text.
+    Lng32 javaTextLen;         // Length of javaText.
   };
 
-public:
-
+ public:
   LmJavaType(LmParameter *param);
   ~LmJavaType() {}
 
   // Accessors
-  LmJavaType::Type getType() const
-  {
-    return type_;
-  }
+  LmJavaType::Type getType() const { return type_; }
 
-  LmParameter *getLmParameter() const
-  {
-    return lmParam_;
-  }
+  LmParameter *getLmParameter() const { return lmParam_; }
 
-  const char* getJavaTypeName(ComUInt32 &len) const;
+  const char *getJavaTypeName(ComUInt32 &len) const;
 
   ComBoolean isJavaTypeObject() const;
 
   // TypeElement search based on index into JavaTypeTable
-  TypeElement* getTypeElement() const;
+  TypeElement *getTypeElement() const;
 
   // TypeElement search based on TypeName
-  static TypeElement* getTypeElement(char* javaTypeName);
+  static TypeElement *getTypeElement(char *javaTypeName);
 
-private:
-  Type        type_;            // Type
-  LmParameter *lmParam_;        // Corresponding parameter
-  Int32         index_;           // index into JavaTypeTable
+ private:
+  Type type_;             // Type
+  LmParameter *lmParam_;  // Corresponding parameter
+  Int32 index_;           // index into JavaTypeTable
 
   static TypeElement javaTypeTable[];
-
 };
-
 
 #endif

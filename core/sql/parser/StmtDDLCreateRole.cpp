@@ -34,7 +34,7 @@
  *****************************************************************************
  */
 
-#define   SQLPARSERGLOBALS_FLAGS	// must precede all #include's
+#define SQLPARSERGLOBALS_FLAGS  // must precede all #include's
 
 #include <stdlib.h>
 #ifndef NDEBUG
@@ -48,12 +48,11 @@
 #include "export/ComDiags.h"
 #include "common/ComOperators.h"
 
-#ifndef   SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
-#define   SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
+#ifndef SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
+#define SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
 #endif
 
-#include "parser/SqlParserGlobals.h"	// must be last #include
-
+#include "parser/SqlParserGlobals.h"  // must be last #include
 
 // -----------------------------------------------------------------------
 // methods for class StmtDDLCreateRole
@@ -63,80 +62,51 @@
 // constructor
 //
 // constructor used for CREATE ROLE
-StmtDDLCreateRole::StmtDDLCreateRole(const NAString & roleName,
-                                     ElemDDLNode * pOwner,
-                                     NABoolean adminRole,
-                                     NAString * tenantName,
-                                     CollHeap * heap)
-  : StmtDDLNode(DDL_CREATE_ROLE),
-    roleName_(roleName,heap),
-    isCreateRole_(TRUE),
-    adminRole_(adminRole)
-{
-  if (tenantName)
-    tenantName_ = *tenantName;
-  
-  if (pOwner)
-  {
+StmtDDLCreateRole::StmtDDLCreateRole(const NAString &roleName, ElemDDLNode *pOwner, NABoolean adminRole,
+                                     NAString *tenantName, CollHeap *heap)
+    : StmtDDLNode(DDL_CREATE_ROLE), roleName_(roleName, heap), isCreateRole_(TRUE), adminRole_(adminRole) {
+  if (tenantName) tenantName_ = *tenantName;
 
-      pOwner_ = pOwner->castToElemDDLGrantee();
-      ComASSERT(pOwner_ NEQ NULL);
-      isCurrentUserSpecified_ = FALSE;
+  if (pOwner) {
+    pOwner_ = pOwner->castToElemDDLGrantee();
+    ComASSERT(pOwner_ NEQ NULL);
+    isCurrentUserSpecified_ = FALSE;
+  } else {
+    pOwner_ = NULL;
+    isCurrentUserSpecified_ = TRUE;
   }
-  else
-  {
-      pOwner_ = NULL;
-      isCurrentUserSpecified_ = TRUE;
-  }
-} 
+}
 
 // constructor used for DROP ROLE
-StmtDDLCreateRole::StmtDDLCreateRole(const NAString & roleName,
-                                     CollHeap * heap)
-  : StmtDDLNode(DDL_CREATE_ROLE),
-    roleName_(roleName,heap),
-    isCreateRole_(FALSE),
-    pOwner_(NULL),       // does not apply to drop but don't leave it uninitialized
-    isCurrentUserSpecified_(FALSE),      // does not apply to drop but don't leave it uninitialized
-    adminRole_(FALSE) // does not apply but initialize it anyway
-{
-} // StmtDDLCreateRole::StmtDDLCreateRole()
+StmtDDLCreateRole::StmtDDLCreateRole(const NAString &roleName, CollHeap *heap)
+    : StmtDDLNode(DDL_CREATE_ROLE),
+      roleName_(roleName, heap),
+      isCreateRole_(FALSE),
+      pOwner_(NULL),                   // does not apply to drop but don't leave it uninitialized
+      isCurrentUserSpecified_(FALSE),  // does not apply to drop but don't leave it uninitialized
+      adminRole_(FALSE)                // does not apply but initialize it anyway
+{}                                     // StmtDDLCreateRole::StmtDDLCreateRole()
 
 //
 // virtual destructor
 //
-StmtDDLCreateRole::~StmtDDLCreateRole()
-{
+StmtDDLCreateRole::~StmtDDLCreateRole() {
   // delete all children
-  if (pOwner_)
-    delete pOwner_;
+  if (pOwner_) delete pOwner_;
 }
 
 //
 // cast
 //
-StmtDDLCreateRole *
-StmtDDLCreateRole::castToStmtDDLCreateRole()
-{
-  return this;
-}
-
+StmtDDLCreateRole *StmtDDLCreateRole::castToStmtDDLCreateRole() { return this; }
 
 //
 // methods for tracing
 //
 
-const NAString
-StmtDDLCreateRole::displayLabel1() const
-{
-  return NAString("Role name: ") + getRoleName();
-}
+const NAString StmtDDLCreateRole::displayLabel1() const { return NAString("Role name: ") + getRoleName(); }
 
-const NAString
-StmtDDLCreateRole::getText() const
-{
-  return "StmtDDLCreateRole";
-}
+const NAString StmtDDLCreateRole::getText() const { return "StmtDDLCreateRole"; }
 
 // -----------------------------------------------------------------------
 // methods for class StmtDDLCreateRoleArray
@@ -144,11 +114,7 @@ StmtDDLCreateRole::getText() const
 
 // virtual destructor
 // Do the list of user commands need to be removed?
-StmtDDLCreateRoleArray::~StmtDDLCreateRoleArray()
-{
-}
-
-
+StmtDDLCreateRoleArray::~StmtDDLCreateRoleArray() {}
 
 //
 // End of File

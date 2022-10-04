@@ -51,11 +51,11 @@ class CRUTaskExecutor;
 
 //--------------------------------------------------------------//
 //	CRUExecController
-//	
+//
 //	This class manages the local and remote execution of tasks
 //	scheduled by the flow controller. Upon receiving a request
 //	to execute a task, it builds the task executor, and performs
-//	the execution in one or more steps, applying the executor 
+//	the execution in one or more steps, applying the executor
 //	as a finite-state machine.
 //
 //	A part of execution steps may be performed remotely. To
@@ -67,84 +67,76 @@ class CRUTaskExecutor;
 //--------------------------------------------------------------//
 
 class REFRESH_LIB_CLASS CRUExecController : public CRURuntimeController {
+ private:
+  typedef CRURuntimeController inherited;
 
-private:
-	typedef CRURuntimeController inherited;
+ public:
+  CRUExecController(BOOL useParallelism);
+  virtual ~CRUExecController() {}
 
-public:
-	CRUExecController(BOOL useParallelism);
-	virtual ~CRUExecController() {}
+ public:
+  // Close all Task Processes
+  void ShutDownTaskProcesses();
 
-public:
-	// Close all Task Processes
-	void ShutDownTaskProcesses();
+ protected:
+  //-- Pure virtual function implementation
+  //-- The actual switch for event handling
+  virtual void HandleRequest(CRURuntimeControllerRqst *pRequest);
 
-protected:
-	//-- Pure virtual function implementation
-	//-- The actual switch for event handling
-	virtual void HandleRequest(CRURuntimeControllerRqst *pRequest);
+ private:
+  //-- Prevent copying
+  CRUExecController(const CRUExecController &other);
+  CRUExecController &operator=(const CRUExecController &other);
 
-private:
-	//-- Prevent copying
-	CRUExecController(const CRUExecController &other);
-	CRUExecController &operator = (const CRUExecController &other);
+ private:
+  //-- Individual event handlers
 
-private:
-	//-- Individual event handlers
+  void HandleStartTaskRqst(CRURuntimeControllerRqst *pRqst);
+  void HandleFinishTaskRqst(CRURuntimeControllerRqst *pRqst);
 
-	void HandleStartTaskRqst(CRURuntimeControllerRqst *pRqst);
-	void HandleFinishTaskRqst(CRURuntimeControllerRqst *pRqst);
+  void HandleExecuteTaskStepRqst(CRURuntimeControllerRqst *pRqst);
 
-	void HandleExecuteTaskStepRqst(CRURuntimeControllerRqst *pRqst);
+  void HandleAwaitEventRqst();
 
-	void HandleAwaitEventRqst();
+ private:
+  //-- Allocate/dealloacte a process associated with a task
+  void AllocateTaskProcess(CRUTask &task);
+  void DeAllocateTaskProcess(CRUTask &task);
 
-private:
-	//-- Allocate/dealloacte a process associated with a task
-	void AllocateTaskProcess(CRUTask &task);
-	void DeAllocateTaskProcess(CRUTask &task);
+  // AllocateTaskProcess() callee
+  // Launch the process and send a message with CRUGlobals
+  Lng32 InitiateTaskProcess();
 
-	// AllocateTaskProcess() callee
-	// Launch the process and send a message with CRUGlobals
-	Lng32 InitiateTaskProcess();
+ private:
+  //-- HandleExecuteTaskStepRqst() callees
+  void HandleRemoteTaskStepExecution(CRUTask &task);
+  void HandleLocalTaskStepExecution(CRUTask &task);
 
-private:
-	//-- HandleExecuteTaskStepRqst() callees
-	void HandleRemoteTaskStepExecution(CRUTask &task);
-	void HandleLocalTaskStepExecution(CRUTask &task);
+  // Start the remote execution ...
+  void ShipWorkToRemoteProcess(CRUTask &task);
+  void SerializeTaskExecutor(CRUTaskExecutor &executor);
 
-	// Start the remote execution ...
-	void ShipWorkToRemoteProcess(CRUTask &task);
-	void SerializeTaskExecutor(CRUTaskExecutor &executor);
+  // and complete it
+  void HandleReturnOfRemoteExecutor(Lng32 pid);
+  void HandleRemoteExecutorSuccess(CRUTask *pTask, CUOFsIpcMessageTranslator &translator);
+  void HandleRemoteExecutorFailure(CRUTask *pTask, Lng32 pid, CUOFsIpcMessageTranslator &translator);
 
-	// and complete it
-	void HandleReturnOfRemoteExecutor(Lng32 pid);
-	void HandleRemoteExecutorSuccess(
-		CRUTask *pTask,
-		CUOFsIpcMessageTranslator &translator);
-	void HandleRemoteExecutorFailure(
-		CRUTask *pTask,
-		Lng32 pid,
-		CUOFsIpcMessageTranslator &translator);
+  CRUTask *FindRunningTask(Lng32 pid);
 
-	CRUTask *FindRunningTask(Lng32 pid);
+  void HandleRequestFailure(CRURuntimeControllerRqst *pRqst, CDSException &ex);
 
-	void HandleRequestFailure(
-		CRURuntimeControllerRqst *pRqst, 
-		CDSException &ex);
+  void HandleTaskFailure(CRUTask &task, CDSException &ex);
 
-	void HandleTaskFailure(CRUTask &task, CDSException &ex);
+ private:
+  // The tasks that are currently being executed
+  CRUTaskList runningTaskList_;
 
-private:
-	// The tasks that are currently being executed
-	CRUTaskList runningTaskList_;
-	
-	CUOFsTaskProcessPool processPool_;
-	
-	BOOL useParallelism_;
+  CUOFsTaskProcessPool processPool_;
 
-private:
-	static const char* taskServerName_;
+  BOOL useParallelism_;
+
+ private:
+  static const char *taskServerName_;
 };
 
 #endif

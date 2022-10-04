@@ -43,18 +43,15 @@
 //   -- Optionally generates a log file name
 // ----------------------------------------------------------------------------
 class CNALogfile : public CNAStdioFile {
+  typedef CNAStdioFile inherited;
 
-   typedef CNAStdioFile inherited;
-
-public:
-
+ public:
   // eLEVEL1 is basic logging
   // eLEVEL2 is basic plus detailed logging
   // eLEVEL3 is basic, detailed, plus logging performed only with DEBUG code
   enum ELoggingLevel { eUNKNOWN, eLEVEL1, eLEVEL2, eLEVEL3 };
 
-private:
-
+ private:
   NABoolean m_bPrintTime;
   NABoolean m_bPrintProcessID;
   NABoolean m_bFlushAtLogTime;
@@ -72,41 +69,38 @@ private:
   NABoolean m_bLoggingEnabled;
 
   // m_bLogFailure is set if a call to either OpenLog or WriteLog to a fails.
-  // This signifies that there is a problem with the log and we should not 
+  // This signifies that there is a problem with the log and we should not
   // access the file anymore
   NABoolean m_bLogFailure;
 
   // These are helper methods used to scan the environment variable
   //  SQLMX_UTIL_LOGNAME to get the requested values.
-  void ScanEnvVar ( char *pEnvVarInfo );
-  char *GetNextToken (char *pStrToScan, Int32 &length);
+  void ScanEnvVar(char *pEnvVarInfo);
+  char *GetNextToken(char *pStrToScan, Int32 &length);
 
-  // This is the helper method to convert any dash in 
+  // This is the helper method to convert any dash in
   // log filename to underscore.
   void ConvertDashToUnderscore(char *pLogName);
 
-public:
-
+ public:
   CNALogfile();
   virtual ~CNALogfile();
 
-  Int32  Open( void );
-  Int32  Open( NAString logName, CNAStdioFile::EOpenMode mode );
-  Int32  Open( char *pLogName, CNAStdioFile::EOpenMode mode );
+  Int32 Open(void);
+  Int32 Open(NAString logName, CNAStdioFile::EOpenMode mode);
+  Int32 Open(char *pLogName, CNAStdioFile::EOpenMode mode);
 
-  void  Close();
+  void Close();
 
-  Int32  Log(const char *pBuffer, ELoggingLevel level = CNALogfile::eLEVEL1);
-  Int32  Log(const NAString &str, ELoggingLevel level = CNALogfile::eLEVEL1)
-     { return Log(str.data(), level); }
+  Int32 Log(const char *pBuffer, ELoggingLevel level = CNALogfile::eLEVEL1);
+  Int32 Log(const NAString &str, ELoggingLevel level = CNALogfile::eLEVEL1) { return Log(str.data(), level); }
 
-  NABoolean  Write(const char *pBuffer, Lng32 buflen);
-  NABoolean  Write(const NAString &str, Lng32 buflen)
-     { return Write(str.data(), buflen); }
+  NABoolean Write(const char *pBuffer, Lng32 buflen);
+  NABoolean Write(const NAString &str, Lng32 buflen) { return Write(str.data(), buflen); }
 
   NABoolean GetTimePrint() { return m_bPrintTime; }
-  void SetTimePrint(NABoolean flag) {m_bPrintTime = flag; }
- 
+  void SetTimePrint(NABoolean flag) { m_bPrintTime = flag; }
+
   NABoolean GetPrintProcessID() { return m_bPrintProcessID; }
   void SetPrintProcessID(NABoolean flag) { m_bPrintProcessID = flag; }
 
@@ -117,32 +111,27 @@ public:
   void SetLoggingEnabled(NABoolean flag) { m_bLoggingEnabled = flag; }
 
   ELoggingLevel GetLoggingLevel() { return m_eLoggingLevel; }
-  void SetLoggingLevel(ELoggingLevel loggingLevel) 
-    { m_eLoggingLevel = loggingLevel; }
- 
+  void SetLoggingLevel(ELoggingLevel loggingLevel) { m_eLoggingLevel = loggingLevel; }
+
   char *GetLogfileName() { return m_pLogName; }
-  void SetLogfileName( char *pLogfileName ) { m_pLogName = pLogfileName; }
+  void SetLogfileName(char *pLogfileName) { m_pLogName = pLogfileName; }
 
   void SetClearLogAtOpen(NABoolean openMode) { m_bClearLogAtOpen = openMode; }
 
   NABoolean GetLogFailure() { return m_bLogFailure; }
   void SetLogFailure(NABoolean logFailure) { m_bLogFailure = logFailure; }
 
-  NABoolean GetPrintLogHeader() {return m_bPrintLogHeader;}
-  void SetPrintLogHeader (NABoolean header)
-  {m_bPrintLogHeader = header;}
+  NABoolean GetPrintLogHeader() { return m_bPrintLogHeader; }
+  void SetPrintLogHeader(NABoolean header) { m_bPrintLogHeader = header; }
 
-  NABoolean GetDashToUnderscore () {return m_bDashToUnderscore;}
-  void SetDashToUnderscore (NABoolean DashToUnderscore)
-  {m_bDashToUnderscore = DashToUnderscore;}
+  NABoolean GetDashToUnderscore() { return m_bDashToUnderscore; }
+  void SetDashToUnderscore(NABoolean DashToUnderscore) { m_bDashToUnderscore = DashToUnderscore; }
 
-  NABoolean isHeaderString (const char *strHeader);
-
-
+  NABoolean isHeaderString(const char *strHeader);
 
   // These methods that format string to log.
   NAString GetTimeToLog();
-  NAString GetProcessToLog(); 
+  NAString GetProcessToLog();
 };
 
-#endif // NALOG_H
+#endif  // NALOG_H

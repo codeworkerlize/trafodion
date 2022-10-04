@@ -28,8 +28,8 @@
  * File:         IntType.h
  * Description:  Integer types used in the adaptor functions to work with
  *               NSJ 3.0 IEEE float support
- *               
- *               
+ *
+ *
  * Created:      8/15/02
  * Language:     C++
  *

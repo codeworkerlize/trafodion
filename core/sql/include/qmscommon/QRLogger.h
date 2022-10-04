@@ -65,8 +65,8 @@ extern std::string CAT_SQL_PRIVMGR;
 extern std::string CAT_SQL_USTAT;
 extern std::string CAT_SQL_SHARED_CACHE;
 extern std::string CAT_SQL_STMT;
-extern std::string CAT_SQL_LOCK; // Object lock
-extern std::string CAT_SQL_CI;   // SQLCI
+extern std::string CAT_SQL_LOCK;  // Object lock
+extern std::string CAT_SQL_CI;    // SQLCI
 
 // HDFS
 extern std::string CAT_SQL_HDFS_JNI_TOP;
@@ -96,12 +96,11 @@ class ComDiagsArea;
  * @param msg Message to write to the log in case of a failure.
  */
 #define assertLogAndThrow(cat, level, condition, exception, msg) \
-  { \
-    if (!(condition)) \
-      { \
-        QRLogger::logError(__FILE__, __LINE__, cat, level, msg); \
-        throw exception(msg); \
-      } \
+  {                                                              \
+    if (!(condition)) {                                          \
+      QRLogger::logError(__FILE__, __LINE__, cat, level, msg);   \
+      throw exception(msg);                                      \
+    }                                                            \
   }
 
 /**
@@ -115,12 +114,11 @@ class ComDiagsArea;
  * @param arg1 Argument to embed in the message template.
  */
 #define assertLogAndThrow1(cat, level, condition, exception, msg, arg1) \
-  { \
-    if (!(condition)) \
-      { \
-        QRLogger::logError(__FILE__, __LINE__, cat, level, msg, arg1); \
-        throw exception(msg, arg1); \
-      } \
+  {                                                                     \
+    if (!(condition)) {                                                 \
+      QRLogger::logError(__FILE__, __LINE__, cat, level, msg, arg1);    \
+      throw exception(msg, arg1);                                       \
+    }                                                                   \
   }
 
 /**
@@ -135,12 +133,11 @@ class ComDiagsArea;
  * @param arg2 2nd argument to embed in the message template.
  */
 #define assertLogAndThrow2(cat, level, condition, exception, msg, arg1, arg2) \
-  { \
-    if (!(condition)) \
-      { \
-        QRLogger::logError(__FILE__, __LINE__, cat, level, msg, arg1, arg2); \
-        throw exception(msg, arg1, arg2); \
-      } \
+  {                                                                           \
+    if (!(condition)) {                                                       \
+      QRLogger::logError(__FILE__, __LINE__, cat, level, msg, arg1, arg2);    \
+      throw exception(msg, arg1, arg2);                                       \
+    }                                                                         \
   }
 
 /**
@@ -156,24 +153,20 @@ class ComDiagsArea;
  * @param arg3 3rd argument to embed in the message template.
  */
 #define assertLogAndThrow3(cat, level, condition, exception, msg, arg1, arg2, arg3) \
-  { \
-    if (!(condition)) \
-      { \
-        QRLogger::logError(__FILE__, __LINE__, cat, level, msg, arg1, arg2, arg3); \
-        throw exception(msg, arg1, arg2, arg3); \
-      } \
+  {                                                                                 \
+    if (!(condition)) {                                                             \
+      QRLogger::logError(__FILE__, __LINE__, cat, level, msg, arg1, arg2, arg3);    \
+      throw exception(msg, arg1, arg2, arg3);                                       \
+    }                                                                               \
   }
-
 
 /**
  * A logging class for MVQR. This is a singleton class, the sole instance
- * being accessible via the #instance function. 
+ * being accessible via the #instance function.
  **************************************************************************
  */
-class QRLogger : public CommonLogger
-{
-public:
-
+class QRLogger : public CommonLogger {
+ public:
   // Which of the four MVQR executable modules is running?
   enum ExecutableModule {
     QRL_NONE,
@@ -186,19 +179,19 @@ public:
     QRL_LOB,
     QRL_SSMP,
     QRL_SSCP,
-    QRL_UDR 
+    QRL_UDR
   };
 
   /**
-    * Initializes log4cplus by using the configuration file.
-    * If the path given is relative (does not start with a
-    * slash), it is appended to the $TRAF_HOME environment variable.
-    * If the configuration file is not found, perform hard-coded
-    * default configuration.
-    * @param configFileName name of the log4cplus configuration file.
-    * @return FALSE if the configuration file is not found.
-    */
-  virtual NABoolean initLog4cplus(const char* configFileName);
+   * Initializes log4cplus by using the configuration file.
+   * If the path given is relative (does not start with a
+   * slash), it is appended to the $TRAF_HOME environment variable.
+   * If the configuration file is not found, perform hard-coded
+   * default configuration.
+   * @param configFileName name of the log4cplus configuration file.
+   * @return FALSE if the configuration file is not found.
+   */
+  virtual NABoolean initLog4cplus(const char *configFileName);
 
   /**
    * Is this logger being used by QMS, QMM, QMP or MXCMP?
@@ -207,100 +200,78 @@ public:
    * file is not found.
    * @param module Specify the module in use.
    */
-  void setModule(ExecutableModule module)
-  {
-    module_ = module;
-  }
+  void setModule(ExecutableModule module) { module_ = module; }
 
-  
   /**
    * Is this logger being used by EXE, ESP or MXCMP?
    * @return the executable module of this process
    */
-  ExecutableModule getModule()
-  {
-    return module_;
-  }
+  ExecutableModule getModule() { return module_; }
 
   std::string &getMyDefaultCat();
-  const char* getMyProcessInfo();
+  const char *getMyProcessInfo();
 
   // overrides the method in CommonLogger so process information can be added
-  static void log(const std::string &cat,
-                  logLevel    level,
-                  const char* logMsgTemplate ...);
-  static void log(const std::string &cat,
-                  logLevel    level,
-                  int         sqlCode,
-                  const char* queryId,
-                  const char* logMsgTemplate ...);
+  static void log(const std::string &cat, logLevel level, const char *logMsgTemplate...);
+  static void log(const std::string &cat, logLevel level, int sqlCode, const char *queryId,
+                  const char *logMsgTemplate...);
 
   /**
-    * Returns a reference to the %QRLogger singelton instance in use.
-    * @return Reference to the singleton instance of this class.
-    */
-  static QRLogger& instance();
+   * Returns a reference to the %QRLogger singelton instance in use.
+   * @return Reference to the singleton instance of this class.
+   */
+  static QRLogger &instance();
 
-  static void logDiags(ComDiagsArea* diagsArea,
-                       std::string &cat);
+  static void logDiags(ComDiagsArea *diagsArea, std::string &cat);
 
-  static void logQVP(ULng32      eventId,
-                     std::string &cat,
-                     logLevel    level,
-                     const char* logMsgTemplate ...);
-
+  static void logQVP(ULng32 eventId, std::string &cat, logLevel level, const char *logMsgTemplate...);
 
   /**
-    * Log an error or exception message.
-    * Enters a message in the log. \c logMsgTemplate supplies a 
-    * printf-style template for constructing the message text, and
-    * the arguments used to fill in the placeholders in the template are
-    * supplied in a variable argument list.
-    * This method should be used only for exceptions, as the message size is 
-    * limited to a single line of text
-    * 
-    * @param[in] file The source file name.
-    * @param[in] line The line number where the error occured.
-    * @param[in] cat The logging category to use.
-    * @param[in] level The logging level.
-    * @param[in] logMsgTemplate The message template.
-    * @param[in] ... Variable argument list supplying values to insert in the
-    *                message template.
-    */
-  static void logError(const char* file, 
-                       Int32       line, 
-                       std::string &cat,
-                       logLevel    level, 
-                       const char *logMsgTemplate ...);
+   * Log an error or exception message.
+   * Enters a message in the log. \c logMsgTemplate supplies a
+   * printf-style template for constructing the message text, and
+   * the arguments used to fill in the placeholders in the template are
+   * supplied in a variable argument list.
+   * This method should be used only for exceptions, as the message size is
+   * limited to a single line of text
+   *
+   * @param[in] file The source file name.
+   * @param[in] line The line number where the error occured.
+   * @param[in] cat The logging category to use.
+   * @param[in] level The logging level.
+   * @param[in] logMsgTemplate The message template.
+   * @param[in] ... Variable argument list supplying values to insert in the
+   *                message template.
+   */
+  static void logError(const char *file, Int32 line, std::string &cat, logLevel level, const char *logMsgTemplate...);
 
   void introduceSelf();
-  
+
   static NABoolean initLog4cplus(ExecutableModule module);
 
   // Methods for use by components that wish to manage logs for their
-  // own debugging purposes. The log layout includes just the text 
+  // own debugging purposes. The log layout includes just the text
   // the component generates and not the usual log header text.
 
-  static NABoolean startLogFile(const std::string &cat, const char * logFileName);
+  static NABoolean startLogFile(const std::string &cat, const char *logFileName);
 
   static NABoolean stopLogFile(const std::string &cat);
 
   static NABoolean getRootLogDirectory(const std::string &cat, std::string &out);
 
-private:
-    /**
-     * Creates the single instance of this class, with logging initially enabled.
-     * Append mode must be used to prevent separate processes from overwriting
-     * each other's logged messages.
-     */
-    QRLogger();
+ private:
+  /**
+   * Creates the single instance of this class, with logging initially enabled.
+   * Append mode must be used to prevent separate processes from overwriting
+   * each other's logged messages.
+   */
+  QRLogger();
 
-    virtual ~QRLogger() {};
-    QRLogger(const QRLogger&);
-    QRLogger& operator=(const QRLogger&);
+  virtual ~QRLogger(){};
+  QRLogger(const QRLogger &);
+  QRLogger &operator=(const QRLogger &);
 
-private:
-
+ private:
   /** Is this QMS, QMM, QMP or MXCMP? */
   ExecutableModule module_;
 
@@ -308,7 +279,7 @@ private:
   // node number, CPU, PIN, process name
   NAString processInfo_;
 
-}; // QRLogger
+};  // QRLogger
 
 /**
  * Define used to enable tracing for a given function. When in debug mode, it
@@ -341,59 +312,55 @@ private:
  * @see QRTRACER
  ***************************************************************************
  */
-class CommonTracer
-{
-  public:
-    /**
-     * Enumeration representing the different possible trace levels.
-     */
-    enum TraceLevel
-      {
-        // The order of these enum values is significant.
-        TL_none, TL_exceptionOnly, TL_all
-      };
+class CommonTracer {
+ public:
+  /**
+   * Enumeration representing the different possible trace levels.
+   */
+  enum TraceLevel {
+    // The order of these enum values is significant.
+    TL_none,
+    TL_exceptionOnly,
+    TL_all
+  };
 
-    /**
-     * Instantiates the tracing object and (depending on the trace level),
-     * writes the function entry message to the log.
-     *
-     * @param fnName Text to be used in the entry exit messages.
-     * @param logger The logger instance to log to.
-     * @param logCategory The logger category to use.
-     * @param level The trace level.
-     * @param file Name of the file the function being traced is in.
-     * @param line Line number at which this object was declared.
-     */
-    CommonTracer(const char*   fnName,
-                 CommonLogger& logger,
-                 std::string   &logCategory,
-                 TraceLevel    level = TL_exceptionOnly,
-                 const char*   file = "",
-                 Int32         line = 0);
+  /**
+   * Instantiates the tracing object and (depending on the trace level),
+   * writes the function entry message to the log.
+   *
+   * @param fnName Text to be used in the entry exit messages.
+   * @param logger The logger instance to log to.
+   * @param logCategory The logger category to use.
+   * @param level The trace level.
+   * @param file Name of the file the function being traced is in.
+   * @param line Line number at which this object was declared.
+   */
+  CommonTracer(const char *fnName, CommonLogger &logger, std::string &logCategory, TraceLevel level = TL_exceptionOnly,
+               const char *file = "", Int32 line = 0);
 
-    /**
-     * Writes the exit message to the log.
-     */
-    virtual ~CommonTracer();
+  /**
+   * Writes the exit message to the log.
+   */
+  virtual ~CommonTracer();
 
-  private:
-    //* Name to be used in the entry/exit messages. */
-    NAString fnName_;
+ private:
+  //* Name to be used in the entry/exit messages. */
+  NAString fnName_;
 
-    //* Tracing level in effect. */
-    TraceLevel level_;
+  //* Tracing level in effect. */
+  TraceLevel level_;
 
-    //* Name of the file the traced function is in. */
-    NAString file_;
+  //* Name of the file the traced function is in. */
+  NAString file_;
 
-    //* Line at which the trace object was declared. */
-    Int32 line_;
+  //* Line at which the trace object was declared. */
+  Int32 line_;
 
-    // The logger to use.
-    CommonLogger& logger_;
+  // The logger to use.
+  CommonLogger &logger_;
 
-    // The logger category
-    std::string &category_;
+  // The logger category
+  std::string &category_;
 };  // CommonTracer
 
 /**
@@ -412,11 +379,11 @@ class CommonTracer
  * @param messageBuffer
  */
 #define qrBuildMessage(messageTemplate, messageBuffer) \
-  { \
-    va_list args; \
-    va_start(args, messageTemplate); \
-    vsprintf(messageBuffer, messageTemplate, args); \
-    va_end(args); \
+  {                                                    \
+    va_list args;                                      \
+    va_start(args, messageTemplate);                   \
+    vsprintf(messageBuffer, messageTemplate, args);    \
+    va_end(args);                                      \
   }
 
 /**
@@ -424,80 +391,65 @@ class CommonTracer
  * set by its subclass' constructors, because they all take variable
  * argument lists.
  */
-class QRException
-{
-  public:
-    QRException()
-      {}
+class QRException {
+ public:
+  QRException() {}
 
-    virtual ~QRException()
-      {}
+  virtual ~QRException() {}
 
-    /**
-     * Returns the message constructed when the exception was instantiated.
-     * @return The full exception message.
-     */
-    char* getMessage()
-      {
-        return msgBuffer_;
-      }
+  /**
+   * Returns the message constructed when the exception was instantiated.
+   * @return The full exception message.
+   */
+  char *getMessage() { return msgBuffer_; }
 
-  protected:
-    /** Buffer used to construct the message in. */
-    char msgBuffer_[200];
-}; //QRException
-
-
+ protected:
+  /** Buffer used to construct the message in. */
+  char msgBuffer_[200];
+};  // QRException
 
 /**
  * Exception thrown when an error in the program logic is found.
  */
-class QRLogicException : public QRException
-{
-  public:
-    /**
-     * Creates an exception with text consisting of the passed template filled in
-     * with the values of the other arguments.
-     *
-     * @param[in] msgTemplate Template for construction of the full message;
-     *                        contains printf-style placeholders for arguments,
-     *                        passed as part of a variable argument list.
-     * @param[in] ... Variable argument list, consisting of a value for each
-     *                placeholder in the message template.
-     */
-    QRLogicException(const char *msgTemplate ...)
-      : QRException()
-    {
-      qrBuildMessage(msgTemplate, msgBuffer_);
-    }
+class QRLogicException : public QRException {
+ public:
+  /**
+   * Creates an exception with text consisting of the passed template filled in
+   * with the values of the other arguments.
+   *
+   * @param[in] msgTemplate Template for construction of the full message;
+   *                        contains printf-style placeholders for arguments,
+   *                        passed as part of a variable argument list.
+   * @param[in] ... Variable argument list, consisting of a value for each
+   *                placeholder in the message template.
+   */
+  QRLogicException(const char *msgTemplate...) : QRException() { qrBuildMessage(msgTemplate, msgBuffer_); }
 
-    virtual ~QRLogicException()
-    {}
+  virtual ~QRLogicException() {}
 
-}; //QRLogicException
+};  // QRLogicException
 
-#define QRLOG_(cat, ll, ...) do {                                       \
-    char tmp[1000];                                                     \
-    snprintf(tmp, sizeof(tmp), ##__VA_ARGS__);                          \
-    QRLogger::log(cat, ll, "%s FILE: %s LINE: %d",                      \
-                  tmp, __FILE__, __LINE__);                             \
-  } while(0)
+#define QRLOG_(cat, ll, ...)                                                 \
+  do {                                                                       \
+    char tmp[1000];                                                          \
+    snprintf(tmp, sizeof(tmp), ##__VA_ARGS__);                               \
+    QRLogger::log(cat, ll, "%s FILE: %s LINE: %d", tmp, __FILE__, __LINE__); \
+  } while (0)
 
-#define QRLOG(ll, ...)                                                  \
-  QRLOG_(QRLogger::instance().getMyDefaultCat(), ll, ##__VA_ARGS__)
+#define QRLOG(ll, ...) QRLOG_(QRLogger::instance().getMyDefaultCat(), ll, ##__VA_ARGS__)
 
 #define QRFATAL(...) QRLOG(LL_FATAL, ##__VA_ARGS__)
 #define QRERROR(...) QRLOG(LL_ERROR, ##__VA_ARGS__)
-#define QRWARN(...)  QRLOG(LL_WARN,  ##__VA_ARGS__)
-#define QRINFO(...)  QRLOG(LL_INFO,  ##__VA_ARGS__)
+#define QRWARN(...)  QRLOG(LL_WARN, ##__VA_ARGS__)
+#define QRINFO(...)  QRLOG(LL_INFO, ##__VA_ARGS__)
 #define QRDEBUG(...) QRLOG(LL_DEBUG, ##__VA_ARGS__)
 #define QRTRACE(...) QRLOG(LL_TRACE, ##__VA_ARGS__)
 
 #define LOGFATAL(cat, ...) QRLOG_(cat, LL_FATAL, ##__VA_ARGS__)
 #define LOGERROR(cat, ...) QRLOG_(cat, LL_ERROR, ##__VA_ARGS__)
-#define LOGWARN(cat, ...)  QRLOG_(cat, LL_WARN,  ##__VA_ARGS__)
-#define LOGINFO(cat, ...)  QRLOG_(cat, LL_INFO,  ##__VA_ARGS__)
+#define LOGWARN(cat, ...)  QRLOG_(cat, LL_WARN, ##__VA_ARGS__)
+#define LOGINFO(cat, ...)  QRLOG_(cat, LL_INFO, ##__VA_ARGS__)
 #define LOGDEBUG(cat, ...) QRLOG_(cat, LL_DEBUG, ##__VA_ARGS__)
 #define LOGTRACE(cat, ...) QRLOG_(cat, LL_TRACE, ##__VA_ARGS__)
 
-#endif  /* _QRLOGGER_H_ */
+#endif /* _QRLOGGER_H_ */

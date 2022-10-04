@@ -36,63 +36,51 @@
 
 #include "common/Platform.h"
 
-
 #include "comexe/ComPackDefs.h"
 #include "exp/ExpSqlTupp.h"
 #include "common/str.h"
 
-tupp::tupp()			// constructor
+tupp::tupp()  // constructor
 {
   init();
 }
 
-tupp::tupp(const tupp_descriptor * source)
-{
+tupp::tupp(const tupp_descriptor *source) {
   init();
   *this = source;  // calls tupp::operator=(const tuppDescriptor *tp)
 }
 
-tupp::tupp(const tupp	& source)
-{
+tupp::tupp(const tupp &source) {
   init();
-  *this = source; // calls tupp::operator=(const tupp & source)
+  *this = source;  // calls tupp::operator=(const tupp & source)
 }
 
-tupp::~tupp()		// destructor
+tupp::~tupp()  // destructor
 {
   // release the pointer before deallocating the space for it
   release();
 }
-Long tupp::pack(void * space)
-{
-  if (tuppDescPointer)
-    {
-      tuppDescPointer = (tupp_descriptor *)((Space *)space)->convertToOffset((char *)tuppDescPointer);
-    }
+Long tupp::pack(void *space) {
+  if (tuppDescPointer) {
+    tuppDescPointer = (tupp_descriptor *)((Space *)space)->convertToOffset((char *)tuppDescPointer);
+  }
   return ((Space *)space)->convertToOffset((char *)this);
 }
 
-Lng32 tupp::unpack(Lng32 base)
-{
-  if (tuppDescPointer)
-    {
-      tuppDescPointer = (tupp_descriptor *)CONVERT_TO_PTR(tuppDescPointer,base);
-    }
+Lng32 tupp::unpack(Lng32 base) {
+  if (tuppDescPointer) {
+    tuppDescPointer = (tupp_descriptor *)CONVERT_TO_PTR(tuppDescPointer, base);
+  }
 
   return 0;
 }
-tupp_descriptor::tupp_descriptor()
-{
-  init();
-};
+tupp_descriptor::tupp_descriptor() { init(); };
 
 #ifdef _DEBUG
-void tupp::display()
-{
-  char * dataPointer = getDataPointer();
+void tupp::display() {
+  char *dataPointer = getDataPointer();
   Lng32 keyLen = getAllocatedSize();
 
   printBrief(dataPointer, keyLen);
-
 }
 #endif

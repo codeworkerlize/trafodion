@@ -34,23 +34,22 @@
  *****************************************************************************
  */
 
-
 #include "common/Platform.h"
 #include "common/NABoolean.h"
 #include "common/NAMemory.h"
 #include <iostream>
 
-ULng32 pack(char*& buffer, UInt16 x);
-ULng32 pack(char*& buffer, ULng32 x);
-ULng32 pack(char*& buffer, Int32 x);
-ULng32 pack(char*& buffer, UInt64 x);
-ULng32 pack(char*& buffer, ULng32* ptr, ULng32 x);
+ULng32 pack(char *&buffer, UInt16 x);
+ULng32 pack(char *&buffer, ULng32 x);
+ULng32 pack(char *&buffer, Int32 x);
+ULng32 pack(char *&buffer, UInt64 x);
+ULng32 pack(char *&buffer, ULng32 *ptr, ULng32 x);
 
-ULng32 unpack(char*& buffer, UInt16& x);
-ULng32 unpack(char*& buffer, ULng32& x);
-ULng32 unpack(char*& buffer, Int32& x);
-ULng32 unpack(char*& buffer, UInt64& x);
-ULng32 unpack(char*& buffer, ULng32*& ptr, ULng32& x, NAHeap* heap);
+ULng32 unpack(char *&buffer, UInt16 &x);
+ULng32 unpack(char *&buffer, ULng32 &x);
+ULng32 unpack(char *&buffer, Int32 &x);
+ULng32 unpack(char *&buffer, UInt64 &x);
+ULng32 unpack(char *&buffer, ULng32 *&ptr, ULng32 &x, NAHeap *heap);
 
 //----------------------------------------------------------------------------------
 // Array of unsigned integers with a bit width between 1 and 32.
@@ -65,23 +64,20 @@ ULng32 unpack(char*& buffer, ULng32*& ptr, ULng32& x, NAHeap* heap);
 //    + returns TRUE if value underflows (and sets i-th item to 0)
 //----------------------------------------------------------------------------------
 
-
-class VarUIntArray
-{
+class VarUIntArray {
   static const ULng32 BitsPerWord = 32;
   static const ULng32 AllOnes = 0xFFFFFFFF;
 
-public:
+ public:
   // create an array with a given length of number of bits per entry (up to 32 allowed)
   // and initialize it to zeroes
-  VarUIntArray(ULng32 numEntries,
-               ULng32 numBits, NAHeap* heap);
+  VarUIntArray(ULng32 numEntries, ULng32 numBits, NAHeap *heap);
 
   // copy constructor
-  VarUIntArray(const VarUIntArray&, NAHeap* heap);
+  VarUIntArray(const VarUIntArray &, NAHeap *heap);
 
   // create an array with no space allocated
-  VarUIntArray(NAHeap* heap);
+  VarUIntArray(NAHeap *heap);
 
   ~VarUIntArray() { NADELETEBASIC(counters_, heap_); }
 
@@ -93,20 +89,20 @@ public:
 
   // overwrite array entry at index ix with a new value,
   // return TRUE if an overflow occurred
-  NABoolean put(ULng32 ix, ULng32 val, NABoolean* prevBitOff = NULL);
+  NABoolean put(ULng32 ix, ULng32 val, NABoolean *prevBitOff = NULL);
 
   // add to existing value, return TRUE if overflow occurred
-  NABoolean add(ULng32 ix, ULng32 val, ULng32& result);
+  NABoolean add(ULng32 ix, ULng32 val, ULng32 &result);
 
   // subtract from existing value, return TRUE if value
-  // did overflow in the past.  
-  NABoolean sub(ULng32 ix, ULng32 val, ULng32& minuend);
+  // did overflow in the past.
+  NABoolean sub(ULng32 ix, ULng32 val, ULng32 &minuend);
 
   // merge two arrays together. Each resultant bit is
   // the OR of the two corresponding bits.
-  // Return FALSE if the attributes of the two arrays 
-  // are not the same. 
-  NABoolean mergeViaOR(const VarUIntArray&);
+  // Return FALSE if the attributes of the two arrays
+  // are not the same.
+  NABoolean mergeViaOR(const VarUIntArray &);
 
   // maximum value  (this value is used to indicate overflow)
   ULng32 getMaxVal() const { return maxVal_; }
@@ -116,7 +112,7 @@ public:
 
   // return # of bits set.
   UInt32 bitsSet();
-  
+
   // estimate amount of memory needed to store x entries with b bits per entry
   // The estimation is expressed in bytes.
   static UInt64 estimateMemoryInBytes(ULng32 x, ULng32 b);
@@ -127,23 +123,21 @@ public:
   // Modeled based on the following method
   // IpcMessageObjSize ComCondition::packObjIntoMessage(char* buffer,
   //                         NABoolean swapBytes)
-  ULng32 packIntoBuffer(char*& buffer);
-  ULng32 unpackBuffer(char*& buffer);
+  ULng32 packIntoBuffer(char *&buffer);
+  ULng32 unpackBuffer(char *&buffer);
 
-  void dump(ostream&, const char* msg = NULL);
+  void dump(ostream &, const char *msg = NULL);
 
-private:
-
+ private:
   ULng32 numEntries_;
   ULng32 numWords_;
   ULng32 numBits_;
   ULng32 maxVal_;
   ULng32 *counters_;
 
-  NAHeap* heap_;
+  NAHeap *heap_;
 };
 
-
-typedef VarUIntArray* VarUIntArrayPtr;
+typedef VarUIntArray *VarUIntArrayPtr;
 
 #endif

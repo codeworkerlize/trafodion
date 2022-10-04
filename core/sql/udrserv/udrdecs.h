@@ -35,9 +35,8 @@
 *****************************************************************************
 */
 
-
 #include "common/Platform.h"
 
 #include "common/cextdecs.h"
 
-#endif //  _UDRDECS_H_
+#endif  //  _UDRDECS_H_

@@ -37,24 +37,26 @@
 
 #include "export/NABasicObject.h"
 
-enum WhoAmI { I_AM_UNKNOWN,
-	      I_AM_C_PREPROCESSOR, I_AM_COBOL_PREPROCESSOR,
-              I_AM_ESP,
-	      I_AM_SQL_COMPILER, I_AM_EMBEDDED_SQL_COMPILER };
+enum WhoAmI {
+  I_AM_UNKNOWN,
+  I_AM_C_PREPROCESSOR,
+  I_AM_COBOL_PREPROCESSOR,
+  I_AM_ESP,
+  I_AM_SQL_COMPILER,
+  I_AM_EMBEDDED_SQL_COMPILER
+};
 
-struct IdentifyMyself
-{
-public:
-  static WhoAmI GetMyName()			{ return myName_; }
-  static void SetMyName(WhoAmI myname)		{ myName_ = myname; }
+struct IdentifyMyself {
+ public:
+  static WhoAmI GetMyName() { return myName_; }
+  static void SetMyName(WhoAmI myname) { myName_ = myname; }
 
-  static NABoolean IsPreprocessor()
-  { return ( GetMyName() == I_AM_COBOL_PREPROCESSOR ||
-             GetMyName() == I_AM_C_PREPROCESSOR );
+  static NABoolean IsPreprocessor() {
+    return (GetMyName() == I_AM_COBOL_PREPROCESSOR || GetMyName() == I_AM_C_PREPROCESSOR);
   };
 
-private:
+ private:
   static THREAD_P WhoAmI myName_;
 };
 
-#endif // STMTCOMPILATIONMODE_H
+#endif  // STMTCOMPILATIONMODE_H

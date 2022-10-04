@@ -60,12 +60,11 @@
 
 #include "export/ComDiags.h"
 
-extern UdrGlobals *UDR_GLOBALS; // UDR globals area
+extern UdrGlobals *UDR_GLOBALS;  // UDR globals area
 
-jmp_buf UdrHeapLongJmpTgt; // udrHeap memory failure
-jmp_buf IpcHeapLongJmpTgt; // ipcHeap memory failure
+jmp_buf UdrHeapLongJmpTgt;  // udrHeap memory failure
+jmp_buf IpcHeapLongJmpTgt;  // ipcHeap memory failure
 
-#define UDRSERV_ERROR_PREFIX   "*** ERROR[] "
+#define UDRSERV_ERROR_PREFIX "*** ERROR[] "
 
-#endif // _UDRSERV_H_
-
+#endif  // _UDRSERV_H_

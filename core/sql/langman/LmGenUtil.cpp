@@ -41,34 +41,29 @@
  * number of params + return type. This function sets object mapping for return
  * type too.
  */
-LmResult setLMObjectMapping(
-  const char *routineSig,
-  ComBoolean objMapArray[],ComUInt32 total)
-{
+LmResult setLMObjectMapping(const char *routineSig, ComBoolean objMapArray[], ComUInt32 total) {
   const char *sig = routineSig;
   LmResult retCode = LM_OK;
   ComUInt32 pos = 0;
 
-  while (*sig && retCode != LM_ERR)
-  {
-    switch (*sig)
-    {
-      case '(' :
-      case '[' :
-      case ')' :
+  while (*sig && retCode != LM_ERR) {
+    switch (*sig) {
+      case '(':
+      case '[':
+      case ')':
         sig++;
         break;
-      case 'V' :
-      case 'S' :
-      case 'I' :
-      case 'J' :
-      case 'F' :
-      case 'D' :
+      case 'V':
+      case 'S':
+      case 'I':
+      case 'J':
+      case 'F':
+      case 'D':
         objMapArray[pos++] = FALSE;
         sig++;
         break;
 
-      case 'L' :
+      case 'L':
         objMapArray[pos++] = TRUE;
         if ((sig = strchr(sig, ';')) != NULL)
           sig += 1;
@@ -76,13 +71,12 @@ LmResult setLMObjectMapping(
           retCode = LM_ERR;
         break;
 
-      default :
+      default:
         retCode = LM_ERR;
 
-    } // switch (*sig)
-    if (pos == total)
-      break;
-  } // while (*sig)
+    }  // switch (*sig)
+    if (pos == total) break;
+  }  // while (*sig)
 
   return retCode;
 }

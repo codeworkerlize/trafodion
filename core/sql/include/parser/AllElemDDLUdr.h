@@ -29,7 +29,7 @@
  * Description:  a header file that includes all header files
  *               defining classes relating to user defined routines.
  *
- *               
+ *
  * Created:      10/01/1999
  * Language:     C++
  *
@@ -62,4 +62,3 @@
 //
 // End of File
 //
-

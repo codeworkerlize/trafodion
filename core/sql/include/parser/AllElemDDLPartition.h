@@ -5,7 +5,7 @@
  * Description:  a header file that includes ElemDDLPartition.h and
  *               all header files that define classes derived from
  *               class ElemDDLPartition.
- *               
+ *
  * Created:      10/2/95
  * Language:     C++
  *
@@ -34,7 +34,6 @@
  *
  *****************************************************************************
  */
-
 
 #include "ElemDDLPartition.h"
 

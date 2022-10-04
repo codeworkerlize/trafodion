@@ -34,9 +34,9 @@
 * Created:      01/24/2002
 * Language:     C++
 *
-* 
+*
 ******************************************************************************
-*/ 
+*/
 #include "refresh.h"
 #include "dsptrlist.h"
 
@@ -45,7 +45,6 @@ class CRUTableForceOptions;
 class CRUTableForceOptionsList;
 class CRUMVForceOptions;
 class CRUMVForceOptionsList;
-   
 
 //----------------------------------------------------------------------------
 // CRUMVForceOptionsList
@@ -53,78 +52,42 @@ class CRUMVForceOptionsList;
 
 // used by Range logging
 DECLARE_PTRLIST(REFRESH_LIB_CLASS, CRUMVForceOptions);
-   
+
 //----------------------------------------------------------------------------
 // CRUForceOptions
 // Store data about the force options for a group of MVs
 //----------------------------------------------------------------------------
 
-
 class REFRESH_LIB_CLASS CRUForceOptions {
-public:
-	
-	CRUForceOptions() : mvsList_(eItemsArentOwned) {};
-	~CRUForceOptions();
-	enum GroupByOptions
-	{
-		GB_NO_FORCE,
-		GB_HASH,
-		GB_SORT
-	};
-	enum JoinOptions
-	{
-		JOIN_NO_FORCE,
-		JOIN_NESTED,
-		JOIN_MERGE,
-		JOIN_HASH
-	};
-	enum MdamOptions 
-	{
-		MDAM_NO_FORCE,
-		MDAM_ENABLE,
-		MDAM_ON,
-		MDAM_OFF
-	};
-	
-	enum ExplainOptions
-	{
-		EXPLAIN_ON,
-		EXPLAIN_OFF
-	};
+ public:
+  CRUForceOptions() : mvsList_(eItemsArentOwned){};
+  ~CRUForceOptions();
+  enum GroupByOptions { GB_NO_FORCE, GB_HASH, GB_SORT };
+  enum JoinOptions { JOIN_NO_FORCE, JOIN_NESTED, JOIN_MERGE, JOIN_HASH };
+  enum MdamOptions { MDAM_NO_FORCE, MDAM_ENABLE, MDAM_ON, MDAM_OFF };
 
-	enum CQSStmtOption
-	{
-		CQS_DISABLE,
-		CQS_ENABLE
-	};
+  enum ExplainOptions { EXPLAIN_ON, EXPLAIN_OFF };
 
-	void AddMV(CRUMVForceOptions*);
+  enum CQSStmtOption { CQS_DISABLE, CQS_ENABLE };
 
-	const CRUMVForceOptionsList& GetMVForceOptionsList() const
-	{
-		return mvsList_;
-	}
-	
-	CRUMVForceOptionsList& GetMVForceOptionsList()
-	{
-		return mvsList_;
-	}
+  void AddMV(CRUMVForceOptions *);
 
-	CDSString& GetForceFileName() 
-	{
-		return fileName_;
-	}
+  const CRUMVForceOptionsList &GetMVForceOptionsList() const { return mvsList_; }
 
-	BOOL IsMVExist(const CDSString&) const;
+  CRUMVForceOptionsList &GetMVForceOptionsList() { return mvsList_; }
 
-private:
-	//-- Prevent copying
-	CRUForceOptions(const CRUForceOptions&);
-	CRUForceOptions &operator = (const CRUForceOptions &other);
+  CDSString &GetForceFileName() { return fileName_; }
 
-private:
-	CRUMVForceOptionsList mvsList_;
-	CDSString fileName_;
+  BOOL IsMVExist(const CDSString &) const;
+
+ private:
+  //-- Prevent copying
+  CRUForceOptions(const CRUForceOptions &);
+  CRUForceOptions &operator=(const CRUForceOptions &other);
+
+ private:
+  CRUMVForceOptionsList mvsList_;
+  CDSString fileName_;
 };
 
 //----------------------------------------------------------------------------
@@ -133,36 +96,27 @@ private:
 //----------------------------------------------------------------------------
 
 class REFRESH_LIB_CLASS CRUTableForceOptions {
-public:
-	CRUTableForceOptions(const CDSString&);
-	CRUTableForceOptions(const CRUTableForceOptions&);
-	
-	//--------------------------------------------//
-	// Accessors
-	//--------------------------------------------//
-	const CDSString& GetFullName() const
-	{
-		return tableName_;
-	}
-	
-	CRUForceOptions::MdamOptions GetMdamOptions() const
-	{
-		return mdam_;
-	}
+ public:
+  CRUTableForceOptions(const CDSString &);
+  CRUTableForceOptions(const CRUTableForceOptions &);
 
-	//--------------------------------------------//
-	// Mutators
-	//--------------------------------------------//
-	void SetTableName(const CDSString& );
-	
-	void SetMdam(CRUForceOptions::MdamOptions mdam)
-	{
-			mdam_=mdam;
-	}
+  //--------------------------------------------//
+  // Accessors
+  //--------------------------------------------//
+  const CDSString &GetFullName() const { return tableName_; }
 
-private:
-	CDSString tableName_;
-	CRUForceOptions::MdamOptions mdam_;
+  CRUForceOptions::MdamOptions GetMdamOptions() const { return mdam_; }
+
+  //--------------------------------------------//
+  // Mutators
+  //--------------------------------------------//
+  void SetTableName(const CDSString &);
+
+  void SetMdam(CRUForceOptions::MdamOptions mdam) { mdam_ = mdam; }
+
+ private:
+  CDSString tableName_;
+  CRUForceOptions::MdamOptions mdam_;
 };
 
 //----------------------------------------------------------------------------
@@ -177,142 +131,84 @@ DECLARE_PTRLIST(REFRESH_LIB_CLASS, CRUTableForceOptions);
 //----------------------------------------------------------------------------
 
 class REFRESH_LIB_CLASS CRUMVForceOptions {
-public:
-	CRUMVForceOptions();
-	CRUMVForceOptions(const CDSString&);
-	~CRUMVForceOptions();
+ public:
+  CRUMVForceOptions();
+  CRUMVForceOptions(const CDSString &);
+  ~CRUMVForceOptions();
 
-	//--------------------------------------------//
-	// Accessors
-	//--------------------------------------------//
-	const CDSString& GetMVName() const
-	{
-		return mvName_;
-	}
-	
-	CRUForceOptions::MdamOptions GetMDAMoption() const
-	{
-		return mdam_;
-	}
-	
-	CRUForceOptions::GroupByOptions GetGroupByoption() const
-	{
-		return groupBy_;
-	}
+  //--------------------------------------------//
+  // Accessors
+  //--------------------------------------------//
+  const CDSString &GetMVName() const { return mvName_; }
 
-	CRUForceOptions::JoinOptions GetJoinoption() const
-	{
-		return join_;
-	}
+  CRUForceOptions::MdamOptions GetMDAMoption() const { return mdam_; }
 
-	const CRUTableForceOptionsList& GetTableForceList() const
-	{
-		return *pTablesList_;
-	}
-	
-	const CRUTableForceOptionsList& GetTableForceList()
-	{
-		return *pTablesList_;
-	}
+  CRUForceOptions::GroupByOptions GetGroupByoption() const { return groupBy_; }
 
-	const Int32 GetNumOfTables() const
-	{
-		return pTablesList_->GetCount();
-	}
+  CRUForceOptions::JoinOptions GetJoinoption() const { return join_; }
 
-	BOOL IsTableStarUsed() const
-	{
-		return usedTableStarOption_ != CRUForceOptions::MDAM_NO_FORCE;
-	}
+  const CRUTableForceOptionsList &GetTableForceList() const { return *pTablesList_; }
 
-	CRUForceOptions::MdamOptions GetTableStarOption() const
-	{
-		return usedTableStarOption_;
-	}
+  const CRUTableForceOptionsList &GetTableForceList() { return *pTablesList_; }
 
-	// gets a table's name and returns in force options value
-	// returns MDAM_NO_FORCE if the table does not exist
-	CRUForceOptions::MdamOptions 
-		GetForceMdamOptionForTable(const CDSString&) const;
+  const Int32 GetNumOfTables() const { return pTablesList_->GetCount(); }
 
+  BOOL IsTableStarUsed() const { return usedTableStarOption_ != CRUForceOptions::MDAM_NO_FORCE; }
 
-	BOOL IsMVNameExist(const CDSString&) const;
+  CRUForceOptions::MdamOptions GetTableStarOption() const { return usedTableStarOption_; }
 
+  // gets a table's name and returns in force options value
+  // returns MDAM_NO_FORCE if the table does not exist
+  CRUForceOptions::MdamOptions GetForceMdamOptionForTable(const CDSString &) const;
 
-	CRUForceOptions::ExplainOptions	GetExplainOption() const
-	{
-		return explain_;
-	}
+  BOOL IsMVNameExist(const CDSString &) const;
 
-	const CDSString &GetCQSStatment() const
-	{
-		return cqsStmt_;
-	}
-	
-	//--------------------------------------------//
-	// Mutators
-	//--------------------------------------------//
-	void SetMVName(CDSString mvName)
-	{
-		mvName_ = mvName;
-	}
+  CRUForceOptions::ExplainOptions GetExplainOption() const { return explain_; }
 
-	void SetGroupBy(CRUForceOptions::GroupByOptions gb)
-	{
-		groupBy_ = gb;
-	}
+  const CDSString &GetCQSStatment() const { return cqsStmt_; }
 
-	void SetJoin(CRUForceOptions::JoinOptions join)
-	{
-		join_ = join;
-	}
+  //--------------------------------------------//
+  // Mutators
+  //--------------------------------------------//
+  void SetMVName(CDSString mvName) { mvName_ = mvName; }
 
-	void SetMdam(CRUForceOptions::MdamOptions mdam)
-	{
-		mdam_ = mdam;
-	}
+  void SetGroupBy(CRUForceOptions::GroupByOptions gb) { groupBy_ = gb; }
 
-	void SetUsedTableStarOption(CRUForceOptions::MdamOptions usedTableStarOption)
-	{
-		usedTableStarOption_ = usedTableStarOption;
-	}
+  void SetJoin(CRUForceOptions::JoinOptions join) { join_ = join; }
 
-	void AddTable(CRUTableForceOptions*);
+  void SetMdam(CRUForceOptions::MdamOptions mdam) { mdam_ = mdam; }
 
+  void SetUsedTableStarOption(CRUForceOptions::MdamOptions usedTableStarOption) {
+    usedTableStarOption_ = usedTableStarOption;
+  }
 
-	void SetExplainOption(CRUForceOptions::ExplainOptions explain)
-	{
-		explain_ = explain;
-	}
+  void AddTable(CRUTableForceOptions *);
 
-	void SetCQSStatment(const CDSString &str)
-	{
-		cqsStmt_ = str;
-	}
+  void SetExplainOption(CRUForceOptions::ExplainOptions explain) { explain_ = explain; }
 
-private:
-	//-- Prevent copying
-	CRUMVForceOptions &operator = (const CRUMVForceOptions &other);
-	CRUMVForceOptions(const CRUMVForceOptions& srcMv);
+  void SetCQSStatment(const CDSString &str) { cqsStmt_ = str; }
 
-//--------------------------------------------//
-// Private data and function members
-//--------------------------------------------//
-private:
-	CDSString mvName_;
-	CRUForceOptions::GroupByOptions groupBy_; //the groupby force option of the mv
-	CRUForceOptions::JoinOptions join_;	  //the join force option of the mv
-	CRUForceOptions::MdamOptions mdam_;	  //the mdam force option of the mv
-	CRUForceOptions::MdamOptions usedTableStarOption_; 
-	CRUTableForceOptionsList* pTablesList_;	  //a list of all the tables under the mv
-	CRUForceOptions::ExplainOptions explain_;
-	CDSString cqsStmt_;
+ private:
+  //-- Prevent copying
+  CRUMVForceOptions &operator=(const CRUMVForceOptions &other);
+  CRUMVForceOptions(const CRUMVForceOptions &srcMv);
 
+  //--------------------------------------------//
+  // Private data and function members
+  //--------------------------------------------//
+ private:
+  CDSString mvName_;
+  CRUForceOptions::GroupByOptions groupBy_;  // the groupby force option of the mv
+  CRUForceOptions::JoinOptions join_;        // the join force option of the mv
+  CRUForceOptions::MdamOptions mdam_;        // the mdam force option of the mv
+  CRUForceOptions::MdamOptions usedTableStarOption_;
+  CRUTableForceOptionsList *pTablesList_;  // a list of all the tables under the mv
+  CRUForceOptions::ExplainOptions explain_;
+  CDSString cqsStmt_;
 };
 
 // Complete the destructor's definition
 inline CRUMVForceOptionsList::~CRUMVForceOptionsList() {}
 inline CRUTableForceOptionsList::~CRUTableForceOptionsList() {}
-
 
 #endif

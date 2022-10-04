@@ -27,8 +27,8 @@
 * Description:  Cost estimation interface object for Simple Cost Model
 * Language:     C++
 *
-* Last Modified: 
-* Modified by:  
+* Last Modified:
+* Modified by:
 * Purpose:       Simple Cost Vector Reduction
 *
 *
@@ -61,21 +61,17 @@
 #include <math.h>
 
 #ifndef NDEBUG
-static THREAD_P FILE* pfp = NULL;
-#endif // NDEBUG
+static THREAD_P FILE *pfp = NULL;
+#endif  // NDEBUG
 
 // -----------------------------------------------------------------------
 // CostMethod::scmComputeOperatorCost()
 // -----------------------------------------------------------------------
-Cost*
-CostMethod::scmComputeOperatorCost(RelExpr* op,
-                                   const PlanWorkSpace* pws,
-				   Lng32& countOfStreams)
-{
-  Cost* cost;
+Cost *CostMethod::scmComputeOperatorCost(RelExpr *op, const PlanWorkSpace *pws, Lng32 &countOfStreams) {
+  Cost *cost;
   try {
     cost = scmComputeOperatorCostInternal(op, pws, countOfStreams);
-  } catch(...) {
+  } catch (...) {
     // cleanUp() must be called before this function is called again
     // because wrong results may occur the next time scmComputeOperatorCost()
     // is called and because the SharedPtr objects must be set to zero.
@@ -86,29 +82,22 @@ CostMethod::scmComputeOperatorCost(RelExpr* op,
 
   cleanUp();
   return cost;
-}                     // CostMethod::scmComputeOperatorCost()
+}  // CostMethod::scmComputeOperatorCost()
 
 // -----------------------------------------------------------------------
 // CostMethod::scmComputeOperatorCostInternal()      (derived class must redefine)
 // -----------------------------------------------------------------------
-Cost*
-CostMethod::scmComputeOperatorCostInternal(RelExpr* op,
-                                           const PlanWorkSpace* pws,
-					   Lng32& countOfStreams )
-{
+Cost *CostMethod::scmComputeOperatorCostInternal(RelExpr *op, const PlanWorkSpace *pws, Lng32 &countOfStreams) {
   countOfStreams = 1;
 
 #ifndef NDEBUG
-  if ( CmpCommon::getDefault( OPTIMIZER_PRINT_COST ) == DF_ON )
-    fprintf(stdout," %s : is not yet implemented, plan may not be optimal\n", className_);
-#endif // NDEBUG
-  Cost* costPtr = 
-    scmCost(1e32 /*tcProc */, csZero, csZero, csZero, csZero, csOne,
-	    csZero, csZero, csZero, csZero);
+  if (CmpCommon::getDefault(OPTIMIZER_PRINT_COST) == DF_ON)
+    fprintf(stdout, " %s : is not yet implemented, plan may not be optimal\n", className_);
+#endif  // NDEBUG
+  Cost *costPtr = scmCost(1e32 /*tcProc */, csZero, csZero, csZero, csZero, csOne, csZero, csZero, csZero, csZero);
   return costPtr;
 
-} // CostMethod::scmComputeOperatorCostInternal()
-
+}  // CostMethod::scmComputeOperatorCostInternal()
 
 //<pb>
 //==============================================================================
@@ -131,20 +120,15 @@ CostMethod::scmComputeOperatorCostInternal(RelExpr* op,
 //  Pointer to cumulative final cost.
 //
 //==============================================================================
-Cost*
-CostMethod::scmComputePlanCost( RelExpr* op,
-                                const PlanWorkSpace* pws,
-                                Lng32 planNumber
-                           )
-{
-  const Context* myContext = pws->getContext();
+Cost *CostMethod::scmComputePlanCost(RelExpr *op, const PlanWorkSpace *pws, Lng32 planNumber) {
+  const Context *myContext = pws->getContext();
 
   //----------------------------------------------------------------------
   // Defensive programming.
   //----------------------------------------------------------------------
-  CMPASSERT( op        != NULL );
-  CMPASSERT( myContext != NULL );
-  CMPASSERT( pws       != NULL );
+  CMPASSERT(op != NULL);
+  CMPASSERT(myContext != NULL);
+  CMPASSERT(pws != NULL);
 
   //--------------------------------------------------------------------------
   //  Grab parent's cost (independent of its children) directly from the plan
@@ -152,13 +136,12 @@ CostMethod::scmComputePlanCost( RelExpr* op,
   //--------------------------------------------------------------------------
   // Need to cast constness away since getFinalOperatorCost cannot
   // be made const
-  Cost* parentCost = ((PlanWorkSpace *)pws)->getFinalOperatorCost( planNumber );
+  Cost *parentCost = ((PlanWorkSpace *)pws)->getFinalOperatorCost(planNumber);
   //----------------------------------------------------------------------------
   //  For leaf nodes (i.e. those having no children), return a copy of parent's
   // cost as the final cost.
   //----------------------------------------------------------------------------
-  if ( op->getArity() == 0 )
-  {
+  if (op->getArity() == 0) {
     return parentCost;
   }
 
@@ -168,57 +151,30 @@ CostMethod::scmComputePlanCost( RelExpr* op,
 
   CostPtr leftChildCost = NULL;
   CostPtr rightChildCost = NULL;
-  if (op->getArity() == 1)
-  {
-    getChildCostForUnaryOp(op,
-                           myContext,
-                           pws,
-                           planNumber,
-                           leftChildCost);
-  }
-  else if (op->getArity() == 2)
-  {
-    getChildCostsForBinaryOp( op
-                          , myContext
-                          , pws
-                          , planNumber
-                          , leftChildCost
-                          , rightChildCost);
-  }
-  else
+  if (op->getArity() == 1) {
+    getChildCostForUnaryOp(op, myContext, pws, planNumber, leftChildCost);
+  } else if (op->getArity() == 2) {
+    getChildCostsForBinaryOp(op, myContext, pws, planNumber, leftChildCost, rightChildCost);
+  } else
     ABORT("CostMethod::scmComputePlanCost(): More than two children");
 
   Cost *planCost = NULL;
   // decrease the cost for union and join if ngram index is enabled
-  if (CmpCommon::getDefault(NGRAM_DISABLE_IN_NATABLE) == DF_OFF && 
+  if (CmpCommon::getDefault(NGRAM_DISABLE_IN_NATABLE) == DF_OFF &&
       ((op->getOperatorType() == REL_MERGE_UNION && op->isCreatedByNgram()) ||
        (op->getOperatorType() == REL_NESTED_JOIN && op->isCreatedByNgram())))
-    planCost = scmRollUp( parentCost
-                              , NULL
-                              , NULL
-                              , myContext->getReqdPhysicalProperty()
-                              );
+    planCost = scmRollUp(parentCost, NULL, NULL, myContext->getReqdPhysicalProperty());
   else if (op->getOperatorType() == REL_MERGE_UNION)
-    planCost = scmRollUp( parentCost
-                              , leftChildCost
-                              , NULL
-                              , myContext->getReqdPhysicalProperty()
-                              );
+    planCost = scmRollUp(parentCost, leftChildCost, NULL, myContext->getReqdPhysicalProperty());
   else
-    planCost = scmRollUp( parentCost
-                              , leftChildCost
-                              , rightChildCost
-                              , myContext->getReqdPhysicalProperty()
-                              );
-  if (leftChildCost)
-    delete leftChildCost;
-  if (rightChildCost)
-    delete rightChildCost;
+    planCost = scmRollUp(parentCost, leftChildCost, rightChildCost, myContext->getReqdPhysicalProperty());
+  if (leftChildCost) delete leftChildCost;
+  if (rightChildCost) delete rightChildCost;
   delete parentCost;
 
   return planCost;
 
-} // CostMethod::computePlanCost()
+}  // CostMethod::computePlanCost()
 
 //==============================================================================
 //  Roll up children cost and parent cost into a cumulative cost.
@@ -241,42 +197,34 @@ CostMethod::scmComputePlanCost( RelExpr* op,
 //  Rolled up cost.
 //
 //==============================================================================
-Cost*
-CostMethod::scmRollUp( Cost* const parentCost
-                     , Cost* const leftChildCost
-                     , Cost* const rightChildCost
-                     , const ReqdPhysicalProperty* const rpp
-                  )
-{
+Cost *CostMethod::scmRollUp(Cost *const parentCost, Cost *const leftChildCost, Cost *const rightChildCost,
+                            const ReqdPhysicalProperty *const rpp) {
   //----------------------------------------------------------------------
   // Defensive programming.
   //----------------------------------------------------------------------
-  CMPASSERT( parentCost  != NULL );
- 
+  CMPASSERT(parentCost != NULL);
+
   SimpleCostVector parentVector = parentCost->getScmCplr();
   SimpleCostVector leftChildVector, rightChildVector;
 
-  if (leftChildCost != NULL)
-    leftChildVector = leftChildCost->getScmCplr();
-  if (rightChildCost != NULL)
-    rightChildVector = rightChildCost->getScmCplr();
+  if (leftChildCost != NULL) leftChildVector = leftChildCost->getScmCplr();
+  if (rightChildCost != NULL) rightChildVector = rightChildCost->getScmCplr();
 
   SimpleCostVector cumCostVector;
 
   if (leftChildCost == NULL)
     cumCostVector = parentVector;
 
-  else 
-  {
+  else {
     if (rightChildCost == NULL)
       cumCostVector = parentVector + leftChildVector;
-    else 
+    else
       cumCostVector = parentVector + (leftChildVector + rightChildVector);
   }
 
- return new STMTHEAP Cost(&cumCostVector);
+  return new STMTHEAP Cost(&cumCostVector);
 
-} // CostMethod::scmRollUp()
+}  // CostMethod::scmRollUp()
 
 //==============================================================================
 //  Wrapper for SCM Cost constructor.
@@ -286,35 +234,26 @@ CostMethod::scmRollUp( Cost* const parentCost
 //  Cost
 //
 //==============================================================================
-Cost *
-CostMethod::scmCost(CostScalar tuplesProcessed,
-		    CostScalar tuplesProduced,
-		    CostScalar tuplesSent,
-		    CostScalar ioRand,
-		    CostScalar ioSeq,
-		    CostScalar noOfProbes,
-		    CostScalar input1RowSize,
-		    CostScalar input2RowSize,
-		    CostScalar outputRowSize,
-		    CostScalar probeRowSize)
-{
+Cost *CostMethod::scmCost(CostScalar tuplesProcessed, CostScalar tuplesProduced, CostScalar tuplesSent,
+                          CostScalar ioRand, CostScalar ioSeq, CostScalar noOfProbes, CostScalar input1RowSize,
+                          CostScalar input2RowSize, CostScalar outputRowSize, CostScalar probeRowSize) {
   // assert if called by OCM .
   DCMPASSERT(CmpCommon::getDefault(SIMPLE_COST_MODEL) == DF_ON);
 
-  SimpleCostVector scmLR ( csZero,    		/* CPUTime */
-			   csZero,    		/* IOTime */
-			   csZero,    		/* MSGTime */
-			   csZero,    		/* idle time */
-			   tuplesProcessed,	/* tcProc */
-			   tuplesProduced,	/* tcProd */
-			   tuplesSent,   	/* tcSent */
-			   ioRand,     		/* ioRand */
-			   ioSeq,    		/* ioSeq */
-			   noOfProbes ); 	/* num probes */
+  SimpleCostVector scmLR(csZero,          /* CPUTime */
+                         csZero,          /* IOTime */
+                         csZero,          /* MSGTime */
+                         csZero,          /* idle time */
+                         tuplesProcessed, /* tcProc */
+                         tuplesProduced,  /* tcProd */
+                         tuplesSent,      /* tcSent */
+                         ioRand,          /* ioRand */
+                         ioSeq,           /* ioSeq */
+                         noOfProbes);     /* num probes */
 
   // This is ok for now, as cpuCount will almost always be >= countOfStreams.
   // The reason this is commented out for now is because exchange costing
-  // does not set countOfStreams_ and this leads to problems. Doing this in 
+  // does not set countOfStreams_ and this leads to problems. Doing this in
   // each operator separately will circumvent this problem, but make the code
   // ugly, so it is best to comment it out for now. Does not have any negative
   // impact on plans.
@@ -325,30 +264,22 @@ CostMethod::scmCost(CostScalar tuplesProcessed,
   */
 
   NABoolean scmDebugOn = (CmpCommon::getDefault(NCM_PRINT_ROWSIZE) == DF_ON);
-  if (scmDebugOn == TRUE)
-  {
+  if (scmDebugOn == TRUE) {
     // debug mode, build another SimpleCostVector with rowsize information
     // for debugging purposes only
     // FOR INTERNAL USE ONLY.
-    const SimpleCostVector scmDebug ( csZero,    		
-				      csZero,    		
-				      csZero,    		
-				      csZero,    		
-				      input1RowSize,	/* input1 rowsize */
-				      input2RowSize,	/* input2 rowsize */
-				      outputRowSize,	/* output rowsize */
-				      probeRowSize,	/* probe rowsize */
-				      csZero,   		
-				      csZero );    	
+    const SimpleCostVector scmDebug(csZero, csZero, csZero, csZero, input1RowSize, /* input1 rowsize */
+                                    input2RowSize,                                 /* input2 rowsize */
+                                    outputRowSize,                                 /* output rowsize */
+                                    probeRowSize,                                  /* probe rowsize */
+                                    csZero, csZero);
 
     return new STMTHEAP Cost(&scmLR, &scmDebug);
-  }
-  else
-  {
+  } else {
     // Normal mode
     return new STMTHEAP Cost(&scmLR);
   }
-} // CostMethod::scmCost
+}  // CostMethod::scmCost
 
 //==============================================================================
 //  Wrapper for SCM Cost constructor.
@@ -358,58 +289,40 @@ CostMethod::scmCost(CostScalar tuplesProcessed,
 //  Cost
 //
 //==============================================================================
-Cost *
-ScanOptimizer::scmCost(CostScalar tuplesProcessed,
-		       CostScalar tuplesProduced,
-		       CostScalar tuplesSent,
-		       CostScalar ioRand,
-		       CostScalar ioSeq,
-		       CostScalar noOfProbes,
-		       CostScalar input1RowSize,
-		       CostScalar input2RowSize,
-		       CostScalar outputRowSize,
-		       CostScalar probeRowSize)
-{
+Cost *ScanOptimizer::scmCost(CostScalar tuplesProcessed, CostScalar tuplesProduced, CostScalar tuplesSent,
+                             CostScalar ioRand, CostScalar ioSeq, CostScalar noOfProbes, CostScalar input1RowSize,
+                             CostScalar input2RowSize, CostScalar outputRowSize, CostScalar probeRowSize) {
   // assert if called by OCM .
   DCMPASSERT(CmpCommon::getDefault(SIMPLE_COST_MODEL) == DF_ON);
 
-  SimpleCostVector scmLR ( csZero,    		/* CPUTime */
-			   csZero,    		/* IOTime */
-			   csZero,    		/* MSGTime */
-			   csZero,    		/* idle time */
-			   tuplesProcessed,	/* tcProc */
-			   tuplesProduced,	/* tcProd */
-			   tuplesSent,  	/* tcSent */
-			   ioRand,     		/* ioRand */
-			   ioSeq,    		/* ioSeq */
-			   noOfProbes );	/* num probes */
-
+  SimpleCostVector scmLR(csZero,          /* CPUTime */
+                         csZero,          /* IOTime */
+                         csZero,          /* MSGTime */
+                         csZero,          /* idle time */
+                         tuplesProcessed, /* tcProc */
+                         tuplesProduced,  /* tcProd */
+                         tuplesSent,      /* tcSent */
+                         ioRand,          /* ioRand */
+                         ioSeq,           /* ioSeq */
+                         noOfProbes);     /* num probes */
 
   NABoolean scmDebugOn = (CmpCommon::getDefault(NCM_PRINT_ROWSIZE) == DF_ON);
-  if (scmDebugOn == TRUE)
-  {
+  if (scmDebugOn == TRUE) {
     // debug mode, build another SimpleCostVector with rowsize information
     // for debugging purposes only
     // FOR INTERNAL USE ONLY.
-    const SimpleCostVector scmDebug ( csZero,    		
-				      csZero,    		
-				      csZero,    		
-				      csZero,    		
-				      input1RowSize,	/* input1 rowsize */
-				      input2RowSize,	/* input2 rowsize */
-				      outputRowSize,	/* output rowsize */
-				      probeRowSize,	/* probe rowsize */
-				      csZero,   		
-				      csZero );    	
+    const SimpleCostVector scmDebug(csZero, csZero, csZero, csZero, input1RowSize, /* input1 rowsize */
+                                    input2RowSize,                                 /* input2 rowsize */
+                                    outputRowSize,                                 /* output rowsize */
+                                    probeRowSize,                                  /* probe rowsize */
+                                    csZero, csZero);
 
     return new STMTHEAP Cost(&scmLR, &scmDebug);
-  }
-  else
-  {
+  } else {
     // Normal mode
     return new STMTHEAP Cost(&scmLR);
   }
-} // ScanOptimizer::scmCost
+}  // ScanOptimizer::scmCost
 
 //==============================================================================
 //  Scale the cost to account for rowsizes. In case of large rowsizes,
@@ -424,40 +337,33 @@ ScanOptimizer::scmCost(CostScalar tuplesProcessed,
 //  RowSize factor
 //
 //==============================================================================
-CostScalar
-CostMethod::scmRowSizeFactor( CostScalar rowSize, ncmRowSizeFactorType rowSizeFactorType )
-{
+CostScalar CostMethod::scmRowSizeFactor(CostScalar rowSize, ncmRowSizeFactorType rowSizeFactorType) {
   CostScalar rowSizeFactor;
 
-  switch(rowSizeFactorType)
-  {
-     case TUPLES_ROWSIZE_FACTOR:
-       rowSizeFactor = 
-	 ActiveSchemaDB()->getDefaults().getAsDouble(NCM_TUPLES_ROWSIZE_FACTOR);
-       break;
+  switch (rowSizeFactorType) {
+    case TUPLES_ROWSIZE_FACTOR:
+      rowSizeFactor = ActiveSchemaDB()->getDefaults().getAsDouble(NCM_TUPLES_ROWSIZE_FACTOR);
+      break;
 
-     case SEQ_IO_ROWSIZE_FACTOR:
-       rowSizeFactor = 
-	 ActiveSchemaDB()->getDefaults().getAsDouble(NCM_SEQ_IO_ROWSIZE_FACTOR);
-       break;
+    case SEQ_IO_ROWSIZE_FACTOR:
+      rowSizeFactor = ActiveSchemaDB()->getDefaults().getAsDouble(NCM_SEQ_IO_ROWSIZE_FACTOR);
+      break;
 
-     case RAND_IO_ROWSIZE_FACTOR:
-       rowSizeFactor = 
-	 ActiveSchemaDB()->getDefaults().getAsDouble(NCM_RAND_IO_ROWSIZE_FACTOR);
-       break;
+    case RAND_IO_ROWSIZE_FACTOR:
+      rowSizeFactor = ActiveSchemaDB()->getDefaults().getAsDouble(NCM_RAND_IO_ROWSIZE_FACTOR);
+      break;
 
-     default:
-       rowSizeFactor = 0.0;
-       break;
+    default:
+      rowSizeFactor = 0.0;
+      break;
   }
 
   // Defensive programming
-  if (rowSize <= 1)
-    return 1.0;
+  if (rowSize <= 1) return 1.0;
 
   return MAXOF(pow(rowSize.getValue(), rowSizeFactor.getValue()), 1.0);
 
-} // CostMethod::scmRowSizeFactor
+}  // CostMethod::scmRowSizeFactor
 
 //==============================================================================
 //  Scale the cost to account for rowsizes. In case of large rowsizes,
@@ -472,40 +378,33 @@ CostMethod::scmRowSizeFactor( CostScalar rowSize, ncmRowSizeFactorType rowSizeFa
 //  RowSize factor
 //
 //==============================================================================
-CostScalar
-ScanOptimizer::scmRowSizeFactor( CostScalar rowSize, ncmRowSizeFactorType rowSizeFactorType )
-{
+CostScalar ScanOptimizer::scmRowSizeFactor(CostScalar rowSize, ncmRowSizeFactorType rowSizeFactorType) {
   CostScalar rowSizeFactor;
 
-  switch(rowSizeFactorType)
-  {
-     case TUPLES_ROWSIZE_FACTOR:
-       rowSizeFactor = 
-	 ActiveSchemaDB()->getDefaults().getAsDouble(NCM_TUPLES_ROWSIZE_FACTOR);
-       break;
+  switch (rowSizeFactorType) {
+    case TUPLES_ROWSIZE_FACTOR:
+      rowSizeFactor = ActiveSchemaDB()->getDefaults().getAsDouble(NCM_TUPLES_ROWSIZE_FACTOR);
+      break;
 
-     case SEQ_IO_ROWSIZE_FACTOR:
-       rowSizeFactor = 
-	 ActiveSchemaDB()->getDefaults().getAsDouble(NCM_SEQ_IO_ROWSIZE_FACTOR);
-       break;
+    case SEQ_IO_ROWSIZE_FACTOR:
+      rowSizeFactor = ActiveSchemaDB()->getDefaults().getAsDouble(NCM_SEQ_IO_ROWSIZE_FACTOR);
+      break;
 
-     case RAND_IO_ROWSIZE_FACTOR:
-       rowSizeFactor = 
-	 ActiveSchemaDB()->getDefaults().getAsDouble(NCM_RAND_IO_ROWSIZE_FACTOR);
-       break;
+    case RAND_IO_ROWSIZE_FACTOR:
+      rowSizeFactor = ActiveSchemaDB()->getDefaults().getAsDouble(NCM_RAND_IO_ROWSIZE_FACTOR);
+      break;
 
-     default:
-       rowSizeFactor = 0.0;
-       break;
+    default:
+      rowSizeFactor = 0.0;
+      break;
   }
 
   // Defensive programming
-  if (rowSize <= 1)
-    return 1.0;
+  if (rowSize <= 1) return 1.0;
 
   return MAXOF(pow(rowSize.getValue(), rowSizeFactor.getValue()), 1.0);
 
-} // ScanOptimizer::scmRowSizeFactor
+}  // ScanOptimizer::scmRowSizeFactor
 
 //<pb>
 /**********************************************************************/
@@ -513,11 +412,7 @@ ScanOptimizer::scmRowSizeFactor( CostScalar rowSize, ncmRowSizeFactorType rowSiz
 /*                         CostMethodRelRoot                         */
 /*                                                                    */
 /**********************************************************************/
-Cost*
-CostMethodRelRoot::scmComputeOperatorCostInternal(RelExpr* op,
-                                                  const PlanWorkSpace* pws,
-						  Lng32& countOfStreams)
-{
+Cost *CostMethodRelRoot::scmComputeOperatorCostInternal(RelExpr *op, const PlanWorkSpace *pws, Lng32 &countOfStreams) {
   // -------------------------------------------------------------
   // Save off estimated degree of parallelism.  Always 1 for root.
   // -------------------------------------------------------------
@@ -527,7 +422,7 @@ CostMethodRelRoot::scmComputeOperatorCostInternal(RelExpr* op,
   // Cost object.
   return new HEAP Cost();
 
-} // CostMethodRelRoot::scmComputeOperatorCostInternal()
+}  // CostMethodRelRoot::scmComputeOperatorCostInternal()
 
 //<pb>
 /**********************************************************************/
@@ -535,11 +430,8 @@ CostMethodRelRoot::scmComputeOperatorCostInternal(RelExpr* op,
 /*                         CostMethodFixedCostPerRow                  */
 /*                                                                    */
 /**********************************************************************/
-Cost*
-CostMethodFixedCostPerRow::scmComputeOperatorCostInternal(RelExpr* op,
-                                                          const PlanWorkSpace* pws,
-							  Lng32& countOfStreams)
-{
+Cost *CostMethodFixedCostPerRow::scmComputeOperatorCostInternal(RelExpr *op, const PlanWorkSpace *pws,
+                                                                Lng32 &countOfStreams) {
   // ---------------------------------------------------------------------
   // Preparatory work.
   // ---------------------------------------------------------------------
@@ -557,9 +449,7 @@ CostMethodFixedCostPerRow::scmComputeOperatorCostInternal(RelExpr* op,
   // Cost object.
   return new HEAP Cost();
 
-} // CostMethodFixedCostPerRow::scmComputeOperatorCostInternal()
-
-
+}  // CostMethodFixedCostPerRow::scmComputeOperatorCostInternal()
 
 //<pb>
 /**********************************************************************/
@@ -567,15 +457,11 @@ CostMethodFixedCostPerRow::scmComputeOperatorCostInternal(RelExpr* op,
 /*                         CostMethodFileScan                         */
 /*                                                                    */
 /**********************************************************************/
-Cost*
-CostMethodFileScan::scmComputeOperatorCostInternal(RelExpr* op,
-                                                   const PlanWorkSpace* pws,
-                                                   Lng32& countOfStreams)
-{
+Cost *CostMethodFileScan::scmComputeOperatorCostInternal(RelExpr *op, const PlanWorkSpace *pws, Lng32 &countOfStreams) {
   // call old computeOperatorCostInternal method.
-  return computeOperatorCostInternal( op, pws->getContext(), countOfStreams );
+  return computeOperatorCostInternal(op, pws->getContext(), countOfStreams);
 
-} // CostMethodFileScan::scmComputeOperatorCostInternal()
+}  // CostMethodFileScan::scmComputeOperatorCostInternal()
 
 //<pb>
 /**********************************************************************/
@@ -583,67 +469,52 @@ CostMethodFileScan::scmComputeOperatorCostInternal(RelExpr* op,
 /*                         CostMethodDP2Scan                          */
 /*                                                                    */
 /**********************************************************************/
-Cost*
-CostMethodDP2Scan::scmComputeOperatorCostInternal(RelExpr* op,
-                                                  const PlanWorkSpace* pws,
-						  Lng32& countOfStreams)
-{
-  const Context* myContext = pws->getContext();
-  FileScan *fs = (FileScan *) op;
+Cost *CostMethodDP2Scan::scmComputeOperatorCostInternal(RelExpr *op, const PlanWorkSpace *pws, Lng32 &countOfStreams) {
+  const Context *myContext = pws->getContext();
+  FileScan *fs = (FileScan *)op;
 
   //
   // The search key is computed for the clustered Hive tables. Here we check
   // that fact and go with the old computeOperatorCostInternalx method, where
   // FileScanOptimizer::optimize() will be called to select the subset scan.
   //
-  if ( myContext->getPlan()->getPhysicalProperty()->getDP2CostThatDependsOnSPP() )
-     return computeOperatorCostInternal( op, myContext, countOfStreams );
+  if (myContext->getPlan()->getPhysicalProperty()->getDP2CostThatDependsOnSPP())
+    return computeOperatorCostInternal(op, myContext, countOfStreams);
 
   if (!fs->isHiveTable())
     // call old computeOperatorCostInternalx method.
-    return computeOperatorCostInternal( op, myContext, countOfStreams );
+    return computeOperatorCostInternal(op, myContext, countOfStreams);
 
   // ---------------------------------------------------------------------
   // Try to do a very vanilla cost computation for Hive scans for now
   // ---------------------------------------------------------------------
-  
+
   // ---------------------------------------------------------------------
   // Preparatory work.
   // ---------------------------------------------------------------------
-  cacheParameters(op,myContext);
+  cacheParameters(op, myContext);
   estimateDegreeOfParallelism();
 
   // -----------------------------------------
   // Save off estimated degree of parallelism.
   // -----------------------------------------
   countOfStreams = countOfStreams_;
-  Cost* hiveScanCost = NULL;
+  Cost *hiveScanCost = NULL;
 
   CostScalar tuplesProcessed = csZero;
   CostScalar tuplesProduced = csZero;
 
   // Hbase table case
   if (fs->isHbaseTable()) {
+    CostScalar outputRowSize = 100 /* getEstimatedRecordLength*/;
+    CostScalar outputRowSizeFactor = scmRowSizeFactor(outputRowSize);
 
-     CostScalar outputRowSize = 100 /* getEstimatedRecordLength*/;
-     CostScalar outputRowSizeFactor = scmRowSizeFactor(outputRowSize);
-
-     hiveScanCost =  scmCost(100,
-                                100,
-                                csZero,
-                                csZero,
-                                csZero,
-                                noOfProbesPerStream_,
-                                csZero,
-                                csZero,
-                                outputRowSize,
-                                csZero);
-  } 
-
-
+    hiveScanCost =
+        scmCost(100, 100, csZero, csZero, csZero, noOfProbesPerStream_, csZero, csZero, outputRowSize, csZero);
+  }
 
   return hiveScanCost;
-} // CostMethodDP2Scan::scmComputeOperatorCostInternal()
+}  // CostMethodDP2Scan::scmComputeOperatorCostInternal()
 
 // SimpleFileScanOptimizer::scmComputeCostVectors()
 // Computes the cost vectors for this scan using the simple costing model.
@@ -654,51 +525,39 @@ CostMethodDP2Scan::scmComputeOperatorCostInternal(RelExpr* op,
 //
 // OUTPUTS: lastRow SimpleCostVectors of a new Cost object are populated.
 //
-Cost *
-SimpleFileScanOptimizer::scmComputeCostVectors()
-{
-      
-  //NAString tname((getIndexDesc()->getPrimaryTableDesc()->getNATable()->getTableName()).getQualifiedNameAsAnsiString());
-  //cout << "SimpleFileScanOptimizer::scmComputeCostVectors() called, for " << tname.data() << endl;
+Cost *SimpleFileScanOptimizer::scmComputeCostVectors() {
+  // NAString
+  // tname((getIndexDesc()->getPrimaryTableDesc()->getNATable()->getTableName()).getQualifiedNameAsAnsiString()); cout <<
+  // "SimpleFileScanOptimizer::scmComputeCostVectors() called, for " << tname.data() << endl;
 
   // if the table is Hbase, then call scmComputeCostVectorsForHbase()
-  if (getIndexDesc()->getPrimaryTableDesc()->getNATable()->isHbaseTable())
-    return scmComputeCostVectorsForHbase();
-
-
+  if (getIndexDesc()->getPrimaryTableDesc()->getNATable()->isHbaseTable()) return scmComputeCostVectorsForHbase();
 
   const LogPhysPartitioningFunction *logPhysPartFunc =
-    getContext().getPlan()->getPhysicalProperty()->getPartitioningFunction()->
-    castToLogPhysPartitioningFunction();
+      getContext().getPlan()->getPhysicalProperty()->getPartitioningFunction()->castToLogPhysPartitioningFunction();
 
-  NABoolean syncAccess = FALSE; 
+  NABoolean syncAccess = FALSE;
   CostScalar numActivePartitions;
   CostScalar tuplesProcessed, tuplesProduced, tuplesSent = csZero;
 
-  if (logPhysPartFunc != NULL)
-    syncAccess = logPhysPartFunc->getSynchronousAccess(); 
+  if (logPhysPartFunc != NULL) syncAccess = logPhysPartFunc->getSynchronousAccess();
 
-  {
-     tuplesProcessed = getSingleSubsetSize();
-  }
+  { tuplesProcessed = getSingleSubsetSize(); }
 
   numActivePartitions = getEstNumActivePartitionsAtRuntime();
 
   setProbes(1);
   setTuplesProcessed(tuplesProcessed);
 
-  if (syncAccess)
-  {
+  if (syncAccess) {
     tuplesProduced = getResultSetCardinality();
-  }
-  else
-  {
+  } else {
     tuplesProcessed /= numActivePartitions.getCeiling();
     tuplesProduced = getResultSetCardinalityPerScan();
   }
 
   CostScalar numBlocks = getNumBlocksForRows(tuplesProcessed);
-  //CostScalar numBlocks = estimateSeqKBReadPerScan()/getBlockSizeInKb();
+  // CostScalar numBlocks = estimateSeqKBReadPerScan()/getBlockSizeInKb();
   // Store in ScanOptimizer object.  FileScan will later grab this
   // value.
   setNumberOfBlocksToReadPerAccess(numBlocks);
@@ -717,48 +576,35 @@ SimpleFileScanOptimizer::scmComputeCostVectors()
   // fix Bugzilla #1110.
   setEstRowsAccessed(getSingleSubsetSize());
 
-  Cost* scanCost = 
-    scmCost(tuplesProcessed, tuplesProduced, csZero, csZero, numBlocks, csOne,
-	    rowSize, csZero, outputRowSize, csZero);
+  Cost *scanCost = scmCost(tuplesProcessed, tuplesProduced, csZero, csZero, numBlocks, csOne, rowSize, csZero,
+                           outputRowSize, csZero);
 
   return scanCost;
-} // scmComputeCostVectors
+}  // scmComputeCostVectors
 
-NABoolean SimpleFileScanOptimizer::decideDebugModeForORCCosting(const IndexDesc* iDesc)
-{
-   if ( CmpCommon::getDefault(NCM_ORC_COSTING_DEBUG) != DF_ON )
-     return FALSE;
+NABoolean SimpleFileScanOptimizer::decideDebugModeForORCCosting(const IndexDesc *iDesc) {
+  if (CmpCommon::getDefault(NCM_ORC_COSTING_DEBUG) != DF_ON) return FALSE;
 
-   const char* tableName = 
-         ActiveSchemaDB()->getDefaults().getValue(NCM_ORC_COSTING_DEBUG_TABLE);
+  const char *tableName = ActiveSchemaDB()->getDefaults().getValue(NCM_ORC_COSTING_DEBUG_TABLE);
 
-   if ( !tableName )
-     return TRUE;
+  if (!tableName) return TRUE;
 
-   NAString tname((iDesc->getPrimaryTableDesc()->getNATable()->getTableName()).getQualifiedNameAsAnsiString());
+  NAString tname((iDesc->getPrimaryTableDesc()->getNATable()->getTableName()).getQualifiedNameAsAnsiString());
 
-   return (tname == tableName);
+  return (tname == tableName);
 }
 
-NABoolean SimpleFileScanOptimizer::decideDebugModeForParquetCosting(const IndexDesc* iDesc)
-{
-   if ( CmpCommon::getDefault(NCM_PARQUET_COSTING_DEBUG) != DF_ON )
-     return FALSE;
+NABoolean SimpleFileScanOptimizer::decideDebugModeForParquetCosting(const IndexDesc *iDesc) {
+  if (CmpCommon::getDefault(NCM_PARQUET_COSTING_DEBUG) != DF_ON) return FALSE;
 
-   const char* tableName = 
-         ActiveSchemaDB()->getDefaults().getValue(NCM_PARQUET_COSTING_DEBUG_TABLE);
+  const char *tableName = ActiveSchemaDB()->getDefaults().getValue(NCM_PARQUET_COSTING_DEBUG_TABLE);
 
-   if ( !tableName )
-     return TRUE;
+  if (!tableName) return TRUE;
 
-   NAString tname((iDesc->getPrimaryTableDesc()->getNATable()->getTableName()).getQualifiedNameAsAnsiString());
+  NAString tname((iDesc->getPrimaryTableDesc()->getNATable()->getTableName()).getQualifiedNameAsAnsiString());
 
-   return (tname == tableName);
+  return (tname == tableName);
 }
-
-
-
-
 
 // SimpleFileScanOptimizer::scmComputeCostVectorsMultiProbes()
 // Computes the cost vectors for this multi-probe scan using the simple costing model.
@@ -772,23 +618,20 @@ NABoolean SimpleFileScanOptimizer::decideDebugModeForParquetCosting(const IndexD
 //
 // OUTPUTS: lastRow SimpleCostVectors of a new Cost object are populated.
 //
-Cost *
-SimpleFileScanOptimizer::scmComputeCostVectorsMultiProbes()
-{
-  if ( getIndexDesc()->getPrimaryTableDesc()->getNATable()->isHbaseTable() AND
-       (CmpCommon::getDefault(NCM_HBASE_COSTING) == DF_ON) )
+Cost *SimpleFileScanOptimizer::scmComputeCostVectorsMultiProbes() {
+  if (getIndexDesc()->getPrimaryTableDesc()->getNATable()->isHbaseTable()
+          AND(CmpCommon::getDefault(NCM_HBASE_COSTING) == DF_ON))
     return scmComputeCostVectorsMultiProbesForHbase();
 
   CostScalar numOuterProbes = (getContext().getInputLogProp())->getResultCardinality();
-  CostScalar numActivePartitions =  getNumActivePartitions();
+  CostScalar numActivePartitions = getNumActivePartitions();
   CostScalar ioSeq, ioRand, numRandIOs;
   NABoolean isUnique = getSearchKey()->isUnique();
   NABoolean isAnIndexJoin;
   ValueIdSet charInputs = getRelExpr().getGroupAttr()->getCharacteristicInputs();
-  const ReqdPhysicalProperty* rpp = getContext().getReqdPhysicalProperty();
+  const ReqdPhysicalProperty *rpp = getContext().getReqdPhysicalProperty();
   NABoolean ocbJoin = FALSE;
-  if (rpp != NULL && rpp->getOcbEnabledCostingRequirement())
-    ocbJoin = TRUE;
+  if (rpp != NULL && rpp->getOcbEnabledCostingRequirement()) ocbJoin = TRUE;
 
   // Effective Total Row Count is the size of the bounding subset of
   // all probes.  Typically this will be all the rows of the table,
@@ -796,31 +639,29 @@ SimpleFileScanOptimizer::scmComputeCostVectorsMultiProbes()
   // key predicate contains leading constants) then the effective row
   // count will be less than the total row count.
   estimateEffTotalRowCount(totalRowCount_, effectiveTotalRowCount_);
-  CostScalar effectiveTotalRowCount = (effectiveTotalRowCount_/numActivePartitions).getCeiling();
+  CostScalar effectiveTotalRowCount = (effectiveTotalRowCount_ / numActivePartitions).getCeiling();
   CostScalar effectiveTotalBlocks = getNumBlocksForRows(effectiveTotalRowCount).getCeiling();
-  CostScalar cacheSize = ActiveSchemaDB()->getDefaults().getAsDouble(NCM_CACHE_SIZE_IN_BLOCKS); //getDP2CacheSizeInBlocks(getBlockSizeInKb());
+  CostScalar cacheSize = ActiveSchemaDB()->getDefaults().getAsDouble(
+      NCM_CACHE_SIZE_IN_BLOCKS);  // getDP2CacheSizeInBlocks(getBlockSizeInKb());
 
   categorizeMultiProbes(&isAnIndexJoin);
 
-
-  
-
-  CostScalar numProbes = (probes_/numActivePartitions).getCeiling();
-  CostScalar numUniqueProbes = (uniqueProbes_/numActivePartitions).getCeiling();
-  CostScalar numSuccessfulProbes = (successfulProbes_/numActivePartitions).getCeiling();
-  CostScalar numUniqueSuccessfulProbes = ((successfulProbes_ - duplicateSuccProbes_)/numActivePartitions).getCeiling();
+  CostScalar numProbes = (probes_ / numActivePartitions).getCeiling();
+  CostScalar numUniqueProbes = (uniqueProbes_ / numActivePartitions).getCeiling();
+  CostScalar numSuccessfulProbes = (successfulProbes_ / numActivePartitions).getCeiling();
+  CostScalar numUniqueSuccessfulProbes =
+      ((successfulProbes_ - duplicateSuccProbes_) / numActivePartitions).getCeiling();
 
   NABoolean njSeqIoFix = (CmpCommon::getDefault(NCM_NJ_SEQIO_FIX) == DF_ON);
   CostScalar numBlocksPerSuccessfulProbe = csZero;
   if (njSeqIoFix)
     numBlocksPerSuccessfulProbe = blksPerSuccProbe_;
   else
-    numBlocksPerSuccessfulProbe = (blksPerSuccProbe_/numActivePartitions).getCeiling();
+    numBlocksPerSuccessfulProbe = (blksPerSuccProbe_ / numActivePartitions).getCeiling();
 
   CostScalar numBlocksAccessedByUniqueProbes = MINOF(numUniqueProbes, effectiveTotalBlocks);
 
-  if (ocbJoin)
-  {
+  if (ocbJoin) {
     // In OCB, the probe side is broadcast to all partitions of the right side.
     numProbes = numOuterProbes;
     numUniqueProbes = numOuterProbes;
@@ -830,85 +671,62 @@ SimpleFileScanOptimizer::scmComputeCostVectorsMultiProbes()
   // Initialize tuplesProcessed to the number of probes.
   CostScalar tuplesProcessed = numProbes;
 
-
-
   // These values are for all probes.
-  CostScalar accessedRows = (getDataRows()/numActivePartitions).getCeiling();
+  CostScalar accessedRows = (getDataRows() / numActivePartitions).getCeiling();
   CostScalar selectedRows = getResultSetCardinalityPerScan();
-
-
 
   CostScalar tuplesProduced = MINOF(selectedRows, accessedRows);
 
   CostScalar outputJoinCard = tuplesProduced;
-  
+
   const IndexDesc *iDesc = getIndexDesc();
   CostScalar indexLevels = MAXOF(iDesc->getIndexLevels() - 1, 1);
 
-  CostScalar a = numProbes; 
+  CostScalar a = numProbes;
 
-  if (effectiveTotalBlocks <= cacheSize)
-  {
+  if (effectiveTotalBlocks <= cacheSize) {
     numRandIOs = MINOF(a, effectiveTotalBlocks);
-  }
-  else
-  {
-    if (a <= cacheSize)
-    {
+  } else {
+    if (a <= cacheSize) {
       numRandIOs = a;
-    }
-    else
-    {
+    } else {
       numRandIOs = cacheSize + (a - cacheSize) * (effectiveTotalBlocks - cacheSize) / effectiveTotalBlocks;
     }
   }
 
-  if (isAnIndexJoin)
-  {
+  if (isAnIndexJoin) {
     // Join between Index (left child) and Table (right child),
     // involves random IOs.
-    tuplesProcessed += accessedRows; 
+    tuplesProcessed += accessedRows;
     ioRand = numRandIOs;
-  }
-  else
-  {
+  } else {
     // The right child is the base table or the covering index being probed.
-    
-    if (getInOrderProbesFlag() OR
-        ocbJoin                OR
-        (effectiveTotalBlocks <= cacheSize) OR  // Whole table fits in cache
-        ((numUniqueSuccessfulProbes * blksPerSuccProbe_)
-         + getFailedProbes() <= cacheSize) // all blocks accessed fits cache
-       )
-    {
-      if (isUnique)
-	tuplesProcessed += numSuccessfulProbes;
-      else
-	tuplesProcessed += accessedRows;
 
-      // Incoming probes are in the same order as the clustering key, 
-      // no full table scan. For every probe, a subset of the table 
-      // (or covered index) is processed.
-      if (isUnique && numBlocksAccessedByUniqueProbes <= cacheSize)
-      {
-	ioRand = numBlocksAccessedByUniqueProbes;
-      }
-      else if (numBlocksPerSuccessfulProbe <= cacheSize)
-      { 
-	ioRand = numRandIOs;
-	ioSeq = numUniqueSuccessfulProbes * (numBlocksPerSuccessfulProbe - 1);
-      }
+    if (getInOrderProbesFlag() OR ocbJoin OR(effectiveTotalBlocks <= cacheSize) OR  // Whole table fits in cache
+        ((numUniqueSuccessfulProbes * blksPerSuccProbe_) + getFailedProbes() <=
+         cacheSize)  // all blocks accessed fits cache
+    ) {
+      if (isUnique)
+        tuplesProcessed += numSuccessfulProbes;
       else
-      {
-	ioRand = numRandIOs;
-	ioSeq = numSuccessfulProbes * (numBlocksPerSuccessfulProbe - 1);   
+        tuplesProcessed += accessedRows;
+
+      // Incoming probes are in the same order as the clustering key,
+      // no full table scan. For every probe, a subset of the table
+      // (or covered index) is processed.
+      if (isUnique && numBlocksAccessedByUniqueProbes <= cacheSize) {
+        ioRand = numBlocksAccessedByUniqueProbes;
+      } else if (numBlocksPerSuccessfulProbe <= cacheSize) {
+        ioRand = numRandIOs;
+        ioSeq = numUniqueSuccessfulProbes * (numBlocksPerSuccessfulProbe - 1);
+      } else {
+        ioRand = numRandIOs;
+        ioSeq = numSuccessfulProbes * (numBlocksPerSuccessfulProbe - 1);
       }
-    }
-    else 
-    {
+    } else {
       // Begin Temp code
       // My changes to 5450/5425 exposed a bug where RandomIo NJ preferred
-      // because Ocr plan was not tried in ETL workload. I am partially 
+      // because Ocr plan was not tried in ETL workload. I am partially
       // rolling back my changes 5425, but will fix the root cause asap.
       // get all predicates
       ValueIdSet allPreds;
@@ -925,8 +743,7 @@ SimpleFileScanOptimizer::scmComputeCostVectorsMultiProbes()
       ColAnalysis *colA = NULL;
       const ValueIdList *currentIndexSortKey = &(iDesc->getOrderOfKeyValues());
 
-      for (x = 0; x < (*currentIndexSortKey).entries() && !foundKey; x++)
-      {
+      for (x = 0; x < (*currentIndexSortKey).entries() && !foundKey; x++) {
         ValueId firstkey = (*currentIndexSortKey)[x];
         // firstkey with a constant predicate does not count in
         // making this NJ better than a HJ. keep going.
@@ -934,31 +751,26 @@ SimpleFileScanOptimizer::scmComputeCostVectorsMultiProbes()
         NABoolean isaConstant = FALSE;
         ValueId firstkeyCol;
         colA = firstkey.baseColAnalysis(&isaConstant, firstkeyCol);
-        if (isaConstant)
-          continue; // try next prefix column
-        if (!colA) // no column analysis
-          break; // we can't go further, break out of the loop.
-        if (colA->getConstValue(cv,FALSE/*useRefAConstExpr*/))
-          continue; // try next prefix column
+        if (isaConstant) continue;  // try next prefix column
+        if (!colA)                  // no column analysis
+          break;                    // we can't go further, break out of the loop.
+        if (colA->getConstValue(cv, FALSE /*useRefAConstExpr*/)) continue;  // try next prefix column
         // any predicate on first nonconstant prefix key column?
         if (allReferencedBaseCols.containsTheGivenValue(firstkeyCol))
           // nonconstant prefix key matches predicate
           foundKey = TRUE;
         else
-         break; // predicate is not a key predicate, cost it high
+          break;  // predicate is not a key predicate, cost it high
       }
 
-      if ((NOT (iDesc->isClusteringIndex()) &&
-          (getSearchKey()->getKeyPredicates().entries() > 0)))
-        foundKey = TRUE;
+      if ((NOT(iDesc->isClusteringIndex()) && (getSearchKey()->getKeyPredicates().entries() > 0))) foundKey = TRUE;
 
       // end Temp code
 
       // re-check risky NJ Heuristics from JoinToTSJRule::topMatch()
       NABoolean allowNJ = TRUE;
 
-      Lng32 ratio = (ActiveSchemaDB()->getDefaults()).getAsLong
-      (HJ_SCAN_TO_NJ_PROBE_SPEED_RATIO);
+      Lng32 ratio = (ActiveSchemaDB()->getDefaults()).getAsLong(HJ_SCAN_TO_NJ_PROBE_SPEED_RATIO);
 
       // innerS is size of data scanned for inner table in HJ plan
       CostScalar innerS = effectiveTotalRowCount_ * getRecordSizeInKb() * 1024;
@@ -966,9 +778,7 @@ SimpleFileScanOptimizer::scmComputeCostVectorsMultiProbes()
       // We must allow NJ if #outerRows <= 1 because
       // HashJoinRule::topMatch disables HJ for that case.
       // if innerS < #outerRows * ratio, prefer HJ over NJ.
-      if (ratio > 0 && numOuterProbes > 1 &&
-          (innerS < numOuterProbes * ratio) )
-          allowNJ = FALSE;
+      if (ratio > 0 && numOuterProbes > 1 && (innerS < numOuterProbes * ratio)) allowNJ = FALSE;
       // if probes are partially ordered and max cardinality of probes
       // < 10000 * probes, then cost this NJ cheaper than random order probes.
       // Otherwise we suspect card estimation of probes and accessedRows,
@@ -978,33 +788,25 @@ SimpleFileScanOptimizer::scmComputeCostVectorsMultiProbes()
       // get max card factor and probes estimated max cardinality
       CostScalar maxCardFactor = (ActiveSchemaDB()->getDefaults()).getAsDouble(NCM_NJ_PROBES_MAXCARD_FACTOR);
       CostScalar maxCardOfProbes = (getContext().getInputLogProp())->getMaxCardEst();
-      if ((getPartialOrderProbesFlag() &&
-          maxCardOfProbes != -1 &&
-          maxCardOfProbes / numOuterProbes < maxCardFactor &&
-          allowNJ) || foundKey)
-      {
-
-	if (isUnique)
-	  tuplesProcessed += numSuccessfulProbes;
-	else
-	  tuplesProcessed += accessedRows;
-	if (isUnique && numBlocksAccessedByUniqueProbes <= cacheSize)
-	{
-	  ioRand = numBlocksAccessedByUniqueProbes;
-	}
-	else
-	{
-	  ioRand = numRandIOs;
-	  ioSeq = numSuccessfulProbes * (numBlocksPerSuccessfulProbe - 1);  
-	}
-      }
-      else
-      {
+      if ((getPartialOrderProbesFlag() && maxCardOfProbes != -1 && maxCardOfProbes / numOuterProbes < maxCardFactor &&
+           allowNJ) ||
+          foundKey) {
+        if (isUnique)
+          tuplesProcessed += numSuccessfulProbes;
+        else
+          tuplesProcessed += accessedRows;
+        if (isUnique && numBlocksAccessedByUniqueProbes <= cacheSize) {
+          ioRand = numBlocksAccessedByUniqueProbes;
+        } else {
+          ioRand = numRandIOs;
+          ioSeq = numSuccessfulProbes * (numBlocksPerSuccessfulProbe - 1);
+        }
+      } else {
         // No appropriate index, full table (or covering index) scan,
-	// involves sequential IOs.  For every probe, the whole right side 
-	// is accessed. For covering indexes, the row size will be typically 
-	// smaller than the row size of the base table, so the number of blocks
-	// will less, making it the cheaper alternative. 
+        // involves sequential IOs.  For every probe, the whole right side
+        // is accessed. For covering indexes, the row size will be typically
+        // smaller than the row size of the base table, so the number of blocks
+        // will less, making it the cheaper alternative.
         tuplesProcessed += (numProbes * effectiveTotalRowCount);
         ioSeq = numProbes * effectiveTotalBlocks;
         ioRand = numRandIOs;
@@ -1013,8 +815,8 @@ SimpleFileScanOptimizer::scmComputeCostVectorsMultiProbes()
   }
 
   // set the field before it is being mutiplied by the row size factor
-  setTuplesProcessed(tuplesProcessed*numActivePartitions);
- 
+  setTuplesProcessed(tuplesProcessed * numActivePartitions);
+
   // Store in ScanOptimizer object.  FileScan will later grab this value.
   ioSeq = MAXOF(ioSeq, 0);
   setNumberOfBlocksToReadPerAccess(ioSeq.minCsOne());
@@ -1035,18 +837,18 @@ SimpleFileScanOptimizer::scmComputeCostVectorsMultiProbes()
   ioSeq *= seqIORowSizeFactor;
   ioRand *= randIORowSizeFactor;
 
-  LogPhysPartitioningFunction *logPhysPartFunc =
-    (LogPhysPartitioningFunction *)  // cast away const
-    getContext().getPlan()->getPhysicalProperty()->getPartitioningFunction()->
-    castToLogPhysPartitioningFunction();
+  LogPhysPartitioningFunction *logPhysPartFunc = (LogPhysPartitioningFunction *)  // cast away const
+                                                 getContext()
+                                                     .getPlan()
+                                                     ->getPhysicalProperty()
+                                                     ->getPartitioningFunction()
+                                                     ->castToLogPhysPartitioningFunction();
 
-  if (logPhysPartFunc != NULL)
-  {
-    PartitioningFunction* logPartFunc = logPhysPartFunc->getLogPartitioningFunction();
+  if (logPhysPartFunc != NULL) {
+    PartitioningFunction *logPartFunc = logPhysPartFunc->getLogPartitioningFunction();
     CostScalar numParts = logPartFunc->getCountOfPartitions();
     CostScalar serialNJFactor = ActiveSchemaDB()->getDefaults().getAsDouble(NCM_SERIAL_NJ_FACTOR);
-    if (isAnIndexJoin && numParts == 1)
-    {
+    if (isAnIndexJoin && numParts == 1) {
       tuplesProcessed *= serialNJFactor;
       tuplesProduced *= serialNJFactor;
       ioRand *= serialNJFactor;
@@ -1054,35 +856,27 @@ SimpleFileScanOptimizer::scmComputeCostVectorsMultiProbes()
     }
   }
 
-  if (isProbeCacheApplicable())
-  {
+  if (isProbeCacheApplicable()) {
     CostScalar pcCostAdjFactor = getProbeCacheCostAdjFactor();
     tuplesProduced *= pcCostAdjFactor;
     ioRand *= pcCostAdjFactor;
     ioSeq *= pcCostAdjFactor;
   }
 
-  Cost* scanCostMultiProbes = 
-    scmCost(tuplesProcessed, tuplesProduced, csZero, ioRand, ioSeq, numProbes,
-	    rowSize, csZero, outputRowSize, probeRowSize);
+  Cost *scanCostMultiProbes = scmCost(tuplesProcessed, tuplesProduced, csZero, ioRand, ioSeq, numProbes, rowSize,
+                                      csZero, outputRowSize, probeRowSize);
 
   // temporary fix to cost index join cheaper than base table scan.
   // when we allow salted indexes, then this can be removed
-  if (isAnIndexJoin &&
-      getIndexDesc()->getPrimaryTableDesc()->getNATable()->isHbaseTable())
-  {
-    CostScalar redFactor = CostScalar(1.0) /
-               ActiveSchemaDB()->getDefaults().getAsDouble(NCM_IND_JOIN_COST_ADJ_FACTOR);
+  if (isAnIndexJoin && getIndexDesc()->getPrimaryTableDesc()->getNATable()->isHbaseTable()) {
+    CostScalar redFactor = CostScalar(1.0) / ActiveSchemaDB()->getDefaults().getAsDouble(NCM_IND_JOIN_COST_ADJ_FACTOR);
     scanCostMultiProbes->cpScmlr().scaleByValue(redFactor);
   }
 
   // temporary fix to cost index scan cheaper than base table scan.
   // when we allow salted indexes, then this can be removed
-  if ( !(getIndexDesc()->isClusteringIndex()) &&
-       getIndexDesc()->getPrimaryTableDesc()->getNATable()->isHbaseTable()) 
-  {
-    CostScalar redFactor = CostScalar(1.0) /
-               ActiveSchemaDB()->getDefaults().getAsDouble(NCM_IND_SCAN_COST_ADJ_FACTOR);
+  if (!(getIndexDesc()->isClusteringIndex()) && getIndexDesc()->getPrimaryTableDesc()->getNATable()->isHbaseTable()) {
+    CostScalar redFactor = CostScalar(1.0) / ActiveSchemaDB()->getDefaults().getAsDouble(NCM_IND_SCAN_COST_ADJ_FACTOR);
     scanCostMultiProbes->cpScmlr().scaleByValue(redFactor);
   }
 
@@ -1090,16 +884,14 @@ SimpleFileScanOptimizer::scmComputeCostVectorsMultiProbes()
   setEstRowsAccessed(getDataRows());
 
   return scanCostMultiProbes;
- 
-} // SimpleFileScanOptimizer::scmComputeCostVectorsMultiProbes(...)
 
-
+}  // SimpleFileScanOptimizer::scmComputeCostVectorsMultiProbes(...)
 
 // Compute the Cost for this single subset Scan using the simple cossting model.
 //
 // Attempts to find an existing basic cost object which can be reused.
 //
-// Computes or reuses the last row cost vector. 
+// Computes or reuses the last row cost vector.
 //
 // OUTPUTS:
 // Return - A NON-NULL Cost* representing the Cost for this scan node
@@ -1109,9 +901,7 @@ SimpleFileScanOptimizer::scmComputeCostVectorsMultiProbes()
 // FileScan node and passed to DP2 by the executor, DP2 uses it to
 // decide whether it will do read ahead or not.
 //
-Cost*
-SimpleFileScanOptimizer::scmComputeCostForSingleSubset()
-{
+Cost *SimpleFileScanOptimizer::scmComputeCostForSingleSubset() {
   // Determine if this scan is receiving multiple probes.  If so,
   // use the MultiProbe Scan Optimizer methods.  Other wise use the
   // single probe methods.
@@ -1119,63 +909,49 @@ SimpleFileScanOptimizer::scmComputeCostForSingleSubset()
 
   Cost *scanCost;
 
-  CostScalar repeatCount =  
-      getContext().getPlan()->getPhysicalProperty()->
-      getDP2CostThatDependsOnSPP()->getRepeatCountForOperatorsInDP2();
+  CostScalar repeatCount =
+      getContext().getPlan()->getPhysicalProperty()->getDP2CostThatDependsOnSPP()->getRepeatCountForOperatorsInDP2();
 
-  NABoolean multiProbeScan =  repeatCount.isGreaterThanOne();
+  NABoolean multiProbeScan = repeatCount.isGreaterThanOne();
 
-  //Bugzilla 1110: either method called below will call setEstRowsAccessed()
-  //to set the estimated rows access for this object (SimpleFileScanOptimizer)
-  if ( multiProbeScan ) 
-  {
+  // Bugzilla 1110: either method called below will call setEstRowsAccessed()
+  // to set the estimated rows access for this object (SimpleFileScanOptimizer)
+  if (multiProbeScan) {
     scanCost = scmComputeCostVectorsMultiProbes();
-  } 
-  else 
-  {
+  } else {
     scanCost = scmComputeCostVectors();
   }
 
   CostScalar skewFactor = 1.0;
-  if (CURRSTMT_OPTDEFAULTS->incorporateSkewInCosting()) 
-  {
-     // ompute multiplicative factor = probesAtBusiestStream/ProbesPerScan_
-     // Multiply the last row cost by the factor
-     // Note that the last row cost is per Partition
-     CostScalar probesAtBusyStream
-                           =  getContext().getPlan()->getPhysicalProperty()->
-                               getDP2CostThatDependsOnSPP()->
-                               getProbesAtBusiestStream();
+  if (CURRSTMT_OPTDEFAULTS->incorporateSkewInCosting()) {
+    // ompute multiplicative factor = probesAtBusiestStream/ProbesPerScan_
+    // Multiply the last row cost by the factor
+    // Note that the last row cost is per Partition
+    CostScalar probesAtBusyStream =
+        getContext().getPlan()->getPhysicalProperty()->getDP2CostThatDependsOnSPP()->getProbesAtBusiestStream();
 
-     CostScalar probesPerScan = scanCost->getScmCplr().getNumProbes();
-     // probes must be > 0  if not assert.
-     DCMPASSERT(probesPerScan.isGreaterThanZero());
-    
-     probesPerScan = MAXOF(probesPerScan, 1);
-    
-     skewFactor = (probesAtBusyStream/probesPerScan).minCsOne();
-     if (CmpCommon::getDefault(NCM_SKEW_COST_ADJ_FOR_PROBES) == DF_ON)
-       scanCost->cpScmlr().scaleByValue(skewFactor);
+    CostScalar probesPerScan = scanCost->getScmCplr().getNumProbes();
+    // probes must be > 0  if not assert.
+    DCMPASSERT(probesPerScan.isGreaterThanZero());
+
+    probesPerScan = MAXOF(probesPerScan, 1);
+
+    skewFactor = (probesAtBusyStream / probesPerScan).minCsOne();
+    if (CmpCommon::getDefault(NCM_SKEW_COST_ADJ_FOR_PROBES) == DF_ON) scanCost->cpScmlr().scaleByValue(skewFactor);
   }
 
   return scanCost;
-  
-} // SimpleFileScanOptimizer::SCMComputeCostForSingleSubset()
 
-Cost*
-FileScanOptimizer::scmComputeCostForSingleSubset()
-{
-    SimpleFileScanOptimizer *sfso = 
-         new (STMTHEAP) SimpleFileScanOptimizer(getFileScan(),
-	   				        getResultSetCardinality(),
-	   				        getContext(),
-	   				        getExternalInputs());
+}  // SimpleFileScanOptimizer::SCMComputeCostForSingleSubset()
 
-    SearchKey *searchKey = NULL;
-    MdamKey *mdamKey = NULL;
-    Cost* c = 
-      sfso->optimize(searchKey, mdamKey);//scmComputeCostForSingleSubset();
-			      
+Cost *FileScanOptimizer::scmComputeCostForSingleSubset() {
+  SimpleFileScanOptimizer *sfso = new (STMTHEAP)
+      SimpleFileScanOptimizer(getFileScan(), getResultSetCardinality(), getContext(), getExternalInputs());
+
+  SearchKey *searchKey = NULL;
+  MdamKey *mdamKey = NULL;
+  Cost *c = sfso->optimize(searchKey, mdamKey);  // scmComputeCostForSingleSubset();
+
   // transfer various counters from sfso to this (the FileScan optimizer)
   setProbes(sfso->getProbes());
   setSuccessfulProbes(sfso->getSuccessfulProbes());
@@ -1186,7 +962,7 @@ FileScanOptimizer::scmComputeCostForSingleSubset()
   setSingleSubsetSize(sfso->getSingleSubsetSize());
 
   return c;
-} // FileScanOptimizer::ScmComputeCostForSingleSubset()
+}  // FileScanOptimizer::ScmComputeCostForSingleSubset()
 
 // FileScanOptimizer::scmComputeMDAMForHbase()
 // Compute MDAM cost for Hbase Scan
@@ -1201,13 +977,8 @@ FileScanOptimizer::scmComputeCostForSingleSubset()
 //    -- number of tuples received by Hbase client
 //
 //    OUTPUTS: SimpleCostVectors of a new Cost object are populated.
-Cost*
-FileScanOptimizer::scmComputeMDAMCostForHbase(
-                     CostScalar &totalRows,
-                     CostScalar & seeks,
-                     CostScalar & seq_kb_read,
-                     CostScalar& incomingProbes)
-{
+Cost *FileScanOptimizer::scmComputeMDAMCostForHbase(CostScalar &totalRows, CostScalar &seeks, CostScalar &seq_kb_read,
+                                                    CostScalar &incomingProbes) {
   // Hbase Scan cost :
   //    Cost incurred at client side (Master or ESP)
   //                   +
@@ -1218,7 +989,7 @@ FileScanOptimizer::scmComputeMDAMCostForHbase(
   //              Tuples produced (same as processed for now, will be different
   //              when predicates pushed down to HRS
   //   IO cost = Seq IO cost + random IO cost
-  //      Seq IO cost = number of blocks need to be read to retrive total rows 
+  //      Seq IO cost = number of blocks need to be read to retrive total rows
   //                    qualified by all disjuncts
   //      random IO cost = seeks incurred by all disjuncts of all key columns
   //                       (Random IO is a function of UEC of key cols with preds missing)
@@ -1227,20 +998,20 @@ FileScanOptimizer::scmComputeMDAMCostForHbase(
   //    CPU cost = Tuples processed for all disjuncts +
   //               Tuples produced after applying executor predicates for all disjuncts
   //    Msg cost = Tuples received from HRS for all disjuncts
-  
+
   // estimate HRS cost
   CostScalar tcProcInHRS, tcProdInHRS, seqIOsInHRS, randomIOsInHRS = csZero;
   tcProcInHRS = totalRows;
-  tcProdInHRS = totalRows; // will be different when predicates pushed down to HRS
+  tcProdInHRS = totalRows;  // will be different when predicates pushed down to HRS
   seqIOsInHRS = seq_kb_read / getIndexDesc()->getBlockSizeInKb();
   randomIOsInHRS = seeks;
-  
+
   // estimate Hbase Client Side (HCS)cost
   CostScalar tcProcInHCS, tcProdInHCS, tcRcvdByHCS = csZero;
   tcProcInHCS = tcProdInHRS;
   tcProdInHCS = MINOF(getResultSetCardinality(), totalRows);
   tcRcvdByHCS = tcProdInHRS;
-  
+
   // factor in row sizes;
   CostScalar rowSize = getIndexDesc()->getRecordSizeInKb() * csOneKiloBytes;
   CostScalar outputRowSize = getRelExpr().getGroupAttr()->getRecordLength();
@@ -1252,7 +1023,7 @@ FileScanOptimizer::scmComputeMDAMCostForHbase(
   // for HRS
   tcProcInHRS *= rowSizeFactor;
   tcProdInHRS *= rowSizeFactor;
-  seqIOsInHRS *= seqIORowSizeFactor; 
+  seqIOsInHRS *= seqIORowSizeFactor;
   randomIOsInHRS *= randIORowSizeFactor;
 
   // for HCS
@@ -1276,14 +1047,12 @@ FileScanOptimizer::scmComputeMDAMCostForHbase(
   CostScalar tuplesProcessed = tcProcInHRS + tcProcInHCS;
   CostScalar tuplesProduced = tcProdInHRS + tcProdInHCS;
 
-  CostScalar probesPerPartition = (incomingProbes/HRSPartitions).getCeiling();
+  CostScalar probesPerPartition = (incomingProbes / HRSPartitions).getCeiling();
 
-  Cost* hbaseMdamCost =
-    scmCost(tuplesProcessed, tuplesProduced, tcRcvdByHCS, randomIOsInHRS,
-            seqIOsInHRS, probesPerPartition, rowSize, csZero, outputRowSize, csZero);
+  Cost *hbaseMdamCost = scmCost(tuplesProcessed, tuplesProduced, tcRcvdByHCS, randomIOsInHRS, seqIOsInHRS,
+                                probesPerPartition, rowSize, csZero, outputRowSize, csZero);
 
   return hbaseMdamCost;
-
 }
 
 // SimpleFileScanOptimizer::scmComputeCostVectorsForHbase()
@@ -1298,29 +1067,27 @@ FileScanOptimizer::scmComputeMDAMCostForHbase(
 //  -- number of tuples received by Hbase client
 //
 // OUTPUTS: SimpleCostVectors of a new Cost object are populated.
-Cost *
-SimpleFileScanOptimizer::scmComputeCostVectorsForHbase()
-{
-  // Hbase Scan cost : 
+Cost *SimpleFileScanOptimizer::scmComputeCostVectorsForHbase() {
+  // Hbase Scan cost :
   //    Cost incurred at client side (Master or ESP)
   //                   +
   //    Cost incurred at Server side (Hbase Region Server a.k.a HRS)
-  // 
+  //
   // Server side cost : CPU cost + IO cost
-  //   CPU cost = Tuples processed + 
+  //   CPU cost = Tuples processed +
   //              Tuples produced (same as processed for now, will be different
   //              when predicates pushed down to HRS
   //   Seq IO cost = number of blocks need to be read get "Tuples processed"
   //
   // Client side cost : CPU cost + Msg Cost
-  //   CPU cost = Tuples processed + 
-  //              Tuples produced after applying executor predicates 
+  //   CPU cost = Tuples processed +
+  //              Tuples produced after applying executor predicates
   //   Msg cost = Tuples received from HRS
 
   // estimate HRS cost
   CostScalar tcProcInHRS, tcProdInHRS, seqIOsInHRS = csZero;
   tcProcInHRS = getSingleSubsetSize();
-  tcProdInHRS = tcProcInHRS; // will be different when predicates pushed down to HRS
+  tcProdInHRS = tcProcInHRS;  // will be different when predicates pushed down to HRS
   seqIOsInHRS = getNumBlocksForRows(tcProcInHRS);
 
   // estimate Hbase Client Side (HCS)cost
@@ -1331,11 +1098,9 @@ SimpleFileScanOptimizer::scmComputeCostVectorsForHbase()
 
   // heuristics to favor serial plans for small queries
   NABoolean costParPlanSameAsSer = FALSE;
-  CostScalar parPlanRcLowerLimit = 2.0 * 
-    ActiveSchemaDB()->getDefaults().getAsDouble(NUMBER_OF_ROWS_PARALLEL_THRESHOLD);
-  
-  if ( tcRcvdByHCS <= parPlanRcLowerLimit AND 
-       (CmpCommon::getDefault(NCM_HBASE_COSTING) == DF_ON) )
+  CostScalar parPlanRcLowerLimit = 2.0 * ActiveSchemaDB()->getDefaults().getAsDouble(NUMBER_OF_ROWS_PARALLEL_THRESHOLD);
+
+  if (tcRcvdByHCS <= parPlanRcLowerLimit AND(CmpCommon::getDefault(NCM_HBASE_COSTING) == DF_ON))
     costParPlanSameAsSer = TRUE;
 
   // factor in row sizes;
@@ -1344,7 +1109,7 @@ SimpleFileScanOptimizer::scmComputeCostVectorsForHbase()
   CostScalar rowSizeFactor = scmRowSizeFactor(rowSize);
   CostScalar outputRowSizeFactor = scmRowSizeFactor(outputRowSize);
   CostScalar seqIORowSizeFactor = scmRowSizeFactor(rowSize, SEQ_IO_ROWSIZE_FACTOR);
-  
+
   // for HRS
   tcProcInHRS *= rowSizeFactor;
   tcProdInHRS *= rowSizeFactor;
@@ -1364,16 +1129,14 @@ SimpleFileScanOptimizer::scmComputeCostVectorsForHbase()
   CollIndex HRSPartitions = getEstNumActivePartitionsAtRuntimeForHbaseRegions();
   CollIndex HCSPartitions = getEstNumActivePartitionsAtRuntime();
 
-  if (CmpCommon::getDefault(NCM_HBASE_LIMIT_DOP_IN_COSTING) == DF_ON)
-    {
-      // The effective DoP for both the region server and client sides is
-      // the minimum of the two: If there are fewer regions than clients
-      // (ESPs), then some ESPs have nothing to do. If there are more
-      // regions than clients, the clients will process multiple regions
-      // sequentially, limiting the DoP on the region servers.
-      HRSPartitions =
-      HCSPartitions = MINOF(HRSPartitions, HCSPartitions);
-    }
+  if (CmpCommon::getDefault(NCM_HBASE_LIMIT_DOP_IN_COSTING) == DF_ON) {
+    // The effective DoP for both the region server and client sides is
+    // the minimum of the two: If there are fewer regions than clients
+    // (ESPs), then some ESPs have nothing to do. If there are more
+    // regions than clients, the clients will process multiple regions
+    // sequentially, limiting the DoP on the region servers.
+    HRSPartitions = HCSPartitions = MINOF(HRSPartitions, HCSPartitions);
+  }
 
   // normalize HRS costs for DoP
   tcProcInHRS = (tcProcInHRS / HRSPartitions).getCeiling();
@@ -1381,8 +1144,7 @@ SimpleFileScanOptimizer::scmComputeCostVectorsForHbase()
   seqIOsInHRS = (seqIOsInHRS / HRSPartitions).getCeiling();
 
   // normalize HCS costs for DoP
-  if (costParPlanSameAsSer)
-    HCSPartitions = 1;
+  if (costParPlanSameAsSer) HCSPartitions = 1;
   tcProcInHCS = (tcProcInHCS / HCSPartitions).getCeiling();
   tcProdInHCS = (tcProdInHCS / HCSPartitions).getCeiling();
   tcRcvdByHCS = (tcRcvdByHCS / HCSPartitions).getCeiling();
@@ -1395,31 +1157,27 @@ SimpleFileScanOptimizer::scmComputeCostVectorsForHbase()
   // Total IO cost = seqIOsInHRS
   // Total Msg cost = tcRcvdByHCS
 
-  Cost* hbaseScanCost =
-    scmCost(tuplesProcessed, tuplesProduced, tcRcvdByHCS, csZero,
-            seqIOsInHRS, csOne, rowSize, csZero, outputRowSize, csZero);
+  Cost *hbaseScanCost = scmCost(tuplesProcessed, tuplesProduced, tcRcvdByHCS, csZero, seqIOsInHRS, csOne, rowSize,
+                                csZero, outputRowSize, csZero);
 
   // temporary fix to cost index scan cheaper than base table scan.
   // when we allow salted indexes, then this can be removed
-  if ( !(getIndexDesc()->isClusteringIndex()) )
-  {
-    CostScalar redFactor = CostScalar(1.0) /
-               ActiveSchemaDB()->getDefaults().getAsDouble(NCM_IND_SCAN_COST_ADJ_FACTOR);
+  if (!(getIndexDesc()->isClusteringIndex())) {
+    CostScalar redFactor = CostScalar(1.0) / ActiveSchemaDB()->getDefaults().getAsDouble(NCM_IND_SCAN_COST_ADJ_FACTOR);
     hbaseScanCost->cpScmlr().scaleByValue(redFactor);
   }
 
 #ifndef NDEBUG
-  if ( CmpCommon::getDefault( OPTIMIZER_PRINT_COST ) == DF_ON )
-  {
+  if (CmpCommon::getDefault(OPTIMIZER_PRINT_COST) == DF_ON) {
     pfp = stdout;
-    fprintf(pfp,"SimpleFileScanOptimizer::scmComputeCostVectorsForHbase()\n");
-    fprintf(pfp,"table name: %s\n", getIndexDesc()->getExtIndexName().data());
+    fprintf(pfp, "SimpleFileScanOptimizer::scmComputeCostVectorsForHbase()\n");
+    fprintf(pfp, "table name: %s\n", getIndexDesc()->getExtIndexName().data());
     hbaseScanCost->print(pfp);
     fprintf(pfp, "   HRSPartitions=%d\n", HRSPartitions);
     fprintf(pfp, "   HCSPartitions=%d\n", HCSPartitions);
     fprintf(pfp, "   tuples processed=%lf\n", tuplesProcessed.getValue());
     fprintf(pfp, "   tuples produced=%lf\n", tuplesProduced.getValue());
-    fprintf(pfp,"\n");
+    fprintf(pfp, "\n");
   }
 #endif
 
@@ -1439,9 +1197,7 @@ SimpleFileScanOptimizer::scmComputeCostVectorsForHbase()
 //  -- number of tuples received by Hbase client
 //
 // OUTPUTS: SimpleCostVectors of a new Cost object are populated.
-Cost *
-SimpleFileScanOptimizer::scmComputeCostVectorsMultiProbesForHbase()
-{
+Cost *SimpleFileScanOptimizer::scmComputeCostVectorsMultiProbesForHbase() {
   // Hbase Scan cost :
   //    Cost incurred at client side (Master or ESP)
   //                   +
@@ -1467,8 +1223,7 @@ SimpleFileScanOptimizer::scmComputeCostVectorsMultiProbesForHbase()
 
   // helping data members needed to compute cost vectors
   estimateEffTotalRowCount(totalRowCount_, effectiveTotalRowCount_);
-  CostScalar effectiveTotalBlocks =
-    getNumBlocksForRows(effectiveTotalRowCount_).getCeiling();
+  CostScalar effectiveTotalBlocks = getNumBlocksForRows(effectiveTotalRowCount_).getCeiling();
 
   categorizeMultiProbes(&isAnIndexJoin);
 
@@ -1494,72 +1249,57 @@ SimpleFileScanOptimizer::scmComputeCostVectorsMultiProbesForHbase()
   CostScalar cacheSize = ActiveSchemaDB()->getDefaults().getAsDouble(NCM_CACHE_SIZE_IN_BLOCKS);
   const CostScalar cacheSizeForAll(cacheSize * HRSPartitions);
 
-  CostScalar cacheHitProbability = (cacheSizeForAll/uniqBlocks).maxCsOne();
+  CostScalar cacheHitProbability = (cacheSizeForAll / uniqBlocks).maxCsOne();
 
   // logic for estimating randomIOs
-  if (isUnique)
-  {
+  if (isUnique) {
     // each probe brings no more than one data block
     if (estBolcksByUniqProbes <= cacheSizeForAll)
       randIOsInHRS = estBolcksByUniqProbes;
-    else
-    {
+    else {
       CostScalar cacheMissProbabilityForUniqueProbe =
-        ((estBolcksByUniqProbes - cacheSizeForAll)
-          /estBolcksByUniqProbes).minCsZero();
-      randIOsInHRS = cacheSizeForAll + // First probes to fill the cache
-                  (getProbes() - cacheSizeForAll) * // rest could miss
-                  cacheMissProbabilityForUniqueProbe;
+          ((estBolcksByUniqProbes - cacheSizeForAll) / estBolcksByUniqProbes).minCsZero();
+      randIOsInHRS = cacheSizeForAll +                  // First probes to fill the cache
+                     (getProbes() - cacheSizeForAll) *  // rest could miss
+                         cacheMissProbabilityForUniqueProbe;
     }
-  }
-  else
-  {
-    // SearchKey is not unique. In this case each successful probe could bring several 
+  } else {
+    // SearchKey is not unique. In this case each successful probe could bring several
     // (or even all) // blocks of inner table.
     if (uniqBlocks <= cacheSizeForAll)
       randIOsInHRS = estBolcksByUniqProbes;
     else
       // table does not fit in cache, extra seeks needed.
-      randIOsInHRS = getUniqueProbes() +
-                  getDuplicateSuccProbes() * (csOne - cacheHitProbability);
+      randIOsInHRS = getUniqueProbes() + getDuplicateSuccProbes() * (csOne - cacheHitProbability);
   }
 
   // logic for estimating seqIOs
   // we also modify tcProcInHRS
-  if ( (effectiveTotalBlocks <= cacheSizeForAll) OR  // Whole table fits in cache
-       (lowerBoundBlockCount <= cacheSizeForAll) OR  // all blocks accessed fits cache
-          // Duplicate probe finds data in cache
-        ((getBlksPerSuccProbe() <= cacheSizeForAll) AND getInOrderProbesFlag())
-     )
-  {
+  if ((effectiveTotalBlocks <= cacheSizeForAll) OR  // Whole table fits in cache
+      (lowerBoundBlockCount <= cacheSizeForAll) OR  // all blocks accessed fits cache
+                                                    // Duplicate probe finds data in cache
+      ((getBlksPerSuccProbe() <= cacheSizeForAll) AND getInOrderProbesFlag())) {
     // Full cache benefit
     seqIOsInHRS = MINOF(effectiveTotalBlocks, lowerBoundBlockCount);
     if (isUnique)
       tcProcInHRS += numSuccessfulProbes;
     else
       tcProcInHRS += accessedRows;
-  }
-  else if ((getBlksPerSuccProbe() > cacheSize) &&
-            getInOrderProbesFlag())
-  {
+  } else if ((getBlksPerSuccProbe() > cacheSize) && getInOrderProbesFlag()) {
     seqIOsInHRS = lowerBoundBlockCount;
     tcProcInHRS += accessedRows;
-  }
-  else if (isLeadingKeyColCovered())
-  {
+  } else if (isLeadingKeyColCovered()) {
     const CostScalar extraDataBlocks =
-      (getDuplicateSuccProbes() * getBlksPerSuccProbe()) * (csOne - cacheHitProbability);
+        (getDuplicateSuccProbes() * getBlksPerSuccProbe()) * (csOne - cacheHitProbability);
     seqIOsInHRS = lowerBoundBlockCount + extraDataBlocks;
     tcProcInHRS += accessedRows;
-  }
-  else
-  {
+  } else {
     // worst case scenario
     tcProcInHRS += (numProbes * effectiveTotalRowCount_);
     seqIOsInHRS = numProbes * effectiveTotalBlocks;
   }
 
-  tcProdInHRS = accessedRows; // will be different when predicates pushed down to HRS
+  tcProdInHRS = accessedRows;  // will be different when predicates pushed down to HRS
 
   // estimate Hbase Client Side (HCS)cost
   CostScalar tcProcInHCS, tcProdInHCS, tcRcvdByHCS = csZero;
@@ -1569,11 +1309,9 @@ SimpleFileScanOptimizer::scmComputeCostVectorsMultiProbesForHbase()
 
   // heuristics to favor serial plans for small queries
   NABoolean costParPlanSameAsSer = FALSE;
-  CostScalar parPlanRcLowerLimit = 2.0 *
-    ActiveSchemaDB()->getDefaults().getAsDouble(NUMBER_OF_ROWS_PARALLEL_THRESHOLD);
+  CostScalar parPlanRcLowerLimit = 2.0 * ActiveSchemaDB()->getDefaults().getAsDouble(NUMBER_OF_ROWS_PARALLEL_THRESHOLD);
 
-  if ( tcRcvdByHCS <= parPlanRcLowerLimit )
-    costParPlanSameAsSer = TRUE;
+  if (tcRcvdByHCS <= parPlanRcLowerLimit) costParPlanSameAsSer = TRUE;
 
   // factor in row sizes;
   CostScalar rowSize = recordSizeInKb_ * csOneKiloBytes;
@@ -1585,7 +1323,7 @@ SimpleFileScanOptimizer::scmComputeCostVectorsMultiProbesForHbase()
 
   // some book keeping
   // set the field before it is being mutiplied by the row size factor
-  setTuplesProcessed(tcProcInHRS+tcProcInHCS);
+  setTuplesProcessed(tcProcInHRS + tcProcInHCS);
   setEstRowsAccessed(getDataRows());
   setNumberOfBlocksToReadPerAccess(seqIOsInHRS);
 
@@ -1608,8 +1346,7 @@ SimpleFileScanOptimizer::scmComputeCostVectorsMultiProbesForHbase()
 
   // normalize it by DoP for HCS
   CollIndex HCSPartitions = getEstNumActivePartitionsAtRuntime();
-  if (costParPlanSameAsSer)
-    HCSPartitions = 1;
+  if (costParPlanSameAsSer) HCSPartitions = 1;
 
   tcProcInHCS = (tcProcInHCS / HCSPartitions).getCeiling();
   tcProdInHCS = (tcProdInHCS / HCSPartitions).getCeiling();
@@ -1622,33 +1359,31 @@ SimpleFileScanOptimizer::scmComputeCostVectorsMultiProbesForHbase()
   // Total IO cost = seqIOsInHRS + randIOsInHRS
   // Total Msg cost = tcRcvdByHCS
 
-  Cost* hbaseMultiProbeScanCost =
-    scmCost(tuplesProcessed, tuplesProduced, tcRcvdByHCS, randIOsInHRS,
-            seqIOsInHRS, csOne, rowSize, csZero, outputRowSize, csZero);
+  Cost *hbaseMultiProbeScanCost = scmCost(tuplesProcessed, tuplesProduced, tcRcvdByHCS, randIOsInHRS, seqIOsInHRS,
+                                          csOne, rowSize, csZero, outputRowSize, csZero);
 
-  if (isProbeCacheApplicable())
-  {
+  if (isProbeCacheApplicable()) {
     CostScalar pcCostAdjFactor = getProbeCacheCostAdjFactor();
     hbaseMultiProbeScanCost->cpScmlr().scaleByValue(pcCostAdjFactor);
   }
 
   // cost un-split index_scan cheaper than base table scan cost if index_scan
   // selectivity < NCM_IND_SCAN_SELECTIVITY
-/*  if ( !(getIndexDesc()->isClusteringIndex()) && HRSPartitions == 1)
-  {
-    CostScalar sel = accessedRows / totalRowCount_;
-    CostScalar indScanSelThreshold = 
-      ActiveSchemaDB()->getDefaults().getAsDouble(NCM_IND_SCAN_SELECTIVITY);
-    if ( indScanSelThreshold != -1 AND sel < indScanSelThreshold )
-      hbaseMultiProbeScanCost->cpScmlr().scaleByValue(sel);
-  }
-*/
+  /*  if ( !(getIndexDesc()->isClusteringIndex()) && HRSPartitions == 1)
+    {
+      CostScalar sel = accessedRows / totalRowCount_;
+      CostScalar indScanSelThreshold =
+        ActiveSchemaDB()->getDefaults().getAsDouble(NCM_IND_SCAN_SELECTIVITY);
+      if ( indScanSelThreshold != -1 AND sel < indScanSelThreshold )
+        hbaseMultiProbeScanCost->cpScmlr().scaleByValue(sel);
+    }
+  */
   // to do : get number of index partitions:
   /*
   if (isAnIndexJoin && num_index_partitions == 1)
   {
     CostScalar sel = probes_ / totalRowCount_;
-    CostScalar indJoinSelThreshold = 
+    CostScalar indJoinSelThreshold =
       ActiveSchemaDB()->getDefaults().getAsDouble(NCM_IND_JOIN_SELECTIVITY);
     if ( sel < indJoinSelThreshold )
       hbaseMultiProbeScanCost->cpScmlr().scaleByValue(sel);
@@ -1657,7 +1392,6 @@ SimpleFileScanOptimizer::scmComputeCostVectorsMultiProbesForHbase()
 
   return hbaseMultiProbeScanCost;
 }
-
 
 /**********************************************************************/
 /*                                                                    */
@@ -1682,75 +1416,64 @@ SimpleFileScanOptimizer::scmComputeCostVectorsMultiProbesForHbase()
 //  Pointer to computed cost object for this exchange operator.
 //
 //==============================================================================
-Cost*
-CostMethodExchange::scmComputeOperatorCostInternal(RelExpr* op,
-                                                   const PlanWorkSpace* pws,
-						   Lng32& countOfStreams)
-{
-  const Context* myContext = pws->getContext();
+Cost *CostMethodExchange::scmComputeOperatorCostInternal(RelExpr *op, const PlanWorkSpace *pws, Lng32 &countOfStreams) {
+  const Context *myContext = pws->getContext();
 
   //----------------------------------------------------------------------
   // Defensive programming.
   //----------------------------------------------------------------------
-  CMPASSERT( op	       != NULL );
-  CMPASSERT( myContext != NULL );
+  CMPASSERT(op != NULL);
+  CMPASSERT(myContext != NULL);
 
   //-----------------------------------
   //  Downcast to an Exchange operator.
   //-----------------------------------
-  Exchange* exch = (Exchange*)op;
+  Exchange *exch = (Exchange *)op;
 
   isOpBelowRoot_ = (*CURRSTMT_OPTGLOBALS->memo)[myContext->getGroupId()]->isBelowRoot();
 
-  CostScalar numOfProbes =
-    ( myContext->getInputLogProp()->getResultCardinality() ).minCsOne();
+  CostScalar numOfProbes = (myContext->getInputLogProp()->getResultCardinality()).minCsOne();
 
-  const ReqdPhysicalProperty* rpp = myContext->getReqdPhysicalProperty();
+  const ReqdPhysicalProperty *rpp = myContext->getReqdPhysicalProperty();
 
-  sppForMe_ = (PhysicalProperty *) myContext->getPlan()->getPhysicalProperty();
+  sppForMe_ = (PhysicalProperty *)myContext->getPlan()->getPhysicalProperty();
 
   //------------------------------------------------------------------------
   //  If we have not synthesized physical properties, we are going down
   // the tree, return an empty cost for now. Is this OK??
   //------------------------------------------------------------------------
-  if ( NOT sppForMe_ )
-    return  new STMTHEAP Cost();
+  if (NOT sppForMe_) return new STMTHEAP Cost();
 
   //------------------------------------------------------------
   //  Get the physical properties for the child of the Exchange.
   //------------------------------------------------------------
-  const PhysicalProperty* sppForChild =
-    myContext->getPhysicalPropertyOfSolutionForChild(0);
+  const PhysicalProperty *sppForChild = myContext->getPhysicalPropertyOfSolutionForChild(0);
 
-  sppForChild_ = (PhysicalProperty*) sppForChild;
-  numOfProbes_ = (CostScalar )numOfProbes;
+  sppForChild_ = (PhysicalProperty *)sppForChild;
+  numOfProbes_ = (CostScalar)numOfProbes;
 
   NABoolean executeInDP2 = sppForChild->executeInDP2();
 
-  const PartitioningFunction* const childPartFunc =
-    sppForChild->getPartitioningFunction();
+  const PartitioningFunction *const childPartFunc = sppForChild->getPartitioningFunction();
 
-  PartitioningFunction* const myPartFunc =
-    myContext->getPlan()->getPhysicalProperty()->getPartitioningFunction();
+  PartitioningFunction *const myPartFunc = myContext->getPlan()->getPhysicalProperty()->getPartitioningFunction();
 
-  const PartitioningFunction* const bottomPartFunc = exch->getBottomPartitioningFunction();  
+  const PartitioningFunction *const bottomPartFunc = exch->getBottomPartitioningFunction();
 
   //--------------------------------------------------------------------------
   //  Compute number of consumer processes associated with this Exchange.
   //--------------------------------------------------------------------------
-  const CostScalar& numOfConsumers  = ((NodeMap *)(myPartFunc->getNodeMap()))->
-                                    getNumActivePartitions();
-  const CostScalar& numOfPartitions = ((NodeMap *)(childPartFunc->getNodeMap()))->
-                                                getEstNumActivePartitionsAtRuntime();
-  const CostScalar& numOfProducers  = MINOF( numOfPartitions ,sppForChild->getCurrentCountOfCPUs()  );
+  const CostScalar &numOfConsumers = ((NodeMap *)(myPartFunc->getNodeMap()))->getNumActivePartitions();
+  const CostScalar &numOfPartitions = ((NodeMap *)(childPartFunc->getNodeMap()))->getEstNumActivePartitionsAtRuntime();
+  const CostScalar &numOfProducers = MINOF(numOfPartitions, sppForChild->getCurrentCountOfCPUs());
 
   //---------------------------------------------
   //  Determine number of rows produced by child.
   //---------------------------------------------
-  EstLogPropSharedPtr inputLP       = myContext->getInputLogProp();
-  CMPASSERT( inputLP ); 
+  EstLogPropSharedPtr inputLP = myContext->getInputLogProp();
+  CMPASSERT(inputLP);
   EstLogPropSharedPtr childOutputLP = exch->child(0).outputLogProp(inputLP);
-  const CostScalar& totalRowCount = (childOutputLP->getResultCardinality()).getCeiling();
+  const CostScalar &totalRowCount = (childOutputLP->getResultCardinality()).getCeiling();
   //---------------------------------------------------------------
 
   //---------------------------------------------------------------
@@ -1765,14 +1488,12 @@ CostMethodExchange::scmComputeOperatorCostInternal(RelExpr* op,
   // partitioning key is a random number.
   //---------------------------------------------
   long randomFix = ActiveSchemaDB()->getDefaults().getAsLong(COMP_INT_26);
-  if (NOT executeInDP2 && (randomFix != 0))
-  {
+  if (NOT executeInDP2 && (randomFix != 0)) {
     CostScalar estDop = totalRowCount;
     CostScalar maxCard = childOutputLP->getMaxCardEst();
     // use the max cardinality, somewhat corrected for risk by taking
     // geometric mean of card and maxCard.
-    if (maxCard != -1)
-    {
+    if (maxCard != -1) {
       estDop = sqrt((estDop * maxCard).getValue());
       estDop.getFloor();
     }
@@ -1791,11 +1512,7 @@ CostMethodExchange::scmComputeOperatorCostInternal(RelExpr* op,
   CostScalar messageSpacePerRecordInKb;
   CostScalar messageHeaderInKb;
   CostScalar messageBufferSizeInKb;
-  getDefaultValues(executeInDP2,
-                   exch,
-                   messageSpacePerRecordInKb,
-                   messageHeaderInKb,
-                   messageBufferSizeInKb);
+  getDefaultValues(executeInDP2, exch, messageSpacePerRecordInKb, messageHeaderInKb, messageBufferSizeInKb);
 
   CostScalar espFixUpWeight = ActiveSchemaDB()->getDefaults().getAsDouble(NCM_ESP_FIXUP_WEIGHT);
   NABoolean espStartFix = (CmpCommon::getDefault(NCM_ESP_STARTUP_FIX) == DF_ON);
@@ -1810,61 +1527,43 @@ CostMethodExchange::scmComputeOperatorCostInternal(RelExpr* op,
   CostScalar origUpTuplesSent = csZero;
   NADefaults &defs1 = ActiveSchemaDB()->getDefaults();
 
-  if (NOT executeInDP2)
-  {
-    exch->computeBufferLength(myContext,
-                            numOfConsumers,
-                            numOfProducers,
-                            upMessageBufferLength_,
-                            downMessageBufferLength_);
-    upTuplesSent = scmComputeUpTuplesSent(myContext,
-                                          exch,
-                                          myPartFunc,
-                                          childPartFunc,
-                                          numOfConsumers,
-					  numOfProducers);
+  if (NOT executeInDP2) {
+    exch->computeBufferLength(myContext, numOfConsumers, numOfProducers, upMessageBufferLength_,
+                              downMessageBufferLength_);
+    upTuplesSent = scmComputeUpTuplesSent(myContext, exch, myPartFunc, childPartFunc, numOfConsumers, numOfProducers);
     origUpTuplesSent = upTuplesSent;
-  }
-  else
-  {
-    upMessageBufferLength_= messageBufferSizeInKb;
-    downMessageBufferLength_= csOne;
+  } else {
+    upMessageBufferLength_ = messageBufferSizeInKb;
+    downMessageBufferLength_ = csOne;
 
-    if (childPartFunc)
-    {
+    if (childPartFunc) {
       const LogPhysPartitioningFunction *lpf = childPartFunc->castToLogPhysPartitioningFunction();
-      if (lpf != NULL AND lpf->getUsePapa())
-      {
-	//PAPA (SplitTop)
-	upTuplesSent = totalRowCount/numOfConsumers;
+      if (lpf != NULL AND lpf->getUsePapa()) {
+        // PAPA (SplitTop)
+        upTuplesSent = totalRowCount / numOfConsumers;
 
-	// Is merging of sorted streams possibly needed? 
-	// Add in tuplesProcessed to account for the merging of sorted streams.
-	isMergeNeeded_ = (sppForMe_->getSortOrderType() != DP2_SOT) &&
-	  (NOT sppForMe_->getSortKey().isEmpty()); 
+        // Is merging of sorted streams possibly needed?
+        // Add in tuplesProcessed to account for the merging of sorted streams.
+        isMergeNeeded_ = (sppForMe_->getSortOrderType() != DP2_SOT) && (NOT sppForMe_->getSortKey().isEmpty());
         // get weight for merging of sorted streams by each ESP
-        CostScalar mergeFactor =
-        ActiveSchemaDB()->getDefaults().getAsDouble(NCM_EXCH_MERGE_FACTOR);
-	if ( isMergeNeeded_ AND numOfProducers > numOfConsumers )
-	{
+        CostScalar mergeFactor = ActiveSchemaDB()->getDefaults().getAsDouble(NCM_EXCH_MERGE_FACTOR);
+        if (isMergeNeeded_ AND numOfProducers > numOfConsumers) {
           tuplesProcessed = upTuplesSent * mergeFactor;
-	}
-	// Fix for the serial plan issue with split tops.
-	// This was an issue seen with TPCH Q1, the serial plan looks 
-	// like a very good plan, but for some reason performs poorly. Bob W. 
-	// thinks it may be the "wave pattern" issue. Adjust costs by
-	// adding "fixup" costs to compensate.
-	if ( (CmpCommon::getDefault(COMP_BOOL_202) == DF_OFF) AND
-             (numOfConsumers == csOne) AND 
-	     (numOfProducers > numOfConsumers) )
-	  //	     (rpp->getPlanExecutionLocation() == EXECUTE_IN_MASTER) ) //isOpBelowRoot_)
-	  upTuplesSent += espFixupCost;
+        }
+        // Fix for the serial plan issue with split tops.
+        // This was an issue seen with TPCH Q1, the serial plan looks
+        // like a very good plan, but for some reason performs poorly. Bob W.
+        // thinks it may be the "wave pattern" issue. Adjust costs by
+        // adding "fixup" costs to compensate.
+        if ((CmpCommon::getDefault(COMP_BOOL_202) == DF_OFF) AND(numOfConsumers == csOne)
+                AND(numOfProducers > numOfConsumers))
+          //	     (rpp->getPlanExecutionLocation() == EXECUTE_IN_MASTER) ) //isOpBelowRoot_)
+          upTuplesSent += espFixupCost;
       }
     }
   }
 
-  if (NOT executeInDP2)  
-  {
+  if (NOT executeInDP2) {
     // Fixup Costs for esp_exchanges.
     upTuplesSent += espFixupCost;
   }
@@ -1875,66 +1574,44 @@ CostMethodExchange::scmComputeOperatorCostInternal(RelExpr* op,
   upTuplesSent *= rowSizeFactor;
 
   NABoolean ndcsFixOff = (CmpCommon::getDefault(NCM_EXCH_NDCS_FIX) == DF_OFF);
-  if (ndcsFixOff)
-    origUpTuplesSent = upTuplesSent;
+  if (ndcsFixOff) origUpTuplesSent = upTuplesSent;
 
   CostScalar adj1 = defs1.getAsLong(COMP_INT_62);
   CostScalar parAdj = defs1.getAsDouble(NCM_PAR_ADJ_FACTOR);
-  if (adj1 == csZero)
-    adj1=1000000;
-   if ( (numOfConsumers == csOne) AND
-        (numOfProducers > numOfConsumers) AND
-      isOpBelowRoot_  AND
-      origUpTuplesSent > adj1 &&
-      parAdj > 0)
-   {
-      upTuplesSent = parAdj ;
-   }
+  if (adj1 == csZero) adj1 = 1000000;
+  if ((numOfConsumers == csOne) AND(numOfProducers > numOfConsumers) AND isOpBelowRoot_ AND origUpTuplesSent > adj1 &&
+      parAdj > 0) {
+    upTuplesSent = parAdj;
+  }
 
   // adjust the Last Row / First Row Cost for an exchange
   // operator on top of a Partial GroupBy Leaf node
-  const RelExpr * myImmediateChild = myContext->
-    getPhysicalExprOfSolutionForChild(0);
+  const RelExpr *myImmediateChild = myContext->getPhysicalExprOfSolutionForChild(0);
 
-  const RelExpr * myGrandChild = myContext->
-    getPhysicalExprOfSolutionForGrandChild(0,0);
+  const RelExpr *myGrandChild = myContext->getPhysicalExprOfSolutionForGrandChild(0, 0);
 
-  ValueIdSet immediateChildPartKey =
-    childPartFunc->getPartitioningKey();
+  ValueIdSet immediateChildPartKey = childPartFunc->getPartitioningKey();
 
-  const PhysicalProperty* sppForGrandChild =
-    myContext->
-      getPhysicalPropertyOfSolutionForGrandChild(0,0);
+  const PhysicalProperty *sppForGrandChild = myContext->getPhysicalPropertyOfSolutionForGrandChild(0, 0);
 
-  PartitioningFunction * grandChildPartFunc =
-    (sppForGrandChild?
-      sppForGrandChild->getPartitioningFunction():
-        NULL);
+  PartitioningFunction *grandChildPartFunc = (sppForGrandChild ? sppForGrandChild->getPartitioningFunction() : NULL);
 
   ValueIdSet grandChildPartKey;
 
-  if(grandChildPartFunc)
-    grandChildPartKey =
-      grandChildPartFunc->
-        getPartitioningKey();
+  if (grandChildPartFunc) grandChildPartKey = grandChildPartFunc->getPartitioningKey();
 
   NABoolean myChildIsExchange = FALSE;
   NABoolean myChildIsSortOnTopOfHashPartGbyLeaf = FALSE;
 
-  if (myImmediateChild)
-  {
-    if ((myImmediateChild->getOperatorType() == REL_SORT) &&
-        myGrandChild &&
+  if (myImmediateChild) {
+    if ((myImmediateChild->getOperatorType() == REL_SORT) && myGrandChild &&
         (myGrandChild->getOperatorType() == REL_HASHED_GROUPBY) &&
-        (((GroupByAgg*)myGrandChild)->isAPartialGroupByLeaf()) &&
-        (CmpCommon::getDefault(COMP_BOOL_103) == DF_OFF))
+        (((GroupByAgg *)myGrandChild)->isAPartialGroupByLeaf()) && (CmpCommon::getDefault(COMP_BOOL_103) == DF_OFF))
       myChildIsSortOnTopOfHashPartGbyLeaf = TRUE;
 
-    if ((myImmediateChild->getOperatorType() == REL_EXCHANGE) &&
-      (CmpCommon::getDefault(COMP_BOOL_186) == DF_ON))
-    myChildIsExchange = TRUE;
+    if ((myImmediateChild->getOperatorType() == REL_EXCHANGE) && (CmpCommon::getDefault(COMP_BOOL_186) == DF_ON))
+      myChildIsExchange = TRUE;
   }
-
 
   // childToConsider will be either the immediate child of this
   // exchange node, or the grand child. It will be the grand child
@@ -1944,44 +1621,34 @@ CostMethodExchange::scmComputeOperatorCostInternal(RelExpr* op,
   // dp2. By default we don't adjust the cost for partial grouping
   // in dp2, but if COMP_BOOL_186 is ON then we allow cost adjustments
   // for exchange on top partial grouping in DP2.
-  const RelExpr * childToConsider =
-    ((myChildIsExchange || myChildIsSortOnTopOfHashPartGbyLeaf)?
-      myGrandChild:myImmediateChild);
+  const RelExpr *childToConsider =
+      ((myChildIsExchange || myChildIsSortOnTopOfHashPartGbyLeaf) ? myGrandChild : myImmediateChild);
 
-  ValueIdSet bottomPartKey =
-    ((myChildIsExchange)?grandChildPartKey:immediateChildPartKey);
+  ValueIdSet bottomPartKey = ((myChildIsExchange) ? grandChildPartKey : immediateChildPartKey);
 
-  if (childToConsider &&
-      (!executeInDP2) &&
-      ((childToConsider->getOperatorType() == REL_HASHED_GROUPBY)||
-       (childToConsider->getOperatorType() == REL_ORDERED_GROUPBY))&&
-      (((GroupByAgg*)childToConsider)->isAPartialGroupByLeaf()))
-  {
-    ValueIdSet childGroupingColumns =
-      ((GroupByAgg*)childToConsider)->groupExpr();
+  if (childToConsider && (!executeInDP2) &&
+      ((childToConsider->getOperatorType() == REL_HASHED_GROUPBY) ||
+       (childToConsider->getOperatorType() == REL_ORDERED_GROUPBY)) &&
+      (((GroupByAgg *)childToConsider)->isAPartialGroupByLeaf())) {
+    ValueIdSet childGroupingColumns = ((GroupByAgg *)childToConsider)->groupExpr();
 
     NABoolean childMatchesPartitioning = FALSE;
 
-    if (childGroupingColumns.contains(bottomPartKey))
-      childMatchesPartitioning = TRUE;
+    if (childGroupingColumns.contains(bottomPartKey)) childMatchesPartitioning = TRUE;
 
-    if (!childMatchesPartitioning &&
-	(CmpCommon::getDefault(NCM_PAR_GRPBY_ADJ) == DF_ON))
-    {
-      CostScalar grpByAdjFactor = 
-	ActiveSchemaDB()->getDefaults().getAsDouble(ROBUST_PAR_GRPBY_EXCHANGE_FCTR);
+    if (!childMatchesPartitioning && (CmpCommon::getDefault(NCM_PAR_GRPBY_ADJ) == DF_ON)) {
+      CostScalar grpByAdjFactor = ActiveSchemaDB()->getDefaults().getAsDouble(ROBUST_PAR_GRPBY_EXCHANGE_FCTR);
       tuplesProcessed *= grpByAdjFactor;
       upTuplesSent *= grpByAdjFactor;
     }
   }
 
-  Cost* exchangeCost =  
-    scmCost(tuplesProcessed, tuplesProduced, upTuplesSent, csZero, csZero, numOfProbes,
-	    inputRowSize, csZero, inputRowSize, csZero);
+  Cost *exchangeCost = scmCost(tuplesProcessed, tuplesProduced, upTuplesSent, csZero, csZero, numOfProbes, inputRowSize,
+                               csZero, inputRowSize, csZero);
 
   return exchangeCost;
 
-} // CostMethodExchange::scmComputeOperatorCostInternal()
+}  // CostMethodExchange::scmComputeOperatorCostInternal()
 //<pb>
 
 //==============================================================================
@@ -2005,69 +1672,56 @@ CostMethodExchange::scmComputeOperatorCostInternal(RelExpr* op,
 //  Number of tuples sent from child up to parent.
 //
 //==============================================================================
-CostScalar
-CostMethodExchange::scmComputeUpTuplesSent(
-                          const Context*              parentContext,
-		          Exchange*                   exch,
-                          const PartitioningFunction* parentPartFunc,
-                          const PartitioningFunction* childPartFunc,
-                          const CostScalar &          numOfConsumers,
-                          const CostScalar &          numOfProducers) const
-{
+CostScalar CostMethodExchange::scmComputeUpTuplesSent(const Context *parentContext, Exchange *exch,
+                                                      const PartitioningFunction *parentPartFunc,
+                                                      const PartitioningFunction *childPartFunc,
+                                                      const CostScalar &numOfConsumers,
+                                                      const CostScalar &numOfProducers) const {
   //----------------------------------------------------------------------
   // Defensive programming.
   //----------------------------------------------------------------------
-  CMPASSERT( parentContext  != NULL );
-  CMPASSERT( exch	    != NULL );
-  CMPASSERT( parentPartFunc != NULL );
-  CMPASSERT( childPartFunc  != NULL );
+  CMPASSERT(parentContext != NULL);
+  CMPASSERT(exch != NULL);
+  CMPASSERT(parentPartFunc != NULL);
+  CMPASSERT(childPartFunc != NULL);
 
   //---------------------------------------------
   //  Determine number of rows produced by child.
   //---------------------------------------------
-  EstLogPropSharedPtr inputLP       = parentContext->getInputLogProp();
-  CMPASSERT( inputLP );
+  EstLogPropSharedPtr inputLP = parentContext->getInputLogProp();
+  CMPASSERT(inputLP);
 
   EstLogPropSharedPtr childOutputLP = exch->child(0).outputLogProp(inputLP);
-  const CostScalar& totalRowCount = (childOutputLP->getResultCardinality()).getCeiling();
-  const CostScalar& rowCountPerConsumer = (totalRowCount/numOfConsumers).getCeiling(); 
-  const CostScalar& rowCountPerProducer = (totalRowCount/numOfProducers).getCeiling(); 
+  const CostScalar &totalRowCount = (childOutputLP->getResultCardinality()).getCeiling();
+  const CostScalar &rowCountPerConsumer = (totalRowCount / numOfConsumers).getCeiling();
+  const CostScalar &rowCountPerProducer = (totalRowCount / numOfProducers).getCeiling();
 
   // Determine number of probes and whether there are any outer references
   // (i.e. probe values)
-  const CostScalar& noOfProbes = ( inputLP->getResultCardinality() ).minCsOne();
-  ValueIdSet externalInputs( exch->getGroupAttr()->getCharacteristicInputs() );
+  const CostScalar &noOfProbes = (inputLP->getResultCardinality()).minCsOne();
+  ValueIdSet externalInputs(exch->getGroupAttr()->getCharacteristicInputs());
   ValueIdSet outerRefs;
-  externalInputs.getOuterReferences( outerRefs );
+  externalInputs.getOuterReferences(outerRefs);
 
   CostScalar upRowsPerConsumer, upRowsPerProducer;
 
   // Calculate number of rows each consumer will receive.
   //------------------------------------------------------------------------
-  if (CURRSTMT_OPTDEFAULTS->incorporateSkewInCosting())
-  {
-    upRowsPerConsumer = childOutputLP->
-      getCardOfBusiestStream(parentPartFunc,
-			     (Lng32)numOfConsumers.getValue(),
-			     exch->getGroupAttr(),
-			     (Lng32)numOfConsumers.getValue());
+  if (CURRSTMT_OPTDEFAULTS->incorporateSkewInCosting()) {
+    upRowsPerConsumer = childOutputLP->getCardOfBusiestStream(parentPartFunc, (Lng32)numOfConsumers.getValue(),
+                                                              exch->getGroupAttr(), (Lng32)numOfConsumers.getValue());
     // assume number of consumers = number of CPUs;
     // it is only used for round robin pf. where skew is not an issue
 
-    upRowsPerProducer = childOutputLP->
-      getCardOfBusiestStream(childPartFunc,
-			     (Lng32)numOfProducers.getValue(),
-			     exch->getGroupAttr(),
-			     (Lng32)numOfProducers.getValue());
-  }
-  else
-  {
+    upRowsPerProducer = childOutputLP->getCardOfBusiestStream(childPartFunc, (Lng32)numOfProducers.getValue(),
+                                                              exch->getGroupAttr(), (Lng32)numOfProducers.getValue());
+  } else {
     upRowsPerConsumer = rowCountPerConsumer;
     upRowsPerProducer = rowCountPerProducer;
   }
 
   CostScalar upRowsPerBusiestStream = MAXOF(upRowsPerConsumer, upRowsPerProducer);
-    
+
   //------------------------------------------------------------------------
   // For broadcast replication, each child will send all rows to all consumers.
   // For no broadcast replication underneath a materialize that is not
@@ -2077,12 +1731,10 @@ CostMethodExchange::scmComputeUpTuplesSent(
   // by the number of consumers.
   //------------------------------------------------------------------------
   if (parentPartFunc->isAReplicateViaBroadcastPartitioningFunction()
-      OR (parentPartFunc->isAReplicateNoBroadcastPartitioningFunction()
-	  AND noOfProbes == 1	    // 1 probe, but
-	  AND outerRefs.isEmpty() // no probe values - must be under a materialize
-	  )
-      )
-  {
+          OR(parentPartFunc->isAReplicateNoBroadcastPartitioningFunction()
+                 AND noOfProbes == 1                        // 1 probe, but
+                                   AND outerRefs.isEmpty()  // no probe values - must be under a materialize
+             )) {
     //---------------------------------------------------------------------
     // All producers send all rows to all consumers.
     //---------------------------------------------------------------------
@@ -2091,25 +1743,21 @@ CostMethodExchange::scmComputeUpTuplesSent(
 
   return upRowsPerBusiestStream;
 
-} // CostMethodExchange::scmComputeUpTuplesSent()
+}  // CostMethodExchange::scmComputeUpTuplesSent()
 
 //<pb>
 // -----------------------------------------------------------------------
 // CostMethodSort scmComputeOperatorCostInternal().
 // -----------------------------------------------------------------------
-Cost*
-CostMethodSort::scmComputeOperatorCostInternal(RelExpr* op,
-                                               const PlanWorkSpace* pws,
-					       Lng32& countOfStreams)
-{
-  const Context* myContext = pws->getContext();
+Cost *CostMethodSort::scmComputeOperatorCostInternal(RelExpr *op, const PlanWorkSpace *pws, Lng32 &countOfStreams) {
+  const Context *myContext = pws->getContext();
 
-  sort_ = (Sort*) op;
+  sort_ = (Sort *)op;
 
   // ---------------------------------------------------------------------
   // Preparatory work.
   // ---------------------------------------------------------------------
-  cacheParameters(op,myContext);
+  cacheParameters(op, myContext);
   estimateDegreeOfParallelism();
 
   // -----------------------------------------
@@ -2118,18 +1766,10 @@ CostMethodSort::scmComputeOperatorCostInternal(RelExpr* op,
   countOfStreams = countOfStreams_;
 
   CostScalar rowCount(csZero);
-  if ((CURRSTMT_OPTDEFAULTS->incorporateSkewInCosting()) &&
-        (partFunc_ != NULL) )
-  {
-    rowCount =
-      myLogProp_->getCardOfBusiestStream(partFunc_,
-					 countOfStreams_,
-					 ga_,
-					 countOfAvailableCPUs_);
-  }
-  else
-  {
-  // Row count a single probe on one instance of this sort is processing.
+  if ((CURRSTMT_OPTDEFAULTS->incorporateSkewInCosting()) && (partFunc_ != NULL)) {
+    rowCount = myLogProp_->getCardOfBusiestStream(partFunc_, countOfStreams_, ga_, countOfAvailableCPUs_);
+  } else {
+    // Row count a single probe on one instance of this sort is processing.
     rowCount = myRowCount_ / countOfStreams_;
   }
 
@@ -2158,28 +1798,23 @@ CostMethodSort::scmComputeOperatorCostInternal(RelExpr* op,
   //  determineCpuCountAndFragmentsPerCpu( cpuCount, fragmentsPerCPU );
 
   // We are using tuplesSent as a placeholder for overflow costs as it would be
-  // easier for debugging by differentiating between regular tuples processed 
-  // and overflow costs, rather than lumping them all togther in 
+  // easier for debugging by differentiating between regular tuples processed
+  // and overflow costs, rather than lumping them all togther in
   // tuplesProcessed. tuplesSent is zero for all operators except exchange,
   // so it makes sense to use this instead of adding a new field.
   // It does not make a difference to the overall cost computation.
-  Cost* sortCost = 
-    scmCost(tuplesProcessed, tuplesProduced, overflowCost, csZero, csZero, noOfProbesPerStream_,
-	    inputRowSize, csZero, inputRowSize, csZero);
+  Cost *sortCost = scmCost(tuplesProcessed, tuplesProduced, overflowCost, csZero, csZero, noOfProbesPerStream_,
+                           inputRowSize, csZero, inputRowSize, csZero);
 
 #ifndef NDEBUG
-  if ( CmpCommon::getDefault( OPTIMIZER_PRINT_COST ) == DF_ON )
-    {
-      pfp = stdout;
-      fprintf(pfp,"SORT::scmComputeOperatorCostInternal()\n");
-      sortCost->print(pfp);
-      fprintf(pfp, "Elapsed time: ");
-      fprintf(pfp,"%f", sortCost->
-              convertToElapsedTime(
-                   myContext->getReqdPhysicalProperty()).
-              value());
-      fprintf(pfp,"\n");
-    }
+  if (CmpCommon::getDefault(OPTIMIZER_PRINT_COST) == DF_ON) {
+    pfp = stdout;
+    fprintf(pfp, "SORT::scmComputeOperatorCostInternal()\n");
+    sortCost->print(pfp);
+    fprintf(pfp, "Elapsed time: ");
+    fprintf(pfp, "%f", sortCost->convertToElapsedTime(myContext->getReqdPhysicalProperty()).value());
+    fprintf(pfp, "\n");
+  }
 #endif
 
   return sortCost;
@@ -2200,14 +1835,10 @@ CostMethodSort::scmComputeOperatorCostInternal(RelExpr* op,
 //  Overflow cost
 //
 //==============================================================================
-CostScalar
-CostMethodSort::scmComputeOverflowCost( CostScalar numInputTuples, CostScalar inputRowSize )
-{
-  NABoolean sortOverFlowCosting = 
-    (CmpCommon::getDefault(NCM_SORT_OVERFLOW_COSTING) == DF_ON);
+CostScalar CostMethodSort::scmComputeOverflowCost(CostScalar numInputTuples, CostScalar inputRowSize) {
+  NABoolean sortOverFlowCosting = (CmpCommon::getDefault(NCM_SORT_OVERFLOW_COSTING) == DF_ON);
 
-  if (sortOverFlowCosting == FALSE)
-    return 0;
+  if (sortOverFlowCosting == FALSE) return 0;
 
   CostScalar inputRowSizeFactor = scmRowSizeFactor(inputRowSize);
 
@@ -2216,24 +1847,23 @@ CostMethodSort::scmComputeOverflowCost( CostScalar numInputTuples, CostScalar in
 
   CostScalar memoryAvailable = sortBufferSizeInBytes * numSortBuffers;
   CostScalar memoryUsed = numInputTuples * inputRowSize;
-  
+
   // Pointers to the sort keys (32 bytes) are stored in an array. The array
-  // size is limited by the 128MB segment allocation limit. 
+  // size is limited by the 128MB segment allocation limit.
   // Therefore, the number of sort key pointers is limited to 128/32=4MB
   // If this changes, maxSortKeys will need to be updated.
   CostScalar maxSortKeys = CostScalar(4.0) * csOneKiloBytes * csOneKiloBytes;
 
-  if (memoryUsed <= memoryAvailable && numInputTuples <= maxSortKeys)
-    return 0;
+  if (memoryUsed <= memoryAvailable && numInputTuples <= maxSortKeys) return 0;
 
   // If overflow occurs during sort, the whole table is overflowed to disk.
-  // The factor of 2 comes from having to write overflow tuples to disk and 
+  // The factor of 2 comes from having to write overflow tuples to disk and
   // read back the overflow tuples from disk.
   CostScalar overflow = CostScalar(2.0) * numInputTuples * inputRowSizeFactor;
 
   return overflow;
 
-} // CostMethodSort::scmComputeOverflowCost
+}  // CostMethodSort::scmComputeOverflowCost
 
 //<pb>
 
@@ -2259,17 +1889,14 @@ CostMethodSort::scmComputeOverflowCost( CostScalar numInputTuples, CostScalar in
 //  Pointer to computed cost object for this SortGroupBy operator.
 //
 //==============================================================================
-Cost*
-CostMethodSortGroupBy::scmComputeOperatorCostInternal(RelExpr* op,
-                                                      const PlanWorkSpace* pws,
-						      Lng32& countOfStreams)
-{
-  const Context* myContext = pws->getContext();
+Cost *CostMethodSortGroupBy::scmComputeOperatorCostInternal(RelExpr *op, const PlanWorkSpace *pws,
+                                                            Lng32 &countOfStreams) {
+  const Context *myContext = pws->getContext();
 
   // ---------------------------------------------------------------------
   // Preparatory work.
   // ---------------------------------------------------------------------
-  cacheParameters(op,myContext);
+  cacheParameters(op, myContext);
   estimateDegreeOfParallelism();
 
   // -----------------------------------------
@@ -2284,9 +1911,7 @@ CostMethodSortGroupBy::scmComputeOperatorCostInternal(RelExpr* op,
   // Set the count of streams to an invalid value (-1) to force us to
   // recost on the way back up.
   // ---------------------------------------------------------------------
-  if(rpp_->executeInDP2() AND
-    (NOT context_->getPlan()->getPhysicalProperty()))
-  {
+  if (rpp_->executeInDP2() AND(NOT context_->getPlan()->getPhysicalProperty())) {
     countOfStreams = -1;
     return generateZeroCostObject();
   }
@@ -2295,28 +1920,27 @@ CostMethodSortGroupBy::scmComputeOperatorCostInternal(RelExpr* op,
   // Make sure rowcount is at least group count to prevent absurdity in
   // results.
   // ---------------------------------------------------------------------
-  rowCountPerStream_ = MAXOF(rowCountPerStream_,groupCountPerStream_);
+  rowCountPerStream_ = MAXOF(rowCountPerStream_, groupCountPerStream_);
 
   // The input to the SortGroupBy is always sorted, either the input is
   // already naturally sorted or there is an explicit Sort operator below it.
-  
+
   CostScalar tuplesProcessed = rowCountPerStream_;
-  CostScalar tuplesProduced = myRowCountPerStream_ ;
+  CostScalar tuplesProduced = myRowCountPerStream_;
 
   // ---------------------------------------------------------------------
   // tupleProduced can never be more than tupleProcessed.
-  // This thing can happen sometimes especially for partial group bys since 
-  // cardinality estimates do not distinguish between partial 
+  // This thing can happen sometimes especially for partial group bys since
+  // cardinality estimates do not distinguish between partial
   // and full group bys.
   // ---------------------------------------------------------------------
   tuplesProduced = MINOF(tuplesProcessed, tuplesProduced);
-  
+
   // Make the SortGroupBy cheaper than the HashGroupBy if the input is
-  // naturally sorted. If there is an explicit Sort below, then the overall cost 
+  // naturally sorted. If there is an explicit Sort below, then the overall cost
   // of the SortGroupBy could be more than the HashGroupBy.
   // Assume that SortGroupBy is 30% faster than HashGroupBy if the input is already sorted.
-  double sortToHashGroupFactor =
-    ActiveSchemaDB()->getDefaults().getAsDouble(NCM_SGB_TO_HGB_FACTOR);
+  double sortToHashGroupFactor = ActiveSchemaDB()->getDefaults().getAsDouble(NCM_SGB_TO_HGB_FACTOR);
 
   tuplesProcessed *= sortToHashGroupFactor;
 
@@ -2329,18 +1953,14 @@ CostMethodSortGroupBy::scmComputeOperatorCostInternal(RelExpr* op,
   tuplesProduced *= outputRowSizeFactor;
 
   // If this is a partial Group By leaf in an ESP adjust it's cost
-  GroupByAgg * groupByNode = (GroupByAgg *) op;
+  GroupByAgg *groupByNode = (GroupByAgg *)op;
 
-  PhysicalProperty * sppForMe = (PhysicalProperty *) myContext->
-                                  getPlan()->getPhysicalProperty();
+  PhysicalProperty *sppForMe = (PhysicalProperty *)myContext->getPlan()->getPhysicalProperty();
 
-  if(groupByNode->isAPartialGroupByLeaf() &&
-     ((sppForMe && sppForMe->executeInESPOnly()) ||
-      (CmpCommon::getDefault(COMP_BOOL_186) == DF_ON)))
-  {
+  if (groupByNode->isAPartialGroupByLeaf() &&
+      ((sppForMe && sppForMe->executeInESPOnly()) || (CmpCommon::getDefault(COMP_BOOL_186) == DF_ON))) {
     // don't adjust if Group Columns contain partition columns.
-    const PartitioningFunction* const myPartFunc =
-      sppForMe->getPartitioningFunction();
+    const PartitioningFunction *const myPartFunc = sppForMe->getPartitioningFunction();
 
     ValueIdSet myPartKey = myPartFunc->getPartitioningKey();
 
@@ -2348,13 +1968,9 @@ CostMethodSortGroupBy::scmComputeOperatorCostInternal(RelExpr* op,
 
     NABoolean myGroupingMatchesPartitioning = FALSE;
 
-    if (myPartKey.entries() &&
-        myGroupingColumns.contains(myPartKey))
-      myGroupingMatchesPartitioning = TRUE;
+    if (myPartKey.entries() && myGroupingColumns.contains(myPartKey)) myGroupingMatchesPartitioning = TRUE;
 
-    if (!myGroupingMatchesPartitioning &&
-	(CmpCommon::getDefault(NCM_PAR_GRPBY_ADJ) == DF_ON))
-    {
+    if (!myGroupingMatchesPartitioning && (CmpCommon::getDefault(NCM_PAR_GRPBY_ADJ) == DF_ON)) {
       CostScalar grpByAdjFactor = ActiveSchemaDB()->getDefaults().getAsDouble(ROBUST_PAR_GRPBY_LEAF_FCTR);
       tuplesProcessed *= grpByAdjFactor;
       tuplesProduced *= grpByAdjFactor;
@@ -2364,28 +1980,23 @@ CostMethodSortGroupBy::scmComputeOperatorCostInternal(RelExpr* op,
   // ---------------------------------------------------------------------
   // Synthesize and return the cost object.
   // ---------------------------------------------------------------------
-  Cost* sortGroupByCost = 
-        scmCost(tuplesProcessed, tuplesProduced, csZero, csZero, csZero, noOfProbesPerStream_,
-	    inputRowSize, csZero, outputRowSize, csZero);
+  Cost *sortGroupByCost = scmCost(tuplesProcessed, tuplesProduced, csZero, csZero, csZero, noOfProbesPerStream_,
+                                  inputRowSize, csZero, outputRowSize, csZero);
 
   // ---------------------------------------------------------------------
   // For debugging.
   // ---------------------------------------------------------------------
 #ifndef NDEBUG
-  NABoolean printCost =
-    ( CmpCommon::getDefault( OPTIMIZER_PRINT_COST ) == DF_ON );
-  if ( printCost )
-  {
+  NABoolean printCost = (CmpCommon::getDefault(OPTIMIZER_PRINT_COST) == DF_ON);
+  if (printCost) {
     pfp = stdout;
-    fprintf(pfp,"SORTGROUPBY::scmComputeOperatorCostInternal()\n");
-    fprintf(pfp,"child0RowCount=%g,groupCount=%g,myRowCount=%g\n",
-                                 child0RowCount_.toDouble(),groupCount_.toDouble(),myRowCount_.toDouble());
+    fprintf(pfp, "SORTGROUPBY::scmComputeOperatorCostInternal()\n");
+    fprintf(pfp, "child0RowCount=%g,groupCount=%g,myRowCount=%g\n", child0RowCount_.toDouble(), groupCount_.toDouble(),
+            myRowCount_.toDouble());
     sortGroupByCost->getScmCplr().print(pfp);
     fprintf(pfp, "Elapsed time: ");
-    fprintf(pfp,"%f", sortGroupByCost->
-	    convertToElapsedTime(myContext->getReqdPhysicalProperty()).
-	    value());
-    fprintf(pfp,"\n");
+    fprintf(pfp, "%f", sortGroupByCost->convertToElapsedTime(myContext->getReqdPhysicalProperty()).value());
+    fprintf(pfp, "\n");
   }
 #endif
 
@@ -2402,13 +2013,9 @@ CostMethodSortGroupBy::scmComputeOperatorCostInternal(RelExpr* op,
 // -----------------------------------------------------------------------
 // CostMethodShortCutGroupBy::scmComputeOperatorCostInternal().
 // -----------------------------------------------------------------------
-Cost*
-CostMethodShortCutGroupBy::scmComputeOperatorCostInternal
-                                             (RelExpr* op,
-                                              const PlanWorkSpace* pws,
-                                              Lng32& countOfStreams)
-{
-  const Context* myContext = pws->getContext();
+Cost *CostMethodShortCutGroupBy::scmComputeOperatorCostInternal(RelExpr *op, const PlanWorkSpace *pws,
+                                                                Lng32 &countOfStreams) {
+  const Context *myContext = pws->getContext();
 
   // ---------------------------------------------------------------------
   // CostScalars to be computed.
@@ -2418,7 +2025,7 @@ CostMethodShortCutGroupBy::scmComputeOperatorCostInternal
   // ---------------------------------------------------------------------
   // Preparatory work.
   // ---------------------------------------------------------------------
-  cacheParameters(op,myContext);
+  cacheParameters(op, myContext);
   estimateDegreeOfParallelism();
 
   // -----------------------------------------
@@ -2433,48 +2040,41 @@ CostMethodShortCutGroupBy::scmComputeOperatorCostInternal
   // Set the count of streams to an invalid value (0) to force us to
   // recost on the way back up.
   // ---------------------------------------------------------------------
-  if(rpp_->executeInDP2() AND
-    (NOT context_->getPlan()->getPhysicalProperty()))
-  {
+  if (rpp_->executeInDP2() AND(NOT context_->getPlan()->getPhysicalProperty())) {
     countOfStreams = 0;
     return generateZeroCostObject();
   }
 
   // ---------------------------------------------------------------------
-  // ShortCutGroupBy execution can be short-circuited after we found one 
-  // row to have satisfied the any-true aggregate expression. 
-  // This short circuit can even lead to the cancellation of the execution 
-  // of the operator's child. 
-  // Assume that on average you process 50% of child rows before a 
+  // ShortCutGroupBy execution can be short-circuited after we found one
+  // row to have satisfied the any-true aggregate expression.
+  // This short circuit can even lead to the cancellation of the execution
+  // of the operator's child.
+  // Assume that on average you process 50% of child rows before a
   // short_circuit. If no short_circuit it is same as regular sortGroupBy,
-  // no harm either. 
+  // no harm either.
   // ---------------------------------------------------------------------
   // aggrVis should contain only one expr which is rooted by ANYTRUE op.
   // ---------------------------------------------------------------------
-  const ValueIdSet& aggrVis = gb_->aggregateExpr();
+  const ValueIdSet &aggrVis = gb_->aggregateExpr();
   CMPASSERT(NOT aggrVis.isEmpty());
   ValueId ExprVid = aggrVis.init();
   // coverity[check_return]
   aggrVis.next(ExprVid);
-  const ItemExpr * itemExpr = ExprVid.getItemExpr();
+  const ItemExpr *itemExpr = ExprVid.getItemExpr();
   OperatorTypeEnum optype = itemExpr->getOperatorType();
-  CMPASSERT(optype==ITM_MIN OR
-            optype==ITM_MAX OR
-            optype==ITM_ANY_TRUE OR
-            optype==ITM_ANY_TRUE_MAX);
+  CMPASSERT(optype == ITM_MIN OR optype == ITM_MAX OR optype == ITM_ANY_TRUE OR optype == ITM_ANY_TRUE_MAX);
 
   CostScalar tuplesProcessed = csZero;
   CostScalar tuplesProduced = csZero;
 
-  if((optype==ITM_ANY_TRUE) OR (optype==ITM_ANY_TRUE_MAX))
-  { 
+  if ((optype == ITM_ANY_TRUE) OR(optype == ITM_ANY_TRUE_MAX)) {
     tuplesProcessed = (rowCountPerStream_ * 0.5);
-    tuplesProduced = myRowCountPerStream_ ;
-  }
-  else  // MIN/MAX optimization
+    tuplesProduced = myRowCountPerStream_;
+  } else  // MIN/MAX optimization
   {
-    //it only passes along a single row
-    CMPASSERT(op->getFirstNRows()==1);
+    // it only passes along a single row
+    CMPASSERT(op->getFirstNRows() == 1);
     tuplesProcessed = tuplesProduced = 1;
   }
 
@@ -2489,25 +2089,22 @@ CostMethodShortCutGroupBy::scmComputeOperatorCostInternal
   // ------------------------------------------------
   // Synthesize and return the cost object.
   // ------------------------------------------------
-  Cost* shortCutGBCost = 
-        scmCost(tuplesProcessed, tuplesProduced, csZero, csZero, csZero, noOfProbesPerStream_,
-	    inputRowSize, csZero, outputRowSize, csZero);
+  Cost *shortCutGBCost = scmCost(tuplesProcessed, tuplesProduced, csZero, csZero, csZero, noOfProbesPerStream_,
+                                 inputRowSize, csZero, outputRowSize, csZero);
 
   // ---------------------------------------------------------------------
   // For debugging.
   // ---------------------------------------------------------------------
 #ifndef NDEBUG
-  NABoolean printCost =
-    ( CmpCommon::getDefault( OPTIMIZER_PRINT_COST ) == DF_ON );
-  if ( printCost )
-  {
+  NABoolean printCost = (CmpCommon::getDefault(OPTIMIZER_PRINT_COST) == DF_ON);
+  if (printCost) {
     pfp = stdout;
-    fprintf(pfp,"ShortCutGroupBy::scmComputeOperatorCostInternal()\n");
-    fprintf(pfp,"childRowCount=%g",child0RowCount_.toDouble());
+    fprintf(pfp, "ShortCutGroupBy::scmComputeOperatorCostInternal()\n");
+    fprintf(pfp, "childRowCount=%g", child0RowCount_.toDouble());
     shortCutGBCost->getScmCplr().print(pfp);
     fprintf(pfp, "Elapsed time: ");
-    fprintf(pfp,"%f", shortCutGBCost->convertToElapsedTime(myContext->getReqdPhysicalProperty()).value());
-    fprintf(pfp,"\n");
+    fprintf(pfp, "%f", shortCutGBCost->convertToElapsedTime(myContext->getReqdPhysicalProperty()).value());
+    fprintf(pfp, "\n");
   }
 #endif
 
@@ -2537,17 +2134,14 @@ CostMethodShortCutGroupBy::scmComputeOperatorCostInternal
 //  Pointer to computed cost object for this HashGroupBy operator.
 //
 //==============================================================================
-Cost*
-CostMethodHashGroupBy::scmComputeOperatorCostInternal(RelExpr*       op,
-                                                      const PlanWorkSpace* pws,
-                                                      Lng32&          countOfStreams)
-{
-  const Context* myContext = pws->getContext();
+Cost *CostMethodHashGroupBy::scmComputeOperatorCostInternal(RelExpr *op, const PlanWorkSpace *pws,
+                                                            Lng32 &countOfStreams) {
+  const Context *myContext = pws->getContext();
 
   //-------------------
   //  Preparatory work.
   //-------------------
-  cacheParameters(op,myContext);
+  cacheParameters(op, myContext);
   estimateDegreeOfParallelism();
 
   //-------------------------------------------
@@ -2562,9 +2156,7 @@ CostMethodHashGroupBy::scmComputeOperatorCostInternal(RelExpr*       op,
   // Set the count of streams to an invalid value (-1) to force us to
   // recost on the way back up.
   //----------------------------------------------------------------------
-  if(rpp_->executeInDP2() AND
-    (NOT context_->getPlan()->getPhysicalProperty()))
-  {
+  if (rpp_->executeInDP2() AND(NOT context_->getPlan()->getPhysicalProperty())) {
     countOfStreams = -1;
     return generateZeroCostObject();
   }
@@ -2573,9 +2165,9 @@ CostMethodHashGroupBy::scmComputeOperatorCostInternal(RelExpr*       op,
   // Make sure rowcount is at least group count to prevent absurdity in
   // results.
   // ---------------------------------------------------------------------
-  rowCountPerStream_ = MAXOF(rowCountPerStream_,groupCountPerStream_);
+  rowCountPerStream_ = MAXOF(rowCountPerStream_, groupCountPerStream_);
 
-  CostScalar tuplesProcessed = rowCountPerStream_; 
+  CostScalar tuplesProcessed = rowCountPerStream_;
   CostScalar tuplesProduced = myRowCountPerStream_;
   // ---------------------------------------------------------------------
   // tupleProduced can never be more than tupleProcessed.
@@ -2587,21 +2179,17 @@ CostMethodHashGroupBy::scmComputeOperatorCostInternal(RelExpr*       op,
 
   // Special things for Dp2 (push down) hash groupby.
   // I think this is not required that is why it is commented.
-  if(rpp_->executeInDP2())
-  {
-    CostScalar groupCountInMemory =
-      ActiveSchemaDB()->getDefaults().getAsLong(MAX_DP2_HASHBY_GROUPS);
+  if (rpp_->executeInDP2()) {
+    CostScalar groupCountInMemory = ActiveSchemaDB()->getDefaults().getAsLong(MAX_DP2_HASHBY_GROUPS);
     groupCountInMemory = MINOF(groupCountInMemory, groupCountPerStream_);
 
     //----------------------------------
     // Average number of rows per group.
     //----------------------------------
     CostScalar rowsPerGroup = (rowCountPerStream_ / groupCountPerStream_);
-    CostScalar rowsNotTouched = 
-      rowCountPerStream_ - groupCountInMemory * rowsPerGroup;
+    CostScalar rowsNotTouched = rowCountPerStream_ - groupCountInMemory * rowsPerGroup;
     //    tuplesProduced = groupCountInMemory + rowsNotTouched;
-    if (isUnderNestedJoin_)
-    {
+    if (isUnderNestedJoin_) {
       tuplesProduced *= countOfStreams;
       tuplesProcessed *= countOfStreams;
       //    tuplesProduced = groupCountInMemory + rowsNotTouched;
@@ -2616,28 +2204,23 @@ CostMethodHashGroupBy::scmComputeOperatorCostInternal(RelExpr*       op,
 
   // tuplesProcessed += scmComputeOverflowCost(tuplesProcessed, inputRowSize,
   //                                           tuplesProduced, outputRowSize);
-  GroupByAgg * groupByNode = (GroupByAgg *) op;
+  GroupByAgg *groupByNode = (GroupByAgg *)op;
   CostScalar overflowCost;
 
   if (rpp_->executeInDP2() || groupByNode->isAPartialGroupByLeaf())
     overflowCost = csZero;
   else
-    overflowCost = scmComputeOverflowCost(tuplesProcessed, inputRowSize,
-                                          tuplesProduced, outputRowSize);
+    overflowCost = scmComputeOverflowCost(tuplesProcessed, inputRowSize, tuplesProduced, outputRowSize);
   tuplesProcessed *= inputRowSizeFactor;
   tuplesProduced *= outputRowSizeFactor;
 
   // If this is a partial Group By leaf in an ESP adjust it's cost
-  PhysicalProperty * sppForMe = (PhysicalProperty *) myContext->
-                                  getPlan()->getPhysicalProperty();
+  PhysicalProperty *sppForMe = (PhysicalProperty *)myContext->getPlan()->getPhysicalProperty();
 
-  if(groupByNode->isAPartialGroupByLeaf() &&
-     ((sppForMe && sppForMe->executeInESPOnly()) ||
-      (CmpCommon::getDefault(COMP_BOOL_186) == DF_ON)))
-  {
+  if (groupByNode->isAPartialGroupByLeaf() &&
+      ((sppForMe && sppForMe->executeInESPOnly()) || (CmpCommon::getDefault(COMP_BOOL_186) == DF_ON))) {
     // don't adjust if Group Columns contain partition columns.
-    const PartitioningFunction* const myPartFunc =
-      sppForMe->getPartitioningFunction();
+    const PartitioningFunction *const myPartFunc = sppForMe->getPartitioningFunction();
 
     ValueIdSet myPartKey = myPartFunc->getPartitioningKey();
 
@@ -2645,13 +2228,9 @@ CostMethodHashGroupBy::scmComputeOperatorCostInternal(RelExpr*       op,
 
     NABoolean myGroupingMatchesPartitioning = FALSE;
 
-    if (myPartKey.entries() &&
-        myGroupingColumns.contains(myPartKey))
-      myGroupingMatchesPartitioning = TRUE;
+    if (myPartKey.entries() && myGroupingColumns.contains(myPartKey)) myGroupingMatchesPartitioning = TRUE;
 
-    if (!myGroupingMatchesPartitioning &&
-	(CmpCommon::getDefault(NCM_PAR_GRPBY_ADJ) == DF_ON))
-    {
+    if (!myGroupingMatchesPartitioning && (CmpCommon::getDefault(NCM_PAR_GRPBY_ADJ) == DF_ON)) {
       CostScalar grpByAdjFactor = ActiveSchemaDB()->getDefaults().getAsDouble(ROBUST_PAR_GRPBY_LEAF_FCTR);
       tuplesProcessed *= grpByAdjFactor;
       overflowCost *= grpByAdjFactor;
@@ -2662,38 +2241,34 @@ CostMethodHashGroupBy::scmComputeOperatorCostInternal(RelExpr*       op,
   //----------------------------------------
   //  Synthesize and return the cost object.
   //----------------------------------------
-  
+
   // We are using tuplesSent as a placeholder for overflow costs as it would be
-  // easier for debugging by differentiating between regular tuples processed 
-  // and overflow costs, rather than lumping them all togther in 
+  // easier for debugging by differentiating between regular tuples processed
+  // and overflow costs, rather than lumping them all togther in
   // tuplesProcessed. tuplesSent is zero for all operators except exchange,
   // so it makes sense to use this instead of adding a new field.
   // It does not make a difference to the overall cost computation.
-  Cost* hashGroupByCost = 
-            scmCost(tuplesProcessed, tuplesProduced, overflowCost, csZero, csZero, noOfProbesPerStream_,
-	    inputRowSize, csZero, outputRowSize, csZero);
+  Cost *hashGroupByCost = scmCost(tuplesProcessed, tuplesProduced, overflowCost, csZero, csZero, noOfProbesPerStream_,
+                                  inputRowSize, csZero, outputRowSize, csZero);
 
 #ifndef NDEBUG
-  NABoolean printCost =
-    ( CmpCommon::getDefault( OPTIMIZER_PRINT_COST ) == DF_ON );
-  if ( printCost )
-  {
+  NABoolean printCost = (CmpCommon::getDefault(OPTIMIZER_PRINT_COST) == DF_ON);
+  if (printCost) {
     pfp = stdout;
-    fprintf(pfp,"HASHGROUPBY::scmComputeOperatorCostInternal()\n");
-    fprintf(pfp,"child0RowCount=%g,groupCount=%g,myRowCount=%g\n",
-                                 child0RowCount_.toDouble(),groupCount_.toDouble(),myRowCount_.toDouble());
+    fprintf(pfp, "HASHGROUPBY::scmComputeOperatorCostInternal()\n");
+    fprintf(pfp, "child0RowCount=%g,groupCount=%g,myRowCount=%g\n", child0RowCount_.toDouble(), groupCount_.toDouble(),
+            myRowCount_.toDouble());
     hashGroupByCost->getScmCplr().print(pfp);
     fprintf(pfp, "Elapsed time: ");
-    fprintf(pfp,"%f", hashGroupByCost->
-	    convertToElapsedTime(myContext->getReqdPhysicalProperty()).value());
-      fprintf(pfp,"\n");
+    fprintf(pfp, "%f", hashGroupByCost->convertToElapsedTime(myContext->getReqdPhysicalProperty()).value());
+    fprintf(pfp, "\n");
   }
 #endif
 
   return hashGroupByCost;
 }
 
- // CostMethodHashGroupBy::scmComputeOperatorCostInternal()
+// CostMethodHashGroupBy::scmComputeOperatorCostInternal()
 //<pb>
 
 //==============================================================================
@@ -2712,14 +2287,11 @@ CostMethodHashGroupBy::scmComputeOperatorCostInternal(RelExpr*       op,
 //  Overflow cost
 //
 //==============================================================================
-CostScalar
-CostMethodHashGroupBy::scmComputeOverflowCost( CostScalar numInputTuples, CostScalar inputRowSize, CostScalar numOutputTuples, CostScalar outputRowSize )
-{
-  NABoolean hashGroupByOverFlowCosting = 
-    (CmpCommon::getDefault(NCM_HGB_OVERFLOW_COSTING) == DF_ON);
+CostScalar CostMethodHashGroupBy::scmComputeOverflowCost(CostScalar numInputTuples, CostScalar inputRowSize,
+                                                         CostScalar numOutputTuples, CostScalar outputRowSize) {
+  NABoolean hashGroupByOverFlowCosting = (CmpCommon::getDefault(NCM_HGB_OVERFLOW_COSTING) == DF_ON);
 
-  if (hashGroupByOverFlowCosting == FALSE)
-    return 0;
+  if (hashGroupByOverFlowCosting == FALSE) return 0;
 
   CostScalar inputRowSizeFactor = scmRowSizeFactor(inputRowSize);
 
@@ -2732,19 +2304,17 @@ CostMethodHashGroupBy::scmComputeOverflowCost( CostScalar numInputTuples, CostSc
 
   CostScalar memoryUsed = numOutputTuples * outputRowSize;
 
-  if (memoryUsed <= memoryAvailable)
-    return 0;
+  if (memoryUsed <= memoryAvailable) return 0;
 
-  CostScalar fractionOverflow = CostScalar(1.0) - memoryAvailable/memoryUsed;
+  CostScalar fractionOverflow = CostScalar(1.0) - memoryAvailable / memoryUsed;
 
-  // The factor of 2 comes from having to write overflow tuples to disk and 
+  // The factor of 2 comes from having to write overflow tuples to disk and
   // read back the overflow tuples from disk.
-  CostScalar overflow = CostScalar(2.0) * fractionOverflow *
-    numInputTuples * inputRowSizeFactor;
+  CostScalar overflow = CostScalar(2.0) * fractionOverflow * numInputTuples * inputRowSizeFactor;
 
   return overflow;
 
-} // CostMethodHashGroupBy::scmComputeOverflowCost
+}  // CostMethodHashGroupBy::scmComputeOverflowCost
 
 /**********************************************************************/
 /*                                                                    */
@@ -2755,19 +2325,15 @@ CostMethodHashGroupBy::scmComputeOverflowCost( CostScalar numInputTuples, CostSc
 // -----------------------------------------------------------------------
 // CostMethodHashJoin::scmComputeOperatorCostInternal().
 // -----------------------------------------------------------------------
-Cost*
-CostMethodHashJoin::scmComputeOperatorCostInternal(RelExpr* op,
-                                                   const PlanWorkSpace* pws,
-						   Lng32& countOfStreams)
-{
-  const Context* myContext = pws->getContext();
+Cost *CostMethodHashJoin::scmComputeOperatorCostInternal(RelExpr *op, const PlanWorkSpace *pws, Lng32 &countOfStreams) {
+  const Context *myContext = pws->getContext();
 
-  hj_ = (HashJoin*) op;
+  hj_ = (HashJoin *)op;
 
   // ---------------------------------------------------------------------
   // Preparatory work.
   // ---------------------------------------------------------------------
-  cacheParameters(op,myContext);
+  cacheParameters(op, myContext);
   estimateDegreeOfParallelism();
 
   // -----------------------------------------
@@ -2778,42 +2344,38 @@ CostMethodHashJoin::scmComputeOperatorCostInternal(RelExpr* op,
   CostScalar outputJoinCard, tuplesProcessed, commutativeTuplesProcessed;
   CostScalar overflowCost, commutativeOverflowCost;
 
-  //COMP_INT_80 = 0 means fix is OFF.
+  // COMP_INT_80 = 0 means fix is OFF.
   //            = 1 means only 1736 fix is ON.
   //            = 2 means only 1769 fix is ON.
   //           >= 3 means 1736 and 1769 fixes are ON.
   Lng32 compInt80 = (ActiveSchemaDB()->getDefaults()).getAsLong(COMP_INT_80);
 
-
-  // fix for 1736 
-  // cost of serial HJ is less than cost of parallel one because 
+  // fix for 1736
+  // cost of serial HJ is less than cost of parallel one because
   // values of equiJnRowCountPerStream_ and myRowCount_ are different.
   // Fix is to use the same value for both (equiJnRowCountPerStream_)
   if (compInt80 == 1 OR compInt80 >= 3)
     outputJoinCard = equiJnRowCountPerStream_;
-  else { // will be removed after perf testing
-  if (CURRSTMT_OPTDEFAULTS->incorporateSkewInCosting() && countOfStreams > 1)
-  {
-  /*    
-	  CostScalar child0CardOfFreqValue =
-	  ((child0RowCountPerStream_ * countOfStreams - child0RowCount_)/
-	  (countOfStreams - 1));
+  else {  // will be removed after perf testing
+    if (CURRSTMT_OPTDEFAULTS->incorporateSkewInCosting() && countOfStreams > 1) {
+      /*
+              CostScalar child0CardOfFreqValue =
+              ((child0RowCountPerStream_ * countOfStreams - child0RowCount_)/
+              (countOfStreams - 1));
 
-	  CostScalar child1CardOfFreqValue =
-	  ((child1RowCountPerStream_ * countOfStreams - child1RowCount_)/
-	  (countOfStreams - 1));
+              CostScalar child1CardOfFreqValue =
+              ((child1RowCountPerStream_ * countOfStreams - child1RowCount_)/
+              (countOfStreams - 1));
 
-	  outputJoinCard = MAXOF(child0CardOfFreqValue * child1CardOfFreqValue,
-	  (myRowCount_/countOfStreams).getCeiling());
-	  outputJoinCard = MINOF(outputJoinCard, myRowCount_);
-   */
-    outputJoinCard = equiJnRowCountPerStream_;
-  }
-  else
-  {
-    outputJoinCard = (myRowCount_/countOfStreams).getCeiling();
-  } 
-} // will be removed after perf testing
+              outputJoinCard = MAXOF(child0CardOfFreqValue * child1CardOfFreqValue,
+              (myRowCount_/countOfStreams).getCeiling());
+              outputJoinCard = MINOF(outputJoinCard, myRowCount_);
+       */
+      outputJoinCard = equiJnRowCountPerStream_;
+    } else {
+      outputJoinCard = (myRowCount_ / countOfStreams).getCeiling();
+    }
+  }  // will be removed after perf testing
 
   CostScalar probeTuplesPerStream = child0RowCountPerStream_;
   CostScalar buildTuplesPerStream = child1RowCountPerStream_;
@@ -2840,120 +2402,88 @@ CostMethodHashJoin::scmComputeOperatorCostInternal(RelExpr* op,
 
   // this is not true when going down the tree because child1PartFunc_
   // is always NULL even for Type1 plans.
-  NABoolean type2Join = ((child1PartFunc_ == NULL) OR
-			 child1PartFunc_->isAReplicateViaBroadcastPartitioningFunction());
+  NABoolean type2Join = ((child1PartFunc_ == NULL) OR child1PartFunc_->isAReplicateViaBroadcastPartitioningFunction());
 
   NABoolean buildSizeSmaller = FALSE;
-  if (buildSize <= probeSize)
-    buildSizeSmaller = TRUE;
+  if (buildSize <= probeSize) buildSizeSmaller = TRUE;
 
   // In SCM, we always build with the smaller side if possible.
-  // If the build side is larger than the probe side, we will not pick this 
+  // If the build side is larger than the probe side, we will not pick this
   // plan.
   // In certain cases like (left or right) outer joins, there is no choice in
   // picking the left and left side of a join.
-  if (type2Join)
-  {
-      tuplesProcessed = broadcastTuplesPerStream * buildRowSizeFactor + 
-	probeTuplesPerStream * probeRowSizeFactor;
-      overflowCost = 
-	scmComputeOverflowCost(broadcastTuplesPerStream, buildRowSize,
-			       probeTuplesPerStream, probeRowSize);
-      commutativeTuplesProcessed = probeTuples * probeRowSizeFactor +
-	buildTuplesPerStream * buildRowSizeFactor;
-      commutativeOverflowCost = 
-	scmComputeOverflowCost(probeTuples, probeRowSize,
-                               buildTuplesPerStream, buildRowSize);
-    if (NOT hasEquiJoinPred_)
-    {
-      if ( compInt80 < 2) { // will be removed after perf testing
-      // cross product type2 join.
-      tuplesProcessed += (probeTuplesPerStream * probeRowSizeFactor *
-			  broadcastTuplesPerStream * buildRowSizeFactor);
-      commutativeTuplesProcessed += (buildTuplesPerStream * buildRowSizeFactor *
-				     probeTuples * probeRowSizeFactor);
-      } // will be removed after perf testing
+  if (type2Join) {
+    tuplesProcessed = broadcastTuplesPerStream * buildRowSizeFactor + probeTuplesPerStream * probeRowSizeFactor;
+    overflowCost = scmComputeOverflowCost(broadcastTuplesPerStream, buildRowSize, probeTuplesPerStream, probeRowSize);
+    commutativeTuplesProcessed = probeTuples * probeRowSizeFactor + buildTuplesPerStream * buildRowSizeFactor;
+    commutativeOverflowCost = scmComputeOverflowCost(probeTuples, probeRowSize, buildTuplesPerStream, buildRowSize);
+    if (NOT hasEquiJoinPred_) {
+      if (compInt80 < 2) {  // will be removed after perf testing
+        // cross product type2 join.
+        tuplesProcessed += (probeTuplesPerStream * probeRowSizeFactor * broadcastTuplesPerStream * buildRowSizeFactor);
+        commutativeTuplesProcessed += (buildTuplesPerStream * buildRowSizeFactor * probeTuples * probeRowSizeFactor);
+      }  // will be removed after perf testing
     }
-  }
-  else
-  {
+  } else {
     // Regular type1 hash join.
-    tuplesProcessed = buildTuplesPerStream * buildRowSizeFactor + 
-      probeTuplesPerStream * probeRowSizeFactor;
-    overflowCost = 
-      scmComputeOverflowCost(buildTuplesPerStream, buildRowSize,
-			     probeTuplesPerStream, probeRowSize);
-    commutativeTuplesProcessed = probeTuplesPerStream * probeRowSizeFactor + 
-      buildTuplesPerStream * buildRowSizeFactor;
-    commutativeOverflowCost = 
-      scmComputeOverflowCost(probeTuplesPerStream, probeRowSize,
-                             buildTuplesPerStream, buildRowSize);
+    tuplesProcessed = buildTuplesPerStream * buildRowSizeFactor + probeTuplesPerStream * probeRowSizeFactor;
+    overflowCost = scmComputeOverflowCost(buildTuplesPerStream, buildRowSize, probeTuplesPerStream, probeRowSize);
+    commutativeTuplesProcessed = probeTuplesPerStream * probeRowSizeFactor + buildTuplesPerStream * buildRowSizeFactor;
+    commutativeOverflowCost =
+        scmComputeOverflowCost(probeTuplesPerStream, probeRowSize, buildTuplesPerStream, buildRowSize);
   }
-  
-  NABoolean commutativeCostSame = 
-    (tuplesProcessed + overflowCost == commutativeTuplesProcessed + commutativeOverflowCost);
-  NABoolean commutativeCostCheaper = 
-    (tuplesProcessed + overflowCost > commutativeTuplesProcessed + commutativeOverflowCost);
 
-  if (buildSizeSmaller)
-  {
-      // Ensure that this is cheaper than the commutative operation.
-    if (commutativeCostSame)
-    {
+  NABoolean commutativeCostSame =
+      (tuplesProcessed + overflowCost == commutativeTuplesProcessed + commutativeOverflowCost);
+  NABoolean commutativeCostCheaper =
+      (tuplesProcessed + overflowCost > commutativeTuplesProcessed + commutativeOverflowCost);
+
+  if (buildSizeSmaller) {
+    // Ensure that this is cheaper than the commutative operation.
+    if (commutativeCostSame) {
       tuplesProcessed = tuplesProcessed * 0.999;
       overflowCost = overflowCost * 0.999;
-    }
-    else if (commutativeCostCheaper)
-    {
+    } else if (commutativeCostCheaper) {
       tuplesProcessed = commutativeTuplesProcessed;
       overflowCost = commutativeOverflowCost;
     }
-  }
-  else
-  {
-      // Ensure that this is NOT cheaper than the commutative operation.
-    if (commutativeCostSame)
-    {
+  } else {
+    // Ensure that this is NOT cheaper than the commutative operation.
+    if (commutativeCostSame) {
       tuplesProcessed = tuplesProcessed / 0.999;
       overflowCost = overflowCost / 0.999;
-    }
-    else if (NOT commutativeCostCheaper)
-    {
+    } else if (NOT commutativeCostCheaper) {
       tuplesProcessed = commutativeTuplesProcessed;
       overflowCost = commutativeOverflowCost;
     }
   }
-  
+
   CostScalar tuplesProduced = outputJoinCard * outputRowSizeFactor;
 
   //----------------------------------------
   //  Synthesize and return the cost object.
   //----------------------------------------
-  
+
   // We are using tuplesSent as a placeholder for overflow costs as it would be
-  // easier for debugging by differentiating between regular tuples processed 
-  // and overflow costs, rather than lumping them all togther in 
+  // easier for debugging by differentiating between regular tuples processed
+  // and overflow costs, rather than lumping them all togther in
   // tuplesProcessed. tuplesSent is zero for all operators except exchange,
   // so it makes sense to use this instead of adding a new field.
   // It does not make a difference to the overall cost computation.
-  Cost* hashJoinCost = 
-    scmCost(tuplesProcessed, tuplesProduced, overflowCost, csZero, csZero, noOfProbesPerStream_,
-	    probeRowSize, buildRowSize, outputRowSize, csZero);
+  Cost *hashJoinCost = scmCost(tuplesProcessed, tuplesProduced, overflowCost, csZero, csZero, noOfProbesPerStream_,
+                               probeRowSize, buildRowSize, outputRowSize, csZero);
 
 #ifndef NDEBUG
-  NABoolean printCost =
-    ( CmpCommon::getDefault( OPTIMIZER_PRINT_COST ) == DF_ON );
-  if ( printCost )
-  {
+  NABoolean printCost = (CmpCommon::getDefault(OPTIMIZER_PRINT_COST) == DF_ON);
+  if (printCost) {
     pfp = stdout;
-    fprintf(pfp,"HASHJOIN::scmComputeOperatorCostInternal()\n");
-    fprintf(pfp,"child0RowCount=%g,child1RowCount=%g,myRowCount=%g\n",
-                                 child0RowCount_.toDouble(),child1RowCount_.toDouble(),myRowCount_.toDouble());
+    fprintf(pfp, "HASHJOIN::scmComputeOperatorCostInternal()\n");
+    fprintf(pfp, "child0RowCount=%g,child1RowCount=%g,myRowCount=%g\n", child0RowCount_.toDouble(),
+            child1RowCount_.toDouble(), myRowCount_.toDouble());
     hashJoinCost->getScmCplr().print(pfp);
     fprintf(pfp, "Elapsed time: ");
-    fprintf(pfp,"%f", hashJoinCost->
-	    convertToElapsedTime(myContext->getReqdPhysicalProperty()).value());
-      fprintf(pfp,"\n");
+    fprintf(pfp, "%f", hashJoinCost->convertToElapsedTime(myContext->getReqdPhysicalProperty()).value());
+    fprintf(pfp, "\n");
   }
 #endif
 
@@ -2976,14 +2506,11 @@ CostMethodHashJoin::scmComputeOperatorCostInternal(RelExpr* op,
 //  Overflow cost
 //
 //==============================================================================
-CostScalar
-CostMethodHashJoin::scmComputeOverflowCost( CostScalar numBuildTuples, CostScalar buildRowSize, CostScalar numProbeTuples, CostScalar probeRowSize )
-{
-  NABoolean hashJoinOverFlowCosting = 
-    (CmpCommon::getDefault(NCM_HJ_OVERFLOW_COSTING) == DF_ON);
+CostScalar CostMethodHashJoin::scmComputeOverflowCost(CostScalar numBuildTuples, CostScalar buildRowSize,
+                                                      CostScalar numProbeTuples, CostScalar probeRowSize) {
+  NABoolean hashJoinOverFlowCosting = (CmpCommon::getDefault(NCM_HJ_OVERFLOW_COSTING) == DF_ON);
 
-  if (hashJoinOverFlowCosting == FALSE)
-    return 0;
+  if (hashJoinOverFlowCosting == FALSE) return 0;
 
   CostScalar probeRowSizeFactor = scmRowSizeFactor(probeRowSize);
   CostScalar buildRowSizeFactor = scmRowSizeFactor(buildRowSize);
@@ -2997,24 +2524,21 @@ CostMethodHashJoin::scmComputeOverflowCost( CostScalar numBuildTuples, CostScala
 
   CostScalar memoryUsed = numBuildTuples * buildRowSize;
 
-  if (memoryUsed <= memoryAvailable)
-    return 0;
+  if (memoryUsed <= memoryAvailable) return 0;
 
-  CostScalar fractionOverflow = CostScalar(1.0) - memoryAvailable/memoryUsed;
+  CostScalar fractionOverflow = CostScalar(1.0) - memoryAvailable / memoryUsed;
 
-  // The factor of 2 comes from having to write overflow tuples to disk and 
+  // The factor of 2 comes from having to write overflow tuples to disk and
   // read back the overflow tuples from disk.
-  CostScalar buildOverflow = CostScalar(2.0) * fractionOverflow *
-    numBuildTuples * buildRowSizeFactor;
+  CostScalar buildOverflow = CostScalar(2.0) * fractionOverflow * numBuildTuples * buildRowSizeFactor;
 
-  // The factor of 2 comes from having to write overflow tuples to disk and 
+  // The factor of 2 comes from having to write overflow tuples to disk and
   // read back the overflow tuples from disk.
-  CostScalar probeOverflow = CostScalar(2.0) * fractionOverflow *
-    numProbeTuples * probeRowSizeFactor;
+  CostScalar probeOverflow = CostScalar(2.0) * fractionOverflow * numProbeTuples * probeRowSizeFactor;
 
   return (buildOverflow + probeOverflow);
 
-} // CostMethodHashJoin::scmComputeOverflowCost
+}  // CostMethodHashJoin::scmComputeOverflowCost
 
 //<pb>
 //**********************************************************************/
@@ -3026,19 +2550,16 @@ CostMethodHashJoin::scmComputeOverflowCost( CostScalar numBuildTuples, CostScala
 // -----------------------------------------------------------------------
 // CostMethodMergeJoin::scmComputeOperatorCostInternal().
 // -----------------------------------------------------------------------
-Cost*
-CostMethodMergeJoin::scmComputeOperatorCostInternal(RelExpr* op,
-                                                    const PlanWorkSpace* pws,
-						    Lng32& countOfStreams)
-{
-  const Context* myContext = pws->getContext();
+Cost *CostMethodMergeJoin::scmComputeOperatorCostInternal(RelExpr *op, const PlanWorkSpace *pws,
+                                                          Lng32 &countOfStreams) {
+  const Context *myContext = pws->getContext();
 
-  mj_ = (MergeJoin*) op;
+  mj_ = (MergeJoin *)op;
 
   // ---------------------------------------------------------------------
   // Preparatory work.
   // ---------------------------------------------------------------------
-  cacheParameters(op,myContext);
+  cacheParameters(op, myContext);
   estimateDegreeOfParallelism();
 
   // -----------------------------------------
@@ -3047,17 +2568,17 @@ CostMethodMergeJoin::scmComputeOperatorCostInternal(RelExpr* op,
   countOfStreams = countOfStreams_;
 
   CostScalar outputJoinCard = equiJnRowCountPerStream_;
-  
+
   CostScalar leftTuples = child0RowCountPerStream_;
   CostScalar rightTuples = child1RowCountPerStream_;
   CostScalar tuplesProcessed, tuplesProduced;
-    
+
   // Length of a row from the left table.
-  GroupAttributes* child0GA = mj_->child(0).getGroupAttr();
+  GroupAttributes *child0GA = mj_->child(0).getGroupAttr();
   CostScalar leftRowSize = child0GA->getRecordLength();
 
   // Length of a row from the right table.
-  GroupAttributes* child1GA = mj_->child(1).getGroupAttr();
+  GroupAttributes *child1GA = mj_->child(1).getGroupAttr();
   CostScalar rightRowSize = child1GA->getRecordLength();
 
   CostScalar outputRowSize = mj_->getGroupAttr()->getCharacteristicOutputs().getRowLength();
@@ -3069,40 +2590,34 @@ CostMethodMergeJoin::scmComputeOperatorCostInternal(RelExpr* op,
   // The inputs to the MergeJoin are always sorted, either the inputs are
   // already naturally sorted or there are explicit Sort operators below.
   // MergeJoins are 40% faster than HashJoins if the inputs are already sorted.
-  // This was based on lots of experiments and analysis of costs and execution 
+  // This was based on lots of experiments and analysis of costs and execution
   // times.
-  double mergeToHashJoinFactor =
-    ActiveSchemaDB()->getDefaults().getAsDouble(NCM_MJ_TO_HJ_FACTOR);
-  tuplesProcessed = (rightTuples * rightRowSizeFactor + 
-		     leftTuples * leftRowSizeFactor) * mergeToHashJoinFactor;
-  // COMP_BOOL_97 OFF means MJ fix is ON (default case). 
-  if ( CmpCommon::getDefault(COMP_BOOL_97) == DF_OFF )
+  double mergeToHashJoinFactor = ActiveSchemaDB()->getDefaults().getAsDouble(NCM_MJ_TO_HJ_FACTOR);
+  tuplesProcessed = (rightTuples * rightRowSizeFactor + leftTuples * leftRowSizeFactor) * mergeToHashJoinFactor;
+  // COMP_BOOL_97 OFF means MJ fix is ON (default case).
+  if (CmpCommon::getDefault(COMP_BOOL_97) == DF_OFF)
     tuplesProduced = outputJoinCard * outputRowSizeFactor;
-  else // will be removed after perf testing
+  else  // will be removed after perf testing
     tuplesProduced = outputJoinCard * outputRowSizeFactor * mergeToHashJoinFactor;
 
   //----------------------------------------
   //  Synthesize and return the cost object.
   //----------------------------------------
-  
-  Cost* mergeJoinCost =
-    scmCost(tuplesProcessed, tuplesProduced, csZero, csZero, csZero, noOfProbesPerStream_,
-	    leftRowSize, rightRowSize, outputRowSize, csZero);
+
+  Cost *mergeJoinCost = scmCost(tuplesProcessed, tuplesProduced, csZero, csZero, csZero, noOfProbesPerStream_,
+                                leftRowSize, rightRowSize, outputRowSize, csZero);
 
 #ifndef NDEBUG
-  NABoolean printCost =
-    ( CmpCommon::getDefault( OPTIMIZER_PRINT_COST ) == DF_ON );
-  if ( printCost )
-  {
+  NABoolean printCost = (CmpCommon::getDefault(OPTIMIZER_PRINT_COST) == DF_ON);
+  if (printCost) {
     pfp = stdout;
-    fprintf(pfp,"MERGEJOIN::scmComputeOperatorCostInternal()\n");
-    fprintf(pfp,"child0RowCount=%g,child1RowCount=%g,myRowCount=%g\n",
-                                 child0RowCount_.toDouble(),child1RowCount_.toDouble(),myRowCount_.toDouble());
+    fprintf(pfp, "MERGEJOIN::scmComputeOperatorCostInternal()\n");
+    fprintf(pfp, "child0RowCount=%g,child1RowCount=%g,myRowCount=%g\n", child0RowCount_.toDouble(),
+            child1RowCount_.toDouble(), myRowCount_.toDouble());
     mergeJoinCost->getScmCplr().print(pfp);
     fprintf(pfp, "Elapsed time: ");
-    fprintf(pfp,"%f", mergeJoinCost->
-	    convertToElapsedTime(myContext->getReqdPhysicalProperty()).value());
-    fprintf(pfp,"\n");
+    fprintf(pfp, "%f", mergeJoinCost->convertToElapsedTime(myContext->getReqdPhysicalProperty()).value());
+    fprintf(pfp, "\n");
   }
 #endif
 
@@ -3116,21 +2631,17 @@ CostMethodMergeJoin::scmComputeOperatorCostInternal(RelExpr* op,
 /*                                                                    */
 /**********************************************************************/
 
-
 // -----------------------------------------------------------------------
 // CostMethodNestedJoin::scmComputeOperatorCostInternal().
 // -----------------------------------------------------------------------
-Cost*
-CostMethodNestedJoin::scmComputeOperatorCostInternal(RelExpr* op,
-                                                     const PlanWorkSpace* pws,
-						     Lng32& countOfStreams)
-{
-  const Context* myContext = pws->getContext();
+Cost *CostMethodNestedJoin::scmComputeOperatorCostInternal(RelExpr *op, const PlanWorkSpace *pws,
+                                                           Lng32 &countOfStreams) {
+  const Context *myContext = pws->getContext();
 
   // ---------------------------------------------------------------------
   // Preparatory work.
   // ---------------------------------------------------------------------
-  cacheParameters(op,myContext);
+  cacheParameters(op, myContext);
   estimateDegreeOfParallelism();
 
   // -----------------------------------------
@@ -3139,25 +2650,24 @@ CostMethodNestedJoin::scmComputeOperatorCostInternal(RelExpr* op,
   countOfStreams = countOfStreams_;
 
   CostScalar tuplesProcessed, tuplesProduced;
-  CostScalar outputJoinCard = (myRowCount_/countOfStreams).getCeiling();
+  CostScalar outputJoinCard = (myRowCount_ / countOfStreams).getCeiling();
 
   CostScalar leftTuples;
 
-  // I have chosen the left side arbitrarily, the right side will be considered 
+  // I have chosen the left side arbitrarily, the right side will be considered
   // by the optimizer during consideration of the commutative permutation.
-  CostScalar broadcastTuples = child0RowCount_;// child0RowCountPerStream_ * countOfStreams;
-  if ((child0PartFunc_ == NULL) OR
-      child0PartFunc_->isAReplicateViaBroadcastPartitioningFunction())
+  CostScalar broadcastTuples = child0RowCount_;  // child0RowCountPerStream_ * countOfStreams;
+  if ((child0PartFunc_ == NULL) OR child0PartFunc_->isAReplicateViaBroadcastPartitioningFunction())
     leftTuples = broadcastTuples;
   else
     leftTuples = child0RowCountPerStream_;
 
   // Length of a row from the left table.
-  GroupAttributes* child0GA = nj_->child(0).getGroupAttr();
+  GroupAttributes *child0GA = nj_->child(0).getGroupAttr();
   CostScalar leftRowSize = child0GA->getRecordLength();
 
   // Length of a row from the right table.
-  GroupAttributes* child1GA = nj_->child(1).getGroupAttr();
+  GroupAttributes *child1GA = nj_->child(1).getGroupAttr();
   CostScalar rightRowSize = child1GA->getRecordLength();
 
   CostScalar outputRowSize = nj_->getGroupAttr()->getCharacteristicOutputs().getRowLength();
@@ -3166,9 +2676,9 @@ CostMethodNestedJoin::scmComputeOperatorCostInternal(RelExpr* op,
   CostScalar rightRowSizeFactor = scmRowSizeFactor(rightRowSize);
   CostScalar outputRowSizeFactor = scmRowSizeFactor(outputRowSize);
 
-  // The tuples (probes) from the left side are processed by the nested join 
-  // and sent down to the right side. 
-  // These are sent back up from the right side to the nested join, this 
+  // The tuples (probes) from the left side are processed by the nested join
+  // and sent down to the right side.
+  // These are sent back up from the right side to the nested join, this
   // accounts for the factor of 2 in the formula.
   tuplesProcessed = leftTuples * leftRowSizeFactor * 2;
 
@@ -3178,25 +2688,21 @@ CostMethodNestedJoin::scmComputeOperatorCostInternal(RelExpr* op,
   //----------------------------------------
   //  Synthesize and return the cost object.
   //----------------------------------------
-  
-  Cost* nestedJoinCost = 
-    scmCost(tuplesProcessed, tuplesProduced, csZero, csZero, csZero, noOfProbesPerStream_,
-	    leftRowSize, rightRowSize, outputRowSize, csZero);
+
+  Cost *nestedJoinCost = scmCost(tuplesProcessed, tuplesProduced, csZero, csZero, csZero, noOfProbesPerStream_,
+                                 leftRowSize, rightRowSize, outputRowSize, csZero);
 
 #ifndef NDEBUG
-  NABoolean printCost =
-    ( CmpCommon::getDefault( OPTIMIZER_PRINT_COST ) == DF_ON );
-  if ( printCost )
-  {
+  NABoolean printCost = (CmpCommon::getDefault(OPTIMIZER_PRINT_COST) == DF_ON);
+  if (printCost) {
     pfp = stdout;
-    fprintf(pfp,"NESTEDJOIN::scmComputeOperatorCostInternal()\n");
-    fprintf(pfp,"child0RowCount=%g,child1RowCount=%g,myRowCount=%g\n",
-                                child0RowCount_.toDouble(),child1RowCount_.toDouble(),myRowCount_.toDouble());
+    fprintf(pfp, "NESTEDJOIN::scmComputeOperatorCostInternal()\n");
+    fprintf(pfp, "child0RowCount=%g,child1RowCount=%g,myRowCount=%g\n", child0RowCount_.toDouble(),
+            child1RowCount_.toDouble(), myRowCount_.toDouble());
     nestedJoinCost->getScmCplr().print(pfp);
     fprintf(pfp, "Elapsed time: ");
-    fprintf(pfp,"%f", nestedJoinCost->
-	    convertToElapsedTime(myContext->getReqdPhysicalProperty()).value());
-    fprintf(pfp,"\n");
+    fprintf(pfp, "%f", nestedJoinCost->convertToElapsedTime(myContext->getReqdPhysicalProperty()).value());
+    fprintf(pfp, "\n");
   }
 #endif
 
@@ -3209,21 +2715,17 @@ CostMethodNestedJoin::scmComputeOperatorCostInternal(RelExpr* op,
 /*                                                                    */
 /**********************************************************************/
 
-
 // -----------------------------------------------------------------------
 // CostMethodNestedJoinFlow::scmComputeOperatorCostInternal().
 // -----------------------------------------------------------------------
-Cost*
-CostMethodNestedJoinFlow::scmComputeOperatorCostInternal(RelExpr* op,
-                                                         const PlanWorkSpace* pws,
-							 Lng32& countOfStreams)
-{
-  const Context* myContext = pws->getContext();
+Cost *CostMethodNestedJoinFlow::scmComputeOperatorCostInternal(RelExpr *op, const PlanWorkSpace *pws,
+                                                               Lng32 &countOfStreams) {
+  const Context *myContext = pws->getContext();
 
   // ---------------------------------------------------------------------
   // Preparatory work.
   // ---------------------------------------------------------------------
-  cacheParameters(op,myContext);
+  cacheParameters(op, myContext);
   estimateDegreeOfParallelism();
 
   // -----------------------------------------
@@ -3232,7 +2734,7 @@ CostMethodNestedJoinFlow::scmComputeOperatorCostInternal(RelExpr* op,
   countOfStreams = countOfStreams_;
 
   // Length of a row from the left table.
-  GroupAttributes* child0GA = nj_->child(0).getGroupAttr();
+  GroupAttributes *child0GA = nj_->child(0).getGroupAttr();
   CostScalar leftRowSize = child0GA->getRecordLength();
 
   CostScalar outputRowSize = nj_->getGroupAttr()->getCharacteristicOutputs().getRowLength();
@@ -3240,34 +2742,30 @@ CostMethodNestedJoinFlow::scmComputeOperatorCostInternal(RelExpr* op,
   CostScalar leftRowSizeFactor = scmRowSizeFactor(leftRowSize);
   CostScalar outputRowSizeFactor = scmRowSizeFactor(outputRowSize);
 
-  // NestedJoinFlow doesn't do anything by itself except 
+  // NestedJoinFlow doesn't do anything by itself except
   // sends left child rows to right child
   CostScalar tuplesProcessed = child0RowCountPerStream_ * leftRowSizeFactor;
   // Passes rows from right child to its parent.
-  CostScalar tuplesProduced = (myRowCount_/countOfStreams).getCeiling() * outputRowSizeFactor;
+  CostScalar tuplesProduced = (myRowCount_ / countOfStreams).getCeiling() * outputRowSizeFactor;
 
   //----------------------------------------
   //  Synthesize and return the cost object.
   //----------------------------------------
 
-  Cost* nestedJoinFlowCost = 
-    scmCost(tuplesProcessed, tuplesProduced, csZero, csZero, csZero, noOfProbesPerStream_,
-	    leftRowSize, csZero, outputRowSize, csZero);
+  Cost *nestedJoinFlowCost = scmCost(tuplesProcessed, tuplesProduced, csZero, csZero, csZero, noOfProbesPerStream_,
+                                     leftRowSize, csZero, outputRowSize, csZero);
 
 #ifndef NDEBUG
-  NABoolean printCost =
-    ( CmpCommon::getDefault( OPTIMIZER_PRINT_COST ) == DF_ON );
-  if ( printCost )
-  {
+  NABoolean printCost = (CmpCommon::getDefault(OPTIMIZER_PRINT_COST) == DF_ON);
+  if (printCost) {
     pfp = stdout;
-    fprintf(pfp,"NESTEDJOINFLOW::scmComputeOperatorCostInternal()\n");
-    fprintf(pfp,"child0RowCount=%g,child1RowCount=%g,myRowCount=%g\n",
-                                child0RowCount_.toDouble(),child1RowCount_.toDouble(),myRowCount_.toDouble());
+    fprintf(pfp, "NESTEDJOINFLOW::scmComputeOperatorCostInternal()\n");
+    fprintf(pfp, "child0RowCount=%g,child1RowCount=%g,myRowCount=%g\n", child0RowCount_.toDouble(),
+            child1RowCount_.toDouble(), myRowCount_.toDouble());
     nestedJoinFlowCost->getScmCplr().print(pfp);
     fprintf(pfp, "Elapsed time: ");
-    fprintf(pfp,"%f", nestedJoinFlowCost->
-	    convertToElapsedTime(myContext->getReqdPhysicalProperty()).value());
-    fprintf(pfp,"\n");
+    fprintf(pfp, "%f", nestedJoinFlowCost->convertToElapsedTime(myContext->getReqdPhysicalProperty()).value());
+    fprintf(pfp, "\n");
   }
 #endif
 
@@ -3288,12 +2786,9 @@ CostMethodNestedJoinFlow::scmComputeOperatorCostInternal(RelExpr* op,
 // long& countOfStreams
 //  OUT - Estimated degree of parallelism for returned preliminary cost.
 //
-Cost *
-CostMethodTranspose::scmComputeOperatorCostInternal(RelExpr *op,
-                                            const PlanWorkSpace* pws,
-                                            Lng32& countOfStreams)
-{
-  const Context* myContext = pws->getContext();
+Cost *CostMethodTranspose::scmComputeOperatorCostInternal(RelExpr *op, const PlanWorkSpace *pws,
+                                                          Lng32 &countOfStreams) {
+  const Context *myContext = pws->getContext();
 
   // Just to make sure things are working as expected
   //
@@ -3302,7 +2797,7 @@ CostMethodTranspose::scmComputeOperatorCostInternal(RelExpr *op,
   // ---------------------------------------------------------------------
   // Preparatory work.
   // ---------------------------------------------------------------------
-  cacheParameters(op,myContext);
+  cacheParameters(op, myContext);
   estimateDegreeOfParallelism();
 
   // -----------------------------------------
@@ -3310,13 +2805,13 @@ CostMethodTranspose::scmComputeOperatorCostInternal(RelExpr *op,
   // -----------------------------------------
   countOfStreams = countOfStreams_;
   EstLogPropSharedPtr inputLP = myContext->getInputLogProp();
-  EstLogPropSharedPtr childOutputLP = op->child(0).outputLogProp( inputLP );
-  const CostScalar & child0RowCount = childOutputLP->getResultCardinality();
+  EstLogPropSharedPtr childOutputLP = op->child(0).outputLogProp(inputLP);
+  const CostScalar &child0RowCount = childOutputLP->getResultCardinality();
 
-  CostScalar tuplesProcessed = (child0RowCount/countOfStreams).getCeiling();
-  CostScalar tuplesProduced = (myRowCount_/countOfStreams).getCeiling();
+  CostScalar tuplesProcessed = (child0RowCount / countOfStreams).getCeiling();
+  CostScalar tuplesProduced = (myRowCount_ / countOfStreams).getCeiling();
 
-  GroupAttributes* child0GA = op->child(0).getGroupAttr();
+  GroupAttributes *child0GA = op->child(0).getGroupAttr();
   CostScalar inputRowSize = child0GA->getRecordLength();
   CostScalar outputRowSize = op->getGroupAttr()->getCharacteristicOutputs().getRowLength();
 
@@ -3329,13 +2824,11 @@ CostMethodTranspose::scmComputeOperatorCostInternal(RelExpr *op,
   // ------------------------------------------------
   // Synthesize and return the cost object.
   // ------------------------------------------------
-  Cost* trnsPoseCost = 
-        scmCost(tuplesProcessed, tuplesProduced, csZero, csZero, csZero, noOfProbesPerStream_,
-	    inputRowSize, csZero, outputRowSize, csZero);
+  Cost *trnsPoseCost = scmCost(tuplesProcessed, tuplesProduced, csZero, csZero, csZero, noOfProbesPerStream_,
+                               inputRowSize, csZero, outputRowSize, csZero);
 
   return trnsPoseCost;
-}      // CostMethodTranspose::scmComputeOperatorInternal()
-
+}  // CostMethodTranspose::scmComputeOperatorInternal()
 
 /**********************************************************************/
 /*                                                                    */
@@ -3358,12 +2851,8 @@ CostMethodTranspose::scmComputeOperatorCostInternal(RelExpr *op,
 // long& countOfStreams
 //  OUT - Estimated degree of parallelism for returned preliminary cost.
 //
-Cost *
-CostMethodSample::scmComputeOperatorCostInternal(RelExpr *op,
-                                                 const PlanWorkSpace* pws,
-						 Lng32& countOfStreams)
-{
-  const Context* myContext = pws->getContext();
+Cost *CostMethodSample::scmComputeOperatorCostInternal(RelExpr *op, const PlanWorkSpace *pws, Lng32 &countOfStreams) {
+  const Context *myContext = pws->getContext();
 
   // Just to make sure things are working as expected
   //
@@ -3372,7 +2861,7 @@ CostMethodSample::scmComputeOperatorCostInternal(RelExpr *op,
   // ---------------------------------------------------------------------
   // Preparatory work.
   // ---------------------------------------------------------------------
-  cacheParameters(op,myContext);
+  cacheParameters(op, myContext);
   estimateDegreeOfParallelism();
 
   // -----------------------------------------
@@ -3381,13 +2870,13 @@ CostMethodSample::scmComputeOperatorCostInternal(RelExpr *op,
   countOfStreams = countOfStreams_;
 
   EstLogPropSharedPtr inputLP = myContext->getInputLogProp();
-  EstLogPropSharedPtr childOutputLP = op->child(0).outputLogProp( inputLP );
-  const CostScalar & child0RowCount = childOutputLP->getResultCardinality();
+  EstLogPropSharedPtr childOutputLP = op->child(0).outputLogProp(inputLP);
+  const CostScalar &child0RowCount = childOutputLP->getResultCardinality();
 
-  CostScalar tuplesProcessed = (child0RowCount/countOfStreams).getCeiling();
-  CostScalar tuplesProduced = (myRowCount_/countOfStreams).getCeiling();
+  CostScalar tuplesProcessed = (child0RowCount / countOfStreams).getCeiling();
+  CostScalar tuplesProduced = (myRowCount_ / countOfStreams).getCeiling();
 
-  GroupAttributes* child0GA = op->child(0).getGroupAttr();
+  GroupAttributes *child0GA = op->child(0).getGroupAttr();
   CostScalar inputRowSize = child0GA->getRecordLength();
   CostScalar outputRowSize = op->getGroupAttr()->getCharacteristicOutputs().getRowLength();
 
@@ -3400,19 +2889,15 @@ CostMethodSample::scmComputeOperatorCostInternal(RelExpr *op,
   // ------------------------------------------------
   // Synthesize and return the cost object.
   // ------------------------------------------------
-  Cost* sampleCost = 
-        scmCost(tuplesProcessed, tuplesProduced, csZero, csZero, csZero, noOfProbesPerStream_,
-	    inputRowSize, csZero, outputRowSize, csZero);
+  Cost *sampleCost = scmCost(tuplesProcessed, tuplesProduced, csZero, csZero, csZero, noOfProbesPerStream_,
+                             inputRowSize, csZero, outputRowSize, csZero);
 
   return sampleCost;
-}      // CostMethodSample::scmComputeOperatorCostInternal()
+}  // CostMethodSample::scmComputeOperatorCostInternal()
 
-Cost *
-CostMethodRelSequence::scmComputeOperatorCostInternal(RelExpr *op,
-                                                      const PlanWorkSpace* pws,
-						      Lng32& countOfStreams)
-{
-  const Context* myContext = pws->getContext();
+Cost *CostMethodRelSequence::scmComputeOperatorCostInternal(RelExpr *op, const PlanWorkSpace *pws,
+                                                            Lng32 &countOfStreams) {
+  const Context *myContext = pws->getContext();
 
   // Just to make sure things are working as expected
   //
@@ -3421,7 +2906,7 @@ CostMethodRelSequence::scmComputeOperatorCostInternal(RelExpr *op,
   // ---------------------------------------------------------------------
   // Preparatory work.
   // ---------------------------------------------------------------------
-  cacheParameters(op,myContext);
+  cacheParameters(op, myContext);
   estimateDegreeOfParallelism();
 
   // -----------------------------------------
@@ -3430,13 +2915,13 @@ CostMethodRelSequence::scmComputeOperatorCostInternal(RelExpr *op,
   countOfStreams = countOfStreams_;
 
   EstLogPropSharedPtr inputLP = myContext->getInputLogProp();
-  EstLogPropSharedPtr childOutputLP = op->child(0).outputLogProp( inputLP );
-  const CostScalar & child0RowCount = childOutputLP->getResultCardinality();
+  EstLogPropSharedPtr childOutputLP = op->child(0).outputLogProp(inputLP);
+  const CostScalar &child0RowCount = childOutputLP->getResultCardinality();
 
-  CostScalar tuplesProcessed = (child0RowCount/countOfStreams).getCeiling();
-  CostScalar tuplesProduced = (myRowCount_/countOfStreams).getCeiling();
+  CostScalar tuplesProcessed = (child0RowCount / countOfStreams).getCeiling();
+  CostScalar tuplesProduced = (myRowCount_ / countOfStreams).getCeiling();
 
-  GroupAttributes* child0GA = op->child(0).getGroupAttr();
+  GroupAttributes *child0GA = op->child(0).getGroupAttr();
   CostScalar inputRowSize = child0GA->getRecordLength();
   CostScalar outputRowSize = op->getGroupAttr()->getCharacteristicOutputs().getRowLength();
 
@@ -3449,12 +2934,11 @@ CostMethodRelSequence::scmComputeOperatorCostInternal(RelExpr *op,
   // ------------------------------------------------
   // Synthesize and return the cost object.
   // ------------------------------------------------
-  Cost* seqCost = 
-        scmCost(tuplesProcessed, tuplesProduced, csZero, csZero, csZero, noOfProbesPerStream_,
-	    inputRowSize, csZero, outputRowSize, csZero);
+  Cost *seqCost = scmCost(tuplesProcessed, tuplesProduced, csZero, csZero, csZero, noOfProbesPerStream_, inputRowSize,
+                          csZero, outputRowSize, csZero);
 
   return seqCost;
-}      // CostMethodRelSequence::scmComputeOperatorInternal()
+}  // CostMethodRelSequence::scmComputeOperatorInternal()
 
 //-------------------------------------------------------------------------
 // CostMethodCompoundStmt::scmComputeOperatorInternal()
@@ -3470,12 +2954,9 @@ CostMethodRelSequence::scmComputeOperatorCostInternal(RelExpr *op,
 //  IN - The optimization context within which to cost this node.
 //-------------------------------------------------------------------------
 
-Cost *
-CostMethodCompoundStmt::scmComputeOperatorCostInternal(RelExpr *op,
-                                                       const PlanWorkSpace* pws,
-						       Lng32& countOfStreams)
-{
-  const Context* myContext = pws->getContext();
+Cost *CostMethodCompoundStmt::scmComputeOperatorCostInternal(RelExpr *op, const PlanWorkSpace *pws,
+                                                             Lng32 &countOfStreams) {
+  const Context *myContext = pws->getContext();
 
   // Just to make sure things are working as expected
   //
@@ -3484,7 +2965,7 @@ CostMethodCompoundStmt::scmComputeOperatorCostInternal(RelExpr *op,
   // ---------------------------------------------------------------------
   // Preparatory work.
   // ---------------------------------------------------------------------
-  cacheParameters(op,myContext);
+  cacheParameters(op, myContext);
   estimateDegreeOfParallelism();
 
   // -----------------------------------------
@@ -3493,14 +2974,14 @@ CostMethodCompoundStmt::scmComputeOperatorCostInternal(RelExpr *op,
   countOfStreams = countOfStreams_;
 
   EstLogPropSharedPtr inputLP = myContext->getInputLogProp();
-  EstLogPropSharedPtr child0OutputLP = op->child(0).outputLogProp( inputLP );
-  EstLogPropSharedPtr child1OutputLP = op->child(1).outputLogProp( inputLP );
-  const CostScalar & child0RowCount = child0OutputLP->getResultCardinality();
-  const CostScalar & child1RowCount = child1OutputLP->getResultCardinality();
+  EstLogPropSharedPtr child0OutputLP = op->child(0).outputLogProp(inputLP);
+  EstLogPropSharedPtr child1OutputLP = op->child(1).outputLogProp(inputLP);
+  const CostScalar &child0RowCount = child0OutputLP->getResultCardinality();
+  const CostScalar &child1RowCount = child1OutputLP->getResultCardinality();
 
-  GroupAttributes* child0GA = op->child(0).getGroupAttr();
+  GroupAttributes *child0GA = op->child(0).getGroupAttr();
   CostScalar input0RowSize = child0GA->getRecordLength();
-  GroupAttributes* child1GA = op->child(1).getGroupAttr();
+  GroupAttributes *child1GA = op->child(1).getGroupAttr();
   CostScalar input1RowSize = child1GA->getRecordLength();
   CostScalar outputRowSize = op->getGroupAttr()->getCharacteristicOutputs().getRowLength();
 
@@ -3508,33 +2989,28 @@ CostMethodCompoundStmt::scmComputeOperatorCostInternal(RelExpr *op,
   CostScalar input1RowSizeFactor = scmRowSizeFactor(input1RowSize);
   CostScalar outputRowSizeFactor = scmRowSizeFactor(outputRowSize);
 
-  CostScalar tuplesProcessed = 
-    child0RowCount * input0RowSizeFactor + child1RowCount * input1RowSizeFactor;
+  CostScalar tuplesProcessed = child0RowCount * input0RowSizeFactor + child1RowCount * input1RowSizeFactor;
   // per stream basis
-  tuplesProcessed = (tuplesProcessed/countOfStreams).getCeiling();
-  CostScalar tuplesProduced = (myRowCount_/countOfStreams).getCeiling() * outputRowSizeFactor;
+  tuplesProcessed = (tuplesProcessed / countOfStreams).getCeiling();
+  CostScalar tuplesProduced = (myRowCount_ / countOfStreams).getCeiling() * outputRowSizeFactor;
 
   // ------------------------------------------------
   // Synthesize and return the cost object.
   // ------------------------------------------------
-  Cost* csCost = 
-        scmCost(tuplesProcessed, tuplesProduced, csZero, csZero, csZero, noOfProbesPerStream_,
-	    input0RowSize, input1RowSize, outputRowSize, csZero);
+  Cost *csCost = scmCost(tuplesProcessed, tuplesProduced, csZero, csZero, csZero, noOfProbesPerStream_, input0RowSize,
+                         input1RowSize, outputRowSize, csZero);
 
   return csCost;
-}      // CostMethodCompoundStmt::scmComputeOperatorInternal()
+}  // CostMethodCompoundStmt::scmComputeOperatorInternal()
 
-Cost *
-CostMethodStoredProc::scmComputeOperatorCostInternal(RelExpr *op,
-                                                     const PlanWorkSpace* pws,
-						     Lng32& countOfStreams)
-{
-  const Context* myContext = pws->getContext();
+Cost *CostMethodStoredProc::scmComputeOperatorCostInternal(RelExpr *op, const PlanWorkSpace *pws,
+                                                           Lng32 &countOfStreams) {
+  const Context *myContext = pws->getContext();
 
   // ---------------------------------------------------------------------
   // Preparatory work.
   // ---------------------------------------------------------------------
-  cacheParameters(op,myContext);
+  cacheParameters(op, myContext);
   estimateDegreeOfParallelism();
 
   // -----------------------------------------
@@ -3550,22 +3026,17 @@ CostMethodStoredProc::scmComputeOperatorCostInternal(RelExpr *op,
   // ------------------------------------------------
   // Synthesize and return the cost object.
   // ------------------------------------------------
-  Cost* spCost = 
-    scmCost(csZero, tuplesProduced, csZero, csZero, csZero, noOfProbesPerStream_,
-	    csZero, csZero, outputRowSize, csZero);
+  Cost *spCost = scmCost(csZero, tuplesProduced, csZero, csZero, csZero, noOfProbesPerStream_, csZero, csZero,
+                         outputRowSize, csZero);
 
   return spCost;
-}      // CostMethodStoredProc::scmComputeOperatorInternal()
+}  // CostMethodStoredProc::scmComputeOperatorInternal()
 
-Cost *
-CostMethodTuple::scmComputeOperatorCostInternal(RelExpr *op,
-                                                const PlanWorkSpace* pws,
-						Lng32& countOfStreams)
-{
+Cost *CostMethodTuple::scmComputeOperatorCostInternal(RelExpr *op, const PlanWorkSpace *pws, Lng32 &countOfStreams) {
   // ---------------------------------------------------------------------
   // Preparatory work.
   // ---------------------------------------------------------------------
-  cacheParameters(op,pws->getContext());
+  cacheParameters(op, pws->getContext());
   estimateDegreeOfParallelism();
 
   // -----------------------------------------
@@ -3585,18 +3056,14 @@ CostMethodTuple::scmComputeOperatorCostInternal(RelExpr *op,
   // ------------------------------------------------
   // Synthesize and return the cost object.
   // ------------------------------------------------
-  Cost* tupCost = 
-    scmCost(csZero, tuplesProduced, csZero, csZero, csZero, noOfProbesPerStream_,
-	    csZero, csZero, outputRowSize, csZero);
+  Cost *tupCost = scmCost(csZero, tuplesProduced, csZero, csZero, csZero, noOfProbesPerStream_, csZero, csZero,
+                          outputRowSize, csZero);
 
   return tupCost;
-}      // CostMethodTuple::scmComputeOperatorInternal()
+}  // CostMethodTuple::scmComputeOperatorInternal()
 
-Cost *
-CostMethodUnPackRows::scmComputeOperatorCostInternal(RelExpr *op,
-                                                     const PlanWorkSpace* pws,
-						     Lng32& countOfStreams)
-{
+Cost *CostMethodUnPackRows::scmComputeOperatorCostInternal(RelExpr *op, const PlanWorkSpace *pws,
+                                                           Lng32 &countOfStreams) {
   // Just to make sure things are working as expected
   //
   DCMPASSERT(op->getOperatorType() == REL_UNPACKROWS);
@@ -3604,7 +3071,7 @@ CostMethodUnPackRows::scmComputeOperatorCostInternal(RelExpr *op,
   // ---------------------------------------------------------------------
   // Preparatory work.
   // ---------------------------------------------------------------------
-  cacheParameters(op,pws->getContext());
+  cacheParameters(op, pws->getContext());
   estimateDegreeOfParallelism();
 
   // -----------------------------------------
@@ -3615,32 +3082,28 @@ CostMethodUnPackRows::scmComputeOperatorCostInternal(RelExpr *op,
   CostScalar outputRowSize = op->getGroupAttr()->getCharacteristicOutputs().getRowLength();
   CostScalar outputRowSizeFactor = scmRowSizeFactor(outputRowSize);
 
-  CostScalar tuplesProduced = (myRowCount_/countOfStreams).getCeiling() * outputRowSizeFactor;
+  CostScalar tuplesProduced = (myRowCount_ / countOfStreams).getCeiling() * outputRowSizeFactor;
 
   // ------------------------------------------------
   // Synthesize and return the cost object.
   // ------------------------------------------------
-  Cost* upackCost = 
-    scmCost(csZero, tuplesProduced, csZero, csZero, csZero, noOfProbesPerStream_,
-	    csZero, csZero, outputRowSize, csZero);
+  Cost *upackCost = scmCost(csZero, tuplesProduced, csZero, csZero, csZero, noOfProbesPerStream_, csZero, csZero,
+                            outputRowSize, csZero);
 
   return upackCost;
-}      // CostMethodUnPackRows::scmComputeOperatorInternal()
+}  // CostMethodUnPackRows::scmComputeOperatorInternal()
 
 // -----------------------------------------------------------------------
 // CostMethodMergeUnion::computeOperatorCostInternal().
 // -----------------------------------------------------------------------
-Cost *
-CostMethodMergeUnion::scmComputeOperatorCostInternal(RelExpr *op,
-                                                     const PlanWorkSpace* pws,
-						     Lng32& countOfStreams)
-{
-  const Context* myContext = pws->getContext();
+Cost *CostMethodMergeUnion::scmComputeOperatorCostInternal(RelExpr *op, const PlanWorkSpace *pws,
+                                                           Lng32 &countOfStreams) {
+  const Context *myContext = pws->getContext();
 
   // ---------------------------------------------------------------------
   // Preparatory work.
   // ---------------------------------------------------------------------
-  cacheParameters(op,myContext);
+  cacheParameters(op, myContext);
   estimateDegreeOfParallelism();
 
   // -----------------------------------------
@@ -3649,14 +3112,14 @@ CostMethodMergeUnion::scmComputeOperatorCostInternal(RelExpr *op,
   countOfStreams = countOfStreams_;
 
   EstLogPropSharedPtr inputLP = myContext->getInputLogProp();
-  EstLogPropSharedPtr child0OutputLP = op->child(0).outputLogProp( inputLP );
-  EstLogPropSharedPtr child1OutputLP = op->child(1).outputLogProp( inputLP );
-  const CostScalar & child0RowCount = child0OutputLP->getResultCardinality();
-  const CostScalar & child1RowCount = child1OutputLP->getResultCardinality();
+  EstLogPropSharedPtr child0OutputLP = op->child(0).outputLogProp(inputLP);
+  EstLogPropSharedPtr child1OutputLP = op->child(1).outputLogProp(inputLP);
+  const CostScalar &child0RowCount = child0OutputLP->getResultCardinality();
+  const CostScalar &child1RowCount = child1OutputLP->getResultCardinality();
 
-  GroupAttributes* child0GA = op->child(0).getGroupAttr();
+  GroupAttributes *child0GA = op->child(0).getGroupAttr();
   CostScalar input0RowSize = child0GA->getRecordLength();
-  GroupAttributes* child1GA = op->child(1).getGroupAttr();
+  GroupAttributes *child1GA = op->child(1).getGroupAttr();
   CostScalar input1RowSize = child1GA->getRecordLength();
   CostScalar outputRowSize = op->getGroupAttr()->getCharacteristicOutputs().getRowLength();
 
@@ -3664,37 +3127,31 @@ CostMethodMergeUnion::scmComputeOperatorCostInternal(RelExpr *op,
   CostScalar input1RowSizeFactor = scmRowSizeFactor(input1RowSize);
   CostScalar outputRowSizeFactor = scmRowSizeFactor(outputRowSize);
 
-  CostScalar tuplesProcessed = 
-    child0RowCount * input0RowSizeFactor + child1RowCount * input1RowSizeFactor;
+  CostScalar tuplesProcessed = child0RowCount * input0RowSizeFactor + child1RowCount * input1RowSizeFactor;
   // per stream basis
-  tuplesProcessed = (tuplesProcessed/countOfStreams).getCeiling();
-  CostScalar tuplesProduced = (myRowCount_/countOfStreams).getCeiling() * outputRowSizeFactor;
+  tuplesProcessed = (tuplesProcessed / countOfStreams).getCeiling();
+  CostScalar tuplesProduced = (myRowCount_ / countOfStreams).getCeiling() * outputRowSizeFactor;
 
   // ------------------------------------------------
   // Synthesize and return the cost object.
   // ------------------------------------------------
-  Cost* muCost = 
-        scmCost(tuplesProcessed, tuplesProduced, csZero, csZero, csZero, noOfProbesPerStream_,
-	    input0RowSize, input1RowSize, outputRowSize, csZero);
+  Cost *muCost = scmCost(tuplesProcessed, tuplesProduced, csZero, csZero, csZero, noOfProbesPerStream_, input0RowSize,
+                         input1RowSize, outputRowSize, csZero);
 
   return muCost;
-}      // CostMethodMergeUnion::scmComputeOperatorInternal()
-	   
+}  // CostMethodMergeUnion::scmComputeOperatorInternal()
+
 //<pb>
 
 // -------------------------------------------------------------------
 // Cost methods for write DML operations
 // -------------------------------------------------------------------
 
-
 // -------------------------------------------------------------------
 // This method is a stub for obsolete old cost model
 // -------------------------------------------------------------------
-Cost*
-CostMethodHbaseUpdateOrDelete::computeOperatorCostInternal(RelExpr* op,
-  const Context * context,
-  Lng32& countOfStreams)
-{
+Cost *CostMethodHbaseUpdateOrDelete::computeOperatorCostInternal(RelExpr *op, const Context *context,
+                                                                 Lng32 &countOfStreams) {
   CMPASSERT(false);  // should never be called
   return NULL;
 }
@@ -3704,22 +3161,15 @@ CostMethodHbaseUpdateOrDelete::computeOperatorCostInternal(RelExpr* op,
 //
 // Returns TRUE if all key columns have histograms, FALSE if not.
 // -----------------------------------------------------------------------
-NABoolean CostMethodHbaseUpdateOrDelete::allKeyColumnsHaveHistogramStatistics(
-  const IndexDescHistograms & histograms,
-  const IndexDesc * CIDesc
-  ) const
-{
+NABoolean CostMethodHbaseUpdateOrDelete::allKeyColumnsHaveHistogramStatistics(const IndexDescHistograms &histograms,
+                                                                              const IndexDesc *CIDesc) const {
   // Check if all key columns have histogram statistics
   NABoolean statsForAllKeyCols = TRUE;
-  for ( CollIndex j = 0; j < CIDesc->getIndexKey().entries(); j++ )
-  {
-    if (histograms.isEmpty())
-    {
+  for (CollIndex j = 0; j < CIDesc->getIndexKey().entries(); j++) {
+    if (histograms.isEmpty()) {
       statsForAllKeyCols = FALSE;
       break;
-    }
-    else if (!histograms.getColStatsPtrForColumn((CIDesc->getIndexKey()) [j]))
-    {
+    } else if (!histograms.getColStatsPtrForColumn((CIDesc->getIndexKey())[j])) {
       // If we get a null pointer when we try to retrieve a
       // ColStats for a column of this table, then no histogram
       // data was created for that column.
@@ -3729,7 +3179,7 @@ NABoolean CostMethodHbaseUpdateOrDelete::allKeyColumnsHaveHistogramStatistics(
   }
 
   return statsForAllKeyCols;
-}   // CostMethodHbaseUpdateOrDelete::allKeyColumnsHaveHistogramStatistics()
+}  // CostMethodHbaseUpdateOrDelete::allKeyColumnsHaveHistogramStatistics()
 
 // -----------------------------------------------------------------------
 // CostMethodHbaseUpdateOrDelete::numRowsToScanWhenAllKeyColumnsHaveHistograms()
@@ -3738,27 +3188,17 @@ NABoolean CostMethodHbaseUpdateOrDelete::allKeyColumnsHaveHistogramStatistics(
 // result of applying key predicates. Assumes that histograms exist for
 // all key columns.
 // -----------------------------------------------------------------------
-CostScalar
-CostMethodHbaseUpdateOrDelete::numRowsToScanWhenAllKeyColumnsHaveHistograms(
-  IndexDescHistograms & histograms,
-  const ColumnOrderList & keyPredsByCol,
-  const CostScalar & activePartitions,
-  const IndexDesc * CIDesc
-  ) const
-{
-
+CostScalar CostMethodHbaseUpdateOrDelete::numRowsToScanWhenAllKeyColumnsHaveHistograms(
+    IndexDescHistograms &histograms, const ColumnOrderList &keyPredsByCol, const CostScalar &activePartitions,
+    const IndexDesc *CIDesc) const {
   // Determine if there are single subset predicates:
   CollIndex singleSubsetPrefixOrder;
-  NABoolean itIsSingleSubset =
-    keyPredsByCol.getSingleSubsetOrder( singleSubsetPrefixOrder );
+  NABoolean itIsSingleSubset = keyPredsByCol.getSingleSubsetOrder(singleSubsetPrefixOrder);
 
   NABoolean thereAreSingleSubsetPreds = FALSE;
-  if ( singleSubsetPrefixOrder > 0 )
-  {
+  if (singleSubsetPrefixOrder > 0) {
     thereAreSingleSubsetPreds = TRUE;
-  }
-  else
-  {
+  } else {
     //  singleSubsetPrefixOrder==0  means either there
     // is an equal, an IN,  or there are no key preds in the
     // first column.
@@ -3766,24 +3206,20 @@ CostMethodHbaseUpdateOrDelete::numRowsToScanWhenAllKeyColumnsHaveHistograms(
     // means there is an EQUAL or there are no key preds
     // in the first column, check for existance of
     // predicates in this case:
-    if (     itIsSingleSubset // this FALSE for an IN predicate
-	 AND keyPredsByCol[0] != NULL
-       )
-    {
+    if (itIsSingleSubset  // this FALSE for an IN predicate
+            AND keyPredsByCol[0] != NULL) {
       thereAreSingleSubsetPreds = TRUE;
     }
   }
-
 
   CMPASSERT(NOT histograms.isEmpty());
 
   // Apply those key predicates that reference key columns
   // before the first missing key to the histograms:
-  const SelectivityHint * selHint = CIDesc->getPrimaryTableDesc()->getSelectivityHint();
-  const CardinalityHint * cardHint = CIDesc->getPrimaryTableDesc()->getCardinalityHint();
+  const SelectivityHint *selHint = CIDesc->getPrimaryTableDesc()->getSelectivityHint();
+  const CardinalityHint *cardHint = CIDesc->getPrimaryTableDesc()->getCardinalityHint();
 
-  if ( thereAreSingleSubsetPreds || selHint || cardHint )
-  {
+  if (thereAreSingleSubsetPreds || selHint || cardHint) {
     // ---------------------------------------------------------
     // There are some key predicates, so apply them
     // to the histograms and get the total rows:
@@ -3792,53 +3228,43 @@ CostMethodHbaseUpdateOrDelete::numRowsToScanWhenAllKeyColumnsHaveHistograms(
     // Get all the key preds for the key columns up to the first
     // key column with no key preds (if any)
     ValueIdSet singleSubsetPrefixPredicates;
-    for ( CollIndex i = 0; i <= singleSubsetPrefixOrder; i++ )
-    {
+    for (CollIndex i = 0; i <= singleSubsetPrefixOrder; i++) {
       const ValueIdSet *predsPtr = keyPredsByCol[i];
-      CMPASSERT( predsPtr != NULL ); // it must contain preds
-      singleSubsetPrefixPredicates.insert( *predsPtr );
+      CMPASSERT(predsPtr != NULL);  // it must contain preds
+      singleSubsetPrefixPredicates.insert(*predsPtr);
 
-    } // for every key col in the sing. subset prefix
+    }  // for every key col in the sing. subset prefix
 
-    RelExpr * dummyExpr = new (STMTHEAP) RelExpr(ITM_FIRST_ITEM_OP,
-				                 NULL,
-				                 NULL,
-				                 STMTHEAP);
+    RelExpr *dummyExpr = new (STMTHEAP) RelExpr(ITM_FIRST_ITEM_OP, NULL, NULL, STMTHEAP);
 
-    histograms.applyPredicates( singleSubsetPrefixPredicates, *dummyExpr, selHint, cardHint);
+    histograms.applyPredicates(singleSubsetPrefixPredicates, *dummyExpr, selHint, cardHint);
 
-  } // if there are key predicates
+  }  // if there are key predicates
 
   // If there is no key predicates, a full table scan will be generated.
   // Otherwise, key predicates will be applied to the histograms.
   // Now, compute the number of rows after key preds are applied,
   // and accounting for asynchronous parallelism:
-  CostScalar numRowsToScan =
-    ((histograms.getRowCount()/activePartitions).getCeiling()).minCsOne();
+  CostScalar numRowsToScan = ((histograms.getRowCount() / activePartitions).getCeiling()).minCsOne();
 
   return numRowsToScan;
-}   // CostMethodHbaseUpdateOrDelete::numRowsToScanWhenAllKeyColumnsHaveHistograms()
+}  // CostMethodHbaseUpdateOrDelete::numRowsToScanWhenAllKeyColumnsHaveHistograms()
 
 // -----------------------------------------------------------------------
 // CostMethodHbaseUpdateOrDelete::computeIOCostsForCursorOperation().
 // -----------------------------------------------------------------------
-void CostMethodHbaseUpdateOrDelete::computeIOCostsForCursorOperation(
-  CostScalar & randomIOs,        // out
-  CostScalar & sequentialIOs,    // out
-  const IndexDesc * CIDesc,
-  const CostScalar & numRowsToScan,
-  NABoolean probesInOrder
-  ) const
-{
-  const CostScalar & kbPerBlock = CIDesc->getBlockSizeInKb();
+void CostMethodHbaseUpdateOrDelete::computeIOCostsForCursorOperation(CostScalar &randomIOs,      // out
+                                                                     CostScalar &sequentialIOs,  // out
+                                                                     const IndexDesc *CIDesc,
+                                                                     const CostScalar &numRowsToScan,
+                                                                     NABoolean probesInOrder) const {
+  const CostScalar &kbPerBlock = CIDesc->getBlockSizeInKb();
   // if rowsize is bigger than blocksize, rowsPerBlock will be 1.
   const CostScalar rowsPerBlock =
-    ((kbPerBlock * csOneKiloBytes) /
-     CIDesc->getNAFileSet()->getRecordLength()).getCeiling();
+      ((kbPerBlock * csOneKiloBytes) / CIDesc->getNAFileSet()->getRecordLength()).getCeiling();
   CostScalar totalIndexBlocks(csZero);
 
-  if (probesInOrder)
-  {
+  if (probesInOrder) {
     // If the probes are in order, assume that each successive
     // probe refers to the next record in the table, i.e. the
     // probes are "highly inclusive", or in other words, there
@@ -3857,11 +3283,9 @@ void CostMethodHbaseUpdateOrDelete::computeIOCostsForCursorOperation(
     sequentialIOs = (numRowsToScan / rowsPerBlock).getCeiling();
     // The # of index blocks to read is based on the number of data
     // blocks that must be read
-    totalIndexBlocks =
-      CIDesc->getEstimatedIndexBlocksLowerBound(sequentialIOs);
+    totalIndexBlocks = CIDesc->getEstimatedIndexBlocksLowerBound(sequentialIOs);
     randomIOs = totalIndexBlocks;
-  }
-  else  // probes not in order
+  } else  // probes not in order
   {
     // Assume all IOs are random. This is a bit pessimistic
     // because at some point much of the file will be in cache,
@@ -3869,14 +3293,11 @@ void CostMethodHbaseUpdateOrDelete::computeIOCostsForCursorOperation(
     // or deleted grows large the number of random IOs should
     // decrease. We'll leave that to future work.
     sequentialIOs = csZero;
-    totalIndexBlocks =
-      CIDesc->getEstimatedIndexBlocksLowerBound(numRowsToScan);
+    totalIndexBlocks = CIDesc->getEstimatedIndexBlocksLowerBound(numRowsToScan);
     randomIOs = numRowsToScan + totalIndexBlocks;
   }
 
-} // CostMethodHbaseUpdateOrDelete::computeIOCostsForCursorOperation()
-
-
+}  // CostMethodHbaseUpdateOrDelete::computeIOCostsForCursorOperation()
 
 // ----QUICKSEARCH FOR HbaseUpdate........................................
 
@@ -3889,11 +3310,8 @@ void CostMethodHbaseUpdateOrDelete::computeIOCostsForCursorOperation(
 //*******************************************************************
 // This method computes the cost vector of the HbaseUpdate operation
 //*******************************************************************
-Cost*
-CostMethodHbaseUpdate::scmComputeOperatorCostInternal(RelExpr* op,
-  const PlanWorkSpace* pws,
-  Lng32& countOfStreams)
-{
+Cost *CostMethodHbaseUpdate::scmComputeOperatorCostInternal(RelExpr *op, const PlanWorkSpace *pws,
+                                                            Lng32 &countOfStreams) {
   // TODO: Write this method; the code below is a copy of the Delete
   // method which we'll use for the moment. This is better than just
   // a simple constant stub; we will get parallel Update plans with
@@ -3904,38 +3322,37 @@ CostMethodHbaseUpdate::scmComputeOperatorCostInternal(RelExpr* op,
   // Update -- is that decided before we get here?), so this code will
   // underestimate the cost in general.
 
-  const Context * myContext = pws->getContext();
+  const Context *myContext = pws->getContext();
 
-  cacheParameters(op,myContext);
+  cacheParameters(op, myContext);
   estimateDegreeOfParallelism();
 
-  const InputPhysicalProperty* ippForMe =
-    myContext->getInputPhysicalProperty();
+  const InputPhysicalProperty *ippForMe = myContext->getInputPhysicalProperty();
 
   // -----------------------------------------
   // Save off estimated degree of parallelism.
   // -----------------------------------------
   countOfStreams = countOfStreams_;
 
-  HbaseUpdate* updOp = (HbaseUpdate *)op;   // downcast
+  HbaseUpdate *updOp = (HbaseUpdate *)op;  // downcast
 
   CMPASSERT(partFunc_ != NULL);
 
-  //  Later, if and when we start using NodeMaps to track active regions for 
+  //  Later, if and when we start using NodeMaps to track active regions for
   //  Trafodion tables in HBase (or native HBase tables), we can use the
   //  following to get active partitions.
-  //CostScalar activePartitions =
+  // CostScalar activePartitions =
   // (CostScalar)
   //   (((NodeMap *)(partFunc_->getNodeMap()))->getNumActivePartitions());
   //  But for now, we do the following:
   CostScalar activePartitions = (CostScalar)(partFunc_->getCountOfPartitions());
 
-  const IndexDesc* CIDesc = updOp->getIndexDesc();
-  const CostScalar & recordSizeInKb = CIDesc->getRecordSizeInKb();
+  const IndexDesc *CIDesc = updOp->getIndexDesc();
+  const CostScalar &recordSizeInKb = CIDesc->getRecordSizeInKb();
 
   CostScalar tuplesProcessed(csZero);
   CostScalar tuplesProduced(csZero);
-  CostScalar tuplesSent(csZero);  // we use tuplesSent to model sending rowIDs to Hbase 
+  CostScalar tuplesSent(csZero);  // we use tuplesSent to model sending rowIDs to Hbase
   CostScalar randomIOs(csZero);
   CostScalar sequentialIOs(csZero);
 
@@ -3953,8 +3370,7 @@ CostMethodHbaseUpdate::scmComputeOperatorCostInternal(RelExpr* op,
     NABoolean partiallyInOrderOK = TRUE;
     NABoolean probesForceSynchronousAccess = FALSE;
     ValueIdList targetSortKey = CIDesc->getOrderOfKeyValues();
-    ValueIdSet sourceCharInputs =
-      updOp->getGroupAttr()->getCharacteristicInputs();
+    ValueIdSet sourceCharInputs = updOp->getGroupAttr()->getCharacteristicInputs();
 
     ValueIdSet targetCharInputs;
     // The char inputs are still in terms of the source. Map them to the target.
@@ -3973,62 +3389,46 @@ CostMethodHbaseUpdate::scmComputeOperatorCostInternal(RelExpr* op,
     ValueIdSet bottomValuesSet(bottomValues);
     NABoolean useListInsteadOfSet = FALSE;
 
-    CascadesGroup* group1 = (*CURRSTMT_OPTGLOBALS->memo)[updOp->getGroupId()];
+    CascadesGroup *group1 = (*CURRSTMT_OPTGLOBALS->memo)[updOp->getGroupId()];
 
-    GenericUpdate* upOperator = (GenericUpdate *) group1->getFirstLogExpr();
+    GenericUpdate *upOperator = (GenericUpdate *)group1->getFirstLogExpr();
 
-    if (((upOperator->getTableName().getSpecialType() == ExtendedQualName::NORMAL_TABLE ) || (upOperator->getTableName().getSpecialType() == ExtendedQualName::GHOST_TABLE )) &&
-     (bottomValuesSet.entries() != bottomValues.entries() ) )
-    {
-
+    if (((upOperator->getTableName().getSpecialType() == ExtendedQualName::NORMAL_TABLE) ||
+         (upOperator->getTableName().getSpecialType() == ExtendedQualName::GHOST_TABLE)) &&
+        (bottomValuesSet.entries() != bottomValues.entries())) {
       ValueIdList targetInputList;
       // from here get all the bottom values that appear in the sourceCharInputs
-      bottomValues.findCommonElements(sourceCharInputs );
+      bottomValues.findCommonElements(sourceCharInputs);
       bottomValuesSet = bottomValues;
 
       // we can use the bottomValues only if these contain some duplicate columns of
       // characteristics inputs, otherwise we shall use the characteristics inputs.
-      if (bottomValuesSet == sourceCharInputs)
-      {
+      if (bottomValuesSet == sourceCharInputs) {
         useListInsteadOfSet = TRUE;
-	updOp->updateToSelectMap().rewriteValueIdListUpWithIndex(
-	  targetInputList,
-	  bottomValues);
-	targetCharInputs = targetInputList;
+        updOp->updateToSelectMap().rewriteValueIdListUpWithIndex(targetInputList, bottomValues);
+        targetCharInputs = targetInputList;
       }
     }
 
-    if (!useListInsteadOfSet)
-    {
-      updOp->updateToSelectMap().rewriteValueIdSetUp(
-	targetCharInputs,
-	sourceCharInputs);
+    if (!useListInsteadOfSet) {
+      updOp->updateToSelectMap().rewriteValueIdSetUp(targetCharInputs, sourceCharInputs);
     }
 
     // If a target key column is covered by a constant on the source side,
     // then we need to remove that column from the target sort key
-    removeConstantsFromTargetSortKey(&targetSortKey,
-                                   &(updOp->updateToSelectMap()));
+    removeConstantsFromTargetSortKey(&targetSortKey, &(updOp->updateToSelectMap()));
     NABoolean orderedNJ = TRUE;
     // Don't call ordersMatch if njOuterOrder_ is null.
     if (ippForMe->getAssumeSortedForCosting())
       orderedNJ = FALSE;
     else
       // if leading keys are not same then don't try ordered NJ.
-      orderedNJ =
-        isOrderedNJFeasible(*(ippForMe->getNjOuterOrder()), targetSortKey);
+      orderedNJ = isOrderedNJFeasible(*(ippForMe->getNjOuterOrder()), targetSortKey);
 
-    if (orderedNJ AND 
-        ordersMatch(ippForMe,
-                    CIDesc,
-                    &targetSortKey,
-                    targetCharInputs,
-                    partiallyInOrderOK,
-                    probesForceSynchronousAccess))
-    {
+    if (orderedNJ AND ordersMatch(ippForMe, CIDesc, &targetSortKey, targetCharInputs, partiallyInOrderOK,
+                                  probesForceSynchronousAccess)) {
       probesInOrder = TRUE;
-      if (probesForceSynchronousAccess)
-      {
+      if (probesForceSynchronousAccess) {
         // The probes form a complete order across all partitions and
         // the clustering key and partitioning key are the same. So, the
         // only asynchronous I/O we will see will be due to ESPs. So,
@@ -4039,29 +3439,22 @@ CostMethodHbaseUpdate::scmComputeOperatorCostInternal(RelExpr* op,
         // it means the table was not partitioned at all, so we don't
         // need to limit anything since there already is no asynch I/O.
 
-     // TODO: lppf is always null in Trafodion; figure out what to do instead...
-        const LogPhysPartitioningFunction* lppf =
-            partFunc_->castToLogPhysPartitioningFunction();
-        if (lppf != NULL)
-        {
-          PartitioningFunction* logPartFunc =
-            lppf->getLogPartitioningFunction();
+        // TODO: lppf is always null in Trafodion; figure out what to do instead...
+        const LogPhysPartitioningFunction *lppf = partFunc_->castToLogPhysPartitioningFunction();
+        if (lppf != NULL) {
+          PartitioningFunction *logPartFunc = lppf->getLogPartitioningFunction();
           // Get the number of ESPs:
           CostScalar numParts = logPartFunc->getCountOfPartitions();
 
-          countOfAsynchronousStreams = MINOF(numParts,
-                                             countOfAsynchronousStreams);
-        } // lppf != NULL
-      } // probesForceSynchronousAccess
-    } // probes are in order
-  } // if input physical properties exist
+          countOfAsynchronousStreams = MINOF(numParts, countOfAsynchronousStreams);
+        }  // lppf != NULL
+      }    // probesForceSynchronousAccess
+    }      // probes are in order
+  }        // if input physical properties exist
 
-  CostScalar currentCpus = 
-    (CostScalar)myContext->getPlan()->getPhysicalProperty()->getCurrentCountOfCPUs();
+  CostScalar currentCpus = (CostScalar)myContext->getPlan()->getPhysicalProperty()->getCurrentCountOfCPUs();
   CostScalar activeCpus = MINOF(countOfAsynchronousStreams, currentCpus);
-  CostScalar streamsPerCpu =
-    (countOfAsynchronousStreams / activeCpus).getCeiling();
-
+  CostScalar streamsPerCpu = (countOfAsynchronousStreams / activeCpus).getCeiling();
 
   CostScalar noOfProbesPerPartition(csOne);
 
@@ -4072,9 +3465,7 @@ CostMethodHbaseUpdate::scmComputeOperatorCostInternal(RelExpr* op,
 
   // Determine # of rows to scan and to delete
 
-  if (updOp->getSearchKey() && updOp->getSearchKey()->isUnique() && 
-    (noOfProbes_ == 1))
-  {
+  if (updOp->getSearchKey() && updOp->getSearchKey()->isUnique() && (noOfProbes_ == 1)) {
     // unique access
 
     activePartitions = csOne;
@@ -4085,15 +3476,11 @@ CostMethodHbaseUpdate::scmComputeOperatorCostInternal(RelExpr* op,
     // assume the 1 row always satisfies any executor predicates so
     // we'll always do the Delete
     numRowsToDelete = csOne;
-  }
-  else
-  {
+  } else {
     // non-unique access
 
-    numRowsToDelete =
-      ((myRowCount_ / activePartitions).getCeiling()).minCsOne();
-    noOfProbesPerPartition =
-      ((noOfProbes_ / countOfAsynchronousStreams).getCeiling()).minCsOne();
+    numRowsToDelete = ((myRowCount_ / activePartitions).getCeiling()).minCsOne();
+    noOfProbesPerPartition = ((noOfProbes_ / countOfAsynchronousStreams).getCeiling()).minCsOne();
 
     // need to compute the number of rows that satisfy the key predicates
     // to compute the I/Os that must be performed
@@ -4101,28 +3488,20 @@ CostMethodHbaseUpdate::scmComputeOperatorCostInternal(RelExpr* op,
     // need to create a new histogram, since the one from input logical
     // prop. has the histogram for the table after all executor preds are
     // applied (i.e. the result cardinality)
-    IndexDescHistograms histograms(*CIDesc,CIDesc->getIndexKey().entries());
+    IndexDescHistograms histograms(*CIDesc, CIDesc->getIndexKey().entries());
 
     // retrieve all of the key preds in key column order
     ColumnOrderList keyPredsByCol(CIDesc->getIndexKey());
     updOp->getSearchKey()->getKeyPredicatesByColumn(keyPredsByCol);
 
-    if ( NOT allKeyColumnsHaveHistogramStatistics( histograms, CIDesc ) )
-    {
+    if (NOT allKeyColumnsHaveHistogramStatistics(histograms, CIDesc)) {
       // All key columns do not have histogram data, the best we can
       // do is use the number of rows that satisfy all predicates
       // (i.e. the number of rows we will be updating)
       numRowsToScan = numRowsToDelete;
-    }
-    else
-    {
-      numRowsToScan = numRowsToScanWhenAllKeyColumnsHaveHistograms(
-	histograms,
-	keyPredsByCol,
-	activePartitions,
-	CIDesc
-	);
-      if (numRowsToScan < numRowsToDelete) // sanity test
+    } else {
+      numRowsToScan = numRowsToScanWhenAllKeyColumnsHaveHistograms(histograms, keyPredsByCol, activePartitions, CIDesc);
+      if (numRowsToScan < numRowsToDelete)  // sanity test
       {
         // we will scan at least as many rows as we delete
         numRowsToScan = numRowsToDelete;
@@ -4138,18 +3517,18 @@ CostMethodHbaseUpdate::scmComputeOperatorCostInternal(RelExpr* op,
   //   ExHbaseUMDtrafSubsetTaskTcb
   //   ExHbaseAccessSQRowsetTcb
   //
-  // The theory of operation of each of these differs somewhat. 
+  // The theory of operation of each of these differs somewhat.
   //
   // For the Unique variant, we use an HBase "get" to obtain a row, apply
   // a predicate to it, then do an HBase "delete" to delete it if the
   // predicate is true. (If there is no predicate, we'll simply do a
-  // "checkAndDelete" so there would be no "get" cost.) 
+  // "checkAndDelete" so there would be no "get" cost.)
   //
   // For the Subset variant, we use an HBase "scan" to obtain a sequence
   // of rows, apply a predicate to each, then do an HBase "delete" on
   // each row that passes the predicate.
   //
-  // For the Rowset variant, we simply pass all the input keys to 
+  // For the Rowset variant, we simply pass all the input keys to
   // HBase in batches in HBase "deleteRows" calls. (In Explain plans,
   // this TCB shows up as "trafodion_delete_vsbb", while the first two
   // show up as "trafodion_delete".) There is no "get" cost. In plans
@@ -4161,8 +3540,8 @@ CostMethodHbaseUpdate::scmComputeOperatorCostInternal(RelExpr* op,
   // keys are sent per HBase interaction.
   //
   // Unfortunately the decisions as to which TCB will be used are
-  // currently made in the generator code and so aren't easily 
-  // available to us here. For the moment then, we make no attempt 
+  // currently made in the generator code and so aren't easily
+  // available to us here. For the moment then, we make no attempt
   // to distinguish a separate "get" cost, nor do we take into account
   // possible reduced message cost in the Rowset case. Should this
   // choice be refactored in the future to push it into the Optimizer,
@@ -4171,25 +3550,18 @@ CostMethodHbaseUpdate::scmComputeOperatorCostInternal(RelExpr* op,
   // are not quite the same as in the generator. So at best, this attempt
   // simply sharpens the cost estimate in this one particular case.
 
-
   // Compute the I/O cost
 
-  computeIOCostsForCursorOperation(
-    randomIOs /* out */,
-    sequentialIOs /* out */,
-    CIDesc,
-    numRowsToScan,
-    probesInOrder
-    );
+  computeIOCostsForCursorOperation(randomIOs /* out */, sequentialIOs /* out */, CIDesc, numRowsToScan, probesInOrder);
 
   // Compute the tuple cost
 
   tuplesProduced = numRowsToDelete;
-  tuplesProcessed = numRowsToScan; 
+  tuplesProcessed = numRowsToScan;
   tuplesSent = numRowsToDelete;
 
   CostScalar rowSize = updOp->getIndexDesc()->getRecordLength();
-  CostScalar rowSizeFactor = scmRowSizeFactor(rowSize); 
+  CostScalar rowSizeFactor = scmRowSizeFactor(rowSize);
   CostScalar outputRowSize = updOp->getGroupAttr()->getRecordLength();
   CostScalar outputRowSizeFactor = scmRowSizeFactor(outputRowSize);
 
@@ -4197,30 +3569,24 @@ CostMethodHbaseUpdate::scmComputeOperatorCostInternal(RelExpr* op,
   tuplesSent *= rowSizeFactor;
   tuplesProduced *= outputRowSizeFactor;
 
-
   // ---------------------------------------------------------------------
   // Synthesize and return cost object.
   // ---------------------------------------------------------------------
 
   CostScalar probeRowSize = updOp->getIndexDesc()->getKeyLength();
-  Cost * updateCost = 
-    scmCost(tuplesProcessed, tuplesProduced, tuplesSent, randomIOs, sequentialIOs, noOfProbes_,
-	    rowSize, csZero, outputRowSize, probeRowSize);
+  Cost *updateCost = scmCost(tuplesProcessed, tuplesProduced, tuplesSent, randomIOs, sequentialIOs, noOfProbes_,
+                             rowSize, csZero, outputRowSize, probeRowSize);
 
 #ifndef NDEBUG
-if ( CmpCommon::getDefault( OPTIMIZER_PRINT_COST ) == DF_ON )
-    {
-      pfp = stdout;
-      fprintf(pfp, "HbaseUpdate::scmComputeOperatorCostInternal()\n");
-      updateCost->getScmCplr().print(pfp);
-      fprintf(pfp, "HBase Update elapsed time: ");
-      fprintf(pfp,"%f", updateCost->
-              convertToElapsedTime(
-                   myContext->getReqdPhysicalProperty()).
-              value());
-      fprintf(pfp,"\n");
-      fprintf(pfp,"CountOfStreams returned %d\n",countOfStreams);
-    }
+  if (CmpCommon::getDefault(OPTIMIZER_PRINT_COST) == DF_ON) {
+    pfp = stdout;
+    fprintf(pfp, "HbaseUpdate::scmComputeOperatorCostInternal()\n");
+    updateCost->getScmCplr().print(pfp);
+    fprintf(pfp, "HBase Update elapsed time: ");
+    fprintf(pfp, "%f", updateCost->convertToElapsedTime(myContext->getReqdPhysicalProperty()).value());
+    fprintf(pfp, "\n");
+    fprintf(pfp, "CountOfStreams returned %d\n", countOfStreams);
+  }
 #endif
 
   return updateCost;
@@ -4237,43 +3603,39 @@ if ( CmpCommon::getDefault( OPTIMIZER_PRINT_COST ) == DF_ON )
 //*******************************************************************
 // This method computes the cost vector of the HbaseDelete operation
 //*******************************************************************
-Cost*
-CostMethodHbaseDelete::scmComputeOperatorCostInternal(RelExpr* op,
-  const PlanWorkSpace* pws,
-  Lng32& countOfStreams)
-{
-  const Context * myContext = pws->getContext();
+Cost *CostMethodHbaseDelete::scmComputeOperatorCostInternal(RelExpr *op, const PlanWorkSpace *pws,
+                                                            Lng32 &countOfStreams) {
+  const Context *myContext = pws->getContext();
 
-  cacheParameters(op,myContext);
+  cacheParameters(op, myContext);
   estimateDegreeOfParallelism();
 
-  const InputPhysicalProperty* ippForMe =
-    myContext->getInputPhysicalProperty();
+  const InputPhysicalProperty *ippForMe = myContext->getInputPhysicalProperty();
 
   // -----------------------------------------
   // Save off estimated degree of parallelism.
   // -----------------------------------------
   countOfStreams = countOfStreams_;
 
-  HbaseDelete* delOp = (HbaseDelete *)op;   // downcast
+  HbaseDelete *delOp = (HbaseDelete *)op;  // downcast
 
   CMPASSERT(partFunc_ != NULL);
 
-  //  Later, if and when we start using NodeMaps to track active regions for 
+  //  Later, if and when we start using NodeMaps to track active regions for
   //  Trafodion tables in HBase (or native HBase tables), we can use the
   //  following to get active partitions.
-  //CostScalar activePartitions =
+  // CostScalar activePartitions =
   // (CostScalar)
   //   (((NodeMap *)(partFunc_->getNodeMap()))->getNumActivePartitions());
   //  But for now, we do the following:
   CostScalar activePartitions = (CostScalar)(partFunc_->getCountOfPartitions());
 
-  const IndexDesc* CIDesc = delOp->getIndexDesc();
-  const CostScalar & recordSizeInKb = CIDesc->getRecordSizeInKb();
+  const IndexDesc *CIDesc = delOp->getIndexDesc();
+  const CostScalar &recordSizeInKb = CIDesc->getRecordSizeInKb();
 
   CostScalar tuplesProcessed(csZero);
   CostScalar tuplesProduced(csZero);
-  CostScalar tuplesSent(csZero);  // we use tuplesSent to model sending rowIDs to Hbase 
+  CostScalar tuplesSent(csZero);  // we use tuplesSent to model sending rowIDs to Hbase
   CostScalar randomIOs(csZero);
   CostScalar sequentialIOs(csZero);
 
@@ -4291,8 +3653,7 @@ CostMethodHbaseDelete::scmComputeOperatorCostInternal(RelExpr* op,
     NABoolean partiallyInOrderOK = TRUE;
     NABoolean probesForceSynchronousAccess = FALSE;
     ValueIdList targetSortKey = CIDesc->getOrderOfKeyValues();
-    ValueIdSet sourceCharInputs =
-      delOp->getGroupAttr()->getCharacteristicInputs();
+    ValueIdSet sourceCharInputs = delOp->getGroupAttr()->getCharacteristicInputs();
 
     ValueIdSet targetCharInputs;
     // The char inputs are still in terms of the source. Map them to the target.
@@ -4311,62 +3672,46 @@ CostMethodHbaseDelete::scmComputeOperatorCostInternal(RelExpr* op,
     ValueIdSet bottomValuesSet(bottomValues);
     NABoolean useListInsteadOfSet = FALSE;
 
-    CascadesGroup* group1 = (*CURRSTMT_OPTGLOBALS->memo)[delOp->getGroupId()];
+    CascadesGroup *group1 = (*CURRSTMT_OPTGLOBALS->memo)[delOp->getGroupId()];
 
-    GenericUpdate* upOperator = (GenericUpdate *) group1->getFirstLogExpr();
+    GenericUpdate *upOperator = (GenericUpdate *)group1->getFirstLogExpr();
 
-    if (((upOperator->getTableName().getSpecialType() == ExtendedQualName::NORMAL_TABLE ) || (upOperator->getTableName().getSpecialType() == ExtendedQualName::GHOST_TABLE )) &&
-     (bottomValuesSet.entries() != bottomValues.entries() ) )
-    {
-
+    if (((upOperator->getTableName().getSpecialType() == ExtendedQualName::NORMAL_TABLE) ||
+         (upOperator->getTableName().getSpecialType() == ExtendedQualName::GHOST_TABLE)) &&
+        (bottomValuesSet.entries() != bottomValues.entries())) {
       ValueIdList targetInputList;
       // from here get all the bottom values that appear in the sourceCharInputs
-      bottomValues.findCommonElements(sourceCharInputs );
+      bottomValues.findCommonElements(sourceCharInputs);
       bottomValuesSet = bottomValues;
 
       // we can use the bottomValues only if these contain some duplicate columns of
       // characteristics inputs, otherwise we shall use the characteristics inputs.
-      if (bottomValuesSet == sourceCharInputs)
-      {
+      if (bottomValuesSet == sourceCharInputs) {
         useListInsteadOfSet = TRUE;
-	delOp->updateToSelectMap().rewriteValueIdListUpWithIndex(
-	  targetInputList,
-	  bottomValues);
-	targetCharInputs = targetInputList;
+        delOp->updateToSelectMap().rewriteValueIdListUpWithIndex(targetInputList, bottomValues);
+        targetCharInputs = targetInputList;
       }
     }
 
-    if (!useListInsteadOfSet)
-    {
-      delOp->updateToSelectMap().rewriteValueIdSetUp(
-	targetCharInputs,
-	sourceCharInputs);
+    if (!useListInsteadOfSet) {
+      delOp->updateToSelectMap().rewriteValueIdSetUp(targetCharInputs, sourceCharInputs);
     }
 
     // If a target key column is covered by a constant on the source side,
     // then we need to remove that column from the target sort key
-    removeConstantsFromTargetSortKey(&targetSortKey,
-                                   &(delOp->updateToSelectMap()));
+    removeConstantsFromTargetSortKey(&targetSortKey, &(delOp->updateToSelectMap()));
     NABoolean orderedNJ = TRUE;
     // Don't call ordersMatch if njOuterOrder_ is null.
     if (ippForMe->getAssumeSortedForCosting())
       orderedNJ = FALSE;
     else
       // if leading keys are not same then don't try ordered NJ.
-      orderedNJ =
-        isOrderedNJFeasible(*(ippForMe->getNjOuterOrder()), targetSortKey);
+      orderedNJ = isOrderedNJFeasible(*(ippForMe->getNjOuterOrder()), targetSortKey);
 
-    if (orderedNJ AND 
-        ordersMatch(ippForMe,
-                    CIDesc,
-                    &targetSortKey,
-                    targetCharInputs,
-                    partiallyInOrderOK,
-                    probesForceSynchronousAccess))
-    {
+    if (orderedNJ AND ordersMatch(ippForMe, CIDesc, &targetSortKey, targetCharInputs, partiallyInOrderOK,
+                                  probesForceSynchronousAccess)) {
       probesInOrder = TRUE;
-      if (probesForceSynchronousAccess)
-      {
+      if (probesForceSynchronousAccess) {
         // The probes form a complete order across all partitions and
         // the clustering key and partitioning key are the same. So, the
         // only asynchronous I/O we will see will be due to ESPs. So,
@@ -4377,29 +3722,22 @@ CostMethodHbaseDelete::scmComputeOperatorCostInternal(RelExpr* op,
         // it means the table was not partitioned at all, so we don't
         // need to limit anything since there already is no asynch I/O.
 
-     // TODO: lppf is always null in Trafodion; figure out what to do instead...
-        const LogPhysPartitioningFunction* lppf =
-            partFunc_->castToLogPhysPartitioningFunction();
-        if (lppf != NULL)
-        {
-          PartitioningFunction* logPartFunc =
-            lppf->getLogPartitioningFunction();
+        // TODO: lppf is always null in Trafodion; figure out what to do instead...
+        const LogPhysPartitioningFunction *lppf = partFunc_->castToLogPhysPartitioningFunction();
+        if (lppf != NULL) {
+          PartitioningFunction *logPartFunc = lppf->getLogPartitioningFunction();
           // Get the number of ESPs:
           CostScalar numParts = logPartFunc->getCountOfPartitions();
 
-          countOfAsynchronousStreams = MINOF(numParts,
-                                             countOfAsynchronousStreams);
-        } // lppf != NULL
-      } // probesForceSynchronousAccess
-    } // probes are in order
-  } // if input physical properties exist
+          countOfAsynchronousStreams = MINOF(numParts, countOfAsynchronousStreams);
+        }  // lppf != NULL
+      }    // probesForceSynchronousAccess
+    }      // probes are in order
+  }        // if input physical properties exist
 
-  CostScalar currentCpus = 
-    (CostScalar)myContext->getPlan()->getPhysicalProperty()->getCurrentCountOfCPUs();
+  CostScalar currentCpus = (CostScalar)myContext->getPlan()->getPhysicalProperty()->getCurrentCountOfCPUs();
   CostScalar activeCpus = MINOF(countOfAsynchronousStreams, currentCpus);
-  CostScalar streamsPerCpu =
-    (countOfAsynchronousStreams / activeCpus).getCeiling();
-
+  CostScalar streamsPerCpu = (countOfAsynchronousStreams / activeCpus).getCeiling();
 
   CostScalar noOfProbesPerPartition(csOne);
 
@@ -4410,9 +3748,7 @@ CostMethodHbaseDelete::scmComputeOperatorCostInternal(RelExpr* op,
 
   // Determine # of rows to scan and to delete
 
-  if (delOp->getSearchKey() && delOp->getSearchKey()->isUnique() && 
-    (noOfProbes_ == 1))
-  {
+  if (delOp->getSearchKey() && delOp->getSearchKey()->isUnique() && (noOfProbes_ == 1)) {
     // unique access
 
     activePartitions = csOne;
@@ -4423,15 +3759,11 @@ CostMethodHbaseDelete::scmComputeOperatorCostInternal(RelExpr* op,
     // assume the 1 row always satisfies any executor predicates so
     // we'll always do the Delete
     numRowsToDelete = csOne;
-  }
-  else
-  {
+  } else {
     // non-unique access
 
-    numRowsToDelete =
-      ((myRowCount_ / activePartitions).getCeiling()).minCsOne();
-    noOfProbesPerPartition =
-      ((noOfProbes_ / countOfAsynchronousStreams).getCeiling()).minCsOne();
+    numRowsToDelete = ((myRowCount_ / activePartitions).getCeiling()).minCsOne();
+    noOfProbesPerPartition = ((noOfProbes_ / countOfAsynchronousStreams).getCeiling()).minCsOne();
 
     // need to compute the number of rows that satisfy the key predicates
     // to compute the I/Os that must be performed
@@ -4439,28 +3771,20 @@ CostMethodHbaseDelete::scmComputeOperatorCostInternal(RelExpr* op,
     // need to create a new histogram, since the one from input logical
     // prop. has the histogram for the table after all executor preds are
     // applied (i.e. the result cardinality)
-    IndexDescHistograms histograms(*CIDesc,CIDesc->getIndexKey().entries());
+    IndexDescHistograms histograms(*CIDesc, CIDesc->getIndexKey().entries());
 
     // retrieve all of the key preds in key column order
     ColumnOrderList keyPredsByCol(CIDesc->getIndexKey());
     delOp->getSearchKey()->getKeyPredicatesByColumn(keyPredsByCol);
 
-    if ( NOT allKeyColumnsHaveHistogramStatistics( histograms, CIDesc ) )
-    {
+    if (NOT allKeyColumnsHaveHistogramStatistics(histograms, CIDesc)) {
       // All key columns do not have histogram data, the best we can
       // do is use the number of rows that satisfy all predicates
       // (i.e. the number of rows we will be updating)
       numRowsToScan = numRowsToDelete;
-    }
-    else
-    {
-      numRowsToScan = numRowsToScanWhenAllKeyColumnsHaveHistograms(
-	histograms,
-	keyPredsByCol,
-	activePartitions,
-	CIDesc
-	);
-      if (numRowsToScan < numRowsToDelete) // sanity test
+    } else {
+      numRowsToScan = numRowsToScanWhenAllKeyColumnsHaveHistograms(histograms, keyPredsByCol, activePartitions, CIDesc);
+      if (numRowsToScan < numRowsToDelete)  // sanity test
       {
         // we will scan at least as many rows as we delete
         numRowsToScan = numRowsToDelete;
@@ -4476,18 +3800,18 @@ CostMethodHbaseDelete::scmComputeOperatorCostInternal(RelExpr* op,
   //   ExHbaseUMDtrafSubsetTaskTcb
   //   ExHbaseAccessSQRowsetTcb
   //
-  // The theory of operation of each of these differs somewhat. 
+  // The theory of operation of each of these differs somewhat.
   //
   // For the Unique variant, we use an HBase "get" to obtain a row, apply
   // a predicate to it, then do an HBase "delete" to delete it if the
   // predicate is true. (If there is no predicate, we'll simply do a
-  // "checkAndDelete" so there would be no "get" cost.) 
+  // "checkAndDelete" so there would be no "get" cost.)
   //
   // For the Subset variant, we use an HBase "scan" to obtain a sequence
   // of rows, apply a predicate to each, then do an HBase "delete" on
   // each row that passes the predicate.
   //
-  // For the Rowset variant, we simply pass all the input keys to 
+  // For the Rowset variant, we simply pass all the input keys to
   // HBase in batches in HBase "deleteRows" calls. (In Explain plans,
   // this TCB shows up as "trafodion_delete_vsbb", while the first two
   // show up as "trafodion_delete".) There is no "get" cost. In plans
@@ -4499,8 +3823,8 @@ CostMethodHbaseDelete::scmComputeOperatorCostInternal(RelExpr* op,
   // keys are sent per HBase interaction.
   //
   // Unfortunately the decisions as to which TCB will be used are
-  // currently made in the generator code and so aren't easily 
-  // available to us here. For the moment then, we make no attempt 
+  // currently made in the generator code and so aren't easily
+  // available to us here. For the moment then, we make no attempt
   // to distinguish a separate "get" cost, nor do we take into account
   // possible reduced message cost in the Rowset case. Should this
   // choice be refactored in the future to push it into the Optimizer,
@@ -4509,25 +3833,18 @@ CostMethodHbaseDelete::scmComputeOperatorCostInternal(RelExpr* op,
   // are not quite the same as in the generator. So at best, this attempt
   // simply sharpens the cost estimate in this one particular case.
 
-
   // Compute the I/O cost
 
-  computeIOCostsForCursorOperation(
-    randomIOs /* out */,
-    sequentialIOs /* out */,
-    CIDesc,
-    numRowsToScan,
-    probesInOrder
-    );
+  computeIOCostsForCursorOperation(randomIOs /* out */, sequentialIOs /* out */, CIDesc, numRowsToScan, probesInOrder);
 
   // Compute the tuple cost
 
   tuplesProduced = numRowsToDelete;
-  tuplesProcessed = numRowsToScan; 
+  tuplesProcessed = numRowsToScan;
   tuplesSent = numRowsToDelete;
 
   CostScalar rowSize = delOp->getIndexDesc()->getRecordLength();
-  CostScalar rowSizeFactor = scmRowSizeFactor(rowSize); 
+  CostScalar rowSizeFactor = scmRowSizeFactor(rowSize);
   CostScalar outputRowSize = delOp->getGroupAttr()->getRecordLength();
   CostScalar outputRowSizeFactor = scmRowSizeFactor(outputRowSize);
 
@@ -4535,30 +3852,24 @@ CostMethodHbaseDelete::scmComputeOperatorCostInternal(RelExpr* op,
   tuplesSent *= rowSizeFactor;
   tuplesProduced *= outputRowSizeFactor;
 
-
   // ---------------------------------------------------------------------
   // Synthesize and return cost object.
   // ---------------------------------------------------------------------
 
   CostScalar probeRowSize = delOp->getIndexDesc()->getKeyLength();
-  Cost * deleteCost = 
-    scmCost(tuplesProcessed, tuplesProduced, tuplesSent, randomIOs, sequentialIOs, noOfProbes_,
-	    rowSize, csZero, outputRowSize, probeRowSize);
+  Cost *deleteCost = scmCost(tuplesProcessed, tuplesProduced, tuplesSent, randomIOs, sequentialIOs, noOfProbes_,
+                             rowSize, csZero, outputRowSize, probeRowSize);
 
 #ifndef NDEBUG
-if ( CmpCommon::getDefault( OPTIMIZER_PRINT_COST ) == DF_ON )
-    {
-      pfp = stdout;
-      fprintf(pfp, "HbaseDelete::scmComputeOperatorCostInternal()\n");
-      deleteCost->getScmCplr().print(pfp);
-      fprintf(pfp, "HBase Delete elapsed time: ");
-      fprintf(pfp,"%f", deleteCost->
-              convertToElapsedTime(
-                   myContext->getReqdPhysicalProperty()).
-              value());
-      fprintf(pfp,"\n");
-      fprintf(pfp,"CountOfStreams returned %d\n",countOfStreams);
-    }
+  if (CmpCommon::getDefault(OPTIMIZER_PRINT_COST) == DF_ON) {
+    pfp = stdout;
+    fprintf(pfp, "HbaseDelete::scmComputeOperatorCostInternal()\n");
+    deleteCost->getScmCplr().print(pfp);
+    fprintf(pfp, "HBase Delete elapsed time: ");
+    fprintf(pfp, "%f", deleteCost->convertToElapsedTime(myContext->getReqdPhysicalProperty()).value());
+    fprintf(pfp, "\n");
+    fprintf(pfp, "CountOfStreams returned %d\n", countOfStreams);
+  }
 #endif
 
   return deleteCost;
@@ -4576,32 +3887,28 @@ if ( CmpCommon::getDefault( OPTIMIZER_PRINT_COST ) == DF_ON )
 //**************************************************************
 // This method computes the cost vector of the HbaseInsert operation
 //**************************************************************
-Cost*
-CostMethodHbaseInsert::scmComputeOperatorCostInternal(RelExpr* op,
-  const PlanWorkSpace* pws,
-  Lng32& countOfStreams)
-{
+Cost *CostMethodHbaseInsert::scmComputeOperatorCostInternal(RelExpr *op, const PlanWorkSpace *pws,
+                                                            Lng32 &countOfStreams) {
   // TODO: For now assume we are always doing an HBase insert.
   // Is it possible we go through this code path for Hive inserts?
   // If so, figure out what to do.
 
-  HbaseInsert* insOp = (HbaseInsert *)op;   // downcast
+  HbaseInsert *insOp = (HbaseInsert *)op;  // downcast
 
   // compute some details
-  const Context * myContext = pws->getContext();
+  const Context *myContext = pws->getContext();
   Cost *costPtr = computeOperatorCostInternal(op, myContext, countOfStreams);
 
   CostScalar noOfProbesPerStream(csOne);
 
   // the number of rows to insert (this is "per-stream" costing).
-  CostScalar numOfProbesPerStream =
-    (noOfProbes_ / countOfAsynchronousStreams_).minCsOne();
+  CostScalar numOfProbesPerStream = (noOfProbes_ / countOfAsynchronousStreams_).minCsOne();
 
   CostScalar tuplesProcessed = numOfProbesPerStream;
   CostScalar tuplesProduced = numOfProbesPerStream;
 
   CostScalar ioRand = csZero;  // we don't bother estimating this
-  CostScalar ioSeq = csZero;  // we don't bother estimating this
+  CostScalar ioSeq = csZero;   // we don't bother estimating this
 
   // Factor in row sizes.
   CostScalar rowSize = ((IndexDesc *)insOp->getIndexDesc())->getNAFileSet()->getRecordLength();
@@ -4612,28 +3919,25 @@ CostMethodHbaseInsert::scmComputeOperatorCostInternal(RelExpr* op,
   // there doesn't seem to be an estRowsAccessed_ member or
   // related methods in hbaseInsert at the moment... add it
   // when the need becomes apparent
-  //insOp->setEstRowsAccessed(noOfProbes_);
+  // insOp->setEstRowsAccessed(noOfProbes_);
 
   //----------------------------------------
   //  Synthesize and return the cost object.
   //----------------------------------------
-  Cost *hbaseInsertCost =
-    scmCost(tuplesProcessed, tuplesProduced, csZero, ioRand, ioSeq, noOfProbesPerStream_,
-            rowSize, csZero, rowSize, csZero);
+  Cost *hbaseInsertCost = scmCost(tuplesProcessed, tuplesProduced, csZero, ioRand, ioSeq, noOfProbesPerStream_, rowSize,
+                                  csZero, rowSize, csZero);
 
 #ifndef NDEBUG
-  NABoolean printCost =
-    (CmpCommon::getDefault(OPTIMIZER_PRINT_COST) == DF_ON);
-  if (printCost)
-    {
-      pfp = stdout;
-      fprintf(pfp, "HbaseInsert::scmComputeOperatorCostInternal()\n");
-      hbaseInsertCost->getScmCplr().print(pfp);
-      fprintf(pfp, "Hbase Insert elapsed time: ");
-      fprintf(pfp, "%f", hbaseInsertCost->convertToElapsedTime(myContext->getReqdPhysicalProperty()).value());
-      fprintf(pfp, "\n");
-      fprintf(pfp,"CountOfStreams returned %d\n",countOfStreams);
-    }
+  NABoolean printCost = (CmpCommon::getDefault(OPTIMIZER_PRINT_COST) == DF_ON);
+  if (printCost) {
+    pfp = stdout;
+    fprintf(pfp, "HbaseInsert::scmComputeOperatorCostInternal()\n");
+    hbaseInsertCost->getScmCplr().print(pfp);
+    fprintf(pfp, "Hbase Insert elapsed time: ");
+    fprintf(pfp, "%f", hbaseInsertCost->convertToElapsedTime(myContext->getReqdPhysicalProperty()).value());
+    fprintf(pfp, "\n");
+    fprintf(pfp, "CountOfStreams returned %d\n", countOfStreams);
+  }
 #endif
 
   // We use the call to computeOperatorCostInternal() to compute the various costs, but we
@@ -4653,17 +3957,14 @@ CostMethodHbaseInsert::scmComputeOperatorCostInternal(RelExpr* op,
 //**************************************************************
 // This method computes the cost vector of the IsolatedScalarUDF operation
 //**************************************************************
-Cost*
-CostMethodIsolatedScalarUDF::scmComputeOperatorCostInternal(RelExpr* op,
-                                                            const PlanWorkSpace* pws,
-                                                            Lng32& countOfStreams)
-{
-  const Context* myContext = pws->getContext();
+Cost *CostMethodIsolatedScalarUDF::scmComputeOperatorCostInternal(RelExpr *op, const PlanWorkSpace *pws,
+                                                                  Lng32 &countOfStreams) {
+  const Context *myContext = pws->getContext();
 
   // ---------------------------------------------------------------------
   // Preparatory work.
   // ---------------------------------------------------------------------
-  cacheParameters(op,myContext);
+  cacheParameters(op, myContext);
   estimateDegreeOfParallelism();
 
   // -----------------------------------------
@@ -4671,11 +3972,11 @@ CostMethodIsolatedScalarUDF::scmComputeOperatorCostInternal(RelExpr* op,
   // -----------------------------------------
   countOfStreams = countOfStreams_;
 
-  IsolatedScalarUDF *udf = (IsolatedScalarUDF *) op;
+  IsolatedScalarUDF *udf = (IsolatedScalarUDF *)op;
 
   // Make sure we are an UDF.
-  CMPASSERT( udf != NULL );
-  CMPASSERT( op->getOperatorType() == REL_ISOLATED_SCALAR_UDF  );
+  CMPASSERT(udf != NULL);
+  CMPASSERT(op->getOperatorType() == REL_ISOLATED_SCALAR_UDF);
 
   // Get the size of the inputs.
   RowSize inputRowBytes = udf->getGroupAttr()->getInputVarLength();
@@ -4683,13 +3984,12 @@ CostMethodIsolatedScalarUDF::scmComputeOperatorCostInternal(RelExpr* op,
   // -----------------------------------------
   // Determine the number of input Rows/Probes
   // -----------------------------------------
-  CostScalar noOfProbes =
-    ( myContext->getInputLogProp()->getResultCardinality() ).minCsOne();
+  CostScalar noOfProbes = (myContext->getInputLogProp()->getResultCardinality()).minCsOne();
 
   noOfProbes -= csOne;  // subtract one to account for the first row.
 
   // Make sure we have a RoutineDesc.
-  CMPASSERT( udf->getRoutineDesc() != NULL );
+  CMPASSERT(udf->getRoutineDesc() != NULL);
 
   SimpleCostVector &initialCostV = udf->getRoutineDesc()->getEffInitialRowCostVector();
   SimpleCostVector &normalCostV = udf->getRoutineDesc()->getEffNormalRowCostVector();
@@ -4703,7 +4003,6 @@ CostMethodIsolatedScalarUDF::scmComputeOperatorCostInternal(RelExpr* op,
   CostScalar normalIOCost = normalCostV.getIOTime();
   CostScalar fanOut = udf->getRoutineDesc()->getEffFanOut();
 
-
   CostScalar inputRowSize = inputRowBytes;
   CostScalar inputRowSizeFactor = scmRowSizeFactor(inputRowSize);
 
@@ -4711,14 +4010,13 @@ CostMethodIsolatedScalarUDF::scmComputeOperatorCostInternal(RelExpr* op,
   CostScalar outputRowSizeFactor = scmRowSizeFactor(outputRowSize);
 
   // Normalize the rowCount (inputProbes) over the number of streams.
-  CostScalar rowCount = (noOfProbes/countOfStreams);
+  CostScalar rowCount = (noOfProbes / countOfStreams);
 
   // Cost for First probe.
   CostScalar tuplesProcessed = initialCpuCost * inputRowSizeFactor;
   CostScalar tuplesProduced = initialIOCost * outputRowSizeFactor;
   CostScalar tuplesSent = initialMsgCost * inputRowSizeFactor;
-  
-  
+
   // Cost for subsequent probes
   tuplesProcessed += rowCount * normalCpuCost * inputRowSizeFactor;
   tuplesProduced += rowCount * normalCpuCost * fanOut * normalIOCost * outputRowSizeFactor;
@@ -4726,42 +4024,38 @@ CostMethodIsolatedScalarUDF::scmComputeOperatorCostInternal(RelExpr* op,
   // per output row(fanOut).
   tuplesSent += rowCount * normalMsgCost * 2 * fanOut * inputRowSizeFactor;
 
-  Cost* tableRoutineCost =  scmCost(tuplesProcessed, tuplesProduced, 
-                                    tuplesSent, csZero, csZero, csZero, 
-                                    inputRowSize, csZero, outputRowSize, csZero);
-  
+  Cost *tableRoutineCost = scmCost(tuplesProcessed, tuplesProduced, tuplesSent, csZero, csZero, csZero, inputRowSize,
+                                   csZero, outputRowSize, csZero);
+
   return tableRoutineCost;
 }
 //**************************************************************
 // This method computes the cost vector of the TableMappingUDF operation
 //**************************************************************
-Cost*
-CostMethodTableMappingUDF::scmComputeOperatorCostInternal(RelExpr* op,
-                                                          const PlanWorkSpace* pws,
-                                                          Lng32& countOfStreams)
-{
-  const Context* myContext = pws->getContext();
-  EstLogPropSharedPtr inputLP  = myContext->getInputLogProp();
+Cost *CostMethodTableMappingUDF::scmComputeOperatorCostInternal(RelExpr *op, const PlanWorkSpace *pws,
+                                                                Lng32 &countOfStreams) {
+  const Context *myContext = pws->getContext();
+  EstLogPropSharedPtr inputLP = myContext->getInputLogProp();
 
   // ---------------------------------------------------------------------
   // Preparatory work.
   // ---------------------------------------------------------------------
-  cacheParameters(op,myContext);
+  cacheParameters(op, myContext);
   estimateDegreeOfParallelism();
 
   // Save off estimated degree of parallelism.
   countOfStreams = countOfStreams_;
 
-  TableMappingUDF *udf = (TableMappingUDF *) op;
+  TableMappingUDF *udf = (TableMappingUDF *)op;
 
   // Make sure we are an UDF.
-  CMPASSERT( udf != NULL );
-  CMPASSERT( op->castToTableMappingUDF() );
+  CMPASSERT(udf != NULL);
+  CMPASSERT(op->castToTableMappingUDF());
 
   const TMUDFPlanWorkSpace *tmudfPWS = static_cast<const TMUDFPlanWorkSpace *>(pws);
   const tmudr::UDRPlanInfo *planInfo = tmudfPWS->getUDRPlanInfo();
 
-  EstLogPropSharedPtr outputLP = op->getGroupAttr()->outputLogProp( inputLP );
+  EstLogPropSharedPtr outputLP = op->getGroupAttr()->outputLogProp(inputLP);
   CostScalar outputRowsPerStream = outputLP->getResultCardinality() / countOfStreams;
 
   // Get the size of the scalar inputs and output row
@@ -4771,22 +4065,19 @@ CostMethodTableMappingUDF::scmComputeOperatorCostInternal(RelExpr* op,
   // -----------------------------------------
   // Determine the number of input Rows/Probes
   // -----------------------------------------
-  CostScalar noOfProbes =
-    ( inputLP->getResultCardinality() ).minCsOne();
+  CostScalar noOfProbes = (inputLP->getResultCardinality()).minCsOne();
 
-  // per stream Rows from child 
+  // per stream Rows from child
   CostScalar tuplesProcessed = csZero;
 
-  for (int i=0; i < op->getArity(); i++)
-    {
-      EstLogPropSharedPtr childOutputLP = op->child(i).outputLogProp( inputLP );
-      CostScalar  rowsFromChildPerStream =
-        childOutputLP->getResultCardinality() / countOfStreams;
-      RowSize childOutputRowBytes = udf->child(i).getGroupAttr()->getInputVarLength();
-      CostScalar childOutputRowSizeFactor = scmRowSizeFactor(childOutputRowBytes);
+  for (int i = 0; i < op->getArity(); i++) {
+    EstLogPropSharedPtr childOutputLP = op->child(i).outputLogProp(inputLP);
+    CostScalar rowsFromChildPerStream = childOutputLP->getResultCardinality() / countOfStreams;
+    RowSize childOutputRowBytes = udf->child(i).getGroupAttr()->getInputVarLength();
+    CostScalar childOutputRowSizeFactor = scmRowSizeFactor(childOutputRowBytes);
 
-      tuplesProcessed += rowsFromChildPerStream * childOutputRowSizeFactor;
-    }
+    tuplesProcessed += rowsFromChildPerStream * childOutputRowSizeFactor;
+  }
 
   // tuples produced
   CostScalar outputRowSizeFactor = scmRowSizeFactor(outputRowSize);
@@ -4804,46 +4095,36 @@ CostMethodTableMappingUDF::scmComputeOperatorCostInternal(RelExpr* op,
   //    tmudr::UDRInvocationInfo::ISOLATED)
   tuplesSent = tuplesProcessed + tuplesProduced;
 
-  if (planInfo->getCostPerRow() > 0)
-    {
-      // The UDF writer specified a cost per row (per stream) in nanoseconds,
-      // convert that to internal units and create a cost by interpreting the
-      // UDF cost per row as tuples produced
-      CostScalar rowNanosecFactor = 
-	 ActiveSchemaDB()->getDefaults().getAsDouble(NCM_UDR_NANOSEC_FACTOR);
-      tuplesProduced = outputRowsPerStream * rowNanosecFactor * planInfo->getCostPerRow();
+  if (planInfo->getCostPerRow() > 0) {
+    // The UDF writer specified a cost per row (per stream) in nanoseconds,
+    // convert that to internal units and create a cost by interpreting the
+    // UDF cost per row as tuples produced
+    CostScalar rowNanosecFactor = ActiveSchemaDB()->getDefaults().getAsDouble(NCM_UDR_NANOSEC_FACTOR);
+    tuplesProduced = outputRowsPerStream * rowNanosecFactor * planInfo->getCostPerRow();
 
-      // in this case, set tuplesProcessed to 0, since that cost is
-      // included in the per output tuple cost specified by the UDF writer
-      tuplesProcessed = csZero;
+    // in this case, set tuplesProcessed to 0, since that cost is
+    // included in the per output tuple cost specified by the UDF writer
+    tuplesProcessed = csZero;
 
-      // Note that we still add cost for sending tuples back and forth,
-      // if applicable, in tuplesSent.
-    }
+    // Note that we still add cost for sending tuples back and forth,
+    // if applicable, in tuplesSent.
+  }
 
-  Cost* tableRoutineCost = scmCost(tuplesProcessed, tuplesProduced, 
-                                   tuplesSent, csZero, csZero, csOne, 
-                                   inputRowSize, csZero, outputRowSize, csZero);
+  Cost *tableRoutineCost = scmCost(tuplesProcessed, tuplesProduced, tuplesSent, csZero, csZero, csOne, inputRowSize,
+                                   csZero, outputRowSize, csZero);
 
   return tableRoutineCost;
-  
-  
 }
 
-
-
-Cost*
-CostMethodFastExtract::scmComputeOperatorCostInternal(RelExpr* op,
-                                                      const PlanWorkSpace* pws,
-                                                      Lng32& countOfStreams)
-{
-  const Context* myContext = pws->getContext();
-  EstLogPropSharedPtr inputLP  = myContext->getInputLogProp();
+Cost *CostMethodFastExtract::scmComputeOperatorCostInternal(RelExpr *op, const PlanWorkSpace *pws,
+                                                            Lng32 &countOfStreams) {
+  const Context *myContext = pws->getContext();
+  EstLogPropSharedPtr inputLP = myContext->getInputLogProp();
 
   // ---------------------------------------------------------------------
   // Preparatory work.
   // ---------------------------------------------------------------------
-  cacheParameters(op,myContext);
+  cacheParameters(op, myContext);
   estimateDegreeOfParallelism();
 
   // Save off estimated degree of parallelism.
@@ -4855,7 +4136,7 @@ CostMethodFastExtract::scmComputeOperatorCostInternal(RelExpr* op,
   // -----------------------------------------
   // Determine the number of input Rows/Probes
   // -----------------------------------------
-  CostScalar noOfProbes = ( inputLP->getResultCardinality() ).minCsOne();
+  CostScalar noOfProbes = (inputLP->getResultCardinality()).minCsOne();
 
   noOfProbes -= csOne;  // subtract one to account for the first row.
 
@@ -4866,10 +4147,9 @@ CostMethodFastExtract::scmComputeOperatorCostInternal(RelExpr* op,
   CostScalar outputRowSizeFactor = scmRowSizeFactor(outputRowSize);
 
   // per stream Rows from child
-   CostScalar  rowsFromChildPerStream ;
-   EstLogPropSharedPtr childOutputLP = op->child(0).outputLogProp( inputLP );
-   rowsFromChildPerStream = childOutputLP->getResultCardinality() / countOfStreams;
-
+  CostScalar rowsFromChildPerStream;
+  EstLogPropSharedPtr childOutputLP = op->child(0).outputLogProp(inputLP);
+  rowsFromChildPerStream = childOutputLP->getResultCardinality() / countOfStreams;
 
   // Cost for subsequent probes
   CostScalar tuplesProcessed = rowsFromChildPerStream * inputRowSizeFactor;
@@ -4878,12 +4158,8 @@ CostMethodFastExtract::scmComputeOperatorCostInternal(RelExpr* op,
   // per output row(fanOut).
   CostScalar tuplesSent = tuplesProcessed;
 
-  Cost* fastExtractCost =  scmCost(tuplesProcessed, tuplesProduced,
-                                    tuplesSent, csZero, csZero, csZero,
-                                    inputRowSize, csZero, outputRowSize, csZero);
+  Cost *fastExtractCost = scmCost(tuplesProcessed, tuplesProduced, tuplesSent, csZero, csZero, csZero, inputRowSize,
+                                  csZero, outputRowSize, csZero);
 
   return fastExtractCost;
-
-
 }
-

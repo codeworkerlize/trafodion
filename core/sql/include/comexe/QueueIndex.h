@@ -2,7 +2,7 @@
 ****************************************************************************
 *
 * File:         QueueIndex.h
-* Description:  
+* Description:
 *
 * Created:      5/6/98
 * Language:     C++
@@ -39,8 +39,6 @@
 // definition of queue_index needs to be known as compiler time since
 // objects of it are passed as arguments to the TDB constructors.
 
-typedef UInt32  queue_index;
+typedef UInt32 queue_index;
 
 #endif
-
-

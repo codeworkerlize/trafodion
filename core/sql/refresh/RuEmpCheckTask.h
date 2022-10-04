@@ -44,9 +44,9 @@
 
 //--------------------------------------------------------------------------//
 //	CRUEmpCheckTask
-//	
-//	The EmpCheck task (works on a single table) checks whether the delta(s) 
-//	of the table towards the using MV(s) are empty. The emptiness check's 
+//
+//	The EmpCheck task (works on a single table) checks whether the delta(s)
+//	of the table towards the using MV(s) are empty. The emptiness check's
 //	results are recorded in the *emptiness check vector*. For each MV on T,
 //	the vector's element V[MV.EPOCH[T]] contains two flags (a bitmap):
 //	(1) Are there single-row records in the log starting from epoch MV.EPOCH[T]?
@@ -57,54 +57,43 @@
 //--------------------------------------------------------------------------//
 
 class REFRESH_LIB_CLASS CRUEmpCheckTask : public CRULogProcessingTask {
+ private:
+  typedef CRULogProcessingTask inherited;
 
-private:
-	typedef CRULogProcessingTask inherited;
+  //---------------------------------------//
+  //	PUBLIC AREA
+  //---------------------------------------//
+ public:
+  CRUEmpCheckTask(Lng32 id, CRUTbl &table);
+  virtual ~CRUEmpCheckTask();
 
-	//---------------------------------------//
-	//	PUBLIC AREA
-	//---------------------------------------//
-public:
-	CRUEmpCheckTask(Lng32 id, CRUTbl &table);
-	virtual ~CRUEmpCheckTask();
+  //-----------------------------------//
+  // Accessors
+  //-----------------------------------//
+ public:
+  //-- Implementation of pure virtuals
+  virtual CRUTask::Type GetType() const { return CRUTask::EMP_CHECK; }
 
-	//-----------------------------------//
-	// Accessors
-	//-----------------------------------//
-public:
-	//-- Implementation of pure virtuals
-	virtual CRUTask::Type GetType() const 
-	{ 
-		return CRUTask::EMP_CHECK; 
-	}
+  //---------------------------------------//
+  //	PRIVATE AND PROTECTED AREA
+  //---------------------------------------//
+ protected:
+  virtual CDSString GetTaskName() const;
 
-	//---------------------------------------//
-	//	PRIVATE AND PROTECTED AREA
-	//---------------------------------------//
-protected:
-	
-	virtual CDSString GetTaskName() const;
+  // Refinement of the parent's method
+  virtual void PullDataFromExecutor();
 
-	// Refinement of the parent's method
-	virtual void PullDataFromExecutor();
+  // Create the concrete task executor
+  virtual CRUTaskExecutor *CreateExecutorInstance();
 
-	// Create the concrete task executor
-	virtual CRUTaskExecutor *CreateExecutorInstance();
+  virtual TInt32 GetComputedCost() const { return 0; }
 
-	virtual TInt32 GetComputedCost() const
-	{
-		return 0;
-	}
+  virtual BOOL IsImmediate() const { return FALSE; }
 
-	virtual BOOL IsImmediate() const
-	{
-		return FALSE;
-	}
-
-private:
-	//-- Prevent copying
-	CRUEmpCheckTask(const CRUEmpCheckTask &other);
-	CRUEmpCheckTask& operator= (const CRUEmpCheckTask &other);
+ private:
+  //-- Prevent copying
+  CRUEmpCheckTask(const CRUEmpCheckTask &other);
+  CRUEmpCheckTask &operator=(const CRUEmpCheckTask &other);
 };
 
 #endif

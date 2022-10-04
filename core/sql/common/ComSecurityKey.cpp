@@ -40,24 +40,19 @@
 // function: qiSubjectMatchesRole
 //
 // This function compares the subjectKey with the list of roles the current
-// user has been granted.  If it matches one of the roles, return TRUE, 
+// user has been granted.  If it matches one of the roles, return TRUE,
 // otherwise it returns FALSE.
 // ****************************************************************************
-NABoolean qiSubjectMatchesRole(uint32_t subjectKey)
-{
+NABoolean qiSubjectMatchesRole(uint32_t subjectKey) {
   // If roles are not cached, return TRUE
   // (Mantis-12301)
-  if (!ComUser::roleIDsCached())
-    return TRUE;
+  if (!ComUser::roleIDsCached()) return TRUE;
 
-  NAList <Int32> roleIDs(NULL);
-  if (ComUser::getCurrentUserRoles(roleIDs, NULL) != 0)
-    return TRUE;  // force recompilation if can't get current roles
+  NAList<Int32> roleIDs(NULL);
+  if (ComUser::getCurrentUserRoles(roleIDs, NULL) != 0) return TRUE;  // force recompilation if can't get current roles
 
-  for (int i = 0; i < roleIDs.entries(); i++)
-  {
-    if (subjectKey == ComSecurityKey::generateHash(roleIDs[i]))
-      return TRUE;
+  for (int i = 0; i < roleIDs.entries(); i++) {
+    if (subjectKey == ComSecurityKey::generateHash(roleIDs[i])) return TRUE;
   }
   return FALSE;
 }
@@ -66,25 +61,21 @@ NABoolean qiSubjectMatchesRole(uint32_t subjectKey)
 // function: qiSubjectMatchesGroup
 //
 // This function compares the subjectKey with the list of groups in the active
-// role list.  If it matches one of the groups, return TRUE, 
+// role list.  If it matches one of the groups, return TRUE,
 // otherwise it returns FALSE.
 // ****************************************************************************
-NABoolean qiSubjectMatchesGroup(uint32_t subjectKey)
-{
+NABoolean qiSubjectMatchesGroup(uint32_t subjectKey) {
   // If roles are not cached, return TRUE
   // (Mantis-12301)
-  if (!ComUser::roleIDsCached())
-    return TRUE;
+  if (!ComUser::roleIDsCached()) return TRUE;
 
-  NAList <Int32> roleIDs(NULL);
-  NAList <Int32> grantees(NULL);
+  NAList<Int32> roleIDs(NULL);
+  NAList<Int32> grantees(NULL);
   if (ComUser::getCurrentUserRoles(roleIDs, grantees, NULL) != 0)
     return TRUE;  // force recompliation if can't get current roles
 
-  for (int i = 0; i < grantees.entries(); i++)
-  {
-    if (subjectKey == ComSecurityKey::generateHash(grantees[i]))
-      return TRUE;
+  for (int i = 0; i < grantees.entries(); i++) {
+    if (subjectKey == ComSecurityKey::generateHash(grantees[i])) return TRUE;
   }
   return FALSE;
 }
@@ -99,37 +90,30 @@ NABoolean qiSubjectMatchesGroup(uint32_t subjectKey)
 // return TRUE.  TRUE indicates that the object should be reloaded to pick up
 // DDL or privilege changes.
 // ****************************************************************************
-NABoolean qiCheckForInvalidObject (const Int32 numInvalidationKeys,
-                                   const SQL_QIKEY* invalidationKeys,
-                                   const Int64 objectUID,
-                                   const ComSecurityKeySet & objectKeys)
-{
+NABoolean qiCheckForInvalidObject(const Int32 numInvalidationKeys, const SQL_QIKEY *invalidationKeys,
+                                  const Int64 objectUID, const ComSecurityKeySet &objectKeys) {
   NABoolean found = FALSE;
   ComQIActionType invalidationKeyType = COM_QI_INVALID_ACTIONTYPE;
 
-  // check each invalidation key against objects in NATableDB or NARoutineDB 
+  // check each invalidation key against objects in NATableDB or NARoutineDB
   // cache
-  for ( Int32 i = 0; i < numInvalidationKeys && !found; i++ )
-  {
-    invalidationKeyType = ComQIActionTypeLiteralToEnum( invalidationKeys[i].operation );
+  for (Int32 i = 0; i < numInvalidationKeys && !found; i++) {
+    invalidationKeyType = ComQIActionTypeLiteralToEnum(invalidationKeys[i].operation);
     Int32 numObjectKeys = objectKeys.entries();
 
-    switch (invalidationKeyType)
-    {
-      // Indicates that the DDL of the object has changed. 
+    switch (invalidationKeyType) {
+      // Indicates that the DDL of the object has changed.
       case COM_QI_OBJECT_REDEF:
 
       // Indicates that the DDL of the schema has changed.
       case COM_QI_SCHEMA_REDEF:
       // Indicates that the histogram statistics of the object has changed.
-      case COM_QI_STATS_UPDATED:
-      {
-        if (invalidationKeys[i].ddlObjectUID == objectUID)
-          found = TRUE;
+      case COM_QI_STATS_UPDATED: {
+        if (invalidationKeys[i].ddlObjectUID == objectUID) found = TRUE;
         break;
       }
 
-      // Scan the passed-in object keys to find any that match the subject, 
+      // Scan the passed-in object keys to find any that match the subject,
       // object, and key type. That is, the subject has the privilege
       // (invalidation key type) on the object or a column of the object.
       case COM_QI_COLUMN_SELECT:
@@ -141,65 +125,49 @@ NABoolean qiCheckForInvalidObject (const Int32 numInvalidationKeys,
       case COM_QI_OBJECT_DELETE:
       case COM_QI_OBJECT_UPDATE:
       case COM_QI_OBJECT_USAGE:
-      case COM_QI_OBJECT_REFERENCES: 
+      case COM_QI_OBJECT_REFERENCES:
       case COM_QI_OBJECT_EXECUTE:
       case COM_QI_OBJECT_ALTER:
       case COM_QI_OBJECT_DROP:
-        for (Int32 j = 0; j < numObjectKeys && !found; j++ )
-        {
+        for (Int32 j = 0; j < numObjectKeys && !found; j++) {
           ComSecurityKey keyValue = objectKeys[j];
-          if ( ( invalidationKeys[i].revokeKey.object ==
-                 keyValue.getObjectHashValue() )  &&
-               ( invalidationKeyType ==
-                 keyValue.getSecurityKeyType() ) )
-          {
-            if ( invalidationKeys[i].revokeKey.subject ==
-                   keyValue.getSubjectHashValue() ||
-                 qiSubjectMatchesRole(invalidationKeys[i].revokeKey.subject) )
+          if ((invalidationKeys[i].revokeKey.object == keyValue.getObjectHashValue()) &&
+              (invalidationKeyType == keyValue.getSecurityKeyType())) {
+            if (invalidationKeys[i].revokeKey.subject == keyValue.getSubjectHashValue() ||
+                qiSubjectMatchesRole(invalidationKeys[i].revokeKey.subject))
               found = TRUE;
           }
         }
         break;
 
-      case COM_QI_USER_GRANT_SPECIAL_ROLE:
-      {
-        for (Int32 j = 0; j < numObjectKeys && !found; j++ )
-        {
+      case COM_QI_USER_GRANT_SPECIAL_ROLE: {
+        for (Int32 j = 0; j < numObjectKeys && !found; j++) {
           ComSecurityKey keyValue = objectKeys[j];
-          if ( ( invalidationKeys[i].revokeKey.subject ==
-                   keyValue.getSubjectHashValue() ) &&
-               ( invalidationKeys[i].revokeKey.object ==
-                   keyValue.getObjectHashValue() )  &&
-               ( invalidationKeyType ==
-                   keyValue.getSecurityKeyType() ) )
+          if ((invalidationKeys[i].revokeKey.subject == keyValue.getSubjectHashValue()) &&
+              (invalidationKeys[i].revokeKey.object == keyValue.getObjectHashValue()) &&
+              (invalidationKeyType == keyValue.getSecurityKeyType()))
             found = TRUE;
         }
         break;
       }
       case COM_QI_USER_GRANT_ROLE:
-      case COM_QI_GROUP_GRANT_ROLE:
-      {
-        for (Int32 j = 0; j < numObjectKeys && !found; j++ )
-        {
+      case COM_QI_GROUP_GRANT_ROLE: {
+        for (Int32 j = 0; j < numObjectKeys && !found; j++) {
           ComSecurityKey keyValue = objectKeys[j];
-          if ( invalidationKeys[i].revokeKey.subject ==
-                   keyValue.getSubjectHashValue() )
-          {
+          if (invalidationKeys[i].revokeKey.subject == keyValue.getSubjectHashValue()) {
             // If the object has any invalidation keys based on the schema
             // and a role was revoked, then go ahead and invalidate the entry.
-            // At this time, we don't know if the schema was granted privileges 
+            // At this time, we don't know if the schema was granted privileges
             // on the role that we revoked so we have to invalidate all entries.
-            // TDB: May want to add a new invalidation key that is set when 
+            // TDB: May want to add a new invalidation key that is set when
             // revoking a role from a grantee and the role was granted to
             // a schema associated with the grantee. This way we only remove
             // necessary items.
             if (keyValue.schemaKeyType(keyValue.getSecurityKeyType()))
               found = TRUE;
-            else if ( ( invalidationKeys[i].revokeKey.object ==
-                          keyValue.getObjectHashValue() )  &&
-                       ( invalidationKeyType ==
-                          keyValue.getSecurityKeyType() ) )
-            found = TRUE;
+            else if ((invalidationKeys[i].revokeKey.object == keyValue.getObjectHashValue()) &&
+                     (invalidationKeyType == keyValue.getSecurityKeyType()))
+              found = TRUE;
           }
         }
         break;
@@ -214,25 +182,16 @@ NABoolean qiCheckForInvalidObject (const Int32 numInvalidationKeys,
       case COM_QI_SCHEMA_EXECUTE:
       case COM_QI_SCHEMA_CREATE:
       case COM_QI_SCHEMA_ALTER:
-      case COM_QI_SCHEMA_DROP:
-      {
-        ComSecurityKey publicKey( PUBLIC_USER, objectUID
-                                , SELECT_PRIV
-                                , ComSecurityKey::OBJECT_IS_OBJECT
-                               );
+      case COM_QI_SCHEMA_DROP: {
+        ComSecurityKey publicKey(PUBLIC_USER, objectUID, SELECT_PRIV, ComSecurityKey::OBJECT_IS_OBJECT);
         uint32_t publicHashValue = publicKey.getSubjectHashValue();
-        for (Int32 j = 0; j < numObjectKeys && !found; j++ )
-        {
+        for (Int32 j = 0; j < numObjectKeys && !found; j++) {
           ComSecurityKey keyValue = objectKeys[j];
-          if ( (invalidationKeys[i].revokeKey.object == 
-                   keyValue.getObjectHashValue() )  &&
-               ( invalidationKeyType ==
-                   keyValue.getSecurityKeyType() ) )
-          {
-            if ( ( invalidationKeys[i].revokeKey.subject ==
-                   keyValue.getSubjectHashValue() ) ||
-                 ( invalidationKeys[i].revokeKey.subject == publicHashValue ) )
-            found = TRUE;
+          if ((invalidationKeys[i].revokeKey.object == keyValue.getObjectHashValue()) &&
+              (invalidationKeyType == keyValue.getSecurityKeyType())) {
+            if ((invalidationKeys[i].revokeKey.subject == keyValue.getSubjectHashValue()) ||
+                (invalidationKeys[i].revokeKey.subject == publicHashValue))
+              found = TRUE;
           }
         }
         break;
@@ -252,24 +211,20 @@ NABoolean qiCheckForInvalidObject (const Int32 numInvalidationKeys,
 // This function compares the list of query invalidate keys that changed to
 // the schema UID for the object.
 //
-// If the changed invalidation key matches the passed in  schema UID, 
+// If the changed invalidation key matches the passed in  schema UID,
 // return TRUE.  TRUE indicates that the object should be reloaded to pick up
 // the invalidation change.
 // ****************************************************************************
-NABoolean qiCheckForSchemaUID(const Int32 numInvalidationKeys,
-                              const SQL_QIKEY* invalidationKeys,
-                              const Int64 schemaUID)
-{
+NABoolean qiCheckForSchemaUID(const Int32 numInvalidationKeys, const SQL_QIKEY *invalidationKeys,
+                              const Int64 schemaUID) {
   NABoolean found = FALSE;
   uint32_t schemaHash = ComSecurityKey::generateHash(schemaUID);
   ComQIActionType invalidationKeyType = COM_QI_INVALID_ACTIONTYPE;
 
-  for ( Int32 i = 0; i < numInvalidationKeys && !found; i++ )
-  {
-    invalidationKeyType = ComQIActionTypeLiteralToEnum( invalidationKeys[i].operation );
+  for (Int32 i = 0; i < numInvalidationKeys && !found; i++) {
+    invalidationKeyType = ComQIActionTypeLiteralToEnum(invalidationKeys[i].operation);
 
-    switch (invalidationKeyType)
-    {
+    switch (invalidationKeyType) {
       case COM_QI_SCHEMA_SELECT:
       case COM_QI_SCHEMA_INSERT:
       case COM_QI_SCHEMA_DELETE:
@@ -279,25 +234,20 @@ NABoolean qiCheckForSchemaUID(const Int32 numInvalidationKeys,
       case COM_QI_SCHEMA_EXECUTE:
       case COM_QI_SCHEMA_CREATE:
       case COM_QI_SCHEMA_ALTER:
-      case COM_QI_SCHEMA_DROP:
-      {
-        if (invalidationKeys[i].revokeKey.object == schemaHash) 
-          found = TRUE;
-      }
-      break;
+      case COM_QI_SCHEMA_DROP: {
+        if (invalidationKeys[i].revokeKey.object == schemaHash) found = TRUE;
+      } break;
       default:
         found = FALSE;
         break;
-     }
+    }
   }
   return found;
 }
 
-
-
 // ****************************************************************************
 // Function that builds query invalidation keys for privileges. A separate
-// invalidation key is added for each granted DML/DDL privilege. 
+// invalidation key is added for each granted DML/DDL privilege.
 //
 // Parameters:
 //    roleGrantees - needed to create invalidation key to represent:
@@ -328,34 +278,25 @@ NABoolean qiCheckForSchemaUID(const Int32 numInvalidationKeys,
 //
 // returns false if unable to build keys
 // ****************************************************************************
-bool buildSecurityKeys( const NAList<int32_t> &roleGrantees,
-                        const int32_t granteeID,
-                        const int64_t objectUID,
-                        const bool isSchema,
-                        const bool isColumn,
-                        const PrivMgrCoreDesc &privs,
-                        ComSecurityKeySet &secKeySet )
-{
-  if (privs.isNull())
-    return true;
+bool buildSecurityKeys(const NAList<int32_t> &roleGrantees, const int32_t granteeID, const int64_t objectUID,
+                       const bool isSchema, const bool isColumn, const PrivMgrCoreDesc &privs,
+                       ComSecurityKeySet &secKeySet) {
+  if (privs.isNull()) return true;
 
   NABoolean doDebug = (getenv("DBUSER_DEBUG") ? TRUE : FALSE);
-  std::string  msg ("Method: buildSecurityKeys ");
-  if (doDebug)
-  {
-    printf("[DBUSER:%d] %s\n", (int) getpid(), msg.c_str());
+  std::string msg("Method: buildSecurityKeys ");
+  if (doDebug) {
+    printf("[DBUSER:%d] %s\n", (int)getpid(), msg.c_str());
     fflush(stdout);
   }
 
   // If public is the grantee, generate special security key
   // A user cannot be revoked from public
-  if (ComUser::isPublicUserID(granteeID))
-  {
+  if (ComUser::isPublicUserID(granteeID)) {
     ComSecurityKey key(granteeID, ComSecurityKey::OBJECT_IS_SPECIAL_ROLE);
-    if (doDebug)
-    {
-      NAString msg (key.print(granteeID, objectUID));
-      printf("[DBUSER:%d]  (public) %s\n", (int) getpid(), msg.data());
+    if (doDebug) {
+      NAString msg(key.print(granteeID, objectUID));
+      printf("[DBUSER:%d]  (public) %s\n", (int)getpid(), msg.data());
       fflush(stdout);
     }
 
@@ -366,22 +307,17 @@ bool buildSecurityKeys( const NAList<int32_t> &roleGrantees,
   }
 
   // If the grantee is a role, generate special security keys, one for
-  // the user and one for each of the user's roles. 
+  // the user and one for each of the user's roles.
   // If the role is revoked from the user these key takes affect
-  if (PrivMgr::isRoleID(granteeID))
-  {
-    char buf [200];
-    for (CollIndex r = 0; r < roleGrantees.entries(); r++)
-    {
-      ComSecurityKey::QIType qiType = (PrivMgr::isUserID(roleGrantees[r])) ?
-        ComSecurityKey::SUBJECT_IS_USER : 
-        ComSecurityKey::SUBJECT_IS_GROUP;
-      ComSecurityKey key (roleGrantees[r], granteeID, qiType);
-      if (doDebug)
-      {
+  if (PrivMgr::isRoleID(granteeID)) {
+    char buf[200];
+    for (CollIndex r = 0; r < roleGrantees.entries(); r++) {
+      ComSecurityKey::QIType qiType =
+          (PrivMgr::isUserID(roleGrantees[r])) ? ComSecurityKey::SUBJECT_IS_USER : ComSecurityKey::SUBJECT_IS_GROUP;
+      ComSecurityKey key(roleGrantees[r], granteeID, qiType);
+      if (doDebug) {
         NAString msg = key.print(roleGrantees[r], granteeID);
-        printf("[DBUSER:%d]   (role) %s\n",
-               (int) getpid(), msg.data());
+        printf("[DBUSER:%d]   (role) %s\n", (int)getpid(), msg.data());
         fflush(stdout);
       }
 
@@ -393,10 +329,8 @@ bool buildSecurityKeys( const NAList<int32_t> &roleGrantees,
   }
 
   // Generate keys one per granted DML privilege
-  for ( size_t i = FIRST_DML_PRIV; i <= LAST_DML_PRIV; i++ )
-  {
-    if ( privs.getPriv(PrivType(i)))
-    {
+  for (size_t i = FIRST_DML_PRIV; i <= LAST_DML_PRIV; i++) {
+    if (privs.getPriv(PrivType(i))) {
       ComSecurityKey::QIType qiType;
       if (isSchema)
         qiType = ComSecurityKey::OBJECT_IS_SCHEMA;
@@ -405,55 +339,45 @@ bool buildSecurityKeys( const NAList<int32_t> &roleGrantees,
       else
         qiType = ComSecurityKey::OBJECT_IS_OBJECT;
 
-      ComSecurityKey key (granteeID, objectUID, PrivType(i), qiType);
-      if (doDebug)
-      {
+      ComSecurityKey key(granteeID, objectUID, PrivType(i), qiType);
+      if (doDebug) {
         NAString msg = key.print(granteeID, objectUID);
-        printf("[DBUSER:%d]   (DML)%s\n",
-               (int) getpid(), msg.data());
+        printf("[DBUSER:%d]   (DML)%s\n", (int)getpid(), msg.data());
         fflush(stdout);
       }
 
       if (key.isValid())
-       secKeySet.insert(key);
+        secKeySet.insert(key);
       else
         return false;
     }
   }
 
   // Generate keys one per granted DDL privilege
-  for ( size_t i = FIRST_DDL_PRIV; i <= LAST_DDL_PRIV; i++ )
-  { 
-    if ( privs.getPriv(PrivType(i)))
-    {
+  for (size_t i = FIRST_DDL_PRIV; i <= LAST_DDL_PRIV; i++) {
+    if (privs.getPriv(PrivType(i))) {
       ComSecurityKey::QIType qiType;
       if (isSchema)
         qiType = ComSecurityKey::OBJECT_IS_SCHEMA;
-      else
-      {
+      else {
         // Skip DDL privilege CREATE_PRIV on objects
-        if (i == CREATE_PRIV)
-          continue;
+        if (i == CREATE_PRIV) continue;
         qiType = ComSecurityKey::OBJECT_IS_OBJECT;
       }
 
-      ComSecurityKey key (granteeID, objectUID, PrivType(i), qiType);
-      if (doDebug)
-      {
+      ComSecurityKey key(granteeID, objectUID, PrivType(i), qiType);
+      if (doDebug) {
         NAString msg = key.print(granteeID, objectUID);
-        printf("[DBUSER:%d]   (DDL)%s\n",
-               (int) getpid(), msg.data());
+        printf("[DBUSER:%d]   (DDL)%s\n", (int)getpid(), msg.data());
         fflush(stdout);
       }
 
       if (key.isValid())
-       secKeySet.insert(key);
+        secKeySet.insert(key);
       else
         return false;
     }
   }
-
-
 
   return true;
 }
@@ -472,13 +396,8 @@ bool buildSecurityKeys( const NAList<int32_t> &roleGrantees,
 //    updateCaches -- need to update cache entries related for the keys
 //    resetSchemaCaches -- need to reset schema objects
 // ****************************************************************************
-void qiInvalidationType (const Int32 numInvalidationKeys,
-                         const SQL_QIKEY* invalidationKeys,
-                         const Int32 userID,
-                         bool &resetRoleList,
-                         bool &updateCaches,
-                         bool &resetSchemaCaches)
-{
+void qiInvalidationType(const Int32 numInvalidationKeys, const SQL_QIKEY *invalidationKeys, const Int32 userID,
+                        bool &resetRoleList, bool &updateCaches, bool &resetSchemaCaches) {
   NABoolean doDebug = (getenv("DBUSER_DEBUG") ? TRUE : FALSE);
   char buf[100];
 
@@ -489,35 +408,28 @@ void qiInvalidationType (const Int32 numInvalidationKeys,
   ComQIActionType invalidationKeyType = COM_QI_INVALID_ACTIONTYPE;
 
   // Have the ComSecurityKey constructor compute the hash value for the the User's ID.
-  // Note: The following code doesn't care about the object's hash value or the resulting 
+  // Note: The following code doesn't care about the object's hash value or the resulting
   // ComSecurityKey's ActionType....we just need the hash value for the User's ID.
   // Perhaps a new constructor would be good (also done in RelRoot::checkPrivileges)
   uint32_t userHashValue = ComSecurityKey::generateHash(userID);
   uint32_t publicHashValue = ComSecurityKey::generateHash(PUBLIC_USER);
 
-  if (doDebug)
-  {
+  if (doDebug) {
     sprintf(buf, ", num keys(%d)", numInvalidationKeys);
-    printf("[DBUSER:%d] Method: qiInvalidationType (what should be invalidated) %s\n",
-           (int) getpid(), buf);
+    printf("[DBUSER:%d] Method: qiInvalidationType (what should be invalidated) %s\n", (int)getpid(), buf);
     fflush(stdout);
     sprintf(buf, "Not applicable");
   }
 
- 
-  for ( Int32 i = 0; i < numInvalidationKeys; i++ )
-  {
-    invalidationKeyType = ComQIActionTypeLiteralToEnum( invalidationKeys[i].operation );
-    switch (invalidationKeyType)
-    {
+  for (Int32 i = 0; i < numInvalidationKeys; i++) {
+    invalidationKeyType = ComQIActionTypeLiteralToEnum(invalidationKeys[i].operation);
+    switch (invalidationKeyType) {
       // Object changed, need to update caches
       case COM_QI_OBJECT_REDEF:
       case COM_QI_STATS_UPDATED:
         if (doDebug)
-          sprintf(buf, "object/stats, operation: %c%c, objectUID: %ld",
-                  invalidationKeys[i].operation[0],
-                  invalidationKeys[i].operation[1],
-                  invalidationKeys[i].ddlObjectUID);
+          sprintf(buf, "object/stats, operation: %c%c, objectUID: %ld", invalidationKeys[i].operation[0],
+                  invalidationKeys[i].operation[1], invalidationKeys[i].ddlObjectUID);
 
         updateCaches = true;
         break;
@@ -538,23 +450,21 @@ void qiInvalidationType (const Int32 numInvalidationKeys,
       case COM_QI_OBJECT_ALTER:
       case COM_QI_OBJECT_DROP:
         // If the current user matches the revoke subject, update
-        if (invalidationKeys[i].revokeKey.subject == userHashValue)
-        {
+        if (invalidationKeys[i].revokeKey.subject == userHashValue) {
           if (doDebug)
-            sprintf(buf, "user: %d, operation: %c%c, subject: %u, object: %u", userID,
-                    invalidationKeys[i].operation[0], invalidationKeys[i].operation[1],
-                    invalidationKeys[i].revokeKey.subject, invalidationKeys[i].revokeKey.object);
+            sprintf(buf, "user: %d, operation: %c%c, subject: %u, object: %u", userID, invalidationKeys[i].operation[0],
+                    invalidationKeys[i].operation[1], invalidationKeys[i].revokeKey.subject,
+                    invalidationKeys[i].revokeKey.object);
 
           updateCaches = true;
         }
 
         // If one of the users roles matches the revokes subject, update
-        else if (qiSubjectMatchesRole(invalidationKeys[i].revokeKey.subject))
-        {
+        else if (qiSubjectMatchesRole(invalidationKeys[i].revokeKey.subject)) {
           if (doDebug)
-            sprintf(buf, "role: %d, operation: %c%c, subject: %u, object: %u", userID,
-                    invalidationKeys[i].operation[0], invalidationKeys[i].operation[1],
-                    invalidationKeys[i].revokeKey.subject, invalidationKeys[i].revokeKey.object);
+            sprintf(buf, "role: %d, operation: %c%c, subject: %u, object: %u", userID, invalidationKeys[i].operation[0],
+                    invalidationKeys[i].operation[1], invalidationKeys[i].revokeKey.subject,
+                    invalidationKeys[i].revokeKey.object);
 
           updateCaches = true;
         }
@@ -570,26 +480,24 @@ void qiInvalidationType (const Int32 numInvalidationKeys,
       case COM_QI_SCHEMA_CREATE:
       case COM_QI_SCHEMA_ALTER:
       case COM_QI_SCHEMA_DROP:
-        if (invalidationKeys[i].revokeKey.subject == userHashValue || 
+        if (invalidationKeys[i].revokeKey.subject == userHashValue ||
             invalidationKeys[i].revokeKey.subject == publicHashValue ||
-            qiSubjectMatchesRole(invalidationKeys[i].revokeKey.subject))
-        {
+            qiSubjectMatchesRole(invalidationKeys[i].revokeKey.subject)) {
           if (doDebug)
-            sprintf(buf, "user: %d, operation: %c%c, subject: %u, object: %u", userID,
-                    invalidationKeys[i].operation[0], invalidationKeys[i].operation[1],
-                    invalidationKeys[i].revokeKey.subject, invalidationKeys[i].revokeKey.object);
+            sprintf(buf, "user: %d, operation: %c%c, subject: %u, object: %u", userID, invalidationKeys[i].operation[0],
+                    invalidationKeys[i].operation[1], invalidationKeys[i].revokeKey.subject,
+                    invalidationKeys[i].revokeKey.object);
           updateCaches = true;
         }
         break;
 
       // For public user (SPECIAL_ROLE), the subject is a special hash
       case COM_QI_USER_GRANT_SPECIAL_ROLE:
-        if (invalidationKeys[i].revokeKey.subject == ComSecurityKey::SPECIAL_SUBJECT_HASH)
-        {
+        if (invalidationKeys[i].revokeKey.subject == ComSecurityKey::SPECIAL_SUBJECT_HASH) {
           if (doDebug)
-            sprintf(buf, "user: %d, operation: %c%c, subject: %u, object: %u", userID,
-                    invalidationKeys[i].operation[0], invalidationKeys[i].operation[1],
-                    invalidationKeys[i].revokeKey.subject, invalidationKeys[i].revokeKey.object);
+            sprintf(buf, "user: %d, operation: %c%c, subject: %u, object: %u", userID, invalidationKeys[i].operation[0],
+                    invalidationKeys[i].operation[1], invalidationKeys[i].revokeKey.subject,
+                    invalidationKeys[i].revokeKey.object);
           updateCaches = true;
         }
         break;
@@ -598,12 +506,11 @@ void qiInvalidationType (const Int32 numInvalidationKeys,
       // if QI key associated with the current user and remove any plans
       // that include the role key
       case COM_QI_USER_GRANT_ROLE:
-        if (invalidationKeys[i].revokeKey.subject == userHashValue)
-        {
+        if (invalidationKeys[i].revokeKey.subject == userHashValue) {
           if (doDebug)
-            sprintf(buf, "user: %d, operation: %c%c, subject: %u, object: %u", userID,
-                    invalidationKeys[i].operation[0], invalidationKeys[i].operation[1],
-                    invalidationKeys[i].revokeKey.subject, invalidationKeys[i].revokeKey.object);
+            sprintf(buf, "user: %d, operation: %c%c, subject: %u, object: %u", userID, invalidationKeys[i].operation[0],
+                    invalidationKeys[i].operation[1], invalidationKeys[i].revokeKey.subject,
+                    invalidationKeys[i].revokeKey.object);
 
           resetRoleList = true;
           updateCaches = true;
@@ -613,12 +520,11 @@ void qiInvalidationType (const Int32 numInvalidationKeys,
       // If revoking a role from a group that is in the current processes cache
       // then need recompilations, etc.
       case COM_QI_GROUP_GRANT_ROLE:
-        if (qiSubjectMatchesGroup(invalidationKeys[i].revokeKey.subject))
-        {
+        if (qiSubjectMatchesGroup(invalidationKeys[i].revokeKey.subject)) {
           if (doDebug)
-            sprintf(buf, "operation: %c%c, subject: %u, object: %u",
-                invalidationKeys[i].operation[0], invalidationKeys[i].operation[1],
-                invalidationKeys[i].revokeKey.subject, invalidationKeys[i].revokeKey.object);
+            sprintf(buf, "operation: %c%c, subject: %u, object: %u", invalidationKeys[i].operation[0],
+                    invalidationKeys[i].operation[1], invalidationKeys[i].revokeKey.subject,
+                    invalidationKeys[i].revokeKey.object);
           resetRoleList = true;
           updateCaches = true;
         }
@@ -626,9 +532,9 @@ void qiInvalidationType (const Int32 numInvalidationKeys,
 
       case COM_QI_SCHEMA_REDEF:
         if (doDebug)
-          sprintf(buf, "user: %d, operation: %c%c, subject: %u, object: %u", userID,
-                  invalidationKeys[i].operation[0], invalidationKeys[i].operation[1],
-                  invalidationKeys[i].revokeKey.subject, invalidationKeys[i].revokeKey.object);
+          sprintf(buf, "user: %d, operation: %c%c, subject: %u, object: %u", userID, invalidationKeys[i].operation[0],
+                  invalidationKeys[i].operation[1], invalidationKeys[i].revokeKey.subject,
+                  invalidationKeys[i].revokeKey.object);
         resetSchemaCaches = true;
         break;
 
@@ -637,9 +543,9 @@ void qiInvalidationType (const Int32 numInvalidationKeys,
       //       one of the groups the current user is assigned
       case COM_QI_GRANT_ROLE:
         if (doDebug)
-          sprintf(buf, "operation: %c%c, subject: %u, object: %u",
-                  invalidationKeys[i].operation[0], invalidationKeys[i].operation[1],
-                  invalidationKeys[i].revokeKey.subject, invalidationKeys[i].revokeKey.object);
+          sprintf(buf, "operation: %c%c, subject: %u, object: %u", invalidationKeys[i].operation[0],
+                  invalidationKeys[i].operation[1], invalidationKeys[i].revokeKey.subject,
+                  invalidationKeys[i].revokeKey.object);
 
         resetRoleList = true;
         break;
@@ -649,138 +555,102 @@ void qiInvalidationType (const Int32 numInvalidationKeys,
       // unknown key type, search and update cache (should not happen)
       default:
         if (doDebug)
-          sprintf(buf, "user: %d, operation: %c%c, subject: %u, object: %u", userID,
-                  invalidationKeys[i].operation[0], invalidationKeys[i].operation[1],
-                  invalidationKeys[i].revokeKey.subject, invalidationKeys[i].revokeKey.object);
+          sprintf(buf, "user: %d, operation: %c%c, subject: %u, object: %u", userID, invalidationKeys[i].operation[0],
+                  invalidationKeys[i].operation[1], invalidationKeys[i].revokeKey.subject,
+                  invalidationKeys[i].revokeKey.object);
         resetRoleList = true;
         updateCaches = true;
         break;
     }
-    if (doDebug)
-    {
-      printf("[DBUSER:%d]   %s\n",
-             (int) getpid(), buf);
+    if (doDebug) {
+      printf("[DBUSER:%d]   %s\n", (int)getpid(), buf);
       fflush(stdout);
     }
-  } 
+  }
   return;
 }
-
 
 // *****************************************************************************
 //    ComSecurityKey methods
 // *****************************************************************************
 // Constructor for privilege grant on a SQL object to an authID
-ComSecurityKey::ComSecurityKey(const int32_t subjectUserID, 
-                               const int64_t objectUID,
-                               const PrivType which, 
-                               const QIType typeOfObject) 
-:
-  subjectHash_(0),
-  objectHash_(0),
-  actionType_(COM_QI_INVALID_ACTIONTYPE)
-  {
-    // Set the type.
-    actionType_ = convertBitmapToQIActionType(which, typeOfObject);
+ComSecurityKey::ComSecurityKey(const int32_t subjectUserID, const int64_t objectUID, const PrivType which,
+                               const QIType typeOfObject)
+    : subjectHash_(0), objectHash_(0), actionType_(COM_QI_INVALID_ACTIONTYPE) {
+  // Set the type.
+  actionType_ = convertBitmapToQIActionType(which, typeOfObject);
 
-    if (actionType_ != COM_QI_INVALID_ACTIONTYPE)
-    {
-      // This is a valid key.  Set the subject and object values.
+  if (actionType_ != COM_QI_INVALID_ACTIONTYPE) {
+    // This is a valid key.  Set the subject and object values.
 
-      // Authorization ID of the grantee
-      // Hash value of the authorization ID of the subject
-      subjectHash_ = generateHash(subjectUserID);
-      // Hash value of the UID of the object
-      objectHash_ = generateHash(objectUID);
-    }
+    // Authorization ID of the grantee
+    // Hash value of the authorization ID of the subject
+    subjectHash_ = generateHash(subjectUserID);
+    // Hash value of the UID of the object
+    objectHash_ = generateHash(objectUID);
   }
+}
 
 // Constructor for role grants to user and groups
-ComSecurityKey::ComSecurityKey(
-  const int32_t subjectUserID, 
-  const int64_t objectUserID,
-  const QIType typeOfSubject) 
-:
-  subjectHash_(0),
-  objectHash_(0),
-  actionType_(COM_QI_INVALID_ACTIONTYPE)
-  {
-    if (typeOfSubject == SUBJECT_IS_USER)
-      actionType_ = COM_QI_USER_GRANT_ROLE;  // revoke role <object> from <user subject>
-    else if (typeOfSubject == SUBJECT_IS_GROUP)
-      actionType_ = COM_QI_GROUP_GRANT_ROLE;
-    else if (typeOfSubject == SUBJECT_IS_GRANT_ROLE)
-      actionType_ = COM_QI_GRANT_ROLE;
-    else
-      actionType_ = COM_QI_ROLE_GRANT_ROLE;  
+ComSecurityKey::ComSecurityKey(const int32_t subjectUserID, const int64_t objectUserID, const QIType typeOfSubject)
+    : subjectHash_(0), objectHash_(0), actionType_(COM_QI_INVALID_ACTIONTYPE) {
+  if (typeOfSubject == SUBJECT_IS_USER)
+    actionType_ = COM_QI_USER_GRANT_ROLE;  // revoke role <object> from <user subject>
+  else if (typeOfSubject == SUBJECT_IS_GROUP)
+    actionType_ = COM_QI_GROUP_GRANT_ROLE;
+  else if (typeOfSubject == SUBJECT_IS_GRANT_ROLE)
+    actionType_ = COM_QI_GRANT_ROLE;
+  else
+    actionType_ = COM_QI_ROLE_GRANT_ROLE;
 
-    if (actionType_ != COM_QI_INVALID_ACTIONTYPE)
-    {
-      // This is a valid key.  Set the subject and object values.
+  if (actionType_ != COM_QI_INVALID_ACTIONTYPE) {
+    // This is a valid key.  Set the subject and object values.
 
-      // Authorization ID of the grantee
-      // Hash value of the authorization ID of the subject
-      subjectHash_ = generateHash(subjectUserID);
+    // Authorization ID of the grantee
+    // Hash value of the authorization ID of the subject
+    subjectHash_ = generateHash(subjectUserID);
 
-      // Hash value of the authorization ID of the object
-      objectHash_ = generateHash(objectUserID);
-    }
+    // Hash value of the authorization ID of the object
+    objectHash_ = generateHash(objectUserID);
   }
+}
 
 // Constructor for a special role grant to an authID.
-ComSecurityKey::ComSecurityKey(
-  const int32_t subjectUserID, 
-  const QIType typeOfObject ) 
-:
-  subjectHash_(0),
-  objectHash_(0),
-  actionType_(COM_QI_INVALID_ACTIONTYPE)
-  {
-    // Set the values
-    if (typeOfObject == OBJECT_IS_SPECIAL_ROLE)
-    {
-      actionType_ = COM_QI_USER_GRANT_SPECIAL_ROLE;
-      subjectHash_ = SPECIAL_SUBJECT_HASH;
-      objectHash_ = SPECIAL_OBJECT_HASH;
-    }
+ComSecurityKey::ComSecurityKey(const int32_t subjectUserID, const QIType typeOfObject)
+    : subjectHash_(0), objectHash_(0), actionType_(COM_QI_INVALID_ACTIONTYPE) {
+  // Set the values
+  if (typeOfObject == OBJECT_IS_SPECIAL_ROLE) {
+    actionType_ = COM_QI_USER_GRANT_SPECIAL_ROLE;
+    subjectHash_ = SPECIAL_SUBJECT_HASH;
+    objectHash_ = SPECIAL_OBJECT_HASH;
   }
+}
 
-ComSecurityKey::ComSecurityKey() :
-  subjectHash_(0),
-  objectHash_(0),
-  actionType_(COM_QI_INVALID_ACTIONTYPE)
-{};
+ComSecurityKey::ComSecurityKey() : subjectHash_(0), objectHash_(0), actionType_(COM_QI_INVALID_ACTIONTYPE){};
 
-bool ComSecurityKey::operator == (const ComSecurityKey &other) const
-{
-  if((subjectHash_ == other.subjectHash_)&&
-     (objectHash_ == other.objectHash_) &&
-     (actionType_ == other.actionType_))
+bool ComSecurityKey::operator==(const ComSecurityKey &other) const {
+  if ((subjectHash_ == other.subjectHash_) && (objectHash_ == other.objectHash_) && (actionType_ == other.actionType_))
     return true;
 
   return false;
 }
 
-ComQIActionType ComSecurityKey::convertBitmapToQIActionType (
-  const PrivType which,
-  const QIType inputType) const
-{
+ComQIActionType ComSecurityKey::convertBitmapToQIActionType(const PrivType which, const QIType inputType) const {
   // Convert from a PrivType value into a security key action type
   // Note that this does not cover grant or revoke role
-  // Only converts values that are applicable to query invalidation.  Returns an 
+  // Only converts values that are applicable to query invalidation.  Returns an
   // invalid value for all other privileges.
 
   // Need to differentiate between schema, object, and column
   ComQIActionType result = COM_QI_INVALID_ACTIONTYPE;
 
-  switch(which)
-  {
+  switch (which) {
     case SELECT_PRIV:
       if (inputType == OBJECT_IS_OBJECT)
         result = COM_QI_OBJECT_SELECT;
       else if (inputType == OBJECT_IS_SCHEMA)
         result = COM_QI_SCHEMA_SELECT;
-      else 
+      else
         result = COM_QI_COLUMN_SELECT;
       break;
     case INSERT_PRIV:
@@ -788,7 +658,7 @@ ComQIActionType ComSecurityKey::convertBitmapToQIActionType (
         result = COM_QI_OBJECT_INSERT;
       else if (inputType == OBJECT_IS_SCHEMA)
         result = COM_QI_SCHEMA_INSERT;
-      else 
+      else
         result = COM_QI_COLUMN_INSERT;
       break;
     case DELETE_PRIV:
@@ -802,7 +672,7 @@ ComQIActionType ComSecurityKey::convertBitmapToQIActionType (
         result = COM_QI_OBJECT_UPDATE;
       else if (inputType == OBJECT_IS_SCHEMA)
         result = COM_QI_SCHEMA_UPDATE;
-      else 
+      else
         result = COM_QI_COLUMN_UPDATE;
       break;
     case USAGE_PRIV:
@@ -819,7 +689,7 @@ ComQIActionType ComSecurityKey::convertBitmapToQIActionType (
       else
         result = COM_QI_COLUMN_REFERENCES;
       break;
-    case EXECUTE_PRIV:  
+    case EXECUTE_PRIV:
       if (inputType == OBJECT_IS_OBJECT)
         result = COM_QI_OBJECT_EXECUTE;
       else if (inputType == OBJECT_IS_SCHEMA)
@@ -827,19 +697,18 @@ ComQIActionType ComSecurityKey::convertBitmapToQIActionType (
       break;
 
     // CREATE_PRIV is not valid for OBJECTS or COLUMNS
-    case CREATE_PRIV:  
-      if (inputType == OBJECT_IS_SCHEMA)
-        result = COM_QI_SCHEMA_CREATE;
+    case CREATE_PRIV:
+      if (inputType == OBJECT_IS_SCHEMA) result = COM_QI_SCHEMA_CREATE;
       break;
 
     // ALTER_PRIV and DROP_PRIV is not valid for COLUMNS
-    case ALTER_PRIV:  
+    case ALTER_PRIV:
       if (inputType == OBJECT_IS_OBJECT)
         result = COM_QI_OBJECT_ALTER;
       else if (inputType == OBJECT_IS_SCHEMA)
         result = COM_QI_SCHEMA_ALTER;
       break;
-    case DROP_PRIV:  
+    case DROP_PRIV:
       if (inputType == OBJECT_IS_OBJECT)
         result = COM_QI_OBJECT_DROP;
       else if (inputType == OBJECT_IS_SCHEMA)
@@ -851,28 +720,24 @@ ComQIActionType ComSecurityKey::convertBitmapToQIActionType (
       break;
   };
 
-return (result);
+  return (result);
 }
 
 // Basic method to generate hash values
-uint32_t ComSecurityKey::generateHash(int64_t hashInput)
-{
-  uint32_t hashResult = ExHDPHash::hash8((char*)&hashInput, ExHDPHash::NO_FLAGS);
+uint32_t ComSecurityKey::generateHash(int64_t hashInput) {
+  uint32_t hashResult = ExHDPHash::hash8((char *)&hashInput, ExHDPHash::NO_FLAGS);
   return hashResult;
 }
 
 // Generate hash value based on authorization ID
-uint32_t ComSecurityKey::generateHash(int32_t hashID)
-{
-  int64_t hVal = (int64_t) hashID;
+uint32_t ComSecurityKey::generateHash(int32_t hashID) {
+  int64_t hVal = (int64_t)hashID;
   uint32_t hashResult = generateHash(hVal);
   return hashResult;
 }
 
-void ComSecurityKey::getSecurityKeyTypeAsLit (std::string &actionString) const
-{ 
-  switch(actionType_)
-  { 
+void ComSecurityKey::getSecurityKeyTypeAsLit(std::string &actionString) const {
+  switch (actionType_) {
     case COM_QI_GRANT_ROLE:
       actionString = COM_QI_GRANT_ROLE_LIT;
       break;
@@ -953,14 +818,12 @@ void ComSecurityKey::getSecurityKeyTypeAsLit (std::string &actionString) const
       break;
     default:
       actionString = COM_QI_INVALID_ACTIONTYPE_LIT;
-    }
+  }
 }
 
-NAString ComSecurityKey::print(Int32 subjectID, Int64 objectID)
-{
+NAString ComSecurityKey::print(Int32 subjectID, Int64 objectID) {
   NAString typeString;
-  switch(actionType_)
-  {
+  switch (actionType_) {
     case COM_QI_GRANT_ROLE:
       typeString = "GRANT_ROLE";
       break;
@@ -1047,12 +910,8 @@ NAString ComSecurityKey::print(Int32 subjectID, Int64 objectID)
       break;
   };
   char buf[200];
-  sprintf (buf, " - subjectHash: %u (%d), objectHash: %u (%ld), type: %s",
-           subjectHash_, subjectID, 
-           objectHash_, objectID, 
-           typeString.data());
-  NAString keyDetails = buf; 
+  sprintf(buf, " - subjectHash: %u (%d), objectHash: %u (%ld), type: %s", subjectHash_, subjectID, objectHash_,
+          objectID, typeString.data());
+  NAString keyDetails = buf;
   return keyDetails;
 }
-
-

@@ -26,8 +26,8 @@
  * File:         AllStmtDDLAlterTable.h
  * Description:  a header file that includes all header files
  *               defining classes relating to Alter Table statements.
- *               
- *               
+ *
+ *
  * Created:      9/22/95
  * Language:     C++
  *
@@ -36,7 +36,6 @@
  *
  *****************************************************************************
  */
-
 
 #include "StmtDDLAlterTable.h"
 
@@ -53,7 +52,7 @@
 #include "parser/StmtDDLAlterTableAddColumn.h"
 #include "parser/StmtDDLAlterTableHDFSCache.h"
 #include "parser/StmtDDLAlterTableDropColumn.h"
-#include "StmtDDLAlterTableAlterColumnLoggable.h" //++ MV
+#include "StmtDDLAlterTableAlterColumnLoggable.h"  //++ MV
 #include "parser/StmtDDLAlterTableDisableIndex.h"
 #include "parser/StmtDDLAlterTableEnableIndex.h"
 // #include "parser/StmtDDLAlterTableAlterColumn.h"
@@ -77,7 +76,6 @@
 #include "parser/StmtDDLAlterTableAlterColumn.h"
 #include "parser/StmtDDLAlterTableAlterColumnSetSGOption.h"
 #include "parser/StmtDDLAlterTableHBaseOptions.h"
-
 
 //
 // End of File

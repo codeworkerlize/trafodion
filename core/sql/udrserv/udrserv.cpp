@@ -49,7 +49,7 @@ static pthread_t gv_main_thread_id;
 #include "common/ComTransInfo.h"
 #include "udrserv.h"
 #include "UdrStreams.h"
-  #include "export/ComDiags.h"
+#include "export/ComDiags.h"
 #include "udrdecs.h"
 #include "ErrorMessage.h"
 #include "UdrFFDC.h"
@@ -69,13 +69,12 @@ static pthread_t gv_main_thread_id;
 DEFINE_DOVERS(tdm_udrserv)
 #include "dtm/tm.h"
 
-
 #include <fcntl.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 
-  #include <unistd.h>
-  #define GETPID getpid
+#include <unistd.h>
+#define GETPID getpid
 
 #include "Measure.h"
 
@@ -84,7 +83,7 @@ DEFINE_DOVERS(tdm_udrserv)
 #include <errno.h>
 
 #ifdef UDR_OSS_DEBUG
-  #include <signal.h>
+#include <signal.h>
 #endif
 
 #ifdef UDR_DEBUG
@@ -95,49 +94,25 @@ DEFINE_DOVERS(tdm_udrserv)
 UdrGlobals *UDR_GLOBALS = NULL;
 
 extern THREAD_P jmp_buf ExportJmpBuf;
-extern THREAD_P jmp_buf* ExportJmpBufPtr;
+extern THREAD_P jmp_buf *ExportJmpBufPtr;
 
-void processASessionMessage(UdrGlobals *UdrGlob,
-                            UdrServerReplyStream &msgStream,
-                            UdrSessionMsg &request);
-void processAnEnterTxMessage(UdrGlobals *UdrGlob,
-                             UdrServerReplyStream &msgStream,
-                             UdrEnterTxMsg &request);
-void processASuspendTxMessage(UdrGlobals *UdrGlob,
-                              UdrServerReplyStream &msgStream,
-                              UdrSuspendTxMsg &request);
-void processAnExitTxMessage(UdrGlobals *UdrGlob,
-                            UdrServerReplyStream &msgStream,
-                            UdrExitTxMsg &request);
-void processALoadMessage(UdrGlobals *UdrGlob,
-                         UdrServerReplyStream &msgStream,
-                         UdrLoadMsg &request,
+void processASessionMessage(UdrGlobals *UdrGlob, UdrServerReplyStream &msgStream, UdrSessionMsg &request);
+void processAnEnterTxMessage(UdrGlobals *UdrGlob, UdrServerReplyStream &msgStream, UdrEnterTxMsg &request);
+void processASuspendTxMessage(UdrGlobals *UdrGlob, UdrServerReplyStream &msgStream, UdrSuspendTxMsg &request);
+void processAnExitTxMessage(UdrGlobals *UdrGlob, UdrServerReplyStream &msgStream, UdrExitTxMsg &request);
+void processALoadMessage(UdrGlobals *UdrGlob, UdrServerReplyStream &msgStream, UdrLoadMsg &request,
                          IpcEnvironment &env);
-void processAnUnLoadMessage(UdrGlobals *UdrGlob,
-                            UdrServerReplyStream &msgStream,
-                            UdrUnloadMsg &request);
-void processAnInvokeMessage(UdrGlobals *UdrGlob,
-                            UdrServerDataStream &msgStream,
-                            UdrDataBuffer &request);
-void processAnRSLoadMessage(UdrGlobals *UdrGlob,
-                            UdrServerReplyStream &msgStream,
-                            UdrRSLoadMsg &request);
-void processAnRSCloseMessage(UdrGlobals *UdrGlob,
-                             UdrServerReplyStream &msgStream,
-                             UdrRSCloseMsg &request);
-void processAnRSUnloadMessage(UdrGlobals *UdrGlob,
-                              UdrServerReplyStream &msgStream,
-                              UdrRSUnloadMsg &request);
+void processAnUnLoadMessage(UdrGlobals *UdrGlob, UdrServerReplyStream &msgStream, UdrUnloadMsg &request);
+void processAnInvokeMessage(UdrGlobals *UdrGlob, UdrServerDataStream &msgStream, UdrDataBuffer &request);
+void processAnRSLoadMessage(UdrGlobals *UdrGlob, UdrServerReplyStream &msgStream, UdrRSLoadMsg &request);
+void processAnRSCloseMessage(UdrGlobals *UdrGlob, UdrServerReplyStream &msgStream, UdrRSCloseMsg &request);
+void processAnRSUnloadMessage(UdrGlobals *UdrGlob, UdrServerReplyStream &msgStream, UdrRSUnloadMsg &request);
 
 NABoolean processCmdLine(UdrGlobals *UdrGlob, Int32 argc, char **argv);
 
-
 // static long getClientId(UdrGlobals *udrGlob);
 
-
-void processARequest(UdrGlobals *UdrGlob,
-                     UdrServerReplyStream &msgStream,
-                     IpcEnvironment &env);
+void processARequest(UdrGlobals *UdrGlob, UdrServerReplyStream &msgStream, IpcEnvironment &env);
 
 static void verifyUdrServer(UdrGlobals &glob);
 
@@ -145,11 +120,8 @@ static const char *LmResultToString(const LmResult &r);
 
 static void DumpDiags(ostream &stream, ComDiagsArea *d, const char *prefix);
 static void DumpProcessInfo();
-static ComDiagsArea *addOrCreateErrorDiags(UdrGlobals *UdrGlob,
-                                           Lng32 errorNumber,
-                                           Lng32 intErrorInfo,
-                                           const char *charErrorInfo,
-                                           ComDiagsArea *diags);
+static ComDiagsArea *addOrCreateErrorDiags(UdrGlobals *UdrGlob, Lng32 errorNumber, Lng32 intErrorInfo,
+                                           const char *charErrorInfo, ComDiagsArea *diags);
 
 //
 // Function to invoke a Java method using the Language Manager
@@ -158,19 +130,10 @@ static ComDiagsArea *addOrCreateErrorDiags(UdrGlobals *UdrGlob,
 //
 static const char *MXUDR_PREFIX = "[MXUDR]";
 static const char *MXUDR_PREFIX_PLUS_SPACE = "[MXUDR] ";
-static FILE *MXUDR_OUTFILE = stdout; // TODO: fix when stderr available
-static Int32 invokeUdrMethod(const char *method,
-                           const char *container,
-                           const char *path,
-                           NABoolean isJava,
-                           NABoolean isUdf,
-                           NABoolean txRequired,
-                           NABoolean useVarchar,
-                           Int32 argc,
-                           char *argv[],
-                           Int32 nResultSets,
-                           Int32 nTimesToInvoke,
-                           UdrGlobals &glob);
+static FILE *MXUDR_OUTFILE = stdout;  // TODO: fix when stderr available
+static Int32 invokeUdrMethod(const char *method, const char *container, const char *path, NABoolean isJava,
+                             NABoolean isUdf, NABoolean txRequired, NABoolean useVarchar, Int32 argc, char *argv[],
+                             Int32 nResultSets, Int32 nTimesToInvoke, UdrGlobals &glob);
 
 // Dead Code
 // These methods are not used, and the interface has not been tested for a long time.
@@ -183,67 +146,49 @@ static NAString initErrText("");
    Helper function to propagate all Java-related environment settings
    found in an optional configuration file into an LmJavaOptions instance.
 
-   File must be in location indicated by envvar TRAFUDRCFG, or if not found, 
+   File must be in location indicated by envvar TRAFUDRCFG, or if not found,
    use default of $TRAF_CONF/trafodion.udr.config
 *************************************************************************/
-void readCfgFileSection ( const char *section, LmJavaOptions &javaOptions )
-{
-   char *p = NULL;
-   char buffer [BUFFMAX+1];
+void readCfgFileSection(const char *section, LmJavaOptions &javaOptions) {
+  char *p = NULL;
+  char buffer[BUFFMAX + 1];
 
-   while ((UdrCfgParser::readSection(section, buffer, sizeof(buffer), initErrText )) > 0)
-   {
-      UDR_DEBUG2("[%s] entry: %s", section, buffer);
+  while ((UdrCfgParser::readSection(section, buffer, sizeof(buffer), initErrText)) > 0) {
+    UDR_DEBUG2("[%s] entry: %s", section, buffer);
 
-      if (strcmp(section, "java") == 0)
-      {
-         javaOptions.addOption(buffer, TRUE);
+    if (strcmp(section, "java") == 0) {
+      javaOptions.addOption(buffer, TRUE);
+    } else if (strcmp(section, "env") == 0) {
+      if ((p = UdrCfgParser::textPos(buffer, "CLASSPATH"))) {
+        javaOptions.addSystemProperty("java.class.path", p);
+      } else if ((p = UdrCfgParser::textPos(buffer, "JREHOME"))) {
+        javaOptions.addSystemProperty("sqlmx.udr.jrehome", p);
       }
-      else 
-         if (strcmp(section, "env") == 0)
-         {
-            if ((p = UdrCfgParser::textPos( buffer, "CLASSPATH" )))
-            {
-               javaOptions.addSystemProperty("java.class.path", p);
-            }
-            else 
-               if ((p = UdrCfgParser::textPos( buffer, "JREHOME" )))
-               {
-                  javaOptions.addSystemProperty("sqlmx.udr.jrehome", p);
-               }
-            putenv(buffer);
-         }
-         else
-         {
-            break;
-         }
-   }  //while
+      putenv(buffer);
+    } else {
+      break;
+    }
+  }  // while
 }
 
-void InitializeJavaOptionsFromEnvironment(LmJavaOptions &javaOptions
-                                         ,NAMemory *heap
-                                         )
-{
-   char *val;
+void InitializeJavaOptionsFromEnvironment(LmJavaOptions &javaOptions, NAMemory *heap) {
+  char *val;
 
-   /* Look for java startup options and envvars in configuration file */
-   if (UdrCfgParser::cfgFileIsOpen(initErrText))
-   {
-      readCfgFileSection("env", javaOptions);
-      readCfgFileSection("java", javaOptions);
-      UdrCfgParser::closeCfgFile();
-   }
+  /* Look for java startup options and envvars in configuration file */
+  if (UdrCfgParser::cfgFileIsOpen(initErrText)) {
+    readCfgFileSection("env", javaOptions);
+    readCfgFileSection("java", javaOptions);
+    UdrCfgParser::closeCfgFile();
+  }
 
-   if ((val = getenv("TRAF_UDR_JAVA_OPTIONS")))
-   {
-      const char *delimiters = " \t";
-      bool newlineIsPresent = (strchr(val, '\n') ? true : false);
-      if (newlineIsPresent)
-      {
-         delimiters = "\n";
-      }
-      javaOptions.addOptions(val, delimiters, TRUE);
-   }
+  if ((val = getenv("TRAF_UDR_JAVA_OPTIONS"))) {
+    const char *delimiters = " \t";
+    bool newlineIsPresent = (strchr(val, '\n') ? true : false);
+    if (newlineIsPresent) {
+      delimiters = "\n";
+    }
+    javaOptions.addOptions(val, delimiters, TRUE);
+  }
 }
 
 /*************************************************************************
@@ -258,19 +203,17 @@ void InitializeJavaOptionsFromEnvironment(LmJavaOptions &javaOptions
 
 //-----------------------------------------------------------------
 
-
 static void runServer(Int32 argc, char **argv);
 
 static int g_argc;
-static char** g_argv=0;
+static char **g_argv = 0;
 
-void * thread_main(void *p_arg)
-{
-  void*           lv_thread_ret = 0;
+void *thread_main(void *p_arg) {
+  void *lv_thread_ret = 0;
 
   // Commented out the call to my_mpi_fclose() below as
   // the function UdrExitHandler(in file UdrFFDC.cpp) takes care of
-  // calling my_mpi_fclose() so we do not need to register that 
+  // calling my_mpi_fclose() so we do not need to register that
   // function here as an exit handler.
   // atexit(my_mpi_fclose);
 
@@ -285,7 +228,6 @@ void * thread_main(void *p_arg)
   setExitHandler();
   UDR_DEBUG0("[MXUDR] Registered Exit handler");
 
- 
   // setup log4cxx,
   QRLogger::initLog4cplus(QRLogger::QRL_UDR);
 
@@ -298,73 +240,53 @@ void * thread_main(void *p_arg)
   const char *stdErrFile = getenv("SQLMX_UDR_STDERR");
   Int32 fdOut = -1;
   Int32 fdErr = -1;
-  
-  if (stdOutFile && stdOutFile[0])
-  {
-    fdOut = open(stdOutFile,
-                 O_WRONLY | O_APPEND | O_CREAT | O_SYNC,
-                 S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
-    if (fdOut >= 0)
-    {
+
+  if (stdOutFile && stdOutFile[0]) {
+    fdOut = open(stdOutFile, O_WRONLY | O_APPEND | O_CREAT | O_SYNC, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
+    if (fdOut >= 0) {
       fprintf(stdout, "[Redirecting MXUDR stdout to %s]\n", stdOutFile);
       fflush(stdout);
       dup2(fdOut, fileno(stdout));
-    }
-    else
-    {
-      fprintf(stdout, "*** WARNING: could not open %s for redirection: %s.\n",
-              stdOutFile, strerror(errno));
+    } else {
+      fprintf(stdout, "*** WARNING: could not open %s for redirection: %s.\n", stdOutFile, strerror(errno));
     }
   }
 
-  if (stdErrFile && stdErrFile[0])
-  {
-    fdErr = open(stdErrFile,
-                 O_WRONLY | O_APPEND | O_CREAT | O_SYNC,
-                 S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
-    if (fdErr >= 0)
-    {
+  if (stdErrFile && stdErrFile[0]) {
+    fdErr = open(stdErrFile, O_WRONLY | O_APPEND | O_CREAT | O_SYNC, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
+    if (fdErr >= 0) {
       fprintf(stdout, "[Redirecting MXUDR stderr to %s]\n", stdErrFile);
       fflush(stdout);
       dup2(fdErr, fileno(stderr));
-    }
-    else
-    {
-      fprintf(stdout, "*** WARNING: could not open %s for redirection: %s.\n",
-              stdErrFile, strerror(errno));
+    } else {
+      fprintf(stdout, "*** WARNING: could not open %s for redirection: %s.\n", stdErrFile, strerror(errno));
     }
   }
-
 
   runServer(g_argc, g_argv);
 
-  if (fdOut >= 0)
-  {
+  if (fdOut >= 0) {
     close(fdOut);
   }
-  if (fdErr >= 0)
-  {
+  if (fdErr >= 0) {
     close(fdErr);
   }
 
-  return (void *) lv_thread_ret;
+  return (void *)lv_thread_ret;
 }
 
-Int32 main(Int32 argc, char **argv)
-{
+Int32 main(Int32 argc, char **argv) {
   dovers(argc, argv);
   file_debug_hook("udrserv", "udrserv.hook");
   try {
-    file_init_attach(&argc, &argv, TRUE, (char*) "");
-  }
-  catch (SB_Fatal_Excep &e) {
+    file_init_attach(&argc, &argv, TRUE, (char *)"");
+  } catch (SB_Fatal_Excep &e) {
     SQLMXLoggingArea::logExecRtInfo(__FILE__, __LINE__, e.what(), 0);
     exit(1);
   }
   try {
     file_mon_process_startup(true);
-  }
-  catch (SB_Fatal_Excep &e) {
+  } catch (SB_Fatal_Excep &e) {
     SQLMXLoggingArea::logExecRtInfo(__FILE__, __LINE__, e.what(), 0);
     exit(1);
   }
@@ -372,38 +294,35 @@ Int32 main(Int32 argc, char **argv)
   g_argc = argc;
   g_argv = argv;
 
-  void* res;
+  void *res;
   int s;
   pthread_attr_t lv_attr;
   pthread_attr_init(&lv_attr);
 
-  s = pthread_create(&gv_main_thread_id, &lv_attr,
-                     thread_main, (void *) 0);
+  s = pthread_create(&gv_main_thread_id, &lv_attr, thread_main, (void *)0);
   if (s != 0) {
     printf("main: Error %d in pthread_create. ret code: %d \n", errno, s);
     return -1;
   }
 
   s = pthread_join(gv_main_thread_id, &res);
-  
+
   if (s != 0) {
     printf("main: Error %d in pthread_join. ret code: %d \n", errno, s);
     return -1;
   }
-  
-  return 0;  
+
+  return 0;
 
   return 0;
 }
 
-static void runServer(Int32 argc, char **argv)
-{
+static void runServer(Int32 argc, char **argv) {
 #ifdef _DEBUG
-  UDR_DEBUG1("Process ID: %ld", (Lng32) GETPID());
+  UDR_DEBUG1("Process ID: %ld", (Lng32)GETPID());
   UDR_DEBUG0("[BEGIN argv]");
   Int32 i;
-  for (i = 0; i < argc; i++)
-  {
+  for (i = 0; i < argc; i++) {
     if (argv[i])
       UDR_DEBUG1("  '%s'", argv[i]);
     else
@@ -413,8 +332,7 @@ static void runServer(Int32 argc, char **argv)
   DumpProcessInfo();
 #endif
 
-  if (setjmp(ExportJmpBuf))
-  {
+  if (setjmp(ExportJmpBuf)) {
     UDR_ASSERT(0, "An ExportJmpBuf longjmp occurred.");
   }
 
@@ -425,11 +343,10 @@ static void runServer(Int32 argc, char **argv)
   NABoolean showMsgBox = FALSE;
   static Int32 pid = getpid();
   char stmp[255];
-  sprintf(stmp,"Process Launched %d", pid);
+  sprintf(stmp, "Process Launched %d", pid);
 
-  if (getenv("SQL_MSGBOX_PROCESS") != NULL)
-  {
-    MessageBox(NULL, stmp , "tdm_udrserv", MB_OK|MB_ICONINFORMATION);
+  if (getenv("SQL_MSGBOX_PROCESS") != NULL) {
+    MessageBox(NULL, stmp, "tdm_udrserv", MB_OK | MB_ICONINFORMATION);
     showMsgBox = TRUE;
   }
 
@@ -440,48 +357,40 @@ static void runServer(Int32 argc, char **argv)
 #ifdef UDR_OSS_DEBUG
   // enable more strict heap checking for the debug build, so
   // that we catch more bugs.
-  if (getenv("DBG_HEAP_CHECK") != NULL) 
-    heap_check_always(1);
+  if (getenv("DBG_HEAP_CHECK") != NULL) heap_check_always(1);
 #endif
 
 #ifndef NDEBUG
-  if (getenv("DEBUG_SERVER") != NULL)
-  {
+  if (getenv("DEBUG_SERVER") != NULL) {
     DebugBreak();
   }
-#endif // NDEBUG
-
+#endif  // NDEBUG
 
   UdrTraceFile = stdout;
-  
+
   // We now create two heaps. One is the "IPC" heap and is intended
   // for objects that only persist while we are processing the current
   // request. The other is the "UDR" heap and is intended for global
   // objects or anything that must not go away after we stop
   // processing the current request.
-  NAHeap *udrHeap = new NAHeap("UDR Global Heap",
-                               NAMemory::DERIVED_FROM_SYS_HEAP,
-                               256 * 1024 // 256K block size
-                               );
+  NAHeap *udrHeap = new NAHeap("UDR Global Heap", NAMemory::DERIVED_FROM_SYS_HEAP,
+                               256 * 1024  // 256K block size
+  );
 
-  NAHeap *ipcHeap = new NAHeap("UDR IPC Heap",
-                               NAMemory::DERIVED_FROM_SYS_HEAP,
-                               256 * 1024 // 256K block size
-                               );
+  NAHeap *ipcHeap = new NAHeap("UDR IPC Heap", NAMemory::DERIVED_FROM_SYS_HEAP,
+                               256 * 1024  // 256K block size
+  );
 
 #ifdef UDR_DEBUG
-  if (getenv("SQLMX_UDR_MEMORY_LOG"))
-    HeapLogRoot::control(LOG_START);
+  if (getenv("SQLMX_UDR_MEMORY_LOG")) HeapLogRoot::control(LOG_START);
 #endif
 
   UDR_GLOBALS = new (udrHeap) UdrGlobals(udrHeap, ipcHeap);
 
   // Move environment settings into the global LmJavaOptions object
-  InitializeJavaOptionsFromEnvironment(*(UDR_GLOBALS->getJavaOptions()),
-                                       udrHeap);
+  InitializeJavaOptionsFromEnvironment(*(UDR_GLOBALS->getJavaOptions()), udrHeap);
 
-  if (processCmdLine(UDR_GLOBALS, argc, argv))
-  {
+  if (processCmdLine(UDR_GLOBALS, argc, argv)) {
     return;
   }
 
@@ -491,32 +400,24 @@ static void runServer(Int32 argc, char **argv)
   // Wait for the first open message
   ctrlConn->waitForMaster();
 
-  doMessageBox(UDR_GLOBALS, TRACE_SHOW_DIALOGS,
-	       UDR_GLOBALS->showMain_, "GotConnection");
+  doMessageBox(UDR_GLOBALS, TRACE_SHOW_DIALOGS, UDR_GLOBALS->showMain_, "GotConnection");
 
-  NABoolean doTrace = (UDR_GLOBALS->verbose_ &&
-                       UDR_GLOBALS->traceLevel_ >= TRACE_IPMS &&
-                       UDR_GLOBALS->showMain_) ? TRUE : FALSE;
+  NABoolean doTrace =
+      (UDR_GLOBALS->verbose_ && UDR_GLOBALS->traceLevel_ >= TRACE_IPMS && UDR_GLOBALS->showMain_) ? TRUE : FALSE;
 
-  while (1)
-  {
-    if (env->getAllConnections()->entries() > 0)
-    {
-      NAList<UdrServerReplyStream *> &replyStreams =
-        UDR_GLOBALS->getReplyStreams();
+  while (1) {
+    if (env->getAllConnections()->entries() > 0) {
+      NAList<UdrServerReplyStream *> &replyStreams = UDR_GLOBALS->getReplyStreams();
 
-      while(replyStreams.entries())
-      {
+      while (replyStreams.entries()) {
         UdrServerReplyStream *stream = replyStreams[0];
         replyStreams.removeAt(0);
 
 #ifdef _DEBUG
-          Lng32 crashPoint = 0;
+        Lng32 crashPoint = 0;
 #endif
-        if (stream->moreObjects())
-        {
-          UdrIpcObjectType msgType =
-           (UdrIpcObjectType) stream->getNextObjType();
+        if (stream->moreObjects()) {
+          UdrIpcObjectType msgType = (UdrIpcObjectType)stream->getNextObjType();
 
 #ifdef _DEBUG
           // Bring the process down if an environment variable value
@@ -527,10 +428,8 @@ static void runServer(Int32 argc, char **argv)
           else
             crashPoint = 0;
 
-          if (crashPoint == (Lng32) msgType)
-          {
-            ServerDebug("  CRASH POINT is %ld (%s)", crashPoint,
-                        GetUdrIpcTypeString((UdrIpcObjectType) crashPoint));
+          if (crashPoint == (Lng32)msgType) {
+            ServerDebug("  CRASH POINT is %ld (%s)", crashPoint, GetUdrIpcTypeString((UdrIpcObjectType)crashPoint));
             ServerDebug("  MXUDR about to exit");
             exit(1);
           }
@@ -542,19 +441,14 @@ static void runServer(Int32 argc, char **argv)
           // Bring the process down if the environment variable checked
           // earlier has a negative value and its positive value matches
           // the message type
-          if (crashPoint && (-crashPoint == (Lng32) msgType))
-          {
-            if (crashPoint == -UDR_MSG_DATA_HEADER ||
-                crashPoint == -UDR_MSG_CONTINUE_REQUEST ||
-                crashPoint == -UDR_MSG_RS_DATA_HEADER ||
-                crashPoint == -UDR_MSG_RS_CONTINUE)
-            {
+          if (crashPoint && (-crashPoint == (Lng32)msgType)) {
+            if (crashPoint == -UDR_MSG_DATA_HEADER || crashPoint == -UDR_MSG_CONTINUE_REQUEST ||
+                crashPoint == -UDR_MSG_RS_DATA_HEADER || crashPoint == -UDR_MSG_RS_CONTINUE) {
               // For data requests, let's wait for 5 sec before crashing
-              Sleep(5 * 1000); // 5 seconds in millisec
+              Sleep(5 * 1000);  // 5 seconds in millisec
             }
 
-            ServerDebug("  CRASH POINT is %ld (%s)", crashPoint,
-                        GetUdrIpcTypeString((UdrIpcObjectType) -crashPoint));
+            ServerDebug("  CRASH POINT is %ld (%s)", crashPoint, GetUdrIpcTypeString((UdrIpcObjectType)-crashPoint));
             ServerDebug("  MXUDR about to exit");
             exit(1);
           }
@@ -566,35 +460,30 @@ static void runServer(Int32 argc, char **argv)
       }
 
       // All work is completed, now wait on all connections.
-      if (doTrace)
-        ServerDebug("[UdrServ (%s)] Wait for next message\n", moduleName);
+      if (doTrace) ServerDebug("[UdrServ (%s)] Wait for next message\n", moduleName);
 
       env->deleteCompletedMessages();
       // This change is made because QCD6 changes with Gil's code
-      // checked in 9/05/26, all UDR tests were failing. 
+      // checked in 9/05/26, all UDR tests were failing.
       // The UDR server was crashing in waitOnSet() in IPc.cpp file
       // when it was making system call WAIT.
       // So this is the work around for time being. Is is required
       // to change other places after consulting Gil when he
-      // comes back from vacation. 
+      // comes back from vacation.
       // env->getAllConnections()->waitOnAll(IpcInfiniteTimeout);
       ctrlConn->wait(IpcInfiniteTimeout);
 
-    } // if (env->getAllConnections()->entries() > 0)
-  } // while (1)
+    }  // if (env->getAllConnections()->entries() > 0)
+  }    // while (1)
 
 }  // runServer
 
-void processARequest(UdrGlobals *UdrGlob,
-                     UdrServerReplyStream &msgStream,
-                     IpcEnvironment &env)
-{
+void processARequest(UdrGlobals *UdrGlob, UdrServerReplyStream &msgStream, IpcEnvironment &env) {
   const char *moduleName = "processARequest";
   IpcMessageType msgType;
   IpcMessageObjVersion msgVer;
 
-  doMessageBox(UdrGlob, TRACE_SHOW_DIALOGS,
-               UdrGlob->showMain_, moduleName);
+  doMessageBox(UdrGlob, TRACE_SHOW_DIALOGS, UdrGlob->showMain_, moduleName);
 
   UdrGlob->objectCount_++;
   UdrGlob->numReqSP_++;
@@ -605,32 +494,22 @@ void processARequest(UdrGlobals *UdrGlob,
   msgVer = msgStream.getNextObjVersion();
   UdrGlob->currentMsgSize_ = msgStream.getNextObjSize();
 
-  if (UdrGlob->verbose_ &&
-      UdrGlob->traceLevel_ >= TRACE_IPMS  &&
-      UdrGlob->showMain_)
-  {
-    ServerDebug("[UdrServ (%s)] Processing Request# %ld",
-                moduleName,
-                UdrGlob->objectCount_);
-    ServerDebug("         Msg Type: %ld (%s)",
-                 (Lng32) msgType,
-                 GetUdrIpcTypeString(UdrIpcObjectType(msgType)));
-    ServerDebug("         Msg Version: %ld", (Lng32) msgVer);
+  if (UdrGlob->verbose_ && UdrGlob->traceLevel_ >= TRACE_IPMS && UdrGlob->showMain_) {
+    ServerDebug("[UdrServ (%s)] Processing Request# %ld", moduleName, UdrGlob->objectCount_);
+    ServerDebug("         Msg Type: %ld (%s)", (Lng32)msgType, GetUdrIpcTypeString(UdrIpcObjectType(msgType)));
+    ServerDebug("         Msg Version: %ld", (Lng32)msgVer);
   }
 
-   if (!IsNAStringSpaceOrEmpty(initErrText))
-   {
-      if (msgType == UDR_MSG_LOAD)
-      {
-         controlErrorReply(UdrGlob,
-            msgStream,
-            UDR_ERR_MESSAGE_PROCESSING,    //errorNumber
-            0,                             //intErrorInfo,
-            initErrText.data()             //charErrorInfo
-            );
-         return;
-      }
-   }
+  if (!IsNAStringSpaceOrEmpty(initErrText)) {
+    if (msgType == UDR_MSG_LOAD) {
+      controlErrorReply(UdrGlob, msgStream,
+                        UDR_ERR_MESSAGE_PROCESSING,  // errorNumber
+                        0,                           // intErrorInfo,
+                        initErrText.data()           // charErrorInfo
+      );
+      return;
+    }
+  }
 
   //
   // Each case in the following switch statement is for a different
@@ -646,51 +525,39 @@ void processARequest(UdrGlobals *UdrGlob,
   // involves using the UdrHandle from the incoming message to perform
   // a lookup into the global SPInfo list.
   //
-  switch (msgType)
-  {
-    case UDR_MSG_SESSION:
-    {
-      doMessageBox(UdrGlob, TRACE_SHOW_DIALOGS,
-                   UdrGlob->showMain_, "Session Type");
+  switch (msgType) {
+    case UDR_MSG_SESSION: {
+      doMessageBox(UdrGlob, TRACE_SHOW_DIALOGS, UdrGlob->showMain_, "Session Type");
 
-      UdrSessionMsg &request = *(new (UdrGlob->getIpcHeap())
-                                 UdrSessionMsg(UdrGlob->getIpcHeap()));
+      UdrSessionMsg &request = *(new (UdrGlob->getIpcHeap()) UdrSessionMsg(UdrGlob->getIpcHeap()));
 
       msgStream >> request;
 
       processASessionMessage(UdrGlob, msgStream, request);
 
       request.decrRefCount();
-    }
-    break;
+    } break;
 
-    case UDR_MSG_LOAD:
-    {
+    case UDR_MSG_LOAD: {
       UdrGlob->numReqLoadSP_++;
 
-      doMessageBox(UdrGlob, TRACE_SHOW_DIALOGS,
-                   UdrGlob->showMain_, "Load Type");
+      doMessageBox(UdrGlob, TRACE_SHOW_DIALOGS, UdrGlob->showMain_, "Load Type");
 
-      UdrLoadMsg &request = *(new (UdrGlob->getIpcHeap())
-                              UdrLoadMsg(UdrGlob->getIpcHeap()));
+      UdrLoadMsg &request = *(new (UdrGlob->getIpcHeap()) UdrLoadMsg(UdrGlob->getIpcHeap()));
 
       msgStream >> request;
 
       processALoadMessage(UdrGlob, msgStream, request, env);
 
       request.decrRefCount();
-    }
-    break;
+    } break;
 
-    case UDR_MSG_UNLOAD:
-    {
+    case UDR_MSG_UNLOAD: {
       UdrGlob->numReqUnloadSP_++;
 
-      doMessageBox(UdrGlob, TRACE_SHOW_DIALOGS,
-                   UdrGlob->showMain_, "Unload Type");
+      doMessageBox(UdrGlob, TRACE_SHOW_DIALOGS, UdrGlob->showMain_, "Unload Type");
 
-      UdrUnloadMsg &request = *(new (UdrGlob->getIpcHeap())
-                                UdrUnloadMsg(UdrGlob->getIpcHeap()));
+      UdrUnloadMsg &request = *(new (UdrGlob->getIpcHeap()) UdrUnloadMsg(UdrGlob->getIpcHeap()));
       msgStream >> request;
 
       processAnUnLoadMessage(UdrGlob, msgStream, request);
@@ -698,318 +565,224 @@ void processARequest(UdrGlobals *UdrGlob,
       request.decrRefCount();
 
 #ifdef UDR_DEBUG
-      if (getenv("SQLMX_UDR_MEMORY_LOG"))
-      {
+      if (getenv("SQLMX_UDR_MEMORY_LOG")) {
         printf("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$\n");
-        printf("Memory usage after processing request: %s \n",
-	       	GetUdrIpcTypeString(UdrIpcObjectType(msgType)));
+        printf("Memory usage after processing request: %s \n", GetUdrIpcTypeString(UdrIpcObjectType(msgType)));
         printf("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$\n");
         HeapLogRoot::display(FALSE);
       }
 #endif
 
-    }
-    break;
+    } break;
 
-
-    case UDR_MSG_DATA_HEADER:
-    {
+    case UDR_MSG_DATA_HEADER: {
       UdrGlob->numReqDataSP_++;
 
-      doMessageBox(UdrGlob, TRACE_SHOW_DIALOGS,
-                   UdrGlob->showMain_, "Invoke Type");
+      doMessageBox(UdrGlob, TRACE_SHOW_DIALOGS, UdrGlob->showMain_, "Invoke Type");
 
       UdrDataHeader h(INVALID_UDR_HANDLE, NULL);
       msgStream >> h;
 
       SPInfo *sp = UdrGlob->getSPList()->spFind(h.getHandle());
-      if (sp)
-      {
+      if (sp) {
         UdrServerDataStream *other = sp->getDataStream();
         msgStream.routeMessage(*other);
-      }
-      else
-      {
+      } else {
         UdrGlob->numErrDataSP_++;
-        controlErrorReply(UdrGlob,
-                          msgStream,
-                          UDR_ERR_MISSING_UDRHANDLE,
-                          0,
-                          "Data header"
-                          );
+        controlErrorReply(UdrGlob, msgStream, UDR_ERR_MISSING_UDRHANDLE, 0, "Data header");
       }
 
-    } // case UDR_MSG_DATA_HEADER
+    }  // case UDR_MSG_DATA_HEADER
     break;
 
-    case UDR_MSG_TMUDF_DATA_HEADER:
-    {
+    case UDR_MSG_TMUDF_DATA_HEADER: {
       UdrGlob->numReqDataSP_++;
 
-      doMessageBox(UdrGlob, TRACE_SHOW_DIALOGS,
-                   UdrGlob->showMain_, "TMUDF Request");
+      doMessageBox(UdrGlob, TRACE_SHOW_DIALOGS, UdrGlob->showMain_, "TMUDF Request");
 
       UdrTmudfDataHeader h(INVALID_UDR_HANDLE, NULL);
       msgStream >> h;
 
       SPInfo *sp = UdrGlob->getSPList()->spFind(h.getHandle());
-      if (sp)
-      {
+      if (sp) {
         UdrServerDataStream *other = sp->getDataStream();
         msgStream.routeMessage(*other);
-      }
-      else
-      {
+      } else {
         UdrGlob->numErrRSFetch_++;
-        controlErrorReply(UdrGlob,
-                          msgStream,
-                          UDR_ERR_MISSING_UDRHANDLE,
-                          0,
-                          "TMUDF Data header"
-                          );
+        controlErrorReply(UdrGlob, msgStream, UDR_ERR_MISSING_UDRHANDLE, 0, "TMUDF Data header");
       }
 
-    } // case UDR_MSG_TMUDF_DATA_HEADER
+    }  // case UDR_MSG_TMUDF_DATA_HEADER
     break;
 
-    case UDR_MSG_CONTINUE_REQUEST:
-    {
+    case UDR_MSG_CONTINUE_REQUEST: {
       UdrGlob->numReqContinueSP_++;
 
-      doMessageBox(UdrGlob, TRACE_SHOW_DIALOGS,
-                   UdrGlob->showMain_, "Continue Type");
+      doMessageBox(UdrGlob, TRACE_SHOW_DIALOGS, UdrGlob->showMain_, "Continue Type");
 
       UdrContinueMsg r(INVALID_UDR_HANDLE, NULL);
       msgStream >> r;
 
       SPInfo *sp = UdrGlob->getSPList()->spFind(r.getHandle());
-      if (sp)
-      {
+      if (sp) {
         UdrServerDataStream *other = sp->getDataStream();
         msgStream.routeMessage(*other);
-      }
-      else
-      {
+      } else {
         UdrGlob->numErrContinueSP_++;
-        controlErrorReply (UdrGlob,
-                           msgStream,
-                           UDR_ERR_MISSING_UDRHANDLE,
-                           0,
-                           "Continue request"
-                           );
+        controlErrorReply(UdrGlob, msgStream, UDR_ERR_MISSING_UDRHANDLE, 0, "Continue request");
       }
 
-    } // case UDR_MSG_CONTINUE_REQUEST
+    }  // case UDR_MSG_CONTINUE_REQUEST
     break;
 
-    case UDR_MSG_RS_LOAD:
-    {
+    case UDR_MSG_RS_LOAD: {
       UdrGlob->numReqRSLoad_++;
 
-      doMessageBox(UdrGlob, TRACE_SHOW_DIALOGS,
-                   UdrGlob->showMain_, "RS Load Type");
+      doMessageBox(UdrGlob, TRACE_SHOW_DIALOGS, UdrGlob->showMain_, "RS Load Type");
 
-      UdrRSLoadMsg &request = *(new (UdrGlob->getIpcHeap())
-                                UdrRSLoadMsg(UdrGlob->getIpcHeap()));
+      UdrRSLoadMsg &request = *(new (UdrGlob->getIpcHeap()) UdrRSLoadMsg(UdrGlob->getIpcHeap()));
       msgStream >> request;
 
       processAnRSLoadMessage(UdrGlob, msgStream, request);
       request.decrRefCount();
-    }
-    break;
+    } break;
 
-    case UDR_MSG_RS_DATA_HEADER:
-    {
+    case UDR_MSG_RS_DATA_HEADER: {
       UdrGlob->numReqRSFetch_++;
 
-      doMessageBox(UdrGlob, TRACE_SHOW_DIALOGS,
-                   UdrGlob->showMain_, "RS Fetch Type");
+      doMessageBox(UdrGlob, TRACE_SHOW_DIALOGS, UdrGlob->showMain_, "RS Fetch Type");
 
       UdrRSDataHeader h(INVALID_UDR_HANDLE, NULL);
       msgStream >> h;
 
       SPInfo *sp = UdrGlob->getSPList()->spFind(h.getHandle());
-      if (sp)
-      {
+      if (sp) {
         UdrServerDataStream *other = sp->getDataStream();
         msgStream.routeMessage(*other);
-      }
-      else
-      {
+      } else {
         UdrGlob->numErrRSFetch_++;
-        controlErrorReply(UdrGlob,
-                          msgStream,
-                          UDR_ERR_MISSING_UDRHANDLE,
-                          0,
-                          "RS Data header"
-                          );
+        controlErrorReply(UdrGlob, msgStream, UDR_ERR_MISSING_UDRHANDLE, 0, "RS Data header");
       }
 
-    } // case UDR_MSG_RS_DATA_HEADER
+    }  // case UDR_MSG_RS_DATA_HEADER
     break;
 
-    case UDR_MSG_RS_CONTINUE:
-    {
+    case UDR_MSG_RS_CONTINUE: {
       UdrGlob->numReqRSContinue_++;
 
-      doMessageBox(UdrGlob, TRACE_SHOW_DIALOGS,
-                   UdrGlob->showMain_, "RS Continue Type");
+      doMessageBox(UdrGlob, TRACE_SHOW_DIALOGS, UdrGlob->showMain_, "RS Continue Type");
 
-      UdrRSContinueMsg &request = *(new (UdrGlob->getIpcHeap())
-                                    UdrRSContinueMsg(UdrGlob->getIpcHeap()));
+      UdrRSContinueMsg &request = *(new (UdrGlob->getIpcHeap()) UdrRSContinueMsg(UdrGlob->getIpcHeap()));
       msgStream >> request;
 
       SPInfo *sp = UdrGlob->getSPList()->spFind(request.getHandle());
-      if (sp)
-      {
+      if (sp) {
         UdrServerDataStream *other = sp->getDataStream();
-        msgStream.routeMessage(* other);
-      }
-      else
-      {
+        msgStream.routeMessage(*other);
+      } else {
         UdrGlob->numErrRSContinue_++;
-        controlErrorReply(UdrGlob,
-                          msgStream,
-                          UDR_ERR_MISSING_UDRHANDLE,
-                          0,
-                          "RS Continue"
-                          );
+        controlErrorReply(UdrGlob, msgStream, UDR_ERR_MISSING_UDRHANDLE, 0, "RS Continue");
       }
 
       request.decrRefCount();
-    }
-    break;
+    } break;
 
-    case UDR_MSG_RS_CLOSE:
-    {
+    case UDR_MSG_RS_CLOSE: {
       UdrGlob->numReqRSClose_++;
 
-      doMessageBox(UdrGlob, TRACE_SHOW_DIALOGS,
-                   UdrGlob->showMain_, "RS Close Type");
+      doMessageBox(UdrGlob, TRACE_SHOW_DIALOGS, UdrGlob->showMain_, "RS Close Type");
 
-      UdrRSCloseMsg &request = *(new (UdrGlob->getIpcHeap())
-                                 UdrRSCloseMsg(UdrGlob->getIpcHeap()));
+      UdrRSCloseMsg &request = *(new (UdrGlob->getIpcHeap()) UdrRSCloseMsg(UdrGlob->getIpcHeap()));
       msgStream >> request;
 
       processAnRSCloseMessage(UdrGlob, msgStream, request);
       request.decrRefCount();
 
-    }
-    break;
+    } break;
 
-    case UDR_MSG_RS_UNLOAD:
-    {
+    case UDR_MSG_RS_UNLOAD: {
       UdrGlob->numReqRSUnload_++;
 
-      doMessageBox(UdrGlob, TRACE_SHOW_DIALOGS,
-                   UdrGlob->showMain_, "RS Unload Type");
+      doMessageBox(UdrGlob, TRACE_SHOW_DIALOGS, UdrGlob->showMain_, "RS Unload Type");
 
-      UdrRSUnloadMsg &request = *(new (UdrGlob->getIpcHeap())
-                                  UdrRSUnloadMsg(UdrGlob->getIpcHeap()));
+      UdrRSUnloadMsg &request = *(new (UdrGlob->getIpcHeap()) UdrRSUnloadMsg(UdrGlob->getIpcHeap()));
       msgStream >> request;
 
       processAnRSUnloadMessage(UdrGlob, msgStream, request);
 
       request.decrRefCount();
-    }
-    break;
+    } break;
 
-    case UDR_MSG_ENTER_TX:
-    {
-      doMessageBox(UdrGlob, TRACE_SHOW_DIALOGS,
-                   UdrGlob->showMain_, "ENTER TX Type");
+    case UDR_MSG_ENTER_TX: {
+      doMessageBox(UdrGlob, TRACE_SHOW_DIALOGS, UdrGlob->showMain_, "ENTER TX Type");
 
-      UdrEnterTxMsg &request = *(new (UdrGlob->getIpcHeap())
-                                 UdrEnterTxMsg(UdrGlob->getIpcHeap()));
+      UdrEnterTxMsg &request = *(new (UdrGlob->getIpcHeap()) UdrEnterTxMsg(UdrGlob->getIpcHeap()));
 
       msgStream >> request;
 
       processAnEnterTxMessage(UdrGlob, msgStream, request);
 
       request.decrRefCount();
-    } // case UDR_MSG_ENTER_TX
+    }  // case UDR_MSG_ENTER_TX
     break;
 
-    case UDR_MSG_SUSPEND_TX:
-    {
-      doMessageBox(UdrGlob, TRACE_SHOW_DIALOGS,
-                   UdrGlob->showMain_, "SUSPEND TX Type");
-      
-      UdrSuspendTxMsg &request = *(new (UdrGlob->getIpcHeap())
-                                   UdrSuspendTxMsg(UdrGlob->getIpcHeap()));
-      
+    case UDR_MSG_SUSPEND_TX: {
+      doMessageBox(UdrGlob, TRACE_SHOW_DIALOGS, UdrGlob->showMain_, "SUSPEND TX Type");
+
+      UdrSuspendTxMsg &request = *(new (UdrGlob->getIpcHeap()) UdrSuspendTxMsg(UdrGlob->getIpcHeap()));
+
       msgStream >> request;
-      
+
       processASuspendTxMessage(UdrGlob, msgStream, request);
-      
+
       request.decrRefCount();
-    } // case UDR_MSG_SUSPEND_TX
+    }  // case UDR_MSG_SUSPEND_TX
     break;
 
-    case UDR_MSG_EXIT_TX:
-    {
-      doMessageBox(UdrGlob, TRACE_SHOW_DIALOGS,
-                   UdrGlob->showMain_, "EXIT TX Type");
+    case UDR_MSG_EXIT_TX: {
+      doMessageBox(UdrGlob, TRACE_SHOW_DIALOGS, UdrGlob->showMain_, "EXIT TX Type");
 
-      UdrExitTxMsg &request = *(new (UdrGlob->getIpcHeap())
-                                 UdrExitTxMsg(UdrGlob->getIpcHeap()));
+      UdrExitTxMsg &request = *(new (UdrGlob->getIpcHeap()) UdrExitTxMsg(UdrGlob->getIpcHeap()));
 
       msgStream >> request;
 
       processAnExitTxMessage(UdrGlob, msgStream, request);
 
       request.decrRefCount();
-    } // case UDR_MSG_EXIT_TX
+    }  // case UDR_MSG_EXIT_TX
     break;
 
-    default:
-    {
+    default: {
       UdrGlob->numErrUDR_++;
-      controlErrorReply(UdrGlob,
-                        msgStream,
-                        UDR_ERR_UNKNOWN_MSG_TYPE,
-                        (Lng32) msgType,
-                        NULL);
+      controlErrorReply(UdrGlob, msgStream, UDR_ERR_UNKNOWN_MSG_TYPE, (Lng32)msgType, NULL);
 
-    } // default
+    }  // default
     break;
 
-  } // switch (msgType)
+  }  // switch (msgType)
 
-  // reset currSP_ 
-  UdrGlob->setCurrSP (NULL);
+  // reset currSP_
+  UdrGlob->setCurrSP(NULL);
 
 }  // processARequest()
 
 // If param 'sp' is set, we check if we have to quiesce executor.
 // If it's NULL, we do not do any attempt to quiesce executor. So it's
 // preferable to set it to NULL, if the caller knows quiesce is not needed.
-void sendControlReply(UdrGlobals *UdrGlob,
-                      UdrServerReplyStream &msgStream,
-                      SPInfo *sp)
-{
+void sendControlReply(UdrGlobals *UdrGlob, UdrServerReplyStream &msgStream, SPInfo *sp) {
   const char *moduleName = "sendControlReply";
 
-  doMessageBox(UdrGlob, TRACE_SHOW_DIALOGS,
-               UdrGlob->showMain_, moduleName);
+  doMessageBox(UdrGlob, TRACE_SHOW_DIALOGS, UdrGlob->showMain_, moduleName);
 
-  NABoolean doTrace = (UdrGlob->verbose_ &&
-                       UdrGlob->traceLevel_ >= TRACE_IPMS &&
-                       UdrGlob->showMain_) ? TRUE : FALSE;
+  NABoolean doTrace = (UdrGlob->verbose_ && UdrGlob->traceLevel_ >= TRACE_IPMS && UdrGlob->showMain_) ? TRUE : FALSE;
 
   UdrGlob->replyCount_++;
 
-  if (doTrace)
-    ServerDebug("[UdrServ (%s)] Sending reply# %d to client",
-                moduleName,
-                UdrGlob->replyCount_);
+  if (doTrace) ServerDebug("[UdrServ (%s)] Sending reply# %d to client", moduleName, UdrGlob->replyCount_);
 
-  if (sp)
-  {
+  if (sp) {
     sp->prepareToReply(msgStream);
-  }
-  else
-  {
+  } else {
     // We are replying to a request that does not require an SPInfo.
     // We assume that we are already in the correct transaction related
     // to this request (and there is no problem even if we are in different
@@ -1021,15 +794,12 @@ void sendControlReply(UdrGlobals *UdrGlob,
   NABoolean waited = TRUE;
   msgStream.send(waited);
 
-  if (doTrace)
-  {
+  if (doTrace) {
     CollIndex i = 0;
     msgStream.getRecipients().nextUsed(i);
     IpcConnection *conn = msgStream.getRecipients().element(i);
 
-    ServerDebug("        Sent reply %ld to client on connection 0x%08X",
-                UdrGlob->replyCount_,
-                conn);
+    ServerDebug("        Sent reply %ld to client on connection 0x%08X", UdrGlob->replyCount_, conn);
     ServerDebug("[UdrServ (%s)] Done", moduleName);
   }
 }  // sendControlReply()
@@ -1037,36 +807,22 @@ void sendControlReply(UdrGlobals *UdrGlob,
 // If param 'sp' is set, we check if we have to quiesce executor.
 // If it's NULL, we do not do any attempt to quiesce executor. So it's
 // preferable to set it to NULL, if the caller knows quiesce is not needed.
-void sendDataReply(UdrGlobals *UdrGlob,
-                   UdrServerDataStream &msgStream,
-                   SPInfo *sp)
-{
+void sendDataReply(UdrGlobals *UdrGlob, UdrServerDataStream &msgStream, SPInfo *sp) {
   const char *moduleName = "sendDataReply";
 
-  NABoolean doTrace = (UdrGlob->verbose_ &&
-                       UdrGlob->traceLevel_ >= TRACE_IPMS &&
-                       UdrGlob->showMain_) ? TRUE : FALSE;
+  NABoolean doTrace = (UdrGlob->verbose_ && UdrGlob->traceLevel_ >= TRACE_IPMS && UdrGlob->showMain_) ? TRUE : FALSE;
 
-  if (UdrGlob->traceLevel_ >= TRACE_SHOW_DIALOGS && UdrGlob->showMain_)
-  {
-    MessageBox(NULL, moduleName , UdrGlob->serverName_,
-               MB_OK | MB_ICONINFORMATION);
+  if (UdrGlob->traceLevel_ >= TRACE_SHOW_DIALOGS && UdrGlob->showMain_) {
+    MessageBox(NULL, moduleName, UdrGlob->serverName_, MB_OK | MB_ICONINFORMATION);
   }
-
 
   UdrGlob->replyCount_++;
 
-  if (doTrace)
-    ServerDebug("[UdrServ (%s)] Sending reply# %d to client",
-                moduleName,
-                UdrGlob->replyCount_);
+  if (doTrace) ServerDebug("[UdrServ (%s)] Sending reply# %d to client", moduleName, UdrGlob->replyCount_);
 
-  if (sp)
-  {
+  if (sp) {
     sp->prepareToReply(msgStream);
-  }
-  else
-  {
+  } else {
     // We are replying to a request that does not require an SPInfo.
     // We assume that we are already in the correct transaction related
     // to this request (and there is no problem even if we are in different
@@ -1097,17 +853,15 @@ void sendDataReply(UdrGlobals *UdrGlob,
   //   conn->wait(IpcInfiniteTimeout);
   // }
 
-  if (doTrace)
-  {
+  if (doTrace) {
     ServerDebug("        Sent reply %ld to client", UdrGlob->replyCount_);
     ServerDebug("[UdrServ (%s)] Done", moduleName);
   }
 
-} // sendDataReply()
+}  // sendDataReply()
 
-static void displayUsageInfo()
-{
-  fprintf(stdout, "Usage:\n"); 
+static void displayUsageInfo() {
+  fprintf(stdout, "Usage:\n");
   fprintf(stdout, "  mxudr -help\n");
   fprintf(stdout, "    Prints this help information.\n");
   fprintf(stdout, "\n");
@@ -1143,29 +897,21 @@ static void displayUsageInfo()
   fprintf(stdout, "\n");
 }
 
-NABoolean processCmdLine(UdrGlobals *UdrGlob, Int32 argc, char **argv)
-{
+NABoolean processCmdLine(UdrGlobals *UdrGlob, Int32 argc, char **argv) {
   const char *moduleName = "processCmdLine";
 
-  doMessageBox(UdrGlob, TRACE_SHOW_DIALOGS,
-               UdrGlob->showMain_, moduleName);
+  doMessageBox(UdrGlob, TRACE_SHOW_DIALOGS, UdrGlob->showMain_, moduleName);
 
   char tmp1[255];
 
-   if (!IsNAStringSpaceOrEmpty(initErrText) )
-   {
-      if (!stricmp(argv[1], "-obey") || !stricmp(argv[1], "-help") 
-      || !stricmp(argv[1], "-invoke") || !stricmp(argv[1], "-verify") ) 
-      {
-         ComDiagsArea *initDiags = addOrCreateErrorDiags(UdrGlob,
-                                                    UDR_ERR_MESSAGE_PROCESSING,
-                                                    0,
-                                                    initErrText.data(),    
-                                                    NULL);
-         DumpDiags(cout, initDiags, MXUDR_PREFIX_PLUS_SPACE);
-         return TRUE;
-      }
-   }
+  if (!IsNAStringSpaceOrEmpty(initErrText)) {
+    if (!stricmp(argv[1], "-obey") || !stricmp(argv[1], "-help") || !stricmp(argv[1], "-invoke") ||
+        !stricmp(argv[1], "-verify")) {
+      ComDiagsArea *initDiags = addOrCreateErrorDiags(UdrGlob, UDR_ERR_MESSAGE_PROCESSING, 0, initErrText.data(), NULL);
+      DumpDiags(cout, initDiags, MXUDR_PREFIX_PLUS_SPACE);
+      return TRUE;
+    }
+  }
 
   //
   // Process environmental variables...
@@ -1174,32 +920,22 @@ NABoolean processCmdLine(UdrGlobals *UdrGlob, Int32 argc, char **argv)
   UdrGlob->traceLevel_ = 0;
   UdrGlob->logFileProvided_ = FALSE;
 
-
   // NSK or Linux can use environment variables...
-  if (const char *logFileName = getenv("UDRSERV_TRACE_FILENAME"))
-  {
+  if (const char *logFileName = getenv("UDRSERV_TRACE_FILENAME")) {
     UdrTraceFile = fopen(logFileName, "a");
-    if (UdrTraceFile == NULL)
-    {
+    if (UdrTraceFile == NULL) {
       UdrTraceFile = stdout;
       sprintf(tmp1, "    Log File: Std Out - Rejected: %.60s", logFileName);
-    }
-    else
-    {
+    } else {
       UdrGlob->logFileProvided_ = TRUE;
       sprintf(tmp1, "    Log File: %.60s", logFileName);
     }
-  }
-  else
-  {
+  } else {
     UdrTraceFile = stdout;
     sprintf(tmp1, "\tLog File: Std Out");
   }
 
-
-
-  if (UdrGlob->verbose_)
-  {
+  if (UdrGlob->verbose_) {
     ServerDebug("[UdrServ (%.30s)] Runtime Parameters:", moduleName);
     ServerDebug(tmp1);
 
@@ -1207,20 +943,15 @@ NABoolean processCmdLine(UdrGlobals *UdrGlob, Int32 argc, char **argv)
     ServerDebug("    Verbose Mode Active");
   }
 
-  if (UdrGlob->showInvoke_)
-    ServerDebug("    Trace Invoke Module Active");
+  if (UdrGlob->showInvoke_) ServerDebug("    Trace Invoke Module Active");
 
-  if (UdrGlob->showLoad_)
-    ServerDebug("    Trace Load Module Active");
+  if (UdrGlob->showLoad_) ServerDebug("    Trace Load Module Active");
 
-  if (UdrGlob->showMain_)
-    ServerDebug("    Trace Main Module Active");
+  if (UdrGlob->showMain_) ServerDebug("    Trace Main Module Active");
 
-  if (UdrGlob->showSPInfo_)
-    ServerDebug("    Trace SPInfo Module Active");
+  if (UdrGlob->showSPInfo_) ServerDebug("    Trace SPInfo Module Active");
 
-  if (UdrGlob->showUnload_)
-    ServerDebug("    Trace Unload Module Active");
+  if (UdrGlob->showUnload_) ServerDebug("    Trace Unload Module Active");
 
   //
   // Now we parse command-line arguments. We support the following
@@ -1235,16 +966,12 @@ NABoolean processCmdLine(UdrGlobals *UdrGlob, Int32 argc, char **argv)
   //  -obey          Process commands from a text file
   //
 
-  for (Int32 i = 1; i < argc; i++)
-  {
-    if (!stricmp(argv[i], "-help"))
-    {
+  for (Int32 i = 1; i < argc; i++) {
+    if (!stricmp(argv[i], "-help")) {
       UdrGlob->setCommandLineMode(TRUE);
       displayUsageInfo();
       exit(1);
-    }
-    else if (!stricmp(argv[i], "-verify"))
-    {
+    } else if (!stricmp(argv[i], "-verify")) {
       UdrGlob->setCommandLineMode(TRUE);
       verifyUdrServer(*UdrGlob);
       exit(0);
@@ -1253,8 +980,7 @@ NABoolean processCmdLine(UdrGlobals *UdrGlob, Int32 argc, char **argv)
     // See if an LM method invocation is being requested. Syntax for
     // LM method invocations is shown in the displayUsageInfo()
     // function.
-    else if (!stricmp(argv[i], "-invoke"))
-    {
+    else if (!stricmp(argv[i], "-invoke")) {
       UdrGlob->setCommandLineMode(TRUE);
 
       Int32 nTimesToInvoke = 1;
@@ -1267,94 +993,61 @@ NABoolean processCmdLine(UdrGlobals *UdrGlob, Int32 argc, char **argv)
 
       // This while loop scans for invoke options that begin with a
       // dash.
-      while (!usageError && ((i + 1) < argc))
-      {
-        if (argv[i + 1][0] == '-')
-        {
+      while (!usageError && ((i + 1) < argc)) {
+        if (argv[i + 1][0] == '-') {
           i++;
-          if (!stricmp(argv[i], "-n"))
-          {
-            if ((i + 1) < argc)
-            {
+          if (!stricmp(argv[i], "-n")) {
+            if ((i + 1) < argc) {
               i++;
               nTimesToInvoke = atoi(argv[i]);
-            }
-            else
-            {
+            } else {
               usageError = TRUE;
             }
-          }
-          else if (!stricmp(argv[i], "-rs"))
-          {
-            if ((i + 1) < argc)
-            {
+          } else if (!stricmp(argv[i], "-rs")) {
+            if ((i + 1) < argc) {
               i++;
               nResultSets = atoi(argv[i]);
-            }
-            else
-            {
+            } else {
               usageError = TRUE;
             }
-          }
-	  else if (!stricmp(argv[i], "-param"))
-	  {
-            if ((i+1) < argc)
-	    {
+          } else if (!stricmp(argv[i], "-param")) {
+            if ((i + 1) < argc) {
               i++;
               paramStyle = argv[i];
-	    }
-	    else
-	    {
+            } else {
               usageError = TRUE;
-	    }
-	  }
-          else if (!stricmp(argv[i], "-notx"))
-          {
+            }
+          } else if (!stricmp(argv[i], "-notx")) {
             txRequired = FALSE;
-          }
-          else if (!stricmp(argv[i], "-vc"))
-          {
+          } else if (!stricmp(argv[i], "-vc")) {
             useVarchar = TRUE;
-          }
-          else if (!stricmp(argv[i], "-udf"))
-          {
+          } else if (!stricmp(argv[i], "-udf")) {
             isUdf = TRUE;
-          }
-          else
-          {
+          } else {
             usageError = TRUE;
           }
-        }
-	else
-	{
+        } else {
           break;
-	}
-      } // while (!usageError && ((i + 1) < argc))
+        }
+      }  // while (!usageError && ((i + 1) < argc))
 
       // We must have at least 3 more arguments for method, container,
       // and path
-      if (argc <= (i + 3))
-      {
+      if (argc <= (i + 3)) {
         usageError = TRUE;
       }
 
       // We expect param styles "c" and "java"
-      if (stricmp(paramStyle, "c") == 0)
-      {
+      if (stricmp(paramStyle, "c") == 0) {
         // Do not manage a transaction for C routines
         txRequired = FALSE;
-      }
-      else if (stricmp(paramStyle, "java") == 0)
-      {
+      } else if (stricmp(paramStyle, "java") == 0) {
         // Nothing to do
-      }
-      else
-      {
+      } else {
         usageError = TRUE;
       }
 
-      if (usageError)
-      {
+      if (usageError) {
         displayUsageInfo();
         exit(1);
       }
@@ -1364,8 +1057,7 @@ NABoolean processCmdLine(UdrGlobals *UdrGlob, Int32 argc, char **argv)
       const char *path = argv[++i];
       Int32 methodArgc = argc - (i + 1);
       char **methodArgv = NULL;
-      if (methodArgc > 0)
-      {
+      if (methodArgc > 0) {
         methodArgv = &(argv[i + 1]);
       }
 
@@ -1373,34 +1065,28 @@ NABoolean processCmdLine(UdrGlobals *UdrGlob, Int32 argc, char **argv)
 
       // If the user is invoking a C routine, assume it is a UDF not a
       // stored procedure
-      if (!isJava)
-        isUdf = TRUE;
+      if (!isJava) isUdf = TRUE;
 
-      Int32 result = invokeUdrMethod(method, container, path,
-                                   isJava, isUdf, txRequired, useVarchar,
-                                   methodArgc, methodArgv, nResultSets,
-                                   nTimesToInvoke, *UdrGlob);
-      
+      Int32 result = invokeUdrMethod(method, container, path, isJava, isUdf, txRequired, useVarchar, methodArgc,
+                                     methodArgv, nResultSets, nTimesToInvoke, *UdrGlob);
+
       exit(result);
 
-    } // -invoke
+    }  // -invoke
 
     // See if the user wants us to obey commands from a text file
-    else if (!stricmp(argv[i], "-obey"))
-    {
+    else if (!stricmp(argv[i], "-obey")) {
       // Dead Code
       // obey option is not tested, and Andy thinks it should be obsoleted.
       UdrGlob->setCommandLineMode(TRUE);
 
       NABoolean usageError = FALSE;
-      
-      if ((i + 1) >= argc)
-      {
+
+      if ((i + 1) >= argc) {
         usageError = TRUE;
       }
 
-      if (usageError)
-      {
+      if (usageError) {
         displayUsageInfo();
         exit(1);
       }
@@ -1410,13 +1096,13 @@ NABoolean processCmdLine(UdrGlobals *UdrGlob, Int32 argc, char **argv)
       Int32 result = processCommandsFromFile(argv[i], *UdrGlob);
       exit(result);
 
-    } // -obey
+    }  // -obey
 
-  } // for each arg in argv
+  }  // for each arg in argv
 
   return FALSE;
 
-} // processCmdLine
+}  // processCmdLine
 
 #if 0
 //
@@ -1494,21 +1180,14 @@ Lng32 getClientId(UdrGlobals *UdrGlob)
 // controlErrorReply() and dataErrorReply() to send UdrErrorReply
 // objects.
 //
-static ComDiagsArea *addOrCreateErrorDiags(UdrGlobals *UdrGlob,
-                                           Lng32 errorNumber,
-                                           Lng32 intErrorInfo,
-                                           const char *charErrorInfo,
-                                           ComDiagsArea *diags)
-{
-  if (!diags)
-  {
+static ComDiagsArea *addOrCreateErrorDiags(UdrGlobals *UdrGlob, Lng32 errorNumber, Lng32 intErrorInfo,
+                                           const char *charErrorInfo, ComDiagsArea *diags) {
+  if (!diags) {
     diags = ComDiagsArea::allocate(UdrGlob->getIpcHeap());
   }
 
-  if (diags && errorNumber != 0)
-  {
-    switch (errorNumber)
-    {
+  if (diags && errorNumber != 0) {
+    switch (errorNumber) {
       case UDR_ERR_UNKNOWN_MSG_TYPE:
       case UDR_ERR_TOO_MANY_OPENERS:
         *diags << DgSqlCode(-errorNumber);
@@ -1519,16 +1198,13 @@ static ComDiagsArea *addOrCreateErrorDiags(UdrGlobals *UdrGlob,
       case UDR_ERR_MISSING_LMROUTINE:
       case UDR_ERR_MISSING_RSHANDLE:
         *diags << DgSqlCode(-errorNumber);
-        if (charErrorInfo)
-        {
+        if (charErrorInfo) {
           *diags << DgString0(charErrorInfo);
         }
         break;
 
       case UDR_ERR_INVALID_RS_INDEX:
-        *diags << DgSqlCode(-errorNumber)
-               << DgString0(charErrorInfo)
-               << DgInt0((Int32) intErrorInfo);
+        *diags << DgSqlCode(-errorNumber) << DgString0(charErrorInfo) << DgInt0((Int32)intErrorInfo);
         break;
 
       case UDR_ERR_INVALID_RS_STATE:
@@ -1536,11 +1212,9 @@ static ComDiagsArea *addOrCreateErrorDiags(UdrGlobals *UdrGlob,
         *diags << DgString0(charErrorInfo);
         break;
 
-      default:
-      {
+      default: {
         *diags << DgSqlCode(-UDR_ERR_MESSAGE_PROCESSING);
-        switch (intErrorInfo)
-        {
+        switch (intErrorInfo) {
           case INVOKE_ERR_NO_REQUEST_BUFFER:
             *diags << DgString0("Invoke: no request buffer.");
             break;
@@ -1567,27 +1241,24 @@ static ComDiagsArea *addOrCreateErrorDiags(UdrGlobals *UdrGlob,
             break;
           default:
             if (charErrorInfo)
-               *diags << DgString0(charErrorInfo);
+              *diags << DgString0(charErrorInfo);
             else
-               *diags << DgString0("");
+              *diags << DgString0("");
             break;
-        } // switch (intErrorInfo)
+        }  // switch (intErrorInfo)
 
-      } // default
-        break;
+      }  // default
+      break;
 
-    } // switch (errorNumber)
+    }  // switch (errorNumber)
 
-  } // if (diags)
+  }  // if (diags)
 
   return diags;
 }
 
-static void doErrorDebugging(UdrGlobals *UdrGlob,
-                             const char *moduleName,
-                             Lng32 errorNumber, Lng32 intErrorInfo,
-                             const char *charErrorInfo)
-{
+static void doErrorDebugging(UdrGlobals *UdrGlob, const char *moduleName, Lng32 errorNumber, Lng32 intErrorInfo,
+                             const char *charErrorInfo) {
   /*
   char errorText[MAXERRTEXT];
   sprintf(errorText, "(%.30s) UDR Error Reply: %d, %d",
@@ -1597,83 +1268,55 @@ static void doErrorDebugging(UdrGlobals *UdrGlob,
                UdrGlob->showMain_, errorText);
   */
 
-  if (UdrGlob->verbose_ &&
-      UdrGlob->traceLevel_ >= TRACE_IPMS &&
-      UdrGlob->showMain_)
-  {
+  if (UdrGlob->verbose_ && UdrGlob->traceLevel_ >= TRACE_IPMS && UdrGlob->showMain_) {
     ServerDebug("[UdrServ (%s)] send error reply", moduleName);
   }
-
 }
 
-void controlErrorReply(UdrGlobals *UdrGlob,
-                       UdrServerReplyStream &msgStream,
-                       Lng32 errorNumber,
-                       Lng32 intErrorInfo,
-                       const char *charErrorInfo)
-{
+void controlErrorReply(UdrGlobals *UdrGlob, UdrServerReplyStream &msgStream, Lng32 errorNumber, Lng32 intErrorInfo,
+                       const char *charErrorInfo) {
   const char *moduleName = "controlErrorReply";
   doMessageBox(UdrGlob, TRACE_SHOW_DIALOGS, UdrGlob->showMain_, moduleName);
 
-  UdrErrorReply *reply =
-    new (UdrGlob->getIpcHeap()) UdrErrorReply(UdrGlob->getIpcHeap());
+  UdrErrorReply *reply = new (UdrGlob->getIpcHeap()) UdrErrorReply(UdrGlob->getIpcHeap());
 
   msgStream.clearAllObjects();
   msgStream << *reply;
   reply->decrRefCount();
 
-  ComDiagsArea *diags = addOrCreateErrorDiags(UdrGlob,
-                                              errorNumber,
-                                              intErrorInfo,
-                                              charErrorInfo,
-                                              NULL);
-  if (diags)
-  {
+  ComDiagsArea *diags = addOrCreateErrorDiags(UdrGlob, errorNumber, intErrorInfo, charErrorInfo, NULL);
+  if (diags) {
     msgStream << *diags;
     diags->decrRefCount();
   }
 
-  doErrorDebugging(UdrGlob, moduleName,
-                   errorNumber, intErrorInfo, charErrorInfo);
+  doErrorDebugging(UdrGlob, moduleName, errorNumber, intErrorInfo, charErrorInfo);
 
   sendControlReply(UdrGlob, msgStream, NULL);
   UdrGlob->numErrSP_++;
 
 }  // controlErrorReply
 
-void dataErrorReply(UdrGlobals *UdrGlob,
-                    UdrServerDataStream &msgStream,
-                    Lng32 errorNumber,
-                    Lng32 intErrorInfo,
-                    const char *charErrorInfo,
-                    ComDiagsArea *diags)
-{
+void dataErrorReply(UdrGlobals *UdrGlob, UdrServerDataStream &msgStream, Lng32 errorNumber, Lng32 intErrorInfo,
+                    const char *charErrorInfo, ComDiagsArea *diags) {
   const char *moduleName = "dataErrorReply";
   doMessageBox(UdrGlob, TRACE_SHOW_DIALOGS, UdrGlob->showMain_, moduleName);
 
   // Free up any receive buffers no longer in use
   msgStream.cleanupBuffers();
 
-  UdrErrorReply *reply =
-    new (UdrGlob->getIpcHeap()) UdrErrorReply(UdrGlob->getIpcHeap());
+  UdrErrorReply *reply = new (UdrGlob->getIpcHeap()) UdrErrorReply(UdrGlob->getIpcHeap());
 
   msgStream << *reply;
   reply->decrRefCount();
 
-  if (!diags)
-    diags = addOrCreateErrorDiags(UdrGlob,
-                                  errorNumber,
-                                  intErrorInfo,
-                                  charErrorInfo,
-                                  NULL);
-  if (diags)
-  {
+  if (!diags) diags = addOrCreateErrorDiags(UdrGlob, errorNumber, intErrorInfo, charErrorInfo, NULL);
+  if (diags) {
     msgStream << *diags;
     diags->decrRefCount();
   }
 
-  doErrorDebugging(UdrGlob, moduleName,
-                   errorNumber, intErrorInfo, charErrorInfo);
+  doErrorDebugging(UdrGlob, moduleName, errorNumber, intErrorInfo, charErrorInfo);
 
   UdrGlob->numErrUDR_++;
   UdrGlob->numErrSP_++;
@@ -1682,7 +1325,7 @@ void dataErrorReply(UdrGlobals *UdrGlob,
 
 }  // dataErrorReply
 
-static void verifyUdrServer(UdrGlobals &glob){
+static void verifyUdrServer(UdrGlobals &glob) {
   LmResult result = LM_OK;
   NAMemory *h = glob.getUdrHeap();
   //
@@ -1691,11 +1334,8 @@ static void verifyUdrServer(UdrGlobals &glob){
   ComDiagsArea *diags = ComDiagsArea::allocate(h);
 
   // Create an LM instance
-  LmLanguageManager *lm = glob.getOrCreateLM(result,
-                                             COM_LANGUAGE_JAVA,
-                                             diags);
-  if (!lm && result == LM_OK)
-  {
+  LmLanguageManager *lm = glob.getOrCreateLM(result, COM_LANGUAGE_JAVA, diags);
+  if (!lm && result == LM_OK) {
     result = LM_ERR;
   }
 
@@ -1706,75 +1346,64 @@ static void verifyUdrServer(UdrGlobals &glob){
   fflush(stderr);
   fflush(stdout);
 
-  if (result == LM_OK)
-  {
+  if (result == LM_OK) {
     fprintf(stdout, "MXUDR Status: OK!\n");
-  }
-  else
-  {
+  } else {
     fprintf(stdout, "MXUDR Status: Errors were encountered!\n");
-    fprintf(stdout, "Language Manager constructor returned %s\n", 
-            LmResultToString(result));
+    fprintf(stdout, "Language Manager constructor returned %s\n", LmResultToString(result));
     DumpDiags(cout, diags, "");
   }
 }
 
-static const char *LmResultToString(const LmResult &r)
-{
-  switch (r)
-  {
-    case LM_OK:                   return "LM_OK";
-    case LM_ERR:                  return "LM_ERR";
-    case LM_CONT_NO_READ_ACCESS:  return "LM_CONT_NO_READ_ACCESS";
-    case LM_CONV_REQUIRED:        return "LM_CONV_REQUIRED";
-    case LM_CONV_ERROR:           return "LM_CONV_ERROR";
-    case LM_PARAM_OVERFLOW:       return "LM_PARAM_OVERFLOW";
-    default:                      return ComRtGetUnknownString((Int32) r);
+static const char *LmResultToString(const LmResult &r) {
+  switch (r) {
+    case LM_OK:
+      return "LM_OK";
+    case LM_ERR:
+      return "LM_ERR";
+    case LM_CONT_NO_READ_ACCESS:
+      return "LM_CONT_NO_READ_ACCESS";
+    case LM_CONV_REQUIRED:
+      return "LM_CONV_REQUIRED";
+    case LM_CONV_ERROR:
+      return "LM_CONV_ERROR";
+    case LM_PARAM_OVERFLOW:
+      return "LM_PARAM_OVERFLOW";
+    default:
+      return ComRtGetUnknownString((Int32)r);
   }
 }
 
-static void DumpDiags(ostream &stream, ComDiagsArea *d, const char *prefix)
-{
-  if (d && d->getNumber() > 0)
-  {
+static void DumpDiags(ostream &stream, ComDiagsArea *d, const char *prefix) {
+  if (d && d->getNumber() > 0) {
     stream << prefix << "BEGIN SQL diagnostics" << endl;
-    NADumpDiags(stream,     // ostream &
-                d,          // ComDiagsArea *
-                TRUE,       // add newline after each diagnostic?
-                FALSE,      // to avoid "--" comment prefix
-                NULL,       // FILE *
-                1           // for verbose output
-                );
+    NADumpDiags(stream,  // ostream &
+                d,       // ComDiagsArea *
+                TRUE,    // add newline after each diagnostic?
+                FALSE,   // to avoid "--" comment prefix
+                NULL,    // FILE *
+                1        // for verbose output
+    );
     stream << prefix << "END SQL diagnostics" << endl;
   }
 }
 
 // Function to invoke a routine body using the Language Manager (LM)
 // API. This function supports command-line invocations and is never
-// called when MXUDR runs as a server. 
+// called when MXUDR runs as a server.
 //
 // Assumptions
 // * the number of arguments to the routine is the number of strings
 //   passed on the command-line
 // * all arguments are character strings
-// * For Java 
+// * For Java
 //   (1) the argument type must be String[]
 //   (2) All arguments are considered INOUT params, except as given in (3)
 //   (3) for 'main' method the arguments are considered to be IN params
 //
-static Int32 invokeUdrMethod(const char *method,
-                           const char *container,
-                           const char *path,
-                           NABoolean isJava,
-                           NABoolean isUdf,
-                           NABoolean txRequired,
-                           NABoolean useVarchar,
-                           Int32 argc,
-                           char *argv[],
-                           Int32 nResultSets,
-                           Int32 nTimesToInvoke,
-                           UdrGlobals &glob)
-{
+static Int32 invokeUdrMethod(const char *method, const char *container, const char *path, NABoolean isJava,
+                             NABoolean isUdf, NABoolean txRequired, NABoolean useVarchar, Int32 argc, char *argv[],
+                             Int32 nResultSets, Int32 nTimesToInvoke, UdrGlobals &glob) {
   LmResult result = LM_OK;
   FILE *f = MXUDR_OUTFILE;
   const char *prefix = MXUDR_PREFIX;
@@ -1784,14 +1413,12 @@ static Int32 invokeUdrMethod(const char *method,
   Lng32 cliResult = 0;
 
   fprintf(f, "%s Preparing to invoke a routine body\n", prefix);
-  fprintf(f, "%s Language %s, routine type %s\n", prefix,
-          (isJava ? "JAVA" : "C"), (isUdf ? "UDF" : "STORED PROCEDURE"));
+  fprintf(f, "%s Language %s, routine type %s\n", prefix, (isJava ? "JAVA" : "C"),
+          (isUdf ? "UDF" : "STORED PROCEDURE"));
   fprintf(f, "%s Container: %s/%s\n", prefix, path, container);
   fprintf(f, "%s Routine: %s\n", prefix, method);
-  fprintf(f, "%s The routine will be invoked %d time%s\n",
-          prefix, nTimesToInvoke, (nTimesToInvoke == 1 ? "" : "s"));
-  for (i = 0; i < argc; i++)
-  {
+  fprintf(f, "%s The routine will be invoked %d time%s\n", prefix, nTimesToInvoke, (nTimesToInvoke == 1 ? "" : "s"));
+  for (i = 0; i < argc; i++) {
     fprintf(f, "%s argv[%d] = \"%s\"\n", prefix, i, argv[i]);
   }
   fflush(f);
@@ -1802,20 +1429,15 @@ static Int32 invokeUdrMethod(const char *method,
   // Create an LM instance
   fprintf(f, "%s About to create an LM instance\n", prefix);
   fflush(f);
-  LmLanguageManager *lm =
-    glob.getOrCreateLM(result,
-                       isJava ? COM_LANGUAGE_JAVA : COM_LANGUAGE_C,
-                       diags);
+  LmLanguageManager *lm = glob.getOrCreateLM(result, isJava ? COM_LANGUAGE_JAVA : COM_LANGUAGE_C, diags);
 
-  if (!lm && result == LM_OK)
-  {
+  if (!lm && result == LM_OK) {
     // This is not supposed to happen. We will treat it the same as
     // LM_ERR.
     result = LM_ERR;
   }
 
-  fprintf(f, "%s LM constructor returned %s\n",
-          prefix, LmResultToString(result));
+  fprintf(f, "%s LM constructor returned %s\n", prefix, LmResultToString(result));
   fflush(f);
   DumpDiags(cout, diags, prefixPlusSpace);
 
@@ -1824,26 +1446,20 @@ static Int32 invokeUdrMethod(const char *method,
   // One exception is parameters to 'main' method are considered
   // IN strings and the signature contains only one String param.
   char *sig = NULL;
-  if (isJava && result == LM_OK)
-  {
+  if (isJava && result == LM_OK) {
     const char *stringSig = "[Ljava/lang/String;";
     const char *rsSig = "[Ljava/sql/ResultSet;";
     Int32 stringSigLen = str_len(stringSig);
     Int32 rsSigLen = str_len(rsSig);
-    sig = new (h) char [(argc * stringSigLen) + (nResultSets * rsSigLen) + 20];
+    sig = new (h) char[(argc * stringSigLen) + (nResultSets * rsSigLen) + 20];
     sig[0] = 0;
     str_cat(sig, "(", sig);
-    if (strcmp(method, "main") == 0)
-    {
+    if (strcmp(method, "main") == 0) {
       str_cat(sig, stringSig, sig);
-    }
-    else
-    {
-      for (i = 0; i < argc; i++)
-        str_cat(sig, stringSig, sig);
+    } else {
+      for (i = 0; i < argc; i++) str_cat(sig, stringSig, sig);
 
-      for (i = 0; i < nResultSets; i++)
-        str_cat(sig, rsSig, sig);
+      for (i = 0; i < nResultSets; i++) str_cat(sig, rsSig, sig);
     }
     str_cat(sig, ")V", sig);
     fprintf(f, "%s Java signature: %s\n", prefix, sig);
@@ -1861,17 +1477,14 @@ static Int32 invokeUdrMethod(const char *method,
   LmParameter *lmParams = NULL;
   Int32 numLmParams = argc;
 
-  if (isUdf && result == LM_OK)
-    numLmParams++;
+  if (isUdf && result == LM_OK) numLmParams++;
 
   Int32 inputRowLen = 0;
   Int32 outputRowLen = 0;
 
-  if (result == LM_OK)
-  {
+  if (result == LM_OK) {
     // Find the input row length
-    for (i = 0; i < argc; i++)
-    {
+    for (i = 0; i < argc; i++) {
       // * 2 bytes null indicator always aligned on 8-byte boundary
       // * 2 bytes for alignment
       // * for VARCHAR values, 2 bytes for the length indicator
@@ -1881,218 +1494,175 @@ static Int32 invokeUdrMethod(const char *method,
     }
 
     // Find the output row length
-    if (isUdf)
-    {
+    if (isUdf) {
       // * 2 bytes null indicator
       // * 2 bytes for alignment
       // * for VARCHAR values, 2 bytes for the length indicator
       // * data (with room for a null terminator)
       outputRowLen = (2 + 2 + (useVarchar ? 2 : 0) + maxUdfOutLen + 1);
       outputRowLen = ROUND8(outputRowLen);
-    }
-    else
-    {
+    } else {
       // For SPJs, all the parameters are assumed to be INOUT. So,
       // input and output row lengths are same
       outputRowLen = inputRowLen;
     }
 
     // Assign memory for the input and output rows
-    inputRow = (char *) h->allocateMemory(inputRowLen);
+    inputRow = (char *)h->allocateMemory(inputRowLen);
     memset(inputRow, 0, inputRowLen);
-    outputRow = (char *) h->allocateMemory(outputRowLen);
+    outputRow = (char *)h->allocateMemory(outputRowLen);
     memset(outputRow, 0, outputRowLen);
 
-    if (numLmParams > 0)
-    {
-      lmParams = (LmParameter *)
-        h->allocateMemory(numLmParams * sizeof(LmParameter));
+    if (numLmParams > 0) {
+      lmParams = (LmParameter *)h->allocateMemory(numLmParams * sizeof(LmParameter));
       memset(lmParams, 0, numLmParams * sizeof(LmParameter));
     }
 
-    ComFSDataType fsType (useVarchar ? COM_VCHAR_FSDT : COM_FCHAR_FSDT);
+    ComFSDataType fsType(useVarchar ? COM_VCHAR_FSDT : COM_FCHAR_FSDT);
     Int32 currParamOffset = 0;
-    for (i = 0; i < argc; i++)
-    {
+    for (i = 0; i < argc; i++) {
       currParamOffset = ROUND8(currParamOffset);
       Int32 argLen = str_len(argv[i]);
 
       // Figure out the type and varchar indicator offsets
       Int32 vcIndOffset = 0, vcIndLen = 0;
       UInt32 dataOffset = currParamOffset + 4;
-      if (useVarchar)
-      {
+      if (useVarchar) {
         vcIndOffset = currParamOffset + 4;
         vcIndLen = 2;
         dataOffset += 2;
       }
 
-      if (isUdf || strcmp(method, "main") == 0)
-      {
+      if (isUdf || strcmp(method, "main") == 0) {
         lmParams[i].init(fsType,
-                         0, // precision
-                         0, // scale,
-                         CharInfo::ISO88591,
-                         CharInfo::DefaultCollation,
-                         COM_INPUT_COLUMN,
-                         FALSE, // objMap
+                         0,  // precision
+                         0,  // scale,
+                         CharInfo::ISO88591, CharInfo::DefaultCollation, COM_INPUT_COLUMN,
+                         FALSE,  // objMap
                          RS_NONE,
-                         0,                    // tuple format
-                         dataOffset,           // IN  offset
-                         argLen,               //     len
-                         currParamOffset,      //     null offset
-                         0,                    //     null bit index
-                         2,                    //     null len
-                         vcIndOffset,          //     vc offset
-                         vcIndLen,             //     vc len
-                         0,                    //     voa offset
-                         0,                    // OUT offset
-                         0,                    //     len
-                         0,                    //     null offset
-                         0,                    //     null len
-                         0,                    //     vc offset
-                         0,                    //     vc len
-                         NULL); // name
-      }
-      else
-      {
+                         0,                // tuple format
+                         dataOffset,       // IN  offset
+                         argLen,           //     len
+                         currParamOffset,  //     null offset
+                         0,                //     null bit index
+                         2,                //     null len
+                         vcIndOffset,      //     vc offset
+                         vcIndLen,         //     vc len
+                         0,                //     voa offset
+                         0,                // OUT offset
+                         0,                //     len
+                         0,                //     null offset
+                         0,                //     null len
+                         0,                //     vc offset
+                         0,                //     vc len
+                         NULL);            // name
+      } else {
         lmParams[i].init(fsType,
-                         0, // precision
-                         0, // scale,
-                         CharInfo::ISO88591,
-                         CharInfo::DefaultCollation,
-                         COM_INOUT_COLUMN,
-                         FALSE, // objMap
+                         0,  // precision
+                         0,  // scale,
+                         CharInfo::ISO88591, CharInfo::DefaultCollation, COM_INOUT_COLUMN,
+                         FALSE,  // objMap
                          RS_NONE,
-                         0,                    // tuple format
-                         dataOffset,           // IN  offset
-                         argLen,               //     len
-                         currParamOffset,      //     null offset
-                         2,                    //     null len
-                         0,                    //     null bit index
-                         vcIndOffset,          //     vc offset
-                         vcIndLen,             //     vc len
-                         0,                    //     voa offset
-                         dataOffset,           // OUT offset
-                         argLen,               //     len
-                         currParamOffset,      //     null offset
-                         2,                    //     null len
-                         vcIndOffset,          //     vc offset
-                         vcIndLen,             //     vc len
-                         NULL); // name
+                         0,                // tuple format
+                         dataOffset,       // IN  offset
+                         argLen,           //     len
+                         currParamOffset,  //     null offset
+                         2,                //     null len
+                         0,                //     null bit index
+                         vcIndOffset,      //     vc offset
+                         vcIndLen,         //     vc len
+                         0,                //     voa offset
+                         dataOffset,       // OUT offset
+                         argLen,           //     len
+                         currParamOffset,  //     null offset
+                         2,                //     null len
+                         vcIndOffset,      //     vc offset
+                         vcIndLen,         //     vc len
+                         NULL);            // name
       }
 
       // copy the value to inputRow
       str_cpy_all(inputRow + dataOffset, argv[i], argLen);
-      
-      if (useVarchar)
-        *(short *)(inputRow + vcIndOffset) = argLen;
-      
+
+      if (useVarchar) *(short *)(inputRow + vcIndOffset) = argLen;
+
       // Move currParamOffset beyond the current parameter
-      currParamOffset += 2; // null indicator
-      currParamOffset += 2; // padding for alignment
-      currParamOffset += (useVarchar ? 2 : 0); // VC len
-      currParamOffset += argLen; // data
+      currParamOffset += 2;                     // null indicator
+      currParamOffset += 2;                     // padding for alignment
+      currParamOffset += (useVarchar ? 2 : 0);  // VC len
+      currParamOffset += argLen;                // data
       currParamOffset = ROUND8(currParamOffset);
 
-    } // for each input param
+    }  // for each input param
 
-    if (isUdf)
-    {
+    if (isUdf) {
       // Add the trailing output param
       lmParams[i].init(fsType,
-                       0, // precision
-                       0, // scale,
-                       CharInfo::ISO88591,
-                       CharInfo::DefaultCollation,
-                       COM_OUTPUT_COLUMN,
-                       FALSE, // objMap
+                       0,  // precision
+                       0,  // scale,
+                       CharInfo::ISO88591, CharInfo::DefaultCollation, COM_OUTPUT_COLUMN,
+                       FALSE,  // objMap
                        RS_NONE,
-                       0,                      // tuple format
-                       0,                      // IN  offset
-                       0,                      //     len
-                       0,                      //     null offset
-                       0,                      //     null len
-                       0,                      //     null bit index
-                       0,                      //     vc offset
-                       0,                      //     vc len
-                       0,                      //     voa offset
-                       (useVarchar ? 6 : 4),   // OUT offset
-                       maxUdfOutLen,           //     len
-                       0,                      //     null offset
-                       2,                      //     null len
-                       (useVarchar ? 2 : 0),   //     vc offset
-                       (useVarchar ? 2 : 0),   //     vc len
-                       NULL); // name
+                       0,                     // tuple format
+                       0,                     // IN  offset
+                       0,                     //     len
+                       0,                     //     null offset
+                       0,                     //     null len
+                       0,                     //     null bit index
+                       0,                     //     vc offset
+                       0,                     //     vc len
+                       0,                     //     voa offset
+                       (useVarchar ? 6 : 4),  // OUT offset
+                       maxUdfOutLen,          //     len
+                       0,                     //     null offset
+                       2,                     //     null len
+                       (useVarchar ? 2 : 0),  //     vc offset
+                       (useVarchar ? 2 : 0),  //     vc len
+                       NULL);                 // name
 
-    } // if (isUdf)
-  } // if (result == LM_OK)
-  
+    }  // if (isUdf)
+  }    // if (result == LM_OK)
+
   LmRoutine *lmRoutine = NULL;
   i = 0;
 
-  ComRoutineExternalSecurity externalSecurity =
-		                     COM_ROUTINE_EXTERNAL_SECURITY_INVOKER;
-  Int32 routineOwnerId = ROOT_USER_ID; //dbRoot
+  ComRoutineExternalSecurity externalSecurity = COM_ROUTINE_EXTERNAL_SECURITY_INVOKER;
+  Int32 routineOwnerId = ROOT_USER_ID;  // dbRoot
 
-  while (result == LM_OK && i++ < nTimesToInvoke)
-  {
+  while (result == LM_OK && i++ < nTimesToInvoke) {
     // Begin a transaction
-    if (txRequired && result == LM_OK)
-    {
-      Int32  transtag;
+    if (txRequired && result == LM_OK) {
+      Int32 transtag;
       Int32 tmfResult;
       tmfResult = BEGINTRANSACTION((Int32 *)&transtag);
-      if (tmfResult != 0)
-      {
-        fprintf(f, "%s BEGINTRANSACTION() returned %d\n",
-                prefix, tmfResult);
+      if (tmfResult != 0) {
+        fprintf(f, "%s BEGINTRANSACTION() returned %d\n", prefix, tmfResult);
         fflush(f);
         result = LM_ERR;
-      }
-      else
-      {
+      } else {
         fprintf(f, "%s Started a transaction\n", prefix);
         fflush(f);
       }
     }
-    
-    if (i == 1)
-    {    
+
+    if (i == 1) {
       // Call LM::getRoutine()
-      if (result == LM_OK)
-      {
-        result = lm->getRoutine(numLmParams,
-                                lmParams,
-                                0,   //numTableInfo
-                                NULL,//tableInfo
-                                NULL, // return value
+      if (result == LM_OK) {
+        result = lm->getRoutine(numLmParams, lmParams,
+                                0,     // numTableInfo
+                                NULL,  // tableInfo
+                                NULL,  // return value
                                 (isJava ? COM_STYLE_JAVA_CALL : COM_STYLE_SQL),
-                                (txRequired ? COM_TRANSACTION_REQUIRED : COM_NO_TRANSACTION_REQUIRED),                                	
-                                COM_MODIFIES_SQL,
-                                "", // parentQid
-                                "", // clientInfo
-                                inputRowLen,
-                                outputRowLen,
-                                method, // sqlName
-                                method, // externalName
-                                sig,
-                                container,
-                                path,
-                                container,
-                                glob.getCurrentUserName(), 
-                                glob.getSessionUserName(),
-                                externalSecurity,
-                                routineOwnerId,
-                                &lmRoutine,
-                                NULL,
-                                NULL,
-                                nResultSets,
-                                diags);
-        if (result != LM_OK)
-        {
-          fprintf(f, "%s getRoutine() returned %s\n",
-                  prefix, LmResultToString(result));
+                                (txRequired ? COM_TRANSACTION_REQUIRED : COM_NO_TRANSACTION_REQUIRED), COM_MODIFIES_SQL,
+                                "",  // parentQid
+                                "",  // clientInfo
+                                inputRowLen, outputRowLen,
+                                method,  // sqlName
+                                method,  // externalName
+                                sig, container, path, container, glob.getCurrentUserName(), glob.getSessionUserName(),
+                                externalSecurity, routineOwnerId, &lmRoutine, NULL, NULL, nResultSets, diags);
+        if (result != LM_OK) {
+          fprintf(f, "%s getRoutine() returned %s\n", prefix, LmResultToString(result));
           fflush(f);
         }
 
@@ -2101,35 +1671,25 @@ static Int32 invokeUdrMethod(const char *method,
     }
 
     // Call LM::invokeRoutine()
-    if (result == LM_OK && lmRoutine)
-    {
+    if (result == LM_OK && lmRoutine) {
       fprintf(f, "\n%s About to invoke the routine body...\n", prefix);
       fflush(f);
 
       result = lm->invokeRoutine(lmRoutine, inputRow, outputRow, diags);
 
-      if (result != LM_OK)
-      {
-        fprintf(f, "%s invokeRoutine() returned %s\n",
-                prefix, LmResultToString(result));
+      if (result != LM_OK) {
+        fprintf(f, "%s invokeRoutine() returned %s\n", prefix, LmResultToString(result));
         fflush(f);
-      }
-      else
-      {
+      } else {
         fprintf(f, "%s The routine body has returned\n", prefix);
-        if (isUdf)
-        {
+        if (isUdf) {
           char *udfRetVal = outputRow + (useVarchar ? 6 : 4);
-          if (useVarchar)
-          {
+          if (useVarchar) {
             LmParameter &p = lmParams[numLmParams - 1];
             ComUInt32 actual = p.actualOutDataSize(outputRow);
-            if (actual > maxUdfOutLen)
-              actual = maxUdfOutLen;
+            if (actual > maxUdfOutLen) actual = maxUdfOutLen;
             udfRetVal[actual] = 0;
-          }
-          else
-          {
+          } else {
             udfRetVal[maxUdfOutLen] = 0;
           }
 
@@ -2140,69 +1700,53 @@ static Int32 invokeUdrMethod(const char *method,
 
       DumpDiags(cout, diags, prefixPlusSpace);
     }
-    
+
     // Quiesce the executor
-    if (txRequired && result == LM_OK)
-    {
+    if (txRequired && result == LM_OK) {
       cliResult = SQL_EXEC_Xact(SQLTRANS_QUIESCE, NULL);
-      if (cliResult < 0)
-      {
-        fprintf(f, "%s SQL_EXEC_Xact() returned %d\n",
-                prefix, cliResult);
+      if (cliResult < 0) {
+        fprintf(f, "%s SQL_EXEC_Xact() returned %d\n", prefix, cliResult);
         fflush(f);
         result = LM_ERR;
-      }
-      else
-      {
+      } else {
         fprintf(f, "%s Quiesced the executor\n", prefix);
         fflush(f);
       }
     }
 
     // End the transaction
-    if (txRequired && result == LM_OK)
-    {
+    if (txRequired && result == LM_OK) {
       Int32 tmfResult = ENDTRANSACTION();
-      if (tmfResult != 0)
-      {
-        fprintf(f, "%s ENDTRANSACTION() returned %d\n",
-                prefix, tmfResult);
+      if (tmfResult != 0) {
+        fprintf(f, "%s ENDTRANSACTION() returned %d\n", prefix, tmfResult);
         fflush(f);
         result = LM_ERR;
-      }
-      else
-      {
+      } else {
         fprintf(f, "%s Ended the transaction\n", prefix);
         fflush(f);
       }
     }
   }
 
-  if (result == LM_OK)
-  {  
-      fprintf(f, "\n");
-      fprintf(f, "%s Freeing resources...\n", prefix);
-      fflush(f);
+  if (result == LM_OK) {
+    fprintf(f, "\n");
+    fprintf(f, "%s Freeing resources...\n", prefix);
+    fflush(f);
   }
 
   // Call LM::putRoutine()
-  if (result == LM_OK && lmRoutine)
-  {
+  if (result == LM_OK && lmRoutine) {
     result = lm->putRoutine(lmRoutine, diags);
-    if (result != LM_OK)
-    {
-      fprintf(f, "%s putRoutine() returned %s\n",
-              prefix, LmResultToString(result));
+    if (result != LM_OK) {
+      fprintf(f, "%s putRoutine() returned %s\n", prefix, LmResultToString(result));
       fflush(f);
-    }
-    else
-    {
+    } else {
       fprintf(f, "%s putRoutine() was successful\n", prefix);
       fflush(f);
     }
     DumpDiags(cout, diags, prefixPlusSpace);
   }
-  
+
   // Destroy the LM and the JVM. This will flush any JVM output
   // buffers such as those containing data from the -verbose or
   // -Xrunhprof options.
@@ -2215,52 +1759,41 @@ static Int32 invokeUdrMethod(const char *method,
   fflush(stderr);
   fflush(stdout);
 
-  if (result == LM_OK)
-  {
+  if (result == LM_OK) {
     fprintf(f, "%s Done\n\n", prefix);
-  }
-  else
-  {
+  } else {
     fprintf(f, "%s Done. Errors were encountered.\n\n", prefix);
   }
   fflush(f);
 
   // Release allocated memory
-  if (sig)
-    h->deallocateMemory(sig);
-  if (inputRow)
-    h->deallocateMemory(inputRow);
-  if (outputRow)
-    h->deallocateMemory(outputRow);
- 
+  if (sig) h->deallocateMemory(sig);
+  if (inputRow) h->deallocateMemory(inputRow);
+  if (outputRow) h->deallocateMemory(outputRow);
+
   return result;
 
-} // invokeUdrMethod()
+}  // invokeUdrMethod()
 
 // Dead Code
 // Andy thinks we should retire this interface...
 
 // Function to open a file and then repeatedly call a helper function
 // that will process one command from that file.
-static Int32 processCommandsFromFile(const char *filename, UdrGlobals &glob)
-{
+static Int32 processCommandsFromFile(const char *filename, UdrGlobals &glob) {
   Int32 result = 0;
   FILE *out = MXUDR_OUTFILE;
   const char *prefix = MXUDR_PREFIX;
 
-  fprintf(out, "%s Commands will be processed from file %s\n",
-          prefix, filename);
+  fprintf(out, "%s Commands will be processed from file %s\n", prefix, filename);
 
   FILE *in = fopen(filename, "r");
-  if (!in)
-  {
-    fprintf(out, "%s *** ERROR: Could not open input file %s: %s.\n",
-            prefix, filename, strerror(errno));
+  if (!in) {
+    fprintf(out, "%s *** ERROR: Could not open input file %s: %s.\n", prefix, filename, strerror(errno));
     return 1;
   }
 
-  while (processSingleCommandFromFile(in, glob) == 0)
-  {
+  while (processSingleCommandFromFile(in, glob) == 0) {
   }
 
   fprintf(out, "\n");
@@ -2271,8 +1804,7 @@ static Int32 processCommandsFromFile(const char *filename, UdrGlobals &glob)
 // Function to process one command from a text file. Returns 0 if the
 // command was successfully processed, non-zero otherwise. Error
 // messages are written to MXUDR_OUTFILE if anything goes wrong.
-static Int32 processSingleCommandFromFile(FILE *in, UdrGlobals &glob)
-{
+static Int32 processSingleCommandFromFile(FILE *in, UdrGlobals &glob) {
   FILE *out = MXUDR_OUTFILE;
   const char *prefix = MXUDR_PREFIX;
 
@@ -2285,43 +1817,34 @@ static Int32 processSingleCommandFromFile(FILE *in, UdrGlobals &glob)
   // data from the file, or we have successfully extracted the next
   // non-blank line.
   NABoolean done = false;
-  while (!done)
-  {
+  while (!done) {
     // Read a line from the file
     resultOfRead = fgets(target, 1024, in);
-    if (resultOfRead != target)
-    {
-      if (ferror(in))
-      {
-        fprintf(out, "%s *** ERROR: fgets failed due to an I/O error: %s.\n",
-                prefix, strerror(errno));
+    if (resultOfRead != target) {
+      if (ferror(in)) {
+        fprintf(out, "%s *** ERROR: fgets failed due to an I/O error: %s.\n", prefix, strerror(errno));
         return 1;
       }
       return 1;
     }
-    
+
     // Trim leading and trailing spaces
     Int32 len = str_len(target);
     trimmed = target;
-    if (len > 0)
-    {
-      while (isSpace8859_1(trimmed[0]))
-      {
+    if (len > 0) {
+      while (isSpace8859_1(trimmed[0])) {
         trimmed++;
       }
       len = str_len(trimmed);
-      while (len > 0 && isSpace8859_1(trimmed[len - 1]))
-      {
+      while (len > 0 && isSpace8859_1(trimmed[len - 1])) {
         trimmed[len - 1] = 0;
         len--;
       }
     }
 
-    if (str_len(trimmed) > 0)
-    {
+    if (str_len(trimmed) > 0) {
       done = true;
     }
-
   }
 
   // Save a copy of the original command
@@ -2348,21 +1871,18 @@ static Int32 processSingleCommandFromFile(FILE *in, UdrGlobals &glob)
   NABoolean useVarchar = FALSE;
 
   tok = strtok(trimmed, delim);
-  if (tok == NULL)
-  {
+  if (tok == NULL) {
     fprintf(out, "%s *** ERROR: Bad command: %s\n", prefix, originalCommand);
     return 1;
   }
 
-  if (stricmp(tok, "invoke") != 0)
-  {
+  if (stricmp(tok, "invoke") != 0) {
     fprintf(out, "%s *** ERROR: Bad command: %s\n", prefix, originalCommand);
     return 1;
   }
 
   tok = strtok(NULL, delim);
-  if (tok == NULL)
-  {
+  if (tok == NULL) {
     fprintf(out, "%s *** ERROR: Bad command: %s\n", prefix, originalCommand);
     return 1;
   }
@@ -2370,11 +1890,9 @@ static Int32 processSingleCommandFromFile(FILE *in, UdrGlobals &glob)
   Int32 nTimesToInvoke = 1;
   Int32 nResultSets = 0;
   const char *paramStyle = "java";
-  if (stricmp(tok, "-n") == 0)
-  {
+  if (stricmp(tok, "-n") == 0) {
     tok = strtok(NULL, delim);
-    if (tok == NULL)
-    {
+    if (tok == NULL) {
       fprintf(out, "%s *** ERROR: Bad command: %s\n", prefix, originalCommand);
       return 1;
     }
@@ -2382,23 +1900,20 @@ static Int32 processSingleCommandFromFile(FILE *in, UdrGlobals &glob)
 
     // Next token needs to be "-param <param style>"
     tok = strtok(NULL, delim);
-    if (tok == NULL || stricmp(tok, "-param") != 0)
-    {
+    if (tok == NULL || stricmp(tok, "-param") != 0) {
       fprintf(out, "%s *** ERROR: Bad command: %s\n", prefix, originalCommand);
       return 1;
     }
 
     tok = strtok(NULL, delim);
-    if (tok == NULL)
-    {
+    if (tok == NULL) {
       fprintf(out, "%s *** ERROR: Bad command: %s\n", prefix, originalCommand);
       return 1;
     }
     paramStyle = tok;
 
     tok = strtok(NULL, delim);
-    if (tok == NULL)
-    {
+    if (tok == NULL) {
       fprintf(out, "%s *** ERROR: Bad command: %s\n", prefix, originalCommand);
       return 1;
     }
@@ -2407,8 +1922,7 @@ static Int32 processSingleCommandFromFile(FILE *in, UdrGlobals &glob)
   const char *method = tok;
 
   tok = strtok(NULL, delim);
-  if (tok == NULL)
-  {
+  if (tok == NULL) {
     fprintf(out, "%s *** ERROR: Bad command: %s\n", prefix, originalCommand);
     return 1;
   }
@@ -2416,8 +1930,7 @@ static Int32 processSingleCommandFromFile(FILE *in, UdrGlobals &glob)
   const char *container = tok;
 
   tok = strtok(NULL, delim);
-  if (tok == NULL)
-  {
+  if (tok == NULL) {
     fprintf(out, "%s *** ERROR: Bad command: %s\n", prefix, originalCommand);
     return 1;
   }
@@ -2429,61 +1942,46 @@ static Int32 processSingleCommandFromFile(FILE *in, UdrGlobals &glob)
   const Int32 maxNumArgs = 1024;
   char *argv[maxNumArgs];
   Int32 argc = 0;
-  while ((tok = strtok(NULL, delim)) != NULL)
-  {
-    if (argc < maxNumArgs)
-    {
+  while ((tok = strtok(NULL, delim)) != NULL) {
+    if (argc < maxNumArgs) {
       argv[argc] = tok;
     }
     argc++;
   }
 
-  if (argc > maxNumArgs)
-  {
-    fprintf(out,
-            "%s *** ERROR: The number of arguments (%d) must not exceed %d\n",
-            prefix, argc, maxNumArgs);
+  if (argc > maxNumArgs) {
+    fprintf(out, "%s *** ERROR: The number of arguments (%d) must not exceed %d\n", prefix, argc, maxNumArgs);
     return 1;
   }
 
   // Now we have a complete description of the method that the user
   // wants us to invoke. Call a helper function to do the work.
 
-  const char *longLine =
-    "----------------------------------------------------------------------";
+  const char *longLine = "----------------------------------------------------------------------";
 
   fprintf(out, "%s %s\n", prefix, longLine);
   fprintf(out, "%s  Command: %s\n", prefix, originalCommand);
   fprintf(out, "%s %s\n", prefix, longLine);
 
-  Int32 result = invokeUdrMethod(method, container, path,
-                               isJava, isUdf, txRequired, useVarchar,
-                               argc, argv, nResultSets,
-                               nTimesToInvoke, glob);
-      
+  Int32 result = invokeUdrMethod(method, container, path, isJava, isUdf, txRequired, useVarchar, argc, argv,
+                                 nResultSets, nTimesToInvoke, glob);
+
   return result;
 
-} // processSingleCommandFromFile
+}  // processSingleCommandFromFile
 
-
-void udrAssert(const char *f, Int32 l, const char *m)
-{
-  if(!f)
-    f = "";
-  if(!m)
-    m = "";
+void udrAssert(const char *f, Int32 l, const char *m) {
+  if (!f) f = "";
+  if (!m) m = "";
   cout << "MXUDR Assertion: " << m << endl;
   cout << "at FILE: " << f << " LINE: " << l << endl;
   makeTFDSCall(m, f, l);
   // should not reach here
 }
 
-void udrAbort(const char *f, Int32 l, const char *m)
-{
-  if(!f)
-    f = "";
-  if(!m)
-    m = "";
+void udrAbort(const char *f, Int32 l, const char *m) {
+  if (!f) f = "";
+  if (!m) m = "";
   cout << "MXUDR Abort: " << m << endl;
   cout << "at FILE: " << f << " LINE: " << l << endl;
   makeTFDSCall(m, f, l, FALSE);
@@ -2495,15 +1993,9 @@ void udrAbort(const char *f, Int32 l, const char *m)
 #include "common/CharType.h"
 #include "common/NAType.h"
 
-NABoolean NAType::isComparable(const NAType &other,
-			       ItemExpr *parentOp,
-			       Int32 emitErr) const
-{ return FALSE; }
+NABoolean NAType::isComparable(const NAType &other, ItemExpr *parentOp, Int32 emitErr) const { return FALSE; }
 
-NABoolean CharType::isComparable(const NAType &other,
-			       ItemExpr *parentOp,
-			       Int32 emitErr) const
-{ return FALSE; }
+NABoolean CharType::isComparable(const NAType &other, ItemExpr *parentOp, Int32 emitErr) const { return FALSE; }
 #endif
 
 //
@@ -2511,10 +2003,7 @@ NABoolean CharType::isComparable(const NAType &other,
 // now the only session message we support is JVM startup options. Any
 // other type of session message will be ignored.
 //
-void processASessionMessage(UdrGlobals *glob,
-                            UdrServerReplyStream &msgStream,
-                            UdrSessionMsg &request)
-{
+void processASessionMessage(UdrGlobals *glob, UdrServerReplyStream &msgStream, UdrSessionMsg &request) {
   const char *moduleName = "processASessionMessage";
 
 #ifdef UDR_OSS_DEBUG
@@ -2530,21 +2019,18 @@ void processASessionMessage(UdrGlobals *glob,
   //
 
   char *crash = getenv("MXUDR_SESSION_CRASH");
-  if (crash && crash[0])
-  {
+  if (crash && crash[0]) {
     UDR_DEBUG0("*** About to call exit(1) because environment");
     UDR_DEBUG1("*** variable MXUDR_SESSION_CRASH is set to '%s'.", crash);
     exit(1);
   }
 
   char *pname = getenv("MXUDR_SESSION_SIGNAL");
-  if (pname && pname[0])
-  {
+  if (pname && pname[0]) {
     Int32 pnum = atoi(pname);
     Int32 signum = SIGINT;
 
-    UDR_DEBUG2("*** About to call kill(%d,%d) because environment",
-               pnum, signum);
+    UDR_DEBUG2("*** About to call kill(%d,%d) because environment", pnum, signum);
     UDR_DEBUG1("*** variable MXUDR_SESSION_SIGNAL is set to '%s'.", pname);
 
     Int32 result = kill(pnum, signum);
@@ -2557,41 +2043,36 @@ void processASessionMessage(UdrGlobals *glob,
     DELAY(secondsToSleep * 100);
   }
 
-#endif // UDR_OSS_DEBUG
+#endif  // UDR_OSS_DEBUG
 
-  if (request.getType() == UdrSessionMsg::UDR_SESSION_TYPE_JAVA_OPTIONS)
-  {
+  if (request.getType() == UdrSessionMsg::UDR_SESSION_TYPE_JAVA_OPTIONS) {
     LmJavaOptions *javaOptions = glob->getJavaOptions();
 
     // 1. Clear any existing options
     javaOptions->removeAllOptions();
-    
+
     // 2. Move environment settings into javaOptions
     InitializeJavaOptionsFromEnvironment(*javaOptions, glob->getUdrHeap());
 
-   if (!IsNAStringSpaceOrEmpty(initErrText) )
-    {
-      controlErrorReply(glob,
-                        msgStream,
-                        UDR_ERR_MESSAGE_PROCESSING,    //errorNumber,
-                        0,                             //intErrorInfo,
-                        initErrText.data()             //charErrorInfo
-                        );
+    if (!IsNAStringSpaceOrEmpty(initErrText)) {
+      controlErrorReply(glob, msgStream,
+                        UDR_ERR_MESSAGE_PROCESSING,  // errorNumber,
+                        0,                           // intErrorInfo,
+                        initErrText.data()           // charErrorInfo
+      );
       return;
     }
-    
+
     // 3. Move options from the message into javaOptions so that they
     // take precedence over environment settings. The message is
     // expected to contain two strings. First is a string of delimited
     // JVM startup options. Second is the set of delimiter characters
     // (default is a single space).
     ComUInt32 numStrings = request.numStrings();
-    if (numStrings >= 1)
-    {
+    if (numStrings >= 1) {
       const char *options = request.getString(0);
       const char *delimiters = " ";
-      if (numStrings >= 2)
-      {
+      if (numStrings >= 2) {
         delimiters = request.getString(1);
       }
       javaOptions->addOptions(options, delimiters, FALSE);
@@ -2599,236 +2080,183 @@ void processASessionMessage(UdrGlobals *glob,
   }
 
   // Build a reply and send it
-  UdrSessionReply *reply = new (glob->getIpcHeap())
-    UdrSessionReply(glob->getIpcHeap());
+  UdrSessionReply *reply = new (glob->getIpcHeap()) UdrSessionReply(glob->getIpcHeap());
   reply->setHandle(request.getHandle());
 
   msgStream.clearAllObjects();
   msgStream << *reply;
 
-  if (glob->verbose_ &&
-      glob->traceLevel_ >= TRACE_IPMS &&
-      glob->showUnload_)
-  {
+  if (glob->verbose_ && glob->traceLevel_ >= TRACE_IPMS && glob->showUnload_) {
     ServerDebug("[UdrServ (%s)] Send Session Reply", moduleName);
   }
 
   sendControlReply(glob, msgStream, NULL);
   reply->decrRefCount();
-
 }
 
 //
 // Helper function to dump memory stats to the UDR debug stream. Right
 // now this only works on NSK and is only enabled for debug builds.
 //
-static void DumpProcessInfo()
-{
+static void DumpProcessInfo() {
 #ifndef UDR_OSS_DEBUG
   return;
 #else
-  short attr_list[] = 
-    {   38  // PIN
-      , 54  // Current Page Count
-      , 59  // Page Fault Count
-      , 76  // PFS size
-      , 77  // Maximum PFS size
-      , 109 // Size of global data
-      , 103 // Current main stack size
-      , 104 // Maximum main stack size
-      , 111 // Current size of native heap
-      , 112 // Maximum size of native heap
-      , 113 // Guaranteed Swap Size
-      , 119 // Process is TNS/R Native?
-      , 39  // Program file name
-    };
+  short attr_list[] = {
+      38  // PIN
+      ,
+      54  // Current Page Count
+      ,
+      59  // Page Fault Count
+      ,
+      76  // PFS size
+      ,
+      77  // Maximum PFS size
+      ,
+      109  // Size of global data
+      ,
+      103  // Current main stack size
+      ,
+      104  // Maximum main stack size
+      ,
+      111  // Current size of native heap
+      ,
+      112  // Maximum size of native heap
+      ,
+      113  // Guaranteed Swap Size
+      ,
+      119  // Process is TNS/R Native?
+      ,
+      39  // Program file name
+  };
 
   const short attr_count = sizeof(attr_list) / sizeof(attr_list[0]);
 
   const short return_values_maxlen = 256;
   short return_values_list[return_values_maxlen];
   memset(return_values_list, 0, sizeof(return_values_list));
-  
+
   short return_values_len;
   short rc, errordetail;
 
   rc = PROCESS_GETINFOLIST_(  // cpu
-                            , // pin
-                            , // nodename
-                            , // nodename_length
-                            , // process_handle
-                            , attr_list
-                            , attr_count
-                            , return_values_list
-                            , return_values_maxlen
-                            , &return_values_len
-                            , &errordetail
-                            );
-  
+      ,                       // pin
+      ,                       // nodename
+      ,                       // nodename_length
+      ,                       // process_handle
+      , attr_list, attr_count, return_values_list, return_values_maxlen, &return_values_len, &errordetail);
+
   UDR_DEBUG0("[BEGIN DumpProcessInfo]");
-  
-  if (rc)
-  {
+
+  if (rc) {
     UDR_DEBUG0("  *** Error occurred in PROCESS_GETINFOLIST_");
-    UDR_DEBUG2("  *** Return code %d, error detail %d",
-               (Int32) rc, (Int32) errordetail);
-  }
-  else
-  {  
-    UDR_DEBUG1("  Process ID %d", (Int32) return_values_list[0]);
-    UDR_DEBUG1("  Program file %s", (char *) &return_values_list[22]);
-    UDR_DEBUG1("  Current pages %d", (Int32) return_values_list[1]);
-    UDR_DEBUG1("  Page faults %ld", *((Lng32 *) &return_values_list[2]));
-    UDR_DEBUG1("  PFS size %ld", *((Lng32 *) &return_values_list[4]));
-    UDR_DEBUG1("  Max PFS size %ld", *((Lng32 *) &return_values_list[6]));
-    UDR_DEBUG1("  Global data size %ld", *((Lng32 *) &return_values_list[8]));
-    UDR_DEBUG1("  Stack size %ld", *((Lng32 *) &return_values_list[10]));
-    UDR_DEBUG1("  Max stack size %ld",
-               *((Lng32 *) &return_values_list[12]));
-    UDR_DEBUG1("  Native heap size %ld", *((Lng32 *) &return_values_list[14]));
-    UDR_DEBUG1("  Max native heap size %ld",
-               *((Lng32 *) &return_values_list[16]));
-    UDR_DEBUG1("  Guaranteed swap space %ld",
-               *((Lng32 *) &return_values_list[18]));
-    UDR_DEBUG1("  TNS/R Native flag %d", (Int32) return_values_list[20]);
+    UDR_DEBUG2("  *** Return code %d, error detail %d", (Int32)rc, (Int32)errordetail);
+  } else {
+    UDR_DEBUG1("  Process ID %d", (Int32)return_values_list[0]);
+    UDR_DEBUG1("  Program file %s", (char *)&return_values_list[22]);
+    UDR_DEBUG1("  Current pages %d", (Int32)return_values_list[1]);
+    UDR_DEBUG1("  Page faults %ld", *((Lng32 *)&return_values_list[2]));
+    UDR_DEBUG1("  PFS size %ld", *((Lng32 *)&return_values_list[4]));
+    UDR_DEBUG1("  Max PFS size %ld", *((Lng32 *)&return_values_list[6]));
+    UDR_DEBUG1("  Global data size %ld", *((Lng32 *)&return_values_list[8]));
+    UDR_DEBUG1("  Stack size %ld", *((Lng32 *)&return_values_list[10]));
+    UDR_DEBUG1("  Max stack size %ld", *((Lng32 *)&return_values_list[12]));
+    UDR_DEBUG1("  Native heap size %ld", *((Lng32 *)&return_values_list[14]));
+    UDR_DEBUG1("  Max native heap size %ld", *((Lng32 *)&return_values_list[16]));
+    UDR_DEBUG1("  Guaranteed swap space %ld", *((Lng32 *)&return_values_list[18]));
+    UDR_DEBUG1("  TNS/R Native flag %d", (Int32)return_values_list[20]);
   }
 
   UDR_DEBUG0("[END DumpProcessInfo]");
-#endif  
+#endif
 }
 
 // ENTER TX message processing. The message is given to corresponding
 // spinfo. The message is not replied immediately and only replied
 // when EXIT TX or SUSPEND TX arrives.
-void processAnEnterTxMessage(UdrGlobals *glob,
-                             UdrServerReplyStream &msgStream,
-                             UdrEnterTxMsg &request)
-{
+void processAnEnterTxMessage(UdrGlobals *glob, UdrServerReplyStream &msgStream, UdrEnterTxMsg &request) {
   const char *moduleName = "processAnEnterTxMessage";
 
   SPInfo *sp = glob->getSPList()->spFind(request.getHandle());
-  if (sp)
-  {
+  if (sp) {
     // There should be only one connection associated with this message
     // stream. We use that connection to pass on to TxStream.
     UDR_ASSERT((msgStream.getRecipients().entries() == 1),
-      "A UdrServerReplyStream must be associated with a single Connection");
+               "A UdrServerReplyStream must be associated with a single Connection");
 
     CollIndex i = 0;
     msgStream.getRecipients().nextUsed(i);
     IpcConnection *conn = msgStream.getRecipients().element(i);
 
     UdrServerReplyStream *stream = sp->getTxStream();
-    if (stream->getState() == IpcMessageStream::RECEIVED)
-    {
+    if (stream->getState() == IpcMessageStream::RECEIVED) {
       // A message is already waiting on the stream. This is an error
-      controlErrorReply(glob,
-                        msgStream,
-                        UDR_ERR_MESSAGE_PROCESSING,
-                        0,
-                        "An Enter TX message is already pending.");
+      controlErrorReply(glob, msgStream, UDR_ERR_MESSAGE_PROCESSING, 0, "An Enter TX message is already pending.");
       return;
     }
 
     // Give connection that the EnterTX appeared on as second param.
     msgStream.giveMessageTo(*stream, conn);
 
-    if (glob->verbose_ && glob->traceLevel_ >= TRACE_IPMS)
-    {
-      ServerDebug("[UdrServ (%s)] Enter TX message is given to SP %s_" INT64_SPEC,
-                  moduleName,
-                  sp->getSqlName(),
+    if (glob->verbose_ && glob->traceLevel_ >= TRACE_IPMS) {
+      ServerDebug("[UdrServ (%s)] Enter TX message is given to SP %s_" INT64_SPEC, moduleName, sp->getSqlName(),
                   sp->getUdrHandle());
     }
-  }
-  else
-  {
-    controlErrorReply(glob,
-                      msgStream,
-                      UDR_ERR_MISSING_UDRHANDLE,
-                      0,
-                      "Enter TX");
+  } else {
+    controlErrorReply(glob, msgStream, UDR_ERR_MISSING_UDRHANDLE, 0, "Enter TX");
   }
 }
 
-void processASuspendTxMessage(UdrGlobals *glob,
-                              UdrServerReplyStream &msgStream,
-                              UdrSuspendTxMsg &request)
-{
+void processASuspendTxMessage(UdrGlobals *glob, UdrServerReplyStream &msgStream, UdrSuspendTxMsg &request) {
   const char *moduleName = "processASuspendTxMessage";
 
   // First reply to Enter TX message
   SPInfo *sp = glob->getSPList()->spFind(request.getHandle());
-  if (sp)
-  {
+  if (sp) {
     NABoolean doneWithRS = FALSE;
     sp->replyToEnterTxMsg(doneWithRS);
-  }
-  else
-  {
-    controlErrorReply(glob,
-                      msgStream,
-                      UDR_ERR_MISSING_UDRHANDLE,
-                      0,
-                      "Suspend TX");
+  } else {
+    controlErrorReply(glob, msgStream, UDR_ERR_MISSING_UDRHANDLE, 0, "Suspend TX");
     return;
   }
 
-  UdrSuspendTxReply *reply = new (glob->getIpcHeap())
-    UdrSuspendTxReply(glob->getIpcHeap());
+  UdrSuspendTxReply *reply = new (glob->getIpcHeap()) UdrSuspendTxReply(glob->getIpcHeap());
   reply->setHandle(request.getHandle());
-  
+
   msgStream.clearAllObjects();
   msgStream << *reply;
-  
-  if (glob->verbose_ &&
-      glob->traceLevel_ >= TRACE_IPMS &&
-      glob->showUnload_)
-  {
+
+  if (glob->verbose_ && glob->traceLevel_ >= TRACE_IPMS && glob->showUnload_) {
     ServerDebug("[UdrServ (%s)] Send SUSPEND TX Reply", moduleName);
   }
-  
+
   // No need to quiesce executor for replying to this message, so
   // set NULL at the third param.
   sendControlReply(glob, msgStream, NULL);
   reply->decrRefCount();
 }
 
-void processAnExitTxMessage(UdrGlobals *glob,
-                            UdrServerReplyStream &msgStream,
-                            UdrExitTxMsg &request)
-{
+void processAnExitTxMessage(UdrGlobals *glob, UdrServerReplyStream &msgStream, UdrExitTxMsg &request) {
   const char *moduleName = "processAnExitTxMessage";
 
   // First reply to Enter TX message
   SPInfo *sp = glob->getSPList()->spFind(request.getHandle());
-  if (sp)
-  {
+  if (sp) {
     // Reply to Enter Tx.
     NABoolean doneWithRS = TRUE;
     sp->replyToEnterTxMsg(doneWithRS);
-  }
-  else
-  {
-    controlErrorReply(glob,
-                      msgStream,
-                      UDR_ERR_MISSING_UDRHANDLE,
-                      0,
-                      "Exit TX");
+  } else {
+    controlErrorReply(glob, msgStream, UDR_ERR_MISSING_UDRHANDLE, 0, "Exit TX");
     return;
   }
 
-  UdrExitTxReply *reply = new (glob->getIpcHeap())
-    UdrExitTxReply(glob->getIpcHeap());
+  UdrExitTxReply *reply = new (glob->getIpcHeap()) UdrExitTxReply(glob->getIpcHeap());
   reply->setHandle(request.getHandle());
 
   msgStream.clearAllObjects();
   msgStream << *reply;
 
-  if (glob->verbose_ &&
-      glob->traceLevel_ >= TRACE_IPMS &&
-      glob->showUnload_)
-  {
+  if (glob->verbose_ && glob->traceLevel_ >= TRACE_IPMS && glob->showUnload_) {
     ServerDebug("[UdrServ (%s)] Sending EXIT TX Reply", moduleName);
   }
 
@@ -2838,62 +2266,53 @@ void processAnExitTxMessage(UdrGlobals *glob,
   reply->decrRefCount();
 }
 
-Int32 PerformWaitedReplyToClient(UdrGlobals *UdrGlob,
-                                UdrServerDataStream &msgStream)
-{
-  //Most of the calls here is copied from runServer() above.
+Int32 PerformWaitedReplyToClient(UdrGlobals *UdrGlob, UdrServerDataStream &msgStream) {
+  // Most of the calls here is copied from runServer() above.
 
   sendDataReply(UdrGlob, msgStream, NULL);
 
   // cleanup no longer used buffers
   msgStream.cleanupBuffers();
 
-  //Note down the current sp so that we can restore it back
-  //once ProcessARequest() call is complete. There are scenarios
-  //in ProcessARequest to reset spInfo in udrGlobals once Spinfo
-  //returns control back to udrserv.
+  // Note down the current sp so that we can restore it back
+  // once ProcessARequest() call is complete. There are scenarios
+  // in ProcessARequest to reset spInfo in udrGlobals once Spinfo
+  // returns control back to udrserv.
   SPInfo *sp = UdrGlob->getCurrSP();
 
-  //get control connection to IPC and env
+  // get control connection to IPC and env
   GuaReceiveControlConnection *ctrlConn = UdrGlob->getControlConnection();
   IpcEnvironment *env = UdrGlob->getIpcEnvironment();
 
   env->deleteCompletedMessages();
 
-  NAList<UdrServerReplyStream *> &replyStreams =
-        UdrGlob->getReplyStreams();
+  NAList<UdrServerReplyStream *> &replyStreams = UdrGlob->getReplyStreams();
 
   // Make sure we wait for a new message, even it it takes multiple
   // I/Os due to multi-chunking. Also try to avoid hanging at this
   // point, due to errors.
-  while (!replyStreams.entries() &&
-         ctrlConn->getConnection()->receiveIOPending() &&
-         ctrlConn->getConnection()->getState() != IpcConnection::ERROR_STATE &&
-         ctrlConn->getNumRequestors() > 0)
-  {
+  while (!replyStreams.entries() && ctrlConn->getConnection()->receiveIOPending() &&
+         ctrlConn->getConnection()->getState() != IpcConnection::ERROR_STATE && ctrlConn->getNumRequestors() > 0) {
     // Nothing on the queue, go ahead and wait...
     // we have performed a reply, now wait indefinitely
     ctrlConn->wait(IpcInfiniteTimeout);
   }
 
-  //Wait is over, continue processing.
-  if(!replyStreams.entries())
-  {
+  // Wait is over, continue processing.
+  if (!replyStreams.entries()) {
     return SQLUDR_ERROR;
   }
-  
-  //expect only one reply stream at location 0 ?
+
+  // expect only one reply stream at location 0 ?
   UdrServerReplyStream *stream = replyStreams[0];
   replyStreams.removeAt(0);
 
   processARequest(UdrGlob, *stream, *env);
 
-  //Restore SpInfo to udrGlobal
+  // Restore SpInfo to udrGlobal
   UdrGlob->setCurrSP(sp);
 
   stream->addToCompletedList();
 
   return SQLUDR_SUCCESS;
-
 }
-

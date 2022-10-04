@@ -27,8 +27,8 @@
  *
  * File:         CmpEHCallBack.cpp
  * Description:  Compiler Call back functions for exception handling
- *               
- *               
+ *
+ *
  * Created:      5/4/02
  * Language:     C++
  *
@@ -41,20 +41,13 @@
 #include "EHCallBack.h"
 
 class CmpEHCallBack : public EHCallBack {
-public:
+ public:
   virtual void doFFDC();
   virtual void dumpDiags();
 };
 
-
 void makeTFDSCall(const char *msg, const char *file, UInt32 line);
-
 
 void printSignalHandlers();
 
 #endif
-
-
-
-
-

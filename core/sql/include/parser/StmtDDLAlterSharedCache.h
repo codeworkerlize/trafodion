@@ -36,103 +36,70 @@
  *****************************************************************************
  */
 
-
 #include "StmtDDLNode.h"
 
-class LoadSharedCacheTargetSpec
-{
-
-public:
-  LoadSharedCacheTargetSpec(ConstStringList* nameList, 
-                            bool loadLocalIfEmpty
-                           )
-   : nodeNameList_(nameList), loadLocalIfEmpty_(loadLocalIfEmpty) 
-  {}
+class LoadSharedCacheTargetSpec {
+ public:
+  LoadSharedCacheTargetSpec(ConstStringList *nameList, bool loadLocalIfEmpty)
+      : nodeNameList_(nameList), loadLocalIfEmpty_(loadLocalIfEmpty) {}
 
   ~LoadSharedCacheTargetSpec() {}
 
-   ConstStringList* getNodeNameList() { return nodeNameList_; }
-   bool getLoadLocalIfEmpty() { return loadLocalIfEmpty_; }
+  ConstStringList *getNodeNameList() { return nodeNameList_; }
+  bool getLoadLocalIfEmpty() { return loadLocalIfEmpty_; }
 
-protected:
-   ConstStringList* nodeNameList_;
-   bool loadLocalIfEmpty_;
+ protected:
+  ConstStringList *nodeNameList_;
+  bool loadLocalIfEmpty_;
 };
 
-//typedef LoadSharedCacheTargetSpec* pLoadSharedCacheTargetSpec;
+// typedef LoadSharedCacheTargetSpec* pLoadSharedCacheTargetSpec;
 
-class StmtDDLAlterSharedCache : public StmtDDLNode
-{
+class StmtDDLAlterSharedCache : public StmtDDLNode {
+ public:
+  enum Options { CHECK, CLEAR, DELETE, DISABLE, ENABLE, INSERT, UPDATE, CHECK_DETAILS };
 
-public:
-   enum Options { CHECK,
-                  CLEAR,
-                  DELETE,
-                  DISABLE,  
-                  ENABLE, 
-                  INSERT,
-                  UPDATE,
-                  CHECK_DETAILS
-                };
+  enum Subject { ALL, SCHEMA, TABLE, INDEX };
 
+  enum SharedObjType { INVALID_, DESCRIPTOR, TABLEDATA };
 
-   enum Subject { ALL, SCHEMA, TABLE, INDEX };
-
-   enum SharedObjType { INVALID_, DESCRIPTOR, TABLEDATA };
-
-public:
-
+ public:
   // constructors
-  StmtDDLAlterSharedCache(
-                          enum StmtDDLAlterSharedCache::Subject,
-                          const QualifiedName & name,
-                          enum StmtDDLAlterSharedCache::Options,
-                          NABoolean isInternal,
-                          NAMemory* heap
-                         );
+  StmtDDLAlterSharedCache(enum StmtDDLAlterSharedCache::Subject, const QualifiedName &name,
+                          enum StmtDDLAlterSharedCache::Options, NABoolean isInternal, NAMemory *heap);
 
-  StmtDDLAlterSharedCache(
-                          enum StmtDDLAlterSharedCache::Subject,
-                          enum StmtDDLAlterSharedCache::Options,
-                          NAMemory* heap
-                         );
+  StmtDDLAlterSharedCache(enum StmtDDLAlterSharedCache::Subject, enum StmtDDLAlterSharedCache::Options, NAMemory *heap);
 
   // virtual destructor
-  virtual ~StmtDDLAlterSharedCache() {};
+  virtual ~StmtDDLAlterSharedCache(){};
 
   // cast
-  StmtDDLAlterSharedCache* castToStmtDDLAlterSharedCache() { return this; }
+  StmtDDLAlterSharedCache *castToStmtDDLAlterSharedCache() { return this; }
 
   //
   // accessors
   //
 
-  virtual Int32 getArity() const { return 0;}
-  virtual ExprNode * getChild(Lng32 index) { return NULL; }
+  virtual Int32 getArity() const { return 0; }
+  virtual ExprNode *getChild(Lng32 index) { return NULL; }
 
-  const QualifiedName& getQualifiedName() const
-    { return qualName_; }
+  const QualifiedName &getQualifiedName() const { return qualName_; }
 
-  void setQualifiedName(const QualifiedName& name)
-    { qualName_ = name; }
+  void setQualifiedName(const QualifiedName &name) { qualName_ = name; }
 
-  inline const QualifiedName & getOrigName() const
-    { return origQualName_; }
+  inline const QualifiedName &getOrigName() const { return origQualName_; }
 
-
-  const NABoolean isInternal() const
-     { return internal_; }
+  const NABoolean isInternal() const { return internal_; }
 
   // methods for tracing
-  virtual const NAString getText() const
-   { return "StmtDDLAlterSharedCache"; }
+  virtual const NAString getText() const { return "StmtDDLAlterSharedCache"; }
 
-  virtual const NAString displayLabel1() const
-   { return "Object name: " + 
-             qualName_.getQualifiedNameAsAnsiString(TRUE, TRUE); }
+  virtual const NAString displayLabel1() const {
+    return "Object name: " + qualName_.getQualifiedNameAsAnsiString(TRUE, TRUE);
+  }
 
-  // method for binding 
-  ExprNode * bindNode(BindWA *bindWAPtr);
+  // method for binding
+  ExprNode *bindNode(BindWA *bindWAPtr);
 
   // resolve name by reparsing the name into components
   void resolveName();
@@ -157,31 +124,23 @@ public:
   NABoolean isDescCache() { return sharedObjType_ == DESCRIPTOR; }
   NABoolean isInvalid() { return sharedObjType_ == INVALID_; }
 
-  NABoolean isUpdateOp() { 
-     return (
-       options_ == DISABLE ||
-       options_ == ENABLE ||
-       options_ == DELETE ||
-       options_ == UPDATE ||
-       options_ == INSERT ||
-       options_ == CLEAR 
-            );
-   }
+  NABoolean isUpdateOp() {
+    return (options_ == DISABLE || options_ == ENABLE || options_ == DELETE || options_ == UPDATE ||
+            options_ == INSERT || options_ == CLEAR);
+  }
 
   NABoolean clearAll() { return opForAll() && doClear(); }
   NABoolean checkAll() { return opForAll() && doCheck(); }
   NABoolean checkAllDetails() { return doCheckDetails() && opForAll(); }
   NABoolean isCheckOP() { return doCheckDetails() || doCheck(); }
 
-private:
-
+ private:
   // ---------------------------------------------------------------------
   // private methods
   // ---------------------------------------------------------------------
-  StmtDDLAlterSharedCache(const StmtDDLAlterSharedCache &);               // DO NOT USE
-  StmtDDLAlterSharedCache & operator=(const StmtDDLAlterSharedCache &);   // DO NOT USE
-  
-  
+  StmtDDLAlterSharedCache(const StmtDDLAlterSharedCache &);             // DO NOT USE
+  StmtDDLAlterSharedCache &operator=(const StmtDDLAlterSharedCache &);  // DO NOT USE
+
   // the tablename specified by user in the alter stmt.
   // This name is not fully qualified during bind phase.
   QualifiedName origQualName_;
@@ -196,6 +155,6 @@ private:
 
   NABoolean internal_;
 
-}; // class StmtDDLAlterSharedCache
+};  // class StmtDDLAlterSharedCache
 
-#endif // STMTDDL_ALTER_SHAREDCACHE_H
+#endif  // STMTDDL_ALTER_SHAREDCACHE_H

@@ -25,10 +25,10 @@
 //
 // File:         QmsSelfJoinHandler.h
 // Description:  Generation of equivalent MVMemo hash keys for self-join MVs.
-//               The theoretical background for this code is described in 
-//               section 3.8.3.4.2.5 (Disambiguating tables involved in a self-join) 
+//               The theoretical background for this code is described in
+//               section 3.8.3.4.2.5 (Disambiguating tables involved in a self-join)
 //               of the Internal Spec of MVQR.
-//               
+//
 // Created:      09/12/2011
 // ***********************************************************************
 
@@ -47,22 +47,22 @@ class SelfJoinSegment;
 class SelfJoinHandler;
 
 #ifdef _MEMSHAREDPTR
-typedef QRIntrusiveSharedPtr<Array2D>   	        Array2DPtr;
-typedef QRIntrusiveSharedPtr<PermutationMatrix>	        PermutationMatrixPtr;
-typedef QRIntrusiveSharedPtr<ShiftMatrix>	        ShiftMatrixPtr;
-typedef QRIntrusiveSharedPtr<ShiftMatrixFactory>	ShiftMatrixFactoryPtr;
-typedef QRIntrusiveSharedPtr<SelfJoinSegment>	        SelfJoinSegmentPtr;
-typedef QRIntrusiveSharedPtr<SelfJoinHandler>	        SelfJoinHandlerPtr;
+typedef QRIntrusiveSharedPtr<Array2D> Array2DPtr;
+typedef QRIntrusiveSharedPtr<PermutationMatrix> PermutationMatrixPtr;
+typedef QRIntrusiveSharedPtr<ShiftMatrix> ShiftMatrixPtr;
+typedef QRIntrusiveSharedPtr<ShiftMatrixFactory> ShiftMatrixFactoryPtr;
+typedef QRIntrusiveSharedPtr<SelfJoinSegment> SelfJoinSegmentPtr;
+typedef QRIntrusiveSharedPtr<SelfJoinHandler> SelfJoinHandlerPtr;
 #else
-typedef Array2D*				        Array2DPtr;
-typedef PermutationMatrix*				PermutationMatrixPtr;
-typedef ShiftMatrix*				        ShiftMatrixPtr;
-typedef ShiftMatrixFactory*		                ShiftMatrixFactoryPtr;
-typedef SelfJoinSegment*		                SelfJoinSegmentPtr;
-typedef SelfJoinHandler*		                SelfJoinHandlerPtr;
+typedef Array2D *Array2DPtr;
+typedef PermutationMatrix *PermutationMatrixPtr;
+typedef ShiftMatrix *ShiftMatrixPtr;
+typedef ShiftMatrixFactory *ShiftMatrixFactoryPtr;
+typedef SelfJoinSegment *SelfJoinSegmentPtr;
+typedef SelfJoinHandler *SelfJoinHandlerPtr;
 #endif
 
-typedef NAPtrArray<SelfJoinSegmentPtr>                  SelfJoinSegmentArray;
+typedef NAPtrArray<SelfJoinSegmentPtr> SelfJoinSegmentArray;
 
 #ifndef _SELFJOIN_H_
 #define _SELFJOIN_H_
@@ -73,9 +73,8 @@ typedef NAPtrArray<SelfJoinSegmentPtr>                  SelfJoinSegmentArray;
  * Array2D is an encapsulation of a fixed two-dimentional array of Int32 elements.
  *****************************************************************************
  */
-class Array2D : public NAIntrusiveSharedPtrObject
-{
-public:
+class Array2D : public NAIntrusiveSharedPtrObject {
+ public:
   /**
    * The constructor takes the array size and optional initial value.
    * @param rows Number of rows
@@ -83,30 +82,23 @@ public:
    * @param initValue Initial value (default is 0).
    * @param heap Heap pointer.
    */
-  Array2D(UInt32 rows, UInt32 cols, Int32 initValue=0,
-	  ADD_MEMCHECK_ARGS_DECL(CollHeap* heap=NULL));
+  Array2D(UInt32 rows, UInt32 cols, Int32 initValue = 0, ADD_MEMCHECK_ARGS_DECL(CollHeap *heap = NULL));
 
   virtual ~Array2D();
 
   /**
    * Get the array hight.
-   * @return 
+   * @return
    */
-  UInt32 getRows()
-  {
-    return rows_;
-  }
+  UInt32 getRows() { return rows_; }
 
   /**
    * Get the array width.
-   * @return 
+   * @return
    */
-  UInt32 getCols()
-  {
-    return cols_;
-  }
+  UInt32 getCols() { return cols_; }
 
-  typedef Int32* Row;
+  typedef Int32 *Row;
 
   /**
    * Get an array element.
@@ -126,25 +118,25 @@ public:
 
   /**
    * Return a textual representation of the Array2D.
-   * @param text 
+   * @param text
    */
-  void dump(NAString& text);
+  void dump(NAString &text);
 
-private:
-  UInt32    rows_;
-  UInt32    cols_;
-  Int32**   array_;
-  CollHeap* heap_;
+ private:
+  UInt32 rows_;
+  UInt32 cols_;
+  Int32 **array_;
+  CollHeap *heap_;
 };
 
 /**
  * A ShiftMatrix provides all the possible permutations for arranging some values.\n
- * Example: \par <tt> 
+ * Example: \par <tt>
  * \verbatim
    ShiftMatrix for size 2:
      0,  0
      1, -1
-  
+
    ShiftMatrix for size 3:
      0,  0,  0
      0,  1, -1
@@ -152,27 +144,25 @@ private:
      1,  1, -2
      2, -1, -1
      2,  0, -2
-   \endverbatim 
+   \endverbatim
  * </tt> \par
- * 
+ *
  * Each row is one permutation, so if we take 2 values, we can either
- * leave them where they are (0, 0) or switch them by moving the first 1 
+ * leave them where they are (0, 0) or switch them by moving the first 1
  * step forward, and the other 1 step back (1, -1).\par
- * 
+ *
  * For each size there is one ShiftMatrix that cannot be changed.\n
  * For every ShiftMatrix of size n, there are n! combinations.
  *****************************************************************************
  */
-class ShiftMatrix  : public NAIntrusiveSharedPtrObject
-{
-public:
+class ShiftMatrix : public NAIntrusiveSharedPtrObject {
+ public:
   /**
    * Create and initialize a ShiftMatrix of size size.
    * @param size The number of elements to rearrange.
-   * @param heap 
+   * @param heap
    */
-  ShiftMatrix(Int32  size,
-	      ADD_MEMCHECK_ARGS_DEF(CollHeap* heap));
+  ShiftMatrix(Int32 size, ADD_MEMCHECK_ARGS_DEF(CollHeap *heap));
 
   virtual ~ShiftMatrix();
 
@@ -186,9 +176,9 @@ public:
 
   /**
    * Return a textual representation of the ShiftMatrix.
-   * @param text 
+   * @param text
    */
-  void dump(NAString& text);
+  void dump(NAString &text);
 
   /**
    * Compute the factorial of a number.
@@ -197,12 +187,11 @@ public:
    */
   static Int32 factorial(Int32 num);
 
-private:
-
+ private:
   /**
    * Initialize the ShiftMatrix
    */
-  void  init();
+  void init();
 
   /**
    * Recursive method to initialize a subsection of the matrix.
@@ -211,17 +200,14 @@ private:
    * @param to Ending column
    * @param depth Current depth.
    */
-  void  initNext(NABitVector& usedValues,
-                 UInt32 from,
-                 UInt32 to,
-                 UInt32 depth);
+  void initNext(NABitVector &usedValues, UInt32 from, UInt32 to, UInt32 depth);
 
-private:
-  const UInt32      elements_;      // Number of matrix columns.
-  const UInt32      combinations_;  // Number of matrix rows.
-  Array2DPtr        theMatrix_;     // The matrix itself.
-  CollHeap*         heap_;          // The heap pointer.
-};  // class ShiftMatrix
+ private:
+  const UInt32 elements_;      // Number of matrix columns.
+  const UInt32 combinations_;  // Number of matrix rows.
+  Array2DPtr theMatrix_;       // The matrix itself.
+  CollHeap *heap_;             // The heap pointer.
+};                             // class ShiftMatrix
 
 /**
  * This is a singleton class, building ShiftMatrix objects.
@@ -229,16 +215,15 @@ private:
  * a pointer to each one we build, and reuse it in future calls.
  *****************************************************************************
  */
-class ShiftMatrixFactory : public NAIntrusiveSharedPtrObject
-{
-public:
+class ShiftMatrixFactory : public NAIntrusiveSharedPtrObject {
+ public:
   /**
    * Get the pointer to the singleton instance.
    * @param heap Heap pointer for allocation if this is the first call.
-   * @return 
+   * @return
    */
-  static ShiftMatrixFactoryPtr getInstance(NAMemory* heap);
- 
+  static ShiftMatrixFactoryPtr getInstance(NAMemory *heap);
+
   /**
    * Free resources used by all the ShiftMatrix objects constructed so far.
    */
@@ -248,35 +233,30 @@ public:
    * Get a pointer to a ShiftMatrix object of size \c size.
    * The caller must not delete the returned object.
    * @param size Required size of ShiftMatrix
-   * @return 
+   * @return
    */
   const ShiftMatrixPtr getMatrixForSize(Int32 size);
 
-private:
+ private:
   /**
    * A private constructor used only by the getInstance() method.
-   * @param heap 
+   * @param heap
    */
-  ShiftMatrixFactory(ADD_MEMCHECK_ARGS_DECL(CollHeap* heap))
-    : NAIntrusiveSharedPtrObject(ADD_MEMCHECK_ARGS_PASS(heap)),
-      matrixSizeArray_(heap),
-      heap_(heap)
-  {
-  }
+  ShiftMatrixFactory(ADD_MEMCHECK_ARGS_DECL(CollHeap *heap))
+      : NAIntrusiveSharedPtrObject(ADD_MEMCHECK_ARGS_PASS(heap)), matrixSizeArray_(heap), heap_(heap) {}
 
-private:
+ private:
   static ShiftMatrixFactoryPtr instance_;
-  NAPtrArray<ShiftMatrixPtr>   matrixSizeArray_;
-  CollHeap*                    heap_;
+  NAPtrArray<ShiftMatrixPtr> matrixSizeArray_;
+  CollHeap *heap_;
 };  // class ShiftMatrixFactory
 
 /**
  * A structure for holding information of segments
  *****************************************************************************
  */
-class SelfJoinSegment : public NAIntrusiveSharedPtrObject
-{
-public:
+class SelfJoinSegment : public NAIntrusiveSharedPtrObject {
+ public:
   enum SegmentType { SELF_JOIN_SEGMENT, UNIQUE_TABLE_SEGMENT };
 
   /**
@@ -286,146 +266,114 @@ public:
    * @param end Last table of segment
    * @param heap Heap pointer.
    */
-  SelfJoinSegment(SegmentType type, UInt32 start, UInt32 end, ADD_MEMCHECK_ARGS_DECL(CollHeap* heap))
-    : NAIntrusiveSharedPtrObject(ADD_MEMCHECK_ARGS_PASS(heap))
-     ,type_(type)
-     ,start_(start)
-     ,end_(end)
-     ,size_(end - start + 1)
-     ,permutations_(type == UNIQUE_TABLE_SEGMENT ? 1 : ShiftMatrix::factorial(size_))
-     ,matrixIndex_(0)
-     ,shiftMatrix_(NULL)
-  {
-  }
+  SelfJoinSegment(SegmentType type, UInt32 start, UInt32 end, ADD_MEMCHECK_ARGS_DECL(CollHeap *heap))
+      : NAIntrusiveSharedPtrObject(ADD_MEMCHECK_ARGS_PASS(heap)),
+        type_(type),
+        start_(start),
+        end_(end),
+        size_(end - start + 1),
+        permutations_(type == UNIQUE_TABLE_SEGMENT ? 1 : ShiftMatrix::factorial(size_)),
+        matrixIndex_(0),
+        shiftMatrix_(NULL) {}
 
   /**
    * Is this a SelfJoin segment?
-   * @return 
+   * @return
    */
-  NABoolean isSelfJoinSegment()
-  {
-    return type_ == SELF_JOIN_SEGMENT;
-  }
+  NABoolean isSelfJoinSegment() { return type_ == SELF_JOIN_SEGMENT; }
 
   /**
    * Get the first table of the segment.
-   * @return 
+   * @return
    */
-  UInt32 getStart()
-  {
-    return start_;
-  }
+  UInt32 getStart() { return start_; }
 
   /**
    * Get the last table of the segment.
-   * @return 
+   * @return
    */
-  UInt32 getEnd()
-  {
-    return end_;
-  }
+  UInt32 getEnd() { return end_; }
 
   /**
    * Get the number of tables in the segment.
-   * @return 
+   * @return
    */
-  UInt32 getSize()
-  {
-    return size_;
-  }
+  UInt32 getSize() { return size_; }
 
   /**
    * Get the number of permutations for this segment
-   * @return 
+   * @return
    */
-  UInt32 getPermutations()
-  {
-    return permutations_;
-  }
+  UInt32 getPermutations() { return permutations_; }
 
   /**
    * Get the column index into the permutationMatrix
-   * @return 
+   * @return
    */
-  UInt32 getMatrixIndex()
-  {
-    return matrixIndex_;
-  }
+  UInt32 getMatrixIndex() { return matrixIndex_; }
 
   /**
    * Set the column index into the permutationMatrix
-   * @param inx 
+   * @param inx
    */
-  void setMatrixIndex(UInt32 inx)
-  {
-    matrixIndex_ = inx;
-  }
+  void setMatrixIndex(UInt32 inx) { matrixIndex_ = inx; }
 
   /**
    * Get the corresponding ShiftMatrix.
-   * @return 
+   * @return
    */
-  ShiftMatrixPtr getShiftMatrix()
-  {
-    return shiftMatrix_;
-  }
+  ShiftMatrixPtr getShiftMatrix() { return shiftMatrix_; }
 
   /**
    * Set the corresponding ShiftMatrix.
-   * @param matrix 
+   * @param matrix
    */
-  void setShiftMatrix(ShiftMatrixPtr matrix)
-  {
-    shiftMatrix_ = matrix;
-  }
+  void setShiftMatrix(ShiftMatrixPtr matrix) { shiftMatrix_ = matrix; }
 
-private:
-  const SegmentType  type_;         // Segment type
-  const UInt32       start_;        // Index of first segment table 
-  const UInt32       end_;          // Index of last segment tagble.
-  const UInt32       size_;         // Number of tables in segment.
-  const UInt32       permutations_; // Number of permutations for this segment
-  UInt32             matrixIndex_;  // The column index into the permutationMatrix
-  ShiftMatrixPtr     shiftMatrix_;  // The corresponding ShiftMatrix.
-};  // class SelfJoinSegment 
+ private:
+  const SegmentType type_;      // Segment type
+  const UInt32 start_;          // Index of first segment table
+  const UInt32 end_;            // Index of last segment tagble.
+  const UInt32 size_;           // Number of tables in segment.
+  const UInt32 permutations_;   // Number of permutations for this segment
+  UInt32 matrixIndex_;          // The column index into the permutationMatrix
+  ShiftMatrixPtr shiftMatrix_;  // The corresponding ShiftMatrix.
+};                              // class SelfJoinSegment
 
 /**
- * This class handles all the algorithms involved in generating equivalent 
+ * This class handles all the algorithms involved in generating equivalent
  * MVMemo hash keys for selfJoin queries. This is done in 3 major steps:
  * 1. Detection of SelfJoin segments.
  * 2. Construction of the PermutationMatrix (including ShiftMatrix objects)
  * 3. Construction of the ShiftVector for every PermutationMatrix row.
  *****************************************************************************
  */
-class SelfJoinHandler : public NAIntrusiveSharedPtrObject
-{
-public:
+class SelfJoinHandler : public NAIntrusiveSharedPtrObject {
+ public:
   /**
    * Default constructor
-   * @param heap 
-   * @return 
+   * @param heap
+   * @return
    */
-  SelfJoinHandler(ADD_MEMCHECK_ARGS_DECL(CollHeap* heap))
-    : NAIntrusiveSharedPtrObject(ADD_MEMCHECK_ARGS_PASS(heap))
-     ,segmentArray_(heap)
-     ,permMatrix_(NULL)
-     ,state_(ST_START)
-     ,lastTable_(&firstTable_)
-     ,segmentStart_(-1)
-     ,segmentEnd_(-1)
-     ,totalPermutations_(1)
-     ,currentPermutation_(0)
-     ,halfHashKey_(heap)
-     ,heap_(heap)
-  {
-  }
+  SelfJoinHandler(ADD_MEMCHECK_ARGS_DECL(CollHeap *heap))
+      : NAIntrusiveSharedPtrObject(ADD_MEMCHECK_ARGS_PASS(heap)),
+        segmentArray_(heap),
+        permMatrix_(NULL),
+        state_(ST_START),
+        lastTable_(&firstTable_),
+        segmentStart_(-1),
+        segmentEnd_(-1),
+        totalPermutations_(1),
+        currentPermutation_(0),
+        halfHashKey_(heap),
+        heap_(heap) {}
 
   virtual ~SelfJoinHandler();
 
   /**
    * Step 1. Add a table to the Self-Join analysis.
    * This is the main body of the segment detection state machine.
-   * @param table 
+   * @param table
    */
   void addTable(JoinGraphTablePtr table);
 
@@ -442,71 +390,56 @@ public:
 
   /**
    * Step 2. Set the first (constant) half of the hAsh key.
-   * @param key 
+   * @param key
    */
-  void setHalfHashKey(const NAString& key)
-  {
-    halfHashKey_ = key;
-  }
+  void setHalfHashKey(const NAString &key) { halfHashKey_ = key; }
 
-   /**
+  /**
    * Step 3. Did we get the ShiftVectors for all the PermutationMatrix rows?
-   * @return 
+   * @return
    */
-  NABoolean isDone()
-  {
-    return currentPermutation_ >= totalPermutations_-1;
-  }
+  NABoolean isDone() { return currentPermutation_ >= totalPermutations_ - 1; }
 
   /**
    * Step 3. Get the first (constant) half of the hAsh key.
-   * @return 
+   * @return
    */
-  const NAString& getHalfHashKey()
-  {
-    return halfHashKey_;
-  }
+  const NAString &getHalfHashKey() { return halfHashKey_; }
 
   /**
    * Step 3. Get the next ShiftVector.
-   * @param shiftVector 
+   * @param shiftVector
    */
-  void getNextShiftVector(Int32* shiftVector);
+  void getNextShiftVector(Int32 *shiftVector);
 
   /**
    * How many self-join permutations for this join graph?
-   * @return 
+   * @return
    */
   Int32 howmanyPermutations();
 
-  void dump(NAString& text);
+  void dump(NAString &text);
 
-protected:
+ protected:
   void addSegment(SelfJoinSegment::SegmentType type);
-  void initPermutationMatrix(UInt32* permVector);
+  void initPermutationMatrix(UInt32 *permVector);
 
-private:
+ private:
   // Segment detection state machine states
-  enum SegmentState { 
-    ST_START=0, 
-    ST_SINGLE,
-    ST_UNIQUE,
-    ST_SELFJOIN,
-    ST_END 
-  };
+  enum SegmentState { ST_START = 0, ST_SINGLE, ST_UNIQUE, ST_SELFJOIN, ST_END };
 
-  SelfJoinSegmentArray      segmentArray_;  
-  Array2DPtr                permMatrix_;
-  SegmentState              state_;
-  const NAString*           lastTable_;
-  static const NAString     firstTable_;
-  Int32                     segmentStart_;
-  Int32                     segmentEnd_;
+  SelfJoinSegmentArray segmentArray_;
+  Array2DPtr permMatrix_;
+  SegmentState state_;
+  const NAString *lastTable_;
+  static const NAString firstTable_;
+  Int32 segmentStart_;
+  Int32 segmentEnd_;
 
-  UInt32                    totalPermutations_;
-  UInt32                    currentPermutation_;
-  NAString                  halfHashKey_;
-  CollHeap*                 heap_;
+  UInt32 totalPermutations_;
+  UInt32 currentPermutation_;
+  NAString halfHashKey_;
+  CollHeap *heap_;
 };  // class SelfJoinHandler
 
-#endif   // _SELFJOIN_H_
+#endif  // _SELFJOIN_H_

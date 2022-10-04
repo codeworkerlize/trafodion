@@ -36,8 +36,6 @@
 
 #include "vproc.h"
 
-extern "C" { void
-VPROC (PRODNUMMXLANGMAN,DATE1LANGMAN,LANGMAN_CC_LABEL)
-() {} }
-
-
+extern "C" {
+void VPROC(PRODNUMMXLANGMAN, DATE1LANGMAN, LANGMAN_CC_LABEL)() {}
+}

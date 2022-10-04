@@ -40,11 +40,8 @@
 
 #include "ElemDDLNode.h"
 
-class ElemDDLUdfExecutionMode : public ElemDDLNode
-{
-
-public:
-
+class ElemDDLUdfExecutionMode : public ElemDDLNode {
+ public:
   // constructor
   ElemDDLUdfExecutionMode(ComRoutineExecutionMode theExecutionMode);
 
@@ -52,13 +49,10 @@ public:
   virtual ~ElemDDLUdfExecutionMode(void);
 
   // cast
-  virtual ElemDDLUdfExecutionMode * castToElemDDLUdfExecutionMode(void);
+  virtual ElemDDLUdfExecutionMode *castToElemDDLUdfExecutionMode(void);
 
   // accessor
-  inline const ComRoutineExecutionMode getExecutionMode(void) const
-  {
-    return executionMode_;
-  }
+  inline const ComRoutineExecutionMode getExecutionMode(void) const { return executionMode_; }
 
   //
   // methods for tracing
@@ -67,10 +61,9 @@ public:
   virtual NATraceList getDetailInfo() const;
   virtual const NAString getText() const;
 
-private:
-
+ private:
   ComRoutineExecutionMode executionMode_;
 
-}; // class ElemDDLUdfExecutionMode
+};  // class ElemDDLUdfExecutionMode
 
 #endif /* ELEMDDLUDFEXECUTIONMODE_H */

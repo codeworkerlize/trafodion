@@ -2,7 +2,6 @@
 #ifndef RELEXPR_H
 #define RELEXPR_H
 
-
 #include "optimizer/ObjectNames.h"
 #include "arkcmp/CmpContext.h"
 #include "arkcmp/CmpStatement.h"
@@ -67,7 +66,6 @@ class TableMappingUDF;
 class RelSequence;
 class CSEInfo;
 
-
 ////////////////////
 class CANodeIdSet;
 class QueryAnalysis;
@@ -76,18 +74,12 @@ class GroupAnalysis;
 
 class CostMethodFixedCostPerRow;
 // used in heuristics to limit VSBB and SIDETREE inserts only if number rows
-// being inserted is larger than this constant. Used in ImplRule.cpp and 
+// being inserted is larger than this constant. Used in ImplRule.cpp and
 // GenPreCode.cpp
 const Lng32 MIN_ROWS_FOR_VSBB = 100;
 
 // used to defined input partitioning type of a TMUDF table input (its child)
-enum TMUDFInputPartReq 
-{
-  ANY_PARTITIONING, 
-  SPECIFIED_PARTITIONING, 
-  REPLICATE_PARTITIONING, 
-  NO_PARTITIONING 
-};
+enum TMUDFInputPartReq { ANY_PARTITIONING, SPECIFIED_PARTITIONING, REPLICATE_PARTITIONING, NO_PARTITIONING };
 
 // -----------------------------------------------------------------------
 // An ExprGroupId object is a pointer to a logical or a physical RelExpr
@@ -97,56 +89,47 @@ enum TMUDFInputPartReq
 // outside of Cascades, a materialized binding in Cascades, or a memoized
 // expression (a member of the CascadesMemo structure).
 // -----------------------------------------------------------------------
-class ExprGroupId : public NABasicObject
-{
-public:
-
+class ExprGroupId : public NABasicObject {
+ public:
   // state of the object
-  enum GroupIdMode
-  {
-    STANDALONE,
-    BINDING,
-    MEMOIZED
-  };
+  enum GroupIdMode { STANDALONE, BINDING, MEMOIZED };
 
   // constructors
 
   ExprGroupId();
-  ExprGroupId(const ExprGroupId & other);
+  ExprGroupId(const ExprGroupId &other);
   ExprGroupId(RelExpr *node);
   ExprGroupId(CascadesGroupId groupId);
 
   // assignment operators
-  ExprGroupId & operator = (const ExprGroupId & other);
-  ExprGroupId & operator = (RelExpr * other);
-  ExprGroupId & operator = (CascadesGroupId other);
+  ExprGroupId &operator=(const ExprGroupId &other);
+  ExprGroupId &operator=(RelExpr *other);
+  ExprGroupId &operator=(CascadesGroupId other);
 
   // compare an ExprGroupId with another ExprGroupId or a RelExpr *
-  NABoolean operator == (const ExprGroupId &other) const;
-  NABoolean operator != (const ExprGroupId &other) const
-                                        { return NOT operator == (other); }
-  NABoolean operator == (const RelExpr *other) const;
-  NABoolean operator != (const RelExpr *other) const
-                                        { return NOT operator == (other); }
+  NABoolean operator==(const ExprGroupId &other) const;
+  NABoolean operator!=(const ExprGroupId &other) const { return NOT operator==(other); }
+  NABoolean operator==(const RelExpr *other) const;
+  NABoolean operator!=(const RelExpr *other) const { return NOT operator==(other); }
 
   // dereferencing operator, this class works like a pointer
-  inline RelExpr * operator ->() const;         // defined below class Rexpr
+  inline RelExpr *operator->() const;  // defined below class Rexpr
 
   // same as a "normal" method
-  inline RelExpr * getPtr() const;              // defined below class RelExpr
+  inline RelExpr *getPtr() const;  // defined below class RelExpr
 
   // cast into a RelExpr *
-  inline operator RelExpr *() const;            // defined below class RelExpr
+  inline operator RelExpr *() const;  // defined below class RelExpr
 
   // return a group number instead of a pointer
   CascadesGroupId getGroupId() const;
 
   // return the mode of the pointer
-  GroupIdMode getMode() const           { return groupIdMode_; }
+  GroupIdMode getMode() const { return groupIdMode_; }
 
   // change a binding back to mode MEMOIZED
   void releaseBinding();
-  void convertBindingToStandalone(); // use after optimization
+  void convertBindingToStandalone();  // use after optimization
 
   // The Group Attributes contains certain attributes that are
   // characteristics for a relational operator.
@@ -159,21 +142,20 @@ public:
   //        will synthesize the OLP on demand.
   //        (This means that no const version of this function is
   //         possible)
-  EstLogPropSharedPtr outputLogProp(const EstLogPropSharedPtr& inputLogProp);
+  EstLogPropSharedPtr outputLogProp(const EstLogPropSharedPtr &inputLogProp);
 
   // A shortcut to get the bound expression (if it exists) ...
   // or the first logical expression in the Cascades Group.
-  RelExpr * getLogExpr() const;
+  RelExpr *getLogExpr() const;
 
-  RelExpr * getFirstLogExpr() const;
+  RelExpr *getFirstLogExpr() const;
 
-private:
-
+ private:
   enum GroupIdMode groupIdMode_;
-  RelExpr * node_;              // used for all modes but MEMOIZED
-  CascadesGroupId groupId_;     // used for the MEMOIZED and BINDING mode
+  RelExpr *node_;            // used for all modes but MEMOIZED
+  CascadesGroupId groupId_;  // used for the MEMOIZED and BINDING mode
 
-}; // class ExprGroupId
+};  // class ExprGroupId
 
 // -----------------------------------------------------------------------
 // A generic relational expression node. This class is a base class for
@@ -183,23 +165,17 @@ private:
 // relational operator and its outer references.
 // -----------------------------------------------------------------------
 
-class RelExpr : public ExprNode
-{
-
-public:
-
+class RelExpr : public ExprNode {
+ public:
   // ---------------------------------------------------------------------
   // default constructor
   // ---------------------------------------------------------------------
-  RelExpr(OperatorTypeEnum otype,
-          RelExpr  *leftChild = NULL,
-          RelExpr  *rightChild = NULL,
+  RelExpr(OperatorTypeEnum otype, RelExpr *leftChild = NULL, RelExpr *rightChild = NULL,
           CollHeap *outHeap = CmpCommon::statementHeap());
 
   // operator== required for use in templates
-  NABoolean operator==(const RelExpr &other) const
-  {
-    if(&other == this)
+  NABoolean operator==(const RelExpr &other) const {
+    if (&other == this)
       return TRUE;
     else
       return FALSE;
@@ -214,13 +190,13 @@ public:
 
   NABoolean isAnyJoin() const;
 
-  virtual const NAString getText() const {return NAString("RelExpr"); }
+  virtual const NAString getText() const { return NAString("RelExpr"); }
 
   // are RelExpr's kids cacheable after this phase?
-  NABoolean cacheableKids(CacheWA& cwa);
+  NABoolean cacheableKids(CacheWA &cwa);
 
   // is this entire expression cacheable after this phase?
-  virtual NABoolean isCacheableExpr(CacheWA& cwa);
+  virtual NABoolean isCacheableExpr(CacheWA &cwa);
 
   // is this single ExprNode cacheable after this phase?
   NABoolean isCacheableNode(CmpPhase phase) const;
@@ -229,81 +205,78 @@ public:
   void setCacheableNode(CmpPhase phase);
 
   // append an ascii-version of RelExpr into cachewa.qryText_
-  virtual void generateCacheKey(CacheWA& cachewa) const;
+  virtual void generateCacheKey(CacheWA &cachewa) const;
 
   // change literals of a cacheable query into ConstantParameters
-  virtual RelExpr* normalizeForCache(CacheWA& cachewa, BindWA& bindWA);
+  virtual RelExpr *normalizeForCache(CacheWA &cachewa, BindWA &bindWA);
 
   // helper function on CQS Tree
-  virtual RelExpr *generateMatchingExpr(CANodeIdSet &,
-                                        CANodeIdSet &,
-                                        RelExpr *);
+  virtual RelExpr *generateMatchingExpr(CANodeIdSet &, CANodeIdSet &, RelExpr *);
 
   // helper function on Normalized tree (CQS project)
-  virtual RelExpr * generateLogicalExpr (CANodeIdSet &,
-                                        CANodeIdSet &);
+  virtual RelExpr *generateLogicalExpr(CANodeIdSet &, CANodeIdSet &);
 
   Hint *getHint() const { return hint_; }
 
-  void  setHint(Hint *h) { hint_ = h; }
+  void setHint(Hint *h) { hint_ = h; }
 
   static const CorrName invalid;
-  virtual inline const CorrName& getTableName()const { return invalid;}
+  virtual inline const CorrName &getTableName() const { return invalid; }
 
   void setBiConnectBy(ItemExpr *b) { biConnectBy_ = b; }
-  ItemExpr* getBiConnectBy() {return biConnectBy_; }
-  ItemExpr* removeBiConnectBy() {ItemExpr * result = biConnectBy_; biConnectBy_ = NULL; return result; }
+  ItemExpr *getBiConnectBy() { return biConnectBy_; }
+  ItemExpr *removeBiConnectBy() {
+    ItemExpr *result = biConnectBy_;
+    biConnectBy_ = NULL;
+    return result;
+  }
 
-  ValueIdSet & startWithPred() { CMPASSERT(NOT isCutOp()); return startWithPredicate_; }
-  ValueIdSet & connectByPred() { CMPASSERT(NOT isCutOp()); return connectByPredicate_; }
+  ValueIdSet &startWithPred() {
+    CMPASSERT(NOT isCutOp());
+    return startWithPredicate_;
+  }
+  ValueIdSet &connectByPred() {
+    CMPASSERT(NOT isCutOp());
+    return connectByPredicate_;
+  }
 
-  ItemExpr * biConnectBy_;
+  ItemExpr *biConnectBy_;
 
-  ValueIdSet   startWithPredicate_;   
-  ValueIdSet   connectByPredicate_;   
+  ValueIdSet startWithPredicate_;
+  ValueIdSet connectByPredicate_;
 
   CostScalar getRTDataUsed() { return rtDataUsed_; }
   void setRTDataUsed(CostScalar x) { rtDataUsed_ = x; }
-  virtual NABoolean assignRTStats(NAArray<Int64>&, Int32&);
+  virtual NABoolean assignRTStats(NAArray<Int64> &, Int32 &);
 
-  void establishReverseParentPointers(RelExpr* parent = NULL);
+  void establishReverseParentPointers(RelExpr *parent = NULL);
 
   NABoolean decideUseCppReaderForParquetScans();
   NABoolean decideAllScansAreORCScans();
 
  protected:
+  void collectNumNativeParquetScans(Int32 &totalScans, Int32 &numNativeParquetScans);
+  void collectNumOrcScans(Int32 &totalScans, Int32 &numOrcScans);
 
-  void collectNumNativeParquetScans(Int32& totalScans, Int32& numNativeParquetScans);
-  void collectNumOrcScans(Int32& totalScans, Int32& numOrcScans);
-
-
-
-  NABoolean assignRTStatsPostProcessing(NAArray<Int64>&, Int32&);
+  NABoolean assignRTStatsPostProcessing(NAArray<Int64> &, Int32 &);
 
   // append an ascii-version of RelExpr node into cachewa.qryText_
-  void generateCacheKeyNode(CacheWA& cwa) const;
+  void generateCacheKeyNode(CacheWA &cwa) const;
 
   // append an ascii-version of RelExpr's kids into cachewa.qryText_
-  void generateCacheKeyForKids(CacheWA& cachewa) const;
+  void generateCacheKeyForKids(CacheWA &cachewa) const;
 
   // change literals in cacheable query's kids into ConstantParameters
-  void normalizeKidsForCache(CacheWA& cachewa, BindWA& bindWA);
+  void normalizeKidsForCache(CacheWA &cachewa, BindWA &bindWA);
 
-  // How much memory do we expect this operator's executor to be able to use 
+  // How much memory do we expect this operator's executor to be able to use
   // per ESP/master fragment ?
   Lng32 getExeMemoryAvailable(NABoolean inMaster) const;
 
-  // compute the memory quota 
-  double computeMemoryQuota(NABoolean inMaster,
-                            NABoolean perNode,
-                            double BMOsMemoryLimit,
-                            UInt16 totalNumBMOs,
-                            double totalBMOsMemoryUsage,
-                            UInt16 numBMOsPerFragment,
-                            double BMOMemoryUsage,
-                            Lng32  numStreams,
-                            double &memQuotaRatio
-                           );
+  // compute the memory quota
+  double computeMemoryQuota(NABoolean inMaster, NABoolean perNode, double BMOsMemoryLimit, UInt16 totalNumBMOs,
+                            double totalBMOsMemoryUsage, UInt16 numBMOsPerFragment, double BMOMemoryUsage,
+                            Lng32 numStreams, double &memQuotaRatio);
 
   virtual void decideFeasibleToTransformForAggrPushdown(NABoolean checkAll);
 
@@ -312,7 +285,7 @@ public:
   // perform a safe type cast (return NULL ptr for illegal casts)
   // ---------------------------------------------------------------------
   virtual RelExpr *castToRelExpr();
-  const RelExpr * castToRelExpr() const;
+  const RelExpr *castToRelExpr() const;
 
   // This method clears all logical expressions uptill the leaf node
   // for multi-join. The methid should be called only before optimization phases
@@ -322,11 +295,10 @@ public:
 
   void clearLogExprForSynthDuringAnalysis();
 
-  virtual NABoolean  isAControlStatement()    const { return FALSE; }
+  virtual NABoolean isAControlStatement() const { return FALSE; }
   virtual StaticOnly isAStaticOnlyStatement() const { return NOT_STATIC_ONLY; }
 
-  NABoolean isParHeuristic4Feasible(Context* myContext,
-                           const ReqdPhysicalProperty* rppForMe);
+  NABoolean isParHeuristic4Feasible(Context *myContext, const ReqdPhysicalProperty *rppForMe);
 
   // safe casting to derived classes
   virtual TableMappingUDF *castToTableMappingUDF();
@@ -335,7 +307,7 @@ public:
   // method required for traversing an ExprNode tree
   // access a child of an ExprNode
   // ---------------------------------------------------------------------
-  virtual ExprNode * getChild(Lng32 index);
+  virtual ExprNode *getChild(Lng32 index);
 
   // Method for replacing a particular child
   virtual void setChild(Lng32 index, ExprNode *);
@@ -350,24 +322,20 @@ public:
   // ---------------------------------------------------------------------
 
   // operator [] is used to access the children of a tree
-  virtual ExprGroupId & operator[] (Lng32 index)
-    {
-      CMPASSERT(index >= 0 AND index < MAX_REL_ARITY);
-      return child_[index];
-    }
+  virtual ExprGroupId &operator[](Lng32 index) {
+    CMPASSERT(index >= 0 AND index < MAX_REL_ARITY);
+    return child_[index];
+  }
 
-  virtual const ExprGroupId & operator[] (Lng32 index) const
-    {
-      CMPASSERT(index >= 0 AND index < MAX_REL_ARITY);
-      return child_[index];
-    }
+  virtual const ExprGroupId &operator[](Lng32 index) const {
+    CMPASSERT(index >= 0 AND index < MAX_REL_ARITY);
+    return child_[index];
+  }
 
   // for cases where a named method is more convenient than operator []
-  inline ExprGroupId & child(Lng32 index)
-                                             { return operator[](index); }
+  inline ExprGroupId &child(Lng32 index) { return operator[](index); }
   // const version of the above
-  inline const ExprGroupId & child(Lng32 index) const
-                                             { return operator[](index); }
+  inline const ExprGroupId &child(Lng32 index) const { return operator[](index); }
 
   // ---------------------------------------------------------------------
   // manipulate the selection predicate of the node
@@ -385,42 +353,39 @@ public:
   void addStartWithExprTree(ItemExpr *selpred);
 
   // remove the selection predicate tree from this node and return its pointer
-  ItemExpr * removeSelPredTree();
-  ItemExpr * removeConnectByTree();
-  ItemExpr * removeStartWithTree();
+  ItemExpr *removeSelPredTree();
+  ItemExpr *removeConnectByTree();
+  ItemExpr *removeStartWithTree();
 
   // non-destructive read of the selection predicates
-  ItemExpr * selPredTree() const                        { return selection_; }
-  const ItemExpr * getSelPredTree() const               { return selection_; }
+  ItemExpr *selPredTree() const { return selection_; }
+  const ItemExpr *getSelPredTree() const { return selection_; }
 
   // return a (short-lived) read/write reference to the selection predicates
-  ValueIdSet & selectionPred() { CMPASSERT(NOT isCutOp()); return predicates_; }
+  ValueIdSet &selectionPred() {
+    CMPASSERT(NOT isCutOp());
+    return predicates_;
+  }
 
   // return a constant reference to the selection predicates
-  const ValueIdSet & getSelectionPred() const           { return predicates_; }
-  const ValueIdSet & getSelectionPredicates() const     { return predicates_; }
+  const ValueIdSet &getSelectionPred() const { return predicates_; }
+  const ValueIdSet &getSelectionPredicates() const { return predicates_; }
 
-  void setSelectionPredicates(const ValueIdSet& p)      { predicates_ = p; }
+  void setSelectionPredicates(const ValueIdSet &p) { predicates_ = p; }
 
   //++MV
   // Used by inlining mechanism for adding optimizer constraints
   void addUniqueColumnsTree(ItemExpr *uniqueColumnsTree);
-  ItemExpr * removeUniqueColumnsTree();
+  ItemExpr *removeUniqueColumnsTree();
 
-  inline ValueIdSet& getUniqueColumns()			{ return uniqueColumns_; }
-  inline void setUniqueColumns(const ValueIdSet& uniqueColumns)
-  {
-    uniqueColumns_ = uniqueColumns;
-  }
+  inline ValueIdSet &getUniqueColumns() { return uniqueColumns_; }
+  inline void setUniqueColumns(const ValueIdSet &uniqueColumns) { uniqueColumns_ = uniqueColumns; }
 
-  CardConstraint * getCardConstraint() const { return cardConstraint_; }
-  void addCardConstraint(Cardinality lowerBound, Cardinality upperBound)
-  {
-    cardConstraint_ = new(CmpCommon::statementHeap())
-			 CardConstraint(lowerBound,upperBound);
+  CardConstraint *getCardConstraint() const { return cardConstraint_; }
+  void addCardConstraint(Cardinality lowerBound, Cardinality upperBound) {
+    cardConstraint_ = new (CmpCommon::statementHeap()) CardConstraint(lowerBound, upperBound);
   }
   //--MV
-
 
   // ---------------------------------------------------------------------
   // The Group Attributes contains certain attributes that are
@@ -432,33 +397,31 @@ public:
   // 3) the logical properties such as constraints, statistics, etc.
   // ---------------------------------------------------------------------
   void setGroupAttr(GroupAttributes *gaPtr);
-  inline GroupAttributes *getGroupAttr() const      { return groupAttr_; }
+  inline GroupAttributes *getGroupAttr() const { return groupAttr_; }
   virtual NABoolean reconcileGroupAttr(GroupAttributes *newGroupAttr);
 
   // *********************************************************************
   // Common interfaces for processing DML statements.
   // Each interface implements one phase of query processing.
   // *********************************************************************
-  enum AtomicityType
-  {UNSPECIFIED_ = 0, ATOMIC_ = 1, NOT_ATOMIC_ = 2};
+  enum AtomicityType { UNSPECIFIED_ = 0, ATOMIC_ = 1, NOT_ATOMIC_ = 2 };
 
   // Rowsets processing does some transformations after parsing but before
   // binding. For example, it transforms a query Q that has an input rowset
   // array A into a TSJ that feeds each element of A into the query Q. The argument
   // inputArrayMaxsize is used to set the length of input arrays for ODBC
   // insert queries.
-  virtual RelExpr *xformRowsetsInTree(BindWA& wa,
-					const ULng32 inputArrayMaxsize = 0,
-					const AtomicityType atomicity = UNSPECIFIED_);
+  virtual RelExpr *xformRowsetsInTree(BindWA &wa, const ULng32 inputArrayMaxsize = 0,
+                                      const AtomicityType atomicity = UNSPECIFIED_);
 
-    virtual RelExpr *xformPartitionPruning(BindWA* bindWA, RelExpr *gu=NULL,
-                                           OperatorTypeEnum op=NO_OPERATOR_TYPE)
-        { return this; }
+  virtual RelExpr *xformPartitionPruning(BindWA *bindWA, RelExpr *gu = NULL, OperatorTypeEnum op = NO_OPERATOR_TYPE) {
+    return this;
+  }
   // --------------------------------------------------------------------
   // The name binding and semantics checking phase is implemented
   // by the virtual function bindNode().
   // --------------------------------------------------------------------
-  virtual RelExpr * bindNode(BindWA *bindWAPtr);
+  virtual RelExpr *bindNode(BindWA *bindWAPtr);
 
   // --------------------------------------------------------------------
   // Unconditional query transformations such as the transformation of
@@ -503,28 +466,23 @@ public:
   //         the RelExpr that is currently being processed.
   //
   // --------------------------------------------------------------------
-  virtual void transformNode(NormWA & normWARef,
-                             ExprGroupId & locationOfPointerToMe);
+  virtual void transformNode(NormWA &normWARef, ExprGroupId &locationOfPointerToMe);
 
   // --------------------------------------------------------------------
   // rewriteNode() is the virtual function that computes
   // the transitive closure for "=" predicates and rewrites value
   // expressions.
   // --------------------------------------------------------------------
-  virtual void rewriteNode(NormWA & normWARef);
+  virtual void rewriteNode(NormWA &normWARef);
 
   // QSTUFF
 
   // --------------------------------------------------------------------
   // This routine checks whether a table is both read and updated
   // --------------------------------------------------------------------
-  enum rwErrorStatus
-    {
-      RWERROR,
-      RWOKAY
-    };
+  enum rwErrorStatus { RWERROR, RWOKAY };
 
-  virtual rwErrorStatus checkReadWriteConflicts(NormWA & normWARef);
+  virtual rwErrorStatus checkReadWriteConflicts(NormWA &normWARef);
 
   // QSTUFF
 
@@ -533,7 +491,7 @@ public:
   // that the characteristic input as well as characteristic output
   // values are both "minimal".
   // --------------------------------------------------------------------
-  virtual RelExpr * normalizeNode(NormWA & normWARef);
+  virtual RelExpr *normalizeNode(NormWA &normWARef);
 
   // --------------------------------------------------------------------
   // getEssentialOutputsFromChildren() is a helper method used by the
@@ -541,7 +499,7 @@ public:
   // all Essential Outputs out a node's direct children in essOutputs,
   // upon completion.
   // --------------------------------------------------------------------
-  void getEssentialOutputsFromChildren(ValueIdSet & essOutputs);
+  void getEssentialOutputsFromChildren(ValueIdSet &essOutputs);
 
   // --------------------------------------------------------------------
   // fixEssentialCharacteristicOutputs() is a used during the bottom-up of
@@ -561,7 +519,7 @@ public:
   // tranformation on a query tree that uses the logical constraints
   // computed for the query.
   // --------------------------------------------------------------------
-  virtual RelExpr * semanticQueryOptimizeNode(NormWA & normWARef);
+  virtual RelExpr *semanticQueryOptimizeNode(NormWA &normWARef);
 
   // used during SemanticQueryOptimize to remove filter nodes introduced
   // in previous phases, if the subquery is not going to be unnested.
@@ -578,18 +536,17 @@ public:
   // used during SQO phase to make the left sub tree of the join
   // being unnested produce the extra outputs that is necessary to
   // group by a set of unique columns of of the left sub tree
-  NABoolean getMoreOutputsIfPossible(ValueIdSet& outputsNeeded) ;
+  NABoolean getMoreOutputsIfPossible(ValueIdSet &outputsNeeded);
 
   // calls pushDownCoveredExpr recursively. Used at the end of the
   // SQO phase to get outputs at every node to be minimal
-  void recursivePushDownCoveredExpr(NormWA * normWAPtr, 
-                                    NABoolean doSynthLogProp = TRUE) ;
+  void recursivePushDownCoveredExpr(NormWA *normWAPtr, NABoolean doSynthLogProp = TRUE);
 
-  NABoolean createPredForFirstN(NormWA & normWARef);
+  NABoolean createPredForFirstN(NormWA &normWARef);
 
   // synthesizes (in Scan's implemenation), matches (in Join's implementation)
   // and flows CompRefOpt constraints up the query tree.
-  virtual void processCompRefOptConstraints(NormWA * normWAPtr) ;
+  virtual void processCompRefOptConstraints(NormWA *normWAPtr);
 
   // Used during SQO to prepare the child tree of a CommonSubExprRef
   // for sharing between multiple consumers. This basically undoes
@@ -599,14 +556,9 @@ public:
   // Returns TRUE for success, FALSE if it was unable to prepare
   // (diags will be set).
   // Tree remains unchanged if testRun is TRUE.
-  virtual NABoolean prepareTreeForCSESharing(
-       const ValueIdSet &outputsToAdd,
-       const ValueIdSet &predicatesToRemove,
-       const ValueIdSet &commonPredicatesToAdd,
-       const ValueIdSet &inputsToRemove,
-       ValueIdSet &valuesForVEGRewrite,
-       ValueIdSet &keyColumns,
-       CSEInfo *info);
+  virtual NABoolean prepareTreeForCSESharing(const ValueIdSet &outputsToAdd, const ValueIdSet &predicatesToRemove,
+                                             const ValueIdSet &commonPredicatesToAdd, const ValueIdSet &inputsToRemove,
+                                             ValueIdSet &valuesForVEGRewrite, ValueIdSet &keyColumns, CSEInfo *info);
 
   // A virtual method called on every node from prepareTreeForCSESharing(),
   // use this to do the actual work of removing predicates other than
@@ -628,19 +580,14 @@ public:
   //   they are covered by the children's group attributes
   // - adding required outputs that are produced by children
   // - removing char. inputs that are requested to be removed
-  virtual NABoolean prepareMeForCSESharing(
-       const ValueIdSet &outputsToAdd,
-       const ValueIdSet &predicatesToRemove,
-       const ValueIdSet &commonPredicatesToAdd,
-       const ValueIdSet &inputsToRemove,
-       ValueIdSet &valuesForVEGRewrite,
-       ValueIdSet &keyColumns,
-       CSEInfo *info);
+  virtual NABoolean prepareMeForCSESharing(const ValueIdSet &outputsToAdd, const ValueIdSet &predicatesToRemove,
+                                           const ValueIdSet &commonPredicatesToAdd, const ValueIdSet &inputsToRemove,
+                                           ValueIdSet &valuesForVEGRewrite, ValueIdSet &keyColumns, CSEInfo *info);
 
   // --------------------------------------------------------------------
   // Create a query execution plan.
   // --------------------------------------------------------------------
-  virtual RelExpr * optimizeNode();
+  virtual RelExpr *optimizeNode();
 
   // --------------------------------------------------------------------
   // Perform local query rewrites such as for the creation and
@@ -648,14 +595,12 @@ public:
   // data. Rewrite the value expressions after minimizing the dataflow
   // using the transitive closure of equality predicates.
   // --------------------------------------------------------------------
-  virtual RelExpr * preCodeGen(Generator * generator,
-                               const ValueIdSet & externalInputs,
-                               ValueIdSet &pulledNewInputs);
+  virtual RelExpr *preCodeGen(Generator *generator, const ValueIdSet &externalInputs, ValueIdSet &pulledNewInputs);
 
   // --------------------------------------------------------------------
   // Perform DoP reduction. Called during preCodeGen().
   // --------------------------------------------------------------------
-  virtual void prepareDopReduction(Generator*, NABoolean useRTstats);
+  virtual void prepareDopReduction(Generator *, NABoolean useRTstats);
 
   // --------------------------------------------------------------------
   // Generate executor task definition blocks (ComTdb's).
@@ -665,7 +610,7 @@ public:
   // -----------------------------------------------------
   // generate CONTROL QUERY SHAPE fragment for this node.
   // -----------------------------------------------------
-  virtual short generateShape(CollHeap * space, char * buf, NAString * shapeStr = NULL);
+  virtual short generateShape(CollHeap *space, char *buf, NAString *shapeStr = NULL);
 
   // *********************************************************************
   // Helper functions and methods used by the binder.
@@ -677,8 +622,7 @@ public:
 
   void setRETDesc(RETDesc *retdesc) { RETDesc_ = retdesc; }
   RETDesc *getRETDesc() const;
-  CollIndex getDegree() const
-  {
+  CollIndex getDegree() const {
     RETDesc *rd = getRETDesc();
     return rd ? rd->getDegree() : (CollIndex)0;
   }
@@ -690,9 +634,7 @@ public:
   RelSequence *getOlapChild() const;
   void getAllTableDescs(TableDescList &tableDescs);
 
-  TableDesc *findFirstTableDescAndValueIdMap(RelExpr *currentNode,
-                                             ValueIdMap &valueIdMap);
-
+  TableDesc *findFirstTableDescAndValueIdMap(RelExpr *currentNode, ValueIdMap &valueIdMap);
 
   // QSTUFF
   // we must pushdown the outputs of a genericupdate root to its
@@ -714,17 +656,17 @@ public:
   // QSTUFF
 
   // a virtual function to get addressability to the list of output values
-  virtual ItemExpr * selectList();    // in the external form
+  virtual ItemExpr *selectList();  // in the external form
 
   // Triggers --
   // get/set the InliningInfo object.
-  inline       InliningInfo& getInliningInfo()       { return inliningInfo_; }
-  inline const InliningInfo& getInliningInfo() const { return inliningInfo_; }
+  inline InliningInfo &getInliningInfo() { return inliningInfo_; }
+  inline const InliningInfo &getInliningInfo() const { return inliningInfo_; }
   inline void setInliningInfo(InliningInfo *info) { inliningInfo_ = *info; }
 
   // Access set handling methods
-  inline SubTreeAccessSet *getAccessSet0()     { return accessSet0_;}
-  inline SubTreeAccessSet *getAccessSet1()     { return accessSet1_;}
+  inline SubTreeAccessSet *getAccessSet0() { return accessSet0_; }
+  inline SubTreeAccessSet *getAccessSet1() { return accessSet1_; }
   inline void setAccessSet0(SubTreeAccessSet *as) { accessSet0_ = as; }
   inline void setAccessSet1(SubTreeAccessSet *as) { accessSet1_ = as; }
 
@@ -732,8 +674,7 @@ public:
 
   // MV --
   virtual NABoolean isIncrementalMV() { return FALSE; }
-  virtual void collectMVInformation(MVInfoForDDL *mvInfo,
-				    NABoolean isNormalized);
+  virtual void collectMVInformation(MVInfoForDDL *mvInfo, NABoolean isNormalized);
 
   // determine whether an IUD operation has been seen
   virtual NABoolean seenIUD() { return seenIUD_; }
@@ -744,8 +685,7 @@ public:
   // *********************************************************************
 
   // procedure to do the common processing of the select predicate
-  void transformSelectPred(NormWA & normWARef,
-                           ExprGroupId & locationOfPointerToMe);
+  void transformSelectPred(NormWA &normWARef, ExprGroupId &locationOfPointerToMe);
 
   // ---------------------------------------------------------------------
   // Inputs and Ouptuts.
@@ -772,7 +712,7 @@ public:
   // the Characteristic Input and Outputs.
   // --------------------------------------------------------------------
   void primeGroupAttributes();
-  void allocateAndPrimeGroupAttributes(); // used after a rule-based transformation
+  void allocateAndPrimeGroupAttributes();  // used after a rule-based transformation
   virtual void primeGroupAnalysis();
 
   // --------------------------------------------------------------------
@@ -780,9 +720,9 @@ public:
   // produced as output by this operator. These are values over and
   // above those that are prodcued as Characteristic Outputs.
   // --------------------------------------------------------------------
-  virtual void getPotentialOutputValues(ValueIdSet & vs) const;
+  virtual void getPotentialOutputValues(ValueIdSet &vs) const;
 
-  virtual void getPotentialOutputValuesAsVEGs(ValueIdSet& outputs) const;
+  virtual void getPotentialOutputValuesAsVEGs(ValueIdSet &outputs) const;
 
   // ---------------------------------------------------------------------
   // pullUpPreds()
@@ -862,14 +802,9 @@ public:
   //         the pushdown is attempted on all the children.
   //
   // ---------------------------------------------------------------------
-  virtual void pushdownCoveredExpr(
-                                   const ValueIdSet & outputExprOnOperator,
-                                   const ValueIdSet & newExternalInputs,
-                                   ValueIdSet& predOnOperator,
-				   const ValueIdSet *
-				      nonPredNonOutputExprOnOperator = NULL,
+  virtual void pushdownCoveredExpr(const ValueIdSet &outputExprOnOperator, const ValueIdSet &newExternalInputs,
+                                   ValueIdSet &predOnOperator, const ValueIdSet *nonPredNonOutputExprOnOperator = NULL,
                                    Lng32 childId = (-MAX_REL_ARITY));
-
 
   // -----------------------------------------------------------------------
   // RelExpr::computeValuesReqdForPredicates()
@@ -877,8 +812,7 @@ public:
   // contained in setOfExpr (first argument). The
   // computed list of values is returned in the second argument
   // -----------------------------------------------------------------------
-  static void computeValuesReqdForPredicates(const ValueIdSet& setOfExpr,
-				      ValueIdSet& reqdValues,
+  static void computeValuesReqdForPredicates(const ValueIdSet &setOfExpr, ValueIdSet &reqdValues,
                                              NABoolean addInstNull = FALSE);
 
   // -----------------------------------------------------------------------
@@ -887,9 +821,8 @@ public:
   // contained in setOfExpr (first argument). The
   // computed list of values is returned in the third argument.
   // -----------------------------------------------------------------------
-  static void computeValuesReqdForOutput(const ValueIdSet& setOfExpr,
-                                         const ValueIdSet& newExternalInputs,
-                                         ValueIdSet& outputsOnOperator);
+  static void computeValuesReqdForOutput(const ValueIdSet &setOfExpr, const ValueIdSet &newExternalInputs,
+                                         ValueIdSet &outputsOnOperator);
 
   // -----------------------------------------------------------------------
   // RelExpr::preventPushDownPartReq()
@@ -909,15 +842,13 @@ public:
   // parallel and succeeded in the current pass to prevent attempt to create
   // another parallel plan.
 
-  NABoolean preventPushDownPartReq
-                                    (const ReqdPhysicalProperty* rppForMe,
-                                     const EstLogPropSharedPtr& inLogProp     ); 
+  NABoolean preventPushDownPartReq(const ReqdPhysicalProperty *rppForMe, const EstLogPropSharedPtr &inLogProp);
   // *********************************************************************
   // Helper functions and methods used by the optimizer.
   // *********************************************************************
 
   // synthesize logical properties
-  virtual void synthLogProp(NormWA * normWAPtr = NULL);
+  virtual void synthLogProp(NormWA *normWAPtr = NULL);
 
   // finish the synthesis of logical properties by setting various cardinality
   // related attributes
@@ -925,61 +856,55 @@ public:
 
   // synthesize estimated logical properties given a specific set of
   // input log. properties
-  virtual void synthEstLogProp(const EstLogPropSharedPtr& inputLP);
+  virtual void synthEstLogProp(const EstLogPropSharedPtr &inputLP);
 
   // synthesize estimated logical properties for unary and leaf ops
-  EstLogPropSharedPtr synthEstLogPropForUnaryLeafOp
-              (const EstLogPropSharedPtr& inputEstLogProp,
-               const ColStatDescList & childStats,
-               CostScalar initialRowcount = 1,
-               CostScalar *childMaxCardEst = NULL) const;
+  EstLogPropSharedPtr synthEstLogPropForUnaryLeafOp(const EstLogPropSharedPtr &inputEstLogProp,
+                                                    const ColStatDescList &childStats, CostScalar initialRowcount = 1,
+                                                    CostScalar *childMaxCardEst = NULL) const;
 
   // call the optimizer with requirements
-  RelExpr * optimize(NABoolean               exception = FALSE,
-	                 Guidance*               guidance = NULL,
-                     ReqdPhysicalProperty  * rpp = NULL,
-                     CostLimit*              costLimit = NULL);
+  RelExpr *optimize(NABoolean exception = FALSE, Guidance *guidance = NULL, ReqdPhysicalProperty *rpp = NULL,
+                    CostLimit *costLimit = NULL);
 
-  RelExpr * optimize2();
+  RelExpr *optimize2();
 
-  RelExpr * checkAndReorderTree();
+  RelExpr *checkAndReorderTree();
 
   void clearAllEstLogProp();
 
   // clear logical properties of me and mine children
   void clearAllLogProp();
 
-  virtual RelExpr * reorderTree(NABoolean & treeModified,
-	  NABoolean doReorderJoin);
+  virtual RelExpr *reorderTree(NABoolean &treeModified, NABoolean doReorderJoin);
 
   // added for trigger project, to activate after trigger transformation
-  virtual RelExpr * fixupTriggers(NABoolean & treeModified);
+  virtual RelExpr *fixupTriggers(NABoolean &treeModified);
 
   // ---------------------------------------------------------------------
   // comparison, hash, and copy methods
   // ---------------------------------------------------------------------
 
-  virtual SimpleHashValue hash(); // from ExprNode
+  virtual SimpleHashValue hash();  // from ExprNode
   virtual HashValue topHash();
   HashValue treeHash();
-  virtual NABoolean patternMatch(const RelExpr & other) const;
-  virtual NABoolean duplicateMatch(const RelExpr & other) const;
+  virtual NABoolean patternMatch(const RelExpr &other) const;
+  virtual NABoolean duplicateMatch(const RelExpr &other) const;
 
   // "virtual copy constructor", provides a generic method to duplicate
   // the top node of an expression tree or an entire tree.
-  virtual RelExpr * copyTopNode(RelExpr *derivedNode = NULL,
-                                CollHeap* outHeap = NULL);
-  RelExpr * copyTree(CollHeap* heap = NULL);
-  RelExpr * copyRelExprTree(CollHeap* outHeap = NULL);
-  const RelExpr * getOriginalExpr(NABoolean transitive = TRUE) const;
-  RelExpr * getOriginalExpr(NABoolean transitive = TRUE);
+  virtual RelExpr *copyTopNode(RelExpr *derivedNode = NULL, CollHeap *outHeap = NULL);
+  RelExpr *copyTree(CollHeap *heap = NULL);
+  RelExpr *copyRelExprTree(CollHeap *outHeap = NULL);
+  const RelExpr *getOriginalExpr(NABoolean transitive = TRUE) const;
+  RelExpr *getOriginalExpr(NABoolean transitive = TRUE);
 
   // --------------------------------------------------------------------
   // Methods used internally by Cascades
   // --------------------------------------------------------------------
 
-  virtual NABoolean  isLogical() const;
-  virtual NABoolean  isPhysical() const;
+  virtual NABoolean isLogical() const;
+  virtual NABoolean isPhysical() const;
 
   // these functions must not be redefined, except for Cut, Subtree,
   // or Wildcard nodes
@@ -989,16 +914,16 @@ public:
 
   // get/set the Cascades internal data of a RelExpr
   // NOTE: these methods are not really intended for general use!!!
-  inline CascadesGroupId getGroupId() const             { return groupId_; }
-  inline void setGroupId(CascadesGroupId g)                { groupId_ = g; }
+  inline CascadesGroupId getGroupId() const { return groupId_; }
+  inline void setGroupId(CascadesGroupId g) { groupId_ = g; }
 
-  inline RelExpr * getNextInGroup()                   { return groupNext_; }
-  inline void setNextInGroup(RelExpr * v)                { groupNext_ = v; }
-  inline RelExpr * getNextInBucket()                 { return bucketNext_; }
-  inline void setNextInBucket(RelExpr * v)              { bucketNext_ = v; }
+  inline RelExpr *getNextInGroup() { return groupNext_; }
+  inline void setNextInGroup(RelExpr *v) { groupNext_ = v; }
+  inline RelExpr *getNextInBucket() { return bucketNext_; }
+  inline void setNextInBucket(RelExpr *v) { bucketNext_ = v; }
 
   inline const RuleSubset &getContextInsensRules() const { return contextInsensRules_; }
-  inline RuleSubset &contextInsensRules()          { return contextInsensRules_; }
+  inline RuleSubset &contextInsensRules() { return contextInsensRules_; }
   inline const RulesPerContextList &getContextSensRules() const { return contextSensRules_; }
   inline RulesPerContextList &contextSensRules() { return contextSensRules_; }
 
@@ -1007,16 +932,12 @@ public:
   // ---------------------------------------------------------------------
 
   // determine how many promising moves to pursue in exploration
-  virtual Int32 computeExploreExprCutoff(RuleWithPromise promisingMoves [],
-                                       Int32 numberOfMoves,
-                                       RelExpr* pattern,
-                                       Guidance* myGuidance);
+  virtual Int32 computeExploreExprCutoff(RuleWithPromise promisingMoves[], Int32 numberOfMoves, RelExpr *pattern,
+                                         Guidance *myGuidance);
 
   // determine how many promising moves to pursue in optimization
-  virtual Int32 computeOptimizeExprCutoff(RuleWithPromise promisingMoves [],
-                                        Int32 numberOfMoves,
-                                        Guidance* myGuidance,
-                                        Context* myContext);
+  virtual Int32 computeOptimizeExprCutoff(RuleWithPromise promisingMoves[], Int32 numberOfMoves, Guidance *myGuidance,
+                                          Context *myContext);
 
   // ---------------------------------------------------------------------
   // Methods needed by Cascades iff an operator is physical
@@ -1026,13 +947,13 @@ public:
   // A virtual function to permit the allocation of an operator-specific
   // work space that is used during plan generation.
   // ---------------------------------------------------------------------
-  virtual PlanWorkSpace* allocateWorkSpace() const;
+  virtual PlanWorkSpace *allocateWorkSpace() const;
 
   // ---------------------------------------------------------------------
   // Obtain a pointer to a CostMethod object that provides access
   // to the cost estimation functions for nodes of this type.
   // ---------------------------------------------------------------------
-  virtual CostMethod* costMethod() const;
+  virtual CostMethod *costMethod() const;
 
   // ---------------------------------------------------------------------
   // The main driver for plan generation.
@@ -1044,11 +965,8 @@ public:
   // They are used for creating a new guidance that is used for
   // optimizing the child.
   // ---------------------------------------------------------------------
-  virtual Context* createPlan(Context* myContext,
-                              PlanWorkSpace* pws,
-                              Rule* rule,
-                              Guidance* myGuidance,
-                              Guidance* & childGuidance);
+  virtual Context *createPlan(Context *myContext, PlanWorkSpace *pws, Rule *rule, Guidance *myGuidance,
+                              Guidance *&childGuidance);
 
   // ---------------------------------------------------------------------
   // Create a Context for a specific child and store it in the
@@ -1056,9 +974,7 @@ public:
   // This method is called from within the implementation
   // of createPlan().
   // ---------------------------------------------------------------------
-  virtual Context* createContextForAChild(Context* myContext,
-                     PlanWorkSpace* pws,
-                     Lng32& childIndex);
+  virtual Context *createContextForAChild(Context *myContext, PlanWorkSpace *pws, Lng32 &childIndex);
 
   // ---------------------------------------------------------------------
   // Create a Context for a specific child, given a sortkey and
@@ -1067,64 +983,49 @@ public:
   // of createContextForAChild() for operators that require the dataflow
   // produced by their child to be sorted.
   // ---------------------------------------------------------------------
-  Context * generateContext(Context* myContext,
-                            PlanWorkSpace* pws,
-                            Lng32 childIndex,
-                            const ValueIdSet* const arrangedCols,
-                            const ValueIdList* const sortKey,
-                            PartitioningRequirement* partReq);
+  Context *generateContext(Context *myContext, PlanWorkSpace *pws, Lng32 childIndex,
+                           const ValueIdSet *const arrangedCols, const ValueIdList *const sortKey,
+                           PartitioningRequirement *partReq);
 
   // ---------------------------------------------------------------------
   // A virtual function for computing the cost limit to be imposed
   // on the child that is about to be optimized.
   // ---------------------------------------------------------------------
-  virtual CostLimit* computeCostLimit(const Context* myContext,
-                                            PlanWorkSpace* pws);
+  virtual CostLimit *computeCostLimit(const Context *myContext, PlanWorkSpace *pws);
 
   // ---------------------------------------------------------------------
   // A virtual function that determines if the current plan is
   // compatible with any forced plan constraints and is viable.
   // ---------------------------------------------------------------------
-  virtual NABoolean currentPlanIsAcceptable(Lng32 planNo,
-            const ReqdPhysicalProperty* const rppForMe) const;
+  virtual NABoolean currentPlanIsAcceptable(Lng32 planNo, const ReqdPhysicalProperty *const rppForMe) const;
 
   // ---------------------------------------------------------------------
   // A virtual function for associating one of the Contexts
   // that was created for each child of this operator
   // with the Context for this operator.
   // ---------------------------------------------------------------------
-  virtual NABoolean findOptimalSolution(Context* myContext,
-                                        PlanWorkSpace* pws);
+  virtual NABoolean findOptimalSolution(Context *myContext, PlanWorkSpace *pws);
 
   // ---------------------------------------------------------------------
   // calculate physical properties from child's phys properties
   // (assuming the children are already optimized and have physical properties)
   // (used in the implementation of createPlan)
   // ---------------------------------------------------------------------
-  virtual PhysicalProperty* synthPhysicalProperty(const Context* myContext,
-                                                  const Lng32     planNumber,
-                                                  PlanWorkSpace  *pws);
+  virtual PhysicalProperty *synthPhysicalProperty(const Context *myContext, const Lng32 planNumber, PlanWorkSpace *pws);
 
   // ---------------------------------------------------------------------
   // A helper method for synthesizing the physical properties for the leaf
   // operators scan, cursor insert, cursor update, and cursor delete.
   // ---------------------------------------------------------------------
-  PhysicalProperty* synthDP2PhysicalProperty(
-                              const Context*     myContext,
-                              const ValueIdList& sortOrder,
-                              const IndexDesc*   indexDesc,
-                              const SearchKey*   partSearchKey);
+  PhysicalProperty *synthDP2PhysicalProperty(const Context *myContext, const ValueIdList &sortOrder,
+                                             const IndexDesc *indexDesc, const SearchKey *partSearchKey);
 
   // ---------------------------------------------------------------------
   // create or share an optimization goal for a child group
   // ---------------------------------------------------------------------
-  Context* shareContext(Lng32 childIndex,
-                        const ReqdPhysicalProperty* const reqdPhys,
-                        const InputPhysicalProperty* const inputPhys,
-                        CostLimit* costLimit,
-                        Context* parentContext,
-                        const EstLogPropSharedPtr& inputLogProp,
-                        RelExpr *explicitlyRequiredShape = NULL) const;
+  Context *shareContext(Lng32 childIndex, const ReqdPhysicalProperty *const reqdPhys,
+                        const InputPhysicalProperty *const inputPhys, CostLimit *costLimit, Context *parentContext,
+                        const EstLogPropSharedPtr &inputLogProp, RelExpr *explicitlyRequiredShape = NULL) const;
 
   // ---------------------------------------------------------------------
   // release a binding that was created by means other than using a
@@ -1137,22 +1038,20 @@ public:
   // by the settings in the defaults table, or if the number of
   // ESPs is being forced.
   // ---------------------------------------------------------------------
-  virtual DefaultToken getParallelControlSettings (
-            const ReqdPhysicalProperty* const rppForMe, /*IN*/
-            Lng32& numOfESPs, /*OUT*/
-            float& allowedDeviation, /*OUT*/
-            NABoolean& numOfESPsForced /*OUT*/) const;
+  virtual DefaultToken getParallelControlSettings(const ReqdPhysicalProperty *const rppForMe, /*IN*/
+                                                  Lng32 &numOfESPs,                           /*OUT*/
+                                                  float &allowedDeviation,                    /*OUT*/
+                                                  NABoolean &numOfESPsForced /*OUT*/) const;
 
   // ---------------------------------------------------------------------
   // A virtual function that decides if ESP parallelism is worth it
   // for the operator.
   // ---------------------------------------------------------------------
-  virtual NABoolean okToAttemptESPParallelism (
-            const Context* myContext, /*IN*/
-            PlanWorkSpace* pws, /*IN*/
-            Lng32& numOfESPs, /*OUT*/
-            float& allowedDeviation, /*OUT*/
-            NABoolean& numOfESPsForced /*OUT*/) ;
+  virtual NABoolean okToAttemptESPParallelism(const Context *myContext, /*IN*/
+                                              PlanWorkSpace *pws,       /*IN*/
+                                              Lng32 &numOfESPs,         /*OUT*/
+                                              float &allowedDeviation,  /*OUT*/
+                                              NABoolean &numOfESPsForced /*OUT*/);
 
   // ---------------------------------------------------------------------
   // Checks the required physical properties to see if they require
@@ -1160,8 +1059,7 @@ public:
   // This method is called by all implementations of the
   // method topMatch() except the enforcer rule implementations.
   // ---------------------------------------------------------------------
-  NABoolean rppRequiresEnforcer
-              (const ReqdPhysicalProperty* const rppForMe) const;
+  NABoolean rppRequiresEnforcer(const ReqdPhysicalProperty *const rppForMe) const;
 
   // ---------------------------------------------------------------------
   // Compares the pivs of this node to those of its children.
@@ -1174,14 +1072,10 @@ public:
   // operator to the designated child, if the operator has/requires mapping.
   // Note that this default implementation does no mapping.
   // ---------------------------------------------------------------------
-  virtual PartitioningFunction* mapPartitioningFunction(
-                          const PartitioningFunction* partFunc,
-                          NABoolean rewriteForChild0) ;
+  virtual PartitioningFunction *mapPartitioningFunction(const PartitioningFunction *partFunc,
+                                                        NABoolean rewriteForChild0);
 
-  virtual void addPartKeyPredsToSelectionPreds(
-                          const ValueIdSet& partKeyPreds,
-                          const ValueIdSet& pivs)
-  {}
+  virtual void addPartKeyPredsToSelectionPreds(const ValueIdSet &partKeyPreds, const ValueIdSet &pivs) {}
 
   // *********************************************************************
   // Helper functions and methods during the pre code generation phase.
@@ -1190,9 +1084,9 @@ public:
   // ---------------------------------------------------------------------
   // get... methods for the code generator.
   // ---------------------------------------------------------------------
-  void getOutputValuesOfMyChildren(ValueIdSet & vs) const;
-  virtual void getInputValuesFromParentAndChildren(ValueIdSet & vs) const;
-  void getInputAndPotentialOutputValues(ValueIdSet& vs) const;
+  void getOutputValuesOfMyChildren(ValueIdSet &vs) const;
+  virtual void getInputValuesFromParentAndChildren(ValueIdSet &vs) const;
+  void getInputAndPotentialOutputValues(ValueIdSet &vs) const;
 
   ULng32 getDefault(DefaultConstants);
 
@@ -1216,31 +1110,25 @@ public:
   //       cost, and estimated # rows are transferred from the optimal plan.
   // ---------------------------------------------------------------------
 
-  inline const PhysicalProperty* getPhysicalProperty() const
-                                                      { return physProp_; }
-  inline void setPhysicalProperty (const PhysicalProperty* physProp)
-                                                  { physProp_ = physProp; }
+  inline const PhysicalProperty *getPhysicalProperty() const { return physProp_; }
+  inline void setPhysicalProperty(const PhysicalProperty *physProp) { physProp_ = physProp; }
 
-  inline const Cost * getOperatorCost() const
-  { return operatorCost_; }
+  inline const Cost *getOperatorCost() const { return operatorCost_; }
 
-  inline void setOperatorCost (const Cost * cost)
-  { operatorCost_ = cost; }
+  inline void setOperatorCost(const Cost *cost) { operatorCost_ = cost; }
 
-  inline const Cost * getRollUpCost() const
-  { return rollUpCost_; }
+  inline const Cost *getRollUpCost() const { return rollUpCost_; }
 
-  inline void setRollUpCost (const Cost * cost)
-  { rollUpCost_ = cost; }
+  inline void setRollUpCost(const Cost *cost) { rollUpCost_ = cost; }
 
   inline const CostScalar getEstRowsUsed() const { return estRowsUsed_; }
-  inline void setEstRowsUsed(CostScalar r)          { estRowsUsed_ = r; }
+  inline void setEstRowsUsed(CostScalar r) { estRowsUsed_ = r; }
 
   inline const CostScalar getInputCardinality() const { return inputCardinality_; }
-  inline void setInputCardinality(CostScalar r)          { inputCardinality_ = r; }
+  inline void setInputCardinality(CostScalar r) { inputCardinality_ = r; }
 
   inline const CostScalar getMaxCardEst() const { return maxCardEst_; }
-  inline void setMaxCardEst(CostScalar r)       { maxCardEst_ = r; }
+  inline void setMaxCardEst(CostScalar r) { maxCardEst_ = r; }
 
   static short bmoGrowthPercent(CostScalar e, CostScalar m);
 
@@ -1253,31 +1141,18 @@ public:
 
   // add all the expressions that are local to this
   // node to an existing list of expressions
-  virtual void addLocalExpr(LIST(ExprNode *) &xlist,
-                            LIST(NAString) &llist) const;
+  virtual void addLocalExpr(LIST(ExprNode *) & xlist, LIST(NAString) & llist) const;
 
-  void addExplainPredicates(ExplainTupleMaster * explainTuple,
-				       Generator * generator);
+  void addExplainPredicates(ExplainTupleMaster *explainTuple, Generator *generator);
 
-  ExplainTuple *addExplainInfo(ComTdb *tdb,
-                                         ExplainTuple *leftChild,
-                                         ExplainTuple *rightChild,
-                                         Generator *generator);
+  ExplainTuple *addExplainInfo(ComTdb *tdb, ExplainTuple *leftChild, ExplainTuple *rightChild, Generator *generator);
 
-  virtual ExplainTuple *addSpecificExplainInfo(ExplainTupleMaster *explainTuple,
-					      ComTdb * tdb,
-					      Generator *generator);
+  virtual ExplainTuple *addSpecificExplainInfo(ExplainTupleMaster *explainTuple, ComTdb *tdb, Generator *generator);
 
+  virtual void print(FILE *f = stdout, const char *prefix = "", const char *suffix = "") const;
 
-  virtual void print(FILE * f = stdout,
-                     const char * prefix = "",
-                     const char * suffix = "") const;
-
-  virtual void unparse(NAString &result,
-                       PhaseEnum phase = DEFAULT_PHASE,
-                       UnparseFormatEnum form = USER_FORMAT,
-		       TableDesc * tabId = NULL) const;
-
+  virtual void unparse(NAString &result, PhaseEnum phase = DEFAULT_PHASE, UnparseFormatEnum form = USER_FORMAT,
+                       TableDesc *tabId = NULL) const;
 
   // -- Triggers
   // Count the number of nodes in the tree.
@@ -1298,41 +1173,35 @@ public:
   // quantities of memory. For example, a Type-2 parallel hash join vs.
   // a Type-1 parallel hash join.
   // ---------------------------------------------------------------------
-  virtual NABoolean isBigMemoryOperator(const PlanWorkSpace* pws,
-                                        const Lng32 planNumber);
+  virtual NABoolean isBigMemoryOperator(const PlanWorkSpace *pws, const Lng32 planNumber);
 
-  virtual CostScalar getEstimatedRunTimeMemoryUsage(Generator *generator, NABoolean perNode, Lng32 *numStreams = NULL) {return 0;}
-  virtual double getEstimatedRunTimeMemoryUsage(Generator *generator, ComTdb * tdb) {return 0;}
+  virtual CostScalar getEstimatedRunTimeMemoryUsage(Generator *generator, NABoolean perNode, Lng32 *numStreams = NULL) {
+    return 0;
+  }
+  virtual double getEstimatedRunTimeMemoryUsage(Generator *generator, ComTdb *tdb) { return 0; }
 
-  inline NABoolean isinBlockStmt() const
-                          { return isinBlockStmt_; }
-  inline NABoolean isinBlockStmt()
-                          { return isinBlockStmt_; }
-  inline void setBlockStmt(NABoolean cs)
-                          { isinBlockStmt_ = cs; }
+  inline NABoolean isinBlockStmt() const { return isinBlockStmt_; }
+  inline NABoolean isinBlockStmt() { return isinBlockStmt_; }
+  inline void setBlockStmt(NABoolean cs) { isinBlockStmt_ = cs; }
 
   // set the isinBlockStmt_ flag to x for the entire tree rooted
   // at this RelExpr.
   void setBlockStmtRecursively(NABoolean x);
 
-  double calculateNoOfLogPlans(Lng32& numOfMergedExprs);
+  double calculateNoOfLogPlans(Lng32 &numOfMergedExprs);
 
-  double calculateSubTreeComplexity(NABoolean& antiSemiJoinQuery);
+  double calculateSubTreeComplexity(NABoolean &antiSemiJoinQuery);
 
   // calculate a query's MJ complexity,
   // shoud be called after MJ rewrite
-  double calculateQueryMJComplexity(double &n,double &n2,double &n3,double &n4);
+  double calculateQueryMJComplexity(double &n, double &n2, double &n3, double &n4);
 
-  void makeListBySize(LIST(CostScalar) & orderedList,
-                        NABoolean  recompute);
+  void makeListBySize(LIST(CostScalar) & orderedList, NABoolean recompute);
 
-  void setFirstNRows(Int64 firstNRows) 		{ firstNRows_ = firstNRows; }
-  Int64 getFirstNRows() 			{ return firstNRows_; }
+  void setFirstNRows(Int64 firstNRows) { firstNRows_ = firstNRows; }
+  Int64 getFirstNRows() { return firstNRows_; }
 
-  virtual PlanPriority computeOperatorPriority
-    (const Context* context,
-     PlanWorkSpace *pws=NULL,
-     Lng32 planNumber=0);
+  virtual PlanPriority computeOperatorPriority(const Context *context, PlanWorkSpace *pws = NULL, Lng32 planNumber = 0);
 
   NABoolean oltOpt() { return oltOptInfo_.oltAnyOpt(); };
   NABoolean oltOptLean() { return oltOptInfo_.oltEidLeanOpt(); };
@@ -1344,106 +1213,84 @@ public:
   // part of GroupAnalysis, as in cut-opp. For expressions
   // which do not have a tableDesc attached to them, like Join
   // it would be NULL
-  TableDesc* getTableDescForExpr();
+  TableDesc *getTableDescForExpr();
 
   NABoolean treeContainsEspExchange();
 
-///////////////////////////////////////////////////////////
+  ///////////////////////////////////////////////////////////
 
-  virtual NABoolean pilotAnalysis(QueryAnalysis* qa);
-  virtual void jbbAnalysis(QueryAnalysis* qa);
-  virtual void jbbJoinDependencyAnalysis(ValueIdSet & predsWithDependencies);
-  virtual void predAnalysis(QueryAnalysis* qa);
-  virtual RelExpr* convertToMultiJoinSubtree(QueryAnalysis* qa);
-  virtual EstLogPropSharedPtr setJBBInput(EstLogPropSharedPtr & inLP = (*GLOBAL_EMPTY_INPUT_LOGPROP));
-  virtual RelExpr* expandMultiJoinSubtree();
-  GroupAnalysis* getGroupAnalysis();
+  virtual NABoolean pilotAnalysis(QueryAnalysis *qa);
+  virtual void jbbAnalysis(QueryAnalysis *qa);
+  virtual void jbbJoinDependencyAnalysis(ValueIdSet &predsWithDependencies);
+  virtual void predAnalysis(QueryAnalysis *qa);
+  virtual RelExpr *convertToMultiJoinSubtree(QueryAnalysis *qa);
+  virtual EstLogPropSharedPtr setJBBInput(EstLogPropSharedPtr &inLP = (*GLOBAL_EMPTY_INPUT_LOGPROP));
+  virtual RelExpr *expandMultiJoinSubtree();
+  GroupAnalysis *getGroupAnalysis();
 
-///////////////////////////////////////////////////////////
+  ///////////////////////////////////////////////////////////
 
   // do some analysis on the initial plan
   // this is called at the end of the analysis phase
   virtual void analyzeInitialPlan();
 
-  virtual void computeRequiredResources(RequiredResources & reqResources,
-                                       EstLogPropSharedPtr & inLP = (*GLOBAL_EMPTY_INPUT_LOGPROP));
+  virtual void computeRequiredResources(RequiredResources &reqResources,
+                                        EstLogPropSharedPtr &inLP = (*GLOBAL_EMPTY_INPUT_LOGPROP));
 
-  virtual void computeMyRequiredResources(RequiredResources & reqResources,
-                                      EstLogPropSharedPtr & inLP);
+  virtual void computeMyRequiredResources(RequiredResources &reqResources, EstLogPropSharedPtr &inLP);
 
   // Accessor for the rowsetIterator flag.
   NABoolean isRowsetIterator() const { return rowsetIterator_; }
   // Mutator for the rowsetIterator flag.
-  void setRowsetIterator(NABoolean rowsetIterator)
-    { rowsetIterator_ = rowsetIterator;  }
+  void setRowsetIterator(NABoolean rowsetIterator) { rowsetIterator_ = rowsetIterator; }
 
-   // Accessor for the tolerateNonFatalError flag.
+  // Accessor for the tolerateNonFatalError flag.
   AtomicityType getTolerateNonFatalError() const { return tolerateNonFatalError_; }
   // Mutator for the tolerateNonFatalError flag.
-  void setTolerateNonFatalError(AtomicityType tolerateNonFatalError)
-    { tolerateNonFatalError_ = tolerateNonFatalError;  }
+  void setTolerateNonFatalError(AtomicityType tolerateNonFatalError) { tolerateNonFatalError_ = tolerateNonFatalError; }
 
   // method used by generator to detrmine if rowsAffected needs to be set in PA.
   // The base class implementaion returns FALSE. FirstN and GenericUpdate are the only
   // classes that return true currently.
-  virtual NABoolean computeRowsAffected() const
-    {return FALSE;} ;
+  virtual NABoolean computeRowsAffected() const { return FALSE; };
 
-  inline NABoolean markedForElimination() const
-  { return markedForElimination_; }
-  inline void setMarkedForElimination(NABoolean b)
-  { markedForElimination_ = b; }
+  inline NABoolean markedForElimination() const { return markedForElimination_; }
+  inline void setMarkedForElimination(NABoolean b) { markedForElimination_ = b; }
 
-  inline NABoolean isExtraHub() const
-  { return isExtraHub_; }
-  inline void setIsExtraHub(NABoolean b)
-  { isExtraHub_ = b; }
+  inline NABoolean isExtraHub() const { return isExtraHub_; }
+  inline void setIsExtraHub(NABoolean b) { isExtraHub_ = b; }
 
   // methods to set, get and update substitute potential
   void setPotential(Int32 potential) { potential_ = potential; };
-  Int32 getPotential() const { return potential_;};
-  Int32 updatePotential(Int32 potential)
-  {
-    if ((potential != -1) &&
-        (potential_ == -1))
-    {
+  Int32 getPotential() const { return potential_; };
+  Int32 updatePotential(Int32 potential) {
+    if ((potential != -1) && (potential_ == -1)) {
       potential_ = potential;
     }
 
     return potential_;
   };
 
-  void setExpandShortRows(NABoolean val)
-  { (val ? (flags_ |= EXPAND_SHORT_ROWS) : (flags_ &= ~EXPAND_SHORT_ROWS)); }
+  void setExpandShortRows(NABoolean val) { (val ? (flags_ |= EXPAND_SHORT_ROWS) : (flags_ &= ~EXPAND_SHORT_ROWS)); }
 
-  NABoolean expandShortRows()
-  {  return ((flags_ & EXPAND_SHORT_ROWS) != 0); }
+  NABoolean expandShortRows() { return ((flags_ & EXPAND_SHORT_ROWS) != 0); }
 
-  void setHasConnectByFlag(NABoolean val)
-  { (val ? (flags_ |= HAS_CONNECT_BY) : (flags_ &= ~HAS_CONNECT_BY)); }
+  void setHasConnectByFlag(NABoolean val) { (val ? (flags_ |= HAS_CONNECT_BY) : (flags_ &= ~HAS_CONNECT_BY)); }
 
-  NABoolean hasConnectByFlag()
-  {  return ((flags_ & HAS_CONNECT_BY) != 0); }
+  NABoolean hasConnectByFlag() { return ((flags_ & HAS_CONNECT_BY) != 0); }
 
   // For compressed internal format.
   // At codegen some nodes will switch from compressed internal format to
   // the exploded format when they are directly beneath the root node.
-  void setParentIsRoot(NABoolean val)
-  { (val ? (flags_ |= PARENT_IS_ROOT) : (flags_ &= ~PARENT_IS_ROOT)); }
+  void setParentIsRoot(NABoolean val) { (val ? (flags_ |= PARENT_IS_ROOT) : (flags_ &= ~PARENT_IS_ROOT)); }
 
-  NABoolean isParentRoot()
-  {  return ((flags_ & PARENT_IS_ROOT) != 0); }
+  NABoolean isParentRoot() { return ((flags_ & PARENT_IS_ROOT) != 0); }
 
   // set if user specified predicate was added during Scan creation.
-  void setUserSpecifiedPred(NABoolean val)
-  { (val ? (flags_ |= USER_SPEC_PRED) : (flags_ &= ~USER_SPEC_PRED)); }
-  NABoolean userSpecifiedPred()
-  { return ((flags_ & USER_SPEC_PRED) != 0); }
+  void setUserSpecifiedPred(NABoolean val) { (val ? (flags_ |= USER_SPEC_PRED) : (flags_ &= ~USER_SPEC_PRED)); }
+  NABoolean userSpecifiedPred() { return ((flags_ & USER_SPEC_PRED) != 0); }
 
-  virtual int getCifBMOWeight()
-  {
-    return 1;
-  }
+  virtual int getCifBMOWeight() { return 1; }
 
   NABoolean dopReduced() const { return dopReduced_; };
   void setDopReduced(NABoolean x) { dopReduced_ = x; };
@@ -1464,25 +1311,23 @@ public:
   void setOrder(Int32 x) { order_ = x; }
   Int32 getOrder() { return order_; }
 
-  static NABoolean findRtStatsStorePath(NAString&);
-  static NABoolean isValidRtStatsFileName(char* filename);
+  static NABoolean findRtStatsStorePath(NAString &);
+  static NABoolean isValidRtStatsFileName(char *filename);
 
   // set/get the flag for ngram
   void setIsCreatedByNgram(NABoolean v) { isCreatedByNgram_ = v; }
   NABoolean isCreatedByNgram() { return isCreatedByNgram_; }
   const NABoolean isCreatedByNgram() const { return isCreatedByNgram_; }
 
-  inline NABoolean isNeedOutput() {return needOutput_;}
-  inline void setNeedOutput(NABoolean needOutput) {needOutput_ = needOutput;}
+  inline NABoolean isNeedOutput() { return needOutput_; }
+  inline void setNeedOutput(NABoolean needOutput) { needOutput_ = needOutput; }
 
-  inline NABoolean isNeedPushDownLimit() {return needPushDownLimit_;}
-  inline void setNeedPushDownLimit(NABoolean needPushDownLimit) {needPushDownLimit_ = needPushDownLimit;}
+  inline NABoolean isNeedPushDownLimit() { return needPushDownLimit_; }
+  inline void setNeedPushDownLimit(NABoolean needPushDownLimit) { needPushDownLimit_ = needPushDownLimit; }
 
-  void addToPossibleIndexColumns(ValueIdSet & vids)
-  { possibleIndexColumns_ += vids; }
+  void addToPossibleIndexColumns(ValueIdSet &vids) { possibleIndexColumns_ += vids; }
 
-  const ValueIdSet & possibleIndexColumns()
-  { return possibleIndexColumns_; }
+  const ValueIdSet &possibleIndexColumns() { return possibleIndexColumns_; }
 
   // get the specified partition values
   // select * from pt partition for (1,2)
@@ -1497,93 +1342,88 @@ public:
   const NABoolean isPartitionV2() const { return isPartitionV2_; }
   void setPartitionV2(NABoolean isPartV2) { isPartitionV2_ = isPartV2; }
 
-  void setPartnNameSpecified(NABoolean isPartnNameSpecified) 
-  { 
-    isPartnNameSpecified_ = isPartnNameSpecified;
-  }
+  void setPartnNameSpecified(NABoolean isPartnNameSpecified) { isPartnNameSpecified_ = isPartnNameSpecified; }
   const NABoolean isPartnNameSpecified() const { return isPartnNameSpecified_; }
 
-  void setPartnValsSpecified(const NABoolean isPartnValsSpecified) 
-  {
-    isPartnValsSpecified_ = isPartnValsSpecified;
-  }
+  void setPartnValsSpecified(const NABoolean isPartnValsSpecified) { isPartnValsSpecified_ = isPartnValsSpecified; }
   const NABoolean isPartnValuesSpecified() const { return isPartnValsSpecified_; }
 
-protected:
-
+ protected:
   void synthPropForBindChecks();
 
-private:
-
+ private:
   enum Flags {
-    EXPAND_SHORT_ROWS  = 0x00000001     // expand short rows when added columns
-   ,PARENT_IS_ROOT     = 0x00000002     // compressed internal format
-   ,USER_SPEC_PRED     = 0x00000004     // pred was specified by user
-   ,HAS_CONNECT_BY     = 0x00000008     // connect by format
+    EXPAND_SHORT_ROWS = 0x00000001  // expand short rows when added columns
+    ,
+    PARENT_IS_ROOT = 0x00000002  // compressed internal format
+    ,
+    USER_SPEC_PRED = 0x00000004  // pred was specified by user
+    ,
+    HAS_CONNECT_BY = 0x00000008  // connect by format
   };
 
   // every relational expression node has the ability to perform
   // a selection on its result and to project some of its output
   // columns (or expressions on its output columns).
 
-  ItemExpr             * selection_;    // generated by the parser
-  ValueIdSet           predicates_;     // predicates represented as a set
+  ItemExpr *selection_;    // generated by the parser
+  ValueIdSet predicates_;  // predicates represented as a set
 
-  ItemExpr             * partnVals_;   // generated by the parser, partition for (1,2)
-  NAString             partnName_;       // generated by the parser, partition (p1)
+  ItemExpr *partnVals_;  // generated by the parser, partition for (1,2)
+  NAString partnName_;   // generated by the parser, partition (p1)
 
-  NABoolean            isPartitionV2_;  // generated by the parser
-  NABoolean            isPartnNameSpecified_;    // generated by the parser
-  NABoolean            isPartnValsSpecified_;  // generated by the parser
+  NABoolean isPartitionV2_;         // generated by the parser
+  NABoolean isPartnNameSpecified_;  // generated by the parser
+  NABoolean isPartnValsSpecified_;  // generated by the parser
 
   // A descriptor for the table derived from the RelExpr.
-  RETDesc              * RETDesc_;
+  RETDesc *RETDesc_;
 
   // During the bind and normalization phase, each relational
   // operator has a private set of Group Attributes. Within
   // Cascades, once the operator is memoized, it shares the
   // Group Attributes for the Cascades Group.
-  GroupAttributes      * groupAttr_;
+  GroupAttributes *groupAttr_;
 
   // Cascades-specific part of a relational expression
-  CascadesGroupId        groupId_;     // pointer back to eq. class
+  CascadesGroupId groupId_;  // pointer back to eq. class
 
-  RelExpr              * groupNext_;   // list within group
-  RelExpr              * bucketNext_;  // list within hash bucket
-  RuleSubset           contextInsensRules_;  // context insensitive rules tried
-                                             // on this expression
+  RelExpr *groupNext_;             // list within group
+  RelExpr *bucketNext_;            // list within hash bucket
+  RuleSubset contextInsensRules_;  // context insensitive rules tried
+                                   // on this expression
 
-  RulesPerContextList  contextSensRules_; // context sensitive rules tried
+  RulesPerContextList contextSensRules_;  // context sensitive rules tried
                                           // per context
 
   // The children of an expression (its operands). Only a fixed number of
   // children can be stored here (could use a virtual operator[] to
   // overcome this, if it ever becomes necessary).
-  ExprGroupId          child_[MAX_REL_ARITY];
+  ExprGroupId child_[MAX_REL_ARITY];
 
   // The following fields are applicable only after optimization is complete.
   // After the optimal plan is selected, the following properties are transferred
   // from the CascadesPlan structure to the following placeholders for the
   // purposes of code generation.
 
-  const PhysicalProperty * physProp_;  // physical properties for the optimal plan
+  const PhysicalProperty *physProp_;  // physical properties for the optimal plan
 
   // ---------------------------------------------------------------------
   // The operator cost is the cost for this operator independent
   // of its children.
   // ---------------------------------------------------------------------
-  const Cost             * operatorCost_;      // operator cost for the optimal plan
+  const Cost *operatorCost_;  // operator cost for the optimal plan
 
   // ---------------------------------------------------------------------
   // The roll-up cost is the cost of the sub-plan rooted at
   // this operator (operator cost of this operator combined with
   // the operator's children cost)
   // ---------------------------------------------------------------------
-  const Cost             * rollUpCost_;      // roll up cost for the optimal plan
-  CostScalar              estRowsUsed_; // est. # rows produced from this plan per probe
-  CostScalar		  inputCardinality_;  // est. # of probes
-                                             // (cardinality of input logical prop.) for this plan
-  CostScalar          maxCardEst_; // maximum cardinality estimate
+  const Cost *rollUpCost_;       // roll up cost for the optimal plan
+  CostScalar estRowsUsed_;       // est. # rows produced from this plan per probe
+  CostScalar inputCardinality_;  // est. # of probes
+                                 // (cardinality of input logical prop.) for this plan
+  CostScalar maxCardEst_;        // maximum cardinality estimate
 
   // Triggers --
   // Information for Triggers, RI and IM.
@@ -1635,7 +1475,7 @@ private:
   // (b) no outputs from the inner child are used beyond this join
   // The marking is done during Join::synthLogProp() and the actual
   // removal during Join::SemanticQueryOptimization()
-  NABoolean markedForElimination_ ;
+  NABoolean markedForElimination_;
 
   // if TRUE, this join can be placed at the top of the join chain because
   // (a) it is guaranteed to match one and only one row
@@ -1650,25 +1490,25 @@ private:
   // potential of the substitute
   Int32 potential_;
 
-  // Used to help determine whether hash join 
+  // Used to help determine whether hash join
   // optimizations may be turned on
   // This flag is set to true when an Insert/Update/Delete has been
   // seen
-  NABoolean seenIUD_; 
+  NABoolean seenIUD_;
 
   // the following data members were added solely for the cascades display gui
   // so we can trace each relexpr to its creator and source
   // begin relexpr tracking info
-  Lng32  parentTaskId_; // {parentTaskId_,stride_} of the CascadesTask 
-  short stride_;       // that created this RelExpr
+  Lng32 parentTaskId_;  // {parentTaskId_,stride_} of the CascadesTask
+  short stride_;        // that created this RelExpr
 
-  CascadesGroupId sourceGroupId_; // GroupId of creator task of this relexpr
-  Int32 birthId_; // TaskCount when this relexpr was created
+  CascadesGroupId sourceGroupId_;  // GroupId of creator task of this relexpr
+  Int32 birthId_;                  // TaskCount when this relexpr was created
 
-  ULng32 memoExprId_; // MemoExprId of this relexpr
-  ULng32 sourceMemoExprId_; // MemoExprId of the source of this relexpr
+  ULng32 memoExprId_;        // MemoExprId of this relexpr
+  ULng32 sourceMemoExprId_;  // MemoExprId of the source of this relexpr
 
-  double costLimit_; // CostLimit of task's context that created this relexpr
+  double costLimit_;  // CostLimit of task's context that created this relexpr
   // end relexpr tracking info
 
   ExpTupleDesc::TupleDataFormat cachedTupleFormat_;
@@ -1679,7 +1519,7 @@ private:
   // the partfunc pointed by my spp has a dop reduction.
   NABoolean dopReduced_;
 
-  // hbase options. 
+  // hbase options.
   // Like: number of trafodion row versions to retrieve from hbase,
   // timestamp range, hbase authorizations, etc.
   OptHbaseAccessOptions *optHbaseAccessOptions_;
@@ -1689,7 +1529,7 @@ private:
   RelExpr *originalExpr_;
 
   // Collected run-time stats associated with this RelExpr.
-  // It is the value in the "Act. Data Used" column in 
+  // It is the value in the "Act. Data Used" column in
   // the output of "get statistics for qid current default, options 'AD'"
   CostScalar rtDataUsed_;
 
@@ -1709,7 +1549,7 @@ private:
   // down. Nevertheless, during optimization, such an equality predicate
   // may get pushed down as a result of a Join to TSJ transformation.
   // The Optimizer (via Scan::addIndexInfo) chooses a set of interesting
-  // indexes just once at the beginning of optimization; an index 
+  // indexes just once at the beginning of optimization; an index
   // becomes interesting if its columns are referenced by some predicate
   // on that node. (It may become interesting for other reasons as well.)
   // Since non-VEG equality predicates don't get pushed down, columns
@@ -1717,20 +1557,20 @@ private:
   // time. So, we have an alternate mechanism for making such column
   // references available, namely this member. During predicate push down,
   // this member holds columns that are of interest for indexes for this
-  // node (if it is a Scan node) or its children (if it is not a Scan 
-  // node). Note that possibleIndexColumns_ for non-leaf nodes might 
+  // node (if it is a Scan node) or its children (if it is not a Scan
+  // node). Note that possibleIndexColumns_ for non-leaf nodes might
   // contain more complex sorts of expressions (e.g. VEGReferences);
   // these are eventually resolved as we push down to the leaves.
   ValueIdSet possibleIndexColumns_;
   NABoolean needOutput_;
   NABoolean needPushDownLimit_;
   CostMethodFixedCostPerRow *pRelExprCostMethod_;
-public:
 
+ public:
   virtual NABoolean isUniqueOper() { return FALSE; }
-  
+
   RelExpr *getParent() { return parent_; }
-  void setParent(RelExpr* p) { parent_ = p; }
+  void setParent(RelExpr *p) { parent_ = p; }
 
   // begin: accessors & mutators for relexpr tracking info
   Lng32 getParentTaskId() { return parentTaskId_; }
@@ -1740,42 +1580,26 @@ public:
   const NAString getCascadesTraceInfoStr();
   void setCascadesTraceInfo(RelExpr *src);
   // end: accessors & mutators for relexpr tracking info
-  enum CifUseOptions
-  {
-    CIF_ON,
-    CIF_OFF,
-    CIF_SYSTEM
-  };
+  enum CifUseOptions { CIF_ON, CIF_OFF, CIF_SYSTEM };
 
-
-  void cacheTupleFormatAndResizeFlag(ExpTupleDesc::TupleDataFormat tf, NABoolean r, NABoolean d)
-  {
+  void cacheTupleFormatAndResizeFlag(ExpTupleDesc::TupleDataFormat tf, NABoolean r, NABoolean d) {
     cachedTupleFormat_ = tf;
     cachedResizeCIFRecord_ = r;
     cachedDefrag_ = d;
   }
 
-  ExpTupleDesc::TupleDataFormat getCachedTupleFormat()
-  {
-    return cachedTupleFormat_;
-  }
+  ExpTupleDesc::TupleDataFormat getCachedTupleFormat() { return cachedTupleFormat_; }
 
-  NABoolean getCachedResizeCIFRecord()
-  {
-    return cachedResizeCIFRecord_;
-  }
+  NABoolean getCachedResizeCIFRecord() { return cachedResizeCIFRecord_; }
 
-  NABoolean getCachedDefrag()
-  {
-    return cachedDefrag_;
-  }
+  NABoolean getCachedDefrag() { return cachedDefrag_; }
 
-  CostScalar getChild0Cardinality(const Context*);
+  CostScalar getChild0Cardinality(const Context *);
 
   virtual Int32 findHiveTables(NABoolean inEspFragment);
   virtual Int32 findNumOperators(NABoolean inEspFragment);
 
-  virtual void collectTableNames(NAString& queryData);
+  virtual void collectTableNames(NAString &queryData);
 
   NAString *getKey();
 
@@ -1783,33 +1607,30 @@ public:
   // tree.
   Int32 maxForcedDoP();
 
-protected:
+ protected:
   virtual Int32 myMaxForcedDoP() { return 0; };
-}; // class RelExpr
+};  // class RelExpr
 
 // -----------------------------------------------------------------------
 // List of RelExprs.
 // -----------------------------------------------------------------------
-class RelExprList : public LIST (RelExpr *)
-{
-  public:
-
-  RelExprList(CollHeap* h) : LIST (RelExpr *)(h) {}
+class RelExprList : public LIST(RelExpr *) {
+ public:
+  RelExprList(CollHeap *h) : LIST(RelExpr *)(h) {}
 
   // copy ctor
-  RelExprList (const RelExprList & rlist, CollHeap * h=0) :
-    LIST (RelExpr *)(rlist, h) {}
+  RelExprList(const RelExprList &rlist, CollHeap *h = 0) : LIST(RelExpr *)(rlist, h) {}
 
   // ---------------------------------------------------------------------
   // Insert RelExpr into list order by estimated rowcount (of the logical
   // properties).
   // ---------------------------------------------------------------------
-  void insertOrderByRowcount (RelExpr * expr);
+  void insertOrderByRowcount(RelExpr *expr);
 
-  NABoolean operator== (const RelExprList &other) const;
-  NABoolean operator!= (const RelExprList &other) const;
+  NABoolean operator==(const RelExprList &other) const;
+  NABoolean operator!=(const RelExprList &other) const;
 
-}; // RelExprList
+};  // RelExprList
 
 // -----------------------------------------------------------------------
 // Leaf Operator (for use in rule patterns and substitutes only).
@@ -1817,40 +1638,33 @@ class RelExprList : public LIST (RelExpr *)
 // firing the rule, the binding presented to the rule contains the
 // leaf operator as its leaf.
 // -----------------------------------------------------------------------
-class CutOp : public RelExpr
-{
-
-public:
-
-  CutOp (Int32 index,
-                CollHeap *oHeap = CmpCommon::statementHeap()) :
-    RelExpr(REL_CUT_OP, NULL, NULL, oHeap)
-  { index_ = index; expr_ = NULL; }
+class CutOp : public RelExpr {
+ public:
+  CutOp(Int32 index, CollHeap *oHeap = CmpCommon::statementHeap()) : RelExpr(REL_CUT_OP, NULL, NULL, oHeap) {
+    index_ = index;
+    expr_ = NULL;
+  }
 
   virtual ~CutOp();
 
-  virtual void print(FILE * f = stdout,
-                     const char * prefix = "",
-                     const char * suffix = "") const;
-  virtual Int32 getArity () const;
-  virtual NABoolean isCutOp () const;
-  virtual RelExpr * copyTopNode(RelExpr *,
-                                CollHeap* outHeap = 0);
-  inline Int32 getIndex()                                 { return index_; }
+  virtual void print(FILE *f = stdout, const char *prefix = "", const char *suffix = "") const;
+  virtual Int32 getArity() const;
+  virtual NABoolean isCutOp() const;
+  virtual RelExpr *copyTopNode(RelExpr *, CollHeap *outHeap = 0);
+  inline Int32 getIndex() { return index_; }
   void setGroupIdAndAttr(CascadesGroupId groupId);
-  inline RelExpr * getExpr() const                       { return expr_; }
+  inline RelExpr *getExpr() const { return expr_; }
   void setExpr(RelExpr *e);
 
-  virtual void synthLogProp(NormWA * normWAPtr = NULL);
+  virtual void synthLogProp(NormWA *normWAPtr = NULL);
 
   virtual const NAString getText() const;
 
-private:
+ private:
+  Int32 index_;    // in rules, used to distinguish multiple children
+  RelExpr *expr_;  // only for bindings fixed to a particular expression
 
-  Int32 index_;           // in rules, used to distinguish multiple children
-  RelExpr *expr_;       // only for bindings fixed to a particular expression
-
-}; // CutOp
+};  // CutOp
 
 // -----------------------------------------------------------------------
 // Tree operator (for use in rule patterns and substitutes only).
@@ -1862,25 +1676,20 @@ private:
 // Rules using a tree node must redefine their nextSubstitute() method
 // since the generic method can not handle tree nodes.
 // -----------------------------------------------------------------------
-class SubtreeOp : public RelExpr
-{
-
-public:
-
-  inline SubtreeOp (NABoolean all) : RelExpr(REL_TREE_OP) {all_ = all;}
+class SubtreeOp : public RelExpr {
+ public:
+  inline SubtreeOp(NABoolean all) : RelExpr(REL_TREE_OP) { all_ = all; }
   virtual ~SubtreeOp();
   virtual Int32 getArity() const;
   virtual NABoolean isSubtreeOp() const;
   virtual const NAString getText() const;
-  virtual RelExpr * copyTopNode(RelExpr *,
-                                CollHeap* outHeap = 0);
+  virtual RelExpr *copyTopNode(RelExpr *, CollHeap *outHeap = 0);
   inline NABoolean all_bindings() const { return all_; }
 
-private:
+ private:
+  NABoolean all_;  // find all bindings?
 
-  NABoolean       all_;            // find all bindings?
-
-}; // SubtreeOp
+};  // SubtreeOp
 
 // -----------------------------------------------------------------------
 // A wildcard node can appear in rule patterns and rule substitutes.
@@ -1888,136 +1697,114 @@ private:
 // a designator in the pattern. The wildcard is then replaced with
 // the child node that matched the corresponding wildcard in the pattern.
 // -----------------------------------------------------------------------
-class WildCardOp: public RelExpr
-{
-
-public:
-
-  WildCardOp(OperatorType otype,
-                    Int32 designator = 0,
-                    RelExpr  *child0 = NULL,
-                    RelExpr  *child1 = NULL,
-                    CollHeap *outHeap = CmpCommon::statementHeap())
-    : RelExpr(otype,child0,child1,outHeap)
-  { designator_ = designator; corrNode_ = NULL; }
+class WildCardOp : public RelExpr {
+ public:
+  WildCardOp(OperatorType otype, Int32 designator = 0, RelExpr *child0 = NULL, RelExpr *child1 = NULL,
+             CollHeap *outHeap = CmpCommon::statementHeap())
+      : RelExpr(otype, child0, child1, outHeap) {
+    designator_ = designator;
+    corrNode_ = NULL;
+  }
 
   virtual ~WildCardOp();
 
   virtual Int32 getArity() const;
 
-  inline Int32 getDesignator()                       { return designator_; }
+  inline Int32 getDesignator() { return designator_; }
   virtual NABoolean isWildcard() const;
-  virtual RelExpr * copyTopNode(RelExpr *derivedNode = NULL,
-                                CollHeap* outHeap = 0);
+  virtual RelExpr *copyTopNode(RelExpr *derivedNode = NULL, CollHeap *outHeap = 0);
 
-  inline void setCorrespondingNode(RelExpr *corr)    { corrNode_ = corr; }
-  inline RelExpr * getCorrespondingNode()            { return corrNode_; }
+  inline void setCorrespondingNode(RelExpr *corr) { corrNode_ = corr; }
+  inline RelExpr *getCorrespondingNode() { return corrNode_; }
 
   virtual const NAString getText() const;
 
-private:
+ private:
+  Int32 designator_;
+  RelExpr *corrNode_;
 
-  Int32      designator_;
-  RelExpr  *corrNode_;
-
-}; // WildCardOp
+};  // WildCardOp
 
 // -----------------------------------------------------------------------
 // A special form of a wildcard op, used to force scans on specific
 // tables and indexes
 // -----------------------------------------------------------------------
 
-class ScanForceWildCard : public WildCardOp
-{
+class ScanForceWildCard : public WildCardOp {
   // to be used with operator type REL_FORCE_ANY_SCAN
 
-public:
-
-  enum scanOptionEnum
-    {
-      UNDEFINED,
-      INDEX_SYSTEM,
-      MDAM_SYSTEM,
-      MDAM_FORCED,
-      MDAM_OFF,
-      MDAM_COLUMNS_REST_BY_SYSTEM,
-      MDAM_COLUMNS_NO_MORE,
-      MDAM_COLUMNS_ALL,
-      COLUMN_SYSTEM,
-      COLUMN_SPARSE,
-      COLUMN_DENSE,
-      DIRECTION_SYSTEM,
-      DIRECTION_FORWARD,
-      DIRECTION_REVERSED
-    };
+ public:
+  enum scanOptionEnum {
+    UNDEFINED,
+    INDEX_SYSTEM,
+    MDAM_SYSTEM,
+    MDAM_FORCED,
+    MDAM_OFF,
+    MDAM_COLUMNS_REST_BY_SYSTEM,
+    MDAM_COLUMNS_NO_MORE,
+    MDAM_COLUMNS_ALL,
+    COLUMN_SYSTEM,
+    COLUMN_SPARSE,
+    COLUMN_DENSE,
+    DIRECTION_SYSTEM,
+    DIRECTION_FORWARD,
+    DIRECTION_REVERSED
+  };
 
   // either use any scan on the table with a given exposed name
   // or only use an index scan on the specified index
   ScanForceWildCard(CollHeap *outHeap = CmpCommon::statementHeap());
-  ScanForceWildCard(const NAString& exposedName,
-                    CollHeap *outHeap = CmpCommon::statementHeap());
-  ScanForceWildCard(const NAString& exposedName,
-                    const NAString& indexName,
+  ScanForceWildCard(const NAString &exposedName, CollHeap *outHeap = CmpCommon::statementHeap());
+  ScanForceWildCard(const NAString &exposedName, const NAString &indexName,
                     CollHeap *outHeap = CmpCommon::statementHeap());
 
   virtual ~ScanForceWildCard();
 
   virtual void initializeScanOptions();
   virtual const NAString getText() const;
-  virtual RelExpr * copyTopNode(RelExpr *derivedNode = NULL,
-                                CollHeap* outHeap = 0);
+  virtual RelExpr *copyTopNode(RelExpr *derivedNode = NULL, CollHeap *outHeap = 0);
 
   virtual NABoolean setScanOptions(ScanForceWildCard::scanOptionEnum option);
-  virtual NABoolean setIndexName(const NAString& value);
-  virtual NABoolean setColumnOptions(CollIndex numColumns,
-                                     ScanForceWildCard::scanOptionEnum* columnAlgos,
+  virtual NABoolean setIndexName(const NAString &value);
+  virtual NABoolean setColumnOptions(CollIndex numColumns, ScanForceWildCard::scanOptionEnum *columnAlgos,
                                      ScanForceWildCard::scanOptionEnum mdamColumnsStatus);
-  virtual NABoolean setColumnOptions(CollIndex numColumns,
-                                     ScanForceWildCard::scanOptionEnum mdamColumnsStatus);
-  virtual NABoolean mergeScanOptions(const ScanForceWildCard& other);
+  virtual NABoolean setColumnOptions(CollIndex numColumns, ScanForceWildCard::scanOptionEnum mdamColumnsStatus);
+  virtual NABoolean mergeScanOptions(const ScanForceWildCard &other);
   virtual void prepare();
 
   virtual NABoolean doesThisCoflictMasterSwitch() const;
-  inline const NAString& getExposedName() const    { return exposedName_; }
-  inline const NAString& getIndexName() const      { return indexName_; }
-  inline CollIndex getNumMdamColumns() const       { return numMdamColumns_;}
-  inline scanOptionEnum getIndexStatus() const     { return indexStatus_;}
-  inline scanOptionEnum getDirection() const       { return direction_;}
-  inline scanOptionEnum getMdamStatus() const      { return mdamStatus_;}
-  inline scanOptionEnum getMdamColumnsStatus() const
-    { return mdamColumnsStatus_;}
+  inline const NAString &getExposedName() const { return exposedName_; }
+  inline const NAString &getIndexName() const { return indexName_; }
+  inline CollIndex getNumMdamColumns() const { return numMdamColumns_; }
+  inline scanOptionEnum getIndexStatus() const { return indexStatus_; }
+  inline scanOptionEnum getDirection() const { return direction_; }
+  inline scanOptionEnum getMdamStatus() const { return mdamStatus_; }
+  inline scanOptionEnum getMdamColumnsStatus() const { return mdamColumnsStatus_; }
   scanOptionEnum getEnumAlgorithmForColumn(CollIndex column) const;
 
-  void setNumberOfBlocksToReadPerAccess(const Lng32& blocks)
-  {
+  void setNumberOfBlocksToReadPerAccess(const Lng32 &blocks) {
     DCMPASSERT(blocks > -1);
     numberOfBlocksToReadPerAccess_ = blocks;
   }
 
   // If this returns -1 it indicates that we are not forcing blocks per access...
-  Lng32 getNumberOfBlocksToReadPerAccess() const
-  {
-    return numberOfBlocksToReadPerAccess_;
-  }
+  Lng32 getNumberOfBlocksToReadPerAccess() const { return numberOfBlocksToReadPerAccess_; }
 
   // helper function on CQS Tree
-  virtual RelExpr *generateMatchingExpr(CANodeIdSet &,
-                                       CANodeIdSet &,
-                                       RelExpr *);
-private:
+  virtual RelExpr *generateMatchingExpr(CANodeIdSet &, CANodeIdSet &, RelExpr *);
 
+ private:
   NAString exposedName_;
   NAString indexName_;
-  scanOptionEnum indexStatus_;  // UNDEFINED or INDEX_SYSTEM
-  scanOptionEnum mdamStatus_;   // MDAM_OFF, _FORCED, _SYSTEM, or UNDEFINED
-  scanOptionEnum direction_;    // .._FORWARD, _REVERSE, _SYSTEM, or UNDEFINED
-  scanOptionEnum mdamColumnsStatus_; // .._REST_BY_SYSTEM, _NO_MORE, _ALL
+  scanOptionEnum indexStatus_;        // UNDEFINED or INDEX_SYSTEM
+  scanOptionEnum mdamStatus_;         // MDAM_OFF, _FORCED, _SYSTEM, or UNDEFINED
+  scanOptionEnum direction_;          // .._FORWARD, _REVERSE, _SYSTEM, or UNDEFINED
+  scanOptionEnum mdamColumnsStatus_;  // .._REST_BY_SYSTEM, _NO_MORE, _ALL
   CollIndex numMdamColumns_;
-  scanOptionEnum* enumAlgorithms_;   // array of enumeration algorithms
-                                     // for each column
+  scanOptionEnum *enumAlgorithms_;  // array of enumeration algorithms
+                                    // for each column
   // To force the FileScan member of the same name
   Lng32 numberOfBlocksToReadPerAccess_;
-
 };
 
 // -----------------------------------------------------------------------
@@ -2025,52 +1812,44 @@ private:
 // plan2 (any plan, plan1 or plan2, number of ESPs used)
 // -----------------------------------------------------------------------
 
-class JoinForceWildCard : public WildCardOp
-{
+class JoinForceWildCard : public WildCardOp {
   // to be used with operator types REL_FORCE_JOIN, REL_FORCE_NESTED_JOIN,
   // REL_FORCE_MERGE_JOIN, REL_FORCE_HASH_JOIN
 
-public:
-
-  enum forcedPlanEnum { ANY_PLAN,         // don't care which plan
-                        FORCED_PLAN0,     // plan # 0
-                        FORCED_PLAN1,     // plan # 1
-                        FORCED_PLAN2,     // plan # 2
-                        FORCED_PLAN3,     // plan # 3
-                        FORCED_TYPE1,     // join matching partitions
-                        FORCED_TYPE2,
-                        FORCED_INDEXJOIN };   // replicate one child
+ public:
+  enum forcedPlanEnum {
+    ANY_PLAN,      // don't care which plan
+    FORCED_PLAN0,  // plan # 0
+    FORCED_PLAN1,  // plan # 1
+    FORCED_PLAN2,  // plan # 2
+    FORCED_PLAN3,  // plan # 3
+    FORCED_TYPE1,  // join matching partitions
+    FORCED_TYPE2,
+    FORCED_INDEXJOIN
+  };  // replicate one child
 
   // either use any scan on the table with a given exposed name
   // or only use an index scan on the specified index
-  JoinForceWildCard(OperatorTypeEnum type,
-                    RelExpr *child0,
-                    RelExpr *child1,
-                    forcedPlanEnum plan = ANY_PLAN,
-                    Int32 numOfEsps = 0,
-                    CollHeap *outHeap = CmpCommon::statementHeap());
+  JoinForceWildCard(OperatorTypeEnum type, RelExpr *child0, RelExpr *child1, forcedPlanEnum plan = ANY_PLAN,
+                    Int32 numOfEsps = 0, CollHeap *outHeap = CmpCommon::statementHeap());
 
   virtual ~JoinForceWildCard();
 
-  virtual RelExpr * copyTopNode(RelExpr *derivedNode = NULL,
-                                CollHeap* outHeap = 0);
+  virtual RelExpr *copyTopNode(RelExpr *derivedNode = NULL, CollHeap *outHeap = 0);
 
-  inline forcedPlanEnum getPlan() const                  { return plan_; }
-  inline Int32 getNumOfEsps() const                   { return numOfEsps_; }
+  inline forcedPlanEnum getPlan() const { return plan_; }
+  inline Int32 getNumOfEsps() const { return numOfEsps_; }
 
   virtual const NAString getText() const;
 
   // helper function on CQS Tree
-  virtual RelExpr *generateMatchingExpr(CANodeIdSet &,
-                                       CANodeIdSet &,
-                                       RelExpr *);
+  virtual RelExpr *generateMatchingExpr(CANodeIdSet &, CANodeIdSet &, RelExpr *);
 
   Int32 myMaxForcedDoP() { return numOfEsps_; };
-private:
 
-  forcedPlanEnum plan_; // ANY_PLAN means don't force the plan type
-  Int32 numOfEsps_;       // 0 means don't force number of ESPs
-
+ private:
+  forcedPlanEnum plan_;  // ANY_PLAN means don't force the plan type
+  Int32 numOfEsps_;      // 0 means don't force number of ESPs
 };
 
 // -----------------------------------------------------------------------
@@ -2078,124 +1857,107 @@ private:
 // nodes (3 forms are distinguished, ESP exchange, PA node and PAPA node).
 // -----------------------------------------------------------------------
 
-class ExchangeForceWildCard : public WildCardOp
-{
+class ExchangeForceWildCard : public WildCardOp {
   // to be used with operator type REL_FORCE_EXCHANGE
 
-public:
-
-  enum forcedExchEnum
-  {
-    ANY_EXCH,              // don't care which exchange
-    FORCED_PA,             // single PA node
-    FORCED_PAPA,           // PAPA on top of PA node
-    FORCED_ESP_EXCHANGE    // split/send nodes with ESPs
+ public:
+  enum forcedExchEnum {
+    ANY_EXCH,            // don't care which exchange
+    FORCED_PA,           // single PA node
+    FORCED_PAPA,         // PAPA on top of PA node
+    FORCED_ESP_EXCHANGE  // split/send nodes with ESPs
   };
 
-  enum forcedLogPartEnum
-  {
-    ANY_LOGPART,           // don't care which form of logical partitioning
-    FORCED_GROUP,          // PA partition grouping
-    FORCED_SPLIT,          // subpartitioning or partition slicing
-    FORCED_REPART          // PA grouped repartitioning
+  enum forcedLogPartEnum {
+    ANY_LOGPART,   // don't care which form of logical partitioning
+    FORCED_GROUP,  // PA partition grouping
+    FORCED_SPLIT,  // subpartitioning or partition slicing
+    FORCED_REPART  // PA grouped repartitioning
   };
 
   // either use any scan on the table with a given exposed name
   // or only use an index scan on the specified index
-  ExchangeForceWildCard(RelExpr *child0,
-                        forcedExchEnum which = ANY_EXCH,
-                        forcedLogPartEnum whatLogPart = ANY_LOGPART,
-                        Lng32 numBottomEsps = -1,
-                        CollHeap *outHeap = CmpCommon::statementHeap());
+  ExchangeForceWildCard(RelExpr *child0, forcedExchEnum which = ANY_EXCH, forcedLogPartEnum whatLogPart = ANY_LOGPART,
+                        Lng32 numBottomEsps = -1, CollHeap *outHeap = CmpCommon::statementHeap());
 
   virtual ~ExchangeForceWildCard();
 
-  virtual RelExpr * copyTopNode(RelExpr *derivedNode = NULL,
-                                CollHeap* outHeap = 0);
+  virtual RelExpr *copyTopNode(RelExpr *derivedNode = NULL, CollHeap *outHeap = 0);
 
-  inline forcedExchEnum getWhich() const                { return which_; }
-  inline forcedLogPartEnum getWhichLogPart() const { return whatLogPart_;}
-  inline Lng32 getHowMany() const                      { return howMany_; }
+  inline forcedExchEnum getWhich() const { return which_; }
+  inline forcedLogPartEnum getWhichLogPart() const { return whatLogPart_; }
+  inline Lng32 getHowMany() const { return howMany_; }
 
   virtual const NAString getText() const;
 
   // helper function on CQS Tree
-  virtual RelExpr *generateMatchingExpr(CANodeIdSet &,
-                                       CANodeIdSet &,
-                                       RelExpr *);
+  virtual RelExpr *generateMatchingExpr(CANodeIdSet &, CANodeIdSet &, RelExpr *);
 
   Int32 myMaxForcedDoP() { return howMany_; };
 
-private:
+ private:
+  forcedExchEnum which_;  // which of the flavors of Exchange we want
 
-  forcedExchEnum    which_;       // which of the flavors of Exchange we want
+  forcedLogPartEnum whatLogPart_;  // which flavor of logical partitioning
 
-  forcedLogPartEnum whatLogPart_; // which flavor of logical partitioning
+  Lng32 howMany_;  // how many exchanges on the bottom
 
-  Lng32              howMany_;     // how many exchanges on the bottom
-
-}; // ExchangeForceWildCard
+};  // ExchangeForceWildCard
 
 // -----------------------------------------------------------------------
 // A special form of a wildcard op, used to force the use of UDFs via CQS.
 // -----------------------------------------------------------------------
 
-class UDFForceWildCard : public WildCardOp
-{
+class UDFForceWildCard : public WildCardOp {
   // to be used with operator type REL_FORCE_ANY_SCLAR_UDF.
-public:
-
+ public:
   // Constructor used when parsing ISOLATED_SCALAR_UDF in controlDB.cpp.
   // op used is REL_FORCE_ANY_SCALAR_UDF.
-  UDFForceWildCard(OperatorTypeEnum op, 
-                   CollHeap *outHeap = CmpCommon::statementHeap());
+  UDFForceWildCard(OperatorTypeEnum op, CollHeap *outHeap = CmpCommon::statementHeap());
   // Instantiated when parsing 'SCALAR_UDF' or 'UDF_ACTION' followed by name.
   // Uses 'FORCE_ANY_SCALAR_UDF' as operator.
-  UDFForceWildCard(const NAString& functionName,
-                   const NAString& actionName,
+  UDFForceWildCard(const NAString &functionName, const NAString &actionName,
                    CollHeap *outHeap = CmpCommon::statementHeap());
 
   virtual ~UDFForceWildCard();
 
   virtual const NAString getText() const;
-  virtual RelExpr * copyTopNode(RelExpr *derivedNode = NULL,
-                                CollHeap* outHeap = 0);
+  virtual RelExpr *copyTopNode(RelExpr *derivedNode = NULL, CollHeap *outHeap = 0);
 
-  virtual NABoolean mergeUDFOptions(const UDFForceWildCard& other);
+  virtual NABoolean mergeUDFOptions(const UDFForceWildCard &other);
 
-  inline const NAString& getFunctionName() const { return functionName_; }
-  inline const NAString& getActionName() const   { return actionName_;   }
+  inline const NAString &getFunctionName() const { return functionName_; }
+  inline const NAString &getActionName() const { return actionName_; }
 
   // helper function on CQS Tree - this is never called.  Not implemented
-  //virtual RelExpr *generateMatchingExpr(CANodeIdSet &,
+  // virtual RelExpr *generateMatchingExpr(CANodeIdSet &,
   //                                      CANodeIdSet &,
   //                                      RelExpr *);
-private:
-
+ private:
   NAString functionName_;
   NAString actionName_;
-}; // UDFForceWildCard
-
+};  // UDFForceWildCard
 
 class RequiredResources : public NABasicObject {
-public:
-  RequiredResources() : memoryResources_(0),
-                        cpuResources_(0),
-                        dataAccessCost_(0),
-                        maxOperMemReq_(0),
-                        maxOperCPUReq_(0),
-                        maxOperDataAccessCost_(0),
-                        maxMaxCardinality_(0),
-                        numOfHBaseTables_(0),
-                        numOfHiveTables_(0) {};
+ public:
+  RequiredResources()
+      : memoryResources_(0),
+        cpuResources_(0),
+        dataAccessCost_(0),
+        maxOperMemReq_(0),
+        maxOperCPUReq_(0),
+        maxOperDataAccessCost_(0),
+        maxMaxCardinality_(0),
+        numOfHBaseTables_(0),
+        numOfHiveTables_(0){};
   void accumulate(CostScalar memRsrcs, CostScalar cpuRsrcs, CostScalar dataAccessCost, CostScalar maxCard = csZero);
-  CostScalar getMemoryResources(){ return memoryResources_; };
-  CostScalar getCpuResources(){ return cpuResources_; };
-  CostScalar getDataAccessCost() { return dataAccessCost_;}
-  CostScalar getMaxOperMemoryResources(){ return maxOperMemReq_; };
-  CostScalar getMaxOperCpuReq(){ return maxOperCPUReq_; };
-  CostScalar getMaxOperDataAccessCost() { return maxOperDataAccessCost_;}
-  CostScalar getMaxMaxCardinality() { return maxMaxCardinality_;}
+  CostScalar getMemoryResources() { return memoryResources_; };
+  CostScalar getCpuResources() { return cpuResources_; };
+  CostScalar getDataAccessCost() { return dataAccessCost_; }
+  CostScalar getMaxOperMemoryResources() { return maxOperMemReq_; };
+  CostScalar getMaxOperCpuReq() { return maxOperCPUReq_; };
+  CostScalar getMaxOperDataAccessCost() { return maxOperDataAccessCost_; }
+  CostScalar getMaxMaxCardinality() { return maxMaxCardinality_; }
 
   void setMemoryResources(CostScalar memRes) { memoryResources_ = memRes; };
   void setCpuResources(CostScalar cpuRes) { cpuResources_ = cpuRes; };
@@ -2206,7 +1968,8 @@ public:
 
   Int32 getNumOfHbaseTables() { return numOfHBaseTables_; };
   Int32 getNumOfHiveTables() { return numOfHiveTables_; };
-private:
+
+ private:
   CostScalar memoryResources_;
   CostScalar cpuResources_;
   CostScalar dataAccessCost_;
@@ -2215,9 +1978,9 @@ private:
   CostScalar maxOperDataAccessCost_;
   CostScalar maxMaxCardinality_;
 
-  Int32 numOfHBaseTables_; // number of Hbase tables accumulated
-  Int32 numOfHiveTables_;  // number of Hive tables accumulated
-}; // RequiredResources
+  Int32 numOfHBaseTables_;  // number of Hbase tables accumulated
+  Int32 numOfHiveTables_;   // number of Hive tables accumulated
+};                          // RequiredResources
 
 // *********************************************************************
 // The following five enumerated types are specific to plan generation.
@@ -2242,14 +2005,13 @@ private:
 // EXECUTE_IN_DP2
 //   Execute in a disk server process.
 // ---------------------------------------------------------------------
-enum PlanExecutionEnum
-  {
-     EXECUTE_IN_MASTER_AND_ESP,
-     EXECUTE_IN_MASTER_OR_ESP,
-     EXECUTE_IN_MASTER,
-     EXECUTE_IN_ESP,
-     EXECUTE_IN_DP2
-  };
+enum PlanExecutionEnum {
+  EXECUTE_IN_MASTER_AND_ESP,
+  EXECUTE_IN_MASTER_OR_ESP,
+  EXECUTE_IN_MASTER,
+  EXECUTE_IN_ESP,
+  EXECUTE_IN_DP2
+};
 
 // ---------------------------------------------------------------------
 // Source for the data.
@@ -2265,16 +2027,15 @@ enum PlanExecutionEnum
 // 7) An ESP where the individual data streams can be read independently
 //    from each other without causing a deadlock
 // ---------------------------------------------------------------------
-enum DataSourceEnum
-  {
-    SOURCE_PERSISTENT_TABLE,
-    SOURCE_TEMPORARY_TABLE,
-    SOURCE_TRANSIENT_TABLE,
-    SOURCE_VIRTUAL_TABLE,
-    SOURCE_TUPLE,
-    SOURCE_ESP_DEPENDENT,
-    SOURCE_ESP_INDEPENDENT
-  };
+enum DataSourceEnum {
+  SOURCE_PERSISTENT_TABLE,
+  SOURCE_TEMPORARY_TABLE,
+  SOURCE_TRANSIENT_TABLE,
+  SOURCE_VIRTUAL_TABLE,
+  SOURCE_TUPLE,
+  SOURCE_ESP_DEPENDENT,
+  SOURCE_ESP_INDEPENDENT
+};
 
 // ---------------------------------------------------------------------
 // The next enum is used for both synthesized and required sort
@@ -2331,8 +2092,7 @@ enum DataSourceEnum
 //   Used to signify that two required sort order types are not
 //   compatible with each other.
 // ---------------------------------------------------------------------
-enum SortOrderTypeEnum
-{
+enum SortOrderTypeEnum {
   NO_SOT,
   ESP_NO_SORT_SOT,
   ESP_VIA_SORT_SOT,
@@ -2345,18 +2105,17 @@ enum SortOrderTypeEnum
 // -----------------------------------------------------------------------
 // Inlines that couldn't be defined till now due to dependencies
 // -----------------------------------------------------------------------
-inline RelExpr * ExprGroupId::getPtr() const
-{
+inline RelExpr *ExprGroupId::getPtr() const {
   // part of fix to genesis case: 10-981030-4975
   if (node_) node_->checkInvalidObject(this);
   // else plan is not valid
   return node_;
 }
 
-inline RelExpr * ExprGroupId::operator ->() const       { return getPtr(); }
-inline ExprGroupId::operator RelExpr *() const          { return getPtr(); }
+inline RelExpr *ExprGroupId::operator->() const { return getPtr(); }
+inline ExprGroupId::operator RelExpr *() const { return getPtr(); }
 
-ostream* openDopAdjustDebugOutput();
-void closeDopAdjustDebugOutput(ostream*);
+ostream *openDopAdjustDebugOutput();
+void closeDopAdjustDebugOutput(ostream *);
 
 #endif /* RELEXPR_H */

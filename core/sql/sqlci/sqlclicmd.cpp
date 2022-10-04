@@ -46,20 +46,19 @@ SqlCliCmd::~SqlCliCmd() {}
 // CheckViolation's methods
 CheckViolation::CheckViolation() {}
 CheckViolation::~CheckViolation() {}
-short CheckViolation::process(SqlciEnv * sqlciEnv){
+short CheckViolation::process(SqlciEnv *sqlciEnv) {
   Lng32 sqlViolation, xactViolation, xactWasAborted;
   Lng32 udrErrorFlags = 0;
-  Lng32 retCode =  SQL_EXEC_GetUdrErrorFlags_Internal(&udrErrorFlags);
-  if((enum RETCODE) retCode == SUCCESS){
+  Lng32 retCode = SQL_EXEC_GetUdrErrorFlags_Internal(&udrErrorFlags);
+  if ((enum RETCODE)retCode == SUCCESS) {
     sqlViolation = udrErrorFlags & SQLUDR_SQL_VIOL;
     xactViolation = udrErrorFlags & SQLUDR_XACT_VIOL;
-    xactWasAborted = udrErrorFlags & SQLUDR_XACT_ABORT; 
+    xactWasAborted = udrErrorFlags & SQLUDR_XACT_ABORT;
     cerr << "success -- " << endl;
     cout << "sqlViolation:" << (sqlViolation ? "YES" : "NO") << endl;
     cout << "xactViolation:" << (xactViolation ? "YES" : "NO") << endl;
     cout << "xactWasAborted:" << (xactWasAborted ? "YES" : "NO") << endl;
-  }
-  else{
+  } else {
     cerr << "error -- " << endl;
   }
   HandleCLIError(retCode, sqlciEnv);
@@ -69,16 +68,14 @@ short CheckViolation::process(SqlciEnv * sqlciEnv){
 // ResetViolation's methods
 ResetViolation::ResetViolation(enum ComRoutineSQLAccess mode) : mode_(mode) {}
 ResetViolation::~ResetViolation() {}
-short ResetViolation::process(SqlciEnv * sqlciEnv){
-  Lng32 firstRetCode = SQL_EXEC_SetUdrAttributes_Internal(mode_, 0/* maxRSets */);
+short ResetViolation::process(SqlciEnv *sqlciEnv) {
+  Lng32 firstRetCode = SQL_EXEC_SetUdrAttributes_Internal(mode_, 0 /* maxRSets */);
   Lng32 secondRetCode = SQL_EXEC_ResetUdrErrorFlags_Internal();
-  if(((enum RETCODE) firstRetCode == SUCCESS) &&
-     ((enum RETCODE) secondRetCode == SUCCESS)){
+  if (((enum RETCODE)firstRetCode == SUCCESS) && ((enum RETCODE)secondRetCode == SUCCESS)) {
     cerr << "success -- " << endl;
-  }
-  else{
+  } else {
     cerr << "error -- " << endl;
-    if((enum RETCODE) firstRetCode != SUCCESS)
+    if ((enum RETCODE)firstRetCode != SUCCESS)
       HandleCLIError(firstRetCode, sqlciEnv);
     else
       HandleCLIError(secondRetCode, sqlciEnv);
@@ -90,15 +87,13 @@ short ResetViolation::process(SqlciEnv * sqlciEnv){
 CreateContext::CreateContext() : noAutoXact_(FALSE) {}
 CreateContext::CreateContext(Int32 noAutoXact) : noAutoXact_(noAutoXact) {}
 CreateContext::~CreateContext() {}
-short CreateContext::process(SqlciEnv * sqlciEnv)
-{
+short CreateContext::process(SqlciEnv *sqlciEnv) {
   SQLCTX_HANDLE ctxhdl = 0;
   Lng32 retCode = SQL_EXEC_CreateContext(&ctxhdl, NULL, noAutoXact_);
 
-  if((enum RETCODE) retCode == SUCCESS){
+  if ((enum RETCODE)retCode == SUCCESS) {
     cerr << "success -- new handle:" << ctxhdl << endl;
-  }
-  else{
+  } else {
     cerr << "error -- " << endl;
     HandleCLIError(retCode, sqlciEnv);
   }
@@ -108,14 +103,12 @@ short CreateContext::process(SqlciEnv * sqlciEnv)
 // CurrentContext's methods
 CurrentContext::CurrentContext() {}
 CurrentContext::~CurrentContext() {}
-short CurrentContext::process(SqlciEnv * sqlciEnv)
-{
+short CurrentContext::process(SqlciEnv *sqlciEnv) {
   SQLCTX_HANDLE ctxhdl = 0;
   Lng32 retCode = SQL_EXEC_CurrentContext(&ctxhdl);
-  if((enum RETCODE) retCode == SUCCESS){
+  if ((enum RETCODE)retCode == SUCCESS) {
     cerr << "success -- current handle:" << ctxhdl << endl;
-  }
-  else{
+  } else {
     cerr << "error -- " << endl;
     HandleCLIError(retCode, sqlciEnv);
   }
@@ -123,34 +116,28 @@ short CurrentContext::process(SqlciEnv * sqlciEnv)
 }
 
 // SwitchContext's methods
-SwitchContext::SwitchContext(Lng32 ctxHandle) :
-  ctxHdl_(ctxHandle) {}
+SwitchContext::SwitchContext(Lng32 ctxHandle) : ctxHdl_(ctxHandle) {}
 SwitchContext::~SwitchContext() {}
-short SwitchContext::process(SqlciEnv * sqlciEnv)
-{
+short SwitchContext::process(SqlciEnv *sqlciEnv) {
   SQLCTX_HANDLE ctxhdl = 0;
   Lng32 retCode = SQL_EXEC_SwitchContext(ctxHdl_, &ctxhdl);
-  if((enum RETCODE) retCode == SUCCESS){
+  if ((enum RETCODE)retCode == SUCCESS) {
     cerr << "success -- previous handle: " << ctxhdl << endl;
-  }
-  else{
+  } else {
     cerr << "error --" << endl;
     HandleCLIError(retCode, sqlciEnv);
   }
   return 0;
-}  
+}
 
 // DeleteContext's methods
-DeleteContext::DeleteContext(Lng32 ctxHandle) :
-  ctxHdl_(ctxHandle) {}
+DeleteContext::DeleteContext(Lng32 ctxHandle) : ctxHdl_(ctxHandle) {}
 DeleteContext::~DeleteContext() {}
-short DeleteContext::process(SqlciEnv * sqlciEnv)
-{
+short DeleteContext::process(SqlciEnv *sqlciEnv) {
   Lng32 retCode = SQL_EXEC_DeleteContext(ctxHdl_);
-  if((enum RETCODE) retCode == SUCCESS){
+  if ((enum RETCODE)retCode == SUCCESS) {
     cerr << "success --" << endl;
-  }
-  else{
+  } else {
     cerr << "error --" << endl;
     HandleCLIError(retCode, sqlciEnv);
   }
@@ -158,16 +145,13 @@ short DeleteContext::process(SqlciEnv * sqlciEnv)
 }
 
 // ResetContext's methods
-ResetContext::ResetContext(Lng32 ctxHandle) :
-  ctxHdl_(ctxHandle) {}
+ResetContext::ResetContext(Lng32 ctxHandle) : ctxHdl_(ctxHandle) {}
 ResetContext::~ResetContext() {}
-short ResetContext::process(SqlciEnv * sqlciEnv)
-{
+short ResetContext::process(SqlciEnv *sqlciEnv) {
   Lng32 retCode = SQL_EXEC_ResetContext(ctxHdl_, NULL);
-  if((enum RETCODE) retCode == SUCCESS){
+  if ((enum RETCODE)retCode == SUCCESS) {
     cerr << "success --" << endl;
-  }
-  else{
+  } else {
     cerr << "error --" << endl;
     HandleCLIError(retCode, sqlciEnv);
   }

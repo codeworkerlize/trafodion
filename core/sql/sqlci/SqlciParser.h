@@ -28,7 +28,7 @@
  *
  * File:         SqlciParser.h
  * RCS:          $Id: SqlciParser.h,v 1.5 1998/06/29 06:17:22  Exp $
- *               
+ *
  * Modified:     $ $Date: 1998/06/29 06:17:22 $ (GMT)
  * Language:     C++
  * Status:       $State: Exp $
@@ -39,7 +39,7 @@
 
 // -----------------------------------------------------------------------
 // Change history:
-// 
+//
 // $Log: SqlciParser.h,v $
 // Revision 1.5  1998/06/29 06:17:22
 // *** empty log message ***
@@ -64,18 +64,18 @@
 // Revision 1.1.1.1  1997/03/28 01:39:44
 // These are the source files from SourceSafe.
 //
-// 
-// 5     1/22/97 11:04p 
+//
+// 5     1/22/97 11:04p
 // Merged UNIX and NT versions.
-// 
-// 3     1/14/97 4:55a 
+//
+// 3     1/14/97 4:55a
 // Merged UNIX and  NT versions.
-// 
-// 1     12/04/96 11:27a 
+//
+// 1     12/04/96 11:27a
 // Revision 1.1  1996/11/21 03:18:13
 // Initial revision
 //
-// 
+//
 // -----------------------------------------------------------------------
 
 #include "common/SqlCliDllDefines.h"
@@ -83,7 +83,7 @@
 class SqlciNode;
 class SqlciEnv;
 
-Int32 sqlci_parser(char *instr, char *origstr, SqlciNode ** node, SqlciEnv *sqlci_env);
+Int32 sqlci_parser(char *instr, char *origstr, SqlciNode **node, SqlciEnv *sqlci_env);
 Int32 sqlci_parser_syntax_error_cleanup(char *instr, SqlciEnv *sqlci_env);
 Int32 sqlci_parser_handle_report_writer(SqlciEnv *sqlci_env, Lng32 retval);
 Int32 sqlci_parser_handle_error(SqlciNode **node, Lng32 retval);

@@ -55,27 +55,24 @@ class StmtDDLAlterTableAlterColumnSetSGOption;
 // -----------------------------------------------------------------------
 // definition of class StmtDDLAlterTableAlterColumnSetSGOption
 // -----------------------------------------------------------------------
-class StmtDDLAlterTableAlterColumnSetSGOption : public StmtDDLAlterTable
-{
-public:
-
+class StmtDDLAlterTableAlterColumnSetSGOption : public StmtDDLAlterTable {
+ public:
   // constructor
-  StmtDDLAlterTableAlterColumnSetSGOption( const NAString &columnName
-                                          , ElemDDLSGOptions *pSGOptions
-                                          , CollHeap    *heap = PARSERHEAP());
+  StmtDDLAlterTableAlterColumnSetSGOption(const NAString &columnName, ElemDDLSGOptions *pSGOptions,
+                                          CollHeap *heap = PARSERHEAP());
 
-    // virtual destructor
+  // virtual destructor
   virtual ~StmtDDLAlterTableAlterColumnSetSGOption();
 
   // cast
-  virtual StmtDDLAlterTableAlterColumnSetSGOption * castToStmtDDLAlterTableAlterColumnSetSGOption();
+  virtual StmtDDLAlterTableAlterColumnSetSGOption *castToStmtDDLAlterTableAlterColumnSetSGOption();
 
   // accessors
   inline NAString getColumnName();
 
-  inline const ElemDDLSGOptions* getSGOptions() const;
-  inline       ElemDDLSGOptions* getSGOptions();
-  inline       void setSGOptions(ElemDDLSGOptions* pSGOptions);
+  inline const ElemDDLSGOptions *getSGOptions() const;
+  inline ElemDDLSGOptions *getSGOptions();
+  inline void setSGOptions(ElemDDLSGOptions *pSGOptions);
 
   // mutators
   void setIncrement(Int64 increment);
@@ -83,42 +80,29 @@ public:
 
   // method for tracing
   virtual const NAString getText() const;
-  
-private: 
+
+ private:
   // column name
   NAString columnName_;
-  ElemDDLSGOptions * pSGOptions_;
+  ElemDDLSGOptions *pSGOptions_;
 
   //
   // please do not use the following methods
   //
 
-  StmtDDLAlterTableAlterColumnSetSGOption();   // DO NOT USE
-  StmtDDLAlterTableAlterColumnSetSGOption(const StmtDDLAlterTableAlterColumnSetSGOption &);   // DO NOT USE
-  StmtDDLAlterTableAlterColumnSetSGOption & operator=(const StmtDDLAlterTableAlterColumnSetSGOption &);  // DO NOT USE
+  StmtDDLAlterTableAlterColumnSetSGOption();                                                            // DO NOT USE
+  StmtDDLAlterTableAlterColumnSetSGOption(const StmtDDLAlterTableAlterColumnSetSGOption &);             // DO NOT USE
+  StmtDDLAlterTableAlterColumnSetSGOption &operator=(const StmtDDLAlterTableAlterColumnSetSGOption &);  // DO NOT USE
 
+};  // class StmtDDLAlterTableAlterColumnSetSGOption
 
-}; // class StmtDDLAlterTableAlterColumnSetSGOption
+inline NAString StmtDDLAlterTableAlterColumnSetSGOption::getColumnName() { return columnName_; }
 
+inline const ElemDDLSGOptions *StmtDDLAlterTableAlterColumnSetSGOption::getSGOptions() const { return pSGOptions_; }
 
-inline NAString 
-StmtDDLAlterTableAlterColumnSetSGOption::getColumnName()
-{
-  return columnName_;
-}
+inline ElemDDLSGOptions *StmtDDLAlterTableAlterColumnSetSGOption::getSGOptions() { return pSGOptions_; }
 
-inline const ElemDDLSGOptions * StmtDDLAlterTableAlterColumnSetSGOption::getSGOptions() const 
-{
-  return pSGOptions_;
-}
-
-inline ElemDDLSGOptions * StmtDDLAlterTableAlterColumnSetSGOption::getSGOptions() 
-{
-  return pSGOptions_;
-}
-
-inline void StmtDDLAlterTableAlterColumnSetSGOption::setSGOptions(ElemDDLSGOptions *pSGOptions) 
-{
+inline void StmtDDLAlterTableAlterColumnSetSGOption::setSGOptions(ElemDDLSGOptions *pSGOptions) {
   pSGOptions_ = pSGOptions;
 }
-#endif //STMTDDLALTERTABLEALTERCOLUMNSETSGATTRIBUTE_H
+#endif  // STMTDDLALTERTABLEALTERCOLUMNSETSGATTRIBUTE_H

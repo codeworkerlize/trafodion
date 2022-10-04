@@ -27,7 +27,7 @@
  *
  * File:         NAFileSet.h
  * Description:  A description of a file set, i.e., a set of files
- *               that implement a table, an index, a view, etc. 
+ *               that implement a table, an index, a view, etc.
  * Created:      12/20/95
  * Language:     C++
  *
@@ -61,88 +61,54 @@ class HbaseCreateOption;
 // An enumerated type that describes how data is organized in EVERY
 // file that belongs to this file set.
 // A key sequenced file is implemented by a B+ tree.
-// A hash file contains records whose key columns compute to the 
-// same hash value when the hash function that is used for 
+// A hash file contains records whose key columns compute to the
+// same hash value when the hash function that is used for
 // distributing the data is applied to them.
 // -----------------------------------------------------------------------
-enum FileOrganizationEnum 
-{
-  KEY_SEQUENCED_FILE,
-  HASH_FILE
-};
+enum FileOrganizationEnum { KEY_SEQUENCED_FILE, HASH_FILE };
 
 // -----------------------------------------------------------------------
 // A NAFileSet object describes common attributes of a set of files
 // that are used for implementing a base table, a single-table or a
 // multi-table index, a materialized view or any other SQL object.
 // -----------------------------------------------------------------------
-class NAFileSet : public NABasicObject
-{
+class NAFileSet : public NABasicObject {
   friend class NATable;
-public:
 
+ public:
   // ---------------------------------------------------------------------
   // Constructor functions
   // ---------------------------------------------------------------------
-  NAFileSet(const QualifiedName & fileSetName,
-	    const QualifiedName & extFileSetObj,
-	    const NAString & extFileSetName,
-	    enum FileOrganizationEnum org,
-	    NABoolean isSystemTable,
-	    Lng32 countOfFiles,
-	    Cardinality estimatedNumberOfRecords,
-	    Lng32 recordLength,
-	    Lng32 blockSize,
-	    Int32 indexLevels,
-	    const NAColumnArray & allColumns,
-	    const NAColumnArray & indexKeyColumns,
-	    const NAColumnArray & horizontalPartKeyColumns,
-	    const NAColumnArray & hiveSortKeyColumns,
-	    PartitioningFunction * forHorizontalPartitioning,
-	    short keytag,
-	    Int64 redefTime,
-	    NABoolean audited,
-	    NABoolean auditCompressed,
-	    NABoolean compressed,
-	    ComCompressionType dcompressed,
-	    NABoolean icompressed,
-	    NABoolean buffered,
-	    NABoolean clearOnPurge,
-	    NABoolean packedRows,
-            NABoolean hasRemotePartition,
-	    NABoolean isUniqueSecondaryIndex,
-	    NABoolean isNgramIndex,
-            NABoolean isPartLocalBaseIndex, 
-            NABoolean isPartLocalIndex,
-            NABoolean isPartGlobalIndex,
-            NABoolean isDecoupledRangePartitioned,
-            Lng32 fileCode,
-	    NABoolean isVolatile,
-	    NABoolean inMemObjectDefn,
-            Int64 indexUID,
-            TrafDesc *keysDesc,
-            Lng32 numSaltPartns,
-            Lng32 numInitialSaltRegions,
-            Int16 numTrafReplicas,
-            NAList<HbaseCreateOption*>* hbaseCreateOptions,
-            CollHeap * h=0);
+  NAFileSet(const QualifiedName &fileSetName, const QualifiedName &extFileSetObj, const NAString &extFileSetName,
+            enum FileOrganizationEnum org, NABoolean isSystemTable, Lng32 countOfFiles,
+            Cardinality estimatedNumberOfRecords, Lng32 recordLength, Lng32 blockSize, Int32 indexLevels,
+            const NAColumnArray &allColumns, const NAColumnArray &indexKeyColumns,
+            const NAColumnArray &horizontalPartKeyColumns, const NAColumnArray &hiveSortKeyColumns,
+            PartitioningFunction *forHorizontalPartitioning, short keytag, Int64 redefTime, NABoolean audited,
+            NABoolean auditCompressed, NABoolean compressed, ComCompressionType dcompressed, NABoolean icompressed,
+            NABoolean buffered, NABoolean clearOnPurge, NABoolean packedRows, NABoolean hasRemotePartition,
+            NABoolean isUniqueSecondaryIndex, NABoolean isNgramIndex, NABoolean isPartLocalBaseIndex,
+            NABoolean isPartLocalIndex, NABoolean isPartGlobalIndex, NABoolean isDecoupledRangePartitioned,
+            Lng32 fileCode, NABoolean isVolatile, NABoolean inMemObjectDefn, Int64 indexUID, TrafDesc *keysDesc,
+            Lng32 numSaltPartns, Lng32 numInitialSaltRegions, Int16 numTrafReplicas,
+            NAList<HbaseCreateOption *> *hbaseCreateOptions, CollHeap *h = 0);
 
   // copy ctor
-  NAFileSet (const NAFileSet & orig, CollHeap * h=0); 
+  NAFileSet(const NAFileSet &orig, CollHeap *h = 0);
 
   virtual ~NAFileSet();
 
-  NABoolean operator==(const NAFileSet& other) const; 
-  
+  NABoolean operator==(const NAFileSet &other) const;
+
   // ---------------------------------------------------------------------
   // Accessor functions
   // ---------------------------------------------------------------------
-  const QualifiedName & getFileSetName() const	    { return fileSetName_; }
-  const NAString      & getExtFileSetName() const   { return extFileSetName_;}
-  const QualifiedName & getExtFileSetObj() const    { return extFileSetObj_; }
-  const QualifiedName & getRandomPartition() const;
+  const QualifiedName &getFileSetName() const { return fileSetName_; }
+  const NAString &getExtFileSetName() const { return extFileSetName_; }
+  const QualifiedName &getExtFileSetObj() const { return extFileSetObj_; }
+  const QualifiedName &getRandomPartition() const;
 
-  const NAColumnArray & getAllColumns() const      { return allColumns_; }
+  const NAColumnArray &getAllColumns() const { return allColumns_; }
 
   // Method to get counts for various types of columns.
   // - excludeNonUserSpecifiedAlternateIndexColumns returns the number
@@ -150,95 +116,85 @@ public:
   //   user (salt,replica included unless exludeSystemColumns is also set).
   //   Returns 0 when called on the clusteringindex.
   // - Other options should be self-explanatory.
-  Int32 getCountOfColumns(
-       NABoolean excludeNonKeyColumns = FALSE,
-       NABoolean excludeNonUserSpecifiedAlternateIndexColumns = FALSE,
-       NABoolean excludeSystemColumns = TRUE,
-       NABoolean excludeAlwaysComputedSystemColumns = FALSE) const;
+  Int32 getCountOfColumns(NABoolean excludeNonKeyColumns = FALSE,
+                          NABoolean excludeNonUserSpecifiedAlternateIndexColumns = FALSE,
+                          NABoolean excludeSystemColumns = TRUE,
+                          NABoolean excludeAlwaysComputedSystemColumns = FALSE) const;
 
-  const NAColumnArray & getIndexKeyColumns() const
-                                              { return indexKeyColumns_; }
+  const NAColumnArray &getIndexKeyColumns() const { return indexKeyColumns_; }
 
-  const TrafDesc * getKeysDesc() const { return keysDesc_; }
-  TrafDesc * getKeysDesc() { return keysDesc_; }
+  const TrafDesc *getKeysDesc() const { return keysDesc_; }
+  TrafDesc *getKeysDesc() { return keysDesc_; }
 
-  Lng32 getCountOfFiles() const                  { return countOfFiles_; }
+  Lng32 getCountOfFiles() const { return countOfFiles_; }
 
-  Cardinality getEstimatedNumberOfRecords() const
-                                     { return estimatedNumberOfRecords_; }
-  Lng32 getRecordLength() const             { return recordLength_; }
-  Lng32 getLockLength() const             { return lockLength_; }
+  Cardinality getEstimatedNumberOfRecords() const { return estimatedNumberOfRecords_; }
+  Lng32 getRecordLength() const { return recordLength_; }
+  Lng32 getLockLength() const { return lockLength_; }
   Lng32 getKeyLength();
   Lng32 getEncodedKeyLength();
-  Lng32 getBlockSize() const                   { return blockSize_; }
+  Lng32 getBlockSize() const { return blockSize_; }
 
-  Int32 getIndexLevels() const                   { return indexLevels_; }
+  Int32 getIndexLevels() const { return indexLevels_; }
 
-  Lng32 getPackingScheme() const     { return packingScheme_; }
-  Lng32 getPackingFactor() const     { return packingFactor_; }
+  Lng32 getPackingScheme() const { return packingScheme_; }
+  Lng32 getPackingFactor() const { return packingFactor_; }
 
   Lng32 getFileCode() const { return fileCode_; }
 
   const Int64 &getIndexUID() const { return indexUID_; }
   Int64 &getIndexUID() { return indexUID_; }
 
-
-  Lng32 numSaltPartns() const { return numSaltPartns_; } 
-  Lng32 numInitialSaltRegions() const { return numInitialSaltRegions_; } 
-  Int16 numTrafReplicas() const { return numTrafReplicas_; } 
-  NAList<HbaseCreateOption*> * hbaseCreateOptions() const
-    { return hbaseCreateOptions_;}
+  Lng32 numSaltPartns() const { return numSaltPartns_; }
+  Lng32 numInitialSaltRegions() const { return numInitialSaltRegions_; }
+  Int16 numTrafReplicas() const { return numTrafReplicas_; }
+  NAList<HbaseCreateOption *> *hbaseCreateOptions() const { return hbaseCreateOptions_; }
   Int32 numHivePartCols() const;
 
-  Lng32 numMaxVersions() const { return numMaxVersions_; } 
+  Lng32 numMaxVersions() const { return numMaxVersions_; }
 
   // ---------------------------------------------------------------------
   // Mutator functions
   // ---------------------------------------------------------------------
 
-  void setCountOfFiles (Lng32 count)   {countOfFiles_ = count;}
-  void setIndexLevels (Int32 numLevels) {indexLevels_ = numLevels;}
-  void setHasRemotePartitions(NABoolean flag) {hasRemotePartition_ = flag;}
-  void setPartitioningFunction(PartitioningFunction * pFunc)
-                                                     {partFunc_ = pFunc;}
-  void setFileSetName(QualifiedName & rhs) {fileSetName_ = rhs;}
-  void setEstimatedNumberOfRecords(Cardinality newEstimate)
-                     { estimatedNumberOfRecords_ = newEstimate; }
+  void setCountOfFiles(Lng32 count) { countOfFiles_ = count; }
+  void setIndexLevels(Int32 numLevels) { indexLevels_ = numLevels; }
+  void setHasRemotePartitions(NABoolean flag) { hasRemotePartition_ = flag; }
+  void setPartitioningFunction(PartitioningFunction *pFunc) { partFunc_ = pFunc; }
+  void setFileSetName(QualifiedName &rhs) { fileSetName_ = rhs; }
+  void setEstimatedNumberOfRecords(Cardinality newEstimate) { estimatedNumberOfRecords_ = newEstimate; }
   void markAsHivePartitioningColumn(int colNum);
 
   // ---------------------------------------------------------------------
   // Query the file organization.
   // ---------------------------------------------------------------------
-  NABoolean isKeySequenced() const  
-                     { return (fileOrganization_ == KEY_SEQUENCED_FILE); }
-  NABoolean isHashed() const      
-                              { return (fileOrganization_ == HASH_FILE); }
+  NABoolean isKeySequenced() const { return (fileOrganization_ == KEY_SEQUENCED_FILE); }
+  NABoolean isHashed() const { return (fileOrganization_ == HASH_FILE); }
   NABoolean isSyskeyLeading() const;
-  Int32 getSysKeyPosition()  const;
+  Int32 getSysKeyPosition() const;
   NABoolean hasSyskey() const;
   NABoolean hasOnlySyskey() const;
   NABoolean hasSingleColVarcharKey() const;
 
-  NABoolean isDecoupledRangePartitioned() const
-                    { return isDecoupledRangePartitioned_; }
- 
+  NABoolean isDecoupledRangePartitioned() const { return isDecoupledRangePartitioned_; }
+
   // ---------------------------------------------------------------------
   // Query miscellaneous flags.
   // ---------------------------------------------------------------------
-  NABoolean isAudited() const			      { return audited_; }
-  NABoolean isAuditCompressed() const	      { return auditCompressed_; }
-  NABoolean isCompressed() const	      { return compressed_; }
-  ComCompressionType getDCompressed() const   { return dcompressed_; }
-  NABoolean isICompressed() const	      { return icompressed_; }
-  NABoolean isBuffered() const	              { return buffered_; }
-  NABoolean isClearOnPurge() const	      { return clearOnPurge_; }
-  NABoolean isSystemTable() const		{ return isSystemTable_; }
-  NABoolean isRemoteIndexGone() const         { return thisRemoteIndexGone_;}
-  void      setRemoteIndexGone()              { thisRemoteIndexGone_=TRUE;}
+  NABoolean isAudited() const { return audited_; }
+  NABoolean isAuditCompressed() const { return auditCompressed_; }
+  NABoolean isCompressed() const { return compressed_; }
+  ComCompressionType getDCompressed() const { return dcompressed_; }
+  NABoolean isICompressed() const { return icompressed_; }
+  NABoolean isBuffered() const { return buffered_; }
+  NABoolean isClearOnPurge() const { return clearOnPurge_; }
+  NABoolean isSystemTable() const { return isSystemTable_; }
+  NABoolean isRemoteIndexGone() const { return thisRemoteIndexGone_; }
+  void setRemoteIndexGone() { thisRemoteIndexGone_ = TRUE; }
 
-  short getKeytag() const 		       { return keytag_; }
+  short getKeytag() const { return keytag_; }
 
-  const Int64 &getRedefTime() const		    { return redefTime_; }
+  const Int64 &getRedefTime() const { return redefTime_; }
 
   // ---------------------------------------------------------------------
   // Query the partitioning function.
@@ -248,79 +204,70 @@ public:
   Lng32 getCountOfPartitions() const;
 
   NABoolean containsPartition(const NAString &partitionName) const;
-  
-  const NAColumnArray & getPartitioningKeyColumns() const
-                                       { return partitioningKeyColumns_; }
+
+  const NAColumnArray &getPartitioningKeyColumns() const { return partitioningKeyColumns_; }
 
   NAString getBestPartitioningKeyColumns(char separator) const;
 
-  const NAColumnArray & getHiveSortKeyColumns() const
-                                           { return hiveSortKeyColumns_; }
+  const NAColumnArray &getHiveSortKeyColumns() const { return hiveSortKeyColumns_; }
 
-  PartitioningFunction * getPartitioningFunction() const
-                                                     { return partFunc_; }
-
-
+  PartitioningFunction *getPartitioningFunction() const { return partFunc_; }
 
   NABoolean isPacked() const { return packedRows_; };
-  
+
   NABoolean hasRemotePartitions() const { return hasRemotePartition_; };
 
   // Get and Set methods for the bitFlags_.
-  NABoolean uniqueIndex() const { return (bitFlags_ & UNIQUE_INDEX)  != 0; }
-  void setUniqueIndex(NABoolean v)      
-           { (v ? bitFlags_ |= UNIQUE_INDEX : bitFlags_ &= ~UNIQUE_INDEX); }
+  NABoolean uniqueIndex() const { return (bitFlags_ & UNIQUE_INDEX) != 0; }
+  void setUniqueIndex(NABoolean v) { (v ? bitFlags_ |= UNIQUE_INDEX : bitFlags_ &= ~UNIQUE_INDEX); }
   // for ngram index, Get and Set methods for the bitFlags_.
-  NABoolean ngramIndex() const { return (bitFlags_ & NGRAM_INDEX)  != 0; }
-  void setNgramIndex(NABoolean v)      
-           { (v ? bitFlags_ |= NGRAM_INDEX : bitFlags_ &= ~NGRAM_INDEX); }
+  NABoolean ngramIndex() const { return (bitFlags_ & NGRAM_INDEX) != 0; }
+  void setNgramIndex(NABoolean v) { (v ? bitFlags_ |= NGRAM_INDEX : bitFlags_ &= ~NGRAM_INDEX); }
 
-  NABoolean partLocalBaseIndex() const { return (bitFlags_ & PARTITION_LOCAL_BASE_INDEX)  != 0; }
-  void setPartLocalBaseIndex(NABoolean v)      
-           { (v ? bitFlags_ |= PARTITION_LOCAL_BASE_INDEX : bitFlags_ &= ~PARTITION_LOCAL_BASE_INDEX); }
+  NABoolean partLocalBaseIndex() const { return (bitFlags_ & PARTITION_LOCAL_BASE_INDEX) != 0; }
+  void setPartLocalBaseIndex(NABoolean v) {
+    (v ? bitFlags_ |= PARTITION_LOCAL_BASE_INDEX : bitFlags_ &= ~PARTITION_LOCAL_BASE_INDEX);
+  }
 
-  NABoolean partLocalIndex() const { return (bitFlags_ & PARTITION_LOCAL_INDEX)  != 0; }
-  void setPartLocalIndex(NABoolean v)      
-           { (v ? bitFlags_ |= PARTITION_LOCAL_INDEX : bitFlags_ &= ~PARTITION_LOCAL_INDEX); }
+  NABoolean partLocalIndex() const { return (bitFlags_ & PARTITION_LOCAL_INDEX) != 0; }
+  void setPartLocalIndex(NABoolean v) {
+    (v ? bitFlags_ |= PARTITION_LOCAL_INDEX : bitFlags_ &= ~PARTITION_LOCAL_INDEX);
+  }
 
-  NABoolean partGlobalIndex() const { return (bitFlags_ & PARTITION_GLOBAL_INDEX)  != 0; }
-  void setPartGlobalIndex(NABoolean v)      
-           { (v ? bitFlags_ |= PARTITION_GLOBAL_INDEX : bitFlags_ &= ~PARTITION_GLOBAL_INDEX); }
+  NABoolean partGlobalIndex() const { return (bitFlags_ & PARTITION_GLOBAL_INDEX) != 0; }
+  void setPartGlobalIndex(NABoolean v) {
+    (v ? bitFlags_ |= PARTITION_GLOBAL_INDEX : bitFlags_ &= ~PARTITION_GLOBAL_INDEX);
+  }
 
-  NABoolean notAvailable() const { return (bitFlags_ & NOT_AVAILABLE)  != 0; }
-  void setNotAvailable(NABoolean v)      
-           { (v ? bitFlags_ |= NOT_AVAILABLE : bitFlags_ &= ~NOT_AVAILABLE); }
+  NABoolean notAvailable() const { return (bitFlags_ & NOT_AVAILABLE) != 0; }
+  void setNotAvailable(NABoolean v) { (v ? bitFlags_ |= NOT_AVAILABLE : bitFlags_ &= ~NOT_AVAILABLE); }
 
-  NABoolean isVolatile() const{return (bitFlags_ & IS_VOLATILE)  != 0; }
-  void setIsVolatile(NABoolean v)      
-           { (v ? bitFlags_ |= IS_VOLATILE : bitFlags_ &= ~IS_VOLATILE); }
+  NABoolean isVolatile() const { return (bitFlags_ & IS_VOLATILE) != 0; }
+  void setIsVolatile(NABoolean v) { (v ? bitFlags_ |= IS_VOLATILE : bitFlags_ &= ~IS_VOLATILE); }
 
-  const NABoolean isInMemoryObjectDefn() const{return (bitFlags_ & IN_MEMORY_OBJECT_DEFN)  != 0; }
-  void setInMemoryObjectDefn(NABoolean v)      
-           { (v ? bitFlags_ |= IN_MEMORY_OBJECT_DEFN : bitFlags_ &= ~IN_MEMORY_OBJECT_DEFN); }
+  const NABoolean isInMemoryObjectDefn() const { return (bitFlags_ & IN_MEMORY_OBJECT_DEFN) != 0; }
+  void setInMemoryObjectDefn(NABoolean v) {
+    (v ? bitFlags_ |= IN_MEMORY_OBJECT_DEFN : bitFlags_ &= ~IN_MEMORY_OBJECT_DEFN);
+  }
 
+  NABoolean isCreatedExplicitly() const { return (bitFlags_ & IS_EXPLICIT_INDEX) != 0; }
+  void setIsCreatedExplicitly(NABoolean v) { (v ? bitFlags_ |= IS_EXPLICIT_INDEX : bitFlags_ &= ~IS_EXPLICIT_INDEX); }
 
-  NABoolean isCreatedExplicitly() const{return (bitFlags_ & IS_EXPLICIT_INDEX)  != 0; }
-  void setIsCreatedExplicitly(NABoolean v)      
-           { (v ? bitFlags_ |= IS_EXPLICIT_INDEX : bitFlags_ &= ~IS_EXPLICIT_INDEX); }
+  NABoolean isNullablePkey() const { return (bitFlags_ & NULLABLE_PKEY) != 0; }
+  void setNullablePkey(NABoolean v) { (v ? bitFlags_ |= NULLABLE_PKEY : bitFlags_ &= ~NULLABLE_PKEY); }
 
-  NABoolean isNullablePkey() const{return (bitFlags_ & NULLABLE_PKEY)  != 0; }
-  void setNullablePkey(NABoolean v)      
-  { (v ? bitFlags_ |= NULLABLE_PKEY : bitFlags_ &= ~NULLABLE_PKEY); }
-
-  //For NATable caching, clear up the statement specific stuff
-  //so that this can be used for following statements
+  // For NATable caching, clear up the statement specific stuff
+  // so that this can be used for following statements
   void resetAfterStatement();
 
-  //For NATable caching, prepare for use by a statement.
+  // For NATable caching, prepare for use by a statement.
   void setupForStatement();
 
   NABoolean isSqlmxAlignedRowFormat() const { return rowFormat_ == COM_ALIGNED_FORMAT_TYPE; }
 
   void setRowFormat(ComRowFormat rowFormat) { rowFormat_ = rowFormat; }
 
-private:
-
+ private:
   // ---------------------------------------------------------------------
   // The fully qualified PHYSICAL name for the file set,
   // e.g. { "\NSK.$VOL", ZSDNGUOF, T5AB0000 }.
@@ -346,7 +293,7 @@ private:
   // file of this file set.
   // ---------------------------------------------------------------------
   FileOrganizationEnum fileOrganization_;
-  
+
   // ---------------------------------------------------------------------
   // The number of files that belong to this file set.
   // (May need a set of file names/NAFile also/instead someday.)
@@ -359,7 +306,7 @@ private:
   // each file in this file set and accumulating an estimate.
   // ---------------------------------------------------------------------
   Cardinality estimatedNumberOfRecords_;
-  
+
   // ---------------------------------------------------------------------
   // Record length in bytes.
   // ---------------------------------------------------------------------
@@ -386,27 +333,27 @@ private:
   Lng32 fileCode_;
 
   // ---------------------------------------------------------------------
-  // Size of a page (block) that is a contant for every file that 
+  // Size of a page (block) that is a contant for every file that
   // belongs to this file set. It is expressed in bytes.
   // ---------------------------------------------------------------------
   Lng32 blockSize_;
-  
+
   // ----------------------------------------------------------------------
   // Packing information. Packing scheme: describes version of packed
   // record format used in this file set's packed records.
   // Packing factor: number of unpacked (logical) rows per packed (physical) record.
   // ----------------------------------------------------------------------
-  Lng32      packingScheme_;
-  Lng32      packingFactor_;
+  Lng32 packingScheme_;
+  Lng32 packingFactor_;
 
   // ---------------------------------------------------------------------
-  // since the index levels could be different for every file that  
+  // since the index levels could be different for every file that
   // belongs to this file set, we probably should save index levels
   // per file. But, for now, we save the maximum of the index levels
-  // of the files that belong to this fileset.                      
+  // of the files that belong to this fileset.
   // ---------------------------------------------------------------------
   Int32 indexLevels_;
-  
+
   // ---------------------------------------------------------------------
   // Array of all the columns that appear in each record in every file
   // that belongs to this file set.
@@ -426,20 +373,20 @@ private:
 
   // ---------------------------------------------------------------------
   // Horizontal partitioning:
-  // The partitioning function describes how data is distributed 
+  // The partitioning function describes how data is distributed
   // amongst the files contained in this file set. Note that the scheme
-  // for distributing the data is orthogonal to the scheme for 
+  // for distributing the data is orthogonal to the scheme for
   // organizing records within a file.
   // ---------------------------------------------------------------------
 
   // --------------------------------------------------------------------
-  // For persistent range or hash partitioned data, the partitioning 
-  // key is expressed as a list of NAColumns. The list represents the 
-  // sequence in which the key columns appear in the declaration of 
-  // the partitioning scheme such as the SQL CREATE TABLE statement. 
-  // It does not imply an ordering on the key columns. If an ordering 
-  // exists, it is implemented by a partitioning function. 
-  // 
+  // For persistent range or hash partitioned data, the partitioning
+  // key is expressed as a list of NAColumns. The list represents the
+  // sequence in which the key columns appear in the declaration of
+  // the partitioning scheme such as the SQL CREATE TABLE statement.
+  // It does not imply an ordering on the key columns. If an ordering
+  // exists, it is implemented by a partitioning function.
+  //
   // A NAFileSet need not contain a partitioning key.
   // For Hive tables, the bucketing key columns are stored in the
   // partitioning key, since this comes closest to the HASH2
@@ -448,10 +395,8 @@ private:
   // --------------------------------------------------------------------
   NAColumnArray partitioningKeyColumns_;
   NAColumnArray hiveSortKeyColumns_;
-  
-  PartitioningFunction * partFunc_;
 
-
+  PartitioningFunction *partFunc_;
 
   // ---------------------------------------------------------------------
   // Some day we may support arbitrary queries, then an additional
@@ -467,7 +412,7 @@ private:
   // For all secondary indexes (MP or MX), this is nonzero.
   // ---------------------------------------------------------------------
   short keytag_;
-  
+
   // ---------------------------------------------------------------------
   // Catalog timestamp for this fileset. Each index gets its own timestamp.
   // ---------------------------------------------------------------------
@@ -478,7 +423,7 @@ private:
   // ---------------------------------------------------------------------
   NABoolean audited_;
   NABoolean auditCompressed_;
-  NABoolean compressed_; 
+  NABoolean compressed_;
   ComCompressionType dcompressed_;
   NABoolean icompressed_;
   NABoolean buffered_;
@@ -494,8 +439,7 @@ private:
   // Miscellaneous Bit flags. It reduces compiler memory consumption +
   // no need to recompile the world on adding a new flag.
   // ---------------------------------------------------------------------
-  enum BitFlags
-  {
+  enum BitFlags {
     // Set, if this is a unique secondary index.
     UNIQUE_INDEX = 0x0001,
 
@@ -518,7 +462,7 @@ private:
     IS_EXPLICIT_INDEX = 0x00010,
 
     // set, if this is an ngram index
-    NGRAM_INDEX  = 0X00020,
+    NGRAM_INDEX = 0X00020,
 
     // During create time, nullable pkey columns are automatically made
     // non-nullable unless 'PRIMARY KEY NULLABLE' attribute is specified.
@@ -531,16 +475,14 @@ private:
     PARTITION_LOCAL_BASE_INDEX = 0x00080,
 
     // partition local index for each partition table.
-    PARTITION_LOCAL_INDEX     = 0x00100,
+    PARTITION_LOCAL_INDEX = 0x00100,
 
-    PARTITION_GLOBAL_INDEX    = 0x00200,
-      
+    PARTITION_GLOBAL_INDEX = 0x00200,
+
   };
   ULng32 bitFlags_;
 
   NABoolean thisRemoteIndexGone_;
-
-
 
   // number of salt buckets and initial regions specified at
   // table create time in the SALT clause
@@ -552,25 +494,22 @@ private:
   // hbase_options clause.
   Lng32 numMaxVersions_;
 
-  NAList<HbaseCreateOption*> * hbaseCreateOptions_;
+  NAList<HbaseCreateOption *> *hbaseCreateOptions_;
 
-  ComRowFormat rowFormat_; 
+  ComRowFormat rowFormat_;
 
-  // Indicate whether some data member is possiblly 
-  // shallow copied. Set to TRUE when this is copy 
+  // Indicate whether some data member is possiblly
+  // shallow copied. Set to TRUE when this is copy
   // constructed.
   NABoolean shallowCopied_;
 };
 
-class NAFileSetList : public LIST(NAFileSet *)
-{
-public:
-  NAFileSetList(CollHeap* h) :  LIST(NAFileSet *)(h) {}
+class NAFileSetList : public LIST(NAFileSet *) {
+ public:
+  NAFileSetList(CollHeap *h) : LIST(NAFileSet *)(h) {}
 
   // copy cstr
-  NAFileSetList(const NAFileSetList& other, CollHeap* h) :  
-         LIST(NAFileSet *)(other, h) {}
+  NAFileSetList(const NAFileSetList &other, CollHeap *h) : LIST(NAFileSet *)(other, h) {}
 };
 
 #endif /* NAFILESET_H */
-

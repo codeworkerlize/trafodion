@@ -60,28 +60,28 @@
 // CharInfo::CharSet enumerated constant.
 //
 // cnv_charset convertCharsetEnum (Int32 /* SQLCHARSET_CODE */ inCharSet);
-// 
+//
 enum SQLCHARSET_CODE {
-  SQLCHARSETCODE_UNKNOWN        =  0,
-  SQLCHARSETCODE_ISO88591       =  1,
-  SQLCHARSETCODE_KANJI          = -1,
-  SQLCHARSETCODE_KSC5601        = -2,
-  SQLCHARSETCODE_SJIS           = 10,
-  SQLCHARSETCODE_UCS2           = 11,
-  SQLCHARSETCODE_EUCJP          = 12,
-  SQLCHARSETCODE_BIG5           = 13,
-  SQLCHARSETCODE_GB18030        = 14,
-  SQLCHARSETCODE_UTF8           = 15,
-  SQLCHARSETCODE_MB_KSC5601     = 16,
-  SQLCHARSETCODE_GB2312         = 17,
-  SQLCHARSETCODE_GBK            = 18,
+  SQLCHARSETCODE_UNKNOWN = 0,
+  SQLCHARSETCODE_ISO88591 = 1,
+  SQLCHARSETCODE_KANJI = -1,
+  SQLCHARSETCODE_KSC5601 = -2,
+  SQLCHARSETCODE_SJIS = 10,
+  SQLCHARSETCODE_UCS2 = 11,
+  SQLCHARSETCODE_EUCJP = 12,
+  SQLCHARSETCODE_BIG5 = 13,
+  SQLCHARSETCODE_GB18030 = 14,
+  SQLCHARSETCODE_UTF8 = 15,
+  SQLCHARSETCODE_MB_KSC5601 = 16,
+  SQLCHARSETCODE_GB2312 = 17,
+  SQLCHARSETCODE_GBK = 18,
 
   /* specifies that the user input string is in the same charset that is
      set as the value of the ISO_MAPPING default in the defaults table.
      Cli will pass in the input string as is to mxcmp without any translation.
-     It will also tell mxcmp to treat any unprefixed literals in the 
+     It will also tell mxcmp to treat any unprefixed literals in the
      input string as iso88591. */
-  SQLCHARSETCODE_ISO_MAPPING    = 9999
+  SQLCHARSETCODE_ISO_MAPPING = 9999
 };
 #endif
 
@@ -98,18 +98,18 @@ enum SQLCHARSET_CODE {
 // translation routines defined in w:/cli/CliExtern.cpp.
 //
 enum SQLCONVCHARSET_CODE {
-  SQLCONVCHARSETCODE_UNKNOWN    = 0,
-  SQLCONVCHARSETCODE_UTF8       = 1,
-  SQLCONVCHARSETCODE_UTF16      = 2,
-  SQLCONVCHARSETCODE_UTF32      = 3,
-  SQLCONVCHARSETCODE_ISO88591   = 4,
-  SQLCONVCHARSETCODE_SJIS       = 5,
-  SQLCONVCHARSETCODE_EUCJP      = 6,
-  SQLCONVCHARSETCODE_KSC        = 7,
-  SQLCONVCHARSETCODE_BIG5       = 8,
-  SQLCONVCHARSETCODE_2312       = 9,
-  SQLCONVCHARSETCODE_GB18030    = 10,
-  SQLCONVCHARSETCODE_GBK        = 11
+  SQLCONVCHARSETCODE_UNKNOWN = 0,
+  SQLCONVCHARSETCODE_UTF8 = 1,
+  SQLCONVCHARSETCODE_UTF16 = 2,
+  SQLCONVCHARSETCODE_UTF32 = 3,
+  SQLCONVCHARSETCODE_ISO88591 = 4,
+  SQLCONVCHARSETCODE_SJIS = 5,
+  SQLCONVCHARSETCODE_EUCJP = 6,
+  SQLCONVCHARSETCODE_KSC = 7,
+  SQLCONVCHARSETCODE_BIG5 = 8,
+  SQLCONVCHARSETCODE_2312 = 9,
+  SQLCONVCHARSETCODE_GB18030 = 10,
+  SQLCONVCHARSETCODE_GBK = 11
 };
 #endif
 
@@ -122,14 +122,21 @@ enum SQLCONVCHARSET_CODE {
 // match those of the corresponding SQLCONVCHARSET_CODE enumerated constants
 // defined above and in w:/cli/sqlcli.h.
 //
-enum cnv_charset { cnv_UnknownCharSet =  0,  cnv_UTF8     = 1,
-                   cnv_UTF16    = 2,         cnv_UTF32    = 3,
-                   cnv_ISO88591 = 4,         cnv_SJIS     = 5,
-                   cnv_EUCJP    = 6,         cnv_KSC      = 7, 
-                   cnv_BIG5     = 8,         cnv_GB2312   = 9,
-                   cnv_GB18030  = 10,        cnv_GBK      = 11,
-                   cnv_Last_Valid_CS = 11
-                  };
+enum cnv_charset {
+  cnv_UnknownCharSet = 0,
+  cnv_UTF8 = 1,
+  cnv_UTF16 = 2,
+  cnv_UTF32 = 3,
+  cnv_ISO88591 = 4,
+  cnv_SJIS = 5,
+  cnv_EUCJP = 6,
+  cnv_KSC = 7,
+  cnv_BIG5 = 8,
+  cnv_GB2312 = 9,
+  cnv_GB18030 = 10,
+  cnv_GBK = 11,
+  cnv_Last_Valid_CS = 11
+};
 #endif
 
-#endif // COMCHARSETDEFS_H
+#endif  // COMCHARSETDEFS_H

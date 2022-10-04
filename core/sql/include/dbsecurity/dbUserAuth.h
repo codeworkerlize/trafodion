@@ -27,25 +27,22 @@
 #include "dbsecurity/auth.h"
 #include "authEvents.h"
 
-enum  LDAPAuthResultEnum {
-    AuthResult_Successful,       // User was authenticated on LDAP server
-    AuthResult_NotFound,         // User was not found in search
-    AuthResult_Rejected,         // User was rejected by LDAP server
-    AuthResult_ResourceError};   // An error prevented authentication
+enum LDAPAuthResultEnum {
+  AuthResult_Successful,  // User was authenticated on LDAP server
+  AuthResult_NotFound,    // User was not found in search
+  AuthResult_Rejected,    // User was rejected by LDAP server
+  AuthResult_ResourceError
+};  // An error prevented authentication
 
-enum  LDAPCheckUserResultEnum {
-    CheckUserResult_UserExists,       // User was found on LDAP server
-    CheckUserResult_UserDoesNotExist, // User was not found on LDAP server
-    CheckUserResult_ErrorInCheck};     // An error prevented checking, see error detail for reason
+enum LDAPCheckUserResultEnum {
+  CheckUserResult_UserExists,        // User was found on LDAP server
+  CheckUserResult_UserDoesNotExist,  // User was not found on LDAP server
+  CheckUserResult_ErrorInCheck
+};  // An error prevented checking, see error detail for reason
 
-
-enum {
-   MAX_EXTPASSWORD_LEN = 128,
-   MAX_EXTUSERNAME_LEN = 128 
-};
+enum { MAX_EXTPASSWORD_LEN = 128, MAX_EXTUSERNAME_LEN = 128 };
 
 class DBUserAuthContents;
-
 
 #if 0
 void cacheUserInfo(
@@ -57,130 +54,94 @@ void cacheUserInfo(
    int64_t         redefTime);
 #endif
 
-class DBUserAuth 
-{
-public:
+class DBUserAuth {
+ public:
+  enum AuthenticationConfiguration {
+    DefaultConfiguration = -2,
+  };
 
-enum AuthenticationConfiguration
-{
-   DefaultConfiguration    = -2,
-};
+  enum CheckUserResult {
+    UserExists = 2,    // User was found on identity store
+    UserDoesNotExist,  // User was not found on identity store
+    ErrorDuringCheck,  // An error internal error occurred during checking
+    InvalidConfig,
+    GroupListFound,
+    NoGroupsDefined,
+    LDAPNotEnabled
+  };
 
-enum  CheckUserResult {
-   UserExists = 2,       // User was found on identity store
-   UserDoesNotExist,     // User was not found on identity store
-   ErrorDuringCheck,     // An error internal error occurred during checking
-   InvalidConfig,
-   GroupListFound,
-   NoGroupsDefined,
-   LDAPNotEnabled };
+  // ComAuthenticationType should include "ComSmallDefs.h"
+  static void setAuthenticationType(int);
 
-   //ComAuthenticationType should include "ComSmallDefs.h"
-   static void setAuthenticationType(int);
+  static void CloseConnection();
 
-   static void CloseConnection();
+  static LDAPAuthResultEnum AuthenticateExternalUser(const char *externalUsername, const char *password);
 
-   static LDAPAuthResultEnum AuthenticateExternalUser(
-      const char * externalUsername,
-      const char * password);
+  static CheckUserResult CheckExternalGroupnameDefined(const char *externalGroupname, const char *configurationName,
+                                                       short &foundConfigurationNumber);
 
-   static CheckUserResult CheckExternalGroupnameDefined(
-      const char * externalGroupname,
-      const char * configurationName,
-      short      & foundConfigurationNumber);
+  static CheckUserResult CheckExternalUsernameDefined(const char *externalUsername, const char *configurationName,
+                                                      short &foundConfigurationNumber);
 
-   static CheckUserResult CheckExternalUsernameDefined(
-      const char * externalUsername,
-      const char * configurationName,
-      short      & foundConfigurationNumber);
+  static CheckUserResult CheckExternalUsernameDefinedConfigName(const char *externalUsername,
+                                                                const char *configurationName,
+                                                                short &foundConfigurationNumber);
 
-   static CheckUserResult CheckExternalUsernameDefinedConfigName(
-      const char * externalUsername,
-      const char * configurationName,
-      short      & foundConfigurationNumber);
+  static CheckUserResult CheckExternalUsernameDefinedConfigNum(const char *externalUsername, short configurationNumber,
+                                                               std::string &configurationName);
 
-   static CheckUserResult CheckExternalUsernameDefinedConfigNum(
-      const char * externalUsername,
-      short        configurationNumber,
-      std::string     & configurationName);
+  static void GetBlackBox(char *blackBox, bool pretendTokenIsNull = false);
 
+  static size_t GetBlackBoxSize(bool pretendTokenIsNull = false);
+  static void FormatStatusMsg(UA_Status status, char *statusMsg);
 
-   static void GetBlackBox(
-      char *blackBox,
-      bool  pretendTokenIsNull = false);
-   
-   static size_t GetBlackBoxSize(bool pretendTokenIsNull = false);
-   static void FormatStatusMsg(
-      UA_Status  status,
-      char *     statusMsg);
+  static void FreeInstance();
 
-   static void FreeInstance();
-   
-   static DBUserAuth * GetInstance();
+  static DBUserAuth *GetInstance();
 
-   AuthFunction getAuthFunction();
-   
-   int32_t getTenantID() const;
+  AuthFunction getAuthFunction();
 
-   int32_t getUserID() const;
-   
-   std::string getConfigName(const short configNumber);
+  int32_t getTenantID() const;
 
-   void getExternalUsername(
-      char * externalUsername,
-      size_t maxLen) const;
-      
-   void getDBUserName(
-      char    * databaseUsername,
-      size_t    maxLen) const;
+  int32_t getUserID() const;
 
-   void getGroupList(
-      std::set<std::string> & groupList) const;
+  std::string getConfigName(const short configNumber);
 
-   DBUserAuth::CheckUserResult getGroupListForUser(
-      const char *  databaseUsername,
-      const char *  externalUsername,
-      const char *  currentUsername,
-      int32_t       userID,
-      short         configNumber,
-      std::set<std::string> & groupList) const;
+  void getExternalUsername(char *externalUsername, size_t maxLen) const;
 
-   void getTenantName(
-      char * tenantName,
-      size_t maxLen) const;
+  void getDBUserName(char *databaseUsername, size_t maxLen) const;
 
-   void getTokenKeyAsString(char *tokenKeyString) const;
-   
-   size_t getTokenKeySize() const;  
-   
-   void setAuthFunction(AuthFunction somefunc);
+  void getGroupList(std::set<std::string> &groupList) const;
 
-   int verify(
-      const char        * username,             
-      char              * credentials,          
-      const char        * tenantName,
-      UA_Status         & errorDetail, 
-      AUTHENTICATION_INFO &authenticationInfo,  
-      const CLIENT_INFO & client_info,
-      PERFORMANCE_INFO  & performanceInfo);
-      
-   size_t verifyChild(
-      const char * credentials,
-      char       * blackbox);
-                   
-   DBUserAuth::CheckUserResult getMembersOnLDAPGroup(const char *, short, const char *, short &, std::vector<char *> &);
+  DBUserAuth::CheckUserResult getGroupListForUser(const char *databaseUsername, const char *externalUsername,
+                                                  const char *currentUsername, int32_t userID, short configNumber,
+                                                  std::set<std::string> &groupList) const;
 
-   void getValidLDAPEntries(const char *, short, std::vector<char *> &, std::vector<char *> &, bool);
+  void getTenantName(char *tenantName, size_t maxLen) const;
 
-private:
+  void getTokenKeyAsString(char *tokenKeyString) const;
 
-   DBUserAuthContents &self;
+  size_t getTokenKeySize() const;
 
-   DBUserAuth();
-   ~DBUserAuth();
-   DBUserAuth(DBUserAuth &);
+  void setAuthFunction(AuthFunction somefunc);
 
-   AuthFunction validateTokenFunc;
+  int verify(const char *username, char *credentials, const char *tenantName, UA_Status &errorDetail,
+             AUTHENTICATION_INFO &authenticationInfo, const CLIENT_INFO &client_info,
+             PERFORMANCE_INFO &performanceInfo);
+
+  size_t verifyChild(const char *credentials, char *blackbox);
+
+  DBUserAuth::CheckUserResult getMembersOnLDAPGroup(const char *, short, const char *, short &, std::vector<char *> &);
+
+  void getValidLDAPEntries(const char *, short, std::vector<char *> &, std::vector<char *> &, bool);
+
+ private:
+  DBUserAuthContents &self;
+
+  DBUserAuth();
+  ~DBUserAuth();
+  DBUserAuth(DBUserAuth &);
+
+  AuthFunction validateTokenFunc;
 };
 #endif /* _DBUSERAUTH_H */
-

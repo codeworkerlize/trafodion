@@ -26,9 +26,9 @@
 /**************************************************************************
 *
 * File:         EncodedKeyValue.h
-* Description:  Functions to compute binary encoded keys that can be written 
+* Description:  Functions to compute binary encoded keys that can be written
                 to disk for a given set of TrafDescs.
-* Origin:       
+* Origin:
 * Created:      10/30/2013
 * Language:     C++
 *
@@ -39,37 +39,20 @@
 #include "common/NAString.h"
 #include "generator/Generator.h"
 
+NAString *getMinMaxValue(TrafDesc *column, TrafDesc *key, NABoolean highKey, CollHeap *h);
 
-NAString * getMinMaxValue(TrafDesc * column,
-                          TrafDesc * key,
-                          NABoolean highKey,
-                          CollHeap * h);
+NAString **createInArrayForLowOrHighKeys(TrafDesc *column_descs, TrafDesc *key_descs, Lng32 numKeys, NABoolean highKey,
+                                         NABoolean isIndex, CollHeap *h);
 
-NAString ** createInArrayForLowOrHighKeys(TrafDesc   * column_descs,
-					  TrafDesc   * key_descs,
-					  Lng32 numKeys,
-					  NABoolean highKey,
-                                          NABoolean isIndex,
-                                          CollHeap * h);
+ItemExpr *buildEncodeTree(TrafDesc *column, TrafDesc *key,
+                          NAString *dataBuffer,  // IN:contains original value
+                          Generator *generator, ComDiagsArea *diagsArea);
 
-
-ItemExpr * buildEncodeTree(TrafDesc * column,
-                           TrafDesc * key,
-                           NAString * dataBuffer, //IN:contains original value
-                           Generator * generator,
-                           ComDiagsArea * diagsArea);
-
-short encodeKeyValues(TrafDesc   * column_descs,
-		      TrafDesc   * key_descs,
-		      NAString      * inValuesArray[],          // INPUT
+short encodeKeyValues(TrafDesc *column_descs, TrafDesc *key_descs,
+                      NAString *inValuesArray[],  // INPUT
                       NABoolean isIndex,
-                      NABoolean isMaxKey,			// INPUT
-		      char * encodedKeyBuffer,                  // OUTPUT
-                      CollHeap * h,
-		      ComDiagsArea * diagsArea);
-
-
-
-
+                      NABoolean isMaxKey,      // INPUT
+                      char *encodedKeyBuffer,  // OUTPUT
+                      CollHeap *h, ComDiagsArea *diagsArea);
 
 #endif /* ENCODEDKEYVALUE_H */

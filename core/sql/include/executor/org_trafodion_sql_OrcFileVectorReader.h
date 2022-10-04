@@ -80,8 +80,11 @@ extern "C" {
  * Method:    setResultInfo
  * Signature: (JZI[I[II[Ljava/lang/Object;[Ljava/lang/Object;[Ljava/lang/Object;[Z[Ljava/lang/Object;[Z)V
  */
-JNIEXPORT void JNICALL Java_org_trafodion_sql_OrcFileVectorReader_setResultInfo
-  (JNIEnv *, jobject, jlong, jboolean, jint, jintArray, jintArray, jint, jobjectArray, jobjectArray, jobjectArray, jbooleanArray, jobjectArray, jbooleanArray);
+JNIEXPORT void JNICALL Java_org_trafodion_sql_OrcFileVectorReader_setResultInfo(JNIEnv *, jobject, jlong, jboolean,
+                                                                                jint, jintArray, jintArray, jint,
+                                                                                jobjectArray, jobjectArray,
+                                                                                jobjectArray, jbooleanArray,
+                                                                                jobjectArray, jbooleanArray);
 
 #ifdef __cplusplus
 }

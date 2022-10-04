@@ -52,24 +52,18 @@ extern NABoolean ParIsTracingViewUsages();
 // constructor
 //
 
-ParTableUsageList::ParTableUsageList(CollHeap *heap)
-  : LIST(ExtendedQualName *)(heap),
-    heap_(heap)
-{
-}
+ParTableUsageList::ParTableUsageList(CollHeap *heap) : LIST(ExtendedQualName *)(heap), heap_(heap) {}
 
 //
 // virtual destructor
 //
 
-ParTableUsageList::~ParTableUsageList()
-{
-  for (CollIndex i = 0; i < entries(); i++)
-  {
-//KSKSKS
+ParTableUsageList::~ParTableUsageList() {
+  for (CollIndex i = 0; i < entries(); i++) {
+    // KSKSKS
     delete &operator[](i);
-//    NADELETE(&operator[](i), QualifiedName, heap_);
-//KSKSKS
+    //    NADELETE(&operator[](i), QualifiedName, heap_);
+    // KSKSKS
   }
 }
 
@@ -77,13 +71,9 @@ ParTableUsageList::~ParTableUsageList()
 // accessor
 //
 
-ExtendedQualName* const
-ParTableUsageList::find(const ExtendedQualName &tableName)
-{
-  for (CollIndex i = 0; i < entries(); i++)
-  {
-    if (operator[](i) EQU tableName)
-    {
+ExtendedQualName *const ParTableUsageList::find(const ExtendedQualName &tableName) {
+  for (CollIndex i = 0; i < entries(); i++) {
+    if (operator[](i) EQU tableName) {
       return &operator[](i);
     }
   }
@@ -94,25 +84,20 @@ ParTableUsageList::find(const ExtendedQualName &tableName)
 // mutator
 //
 
-NABoolean
-ParTableUsageList::insert(const ExtendedQualName &tableName)
-{
+NABoolean ParTableUsageList::insert(const ExtendedQualName &tableName) {
   ExtendedQualName *pTableName = find(tableName);
   if (pTableName EQU NULL)  // not found
   {
     // ok to insert
-    pTableName = new(heap_) ExtendedQualName(tableName, heap_);
+    pTableName = new (heap_) ExtendedQualName(tableName, heap_);
     CMPASSERT(pTableName NEQ NULL);
     LIST(ExtendedQualName *)::insert(pTableName);
 #ifndef NDEBUG
-    if (ParIsTracingViewUsages())
-    {
-      NAString traceStr = "v-t-u: " +
-                          tableName.getQualifiedNameObj().
-                          getQualifiedNameAsAnsiString();
+    if (ParIsTracingViewUsages()) {
+      NAString traceStr = "v-t-u: " + tableName.getQualifiedNameObj().getQualifiedNameAsAnsiString();
       cout << traceStr << endl;
-//      *SqlParser_Diags << DgSqlCode(3066)  // kludge to print trace message
-//        << DgString0(traceStr);
+      //      *SqlParser_Diags << DgSqlCode(3066)  // kludge to print trace message
+      //        << DgString0(traceStr);
     }
 #endif
     return TRUE;

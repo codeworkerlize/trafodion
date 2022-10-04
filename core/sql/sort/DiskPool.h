@@ -26,8 +26,6 @@
 
 #include "DiskPool_base.h"
 
-  	  #include "DiskPool_sq.h"
+#include "DiskPool_sq.h"
 
 #endif
-
-

@@ -36,79 +36,64 @@
 #include <sys/time.h>
 #include "sqlcomp/SharedCache.h"
 
-
 ULng32 NAStringHashFunc(const NAString &x) { return x.hash(); }
 
-void fixupVTable(HTableCache* targetTableCache) {
+void fixupVTable(HTableCache *targetTableCache) {
   static HTableCache tableCache;
 
-  if (targetTableCache)
-    memcpy((char*)targetTableCache, (char*)&tableCache, sizeof(void*));
+  if (targetTableCache) memcpy((char *)targetTableCache, (char *)&tableCache, sizeof(void *));
 }
 
-void fixupVTable(HTableRow* targetTableRow) {
+void fixupVTable(HTableRow *targetTableRow) {
   static HTableRow tableRow;
 
-  if (targetTableRow)
-    memcpy((char*)targetTableRow, (char*)&tableRow, sizeof(void*));
+  if (targetTableRow) memcpy((char *)targetTableRow, (char *)&tableRow, sizeof(void *));
 }
-
 
 /**************************************************************
  * member function for class MemoryTableDB
  * ************************************************************/
-MemoryTableDB::MemoryTableDB(NAMemory *heap)
-{
+MemoryTableDB::MemoryTableDB(NAMemory *heap) {
   heap_ = heap;
-  tableNameToCacheEntryMap_ = new (heap_) NAHashDictionary<NAString, HTableCache>(NAStringHashFunc, 101, TRUE, heap_, TRUE, TRUE);
+  tableNameToCacheEntryMap_ =
+      new (heap_) NAHashDictionary<NAString, HTableCache>(NAStringHashFunc, 101, TRUE, heap_, TRUE, TRUE);
 }
 
-bool MemoryTableDB::contains(char *tableName)
-{
+bool MemoryTableDB::contains(char *tableName) {
   NAString tName(tableName);
   return tableNameToCacheEntryMap_->contains(&tName, NAStringHashFunc, true);
 }
 
-void MemoryTableDB::insert(char *tableName)
-{
+void MemoryTableDB::insert(char *tableName) {
   NAString *tName = new (heap_) NAString(tableName, heap_);
   HTableCache *hTableCache = new (heap_) HTableCache(heap_);
   QRINFO("NAMemory::trace : MemoryTableDB::insert %s %p, %p", tableName, tName, hTableCache);
   tableNameToCacheEntryMap_->insert(tName, hTableCache, NAStringHashFunc);
-
 }
 
-void MemoryTableDB::remove(const char *tableName)
-{
+void MemoryTableDB::remove(const char *tableName) {
   NAString tName(tableName);
   QRINFO("NAMemory::trace : MemoryTableDB::remove %s", tableName);
   tableNameToCacheEntryMap_->remove(&tName, NAStringHashFunc, true);
 }
 
-HTableCache *MemoryTableDB::getHTableCache(char *tableName)
-{
+HTableCache *MemoryTableDB::getHTableCache(char *tableName) {
   NAString tName(tableName);
   return tableNameToCacheEntryMap_->getFirstValue(&tName, NAStringHashFunc);
 }
 
-
-
 /**************************************************************
  * member function for class HTableCache
  * ************************************************************/
-HTableCache::HTableCache(NAMemory *heap)
-    : heap_(heap)
-{
-  //QRINFO("NAMemory::trace : HTableCache::HTableCache heap_:%p, this:%p called", heap_, this);
+HTableCache::HTableCache(NAMemory *heap) : heap_(heap) {
+  // QRINFO("NAMemory::trace : HTableCache::HTableCache heap_:%p, this:%p called", heap_, this);
   keyValueMap_ = new (heap_) NAHashDictionary<NAString, HTableRow>(NAStringHashFunc, 502, TRUE, heap_, TRUE, TRUE);
-  table_ = new (heap_) NAArray<HTableRow*>(heap_);
-  //QRINFO("NAMemory::trace : HTableCache::HTableCache heap_:%p, this:%p finish", heap_, this);
+  table_ = new (heap_) NAArray<HTableRow *>(heap_);
+  // QRINFO("NAMemory::trace : HTableCache::HTableCache heap_:%p, this:%p finish", heap_, this);
 }
 
-bool HTableCache::insert(HbaseStr &rowID, HbaseStr &colValue)
-{
-  if (((double)heap_->getAllocSize() / heap_->getTotalSize()) > 0.9)
-    return false;
+bool HTableCache::insert(HbaseStr &rowID, HbaseStr &colValue) {
+  if (((double)heap_->getAllocSize() / heap_->getTotalSize()) > 0.9) return false;
 
   HTableRow *row = new (heap_) HTableRow(heap_);
 
@@ -123,70 +108,56 @@ bool HTableCache::insert(HbaseStr &rowID, HbaseStr &colValue)
 
   row->key = key;
 
-  //QRINFO("NAMemory::trace : HTableCache::insert %p, %p", key, row);
+  // QRINFO("NAMemory::trace : HTableCache::insert %p, %p", key, row);
   keyValueMap_->insert(key, row, NAStringHashFunc);
-  
+
   return true;
 }
 
-Int32 HTableCache::startGet(const HbaseStr &rowID,
-                            NAList<HTableRow *> &kvArray)
-{
+Int32 HTableCache::startGet(const HbaseStr &rowID, NAList<HTableRow *> &kvArray) {
   NAString key(rowID.val, rowID.len);
   Int32 rowsReturn = -1;
 
   HTableRow *row = keyValueMap_->getFirstValue(&key, NAStringHashFunc);
-  if (row)
-  {
+  if (row) {
     kvArray.append(row);
     rowsReturn = 1;
   }
   return rowsReturn;
 }
 
-Int32 HTableCache::startGets(const NAList<HbaseStr> *rowIDs,
-                             NAList<HTableRow *> &kvArray)
-{
-  if (rowIDs->entries() <= 0)
-    return -1;
+Int32 HTableCache::startGets(const NAList<HbaseStr> *rowIDs, NAList<HTableRow *> &kvArray) {
+  if (rowIDs->entries() <= 0) return -1;
 
   Int32 rowsReturn = 0;
-  for (int i = 0; i < rowIDs->entries(); i++)
-  {
+  for (int i = 0; i < rowIDs->entries(); i++) {
     NAString key((*rowIDs)[i].val, (*rowIDs)[i].len);
 
     HTableRow *row = keyValueMap_->getFirstValue(&key, NAStringHashFunc);
-    if (row)
-    {
+    if (row) {
       kvArray.append(row);
       rowsReturn++;
     }
   }
-  if (kvArray.entries() == 0)
-    rowsReturn = -1;
+  if (kvArray.entries() == 0) rowsReturn = -1;
 
   return rowsReturn;
 }
 
-Int32 HTableCache::startGets(const HbaseStr &rowIDs,
-                             const UInt32 keyLen,
-                             NAList<HTableRow *> &kvArray)
-{
+Int32 HTableCache::startGets(const HbaseStr &rowIDs, const UInt32 keyLen, NAList<HTableRow *> &kvArray) {
   short numReqRows = *(short *)(&rowIDs)->val;
   short entries = bswap_16(numReqRows);
 
-  if (entries <= 0)
-    return -1;
+  if (entries <= 0) return -1;
 
-  //see ExHbaseAccessTcb::copyRowIDToDirectBuffer
+  // see ExHbaseAccessTcb::copyRowIDToDirectBuffer
   Int32 rowsReturn = 0;
   char *rowId = rowIDs.val;
   rowId += sizeof(short);
   UInt32 rowIdLen = 0;
   char target[keyLen + 1];
 
-  for (short i = 0; i < entries; i++)
-  {
+  for (short i = 0; i < entries; i++) {
     if (rowId[0] == '0')
       rowIdLen = keyLen;
     else if (rowId[0] == '1')
@@ -201,8 +172,7 @@ Int32 HTableCache::startGets(const HbaseStr &rowIDs,
     rowsReturn++;
     rowId += rowIdLen;
   }
-  if (kvArray.entries() == 0)
-    rowsReturn = -1;
+  if (kvArray.entries() == 0) rowsReturn = -1;
 
   return rowsReturn;
 }
@@ -223,37 +193,30 @@ Int32 HTableCache::startGets(const HbaseStr &rowIDs,
   return compare_code;
 }*/
 
-Int32 compareKeys(const NAString *key1, const Text &key2)
-{
+Int32 compareKeys(const NAString *key1, const Text &key2) {
   NABoolean isLargerEqual = false;
   Int32 len1 = key1->length(), len2 = key2.size();
   Int32 cmpLen = len1 > len2 ? len2 : len1;
   Int32 compare_code = memcmp(key1->data(), key2.data(), cmpLen);
-  if ((compare_code == 0) && (len1 != len2))
-  {
+  if ((compare_code == 0) && (len1 != len2)) {
     if (len1 > len2)
       compare_code = 1;
     else
-      compare_code = -1; 
+      compare_code = -1;
   }
   return compare_code;
 }
 
-Int32 HTableCache::getStartPos(const Text &startRow)
-{
-  if (startRow.size() == 0 || startRow.data() == NULL)
-    return 0;
+Int32 HTableCache::getStartPos(const Text &startRow) {
+  if (startRow.size() == 0 || startRow.data() == NULL) return 0;
 
-  if (table_->entries() == 0)
-    return 0;
+  if (table_->entries() == 0) return 0;
 
   Int32 low = 0;
   Int32 high = table_->entries() - 1;
-  if (compareKeys((*table_)[high]->key, startRow) < 0)
-    return -1;
-  
-  while (high != low)
-  {
+  if (compareKeys((*table_)[high]->key, startRow) < 0) return -1;
+
+  while (high != low) {
     Int32 middle = (high + low) / 2;
     HTableRow *row = (*table_)[middle];
     int temp = compareKeys(row->key, startRow);
@@ -275,31 +238,24 @@ Int32 HTableCache::getStartPos(const Text &startRow)
     return FALSE;
 }*/
 
-
-NABoolean HTableCache::isLargerOrEqual(const NAString *key1, const Text &key2)
-{
+NABoolean HTableCache::isLargerOrEqual(const NAString *key1, const Text &key2) {
   if (compareKeys(key1, key2) >= 0)
     return TRUE;
   else
     return FALSE;
 }
 
-Int32 HTableCache::fetchRows(Int32 numReqRows, Int32 &fetchStartPos,
-                             NAList<HTableRow *> &kvArray, const Text &stopRow)
-{
+Int32 HTableCache::fetchRows(Int32 numReqRows, Int32 &fetchStartPos, NAList<HTableRow *> &kvArray,
+                             const Text &stopRow) {
   Int32 rowNum = 0;
   bool toTheEnd = false;
-  if (stopRow.size() == 0 || stopRow.data() == NULL)
-    toTheEnd = true;
+  if (stopRow.size() == 0 || stopRow.data() == NULL) toTheEnd = true;
   Int32 start = fetchStartPos;
   kvArray.clear();
 
-  for (int idx = start; idx < table_->entries() && rowNum < numReqRows; idx++)
-  {
+  for (int idx = start; idx < table_->entries() && rowNum < numReqRows; idx++) {
     HTableRow *row = (*table_)[idx];
-    if (toTheEnd == false &&
-        isLargerOrEqual(row->key, stopRow))
-      break;
+    if (toTheEnd == false && isLargerOrEqual(row->key, stopRow)) break;
 
     kvArray.append(row);
     rowNum++;
@@ -308,12 +264,9 @@ Int32 HTableCache::fetchRows(Int32 numReqRows, Int32 &fetchStartPos,
   return rowNum;
 }
 
-HTableCache::~HTableCache()
-{
-
-  //QRINFO("NAMemory::trace: HTableCache::~HTableCache %p called, ", this);
-  if (keyValueMap_)
-  {
+HTableCache::~HTableCache() {
+  // QRINFO("NAMemory::trace: HTableCache::~HTableCache %p called, ", this);
+  if (keyValueMap_) {
     keyValueMap_->clearAll();
     NADELETEBASIC(keyValueMap_, heap_);
     // NAHashDictionary<NAString, HTableRow>::fixupMyVTable(keyValueMap_);
@@ -322,7 +275,7 @@ HTableCache::~HTableCache()
 
   if (table_) {
     table_->clear();
-    NAArray<HTableRow*>::fixupMyVTable(table_);
+    NAArray<HTableRow *>::fixupMyVTable(table_);
     delete table_;
   }
 }
@@ -330,14 +283,12 @@ HTableCache::~HTableCache()
 /**************************************************************
  * member function for class HTableRow
  * ************************************************************/
-HTableRow::~HTableRow()
-{
-  //QRINFO("NAMemory::trace: HTableRow::~HTableRow %p called, ", this);
+HTableRow::~HTableRow() {
+  // QRINFO("NAMemory::trace: HTableRow::~HTableRow %p called, ", this);
 
   key = NULL;
 
-  if (value.val)
-  {
+  if (value.val) {
     NADELETEBASIC(value.val, collHeap());
     value.val = NULL;
   }

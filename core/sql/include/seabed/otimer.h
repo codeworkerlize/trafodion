@@ -33,120 +33,119 @@
 #include "thread.h"
 
 namespace SB_Timer {
-    typedef SB_Int64_Type Tics;
+typedef SB_Int64_Type Tics;
 
-    class Timer;
+class Timer;
 
-    //
-    // time stamp (encapsulation)
-    //
-    class SB_Export Time_Stamp {
-    public:
-        Time_Stamp();                              // const
-        Time_Stamp(Time_Stamp &ts);                // copy const
-        ~Time_Stamp();                             // dest
+//
+// time stamp (encapsulation)
+//
+class SB_Export Time_Stamp {
+ public:
+  Time_Stamp();                // const
+  Time_Stamp(Time_Stamp &ts);  // copy const
+  ~Time_Stamp();               // dest
 
-        const char *format_ts(char *buf);          // format ts
-        Tics        tic_add(Tics tics)             // add tics, return tics
-        SB_DIAG_UNUSED;
-        Tics        tic_get()                      // get tics
-        SB_DIAG_UNUSED;
-        void        tic_set(Tics tics);            // set tics
-        void        tic_set_now_add(Tics tics);    // add tics to now
-        bool        ts_eq(Time_Stamp &ts)          // is ts == ?
-        SB_DIAG_UNUSED;
-        bool        ts_ge(Time_Stamp &ts)          // is ts >= ?
-        SB_DIAG_UNUSED;
-        bool        ts_gt(Time_Stamp &ts)          // is ts > ?
-        SB_DIAG_UNUSED;
-        bool        ts_le(Time_Stamp &ts)          // is ts <= ?
-        SB_DIAG_UNUSED;
-        bool        ts_lt(Time_Stamp &ts)          // is ts < ?
-        SB_DIAG_UNUSED;
-        bool        ts_ne(Time_Stamp &ts)          // is ts != ?
-        SB_DIAG_UNUSED;
-        void        ts_set(Time_Stamp &ts);        // set ts
-        Tics        ts_sub(Time_Stamp &ts)         // sub tics, return tics
-        SB_DIAG_UNUSED;
+  const char *format_ts(char *buf);  // format ts
+  Tics tic_add(Tics tics)            // add tics, return tics
+      SB_DIAG_UNUSED;
+  Tics tic_get()  // get tics
+      SB_DIAG_UNUSED;
+  void tic_set(Tics tics);          // set tics
+  void tic_set_now_add(Tics tics);  // add tics to now
+  bool ts_eq(Time_Stamp &ts)        // is ts == ?
+      SB_DIAG_UNUSED;
+  bool ts_ge(Time_Stamp &ts)  // is ts >= ?
+      SB_DIAG_UNUSED;
+  bool ts_gt(Time_Stamp &ts)  // is ts > ?
+      SB_DIAG_UNUSED;
+  bool ts_le(Time_Stamp &ts)  // is ts <= ?
+      SB_DIAG_UNUSED;
+  bool ts_lt(Time_Stamp &ts)  // is ts < ?
+      SB_DIAG_UNUSED;
+  bool ts_ne(Time_Stamp &ts)  // is ts != ?
+      SB_DIAG_UNUSED;
+  void ts_set(Time_Stamp &ts);  // set ts
+  Tics ts_sub(Time_Stamp &ts)   // sub tics, return tics
+      SB_DIAG_UNUSED;
 
-        enum { TICS_PER_SEC = 100   }; // 10 ms granularity
-        enum { US_PER_TIC   = 10000 };
+  enum { TICS_PER_SEC = 100 };  // 10 ms granularity
+  enum { US_PER_TIC = 10000 };
 
-    private:
-        // Timer can access directly
-        friend class Timer;
-        SB_Uint64_Type iv_tics;
-    };
+ private:
+  // Timer can access directly
+  friend class Timer;
+  SB_Uint64_Type iv_tics;
+};
 
-    class TH;
+class TH;
 
-    //
-    // timer
-    //
-    class SB_Export Timer {
-    public:
-        enum { DEFAULT_WAIT_TICS = (2 * Time_Stamp::TICS_PER_SEC) };
+//
+// timer
+//
+class SB_Export Timer {
+ public:
+  enum { DEFAULT_WAIT_TICS = (2 * Time_Stamp::TICS_PER_SEC) };
 
-        static void check_timers();  // check timers (any timeouts?)
-        static Tics get_wait_time()  // wait time for 1st timer
-        SB_DIAG_UNUSED;
-        static void init();          // init
+  static void check_timers();  // check timers (any timeouts?)
+  static Tics get_wait_time()  // wait time for 1st timer
+      SB_DIAG_UNUSED;
+  static void init();  // init
 
-        Timer(TH   *th,              // timer handler
-              long  user_param,      // param (anything caller wants)
-              Tics  interval,        // interval (in tics)
-              bool  start);          // start?
-        virtual ~Timer();            // dest
+  Timer(TH *th,           // timer handler
+        long user_param,  // param (anything caller wants)
+        Tics interval,    // interval (in tics)
+        bool start);      // start?
+  virtual ~Timer();       // dest
 
-        void        cancel();                        // cancel timer
-        const char *format_pop_time(char *buf);      // format pop time
-        const char *format_timer(char *buf);         // format pop time
-        inline Tics get_interval() SB_DIAG_UNUSED {  // get interval
-            return iv_interval;
-        }
-        inline long get_param() SB_DIAG_UNUSED {     // get user param
-            return iv_user_param;
-        }
-        typedef void (*Print_Timer_Cb)(Timer &timer);
-        static void print_timers(Print_Timer_Cb cb); // print timers
-        void        set_interval(Tics interval,      // set interval
-                                 bool start);        // start?
-        void        set_param(long user_param);      // set user param
-        void        start();                         // start timer
+  void cancel();                               // cancel timer
+  const char *format_pop_time(char *buf);      // format pop time
+  const char *format_timer(char *buf);         // format pop time
+  inline Tics get_interval() SB_DIAG_UNUSED {  // get interval
+    return iv_interval;
+  }
+  inline long get_param() SB_DIAG_UNUSED {  // get user param
+    return iv_user_param;
+  }
+  typedef void (*Print_Timer_Cb)(Timer &timer);
+  static void print_timers(Print_Timer_Cb cb);  // print timers
+  void set_interval(Tics interval,              // set interval
+                    bool start);                // start?
+  void set_param(long user_param);              // set user param
+  void start();                                 // start timer
 
-        static bool cv_trace_enabled;
+  static bool cv_trace_enabled;
 
-    private:
-        Timer();                    // const
-        void cancel_int(bool lock); // cancel timer
+ private:
+  Timer();                     // const
+  void cancel_int(bool lock);  // cancel timer
 
-        Timer     *ip_next;         // next timer
-        TH        *ip_th;           // handler
-        Tics       iv_interval;     // timer interval
-        Time_Stamp iv_pop_time;     // timer pop time
-        bool       iv_running;      // timer running?
-        long       iv_user_param;   // user control
+  Timer *ip_next;          // next timer
+  TH *ip_th;               // handler
+  Tics iv_interval;        // timer interval
+  Time_Stamp iv_pop_time;  // timer pop time
+  bool iv_running;         // timer running?
+  long iv_user_param;      // user control
 
-        typedef unsigned int Slot_Type;
-        enum { MAX_SLOTS     = 8192 };
-        enum { TICS_PER_SLOT =  256 };
-        enum { DEFAULT_SLOT_COUNT =
-                 ((2 * DEFAULT_WAIT_TICS) - 1) / TICS_PER_SLOT };
+  typedef unsigned int Slot_Type;
+  enum { MAX_SLOTS = 8192 };
+  enum { TICS_PER_SLOT = 256 };
+  enum { DEFAULT_SLOT_COUNT = ((2 * DEFAULT_WAIT_TICS) - 1) / TICS_PER_SLOT };
 
-        static Slot_Type hash(Time_Stamp &slot_time);    // hash time-stamp
+  static Slot_Type hash(Time_Stamp &slot_time);  // hash time-stamp
 
-        static Timer            *ca_slots[MAX_SLOTS];    // timer slots
-        static Slot_Type         cv_last_slot_checked;   // last slot checked
-        static SB_Thread::Mutex  cv_mutex;               // mutex
-    };
+  static Timer *ca_slots[MAX_SLOTS];      // timer slots
+  static Slot_Type cv_last_slot_checked;  // last slot checked
+  static SB_Thread::Mutex cv_mutex;       // mutex
+};
 
-    //
-    // abstract timer handler
-    //
-    class SB_Export TH {
-    public:
-        virtual void handle_timeout(Timer *timer) = 0;
-    };
-}
+//
+// abstract timer handler
+//
+class SB_Export TH {
+ public:
+  virtual void handle_timeout(Timer *timer) = 0;
+};
+}  // namespace SB_Timer
 
-#endif // !__SB_OTIMER_H_
+#endif  // !__SB_OTIMER_H_

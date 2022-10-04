@@ -32,7 +32,7 @@
  *               The methods in this class are defined either in this
  *               header file or the source file StmtDDLAlter.C.
  *
- *               
+ *
  * Created:      5/16/00
  * Language:     C++
  *
@@ -44,58 +44,44 @@
 
 //----------------------------------------------------------------------------
 // Change history:
-// 
+//
 //----------------------------------------------------------------------------
 
 #include "StmtDDLAlterTable.h"
-
 
 //----------------------------------------------------------------------------
 // forward references
 //----------------------------------------------------------------------------
 // None.
 
-
-
-class StmtDDLAlterTableAlterColumnLoggable : public StmtDDLAlterTable
-{
-
-public:
+class StmtDDLAlterTableAlterColumnLoggable : public StmtDDLAlterTable {
+ public:
+  // constructor
+  StmtDDLAlterTableAlterColumnLoggable(ElemDDLNode *pColumnDefinition, NABoolean loggableVal,
+                                       CollHeap *heap = PARSERHEAP());
 
   // constructor
-  StmtDDLAlterTableAlterColumnLoggable(ElemDDLNode * pColumnDefinition,
-										NABoolean loggableVal
-                            ,CollHeap    * heap = PARSERHEAP());
-
-  // constructor
-  StmtDDLAlterTableAlterColumnLoggable(NAString columnName,
-										NABoolean loggableVal
-                            ,CollHeap    * heap = PARSERHEAP());
-
+  StmtDDLAlterTableAlterColumnLoggable(NAString columnName, NABoolean loggableVal, CollHeap *heap = PARSERHEAP());
 
   // virtual destructor
   virtual ~StmtDDLAlterTableAlterColumnLoggable();
 
   // cast
-  virtual StmtDDLAlterTableAlterColumnLoggable * 
-						castToStmtDDLAlterTableAlterColumnLoggable();
+  virtual StmtDDLAlterTableAlterColumnLoggable *castToStmtDDLAlterTableAlterColumnLoggable();
 
   // accessors
   NABoolean getIsLoggable() const { return loggable_; }
   CollIndex getColumnNum() const { return columnNum_; }
 
   // please do not use the following methods
-  StmtDDLAlterTableAlterColumnLoggable(
-	  const StmtDDLAlterTableAlterColumnLoggable &);   
-  StmtDDLAlterTableAlterColumnLoggable & operator=
-										(const StmtDDLAlterTableAddColumn &);
-  
-  ExprNode * bindNode(BindWA * pBindWA);
+  StmtDDLAlterTableAlterColumnLoggable(const StmtDDLAlterTableAlterColumnLoggable &);
+  StmtDDLAlterTableAlterColumnLoggable &operator=(const StmtDDLAlterTableAddColumn &);
 
-private:
+  ExprNode *bindNode(BindWA *pBindWA);
 
+ private:
   // column definition
-  ElemDDLNode * pColumnToAdd_;
+  ElemDDLNode *pColumnToAdd_;
 
   NAString columnName_;
 
@@ -103,6 +89,6 @@ private:
 
   CollIndex columnNum_;
 
-}; // class StmtDDLAlterTableAddColumn
+};  // class StmtDDLAlterTableAddColumn
 
-#endif // STMTDDLALTERTABLEALTERCOLUMNLOGGABLE_H
+#endif  // STMTDDLALTERTABLEALTERCOLUMNLOGGABLE_H

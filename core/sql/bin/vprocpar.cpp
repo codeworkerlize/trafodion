@@ -36,8 +36,6 @@
 
 #include "vproc.h"
 
-extern "C" { void
-VPROC (PRODNUMPAR,DATE1PAR,PAR_CC_LABEL)
-() {} }
-
-
+extern "C" {
+void VPROC(PRODNUMPAR, DATE1PAR, PAR_CC_LABEL)() {}
+}

@@ -35,7 +35,6 @@
  *****************************************************************************
  */
 
-
 #include "StmtDDLAlterTable.h"
 
 // -----------------------------------------------------------------------
@@ -51,28 +50,23 @@ class StmtDDLAlterTableResetDDLLock;
 // -----------------------------------------------------------------------
 // definition of class StmtDDLAlterTableResetDDLLock
 // -----------------------------------------------------------------------
-class StmtDDLAlterTableResetDDLLock : public StmtDDLAlterTable
-{
-
-public:
-
+class StmtDDLAlterTableResetDDLLock : public StmtDDLAlterTable {
+ public:
   // constructor
-  StmtDDLAlterTableResetDDLLock(const QualifiedName & objectName,
-                                bool objectLock=false, bool force=false)
-  : StmtDDLAlterTable(DDL_ALTER_TABLE_RESET_DDL_LOCK),
-    objName_(objectName, PARSERHEAP())
-  , objectLock_(objectLock)
-  , force_(force)
-  { }
+  StmtDDLAlterTableResetDDLLock(const QualifiedName &objectName, bool objectLock = false, bool force = false)
+      : StmtDDLAlterTable(DDL_ALTER_TABLE_RESET_DDL_LOCK),
+        objName_(objectName, PARSERHEAP()),
+        objectLock_(objectLock),
+        force_(force) {}
 
   // virtual destructor
   virtual ~StmtDDLAlterTableResetDDLLock();
 
   // cast
-  virtual StmtDDLAlterTableResetDDLLock * castToStmtDDLAlterTableResetDDLLock();
+  virtual StmtDDLAlterTableResetDDLLock *castToStmtDDLAlterTableResetDDLLock();
 
   // accessors
-  inline const QualifiedName & getObjName() const;
+  inline const QualifiedName &getObjName() const;
 
   // method for tracing
   virtual const NAString getText() const;
@@ -80,23 +74,17 @@ public:
   inline const bool objectLock() const { return objectLock_; }
   inline const bool force() const { return force_; }
 
-private:
-
-  QualifiedName   objName_;
+ private:
+  QualifiedName objName_;
   bool objectLock_;
   bool force_;
 
-}; // class StmtDDLAlterTableResetDDLLock
+};  // class StmtDDLAlterTableResetDDLLock
 
 // -----------------------------------------------------------------------
 // definitions of inline methods for class StmtDDLAlterTableResetDDLLock
 // -----------------------------------------------------------------------
 
-inline
-const QualifiedName &
-StmtDDLAlterTableResetDDLLock::getObjName() const
-{
-  return objName_;
-}
+inline const QualifiedName &StmtDDLAlterTableResetDDLLock::getObjName() const { return objName_; }
 
-#endif // STMTDDLALTERTABLERESETDDLLOCK_H
+#endif  // STMTDDLALTERTABLERESETDDLLOCK_H

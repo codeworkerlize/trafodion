@@ -27,9 +27,9 @@
  *****************************************************************************
  *
  * File:         <file>
- * Description:  
- *               
- *               
+ * Description:
+ *
+ *
  * Created:      10/30/96
  * Language:     C++
  *
@@ -58,7 +58,6 @@
 // forward references
 class MdamColumn;
 
-
 ///////////////////////////////////////////////////////////
 // Class MdamPredIterator
 //
@@ -68,65 +67,58 @@ class MdamColumn;
 // this state in the keyRangeGen and MdamColumnGen objects
 // themselves since they are read-only (created by the
 // Generator).  Some of the needed state is managed by
-// this class but stored in MdamColumn objects. 
+// this class but stored in MdamColumn objects.
 ///////////////////////////////////////////////////////////
-class MdamPredIterator : public ExGod
- {
+class MdamPredIterator : public ExGod {
+  Lng32 currentDisjunctNumber_;
+  Lng32 maxDisjunctNumber_;
 
-   Lng32 currentDisjunctNumber_;
-   Lng32 maxDisjunctNumber_;
+  // The next variable is used to parse the MdamPred's into OR
+  // groups.  It is initialized to FALSE by positionToNextOr();
+  // getNextPred() sets it to TRUE whenever it returns a predicate.
+  // If getNextPred() is called and this variable is already true,
+  // getNextPred() returns 0 if the firstInOrGroup() method on the
+  // next MdamPred is TRUE.
+  NABoolean returnedAPred_;
 
-   // The next variable is used to parse the MdamPred's into OR
-   // groups.  It is initialized to FALSE by positionToNextOr();
-   // getNextPred() sets it to TRUE whenever it returns a predicate.
-   // If getNextPred() is called and this variable is already true,
-   // getNextPred() returns 0 if the firstInOrGroup() method on the
-   // next MdamPred is TRUE.
-   NABoolean returnedAPred_;
+ public:
+  MdamPredIterator(MdamColumn *first, Lng32 maxDisjunctNumber);
 
-public:
+  ~MdamPredIterator(){};
 
-   MdamPredIterator(MdamColumn * first,Lng32 maxDisjunctNumber);
+  Lng32 getNextDisjunctNumber();  // -1 means no more disjuncts
 
-   ~MdamPredIterator()
-       {  };
+  // In the next three methods, currentPred is state stored in MdamColumn
+  // objects, but updated by these methods only.
 
-   Lng32 getNextDisjunctNumber();  // -1 means no more disjuncts
+  // FALSE means no more predicates
+  NABoolean positionToNextOr(MdamPred **currentPred);
 
-   // In the next three methods, currentPred is state stored in MdamColumn
-   // objects, but updated by these methods only.
+  // 0 (NULL) means no more predicates
+  // for this key column within this predicate
+  MdamPred *getNextPred(MdamPred **currentPred);
 
-   // FALSE means no more predicates
-   NABoolean positionToNextOr(MdamPred **currentPred);
-
-   // 0 (NULL) means no more predicates
-   // for this key column within this predicate  
-   MdamPred * getNextPred(MdamPred **currentPred); 
-   
-   // Position the predicate list to the current disjunct.
-   void positionToCurrentDisjunct(MdamPred **currentPred);
-
+  // Position the predicate list to the current disjunct.
+  void positionToCurrentDisjunct(MdamPred **currentPred);
 };
-
 
 /////////////////////////////////////////////////////
 // class MdamColumn
 /////////////////////////////////////////////////////
-class MdamColumn : public ExGod
-{
-  MdamColumn * next_;
-  MdamColumn * previous_;
+class MdamColumn : public ExGod {
+  MdamColumn *next_;
+  MdamColumn *previous_;
   MdamIntervalList intervals_;
-  MdamIntervalList tentative_intervals_;  // used in building; holds
-                                          // intervals for current disjunct
+  MdamIntervalList tentative_intervals_;        // used in building; holds
+                                                // intervals for current disjunct
   MdamIntervalListIterator interval_iterator_;  // needed for traversal
-  MdamInterval * current_interval_;             // needed for traversal
+  MdamInterval *current_interval_;              // needed for traversal
   NABoolean current_is_subset_interval_;
   NABoolean traversal_in_progress_;
 
   // The next field determines whether we use dense or sparse probes
   // to materialize values in a non-subset interval.  (See below for a
-  // description of what a subset interval is.) 
+  // description of what a subset interval is.)
   NABoolean useSparseProbes_;
 
   // The next field is used only for dense probes.  If we do a dense
@@ -161,86 +153,66 @@ class MdamColumn : public ExGod
   // only if all values of any key columns to the right of this
   // column are included.  (Note that this implies that any interval
   // in the right-most column that can be traversed to is a subset
-  // interval.)  We call this ref list a "stop list" because it 
+  // interval.)  We call this ref list a "stop list" because it
   // stops traversal to key columns to the right.
   MdamRefList stop_list_;
 
   // The hi, lo, etc. values here are all encoded, so they already
   // take into account whether the column is ASC vs. DESC (but not
   // whether this is a reverse scan).
-  tupp currentValue_;      // current value of column
-  tupp hi_;                // highest possible value for column
-  tupp lo_;                // lowest possible value for column
-  tupp nonNullHi_;         // highest possible non-NULL value for column
-  tupp nonNullLo_;         // lowest possible non-NULL value for column
+  tupp currentValue_;  // current value of column
+  tupp hi_;            // highest possible value for column
+  tupp lo_;            // lowest possible value for column
+  tupp nonNullHi_;     // highest possible non-NULL value for column
+  tupp nonNullLo_;     // lowest possible non-NULL value for column
 
   // the next field links the run-time column state to compile-time
   // column state
-  MdamColumnGen * columnGenInfo_;
+  MdamColumnGen *columnGenInfo_;
 
   // the next field is used by MdamPredIterator to maintain state
   // when iterating over predicates for a given column
-  MdamPred * currentPred_;
+  MdamPred *currentPred_;
 
   // globals.
-  ex_globals * glob_;
+  ex_globals *glob_;
 
-public:
-
+ public:
   enum getNextValueReturnType { TRAVERSE_DOWN, TRAVERSE_UP, SUBSET, PROBE };
 
-  MdamColumn(MdamColumn * previous,
-			MdamColumnGen *columnGenInfo,
-			ex_globals *glob,
-			sql_buffer_pool *pool,
-			atp_struct *atp0,
-			atp_struct *workAtp,
-			unsigned short valueAtpIndex,
-                        const ex_tcb *tcb);
+  MdamColumn(MdamColumn *previous, MdamColumnGen *columnGenInfo, ex_globals *glob, sql_buffer_pool *pool,
+             atp_struct *atp0, atp_struct *workAtp, unsigned short valueAtpIndex, const ex_tcb *tcb);
 
   ~MdamColumn();
 
   // methods used to build an Mdam network
 
-  void initCurrentPred()
-  { currentPred_ = columnGenInfo_->getFirstPred(); };
-  
+  void initCurrentPred() { currentPred_ = columnGenInfo_->getFirstPred(); };
+
   // returns TRUE if the disjunct number is in some stop list
-  NABoolean buildDisjunct(MdamPredIterator & predIterator,
-				     sql_buffer_pool *pool,
-				     atp_struct *atp0,
-				     atp_struct *atp1,
-				     unsigned short valueAtpIndex,
-				     Lng32 disjunct_number,
-				     NABoolean disjunct_number_in_stop_list,
-				     FixedSizeHeapManager & mdamIntervalHeap,
-				     FixedSizeHeapManager & 
-                                      mdamRefListEntryHeap,
-				     FixedSizeHeapManager & 
-                                      mdamRefListEntrysForStopListsHeap,
-                                     Lng32 & dataConvErrorFlag);
+  NABoolean buildDisjunct(MdamPredIterator &predIterator, sql_buffer_pool *pool, atp_struct *atp0, atp_struct *atp1,
+                          unsigned short valueAtpIndex, Lng32 disjunct_number, NABoolean disjunct_number_in_stop_list,
+                          FixedSizeHeapManager &mdamIntervalHeap, FixedSizeHeapManager &mdamRefListEntryHeap,
+                          FixedSizeHeapManager &mdamRefListEntrysForStopListsHeap, Lng32 &dataConvErrorFlag);
 
-  void tossDisjunct(FixedSizeHeapManager & mdamIntervalHeap,
-                               FixedSizeHeapManager & mdamRefListEntryHeap);
+  void tossDisjunct(FixedSizeHeapManager &mdamIntervalHeap, FixedSizeHeapManager &mdamRefListEntryHeap);
 
-  void mergeDisjunct(Lng32 disjunct_number,
-				FixedSizeHeapManager & mdamIntervalHeap,
-				FixedSizeHeapManager & mdamRefListEntryHeap);
+  void mergeDisjunct(Lng32 disjunct_number, FixedSizeHeapManager &mdamIntervalHeap,
+                     FixedSizeHeapManager &mdamRefListEntryHeap);
 
   NABoolean disjunctIsEmpty();
 
   // Method used to destroy an Mdam network.
-  void releaseNetwork(FixedSizeHeapManager & mdamIntervalHeap,
-                                 FixedSizeHeapManager & mdamRefListEntryHeap);
+  void releaseNetwork(FixedSizeHeapManager &mdamIntervalHeap, FixedSizeHeapManager &mdamRefListEntryHeap);
 
   // Member function used when we are done with the plan.
-  void release(FixedSizeHeapManager & mdamRefListEntrysForStopListsHeap);
+  void release(FixedSizeHeapManager &mdamRefListEntrysForStopListsHeap);
 
   // methods used to traverse an Mdam network
-  MdamIntervalList & getIntervalList();
+  MdamIntervalList &getIntervalList();
 
-  MdamColumn * nextColumn() { return next_; };
-  MdamColumn * previousColumn() { return previous_; };
+  MdamColumn *nextColumn() { return next_; };
+  MdamColumn *previousColumn() { return previous_; };
 
   NABoolean initNextValue();
 
@@ -251,64 +223,52 @@ public:
   // The input parameters are set as follows:
   // Returned value         Parameter
   // --------------         ---------
-  // TRAVERSE_DOWN          beginValue,endValue are both set 
+  // TRAVERSE_DOWN          beginValue,endValue are both set
   //                        (and are set to the same value)
   //                        beginExclFlag and endExclFlag are not set
   // TRAVERSE_UP            nothing is set
-  // SUBSET or PROBE        beginValue,endValue are both set 
+  // SUBSET or PROBE        beginValue,endValue are both set
   //                        (but might not be the same value)
   //                        beginExclFlag and endExclFlag are both set and
   //                        should be applied to the key range as a whole
-  getNextValueReturnType getNextValue(ULng32 pFRCounter,
-						 char *bktarget,
-						 char *ektarget,
-						 short &beginExclFlag,
-						 short &endExclFlag,
-			   FixedSizeHeapManager & mdamRefListEntryHeap);
+  getNextValueReturnType getNextValue(ULng32 pFRCounter, char *bktarget, char *ektarget, short &beginExclFlag,
+                                      short &endExclFlag, FixedSizeHeapManager &mdamRefListEntryHeap);
 
   void reportProbeResult(char *keyData);
 
-  void completeKey(char *bktarget,
-                              char *ektarget,
-                              short bkexcl,
-                              short ekexcl);
+  void completeKey(char *bktarget, char *ektarget, short bkexcl, short ekexcl);
 
-  ULng32 getOffset() 
-    { return columnGenInfo_->getOffset(); };
+  ULng32 getOffset() { return columnGenInfo_->getOffset(); };
 
-  // Print function.
-  #ifdef NA_MDAM_EXECUTOR_DEBUG
-  void print(const char * header = "") const;
-  #endif /* NA_MDAM_EXECUTOR_DEBUG */
+// Print function.
+#ifdef NA_MDAM_EXECUTOR_DEBUG
+  void print(const char *header = "") const;
+#endif /* NA_MDAM_EXECUTOR_DEBUG */
 
-private:
-  void setNextColumn(MdamColumn * next);
-
-
-
+ private:
+  void setNextColumn(MdamColumn *next);
 };
 
 /////////////////////////////////////////////////////
 // class keyMdamEx
 /////////////////////////////////////////////////////
 
-class keyMdamEx : public keyRangeEx
-{
+class keyMdamEx : public keyRangeEx {
   Lng32 number_of_key_cols_;
 
   // anchors for the Mdam network
   NABoolean network_built_;
   NABoolean stop_lists_built_;  // only need to build stop lists once ever
-  MdamColumn * first_column_;
-  MdamColumn * last_column_;
+  MdamColumn *first_column_;
+  MdamColumn *last_column_;
 
   // state variables used during Mdam network traversal
-  MdamColumn * current_column_;
+  MdamColumn *current_column_;
   Lng32 current_column_index_;
 
   // the counter below is passed to MdamColumn::getNextValue, and helps
   // the MdamColumn decide whether to switch from dense probes to sparse
-  ULng32 productiveFetchRangeCounter_; // unsigned to allow wrapping
+  ULng32 productiveFetchRangeCounter_;  // unsigned to allow wrapping
 
   // Memory management for MdamRefListEntry*s and MdamInterval*s.
   FixedSizeHeapManager mdamRefListEntryHeap_;
@@ -322,58 +282,38 @@ class keyMdamEx : public keyRangeEx
   // to be uncomplemented.  So, we need to know whether to
   // uncomplement them before returning.  The following member tells
   // us.
-  
+
   NABoolean complementKeysBeforeReturning_;
 
-public:
-  keyMdamEx(const keyRangeGen & tdb_key,
-		       const short in_version,
-		       sql_buffer_pool *pool,
-		       ex_globals *glob,
-                       const ex_tcb *tcb);
- 
+ public:
+  keyMdamEx(const keyRangeGen &tdb_key, const short in_version, sql_buffer_pool *pool, ex_globals *glob,
+            const ex_tcb *tcb);
+
   ~keyMdamEx();
 
-  virtual ExeErrorCode initNextKeyRange(sql_buffer_pool *pool,
-					           atp_struct * atp0);
+  virtual ExeErrorCode initNextKeyRange(sql_buffer_pool *pool, atp_struct *atp0);
 
-  virtual getNextKeyRangeReturnType getNextKeyRange
-    (atp_struct * atp0,NABoolean fetchRangeHadRows,
-     NABoolean detectNullRange = TRUE); 
+  virtual getNextKeyRangeReturnType getNextKeyRange(atp_struct *atp0, NABoolean fetchRangeHadRows,
+                                                    NABoolean detectNullRange = TRUE);
 
   virtual void reportProbeResult(char *keyData);
 
   // release tupp storage
   void release();
 
-  keyMdamGen & getGenInfo()
-  { return (keyMdamGen &)tdbKey_; };
+  keyMdamGen &getGenInfo() { return (keyMdamGen &)tdbKey_; };
 
-private:
+ private:
   // Returns zero if memory for MdamRefListEntry's and MdamInterval's
   // is successfully acquired.  Otherwise, returns ExeErrorCode.
-  ExeErrorCode buildNetwork(sql_buffer_pool *pool,atp_struct *atp0);
+  ExeErrorCode buildNetwork(sql_buffer_pool *pool, atp_struct *atp0);
 
   void destroyNetwork();
 
-  // Print function.
-  #ifdef NA_MDAM_EXECUTOR_DEBUG
-  void print(const char * header = "") const;
-  #endif /* NA_MDAM_EXECUTOR_DEBUG */
-
+// Print function.
+#ifdef NA_MDAM_EXECUTOR_DEBUG
+  void print(const char *header = "") const;
+#endif /* NA_MDAM_EXECUTOR_DEBUG */
 };
 
-
 #endif
-
-
-
-
-
-
-
-
-
-
-
-

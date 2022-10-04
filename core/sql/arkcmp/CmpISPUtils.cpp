@@ -26,8 +26,8 @@
  * File:         CmpSPUtils.C
  * Description:  This file contains the utility functions provided by arkcmp
  *               for internal stored procedures.
- *               
- *               
+ *
+ *
  * Created:      03/16/97
  * Language:     C++
  *
@@ -37,7 +37,6 @@
  *****************************************************************************
  */
 
-
 #include "arkcmp/CmpStoredProc.h"
 #include <memory.h>
 
@@ -45,71 +44,48 @@
 // fields of data, these functions will be passed into the user developed
 // stored procedures to manipulate data.
 //
-// CmpSPExtractFunc 
+// CmpSPExtractFunc
 // CmpSPFormatFunc
 // CmpSPKeyValueFunc
 
-SP_HELPER_STATUS CmpSPExtractFunc_ (
-                                    Lng32 fieldNo, 
-                                    SP_ROW_DATA rowData, 
-                                    Lng32 fieldLen, 
-                                    void* fieldData,
-                                    Lng32 casting )
-{
-  CmpSPExecDataItemInput* inPtr = (CmpSPExecDataItemInput*)rowData;
+SP_HELPER_STATUS CmpSPExtractFunc_(Lng32 fieldNo, SP_ROW_DATA rowData, Lng32 fieldLen, void *fieldData, Lng32 casting) {
+  CmpSPExecDataItemInput *inPtr = (CmpSPExecDataItemInput *)rowData;
   ULng32 tempNum = (ULng32)fieldNo;
   ULng32 tempLen = (ULng32)fieldLen;
-  ComDiagsArea* diags = inPtr->SPFuncsDiags();
-  if ( inPtr->extract(tempNum,(char*)fieldData,tempLen, 
-    ((casting==1) ? TRUE : FALSE), diags) < 0 ||
-    diags->getNumber() )
-  {
+  ComDiagsArea *diags = inPtr->SPFuncsDiags();
+  if (inPtr->extract(tempNum, (char *)fieldData, tempLen, ((casting == 1) ? TRUE : FALSE), diags) < 0 ||
+      diags->getNumber()) {
     // TODO, convert the errors in diags into error code.
-    diags->clear(); // to be used for next CmpSPExtractFunc_
+    diags->clear();  // to be used for next CmpSPExtractFunc_
     return SP_ERROR_EXTRACT_DATA;
   }
   // test code for assert, check for arkcmp/SPUtil.cpp SP_ERROR_*
   // for detail description.
   //#define ASTRING "TestCMPASSERTEXE"
-  //assert( strncmp((char*)fieldData, ASTRING, strlen(ASTRING) != 0 ) ) ;
+  // assert( strncmp((char*)fieldData, ASTRING, strlen(ASTRING) != 0 ) ) ;
 
   return SP_NO_ERROR;
 }
 
-SP_HELPER_STATUS CmpSPFormatFunc_ (Lng32 fieldNo,
-                                   SP_ROW_DATA rowData, 
-                                   Lng32 fieldLen, 
-                                   void* fieldData,
-                                   Lng32 casting)
-{
-  CmpSPExecDataItemReply* replyPtr = (CmpSPExecDataItemReply*)rowData;
+SP_HELPER_STATUS CmpSPFormatFunc_(Lng32 fieldNo, SP_ROW_DATA rowData, Lng32 fieldLen, void *fieldData, Lng32 casting) {
+  CmpSPExecDataItemReply *replyPtr = (CmpSPExecDataItemReply *)rowData;
   ULng32 tempNum = (ULng32)fieldNo;
   ULng32 tempLen = (ULng32)fieldLen;
-  ComDiagsArea* diags = replyPtr->SPFuncsDiags();
-  if ( replyPtr->moveOutput(fieldNo,(char*)fieldData,tempLen, 
-    ((casting==1) ? TRUE : FALSE), diags) < 0 ||
-    diags->getNumber() )
-  {
-    diags->clear(); // to be used for next CmpSPFormatFunc_
+  ComDiagsArea *diags = replyPtr->SPFuncsDiags();
+  if (replyPtr->moveOutput(fieldNo, (char *)fieldData, tempLen, ((casting == 1) ? TRUE : FALSE), diags) < 0 ||
+      diags->getNumber()) {
+    diags->clear();  // to be used for next CmpSPFormatFunc_
     return SP_ERROR_FORMAT_DATA;
-  }
-  else
+  } else
     return SP_NO_ERROR;
 }
 
-SP_HELPER_STATUS CmpSPKeyValueFunc_ (
-                                     Lng32 keyIndex,
-                                     SP_KEY_VALUE key,
-                                     Lng32 keyLength,
-                                     void* keyValue,
-                                     Lng32 casting)
-{
+SP_HELPER_STATUS CmpSPKeyValueFunc_(Lng32 keyIndex, SP_KEY_VALUE key, Lng32 keyLength, void *keyValue, Lng32 casting) {
   return SP_NOT_SUPPORTED_YET;
 }
 
-extern "C" { 
-	SP_EXTRACT_FUNCPTR CmpSPExtractFunc = &CmpSPExtractFunc_;
-    SP_FORMAT_FUNCPTR CmpSPFormatFunc = &CmpSPFormatFunc_;
-    SP_KEYVALUE_FUNCPTR CmpSPKeyValueFunc = &CmpSPKeyValueFunc_;
+extern "C" {
+SP_EXTRACT_FUNCPTR CmpSPExtractFunc = &CmpSPExtractFunc_;
+SP_FORMAT_FUNCPTR CmpSPFormatFunc = &CmpSPFormatFunc_;
+SP_KEYVALUE_FUNCPTR CmpSPKeyValueFunc = &CmpSPKeyValueFunc_;
 }
-

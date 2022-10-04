@@ -24,29 +24,24 @@
 
 #include <pthread.h>
 
-
-class NAMutex
-{
+class NAMutex {
   friend class NAMutexScope;
 
-public:
-
-  NAMutex(bool recursive,
-          bool enabled,
-          bool shared=false)              { init(recursive, enabled, shared); }
+ public:
+  NAMutex(bool recursive, bool enabled, bool shared = false) { init(recursive, enabled, shared); }
   NAMutex(const NAMutex &other) { init(other.isRecursive_, other.isEnabled_, other.isShared_); }
-  ~NAMutex()                                { pthread_mutex_destroy(&mutex_); }
+  ~NAMutex() { pthread_mutex_destroy(&mutex_); }
 
-  bool isEnabled()                                       { return isEnabled_; }
+  bool isEnabled() { return isEnabled_; }
   void enable();
 
-  int lock()                            { return pthread_mutex_lock(&mutex_); }
-  int unlock()                        { return pthread_mutex_unlock(&mutex_); }
-  int trylock()                      { return pthread_mutex_trylock(&mutex_); }
+  int lock() { return pthread_mutex_lock(&mutex_); }
+  int unlock() { return pthread_mutex_unlock(&mutex_); }
+  int trylock() { return pthread_mutex_trylock(&mutex_); }
 
   void destoryAndInit();
-protected:
 
+ protected:
   void init(bool recursive, bool enabled, bool shared);
 
   pthread_mutex_t mutex_;
@@ -55,19 +50,15 @@ protected:
   bool isShared_;
 };
 
-class NAConditionVariable : public NAMutex
-{
-public:
+class NAConditionVariable : public NAMutex {
+ public:
+  NAConditionVariable() : NAMutex(false, true) { pthread_cond_init(&threadCond_, NULL); }
+  ~NAConditionVariable() { pthread_cond_destroy(&threadCond_); }
 
-  NAConditionVariable() : NAMutex(false, true)
-                                     { pthread_cond_init(&threadCond_, NULL); }
-  ~NAConditionVariable()                { pthread_cond_destroy(&threadCond_); }
+  void wait();    // called from the thread that owns the condition variable
+  void resume();  // called from another thread to wake the owning thread
 
-  void wait();   // called from the thread that owns the condition variable
-  void resume(); // called from another thread to wake the owning thread
-
-private:
-
+ private:
   // condition variable to wake up the thread
   pthread_cond_t threadCond_;
 };
@@ -92,31 +83,24 @@ private:
 //
 // } /* end of block, mutex destructor gets called and unlocks */
 // -------------------------------------------------------------------------
-class NAMutexScope
-{
-public:
-
+class NAMutexScope {
+ public:
   NAMutexScope(NAMutex &mutex);
 
   ~NAMutexScope();
 
-private:
-
+ private:
   // not written
   NAMutexScope();
 
   NAMutex &mutex_;
-
 };
 
 // a more complex class, accepting a pointer for the mutex, which can be NULL,
 // and allowing the user to temporarily release the mutex
-class NAConditionalMutexScope
-{
-public:
-
-  NAConditionalMutexScope(NAMutex *mutex) : mutex_(mutex), lockCount_(0)
-                                                              { reAcquire(); }
+class NAConditionalMutexScope {
+ public:
+  NAConditionalMutexScope(NAMutex *mutex) : mutex_(mutex), lockCount_(0) { reAcquire(); }
 
   ~NAConditionalMutexScope();
 
@@ -124,14 +108,12 @@ public:
   void release();
   void reAcquire();
 
-private:
-
+ private:
   // not written
   NAConditionalMutexScope();
 
   NAMutex *mutex_;
   int lockCount_;
-
 };
 
 #endif

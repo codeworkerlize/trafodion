@@ -3,19 +3,18 @@
 #define COMCEXTMISC_H
 
 #undef DLLEXPORT
-#define DLLEXPORT 
+#define DLLEXPORT
 
 #ifdef __cplusplus
 extern "C" {
 
-DLLEXPORT long long  TIME_SINCE_COLDLOAD (void);
+DLLEXPORT long long TIME_SINCE_COLDLOAD(void);
 
-DLLEXPORT void	TIME( short * a );
+DLLEXPORT void TIME(short *a);
 
-DLLEXPORT void	CONTIME( short * a, short t, short t1, short t2 );
+DLLEXPORT void CONTIME(short *a, short t, short t1, short t2);
 
-DLLEXPORT void	DELAY (int      time);
-
+DLLEXPORT void DELAY(int time);
 }
 
 #endif

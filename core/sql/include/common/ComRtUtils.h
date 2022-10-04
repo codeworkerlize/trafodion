@@ -19,34 +19,32 @@ using namespace std;
 #include "seabed/ms.h"
 #ifdef min
 #undef min
-#endif // min
+#endif  // min
 
-#define MAX_SEGMENT_NAME_LEN  255
-#define PROCESSNAME_STRING_LEN    40
-#define PROGRAM_NAME_LEN    64
-#define BDR_CLUSTER_NAME_LEN 24
-#define BDR_CLUSTER_NAME_KEY "BDR_CLUSTER"
-
+#define MAX_SEGMENT_NAME_LEN   255
+#define PROCESSNAME_STRING_LEN 40
+#define PROGRAM_NAME_LEN       64
+#define BDR_CLUSTER_NAME_LEN   24
+#define BDR_CLUSTER_NAME_KEY   "BDR_CLUSTER"
 
 // Keep in sync with common/ComRtUtils.cpp ComRtGetModuleFileName():
 //                               0123456789*123456789*123456789*1: position0-31
-#define systemModulePrefix	    "HP_SYSTEM_CATALOG.SYSTEM_SCHEMA."
-#define systemModulePrefixLen	32
-#define systemModulePrefixODBC	"HP_SYSTEM_CATALOG.MXCS_SCHEMA."
-#define systemModulePrefixLenODBC	30
+#define systemModulePrefix        "HP_SYSTEM_CATALOG.SYSTEM_SCHEMA."
+#define systemModulePrefixLen     32
+#define systemModulePrefixODBC    "HP_SYSTEM_CATALOG.MXCS_SCHEMA."
+#define systemModulePrefixLenODBC 30
 
-//const NAString InternalModNameList;
+// const NAString InternalModNameList;
 
 // returns TRUE, if modName is an internal module name
-NABoolean ComRtIsInternalModName(const char * modName);
+NABoolean ComRtIsInternalModName(const char *modName);
 
 // returns 'next' internal mod name.
 // 'index' keeps track of the current mod name returned. It should
 // be initialized to 0 on the first call to this method.
-const char * ComRtGetNextInternalModName(Lng32 &index, char * modNameBuf);
+const char *ComRtGetNextInternalModName(Lng32 &index, char *modNameBuf);
 
-NABoolean getLinuxGroups(const char *userName,
-                         std::set<std::string> &userGroups);
+NABoolean getLinuxGroups(const char *userName, std::set<std::string> &userGroups);
 
 // -----------------------------------------------------------------------
 // Class to read an oss file by oss path name or Guardian File name
@@ -55,19 +53,16 @@ NABoolean getLinuxGroups(const char *userName,
 #include <iosfwd>
 using namespace std;
 
-class ModuleOSFile
-{
-public:
-
+class ModuleOSFile {
+ public:
   ModuleOSFile();
   ~ModuleOSFile();
   Int32 open(const char *fname);
-  Int32 openGuardianFile (const char *fname);
+  Int32 openGuardianFile(const char *fname);
   Int32 close();
   Int32 readpos(char *buf, Lng32 pos, Lng32 len, short &countRead);
 
-private:
-
+ private:
   fstream fs_;
 };
 
@@ -85,44 +80,31 @@ private:
 // Get the directory name where NonStop SQL software resides
 // (from registry on NT, $SYSTEM.SYSTEM on NSK)
 // -----------------------------------------------------------------------
-Lng32 ComRtGetInstallDir(
-     char *buffer,
-     Lng32 inputBufferLength,
-     Lng32 *resultLength);
+Lng32 ComRtGetInstallDir(char *buffer, Lng32 inputBufferLength, Lng32 *resultLength);
 
 // -----------------------------------------------------------------------
 // Convert a 3-part module name into the file name in which the module
 // is stored
 // -----------------------------------------------------------------------
-Lng32 ComRtGetModuleFileName(
-     const char *moduleName,
-     const char *moduleDir,
-     char *buffer,
-     Lng32 inputBufferLength,
-     char * sysModuleDir,  // location of SYSTEMMODULES
-     char * userModuleDir, // location of USERMODULES
-     Lng32 *resultLength,
-     short &isSystemModule);
+Lng32 ComRtGetModuleFileName(const char *moduleName, const char *moduleDir, char *buffer, Lng32 inputBufferLength,
+                             char *sysModuleDir,   // location of SYSTEMMODULES
+                             char *userModuleDir,  // location of USERMODULES
+                             Lng32 *resultLength, short &isSystemModule);
 
 // -----------------------------------------------------------------------
 // Get the cluster (EXPAND node) name (returns "NSK" on NT)
 // -----------------------------------------------------------------------
-Lng32 ComRtGetOSClusterName(
-     char *buffer,
-     Lng32 inputBufferLength,
-     Lng32 *resultLength,
-     short * nodeNumber = NULL);
+Lng32 ComRtGetOSClusterName(char *buffer, Lng32 inputBufferLength, Lng32 *resultLength, short *nodeNumber = NULL);
 
 // -----------------------------------------------------------------------
 // Get the MP system catalog name.
 // -----------------------------------------------------------------------
-Lng32 ComRtGetMPSysCatName(
-     char *sysCatBuffer,    /* out */
-     Lng32 inputBufferLength,/* in  */
-     char *inputSysName,    /* in must set to NULL if no name is passed */
-     Lng32 *sysCatLength,    /* out */
-     short *detailError,    /* out */
-     NAMemory *heap = 0 );  /* in  */
+Lng32 ComRtGetMPSysCatName(char *sysCatBuffer,      /* out */
+                           Lng32 inputBufferLength, /* in  */
+                           char *inputSysName,      /* in must set to NULL if no name is passed */
+                           Lng32 *sysCatLength,     /* out */
+                           short *detailError,      /* out */
+                           NAMemory *heap = 0);     /* in  */
 
 // -----------------------------------------------------------------------
 // Determine if the name is an NSK name, \sys.$vol.subvol.file, look for
@@ -144,10 +126,8 @@ NABoolean ComRtIsNSKName(char *name);
 // to convert the nanosecond part of the unix timespec to microseconds. The
 // JulianTimesamp returned is in microseconds so it can be used directly
 // with the Guardian INTERPRETTIMESTAMP function.
-inline Int64 ComRtGetJulianFromUTC(timespec ts)
-{
-  return (((ts.tv_sec  + (2440588LL * 86400LL) - 43200LL) * 1000000LL)
-                + (ts.tv_nsec / 1000)) ;
+inline Int64 ComRtGetJulianFromUTC(timespec ts) {
+  return (((ts.tv_sec + (2440588LL * 86400LL) - 43200LL) * 1000000LL) + (ts.tv_nsec / 1000));
 }
 
 // -----------------------------------------------------------------------
@@ -167,92 +147,76 @@ inline Int64 ComRtGetJulianFromUTC(timespec ts)
 // // Return status:      0, if all ok. <errnum>, in case of an error.
 //
 // -----------------------------------------------------------------------
-Lng32 ComRtGetProgramInfo(char * pathName,    /* out */
-			 Lng32 pathNameMaxLen, /* in */
-			 short  &processType, /* out */
-			 Int32  &cpu, /* cpu */
-			 pid_t  &pin, /* pin */
-			 Lng32   &nodeNumber,
-			 char * nodeName, // GuaNodeNameMaxLen+1
-			 short  &nodeNameLen,
-			 Int64  &processCreateTime,
-			  char *processNameString,
-			  char *parentProcessNameString = NULL
-                         , SB_Verif_Type *verifier = NULL
-                         , Int32 *ancestorNid = NULL
-                         , pid_t *ancestorPid = NULL
-                          );
+Lng32 ComRtGetProgramInfo(char *pathName,       /* out */
+                          Lng32 pathNameMaxLen, /* in */
+                          short &processType,   /* out */
+                          Int32 &cpu,           /* cpu */
+                          pid_t &pin,           /* pin */
+                          Lng32 &nodeNumber,
+                          char *nodeName,  // GuaNodeNameMaxLen+1
+                          short &nodeNameLen, Int64 &processCreateTime, char *processNameString,
+                          char *parentProcessNameString = NULL, SB_Verif_Type *verifier = NULL,
+                          Int32 *ancestorNid = NULL, pid_t *ancestorPid = NULL);
 
 // OUT: processPriority: current priority of process
-Lng32 ComRtGetProcessPriority(Lng32  &processPriority /* out */);
+Lng32 ComRtGetProcessPriority(Lng32 &processPriority /* out */);
 
-Lng32 ComRtSetProcessPriority(Lng32 priority,
-			     NABoolean isDelta);
+Lng32 ComRtSetProcessPriority(Lng32 priority, NABoolean isDelta);
 
 // OUT: pagesInUse: Pages(16k) currently in use by process
-Lng32 ComRtGetProcessPagesInUse(Int64  &pagesInUse /* out */);
+Lng32 ComRtGetProcessPagesInUse(Int64 &pagesInUse /* out */);
 
 // IN:  if cpu, pin and nodeName are passed in, is that to find process.
 //      Otherwise, use current process
 // OUT: processCreateTime: time when this process was created.
-Lng32 ComRtGetProcessCreateTime(short  *cpu, /* cpu */
-			       pid_t  *pin, /* pin */
-			       short  *nodeNumber,
-			       Int64  &processCreateTime,
-			       short  &errorDetail
-			       );
-
+Lng32 ComRtGetProcessCreateTime(short *cpu, /* cpu */
+                                pid_t *pin, /* pin */
+                                short *nodeNumber, Int64 &processCreateTime, short &errorDetail);
 
 Lng32 ComRtGetIsoMappingEnum();
-char * ComRtGetIsoMappingName();
+char *ComRtGetIsoMappingName();
 
 // -----------------------------------------------------------------------
 // Upshift a simple char string
 // -----------------------------------------------------------------------
-void ComRt_Upshift (char * buf);
+void ComRt_Upshift(char *buf);
 
-const char * ComRtGetEnvValueFromEnvvars(const char ** envvars,
-					 const char * envvar,
-					 Lng32 * envvarPos = NULL);
+const char *ComRtGetEnvValueFromEnvvars(const char **envvars, const char *envvar, Lng32 *envvarPos = NULL);
 
-#if defined (_DEBUG)
+#if defined(_DEBUG)
 // -----------------------------------------------------------------------
 // Convenient handling of envvars: Return a value if one exists
 // NB: DEBUG mode only!
 // -----------------------------------------------------------------------
-NABoolean ComRtGetEnvValue(const char * envvar, const char ** envvarValue = NULL);
+NABoolean ComRtGetEnvValue(const char *envvar, const char **envvarValue = NULL);
 
-NABoolean ComRtGetEnvValue(const char * envvar, Lng32 * envvarValue);
+NABoolean ComRtGetEnvValue(const char *envvar, Lng32 *envvarValue);
 
-NABoolean ComRtGetValueFromFile (const char * envvar, char * valueBuffer,
-                                 const UInt32 valueBufferSizeInBytes);
-#endif // #if defined (_DEBUG) ...
+NABoolean ComRtGetValueFromFile(const char *envvar, char *valueBuffer, const UInt32 valueBufferSizeInBytes);
+#endif  // #if defined (_DEBUG) ...
 
 // -----------------------------------------------------------------------
 // Get the MX system catalog name.
 // -----------------------------------------------------------------------
-Lng32 ComRtGetMXSysVolName(
-     char *sysCatBuffer,                /* out */
-     Lng32 inputBufferLength,            /* in  */
-     Lng32 *sysCatLength,                /* out */
-     const char *nodeName,              /* in */
-     NABoolean fakeReadError,           /* in */
-     NABoolean fakeCorruptAnchorError   /* in */
-     );
+Lng32 ComRtGetMXSysVolName(char *sysCatBuffer,              /* out */
+                           Lng32 inputBufferLength,         /* in  */
+                           Lng32 *sysCatLength,             /* out */
+                           const char *nodeName,            /* in */
+                           NABoolean fakeReadError,         /* in */
+                           NABoolean fakeCorruptAnchorError /* in */
+);
 
 // -----------------------------------------------------------------------
 // Extract System MetaData Location ( VolumeName ).
 // -----------------------------------------------------------------------
-Lng32 extract_SMDLocation(
-     char *buffer, /* in */
-     Int32 bufferLength, /* in */
-     char *SMDLocation); /* out */
+Lng32 extract_SMDLocation(char *buffer,       /* in */
+                          Int32 bufferLength, /* in */
+                          char *SMDLocation); /* out */
 
 // -----------------------------------------------------------------------
 // Validate MetaData Location ( VolumeName ) format.
 // -----------------------------------------------------------------------
-Lng32 validate_SMDLocation(
-      char *SMDLocation); /* in */
+Lng32 validate_SMDLocation(char *SMDLocation); /* in */
 
 // allocate and populate an array with entries for all the configured
 // CPUs (Trafodion node ids) and return the number of CPUs. Usually,
@@ -271,174 +235,154 @@ Lng32 ComRtTransIdToText(Int64 transId, char *buf, short len);
 // same thread.
 const char *ComRtGetUnknownString(Int32 val);
 
-void genLinuxCorefile(const char *eventMsg);   // no-op except on Linux.
+void genLinuxCorefile(const char *eventMsg);  // no-op except on Linux.
 
 #ifdef _DEBUG
 static THREAD_P UInt32 TraceAllocSize = 0;
-void saveTrafStack(LIST(TrafAddrStack*) *la, void *addr);
-bool delTrafStack(LIST(TrafAddrStack*) *la, void *addr);
-void dumpTrafStack(LIST(TrafAddrStack *) *la, const char *header, bool toFile = false);
+void saveTrafStack(LIST(TrafAddrStack *) * la, void *addr);
+bool delTrafStack(LIST(TrafAddrStack *) * la, void *addr);
+void dumpTrafStack(LIST(TrafAddrStack *) * la, const char *header, bool toFile = false);
 void displayCurrentStack(Int32 depth);
-void displayCurrentStack(ostream&, Int32 depth);
-#endif // DEBUG
-
+void displayCurrentStack(ostream &, Int32 depth);
+#endif  // DEBUG
 
 Int16 getBDRClusterName(char *bdrClusterName);
 
 int get_phandle_with_retry(char *pname, SB_Phandle_Type *phandle);
 
-
-fstream& getPrintHandle();
-void genFullMessage(char* buf, Int32 len, const char* className, Int32 queryNodeId);
+fstream &getPrintHandle();
+void genFullMessage(char *buf, Int32 len, const char *className, Int32 queryNodeId);
 
 class RangeDate;
 class RangeTime;
 
-class EncodedHiveType
-{
-public:
-  EncodedHiveType(const std::string& text);
-  ~EncodedHiveType() {};
+class EncodedHiveType {
+ public:
+  EncodedHiveType(const std::string &text);
+  ~EncodedHiveType(){};
 
   int typeCode() const { return type_; }
   int length() const { return length_; }
   int precision() const { return precision_; }
   int scale() const { return scale_; }
 
-protected:
+ protected:
   int type_;
   int length_;
   int precision_;
   int scale_;
 };
 
+class filterRecord {
+ public:
+  filterRecord(UInt64 rc, UInt64 uec, UInt32 probes, NABoolean enabled, char *name, std::string &min, std::string &max,
+               std::vector<std::string> &fs, UInt64 rowsToSurvive)
+      : rowCount_(rc),
+        uec_(uec),
+        probes_(probes),
+        enabled_(enabled),
+        filterName_(name),
+        minVal_(min),
+        maxVal_(max),
+        filter_(fs),
+        rowsToSurvive_(rowsToSurvive) {}
 
+  ~filterRecord() {}
 
-class filterRecord
-{
-public: 
-   filterRecord(UInt64 rc, UInt64 uec, UInt32 probes, NABoolean enabled,
-                char* name, std::string& min, std::string& max,
-                std::vector<std::string>& fs, 
-                UInt64 rowsToSurvive):
-      rowCount_(rc), uec_(uec), probes_(probes), enabled_(enabled), 
-      filterName_(name), minVal_(min), maxVal_(max), filter_(fs),
-      rowsToSurvive_(rowsToSurvive)
-   {}
+  bool operator<(const filterRecord &rhs) const;
 
-   ~filterRecord() {}
+  const std::vector<std::string> &getFilter() const { return filter_; }
+  const char *filterName() const { return filterName_; }
 
-   bool operator<(const filterRecord& rhs) const;
+  Int16 getFilterId();
 
-   const std::vector<std::string>& getFilter() const { return filter_; }
-   const char* filterName() const { return filterName_; }
+  void appendTerseFilterName(NAString &);
 
-   Int16 getFilterId();
+  UInt64 rowsToSelect() const;
+  NABoolean isEnabled() const { return enabled_; };
+  UInt64 rowCount() const { return rowCount_; };
+  float selectivity() const;
+  UInt64 rowsToSurvive() const { return rowsToSurvive_; };
 
-   void appendTerseFilterName(NAString&);
+  const std::string &getMinVal() const { return minVal_; }
+  const std::string &getMaxVal() const { return maxVal_; }
 
-   UInt64 rowsToSelect() const;
-   NABoolean isEnabled() const { return enabled_; };
-   UInt64 rowCount() const { return rowCount_; };
-   float selectivity() const;
-   UInt64 rowsToSurvive() const { return rowsToSurvive_; };
+  void display(ostream &, const char *msg) const;
 
-   const std::string& getMinVal() const { return minVal_; }
-   const std::string& getMaxVal() const { return maxVal_; }
-
-   void display(ostream&, const char* msg) const;
-
-protected:
-   UInt64 rowCount_;
-   UInt64 uec_;
-   UInt64 probes_; // unique probes
-   NABoolean enabled_;
-   char*  filterName_;
-   std::vector<std::string> filter_;
-   std::string minVal_; // in format length(4 bytes) + ascii string
-   std::string maxVal_; // in format length(4 bytes) + ascii string
-   UInt64 rowsToSurvive_;
+ protected:
+  UInt64 rowCount_;
+  UInt64 uec_;
+  UInt64 probes_;  // unique probes
+  NABoolean enabled_;
+  char *filterName_;
+  std::vector<std::string> filter_;
+  std::string minVal_;  // in format length(4 bytes) + ascii string
+  std::string maxVal_;  // in format length(4 bytes) + ascii string
+  UInt64 rowsToSurvive_;
 };
-  
+
 struct packedBits {
-   int filterId_ : 14;
-   unsigned int flags_ : 2;
+  int filterId_ : 14;
+  unsigned int flags_ : 2;
 } __attribute__((packed));
 
 class ScanFilterStats {
+ protected:
+  enum FilterState { FILTER_STATS_ENABLED = 0x01, FILTER_STATS_SELECTED = 0x02 };
 
-protected:
-   enum FilterState {
-     FILTER_STATS_ENABLED  = 0x01,
-     FILTER_STATS_SELECTED = 0x02
-   };
+ public:
+  enum MergeSemantics { MAX, ADD, COPY };
 
-public:
-   enum MergeSemantics { MAX, ADD, COPY };
+ public:
+  ScanFilterStats(Int16 id, Int64 rows, NABoolean enabled, NABoolean selected = FALSE) : totalRowsAffected_(rows) {
+    packedBits_.flags_ = 0;
 
-public:
-  ScanFilterStats(Int16 id, Int64 rows, 
-                  NABoolean enabled, NABoolean selected=FALSE) :
-    totalRowsAffected_(rows) 
-   {
-     packedBits_.flags_ = 0;
+    setIsEnabled(enabled);
+    setIsSelected(selected);
 
-     setIsEnabled(enabled);
-     setIsSelected(selected);
+    packedBits_.filterId_ = id;
 
-     packedBits_.filterId_ = id; 
+    if (packedBits_.filterId_ < 0) packedBits_.filterId_ = -1;
+  };
 
-     if ( packedBits_.filterId_ < 0 ) packedBits_.filterId_ = -1;
-   };
-
-  ScanFilterStats(ScanFilterStats& s) :
-    totalRowsAffected_(s.totalRowsAffected_) 
-  {
+  ScanFilterStats(ScanFilterStats &s) : totalRowsAffected_(s.totalRowsAffected_) {
     packedBits_.filterId_ = s.packedBits_.filterId_;
     packedBits_.flags_ = s.packedBits_.flags_;
   }
 
-  ScanFilterStats() :
-    totalRowsAffected_(0) 
-  {
+  ScanFilterStats() : totalRowsAffected_(0) {
     packedBits_.filterId_ = -1;
     packedBits_.flags_ = 0;
   };
 
   UInt32 packedLength();
-  UInt32 pack(char * &buffer);
-  void unpack(const char* &buffer);
+  UInt32 pack(char *&buffer);
+  void unpack(const char *&buffer);
 
-  void merge(const ScanFilterStats&, ScanFilterStats::MergeSemantics);
+  void merge(const ScanFilterStats &, ScanFilterStats::MergeSemantics);
 
   Int16 getFilterId() const { return (Int16)packedBits_.filterId_; }
 
-  void getVariableStatsInfo(char* buf, Int32 len) const;
+  void getVariableStatsInfo(char *buf, Int32 len) const;
   Lng32 getVariableStatsInfoLen() const;
 
-  void setIsEnabled(NABoolean x) 
-   { x ? 
-      packedBits_.flags_  |= FILTER_STATS_ENABLED : 
-      packedBits_.flags_ &= ~FILTER_STATS_ENABLED;      
-   }
+  void setIsEnabled(NABoolean x) {
+    x ? packedBits_.flags_ |= FILTER_STATS_ENABLED : packedBits_.flags_ &= ~FILTER_STATS_ENABLED;
+  }
 
-  NABoolean getIsEnabled() const
-   { return (packedBits_.flags_ & FILTER_STATS_ENABLED) != 0; }
+  NABoolean getIsEnabled() const { return (packedBits_.flags_ & FILTER_STATS_ENABLED) != 0; }
 
-  void setIsSelected(NABoolean x)
-   { x ? 
-      packedBits_.flags_  |= FILTER_STATS_SELECTED : 
-      packedBits_.flags_ &= ~FILTER_STATS_SELECTED;
-   }
+  void setIsSelected(NABoolean x) {
+    x ? packedBits_.flags_ |= FILTER_STATS_SELECTED : packedBits_.flags_ &= ~FILTER_STATS_SELECTED;
+  }
 
-  NABoolean getIsSelected() const
-   { return (packedBits_.flags_ & FILTER_STATS_SELECTED) != 0; }
+  NABoolean getIsSelected() const { return (packedBits_.flags_ & FILTER_STATS_SELECTED) != 0; }
 
-protected:
+ protected:
   Int32 getStateCode() const;
 
-private:
-  Int64 totalRowsAffected_; 
+ private:
+  Int64 totalRowsAffected_;
   packedBits packedBits_;
 
 } __attribute__((packed));
@@ -446,50 +390,44 @@ private:
 const int MAX_FILTER_STATS = 10;
 
 class ScanFilterStatsList {
+ public:
+  ScanFilterStatsList() : entries_(0){};
+  ScanFilterStatsList(ScanFilterStatsList &);
 
-public:
-  ScanFilterStatsList() : entries_(0) {};
-  ScanFilterStatsList(ScanFilterStatsList&);
-
-  ScanFilterStatsList& operator=(ScanFilterStatsList& other);
+  ScanFilterStatsList &operator=(ScanFilterStatsList &other);
 
   UInt32 packedLength();
-  UInt32 pack(char * &buffer);
-  void unpack(const char* &buffer);
+  UInt32 pack(char *&buffer);
+  void unpack(const char *&buffer);
 
-  void merge(ScanFilterStatsList&, ScanFilterStats::MergeSemantics);
+  void merge(ScanFilterStatsList &, ScanFilterStats::MergeSemantics);
 
-  void getVariableStatsInfo(char* buf, Int32 len, const char* msg = NULL) const;
-  Lng32 getVariableStatsInfoLen(const char* msg = NULL) const;
+  void getVariableStatsInfo(char *buf, Int32 len, const char *msg = NULL) const;
+  Lng32 getVariableStatsInfoLen(const char *msg = NULL) const;
 
-  void dump(ostream& out, const char* msg = NULL);
+  void dump(ostream &out, const char *msg = NULL);
 
-  void addEntry(const ScanFilterStats&, ScanFilterStats::MergeSemantics);
+  void addEntry(const ScanFilterStats &, ScanFilterStats::MergeSemantics);
 
   void clear() { entries_ = 0; }
 
-  Int32 entries() const { 
-     return ( entries_ < MAX_FILTER_STATS ) ? 
-               entries_ : MAX_FILTER_STATS ; 
-                  }
+  Int32 entries() const { return (entries_ < MAX_FILTER_STATS) ? entries_ : MAX_FILTER_STATS; }
 
-protected:
-   void merge(ScanFilterStats& source, ScanFilterStats::MergeSemantics);
+ protected:
+  void merge(ScanFilterStats &source, ScanFilterStats::MergeSemantics);
 
-private:
-
+ private:
   Int32 entries_;
   ScanFilterStats scanFilterStats_[MAX_FILTER_STATS];
 };
 
-
 /*
-void outputOrcSearchArgLessThanPred(std::string& text, 
-                                    const char* colName, 
+void outputOrcSearchArgLessThanPred(std::string& text,
+                                    const char* colName,
                                     const char* colType, Int32 v);
 
-void outputOrcSearchArgLessThanEqPred(std::string& text, 
-                                    const char* colName, 
+void outputOrcSearchArgLessThanEqPred(std::string& text,
+                                    const char* colName,
                                     const char* colType, Int32 v);
 */
 
@@ -500,29 +438,28 @@ Int64 getCurrentTime();
 // convert the 1st argument to a 11 byte string in following format.
 
 // year: 2 bytes
-// month: 1 byte 
-// day: 1 byte 
-// hour: 1 byte 
-// min: 1 byte 
-// second: 1-byte 
+// month: 1 byte
+// day: 1 byte
+// hour: 1 byte
+// min: 1 byte
+// second: 1-byte
 // mllisec: integer (4-bytes)
 //
-Int32 convertJulianTimestamp(Int64 julianTimestamp, char* target);
+Int32 convertJulianTimestamp(Int64 julianTimestamp, char *target);
 
 class ClusterRole {
-public:
-  enum RoleType {PRIMARY, SECONDARY};
+ public:
+  enum RoleType { PRIMARY, SECONDARY };
   ClusterRole();
   ClusterRole(RoleType role);
 
-  bool operator==(const ClusterRole& other) const;
-  bool operator!=(const ClusterRole& other) const;
+  bool operator==(const ClusterRole &other) const;
+  bool operator!=(const ClusterRole &other) const;
 
-  static ClusterRole& get_role();
+  static ClusterRole &get_role();
 
-private:
+ private:
   RoleType role_;
 };
 
-
-#endif // COMRTUTILS_H
+#endif  // COMRTUTILS_H

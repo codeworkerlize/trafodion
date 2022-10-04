@@ -29,7 +29,7 @@
  * Description:  class respresenting the With Grant Option
  *               clause/phrase in Grant DDL statement
  *
- *               
+ *
  * Created:      10/6/95
  * Language:     C++
  *
@@ -38,7 +38,6 @@
  *
  *****************************************************************************
  */
-
 
 #include "ElemDDLNode.h"
 
@@ -55,28 +54,21 @@ class ElemDDLWithGrantOption;
 // -----------------------------------------------------------------------
 // definition of base class ElemDDLWithGrantOption
 // -----------------------------------------------------------------------
-class ElemDDLWithGrantOption : public ElemDDLNode
-{
-
-public:
-
+class ElemDDLWithGrantOption : public ElemDDLNode {
+ public:
   // constructor
-  ElemDDLWithGrantOption()
-  : ElemDDLNode(ELM_WITH_GRANT_OPTION_ELEM)
-  { }
+  ElemDDLWithGrantOption() : ElemDDLNode(ELM_WITH_GRANT_OPTION_ELEM) {}
 
   // virtual destructor
   virtual ~ElemDDLWithGrantOption();
 
   // cast
-  virtual ElemDDLWithGrantOption * castToElemDDLWithGrantOption();
+  virtual ElemDDLWithGrantOption *castToElemDDLWithGrantOption();
 
   // method for tracing
   virtual const NAString getText() const;
 
-private:
+ private:
+};  // class ElemDDLWithGrantOption
 
-}; // class ElemDDLWithGrantOption
-
-
-#endif // ELEMDDLWITHGRANTOPTION_H
+#endif  // ELEMDDLWITHGRANTOPTION_H

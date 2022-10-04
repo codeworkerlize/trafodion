@@ -4,9 +4,9 @@
  *****************************************************************************
  *
  * File:         vegrewritepairs.h
- * Description:  
- *               
- *               
+ * Description:
+ *
+ *
  * Created:      12/19/96
  * Language:     C++
  * Code location: GenPreCode.C
@@ -57,9 +57,8 @@
 // rewrite as usual.
 
 class VEGRewritePairs : public NABasicObject {
-
-public:
-  VEGRewritePairs(CollHeap* heap);
+ public:
+  VEGRewritePairs(CollHeap *heap);
 
   ~VEGRewritePairs();
 
@@ -72,29 +71,23 @@ public:
   // Returns TRUE if original is already in the collection, if so
   // rewritten contains the rewritten id obtained when original
   // was rewritten
-  NABoolean getRewritten(ValueId& rewritten, const ValueId& original) const;
-  
+  NABoolean getRewritten(ValueId &rewritten, const ValueId &original) const;
 
   void display() const;
-  void print( FILE* ofd = stdout,
-	      const char* indent = DEFAULT_INDENT,
-	      const char* title = "VEGRewritePairs") const;
+  void print(FILE *ofd = stdout, const char *indent = DEFAULT_INDENT, const char *title = "VEGRewritePairs") const;
 
-  
   // ----------------
-  // --- Mutators: 
+  // --- Mutators:
   // ----------------
-  
-  void insert(const ValueId& original,
-	      const ValueId& rewritten);
 
-  void clear()
-  {
+  void insert(const ValueId &original, const ValueId &rewritten);
+
+  void clear() {
     CollIndex *key;
     VEGRewritePair *value;
     NAHashDictionaryIterator<CollIndex, VEGRewritePair> iter(vegRewritePairs_);
 
-    for (CollIndex i=0; i < iter.entries(); i++) {
+    for (CollIndex i = 0; i < iter.entries(); i++) {
       iter.getNext(key, value);
       NADELETEBASIC(key, heap_);
       delete value;
@@ -102,52 +95,38 @@ public:
     vegRewritePairs_.clear();
   }
 
-
   // private:    the oss build fails when this is uncommented
 
   class VEGRewritePair : public NABasicObject {
-
-  public:
-    
-    VEGRewritePair(const ValueId& original, const ValueId& rewritten):
-	 original_(original),
-	 rewritten_(rewritten)
-    {
-    }
+   public:
+    VEGRewritePair(const ValueId &original, const ValueId &rewritten) : original_(original), rewritten_(rewritten) {}
 
     // ----------------
     // -- Accesors:
     // ----------------
 
-    const ValueId& getOriginal() const
-    { return original_;}
+    const ValueId &getOriginal() const { return original_; }
 
-    const ValueId& getRewritten() const
-    { return rewritten_;}
+    const ValueId &getRewritten() const { return rewritten_; }
 
-    void print( FILE* ofd = stdout) const;
+    void print(FILE *ofd = stdout) const;
 
-    NABoolean operator == (const VEGRewritePair & other) 
-    { 
+    NABoolean operator==(const VEGRewritePair &other) {
       return original_ == other.original_ && rewritten_ == other.rewritten_;
     }
-    
-  private:
-    ValueId original_, // predicate before rewrite
-      rewritten_; // predicate after rewrite
+
+   private:
+    ValueId original_,  // predicate before rewrite
+        rewritten_;     // predicate after rewrite
   };
 
-private:
+ private:
+  const VEGRewritePairs::VEGRewritePair *getPair(const ValueId &original) const;
 
-  const VEGRewritePairs::VEGRewritePair *
-  getPair(const ValueId& original) const;
-  
   CollHeap *heap_;
   NAHashDictionary<CollIndex, VEGRewritePair> vegRewritePairs_;
 
-}; //VEGRewritePairs
+};  // VEGRewritePairs
 
 #endif
 // eof
-
-

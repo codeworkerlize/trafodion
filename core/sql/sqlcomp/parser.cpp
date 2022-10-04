@@ -62,7 +62,7 @@
 #include "sqlcomp/parser.h"
 #include "common/QueryText.h"
 #include "optimizer/RelExeUtil.h"
-#include "optimizer/RelMisc.h"                  // for RelRoot
+#include "optimizer/RelMisc.h"        // for RelRoot
 #include "optimizer/RelStoredProc.h"  // for RelInternalSP
 #include "optimizer/SchemaDB.h"
 #include "SqlciError.h"
@@ -71,8 +71,6 @@
 #include "arkcmp/CompException.h"  // for CmpInternalException
 #include "common/ComCextdecs.h"
 #include "sqlcomp/CmpSeabaseDDL.h"
-
-#include "parser/StmtDDLonHiveObjects.h"
 
 #include "sqlmxevents/logmxevent.h"
 

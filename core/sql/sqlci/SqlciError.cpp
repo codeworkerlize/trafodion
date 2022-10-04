@@ -26,10 +26,10 @@
  *
  * File:         SqlciError.C
  * RCS:          $Id: SqlciError.cpp,v 1.2 1997/04/23 00:30:48  Exp $
- * Description:  
+ * Description:
  *   This file contains the error generation routine used throughout sqlci to
- *   store errors and their parameters.            
- *               
+ *   store errors and their parameters.
+ *
  * Created:      2/23/96
  * Modified:     $ $Date: 1997/04/23 00:30:48 $ (GMT)
  * Language:     C++
@@ -43,7 +43,7 @@
 
 // -----------------------------------------------------------------------
 // Change history:
-// 
+//
 // $Log: SqlciError.cpp,v $
 // Revision 1.2  1997/04/23 00:30:48
 // Merge of MDAM/Costing changes into SDK thread
@@ -58,14 +58,14 @@
 // Revision 1.1.1.1  1997/03/28 01:39:44
 // These are the source files from SourceSafe.
 //
-// 
-// 7     1/22/97 11:04p 
+//
+// 7     1/22/97 11:04p
 // Merged UNIX and NT versions.
-// 
-// 5     1/14/97 4:55a 
+//
+// 5     1/14/97 4:55a
 // Merged UNIX and  NT versions.
-// 
-// 3     12/04/96 11:22a 
+//
+// 3     12/04/96 11:22a
 // Revision 1.5  1996/10/14 18:19:47
 // Fixed a bug in the Error::process function.
 //
@@ -78,91 +78,77 @@
 // Revision 1.2  1996/04/05 20:08:03
 // Modified the SqlciError function to use the global DiagnosticsArea
 // object.
-// 
+//
 
 #include <stdarg.h>
 
 #include "SqlciError.h"
 #include "export/ComDiags.h"
 
-extern ComDiagsArea  sqlci_DA ;
+extern ComDiagsArea sqlci_DA;
 
-void SqlciError ( short errorCode, ...)
-{
-   UInt32 cur_string_p=0;
-   UInt32 cur_int_p   =0;
+void SqlciError(short errorCode, ...) {
+  UInt32 cur_string_p = 0;
+  UInt32 cur_int_p = 0;
 
-   va_list ap;
-   ErrorParam * Param;
+  va_list ap;
+  ErrorParam *Param;
 
-   ComCondition *Condition = sqlci_DA.makeNewCondition();
-   
-   Condition->setSQLCODE(-errorCode) ;
+  ComCondition *Condition = sqlci_DA.makeNewCondition();
 
-   va_start(ap, errorCode);
-   while ((Param=va_arg(ap, ErrorParam *)) != (ErrorParam *) 0)
-     {
-       if (Param->Param_type() == STRING_TYPE) 
-	 Condition->setOptionalString(cur_string_p++, Param->Str_Param());
-       else
-	 Condition->setOptionalInteger(cur_int_p++, Param->Int_Param());
-     }
+  Condition->setSQLCODE(-errorCode);
 
-   sqlci_DA.acceptNewCondition();
-   
+  va_start(ap, errorCode);
+  while ((Param = va_arg(ap, ErrorParam *)) != (ErrorParam *)0) {
+    if (Param->Param_type() == STRING_TYPE)
+      Condition->setOptionalString(cur_string_p++, Param->Str_Param());
+    else
+      Condition->setOptionalInteger(cur_int_p++, Param->Int_Param());
+  }
+
+  sqlci_DA.acceptNewCondition();
 };
 
-void SqlciError2 ( Int32 errorCode, ...)
-{
-   UInt32 cur_string_p=0;
-   UInt32 cur_int_p   =0;
+void SqlciError2(Int32 errorCode, ...) {
+  UInt32 cur_string_p = 0;
+  UInt32 cur_int_p = 0;
 
-   va_list ap;
-   ErrorParam *Param;
+  va_list ap;
+  ErrorParam *Param;
 
-   ComCondition *Condition = sqlci_DA.makeNewCondition();
-   
-   Condition->setSQLCODE(errorCode) ;
+  ComCondition *Condition = sqlci_DA.makeNewCondition();
 
-   va_start(ap, errorCode);
-   while ((Param=va_arg(ap, ErrorParam *)) != (ErrorParam *) 0)
-     {
-       if ((Param->Param_type() == STRING_TYPE) && Param->Str_Param() ) 
-	 Condition->setOptionalString(cur_string_p++, Param->Str_Param());
-       if ((Param->Param_type() == INT_TYPE) && Param->Int_Param() != -1)
-	 Condition->setOptionalInteger(cur_int_p++, Param->Int_Param());
-     }
+  Condition->setSQLCODE(errorCode);
 
-   sqlci_DA.acceptNewCondition();
-   
+  va_start(ap, errorCode);
+  while ((Param = va_arg(ap, ErrorParam *)) != (ErrorParam *)0) {
+    if ((Param->Param_type() == STRING_TYPE) && Param->Str_Param())
+      Condition->setOptionalString(cur_string_p++, Param->Str_Param());
+    if ((Param->Param_type() == INT_TYPE) && Param->Int_Param() != -1)
+      Condition->setOptionalInteger(cur_int_p++, Param->Int_Param());
+  }
+
+  sqlci_DA.acceptNewCondition();
 };
 
-void SqlciWarning ( short errorCode, ...)
-{
-   UInt32 cur_string_p=0;
-   UInt32 cur_int_p   =0;
+void SqlciWarning(short errorCode, ...) {
+  UInt32 cur_string_p = 0;
+  UInt32 cur_int_p = 0;
 
-   va_list ap;
-   ErrorParam * Param;
+  va_list ap;
+  ErrorParam *Param;
 
-   ComCondition *Condition = sqlci_DA.makeNewCondition();
-   
-   Condition->setSQLCODE(errorCode) ;
+  ComCondition *Condition = sqlci_DA.makeNewCondition();
 
-   va_start(ap, errorCode);
-   while ((Param=va_arg(ap, ErrorParam *)) != (ErrorParam *) 0)
-     {
-       if (Param->Param_type() == STRING_TYPE) 
-	 Condition->setOptionalString(cur_string_p++, Param->Str_Param());
-       else
-	 Condition->setOptionalInteger(cur_int_p++, Param->Int_Param());
-     }
+  Condition->setSQLCODE(errorCode);
 
-   sqlci_DA.acceptNewCondition();
-   
+  va_start(ap, errorCode);
+  while ((Param = va_arg(ap, ErrorParam *)) != (ErrorParam *)0) {
+    if (Param->Param_type() == STRING_TYPE)
+      Condition->setOptionalString(cur_string_p++, Param->Str_Param());
+    else
+      Condition->setOptionalInteger(cur_int_p++, Param->Int_Param());
+  }
+
+  sqlci_DA.acceptNewCondition();
 };
-
-
-
-
-

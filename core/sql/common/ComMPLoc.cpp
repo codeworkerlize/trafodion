@@ -3,7 +3,7 @@
  *
  * File:         ComMPLoc.cpp
  * Description:  See ComMPLoc.h
- * Created:      7/1/99 
+ * Created:      7/1/99
  * Language:     C++
  *
  *
@@ -32,8 +32,7 @@
  *****************************************************************************
  */
 
-
-#define   SQLPARSERGLOBALS_NADEFAULTS		// first
+#define SQLPARSERGLOBALS_NADEFAULTS  // first
 
 #include <ctype.h>
 #include "common/Platform.h"
@@ -42,35 +41,27 @@
 #include "common/ComOperators.h"
 #include "common/ComRtUtils.h"
 #include "common/NAString.h"
-#include "parser/SqlParserGlobals.h"			// last
+#include "parser/SqlParserGlobals.h"  // last
 
+#define PREALLOCATE_STRING_MEMBERS                                                          \
+  system_(ComMPLoc_NAMELEN(1)), volume_(ComMPLoc_NAMELEN(1)), subvol_(ComMPLoc_NAMELEN(1)), \
+      sysdotvol_(ComMPLoc_NAMELEN(2))
+// file_(ComMPLoc_NAMELEN(1))		// not always used so don't preallocate
 
-#define PREALLOCATE_STRING_MEMBERS		\
-  system_(ComMPLoc_NAMELEN(1)),			\
-  volume_(ComMPLoc_NAMELEN(1)),			\
-  subvol_(ComMPLoc_NAMELEN(1)), 		\
-  sysdotvol_(ComMPLoc_NAMELEN(2))
-  // file_(ComMPLoc_NAMELEN(1))		// not always used so don't preallocate
-
-
-ComMPLoc::ComMPLoc()			// lightweight ctor
-: format_(UNKNOWN), PREALLOCATE_STRING_MEMBERS
-{}
+ComMPLoc::ComMPLoc()  // lightweight ctor
+    : format_(UNKNOWN), PREALLOCATE_STRING_MEMBERS {}
 
 // This ctor parses left-first:
 //   "X" is interpreted as "\X", "X.Y" as "\X.$Y", "X.Y.Z" as "\X.$Y.Z", ...
 //
-ComMPLoc::ComMPLoc(const ComString &fileName)
-: PREALLOCATE_STRING_MEMBERS
-{
+ComMPLoc::ComMPLoc(const ComString &fileName) : PREALLOCATE_STRING_MEMBERS {
   ComString nam(fileName);
   TrimNAStringSpace(nam);
   const char *s = nam.data();
   Int32 namepartnum = (*s == '\\') ? 1 : (*s == '$') ? 2 : 3;
 
   while (*s)
-    if (*s++ == '.')
-      namepartnum++;
+    if (*s++ == '.') namepartnum++;
 
   parse(nam, (Format)namepartnum);
 }
@@ -106,11 +97,7 @@ ComMPLoc::ComMPLoc(const ComString &fileName)
 // If fmt is SYS,
 //	\system
 //
-ComMPLoc::ComMPLoc(const ComString &fileName, Format fmt)
-: PREALLOCATE_STRING_MEMBERS
-{
-  parse(fileName, fmt);
-}
+ComMPLoc::ComMPLoc(const ComString &fileName, Format fmt) : PREALLOCATE_STRING_MEMBERS { parse(fileName, fmt); }
 
 // This method parses right-to-left.
 // By default, it accepts as input true NSK format names only
@@ -133,97 +120,99 @@ ComMPLoc::ComMPLoc(const ComString &fileName, Format fmt)
 // vanilla MPLOC:
 //	\system.$volume.subvol		e.g.  \SQUAW.$DATA00.NSKPORT
 //
-void ComMPLoc::parse(const ComString &fileName, Format fmt,
-		     ComBoolean shortAnsi)
-{
+void ComMPLoc::parse(const ComString &fileName, Format fmt, ComBoolean shortAnsi) {
   ComBoolean err = FALSE;
 
   ComString nam(fileName);
-  TrimNAStringSpace(nam);	// remove leading+trailing blanks  " $X.Y "
+  TrimNAStringSpace(nam);  // remove leading+trailing blanks  " $X.Y "
   nam.toUpper();
 
   char delim = shortAnsi ? '_' : '.';
 
-  char sentinelBuf[] = ".";				// nul-terminated string
-  sentinelBuf[0] = delim;				// overwrite w/ delim
-  nam.prepend(sentinelBuf);				// sentinel delim
+  char sentinelBuf[] = ".";  // nul-terminated string
+  sentinelBuf[0] = delim;    // overwrite w/ delim
+  nam.prepend(sentinelBuf);  // sentinel delim
 
   Int32 namepartnum = ABS(fmt);
-// Parser treats quoted string as it is.  To use reserved word as one part
-// of the name separated by dots,  the reserved word must be enclosed in
-// double quotes.  It's ok to remove all double quotes from the name here, 
-// because unpaired double quote in the name is flagged as error.
-  if (nam.index('"') != NA_NPOS) {                      // found a double quote
+  // Parser treats quoted string as it is.  To use reserved word as one part
+  // of the name separated by dots,  the reserved word must be enclosed in
+  // double quotes.  It's ok to remove all double quotes from the name here,
+  // because unpaired double quote in the name is flagged as error.
+  if (nam.index('"') != NA_NPOS) {  // found a double quote
     Int32 quoted = -1;
     size_t i = nam.length();
     while (i--)
       if (nam[i] == '"') {
-        nam.remove(i,1);                                // remove all "
+        nam.remove(i, 1);  // remove all "
         quoted = -quoted;
       }
-    if (quoted > 0) err = TRUE;                         // " must be in pairs
+    if (quoted > 0) err = TRUE;  // " must be in pairs
   }
   size_t i = nam.length();
 
   while (i-- && !err) {
     char c = nam[i];
     if (!isalnum(c)) {
-      if (c != delim) {					// eg. "Y.SUB%OL"
-        if (nam[i-1] != delim)					err = TRUE;
-	//else we are at either the '\\' or '$' in ".\X.$Y", which is okay,
-	//or we are at                      '%' in ".\X.$Y.%UBVOL",
-	//but on the next loop iter, the isalpha() below will catch this error.
-      }
-      else {
-	ComString part(&nam.data()[i+1]);
-	nam.remove(i);
-	// Commented this out, to disallow  "\X .$Y . Z. F"
-	//	if (!shortAnsi)
-	//	  TrimNAStringSpace(part);
-	if (part.isNull())					err = TRUE;
-	else {
-	  const char *p = part.data();
-	  switch (namepartnum--) {
-	    case 4:   if (!isalpha(*p))				err = TRUE;
-		      file_   = part;
-		      break;
+      if (c != delim) {  // eg. "Y.SUB%OL"
+        if (nam[i - 1] != delim) err = TRUE;
+        // else we are at either the '\\' or '$' in ".\X.$Y", which is okay,
+        // or we are at                      '%' in ".\X.$Y.%UBVOL",
+        // but on the next loop iter, the isalpha() below will catch this error.
+      } else {
+        ComString part(&nam.data()[i + 1]);
+        nam.remove(i);
+        // Commented this out, to disallow  "\X .$Y . Z. F"
+        //	if (!shortAnsi)
+        //	  TrimNAStringSpace(part);
+        if (part.isNull())
+          err = TRUE;
+        else {
+          const char *p = part.data();
+          switch (namepartnum--) {
+            case 4:
+              if (!isalpha(*p)) err = TRUE;
+              file_ = part;
+              break;
 
-	    case 3:   if (!isalpha(*p))				err = TRUE;
-		      subvol_ = part;
-		      break;
+            case 3:
+              if (!isalpha(*p)) err = TRUE;
+              subvol_ = part;
+              break;
 
-	    case 2:   if (!shortAnsi && *p++ != '$')		err = TRUE;
-		      if (!isalpha(*p))				err = TRUE;
-		      if (shortAnsi) part.prepend("$");
-		      volume_ = part;
-		      break;
+            case 2:
+              if (!shortAnsi && *p++ != '$') err = TRUE;
+              if (!isalpha(*p)) err = TRUE;
+              if (shortAnsi) part.prepend("$");
+              volume_ = part;
+              break;
 
-	    case 1:   if (!shortAnsi && *p++ != '\\')		err = TRUE;
-		      if (!isalpha(*p))				err = TRUE;
-		      if (shortAnsi) part.prepend("\\");
-		      system_ = part;
-		      break;
+            case 1:
+              if (!shortAnsi && *p++ != '\\') err = TRUE;
+              if (!isalpha(*p)) err = TRUE;
+              if (shortAnsi) part.prepend("\\");
+              system_ = part;
+              break;
 
-	    default:  err = TRUE;
-		      break;
-	  }
-	  if (part.length() > MAX_NAMEPART_LEN)			err = TRUE;
-	}
-      }	// c==delim
-    }	// !isalnum
-  }	// while
+            default:
+              err = TRUE;
+              break;
+          }
+          if (part.length() > MAX_NAMEPART_LEN) err = TRUE;
+        }
+      }  // c==delim
+    }    // !isalnum
+  }      // while
 
   if (fmt == FILE) {
     if (file_.isNull()) err = TRUE;
-  }
-  else if (!err) {
+  } else if (!err) {
     // Default the system part to <currentSys>,
     // except if shortAnsi, which requires full specification w/o defaulting.
     if (fmt != SYS && system_.isNull() && !shortAnsi) {
       initializeSystemName();
       namepartnum--;
     }
-    if (namepartnum) err = TRUE;	// must have all nameparts to my left
+    if (namepartnum) err = TRUE;  // must have all nameparts to my left
   }
 
   format_ = err ? INVALID : fmt;
@@ -231,92 +220,87 @@ void ComMPLoc::parse(const ComString &fileName, Format fmt,
     ComString nam(fileName);
     TrimNAStringSpace(nam);
     nam.toUpper();
-    system_ = nam;			// save original for getMPName, errmsgs
+    system_ = nam;  // save original for getMPName, errmsgs
     sysdotvol_ = volume_ = subvol_ = file_ = "";
-  }
-  else {
-    sysdotvol_ = system_;		// set to "" or "\sys"
-    if (!sysdotvol_.isNull())
-      sysdotvol_ += '.';		// literal dot, *not* delim
+  } else {
+    sysdotvol_ = system_;                         // set to "" or "\sys"
+    if (!sysdotvol_.isNull()) sysdotvol_ += '.';  // literal dot, *not* delim
     sysdotvol_ += volume_;
   }
 }
 
-void ComMPLoc::initializeSystemName(ComBoolean ignoreNADefaults)
-{
-  static char mySysName[MAX_NAMEPART_LEN+1] = "";
+void ComMPLoc::initializeSystemName(ComBoolean ignoreNADefaults) {
+  static char mySysName[MAX_NAMEPART_LEN + 1] = "";
   if (!SqlParser_Initialized() || ignoreNADefaults || !mySysName[0]) {
-    if (!mySysName[0])
-      ComRtGetOSClusterName(mySysName, sizeof(mySysName), NULL);
+    if (!mySysName[0]) ComRtGetOSClusterName(mySysName, sizeof(mySysName), NULL);
     if (mySysName[0] && mySysName[0] != ' ') {
       system_ = mySysName;
       if (*system_ != '\\') {
         system_.prepend("\\");
-	strcpy(mySysName, system_);
+        strcpy(mySysName, system_);
       }
     }
-  }
-  else
+  } else
     system_ = SqlParser_MPLOC.system_;
 }
 
-Int32 ComMPLoc::applyDefaults(const ComMPLoc &defaults,
-			    ComBoolean emptySystemNameMatchCountsAsAMatch)
-{
+Int32 ComMPLoc::applyDefaults(const ComMPLoc &defaults, ComBoolean emptySystemNameMatchCountsAsAMatch) {
   if (!isValid(FILE)) return 0;
 
-  if (system_.isNull())
-    system_ = defaults.system_;
+  if (system_.isNull()) system_ = defaults.system_;
 
-  if (volume_.isNull())
-    volume_ = defaults.volume_;
+  if (volume_.isNull()) volume_ = defaults.volume_;
 
-  if (subvol_.isNull())
-    subvol_ = defaults.subvol_;
+  if (subvol_.isNull()) subvol_ = defaults.subvol_;
 
   Int32 defaultMatchCount = 0;
   if (system_ == defaults.system_) {
-    if (!system_.isNull() || emptySystemNameMatchCountsAsAMatch)
-      defaultMatchCount++;
+    if (!system_.isNull() || emptySystemNameMatchCountsAsAMatch) defaultMatchCount++;
     if (volume_ == defaults.volume_) {
       defaultMatchCount++;
-      if (subvol_ == defaults.subvol_)
-        defaultMatchCount++;
+      if (subvol_ == defaults.subvol_) defaultMatchCount++;
     }
   }
   return defaultMatchCount;
 }
 
-ComString ComMPLoc::getMPName() const
-{
+ComString ComMPLoc::getMPName() const {
   // Do NOT say "if (!isValid())" here -- infinite recursion!
   // Instead we just pass the name along as-is, if UNKNOWN.
-  if (format_ == INVALID)
-    return system_;		// original string, saved by parse() if error
+  if (format_ == INVALID) return system_;  // original string, saved by parse() if error
 
   ComString n(ComMPLoc_NAMELEN(4));
   ComBoolean beg = FALSE;
-  if (       hasSystemName()) { n += getSystemName(); n += '.'; beg = TRUE; }
-  if (beg || hasVolumeName()) { n += getVolumeName(); n += '.'; beg = TRUE; }
-  if (beg || hasSubvolName()) { n += getSubvolName(); n += '.'; beg = TRUE; }
-  if (beg || hasFileName())     n += getFileName();
+  if (hasSystemName()) {
+    n += getSystemName();
+    n += '.';
+    beg = TRUE;
+  }
+  if (beg || hasVolumeName()) {
+    n += getVolumeName();
+    n += '.';
+    beg = TRUE;
+  }
+  if (beg || hasSubvolName()) {
+    n += getSubvolName();
+    n += '.';
+    beg = TRUE;
+  }
+  if (beg || hasFileName()) n += getFileName();
 
   // If this Loc was built using the left-to-right ctor
   // or with format SUBVOL or VOL or SYS,
   // it can have trailing parts missing, e.g. "\SYS.$VOL.SUBV.",
   // so now we remove any trailing dots, e.g. "\SYS.$VOL.SUBV"
-  for (size_t i = n.length(); i-- && n[i] == '.'; )
-    n.remove(i);
+  for (size_t i = n.length(); i-- && n[i] == '.';) n.remove(i);
 
   return n;
 }
 
-ComString ComMPLoc::getOSSName() const
-{
+ComString ComMPLoc::getOSSName() const {
   // Do NOT say "if (!isValid())" here -- infinite recursion!
   // Instead we just pass the name along as-is, if UNKNOWN.
-  if (format_ == INVALID)
-    return system_;		// original string, saved by parse() if error
+  if (format_ == INVALID) return system_;  // original string, saved by parse() if error
 
   static const ComString VSV_DEFAULT("SYSTEM");
   ComString n("/G/");
@@ -345,40 +329,34 @@ ComString ComMPLoc::getOSSName() const
 //
 // See CollationInfo class's namelen + synonymOffset[3] size_t's.
 //
-ComString ComMPLoc::getMPName(size_t *lenArray /* array[5] */ ) const
-{
+ComString ComMPLoc::getMPName(size_t *lenArray /* array[5] */) const {
   lenArray[0] = lenArray[1] = lenArray[2] = lenArray[3] = lenArray[4] = 0;
   ComString n = getMPName();
   ComASSERT(format_ != UNKNOWN);
-  if (format_ != UNKNOWN &&			// safe to..
-      ((ComMPLoc *)this)->isValid(FILE)) {	// ..cast away constness
-    lenArray[1] = n.length();	// [1] = length of full name
+  if (format_ != UNKNOWN &&                 // safe to..
+      ((ComMPLoc *)this)->isValid(FILE)) {  // ..cast away constness
+    lenArray[1] = n.length();               // [1] = length of full name
     size_t a = 1;
     size_t i = 0;
     const char *s = n.data();
-    for ( ; *s; i++, s++) {
+    for (; *s; i++, s++) {
       if (*s == '.') {
-	lenArray[++a] = i + 1;	// [2] thru [4] = offsets of trailing name parts
+        lenArray[++a] = i + 1;  // [2] thru [4] = offsets of trailing name parts
       }
     }
-    lenArray[0] = a;		// [0] = the count of size_t's being returned
-  } 				// (length + up to 3 offsets)
-				// (aka the number of nameparts)
-  return n;			// Return the external-format string as well.
+    lenArray[0] = a;  // [0] = the count of size_t's being returned
+  }                   // (length + up to 3 offsets)
+     // (aka the number of nameparts)
+  return n;  // Return the external-format string as well.
 }
 
-ComBoolean ComMPLoc::isValid(Format fmt)
-{
-  if (format_ == UNKNOWN)
-    parse(getMPName(), fmt);
+ComBoolean ComMPLoc::isValid(Format fmt) {
+  if (format_ == UNKNOWN) parse(getMPName(), fmt);
 
-  return ((format_ != INVALID) &&
-  	  (format_ == fmt ||
-  	   ABS(format_) == fmt));	// format_ of FULLFILE matches FILE,
-}					// but *not* vice versa!
+  return ((format_ != INVALID) && (format_ == fmt || ABS(format_) == fmt));  // format_ of FULLFILE matches FILE,
+}  // but *not* vice versa!
 
-ComBoolean ComMPLoc::getAsSubvol()
-{
+ComBoolean ComMPLoc::getAsSubvol() {
   if (isValid(SUBVOL)) return TRUE;
   if (hasSubvolName()) {
     file_ = "";
@@ -388,8 +366,7 @@ ComBoolean ComMPLoc::getAsSubvol()
   return FALSE;
 }
 
-ostream &operator<< (ostream &s, const ComMPLoc &name)
-{
+ostream &operator<<(ostream &s, const ComMPLoc &name) {
   s << name.getMPName();
   return s;
 }

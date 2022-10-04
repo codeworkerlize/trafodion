@@ -77,44 +77,36 @@ class AbstractRIConstraintList;
 //	  CheckOptConstraint(const CheckConstraint &CheckConstraint) ...
 // Thus we're wasting a little space in all the other Ansi constraints; too bad.
 // -----------------------------------------------------------------------
-class Constraint : public ItemExpr
-{
-public:
-
-  Constraint(OperatorTypeEnum itmType, const QualifiedName &cName, CollHeap * h=0)
-       : ItemExpr(itmType),
-         constraintName_(cName, h),
-         colSignature_(h)
-  {}
+class Constraint : public ItemExpr {
+ public:
+  Constraint(OperatorTypeEnum itmType, const QualifiedName &cName, CollHeap *h = 0)
+      : ItemExpr(itmType), constraintName_(cName, h), colSignature_(h) {}
 
   // copy ctor
-  Constraint (const Constraint & cons, CollHeap * h=0)
-       : ItemExpr(cons.getOperatorType(), cons.child(0), cons.child(1)),
-         constraintName_(cons.constraintName_, h),
-         referencedCols_(cons.referencedCols_),
-         colSignature_(cons.colSignature_, h)
-  {}
+  Constraint(const Constraint &cons, CollHeap *h = 0)
+      : ItemExpr(cons.getOperatorType(), cons.child(0), cons.child(1)),
+        constraintName_(cons.constraintName_, h),
+        referencedCols_(cons.referencedCols_),
+        colSignature_(cons.colSignature_, h) {}
 
   const QualifiedName &getConstraintName() const { return constraintName_; }
 
-  typedef SET(Lng32) ColSignature;	// unordered set of column positions
+  typedef SET(Lng32) ColSignature;  // unordered set of column positions
   //##should be SUBARRAY(long)?  NABitVector?
   //##SUBARRAY(NAColumn *), with the array being NATable's NAColumnArray?
   //##
   //##cf AbstractRIConstraint::constraintOverlapsUpdateCols for required methods
   //##perhaps should be a separate class (reusable) with its own new methods?
 
-  typedef ARRAY(NAColumn *) KeyColumns;	// ordered array of columns
+  typedef ARRAY(NAColumn *) KeyColumns;  // ordered array of columns
 
   static void makeColSignature(const ValueIdSet &assigns, ColSignature &outsig);
   static void makeColSignature(const KeyColumns &columns, ColSignature &outsig);
 
-protected:
-
+ protected:
   const ColSignature &colSignature() const { return colSignature_; }
 
-private:
-
+ private:
   QualifiedName constraintName_;
 
   // A fast way to know all the BaseColumn ItemExpr's referenced "interestingly"
@@ -131,8 +123,7 @@ private:
   // ## the simpler RI case...
   ColSignature colSignature_;
 
-}; // Constraint
-
+};  // Constraint
 
 // -----------------------------------------------------------------------
 // Optimizer constraint
@@ -142,15 +133,12 @@ private:
 // constraints and information in a RelExpr tree.
 // -----------------------------------------------------------------------
 
-class OptConstraint : public ItemExpr
-{
-public:
-
+class OptConstraint : public ItemExpr {
+ public:
   OptConstraint(OperatorTypeEnum itmType) : ItemExpr(itmType) {}
   virtual ~OptConstraint() {}
 
-  virtual ItemExpr * copyTopNode(ItemExpr *derivedNode = NULL,
-				 CollHeap* outHeap = 0);
+  virtual ItemExpr *copyTopNode(ItemExpr *derivedNode = NULL, CollHeap *outHeap = 0);
   virtual Int32 getArity() const = 0;
 };
 
@@ -163,56 +151,45 @@ public:
 // Bound instances are attached to TableDescs only (one TD per table reference
 // in the query, ok).
 // -----------------------------------------------------------------------
-class CheckConstraint : public Constraint
-{
+class CheckConstraint : public Constraint {
   // ITM_CHECK_CONSTRAINT
-public:
-
+ public:
   // Constructor for table check constraint
-  CheckConstraint(const QualifiedName &cName, const NAString &text, CollHeap * h=0)
-       : Constraint(ITM_CHECK_CONSTRAINT, cName, h),		// check constraint name
-         constraintText_(text, h),
-         isViewWithCheckOption_(FALSE),
-         cascadingView_(h)
-  {}
+  CheckConstraint(const QualifiedName &cName, const NAString &text, CollHeap *h = 0)
+      : Constraint(ITM_CHECK_CONSTRAINT, cName, h),  // check constraint name
+        constraintText_(text, h),
+        isViewWithCheckOption_(FALSE),
+        cascadingView_(h) {}
 
   // Constructor for view with check option
-  CheckConstraint(const QualifiedName &vName,
-  		  const QualifiedName &cascadingView,
-                  CollHeap * h=0)
-       : Constraint(ITM_CHECK_CONSTRAINT, vName, h),		// view name
-         constraintText_(h),
-         cascadingView_(cascadingView, h),			// topmost WCO view
-         isViewWithCheckOption_(TRUE)
-  {}
+  CheckConstraint(const QualifiedName &vName, const QualifiedName &cascadingView, CollHeap *h = 0)
+      : Constraint(ITM_CHECK_CONSTRAINT, vName, h),  // view name
+        constraintText_(h),
+        cascadingView_(cascadingView, h),  // topmost WCO view
+        isViewWithCheckOption_(TRUE) {}
 
   // copy ctor
-  CheckConstraint (const CheckConstraint & chek, CollHeap * h=0)
-       : Constraint (chek, h),
-         constraintText_(chek.constraintText_, h),
-         cascadingView_(chek.cascadingView_, h),
-         isViewWithCheckOption_(chek.isViewWithCheckOption_)
-  {}
+  CheckConstraint(const CheckConstraint &chek, CollHeap *h = 0)
+      : Constraint(chek, h),
+        constraintText_(chek.constraintText_, h),
+        cascadingView_(chek.cascadingView_, h),
+        isViewWithCheckOption_(chek.isViewWithCheckOption_) {}
 
   virtual ~CheckConstraint() {}
   virtual Int32 getArity() const;
-  virtual ItemExpr * copyTopNode(ItemExpr *derivedNode = NULL,
-				 CollHeap* outHeap = 0);
-  void unparse(NAString &result,PhaseEnum phase,UnparseFormatEnum form,
-               TableDesc * tabId = NULL) const;
+  virtual ItemExpr *copyTopNode(ItemExpr *derivedNode = NULL, CollHeap *outHeap = 0);
+  void unparse(NAString &result, PhaseEnum phase, UnparseFormatEnum form, TableDesc *tabId = NULL) const;
   const NAString getText() const;
 
   const NAString &getConstraintText() const { return constraintText_; }
 
-  NABoolean isViewWithCheckOption() const   { return isViewWithCheckOption_; }
-  void setViewWithCheckOption(NABoolean t)  { isViewWithCheckOption_ = t; }
+  NABoolean isViewWithCheckOption() const { return isViewWithCheckOption_; }
+  void setViewWithCheckOption(NABoolean t) { isViewWithCheckOption_ = t; }
   const QualifiedName &getCascadingViewName() const { return cascadingView_; }
-  NABoolean isTheCascadingView() const 	    { return isViewWithCheckOption_ &&
-  						getConstraintName() ==
-						getCascadingViewName();
-					    } // i.e. "isTopmostWCOview()"
-private:
-
+  NABoolean isTheCascadingView() const {
+    return isViewWithCheckOption_ && getConstraintName() == getCascadingViewName();
+  }  // i.e. "isTopmostWCOview()"
+ private:
   NAString constraintText_;
 
   // This flag discriminates between the run-time errors
@@ -224,19 +201,16 @@ private:
   // See the BindWA::bindView() caller.
   QualifiedName cascadingView_;
 
-}; // CheckConstraint
+};  // CheckConstraint
 
-class CheckConstraintList : public LIST(CheckConstraint *)
-{
-public:
-  CheckConstraintList(CollHeap* h/*=0*/) : LIST(CheckConstraint *)(h) {}
+class CheckConstraintList : public LIST(CheckConstraint *) {
+ public:
+  CheckConstraintList(CollHeap *h /*=0*/) : LIST(CheckConstraint *)(h) {}
   // copy ctor
-  CheckConstraintList(const CheckConstraintList & cclist, CollHeap *h) :
-    LIST(CheckConstraint *)(cclist, h) {}
+  CheckConstraintList(const CheckConstraintList &cclist, CollHeap *h) : LIST(CheckConstraint *)(cclist, h) {}
 
   virtual ~CheckConstraintList() {}
 };
-
 
 // -----------------------------------------------------------------------
 // Lower/upper bound on the cardinality of a relational expression
@@ -245,24 +219,18 @@ public:
 // so no need to subclass this one from class Constraint
 // -----------------------------------------------------------------------
 
-class CardConstraint : public OptConstraint
-{
+class CardConstraint : public OptConstraint {
   // ITM_CARD_CONSTRAINT
-public:
-
-  CardConstraint(Cardinality lowerBound = 0,
-		 Cardinality upperBound = INFINITE_CARDINALITY)
-    : OptConstraint(ITM_CARD_CONSTRAINT),
-      lowerBound_(lowerBound),
-      upperBound_(upperBound) {}
+ public:
+  CardConstraint(Cardinality lowerBound = 0, Cardinality upperBound = INFINITE_CARDINALITY)
+      : OptConstraint(ITM_CARD_CONSTRAINT), lowerBound_(lowerBound), upperBound_(upperBound) {}
 
   virtual ~CardConstraint() {}
 
   // get the degree of this node (it is a leaf).
   virtual Int32 getArity() const;
 
-  virtual ItemExpr * copyTopNode(ItemExpr *derivedNode = NULL,
-				 CollHeap* outHeap = 0);
+  virtual ItemExpr *copyTopNode(ItemExpr *derivedNode = NULL, CollHeap *outHeap = 0);
 
   // accessor functions
   Cardinality getLowerBound() const { return lowerBound_; }
@@ -272,29 +240,24 @@ public:
 
   // get a printable string that identifies the operator
   const NAString getText() const;
-  void unparse(NAString &result,PhaseEnum phase,UnparseFormatEnum form,
-               TableDesc * tabId = NULL) const;
+  void unparse(NAString &result, PhaseEnum phase, UnparseFormatEnum form, TableDesc *tabId = NULL) const;
 
-private:
-
+ private:
   Cardinality lowerBound_;
   Cardinality upperBound_;
 
-}; // CardConstraint
-
+};  // CardConstraint
 
 // -----------------------------------------------------------------------
 // Uniqueness of a combination of columns/expressions in a table:
 // a) from OptLogRelExpr.C (internal, like CardConstraint).
 // -----------------------------------------------------------------------
-class UniqueOptConstraint : public OptConstraint
-{
+class UniqueOptConstraint : public OptConstraint {
   // ITM_UNIQUE_OPT_CONSTRAINT
-public:
-
+ public:
   // ctor for unique constraints discovered by the optimizer
   UniqueOptConstraint(const ValueIdSet &uniqueCols)
-    : OptConstraint(ITM_UNIQUE_OPT_CONSTRAINT), uniqueCols_(uniqueCols) {}
+      : OptConstraint(ITM_UNIQUE_OPT_CONSTRAINT), uniqueCols_(uniqueCols) {}
 
   // convert the other kind of u.c. into this internal kind
   //##useful extra info for Optimizer at some future point...
@@ -306,22 +269,19 @@ public:
   // get the degree of this node (it is a leaf).
   virtual Int32 getArity() const;
 
-  virtual ItemExpr * copyTopNode(ItemExpr *derivedNode = NULL,
-				 CollHeap* outHeap = 0);
+  virtual ItemExpr *copyTopNode(ItemExpr *derivedNode = NULL, CollHeap *outHeap = 0);
 
   // accessor functions
   ValueIdSet &uniqueCols() { return uniqueCols_; }
 
   // get a printable string that identifies the operator
   const NAString getText() const;
-  void unparse(NAString &result,PhaseEnum phase,UnparseFormatEnum form,
-               TableDesc * tabId = NULL) const;
+  void unparse(NAString &result, PhaseEnum phase, UnparseFormatEnum form, TableDesc *tabId = NULL) const;
 
-private:
-
+ private:
   ValueIdSet uniqueCols_;
 
-}; // UniqueOptConstraint
+};  // UniqueOptConstraint
 
 // -----------------------------------------------------------------------
 // Functional dependency of a set of columns from another set of columns.
@@ -329,35 +289,27 @@ private:
 // http://www.acm.org/sigmod/dblp/db/journals/tods/Bernstein76.html
 // or section 4.18 of the SQL99 "Foundation".
 // -----------------------------------------------------------------------
-class FuncDependencyConstraint : public OptConstraint
-{
-public:
-
+class FuncDependencyConstraint : public OptConstraint {
+ public:
   // ctor for unique constraints discovered by the optimizer
-  FuncDependencyConstraint(const ValueIdSet &determiningCols,
-			   const ValueIdSet &dependentCols)
-    : OptConstraint(ITM_FUNC_DEPEND_CONSTRAINT),
-      determiningCols_(determiningCols),
-      dependentCols_(dependentCols) {}
+  FuncDependencyConstraint(const ValueIdSet &determiningCols, const ValueIdSet &dependentCols)
+      : OptConstraint(ITM_FUNC_DEPEND_CONSTRAINT), determiningCols_(determiningCols), dependentCols_(dependentCols) {}
 
   virtual ~FuncDependencyConstraint() {}
 
   // get the degree of this node (it is a leaf).
   virtual Int32 getArity() const;
 
-  virtual ItemExpr * copyTopNode(ItemExpr *derivedNode = NULL,
-				 CollHeap* outHeap = 0);
+  virtual ItemExpr *copyTopNode(ItemExpr *derivedNode = NULL, CollHeap *outHeap = 0);
 
   // accessor functions
-  const ValueIdSet & getDeterminingCols() const  { return determiningCols_; }
-  const ValueIdSet & getDependentCols() const      { return dependentCols_; }
+  const ValueIdSet &getDeterminingCols() const { return determiningCols_; }
+  const ValueIdSet &getDependentCols() const { return dependentCols_; }
 
   // create functional dependencies for a group from one of its child
   // RelExprs (adds new functional dependency constraints to ga of parent)
-  static void synthFunctionalDependenciesFromChild(
-       GroupAttributes &ga,
-       const RelExpr *child,
-       NABoolean createNewDependencies);
+  static void synthFunctionalDependenciesFromChild(GroupAttributes &ga, const RelExpr *child,
+                                                   NABoolean createNewDependencies);
 
   // reduce a set of columns such that it contains no entries that are
   // functionally dependent on the other elements of the set
@@ -365,11 +317,9 @@ public:
 
   // get a printable string that identifies the operator
   const NAString getText() const;
-  void unparse(NAString &result,PhaseEnum phase,UnparseFormatEnum form,
-               TableDesc * tabId = NULL) const;
+  void unparse(NAString &result, PhaseEnum phase, UnparseFormatEnum form, TableDesc *tabId = NULL) const;
 
-private:
-
+ private:
   ValueIdSet determiningCols_;
   ValueIdSet dependentCols_;
 };
@@ -379,14 +329,11 @@ private:
 // physical properties like a sort order. These may be needed to validate
 // that a given sort order does indeed satisfy a requirement.
 // -----------------------------------------------------------------------
-class CheckOptConstraint : public OptConstraint
-{
+class CheckOptConstraint : public OptConstraint {
   // ITM_CHECK_OPT_CONSTRAINT
-public:
-
+ public:
   // ctor for unique constraints discovered by the optimizer
-  CheckOptConstraint(const ValueIdSet &checkPreds)
-    : OptConstraint(ITM_CHECK_OPT_CONSTRAINT), checkPreds_(checkPreds) {}
+  CheckOptConstraint(const ValueIdSet &checkPreds) : OptConstraint(ITM_CHECK_OPT_CONSTRAINT), checkPreds_(checkPreds) {}
 
   // convert the other kind of u.c. into this internal kind
   //##useful extra info for Optimizer at some future point...
@@ -396,22 +343,19 @@ public:
   // get the degree of this node (it is a leaf).
   virtual Int32 getArity() const;
 
-  virtual ItemExpr * copyTopNode(ItemExpr *derivedNode = NULL,
-				 CollHeap* outHeap = 0);
+  virtual ItemExpr *copyTopNode(ItemExpr *derivedNode = NULL, CollHeap *outHeap = 0);
 
   // accessor functions
   const ValueIdSet &getCheckPreds() { return checkPreds_; }
 
   // get a printable string that identifies the operator
   const NAString getText() const;
-  void unparse(NAString &result,PhaseEnum phase,UnparseFormatEnum form,
-               TableDesc * tabId = NULL) const;
+  void unparse(NAString &result, PhaseEnum phase, UnparseFormatEnum form, TableDesc *tabId = NULL) const;
 
-private:
-
+ private:
   ValueIdSet checkPreds_;
 
-}; // CheckOptConstraint
+};  // CheckOptConstraint
 
 // -----------------------------------------------------------------------
 //
@@ -424,44 +368,30 @@ private:
 //
 // -----------------------------------------------------------------------
 
-class AbstractRIConstraint : public Constraint
-{
-public:
-
-  AbstractRIConstraint(OperatorTypeEnum itmType,
-  		       const QualifiedName &cName,
-		       const QualifiedName &tName,
-		       CollHeap* heap)
-   : Constraint(itmType, cName, heap), defTableName_(&tName), keyColumns_(heap) {}
+class AbstractRIConstraint : public Constraint {
+ public:
+  AbstractRIConstraint(OperatorTypeEnum itmType, const QualifiedName &cName, const QualifiedName &tName, CollHeap *heap)
+      : Constraint(itmType, cName, heap), defTableName_(&tName), keyColumns_(heap) {}
 
   // copy ctor
-  AbstractRIConstraint (const AbstractRIConstraint & aric, CollHeap * h=0) :
-       Constraint(aric, h),
-       defTableName_(aric.defTableName_),
-       keyColumns_(aric.keyColumns_, h)
-  {}
+  AbstractRIConstraint(const AbstractRIConstraint &aric, CollHeap *h = 0)
+      : Constraint(aric, h), defTableName_(aric.defTableName_), keyColumns_(aric.keyColumns_, h) {}
 
   virtual ~AbstractRIConstraint();
-  virtual Int32 getRefConstraints(BindWA *bindWA,
-				const ColSignature &updateCols,
-				RefConstraintList &resultList) = 0;
+  virtual Int32 getRefConstraints(BindWA *bindWA, const ColSignature &updateCols, RefConstraintList &resultList) = 0;
 
   virtual void resetAfterStatement() = 0;
 
   const QualifiedName &getDefiningTableName() const { return *defTableName_; }
 
-  void setKeyColumns(const struct TrafConstrntsDesc*, CollHeap*);
+  void setKeyColumns(const struct TrafConstrntsDesc *, CollHeap *);
 
   const KeyColumns &keyColumns() const { return keyColumns_; }
 
-  AbstractRIConstraint *findConstraint(BindWA *bindWA,
-				       const ComplementaryRIConstraint &riInfo)
-				      const;
+  AbstractRIConstraint *findConstraint(BindWA *bindWA, const ComplementaryRIConstraint &riInfo) const;
 
-protected:
-
-  NABoolean constraintOverlapsUpdateCols(BindWA *bindWA,
- 					 const ColSignature &updateCols) const;
+ protected:
+  NABoolean constraintOverlapsUpdateCols(BindWA *bindWA, const ColSignature &updateCols) const;
 
   // Pointer to name of the table which defined this constraint
   // (pointer to within an NATable)
@@ -469,41 +399,32 @@ protected:
 
   KeyColumns keyColumns_;
 
-}; // AbstractRIConstraint
+};  // AbstractRIConstraint
 
-class ComplementaryRIConstraint : public NABasicObject
-{
-public:
-
+class ComplementaryRIConstraint : public NABasicObject {
+ public:
   // This class represents the complementing half of an RI constraint --
   // the UC referenced by an FK, or one (of perhaps many) FK referencing a UC
 
-  ComplementaryRIConstraint(const QualifiedName &cName,
-  			    const QualifiedName &tName,
-                            CollHeap * h=0)
-       : constraintName_(cName, h), tableName_(tName, h), keyColumns_(NULL) {}
+  ComplementaryRIConstraint(const QualifiedName &cName, const QualifiedName &tName, CollHeap *h = 0)
+      : constraintName_(cName, h), tableName_(tName, h), keyColumns_(NULL) {}
 
   // copy ctor
-  ComplementaryRIConstraint (const ComplementaryRIConstraint & cric, CollHeap * h=0)
-       : constraintName_(cric.constraintName_, h),
-         tableName_(cric.tableName_, h),
-         keyColumns_(cric.keyColumns_)
-  {}
+  ComplementaryRIConstraint(const ComplementaryRIConstraint &cric, CollHeap *h = 0)
+      : constraintName_(cric.constraintName_, h), tableName_(cric.tableName_, h), keyColumns_(cric.keyColumns_) {}
 
   // needed by Collections template for reasons not now apparent:
-  ComplementaryRIConstraint (CollHeap * h=0) :
-       constraintName_("",h), tableName_("",h), keyColumns_(NULL) {}
-  NABoolean operator==(const ComplementaryRIConstraint& c)
-			{ return constraintName_ == c.constraintName_; }
+  ComplementaryRIConstraint(CollHeap *h = 0) : constraintName_("", h), tableName_("", h), keyColumns_(NULL) {}
+  NABoolean operator==(const ComplementaryRIConstraint &c) { return constraintName_ == c.constraintName_; }
 
   // This method resets any pointers to the 'other table''s data after
-  // each statement. For example: the KeyColumns_ points to the keyColumns_ 
+  // each statement. For example: the KeyColumns_ points to the keyColumns_
   // from the NATable of the 'other table'. This pointer may not be valid
-  // if the NATable cache of the 'other table' is refreshed. 
+  // if the NATable cache of the 'other table' is refreshed.
   void resetAfterStatement();
 
   // Let the data be freely available to the RI classes using this helper class
-  //private:
+  // private:
 
   // A subset of fields as in AbstractRIConstraint, but *tweaked* a lil differnt
   // Conceptually, this is the same, just less baggage/overhead hopefully.
@@ -512,74 +433,59 @@ public:
 
   const Constraint::KeyColumns *keyColumns() const { return keyColumns_; }
 
-  QualifiedName constraintName_;	// same as Constraint
-  QualifiedName tableName_;		// cf. AbstractRIConstraint's pointer
-  const Constraint::KeyColumns *keyColumns_;	// cf. AbstractRIConstraint's
+  QualifiedName constraintName_;              // same as Constraint
+  QualifiedName tableName_;                   // cf. AbstractRIConstraint's pointer
+  const Constraint::KeyColumns *keyColumns_;  // cf. AbstractRIConstraint's
 
   const QualifiedName &getConstraintName() const { return constraintName_; }
   const QualifiedName &getTableName() const { return tableName_; }
 
-}; // ComplementaryRIConstraint
+};  // ComplementaryRIConstraint
 
 // -----------------------------------------------------------------------
 // Uniqueness of a combination of columns in a table:
 // b) from DDL (including PRIMARY KEY, a type of UNIQUE constraint).
 // -----------------------------------------------------------------------
-class UniqueConstraint : public AbstractRIConstraint
-{
+class UniqueConstraint : public AbstractRIConstraint {
   // ITM_UNIQUE_CONSTRAINT
-public:
+ public:
+  friend class RefConstraint;  // RefConstraint::getRefConstraints();
 
-  friend class RefConstraint;	//RefConstraint::getRefConstraints();
-
-  UniqueConstraint(const QualifiedName &cName,
-                   const QualifiedName &tName,
-		   CollHeap* heap,
-		   NABoolean PK = FALSE)
-       : AbstractRIConstraint(ITM_UNIQUE_CONSTRAINT, cName, tName, heap),
-         refConstraintsReferencingMe_(heap),
-         isPrimaryKey_(PK) {}
+  UniqueConstraint(const QualifiedName &cName, const QualifiedName &tName, CollHeap *heap, NABoolean PK = FALSE)
+      : AbstractRIConstraint(ITM_UNIQUE_CONSTRAINT, cName, tName, heap),
+        refConstraintsReferencingMe_(heap),
+        isPrimaryKey_(PK) {}
 
   // copy ctor
-  UniqueConstraint (const UniqueConstraint & unic, CollHeap * h=0)
-       : AbstractRIConstraint (unic, h),
-         refConstraintsReferencingMe_(unic.refConstraintsReferencingMe_, h),
-         isPrimaryKey_(unic.isPrimaryKey_)
-  {}
+  UniqueConstraint(const UniqueConstraint &unic, CollHeap *h = 0)
+      : AbstractRIConstraint(unic, h),
+        refConstraintsReferencingMe_(unic.refConstraintsReferencingMe_, h),
+        isPrimaryKey_(unic.isPrimaryKey_) {}
 
   virtual ~UniqueConstraint();
   virtual void resetAfterStatement();
-  virtual Int32 getRefConstraints(BindWA *bindWA,
-				const ColSignature &updateCols,
-				RefConstraintList &resultList);
-  void setRefConstraintsReferencingMe(const struct TrafConstrntsDesc*,
-                                    CollHeap*, BindWA*);
-  NABoolean hasRefConstraintsReferencingMe()
-  { return NOT refConstraintsReferencingMe_.isEmpty() ; };
+  virtual Int32 getRefConstraints(BindWA *bindWA, const ColSignature &updateCols, RefConstraintList &resultList);
+  void setRefConstraintsReferencingMe(const struct TrafConstrntsDesc *, CollHeap *, BindWA *);
+  NABoolean hasRefConstraintsReferencingMe() { return NOT refConstraintsReferencingMe_.isEmpty(); };
 
   const NABoolean isPrimaryKeyConstraint() { return isPrimaryKey_; }
 
-  Lng32 getNumRefConstraintsReferencingMe()
-  {
-    return refConstraintsReferencingMe_.entries();
-  }
+  Lng32 getNumRefConstraintsReferencingMe() { return refConstraintsReferencingMe_.entries(); }
 
-  const ComplementaryRIConstraint *getRefConstraintReferencingMe(Lng32 i)
-  {
-    if ((hasRefConstraintsReferencingMe()) &&
-	((i >= 0) && i <= refConstraintsReferencingMe_.entries()))
-    return refConstraintsReferencingMe_[i];
-    
+  const ComplementaryRIConstraint *getRefConstraintReferencingMe(Lng32 i) {
+    if ((hasRefConstraintsReferencingMe()) && ((i >= 0) && i <= refConstraintsReferencingMe_.entries()))
+      return refConstraintsReferencingMe_[i];
+
     return NULL;
   }
-private:
 
+ private:
   // List of pointers to ComplementaryRIConstraint.
-  LIST(ComplementaryRIConstraint*) refConstraintsReferencingMe_;	// zero or more
+  LIST(ComplementaryRIConstraint *) refConstraintsReferencingMe_;  // zero or more
 
   NABoolean isPrimaryKey_;
 
-}; // UniqueConstraint
+};  // UniqueConstraint
 
 // -----------------------------------------------------------------------
 // Referential constraint:  One table references another.
@@ -604,137 +510,110 @@ private:
 //	i.e. *not* [1.G 2.H 3.I]!
 // (These positions may be zero-based; I don't know; this is illustrative only.)
 // -----------------------------------------------------------------------
-class RefConstraint : public AbstractRIConstraint
-{
+class RefConstraint : public AbstractRIConstraint {
   // ITM_REF_CONSTRAINT
-public:
+ public:
+  friend class UniqueConstraint;  // UniqueConstraint::getRefConstraints();
 
-  friend class UniqueConstraint;	//UniqueConstraint::getRefConstraints();
-
-  RefConstraint(const QualifiedName &cName, const QualifiedName &tName,
-  		const QualifiedName &cRefd, const QualifiedName &tRefd,
-		CollHeap* heap)
-       : AbstractRIConstraint(ITM_REF_CONSTRAINT, cName, tName, heap),
-         uniqueConstraintReferencedByMe_(cRefd, tRefd, heap),
-         matchPartial_(FALSE), isEnforced_(TRUE)
-  { otherTableName_ = &uniqueConstraintReferencedByMe_.tableName_; }
+  RefConstraint(const QualifiedName &cName, const QualifiedName &tName, const QualifiedName &cRefd,
+                const QualifiedName &tRefd, CollHeap *heap)
+      : AbstractRIConstraint(ITM_REF_CONSTRAINT, cName, tName, heap),
+        uniqueConstraintReferencedByMe_(cRefd, tRefd, heap),
+        matchPartial_(FALSE),
+        isEnforced_(TRUE) {
+    otherTableName_ = &uniqueConstraintReferencedByMe_.tableName_;
+  }
 
   // copy ctor
-  RefConstraint (const RefConstraint & refc, CollHeap * h=0)
-       : AbstractRIConstraint (refc, h),
-         uniqueConstraintReferencedByMe_(refc.uniqueConstraintReferencedByMe_, h),
-         otherTableName_(refc.otherTableName_),
-         matchPartial_(refc.matchPartial_),
-	 isEnforced_(refc.isEnforced_)
-  {}
+  RefConstraint(const RefConstraint &refc, CollHeap *h = 0)
+      : AbstractRIConstraint(refc, h),
+        uniqueConstraintReferencedByMe_(refc.uniqueConstraintReferencedByMe_, h),
+        otherTableName_(refc.otherTableName_),
+        matchPartial_(refc.matchPartial_),
+        isEnforced_(refc.isEnforced_) {}
   virtual ~RefConstraint();
-  virtual void resetAfterStatement() 
-  {uniqueConstraintReferencedByMe_.resetAfterStatement();};
+  virtual void resetAfterStatement() { uniqueConstraintReferencedByMe_.resetAfterStatement(); };
 
-  virtual Int32 getRefConstraints(BindWA *bindWA,
-				const ColSignature &updateCols,
-				RefConstraintList &resultList);
+  virtual Int32 getRefConstraints(BindWA *bindWA, const ColSignature &updateCols, RefConstraintList &resultList);
 
   inline NABoolean selfRef() const;
   inline NABoolean isaForeignKeyinTableBeingUpdated() const;
   inline NABoolean referencesTableBeingUpdated() const;
 
-  const QualifiedName &getOtherTableName() const
-  {
-    return *otherTableName_;
-  } 
+  const QualifiedName &getOtherTableName() const { return *otherTableName_; }
 
-  inline void getMyKeyColumns(LIST(Lng32)& colPositions) const;
-  void getOtherTableKeyColumns(BindWA *bindWA, LIST(Lng32)& colPositions) const;
+  inline void getMyKeyColumns(LIST(Lng32) & colPositions) const;
+  void getOtherTableKeyColumns(BindWA *bindWA, LIST(Lng32) & colPositions) const;
 
-  void getMatchOptionPredicateText(NAString &text, 
-				   NAString *corrName) const;
-  
+  void getMatchOptionPredicateText(NAString &text, NAString *corrName) const;
+
   void getPredicateText(NAString &text, NAString *corrName) const;
 
   NABoolean isRINeededForUpdatedColumns(UpdateColumns *UpdatedColumns);
 
-  NABoolean getIsEnforced() const {return isEnforced_ ;} ;
-  void setIsEnforced(NABoolean val) {isEnforced_ = val ;} ;
+  NABoolean getIsEnforced() const { return isEnforced_; };
+  void setIsEnforced(NABoolean val) { isEnforced_ = val; };
 
-  const QualifiedName& getUniqueConstraintName() const
-  {
-    return uniqueConstraintReferencedByMe_.constraintName_;
-  }
+  const QualifiedName &getUniqueConstraintName() const { return uniqueConstraintReferencedByMe_.constraintName_; }
 
-  const ComplementaryRIConstraint& getUniqueConstraintReferencedByMe() const
-  {
-    return uniqueConstraintReferencedByMe_;
-  }
+  const ComplementaryRIConstraint &getUniqueConstraintReferencedByMe() const { return uniqueConstraintReferencedByMe_; }
 
-private:
-
-  void getPredicateText(NAString &text,
-  		        const QualifiedName &tblName,
-			const KeyColumns &keyColumns,
+ private:
+  void getPredicateText(NAString &text, const QualifiedName &tblName, const KeyColumns &keyColumns,
                         NAString *corrName = NULL) const;
-  
-// The instigating table has a UniqueConstraint which this RefC is referencing;
-// tell this RefC that its defining table is "the other" table
-// relative to the table being ins/upd/del (the instigating table).
 
-  void setOtherTableName()
-  {
+  // The instigating table has a UniqueConstraint which this RefC is referencing;
+  // tell this RefC that its defining table is "the other" table
+  // relative to the table being ins/upd/del (the instigating table).
+
+  void setOtherTableName() {
     // Assertion to catch any impossible/weird persistence bug in SchemaDB/NATable
-    CMPASSERT(otherTableName_ == &getDefiningTableName() || otherTableName_ == &uniqueConstraintReferencedByMe_.tableName_ ||
-   	      selfRef());
+    CMPASSERT(otherTableName_ == &getDefiningTableName() ||
+              otherTableName_ == &uniqueConstraintReferencedByMe_.tableName_ || selfRef());
     otherTableName_ = &getDefiningTableName();
   }
 
-// Tell this RefC that the "the other" table is the table referenced by 
-// its defining table. 
-  void resetOtherTableName()
-  {
+  // Tell this RefC that the "the other" table is the table referenced by
+  // its defining table.
+  void resetOtherTableName() {
     // Assertion to catch any impossible/weird persistence bug in SchemaDB/NATable
-    CMPASSERT(otherTableName_ == &getDefiningTableName() || otherTableName_ == &uniqueConstraintReferencedByMe_.tableName_ ||
-   	      selfRef());
+    CMPASSERT(otherTableName_ == &getDefiningTableName() ||
+              otherTableName_ == &uniqueConstraintReferencedByMe_.tableName_ || selfRef());
     otherTableName_ = &uniqueConstraintReferencedByMe_.tableName_;
   }
 
-  void KeyColumnsToPositionsList( LIST(Lng32)& colPositions, 
-								  const KeyColumns& keyColumns) const;
+  void KeyColumnsToPositionsList(LIST(Lng32) & colPositions, const KeyColumns &keyColumns) const;
 
-  ComplementaryRIConstraint uniqueConstraintReferencedByMe_;	// exactly one
+  ComplementaryRIConstraint uniqueConstraintReferencedByMe_;  // exactly one
 
   // Pointer to the "other" table relative to the table being ins/upd/del.
   // Initially points to the referenced table but can be set the other way
   // (see the inline setOtherTableName comments below)
   const QualifiedName *otherTableName_;
 
-  NABoolean matchPartial_;				//## set() this later
+  NABoolean matchPartial_;  //## set() this later
   NABoolean isEnforced_;
 
-}; // RefConstraint
+};  // RefConstraint
 
-
-class AbstractRIConstraintList : public LIST(AbstractRIConstraint *)
-{
-public:
-  AbstractRIConstraintList(CollHeap* h/*=0*/) : LIST(AbstractRIConstraint *)(h) {}
+class AbstractRIConstraintList : public LIST(AbstractRIConstraint *) {
+ public:
+  AbstractRIConstraintList(CollHeap *h /*=0*/) : LIST(AbstractRIConstraint *)(h) {}
   // copy ctor
-  AbstractRIConstraintList (const AbstractRIConstraintList & arilist, CollHeap * h)
-    : LIST(AbstractRIConstraint *)(arilist, h) {}
+  AbstractRIConstraintList(const AbstractRIConstraintList &arilist, CollHeap *h)
+      : LIST(AbstractRIConstraint *)(arilist, h) {}
 
   virtual ~AbstractRIConstraintList() {}
 
-  Int32 getRefConstraints(BindWA *bindWA,
-			const ValueIdSet &assigns,
-			RefConstraintList &resultList) const;
+  Int32 getRefConstraints(BindWA *bindWA, const ValueIdSet &assigns, RefConstraintList &resultList) const;
   void resetAfterStatement();
 };
 
-class RefConstraintList : public LIST(RefConstraint *)
-{
-public:
-  RefConstraintList(CollHeap* h/*=0*/) : LIST(RefConstraint *)(h) {}
+class RefConstraintList : public LIST(RefConstraint *) {
+ public:
+  RefConstraintList(CollHeap *h /*=0*/) : LIST(RefConstraint *)(h) {}
   // copy ctor
-  RefConstraintList (const RefConstraintList & rclist, CollHeap * h)
-    : LIST(RefConstraint *)(rclist, h) {}
+  RefConstraintList(const RefConstraintList &rclist, CollHeap *h) : LIST(RefConstraint *)(rclist, h) {}
   virtual ~RefConstraintList() {}
 
   RefConstraintList *getNeededRIs(UpdateColumns *UpdatedColumns, CollHeap *heap);
@@ -742,87 +621,76 @@ public:
 
 // -----------------------------------------------------------------------
 // Foreign Key side of a Referential constraint (optimizer version)
-// the optimizer version uses Value Ids and has fewer data members than the 
+// the optimizer version uses Value Ids and has fewer data members than the
 // class RefConstraint.
-// This class is used to represent a Referential constraint used from 
+// This class is used to represent a Referential constraint used from
 // Normalizer onwards.
 // This object is constructed during Scan::synthLogProp() in the Normalizer
 // As the parent nodes of the scan have their logical properties synthesized
-// this constraint flows up until it is either (a) matched with its 
+// this constraint flows up until it is either (a) matched with its
 // corresponding uniqueness constraint (in which case the matched flag is set)
-// or (b) its foreign key(FK) characteristic is destroyed. The foreign key 
+// or (b) its foreign key(FK) characteristic is destroyed. The foreign key
 // characteristic is said to be destroyed when the valueids that make up
 // the FK are no longer part of the outputs of a node. This will happen
-// when the FK columns are  not part of char. outputs of a node. This means 
-// that either 
+// when the FK columns are  not part of char. outputs of a node. This means
+// that either
 // (1) there is no join on the FK columns up above
-// (2) Nodes such as Union, transpose, outer join has altered the value 
+// (2) Nodes such as Union, transpose, outer join has altered the value
 // of the FK columns
 // If the FK characteristic is destroyed we simply stop flowing this constraint
 // up the query tree.
 // A match is made between the RefOptConstraint and the corresponding
-// ComplementaryRefOptConstraint when 
+// ComplementaryRefOptConstraint when
 // (a) the name attribute in the two objects are identical
-//and (b) each (ForeignKey col, UniqueKey col) pair is related by an equality 
+// and (b) each (ForeignKey col, UniqueKey col) pair is related by an equality
 //    join predicate
-//and (c) there is no other join predicate between the referenced and refencing
-//tables.
-// Since valueids are used to enforce conditions (b) and (c) above, if there 
+// and (c) there is no other join predicate between the referenced and refencing
+// tables.
+// Since valueids are used to enforce conditions (b) and (c) above, if there
 // are 2 intances of the same unique key table in a query, it is possible to
 // match them separately in the same query.
 // -----------------------------------------------------------------------
-class RefOptConstraint : public OptConstraint
-{
+class RefOptConstraint : public OptConstraint {
   // ITM_REF_OPT_CONSTRAINT
-public:
-
+ public:
   // ctor for unique constraints discovered by the optimizer
-  RefOptConstraint(const ValueIdList &fkCols, const QualifiedName &ukCName, 
-		    CollHeap * h=NULL)
-    : OptConstraint(ITM_REF_OPT_CONSTRAINT), fkCols_(fkCols), 
-      uniqueConstraintName_(ukCName, h), isMatched_(FALSE) {}
+  RefOptConstraint(const ValueIdList &fkCols, const QualifiedName &ukCName, CollHeap *h = NULL)
+      : OptConstraint(ITM_REF_OPT_CONSTRAINT), fkCols_(fkCols), uniqueConstraintName_(ukCName, h), isMatched_(FALSE) {}
 
   RefOptConstraint(const RefOptConstraint &riOptConstr)
-    : OptConstraint (ITM_REF_OPT_CONSTRAINT),
-         fkCols_(riOptConstr.fkCols_),
-	 uniqueConstraintName_(riOptConstr.uniqueConstraintName_),
-	 isMatched_(riOptConstr.isMatched_)
-  {}
+      : OptConstraint(ITM_REF_OPT_CONSTRAINT),
+        fkCols_(riOptConstr.fkCols_),
+        uniqueConstraintName_(riOptConstr.uniqueConstraintName_),
+        isMatched_(riOptConstr.isMatched_) {}
 
   virtual ~RefOptConstraint() {}
 
   // get the degree of this node (it is a leaf).
   virtual Int32 getArity() const;
 
-  virtual ItemExpr * copyTopNode(ItemExpr *derivedNode = NULL,
-				 CollHeap* outHeap = NULL);
+  virtual ItemExpr *copyTopNode(ItemExpr *derivedNode = NULL, CollHeap *outHeap = NULL);
 
   // accessor functions
   ValueIdList &foreignKeyCols() { return fkCols_; }
-  const QualifiedName &uniqueConstraintName() const 
-  { return uniqueConstraintName_ ;}
+  const QualifiedName &uniqueConstraintName() const { return uniqueConstraintName_; }
 
   // get a printable string that identifies the operator
   virtual const NAString getText() const;
-  virtual void unparse(NAString &result,PhaseEnum phase,UnparseFormatEnum form,
-               TableDesc * tabId = NULL) const;
+  virtual void unparse(NAString &result, PhaseEnum phase, UnparseFormatEnum form, TableDesc *tabId = NULL) const;
 
-  const NABoolean isMatched() const 
-  { return isMatched_ ;}
+  const NABoolean isMatched() const { return isMatched_; }
 
-  void setIsMatched(NABoolean val)
-  { isMatched_ = val;}
+  void setIsMatched(NABoolean val) { isMatched_ = val; }
 
-private:
-
+ private:
   ValueIdList fkCols_;
   // Name of Unique Constraint that I (this Ref Constraint) points to.
   // Used for matching purpose at the Join node that eventually
-  // sees the two sides of this Ref constraint together for the first 
+  // sees the two sides of this Ref constraint together for the first
   // time
   QualifiedName uniqueConstraintName_;
   NABoolean isMatched_;
-}; // RefOptConstraint
+};  // RefOptConstraint
 
 // -----------------------------------------------------------------------
 // Unique constraint (UC) side of a Referential Constraint (optimizer version)
@@ -832,7 +700,7 @@ private:
 // This object is constructed during Scan::synthLogProp() in the Normalizer.
 // As the parent nodes of the scan have their logical properties synthesized
 // this constraint flows up until either
-// (a) the rows produced by the scan are filtered by a predicate 
+// (a) the rows produced by the scan are filtered by a predicate
 // or otherwise reduced by a groupby
 // or (b) the UC columns are not needed by parent nodes and are therefore not part
 // of char. outputs. This means that there is no join on the UC columns up above
@@ -842,77 +710,58 @@ private:
 // with its corresponding RefOptConstraint and is not flowed up the query tree
 // anymore.
 // -----------------------------------------------------------------------
-class ComplementaryRefOptConstraint : public OptConstraint
-{
+class ComplementaryRefOptConstraint : public OptConstraint {
   // ITM_COMP_REF_OPT_CONSTRAINT
-public:
-
+ public:
   // Constructor
-  ComplementaryRefOptConstraint(const ValueIdList &ucCols,
-				const QualifiedName &cName, 
-				RelExpr * tabPtr, 
-				TableDesc * tabDesc, 
-                                CollHeap * h=NULL,
-                                NABoolean isMatchedForElimination=FALSE)
-       : OptConstraint(ITM_COMP_REF_OPT_CONSTRAINT), 
-         ucCols_(ucCols), 
-	 constraintName_(cName,h), // uniqueness constraint name
-	 tabPtr_(tabPtr),
-	 tabDesc_(tabDesc),
-         isMatchedForElimination_(FALSE)
-  {}
+  ComplementaryRefOptConstraint(const ValueIdList &ucCols, const QualifiedName &cName, RelExpr *tabPtr,
+                                TableDesc *tabDesc, CollHeap *h = NULL, NABoolean isMatchedForElimination = FALSE)
+      : OptConstraint(ITM_COMP_REF_OPT_CONSTRAINT),
+        ucCols_(ucCols),
+        constraintName_(cName, h),  // uniqueness constraint name
+        tabPtr_(tabPtr),
+        tabDesc_(tabDesc),
+        isMatchedForElimination_(FALSE) {}
 
   // copy ctor
-  ComplementaryRefOptConstraint(const ComplementaryRefOptConstraint & constr, 
-				  CollHeap * h=0)
-       : OptConstraint (ITM_COMP_REF_OPT_CONSTRAINT),
-         ucCols_(constr.ucCols_),
-	 constraintName_(constr.constraintName_),
-	 tabPtr_(constr.tabPtr_),
-	 tabDesc_(constr.tabDesc_),
-         isMatchedForElimination_(constr.isMatchedForElimination_)
-  {}
+  ComplementaryRefOptConstraint(const ComplementaryRefOptConstraint &constr, CollHeap *h = 0)
+      : OptConstraint(ITM_COMP_REF_OPT_CONSTRAINT),
+        ucCols_(constr.ucCols_),
+        constraintName_(constr.constraintName_),
+        tabPtr_(constr.tabPtr_),
+        tabDesc_(constr.tabDesc_),
+        isMatchedForElimination_(constr.isMatchedForElimination_) {}
 
   virtual ~ComplementaryRefOptConstraint() {}
   virtual Int32 getArity() const;
-  virtual ItemExpr * copyTopNode(ItemExpr *derivedNode = NULL,
-				 CollHeap* outHeap = NULL);
-  virtual void unparse(NAString &result,PhaseEnum phase,UnparseFormatEnum form,
-               TableDesc * tabId = NULL) const;
+  virtual ItemExpr *copyTopNode(ItemExpr *derivedNode = NULL, CollHeap *outHeap = NULL);
+  virtual void unparse(NAString &result, PhaseEnum phase, UnparseFormatEnum form, TableDesc *tabId = NULL) const;
   virtual const NAString getText() const;
 
   // accessor functions
   ValueIdList &uniqueKeyCols() { return ucCols_; }
-  const QualifiedName &constraintName() const 
-  { return constraintName_ ;}
+  const QualifiedName &constraintName() const { return constraintName_; }
 
-  const RelExpr *getReferencedTable() const 
-  { return tabPtr_ ;}
+  const RelExpr *getReferencedTable() const { return tabPtr_; }
 
-  const TableDesc *getTableDesc() const 
-  { return tabDesc_ ;}
+  const TableDesc *getTableDesc() const { return tabDesc_; }
 
-  TableDesc *getTableDesc()
-  { return tabDesc_ ;}
+  TableDesc *getTableDesc() { return tabDesc_; }
 
-  void setReferencedTable(RelExpr * ptr)
-  { tabPtr_ = ptr;}
+  void setReferencedTable(RelExpr *ptr) { tabPtr_ = ptr; }
 
-  void setIsMatchedForElimination(NABoolean val)
-  { isMatchedForElimination_ = val; }
-  
-  NABoolean getIsMatchedForElimination()
-  { return isMatchedForElimination_; }
-private:
+  void setIsMatchedForElimination(NABoolean val) { isMatchedForElimination_ = val; }
 
+  NABoolean getIsMatchedForElimination() { return isMatchedForElimination_; }
+
+ private:
   ValueIdList ucCols_;
   QualifiedName constraintName_;
-  RelExpr * tabPtr_;
-  TableDesc * tabDesc_;
+  RelExpr *tabPtr_;
+  TableDesc *tabDesc_;
   NABoolean isMatchedForElimination_;
 
-}; // ComplementaryRefOptConstraint
-
+};  // ComplementaryRefOptConstraint
 
 // -----------------------------------------------------------------------
 // Inlines
@@ -920,19 +769,20 @@ private:
 
 // Is defining (referencing) table the same as the referenced table?
 //
-inline NABoolean RefConstraint::selfRef() const
-{ return getDefiningTableName() == uniqueConstraintReferencedByMe_.tableName_; }
+inline NABoolean RefConstraint::selfRef() const {
+  return getDefiningTableName() == uniqueConstraintReferencedByMe_.tableName_;
+}
 
 // Tell whether setOtherTableName() was called
 //
-inline NABoolean RefConstraint::isaForeignKeyinTableBeingUpdated() const
-{ return (otherTableName_ == &uniqueConstraintReferencedByMe_.tableName_) ;}
+inline NABoolean RefConstraint::isaForeignKeyinTableBeingUpdated() const {
+  return (otherTableName_ == &uniqueConstraintReferencedByMe_.tableName_);
+}
 
-inline NABoolean RefConstraint::referencesTableBeingUpdated() const
-{ return !isaForeignKeyinTableBeingUpdated(); }
+inline NABoolean RefConstraint::referencesTableBeingUpdated() const { return !isaForeignKeyinTableBeingUpdated(); }
 
-inline void RefConstraint::getMyKeyColumns(LIST(Lng32)& colPositions) const
-{ KeyColumnsToPositionsList(colPositions, keyColumns()); }
-
+inline void RefConstraint::getMyKeyColumns(LIST(Lng32) & colPositions) const {
+  KeyColumnsToPositionsList(colPositions, keyColumns());
+}
 
 #endif /* ITEMCONSTR_H */

@@ -30,9 +30,9 @@
 * RCS:          $Id: Key.h,v 1.3 1997/09/20 20:59:47  Exp $
 *
 * Description:  This implementation represents keys as objects which are
-*               returned using the Record::extractKey() member function. 
-*               The Record::extractKey() member function would do the 
-*               necessary key conditioning so that the returned key value 
+*               returned using the Record::extractKey() member function.
+*               The Record::extractKey() member function would do the
+*               necessary key conditioning so that the returned key value
 *               can be considered to be a string. Also note that this class
 *               overloads the '<' '>' and '==' operators so that Key objects
 *               can be compared using these common operators.
@@ -47,7 +47,7 @@
 */
 // -----------------------------------------------------------------------
 // Change history:
-// 
+//
 // $Log: Key.h,v $
 // Revision 1.3  1997/09/20 20:59:47
 // Checkin to fix a problem with TEST23 regression problem.
@@ -65,7 +65,7 @@
 // Revision 1.1.1.1  1997/03/28 01:38:51
 // These are the source files from SourceSafe.
 //
-// 
+//
 // 6     3/06/97 4:54p
 // A fix for the memory delete problem is make in this version of sort.
 // Revision 1.6  1996/12/11 22:53:30
@@ -99,37 +99,29 @@
 #include "export/NABasicObject.h"
 
 class Key : public NABasicObject {
-
-  public :
-   Key() { key_ = NULL; };  
+ public:
+  Key() { key_ = NULL; };
   ~Key(void);
 
-   void setKey(ULng32 size, char *reckey, CollHeap* heap);
-   void initKey(ULng32 size, char reckey, CollHeap * heap);
-   
-   char* getKey() { return key_; };
-  
-   Key& operator=(const Key& key1);
-   
-   Key(const Key& key1, CollHeap* heap);
+  void setKey(ULng32 size, char *reckey, CollHeap *heap);
+  void initKey(ULng32 size, char reckey, CollHeap *heap);
 
-   friend short operator<(const Key& key1, const Key& key2); 
-   friend short operator>(const Key& key1, const Key& key2);    
-   friend short operator==(const Key& key1, const Key& key2);   
- 
-   friend class SortAlgo;
+  char *getKey() { return key_; };
 
-  private :
-   char *key_;
-   ULng32 keySize_;
-   CollHeap *heap_;
+  Key &operator=(const Key &key1);
+
+  Key(const Key &key1, CollHeap *heap);
+
+  friend short operator<(const Key &key1, const Key &key2);
+  friend short operator>(const Key &key1, const Key &key2);
+  friend short operator==(const Key &key1, const Key &key2);
+
+  friend class SortAlgo;
+
+ private:
+  char *key_;
+  ULng32 keySize_;
+  CollHeap *heap_;
 };
 
 #endif
-
-
-
-
-
-
-

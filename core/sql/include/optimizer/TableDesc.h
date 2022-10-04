@@ -36,7 +36,6 @@
 **************************************************************************
 */
 
-
 #include "common/BaseTypes.h"
 #include "optimizer/ObjectNames.h"
 #include "ColStatDesc.h"
@@ -45,7 +44,6 @@
 #include "optimizer/ValueDesc.h"
 #include "OptRange.h"
 #include "optimizer/ItemColRef.h"
-
 
 // -----------------------------------------------------------------------
 // contents of this file
@@ -73,76 +71,61 @@ class ItemList;
 //
 // ***********************************************************************
 
-class BoundaryExpr : public NABasicObject
-{
-public:
-  BoundaryExpr()
-                   :lowBound_(NULL)
-                   ,highBound_(NULL)
-  {}
-  ItemExpr* lowBound_;    // lowValue is only used for the first 
-                          // partition column of Range partition
-  ItemExpr* highBound_;
+class BoundaryExpr : public NABasicObject {
+ public:
+  BoundaryExpr() : lowBound_(NULL), highBound_(NULL) {}
+  ItemExpr *lowBound_;  // lowValue is only used for the first
+                        // partition column of Range partition
+  ItemExpr *highBound_;
 };
 
-class PartRangePerCol : public NABasicObject
-{
-public:
+class PartRangePerCol : public NABasicObject {
+ public:
   // ---------------------------------------------------------------------
   // Constructor functions
   // ---------------------------------------------------------------------
-  PartRangePerCol(
-    NAMemory *heap,
-    const Int32 partIdx,
-    const Int32 partColPos) 
-   :heap_(heap),
-    partIdx_(partIdx),
-    partColPos_(partColPos),
-    intervalRange_(NULL),
-    highBoundRange_(NULL),
-    colName_(NULL),
-    boundary_(NULL),
-    lowBoundaryExpr_(NULL),
-    intervalExpr_(NULL),
-    highBoundaryExpr_(NULL),
-    lowConstrnExpr_(NULL),
-    highConstrnExpr_(NULL),
-    constrnExpr_(NULL),
-    isMaxVal_(FALSE)
-    {}
+  PartRangePerCol(NAMemory *heap, const Int32 partIdx, const Int32 partColPos)
+      : heap_(heap),
+        partIdx_(partIdx),
+        partColPos_(partColPos),
+        intervalRange_(NULL),
+        highBoundRange_(NULL),
+        colName_(NULL),
+        boundary_(NULL),
+        lowBoundaryExpr_(NULL),
+        intervalExpr_(NULL),
+        highBoundaryExpr_(NULL),
+        lowConstrnExpr_(NULL),
+        highConstrnExpr_(NULL),
+        constrnExpr_(NULL),
+        isMaxVal_(FALSE) {}
 
   // ---------------------------------------------------------------------
   // Display function for debugging
   // ---------------------------------------------------------------------
-  virtual void print( FILE *ofd = stdout,
-                        const char *indent = DEFAULT_INDENT,
-                        const char *title = "PartRangePerCol",
-                        CollHeap *c=NULL, 
-                        char *buf=NULL
-                      ) const;
+  virtual void print(FILE *ofd = stdout, const char *indent = DEFAULT_INDENT, const char *title = "PartRangePerCol",
+                     CollHeap *c = NULL, char *buf = NULL) const;
 
   void display();
   const Int32 getPartIndex() const { return partIdx_; }
-  OptRangeSpec *& getInterval() { return intervalRange_;}
-  OptRangeSpec *& getHighBoundary() { return highBoundRange_;}
-  ItemExpr *& getLowBoundExpr() { return lowBoundaryExpr_; }
-  ItemExpr *& getIntervalExpr() { return intervalExpr_; }
-  ItemExpr *& getHighBoundExpr() { return highBoundaryExpr_; }
-  ValueId & getPartBoundPred() { return partboundPred_; }
-  BoundaryExpr *& getBoundary() { return boundary_; }
-  NABoolean & isMaxValue() { return isMaxVal_; }
-  void createBoundForPartCol(BindWA *bindWA, 
-                                     const NATable *naTable, 
-                                     BoundaryValue *boundary,
-                                     BoundaryValue *nextBoundary,
-                                     NABoolean genRange = TRUE);
-  ItemExpr *& getLowConstrnExpr() { return lowConstrnExpr_; }
-  ItemExpr *& getHighConstrnExpr() { return highConstrnExpr_; }
-  ItemExpr *& getConstrnExpr() { return constrnExpr_; }
-private:
+  OptRangeSpec *&getInterval() { return intervalRange_; }
+  OptRangeSpec *&getHighBoundary() { return highBoundRange_; }
+  ItemExpr *&getLowBoundExpr() { return lowBoundaryExpr_; }
+  ItemExpr *&getIntervalExpr() { return intervalExpr_; }
+  ItemExpr *&getHighBoundExpr() { return highBoundaryExpr_; }
+  ValueId &getPartBoundPred() { return partboundPred_; }
+  BoundaryExpr *&getBoundary() { return boundary_; }
+  NABoolean &isMaxValue() { return isMaxVal_; }
+  void createBoundForPartCol(BindWA *bindWA, const NATable *naTable, BoundaryValue *boundary,
+                             BoundaryValue *nextBoundary, NABoolean genRange = TRUE);
+  ItemExpr *&getLowConstrnExpr() { return lowConstrnExpr_; }
+  ItemExpr *&getHighConstrnExpr() { return highConstrnExpr_; }
+  ItemExpr *&getConstrnExpr() { return constrnExpr_; }
+
+ private:
   const NAMemory *heap_;
-  //const NATable *table_;
-  
+  // const NATable *table_;
+
   // create table tp (c1 int, c2 int, c3 varchar(10))
   // partition by range(c1, c2)
   // (
@@ -153,106 +136,81 @@ private:
   // example for p2, col c1 0
   const Int32 partIdx_;           // part number is 1
   const Int32 partColPos_;        // c1 is the first partition column, position is 0
-  OptRangeSpec *intervalRange_;   // c1 :[10...20)            | 
-  OptRangeSpec *highBoundRange_;  // c1 :[20...20]            | 
-  ItemExpr * lowBoundaryExpr_;    // c1 :c1 = 10     
-  ItemExpr *intervalExpr_;        // c1 :c1 > 10 and c1 < 20  | 
-  ItemExpr *highBoundaryExpr_;    // c1 :c1 = 20              | 
+  OptRangeSpec *intervalRange_;   // c1 :[10...20)            |
+  OptRangeSpec *highBoundRange_;  // c1 :[20...20]            |
+  ItemExpr *lowBoundaryExpr_;     // c1 :c1 = 10
+  ItemExpr *intervalExpr_;        // c1 :c1 > 10 and c1 < 20  |
+  ItemExpr *highBoundaryExpr_;    // c1 :c1 = 20              |
   ValueId partboundPred_;         // value id for if...then...else
   ColReference *colName_;         //  column name
   BoundaryExpr *boundary_;        // boundary expression
   NABoolean isMaxVal_;            // this boundary is a MAXVALUE
-  ItemExpr * lowConstrnExpr_;     // for constraint
-  ItemExpr * highConstrnExpr_;    // for constraint
-  ItemExpr * constrnExpr_;        // for constraint
+  ItemExpr *lowConstrnExpr_;      // for constraint
+  ItemExpr *highConstrnExpr_;     // for constraint
+  ItemExpr *constrnExpr_;         // for constraint
 };
 
-class PartRange : public LIST(PartRangePerCol*)
-{
-public:
-  PartRange(CollHeap* h = CmpCommon::statementHeap(),
-                const NATable *naTable = NULL,
-                const Int32 partIdx = -1,
-                const NAString partEntityName = "") 
-              : LIST(PartRangePerCol*)(h),
-                table_(naTable),
-                partIdx_(partIdx),
-                partEntityName_(partEntityName)
-              {}
+class PartRange : public LIST(PartRangePerCol *) {
+ public:
+  PartRange(CollHeap *h = CmpCommon::statementHeap(), const NATable *naTable = NULL, const Int32 partIdx = -1,
+            const NAString partEntityName = "")
+      : LIST(PartRangePerCol *)(h), table_(naTable), partIdx_(partIdx), partEntityName_(partEntityName) {}
 
   virtual ~PartRange(){};
-  virtual void print( FILE *ofd = stdout,
-                        const char *indent = DEFAULT_INDENT,
-                        const char *title = "PartRange",
-                        CollHeap *c = NULL, 
-                        char *buf = NULL
-                      ) const;
+  virtual void print(FILE *ofd = stdout, const char *indent = DEFAULT_INDENT, const char *title = "PartRange",
+                     CollHeap *c = NULL, char *buf = NULL) const;
 
   void display();
-  const NAString & getPartEntityName() { return partEntityName_; }
+  const NAString &getPartEntityName() { return partEntityName_; }
   const Int32 getPartIndex() { return partIdx_; }
-private:
+
+ private:
   const NATable *table_;
   const Int32 partIdx_;
   const NAString partEntityName_;
-}; 
+};
 
+class Partition : public NABasicObject {
+ public:
+  enum PartitionType { UNKNOWN, RANGE_PARTITION, LIST_PARTITION, HASH_PARTITION };
+  Partition(CollHeap *heap = CmpCommon::statementHeap(), PartitionType partType = UNKNOWN, const Int32 partIdx = -1,
+            const Int32 partCount = 0, const NAString partName = "", const NAString partEntityName = "")
+      : heap_(heap),
+        partType_(partType),
+        partIdx_(partIdx),
+        partCount_(partCount),
+        partName_(partName),
+        partEntityName_(partEntityName),
+        isLastPart_(FALSE),
+        firstMaxvalIdx_(-1),
+        firstLowMaxvalIdx_(-1),
+        lowBoundary_(NULL),
+        highBoundary_(NULL),
+        colList_(NULL),
+        listBoundary_(NULL),
+        isDefaultPartition_(FALSE),
+        isSubPartition_(FALSE) {}
 
-class Partition : public NABasicObject
-{
-public:
-  enum PartitionType{
-    UNKNOWN,
-    RANGE_PARTITION,
-    LIST_PARTITION,
-    HASH_PARTITION
-  };
-  Partition(CollHeap *heap = CmpCommon::statementHeap(),
-                PartitionType partType = UNKNOWN,
-                const Int32 partIdx = -1,
-                const Int32 partCount = 0,
-                const NAString partName = "",
-                const NAString partEntityName = "") 
-              : heap_(heap),
-                partType_(partType),
-                partIdx_(partIdx),
-                partCount_(partCount),
-                partName_(partName),
-                partEntityName_(partEntityName),
-                isLastPart_(FALSE),
-                firstMaxvalIdx_(-1),
-                firstLowMaxvalIdx_(-1),
-                lowBoundary_(NULL),
-                highBoundary_(NULL),
-                colList_(NULL),
-                listBoundary_(NULL),
-                isDefaultPartition_(FALSE),
-                isSubPartition_(FALSE)
-              {}
-  
-  virtual void print( FILE *ofd = stdout,
-                        const char *indent = DEFAULT_INDENT,
-                        const char *title = "Partition",
-                        CollHeap *c = NULL, 
-                        char *buf = NULL
-                      ) const ;
+  virtual void print(FILE *ofd = stdout, const char *indent = DEFAULT_INDENT, const char *title = "Partition",
+                     CollHeap *c = NULL, char *buf = NULL) const;
 
   void display();
-  const NAString & getPartEntityName() { return partEntityName_; }
-  const NAString & getPartName() { return partName_; }
+  const NAString &getPartEntityName() { return partEntityName_; }
+  const NAString &getPartName() { return partName_; }
   const Int32 getPartIndex() { return partIdx_; }
-  ItemExpr *& getlowBoundary() { return lowBoundary_; }
-  ItemExpr *& getHighBoundary() { return highBoundary_; }
-  ValueIdList & getLowValueList() { return lowValueList_; }
-  ValueIdList & getHighValueList() { return highValueList_; }
-  ItemExpr *& getColList() { return colList_; }
-  ItemExprList *& getListBoundary() { return listBoundary_; }
-  NABoolean & isLastPart() { return isLastPart_; }
-  Int32 & getFirstMaxvalIdx() { return firstMaxvalIdx_; }
-  Int32 & getFirstLowMaxvalIdx() { return firstLowMaxvalIdx_; }
-  NABoolean & isDefaultPartition() { return isDefaultPartition_; }
-  NABoolean & isSubPartition() { return isSubPartition_; }
-private:
+  ItemExpr *&getlowBoundary() { return lowBoundary_; }
+  ItemExpr *&getHighBoundary() { return highBoundary_; }
+  ValueIdList &getLowValueList() { return lowValueList_; }
+  ValueIdList &getHighValueList() { return highValueList_; }
+  ItemExpr *&getColList() { return colList_; }
+  ItemExprList *&getListBoundary() { return listBoundary_; }
+  NABoolean &isLastPart() { return isLastPart_; }
+  Int32 &getFirstMaxvalIdx() { return firstMaxvalIdx_; }
+  Int32 &getFirstLowMaxvalIdx() { return firstLowMaxvalIdx_; }
+  NABoolean &isDefaultPartition() { return isDefaultPartition_; }
+  NABoolean &isSubPartition() { return isSubPartition_; }
+
+ private:
   const NAMemory *heap_;
   PartitionType partType_;
   const Int32 partIdx_;
@@ -270,149 +228,134 @@ private:
   ItemExprList *listBoundary_;
   NABoolean isDefaultPartition_;
   NABoolean isSubPartition_;
-}; 
+};
 
-
-class TableDesc : public NABasicObject
-{
-public:
-
+class TableDesc : public NABasicObject {
+ public:
   // ---------------------------------------------------------------------
   // Constructor functions
   // ---------------------------------------------------------------------
-  TableDesc(BindWA *bindWA, const NATable *table, CorrName &corrName) ;
+  TableDesc(BindWA *bindWA, const NATable *table, CorrName &corrName);
 
-private:
-  TableDesc (const TableDesc &) ; //memleak fix
-public:
-
+ private:
+  TableDesc(const TableDesc &);  // memleak fix
+ public:
   // ---------------------------------------------------------------------
   // Accessor functions
   // ---------------------------------------------------------------------
-  const CorrName &getCorrNameObj() const 	     	  { return corrName_; }
-        CorrName &getCorrNameObj()       	     	  { return corrName_; }
+  const CorrName &getCorrNameObj() const { return corrName_; }
+  CorrName &getCorrNameObj() { return corrName_; }
 
-  const NAString &getLocationName() const {return corrName_.getLocationName();}
-  NABoolean isLocationNameSpecified() const {return corrName_.isLocationNameSpecified();}
-  NABoolean isPartitionNameSpecified() const {return corrName_.isPartitionNameSpecified();}
-  NABoolean isKeyIndex(const IndexDesc * idesc) const;
-  const NATable *getNATable() const                          { return table_; }
-  const TableAnalysis *getTableAnalysis() const            { return analysis_; }
-  const SelectivityHint * getSelectivityHint()	const	    { return selectivityHint_; }
-  SelectivityHint * selectivityHint()	{ return selectivityHint_; }
-  const CardinalityHint * getCardinalityHint()	const	    { return cardinalityHint_; }
-  CardinalityHint * cardinalityHint()	{ return cardinalityHint_; }
+  const NAString &getLocationName() const { return corrName_.getLocationName(); }
+  NABoolean isLocationNameSpecified() const { return corrName_.isLocationNameSpecified(); }
+  NABoolean isPartitionNameSpecified() const { return corrName_.isPartitionNameSpecified(); }
+  NABoolean isKeyIndex(const IndexDesc *idesc) const;
+  const NATable *getNATable() const { return table_; }
+  const TableAnalysis *getTableAnalysis() const { return analysis_; }
+  const SelectivityHint *getSelectivityHint() const { return selectivityHint_; }
+  SelectivityHint *selectivityHint() { return selectivityHint_; }
+  const CardinalityHint *getCardinalityHint() const { return cardinalityHint_; }
+  CardinalityHint *cardinalityHint() { return cardinalityHint_; }
 
-  CostScalar getMinRC() const     { return minRC_ ; };
+  CostScalar getMinRC() const { return minRC_; };
   void setMinRC(CostScalar rc) { minRC_ = rc; };
-  CostScalar getMaxRC() const     { return maxRC_ ; };
+  CostScalar getMaxRC() const { return maxRC_; };
   void setMaxRC(CostScalar rc) { maxRC_ = rc; };
 
-  ValueIdSet & predsExecuted() { return predsExecuted_; };
+  ValueIdSet &predsExecuted() { return predsExecuted_; };
   void setPredsExecuted(ValueIdSet pe) { predsExecuted_ = pe; };
 
-  NABoolean 
-    computeMinMaxRowCountForLocalPred(const ValueIdSet& joinCols, const ValueIdSet& localPreds,
-                                      CostScalar& count, 
-                                      CostScalar& min, CostScalar& max
-                                     );
+  NABoolean computeMinMaxRowCountForLocalPred(const ValueIdSet &joinCols, const ValueIdSet &localPreds,
+                                              CostScalar &count, CostScalar &min, CostScalar &max);
 
   const ValueIdList &getColumnList() const { return colList_; }
-  ValueIdList &getPartColList()       { return partColList_; }
-  ValueIdList &getSubpartColList()       { return subpartColList_; }
-  const ValueIdList &getColumnVEGList() const      	{ return colVEGList_; }
+  ValueIdList &getPartColList() { return partColList_; }
+  ValueIdList &getSubpartColList() { return subpartColList_; }
+  const ValueIdList &getColumnVEGList() const { return colVEGList_; }
 
   void getUserColumnList(ValueIdList &userColList) const;
   void getSystemColumnList(ValueIdList &systemColList) const;
   void getIdentityColumn(ValueIdList &systemColList) const;
   void getAllExceptCCList(ValueIdList &columnList) const;
   void getCCList(ValueIdList &columnList) const;
-  NABoolean isIdentityColumnGeneratedAlways(NAString * value = NULL) const; 
-  
-  const LIST(IndexDesc *) &getIndexes() const              { return indexes_; }
-  const LIST(IndexDesc *) &getUniqueIndexes() const        { return uniqueIndexes_; }
-  NABoolean hasUniqueIndexes() const       { return uniqueIndexes_.entries() > 0; }
+  NABoolean isIdentityColumnGeneratedAlways(NAString *value = NULL) const;
 
-  NABoolean hasSecondaryIndexes() const      { return indexes_.entries() > 1; }
-  const LIST(IndexDesc *) &getVerticalPartitions() const { return vertParts_; }
-  const IndexDesc * getClusteringIndex() const     { return clusteringIndex_; }
+  const LIST(IndexDesc *) & getIndexes() const { return indexes_; }
+  const LIST(IndexDesc *) & getUniqueIndexes() const { return uniqueIndexes_; }
+  NABoolean hasUniqueIndexes() const { return uniqueIndexes_.entries() > 0; }
 
-  const LIST(const IndexDesc *) &getHintIndexes() const{ return hintIndexes_; }
-  NABoolean hasHintIndexes() const       { return hintIndexes_.entries() > 0; }
+  NABoolean hasSecondaryIndexes() const { return indexes_.entries() > 1; }
+  const LIST(IndexDesc *) & getVerticalPartitions() const { return vertParts_; }
+  const IndexDesc *getClusteringIndex() const { return clusteringIndex_; }
 
-  const ValueIdList &getColUpdated() const              { return colUpdated_; }
-  const ValueIdList &getCheckConstraints() const  { return checkConstraints_; }
-  ValueIdList &checkConstraints() 		  { return checkConstraints_; }
+  const LIST(const IndexDesc *) & getHintIndexes() const { return hintIndexes_; }
+  NABoolean hasHintIndexes() const { return hintIndexes_.entries() > 0; }
+
+  const ValueIdList &getColUpdated() const { return colUpdated_; }
+  const ValueIdList &getCheckConstraints() const { return checkConstraints_; }
+  ValueIdList &checkConstraints() { return checkConstraints_; }
 
   const NABoolean isAInternalcheckConstraints() { return isAInternalcheckConstraints_; }
 
-  const ValueIdList &getPreconditions() const  { return preconditions_; }
+  const ValueIdList &getPreconditions() const { return preconditions_; }
   ValueIdList &getPreconditions() { return preconditions_; }
 
-  ItemExpr * genPartv2BaseCheckConstraint(BindWA *bindWA);
+  ItemExpr *genPartv2BaseCheckConstraint(BindWA *bindWA);
   void addPartnPredToConstraint(BindWA *bindWA);
   void addPartPredToPrecondition(BindWA *bindWA, ItemExpr *selectPred);
-  void addPartitions(BindWA *bindWA,
-                           const NATable *naTable,
-                           const NAPartitionArray &partList,
-                           const NABoolean genRange = TRUE);
-  void genPartitions(BindWA *bindWA,
-                           const NAPartitionArray &partList);
+  void addPartitions(BindWA *bindWA, const NATable *naTable, const NAPartitionArray &partList,
+                     const NABoolean genRange = TRUE);
+  void genPartitions(BindWA *bindWA, const NAPartitionArray &partList);
 
   void addPartPredToConstraint(BindWA *bindWA);
 
-  const LIST(PartRange *) &getPartitions() const { return partitions_; }
-  LIST(PartRange *) &getPartitions() { return partitions_; }
-  const LIST(Partition *) &getPartitionList() const { return partitionList_; }
-  LIST(Partition *) &getPartitionList() { return partitionList_; }
+  const LIST(PartRange *) & getPartitions() const { return partitions_; }
+  LIST(PartRange *) & getPartitions() { return partitions_; }
+  const LIST(Partition *) & getPartitionList() const { return partitionList_; }
+  LIST(Partition *) & getPartitionList() { return partitionList_; }
   const ColStatDescList &getTableColStats();
-  ColStatDescList &tableColStats()
-                         { return (ColStatDescList &)getTableColStats(); }
+  ColStatDescList &tableColStats() { return (ColStatDescList &)getTableColStats(); }
 
   // accumulate a list of interesting expressions that might
   // have an expression histogram
-  void addInterestingExpression(NAString & unparsedExpr, const ValueIdSet & baseColRefs);
+  void addInterestingExpression(NAString &unparsedExpr, const ValueIdSet &baseColRefs);
 
-  NABoolean areHistsCompressed() {return histogramsCompressed_;}
+  NABoolean areHistsCompressed() { return histogramsCompressed_; }
 
-  void histsCompressed(NABoolean flag) { histogramsCompressed_ = flag;}
+  void histsCompressed(NABoolean flag) { histogramsCompressed_ = flag; }
 
   // Given a list of base columns, return the corresponding VEG columns
   // which maps base columns to index columns.
-  void getEquivVEGCols (const ValueIdList &columnList,
-			ValueIdList &VEGColumnList) const;
-  void getEquivVEGCols (const ValueIdSet &columnSet,
-			ValueIdSet &VEGColumnSet) const;
-  ValueId getEquivVEGCol (const ValueId &column) const;
+  void getEquivVEGCols(const ValueIdList &columnList, ValueIdList &VEGColumnList) const;
+  void getEquivVEGCols(const ValueIdSet &columnSet, ValueIdSet &VEGColumnSet) const;
+  ValueId getEquivVEGCol(const ValueId &column) const;
   NABoolean isSpecialObj();
 
   CostScalar getBaseRowCntIfUniqueJoinCol(const ValueIdSet &joinedCols);
 
-  const ValueIdSet getPrimaryKeyColumns()   { return primaryKeyColumns_; }
+  const ValueIdSet getPrimaryKeyColumns() { return primaryKeyColumns_; }
 
   // ---------------------------------------------------------------------
   // Mutator functions
   // ---------------------------------------------------------------------
-  void addCheckConstraint(BindWA *bindWA,
-  			  const NATable *naTable,
-			  const CheckConstraint *constraint,
-			  ItemExpr *constraintPred);
+  void addCheckConstraint(BindWA *bindWA, const NATable *naTable, const CheckConstraint *constraint,
+                          ItemExpr *constraintPred);
 
-  void clearColumnList()                                 { colList_.clear(); }
-  void addToColumnList(const ValueId &colId)       { colList_.insert(colId); }
-  void addToColumnList(const ValueIdList &clist)   { colList_.insert(clist); }
+  void clearColumnList() { colList_.clear(); }
+  void addToColumnList(const ValueId &colId) { colList_.insert(colId); }
+  void addToColumnList(const ValueIdList &clist) { colList_.insert(clist); }
   void addToColumnVEGList(const ValueId &colId) { colVEGList_.insert(colId); }
-  void addColUpdated(const ValueId &colId)      { colUpdated_.insert(colId); }
-  void addIndex(IndexDesc *idesc)                  { indexes_.insert(idesc); }
-  void addUniqueIndex(IndexDesc *idesc)		   { uniqueIndexes_.insert(idesc); }
-  void addVerticalPartition(IndexDesc *idesc)    { vertParts_.insert(idesc); }
-  void addHintIndex(const IndexDesc *idesc)    { hintIndexes_.insert(idesc); }
-  void setClusteringIndex(IndexDesc *idesc)      { clusteringIndex_ = idesc; }
-  void setCorrName(const CorrName &corrName)	     { corrName_ = corrName; }
-  void setLocationName(const NAString &locName) {corrName_.setLocationName(locName);}
-  void setTableAnalysis(TableAnalysis *analysis)      {analysis_ = analysis; }
-  void setSelectivityHint(SelectivityHint *hint)      {selectivityHint_ = hint; }
-  void setCardinalityHint(CardinalityHint *hint)      {cardinalityHint_ = hint; }
+  void addColUpdated(const ValueId &colId) { colUpdated_.insert(colId); }
+  void addIndex(IndexDesc *idesc) { indexes_.insert(idesc); }
+  void addUniqueIndex(IndexDesc *idesc) { uniqueIndexes_.insert(idesc); }
+  void addVerticalPartition(IndexDesc *idesc) { vertParts_.insert(idesc); }
+  void addHintIndex(const IndexDesc *idesc) { hintIndexes_.insert(idesc); }
+  void setClusteringIndex(IndexDesc *idesc) { clusteringIndex_ = idesc; }
+  void setCorrName(const CorrName &corrName) { corrName_ = corrName; }
+  void setLocationName(const NAString &locName) { corrName_.setLocationName(locName); }
+  void setTableAnalysis(TableAnalysis *analysis) { analysis_ = analysis; }
+  void setSelectivityHint(SelectivityHint *hint) { selectivityHint_ = hint; }
+  void setCardinalityHint(CardinalityHint *hint) { cardinalityHint_ = hint; }
   void setPrimaryKeyColumns();
 
   ValueIdList &hbaseTagList() { return hbaseTagList_; }
@@ -421,28 +364,25 @@ public:
   ValueIdList &hbaseVersionList() { return hbaseVersionList_; }
   ValueIdList &hbaseAttrList() { return hbaseAttrList_; }
 
-  const ValueIdList &hbaseRowidList() const {return hbaseRowidList_;}
+  const ValueIdList &hbaseRowidList() const { return hbaseRowidList_; }
   ValueIdList &hbaseRowidList() { return hbaseRowidList_; }
 
   // ---------------------------------------------------------------------
   // Needed by Collections classes
   // ---------------------------------------------------------------------
-//  NABoolean operator == (const TableDesc & rhs) { return (table_ == rhs.table_) &&
-//							 (corrName_ == rhs.corrName_); }
-  NABoolean operator == (const TableDesc & rhs) { return (&(*this) == &rhs); }
-
+  //  NABoolean operator == (const TableDesc & rhs) { return (table_ == rhs.table_) &&
+  //							 (corrName_ == rhs.corrName_); }
+  NABoolean operator==(const TableDesc &rhs) { return (&(*this) == &rhs); }
 
   // ---------------------------------------------------------------------
   // Print/debug
   // ---------------------------------------------------------------------
-  virtual void print( FILE* ofd = stdout,
-		      const char* indent = DEFAULT_INDENT,
-                      const char* title = "TableDesc");
+  virtual void print(FILE *ofd = stdout, const char *indent = DEFAULT_INDENT, const char *title = "TableDesc");
 
   //
   // 64-bit Project: Cast 'this' to "long" first to avoid C++ error
   //
-  ULng32 hash() const { return (ULng32) ((Long)this/8);}
+  ULng32 hash() const { return (ULng32)((Long)this / 8); }
 
   // get local predicates for this table
   ValueIdSet getLocalPreds();
@@ -450,32 +390,26 @@ public:
   // Is there any column which has a local predicates and no or dirty stats
   NABoolean isAnyHistWithPredsFakeOrSmallSample(const ValueIdSet &localPreds);
 
-
   // This method computes the ratio of selectivity obtained with and without hint
   // and sets that in the Hint
 
-  void setBaseSelectivityHintForScan(CardinalityHint *cardHint,
-					 CostScalar baseSelectivity);
+  void setBaseSelectivityHintForScan(CardinalityHint *cardHint, CostScalar baseSelectivity);
 
-  void setBaseSelectivityHintForScan(SelectivityHint *selHint,
-					 CostScalar baseSelectivity);
+  void setBaseSelectivityHintForScan(SelectivityHint *selHint, CostScalar baseSelectivity);
 
-  ValueIdSet getDivisioningColumns() ;
+  ValueIdSet getDivisioningColumns();
 
-  ValueIdSet getSaltColumnAsSet() ;
-  NABoolean hasIdentityColumnInClusteringKey() const ;
+  ValueIdSet getSaltColumnAsSet();
+  NABoolean hasIdentityColumnInClusteringKey() const;
 
+  LIST(NAString) * getMatchedPartInfo(BindWA *bindWA, NAString partName);
+  LIST(NAString) * getMatchedPartInfo(BindWA *bindWA, ItemExprList valList);
+  LIST(NAString) * getMatchedPartInfo(BindWA *bindWA, ItemExpr *selectPred);
+  LIST(NAString) * getMatchedPartInfo(CollHeap *heap);
+  LIST(NAString) * getMatchedPartions(BindWA *bindWA, ItemList *values);
+  // LIST(NAString) *getMatchedPartions(BindWA *bindWA, ItemExpr *selectPred);
 
-  LIST(NAString) *getMatchedPartInfo(BindWA *bindWA, NAString partName);
-  LIST(NAString) *getMatchedPartInfo(BindWA *bindWA, ItemExprList valList);
-  LIST(NAString) *getMatchedPartInfo(BindWA *bindWA, ItemExpr *selectPred);
-  LIST(NAString) *getMatchedPartInfo(CollHeap *heap);
-  LIST(NAString) *getMatchedPartions(BindWA *bindWA, 
-                                     ItemList *values);
-  //LIST(NAString) *getMatchedPartions(BindWA *bindWA, ItemExpr *selectPred);
-
-private:
-
+ private:
   ValueIdSet getComputedColumns(NAColumnBooleanFuncPtrT fptr);
 
   // compress the histograms based on query predicates on this table
@@ -504,7 +438,7 @@ private:
   // A list of VEG expressions and/or base columns that show the
   // equivalences of the base columns with index columns
   // ---------------------------------------------------------------------
-  ValueIdList  colVEGList_;
+  ValueIdList colVEGList_;
 
   // ---------------------------------------------------------------------
   // List of indexes (including clustering index and unique index)
@@ -554,7 +488,6 @@ private:
   LIST(PartRange *) partitions_;
   LIST(Partition *) partitionList_;
 
-
   // ---------------------------------------------------------------------
   // List of columns being updated
   // ---------------------------------------------------------------------
@@ -565,7 +498,6 @@ private:
   // ---------------------------------------------------------------------
   TableAnalysis *analysis_;
 
-
   // ---------------------------------------------------------------------
   // primary key columns. This is used by GroupByAgg to compute dependency
   // of columns
@@ -575,12 +507,12 @@ private:
   // selectivity hint contains the hint given by the user, and all the
   // local predicates on that table to which it corresponds to
 
-  SelectivityHint * selectivityHint_;
+  SelectivityHint *selectivityHint_;
 
   // cardinality hint contains the hint given by the user, and all the
   // local predicates on that table to which it corresponds to
 
-  CardinalityHint * cardinalityHint_;
+  CardinalityHint *cardinalityHint_;
 
   // min and max rowcount based on actual cound obtained after executing the query
   // on the sample
@@ -599,25 +531,25 @@ private:
   // A List of ValueIds for hbase attributes for each of the column
   // in colList_. Attributes are: timestamp, version, tag
   // ---------------------------------------------------------------------
-  ValueIdList  hbaseAttrList_;
+  ValueIdList hbaseAttrList_;
 
   // ---------------------------------------------------------------------
   // A List of ValueIds for hbase tags for each of the column
   // in colList_.
   // ---------------------------------------------------------------------
-  ValueIdList  hbaseTagList_;
+  ValueIdList hbaseTagList_;
 
   // ---------------------------------------------------------------------
   // A List of ValueIds for hbase timestamp values for each of the column
   // in colList_.
   // ---------------------------------------------------------------------
-  ValueIdList  hbaseTSList_;
+  ValueIdList hbaseTSList_;
 
   // ---------------------------------------------------------------------
   // A List of ValueIds for hbase version values for each of the column
   // in colList_.
   // ---------------------------------------------------------------------
-  ValueIdList  hbaseVersionList_;
+  ValueIdList hbaseVersionList_;
 
   // ---------------------------------------------------------------------
   // A List of ValueIds for hbase rowid values for table
@@ -625,7 +557,7 @@ private:
   ValueIdList hbaseRowidList_;
 
   // ---------------------------------------------------------------------
-  // A dictionary of expressions that occur as children of comparison 
+  // A dictionary of expressions that occur as children of comparison
   // operators; expressions histograms might be helpful here. The
   // ValueIdSet contains the set of base table columns referenced
   // in each instance of an expression. (Note: There is a corresponding
@@ -635,7 +567,7 @@ private:
   // ---------------------------------------------------------------------
   NAHashDictionary<NAString, ValueIdSet> interestingExpressions_;
 
-}; // class TableDesc
+};  // class TableDesc
 
 // ***********************************************************************
 // Implementation for inline functions
@@ -645,38 +577,33 @@ private:
 // A list of TableDescs
 // ***********************************************************************
 
-class TableDescList : public LIST(TableDesc *)
-{
-public:
-  TableDescList(CollHeap* h/*=0*/): LIST(TableDesc *)(h) { }
+class TableDescList : public LIST(TableDesc *) {
+ public:
+  TableDescList(CollHeap *h /*=0*/) : LIST(TableDesc *)(h) {}
 
   // ---------------------------------------------------------------------
   // Print
   // ---------------------------------------------------------------------
-  virtual void print( FILE* ofd = stdout,
-		      const char* indent = DEFAULT_INDENT,
-                      const char* title = "TableDescList");
-}; // class TableDescList
+  virtual void print(FILE *ofd = stdout, const char *indent = DEFAULT_INDENT, const char *title = "TableDescList");
+};  // class TableDescList
 
-class SelectivityHint : public NABasicObject
-{
-public:
+class SelectivityHint : public NABasicObject {
+ public:
   SelectivityHint(double selectivityFactor = -1.0);
 
   // Destructor
-  virtual ~SelectivityHint()
-  {}
+  virtual ~SelectivityHint() {}
 
-  inline double getScanSelectivityFactor () const { return selectivityFactor_     ; }
-  void setScanSelectivityFactor (double selectivityFactor);
+  inline double getScanSelectivityFactor() const { return selectivityFactor_; }
+  void setScanSelectivityFactor(double selectivityFactor);
 
-  inline const ValueIdSet & localPreds() const { return localPreds_; };
+  inline const ValueIdSet &localPreds() const { return localPreds_; };
   void setLocalPreds(const ValueIdSet &lop) { localPreds_ = lop; }
 
-  inline double getBaseScanSelectivityFactor () const { return baseSelectivity_     ; }
-  void setBaseScanSelectivityFactor (double baseSelectivity) {baseSelectivity_ = baseSelectivity; }
+  inline double getBaseScanSelectivityFactor() const { return baseSelectivity_; }
+  void setBaseScanSelectivityFactor(double baseSelectivity) { baseSelectivity_ = baseSelectivity; }
 
-private:
+ private:
   // selectivity hint given by the user in the Select statement
   double selectivityFactor_;
 
@@ -685,34 +612,30 @@ private:
 
   // base selectivity obtained after applying all local predicates on a table
   double baseSelectivity_;
-
 };
 
-class CardinalityHint : public NABasicObject
-{
-public:
+class CardinalityHint : public NABasicObject {
+ public:
   CardinalityHint(CostScalar scanCardinality = 0.0);
 
-  CardinalityHint(CostScalar scanCardinality,
-    const ValueIdSet & localPreds);
+  CardinalityHint(CostScalar scanCardinality, const ValueIdSet &localPreds);
 
   // Destructor
-  virtual ~CardinalityHint()
-  {}
+  virtual ~CardinalityHint() {}
 
-  inline CostScalar getScanCardinality () const { return scanCardinality_     ; }
-  void setScanCardinality (CostScalar scanCardinality) { scanCardinality_ = MIN_ONE_CS(scanCardinality); }
+  inline CostScalar getScanCardinality() const { return scanCardinality_; }
+  void setScanCardinality(CostScalar scanCardinality) { scanCardinality_ = MIN_ONE_CS(scanCardinality); }
 
-  inline const ValueIdSet & localPreds() const { return localPreds_; };
+  inline const ValueIdSet &localPreds() const { return localPreds_; };
   void setLocalPreds(const ValueIdSet &lop) { localPreds_ = lop; }
 
-  inline double getBaseScanSelectivityFactor () const { return baseSelectivity_     ; }
-  void setBaseScanSelectivityFactor (double baseSelectivity) {baseSelectivity_ = baseSelectivity; }
+  inline double getBaseScanSelectivityFactor() const { return baseSelectivity_; }
+  void setBaseScanSelectivityFactor(double baseSelectivity) { baseSelectivity_ = baseSelectivity; }
 
-  inline CostScalar getScanSelectivity () const { return scanSelectivity_     ; }
-  void setScanSelectivity (CostScalar scanSelectivity) {scanSelectivity_ = scanSelectivity; }
+  inline CostScalar getScanSelectivity() const { return scanSelectivity_; }
+  void setScanSelectivity(CostScalar scanSelectivity) { scanSelectivity_ = scanSelectivity; }
 
-private:
+ private:
   // selectivity hint given by the user in the Select statement
   CostScalar scanCardinality_;
 
@@ -722,9 +645,8 @@ private:
   // set of local predicates on the table for which the hint is given
   ValueIdSet localPreds_;
 
-    // base selectivity obtained after applying all local predicates on a table
+  // base selectivity obtained after applying all local predicates on a table
   double baseSelectivity_;
-
 };
 
-#endif  /* TABLEDESC_H */
+#endif /* TABLEDESC_H */

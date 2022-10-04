@@ -25,8 +25,8 @@
  *
  * File:         UdrDebug.cpp
  * Description:  debug functions for the UDR server
- *               
- *               
+ *
+ *
  * Created:      6/20/02
  * Language:     C++
  *
@@ -46,28 +46,27 @@
 #include "common/NABoolean.h"
 FILE *udrDebugFile = stdout;
 
-NABoolean doUdrDebug(){
+NABoolean doUdrDebug() {
   static NABoolean doUdrDebugFlag = FALSE;
   static NABoolean firstTime = TRUE;
-  if (firstTime)
-  {
+  if (firstTime) {
     firstTime = FALSE;
     //
     // Note: the "UDR_DEBUG" string is split into two adjacent strings so
     // the preprocessor does not perform macro substitution on UDR_DEBUG.
     //
-    if (getenv("UDR_""DEBUG") || getenv("MXUDR_""DEBUG"))
-    {
+    if (getenv("UDR_"
+               "DEBUG") ||
+        getenv("MXUDR_"
+               "DEBUG")) {
       doUdrDebugFlag = TRUE;
     }
   }
   return doUdrDebugFlag;
 }
 
-void udrDebug(const char *formatString, ...)
-{
-  if (doUdrDebug())
-  {
+void udrDebug(const char *formatString, ...) {
+  if (doUdrDebug()) {
     va_list args;
     va_start(args, formatString);
     fprintf(udrDebugFile, "[MXUDR] ");
@@ -77,10 +76,4 @@ void udrDebug(const char *formatString, ...)
   }
 }
 
-
-#endif // UDR_DEBUG
-
-
-
-
-
+#endif  // UDR_DEBUG

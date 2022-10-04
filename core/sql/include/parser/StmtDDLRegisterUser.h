@@ -56,63 +56,47 @@ class StmtDDLRegisterUserArray;
 // -----------------------------------------------------------------------
 // Register and unregister user statements
 // -----------------------------------------------------------------------
-class StmtDDLRegisterUser : public StmtDDLNode
-{
-
-public:
-
-  enum RegisterUserType { REGISTER_USER, UNREGISTER_USER,
-                          REGISTER_TENANT, UNREGISTER_TENANT };
+class StmtDDLRegisterUser : public StmtDDLNode {
+ public:
+  enum RegisterUserType { REGISTER_USER, UNREGISTER_USER, REGISTER_TENANT, UNREGISTER_TENANT };
 
   // constructors
   // register user
-  StmtDDLRegisterUser(const NAString & externalUserName,
-                      const NAString * pDbUserName,
-                      const NAString * pConfig,
-                      ElemDDLNode * authSchema,
-                      NABoolean isUser,
-                      CollHeap * heap,
-                      const NAString * authPassword = NULL);
+  StmtDDLRegisterUser(const NAString &externalUserName, const NAString *pDbUserName, const NAString *pConfig,
+                      ElemDDLNode *authSchema, NABoolean isUser, CollHeap *heap, const NAString *authPassword = NULL);
 
   // unregister user
-  StmtDDLRegisterUser(const NAString & dbUserName,
-                      ComDropBehavior dropBehavior,
-                      NABoolean isUser,
-                      CollHeap * heap);
+  StmtDDLRegisterUser(const NAString &dbUserName, ComDropBehavior dropBehavior, NABoolean isUser, CollHeap *heap);
 
   // virtual destructor
   virtual ~StmtDDLRegisterUser();
 
   // cast
-  virtual StmtDDLRegisterUser * castToStmtDDLRegisterUser();
+  virtual StmtDDLRegisterUser *castToStmtDDLRegisterUser();
 
   // for binding
-  ExprNode * bindNode(BindWA *bindWAPtr);
+  ExprNode *bindNode(BindWA *bindWAPtr);
 
   // accessors
 
-  inline const NAString & getExternalUserName() const { return externalUserName_; }
-  inline const NAString & getDbUserName() const { return dbUserName_; }
-  inline const NAString & getConfig() const { return config_; }
-  inline const NAString & getAuthPassword() const {return authPassword_; }
+  inline const NAString &getExternalUserName() const { return externalUserName_; }
+  inline const NAString &getDbUserName() const { return dbUserName_; }
+  inline const NAString &getConfig() const { return config_; }
+  inline const NAString &getAuthPassword() const { return authPassword_; }
   inline const RegisterUserType getRegisterUserType() const { return registerUserType_; }
   inline const ComDropBehavior getDropBehavior() const { return dropBehavior_; }
   inline const NABoolean isSchemaSpecified() const { return authSchema_ ? TRUE : FALSE; }
-  inline const SchemaName * getSchemaName() const
-  {
-    return (authSchema_ && authSchema_->isSchemaNameSpecified()) ? 
-       &authSchema_->getSchemaName() : NULL;
+  inline const SchemaName *getSchemaName() const {
+    return (authSchema_ && authSchema_->isSchemaNameSpecified()) ? &authSchema_->getSchemaName() : NULL;
   }
-  inline const ComSchemaClass getSchemaClass() const
-  {
+  inline const ComSchemaClass getSchemaClass() const {
     return (authSchema_) ? authSchema_->getSchemaClass() : COM_SCHEMA_CLASS_DEFAULT;
   }
   inline const NABoolean isSetupWithDefaultPassword() { return this->isSetupWithDefaultPassword_; }
 
   // for tracing
 
-private:
-
+ private:
   // ---------------------------------------------------------------------
   // private data members
   // ---------------------------------------------------------------------
@@ -126,27 +110,20 @@ private:
   ElemDDLAuthSchema *authSchema_;
   NABoolean isSetupWithDefaultPassword_;
 
-}; // class StmtDDLRegisterUser
+};  // class StmtDDLRegisterUser
 
 // -----------------------------------------------------------------------
 // Definition of class StmtDDLRegisterUserArray
 // -----------------------------------------------------------------------
-class StmtDDLRegisterUserArray : public LIST(StmtDDLRegisterUser *)
-{
-
-public:
-
+class StmtDDLRegisterUserArray : public LIST(StmtDDLRegisterUser *) {
+ public:
   // constructor
-  StmtDDLRegisterUserArray(CollHeap *heap)
-   : LIST(StmtDDLRegisterUser *)(heap)
-  { }
+  StmtDDLRegisterUserArray(CollHeap *heap) : LIST(StmtDDLRegisterUser *)(heap) {}
 
   // virtual destructor
   virtual ~StmtDDLRegisterUserArray();
 
-private:
+ private:
+};  // class StmtDDLRegisterUserArray
 
-}; // class StmtDDLRegisterUserArray
-
-
-#endif // STMTDDLREGISTERUSER_H
+#endif  // STMTDDLREGISTERUSER_H

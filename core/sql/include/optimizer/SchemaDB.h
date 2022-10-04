@@ -34,8 +34,7 @@
 *************************************************************************
 */
 
-
-#include "common/NAAssert.h"	 // required after including a RogueWave file!
+#include "common/NAAssert.h"  // required after including a RogueWave file!
 
 #include "common/BaseTypes.h"
 #include "common/charinfo.h"
@@ -65,20 +64,20 @@ class POSInfo;
 // Information derived from the Information Schema tables (IST's) is
 // stored in SchemaDB.
 //
-// The SchemaDB contains two "databases" that span the compilation 
+// The SchemaDB contains two "databases" that span the compilation
 // of multiple SQL statments. They are
 //
 // 1) The NATableDB - it contains the physical schema information
 //                    for an SQL table or table-valued stored procedure
 //                    corresponding to a given qualified (ANSI/NSK/UNIX) name.
-// 2) The FilesetDB - it contains the description regarding each fileset 
+// 2) The FilesetDB - it contains the description regarding each fileset
 //                    that corresponds to a NATable in the NATableDB.
 //
 // The SchemaDB also contains three "statement tables". Each statement
-// table contains information that is relevant for the compilation of 
+// table contains information that is relevant for the compilation of
 // a single SQL statement. The statement tables are reallocated on a
 // per statement basis.
-// 
+//
 // Important note : The SchemaDB is designed to last across statements.
 // For the fields need to be initialized/reset at each statement, they
 // need to be done in
@@ -86,66 +85,60 @@ class POSInfo;
 //  void cleanupPerStatement();
 // See notes below about CmpContext...!
 // ***********************************************************************
-class SchemaDB : public NABasicObject
-{
-public:
-
+class SchemaDB : public NABasicObject {
+ public:
   // --------------------------------------------------------------------
   // Constructor function
   // --------------------------------------------------------------------
-  SchemaDB() ;
+  SchemaDB();
 
   // copy ctor
-  SchemaDB(const SchemaDB & orig) ; // not written
+  SchemaDB(const SchemaDB &orig);  // not written
 
   // --------------------------------------------------------------------
   // Destructor function
   // --------------------------------------------------------------------
   ~SchemaDB();
-  
+
   // --------------------------------------------------------------------
   // Accessor functions
   // --------------------------------------------------------------------
-  NATableDB       * getNATableDB()          { return &tableDB_; }
-  ValueDescArray  & getValueDescArray()     { return valueDArray_; }
-  NADefaults      & getDefaults()           { return defaults_; }
-  NARoutineDB     * getNARoutineDB()        { return &routineDB_; }
-  NARoutineDB     * getNARoutineActionDB()  { return &actionRoutineDB_; }
+  NATableDB *getNATableDB() { return &tableDB_; }
+  ValueDescArray &getValueDescArray() { return valueDArray_; }
+  NADefaults &getDefaults() { return defaults_; }
+  NARoutineDB *getNARoutineDB() { return &routineDB_; }
+  NARoutineDB *getNARoutineActionDB() { return &actionRoutineDB_; }
 
   //   Flags:  	  The ON/ENABLE bit		The OFF value
-  enum Flags	{ REFRESH_CACHE		= 0x1,  NO_REFRESH_CACHE	= 0,
-  		  APPLY_NAMETYPE_RULES	= 0x2,  FORCE_ANSI_NAMETYPE	= 0
-		};
+  enum Flags { REFRESH_CACHE = 0x1, NO_REFRESH_CACHE = 0, APPLY_NAMETYPE_RULES = 0x2, FORCE_ANSI_NAMETYPE = 0 };
 
-  const SchemaName& getDefaultSchema(UInt32 flags =
-				     NO_REFRESH_CACHE | FORCE_ANSI_NAMETYPE);
+  const SchemaName &getDefaultSchema(UInt32 flags = NO_REFRESH_CACHE | FORCE_ANSI_NAMETYPE);
   // triggers -- eliezer
-  TriggerDB		  * getTriggerDB();
-  RefConstraintList *getRIs(QualifiedName &subjectTable, 
-		ComOperation operation);
+  TriggerDB *getTriggerDB();
+  RefConstraintList *getRIs(QualifiedName &subjectTable, ComOperation operation);
 
   // --------------------------------------------------------------------
   // Mutator functions
   // --------------------------------------------------------------------
 
   // --------------------------------------------------------------------
-  // The SchemaDB maintains a set of internal tables. They must be 
+  // The SchemaDB maintains a set of internal tables. They must be
   // re-initialized explicitly per statement -- this used to be via a
   // call to createStmtTables, which is no longer useful, just a noop --
   // now **ONLY** CmpContext should manage the init/cleanupPerStatement
   // calls, which is the current mechanism!
   //
   // --------------------------------------------------------------------
-  void createStmtTables();      // no longer used (formerly required)
-  void dropStmtTables();        // no longer used
-  NABoolean endTransaction();   // implicitly called (idempotent)
+  void createStmtTables();     // no longer used (formerly required)
+  void dropStmtTables();       // no longer used
+  NABoolean endTransaction();  // implicitly called (idempotent)
 
   // --------------------------------------------------------------------
   // Methods for addimg new entries to the "statement tables".
   // --------------------------------------------------------------------
   void insertValueDesc(ValueDesc *vdesc) { valueDArray_.insert(vdesc); }
   void insertDomainDesc(DomainDesc *ddesc) { domainDList_.insert(ddesc); }
-  
+
   // -----------------------------------------------------------------------
   // Methods to initialize and cleanup the statement wide members.
   // For the members need to be initialized/reset for each statement,
@@ -155,13 +148,12 @@ public:
   //
   // See notes above about CmpContext, which should be the **only** caller!
   // -----------------------------------------------------------------------
-  void initPerStatement(NABoolean lightweight = FALSE);		// before stmt
-  void cleanupPerStatement();					// after stmt
+  void initPerStatement(NABoolean lightweight = FALSE);  // before stmt
+  void cleanupPerStatement();                            // after stmt
 
   Lng32 getCurrentDiskPool() { return currentDiskPool_; }
 
-  void setCurrentDiskPool(Lng32 diskPool) 
-                                      { currentDiskPool_ = diskPool; }
+  void setCurrentDiskPool(Lng32 diskPool) { currentDiskPool_ = diskPool; }
 
   void incCurrentDiskPool() { currentDiskPool_++; }
 
@@ -170,25 +162,24 @@ public:
   // start instrument to fix Mantis 9407
   NABoolean sanityCheck();
   // end instrument to fix Mantis 9407
-  
-private:  
 
-  char eyeCatcherTop_[4]; // instrument to fix Mantis 9407
+ private:
+  char eyeCatcherTop_[4];  // instrument to fix Mantis 9407
 
   // --------------------------------------------------------------------
   // A hash table that uses the qualified tablename as the hash key.
-  // This is a collection of NATables that persists across the 
-  // compilation of all SQL statements. It is deallocated when the 
+  // This is a collection of NATables that persists across the
+  // compilation of all SQL statements. It is deallocated when the
   // SQL compiler terminates processing. For now, (11/20/96) tableDB_
   // needs to be cleanup up for each statement, because it is caching
-  // the information without checking the timestamp for reload if 
+  // the information without checking the timestamp for reload if
   // necessary.
   // --------------------------------------------------------------------
   NATableDB tableDB_;
 
   // --------------------------------------------------------------------
   // A collection of ValueDesc (value descriptors).
-  // A column can have one or more ValueDescs allocated for it.  
+  // A column can have one or more ValueDescs allocated for it.
   // This collection is rebuilt for each SQL statement. It is reset
   // at the end of compilation for each statement.
   // --------------------------------------------------------------------
@@ -196,7 +187,7 @@ private:
 
   // --------------------------------------------------------------------
   // A collection of DomainDesc (domain descriptors).
-  // There is one Domain descriptor per column that is referenced in 
+  // There is one Domain descriptor per column that is referenced in
   // the query. This collection is rebuilt for each SQL statement.
   // --------------------------------------------------------------------
   DomainDescList domainDList_;
@@ -218,7 +209,7 @@ private:
   // The Tandem NAMETYPE NSK defaulting occurs in method getDefaultSchema().
   // Note that defaultSchema_ always contains the ANSI schema,
   // so a call to the get method will by default get the ANSI schema --
-  // only by passing the flag bit APPLY_NAMETYPE_RULES might you get 
+  // only by passing the flag bit APPLY_NAMETYPE_RULES might you get
   // the NAMETYPE NSK version of the schema (which is to say the MPLOC version).
   //
   //   This is sufficiently complicated logic, that the default schema appears
@@ -229,7 +220,7 @@ private:
   //   or (for better performance) from the "precompiled" SqlParser_NADefaults
   //   globals -- see NADefaults and SqlParserGlobalsCmn.h.
   // --------------------------------------------------------------------------
-  SchemaName defaultSchema_;			// always ANSI (not MPLOC)
+  SchemaName defaultSchema_;  // always ANSI (not MPLOC)
 
   // triggers -- eliezer
   // created on demand
@@ -243,29 +234,19 @@ private:
   float hbaseBlockCacheFrac_;
 
   // begin instrument to fix Mantis 9407
-  void* stored_vptr_;
-  char eyeCatcherBottom_[4]; 
+  void *stored_vptr_;
+  char eyeCatcherBottom_[4];
   // end instrument to fix Mantis 9407
 
-}; // class SchemaDB
+};  // class SchemaDB
 
 void InitSchemaDB();
 
-inline SchemaDB *ActiveSchemaDB()  { return CmpCommon::context()->schemaDB_; }
-inline SchemaDB *ActiveSchemaDB_Safe()
-{ return CmpCommon::context() ? CmpCommon::context()->schemaDB_ : NULL; }
+inline SchemaDB *ActiveSchemaDB() { return CmpCommon::context()->schemaDB_; }
+inline SchemaDB *ActiveSchemaDB_Safe() { return CmpCommon::context() ? CmpCommon::context()->schemaDB_ : NULL; }
 
-inline double getDefaultAsDouble(const Int32& key)
-{
-  return ActiveSchemaDB()->getDefaults().getAsDouble(key);
-}
+inline double getDefaultAsDouble(const Int32 &key) { return ActiveSchemaDB()->getDefaults().getAsDouble(key); }
 
-inline Lng32 getDefaultAsLong(const Int32& key)
-{
-  return ActiveSchemaDB()->getDefaults().getAsLong(key);
-}
+inline Lng32 getDefaultAsLong(const Int32 &key) { return ActiveSchemaDB()->getDefaults().getAsLong(key); }
 
 #endif /* SCHEMADB_H */
-
-
-

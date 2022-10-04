@@ -24,9 +24,9 @@
  *****************************************************************************
  *
  * File:         GenRelDCL.cpp
- * Description:  
- *               
- *               
+ * Description:
+ *
+ *
  * Created:      7/10/95
  * Language:     C++
  *
@@ -36,7 +36,7 @@
  *****************************************************************************
  */
 
-#define   SQLPARSERGLOBALS_FLAGS
+#define SQLPARSERGLOBALS_FLAGS
 #include "common/ComOptIncludes.h"
 #include "comexe/ComQueue.h"
 #include "optimizer/ControlDB.h"
@@ -53,47 +53,52 @@
 #include "comexe/ComTdbControl.h"
 #include "comexe/ComTdbTransaction.h"
 
-#include "comexe/ComTdbTimeout.h"  
-#include "comexe/LateBindInfo.h"  
+#include "comexe/ComTdbTimeout.h"
+#include "comexe/LateBindInfo.h"
 
-
-#include "parser/SqlParserGlobals.h"   // Parser Flags
+#include "parser/SqlParserGlobals.h"  // Parser Flags
 
 /////////////////////////////////////////////////////////////////////
 //
 // Contents:
-//    
+//
 //   Control*::codeGen()
 //   RelLock::codeGen()
 //   RelTransaction::codeGen()
 //
 //////////////////////////////////////////////////////////////////////
 
-short ControlAbstractClass::codeGen(Generator * generator)
-{
+short ControlAbstractClass::codeGen(Generator *generator) {
   // No code needed if static compile and static-only statement.
   if (alterArkcmpEnvNow()) {
     if (!generator->explainDisabled()) generator->setExplainTuple(NULL);
-    return 0;				// don't need any runtime code
+    return 0;  // don't need any runtime code
   }
 
-  Space * space = generator->getSpace();
+  Space *space = generator->getSpace();
 
   ControlQueryType cqt = SESSION_DEFAULT_;
   switch (getOperatorType()) {
-    case REL_CONTROL_QUERY_DEFAULT:	
-      {
-        if (((ControlQueryDefault*)this)->isCQDs())
-          cqt = DEFAULTS_;
-        else
-          cqt = DEFAULT_; 
-      }
+    case REL_CONTROL_QUERY_DEFAULT: {
+      if (((ControlQueryDefault *)this)->isCQDs())
+        cqt = DEFAULTS_;
+      else
+        cqt = DEFAULT_;
+    } break;
+    case REL_CONTROL_QUERY_SHAPE:
+      cqt = SHAPE_;
       break;
-    case REL_CONTROL_QUERY_SHAPE:	cqt = SHAPE_;   break;
-    case REL_CONTROL_SESSION:		cqt = CONTROL_SESSION_; break;
-    case REL_CONTROL_TABLE:		cqt = TABLE_;   break;
-    case REL_SET_SESSION_DEFAULT:	cqt = SESSION_DEFAULT_;   break;
-    default:				GenAssert(FALSE, "cqt is unknown");
+    case REL_CONTROL_SESSION:
+      cqt = CONTROL_SESSION_;
+      break;
+    case REL_CONTROL_TABLE:
+      cqt = TABLE_;
+      break;
+    case REL_SET_SESSION_DEFAULT:
+      cqt = SESSION_DEFAULT_;
+      break;
+    default:
+      GenAssert(FALSE, "cqt is unknown");
   }
 
   // trim leading and trailing spaces from token_ and value_
@@ -102,24 +107,18 @@ short ControlAbstractClass::codeGen(Generator * generator)
 
   // and upcase them
   token_.toUpper();
-  if ((cqt == DEFAULT_) ||
-      (cqt == TABLE_))
-    {
-      if ((value_ == "ON") ||
-	  (value_ == "ENABLE") ||
-	  (value_ == "TRUE"))
-	value_ = "ON";
-      else if ((value_ == "OFF") ||
-	       (value_ == "DISABLE") ||
-	       (value_ == "FALSE"))
-	value_ = "OFF";
-    }
+  if ((cqt == DEFAULT_) || (cqt == TABLE_)) {
+    if ((value_ == "ON") || (value_ == "ENABLE") || (value_ == "TRUE"))
+      value_ = "ON";
+    else if ((value_ == "OFF") || (value_ == "DISABLE") || (value_ == "FALSE"))
+      value_ = "OFF";
+  }
 
   Int16 reset;
   if (cqt == DEFAULT_)
-     reset = ((token_ == "") ? -reset_ : reset_);
+    reset = ((token_ == "") ? -reset_ : reset_);
   else
-     reset = reset_;
+    reset = reset_;
 
   // if this is a SET SCHEMA stmt for a Hive schema, construct the value
   // as fully qualified schema name (cat.sch).
@@ -127,21 +126,18 @@ short ControlAbstractClass::codeGen(Generator * generator)
   // if the schema exists.
   // See ExControlTcb::work for details.
   NABoolean isHiveSetSchema = FALSE;
-  if ((cqt == DEFAULT_) && (dynamic()) && (token_ == "SCHEMA") && (reset == 0))
-    {
-      ComSchemaName csn(value_);
-      NAString catName(csn.getCatalogNamePart().getInternalName());
-      if (catName.isNull())
-        catName = CmpCommon::getDefaultString(CATALOG);
-      if (catName == HIVE_SYSTEM_CATALOG)
-        {
-          value_ = HIVE_SYSTEM_CATALOG;
-          value_ += ".\"";
-          value_ += csn.getSchemaNamePart().getInternalName();
-          value_ += "\"";
-          isHiveSetSchema = TRUE;
-        }
+  if ((cqt == DEFAULT_) && (dynamic()) && (token_ == "SCHEMA") && (reset == 0)) {
+    ComSchemaName csn(value_);
+    NAString catName(csn.getCatalogNamePart().getInternalName());
+    if (catName.isNull()) catName = CmpCommon::getDefaultString(CATALOG);
+    if (catName == HIVE_SYSTEM_CATALOG) {
+      value_ = HIVE_SYSTEM_CATALOG;
+      value_ += ".\"";
+      value_ += csn.getSchemaNamePart().getInternalName();
+      value_ += "\"";
+      isHiveSetSchema = TRUE;
     }
+  }
 
   // We need txt/tok/val stuff if in [1] a dynamic compile (EXEC SQL PREPARE),
   // OR [2] a dynamic statement even in a static compile.
@@ -150,50 +146,38 @@ short ControlAbstractClass::codeGen(Generator * generator)
   //     if arkcmp crashes.
   // [2] is for SET CAT/SCH to work in embedded.
 
-  char *v[] = { NULL, NULL, NULL };
-  if ((cqt != SHAPE_) &&
-      (cqt != DEFAULTS_)) {	 // CQS/CQDS has 0 args; CT has 3; others 2
+  char *v[] = {NULL, NULL, NULL};
+  if ((cqt != SHAPE_) && (cqt != DEFAULTS_)) {  // CQS/CQDS has 0 args; CT has 3; others 2
     size_t i = 0;
     if (cqt == TABLE_)
-      v[i++] = convertNAString(((ControlTable *)this)->
-			  getTableName().getExposedNameAsAnsiString(), space);
+      v[i++] = convertNAString(((ControlTable *)this)->getTableName().getExposedNameAsAnsiString(), space);
     v[i++] = convertNAString(token_, space);
     v[i++] = convertNAString(value_, space);
   }
 
-  ComTdbControl * control_tdb = new(space) 
-    ComTdbControl(cqt,
-		  reset,
-		  convertNAString(sqlText_, space), (Int16)sqlTextCharSet_,
-		  v[0],
-		  v[1],
-		  v[2],
-		  (ex_cri_desc *)(generator->getCriDesc(Generator::DOWN)),
-		  (ex_cri_desc *)(generator->getCriDesc(Generator::DOWN)),
-		  (queue_index)4,	// ## Should be 2: this tmp-fixes error
-		  (queue_index)4,	// ## -8816 if ExHandleArkcmpErrors in
-		  1, 1024);		// ## ExControlTcb::work().
+  ComTdbControl *control_tdb = new (space) ComTdbControl(
+      cqt, reset, convertNAString(sqlText_, space), (Int16)sqlTextCharSet_, v[0], v[1], v[2],
+      (ex_cri_desc *)(generator->getCriDesc(Generator::DOWN)), (ex_cri_desc *)(generator->getCriDesc(Generator::DOWN)),
+      (queue_index)4,  // ## Should be 2: this tmp-fixes error
+      (queue_index)4,  // ## -8816 if ExHandleArkcmpErrors in
+      1, 1024);        // ## ExControlTcb::work().
   generator->initTdbFields(control_tdb);
-  if (cqt == DEFAULT_)
-  {
-     NABoolean nonResettable = 
-        ActiveSchemaDB()->getDefaults().isNonResetableAttribute(v[0]);
-     control_tdb->setNonResettable(nonResettable);
-     control_tdb->setControlActionType(((ControlQueryDefault *)this)->getHoldOrRestoreCQD());
+  if (cqt == DEFAULT_) {
+    NABoolean nonResettable = ActiveSchemaDB()->getDefaults().isNonResetableAttribute(v[0]);
+    control_tdb->setNonResettable(nonResettable);
+    control_tdb->setControlActionType(((ControlQueryDefault *)this)->getHoldOrRestoreCQD());
 
-     if (dynamic()) // dynamic() is true for SET stmts
-       {
-         control_tdb->setIsSetStmt(TRUE);
-         control_tdb->setIsHiveSetSchema(isHiveSetSchema);
-       }
+    if (dynamic())  // dynamic() is true for SET stmts
+    {
+      control_tdb->setIsSetStmt(TRUE);
+      control_tdb->setIsHiveSetSchema(isHiveSetSchema);
+    }
   }
-  // no tupps are returned 
-  generator->setCriDesc((ex_cri_desc *)(generator->getCriDesc(Generator::DOWN)),
-			Generator::UP);
+  // no tupps are returned
+  generator->setCriDesc((ex_cri_desc *)(generator->getCriDesc(Generator::DOWN)), Generator::UP);
   generator->setGenObj(this, control_tdb);
 
-  if (!generator->explainDisabled())
-    generator->setExplainTuple(addExplainInfo(control_tdb, 0, 0, generator));
+  if (!generator->explainDisabled()) generator->setExplainTuple(addExplainInfo(control_tdb, 0, 0, generator));
 
   return 0;
 }
@@ -203,8 +187,7 @@ short ControlAbstractClass::codeGen(Generator * generator)
 // RelLock::codeGen()
 //
 /////////////////////////////////////////////////////////
-short RelLock::codeGen(Generator * generator)
-{
+short RelLock::codeGen(Generator *generator) {
   GenAssert(FALSE, "Lock not supported");
   return 0;
 }
@@ -214,85 +197,68 @@ short RelLock::codeGen(Generator * generator)
 // RelTransaction::codeGen()
 //
 /////////////////////////////////////////////////////////
-short RelTransaction::codeGen(Generator * generator)
-{
-  ExpGenerator * exp_gen = generator->getExpGenerator();
-  Space * space = generator->getSpace();
+short RelTransaction::codeGen(Generator *generator) {
+  ExpGenerator *exp_gen = generator->getExpGenerator();
+  Space *space = generator->getSpace();
 
-  TransMode * mode = NULL;
-  if (mode_)
-  {
-    mode = new(space) TransMode();
+  TransMode *mode = NULL;
+  if (mode_) {
+    mode = new (space) TransMode();
     *mode = *mode_;
   }
-  
-  ex_expr * diag_area_size_expr = 0;
 
-  short workAtp = 1; // second atp 
+  ex_expr *diag_area_size_expr = 0;
+
+  short workAtp = 1;  // second atp
   short workAtpIndex = 2;
-  ex_cri_desc * work_cri_desc = new(space) ex_cri_desc(3, space);
+  ex_cri_desc *work_cri_desc = new (space) ex_cri_desc(3, space);
 
-  if (diagAreaSizeExpr_)
-    {
-      // generate expression to compute the diagnostic area size.
-      // At runtime, the size is computed and moved to a temporary
-      // location. Create that node.
-      ItemExpr * daSize = 
-	new(generator->wHeap()) Cast (diagAreaSizeExpr_, 
-	new(generator->wHeap()) SQLInt(generator->wHeap(), TRUE, FALSE));
-      daSize->setConstFoldingDisabled(TRUE);      
-      
-      daSize->bindNode(generator->getBindWA());
-      
-      // add location of diag area size to map table.
-      Attributes * map_attr 
-	= (generator->addMapInfo(daSize->getValueId(), 0))->getAttr();
-      map_attr->setAtp(workAtp);
-      map_attr->setAtpIndex(workAtpIndex);
+  if (diagAreaSizeExpr_) {
+    // generate expression to compute the diagnostic area size.
+    // At runtime, the size is computed and moved to a temporary
+    // location. Create that node.
+    ItemExpr *daSize = new (generator->wHeap())
+        Cast(diagAreaSizeExpr_, new (generator->wHeap()) SQLInt(generator->wHeap(), TRUE, FALSE));
+    daSize->setConstFoldingDisabled(TRUE);
 
-      ULng32 len;
-      ExpTupleDesc::computeOffsets(map_attr, 
-				   ExpTupleDesc::SQLARK_EXPLODED_FORMAT, len);
+    daSize->bindNode(generator->getBindWA());
 
-      // generate expression
-      exp_gen->generateArithExpr(daSize->getValueId(), ex_expr::exp_ARITH_EXPR,
-				 &diag_area_size_expr);
-    }
+    // add location of diag area size to map table.
+    Attributes *map_attr = (generator->addMapInfo(daSize->getValueId(), 0))->getAttr();
+    map_attr->setAtp(workAtp);
+    map_attr->setAtpIndex(workAtpIndex);
 
-  ComTdbTransaction * trans_tdb = new(space)
-    ComTdbTransaction(type_, mode,
-	       diag_area_size_expr,
-	       work_cri_desc,
-	       (ex_cri_desc *)(generator->getCriDesc(Generator::DOWN)),
-	       (ex_cri_desc *)(generator->getCriDesc(Generator::DOWN)),
-	       (queue_index)getDefault(GEN_TRAN_SIZE_DOWN),
-	       (queue_index)getDefault(GEN_TRAN_SIZE_UP),
-	       getDefault(GEN_TRAN_NUM_BUFFERS), 
-	       getDefault(GEN_TRAN_BUFFER_SIZE));
+    ULng32 len;
+    ExpTupleDesc::computeOffsets(map_attr, ExpTupleDesc::SQLARK_EXPLODED_FORMAT, len);
+
+    // generate expression
+    exp_gen->generateArithExpr(daSize->getValueId(), ex_expr::exp_ARITH_EXPR, &diag_area_size_expr);
+  }
+
+  ComTdbTransaction *trans_tdb = new (space) ComTdbTransaction(
+      type_, mode, diag_area_size_expr, work_cri_desc, (ex_cri_desc *)(generator->getCriDesc(Generator::DOWN)),
+      (ex_cri_desc *)(generator->getCriDesc(Generator::DOWN)), (queue_index)getDefault(GEN_TRAN_SIZE_DOWN),
+      (queue_index)getDefault(GEN_TRAN_SIZE_UP), getDefault(GEN_TRAN_NUM_BUFFERS), getDefault(GEN_TRAN_BUFFER_SIZE));
   generator->initTdbFields(trans_tdb);
 
-  if (hasSavepointName_)
-    trans_tdb->setSavepointName(savepointName_.data());
+  if (hasSavepointName_) trans_tdb->setSavepointName(savepointName_.data());
 
- // if (CmpCommon::getDefault(MODE_SPECIAL_4) == DF_ON)
-    trans_tdb->setCoverageSavePoint(TRUE);
+  // if (CmpCommon::getDefault(MODE_SPECIAL_4) == DF_ON)
+  trans_tdb->setCoverageSavePoint(TRUE);
 
   // SET TRANSACTION is allowed within a transaction, if this query
   // is issued from odbc/jdbc/java.
-  if ((CmpCommon::getDefault(ODBC_PROCESS) == DF_ON) ||
-      (CmpCommon::getDefault(JDBC_PROCESS) == DF_ON))
+  if ((CmpCommon::getDefault(ODBC_PROCESS) == DF_ON) || (CmpCommon::getDefault(JDBC_PROCESS) == DF_ON))
     trans_tdb->setSetAllowedInXn(TRUE);
 
   // set transaction autocommit is allowed within a transaction.
-  if (mode && 
-      (mode->getAutoCommitSavepointOn() || mode->getAutoCommitSavepointOff()))
+  if (mode && (mode->getAutoCommitSavepointOn() || mode->getAutoCommitSavepointOff()))
     trans_tdb->setSetAllowedInXn(TRUE);
 
-  // no tupps are returned 
-  generator->setCriDesc((ex_cri_desc *)(generator->getCriDesc(Generator::DOWN)),
-			Generator::UP);
+  // no tupps are returned
+  generator->setCriDesc((ex_cri_desc *)(generator->getCriDesc(Generator::DOWN)), Generator::UP);
   generator->setGenObj(this, trans_tdb);
-  // begin work and set transaction statements don't 
+  // begin work and set transaction statements don't
   // need a read_write transaction but we set this flag
   // so that root_tdb::transmode gets whatever settings
   // are current in CmpCommon::Transmode. In other words
@@ -300,125 +266,104 @@ short RelTransaction::codeGen(Generator * generator)
   // a READ ONLY transaction for this statement, unless
   // explicitly requested by the user.
   generator->setNeedsReadWriteTransaction(TRUE);
-  if(!generator->explainDisabled()) {
-    generator->setExplainTuple(
-       addExplainInfo(trans_tdb, 0, 0, generator));
+  if (!generator->explainDisabled()) {
+    generator->setExplainTuple(addExplainInfo(trans_tdb, 0, 0, generator));
   }
 
   // no aqr for trasaction control stmts (begin/commit/rollback/set)
   generator->setAqrEnabled(FALSE);
-  if (type_ == BEGIN_SAVEPOINT_)
-    generator->setTransactionFlag(TRUE);
+  if (type_ == BEGIN_SAVEPOINT_) generator->setTransactionFlag(TRUE);
   return 0;
 }
-
 
 /////////////////////////////////////////////////////////
 //
 //  RelSetTimeout::codeGen()
 //
 /////////////////////////////////////////////////////////
-short RelSetTimeout::codeGen(Generator * generator)
-{
-  ExpGenerator * exp_gen = generator->getExpGenerator();
-  MapTable * map_table = generator->getMapTable();
-  Space * space = generator->getSpace();
-  ex_expr * timeout_value_expr = 0;
+short RelSetTimeout::codeGen(Generator *generator) {
+  ExpGenerator *exp_gen = generator->getExpGenerator();
+  MapTable *map_table = generator->getMapTable();
+  Space *space = generator->getSpace();
+  ex_expr *timeout_value_expr = 0;
 
-  short workAtp = 1; // second atp 
+  short workAtp = 1;  // second atp
   short workAtpIndex = 2;
-  ex_cri_desc * work_cri_desc = new(space) ex_cri_desc(3, space);
+  ex_cri_desc *work_cri_desc = new (space) ex_cri_desc(3, space);
 
   //
   //     Extract the table-name
   //
-  LateNameInfo* lateNameInfo = new(generator->wHeap()) LateNameInfo();
-  
-  const HostVar *hv = userTableName_.getPrototype() ;
-  if ( hv != NULL)  {   // This is a host var
-    char * varName;
+  LateNameInfo *lateNameInfo = new (generator->wHeap()) LateNameInfo();
+
+  const HostVar *hv = userTableName_.getPrototype();
+  if (hv != NULL) {  // This is a host var
+    char *varName;
     GenAssert(hv->getName().data(), "Hostvar pointer must have name");
 
     lateNameInfo->setEnvVar(hv->isEnvVar());
 
     varName = convertNAString(hv->getName(), generator->wHeap());
     strcpy(lateNameInfo->variableName(), varName);
-    
-    char * prototypeValue =  convertNAString(hv->getPrototypeValue(),
-					     generator->wHeap());
+
+    char *prototypeValue = convertNAString(hv->getPrototypeValue(), generator->wHeap());
     lateNameInfo->setCompileTimeName(prototypeValue, space);
     lateNameInfo->setLastUsedName(prototypeValue, space);
     strcpy(lateNameInfo->resolvedPhyName(), prototypeValue);
     lateNameInfo->setVariable(1);
-  } // end of host-var
-  else if ( isForAllTables_ ) { // a "*" was specified for a table name
-    strcpy( lateNameInfo->resolvedPhyName(), "*" );  // special mark
+  }                                                // end of host-var
+  else if (isForAllTables_) {                      // a "*" was specified for a table name
+    strcpy(lateNameInfo->resolvedPhyName(), "*");  // special mark
     // Mark compile-time-name as alreay qualified (for RelRoot::codeGen() )
-    strcpy(lateNameInfo->compileTimeAnsiName(), "\\DUMMY" ); // trick it !!
-  }
-  else {  // a specific table name was given; copy physical name
-    GenAssert( physicalFileName_[0] == '\\' , 
-	       "Full Guardian table name expected.");
-    strcpy( lateNameInfo->resolvedPhyName(), physicalFileName_ );
-    strcpy( lateNameInfo->compileTimeAnsiName(), physicalFileName_ );
+    strcpy(lateNameInfo->compileTimeAnsiName(), "\\DUMMY");  // trick it !!
+  } else {                                                   // a specific table name was given; copy physical name
+    GenAssert(physicalFileName_[0] == '\\', "Full Guardian table name expected.");
+    strcpy(lateNameInfo->resolvedPhyName(), physicalFileName_);
+    strcpy(lateNameInfo->compileTimeAnsiName(), physicalFileName_);
   }
 
   lateNameInfo->setNameSpace(COM_TABLE_NAME);
   lateNameInfo->setInputListIndex(-1);
   generator->addLateNameInfo(lateNameInfo);
- 
+
   //
   //  If needed, generate expression to compute the timeout value.
-  // 
-  if (timeoutValueExpr_)
-    {
-      // At runtime, the value is computed and moved to a temporary
-      // location. Create that node.
-      ItemExpr * toVal = 
-	new(generator->wHeap()) Cast(timeoutValueExpr_, 
-				     new(generator->wHeap()) 
-				     SQLInt(generator->wHeap(), TRUE, FALSE));
-      toVal->setConstFoldingDisabled(TRUE);      
-      
-      toVal->bindNode(generator->getBindWA());
-  
-      // add location of timeout value to map table.
-      Attributes * map_attr 
-	= (generator->addMapInfo(toVal->getValueId(), 0))->getAttr();
-      map_attr->setAtp(workAtp);
-      map_attr->setAtpIndex(workAtpIndex);
+  //
+  if (timeoutValueExpr_) {
+    // At runtime, the value is computed and moved to a temporary
+    // location. Create that node.
+    ItemExpr *toVal = new (generator->wHeap())
+        Cast(timeoutValueExpr_, new (generator->wHeap()) SQLInt(generator->wHeap(), TRUE, FALSE));
+    toVal->setConstFoldingDisabled(TRUE);
 
-      ULng32 len;
-      ExpTupleDesc::computeOffsets(map_attr, 
-				   ExpTupleDesc::SQLARK_EXPLODED_FORMAT, len);
+    toVal->bindNode(generator->getBindWA());
 
-      // generate expression
-      exp_gen->generateArithExpr(toVal->getValueId(), ex_expr::exp_ARITH_EXPR,
-				 &timeout_value_expr);
-    }
-  
-  ComTdbTimeout * timeout_tdb = new(space) 
-    ComTdbTimeout( timeout_value_expr,
-		   work_cri_desc,
-		   (ex_cri_desc *)(generator->getCriDesc(Generator::DOWN)),
-		   (ex_cri_desc *)(generator->getCriDesc(Generator::DOWN)),
-		   (queue_index)getDefault(GEN_TIMEOUT_SIZE_DOWN),
-		   (queue_index)getDefault(GEN_TIMEOUT_SIZE_UP),
-		   getDefault(GEN_TIMEOUT_NUM_BUFFERS),
-		   getDefault(GEN_TIMEOUT_BUFFER_SIZE));
-  
-  timeout_tdb->setStream( isStream_ );  // set the flags in the TCB
-  timeout_tdb->setReset( isReset_ );
+    // add location of timeout value to map table.
+    Attributes *map_attr = (generator->addMapInfo(toVal->getValueId(), 0))->getAttr();
+    map_attr->setAtp(workAtp);
+    map_attr->setAtpIndex(workAtpIndex);
 
-  // no tupps are returned 
-  generator->setCriDesc((ex_cri_desc *)
-			(generator->getCriDesc(Generator::DOWN)),
-			Generator::UP);
+    ULng32 len;
+    ExpTupleDesc::computeOffsets(map_attr, ExpTupleDesc::SQLARK_EXPLODED_FORMAT, len);
+
+    // generate expression
+    exp_gen->generateArithExpr(toVal->getValueId(), ex_expr::exp_ARITH_EXPR, &timeout_value_expr);
+  }
+
+  ComTdbTimeout *timeout_tdb = new (space)
+      ComTdbTimeout(timeout_value_expr, work_cri_desc, (ex_cri_desc *)(generator->getCriDesc(Generator::DOWN)),
+                    (ex_cri_desc *)(generator->getCriDesc(Generator::DOWN)),
+                    (queue_index)getDefault(GEN_TIMEOUT_SIZE_DOWN), (queue_index)getDefault(GEN_TIMEOUT_SIZE_UP),
+                    getDefault(GEN_TIMEOUT_NUM_BUFFERS), getDefault(GEN_TIMEOUT_BUFFER_SIZE));
+
+  timeout_tdb->setStream(isStream_);  // set the flags in the TCB
+  timeout_tdb->setReset(isReset_);
+
+  // no tupps are returned
+  generator->setCriDesc((ex_cri_desc *)(generator->getCriDesc(Generator::DOWN)), Generator::UP);
   generator->setGenObj(this, timeout_tdb);
-  if(!generator->explainDisabled()) {
-    generator->setExplainTuple(
-			       addExplainInfo(timeout_tdb, 0, 0, generator));
+  if (!generator->explainDisabled()) {
+    generator->setExplainTuple(addExplainInfo(timeout_tdb, 0, 0, generator));
   }
   return 0;
 }
-

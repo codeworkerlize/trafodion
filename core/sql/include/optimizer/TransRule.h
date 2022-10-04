@@ -38,12 +38,11 @@
 ******************************************************************************
 */
 
-
 #include "optimizer/Rule.h"
 #include "optimizer/Analyzer.h"
 
 //------------------------------------------------------------------------
-//forward declaration
+// forward declaration
 //------------------------------------------------------------------------
 
 class MultiJoin;
@@ -58,7 +57,6 @@ class JoinLeftShiftRule;
 // for ngram
 class IndexJoinWithGroupbyRule;
 class GroupbyRule;
-
 
 class IndexJoinRule1;
 class IndexJoinRule2;
@@ -108,7 +106,6 @@ class GroupByMVQRRule;
 
 class HbaseScanRule;
 
-
 // -----------------------------------------------------------------------
 // forward references
 // -----------------------------------------------------------------------
@@ -119,163 +116,114 @@ class Scan;
 // -----------------------------------------------------------------------
 // Function to add transformation rules to the rule set
 // -----------------------------------------------------------------------
-void CreateTransformationRules(RuleSet*);
+void CreateTransformationRules(RuleSet *);
 
 // -----------------------------------------------------------------------
 // transformation rule subclasses
 // -----------------------------------------------------------------------
 
-class MJExpandRule : public Rule
-{
-public:
-  MJExpandRule (const char * name,
-                RelExpr * pattern,
-                RelExpr * substitute) :
-       Rule(name,pattern,substitute) {}
+class MJExpandRule : public Rule {
+ public:
+  MJExpandRule(const char *name, RelExpr *pattern, RelExpr *substitute) : Rule(name, pattern, substitute) {}
 
   // copy ctor
-  MJExpandRule (const MJExpandRule &) ; // not written
+  MJExpandRule(const MJExpandRule &);  // not written
 
   virtual ~MJExpandRule() {}
 
-  virtual NABoolean topMatch (RelExpr * expr,
-			      Context * context);
+  virtual NABoolean topMatch(RelExpr *expr, Context *context);
 
-  virtual RelExpr * nextSubstitute(RelExpr * before,
-				   Context *context,
-				   RuleSubstituteMemory * & memory);
+  virtual RelExpr *nextSubstitute(RelExpr *before, Context *context, RuleSubstituteMemory *&memory);
 
-  virtual Int32 promiseForOptimization(RelExpr * relExpr,
-               Guidance * guidance,
-               Context * context);
+  virtual Int32 promiseForOptimization(RelExpr *relExpr, Guidance *guidance, Context *context);
 
-  virtual NABoolean isImplementationRule () const { return FALSE; }
-
+  virtual NABoolean isImplementationRule() const { return FALSE; }
 };
 
 // -----------------------------------------------------------------------
 // use for MV query rewrite
 // -----------------------------------------------------------------------
-class MVQRRule : public Rule
-{
-public:
-  MVQRRule (const char * name,
-            RelExpr * pattern,
-            RelExpr * substitute) :
-     Rule(name,pattern,substitute) {}
+class MVQRRule : public Rule {
+ public:
+  MVQRRule(const char *name, RelExpr *pattern, RelExpr *substitute) : Rule(name, pattern, substitute) {}
 
   // copy ctor
-  MVQRRule (const MVQRRule &) ; 
+  MVQRRule(const MVQRRule &);
 
   virtual ~MVQRRule() {}
 
-  virtual NABoolean topMatch (RelExpr * expr,
-                              Context * context);
+  virtual NABoolean topMatch(RelExpr *expr, Context *context);
 
-  virtual RelExpr * nextSubstitute(RelExpr * before,
-                                   Context *context,
-                                   RuleSubstituteMemory * & memory);
+  virtual RelExpr *nextSubstitute(RelExpr *before, Context *context, RuleSubstituteMemory *&memory);
 
-  virtual NABoolean isImplementationRule () const { return FALSE; }
+  virtual NABoolean isImplementationRule() const { return FALSE; }
 };
 
-class MVQRScanRule : public Rule
-{
-public:
-  MVQRScanRule (const char * name,
-                RelExpr * pattern,
-                RelExpr * substitute) :
-     Rule(name,pattern,substitute) {}
+class MVQRScanRule : public Rule {
+ public:
+  MVQRScanRule(const char *name, RelExpr *pattern, RelExpr *substitute) : Rule(name, pattern, substitute) {}
 
   // copy ctor
-  MVQRScanRule (const MVQRScanRule &) ;
+  MVQRScanRule(const MVQRScanRule &);
 
   virtual ~MVQRScanRule() {}
 
-  virtual NABoolean topMatch (RelExpr * expr,
-                              Context * context);
+  virtual NABoolean topMatch(RelExpr *expr, Context *context);
 
-  virtual RelExpr * nextSubstitute(RelExpr * before,
-                                   Context *context,
-                                   RuleSubstituteMemory * & memory);
+  virtual RelExpr *nextSubstitute(RelExpr *before, Context *context, RuleSubstituteMemory *&memory);
 
-  virtual NABoolean isImplementationRule () const { return FALSE; }
+  virtual NABoolean isImplementationRule() const { return FALSE; }
 };
 
-class GroupByMVQRRule : public Rule
-{
-public:
-  GroupByMVQRRule (const char * name,
-            RelExpr * pattern,
-            RelExpr * substitute) :
-     Rule(name,pattern,substitute) {}
+class GroupByMVQRRule : public Rule {
+ public:
+  GroupByMVQRRule(const char *name, RelExpr *pattern, RelExpr *substitute) : Rule(name, pattern, substitute) {}
 
   // copy ctor
-  GroupByMVQRRule (const GroupByMVQRRule &) ;
+  GroupByMVQRRule(const GroupByMVQRRule &);
 
   virtual ~GroupByMVQRRule() {}
 
-  virtual NABoolean topMatch (RelExpr * expr,
-                              Context * context);
+  virtual NABoolean topMatch(RelExpr *expr, Context *context);
 
-  virtual RelExpr * nextSubstitute(RelExpr * before,
-                                   Context *context,
-                                   RuleSubstituteMemory * & memory);
+  virtual RelExpr *nextSubstitute(RelExpr *before, Context *context, RuleSubstituteMemory *&memory);
 
-  virtual NABoolean isImplementationRule () const { return FALSE; }
+  virtual NABoolean isImplementationRule() const { return FALSE; }
 };
 
-class MJEnumRule : public Rule
-{
-public:
-  MJEnumRule (const char * name,
-              RelExpr * pattern,
-              RelExpr * substitute) :
-     Rule(name,pattern,substitute) {}
+class MJEnumRule : public Rule {
+ public:
+  MJEnumRule(const char *name, RelExpr *pattern, RelExpr *substitute) : Rule(name, pattern, substitute) {}
 
   // copy ctor
-  MJEnumRule (const MJEnumRule &) ; // not written
+  MJEnumRule(const MJEnumRule &);  // not written
 
   virtual ~MJEnumRule() {}
 
-  virtual NABoolean topMatch (RelExpr * expr,
-			      Context * context);
+  virtual NABoolean topMatch(RelExpr *expr, Context *context);
 
-  virtual RelExpr * nextSubstitute(RelExpr * before,
-				   Context *context,
-				   RuleSubstituteMemory * & memory);
+  virtual RelExpr *nextSubstitute(RelExpr *before, Context *context, RuleSubstituteMemory *&memory);
 
-  virtual NABoolean isImplementationRule () const { return FALSE; }
-
+  virtual NABoolean isImplementationRule() const { return FALSE; }
 };
 
 enum StarJoinType { TYPE_I, TYPE_II };
 
-class MJStarJoinIRuleWA : public NABasicObject
-{
+class MJStarJoinIRuleWA : public NABasicObject {
   friend class MJStarJoinIRule;
 
-public:
+ public:
   // listOfEdges_ is allocated from the statement heap. It is safe to
   // ignore this dstr is not code coveraged.
-  ~MJStarJoinIRuleWA()
-  {
-    if(listOfEdges_)
-      delete listOfEdges_;
+  ~MJStarJoinIRuleWA() {
+    if (listOfEdges_) delete listOfEdges_;
   }
 
-private:
-
+ private:
   // construct is private since only the MJStarJoinRule should be able to
   // instantiate an object of this class
-  MJStarJoinIRuleWA(CollHeap *outHeap = CmpCommon::statementHeap()):
-  factTable_(NULL_CA_ID),
-  listOfEdges_(NULL),
-  matchedStarSchema_(FALSE),
-  optimalFTLocation_(-1),
-  heap_(outHeap)
-  {
-  }
+  MJStarJoinIRuleWA(CollHeap *outHeap = CmpCommon::statementHeap())
+      : factTable_(NULL_CA_ID), listOfEdges_(NULL), matchedStarSchema_(FALSE), optimalFTLocation_(-1), heap_(outHeap) {}
 
   // the fact table
   CANodeId factTable_;
@@ -287,7 +235,7 @@ private:
 
   // list of fringes that are joined to the fact table via clustering
   // key prefix predicates
-  NAList<CANodeIdSet> * listOfEdges_;
+  NAList<CANodeIdSet> *listOfEdges_;
 
   // optimal position of FactTable in list of edges
   Int32 optimalFTLocation_;
@@ -311,35 +259,31 @@ private:
 //      in a series of hash joins
 // ------------------------------------------------------------------------
 
-class MJStarJoinRules : public Rule
-{
-public:
-  MJStarJoinRules(const char * name,
-                RelExpr * pattern,
-                RelExpr * substitute) :
-       Rule(name,pattern,substitute) {}
+class MJStarJoinRules : public Rule {
+ public:
+  MJStarJoinRules(const char *name, RelExpr *pattern, RelExpr *substitute) : Rule(name, pattern, substitute) {}
 
   // copy ctor
-  MJStarJoinRules (const MJExpandRule &) ; // not written
+  MJStarJoinRules(const MJExpandRule &);  // not written
 
   virtual ~MJStarJoinRules() {}
 
   /*virtual NABoolean topMatch (RelExpr * expr,
-			      Context * context);
+                              Context * context);
 
   virtual RelExpr * nextSubstitute(RelExpr * before,
-				   Context *context,
-				   RuleSubstituteMemory * & memory);
+                                   Context *context,
+                                   RuleSubstituteMemory * & memory);
 
   virtual NABoolean isImplementationRule ();*/
 
   virtual NABoolean isAStarJoinRule() const = 0;
 
-protected:
-  //extends an edge of the star
-  CANodeIdSet extendEdge(CANodeId connectedTable,//in
-                         CANodeIdSet& availableNodes,//in
-                         UInt32 lookAhead);//in
+ protected:
+  // extends an edge of the star
+  CANodeIdSet extendEdge(CANodeId connectedTable,      // in
+                         CANodeIdSet &availableNodes,  // in
+                         UInt32 lookAhead);            // in
 };
 
 // ------------------------------------------------------------------------
@@ -352,48 +296,39 @@ protected:
 // the topMatch returns false and schedules the MJStarBDRule
 // ------------------------------------------------------------------------
 
-class MJStarJoinIRule : public MJStarJoinRules
-{
-public:
-  MJStarJoinIRule (const char * name,
-                RelExpr * pattern,
-                RelExpr * substitute) :
-       MJStarJoinRules(name,pattern,substitute) {}
+class MJStarJoinIRule : public MJStarJoinRules {
+ public:
+  MJStarJoinIRule(const char *name, RelExpr *pattern, RelExpr *substitute)
+      : MJStarJoinRules(name, pattern, substitute) {}
 
   // copy ctor
-  MJStarJoinIRule (const MJStarJoinIRule &) ; // not written
+  MJStarJoinIRule(const MJStarJoinIRule &);  // not written
 
   virtual ~MJStarJoinIRule() {}
 
-  virtual NABoolean topMatch (RelExpr * expr,
-			      Context * context);
+  virtual NABoolean topMatch(RelExpr *expr, Context *context);
 
-  virtual RelExpr * nextSubstitute(RelExpr * before,
-				   Context *context,
-				   RuleSubstituteMemory * & memory);
+  virtual RelExpr *nextSubstitute(RelExpr *before, Context *context, RuleSubstituteMemory *&memory);
 
-  virtual NABoolean isImplementationRule () const { return FALSE; }
-  virtual NABoolean isAStarJoinRule() const {return TRUE; }
+  virtual NABoolean isImplementationRule() const { return FALSE; }
+  virtual NABoolean isAStarJoinRule() const { return TRUE; }
 
-private:
-  NABoolean topMatch_Old(RelExpr * expr,
-                         Context * context);
+ private:
+  NABoolean topMatch_Old(RelExpr *expr, Context *context);
 
-  RelExpr * nextSubstitute_Old(RelExpr * before,
-                               Context *context,
-                               RuleSubstituteMemory * & memory);
-  //helper methods
-  //Sort JBBCs of the MultiJoin on which this rule is firing.
-  //The sorting order is based on the cardinality of the JBBC after application
-  //of local predicates on the prefix of the clustering key.
-  void sortMJJBBCsByCardAfterLocalKeyPrefixPred(NAList<CANodeId> &sortedJBBCs,//out
-                                                const MultiJoin * const mjoin);//in
+  RelExpr *nextSubstitute_Old(RelExpr *before, Context *context, RuleSubstituteMemory *&memory);
+  // helper methods
+  // Sort JBBCs of the MultiJoin on which this rule is firing.
+  // The sorting order is based on the cardinality of the JBBC after application
+  // of local predicates on the prefix of the clustering key.
+  void sortMJJBBCsByCardAfterLocalKeyPrefixPred(NAList<CANodeId> &sortedJBBCs,  // out
+                                                const MultiJoin *const mjoin);  // in
 
   // return the fact table if one is found otherwise return a CANodeId of
   // NULL_CA_ID
-  CANodeId findFactTable(const MultiJoin * const mjoin, //in
-                         CostScalar & factTableCKPrefixCardinality, //out
-                         CANodeId & biggestNode); //out
+  CANodeId findFactTable(const MultiJoin *const mjoin,              // in
+                         CostScalar &factTableCKPrefixCardinality,  // out
+                         CANodeId &biggestNode);                    // out
 
   // does the given multijoin resemble a star shape
   // e.g.
@@ -415,26 +350,22 @@ private:
   // a large fact table
   // This method just looks and table connectivities and returns the
   // center of the shape, otherwise it returns NULL_CA_ID
-  CANodeId isAStarShape(MultiJoin * mjoin);
+  CANodeId isAStarShape(MultiJoin *mjoin);
 
   // This method give a fact table, matches a multi-join to a star pattern
-  NABoolean isAStarPattern(MultiJoin * mjoin,//in
-                           CANodeId factTable,//in
-                           CostScalar factTableCKPrefixCardinality);//in
+  NABoolean isAStarPattern(MultiJoin *mjoin,                          // in
+                           CANodeId factTable,                        // in
+                           CostScalar factTableCKPrefixCardinality);  // in
 
   // get a rough estimate of cost for doing a nested join on the fact table
   // number of probes = dataFlowFromEdge
   // Rows of fact table that will be scanned = factTableRowsToScan
-  CostScalar computeCostForFactTable(CostScalar probes,
-                                     CostScalar factTableRowsToScan,
-                                     CANodeId   factTable,
+  CostScalar computeCostForFactTable(CostScalar probes, CostScalar factTableRowsToScan, CANodeId factTable,
                                      MultiJoin *mjoin);
 
   // sort the JBBCs based on cardinality after local predicates
   // the sorting order is descending i.e. largest -> smallest
-  void sortMJJBBCs(NAList<CANodeId> &sortedJBBCs,
-                   const MultiJoin * const mjoin);
-
+  void sortMJJBBCs(NAList<CANodeId> &sortedJBBCs, const MultiJoin *const mjoin);
 };
 
 // ------------------------------------------------------------------------
@@ -442,622 +373,397 @@ private:
 // This is a Large-Scope Rule
 // ------------------------------------------------------------------------
 
-class MJStarJoinIIRule : public MJStarJoinRules
-{
-public:
-  MJStarJoinIIRule (const char * name,
-                    RelExpr * pattern,
-                    RelExpr * substitute) :
-       MJStarJoinRules(name,pattern,substitute) {}
+class MJStarJoinIIRule : public MJStarJoinRules {
+ public:
+  MJStarJoinIIRule(const char *name, RelExpr *pattern, RelExpr *substitute)
+      : MJStarJoinRules(name, pattern, substitute) {}
 
   // copy ctor
-  MJStarJoinIIRule (const MJExpandRule &) ; // not written
+  MJStarJoinIIRule(const MJExpandRule &);  // not written
 
   virtual ~MJStarJoinIIRule() {}
 
-  virtual NABoolean topMatch (RelExpr * expr,
-			      Context * context);
+  virtual NABoolean topMatch(RelExpr *expr, Context *context);
 
-  virtual RelExpr * nextSubstitute(RelExpr * before,
-				   Context *context,
-				   RuleSubstituteMemory * & memory);
+  virtual RelExpr *nextSubstitute(RelExpr *before, Context *context, RuleSubstituteMemory *&memory);
 
-  virtual NABoolean isImplementationRule () const { return FALSE; }
-  virtual NABoolean isAStarJoinRule() const {return TRUE; }
+  virtual NABoolean isImplementationRule() const { return FALSE; }
+  virtual NABoolean isAStarJoinRule() const { return TRUE; }
 
-private:
-  RelExpr * nextSubstitute_Old (RelExpr * before,
-                                Context *context,
-                                RuleSubstituteMemory * & memory);
+ private:
+  RelExpr *nextSubstitute_Old(RelExpr *before, Context *context, RuleSubstituteMemory *&memory);
 };
 
-class JoinCommutativityRule : public Rule
-{
-public:
-  JoinCommutativityRule (const char * name,
-                         RelExpr * pattern,
-                         RelExpr * substitute) :
-       Rule(name,pattern,substitute) {}
+class JoinCommutativityRule : public Rule {
+ public:
+  JoinCommutativityRule(const char *name, RelExpr *pattern, RelExpr *substitute) : Rule(name, pattern, substitute) {}
 
   // copy ctor
-  JoinCommutativityRule (const JoinCommutativityRule &) ; // not written
+  JoinCommutativityRule(const JoinCommutativityRule &);  // not written
 
   virtual ~JoinCommutativityRule() {}
 
-  virtual NABoolean topMatch (RelExpr * expr,
-			      Context * context);
+  virtual NABoolean topMatch(RelExpr *expr, Context *context);
 
-  virtual RelExpr * nextSubstitute(RelExpr * before,
-				   Context *context,
-				   RuleSubstituteMemory * & memory);
-
+  virtual RelExpr *nextSubstitute(RelExpr *before, Context *context, RuleSubstituteMemory *&memory);
 };
 
-class JoinLeftShiftRule : public Rule
-{
-public:
-  JoinLeftShiftRule (const char * name,
-                     RelExpr * pattern,
-                     RelExpr * substitute) :
-       Rule(name,pattern,substitute) {}
+class JoinLeftShiftRule : public Rule {
+ public:
+  JoinLeftShiftRule(const char *name, RelExpr *pattern, RelExpr *substitute) : Rule(name, pattern, substitute) {}
 
   // copy ctor
-  JoinLeftShiftRule (const JoinLeftShiftRule &) ; // not written
+  JoinLeftShiftRule(const JoinLeftShiftRule &);  // not written
 
   virtual ~JoinLeftShiftRule() {}
 
-  virtual NABoolean topMatch (RelExpr * expr,
-			      Context * context);
-  virtual RelExpr * nextSubstitute(RelExpr * before,
-				   Context *context,
-				   RuleSubstituteMemory * & memory);
+  virtual NABoolean topMatch(RelExpr *expr, Context *context);
+  virtual RelExpr *nextSubstitute(RelExpr *before, Context *context, RuleSubstituteMemory *&memory);
 
-  virtual Guidance * guidanceForExploringChild(Guidance *, Context *, Lng32);
+  virtual Guidance *guidanceForExploringChild(Guidance *, Context *, Lng32);
 
-  virtual Guidance * guidanceForExploringSubstitute(Guidance * guidance);
+  virtual Guidance *guidanceForExploringSubstitute(Guidance *guidance);
 
-  virtual Guidance * guidanceForOptimizingSubstitute(Guidance * guidance,
-						     Context * context);
-
+  virtual Guidance *guidanceForOptimizingSubstitute(Guidance *guidance, Context *context);
 };
 
 // for ngram index
-class IndexJoinWithGroupbyRule : public Rule
-{
-public:
-  IndexJoinWithGroupbyRule (const char * name,
-                  RelExpr * pattern,
-                  RelExpr * substitute) :
-       Rule(name,pattern,substitute) {}
+class IndexJoinWithGroupbyRule : public Rule {
+ public:
+  IndexJoinWithGroupbyRule(const char *name, RelExpr *pattern, RelExpr *substitute) : Rule(name, pattern, substitute) {}
 
   // copy ctor
-  IndexJoinWithGroupbyRule (const IndexJoinWithGroupbyRule &) ; // not written
+  IndexJoinWithGroupbyRule(const IndexJoinWithGroupbyRule &);  // not written
 
-// warning elimination (removed "inline")
-  virtual ~IndexJoinWithGroupbyRule() {} // LCOV_EXCL_LINE
-  virtual NABoolean topMatch (RelExpr * expr,
-			      Context * context);
-  virtual RelExpr * nextSubstitute(RelExpr * before,
-				   Context *context,
-				   RuleSubstituteMemory * & memory);
+  // warning elimination (removed "inline")
+  virtual ~IndexJoinWithGroupbyRule() {}  // LCOV_EXCL_LINE
+  virtual NABoolean topMatch(RelExpr *expr, Context *context);
+  virtual RelExpr *nextSubstitute(RelExpr *before, Context *context, RuleSubstituteMemory *&memory);
 
   // non-virtual methods to do the work for both pass 1 and pass 2
-  NABoolean isPredMatch(
-     ItemExpr* selectionPred, ItemExpr * &child);
-  ItemExpr * createCondPred(
-     ItemExpr* selectionPred);
-  ItemExpr * createOrPredicate(
-     ItemExpr* selectionPred, //in 
-     Lng32 &predCount,      //out
-     NABoolean &isDynStmt); //out
-  RelExpr * nextSubstituteForPass(RelExpr * before,
-				  RuleSubstituteMemory * & memory,
-				  Lng32 pass);
-  RelExpr * makeSubstituteScan(
-     Scan *s,
-     RelExpr *partialResult);
-  RelExpr * makeSubstituteFromIndexInfo(Scan *bef,
-					ScanIndexInfo *ixi, 
-					NABoolean &isDynStmt);
+  NABoolean isPredMatch(ItemExpr *selectionPred, ItemExpr *&child);
+  ItemExpr *createCondPred(ItemExpr *selectionPred);
+  ItemExpr *createOrPredicate(ItemExpr *selectionPred,  // in
+                              Lng32 &predCount,         // out
+                              NABoolean &isDynStmt);    // out
+  RelExpr *nextSubstituteForPass(RelExpr *before, RuleSubstituteMemory *&memory, Lng32 pass);
+  RelExpr *makeSubstituteScan(Scan *s, RelExpr *partialResult);
+  RelExpr *makeSubstituteFromIndexInfo(Scan *bef, ScanIndexInfo *ixi, NABoolean &isDynStmt);
 };
 
-class IndexJoinRule1 : public Rule
-{
-public:
-  IndexJoinRule1 (const char * name,
-                  RelExpr * pattern,
-                  RelExpr * substitute) :
-       Rule(name,pattern,substitute) {}
+class IndexJoinRule1 : public Rule {
+ public:
+  IndexJoinRule1(const char *name, RelExpr *pattern, RelExpr *substitute) : Rule(name, pattern, substitute) {}
 
   // copy ctor
-  IndexJoinRule1 (const IndexJoinRule1 &) ; // not written
+  IndexJoinRule1(const IndexJoinRule1 &);  // not written
 
   virtual ~IndexJoinRule1() {}
-  virtual NABoolean topMatch (RelExpr * expr,
-			      Context * context);
-  virtual RelExpr * nextSubstitute(RelExpr * before,
-				   Context *context,
-				   RuleSubstituteMemory * & memory);
+  virtual NABoolean topMatch(RelExpr *expr, Context *context);
+  virtual RelExpr *nextSubstitute(RelExpr *before, Context *context, RuleSubstituteMemory *&memory);
 
   // non-virtual methods to do the work for both pass 1 and pass 2
-  RelExpr * nextSubstituteForPass(RelExpr * before,
-				  RuleSubstituteMemory * & memory,
-				  Lng32 pass);
-  RelExpr * makeSubstituteFromIndexInfo(Scan *bef,
-					ScanIndexInfo *ixi);
+  RelExpr *nextSubstituteForPass(RelExpr *before, RuleSubstituteMemory *&memory, Lng32 pass);
+  RelExpr *makeSubstituteFromIndexInfo(Scan *bef, ScanIndexInfo *ixi);
 };
 
-class IndexJoinRule2 : public IndexJoinRule1
-{
-public:
-  IndexJoinRule2 (const char * name,
-                  RelExpr * pattern,
-                  RelExpr * substitute) :
-       IndexJoinRule1(name,pattern,substitute) {}
+class IndexJoinRule2 : public IndexJoinRule1 {
+ public:
+  IndexJoinRule2(const char *name, RelExpr *pattern, RelExpr *substitute) : IndexJoinRule1(name, pattern, substitute) {}
 
   // copy ctor
-  IndexJoinRule2 (const IndexJoinRule2 &) ; // not written
+  IndexJoinRule2(const IndexJoinRule2 &);  // not written
 
   virtual ~IndexJoinRule2() {}
-  virtual NABoolean topMatch (RelExpr * expr,
-			      Context * context);
-  virtual RelExpr * nextSubstitute(RelExpr * before,
-				   Context *context,
-				   RuleSubstituteMemory * & memory);
+  virtual NABoolean topMatch(RelExpr *expr, Context *context);
+  virtual RelExpr *nextSubstitute(RelExpr *before, Context *context, RuleSubstituteMemory *&memory);
 };
 
-class OrOptimizationRule : public Rule
-{
-public:
-  OrOptimizationRule (const char * name,
-		      RelExpr * pattern,
-		      RelExpr * substitute) :
-       Rule(name,pattern,substitute) {}
+class OrOptimizationRule : public Rule {
+ public:
+  OrOptimizationRule(const char *name, RelExpr *pattern, RelExpr *substitute) : Rule(name, pattern, substitute) {}
 
   // copy ctor
-  OrOptimizationRule (const OrOptimizationRule &) ; // not written
+  OrOptimizationRule(const OrOptimizationRule &);  // not written
 
   virtual ~OrOptimizationRule() {}
-  virtual NABoolean topMatch (RelExpr * expr,
-			      Context * context);
+  virtual NABoolean topMatch(RelExpr *expr, Context *context);
 
-  virtual RelExpr * nextSubstitute(RelExpr * before,
-				   Context *context,
-				   RuleSubstituteMemory * & memory);
+  virtual RelExpr *nextSubstitute(RelExpr *before, Context *context, RuleSubstituteMemory *&memory);
 
-private:
-
-  CostScalar rateIndexForColumn(Int32 colNumInIndex,
-				Scan *s,
-				IndexDesc *ixDesc,
-				NABoolean indexOnly);
-  RelExpr * makeSubstituteScan(Scan *s,
-			       const ValueIdSet &disjuncts,
-			       RelExpr *partialResult,
-			       const ValueIdSet disjunctsProcessedSoFar,
-			       const ValueIdList &origCharOutputList,
-			       ValueIdList &resultCharOutputs);
-
+ private:
+  CostScalar rateIndexForColumn(Int32 colNumInIndex, Scan *s, IndexDesc *ixDesc, NABoolean indexOnly);
+  RelExpr *makeSubstituteScan(Scan *s, const ValueIdSet &disjuncts, RelExpr *partialResult,
+                              const ValueIdSet disjunctsProcessedSoFar, const ValueIdList &origCharOutputList,
+                              ValueIdList &resultCharOutputs);
 };
 
-class TSJRule : public Rule
-{
-public:
-  TSJRule (const char * name,
-           RelExpr * pattern,
-           RelExpr * substitute) :
-       Rule(name,pattern,substitute) {}
+class TSJRule : public Rule {
+ public:
+  TSJRule(const char *name, RelExpr *pattern, RelExpr *substitute) : Rule(name, pattern, substitute) {}
 
   // copy ctor
-  TSJRule (const TSJRule &) ; // not written
+  TSJRule(const TSJRule &);  // not written
 
   virtual ~TSJRule() {}
 
-  virtual NABoolean topMatch (RelExpr * expr,
-                              Context * context);
+  virtual NABoolean topMatch(RelExpr *expr, Context *context);
 
-  virtual RelExpr * nextSubstitute(RelExpr * before,
-                                   Context *context,
-                                   RuleSubstituteMemory * & memory);
+  virtual RelExpr *nextSubstitute(RelExpr *before, Context *context, RuleSubstituteMemory *&memory);
 };
 
-class RoutineJoinToTSJRule : public Rule
-{
-public:
-  RoutineJoinToTSJRule(const char * name,
-                RelExpr * pattern,
-                RelExpr * substitute) : 
-       Rule(name,pattern,substitute) {}
+class RoutineJoinToTSJRule : public Rule {
+ public:
+  RoutineJoinToTSJRule(const char *name, RelExpr *pattern, RelExpr *substitute) : Rule(name, pattern, substitute) {}
 
   // copy ctor
-  RoutineJoinToTSJRule (const RoutineJoinToTSJRule &) ; // not written
+  RoutineJoinToTSJRule(const RoutineJoinToTSJRule &);  // not written
 
   virtual ~RoutineJoinToTSJRule();
-  virtual NABoolean topMatch (RelExpr * relExpr,
-                              Context * context);
-  virtual RelExpr * nextSubstitute(RelExpr * before,
-                                   Context * context,
-                                   RuleSubstituteMemory * & memory);
-  virtual Int32 promiseForOptimization(RelExpr * relExpr,
-                                     Guidance * guidance,
-                                     Context * context);
+  virtual NABoolean topMatch(RelExpr *relExpr, Context *context);
+  virtual RelExpr *nextSubstitute(RelExpr *before, Context *context, RuleSubstituteMemory *&memory);
+  virtual Int32 promiseForOptimization(RelExpr *relExpr, Guidance *guidance, Context *context);
 
-  virtual NABoolean canBePruned(RelExpr * expr) const;
-
+  virtual NABoolean canBePruned(RelExpr *expr) const;
 };
 
-class JoinToTSJRule : public Rule
-{
-public:
-  JoinToTSJRule (const char * name,
-                 RelExpr * pattern,
-                 RelExpr * substitute) :
-       Rule(name,pattern,substitute) {}
+class JoinToTSJRule : public Rule {
+ public:
+  JoinToTSJRule(const char *name, RelExpr *pattern, RelExpr *substitute) : Rule(name, pattern, substitute) {}
 
   // copy ctor
-  JoinToTSJRule (const JoinToTSJRule &) ; // not written
+  JoinToTSJRule(const JoinToTSJRule &);  // not written
 
   virtual ~JoinToTSJRule() {}
 
-  virtual NABoolean topMatch (RelExpr * expr,
-			      Context * context);
+  virtual NABoolean topMatch(RelExpr *expr, Context *context);
 
-  virtual RelExpr * nextSubstitute(RelExpr * before,
-				   Context *context,
-				   RuleSubstituteMemory * & memory);
-  virtual Int32 promiseForOptimization(RelExpr * relExpr,
-				       Guidance * guidance,
-				       Context * context);
-  virtual NABoolean canBePruned(RelExpr * expr) const;
+  virtual RelExpr *nextSubstitute(RelExpr *before, Context *context, RuleSubstituteMemory *&memory);
+  virtual Int32 promiseForOptimization(RelExpr *relExpr, Guidance *guidance, Context *context);
+  virtual NABoolean canBePruned(RelExpr *expr) const;
 };
 
-class TSJFlowRule : public Rule
-{
-public:
-  TSJFlowRule (const char * name,
-               RelExpr * pattern,
-               RelExpr * substitute) :
-       Rule(name,pattern,substitute) {}
+class TSJFlowRule : public Rule {
+ public:
+  TSJFlowRule(const char *name, RelExpr *pattern, RelExpr *substitute) : Rule(name, pattern, substitute) {}
 
   // copy ctor
-  TSJFlowRule (const TSJFlowRule &) ; // not written
+  TSJFlowRule(const TSJFlowRule &);  // not written
 
   virtual ~TSJFlowRule() {}
 
-  virtual NABoolean topMatch (RelExpr * expr,
-			      Context * context);
+  virtual NABoolean topMatch(RelExpr *expr, Context *context);
 
-  virtual RelExpr * nextSubstitute(RelExpr * before,
-				   Context *context,
-				   RuleSubstituteMemory * & memory);
+  virtual RelExpr *nextSubstitute(RelExpr *before, Context *context, RuleSubstituteMemory *&memory);
 };
 
 // Raj P - 10/2000
 // Rule to support CALL <stored-proc>
-class TSJUDRRule : public Rule
-{
-public:
-  TSJUDRRule (const char * name,
-               RelExpr * pattern,
-               RelExpr * substitute) :
-       Rule(name,pattern,substitute) {}
+class TSJUDRRule : public Rule {
+ public:
+  TSJUDRRule(const char *name, RelExpr *pattern, RelExpr *substitute) : Rule(name, pattern, substitute) {}
 
   virtual ~TSJUDRRule() {}
 
-  virtual NABoolean topMatch (RelExpr * expr,
-			      Context * context);
+  virtual NABoolean topMatch(RelExpr *expr, Context *context);
 
-  virtual RelExpr * nextSubstitute(RelExpr * before,
-				   Context *context,
-				   RuleSubstituteMemory * & memory);
+  virtual RelExpr *nextSubstitute(RelExpr *before, Context *context, RuleSubstituteMemory *&memory);
 
   virtual NABoolean isContextSensitive() const;
 
-private:
+ private:
   // default constructor, not written
-  TSJUDRRule ();
+  TSJUDRRule();
 
   // copy ctor
-  TSJUDRRule (const TSJUDRRule &) ; // not written
-
+  TSJUDRRule(const TSJUDRRule &);  // not written
 };
 
-class FilterRule : public Rule
-{
-public:
-  FilterRule(const char * name,
-             RelExpr * pattern,
-             RelExpr * substitute) :
-       Rule(name,pattern,substitute) {}
+class FilterRule : public Rule {
+ public:
+  FilterRule(const char *name, RelExpr *pattern, RelExpr *substitute) : Rule(name, pattern, substitute) {}
 
   // copy ctor
-  FilterRule (const FilterRule &) ; // not written
+  FilterRule(const FilterRule &);  // not written
 
   virtual ~FilterRule() {}
-  virtual Guidance * guidanceForExploringChild(Guidance * guidance,
-					       Context * context,
-					       Lng32 childIndex);
-  virtual RelExpr * nextSubstitute(RelExpr * before,
-				   Context *context,
-				   RuleSubstituteMemory * & memory)=0;
-  virtual Int32 promiseForOptimization(RelExpr * relExpr,
-				       Guidance * guidance,
-				       Context * context);
+  virtual Guidance *guidanceForExploringChild(Guidance *guidance, Context *context, Lng32 childIndex);
+  virtual RelExpr *nextSubstitute(RelExpr *before, Context *context, RuleSubstituteMemory *&memory) = 0;
+  virtual Int32 promiseForOptimization(RelExpr *relExpr, Guidance *guidance, Context *context);
 };
 
-class FilterRule0 : public FilterRule
-{
-public:
-  FilterRule0(const char * name,
-              RelExpr * pattern,
-              RelExpr * substitute) :
-       FilterRule(name,pattern,substitute) {}
+class FilterRule0 : public FilterRule {
+ public:
+  FilterRule0(const char *name, RelExpr *pattern, RelExpr *substitute) : FilterRule(name, pattern, substitute) {}
 
   // copy ctor
-  FilterRule0 (const FilterRule0 &) ; // not written
+  FilterRule0(const FilterRule0 &);  // not written
 
-  virtual RelExpr * nextSubstitute(RelExpr * before,
-				   Context *context,
-				   RuleSubstituteMemory * & memory);
-
+  virtual RelExpr *nextSubstitute(RelExpr *before, Context *context, RuleSubstituteMemory *&memory);
 };
 
-class FilterRule1 : public FilterRule
-{
-public:
-  FilterRule1(const char * name,
-              RelExpr * pattern,
-              RelExpr * substitute) :
-       FilterRule(name,pattern,substitute) {}
+class FilterRule1 : public FilterRule {
+ public:
+  FilterRule1(const char *name, RelExpr *pattern, RelExpr *substitute) : FilterRule(name, pattern, substitute) {}
 
   // copy ctor
-  FilterRule1 (const FilterRule1 &) ; // not written
+  FilterRule1(const FilterRule1 &);  // not written
 
-  virtual RelExpr * nextSubstitute(RelExpr * before,
-				   Context *context,
-				   RuleSubstituteMemory * & memory);
-
+  virtual RelExpr *nextSubstitute(RelExpr *before, Context *context, RuleSubstituteMemory *&memory);
 };
 
-class FilterRule2 : public FilterRule
-{
-public:
-  FilterRule2(const char * name,
-              RelExpr * pattern,
-              RelExpr * substitute) :
-       FilterRule(name,pattern,substitute) {}
+class FilterRule2 : public FilterRule {
+ public:
+  FilterRule2(const char *name, RelExpr *pattern, RelExpr *substitute) : FilterRule(name, pattern, substitute) {}
 
   // copy ctor
-  FilterRule2 (const FilterRule2 &) ; // not written
+  FilterRule2(const FilterRule2 &);  // not written
 
-  virtual RelExpr * nextSubstitute(RelExpr * before,
-				   Context *context,
-				   RuleSubstituteMemory * & memory);
-
+  virtual RelExpr *nextSubstitute(RelExpr *before, Context *context, RuleSubstituteMemory *&memory);
 };
 
-class GroupByEliminationRule : public Rule
-{
-public:
-  GroupByEliminationRule(const char * name,
-                         RelExpr * pattern,
-                         RelExpr * substitute) :
-       Rule(name,pattern,substitute) {}
+class GroupByEliminationRule : public Rule {
+ public:
+  GroupByEliminationRule(const char *name, RelExpr *pattern, RelExpr *substitute) : Rule(name, pattern, substitute) {}
 
   // copy ctor
-  GroupByEliminationRule (const GroupByEliminationRule &) ; // not written
+  GroupByEliminationRule(const GroupByEliminationRule &);  // not written
 
   virtual ~GroupByEliminationRule();
-  virtual NABoolean topMatch (RelExpr * expr,
-			      Context * context);
-  virtual Int32 promiseForOptimization(RelExpr * relExpr,
-				       Guidance * guidance,
-				       Context * context);
-  virtual RelExpr * nextSubstitute(RelExpr * before,
-				   Context *context,
-				   RuleSubstituteMemory * & memory);
+  virtual NABoolean topMatch(RelExpr *expr, Context *context);
+  virtual Int32 promiseForOptimization(RelExpr *relExpr, Guidance *guidance, Context *context);
+  virtual RelExpr *nextSubstitute(RelExpr *before, Context *context, RuleSubstituteMemory *&memory);
 };
 
-class GroupByOnJoinRule : public Rule
-{
-public:
-  GroupByOnJoinRule(const char * name,
-                    RelExpr * pattern,
-                    RelExpr * substitute) :
-       Rule(name,pattern,substitute) {}
+class GroupByOnJoinRule : public Rule {
+ public:
+  GroupByOnJoinRule(const char *name, RelExpr *pattern, RelExpr *substitute) : Rule(name, pattern, substitute) {}
 
   // copy ctor
-  GroupByOnJoinRule (const GroupByOnJoinRule &) ; // not written
+  GroupByOnJoinRule(const GroupByOnJoinRule &);  // not written
 
   virtual ~GroupByOnJoinRule();
 
-  virtual NABoolean topMatch (RelExpr * expr,
-			      Context * context);
-  virtual RelExpr * nextSubstitute(RelExpr * before,
-				   Context * context,
-				   RuleSubstituteMemory * & memory);
+  virtual NABoolean topMatch(RelExpr *expr, Context *context);
+  virtual RelExpr *nextSubstitute(RelExpr *before, Context *context, RuleSubstituteMemory *&memory);
 };
 
-class GroupByOnUnionRule : public Rule
-{
-public:
-  GroupByOnUnionRule(const char * name,
-                     RelExpr * pattern,
-                     RelExpr * substitute) :
-       Rule(name,pattern,substitute) {}
+class GroupByOnUnionRule : public Rule {
+ public:
+  GroupByOnUnionRule(const char *name, RelExpr *pattern, RelExpr *substitute) : Rule(name, pattern, substitute) {}
 
   // copy ctor
-  GroupByOnUnionRule (const GroupByOnUnionRule &) ; // not written
+  GroupByOnUnionRule(const GroupByOnUnionRule &);  // not written
 
   virtual ~GroupByOnUnionRule();
 
-  virtual NABoolean topMatch (RelExpr * expr,
-			      Context * context);
-  virtual RelExpr * nextSubstitute(RelExpr * before,
-				   Context * context,
-				   RuleSubstituteMemory * & memory);
+  virtual NABoolean topMatch(RelExpr *expr, Context *context);
+  virtual RelExpr *nextSubstitute(RelExpr *before, Context *context, RuleSubstituteMemory *&memory);
 };
 
-class PartialGroupByOnTSJRule : public Rule
-{
-public:
-  PartialGroupByOnTSJRule(const char * name,
-                          RelExpr * pattern,
-                          RelExpr * substitute) :
-       Rule(name,pattern,substitute) {}
+class PartialGroupByOnTSJRule : public Rule {
+ public:
+  PartialGroupByOnTSJRule(const char *name, RelExpr *pattern, RelExpr *substitute) : Rule(name, pattern, substitute) {}
 
   // copy ctor
-  PartialGroupByOnTSJRule (const PartialGroupByOnTSJRule &) ; // not written
+  PartialGroupByOnTSJRule(const PartialGroupByOnTSJRule &);  // not written
 
   virtual ~PartialGroupByOnTSJRule();
 
-  virtual NABoolean topMatch (RelExpr * expr,
-			      Context * context);
-  virtual RelExpr * nextSubstitute(RelExpr * before,
-				   Context * context,
-				   RuleSubstituteMemory * & memory);
+  virtual NABoolean topMatch(RelExpr *expr, Context *context);
+  virtual RelExpr *nextSubstitute(RelExpr *before, Context *context, RuleSubstituteMemory *&memory);
 };
 
-class GroupBySplitRule : public Rule
-{
-public:
-  GroupBySplitRule(const char * name,
-                   RelExpr * pattern,
-                   RelExpr * substitute) :
-       Rule(name,pattern,substitute) {}
+class GroupBySplitRule : public Rule {
+ public:
+  GroupBySplitRule(const char *name, RelExpr *pattern, RelExpr *substitute) : Rule(name, pattern, substitute) {}
 
   // copy ctor
-  GroupBySplitRule (const GroupBySplitRule &) ; // not written
+  GroupBySplitRule(const GroupBySplitRule &);  // not written
 
   virtual ~GroupBySplitRule();
 
-  virtual NABoolean topMatch (RelExpr * expr,
-			      Context * context);
-  virtual Int32 promiseForOptimization(RelExpr * relExpr,
-				       Guidance * guidance,
-				       Context * context);
-  virtual RelExpr * nextSubstitute(RelExpr * before,
-				   Context * context,
-				   RuleSubstituteMemory * & memory);
-  virtual NABoolean canMatchPattern (const RelExpr * pattern) const;
+  virtual NABoolean topMatch(RelExpr *expr, Context *context);
+  virtual Int32 promiseForOptimization(RelExpr *relExpr, Guidance *guidance, Context *context);
+  virtual RelExpr *nextSubstitute(RelExpr *before, Context *context, RuleSubstituteMemory *&memory);
+  virtual NABoolean canMatchPattern(const RelExpr *pattern) const;
 };
 
-class AggrDistinctEliminationRule : public Rule
-{
-public:
-  AggrDistinctEliminationRule(const char * name,
-                              RelExpr * pattern,
-                              RelExpr * substitute) :
-       Rule(name,pattern,substitute) {}
+class AggrDistinctEliminationRule : public Rule {
+ public:
+  AggrDistinctEliminationRule(const char *name, RelExpr *pattern, RelExpr *substitute)
+      : Rule(name, pattern, substitute) {}
 
   // copy ctor
-  AggrDistinctEliminationRule (const AggrDistinctEliminationRule &) ; // not written
+  AggrDistinctEliminationRule(const AggrDistinctEliminationRule &);  // not written
 
   virtual ~AggrDistinctEliminationRule();
-  virtual NABoolean topMatch (RelExpr * expr,
-			      Context * context);
-  virtual RelExpr * nextSubstitute (RelExpr * before,
-		    	            Context * context,
-			            RuleSubstituteMemory * & memory);
-  virtual NABoolean canMatchPattern (const RelExpr * pattern) const;
+  virtual NABoolean topMatch(RelExpr *expr, Context *context);
+  virtual RelExpr *nextSubstitute(RelExpr *before, Context *context, RuleSubstituteMemory *&memory);
+  virtual NABoolean canMatchPattern(const RelExpr *pattern) const;
 };
 
-class GroupByTernarySplitRule : public GroupBySplitRule
-{
-public:
-  GroupByTernarySplitRule(const char * name,
-                          RelExpr * pattern,
-                          RelExpr * substitute) :
-       GroupBySplitRule(name,pattern,substitute) {}
+class GroupByTernarySplitRule : public GroupBySplitRule {
+ public:
+  GroupByTernarySplitRule(const char *name, RelExpr *pattern, RelExpr *substitute)
+      : GroupBySplitRule(name, pattern, substitute) {}
 
   // copy ctor
-  GroupByTernarySplitRule (const GroupByTernarySplitRule &) ; // not written
+  GroupByTernarySplitRule(const GroupByTernarySplitRule &);  // not written
 
   virtual ~GroupByTernarySplitRule();
   virtual NABoolean isContextSensitive() const;
-  virtual NABoolean topMatch (RelExpr * expr,
-			      Context * context);
-  virtual NABoolean canMatchPattern (const RelExpr * pattern) const;
+  virtual NABoolean topMatch(RelExpr *expr, Context *context);
+  virtual NABoolean canMatchPattern(const RelExpr *pattern) const;
 };
 
-class ShortCutGroupByRule : public Rule
-{
-public:
-  ShortCutGroupByRule (const char * name,
-                      RelExpr * pattern,
-                      RelExpr * substitute) :
-       Rule(name,pattern,substitute) {}
+class ShortCutGroupByRule : public Rule {
+ public:
+  ShortCutGroupByRule(const char *name, RelExpr *pattern, RelExpr *substitute) : Rule(name, pattern, substitute) {}
 
   // copy ctor
-  ShortCutGroupByRule (const ShortCutGroupByRule &) ; // not written
+  ShortCutGroupByRule(const ShortCutGroupByRule &);  // not written
 
   virtual ~ShortCutGroupByRule();
-  virtual NABoolean topMatch (RelExpr * relExpr,
-			      Context *context);
-  virtual RelExpr * nextSubstitute(RelExpr * before,
-				   Context * context,
-				   RuleSubstituteMemory * & memory);
-  virtual NABoolean canMatchPattern (const RelExpr * pattern) const;
+  virtual NABoolean topMatch(RelExpr *relExpr, Context *context);
+  virtual RelExpr *nextSubstitute(RelExpr *before, Context *context, RuleSubstituteMemory *&memory);
+  virtual NABoolean canMatchPattern(const RelExpr *pattern) const;
 };
 
-class CommonSubExprRule : public Rule
-{
-public:
-  CommonSubExprRule (const char * name,
-                     RelExpr * pattern,
-                     RelExpr * substitute) :
-       Rule(name,pattern,substitute) {}
+class CommonSubExprRule : public Rule {
+ public:
+  CommonSubExprRule(const char *name, RelExpr *pattern, RelExpr *substitute) : Rule(name, pattern, substitute) {}
 
   // copy ctor
-  CommonSubExprRule (const CommonSubExprRule &) ; // not written
+  CommonSubExprRule(const CommonSubExprRule &);  // not written
 
   virtual ~CommonSubExprRule();
-  virtual RelExpr * nextSubstitute(RelExpr * before,
-				   Context * context,
-				   RuleSubstituteMemory * & memory);
-  virtual NABoolean canMatchPattern (const RelExpr * pattern) const;
+  virtual RelExpr *nextSubstitute(RelExpr *before, Context *context, RuleSubstituteMemory *&memory);
+  virtual NABoolean canMatchPattern(const RelExpr *pattern) const;
 };
 
-class SampleScanRule : public Rule
-{
-public:
-  SampleScanRule(const char * name,
-                 RelExpr * pattern,
-                 RelExpr * substitute) :
-       Rule(name,pattern,substitute) {}
+class SampleScanRule : public Rule {
+ public:
+  SampleScanRule(const char *name, RelExpr *pattern, RelExpr *substitute) : Rule(name, pattern, substitute) {}
 
   // copy ctor
-  SampleScanRule (const SampleScanRule &) ; // not written
+  SampleScanRule(const SampleScanRule &);  // not written
 
   virtual ~SampleScanRule() {}
-  virtual NABoolean topMatch (RelExpr * expr,
-			      Context * context);
-  virtual RelExpr * nextSubstitute(RelExpr * before,
-				   Context *context,
-				   RuleSubstituteMemory * & memory);
+  virtual NABoolean topMatch(RelExpr *expr, Context *context);
+  virtual RelExpr *nextSubstitute(RelExpr *before, Context *context, RuleSubstituteMemory *&memory);
 
-  virtual Int32 promiseForOptimization(RelExpr * relExpr,
-				       Guidance * guidance,
-				       Context * context);
+  virtual Int32 promiseForOptimization(RelExpr *relExpr, Guidance *guidance, Context *context);
 };
 
-
 //++MV,
-class JoinToBushyTreeRule : public Rule
-{
-public:
-  JoinToBushyTreeRule(const char * name,
-			    RelExpr * pattern,
-			    RelExpr * substitute) :
-                                         Rule(name,pattern,substitute) {}
+class JoinToBushyTreeRule : public Rule {
+ public:
+  JoinToBushyTreeRule(const char *name, RelExpr *pattern, RelExpr *substitute) : Rule(name, pattern, substitute) {}
   virtual ~JoinToBushyTreeRule() {}
 
-  virtual NABoolean topMatch (RelExpr * expr,
-			      Context * context);
-  virtual RelExpr * nextSubstitute(RelExpr * before,
-				   Context *context,
-				   RuleSubstituteMemory * & memory);
-
+  virtual NABoolean topMatch(RelExpr *expr, Context *context);
+  virtual RelExpr *nextSubstitute(RelExpr *before, Context *context, RuleSubstituteMemory *&memory);
 };
 
 //--MV
@@ -1083,7 +789,6 @@ public:
 };
 */
 
-
 // -----------------------------------------------------------------------
 // Work areas to share work done between MJ Rules (i.e. LSRs) and also
 // between topMatch and nextSubstitute of an MJ Rule
@@ -1092,20 +797,18 @@ public:
 // Work area used by MJ Rules (i.e. LSRs), to store common information shared
 // between the various LSRs. This helps avoids recomputation of this information
 // for each seperate LSR
-class MJRulesWA : public NABasicObject
-{
+class MJRulesWA : public NABasicObject {
   friend class MJStarJoinRule;
   friend class MJStarJoinIRule;
   friend class MJStarJoinIIRule;
   friend class MJStarBDRule;
 
-public:
+ public:
   ~MJRulesWA(){};
-  MJRulesWA(JBBSubsetAnalysis * analysis);
+  MJRulesWA(JBBSubsetAnalysis *analysis);
   CANodeId computeCenterTable();
 
-private:
-
+ private:
   // information set by method MJRulesWA::getCenterTable()
   // begin
   // the center table in the connectivity graph
@@ -1138,7 +841,7 @@ private:
   // end
 
   // pointer to the JBBSubsetAnalysis to which this guy belongs
-  JBBSubsetAnalysis * analysis_;
+  JBBSubsetAnalysis *analysis_;
 };
 
 // -----------------------------------------------------------------------
@@ -1146,44 +849,38 @@ private:
 // (usually used on rules like the commutativity rule that produce
 // the original expression when applied twice)
 // -----------------------------------------------------------------------
-class OnceGuidance : public Guidance
-{
-public:
-
+class OnceGuidance : public Guidance {
+ public:
   // ctor
-  OnceGuidance(NAUnsigned exceptRule, NAMemory * h);
+  OnceGuidance(NAUnsigned exceptRule, NAMemory *h);
 
   // copy ctor
-  OnceGuidance (const OnceGuidance &) ; // not written
+  OnceGuidance(const OnceGuidance &);  // not written
 
   virtual ~OnceGuidance();
 
-  virtual const RuleSubset * applicableRules();
+  virtual const RuleSubset *applicableRules();
 
-private:
-
-  RuleSubset allButOne_; // all applicable rules minus "exceptRule"
+ private:
+  RuleSubset allButOne_;  // all applicable rules minus "exceptRule"
 };
 
 // -----------------------------------------------------------------------
 // StopGuidance: stop doing anything (don't apply any more rules)
 // -----------------------------------------------------------------------
-class StopGuidance : public Guidance
-{
-public:
-
-  StopGuidance(NAMemory * h);
+class StopGuidance : public Guidance {
+ public:
+  StopGuidance(NAMemory *h);
 
   // copy ctor
-  StopGuidance (const StopGuidance &) ; // not written
+  StopGuidance(const StopGuidance &);  // not written
 
   virtual ~StopGuidance();
 
-  virtual const RuleSubset * applicableRules();
+  virtual const RuleSubset *applicableRules();
 
-private:
-
-  RuleSubset emptySet_; // an empty rule subset
+ private:
+  RuleSubset emptySet_;  // an empty rule subset
 };
 
 // -----------------------------------------------------------------------
@@ -1216,22 +913,19 @@ private:
 // a "double filter". These were never being processed before, so
 // it is not possible that this will result in any new unnecessary work.
 // -----------------------------------------------------------------------
-class FilterGuidance : public Guidance
-{
-public:
-
-  FilterGuidance(NAMemory * h);
+class FilterGuidance : public Guidance {
+ public:
+  FilterGuidance(NAMemory *h);
 
   // copy ctor
-  FilterGuidance (const StopGuidance &) ; // not written
+  FilterGuidance(const StopGuidance &);  // not written
 
   virtual ~FilterGuidance();
 
-  virtual const RuleSubset * applicableRules();
+  virtual const RuleSubset *applicableRules();
 
-private:
-
-  RuleSubset filterRules_; // FilterRule0, FilterRule1, FilterRule2
+ private:
+  RuleSubset filterRules_;  // FilterRule0, FilterRule1, FilterRule2
 };
 
-#endif // TRANSRULE_H
+#endif  // TRANSRULE_H

@@ -26,8 +26,8 @@
  *
  * File:         ElemDDLUdr.C
  * Description:  methods for classes relating to UDRs.
- *               
- *               
+ *
+ *
  * Created:      10/13/1999
  * Language:     C++
  *
@@ -37,13 +37,11 @@
  *****************************************************************************
  */
 
-
 #include "AllElemDDLUdr.h"
 #include "common/ComASSERT.h"
 #include "export/ComDiags.h"
 #include "common/ComOperators.h"
 #include "common/ComMisc.h"
-
 
 // -----------------------------------------------------------------------
 // methods for class ElemDDLUdrDeterministic
@@ -51,32 +49,20 @@
 
 // default constructor
 ElemDDLUdrDeterministic::ElemDDLUdrDeterministic(NABoolean theDeterministic)
-         : ElemDDLNode(ELM_UDR_DETERMINISTIC), 
-         deterministic_(theDeterministic)
-{
-}
+    : ElemDDLNode(ELM_UDR_DETERMINISTIC), deterministic_(theDeterministic) {}
 
 // virtual destructor
-ElemDDLUdrDeterministic::~ElemDDLUdrDeterministic(void)
-{
-}
+ElemDDLUdrDeterministic::~ElemDDLUdrDeterministic(void) {}
 
 // cast
-ElemDDLUdrDeterministic * 
-  ElemDDLUdrDeterministic::castToElemDDLUdrDeterministic(void)
-{
-  return this;
-}
-
+ElemDDLUdrDeterministic *ElemDDLUdrDeterministic::castToElemDDLUdrDeterministic(void) { return this; }
 
 //
 // methods for tracing
 //
 
-NATraceList
-ElemDDLUdrDeterministic::getDetailInfo() const
-{
-  NAString        detailText;
+NATraceList ElemDDLUdrDeterministic::getDetailInfo() const {
+  NAString detailText;
   NATraceList detailTextList;
 
   detailText = "deterministic? ";
@@ -84,151 +70,93 @@ ElemDDLUdrDeterministic::getDetailInfo() const
   detailTextList.append(detailText);
 
   return detailTextList;
-
 }
 
-const NAString
-ElemDDLUdrDeterministic::getText() const
-{
-  return "ElemDDLUdrDeterministic";
-}
+const NAString ElemDDLUdrDeterministic::getText() const { return "ElemDDLUdrDeterministic"; }
 
 // -----------------------------------------------------------------------
 // methods for class ElemDDLUdrExternalName
 // -----------------------------------------------------------------------
 
 // default constructor
-ElemDDLUdrExternalName::ElemDDLUdrExternalName(NAString &theName) 
-  : ElemDDLNode(ELM_UDR_EXTERNAL_NAME),
-    externalName_(theName)
-{
-}
+ElemDDLUdrExternalName::ElemDDLUdrExternalName(NAString &theName)
+    : ElemDDLNode(ELM_UDR_EXTERNAL_NAME), externalName_(theName) {}
 
 // virtual destructor
-ElemDDLUdrExternalName::~ElemDDLUdrExternalName()
-{
-}
+ElemDDLUdrExternalName::~ElemDDLUdrExternalName() {}
 
 // cast
-ElemDDLUdrExternalName * 
-  ElemDDLUdrExternalName::castToElemDDLUdrExternalName(void)
-{
-  return this;
-}
+ElemDDLUdrExternalName *ElemDDLUdrExternalName::castToElemDDLUdrExternalName(void) { return this; }
 
 //
 // methods for tracing
 //
 
-const NAString
-ElemDDLUdrExternalName::displayLabel1() const
-{
-  return NAString("External name: ") + externalName_;
-}
+const NAString ElemDDLUdrExternalName::displayLabel1() const { return NAString("External name: ") + externalName_; }
 
-NATraceList
-ElemDDLUdrExternalName::getDetailInfo() const
-{
-  NAString        detailText;
+NATraceList ElemDDLUdrExternalName::getDetailInfo() const {
+  NAString detailText;
   NATraceList detailTextList;
 
   detailTextList.append(displayLabel1());
 
   return detailTextList;
-
 }
 
-const NAString
-ElemDDLUdrExternalName::getText() const
-{
-  return "ElemDDLUdrExternalName";
-}
-
+const NAString ElemDDLUdrExternalName::getText() const { return "ElemDDLUdrExternalName"; }
 
 // -----------------------------------------------------------------------
 // methods for class ElemDDLUdrExternalPath
 // -----------------------------------------------------------------------
 
 // default constructor
-ElemDDLUdrExternalPath::ElemDDLUdrExternalPath(NAString &thePath) 
-  : ElemDDLNode(ELM_UDR_EXTERNAL_PATH),
-    externalPath_(thePath)
-{
+ElemDDLUdrExternalPath::ElemDDLUdrExternalPath(NAString &thePath)
+    : ElemDDLNode(ELM_UDR_EXTERNAL_PATH), externalPath_(thePath) {
   TrimNAStringSpace(externalPath_);
 }
 
 // virtual destructor
-ElemDDLUdrExternalPath::~ElemDDLUdrExternalPath()
-{
-}
+ElemDDLUdrExternalPath::~ElemDDLUdrExternalPath() {}
 
 // cast
-ElemDDLUdrExternalPath * 
-  ElemDDLUdrExternalPath::castToElemDDLUdrExternalPath(void)
-{
-  return this;
-}
+ElemDDLUdrExternalPath *ElemDDLUdrExternalPath::castToElemDDLUdrExternalPath(void) { return this; }
 
 //
 // methods for tracing
 //
 
-const NAString
-ElemDDLUdrExternalPath::displayLabel1() const
-{
-  return NAString("External path: ") + externalPath_;
-}
+const NAString ElemDDLUdrExternalPath::displayLabel1() const { return NAString("External path: ") + externalPath_; }
 
-NATraceList
-ElemDDLUdrExternalPath::getDetailInfo() const
-{
-  NAString        detailText;
+NATraceList ElemDDLUdrExternalPath::getDetailInfo() const {
+  NAString detailText;
   NATraceList detailTextList;
 
   detailTextList.append(displayLabel1());
 
   return detailTextList;
-
 }
 
-const NAString
-ElemDDLUdrExternalPath::getText() const
-{
-  return "ElemDDLUdrExternalPath";
-}
-
+const NAString ElemDDLUdrExternalPath::getText() const { return "ElemDDLUdrExternalPath"; }
 
 // -----------------------------------------------------------------------
 // methods for class ElemDDLUdrIsolate
 // -----------------------------------------------------------------------
 
 // default constructor
-ElemDDLUdrIsolate::ElemDDLUdrIsolate(NABoolean theIsolate)
-  :  ElemDDLNode(ELM_UDR_ISOLATE), 
-     isolate_(theIsolate)
-{
-}
+ElemDDLUdrIsolate::ElemDDLUdrIsolate(NABoolean theIsolate) : ElemDDLNode(ELM_UDR_ISOLATE), isolate_(theIsolate) {}
 
 // virtual destructor
-ElemDDLUdrIsolate::~ElemDDLUdrIsolate(void)
-{
-}
+ElemDDLUdrIsolate::~ElemDDLUdrIsolate(void) {}
 
 // cast
-ElemDDLUdrIsolate * 
-  ElemDDLUdrIsolate::castToElemDDLUdrIsolate(void)
-{
-  return this;
-}
+ElemDDLUdrIsolate *ElemDDLUdrIsolate::castToElemDDLUdrIsolate(void) { return this; }
 
 //
 // methods for tracing
 //
 
-NATraceList
-ElemDDLUdrIsolate::getDetailInfo() const
-{
-  NAString        detailText;
+NATraceList ElemDDLUdrIsolate::getDetailInfo() const {
+  NAString detailText;
   NATraceList detailTextList;
 
   detailText = "isolate? ";
@@ -236,15 +164,9 @@ ElemDDLUdrIsolate::getDetailInfo() const
   detailTextList.append(detailText);
 
   return detailTextList;
-
 }
 
-const NAString
-ElemDDLUdrIsolate::getText() const
-{
-  return "ElemDDLUdrIsolate";
-}
-
+const NAString ElemDDLUdrIsolate::getText() const { return "ElemDDLUdrIsolate"; }
 
 // -----------------------------------------------------------------------
 // methods for class ElemDDLUdrLanguage
@@ -252,31 +174,20 @@ ElemDDLUdrIsolate::getText() const
 
 // default constructor
 ElemDDLUdrLanguage::ElemDDLUdrLanguage(ComRoutineLanguage theLanguage)
-    : ElemDDLNode(ELM_UDR_LANGUAGE),
-      language_(theLanguage)
-{
-}
+    : ElemDDLNode(ELM_UDR_LANGUAGE), language_(theLanguage) {}
 
 // virtual destructor
-ElemDDLUdrLanguage::~ElemDDLUdrLanguage(void)
-{
-}
+ElemDDLUdrLanguage::~ElemDDLUdrLanguage(void) {}
 
 // cast
-ElemDDLUdrLanguage * 
-  ElemDDLUdrLanguage::castToElemDDLUdrLanguage(void)
-{
-  return this;
-}
+ElemDDLUdrLanguage *ElemDDLUdrLanguage::castToElemDDLUdrLanguage(void) { return this; }
 
 //
 // methods for tracing
 //
 
-NATraceList
-ElemDDLUdrLanguage::getDetailInfo() const
-{
-  NAString        detailText;
+NATraceList ElemDDLUdrLanguage::getDetailInfo() const {
+  NAString detailText;
   NATraceList detailTextList;
 
   detailText = "Language: ";
@@ -284,74 +195,42 @@ ElemDDLUdrLanguage::getDetailInfo() const
   detailTextList.append(detailText);
 
   return detailTextList;
-
 }
 
-const NAString
-ElemDDLUdrLanguage::getText() const
-{
-  return "ElemDDLUdrLanguage";
-}
-
-
-
+const NAString ElemDDLUdrLanguage::getText() const { return "ElemDDLUdrLanguage"; }
 
 // -----------------------------------------------------------------------
 // methods for class ElemDDLUdrLibrary
 // -----------------------------------------------------------------------
 
 // default constructor
-ElemDDLUdrLibrary::ElemDDLUdrLibrary(QualifiedName &theLibrary) 
-  : ElemDDLNode(ELM_UDR_LIBRARY),
-    libraryName_(theLibrary)
-{
-}
+ElemDDLUdrLibrary::ElemDDLUdrLibrary(QualifiedName &theLibrary)
+    : ElemDDLNode(ELM_UDR_LIBRARY), libraryName_(theLibrary) {}
 
 // virtual destructor
-ElemDDLUdrLibrary::~ElemDDLUdrLibrary()
-{
-}
+ElemDDLUdrLibrary::~ElemDDLUdrLibrary() {}
 
 // cast
-ElemDDLUdrLibrary * 
-  ElemDDLUdrLibrary::castToElemDDLUdrLibrary(void)
-{
-  return this;
-}
+ElemDDLUdrLibrary *ElemDDLUdrLibrary::castToElemDDLUdrLibrary(void) { return this; }
 
 //
 // methods for tracing
 //
 
-const NAString
-ElemDDLUdrLibrary::displayLabel1() const
-{
+const NAString ElemDDLUdrLibrary::displayLabel1() const {
   return NAString("Library: ") + libraryName_.getQualifiedNameAsAnsiString();
 }
 
-NATraceList
-ElemDDLUdrLibrary::getDetailInfo() const
-{
-  NAString        detailText;
+NATraceList ElemDDLUdrLibrary::getDetailInfo() const {
+  NAString detailText;
   NATraceList detailTextList;
 
   detailTextList.append(displayLabel1());
 
   return detailTextList;
-
 }
 
-const NAString
-ElemDDLUdrLibrary::getText() const
-{
-  return "ElemDDLUdrLibrary";
-}
-
-
-
-
-
-
+const NAString ElemDDLUdrLibrary::getText() const { return "ElemDDLUdrLibrary"; }
 
 // -----------------------------------------------------------------------
 // methods for class ElemDDLUdrMaxResults
@@ -359,31 +238,20 @@ ElemDDLUdrLibrary::getText() const
 
 // default constructor
 ElemDDLUdrMaxResults::ElemDDLUdrMaxResults(ComUInt32 theMaxResults)
-  : ElemDDLNode(ELM_UDR_MAX_RESULTS),
-    maxResults_(theMaxResults)
-{
-}
+    : ElemDDLNode(ELM_UDR_MAX_RESULTS), maxResults_(theMaxResults) {}
 
 // virtual destructor
-ElemDDLUdrMaxResults::~ElemDDLUdrMaxResults(void)
-{
-}
+ElemDDLUdrMaxResults::~ElemDDLUdrMaxResults(void) {}
 
 // cast
-ElemDDLUdrMaxResults * 
-  ElemDDLUdrMaxResults::castToElemDDLUdrMaxResults(void)
-{
-  return this;
-}
+ElemDDLUdrMaxResults *ElemDDLUdrMaxResults::castToElemDDLUdrMaxResults(void) { return this; }
 
 //
 // methods for tracing
 //
 
-NATraceList
-ElemDDLUdrMaxResults::getDetailInfo() const
-{
-  NAString        detailText;
+NATraceList ElemDDLUdrMaxResults::getDetailInfo() const {
+  NAString detailText;
   NATraceList detailTextList;
 
   detailText = "MaxResults: ";
@@ -391,15 +259,9 @@ ElemDDLUdrMaxResults::getDetailInfo() const
   detailTextList.append(detailText);
 
   return detailTextList;
-
 }
 
-const NAString
-ElemDDLUdrMaxResults::getText() const
-{
-  return "ElemDDLUdrMaxResults";
-}
-
+const NAString ElemDDLUdrMaxResults::getText() const { return "ElemDDLUdrMaxResults"; }
 
 // -----------------------------------------------------------------------
 // methods for class ElemDDLUdrParamStyle
@@ -407,31 +269,20 @@ ElemDDLUdrMaxResults::getText() const
 
 // default constructor
 ElemDDLUdrParamStyle::ElemDDLUdrParamStyle(ComRoutineParamStyle theParamStyle)
-  : ElemDDLNode(ELM_UDR_PARAM_STYLE),
-    paramStyle_(theParamStyle) 
-{
-}
+    : ElemDDLNode(ELM_UDR_PARAM_STYLE), paramStyle_(theParamStyle) {}
 
 // virtual destructor
-ElemDDLUdrParamStyle::~ElemDDLUdrParamStyle(void)
-{
-}
+ElemDDLUdrParamStyle::~ElemDDLUdrParamStyle(void) {}
 
 // cast
-ElemDDLUdrParamStyle * 
-  ElemDDLUdrParamStyle::castToElemDDLUdrParamStyle(void)
-{
-  return this;
-}
+ElemDDLUdrParamStyle *ElemDDLUdrParamStyle::castToElemDDLUdrParamStyle(void) { return this; }
 
 //
 // methods for tracing
 //
 
-NATraceList
-ElemDDLUdrParamStyle::getDetailInfo() const
-{
-  NAString        detailText;
+NATraceList ElemDDLUdrParamStyle::getDetailInfo() const {
+  NAString detailText;
   NATraceList detailTextList;
 
   detailText = "ParamStyle: ";
@@ -439,15 +290,9 @@ ElemDDLUdrParamStyle::getDetailInfo() const
   detailTextList.append(detailText);
 
   return detailTextList;
-
 }
 
-const NAString
-ElemDDLUdrParamStyle::getText() const
-{
-  return "ElemDDLUdrParamStyle";
-}
-
+const NAString ElemDDLUdrParamStyle::getText() const { return "ElemDDLUdrParamStyle"; }
 
 // -----------------------------------------------------------------------
 // methods for class ElemDDLUdrSqlAccess
@@ -455,31 +300,20 @@ ElemDDLUdrParamStyle::getText() const
 
 // default constructor
 ElemDDLUdrSqlAccess::ElemDDLUdrSqlAccess(ComRoutineSQLAccess theSqlAccess)
-  : ElemDDLNode(ELM_UDR_SQL_ACCESS),
-    sqlAccess_(theSqlAccess)
-{
-}
+    : ElemDDLNode(ELM_UDR_SQL_ACCESS), sqlAccess_(theSqlAccess) {}
 
 // virtual destructor
-ElemDDLUdrSqlAccess::~ElemDDLUdrSqlAccess(void)
-{
-}
+ElemDDLUdrSqlAccess::~ElemDDLUdrSqlAccess(void) {}
 
 // cast
-ElemDDLUdrSqlAccess * 
-  ElemDDLUdrSqlAccess::castToElemDDLUdrSqlAccess(void)
-{
-  return this;
-}
+ElemDDLUdrSqlAccess *ElemDDLUdrSqlAccess::castToElemDDLUdrSqlAccess(void) { return this; }
 
 //
 // methods for tracing
 //
 
-NATraceList
-ElemDDLUdrSqlAccess::getDetailInfo() const
-{
-  NAString        detailText;
+NATraceList ElemDDLUdrSqlAccess::getDetailInfo() const {
+  NAString detailText;
   NATraceList detailTextList;
 
   detailText = "SqlAccess: ";
@@ -487,14 +321,9 @@ ElemDDLUdrSqlAccess::getDetailInfo() const
   detailTextList.append(detailText);
 
   return detailTextList;
-
 }
 
-const NAString
-ElemDDLUdrSqlAccess::getText() const
-{
-  return "ElemDDLUdrSqlAccess";
-}
+const NAString ElemDDLUdrSqlAccess::getText() const { return "ElemDDLUdrSqlAccess"; }
 
 // -----------------------------------------------------------------------
 // methods for class ElemDDLUdrTransaction
@@ -502,31 +331,20 @@ ElemDDLUdrSqlAccess::getText() const
 
 // default constructor
 ElemDDLUdrTransaction::ElemDDLUdrTransaction(ComRoutineTransactionAttributes theTransactionAttributes)
-  : ElemDDLNode(ELM_UDR_TRANSACTION_ATTRIBUTES),
-    transactionAttributes_(theTransactionAttributes)
-{
-}
+    : ElemDDLNode(ELM_UDR_TRANSACTION_ATTRIBUTES), transactionAttributes_(theTransactionAttributes) {}
 
 // virtual destructor
-ElemDDLUdrTransaction::~ElemDDLUdrTransaction(void)
-{
-}
+ElemDDLUdrTransaction::~ElemDDLUdrTransaction(void) {}
 
 // cast
-ElemDDLUdrTransaction *
-ElemDDLUdrTransaction::castToElemDDLUdrTransaction(void)
-{
-  return this;
-}
+ElemDDLUdrTransaction *ElemDDLUdrTransaction::castToElemDDLUdrTransaction(void) { return this; }
 
 //
 // methods for tracing
 //
 
-NATraceList
-ElemDDLUdrTransaction::getDetailInfo() const
-{
-  NAString        detailText;
+NATraceList ElemDDLUdrTransaction::getDetailInfo() const {
+  NAString detailText;
   NATraceList detailTextList;
 
   detailText = "Transaction: ";
@@ -534,14 +352,9 @@ ElemDDLUdrTransaction::getDetailInfo() const
   detailTextList.append(detailText);
 
   return detailTextList;
-
 }
 
-const NAString
-ElemDDLUdrTransaction::getText() const
-{
-  return "ElemDDLUdrTransaction";
-}
+const NAString ElemDDLUdrTransaction::getText() const { return "ElemDDLUdrTransaction"; }
 
 // -----------------------------------------------------------------------
 // methods for class ElemDDLUdrExternalSecurity
@@ -549,31 +362,20 @@ ElemDDLUdrTransaction::getText() const
 
 // default constructor
 ElemDDLUdrExternalSecurity::ElemDDLUdrExternalSecurity(ComRoutineExternalSecurity theExternalSecurity)
-  : ElemDDLNode(ELM_UDR_EXTERNAL_SECURITY),
-    externalSecurity_(theExternalSecurity) 
-{
-}
+    : ElemDDLNode(ELM_UDR_EXTERNAL_SECURITY), externalSecurity_(theExternalSecurity) {}
 
 // virtual destructor
-ElemDDLUdrExternalSecurity::~ElemDDLUdrExternalSecurity(void)
-{
-}
+ElemDDLUdrExternalSecurity::~ElemDDLUdrExternalSecurity(void) {}
 
 // cast
-ElemDDLUdrExternalSecurity * 
-  ElemDDLUdrExternalSecurity::castToElemDDLUdrExternalSecurity(void)
-{
-  return this;
-}
+ElemDDLUdrExternalSecurity *ElemDDLUdrExternalSecurity::castToElemDDLUdrExternalSecurity(void) { return this; }
 
 //
 // methods for tracing
 //
 
-NATraceList
-ElemDDLUdrExternalSecurity::getDetailInfo() const
-{
-  NAString    detailText;
+NATraceList ElemDDLUdrExternalSecurity::getDetailInfo() const {
+  NAString detailText;
   NATraceList detailTextList;
 
   detailText = "ExternalSecurity: ";
@@ -581,15 +383,9 @@ ElemDDLUdrExternalSecurity::getDetailInfo() const
   detailTextList.append(detailText);
 
   return detailTextList;
-
 }
 
-const NAString
-ElemDDLUdrExternalSecurity::getText() const
-{
-  return "ElemDDLUdrExternalSecurity";
-}
-
+const NAString ElemDDLUdrExternalSecurity::getText() const { return "ElemDDLUdrExternalSecurity"; }
 
 // -----------------------------------------------------------------------
 // methods for class ElemDDLUdfExecutionMode
@@ -597,31 +393,20 @@ ElemDDLUdrExternalSecurity::getText() const
 
 // default constructor
 ElemDDLUdfExecutionMode::ElemDDLUdfExecutionMode(ComRoutineExecutionMode theExecutionMode)
-         : ElemDDLNode(ELM_UDF_EXECUTION_MODE),
-           executionMode_(theExecutionMode)
-{
-}
+    : ElemDDLNode(ELM_UDF_EXECUTION_MODE), executionMode_(theExecutionMode) {}
 
 // virtual destructor
-ElemDDLUdfExecutionMode::~ElemDDLUdfExecutionMode(void)
-{
-}
+ElemDDLUdfExecutionMode::~ElemDDLUdfExecutionMode(void) {}
 
 // cast
-ElemDDLUdfExecutionMode *
-ElemDDLUdfExecutionMode::castToElemDDLUdfExecutionMode(void)
-{
-  return this;
-}
+ElemDDLUdfExecutionMode *ElemDDLUdfExecutionMode::castToElemDDLUdfExecutionMode(void) { return this; }
 
 //
 // methods for tracing
 //
 
-NATraceList
-ElemDDLUdfExecutionMode::getDetailInfo() const
-{
-  NAString        detailText;
+NATraceList ElemDDLUdfExecutionMode::getDetailInfo() const {
+  NAString detailText;
   NATraceList detailTextList;
 
   detailText = "execution mode = ";
@@ -634,11 +419,7 @@ ElemDDLUdfExecutionMode::getDetailInfo() const
   return detailTextList;
 }
 
-const NAString
-ElemDDLUdfExecutionMode::getText() const
-{
-  return "ElemDDLUdfExecutionMode";
-}
+const NAString ElemDDLUdfExecutionMode::getText() const { return "ElemDDLUdfExecutionMode"; }
 
 // -----------------------------------------------------------------------
 // methods for class ElemDDLUdfFinalCall
@@ -646,31 +427,20 @@ ElemDDLUdfExecutionMode::getText() const
 
 // default constructor
 ElemDDLUdfFinalCall::ElemDDLUdfFinalCall(NABoolean theFinalCall)
-  :  ElemDDLNode(ELM_UDF_FINAL_CALL),
-     finalCall_(theFinalCall)
-{
-}
+    : ElemDDLNode(ELM_UDF_FINAL_CALL), finalCall_(theFinalCall) {}
 
 // virtual destructor
-ElemDDLUdfFinalCall::~ElemDDLUdfFinalCall(void)
-{
-}
+ElemDDLUdfFinalCall::~ElemDDLUdfFinalCall(void) {}
 
 // cast
-ElemDDLUdfFinalCall *
-  ElemDDLUdfFinalCall::castToElemDDLUdfFinalCall(void)
-{
-  return this;
-}
+ElemDDLUdfFinalCall *ElemDDLUdfFinalCall::castToElemDDLUdfFinalCall(void) { return this; }
 
 //
 // methods for tracing
 //
 
-NATraceList
-ElemDDLUdfFinalCall::getDetailInfo() const
-{
-  NAString        detailText;
+NATraceList ElemDDLUdfFinalCall::getDetailInfo() const {
+  NAString detailText;
   NATraceList detailTextList;
 
   detailText = "finalCall? ";
@@ -678,14 +448,9 @@ ElemDDLUdfFinalCall::getDetailInfo() const
   detailTextList.append(detailText);
 
   return detailTextList;
-
 }
 
-const NAString
-ElemDDLUdfFinalCall::getText() const
-{
-  return "ElemDDLUdfFinalCall";
-}
+const NAString ElemDDLUdfFinalCall::getText() const { return "ElemDDLUdfFinalCall"; }
 
 // -----------------------------------------------------------------------
 // methods for class ElemDDLUdfOptimizationHint
@@ -693,85 +458,66 @@ ElemDDLUdfFinalCall::getText() const
 
 // default constructor
 ElemDDLUdfOptimizationHint::ElemDDLUdfOptimizationHint(ComUdfOptimizationHintKind optimizationKind,
-                                                       CollHeap *h) // default is PARSERHEAP()
-         : ElemDDLNode(ELM_UDF_OPTIMIZATION_HINT),
-           udfOptimizationKind_(optimizationKind),
-           cost_(-1),
-           uniqueOutputValuesParseTree_(NULL),
-           uniqueOutputValues_(h)
-{
-}
+                                                       CollHeap *h)  // default is PARSERHEAP()
+    : ElemDDLNode(ELM_UDF_OPTIMIZATION_HINT),
+      udfOptimizationKind_(optimizationKind),
+      cost_(-1),
+      uniqueOutputValuesParseTree_(NULL),
+      uniqueOutputValues_(h) {}
 
 // virtual destructor
-ElemDDLUdfOptimizationHint::~ElemDDLUdfOptimizationHint(void)
-{
-}
+ElemDDLUdfOptimizationHint::~ElemDDLUdfOptimizationHint(void) {}
 
 // cast
-ElemDDLUdfOptimizationHint *
-ElemDDLUdfOptimizationHint::castToElemDDLUdfOptimizationHint(void)
-{
-  return this;
-}
+ElemDDLUdfOptimizationHint *ElemDDLUdfOptimizationHint::castToElemDDLUdfOptimizationHint(void) { return this; }
 
 //
 // helpers
 //
 
-void ElemDDLUdfOptimizationHint::synthesize(void)
-{
-  if (getOptimizationKind() NEQ COM_UDF_NUMBER_OF_UNIQUE_OUTPUT_VALUES OR
-      uniqueOutputValuesParseTree_ EQU NULL)
-    return;
+void ElemDDLUdfOptimizationHint::synthesize(void) {
+  if (getOptimizationKind() NEQ COM_UDF_NUMBER_OF_UNIQUE_OUTPUT_VALUES OR uniqueOutputValuesParseTree_ EQU NULL) return;
 
-  NABoolean    isErrMsgIssued = FALSE;
-  ComSInt64    value = 0;
-  ItemExpr   * pItemExpr = NULL;
-  ConstValue * pConstVal = NULL;
-  for (CollIndex i = 0; i < uniqueOutputValuesParseTree_->entries(); i++)
-  {
+  NABoolean isErrMsgIssued = FALSE;
+  ComSInt64 value = 0;
+  ItemExpr *pItemExpr = NULL;
+  ConstValue *pConstVal = NULL;
+  for (CollIndex i = 0; i < uniqueOutputValuesParseTree_->entries(); i++) {
     pItemExpr = (*uniqueOutputValuesParseTree_)[i];
     pConstVal = (ConstValue *)pItemExpr;
-    if (NOT pConstVal->canGetExactNumericValue() AND NOT isErrMsgIssued)
-    {
+    if (NOT pConstVal->canGetExactNumericValue() AND NOT isErrMsgIssued) {
       *SqlParser_Diags << DgSqlCode(-3017) << DgString0(pConstVal->getConstStr());
       isErrMsgIssued = TRUE;
     }
     value = pConstVal->getExactNumericValue();
     uniqueOutputValues_.insert(value);
-    if (value < -1 AND NOT isErrMsgIssued) // only issue the error message once
+    if (value < -1 AND NOT isErrMsgIssued)  // only issue the error message once
     {
       // Error: Expected a positive value or -1 (representing the default SYSTEM setting option)
       NAString valueStr = Int64ToNAString(value);
       *SqlParser_Diags << DgSqlCode(-3017) << DgString0(valueStr);
       isErrMsgIssued = TRUE;
     }
-  } // for
-} // ElemDDLUdfOptimizationHint::synthesize()
+  }  // for
+}  // ElemDDLUdfOptimizationHint::synthesize()
 
 //
 // methods for tracing
 //
 
-NATraceList
-ElemDDLUdfOptimizationHint::getDetailInfo() const
-{
-  NAString        detailText;
+NATraceList ElemDDLUdfOptimizationHint::getDetailInfo() const {
+  NAString detailText;
   NATraceList detailTextList;
 
   detailText = "optimization hint = ";
-  detailText +=  LongToNAString((Lng32)getOptimizationKind());
-  if (getOptimizationKind() NEQ COM_UDF_NUMBER_OF_UNIQUE_OUTPUT_VALUES)
-  {
-    detailText +=  " - cost = ";
-    detailText +=  LongToNAString((Lng32)getCost());
-  }
-  else
-  {
+  detailText += LongToNAString((Lng32)getOptimizationKind());
+  if (getOptimizationKind() NEQ COM_UDF_NUMBER_OF_UNIQUE_OUTPUT_VALUES) {
+    detailText += " - cost = ";
+    detailText += LongToNAString((Lng32)getCost());
+  } else {
     detailText += " - number of unique output values = ( ";
     const NAList<ComSInt64> values = getUniqueOutputValues();
-    for (CollIndex i = 0; i < values.entries(); i++)
-    {
+    for (CollIndex i = 0; i < values.entries(); i++) {
       if (i > 0) detailText += " , ";
       detailText += Int64ToNAString((Int64)values[i]);
     }
@@ -782,11 +528,7 @@ ElemDDLUdfOptimizationHint::getDetailInfo() const
   return detailTextList;
 }
 
-const NAString
-ElemDDLUdfOptimizationHint::getText() const
-{
-  return "ElemDDLUdfOptimizationHint";
-}
+const NAString ElemDDLUdfOptimizationHint::getText() const { return "ElemDDLUdfOptimizationHint"; }
 
 // -----------------------------------------------------------------------
 // methods for class ElemDDLUdfParallelism
@@ -794,31 +536,20 @@ ElemDDLUdfOptimizationHint::getText() const
 
 // default constructor
 ElemDDLUdfParallelism::ElemDDLUdfParallelism(ComRoutineParallelism parallelism)
-  :  ElemDDLNode(ELM_UDF_PARALLELISM),
-     parallelism_(parallelism)
-{
-}
+    : ElemDDLNode(ELM_UDF_PARALLELISM), parallelism_(parallelism) {}
 
 // virtual destructor
-ElemDDLUdfParallelism::~ElemDDLUdfParallelism(void)
-{
-}
+ElemDDLUdfParallelism::~ElemDDLUdfParallelism(void) {}
 
 // cast
-ElemDDLUdfParallelism *
-  ElemDDLUdfParallelism::castToElemDDLUdfParallelism(void)
-{
-  return this;
-}
+ElemDDLUdfParallelism *ElemDDLUdfParallelism::castToElemDDLUdfParallelism(void) { return this; }
 
 //
 // methods for tracing
 //
 
-NATraceList
-ElemDDLUdfParallelism::getDetailInfo() const
-{
-  NAString        detailText;
+NATraceList ElemDDLUdfParallelism::getDetailInfo() const {
+  NAString detailText;
   NATraceList detailTextList;
 
   detailText = "canBeParallel? ";
@@ -826,14 +557,9 @@ ElemDDLUdfParallelism::getDetailInfo() const
   detailTextList.append(detailText);
 
   return detailTextList;
-
 }
 
-const NAString
-ElemDDLUdfParallelism::getText() const
-{
-  return "ElemDDLUdfParallelism";
-}
+const NAString ElemDDLUdfParallelism::getText() const { return "ElemDDLUdfParallelism"; }
 
 // -----------------------------------------------------------------------
 // methods for class ElemDDLUdfSpecialAttributes
@@ -841,32 +567,21 @@ ElemDDLUdfParallelism::getText() const
 
 // default constructor
 ElemDDLUdfSpecialAttributes::ElemDDLUdfSpecialAttributes(const NAString &theSpecialAttributes,
-                                                         CollHeap *h) // default is PARSERHEAP()
-         : ElemDDLNode(ELM_UDF_SPECIAL_ATTRIBUTES),
-           specialAttributesText_(theSpecialAttributes, h)
-{
-}
+                                                         CollHeap *h)  // default is PARSERHEAP()
+    : ElemDDLNode(ELM_UDF_SPECIAL_ATTRIBUTES), specialAttributesText_(theSpecialAttributes, h) {}
 
 // virtual destructor
-ElemDDLUdfSpecialAttributes::~ElemDDLUdfSpecialAttributes(void)
-{
-}
+ElemDDLUdfSpecialAttributes::~ElemDDLUdfSpecialAttributes(void) {}
 
 // cast
-ElemDDLUdfSpecialAttributes *
-ElemDDLUdfSpecialAttributes::castToElemDDLUdfSpecialAttributes(void)
-{
-  return this;
-}
+ElemDDLUdfSpecialAttributes *ElemDDLUdfSpecialAttributes::castToElemDDLUdfSpecialAttributes(void) { return this; }
 
 //
 // methods for tracing
 //
 
-NATraceList
-ElemDDLUdfSpecialAttributes::getDetailInfo() const
-{
-  NAString        detailText;
+NATraceList ElemDDLUdfSpecialAttributes::getDetailInfo() const {
+  NAString detailText;
   NATraceList detailTextList;
 
   detailText = "special attributes = ";
@@ -876,11 +591,7 @@ ElemDDLUdfSpecialAttributes::getDetailInfo() const
   return detailTextList;
 }
 
-const NAString
-ElemDDLUdfSpecialAttributes::getText() const
-{
-  return "ElemDDLUdfSpecialAttributes";
-}
+const NAString ElemDDLUdfSpecialAttributes::getText() const { return "ElemDDLUdfSpecialAttributes"; }
 
 // -----------------------------------------------------------------------
 // methods for class ElemDDLUdfStateAreaSize
@@ -888,31 +599,20 @@ ElemDDLUdfSpecialAttributes::getText() const
 
 // default constructor
 ElemDDLUdfStateAreaSize::ElemDDLUdfStateAreaSize(ComUInt32 sizeInBytes)
-  : ElemDDLNode(ELM_UDF_STATE_AREA_SIZE),
-    stateAreaSize_(sizeInBytes)
-{
-}
+    : ElemDDLNode(ELM_UDF_STATE_AREA_SIZE), stateAreaSize_(sizeInBytes) {}
 
 // virtual destructor
-ElemDDLUdfStateAreaSize::~ElemDDLUdfStateAreaSize(void)
-{
-}
+ElemDDLUdfStateAreaSize::~ElemDDLUdfStateAreaSize(void) {}
 
 // cast
-ElemDDLUdfStateAreaSize *
-  ElemDDLUdfStateAreaSize::castToElemDDLUdfStateAreaSize(void)
-{
-  return this;
-}
+ElemDDLUdfStateAreaSize *ElemDDLUdfStateAreaSize::castToElemDDLUdfStateAreaSize(void) { return this; }
 
 //
 // methods for tracing
 //
 
-NATraceList
-ElemDDLUdfStateAreaSize::getDetailInfo() const
-{
-  NAString        detailText;
+NATraceList ElemDDLUdfStateAreaSize::getDetailInfo() const {
+  NAString detailText;
   NATraceList detailTextList;
 
   detailText = "StateAreaSize: ";
@@ -920,14 +620,9 @@ ElemDDLUdfStateAreaSize::getDetailInfo() const
   detailTextList.append(detailText);
 
   return detailTextList;
-
 }
 
-const NAString
-ElemDDLUdfStateAreaSize::getText() const
-{
-  return "ElemDDLUdfStateAreaSize";
-}
+const NAString ElemDDLUdfStateAreaSize::getText() const { return "ElemDDLUdfStateAreaSize"; }
 
 // -----------------------------------------------------------------------
 // methods for class ElemDDLUdfVersionTag
@@ -935,32 +630,21 @@ ElemDDLUdfStateAreaSize::getText() const
 
 // default constructor
 ElemDDLUdfVersionTag::ElemDDLUdfVersionTag(const NAString &theVersionTag,
-                                           CollHeap *h) // default is PARSERHEAP()
-         : ElemDDLNode(ELM_UDF_VERSION_TAG),
-           versionTag_(theVersionTag, h)
-{
-}
+                                           CollHeap *h)  // default is PARSERHEAP()
+    : ElemDDLNode(ELM_UDF_VERSION_TAG), versionTag_(theVersionTag, h) {}
 
 // virtual destructor
-ElemDDLUdfVersionTag::~ElemDDLUdfVersionTag(void)
-{
-}
+ElemDDLUdfVersionTag::~ElemDDLUdfVersionTag(void) {}
 
 // cast
-ElemDDLUdfVersionTag *
-ElemDDLUdfVersionTag::castToElemDDLUdfVersionTag(void)
-{
-  return this;
-}
+ElemDDLUdfVersionTag *ElemDDLUdfVersionTag::castToElemDDLUdfVersionTag(void) { return this; }
 
 //
 // methods for tracing
 //
 
-NATraceList
-ElemDDLUdfVersionTag::getDetailInfo() const
-{
-  NAString        detailText;
+NATraceList ElemDDLUdfVersionTag::getDetailInfo() const {
+  NAString detailText;
   NATraceList detailTextList;
 
   detailText = "version tag = ";
@@ -970,11 +654,7 @@ ElemDDLUdfVersionTag::getDetailInfo() const
   return detailTextList;
 }
 
-const NAString
-ElemDDLUdfVersionTag::getText() const
-{
-  return "ElemDDLUdfVersionTag";
-}
+const NAString ElemDDLUdfVersionTag::getText() const { return "ElemDDLUdfVersionTag"; }
 
 // -----------------------------------------------------------------------
 // methods for class ElemDDLUudfParamDef
@@ -982,32 +662,21 @@ ElemDDLUdfVersionTag::getText() const
 
 // default constructor
 ElemDDLUudfParamDef::ElemDDLUudfParamDef(ComUudfParamKind uudfParamKind)
-  : ElemDDLNode(ELM_UUDF_PARAM_DEF),
-    uudfParamKind_(uudfParamKind)
-{
-}
+    : ElemDDLNode(ELM_UUDF_PARAM_DEF), uudfParamKind_(uudfParamKind) {}
 
 // virtual destructor
-ElemDDLUudfParamDef::~ElemDDLUudfParamDef(void)
-{
-}
+ElemDDLUudfParamDef::~ElemDDLUudfParamDef(void) {}
 
 // cast
-ElemDDLUudfParamDef *
-ElemDDLUudfParamDef::castToElemDDLUudfParamDef(void)
-{
-  return this;
-}
+ElemDDLUudfParamDef *ElemDDLUudfParamDef::castToElemDDLUudfParamDef(void) { return this; }
 
 //
 // methods for tracing
 //
 
-NATraceList
-ElemDDLUudfParamDef::getDetailInfo() const
-{
+NATraceList ElemDDLUudfParamDef::getDetailInfo() const {
   NAString uudfParamKindName;
-  NAString        detailText;
+  NAString detailText;
   NATraceList detailTextList;
 
   // ComGetUudfParamKindAsLit(getUudfParamKind(), // in
@@ -1020,9 +689,4 @@ ElemDDLUudfParamDef::getDetailInfo() const
   return detailTextList;
 }
 
-const NAString
-ElemDDLUudfParamDef::getText() const
-{
-  return "ElemDDLUudfParamDef";
-}
-
+const NAString ElemDDLUudfParamDef::getText() const { return "ElemDDLUudfParamDef"; }

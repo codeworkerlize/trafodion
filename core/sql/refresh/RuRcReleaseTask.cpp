@@ -41,16 +41,10 @@
 //	Constructor
 //-----------------------------------------------------//
 
-CRURcReleaseTask::CRURcReleaseTask(Lng32 id, CRUObject &obj) :
-	inherited(id), 
-	obj_(obj)
-{}
+CRURcReleaseTask::CRURcReleaseTask(Lng32 id, CRUObject &obj) : inherited(id), obj_(obj) {}
 
 //-----------------------------------------------------//
 //	CRURcReleaseTask::CreateExecutorInstance()
 //-----------------------------------------------------//
 
-CRUTaskExecutor * CRURcReleaseTask::CreateExecutorInstance() 
-{
-	return new CRURcReleaseTaskExecutor(this);
-}
+CRUTaskExecutor *CRURcReleaseTask::CreateExecutorInstance() { return new CRURcReleaseTaskExecutor(this); }

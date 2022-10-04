@@ -35,14 +35,14 @@ class HTableRow;
 // invalid in the current process.
 //
 // General versions that do nothing.
-void fixupVTable(void*);
-void fixupVTable(const void*);
+void fixupVTable(void *);
+void fixupVTable(const void *);
 
-// Special versions created for table descriptor shared cache 
+// Special versions created for table descriptor shared cache
 // that does the pointer copy.
-void fixupVTable(QualifiedName*);
-void fixupVTable(NAString*);
-void fixupVTable(HTableCache*);
-void fixupVTable(HTableRow*);
+void fixupVTable(QualifiedName *);
+void fixupVTable(NAString *);
+void fixupVTable(HTableCache *);
+void fixupVTable(HTableRow *);
 
 #endif

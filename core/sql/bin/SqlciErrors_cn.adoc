@@ -11406,14 +11406,12 @@ ZZZZZ 99999 BEGINNER MAJOR DBADMIN Unable to access $0~string0 interface. Call t
 
 [[SQL-8443]]
 == SQL 8443
-ZZZZZ 99999 BEGINNER MAJOR DBADMIN Provided LOB handle is invalid.
 *Cause:* 
 *Effect:* 
 *Recovery:* 
 
 [[SQL-8444]]
 == SQL 8444
-ZZZZZ 99999 BEGINNER MAJOR DBADMIN Only one lob handle can be returned by child for data extract.
 *Cause:* 
 *Effect:* 
 *Recovery:* 

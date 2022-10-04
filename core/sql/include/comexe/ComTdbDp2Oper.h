@@ -24,7 +24,7 @@
 ****************************************************************************
 *
 * File:         ComTdbDp2Oper.h
-* Description:  
+* Description:
 *
 * Created:      5/6/98
 * Language:     C++
@@ -44,14 +44,9 @@
 ///////////////////////////////////////////////////////
 // class ComTdbDp2Oper
 ///////////////////////////////////////////////////////
-class ComTdbDp2Oper : public ComTdb
-{
-
-public:
-  enum SqlTableType 
-  { KEY_SEQ_, KEY_SEQ_WITH_SYSKEY_, ENTRY_SEQ_, RELATIVE_, NOOP_ };
-  
+class ComTdbDp2Oper : public ComTdb {
+ public:
+  enum SqlTableType { KEY_SEQ_, KEY_SEQ_WITH_SYSKEY_, ENTRY_SEQ_, RELATIVE_, NOOP_ };
 };
 
 #endif
-

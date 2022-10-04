@@ -25,8 +25,8 @@
 *
 * File:         MdamPoint.C
 * Description:  Implimentation for MDAM Point
-*               
-*               
+*
+*
 * Created:      9/12/96
 * Language:     C++
 *
@@ -54,86 +54,62 @@
 // *****************************************************************************
 
 // Constructor that accepts an MdamEndPoint.
-MdamPoint::MdamPoint(MdamEndPoint & endPointRef)
-     : tupp_ (endPointRef.getPointPtr()->tupp_),
-       inclusion_ (endPointRef.getInclusion()) { }
+MdamPoint::MdamPoint(MdamEndPoint &endPointRef)
+    : tupp_(endPointRef.getPointPtr()->tupp_), inclusion_(endPointRef.getInclusion()) {}
 
 // Determine if v could be within an interval for which this MdamPoint
 // is the begin endpoint.
-NABoolean MdamPoint::beginContains(const ULng32 keyLen, const char * v)
-  const
-{
+NABoolean MdamPoint::beginContains(const ULng32 keyLen, const char *v) const {
   Int32 cmpCode = str_cmp(tupp_.getDataPointer(), v, Int32(keyLen));
-  MdamEnums::MdamOrder tempOrder = 
-    MdamEnums::MdamOrder((cmpCode > 0)? 1 : ((cmpCode == 0) ? 0 : -1));
-  if (tempOrder == MdamEnums::MDAM_LESS)
-    {
-      return TRUE;
-    }
-  else if (tempOrder == MdamEnums::MDAM_GREATER)
-    {
-      return FALSE;
-    } 
+  MdamEnums::MdamOrder tempOrder = MdamEnums::MdamOrder((cmpCode > 0) ? 1 : ((cmpCode == 0) ? 0 : -1));
+  if (tempOrder == MdamEnums::MDAM_LESS) {
+    return TRUE;
+  } else if (tempOrder == MdamEnums::MDAM_GREATER) {
+    return FALSE;
+  }
   // The two values are equal so consider inclusion.
-  else if (included())
-    {
-      return TRUE;
-    }
-  else
-    {
-      return FALSE;
-    };
+  else if (included()) {
+    return TRUE;
+  } else {
+    return FALSE;
+  };
   return TRUE;  // To get rid of compiler warning.
 }
-
 
 // Determine if v could be within an interval for which this MdamPoint
 // is the end endpoint.
-NABoolean MdamPoint::endContains(const ULng32 keyLen, const char * v) const
-{
+NABoolean MdamPoint::endContains(const ULng32 keyLen, const char *v) const {
   Int32 cmpCode = str_cmp(tupp_.getDataPointer(), v, Int32(keyLen));
-  MdamEnums::MdamOrder tempOrder = 
-    MdamEnums::MdamOrder((cmpCode > 0)? 1 : ((cmpCode == 0) ? 0 : -1));
-  if (tempOrder == MdamEnums::MDAM_LESS)
-    {
-      return FALSE;
-    }
-  else if (tempOrder == MdamEnums::MDAM_GREATER)
-    {
-      return TRUE;
-    } 
+  MdamEnums::MdamOrder tempOrder = MdamEnums::MdamOrder((cmpCode > 0) ? 1 : ((cmpCode == 0) ? 0 : -1));
+  if (tempOrder == MdamEnums::MDAM_LESS) {
+    return FALSE;
+  } else if (tempOrder == MdamEnums::MDAM_GREATER) {
+    return TRUE;
+  }
   // The two values are equal so consider inclusion.
-  else if (included())
-    {
-      return TRUE;
-    }
-  else
-    {
-      return FALSE;
-    };
+  else if (included()) {
+    return TRUE;
+  } else {
+    return FALSE;
+  };
   return TRUE;  // To get rid of compiler warning.
 }
 
-
 // Print functions.
 #ifdef NA_MDAM_EXECUTOR_DEBUG
-void MdamPoint::print(const char * header) const
-{
+void MdamPoint::print(const char *header) const {
   cout << header << endl;
-  char * dataPointer = getDataPointer();
+  char *dataPointer = getDataPointer();
   Lng32 keyLen = tupp_.getAllocatedSize();
   cout << "  Key length: " << keyLen << endl;
   cout << "  Data pointer: " << (void *)dataPointer << endl;
-  cout << "  Inclusion: "
-       << (inclusion_ ? "INCLUDED" : "EXCLUDED")
-       << endl;
+  cout << "  Inclusion: " << (inclusion_ ? "INCLUDED" : "EXCLUDED") << endl;
 }
 
-//void printBrief(char* dataPointer, Lng32 keyLen);
+// void printBrief(char* dataPointer, Lng32 keyLen);
 
-void MdamPoint::printBrief() const
-{
-  char * dataPointer = getDataPointer();
+void MdamPoint::printBrief() const {
+  char *dataPointer = getDataPointer();
   Lng32 keyLen = tupp_.getAllocatedSize();
 
   ::printBrief(dataPointer, keyLen, FALSE /* no end of line wanted */);

@@ -6,7 +6,7 @@
  * File:         NAIpc.h
  * Description:  Interprocess communication among SQL/ARK processes. Defines
  *               servers, requestors, and messages.
- *               
+ *
  * Created:      10/17/95
  * Language:     C++
  *
@@ -54,12 +54,10 @@ class NAMessageObj;
 // This object represents the connection to a single, possibly context-
 // sensitive server, such as the SQL catman, compiler, or ESP servers.
 // -----------------------------------------------------------------------
-class NASingleServer
-{
-friend class NAMessage;
+class NASingleServer {
+  friend class NAMessage;
 
-public:
-
+ public:
   // ---------------------------------------------------------------------
   // A requestor creates a NASingleServer object to start a server process
   // and to open a connection to that server. The method on how to find
@@ -67,29 +65,22 @@ public:
   // the server name must be one of the well-known servers.
   // A remote server can be started by specifying a node name.
   // ---------------------------------------------------------------------
-  NASingleServer(
-       ComDiagsArea **diags,
-       CollHeap *diagsHeap,
-       IpcServerType serverType,
-       const char *node = NULL,
-       IpcServerAllocationMethod allocationMethod = IPC_ALLOC_DONT_CARE);
+  NASingleServer(ComDiagsArea **diags, CollHeap *diagsHeap, IpcServerType serverType, const char *node = NULL,
+                 IpcServerAllocationMethod allocationMethod = IPC_ALLOC_DONT_CARE);
 
   // give access to the ExServer object
-  inline IpcServer *getServer()                             { return s_; }
+  inline IpcServer *getServer() { return s_; }
 
-private:
-
+ private:
   IpcServerClass *sc_;
   IpcServer *s_;
-}; // NASingleServer
+};  // NASingleServer
 
 // -----------------------------------------------------------------------
 // A message
 // -----------------------------------------------------------------------
-class NAMessage : private IpcMessageStream
-{
-public:
-
+class NAMessage : private IpcMessageStream {
+ public:
   // ---------------------------------------------------------------------
   // Constructor to be used in a server: a message that is read from
   // the process' control connection. The control connection can be
@@ -98,13 +89,13 @@ public:
   // ---------------------------------------------------------------------
   NAMessage(IpcNetworkDomain domain
 #if (defined(NA_GUARDIAN_IPC))
-	    // when compiling on NSK systems the default is $RECEIVE
-	    = IPC_DOM_GUA_PHANDLE
+            // when compiling on NSK systems the default is $RECEIVE
+            = IPC_DOM_GUA_PHANDLE
 #else
-	    // on Unix systems there is only one choice
-	    = IPC_DOM_INTERNET
+            // on Unix systems there is only one choice
+            = IPC_DOM_INTERNET
 #endif
-	    );
+  );
 
   // ---------------------------------------------------------------------
   // Constructor to be used in a client: a message to be sent to a
@@ -115,32 +106,31 @@ public:
   // ---------------------------------------------------------------------
   // set and get the header information
   // ---------------------------------------------------------------------
-  inline IpcMessageObjType getType() const
-                                   { return IpcMessageStream::getType(); }
-  inline IpcMessageObjVersion getVersion() const
-                                { return IpcMessageStream::getVersion(); }
-  inline void setType(IpcMessageObjType t)
-                                         { IpcMessageStream::setType(t); }
-  inline void setVersion(IpcMessageObjVersion v)
-                                      { IpcMessageStream::setVersion(v); }
+  inline IpcMessageObjType getType() const { return IpcMessageStream::getType(); }
+  inline IpcMessageObjVersion getVersion() const { return IpcMessageStream::getVersion(); }
+  inline void setType(IpcMessageObjType t) { IpcMessageStream::setType(t); }
+  inline void setVersion(IpcMessageObjVersion v) { IpcMessageStream::setVersion(v); }
 
   // ---------------------------------------------------------------------
   // Check error information
   // ---------------------------------------------------------------------
-  inline NABoolean hasError()
-                       { return (getState() == IpcMessageStream::ERROR_STATE); }
+  inline NABoolean hasError() { return (getState() == IpcMessageStream::ERROR_STATE); }
 
   // ---------------------------------------------------------------------
   // Include an object into a message
   // ---------------------------------------------------------------------
-  inline NAMessage & operator << (IpcMessageObj & toAppend)
-     {IpcMessageStream::operator << ((IpcMessageObj &) toAppend);return *this;}
+  inline NAMessage &operator<<(IpcMessageObj &toAppend) {
+    IpcMessageStream::operator<<((IpcMessageObj &)toAppend);
+    return *this;
+  }
 
   // ---------------------------------------------------------------------
   // Extract an object of a given type from a message
   // ---------------------------------------------------------------------
-  inline NAMessage & operator >> (IpcMessageObj & toRetrieve)
-   {IpcMessageStream::operator >> ((IpcMessageObj &) toRetrieve);return *this;}
+  inline NAMessage &operator>>(IpcMessageObj &toRetrieve) {
+    IpcMessageStream::operator>>((IpcMessageObj &)toRetrieve);
+    return *this;
+  }
 
   // ---------------------------------------------------------------------
   // check whether there are more objects to extract
@@ -150,12 +140,9 @@ public:
   // ---------------------------------------------------------------------
   // get information about the next object to be retrieved
   // ---------------------------------------------------------------------
-  inline IpcMessageObjType getNextObjType()
-                            { return IpcMessageStream::getNextObjType(); }
-  inline IpcMessageObjVersion getNextObjVersion()
-                         { return IpcMessageStream::getNextObjVersion(); }
-  inline IpcMessageObjSize getNextObjSize()
-                            { return IpcMessageStream::getNextObjSize(); }
+  inline IpcMessageObjType getNextObjType() { return IpcMessageStream::getNextObjType(); }
+  inline IpcMessageObjVersion getNextObjVersion() { return IpcMessageStream::getNextObjVersion(); }
+  inline IpcMessageObjSize getNextObjSize() { return IpcMessageStream::getNextObjSize(); }
 
   // ---------------------------------------------------------------------
   // reinitialize the message, so it can be used as if it were new
@@ -175,9 +162,9 @@ public:
   // ---------------------------------------------------------------------
   // send a reply to a message (same as send)
   // ---------------------------------------------------------------------
-  inline void reply()                                          { send(); }
+  inline void reply() { send(); }
 
-}; // NAMessage
+};  // NAMessage
 
 // -----------------------------------------------------------------------
 // An object that can be added to or retrieved from a message.
@@ -187,19 +174,16 @@ public:
 // See files Ipc.h and IpcMessageType.h for more documentation on the
 // IpcMessageObj class.
 // -----------------------------------------------------------------------
-class NAMessageObj : public IpcMessageObj
-{
-public:
-
+class NAMessageObj : public IpcMessageObj {
+ public:
   // ---------------------------------------------------------------------
   // Constructor, to be used by derived classes to specify type and
   // version of the object.
   // ---------------------------------------------------------------------
-  inline NAMessageObj(IpcMessageObjType objType,
-		      IpcMessageObjVersion version = 100) :
-                                          IpcMessageObj(objType,version) {}
+  inline NAMessageObj(IpcMessageObjType objType, IpcMessageObjVersion version = 100)
+      : IpcMessageObj(objType, version) {}
 
-}; // NAMessageObj
+};  // NAMessageObj
 
 // -----------------------------------------------------------------------
 // A global method to get access to the IPC environment

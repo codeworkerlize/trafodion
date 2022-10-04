@@ -56,65 +56,44 @@ inline static IpcMessageObjSize packedStringLength(const char *s)
 // -----------------------------------------------------------------------
 // class RtsMessageObj
 // -----------------------------------------------------------------------
-RtsMessageObj::RtsMessageObj(RtsMessageObjType objType,
-                             IpcMessageObjVersion objVersion,
-                             NAMemory *heap)
- : IpcMessageObj(objType, objVersion),
- heap_(heap),
- handle_(INVALID_RTS_HANDLE)
-{
-}
+RtsMessageObj::RtsMessageObj(RtsMessageObjType objType, IpcMessageObjVersion objVersion, NAMemory *heap)
+    : IpcMessageObj(objType, objVersion), heap_(heap), handle_(INVALID_RTS_HANDLE) {}
 
-void RtsMessageObj::operator delete(void *p)
-{
-  if (p)
-  {
-    NAMemory *h = ((RtsMessageObj *) p)->getHeap();
-    if (h)
-    {
+void RtsMessageObj::operator delete(void *p) {
+  if (p) {
+    NAMemory *h = ((RtsMessageObj *)p)->getHeap();
+    if (h) {
       h->deallocateMemory(p);
-    }
-    else
-    {
-      ::delete ((RtsMessageObj *) p);
+    } else {
+      ::delete ((RtsMessageObj *)p);
     }
   }
 }
 
-IpcMessageObjSize RtsMessageObj::packedLength()
-{
+IpcMessageObjSize RtsMessageObj::packedLength() {
   IpcMessageObjSize result = baseClassPackedLength();
   result += sizeof(handle_);
   return result;
 }
 
-IpcMessageObjSize RtsMessageObj::packObjIntoMessage(IpcMessageBufferPtr buffer)
-{
-
+IpcMessageObjSize RtsMessageObj::packObjIntoMessage(IpcMessageBufferPtr buffer) {
   IpcMessageObjSize result = packBaseClassIntoMessage(buffer);
 
   result += packIntoBuffer(buffer, handle_);
   return result;
 }
 
-void RtsMessageObj::unpackObj(IpcMessageObjType objType,
-                              IpcMessageObjVersion objVersion,
-                              NABoolean sameEndianness,
-                              IpcMessageObjSize objSize,
-                              IpcConstMessageBufferPtr buffer)
-{
+void RtsMessageObj::unpackObj(IpcMessageObjType objType, IpcMessageObjVersion objVersion, NABoolean sameEndianness,
+                              IpcMessageObjSize objSize, IpcConstMessageBufferPtr buffer) {
   unpackBaseClass(buffer);
   unpackBuffer(buffer, handle_);
 }
 
-
-IpcMessageRefCount RtsMessageObj::decrRefCount()
-{
+IpcMessageRefCount RtsMessageObj::decrRefCount() {
   IpcMessageRefCount result = 0;
 
-  if (getRefCount() == 1)
-  {
-    //First clean up space allocated within derived objects.
+  if (getRefCount() == 1) {
+    // First clean up space allocated within derived objects.
     deleteMe();
 
     //
@@ -126,9 +105,7 @@ IpcMessageRefCount RtsMessageObj::decrRefCount()
     //
     delete this;
     result = 0;
-  }
-  else
-  {
+  } else {
     //
     // This is the normal case. The object won't be deleted
     //
@@ -138,67 +115,51 @@ IpcMessageRefCount RtsMessageObj::decrRefCount()
   return result;
 }
 
-IpcMessageObjSize RtsStatsReq::packedLength()
-{
+IpcMessageObjSize RtsStatsReq::packedLength() {
   IpcMessageObjSize result = baseClassPackedLength();
   result += sizeof(wmsProcess_);
   return result;
 }
 
-IpcMessageObjSize RtsStatsReq::packObjIntoMessage(IpcMessageBufferPtr buffer)
-{
-
+IpcMessageObjSize RtsStatsReq::packObjIntoMessage(IpcMessageBufferPtr buffer) {
   IpcMessageObjSize result = packBaseClassIntoMessage(buffer);
 
   result += packIntoBuffer(buffer, wmsProcess_);
   return result;
 }
 
-void RtsStatsReq::unpackObj(IpcMessageObjType objType,
-                              IpcMessageObjVersion objVersion,
-                              NABoolean sameEndianness,
-                              IpcMessageObjSize objSize,
-                              IpcConstMessageBufferPtr buffer)
-{
+void RtsStatsReq::unpackObj(IpcMessageObjType objType, IpcMessageObjVersion objVersion, NABoolean sameEndianness,
+                            IpcMessageObjSize objSize, IpcConstMessageBufferPtr buffer) {
   unpackBaseClass(buffer);
   unpackBuffer(buffer, wmsProcess_);
 }
 
-IpcMessageObjSize RtsStatsReply::packedLength()
-{
+IpcMessageObjSize RtsStatsReply::packedLength() {
   IpcMessageObjSize result = baseClassPackedLength();
   result += sizeof(numSscpErrors_);
   result += sizeof(numSqlProcs_);
   result += sizeof(numCpus_);
   return result;
-
 }
 
-IpcMessageObjSize RtsStatsReply::packObjIntoMessage(IpcMessageBufferPtr buffer)
-{
+IpcMessageObjSize RtsStatsReply::packObjIntoMessage(IpcMessageBufferPtr buffer) {
   IpcMessageObjSize result = packBaseClassIntoMessage(buffer);
 
   result += packIntoBuffer(buffer, numSscpErrors_);
   result += packIntoBuffer(buffer, numSqlProcs_);
   result += packIntoBuffer(buffer, numCpus_);
   return result;
-
 }
 
-void RtsStatsReply::unpackObj(IpcMessageObjType objType,
-		 IpcMessageObjVersion objVersion,
-		 NABoolean sameEndianness,
-		 IpcMessageObjSize objSize,
-		 IpcConstMessageBufferPtr buffer)
-{
+void RtsStatsReply::unpackObj(IpcMessageObjType objType, IpcMessageObjVersion objVersion, NABoolean sameEndianness,
+                              IpcMessageObjSize objSize, IpcConstMessageBufferPtr buffer) {
   unpackBaseClass(buffer);
   unpackBuffer(buffer, numSscpErrors_);
   unpackBuffer(buffer, numSqlProcs_);
   unpackBuffer(buffer, numCpus_);
 }
 
-IpcMessageObjSize RtsQueryId::packedLength()
-{
+IpcMessageObjSize RtsQueryId::packedLength() {
   IpcMessageObjSize result = baseClassPackedLength();
 
   result += sizeof(queryIdLen_);
@@ -214,12 +175,9 @@ IpcMessageObjSize RtsQueryId::packedLength()
   result += sizeof(detailLevel_);
   result += sizeof(subReqType_);
   return result;
-
 }
 
-IpcMessageObjSize RtsQueryId::packObjIntoMessage(
-     IpcMessageBufferPtr buffer)
-{
+IpcMessageObjSize RtsQueryId::packObjIntoMessage(IpcMessageBufferPtr buffer) {
   IpcMessageObjSize result = packBaseClassIntoMessage(buffer);
 
   result += packIntoBuffer(buffer, queryIdLen_);
@@ -241,18 +199,13 @@ IpcMessageObjSize RtsQueryId::packObjIntoMessage(
   return result;
 }
 
-
-void RtsQueryId::unpackObj(IpcMessageObjType objType,
-				   IpcMessageObjVersion objVersion,
-				   NABoolean sameEndianness,
-				   IpcMessageObjSize objSize,
-				   IpcConstMessageBufferPtr buffer)
-{
+void RtsQueryId::unpackObj(IpcMessageObjType objType, IpcMessageObjVersion objVersion, NABoolean sameEndianness,
+                           IpcMessageObjSize objSize, IpcConstMessageBufferPtr buffer) {
   unpackBaseClass(buffer);
 
   unpackBuffer(buffer, queryIdLen_);
 
-  queryId_ = new (getHeap()) char[queryIdLen_+1];
+  queryId_ = new (getHeap()) char[queryIdLen_ + 1];
   str_cpy_all(queryId_, buffer, queryIdLen_);
   queryId_[queryIdLen_] = '\0';
   buffer += queryIdLen_;
@@ -269,29 +222,23 @@ void RtsQueryId::unpackObj(IpcMessageObjType objType,
   unpackBuffer(buffer, subReqType_);
 }
 
-void RtsQueryId::deleteMe()
-{
-  if (queryId_ != NULL)
-  {
+void RtsQueryId::deleteMe() {
+  if (queryId_ != NULL) {
     NAMemory *h = getHeap();
-    if (h)
-      h->deallocateMemory(queryId_);
+    if (h) h->deallocateMemory(queryId_);
   }
 }
 
-RtsQueryId::RtsQueryId(NAMemory *heap, char *nodeName, short cpu, UInt16 statsMergeType,
-                       short activeQueryNum)
+RtsQueryId::RtsQueryId(NAMemory *heap, char *nodeName, short cpu, UInt16 statsMergeType, short activeQueryNum)
     : RtsMessageObj(RTS_QUERY_ID, currRtsQueryIdVersionNumber, heap),
-    cpu_(cpu),
-    timeStamp_(-1),
-    queryNumber_(-1),
-    statsMergeType_(statsMergeType)
-{
+      cpu_(cpu),
+      timeStamp_(-1),
+      queryNumber_(-1),
+      statsMergeType_(statsMergeType) {
   short len;
   if (nodeName != NULL)
-    str_cpy_all(nodeName_, nodeName, str_len(nodeName)+1);
-  else
-  {
+    str_cpy_all(nodeName_, nodeName, str_len(nodeName) + 1);
+  else {
     len = 0;
     nodeName_[len] = '\0';
   }
@@ -305,20 +252,17 @@ RtsQueryId::RtsQueryId(NAMemory *heap, char *nodeName, short cpu, UInt16 statsMe
 }
 
 RtsQueryId::RtsQueryId(NAMemory *heap, char *nodeName, short cpu, pid_t pid, UInt16 statsMergeType,
-                       short activeQueryNum,
-                       short reqType)
+                       short activeQueryNum, short reqType)
     : RtsMessageObj(RTS_QUERY_ID, currRtsQueryIdVersionNumber, heap),
-    cpu_(cpu),
-    pid_(pid),
-    timeStamp_(-1),
-    queryNumber_(-1),
-    statsMergeType_(statsMergeType)
-{
+      cpu_(cpu),
+      pid_(pid),
+      timeStamp_(-1),
+      queryNumber_(-1),
+      statsMergeType_(statsMergeType) {
   short len;
   if (nodeName_ != NULL)
-    str_cpy_all(nodeName_, nodeName, str_len(nodeName)+1);
-  else
-  {
+    str_cpy_all(nodeName_, nodeName, str_len(nodeName) + 1);
+  else {
     len = 0;
     nodeName_[len] = '\0';
   }
@@ -331,21 +275,17 @@ RtsQueryId::RtsQueryId(NAMemory *heap, char *nodeName, short cpu, pid_t pid, UIn
 }
 
 RtsQueryId::RtsQueryId(NAMemory *heap, char *nodeName, short cpu, pid_t pid, Int64 timeStamp, Lng32 queryNumber,
-                       UInt16 statsMergeType,
-                       short activeQueryNum,
-                       short reqType)
+                       UInt16 statsMergeType, short activeQueryNum, short reqType)
     : RtsMessageObj(RTS_QUERY_ID, currRtsQueryIdVersionNumber, heap),
-    cpu_(cpu),
-    pid_(pid),
-    timeStamp_(timeStamp),
-    queryNumber_(queryNumber),
-    statsMergeType_(statsMergeType)
-{
+      cpu_(cpu),
+      pid_(pid),
+      timeStamp_(timeStamp),
+      queryNumber_(queryNumber),
+      statsMergeType_(statsMergeType) {
   short len;
   if (nodeName_ != NULL)
-    str_cpy_all(nodeName_, nodeName, str_len(nodeName)+1);
-  else
-  {
+    str_cpy_all(nodeName_, nodeName, str_len(nodeName) + 1);
+  else {
     len = 0;
     nodeName_[len] = '\0';
   }
@@ -357,18 +297,15 @@ RtsQueryId::RtsQueryId(NAMemory *heap, char *nodeName, short cpu, pid_t pid, Int
   subReqType_ = -1;
 }
 
-
-RtsCpuStatsReq::RtsCpuStatsReq(const RtsHandle &h, NAMemory *heap,
-                               char *nodeName, short cpu, short noOfQueries, short reqType)
-    : RtsMessageObj(RTS_MSG_CPU_STATS_REQ, currRtsCpuStatsReqVersionNumber, heap)
-{
+RtsCpuStatsReq::RtsCpuStatsReq(const RtsHandle &h, NAMemory *heap, char *nodeName, short cpu, short noOfQueries,
+                               short reqType)
+    : RtsMessageObj(RTS_MSG_CPU_STATS_REQ, currRtsCpuStatsReqVersionNumber, heap) {
   short len;
 
   setHandle(h);
   if (nodeName_ != NULL)
-    str_cpy_all(nodeName_, nodeName, str_len(nodeName)+1);
-  else
-  {
+    str_cpy_all(nodeName_, nodeName, str_len(nodeName) + 1);
+  else {
     len = 0;
     nodeName_[len] = '\0';
   }
@@ -379,8 +316,7 @@ RtsCpuStatsReq::RtsCpuStatsReq(const RtsHandle &h, NAMemory *heap,
   filter_ = -1;
 }
 
-IpcMessageObjSize RtsCpuStatsReq::packedLength()
-{
+IpcMessageObjSize RtsCpuStatsReq::packedLength() {
   IpcMessageObjSize result = baseClassPackedLength();
 
   result += sizeof(nodeName_);
@@ -390,12 +326,9 @@ IpcMessageObjSize RtsCpuStatsReq::packedLength()
   result += sizeof(subReqType_);
   result += sizeof(filter_);
   return result;
-
 }
 
-IpcMessageObjSize RtsCpuStatsReq::packObjIntoMessage(
-     IpcMessageBufferPtr buffer)
-{
+IpcMessageObjSize RtsCpuStatsReq::packObjIntoMessage(IpcMessageBufferPtr buffer) {
   IpcMessageObjSize result = packBaseClassIntoMessage(buffer);
 
   str_cpy_all(buffer, nodeName_, sizeof(nodeName_));
@@ -409,13 +342,8 @@ IpcMessageObjSize RtsCpuStatsReq::packObjIntoMessage(
   return result;
 }
 
-
-void RtsCpuStatsReq::unpackObj(IpcMessageObjType objType,
-				   IpcMessageObjVersion objVersion,
-				   NABoolean sameEndianness,
-				   IpcMessageObjSize objSize,
-				   IpcConstMessageBufferPtr buffer)
-{
+void RtsCpuStatsReq::unpackObj(IpcMessageObjType objType, IpcMessageObjVersion objVersion, NABoolean sameEndianness,
+                               IpcMessageObjSize objSize, IpcConstMessageBufferPtr buffer) {
   unpackBaseClass(buffer);
 
   str_cpy_all(nodeName_, buffer, sizeof(nodeName_));
@@ -427,52 +355,42 @@ void RtsCpuStatsReq::unpackObj(IpcMessageObjType objType,
   unpackBuffer(buffer, filter_);
 }
 
-void RtsExplainFrag::setExplainFrag(void *explainFrag, Lng32 len, Lng32 topNodeOffset)
-{
-  if (explainFrag_ != NULL)
-  {
+void RtsExplainFrag::setExplainFrag(void *explainFrag, Lng32 len, Lng32 topNodeOffset) {
+  if (explainFrag_ != NULL) {
     NADELETEBASIC((char *)explainFrag_, getHeap());
     explainFrag_ = NULL;
     explainFragLen_ = 0;
     topNodeOffset_ = 0;
   }
-  if (explainFrag != NULL)
-  {
-    explainFrag_ = new (getHeap()) char[len + 10]; // Why add 10
+  if (explainFrag != NULL) {
+    explainFrag_ = new (getHeap()) char[len + 10];  // Why add 10
     memcpy(explainFrag_, explainFrag, len);
     explainFragLen_ = len;
     topNodeOffset_ = topNodeOffset;
-  }
-  else
-  {
+  } else {
     explainFragLen_ = 0;
     topNodeOffset_ = 0;
   }
 }
 
 RtsExplainFrag::RtsExplainFrag(NAMemory *heap, RtsExplainFrag *other)
-    : RtsMessageObj(RTS_EXPLAIN_FRAG, currRtsExplainFragVersionNumber, heap)
-{
+    : RtsMessageObj(RTS_EXPLAIN_FRAG, currRtsExplainFragVersionNumber, heap) {
   explainFrag_ = NULL;
   explainFragLen_ = 0;
   topNodeOffset_ = 0;
   setExplainFrag(other->getExplainFrag(), other->getExplainFragLen(), other->getTopNodeOffset());
 }
 
-IpcMessageObjSize RtsExplainFrag::packedLength()
-{
+IpcMessageObjSize RtsExplainFrag::packedLength() {
   IpcMessageObjSize result = baseClassPackedLength();
 
   result += sizeof(explainFragLen_);
   result += explainFragLen_;
   result += sizeof(topNodeOffset_);
   return result;
-
 }
 
-IpcMessageObjSize RtsExplainFrag::packObjIntoMessage(
-     IpcMessageBufferPtr buffer)
-{
+IpcMessageObjSize RtsExplainFrag::packObjIntoMessage(IpcMessageBufferPtr buffer) {
   IpcMessageObjSize result = packBaseClassIntoMessage(buffer);
 
   result += packIntoBuffer(buffer, explainFragLen_);
@@ -481,23 +399,17 @@ IpcMessageObjSize RtsExplainFrag::packObjIntoMessage(
   return result;
 }
 
-
-void RtsExplainFrag::unpackObj(IpcMessageObjType objType,
-				   IpcMessageObjVersion objVersion,
-				   NABoolean sameEndianness,
-				   IpcMessageObjSize objSize,
-				   IpcConstMessageBufferPtr buffer)
-{
+void RtsExplainFrag::unpackObj(IpcMessageObjType objType, IpcMessageObjVersion objVersion, NABoolean sameEndianness,
+                               IpcMessageObjSize objSize, IpcConstMessageBufferPtr buffer) {
   unpackBaseClass(buffer);
 
   unpackBuffer(buffer, explainFragLen_);
-  explainFrag_ = new (getHeap()) char[explainFragLen_+10];
+  explainFrag_ = new (getHeap()) char[explainFragLen_ + 10];
   unpackStrFromBuffer(buffer, (char *)explainFrag_, explainFragLen_);
   unpackBuffer(buffer, topNodeOffset_);
 }
 
-IpcMessageObjSize QueryStarted::packedLength()
-{
+IpcMessageObjSize QueryStarted::packedLength() {
   IpcMessageObjSize result = baseClassPackedLength();
   result += sizeof(startTime_);
   result += sizeof(master_);
@@ -507,24 +419,20 @@ IpcMessageObjSize QueryStarted::packedLength()
 }
 
 RtsExplainReq::RtsExplainReq(const RtsHandle &h, NAMemory *heap, char *qid, Lng32 qidLen)
-: RtsMessageObj(RTS_MSG_EXPLAIN_REQ, currRtsExplainReqVersionNumber, heap)
-{
+    : RtsMessageObj(RTS_MSG_EXPLAIN_REQ, currRtsExplainReqVersionNumber, heap) {
   setHandle(h);
-  qid_ = new (heap) char[qidLen+1];
+  qid_ = new (heap) char[qidLen + 1];
   str_cpy_all(qid_, qid, qidLen);
   qid_[qidLen] = '\0';
   qidLen_ = qidLen;
 }
 
-RtsExplainReq::~RtsExplainReq()
-{
-  if (qid_ != NULL)
-    NADELETEBASIC(qid_, getHeap());
+RtsExplainReq::~RtsExplainReq() {
+  if (qid_ != NULL) NADELETEBASIC(qid_, getHeap());
   qid_ = NULL;
 }
 
-IpcMessageObjSize RtsExplainReq::packedLength()
-{
+IpcMessageObjSize RtsExplainReq::packedLength() {
   IpcMessageObjSize result = baseClassPackedLength();
 
   result += sizeof(qidLen_);
@@ -532,9 +440,7 @@ IpcMessageObjSize RtsExplainReq::packedLength()
   return result;
 }
 
-IpcMessageObjSize RtsExplainReq::packObjIntoMessage(
-     IpcMessageBufferPtr buffer)
-{
+IpcMessageObjSize RtsExplainReq::packObjIntoMessage(IpcMessageBufferPtr buffer) {
   IpcMessageObjSize result = packBaseClassIntoMessage(buffer);
 
   result += packIntoBuffer(buffer, qidLen_);
@@ -542,24 +448,17 @@ IpcMessageObjSize RtsExplainReq::packObjIntoMessage(
   return result;
 }
 
-void RtsExplainReq::unpackObj(IpcMessageObjType objType,
-                                   IpcMessageObjVersion objVersion,
-                                   NABoolean sameEndianness,
-                                   IpcMessageObjSize objSize,
-                                   IpcConstMessageBufferPtr buffer)
-{
+void RtsExplainReq::unpackObj(IpcMessageObjType objType, IpcMessageObjVersion objVersion, NABoolean sameEndianness,
+                              IpcMessageObjSize objSize, IpcConstMessageBufferPtr buffer) {
   unpackBaseClass(buffer);
 
   unpackBuffer(buffer, qidLen_);
-  qid_ = new (getHeap()) char[qidLen_+1];
+  qid_ = new (getHeap()) char[qidLen_ + 1];
   unpackStrFromBuffer(buffer, qid_, qidLen_);
   qid_[qidLen_] = '\0';
 }
 
-
-IpcMessageObjSize QueryStarted::packObjIntoMessage(
-     IpcMessageBufferPtr buffer)
-{
+IpcMessageObjSize QueryStarted::packObjIntoMessage(IpcMessageBufferPtr buffer) {
   IpcMessageObjSize result = packBaseClassIntoMessage(buffer);
 
   result += packIntoBuffer(buffer, startTime_);
@@ -569,12 +468,8 @@ IpcMessageObjSize QueryStarted::packObjIntoMessage(
   return result;
 }
 
-void QueryStarted::unpackObj(IpcMessageObjType objType,
-				   IpcMessageObjVersion objVersion,
-				   NABoolean sameEndianness,
-				   IpcMessageObjSize objSize,
-				   IpcConstMessageBufferPtr buffer)
-{
+void QueryStarted::unpackObj(IpcMessageObjType objType, IpcMessageObjVersion objVersion, NABoolean sameEndianness,
+                             IpcMessageObjSize objSize, IpcConstMessageBufferPtr buffer) {
   unpackBaseClass(buffer);
 
   unpackBuffer(buffer, startTime_);
@@ -583,17 +478,14 @@ void QueryStarted::unpackObj(IpcMessageObjType objType,
   unpackBuffer(buffer, qsFlags_);
 }
 
-IpcMessageObjSize QueryStartedReply::packedLength()
-{
+IpcMessageObjSize QueryStartedReply::packedLength() {
   IpcMessageObjSize result = baseClassPackedLength();
   result += sizeof(nextAction_);
   result += sizeof(cancelLogging_);
   return result;
 }
 
-IpcMessageObjSize QueryStartedReply::packObjIntoMessage(
-     IpcMessageBufferPtr buffer)
-{
+IpcMessageObjSize QueryStartedReply::packObjIntoMessage(IpcMessageBufferPtr buffer) {
   IpcMessageObjSize result = packBaseClassIntoMessage(buffer);
 
   result += packIntoBuffer(buffer, nextAction_);
@@ -601,29 +493,22 @@ IpcMessageObjSize QueryStartedReply::packObjIntoMessage(
   return result;
 }
 
-void QueryStartedReply::unpackObj(IpcMessageObjType objType,
-				   IpcMessageObjVersion objVersion,
-				   NABoolean sameEndianness,
-				   IpcMessageObjSize objSize,
-				   IpcConstMessageBufferPtr buffer)
-{
+void QueryStartedReply::unpackObj(IpcMessageObjType objType, IpcMessageObjVersion objVersion, NABoolean sameEndianness,
+                                  IpcMessageObjSize objSize, IpcConstMessageBufferPtr buffer) {
   unpackBaseClass(buffer);
 
   unpackBuffer(buffer, nextAction_);
-  unpackBuffer(buffer,cancelLogging_);
+  unpackBuffer(buffer, cancelLogging_);
 }
 
-IpcMessageObjSize SuspendQueryRequest::packedLength()
-{
+IpcMessageObjSize SuspendQueryRequest::packedLength() {
   IpcMessageObjSize result = baseClassPackedLength();
   result += sizeof(forced_);
   result += sizeof(suspendLogging_);
   return result;
 }
 
-IpcMessageObjSize SuspendQueryRequest::packObjIntoMessage(
-     IpcMessageBufferPtr buffer)
-{
+IpcMessageObjSize SuspendQueryRequest::packObjIntoMessage(IpcMessageBufferPtr buffer) {
   IpcMessageObjSize result = packBaseClassIntoMessage(buffer);
 
   result += packIntoBuffer(buffer, forced_);
@@ -631,46 +516,36 @@ IpcMessageObjSize SuspendQueryRequest::packObjIntoMessage(
   return result;
 }
 
-void SuspendQueryRequest::unpackObj(IpcMessageObjType objType,
-				   IpcMessageObjVersion objVersion,
-				   NABoolean sameEndianness,
-				   IpcMessageObjSize objSize,
-				   IpcConstMessageBufferPtr buffer)
-{
+void SuspendQueryRequest::unpackObj(IpcMessageObjType objType, IpcMessageObjVersion objVersion,
+                                    NABoolean sameEndianness, IpcMessageObjSize objSize,
+                                    IpcConstMessageBufferPtr buffer) {
   unpackBaseClass(buffer);
 
   unpackBuffer(buffer, forced_);
-  unpackBuffer(buffer,suspendLogging_);
+  unpackBuffer(buffer, suspendLogging_);
 }
 
-IpcMessageObjSize ActivateQueryRequest::packedLength()
-{
+IpcMessageObjSize ActivateQueryRequest::packedLength() {
   IpcMessageObjSize result = baseClassPackedLength();
   result += sizeof(suspendLogging_);
   return result;
 }
 
-IpcMessageObjSize ActivateQueryRequest::packObjIntoMessage(
-     IpcMessageBufferPtr buffer)
-{
+IpcMessageObjSize ActivateQueryRequest::packObjIntoMessage(IpcMessageBufferPtr buffer) {
   IpcMessageObjSize result = packBaseClassIntoMessage(buffer);
 
   result += packIntoBuffer(buffer, suspendLogging_);
   return result;
 }
 
-void ActivateQueryRequest::unpackObj(IpcMessageObjType objType,
-                                   IpcMessageObjVersion objVersion,
-                                   NABoolean sameEndianness,
-                                   IpcMessageObjSize objSize,
-                                   IpcConstMessageBufferPtr buffer)
-{
+void ActivateQueryRequest::unpackObj(IpcMessageObjType objType, IpcMessageObjVersion objVersion,
+                                     NABoolean sameEndianness, IpcMessageObjSize objSize,
+                                     IpcConstMessageBufferPtr buffer) {
   unpackBaseClass(buffer);
-  unpackBuffer(buffer,suspendLogging_);
+  unpackBuffer(buffer, suspendLogging_);
 }
 
-IpcMessageObjSize CancelQueryRequest::packedLength()
-{
+IpcMessageObjSize CancelQueryRequest::packedLength() {
   IpcMessageObjSize result = baseClassPackedLength();
   result += sizeof(cancelStartTime_);
   result += sizeof(firstEscalationInterval_);
@@ -685,9 +560,7 @@ IpcMessageObjSize CancelQueryRequest::packedLength()
   return result;
 }
 
-IpcMessageObjSize CancelQueryRequest::packObjIntoMessage(
-     IpcMessageBufferPtr buffer)
-{
+IpcMessageObjSize CancelQueryRequest::packObjIntoMessage(IpcMessageBufferPtr buffer) {
   IpcMessageObjSize result = packBaseClassIntoMessage(buffer);
 
   result += packIntoBuffer(buffer, cancelStartTime_);
@@ -706,12 +579,8 @@ IpcMessageObjSize CancelQueryRequest::packObjIntoMessage(
   return result;
 }
 
-void CancelQueryRequest::unpackObj(IpcMessageObjType objType,
-				   IpcMessageObjVersion objVersion,
-				   NABoolean sameEndianness,
-				   IpcMessageObjSize objSize,
-				   IpcConstMessageBufferPtr buffer)
-{
+void CancelQueryRequest::unpackObj(IpcMessageObjType objType, IpcMessageObjVersion objVersion, NABoolean sameEndianness,
+                                   IpcMessageObjSize objSize, IpcConstMessageBufferPtr buffer) {
   unpackBaseClass(buffer);
 
   unpackBuffer(buffer, cancelStartTime_);
@@ -719,7 +588,7 @@ void CancelQueryRequest::unpackObj(IpcMessageObjType objType,
   unpackBuffer(buffer, secondEscalationInterval_);
   unpackBuffer(buffer, cancelEscalationSaveabend_);
   unpackBuffer(buffer, commentLen_);
-  comment_ = new (getHeap()) char[commentLen_+1];
+  comment_ = new (getHeap()) char[commentLen_ + 1];
   str_cpy_all(comment_, buffer, commentLen_);
   comment_[commentLen_] = '\0';
   buffer += commentLen_;
@@ -729,35 +598,27 @@ void CancelQueryRequest::unpackObj(IpcMessageObjType objType,
   unpackBuffer(buffer, minimumAge_);
 }
 
-IpcMessageObjSize ControlQueryReply::packedLength()
-{
+IpcMessageObjSize ControlQueryReply::packedLength() {
   IpcMessageObjSize result = baseClassPackedLength();
   result += sizeof(didAttemptControl_);
   return result;
 }
 
-IpcMessageObjSize ControlQueryReply::packObjIntoMessage(
-     IpcMessageBufferPtr buffer)
-{
+IpcMessageObjSize ControlQueryReply::packObjIntoMessage(IpcMessageBufferPtr buffer) {
   IpcMessageObjSize result = packBaseClassIntoMessage(buffer);
 
   result += packIntoBuffer(buffer, didAttemptControl_);
   return result;
 }
 
-void ControlQueryReply::unpackObj( IpcMessageObjType objType,
-                                  IpcMessageObjVersion objVersion,
-                                  NABoolean sameEndianness,
-                                  IpcMessageObjSize objSize,
-                                  IpcConstMessageBufferPtr buffer)
-{
+void ControlQueryReply::unpackObj(IpcMessageObjType objType, IpcMessageObjVersion objVersion, NABoolean sameEndianness,
+                                  IpcMessageObjSize objSize, IpcConstMessageBufferPtr buffer) {
   unpackBaseClass(buffer);
 
   unpackBuffer(buffer, didAttemptControl_);
 }
 
-IpcMessageObjSize CancelQueryKillServersRequest::packedLength()
-{
+IpcMessageObjSize CancelQueryKillServersRequest::packedLength() {
   IpcMessageObjSize result = baseClassPackedLength();
   result += sizeof(executionCount_);
   result += sizeof(master_);
@@ -766,9 +627,7 @@ IpcMessageObjSize CancelQueryKillServersRequest::packedLength()
   return result;
 }
 
-IpcMessageObjSize CancelQueryKillServersRequest::packObjIntoMessage(
-     IpcMessageBufferPtr buffer)
-{
+IpcMessageObjSize CancelQueryKillServersRequest::packObjIntoMessage(IpcMessageBufferPtr buffer) {
   IpcMessageObjSize result = packBaseClassIntoMessage(buffer);
 
   result += packIntoBuffer(buffer, executionCount_);
@@ -778,12 +637,9 @@ IpcMessageObjSize CancelQueryKillServersRequest::packObjIntoMessage(
   return result;
 }
 
-void CancelQueryKillServersRequest::unpackObj(IpcMessageObjType objType,
-				   IpcMessageObjVersion objVersion,
-				   NABoolean sameEndianness,
-				   IpcMessageObjSize objSize,
-				   IpcConstMessageBufferPtr buffer)
-{
+void CancelQueryKillServersRequest::unpackObj(IpcMessageObjType objType, IpcMessageObjVersion objVersion,
+                                              NABoolean sameEndianness, IpcMessageObjSize objSize,
+                                              IpcConstMessageBufferPtr buffer) {
   unpackBaseClass(buffer);
 
   unpackBuffer(buffer, executionCount_);
@@ -792,17 +648,14 @@ void CancelQueryKillServersRequest::unpackObj(IpcMessageObjType objType,
   unpackBuffer(buffer, makeSaveabend_);
 }
 
-IpcMessageObjSize SuspendActivateServersRequest::packedLength()
-{
+IpcMessageObjSize SuspendActivateServersRequest::packedLength() {
   IpcMessageObjSize result = baseClassPackedLength();
   result += sizeof(isRequestToSuspend_);
   result += sizeof(suspendLogging_);
   return result;
 }
 
-IpcMessageObjSize SuspendActivateServersRequest::packObjIntoMessage(
-     IpcMessageBufferPtr buffer)
-{
+IpcMessageObjSize SuspendActivateServersRequest::packObjIntoMessage(IpcMessageBufferPtr buffer) {
   IpcMessageObjSize result = packBaseClassIntoMessage(buffer);
 
   result += packIntoBuffer(buffer, isRequestToSuspend_);
@@ -810,118 +663,85 @@ IpcMessageObjSize SuspendActivateServersRequest::packObjIntoMessage(
   return result;
 }
 
-void SuspendActivateServersRequest::unpackObj(IpcMessageObjType objType,
-				   IpcMessageObjVersion objVersion,
-				   NABoolean sameEndianness,
-				   IpcMessageObjSize objSize,
-				   IpcConstMessageBufferPtr buffer)
-{
+void SuspendActivateServersRequest::unpackObj(IpcMessageObjType objType, IpcMessageObjVersion objVersion,
+                                              NABoolean sameEndianness, IpcMessageObjSize objSize,
+                                              IpcConstMessageBufferPtr buffer) {
   unpackBaseClass(buffer);
 
   unpackBuffer(buffer, isRequestToSuspend_);
   unpackBuffer(buffer, suspendLogging_);
 }
 
-SecInvalidKeyRequest::SecInvalidKeyRequest(NAMemory *heap,
-                                           Int32 numSiks,
-                                           SQL_QIKEY *sikPtr) :
-    RtsMessageObj(SECURITY_INVALID_KEY_REQ,
-                    CurrSecurityInvalidKeyVersionNumber, heap)
-    , numSiks_(numSiks)
-    , sikPtr_(NULL)
-{
-  if (numSiks_ > 0)
-  {
-    sikPtr_ = new(heap) SQL_QIKEY[numSiks_];
-    memcpy((void *)sikPtr_, sikPtr, numSiks_*sizeof(SQL_QIKEY));
+SecInvalidKeyRequest::SecInvalidKeyRequest(NAMemory *heap, Int32 numSiks, SQL_QIKEY *sikPtr)
+    : RtsMessageObj(SECURITY_INVALID_KEY_REQ, CurrSecurityInvalidKeyVersionNumber, heap),
+      numSiks_(numSiks),
+      sikPtr_(NULL) {
+  if (numSiks_ > 0) {
+    sikPtr_ = new (heap) SQL_QIKEY[numSiks_];
+    memcpy((void *)sikPtr_, sikPtr, numSiks_ * sizeof(SQL_QIKEY));
   }
 }
 
-SecInvalidKeyRequest::~SecInvalidKeyRequest()
-{
-  if (numSiks_ > 0)
-  {
+SecInvalidKeyRequest::~SecInvalidKeyRequest() {
+  if (numSiks_ > 0) {
     NADELETEBASIC(sikPtr_, getHeap());
   }
   numSiks_ = 0;
   sikPtr_ = NULL;
 }
 
-IpcMessageObjSize SecInvalidKeyRequest::packedLength()
-{
+IpcMessageObjSize SecInvalidKeyRequest::packedLength() {
   IpcMessageObjSize result = baseClassPackedLength();
   result += sizeof(numSiks_);
   result += numSiks_ * sizeof(SQL_QIKEY);
   return result;
 }
 
-IpcMessageObjSize SecInvalidKeyRequest::packObjIntoMessage(
-                           IpcMessageBufferPtr buffer)
-{
+IpcMessageObjSize SecInvalidKeyRequest::packObjIntoMessage(IpcMessageBufferPtr buffer) {
   IpcMessageObjSize result = packBaseClassIntoMessage(buffer);
   result += packIntoBuffer(buffer, numSiks_);
-  result += packStrIntoBuffer(buffer, (char *) sikPtr_,
-                              numSiks_ * sizeof(SQL_QIKEY));
+  result += packStrIntoBuffer(buffer, (char *)sikPtr_, numSiks_ * sizeof(SQL_QIKEY));
   return result;
 }
 
-void SecInvalidKeyRequest::unpackObj(IpcMessageObjType objType,
-	       IpcMessageObjVersion objVersion,
-	       NABoolean sameEndianness,
-	       IpcMessageObjSize objSize,
-	       IpcConstMessageBufferPtr buffer)
-{
+void SecInvalidKeyRequest::unpackObj(IpcMessageObjType objType, IpcMessageObjVersion objVersion,
+                                     NABoolean sameEndianness, IpcMessageObjSize objSize,
+                                     IpcConstMessageBufferPtr buffer) {
   unpackBaseClass(buffer);
 
   unpackBuffer(buffer, numSiks_);
-  if (numSiks_ > 0)
-  {
+  if (numSiks_ > 0) {
     sikPtr_ = new (getHeap()) SQL_QIKEY[numSiks_];
-    unpackStrFromBuffer(buffer, (char *) sikPtr_, sizeof(SQL_QIKEY)*numSiks_);
-  }
-  else
+    unpackStrFromBuffer(buffer, (char *)sikPtr_, sizeof(SQL_QIKEY) * numSiks_);
+  } else
     sikPtr_ = NULL;
 }
 
-
-
-
-ObjectEpochChangeRequest::ObjectEpochChangeRequest(NAMemory *heap,
-    Operation operation,
-    Int32 objectNameLength,
-    const char * objectName,
-    Int64 redefTime, 
-    UInt64 key,
-    UInt32 expectedEpoch,
-    UInt32 expectedFlags,
-    UInt32 newEpoch,
-    UInt32 newFlags) :
-    RtsMessageObj(OBJECT_EPOCH_CHANGE_REQ, 
-                  CurrObjectEpochChangeReqVersionNumber, heap),
-    operation_(operation),
-    objectNameLength_(objectNameLength),
-    objectName_(NULL),
-    redefTime_(redefTime),
-    key_(key),
-    expectedEpoch_(expectedEpoch),
-    expectedFlags_(expectedFlags),
-    newEpoch_(newEpoch),
-    newFlags_(newFlags) 
-{
+ObjectEpochChangeRequest::ObjectEpochChangeRequest(NAMemory *heap, Operation operation, Int32 objectNameLength,
+                                                   const char *objectName, Int64 redefTime, UInt64 key,
+                                                   UInt32 expectedEpoch, UInt32 expectedFlags, UInt32 newEpoch,
+                                                   UInt32 newFlags)
+    : RtsMessageObj(OBJECT_EPOCH_CHANGE_REQ, CurrObjectEpochChangeReqVersionNumber, heap),
+      operation_(operation),
+      objectNameLength_(objectNameLength),
+      objectName_(NULL),
+      redefTime_(redefTime),
+      key_(key),
+      expectedEpoch_(expectedEpoch),
+      expectedFlags_(expectedFlags),
+      newEpoch_(newEpoch),
+      newFlags_(newFlags) {
   // copy in objectName
-  objectName_ = new(heap) char[objectNameLength+1];
-  strncpy(objectName_,objectName,objectNameLength);
+  objectName_ = new (heap) char[objectNameLength + 1];
+  strncpy(objectName_, objectName, objectNameLength);
   objectName_[objectNameLength] = '\0';
 }
 
-ObjectEpochChangeRequest::~ObjectEpochChangeRequest()
-{
+ObjectEpochChangeRequest::~ObjectEpochChangeRequest() {
   operation_ = NO_OP;
-  if (objectName_ != NULL)
-  {
+  if (objectName_ != NULL) {
     NAMemory *h = getHeap();
-    if (h)
-      h->deallocateMemory(objectName_);
+    if (h) h->deallocateMemory(objectName_);
   }
   objectNameLength_ = 0;
   redefTime_ = 0;
@@ -932,24 +752,14 @@ ObjectEpochChangeRequest::~ObjectEpochChangeRequest()
   newFlags_ = 0;
 }
 
-IpcMessageObjSize ObjectEpochChangeRequest::packedLength()
-{
+IpcMessageObjSize ObjectEpochChangeRequest::packedLength() {
   IpcMessageObjSize result = baseClassPackedLength();
-  result += sizeof(operation_) +
-            sizeof(objectNameLength_) + 
-            objectNameLength_ +
-            sizeof(redefTime_) +
-            sizeof(key_) +
-            sizeof(expectedEpoch_) +
-            sizeof(expectedFlags_) +
-            sizeof(newEpoch_) +
-            sizeof(newFlags_);
+  result += sizeof(operation_) + sizeof(objectNameLength_) + objectNameLength_ + sizeof(redefTime_) + sizeof(key_) +
+            sizeof(expectedEpoch_) + sizeof(expectedFlags_) + sizeof(newEpoch_) + sizeof(newFlags_);
   return result;
 }
 
-IpcMessageObjSize ObjectEpochChangeRequest::packObjIntoMessage(
-                           IpcMessageBufferPtr buffer)
-{
+IpcMessageObjSize ObjectEpochChangeRequest::packObjIntoMessage(IpcMessageBufferPtr buffer) {
   IpcMessageObjSize result = packBaseClassIntoMessage(buffer);
   result += packIntoBuffer(buffer, operation_);
   result += packIntoBuffer(buffer, objectNameLength_);
@@ -965,16 +775,13 @@ IpcMessageObjSize ObjectEpochChangeRequest::packObjIntoMessage(
   return result;
 }
 
-void ObjectEpochChangeRequest::unpackObj(IpcMessageObjType objType,
-	       IpcMessageObjVersion objVersion,
-	       NABoolean sameEndianness,
-	       IpcMessageObjSize objSize,
-	       IpcConstMessageBufferPtr buffer)
-{
+void ObjectEpochChangeRequest::unpackObj(IpcMessageObjType objType, IpcMessageObjVersion objVersion,
+                                         NABoolean sameEndianness, IpcMessageObjSize objSize,
+                                         IpcConstMessageBufferPtr buffer) {
   unpackBaseClass(buffer);
   unpackBuffer(buffer, operation_);
   unpackBuffer(buffer, objectNameLength_);
-  objectName_ = new (getHeap()) char[objectNameLength_+1];
+  objectName_ = new (getHeap()) char[objectNameLength_ + 1];
   str_cpy_all(objectName_, buffer, objectNameLength_);
   objectName_[objectNameLength_] = '\0';
   buffer += objectNameLength_;
@@ -986,19 +793,13 @@ void ObjectEpochChangeRequest::unpackObj(IpcMessageObjType objType,
   unpackBuffer(buffer, newFlags_);
 }
 
-
-IpcMessageObjSize ObjectEpochChangeReply::packedLength()
-{
+IpcMessageObjSize ObjectEpochChangeReply::packedLength() {
   IpcMessageObjSize result = baseClassPackedLength();
-  result += sizeof(result_) +
-            sizeof(maxExpectedEpochFound_) +
-            sizeof(maxExpectedFlagsFound_);
+  result += sizeof(result_) + sizeof(maxExpectedEpochFound_) + sizeof(maxExpectedFlagsFound_);
   return result;
 }
 
-IpcMessageObjSize ObjectEpochChangeReply::packObjIntoMessage(
-                           IpcMessageBufferPtr buffer)
-{
+IpcMessageObjSize ObjectEpochChangeReply::packObjIntoMessage(IpcMessageBufferPtr buffer) {
   IpcMessageObjSize result = packBaseClassIntoMessage(buffer);
   result += packIntoBuffer(buffer, result_);
   result += packIntoBuffer(buffer, maxExpectedEpochFound_);
@@ -1006,49 +807,36 @@ IpcMessageObjSize ObjectEpochChangeReply::packObjIntoMessage(
   return result;
 }
 
-void ObjectEpochChangeReply::unpackObj(IpcMessageObjType objType,
-	       IpcMessageObjVersion objVersion,
-	       NABoolean sameEndianness,
-	       IpcMessageObjSize objSize,
-	       IpcConstMessageBufferPtr buffer)
-{
+void ObjectEpochChangeReply::unpackObj(IpcMessageObjType objType, IpcMessageObjVersion objVersion,
+                                       NABoolean sameEndianness, IpcMessageObjSize objSize,
+                                       IpcConstMessageBufferPtr buffer) {
   unpackBaseClass(buffer);
   unpackBuffer(buffer, result_);
   unpackBuffer(buffer, maxExpectedEpochFound_);
   unpackBuffer(buffer, maxExpectedFlagsFound_);
 }
 
-ObjectLockRequest::ObjectLockRequest(NAMemory *heap,
-                                     const char *objectName,
-                                     Lng32 objectNameLen,
-                                     ComObjectType objectType,
-                                     OpType opType,
-                                     Int32 lockNid,
-                                     Int32 lockPid,
-                                     UInt32 maxRetries,
-                                     UInt32 delay)
-  :RtsMessageObj(OBJECT_LOCK_REQ,
-                 CurrObjectLockRequestVersionNumber,
-                 heap)
-  ,objectName_(NULL)
-  ,objectNameLen_(objectNameLen)
-  ,objectType_(objectType)
-  ,opType_(opType)
-  ,lockNid_(lockNid)
-  ,lockPid_(lockPid)
-  ,maxRetries_(maxRetries)
-  ,delay_(delay)
-{
+ObjectLockRequest::ObjectLockRequest(NAMemory *heap, const char *objectName, Lng32 objectNameLen,
+                                     ComObjectType objectType, OpType opType, Int32 lockNid, Int32 lockPid,
+                                     UInt32 maxRetries, UInt32 delay)
+    : RtsMessageObj(OBJECT_LOCK_REQ, CurrObjectLockRequestVersionNumber, heap),
+      objectName_(NULL),
+      objectNameLen_(objectNameLen),
+      objectType_(objectType),
+      opType_(opType),
+      lockNid_(lockNid),
+      lockPid_(lockPid),
+      maxRetries_(maxRetries),
+      delay_(delay) {
   // copy in objectName
   NAASSERT(objectName != NULL);
   NAASSERT(objectNameLen > 0);
-  objectName_ = new(heap) char[objectNameLen+1];
-  strncpy(objectName_,objectName,objectNameLen);
+  objectName_ = new (heap) char[objectNameLen + 1];
+  strncpy(objectName_, objectName, objectNameLen);
   objectName_[objectNameLen] = '\0';
 }
 
-IpcMessageObjSize ObjectLockRequest::packedLength()
-{
+IpcMessageObjSize ObjectLockRequest::packedLength() {
   NAASSERT(objectName_ != NULL);
   NAASSERT(objectNameLen_ > 0);
 
@@ -1064,8 +852,7 @@ IpcMessageObjSize ObjectLockRequest::packedLength()
   return result;
 }
 
-IpcMessageObjSize ObjectLockRequest::packObjIntoMessage(IpcMessageBufferPtr buffer)
-{
+IpcMessageObjSize ObjectLockRequest::packObjIntoMessage(IpcMessageBufferPtr buffer) {
   NAASSERT(objectName_ != NULL);
   NAASSERT(objectNameLen_ > 0);
   IpcMessageObjSize result = packBaseClassIntoMessage(buffer);
@@ -1082,16 +869,12 @@ IpcMessageObjSize ObjectLockRequest::packObjIntoMessage(IpcMessageBufferPtr buff
   return result;
 }
 
-void ObjectLockRequest::unpackObj(IpcMessageObjType objType,
-                                  IpcMessageObjVersion objVersion,
-                                  NABoolean sameEndianness,
-                                  IpcMessageObjSize objSize,
-                                  IpcConstMessageBufferPtr buffer)
-{
+void ObjectLockRequest::unpackObj(IpcMessageObjType objType, IpcMessageObjVersion objVersion, NABoolean sameEndianness,
+                                  IpcMessageObjSize objSize, IpcConstMessageBufferPtr buffer) {
   unpackBaseClass(buffer);
   unpackBuffer(buffer, objectNameLen_);
   NAASSERT(objectNameLen_ > 0);
-  objectName_ = new (getHeap()) char[objectNameLen_+1];
+  objectName_ = new (getHeap()) char[objectNameLen_ + 1];
   str_cpy_all(objectName_, buffer, objectNameLen_);
   objectName_[objectNameLen_] = '\0';
   buffer += objectNameLen_;

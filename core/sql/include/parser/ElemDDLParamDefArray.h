@@ -41,10 +41,9 @@
  *****************************************************************************
  */
 
-
 #include "common/Collections.h"
-#ifndef   SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
-#define   SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
+#ifndef SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
+#define SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
 #endif
 #include "parser/SqlParserGlobals.h"
 #include "parser/ElemDDLParamDef.h"
@@ -53,47 +52,29 @@
 // -----------------------------------------------------------------------
 // Definition of class ElemDDLParamDefArray
 // -----------------------------------------------------------------------
-class ElemDDLParamDefArray : public LIST(ElemDDLParamDef *)
-{
-
-public:
-
+class ElemDDLParamDefArray : public LIST(ElemDDLParamDef *) {
+ public:
   // constructor
-  ElemDDLParamDefArray(CollHeap *heap = PARSERHEAP())
-    : LIST(ElemDDLParamDef *)(heap)
-  {
-  }
+  ElemDDLParamDefArray(CollHeap *heap = PARSERHEAP()) : LIST(ElemDDLParamDef *)(heap) {}
 
   // virtual destructor
-  virtual ~ElemDDLParamDefArray()
-  {
-  }
+  virtual ~ElemDDLParamDefArray() {}
 
-private:
-
-}; // class ElemDDLParamDefArray
+ private:
+};  // class ElemDDLParamDefArray
 
 // -----------------------------------------------------------------------
 // Definition of class ElemDDLPassThroughParamDefArray
 // -----------------------------------------------------------------------
-class ElemDDLPassThroughParamDefArray : public LIST(ElemDDLPassThroughParamDef *)
-{
-
-public:
-
+class ElemDDLPassThroughParamDefArray : public LIST(ElemDDLPassThroughParamDef *) {
+ public:
   // constructor
-  ElemDDLPassThroughParamDefArray(CollHeap *heap = PARSERHEAP())
-    : LIST(ElemDDLPassThroughParamDef *)(heap)
-  {
-  }
+  ElemDDLPassThroughParamDefArray(CollHeap *heap = PARSERHEAP()) : LIST(ElemDDLPassThroughParamDef *)(heap) {}
 
   // virtual destructor
-  virtual ~ElemDDLPassThroughParamDefArray()
-  {
-  }
+  virtual ~ElemDDLPassThroughParamDefArray() {}
 
-private:
-
-}; // class ElemDDLPassThroughParamDefArray
+ private:
+};  // class ElemDDLPassThroughParamDefArray
 
 #endif /* ELEMDDLPARAMDEFARRAY_H */

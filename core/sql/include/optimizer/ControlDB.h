@@ -38,7 +38,6 @@
  *****************************************************************************
  */
 
-
 #include "optimizer/RelControl.h"
 
 #include <iosfwd>
@@ -55,14 +54,13 @@ class ControlTableOptions;
 // -----------------------------------------------------------------------
 
 // return a pointer to the currently active control DB
-ControlDB * ActiveControlDB();
+ControlDB *ActiveControlDB();
 
-class ControlTableOptions : public NABasicObject
-{
-public:
+class ControlTableOptions : public NABasicObject {
+ public:
   enum TokenConsts {
     // authorization to be passed to hbase in scan/get requests
-    HBASE_AUTHS, 
+    HBASE_AUTHS,
 
     // get version of tables as of the specified time
     HBASE_TIMESTAMP_AS_OF,
@@ -76,18 +74,18 @@ public:
     //  N, get N versions. N > 0
     HBASE_VERSIONS,
 
-    IF_LOCKED, 
-    MDAM, 
-    NOWAIT, 
-    PRIORITY, 
-    PRIORITY_DELTA, 
-    SIMILARITY_CHECK, 
-    TABLELOCK, 
+    IF_LOCKED,
+    MDAM,
+    NOWAIT,
+    PRIORITY,
+    PRIORITY_DELTA,
+    SIMILARITY_CHECK,
+    TABLELOCK,
     TIMEOUT
   };
 
   struct CTTokens {
-    const char * token_;
+    const char *token_;
     TokenConsts const_;
   };
 
@@ -106,16 +104,14 @@ public:
   const NAString *getValue(const NAString &token);
   void addTokenAndValue(const NAString &token, const NAString &value);
 
-private:
-
+ private:
   NAString tableName_;
-  LIST(NAString *) *tokens_;
-  LIST(NAString *) *values_;
+  LIST(NAString *) * tokens_;
+  LIST(NAString *) * values_;
 };
 
-class ControlSessionOption : public NABasicObject
-{
-public:
+class ControlSessionOption : public NABasicObject {
+ public:
   ControlSessionOption();
   ~ControlSessionOption();
 
@@ -124,10 +120,9 @@ public:
   const NAString *getValue(const NAString &token);
   void addTokenAndValue(const NAString &token, const NAString &value);
 
-private:
-
-  NAString * token_;
-  NAString * value_;
+ private:
+  NAString *token_;
+  NAString *value_;
 };
 
 // -----------------------------------------------------------------------
@@ -145,31 +140,20 @@ private:
 
 // To be used for Control Query Shape identifiers in SqlParser.y.
 // A numeric ConstValue will be generated for those particular identifiers.
-enum CQSIdentifierEnum
-{
-  _SPARSE_,
-  _DENSE_,
-  _SYSTEM_ 
-};
+enum CQSIdentifierEnum { _SPARSE_, _DENSE_, _SYSTEM_ };
 
 // Helper function for CQS in SqlParser.y.
-class ExprNodePtrList : public LIST(ExprNode *)
-{
-public:
-  ExprNodePtrList(CollHeap* h) : LIST(ExprNode *)(h) {}
+class ExprNodePtrList : public LIST(ExprNode *) {
+ public:
+  ExprNodePtrList(CollHeap *h) : LIST(ExprNode *)(h) {}
 };
 
 // Global function called by SqlParser.y.
-ExprNode *DecodeShapeSyntax(const NAString &fname,
-			    ExprNodePtrList *args,
-			    ComDiagsArea *diags,
-			    CollHeap *heap);
+ExprNode *DecodeShapeSyntax(const NAString &fname, ExprNodePtrList *args, ComDiagsArea *diags, CollHeap *heap);
 
-class ControlDB : public NABasicObject
-{
-public:
-  
-  ControlDB(); 
+class ControlDB : public NABasicObject {
+ public:
+  ControlDB();
   ~ControlDB();
 
   void initPerStatement() { outStream_ = NULL; }
@@ -177,75 +161,64 @@ public:
   ostream *&outStream() { return outStream_; }
 
   void setRequiredShape(ControlQueryShape *shape);
-  ControlQueryShape * getRequiredShape() const { return requiredShape_; }
-  NABoolean requiredShapeWasOnceNonNull() const
-    { return requiredShapeWasOnceNonNull_; }
+  ControlQueryShape *getRequiredShape() const { return requiredShape_; }
+  NABoolean requiredShapeWasOnceNonNull() const { return requiredShapeWasOnceNonNull_; }
 
-  LIST(ControlQueryDefault *) &getCQDList() { return cqdList_; }
+  LIST(ControlQueryDefault *) & getCQDList() { return cqdList_; }
   void setControlDefault(ControlQueryDefault *def);
 
-  LIST(ControlTableOptions *) &getCTList()  { return *ctList_; }
-  LIST(ControlSessionOption *) &getCSList()  { return csList_; }
+  LIST(ControlTableOptions *) & getCTList() { return *ctList_; }
+  LIST(ControlSessionOption *) & getCSList() { return csList_; }
 
-  ControlTableOptions * getControlTableOptions(const NAString &tableName);
+  ControlTableOptions *getControlTableOptions(const NAString &tableName);
 
   NABoolean validate(ControlTable *ct);
   NABoolean setControlTableValue(ControlTable *ct);
-  const NAString * getControlTableValue(const NAString &tableName,
-  				        const NAString &token);
-  const NAString * getControlTableValue(const NAString *tableName,
-  				        const NAString &token)
-  { return getControlTableValue(*tableName, token); }
+  const NAString *getControlTableValue(const NAString &tableName, const NAString &token);
+  const NAString *getControlTableValue(const NAString *tableName, const NAString &token) {
+    return getControlTableValue(*tableName, token);
+  }
 
   NABoolean validate(ControlSession *cs);
   NABoolean setControlSessionValue(ControlSession *cs);
-  const NAString * getControlSessionValue(const NAString &token);
+  const NAString *getControlSessionValue(const NAString &token);
 
   Lng32 packedLengthControlTableOptions();
-  Lng32 packControlTableOptionsToBuffer(char * buffer);
-  Lng32 unpackControlTableOptionsFromBuffer(char * buffer);
-  NABoolean isSameCTO(char * buffer, Lng32 bufLen);
+  Lng32 packControlTableOptionsToBuffer(char *buffer);
+  Lng32 unpackControlTableOptionsFromBuffer(char *buffer);
+  NABoolean isSameCTO(char *buffer, Lng32 bufLen);
   Lng32 saveCurrentCTO();
   Lng32 restoreCurrentCTO();
 
   Lng32 packedLengthControlQueryShape();
-  Lng32 packControlQueryShapeToBuffer(char * buffer);
-  Lng32 unpackControlQueryShapeFromBuffer(char * buffer);
-  NABoolean isSameCQS(char * buffer, Lng32 bufLen);
+  Lng32 packControlQueryShapeToBuffer(char *buffer);
+  Lng32 unpackControlQueryShapeFromBuffer(char *buffer);
+  NABoolean isSameCQS(char *buffer, Lng32 bufLen);
   Lng32 saveCurrentCQS();
   Lng32 restoreCurrentCQS();
-  
-private:
+
+ private:
   enum RQOsetting { RQO_MIN, RQO_SYS, RQO_HIGH, RQO_MAX, RQO_RESET };
-  void do_one_RQO_CQD(const char *attrName,
-                      const char *attrValue,
-                      NABoolean reset);
+  void do_one_RQO_CQD(const char *attrName, const char *attrValue, NABoolean reset);
   void doRobustQueryOptimizationCQDs(RQOsetting set);
   void resetRobustQueryOptimizationCQDs();
   void setRobustQueryOptimizationCQDs();
 
-  void do_one_CQD(const char *attrName,
-                  const char *attrValue,
-                  NABoolean reset,
-                  NADefaults::Provenance masterOrigin);
+  void do_one_CQD(const char *attrName, const char *attrValue, NABoolean reset, NADefaults::Provenance masterOrigin);
 
-  void do_one_MVQR_CQD(const char *attrName,
-                       const char *attrValue,
-                       NABoolean reset);
+  void do_one_MVQR_CQD(const char *attrName, const char *attrValue, NABoolean reset);
   void doMVQRCQDs(Lng32 level);
   void resetMVQRCQDs();
   void setMVQRCQDs();
 
   void setHistogramCacheState();
 
-  ControlTableOptions * getControlTableOption(const NAString &tableName,
-					      CollIndex &index);
+  ControlTableOptions *getControlTableOption(const NAString &tableName, CollIndex &index);
   void resetTableValue(const NAString &tableName, const NAString &token);
   CollIndex isValidToken(const NAString &token);
 
   void resetSessionValue(const NAString &token);
-  ControlSessionOption * getControlSessionOption(const NAString &token,
-  						 CollIndex &index);
+  ControlSessionOption *getControlSessionOption(const NAString &token, CollIndex &index);
 
   ControlQueryShape *requiredShape_;
   NABoolean requiredShapeWasOnceNonNull_;
@@ -259,18 +232,17 @@ private:
 
   // list of all the control defaults that were added by
   // issuing control default stmt.
-  LIST(ControlQueryDefault*) cqdList_;
+  LIST(ControlQueryDefault *) cqdList_;
 
   // list of CONTROL TABLE values that were added.
   // One entry per table. Each entry is a list of control table values
   // that were specified for that table.
-  LIST(ControlTableOptions*) * ctList_;
+  LIST(ControlTableOptions *) * ctList_;
 
-  LIST(ControlTableOptions*) * savedCtList_;
+  LIST(ControlTableOptions *) * savedCtList_;
 
   // list of CONTROL SESSION values that were added.
-  LIST(ControlSessionOption*) csList_;
+  LIST(ControlSessionOption *) csList_;
 };
 
 #endif /* CONTROL_DB_H */
-

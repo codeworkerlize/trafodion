@@ -32,8 +32,7 @@
 // Generate the code to implmenent FIRSTN, PERIODIC, and RANDOM sampling
 // for this branch of a balance node tree.
 //
-ItemExpr *ItmBalance::preCodeGen(Generator *generator)
-{
+ItemExpr *ItmBalance::preCodeGen(Generator *generator) {
   // Get a local handle on some things...
   //
   ExpGenerator *expGen = generator->getExpGenerator();
@@ -43,21 +42,16 @@ ItemExpr *ItmBalance::preCodeGen(Generator *generator)
   // counter and an expression to increment the counter.
   //
   ItemExpr *counterExpr = NULL, *incrementExpr = NULL;
-  if((sampleType() == RelSample::FIRSTN) ||
-     (sampleType() == RelSample::PERIODIC))
-    {
-      counterExpr = new(wHeap) ItmPersistentExpressionVar(0);
-      incrementExpr = new(wHeap) ItmBlockFunction
-	(counterExpr,
-	 new(wHeap) Assign(counterExpr,
-			   new(wHeap) BiArith(ITM_PLUS, 
-					      counterExpr, 
-					      new (wHeap) ConstValue(1))));
-    }
-					      
+  if ((sampleType() == RelSample::FIRSTN) || (sampleType() == RelSample::PERIODIC)) {
+    counterExpr = new (wHeap) ItmPersistentExpressionVar(0);
+    incrementExpr = new (wHeap) ItmBlockFunction(
+        counterExpr,
+        new (wHeap) Assign(counterExpr, new (wHeap) BiArith(ITM_PLUS, counterExpr, new (wHeap) ConstValue(1))));
+  }
+
   // Create the expression to evaluate the <sample condition> for this
   // branch of the balance clause. The sample condition returns an integer
-  // indicating the number of times to return the current row or -1 if 
+  // indicating the number of times to return the current row or -1 if
   // sampling if completely finished. The integer is typically 0 or 1.
   //
   // Aftet the sample condition expression is created, it is combined with
@@ -68,138 +62,118 @@ ItemExpr *ItmBalance::preCodeGen(Generator *generator)
 
   // First N sampling.
   //
-  // Initialization: 
+  // Initialization:
   //  Counter = 0;
-  // Per Row: 
+  // Per Row:
   //  if Counter < SampleSize then Counter++, 1; else 0;
   //
-  if(sampleType() == RelSample::FIRSTN)
-    {
-      // Create the expression Counter++, 1;
-      //
-      ItemExpr *conditionTrue = new(wHeap) ItmBlockFunction
-	(incrementExpr,
-	 new(wHeap) ConstValue(1));
+  if (sampleType() == RelSample::FIRSTN) {
+    // Create the expression Counter++, 1;
+    //
+    ItemExpr *conditionTrue = new (wHeap) ItmBlockFunction(incrementExpr, new (wHeap) ConstValue(1));
 
+    // Construct the expression used when we are done with this
+    // FIRSTN counter.
+    //
+    // Returning 0, causes sample to continue to process rows
+    // Returning -1 causes sample to cancel the request.
+    //
+    // We would like to cancel the request when we have satisfied
+    // the FIRSTN.  However, If there are nested FIRSTN counters, we
+    // must wait for all counters to complete before returning -1.
+    // For now just punt and return 0 in the case of nested FIRSTN.
+    // This will cause the scan and sample to continue processing
+    // rows, even after the sample is complete. At some point we
+    // should extend this expression to account for this case.
+    // Maybe have the doneValue be something like:
+    //
+    // (case when (counter1 >= sampleSize1 and counter2 >= sampleSize2 and ...)
+    //       then -1
+    //       else 0
+    //  end)
+    //
+    // The problem is that we do not have a handle on all the
+    // counters and sizes at this point.
+    //
+    ItemExpr *doneValue;
+    if (getNextBalance() || generator->inNestedFIRSTNExpr()) {
+      // set flag in generator to indicate to Balance expressions
+      // below that we are in a nested balance expression.  Need
+      // this flag since the leaf balance expression will not have a
+      // nextBalance expression and will not know that it is nested.
+      //
+      generator->setInNestedFIRSTNExpr(TRUE);
 
-      // Construct the expression used when we are done with this
-      // FIRSTN counter.
+      // Punt and just allow the scan/sample to continue in the case
+      // of nested FISRTN sampling.
       //
-      // Returning 0, causes sample to continue to process rows 
-      // Returning -1 causes sample to cancel the request.
+      doneValue = new (wHeap) ConstValue(0);
+    } else {
+      // Cause the Sample to cancel the request and stop processing
+      // rows.
       //
-      // We would like to cancel the request when we have satisfied
-      // the FIRSTN.  However, If there are nested FIRSTN counters, we
-      // must wait for all counters to complete before returning -1.
-      // For now just punt and return 0 in the case of nested FIRSTN.
-      // This will cause the scan and sample to continue processing
-      // rows, even after the sample is complete. At some point we
-      // should extend this expression to account for this case.
-      // Maybe have the doneValue be something like:
-      //
-      // (case when (counter1 >= sampleSize1 and counter2 >= sampleSize2 and ...)
-      //       then -1
-      //       else 0
-      //  end)
-      //
-      // The problem is that we do not have a handle on all the
-      // counters and sizes at this point.
-      //
-      ItemExpr *doneValue;
-      if (getNextBalance() || generator->inNestedFIRSTNExpr()) {
-
-        // set flag in generator to indicate to Balance expressions
-        // below that we are in a nested balance expression.  Need
-        // this flag since the leaf balance expression will not have a
-        // nextBalance expression and will not know that it is nested.
-        //
-        generator->setInNestedFIRSTNExpr(TRUE);
-
-        // Punt and just allow the scan/sample to continue in the case
-        // of nested FISRTN sampling.
-        //
-        doneValue = new(wHeap) ConstValue(0);
-      } else {
-        
-        // Cause the Sample to cancel the request and stop processing
-        // rows.
-        //
-        doneValue = new(wHeap) ConstValue(-1);
-      }
-
-      // Create the remainder of the expression.
-      //
-      sampleCondition = expGen->createExprTree
-	("CASE WHEN @A1 < @A2 THEN @A3 ELSE @A4 END",
-	 0, 4,
-	 counterExpr,              // row counter
-	 getSampleSize(),          // sample size
-	 conditionTrue,            // expression if row qualifies
-         doneValue                 // expression if we are done with
-                                   // this FIRSTN
-	 );
+      doneValue = new (wHeap) ConstValue(-1);
     }
+
+    // Create the remainder of the expression.
+    //
+    sampleCondition = expGen->createExprTree("CASE WHEN @A1 < @A2 THEN @A3 ELSE @A4 END", 0, 4,
+                                             counterExpr,      // row counter
+                                             getSampleSize(),  // sample size
+                                             conditionTrue,    // expression if row qualifies
+                                             doneValue         // expression if we are done with
+                                                               // this FIRSTN
+    );
+  }
   // Periodic sampling.
   //
-  // Initialization: 
+  // Initialization:
   //  Counter = 0;
-  // Per Row: 
+  // Per Row:
   //  Counter++, if Counter <= 0 then 0; else if(Counter <= sampleSize) 1;
   //             else Counter = - samplePeriod, 0;
-  else if(sampleType() == RelSample::PERIODIC)
-    {
-      // Compute - samplePeriod.
-      //
-      ItemExpr *sampleSkip = new(wHeap) BiArith(ITM_MINUS,
-						getSampleSize(),
-						getSkipSize());
+  else if (sampleType() == RelSample::PERIODIC) {
+    // Compute - samplePeriod.
+    //
+    ItemExpr *sampleSkip = new (wHeap) BiArith(ITM_MINUS, getSampleSize(), getSkipSize());
 
-      // Create the expression Counter = sampleSkip, 1;
-      //
-      ItemExpr *resetExpr = new(wHeap) ItmBlockFunction
-	(new(wHeap) Assign(counterExpr, sampleSkip),
-	 new(wHeap) ConstValue(1));
+    // Create the expression Counter = sampleSkip, 1;
+    //
+    ItemExpr *resetExpr =
+        new (wHeap) ItmBlockFunction(new (wHeap) Assign(counterExpr, sampleSkip), new (wHeap) ConstValue(1));
 
-      // Create the remainder of the expression.
-      //
-      ItemExpr *caseExpr = expGen->createExprTree
-	("CASE WHEN @A1 <= 0 THEN 0 "
-	 "     WHEN @A1 < @A2 THEN 1 "
-	 "     WHEN @A2 > 0 THEN @A3 " 
-	 "     ELSE 0 END",
-	 0, 4,
-	 counterExpr,    // row counter
-	 getSampleSize(),// sample size
-	 resetExpr       // reset expression and return 1
-	 );  
+    // Create the remainder of the expression.
+    //
+    ItemExpr *caseExpr = expGen->createExprTree(
+        "CASE WHEN @A1 <= 0 THEN 0 "
+        "     WHEN @A1 < @A2 THEN 1 "
+        "     WHEN @A2 > 0 THEN @A3 "
+        "     ELSE 0 END",
+        0, 4,
+        counterExpr,      // row counter
+        getSampleSize(),  // sample size
+        resetExpr         // reset expression and return 1
+    );
 
-      // Always increment the counter, then apply the case expression
-      // and returns it's result.
-      //
-      sampleCondition = new(wHeap) ItmBlockFunction
-	(incrementExpr, caseExpr);
-    }
-  else if(sampleType() == RelSample::RANDOM)
-    {
-      CMPASSERT(!isAbsolute());
-      NABoolean negate = FALSE;
-      ConstValue *sizeExpr = (child(1)
-                          ? child(1)->castToConstValue(negate)
-                          : NULL);
-      CMPASSERT(negate == FALSE);
+    // Always increment the counter, then apply the case expression
+    // and returns it's result.
+    //
+    sampleCondition = new (wHeap) ItmBlockFunction(incrementExpr, caseExpr);
+  } else if (sampleType() == RelSample::RANDOM) {
+    CMPASSERT(!isAbsolute());
+    NABoolean negate = FALSE;
+    ConstValue *sizeExpr = (child(1) ? child(1)->castToConstValue(negate) : NULL);
+    CMPASSERT(negate == FALSE);
 
-      double size = getSampleConstValue();
-      size = size / 100; // Size specified as percent
+    double size = getSampleConstValue();
+    size = size / 100;  // Size specified as percent
 
-      sampleCondition = new (wHeap) RandomSelection((float)size);
-    }
-  else if(sampleType() == RelSample::CLUSTER)
-    {
-      *CmpCommon::diags() << DgSqlCode(-7003);
-      GenExit();
-      return NULL;
-    }
-  else
+    sampleCondition = new (wHeap) RandomSelection((float)size);
+  } else if (sampleType() == RelSample::CLUSTER) {
+    *CmpCommon::diags() << DgSqlCode(-7003);
+    GenExit();
+    return NULL;
+  } else
     GenAssert(0, "ItmBalance::codeGen: Unknown sampling method!");
 
   // At this point the expression for the sample condition for this
@@ -216,12 +190,11 @@ ItemExpr *ItmBalance::preCodeGen(Generator *generator)
   //
   ItemExpr *nextBranch = getNextBalance();
   ItemExpr *predicate = getPredicate();
-  if(predicate->getOperatorType() == ITM_RETURN_TRUE) predicate = NULL;
+  if (predicate->getOperatorType() == ITM_RETURN_TRUE) predicate = NULL;
 
   // There cannot be a child branch without a predicate.
   //
-  GenAssert(predicate || !nextBranch,
-	    "Sampling: Balance: Predicate and nextBranch mismatch!");
+  GenAssert(predicate || !nextBranch, "Sampling: Balance: Predicate and nextBranch mismatch!");
 
   // If there is no predicate the result expression is simply the
   // sampling condition. Otherwise, the result is the sampling condition
@@ -229,12 +202,9 @@ ItemExpr *ItmBalance::preCodeGen(Generator *generator)
   // the predicate is false.
   //
   ItemExpr *balanceExpr = sampleCondition;
-  if(predicate)
-    {
-      balanceExpr = new(wHeap)
-	Case(NULL,
-	     new(wHeap) IfThenElse(predicate, sampleCondition, nextBranch));
-    }
+  if (predicate) {
+    balanceExpr = new (wHeap) Case(NULL, new (wHeap) IfThenElse(predicate, sampleCondition, nextBranch));
+  }
   GenAssert(balanceExpr, "balanceExpr failed compilation!");
 
   // Synthesize the types and value Ids for the new items.
@@ -260,8 +230,7 @@ ItemExpr *ItmBalance::preCodeGen(Generator *generator)
 //
 // ItmBalance should have been transformed away in preCodeGen -- see above.
 //
-short ItmBalance::codeGen(Generator * /*generator*/)
-{
+short ItmBalance::codeGen(Generator * /*generator*/) {
   GenAssert(0, "ItmBalance::codeGen -- Should never get here!");
   return 0;
 }
@@ -273,52 +242,30 @@ short ItmBalance::codeGen(Generator * /*generator*/)
 // been modified to map the result of this operation to be the same as
 // the result of child(0).
 //
-short NotCovered::codeGen(Generator *generator)
-{
+short NotCovered::codeGen(Generator *generator) {
+  Attributes **attr;
 
+  if (generator->getExpGenerator()->genItemExpr(this, &attr, 1 + getArity(), -1) == 1) return 0;
 
-  Attributes** attr;
-
-  if(generator->getExpGenerator()->genItemExpr(this, 
-                                               &attr,
-                                               1 + getArity(),
-                                               -1) == 1)
-    return 0;
-  
-  ex_conv_clause * conv_clause =
-    new(generator->getSpace()) ex_conv_clause(ITM_CAST,
-                                              attr,
-                                              generator->getSpace());
-  generator->getExpGenerator()->linkClause(this, conv_clause); 
+  ex_conv_clause *conv_clause = new (generator->getSpace()) ex_conv_clause(ITM_CAST, attr, generator->getSpace());
+  generator->getExpGenerator()->linkClause(this, conv_clause);
 
   return 0;
 }
 
-
 ////////////////////////////////////////////////////////////////////////////
 // class RandomSelection
 ////////////////////////////////////////////////////////////////////////////
-short RandomSelection::codeGen(Generator *generator)
-{
+short RandomSelection::codeGen(Generator *generator) {
   Attributes **attr;
   Space *space = generator->getSpace();
-  
-  if (generator->getExpGenerator()->genItemExpr(this, 
-                                                &attr, 
-                                                (1 + getArity()), 
-                                                -1
-                                                ) == 1)
-    return 0;
-  
-  ex_clause *function_clause = new (space) 
-                 ExFunctionRandomSelection(ITM_RAND_SELECTION,
-                                           attr, 
-                                           space,
-                                           getSelProbability()
-                                          );
 
-  if (function_clause)
-    generator->getExpGenerator()->linkClause(this, function_clause);
-  
+  if (generator->getExpGenerator()->genItemExpr(this, &attr, (1 + getArity()), -1) == 1) return 0;
+
+  ex_clause *function_clause =
+      new (space) ExFunctionRandomSelection(ITM_RAND_SELECTION, attr, space, getSelProbability());
+
+  if (function_clause) generator->getExpGenerator()->linkClause(this, function_clause);
+
   return 0;
 }

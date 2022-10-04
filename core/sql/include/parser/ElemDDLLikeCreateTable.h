@@ -38,7 +38,6 @@
  *****************************************************************************
  */
 
-
 #include "ElemDDLLike.h"
 #include "ParDDLLikeOptsCreateTable.h"
 
@@ -55,57 +54,42 @@ class ElemDDLLikeCreateTable;
 // -----------------------------------------------------------------------
 // Definition of class ElemDDLLikeCreateTable
 // -----------------------------------------------------------------------
-class ElemDDLLikeCreateTable : public ElemDDLLike
-{
-
-public:
-
+class ElemDDLLikeCreateTable : public ElemDDLLike {
+ public:
   // constructor
-  ElemDDLLikeCreateTable(const CorrName & sourceTableName
-                         = CorrName("", PARSERHEAP()),
-                         ElemDDLNode * pLikeOptions = NULL,
-                         NABoolean forExtTable = FALSE,
-                         CollHeap * h=0);
+  ElemDDLLikeCreateTable(const CorrName &sourceTableName = CorrName("", PARSERHEAP()), ElemDDLNode *pLikeOptions = NULL,
+                         NABoolean forExtTable = FALSE, CollHeap *h = 0);
 
   // copy ctor
-  ElemDDLLikeCreateTable (const ElemDDLLikeCreateTable & orig,
-                          CollHeap * h=0) ; // not written
+  ElemDDLLikeCreateTable(const ElemDDLLikeCreateTable &orig,
+                         CollHeap *h = 0);  // not written
 
   // virtual destructor
   virtual ~ElemDDLLikeCreateTable();
 
   // cast
-  virtual ElemDDLLikeCreateTable * castToElemDDLLikeCreateTable();
+  virtual ElemDDLLikeCreateTable *castToElemDDLLikeCreateTable();
 
   // accessors
 
-  const ParDDLLikeOptsCreateTable &
-  getLikeOptions() const
-  {
-    return likeOptions_;
-  }
+  const ParDDLLikeOptsCreateTable &getLikeOptions() const { return likeOptions_; }
 
-  ParDDLLikeOptsCreateTable &
-  getLikeOptions()
-  {
-    return likeOptions_;
-  }
+  ParDDLLikeOptsCreateTable &getLikeOptions() { return likeOptions_; }
 
   // method for tracing
   virtual const NAString getText() const;
 
-  inline const QualifiedName & getDDLLikeCreateTableNameAsQualifiedName() const;
-  inline       QualifiedName & getDDLLikeCreateTableNameAsQualifiedName();
-  
+  inline const QualifiedName &getDDLLikeCreateTableNameAsQualifiedName() const;
+  inline QualifiedName &getDDLLikeCreateTableNameAsQualifiedName();
+
   const NABoolean forExtTable() const { return forExtTable_; }
 
-private:
-
+ private:
   ParDDLLikeOptsCreateTable likeOptions_;
 
   // if true, this was created to handle the 'for' clause of an external table
   NABoolean forExtTable_;
 
-}; // class ElemDDLLikeCreateTable
+};  // class ElemDDLLikeCreateTable
 
 #endif /* ELEMDDLLIKECREATETABLE_H */

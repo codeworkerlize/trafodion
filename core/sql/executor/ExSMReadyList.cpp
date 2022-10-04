@@ -31,30 +31,20 @@
 // a lock on the SM task list (a global collection of all SM tasks in
 // this process).
 
-ExSMReadyList::ExSMReadyList()
-  : head_(NULL)
-{
-}
+ExSMReadyList::ExSMReadyList() : head_(NULL) {}
 
-ExSMReadyList::~ExSMReadyList()
-{
-}
+ExSMReadyList::~ExSMReadyList() {}
 
-
-void ExSMReadyList::add(ExSMTask *t)
-{
+void ExSMReadyList::add(ExSMTask *t) {
   EXSM_TRACE(EXSM_TRACE_THR_ALL, "READY LIST ADD %p", t);
 
-  if (!head_)
-  {
+  if (!head_) {
     // The list is currently empty. Set the head, next, and prev
     // pointers to all point to the new task.
     t->readyListNext_ = t;
     t->readyListPrev_ = t;
     head_ = t;
-  }
-  else
-  {
+  } else {
     // Add the new task to the end of the list
     // * t->next will point to the current head
     // * t->prev will point to the current tail
@@ -69,8 +59,7 @@ void ExSMReadyList::add(ExSMTask *t)
   }
 }
 
-void ExSMReadyList::remove(ExSMTask *t)
-{
+void ExSMReadyList::remove(ExSMTask *t) {
   EXSM_TRACE(EXSM_TRACE_THR_ALL, "READY LIST REMOVE %p", t);
 
   // Get pointers to the next and prev neighbors
@@ -84,26 +73,19 @@ void ExSMReadyList::remove(ExSMTask *t)
   t->readyListNext_ = NULL;
   t->readyListPrev_ = NULL;
 
-  if (next == t)
-  {
+  if (next == t) {
     // If the task was its own neighbor, that means it was the only
     // element in the list. The list now becomes empty.
     head_ = NULL;
-  }
-  else
-  {
+  } else {
     // Update pointers in the neighbors
     next->readyListPrev_ = prev;
     prev->readyListNext_ = next;
 
     // If the task was the first element, head_ will now point to the
     // next neighbor
-    if (head_ == t)
-      head_ = next;
+    if (head_ == t) head_ = next;
   }
 }
 
-ExSMTask *ExSMReadyList::getFirst()
-{
-  return head_;
-}
+ExSMTask *ExSMReadyList::getFirst() { return head_; }

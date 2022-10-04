@@ -35,7 +35,6 @@
  *****************************************************************************
  */
 
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
@@ -53,80 +52,71 @@
 
 extern ComDiagsArea sqlci_DA;
 
-short Obey::process(SqlciEnv * sqlci_env)
-{
+short Obey::process(SqlciEnv *sqlci_env) {
   short retcode = 0;
 
-  enum ObeyState 
-   {
-     SKIP_STMT, PROCESS_STMT, DONE
-   };
+  enum ObeyState { SKIP_STMT, PROCESS_STMT, DONE };
 
-  if (sqlci_env->isOleServer())
-  {
-	SqlciError (SQLCI_CMD_NOT_SUPPORTED, (ErrorParam *) 0 );
-	return 0;
+  if (sqlci_env->isOleServer()) {
+    SqlciError(SQLCI_CMD_NOT_SUPPORTED, (ErrorParam *)0);
+    return 0;
   }
 
   char *name = get_argument();
 
   errno = 0;
-  FILE * file_stream = fopen(name, "r");
-  if (!file_stream)
-    {
-      #ifndef NA_CASE_INSENSITIVE_FILENAMES
-	static Int32 desensitize = -1;
-	if (desensitize < 0) {
-	  const char *env = getenv("SQL_MXCI_CASE_INSENSITIVE_OBEY");
-	  if (!env || !*env || *env == '0')
-	    desensitize = 0;
-	  else if (*env == '1'   || isupper(*env))
-	    desensitize = 'U';
-	  else if (isdigit(*env) || islower(*env))
-	    desensitize = 'L';
-	  else
-	    desensitize = 'U';
-	}
-	if (desensitize)
-	  {
-	    NABoolean U = (desensitize == 'U');
-	    for (Int32 i = 0; i < 2 && !file_stream; i++, U = !U)
-	      {
-		if (U)
-		  {for (char *n=name; *n; n++) *n = toupper(*n);}
-		else
-		  {for (char *n=name; *n; n++) *n = tolower(*n);}
-		file_stream = fopen(name, "r");
-	      }
-
-	    if (!file_stream)
-	      {
-		// We've tried the original name aBc,
-		// and ABC and abc, so as a last-ditch effort we try Abc.
-		{for (char *n=name; *n; n++) *n = tolower(*n);}
-		*name = toupper(*name);
-		file_stream = fopen(name, "r");
-
-		// If all failed, ensure name all upper for prettier error msg
-		if (!file_stream)
-		  {for (char *n=name; *n; n++) *n = toupper(*n);}
-	      }
-	  }
-	if (!file_stream)
-      #endif
-	  {
-	    ErrorParam *p1 = new ErrorParam (errno);
-	    ErrorParam *p2 = new ErrorParam (name);
-	    SqlciError (SQLCI_OBEY_FOPEN_ERROR,
-			p1,
-			p2,
-			(ErrorParam *) 0
-			);
-	    delete p1;
-	    delete p2;	    
-	    return 0;
-	  }
+  FILE *file_stream = fopen(name, "r");
+  if (!file_stream) {
+#ifndef NA_CASE_INSENSITIVE_FILENAMES
+    static Int32 desensitize = -1;
+    if (desensitize < 0) {
+      const char *env = getenv("SQL_MXCI_CASE_INSENSITIVE_OBEY");
+      if (!env || !*env || *env == '0')
+        desensitize = 0;
+      else if (*env == '1' || isupper(*env))
+        desensitize = 'U';
+      else if (isdigit(*env) || islower(*env))
+        desensitize = 'L';
+      else
+        desensitize = 'U';
     }
+    if (desensitize) {
+      NABoolean U = (desensitize == 'U');
+      for (Int32 i = 0; i < 2 && !file_stream; i++, U = !U) {
+        if (U) {
+          for (char *n = name; *n; n++) *n = toupper(*n);
+        } else {
+          for (char *n = name; *n; n++) *n = tolower(*n);
+        }
+        file_stream = fopen(name, "r");
+      }
+
+      if (!file_stream) {
+        // We've tried the original name aBc,
+        // and ABC and abc, so as a last-ditch effort we try Abc.
+        {
+          for (char *n = name; *n; n++) *n = tolower(*n);
+        }
+        *name = toupper(*name);
+        file_stream = fopen(name, "r");
+
+        // If all failed, ensure name all upper for prettier error msg
+        if (!file_stream) {
+          for (char *n = name; *n; n++) *n = toupper(*n);
+        }
+      }
+    }
+    if (!file_stream)
+#endif
+    {
+      ErrorParam *p1 = new ErrorParam(errno);
+      ErrorParam *p2 = new ErrorParam(name);
+      SqlciError(SQLCI_OBEY_FOPEN_ERROR, p1, p2, (ErrorParam *)0);
+      delete p1;
+      delete p2;
+      return 0;
+    }
+  }
 
   short prevEnvObey = sqlci_env->inObeyFile();
   sqlci_env->setObey(-1);
@@ -138,13 +128,10 @@ short Obey::process(SqlciEnv * sqlci_env)
   Int64 costTh = -1;
   pid_t pid = getpid();
 
-  if (costTh == -2)
-  {  
+  if (costTh == -2) {
     char *costThreshold = getenv("RECORD_TIME_COST_SQL");
-    if (costThreshold != NULL)
-      costTh = atoi(costThreshold);
-    if (costTh == -2)
-      costTh = -1;
+    if (costThreshold != NULL) costTh = atoi(costThreshold);
+    if (costTh == -2) costTh = -1;
   }
 
   if (!section_name)
@@ -154,197 +141,151 @@ short Obey::process(SqlciEnv * sqlci_env)
 
   Int32 section_was_seen = (state == PROCESS_STMT);
 
-  InputStmt * input_stmt;
-  SqlciNode * sqlci_node = 0;
+  InputStmt *input_stmt;
+  SqlciNode *sqlci_node = 0;
 
-  while (!done)
-    {
-      input_stmt = new InputStmt(sqlci_env);
-      Int32 read_error = 0;
-	  if(veryFirst == 1)
-	  {
-	    veryFirst = 0;
-		input_stmt->setVeryFirstLine();
-      }
-      if (state != DONE)
-	{
-	  // If section wasn't seen yet, then suppress echoing of blank lines
-	  // in the preceding sections of the obey file as we read thru it.
-	  read_error = input_stmt->readStmt(file_stream, !section_was_seen);
+  while (!done) {
+    input_stmt = new InputStmt(sqlci_env);
+    Int32 read_error = 0;
+    if (veryFirst == 1) {
+      veryFirst = 0;
+      input_stmt->setVeryFirstLine();
+    }
+    if (state != DONE) {
+      // If section wasn't seen yet, then suppress echoing of blank lines
+      // in the preceding sections of the obey file as we read thru it.
+      read_error = input_stmt->readStmt(file_stream, !section_was_seen);
 
-	  if (feof(file_stream) || read_error == -99)
-	  {
-	    if (!section_was_seen && read_error != -99)
-	      {
-		// Clear the DiagnosticsArea of any preceding sections'
-		// syntax errors.
-		sqlci_DA.clear();
-		SqlciError (SQLCI_SECTION_NOT_FOUND,
-			    new ErrorParam (section_name),
-			    new ErrorParam (name),
-			    (ErrorParam *) 0
-			   );
-	      }
-	    else if (!input_stmt->isEmpty() && read_error != -4)
-	      {
-		// Unterminated statement in obey file.
-		// Make the parser emit an error message.
-		input_stmt->display((UInt16)0); //64bit project: add dummy arg - prevent C++ error
-		input_stmt->logStmt();
-		input_stmt->syntaxErrorOnEof();
-	      }
-	      state = DONE;
-	      
-		}
-		
-	  // if there is an eof directly after a statement
-	  // that is terminated with a semi-colon, process the
-	  // statement
-	  if (read_error == -4)   state = PROCESS_STMT;
-	}
-
-
-    switch (state)
-	{
-	case SKIP_STMT:
-	  {
-	    if (input_stmt->sectionMatches(section_name))
-	      {
-		input_stmt->display((UInt16)0); //64bit project: add dummy arg - prevent C++ error
-		state = PROCESS_STMT;
-		section_was_seen = (state == PROCESS_STMT);
-		// Clear the DiagnosticsArea for the section we're to process
-		// (clear it of any preceding sections' syntax errors).
-		sqlci_DA.clear();
-	      }
-	  }
-	  break;
-
-	case PROCESS_STMT:
-	  {
-	    short section_match = input_stmt->sectionMatches();
-
-	    if (!section_name && section_match)
-	      {
-		input_stmt->display((UInt16)0); //64bit project: add dummy arg - prevent C++ error
-
-		if (sqlci_env->logCommands())
-		  sqlci_env->get_logfile()->setNoLog(FALSE);
-		input_stmt->logStmt();
-		if (sqlci_env->logCommands())
-		  sqlci_env->get_logfile()->setNoLog(TRUE);
-		break;
-	      }
-
-	    if ((!section_name) || (!section_match))
-	      {
-		input_stmt->display((UInt16)0); //64bit project: add dummy arg - prevent C++ error
-
-		if (sqlci_env->logCommands())
-		  sqlci_env->get_logfile()->setNoLog(FALSE);
-		input_stmt->logStmt();
-		if (sqlci_env->logCommands())
-		  sqlci_env->get_logfile()->setNoLog(TRUE);
-
-		Int32 ignore_stmt = input_stmt->isIgnoreStmt();
-		if (ignore_stmt)
-		  ignore_toggle = ~ignore_toggle;
-
-		if (ignore_stmt || ignore_toggle || input_stmt->ignoreJustThis())
-		  {
-		    // ignore until stmt following the untoggling ?ignore
-		    sqlci_DA.clear();
-		  }
-		else
-		  {
-		    if (!read_error || read_error == -4)
-                      {
-                        Int64 time1 = 0L, time2 = 0L;
-                        struct timeval curtime;
-                        if (costTh >= 0)
-                          {
-                            gettimeofday(&curtime, NULL);
-                            time1 = (curtime.tv_sec*1000 + curtime.tv_usec/1000);
-                          }
-
-                        retcode = sqlci_parser(input_stmt->getPackedString(),
-                                               input_stmt->getPackedString(),
-                                               &sqlci_node,sqlci_env);
-                        if (sqlci_node)
-                          {
-                            retcode = sqlci_node->process(sqlci_env);
-                            if (retcode == SQL_Canceled)
-                              {
-			      	state = DONE;
-			        retcode = 0;
-			      }
-			    delete sqlci_node;
-                          }
-                        if (costTh >= 0)
-                          {
-                            gettimeofday(&curtime, NULL);
-                            time2 = (curtime.tv_sec*1000 + curtime.tv_usec/1000);
-                            if (time2 - time1 >= costTh)
-                              QRWARN("SQLCI PROCESS_STMT PID %d txID %ld TTC %ld ",
-                                      pid, (GetCliGlobals() ? GetCliGlobals()->getTransactionId() : -1), time2 - time1);
-                          }
-                        if (retcode > 0)
-                          {
-                            sqlci_env->setPrevErrFlushInput();
-                            retcode = 0;
-                          }
-                      }
-                  }
-                
-                sqlci_env->displayDiagnostics() ;
-
-		    // Clear the DiagnosticsArea for the next command...
-		    sqlci_DA.clear();
-
-		    // if an EXIT statement was seen, then a -1 will be returned
-		    // from process. We are done in that case.
-		    if (retcode == -1)
-		    {
-		      state = DONE;
-		      fclose(file_stream);
-		      done = -1;
-
-		    }
-		      
-	      }
-	    else
-	      {
-		state = DONE;
-	      }
-	  }
-	  break;
-
-	case DONE:
-	  {
-	    fclose(file_stream);
-	    done = -1;
-  	  }
-	  break;
-
-	default:
-	  {
-	  }
-	  break;
-
-	} // switch on state
-
-      // Delete the stmt if it's not one of those we saved on the history list
-      if (!input_stmt->isInHistoryList())
-	delete input_stmt;
-
-      if (breakReceived)
-      {
+      if (feof(file_stream) || read_error == -99) {
+        if (!section_was_seen && read_error != -99) {
+          // Clear the DiagnosticsArea of any preceding sections'
+          // syntax errors.
+          sqlci_DA.clear();
+          SqlciError(SQLCI_SECTION_NOT_FOUND, new ErrorParam(section_name), new ErrorParam(name), (ErrorParam *)0);
+        } else if (!input_stmt->isEmpty() && read_error != -4) {
+          // Unterminated statement in obey file.
+          // Make the parser emit an error message.
+          input_stmt->display((UInt16)0);  // 64bit project: add dummy arg - prevent C++ error
+          input_stmt->logStmt();
+          input_stmt->syntaxErrorOnEof();
+        }
         state = DONE;
-        sqlci_env->resetPrevErrFlushInput();
-	retcode = 0;
       }
 
-    } // while not done
+      // if there is an eof directly after a statement
+      // that is terminated with a semi-colon, process the
+      // statement
+      if (read_error == -4) state = PROCESS_STMT;
+    }
+
+    switch (state) {
+      case SKIP_STMT: {
+        if (input_stmt->sectionMatches(section_name)) {
+          input_stmt->display((UInt16)0);  // 64bit project: add dummy arg - prevent C++ error
+          state = PROCESS_STMT;
+          section_was_seen = (state == PROCESS_STMT);
+          // Clear the DiagnosticsArea for the section we're to process
+          // (clear it of any preceding sections' syntax errors).
+          sqlci_DA.clear();
+        }
+      } break;
+
+      case PROCESS_STMT: {
+        short section_match = input_stmt->sectionMatches();
+
+        if (!section_name && section_match) {
+          input_stmt->display((UInt16)0);  // 64bit project: add dummy arg - prevent C++ error
+
+          if (sqlci_env->logCommands()) sqlci_env->get_logfile()->setNoLog(FALSE);
+          input_stmt->logStmt();
+          if (sqlci_env->logCommands()) sqlci_env->get_logfile()->setNoLog(TRUE);
+          break;
+        }
+
+        if ((!section_name) || (!section_match)) {
+          input_stmt->display((UInt16)0);  // 64bit project: add dummy arg - prevent C++ error
+
+          if (sqlci_env->logCommands()) sqlci_env->get_logfile()->setNoLog(FALSE);
+          input_stmt->logStmt();
+          if (sqlci_env->logCommands()) sqlci_env->get_logfile()->setNoLog(TRUE);
+
+          Int32 ignore_stmt = input_stmt->isIgnoreStmt();
+          if (ignore_stmt) ignore_toggle = ~ignore_toggle;
+
+          if (ignore_stmt || ignore_toggle || input_stmt->ignoreJustThis()) {
+            // ignore until stmt following the untoggling ?ignore
+            sqlci_DA.clear();
+          } else {
+            if (!read_error || read_error == -4) {
+              Int64 time1 = 0L, time2 = 0L;
+              struct timeval curtime;
+              if (costTh >= 0) {
+                gettimeofday(&curtime, NULL);
+                time1 = (curtime.tv_sec * 1000 + curtime.tv_usec / 1000);
+              }
+
+              retcode =
+                  sqlci_parser(input_stmt->getPackedString(), input_stmt->getPackedString(), &sqlci_node, sqlci_env);
+              if (sqlci_node) {
+                retcode = sqlci_node->process(sqlci_env);
+                if (retcode == SQL_Canceled) {
+                  state = DONE;
+                  retcode = 0;
+                }
+                delete sqlci_node;
+              }
+              if (costTh >= 0) {
+                gettimeofday(&curtime, NULL);
+                time2 = (curtime.tv_sec * 1000 + curtime.tv_usec / 1000);
+                if (time2 - time1 >= costTh)
+                  QRWARN("SQLCI PROCESS_STMT PID %d txID %ld TTC %ld ", pid,
+                         (GetCliGlobals() ? GetCliGlobals()->getTransactionId() : -1), time2 - time1);
+              }
+              if (retcode > 0) {
+                sqlci_env->setPrevErrFlushInput();
+                retcode = 0;
+              }
+            }
+          }
+
+          sqlci_env->displayDiagnostics();
+
+          // Clear the DiagnosticsArea for the next command...
+          sqlci_DA.clear();
+
+          // if an EXIT statement was seen, then a -1 will be returned
+          // from process. We are done in that case.
+          if (retcode == -1) {
+            state = DONE;
+            fclose(file_stream);
+            done = -1;
+          }
+
+        } else {
+          state = DONE;
+        }
+      } break;
+
+      case DONE: {
+        fclose(file_stream);
+        done = -1;
+      } break;
+
+      default: {
+      } break;
+
+    }  // switch on state
+
+    // Delete the stmt if it's not one of those we saved on the history list
+    if (!input_stmt->isInHistoryList()) delete input_stmt;
+
+    if (breakReceived) {
+      state = DONE;
+      sqlci_env->resetPrevErrFlushInput();
+      retcode = 0;
+    }
+
+  }  // while not done
 
   sqlci_env->setObey(prevEnvObey);
   return retcode;

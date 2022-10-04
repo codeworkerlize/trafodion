@@ -44,8 +44,7 @@
 char LmJavaHooks::textBuf_[LMJ_HOOK_TEXT_BUF_SIZE] = {'\0'};
 
 // Exclude the following methods for coverage as they are called when JVM aborts
-void JNICALL LmJavaHooks::abortHookJVM()
-{
+void JNICALL LmJavaHooks::abortHookJVM() {
   LM_DEBUG0("[HOOK] Invoking JVM abort hook");
   fprintf(stdout, "The JVM is about to abort\n");
   fflush(stderr);
@@ -56,30 +55,26 @@ void JNICALL LmJavaHooks::abortHookJVM()
   abort();
 }
 
-void JNICALL LmJavaHooks::exitHookJVM(jint code)
-{
-  LM_DEBUG1("[HOOK] Invoking JVM exit hook. Exit code is %d", (Int32) code);
-  fprintf(stdout, "The JVM is about to exit with code %d\n", (Int32) code);
+void JNICALL LmJavaHooks::exitHookJVM(jint code) {
+  LM_DEBUG1("[HOOK] Invoking JVM exit hook. Exit code is %d", (Int32)code);
+  fprintf(stdout, "The JVM is about to exit with code %d\n", (Int32)code);
   fflush(stderr);
 
   char buf[200];
-  sprintf(buf, "The Java virtual machine exited with code %d", (Int32) code);
+  sprintf(buf, "The Java virtual machine exited with code %d", (Int32)code);
   lmMakeTFDSCall(buf, "", 0);
   // should not reach here
 
   exit(code);
 }
 
-jint JNICALL LmJavaHooks::vfprintfHookJVM(FILE *stream, const char *fmt,
-                                          va_list printArgs)
-{
-  if (!fmt || !stream)
-  {
+jint JNICALL LmJavaHooks::vfprintfHookJVM(FILE *stream, const char *fmt, va_list printArgs) {
+  if (!fmt || !stream) {
     return 0;
   }
 
   LM_DEBUG0("[BEGIN vfprintf hook]");
-  
+
   char tmpBuf[LMJ_HOOK_TEXT_BUF_SIZE] = "";
 
   // 1. First make a temporary copy of the output message
@@ -111,15 +106,11 @@ jint JNICALL LmJavaHooks::vfprintfHookJVM(FILE *stream, const char *fmt,
   // Write as much as possible into our textBuf_ area
   Int32 currentLength = str_len(textBuf_);
   Int32 tmpLen = str_len(tmpBuf);
-  if ((currentLength + 1) < LMJ_HOOK_TEXT_BUF_SIZE)
-  {
-    Int32 bytesToCopy =
-      MINOF(tmpLen + 1, LMJ_HOOK_TEXT_BUF_SIZE - currentLength);
+  if ((currentLength + 1) < LMJ_HOOK_TEXT_BUF_SIZE) {
+    Int32 bytesToCopy = MINOF(tmpLen + 1, LMJ_HOOK_TEXT_BUF_SIZE - currentLength);
     str_cpy_all(&textBuf_[currentLength], tmpBuf, bytesToCopy);
     textBuf_[LMJ_HOOK_TEXT_BUF_SIZE - 1] = 0;
-  }
-  else
-  {
+  } else {
     LM_DEBUG0("*** WARNING: textBuf_ buffer is full");
   }
 
@@ -127,8 +118,4 @@ jint JNICALL LmJavaHooks::vfprintfHookJVM(FILE *stream, const char *fmt,
   return 0;
 }
 
-void LmJavaHooks::init_vfprintfHook()
-{
-  textBuf_[0] = '\0';
-}
-
+void LmJavaHooks::init_vfprintfHook() { textBuf_[0] = '\0'; }

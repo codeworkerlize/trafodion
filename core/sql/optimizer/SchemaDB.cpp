@@ -55,7 +55,7 @@
 #include "sqlcomp/CmpSeabaseDDL.h"
 #include "exp/ExpHbaseInterface.h"
 
-#include "parser/SqlParserGlobals.h"			// must be last #include
+#include "parser/SqlParserGlobals.h"  // must be last #include
 
 #include "optimizer/OptimizerSimulator.h"
 
@@ -65,10 +65,7 @@
 // global functions
 // -----------------------------------------------------------------------
 
-void InitSchemaDB()
-{
-  CmpCommon::context()->initSchemaDB();
-}
+void InitSchemaDB() { CmpCommon::context()->initSchemaDB(); }
 
 // ***********************************************************************
 // Implementation for functions
@@ -82,25 +79,20 @@ void InitSchemaDB()
 // members would be time bombs, since their internal heap pointers would be
 // invalid.
 SchemaDB::SchemaDB()
-  : tableDB_(
-          new CTXTHEAP NAHeap("NATable Heap", (NAHeap *)CTXTHEAP, 
-          16 * 1024,
-          0)),
-    routineDB_(CmpCommon::contextHeap()),
-    actionRoutineDB_(CmpCommon::contextHeap()),
-    valueDArray_(),
-    domainDList_(CmpCommon::contextHeap()),
-    defaults_(CmpCommon::contextHeap()),
-    defaultSchema_(CmpCommon::contextHeap()),
-	// triggers -- eliezer
-	// created only on demand
-    triggerDB_(NULL),
-    currentDiskPool_(-1),
-    hbaseBlockCacheFrac_(-1.0)
-{
+    : tableDB_(new CTXTHEAP NAHeap("NATable Heap", (NAHeap *)CTXTHEAP, 16 * 1024, 0)),
+      routineDB_(CmpCommon::contextHeap()),
+      actionRoutineDB_(CmpCommon::contextHeap()),
+      valueDArray_(),
+      domainDList_(CmpCommon::contextHeap()),
+      defaults_(CmpCommon::contextHeap()),
+      defaultSchema_(CmpCommon::contextHeap()),
+      // triggers -- eliezer
+      // created only on demand
+      triggerDB_(NULL),
+      currentDiskPool_(-1),
+      hbaseBlockCacheFrac_(-1.0) {
   // error during nadefault creation. Cannot proceed. Return.
-  if (! defaults_.getSqlParser_NADefaults_Ptr())
-    return;
+  if (!defaults_.getSqlParser_NADefaults_Ptr()) return;
 
   initPerStatement();
   routineDB_.setMetadata("NEO.UDF.ROUTINES");
@@ -109,8 +101,8 @@ SchemaDB::SchemaDB()
   // start instrument to fix Mantis 9407
   //
   // first 8 bytes is the pointer to the virtual table
-  void* ptr = (void*)this;
-  memcpy((char*)&stored_vptr_, (char*)ptr, sizeof(void*));
+  void *ptr = (void *)this;
+  memcpy((char *)&stored_vptr_, (char *)ptr, sizeof(void *));
 
   eyeCatcherTop_[0] = 'S';
   eyeCatcherTop_[1] = 'c';
@@ -124,12 +116,11 @@ SchemaDB::SchemaDB()
   // end instrument to fix Mantis 9407
 }
 
-void SchemaDB::initPerStatement(NABoolean lightweight)
-{
+void SchemaDB::initPerStatement(NABoolean lightweight) {
   if (!lightweight) {
-    //CMPASSERT(domainDList_.entries() == 0);
-    //CMPASSERT(valueDArray_.entries() == 1);
-    //CMPASSERT(tableDB_.entries() == 0);
+    // CMPASSERT(domainDList_.entries() == 0);
+    // CMPASSERT(valueDArray_.entries() == 1);
+    // CMPASSERT(tableDB_.entries() == 0);
 
     // WE CANNOT DO THIS HERE:
     //	TransMode::IsolationLevel il;
@@ -157,36 +148,27 @@ void SchemaDB::initPerStatement(NABoolean lightweight)
   Lng32 err1, err2;
   err1 = ToInternalIdentifier(cat);
   err2 = ToInternalIdentifier(sch);
-    if (err1 || err2)
-      cerr << err1 << ' ' << cat << '\t'
-	   << err2 << ' ' << sch << endl;
+  if (err1 || err2) cerr << err1 << ' ' << cat << '\t' << err2 << ' ' << sch << endl;
   defaultSchema_.setCatalogName(cat);
-  defaultSchema_.setSchemaName (sch);
-
+  defaultSchema_.setSchemaName(sch);
 }
 
 // By default, this returns the ANSI default schema.
-const SchemaName &SchemaDB::getDefaultSchema(UInt32 flags)
-{
-  if (flags & REFRESH_CACHE) 
-    initPerStatement();
+const SchemaName &SchemaDB::getDefaultSchema(UInt32 flags) {
+  if (flags & REFRESH_CACHE) initPerStatement();
 
   return defaultSchema_;
 }
 
-SchemaDB::~SchemaDB()
-{
-  cleanupPerStatement();
-}
+SchemaDB::~SchemaDB() { cleanupPerStatement(); }
 
-void SchemaDB::cleanupPerStatement()
-{
+void SchemaDB::cleanupPerStatement() {
   domainDList_.clear();
   valueDArray_.clear();
   // Create a NULL entry (valueId = 0). This
   // is done so that an uninitialized value id (= 0) could
   // be detected as an invalid entry.
-  valueDArray_.insertAt(0,NULL);
+  valueDArray_.insertAt(0, NULL);
 
   // NATables are now on the statement heap, so there've already been
   // destroyed at this point.
@@ -198,61 +180,53 @@ void SchemaDB::cleanupPerStatement()
   CURRCONTEXT_HISTCACHE->resetAfterStatement();
   CURRCONTEXT_HISTCACHE->traceTablesFinalize();
   CURRCONTEXT_HISTCACHE->monitor();
-  
+
   // applies when allocating the TriggerDB from the ContextHeap:
   if (Trigger::Heap() == CmpCommon::contextHeap()) {
-	NABoolean deallocationNeeded = triggerDB_->cleanupPerStatement();
-	if (deallocationNeeded) {
-		delete triggerDB_;
-		triggerDB_ = NULL;
-	}
-  }
-  else { // the TriggerDB_ memory was be deallocated with the StatementHeap
-	  triggerDB_= NULL;
+    NABoolean deallocationNeeded = triggerDB_->cleanupPerStatement();
+    if (deallocationNeeded) {
+      delete triggerDB_;
+      triggerDB_ = NULL;
+    }
+  } else {  // the TriggerDB_ memory was be deallocated with the StatementHeap
+    triggerDB_ = NULL;
   }
 
   // Reset static members (quasi-globals) of other classes
   ItemExpr::cleanupPerStatement();
-
 }
 
-void SchemaDB::dropStmtTables()
-{
+void SchemaDB::dropStmtTables() {
   // Now a noop:
-  //domainDList_.clear();
+  // domainDList_.clear();
 }
 
-void SchemaDB::createStmtTables()
-{
+void SchemaDB::createStmtTables() {
   // Now a noop:
-  //dropStmtTables();		// (used to have to) cleanup from last stmt
+  // dropStmtTables();		// (used to have to) cleanup from last stmt
 }
 
-NABoolean SchemaDB::endTransaction()
-{
-  return TRUE;
-}
+NABoolean SchemaDB::endTransaction() { return TRUE; }
 
-float SchemaDB::getHbaseBlockCacheFrac()
-{
-  if (hbaseBlockCacheFrac_ < 0) // access JNI layer first time to set value
+float SchemaDB::getHbaseBlockCacheFrac() {
+  if (hbaseBlockCacheFrac_ < 0)  // access JNI layer first time to set value
   {
     CmpSeabaseDDL cmpSBD(STMTHEAP);
-    ExpHbaseInterface* ehi = cmpSBD.allocEHI(COM_STORAGE_HBASE);
+    ExpHbaseInterface *ehi = cmpSBD.allocEHI(COM_STORAGE_HBASE);
     if (!ehi)
-      hbaseBlockCacheFrac_ = 0.4 ; // hbase default default
+      hbaseBlockCacheFrac_ = 0.4;  // hbase default default
     else {
-    float frac;
-    Lng32 retcode;
-    retcode = ehi->getBlockCacheFraction(frac);
-    if (retcode < 0)
-      hbaseBlockCacheFrac_ = 0.4 ; // hbase default default
-    else
-      hbaseBlockCacheFrac_ = frac;
-    cmpSBD.deallocEHI(ehi);
+      float frac;
+      Lng32 retcode;
+      retcode = ehi->getBlockCacheFraction(frac);
+      if (retcode < 0)
+        hbaseBlockCacheFrac_ = 0.4;  // hbase default default
+      else
+        hbaseBlockCacheFrac_ = frac;
+      cmpSBD.deallocEHI(ehi);
     }
   }
-  return hbaseBlockCacheFrac_ ;
+  return hbaseBlockCacheFrac_;
 }
 
 //****************************************************************************
@@ -261,59 +235,49 @@ float SchemaDB::getHbaseBlockCacheFrac()
 
 Lng32 CollationDB::nextUserCo_(CharInfo::FIRST_USER_DEFINED_COLLATION);
 
-CharInfo::Collation CollationDB::insert(QualifiedName &qn,
-					const SchemaName *defaultSchema,
-					CollationInfo::CollationFlags flags)
-{
+CharInfo::Collation CollationDB::insert(QualifiedName &qn, const SchemaName *defaultSchema,
+                                        CollationInfo::CollationFlags flags) {
   Int32 defaultMatchCount = 0;
-  if (defaultSchema)
-    defaultMatchCount = qn.applyDefaults(*defaultSchema);
+  if (defaultSchema) defaultMatchCount = qn.applyDefaults(*defaultSchema);
 
-  CMPASSERT(!qn.getCatalogName().isNull()); // fully qualified w/ all defaults
+  CMPASSERT(!qn.getCatalogName().isNull());  // fully qualified w/ all defaults
 
   size_t siz[CollationInfo::SIZEARRAY_SIZE];
   NAString nam(qn.getQualifiedNameAsAnsiString(siz));
-  CMPASSERT(siz[0] == 3);		    // fully qualified w/ all defaults
+  CMPASSERT(siz[0] == 3);  // fully qualified w/ all defaults
 
   return insert(nam, siz, flags, defaultMatchCount);
 }
 
-CharInfo::Collation CollationDB::insert(ComMPLoc &loc,
-					const ComMPLoc *defaultMPLoc,
-					CollationInfo::CollationFlags flags)
-{
+CharInfo::Collation CollationDB::insert(ComMPLoc &loc, const ComMPLoc *defaultMPLoc,
+                                        CollationInfo::CollationFlags flags) {
   Int32 defaultMatchCount = 0;
-  if (defaultMPLoc)
-    defaultMatchCount = loc.applyDefaults(*defaultMPLoc);
+  if (defaultMPLoc) defaultMatchCount = loc.applyDefaults(*defaultMPLoc);
 
   CMPASSERT(loc.isValid(ComMPLoc::FILE));
 
   size_t siz[CollationInfo::SIZEARRAY_SIZE];
   NAString nam(loc.getMPName(siz));
-  CMPASSERT(siz[0] == 3 || siz[0] == 4);    // was defaulted out to $vol or \sys
+  CMPASSERT(siz[0] == 3 || siz[0] == 4);  // was defaulted out to $vol or \sys
 
   return insert(nam, siz, flags, defaultMatchCount);
 }
 
-CharInfo::Collation CollationDB::insert(const char *nam,
-					size_t *siz,
-					CollationInfo::CollationFlags flags,
-					Int32 defaultMatchCount)
-{
+CharInfo::Collation CollationDB::insert(const char *nam, size_t *siz, CollationInfo::CollationFlags flags,
+                                        Int32 defaultMatchCount) {
   CMPASSERT(defaultMatchCount >= 0);
   size_t mat = (size_t)defaultMatchCount;
-  CMPASSERT(siz[0] > mat);		    // up to n-1 name parts can match
-  siz[0] = mat;				    // no longer cnt of total nameparts,
-  					    // now it is cnt of MATCHING parts
+  CMPASSERT(siz[0] > mat);  // up to n-1 name parts can match
+  siz[0] = mat;             // no longer cnt of total nameparts,
+                            // now it is cnt of MATCHING parts
 
   // Well before getting to overflow, wrap around to begin again
   // with automatically generated numbers for non-builtin collations.
-  if (nextUserCo_ > 2147000000)                       // well shy of INT_MAX
+  if (nextUserCo_ > 2147000000)  // well shy of INT_MAX
     nextUserCo_ = CharInfo::FIRST_USER_DEFINED_COLLATION;
   CharInfo::Collation co = (CharInfo::Collation)nextUserCo_++;
 
-  CollationInfo *collInfo = new (heap_)
-  		   CollationInfo(heap_, co, nam, flags, siz);
+  CollationInfo *collInfo = new (heap_) CollationInfo(heap_, co, nam, flags, siz);
 
   CollationDBSupertype::insert(collInfo);
   refreshNeeded() = FALSE;
@@ -324,38 +288,28 @@ CharInfo::Collation CollationDB::insert(const char *nam,
 //
 // -- SchemaDB::getTriggerDB
 //
-// The TriggerDB is constructed only if needed. 
+// The TriggerDB is constructed only if needed.
 //
-TriggerDB * SchemaDB::getTriggerDB() {
-	if (!triggerDB_)
-		triggerDB_ = new (Trigger::Heap()) TriggerDB(Trigger::Heap());
-	return triggerDB_;
+TriggerDB *SchemaDB::getTriggerDB() {
+  if (!triggerDB_) triggerDB_ = new (Trigger::Heap()) TriggerDB(Trigger::Heap());
+  return triggerDB_;
 }
 
 // start instrument to fix Mantis 9407
 //
-NABoolean SchemaDB::sanityCheck()
-{
-   // first 8 bytes is the pointer to the virtual table
-   void* ptr = (void*)this;
-   void* vptr = NULL;
-   memcpy((char*)&vptr, (char*)ptr, sizeof(void*));
+NABoolean SchemaDB::sanityCheck() {
+  // first 8 bytes is the pointer to the virtual table
+  void *ptr = (void *)this;
+  void *vptr = NULL;
+  memcpy((char *)&vptr, (char *)ptr, sizeof(void *));
 
-   if ( stored_vptr_ && stored_vptr_ != vptr )
-     return FALSE;
-  
-   return (
-        eyeCatcherTop_[0] == 'S' &&
-        eyeCatcherTop_[1] == 'c' &&
-        eyeCatcherTop_[2] == 'h' &&
-        eyeCatcherTop_[3] == 'e' &&
+  if (stored_vptr_ && stored_vptr_ != vptr) return FALSE;
 
-        eyeCatcherBottom_[0] == 'm' &&
-        eyeCatcherBottom_[1] == 'a' &&
-        eyeCatcherBottom_[2] == 'D' &&
-        eyeCatcherBottom_[3] == 'B' 
-      );
+  return (eyeCatcherTop_[0] == 'S' && eyeCatcherTop_[1] == 'c' && eyeCatcherTop_[2] == 'h' &&
+          eyeCatcherTop_[3] == 'e' &&
+
+          eyeCatcherBottom_[0] == 'm' && eyeCatcherBottom_[1] == 'a' && eyeCatcherBottom_[2] == 'D' &&
+          eyeCatcherBottom_[3] == 'B');
 }
 
 // end instrument to fix Mantis 9407
-

@@ -60,7 +60,6 @@
 #include "sqlcomp/PrivMgrComponentPrivileges.h"
 
 #include "parser/StmtDDLAlterTableHDFSCache.h"
-#include "parser/StmtDDLonHiveObjects.h"
 #include "parser/StmtDDLAlterSharedCache.h"
 #include "parser/StmtDDLAlterTableResetDDLLock.h"
 #include "parser/StmtDDLCreateTable.h"
@@ -3012,37 +3011,6 @@ short CmpSeabaseDDL::createSeabaseTable2(ExeCliInterface &cliInterface, StmtDDLC
         genHBaseObjName(catalogNamePart, schemaNamePart, objectNamePart, (NOT isMonarch ? tableNamespace : ""));
   }
 
-  NABoolean lobV2 = (CmpCommon::getDefault(TRAF_LOB_VERSION2) == DF_ON);
-  if (lobV2) {
-    NAString hbaseResLobColumnsStr = genHBaseObjName(getSystemCatalog(), NAString(SEABASE_MD_SCHEMA),
-                                                     NAString(SEABASE_LOB_COLUMNS), NAString(TRAF_RESERVED_NAMESPACE1));
-
-    HbaseStr hbaseLobColumns;
-    hbaseLobColumns.val = (char *)hbaseResLobColumnsStr.data();
-    hbaseLobColumns.len = hbaseResLobColumnsStr.length();
-
-    // if MD LOB_COLUMNS doesnt exist, return an error.
-    // But dont return error is LOB_COLUMNS is being created.
-    cliRC = ehi->exists(hbaseLobColumns);
-    if ((cliRC == 0) &&  // does not exist, cannot create lob version2
-        (NOT(extNameForHbase == hbaseResLobColumnsStr))) {
-      *CmpCommon::diags() << DgSqlCode(-3242)
-                          << DgString0(
-                                 "LOB V2 cannot be created due to missing metadata table LOB_COLUMNS. Do 'initialize "
-                                 "trafodion, create lob metadata' to create it before running the command.");
-
-      deallocEHI(ehi);
-      return -1;
-    }
-  }
-
-  Int32 numLOBdatafiles = -1;
-  if (lobV2) {
-    numLOBdatafiles = 0;
-    if (CmpCommon::getDefaultNumeric(TRAF_LOB_HBASE_DATA_MAXLEN_DDL) != -1)
-      numLOBdatafiles = CmpCommon::getDefaultNumeric(NUMBER_OF_LOBV2_DATAFILES);
-  }
-
   for (Int32 i = 0; i < colArray.entries(); i++) {
     ElemDDLColDef *column = colArray[i];
 
@@ -3055,7 +3023,6 @@ short CmpSeabaseDDL::createSeabaseTable2(ExeCliInterface &cliInterface, StmtDDLC
         deallocEHI(ehi);
         return -1;
       }
-      if (lobV2) CmpSeabaseDDL::setMDflags(tableInfo->tablesFlags, MD_TABLES_LOB_VERSION2);
 
       break;
     }
@@ -7594,24 +7561,6 @@ void CmpSeabaseDDL::alterSeabaseTableStoredDesc(StmtDDLAlterTableStoredDesc *alt
       }
     }
 
-    if ((naTable->hasLobColumn()) && (naTable->lobV2())) {
-      char lobChunksTableNameBuf[1024];
-      str_sprintf(lobChunksTableNameBuf, "%s%020ld", LOB_CHUNKS_V2_PREFIX, objUID);
-
-      Int64 lobUID = getObjectUID(&cliInterface, catalogNamePart.data(), schemaNamePart.data(), lobChunksTableNameBuf,
-                                  COM_BASE_TABLE_OBJECT_LIT);
-      if (lobUID >= 0) {
-        cliRC = updateObjectRedefTime(&cliInterface, catalogNamePart, schemaNamePart, lobChunksTableNameBuf,
-                                      COM_BASE_TABLE_OBJECT_LIT, -1, lobUID, TRUE, FALSE);
-
-        if (cliRC < 0) {
-          switchBackCompiler();
-          processReturn();
-          return;
-        }
-      }
-    }
-
     switchBackCompiler();
   } else if ((alterStoredDesc->getType() == StmtDDLAlterTableStoredDesc::GENERATE_STATS) ||
              (alterStoredDesc->getType() == StmtDDLAlterTableStoredDesc::GENERATE_STATS_FORCE) ||
@@ -7782,29 +7731,6 @@ void CmpSeabaseDDL::alterSeabaseTableStoredDesc(StmtDDLAlterTableStoredDesc *alt
             processReturn();
             return;
           }
-        }
-      }
-    }
-
-    if ((naTable->hasLobColumn()) && (naTable->lobV2())) {
-      Int64 lobUID = -1;
-      char lobChunksTableNameBuf[1024];
-      str_sprintf(lobChunksTableNameBuf, "%s%020ld", LOB_CHUNKS_V2_PREFIX, objUID);
-
-      lobUID = getObjectUID(&cliInterface, catalogNamePart.data(), schemaNamePart.data(), lobChunksTableNameBuf,
-                            COM_BASE_TABLE_OBJECT_LIT);
-      if (lobUID >= 0) {
-        cliRC = deleteFromTextTable(&cliInterface, lobUID, COM_STORED_DESC_TEXT, 0);
-        if (cliRC < 0) {
-          processReturn();
-          return;
-        }
-
-        Int64 flags = MD_OBJECTS_DISABLE_STORED_DESC;
-        cliRC = updateObjectFlags(&cliInterface, lobUID, flags, TRUE);
-        if (cliRC < 0) {
-          processReturn();
-          return;
         }
       }
     }
@@ -8422,7 +8348,6 @@ void CmpSeabaseDDL::alterSeabaseTableAttribute(StmtDDLAlterTableAttribute *alter
           (naTable->isVolatileTable() && (type = "VOLATILE TABLE")) ||
           (naTable->isTrafExternalTable() && (type = "EXTERNAL TABLE")) ||
           (naTable->isHbaseMapTable() && (type = "HBASE MAP TABLE")) ||
-          (naTable->hasLobColumn() && (type = "TABLE WITH LOB COLUMNS")) ||
           ((naTable->hasSaltedColumn() || naTable->hasTrafReplicaColumn()) && (type = "PARTITION TABLE"))) {
         *CmpCommon::diags() << DgSqlCode(-3242) << DgString0("Unsupported table types: " + type);
         processReturn();
@@ -11402,32 +11327,6 @@ short CmpSeabaseDDL::updateMDforDropCol(ExeCliInterface &cliInterface, const NAT
 
   }  // dropped col is composite
 
-  // if table has V2 lob columns, update them in LOB_COLUMNS table
-  if ((naTable->hasLobColumn()) && (naTable->lobV2())) {
-    // if the col to be dropped is a lob col, delete it
-    if (type->isLob()) {
-      str_sprintf(buf, "delete from %s.\"%s\".%s where table_uid = %ld and lobnum = %d", getSystemCatalog(),
-                  SEABASE_MD_SCHEMA, SEABASE_LOB_COLUMNS, objUID, dropColNum);
-
-      cliRC = cliInterface.executeImmediate(buf);
-      if (cliRC < 0) {
-        cliInterface.retrieveSQLDiagnostics(CmpCommon::diags());
-        return -1;
-      }
-    }
-
-    // adjust lobnum in LOB_COLUMNS table.
-    str_sprintf(buf, "update %s.\"%s\".%s set lobnum = lobnum - 1 where table_uid = %ld and lobnum >= %d",
-                getSystemCatalog(), SEABASE_MD_SCHEMA, SEABASE_LOB_COLUMNS, objUID, dropColNum);
-
-    cliRC = cliInterface.executeImmediate(buf);
-    if (cliRC < 0) {
-      cliInterface.retrieveSQLDiagnostics(CmpCommon::diags());
-      return -1;
-    }
-
-  }  // has lob columns
-
   return 0;
 }
 
@@ -11886,11 +11785,6 @@ void CmpSeabaseDDL::alterSeabaseTableDropColumn(StmtDDLAlterTableDropColumn *alt
 
   // If column is a V1 LOB column, return error
   Int32 datatype = nacol->getType()->getFSDatatype();
-  if (((datatype == REC_BLOB) || (datatype == REC_CLOB)) && (NOT naTable->lobV2())) {
-    *CmpCommon::diags() << DgSqlCode(-CAT_LOB_COLUMN_ALTER) << DgColumnName(colName);
-    processReturn();
-    return;
-  }
 
   const NAFileSet *naFS = naTable->getClusteringIndex();
   const NAColumnArray &naKeyColArr = naFS->getIndexKeyColumns();
@@ -14473,13 +14367,6 @@ void CmpSeabaseDDL::alterSeabaseTableAddPKeyConstraint(StmtDDLAddConstraint *alt
   isEmpty = (retcode == 1);
 
   NABoolean addPkeyAsUniqConstr = CmpCommon::getDefault(TRAF_ALTER_ADD_PKEY_AS_UNIQUE_CONSTRAINT) == DF_ON;
-
-  // currently if a table has lob cols, pkey is created as
-  // a unique constr irrespective of whether the table is empty or not.
-  // This is needed as there is some cache related issue that causes
-  // incorrect behavior if it is re-created as a true pkey.
-  // Once the underlying issue is fixed, we can revert this.
-  if (naTable->lobV2()) addPkeyAsUniqConstr = TRUE;
 
   // Table exists, update the epoch value to lock out other user access
   if (!Get_SqlParser_Flags(INTERNAL_QUERY_FROM_EXEUTIL)) {
@@ -17365,184 +17252,6 @@ short CmpSeabaseDDL::unregisterHiveSchema(const NAString &catalogNamePart, const
                                   COM_SHARED_SCHEMA_OBJECT);
 
   return retcode;
-}
-
-void CmpSeabaseDDL::regOrUnregNativeObject(StmtDDLRegOrUnregObject *regOrUnregObject, NAString &currCatName,
-                                           NAString &currSchName) {
-  Lng32 retcode = 0;
-
-  char errReason[400];
-  ExeCliInterface cliInterface(STMTHEAP, 0, NULL, CmpCommon::context()->sqlSession()->getParentQid());
-
-  NAString catalogNamePart = regOrUnregObject->getObjNameAsQualifiedName().getCatalogName();
-  NAString schemaNamePart = regOrUnregObject->getObjNameAsQualifiedName().getSchemaName();
-  NAString objectNamePart = regOrUnregObject->getObjNameAsQualifiedName().getObjectName();
-  ComObjectName tableName;
-  NAString tabName;
-  NAString extTableName;
-
-  NABoolean isHive = (catalogNamePart.index(HIVE_SYSTEM_CATALOG, 0, NAString::ignoreCase) == 0);
-
-  NABoolean isHBase = (catalogNamePart.index(HBASE_SYSTEM_CATALOG, 0, NAString::ignoreCase) == 0);
-
-  if (NOT(isHive || isHBase)) {
-    *CmpCommon::diags() << DgSqlCode(-3242)
-                        << DgString0("Register/Unregister statement must specify a hive or hbase object.");
-
-    processReturn();
-    return;
-  }
-
-  if (isHive) {
-    if (NOT(schemaNamePart == HIVE_SYSTEM_SCHEMA)) schemaNamePart.toUpper();
-    objectNamePart.toUpper();
-  }
-
-  // make sure that underlying hive/hbase object exists
-  BindWA bindWA(ActiveSchemaDB(), CmpCommon::context(), FALSE /*inDDL*/);
-  CorrName cn(objectNamePart, STMTHEAP,
-              ((isHBase && (schemaNamePart == HBASE_SYSTEM_SCHEMA)) ? HBASE_CELL_SCHEMA : schemaNamePart),
-              catalogNamePart);
-  if (isHive && regOrUnregObject->objType() == COM_SHARED_SCHEMA_OBJECT)
-    cn.setSpecialType(ExtendedQualName::SCHEMA_TABLE);
-
-  NATable *naTable = bindWA.getNATable(cn);
-  if (((naTable == NULL) || (bindWA.errStatus())) && ((regOrUnregObject->isRegister()) ||  // register
-                                                      (NOT regOrUnregObject->cleanup())))  // unreg and not cleanup
-  {
-    CmpCommon::diags()->clear();
-
-    *CmpCommon::diags() << DgSqlCode(-3251)
-                        << (regOrUnregObject->isRegister() ? DgString0("REGISTER") : DgString0("UNREGISTER"))
-                        << DgString1(NAString(" Reason: Specified object ") +
-                                     (regOrUnregObject->objType() == COM_SHARED_SCHEMA_OBJECT ? schemaNamePart
-                                                                                              : objectNamePart) +
-                                     NAString(" does not exist."));
-
-    processReturn();
-
-    return;
-  }
-
-  // ignore errors for 'unregister cleanup'
-  CmpCommon::diags()->clear();
-
-  if (naTable) {
-    if (regOrUnregObject->isRegister() && (naTable->isRegistered()))  // already registered
-    {
-      if (NOT regOrUnregObject->registeredOption()) {
-        str_sprintf(errReason, " Reason: %s has already been registered.",
-                    (regOrUnregObject->objType() == COM_SHARED_SCHEMA_OBJECT
-                         ? schemaNamePart.data()
-                         : regOrUnregObject->getObjNameAsQualifiedName().getQualifiedNameAsString().data()));
-        *CmpCommon::diags() << DgSqlCode(-3251) << DgString0("REGISTER") << DgString1(errReason);
-      }
-
-      processReturn();
-
-      return;
-    } else if ((NOT regOrUnregObject->isRegister()) &&  // unregister
-               (NOT naTable->isRegistered()))           // not registered
-    {
-      if (NOT regOrUnregObject->registeredOption()) {
-        str_sprintf(errReason, " Reason: %s has not been registered.",
-                    (regOrUnregObject->objType() == COM_SHARED_SCHEMA_OBJECT
-                         ? schemaNamePart.data()
-                         : regOrUnregObject->getObjNameAsQualifiedName().getQualifiedNameAsString().data()));
-        *CmpCommon::diags() << DgSqlCode(-3251) << DgString0("UNREGISTER") << DgString1(errReason);
-      }
-
-      processReturn();
-
-      return;
-    }
-  }
-
-  // Verify user can perform request
-  if (!Get_SqlParser_Flags(INTERNAL_QUERY_FROM_EXEUTIL) && !ComUser::isRootUserID() &&
-      !ComUser::currentUserHasRole(ROOT_ROLE_ID) &&
-      ((isHive && !ComUser::currentUserHasRole(HIVE_ROLE_ID)) ||
-       (isHBase && !ComUser::currentUserHasRole(HBASE_ROLE_ID)))) {
-    *CmpCommon::diags() << DgSqlCode(-CAT_NOT_AUTHORIZED);
-    processReturn();
-    return;
-  }
-
-  Int32 objOwnerId = (isHive ? HIVE_ROLE_ID : HBASE_ROLE_ID);
-  Int32 schemaOwnerId = (isHive ? HIVE_ROLE_ID : HBASE_ROLE_ID);
-  Int64 objUID = -1;
-  Int64 flags = 0;
-  if ((regOrUnregObject->isRegister()) && (regOrUnregObject->objType() == COM_SHARED_SCHEMA_OBJECT)) {
-    retcode = updateSeabaseMDObjectsTable(&cliInterface, catalogNamePart.data(), schemaNamePart.data(),
-                                          SEABASE_SCHEMA_OBJECTNAME, regOrUnregObject->objType(), NULL, objOwnerId,
-                                          schemaOwnerId, flags, objUID);
-  } else if (regOrUnregObject->isRegister()) {
-    if (((regOrUnregObject->objType() == COM_BASE_TABLE_OBJECT) && (naTable && naTable->isView())) ||
-        ((regOrUnregObject->objType() == COM_VIEW_OBJECT) && (naTable && (!naTable->isView())))) {
-      // underlying object is a view but registered object type specified
-      // in the register statement is a table, or
-      // underlying object is a table but registered object type specified
-      // in the register statement is a view
-      str_sprintf(errReason, " Reason: Mismatch between specified(%s) and underlying(%s) type for %s.",
-                  (regOrUnregObject->objType() == COM_BASE_TABLE_OBJECT ? "TABLE" : "VIEW"),
-                  (naTable->isView() ? "VIEW" : "TABLE"),
-                  regOrUnregObject->getObjNameAsQualifiedName().getQualifiedNameAsString().data());
-
-      *CmpCommon::diags() << DgSqlCode(-3251) << DgString0("REGISTER") << DgString1(errReason);
-
-      processReturn();
-
-      return;
-    }
-
-    if (regOrUnregObject->objType() == COM_BASE_TABLE_OBJECT) {
-      if (schemaNamePart == HBASE_SYSTEM_SCHEMA) {
-        // register CELL and ROW formats of HBase table
-        retcode = registerNativeTable(catalogNamePart, HBASE_CELL_SCHEMA, objectNamePart, objOwnerId, schemaOwnerId,
-                                      cliInterface, regOrUnregObject->isRegister(), regOrUnregObject->isInternal());
-
-        retcode = registerNativeTable(catalogNamePart, HBASE_ROW_SCHEMA, objectNamePart, objOwnerId, schemaOwnerId,
-                                      cliInterface, regOrUnregObject->isRegister(), regOrUnregObject->isInternal());
-      } else {
-        retcode = registerNativeTable(catalogNamePart, schemaNamePart, objectNamePart, objOwnerId, schemaOwnerId,
-                                      cliInterface, regOrUnregObject->isRegister(), regOrUnregObject->isInternal());
-      }
-    }
-
-    if (retcode < 0) return;
-  } else  // unregister
-  {
-    if ((regOrUnregObject->objType() == COM_BASE_TABLE_OBJECT) ||
-        (regOrUnregObject->objType() == COM_SHARED_SCHEMA_OBJECT)) {
-      if (schemaNamePart == HBASE_SYSTEM_SCHEMA) {
-        // unregister CELL and ROW formats of HBase table
-        retcode = unregisterNativeTable(catalogNamePart, HBASE_CELL_SCHEMA, objectNamePart, cliInterface);
-
-        retcode = unregisterNativeTable(catalogNamePart, HBASE_ROW_SCHEMA, objectNamePart, cliInterface);
-      } else if ((regOrUnregObject->objType() == COM_SHARED_SCHEMA_OBJECT) &&
-                 (catalogNamePart.index(HIVE_SYSTEM_CATALOG, 0, NAString::ignoreCase) == 0)) {
-        retcode = unregisterHiveSchema(catalogNamePart, schemaNamePart, cliInterface, regOrUnregObject->cascade());
-      } else {
-        retcode =
-            unregisterNativeTable(catalogNamePart, schemaNamePart, objectNamePart, cliInterface,
-                                  (regOrUnregObject->objType() == COM_SHARED_SCHEMA_OBJECT ? COM_SHARED_SCHEMA_OBJECT
-                                                                                           : COM_BASE_TABLE_OBJECT));
-      }
-    }
-
-  }  // unregister
-  if (retcode < 0) return;
-
-  ActiveSchemaDB()->getNATableDB()->removeNATable(cn, ComQiScope::REMOVE_FROM_ALL_USERS, regOrUnregObject->objType(),
-                                                  FALSE, FALSE);
-  if (isHBase) {
-    CorrName cn(objectNamePart, STMTHEAP, HBASE_ROW_SCHEMA, catalogNamePart);
-
-    ActiveSchemaDB()->getNATableDB()->removeNATable(cn, ComQiScope::REMOVE_FROM_ALL_USERS, regOrUnregObject->objType(),
-                                                    FALSE, FALSE);
-  }
-
-  return;
 }
 
 /////////////////////////////////////////////////////////////////////////

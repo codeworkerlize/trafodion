@@ -2,7 +2,6 @@
 #ifndef BindWA_H
 #define BindWA_H
 
-
 #include "common/BaseTypes.h"
 #include "common/Collections.h"
 #include "optimizer/ColumnNameMap.h"
@@ -17,7 +16,7 @@
 #include "optimizer/TableNameMap.h"
 #include "optimizer/ValueDesc.h"
 #include "optimizer/OptUtilIncludes.h"
-#include "common/ComSchemaName.h" // for ComSchemaName
+#include "common/ComSchemaName.h"  // for ComSchemaName
 
 // ----------------------------------------------------------------------
 // contents of this file
@@ -57,164 +56,160 @@ class CommonSubExprRef;
 
 #define NOT_UpdateOrInsert NO_OPERATOR_TYPE
 
-class BindContext : public NABasicObject
-{
-public:
+class BindContext : public NABasicObject {
+ public:
   // --------------------------------------------------------------------
   // Constructor function -- additional code in BindWA::initNewScope()
   // --------------------------------------------------------------------
   BindContext()
-  : inSelectList_		(0)
-  , inOrderBy_			(FALSE)
-  , inDualConnectby_		(FALSE)
-  , inStartWith_               (FALSE)
-  , inExistsPredicate_		(FALSE)
-  , inGroupByClause_		(FALSE)
-  , inScalarGroupBy_		(TRUE)
-  , inWhereClause_		(FALSE)
-  , inPrecondClause_	(FALSE)
-  , inHavingClause_		(FALSE)
-  , inSubquery_			(FALSE)
-  , inRowSubquery_		(FALSE)
-  , inUnion_                    (FALSE)
-  , lookAboveToDecideSubquery_  (FALSE)
-  , counterForRowValues_	(NULL)
-  , updateOrInsertNode_		(NULL)
-  , updateOrInsertScope_	(NULL)
-  , inUpdateOrInsert_		(NOT_UpdateOrInsert)
-  , deleteNode_		 	(NULL)
-  , deleteScope_		(NULL)
-  , inCheckConstraint_		(NULL)
-  , inRIConstraint_		(FALSE)
-  , inAggregate_		(FALSE)
-  , colRefInAgg_		(FALSE)
-  , outerColRefInAgg_		(FALSE)
-  , PLACEHOLDER1_		(FALSE)
-  , inTupleList_		(FALSE)
-  , unaggColRefInSelectList_	(NULL)
-  , aggScope_			(NULL)
-  , inItemList_			(NULL)
-  , inJoin_			(NULL)
-  , inJoinPred_			(NULL)
-  , inRangePred_		(FALSE)
-  , inMultaryPred_		(NULL)
-  , inRowsSince_                (FALSE)
-  , inOtherSequenceFunction_    (FALSE)
-  , inGroupByOrdinal_           (FALSE)
-  , inGroupByExpr_              (FALSE)
-  , inCreateAfterTrigger_       (FALSE)
-  , inCheckOption_              (FALSE)
-  , inCreateView_               (FALSE)
-  , inTransposeClause_          (FALSE)
-  , inSequenceFunction_         (FALSE)
-  , inPredicate_		(FALSE)
-  , firstN_                     (FALSE)
-  , triggerObj_			(NULL)
-  , pMvBindContext_		(NULL)
-  , stmtLevelAccessOptions_	(NULL)
-  , inQualifyClause_            (FALSE)
-  , inTDFunction_               (FALSE)
-  , inUDFunction_               (FALSE)
-  , inBuiltinFunction_          (FALSE)
-  , inPrecOlapFunction_         (FALSE)
-  , inOlapOrderBy_              (FALSE)
-  , inOlapPartitionBy_          (FALSE)
-  , inComputedColumnExpr_       (FALSE)
-  , currentConnectByNode_       (NULL)
-  , inUpsertXform_              (FALSE)
-  {
+      : inSelectList_(0),
+        inOrderBy_(FALSE),
+        inDualConnectby_(FALSE),
+        inStartWith_(FALSE),
+        inExistsPredicate_(FALSE),
+        inGroupByClause_(FALSE),
+        inScalarGroupBy_(TRUE),
+        inWhereClause_(FALSE),
+        inPrecondClause_(FALSE),
+        inHavingClause_(FALSE),
+        inSubquery_(FALSE),
+        inRowSubquery_(FALSE),
+        inUnion_(FALSE),
+        lookAboveToDecideSubquery_(FALSE),
+        counterForRowValues_(NULL),
+        updateOrInsertNode_(NULL),
+        updateOrInsertScope_(NULL),
+        inUpdateOrInsert_(NOT_UpdateOrInsert),
+        deleteNode_(NULL),
+        deleteScope_(NULL),
+        inCheckConstraint_(NULL),
+        inRIConstraint_(FALSE),
+        inAggregate_(FALSE),
+        colRefInAgg_(FALSE),
+        outerColRefInAgg_(FALSE),
+        PLACEHOLDER1_(FALSE),
+        inTupleList_(FALSE),
+        unaggColRefInSelectList_(NULL),
+        aggScope_(NULL),
+        inItemList_(NULL),
+        inJoin_(NULL),
+        inJoinPred_(NULL),
+        inRangePred_(FALSE),
+        inMultaryPred_(NULL),
+        inRowsSince_(FALSE),
+        inOtherSequenceFunction_(FALSE),
+        inGroupByOrdinal_(FALSE),
+        inGroupByExpr_(FALSE),
+        inCreateAfterTrigger_(FALSE),
+        inCheckOption_(FALSE),
+        inCreateView_(FALSE),
+        inTransposeClause_(FALSE),
+        inSequenceFunction_(FALSE),
+        inPredicate_(FALSE),
+        firstN_(FALSE),
+        triggerObj_(NULL),
+        pMvBindContext_(NULL),
+        stmtLevelAccessOptions_(NULL),
+        inQualifyClause_(FALSE),
+        inTDFunction_(FALSE),
+        inUDFunction_(FALSE),
+        inBuiltinFunction_(FALSE),
+        inPrecOlapFunction_(FALSE),
+        inOlapOrderBy_(FALSE),
+        inOlapPartitionBy_(FALSE),
+        inComputedColumnExpr_(FALSE),
+        currentConnectByNode_(NULL),
+        inUpsertXform_(FALSE) {
     CMPASSERT(FALSE != REL_UPDATE && FALSE != REL_INSERT);
   }
 
   // --------------------------------------------------------------------
   // Accessor/mutator functions
   // --------------------------------------------------------------------
-  Int32		   &inSelectList()    	   { return inSelectList_; }
-  NABoolean	   &inOrderBy()    	   { return inOrderBy_; }
-  NABoolean	   &inDualConnectby()      { return inDualConnectby_; }
-  NABoolean        &inStartWith()          { return inStartWith_; }
-  NABoolean	   &inExistsPredicate()	   { return inExistsPredicate_; }
-  NABoolean	   &inGroupByClause() 	   { return inGroupByClause_; }
-  NABoolean	   &inScalarGroupBy() 	   { return inScalarGroupBy_; }
-  NABoolean	   &inWhereClause()        { return inWhereClause_; }
-  NABoolean	   &inPrecondClause()      { return inPrecondClause_; }
-  NABoolean	   &inHavingClause() 	   { return inHavingClause_; }
-  NABoolean	   &inSubquery()     	   { return inSubquery_; }
-  NABoolean	   &inRowSubquery()	   { return inRowSubquery_; }
-  NABoolean        &inUnion()              { return inUnion_; }
-  NABoolean        &lookAboveToDecideSubquery() { return lookAboveToDecideSubquery_; }
-  NABoolean	   &inAggregate() 	   { return inAggregate_; }
-  NABoolean	   &colRefInAgg() 	   { return colRefInAgg_; }
-  NABoolean	   &outerColRefInAgg()	   { return outerColRefInAgg_; }
-  NABoolean	   &PLACEHOLDER1()	   { return PLACEHOLDER1_; }
-  NABoolean	   &inTupleList()	   { return inTupleList_; }
-  ItemExpr	  *&unaggColRefInSelectList() { return unaggColRefInSelectList_;}
-  BindScope	  *&aggScope()		   { return aggScope_; }
-  ItemList	  *&inItemList()	   { return inItemList_; }
-  Join		  *&inJoin()		   { return inJoin_; }
-  ItemExpr	  *&inJoinPred()	   { return inJoinPred_; }
+  Int32 &inSelectList() { return inSelectList_; }
+  NABoolean &inOrderBy() { return inOrderBy_; }
+  NABoolean &inDualConnectby() { return inDualConnectby_; }
+  NABoolean &inStartWith() { return inStartWith_; }
+  NABoolean &inExistsPredicate() { return inExistsPredicate_; }
+  NABoolean &inGroupByClause() { return inGroupByClause_; }
+  NABoolean &inScalarGroupBy() { return inScalarGroupBy_; }
+  NABoolean &inWhereClause() { return inWhereClause_; }
+  NABoolean &inPrecondClause() { return inPrecondClause_; }
+  NABoolean &inHavingClause() { return inHavingClause_; }
+  NABoolean &inSubquery() { return inSubquery_; }
+  NABoolean &inRowSubquery() { return inRowSubquery_; }
+  NABoolean &inUnion() { return inUnion_; }
+  NABoolean &lookAboveToDecideSubquery() { return lookAboveToDecideSubquery_; }
+  NABoolean &inAggregate() { return inAggregate_; }
+  NABoolean &colRefInAgg() { return colRefInAgg_; }
+  NABoolean &outerColRefInAgg() { return outerColRefInAgg_; }
+  NABoolean &PLACEHOLDER1() { return PLACEHOLDER1_; }
+  NABoolean &inTupleList() { return inTupleList_; }
+  ItemExpr *&unaggColRefInSelectList() { return unaggColRefInSelectList_; }
+  BindScope *&aggScope() { return aggScope_; }
+  ItemList *&inItemList() { return inItemList_; }
+  Join *&inJoin() { return inJoin_; }
+  ItemExpr *&inJoinPred() { return inJoinPred_; }
 
-  NABoolean	   &inRangePred()	   { return inRangePred_;}
-  ItemExpr	  *&inMultaryPred()	   { return inMultaryPred_; }
-  CollIndex	  *&counterForRowValues()  { return counterForRowValues_; }
-  GenericUpdate	  *&updateOrInsertNode()   { return updateOrInsertNode_; }
-  BindScope	  *&updateOrInsertScope()  { return updateOrInsertScope_; }
-  OperatorTypeEnum &inUpdateOrInsert() 	   { return inUpdateOrInsert_; }
-  NABoolean	    inUpdate() const	   { return inUpdateOrInsert_==REL_UPDATE;}
-  NABoolean	    inInsert() const	   { return inUpdateOrInsert_==REL_INSERT;}
-  RelExpr	  *&deleteNode()	   { return deleteNode_; }
-  BindScope	  *&deleteScope()	   { return deleteScope_; }
-  NABoolean        &inCreateAfterTrigger() { return inCreateAfterTrigger_; }
-  NABoolean        &inCheckOption()        { return inCheckOption_; }
-  NABoolean        &inCreateView()         { return inCreateView_; }
-  NABoolean        &inTransposeClause()    { return inTransposeClause_; }
-  NABoolean        &inSequenceFunction()   { return inSequenceFunction_; }
-  NABoolean	   &inPredicate()          { return inPredicate_; }
-  NABoolean        &firstN()               { return firstN_; }
-  NABoolean	   &inRIConstraint()	   { return inRIConstraint_; }
-  CheckConstraint *&inCheckConstraint()	   { return inCheckConstraint_; }
-  NABoolean	    inTableCheckConstraint() const {
-				return inCheckConstraint_ &&
-				!inCheckConstraint_->isViewWithCheckOption(); }
-  NABoolean	    inViewCheckConstraint() const {
-				return inCheckConstraint_ &&
-				inCheckConstraint_->isViewWithCheckOption(); }
-  NABoolean	    inAnyConstraint() const {
-				return inCheckConstraint_ || inRIConstraint_; }
+  NABoolean &inRangePred() { return inRangePred_; }
+  ItemExpr *&inMultaryPred() { return inMultaryPred_; }
+  CollIndex *&counterForRowValues() { return counterForRowValues_; }
+  GenericUpdate *&updateOrInsertNode() { return updateOrInsertNode_; }
+  BindScope *&updateOrInsertScope() { return updateOrInsertScope_; }
+  OperatorTypeEnum &inUpdateOrInsert() { return inUpdateOrInsert_; }
+  NABoolean inUpdate() const { return inUpdateOrInsert_ == REL_UPDATE; }
+  NABoolean inInsert() const { return inUpdateOrInsert_ == REL_INSERT; }
+  RelExpr *&deleteNode() { return deleteNode_; }
+  BindScope *&deleteScope() { return deleteScope_; }
+  NABoolean &inCreateAfterTrigger() { return inCreateAfterTrigger_; }
+  NABoolean &inCheckOption() { return inCheckOption_; }
+  NABoolean &inCreateView() { return inCreateView_; }
+  NABoolean &inTransposeClause() { return inTransposeClause_; }
+  NABoolean &inSequenceFunction() { return inSequenceFunction_; }
+  NABoolean &inPredicate() { return inPredicate_; }
+  NABoolean &firstN() { return firstN_; }
+  NABoolean &inRIConstraint() { return inRIConstraint_; }
+  CheckConstraint *&inCheckConstraint() { return inCheckConstraint_; }
+  NABoolean inTableCheckConstraint() const {
+    return inCheckConstraint_ && !inCheckConstraint_->isViewWithCheckOption();
+  }
+  NABoolean inViewCheckConstraint() const { return inCheckConstraint_ && inCheckConstraint_->isViewWithCheckOption(); }
+  NABoolean inAnyConstraint() const { return inCheckConstraint_ || inRIConstraint_; }
 
-  CollIndex counterForRowValuesIncr()	{ return ++(*counterForRowValues_); }
+  CollIndex counterForRowValuesIncr() { return ++(*counterForRowValues_); }
 
-  NABoolean        &inRowsSince()             { return inRowsSince_; }
-  NABoolean        &inOtherSequenceFunction() { return inOtherSequenceFunction_; }
-  NABoolean        &inGroupByOrdinal() { return inGroupByOrdinal_; }
-  NABoolean        &inGroupByExpr() { return inGroupByExpr_; }
-  NABoolean        &inQualifyClause() { return inQualifyClause_; }
-  NABoolean        &inTDFunction() { return inTDFunction_; }
-  NABoolean        &inUDFunction() { return inUDFunction_; }
-  NABoolean        &inBuiltinFunction() { return inBuiltinFunction_; }
+  NABoolean &inRowsSince() { return inRowsSince_; }
+  NABoolean &inOtherSequenceFunction() { return inOtherSequenceFunction_; }
+  NABoolean &inGroupByOrdinal() { return inGroupByOrdinal_; }
+  NABoolean &inGroupByExpr() { return inGroupByExpr_; }
+  NABoolean &inQualifyClause() { return inQualifyClause_; }
+  NABoolean &inTDFunction() { return inTDFunction_; }
+  NABoolean &inUDFunction() { return inUDFunction_; }
+  NABoolean &inBuiltinFunction() { return inBuiltinFunction_; }
 
-  NABoolean        &inPrecOlapFunction() { return inPrecOlapFunction_; }
-  
-  NABoolean        &inOlapOrderBy() { return inOlapOrderBy_; }
-  NABoolean        &inOlapPartitionBy() { return inOlapPartitionBy_; }
-  NABoolean        &inComputedColumnExpr() { return inComputedColumnExpr_; }
-  StmtDDLCreateTrigger *&triggerObj(){ return triggerObj_; }
-  NABoolean        &inUpsertXform() {return inUpsertXform_;}
+  NABoolean &inPrecOlapFunction() { return inPrecOlapFunction_; }
+
+  NABoolean &inOlapOrderBy() { return inOlapOrderBy_; }
+  NABoolean &inOlapPartitionBy() { return inOlapPartitionBy_; }
+  NABoolean &inComputedColumnExpr() { return inComputedColumnExpr_; }
+  StmtDDLCreateTrigger *&triggerObj() { return triggerObj_; }
+  NABoolean &inUpsertXform() { return inUpsertXform_; }
 
   //++ MV
   inline MvBindContext *&getMvBindContext() { return pMvBindContext_; }
 
-  const StmtLevelAccessOptions *stmtLevelAccessOptions() const {
-  				return stmtLevelAccessOptions_;}
-  void setStmtLevelAccessOptions(StmtLevelAccessOptions &ao)
-  {
-    if (!stmtLevelAccessOptions_) stmtLevelAccessOptions_ = &ao;
-    else { CMPASSERT(*stmtLevelAccessOptions_ == ao); }
+  const StmtLevelAccessOptions *stmtLevelAccessOptions() const { return stmtLevelAccessOptions_; }
+  void setStmtLevelAccessOptions(StmtLevelAccessOptions &ao) {
+    if (!stmtLevelAccessOptions_)
+      stmtLevelAccessOptions_ = &ao;
+    else {
+      CMPASSERT(*stmtLevelAccessOptions_ == ao);
+    }
   }
 
   ConnectBy *&connectBy() { return currentConnectByNode_; }
 
-private:
+ private:
   // --------------------------------------------------------------------
   // True if binding a select list.
   // --------------------------------------------------------------------
@@ -224,7 +219,6 @@ private:
   // True if binding an order-by list.
   // --------------------------------------------------------------------
   NABoolean inOrderBy_;
-
 
   // --------------------------------------------------------------------
   // True if binding an connecby for dual table.
@@ -252,9 +246,9 @@ private:
   // True if binding a WHERE clause or the common columns of a NATURAL JOIN
   // --------------------------------------------------------------------
   NABoolean inWhereClause_;
-  
+
   // --------------------------------------------------------------------
-  // True if binding a "when not matched and ... insert " predicate 
+  // True if binding a "when not matched and ... insert " predicate
   // --------------------------------------------------------------------
   NABoolean inPrecondClause_;
 
@@ -324,7 +318,7 @@ private:
   // --------------------------------------------------------------------
   NABoolean lookAboveToDecideSubquery_;
 
-  // True if we are in the midst of transforming upsert with indexes. 
+  // True if we are in the midst of transforming upsert with indexes.
   NABoolean inUpsertXform_;
 
   // --------------------------------------------------------------------
@@ -348,14 +342,14 @@ private:
   // Non-NULL if binding an INSERT or UPDATE; else NULL.
   // --------------------------------------------------------------------
   GenericUpdate *updateOrInsertNode_;
-  BindScope	*updateOrInsertScope_;
+  BindScope *updateOrInsertScope_;
   // REL_INSERT or REL_UPDATE if binding an INSERT or UPDATE; else FALSE.
   OperatorTypeEnum inUpdateOrInsert_;
 
   // --------------------------------------------------------------------
   // Non-NULL if binding a DELETE; else NULL.
   // --------------------------------------------------------------------
-  RelExpr   *deleteNode_;
+  RelExpr *deleteNode_;
   BindScope *deleteScope_;
 
   // --------------------------------------------------------------------
@@ -401,7 +395,7 @@ private:
   // Non-null if binding a JOIN of any type.
   // Non-null if binding the predicate (ON-clause) of a JOIN of any type.
   // --------------------------------------------------------------------
-  Join     *inJoin_;
+  Join *inJoin_;
   ItemExpr *inJoinPred_;
 
   //---------------------------------------------------------------------
@@ -425,7 +419,7 @@ private:
   // --------------------------------------------------------------------
   NABoolean inOtherSequenceFunction_;
 
-  // if set, then do not validate that all columns that are part of this expr 
+  // if set, then do not validate that all columns that are part of this expr
   // belong to group by list. Check done in ColReference::bindNode.
   // Set when a group by element is an ordinal.
   NABoolean inGroupByOrdinal_;
@@ -438,7 +432,6 @@ private:
   // This pointer is used when in the binding of the trigger action.
   // --------------------------------------------------------------------
   StmtDDLCreateTrigger *triggerObj_;
-
 
   // -------------------------------------------------------------------------
   //++ MV
@@ -469,53 +462,48 @@ private:
 
   NABoolean inComputedColumnExpr_;
 
-  ConnectBy * currentConnectByNode_;
-}; // class BindContext
+  ConnectBy *currentConnectByNode_;
+};  // class BindContext
 
 // ***********************************************************************
 // MV --
 // The MvBindContext class controls which Scans will be on base tables
-// and which will be replaced by some other RelExpr tree. 
+// and which will be replaced by some other RelExpr tree.
 // All the tables that their names are added to the replacementTreeHash_
 // will be switched to the corresponding tree, that was already constructed.
 // To bind a sub-tree with no switching at all, use an empty object.
 // A pointer to the MvBindContext object is first put in the RelRoot node
-// on top of the sub-tree. When being bound, the RelRoot will copy that 
+// on top of the sub-tree. When being bound, the RelRoot will copy that
 // pointer to the context of the BindScope it just created. There it will
 // be found by Scan::bindNode().
 //
-class MvBindContext : public NABasicObject
-{
-public:
+class MvBindContext : public NABasicObject {
+ public:
   MvBindContext(CollHeap *heap)
-    : replacementTreeHash_(QualifiedName::hash, 
-                           (Lng32)10, // initialHashSize
-			   TRUE, // enforceUniqueness 
-			   heap),
-      builder_(NULL),
-      heap_(heap)
-  {}
+      : replacementTreeHash_(QualifiedName::hash,
+                             (Lng32)10,  // initialHashSize
+                             TRUE,       // enforceUniqueness
+                             heap),
+        builder_(NULL),
+        heap_(heap) {}
 
   virtual ~MvBindContext();
 
   void setReplacementFor(const QualifiedName *tableName, RelExpr *replacementTree);
-  RelExpr *getReplacementFor(const QualifiedName& tableName) const;
+  RelExpr *getReplacementFor(const QualifiedName &tableName) const;
 
   // These are for passing the refresh builder to the Scan::bindNode() code
   // in order to continue building the bottom side of the refresh tree.
-  void setRefreshBuilder(MvRefreshBuilder *builder) 
-  { builder_ = builder; }
-  MvRefreshBuilder *getRefreshBuilder() const 
-  { return builder_; }
-  
-private:
+  void setRefreshBuilder(MvRefreshBuilder *builder) { builder_ = builder; }
+  MvRefreshBuilder *getRefreshBuilder() const { return builder_; }
+
+ private:
   typedef NAHashDictionary<const QualifiedName, RelExpr> ReplacementTreeEntry;
 
-  ReplacementTreeEntry        replacementTreeHash_;
-  MvRefreshBuilder           *builder_;
-  CollHeap                   *heap_;
-}; // MvBindContext
-
+  ReplacementTreeEntry replacementTreeHash_;
+  MvRefreshBuilder *builder_;
+  CollHeap *heap_;
+};  // MvBindContext
 
 // ***********************************************************************
 // XTNM Stack
@@ -523,17 +511,25 @@ private:
 // A stack of the table name scopes for the current select.
 //
 // ***********************************************************************
-class XTNMStack : public LIST(XTNM *)
-{
-public:
-  XTNMStack(CollHeap *h = NULL) : LIST(XTNM *)(h)	{ wHeap_ = h; }
-  void createXTNM() 	{ insert(new(wHeap_) XTNM(wHeap_)); }
-  XTNM *currentXTNM() 	{ CMPASSERT(!isEmpty()); return at(entries()-1); }
-  void removeXTNM()	{ XTNM *xtnm; if (getLast(xtnm)) delete xtnm; }
-  ~XTNMStack()		{ while (!isEmpty()) removeXTNM(); }
-private:
+class XTNMStack : public LIST(XTNM *) {
+ public:
+  XTNMStack(CollHeap *h = NULL) : LIST(XTNM *)(h) { wHeap_ = h; }
+  void createXTNM() { insert(new (wHeap_) XTNM(wHeap_)); }
+  XTNM *currentXTNM() {
+    CMPASSERT(!isEmpty());
+    return at(entries() - 1);
+  }
+  void removeXTNM() {
+    XTNM *xtnm;
+    if (getLast(xtnm)) delete xtnm;
+  }
+  ~XTNMStack() {
+    while (!isEmpty()) removeXTNM();
+  }
+
+ private:
   CollHeap *wHeap_;
-}; // class XTNMStack
+};  // class XTNMStack
 
 // ***********************************************************************
 // BindScope
@@ -574,10 +570,8 @@ private:
 // set in the present BindScope and also updates the XCNM of the BindWA.
 //
 // ***********************************************************************
-class BindScope : public NABasicObject
-{
-public:
-
+class BindScope : public NABasicObject {
+ public:
   // --------------------------------------------------------------------
   // Constructor function
   // --------------------------------------------------------------------
@@ -593,18 +587,17 @@ public:
   // Accessor functions
   // getTablesInScope() is documented with sister func BindWA::getTablesInScope.
   // --------------------------------------------------------------------
-  XTNMStack *xtnmStack() 	 	  { return &xtnm_; }
-  XTNM *getXTNM() 	 		  { return xtnmStack()->currentXTNM(); }
-  BindContext *context() 		  { return &context_; }
+  XTNMStack *xtnmStack() { return &xtnm_; }
+  XTNM *getXTNM() { return xtnmStack()->currentXTNM(); }
+  BindContext *context() { return &context_; }
 
-  void getTablesInScope(LIST(TableNameMap*) &xtnmList,
-                        NAString *formattedList = NULL) const;
+  void getTablesInScope(LIST(TableNameMap *) & xtnmList, NAString *formattedList = NULL) const;
 
   // --------------------------------------------------------------------
   // Methods for the table derived from the current RelExpr.
   // --------------------------------------------------------------------
-  RETDesc *getRETDesc() const 	  	  { return RETDesc_; }
-  void setRETDesc(RETDesc *retdesc) 	  { RETDesc_ = retdesc; }
+  RETDesc *getRETDesc() const { return RETDesc_; }
+  void setRETDesc(RETDesc *retdesc) { RETDesc_ = retdesc; }
 
   // --------------------------------------------------------------------
   // Methods for Local References:
@@ -613,10 +606,10 @@ public:
   // to allow a fast test for checking whether a ValueId belongs to the
   // current scope.
   // --------------------------------------------------------------------
-  const ValueIdSet &getLocalRefs() const  { return localRefs_; }
+  const ValueIdSet &getLocalRefs() const { return localRefs_; }
   NABoolean isLocalRef(ValueId vid) const { return localRefs_.contains(vid); }
-  void addLocalRef(ValueId vid) 	  { localRefs_.insert(vid); }
-  void removeLocalRef(ValueId vid) 	  { localRefs_.remove(vid); }  // -- Triggers
+  void addLocalRef(ValueId vid) { localRefs_.insert(vid); }
+  void removeLocalRef(ValueId vid) { localRefs_.remove(vid); }  // -- Triggers
 
   // --------------------------------------------------------------------
   // Methods for Outer References:
@@ -633,10 +626,10 @@ public:
   // a dynamic parameter or a correlated column reference) to the
   // Outer References set.
   // --------------------------------------------------------------------
-  const ValueIdSet &getOuterRefs() const	{ return outerRefs_; }
-  void addOuterRef(ValueId vid) 		{ outerRefs_.insert(vid); }
-  void removeOuterRefs(const ValueIdSet &vids)  { outerRefs_ -= vids; }
-  void addOuterRefs(const ValueIdSet &vids)     { outerRefs_ += vids; }
+  const ValueIdSet &getOuterRefs() const { return outerRefs_; }
+  void addOuterRef(ValueId vid) { outerRefs_.insert(vid); }
+  void removeOuterRefs(const ValueIdSet &vids) { outerRefs_ -= vids; }
+  void addOuterRefs(const ValueIdSet &vids) { outerRefs_ += vids; }
 
   // --------------------------------------------------------------------
   // mergeOuterRefs() is called by the parent BindScope to merge the
@@ -666,59 +659,55 @@ public:
   // --------------------------------------------------------------------
   // Accessor/mutator method for unresolvedSequenceFunctions_
   // --------------------------------------------------------------------
-  ValueIdSet &getUnresolvedSequenceFunctions()
-  { return unresolvedSequenceFunctions_; }
+  ValueIdSet &getUnresolvedSequenceFunctions() { return unresolvedSequenceFunctions_; }
 
   // --------------------------------------------------------------------
   // Accessor/mutator method for allSequenceFunctions_
   // This method has a list of all sequencefunctions in this scope.
   // --------------------------------------------------------------------
-  ValueIdSet &getAllSequenceFunctions()
-  { return allSequenceFunctions_; }
+  ValueIdSet &getAllSequenceFunctions() { return allSequenceFunctions_; }
 
   // --------------------------------------------------------------------
   // Accessor/mutator method for sequenceNode
   // --------------------------------------------------------------------
   RelExpr *&getSequenceNode() { return sequenceNode_; };
 
-  const ValueIdMap &getNcToOldMap() { return ncToOldMap_;}
-  void setNCToOldMap(ValueIdMap vmap) {ncToOldMap_ = vmap; }
+  const ValueIdMap &getNcToOldMap() { return ncToOldMap_; }
+  void setNCToOldMap(ValueIdMap vmap) { ncToOldMap_ = vmap; }
 
-  ValueIdList getOlapPartition() const {return OlapPartition_; };
+  ValueIdList getOlapPartition() const { return OlapPartition_; };
 
-  ValueIdList getOlapOrder() const {return OlapOrder_; };
+  ValueIdList getOlapOrder() const { return OlapOrder_; };
 
-  NABoolean getIsFirstOlapWindowSpec() { return isFirstOlapWindowSpec_  ;}
+  NABoolean getIsFirstOlapWindowSpec() { return isFirstOlapWindowSpec_; }
 
-  void setOlapPartition(ValueIdList  part)  { OlapPartition_ = part; };
+  void setOlapPartition(ValueIdList part) { OlapPartition_ = part; };
 
-  void setOlapOrder( ValueIdList  ord)  { OlapOrder_ = ord ; };
-  
-  void setIsFirstOlapWindowSpec( NABoolean v) { isFirstOlapWindowSpec_ = v  ;}
+  void setOlapOrder(ValueIdList ord) { OlapOrder_ = ord; };
 
+  void setIsFirstOlapWindowSpec(NABoolean v) { isFirstOlapWindowSpec_ = v; }
 
-  ItmSequenceFunction * getOlapPartitionChange() const { return OlapPartitionChange_; }; 
-  
-  void setOlapPartitionChange(ItmSequenceFunction * v ) { OlapPartitionChange_ = v ; };
+  ItmSequenceFunction *getOlapPartitionChange() const { return OlapPartitionChange_; };
 
-  enum HasOlapFunctionsEnum { OLAPUNKNOWN_, OLAP_ , NONOLAP_};
+  void setOlapPartitionChange(ItmSequenceFunction *v) { OlapPartitionChange_ = v; };
 
-  HasOlapFunctionsEnum getHasOlapSeqFunctions() const { return HasOlapSeqFunctions_;};
+  enum HasOlapFunctionsEnum { OLAPUNKNOWN_, OLAP_, NONOLAP_ };
 
-  void setHasOlapSeqFunctions (HasOlapFunctionsEnum v) {HasOlapSeqFunctions_=v;};
+  HasOlapFunctionsEnum getHasOlapSeqFunctions() const { return HasOlapSeqFunctions_; };
 
-  void resetOlapInfo( )  { 
-    OlapPartition_.clear(); 
-    OlapOrder_.clear(); 
-    OlapPartitionChange_ = NULL; 
-    HasOlapSeqFunctions_ = OLAPUNKNOWN_; 
+  void setHasOlapSeqFunctions(HasOlapFunctionsEnum v) { HasOlapSeqFunctions_ = v; };
+
+  void resetOlapInfo() {
+    OlapPartition_.clear();
+    OlapOrder_.clear();
+    OlapPartitionChange_ = NULL;
+    HasOlapSeqFunctions_ = OLAPUNKNOWN_;
   };
 
-  void setInViewExpansion(NABoolean val) {  inViewExpansion_ = val; }
+  void setInViewExpansion(NABoolean val) { inViewExpansion_ = val; }
   NABoolean getInViewExpansion() { return inViewExpansion_; }
 
-private:
-
+ private:
   // --------------------------------------------------------------------
   // The Exposed Table Name Map associates an exposed table name
   // with its ValueId.
@@ -775,7 +764,7 @@ private:
   // --------------------------------------------------------------------
   // The all sequence functions list contains the value ids of
   // all sequence functions that were found in parse trees and that need
-  // to be relocated to a RelSequence node.  
+  // to be relocated to a RelSequence node.
   // --------------------------------------------------------------------
   ValueIdSet allSequenceFunctions_;
 
@@ -793,18 +782,17 @@ private:
 
   BindWA *bindWA_;  // a bindWA* to get the CollHeap* for environment setup
 
-
   ValueIdList OlapPartition_;
   ValueIdList OlapOrder_;
   NABoolean isFirstOlapWindowSpec_;
-  ItmSequenceFunction *OlapPartitionChange_; 
+  ItmSequenceFunction *OlapPartitionChange_;
   HasOlapFunctionsEnum HasOlapSeqFunctions_;
-  
+
   // copy from BindWA for override_schema
   // to allow subqueries after a view to be considered in override_schema
-  NABoolean inViewExpansion_; 
-  
-}; // class BindScope
+  NABoolean inViewExpansion_;
+
+};  // class BindScope
 
 // ***********************************************************************
 // BindScopeList
@@ -816,14 +804,18 @@ private:
 // stack of BindScope to preserve the state of processing for outer SELECTs.
 //
 // ***********************************************************************
-class BindScopeList : public LIST(BindScope *)
-{
-public:
+class BindScopeList : public LIST(BindScope *) {
+ public:
   BindScopeList(CollHeap *h = NULL) : LIST(BindScope *)(h) {}
-  void removeScope()		{ BindScope *s; getLast(s); delete s; }
-  ~BindScopeList()		{ while (!isEmpty()) removeScope(); }
-}; // class BindScopeList
-
+  void removeScope() {
+    BindScope *s;
+    getLast(s);
+    delete s;
+  }
+  ~BindScopeList() {
+    while (!isEmpty()) removeScope();
+  }
+};  // class BindScopeList
 
 // This class is used at binding time when there are host arrays in the query.
 // Briefly, when we find such arrays, we replace them with scalar variables
@@ -833,89 +825,85 @@ public:
 // There is a data member of type HostArraysWA in BindWA, and that object keeps all
 // the necessary information to perform the transformation just mentioned.
 
-class HostArraysWA: public NABasicObject
-{
-public:
+class HostArraysWA : public NABasicObject {
+ public:
+  HostArraysWA(BindWA *bindWA, CollHeap *h = 0)
+      : numHostArrays_(0),
+        hasDerivedRowsets_(FALSE),
+        listOfHostArrays_(NULL),
+        lastHostArray_(NULL),
+        newItemsList_(NULL),
+        lastItemList_(NULL),
+        newNames_(NULL),
+        lastName_(NULL),
+        done_(FALSE),
+        bindWA_(bindWA),
+        inputSizeExpr_(NULL),
+        outputSizeExpr_(NULL),
+        indexExpr_(NULL),
+        inputArrayMaxSize_(0),
+        hasDynamicRowsets_(FALSE),
+        hasHostArraysInTuple_(FALSE),
+        hasSelectIntoRowsets_(FALSE),
+        hasHostArraysInSetClause_(FALSE),
+        hasHostArraysInWhereClause_(FALSE),
+        tolerateNonFatalError_(FALSE),
+        hasInputRowsetsInSelect_(HostArraysWA::UNKNOWN_),
+        rowsetRowCountArraySize_(0),
+        newTable_("", h),
+        root_(NULL),
+        rwrsMaxSize_(NULL),
+        rwrsMaxInputRowlen_(NULL),
+        rwrsBuffer_(NULL),
+        partnNum_(NULL),
+        rowwiseRowset_(FALSE),
+        packedFormat_(FALSE),
+        compressed_(FALSE),
+        dcompressInMaster_(FALSE),
+        compressInMaster_(FALSE),
+        partnNumInBuffer_(FALSE)
 
-  HostArraysWA(BindWA *bindWA, CollHeap * h = 0)
-    : numHostArrays_(0),
-      hasDerivedRowsets_(FALSE),
-      listOfHostArrays_(NULL),
-      lastHostArray_(NULL),
-      newItemsList_(NULL),
-      lastItemList_(NULL),
-      newNames_(NULL),
-      lastName_(NULL),
-      done_(FALSE),
-      bindWA_(bindWA),
-      inputSizeExpr_(NULL),
-      outputSizeExpr_(NULL),
-      indexExpr_(NULL),
-      inputArrayMaxSize_(0),
-      hasDynamicRowsets_(FALSE),
-      hasHostArraysInTuple_(FALSE),
-      hasSelectIntoRowsets_(FALSE),
-      hasHostArraysInSetClause_(FALSE),
-      hasHostArraysInWhereClause_(FALSE),
-      tolerateNonFatalError_(FALSE),
-      hasInputRowsetsInSelect_(HostArraysWA::UNKNOWN_),
-      rowsetRowCountArraySize_(0),
-      newTable_("",h),
-      root_(NULL),
-      rwrsMaxSize_(NULL),
-      rwrsMaxInputRowlen_(NULL),
-      rwrsBuffer_(NULL),
-      partnNum_(NULL),
-      rowwiseRowset_(FALSE),
-      packedFormat_(FALSE),
-      compressed_(FALSE),
-      dcompressInMaster_(FALSE),
-      compressInMaster_(FALSE),
-      partnNumInBuffer_(FALSE)
-      
   {}
 
-  HostArraysWA(const HostArraysWA &other, CollHeap * h = 0)
-    : numHostArrays_(other.numHostArrays_),
-      hasDerivedRowsets_(other.hasDerivedRowsets_),
-      listOfHostArrays_(other.listOfHostArrays_),
-      lastHostArray_(other.lastHostArray_),
-      newItemsList_(other.newItemsList_),
-      lastItemList_(other.lastItemList_),
-      newNames_(other.newNames_),
-      lastName_(other.lastName_),
-      done_(other.done_),
-      bindWA_(other.bindWA_),
-      inputSizeExpr_(other.inputSizeExpr_),
-      outputSizeExpr_(other.outputSizeExpr_),
-      indexExpr_(other.indexExpr_),
-      inputArrayMaxSize_(other.inputArrayMaxSize_),
-      hasHostArraysInTuple_(other.hasHostArraysInTuple_),
-      hasDynamicRowsets_(other.hasDynamicRowsets_),
-      hasSelectIntoRowsets_(other.hasSelectIntoRowsets_),
-      hasHostArraysInSetClause_(other.hasHostArraysInSetClause_),
-      hasHostArraysInWhereClause_(other.hasHostArraysInWhereClause_),
-      tolerateNonFatalError_(other.tolerateNonFatalError_),
-      hasInputRowsetsInSelect_(other.hasInputRowsetsInSelect_),
-      rowsetRowCountArraySize_(other.rowsetRowCountArraySize_),
-      newTable_(other.newTable_,h),
-      root_(other.root_),
-      rwrsMaxSize_(other.rwrsMaxSize_),
-      rwrsMaxInputRowlen_(other.rwrsMaxInputRowlen_),
-      rwrsBuffer_(other.rwrsBuffer_),
-      partnNum_(other.partnNum_),
-      rowwiseRowset_(other.rowwiseRowset_),
-      packedFormat_(other.packedFormat_),
-      compressed_(other.compressed_),
-      dcompressInMaster_(other.dcompressInMaster_),
-      compressInMaster_(other.compressInMaster_),
-      partnNumInBuffer_(other.partnNumInBuffer_)
-     
+  HostArraysWA(const HostArraysWA &other, CollHeap *h = 0)
+      : numHostArrays_(other.numHostArrays_),
+        hasDerivedRowsets_(other.hasDerivedRowsets_),
+        listOfHostArrays_(other.listOfHostArrays_),
+        lastHostArray_(other.lastHostArray_),
+        newItemsList_(other.newItemsList_),
+        lastItemList_(other.lastItemList_),
+        newNames_(other.newNames_),
+        lastName_(other.lastName_),
+        done_(other.done_),
+        bindWA_(other.bindWA_),
+        inputSizeExpr_(other.inputSizeExpr_),
+        outputSizeExpr_(other.outputSizeExpr_),
+        indexExpr_(other.indexExpr_),
+        inputArrayMaxSize_(other.inputArrayMaxSize_),
+        hasHostArraysInTuple_(other.hasHostArraysInTuple_),
+        hasDynamicRowsets_(other.hasDynamicRowsets_),
+        hasSelectIntoRowsets_(other.hasSelectIntoRowsets_),
+        hasHostArraysInSetClause_(other.hasHostArraysInSetClause_),
+        hasHostArraysInWhereClause_(other.hasHostArraysInWhereClause_),
+        tolerateNonFatalError_(other.tolerateNonFatalError_),
+        hasInputRowsetsInSelect_(other.hasInputRowsetsInSelect_),
+        rowsetRowCountArraySize_(other.rowsetRowCountArraySize_),
+        newTable_(other.newTable_, h),
+        root_(other.root_),
+        rwrsMaxSize_(other.rwrsMaxSize_),
+        rwrsMaxInputRowlen_(other.rwrsMaxInputRowlen_),
+        rwrsBuffer_(other.rwrsBuffer_),
+        partnNum_(other.partnNum_),
+        rowwiseRowset_(other.rowwiseRowset_),
+        packedFormat_(other.packedFormat_),
+        compressed_(other.compressed_),
+        dcompressInMaster_(other.dcompressInMaster_),
+        compressInMaster_(other.compressInMaster_),
+        partnNumInBuffer_(other.partnNumInBuffer_)
+
   {}
 
-
-  HostArraysWA()
-    { HostArraysWA(NULL); }
+  HostArraysWA() { HostArraysWA(NULL); }
 
   // Scans list of expressions in a VALUES node and replaces all host vars found with
   // the names used in the RENAME node
@@ -939,44 +927,36 @@ public:
   // Generates new variable names that will replace the arrays
   void createNewNames();
 
-  ItemExpr *& inputSize()  {return inputSizeExpr_;}
-  ItemExpr *& outputSize() {return outputSizeExpr_;}
-  ItemExpr *& indexExpr()  {return indexExpr_;}
+  ItemExpr *&inputSize() { return inputSizeExpr_; }
+  ItemExpr *&outputSize() { return outputSizeExpr_; }
+  ItemExpr *&indexExpr() { return indexExpr_; }
 
-  ItemExpr *& rwrsMaxSize()        { return rwrsMaxSize_;}
-  ItemExpr *& rwrsMaxInputRowlen() { return rwrsMaxInputRowlen_;}
-  ItemExpr *& rwrsBuffer()         { return rwrsBuffer_;}
-  ItemExpr *& partnNum()           { return partnNum_;}
-  NABoolean getRowwiseRowset()       { return rowwiseRowset_; }
+  ItemExpr *&rwrsMaxSize() { return rwrsMaxSize_; }
+  ItemExpr *&rwrsMaxInputRowlen() { return rwrsMaxInputRowlen_; }
+  ItemExpr *&rwrsBuffer() { return rwrsBuffer_; }
+  ItemExpr *&partnNum() { return partnNum_; }
+  NABoolean getRowwiseRowset() { return rowwiseRowset_; }
   void setRowwiseRowset(NABoolean v) { rowwiseRowset_ = v; }
 
-  void setBufferAttributes(NABoolean packedFormat, 
-			   NABoolean compressed,
-			   NABoolean dcompressInMaster, 
-			   NABoolean compressInMaster,
-			   NABoolean partnNumInBuffer)
-  {
+  void setBufferAttributes(NABoolean packedFormat, NABoolean compressed, NABoolean dcompressInMaster,
+                           NABoolean compressInMaster, NABoolean partnNumInBuffer) {
     packedFormat_ = packedFormat;
     compressed_ = compressed;
     dcompressInMaster_ = dcompressInMaster;
     compressInMaster_ = compressInMaster;
   }
-  void getBufferAttributes(NABoolean &packedFormat,
-			   NABoolean &compressed,
-			   NABoolean &dcompressInMaster, 
-			   NABoolean &compressInMaster,
-			   NABoolean &partnNumInBuffer)
-    {
-      packedFormat = packedFormat_;
-      compressed = compressed_;
-      dcompressInMaster = dcompressInMaster_;
-      compressInMaster = compressInMaster_;
-      partnNumInBuffer = partnNumInBuffer_;
-    }
+  void getBufferAttributes(NABoolean &packedFormat, NABoolean &compressed, NABoolean &dcompressInMaster,
+                           NABoolean &compressInMaster, NABoolean &partnNumInBuffer) {
+    packedFormat = packedFormat_;
+    compressed = compressed_;
+    dcompressInMaster = dcompressInMaster_;
+    compressInMaster = compressInMaster_;
+    partnNumInBuffer = partnNumInBuffer_;
+  }
 
   // Functions for the current root (it changes dynamically if we have compound statements)
-  RelRoot * getRoot() { return root_; }
-  void      setRoot(RelRoot *root) { root_ = root; }
+  RelRoot *getRoot() { return root_; }
+  void setRoot(RelRoot *root) { root_ = root; }
 
   // We have found in the parse tree the variable that appears in the
   // ROWSET FOR KEY BY <var> command (i.e we found <var>). We store it and
@@ -992,71 +972,58 @@ public:
 
   NABoolean hasHostArrays() { return (listOfHostArrays_ != NULL); }
 
-  void setHasDerivedRowsets (const NABoolean flag = TRUE) {hasDerivedRowsets_ = flag;}
+  void setHasDerivedRowsets(const NABoolean flag = TRUE) { hasDerivedRowsets_ = flag; }
 
-  NABoolean getHasDerivedRowsets () { return hasDerivedRowsets_;}
+  NABoolean getHasDerivedRowsets() { return hasDerivedRowsets_; }
 
-  ULng32 getInputArrayMaxSize() const
-  {
-    return inputArrayMaxSize_;
-  }
+  ULng32 getInputArrayMaxSize() const { return inputArrayMaxSize_; }
 
-  void setInputArrayMaxSize(const ULng32 size) 
-  {
-    inputArrayMaxSize_ = size;
-  }
+  void setInputArrayMaxSize(const ULng32 size) { inputArrayMaxSize_ = size; }
 
-  NABoolean hasHostArraysInTuple() const
-  {
-    return hasHostArraysInTuple_;
-  }
+  NABoolean hasHostArraysInTuple() const { return hasHostArraysInTuple_; }
 
-  void setHasHostArraysInTuple(const NABoolean flag) 
-  {
-    hasHostArraysInTuple_ = flag;
-  }
+  void setHasHostArraysInTuple(const NABoolean flag) { hasHostArraysInTuple_ = flag; }
 
-  void setHasDynamicRowsets (const NABoolean flag = TRUE) {hasDynamicRowsets_ = flag;}
+  void setHasDynamicRowsets(const NABoolean flag = TRUE) { hasDynamicRowsets_ = flag; }
 
-  NABoolean hasDynamicRowsets () { return hasDynamicRowsets_;}
+  NABoolean hasDynamicRowsets() { return hasDynamicRowsets_; }
 
-  void setHasSelectIntoRowsets (const NABoolean flag = TRUE) {hasSelectIntoRowsets_ = flag;}
+  void setHasSelectIntoRowsets(const NABoolean flag = TRUE) { hasSelectIntoRowsets_ = flag; }
 
-  NABoolean getHasSelectIntoRowsets () { return hasSelectIntoRowsets_;}
+  NABoolean getHasSelectIntoRowsets() { return hasSelectIntoRowsets_; }
 
-  void setHasHostArraysInSetClause (const NABoolean flag = TRUE) {hasHostArraysInSetClause_ = flag;}
+  void setHasHostArraysInSetClause(const NABoolean flag = TRUE) { hasHostArraysInSetClause_ = flag; }
 
-  NABoolean hasHostArraysInSetClause () { return hasHostArraysInSetClause_;}
+  NABoolean hasHostArraysInSetClause() { return hasHostArraysInSetClause_; }
 
-  void setHasHostArraysInWhereClause (const NABoolean flag = TRUE) {hasHostArraysInWhereClause_ = flag;}
+  void setHasHostArraysInWhereClause(const NABoolean flag = TRUE) { hasHostArraysInWhereClause_ = flag; }
 
-  NABoolean hasHostArraysInWhereClause () { return hasHostArraysInWhereClause_;}
+  NABoolean hasHostArraysInWhereClause() { return hasHostArraysInWhereClause_; }
 
-  void setTolerateNonFatalError (const NABoolean flag = TRUE) {tolerateNonFatalError_ = flag;}
+  void setTolerateNonFatalError(const NABoolean flag = TRUE) { tolerateNonFatalError_ = flag; }
 
-  NABoolean getTolerateNonFatalError () { return tolerateNonFatalError_;}
+  NABoolean getTolerateNonFatalError() { return tolerateNonFatalError_; }
 
-  enum SelectStates {NO_ = 0, YES_ = 1, UNKNOWN_ = 2};
+  enum SelectStates { NO_ = 0, YES_ = 1, UNKNOWN_ = 2 };
 
-  void setHasInputRowsetsInSelectPredicate (const SelectStates flag) {hasInputRowsetsInSelect_ = flag;}
+  void setHasInputRowsetsInSelectPredicate(const SelectStates flag) { hasInputRowsetsInSelect_ = flag; }
 
-  SelectStates hasInputRowsetsInSelectPredicate () { return hasInputRowsetsInSelect_;}
+  SelectStates hasInputRowsetsInSelectPredicate() { return hasInputRowsetsInSelect_; }
 
-  void setRowsetRowCountArraySize (const Lng32 size) {rowsetRowCountArraySize_ = size;}
+  void setRowsetRowCountArraySize(const Lng32 size) { rowsetRowCountArraySize_ = size; }
 
-  Lng32 getRowsetRowCountArraySize () { return rowsetRowCountArraySize_;}
-  
-private:
+  Lng32 getRowsetRowCountArraySize() { return rowsetRowCountArraySize_; }
 
+ private:
   BindWA *bindWA_;
 
-  // Total number of instances of direct host arrays found. i.e. If the same 
-  // host array is used twice in a statement (within the same scope) then 
+  // Total number of instances of direct host arrays found. i.e. If the same
+  // host array is used twice in a statement (within the same scope) then
   // numHostArrays = 2.
   Lng32 numHostArrays_;
 
   // flag to indicate the presence of derived rowsets.  numHostArrays_ is only
-  // used to indicate the presence of direct rowsets. 
+  // used to indicate the presence of direct rowsets.
   NABoolean hasDerivedRowsets_;
 
   // Points to list of host arrays found in query
@@ -1094,17 +1061,17 @@ private:
   ItemExpr *indexExpr_;
 
   // Pointer to current root node
-  RelRoot * root_;
+  RelRoot *root_;
 
-  ItemExpr *rwrsMaxSize_;       // Input rowwise rowset max size.
+  ItemExpr *rwrsMaxSize_;  // Input rowwise rowset max size.
 
-  ItemExpr *rwrsMaxInputRowlen_;// max length of each input row in the
-                                // input rowwise rowset buffer.
-  ItemExpr *rwrsBuffer_;        // Contains the address of rowwise-rowset
-                                // buffer passed in at runtime to cli.
-  ItemExpr *partnNum_;          // partition number where this buffer need
-                                // to be shipped to.
-  NABoolean rowwiseRowset_;     // layout of input values is rowwise.
+  ItemExpr *rwrsMaxInputRowlen_;  // max length of each input row in the
+                                  // input rowwise rowset buffer.
+  ItemExpr *rwrsBuffer_;          // Contains the address of rowwise-rowset
+                                  // buffer passed in at runtime to cli.
+  ItemExpr *partnNum_;            // partition number where this buffer need
+                                  // to be shipped to.
+  NABoolean rowwiseRowset_;       // layout of input values is rowwise.
 
   // rows are packed sql/mp style in the buffer. All columns are packed
   // next to each other with no fillers or varchar/null optimizations.
@@ -1128,36 +1095,35 @@ private:
   // instead of dynamic parameter partnNum_
   NABoolean partnNumInBuffer_;
 
-  // Maximum array size; used for ODBC queries. It is specified by an ODBC 
+  // Maximum array size; used for ODBC queries. It is specified by an ODBC
   // process and passed to mxcmp
   ULng32 inputArrayMaxSize_;
 
   // Flag to indicate if this HostArraysWA contains any arrays used for insert
   NABoolean hasHostArraysInTuple_;
 
-  // flag to indicate the presence of dynamic rowsets. inputArrayMaxSize_ > 0 
+  // flag to indicate the presence of dynamic rowsets. inputArrayMaxSize_ > 0
   // indicates the presence of dynamic rowsets from ODBC. hasDynamicRowsets
   // indicates the presence of dynamic rowsets from either ODBC or embedded dynamic SQL
   NABoolean hasDynamicRowsets_;
 
-
-  //flag to indicate the presence of Select Into Rowset host variables.
-  //note that numHostArrays may be zero and listOfHostArrays empty even though
-  //this flag is set. Rowset hostvars used in select into do not make it into listofHostArrays.
+  // flag to indicate the presence of Select Into Rowset host variables.
+  // note that numHostArrays may be zero and listOfHostArrays empty even though
+  // this flag is set. Rowset hostvars used in select into do not make it into listofHostArrays.
   NABoolean hasSelectIntoRowsets_;
 
-  //flag to indicate the presence of Rowset host variables in Set clause.
+  // flag to indicate the presence of Rowset host variables in Set clause.
   NABoolean hasHostArraysInSetClause_;
 
-  //flag to indicate the presence of direct Rowset host variables in Where clause.
+  // flag to indicate the presence of direct Rowset host variables in Where clause.
   NABoolean hasHostArraysInWhereClause_;
 
-  //flag to indicate that this statement (or part of statement when in CS)
-  //is a  NOT ATOMIC rowset insert
+  // flag to indicate that this statement (or part of statement when in CS)
+  // is a  NOT ATOMIC rowset insert
   NABoolean tolerateNonFatalError_;
 
-  //state to indicate that this statement (or part of statement when in CS)
-  //is a select statment that has rowsets for input. This state is set during multiple 
+  // state to indicate that this statement (or part of statement when in CS)
+  // is a select statment that has rowsets for input. This state is set during multiple
   // passes through collectHostVarsInRelExprTree. Do no read the state before
   // we enter the binder, at which point the UNKNOWN_ state is same as the NO_ state
   SelectStates hasInputRowsetsInSelect_;
@@ -1179,43 +1145,38 @@ private:
 // The work area for the binder.
 //
 // ***********************************************************************
-class BindWA : public NABasicObject
-{
- enum Flags {
-   // --------------------------------------------------------------------
-   // Flag to indicate we are accessing an object which is defined in an
-   // external (native) hive or hbase.
-   // --------------------------------------------------------------------
-    ALLOW_EXT_TABLES          = 0x00000001,
+class BindWA : public NABasicObject {
+  enum Flags {
+    // --------------------------------------------------------------------
+    // Flag to indicate we are accessing an object which is defined in an
+    // external (native) hive or hbase.
+    // --------------------------------------------------------------------
+    ALLOW_EXT_TABLES = 0x00000001,
 
     // external table being dropped.
-    EXT_TABLE_DROP            = 0x00000002,
+    EXT_TABLE_DROP = 0x00000002,
 
     // return underlying hive table defn, if the table has an associated
     // external table
-    RETURN_HIVE_TABLE_DEFN    = 0x00000004,
+    RETURN_HIVE_TABLE_DEFN = 0x00000004,
 
     // set to true during bind phase if this query has a composite expr.
-    // It is then set at the RelRoot node at the end of bind and then 
+    // It is then set at the RelRoot node at the end of bind and then
     // used during code gen to skip NEW_LEAN_EXPR optimization as that
     // opt doesnt work with nested expressions. This flag may be removed
     // later if nested expr can support lean expr opt.
-    HAS_COMPOSITE_EXPR        = 0x00000008,
- };
+    HAS_COMPOSITE_EXPR = 0x00000008,
+  };
 
-public:
-
+ public:
   // --------------------------------------------------------------------
   // Constructor functions
   // --------------------------------------------------------------------
-  BindWA(SchemaDB *schemaDB,
-  	 CmpContext *currentCmpContext = NULL,
-	 NABoolean inDDL = FALSE,
-	 NABoolean allowExternalTables = FALSE,
-         NAHeap* workingHeap = NULL);
+  BindWA(SchemaDB *schemaDB, CmpContext *currentCmpContext = NULL, NABoolean inDDL = FALSE,
+         NABoolean allowExternalTables = FALSE, NAHeap *workingHeap = NULL);
 
   // copy ctor
-  BindWA (const BindWA & orig, CollHeap * h=0) ; // not written
+  BindWA(const BindWA &orig, CollHeap *h = 0);  // not written
 
   // --------------------------------------------------------------------
   // Destructor function
@@ -1224,13 +1185,13 @@ public:
 
   void initNewScope();
 
-  NABoolean  inDDL() const		   { return inDDL_; }
-  NABoolean  inSubqueryStartWith() const		   { return inSubqueryStartWith_; }
+  NABoolean inDDL() const { return inDDL_; }
+  NABoolean inSubqueryStartWith() const { return inSubqueryStartWith_; }
   void setInSubqueryStartWith(NABoolean v) { inSubqueryStartWith_ = v; }
-  const NATable *&inViewWithCheckOption()  { return inViewWithCheckOption_; }
+  const NATable *&inViewWithCheckOption() { return inViewWithCheckOption_; }
   ValueIdSet &predsOfViewWithCheckOption() { return predsOfViewWithCheckOption_; }
-  NABoolean inReadOnlyQuery() { return inReadOnlyQuery_;}
-  void setReadOnlyQuery() { inReadOnlyQuery_=TRUE;}
+  NABoolean inReadOnlyQuery() { return inReadOnlyQuery_; }
+  void setReadOnlyQuery() { inReadOnlyQuery_ = TRUE; }
 
   // --------------------------------------------------------------------
   // The following methods require the implementation of an iterator
@@ -1241,7 +1202,7 @@ public:
   void removeCurrentScope(NABoolean keepLocalRefs = FALSE);
 
   BindScope *findNextScopeWithTriggerInfo(BindScope *currentScope = NULL);
-  
+
   //--------------------------------------------------------------------------
   //++MV --
   // The isBindingMvRefresh flag is set during binding of INTERNAL REFRESH.
@@ -1258,16 +1219,14 @@ public:
   NABoolean isBindingOnStatementMv() const { return isBindingOnStatementMv_; }
   // See MvBindContext above for more details.
   void markScopeWithMvBindContext(MvBindContext *mvContext);
-  const MvBindContext * 
-    getClosestMvBindContext(BindScope *currentScope = NULL) const;
+  const MvBindContext *getClosestMvBindContext(BindScope *currentScope = NULL) const;
 
   // add uninitialized mv names to list
-  void addUninitializedMv( const char * physicalName, const char *ansiName );
+  void addUninitializedMv(const char *physicalName, const char *ansiName);
 
   // flag is set if an Insert/Update/Delete operation is bound
   void setBindingIUD() { isBindingIUD_ = TRUE; }
   NABoolean isBindingIUD() { return isBindingIUD_; }
-
 
   void setIsTrafLoadPrep(NABoolean x) { isTrafLoadPrep_ = x; }
   NABoolean isTrafLoadPrep() { return isTrafLoadPrep_; }
@@ -1283,18 +1242,16 @@ public:
   // complete discussion of how/why this method is used.
   BindScope *getSubqueryScope(BindScope *currentScope) const;
 
-  static ULng32 qualNameHashFunc(const QualifiedName& qualName);
+  static ULng32 qualNameHashFunc(const QualifiedName &qualName);
 
   // --------------------------------------------------------------------
   // Methods for the XCNM of constants, params, and host variables.
   // --------------------------------------------------------------------
-  void addInputValue(const NAString &name, ValueId valId)
-  {
-    inputVars_.insert(new(wHeap()) ColumnNameMap(name, valId, wHeap()));
+  void addInputValue(const NAString &name, ValueId valId) {
+    inputVars_.insert(new (wHeap()) ColumnNameMap(name, valId, wHeap()));
   }
 
-  ColumnNameMap *findInputValue(const NAString &name) const
-  {
+  ColumnNameMap *findInputValue(const NAString &name) const {
     ColRefName lookupName(name);
     return inputVars_.get(&lookupName);
   }
@@ -1317,17 +1274,16 @@ public:
   // findCorrName() operates like the first findColumn(), mutatis mutandis.
   //
   // --------------------------------------------------------------------
-  //ColumnNameMap  *findColumn(const ColRefName&, BindScope*&);
+  // ColumnNameMap  *findColumn(const ColRefName&, BindScope*&);
 
-  ColumnNameMap  *findColumn(ColReference *colRef, BindScope *&bindScope);
+  ColumnNameMap *findColumn(ColReference *colRef, BindScope *&bindScope);
 
-  ColumnNameMap  *findColumn(const ColumnDesc&);
+  ColumnNameMap *findColumn(const ColumnDesc &);
 
-  ColumnDescList *findCorrName(const CorrName&, BindScope*&);
+  ColumnDescList *findCorrName(const CorrName &, BindScope *&);
 
-  ColumnNameMap  *findCompositeColumn(ColReference *colRef, 
-                                      RETDesc *resultTable);
-  
+  ColumnNameMap *findCompositeColumn(ColReference *colRef, RETDesc *resultTable);
+
   NABoolean isPotentialUserColumn(ColReference *colRef);
   // --------------------------------------------------------------------
   // This method, called by BindRelExpr Join code and BindItemExpr ColReference,
@@ -1335,21 +1291,17 @@ public:
   // --------------------------------------------------------------------
   void markAsReferencedColumn(const ValueId &vid, NABoolean groupByRefForSingleIntHist = FALSE);
   void markAsReferencedColumn(const ColumnDesc *cd, NABoolean groupByRefForSingleIntHist = FALSE);
-  void markAsReferencedColumn(const ItemExpr *ie, NABoolean groupByRefForSingleIntHist = FALSE)
-    				  { markAsReferencedColumn(ie->getValueId(), groupByRefForSingleIntHist); }
-  void setColumnRefsInStoi(const char* fileName, Lng32 colPosition);
-
+  void markAsReferencedColumn(const ItemExpr *ie, NABoolean groupByRefForSingleIntHist = FALSE) {
+    markAsReferencedColumn(ie->getValueId(), groupByRefForSingleIntHist);
+  }
+  void setColumnRefsInStoi(const char *fileName, Lng32 colPosition);
 
   // --------------------------------------------------------------------
   // A rather miscellaneous utility, in the class so as to be more
   // acccessible to multiple calling files.
   // --------------------------------------------------------------------
-  RelExpr *bindView(const CorrName &viewName,
-		    const NATable *naTable,
-		    const StmtLevelAccessOptions &accessOptions,
-		    ItemExpr *predicate,
-                    GroupAttributes *groupAttrs,
-		    NABoolean catmanCollectUsages = FALSE);
+  RelExpr *bindView(const CorrName &viewName, const NATable *naTable, const StmtLevelAccessOptions &accessOptions,
+                    ItemExpr *predicate, GroupAttributes *groupAttrs, NABoolean catmanCollectUsages = FALSE);
 
   // --------------------------------------------------------------------
   // - Lookup (read from catalog and construct if need be) the NATable
@@ -1358,21 +1310,15 @@ public:
   // The same NATable can underlie many TableDescs
   // (i.e. the same table can be referred to many times, via many corr names).
   // --------------------------------------------------------------------
-  NATable *getNATable(CorrName &corrName,
-		      NABoolean catmanCollectTableUsages = TRUE,
-		      TrafDesc *inTableDesc = NULL,
-		      NABoolean writeReference = FALSE);
+  NATable *getNATable(CorrName &corrName, NABoolean catmanCollectTableUsages = TRUE, TrafDesc *inTableDesc = NULL,
+                      NABoolean writeReference = FALSE);
 
-  NATable *getNATableInternal(CorrName &corrName,
-                              NABoolean catmanCollectTableUsages = TRUE,
-                              TrafDesc *inTableDesc = NULL,
-                              NABoolean extTableDrop = FALSE,
+  NATable *getNATableInternal(CorrName &corrName, NABoolean catmanCollectTableUsages = TRUE,
+                              TrafDesc *inTableDesc = NULL, NABoolean extTableDrop = FALSE,
                               NABoolean intQryFromExeutil = TRUE);
 
-  TableDesc *createTableDesc(const NATable *naTable,
-                             CorrName &corrName,
-                             NABoolean catmanCollectUsages = FALSE,
-                             Hint *hint=NULL);
+  TableDesc *createTableDesc(const NATable *naTable, CorrName &corrName, NABoolean catmanCollectUsages = FALSE,
+                             Hint *hint = NULL);
 
   // --------------------------------------------------------------------
   // - Lookup (read from catalog and construct if need be) the NARoutine
@@ -1381,9 +1327,8 @@ public:
   // The same NARoutine can underlie many RoutineDescs
   // (i.e. the same table can be referred to many times, via many corr names).
   // --------------------------------------------------------------------
-//  NARoutine *getNARoutine(QualifiedName &routineName,
-//		          TrafDesc *inRoutineDesc = NULL);
-
+  //  NARoutine *getNARoutine(QualifiedName &routineName,
+  //		          TrafDesc *inRoutineDesc = NULL);
 
   // --------------------------------------------------------------------
   // BindWA::getTablesInScope() [and BindScope::getTablesInScope()]
@@ -1394,13 +1339,12 @@ public:
   //
   // Same search strategy as the first findColumn().
   // --------------------------------------------------------------------
-  void getTablesInScope(LIST(TableNameMap*) &xtnmList,
-                        NAString *formattedList = NULL) const;
+  void getTablesInScope(LIST(TableNameMap *) & xtnmList, NAString *formattedList = NULL) const;
 
   // --------------------------------------------------------------------
   // Get the SchemaDB that is valid for this query
   // --------------------------------------------------------------------
-  SchemaDB *getSchemaDB() const		{ return schemaDB_; }
+  SchemaDB *getSchemaDB() const { return schemaDB_; }
 
   // --------------------------------------------------------------------
   // Get the default schema (includes default catalog) for this query
@@ -1429,74 +1373,67 @@ public:
   // input string.  The list helps with the computing of view text,
   // check constraint search condition text, etc.
   // ---------------------------------------------------------------------
-  ParNameLocList *getNameLocListPtr() const	{ return pNameLocList_; }
-  void setNameLocListPtr(ParNameLocList *p)	{ pNameLocList_ = p; }
+  ParNameLocList *getNameLocListPtr() const { return pNameLocList_; }
+  void setNameLocListPtr(ParNameLocList *p) { pNameLocList_ = p; }
 
   // ---------------------------------------------------------------------
   // Get pointer pointing the parse node containing the usages
   // information (to help with computing view or check constraint definition).
   // ---------------------------------------------------------------------
-  ExprNode *getUsageParseNodePtr() const	{ return pUsageParseNode_; }
-  void setUsageParseNodePtr(ExprNode *p)	{ pUsageParseNode_ = p; }
+  ExprNode *getUsageParseNodePtr() const { return pUsageParseNode_; }
+  void setUsageParseNodePtr(ExprNode *p) { pUsageParseNode_ = p; }
 
   StmtDDLCreateView *getCreateViewParseNode() const;
 
   NABoolean inViewDefinition() const;
   NABoolean inMVDefinition() const;
   NABoolean inCheckConstraintDefinition() const;
- 
+
   //----------------------------------------------------------------------
   // Get the NARoutine associated with this routine name
   //----------------------------------------------------------------------
-  NARoutine *getNARoutine ( const QualifiedName &name );
+  NARoutine *getNARoutine(const QualifiedName &name);
 
   //----------------------------------------------------------------------
   // Insert the NARoutine in the NARoutineDB
   //----------------------------------------------------------------------
-//  void setNARoutine ( NARoutine *routine );
+  //  void setNARoutine ( NARoutine *routine );
 
   // ---------------------------------------------------------------------
   // Fabrication of unique names
   // (implementation dependent or implementation defined names).
   // Each call generates a new name guaranteed unique over this query.
   // ---------------------------------------------------------------------
-  UInt32 getUniqueNum() 			{ return ++uniqueNum_; }
+  UInt32 getUniqueNum() { return ++uniqueNum_; }
   NAString fabricateUniqueName() { return UnsignedToNAString(getUniqueNum()); }
 
   //++ Trigger -
-  enum uniqueIudNumOffset 
-    { uniqueIudNumForInsert = 0, 
-      uniqueIudNumForDelete = 1 };
+  enum uniqueIudNumOffset { uniqueIudNumForInsert = 0, uniqueIudNumForDelete = 1 };
   // set uniqueIudNum_ to the next unused number
-  inline void setUniqueIudNum() 	    { uniqueIudNum_ = maxIudNum_+=2; }
-  inline void setUniqueIudNum(Lng32 newNum)  { uniqueIudNum_ = newNum; }
-  inline void resetUniqueIudNum(Lng32 iudNum)	{ uniqueIudNum_ = iudNum; } 
-  inline Lng32 getUniqueIudNum(uniqueIudNumOffset offset = uniqueIudNumForInsert) 
-    { return uniqueIudNum_+offset; }
+  inline void setUniqueIudNum() { uniqueIudNum_ = maxIudNum_ += 2; }
+  inline void setUniqueIudNum(Lng32 newNum) { uniqueIudNum_ = newNum; }
+  inline void resetUniqueIudNum(Lng32 iudNum) { uniqueIudNum_ = iudNum; }
+  inline Lng32 getUniqueIudNum(uniqueIudNumOffset offset = uniqueIudNumForInsert) { return uniqueIudNum_ + offset; }
 
-  inline LIST(ComTimestamp)* getTriggersList() const { return triggersList_; } 
-  CollIndex addTrigger(const ComTimestamp& tr);
+  inline LIST(ComTimestamp) * getTriggersList() const { return triggersList_; }
+  CollIndex addTrigger(const ComTimestamp &tr);
   //--Triggers,
 
-  inline 
-      UninitializedMvNameList * getUninitializedMvList() const
-      { return uninitializedMvList_; }
+  inline UninitializedMvNameList *getUninitializedMvList() const { return uninitializedMvList_; }
 
   // --------------------------------------------------------------------
   // Temporary measure for errors.
   // --------------------------------------------------------------------
-  NABoolean errStatus() const		{ return errFlag_; }
-  void setErrStatus() 			{ errFlag_ = TRUE; }
-  void resetErrStatus() 		{ errFlag_ = FALSE; }
+  NABoolean errStatus() const { return errFlag_; }
+  void setErrStatus() { errFlag_ = TRUE; }
+  void resetErrStatus() { errFlag_ = FALSE; }
 
   // ---------------------------------------------------------------------
   // Display/print, for debugging.
   // ---------------------------------------------------------------------
   void display() const;
 
-  void print(FILE *ofd = stdout,
-	     const char *indent = DEFAULT_INDENT,
-             const char *title = "BindWA") const;
+  void print(FILE *ofd = stdout, const char *indent = DEFAULT_INDENT, const char *title = "BindWA") const;
 
   // ---------------------------------------------------------------------
   // Get current CmpContext and working heap and RETDescList
@@ -1506,223 +1443,189 @@ public:
   // Get the statementHeap from currentCmpContext_ as current working
   // heap.  The memory allocated from this heap will be wiped out
   // at the end of each statement.
-  CollHeap *wHeap() const
-  {
-    if ( wHeap_ )
-      return wHeap_;
+  CollHeap *wHeap() const {
+    if (wHeap_) return wHeap_;
 
     return currentCmpContext_ ? currentCmpContext_->statementHeap() : NULL;
   }
 
-  RETDescList &getRETDescList()	// not const, so result can be an lvalue
+  RETDescList &getRETDescList()  // not const, so result can be an lvalue
   {
     return RETDescList_;
   }
 
-  HostArraysWA *getHostArraysArea()	   { return hostArraysArea_; }
+  HostArraysWA *getHostArraysArea() { return hostArraysArea_; }
   void setHostArraysArea(HostArraysWA *wa) { hostArraysArea_ = wa; }
   AssignmentStArea *&getAssignmentStArea() { return assignmentStArea_; }
-  AssignmentStHostVars *getAssignmentStHostVars()
-  { return assignmentStArea_ ?
-  	   assignmentStArea_->getAssignmentStHostVars() : NULL;
+  AssignmentStHostVars *getAssignmentStHostVars() {
+    return assignmentStArea_ ? assignmentStArea_->getAssignmentStHostVars() : NULL;
   }
 
-  short &viewCount()			   { return viewCount_; }
+  short &viewCount() { return viewCount_; }
 
-  NABoolean allowExternalTables() const 
-  { return (flags_ & ALLOW_EXT_TABLES) != 0; }
-  void setAllowExternalTables(NABoolean v) 
-  { v ? flags_ |= ALLOW_EXT_TABLES : flags_ &= ~ALLOW_EXT_TABLES; }
+  NABoolean allowExternalTables() const { return (flags_ & ALLOW_EXT_TABLES) != 0; }
+  void setAllowExternalTables(NABoolean v) { v ? flags_ |= ALLOW_EXT_TABLES : flags_ &= ~ALLOW_EXT_TABLES; }
 
-  NABoolean externalTableDrop() const 
-  { return (flags_ & EXT_TABLE_DROP) != 0; }
-  void setExternalTableDrop(NABoolean v) 
-  { v ? flags_ |= EXT_TABLE_DROP : flags_ &= ~EXT_TABLE_DROP; }
+  NABoolean externalTableDrop() const { return (flags_ & EXT_TABLE_DROP) != 0; }
+  void setExternalTableDrop(NABoolean v) { v ? flags_ |= EXT_TABLE_DROP : flags_ &= ~EXT_TABLE_DROP; }
 
-  NABoolean returnHiveTableDefn() const 
-  { return (flags_ & RETURN_HIVE_TABLE_DEFN) != 0; }
-  void setReturnHiveTableDefn(NABoolean v) 
-  { v ? flags_ |= RETURN_HIVE_TABLE_DEFN : flags_ &= ~RETURN_HIVE_TABLE_DEFN; }
+  NABoolean returnHiveTableDefn() const { return (flags_ & RETURN_HIVE_TABLE_DEFN) != 0; }
+  void setReturnHiveTableDefn(NABoolean v) { v ? flags_ |= RETURN_HIVE_TABLE_DEFN : flags_ &= ~RETURN_HIVE_TABLE_DEFN; }
 
-  NABoolean hasCompositeExpr() const 
-  { return (flags_ & HAS_COMPOSITE_EXPR) != 0; }
-  void setHasCompositeExpr(NABoolean v) 
-  { v ? flags_ |= HAS_COMPOSITE_EXPR : flags_ &= ~HAS_COMPOSITE_EXPR; }
+  NABoolean hasCompositeExpr() const { return (flags_ & HAS_COMPOSITE_EXPR) != 0; }
+  void setHasCompositeExpr(NABoolean v) { v ? flags_ |= HAS_COMPOSITE_EXPR : flags_ &= ~HAS_COMPOSITE_EXPR; }
 
-  LIST(OptSqlTableOpenInfo *) &getStoiList()  { return stoiList_; }
-  LIST(OptUdrOpenInfo *) &getUdrStoiList()  { return udrStoiList_; }
-  LIST(SequenceValue *) &getSeqValList() { return seqValList_; }
+  LIST(OptSqlTableOpenInfo *) & getStoiList() { return stoiList_; }
+  LIST(OptUdrOpenInfo *) & getUdrStoiList() { return udrStoiList_; }
+  LIST(SequenceValue *) & getSeqValList() { return seqValList_; }
 
-  BindWA& insertSeqVal(SequenceValue *seqVal)
-  {
+  BindWA &insertSeqVal(SequenceValue *seqVal) {
     seqValList_.insert(seqVal);
     return *this;
   }
 
-  LIST(OptUDFInfo *) &getUDFList()  { return udfList_; }
+  LIST(OptUDFInfo *) & getUDFList() { return udfList_; }
 
-  ValueIdList &inputFunction()		   { return inputFunction_; }
+  ValueIdList &inputFunction() { return inputFunction_; }
   TableViewUsageList &tableViewUsageList() { return tableViewUsageList_; }
-  RelRoot * getTopRoot() { return topRoot_; }
+  RelRoot *getTopRoot() { return topRoot_; }
   void setTopRoot(RelRoot *root) { topRoot_ = root; }
 
-  HbaseColUsageInfo * hbaseColUsageInfo()
-  {
-    return hcui_;
-  }
+  HbaseColUsageInfo *hbaseColUsageInfo() { return hcui_; }
 
   NABoolean isPruningPartition() const { return isPruningPartition_; }
-  NABoolean setPruningPartition(NABoolean t)
-  {
+  NABoolean setPruningPartition(NABoolean t) {
     NABoolean r = isPruningPartition_;
     isPruningPartition_ = t;
     return r;
   }
-  
-  // QSTUFF
-  NABoolean renameToScanTable() const		{ return renameToScanTable_;}
-  void setRenameToScanTable(NABoolean t)	{ renameToScanTable_ = t; }
 
-  NABoolean inGenericUpdate() const		{ return inGenericUpdate_;}
-  NABoolean setInGenericUpdate(NABoolean t)
-  {
+  // QSTUFF
+  NABoolean renameToScanTable() const { return renameToScanTable_; }
+  void setRenameToScanTable(NABoolean t) { renameToScanTable_ = t; }
+
+  NABoolean inGenericUpdate() const { return inGenericUpdate_; }
+  NABoolean setInGenericUpdate(NABoolean t) {
     NABoolean r = inGenericUpdate_;
     inGenericUpdate_ = t;
     return r;
   }
 
-  NABoolean inViewExpansion() const		{ return inViewExpansion_;}
-  NABoolean setInViewExpansion(NABoolean t)
-  {
+  NABoolean inViewExpansion() const { return inViewExpansion_; }
+  NABoolean setInViewExpansion(NABoolean t) {
     NABoolean r = inViewExpansion_;
     inViewExpansion_ = t;
     return r;
   }
 
-  CommonSubExprRef *inCSE() const       { return currCSE_; }
-  void setInCSE(CommonSubExprRef *cte)  { currCSE_ = cte; }
-  
-  NABoolean inCTAS() const		{ return inCTAS_; }
-  void setInCTAS(NABoolean t)
-  {
-    inCTAS_ = t;
-  }
+  CommonSubExprRef *inCSE() const { return currCSE_; }
+  void setInCSE(CommonSubExprRef *cte) { currCSE_ = cte; }
 
-  ValueIdMap &getUpdateToScanValueIds()		{ return updateToScanValueIds_;}
+  NABoolean inCTAS() const { return inCTAS_; }
+  void setInCTAS(NABoolean t) { inCTAS_ = t; }
+
+  ValueIdMap &getUpdateToScanValueIds() { return updateToScanValueIds_; }
   // QSTUFF
 
-  void appendViewName(const char* v) { viewsUsed_ += v; viewsUsed_ += "+"; }
+  void appendViewName(const char *v) {
+    viewsUsed_ += v;
+    viewsUsed_ += "+";
+  }
   NAString getViewsUsed() const { return viewsUsed_; }
 
   // QSTUFF
 
   // Raj P -  7/2000
   // Used for semantic checks in CALL
-  NABoolean isInTrigger () const { return inTrigger_; }
-  void setInTrigger () { inTrigger_ = TRUE; }
-  void clearInTrigger () { inTrigger_ = FALSE;}
+  NABoolean isInTrigger() const { return inTrigger_; }
+  void setInTrigger() { inTrigger_ = TRUE; }
+  void clearInTrigger() { inTrigger_ = FALSE; }
 
   // Used for to check presence of dynamic rowsets in subqueries from RelRoot.
-  void setHasDynamicRowsetsInQuery (const NABoolean flag = TRUE) {hasDynamicRowsetsInQuery_ = flag;}
-  NABoolean hasDynamicRowsetsInQuery () { return hasDynamicRowsetsInQuery_;}
+  void setHasDynamicRowsetsInQuery(const NABoolean flag = TRUE) { hasDynamicRowsetsInQuery_ = flag; }
+  NABoolean hasDynamicRowsetsInQuery() { return hasDynamicRowsetsInQuery_; }
 
   // CLI support, make IN and OUT params accessible to RelRoot
   // Used by CALL statement
-  inline ItemExprList &getSpInParams()  { return spInParams_;}
-  inline ItemExprList &getSpOutParams() { return spOutParams_;}	
-  inline CollIndex getCurrOrdinalPosition() const { return currOrdinalPosition_;}
-  inline ComColumnDirection getCurrParamMode() const { return currParamMode_;}
-  inline NABoolean bindingCall() const {return bindingCall_;}
+  inline ItemExprList &getSpInParams() { return spInParams_; }
+  inline ItemExprList &getSpOutParams() { return spOutParams_; }
+  inline CollIndex getCurrOrdinalPosition() const { return currOrdinalPosition_; }
+  inline ComColumnDirection getCurrParamMode() const { return currParamMode_; }
+  inline NABoolean bindingCall() const { return bindingCall_; }
   inline short getMaxResultSets() const { return maxResultSets_; }
-  inline void setCurrOrdinalPosition(CollIndex v){ currOrdinalPosition_ = v;}
-  inline void setCurrParamMode(ComColumnDirection v){ currParamMode_ = v;}
-  inline void setBindingCall(NABoolean val) { bindingCall_ = val;}
+  inline void setCurrOrdinalPosition(CollIndex v) { currOrdinalPosition_ = v; }
+  inline void setCurrParamMode(ComColumnDirection v) { currParamMode_ = v; }
+  inline void setBindingCall(NABoolean val) { bindingCall_ = val; }
   inline void setMaxResultSets(short maxRS) { maxResultSets_ = maxRS; }
-  inline void addHVorDPToSPDups (ItemExpr *h) { spHVDPs_.insert (h);}
-  inline LIST(ItemExpr *) &getSpHVDPs() { return spHVDPs_; }
-  ItemExpr *getHVorDPFromSPDups (ItemExpr *h);  
-  NABoolean checkHVorDPinSPDups (ItemExpr *h);
-  NABoolean checkMultiOutSPParams (ItemExpr *h);
-  inline void clearHVorDPinSPDups () {spHVDPs_.clear ();}
-  inline const QualifiedName &getCurrSPName () const {return *currSPName_;}
-  inline void setCurrSPName (QualifiedName *name){currSPName_ = name;}
-  inline NABoolean getDupWarning () const {return dupWarning_;}
-  inline void setDupWarning (NABoolean val) {dupWarning_ = val;}
+  inline void addHVorDPToSPDups(ItemExpr *h) { spHVDPs_.insert(h); }
+  inline LIST(ItemExpr *) & getSpHVDPs() { return spHVDPs_; }
+  ItemExpr *getHVorDPFromSPDups(ItemExpr *h);
+  NABoolean checkHVorDPinSPDups(ItemExpr *h);
+  NABoolean checkMultiOutSPParams(ItemExpr *h);
+  inline void clearHVorDPinSPDups() { spHVDPs_.clear(); }
+  inline const QualifiedName &getCurrSPName() const { return *currSPName_; }
+  inline void setCurrSPName(QualifiedName *name) { currSPName_ = name; }
+  inline NABoolean getDupWarning() const { return dupWarning_; }
+  inline void setDupWarning(NABoolean val) { dupWarning_ = val; }
 
-  inline Int32 getRoutineInvocationNum() { return routineInvocationNum_++ ; }
+  inline Int32 getRoutineInvocationNum() { return routineInvocationNum_++; }
   void setInliningInfoFlagsToSetRecursivly(Int32 flags) { inliningInfoFlagsToSetRecursivly_ = flags; }
-  Int32  getInliningInfoFlagsToSetRecursivly() const { return inliningInfoFlagsToSetRecursivly_; }
+  Int32 getInliningInfoFlagsToSetRecursivly() const { return inliningInfoFlagsToSetRecursivly_; }
 
   StmtLevelAccessOptions *findUserSpecifiedAccessOption();
 
-  inline NABoolean isEmbeddedIUDStatement () const {return embeddedIUDStatement_;}
-  inline void setEmbeddedIUDStatement (NABoolean val) {embeddedIUDStatement_ = val;}
+  inline NABoolean isEmbeddedIUDStatement() const { return embeddedIUDStatement_; }
+  inline void setEmbeddedIUDStatement(NABoolean val) { embeddedIUDStatement_ = val; }
 
-  inline NABoolean isInsertSelectStatement () const {return insertSelectStatement_;}
-  inline void setInsertSelectStatement (NABoolean val) {insertSelectStatement_ = val;}
+  inline NABoolean isInsertSelectStatement() const { return insertSelectStatement_; }
+  inline void setInsertSelectStatement(NABoolean val) { insertSelectStatement_ = val; }
 
-  inline NABoolean isIndexInsertStatement () const {return indexInsertStatement_;}
-  inline void setIndexInsertStatement (NABoolean val) {indexInsertStatement_ = val;}
+  inline NABoolean isIndexInsertStatement() const { return indexInsertStatement_; }
+  inline void setIndexInsertStatement(NABoolean val) { indexInsertStatement_ = val; }
 
-  inline NABoolean isMergeStatement () const {return mergeStatement_;}
-  inline void setMergeStatement (NABoolean val) {mergeStatement_ = val;}
+  inline NABoolean isMergeStatement() const { return mergeStatement_; }
+  inline void setMergeStatement(NABoolean val) { mergeStatement_ = val; }
 
   void appendCorrNameToken(char c) { corrNameTokens_ += c; };
   NAString getCorrNameTokens() const { return corrNameTokens_; }
 
-  void setHoldableType(SQLATTRHOLDABLE_INTERNAL_TYPE h)
-  { holdableType_ = h; }
+  void setHoldableType(SQLATTRHOLDABLE_INTERNAL_TYPE h) { holdableType_ = h; }
 
-  SQLATTRHOLDABLE_INTERNAL_TYPE getHoldableType() { return holdableType_; } 
+  SQLATTRHOLDABLE_INTERNAL_TYPE getHoldableType() { return holdableType_; }
 
   NABoolean isBindTrueRoot() const { return isBindTrueRoot_; }
   void setBindTrueRoot(NABoolean x) { isBindTrueRoot_ = x; }
 
   inline NAString getOsFromSchema() const { return osFromSchema_; }
   inline NAString getOsToSchema() const { return osToSchema_; }
-  inline NABoolean overrideSchemaEnabled() const 
-    {  return overrideSchemaEnabled_;  }
-  inline void setToOverrideSchema(const NABoolean val) 
-    {  toOverrideSchema_ = (overrideSchemaEnabled_? val : FALSE);  }
-  inline NABoolean getToOverrideSchema() const
-    {  return (overrideSchemaEnabled_? toOverrideSchema_ : FALSE);  }
-  void doOverrideSchema(CorrName& corrName);
+  inline NABoolean overrideSchemaEnabled() const { return overrideSchemaEnabled_; }
+  inline void setToOverrideSchema(const NABoolean val) { toOverrideSchema_ = (overrideSchemaEnabled_ ? val : FALSE); }
+  inline NABoolean getToOverrideSchema() const { return (overrideSchemaEnabled_ ? toOverrideSchema_ : FALSE); }
+  void doOverrideSchema(CorrName &corrName);
   void initializeOverrideSchema();
-  NABoolean violateAccessDefaultSchemaOnly(const QualifiedName&);
+  NABoolean violateAccessDefaultSchemaOnly(const QualifiedName &);
   NABoolean raiseAccessDefaultSchemaOnlyError();
 
-  NABoolean noNeedToLimitSchemaAccess() const {
-    return noNeedToLimitSchemaAccess_;
-  }
-  void setNoNeedToLimitSchemaAccess(NABoolean val) {
-    noNeedToLimitSchemaAccess_ = val;
-  }
+  NABoolean noNeedToLimitSchemaAccess() const { return noNeedToLimitSchemaAccess_; }
+  void setNoNeedToLimitSchemaAccess(NABoolean val) { noNeedToLimitSchemaAccess_ = val; }
 
-  void setFailedForPrivileges(NABoolean val) {
-    failedForPrivileges_ = val;
-  }
-  NABoolean failedForPrivileges() const {
-    return failedForPrivileges_ ;
-  }
+  void setFailedForPrivileges(NABoolean val) { failedForPrivileges_ = val; }
+  NABoolean failedForPrivileges() const { return failedForPrivileges_; }
 
-  void setShouldLogAccessViolations(NABoolean val) {
-    shouldLogAccessViolations_ = val;
-  }
-  NABoolean shouldLogAccessViolations() const {
-    return shouldLogAccessViolations_ ;
-  }
+  void setShouldLogAccessViolations(NABoolean val) { shouldLogAccessViolations_ = val; }
+  NABoolean shouldLogAccessViolations() const { return shouldLogAccessViolations_; }
 
   NABoolean queryCanUseSeaMonster();
   NABoolean &volatileTableFound() { return volatileTableFound_; }
-  
-  BindScope  *&outerAggScope()   { return outerAggScope_; }
 
-  inline NABoolean hasCallStmts()     { return hasCallStmts_; }
-  inline void setHasCallStmts(NABoolean v)      { hasCallStmts_ = v; }
+  BindScope *&outerAggScope() { return outerAggScope_; }
 
-  inline void setISPExecLocation(const NAString & locationStr) { ISPExecLocation_ = locationStr; }
+  inline NABoolean hasCallStmts() { return hasCallStmts_; }
+  inline void setHasCallStmts(NABoolean v) { hasCallStmts_ = v; }
 
-  const NAString & getISPExecLocation() const { return ISPExecLocation_ ;}
+  inline void setISPExecLocation(const NAString &locationStr) { ISPExecLocation_ = locationStr; }
+
+  const NAString &getISPExecLocation() const { return ISPExecLocation_; }
 
   Int32 numTablesPerSelect() { return numTablesPerSelect_; }
   Int32 numTablesPerQuery() { return numTablesPerQuery_; }
@@ -1730,53 +1633,47 @@ public:
   void incrNumTablesPerSelect() { numTablesPerSelect_++; }
   void incrNumTablesPerQuery() { numTablesPerQuery_++; }
 
-  void decrNumTablesPerSelect() 
-  {
-    if (numTablesPerSelect_ > 0)
-      numTablesPerSelect_--;
+  void decrNumTablesPerSelect() {
+    if (numTablesPerSelect_ > 0) numTablesPerSelect_--;
   }
-  void decrNumTablesPerQuery() 
-  { 
-    if (numTablesPerQuery_ > 0)
-      numTablesPerQuery_--;
+  void decrNumTablesPerQuery() {
+    if (numTablesPerQuery_ > 0) numTablesPerQuery_--;
   }
 
   void resetNumTablesPerSelect() { numTablesPerSelect_ = 0; }
   void resetNumTablesPerQuery() { numTablesPerQuery_ = 0; }
 
-  const ValueIdSet &getConnectByVidSet( ) { return connectByVids_; }
-  void addToConnectByVidSet(ItemExpr * ie) { connectByVids_.addMember(ie); }
+  const ValueIdSet &getConnectByVidSet() { return connectByVids_; }
+  void addToConnectByVidSet(ItemExpr *ie) { connectByVids_.addMember(ie); }
 
-  const ValueIdSet &getStartWithDynParamVidSet( ) { return startWithDynParamVids_; }
-  void addToStartWithDynParamVidSet(ItemExpr * ie) { startWithDynParamVids_.addMember(ie); }
+  const ValueIdSet &getStartWithDynParamVidSet() { return startWithDynParamVids_; }
+  void addToStartWithDynParamVidSet(ItemExpr *ie) { startWithDynParamVids_.addMember(ie); }
 
-  short validateNumTables(RelExpr * node);
+  short validateNumTables(RelExpr *node);
 
-  short validateUpdateStatisticsExpression(RelExpr * node, 
-    const NAType ** expressionType /* out */,
-    NAString & unparsedExpr /* out */);
+  short validateUpdateStatisticsExpression(RelExpr *node, const NAType **expressionType /* out */,
+                                           NAString &unparsedExpr /* out */);
 
-   //added for CONNECT BY handling
-   NAString connectByPathCol_;
-   NAString connectByPathDel_;
+  // added for CONNECT BY handling
+  NAString connectByPathCol_;
+  NAString connectByPathDel_;
 
-   NABoolean connectByHasPath_;
-   NABoolean connectByHasIsLeaf_;
+  NABoolean connectByHasPath_;
+  NABoolean connectByHasIsLeaf_;
 
-   NAString  orderSiblingsByCol_;
+  NAString orderSiblingsByCol_;
 
   void setBRLockedObjectsAccess(Int16 v) { brLockedObjectsAccess_ = v; }
   Int16 getBRLockedObjectsAccess() { return brLockedObjectsAccess_; }
 
-  LIST(int) &extendedSelList() { return extendedSelList_; }
-  void setRecodeSelectList(NABoolean v) {recodeExtendSelectList_ = v;}
+  LIST(int) & extendedSelList() { return extendedSelList_; }
+  void setRecodeSelectList(NABoolean v) { recodeExtendSelectList_ = v; }
   NABoolean recodeSelectList() { return recodeExtendSelectList_; }
-  
-private:
 
-  NAHeap* wHeap_; // working heap, if provided. But be declared 
-                  // first in the data member list so that it
-                  // can be initialized first.
+ private:
+  NAHeap *wHeap_;  // working heap, if provided. But be declared
+                   // first in the data member list so that it
+                   // can be initialized first.
 
   // --------------------------------------------------------------------
   // source and target schemas for override_schema
@@ -1814,7 +1711,7 @@ private:
   Lng32 maxIudNum_;
 
   // List of all triggers inlined in this statement. Used for trigger-enable.
-  LIST(ComTimestamp) *triggersList_;
+  LIST(ComTimestamp) * triggersList_;
   //-- Trigger -
 
   // a list to record the details of the query list expansion
@@ -1883,7 +1780,7 @@ private:
   LIST(OptUDFInfo *) udfList_;
 
   // information on column usage when a native hbase is accessed in the query.
-  HbaseColUsageInfo * hcui_;
+  HbaseColUsageInfo *hcui_;
 
   // --------------------------------------------------------------------
   // Default schema and catalog for this query.
@@ -1971,22 +1868,22 @@ private:
 
   // Pointer to root at the top of the tree
   RelRoot *topRoot_;
-  
+
   // --------------------------------------------------------------------
   // TRUE if we are pruning partition.
   // --------------------------------------------------------------------
   NABoolean isPruningPartition_;
   // QSTUFF
-  NABoolean  inGenericUpdate_;
-  NABoolean  renameToScanTable_;
-  NABoolean  inViewExpansion_;
+  NABoolean inGenericUpdate_;
+  NABoolean renameToScanTable_;
+  NABoolean inViewExpansion_;
   ValueIdMap updateToScanValueIds_;
   // QSTUFF
 
   // set if we are currently under a CommonSubExprRef node
   CommonSubExprRef *currCSE_;
 
-  NABoolean  inCTAS_;
+  NABoolean inCTAS_;
 
   // names of referenced views. used by query caching to guard against false
   // cache hits from view queries that expand to & get identical query plans.
@@ -2016,26 +1913,26 @@ private:
   // attributes for CALL statements
   CollIndex currOrdinalPosition_;
   ComColumnDirection currParamMode_;
-  LIST (ItemExpr *) spHVDPs_;
+  LIST(ItemExpr *) spHVDPs_;
   NABoolean dupWarning_;
 
   // Set these flags recursivly in every RelExpr node being bound.
-  Int32  inliningInfoFlagsToSetRecursivly_;
+  Int32 inliningInfoFlagsToSetRecursivly_;
 
   // denotes that this is a SELECT ... INSERT/DELETE/UPDATE ...
   // type statement, but NOT the Pub/Sub embedded update/delete statement.
-  // Currently such MTS (multi-transaction support) features support 
+  // Currently such MTS (multi-transaction support) features support
   // an embedded insert or delete
   NABoolean embeddedIUDStatement_;
 
   // denotes that this is a INSERT-SELECT type of statement.
-  // identified in genericUpdate::BindNode. Note that there is 
+  // identified in genericUpdate::BindNode. Note that there is
   // another flag similar to this in insert object. See Insert object
   // for more details.
   NABoolean insertSelectStatement_;
 
   // denotes that this is a INSERT into an index table directly (without inlining).
-  // identified in genericUpdate::BindNode. 
+  // identified in genericUpdate::BindNode.
   NABoolean indexInsertStatement_;
 
   // denotes that this is a MERGE statement.
@@ -2047,11 +1944,11 @@ private:
   // in the SqlText.
   Int32 routineInvocationNum_;
   // --------------------------------------------------------------------
-   // Rowset flags
+  // Rowset flags
   // --------------------------------------------------------------------
 
-   // flag to indicate the presence of dynamic rowsets somewhere in the whole query. 
-   // the hasDynamicRowsets_ flag in hostArraysWA is scoped, so in TrueRoot we do not
+  // flag to indicate the presence of dynamic rowsets somewhere in the whole query.
+  // the hasDynamicRowsets_ flag in hostArraysWA is scoped, so in TrueRoot we do not
   // we have a rowset, it the rowset is present only in a subquery.
   NABoolean hasDynamicRowsetsInQuery_;
 
@@ -2062,11 +1959,9 @@ private:
   SQLATTRHOLDABLE_INTERNAL_TYPE holdableType_;
 
   // TRUE if there is no need to limit schema access. Default is FALSE.
-  // This is used to temporarily remove the schema access limitation 
+  // This is used to temporarily remove the schema access limitation
   // for some cases when DEFAULT_SCHEMA_ACCESS_ONLY is ON.
   NABoolean noNeedToLimitSchemaAccess_;
-
-
 
   NABoolean isTrafLoadPrep_;
 
@@ -2086,68 +1981,56 @@ private:
 
   Int32 numTablesPerSelect_;
   Int32 numTablesPerQuery_;
- 
-  ValueIdSet  connectByVids_;
-  ValueIdSet  startWithDynParamVids_;
+
+  ValueIdSet connectByVids_;
+  ValueIdSet startWithDynParamVids_;
 
   Int16 brLockedObjectsAccess_;
-}; // class BindWA
+};  // class BindWA
 
-class HbaseColUsageInfo : public NABasicObject
-{
+class HbaseColUsageInfo : public NABasicObject {
  public:
-  HbaseColUsageInfo(NAMemory *h, Lng32 initSize = 67) 
-    {
-      HashFunctionPtr hashFunc = (HashFunctionPtr)(&BindWA::qualNameHashFunc);
-      usageInfo_ = new (h) 
-	NAHashDictionary<QualifiedName, NASet<NAString>>
-	(hashFunc,initSize,TRUE,h);
+  HbaseColUsageInfo(NAMemory *h, Lng32 initSize = 67) {
+    HashFunctionPtr hashFunc = (HashFunctionPtr)(&BindWA::qualNameHashFunc);
+    usageInfo_ = new (h) NAHashDictionary<QualifiedName, NASet<NAString>>(hashFunc, initSize, TRUE, h);
 
-      heap_ = h;
-    }
-  
-  void insert(QualifiedName *tableName)
-  {
-    NASet<NAString> * v = new(heap_) NASet<NAString>(heap_);
+    heap_ = h;
+  }
+
+  void insert(QualifiedName *tableName) {
+    NASet<NAString> *v = new (heap_) NASet<NAString>(heap_);
     usageInfo_->insert(tableName, v);
   }
- 
-  void insert(QualifiedName *tableName, NAString *colName)
-  {
-    NASet<NAString> * cns = hbaseColNameSet(tableName);
-    if (! cns)
-      {
-	insert(tableName);
-	cns = hbaseColNameSet(tableName);
-      }
+
+  void insert(QualifiedName *tableName, NAString *colName) {
+    NASet<NAString> *cns = hbaseColNameSet(tableName);
+    if (!cns) {
+      insert(tableName);
+      cns = hbaseColNameSet(tableName);
+    }
 
     cns->insert(*colName);
   }
- 
-  NASet<NAString> *hbaseColNameSet(QualifiedName *tableName)
-    { 
-      NASet<NAString> *hcns = usageInfo_->getFirstValue(tableName);
-      return hcns;
-    }
-  
- private:
- NAHashDictionary <QualifiedName, NASet<NAString>> * usageInfo_;
 
- NAMemory *heap_;
+  NASet<NAString> *hbaseColNameSet(QualifiedName *tableName) {
+    NASet<NAString> *hcns = usageInfo_->getFirstValue(tableName);
+    return hcns;
+  }
+
+ private:
+  NAHashDictionary<QualifiedName, NASet<NAString>> *usageInfo_;
+
+  NAMemory *heap_;
 };
 
-inline void setInUpdateOrInsert(BindWA *bindWA,
-				GenericUpdate *gu = NULL,
-				OperatorTypeEnum updins = NOT_UpdateOrInsert)
-{
+inline void setInUpdateOrInsert(BindWA *bindWA, GenericUpdate *gu = NULL,
+                                OperatorTypeEnum updins = NOT_UpdateOrInsert) {
   BindContext *context = bindWA->getCurrentScope()->context();
-  context->inUpdateOrInsert()    = updins;
-  context->updateOrInsertNode()  = gu;
-  context->updateOrInsertScope() =
-    (updins == NOT_UpdateOrInsert) ? NULL : bindWA->getCurrentScope();
+  context->inUpdateOrInsert() = updins;
+  context->updateOrInsertNode() = gu;
+  context->updateOrInsertScope() = (updins == NOT_UpdateOrInsert) ? NULL : bindWA->getCurrentScope();
 }
 
-void extractOverrideSchemas(const char *value, NAString& fromSchema, NAString& toSchema);
-
+void extractOverrideSchemas(const char *value, NAString &fromSchema, NAString &toSchema);
 
 #endif /* BindWA_H */

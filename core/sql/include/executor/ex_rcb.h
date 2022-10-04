@@ -27,9 +27,9 @@
  *****************************************************************************
  *
  * File:         ex_rcb.h
- * Description:  
- *               
- *               
+ * Description:
+ *
+ *
  * Created:      7/10/95
  * Language:     C++
  *
@@ -41,10 +41,8 @@
 
 // function to covert a MP record struct to ExRCB, called by filesystem.
 // void * is returned so it does not need to include comrcb.h
-void * ExRcbFromMpLabelInfo (void * recordPtr, void * sqlLabel,
-			      short entry_seq, 
-			      CollHeap *heap );
+void *ExRcbFromMpLabelInfo(void *recordPtr, void *sqlLabel, short entry_seq, CollHeap *heap);
 
-short getExRcbSize ();
+short getExRcbSize();
 
 #endif

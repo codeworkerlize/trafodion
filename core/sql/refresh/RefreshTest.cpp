@@ -30,9 +30,9 @@
 *
 * Created:      01/09/2001
 * Language:     C++
-* 
 *
-* 
+*
+*
 ******************************************************************************
 */
 
@@ -46,53 +46,52 @@
 #include "dsstring.h"
 #include "RuSQLComposer.h"
 
-enum //values for specifying link options...
-  {MSG_LINK_CBA        = 0200 , //all the addresses are 32 bit
-                                //ptrs to CBAs
-   MSG_LINK_STOPME     = 0100 , //special handling for self stop
-   MSG_LINK_TOCLUSTER  = 040 ,  //CLUSTERLINK replacement
-   MSG_LINK_FSDONEQ    = 020 ,  //FileSystem DONE queueing
-   MSG_LINK_LDONEQ     = 010 ,  //LDONE queueing
-   MSG_LINK_EXREMOTE   = 04 ,   //force "remote request" (EXPAND)
-   MSG_LINK_REMID      = 02 ,   //force "remote access"  (EXPAND)
-   MSG_LINK_SECURE     = 01
-  };  
+enum                    // values for specifying link options...
+{ MSG_LINK_CBA = 0200,  // all the addresses are 32 bit
+                        // ptrs to CBAs
+  MSG_LINK_STOPME = 0100,    // special handling for self stop
+  MSG_LINK_TOCLUSTER = 040,  // CLUSTERLINK replacement
+  MSG_LINK_FSDONEQ = 020,    // FileSystem DONE queueing
+  MSG_LINK_LDONEQ = 010,     // LDONE queueing
+  MSG_LINK_EXREMOTE = 04,    // force "remote request" (EXPAND)
+  MSG_LINK_REMID = 02,       // force "remote access"  (EXPAND)
+  MSG_LINK_SECURE = 01 };
 #include "security/UID.h"
 #include "security/dsecure.h"
 #include "guardian/dsystypz.h"
 #include "security/psecure.h"
 
 /*
-	This program must have ready sql tables before execution.
-	This is the sql statement that creates those tables
+        This program must have ready sql tables before execution.
+        This is the sql statement that creates those tables
 
-create table RefreshControlTable 
-		(group_id				INT UNSIGNED NOT NULL NOT DROPPABLE,
-		 process_id				INT UNSIGNED NOT NULL NOT DROPPABLE,
-		 ordinal				INT UNSIGNED NOT NULL NOT DROPPABLE,
-		 sql_text				CHAR(1000) NOT NULL NOT DROPPABLE,
-		 number_of_executions	INT UNSIGNED NOT NULL NOT DROPPABLE,
-		 number_of_retries		INT UNSIGNED NOT NULL NOT DROPPABLE,
-		 auto_commit			INT UNSIGNED NOT NULL NOT DROPPABLE, -- 1 commit , 0 dont commit
-		 primary key (group_id,process_id,ordinal))
-		 store by primary key;
+create table RefreshControlTable
+                (group_id				INT UNSIGNED NOT NULL NOT DROPPABLE,
+                 process_id				INT UNSIGNED NOT NULL NOT DROPPABLE,
+                 ordinal				INT UNSIGNED NOT NULL NOT DROPPABLE,
+                 sql_text				CHAR(1000) NOT NULL NOT DROPPABLE,
+                 number_of_executions	INT UNSIGNED NOT NULL NOT DROPPABLE,
+                 number_of_retries		INT UNSIGNED NOT NULL NOT DROPPABLE,
+                 auto_commit			INT UNSIGNED NOT NULL NOT DROPPABLE, -- 1 commit , 0 dont commit
+                 primary key (group_id,process_id,ordinal))
+                 store by primary key;
 
 create table RefreshOutputTable
-		(group_id				INT UNSIGNED NOT NULL NOT DROPPABLE,
-		 process_id				INT UNSIGNED NOT NULL NOT DROPPABLE,
-		 ordinal				INT UNSIGNED NOT NULL NOT DROPPABLE,
-		 try_number				INT UNSIGNED NOT NULL NOT DROPPABLE,
-		 line					INT UNSIGNED NOT NULL NOT DROPPABLE,
-		 sql_error_code			INT NOT NULL NOT DROPPABLE,
-		 sql_error_text			CHAR(1000))
-		 store by entry order;
+                (group_id				INT UNSIGNED NOT NULL NOT DROPPABLE,
+                 process_id				INT UNSIGNED NOT NULL NOT DROPPABLE,
+                 ordinal				INT UNSIGNED NOT NULL NOT DROPPABLE,
+                 try_number				INT UNSIGNED NOT NULL NOT DROPPABLE,
+                 line					INT UNSIGNED NOT NULL NOT DROPPABLE,
+                 sql_error_code			INT NOT NULL NOT DROPPABLE,
+                 sql_error_text			CHAR(1000))
+                 store by entry order;
 
 create table RefreshTimeTable
-		(group_id				INT UNSIGNED NOT NULL NOT DROPPABLE,
-		 process_id				INT UNSIGNED NOT NULL NOT DROPPABLE,
-		 after_sync 			INT UNSIGNED NOT NULL NOT DROPPABLE,
-		 ts						TIMESTAMP NOT NULL NOT DROPPABLE)
-		 store by entry order;
+                (group_id				INT UNSIGNED NOT NULL NOT DROPPABLE,
+                 process_id				INT UNSIGNED NOT NULL NOT DROPPABLE,
+                 after_sync 			INT UNSIGNED NOT NULL NOT DROPPABLE,
+                 ts						TIMESTAMP NOT NULL NOT DROPPABLE)
+                 store by entry order;
 
 
 */
@@ -103,8 +102,7 @@ create table RefreshTimeTable
 
 #define MAX_PRINTABLE_SID_LENGTH 256
 
-void SetUser(const char *argAfterOp)
-{
+void SetUser(const char *argAfterOp) {
 #if 0
 // need to rewrite for Linux
 	NTSEC_USER currentUser;
@@ -135,381 +133,333 @@ void SetUser(const char *argAfterOp)
 #endif
 }
 
-void HandleExecuteException(CDSException &ex)
-{
-	enum { BUFSIZE = 1024 };
+void HandleExecuteException(CDSException &ex) {
+  enum { BUFSIZE = 1024 };
 
-	short nerr = ex.GetNumErrors();
-	char buffer[BUFSIZE];
-	CDSString msg;
+  short nerr = ex.GetNumErrors();
+  char buffer[BUFSIZE];
+  CDSString msg;
 
-	for (Int32 i=0; i<nerr; i++) {
-		
-		ex.GetErrorMsg(i, buffer, BUFSIZE);
-		
-		if (buffer[0] != 0)
-		{
-			// Clear the trailing whitespace
-			char *p = buffer + strlen(buffer) - 1;
-			for (;buffer != p && isspace((unsigned char)*p); p--, *p=0);  // For VS2003
-		}
+  for (Int32 i = 0; i < nerr; i++) {
+    ex.GetErrorMsg(i, buffer, BUFSIZE);
 
-		msg += buffer + CDSString("\n");
-	}
-	cout << msg;
+    if (buffer[0] != 0) {
+      // Clear the trailing whitespace
+      char *p = buffer + strlen(buffer) - 1;
+      for (; buffer != p && isspace((unsigned char)*p); p--, *p = 0)
+        ;  // For VS2003
+    }
+
+    msg += buffer + CDSString("\n");
+  }
+  cout << msg;
 }
 
 // Main Params :	1. number of allowed remote processes
 //					2. Sql user id
-Int32 main(Int32 argc, char *argv[])
-{
-    Int32 numOfProcesses = 0;
-	if (argc != 3)
-    {
-		cout << "The command line parameters should be :" << endl;
-		cout << "1. Number of processes" << endl;
-		return -1;
-	}
-	
-	sscanf(argv[1],"%d",&numOfProcesses);
+Int32 main(Int32 argc, char *argv[]) {
+  Int32 numOfProcesses = 0;
+  if (argc != 3) {
+    cout << "The command line parameters should be :" << endl;
+    cout << "1. Number of processes" << endl;
+    return -1;
+  }
 
-	if (1 > numOfProcesses || 15 < numOfProcesses )
-	{
-		cout << "Wrong number of remote processes" << endl;
-		return -1;
-	}
-	
-	SetUser(argv[2]);
+  sscanf(argv[1], "%d", &numOfProcesses);
 
-	RefreshTestController controller(numOfProcesses);
-	
-	try {	
-		controller.Init();
+  if (1 > numOfProcesses || 15 < numOfProcesses) {
+    cout << "Wrong number of remote processes" << endl;
+    return -1;
+  }
 
-		while (RefreshTestController::EX_COMPLETE!= controller.GetState())
-		{
-			controller.Work();
-		}
-		cout << "Done" << endl;
-	}
-	catch (CDSException &ex)
-	{
-		HandleExecuteException(ex);
-	}
+  SetUser(argv[2]);
 
-	return 0;
+  RefreshTestController controller(numOfProcesses);
+
+  try {
+    controller.Init();
+
+    while (RefreshTestController::EX_COMPLETE != controller.GetState()) {
+      controller.Work();
+    }
+    cout << "Done" << endl;
+  } catch (CDSException &ex) {
+    HandleExecuteException(ex);
+  }
+
+  return 0;
 }
 
 //--------------------------------------------------------------------------//
 //	RefreshTestController::Init()
 //--------------------------------------------------------------------------//
-void RefreshTestController::Init()
-{
-	pJournal_ = new CRUJournal("");
+void RefreshTestController::Init() {
+  pJournal_ = new CRUJournal("");
 
-	CRUGlobals::Init(options_,
-					*(pJournal_),
-					transManager_);
+  CRUGlobals::Init(options_, *(pJournal_), transManager_);
 
-	transManager_.OpenTMF();
+  transManager_.OpenTMF();
 
-	for(Int32 i=0;i<numOfProcesses_;i++)
-	{
-		InitiateTaskProcess();
-	}
-	
-	
-	CDSString sqlText;
+  for (Int32 i = 0; i < numOfProcesses_; i++) {
+    InitiateTaskProcess();
+  }
 
-	sqlText = "	SELECT	group_id,process_id,count(*) as number_of_statements ";
-	sqlText +="	FROM CAT1.MVSCHM.RefreshControlTable ";
-	sqlText +="	GROUP BY group_id,process_id ";
-	sqlText +="	ORDER BY group_id,process_id;\n";
-	
-	dynamicSQLContainer_.SetStatementText(0,sqlText);
+  CDSString sqlText;
 
-	CDMPreparedStatement *pStat = 
-		dynamicSQLContainer_.GetPreparedStatement(0);
+  sqlText = "	SELECT	group_id,process_id,count(*) as number_of_statements ";
+  sqlText += "	FROM CAT1.MVSCHM.RefreshControlTable ";
+  sqlText += "	GROUP BY group_id,process_id ";
+  sqlText += "	ORDER BY group_id,process_id;\n";
 
-	transManager_.BeginTrans();
+  dynamicSQLContainer_.SetStatementText(0, sqlText);
 
-	CDMResultSet *pResult = pStat->ExecuteQuery();
+  CDMPreparedStatement *pStat = dynamicSQLContainer_.GetPreparedStatement(0);
 
-	const Int32 kGroupId			= 1;
-	const Int32 kProcessId		= 2;
-	const Int32 kNumOfStatements	= 3;
+  transManager_.BeginTrans();
 
-	BOOL first = TRUE;
+  CDMResultSet *pResult = pStat->ExecuteQuery();
 
-	while (pResult->Next()) 
-	{
+  const Int32 kGroupId = 1;
+  const Int32 kProcessId = 2;
+  const Int32 kNumOfStatements = 3;
 
-		GroupStatement *pGroup = new GroupStatement();
-		
-		groupList_.AddTail(pGroup);
+  BOOL first = TRUE;
 
-		pGroup->groupId_ = pResult->GetInt(kGroupId);
-		
-		if (first)
-		{
-			currentGroupId_ = pGroup->groupId_;
+  while (pResult->Next()) {
+    GroupStatement *pGroup = new GroupStatement();
 
-			first = FALSE;
-		}
+    groupList_.AddTail(pGroup);
 
-		pGroup->processId_ = pResult->GetInt(kProcessId) - 1;
-		pGroup->num_of_executions = pResult->GetInt(kNumOfStatements);
-	}
+    pGroup->groupId_ = pResult->GetInt(kGroupId);
 
-	pStat->DeleteResultSet(pResult);
-	pStat->Close();
-	
-	sqlText = "INSERT INTO CAT1.MVSCHM.REFRESHTIMETABLE VALUES(?,?,?,CURRENT)";
+    if (first) {
+      currentGroupId_ = pGroup->groupId_;
 
-	dynamicSQLContainer_.SetStatementText(1,sqlText);
+      first = FALSE;
+    }
 
-	dynamicSQLContainer_.PrepareStatement(1);
+    pGroup->processId_ = pResult->GetInt(kProcessId) - 1;
+    pGroup->num_of_executions = pResult->GetInt(kNumOfStatements);
+  }
 
-	transManager_.CommitTrans();
+  pStat->DeleteResultSet(pResult);
+  pStat->Close();
 
-	currentPos_ = groupList_.GetHeadPosition();
+  sqlText = "INSERT INTO CAT1.MVSCHM.REFRESHTIMETABLE VALUES(?,?,?,CURRENT)";
 
-	if (groupList_.IsEmpty())
-	{
-		cout << "Control Table is empty\n";
-		RUASSERT(FALSE);
-	}
+  dynamicSQLContainer_.SetStatementText(1, sqlText);
 
-	SetState(EX_SEND_FOR_INIT);
+  dynamicSQLContainer_.PrepareStatement(1);
+
+  transManager_.CommitTrans();
+
+  currentPos_ = groupList_.GetHeadPosition();
+
+  if (groupList_.IsEmpty()) {
+    cout << "Control Table is empty\n";
+    RUASSERT(FALSE);
+  }
+
+  SetState(EX_SEND_FOR_INIT);
 }
 
 //--------------------------------------------------------------------------//
 //	RefreshTestController::InitiateTaskProcess()
 //--------------------------------------------------------------------------//
-Int32 RefreshTestController::InitiateTaskProcess()
-{
-	CRUOptions option;
-	
-	const Int32 bufferSize = CUOFsIpcMessageTranslator::MaxMsgSize;
+Int32 RefreshTestController::InitiateTaskProcess() {
+  CRUOptions option;
 
-	char buffer[bufferSize];
+  const Int32 bufferSize = CUOFsIpcMessageTranslator::MaxMsgSize;
 
-	Lng32 pid = processPool_.LaunchTaskProcess();
+  char buffer[bufferSize];
 
-	CUOFsIpcMessageTranslator translator(buffer,bufferSize);
-	
-	// Serialize the utility's command-line options ...
-	translator.StartWrite();
+  Lng32 pid = processPool_.LaunchTaskProcess();
 
-	translator.SetMessageType(CUOFsIpcMessageTranslator::RU_GLOBALS);
+  CUOFsIpcMessageTranslator translator(buffer, bufferSize);
 
-	translator.EndWrite();
+  // Serialize the utility's command-line options ...
+  translator.StartWrite();
 
-	transManager_.LeaveTransaction();
+  translator.SetMessageType(CUOFsIpcMessageTranslator::RU_GLOBALS);
 
-	// Send them to the task process ...
-	processPool_[pid].Send(translator);
+  translator.EndWrite();
 
-	// And receive the reply
-	processPool_[pid].Receive();
+  transManager_.LeaveTransaction();
 
-	RUASSERT(translator.GetMessageType() == 
-			 CUOFsIpcMessageTranslator::RU_GLOBALS);
-	
-	return pid;
+  // Send them to the task process ...
+  processPool_[pid].Send(translator);
+
+  // And receive the reply
+  processPool_[pid].Receive();
+
+  RUASSERT(translator.GetMessageType() == CUOFsIpcMessageTranslator::RU_GLOBALS);
+
+  return pid;
 }
 
 //--------------------------------------------------------------------------//
 //	RefreshTestController::Work()
 //--------------------------------------------------------------------------//
-void RefreshTestController::Work()
-{
-	switch (GetState())
-	{
-	case EX_SEND_FOR_INIT: 
-		{
-			GroupSendForInitialization();
-			
-			SetState(EX_WAIT_FOR_ALL_RETURN_FROM_COMPILATION);
-			break;
-		}
-	case EX_WAIT_FOR_ALL_RETURN_FROM_COMPILATION:
-		{
-			WaitForAll();
+void RefreshTestController::Work() {
+  switch (GetState()) {
+    case EX_SEND_FOR_INIT: {
+      GroupSendForInitialization();
 
-			SetState(EX_SEND_FOR_EXECUTE);
-			break;
-		}
-	case EX_SEND_FOR_EXECUTE: 
-		{
-			SendSyncToAllExecutors();
+      SetState(EX_WAIT_FOR_ALL_RETURN_FROM_COMPILATION);
+      break;
+    }
+    case EX_WAIT_FOR_ALL_RETURN_FROM_COMPILATION: {
+      WaitForAll();
 
-			SetState(EX_WAIT_FOR_ALL_RETURN_FROM_EXECUTION);
-			break;
-		}	
-	case EX_WAIT_FOR_ALL_RETURN_FROM_EXECUTION: 
-		{
-			WaitForAll();
-			
-			if (!endFlag_)
-			{
-				SetState(EX_SEND_FOR_INIT);
-			}
-			else
-			{
-				processPool_.ShutdownAllTaskProcesses();
-				SetState(EX_COMPLETE);
-			}
-			break;
-		}	
+      SetState(EX_SEND_FOR_EXECUTE);
+      break;
+    }
+    case EX_SEND_FOR_EXECUTE: {
+      SendSyncToAllExecutors();
 
-	default: RUASSERT(FALSE);
-	}
+      SetState(EX_WAIT_FOR_ALL_RETURN_FROM_EXECUTION);
+      break;
+    }
+    case EX_WAIT_FOR_ALL_RETURN_FROM_EXECUTION: {
+      WaitForAll();
+
+      if (!endFlag_) {
+        SetState(EX_SEND_FOR_INIT);
+      } else {
+        processPool_.ShutdownAllTaskProcesses();
+        SetState(EX_COMPLETE);
+      }
+      break;
+    }
+
+    default:
+      RUASSERT(FALSE);
+  }
 }
-
 
 //--------------------------------------------------------------------------//
 //	RefreshTestController::GroupSendForInitialization()
 //--------------------------------------------------------------------------//
-void RefreshTestController::GroupSendForInitialization()
-{
+void RefreshTestController::GroupSendForInitialization() {
+  executorsList_.RemoveAll();
 
-	executorsList_.RemoveAll();
+  activeProcesses_ = 0;
 
-	activeProcesses_ = 0;
-	
-	while (NULL != currentPos_)
-	{
-		DSListPosition tempPos_ = currentPos_;
+  while (NULL != currentPos_) {
+    DSListPosition tempPos_ = currentPos_;
 
-		GroupStatement *pGroup = groupList_.GetNext(currentPos_);
+    GroupStatement *pGroup = groupList_.GetNext(currentPos_);
 
-		if (currentGroupId_ != pGroup->groupId_)
-		{
-			// End of group
-			currentGroupId_ = pGroup->groupId_;
-			currentPos_ = tempPos_;
-			return;
-		}
+    if (currentGroupId_ != pGroup->groupId_) {
+      // End of group
+      currentGroupId_ = pGroup->groupId_;
+      currentPos_ = tempPos_;
+      return;
+    }
 
-		activeProcesses_++;
-		
-		if (pGroup->processId_ >= numOfProcesses_ )
-		{
-			cout << "Group: " << pGroup->groupId_ << " sends to unavailable process:" << pGroup->processId_ + 1<< endl;
-			exit(-1);
-		}
+    activeProcesses_++;
 
-		cout << "Sending group for compilation: " ;
-		cout << pGroup->groupId_ << " Process : " << pGroup->processId_ + 1<< endl;
+    if (pGroup->processId_ >= numOfProcesses_) {
+      cout << "Group: " << pGroup->groupId_ << " sends to unavailable process:" << pGroup->processId_ + 1 << endl;
+      exit(-1);
+    }
 
-		SendForInitialization(pGroup->groupId_,
-							  pGroup->processId_,
-							  pGroup->num_of_executions);
-	} 
-	endFlag_ = TRUE;
+    cout << "Sending group for compilation: ";
+    cout << pGroup->groupId_ << " Process : " << pGroup->processId_ + 1 << endl;
+
+    SendForInitialization(pGroup->groupId_, pGroup->processId_, pGroup->num_of_executions);
+  }
+  endFlag_ = TRUE;
 }
 
 //--------------------------------------------------------------------------//
 //	RefreshTestController::SendForInitialization()
 //--------------------------------------------------------------------------//
-void RefreshTestController::SendForInitialization(Int32 groupId,	
-												  Int32 processId,
-												  Int32 numOfStmt)
-{
-	CRUTestTaskExecutor *pExecutor = new CRUTestTaskExecutor();
-	
-	pExecutor->Init();
+void RefreshTestController::SendForInitialization(Int32 groupId, Int32 processId, Int32 numOfStmt) {
+  CRUTestTaskExecutor *pExecutor = new CRUTestTaskExecutor();
 
-	pExecutor->SetGroupId(groupId);
+  pExecutor->Init();
 
-	pExecutor->SetProcessId(processId);
+  pExecutor->SetGroupId(groupId);
 
-	pExecutor->SetNumberOfStatements(numOfStmt);
+  pExecutor->SetProcessId(processId);
 
-	executorsList_.AddTail(pExecutor);
-	
-	// The initial buffer allocation
-	pExecutor->AllocateBuffer();
+  pExecutor->SetNumberOfStatements(numOfStmt);
 
-	SendExecutor(*pExecutor);
+  executorsList_.AddTail(pExecutor);
+
+  // The initial buffer allocation
+  pExecutor->AllocateBuffer();
+
+  SendExecutor(*pExecutor);
 }
 
 //--------------------------------------------------------------------------//
 //	RefreshTestController::SendExecutor()
 //--------------------------------------------------------------------------//
-void RefreshTestController::SendExecutor(CRUTaskExecutor &executor)
-{
-	CUOFsIpcMessageTranslator *pTranslator = NULL;
+void RefreshTestController::SendExecutor(CRUTaskExecutor &executor) {
+  CUOFsIpcMessageTranslator *pTranslator = NULL;
 
-	for (Int32 i=2;;i*2)
-	{
-		pTranslator = &(executor.GetTranslator());
+  for (Int32 i = 2;; i * 2) {
+    pTranslator = &(executor.GetTranslator());
 
-		try {
-			// Serialize the executor
-			pTranslator->StartWrite();
-			executor.StoreRequest(*pTranslator);	
-			pTranslator->EndWrite();
-			break;
-		}
-		catch (CUOFsBufferOverFlowException)
-		{
-			// The buffer can be resized till the max message size 
-			executor.ReAllocateBuffer(2 /*factor*/);
-		}
-	}
-	transManager_.LeaveTransaction();
-	processPool_[executor.GetProcessId()].Send(*pTranslator);
+    try {
+      // Serialize the executor
+      pTranslator->StartWrite();
+      executor.StoreRequest(*pTranslator);
+      pTranslator->EndWrite();
+      break;
+    } catch (CUOFsBufferOverFlowException) {
+      // The buffer can be resized till the max message size
+      executor.ReAllocateBuffer(2 /*factor*/);
+    }
+  }
+  transManager_.LeaveTransaction();
+  processPool_[executor.GetProcessId()].Send(*pTranslator);
 }
 
 //--------------------------------------------------------------------------//
 //	RefreshTestController::SendExecutor()
 //--------------------------------------------------------------------------//
-void RefreshTestController::SendSyncToAllExecutors()
-{
-	DSListPosition pos = executorsList_.GetHeadPosition();
+void RefreshTestController::SendSyncToAllExecutors() {
+  DSListPosition pos = executorsList_.GetHeadPosition();
 
-	while (NULL != pos)
-	{
-		CRUTaskExecutor *pExecutor = executorsList_.GetNext(pos);
+  while (NULL != pos) {
+    CRUTaskExecutor *pExecutor = executorsList_.GetNext(pos);
 
-		CUOFsIpcMessageTranslator *pTranslator = &(pExecutor->GetTranslator());
+    CUOFsIpcMessageTranslator *pTranslator = &(pExecutor->GetTranslator());
 
-		// Just advance the executor state to the next state 
-		// (must be a remote state)
-		pExecutor->Work();
+    // Just advance the executor state to the next state
+    // (must be a remote state)
+    pExecutor->Work();
 
-		// Serialize the executor
-		pTranslator->StartWrite();
-		pExecutor->StoreRequest(*pTranslator);	
-		pTranslator->EndWrite();
+    // Serialize the executor
+    pTranslator->StartWrite();
+    pExecutor->StoreRequest(*pTranslator);
+    pTranslator->EndWrite();
 
-		pTranslator->SetMessageType(CUOFsIpcMessageTranslator::
-								RU_TEST_SYNC);
+    pTranslator->SetMessageType(CUOFsIpcMessageTranslator::RU_TEST_SYNC);
 
-		processPool_[pExecutor->GetProcessId()].Send(*pTranslator);
+    processPool_[pExecutor->GetProcessId()].Send(*pTranslator);
 
-		cout << "Sending for execution: Group : " << ((CRUTestTaskExecutor*) pExecutor )->GetGroupId() << " Process : " << pExecutor->GetProcessId() + 1 << endl;
-
-	}		
+    cout << "Sending for execution: Group : " << ((CRUTestTaskExecutor *)pExecutor)->GetGroupId()
+         << " Process : " << pExecutor->GetProcessId() + 1 << endl;
+  }
 }
 
 //--------------------------------------------------------------------------//
 //	RefreshTestController::SendExecutor()
 //--------------------------------------------------------------------------//
-void RefreshTestController::WaitForAll()
-{
-	Int32 return_counter = 0;
+void RefreshTestController::WaitForAll() {
+  Int32 return_counter = 0;
 
-	while (return_counter < activeProcesses_)
-	{
-		Lng32 pid = processPool_.ReceiveFromAnyProcess(-1);// An indefinite wait
-		
-		return_counter++;
+  while (return_counter < activeProcesses_) {
+    Lng32 pid = processPool_.ReceiveFromAnyProcess(-1);  // An indefinite wait
 
-		HandleReturnOfExecutor(pid);
-	}
+    return_counter++;
+
+    HandleReturnOfExecutor(pid);
+  }
 }
 
 //----------------------------------------------------------------//
@@ -521,89 +471,77 @@ void RefreshTestController::WaitForAll()
 //
 //----------------------------------------------------------------//
 
-void RefreshTestController::HandleReturnOfExecutor(Lng32 pid)
-{
-	CRUTaskExecutor *pExecutor  = FindRunningExecutor(pid);
-	
-	RUASSERT(NULL != pExecutor);
+void RefreshTestController::HandleReturnOfExecutor(Lng32 pid) {
+  CRUTaskExecutor *pExecutor = FindRunningExecutor(pid);
 
-	CUOFsIpcMessageTranslator &translator = pExecutor->GetTranslator();
+  RUASSERT(NULL != pExecutor);
 
-	if ( CUOFsIpcMessageTranslator::APPLICATION_ERROR == 
-		 translator.GetMessageType() )
-	{
-		CRUException ex;
-				
-		// De-serialize the exception object from the message
-		translator.StartRead();
-		ex.LoadData(translator);
-		translator.EndRead();
+  CUOFsIpcMessageTranslator &translator = pExecutor->GetTranslator();
 
-		ex.SetError(IDS_RU_REMOTE_EXECUTION_FAILURE);
-		
-		cout << "Remote Exception recieved ,Details are :" << endl;
-		Int32  num  = ex.GetNumErrors();
-	    for (Int32 i = 0; i < num; i++)
-	    {
-			const Int32 len = ERROR_BUFF_SIZE;   // buffer length
-			char  buffer[len];     // exception message buffer
+  if (CUOFsIpcMessageTranslator::APPLICATION_ERROR == translator.GetMessageType()) {
+    CRUException ex;
 
-			Lng32 code = ex.GetErrorCode(i);
-			ex.GetErrorMsg(i, buffer, len);
-			cout << buffer << endl << endl;
-	    }
+    // De-serialize the exception object from the message
+    translator.StartRead();
+    ex.LoadData(translator);
+    translator.EndRead();
 
-		exit(-1);
-	}
+    ex.SetError(IDS_RU_REMOTE_EXECUTION_FAILURE);
 
-	// Normal completion of remote execution
+    cout << "Remote Exception recieved ,Details are :" << endl;
+    Int32 num = ex.GetNumErrors();
+    for (Int32 i = 0; i < num; i++) {
+      const Int32 len = ERROR_BUFF_SIZE;  // buffer length
+      char buffer[len];                   // exception message buffer
 
-	// De-serialize the executor's context
-	translator.StartRead();
-	pExecutor->LoadReply(translator);
-	translator.EndRead();
+      Lng32 code = ex.GetErrorCode(i);
+      ex.GetErrorMsg(i, buffer, len);
+      cout << buffer << endl << endl;
+    }
 
-	SaveTime(((CRUTestTaskExecutor*) pExecutor )->GetGroupId(),pid);
+    exit(-1);
+  }
 
-	cout << "Group : " << ((CRUTestTaskExecutor*) pExecutor )->GetGroupId() << " Process : " << pid + 1 ;
-	cout << " is back in time " << CRUSQLComposer::TInt64ToStr(CRUGlobals::GetCurrentTimestamp()) << endl;
+  // Normal completion of remote execution
+
+  // De-serialize the executor's context
+  translator.StartRead();
+  pExecutor->LoadReply(translator);
+  translator.EndRead();
+
+  SaveTime(((CRUTestTaskExecutor *)pExecutor)->GetGroupId(), pid);
+
+  cout << "Group : " << ((CRUTestTaskExecutor *)pExecutor)->GetGroupId() << " Process : " << pid + 1;
+  cout << " is back in time " << CRUSQLComposer::TInt64ToStr(CRUGlobals::GetCurrentTimestamp()) << endl;
 }
-
 
 //--------------------------------------------------------------------------//
 //	RefreshTestController::FindRunningExecutor()
 //--------------------------------------------------------------------------//
-CRUTaskExecutor *RefreshTestController::FindRunningExecutor(Lng32 pid)
-{
-	DSListPosition pos = executorsList_.GetHeadPosition();
+CRUTaskExecutor *RefreshTestController::FindRunningExecutor(Lng32 pid) {
+  DSListPosition pos = executorsList_.GetHeadPosition();
 
-	while (NULL != pos)
-	{
-		CRUTaskExecutor *pExecutor = executorsList_.GetNext(pos);
-		if (pExecutor->GetProcessId() == pid)
-			return pExecutor;
-	}
-	return NULL;
+  while (NULL != pos) {
+    CRUTaskExecutor *pExecutor = executorsList_.GetNext(pos);
+    if (pExecutor->GetProcessId() == pid) return pExecutor;
+  }
+  return NULL;
 }
-
 
 //--------------------------------------------------------------------------//
 //	RefreshTestController::SaveTime()
 //--------------------------------------------------------------------------//
-void RefreshTestController::SaveTime(Int32 groupId,	
-									 Int32 processId)
-{
-	CDMPreparedStatement *pStmt = 
-		dynamicSQLContainer_.GetPreparedStatement(1);
-	
-	Int32 afterSyncInt = GetState() == EX_WAIT_FOR_ALL_RETURN_FROM_COMPILATION ? 0 : 1;
-	pStmt->SetInt(1,groupId);
-	pStmt->SetInt(2,processId + 1);
-	pStmt->SetInt(3,afterSyncInt);
+void RefreshTestController::SaveTime(Int32 groupId, Int32 processId) {
+  CDMPreparedStatement *pStmt = dynamicSQLContainer_.GetPreparedStatement(1);
 
-	transManager_.BeginTrans();
+  Int32 afterSyncInt = GetState() == EX_WAIT_FOR_ALL_RETURN_FROM_COMPILATION ? 0 : 1;
+  pStmt->SetInt(1, groupId);
+  pStmt->SetInt(2, processId + 1);
+  pStmt->SetInt(3, afterSyncInt);
 
-	pStmt->ExecuteUpdate();
+  transManager_.BeginTrans();
 
-	transManager_.CommitTrans();
+  pStmt->ExecuteUpdate();
+
+  transManager_.CommitTrans();
 }

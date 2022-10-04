@@ -28,14 +28,14 @@
  * Language:     C++
  *
  *
-*****************************************************************************
-*/
+ *****************************************************************************
+ */
 
 #include "vproc.h"
 
-extern "C" { void
-VPROC (PRODNUMSSMP ,DATE1SSMP,SSMP_CC_LABEL)
-() {} }
+extern "C" {
+void VPROC(PRODNUMSSMP, DATE1SSMP, SSMP_CC_LABEL)() {}
+}
 
 #include "common/SCMVersHelp.h"
 
@@ -43,5 +43,4 @@ VPROC (PRODNUMSSMP ,DATE1SSMP,SSMP_CC_LABEL)
 #define VERS_CV_MIN 0
 #define VERS_CV_UPD 1
 
-VERS_BIN (mxssmp)
-
+VERS_BIN(mxssmp)

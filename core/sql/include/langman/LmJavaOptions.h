@@ -70,10 +70,8 @@ class NAMemory;
 // a DLL interface in order to be used by LmJavaOptions clients. We
 // will suppress such warnings.
 
-class SQLLM_LIB_FUNC LmJavaOptions : public NABasicObject
-{
-public:
-
+class SQLLM_LIB_FUNC LmJavaOptions : public NABasicObject {
+ public:
   LmJavaOptions();
   ~LmJavaOptions();
 
@@ -108,21 +106,16 @@ public:
   // wants the value, it will be allocated as a character string on
   // callersHeap. If valueForCaller is non-NULL then callersHeap must
   // also be non-NULL.
-  NABoolean removeSystemProperty(const char *name,
-                                 char **valueForCaller,
-                                 NAMemory *callersHeap);
+  NABoolean removeSystemProperty(const char *name, char **valueForCaller, NAMemory *callersHeap);
 
-  // Get the value for a -D option (and optionally reomve) a given 
-  // system property. The caller can request to see the value assigned 
-  // to that property in the rightmost -D occurence. A non-NULL value 
+  // Get the value for a -D option (and optionally reomve) a given
+  // system property. The caller can request to see the value assigned
+  // to that property in the rightmost -D occurence. A non-NULL value
   // for valueForCaller specifies that the caller wants to see the value.
-  // If the caller wants the value, it will be allocated as a character 
+  // If the caller wants the value, it will be allocated as a character
   // string on callersHeap. If valueForCaller is non-NULL then callersHeap must
   // also be non-NULL.
-  NABoolean getSystemProperty(const char *name,
-                              char **valueForCaller,
-                              NAMemory *callersHeap,
-                              NABoolean remove = FALSE);
+  NABoolean getSystemProperty(const char *name, char **valueForCaller, NAMemory *callersHeap, NABoolean remove = FALSE);
 
   // Append all options from other to the list stored in this instance
   void merge(const LmJavaOptions &other);
@@ -131,11 +124,9 @@ public:
   // and LmDebug.cpp to find out how LM_DEBUG output works.
   void display();
 
-protected:
+ protected:
+  NAList<char *> options_;
 
-  NAList<char*> options_;
+};  // class LmJavaOptions
 
-}; // class LmJavaOptions
-
-
-#endif // LMJAVAOPTIONS_H
+#endif  // LMJAVAOPTIONS_H

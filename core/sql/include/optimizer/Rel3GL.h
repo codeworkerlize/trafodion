@@ -40,73 +40,59 @@ class CostMethodCompoundStmt;
 // CompoundStmt.
 //
 //////////////////////////////////////////////////////////////////////////
-class CompoundStmt : public RelExpr
-{
-
-public:
+class CompoundStmt : public RelExpr {
+ public:
   // Standared constructor/destructor/accessor/mutators.
-  CompoundStmt(RelExpr *leftChild, 
-               RelExpr *rightChild,
-	       OperatorTypeEnum op = REL_COMPOUND_STMT, 
-	       CollHeap *heap = CmpCommon::statementHeap()) :
-    RelExpr(op, leftChild, rightChild, heap) { setNonCacheable(); }
+  CompoundStmt(RelExpr *leftChild, RelExpr *rightChild, OperatorTypeEnum op = REL_COMPOUND_STMT,
+               CollHeap *heap = CmpCommon::statementHeap())
+      : RelExpr(op, leftChild, rightChild, heap) {
+    setNonCacheable();
+  }
 
-  CompoundStmt(const CompoundStmt &other) :
-    RelExpr(other.getOperatorType(), other.child(0), other.child(1)) 
-    { setNonCacheable(); }
+  CompoundStmt(const CompoundStmt &other) : RelExpr(other.getOperatorType(), other.child(0), other.child(1)) {
+    setNonCacheable();
+  }
 
   virtual ~CompoundStmt() {}
 
   virtual Int32 getArity() const { return 2; }
 
   // Binder methods.
-  virtual RelExpr *bindNode(BindWA*); 
+  virtual RelExpr *bindNode(BindWA *);
 
   // Transformation methods.
-  virtual void transformNode(NormWA&, ExprGroupId&);
+  virtual void transformNode(NormWA &, ExprGroupId &);
   virtual void recomputeOuterReferences();
 
   // Normalizer methods.
-  virtual RelExpr *normalizeNode(NormWA&);
+  virtual RelExpr *normalizeNode(NormWA &);
   virtual void pullUpPreds();
-  virtual void rewriteNode(NormWA&);
-  virtual void pushdownCoveredExpr
-			  (const ValueIdSet & outputExprOnOperator,
-                           const ValueIdSet & newExternalInputs,
-                           ValueIdSet & predicatesOnParent,
-			   const ValueIdSet * setOfValuesReqdByParent = NULL,
-			   Lng32 childIndex = (-MAX_REL_ARITY));
+  virtual void rewriteNode(NormWA &);
+  virtual void pushdownCoveredExpr(const ValueIdSet &outputExprOnOperator, const ValueIdSet &newExternalInputs,
+                                   ValueIdSet &predicatesOnParent, const ValueIdSet *setOfValuesReqdByParent = NULL,
+                                   Lng32 childIndex = (-MAX_REL_ARITY));
 
   // Optimizer methods.
-  virtual RelExpr *copyTopNode(RelExpr * = NULL, CollHeap* = NULL); 
+  virtual RelExpr *copyTopNode(RelExpr * = NULL, CollHeap * = NULL);
 
   // PreCodeGen methods
-  virtual RelExpr *preCodeGen(Generator * generator, 
-			      const ValueIdSet & externalInputs,
-			      ValueIdSet &pulledNewInputs);
+  virtual RelExpr *preCodeGen(Generator *generator, const ValueIdSet &externalInputs, ValueIdSet &pulledNewInputs);
 
   // GUI methods.
   virtual const NAString getText() const { return "CompoundStmt"; }
 
-  Context* createContextForAChild(Context* myContext,
-			  	                  PlanWorkSpace* pws,
-				                  Lng32& childIndex);
+  Context *createContextForAChild(Context *myContext, PlanWorkSpace *pws, Lng32 &childIndex);
 
-protected:
-
+ protected:
   // Internal support methods.
-  void enterVEGRegion(NormWA&, Int32 id, NABoolean create=FALSE);
-  void leaveVEGRegion(NormWA&, Int32 id);
+  void enterVEGRegion(NormWA &, Int32 id, NABoolean create = FALSE);
+  void leaveVEGRegion(NormWA &, Int32 id);
+};
 
-}; 
-
-class PhysCompoundStmt : public CompoundStmt
-{
-public:
+class PhysCompoundStmt : public CompoundStmt {
+ public:
   // Standard constructor/destructor/accessor/mutators.
-  PhysCompoundStmt(RelExpr *leftChild,
-                   RelExpr *rightChild,
-                   OperatorTypeEnum op = REL_COMPOUND_STMT,
+  PhysCompoundStmt(RelExpr *leftChild, RelExpr *rightChild, OperatorTypeEnum op = REL_COMPOUND_STMT,
                    CollHeap *heap = CmpCommon::statementHeap());
 
   PhysCompoundStmt(const CompoundStmt &other);
@@ -120,45 +106,34 @@ public:
   // Optimizer methods.
   virtual RelExpr *copyTopNode(RelExpr * = NULL, CollHeap * = NULL);
 
-  virtual  PhysicalProperty *synthPhysicalProperty(const Context*,
-                                                   const Lng32,
-                                                   PlanWorkSpace *pws); 
+  virtual PhysicalProperty *synthPhysicalProperty(const Context *, const Lng32, PlanWorkSpace *pws);
 
   // Code generation methods.
   virtual short codeGen(Generator *);
-private:
+
+ private:
   CostMethodCompoundStmt *pCostMethod_;
 };
 
-
 // --------------------------------------------------------------------
 // This class is used by assignment statements in compound statements.
-// A list of this type is kept in class AssignmentStArea (below) so that 
+// A list of this type is kept in class AssignmentStArea (below) so that
 // it is globally accessible at binding time. This class mantains a current and previous
 // valueId, so that when we find SET <var> = <select statement>, we update
-// the value id of <var> to that returned by the select statement. See 
-// assignment statements internal spec for details. 
+// the value id of <var> to that returned by the select statement. See
+// assignment statements internal spec for details.
 // --------------------------------------------------------------------
 
-class AssignmentStHostVars: public NABasicObject
-{
-public:
+class AssignmentStHostVars : public NABasicObject {
+ public:
   // Constructor
-  AssignmentStHostVars(BindWA *bindWA, CollHeap * h = 0) 
-    :  bindWA_(bindWA),
-       var_(NULL),
-       next_(NULL)
-      {}
+  AssignmentStHostVars(BindWA *bindWA, CollHeap *h = 0) : bindWA_(bindWA), var_(NULL), next_(NULL) {}
 
   // Copy constructor
-  AssignmentStHostVars(const AssignmentStHostVars &other, CollHeap * h = 0) 
-    : bindWA_(other.bindWA_),
-      next_(other.next_),
-      var_(other.var_)
-      {}
+  AssignmentStHostVars(const AssignmentStHostVars &other, CollHeap *h = 0)
+      : bindWA_(other.bindWA_), next_(other.next_), var_(other.var_) {}
 
-  AssignmentStHostVars()  
-    { AssignmentStHostVars(NULL); }
+  AssignmentStHostVars() { AssignmentStHostVars(NULL); }
 
   ~AssignmentStHostVars() {}
 
@@ -166,78 +141,72 @@ public:
   // the current value id unless we are inside an IF statement and this
   // is the first time we call this function, in which case the value id is
   // appended, since we will need the old value id when we exit the IF statement
-  AssignmentStHostVars & addVar(HostVar *var, const ValueId &id);
+  AssignmentStHostVars &addVar(HostVar *var, const ValueId &id);
 
   // Adds var to this list with new value id; if it is already there, it
   // overwrites the value id
-  AssignmentStHostVars & addToListInIF(HostVar *var, const ValueId &id);
+  AssignmentStHostVars &addToListInIF(HostVar *var, const ValueId &id);
 
   // Adds all the hostvars and their associated value ids from the AssignmentStHostVars
   // that is passed as an argument to this method to the AssignmentStHostVars pointed to
   // this pointer. The implementation is by repeated calls to addToListInIF() .
-  void addAllToListInIF(AssignmentStHostVars * copyFromList) ;
+  void addAllToListInIF(AssignmentStHostVars *copyFromList);
 
-  // Gets current value id 
+  // Gets current value id
   const ValueId currentValueId();
 
   // Update the current value id of this host var
   void setCurrentValueId(const ValueId &id);
 
   // Gets the variable
-  HostVar *& var();
+  HostVar *&var();
 
   // Finds the variable whose name is given
-  AssignmentStHostVars * findVar(const NAString & name);
+  AssignmentStHostVars *findVar(const NAString &name);
 
   // Finds the variable whose valueId is given
-  AssignmentStHostVars * containsValueId(ValueId valueId);
+  AssignmentStHostVars *containsValueId(ValueId valueId);
 
   // Returns next element
-  inline AssignmentStHostVars * next() { return next_; }
-                         
+  inline AssignmentStHostVars *next() { return next_; }
+
   // When we reach a Root node that contains a list of host variables on the
   // left hand side of an assignment statement, we update the value ids
   // of such variables with the value ids returned from the subtree below
   // the Root node. This function is called in RelRoot::bindNode
   NABoolean updateValueIds(const ValueIdList &returnedList, ItemExpr *listInRootNode);
-  
+
   // Remove the current value id of this variable
-  void removeLastValueId()
-  {
-    valueIds_.removeAt(valueIds_.entries() - 1);
-  }
+  void removeLastValueId() { valueIds_.removeAt(valueIds_.entries() - 1); }
 
   // To acces list of value ids
   ValueIdList &valueIds() { return valueIds_; }
 
   // To know if there are rowsets in the given list
-  NABoolean containsRowsets(ItemExpr * list);
+  NABoolean containsRowsets(ItemExpr *list);
 
   // To perform necessary transformations in case we have rowsets in the SET statement
   // on the left side. We must replace the Root node where the rowset variables appear
   // with a RowsetInto node
- RelExpr * processRowsets(ItemExpr * list, RelExpr * thisNode);
+  RelExpr *processRowsets(ItemExpr *list, RelExpr *thisNode);
 
- // Given a list of Host variables with value ids, we enter them in our list
- void enterHostVars(ItemExpr *listOfVars);
+  // Given a list of Host variables with value ids, we enter them in our list
+  void enterHostVars(ItemExpr *listOfVars);
 
-private:
+ private:
+  // The variable
+  HostVar *var_;
 
-   // The variable
-   HostVar *var_;
+  // A list of the value ids this variable gets. The last one in the list
+  // is the current one
+  ValueIdList valueIds_;
 
-   // A list of the value ids this variable gets. The last one in the list
-   // is the current one
-   ValueIdList valueIds_;
+  // To have access to the rest of the structure
+  BindWA *bindWA_;
 
-   // To have access to the rest of the structure
-   BindWA *bindWA_;
-
-   // Next element
-   AssignmentStHostVars *next_;
-
+  // Next element
+  AssignmentStHostVars *next_;
 };
-
 
 class Union;
 
@@ -245,36 +214,26 @@ class Union;
 // This class is used by assignment statements in compound statements.
 // A list of this type is kept in class BindWA so that it is globally
 // accessible at binding time. This class mantains data needed by the
-// aforementioned project. See assignment statements internal spec for 
-// details. 
+// aforementioned project. See assignment statements internal spec for
+// details.
 // --------------------------------------------------------------------
 
-class AssignmentStArea : public NABasicObject
-{
-public:
-
+class AssignmentStArea : public NABasicObject {
+ public:
   // Constructor
-  AssignmentStArea(BindWA *bindWA, CollHeap * h = 0) 
-    : listOfVars_(NULL),
-      currentIF_(NULL),
-      bindWA_(bindWA)
-      {}
+  AssignmentStArea(BindWA *bindWA, CollHeap *h = 0) : listOfVars_(NULL), currentIF_(NULL), bindWA_(bindWA) {}
 
   // Copy constructor
-  AssignmentStArea(const AssignmentStArea &other, CollHeap * h = 0) 
-    : listOfVars_(other.listOfVars_),
-      currentIF_(other.currentIF_),
-      bindWA_(other.bindWA_)
-      {}
+  AssignmentStArea(const AssignmentStArea &other, CollHeap *h = 0)
+      : listOfVars_(other.listOfVars_), currentIF_(other.currentIF_), bindWA_(other.bindWA_) {}
 
-  AssignmentStArea()  
-    { AssignmentStArea(NULL); }
+  AssignmentStArea() { AssignmentStArea(NULL); }
 
   ~AssignmentStArea() {}
 
   // Please see comments for currentIF_ below.
-  Union * getCurrentIF() { return currentIF_; }
-  void setCurrentIF(Union * node) { currentIF_ = node; }
+  Union *getCurrentIF() { return currentIF_; }
+  void setCurrentIF(Union *node) { currentIF_ = node; }
 
   // Gets pointer to list of variables
   AssignmentStHostVars *&getAssignmentStHostVars() { return listOfVars_; }
@@ -282,27 +241,24 @@ public:
   // Updates listOfVars_ when we exit a Union node at binding time. For
   // each host variable, it determines whether its value id is no longer
   // valid outside the IF statement we are exiting, and removes it if so.
-  // In this way, the value id this variable had before entering the IF 
+  // In this way, the value id this variable had before entering the IF
   // statement will be the current one
-  void updateValueIdsTable(Union * node);
+  void updateValueIdsTable(Union *node);
 
-  // Removes the last value ids assigned to the given node during 
+  // Removes the last value ids assigned to the given node during
   // binding of childNumber
-  void removeLastValueIds(AssignmentStHostVars * listInUnion, Union * node);
+  void removeLastValueIds(AssignmentStHostVars *listInUnion, Union *node);
 
-private:
+ private:
+  // List of host variables in the statement
+  AssignmentStHostVars *listOfVars_;
 
-   // List of host variables in the statement
-   AssignmentStHostVars * listOfVars_;
+  // To know which is the Union node that is the immediate ancestor of
+  // the node we are currently in. This gets used when we have SET statements
+  // within an IF statement.
+  Union *currentIF_;
 
-   // To know which is the Union node that is the immediate ancestor of
-   // the node we are currently in. This gets used when we have SET statements
-   // within an IF statement. 
-   Union *currentIF_;
-
-   BindWA * bindWA_;
-
+  BindWA *bindWA_;
 };
 
 #endif /* REL3GL_H */
-

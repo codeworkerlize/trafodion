@@ -46,45 +46,26 @@
 // with signature (int, char**) too.
 //
 //////////////////////////////////////////////////////////////////////
-class SQLLM_LIB_FUNC LmRoutineCSql : public LmRoutineC
-{
+class SQLLM_LIB_FUNC LmRoutineCSql : public LmRoutineC {
   friend class LmLanguageManagerC;
-  
-public:
-  
-  virtual LmResult invokeRoutine(void *inputRow,
-				 void *outputRow,
-                                 ComDiagsArea *da);
-  
-protected:
-  LmRoutineCSql(const char   *sqlName,
-                const char   *externalName,
-                const char   *librarySqlName,
-                ComUInt32    numSqlParam,
-                char         *routineSig,
-                ComUInt32    maxResultSets,
-                ComRoutineTransactionAttributes transactionAttrs,
-                ComRoutineSQLAccess sqlAccessMode,
-                ComRoutineExternalSecurity externalSecurity,
-                Int32 routineOwnerId,
-                const char   *parentQid,
-                ComUInt32    inputRowLen,
-                ComUInt32    outputRowLen,
-                const char   *currentUserName,
-                const char   *sessionUserName,
-                LmParameter  *parameters,
-                LmLanguageManagerC *lm,
-                LmHandle     routine,
-                LmContainer  *container,
-                ComDiagsArea *diagsArea);
-  
-  virtual ~LmRoutineCSql();
-  
-protected:
 
+ public:
+  virtual LmResult invokeRoutine(void *inputRow, void *outputRow, ComDiagsArea *da);
+
+ protected:
+  LmRoutineCSql(const char *sqlName, const char *externalName, const char *librarySqlName, ComUInt32 numSqlParam,
+                char *routineSig, ComUInt32 maxResultSets, ComRoutineTransactionAttributes transactionAttrs,
+                ComRoutineSQLAccess sqlAccessMode, ComRoutineExternalSecurity externalSecurity, Int32 routineOwnerId,
+                const char *parentQid, ComUInt32 inputRowLen, ComUInt32 outputRowLen, const char *currentUserName,
+                const char *sessionUserName, LmParameter *parameters, LmLanguageManagerC *lm, LmHandle routine,
+                LmContainer *container, ComDiagsArea *diagsArea);
+
+  virtual ~LmRoutineCSql();
+
+ protected:
   // Suppress warnings about data member data types not being exposed
   // to callers via the DLL interface
-  
+
   // An array of pointers to individual data buffers. These pointers
   // point to the same buffers pointed to by instances of the cBuf_
   // collection (declared below). The cBuf_ instances are used to
@@ -102,7 +83,6 @@ protected:
   // single data buffer
   LmCBuffer *cBuf_;
 
-  
-}; // class LmRoutineCSql
+};  // class LmRoutineCSql
 
 #endif

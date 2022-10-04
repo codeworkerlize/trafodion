@@ -25,7 +25,7 @@
  *****************************************************************************
  *
  * File:         SqlciNode.C
- * Description:  
+ * Description:
  *
  * Created:      4/15/95
  * Language:     C++
@@ -38,27 +38,17 @@
 
 #include "common/Platform.h"
 
-
 #include "SqlciNode.h"
 #include "SqlciEnv.h"
 #include "common/str.h"
 
-
-SqlciNode::SqlciNode(const sqlci_node_type node_type_)
-                 : node_type(node_type_),
-		   next(NULL),
-		   errcode(0)
-{
+SqlciNode::SqlciNode(const sqlci_node_type node_type_) : node_type(node_type_), next(NULL), errcode(0) {
   str_cpy_all(eye_catcher, "CI  ", 4);
 };
 
-SqlciNode::~SqlciNode()
-{
-};
+SqlciNode::~SqlciNode(){};
 
-
-short SqlciNode::process(SqlciEnv * sqlci_env)
-{
+short SqlciNode::process(SqlciEnv *sqlci_env) {
   cerr << "Error: virtual function process must be redefined. \n";
   return -1;
 };

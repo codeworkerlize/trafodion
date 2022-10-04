@@ -29,7 +29,7 @@
 * Description:  class for I-Compress File Attribute (parse node) elements in
 *               DDL statements
 *
-*               
+*
 * Created:      4/21/95
 * Language:     C++
 *
@@ -38,7 +38,6 @@
 *
 ******************************************************************************
 */
-
 
 #include "ElemDDLFileAttr.h"
 
@@ -56,30 +55,20 @@ class ElemDDLFileAttrICompress;
 // I-Compress File Attribute (parse node) elements in DDL statements
 // -----------------------------------------------------------------------
 
-class ElemDDLFileAttrICompress : public ElemDDLFileAttr
-{
-
-public:
-
+class ElemDDLFileAttrICompress : public ElemDDLFileAttr {
+ public:
   // default constructor
   ElemDDLFileAttrICompress(NABoolean iCompressSpec = TRUE)
-                          : ElemDDLFileAttr(ELM_FILE_ATTR_I_COMPRESS_ELEM),
-                            isICompress_(iCompressSpec)
-  {
-  }
+      : ElemDDLFileAttr(ELM_FILE_ATTR_I_COMPRESS_ELEM), isICompress_(iCompressSpec) {}
 
   // virtual destructor
   virtual ~ElemDDLFileAttrICompress();
 
   // cast
-  virtual ElemDDLFileAttrICompress * castToElemDDLFileAttrICompress();
+  virtual ElemDDLFileAttrICompress *castToElemDDLFileAttrICompress();
 
   // accessor
-  const NABoolean
-  getIsICompress() const
-  {
-    return isICompress_;
-  }
+  const NABoolean getIsICompress() const { return isICompress_; }
 
   // member functions for tracing
   virtual const NAString getText() const;
@@ -87,10 +76,9 @@ public:
 
   virtual NAString getSyntax() const;
 
-private:
-
+ private:
   NABoolean isICompress_;
 
-}; // class ElemDDLFileAttrICompress
+};  // class ElemDDLFileAttrICompress
 
 #endif /* ELEMDDLFILEATTRICOMPRESS_H */

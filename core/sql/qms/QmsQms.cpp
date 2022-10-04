@@ -44,28 +44,22 @@
  */
 
 // This is needed to avoid a link error.
-NABoolean NAType::isComparable(const NAType &other,
-			       ItemExpr *parentOp,
-			       Int32 emitErr) const
-{ return FALSE; }
+NABoolean NAType::isComparable(const NAType &other, ItemExpr *parentOp, Int32 emitErr) const { return FALSE; }
 
-Qms* Qms::instance_ = NULL;
+Qms *Qms::instance_ = NULL;
 
-Qms::~Qms()
-{
+Qms::~Qms() {
   MVDetailHashIterator iterator(MVInventoryHash_);
-  const NAString* key;
+  const NAString *key;
   MVDetailsPtr mvDetails;
-  for (CollIndex i = 0; i < iterator.entries(); i++) 
-  {
+  for (CollIndex i = 0; i < iterator.entries(); i++) {
     // Get the next MV
-    iterator.getNext(key, mvDetails); 
+    iterator.getNext(key, mvDetails);
     // For reference counting.
     mvDetails = NULL;
     // Drop the MV.
     drop(*key);
   }
-
 }
 
 /**
@@ -78,45 +72,38 @@ Qms::~Qms()
  *                    query that is to be rewritten.
  * @param requestHeap The heap from which to allocate temporary objects.
  */
-QRResultDescriptorPtr Qms::match(QRQueryDescriptorPtr qryDescPtr, NAMemory* requestHeap)
-{
+QRResultDescriptorPtr Qms::match(QRQueryDescriptorPtr qryDescPtr, NAMemory *requestHeap) {
   static Int32 queryNumber = 0;
 
-  try
-  {
-    DescriptorDetailsPtr queryDetails = new(requestHeap)
-      DescriptorDetails(qryDescPtr, FALSE, ADD_MEMCHECK_ARGS(requestHeap));
+  try {
+    DescriptorDetailsPtr queryDetails =
+        new (requestHeap) DescriptorDetails(qryDescPtr, FALSE, ADD_MEMCHECK_ARGS(requestHeap));
     queryDetails->init(requestHeap);
 
-    MVCandidateCollectionPtr mvCandidates = new(requestHeap)
-      MVCandidateCollection(queryDetails, ADD_MEMCHECK_ARGS(requestHeap));
+    MVCandidateCollectionPtr mvCandidates =
+        new (requestHeap) MVCandidateCollection(queryDetails, ADD_MEMCHECK_ARGS(requestHeap));
 
     // Count this query being matched.
     queryNumber++;
 
     // For each JBB in the query descriptor, search for MV candidates.
-    const NAPtrList<QRJBBPtr>& jbbs = qryDescPtr->getJbbList();
-    for (CollIndex i = 0; i < jbbs.entries(); i++)
-    {
+    const NAPtrList<QRJBBPtr> &jbbs = qryDescPtr->getJbbList();
+    for (CollIndex i = 0; i < jbbs.entries(); i++) {
       QRJBBPtr jbb = jbbs[i];
 
       // Collection of MVCandidates for this JBB.
-      MVCandidatesForJBBPtr jbbCandidates = new(requestHeap) 
-	MVCandidatesForJBB(jbb, mvCandidates, ADD_MEMCHECK_ARGS(requestHeap));
+      MVCandidatesForJBBPtr jbbCandidates =
+          new (requestHeap) MVCandidatesForJBB(jbb, mvCandidates, ADD_MEMCHECK_ARGS(requestHeap));
 
       // Search MVMemo for candidate MVs for this JBB
-      try
-        {
-          mvMemo_.search(jbb, jbbCandidates, requestHeap);
-        }
-      catch (...)
-        {
-          // Exception occurred, skip this JBB and keep going.
-          QRLogger::instance().log(CAT_QMS_MAIN, LL_MVQR_FAIL, 
-            "JBB %s skipped due to exception", jbb->getID().data());
-          deletePtr(jbbCandidates);
-          continue;
-        }
+      try {
+        mvMemo_.search(jbb, jbbCandidates, requestHeap);
+      } catch (...) {
+        // Exception occurred, skip this JBB and keep going.
+        QRLogger::instance().log(CAT_QMS_MAIN, LL_MVQR_FAIL, "JBB %s skipped due to exception", jbb->getID().data());
+        deletePtr(jbbCandidates);
+        continue;
+      }
 
       mvCandidates->insert(jbbCandidates);
     }
@@ -128,20 +115,15 @@ QRResultDescriptorPtr Qms::match(QRQueryDescriptorPtr qryDescPtr, NAMemory* requ
     QRResultDescriptorPtr resultDesc = mvCandidates->generateResultDescriptor(requestHeap);
     deletePtr(mvCandidates);
 
-    //dumpInventoryHash();
+    // dumpInventoryHash();
     return resultDesc;
-  }
-  catch (QRException e)
-  {
+  } catch (QRException e) {
     QRLogger::instance().log(CAT_QMS_MAIN, LL_MVQR_FAIL, "MATCH operation aborted.");
     // Return an empty result descriptor.
     QRResultDescriptorPtr resultDesc = MVCandidateCollection::generateEmptyResultDescriptor(requestHeap);
     return resultDesc;
-  }
-  catch (...)
-  {
-    QRLogger::instance().log(CAT_QMS_MAIN, LL_MVQR_FAIL,
-      "MATCH operation aborted because of unknown exception.");
+  } catch (...) {
+    QRLogger::instance().log(CAT_QMS_MAIN, LL_MVQR_FAIL, "MATCH operation aborted because of unknown exception.");
     // Return an empty result descriptor.
     QRResultDescriptorPtr resultDesc = MVCandidateCollection::generateEmptyResultDescriptor(requestHeap);
     return resultDesc;
@@ -152,37 +134,31 @@ QRResultDescriptorPtr Qms::match(QRQueryDescriptorPtr qryDescPtr, NAMemory* requ
  * Insert a new MV into the QMS matching data structures.
  * @param mvDescPtr Descriptor of MV.
  */
-void Qms::insert(QRMVDescriptorPtr mvDescPtr, const QRMVDefinition* mvDefPtr)
-{
+void Qms::insert(QRMVDescriptorPtr mvDescPtr, const QRMVDefinition *mvDefPtr) {
   static Int32 mvNumber = 0;
 
-  try
-  {
+  try {
     // Count this query being matched.
     mvNumber++;
 
-    MVDetailsPtr mvDetails = new(heap_) 
-      MVDetails(mvDescPtr, ADD_MEMCHECK_ARGS(heap_));
+    MVDetailsPtr mvDetails = new (heap_) MVDetails(mvDescPtr, ADD_MEMCHECK_ARGS(heap_));
     mvDetails->init(heap_);
 
-    if (mvDefPtr)
-    {
+    if (mvDefPtr) {
       mvDetails->setRedefTimestamp(mvDefPtr->redefTimeString_);
       mvDetails->setRefreshTimestamp(mvDefPtr->refreshedTimeString_);
       mvDetails->setIgnoreChanges(mvDefPtr->hasIgnoreChanges_);
     }
 
     // Iterate on the JBBs
-    const NAPtrList<QRJBBPtr>& jbbs = mvDescPtr->getJbbList();
-    if (jbbs.entries() > 1)
-    {
+    const NAPtrList<QRJBBPtr> &jbbs = mvDescPtr->getJbbList();
+    if (jbbs.entries() > 1) {
       QRLogger::instance().log(CAT_QMS_MAIN, LL_MVQR_FAIL,
-        "MV Insert operation aborted - Only MVs with a single JBB are supported for now.");
+                               "MV Insert operation aborted - Only MVs with a single JBB are supported for now.");
       return;
     }
 
-    for (CollIndex i = 0; i < jbbs.entries(); i++)
-    {
+    for (CollIndex i = 0; i < jbbs.entries(); i++) {
       QRJBBPtr jbb = jbbs[i];
 
       // Insert it into MVMemo
@@ -190,19 +166,14 @@ void Qms::insert(QRMVDescriptorPtr mvDescPtr, const QRMVDefinition* mvDefPtr)
     }
 
     MVInventoryHash_.insert(&mvDetails->getMVName(), mvDetails);
-    //dumpInventoryHash();
-  }
-  catch (QRException e)
-  {
+    // dumpInventoryHash();
+  } catch (QRException e) {
     // Ignore exceptions for now.
-    QRLogger::instance().log(CAT_QMS_MAIN, LL_MVQR_FAIL,
-      "PUBLISH operation aborted, An Exception occurred: %s", e.getMessage());
-  }
-  catch (...)
-  {
+    QRLogger::instance().log(CAT_QMS_MAIN, LL_MVQR_FAIL, "PUBLISH operation aborted, An Exception occurred: %s",
+                             e.getMessage());
+  } catch (...) {
     // Ignore exceptions for now.
-    QRLogger::instance().log(CAT_QMS_MAIN, LL_MVQR_FAIL,
-      "PUBLISH operation aborted, An unknown exception occurred.");
+    QRLogger::instance().log(CAT_QMS_MAIN, LL_MVQR_FAIL, "PUBLISH operation aborted, An unknown exception occurred.");
   }
 }
 
@@ -210,14 +181,11 @@ void Qms::insert(QRMVDescriptorPtr mvDescPtr, const QRMVDefinition* mvDefPtr)
  * Remove an MV from the matching data structures.
  * @param mvName Name of MV to remove.
  */
-void Qms::drop(const NAString& mvName)
-{
-  try
-  {
+void Qms::drop(const NAString &mvName) {
+  try {
     // If the MV is contained in QMS
     MVDetailsPtr mv = getMvDetails(mvName);
-    if (mv != NULL)
-    {
+    if (mv != NULL) {
       // Remove it from the inventory.
       MVInventoryHash_.remove(&mvName);
 
@@ -227,19 +195,13 @@ void Qms::drop(const NAString& mvName)
       // Now delete the MVDetails object
       deletePtr(mv);
     }
-    //dumpInventoryHash();
-  }
-  catch (QRException e)
-  {
+    // dumpInventoryHash();
+  } catch (QRException e) {
     // Ignore exceptions for now.
-    QRLogger::instance().log(CAT_QMS_MAIN, LL_MVQR_FAIL,
-      "DROP operation aborted.");
-  }
-  catch (...)
-  {
+    QRLogger::instance().log(CAT_QMS_MAIN, LL_MVQR_FAIL, "DROP operation aborted.");
+  } catch (...) {
     // Ignore exceptions for now.
-    QRLogger::instance().log(CAT_QMS_MAIN, LL_MVQR_FAIL,
-      "DROP operation aborted because of unknown exception.");
+    QRLogger::instance().log(CAT_QMS_MAIN, LL_MVQR_FAIL, "DROP operation aborted because of unknown exception.");
   }
 }
 
@@ -248,14 +210,12 @@ void Qms::drop(const NAString& mvName)
  * @param mvName Name of MV to touch.
  * @param timestamp New redefinition timestamp of MV.
  */
-void Qms::touch(const NAString& mvName, const NAString& timestamp)
-{
+void Qms::touch(const NAString &mvName, const NAString &timestamp) {
   MVDetailsPtr mvDetails = getMvDetails(mvName);
   if (mvDetails != NULL)
     mvDetails->setRedefTimestamp(timestamp);
   else
-    QRLogger::instance().log(CAT_QMS_MAIN, LL_INFO,
-      "Unable to TOUCH MV %s - not found in QMS.", mvName.data());
+    QRLogger::instance().log(CAT_QMS_MAIN, LL_INFO, "Unable to TOUCH MV %s - not found in QMS.", mvName.data());
 }
 
 /**
@@ -263,16 +223,12 @@ void Qms::touch(const NAString& mvName, const NAString& timestamp)
  * @param mvName Name of MV to alter.
  * @param hasIgnoreChanges new IGNORE_CHANGES boolean value.
  */
-void Qms::alter(const NAString& mvName, NABoolean hasIgnoreChanges)
-{
+void Qms::alter(const NAString &mvName, NABoolean hasIgnoreChanges) {
   MVDetailsPtr mvDetails = getMvDetails(mvName);
-  if (mvDetails != NULL)
-  {
+  if (mvDetails != NULL) {
     mvDetails->setIgnoreChanges(hasIgnoreChanges);
-  }
-  else
-    QRLogger::instance().log(CAT_QMS_MAIN, LL_INFO,
-     "Unable to ALTER MV %s - not found in QMS.", mvName.data());
+  } else
+    QRLogger::instance().log(CAT_QMS_MAIN, LL_INFO, "Unable to ALTER MV %s - not found in QMS.", mvName.data());
 }
 
 /**
@@ -280,20 +236,16 @@ void Qms::alter(const NAString& mvName, NABoolean hasIgnoreChanges)
  * @param mvName Name of MV to alter.
  * @param timestamp New last refresh timestamp of MV.
  */
-void Qms::refresh(const NAString& mvName, const NAString& timestamp, NABoolean isRecompute)
-{
+void Qms::refresh(const NAString &mvName, const NAString &timestamp, NABoolean isRecompute) {
   MVDetailsPtr mvDetails = getMvDetails(mvName);
-  if (mvDetails != NULL)
-  {
+  if (mvDetails != NULL) {
     mvDetails->setRefreshTimestamp(timestamp);
     if (isRecompute)
       mvDetails->setConsistent(TRUE);
     else if (mvDetails->hasIgnoreChanges())
       mvDetails->setConsistent(FALSE);
-  }
-  else
-    QRLogger::instance().log(CAT_QMS_MAIN, LL_INFO,
-      "Unable to Refresh MV %s - not found in QMS.", mvName.data());
+  } else
+    QRLogger::instance().log(CAT_QMS_MAIN, LL_INFO, "Unable to Refresh MV %s - not found in QMS.", mvName.data());
 }
 
 /**
@@ -303,13 +255,10 @@ void Qms::refresh(const NAString& mvName, const NAString& timestamp, NABoolean i
  * @param timestamp New redefinition timestamp of MV.
  * \todo Not sure this is complete. Is the MV name used anywhere else?
  */
-void Qms::rename(const NAString& oldName, const NAString& newName)
-{
-  try
-  {
+void Qms::rename(const NAString &oldName, const NAString &newName) {
+  try {
     MVDetailsPtr mvDetails = getMvDetails(oldName);
-    if (mvDetails != NULL)
-    {
+    if (mvDetails != NULL) {
       // Remove it from the inventory.
       MVInventoryHash_.remove(&oldName);
 
@@ -319,22 +268,15 @@ void Qms::rename(const NAString& oldName, const NAString& newName)
       // Re-insert with the new name.
       MVInventoryHash_.insert(&mvDetails->getMVName(), mvDetails);
 
-      //dumpInventoryHash();
-    }
-    else
-      QRLogger::instance().log(CAT_QMS_MAIN, LL_INFO,
-        "Unable to rename MV %s - not found in QMS.", oldName.data());
-  }
-  catch (QRException e)
-  {
+      // dumpInventoryHash();
+    } else
+      QRLogger::instance().log(CAT_QMS_MAIN, LL_INFO, "Unable to rename MV %s - not found in QMS.", oldName.data());
+  } catch (QRException e) {
     // Ignore exceptions for now.
     QRLogger::instance().log(CAT_QMS_MAIN, LL_MVQR_FAIL, "Rename operation aborted.");
-  }
-  catch (...)
-  {
+  } catch (...) {
     // Ignore exceptions for now.
-    QRLogger::instance().log(CAT_QMS_MAIN, LL_MVQR_FAIL,
-      "Rename operation aborted because of unknown exception.");
+    QRLogger::instance().log(CAT_QMS_MAIN, LL_MVQR_FAIL, "Rename operation aborted because of unknown exception.");
   }
 }
 
@@ -343,8 +285,7 @@ void Qms::rename(const NAString& oldName, const NAString& newName)
  * @param mvName The name of the MV to find.
  * @return TRUE if the MV is found, FALSE otherwise.
  */
-NABoolean Qms::contains(const NAString& mvName)
-{
+NABoolean Qms::contains(const NAString &mvName) {
   MVDetailsPtr mvDetails = getMvDetails(mvName);
   return (mvDetails != NULL);
 }
@@ -353,8 +294,7 @@ NABoolean Qms::contains(const NAString& mvName)
  * @param mvName The name of the MV to find.
  * @return The redefinition timestamp as an Int64 number, or NULL if the MV is not contained in QMS.
  */
-const Int64 *Qms::getMVTimestamp(const NAString& mvName)
-{ 
+const Int64 *Qms::getMVTimestamp(const NAString &mvName) {
   MVDetailsPtr mvDetails = getMvDetails(mvName);
   if (mvDetails == NULL)
     return NULL;
@@ -362,15 +302,13 @@ const Int64 *Qms::getMVTimestamp(const NAString& mvName)
     return &mvDetails->getRedefTimestamp();
 }
 
-void Qms::dumpInventoryHash()
-{
+void Qms::dumpInventoryHash() {
   QRLogger::instance().log(CAT_QMS_MAIN, LL_DEBUG, "Dumping MV Inventory:");
   MVDetailHashIterator iterator(MVInventoryHash_);
-  const NAString* key;
+  const NAString *key;
   MVDetailsPtr mvDetails;
-  for (CollIndex i = 0; i < iterator.entries(); i++) 
-  {
-    iterator.getNext(key, mvDetails); 
+  for (CollIndex i = 0; i < iterator.entries(); i++) {
+    iterator.getNext(key, mvDetails);
     QRLogger::instance().log(CAT_QMS_MAIN, LL_DEBUG, key->data());
   }
 }
@@ -383,9 +321,8 @@ void Qms::dumpInventoryHash()
  *   2. Perform perdicate analysis on each group.
  *   3. Generate the SQL text for the CREATE MV command for the MV we ar proposing.
  */
-void Qms::workloadAnalysis(ofstream& ofs, Int32 minQueriesPerMV, NAMemory* requestHeap)
-{
-  WorkloadAnalysisPtr workload = new(requestHeap) WorkloadAnalysis(requestHeap);
+void Qms::workloadAnalysis(ofstream &ofs, Int32 minQueriesPerMV, NAMemory *requestHeap) {
+  WorkloadAnalysisPtr workload = new (requestHeap) WorkloadAnalysis(requestHeap);
   // Collect the join graph + GroupBy list information
   mvMemo_.collectMVGroups(workload, minQueriesPerMV, requestHeap);
   // Perform predicate analysis and generate the SQL.

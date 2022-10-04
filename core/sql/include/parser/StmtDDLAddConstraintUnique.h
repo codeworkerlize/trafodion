@@ -39,7 +39,7 @@
  *               The methods in this class are defined either in this
  *               header file or the source file StmtDDLAlter.C.
  *
- *               
+ *
  * Created:      6/15/95
  * Language:     C++
  *
@@ -48,7 +48,6 @@
  *
  *****************************************************************************
  */
-
 
 #include "StmtDDLAlterTable.h"
 #include "StmtDDLAddConstraint.h"
@@ -66,69 +65,47 @@ class StmtDDLAddConstraintUnique;
 // -----------------------------------------------------------------------
 // definition of class StmtDDLAddConstraintUnique
 // -----------------------------------------------------------------------
-class StmtDDLAddConstraintUnique : public StmtDDLAddConstraint
-{
-
-public:
-
+class StmtDDLAddConstraintUnique : public StmtDDLAddConstraint {
+ public:
   // constructors
-  StmtDDLAddConstraintUnique(ElemDDLNode * pElemDDLConstraintUnique)
-  : StmtDDLAddConstraint(DDL_ALTER_TABLE_ADD_CONSTRAINT_UNIQUE,
-                       pElemDDLConstraintUnique)
-  { }
+  StmtDDLAddConstraintUnique(ElemDDLNode *pElemDDLConstraintUnique)
+      : StmtDDLAddConstraint(DDL_ALTER_TABLE_ADD_CONSTRAINT_UNIQUE, pElemDDLConstraintUnique) {}
 
-  StmtDDLAddConstraintUnique(const QualifiedName & tableQualName,
-                                    ElemDDLNode * pElemDDLConstraintUnique)
-  : StmtDDLAddConstraint(DDL_ALTER_TABLE_ADD_CONSTRAINT_UNIQUE,
-                       tableQualName,
-                       pElemDDLConstraintUnique)
-  { }
+  StmtDDLAddConstraintUnique(const QualifiedName &tableQualName, ElemDDLNode *pElemDDLConstraintUnique)
+      : StmtDDLAddConstraint(DDL_ALTER_TABLE_ADD_CONSTRAINT_UNIQUE, tableQualName, pElemDDLConstraintUnique) {}
 
-  StmtDDLAddConstraintUnique(OperatorTypeEnum operatorType,
-                                    ElemDDLNode * pElemDDLConstraintUnique)
-  : StmtDDLAddConstraint(operatorType,
-                       pElemDDLConstraintUnique)
-  { }
+  StmtDDLAddConstraintUnique(OperatorTypeEnum operatorType, ElemDDLNode *pElemDDLConstraintUnique)
+      : StmtDDLAddConstraint(operatorType, pElemDDLConstraintUnique) {}
 
-  StmtDDLAddConstraintUnique(OperatorTypeEnum operatorType,
-                                    const QualifiedName & tableQualName,
-                                    ElemDDLNode * pElemDDLConstraintUnique)
-  : StmtDDLAddConstraint(operatorType,
-                       tableQualName,
-                       pElemDDLConstraintUnique)
-  { }
+  StmtDDLAddConstraintUnique(OperatorTypeEnum operatorType, const QualifiedName &tableQualName,
+                             ElemDDLNode *pElemDDLConstraintUnique)
+      : StmtDDLAddConstraint(operatorType, tableQualName, pElemDDLConstraintUnique) {}
 
   // virtual destructor
   virtual ~StmtDDLAddConstraintUnique();
 
   // cast
-  virtual StmtDDLAddConstraintUnique * castToStmtDDLAddConstraintUnique();
+  virtual StmtDDLAddConstraintUnique *castToStmtDDLAddConstraintUnique();
 
   // method for tracing
   virtual const NAString getText() const;
-  
+
   // definition of method bindNode() for class StmtDDLAddConstraintUnique
-  virtual ExprNode * bindNode(BindWA * pBindWA); 
+  virtual ExprNode *bindNode(BindWA *pBindWA);
 
-
-private:
-
+ private:
   // ---------------------------------------------------------------------
   // private methods
   // ---------------------------------------------------------------------
 
-  StmtDDLAddConstraintUnique();                         // DO NOT USE
-  StmtDDLAddConstraintUnique(const NAString & tableName,
-                             ElemDDLNode *);            // DO NOT USE
-  StmtDDLAddConstraintUnique(OperatorTypeEnum operatorType,
-                             const NAString & tableName,
-                             ElemDDLNode *);            // DO NOT USE
-  StmtDDLAddConstraintUnique
-        (const StmtDDLAddConstraintUnique &);           // DO NOT USE
-  StmtDDLAddConstraintUnique & operator=
-        (const StmtDDLAddConstraintUnique &);           // DO NOT USE
-  
-}; // class StmtDDLAddConstraintUnique
+  StmtDDLAddConstraintUnique();  // DO NOT USE
+  StmtDDLAddConstraintUnique(const NAString &tableName,
+                             ElemDDLNode *);  // DO NOT USE
+  StmtDDLAddConstraintUnique(OperatorTypeEnum operatorType, const NAString &tableName,
+                             ElemDDLNode *);                                  // DO NOT USE
+  StmtDDLAddConstraintUnique(const StmtDDLAddConstraintUnique &);             // DO NOT USE
+  StmtDDLAddConstraintUnique &operator=(const StmtDDLAddConstraintUnique &);  // DO NOT USE
 
+};  // class StmtDDLAddConstraintUnique
 
-#endif // STMTDDLADDCONSTRAINTUNIQUE_H
+#endif  // STMTDDLADDCONSTRAINTUNIQUE_H

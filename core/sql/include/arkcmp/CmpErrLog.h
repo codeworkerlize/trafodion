@@ -47,10 +47,8 @@ class NAMemory;
 class NAHeap;
 typedef NAMemory CollHeap;
 
-
-class CmpErrLog
-{
-public:
+class CmpErrLog {
+ public:
   // CmpErrLog constructor. The "failedHeap" field below is a pointer
   //     to the heap where a failure occurred.
   CmpErrLog(const char *failureTxt, CollHeap *failedHeap = 0, size_t size = 0);
@@ -61,7 +59,7 @@ public:
   // in the NAMemory code.
   static void CmpErrLogCallback(NAHeap *heap, size_t userSize);
 
-private:
+ private:
   void renameBigLogFile(const char *fileName);
   void openLogFile();
   void closeLogFile();
@@ -74,7 +72,7 @@ private:
   void writeQueryInfo();
   void writeStackTrace();
 
-  // Output file pointer 
+  // Output file pointer
   FILE *fp;
 
   // Pointer to memory buffer that can be freed to allow memory needed
@@ -82,4 +80,4 @@ private:
   static void *memPtr;
 };
 
-#endif // _CMP_ERR_LOG_H
+#endif  // _CMP_ERR_LOG_H

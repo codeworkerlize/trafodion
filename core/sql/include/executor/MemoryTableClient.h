@@ -29,55 +29,44 @@
 #include "executor/HBaseClient_JNI.h"
 
 class MemoryTableClient : public NABasicObject {
-public:
+ public:
+  MemoryTableClient(NAMemory *heap, char *tableName);
 
-  MemoryTableClient(NAMemory *heap, char* tableName);
-
-  void setTableName(const char* tableName);
+  void setTableName(const char *tableName);
   void create();
   bool insert(HbaseStr &key, HbaseStr &value);
-  void remove(const char* tableName);
+  void remove(const char *tableName);
   HTableCache *getHTableCache() { return htableCache_; }
 
-  enum FETCH_MODE {
-      UNKNOWN = 0
-    , SCAN_FETCH
-    , GET_ROW
-    , BATCH_GET
-  };
+  enum FETCH_MODE { UNKNOWN = 0, SCAN_FETCH, GET_ROW, BATCH_GET };
 
-  void setFetchMode(MemoryTableClient::FETCH_MODE fetchMode)
-  { fetchMode_ = fetchMode; }
+  void setFetchMode(MemoryTableClient::FETCH_MODE fetchMode) { fetchMode_ = fetchMode; }
 
-  Lng32 startGet(const char* tableName,
-                 const HbaseStr& rowID);
+  Lng32 startGet(const char *tableName, const HbaseStr &rowID);
 
-  Lng32 startGets(const char* tableName,
-                  const NAList<HbaseStr> *rowIDs);
+  Lng32 startGets(const char *tableName, const NAList<HbaseStr> *rowIDs);
 
-  Lng32 startGets(const char* tableName,
-                  const HbaseStr &rowIDs,
-                  const UInt32 keyLen);
+  Lng32 startGets(const char *tableName, const HbaseStr &rowIDs, const UInt32 keyLen);
 
   HTC_RetCode getColVal(BYTE *colVal, Lng32 &colValLen);
   HTC_RetCode nextRow();
   HTC_RetCode getRowID(HbaseStr &rowID);
   void cleanupResultInfo();
-  Lng32 scanOpen(const char* tableName, const Text& startRow,
-                 const Text& stopRow, const Lng32 numCacheRows);
-  void setFetchPos(const Text& startRow);
+  Lng32 scanOpen(const char *tableName, const Text &startRow, const Text &stopRow, const Lng32 numCacheRows);
+  void setFetchPos(const Text &startRow);
   HTC_RetCode fetchRows();
 
   inline bool tableIsDisabled() { return isDisabled_; }
   inline bool memDBinitFailed() { return memDBinitFailed_; }
   NAMemory *getNAMemory() { return heap_; }
-private:
-  void init(char* tableName);
+
+ private:
+  void init(char *tableName);
   NAMemory *heap_;
-  char* tableName_;
+  char *tableName_;
   HTableCache *htableCache_;
   bool isDisabled_;
-  NAList <HTableRow*> kvArray_; 
+  NAList<HTableRow *> kvArray_;
   Int32 numReqRows_;
   Int32 currentRowNum_;
   Int32 numRowsReturned_;

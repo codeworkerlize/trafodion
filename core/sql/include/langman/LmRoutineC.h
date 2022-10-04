@@ -44,43 +44,24 @@
 // different parameter passing styles.
 //
 //////////////////////////////////////////////////////////////////////
-class SQLLM_LIB_FUNC LmRoutineC : public LmRoutine
-{
+class SQLLM_LIB_FUNC LmRoutineC : public LmRoutine {
   friend class LmLanguageManagerC;
-  
-public:
 
-  LmRoutineC(const char   *sqlName,
-             const char   *externalName,
-             const char   *librarySqlName,
-             ComUInt32    numSqlParam,
-             char         *routineSig,
-             ComUInt32    maxResultSets,
-             ComRoutineLanguage language,
-             ComRoutineParamStyle paramStyle,
-             ComRoutineTransactionAttributes transactionAttrs,
-             ComRoutineSQLAccess sqlAccessMode,
-             ComRoutineExternalSecurity externalSecurity,
-             Int32 routineOwnerId,
-             const char   *parentQid,
-             ComUInt32    inputParamRowLen,
-             ComUInt32    outputRowLen,
-             const char   *currentUserName,
-             const char   *sessionUserName,
-             LmParameter  *parameters,
-             LmLanguageManagerC *lm,
-             LmHandle     routine,
-             LmContainer  *container,
-             ComDiagsArea *diagsArea);
-  
+ public:
+  LmRoutineC(const char *sqlName, const char *externalName, const char *librarySqlName, ComUInt32 numSqlParam,
+             char *routineSig, ComUInt32 maxResultSets, ComRoutineLanguage language, ComRoutineParamStyle paramStyle,
+             ComRoutineTransactionAttributes transactionAttrs, ComRoutineSQLAccess sqlAccessMode,
+             ComRoutineExternalSecurity externalSecurity, Int32 routineOwnerId, const char *parentQid,
+             ComUInt32 inputParamRowLen, ComUInt32 outputRowLen, const char *currentUserName,
+             const char *sessionUserName, LmParameter *parameters, LmLanguageManagerC *lm, LmHandle routine,
+             LmContainer *container, ComDiagsArea *diagsArea);
+
   virtual ~LmRoutineC();
 
   // The following pure virtual methods must be implemented even
   // though we do not currently support result sets for C routines
-  void cleanupLmResultSet(LmResultSet *resultSet,
-                          ComDiagsArea *diagsArea = NULL) {}
-  void cleanupLmResultSet(ComUInt32 index,
-                          ComDiagsArea *diagsArea = NULL) {}
+  void cleanupLmResultSet(LmResultSet *resultSet, ComDiagsArea *diagsArea = NULL) {}
+  void cleanupLmResultSet(ComUInt32 index, ComDiagsArea *diagsArea = NULL) {}
   void cleanupResultSets(ComDiagsArea *diagsArea = NULL) {}
 
   // callType_ is primarily managed by the LmRoutineC object.
@@ -95,22 +76,21 @@ public:
 
   virtual LmResult handleFinalCall(ComDiagsArea *diagsArea = NULL);
 
-protected:
-
+ protected:
   LmResult processReturnStatus(ComSInt32 result, ComDiagsArea *diags);
 
   void deletePassThroughInputs();
 
-  static SQLUDR_CHAR *host_data_;     // Static data member
+  static SQLUDR_CHAR *host_data_;  // Static data member
 
-  SQLUDR_CHAR         sqlState_[SQLUDR_SQLSTATE_SIZE];
-  SQLUDR_CHAR         msgText_[SQLUDR_MSGTEXT_SIZE];
-  SQLUDR_UINT16       callType_;
-  SQLUDR_STATEAREA   *stateArea_;
-  SQLUDR_UDRINFO     *udrInfo_;
+  SQLUDR_CHAR sqlState_[SQLUDR_SQLSTATE_SIZE];
+  SQLUDR_CHAR msgText_[SQLUDR_MSGTEXT_SIZE];
+  SQLUDR_UINT16 callType_;
+  SQLUDR_STATEAREA *stateArea_;
+  SQLUDR_UDRINFO *udrInfo_;
 
   NABoolean finalCallRequired_;
 
-}; // class LmRoutineC
+};  // class LmRoutineC
 
 #endif

@@ -56,31 +56,29 @@ const Int32 NUMDESC_ITEMS = 7;
 //
 // TmpBuffer: This class manages the temporary location that's needed
 // for UdrResultSet during row fetch from CLI.
-// This class keeps track of total number of rows in the buffer and 
+// This class keeps track of total number of rows in the buffer and
 // the number that needs to be provided to the caller. This class
 // does not provide interface to read previous rows that were read.
 // This class also contains the diagnostic conditions related to the
 // data rows.
 //
 //////////////////////////////////////////////////////////////////////////
-class TmpBuffer
-{
-public:
+class TmpBuffer {
+ public:
   TmpBuffer(ComUInt32 size, ComUInt32 rowSize, NAMemory *heap)
-    : heap_(heap),
-      size_(size),
-      exeRowSize_(rowSize),
-      // When we fetch from the local CLI, we need a row size that is
-      // a multiple of 2. This is explained in commentary below.
-      fetchRowSize_(rowSize + (rowSize % 2)),
-      numRows_(0),
-      index_(0)
-  {
+      : heap_(heap),
+        size_(size),
+        exeRowSize_(rowSize),
+        // When we fetch from the local CLI, we need a row size that is
+        // a multiple of 2. This is explained in commentary below.
+        fetchRowSize_(rowSize + (rowSize % 2)),
+        numRows_(0),
+        index_(0) {
     // Here's why our CLI fetch size must be even. It's a workaround
     // to a quirk in the CLI. The quirky behavior only happens for
     // rows with VARCHAR columns but we can use the workaround for all
-    // rows. 
-    // 
+    // rows.
+    //
     // First note that we use quad fields to do rowset fetching
     // from the CLI (see UdrResultSet::setupQuadFields() for more info
     // on our use of quad fields). The "layout" values in the quad
@@ -89,7 +87,7 @@ public:
     // offset between a given column in two consecutive rows. For
     // example, if we want column 1 in row 1 and column 1 in row 2 to
     // be separated by N bytes, then we need layout values of N.
-    // 
+    //
     // For a VARCHAR column if the layout is not even, the CLI will
     // "add 1" to the layout when computing these offsets. This is not
     // what we want. To avoid the "add 1" quirk we simply never give
@@ -97,8 +95,7 @@ public:
     // in Descriptor::getVarItem() and was supposed to be a fix for
     // COBOL programs only, but is taking effect for all programs.
 
-    if (size_ < fetchRowSize_)
-      size_ = fetchRowSize_;
+    if (size_ < fetchRowSize_) size_ = fetchRowSize_;
 
     // Because of the way we setup quadfields, it is possible to overwrite
     // the bytes beyond the allocated bytes if we happen to fetch rows full
@@ -106,14 +103,13 @@ public:
     // size_ bytes. Probably rowwise rowsets will not have this problem and
     // should also yield better performance.
     ComUInt32 nBytes = size_ + fetchRowSize_;
-    buffer_ = new(heap) char[nBytes];
+    buffer_ = new (heap) char[nBytes];
     memset(buffer_, 0, nBytes);
 
     cliDiags_ = ComDiagsArea::allocate(heap_);
   }
 
-  ~TmpBuffer()
-  {
+  ~TmpBuffer() {
     NADELETEBASIC(buffer_, heap_);
     cliDiags_->decrRefCount();
   }
@@ -130,30 +126,28 @@ public:
   ComUInt32 getNumRowsPerFetch() const { return size_ / fetchRowSize_; }
 
   ComUInt32 getNumRowsToCopy() const { return numRows_ - index_; }
-  NABoolean moreRowsToCopy() const
-  {
+  NABoolean moreRowsToCopy() const {
     UDR_ASSERT(index_ <= numRows_, "Wrong index_ value in TmpBuffer.");
     return numRows_ != index_;
   }
 
-  char *getNextRow(ComDiagsArea* &rowDiags,
-                   NABoolean singleRowFetchEnabled = FALSE);
+  char *getNextRow(ComDiagsArea *&rowDiags, NABoolean singleRowFetchEnabled = FALSE);
 
   // Mutators
   void setNumRows(ComUInt32 numRows) { numRows_ = numRows; }
 
-private:
-  NAMemory *heap_;         // Heap where buffer_ is allocated
-  char *buffer_;           // Place where CLI rows are copied temporarily
-  ComUInt32 size_;         // Buffer size
-  ComUInt32 exeRowSize_;   // Row size returned to executor
-  ComUInt32 fetchRowSize_; // Row size fetched from the CLI
-  ComUInt32 numRows_;      // Number of rows in this buffer
-  ComUInt32 index_;        // Index of first row that was not copied from
-                           // this buffer.
+ private:
+  NAMemory *heap_;          // Heap where buffer_ is allocated
+  char *buffer_;            // Place where CLI rows are copied temporarily
+  ComUInt32 size_;          // Buffer size
+  ComUInt32 exeRowSize_;    // Row size returned to executor
+  ComUInt32 fetchRowSize_;  // Row size fetched from the CLI
+  ComUInt32 numRows_;       // Number of rows in this buffer
+  ComUInt32 index_;         // Index of first row that was not copied from
+                            // this buffer.
 
-  ComDiagsArea *cliDiags_; // CLI diags corresponding to the rows in this
-                           // buffer
+  ComDiagsArea *cliDiags_;  // CLI diags corresponding to the rows in this
+                            // buffer
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -161,15 +155,13 @@ private:
 // UdrResultSet: A representation of Result Set in UDR Server layer.
 //
 //////////////////////////////////////////////////////////////////////////
-class UdrResultSet : public NABasicObject
-{
-public:
-  enum RSState
-  {
+class UdrResultSet : public NABasicObject {
+ public:
+  enum RSState {
     RS_INITIATED = 1,   // RS initialized after UDR invoke.
                         //  The column desc is not set yet when RS is in
                         //  this state.
-    RS_REINITIATED,     // RS re-initialized. 
+    RS_REINITIATED,     // RS re-initialized.
                         //  Column desc is set and may be used for fetches
                         //  depending on the next message from master.
     RS_LOADED,          // Column desc populated
@@ -198,7 +190,7 @@ public:
   // Accessors
   SPInfo *getSPInfo() const { return spInfo_; }
   RSState getState() const { return state_; }
-  const char * stateString();
+  const char *stateString();
   NABoolean isInited() const { return state_ == RS_INITIATED; }
   NABoolean isReInited() const { return state_ == RS_REINITIATED; }
   NABoolean isLoaded() const { return state_ == RS_LOADED; }
@@ -212,17 +204,16 @@ public:
   const char *getProxySyntax() const { return proxySyntax_->data(); }
   const LmResultSet *getLmResultSet() const { return lmResultSet_; }
 
-  ComUInt32 getContextHandle() const 
-  { return lmResultSet_ ? lmResultSet_->getCtxHandle() : 0; }
+  ComUInt32 getContextHandle() const { return lmResultSet_ ? lmResultSet_->getCtxHandle() : 0; }
   SQLSTMT_ID *getStatementHandle() const { return stmt_id_; }
- 
+
   ComUInt32 getExeRowSize() const { return exeRowSize_; }
   ComUInt32 getBufferSize() const { return bufferSize_; }
 
   // mutators
   void setState(RSState state) { state_ = state; }
   // Reinitialize the object. columnDesc_ will not be changed.
-  Int32 reInit(LmResultSet *lmRS, ComDiagsArea &d, SQLSTMT_ID *stmt_id=NULL);
+  Int32 reInit(LmResultSet *lmRS, ComDiagsArea &d, SQLSTMT_ID *stmt_id = NULL);
 
   // Prepare for reinvoke
   // Deallocates and run cleanup methods on the non-reusable fields
@@ -230,34 +221,20 @@ public:
 
   // Load method.
   // A 'load' on UdrResultSet refers to setting the columnDesc_ field
-  NABoolean load(RSHandle handle,
-                 ComUInt32 numRSCols,
-                 ComUInt32 rowSize,
-                 ComUInt32 bufferSize,
-                 UdrParameterInfo *columnDesc,
-                 ComDiagsArea &d);
+  NABoolean load(RSHandle handle, ComUInt32 numRSCols, ComUInt32 rowSize, ComUInt32 bufferSize,
+                 UdrParameterInfo *columnDesc, ComDiagsArea &d);
 
   // Fetch methods
-  Lng32 fetchRows(UdrGlobals *udrGlob,
-                 SqlBuffer *request,
-                 SqlBuffer *reply,
-                 ComDiagsArea &d,
-                 NAList<ComDiagsArea*> *rowDiagsList);
-  void fetchRowsFromCLI(UdrGlobals *udrGlob,
-                        SqlBuffer *reply,
-                        ComUInt32 &numBufferedRows,
-                        ComDiagsArea &d,
-                        NAList<ComDiagsArea*> *rowDiagsList);
+  Lng32 fetchRows(UdrGlobals *udrGlob, SqlBuffer *request, SqlBuffer *reply, ComDiagsArea &d,
+                  NAList<ComDiagsArea *> *rowDiagsList);
+  void fetchRowsFromCLI(UdrGlobals *udrGlob, SqlBuffer *reply, ComUInt32 &numBufferedRows, ComDiagsArea &d,
+                        NAList<ComDiagsArea *> *rowDiagsList);
 
-  void fetchRowsFromJDBC(UdrGlobals *udrGlob,
-                         SqlBuffer *reply,
-                         ComUInt32 &numBufferedRows,
-                         NABoolean &eofEncountered,
-                         ComDiagsArea &d,
-                         NAList<ComDiagsArea*> *rowDiagsList);
+  void fetchRowsFromJDBC(UdrGlobals *udrGlob, SqlBuffer *reply, ComUInt32 &numBufferedRows, NABoolean &eofEncountered,
+                         ComDiagsArea &d, NAList<ComDiagsArea *> *rowDiagsList);
 
   // Unload Result Set. This destroys the column desc. Executor has
-  // to send an RS_LOAD message, if it wants to use this RS 
+  // to send an RS_LOAD message, if it wants to use this RS
   void unload();
 
   // Close Result Set. After closing an RS, the same RS can be
@@ -271,7 +248,7 @@ public:
   // executor and transitions to the CLOSE state.
   void processRSClose(ComDiagsArea *diags);
 
-private:
+ private:
   // Deallocates the fields that are generated by Udr Server
   // This method is called from desstructor and also during preparation
   // for reinvocation
@@ -285,8 +262,7 @@ private:
   // resetStmtInfo is TRUE and the name mode is not stmt_handle, then
   // the stmt_handle field is set to zero. This breaks any association
   // with an existing StatementInfo structure inside the CLI.
-  SQLSTMT_ID *copyStatementID(SQLSTMT_ID *stmt_id,
-                              NABoolean resetStmtInfo = TRUE);
+  SQLSTMT_ID *copyStatementID(SQLSTMT_ID *stmt_id, NABoolean resetStmtInfo = TRUE);
 
   // Context setting methods
   Int32 setContext(SQLCTX_HANDLE &oldCtx, ComDiagsArea &d);
@@ -305,15 +281,10 @@ private:
   NABoolean setupQuadFields(ComDiagsArea &d);
 
   // Methods that copy rows into SqlBuffer
-  void copyRowsIntoSqlBuffer(SqlBuffer *replyBuffer,
-                             queue_index queueIndex,
-                             ComUInt32 &numRowsCopied,
-                             NAList<ComDiagsArea*> *rowDiagsList);
-  NABoolean copyErrorRowIntoSqlBuffer(SqlBuffer *replyBuffer,
-                                      queue_index queueIndex,
-                                      ComDiagsArea &diags);
-  NABoolean copyEODRowIntoSqlBuffer(SqlBuffer *replyBuffer,
-                                    queue_index queueIndex);
+  void copyRowsIntoSqlBuffer(SqlBuffer *replyBuffer, queue_index queueIndex, ComUInt32 &numRowsCopied,
+                             NAList<ComDiagsArea *> *rowDiagsList);
+  NABoolean copyErrorRowIntoSqlBuffer(SqlBuffer *replyBuffer, queue_index queueIndex, ComDiagsArea &diags);
+  NABoolean copyEODRowIntoSqlBuffer(SqlBuffer *replyBuffer, queue_index queueIndex);
 
   char *fixDataRow(char *rowPtr, ComDiagsArea *rowDiags);
 
@@ -325,28 +296,28 @@ private:
   ComUInt32 bufferSize_;            // SqlBuffer Size
 
   // The following information is computed by UDR server
-  SPInfo *spInfo_;                  // Owning SPInfo
-  RSState state_;                   // current state
-  LmResultSet *lmResultSet_;        // LmResultSet
-  NAString *proxySyntax_;           // proxy syntax for this RS
+  SPInfo *spInfo_;            // Owning SPInfo
+  RSState state_;             // current state
+  LmResultSet *lmResultSet_;  // LmResultSet
+  NAString *proxySyntax_;     // proxy syntax for this RS
 
   // The following information is generated and managed by
   // UDR server during proxy syntax creation and also for row fetching.
-  ComUInt32 rowsToFetchFromJDBC_;   // Number of rows from JDBC
-  SQLSTMT_ID *stmt_id_;             // Used for producing proxy syntax and
-                                    // CLI rowset fetching
-  SQLDESC_ID *output_desc_;         // Used for producing proxy syntax and
-                                    // CLI rowset fetching
-  SQLCLI_QUAD_FIELDS *quad_fields_; // Used for CLI rowset fetching
-  queue_index parentQueueIndex_;    // Queue index to be used by RS rows
-                                    // This index is same as the index seen
-                                    // in down queue.
-  NABoolean needToCopyErrorRow_;    // Error during fetch.
-  NABoolean needToCopyEODRow_;      // EOD reached.
-  NABoolean singleRowFetchEnabled_; // Fetch a single row at a time, useful
-                                    // for debugging
-  LmParameter *rsColDescForLM_;     // Col desc for LM use
-  TmpBuffer *tmpBuffer_;            // Place for temporary storage
+  ComUInt32 rowsToFetchFromJDBC_;    // Number of rows from JDBC
+  SQLSTMT_ID *stmt_id_;              // Used for producing proxy syntax and
+                                     // CLI rowset fetching
+  SQLDESC_ID *output_desc_;          // Used for producing proxy syntax and
+                                     // CLI rowset fetching
+  SQLCLI_QUAD_FIELDS *quad_fields_;  // Used for CLI rowset fetching
+  queue_index parentQueueIndex_;     // Queue index to be used by RS rows
+                                     // This index is same as the index seen
+                                     // in down queue.
+  NABoolean needToCopyErrorRow_;     // Error during fetch.
+  NABoolean needToCopyEODRow_;       // EOD reached.
+  NABoolean singleRowFetchEnabled_;  // Fetch a single row at a time, useful
+                                     // for debugging
+  LmParameter *rsColDescForLM_;      // Col desc for LM use
+  TmpBuffer *tmpBuffer_;             // Place for temporary storage
 };
 
 #endif

@@ -29,7 +29,7 @@
 * File:         ExSequence.h
 * Description:  Class declarations for ExSequence. ExSequence performs
 *               sequence functions, like running sums, averages, etc.
-* Created:      
+* Created:
 * Language:     C++
 *
 *
@@ -49,7 +49,7 @@ class ExSimpleSQLBuffer;
 #include "common/NAMemory.h"
 #include "export/NABasicObject.h"
 #include "exp/ExpError.h"
-#include "cluster.h" 
+#include "cluster.h"
 
 // -----------------------------------------------------------------------
 // Classes defined in this file
@@ -68,27 +68,23 @@ class ex_tdb;
 // -----------------------------------------------------------------------
 // ExSequenceTdb
 // -----------------------------------------------------------------------
-class ExSequenceTdb : public ComTdbSequence
-{
-public:
-
+class ExSequenceTdb : public ComTdbSequence {
+ public:
   // ---------------------------------------------------------------------
   // Constructor is only called to instantiate an object used for
   // retrieval of the virtual table function pointer of the class while
   // unpacking. An empty constructor is enough.
   // ---------------------------------------------------------------------
-  ExSequenceTdb()
-  {};
+  ExSequenceTdb(){};
 
-  virtual ~ExSequenceTdb()
-  {};
+  virtual ~ExSequenceTdb(){};
 
   // ---------------------------------------------------------------------
   // Build a TCB for this TDB. Redefined in the Executor project.
   // ---------------------------------------------------------------------
   virtual ex_tcb *build(ex_globals *globals);
 
-private:
+ private:
   // ---------------------------------------------------------------------
   // !!!!!!! IMPORTANT -- NO DATA MEMBERS ALLOWED IN EXECUTOR TDB !!!!!!!!
   // *********************************************************************
@@ -108,7 +104,7 @@ private:
   // 1. Are those data members Compiler-generated?
   //    If yes, put them in the ComTdbSequence instead.
   //    If no, they should probably belong to someplace else (like TCB).
-  // 
+  //
   // 2. Are the classes those data members belong defined in the executor
   //    project?
   //    If your answer to both questions is yes, you might need to move
@@ -119,12 +115,11 @@ private:
 //
 // Task control block
 //
-class ExSequenceTcb : public ex_tcb
-{
-  friend class   ExSequenceTdb;
-  friend class   ExSequencePrivateState;
-  
-public:
+class ExSequenceTcb : public ex_tcb {
+  friend class ExSequenceTdb;
+  friend class ExSequencePrivateState;
+
+ public:
   enum RequestState {
     ExSeq_EMPTY,
     ExSeq_WORKING_READ,
@@ -136,46 +131,41 @@ public:
     ExSeq_OVERFLOW_READ,
     ExSeq_END_OF_PARTITION
   };
-  
-  ExSequenceTcb(const ExSequenceTdb & seq_tdb,    
-		const ex_tcb &    child_tcb,
-		ex_globals * glob);
-  ~ExSequenceTcb();  
+
+  ExSequenceTcb(const ExSequenceTdb &seq_tdb, const ex_tcb &child_tcb, ex_globals *glob);
+  ~ExSequenceTcb();
 
   virtual void registerSubtasks();
   void freeResources();
   short work();
-  
-  inline ExSequenceTdb & myTdb() const;
 
-  ex_queue_pair getParentQueue() const
-  {
-  return (qparent_);
-  }
+  inline ExSequenceTdb &myTdb() const;
 
-  inline ex_expr * sequenceExpr() const;
-  inline ex_expr * returnExpr() const;
-  inline ex_expr * postPred() const;
-  inline ex_expr * cancelExpr() const;
-  inline ex_expr * checkPartitionChangeExpr() const;
+  ex_queue_pair getParentQueue() const { return (qparent_); }
 
-  inline ex_expr * moveExpr() const;
+  inline ex_expr *sequenceExpr() const;
+  inline ex_expr *returnExpr() const;
+  inline ex_expr *postPred() const;
+  inline ex_expr *cancelExpr() const;
+  inline ex_expr *checkPartitionChangeExpr() const;
 
-  friend char *GetHistoryRow(void *data, Int32 n,NABoolean leading,Lng32 winSize, Int32&);
-  friend char *GetHistoryRowOLAP(void *data, Int32 n,NABoolean leading,Lng32 winSize, Int32&);
-  friend char *GetHistoryRowFollowingOLAP(void *data, Int32 n,NABoolean leading,Lng32 winSize, Int32&);
+  inline ex_expr *moveExpr() const;
 
-  //inline char * GetFirstHistoryRowPtr();
-//
+  friend char *GetHistoryRow(void *data, Int32 n, NABoolean leading, Lng32 winSize, Int32 &);
+  friend char *GetHistoryRowOLAP(void *data, Int32 n, NABoolean leading, Lng32 winSize, Int32 &);
+  friend char *GetHistoryRowFollowingOLAP(void *data, Int32 n, NABoolean leading, Lng32 winSize, Int32 &);
+
+  // inline char * GetFirstHistoryRowPtr();
+  //
   NABoolean advanceHistoryRow(NABoolean checkMemoryPressure = FALSE);
-  //void unAdvanceHistoryRow();
+  // void unAdvanceHistoryRow();
   inline NABoolean isHistoryFull() const;
-  inline NABoolean isHistoryEmpty() const;//if the history buffer is empty (i.e. histRowsToReturn_ == 0)
+  inline NABoolean isHistoryEmpty() const;  // if the history buffer is empty (i.e. histRowsToReturn_ == 0)
   inline NABoolean canReturnRows() const;
-  inline Lng32 numFollowingRows() const;//number of rows following the current row
+  inline Lng32 numFollowingRows() const;  // number of rows following the current row
   void advanceReturnHistoryRow();
-  //inline char * getCurrentRetHistRowPtr() 
-  inline void updateHistRowsToReturn() ;
+  // inline char * getCurrentRetHistRowPtr()
+  inline void updateHistRowsToReturn();
   void initializeHistory();
   void createCluster();
 
@@ -188,197 +178,132 @@ public:
   inline NABoolean canAllocateOLAPBuffer();
   NABoolean addNewOLAPBuffer(NABoolean checkMemoryPressure = TRUE);
 
-  void updateDiagsArea(ex_queue_entry * centry);
-  void updateDiagsArea( ExeErrorCode rc_);
+  void updateDiagsArea(ex_queue_entry *centry);
+  void updateDiagsArea(ExeErrorCode rc_);
   void updateDiagsArea(ComDiagsArea *da);
 
-  NABoolean getPartitionEnd() const
-  {
-    return partitionEnd_;
-  }
-  void setPartitionEnd(NABoolean v) 
-  {
-    partitionEnd_ = v;
-  }
+  NABoolean getPartitionEnd() const { return partitionEnd_; }
+  void setPartitionEnd(NABoolean v) { partitionEnd_ = v; }
   inline Lng32 recLen();
-  
+
   virtual Int32 numChildren() const;
-  virtual const ex_tcb* getChild(Int32 pos) const;
-  virtual ex_tcb_private_state * allocatePstates(
-       Lng32 &numElems,      // inout, desired/actual elements
-       Lng32 &pstateLength); // out, length of one element
-private:
-  const ex_tcb * childTcb_;
-  
-  ex_queue_pair  qparent_;
-  ex_queue_pair  qchild_;  
+  virtual const ex_tcb *getChild(Int32 pos) const;
+  virtual ex_tcb_private_state *allocatePstates(Lng32 &numElems,       // inout, desired/actual elements
+                                                Lng32 &pstateLength);  // out, length of one element
+ private:
+  const ex_tcb *childTcb_;
 
-  atp_struct * workAtp_;
-  ExSubtask  * ioEventHandler_;
-  HashBuffer * firstOLAPBuffer_;
-  HashBuffer * lastOLAPBuffer_;
+  ex_queue_pair qparent_;
+  ex_queue_pair qchild_;
 
-  HashBuffer * currentOLAPBuffer_ ;
-  HashBuffer * currentRetOLAPBuffer_;
+  atp_struct *workAtp_;
+  ExSubtask *ioEventHandler_;
+  HashBuffer *firstOLAPBuffer_;
+  HashBuffer *lastOLAPBuffer_;
+
+  HashBuffer *currentOLAPBuffer_;
+  HashBuffer *currentRetOLAPBuffer_;
 
   Lng32 currentHistRowInOLAPBuffer_;
   Lng32 currentRetHistRowInOLAPBuffer_;
 
-  char * currentHistRowPtr_ ;
-  char * currentRetHistRowPtr_;
+  char *currentHistRowPtr_;
+  char *currentRetHistRowPtr_;
   char *lastRow_;
 
   Lng32 minFollowing_;
-  Lng32 numberHistoryRows_ ;
+  Lng32 numberHistoryRows_;
   Lng32 maxNumberHistoryRows_;
-  Lng32 histRowsToReturn_ ;
-  
+  Lng32 histRowsToReturn_;
+
   NABoolean partitionEnd_;
   NABoolean unboundedFollowing_;
 
   Lng32 allocRowLength_;  // allocated size of a row (original rounded up to 8)
-  Lng32 maxRowsInOLAPBuffer_ ;
+  Lng32 maxRowsInOLAPBuffer_;
   Lng32 olapBufferSize_;
 
   Lng32 maxNumberOfOLAPBuffers_;
   Lng32 numberOfOLAPBuffers_;
   Lng32 minNumberOfOLAPBuffers_;
 
-  ClusterDB * clusterDb_; // used to call ::enoughMemory(), etc.
-  Cluster * cluster_; // used for overflow calls: flush(), read(), etc
+  ClusterDB *clusterDb_;  // used to call ::enoughMemory(), etc.
+  Cluster *cluster_;      // used for overflow calls: flush(), read(), etc
   NABoolean OLAPBuffersFlushed_;
   NABoolean memoryPressureDetected_;
-  HashBuffer *  firstOLAPBufferFromOF_;
+  HashBuffer *firstOLAPBufferFromOF_;
   Lng32 numberOfOLAPBuffersFromOF_;
   ExeErrorCode rc_;
 
   Lng32 numberOfWinOLAPBuffers_;
-  Lng32 maxNumberOfRowsReturnedBeforeReadOF_ ;
+  Lng32 maxNumberOfRowsReturnedBeforeReadOF_;
   Lng32 numberOfRowsReturnedBeforeReadOF_;
 
   NABoolean overflowEnabled_;
 
-  queue_index    processedInputs_;
+  queue_index processedInputs_;
 
-  CollHeap * heap_;
-}; // class ExSequenceTcb
+  CollHeap *heap_;
+};  // class ExSequenceTcb
 
 // ExSequenceTcb inline functions
 //
-inline ex_expr * ExSequenceTcb::sequenceExpr() const 
-{ 
-  return myTdb().sequenceExpr_; 
-};
+inline ex_expr *ExSequenceTcb::sequenceExpr() const { return myTdb().sequenceExpr_; };
 
-inline ex_expr * ExSequenceTcb::returnExpr() const 
-{ 
-  return myTdb().returnExpr_; 
-};
+inline ex_expr *ExSequenceTcb::returnExpr() const { return myTdb().returnExpr_; };
 
-inline ex_expr * ExSequenceTcb::postPred() const 
-{ 
-  return myTdb().postPred_; 
-};
+inline ex_expr *ExSequenceTcb::postPred() const { return myTdb().postPred_; };
 
-inline ex_expr * ExSequenceTcb::cancelExpr() const 
-{ 
-  return myTdb().cancelExpr_; 
-};
+inline ex_expr *ExSequenceTcb::cancelExpr() const { return myTdb().cancelExpr_; };
 
-inline ex_expr * ExSequenceTcb::checkPartitionChangeExpr() const 
-{ 
-  return myTdb().checkPartitionChangeExpr_; 
-};
+inline ex_expr *ExSequenceTcb::checkPartitionChangeExpr() const { return myTdb().checkPartitionChangeExpr_; };
 
-inline NABoolean ExSequenceTcb::isHistoryFull() const
-{
-  return (histRowsToReturn_ == maxNumberHistoryRows_);
-};
+inline NABoolean ExSequenceTcb::isHistoryFull() const { return (histRowsToReturn_ == maxNumberHistoryRows_); };
 
-inline NABoolean ExSequenceTcb::isHistoryEmpty() const
-{
-  return (histRowsToReturn_ == 0);
-};
+inline NABoolean ExSequenceTcb::isHistoryEmpty() const { return (histRowsToReturn_ == 0); };
 
-inline NABoolean ExSequenceTcb::canReturnRows() const
-{
-  return (numFollowingRows() >= minFollowing_);
+inline NABoolean ExSequenceTcb::canReturnRows() const { return (numFollowingRows() >= minFollowing_); };
 
-};
+inline Lng32 ExSequenceTcb::numFollowingRows() const { return histRowsToReturn_ - 1; };
 
-inline Lng32 ExSequenceTcb::numFollowingRows() const
-{
-  return histRowsToReturn_ -1;
-};
+inline void ExSequenceTcb::updateHistRowsToReturn() { histRowsToReturn_--; }
 
-inline void ExSequenceTcb::updateHistRowsToReturn() 
-{
-  histRowsToReturn_--;
-}
+inline NABoolean ExSequenceTcb::isOverflowStarted() { return cluster_ && cluster_->getState() == Cluster::FLUSHED; }
 
-inline NABoolean ExSequenceTcb::isOverflowStarted()
-{
-  return cluster_ && cluster_->getState() == Cluster::FLUSHED ;
-}
+inline NABoolean ExSequenceTcb::canAllocateOLAPBuffer() { return (numberOfOLAPBuffers_ < maxNumberOfOLAPBuffers_); }
 
-inline NABoolean ExSequenceTcb::canAllocateOLAPBuffer()
-{
-  return (numberOfOLAPBuffers_ < maxNumberOfOLAPBuffers_);
-
-}
-
-inline NABoolean ExSequenceTcb::isUnboundedFollowing()
-{
-  return  unboundedFollowing_;
-}
-inline Lng32 ExSequenceTcb::recLen() 
-{ 
-  //return myTdb().recLen_; 
+inline NABoolean ExSequenceTcb::isUnboundedFollowing() { return unboundedFollowing_; }
+inline Lng32 ExSequenceTcb::recLen() {
+  // return myTdb().recLen_;
   return allocRowLength_;
 };
 
-inline Int32 ExSequenceTcb::numChildren() const 
-{ 
-  return 1; 
-}   
+inline Int32 ExSequenceTcb::numChildren() const { return 1; }
 
-inline const ex_tcb* ExSequenceTcb::getChild(Int32 pos) const
-{
-   ex_assert((pos >= 0), ""); 
-   if (pos == 0)
-      return childTcb_;
-   else
-      return NULL;
+inline const ex_tcb *ExSequenceTcb::getChild(Int32 pos) const {
+  ex_assert((pos >= 0), "");
+  if (pos == 0)
+    return childTcb_;
+  else
+    return NULL;
 }
 
-inline ExSequenceTdb & ExSequenceTcb::myTdb() const
-{
-        return (ExSequenceTdb &) tdb;
-};
+inline ExSequenceTdb &ExSequenceTcb::myTdb() const { return (ExSequenceTdb &)tdb; };
 
 // class ExSequencePrivateState
 //
-class ExSequencePrivateState : public ex_tcb_private_state
-{
+class ExSequencePrivateState : public ex_tcb_private_state {
   friend class ExSequenceTcb;
 
-public:
+ public:
   ExSequencePrivateState();
-  ex_tcb_private_state * allocate_new(const ex_tcb * tcb);
+  ex_tcb_private_state *allocate_new(const ex_tcb *tcb);
   ~ExSequencePrivateState();
 
-private:
+ private:
   ExSequenceTcb::RequestState step_;
-  queue_index index_;  
+  queue_index index_;
   Int64 matchCount_;
-}; // class ExSequencePrivateState
+};  // class ExSequencePrivateState
 
 #endif
-
-
-
-
-
-
-
-

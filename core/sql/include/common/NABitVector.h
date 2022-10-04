@@ -28,7 +28,7 @@
  * File:         NABitVector.h
  * Description:  A bit vector
  *               Similar to NASubArray, but with no superset.
- *               
+ *
  * Created:      of course
  * Language:     C++
  *
@@ -51,16 +51,12 @@
 // way round.
 // -----------------------------------------------------------------------
 
-class NABitVector : public NASubArray<CollIndex>
-{
-public:
-
-  NABitVector(CollHeap *heap = NULL) :
-                                    NASubArray<CollIndex>(NULL,heap) {}
-  NABitVector(const NABitVector &other, CollHeap *heap=NULL) :
-                                  NASubArray<CollIndex>(other, heap) {}
-  void setBit(CollIndex b)                           { addElement(b); }
-  void resetBit(CollIndex b)                    { subtractElement(b); }
+class NABitVector : public NASubArray<CollIndex> {
+ public:
+  NABitVector(CollHeap *heap = NULL) : NASubArray<CollIndex>(NULL, heap) {}
+  NABitVector(const NABitVector &other, CollHeap *heap = NULL) : NASubArray<CollIndex>(other, heap) {}
+  void setBit(CollIndex b) { addElement(b); }
+  void resetBit(CollIndex b) { subtractElement(b); }
 };
 
 #endif /* NA_BITVECTOR_H */

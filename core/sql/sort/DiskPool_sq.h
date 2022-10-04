@@ -28,41 +28,29 @@
 #include "DiskPool_base.h"
 
 class SQDisk : public DiskPool {
-
-public:
-
+ public:
   SQDisk(SortError *sorterror, CollHeap *heap);
   ~SQDisk();
 
-  virtual 
+  virtual
 
-  NABoolean generateDiskTable(const ExScratchDiskDrive * scratchDiskSpecified,
- 			      ULng32 numSpecified,
-                              char * volumeNameMask,
- 			      answer including = ::right,
- 			      NABoolean includeAuditTrailDisks = FALSE
- 			      );
-  
-  virtual NABoolean returnBestDisk(char** diskname,
-                                   ULng32 espInstance, 
-                                   ULng32 numEsps,
-                                   unsigned short threshold
-                                  ); 
+      NABoolean
+      generateDiskTable(const ExScratchDiskDrive *scratchDiskSpecified, ULng32 numSpecified, char *volumeNameMask,
+                        answer including = ::right, NABoolean includeAuditTrailDisks = FALSE);
 
+  virtual NABoolean returnBestDisk(char **diskname, ULng32 espInstance, ULng32 numEsps, unsigned short threshold);
 
 #ifdef FORDEBUG
-  virtual NABoolean printDiskTable(){return TRUE;};
+  virtual NABoolean printDiskTable() { return TRUE; };
 #endif
 
-private:
-
+ private:
   virtual void assignWeight(DiskDetails *diskPtr){};
-  virtual NABoolean refreshDisk(DiskDetails *diskPtr){ return TRUE;};
-  virtual NABoolean computeNumScratchFiles(DiskDetails *diskptr ){return TRUE;};
-
+  virtual NABoolean refreshDisk(DiskDetails *diskPtr) { return TRUE; };
+  virtual NABoolean computeNumScratchFiles(DiskDetails *diskptr) { return TRUE; };
 
   short factorImportanceTotalFreeSpace_;
-  short factorImportanceNumScrFiles_;  
+  short factorImportanceNumScrFiles_;
   SortError *sortError_;
 };
 
@@ -77,11 +65,11 @@ private:
 // that are part of the diskpool.
 //----------------------------------------------------------------------
 
-enum SQDiskType {SQDT_UNKNOWN, SQDT_DEFAULT};
+enum SQDiskType { SQDT_UNKNOWN, SQDT_DEFAULT };
 
 struct DiskDetails : public NABasicObject {
-	// common fields between platforms
-	Lng32 weight_;
+  // common fields between platforms
+  Lng32 weight_;
   Lng32 freeSpace_;
   short numOpenScratchFiles_;
   //----------------------------------------------
@@ -89,12 +77,10 @@ struct DiskDetails : public NABasicObject {
   //  we will use the Win32 data types
   //  to appease the NT gods.
   //----------------------------------------------
-  
+
   char rootPathName_[PATH_MAX];
   char tempPathName_[PATH_MAX];
-    
-  SQDiskType diskType_;	
+
+  SQDiskType diskType_;
 };
 #endif
-
-

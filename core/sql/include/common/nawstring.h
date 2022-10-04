@@ -46,155 +46,148 @@
 // a Unicode string datatype
 // -----------------------------------------------------------------------
 
-// Note NAWString always put a NAWchar null at the end of the string. So we 
+// Note NAWString always put a NAWchar null at the end of the string. So we
 // count in the trailing NAWchar null here.
-#define NAW_TO_NASTRING(w)	(const char *)w.data(), (w.length()+1) * BYTES_PER_NAWCHAR
+#define NAW_TO_NASTRING(w) (const char *)w.data(), (w.length() + 1) * BYTES_PER_NAWCHAR
 
-class NAWString : public NABasicObject
-{
-public:
-  
-   virtual NAMemory * defaultHeapPtr () const
-   { return NABasicObject::systemHeapPtr() ; } // fyi, this value is 0x0
+class NAWString : public NABasicObject {
+ public:
+  virtual NAMemory *defaultHeapPtr() const { return NABasicObject::systemHeapPtr(); }  // fyi, this value is 0x0
 
-#if  __SIZEOF_WCHAR_T__ == 2
-   typedef folly::basic_fbstring<char16_t> FBWString;
+#if __SIZEOF_WCHAR_T__ == 2
+  typedef folly::basic_fbstring<char16_t> FBWString;
 #else
-   typedef folly::basic_fbstring<NAWchar> FBWString;
+  typedef folly::basic_fbstring<NAWchar> FBWString;
 #endif
 
-   NAWString(Lng32 charset, const char* str, NAMemory *h=NAWSTRING_UNINIT_HEAP_PTR);
-   NAWString(Lng32 charset, const char* str, size_t, NAMemory *h=NAWSTRING_UNINIT_HEAP_PTR);
-   NAWString(const NAWchar*, size_t, NAMemory *h=NAWSTRING_UNINIT_HEAP_PTR);
-   NAWString(const NAWchar*, NAMemory *h=NAWSTRING_UNINIT_HEAP_PTR);
-   NAWString(const NAWString &, NAMemory *h=NAWSTRING_UNINIT_HEAP_PTR);
-   NAWString(NAWchar, NAMemory *h=NAWSTRING_UNINIT_HEAP_PTR);
-   NAWString(NAMemory *h=NAWSTRING_UNINIT_HEAP_PTR);
-   ~NAWString();
+  NAWString(Lng32 charset, const char *str, NAMemory *h = NAWSTRING_UNINIT_HEAP_PTR);
+  NAWString(Lng32 charset, const char *str, size_t, NAMemory *h = NAWSTRING_UNINIT_HEAP_PTR);
+  NAWString(const NAWchar *, size_t, NAMemory *h = NAWSTRING_UNINIT_HEAP_PTR);
+  NAWString(const NAWchar *, NAMemory *h = NAWSTRING_UNINIT_HEAP_PTR);
+  NAWString(const NAWString &, NAMemory *h = NAWSTRING_UNINIT_HEAP_PTR);
+  NAWString(NAWchar, NAMemory *h = NAWSTRING_UNINIT_HEAP_PTR);
+  NAWString(NAMemory *h = NAWSTRING_UNINIT_HEAP_PTR);
+  ~NAWString();
 
-   NABoolean operator==(const NAWchar * s2) const
-   { return fbwstring_.compare((FBWString::value_type*)s2) == 0; }
+  NABoolean operator==(const NAWchar *s2) const { return fbwstring_.compare((FBWString::value_type *)s2) == 0; }
 
-   operator const NAWchar*() const
-   { return (const NAWchar*)fbwstring_.data(); }
+  operator const NAWchar *() const { return (const NAWchar *)fbwstring_.data(); }
 
-   NAWString&   operator=(const NAWString& rhs) // Replace string
-   { fbwstring_.replace(0, length(), (FBWString::value_type*)rhs.data(), rhs.length()); return *this; }
-   NAWString&   operator=(const NAWchar*);      // Replace string
-   NAWString&   operator+=(NAWchar wc)
-   { fbwstring_ += (FBWString::value_type)wc; return *this; }
+  NAWString &operator=(const NAWString &rhs)  // Replace string
+  {
+    fbwstring_.replace(0, length(), (FBWString::value_type *)rhs.data(), rhs.length());
+    return *this;
+  }
+  NAWString &operator=(const NAWchar *);  // Replace string
+  NAWString &operator+=(NAWchar wc) {
+    fbwstring_ += (FBWString::value_type)wc;
+    return *this;
+  }
 
-   NAWchar&     operator[](size_t i) { return (NAWchar&)fbwstring_[i]; } ;
+  NAWchar &operator[](size_t i) { return (NAWchar &)fbwstring_[i]; };
 
-   size_t       index(const NAWchar* pat, size_t patLen, size_t i=0, NAString::caseCompare cmp = NAString::exact) const;
-   size_t       index(const NAWString& pat, size_t i=0, NAString::caseCompare cmp = NAString::exact) const
-   { return index(pat.data(), pat.length(), i, cmp); }
+  size_t index(const NAWchar *pat, size_t patLen, size_t i = 0, NAString::caseCompare cmp = NAString::exact) const;
+  size_t index(const NAWString &pat, size_t i = 0, NAString::caseCompare cmp = NAString::exact) const {
+    return index(pat.data(), pat.length(), i, cmp);
+  }
 
-   NAWString&   append(const NAWString& s)
-   { fbwstring_.replace(length(), 0, (FBWString::value_type*)s.data(), s.length());return *this; }
+  NAWString &append(const NAWString &s) {
+    fbwstring_.replace(length(), 0, (FBWString::value_type *)s.data(), s.length());
+    return *this;
+  }
 
-   NAWString&   append(const NAWchar* cs, size_t N)
-   { fbwstring_.replace(length(), 0, (FBWString::value_type*)cs, N); return *this;}
+  NAWString &append(const NAWchar *cs, size_t N) {
+    fbwstring_.replace(length(), 0, (FBWString::value_type *)cs, N);
+    return *this;
+  }
 
-   NAWString&   remove(size_t pos)
-   { fbwstring_.replace(pos, length()-pos, nanil, 0);return *this; }
+  NAWString &remove(size_t pos) {
+    fbwstring_.replace(pos, length() - pos, nanil, 0);
+    return *this;
+  }
 
-   // Remove n chars starting at pos
-   NAWString&   remove(size_t pos, size_t n)  
-   { fbwstring_.replace(pos, n, nanil, 0); return *this;}
+  // Remove n chars starting at pos
+  NAWString &remove(size_t pos, size_t n) {
+    fbwstring_.replace(pos, n, nanil, 0);
+    return *this;
+  }
 
-   NAWString& replace(size_t pos, size_t n1, const NAWchar* cs, size_t n2);
-   const NAWchar* data() const { return (NAWchar*)fbwstring_.data(); }
+  NAWString &replace(size_t pos, size_t n1, const NAWchar *cs, size_t n2);
+  const NAWchar *data() const { return (NAWchar *)fbwstring_.data(); }
 
-   size_t length() const {  return fbwstring_.length(); }
+  size_t length() const { return fbwstring_.length(); }
 
-   NAWString ToQuotedWString();
+  NAWString ToQuotedWString();
 
-   UInt32 pack(char* buf);
-   UInt32 unpack(char* buf);
-   UInt32 getPackedLength();
+  UInt32 pack(char *buf);
+  UInt32 unpack(char *buf);
+  UInt32 getPackedLength();
 
-   size_t  getAllocatedSize() const
-   {
-     return fbwstring_.get_alloc_size();
-   }
+  size_t getAllocatedSize() const { return fbwstring_.get_alloc_size(); }
 
-friend
-   NAWString operator+(const NAWString& s1, const NAWString& s2);
+  friend NAWString operator+(const NAWString &s1, const NAWString &s2);
 
-friend
-NABoolean operator==(const NAWString& s1, const NAWString& s2);
+  friend NABoolean operator==(const NAWString &s1, const NAWString &s2);
 
-friend
-NABoolean operator< (const NAWString& s1, const NAWString& s2);
+  friend NABoolean operator<(const NAWString &s1, const NAWString &s2);
 
-friend
-NABoolean operator> (const NAWString& s1, const NAWString& s2);
+  friend NABoolean operator>(const NAWString &s1, const NAWString &s2);
 
-protected:
-   NAWString(const NAWchar* a1, size_t N1, 
-             const NAWchar* a2, size_t N2, NAMemory *h);
+ protected:
+  NAWString(const NAWchar *a1, size_t N1, const NAWchar *a2, size_t N2, NAMemory *h);
 
-   void initFromSingleByteString(Lng32 charset, const char* str, size_t N, NAMemory *h);
-   void initFromVariableWidthMultiByteString(Lng32 charset, const char* str, size_t N, NAMemory *h);
+  void initFromSingleByteString(Lng32 charset, const char *str, size_t N, NAMemory *h);
+  void initFromVariableWidthMultiByteString(Lng32 charset, const char *str, size_t N, NAMemory *h);
 
-private:
-
+ private:
   // ====================================================================
   // Capacity, increment and max waste are all expressed in UCS2 units
   // ====================================================================
-  size_t  capacity() const {return fbwstring_.capacity()/BYTES_PER_NAWCHAR;}
-  static size_t         adjustCapacity(size_t nc);
-  static size_t         initialCapacity(size_t ic = 15);        // Initial allocation Capacity
-  static size_t         maxWaste(size_t mw = 15);               // Max empty space before reclaim
-  static size_t         resizeIncrement(size_t ri = 16);        // Resizing increment
+  size_t capacity() const { return fbwstring_.capacity() / BYTES_PER_NAWCHAR; }
+  static size_t adjustCapacity(size_t nc);
+  static size_t initialCapacity(size_t ic = 15);  // Initial allocation Capacity
+  static size_t maxWaste(size_t mw = 15);         // Max empty space before reclaim
+  static size_t resizeIncrement(size_t ri = 16);  // Resizing increment
 
-  static size_t         getInitialCapacity()    {return initialCapac;}
+  static size_t getInitialCapacity() { return initialCapac; }
 
-  static size_t         getResizeIncrement()    {return resizeInc;}
+  static size_t getResizeIncrement() { return resizeInc; }
 
-  static size_t         getMaxWaste()           {return freeboard;}
+  static size_t getMaxWaste() { return freeboard; }
 
- static const size_t initialCapac;           // Initial allocation Capacity
- static const size_t resizeInc;              // Resizing increment
- static const size_t freeboard;              // Max empty space before reclaim
+  static const size_t initialCapac;  // Initial allocation Capacity
+  static const size_t resizeInc;     // Resizing increment
+  static const size_t freeboard;     // Max empty space before reclaim
 
-  NAMemory *    heap() const { return fbwstring_.heap() ; }
+  NAMemory *heap() const { return fbwstring_.heap(); }
 
   FBWString fbwstring_;
-}; //NAWString
+};  // NAWString
 
 // NAWString Logical operators:
-inline NABoolean operator==(const NAWString& s1, const NAWString& s2)
-                           { return s1.fbwstring_ == s2.fbwstring_; }
+inline NABoolean operator==(const NAWString &s1, const NAWString &s2) { return s1.fbwstring_ == s2.fbwstring_; }
 
-inline NABoolean operator< (const NAWString& s1, const NAWString& s2)
-                           { return s1.fbwstring_ < s2.fbwstring_; }
+inline NABoolean operator<(const NAWString &s1, const NAWString &s2) { return s1.fbwstring_ < s2.fbwstring_; }
 //#endif // :cnu
 
-inline NABoolean operator!=(const NAWString& s1, const NAWString& s2)
-                           { return !(s1 == s2); }
+inline NABoolean operator!=(const NAWString &s1, const NAWString &s2) { return !(s1 == s2); }
 
-inline NABoolean operator> (const NAWString& s1, const NAWString& s2)
-                           { return s1.fbwstring_ > s2.fbwstring_; }
+inline NABoolean operator>(const NAWString &s1, const NAWString &s2) { return s1.fbwstring_ > s2.fbwstring_; }
 
-inline NABoolean operator<=(const NAWString& s1, const NAWString& s2)
-                           { return !(s1 > s2); }
+inline NABoolean operator<=(const NAWString &s1, const NAWString &s2) { return !(s1 > s2); }
 
-inline NABoolean operator>=(const NAWString& s1, const NAWString& s2)
-                           { return !(s1 < s2); }
-
+inline NABoolean operator>=(const NAWString &s1, const NAWString &s2) { return !(s1 < s2); }
 
 // -----------------------------------------------------------------------
 // Returns TRUE if the string consists entirely of whitespace
 // (zero or more spaces or tabs, and nothing else), including none (empty str).
 // -----------------------------------------------------------------------
-NABoolean IsNAWStringSpaceOrEmpty(const NAWString& naws);
+NABoolean IsNAWStringSpaceOrEmpty(const NAWString &naws);
 
 // -----------------------------------------------------------------------
 // Remove whitespace (spaces and tabs) from front or back or both
 // -----------------------------------------------------------------------
-void TrimNAWStringSpace(NAWString& naws, NAString::stripType s = NAString::trailing);
+void TrimNAWStringSpace(NAWString &naws, NAString::stripType s = NAString::trailing);
 
 // -----------------------------------------------------------------------
 // Allocates space (including an extra NAWchar for the NULL character
@@ -208,7 +201,7 @@ void TrimNAWStringSpace(NAWString& naws, NAString::stripType s = NAString::trail
 // Use the NADELETEBASIC(returned_NAWchar_star_pointer, heap_pointer)
 // call (C macro expansion/invocation) to deallocate the buffer.
 // -----------------------------------------------------------------------
-NAWchar * newNAWcharBuffer(const NAWString& naws, CollHeap *heap = NULL);
+NAWchar *newNAWcharBuffer(const NAWString &naws, CollHeap *heap = NULL);
 
 // -----------------------------------------------------------------------
 // Allocates space for one or two NAWchar's to contain the
@@ -223,7 +216,7 @@ NAWchar * newNAWcharBuffer(const NAWString& naws, CollHeap *heap = NULL);
 // Use the NADELETEBASIC(returned_NAWchar_star_pointer, heap_pointer)
 // call (C macro expansion/invocation) to deallocate the buffer.
 // -----------------------------------------------------------------------
-NAWchar * newNAWcharBufferContainingAnEmptyString(CollHeap *heap = NULL);
+NAWchar *newNAWcharBufferContainingAnEmptyString(CollHeap *heap = NULL);
 
 // // -----------------------------------------------------------------------
 // // A simple API (abeit inefficient) to convert a C string from ISO88591
@@ -240,4 +233,4 @@ NAWchar * newNAWcharBufferContainingAnEmptyString(CollHeap *heap = NULL);
 // // 3/21/2011  Comment out the function because it is not currently used.
 // // -----------------------------------------------------------------------
 // NAWString Latin1StrToUCS2(const NAString & latin1Str, CollHeap * workHeap = NULL);
-#endif 
+#endif

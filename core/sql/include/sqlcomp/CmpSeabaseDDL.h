@@ -90,8 +90,6 @@ class StmtDDLDropSequence;
 class StmtDDLDropSchema;
 class StmtDDLAlterSchema;
 
-class StmtDDLRegOrUnregObject;
-
 // Classes for user management
 class StmtDDLRegisterUser;
 class StmtDDLAlterUser;
@@ -1323,8 +1321,6 @@ class CmpSeabaseDDL {
   short unregisterHiveSchema(const NAString &catalogNamePart, const NAString &schemaNamePart,
                              ExeCliInterface &cliInterface, NABoolean cascade);
 
-  void regOrUnregNativeObject(StmtDDLRegOrUnregObject *regOrUnregObject, NAString &currCatName, NAString &currSchName);
-
   short adjustHiveExternalSchemas(ExeCliInterface *cliInterface);
 
   void createSeabaseSequence(StmtDDLCreateSequence *createSequenceNode, NAString &currCatName, NAString &currSchName);
@@ -1627,7 +1623,6 @@ class CmpSeabaseDDL {
     HBASE_ENTRIES,
     INCONSISTENT_OBJECTS_ENTRIES,
     VIEWS_ENTRIES,
-    HIVE_ENTRIES,
     PRIV_ENTRIES,
     DONE_CLEANUP
   };

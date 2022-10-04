@@ -34,14 +34,14 @@
 // Errors returned from XPROCESSOR_GETINFOLIST_
 //
 enum {
-    PGIL_RET_OK           = 0,
-    PGIL_RET_FILE_SYSTEM  = 1,
-    PGIL_RET_PARAM        = 2,
-    PGIL_RET_BOUNDS       = 3,
-    PGIL_RET_RSVD         = 4, // not returned
-    PGIL_RET_COMM_CPU     = 5, // not returned
-    PGIL_RET_COMM_NODE    = 6, // not returned
-    PGIL_RET_INV_ATT_CODE = 7
+  PGIL_RET_OK = 0,
+  PGIL_RET_FILE_SYSTEM = 1,
+  PGIL_RET_PARAM = 2,
+  PGIL_RET_BOUNDS = 3,
+  PGIL_RET_RSVD = 4,       // not returned
+  PGIL_RET_COMM_CPU = 5,   // not returned
+  PGIL_RET_COMM_NODE = 6,  // not returned
+  PGIL_RET_INV_ATT_CODE = 7
 };
 
 //
@@ -67,50 +67,44 @@ enum {
 //   unsigned long long[8]: steal: involuntary wait
 //
 enum {
-    // /proc/meminfo items
-    PGIL_AC_MI_ULL_MEM_TOTAL       = 100,
-    PGIL_AC_MI_ULL_MEM_FREE        = 101,
-    PGIL_AC_MI_ULL_BUFFERS         = 102,
-    PGIL_AC_MI_ULL_CACHED          = 103,
-    PGIL_AC_MI_ULL_SWAP_CACHED     = 104,
-    PGIL_AC_MI_ULL_ACTIVE          = 105,
-    PGIL_AC_MI_ULL_INACTIVE        = 106,
-    PGIL_AC_MI_ULL_HIGH_TOTAL      = 107,
-    PGIL_AC_MI_ULL_HIGH_FREE       = 108,
-    PGIL_AC_MI_ULL_LOW_TOTAL       = 109,
-    PGIL_AC_MI_ULL_LOW_FREE        = 110,
-    PGIL_AC_MI_ULL_SWAP_TOTAL      = 111,
-    PGIL_AC_MI_ULL_SWAP_FREE       = 112,
-    PGIL_AC_MI_ULL_DIRTY           = 113,
-    PGIL_AC_MI_ULL_WRITEBACK       = 114,
-    PGIL_AC_MI_ULL_MAPPED          = 115,
-    PGIL_AC_MI_ULL_SLAB            = 116,
-    PGIL_AC_MI_ULL_COMMIT_LIMIT    = 117,
-    PGIL_AC_MI_ULL_COMMITTED_AS    = 118,
-    PGIL_AC_MI_ULL_PAGE_TABLES     = 119,
-    PGIL_AC_MI_ULL_VMALLOC_TOTAL   = 120,
-    PGIL_AC_MI_ULL_VMALLOC_USED    = 121,
-    PGIL_AC_MI_ULL_VMALLOC_CHUNK   = 122,
+  // /proc/meminfo items
+  PGIL_AC_MI_ULL_MEM_TOTAL = 100,
+  PGIL_AC_MI_ULL_MEM_FREE = 101,
+  PGIL_AC_MI_ULL_BUFFERS = 102,
+  PGIL_AC_MI_ULL_CACHED = 103,
+  PGIL_AC_MI_ULL_SWAP_CACHED = 104,
+  PGIL_AC_MI_ULL_ACTIVE = 105,
+  PGIL_AC_MI_ULL_INACTIVE = 106,
+  PGIL_AC_MI_ULL_HIGH_TOTAL = 107,
+  PGIL_AC_MI_ULL_HIGH_FREE = 108,
+  PGIL_AC_MI_ULL_LOW_TOTAL = 109,
+  PGIL_AC_MI_ULL_LOW_FREE = 110,
+  PGIL_AC_MI_ULL_SWAP_TOTAL = 111,
+  PGIL_AC_MI_ULL_SWAP_FREE = 112,
+  PGIL_AC_MI_ULL_DIRTY = 113,
+  PGIL_AC_MI_ULL_WRITEBACK = 114,
+  PGIL_AC_MI_ULL_MAPPED = 115,
+  PGIL_AC_MI_ULL_SLAB = 116,
+  PGIL_AC_MI_ULL_COMMIT_LIMIT = 117,
+  PGIL_AC_MI_ULL_COMMITTED_AS = 118,
+  PGIL_AC_MI_ULL_PAGE_TABLES = 119,
+  PGIL_AC_MI_ULL_VMALLOC_TOTAL = 120,
+  PGIL_AC_MI_ULL_VMALLOC_USED = 121,
+  PGIL_AC_MI_ULL_VMALLOC_CHUNK = 122,
 
-    // /proc/stat items
-    PGIL_AC_S_ULLA_CPU_SUMMARY     = 200, // see notes above
-    PGIL_AC_S_ULL_CPU_CORES        = 201,
+  // /proc/stat items
+  PGIL_AC_S_ULLA_CPU_SUMMARY = 200,  // see notes above
+  PGIL_AC_S_ULL_CPU_CORES = 201,
 
-    // /proc/vmstat items
-    PGIL_AC_VS_ULL_PAGE_IN         = 300,
-    PGIL_AC_VS_ULL_PAGE_OUT        = 301
+  // /proc/vmstat items
+  PGIL_AC_VS_ULL_PAGE_IN = 300,
+  PGIL_AC_VS_ULL_PAGE_OUT = 301
 };
 
 //
 // Call this to get *this* processor info
 //
-SB_Export int XPROCESSOR_GETINFOLIST_(int                *ret_attr_list,
-                                      int                 ret_attr_count,
-                                      unsigned long long *ret_values_list,
-                                      int                 ret_values_maxlen,
-                                      int                *ret_values_len,
-                                      int                *error_detail)
-SB_DIAG_UNUSED;
+SB_Export int XPROCESSOR_GETINFOLIST_(int *ret_attr_list, int ret_attr_count, unsigned long long *ret_values_list,
+                                      int ret_values_maxlen, int *ret_values_len, int *error_detail) SB_DIAG_UNUSED;
 
-
-#endif // !__SB_CPU_H_
+#endif  // !__SB_CPU_H_

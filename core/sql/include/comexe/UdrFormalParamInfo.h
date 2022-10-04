@@ -59,22 +59,16 @@ typedef NAVersionedObjectPtrArrayTempl<UdrFormalParamInfoPtr> UdrFormalParamInfo
 //
 // Each instance of this class describes a single UDR formal parameter
 //
-class UdrFormalParamInfo : public NAVersionedObject
-{
-public:
+class UdrFormalParamInfo : public NAVersionedObject {
+ public:
+  UdrFormalParamInfo(Int16 type, Int16 precision, Int16 scale, Int16 flags, Int16 encodingCharSet, Int16 collation,
+                     char *paramName);
 
-  UdrFormalParamInfo(Int16 type, Int16 precision, Int16 scale, Int16 flags,
-                     Int16 encodingCharSet, Int16 collation, char *paramName);
-  
   // Redefine virtual functions required for versioning
-  UdrFormalParamInfo() : NAVersionedObject(-1)
-  {}
-  virtual unsigned char getClassVersionID()
-  { return 1; }
-  virtual void populateImageVersionIDArray()
-  { setImageVersionID(0, getClassVersionID()); }
-  virtual short getClassSize()
-  { return sizeof(UdrFormalParamInfo); }
+  UdrFormalParamInfo() : NAVersionedObject(-1) {}
+  virtual unsigned char getClassVersionID() { return 1; }
+  virtual void populateImageVersionIDArray() { setImageVersionID(0, getClassVersionID()); }
+  virtual short getClassSize() { return sizeof(UdrFormalParamInfo); }
 
   virtual Long pack(void *);
   virtual Lng32 unpack(void *, void *);
@@ -91,16 +85,14 @@ public:
   inline NABoolean isOut() const { return (flags_ & UDR_PARAM_OUT); }
   inline NABoolean isInOut() const { return isIn() && isOut(); }
   inline NABoolean isNullable() const { return (flags_ & UDR_PARAM_NULLABLE); }
-  inline NABoolean isLmObjType() const
-  { return (flags_ & UDR_PARAM_LM_OBJ_TYPE); }
+  inline NABoolean isLmObjType() const { return (flags_ & UDR_PARAM_LM_OBJ_TYPE); }
 
-protected:
-
+ protected:
   // Fields in this class describe a UDR formal parameter. They do not
   // necessarily describe how an actual data value will be represented in
   // the message that gets sent to the UDR server.
-  // 
-  // The SQL datatype is an FS datatype from common/dfs2rec.h. The 
+  //
+  // The SQL datatype is an FS datatype from common/dfs2rec.h. The
   // precision field is either numeric precision or a qualifier for
   // datetime types. The scale field is always numeric scale.
   //
@@ -121,5 +113,4 @@ protected:
   char fillersUdrFormalParamInfo2_[40];  // 24-63
 };
 
-#endif // UDR_FORMAL_PARAM_INFO_H
-
+#endif  // UDR_FORMAL_PARAM_INFO_H

@@ -34,7 +34,7 @@
 * Created:      01/24/2002
 * Language:     C++
 *
-* 
+*
 ******************************************************************************
 */
 // Updated 2/3/02
@@ -47,7 +47,6 @@ class CRUTableForceOptionsList;
 class CRUMVForceOptions;
 class CRUMVForceOptionsList;
 
-
 //----------------------------------------------------------------------------
 // CForceOptionsParser
 // Reads an input file, parse it and create a CForceOptions object
@@ -57,7 +56,7 @@ class CRUMVForceOptionsList;
 //
 // MV [mv_name]
 //
-// GROUPBY = HASH / SORT 
+// GROUPBY = HASH / SORT
 // JOIN = NESTED / MERGE / HASH
 // MDAM = ENABLE / ON / OFF
 // TABLE table_name MDAM = ENABLE / ON / OFF
@@ -94,115 +93,109 @@ class CRUMVForceOptionsList;
 // line --> FORCE_CQS = sql_stmt
 //		sql_stmt --> (one line statement that ends with ;)
 
+class REFRESH_LIB_CLASS CRUForceOptionsParser {
+  //----------------------------------//
+  //	Public Members
+  //----------------------------------//
+ public:
+  CRUForceOptionsParser();
+  virtual ~CRUForceOptionsParser();
 
-class REFRESH_LIB_CLASS CRUForceOptionsParser 
-{
-	//----------------------------------//
-	//	Public Members
-	//----------------------------------//	
-public:
-	
-	CRUForceOptionsParser();
-	virtual ~CRUForceOptionsParser();
-	
-public:
+ public:
+  //--------------------------------------------//
+  // Accessors
+  //--------------------------------------------//
+  CRUForceOptions &GetForceOptions() { return forceOptions_; }
 
-	//--------------------------------------------//
-	// Accessors
-	//--------------------------------------------//
-	CRUForceOptions& GetForceOptions() { return forceOptions_; }
+  //--------------------------------------------//
+  // Mutators
+  //--------------------------------------------//
 
-	//--------------------------------------------//
-	// Mutators
-	//--------------------------------------------//
+  void SetFile(const CDSString &fileName);
+  void Parse();
 
-	void SetFile(const CDSString& fileName);
-	void Parse();
+  //----------------------------------//
+  //	Private Members
+  //----------------------------------//
 
-	//----------------------------------//
-	//	Private Members
-	//----------------------------------//	
+ private:
+  enum { MAX_BUFFER_SIZE = 256 };
 
-private:
-	enum { MAX_BUFFER_SIZE = 256 };
+  enum ParsingState {
+    STATE_INIT,
+    STATE_NEXT_MV,
+    STATE_NEXT_FORCE_OPT,
+    STATE_GB,
+    STATE_JOIN,
+    STATE_MV_MDAM,
+    STATE_TABLE,
+    STATE_EXPLAIN,
+    STATE_CQS,
+    STATE_EOF
+  };
 
-	enum ParsingState
-	{
-		STATE_INIT,
-		STATE_NEXT_MV,
-		STATE_NEXT_FORCE_OPT,
-		STATE_GB,
-		STATE_JOIN,
-		STATE_MV_MDAM,
-		STATE_TABLE,
-		STATE_EXPLAIN,
-		STATE_CQS,
-		STATE_EOF
-	};
+  //--------------------------------------------//
+  // Mutators
+  //--------------------------------------------//
+ private:
+  // The automata's states handlers functions
+  void InitStateHandler();
 
-	//--------------------------------------------//
-	// Mutators
-	//--------------------------------------------//
-private:
-	// The automata's states handlers functions
-	void InitStateHandler();
+  void NextMVStateHandler();
 
-	void NextMVStateHandler();
+  void NextForceOptionStateHandler();
 
-	void NextForceOptionStateHandler();
+  void GBClauseHandler();
 
-	void GBClauseHandler();
+  void JoinClauseHandler();
 
-	void JoinClauseHandler();
+  void MvMdamClauseHandler();
 
-	void MvMdamClauseHandler();
+  void TableClauseHandler();
 
-	void TableClauseHandler();
+  void ExplainClauseHandler();
 
-	void ExplainClauseHandler();
+  void CQSClauseHandler();
 
-	void CQSClauseHandler();
+ private:
+  // Utility functions
 
-private:
-	// Utility functions
-	
-	const char* GetCurrentToken() const { return currentToken_; }
-	
-	// Read the next word and return the mdam option it represent
-	CRUForceOptions::MdamOptions GetMDAMOption();
-	
-	void HandleStarOptions();
-	void HandleTableOptions();
+  const char *GetCurrentToken() const { return currentToken_; }
 
-	// Read the next word from the buffer if the buffer is not empty else
-	// fill the buffer and then read the first word in the buffer.
-	void GetNextWord();
-	// Fill the buffer with a new line
-	void ReadNextLine();
-	void UpCase(char*);
-	// Find the first token and copy it to currentToken_
-	BOOL GetNextToken();
+  // Read the next word and return the mdam option it represent
+  CRUForceOptions::MdamOptions GetMDAMOption();
 
-	// Check if the current word is equal to the given parameter
-	BOOL IsCurrentWord(const char* word);
-	
-	CDSString GetQualifiedName() const;
+  void HandleStarOptions();
+  void HandleTableOptions();
 
-	// throws a bad format exception
-	void ThrowBadFormat();
+  // Read the next word from the buffer if the buffer is not empty else
+  // fill the buffer and then read the first word in the buffer.
+  void GetNextWord();
+  // Fill the buffer with a new line
+  void ReadNextLine();
+  void UpCase(char *);
+  // Find the first token and copy it to currentToken_
+  BOOL GetNextToken();
 
-private:
-	CRUForceOptions forceOptions_;
-	CDSString* pFileName_;
-	CDSStdioFile forceFile_;
-	ParsingState state_;
-	CRUMVForceOptions* pCurrentMV_;
-	char  buffer_[MAX_BUFFER_SIZE];
-	char  currentToken_[MAX_BUFFER_SIZE]; // holds the current parsed word
-	char  *pCurrentChar_; // The next character in the buffer to parse
-	BOOL bufferIsEmpty_; // Is the buffer empty?
-	Int32 lineNumber_;
+  // Check if the current word is equal to the given parameter
+  BOOL IsCurrentWord(const char *word);
+
+  CDSString GetQualifiedName() const;
+
+  // throws a bad format exception
+  void ThrowBadFormat();
+
+ private:
+  CRUForceOptions forceOptions_;
+  CDSString *pFileName_;
+  CDSStdioFile forceFile_;
+  ParsingState state_;
+  CRUMVForceOptions *pCurrentMV_;
+  char buffer_[MAX_BUFFER_SIZE];
+  char currentToken_[MAX_BUFFER_SIZE];  // holds the current parsed word
+  char *pCurrentChar_;                  // The next character in the buffer to parse
+  BOOL bufferIsEmpty_;                  // Is the buffer empty?
+  Int32 lineNumber_;
 };
-
 
 #endif

@@ -42,15 +42,14 @@
 #include <stdarg.h>
 #include <stdio.h>
 
-class ComSafePrinter
-{
-public:
+class ComSafePrinter {
+ public:
   ComSafePrinter();
   ~ComSafePrinter();
   Int32 snPrintf(char *, size_t, const char *, ...);
   Int32 vsnPrintf(char *, size_t, const char *, va_list);
 
-protected:
+ protected:
   // We maintain a global temporary FILE for the purpose of buffering
   // sprintf output. We can safely write to this FILE without worrying
   // about buffer overflow, then read a fixed number of bytes from the
@@ -59,11 +58,11 @@ protected:
   // performed because of the stdio library's buffering of FILE data.
   static THREAD_P FILE *outfile_;
 
-private:
+ private:
   // Do not implement default constructors or an assignment operator
   ComSafePrinter(const ComSafePrinter &);
   ComSafePrinter &operator=(const ComSafePrinter &);
-  
-}; // class ComSafePrinter
 
-#endif // COMSAFEPRINTER_H
+};  // class ComSafePrinter
+
+#endif  // COMSAFEPRINTER_H

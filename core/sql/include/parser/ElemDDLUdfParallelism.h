@@ -42,11 +42,8 @@
 
 #include "ElemDDLNode.h"
 
-class ElemDDLUdfParallelism : public ElemDDLNode
-{
-
-public:
-
+class ElemDDLUdfParallelism : public ElemDDLNode {
+ public:
   // default constructor
   ElemDDLUdfParallelism(ComRoutineParallelism parallelismChoice);
 
@@ -54,18 +51,12 @@ public:
   virtual ~ElemDDLUdfParallelism(void);
 
   // cast
-  virtual ElemDDLUdfParallelism * castToElemDDLUdfParallelism(void);
+  virtual ElemDDLUdfParallelism *castToElemDDLUdfParallelism(void);
 
   // accessors
-  inline const ComRoutineParallelism getParallelism(void) const
-  {
-    return parallelism_;
-  }
+  inline const ComRoutineParallelism getParallelism(void) const { return parallelism_; }
 
-  inline NABoolean getCanBeParallel(void) const
-  {
-    return parallelism_ NEQ COM_ROUTINE_NO_PARALLELISM;
-  }
+  inline NABoolean getCanBeParallel(void) const { return parallelism_ NEQ COM_ROUTINE_NO_PARALLELISM; }
 
   //
   // methods for tracing
@@ -74,10 +65,9 @@ public:
   virtual NATraceList getDetailInfo() const;
   virtual const NAString getText() const;
 
-private:
-
+ private:
   ComRoutineParallelism parallelism_;
 
-}; // class ElemDDLUdfParallelism
+};  // class ElemDDLUdfParallelism
 
 #endif /* ELEMDDLUDFPARALLELISM_H */

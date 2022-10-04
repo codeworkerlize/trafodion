@@ -28,7 +28,7 @@
 *
 * File:         ExPack.h
 * Description:  Pack Operator
-*               
+*
 * Created:      6/16/97
 * Language:     C++
 *
@@ -62,27 +62,23 @@ class ex_tcb;
 // -----------------------------------------------------------------------
 // ExPackRowsTdb
 // -----------------------------------------------------------------------
-class ExPackRowsTdb : public ComTdbPackRows
-{
-public:
-
+class ExPackRowsTdb : public ComTdbPackRows {
+ public:
   // ---------------------------------------------------------------------
   // Constructor is only called to instantiate an object used for
   // retrieval of the virtual table function pointer of the class while
   // unpacking. An empty constructor is enough.
   // ---------------------------------------------------------------------
-  ExPackRowsTdb()
-  {}
+  ExPackRowsTdb() {}
 
-  virtual ~ExPackRowsTdb()
-  {}
+  virtual ~ExPackRowsTdb() {}
 
   // ---------------------------------------------------------------------
   // Build a TCB for this TDB. Redefined in the Executor project.
   // ---------------------------------------------------------------------
   virtual ex_tcb *build(ex_globals *globals);
 
-private:
+ private:
   // ---------------------------------------------------------------------
   // !!!!!!! IMPORTANT -- NO DATA MEMBERS ALLOWED IN EXECUTOR TDB !!!!!!!!
   // *********************************************************************
@@ -102,7 +98,7 @@ private:
   // 1. Are those data members Compiler-generated?
   //    If yes, put them in the ComTdbPackRows instead.
   //    If no, they should probably belong to someplace else (like TCB).
-  // 
+  //
   // 2. Are the classes those data members belong defined in the executor
   //    project?
   //    If your answer to both questions is yes, you might need to move
@@ -110,22 +106,18 @@ private:
   // ---------------------------------------------------------------------
 };
 
-
-class ExPackRowsTcb : public ex_tcb
-{
+class ExPackRowsTcb : public ex_tcb {
   friend class ExPackRowsTdb;
   friend class ExPackPrivateState;
 
-public:
-
+ public:
   // The various states of a request for the Pack work methods.
-  enum workState
-  {
+  enum workState {
     // The request has been sent to the child.
-    STARTED_, 
+    STARTED_,
 
     // The request has not yet been sent to the child.
-    EMPTY_,   
+    EMPTY_,
 
     // A cancel request has been sent to the child for this request.
     CANCELLED_
@@ -137,22 +129,20 @@ public:
   // It:
   //     - allocates the sql buffer pool
   //     - allocates the ATP's for its child's down queue.
-  //     - allocates the up and down queues used to communicate 
+  //     - allocates the up and down queues used to communicate
   //       with the parent.
   //     - allocates the private state associated with each entry of the
   //       parents down queue.
   //     - initializes local state.
   //     - fixes up all expressions.
   //
-  ExPackRowsTcb(const ExPackRowsTdb& packTdb,
-            const ex_tcb& childTdb,    
-            ex_globals* glob);
-	  
+  ExPackRowsTcb(const ExPackRowsTdb &packTdb, const ex_tcb &childTdb, ex_globals *glob);
+
   // Destructor
-  ~ExPackRowsTcb();  
+  ~ExPackRowsTcb();
 
   // Free up any run-time resources.
-  void freeResources(); 
+  void freeResources();
 
   // Register all the pack subtasks with the scheduler.
   void registerSubtasks();
@@ -170,54 +160,40 @@ public:
   // Work method called by workUp() to return rows when we form a fully packed
   // record or get an EOD before that.
   ExWorkProcRetcode workReturnRow();
-  
+
   // Stub to workUp() used by scheduler.
-  static ExWorkProcRetcode sWorkUp(ex_tcb *tcb)
-  {
-    return ((ExPackRowsTcb *) tcb)->workUp(); 
-  } 
-  
+  static ExWorkProcRetcode sWorkUp(ex_tcb *tcb) { return ((ExPackRowsTcb *)tcb)->workUp(); }
+
   // Stub to workDown() used by scheduler.
-  static ExWorkProcRetcode sWorkDown(ex_tcb *tcb)
-  {
-    return ((ExPackRowsTcb *) tcb)->workDown(); 
-  }
-  
+  static ExWorkProcRetcode sWorkDown(ex_tcb *tcb) { return ((ExPackRowsTcb *)tcb)->workDown(); }
+
   // Stub to processCancel() used by scheduler.
-  static ExWorkProcRetcode sCancel(ex_tcb *tcb)
-  {
-    return ((ExPackRowsTcb *) tcb)->processCancel(); 
-  }
+  static ExWorkProcRetcode sCancel(ex_tcb *tcb) { return ((ExPackRowsTcb *)tcb)->processCancel(); }
 
   // Return the parent queue pair.
   ex_queue_pair getParentQueue() const { return qParent_; }
 
   // Return a reference to the Pack TDB associated with this Pack TCB.
-  inline ExPackRowsTdb& packTdb() const
-  {
-    return (ExPackRowsTdb &) tdb;
-  }
+  inline ExPackRowsTdb &packTdb() const { return (ExPackRowsTdb &)tdb; }
 
   // Return the selection predicate.
-  inline ex_expr* predExpr() { return packTdb().predExpr_; }
+  inline ex_expr *predExpr() { return packTdb().predExpr_; }
 
   // Return the packing expression.
-  inline ex_expr* packExpr() { return packTdb().packExpr_; }
+  inline ex_expr *packExpr() { return packTdb().packExpr_; }
 
   // Pack has one child.
-  virtual Int32 numChildren() const { return 1; }   
+  virtual Int32 numChildren() const { return 1; }
 
   // Return the child of the pack node by position.
-  virtual const ex_tcb* getChild(Int32 pos) const
-  {
-    if(pos == 0) return childTcb_;
+  virtual const ex_tcb *getChild(Int32 pos) const {
+    if (pos == 0) return childTcb_;
     return NULL;
   }
 
-protected:
-  
+ protected:
   // The child TCB of this Transpose node.
-  const ex_tcb* childTcb_;
+  const ex_tcb *childTcb_;
 
   // The queue pair used to communicate with the parent node.
   ex_queue_pair qParent_;
@@ -227,9 +203,9 @@ protected:
 
   // Next parent down queue entry to process.
   queue_index nextRqst_;
-  
+
   // Buffer pool used to allocated tupps for the packed columns.
-  ExSimpleSQLBuffer* pool_;
+  ExSimpleSQLBuffer *pool_;
 
   // Send next request down to children. (called by workDown())
   void start();
@@ -238,34 +214,29 @@ protected:
   void stop();
 
   // Process cancel requests. (called when parent cancel its request)
-  ExWorkProcRetcode processCancel(); 
-   
+  ExWorkProcRetcode processCancel();
 };
 
 // -----------------------------------------------------------------------
 // Private state
 // -----------------------------------------------------------------------
-class ExPackPrivateState : public ex_tcb_private_state
-{
+class ExPackPrivateState : public ex_tcb_private_state {
   friend class ExPackRowsTcb;
-  
+
   tupp packTupp_;
   ExPackRowsTcb::workState childState_;
-  Int64 matchCount_; 
+  Int64 matchCount_;
 
-  void init();        
+  void init();
 
-public:
-
-  ExPackPrivateState(const ExPackRowsTcb* tcb);
+ public:
+  ExPackPrivateState(const ExPackRowsTcb *tcb);
 
   ~ExPackPrivateState();
 
-  ex_tcb_private_state* allocate_new(const ex_tcb* tcb);
+  ex_tcb_private_state *allocate_new(const ex_tcb *tcb);
 
   void printPackTupp();
-
 };
 
 #endif
-

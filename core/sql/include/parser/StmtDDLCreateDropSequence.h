@@ -38,7 +38,6 @@
  *****************************************************************************
  */
 
-
 #include "common/ComSmallDefs.h"
 #include "ElemDDLNode.h"
 #include "parser/ElemDDLSGOptions.h"
@@ -59,23 +58,17 @@ class StmtDDLDropSequence;
 // -----------------------------------------------------------------------
 // Create Sequence statement
 // -----------------------------------------------------------------------
-class StmtDDLCreateSequence : public StmtDDLNode
-{
-
-public:
-
+class StmtDDLCreateSequence : public StmtDDLNode {
+ public:
   // (default) constructor
-  StmtDDLCreateSequence(const QualifiedName & seqQualName,
-			ElemDDLSGOptions * pSGOptions = NULL,
-			ComBoolean alter = FALSE,
-			NABoolean ifNotExistsSet = FALSE,
-			CollHeap    * heap = PARSERHEAP());
+  StmtDDLCreateSequence(const QualifiedName &seqQualName, ElemDDLSGOptions *pSGOptions = NULL, ComBoolean alter = FALSE,
+                        NABoolean ifNotExistsSet = FALSE, CollHeap *heap = PARSERHEAP());
 
   // virtual destructor
   virtual ~StmtDDLCreateSequence();
 
   // cast
-  virtual StmtDDLCreateSequence * castToStmtDDLCreateSequence();
+  virtual StmtDDLCreateSequence *castToStmtDDLCreateSequence();
 
   // ---------------------------------------------------------------------
   // accessors
@@ -83,14 +76,14 @@ public:
 
   // methods relating to parse tree
   virtual Int32 getArity() const;
-  virtual ExprNode * getChild(Lng32 index);
+  virtual ExprNode *getChild(Lng32 index);
 
-  inline const QualifiedName & getSeqNameAsQualifiedName() const;
-  inline       QualifiedName & getSeqNameAsQualifiedName();
+  inline const QualifiedName &getSeqNameAsQualifiedName() const;
+  inline QualifiedName &getSeqNameAsQualifiedName();
   inline const NAString getSeqName() const;
 
-  ElemDDLSGOptions * getSGoptions() { return pSGOptions_; }
-  const ElemDDLSGOptions * getSGoptions() const { return pSGOptions_; }
+  ElemDDLSGOptions *getSGoptions() { return pSGOptions_; }
+  const ElemDDLSGOptions *getSGoptions() const { return pSGOptions_; }
 
   ComBoolean isAlter() { return alter_; }
   NABoolean ifNotExistsSet() { return ifNotExistsSet_; }
@@ -104,7 +97,7 @@ public:
   // ---------------------------------------------------------------------
 
   // method for binding
-  ExprNode * bindNode(BindWA *bindWAPtr);
+  ExprNode *bindNode(BindWA *bindWAPtr);
 
   // method for collecting information
   void synthesize();
@@ -117,8 +110,7 @@ public:
   virtual NATraceList getDetailInfo() const;
   virtual const NAString getText() const;
 
-private:
-
+ private:
   // ---------------------------------------------------------------------
   // private methods
   // ---------------------------------------------------------------------
@@ -127,9 +119,9 @@ private:
   // please do not use the following methods
   //
 
-  StmtDDLCreateSequence();                                        // DO NOT USE
-  StmtDDLCreateSequence(const StmtDDLCreateSequence &);              // DO NOT USE
-  StmtDDLCreateSequence & operator=(const StmtDDLCreateSequence &);  // DO NOT USE
+  StmtDDLCreateSequence();                                          // DO NOT USE
+  StmtDDLCreateSequence(const StmtDDLCreateSequence &);             // DO NOT USE
+  StmtDDLCreateSequence &operator=(const StmtDDLCreateSequence &);  // DO NOT USE
 
   // ---------------------------------------------------------------------
   // private data members
@@ -139,12 +131,12 @@ private:
   // [ schema-name . ] seq-name
   QualifiedName seqQualName_;
 
-  ElemDDLSGOptions * pSGOptions_;
+  ElemDDLSGOptions *pSGOptions_;
 
   NABoolean alter_;
   NABoolean ifNotExistsSet_;
 
-}; // class StmtDDLCreateSequence
+};  // class StmtDDLCreateSequence
 
 // -----------------------------------------------------------------------
 // definitions of inline methods for class StmtDDLCreateSequence
@@ -154,42 +146,26 @@ private:
 // accessors
 //
 
-inline QualifiedName &
-StmtDDLCreateSequence::getSeqNameAsQualifiedName()
-{
-  return seqQualName_;
-}
+inline QualifiedName &StmtDDLCreateSequence::getSeqNameAsQualifiedName() { return seqQualName_; }
 
-inline const QualifiedName &
-StmtDDLCreateSequence::getSeqNameAsQualifiedName() const
-{
-  return seqQualName_;
-}
+inline const QualifiedName &StmtDDLCreateSequence::getSeqNameAsQualifiedName() const { return seqQualName_; }
 
-inline const NAString
-StmtDDLCreateSequence::getSeqName() const
-{
-  return seqQualName_.getQualifiedNameAsAnsiString();
-}
+inline const NAString StmtDDLCreateSequence::getSeqName() const { return seqQualName_.getQualifiedNameAsAnsiString(); }
 
 // -----------------------------------------------------------------------
 // Drop Sequence statement
 // -----------------------------------------------------------------------
-class StmtDDLDropSequence : public StmtDDLNode
-{
-
-public:
-
+class StmtDDLDropSequence : public StmtDDLNode {
+ public:
   // (default) constructor
-  StmtDDLDropSequence(const QualifiedName & seqQualName,
-                     ElemDDLNode * pSequenceOptionList = NULL,
-                     CollHeap    * heap = PARSERHEAP());
+  StmtDDLDropSequence(const QualifiedName &seqQualName, ElemDDLNode *pSequenceOptionList = NULL,
+                      CollHeap *heap = PARSERHEAP());
 
   // virtual destructor
   virtual ~StmtDDLDropSequence();
 
   // cast
-  virtual StmtDDLDropSequence * castToStmtDDLDropSequence();
+  virtual StmtDDLDropSequence *castToStmtDDLDropSequence();
 
   // ---------------------------------------------------------------------
   // accessors
@@ -197,10 +173,10 @@ public:
 
   // methods relating to parse tree
   virtual Int32 getArity() const;
-  virtual ExprNode * getChild(Lng32 index);
+  virtual ExprNode *getChild(Lng32 index);
 
-  inline const QualifiedName & getSeqNameAsQualifiedName() const;
-  inline       QualifiedName & getSeqNameAsQualifiedName();
+  inline const QualifiedName &getSeqNameAsQualifiedName() const;
+  inline QualifiedName &getSeqNameAsQualifiedName();
   inline const NAString getSeqName() const;
 
   // ---------------------------------------------------------------------
@@ -212,7 +188,7 @@ public:
   // ---------------------------------------------------------------------
 
   // method for binding
-  ExprNode * bindNode(BindWA *bindWAPtr);
+  ExprNode *bindNode(BindWA *bindWAPtr);
 
   // method for collecting information
   void synthesize();
@@ -225,8 +201,7 @@ public:
   virtual NATraceList getDetailInfo() const;
   virtual const NAString getText() const;
 
-private:
-
+ private:
   // ---------------------------------------------------------------------
   // private methods
   // ---------------------------------------------------------------------
@@ -236,8 +211,8 @@ private:
   //
 
   StmtDDLDropSequence();                                        // DO NOT USE
-  StmtDDLDropSequence(const StmtDDLDropSequence &);              // DO NOT USE
-  StmtDDLDropSequence & operator=(const StmtDDLDropSequence &);  // DO NOT USE
+  StmtDDLDropSequence(const StmtDDLDropSequence &);             // DO NOT USE
+  StmtDDLDropSequence &operator=(const StmtDDLDropSequence &);  // DO NOT USE
 
   // ---------------------------------------------------------------------
   // private data members
@@ -247,7 +222,7 @@ private:
   // [catalog_name.] [ schema-name . ] seq-name
   QualifiedName seqQualName_;
 
-}; // class StmtDDLDropSequence
+};  // class StmtDDLDropSequence
 
 // -----------------------------------------------------------------------
 // definitions of inline methods for class StmtDDLDropSequence
@@ -257,22 +232,10 @@ private:
 // accessors
 //
 
-inline QualifiedName &
-StmtDDLDropSequence::getSeqNameAsQualifiedName()
-{
-  return seqQualName_;
-}
+inline QualifiedName &StmtDDLDropSequence::getSeqNameAsQualifiedName() { return seqQualName_; }
 
-inline const QualifiedName &
-StmtDDLDropSequence::getSeqNameAsQualifiedName() const
-{
-  return seqQualName_;
-}
+inline const QualifiedName &StmtDDLDropSequence::getSeqNameAsQualifiedName() const { return seqQualName_; }
 
-inline const NAString
-StmtDDLDropSequence::getSeqName() const
-{
-  return seqQualName_.getQualifiedNameAsAnsiString();
-}
+inline const NAString StmtDDLDropSequence::getSeqName() const { return seqQualName_.getQualifiedNameAsAnsiString(); }
 
-#endif // STMTDDLCREATEDROPEQUENCE_H
+#endif  // STMTDDLCREATEDROPEQUENCE_H

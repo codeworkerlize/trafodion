@@ -3,9 +3,9 @@
  *
  * File:         SqlciList_templ.C
  * RCS:          $Id: SqlciList_templ.cpp,v 1.3 1997/06/20 23:39:58  Exp $
- * Description:  
- *               
- *               
+ * Description:
+ *
+ *
  * Created:      4/15/95
  * Modified:     $ $Date: 1997/06/20 23:39:58 $ (GMT)
  * Language:     C++
@@ -42,56 +42,46 @@
 
 #include "SqlciList_templ.h"
 
-
 // include all header files that contains SqlciList
 // template instantiations here
 
 #include "SqlciEnv.h"
 
-
-template <class T> 
-SqlciList<T>::SqlciList()
-{
+template <class T>
+SqlciList<T>::SqlciList() {
   head = 0;
 }
 
-template <class T> 
-SqlciList<T>::~SqlciList()
-{
-  list_entry * curr = head;
-  list_entry * next;
-  while (curr)
-    {
-      next = curr->next;
-      delete curr;
-      curr = next;
-    }
+template <class T>
+SqlciList<T>::~SqlciList() {
+  list_entry *curr = head;
+  list_entry *next;
+  while (curr) {
+    next = curr->next;
+    delete curr;
+    curr = next;
+  }
 
   head = 0;
   curr_entry = 0;
 }
 
-template <class T> 
-void SqlciList<T>::append(T * elem)
-{
+template <class T>
+void SqlciList<T>::append(T *elem) {
   if (!head)
     head = new list_entry(elem, 0, 0);
-  else
-    {
-      list_entry * curr = head;
-      while (curr->next)
-	curr = curr->next;
-      
-      curr->next = new list_entry(elem, curr, 0);
-    }
+  else {
+    list_entry *curr = head;
+    while (curr->next) curr = curr->next;
+
+    curr->next = new list_entry(elem, curr, 0);
+  }
 }
 
-template <class T> 
-T * SqlciList<T>::get(char * value)
-{
-  list_entry * curr = head;
-  while (curr && !(curr->elem->contains(value)))
-    curr = curr->next;
+template <class T>
+T *SqlciList<T>::get(char *value) {
+  list_entry *curr = head;
+  while (curr && !(curr->elem->contains(value))) curr = curr->next;
 
   if (curr)
     return curr->elem;
@@ -99,65 +89,50 @@ T * SqlciList<T>::get(char * value)
     return 0;
 }
 
-template <class T> 
-void SqlciList<T>::remove(const char * value)
-{
-  list_entry * curr = head;
-   while (curr && !(curr->elem->contains(value)))
-    curr = curr->next;
-  
-  if (curr)
-    {
-      if (head == curr)
-	{
-	  head = curr->next;
-	}
-      else
-	{
-	  curr->prev->next = curr->next;
-	}
+template <class T>
+void SqlciList<T>::remove(const char *value) {
+  list_entry *curr = head;
+  while (curr && !(curr->elem->contains(value))) curr = curr->next;
 
-      if (curr->next)
-	curr->next->prev = curr->prev;
-
-      delete curr;
-      
+  if (curr) {
+    if (head == curr) {
+      head = curr->next;
+    } else {
+      curr->prev->next = curr->next;
     }
+
+    if (curr->next) curr->next->prev = curr->prev;
+
+    delete curr;
+  }
 }
 
-template <class T> 
-T * SqlciList<T>::getFirst()
-{
+template <class T>
+T *SqlciList<T>::getFirst() {
   curr_entry = head;
-  
-  T * elem_;
-  
-  if (curr_entry)
-    {
-      elem_ = curr_entry->elem;
-      curr_entry = curr_entry->next;
-    }
-  else
+
+  T *elem_;
+
+  if (curr_entry) {
+    elem_ = curr_entry->elem;
+    curr_entry = curr_entry->next;
+  } else
     elem_ = 0;
 
   return elem_;
 }
 
 template <class T>
-T * SqlciList<T>::getNext()
-{
-  T * elem_;
-  
-  if (curr_entry)
-    {
-      elem_ = curr_entry->elem;
-      curr_entry = curr_entry->next;
-    }
-  else
+T *SqlciList<T>::getNext() {
+  T *elem_;
+
+  if (curr_entry) {
+    elem_ = curr_entry->elem;
+    curr_entry = curr_entry->next;
+  } else
     elem_ = 0;
 
   return elem_;
 }
 
-
-#endif // SQLCI_LIST_TEMPL_C
+#endif  // SQLCI_LIST_TEMPL_C

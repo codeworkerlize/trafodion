@@ -54,11 +54,9 @@ class CostMethodUnPackRows;
 // sharing of renamed table instances with scan-access and non-scan-access
 // mode in Compound Statements will lead to binding failure.
 //
-#define PACKED__	FUNNY_INTERNAL_IDENT("PACKED__")
-#define PACKED__IDU__	FUNNY_INTERNAL_IDENT("PACKED__IDU__")
+#define PACKED__      FUNNY_INTERNAL_IDENT("PACKED__")
+#define PACKED__IDU__ FUNNY_INTERNAL_IDENT("PACKED__IDU__")
 //
-
-
 
 // Class UnPackRows ----------------------------------------------------
 // The UnPackRows RelExpr is a logical RelExpr node used to implement
@@ -99,26 +97,16 @@ class CostMethodUnPackRows;
 //  the index to the packed row.  This valueId will be used in the
 //  generator to map a local variable to the WorkATP.
 //
-class UnPackRows : public RelExpr
-{
-public:
-
+class UnPackRows : public RelExpr {
+ public:
   // The constructor
   //
-  UnPackRows(Lng32 maxPackingFactor = 0,
-	     ItemExpr *UnPackExpr = NULL,
-	     ItemExpr *packingFactor = NULL,
-	     TableDesc *unPackedTable = NULL,
-	     RelExpr *child = NULL,
-	     ValueId   indexHostVarValueId = NULL_VALUE_ID,
-	     CollHeap *oHeap = CmpCommon::statementHeap());
+  UnPackRows(Lng32 maxPackingFactor = 0, ItemExpr *UnPackExpr = NULL, ItemExpr *packingFactor = NULL,
+             TableDesc *unPackedTable = NULL, RelExpr *child = NULL, ValueId indexHostVarValueId = NULL_VALUE_ID,
+             CollHeap *oHeap = CmpCommon::statementHeap());
 
-  UnPackRows(Lng32 rwrsMaxSize,
-	     ItemExpr *rwrsInputSizeExpr,
-	     ItemExpr *rwrsMaxInputRowlen,
-	     ItemExpr *rwrsBuffer,
-	     RelExpr *child,
-	     CollHeap *oHeap = CmpCommon::statementHeap());
+  UnPackRows(Lng32 rwrsMaxSize, ItemExpr *rwrsInputSizeExpr, ItemExpr *rwrsMaxInputRowlen, ItemExpr *rwrsBuffer,
+             RelExpr *child, CollHeap *oHeap = CmpCommon::statementHeap());
 
   // The destructor
   //
@@ -126,7 +114,7 @@ public:
 
   // UnPackRows has one child.
   //
-  virtual Int32 getArity() const {return 1;};
+  virtual Int32 getArity() const { return 1; };
 
   // The potential packing factor of each row.
   //
@@ -134,8 +122,8 @@ public:
 
   // Return a pointer to the UnPackExpr tree.
   //
-  inline const ItemExpr *unPackExprTree() const {return unPackExprTree_;};
-  inline ItemExpr *&unPackExprTree() {return unPackExprTree_;};
+  inline const ItemExpr *unPackExprTree() const { return unPackExprTree_; };
+  inline ItemExpr *&unPackExprTree() { return unPackExprTree_; };
 
   // Return a pointer to the unPackExpr tree after
   // setting it to NULL.
@@ -144,19 +132,16 @@ public:
 
   // return a (short-lived) read/write reference to the unPack expression
   //
-  inline ValueIdSet & unPackExpr() { return unPackExpr_; }
+  inline ValueIdSet &unPackExpr() { return unPackExpr_; }
 
   // return a read-only reference to the unPack expression
   //
-  inline const ValueIdSet & unPackExpr() const { return unPackExpr_; }
+  inline const ValueIdSet &unPackExpr() const { return unPackExpr_; }
 
   // Return a pointer to the packingFactor tree.
   //
-  inline const ItemExpr *packingFactorTree() const
-  {
-    return packingFactorTree_;
-  };
-  inline ItemExpr *&packingFactorTree() {return packingFactorTree_;};
+  inline const ItemExpr *packingFactorTree() const { return packingFactorTree_; };
+  inline ItemExpr *&packingFactorTree() { return packingFactorTree_; };
 
   // Return a pointer to the packing Factor ColReference node after setting
   // it to NULL.
@@ -176,57 +161,37 @@ public:
   inline ValueIdList *&originalPreds() { return originalPreds_; };
   inline ValueIdList *&rewrittenPreds() { return rewrittenPreds_; };
 
-  inline TableDesc* & unPackedTable()
-  {
-    return unPackedTable_;
-  }
+  inline TableDesc *&unPackedTable() { return unPackedTable_; }
 
-  inline TableDesc *unPackedTable() const
-  {
-    return unPackedTable_;
-  }
+  inline TableDesc *unPackedTable() const { return unPackedTable_; }
 
-  inline ColStatDescList &colStats()
-  {
-    return colStats_;
-  }
+  inline ColStatDescList &colStats() { return colStats_; }
 
   NABoolean rowwiseRowset() const { return rowwiseRowset_; }
   void setRowwiseRowset(NABoolean v) { rowwiseRowset_ = v; }
 
-  const ItemExpr *rwrsInputSizeExpr() const 
-  { return rwrsInputSizeExpr_;}
-  const ItemExpr *rwrsMaxInputRowlenExpr() const 
-  { return rwrsMaxInputRowlenExpr_;}
-  const ItemExpr *rwrsBufferAddrExpr() const 
-  { return rwrsBufferAddrExpr_;}
+  const ItemExpr *rwrsInputSizeExpr() const { return rwrsInputSizeExpr_; }
+  const ItemExpr *rwrsMaxInputRowlenExpr() const { return rwrsMaxInputRowlenExpr_; }
+  const ItemExpr *rwrsBufferAddrExpr() const { return rwrsBufferAddrExpr_; }
 
-  ItemExpr *rwrsInputSizeExpr()
-  { return rwrsInputSizeExpr_;}
-  ItemExpr *rwrsMaxInputRowlenExpr()
-  { return rwrsMaxInputRowlenExpr_;}
-  ItemExpr *rwrsBufferAddrExpr()
-  { return rwrsBufferAddrExpr_;}
+  ItemExpr *rwrsInputSizeExpr() { return rwrsInputSizeExpr_; }
+  ItemExpr *rwrsMaxInputRowlenExpr() { return rwrsMaxInputRowlenExpr_; }
+  ItemExpr *rwrsBufferAddrExpr() { return rwrsBufferAddrExpr_; }
   ValueIdList &rwrsOutputVids() { return rwrsOutputVids_; }
 
-  void setRwrsInputSizeExpr(ItemExpr * v)
-  {rwrsInputSizeExpr_ = v;}
-  void setRwrsMaxInputRowlenExpr(ItemExpr * v)
-  {rwrsMaxInputRowlenExpr_ = v;}
-  void setRwrsBufferAddrExpr(ItemExpr * v)
-  {rwrsBufferAddrExpr_ = v;}
-  void setRwrsOutputVids(ValueIdList vidl)
-  {rwrsOutputVids_ = vidl;}
+  void setRwrsInputSizeExpr(ItemExpr *v) { rwrsInputSizeExpr_ = v; }
+  void setRwrsMaxInputRowlenExpr(ItemExpr *v) { rwrsMaxInputRowlenExpr_ = v; }
+  void setRwrsBufferAddrExpr(ItemExpr *v) { rwrsBufferAddrExpr_ = v; }
+  void setRwrsOutputVids(ValueIdList vidl) { rwrsOutputVids_ = vidl; }
 
   // a virtual function for performing name binding within the query tree
   //
-  RelExpr * bindNode(BindWA *bindWAPtr);
+  RelExpr *bindNode(BindWA *bindWAPtr);
 
   // Each operator supports a (virtual) method for transforming its
   // scalar expressions to a canonical form
   //
-  virtual void transformNode(NormWA & normWARef,
-			     ExprGroupId & locationOfPointerToMe);
+  virtual void transformNode(NormWA &normWARef, ExprGroupId &locationOfPointerToMe);
 
   // a method used during subquery transformation for pulling up predicates
   // towards the root of the transformed subquery tree
@@ -244,24 +209,21 @@ public:
   // Each operator supports a (virtual) method for rewriting its
   // value expressions.
   //
-  virtual void rewriteNode(NormWA & normWARef);
+  virtual void rewriteNode(NormWA &normWARef);
 
   // Each operator supports a (virtual) method for performing
   // predicate pushdown and computing a "minimal" set of
   // characteristic input and characteristic output values.
   //
   // The default implementation is adequate for UnPackRows
-  //virtual RelExpr * normalizeNode(NormWA & normWARef);
+  // virtual RelExpr * normalizeNode(NormWA & normWARef);
 
   // Method to push down predicates from a UnPackRows node into the
   // children
   //
-  virtual
-  void pushdownCoveredExpr(const ValueIdSet & outputExprOnOperator,
-                           const ValueIdSet & newExternalInputs,
-                           ValueIdSet& predOnOperator,
-			   const ValueIdSet * nonPredExprOnOperator = NULL,
-                           Lng32 childId = (-MAX_REL_ARITY) );
+  virtual void pushdownCoveredExpr(const ValueIdSet &outputExprOnOperator, const ValueIdSet &newExternalInputs,
+                                   ValueIdSet &predOnOperator, const ValueIdSet *nonPredExprOnOperator = NULL,
+                                   Lng32 childId = (-MAX_REL_ARITY));
 
   // Return a the set of potential output values of this node.
   // For UnPackRows, the generated syskey column,  and all the value
@@ -272,8 +234,7 @@ public:
   // add all the expressions that are local to this
   // node to an existing list of expressions (used by GUI tool and Explain)
   //
-  virtual void addLocalExpr(LIST(ExprNode *) &xlist,
-			    LIST(NAString) &llist) const;
+  virtual void addLocalExpr(LIST(ExprNode *) & xlist, LIST(NAString) & llist) const;
 
   // Compute a hash value for a chain of derived RelExpr nodes.
   // Used by the Cascade engine as a quick way to determine if
@@ -286,26 +247,24 @@ public:
   // A more thorough method to compare two RelExpr nodes.
   // Used by the Cascades engine.
   //
-  virtual NABoolean duplicateMatch(const RelExpr & other) const;
+  virtual NABoolean duplicateMatch(const RelExpr &other) const;
 
   // Copy a chain of derived nodes (Calls RelExpr::copyTopNode).
   // Needs to copy all relevant fields.
   // Used by the Cascades engine.
   //
-  virtual RelExpr *copyTopNode(RelExpr *derivedNode = NULL,
-			       CollHeap *outHeap = NULL);
+  virtual RelExpr *copyTopNode(RelExpr *derivedNode = NULL, CollHeap *outHeap = NULL);
 
   // synthesize logical properties
   //
-  virtual void synthLogProp(NormWA * normWAPtr = NULL);
-  virtual void synthEstLogProp(const EstLogPropSharedPtr& inputEstLogProp);
+  virtual void synthLogProp(NormWA *normWAPtr = NULL);
+  virtual void synthEstLogProp(const EstLogPropSharedPtr &inputEstLogProp);
 
   // get a printable string that identifies the operator
   //
-  virtual const NAString getText() const {return "UnPack";};
+  virtual const NAString getText() const { return "UnPack"; };
 
-private:
-
+ private:
   void constructNewSyskeyPreds(ValueIdSet &predicates);
 
   // This is the packing factor of the packed table.  This value
@@ -313,7 +272,6 @@ private:
   // can be estimated.
   //
   Lng32 maxPackingFactor_;
-
 
   // This expression contains a list of expressions to unpack the
   // SYSKEY and all the user columns of the packed table.  The SYSKEY
@@ -325,7 +283,7 @@ private:
   // HostVar must be captured so that it can be used to map a local
   // variable into the workAtp of the work procedure.
   //
-  ItemExpr   *unPackExprTree_;
+  ItemExpr *unPackExprTree_;
 
   // This represents the bound version of unPackExprTree_.  The order
   // of this list is important. It must correspond to the order of the
@@ -375,7 +333,7 @@ private:
   // value ids of values which are returned by this operator.
   ValueIdList rwrsOutputVids_;
 
-}; // class UnPackRows
+};  // class UnPackRows
 
 // Class PhysUnPackRows ----------------------------------------------------
 // The PhysUnPackRows node replaces the logical UnPackRows node through the
@@ -384,14 +342,11 @@ private:
 // that is both a logical and physical node. The PhysUnPackRows node
 // does not add any data members. It adds a few virtual methods.
 // -----------------------------------------------------------------------
-class PhysUnPackRows : public UnPackRows
-{
-public:
-
+class PhysUnPackRows : public UnPackRows {
+ public:
   // The constructor
   //
-  PhysUnPackRows(RelExpr *child = NULL,
-                        CollHeap *oHeap = CmpCommon::statementHeap());
+  PhysUnPackRows(RelExpr *child = NULL, CollHeap *oHeap = CmpCommon::statementHeap());
 
   // The destructor.
   //
@@ -399,37 +354,33 @@ public:
 
   // methods to do code generation of the physical node.
   //
-  virtual RelExpr * preCodeGen(Generator * generator,
-			       const ValueIdSet & externalInputs,
-			       ValueIdSet &pulledNewInputs);
-  virtual short codeGen(Generator*);
+  virtual RelExpr *preCodeGen(Generator *generator, const ValueIdSet &externalInputs, ValueIdSet &pulledNewInputs);
+  virtual short codeGen(Generator *);
 
   // generate CONTROL QUERY SHAPE fragment for this node.
   //
-  virtual short generateShape(CollHeap * space, char * buf, NAString * shapeStr = NULL);
+  virtual short generateShape(CollHeap *space, char *buf, NAString *shapeStr = NULL);
 
   // Copy a chain of derived nodes (Calls UnPackRows::copyTopNode).
   // Needs to copy all relevant fields (in this case no fields
   // need to be copied)
   // Used by the Cascades engine.
   //
-  virtual RelExpr * copyTopNode(RelExpr *derivedNode = NULL,
-				CollHeap *outHeap = NULL);
+  virtual RelExpr *copyTopNode(RelExpr *derivedNode = NULL, CollHeap *outHeap = NULL);
 
   // cost functions
   //
-  virtual PhysicalProperty *synthPhysicalProperty(const Context *context,
-                                                  const Lng32    planNumber,
-                                                  PlanWorkSpace  *pws);
-  virtual CostMethod* costMethod() const;
+  virtual PhysicalProperty *synthPhysicalProperty(const Context *context, const Lng32 planNumber, PlanWorkSpace *pws);
+  virtual CostMethod *costMethod() const;
 
   // Redefine these virtual methods to declare this node as a
   // physical node.
   //
-  virtual NABoolean isLogical() const {return FALSE;};
-  virtual NABoolean isPhysical() const {return TRUE;};
-private:
+  virtual NABoolean isLogical() const { return FALSE; };
+  virtual NABoolean isPhysical() const { return TRUE; };
+
+ private:
   CostMethodUnPackRows *pCostMethod_;
-}; // class PhysUnPackRows
+};  // class PhysUnPackRows
 
 #endif

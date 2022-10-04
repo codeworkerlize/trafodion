@@ -23,34 +23,22 @@
 
 #include "common/ComCextdecs.h"
 
-class Timer
-{
-private:
+class Timer {
+ private:
+  enum TimerConstants { ONE_THOUSAND = 1000, ONE_MILLION = 1000000 };
 
-  enum TimerConstants {
-    ONE_THOUSAND     = 1000,
-    ONE_MILLION      = 1000000
-  };
-
-  Int64     startTime_;
-  Int64     endTime_;
-  Int64     accumTime_;
+  Int64 startTime_;
+  Int64 endTime_;
+  Int64 accumTime_;
   NABoolean running_;
 
-public:
-
+ public:
   // A timer needs to be explicitly started using 'start' or 'restart'
-  Timer()
-    : running_(false),
-      startTime_(0),
-      accumTime_(0)
-  { }
+  Timer() : running_(false), startTime_(0), accumTime_(0) {}
 
-  NABoolean start()
-  {
+  NABoolean start() {
     // Return immediately if the timer is already running
-    if (! running_)
-    {
+    if (!running_) {
       // Set timer status to running and set the start time
       running_ = TRUE;
       accumTime_ = 0;
@@ -63,10 +51,8 @@ public:
   //
   // If timer is running, then stop the timer, accumulate any elapsed time.
   // Returns accumulated time.
-  Int64 stop()
-  {
-    if (running_)
-    {
+  Int64 stop() {
+    if (running_) {
       endTime_ = NA_JulianTimestamp();
       running_ = FALSE;
       accumTime_ += endTime_ - startTime_;
@@ -78,10 +64,8 @@ public:
   //
   // If timer is not running, then set to running and capture a new start time.
   // Returns current accumulated time.
-  Int64 restart()
-  {
-    if (! running_)
-    {
+  Int64 restart() {
+    if (!running_) {
       running_ = TRUE;
       endTime_ = 0;
       startTime_ = NA_JulianTimestamp();
@@ -94,25 +78,19 @@ public:
   // If timer is running, then stop it and accumulate elapsed time.
   // If timer is not running, then start it.
   // Returns current accumulated time.
-  Int64 startStop()
-  {
-    return( running_ ? stop() : restart() );
-  }
+  Int64 startStop() { return (running_ ? stop() : restart()); }
 
   //
   // If timer is running, then return the accumulated time so far plus
   // the current time minus the current start time.
   // If timer is not running, then just return the accumulated time.
-  Int64 elapsedTime()
-  {
+  Int64 elapsedTime() {
     if (running_)
-      return ( (NA_JulianTimestamp() - startTime_) + accumTime_ );
-    else
-    {
-      return ( accumTime_ );
+      return ((NA_JulianTimestamp() - startTime_) + accumTime_);
+    else {
+      return (accumTime_);
     }
   }
-
 };
 
-#endif // TIMER_H
+#endif  // TIMER_H

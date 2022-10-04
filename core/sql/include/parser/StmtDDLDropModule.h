@@ -36,7 +36,6 @@
  *****************************************************************************
  */
 
-
 #include "common/ComSmallDefs.h"
 #include "StmtDDLNode.h"
 
@@ -53,39 +52,34 @@ class StmtDDLDropModule;
 // -----------------------------------------------------------------------
 // Drop Alias statement
 // -----------------------------------------------------------------------
-class StmtDDLDropModule : public StmtDDLNode
-{
-
-public:
-
+class StmtDDLDropModule : public StmtDDLNode {
+ public:
   // constructor
-  StmtDDLDropModule(const QualifiedName & modulename);
+  StmtDDLDropModule(const QualifiedName &modulename);
 
   // virtual destructor
   virtual ~StmtDDLDropModule();
 
   // cast
-  virtual StmtDDLDropModule * castToStmtDDLDropModule();
+  virtual StmtDDLDropModule *castToStmtDDLDropModule();
 
   // accessors
 
-  inline const NAString & getModuleName() const;
-  inline const QualifiedName & getModuleNameAsQualifiedName() const;
-  inline       QualifiedName   getModuleNameAsQualifiedName() ;
+  inline const NAString &getModuleName() const;
+  inline const QualifiedName &getModuleNameAsQualifiedName() const;
+  inline QualifiedName getModuleNameAsQualifiedName();
 
- // for binding
-  ExprNode * bindNode(BindWA *bindWAPtr);
+  // for binding
+  ExprNode *bindNode(BindWA *bindWAPtr);
 
   // for tracing
   virtual const NAString displayLabel1() const;
   virtual const NAString getText() const;
 
-
-private:
-
+ private:
   NAString moduleName_;
   QualifiedName moduleQualName_;
-}; // class StmtDDLDropModule
+};  // class StmtDDLDropModule
 
 // -----------------------------------------------------------------------
 // definitions of inline methods for class StmtDDLDropModule
@@ -95,27 +89,9 @@ private:
 // accessors
 //
 
-inline QualifiedName
-StmtDDLDropModule::getModuleNameAsQualifiedName()
-{
-  return moduleQualName_;
-}
+inline QualifiedName StmtDDLDropModule::getModuleNameAsQualifiedName() { return moduleQualName_; }
 
-inline const QualifiedName &
-StmtDDLDropModule::getModuleNameAsQualifiedName() const
-{
-  return moduleQualName_;
-}
+inline const QualifiedName &StmtDDLDropModule::getModuleNameAsQualifiedName() const { return moduleQualName_; }
 
-inline const NAString &
-StmtDDLDropModule::getModuleName() const
-{
-  return moduleName_ ;
-}
-#endif // STMTDDLDROPMODULE_H
-
-
-
-
-
-
+inline const NAString &StmtDDLDropModule::getModuleName() const { return moduleName_; }
+#endif  // STMTDDLDROPMODULE_H

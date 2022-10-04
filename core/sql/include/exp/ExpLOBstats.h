@@ -27,15 +27,11 @@
 
 #define NUM_NSECS_IN_SEC (1 * 1000 * 1000 * 1000)
 
-
-class ExLobStats
-{
+class ExLobStats {
  public:
   void init();
-  ExLobStats& operator+(const ExLobStats &other) ;
-  void getVariableStatsInfo(char * dataBuffer,
-			    char * datalen,
-			    Lng32 maxLen);
+  ExLobStats &operator+(const ExLobStats &other);
+  void getVariableStatsInfo(char *dataBuffer, char *datalen, Lng32 maxLen);
 
   Int64 bytesToRead;
   Int64 bytesRead;
@@ -55,7 +51,5 @@ class ExLobStats
   Int64 bytesPrefetched;
   Int64 buffersUsed;
 };
-
-
 
 #endif

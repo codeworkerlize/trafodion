@@ -40,7 +40,6 @@
  *****************************************************************************
  */
 
-
 #include "StmtDDLNode.h"
 
 // -----------------------------------------------------------------------
@@ -56,30 +55,20 @@ class StmtDDLAlterDatabase;
 // -----------------------------------------------------------------------
 // Alter database statement
 // -----------------------------------------------------------------------
-class StmtDDLAlterDatabase : public StmtDDLNode
-{
-
-public:
-
+class StmtDDLAlterDatabase : public StmtDDLNode {
+ public:
   // enums
-  enum DbCmdType { DBCMDTYPE_UNKNOWN = 0
-                 , DBCMDTYPE_AUTHNAME
-                 };
+  enum DbCmdType { DBCMDTYPE_UNKNOWN = 0, DBCMDTYPE_AUTHNAME };
 
-  // constructors  
-  StmtDDLAlterDatabase( DbCmdType cmdType,
-                        NABoolean enableStatus                    
-                      )
-  : StmtDDLNode(DDL_ALTER_DATABASE),
-    cmdType_ (cmdType),
-    enableStatus_ (enableStatus)
-  {}
+  // constructors
+  StmtDDLAlterDatabase(DbCmdType cmdType, NABoolean enableStatus)
+      : StmtDDLNode(DDL_ALTER_DATABASE), cmdType_(cmdType), enableStatus_(enableStatus) {}
 
   // virtual destructor
   virtual ~StmtDDLAlterDatabase(){};
 
   // cast
-  virtual StmtDDLAlterDatabase * castToStmtDDLAlterDatabase() { return this; };
+  virtual StmtDDLAlterDatabase *castToStmtDDLAlterDatabase() { return this; };
 
   //
   // accessors
@@ -88,31 +77,32 @@ public:
   inline const DbCmdType getCmdType() const { return cmdType_; };
   inline const NABoolean isEnableAuth() const { return enableStatus_; };
   inline const NABoolean isDisableAuth() const { return !enableStatus_; };
-      
+
   // methods for tracing
   virtual const NAString getText() const { return "StmtDDLAlterDatabase"; };
-  virtual const NAString displayLabel1() const 
-     { return "Enable status: " + enableStatus_; };
+  virtual const NAString displayLabel1() const { return "Enable status: " + enableStatus_; };
 
-  // method for binding 
-  ExprNode * bindNode(BindWA *bindWAPtr) { markAsBound(); return this; };
+  // method for binding
+  ExprNode *bindNode(BindWA *bindWAPtr) {
+    markAsBound();
+    return this;
+  };
 
-private:
-
+ private:
   // ---------------------------------------------------------------------
   // private methods
   // ---------------------------------------------------------------------
 
   StmtDDLAlterDatabase(const StmtDDLAlterDatabase &);             // DO NOT USE
-  StmtDDLAlterDatabase & operator=(const StmtDDLAlterDatabase &); // DO NOT USE
-  
+  StmtDDLAlterDatabase &operator=(const StmtDDLAlterDatabase &);  // DO NOT USE
+
   // ---------------------------------------------------------------------
   // private data members
   // ---------------------------------------------------------------------
-  
+
   DbCmdType cmdType_;
   NABoolean enableStatus_;
 
-}; // class StmtDDLAlterDatabase
+};  // class StmtDDLAlterDatabase
 
-#endif // STMTDDLALTERDB_H
+#endif  // STMTDDLALTERDB_H

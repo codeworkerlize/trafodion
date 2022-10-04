@@ -1,4 +1,4 @@
-#if ! defined(LDAPCONFIGNODE_H)
+#if !defined(LDAPCONFIGNODE_H)
 #define LDAPCONFIGNODE_H
 //******************************************************************************
 // @@@ START COPYRIGHT @@@
@@ -60,153 +60,90 @@ using namespace std;
 // *                                                                           *
 // *****************************************************************************
 
-enum LDAuthStatus {
-   LDAuthSuccessful        = 0,
-   LDAuthRejected          = 1,
-   LDAuthResourceFailure   = 4
-};
+enum LDAuthStatus { LDAuthSuccessful = 0, LDAuthRejected = 1, LDAuthResourceFailure = 4 };
 
 // results for searching the LDAP Server for a user
-enum LDSearchStatus {
-  LDSearchFound            = 0,
-  LDSearchNotFound         = 1,
-  LDSearchResourceFailure  = 2
-};
+enum LDSearchStatus { LDSearchFound = 0, LDSearchNotFound = 1, LDSearchResourceFailure = 2 };
 
-enum LDAPConnectionType{ 
-   AuthenticationConnection = 100,
-   SearchConnection = 101
-};
+enum LDAPConnectionType { AuthenticationConnection = 100, SearchConnection = 101 };
 
 class ConfigNodeContents;
 
-class LDAPConfigNode
-{
-public:
+class LDAPConfigNode {
+ public:
+  static void ClearRetryCounts();
 
-   static void ClearRetryCounts();
+  static void CloseConnection();
 
-   static void CloseConnection();
-   
-   static void FreeInstance(
-      short                configNumber,
-      LDAPConnectionType   connectionType);
+  static void FreeInstance(short configNumber, LDAPConnectionType connectionType);
 
-   static size_t GetBindRetryCount();
+  static size_t GetBindRetryCount();
 
-   static LDAPConfigNode *GetLDAPConnection(
-      std::vector<AuthEvent> & authEvents,
-      const char             * configName,
-      short                    configNumber,
-      LDAPConnectionType       connectionType,
-      char                   * hostName = NULL);
+  static LDAPConfigNode *GetLDAPConnection(std::vector<AuthEvent> &authEvents, const char *configName,
+                                           short configNumber, LDAPConnectionType connectionType,
+                                           char *hostName = NULL);
 
-   static LDAPConfigNode * GetInstance(
-      std::vector<AuthEvent> & authEvents,
-      short                    configNumber,
-      LDAPConnectionType       connectionType);
+  static LDAPConfigNode *GetInstance(std::vector<AuthEvent> &authEvents, short configNumber,
+                                     LDAPConnectionType connectionType);
 
-   static bool GetNumberOfSections(
-      std::vector<AuthEvent> & authEvents,
-      short                  & numSections);
+  static bool GetNumberOfSections(std::vector<AuthEvent> &authEvents, short &numSections);
 
-   static bool GetConfigName(
-      std::vector<AuthEvent> & authEvents,
-      short                    configNumber,
-      std::string            & configName);
+  static bool GetConfigName(std::vector<AuthEvent> &authEvents, short configNumber, std::string &configName);
 
-   static size_t GetSearchRetryCount();
+  static size_t GetSearchRetryCount();
 
-   static void Refresh(std::vector<AuthEvent> & authEvents);
+  static void Refresh(std::vector<AuthEvent> &authEvents);
 
-   static const char * TestGetConfigFilename();
+  static const char *TestGetConfigFilename();
 
-   LDAuthStatus authenticateUser(
-      std::vector<AuthEvent> & authEvents,
-      const char             * username, 
-      const char             * password,
-      std::set<string>       & groupList,
-      PERFORMANCE_INFO       & performanceInfo);
-      
-   std::string getConfigName() const;
+  LDAuthStatus authenticateUser(std::vector<AuthEvent> &authEvents, const char *username, const char *password,
+                                std::set<string> &groupList, PERFORMANCE_INFO &performanceInfo);
 
-   short getConfigNumber() const;
+  std::string getConfigName() const;
 
-   LDSearchStatus lookupGroup(
-      std::vector<AuthEvent> & authEvents,
-      const char             * inputName);
+  short getConfigNumber() const;
 
-   LDSearchStatus lookupGroupList(
-      std::vector<AuthEvent> & authEvents,
-      const char             * username,
-      std::set<string>       & groupList,
-      bool              isUserDN = false);
+  LDSearchStatus lookupGroup(std::vector<AuthEvent> &authEvents, const char *inputName);
 
-   LDSearchStatus lookupUser(
-      std::vector<AuthEvent> & authEvents,
-      const char             * inputName, 
-      string                 & userDN);
+  LDSearchStatus lookupGroupList(std::vector<AuthEvent> &authEvents, const char *username, std::set<string> &groupList,
+                                 bool isUserDN = false);
 
-   LDSearchStatus searchMemberForGroup(
-       std::vector<AuthEvent> &,
-       const char *,
-       std::vector<char *> &);
+  LDSearchStatus lookupUser(std::vector<AuthEvent> &authEvents, const char *inputName, string &userDN);
 
-    LDSearchStatus getValidLDAPEntries(
-    std::vector<AuthEvent> &,
-    std::vector<char *> &,
-    std::vector<char *> &,
-    bool);
+  LDSearchStatus searchMemberForGroup(std::vector<AuthEvent> &, const char *, std::vector<char *> &);
 
-   LDSearchStatus getLDAPEntryNames(
-       std::vector<AuthEvent> &,
-       std::string *,
-       std::string *,
-       std::list<char *> *);
+  LDSearchStatus getValidLDAPEntries(std::vector<AuthEvent> &, std::vector<char *> &, std::vector<char *> &, bool);
 
-   //equal searchMemberForGroup for all LDAP group
-   LDSearchStatus searchGroupRelationship(
-       std::vector<AuthEvent> &,
-       list<char *> *,
-       map<char *, list<char *> *> *);
+  LDSearchStatus getLDAPEntryNames(std::vector<AuthEvent> &, std::string *, std::string *, std::list<char *> *);
 
-   bool getLDAPUserDNSuffix(char **, char **);
+  // equal searchMemberForGroup for all LDAP group
+  LDSearchStatus searchGroupRelationship(std::vector<AuthEvent> &, list<char *> *, map<char *, list<char *> *> *);
 
-   //return this->self.host_->LDAPConfig_ without headerfile
-   void* GetConfiguration();
+  bool getLDAPUserDNSuffix(char **, char **);
 
-private:
+  // return this->self.host_->LDAPConfig_ without headerfile
+  void *GetConfiguration();
 
-ConfigNodeContents &self;
+ private:
+  ConfigNodeContents &self;
 
-   LDAPConfigNode();
+  LDAPConfigNode();
 
-   LDAPConfigNode(
-      short              configNumber,
-      LDAPConnectionType connectionType);
+  LDAPConfigNode(short configNumber, LDAPConnectionType connectionType);
 
-   LDAPConfigNode( const LDAPConfigNode & other );
+  LDAPConfigNode(const LDAPConfigNode &other);
 
-   LDAPConfigNode & operator = ( const LDAPConfigNode & other );
+  LDAPConfigNode &operator=(const LDAPConfigNode &other);
 
-   virtual ~LDAPConfigNode();
+  virtual ~LDAPConfigNode();
 
-   static bool GetConfiguration(
-      std::vector<AuthEvent> & authEvents,
-      short                  & configNumber);
+  static bool GetConfiguration(std::vector<AuthEvent> &authEvents, short &configNumber);
 
-   static void GetDefaultConfiguration();
+  static void GetDefaultConfiguration();
 
-   bool initialize(
-      std::vector<AuthEvent> & authEvents,
-      char                   * hostName);
+  bool initialize(std::vector<AuthEvent> &authEvents, char *hostName);
 
-   void *searchObject(
-       std::vector<AuthEvent> &,
-       const char *,
-       const char *,
-       const char *,
-       char **);
+  void *searchObject(std::vector<AuthEvent> &, const char *, const char *, const char *, char **);
 };
 
 #endif

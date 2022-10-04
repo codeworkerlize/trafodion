@@ -26,13 +26,13 @@
 *
 * File:         RuMultiTxnContext.cpp
 * Description:  Implementation of class CRUMultiTxnContext.
-*				
+*
 *
 * Created:      08/17/2000
 * Language:     C++
-* 
 *
-* 
+*
+*
 ******************************************************************************
 */
 
@@ -46,33 +46,28 @@
 //--------------------------------------------------------------------------//
 //	CRUMultiTxnContext::ReadRowsFromContextLog()
 //  This function fills the stack with context from the UMD
-//  table 
+//  table
 //--------------------------------------------------------------------------//
 
-void CRUMultiTxnContext::ReadRowsFromContextLog(CDMPreparedStatement *readStmt)
-{
-	RUASSERT(NULL != readStmt);
- 
-	try
-	{
-		// The rows are sorted by BEGIN_EPOCH asc
+void CRUMultiTxnContext::ReadRowsFromContextLog(CDMPreparedStatement *readStmt) {
+  RUASSERT(NULL != readStmt);
 
-		CDMResultSet *pResult = readStmt->ExecuteQuery();
-		
-		while (pResult->Next()) 
-		{
-			const Int32 kEpoch  = 1;
-			
-			stack_.AddHead(pResult->GetInt(kEpoch));
-		}
-	}
-	catch (CDSException &ex)
-	{
-		ex.SetError(IDS_RU_FETCHCTX_FAILED);
-		throw ex;	// Re-throw
-	}
+  try {
+    // The rows are sorted by BEGIN_EPOCH asc
 
-	readStmt->Close();
+    CDMResultSet *pResult = readStmt->ExecuteQuery();
+
+    while (pResult->Next()) {
+      const Int32 kEpoch = 1;
+
+      stack_.AddHead(pResult->GetInt(kEpoch));
+    }
+  } catch (CDSException &ex) {
+    ex.SetError(IDS_RU_FETCHCTX_FAILED);
+    throw ex;  // Re-throw
+  }
+
+  readStmt->Close();
 }
 
 //--------------------------------------------------------------------------//
@@ -81,16 +76,14 @@ void CRUMultiTxnContext::ReadRowsFromContextLog(CDMPreparedStatement *readStmt)
 // This function return ROW_DOES_NOT_EXIST if no such row exists
 //--------------------------------------------------------------------------//
 
-TInt32 CRUMultiTxnContext::GetRowByIndex(Lng32 index) 
-{
-	RUASSERT(0 <= index);
+TInt32 CRUMultiTxnContext::GetRowByIndex(Lng32 index) {
+  RUASSERT(0 <= index);
 
-	if ((stack_.GetCount() <= index))
-	{
-		return ROW_DOES_NOT_EXIST;
-	}
-	
-	DSListPosition pos = stack_.FindIndex(index);
+  if ((stack_.GetCount() <= index)) {
+    return ROW_DOES_NOT_EXIST;
+  }
 
-	return stack_.GetAt(pos);
+  DSListPosition pos = stack_.FindIndex(index);
+
+  return stack_.GetAt(pos);
 }

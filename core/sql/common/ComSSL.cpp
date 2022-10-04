@@ -20,19 +20,15 @@
 // @@@ END COPYRIGHT @@@
 
 #include "ComSSL.h"
-void aes_create_key(const unsigned char * input,
-                    Lng32 input_len,
-                    unsigned char * key,
-                    Int32 aes_mode)
-{
+void aes_create_key(const unsigned char *input, Lng32 input_len, unsigned char *key, Int32 aes_mode) {
   const Lng32 key_len = EVP_CIPHER_key_length(aes_algorithm_type[aes_mode]);
 
   memset(key, 0, key_len);
 
-  const unsigned char * source;
-  unsigned char * ptr;
-  const unsigned char * input_end = input + input_len;
-  const unsigned char * key_end = key + key_len;
+  const unsigned char *source;
+  unsigned char *ptr;
+  const unsigned char *input_end = input + input_len;
+  const unsigned char *key_end = key + key_len;
 
   // loop through all the characters of the input string, and does an assignment
   // with bitwise XOR between the input string and key string. If it iterate until
@@ -40,10 +36,8 @@ void aes_create_key(const unsigned char * input,
   // and continue doing ^=
   // If the length of input string shorter than key_len, it will stop and the end of
   // the input string.
-  for (ptr = key, source = input; source < input_end; source++, ptr++)
-  {
-    if (ptr == key_end)
-      ptr = key;
+  for (ptr = key, source = input; source < input_end; source++, ptr++) {
+    if (ptr == key_end) ptr = key;
     *ptr ^= *source;
   }
 }

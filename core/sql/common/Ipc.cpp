@@ -33,9 +33,8 @@
  *****************************************************************************
  */
 
-
 #define AEVENT 1
-#define  CLI_DLL
+#define CLI_DLL
 
 //#define IPC_INTEGRITY_CHECKING 1  // for debugging purposes
 
@@ -58,7 +57,7 @@
 #include "seabed/sys.h"
 #include "seabed/int/opts.h"
 
-#include <unistd.h>		// for getpid()
+#include <unistd.h>  // for getpid()
 
 #include "cli/Globals.h"
 #include "cli/Context.h"
@@ -84,39 +83,29 @@ NABoolean XAWAITIOX_MINUS_ONE = TRUE;
 // Methods for class IpcNodeName
 // -----------------------------------------------------------------------
 
-IpcNodeName::IpcNodeName(IpcNetworkDomain dom,
-			 const char *name)
-{
+IpcNodeName::IpcNodeName(IpcNetworkDomain dom, const char *name) {
   domain_ = dom;
 
-  if (domain_ == IPC_DOM_INTERNET)
-    {
-      SockIPAddress extIPAddr;
-      SockErrNo lookupResult = extIPAddr.set(name);
+  if (domain_ == IPC_DOM_INTERNET) {
+    SockIPAddress extIPAddr;
+    SockErrNo lookupResult = extIPAddr.set(name);
 
-      if (lookupResult.hasError())
-	ABORT("Node name not found");
-      ipAddr_ = extIPAddr.getRawAddress();
-    }
-  else
-    {
-      assert(domain_ == IPC_DOM_GUA_PHANDLE);
-      assert(str_len(name) <= GuaNodeNameMaxLen);
-      str_pad(guardianNode_.nodeName_,GuaNodeNameMaxLen,' ');
-      str_cpy_all(guardianNode_.nodeName_,
-		  name,
-		  str_len(name));
-    }
+    if (lookupResult.hasError()) ABORT("Node name not found");
+    ipAddr_ = extIPAddr.getRawAddress();
+  } else {
+    assert(domain_ == IPC_DOM_GUA_PHANDLE);
+    assert(str_len(name) <= GuaNodeNameMaxLen);
+    str_pad(guardianNode_.nodeName_, GuaNodeNameMaxLen, ' ');
+    str_cpy_all(guardianNode_.nodeName_, name, str_len(name));
+  }
 }
 
-IpcNodeName::IpcNodeName(const SockIPAddress &iPNode)
-{
+IpcNodeName::IpcNodeName(const SockIPAddress &iPNode) {
   domain_ = IPC_DOM_INTERNET;
   ipAddr_ = iPNode.getRawAddress();
 }
 
-IpcNodeName & IpcNodeName::operator = (const IpcNodeName &other)
-{
+IpcNodeName &IpcNodeName::operator=(const IpcNodeName &other) {
   domain_ = other.domain_;
   if (domain_ == IPC_DOM_INTERNET)
     ipAddr_ = other.ipAddr_;
@@ -126,29 +115,18 @@ IpcNodeName & IpcNodeName::operator = (const IpcNodeName &other)
   return *this;
 }
 
-NABoolean IpcNodeName::operator == (const IpcNodeName &other)
-{
-  if (domain_ != other.domain_)
-    return FALSE;
+NABoolean IpcNodeName::operator==(const IpcNodeName &other) {
+  if (domain_ != other.domain_) return FALSE;
 
-  if (domain_ == IPC_DOM_INTERNET)
-    {
-      return (str_cmp((char *) &ipAddr_,
-		      (char *) &other.ipAddr_,
-		      sizeof(ipAddr_)) == 0);
-    }
-  else if (domain_ == IPC_DOM_GUA_PHANDLE)
-    {
-      return (str_cmp(guardianNode_.nodeName_,
-		      other.guardianNode_.nodeName_,
-		      GuaNodeNameMaxLen) == 0);
-    }
-  else
+  if (domain_ == IPC_DOM_INTERNET) {
+    return (str_cmp((char *)&ipAddr_, (char *)&other.ipAddr_, sizeof(ipAddr_)) == 0);
+  } else if (domain_ == IPC_DOM_GUA_PHANDLE) {
+    return (str_cmp(guardianNode_.nodeName_, other.guardianNode_.nodeName_, GuaNodeNameMaxLen) == 0);
+  } else
     return FALSE;
 }
 
-SockIPAddress IpcNodeName::getIPAddress() const
-{
+SockIPAddress IpcNodeName::getIPAddress() const {
   assert(domain_ == IPC_DOM_INTERNET);
   return SockIPAddress(ipAddr_);
 }
@@ -157,102 +135,74 @@ SockIPAddress IpcNodeName::getIPAddress() const
 // Methods for class GuaProcessHandle
 // -----------------------------------------------------------------------
 
-NABoolean GuaProcessHandle::operator == (const GuaProcessHandle &other) const
-{
+NABoolean GuaProcessHandle::operator==(const GuaProcessHandle &other) const {
   // call a system procedure to compare
   return compare(other);
 }
 
-void GuaProcessHandle::dumpAndStop(bool doDump, bool doStop) const
-{
+void GuaProcessHandle::dumpAndStop(bool doDump, bool doStop) const {
   char coreFile[1024];
   NAProcessHandle phandle((SB_Phandle_Type *)&phandle_);
   phandle.decompose();
-  if (doDump)
-    msg_mon_dump_process_name(NULL, phandle.getPhandleString(), coreFile);
-  if (doStop)
-    msg_mon_stop_process_name(phandle.getPhandleString()); 
+  if (doDump) msg_mon_dump_process_name(NULL, phandle.getPhandleString(), coreFile);
+  if (doStop) msg_mon_stop_process_name(phandle.getPhandleString());
 }
 
 // -----------------------------------------------------------------------
 // Methods for class IpcProcessId
 // -----------------------------------------------------------------------
 
-IpcProcessId::IpcProcessId() : IpcMessageObj(IPC_PROCESS_ID,
-					     IpcCurrProcessIdVersion)
-{
-  domain_ = IPC_DOM_INVALID;
-}
+IpcProcessId::IpcProcessId() : IpcMessageObj(IPC_PROCESS_ID, IpcCurrProcessIdVersion) { domain_ = IPC_DOM_INVALID; }
 
-IpcProcessId::IpcProcessId(
-     const GuaProcessHandle &phandle) : IpcMessageObj(IPC_PROCESS_ID,
-						      IpcCurrProcessIdVersion)
-{
+IpcProcessId::IpcProcessId(const GuaProcessHandle &phandle) : IpcMessageObj(IPC_PROCESS_ID, IpcCurrProcessIdVersion) {
   domain_ = IPC_DOM_GUA_PHANDLE;
   phandle_ = phandle;
 }
 
-IpcProcessId::IpcProcessId(
-     const SockIPAddress &ipAddr,
-     SockPortNumber port) : IpcMessageObj(IPC_PROCESS_ID,
-					  IpcCurrProcessIdVersion)
-{
+IpcProcessId::IpcProcessId(const SockIPAddress &ipAddr, SockPortNumber port)
+    : IpcMessageObj(IPC_PROCESS_ID, IpcCurrProcessIdVersion) {
   // only an internet node name goes together with an IP address and a port
   domain_ = IPC_DOM_INTERNET;
   pid_.ipAddress_ = ipAddr.getRawAddress();
   pid_.listnerPort_ = port;
 }
 
-IpcProcessId::IpcProcessId(const char *asciiRepresentation) :
-     IpcMessageObj(IPC_PROCESS_ID,
-		   IpcCurrProcessIdVersion)
-{
+IpcProcessId::IpcProcessId(const char *asciiRepresentation) : IpcMessageObj(IPC_PROCESS_ID, IpcCurrProcessIdVersion) {
   domain_ = IPC_DOM_INVALID;
 
   // On NSK, try to interpret the string as a PHANDLE first
-  if (phandle_.fromAscii(asciiRepresentation))
-    domain_ = IPC_DOM_GUA_PHANDLE;
+  if (phandle_.fromAscii(asciiRepresentation)) domain_ = IPC_DOM_GUA_PHANDLE;
 
-  if (domain_ == IPC_DOM_INVALID)
-    {
-      // try to decode an internet address, followed by a port number,
-      Int32 colonPos = 0;
-      while (asciiRepresentation[colonPos] != 0 AND
-	     asciiRepresentation[colonPos] != ':')
-	colonPos++;
+  if (domain_ == IPC_DOM_INVALID) {
+    // try to decode an internet address, followed by a port number,
+    Int32 colonPos = 0;
+    while (asciiRepresentation[colonPos] != 0 AND asciiRepresentation[colonPos] != ':') colonPos++;
 
-      if (asciiRepresentation[colonPos] == ':')
-	{
-	  char asciiIpAddr[300];
-	  SockIPAddress ipAddr;
+    if (asciiRepresentation[colonPos] == ':') {
+      char asciiIpAddr[300];
+      SockIPAddress ipAddr;
 
-	  assert(colonPos < 300);
-	  str_cpy_all(asciiIpAddr,asciiRepresentation,colonPos);
-	  asciiIpAddr[colonPos] = 0;
-	  SockErrNo sen = ipAddr.set(asciiIpAddr);
+      assert(colonPos < 300);
+      str_cpy_all(asciiIpAddr, asciiRepresentation, colonPos);
+      asciiIpAddr[colonPos] = 0;
+      SockErrNo sen = ipAddr.set(asciiIpAddr);
 
-	  if (NOT sen.hasError())
-	    {
-	      pid_.ipAddress_ = ipAddr.getRawAddress();
-	      // now parse the port number
-	      ULng32 portNo = 0;
-	      colonPos++;
-	      while (asciiRepresentation[colonPos] >= '0' AND
-		     asciiRepresentation[colonPos] <= '9')
-		{
-		  portNo = portNo * 10 + (asciiRepresentation[colonPos] - '0');
-		}
-	      pid_.listnerPort_ = portNo;
-	      domain_ = IPC_DOM_INTERNET;
-	    }
-	}
+      if (NOT sen.hasError()) {
+        pid_.ipAddress_ = ipAddr.getRawAddress();
+        // now parse the port number
+        ULng32 portNo = 0;
+        colonPos++;
+        while (asciiRepresentation[colonPos] >= '0' AND asciiRepresentation[colonPos] <= '9') {
+          portNo = portNo * 10 + (asciiRepresentation[colonPos] - '0');
+        }
+        pid_.listnerPort_ = portNo;
+        domain_ = IPC_DOM_INTERNET;
+      }
     }
+  }
 }
 
-IpcProcessId::IpcProcessId(
-     const IpcProcessId &other) : IpcMessageObj(other.getType(),
-						other.getVersion())
-{
+IpcProcessId::IpcProcessId(const IpcProcessId &other) : IpcMessageObj(other.getType(), other.getVersion()) {
   domain_ = other.domain_;
 
   if (domain_ == IPC_DOM_GUA_PHANDLE)
@@ -261,8 +211,7 @@ IpcProcessId::IpcProcessId(
     pid_ = other.pid_;
 }
 
-IpcProcessId & IpcProcessId::operator = (const IpcProcessId &other)
-{
+IpcProcessId &IpcProcessId::operator=(const IpcProcessId &other) {
   domain_ = other.domain_;
 
   if (domain_ == IPC_DOM_GUA_PHANDLE)
@@ -273,148 +222,112 @@ IpcProcessId & IpcProcessId::operator = (const IpcProcessId &other)
   return *this;
 }
 
-NABoolean IpcProcessId::operator == (const IpcProcessId &other) const
-{
-  if (domain_ != other.domain_)
-    return FALSE;
+NABoolean IpcProcessId::operator==(const IpcProcessId &other) const {
+  if (domain_ != other.domain_) return FALSE;
 
-  return ((domain_ == IPC_DOM_GUA_PHANDLE AND
-	   phandle_ == other.phandle_)
-	  OR
-	  (domain_ == IPC_DOM_INTERNET AND
-	   str_cmp((char *) pid_.ipAddress_.ipAddress_,
-		   (char *) other.pid_.ipAddress_.ipAddress_,
-		   4) == 0 AND
-	   pid_.listnerPort_ == other.pid_.listnerPort_));
+  return ((domain_ == IPC_DOM_GUA_PHANDLE AND phandle_ == other.phandle_) OR(
+      domain_ ==
+      IPC_DOM_INTERNET AND str_cmp((char *)pid_.ipAddress_.ipAddress_, (char *)other.pid_.ipAddress_.ipAddress_, 4) ==
+      0 AND pid_.listnerPort_ == other.pid_.listnerPort_));
 }
-  
-NABoolean IpcProcessId::match(const IpcNodeName &name,
-			      IpcCpuNum cpuNum) const
-{
-  if (domain_ == IPC_DOM_INTERNET)
-    {
-      // IP addresses don't tell the CPU, just compare a normalized
-      // form of the IP addresses
-      return (getNodeName() == name);
-    }
-  else if (domain_ == IPC_DOM_GUA_PHANDLE)
-    {
-      // if the caller cares about CPU number then compare this
-      // first
-      if (cpuNum != IPC_CPU_DONT_CARE AND cpuNum != getCpuNum())
-	return FALSE;
 
-      // compare the node names
-      return (getNodeName() == name);
-    }
-  else
+NABoolean IpcProcessId::match(const IpcNodeName &name, IpcCpuNum cpuNum) const {
+  if (domain_ == IPC_DOM_INTERNET) {
+    // IP addresses don't tell the CPU, just compare a normalized
+    // form of the IP addresses
+    return (getNodeName() == name);
+  } else if (domain_ == IPC_DOM_GUA_PHANDLE) {
+    // if the caller cares about CPU number then compare this
+    // first
+    if (cpuNum != IPC_CPU_DONT_CARE AND cpuNum != getCpuNum()) return FALSE;
+
+    // compare the node names
+    return (getNodeName() == name);
+  } else
     return FALSE;
 }
 
-SockIPAddress IpcProcessId::getIPAddress() const
-{
+SockIPAddress IpcProcessId::getIPAddress() const {
   assert(domain_ == IPC_DOM_INTERNET);
 
   return SockIPAddress(pid_.ipAddress_);
 }
 
-SockPortNumber IpcProcessId::getPortNumber() const
-{
+SockPortNumber IpcProcessId::getPortNumber() const {
   assert(domain_ == IPC_DOM_INTERNET);
 
   return pid_.listnerPort_;
 }
 
-const GuaProcessHandle & IpcProcessId::getPhandle() const
-{
+const GuaProcessHandle &IpcProcessId::getPhandle() const {
   assert(domain_ == IPC_DOM_GUA_PHANDLE);
 
   return phandle_;
 }
 
-IpcNodeName IpcProcessId::getNodeName() const
-{
+IpcNodeName IpcProcessId::getNodeName() const {
   // getting to the node name is somewhat convoluted, sorry about that
-  if (domain_ == IPC_DOM_INTERNET)
-    {
-      return IpcNodeName(SockIPAddress(pid_.ipAddress_));
-    }
-  else if (domain_ == IPC_DOM_GUA_PHANDLE)
-    {
-      return IpcNodeName(phandle_);
-    }
-  else 
+  if (domain_ == IPC_DOM_INTERNET) {
+    return IpcNodeName(SockIPAddress(pid_.ipAddress_));
+  } else if (domain_ == IPC_DOM_GUA_PHANDLE) {
+    return IpcNodeName(phandle_);
+  } else
     ABORT("Can't get node name of an invalid process id");
 
-//    the return statement is here so this file will compile under VC++4.1
-//    what is actually returned is of little consequence since the ABORT makes
-//	  sure we never get to return.
-//    Perhaps we should set pid_.ipAddress_ =  some meaningless ip address?;
-	  
-      return IpcNodeName(SockIPAddress(pid_.ipAddress_));
+  //    the return statement is here so this file will compile under VC++4.1
+  //    what is actually returned is of little consequence since the ABORT makes
+  //	  sure we never get to return.
+  //    Perhaps we should set pid_.ipAddress_ =  some meaningless ip address?;
+
+  return IpcNodeName(SockIPAddress(pid_.ipAddress_));
 }
 
-IpcCpuNum IpcProcessId::getCpuNum() const
-{
-  if (domain_ == IPC_DOM_GUA_PHANDLE)
-    {
-      // ask Guardian to get the CPU number out of the phandle
-      return getCpuNumFromPhandle();
-    }
-  else
-    {
-      // for the internet we don't have control over the assignment of CPU
-      // numbers, return a don't care value
-      return IPC_CPU_DONT_CARE;
-    }
+IpcCpuNum IpcProcessId::getCpuNum() const {
+  if (domain_ == IPC_DOM_GUA_PHANDLE) {
+    // ask Guardian to get the CPU number out of the phandle
+    return getCpuNumFromPhandle();
+  } else {
+    // for the internet we don't have control over the assignment of CPU
+    // numbers, return a don't care value
+    return IPC_CPU_DONT_CARE;
+  }
 }
 
-std::string IpcProcessId::toString() const
-{
+std::string IpcProcessId::toString() const {
   char outb[100];
 
   toAscii(outb, sizeof(outb));
   return outb;
 }
 
-Int32 IpcProcessId::toAscii(char *outBuf, Int32 outBufLen) const
-{
+Int32 IpcProcessId::toAscii(char *outBuf, Int32 outBufLen) const {
   // process names shouldn't be longer than 300 bytes
-  char outb[300] = "";	  // Initialize in case this is called
+  char outb[300] = "";  // Initialize in case this is called
   Int32 outLen = 0;
 
-  if (domain_ == IPC_DOM_GUA_PHANDLE)
-    {
-      outLen = phandle_.toAscii(outb,300);
-    }
+  if (domain_ == IPC_DOM_GUA_PHANDLE) {
+    outLen = phandle_.toAscii(outb, 300);
+  }
 
-  if (domain_ == IPC_DOM_INTERNET)
-    {
-      sprintf(outb,"%d.%d.%d.%d:%d",
-	      pid_.ipAddress_.ipAddress_[0],
-	      pid_.ipAddress_.ipAddress_[1],
-	      pid_.ipAddress_.ipAddress_[2],
-	      pid_.ipAddress_.ipAddress_[3],
-	      pid_.listnerPort_);
-      outLen = str_len(outb);
-    }
+  if (domain_ == IPC_DOM_INTERNET) {
+    sprintf(outb, "%d.%d.%d.%d:%d", pid_.ipAddress_.ipAddress_[0], pid_.ipAddress_.ipAddress_[1],
+            pid_.ipAddress_.ipAddress_[2], pid_.ipAddress_.ipAddress_[3], pid_.listnerPort_);
+    outLen = str_len(outb);
+  }
 
   // copy the result and terminate it with a NUL character
-  str_cpy_all(outBuf,outb,MINOF(outLen,outBufLen-1));
-  outBuf[MINOF(outLen,outBufLen-1)] = 0;
+  str_cpy_all(outBuf, outb, MINOF(outLen, outBufLen - 1));
+  outBuf[MINOF(outLen, outBufLen - 1)] = 0;
 
   // return the actual length or the length we would need
   return outLen;
 }
 
-void IpcProcessId::addProcIdToDiagsArea(ComDiagsArea &diags,
-					Int32 stringno) const
-{
+void IpcProcessId::addProcIdToDiagsArea(ComDiagsArea &diags, Int32 stringno) const {
   char asciiProcId[300];
 
-  toAscii(asciiProcId,300);
-  switch (stringno)
-    {
+  toAscii(asciiProcId, 300);
+  switch (stringno) {
     case 0:
       diags << DgString0(asciiProcId);
       break;
@@ -432,68 +345,45 @@ void IpcProcessId::addProcIdToDiagsArea(ComDiagsArea &diags,
       break;
     default:
       ABORT("Invalid string no in IpcProcessId::addProcIdToDiagsArea");
-    }
+  }
 }
 
-IpcConnection * IpcProcessId::createConnectionToServer(
-     IpcEnvironment *env,
-     NABoolean usesTransactions,
-     Lng32 maxNowaitRequests,
-     NABoolean parallelOpen,
-     Int32 *openCompletionScheduled
-     ,
-     NABoolean dataConnectionToEsp
-     ) const
-{
+IpcConnection *IpcProcessId::createConnectionToServer(IpcEnvironment *env, NABoolean usesTransactions,
+                                                      Lng32 maxNowaitRequests, NABoolean parallelOpen,
+                                                      Int32 *openCompletionScheduled,
+                                                      NABoolean dataConnectionToEsp) const {
   NABoolean useGuaIpc = TRUE;
 
-  if (domain_ == IPC_DOM_INTERNET)
-    {
-      usesTransactions = usesTransactions; // make compiler happy
-      return new(env->getHeap()) SockConnection(env,*this,FALSE);
-    }
-  else if (domain_ == IPC_DOM_GUA_PHANDLE)
-    {
-	return new(env->getHeap()) GuaConnectionToServer(env,
-					      *this,
-					      usesTransactions,
-					      (unsigned short) maxNowaitRequests,
-					      eye_GUA_CONNECTION_TO_SERVER,
-					      parallelOpen,
-					      openCompletionScheduled
-                                              ,
-                                              dataConnectionToEsp
-                                              );
-    }
-  else
-    {
-      return NULL;
-    }
+  if (domain_ == IPC_DOM_INTERNET) {
+    usesTransactions = usesTransactions;  // make compiler happy
+    return new (env->getHeap()) SockConnection(env, *this, FALSE);
+  } else if (domain_ == IPC_DOM_GUA_PHANDLE) {
+    return new (env->getHeap())
+        GuaConnectionToServer(env, *this, usesTransactions, (unsigned short)maxNowaitRequests,
+                              eye_GUA_CONNECTION_TO_SERVER, parallelOpen, openCompletionScheduled, dataConnectionToEsp);
+  } else {
+    return NULL;
+  }
 }
 
-IpcMessageObjSize IpcProcessId::packedLength()
-{
+IpcMessageObjSize IpcProcessId::packedLength() {
   // we pack the domain type and then the phandle or socket process id
   IpcMessageObjSize result = baseClassPackedLength() + sizeof(domain_);
   result += sizeof(spare_);
 
-  if (domain_ == IPC_DOM_GUA_PHANDLE)
-    {
-      result += sizeof(phandle_);
-    }
-  else if (domain_ == IPC_DOM_INTERNET)
-    {
-      result += sizeof(pid_);
-    }
+  if (domain_ == IPC_DOM_GUA_PHANDLE) {
+    result += sizeof(phandle_);
+  } else if (domain_ == IPC_DOM_INTERNET) {
+    result += sizeof(pid_);
+  }
 
   return result;
 }
 
-IpcMessageObjSize IpcProcessId::packObjIntoMessage(IpcMessageBufferPtr buffer)
-{
+IpcMessageObjSize IpcProcessId::packObjIntoMessage(IpcMessageBufferPtr buffer) {
   // pack base class and domain info
   IpcMessageObjSize result = packBaseClassIntoMessage(buffer);
-  str_cpy_all(buffer,(const char *) &domain_, sizeof(domain_));
+  str_cpy_all(buffer, (const char *)&domain_, sizeof(domain_));
   result += sizeof(domain_);
   buffer += sizeof(domain_);
   result += sizeof(spare_);
@@ -505,127 +395,93 @@ IpcMessageObjSize IpcProcessId::packObjIntoMessage(IpcMessageBufferPtr buffer)
   // ---------------------------------------------------------------------
 
   // pack the object of the right domain
-  if (domain_ == IPC_DOM_GUA_PHANDLE)
-    {
-      str_cpy_all(buffer,(const char *) &phandle_,sizeof(phandle_));
-      result += sizeof(phandle_);
-    }
-  else if (domain_ == IPC_DOM_INTERNET)
-    {
-      str_cpy_all(buffer,(const char *) &pid_,sizeof(pid_));
-      result += sizeof(pid_);
-    }
-  
+  if (domain_ == IPC_DOM_GUA_PHANDLE) {
+    str_cpy_all(buffer, (const char *)&phandle_, sizeof(phandle_));
+    result += sizeof(phandle_);
+  } else if (domain_ == IPC_DOM_INTERNET) {
+    str_cpy_all(buffer, (const char *)&pid_, sizeof(pid_));
+    result += sizeof(pid_);
+  }
+
   return result;
 }
 
-void IpcProcessId::unpackObj(IpcMessageObjType objType,
-			     IpcMessageObjVersion objVersion,
-			     NABoolean sameEndianness,
-			     IpcMessageObjSize objSize,
-			     IpcConstMessageBufferPtr buffer)
-{
-  assert(objType == IPC_PROCESS_ID AND
-	 objVersion == IpcCurrProcessIdVersion AND
-	 sameEndianness);
+void IpcProcessId::unpackObj(IpcMessageObjType objType, IpcMessageObjVersion objVersion, NABoolean sameEndianness,
+                             IpcMessageObjSize objSize, IpcConstMessageBufferPtr buffer) {
+  assert(objType == IPC_PROCESS_ID AND objVersion == IpcCurrProcessIdVersion AND sameEndianness);
 
   unpackBaseClass(buffer);
 
-  str_cpy_all((char *) &domain_, buffer, sizeof(domain_));
+  str_cpy_all((char *)&domain_, buffer, sizeof(domain_));
   buffer += sizeof(domain_);
   buffer += sizeof(spare_);
 
   // check the supplied length
   assert(objSize == packedLength());
 
-  if (domain_ == IPC_DOM_GUA_PHANDLE)
-    {
-      str_cpy_all((char *) &phandle_, buffer, sizeof(phandle_));
-    }
-  else if (domain_ == IPC_DOM_INTERNET)
-    {
-      str_cpy_all((char *) &pid_, buffer, sizeof(pid_));
-    }
+  if (domain_ == IPC_DOM_GUA_PHANDLE) {
+    str_cpy_all((char *)&phandle_, buffer, sizeof(phandle_));
+  } else if (domain_ == IPC_DOM_INTERNET) {
+    str_cpy_all((char *)&pid_, buffer, sizeof(pid_));
+  }
 }
 
 // -----------------------------------------------------------------------
 // Methods for class IpcThreadInfo
 // -----------------------------------------------------------------------
 
-IpcThreadInfo::IpcThreadInfo(const char *nameForDisplay,
-                             int instanceNumForDisplay,
-                             pid_t tid) :
-     nameForDisplay_(nameForDisplay),
-     instanceNumForDisplay_(instanceNumForDisplay),
-     tid_(tid),
-     tidIsSet_(tid > 0)
-{
+IpcThreadInfo::IpcThreadInfo(const char *nameForDisplay, int instanceNumForDisplay, pid_t tid)
+    : nameForDisplay_(nameForDisplay), instanceNumForDisplay_(instanceNumForDisplay), tid_(tid), tidIsSet_(tid > 0) {
   // tid_ must be set to the actual thread id by the derived class,
   // if not specified here (GETTID())
 }
 
-IpcThreadInfo::~IpcThreadInfo()
-{
-}
+IpcThreadInfo::~IpcThreadInfo() {}
 
-// 
+//
 // -----------------------------------------------------------------------
 // Methods for class IpcServer
 // -----------------------------------------------------------------------
 
-IpcServer::IpcServer(IpcConnection *controlConnection,
-		     IpcServerClass *serverClass)
-{
+IpcServer::IpcServer(IpcConnection *controlConnection, IpcServerClass *serverClass) {
   controlConnection_ = controlConnection;
   serverClass_ = serverClass;
-  str_pad(progFileName_,IpcMaxGuardianPathNameLength,0);
+  str_pad(progFileName_, IpcMaxGuardianPathNameLength, 0);
 }
 
-IpcServer::~IpcServer()
-{
-  logEspRelease(__FILE__, __LINE__);  
-  if (controlConnection_)
-    {
+IpcServer::~IpcServer() {
+  logEspRelease(__FILE__, __LINE__);
+  if (controlConnection_) {
 #ifdef IPC_INTEGRITY_CHECKING
-      IpcEnvironment * ie = controlConnection_->getEnvironment();
-      IpcAllConnections * allc = ie->getAllConnections();
+    IpcEnvironment *ie = controlConnection_->getEnvironment();
+    IpcAllConnections *allc = ie->getAllConnections();
 
-      ie->checkIntegrity();
+    ie->checkIntegrity();
 #endif
-      stop();
-      delete controlConnection_;
-      controlConnection_ = NULL;
+    stop();
+    delete controlConnection_;
+    controlConnection_ = NULL;
 
 #ifdef IPC_INTEGRITY_CHECKING
-      ie->checkIntegrity();
+    ie->checkIntegrity();
 #endif
-    }
+  }
 }
 
-void IpcServer::release()
-{
-  serverClass_->freeServerProcess(this);
-}
+void IpcServer::release() { serverClass_->freeServerProcess(this); }
 
-void IpcServer::stop()
-{
+void IpcServer::stop() {
   // TBD $$$$ (in implementations for derived classes)
 }
 
-IpcGuardianServer *IpcServer::castToIpcGuardianServer()
-{
+IpcGuardianServer *IpcServer::castToIpcGuardianServer() {
   // IpcGuardianServer::castToIpcGuardianServer() returns a non-null value
   return NULL;
 }
 
-void IpcServer::logEspRelease(const char * filename, int lineNum, 
-                              const char *msg)
-{
+void IpcServer::logEspRelease(const char *filename, int lineNum, const char *msg) {
   IpcConnection *cc = controlConnection_;
-  if (cc &&
-      cc->getEnvironment() &&
-      cc->getEnvironment()->getLogReleaseEsp())
-  {
+  if (cc && cc->getEnvironment() && cc->getEnvironment()->getLogReleaseEsp()) {
     /*
     Coverage notes: to test this code in a dev regression requires
     changing $TRAF_VAR/ms.env.  However, it was tested in
@@ -635,68 +491,58 @@ void IpcServer::logEspRelease(const char * filename, int lineNum,
 
     // get the other end's name.
     char espName[32];
-    Int32 pnameLen = cc->getOtherEnd().getPhandle().toAscii(
-                       espName, sizeof(espName));
+    Int32 pnameLen = cc->getOtherEnd().getPhandle().toAscii(espName, sizeof(espName));
     espName[pnameLen] = '\0';
 
     // get the error #, if available.  Else, use -99.
     GuaErrorNumber guaError = -99;
-    if (cc->castToGuaConnectionToServer())
-      guaError = cc->castToGuaConnectionToServer()->getGuardianError();
+    if (cc->castToGuaConnectionToServer()) guaError = cc->castToGuaConnectionToServer()->getGuardianError();
 
     // get replySeqNum_ and state_
     ULng32 replySeqNum = cc->getReplySeqNum();
 
-    char *state = (char *) "No State";
-    switch (cc->getState())
-    {
-      case IpcConnection::INITIAL: 
-        state = (char *) "INITIAL"; 
+    char *state = (char *)"No State";
+    switch (cc->getState()) {
+      case IpcConnection::INITIAL:
+        state = (char *)"INITIAL";
         break;
-      case IpcConnection::OPENING: 
-        state = (char *) "OPENING"; 
+      case IpcConnection::OPENING:
+        state = (char *)"OPENING";
         break;
-      case IpcConnection::ESTABLISHED: 
-        state = (char *) "ESTABLISHED"; 
+      case IpcConnection::ESTABLISHED:
+        state = (char *)"ESTABLISHED";
         break;
-      case IpcConnection::SENDING: 
-        state = (char *) "SENDING"; 
+      case IpcConnection::SENDING:
+        state = (char *)"SENDING";
         break;
-      case IpcConnection::REPLY_PENDING: 
-        state = (char *) "REPLY_PENDING"; 
+      case IpcConnection::REPLY_PENDING:
+        state = (char *)"REPLY_PENDING";
         break;
-      case IpcConnection::RECEIVING: 
-        state = (char *) "RECEIVING"; 
+      case IpcConnection::RECEIVING:
+        state = (char *)"RECEIVING";
         break;
-      case IpcConnection::CANCELLING: 
-        state = (char *) "CANCELLING"; 
+      case IpcConnection::CANCELLING:
+        state = (char *)"CANCELLING";
         break;
-      case IpcConnection::ERROR_STATE: 
-        state = (char *) "ERROR_STATE"; 
+      case IpcConnection::ERROR_STATE:
+        state = (char *)"ERROR_STATE";
         break;
-      case IpcConnection::CLOSED: 
-        state = (char *) "CLOSED"; 
+      case IpcConnection::CLOSED:
+        state = (char *)"CLOSED";
         break;
     }
 
     if (msg)
       str_sprintf(logMsg,
-      "Releasing ESP %s , %s,"
-      "guaError = %d, replySeqNum = %d, state = %s",
-      espName,
-      msg,
-      guaError,
-      replySeqNum,
-      state);
+                  "Releasing ESP %s , %s,"
+                  "guaError = %d, replySeqNum = %d, state = %s",
+                  espName, msg, guaError, replySeqNum, state);
     else
       str_sprintf(logMsg,
-      "Releasing ESP %s ,"
-      "guaError = %d, replySeqNum = %d, state = %s",
-      espName,
-      guaError,
-      replySeqNum,
-      state);
-    
+                  "Releasing ESP %s ,"
+                  "guaError = %d, replySeqNum = %d, state = %s",
+                  espName, guaError, replySeqNum, state);
+
     SQLMXLoggingArea::logExecRtInfo(filename, lineNum, logMsg, 0);
   }
 }
@@ -705,27 +551,24 @@ void IpcServer::logEspRelease(const char * filename, int lineNum,
 //  Methods for class IpcConnection
 // -----------------------------------------------------------------------
 
-IpcConnection::IpcConnection(IpcEnvironment *env,
-			     const IpcProcessId &pid,
-                             const char *eye) :
-  otherEnd_(pid),
-  sendQueue_(env->getHeap()),
-  receiveQueue_(env->getHeap()),
-  replySeqNum_(0),
-  recvStreams_(env->getHeap()),
-  stopWait_(FALSE),
-  trustIncomingBuffers_(TRUE),
-  ipcMsgBufCheckFailed_(FALSE),
-  breakReceived_(FALSE),
-  lastTraceIndex_(NumIpcConnTraces-1),
-  fileNumForIOCompletion_(InvalidGuaFileNumber),
-  sendPersistentOpenReconnect_(FALSE),
-  mutex_(true, env->isMultiThreaded())
-{
+IpcConnection::IpcConnection(IpcEnvironment *env, const IpcProcessId &pid, const char *eye)
+    : otherEnd_(pid),
+      sendQueue_(env->getHeap()),
+      receiveQueue_(env->getHeap()),
+      replySeqNum_(0),
+      recvStreams_(env->getHeap()),
+      stopWait_(FALSE),
+      trustIncomingBuffers_(TRUE),
+      ipcMsgBufCheckFailed_(FALSE),
+      breakReceived_(FALSE),
+      lastTraceIndex_(NumIpcConnTraces - 1),
+      fileNumForIOCompletion_(InvalidGuaFileNumber),
+      sendPersistentOpenReconnect_(FALSE),
+      mutex_(true, env->isMultiThreaded()) {
   // ---------------------------------------------------------------------
   // Copy the eye catcher
   // ---------------------------------------------------------------------
-  str_cpy_all((char *) &eyeCatcher_, eye, 4);
+  str_cpy_all((char *)&eyeCatcher_, eye, 4);
 
   state_ = INITIAL;
   environment_ = env;
@@ -737,15 +580,13 @@ IpcConnection::IpcConnection(IpcEnvironment *env,
   clearErrorInfo();
   MXTRC_2("IpcConnection::IpcConnection id=%d this=%x\n", id_, this);
 #ifdef IPC_INTEGRITY_CHECKING
-  cerr << "Just created IpcConnection " << (void *)this
-    << " and inserted into IpcAllConnections " << (void *)allConn
-    << "." << endl;
+  cerr << "Just created IpcConnection " << (void *)this << " and inserted into IpcAllConnections " << (void *)allConn
+       << "." << endl;
   checkIntegrity();
 #endif
 }
 
-IpcConnection::~IpcConnection() 
-{
+IpcConnection::~IpcConnection() {
   MXTRC_1("IpcConnection::~IpcConnection id=%d\n", id_);
   IpcAllConnections *allConn = environment_->getAllConnections();
 
@@ -759,56 +600,57 @@ IpcConnection::~IpcConnection()
   NABoolean couldRemove = allConn->unRegisterConnection(this);
   assert(couldRemove);
 #ifdef IPC_INTEGRITY_CHECKING
-  cerr << "Just destroyed IpcConnection " << (void *)this
-    << " and removed from IpcAllConnections " << (void *)allConn
-    << "." << endl;
+  cerr << "Just destroyed IpcConnection " << (void *)this << " and removed from IpcAllConnections " << (void *)allConn
+       << "." << endl;
   checkIntegrity(FALSE /* suppress orphan checking */);
 #endif
 }
 
-const char *IpcConnection::getConnectionStateString(IpcConnectionState s)
-{
-  switch (s)
-  {
-    case INITIAL: return "INITIAL";
-    case OPENING: return "OPENING";
-    case ESTABLISHED: return "ESTABLISHED";
-    case SENDING: return "SENDING";
-    case REPLY_PENDING: return "REPLY_PENDING";
-    case RECEIVING: return "RECEIVING";
-    case CANCELLING: return "CANCELLING";
-    case ERROR_STATE: return "ERROR_STATE";
-    case CLOSED: return "CLOSED";
-    default: return ComRtGetUnknownString((Int32) s);
+const char *IpcConnection::getConnectionStateString(IpcConnectionState s) {
+  switch (s) {
+    case INITIAL:
+      return "INITIAL";
+    case OPENING:
+      return "OPENING";
+    case ESTABLISHED:
+      return "ESTABLISHED";
+    case SENDING:
+      return "SENDING";
+    case REPLY_PENDING:
+      return "REPLY_PENDING";
+    case RECEIVING:
+      return "RECEIVING";
+    case CANCELLING:
+      return "CANCELLING";
+    case ERROR_STATE:
+      return "ERROR_STATE";
+    case CLOSED:
+      return "CLOSED";
+    default:
+      return ComRtGetUnknownString((Int32)s);
   }
 }
 
-void IpcConnection::setState(IpcConnectionState s)
-{
+void IpcConnection::setState(IpcConnectionState s) {
   NAMutexScope ms(mutex_);
 
 #ifdef IPC_INTEGRITY_CHECKING
   checkIntegrity();
 #endif
 
-  if (s == SENDING OR s == RECEIVING OR s == OPENING)
-  {
+  if (s == SENDING OR s == RECEIVING OR s == OPENING) {
     environment_->getAllConnections()->IOPending(id_);
-  }
-  else if (s != IpcConnection::ERROR_STATE)
-  {
+  } else if (s != IpcConnection::ERROR_STATE) {
     environment_->getAllConnections()->IOComplete(id_);
-  }
-  else
-  {
-    // 
-    // Upon reaching the ERROR_STATE state, we should only announce 
+  } else {
+    //
+    // Upon reaching the ERROR_STATE state, we should only announce
     // I/O completion if all the following are true:
-    // 
+    //
     //  a) there are no more send queue entries
     //  b) no recv queue entry has a registered callback that
     //     has not been delivered
-    // 
+    //
     // If there are no send queue entries and no callbacks are pending
     // when the ERROR state is reached then we announce completion.
     // Otherwise, more I/O attempts will be made, and for each attempt
@@ -817,23 +659,19 @@ void IpcConnection::setState(IpcConnectionState s)
     // send queue entries nor callbacks pending, and at that point we
     // can announce completion.
     //
-    if (sendQueueEntries() == 0 && numReceiveCallbacksPending() == 0)
-    {
+    if (sendQueueEntries() == 0 && numReceiveCallbacksPending() == 0) {
       environment_->getAllConnections()->IOComplete(id_);
     }
   }
 
-  if (state_ != s)
-  {
+  if (state_ != s) {
     // Take care of tracing first.
-    if (++lastTraceIndex_ >= NumIpcConnTraces)
-      lastTraceIndex_ = 0;
+    if (++lastTraceIndex_ >= NumIpcConnTraces) lastTraceIndex_ = 0;
     traceState_[lastTraceIndex_].oldState_ = state_;
     traceState_[lastTraceIndex_].mostRecentSendBuffer_ = lastSentBuffer_;
     traceState_[lastTraceIndex_].mostRecentReceiveBuffer_ = lastReceivedBuffer_;
     if (environment_->getLogTimeIpcConnectionState())
-      clock_gettime(CLOCK_REALTIME, 
-                  &traceState_[lastTraceIndex_].stateChangeTime_);
+      clock_gettime(CLOCK_REALTIME, &traceState_[lastTraceIndex_].stateChangeTime_);
 
     // Now a state change.
     if (s == OPENING)
@@ -841,116 +679,73 @@ void IpcConnection::setState(IpcConnectionState s)
     else if (state_ == OPENING)
       getEnvironment()->decrNumOpensInProgress();
     state_ = s;
-  }  
+  }
 }
 
-NABoolean IpcConnection::moreWaitsAllowed()
-{
-  return TRUE;
-}
+NABoolean IpcConnection::moreWaitsAllowed() { return TRUE; }
 
-SockConnection *IpcConnection::castToSockConnection()
-{
-  return NULL;
-}
+SockConnection *IpcConnection::castToSockConnection() { return NULL; }
 
-GuaConnectionToServer *IpcConnection::castToGuaConnectionToServer()
-{
-  return NULL;
-}
+GuaConnectionToServer *IpcConnection::castToGuaConnectionToServer() { return NULL; }
 
-GuaMsgConnectionToServer *IpcConnection::castToGuaMsgConnectionToServer()
-{
-  return NULL;
-}
+GuaMsgConnectionToServer *IpcConnection::castToGuaMsgConnectionToServer() { return NULL; }
 
-GuaConnectionToClient *IpcConnection::castToGuaConnectionToClient()
-{
-  return NULL;
-}
+GuaConnectionToClient *IpcConnection::castToGuaConnectionToClient() { return NULL; }
 
-Int64 IpcConnection::getSqlTableTransid()
-{
-  return -1;
-}
+Int64 IpcConnection::getSqlTableTransid() { return -1; }
 
-void IpcConnection::openPhandle(char * processName, NABoolean parallelOpen)
-{
-  assert(FALSE);
-}
-// 
-void IpcConnection::queueSendMessage(IpcMessageBuffer *msg)
-{
+void IpcConnection::openPhandle(char *processName, NABoolean parallelOpen) { assert(FALSE); }
+//
+void IpcConnection::queueSendMessage(IpcMessageBuffer *msg) {
   NAMutexScope ms(mutex_);
 
   sendQueue_.insert(msg);
 }
 
-void IpcConnection::queueReceiveMessage(IpcMessageBuffer *msg)
-{
+void IpcConnection::queueReceiveMessage(IpcMessageBuffer *msg) {
   NAMutexScope ms(mutex_);
 
-  receiveQueue_.insert(msg); 
+  receiveQueue_.insert(msg);
   lastReceivedBuffer_ = msg;
 }
 
-IpcMessageBuffer * IpcConnection::getNextSendQueueEntry()
-{
+IpcMessageBuffer *IpcConnection::getNextSendQueueEntry() {
   NAMutexScope ms(mutex_);
 
   IpcMessageBuffer *msgBuf = removeNextSendBuffer();
-  if (msgBuf)
-    prepareSendBuffer(msgBuf);
+  if (msgBuf) prepareSendBuffer(msgBuf);
   return msgBuf;
 }
 
-void IpcConnection::IOPending()
-{
-  environment_->getAllConnections()->IOPending(id_);
-}
+void IpcConnection::IOPending() { environment_->getAllConnections()->IOPending(id_); }
 
-void IpcConnection::IOComplete()
-{
-  environment_->getAllConnections()->IOComplete(id_);
-}
+void IpcConnection::IOComplete() { environment_->getAllConnections()->IOComplete(id_); }
 
-bool IpcConnection::isServerSide()
-{
-  return false;
-}
+bool IpcConnection::isServerSide() { return false; }
 
-IpcMessageBuffer *IpcConnection::removeNextSendBuffer()
-{
+IpcMessageBuffer *IpcConnection::removeNextSendBuffer() {
   NAMutexScope ms(mutex_);
 
   IpcMessageBuffer *msgBuf = NULL;
-  if (sendQueue_.getFirst(msgBuf))
-    return msgBuf;
+  if (sendQueue_.getFirst(msgBuf)) return msgBuf;
   return NULL;
 }
 
-IpcMessageBuffer *IpcConnection::removeNextReceiveBuffer()
-{
+IpcMessageBuffer *IpcConnection::removeNextReceiveBuffer() {
   NAMutexScope ms(mutex_);
 
   IpcMessageBuffer *msgBuf = NULL;
-  if (receiveQueue_.getFirst(msgBuf))
-    return msgBuf;
+  if (receiveQueue_.getFirst(msgBuf)) return msgBuf;
   return NULL;
 }
 
-void IpcConnection::removeReceiveStreams()
-{
+void IpcConnection::removeReceiveStreams() {
   NAMutexScope ms(mutex_);
 
-  for (CollIndex j = 0; j < recvStreams_.entries(); j++)
-      recvStreams_.removeAt(j);
+  for (CollIndex j = 0; j < recvStreams_.entries(); j++) recvStreams_.removeAt(j);
 }
 
-
-
-void IpcConnection::prepareSendBuffer(IpcMessageBuffer *msgBuf)
-{
+void IpcConnection::prepareSendBuffer(IpcMessageBuffer *msgBuf) {
   NAMutexScope ms(mutex_);
 
   assert(msgBuf);
@@ -964,29 +759,23 @@ void IpcConnection::prepareSendBuffer(IpcMessageBuffer *msgBuf)
   // order by the msg system.
   InternalMsgHdrInfoStruct *msgHdr = msgBuf->getPayloadHeader();
 
-  if (isServerSide())
-    {
-      msgHdr->setSeqNum(replySeqNum_);
-      // increment reply seq number for the server side
-      replySeqNum_++;
-    }
-  if (sendPersistentOpenReconnect_)
-  {
+  if (isServerSide()) {
+    msgHdr->setSeqNum(replySeqNum_);
+    // increment reply seq number for the server side
+    replySeqNum_++;
+  }
+  if (sendPersistentOpenReconnect_) {
     msgHdr->setSockReplyTag(PERSISTENT_OPEN_RECONNECT_CODE);
     setSendPersistentOpenReconnect(FALSE);
 
-  }
-  else
+  } else
     msgHdr->setSockReplyTag(0);
-
 }
 
-IpcMessageBuffer * IpcConnection::getNextReceiveQueueEntry()
-{
+IpcMessageBuffer *IpcConnection::getNextReceiveQueueEntry() {
   NAMutexScope ms(mutex_);
 
-  if (receiveQueue_.entries() == 0)
-    return NULL;
+  if (receiveQueue_.entries() == 0) return NULL;
 
   // here's the design of message sequence number:
   //
@@ -1000,121 +789,95 @@ IpcMessageBuffer * IpcConnection::getNextReceiveQueueEntry()
   //   order by the msg system.
   // - in case of IPC error, we don't know if the server was able to properly
   //   assign a sequence number to the buffer, thus we bypass the sequence
-  //   number check. 
+  //   number check.
   //
   // note: the msg system guarantees that msgs are delivered in their send
   // order, with the exception of msgs being delivered through different
   // physical wires. for example, in case of servernet error, msgs could get
   // re-routed through the expand network.
   //
-  if (isServerSide() || getState() == ERROR_STATE)
-    {
-      // this is on the server side, or we got error.
-      // no need to verify reply seq number.
-      IpcMessageBuffer *msgBuf = receiveQueue_[0];
-      for (CollIndex j = 0; j < recvStreams_.entries(); j++)
-        {
-          if ((msgBuf->getMessageStream() == NULL)    ||        
-              (msgBuf->getMessageStream() == recvStreams_[j]) )
-            {
-              // found a valid msg on receive queue
-              receiveQueue_.removeAt(0);
-              msgBuf->addCallback(recvStreams_[j]);
+  if (isServerSide() || getState() == ERROR_STATE) {
+    // this is on the server side, or we got error.
+    // no need to verify reply seq number.
+    IpcMessageBuffer *msgBuf = receiveQueue_[0];
+    for (CollIndex j = 0; j < recvStreams_.entries(); j++) {
+      if ((msgBuf->getMessageStream() == NULL) || (msgBuf->getMessageStream() == recvStreams_[j])) {
+        // found a valid msg on receive queue
+        receiveQueue_.removeAt(0);
+        msgBuf->addCallback(recvStreams_[j]);
+        recvStreams_.removeAt(j);
+        return msgBuf;
+      }
+    }
+
+    // if we reach here it means the next msg on receive queue does not
+    // match any receiving streams. we must wait for message stream to
+    // ask for it.
+  } else {
+    // this is on the client side and we did not get error.
+    // we need to verify the reply seq number.
+    for (CollIndex i = 0; i < receiveQueue_.entries(); i++) {
+      IpcMessageBuffer *msgBuf = receiveQueue_[i];
+
+      // unpack message header which contains the sequence number
+      InternalMsgHdrInfoStruct *msgHdr = msgBuf->getPayloadHeader();
+
+      if (msgHdr->getSeqNum() == replySeqNum_) {
+        // the next msg on receive queue is the expected reply
+        for (CollIndex j = 0; j < recvStreams_.entries(); j++) {
+          if ((msgBuf->getMessageStream() == NULL) || (msgBuf->getMessageStream() == recvStreams_[j])) {
+            // found a valid msg on receive queue
+            receiveQueue_.removeAt(i);
+            msgBuf->addCallback(recvStreams_[j]);
+
+            // for the SeaMonster continue protocol we cannot
+            // delete the stream from recvStreams_ till
+            // end of the batch reply is sent.
+            if (this->castToSMConnection()) {
+              ESPMessageTypeEnum streamType = (ESPMessageTypeEnum)msgHdr->getType();
+
+              IpcBufferedMsgStream *str = NULL;
+              if (msgBuf->getMessageStream()) str = msgBuf->getMessageStream()->castToIpcBufferedMsgStream();
+
+              if (str && str->getSMContinueProtocol()) {
+                if (streamType == IPC_MSG_SQLESP_DATA_REPLY && msgHdr->getSMLastInBatch()) recvStreams_.removeAt(j);
+              } else
+                recvStreams_.removeAt(j);
+            } else
               recvStreams_.removeAt(j);
-              return msgBuf;
-            }
-        }
 
-      // if we reach here it means the next msg on receive queue does not
-      // match any receiving streams. we must wait for message stream to
-      // ask for it.
-    }
-  else
-    {
-      // this is on the client side and we did not get error.
-      // we need to verify the reply seq number.
-      for (CollIndex i = 0; i < receiveQueue_.entries(); i++)
-        {
-          IpcMessageBuffer *msgBuf = receiveQueue_[i];
+            // increment reply seq number for the client side
+            replySeqNum_++;
+            return msgBuf;
+          }
+        }  // for j
 
-          // unpack message header which contains the sequence number
-          InternalMsgHdrInfoStruct* msgHdr = msgBuf->getPayloadHeader();
-
-          if (msgHdr->getSeqNum() == replySeqNum_)
-            {
-              // the next msg on receive queue is the expected reply
-              for (CollIndex j = 0; j < recvStreams_.entries(); j++)
-                {
-                  if ((msgBuf->getMessageStream() == NULL)    ||        
-                      (msgBuf->getMessageStream() == recvStreams_[j]) )
-                    {
-                      // found a valid msg on receive queue
-                      receiveQueue_.removeAt(i);
-                      msgBuf->addCallback(recvStreams_[j]);
-
-                      // for the SeaMonster continue protocol we cannot
-                      // delete the stream from recvStreams_ till
-                      // end of the batch reply is sent.
-                      if (this->castToSMConnection())
-                      {
-                        ESPMessageTypeEnum streamType =
-                             (ESPMessageTypeEnum) msgHdr->getType();
-
-                        IpcBufferedMsgStream *str = NULL;
-                        if (msgBuf->getMessageStream())
-                          str = msgBuf->getMessageStream()->
-                            castToIpcBufferedMsgStream();
-
-                        if (str && str->getSMContinueProtocol())
-                        {
-                          if ( streamType == IPC_MSG_SQLESP_DATA_REPLY &&
-                               msgHdr->getSMLastInBatch() )
-                            recvStreams_.removeAt(j);
-                        }
-                         else
-                           recvStreams_.removeAt(j);
-                      }
-                      else
-                        recvStreams_.removeAt(j);
-
-                      // increment reply seq number for the client side
-                      replySeqNum_++;
-                      return msgBuf;
-                    }
-                } // for j
-
-              // if we reach here it means the next msg on receive queue does
-              // not match any receiving streams. we must wait for message
-              // stream to ask for it.
-              break;
-            }
-          else
-            {
-              // the next msg on receive queue is not the expected reply.
-              // continue to the subsequent msg on receive queue.
-              continue;
-            }
-        } // for i
-    }
+        // if we reach here it means the next msg on receive queue does
+        // not match any receiving streams. we must wait for message
+        // stream to ask for it.
+        break;
+      } else {
+        // the next msg on receive queue is not the expected reply.
+        // continue to the subsequent msg on receive queue.
+        continue;
+      }
+    }  // for i
+  }
 
   return NULL;
 }
 
-void IpcConnection::setFatalError(IpcMessageStreamBase *msgStream)
-{ 
-  if (getState() != ERROR_STATE)
-    setState(ERROR_STATE);
-  
-  if (getErrorInfo() == 0)
-    setErrorInfo(-1);
+void IpcConnection::setFatalError(IpcMessageStreamBase *msgStream) {
+  if (getState() != ERROR_STATE) setState(ERROR_STATE);
+
+  if (getErrorInfo() == 0) setErrorInfo(-1);
 
   // receive queue may not be empty. if so invoke receive callback.
   // example:
   // GuaMsgConnectionToServer::setFatalError() invokes handleIOErrorForStream()
   // that may have put message buffer on receive queue.
   IpcMessageBuffer *receiveBuf;
-  while (receiveBuf = getNextReceiveQueueEntry())
-    receiveBuf->callReceiveCallback(this);
+  while (receiveBuf = getNextReceiveQueueEntry()) receiveBuf->callReceiveCallback(this);
 
   // - what if recvStreams_ is not empty? should we clean up I/Os on them?
 }
@@ -1123,69 +886,55 @@ void IpcConnection::setFatalError(IpcMessageStreamBase *msgStream)
 
 // methods that perform integrity checking on Ipc-related data structures
 
-void IpcConnection::checkIntegrity(NABoolean checkIfOrphan)
-  {
+void IpcConnection::checkIntegrity(NABoolean checkIfOrphan) {
   // If the parameter "checkIfOrphan" is true, we will do the orphan check;
   // otherwise we will not. (The caller passes FALSE in contexts where it
   // is valid to be an orphan, e.g. at the end of the IpcConnection destructor.)
 
   // if checking, assume the worst: this object is an orphan
-  isOrphaned_ = checkIfOrphan;  
+  isOrphaned_ = checkIfOrphan;
 
-  environment_->checkIntegrity(); // traverse up to IpcEnvironment, do check
-  if (isOrphaned_)
-    {
+  environment_->checkIntegrity();  // traverse up to IpcEnvironment, do check
+  if (isOrphaned_) {
     cerr << "Found orphaned IpcConnection object " << (void *)this << "." << endl;
     assert(!isOrphaned_);
-    }
   }
+}
 
-void IpcConnection::checkLocalIntegrity(void)
-  {
+void IpcConnection::checkLocalIntegrity(void) {
   isOrphaned_ = FALSE;  // ah, this object isn't an orphan after all
-  }
+}
 
 #endif
 
-NABoolean IpcConnection::newClientConnection(IpcMessageBuffer *receivedBuffer)
-{
+NABoolean IpcConnection::newClientConnection(IpcMessageBuffer *receivedBuffer) {
   // TODO: This is incorrect for additional chunks,which don't have an
   // InternalMsgHdrInfoStruct at the beginning of the buffer
-  InternalMsgHdrInfoStruct* msgHdr = receivedBuffer->getPayloadHeader(FALSE);
+  InternalMsgHdrInfoStruct *msgHdr = receivedBuffer->getPayloadHeader(FALSE);
 
-  if (msgHdr->getSeqNum() == 0 && msgHdr->getSockReplyTag() == PERSISTENT_OPEN_RECONNECT_CODE)
-  {
+  if (msgHdr->getSeqNum() == 0 && msgHdr->getSockReplyTag() == PERSISTENT_OPEN_RECONNECT_CODE) {
     return TRUE;
-  }
-  else
+  } else
     return FALSE;
 }
 
-
-void IpcConnection::reportBadMessage()
-{
+void IpcConnection::reportBadMessage() {
   const char option2 = '2';
   const char *envvar = getenv("ESP_PROPAGATE_ASSERT");
-  if (envvar == NULL)
-    envvar = &option2;
-  if (getEnvironment()->getIpcServerType() == IPC_SQLESP_SERVER &&
-      ((*envvar == '1' || *envvar == '2')))
-  {
-    if (*envvar == '2')
-    {
+  if (envvar == NULL) envvar = &option2;
+  if (getEnvironment()->getIpcServerType() == IPC_SQLESP_SERVER && ((*envvar == '1' || *envvar == '2'))) {
+    if (*envvar == '2') {
       NAProcessHandle phandle;
       phandle.getmine();
       phandle.decompose();
       UInt32 seconds = (phandle.getPin() % 100) * 5;
-      if (seconds >= 250)
-        seconds -= 250;
+      if (seconds >= 250) seconds -= 250;
       sleep(seconds);
 
       genLinuxCorefile(NULL);
     }
     dumpAndStopOtherEnd(true, (*envvar == '2'));
-    if (*envvar == '2')
-      NAExit(0);  // Already generated core file of myself
+    if (*envvar == '2') NAExit(0);  // Already generated core file of myself
   }
 }
 
@@ -1193,337 +942,276 @@ void IpcConnection::reportBadMessage()
 //  Methods for class IpcAllConnections
 // -----------------------------------------------------------------------
 
-IpcAllConnections::IpcAllConnections(IpcEnvironment *env, CollHeap *hp, NABoolean esp) :
-     ARRAY(IpcConnection*)(hp),
-     completionSequenceNo_(0),
-     deleteCount_(0),
-     recursionCount_(0),
-     mutex_(true, env->isMultiThreaded())
-{
-  pendingIOs_ = new(hp) IpcWaitableSetOfConnections(env,TRUE,esp);
+IpcAllConnections::IpcAllConnections(IpcEnvironment *env, CollHeap *hp, NABoolean esp)
+    : ARRAY(IpcConnection *)(hp),
+      completionSequenceNo_(0),
+      deleteCount_(0),
+      recursionCount_(0),
+      mutex_(true, env->isMultiThreaded()) {
+  pendingIOs_ = new (hp) IpcWaitableSetOfConnections(env, TRUE, esp);
   receivedPartialMessage_ = FALSE;
   traceRef_ = NULL;
   numSMConnections_ = 0;
   ipcEnv_ = env;
 }
-IpcAllConnections::~IpcAllConnections()
-{
-  if (traceRef_)
-  {
+IpcAllConnections::~IpcAllConnections() {
+  if (traceRef_) {
     ExeTraceInfo *ti = GetCliGlobals()->getExeTraceInfo();
-    if (ti)
-    {
+    if (ti) {
       ti->removeTrace(traceRef_);
     }
   }
   traceRef_ = NULL;
 }
 // wait for something to happen on any of the connections like awaitio(-1)
-WaitReturnStatus IpcAllConnections::waitOnAll(
-     IpcTimeout timeout,
-     NABoolean calledByESP,
-     NABoolean *timedout,
-     Int64 *waitTime,
-     short ldoneRetryTimes)
-{
+WaitReturnStatus IpcAllConnections::waitOnAll(IpcTimeout timeout, NABoolean calledByESP, NABoolean *timedout,
+                                              Int64 *waitTime, short ldoneRetryTimes) {
   WaitReturnStatus retcode = WAIT_OK;
   struct timespec startts;
   struct timespec endts;
-/*
-  NABoolean mte = getMultiThreaded();
-  int rc;
+  /*
+    NABoolean mte = getMultiThreaded();
+    int rc;
 
-  if (mte && timeout == IpcImmediately) 
-  {
-     if ((rc = mutex_.trylock()) == 0)
-     {
-        retcode = pendingIOs_->waitOnSet(timeout, calledByESP, timedout); 
-        mutex_.unlock();
-     }
-     return retcode;
-  }
-*/
+    if (mte && timeout == IpcImmediately)
+    {
+       if ((rc = mutex_.trylock()) == 0)
+       {
+          retcode = pendingIOs_->waitOnSet(timeout, calledByESP, timedout);
+          mutex_.unlock();
+       }
+       return retcode;
+    }
+  */
   clock_gettime(CLOCK_MONOTONIC, &startts);
-/*
-  if (mte)
-     mutex_.lock();
-*/
+  /*
+    if (mte)
+       mutex_.lock();
+  */
   short mask;
   if (GetCliGlobals()->isRmsProcess()) {
-     mask = XWAIT(LREQ | LDONE, timeout);
-     if (mask & LREQ) 
-        retcode = ipcEnv_->getControlConnection()->castToGuaReceiveControlConnection()->wait(IpcImmediately);
-     else if (mask & LDONE)
-       {
-         ldoneRetryTimes = ldoneRetryTimes > 0 ? ldoneRetryTimes : 2;  //2 is default
-         for (short i = 0; i < ldoneRetryTimes; ++i) 
-           retcode = pendingIOs_->waitOnSet(IpcImmediately, calledByESP, timedout); 
+    mask = XWAIT(LREQ | LDONE, timeout);
+    if (mask & LREQ)
+      retcode = ipcEnv_->getControlConnection()->castToGuaReceiveControlConnection()->wait(IpcImmediately);
+    else if (mask & LDONE) {
+      ldoneRetryTimes = ldoneRetryTimes > 0 ? ldoneRetryTimes : 2;  // 2 is default
+      for (short i = 0; i < ldoneRetryTimes; ++i)
+        retcode = pendingIOs_->waitOnSet(IpcImmediately, calledByESP, timedout);
 
-         // The pendingIOs_->waitOnSet logic returns as soon as it completes one I/O.
-         // It is possible, however, that multiple I/Os could be ready to complete on a 
-         // given LDONE; the message system does not count I/Os but simply ORs the LDONE 
-         // event flag when one completes. Therefore we can get into a state in this 
-         // method where there is an I/O ready to complete but we don't call 
-         // pendingIOs_->waitOnSet to complete it.
-         //
-         // So long as new events come in rapid-fire, this is not too much of a problem
-         // (it is conceivable that we could exhaust receive depths but these are
-         // large). But if activity slows down, then these queued completions become
-         // in a sense stuck, and the SSMP request to which they correspond will time out
-         // on the client side (e.g. manifesting as an 8146 error in object epoch cache
-         // processing). Therefore, we'll do an extra call to pendingIOs_->waitOnSet
-         // to look for an additional completion.
-         //
-         // In our experience, multiple I/Os per LDONE is a rare event, so two calls
-         // here should be adequate.
-         //
-         // In the long run, this is not the best solution. The fact that on each event
-         // we do a serial search in pendingIOs_->waitOnSet is wasteful; we could
-         // redesign the seabed APIs and the SQL Ipc layer to give direct access to
-         // the appropriate Ipc layer object on any given completion to save this search.
-         // In the process of doing so we can create a more direct event-driven logic,
-         // which should be of much shorter path length (and scalable as well), and 
-         // not be subject to the kind of unintentional queuing behavior manifested here.
-         //
-         // Note that in the case of this code path, our caller, SsmpGlobals::work,
-         // doesn't care about the retcode, so we don't have to worry about semantically 
-         // combining the retcodes from the two calls to pendingIOs_->waitOnSet here.
-         // Not good coding form, I know, but no need to twist things into pretzels
-         // unless someone will eat it.
+      // The pendingIOs_->waitOnSet logic returns as soon as it completes one I/O.
+      // It is possible, however, that multiple I/Os could be ready to complete on a
+      // given LDONE; the message system does not count I/Os but simply ORs the LDONE
+      // event flag when one completes. Therefore we can get into a state in this
+      // method where there is an I/O ready to complete but we don't call
+      // pendingIOs_->waitOnSet to complete it.
+      //
+      // So long as new events come in rapid-fire, this is not too much of a problem
+      // (it is conceivable that we could exhaust receive depths but these are
+      // large). But if activity slows down, then these queued completions become
+      // in a sense stuck, and the SSMP request to which they correspond will time out
+      // on the client side (e.g. manifesting as an 8146 error in object epoch cache
+      // processing). Therefore, we'll do an extra call to pendingIOs_->waitOnSet
+      // to look for an additional completion.
+      //
+      // In our experience, multiple I/Os per LDONE is a rare event, so two calls
+      // here should be adequate.
+      //
+      // In the long run, this is not the best solution. The fact that on each event
+      // we do a serial search in pendingIOs_->waitOnSet is wasteful; we could
+      // redesign the seabed APIs and the SQL Ipc layer to give direct access to
+      // the appropriate Ipc layer object on any given completion to save this search.
+      // In the process of doing so we can create a more direct event-driven logic,
+      // which should be of much shorter path length (and scalable as well), and
+      // not be subject to the kind of unintentional queuing behavior manifested here.
+      //
+      // Note that in the case of this code path, our caller, SsmpGlobals::work,
+      // doesn't care about the retcode, so we don't have to worry about semantically
+      // combining the retcodes from the two calls to pendingIOs_->waitOnSet here.
+      // Not good coding form, I know, but no need to twist things into pretzels
+      // unless someone will eat it.
 
-         //retcode = pendingIOs_->waitOnSet(IpcImmediately, calledByESP, timedout);
-       }
-     if (timedout != NULL) {
-        if (mask != 0)
-           *timedout = FALSE;
-        else
-           *timedout = TRUE;
-     }
-  } 
-  else
-     retcode = pendingIOs_->waitOnSet(timeout, calledByESP, timedout); 
-/*
-  if (mte)
-     mutex_.unlock();
-*/
-  clock_gettime(CLOCK_MONOTONIC, &endts);
-  if (startts.tv_nsec > endts.tv_nsec)
-    {
-      // borrow 1 from tv_sec, convert to nanosec and add to tv_nsec.
-      endts.tv_nsec += 1 * 1000 * 1000 * 1000;
-      endts.tv_sec -= 1;
+      // retcode = pendingIOs_->waitOnSet(IpcImmediately, calledByESP, timedout);
     }
-  if (waitTime != NULL) 
-    *waitTime = ((endts.tv_sec - startts.tv_sec) * 1000LL * 1000LL * 1000LL)
-      +  (endts.tv_nsec - startts.tv_nsec);
+    if (timedout != NULL) {
+      if (mask != 0)
+        *timedout = FALSE;
+      else
+        *timedout = TRUE;
+    }
+  } else
+    retcode = pendingIOs_->waitOnSet(timeout, calledByESP, timedout);
+  /*
+    if (mte)
+       mutex_.unlock();
+  */
+  clock_gettime(CLOCK_MONOTONIC, &endts);
+  if (startts.tv_nsec > endts.tv_nsec) {
+    // borrow 1 from tv_sec, convert to nanosec and add to tv_nsec.
+    endts.tv_nsec += 1 * 1000 * 1000 * 1000;
+    endts.tv_sec -= 1;
+  }
+  if (waitTime != NULL)
+    *waitTime = ((endts.tv_sec - startts.tv_sec) * 1000LL * 1000LL * 1000LL) + (endts.tv_nsec - startts.tv_nsec);
   return retcode;
 }
 
-void IpcAllConnections::cancelWait(NABoolean b)
-{
-  pendingIOs_->cancelWait(b);
-}
+void IpcAllConnections::cancelWait(NABoolean b) { pendingIOs_->cancelWait(b); }
 
-IpcSetOfConnections IpcAllConnections::getPendingIOs() const
-{
+IpcSetOfConnections IpcAllConnections::getPendingIOs() const {
   NAMutexScope ms(mutex_);
 
   return *pendingIOs_;
 }
 
-CollIndex IpcAllConnections::getNumPendingIOs() const
-{
-  return pendingIOs_->entriesMutex();
-}
+CollIndex IpcAllConnections::getNumPendingIOs() const { return pendingIOs_->entriesMutex(); }
 
 #ifdef IPC_INTEGRITY_CHECKING
 
-void IpcAllConnections::checkIntegrity(void)
-  {
+void IpcAllConnections::checkIntegrity(void) {
   // try to traverse to IpcEnvironment... to get there, we need to go
-  // via IpcConnection...  
+  // via IpcConnection...
   CollIndex firstConn = 0;
-  
+
   // find first IpcConnection * (if any)
-  while ((!used(firstConn)) && (firstConn < entries()))
-    firstConn++;
+  while ((!used(firstConn)) && (firstConn < entries())) firstConn++;
 
-  if (firstConn < entries())  
-    {
+  if (firstConn < entries()) {
     // we have a connection
-    IpcConnection * c = usedEntry(firstConn);
-    
-    // traverse up to IpcEnvironment, do check
-    c->checkIntegrity(); 
-    }
-  // else ... can't get there; just do nothing
-  }
+    IpcConnection *c = usedEntry(firstConn);
 
-void IpcAllConnections::checkLocalIntegrity(void)
-  {
+    // traverse up to IpcEnvironment, do check
+    c->checkIntegrity();
+  }
+  // else ... can't get there; just do nothing
+}
+
+void IpcAllConnections::checkLocalIntegrity(void) {
   // check integrity of subarray
   pendingIOs_->checkLocalIntegrity();
 
   // check integrity of the set of connections
   CollIndex conn = 0;
   ULng32 entriesChecked = 0;
-  
+
   // find first IpcConnection * (if any)
-  while (entriesChecked < entries())
-    {
-    if (used(conn))
-      {
+  while (entriesChecked < entries()) {
+    if (used(conn)) {
       at(conn)->checkLocalIntegrity();
       entriesChecked++;
-      }
-    conn++;
     }
+    conn++;
   }
+}
 
 #endif
 
-CollIndex IpcAllConnections::fillInListOfPendingPins(char *buff,
-                                                     ULng32 buffSize,
-                                                     CollIndex numOfPins)
-{
+CollIndex IpcAllConnections::fillInListOfPendingPins(char *buff, ULng32 buffSize, CollIndex numOfPins) {
   CollIndex i;
   CollIndex firstConnInd = 0;
   CollIndex numOfPendings = MINOF(numOfPins, pendingIOs_->entriesMutex());
   char tempB[300];
   Int32 len;
 
-  buff[0] = '\0';   // null terminate
-  for (i = 0; i < numOfPendings; i++)
-    {
-      if (NOT pendingIOs_->nextUsedMutex(firstConnInd))
-        break;   // should not happen
-      len = pendingIOs_->element(firstConnInd)->
-                         getOtherEnd().toAscii(tempB, 300);
-      if (len > 0 && (ULng32) len + 2 < buffSize)
-        {
-          if (buff[0] != '\0')  // not the first entry
-            {
-              str_cat(buff, ", ", buff);
-              buffSize -= 2;
-            }
-          str_cat(buff, tempB, buff);
-          buffSize -= len;
-        }
-      else if (len > 0)
-        break;   // no room left
-      firstConnInd++;
-    }
+  buff[0] = '\0';  // null terminate
+  for (i = 0; i < numOfPendings; i++) {
+    if (NOT pendingIOs_->nextUsedMutex(firstConnInd)) break;  // should not happen
+    len = pendingIOs_->element(firstConnInd)->getOtherEnd().toAscii(tempB, 300);
+    if (len > 0 && (ULng32)len + 2 < buffSize) {
+      if (buff[0] != '\0')  // not the first entry
+      {
+        str_cat(buff, ", ", buff);
+        buffSize -= 2;
+      }
+      str_cat(buff, tempB, buff);
+      buffSize -= len;
+    } else if (len > 0)
+      break;  // no room left
+    firstConnInd++;
+  }
 
   return i;
 }
 
-void IpcAllConnections::fillInListOfPendingPhandles(GuaProcessHandle *phandles,
-						    CollIndex& numOfPhandles)
-{
+void IpcAllConnections::fillInListOfPendingPhandles(GuaProcessHandle *phandles, CollIndex &numOfPhandles) {
   CollIndex firstConnInd = 0;
   numOfPhandles = MINOF(numOfPhandles, pendingIOs_->entriesMutex());
-  for (CollIndex i = 0; i < numOfPhandles; i++)
-    {
-      if (NOT pendingIOs_->nextUsedMutex(firstConnInd))
-	{
-	  // should not happen
-	  numOfPhandles = i;
-	  return;
-	}
-
-      memcpy((char *)&phandles[i],
-	     (char *)&pendingIOs_->element(firstConnInd)->getOtherEnd().getPhandle().phandle_,
-	     sizeof(GuaProcessHandle));
-
-      firstConnInd++;
+  for (CollIndex i = 0; i < numOfPhandles; i++) {
+    if (NOT pendingIOs_->nextUsedMutex(firstConnInd)) {
+      // should not happen
+      numOfPhandles = i;
+      return;
     }
+
+    memcpy((char *)&phandles[i], (char *)&pendingIOs_->element(firstConnInd)->getOtherEnd().getPhandle().phandle_,
+           sizeof(GuaProcessHandle));
+
+    firstConnInd++;
+  }
 }
 
 // Methods for connection tracing
-void IpcAllConnections::print()
-{
+void IpcAllConnections::print() {
   char buf[10000];
   Int32 lineno = 0;
 
-  while (printConnTrace(lineno, buf))
-    {
-      printf("%s", buf);
-      lineno++;
-    }
+  while (printConnTrace(lineno, buf)) {
+    printf("%s", buf);
+    lineno++;
+  }
 }
 
 const char *ConnTraceDesc = "All IpcConnections and their states";
 
-void IpcAllConnections::registTraceInfo(IpcEnvironment *env, ExeTraceInfo *ti)
-{
-  if (env)
-    {
-      if (ti)
-        {
-          Int32 lineWidth = 50; // temp
-          void *regdTrace;
-          Int32 ret = ti->addTrace("IpcConnectionState", this, -1, 4,
-                               this, getAnEntry,
-                               NULL,
-                               lineWidth, ConnTraceDesc, &regdTrace);
-          if (ret == 0)
-          {
-            // trace info added successfully, now add entry fields
-            ti->addTraceField(regdTrace, "Connection ", 0,
-                              ExeTrace::TR_POINTER32);
-            ti->addTraceField(regdTrace, "Type ", 1, ExeTrace::TR_STRING);
-            ti->addTraceField(regdTrace, "OtherEnd     ", 2,
-                              ExeTrace::TR_STRING);
-            ti->addTraceField(regdTrace, "State ", 3, ExeTrace::TR_STRING);
-            traceRef_ = regdTrace;
-          }
-        }
+void IpcAllConnections::registTraceInfo(IpcEnvironment *env, ExeTraceInfo *ti) {
+  if (env) {
+    if (ti) {
+      Int32 lineWidth = 50;  // temp
+      void *regdTrace;
+      Int32 ret =
+          ti->addTrace("IpcConnectionState", this, -1, 4, this, getAnEntry, NULL, lineWidth, ConnTraceDesc, &regdTrace);
+      if (ret == 0) {
+        // trace info added successfully, now add entry fields
+        ti->addTraceField(regdTrace, "Connection ", 0, ExeTrace::TR_POINTER32);
+        ti->addTraceField(regdTrace, "Type ", 1, ExeTrace::TR_STRING);
+        ti->addTraceField(regdTrace, "OtherEnd     ", 2, ExeTrace::TR_STRING);
+        ti->addTraceField(regdTrace, "State ", 3, ExeTrace::TR_STRING);
+        traceRef_ = regdTrace;
+      }
     }
+  }
 }
 
-Int32 IpcAllConnections::printConnTrace(Int32 lineno, char *buf)
-{
-  if (lineno == 0)
-    printEntry_ = 0;  // first time to print all entries
+Int32 IpcAllConnections::printConnTrace(Int32 lineno, char *buf) {
+  if (lineno == 0) printEntry_ = 0;  // first time to print all entries
 
   // find first IpcConnection * (if any)
-  while ((!used(printEntry_)) && (printEntry_ < entries()))
-    printEntry_++;
+  while ((!used(printEntry_)) && (printEntry_ < entries())) printEntry_++;
 
-  if (printEntry_ >= entries())
-    return 0;  // no more connections
+  if (printEntry_ >= entries()) return 0;  // no more connections
 
-  IpcConnection *c = usedEntry(printEntry_++); // then advance to next
+  IpcConnection *c = usedEntry(printEntry_++);  // then advance to next
   Int32 rv = 0;
-  if (c)
-    {
-      const char * stateName = "UNKNOWN";
-      const char * eyeCatcher = "UNKN";
-      Int32 cpu = 0, node, pin = 0;
-      SB_Int64_Type seqNum = -1;
+  if (c) {
+    const char *stateName = "UNKNOWN";
+    const char *eyeCatcher = "UNKN";
+    Int32 cpu = 0, node, pin = 0;
+    SB_Int64_Type seqNum = -1;
 
-      if ((IpcConnection::INITIAL <=  c->getState()) && (c->getState() <= IpcConnection::CLOSED))
-          stateName = IpcConnStateName[c->getState()];
-      if ((char *)NULL != c->getEyeCatcher())
-         eyeCatcher = c->getEyeCatcher();
-      IpcNetworkDomain domain = c->getOtherEnd().getDomain();
-      if (domain == IPC_DOM_GUA_PHANDLE)
-        {
-          GuaProcessHandle *otherEnd = (GuaProcessHandle *)&(c->getOtherEnd().getPhandle().phandle_);
-          if (otherEnd)
-            otherEnd->decompose(cpu, pin, node
-                               , seqNum
-                               );
-        }
-      rv = sprintf(buf, "%.4d  %8p  %.4s  %.3d,%.8d %" PRId64 " %s\n",
-                   lineno, c, eyeCatcher, cpu, pin, seqNum,
-                   stateName);
+    if ((IpcConnection::INITIAL <= c->getState()) && (c->getState() <= IpcConnection::CLOSED))
+      stateName = IpcConnStateName[c->getState()];
+    if ((char *)NULL != c->getEyeCatcher()) eyeCatcher = c->getEyeCatcher();
+    IpcNetworkDomain domain = c->getOtherEnd().getDomain();
+    if (domain == IPC_DOM_GUA_PHANDLE) {
+      GuaProcessHandle *otherEnd = (GuaProcessHandle *)&(c->getOtherEnd().getPhandle().phandle_);
+      if (otherEnd) otherEnd->decompose(cpu, pin, node, seqNum);
     }
+    rv =
+        sprintf(buf, "%.4d  %8p  %.4s  %.3d,%.8d %" PRId64 " %s\n", lineno, c, eyeCatcher, cpu, pin, seqNum, stateName);
+  }
   return rv;
 }
 
-IpcConnectionId IpcAllConnections::registerNewConnection(IpcConnection *conn)
-{
+IpcConnectionId IpcAllConnections::registerNewConnection(IpcConnection *conn) {
   NAMutexScope ms(mutex_);
   IpcConnectionId result = unusedIndex();
 
@@ -1532,8 +1220,7 @@ IpcConnectionId IpcAllConnections::registerNewConnection(IpcConnection *conn)
   return result;
 }
 
-NABoolean IpcAllConnections::unRegisterConnection(IpcConnection *conn)
-{
+NABoolean IpcAllConnections::unRegisterConnection(IpcConnection *conn) {
   NAMutexScope ms(mutex_);
 
   IpcConnectionId connId = conn->getId();
@@ -1543,15 +1230,13 @@ NABoolean IpcAllConnections::unRegisterConnection(IpcConnection *conn)
   return remove(connId);
 }
 
-void IpcAllConnections::IOPending(IpcConnectionId id)
-{
+void IpcAllConnections::IOPending(IpcConnectionId id) {
   NAMutexScope ms(mutex_);
 
   *pendingIOs_ += id;
 }
 
-void IpcAllConnections::IOComplete(IpcConnectionId id)
-{
+void IpcAllConnections::IOComplete(IpcConnectionId id) {
   NAMutexScope ms(mutex_);
 
   *pendingIOs_ -= id;
@@ -1561,134 +1246,94 @@ void IpcAllConnections::IOComplete(IpcConnectionId id)
 //  Methods for class IpcSetOfConnections
 // -----------------------------------------------------------------------
 
-IpcSetOfConnections::IpcSetOfConnections(IpcEnvironment *env) :
-     mySet_(env->getHeap()),
-     env_(env)
-{
-}
+IpcSetOfConnections::IpcSetOfConnections(IpcEnvironment *env) : mySet_(env->getHeap()), env_(env) {}
 
-IpcSetOfConnections::IpcSetOfConnections (const IpcSetOfConnections & orig)
-     : mySet_(orig.env_->getHeap()),
-       env_(orig.env_)
-{
+IpcSetOfConnections::IpcSetOfConnections(const IpcSetOfConnections &orig)
+    : mySet_(orig.env_->getHeap()), env_(orig.env_) {
   mySet_ = orig.mySet_;
 }
 
-IpcSetOfConnections::~IpcSetOfConnections()
-{
-}
+IpcSetOfConnections::~IpcSetOfConnections() {}
 
 // TODO: remove these and restore the old state where IpcSetOfConnections
 //       is derived from NASubArray<IpcConnection *>
-void IpcSetOfConnections::clear()
-{
-  mySet_.clear();
-}
+void IpcSetOfConnections::clear() { mySet_.clear(); }
 
-NABoolean IpcSetOfConnections::contains(CollIndex id) const
-{
-  return mySet_.contains(id);
-}
+NABoolean IpcSetOfConnections::contains(CollIndex id) const { return mySet_.contains(id); }
 
-NABoolean IpcSetOfConnections::isEmpty() const
-{
-  return mySet_.isEmpty();
-}
+NABoolean IpcSetOfConnections::isEmpty() const { return mySet_.isEmpty(); }
 
-IpcConnection * IpcSetOfConnections::element(CollIndex id) const
-{
-  return env_->getAllConnections()->at(id);
-}
+IpcConnection *IpcSetOfConnections::element(CollIndex id) const { return env_->getAllConnections()->at(id); }
 
-CollIndex IpcSetOfConnections::entries() const
-{
-  return mySet_.entries();
-}
+CollIndex IpcSetOfConnections::entries() const { return mySet_.entries(); }
 
-NABoolean IpcSetOfConnections::nextUsed(CollIndex& start) const
-{
-  return mySet_.nextUsed(start);
-}
+NABoolean IpcSetOfConnections::nextUsed(CollIndex &start) const { return mySet_.nextUsed(start); }
 
-IpcSetOfConnections& IpcSetOfConnections::operator =(const IpcSetOfConnections& other)
-{
+IpcSetOfConnections &IpcSetOfConnections::operator=(const IpcSetOfConnections &other) {
   mySet_ = other.mySet_;
 
   return *this;
 }
 
-IpcSetOfConnections& IpcSetOfConnections::operator +=(const IpcSetOfConnections& other)
-{
+IpcSetOfConnections &IpcSetOfConnections::operator+=(const IpcSetOfConnections &other) {
   mySet_.addSet(other.mySet_);
 
   return *this;
 }
 
-IpcSetOfConnections& IpcSetOfConnections::operator -=(const IpcSetOfConnections& other)
-{
+IpcSetOfConnections &IpcSetOfConnections::operator-=(const IpcSetOfConnections &other) {
   mySet_.subtractSet(other.mySet_);
 
   return *this;
 }
 
-IpcSetOfConnections& IpcSetOfConnections::operator +=(CollIndex elem)
-{
+IpcSetOfConnections &IpcSetOfConnections::operator+=(CollIndex elem) {
   mySet_.addElement(elem);
 
   return *this;
 }
 
-IpcSetOfConnections& IpcSetOfConnections::operator -=(CollIndex elem)
-{
+IpcSetOfConnections &IpcSetOfConnections::operator-=(CollIndex elem) {
   mySet_.subtractElement(elem);
 
   return *this;
 }
 
-bool IpcSetOfConnections::operator ==(const IpcSetOfConnections& other) const
-{
-  return (mySet_ == other.mySet_);
-}
+bool IpcSetOfConnections::operator==(const IpcSetOfConnections &other) const { return (mySet_ == other.mySet_); }
 
 #ifdef IPC_INTEGRITY_CHECKING
 
-void IpcSetOfConnections::checkIntegrity(void)
-  {
+void IpcSetOfConnections::checkIntegrity(void) {
   isOrphaned_ = TRUE;  // assume the worst: this object is an orphan
 
-  // try to traverse to IpcEnvironment via IpcAllConnections and do check... 
+  // try to traverse to IpcEnvironment via IpcAllConnections and do check...
   allc_->checkIntegrity();
 
-  if ((isOrphaned_) && 
-      (entries() > 0))  // entries > 0 ==> traverse to IpcEnvironment should have succeeded
-    {
+  if ((isOrphaned_) && (entries() > 0))  // entries > 0 ==> traverse to IpcEnvironment should have succeeded
+  {
     cerr << "Found orphaned IpcSetOfConnections object." << endl;
     // assert(!isOrphaned_);  well, it might not really be orphaned;
     // it may be we can't get to its associated ExRtFragTable...
 
     // check this object's integrity now, since we didn't traverse to it
-    checkLocalIntegrity(); 
-    }
+    checkLocalIntegrity();
   }
+}
 
-void IpcSetOfConnections::checkLocalIntegrity(void)
-  {
+void IpcSetOfConnections::checkLocalIntegrity(void) {
   isOrphaned_ = FALSE;
 
   CollIndex conn = 0;
 
-  while (nextUsed(conn))
-    {
-
+  while (nextUsed(conn)) {
     // check to see if the corresponding element in the superset is used
-    if (!allc_->used(conn))
-      {
+    if (!allc_->used(conn)) {
       cerr << "Found IpcConnection in subarray that is not in IpcAllConnections." << endl;
       assert(allc_->used(conn));
-      }
-    conn++;
     }
+    conn++;
   }
+}
 
 #endif
 
@@ -1696,19 +1341,12 @@ void IpcSetOfConnections::checkLocalIntegrity(void)
 // Methods for class IpcWaitableSetOfConnections
 // -----------------------------------------------------------------------
 
-IpcWaitableSetOfConnections::IpcWaitableSetOfConnections(IpcEnvironment *env,
-                                                         NABoolean eventDriven,
-                                                         NABoolean esp) :
-     IpcSetOfConnections(env),
-     mutex_(true, env->isMultiThreaded()),
-     waitMutex_(true, env->isMultiThreaded())
-{
+IpcWaitableSetOfConnections::IpcWaitableSetOfConnections(IpcEnvironment *env, NABoolean eventDriven, NABoolean esp)
+    : IpcSetOfConnections(env), mutex_(true, env->isMultiThreaded()), waitMutex_(true, env->isMultiThreaded()) {
   init(eventDriven, esp);
 }
 
-void IpcWaitableSetOfConnections::init(NABoolean eventDriven,
-                                       NABoolean esp)
-{
+void IpcWaitableSetOfConnections::init(NABoolean eventDriven, NABoolean esp) {
   cancelWait_ = FALSE;
   eventDriven_ = eventDriven;
   esp_ = esp;
@@ -1728,50 +1366,41 @@ void IpcWaitableSetOfConnections::init(NABoolean eventDriven,
 
 IpcWaitableSetOfConnections::~IpcWaitableSetOfConnections() {}
 
-NABoolean IpcWaitableSetOfConnections::moreWaitsAnyConnection()
-{
+NABoolean IpcWaitableSetOfConnections::moreWaitsAnyConnection() {
   NAMutexScope ms(mutex_);
 
-  if (cancelWait_)
-    { // Break the wait loop for an asynchronous cancel request.
-      cancelWait_ = FALSE;
-      return FALSE;
-    }
-  
-  for (CollIndex i = 0; nextUsed(i); i++)
-    {
-      if (element(i)->moreWaitsAllowed())
-	return TRUE;
-    }
+  if (cancelWait_) {  // Break the wait loop for an asynchronous cancel request.
+    cancelWait_ = FALSE;
+    return FALSE;
+  }
+
+  for (CollIndex i = 0; nextUsed(i); i++) {
+    if (element(i)->moreWaitsAllowed()) return TRUE;
+  }
   return FALSE;
 }
 
-NABoolean IpcWaitableSetOfConnections::nextUsedMutex(CollIndex& start)
-{
+NABoolean IpcWaitableSetOfConnections::nextUsedMutex(CollIndex &start) {
   NAMutexScope ms(mutex_);
 
   return nextUsed(start);
 }
 
-CollIndex IpcWaitableSetOfConnections::entriesMutex()
-{
+CollIndex IpcWaitableSetOfConnections::entriesMutex() {
   NAMutexScope ms(mutex_);
 
   return entries();
 }
 
-WaitReturnStatus IpcWaitableSetOfConnections::waitOnSet(IpcTimeout timeout,
-                                                        NABoolean calledByESP,
-                                                        NABoolean *timedout)
-{
+WaitReturnStatus IpcWaitableSetOfConnections::waitOnSet(IpcTimeout timeout, NABoolean calledByESP,
+                                                        NABoolean *timedout) {
   NAMutexScope waitMutex(waitMutex_);
 
-  #define  MAX_TOTALWAITTIME   2147483000     //soln 10-061230-1405	
-  if (timedout != NULL)
-    *timedout = FALSE;
+#define MAX_TOTALWAITTIME 2147483000  // soln 10-061230-1405
+  if (timedout != NULL) *timedout = FALSE;
   NABoolean interruptRecvd = FALSE;
-	MXTRC_FUNC("IpcSetOfConnections::wait");
-	MXTRC_1("timeout=%d\n", timeout);
+  MXTRC_FUNC("IpcSetOfConnections::wait");
+  MXTRC_1("timeout=%d\n", timeout);
   // could use select UNIX call or AWAITIOX(-1) later $$$$
 
   // for now, do one round with zero timeout, then let more rounds follow
@@ -1781,28 +1410,27 @@ WaitReturnStatus IpcWaitableSetOfConnections::waitOnSet(IpcTimeout timeout,
 
   // timeout increment (in 10 msec units), this value is the duration
   // of the first wait cycle we do
-  const IpcTimeout  toInc = 1;
+  const IpcTimeout toInc = 1;
 
   // number of times we just give up the time slice before we actually
   // start to wait (with a timeout of toInc)
-  const Lng32        timeSlices = 3;
+  const Lng32 timeSlices = 3;
 
-  IpcTimeout        tout = 0;
-  IpcTimeout        totalWaitTime = -1;
-  CollIndex         firstConnInd, currentFirstConnInd;
-  IpcConnection     *firstConnection = NULL; // For ESP it's conn to the Master
-  NABoolean         somethingCompleted = FALSE;
-  ULng32     seqNo = 0;
+  IpcTimeout tout = 0;
+  IpcTimeout totalWaitTime = -1;
+  CollIndex firstConnInd, currentFirstConnInd;
+  IpcConnection *firstConnection = NULL;  // For ESP it's conn to the Master
+  NABoolean somethingCompleted = FALSE;
+  ULng32 seqNo = 0;
   IpcAllConnections *allc = NULL;
-  Lng32              currTimeSlices = timeSlices;
+  Lng32 currTimeSlices = timeSlices;
   IpcEnvironment *env = env_;
   NABoolean ldoneConsumed = FALSE, activity = FALSE;
   short waitFlag;
   short status;
   Int64 currentTime;
   callCount_ += 1;
-  if (timeout == -2)
-    timeout = -1;
+  if (timeout == -2) timeout = -1;
   NABoolean isWaited;
   Int32 isWaitedFactor = 20;
   IpcTimeout totalOfTimeouts = 0;
@@ -1810,337 +1438,261 @@ WaitReturnStatus IpcWaitableSetOfConnections::waitOnSet(IpcTimeout timeout,
   CliGlobals *cliGlobals = NULL;
   NABoolean soloClient = FALSE;
   NABoolean receivedSMEvent = FALSE;
-  ExSMGlobals *smGlobals = ExSMGlobals::GetExSMGlobals();;
+  ExSMGlobals *smGlobals = ExSMGlobals::GetExSMGlobals();
+  ;
   ExSMReadyList *smReadyList = (smGlobals ? smGlobals->getReadyList() : NULL);
 
   // loop, exponentially increasing the timeout used to wait
   // on the first connection of the set
-  while (NOT somethingCompleted)
-  {
-    if (totalWaitTime >= timeout AND timeout != IpcInfiniteTimeout)
-    {
-      if (timedout != NULL)
-      {
-	*timedout = TRUE;
+  while (NOT somethingCompleted) {
+    if (totalWaitTime >= timeout AND timeout != IpcInfiniteTimeout) {
+      if (timedout != NULL) {
+        *timedout = TRUE;
       }
       break;
-    }
-    else
-    {
+    } else {
       // get a hold of the first connection in the set, return if there is
       // none (note that the set may change during the while loop)
       firstConnInd = 0;
-      if (NOT nextUsedMutex(firstConnInd))
-	{
-	  if ( calledByESP ) 
-	    {
-              if (!env->isMultiThreaded())
-                NAExit(0); // Stop this ESP! No point executing w/o connections.
-              else
-                // In the multi-threaded ESP, we may come here at a
-                // time when we have received a request and not yet
-                // issued a read operation for the next request, so
-                // just wait for a little while. The main thread
-                // monitors the connection to the master and it should
-                // exit when the master goes away.
-                Sleep(1);
-	    }
-	  // set is empty, return right away
-	  assert(!ipcAwaitiox_.getCompleted()); // Shouldn't happen--return with AWAITIOX(-1) completion outstanding
-	  return WAIT_OK;
-	}
-      else
-	// for an ESP, the first connection is always the master
-	firstConnection = element(firstConnInd);
+      if (NOT nextUsedMutex(firstConnInd)) {
+        if (calledByESP) {
+          if (!env->isMultiThreaded())
+            NAExit(0);  // Stop this ESP! No point executing w/o connections.
+          else
+            // In the multi-threaded ESP, we may come here at a
+            // time when we have received a request and not yet
+            // issued a read operation for the next request, so
+            // just wait for a little while. The main thread
+            // monitors the connection to the master and it should
+            // exit when the master goes away.
+            Sleep(1);
+        }
+        // set is empty, return right away
+        assert(!ipcAwaitiox_.getCompleted());  // Shouldn't happen--return with AWAITIOX(-1) completion outstanding
+        return WAIT_OK;
+      } else
+        // for an ESP, the first connection is always the master
+        firstConnection = element(firstConnInd);
 
       cliGlobals = env->getCliGlobals();
 
-      assert(env->getAllConnections()->getNumPendingIOs() > 0 ||
-             timeout != IpcInfiniteTimeout);
+      assert(env->getAllConnections()->getNumPendingIOs() > 0 || timeout != IpcInfiniteTimeout);
 
       static bool sv_solo_client_completion = false;
       static char escc = '1';
-      if (!sv_solo_client_completion)
-      {
+      if (!sv_solo_client_completion) {
         sv_solo_client_completion = true;
         char *sccEnvvar = getenv("IPC_SOLO_CLIENT_COMPLETION");
-        if (sccEnvvar)
-          escc = *sccEnvvar;
+        if (sccEnvvar) escc = *sccEnvvar;
       }
       if (escc == '1' && firstConnection->getFileNumForIOCompletion() == 1 &&
-          env->getAllConnections()->entries() == 1 && !calledByESP
-          && timeout == -1)
+          env->getAllConnections()->entries() == 1 && !calledByESP && timeout == -1)
         soloClient = TRUE;
       isWaited = eventDriven_ && timeout == -1 && env->getMaxPollingInterval() != 301;
-      pollCount_ += 1; // Increment the connections polled count
+      pollCount_ += 1;  // Increment the connections polled count
       waitFlag = LDONE;
       if (esp_)
-	waitFlag |= LREQ;
+        waitFlag |= LREQ;
       else if (env->breakEnabled() && !env->lsigConsumed())
-	waitFlag |= LSIG;
+        waitFlag |= LSIG;
       status = -1;
 
       // On Linux if SeaMonster is enabled, set the LRABBIT bit in
       // waitFlag
       Int32 numSMConnections = env->getAllConnections()->getNumSMConnections();
-      if (numSMConnections > 0)
-        waitFlag |= LRABBIT;
+      if (numSMConnections > 0) waitFlag |= LRABBIT;
 
       // if this is the first time, remember the sequence number of
       // completed I/Os so far, if that number changes this method will
       // return
-      if (allc == NULL)
-	{
-	  // get the completion sequence number so far (get the IPC
-	  // environment from one of the connections in the set)
-	  ldoneConsumed = env->ldoneConsumed();
-	  activity = env->isEvent(AEVENT);
-	  allc = env->getAllConnections();
-	  allc->incrRecursionCount();
-          // The sequence number at entry is captured so that it can later
-          // be used to determine if any messages have completed. If so,
-          // there is work for the scheduler to do and somethingCompleted
-          // is set to TRUE causing a timed or infinite waitOnSet to
-          // return.
-	  seqNo = allc->getCompletionSeqenceNo();
-	  totalOfTimeouts = 0;
-	}
-      else if (isWaited && !env->ldoneConsumed() && !soloClient)
-      {
-	if (env->isEvent(AEVENT))
-	{
-	  activityPollCount_ += 1;
-	  totalOfTimeouts = 0;
-	}
-	else
-	{
-	  IpcTimeout waitInterval = (tout + 1) * isWaitedFactor;
-	  if (waitInterval == 0)
-	    lastWaitStatus_ = status = XWAIT0(waitFlag, waitInterval);
-	  else
-	    lastWaitStatus_ = status = XWAITNO0(waitFlag, waitInterval);
-	  waitCount_ += 1;
-          
-	  if (status & LDONE)
-	  {
-	    ldoneCount_ += 1;
-	    ldoneConsumed = TRUE;
-	    totalOfTimeouts = 0;
+      if (allc == NULL) {
+        // get the completion sequence number so far (get the IPC
+        // environment from one of the connections in the set)
+        ldoneConsumed = env->ldoneConsumed();
+        activity = env->isEvent(AEVENT);
+        allc = env->getAllConnections();
+        allc->incrRecursionCount();
+        // The sequence number at entry is captured so that it can later
+        // be used to determine if any messages have completed. If so,
+        // there is work for the scheduler to do and somethingCompleted
+        // is set to TRUE causing a timed or infinite waitOnSet to
+        // return.
+        seqNo = allc->getCompletionSeqenceNo();
+        totalOfTimeouts = 0;
+      } else if (isWaited && !env->ldoneConsumed() && !soloClient) {
+        if (env->isEvent(AEVENT)) {
+          activityPollCount_ += 1;
+          totalOfTimeouts = 0;
+        } else {
+          IpcTimeout waitInterval = (tout + 1) * isWaitedFactor;
+          if (waitInterval == 0)
+            lastWaitStatus_ = status = XWAIT0(waitFlag, waitInterval);
+          else
+            lastWaitStatus_ = status = XWAITNO0(waitFlag, waitInterval);
+          waitCount_ += 1;
+
+          if (status & LDONE) {
+            ldoneCount_ += 1;
+            ldoneConsumed = TRUE;
+            totalOfTimeouts = 0;
             freeUnusedMemory = TRUE;
-	  }
-	  else if (status & LREQ)
-	  {
-	    lreqCount_ += 1;
-	    totalOfTimeouts = 0;
+          } else if (status & LREQ) {
+            lreqCount_ += 1;
+            totalOfTimeouts = 0;
             freeUnusedMemory = TRUE;
-	  }
-	  else if (status & LSIG)
-	  {
-	    lsigCount_ += 1;
-	    env->setLsigConsumed(TRUE);
-	    totalOfTimeouts = 0;
+          } else if (status & LSIG) {
+            lsigCount_ += 1;
+            env->setLsigConsumed(TRUE);
+            totalOfTimeouts = 0;
             freeUnusedMemory = TRUE;
-	  }
-	  else if (status & LRABBIT)
-	  {
-	    smCompletionCount_++;
+          } else if (status & LRABBIT) {
+            smCompletionCount_++;
             totalOfTimeouts = 0;
             freeUnusedMemory = TRUE;
 
-            EXSM_TRACE(EXSM_TRACE_PROTOCOL,
-                       "RECV LRABBIT wait count %" PRId64
-                       " sm count %" PRId64 " timeout %d",
-                       (Int64) waitCount_, (Int64) smCompletionCount_,
-                       (int) timeout);
-	  }
-	  else
-	  {
-	    totalOfTimeouts += waitInterval;
-	    if (calledByESP)
-	      {
-		if (allc->entries() == 1 ||
-                    // Persistent opens AND all connections are (obsolete)
-                    // client connections AND ESP is confirmed to be idle 
-                    (env->getPersistentOpens() &&
-                     allc->entries() == env->getControlConnection()->castToGuaReceiveControlConnection()->getClientConnections()->entries() &&
-                     env->getIdleTimestamp() > 0))
-		  {
-		    // master has released this esp fragment
-		    if (env->getStopAfter() > 0)
-		      {
-			assert(env->getIdleTimestamp() > 0);
-			currentTime = NA_JulianTimestamp();
-			Int64 timeDiff = currentTime - env->getIdleTimestamp();
-			if (timeDiff > ((Int64)env->getStopAfter() * 1000000))
-                        {
-                          if (env->getLogEspIdleTimeout())
-                          {
-                            char myName[20];
-                            memset(myName, '\0', sizeof(myName));
-                            char buf[500];
-                            msg_mon_get_my_info(NULL, NULL, 
-                              myName, sizeof(myName),NULL,NULL,NULL,NULL);
-                            str_sprintf(buf, 
-                              "ESP_IDLE_TIMEOUT causes %s to exit.",
-                              myName);
-                            SQLMXLoggingArea::logExecRtInfo(__FILE__, 
-                                                  __LINE__, buf, 0);
-                          }
-			  // stop esp if it has become idle and timed out
-			  NAExit(0);
-                        }
-
-		      }
-		  }
-		else
-		  {
-		    if (env->getInactiveTimeout() > 0 &&
-			env->getInactiveTimestamp() > 0)
-		      {
-			currentTime = NA_JulianTimestamp();
-			Int64 timeDiff = currentTime - env->getInactiveTimestamp();
-			if (timeDiff > ((Int64)env->getInactiveTimeout() * 1000000))
-			  // stop esp if it has become inactive and timed out
-			  NAExit(0);
-		      }
-		  }
-	      }
+            EXSM_TRACE(EXSM_TRACE_PROTOCOL, "RECV LRABBIT wait count %" PRId64 " sm count %" PRId64 " timeout %d",
+                       (Int64)waitCount_, (Int64)smCompletionCount_, (int)timeout);
+          } else {
+            totalOfTimeouts += waitInterval;
+            if (calledByESP) {
+              if (allc->entries() == 1 ||
+                  // Persistent opens AND all connections are (obsolete)
+                  // client connections AND ESP is confirmed to be idle
+                  (env->getPersistentOpens() &&
+                   allc->entries() == env->getControlConnection()
+                                          ->castToGuaReceiveControlConnection()
+                                          ->getClientConnections()
+                                          ->entries() &&
+                   env->getIdleTimestamp() > 0)) {
+                // master has released this esp fragment
+                if (env->getStopAfter() > 0) {
+                  assert(env->getIdleTimestamp() > 0);
+                  currentTime = NA_JulianTimestamp();
+                  Int64 timeDiff = currentTime - env->getIdleTimestamp();
+                  if (timeDiff > ((Int64)env->getStopAfter() * 1000000)) {
+                    if (env->getLogEspIdleTimeout()) {
+                      char myName[20];
+                      memset(myName, '\0', sizeof(myName));
+                      char buf[500];
+                      msg_mon_get_my_info(NULL, NULL, myName, sizeof(myName), NULL, NULL, NULL, NULL);
+                      str_sprintf(buf, "ESP_IDLE_TIMEOUT causes %s to exit.", myName);
+                      SQLMXLoggingArea::logExecRtInfo(__FILE__, __LINE__, buf, 0);
+                    }
+                    // stop esp if it has become idle and timed out
+                    NAExit(0);
+                  }
+                }
+              } else {
+                if (env->getInactiveTimeout() > 0 && env->getInactiveTimestamp() > 0) {
+                  currentTime = NA_JulianTimestamp();
+                  Int64 timeDiff = currentTime - env->getInactiveTimestamp();
+                  if (timeDiff > ((Int64)env->getInactiveTimeout() * 1000000))
+                    // stop esp if it has become inactive and timed out
+                    NAExit(0);
+                }
+              }
+            }
             timeoutCount_ += 1;
 
-	  } // XWAIT timed out
-	} // if (env->isEvent(AEVENT)) else
-      } // else if (isWaited && !env->ldoneConsumed() && !soloClient)
-
+          }  // XWAIT timed out
+        }    // if (env->isEvent(AEVENT)) else
+      }      // else if (isWaited && !env->ldoneConsumed() && !soloClient)
 
       // -----------------------------------------------------------------
       // wait with timeout to on the first (and maybe only) connection
       // -----------------------------------------------------------------
 
-      if (soloClient)
-      {
+      if (soloClient) {
         interruptRecvd = firstConnection->wait(timeout);
-        if (interruptRecvd)
-        {
-	  allc->decrRecursionCount();
-	  return WAIT_INTERRUPT;
-        }
-        else if (seqNo != allc->getCompletionSeqenceNo())
-	  somethingCompleted = TRUE;
+        if (interruptRecvd) {
+          allc->decrRecursionCount();
+          return WAIT_INTERRUPT;
+        } else if (seqNo != allc->getCompletionSeqenceNo())
+          somethingCompleted = TRUE;
         continue;
       }
 
-      if (currTimeSlices > 0 AND tout > 0 AND !isWaited)
-	{
-	  // give up the time slice and reset the timeout to 0 instead
-	  // of waiting with a timeout that is greater than 10 milliseconds
-	  // (10 msec is a long time on a 300 MHz machine)
-	  currTimeSlices--;
+      if (currTimeSlices > 0 AND tout > 0 AND !isWaited) {
+        // give up the time slice and reset the timeout to 0 instead
+        // of waiting with a timeout that is greater than 10 milliseconds
+        // (10 msec is a long time on a 300 MHz machine)
+        currTimeSlices--;
 
-	  // platform-dependent code to give up the time slice
-	  // the Sleep() method on NT can be used to give up the processor
-	  Sleep(0);
-	  tout = 0;
+        // platform-dependent code to give up the time slice
+        // the Sleep() method on NT can be used to give up the processor
+        Sleep(0);
+        tout = 0;
       }
 
-      env->setLdoneConsumed(FALSE); // So that we know if it changed if we loop again
-      env->setEvent(FALSE, AEVENT); // So that we know if there was any "activity"
-                                    // which means to: a) an AWAITIOX completed, b)
-                                    // a MSG_ISDONE_ returned true, or c) something was
-                                    // started such as tryToStartNewIO called MSG_LINK_.
+      env->setLdoneConsumed(FALSE);  // So that we know if it changed if we loop again
+      env->setEvent(FALSE, AEVENT);  // So that we know if there was any "activity"
+                                     // which means to: a) an AWAITIOX completed, b)
+                                     // a MSG_ISDONE_ returned true, or c) something was
+                                     // started such as tryToStartNewIO called MSG_LINK_.
       Int64 waitCalled = 0, waitReturned;
-      if (!isWaited && tout > 0)
-	waitCalled = NA_JulianTimestamp();
-
+      if (!isWaited && tout > 0) waitCalled = NA_JulianTimestamp();
 
       NABoolean cycleThruConnections = TRUE;
       NABoolean doIpcAwaitiox;
-      
-      if (env->getMaxPollingInterval() == 302 || XAWAITIOX_MINUS_ONE == FALSE)
-      {
+
+      if (env->getMaxPollingInterval() == 302 || XAWAITIOX_MINUS_ONE == FALSE) {
         doIpcAwaitiox = FALSE;
-      }
-      else
-      {
+      } else {
         doIpcAwaitiox =
-          ipcAwaitioxEnabled_ &&
-          (esp_ || env->getMasterFastCompletion()) &&
-          eventDriven_ &&
-          (isWaited || tout == 0);
+            ipcAwaitioxEnabled_ && (esp_ || env->getMasterFastCompletion()) && eventDriven_ && (isWaited || tout == 0);
       }
-      
-      while (cycleThruConnections)
-      {
+
+      while (cycleThruConnections) {
         cycleThruConnections = FALSE;
         interruptRecvd = FALSE;
         currentFirstConnInd = firstConnInd;
-        
-        if (doIpcAwaitiox)
-        {
-          if (esp_)
-          {
+
+        if (doIpcAwaitiox) {
+          if (esp_) {
             currentFirstConnInd = 0;
-            if (nextUsedMutex(currentFirstConnInd) &&
-                currentFirstConnInd != firstConnInd)
+            if (nextUsedMutex(currentFirstConnInd) && currentFirstConnInd != firstConnInd)
               // Can happen for SSMP but should never happen for ESP
               firstConnection = element(currentFirstConnInd);
           }
-          
+
           ipcAwaitiox_.DoAwaitiox(esp_ ? FALSE : TRUE);
-          
+
           if (ipcAwaitiox_.getFileNum() != -1)
-            env->bawaitioxTrace(this, allc->getRecursionCount(),
-                                currentFirstConnInd, firstConnection,
-                                &ipcAwaitiox_);
-          
-          if (ipcAwaitiox_.getFileNum() ==
-              firstConnection->getFileNumForIOCompletion())
-          {
-            interruptRecvd =
-              firstConnection->wait(isWaited ? IpcImmediately : tout,
-                                    env->getEventConsumed(),
-                                    (ipcAwaitiox_.getFileNum() == -1
-                                     ? NULL
-                                     : &ipcAwaitiox_));
+            env->bawaitioxTrace(this, allc->getRecursionCount(), currentFirstConnInd, firstConnection, &ipcAwaitiox_);
+
+          if (ipcAwaitiox_.getFileNum() == firstConnection->getFileNumForIOCompletion()) {
+            interruptRecvd = firstConnection->wait(isWaited ? IpcImmediately : tout, env->getEventConsumed(),
+                                                   (ipcAwaitiox_.getFileNum() == -1 ? NULL : &ipcAwaitiox_));
           }
-        } // doIpcAwaitiox
-        
-        else
-        {
-          interruptRecvd =
-            firstConnection->wait(isWaited ? IpcImmediately : tout,
-                                  env->getEventConsumed());
+        }  // doIpcAwaitiox
+
+        else {
+          interruptRecvd = firstConnection->wait(isWaited ? IpcImmediately : tout, env->getEventConsumed());
         }
-        
-        if (env->ldoneConsumed())
-          ldoneConsumed = TRUE;
-        if (env->isEvent(AEVENT))
-          activity = TRUE;
-        
-        if (interruptRecvd)
-        {
+
+        if (env->ldoneConsumed()) ldoneConsumed = TRUE;
+        if (env->isEvent(AEVENT)) activity = TRUE;
+
+        if (interruptRecvd) {
           env->setLdoneConsumed(ldoneConsumed);
           env->setEvent(activity, AEVENT);
           allc->decrRecursionCount();
           return WAIT_INTERRUPT;
         }
-        
-        else if (!isWaited && !env->isEvent(AEVENT) && tout > 0 &&
-                 seqNo == allc->getCompletionSeqenceNo())
-        {
+
+        else if (!isWaited && !env->isEvent(AEVENT) && tout > 0 && seqNo == allc->getCompletionSeqenceNo()) {
           // waitOnSet timeout assumes that the first connection will
           // wait the specified interval if an interupt is not received
           // and there was not a completion. The following code will
           // delay if the first connection did not wait the specified
           // interval.
-          if (firstConnection->getFileNumForIOCompletion() != 1) // Fix bug 2903
+          if (firstConnection->getFileNumForIOCompletion() != 1)  // Fix bug 2903
           {
             // Don't delay for GuaConnectionToClient
             // (fileNumForIOCompletion equals 1 ($RECEIVE))
             waitReturned = NA_JulianTimestamp();
-            IpcTimeout delayTime =
-              tout - ((IpcTimeout)((waitReturned - waitCalled) / 10000));
-            if (delayTime > 0)
-            {
+            IpcTimeout delayTime = tout - ((IpcTimeout)((waitReturned - waitCalled) / 10000));
+            if (delayTime > 0) {
               timespec nanoDelayTime;
               nanoDelayTime.tv_sec = delayTime / 100;
               nanoDelayTime.tv_nsec = (delayTime % 100) * 10000000;
@@ -2148,126 +1700,101 @@ WaitReturnStatus IpcWaitableSetOfConnections::waitOnSet(IpcTimeout timeout,
             }
           }
         }
-        
-        if (doIpcAwaitiox && ipcAwaitiox_.getFileNum() != -1 &&
-            ipcAwaitiox_.getCompleted() == FALSE)
-        {
+
+        if (doIpcAwaitiox && ipcAwaitiox_.getFileNum() != -1 && ipcAwaitiox_.getCompleted() == FALSE) {
           cycleThruConnections = TRUE;
           continue;
         }
-        
-        
+
         // add up the time spent waiting
         // (after about 280 days of waiting this would cause an overflow trap)
         if (totalWaitTime == -1 || isWaited)
           totalWaitTime = tout;
-        else
-        {
-          if ( totalWaitTime < MAX_TOTALWAITTIME)  // soln 10-061230-1405 begin
+        else {
+          if (totalWaitTime < MAX_TOTALWAITTIME)  // soln 10-061230-1405 begin
             totalWaitTime += tout;
           else
-            totalWaitTime = -1;                    // soln 10-061230-1405  end
+            totalWaitTime = -1;  // soln 10-061230-1405  end
         }
-        
+
         // -----------------------------------------------------------------
         // wait with 0 timeout on all the other connections
         // -----------------------------------------------------------------
-        for (CollIndex i = currentFirstConnInd+1; nextUsedMutex(i); i++)
-        {
+        for (CollIndex i = currentFirstConnInd + 1; nextUsedMutex(i); i++) {
           IpcConnection *element_i = element(i);
           assert(element_i);
-          
-          if (doIpcAwaitiox)
-          {
+
+          if (doIpcAwaitiox) {
             if (ipcAwaitiox_.getFileNum() == element_i->getFileNumForIOCompletion())
               interruptRecvd = element_i->wait(IpcImmediately, env->getEventConsumed(),
-                                               (ipcAwaitiox_.getFileNum() == -1 ?
-                                                NULL : &ipcAwaitiox_));
+                                               (ipcAwaitiox_.getFileNum() == -1 ? NULL : &ipcAwaitiox_));
             else
               continue;
-          }
-          else
-          {
+          } else {
             interruptRecvd = element_i->wait(IpcImmediately, env->getEventConsumed());
           }
-          
-          if (env->ldoneConsumed())
-            ldoneConsumed =TRUE;
-          
-          if (interruptRecvd)
-          {
+
+          if (env->ldoneConsumed()) ldoneConsumed = TRUE;
+
+          if (interruptRecvd) {
             env->setLdoneConsumed(ldoneConsumed);
             env->setEvent(activity, AEVENT);
             allc->decrRecursionCount();
             return WAIT_INTERRUPT;
           }
-          
-          if (doIpcAwaitiox && ipcAwaitiox_.getFileNum() != -1 &&
-              ipcAwaitiox_.getCompleted() == FALSE)
-          {
+
+          if (doIpcAwaitiox && ipcAwaitiox_.getFileNum() != -1 && ipcAwaitiox_.getCompleted() == FALSE) {
             cycleThruConnections = TRUE;
             break;
           }
 
-        } // for (CollIndex i = currentFirstConnInd+1; nextUsed(i); i++)
+        }  // for (CollIndex i = currentFirstConnInd+1; nextUsed(i); i++)
 
-        if (ipcAwaitiox_.getCompleted())
-        {
+        if (ipcAwaitiox_.getCompleted()) {
           void *bufAddr;
           Int32 count;
           SB_Tag_Type tag;
           CollIndex usedLength = allc->getUsedLength();
-          for (CollIndex i = 0; i < usedLength ; i++)
-          {
-            if (allc->getUsage(i) != UNUSED_COLL_ENTRY)
-            {
+          for (CollIndex i = 0; i < usedLength; i++) {
+            if (allc->getUsage(i) != UNUSED_COLL_ENTRY) {
               IpcConnection *conn = allc->usedEntry(i);
               if (conn->getState() == IpcConnection::ERROR_STATE &&
-                  conn->getFileNumForIOCompletion() ==
-                  ipcAwaitiox_.getFileNum())
-              {
+                  conn->getFileNumForIOCompletion() == ipcAwaitiox_.getFileNum()) {
                 // Clear completed_
                 ipcAwaitiox_.ActOnAwaitiox(&bufAddr, &count, &tag);
               }
             }
           }
         }
-        
-      } // while (cycleThruConnections)
+
+      }  // while (cycleThruConnections)
 
       // TODO: move this code to IpcAllConnections and mutex-protect
-      if ( allc->getRecursionCount() == 1 ) // delete closed connections
+      if (allc->getRecursionCount() == 1)  // delete closed connections
       {
         CollIndex usedLength = allc->getUsedLength();
-        for (CollIndex i = 0;
-             i < usedLength && allc->getDeleteCount() > 0; i++)
-        {
-          if (allc->getUsage(i) != UNUSED_COLL_ENTRY)
-          {
+        for (CollIndex i = 0; i < usedLength && allc->getDeleteCount() > 0; i++) {
+          if (allc->getUsage(i) != UNUSED_COLL_ENTRY) {
             IpcConnection *conn = allc->usedEntry(i);
-            if (conn->getState() == IpcConnection::CLOSED)
-            {
+            if (conn->getState() == IpcConnection::CLOSED) {
               delete conn;
               allc->decrDeleteCount();
             }
           }
         }
       }
-      
+
       // Compare the completion sequence numbers to see whether any
       // connections have completed.
       // TODO: detect case where completion sequence no was changed
       //       in another thread
-      if (seqNo != allc->getCompletionSeqenceNo())
-      {
+      if (seqNo != allc->getCompletionSeqenceNo()) {
         somethingCompleted = TRUE;
-      }
-      else
-      {
-        // increase the used timeout kind of exponentially by multiplying 
+      } else {
+        // increase the used timeout kind of exponentially by multiplying
         // with 1.5 and then adding an increment (in 10 ms units).
         // Max out at 3 seconds of waiting time.
-        tout = MINOF(env->getMaxPollingInterval(), ( tout + tout/2 + toInc ));
+        tout = MINOF(env->getMaxPollingInterval(), (tout + tout / 2 + toInc));
 
         // Use the following line for debugging, if you believe that
         // we fail to wake up some threads in a multi-threaded IPC
@@ -2278,49 +1805,44 @@ WaitReturnStatus IpcWaitableSetOfConnections::waitOnSet(IpcTimeout timeout,
 
       // TODO: make sure it is really us who got the partial message
       // if we have received a partial message, reset the timeout
-      if (allc->getReceivedPartialMessage())
-      {
+      if (allc->getReceivedPartialMessage()) {
         tout = 0;
         currTimeSlices = timeSlices;
         allc->setReceivedPartialMessage(FALSE);
       }
-      if (!moreWaitsAnyConnection())
-      {
+      if (!moreWaitsAnyConnection()) {
         env->setLdoneConsumed(ldoneConsumed);
         env->setEvent(activity, AEVENT);
         allc->decrRecursionCount();
         return WAIT_OK;
       }
-      
+
       // Check the SeaMonster completed task queue if there is one,
       // whether or not wait was called, and whether or not LRABBIT
       // was received if wait was called.
-      // 
+      //
       // It pays to always check it because it's cheaper than figuring
       // out whether or not to.
       //
       // Notes about the "while (firstTask)" loop below
-      // 
+      //
       // * getFirst() does not modify the ready list
       //
       // * The while loop is guaranteed to terminate because items in
       //   output queues are guaranteed to be removed until all are
       //   emptied and the completed task queue is emptied.
-      // 
+      //
       // * In the common case, firstTask will be different on each
       //   successive call to getFirst(). It could be the same on
       //   successive calls if the reader thread is dispatched between
       //   successive calls, and the task is placed back at the head
       //   of the queue when it is empty.
 
-      if (smReadyList)
-      {
+      if (smReadyList) {
         ExSMTask *firstTask = NULL;
-        while ((firstTask = smReadyList->getFirst()) != NULL)
-          firstTask->getSMConnection()->wait(0);
+        while ((firstTask = smReadyList->getFirst()) != NULL) firstTask->getSMConnection()->wait(0);
 
-        if (seqNo != allc->getCompletionSeqenceNo())
-        {
+        if (seqNo != allc->getCompletionSeqenceNo()) {
           receivedSMEvent = TRUE;
           somethingCompleted = TRUE;
           EXSM_TRACE(EXSM_TRACE_PROTOCOL, "Done processing SM connections");
@@ -2328,29 +1850,24 @@ WaitReturnStatus IpcWaitableSetOfConnections::waitOnSet(IpcTimeout timeout,
         }
       }
 
-    } // if (totalWaitTime >= timeout AND timeout != IpcInfiniteTimeout) else
-  } // while (NOT somethingCompleted)
-  
-  if (!receivedSMEvent)
-  {
+    }  // if (totalWaitTime >= timeout AND timeout != IpcInfiniteTimeout) else
+  }    // while (NOT somethingCompleted)
+
+  if (!receivedSMEvent) {
     env->setLdoneConsumed(ldoneConsumed);
     env->setEvent(activity, AEVENT);
   }
-  
+
   allc->decrRecursionCount();
   return WAIT_OK;
 }
 
-void IpcWaitableSetOfConnections::waitOnSMConnections(IpcTimeout timeout)
-{
-  for (CollIndex i = 0; nextUsed(i); i++)
-  {
+void IpcWaitableSetOfConnections::waitOnSMConnections(IpcTimeout timeout) {
+  for (CollIndex i = 0; nextUsed(i); i++) {
     IpcConnection *conn = element(i)->castToSMConnection();
-    if (conn)
-      conn->wait(timeout);
+    if (conn) conn->wait(timeout);
   }
 }
-
 
 // -----------------------------------------------------------------------
 // Methods for class IpcControlConnection
@@ -2358,16 +1875,9 @@ void IpcWaitableSetOfConnections::waitOnSMConnections(IpcTimeout timeout)
 
 IpcControlConnection::~IpcControlConnection() {}
 
-SockControlConnection * IpcControlConnection::castToSockControlConnection()
-{
-  return NULL;
-}
+SockControlConnection *IpcControlConnection::castToSockControlConnection() { return NULL; }
 
-GuaReceiveControlConnection *
-IpcControlConnection::castToGuaReceiveControlConnection()
-{
-  return NULL;
-}
+GuaReceiveControlConnection *IpcControlConnection::castToGuaReceiveControlConnection() { return NULL; }
 
 // -----------------------------------------------------------------------
 // Methods for class InternalMsgHdrInfoStruct
@@ -2375,48 +1885,36 @@ IpcControlConnection::castToGuaReceiveControlConnection()
 
 ///////////////////////////////////////////////////////////////////////////////
 // general constructor
-InternalMsgHdrInfoStruct::InternalMsgHdrInfoStruct(
-       IpcMessageObjType msgType,
-       IpcMessageObjVersion version)
-  : IpcMessageObj(msgType,version),
-    totalLength_(0),
-    alignment_(IpcMyAlignment),
-    flags_(0),
-    format_(0),
-    sockReplyTag_(0),
-    eyeCatcher_(Release1MessageEyeCatcher),
-    seqNum_(0),
-    msgStreamId_(0)
-  { }
+InternalMsgHdrInfoStruct::InternalMsgHdrInfoStruct(IpcMessageObjType msgType, IpcMessageObjVersion version)
+    : IpcMessageObj(msgType, version),
+      totalLength_(0),
+      alignment_(IpcMyAlignment),
+      flags_(0),
+      format_(0),
+      sockReplyTag_(0),
+      eyeCatcher_(Release1MessageEyeCatcher),
+      seqNum_(0),
+      msgStreamId_(0) {}
 
 ///////////////////////////////////////////////////////////////////////////////
 // constructor used to perform copyless receive. unpacks objects in place.
-InternalMsgHdrInfoStruct::InternalMsgHdrInfoStruct(
-       IpcBufferedMsgStream* msgStream)
-: IpcMessageObj(msgStream)
-  { 
+InternalMsgHdrInfoStruct::InternalMsgHdrInfoStruct(IpcBufferedMsgStream *msgStream) : IpcMessageObj(msgStream) {
   // IpcBufferedMsgStream parm used to differentiate from default constructor
-  if (getEndianness() != IpcMyEndianness)
-    {
+  if (getEndianness() != IpcMyEndianness) {
     swapFourBytes(totalLength_);
     swapTwoBytes(alignment_);
     swapTwoBytes(format_);
     swapTwoBytes(sockReplyTag_);
     swapFourBytes(eyeCatcher_);
     swapFourBytes(seqNum_);
-    assert(0); // Need swapEightBytes() to swap msgStreamId_!
+    assert(0);  // Need swapEightBytes() to swap msgStreamId_!
     setEndianness(IpcMyEndianness);
-    }
   }
-
-IpcMessageObjSize InternalMsgHdrInfoStruct::packedLength()
-{
-  return (IpcMessageObjSize) sizeof(*this);
 }
 
-IpcMessageObjSize InternalMsgHdrInfoStruct::packObjIntoMessage(
-     IpcMessageBufferPtr buffer)
-{
+IpcMessageObjSize InternalMsgHdrInfoStruct::packedLength() { return (IpcMessageObjSize)sizeof(*this); }
+
+IpcMessageObjSize InternalMsgHdrInfoStruct::packObjIntoMessage(IpcMessageBufferPtr buffer) {
   IpcMessageObjSize result = IpcMessageObj::packObjIntoMessage(buffer);
 
   // we know that the packed representation has the same layout as the unpacked
@@ -2425,22 +1923,15 @@ IpcMessageObjSize InternalMsgHdrInfoStruct::packObjIntoMessage(
   return result;
 }
 
-void InternalMsgHdrInfoStruct::unpackObj(IpcMessageObjType objType,
-					 IpcMessageObjVersion objVersion,
-					 NABoolean sameEndianness,
-					 IpcMessageObjSize objSize,
-					 IpcConstMessageBufferPtr buffer)
-{
+void InternalMsgHdrInfoStruct::unpackObj(IpcMessageObjType objType, IpcMessageObjVersion objVersion,
+                                         NABoolean sameEndianness, IpcMessageObjSize objSize,
+                                         IpcConstMessageBufferPtr buffer) {
   assert(objSize == sizeof(*this));
 
   // the header always arrives in big endian format, so we should
   // see the same endianness if and only if this is a big-endian machine
 
-  IpcMessageObj::unpackObj(objType,
-			   objVersion,
-			   sameEndianness,
-			   objSize,
-			   buffer);
+  IpcMessageObj::unpackObj(objType, objVersion, sameEndianness, objSize, buffer);
 }
 
 // -----------------------------------------------------------------------
@@ -2449,116 +1940,63 @@ void InternalMsgHdrInfoStruct::unpackObj(IpcMessageObjType objType,
 
 // Private constructor. Only called by public methods such as
 // allocate(), createBuffer(), copy(), copyFromOffset().
-IpcMessageBuffer::IpcMessageBuffer(CollHeap *heap,
-                                   IpcMessageObjSize maxLen,
-                                   IpcMessageObjSize msgLen,
-                                   IpcMessageStreamBase *msg,
-                                   short flags,
-                                   short replyTag,
-                                   IpcMessageObjSize maxReplyLength,
-                                   Int64 transid)
-  : InternalMessageBufferHeader(heap,
-                                maxLen,
-                                msgLen,
-                                msg,
-                                replyTag,
-                                maxReplyLength,
-                                transid,
-                                flags)
-{
-}
+IpcMessageBuffer::IpcMessageBuffer(CollHeap *heap, IpcMessageObjSize maxLen, IpcMessageObjSize msgLen,
+                                   IpcMessageStreamBase *msg, short flags, short replyTag,
+                                   IpcMessageObjSize maxReplyLength, Int64 transid)
+    : InternalMessageBufferHeader(heap, maxLen, msgLen, msg, replyTag, maxReplyLength, transid, flags) {}
 
-IpcMessageBuffer *IpcMessageBuffer::allocate(IpcMessageObjSize maxLen,
-					     IpcMessageObjSize chunkSize,
-                                             IpcMessageStreamBase *msg,
-					     CollHeap *heap,
-                                             short flags)
-{
+IpcMessageBuffer *IpcMessageBuffer::allocate(IpcMessageObjSize maxLen, IpcMessageObjSize chunkSize,
+                                             IpcMessageStreamBase *msg, CollHeap *heap, short flags) {
   maxLen = roundUpBufferLength(chunkSize, maxLen);
 
-  return new (maxLen, heap, TRUE)
-    IpcMessageBuffer(heap,
-                     maxLen,
-                     0,
-                     msg,
-                     flags,
-                     GuaInvalidReplyTag,
-                     0,    // maxReplyLength
-                     -1);  // transid
+  return new (maxLen, heap, TRUE) IpcMessageBuffer(heap, maxLen, 0, msg, flags, GuaInvalidReplyTag,
+                                                   0,    // maxReplyLength
+                                                   -1);  // transid
 }
 
-IpcMessageBuffer *IpcMessageBuffer::createBuffer(IpcEnvironment *env,
-                                           IpcMessageObjSize newMaxLen,
-                                           IpcMessageObjSize chunkSize,
-                                           NABoolean failureIsFatal)
-{
+IpcMessageBuffer *IpcMessageBuffer::createBuffer(IpcEnvironment *env, IpcMessageObjSize newMaxLen,
+                                                 IpcMessageObjSize chunkSize, NABoolean failureIsFatal) {
   // default is to make a copy of the same length
   if (newMaxLen == 0)
     newMaxLen = maxLength_;
-  else
-    {
-      assert(chunkSize > 0);
-      newMaxLen = roundUpBufferLength(chunkSize, newMaxLen);
-    }
+  else {
+    assert(chunkSize > 0);
+    newMaxLen = roundUpBufferLength(chunkSize, newMaxLen);
+  }
 
   CollHeap *heap = (env ? env->getHeap() : NULL);
 
   IpcMessageBuffer *result = new (newMaxLen, heap, failureIsFatal)
-    IpcMessageBuffer(heap,
-                     newMaxLen,
-                     newMaxLen,
-                     message_,
-                     flags_,
-                     replyTag_,
-                     maxReplyLength_, 
-                     transid_);
+      IpcMessageBuffer(heap, newMaxLen, newMaxLen, message_, flags_, replyTag_, maxReplyLength_, transid_);
   return result;
 }
 
-IpcMessageBuffer *IpcMessageBuffer::copy(IpcEnvironment *env,
-					 IpcMessageObjSize newMaxLen,
-                                         IpcMessageObjSize chunkSize,
-                                         NABoolean failureIsFatal,
-                                         NABoolean partialCopy)
-{
+IpcMessageBuffer *IpcMessageBuffer::copy(IpcEnvironment *env, IpcMessageObjSize newMaxLen, IpcMessageObjSize chunkSize,
+                                         NABoolean failureIsFatal, NABoolean partialCopy) {
   IpcMessageObjSize newMsgLen = msgLength_;
 
   // default is to make a copy of the same length
   if (newMaxLen == 0)
     newMaxLen = maxLength_;
-  else
-    {
-      assert(chunkSize > 0);
-      if (partialCopy)
-        {
-          newMsgLen = MINOF(msgLength_, newMaxLen);
-          assert(newMaxLen == roundUpBufferLength(chunkSize, newMaxLen));
-        }
-      else
-        {
-          // data must fit in new copy
-          assert(newMaxLen >= msgLength_);
-          newMaxLen = roundUpBufferLength(chunkSize, newMaxLen);
-        }
+  else {
+    assert(chunkSize > 0);
+    if (partialCopy) {
+      newMsgLen = MINOF(msgLength_, newMaxLen);
+      assert(newMaxLen == roundUpBufferLength(chunkSize, newMaxLen));
+    } else {
+      // data must fit in new copy
+      assert(newMaxLen >= msgLength_);
+      newMaxLen = roundUpBufferLength(chunkSize, newMaxLen);
     }
+  }
 
   CollHeap *heap = (env ? env->getHeap() : NULL);
 
   IpcMessageBuffer *result = new (newMaxLen, heap, failureIsFatal)
-    IpcMessageBuffer(heap,
-                     newMaxLen,
-                     newMsgLen,
-                     message_,
-                     flags_,
-                     replyTag_,
-                     maxReplyLength_, 
-                     transid_);
-  
-  if (result)
-  {
-    str_cpy_all((char *) result->data(0),
-                (const char *) data(0),
-                (Lng32) newMsgLen);
+      IpcMessageBuffer(heap, newMaxLen, newMsgLen, message_, flags_, replyTag_, maxReplyLength_, transid_);
+
+  if (result) {
+    str_cpy_all((char *)result->data(0), (const char *)data(0), (Lng32)newMsgLen);
 
     // the copy gets the reply tag, if there is any
     setReplyTag(GuaInvalidReplyTag);
@@ -2568,112 +2006,94 @@ IpcMessageBuffer *IpcMessageBuffer::copy(IpcEnvironment *env,
   return result;
 }
 
-IpcMessageBuffer *IpcMessageBuffer::resize(IpcEnvironment *env,
-					   IpcMessageObjSize newMaxLen,
-                                           IpcMessageObjSize chunkSize)
-{
+IpcMessageBuffer *IpcMessageBuffer::resize(IpcEnvironment *env, IpcMessageObjSize newMaxLen,
+                                           IpcMessageObjSize chunkSize) {
   newMaxLen = roundUpBufferLength(chunkSize, newMaxLen);
 
   // NOTE: other users of the buffer will retain access to the old buffer
-  IpcMessageBuffer *result = copy(env,newMaxLen,chunkSize);
+  IpcMessageBuffer *result = copy(env, newMaxLen, chunkSize);
 
   // this will delete this buffer, unless there are other references to it
   decrRefCount();
   return result;
 }
 
-IpcMessageRefCount IpcMessageBuffer::decrRefCount()
-{
+IpcMessageRefCount IpcMessageBuffer::decrRefCount() {
   IpcMessageRefCount result = refCount_--;
-  
-  if (refCount_ == 0)
-  {
-    if (chunkLockCount_)
-    {
+
+  if (refCount_ == 0) {
+    if (chunkLockCount_) {
       chunkLockCount_->deallocate();
       NADELETEBASIC(chunkLockCount_, heap_);
     }
 
     // The ref count has dropped to zero. Use the correct method to
     // deallocate space for this buffer.
-    if (heap_)
-    {
+    if (heap_) {
       // This object was allocated on an NAMemory heap
       heap_->deallocateMemory(this);
-    }
-    else
-    {
+    } else {
       // This object was allocated on the C++ heap
       delete this;
     }
-  }
-  else if (refCount_ < 0)
-  {
+  } else if (refCount_ < 0) {
     // negative refcounts aren't allowed
     assert(refCount_ > 0);
   }
-  
+
   return result;
 }
 
-CollIndex IpcMessageBuffer::initLockCount(IpcMessageObjSize maxIOSize)
-{
-  if (!chunkLockCount_)
-    {
-      chunkLockCount_ = new(heap_) NAArray<CollIndex>(heap_,2);
-      chunkLockCount_->setHeap(heap_);
+CollIndex IpcMessageBuffer::initLockCount(IpcMessageObjSize maxIOSize) {
+  if (!chunkLockCount_) {
+    chunkLockCount_ = new (heap_) NAArray<CollIndex>(heap_, 2);
+    chunkLockCount_->setHeap(heap_);
 
-      if (!chunkLockCount_) 
-        {
-          return(0);
-        }
-      maxIOSize_ = maxIOSize;
-  
-      // determine if last chunk is less than the max IO transmission size
-      bool partialChunk = msgLength_ && (msgLength_ % maxIOSize_) ? 1 : 0;
-      CollIndex chunkCount = partialChunk ? 1 : 0;
-      chunkCount += (msgLength_ >= maxIOSize_) ? (msgLength_ / maxIOSize_) : 0;
-      for ( CollIndex i = 0; i < chunkCount ; i++ )
-        {
-          chunkLockCount_->insertAt(i, 0);
-        }
-      return(chunkCount);
+    if (!chunkLockCount_) {
+      return (0);
     }
-  
-  return(chunkLockCount_->entries());
+    maxIOSize_ = maxIOSize;
+
+    // determine if last chunk is less than the max IO transmission size
+    bool partialChunk = msgLength_ && (msgLength_ % maxIOSize_) ? 1 : 0;
+    CollIndex chunkCount = partialChunk ? 1 : 0;
+    chunkCount += (msgLength_ >= maxIOSize_) ? (msgLength_ / maxIOSize_) : 0;
+    for (CollIndex i = 0; i < chunkCount; i++) {
+      chunkLockCount_->insertAt(i, 0);
+    }
+    return (chunkCount);
+  }
+
+  return (chunkLockCount_->entries());
 }
 
-CollIndex IpcMessageBuffer::incrLockCount(IpcMessageObjSize offset)
-{
+CollIndex IpcMessageBuffer::incrLockCount(IpcMessageObjSize offset) {
   assert(chunkLockCount_ != NULL);
-  CollIndex chunkIndex = (CollIndex) (offset ? offset/maxIOSize_ : 0);
+  CollIndex chunkIndex = (CollIndex)(offset ? offset / maxIOSize_ : 0);
   CollIndex lockCount = chunkLockCount_->at(chunkIndex);
   lockCount += 1;
   chunkLockCount_->insertAt(chunkIndex, lockCount);
-  return(lockCount);
+  return (lockCount);
 }
 
-CollIndex IpcMessageBuffer::decrLockCount(IpcMessageObjSize offset)
-{
+CollIndex IpcMessageBuffer::decrLockCount(IpcMessageObjSize offset) {
   assert(chunkLockCount_ != NULL);
-  CollIndex chunkIndex = (CollIndex) (offset ? offset/maxIOSize_ : 0);
+  CollIndex chunkIndex = (CollIndex)(offset ? offset / maxIOSize_ : 0);
   CollIndex lockCount = chunkLockCount_->at(chunkIndex);
   lockCount -= 1;
   chunkLockCount_->insertAt(chunkIndex, lockCount);
-  return(lockCount);
+  return (lockCount);
 }
 
-CollIndex IpcMessageBuffer::getLockCount(IpcMessageObjSize offset)
-{
+CollIndex IpcMessageBuffer::getLockCount(IpcMessageObjSize offset) {
   assert(chunkLockCount_ != NULL);
-  CollIndex chunkIndex = (CollIndex) (offset ? offset/maxIOSize_ : 0);
+  CollIndex chunkIndex = (CollIndex)(offset ? offset / maxIOSize_ : 0);
   CollIndex lockCount = chunkLockCount_->at(chunkIndex);
-  return(lockCount);
+  return (lockCount);
 }
 
-void IpcMessageBuffer::alignOffset(IpcMessageObjSize &offset)
-{
-  ULng32 offs = (ULng32) offset; // just for safety
+void IpcMessageBuffer::alignOffset(IpcMessageObjSize &offset) {
+  ULng32 offs = (ULng32)offset;  // just for safety
 
   // clear the last 3 bits of the address to round it down to
   // the next address that is divisible by 8
@@ -2681,51 +2101,41 @@ void IpcMessageBuffer::alignOffset(IpcMessageObjSize &offset)
 
   // if that didn't change anything we're done, the offset was
   // aligned already
-  if (offs != roundedDown)
-    {
-      // else we have to round up and add the filler
-      offset = roundedDown + 8;
-    }
+  if (offs != roundedDown) {
+    // else we have to round up and add the filler
+    offset = roundedDown + 8;
+  }
 }
 
-void IpcMessageBuffer::callSendCallback(IpcConnection *conn)
-{
+void IpcMessageBuffer::callSendCallback(IpcConnection *conn) {
   // increment the wraparound counter for completed high-level I/Os
   conn->getEnvironment()->getAllConnections()->bumpCompletionCount();
-  // set connection indicating source of IO 
+  // set connection indicating source of IO
   connection_ = conn;
   // call the callback without passing a message buffer to it
   message_->internalActOnSend(conn);
 }
 
-void IpcMessageBuffer::callReceiveCallback(IpcConnection *conn)
-{
+void IpcMessageBuffer::callReceiveCallback(IpcConnection *conn) {
   // increment the wraparound counter for completed high-level I/Os
   conn->getEnvironment()->getAllConnections()->bumpCompletionCount();
-  // set connection indicating source of IO 
+  // set connection indicating source of IO
   connection_ = conn;
   // call the callback
   message_->internalActOnReceive(this, conn);
 }
 
-void * IpcMessageBuffer::operator new(size_t headerSize,
-				      IpcMessageObjSize bufferLength,
-				      CollHeap *heap,
-                                      NABoolean failureIsFatal)
-{
+void *IpcMessageBuffer::operator new(size_t headerSize, IpcMessageObjSize bufferLength, CollHeap *heap,
+                                     NABoolean failureIsFatal) {
   // If heap is not NULL, allocate the object on that heap. Otherwise
   // allocate on the C++ heap.
   if (heap)
-    return heap->allocateMemory(headerSize + (size_t) bufferLength,
-                                failureIsFatal);
+    return heap->allocateMemory(headerSize + (size_t)bufferLength, failureIsFatal);
   else
-    return ::operator new(headerSize + (size_t) bufferLength);
+    return ::operator new(headerSize + (size_t)bufferLength);
 }
 
-NABoolean IpcMessageBuffer::verifyBackbone()
-{
-  return verifyIpcMessageBufferBackbone(*this);
-}
+NABoolean IpcMessageBuffer::verifyBackbone() { return verifyIpcMessageBufferBackbone(*this); }
 
 //
 // Global function to verify IpcMessageBuffer backbone. This function
@@ -2734,11 +2144,9 @@ NABoolean IpcMessageBuffer::verifyBackbone()
 // "friend" of IpcMessageObj, we just make this function a friend of
 // the IpcMessageObj and IpcMessageBuffer classes.
 //
-NABoolean verifyIpcMessageBufferBackbone(IpcMessageBuffer &b)
-{
+NABoolean verifyIpcMessageBufferBackbone(IpcMessageBuffer &b) {
   // Make sure buffer is at least as large as the header object
-  if (b.msgLength_ < sizeof(InternalMsgHdrInfoStruct))
-  {
+  if (b.msgLength_ < sizeof(InternalMsgHdrInfoStruct)) {
     ipcIntegrityCheckEpilogue(FALSE);
     return FALSE;
   }
@@ -2746,25 +2154,22 @@ NABoolean verifyIpcMessageBufferBackbone(IpcMessageBuffer &b)
   // Now we can reference fields in the header
   InternalMsgHdrInfoStruct *header = b.getPayloadHeader();
   IpcMessageObjSize maxChainLen = MINOF(b.maxLength_, header->totalLength_);
-  
+
   // Loop over all objects in the message buffer, including the header
   // object, and do some sanity checks on them. We will look at all
   // length and next fields to make sure the chain of objects does not
   // extend beyond maxChainLen bytes.
   IpcMessageObj *obj = header;
   IpcMessageObjSize currOffset = 0;
-  while (obj != NULL)
-  {
+  while (obj != NULL) {
     // Make sure buffer is at least as large as an IpcMessageObj
-    if (currOffset + sizeof(IpcMessageObj) > maxChainLen)
-    {
+    if (currOffset + sizeof(IpcMessageObj) > maxChainLen) {
       ipcIntegrityCheckEpilogue(FALSE);
       return FALSE;
     }
-    
+
     // Now we can reference IpcMessageObj fields
-    if (obj->s_.refCount_ != 1)
-    {
+    if (obj->s_.refCount_ != 1) {
       ipcIntegrityCheckEpilogue(FALSE);
       return FALSE;
     }
@@ -2773,22 +2178,19 @@ NABoolean verifyIpcMessageBufferBackbone(IpcMessageBuffer &b)
     // pointer. The header may not because the receiving connection
     // may have already done an in-place unpack of the header and that
     // operation has the side-effect of setting the vptr.
-    if (obj != header && obj->getMyVPtr() != NULL)
-    {
+    if (obj != header && obj->getMyVPtr() != NULL) {
       ipcIntegrityCheckEpilogue(FALSE);
       return FALSE;
     }
 
-    IpcMessageObjSize next = (IpcMessageObjSize)((Long) obj->s_.next_);
+    IpcMessageObjSize next = (IpcMessageObjSize)((Long)obj->s_.next_);
 
-    if (obj->s_.objLength_ < sizeof(IpcMessageObj) ||
-        currOffset + obj->s_.objLength_ > maxChainLen ||
-        (next != 0 && next < obj->s_.objLength_))
-    {
+    if (obj->s_.objLength_ < sizeof(IpcMessageObj) || currOffset + obj->s_.objLength_ > maxChainLen ||
+        (next != 0 && next < obj->s_.objLength_)) {
       ipcIntegrityCheckEpilogue(FALSE);
       return FALSE;
     }
-    
+
     // Advance to next object in the chain
     currOffset += next;
     obj = obj->getNextFromOffset();
@@ -2797,29 +2199,22 @@ NABoolean verifyIpcMessageBufferBackbone(IpcMessageBuffer &b)
   return TRUE;
 }
 
-IpcMessageBuffer *IpcMessageBuffer::addChunkHeadersAndTrailer(
-     IpcMessageObjSize chunkSize,
-     IpcEnvironment *env)
-{
+IpcMessageBuffer *IpcMessageBuffer::addChunkHeadersAndTrailer(IpcMessageObjSize chunkSize, IpcEnvironment *env) {
   // shortcut for single-chunk message
-  if (msgLength_ <= chunkSize)
-    return this;
+  if (msgLength_ <= chunkSize) return this;
 
   // prevent multiple calls when broadcasting
-  if (getPayloadHeader()->getHasChunkHeaders())
-    return this;
+  if (getPayloadHeader()->getHasChunkHeaders()) return this;
 
   // See also comment before struct InternalChunkHdrStruct in file Ipc.h
   IpcMessageBuffer *result = this;
-  IpcMessageObjSize newSize = getLengthWithChunkHeaders(chunkSize,
-                                                        msgLength_);
+  IpcMessageObjSize newSize = getLengthWithChunkHeaders(chunkSize, msgLength_);
 
   DCMPASSERT(chunkSize > 0 && newSize >= msgLength_);
   Int32 numChunks = DIVIDE_AND_ROUND_UP(newSize, chunkSize);
 
   // resize message to a multiple of the chunk size, if needed
-  if (newSize > maxLength_)
-    result = resize(env, numChunks * chunkSize, chunkSize);
+  if (newSize > maxLength_) result = resize(env, numChunks * chunkSize, chunkSize);
 
   // number of bytes inserted into the message in the form of
   // internal chunk headers for all but the first chunk
@@ -2827,40 +2222,36 @@ IpcMessageBuffer *IpcMessageBuffer::addChunkHeadersAndTrailer(
 
   // The trailer struct starts right after the payload message
   InternalChunkMsgTrailerStruct *trailer =
-    reinterpret_cast<InternalChunkMsgTrailerStruct *>(
-         result->data(result->msgLength_));
+      reinterpret_cast<InternalChunkMsgTrailerStruct *>(result->data(result->msgLength_));
 
   // The displaced data starts right after the trailer
-  IpcMessageBufferPtr chunkTgtData =
-    result->data(result->msgLength_ + sizeof(InternalChunkMsgTrailerStruct));
+  IpcMessageBufferPtr chunkTgtData = result->data(result->msgLength_ + sizeof(InternalChunkMsgTrailerStruct));
 
   // initialize the trailer fields (note that dataLen_ is rounded up
   // to the next multiple of the chunk header size)
   trailer->eyeCatcher_ = IPC_CHUNK_TRAILER_EYE_CATCHER;
-  trailer->numChunks_  = numChunks;
-  trailer->chunkLen_   = chunkSize;
-  trailer->dataLen_    = chunkHdrBytes;
+  trailer->numChunks_ = numChunks;
+  trailer->chunkLen_ = chunkSize;
+  trailer->dataLen_ = chunkHdrBytes;
 
   // loop over the chunks, excluding the first
-  for (int c = 1; c<numChunks; c++)
-    {
-      // pointer to the data to be replaced by a chunk header
-      IpcMessageBufferPtr chunkSrcData = result->data(c * chunkSize);
-      InternalChunkHdrStruct *hdr =
-        reinterpret_cast<InternalChunkHdrStruct *>(chunkSrcData);
+  for (int c = 1; c < numChunks; c++) {
+    // pointer to the data to be replaced by a chunk header
+    IpcMessageBufferPtr chunkSrcData = result->data(c * chunkSize);
+    InternalChunkHdrStruct *hdr = reinterpret_cast<InternalChunkHdrStruct *>(chunkSrcData);
 
-      // Move the bytes displaced by the chunk header to the end.
-      // Note that we don't care about chunk headers that might
-      // displace this displaced data again, we'll handle that in
-      // later iterations of the loop
-      memcpy(chunkTgtData, chunkSrcData, sizeof(InternalChunkHdrStruct));
-      chunkTgtData += sizeof(InternalChunkHdrStruct);
+    // Move the bytes displaced by the chunk header to the end.
+    // Note that we don't care about chunk headers that might
+    // displace this displaced data again, we'll handle that in
+    // later iterations of the loop
+    memcpy(chunkTgtData, chunkSrcData, sizeof(InternalChunkHdrStruct));
+    chunkTgtData += sizeof(InternalChunkHdrStruct);
 
-      // now that we have saved the data, we can initialize
-      // the chunk header
-      hdr->eyeCatcher_ = IPC_CHUNK_HEADER_EYE_CATCHER;
-      hdr->chunkNum_ = c;
-    }
+    // now that we have saved the data, we can initialize
+    // the chunk header
+    hdr->eyeCatcher_ = IPC_CHUNK_HEADER_EYE_CATCHER;
+    hdr->chunkNum_ = c;
+  }
 
   // extend the message length to include the chunk trailer and the
   // bytes displaced by the chunk headers
@@ -2870,13 +2261,9 @@ IpcMessageBuffer *IpcMessageBuffer::addChunkHeadersAndTrailer(
   return result;
 }
 
-void IpcMessageBuffer::removeChunkHeadersAndTrailer(
-     IpcMessageObjSize chunkSize,
-     IpcEnvironment *env)
-{
+void IpcMessageBuffer::removeChunkHeadersAndTrailer(IpcMessageObjSize chunkSize, IpcEnvironment *env) {
   // shortcut for single-chunk message
-  if (msgLength_ <= chunkSize)
-    return;
+  if (msgLength_ <= chunkSize) return;
 
   int i = 1;
 
@@ -2888,7 +2275,7 @@ void IpcMessageBuffer::removeChunkHeadersAndTrailer(
   // See also comment before struct InternalChunkHdrStruct in file Ipc.h
   Int32 numChunks = DIVIDE_AND_ROUND_UP(msgLength_, chunkSize);
   Int32 chunkHdrBytes = sizeof(InternalChunkHdrStruct);
-  Int32 dataInLastChunk = msgLength_ - (numChunks-1)*chunkSize - chunkHdrBytes;
+  Int32 dataInLastChunk = msgLength_ - (numChunks - 1) * chunkSize - chunkHdrBytes;
 
   // We must have at least one byte of data in a chunk, otherwise we
   // should not have created the chunk. Note that we always displace
@@ -2901,34 +2288,30 @@ void IpcMessageBuffer::removeChunkHeadersAndTrailer(
 
   // loop over the in reverse order, basically playing the algorithm
   // in addChunkHeadersAndTrailer() in reverse
-  for (int c = numChunks-1; c>0; c--)
-    {
-      // pointer to the chunk header to be overwritten with the
-      // displaced data, to restore the original message
-      IpcMessageBufferPtr chunkTgtData = data(c * chunkSize);
+  for (int c = numChunks - 1; c > 0; c--) {
+    // pointer to the chunk header to be overwritten with the
+    // displaced data, to restore the original message
+    IpcMessageBufferPtr chunkTgtData = data(c * chunkSize);
 
-      // back up to the displaced data for this chunk, the displaced
-      // data for the last chunk may be smaller than chunkHdrBytes
-      chunkSrcData -= chunkHdrBytes;
+    // back up to the displaced data for this chunk, the displaced
+    // data for the last chunk may be smaller than chunkHdrBytes
+    chunkSrcData -= chunkHdrBytes;
 
-      // Move the bytes displaced by the chunk header back, overwriting
-      // the chunk header
-      memcpy(chunkTgtData, chunkSrcData, chunkHdrBytes);
-    }
+    // Move the bytes displaced by the chunk header back, overwriting
+    // the chunk header
+    memcpy(chunkTgtData, chunkSrcData, chunkHdrBytes);
+  }
 
   // The trailer struct starts right before the now exhausted
   // bytes of displaced data. Note that the trailer itself might
   // have been displaced by a chunk header, so we defer looking at
   // it until we have restored all the displaced data.
   chunkSrcData -= sizeof(InternalChunkMsgTrailerStruct);
-  InternalChunkMsgTrailerStruct *trailer =
-    reinterpret_cast<InternalChunkMsgTrailerStruct *>(chunkSrcData);
+  InternalChunkMsgTrailerStruct *trailer = reinterpret_cast<InternalChunkMsgTrailerStruct *>(chunkSrcData);
 
   // validate the trailer fields
-  assert(trailer->eyeCatcher_ == IPC_CHUNK_TRAILER_EYE_CATCHER &&
-         trailer->numChunks_  == numChunks &&
-         trailer->chunkLen_   == chunkSize &&
-         trailer->dataLen_    == chunkHdrBytes * (numChunks-1));
+  assert(trailer->eyeCatcher_ == IPC_CHUNK_TRAILER_EYE_CATCHER && trailer->numChunks_ == numChunks &&
+         trailer->chunkLen_ == chunkSize && trailer->dataLen_ == chunkHdrBytes * (numChunks - 1));
 
   msgLength_ = chunkSrcData - data(0);
 
@@ -2936,9 +2319,7 @@ void IpcMessageBuffer::removeChunkHeadersAndTrailer(
   assert(getPayloadHeader()->getMsgLengthFromData() == msgLength_);
 }
 
-void IpcMessageBuffer::reorderChunks(IpcMessageObjSize chunkSize,
-                                     IpcEnvironment *env)
-{
+void IpcMessageBuffer::reorderChunks(IpcMessageObjSize chunkSize, IpcEnvironment *env) {
   Int32 numChunks = DIVIDE_AND_ROUND_UP(msgLength_, chunkSize);
   Int32 seqArray[numChunks];
   Int32 outOfOrderIx = -1;
@@ -2947,165 +2328,134 @@ void IpcMessageBuffer::reorderChunks(IpcMessageObjSize chunkSize,
   // chunk is not allowed to arrive out of order
   // (if it does, then we will detect that below, because
   //  one of the subsequent chunks will have a bad header)
-  for (Int32 c=1; c<numChunks; c++)
-    {
-      // Determine the chunk number from the header stored
-      // in the first few bytes
-      Int32 chunkNum = getChunkNumFromHeader(data(c * chunkSize));
+  for (Int32 c = 1; c < numChunks; c++) {
+    // Determine the chunk number from the header stored
+    // in the first few bytes
+    Int32 chunkNum = getChunkNumFromHeader(data(c * chunkSize));
 
-      seqArray[c] = chunkNum;
-      if (chunkNum != c)
-        outOfOrderIx = c;
-    }
+    seqArray[c] = chunkNum;
+    if (chunkNum != c) outOfOrderIx = c;
+  }
 
-  if (outOfOrderIx >= 0)
-    {
-      // order the chunks of the message in (more or less) linear
-      // time, with the least amount of data moved
-      assert(0); // for now, investigate this
+  if (outOfOrderIx >= 0) {
+    // order the chunks of the message in (more or less) linear
+    // time, with the least amount of data moved
+    assert(0);  // for now, investigate this
 
-      // Imagine a graph with a vertex for each chunk position c
-      // in the message buffer. Each chunk position c has a
-      // chunk of data for position i in it. Represent that as
-      // an edge from vertex i to vertex c. Each vertex has exactly
-      // one outgoing and one incoming edge. Those vertices that
-      // are already in the correct position have a loop, an edge
-      // from the vertex to itself.
+    // Imagine a graph with a vertex for each chunk position c
+    // in the message buffer. Each chunk position c has a
+    // chunk of data for position i in it. Represent that as
+    // an edge from vertex i to vertex c. Each vertex has exactly
+    // one outgoing and one incoming edge. Those vertices that
+    // are already in the correct position have a loop, an edge
+    // from the vertex to itself.
 
-      // This graph is represented by seqArray.
+    // This graph is represented by seqArray.
 
-      // At this point, we have one or more "clique(s)" in the graph,
-      // subsets of vertices that are connected through a directed
-      // cycle of edges. We now have to find each clique of size > 1
-      // and perform a circular move of chunks, using a temporary
-      // buffer.
+    // At this point, we have one or more "clique(s)" in the graph,
+    // subsets of vertices that are connected through a directed
+    // cycle of edges. We now have to find each clique of size > 1
+    // and perform a circular move of chunks, using a temporary
+    // buffer.
 
-      char *buf = new(env->getHeap()) char[env->getGuaMaxMsgIOSize()];
+    char *buf = new (env->getHeap()) char[env->getGuaMaxMsgIOSize()];
 
-      // loop over cliques
-      while (outOfOrderIx >= 0)
-        {
-          char *bufChunk = data(outOfOrderIx * chunkSize);
-          Int32 lastChunk = getChunkNumFromHeader(bufChunk);
+    // loop over cliques
+    while (outOfOrderIx >= 0) {
+      char *bufChunk = data(outOfOrderIx * chunkSize);
+      Int32 lastChunk = getChunkNumFromHeader(bufChunk);
 
-          // make room by vacating position outOfOrderIx
-          memcpy(buf, bufChunk, chunkSize);
+      // make room by vacating position outOfOrderIx
+      memcpy(buf, bufChunk, chunkSize);
 
-          // loop over the directed cycle of chunks to be moved
-          while (outOfOrderIx >= 0)
-            {
-              // We freed up position "outOfOrderIx" so it can receive
-              // the chunk that should be in this position.
-              // Now do three things:
-              // a) find the place where this chunk is stored
-              // b) copy it to its correct place in position "outOfOrderIx"
-              // c) set "outOfOrderIx" to the position we vacated (if any)
-              Int32 srcPos = 0;
-              char *srcBuf;
+      // loop over the directed cycle of chunks to be moved
+      while (outOfOrderIx >= 0) {
+        // We freed up position "outOfOrderIx" so it can receive
+        // the chunk that should be in this position.
+        // Now do three things:
+        // a) find the place where this chunk is stored
+        // b) copy it to its correct place in position "outOfOrderIx"
+        // c) set "outOfOrderIx" to the position we vacated (if any)
+        Int32 srcPos = 0;
+        char *srcBuf;
 
-              // a)
-              if (outOfOrderIx != lastChunk)
-                {
-                  // moves other than the last in the clique
-                  // move data from one position in the message
-                  // buffer to another, without touching "buf"
-                  while (srcPos < numChunks &&
-                         seqArray[srcPos] != outOfOrderIx)
-                    srcPos++;
+        // a)
+        if (outOfOrderIx != lastChunk) {
+          // moves other than the last in the clique
+          // move data from one position in the message
+          // buffer to another, without touching "buf"
+          while (srcPos < numChunks && seqArray[srcPos] != outOfOrderIx) srcPos++;
 
-                  // assert that we found the correct chunk, otherwise
-                  // the message is corrupted
-                  assert(srcPos < numChunks);
+          // assert that we found the correct chunk, otherwise
+          // the message is corrupted
+          assert(srcPos < numChunks);
 
-                  srcBuf = data(srcPos * chunkSize);
-                }
-              else
-                {
-                  // the last move in the clique moves "buf"
-                  // back into the message buffer
-                  srcPos = -1;
-                  srcBuf = buf;
-                }
+          srcBuf = data(srcPos * chunkSize);
+        } else {
+          // the last move in the clique moves "buf"
+          // back into the message buffer
+          srcPos = -1;
+          srcBuf = buf;
+        }
 
-              // b)
-              memcpy(data(outOfOrderIx * chunkSize),
-                     srcBuf,
-                     chunkSize);
-              seqArray[outOfOrderIx] = outOfOrderIx;
+        // b)
+        memcpy(data(outOfOrderIx * chunkSize), srcBuf, chunkSize);
+        seqArray[outOfOrderIx] = outOfOrderIx;
 
-              // c)
-              outOfOrderIx = srcPos;
-            } // loop over directed cycle
+        // c)
+        outOfOrderIx = srcPos;
+      }  // loop over directed cycle
 
-          // now try to find another clique of size > 1
-          // (an out-of-order chunk in seqArray)
-          for (int i=0; i<numChunks; i++)
-            if (seqArray[i] != i)
-              {
-                outOfOrderIx = i;
-                break;
-              }
+      // now try to find another clique of size > 1
+      // (an out-of-order chunk in seqArray)
+      for (int i = 0; i < numChunks; i++)
+        if (seqArray[i] != i) {
+          outOfOrderIx = i;
+          break;
+        }
 
-        } // loop over cliques
-      NADELETEBASIC(buf, env->getHeap());
-    } // chunks are out of order
+    }  // loop over cliques
+    NADELETEBASIC(buf, env->getHeap());
+  }  // chunks are out of order
 }
 
-void IpcMessageBuffer::validateChunkHeader(
-     IpcMessageObjSize chunkStart,
-     IpcMessageObjSize chunkLen,
-     IpcMessageObjSize maxChunkSize,
-     NABoolean allowOutOfOrderChunks)
-{
-  InternalChunkHdrStruct *ch =
-    reinterpret_cast<InternalChunkHdrStruct *>(data(chunkStart));
+void IpcMessageBuffer::validateChunkHeader(IpcMessageObjSize chunkStart, IpcMessageObjSize chunkLen,
+                                           IpcMessageObjSize maxChunkSize, NABoolean allowOutOfOrderChunks) {
+  InternalChunkHdrStruct *ch = reinterpret_cast<InternalChunkHdrStruct *>(data(chunkStart));
   int numChunksInMessage = DIVIDE_AND_ROUND_UP(msgLength_, maxChunkSize);
 
   assert(ch->eyeCatcher_ == IPC_CHUNK_HEADER_EYE_CATCHER);
-  if (allowOutOfOrderChunks)
-    {
-      // just assert that the chunk number is a valid chunk,
-      // it may be in the wrong slot
-      assert(ch->chunkNum_ >= 1 &&
-             ch->chunkNum_ < numChunksInMessage);
-    }
-  else
-    {
-      assert(ch->chunkNum_ == chunkStart / maxChunkSize);
-    }
+  if (allowOutOfOrderChunks) {
+    // just assert that the chunk number is a valid chunk,
+    // it may be in the wrong slot
+    assert(ch->chunkNum_ >= 1 && ch->chunkNum_ < numChunksInMessage);
+  } else {
+    assert(ch->chunkNum_ == chunkStart / maxChunkSize);
+  }
 
-  if (ch->chunkNum_ < numChunksInMessage-1)
-    {
-      assert(chunkLen == maxChunkSize);
-    }
-  else
-    {
-      // last chunk may be smaller than max size
-      assert(chunkLen % maxChunkSize == msgLength_ % maxChunkSize);
-    }
+  if (ch->chunkNum_ < numChunksInMessage - 1) {
+    assert(chunkLen == maxChunkSize);
+  } else {
+    // last chunk may be smaller than max size
+    assert(chunkLen % maxChunkSize == msgLength_ % maxChunkSize);
+  }
 }
 
-Int32 IpcMessageBuffer::getChunkNumFromHeader(IpcMessageBufferPtr buf)
-{
-  InternalChunkHdrStruct *hdr =
-    reinterpret_cast<InternalChunkHdrStruct *>(buf);
+Int32 IpcMessageBuffer::getChunkNumFromHeader(IpcMessageBufferPtr buf) {
+  InternalChunkHdrStruct *hdr = reinterpret_cast<InternalChunkHdrStruct *>(buf);
 
   assert(hdr->eyeCatcher_ == IPC_CHUNK_HEADER_EYE_CATCHER);
 
   return hdr->chunkNum_;
 }
 
-IpcMessageObjSize IpcMessageBuffer::getLengthWithChunkHeaders(
-     IpcMessageObjSize chunkSize,
-     IpcMessageObjSize msgLength)
-{
+IpcMessageObjSize IpcMessageBuffer::getLengthWithChunkHeaders(IpcMessageObjSize chunkSize,
+                                                              IpcMessageObjSize msgLength) {
   // shortcut: single chunk
-  if (msgLength <= chunkSize)
-    return msgLength;
+  if (msgLength <= chunkSize) return msgLength;
 
 #ifndef NDEBUG
-  assert(chunkSize > sizeof(InternalChunkHdrStruct) +
-                     sizeof(InternalChunkMsgTrailerStruct));
+  assert(chunkSize > sizeof(InternalChunkHdrStruct) + sizeof(InternalChunkMsgTrailerStruct));
 #endif
 
   // start with the fixed part needed, just the original message with
@@ -3118,30 +2468,26 @@ IpcMessageObjSize IpcMessageBuffer::getLengthWithChunkHeaders(
   Int32 numChunks = DIVIDE_AND_ROUND_UP(result, chunkSize);
 
   // the number of chunk headers added by this first iteration
-  Int32 deltaHdrs = numChunks-1;
+  Int32 deltaHdrs = numChunks - 1;
 
   // iterate adding chunks for the displaced data (even the displaced
   // data can be displaced again if it crosses a chunk boundary), until
   // the process comes to a halt
-  while (deltaHdrs > 0)
-    {
-      IpcMessageObjSize prevResult = result;
+  while (deltaHdrs > 0) {
+    IpcMessageObjSize prevResult = result;
 
-      // new data displaced in this round
-      result += deltaHdrs * sizeof(InternalChunkHdrStruct);
+    // new data displaced in this round
+    result += deltaHdrs * sizeof(InternalChunkHdrStruct);
 
-      // test whether the newly displaced data crossed block boundaries
-      deltaHdrs = DIVIDE_AND_ROUND_UP(result, chunkSize) - numChunks;
-      numChunks += deltaHdrs;
-    }
+    // test whether the newly displaced data crossed block boundaries
+    deltaHdrs = DIVIDE_AND_ROUND_UP(result, chunkSize) - numChunks;
+    numChunks += deltaHdrs;
+  }
 
   return result;
 }
 
-IpcMessageObjSize IpcMessageBuffer::roundUpBufferLength(
-     IpcMessageObjSize chunkSize,
-     IpcMessageObjSize newMaxLen)
-{
+IpcMessageObjSize IpcMessageBuffer::roundUpBufferLength(IpcMessageObjSize chunkSize, IpcMessageObjSize newMaxLen) {
   // Round the message size up to a multiple of chunkSize. This is
   // because if we have to use multiple chunks, the chunks may come
   // out of order, so we need to make all the buffers for chunks the
@@ -3152,11 +2498,8 @@ IpcMessageObjSize IpcMessageBuffer::roundUpBufferLength(
   return DIVIDE_AND_ROUND_UP(newMaxLen, chunkSize) * chunkSize;
 }
 
-InternalMsgHdrInfoStruct * IpcMessageBuffer::getPayloadHeader(
-     NABoolean checkMsgLength)
-{
-  if (checkMsgLength)
-    assert(msgLength_ >= sizeof(InternalMsgHdrInfoStruct));
+InternalMsgHdrInfoStruct *IpcMessageBuffer::getPayloadHeader(NABoolean checkMsgLength) {
+  if (checkMsgLength) assert(msgLength_ >= sizeof(InternalMsgHdrInfoStruct));
 
   return reinterpret_cast<InternalMsgHdrInfoStruct *>(data(0));
 }
@@ -3165,79 +2508,55 @@ InternalMsgHdrInfoStruct * IpcMessageBuffer::getPayloadHeader(
 // Methods for class IpcMessageStreamBase
 // -----------------------------------------------------------------------
 
-IpcMessageStreamBase::IpcMessageStreamBase(IpcEnvironment *env,
-                                           IpcThreadInfo *threadInfo)
-     : environment_(env), threadInfo_(threadInfo)
-{
-  if (env->isMultiThreaded())
-    {
-      if (threadInfo_ == NULL)
-        {
-          // associate this message stream with the current thread
-          threadInfo_ = env->getThreadInfo();
-          assert(threadInfo_);
-        }
-      else
-        {
-          assert(env->getThreadInfo(threadInfo_->getTid()) == threadInfo_);
-        }
+IpcMessageStreamBase::IpcMessageStreamBase(IpcEnvironment *env, IpcThreadInfo *threadInfo)
+    : environment_(env), threadInfo_(threadInfo) {
+  if (env->isMultiThreaded()) {
+    if (threadInfo_ == NULL) {
+      // associate this message stream with the current thread
+      threadInfo_ = env->getThreadInfo();
+      assert(threadInfo_);
+    } else {
+      assert(env->getThreadInfo(threadInfo_->getTid()) == threadInfo_);
     }
+  }
 }
 
-IpcMessageStreamBase::~IpcMessageStreamBase()
-{
-}
+IpcMessageStreamBase::~IpcMessageStreamBase() {}
 
-IpcMessageStream * IpcMessageStreamBase::castToIpcMessageStream()
-{
-  return NULL;
-}
+IpcMessageStream *IpcMessageStreamBase::castToIpcMessageStream() { return NULL; }
 
-IpcBufferedMsgStream *
-IpcMessageStreamBase::castToIpcBufferedMsgStream()
-{
-  return NULL;
-}
+IpcBufferedMsgStream *IpcMessageStreamBase::castToIpcBufferedMsgStream() { return NULL; }
 
-void IpcMessageStreamBase::addToCompletedList()
-{
-  environment_->addToCompletedMessages(this);
-}
+void IpcMessageStreamBase::addToCompletedList() { environment_->addToCompletedMessages(this); }
 
 // -----------------------------------------------------------------------
 // Methods for class IpcMessageStream
 // -----------------------------------------------------------------------
 
-IpcMessageStream::IpcMessageStream(
-     IpcEnvironment *env,
-     IpcMessageObjType msgType,
-     IpcMessageObjVersion version,
-     IpcMessageObjSize fixedMsgBufferLength,
-     NABoolean shareMessageObjects,
-     IpcThreadInfo *threadInfo) :
-     IpcMessageStreamBase(env, threadInfo),
-        h_(msgType,version),
-	recipients_(env),
-	activeIOs_(env),
-        numOfSendCallbacks_(0)
-{
+IpcMessageStream::IpcMessageStream(IpcEnvironment *env, IpcMessageObjType msgType, IpcMessageObjVersion version,
+                                   IpcMessageObjSize fixedMsgBufferLength, NABoolean shareMessageObjects,
+                                   IpcThreadInfo *threadInfo)
+    : IpcMessageStreamBase(env, threadInfo),
+      h_(msgType, version),
+      recipients_(env),
+      activeIOs_(env),
+      numOfSendCallbacks_(0) {
   assert(fixedMsgBufferLength <= env->getGuaMaxMsgIOSize());
 
-  msgBuffer_       = NULL;
-  fixedBufLen_     = fixedMsgBufferLength;
-  maxReplyLength_  = 0;
-  shareObjects_    = shareMessageObjects;
+  msgBuffer_ = NULL;
+  fixedBufLen_ = fixedMsgBufferLength;
+  maxReplyLength_ = 0;
+  shareObjects_ = shareMessageObjects;
   objectsInBuffer_ = FALSE;
-  state_           = EMPTY;
-  tail_            = first();
-  current_         = NULL;
-  errorInfo_       = 0;
-  corruptMessage_  = false;
-  isOrphaned_      = FALSE;
+  state_ = EMPTY;
+  tail_ = first();
+  current_ = NULL;
+  errorInfo_ = 0;
+  corruptMessage_ = false;
+  isOrphaned_ = FALSE;
 }
 
-IpcMessageStream::~IpcMessageStream()
-{
+IpcMessageStream::~IpcMessageStream() {
   // the destructor for the message header, which will
   // perform a check of the reference count, is called implicitly
 
@@ -3245,13 +2564,9 @@ IpcMessageStream::~IpcMessageStream()
   allocateMessageBuffer(0);
 }
 
-IpcMessageStream *IpcMessageStream::castToIpcMessageStream()
-{
-  return this;
-}
+IpcMessageStream *IpcMessageStream::castToIpcMessageStream() { return this; }
 
-IpcMessageStream & IpcMessageStream::operator << (IpcMessageObj & toAppend)
-{
+IpcMessageStream &IpcMessageStream::operator<<(IpcMessageObj &toAppend) {
 #ifdef IPC_INTEGRITY_CHECKING
 //  checkIntegrity();  message may be legitimately orphaned here
 #endif
@@ -3260,109 +2575,99 @@ IpcMessageStream & IpcMessageStream::operator << (IpcMessageObj & toAppend)
   assert(state_ == EMPTY OR state_ == COMPOSING);
   state_ = COMPOSING;
 
-  if (shareObjects_)
-    {
-      // if we add a new object to the message, it ought not be in use
-      // by some other message (only the owner can have a refcount)
-      // (this may be extended later)
-      assert(toAppend.s_.next_ == NULL AND toAppend.s_.refCount_ == 1);
+  if (shareObjects_) {
+    // if we add a new object to the message, it ought not be in use
+    // by some other message (only the owner can have a refcount)
+    // (this may be extended later)
+    assert(toAppend.s_.next_ == NULL AND toAppend.s_.refCount_ == 1);
 
-      // increment the reference count of the appended shared object
-      toAppend.incrRefCount();
+    // increment the reference count of the appended shared object
+    toAppend.incrRefCount();
 
-      // add the object to the linked list of IpcMessageObj objects hanging
-      // off the IpcMessageStream, don't pack the object into the
-      // message buffer yet!!
-      tail_->s_.next_ = &toAppend;
-      tail_ = &toAppend;
+    // add the object to the linked list of IpcMessageObj objects hanging
+    // off the IpcMessageStream, don't pack the object into the
+    // message buffer yet!!
+    tail_->s_.next_ = &toAppend;
+    tail_ = &toAppend;
 
-    }
-  else
-    {
-      // copy the object into the message buffer without altering its
-      // reference count (toAppend can go away after this method returns)
+  } else {
+    // copy the object into the message buffer without altering its
+    // reference count (toAppend can go away after this method returns)
 
-      // size of toAppend when packed into the message buffer
-      IpcMessageObjSize thisObjSize = toAppend.packedLength();
+    // size of toAppend when packed into the message buffer
+    IpcMessageObjSize thisObjSize = toAppend.packedLength();
 
-      // start offset of the packed version of toAppend in the message buffer
-      IpcMessageObjSize startOffset;
+    // start offset of the packed version of toAppend in the message buffer
+    IpcMessageObjSize startOffset;
 
-      // we need a message buffer of at least this size
-      IpcMessageObjSize neededMsgSize;
+    // we need a message buffer of at least this size
+    IpcMessageObjSize neededMsgSize;
 
-      // number of bytes used during the pack process
-      IpcMessageObjSize packedBytes;
+    // number of bytes used during the pack process
+    IpcMessageObjSize packedBytes;
 
-      // a pointer to the packed object cast as an IpcMessageObj
-      IpcMessageObj     *bufObj;
+    // a pointer to the packed object cast as an IpcMessageObj
+    IpcMessageObj *bufObj;
 
-      // we know that the object's header uses at least some space
-      assert(thisObjSize >= sizeof(IpcMessageObj));
-      
-      // check whether there are previous objects in the buffer
-      if (tail_ == first())
-	{
-	  // no, this is the first object to be added to the message
-	  // (after the header, which gets packed during send(), but
-	  // whose space gets allocated right here)
-	  h_.totalLength_ = h_.packedLength();
-	  IpcMessageBuffer::alignOffset(h_.totalLength_);
-	  startOffset = h_.totalLength_;
-	}
-      else
-	{
-	  startOffset = h_.totalLength_;
-	}
+    // we know that the object's header uses at least some space
+    assert(thisObjSize >= sizeof(IpcMessageObj));
 
-      neededMsgSize = startOffset + thisObjSize;
-
-      // check whether we need to allocate a new or bigger message buffer
-      if (msgBuffer_ == NULL OR
-	  msgBuffer_->getBufferLength() < neededMsgSize)
-	{
-	  // current buffer is too small, make room and maybe add a little
-	  // reserve so this doesn't happen again next time
-
-	  if (fixedBufLen_ > 0)
-	    neededMsgSize = MAXOF(neededMsgSize,fixedBufLen_);
-	  else
-	    neededMsgSize = MAXOF(neededMsgSize,DefaultInitialMessageBufSize);
-
-	  resizeMessageBuffer(neededMsgSize);
-	}
-
-      // now pack the object into the message buffer
-
-      packedBytes = toAppend.packObjIntoMessage(msgBuffer_->data(startOffset));
-      bufObj = (IpcMessageObj *) (msgBuffer_->data(startOffset));
-      
-      // Do some sanity checks, did the object really use the length it
-      // promised to use? Did the length field in the message get set
-      // correctly?
-      assert(thisObjSize == packedBytes);
-      assert(bufObj->s_.objLength_ == packedBytes);
-
-      // advance the buffer pointer to the next place where we could
-      // put an object (the next object wants to sit on an 8 byte boundary)
-      // NOTE: we don't increase bufObj->s_.objLength_ when we align.
-      h_.totalLength_ += packedBytes;
+    // check whether there are previous objects in the buffer
+    if (tail_ == first()) {
+      // no, this is the first object to be added to the message
+      // (after the header, which gets packed during send(), but
+      // whose space gets allocated right here)
+      h_.totalLength_ = h_.packedLength();
       IpcMessageBuffer::alignOffset(h_.totalLength_);
-
-      // prepare the packed object to be shipped off and set the link from
-      // the previous object
-      bufObj->setMyVPtr(NULL);
-      bufObj->s_.refCount_ = 1;
-      bufObj->s_.next_ = NULL;
-      tail_->s_.next_ = (IpcMessageObj *) ((long)startOffset);
-      tail_ = bufObj;
+      startOffset = h_.totalLength_;
+    } else {
+      startOffset = h_.totalLength_;
     }
+
+    neededMsgSize = startOffset + thisObjSize;
+
+    // check whether we need to allocate a new or bigger message buffer
+    if (msgBuffer_ == NULL OR msgBuffer_->getBufferLength() < neededMsgSize) {
+      // current buffer is too small, make room and maybe add a little
+      // reserve so this doesn't happen again next time
+
+      if (fixedBufLen_ > 0)
+        neededMsgSize = MAXOF(neededMsgSize, fixedBufLen_);
+      else
+        neededMsgSize = MAXOF(neededMsgSize, DefaultInitialMessageBufSize);
+
+      resizeMessageBuffer(neededMsgSize);
+    }
+
+    // now pack the object into the message buffer
+
+    packedBytes = toAppend.packObjIntoMessage(msgBuffer_->data(startOffset));
+    bufObj = (IpcMessageObj *)(msgBuffer_->data(startOffset));
+
+    // Do some sanity checks, did the object really use the length it
+    // promised to use? Did the length field in the message get set
+    // correctly?
+    assert(thisObjSize == packedBytes);
+    assert(bufObj->s_.objLength_ == packedBytes);
+
+    // advance the buffer pointer to the next place where we could
+    // put an object (the next object wants to sit on an 8 byte boundary)
+    // NOTE: we don't increase bufObj->s_.objLength_ when we align.
+    h_.totalLength_ += packedBytes;
+    IpcMessageBuffer::alignOffset(h_.totalLength_);
+
+    // prepare the packed object to be shipped off and set the link from
+    // the previous object
+    bufObj->setMyVPtr(NULL);
+    bufObj->s_.refCount_ = 1;
+    bufObj->s_.next_ = NULL;
+    tail_->s_.next_ = (IpcMessageObj *)((long)startOffset);
+    tail_ = bufObj;
+  }
   return *this;
 }
 
-NABoolean IpcMessageStream::extractNextObj(IpcMessageObj &toRetrieve,
-                                           NABoolean checkObjects)
-{
+NABoolean IpcMessageStream::extractNextObj(IpcMessageObj &toRetrieve, NABoolean checkObjects) {
 #ifdef IPC_INTEGRITY_CHECKING
 //  checkIntegrity();  message may be legitimately orphaned here
 #endif
@@ -3400,17 +2705,15 @@ NABoolean IpcMessageStream::extractNextObj(IpcMessageObj &toRetrieve,
   //
 
   // the user should have predicted the object type and version correctly
-  assert(current_ AND
-         toRetrieve.s_.objType_ == current_->s_.objType_ AND
-         toRetrieve.isActualVersionOK(current_->s_.objVersion_));
+  assert(current_ AND toRetrieve.s_.objType_ ==
+         current_->s_.objType_ AND toRetrieve.isActualVersionOK(current_->s_.objVersion_));
 
   // current_ points to the next object to be retrieved
   IpcMessageObj *packedObject = current_;
-  
+
   // need to turn around bytes if this object is in the other endianness
-  if (h_.getEndianness() != IpcMyEndianness)
-    packedObject->turnByteOrder();
-  
+  if (h_.getEndianness() != IpcMyEndianness) packedObject->turnByteOrder();
+
   // The object pointed to by <current> will get copied onto <toRetrieve>.
   // To avoid trouble, set the refcount of <current> to the refcount of
   // toRetrieve while unpacking the object. This way, even if the user's
@@ -3420,50 +2723,42 @@ NABoolean IpcMessageStream::extractNextObj(IpcMessageObj &toRetrieve,
   // is transparent to those people who have a pointer to it, therefore
   // it shouldn't change it's refcount.
   IpcMessageRefCount saveRefCount = packedObject->s_.refCount_;
-  
+
   // advance the current object pointer
   // (check whether the object uses an offset or a real pointer)
   if (objectsInBuffer_)
     current_ = current_->getNextFromOffset();
   else
     current_ = current_->s_.next_;
-  
+
   // for now, all refcounts of objects in messages should be 1
   assert(saveRefCount == 1);
-  
+
   packedObject->s_.refCount_ = toRetrieve.s_.refCount_;
 
   // If the caller requested an integrity check on the packed object
   // then we call a checkObj() method before unpackObj().
   NABoolean result = TRUE;
-  if (checkObjects)
-  {
-    result = toRetrieve.checkObj(packedObject->s_.objType_,
-                                 packedObject->s_.objVersion_,
-                                 h_.getEndianness() == IpcMyEndianness,
-                                 packedObject->s_.objLength_,
-                                 (IpcConstMessageBufferPtr) packedObject);
+  if (checkObjects) {
+    result = toRetrieve.checkObj(packedObject->s_.objType_, packedObject->s_.objVersion_,
+                                 h_.getEndianness() == IpcMyEndianness, packedObject->s_.objLength_,
+                                 (IpcConstMessageBufferPtr)packedObject);
   }
-  
+
   // now call the user-defined unpack function
   // NOTE: this may call this method recursively!!!
-  if (result)
-  {
-    toRetrieve.unpackObj(packedObject->s_.objType_,
-                         packedObject->s_.objVersion_,
-                         h_.getEndianness() == IpcMyEndianness,
-                         packedObject->s_.objLength_,
-                         (IpcConstMessageBufferPtr) packedObject);
+  if (result) {
+    toRetrieve.unpackObj(packedObject->s_.objType_, packedObject->s_.objVersion_, h_.getEndianness() == IpcMyEndianness,
+                         packedObject->s_.objLength_, (IpcConstMessageBufferPtr)packedObject);
   }
-  
+
   // restore the refcount in the message
   packedObject->s_.refCount_ = saveRefCount;
-  
+
   return result;
 }
 
-IpcMessageStream & IpcMessageStream::operator >> (IpcMessageObj * &toRetrieve)
-{
+IpcMessageStream &IpcMessageStream::operator>>(IpcMessageObj *&toRetrieve) {
 #ifdef IPC_INTEGRITY_CHECKING
 //  checkIntegrity(); message may be legitimately orphaned here
 #endif
@@ -3473,34 +2768,30 @@ IpcMessageStream & IpcMessageStream::operator >> (IpcMessageObj * &toRetrieve)
   state_ = EXTRACTING;
 
   // current_ points to the next object to be retrieved
-  if (current_ != NULL)
-    {
-      // return the pointer to the current object
-      toRetrieve = current_;
+  if (current_ != NULL) {
+    // return the pointer to the current object
+    toRetrieve = current_;
 
-      // indicate that the current object is now also referenced
-      // by the caller of this method (caller has to release the
-      // object later)
-      toRetrieve->incrRefCount();
+    // indicate that the current object is now also referenced
+    // by the caller of this method (caller has to release the
+    // object later)
+    toRetrieve->incrRefCount();
 
-      // advance the current object pointer
-      // (check whether the object uses an offset or a real pointer)
-      if (objectsInBuffer_)
-	current_ = current_->getNextFromOffset();
-      else
-	current_ = current_->s_.next_;
-    }
-  else
-    {
-      // error, no more objects are available
-      toRetrieve = NULL;
-    }
+    // advance the current object pointer
+    // (check whether the object uses an offset or a real pointer)
+    if (objectsInBuffer_)
+      current_ = current_->getNextFromOffset();
+    else
+      current_ = current_->s_.next_;
+  } else {
+    // error, no more objects are available
+    toRetrieve = NULL;
+  }
 
   return *this;
 }
 
-void IpcMessageStream::clearAllObjects()
-{
+void IpcMessageStream::clearAllObjects() {
 #ifdef IPC_INTEGRITY_CHECKING
   checkIntegrity();
 #endif
@@ -3511,36 +2802,31 @@ void IpcMessageStream::clearAllObjects()
   assert(state_ != SENDING AND state_ != RECEIVING);
   assert(activeIOs_.entries() == 0);
 
-  if (objectsInBuffer_)
-    {
-      clearMessageBufferContents();
+  if (objectsInBuffer_) {
+    clearMessageBufferContents();
+  } else {
+    // if the message contains a linked list of shared objects then
+    // release all objects except the header which is hardwired in
+    // and unlink the objects from the list as you go
+    obj = first()->s_.next_;
+    first()->s_.next_ = NULL;
+    while (obj != NULL) {
+      next = obj->s_.next_;
+      obj->s_.next_ = NULL;
+      obj->decrRefCount();
+      obj = next;
     }
-  else
-    {
-      // if the message contains a linked list of shared objects then
-      // release all objects except the header which is hardwired in
-      // and unlink the objects from the list as you go
-      obj = first()->s_.next_;
-      first()->s_.next_ = NULL;
-      while (obj != NULL)
-	{
-	  next = obj->s_.next_;
-	  obj->s_.next_ = NULL;
-	  obj->decrRefCount();
-	  obj = next;
-	}
-    }
+  }
 
   objectsInBuffer_ = FALSE;
-  current_         = NULL;
-  tail_            = first();
+  current_ = NULL;
+  tail_ = first();
   h_.resetFlags();
 
   state_ = EMPTY;
 }
 
-void IpcMessageStream::addRecipient(IpcConnection *recipient)
-{
+void IpcMessageStream::addRecipient(IpcConnection *recipient) {
 #ifdef IPC_INTEGRITY_CHECKING
 //  checkIntegrity();  don't check here since msg. will be legitimately orphaned
 #endif
@@ -3552,14 +2838,12 @@ void IpcMessageStream::addRecipient(IpcConnection *recipient)
 #endif
 }
 
-void IpcMessageStream::addRecipients(const IpcSetOfConnections &/*recipients*/)
-{
+void IpcMessageStream::addRecipients(const IpcSetOfConnections & /*recipients*/) {
   ABORT("not implemented yet");
   // recipients_ += recipients;
 }
 
-void IpcMessageStream::deleteRecipient(IpcConnection *recipient)
-{
+void IpcMessageStream::deleteRecipient(IpcConnection *recipient) {
 #ifdef IPC_INTEGRITY_CHECKING
   checkIntegrity();
 #endif
@@ -3571,14 +2855,9 @@ void IpcMessageStream::deleteRecipient(IpcConnection *recipient)
 #endif
 }
 
-void IpcMessageStream::deleteAllRecipients()
-{
-  recipients_.clear();
-}
+void IpcMessageStream::deleteAllRecipients() { recipients_.clear(); }
 
-void IpcMessageStream::giveMessageTo(IpcMessageStream &other,
-				     IpcConnection *connection)
-{
+void IpcMessageStream::giveMessageTo(IpcMessageStream &other, IpcConnection *connection) {
   // ---------------------------------------------------------------------
   // This method takes another message stream, implicitly performs a
   // receive() call on it, connects it to the connection, and passes
@@ -3593,8 +2872,7 @@ void IpcMessageStream::giveMessageTo(IpcMessageStream &other,
   assert(connection);
 
   // the other message must be in a state that allows receiving
-  assert(other.getState() == EMPTY OR
-	 other.getState() == SENT);
+  assert(other.getState() == EMPTY OR other.getState() == SENT);
 
   // get the message buffer that we want to give to the other message stream
   IpcMessageBuffer *bufferToMove = msgBuffer_;
@@ -3602,10 +2880,10 @@ void IpcMessageStream::giveMessageTo(IpcMessageStream &other,
   // detach myself from the message buffer (NOTE: somebody may have already
   // looked at the message contents, so my pointers may point to the
   // message buffer)
-  msgBuffer_       = NULL;
+  msgBuffer_ = NULL;
   objectsInBuffer_ = FALSE;
-  current_         = NULL;
-  tail_            = first();
+  current_ = NULL;
+  tail_ = first();
 
   // this is now an empty message, ready for either send or receive
   state_ = EMPTY;
@@ -3621,11 +2899,9 @@ void IpcMessageStream::giveMessageTo(IpcMessageStream &other,
   bufferToMove->callReceiveCallback(connection);
 }
 
-
 ///////////////////////////////////////////////////////////////////////////////
 // give receive message to class IpcBufferedMsgStream
-void IpcMessageStream::giveReceiveMsgTo(IpcBufferedMsgStream& msgStream)
-{
+void IpcMessageStream::giveReceiveMsgTo(IpcBufferedMsgStream &msgStream) {
   {
     // TODO: Decide whether this mutex is needed and whether we need
     //       to put other accesses to msgBuffer_ etc. under mutex
@@ -3633,20 +2909,18 @@ void IpcMessageStream::giveReceiveMsgTo(IpcBufferedMsgStream& msgStream)
 
     msgStream.addInputBuffer(msgBuffer_);
 
-    msgBuffer_       = NULL;
+    msgBuffer_ = NULL;
     objectsInBuffer_ = FALSE;
-    current_         = NULL;
-    tail_            = first();
+    current_ = NULL;
+    tail_ = first();
     state_ = EMPTY;
   }
-  
-  msgStream.actOnReceive(NULL);   // trigger receiving message stream
+
+  msgStream.actOnReceive(NULL);  // trigger receiving message stream
 }
 
-IpcMessageObjSize IpcMessageStream::getBytesReceived() const
-{
-  if (msgBuffer_)
-    return msgBuffer_->getMessageLength();
+IpcMessageObjSize IpcMessageStream::getBytesReceived() const {
+  if (msgBuffer_) return msgBuffer_->getMessageLength();
 
   return 0;
 }
@@ -3655,171 +2929,158 @@ IpcMessageObjSize IpcMessageStream::getBytesReceived() const
 // is also defined in IpcGuardian.cpp
 // #define LOG_IPC_MSG_OBJ
 
-void IpcMessageStream::send(NABoolean waited,
-                            Int64 transid,
-                            IpcMessageObjSize *bytesSent)
-{
+void IpcMessageStream::send(NABoolean waited, Int64 transid, IpcMessageObjSize *bytesSent) {
 #ifdef IPC_INTEGRITY_CHECKING
   checkIntegrity();
 #endif
 
   MXTRC_FUNC("IpcMessageStream::send");
-  IpcMessageObjSize   thisObjLength;
+  IpcMessageObjSize thisObjLength;
   IpcMessageObj *obj;
 
   // check message state
   assert(state_ == COMPOSING);
 
-  if (shareObjects_)
-    {
-      // -----------------------------------------------------------------
-      // Objects are shared between caller and IPC layer. Therefore they
-      // were not copied by operator <<. Now that we know all of them,
-      // copy them into the message buffer.
-      // -----------------------------------------------------------------
+  if (shareObjects_) {
+    // -----------------------------------------------------------------
+    // Objects are shared between caller and IPC layer. Therefore they
+    // were not copied by operator <<. Now that we know all of them,
+    // copy them into the message buffer.
+    // -----------------------------------------------------------------
 
-      // -----------------------------------------------------------------
-      // Compute the total length of the message.
-      // ---------------------------------------------------------------------
+    // -----------------------------------------------------------------
+    // Compute the total length of the message.
+    // ---------------------------------------------------------------------
 
-      // loop through all objects and ask them how much space they need
+    // loop through all objects and ask them how much space they need
 
-      h_.totalLength_ = 0;
-      obj = first();
-      while (obj != NULL)
-	{
-	  // ask the object how long it will be when packed into the buffer
-	  thisObjLength = obj->packedLength();
-	  
-	  // we know that the object's header uses at least some space
-	  assert(thisObjLength >= sizeof(IpcMessageObj));
-	  
-	  // store that info in the object's length field (we check later
-	  // when the packing is done whether the method lied or not)
-	  obj->s_.objLength_ = thisObjLength;
-	  
-	  // find the offset of the next potential object by aligning the
-	  // address and add the needed filler space to the object length
-	  // NOTE: we even align the end of the message
-	  h_.totalLength_ += thisObjLength;
-	  IpcMessageBuffer::alignOffset(h_.totalLength_);
-	  
-	  // next, please
-	  obj = obj->s_.next_;
-	}
+    h_.totalLength_ = 0;
+    obj = first();
+    while (obj != NULL) {
+      // ask the object how long it will be when packed into the buffer
+      thisObjLength = obj->packedLength();
 
-      // -----------------------------------------------------------------
-      // allocate an empty message buffer, if the user specified a fixed
-      // length buffer size then use that (allows replies via REPLYX to
-      // have maxBufferLen_ bytes without switching to the multi-chunk
-      // protocol)
-      // -----------------------------------------------------------------
-      allocateMessageBuffer(MAXOF(h_.totalLength_,fixedBufLen_));
+      // we know that the object's header uses at least some space
+      assert(thisObjLength >= sizeof(IpcMessageObj));
 
-      // -----------------------------------------------------------------
-      // pack the message object into a buffer
-      // -----------------------------------------------------------------
-      IpcMessageObjSize msgDataLen = 0;
-      IpcMessageObj *bufObj = (IpcMessageObj *) msgBuffer_->data();
-      IpcMessageObj *nextBufObj = NULL;
+      // store that info in the object's length field (we check later
+      // when the packing is done whether the method lied or not)
+      obj->s_.objLength_ = thisObjLength;
 
-      obj = first();
-      while (obj != NULL)
-	{
+      // find the offset of the next potential object by aligning the
+      // address and add the needed filler space to the object length
+      // NOTE: we even align the end of the message
+      h_.totalLength_ += thisObjLength;
+      IpcMessageBuffer::alignOffset(h_.totalLength_);
+
+      // next, please
+      obj = obj->s_.next_;
+    }
+
+    // -----------------------------------------------------------------
+    // allocate an empty message buffer, if the user specified a fixed
+    // length buffer size then use that (allows replies via REPLYX to
+    // have maxBufferLen_ bytes without switching to the multi-chunk
+    // protocol)
+    // -----------------------------------------------------------------
+    allocateMessageBuffer(MAXOF(h_.totalLength_, fixedBufLen_));
+
+    // -----------------------------------------------------------------
+    // pack the message object into a buffer
+    // -----------------------------------------------------------------
+    IpcMessageObjSize msgDataLen = 0;
+    IpcMessageObj *bufObj = (IpcMessageObj *)msgBuffer_->data();
+    IpcMessageObj *nextBufObj = NULL;
+
+    obj = first();
+    while (obj != NULL) {
 #ifdef LOG_IPC_MSG_OBJ
-          cerr << obj->getType() << ", ";
-#endif          
-	  MXTRC_1("type=%d\n", obj->getType());
-	  // let the user code pack the actual object into the buffer
-	  thisObjLength = obj->packObjIntoMessage(
-	       (IpcMessageBufferPtr) bufObj);
-	  msgDataLen += thisObjLength;
-	  
-	  // now massage some of the header fields of the object in
-	  // the buffer:
-	  //
-	  // - make sure the object length is the one we previously
-	  //   calculated by calling obj->packedLength();
-	  // - make sure we correctly set the obj. length in the message
-	  // - wipe out the virtual function pointer
-	  // - set the refcount of the object in the message to 1
-	  // - find the end of the object by aligning the end pointer
-	  // - set the next_ pointer to be a relative offset to the
-	  //   next message
-	  //
-	  assert(obj->s_.objLength_ == thisObjLength);
+      cerr << obj->getType() << ", ";
+#endif
+      MXTRC_1("type=%d\n", obj->getType());
+      // let the user code pack the actual object into the buffer
+      thisObjLength = obj->packObjIntoMessage((IpcMessageBufferPtr)bufObj);
+      msgDataLen += thisObjLength;
+
+      // now massage some of the header fields of the object in
+      // the buffer:
+      //
+      // - make sure the object length is the one we previously
+      //   calculated by calling obj->packedLength();
+      // - make sure we correctly set the obj. length in the message
+      // - wipe out the virtual function pointer
+      // - set the refcount of the object in the message to 1
+      // - find the end of the object by aligning the end pointer
+      // - set the next_ pointer to be a relative offset to the
+      //   next message
+      //
+      assert(obj->s_.objLength_ == thisObjLength);
 #ifdef NA_BIG_ENDIAN
       // NOTE: byte length *may* have been converted to big-endian format
-	  //       which means that s_.objLength_ is in the wrong format
+      //       which means that s_.objLength_ is in the wrong format
       assert(obj->s_.objLength_ == bufObj->s_.objLength_);
 #endif
-	  bufObj->setMyVPtr(NULL);
-	  bufObj->s_.refCount_ = 1;
+      bufObj->setMyVPtr(NULL);
+      bufObj->s_.refCount_ = 1;
 
-	  // NOTE: see also IpcMessageObj::packDependentObjIntoMessage()
-	  // when making changes to the above code
+      // NOTE: see also IpcMessageObj::packDependentObjIntoMessage()
+      // when making changes to the above code
 
-	  // advance the buffer pointer to the next place where we could
-	  // put an object (the next object wants to sit on an 8 byte boundary)
-	  // NOTE: we don't increase bufObj->s_.objLength_ when we align.
-	  IpcMessageBuffer::alignOffset(msgDataLen);
+      // advance the buffer pointer to the next place where we could
+      // put an object (the next object wants to sit on an 8 byte boundary)
+      // NOTE: we don't increase bufObj->s_.objLength_ when we align.
+      IpcMessageBuffer::alignOffset(msgDataLen);
 
-	  // take care of the object's next_ pointer that is now embedded
-	  // in the message buffer
-	  if (obj->s_.next_ != NULL)
-	    {
-	      nextBufObj = (IpcMessageObj *) msgBuffer_->data(msgDataLen);
-	      // store the place where the next object will be located
-	      bufObj->s_.next_ = nextBufObj;
-	      // now convert it to an offset relative to the start of obj
-	      bufObj->convertNextToOffset();
-	    }
-	  else
-	    {
-	      nextBufObj = NULL;
-	    }
+      // take care of the object's next_ pointer that is now embedded
+      // in the message buffer
+      if (obj->s_.next_ != NULL) {
+        nextBufObj = (IpcMessageObj *)msgBuffer_->data(msgDataLen);
+        // store the place where the next object will be located
+        bufObj->s_.next_ = nextBufObj;
+        // now convert it to an offset relative to the start of obj
+        bufObj->convertNextToOffset();
+      } else {
+        nextBufObj = NULL;
+      }
 
-	  // dissolve the linked list that hooked the objects together
-	  IpcMessageObj *next = obj->s_.next_;
-	  obj->s_.next_ = NULL;
+      // dissolve the linked list that hooked the objects together
+      IpcMessageObj *next = obj->s_.next_;
+      obj->s_.next_ = NULL;
 
-	  // the object got copied into the message, decrement its
-	  // reference count except for the first object, which is
-	  // embedded in the message object
-	  if (obj != first())
-	    obj->decrRefCount();
- 
-          // Allow testing of corrupt message handling on the other side.
-	  if (corruptMessage_ && (next == NULL))
-            bufObj->s_.refCount_ = 666;
+      // the object got copied into the message, decrement its
+      // reference count except for the first object, which is
+      // embedded in the message object
+      if (obj != first()) obj->decrRefCount();
 
-          // advance to the next object
-	  obj = next;
-	  bufObj = nextBufObj;
-	}
-  
-      assert(h_.totalLength_ == msgDataLen);
-      msgBuffer_->setMessageLength(msgDataLen);
+      // Allow testing of corrupt message handling on the other side.
+      if (corruptMessage_ && (next == NULL)) bufObj->s_.refCount_ = 666;
+
+      // advance to the next object
+      obj = next;
+      bufObj = nextBufObj;
+    }
+
+    assert(h_.totalLength_ == msgDataLen);
+    msgBuffer_->setMessageLength(msgDataLen);
 
 #ifdef LOG_IPC_MSG_OBJ
-      if (msgDataLen)   // i.e., if any objs
-        cerr << endl;
+    if (msgDataLen)  // i.e., if any objs
+      cerr << endl;
 #endif
 
-    } // shared objects
-  else
-    {
-      // -----------------------------------------------------------------
-      // Objects were not shared between caller and IPC layer and are
-      // therefore already copied into the message buffer.
-      // -----------------------------------------------------------------
+  }  // shared objects
+  else {
+    // -----------------------------------------------------------------
+    // Objects were not shared between caller and IPC layer and are
+    // therefore already copied into the message buffer.
+    // -----------------------------------------------------------------
 
-      // the header is not packed into the buffer yet but there is
-      // space allocated for it at the beginning of the buffer
-      first()->packObjIntoMessage(msgBuffer_->data());
-      msgBuffer_->setMessageLength(h_.totalLength_);
-      msgBuffer_->addCallback(this);
-    } // objects are not shared
+    // the header is not packed into the buffer yet but there is
+    // space allocated for it at the beginning of the buffer
+    first()->packObjIntoMessage(msgBuffer_->data());
+    msgBuffer_->setMessageLength(h_.totalLength_);
+    msgBuffer_->addCallback(this);
+  }  // objects are not shared
 
   // ---------------------------------------------------------------------
   // now send the message buffer to each of the connections specified
@@ -3827,9 +3088,8 @@ void IpcMessageStream::send(NABoolean waited,
   // ---------------------------------------------------------------------
   state_ = SENDING;
 
-  msgBuffer_->setTransid (transid);
-  if (bytesSent)
-    *bytesSent = msgBuffer_->getMessageLength();
+  msgBuffer_->setTransid(transid);
+  if (bytesSent) *bytesSent = msgBuffer_->getMessageLength();
 
   // can't have a previous operation uncompleted, since that would
   // confuse the activeIOs_ set.
@@ -3854,36 +3114,29 @@ void IpcMessageStream::send(NABoolean waited,
   // one. Note that this helps the connections to find out whether
   // they have exclusive access to the message buffer or not. If we would
   // let each connection increment its own refcount this wouldn't work.
-  for (CollIndex extraRecipients = 1;
-       extraRecipients < numRecipients;
-       extraRecipients++)
-    msgBuffer->incrRefCount();
+  for (CollIndex extraRecipients = 1; extraRecipients < numRecipients; extraRecipients++) msgBuffer->incrRefCount();
 
   // ---------------------------------------------------------------------
   // The actual IpcConnection::send() call(s)
   // ---------------------------------------------------------------------
-  for (IpcConnectionId i = 0; sendConnections.nextUsed(i); i++)
-    sendConnections.element(i)->send(msgBuffer);
+  for (IpcConnectionId i = 0; sendConnections.nextUsed(i); i++) sendConnections.element(i)->send(msgBuffer);
 
   // if the send is in wait mode, then we must wait until the send completes
   // on all connections. if the send is no-wait, then don't wait here but
   // simply return, and the caller shall issue wait on all connections.
   // otherwise we could see the stack piles up quickly due to recursive
   // send/receive calls.
-  if (waited)
-    {
-      NABoolean interruptRecvd = waitOnMsgStream(IpcInfiniteTimeout);
-      if (interruptRecvd)
-        state_ = BREAK_RECEIVED;
-    }
+  if (waited) {
+    NABoolean interruptRecvd = waitOnMsgStream(IpcInfiniteTimeout);
+    if (interruptRecvd) state_ = BREAK_RECEIVED;
+  }
 
 #ifdef IPC_INTEGRITY_CHECKING
   checkIntegrity();
 #endif
 }
 
-void IpcMessageStream::receive(NABoolean waited)
-{
+void IpcMessageStream::receive(NABoolean waited) {
 #ifdef IPC_INTEGRITY_CHECKING
   checkIntegrity();
 #endif
@@ -3891,13 +3144,12 @@ void IpcMessageStream::receive(NABoolean waited)
   MXTRC_FUNC("IpcMessageStream::receive");
 
   // check state
-  assert(state_ == EMPTY OR state_ == SENT
-         OR state_ == ERROR_STATE);  // After error, succesfully sent messages 
-                               // must have their receive callback registered.
-                               // See code in ExMasterEspMessage::actOnSend
-                               // which ensures that recipients_ contains only
-                               // connections of successfully sent messages
-                               // when this method is called.
+  assert(state_ == EMPTY OR state_ == SENT OR state_ == ERROR_STATE);  // After error, succesfully sent messages
+                                                                       // must have their receive callback registered.
+                                                                       // See code in ExMasterEspMessage::actOnSend
+                                                                       // which ensures that recipients_ contains only
+                                                                       // connections of successfully sent messages
+                                                                       // when this method is called.
 
   // reset errors
   errorInfo_ = 0;
@@ -3919,37 +3171,33 @@ void IpcMessageStream::receive(NABoolean waited)
   activeIOs_.clear();
   activeIOs_ += recConnections;
 
-  for (IpcConnectionId i = 0; recConnections.nextUsed(i); i++)
-    {
-      state_ = RECEIVING;
+  for (IpcConnectionId i = 0; recConnections.nextUsed(i); i++) {
+    state_ = RECEIVING;
 
-      // Be careful: some I/Os may complete immediately which may change
-      // the state of this message stream!!!
-      // NOTE: the receive callbacks are not supposed to send any data
-      // until the last receive has completed, since this would otherwise
-      // interfere with this loop.
-      recConnections.element(i)->receive(this);
-    }
+    // Be careful: some I/Os may complete immediately which may change
+    // the state of this message stream!!!
+    // NOTE: the receive callbacks are not supposed to send any data
+    // until the last receive has completed, since this would otherwise
+    // interfere with this loop.
+    recConnections.element(i)->receive(this);
+  }
 
   // if the receive is in wait mode, then we must wait until the receive
   // completes on all connections. if the receive is no-wait, then don't wait
   // here but simply return, and the caller shall issue wait on all
   // connections. otherwise we could see the stack piles up quickly due to
   // recursive send/receive calls.
-  if (waited)
-    {
-      NABoolean interruptRecvd = waitOnMsgStream(IpcInfiniteTimeout);
-      if (interruptRecvd)
-        state_ = BREAK_RECEIVED;
-    }
+  if (waited) {
+    NABoolean interruptRecvd = waitOnMsgStream(IpcInfiniteTimeout);
+    if (interruptRecvd) state_ = BREAK_RECEIVED;
+  }
 
 #ifdef IPC_INTEGRITY_CHECKING
   checkIntegrity();
 #endif
 }
 
-WaitReturnStatus IpcMessageStream::waitOnMsgStream(IpcTimeout timeout)
-{
+WaitReturnStatus IpcMessageStream::waitOnMsgStream(IpcTimeout timeout) {
 #ifdef IPC_INTEGRITY_CHECKING
   checkIntegrity();
 #endif
@@ -3957,141 +3205,113 @@ WaitReturnStatus IpcMessageStream::waitOnMsgStream(IpcTimeout timeout)
   NABoolean interruptRecvd = FALSE;
 
   interruptRecvd = activeIOs_.waitOnSet(timeout);
- MXTRC_FUNC("IpcMessageStream::wait");
+  MXTRC_FUNC("IpcMessageStream::wait");
 
-  if (interruptRecvd)
-  {
-     // TODO: handle async state changes from other threads
-     state_ = BREAK_RECEIVED; 
-     return WAIT_INTERRUPT;
+  if (interruptRecvd) {
+    // TODO: handle async state changes from other threads
+    state_ = BREAK_RECEIVED;
+    return WAIT_INTERRUPT;
   }
 
-  if (timeout == IpcInfiniteTimeout)
-    {
-      // This means the user wants to wait until all messages in this
-      // stream have been sent or have been received, so loop until
-      // outstandingIOs_ is empty.
-      while (activeIOs_.entries() > 0 &&
-	     activeIOs_.moreWaitsAnyConnection())
-      {
-        // TODO: handle case where activeIOs_ is now empty
-	interruptRecvd = activeIOs_.waitOnSet(timeout);
-        if (interruptRecvd)
-        {
-           // TODO: handle async state changes from other threads
-           state_ = BREAK_RECEIVED;
-           return WAIT_INTERRUPT;
-        }
+  if (timeout == IpcInfiniteTimeout) {
+    // This means the user wants to wait until all messages in this
+    // stream have been sent or have been received, so loop until
+    // outstandingIOs_ is empty.
+    while (activeIOs_.entries() > 0 && activeIOs_.moreWaitsAnyConnection()) {
+      // TODO: handle case where activeIOs_ is now empty
+      interruptRecvd = activeIOs_.waitOnSet(timeout);
+      if (interruptRecvd) {
+        // TODO: handle async state changes from other threads
+        state_ = BREAK_RECEIVED;
+        return WAIT_INTERRUPT;
       }
     }
+  }
 
 #ifdef IPC_INTEGRITY_CHECKING
   checkIntegrity();
 #endif
   return WAIT_OK;
 }
- 
-void IpcMessageStream::actOnSend(IpcConnection *)
-{
+
+void IpcMessageStream::actOnSend(IpcConnection *) {
   // the default callback implementation does nothing
 }
 
-void IpcMessageStream::actOnSendAllComplete()
-{
+void IpcMessageStream::actOnSendAllComplete() {
   // the default callback implementation does nothing
 }
 
-void IpcMessageStream::actOnReceive(IpcConnection *)
-{
+void IpcMessageStream::actOnReceive(IpcConnection *) {
   // the default callback implementation does nothing
 }
 
-void IpcMessageStream::actOnReceiveAllComplete()
-{
+void IpcMessageStream::actOnReceiveAllComplete() {
   // the default callback implementation does nothing
 }
 
-void IpcMessageStream::clearMessageBufferContents()
-{
+void IpcMessageStream::clearMessageBufferContents() {
   // if a message buffer exists and has data in it,
   // it must contain objects with a reference count of 1 only
   // (the "1" count is the use of the object in the message buffer
   // and means that we can delete the buffer)
-  if (objectsInBuffer_)
-    {
-      IpcMessageObj *obj = first()->s_.next_;
+  if (objectsInBuffer_) {
+    IpcMessageObj *obj = first()->s_.next_;
 
-      first()->s_.next_ = NULL;
-      while (obj != NULL)
-	{
-	  assert(obj->getRefCount() == 1);
-	  // objects in the message buffer are always using offsets
-	  obj = obj->getNextFromOffset();
-	}
-
-      // give up on the objects in the message buffer
-      objectsInBuffer_ = FALSE;
-      tail_            = first();
-      current_         = NULL;
-      h_.totalLength_  = 0;
+    first()->s_.next_ = NULL;
+    while (obj != NULL) {
+      assert(obj->getRefCount() == 1);
+      // objects in the message buffer are always using offsets
+      obj = obj->getNextFromOffset();
     }
+
+    // give up on the objects in the message buffer
+    objectsInBuffer_ = FALSE;
+    tail_ = first();
+    current_ = NULL;
+    h_.totalLength_ = 0;
+  }
 }
 
-void IpcMessageStream::allocateMessageBuffer(IpcMessageObjSize len)
-{
+void IpcMessageStream::allocateMessageBuffer(IpcMessageObjSize len) {
   IpcMessageBuffer *toDelete = NULL;
 
   // do we need to delete an old or unusable message buffer
-  if (msgBuffer_ != NULL AND
-      (len == 0 OR len > msgBuffer_->getBufferLength()))
-    {
-      clearMessageBufferContents();
-      toDelete   = msgBuffer_;
-      msgBuffer_ = NULL;
-    }
+  if (msgBuffer_ != NULL AND(len == 0 OR len > msgBuffer_->getBufferLength())) {
+    clearMessageBufferContents();
+    toDelete = msgBuffer_;
+    msgBuffer_ = NULL;
+  }
 
-  if (msgBuffer_ == NULL AND len > 0)
-    {
-      CollHeap *heap = (environment_ ? environment_->getHeap() : NULL);
+  if (msgBuffer_ == NULL AND len > 0) {
+    CollHeap *heap = (environment_ ? environment_->getHeap() : NULL);
 
-      // we need to allocate a new message buffer
-      msgBuffer_ = IpcMessageBuffer::allocate(len,
-                                              environment_->getGuaMaxMsgIOSize(),
-					      this,
-					      heap,
-                                              0);
-      if (toDelete != NULL)
-	{
-	  // move reply tag and max reply len from the old one
-	  msgBuffer_->setReplyTag(toDelete->getReplyTag());
-	  msgBuffer_->setMaxReplyLength(toDelete->getMaxReplyLength());
-	}
+    // we need to allocate a new message buffer
+    msgBuffer_ = IpcMessageBuffer::allocate(len, environment_->getGuaMaxMsgIOSize(), this, heap, 0);
+    if (toDelete != NULL) {
+      // move reply tag and max reply len from the old one
+      msgBuffer_->setReplyTag(toDelete->getReplyTag());
+      msgBuffer_->setMaxReplyLength(toDelete->getMaxReplyLength());
     }
-  else if (msgBuffer_ != NULL)
-    {
-      // reuse same message buffer, but change the callback
-      msgBuffer_->addCallback(this);
-      msgBuffer_->setMessageLength(0);
-    }
+  } else if (msgBuffer_ != NULL) {
+    // reuse same message buffer, but change the callback
+    msgBuffer_->addCallback(this);
+    msgBuffer_->setMessageLength(0);
+  }
 
-  if (toDelete != NULL)
-    toDelete->decrRefCount();
+  if (toDelete != NULL) toDelete->decrRefCount();
 }
 
-void IpcMessageStream::resizeMessageBuffer(IpcMessageObjSize newMaxLen)
-{
+void IpcMessageStream::resizeMessageBuffer(IpcMessageObjSize newMaxLen) {
   // make sure we have a message buffer of the desired length, but
   // don't mess with the contents
   if (msgBuffer_ != NULL)
-    msgBuffer_ = msgBuffer_->resize(environment_,
-                                    newMaxLen,
-                                    environment_->getGuaMaxMsgIOSize());
+    msgBuffer_ = msgBuffer_->resize(environment_, newMaxLen, environment_->getGuaMaxMsgIOSize());
   else
     allocateMessageBuffer(newMaxLen);
 }
 
-void IpcMessageStream::internalActOnSend(IpcConnection *connection)
-{
+void IpcMessageStream::internalActOnSend(IpcConnection *connection) {
   {
     NAMutexScope ms(activeIOs_.getMutex());
 
@@ -4102,42 +3322,37 @@ void IpcMessageStream::internalActOnSend(IpcConnection *connection)
     assert(activeIOs_.contains(connection->getId()));
 
     // stream can only remember the first reported error from connection
-    if (state_ != ERROR_STATE && connection->getErrorInfo() != 0)
-      {
-        state_ = IpcMessageStream::ERROR_STATE;
-        errorInfo_ = connection->getErrorInfo();
-      }
+    if (state_ != ERROR_STATE && connection->getErrorInfo() != 0) {
+      state_ = IpcMessageStream::ERROR_STATE;
+      errorInfo_ = connection->getErrorInfo();
+    }
   }
 
   actOnSend(connection);
 
   numOfSendCallbacks_++;
   // TODO: ok to use activeIOs_.entries() w/o mutex?
-  if (numOfSendCallbacks_ == activeIOs_.entries())
+  if (numOfSendCallbacks_ == activeIOs_.entries()) {
     {
-      {
-          NAMutexScope ms(activeIOs_.getMutex());
+      NAMutexScope ms(activeIOs_.getMutex());
 
-          state_ = SENT;
+      state_ = SENT;
 
-          activeIOs_.clear();
-          numOfSendCallbacks_ = 0;
-      }
-
-      actOnSendAllComplete();
+      activeIOs_.clear();
+      numOfSendCallbacks_ = 0;
     }
 
-  if (getThreadInfo())
-    getThreadInfo()->resume();
+    actOnSendAllComplete();
+  }
+
+  if (getThreadInfo()) getThreadInfo()->resume();
 
 #ifdef IPC_INTEGRITY_CHECKING
   checkIntegrity();
 #endif
 }
 
-void IpcMessageStream::internalActOnReceive(IpcMessageBuffer *buffer,
-					    IpcConnection *connection)
-{
+void IpcMessageStream::internalActOnReceive(IpcMessageBuffer *buffer, IpcConnection *connection) {
   {
     NAMutexScope ms(activeIOs_.getMutex());
 
@@ -4156,105 +3371,83 @@ void IpcMessageStream::internalActOnReceive(IpcMessageBuffer *buffer,
     assert(activeIOs_.contains(id));
     activeIOs_ -= id;
 
-    if (connection->getErrorInfo() != 0)
-      {
-        // stream can only remember the first reported error from connection
-        if (state_ != ERROR_STATE)
-          {
-            if (connection->breakReceived())
-              state_ = BREAK_RECEIVED;
-            else 
-              state_ = ERROR_STATE;
-            errorInfo_ = connection->getErrorInfo();
-          }
+    if (connection->getErrorInfo() != 0) {
+      // stream can only remember the first reported error from connection
+      if (state_ != ERROR_STATE) {
+        if (connection->breakReceived())
+          state_ = BREAK_RECEIVED;
+        else
+          state_ = ERROR_STATE;
+        errorInfo_ = connection->getErrorInfo();
       }
-    else
-      {
-        // Set the state to RECEIVED. Even if there are more active IOs,
-        // allow the user to retrieve results. Be careful at the next state
-        // change: set it to EMPTY if no more receives are expected, set it back
-        // to RECEIVING if there are more outstanding IOs.
-        state_ = RECEIVED;
+    } else {
+      // Set the state to RECEIVED. Even if there are more active IOs,
+      // allow the user to retrieve results. Be careful at the next state
+      // change: set it to EMPTY if no more receives are expected, set it back
+      // to RECEIVING if there are more outstanding IOs.
+      state_ = RECEIVED;
 
-        // unpack the message header right away
-        InternalMsgHdrInfoStruct *justReceived = msgBuffer_->getPayloadHeader();
+      // unpack the message header right away
+      InternalMsgHdrInfoStruct *justReceived = msgBuffer_->getPayloadHeader();
 
-        // make sure the OS gave us a message with the correct length
-        if ((msgBuffer_->getMessageLength() >= 
-             sizeof(InternalMsgHdrInfoStruct)) &&
-            (msgBuffer_->getMessageLength() == 
-             justReceived->totalLength_))
-          {
-            h_.unpackObj(justReceived->getType(),
-                         justReceived->getVersion(),
-                         TRUE, // we've already taken care of endianness
-                         justReceived->s_.objLength_,
-                         msgBuffer_->data());
-          }
-        else 
-          {
-            connection->dumpAndStopOtherEnd(true, false);
-            assert(msgBuffer_->getMessageLength() >= 
-                   sizeof(InternalMsgHdrInfoStruct) AND
-                   msgBuffer_->getMessageLength() == 
-                   justReceived->totalLength_);
-          }
-
-        // for now...
-        if ((h_.alignment_ != IpcMyAlignment) ||
-            (h_.getEndianness() != IpcMyEndianness))
-          connection->dumpAndStopOtherEnd(true, false);
-
-        assert(h_.alignment_ == IpcMyAlignment AND
-               h_.getEndianness() == IpcMyEndianness);
-
-        // the next pointer in the object's copy of the header is an
-        // actual pointer
-        h_.s_.next_ = justReceived->getNextFromOffset();
-
-        // indicate that we now have a linked list of objects in
-        // the message that are all stored in the message buffer and
-        // that all use offsets rather than pointers
-        // (Exception: a copy of the first object is outside the buffer and it
-        // uses a real pointer to the next object)
-        objectsInBuffer_ = TRUE;
-
-        // check refcount that came in the buffer
-        assert(h_.s_.refCount_ == 1);
-  
-        IpcMessageObj *obj = first();
-  
-        obj = obj->s_.next_;
-  
-        current_ = obj; // the first non-header object in the message
-        tail_ = NULL;   // don't use tail in received messages
-  
-        // loop over all objects in the message buffer and do
-        // some sanity checks on them
-        while (obj != NULL)
-          {
-            bool badMessage = false;
-            if (obj->getRefCount() != 1)
-              badMessage = true;
-            if ((obj->s_.next_ != NULL) &&
-                ((ULong)obj->s_.next_ < obj->s_.objLength_))
-              badMessage = true;
-            if (obj->getMyVPtr() != NULL)
-              badMessage = true;
-
-            if (badMessage)
-              connection->reportBadMessage();
-
-            assert(obj->getRefCount() == 1);
-
-            assert(obj->s_.next_ == NULL OR
-                   (IpcMessageObjSize )((Long) obj->s_.next_) >= obj->s_.objLength_);
-
-            assert(obj->getMyVPtr() == NULL);
-      
-            obj = obj->getNextFromOffset();
-          }
+      // make sure the OS gave us a message with the correct length
+      if ((msgBuffer_->getMessageLength() >= sizeof(InternalMsgHdrInfoStruct)) &&
+          (msgBuffer_->getMessageLength() == justReceived->totalLength_)) {
+        h_.unpackObj(justReceived->getType(), justReceived->getVersion(),
+                     TRUE,  // we've already taken care of endianness
+                     justReceived->s_.objLength_, msgBuffer_->data());
+      } else {
+        connection->dumpAndStopOtherEnd(true, false);
+        assert(msgBuffer_->getMessageLength() >= sizeof(InternalMsgHdrInfoStruct) AND msgBuffer_->getMessageLength() ==
+               justReceived->totalLength_);
       }
+
+      // for now...
+      if ((h_.alignment_ != IpcMyAlignment) || (h_.getEndianness() != IpcMyEndianness))
+        connection->dumpAndStopOtherEnd(true, false);
+
+      assert(h_.alignment_ == IpcMyAlignment AND h_.getEndianness() == IpcMyEndianness);
+
+      // the next pointer in the object's copy of the header is an
+      // actual pointer
+      h_.s_.next_ = justReceived->getNextFromOffset();
+
+      // indicate that we now have a linked list of objects in
+      // the message that are all stored in the message buffer and
+      // that all use offsets rather than pointers
+      // (Exception: a copy of the first object is outside the buffer and it
+      // uses a real pointer to the next object)
+      objectsInBuffer_ = TRUE;
+
+      // check refcount that came in the buffer
+      assert(h_.s_.refCount_ == 1);
+
+      IpcMessageObj *obj = first();
+
+      obj = obj->s_.next_;
+
+      current_ = obj;  // the first non-header object in the message
+      tail_ = NULL;    // don't use tail in received messages
+
+      // loop over all objects in the message buffer and do
+      // some sanity checks on them
+      while (obj != NULL) {
+        bool badMessage = false;
+        if (obj->getRefCount() != 1) badMessage = true;
+        if ((obj->s_.next_ != NULL) && ((ULong)obj->s_.next_ < obj->s_.objLength_)) badMessage = true;
+        if (obj->getMyVPtr() != NULL) badMessage = true;
+
+        if (badMessage) connection->reportBadMessage();
+
+        assert(obj->getRefCount() == 1);
+
+        assert(obj->s_.next_ == NULL OR(IpcMessageObjSize)((Long)obj->s_.next_) >= obj->s_.objLength_);
+
+        assert(obj->getMyVPtr() == NULL);
+
+        obj = obj->getNextFromOffset();
+      }
+    }
   }
 
   // call user's callback
@@ -4268,108 +3461,96 @@ void IpcMessageStream::internalActOnReceive(IpcMessageBuffer *buffer,
     numActiveIOs = activeIOs_.entries();
   }
 
-  if (numActiveIOs == 0)
-    actOnReceiveAllComplete();
+  if (numActiveIOs == 0) actOnReceiveAllComplete();
 
-  if (getThreadInfo())
-    getThreadInfo()->resume();
+  if (getThreadInfo()) getThreadInfo()->resume();
 
 #ifdef IPC_INTEGRITY_CHECKING
   checkIntegrity();
 #endif
 }
 
-ExMasterEspMessage * IpcMessageStream::castToExMasterEspMessage(void)
-  {
+ExMasterEspMessage *IpcMessageStream::castToExMasterEspMessage(void) {
   // virtual method giving safe cast to ExMasterEspMessage
   return NULL;
-  }
+}
 
 // abort any outstanding I/Os on this stream
-void IpcMessageStream::abandonPendingIOs()
-  {
-    // Part of the fix for soln 10-070108-1544.  The statement that 
-    // owns this stream has encountered a fatal error and is prone
-    // to deadlock if Statement::releaseTransaction waits forever 
-    // for the release trans/work message to complete.  
-    // One problem with this fix is that it puts the IpcConnections
-    // into the error state, so that the ESPs will be stopped.  And 
-    // if multiple statements share the same IpcConnection then the 
-    // second statement can inherit the error.
+void IpcMessageStream::abandonPendingIOs() {
+  // Part of the fix for soln 10-070108-1544.  The statement that
+  // owns this stream has encountered a fatal error and is prone
+  // to deadlock if Statement::releaseTransaction waits forever
+  // for the release trans/work message to complete.
+  // One problem with this fix is that it puts the IpcConnections
+  // into the error state, so that the ESPs will be stopped.  And
+  // if multiple statements share the same IpcConnection then the
+  // second statement can inherit the error.
 
-    //
-    // soln 10-080625-4107. below is an example:
-    // the message stream contains the fixup msg from master to 4 esps. all 4
-    // esps have gone away. the fixup msg is multi-chunk (more than 4 chunks
-    // in my test). 2 connections (GMCS) finished send successfully, without
-    // receiving the ipc error yet due to the timing of the subsequent nowait
-    // calls. the send call backs were called on those 2 connections and as a
-    // result they were removed from stream's activeIOs_ list.
-    //
-    // the other 2 connections are still in the middle of multi-chunk send
-    // and thus send callbacks have not been invoked on them. note in this
-    // case, the stream has only two active I/Os but still has 4 recipient
-    // connections.
-    //
-    // now we come here because the upper layer found dead esps and decides
-    // to clean up all I/Os on stream (see Statement::releaseTransaction()).
-    // the for loop below iterates thru stream's activeIOs_ list and invokes
-    // setFatalError() on the latter 2 connections. as a result all I/Os on
-    // those 2 connections will be cleared and they will be removed from the
-    // stream's activeIOs_ list. however, because send never finished on those
-    // 2 connections, we still need to invoke send callbacks on them during
-    // cleanup process (see GuaMsgConnectionToServer::handleIOErrorForEntry()).
-    // after we invoke the send callback on the last active connection, there
-    // will be no active I/O on the stream and IpcMessageStream::receive()
-    // will be invoked (see ExMasterEspMessage::actOnSend()). the receive
-    // will add the 2 former connections, who finished send successfully, back
-    // to stream's activeIOs_ list. so after the first invocation of the for
-    // loop, the stream still has 2 recipient connections and 2 active I/Os.
-    //
-    // because of the above use case, we must go thru the for loop again and
-    // invoke setFatalError() on the 2 former connections that were inactive
-    // before the for loop but became active after the first execution of the
-    // for loop. therefore I'm adding a while loop outside the for loop to
-    // make sure all I/Os on the stream are cleaned up properly.
-    //
-    NAMutexScope ms(activeIOs_.getMutex());
+  //
+  // soln 10-080625-4107. below is an example:
+  // the message stream contains the fixup msg from master to 4 esps. all 4
+  // esps have gone away. the fixup msg is multi-chunk (more than 4 chunks
+  // in my test). 2 connections (GMCS) finished send successfully, without
+  // receiving the ipc error yet due to the timing of the subsequent nowait
+  // calls. the send call backs were called on those 2 connections and as a
+  // result they were removed from stream's activeIOs_ list.
+  //
+  // the other 2 connections are still in the middle of multi-chunk send
+  // and thus send callbacks have not been invoked on them. note in this
+  // case, the stream has only two active I/Os but still has 4 recipient
+  // connections.
+  //
+  // now we come here because the upper layer found dead esps and decides
+  // to clean up all I/Os on stream (see Statement::releaseTransaction()).
+  // the for loop below iterates thru stream's activeIOs_ list and invokes
+  // setFatalError() on the latter 2 connections. as a result all I/Os on
+  // those 2 connections will be cleared and they will be removed from the
+  // stream's activeIOs_ list. however, because send never finished on those
+  // 2 connections, we still need to invoke send callbacks on them during
+  // cleanup process (see GuaMsgConnectionToServer::handleIOErrorForEntry()).
+  // after we invoke the send callback on the last active connection, there
+  // will be no active I/O on the stream and IpcMessageStream::receive()
+  // will be invoked (see ExMasterEspMessage::actOnSend()). the receive
+  // will add the 2 former connections, who finished send successfully, back
+  // to stream's activeIOs_ list. so after the first invocation of the for
+  // loop, the stream still has 2 recipient connections and 2 active I/Os.
+  //
+  // because of the above use case, we must go thru the for loop again and
+  // invoke setFatalError() on the 2 former connections that were inactive
+  // before the for loop but became active after the first execution of the
+  // for loop. therefore I'm adding a while loop outside the for loop to
+  // make sure all I/Os on the stream are cleaned up properly.
+  //
+  NAMutexScope ms(activeIOs_.getMutex());
 
-    while (hasIOPending())
-      {
-        for (CollIndex i = 0; activeIOs_.nextUsed(i); i++)
-          {
-            IpcConnection * c = activeIOs_.element(i);
-            NABoolean useGuaIpc = TRUE;
-            if (useGuaIpc)
-              {
-                if (c->castToGuaConnectionToServer())
-                  c->castToGuaConnectionToServer()->setFatalError(this);
-              }
-          } // for
-      } // while
-  }
+  while (hasIOPending()) {
+    for (CollIndex i = 0; activeIOs_.nextUsed(i); i++) {
+      IpcConnection *c = activeIOs_.element(i);
+      NABoolean useGuaIpc = TRUE;
+      if (useGuaIpc) {
+        if (c->castToGuaConnectionToServer()) c->castToGuaConnectionToServer()->setFatalError(this);
+      }
+    }  // for
+  }    // while
+}
 
 #ifdef IPC_INTEGRITY_CHECKING
 
 // methods that perform integrity checking on Ipc-related data structures
 
-void IpcMessageStream::checkIntegrity(void)
-  {
-  isOrphaned_ = TRUE;  // assume the worst: this object is an orphan
-  environment_->checkIntegrity(); // traverse up to IpcEnvironment, do check
-  if ((isOrphaned_) && (castToExMasterEspMessage()))
-    {
-    cerr << "Found orphaned ExMasterEspMessage object " << (void *)this << "." <<
-      endl;
+void IpcMessageStream::checkIntegrity(void) {
+  isOrphaned_ = TRUE;              // assume the worst: this object is an orphan
+  environment_->checkIntegrity();  // traverse up to IpcEnvironment, do check
+  if ((isOrphaned_) && (castToExMasterEspMessage())) {
+    cerr << "Found orphaned ExMasterEspMessage object " << (void *)this << "." << endl;
     checkLocalIntegrity();  // didn't get here; check our integrity now
-    }
   }
+}
 
-void IpcMessageStream::checkLocalIntegrity(void)
-  {
+void IpcMessageStream::checkLocalIntegrity(void) {
   isOrphaned_ = FALSE;
   activeIOs_.checkLocalIntegrity();
-  }
+}
 
 #endif
 
@@ -4379,194 +3560,164 @@ void IpcMessageStream::checkLocalIntegrity(void)
 
 ///////////////////////////////////////////////////////////////////////////////
 // constructor
-IpcBufferedMsgStream::IpcBufferedMsgStream(IpcEnvironment *env,
-                                           IpcMessageType msgType,
-                                           IpcMessageObjVersion version,
-                                           Lng32 inUseBufferLimit,
-                                           IpcMessageObjSize bufferSize,
+IpcBufferedMsgStream::IpcBufferedMsgStream(IpcEnvironment *env, IpcMessageType msgType, IpcMessageObjVersion version,
+                                           Lng32 inUseBufferLimit, IpcMessageObjSize bufferSize,
                                            IpcThreadInfo *threadInfo)
-     : IpcMessageStreamBase(env, threadInfo),
-    msgType_(msgType), 
-    msgVersion_(version), 
-    bufferSize_(bufferSize),
-    inUseBufferLimit_(inUseBufferLimit),
-    garbageCollectLimit_(0),
-    errorInfo_(0),
-    receiveMsgComplete_(FALSE),
-    sendMsgBuf_(NULL),
-    sendMsgHdr_(NULL),
-    sendMsgObj_(NULL),
-    receiveMsgBufI_(0),
-    receiveMsgBuf_(NULL),
-    receiveMsgHdr_(NULL),
-    receiveMsgObj_(NULL),
-    sendBufList_(env->getHeap()),
-    receiveBufList_(env->getHeap()),
-    inBufList_(env->getHeap()),
-    outBufList_(env->getHeap()),
-    inUseBufList_(env->getHeap()),
-    replyTagBufList_(env->getHeap()),
-    smContinueProtocol_(FALSE),
-    mutex_(true, env->isMultiThreaded())
-{
-}
+    : IpcMessageStreamBase(env, threadInfo),
+      msgType_(msgType),
+      msgVersion_(version),
+      bufferSize_(bufferSize),
+      inUseBufferLimit_(inUseBufferLimit),
+      garbageCollectLimit_(0),
+      errorInfo_(0),
+      receiveMsgComplete_(FALSE),
+      sendMsgBuf_(NULL),
+      sendMsgHdr_(NULL),
+      sendMsgObj_(NULL),
+      receiveMsgBufI_(0),
+      receiveMsgBuf_(NULL),
+      receiveMsgHdr_(NULL),
+      receiveMsgObj_(NULL),
+      sendBufList_(env->getHeap()),
+      receiveBufList_(env->getHeap()),
+      inBufList_(env->getHeap()),
+      outBufList_(env->getHeap()),
+      inUseBufList_(env->getHeap()),
+      replyTagBufList_(env->getHeap()),
+      smContinueProtocol_(FALSE),
+      mutex_(true, env->isMultiThreaded()) {}
 
-IpcBufferedMsgStream::~IpcBufferedMsgStream()
-{
+IpcBufferedMsgStream::~IpcBufferedMsgStream() {
   releaseBuffers();
 
   IpcMessageBuffer *msgBuf = NULL;
   CollIndex i = 0;
 
-  for (i = 0; i < inBufList_.entries(); i++)
-  {
+  for (i = 0; i < inBufList_.entries(); i++) {
     msgBuf = inBufList_[i];
     msgBuf->decrRefCount();
   }
 
-  for (i = 0; i < receiveBufList_.entries(); i++)
-  {
+  for (i = 0; i < receiveBufList_.entries(); i++) {
     msgBuf = receiveBufList_[i];
     msgBuf->decrRefCount();
   }
 }
 
-IpcBufferedMsgStream *
-IpcBufferedMsgStream::castToIpcBufferedMsgStream()
-{
-  return this;
-}
+IpcBufferedMsgStream *IpcBufferedMsgStream::castToIpcBufferedMsgStream() { return this; }
 
 ///////////////////////////////////////////////////////////////////////////////
 // get next receive message from input queue.
-NABoolean IpcBufferedMsgStream::getNextReceiveMsg(IpcMessageObjType& msgType)
-  {
+NABoolean IpcBufferedMsgStream::getNextReceiveMsg(IpcMessageObjType &msgType) {
   NAMutexScope ms(mutex_);
 
-  if (receiveMsgComplete_)
-    {
-    if (receiveMsgBufI_ < receiveBufList_.entries())
-      { // current receive message not completely unpacked, return type
+  if (receiveMsgComplete_) {
+    if (receiveMsgBufI_ < receiveBufList_.entries()) {  // current receive message not completely unpacked, return type
 
       msgType = receiveMsgHdr_->getType();
       return (TRUE);
-      }
+    }
     // release current receive message to inuse pool and advance to next.
     // If a user msg object was unpacked inplace and did not implement the
     // virtual method msgObjIsFree() then its persistence will be guaranteed
     // until now!
-    IpcMessageBuffer* msgBuf;
-    while (receiveBufList_.getFirst(msgBuf))
-      { // move all buffers for current receive message to inuse pool
+    IpcMessageBuffer *msgBuf;
+    while (receiveBufList_.getFirst(msgBuf)) {  // move all buffers for current receive message to inuse pool
       inUseBufList_.insert(msgBuf);
-      }
+    }
     receiveMsgBuf_ = NULL;
     receiveMsgObj_ = receiveMsgHdr_ = NULL;
     receiveMsgComplete_ = FALSE;
-    }
-  
-  if (inBufList_.entries())
-    {
-    if (receiveBufList_.entries() == 0)
-      { // get first buffer of message
+  }
+
+  if (inBufList_.entries()) {
+    if (receiveBufList_.entries() == 0) {  // get first buffer of message
       inBufList_.getFirst(receiveMsgBuf_);
       receiveBufList_.insert(receiveMsgBuf_);
       receiveMsgBufI_ = 0;
 
       // get message header (already unpacked by Guardian IpcConnection)
       receiveMsgHdr_ = receiveMsgBuf_->getPayloadHeader();
-      if (receiveMsgHdr_->isLastMsgBuf())
-        { // single buffer message, proceed
+      if (receiveMsgHdr_->isLastMsgBuf()) {  // single buffer message, proceed
         receiveMsgComplete_ = TRUE;
         // unpack 1st user msg object's base class (new should handle NULL)
-	IpcMessageObj *msgHeap = receiveMsgHdr_->getNextFromOffset();
-	if (!msgHeap)
-	  receiveMsgObj_ = NULL;
-	else
-	  receiveMsgObj_ = new(msgHeap) IpcMessageObj(this);
-        if (receiveMsgObj_ == NULL)
-        { // recursively call to advance past empty message buffers
+        IpcMessageObj *msgHeap = receiveMsgHdr_->getNextFromOffset();
+        if (!msgHeap)
+          receiveMsgObj_ = NULL;
+        else
+          receiveMsgObj_ = new (msgHeap) IpcMessageObj(this);
+        if (receiveMsgObj_ == NULL) {  // recursively call to advance past empty message buffers
           receiveMsgBufI_++;
-          
+
           NABoolean result = getNextReceiveMsg(msgType);
           return result;
         }
-        
+
         msgType = receiveMsgHdr_->getType();
         return (TRUE);
-        }
       }
+    }
 
     // Try and extract remaining buffers associated with the same message from
     // the in queue. The buffers must originate from the same connection OR the
-    // same local message stream and must have matching message types. A TRUE 
-    // return code will be returned only after all buffers comprising the 
+    // same local message stream and must have matching message types. A TRUE
+    // return code will be returned only after all buffers comprising the
     // message have arrived.
-    
-    for (CollIndex i = 0; i < inBufList_.entries(); )
-      { // get additional buffers of multi-buffer message  
-      IpcMessageBuffer* msgBuf = inBufList_[i];
-      if ((msgBuf->getConnection() == receiveMsgBuf_->getConnection())   &&
-          (msgBuf->getMessageStream() == receiveMsgBuf_->getMessageStream()) )
-        {
+
+    for (CollIndex i = 0; i < inBufList_.entries();) {  // get additional buffers of multi-buffer message
+      IpcMessageBuffer *msgBuf = inBufList_[i];
+      if ((msgBuf->getConnection() == receiveMsgBuf_->getConnection()) &&
+          (msgBuf->getMessageStream() == receiveMsgBuf_->getMessageStream())) {
         // get message header (already unpacked by Guardian IpcConnection)
-        InternalMsgHdrInfoStruct* msgHdr = msgBuf->getPayloadHeader();
-        if  (msgHdr->getMsgStreamId() == receiveMsgHdr_->getMsgStreamId())
-          {
+        InternalMsgHdrInfoStruct *msgHdr = msgBuf->getPayloadHeader();
+        if (msgHdr->getMsgStreamId() == receiveMsgHdr_->getMsgStreamId()) {
           assert(msgHdr->getType() == receiveMsgHdr_->getType());
           inBufList_.removeAt(i);
           receiveBufList_.insert(msgBuf);
-          if (msgHdr->isLastMsgBuf())
-            { // all buffers for this message received, proceed
-            // unpack next message object's base class 
-            receiveMsgObj_ = 
-              new(receiveMsgHdr_->getNextFromOffset()) IpcMessageObj(this);
+          if (msgHdr->isLastMsgBuf()) {  // all buffers for this message received, proceed
+            // unpack next message object's base class
+            receiveMsgObj_ = new (receiveMsgHdr_->getNextFromOffset()) IpcMessageObj(this);
             assert(receiveMsgObj_);  // should not be NULL if multiple bufs
             receiveMsgComplete_ = TRUE;
-            
+
             msgType = receiveMsgHdr_->getType();
             return (TRUE);
-            }
-          continue;
           }
+          continue;
         }
-      i++;
       }
+      i++;
     }
+  }
 
   return (FALSE);
-  }
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 // get next message object type from current receive message.
-NABoolean IpcBufferedMsgStream::getNextObjType(IpcMessageObjType& msgType)
-  {
-  if (receiveMsgObj_) 
-    {
+NABoolean IpcBufferedMsgStream::getNextObjType(IpcMessageObjType &msgType) {
+  if (receiveMsgObj_) {
     msgType = receiveMsgObj_->getType();
 
     return (TRUE);
-    }
-  
-  return (FALSE);
   }
+
+  return (FALSE);
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 // get next message object size from current receive message.
-IpcMessageObjSize IpcBufferedMsgStream::getNextObjSize() const
-{
+IpcMessageObjSize IpcBufferedMsgStream::getNextObjSize() const {
   return (receiveMsgObj_ ? receiveMsgObj_->s_.objLength_ : 0);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 // get a pointer to the next packed object in the current receive message.
-IpcMessageObj* IpcBufferedMsgStream::receiveMsgObj()
-  {
-  if (receiveMsgObj_ == NULL)
-     return (NULL);   // no more receive message objects
- 
-  IpcMessageObj* returnMsgObj_ = receiveMsgObj_;
-  
+IpcMessageObj *IpcBufferedMsgStream::receiveMsgObj() {
+  if (receiveMsgObj_ == NULL) return (NULL);  // no more receive message objects
+
+  IpcMessageObj *returnMsgObj_ = receiveMsgObj_;
+
   // the base class portion of the next packed object (IpcMessageObj) is
   // unpacked inplace now, before the derived class constructor is called
   // to allow it to be used internally by IpcBufferedMsgStream. The message
@@ -4575,19 +3726,17 @@ IpcMessageObj* IpcBufferedMsgStream::receiveMsgObj()
   IpcMessageObj *msgHeap = returnMsgObj_->getNextFromOffset();
   if (!msgHeap)
     receiveMsgObj_ = NULL;
-  else 
-    receiveMsgObj_ = new(msgHeap) IpcMessageObj(this);
-  
-  while (receiveMsgObj_ == NULL)
-    { // check next receive message buffer
+  else
+    receiveMsgObj_ = new (msgHeap) IpcMessageObj(this);
+
+  while (receiveMsgObj_ == NULL) {  // check next receive message buffer
     receiveMsgBufI_++;
-    if (receiveMsgBufI_ >= receiveBufList_.entries())
-      { // done with this message
+    if (receiveMsgBufI_ >= receiveBufList_.entries()) {  // done with this message
       receiveMsgBuf_ = NULL;
       receiveMsgObj_ = receiveMsgHdr_ = NULL;
 
       break;
-      }
+    }
 
     receiveMsgBuf_ = receiveBufList_[receiveMsgBufI_];
     // msg header already unpacked by Guardian IpcConnection
@@ -4597,78 +3746,67 @@ IpcMessageObj* IpcBufferedMsgStream::receiveMsgObj()
     if (!msgHeap)
       receiveMsgObj_ = NULL;
     else
-      receiveMsgObj_ = new(msgHeap) IpcMessageObj(this);
-    }
-  
-  return (returnMsgObj_);
+      receiveMsgObj_ = new (msgHeap) IpcMessageObj(this);
   }
+
+  return (returnMsgObj_);
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 // give current receive message to a peer message stream for processing.
-void IpcBufferedMsgStream::giveReceiveMsgTo(IpcBufferedMsgStream& msgStream)
-{
+void IpcBufferedMsgStream::giveReceiveMsgTo(IpcBufferedMsgStream &msgStream) {
   {
     NAConditionalMutexScope cms(&mutex_);
 
     assert(receiveMsgComplete_);
 
-    IpcMessageBuffer* msgBuf;
-    while (receiveBufList_.getFirst(msgBuf))
-      {
-        if (msgBuf->getReplyTag() != GuaInvalidReplyTag)
-          {
-            replyTagBufList_.remove(msgBuf);
-            msgBuf->decrRefCount(); // no longer in two lists!
-          }
-        cms.release();
-        // TODO: Could releasing the mutex cause other buffers
-        //       to go in-between? Keeping it risks a deadlock,
-        //       since we then own two mutexes of different streams
-        msgStream.addInputBuffer(msgBuf);
-        if (receiveBufList_.entries() > 0)
-          cms.reAcquire();
+    IpcMessageBuffer *msgBuf;
+    while (receiveBufList_.getFirst(msgBuf)) {
+      if (msgBuf->getReplyTag() != GuaInvalidReplyTag) {
+        replyTagBufList_.remove(msgBuf);
+        msgBuf->decrRefCount();  // no longer in two lists!
       }
+      cms.release();
+      // TODO: Could releasing the mutex cause other buffers
+      //       to go in-between? Keeping it risks a deadlock,
+      //       since we then own two mutexes of different streams
+      msgStream.addInputBuffer(msgBuf);
+      if (receiveBufList_.entries() > 0) cms.reAcquire();
+    }
   }
 
   receiveMsgBuf_ = NULL;
   receiveMsgObj_ = receiveMsgHdr_ = NULL;
   receiveMsgComplete_ = FALSE;
-  
-  msgStream.actOnReceive(NULL);   // trigger receiving message stream
+
+  msgStream.actOnReceive(NULL);  // trigger receiving message stream
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 // pack an object in the current send message
-IpcBufferedMsgStream& IpcBufferedMsgStream::operator << (IpcMessageObj& obj)
-  {
+IpcBufferedMsgStream &IpcBufferedMsgStream::operator<<(IpcMessageObj &obj) {
   IpcMessageObjSize packedLength = obj.packedLength();
-  IpcMessageObj* packedObj = 
-    new(*this, packedLength) IpcMessageObj(obj.getType(), obj.getVersion());
+  IpcMessageObj *packedObj = new (*this, packedLength) IpcMessageObj(obj.getType(), obj.getVersion());
 
   // IpcBufferedMsgStream does NOT allow the object to pack the base class.
   // This is because we want to ensure that the packed object behaves as a
   // generic IpcMessageObj with NO virtual behavior. The basic IpcMessageObj
   // is constructed in the buffer via the new operator above.
-  IpcMessageObjSize packedBytes = 
-    obj.packObjIntoMessage((IpcMessageBufferPtr)(&packedObj[1]));
-      
+  IpcMessageObjSize packedBytes = obj.packObjIntoMessage((IpcMessageBufferPtr)(&packedObj[1]));
+
   // Did the object really use the length it promised to use?
   assert(packedLength == packedBytes);
-  
+
   return *this;
-  }
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 // unpack the next object in the current receive message
-NABoolean IpcBufferedMsgStream::extractNextObj(IpcMessageObj &obj,
-                                               NABoolean checkObjects)
-{
-  IpcMessageObj* packedObj = receiveMsgObj();
+NABoolean IpcBufferedMsgStream::extractNextObj(IpcMessageObj &obj, NABoolean checkObjects) {
+  IpcMessageObj *packedObj = receiveMsgObj();
 
   // the user should have predicted the object type and version correctly
-  assert(packedObj  AND 
-         packedObj->getType() == obj.getType()  AND
-         packedObj->getVersion() == obj.getVersion());
+  assert(packedObj AND packedObj->getType() == obj.getType() AND packedObj->getVersion() == obj.getVersion());
 
   // IpcBufferedMsgStream does NOT allow the object to unpack the base class.
   // This is because the packed object behaves as a generic IpcMessageObj and
@@ -4678,21 +3816,13 @@ NABoolean IpcBufferedMsgStream::extractNextObj(IpcMessageObj &obj,
   // If the caller requested an integrity check on the packed object
   // then we call a checkObj() method before unpackObj().
   NABoolean result = TRUE;
-  if (checkObjects)
-  {
-    result = obj.checkObj(packedObj->getType(),
-                          packedObj->getVersion(),
-                          TRUE,
-                          objLen,
+  if (checkObjects) {
+    result = obj.checkObj(packedObj->getType(), packedObj->getVersion(), TRUE, objLen,
                           (IpcConstMessageBufferPtr)(&packedObj[1]));
   }
-  
-  if (result)
-  {
-    obj.unpackObj(packedObj->getType(),
-                  packedObj->getVersion(),
-                  TRUE,
-                  objLen,
+
+  if (result) {
+    obj.unpackObj(packedObj->getType(), packedObj->getVersion(), TRUE, objLen,
                   (IpcConstMessageBufferPtr)(&packedObj[1]));
   }
 
@@ -4701,109 +3831,82 @@ NABoolean IpcBufferedMsgStream::extractNextObj(IpcMessageObj &obj,
 
 ///////////////////////////////////////////////////////////////////////////////
 // allocate space for a packed object in the current send message.
-IpcMessageObj* IpcBufferedMsgStream::sendMsgObj(IpcMessageObjSize packedObjLen)
-{
+IpcMessageObj *IpcBufferedMsgStream::sendMsgObj(IpcMessageObjSize packedObjLen) {
   IpcMessageBuffer::alignOffset(packedObjLen);
 
-  if (sendMsgBuf_ == NULL)
-    {
-    IpcMessageObjSize length = 
-      (packedObjLen > bufferSize_ ? packedObjLen : bufferSize_); 
+  if (sendMsgBuf_ == NULL) {
+    IpcMessageObjSize length = (packedObjLen > bufferSize_ ? packedObjLen : bufferSize_);
     length += sizeof(InternalMsgHdrInfoStruct);
 
     CollHeap *heap = (environment_ ? environment_->getHeap() : NULL);
-    
-    sendMsgBuf_ = IpcMessageBuffer::allocate(length,
-                                             environment_->getGuaMaxMsgIOSize(),
-                                             this,
-                                             heap,
-                                             0);
-    
-    if (sendMsgBuf_ == NULL)
-      return NULL;   // no buffers available
+
+    sendMsgBuf_ = IpcMessageBuffer::allocate(length, environment_->getGuaMaxMsgIOSize(), this, heap, 0);
+
+    if (sendMsgBuf_ == NULL) return NULL;  // no buffers available
 
     sendBufList_.insert(sendMsgBuf_);
     // Create message header
     // Recursively calls sendMsgObj() via operator new
-    sendMsgHdr_ = new(*this, 0) InternalMsgHdrInfoStruct(this->msgType_,
-                                                        this->msgVersion_);
+    sendMsgHdr_ = new (*this, 0) InternalMsgHdrInfoStruct(this->msgType_, this->msgVersion_);
     sendMsgHdr_->totalLength_ = sizeof(InternalMsgHdrInfoStruct);
-    }
+  }
 
-  if (packedObjLen == 0)
-    return (NULL); // internal call to create an empty buffer, hdr only
+  if (packedObjLen == 0) return (NULL);  // internal call to create an empty buffer, hdr only
 
-  if (sendMsgHdr_ == NULL)
-    { // first object must be header
-      sendMsgObj_ = sendMsgHdr_ = sendMsgBuf_->getPayloadHeader(FALSE);
-    }
-  else
-  {
+  if (sendMsgHdr_ == NULL) {  // first object must be header
+    sendMsgObj_ = sendMsgHdr_ = sendMsgBuf_->getPayloadHeader(FALSE);
+  } else {
     IpcMessageObjSize newLen = sendMsgHdr_->totalLength_ + packedObjLen;
-    if (newLen > sendMsgBuf_->getBufferLength())
-    {
+    if (newLen > sendMsgBuf_->getBufferLength()) {
       sendMsgBuf_ = NULL;
       sendMsgObj_ = sendMsgHdr_ = NULL;
 
-      return (sendMsgObj(packedObjLen)); //recursively call for new buffer
+      return (sendMsgObj(packedObjLen));  // recursively call for new buffer
     }
 
     // link to previous last object (must coexist with IpcMessageStream!)
-    // IpcBufferedMsgStream only uses "next_" as an offset although it is 
+    // IpcBufferedMsgStream only uses "next_" as an offset although it is
     // defined as a pointer. IpcMessageStream uses next as both pointer and
     // offset. The objLength_ field gets set later, in prepSendMsgForOutput()
-    sendMsgObj_->s_.next_ =
-      (IpcMessageObj*)(sendMsgBuf_->data(sendMsgHdr_->totalLength_));
+    sendMsgObj_->s_.next_ = (IpcMessageObj *)(sendMsgBuf_->data(sendMsgHdr_->totalLength_));
     sendMsgObj_->convertNextToOffset();
-    sendMsgObj_ =
-      (IpcMessageObj*)(sendMsgBuf_->data(sendMsgHdr_->totalLength_));
+    sendMsgObj_ = (IpcMessageObj *)(sendMsgBuf_->data(sendMsgHdr_->totalLength_));
     sendMsgHdr_->totalLength_ = newLen;
-    
   }
-  
+
   return (sendMsgObj_);
 }
 
-IpcConnection* IpcBufferedMsgStream::getConnection()
-{
+IpcConnection *IpcBufferedMsgStream::getConnection() {
   ABORT("IpcMessageStreamBase::getConnection() should not be called!");
   return NULL;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 // cleanup unpacked message buffers with objects no longer inuse
-void IpcBufferedMsgStream::cleanupBuffers()
-{
-  if (inUseBufList_.entries() <= (CollIndex) garbageCollectLimit_) 
-    return;
-  
+void IpcBufferedMsgStream::cleanupBuffers() {
+  if (inUseBufList_.entries() <= (CollIndex)garbageCollectLimit_) return;
+
   CollIndex i = 0;
-  while (i < inUseBufList_.entries())
-  {  
-    IpcMessageBuffer* msgBuf = inUseBufList_[i];
-    InternalMsgHdrInfoStruct* msgHdr = msgBuf->getPayloadHeader();
-    IpcMessageObj* msgObj = msgHdr;
-    IpcMessageObj* nextMsgObj;
-    while (nextMsgObj = msgObj->getNextFromOffset())
-    { 
-      if (!(nextMsgObj->msgObjIsFree()))
-        break;  // quit, no need to check remaining objects in buffer
-      
-      msgObj->mergeNextPackedObj(); // unlink msg objects no longer in use
+  while (i < inUseBufList_.entries()) {
+    IpcMessageBuffer *msgBuf = inUseBufList_[i];
+    InternalMsgHdrInfoStruct *msgHdr = msgBuf->getPayloadHeader();
+    IpcMessageObj *msgObj = msgHdr;
+    IpcMessageObj *nextMsgObj;
+    while (nextMsgObj = msgObj->getNextFromOffset()) {
+      if (!(nextMsgObj->msgObjIsFree())) break;  // quit, no need to check remaining objects in buffer
+
+      msgObj->mergeNextPackedObj();  // unlink msg objects no longer in use
     }
-    
-    if (msgHdr->getNextFromOffset() == NULL)
-    { // all objects are no longer inuse, free buffer
+
+    if (msgHdr->getNextFromOffset() == NULL) {  // all objects are no longer inuse, free buffer
       inUseBufList_.removeAt(i);
       msgBuf->decrRefCount();
-    }
-    else
-    { // msg objects in buffer still in use
+    } else {  // msg objects in buffer still in use
       i++;
-      while (!(msgHdr->isLastMsgBuf()))
-      { // skip over remaining buffers for this message.
+      while (!(msgHdr->isLastMsgBuf())) {  // skip over remaining buffers for this message.
         // must guarantee that a complex object consisting of multiple message
-        // objects or a set of objects within a message can be held inuse by 
+        // objects or a set of objects within a message can be held inuse by
         // the root(first allocated) object!
         assert(i < inUseBufList_.entries());
         msgBuf = inUseBufList_[i];
@@ -4812,66 +3915,54 @@ void IpcBufferedMsgStream::cleanupBuffers()
       }
     }
   }
-  if (inUseBufList_.entries() < (CollIndex) inUseBufferLimit_)
-  { // optimize garbage collection limit until inuse limit reached
-    garbageCollectLimit_ = inUseBufList_.entries(); 
+  if (inUseBufList_.entries() <
+      (CollIndex)inUseBufferLimit_) {  // optimize garbage collection limit until inuse limit reached
+    garbageCollectLimit_ = inUseBufList_.entries();
   }
-  
 }
 
 ////////////////////////////////////////////////////////////////////////////
 // prepare send message objects for output and put buffers in output queue.
-void IpcBufferedMsgStream::prepSendMsgForOutput()
-{
-  while (sendBufList_.getFirst(sendMsgBuf_))
-  {
+void IpcBufferedMsgStream::prepSendMsgForOutput() {
+  while (sendBufList_.getFirst(sendMsgBuf_)) {
     sendMsgHdr_ = sendMsgBuf_->getPayloadHeader(FALSE);
     sendMsgBuf_->setMessageLength(sendMsgHdr_->totalLength_);
     MXTRC_1("totalLength_=%d \n", sendMsgHdr_->totalLength_);
-    if (sendBufList_.entries() == 0)
-      sendMsgHdr_->setLastMsgBuf();
+    if (sendBufList_.entries() == 0) sendMsgHdr_->setLastMsgBuf();
     sendMsgHdr_->setMsgStreamId((Long)this);
     sendMsgObj_ = sendMsgHdr_;
-    do
-      {
+    do {
       // calculate object length, note that this is done only to be
       // compatible with IpcMessageStream and that this object length
       // is rounded up to the alignment that was done internally
       if (sendMsgObj_->s_.next_)
-        sendMsgObj_->s_.objLength_ =
-	  (IpcMessageObjSize)(Long)((sendMsgObj_->s_.next_));
+        sendMsgObj_->s_.objLength_ = (IpcMessageObjSize)(Long)((sendMsgObj_->s_.next_));
       else
         sendMsgObj_->s_.objLength_ =
-          (IpcMessageObjSize)(sendMsgBuf_->data(0)
-			      + sendMsgHdr_->totalLength_
-			      - (IpcMessageBufferPtr) sendMsgObj_);
-      MXTRC_3("objType_=%d objLength_=%d next_=%d\n", sendMsgObj_->s_.objType_, sendMsgObj_->s_.objLength_, sendMsgObj_->s_.next_);
+            (IpcMessageObjSize)(sendMsgBuf_->data(0) + sendMsgHdr_->totalLength_ - (IpcMessageBufferPtr)sendMsgObj_);
+      MXTRC_3("objType_=%d objLength_=%d next_=%d\n", sendMsgObj_->s_.objType_, sendMsgObj_->s_.objLength_,
+              sendMsgObj_->s_.next_);
       sendMsgObj_->prepMsgObjForSend();
       sendMsgObj_->setMyVPtr(NULL);
-      }
-    while ((sendMsgObj_ = sendMsgObj_->getNextFromOffset()) != NULL);
+    } while ((sendMsgObj_ = sendMsgObj_->getNextFromOffset()) != NULL);
 
     outBufList_.insert(sendMsgBuf_);
   }
-  
+
   sendMsgBuf_ = NULL;
   sendMsgObj_ = sendMsgHdr_ = NULL;
 }
 
 ////////////////////////////////////////////////////////////////////////////
 // add a message buffer to the input queue.
-void IpcBufferedMsgStream::addInputBuffer(IpcMessageBuffer* inputBuf)
-{
+void IpcBufferedMsgStream::addInputBuffer(IpcMessageBuffer *inputBuf) {
   NAMutexScope ms(mutex_);
 
-  inBufList_.insert(inputBuf); 
-  if (inputBuf->getReplyTag() != GuaInvalidReplyTag)
-  {
-    if (getSMContinueProtocol())
-      EXSM_TRACE(EXSM_TRACE_PROTOCOL, "STREAM %p add input buf %p", this,
-                 inputBuf);
+  inBufList_.insert(inputBuf);
+  if (inputBuf->getReplyTag() != GuaInvalidReplyTag) {
+    if (getSMContinueProtocol()) EXSM_TRACE(EXSM_TRACE_PROTOCOL, "STREAM %p add input buf %p", this, inputBuf);
 
-    inputBuf->incrRefCount(); // buffer in 2 lists, incr to hold!
+    inputBuf->incrRefCount();  // buffer in 2 lists, incr to hold!
 
     // save reply tag, needed for response
     replyTagBufList_.insert(inputBuf);
@@ -4880,24 +3971,20 @@ void IpcBufferedMsgStream::addInputBuffer(IpcMessageBuffer* inputBuf)
 
 ///////////////////////////////////////////////////////////////////////////////
 // get next message buffer from output queue matched with next reply tag.
-IpcMessageBuffer* IpcServerMsgStream::getReplyTagOutputBuffer(
-                                            IpcConnection*& connection,
-                                            IpcBufferedMsgStream*& msgStream)
-{
+IpcMessageBuffer *IpcServerMsgStream::getReplyTagOutputBuffer(IpcConnection *&connection,
+                                                              IpcBufferedMsgStream *&msgStream) {
   MXTRC_FUNC("IpcServerMsgStream::getReplyTagOutputBuffer");
 
-  if (numOfReplyTagBuffers())
-  {
-    IpcMessageBuffer* outputBuf = getOutputBuffer();
-    if (outputBuf)
-    {
-      IpcMessageBuffer* replyTagBuf = replyTagBufList_[0];
-      
+  if (numOfReplyTagBuffers()) {
+    IpcMessageBuffer *outputBuf = getOutputBuffer();
+    if (outputBuf) {
+      IpcMessageBuffer *replyTagBuf = replyTagBufList_[0];
+
       outputBuf->setReplyTag(replyTagBuf->getReplyTag());
       outputBuf->setMaxReplyLength(replyTagBuf->getMaxReplyLength());
       connection = replyTagBuf->getConnection();
       MXTRC_2("replyTag=%d connection=%x", replyTagBuf->getReplyTag(), connection);
-      msgStream = (IpcBufferedMsgStream*)(replyTagBuf->getMessageStream());
+      msgStream = (IpcBufferedMsgStream *)(replyTagBuf->getMessageStream());
 
       NABoolean deleteReplyTag = FALSE;
 
@@ -4926,93 +4013,77 @@ IpcMessageBuffer* IpcServerMsgStream::getReplyTagOutputBuffer(
       // SeaMonster continue protocol we do not delete the request
       // from replyTagBufList_ except for the LAST IN BATCH or the EOD
       // reply.
-      if (getSMContinueProtocol())
-      {
+      if (getSMContinueProtocol()) {
         buffersSentInBatch_++;
 
         InternalMsgHdrInfoStruct *hdr = outputBuf->getPayloadHeader();
 
         // If this buffer is the last in batch to be sent then mark the buffer
         // as LAST IN BATCH and remember to delete the buffer from reply tag
-        // If this buffer is not last in batch then check if LAST IN BATCH 
+        // If this buffer is not last in batch then check if LAST IN BATCH
         // was already set by the TCB since it reached EOD, if so remember
         // to delete buffer from reply tag
-        if (buffersSentInBatch_ == sendBufferLimit_)
-        {
-          EXSM_TRACE(EXSM_TRACE_PROTOCOL, 
-                     "STREAM %p sent %d limit %d sending last in batch",
-                     this, buffersSentInBatch_, sendBufferLimit_);
+        if (buffersSentInBatch_ == sendBufferLimit_) {
+          EXSM_TRACE(EXSM_TRACE_PROTOCOL, "STREAM %p sent %d limit %d sending last in batch", this, buffersSentInBatch_,
+                     sendBufferLimit_);
           hdr->setSMLastInBatch();
-   
+
           deleteReplyTag = TRUE;
-        }
-        else if (hdr->getSMLastInBatch())
+        } else if (hdr->getSMLastInBatch())
           deleteReplyTag = TRUE;
-      }
-      else // regular one to one continue protocol case
+      } else  // regular one to one continue protocol case
         deleteReplyTag = TRUE;
-   
-      if (deleteReplyTag)
-      {
+
+      if (deleteReplyTag) {
         buffersSentInBatch_ = 0;
-        replyTagBuf->setReplyTag(GuaInvalidReplyTag); // invalidate reply tag
-        replyTagBuf->decrRefCount(); // free if not in another list
+        replyTagBuf->setReplyTag(GuaInvalidReplyTag);  // invalidate reply tag
+        replyTagBuf->decrRefCount();                   // free if not in another list
         replyTagBufList_.remove(replyTagBuf);
       }
 
       return outputBuf;
 
-    } // if (outputBuf)
-  } // if (numOfReplyTagBuffers())
+    }  // if (outputBuf)
+  }    // if (numOfReplyTagBuffers())
 
   return NULL;
 }
 
-///////////////////////////////////////////////////////////////////////////////  
+///////////////////////////////////////////////////////////////////////////////
 // internal send call back may be redefined by derived classes.
-void IpcBufferedMsgStream::internalActOnSend(IpcConnection* connection)
-{
+void IpcBufferedMsgStream::internalActOnSend(IpcConnection *connection) {
   {
     NAMutexScope ms(mutex_);
 
-    if (connection && !errorInfo_)
-      {
-        errorInfo_ = connection->getErrorInfo();
-      }
+    if (connection && !errorInfo_) {
+      errorInfo_ = connection->getErrorInfo();
+    }
   }
 
   actOnSend(connection);
 
-  if (getThreadInfo())
-    getThreadInfo()->resume();
+  if (getThreadInfo()) getThreadInfo()->resume();
 }
-                 
-///////////////////////////////////////////////////////////////////////////////  
+
+///////////////////////////////////////////////////////////////////////////////
 // internal receive call back may be redefined by derived classes.
-void IpcBufferedMsgStream::internalActOnReceive(IpcMessageBuffer* buffer,
-                                                IpcConnection* connection)
-  {
-  if (connection && !errorInfo_)
-    {
+void IpcBufferedMsgStream::internalActOnReceive(IpcMessageBuffer *buffer, IpcConnection *connection) {
+  if (connection && !errorInfo_) {
     errorInfo_ = connection->getErrorInfo();
-    }
-  if (buffer)
-    {
+  }
+  if (buffer) {
     addInputBuffer(buffer);
-    }
+  }
   actOnReceive(connection);
 
-  if (getThreadInfo())
-    getThreadInfo()->resume();
-  }
+  if (getThreadInfo()) getThreadInfo()->resume();
+}
 
-void IpcBufferedMsgStream::actOnSendAllComplete()
-{
+void IpcBufferedMsgStream::actOnSendAllComplete() {
   // the default callback implementation does nothing
 }
 
-void IpcBufferedMsgStream::actOnReceiveAllComplete()
-{
+void IpcBufferedMsgStream::actOnReceiveAllComplete() {
   // the default callback implementation does nothing
 }
 
@@ -5022,139 +4093,113 @@ void IpcBufferedMsgStream::actOnReceiveAllComplete()
 
 ///////////////////////////////////////////////////////////////////////////////
 // constructor
-IpcClientMsgStream::IpcClientMsgStream(IpcEnvironment *env,
-                                       IpcMessageType msgType,
-                                       IpcMessageObjVersion version,
-                                       Lng32 sendBufferLimit,
-                                       Lng32 inUseBufferLimit,
-                                       IpcMessageObjSize bufferSize,
+IpcClientMsgStream::IpcClientMsgStream(IpcEnvironment *env, IpcMessageType msgType, IpcMessageObjVersion version,
+                                       Lng32 sendBufferLimit, Lng32 inUseBufferLimit, IpcMessageObjSize bufferSize,
                                        IpcThreadInfo *threadInfo)
-     : IpcBufferedMsgStream(
-          env, msgType, version, inUseBufferLimit, bufferSize, threadInfo),
-    sendBufferLimit_(sendBufferLimit),
-    responsesPending_(0),
-    recipients_(env),
-    localRecipients_(env->getHeap()),
-    localReplyTag_(0),
-    smBatchIsComplete_(FALSE)
-{ }
+    : IpcBufferedMsgStream(env, msgType, version, inUseBufferLimit, bufferSize, threadInfo),
+      sendBufferLimit_(sendBufferLimit),
+      responsesPending_(0),
+      recipients_(env),
+      localRecipients_(env->getHeap()),
+      localReplyTag_(0),
+      smBatchIsComplete_(FALSE) {}
 
 ///////////////////////////////////////////////////////////////////////////////
 // broadcast the current send message to all recipients
-void IpcClientMsgStream::sendRequest(Int64 transid)
-  {
+void IpcClientMsgStream::sendRequest(Int64 transid) {
   MXTRC_FUNC("IpcClientMsgStream::sendRequest");
   prepSendMsgForOutput();
 
-  while (numOfOutputBuffers())
-    {
-    IpcMessageBuffer* msgBuf;
-    CollIndex numRecipients = 
-                          recipients_.entries() + localRecipients_.entries();
+  while (numOfOutputBuffers()) {
+    IpcMessageBuffer *msgBuf;
+    CollIndex numRecipients = recipients_.entries() + localRecipients_.entries();
 
-    for (IpcConnectionId i = 0; recipients_.nextUsed(i); i++)
-      { // send output message to all remote connections
+    for (IpcConnectionId i = 0; recipients_.nextUsed(i); i++) {  // send output message to all remote connections
       numRecipients--;
-      msgBuf = numRecipients ? copyOutputBuffer() : getOutputBuffer(); 
+      msgBuf = numRecipients ? copyOutputBuffer() : getOutputBuffer();
 
       // store transid in msgbuf
-      msgBuf->setTransid (transid);
+      msgBuf->setTransid(transid);
 
       responsesPending_++;
 
       if (getSMContinueProtocol())
-        EXSM_TRACE(EXSM_TRACE_PROTOCOL, "STREAM %p rp is now %d", this,
-                   (int) responsesPending_);
-      
+        EXSM_TRACE(EXSM_TRACE_PROTOCOL, "STREAM %p rp is now %d", this, (int)responsesPending_);
+
       IpcConnection *conn = recipients_.element(i);
       conn->send(msgBuf);
     }
 
-    assert(numRecipients == localRecipients_.entries()); 
+    assert(numRecipients == localRecipients_.entries());
 
-    for (CollIndex j = 0; j < localRecipients_.entries(); j++)
-      { // send output message to all local server msg streams
-      IpcBufferedMsgStream* msgStream = localRecipients_[j];
+    for (CollIndex j = 0; j < localRecipients_.entries(); j++) {  // send output message to all local server msg streams
+      IpcBufferedMsgStream *msgStream = localRecipients_[j];
       numRecipients--;
-      msgBuf = numRecipients ? copyOutputBuffer() : getOutputBuffer(); 
+      msgBuf = numRecipients ? copyOutputBuffer() : getOutputBuffer();
       responsesPending_++;
       msgBuf->setReplyTag(getLocalReplyTag());
       msgStream->internalActOnReceive(msgBuf, NULL);
-      }
-    assert(numRecipients == 0);
     }
+    assert(numRecipients == 0);
+  }
 
   // commenting out the following code as this is causing problems for SM,
   // removing this code does not cause problems for Seabed messages as this
   // is mostly noop for seabed messages
-  //recipients_.waitOnSet(IpcImmediately);
-  }
+  // recipients_.waitOnSet(IpcImmediately);
+}
 
 // abort any outstanding I/Os on this stream
-void IpcClientMsgStream::abandonPendingIOs()
-{
-  while (numOfResponsesPending() > 0)
-    {
-      for (IpcConnectionId i = 0; recipients_.nextUsed(i); i++)
-        {
-          IpcConnection * c = recipients_.element(i);
-          NABoolean useGuaIpc = TRUE;
-          if (useGuaIpc)
-            {
-              if (c->castToGuaConnectionToServer())
-                c->castToGuaConnectionToServer()->setFatalError(this);
-            }
-        } // for
-    } // while
+void IpcClientMsgStream::abandonPendingIOs() {
+  while (numOfResponsesPending() > 0) {
+    for (IpcConnectionId i = 0; recipients_.nextUsed(i); i++) {
+      IpcConnection *c = recipients_.element(i);
+      NABoolean useGuaIpc = TRUE;
+      if (useGuaIpc) {
+        if (c->castToGuaConnectionToServer()) c->castToGuaConnectionToServer()->setFatalError(this);
+      }
+    }  // for
+  }    // while
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// internal receive call back 
-void IpcClientMsgStream::internalActOnReceive(IpcMessageBuffer* buffer,
-                                              IpcConnection* connection)
-{
+// internal receive call back
+void IpcClientMsgStream::internalActOnReceive(IpcMessageBuffer *buffer, IpcConnection *connection) {
   MXTRC_FUNC("IpcClientMsgStream::internalActOnReceive");
 
   // Note: It is possible for this function to be called with a NULL
   // buffer pointer under certain error conditions.
 
-  if (buffer)
-    buffer->setReplyTag(GuaInvalidReplyTag); // invalidate so buff can cleanup
+  if (buffer) buffer->setReplyTag(GuaInvalidReplyTag);  // invalidate so buff can cleanup
 
   // Cases to consider
   // (a) buffer is NULL (which indicates an error condition)
   // (b) stream is NOT following seamonster continue protocol
   // (c) stream IS following seamonster continue protocol
 
-  if (!getSMContinueProtocol() || !buffer)
-  {
+  if (!getSMContinueProtocol() || !buffer) {
     // Cases (a) and (b)
     if (responsesPending_ > 0)
       responsesPending_--;
-    else
-    {
+    else {
       connection->dumpAndStopOtherEnd(true, false);
       assert(responsesPending_ > 0);
     }
-  }
-  else
-  {
+  } else {
     // Case (c)
     InternalMsgHdrInfoStruct *hdr = buffer->getPayloadHeader();
     assert(hdr);
 
-    if (hdr->getSMLastInBatch())
-    {
+    if (hdr->getSMLastInBatch()) {
       // Remember that the LAST IN BATCH buffer is received so later
       // in actOnReceive() we can decrement the statement globals
       // message counter. This saved this information in a stream
       // data member since the actOnReceive() method does not have a
       // buffer pointer to check the actual LAST IN BATCH flag.
       smBatchIsComplete_ = TRUE;
-      
+
       responsesPending_--;
-      EXSM_TRACE(EXSM_TRACE_PROTOCOL, "STREAM %p rp is now %d", this,
-                 (int) responsesPending_);
+      EXSM_TRACE(EXSM_TRACE_PROTOCOL, "STREAM %p rp is now %d", this, (int)responsesPending_);
 
       IpcConnection *conn = connection->castToSMConnection();
       assert(conn);
@@ -5166,8 +4211,7 @@ void IpcClientMsgStream::internalActOnReceive(IpcMessageBuffer* buffer,
   // invoke the child class actOnReceive() virtual method.
   IpcBufferedMsgStream::internalActOnReceive(buffer, connection);
 
-  if (getSMContinueProtocol())
-  {
+  if (getSMContinueProtocol()) {
     // After receive callback processing is complete in the parent and
     // child classes, we can reset the batch complete flag
     smBatchIsComplete_ = FALSE;
@@ -5176,8 +4220,7 @@ void IpcClientMsgStream::internalActOnReceive(IpcMessageBuffer* buffer,
 
 ///////////////////////////////////////////////////////////////////////////////
 // internal send call back
-void IpcClientMsgStream::internalActOnSend(IpcConnection* connection)
-{
+void IpcClientMsgStream::internalActOnSend(IpcConnection *connection) {
   // We'll have to initiate receive even if connection is in error. This
   // is because the stream needs to do bookkeeping and other work only
   // when the receive callback is called. As result, decrementing
@@ -5192,12 +4235,10 @@ void IpcClientMsgStream::internalActOnSend(IpcConnection* connection)
   // But before making any judgements about whether an error occurred,
   // first make sure this stream's errorInfo_ field is updated with
   // any error information from the connection.
-  if (connection && !errorInfo_)
-    errorInfo_ = connection->getErrorInfo();
+  if (connection && !errorInfo_) errorInfo_ = connection->getErrorInfo();
 
   IpcBufferedMsgStream::internalActOnSend(connection);
-  if (connection)
-  {
+  if (connection) {
     connection->receive(this);
   }
 }
@@ -5208,36 +4249,27 @@ void IpcClientMsgStream::internalActOnSend(IpcConnection* connection)
 
 ///////////////////////////////////////////////////////////////////////////////
 // constructor
-IpcServerMsgStream::IpcServerMsgStream(IpcEnvironment *env,
-                                       IpcMessageType msgType,
-                                       IpcMessageObjVersion version,
-                                       Lng32 sendBufferLimit,
-                                       Lng32 inUseBufferLimit,
-                                       IpcMessageObjSize bufferSize,
+IpcServerMsgStream::IpcServerMsgStream(IpcEnvironment *env, IpcMessageType msgType, IpcMessageObjVersion version,
+                                       Lng32 sendBufferLimit, Lng32 inUseBufferLimit, IpcMessageObjSize bufferSize,
                                        IpcThreadInfo *threadInfo)
-     : IpcBufferedMsgStream(
-          env, msgType, version, inUseBufferLimit, bufferSize, threadInfo),
-    sendBufferLimit_(sendBufferLimit),
-    client_(NULL),
-    buffersSentInBatch_(0)
-  { };
+    : IpcBufferedMsgStream(env, msgType, version, inUseBufferLimit, bufferSize, threadInfo),
+      sendBufferLimit_(sendBufferLimit),
+      client_(NULL),
+      buffersSentInBatch_(0){};
 
 //////////////////////////////////////////////////////////////////////////////
 // send the current response message back to the client
-void IpcServerMsgStream::sendResponse()
-  {
+void IpcServerMsgStream::sendResponse() {
   MXTRC_FUNC("IpcServerMsgStream::sendResponse");
   prepSendMsgForOutput();
   tickleOutputIo();
-  }
+}
 
 //////////////////////////////////////////////////////////////////////////////
 // server is done replying to all requests
-void IpcServerMsgStream::responseDone()
-{
-  while (numOfOutputBuffers() < numOfReplyTagBuffers())
-  { // create empty responses for excess reply tags
-    sendMsgObj(0);  
+void IpcServerMsgStream::responseDone() {
+  while (numOfOutputBuffers() < numOfReplyTagBuffers()) {  // create empty responses for excess reply tags
+    sendMsgObj(0);
     prepSendMsgForOutput();
   }
   tickleOutputIo();
@@ -5245,49 +4277,38 @@ void IpcServerMsgStream::responseDone()
 
 ///////////////////////////////////////////////////////////////////////////////
 // reply to outstanding requests from the output queue
-void IpcServerMsgStream::tickleOutputIo()
-{
+void IpcServerMsgStream::tickleOutputIo() {
   // This early return is done without any SeaMonster tracing so that
   // SeaMonster tracing only happens when there is actually something
   // to send
-  if (numOfOutputBuffers() == 0)
-    return;
+  if (numOfOutputBuffers() == 0) return;
 
   if (getSMContinueProtocol())
-    EXSM_TRACE(EXSM_TRACE_PROTOCOL,
-               "STREAM %p BEGIN tickleOutputIo bufs %d", this,
-               (int) numOfOutputBuffers());
-  
-  IpcMessageBuffer* msgBuf;
-  IpcConnection* connection; 
-  IpcBufferedMsgStream* msgStream;
+    EXSM_TRACE(EXSM_TRACE_PROTOCOL, "STREAM %p BEGIN tickleOutputIo bufs %d", this, (int)numOfOutputBuffers());
+
+  IpcMessageBuffer *msgBuf;
+  IpcConnection *connection;
+  IpcBufferedMsgStream *msgStream;
   MXTRC_FUNC("IpcServerMsgStream::tickleOutputIo");
-  while (msgBuf = getReplyTagOutputBuffer(connection, msgStream))
-  {
-    if (connection)
-    {
+  while (msgBuf = getReplyTagOutputBuffer(connection, msgStream)) {
+    if (connection) {
       // respond to remote client message stream via connection
       connection->send(msgBuf);
-      
+
       // comment out the following wait to eliminate the cause of bug 2473
       // in an open/close cursor test that recreates the problem
-      //connection->wait(IpcImmediately);
-    }
-    else
-    {  // respond to local client message stream
+      // connection->wait(IpcImmediately);
+    } else {  // respond to local client message stream
       msgStream->internalActOnReceive(msgBuf, NULL);
     }
   }
 
   if (getSMContinueProtocol())
-    EXSM_TRACE(EXSM_TRACE_PROTOCOL,
-               "STREAM %p END tickleOutputIo bufs %d", this,
-               (int) numOfOutputBuffers());
+    EXSM_TRACE(EXSM_TRACE_PROTOCOL, "STREAM %p END tickleOutputIo bufs %d", this, (int)numOfOutputBuffers());
 }
 
-void IpcBufferedMsgStream::setSMLastInBatch()
-{
-  Int32 entries = (Int32) numOfSendBuffers();
+void IpcBufferedMsgStream::setSMLastInBatch() {
+  Int32 entries = (Int32)numOfSendBuffers();
   assert(entries > 0);
 
   IpcMessageBuffer *msgBuf = sendBufList_[entries - 1];
@@ -5296,16 +4317,12 @@ void IpcBufferedMsgStream::setSMLastInBatch()
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// internal receive call back 
-void IpcServerMsgStream::internalActOnReceive(IpcMessageBuffer* buffer,
-                                              IpcConnection* connection)
-{
-  if (buffer)
-  {
-    assert(buffer->getReplyTag() != GuaInvalidReplyTag); // vaild reply tag ?
+// internal receive call back
+void IpcServerMsgStream::internalActOnReceive(IpcMessageBuffer *buffer, IpcConnection *connection) {
+  if (buffer) {
+    assert(buffer->getReplyTag() != GuaInvalidReplyTag);  // vaild reply tag ?
 
-    if (client_ != NULL)
-    {
+    if (client_ != NULL) {
       // cannot be recipient of local msg stream if receiving from connection
       assert(client_ == buffer->getConnection());
       client_->receive(this);
@@ -5318,13 +4335,9 @@ void IpcServerMsgStream::internalActOnReceive(IpcMessageBuffer* buffer,
 // Methods for class IpcServerClass
 // -----------------------------------------------------------------------
 
-IpcServerClass::IpcServerClass(IpcEnvironment *env,
-			       IpcServerType serverType,
-			       IpcServerAllocationMethod allocationMethod,
-                               short serverVersion,
-                               char *nodeName) :
-     allocatedServers_(env->getHeap())
-{
+IpcServerClass::IpcServerClass(IpcEnvironment *env, IpcServerType serverType,
+                               IpcServerAllocationMethod allocationMethod, short serverVersion, char *nodeName)
+    : allocatedServers_(env->getHeap()) {
   environment_ = env;
   serverType_ = serverType;
   allocationMethod_ = allocationMethod;
@@ -5348,102 +4361,79 @@ IpcServerClass::IpcServerClass(IpcEnvironment *env,
   char *waitedStartupArg = getenv("ESP_PARALLEL_STARTUP");
   if (waitedStartupArg == NULL)
     nowaitedEspServer_.waitedStartupArg_ = '0';
-  else
-  {
-    switch (*waitedStartupArg)
-    {
-    case '0':
-      nowaitedEspServer_.waitedStartupArg_ = '1';
-      break;
-    case '1':
-      nowaitedEspServer_.waitedStartupArg_ = '0';
-      break;
-    default:
-      nowaitedEspServer_.waitedStartupArg_ = '0';
+  else {
+    switch (*waitedStartupArg) {
+      case '0':
+        nowaitedEspServer_.waitedStartupArg_ = '1';
+        break;
+      case '1':
+        nowaitedEspServer_.waitedStartupArg_ = '0';
+        break;
+      default:
+        nowaitedEspServer_.waitedStartupArg_ = '0';
     }
   }
-  if (allocationMethod_ == IPC_ALLOC_DONT_CARE)
-    {
-      // NA_WINNT is set and NA_GUARDIAN_IPC is set
-      // The standard method on NT is to create a Guardian process
-      // in order to run in an NT only or simulated environment we can set an environment
-      // variable to override that mechanism.
-      if (getenv("SQL_NO_NSK_LITE") == NULL)
-        {
-          allocationMethod_ = IPC_LAUNCH_GUARDIAN_PROCESS;
-        }
-      else 
-        {
-          allocationMethod_ = IPC_LAUNCH_NT_PROCESS;
-          time_t tp;
-          time(&tp);
-	  nextPort_ = IPC_SQLESP_PORTNUMBER + tp % 10000; // arbitrary
-        };
-    }
+  if (allocationMethod_ == IPC_ALLOC_DONT_CARE) {
+    // NA_WINNT is set and NA_GUARDIAN_IPC is set
+    // The standard method on NT is to create a Guardian process
+    // in order to run in an NT only or simulated environment we can set an environment
+    // variable to override that mechanism.
+    if (getenv("SQL_NO_NSK_LITE") == NULL) {
+      allocationMethod_ = IPC_LAUNCH_GUARDIAN_PROCESS;
+    } else {
+      allocationMethod_ = IPC_LAUNCH_NT_PROCESS;
+      time_t tp;
+      time(&tp);
+      nextPort_ = IPC_SQLESP_PORTNUMBER + tp % 10000;  // arbitrary
+    };
+  }
 }
 
-IpcServerClass::~IpcServerClass() 
-{
-   NAHeap *heap = (NAHeap *)environment_->getHeap();
-   CollIndex entryCount;
-   entryCount  = allocatedServers_.entries();
-   for (CollIndex i = 0 ; i < entryCount; i++) {
-       NADELETE(allocatedServers_[i], IpcServer, heap);
-   }
-   allocatedServers_.clear();
+IpcServerClass::~IpcServerClass() {
+  NAHeap *heap = (NAHeap *)environment_->getHeap();
+  CollIndex entryCount;
+  entryCount = allocatedServers_.entries();
+  for (CollIndex i = 0; i < entryCount; i++) {
+    NADELETE(allocatedServers_[i], IpcServer, heap);
+  }
+  allocatedServers_.clear();
 }
 
-IpcServer * IpcServerClass::allocateServerProcess(ComDiagsArea **diags,
-						  CollHeap   *diagsHeap,
-						  const char *nodeName,
-						  IpcCpuNum cpuNum,
-						  IpcPriority priority,
-						  Lng32 espLevel,
-						  NABoolean usesTransactions,
-						  NABoolean waitedCreation,
-						  Lng32 maxNowaitRequests,
-						  const char* progFileName,
-						  const char* processName,
-						  NABoolean parallelOpens,
-						  IpcGuardianServer **creatingProcess,
-						  NAWNodeSetWrapper *nodeSet)
-{
+IpcServer *IpcServerClass::allocateServerProcess(ComDiagsArea **diags, CollHeap *diagsHeap, const char *nodeName,
+                                                 IpcCpuNum cpuNum, IpcPriority priority, Lng32 espLevel,
+                                                 NABoolean usesTransactions, NABoolean waitedCreation,
+                                                 Lng32 maxNowaitRequests, const char *progFileName,
+                                                 const char *processName, NABoolean parallelOpens,
+                                                 IpcGuardianServer **creatingProcess, NAWNodeSetWrapper *nodeSet) {
   IpcServer *result = NULL;
   short retcode = 0;
-  if (creatingProcess != NULL)
-  {
+  if (creatingProcess != NULL) {
     result = *creatingProcess;
-    if ((*creatingProcess)->isCreatingProcess())
-    {
+    if ((*creatingProcess)->isCreatingProcess()) {
       assert(waitedCreation == FALSE);
-      retcode = (*creatingProcess)->workOnStartup(IpcInfiniteTimeout,nodeSet,diags,diagsHeap);
-      if ((*creatingProcess)->isCreatingProcess())
-      {
-	result = NULL;
-	return result; // Launch didn't complete
-      }
-    }
-    else
-      assert(FALSE); // Existing process in not in creating state
-    if (retcode)
-      {
-        char buf[20];
-        str_sprintf(buf, "retcode = %d", retcode);
-        const char *retcodeText = buf;
-        (*creatingProcess)->logEspRelease(__FILE__, __LINE__, 
-                      retcodeText);
-        (*creatingProcess)->release();
-        *creatingProcess = NULL; // Launch completed
+      retcode = (*creatingProcess)->workOnStartup(IpcInfiniteTimeout, nodeSet, diags, diagsHeap);
+      if ((*creatingProcess)->isCreatingProcess()) {
         result = NULL;
+        return result;  // Launch didn't complete
       }
+    } else
+      assert(FALSE);  // Existing process in not in creating state
+    if (retcode) {
+      char buf[20];
+      str_sprintf(buf, "retcode = %d", retcode);
+      const char *retcodeText = buf;
+      (*creatingProcess)->logEspRelease(__FILE__, __LINE__, retcodeText);
+      (*creatingProcess)->release();
+      *creatingProcess = NULL;  // Launch completed
+      result = NULL;
+    }
     // remember this server
-    if (result != NULL)
-      allocatedServers_.insert(result);
+    if (result != NULL) allocatedServers_.insert(result);
     return result;
   }
   NABoolean lv_usesTransactions = usesTransactions;
   Lng32 lv_maxNowaitRequests = maxNowaitRequests;
- 
+
   IpcConnection *serverConn = NULL;
   const char *className = NULL;
   IpcServerPortNumber defaultPortNumber = IPC_INVALID_SERVER_PORTNUMBER;
@@ -5457,150 +4447,116 @@ IpcServer * IpcServerClass::allocateServerProcess(ComDiagsArea **diags,
   // to avoid compiler warning for Unix build
   waitedCreation = waitedCreation;
 
-  switch (serverType_)
-    {
+  switch (serverType_) {
     case IPC_SQLUSTAT_SERVER:
-      if (debugServer)
-	{
-	  className = "arkustatdbg";
-	  defaultPortNumber = IPC_SQLUSTAT_DEBUG_PORTNUMBER;
-	}
-      else
-	{
-	  className = "arkustat";
-	  defaultPortNumber = IPC_SQLUSTAT_PORTNUMBER;
-	}
-	  overridingDefineName = "ARK_STA_PROG_FILE_NAME";
+      if (debugServer) {
+        className = "arkustatdbg";
+        defaultPortNumber = IPC_SQLUSTAT_DEBUG_PORTNUMBER;
+      } else {
+        className = "arkustat";
+        defaultPortNumber = IPC_SQLUSTAT_PORTNUMBER;
+      }
+      overridingDefineName = "ARK_STA_PROG_FILE_NAME";
       break;
     case IPC_SQLCAT_SERVER:
-      if (debugServer)
-	{
-	  className = "arkcatdbg";
-	  defaultPortNumber = IPC_SQLCAT_DEBUG_PORTNUMBER;
-	}
-      else
-	{
-	  className = "arkcat";
-	  defaultPortNumber = IPC_SQLCAT_PORTNUMBER;
-	}
-	  overridingDefineName = "ARK_CAT_PROG_FILE_NAME";
+      if (debugServer) {
+        className = "arkcatdbg";
+        defaultPortNumber = IPC_SQLCAT_DEBUG_PORTNUMBER;
+      } else {
+        className = "arkcat";
+        defaultPortNumber = IPC_SQLCAT_PORTNUMBER;
+      }
+      overridingDefineName = "ARK_CAT_PROG_FILE_NAME";
       break;
     case IPC_SQLCOMP_SERVER:
-      if (debugServer)
-	{
-	  className = "arkcmpdbg";
-	  defaultPortNumber = IPC_SQLCOMP_DEBUG_PORTNUMBER;
-	}
-      else
-	{
-	  className = "arkcmp";
-	  defaultPortNumber = IPC_SQLCOMP_PORTNUMBER;
-	}
-	  overridingDefineName = "_ARK_CMP_PROG_FILE_NAME";
+      if (debugServer) {
+        className = "arkcmpdbg";
+        defaultPortNumber = IPC_SQLCOMP_DEBUG_PORTNUMBER;
+      } else {
+        className = "arkcmp";
+        defaultPortNumber = IPC_SQLCOMP_PORTNUMBER;
+      }
+      overridingDefineName = "_ARK_CMP_PROG_FILE_NAME";
       break;
     case IPC_SQLESP_SERVER:
-      if (debugServer)
-	{
-	  className = "arkespdbg";
-	  defaultPortNumber = IPC_SQLESP_DEBUG_PORTNUMBER;
-	}
-      else
-	{
-	  className = "arkesp";
-	  defaultPortNumber = IPC_SQLESP_PORTNUMBER;
-	}
+      if (debugServer) {
+        className = "arkespdbg";
+        defaultPortNumber = IPC_SQLESP_DEBUG_PORTNUMBER;
+      } else {
+        className = "arkesp";
+        defaultPortNumber = IPC_SQLESP_PORTNUMBER;
+      }
       overridingDefineName = "_ARK_ESP_PROG_FILE_NAME";
       break;
-   case IPC_SQLBDRR_SERVER:
+    case IPC_SQLBDRR_SERVER:
       className = "bdrr";
       overridingDefineName = "=_MX_BDRR_PROG_FILE_NAME";
       break;
       //
       // UDR Servers
       //
-      
-    case IPC_SQLUDR_SERVER:
-      {
-        if (debugServer)
-        {
-          className = "udrservdbg";
-          defaultPortNumber = IPC_SQLUDR_DEBUG_PORTNUMBER;
-        }
-        else
-        {
-          className = "udrserv";
-          defaultPortNumber = IPC_SQLUDR_PORTNUMBER;
-        }
-        overridingDefineName = "_ARK_UDR_PROG_FILE_NAME";
+
+    case IPC_SQLUDR_SERVER: {
+      if (debugServer) {
+        className = "udrservdbg";
+        defaultPortNumber = IPC_SQLUDR_DEBUG_PORTNUMBER;
+      } else {
+        className = "udrserv";
+        defaultPortNumber = IPC_SQLUDR_PORTNUMBER;
       }
-      break;
-     
+      overridingDefineName = "_ARK_UDR_PROG_FILE_NAME";
+    } break;
+
       //
       // Query Matching Server
       //
-    case IPC_SQLQMS_SERVER:
-      {
-        if (debugServer)
-        {
-          className = "qmsdbg";
-          defaultPortNumber = IPC_SQLQMS_DEBUG_PORTNUMBER;
-        }
-        else
-        {
-          className = "qms";
-          defaultPortNumber = IPC_SQLQMS_PORTNUMBER;
-        }
-        overridingDefineName = "_ARK_QMS_PROG_FILE_NAME";
+    case IPC_SQLQMS_SERVER: {
+      if (debugServer) {
+        className = "qmsdbg";
+        defaultPortNumber = IPC_SQLQMS_DEBUG_PORTNUMBER;
+      } else {
+        className = "qms";
+        defaultPortNumber = IPC_SQLQMS_PORTNUMBER;
       }
-      break;
+      overridingDefineName = "_ARK_QMS_PROG_FILE_NAME";
+    } break;
 
       //
       // Query Matching Publisher
       //
-    case IPC_SQLQMP_SERVER:
-      {
-        if (debugServer)
-        {
-          className = "qmpdbg";
-          defaultPortNumber = IPC_SQLQMP_DEBUG_PORTNUMBER;
-        }
-        else
-        {
-          className = "qmp";
-          defaultPortNumber = IPC_SQLQMP_PORTNUMBER;
-        }
-        overridingDefineName = "_ARK_QMP_PROG_FILE_NAME";
+    case IPC_SQLQMP_SERVER: {
+      if (debugServer) {
+        className = "qmpdbg";
+        defaultPortNumber = IPC_SQLQMP_DEBUG_PORTNUMBER;
+      } else {
+        className = "qmp";
+        defaultPortNumber = IPC_SQLQMP_PORTNUMBER;
       }
-      break;  
+      overridingDefineName = "_ARK_QMP_PROG_FILE_NAME";
+    } break;
 
       //
       // Query Matching Monitor
       //
-    case IPC_SQLQMM_SERVER:
-      {
-        if (debugServer)
-        {
-          className = "qmmdbg";
-          defaultPortNumber = IPC_SQLQMM_DEBUG_PORTNUMBER;
-        }
-        else
-        {
-          className = "qmm";
-          defaultPortNumber = IPC_SQLQMM_PORTNUMBER;
-        }
-        overridingDefineName = "_ARK_QMM_PROG_FILE_NAME";
+    case IPC_SQLQMM_SERVER: {
+      if (debugServer) {
+        className = "qmmdbg";
+        defaultPortNumber = IPC_SQLQMM_DEBUG_PORTNUMBER;
+      } else {
+        className = "qmm";
+        defaultPortNumber = IPC_SQLQMM_PORTNUMBER;
       }
-      break; 
+      overridingDefineName = "_ARK_QMM_PROG_FILE_NAME";
+    } break;
 
       // generic servers passed in as progFileName
     case IPC_GENERIC_SERVER:
     case IPC_SQLBDRS_SERVER:
-      if ((allocationMethod_ != IPC_USE_PROCESS) &&
-         (! progFileName))
+      if ((allocationMethod_ != IPC_USE_PROCESS) && (!progFileName))
         ABORT("Invalid server type specified in IpcServer::IpcServer()");
 
       if (allocationMethod_ == IPC_USE_PROCESS)
-	className = processName;
+        className = processName;
       else
         className = progFileName;
       defaultPortNumber = IPC_GENERIC_PORTNUMBER;
@@ -5609,128 +4565,85 @@ IpcServer * IpcServerClass::allocateServerProcess(ComDiagsArea **diags,
     case IPC_SQLSSCP_SERVER:
       className = "sscp";
       lv_usesTransactions = FALSE;
-      lv_maxNowaitRequests =  FS_MAX_NOWAIT_DEPTH;   
+      lv_maxNowaitRequests = FS_MAX_NOWAIT_DEPTH;
       overridingDefineName = "=_MX_SSCP_PROCESS_PREFIX";
       useTimeout = TRUE;
       break;
     case IPC_SQLSSMP_SERVER:
       className = "ssmp";
       lv_usesTransactions = FALSE;
-      lv_maxNowaitRequests =  FS_MAX_NOWAIT_DEPTH;   
+      lv_maxNowaitRequests = FS_MAX_NOWAIT_DEPTH;
       overridingDefineName = "=_MX_SSMP_PROCESS_PREFIX";
       break;
     default:
       ABORT("Invalid server type specified in IpcServer::IpcServer()");
       break;
-    }
+  }
 
-  switch (allocationMethod_)
-    {
-
+  switch (allocationMethod_) {
     case IPC_LAUNCH_GUARDIAN_PROCESS:
     case IPC_SPAWN_OSS_PROCESS:
-    case IPC_USE_PROCESS:
-      {
-	IpcGuardianServer *result2 =
-	  new(environment_) IpcGuardianServer(
-	       this,
-	       diags,
-	       diagsHeap,
-	       nodeName,
-	       className,
-	       cpuNum,
-	       priority, //IPC_PRIORITY_DONT_CARE,
-	       allocationMethod_,
-	       (short) allocatedServers_.entries(),
-	       lv_usesTransactions,
-	       FALSE,
-               waitedCreation,
-	       lv_maxNowaitRequests,
-	       overridingDefineName,
-	       processName,
-	       parallelOpens);
-	result = result2;
-	  retcode = result2->workOnStartup(IpcInfiniteTimeout,nodeSet,diags,diagsHeap, useTimeout);
-	if (result2->isCreatingProcess() && retcode == 0)
-          return result2;
-        if (retcode)
-          {
-             char buf[20];
-             str_sprintf(buf, "retcode = %d", retcode);
-             const char *retcodeText = buf;
-             result2->logEspRelease(__FILE__, __LINE__,
-                      retcodeText);
-             result2->release();
-             result = NULL;
-          }
+    case IPC_USE_PROCESS: {
+      IpcGuardianServer *result2 = new (environment_)
+          IpcGuardianServer(this, diags, diagsHeap, nodeName, className, cpuNum,
+                            priority,  // IPC_PRIORITY_DONT_CARE,
+                            allocationMethod_, (short)allocatedServers_.entries(), lv_usesTransactions, FALSE,
+                            waitedCreation, lv_maxNowaitRequests, overridingDefineName, processName, parallelOpens);
+      result = result2;
+      retcode = result2->workOnStartup(IpcInfiniteTimeout, nodeSet, diags, diagsHeap, useTimeout);
+      if (result2->isCreatingProcess() && retcode == 0) return result2;
+      if (retcode) {
+        char buf[20];
+        str_sprintf(buf, "retcode = %d", retcode);
+        const char *retcodeText = buf;
+        result2->logEspRelease(__FILE__, __LINE__, retcodeText);
+        result2->release();
+        result = NULL;
       }
-      break;
+    } break;
 
-    case IPC_INETD:
-      {
-	serverConn = createInternetProcess(diags,
-					   diagsHeap,
-					   nodeName,
-					   className,
-					   cpuNum,
-					   usesTransactions,
-					   defaultPortNumber);
-	// make an IpcServer object
-	if (serverConn != NULL)
-	  {
-	    result = new(environment_) IpcServer(serverConn,this);
-	    // $$$$ add errors from creating the connection
-	  }
+    case IPC_INETD: {
+      serverConn =
+          createInternetProcess(diags, diagsHeap, nodeName, className, cpuNum, usesTransactions, defaultPortNumber);
+      // make an IpcServer object
+      if (serverConn != NULL) {
+        result = new (environment_) IpcServer(serverConn, this);
+        // $$$$ add errors from creating the connection
       }
-      break;
+    } break;
 
-    case IPC_POSIX_FORK_EXEC:
-      {
-	serverConn = forkProcess(diags,
-				 diagsHeap,
-				 nodeName,
-				 className,
-				 cpuNum,
-				 usesTransactions);
-	// make an IpcServer object
-	if (serverConn != NULL)
-	  result = new(environment_) IpcServer(serverConn,this);
-      }
-      break;
+    case IPC_POSIX_FORK_EXEC: {
+      serverConn = forkProcess(diags, diagsHeap, nodeName, className, cpuNum, usesTransactions);
+      // make an IpcServer object
+      if (serverConn != NULL) result = new (environment_) IpcServer(serverConn, this);
+    } break;
 
+    case IPC_LAUNCH_NT_PROCESS: {
+      defaultPortNumber = (IpcServerPortNumber)nextPort_;
+      nextPort_++;
 
-    case IPC_LAUNCH_NT_PROCESS:
-      {
-	defaultPortNumber = (IpcServerPortNumber)nextPort_;
-	nextPort_++;
-	
-	// make an IpcServer object
-	if (serverConn != NULL)
-	  result = new(environment_) IpcServer(serverConn,this);
-      }
-      break;
+      // make an IpcServer object
+      if (serverConn != NULL) result = new (environment_) IpcServer(serverConn, this);
+    } break;
     default:
       ABORT("Invalid server class allocation method");
       break;
 
-    } // switch
+  }  // switch
 
   // remember this server
-  if (result != NULL)
-    allocatedServers_.insert(result);
+  if (result != NULL) allocatedServers_.insert(result);
 
   return result;
 }
 
-void IpcServerClass::freeServerProcess(IpcServer *s)
-{
+void IpcServerClass::freeServerProcess(IpcServer *s) {
   // assume caller already killed the server
   allocatedServers_.remove(s);
   NADELETE(s, IpcServer, environment_->getHeap());
 }
 
-char *IpcServerClass::getProcessName(short cpuNum, char *processName)
-{
+char *IpcServerClass::getProcessName(short cpuNum, char *processName) {
   return getServerProcessName(serverType_, cpuNum, processName);
 }
 // -----------------------------------------------------------------------
@@ -5742,115 +4655,94 @@ char *IpcServerClass::getProcessName(short cpuNum, char *processName)
 //  Accepts a define name as an argument.  Be sure to make this 24 bytes
 //  long, blank padded if necessary, not including the null terminator --
 //  see the manual for DEFINEINFO if there are any questions.
-//  
-//  Return -1 if define not resolved, else it returns an integer parsed 
+//
+//  Return -1 if define not resolved, else it returns an integer parsed
 //  from the class MAP's "file name".
 //
 // For example:
 // add_define =_SQLMX_MAX_OUTGOING_MSG class=MAP file=\$SYSTEM.#128
 //
 /////////////////////////////////////////////////////////////////////
-short getDefineShort( char * defineName )
-{
+short getDefineShort(char *defineName) {
   Lng32 retVal = -1;
 
-  return (short) retVal;
-  return (short) retVal;
+  return (short)retVal;
+  return (short)retVal;
 }
 
-static ULng32 pid_t_HashFunc(const pid_t& k)
-{
-  return (ULng32) (k % 65536);
-}
+static ULng32 pid_t_HashFunc(const pid_t &k) { return (ULng32)(k % 65536); }
 
 // -----------------------------------------------------------------------
 // Methods for IpcEnvironment
 // -----------------------------------------------------------------------
 
- IpcEnvironment::IpcEnvironment(CollHeap *heap,
-                                UInt32 *eventConsumed,
-                                NABoolean breakEnabled,
-                                IpcServerType serverType,
-                                NABoolean useGuaIpcAtRuntime,
-                                NABoolean persistentProcess,
-                                NABoolean multiThreaded) :
-     breakEnabled_(breakEnabled),
-     heap_(heap),
-     eventConsumedAddr_(eventConsumed),
-     completedMessages_(heap),
-     envvars_(NULL),
-     envvarsLen_(0),
-     heapFull_(FALSE),
-     safetyBuffer_(NULL),
-     stopAfter_(0),
-     inactiveTimeout_(0),
-     inactiveTimestamp_(0),
-     espFreeMemTimeout_(0), // initial value, will be overwritten by fixup message. 
-     useGuaIpcAtRuntime_(useGuaIpcAtRuntime),
-     serverType_(serverType),
-     guaMaxMsgIOSize_(IpcDefGuaMaxMsgIOSize),
-     maxCCNowaitDepthLow_(InitialNowaitRequestsPerEsp), 
-     maxCCNowaitDepthHigh_(HighLoadNowaitRequestsPerEsp),
-     maxPerProcessMQCs_(XMAX_SETTABLE_SENDLIMIT_H), // Seaquest "H-Series"/Seaquest limit
-     retriedMessageCount_(0),
-     cliGlobals_(NULL),
-     numOpensInProgress_(0)
-     , persistentProcess_(persistentProcess)
-     , corruptDownloadMsg_(false)
-     , logReleaseEsp_(false)
-     , logEspIdleTimeout_(false)
-     , logEspGotCloseMsg_(false)
-     , logTimeIpcConnectionState_(false)
-     , seamonsterEnabled_(false)
-     , isMultiThreaded_(multiThreaded != FALSE)
-     , threadInfos_(&pid_t_HashFunc, 13, TRUE, heap)
-     , mutex_(true, isMultiThreaded_)
-{
-  if (heap_ == NULL)
-    heap_ = new DefaultIpcHeap; // here it's ok to use global operator new
-  
+IpcEnvironment::IpcEnvironment(CollHeap *heap, UInt32 *eventConsumed, NABoolean breakEnabled, IpcServerType serverType,
+                               NABoolean useGuaIpcAtRuntime, NABoolean persistentProcess, NABoolean multiThreaded)
+    : breakEnabled_(breakEnabled),
+      heap_(heap),
+      eventConsumedAddr_(eventConsumed),
+      completedMessages_(heap),
+      envvars_(NULL),
+      envvarsLen_(0),
+      heapFull_(FALSE),
+      safetyBuffer_(NULL),
+      stopAfter_(0),
+      inactiveTimeout_(0),
+      inactiveTimestamp_(0),
+      espFreeMemTimeout_(0),  // initial value, will be overwritten by fixup message.
+      useGuaIpcAtRuntime_(useGuaIpcAtRuntime),
+      serverType_(serverType),
+      guaMaxMsgIOSize_(IpcDefGuaMaxMsgIOSize),
+      maxCCNowaitDepthLow_(InitialNowaitRequestsPerEsp),
+      maxCCNowaitDepthHigh_(HighLoadNowaitRequestsPerEsp),
+      maxPerProcessMQCs_(XMAX_SETTABLE_SENDLIMIT_H),  // Seaquest "H-Series"/Seaquest limit
+      retriedMessageCount_(0),
+      cliGlobals_(NULL),
+      numOpensInProgress_(0),
+      persistentProcess_(persistentProcess),
+      corruptDownloadMsg_(false),
+      logReleaseEsp_(false),
+      logEspIdleTimeout_(false),
+      logEspGotCloseMsg_(false),
+      logTimeIpcConnectionState_(false),
+      seamonsterEnabled_(false),
+      isMultiThreaded_(multiThreaded != FALSE),
+      threadInfos_(&pid_t_HashFunc, 13, TRUE, heap),
+      mutex_(true, isMultiThreaded_) {
+  if (heap_ == NULL) heap_ = new DefaultIpcHeap;  // here it's ok to use global operator new
+
   // use this environment variable to test multi-threaded IPC in a
   // single-threaded environment
-  if (getenv("IPC_MULTITHREADED"))
-    isMultiThreaded_ = true;
+  if (getenv("IPC_MULTITHREADED")) isMultiThreaded_ = true;
 
-  allConnections_ = new(heap_) IpcAllConnections(
-       this,
-       heap_,
-       (serverType == IPC_SQLESP_SERVER
-        || serverType == IPC_SQLSSCP_SERVER
-        || serverType == IPC_SQLSSMP_SERVER));
+  allConnections_ = new (heap_) IpcAllConnections(
+      this, heap_,
+      (serverType == IPC_SQLESP_SERVER || serverType == IPC_SQLSSCP_SERVER || serverType == IPC_SQLSSMP_SERVER));
   controlConnection_ = NULL;
-  for (Lng32 i = 0; i < 4; i++)
-    currentExRtFragTable_[i] = NULL; // for integrity checking
+  for (Lng32 i = 0; i < 4; i++) currentExRtFragTable_[i] = NULL;  // for integrity checking
 
   idleTimestamp_ = NA_JulianTimestamp();
 #ifdef USE_SB_NEW_RI
   const char *maxenvvar = getenv("IPC_IOSIZEMAX");
-  if (maxenvvar)
-    guaMaxMsgIOSize_ = MAXOF(3000, MINOF(atoi(maxenvvar), 1048576));
-#endif //USE_SB_NEW_RI
+  if (maxenvvar) guaMaxMsgIOSize_ = MAXOF(3000, MINOF(atoi(maxenvvar), 1048576));
+#endif  // USE_SB_NEW_RI
 
   maxPollingInterval_ = 300;
   const char *envvar;
   envvar = getenv("IPC_MAX_POLLING_INTERVAL");
-  if (envvar)
-    maxPollingInterval_ = atoi(envvar);
+  if (envvar) maxPollingInterval_ = atoi(envvar);
 
   persistentOpenAssigned_ = 0;
   char *perOpensEnvvar = getenv("ESP_PERSISTENT_OPENS");
   Int32 perOpensEnvvarVal;
-  if (perOpensEnvvar != NULL )
+  if (perOpensEnvvar != NULL)
     perOpensEnvvarVal = atoi(perOpensEnvvar);
   else
     perOpensEnvvarVal = 0;
-  if (perOpensEnvvarVal < 1)
-  {
+  if (perOpensEnvvarVal < 1) {
     persistentOpens_ = FALSE;
     persistentOpenEntries_ = 64;
-  }
-  else
-  {
+  } else {
     persistentOpens_ = TRUE;
     if (perOpensEnvvarVal < 3)
       persistentOpenEntries_ = 64;
@@ -5859,9 +4751,9 @@ static ULng32 pid_t_HashFunc(const pid_t& k)
     else
       persistentOpenEntries_ = 256;
   }
-  persistentOpenArray_ = (PersistentOpenEntry (*) [1])heap_->allocateMemory(sizeof(PersistentOpenEntry) * persistentOpenEntries_);
-  for (Int32 i = 0; i < persistentOpenEntries_; i++)
-  {
+  persistentOpenArray_ =
+      (PersistentOpenEntry(*)[1])heap_->allocateMemory(sizeof(PersistentOpenEntry) * persistentOpenEntries_);
+  for (Int32 i = 0; i < persistentOpenEntries_; i++) {
     (*persistentOpenArray_)[i].persistentOpenExists_ = FALSE;
   }
 
@@ -5869,55 +4761,46 @@ static ULng32 pid_t_HashFunc(const pid_t& k)
   if (masterFastCompletion != NULL && *masterFastCompletion == '0')
     masterFastCompletion_ = FALSE;
   else
-    masterFastCompletion_ = TRUE; 
+    masterFastCompletion_ = TRUE;
   char *nowaitDepthEnvvar = getenv("ESP_NOWAIT_DEPTH");
-  if (nowaitDepthEnvvar != NULL)
-    maxCCNowaitDepthLow_ = maxCCNowaitDepthHigh_ = atoi(nowaitDepthEnvvar);
+  if (nowaitDepthEnvvar != NULL) maxCCNowaitDepthLow_ = maxCCNowaitDepthHigh_ = atoi(nowaitDepthEnvvar);
   XCONTROLMESSAGESYSTEM(XCTLMSGSYS_SETSENDLIMIT, XMAX_SETTABLE_SENDLIMIT_H);
 
- if (getenv("ESP_CORRUPT_MESSAGE_TEST"))
-   corruptDownloadMsg_ = true;
+  if (getenv("ESP_CORRUPT_MESSAGE_TEST")) corruptDownloadMsg_ = true;
 
   const char *lre = getenv("LOG_ESP_RELEASE");
-  if (lre && *lre == '1')
-    logReleaseEsp_ = true;
+  if (lre && *lre == '1') logReleaseEsp_ = true;
 
   const char *liet = getenv("LOG_IDLE_ESP_TIMEOUT");
-  if (liet && *liet == '1')
-    logEspIdleTimeout_ = true;
+  if (liet && *liet == '1') logEspIdleTimeout_ = true;
 
   const char *legcm = getenv("LOG_ESP_GOT_CLOSE_MSG");
-  if (legcm && *legcm == '1')
-    logEspGotCloseMsg_ = true;
+  if (legcm && *legcm == '1') logEspGotCloseMsg_ = true;
 
   const char *etis = getenv("ESP_TIME_IPCCONNECTION_STATES");
-  if (etis && *etis == '1')
-    logTimeIpcConnectionState_ = true;
-  
+  if (etis && *etis == '1') logTimeIpcConnectionState_ = true;
+
   const char *smEnv = getenv("SQ_SEAMONSTER");
-  if (smEnv && *smEnv == '1')
-    seamonsterEnabled_ = true;
+  if (smEnv && *smEnv == '1') seamonsterEnabled_ = true;
 
   char *espAssignByLevel = getenv("ESP_ASSIGN_BY_LEVEL");
   if (espAssignByLevel == NULL)
     espAssignByLevel_ = '0';
-  else
-  {
-    switch (*espAssignByLevel)
-    {
-    case '1':
-      espAssignByLevel_ = '1';
-      break;
-    default:
-      espAssignByLevel_ = '0';
+  else {
+    switch (*espAssignByLevel) {
+      case '1':
+        espAssignByLevel_ = '1';
+        break;
+      default:
+        espAssignByLevel_ = '0';
     }
   }
 
   memset(myProcessName_, 0, sizeof(myProcessName_));
 
-  closeTraceArray_ = (CloseTraceEntry (*) [closeTraceEntries])heap_->allocateMemory(sizeof(CloseTraceEntry) * closeTraceEntries);
-  for (Int32 i = 0; i < closeTraceEntries; i++)
-  {
+  closeTraceArray_ =
+      (CloseTraceEntry(*)[closeTraceEntries])heap_->allocateMemory(sizeof(CloseTraceEntry) * closeTraceEntries);
+  for (Int32 i = 0; i < closeTraceEntries; i++) {
     (*closeTraceArray_)[i].count_ = 0;
     (*closeTraceArray_)[i].line_ = 0;
     (*closeTraceArray_)[i].clientFileNumber_ = 0;
@@ -5926,9 +4809,9 @@ static ULng32 pid_t_HashFunc(const pid_t& k)
     (*closeTraceArray_)[i].seqNum_ = -1;
   }
   closeTraceIndex_ = closeTraceEntries - 1;
-  bawaitioxTraceArray_ = (BawaitioxTraceEntry (*) [bawaitioxTraceEntries])heap_->allocateMemory(sizeof(BawaitioxTraceEntry) * bawaitioxTraceEntries);
-  for (Int32 i = 0; i < bawaitioxTraceEntries; i++)
-  {
+  bawaitioxTraceArray_ = (BawaitioxTraceEntry(*)[bawaitioxTraceEntries])heap_->allocateMemory(
+      sizeof(BawaitioxTraceEntry) * bawaitioxTraceEntries);
+  for (Int32 i = 0; i < bawaitioxTraceEntries; i++) {
     (*bawaitioxTraceArray_)[i].count_ = 0;
     (*bawaitioxTraceArray_)[i].recursionCount_ = 0;
     (*bawaitioxTraceArray_)[i].firstConnectionIndex_ = 0;
@@ -5941,11 +4824,9 @@ static ULng32 pid_t_HashFunc(const pid_t& k)
   // Ipc data message trace area initialization
   maxIpcMsgTraceIndex_ = NUM_IPC_MSG_TRACE_ENTRIES;
   const char *ipcMsgEnv = getenv("NUM_EXE_IPC_MSG_TRACE_ENTRIES");
-  if (ipcMsgEnv != NULL)
-  {
+  if (ipcMsgEnv != NULL) {
     Int32 nums = atoi(ipcMsgEnv);
-    if (nums >= 0 && nums < MAX_IPC_MSG_TRACE_ENTRIES)
-      maxIpcMsgTraceIndex_ = nums;  //ignore any other value
+    if (nums >= 0 && nums < MAX_IPC_MSG_TRACE_ENTRIES) maxIpcMsgTraceIndex_ = nums;  // ignore any other value
   }
   ipcMsgTraceArea_ = new (heap_) IpcMsgTrace[maxIpcMsgTraceIndex_];
   memset(ipcMsgTraceArea_, 0, sizeof(IpcMsgTrace) * maxIpcMsgTraceIndex_);
@@ -5953,12 +4834,8 @@ static ULng32 pid_t_HashFunc(const pid_t& k)
   ipcMsgTraceRef_ = NULL;
 }
 
-  void IpcEnvironment::closeTrace(unsigned short line,
-                                  short clientFileNumber,
-                                  Int32 cpu,
-                                  Int32 pin,
-                                  SB_Int64_Type seqNum)
-{
+void IpcEnvironment::closeTrace(unsigned short line, short clientFileNumber, Int32 cpu, Int32 pin,
+                                SB_Int64_Type seqNum) {
   unsigned short i = closeTraceIndex_ == closeTraceEntries - 1 ? 0 : closeTraceIndex_ + 1;
   (*closeTraceArray_)[i].count_ = (*closeTraceArray_)[closeTraceIndex_].count_ + 1;
   (*closeTraceArray_)[i].line_ = line;
@@ -5968,12 +4845,9 @@ static ULng32 pid_t_HashFunc(const pid_t& k)
   (*closeTraceArray_)[i].seqNum_ = seqNum;
   closeTraceIndex_ = i;
 }
-  void IpcEnvironment::bawaitioxTrace(IpcSetOfConnections *ipcSetOfConnections,
-                                  ULng32 recursionCount,
-                                  CollIndex firstConnectionIndex,
-                                  IpcConnection *firstConnection,
-                                  IpcAwaitiox *ipcAwaitiox)
-{
+void IpcEnvironment::bawaitioxTrace(IpcSetOfConnections *ipcSetOfConnections, ULng32 recursionCount,
+                                    CollIndex firstConnectionIndex, IpcConnection *firstConnection,
+                                    IpcAwaitiox *ipcAwaitiox) {
   unsigned short i = bawaitioxTraceIndex_ == bawaitioxTraceEntries - 1 ? 0 : bawaitioxTraceIndex_ + 1;
   (*bawaitioxTraceArray_)[i].count_ = (*bawaitioxTraceArray_)[bawaitioxTraceIndex_].count_ + 1;
   (*bawaitioxTraceArray_)[i].recursionCount_ = recursionCount;
@@ -5983,13 +4857,10 @@ static ULng32 pid_t_HashFunc(const pid_t& k)
   bawaitioxTraceIndex_ = i;
 }
 
-IpcEnvironment::~IpcEnvironment()
-{
-  if (ipcMsgTraceRef_)
-  {
+IpcEnvironment::~IpcEnvironment() {
+  if (ipcMsgTraceRef_) {
     ExeTraceInfo *ti = cliGlobals_->getExeTraceInfo();
-    if (ti)
-    {
+    if (ti) {
       ti->removeTrace(ipcMsgTraceRef_);
     }
   }
@@ -6000,27 +4871,15 @@ IpcEnvironment::~IpcEnvironment()
   releaseSafetyBuffer();
 }
 
-void IpcEnvironment::stopIpcEnvironment()
-{
+void IpcEnvironment::stopIpcEnvironment() { NAExit(0); }
 
-  NAExit(0);
-}
+void IpcEnvironment::setIdleTimestamp() { idleTimestamp_ = NA_JulianTimestamp(); }
 
-void IpcEnvironment::setIdleTimestamp()
-{
-  idleTimestamp_ = NA_JulianTimestamp();
-}
+void IpcEnvironment::setInactiveTimestamp() { inactiveTimestamp_ = NA_JulianTimestamp(); }
 
-void IpcEnvironment::setInactiveTimestamp()
-{
-  inactiveTimestamp_ = NA_JulianTimestamp();
-}
-
-void IpcEnvironment::deleteCompletedMessages()
-{
-  while (completedMessages_.entries())
-  {
-    IpcMessageStreamBase * mm = completedMessages_[0];
+void IpcEnvironment::deleteCompletedMessages() {
+  while (completedMessages_.entries()) {
+    IpcMessageStreamBase *mm = completedMessages_[0];
     completedMessages_.remove(mm);
     delete mm;
   }
@@ -6028,133 +4887,99 @@ void IpcEnvironment::deleteCompletedMessages()
   // Clean up any SeaMonster send buffers that had been queued but are
   // now completed
   void *buf = NULL;
-  while (ExSM_RemoveCompletedSendBuffer(buf))
-  {
-    IpcMessageBuffer *msgBuf = (IpcMessageBuffer *) buf;
+  while (ExSM_RemoveCompletedSendBuffer(buf)) {
+    IpcMessageBuffer *msgBuf = (IpcMessageBuffer *)buf;
     assert(msgBuf);
     msgBuf->decrRefCount();
   }
 }
 
-void IpcEnvironment::setControlConnection(IpcControlConnection *cc)
-{
+void IpcEnvironment::setControlConnection(IpcControlConnection *cc) {
   if (controlConnection_ == NULL)
     controlConnection_ = cc;
-  else
-  {
+  else {
     controlConnection_->getConnection()->dumpAndStopOtherEnd(true, false);
-    if (cc->getConnection()->getOtherEnd() ==
-        controlConnection_->getConnection()->getOtherEnd())
-      ; // Already have a core-file.
+    if (cc->getConnection()->getOtherEnd() == controlConnection_->getConnection()->getOtherEnd())
+      ;  // Already have a core-file.
     else
       cc->getConnection()->dumpAndStopOtherEnd(true, false);
     assert(controlConnection_ == NULL);
   }
 }
 
-IpcProcessId IpcEnvironment::getMyOwnProcessId(IpcNetworkDomain dom)
-{
-  if (dom == IPC_DOM_INVALID)
-    {
-      // if not specified, the default domains are the "native" domains
-      dom = IPC_DOM_INTERNET;
+IpcProcessId IpcEnvironment::getMyOwnProcessId(IpcNetworkDomain dom) {
+  if (dom == IPC_DOM_INVALID) {
+    // if not specified, the default domains are the "native" domains
+    dom = IPC_DOM_INTERNET;
+  }
+
+  if (dom == IPC_DOM_INTERNET) {
+    SockIPAddress sockIpAddr;
+    SockPortNumber portNo;
+
+    // get the port number (listner port for server, some number for master)
+    if (controlConnection_) {
+      // can't have an internet proc id when reading from $RECEIVE
+      assert(controlConnection_->castToSockControlConnection());
+
+      // get the listner port number from the control connection
+      portNo = controlConnection_->castToSockControlConnection()->getListnerPortNum();
+    } else {
+      portNo = 0;
     }
 
-  if (dom == IPC_DOM_INTERNET)
-    {
-      SockIPAddress sockIpAddr;
-      SockPortNumber portNo;
+    // get the IP address of the local node
+    sockIpAddr.set();
 
-      // get the port number (listner port for server, some number for master)
-      if (controlConnection_)
-	{
-	  // can't have an internet proc id when reading from $RECEIVE
-	  assert(controlConnection_->castToSockControlConnection());
-
-	  // get the listner port number from the control connection
-	  portNo = controlConnection_->castToSockControlConnection()->
-	    getListnerPortNum();
-	}
-      else
-	{
-	  portNo = 0;
-
-	}
-
-      // get the IP address of the local node
-      sockIpAddr.set();
-      
-      // make a process id from the IP address and the port number
-      return IpcProcessId(sockIpAddr,portNo);
-    }
-  else if (dom == IPC_DOM_GUA_PHANDLE)
-    {
-      // for Guardian, just get the phandle from the operating system
-      return IpcProcessId(MyGuaProcessHandle());
-    }
-  else
-    {
-      ABORT("Invalid domain in IpcEnvironment::getMyOwnProcessId()");
-    }
+    // make a process id from the IP address and the port number
+    return IpcProcessId(sockIpAddr, portNo);
+  } else if (dom == IPC_DOM_GUA_PHANDLE) {
+    // for Guardian, just get the phandle from the operating system
+    return IpcProcessId(MyGuaProcessHandle());
+  } else {
+    ABORT("Invalid domain in IpcEnvironment::getMyOwnProcessId()");
+  }
   // make the compiler happy
   return IpcProcessId();
 }
 
-IpcPriority IpcEnvironment::getMyProcessPriority()
-{
+IpcPriority IpcEnvironment::getMyProcessPriority() {
   IpcPriority priority;
   priority = -1;
 
   return priority;
 }
 
-void IpcEnvironment::setEnvVars(char ** envvars)
-{
-  envvars_ = envvars;
+void IpcEnvironment::setEnvVars(char **envvars) { envvars_ = envvars; }
+
+void IpcEnvironment::setEnvVarsLen(Lng32 envvarsLen) { envvarsLen_ = envvarsLen; }
+
+void IpcEnvironment::releaseSafetyBuffer() {
+  // Don't mmap and munmap a 512K block on Linux for every download
+  // and fixup. 256K is not a lot to just leave allocated.
 }
 
-void IpcEnvironment::setEnvVarsLen(Lng32 envvarsLen)
-{
-  envvarsLen_ = envvarsLen;
-}
-
-void IpcEnvironment::releaseSafetyBuffer()
-{
-// Don't mmap and munmap a 512K block on Linux for every download
-// and fixup. 256K is not a lot to just leave allocated.
-}
-
-void IpcEnvironment::setHeapFullFlag(NABoolean b)
-{
+void IpcEnvironment::setHeapFullFlag(NABoolean b) {
   heapFull_ = b;
 
-  if (heapFull_)
-  {
+  if (heapFull_) {
     releaseSafetyBuffer();
-  }
-  else
-  {
+  } else {
     // Allocate a safety buffer if we don't have one already. The size
     // chosen here (256K) is arbitrary. It is expected to be "enough"
     // space on the heap to complete some I/Os after the heap became
     // full. The main scanario we know of when the heap becomes full
     // is during broadcast of large ESP fragments.
-    if (safetyBuffer_ == NULL)
-      safetyBuffer_ = (char *) heap_->allocateMemory(256 * 1024);
+    if (safetyBuffer_ == NULL) safetyBuffer_ = (char *)heap_->allocateMemory(256 * 1024);
   }
 }
 
-void IpcEnvironment::notifyNoOpens()
-{
-  if (serverType_ != IPC_SQLSSCP_SERVER &&
-      serverType_ != IPC_SQLSSMP_SERVER)
-    stopIpcEnvironment();
+void IpcEnvironment::notifyNoOpens() {
+  if (serverType_ != IPC_SQLSSCP_SERVER && serverType_ != IPC_SQLSSMP_SERVER) stopIpcEnvironment();
 }
 
-void IpcEnvironment::logRetriedMessages()
-{
-  if (retriedMessageCount_ > 0)
-  {
+void IpcEnvironment::logRetriedMessages() {
+  if (retriedMessageCount_ > 0) {
   }
 }
 
@@ -6162,24 +4987,20 @@ void IpcEnvironment::logRetriedMessages()
 
 // methods that perform integrity checking on Ipc-related data structures
 
-void IpcEnvironment::setCurrentExRtFragTable(ExRtFragTable *ft)
-  {
+void IpcEnvironment::setCurrentExRtFragTable(ExRtFragTable *ft) {
   NABoolean alreadyIn = FALSE;
   Lng32 i;
   Lng32 firstOpen = -1;
 
-  for (i = 0; i < 4; i++)
-    {
+  for (i = 0; i < 4; i++) {
     if (ft == currentExRtFragTable_[i])
       alreadyIn = TRUE;
     else if ((currentExRtFragTable_[i] == 0) && (firstOpen < 0))
       firstOpen = i;
-    }
+  }
 
-  if ((!alreadyIn) && (firstOpen >= 0))
-    {
-    cerr << "Adding ExRtFragTable integrity check pointer in IpcEnvironment to "
-      << (void *)ft << "." << endl;
+  if ((!alreadyIn) && (firstOpen >= 0)) {
+    cerr << "Adding ExRtFragTable integrity check pointer in IpcEnvironment to " << (void *)ft << "." << endl;
     // to give debugger a chance to come up
     /*for (long i = 0; i < 10000000; i++)
       {
@@ -6193,95 +5014,74 @@ void IpcEnvironment::setCurrentExRtFragTable(ExRtFragTable *ft)
         }
       } */
     currentExRtFragTable_[firstOpen] = ft;
-    }
   }
+}
 
-void IpcEnvironment::removeCurrentExRtFragTable(ExRtFragTable *ft)
-  {
+void IpcEnvironment::removeCurrentExRtFragTable(ExRtFragTable *ft) {
   Lng32 i;
-  
-  for (i = 0; i < 4; i++)
-    {
-    if (ft == currentExRtFragTable_[i])
-      {
+
+  for (i = 0; i < 4; i++) {
+    if (ft == currentExRtFragTable_[i]) {
       currentExRtFragTable_[i] = 0;
-      cerr << "Removing ExRtFragTable integrity check pointer in IpcEnvironment to "
-        << (void *)ft << "." << endl;
-      }
+      cerr << "Removing ExRtFragTable integrity check pointer in IpcEnvironment to " << (void *)ft << "." << endl;
     }
   }
+}
 
-void IpcEnvironment::setExRtFragTableIntegrityCheckPtr
-(void (*fnptr) (ExRtFragTable *ft))
-  {
+void IpcEnvironment::setExRtFragTableIntegrityCheckPtr(void (*fnptr)(ExRtFragTable *ft)) {
   integrityCheckExRtFragTablePtr_ = fnptr;
-  }
+}
 
+ExRtFragTable *IpcEnvironment::getCurrentExRtFragTable(Lng32 i) {
+  if ((i >= 0) && (i < 4)) return currentExRtFragTable_[i];
 
-ExRtFragTable * IpcEnvironment::getCurrentExRtFragTable(Lng32 i) 
-  { 
-  if ((i >= 0) && (i < 4))
-    return currentExRtFragTable_[i];
-  
   return 0;
-  }
+}
 
-void IpcEnvironment::checkIntegrity(void)
-  {
+void IpcEnvironment::checkIntegrity(void) {
   // IpcEnvironment, being the top of the network of IPC-related data structures,
   // is the place where we begin integrity checking
   checkLocalIntegrity();
-  }
+}
 
-void IpcEnvironment::checkLocalIntegrity(void)
-  {
-  for (Lng32 i = 0; i < 4; i++) 
-    {
-    if ((currentExRtFragTable_[i]) && (integrityCheckExRtFragTablePtr_))
-      {
+void IpcEnvironment::checkLocalIntegrity(void) {
+  for (Lng32 i = 0; i < 4; i++) {
+    if ((currentExRtFragTable_[i]) && (integrityCheckExRtFragTablePtr_)) {
       // this file doesn't know about the class ExRtFragTable, so we call
       // a C-style function instead in file /executor/ex_frag_rt.cpp...
-      //currentExRtFragTable_[i]->checkLocalIntegrity(); 
+      // currentExRtFragTable_[i]->checkLocalIntegrity();
       (*integrityCheckExRtFragTablePtr_)(currentExRtFragTable_[i]);
-      }
     }
-  
-  allConnections_->checkLocalIntegrity();  // check IpcAllConnections
   }
+
+  allConnections_->checkLocalIntegrity();  // check IpcAllConnections
+}
 
 #endif
 
-short IpcEnvironment::getNewPersistentOpenIndex()
-{
-  if (persistentOpenAssigned_ < persistentOpenEntries_)
-  {
-    for (unsigned short i = 0; i < persistentOpenEntries_; i++)
-    {
-      if ((*persistentOpenArray_)[i].persistentOpenExists_ == FALSE)
-        return i;
+short IpcEnvironment::getNewPersistentOpenIndex() {
+  if (persistentOpenAssigned_ < persistentOpenEntries_) {
+    for (unsigned short i = 0; i < persistentOpenEntries_; i++) {
+      if ((*persistentOpenArray_)[i].persistentOpenExists_ == FALSE) return i;
     }
   }
   return -1;
 }
 
-void IpcEnvironment::setPersistentOpenInfo(short index, GuaProcessHandle *otherEnd, short fileNum)
-{
+void IpcEnvironment::setPersistentOpenInfo(short index, GuaProcessHandle *otherEnd, short fileNum) {
   memcpy((void *)&(*persistentOpenArray_)[index].persistentOpenPhandle_, (void *)otherEnd, sizeof(GuaProcessHandle));
   (*persistentOpenArray_)[index].persistentOpenFileNum_ = fileNum;
   (*persistentOpenArray_)[index].persistentOpenExists_ = TRUE;
   persistentOpenAssigned_ += 1;
 }
 
-short IpcEnvironment::getPersistentOpenInfo(GuaProcessHandle *otherEnd, short *index)
-{
+short IpcEnvironment::getPersistentOpenInfo(GuaProcessHandle *otherEnd, short *index) {
   Int32 guaRetCode;
-  for (short i = 0; i < persistentOpenEntries_; i++)
-  {
-    if ((*persistentOpenArray_)[i].persistentOpenExists_)
-    {
+  for (short i = 0; i < persistentOpenEntries_; i++) {
+    if ((*persistentOpenArray_)[i].persistentOpenExists_) {
       guaRetCode = XPROCESSHANDLE_COMPARE_((SB_Phandle_Type *)otherEnd,
                                            (SB_Phandle_Type *)&(*persistentOpenArray_)[i].persistentOpenPhandle_);
-      if (guaRetCode == 2) // Phandles are the same
+      if (guaRetCode == 2)  // Phandles are the same
       {
         *index = i;
         return (*persistentOpenArray_)[i].persistentOpenFileNum_;
@@ -6293,33 +5093,26 @@ short IpcEnvironment::getPersistentOpenInfo(GuaProcessHandle *otherEnd, short *i
   return -1;
 }
 
-void IpcEnvironment::resetPersistentOpen(short index)
-{
+void IpcEnvironment::resetPersistentOpen(short index) {
   (*persistentOpenArray_)[index].persistentOpenExists_ = FALSE;
   persistentOpenAssigned_ -= 1;
 }
 
 const char *IpcMsgTraceDesc =
-           "SQL Ipc Message exchanged between consumer and producer processes.\n Can use env NUM_EXE_IPC_MSG_TRACE_ENTRIES to config more or less entries";
+    "SQL Ipc Message exchanged between consumer and producer processes.\n Can use env NUM_EXE_IPC_MSG_TRACE_ENTRIES to "
+    "config more or less entries";
 
-void IpcEnvironment::registTraceInfo(ExeTraceInfo *ti)
-{
-  if (cliGlobals_ && !ipcMsgTraceRef_)
-  {
+void IpcEnvironment::registTraceInfo(ExeTraceInfo *ti) {
+  if (cliGlobals_ && !ipcMsgTraceRef_) {
     // register IPC message trace and IPC connection trace
-    if (ti)
-    {
+    if (ti) {
       Int32 lineWidth = 66;
       void *regdTrace;
-      Int32 ret = ti->addTrace("IpcMessages", this, maxIpcMsgTraceIndex_, 6,
-                               this, getALine,
-                               &lastIpcMsgTraceIndex_,
+      Int32 ret = ti->addTrace("IpcMessages", this, maxIpcMsgTraceIndex_, 6, this, getALine, &lastIpcMsgTraceIndex_,
                                lineWidth, IpcMsgTraceDesc, &regdTrace);
-      if (ret == 0)
-      {
+      if (ret == 0) {
         // trace info added successfully, now add entry fields
-        ti->addTraceField(regdTrace, "Connection ", 0,
-                          ExeTrace::TR_POINTER32);
+        ti->addTraceField(regdTrace, "Connection ", 0, ExeTrace::TR_POINTER32);
         ti->addTraceField(regdTrace, "BufferAddr   ", 1, ExeTrace::TR_POINTER32);
         ti->addTraceField(regdTrace, "Length ", 2, ExeTrace::TR_INT32);
         ti->addTraceField(regdTrace, "Type", 3, ExeTrace::TR_INT32);
@@ -6334,24 +5127,17 @@ void IpcEnvironment::registTraceInfo(ExeTraceInfo *ti)
   }
 }
 
-Int32 IpcEnvironment::printAnIpcEntry(Int32 lineno, char *buf)
-{
-  if (lineno >= maxIpcMsgTraceIndex_)
-    return 0;
+Int32 IpcEnvironment::printAnIpcEntry(Int32 lineno, char *buf) {
+  if (lineno >= maxIpcMsgTraceIndex_) return 0;
   Int32 rv;
-  rv = sprintf(buf, "%.4d  %8p  %8p  %8d  %.4s  %3d %10d\n",
-               lineno,
-               ipcMsgTraceArea_[lineno].conn_,
-               ipcMsgTraceArea_[lineno].bufAddr_,
-               ipcMsgTraceArea_[lineno].length_,
-               IpcMsgOperName[ipcMsgTraceArea_[lineno].sendOrReceive_],
-               ipcMsgTraceArea_[lineno].isLast_,
+  rv = sprintf(buf, "%.4d  %8p  %8p  %8d  %.4s  %3d %10d\n", lineno, ipcMsgTraceArea_[lineno].conn_,
+               ipcMsgTraceArea_[lineno].bufAddr_, ipcMsgTraceArea_[lineno].length_,
+               IpcMsgOperName[ipcMsgTraceArea_[lineno].sendOrReceive_], ipcMsgTraceArea_[lineno].isLast_,
                ipcMsgTraceArea_[lineno].seqNum_);
   return rv;
 }
 
-char const *IpcEnvironment::myProcessName()
-{
+char const *IpcEnvironment::myProcessName() {
   if (myProcessName_[0] == '\0')
     if (getCliGlobals())
       strcpy(myProcessName_, getCliGlobals()->myProcessNameString());
@@ -6363,176 +5149,142 @@ char const *IpcEnvironment::myProcessName()
       return myProcessName_;
     }
   return myProcessName_;
- 
 }
 
-IpcThreadInfo * IpcEnvironment::getThreadInfo(pid_t threadId)
-{
+IpcThreadInfo *IpcEnvironment::getThreadInfo(pid_t threadId) {
   NAMutexScope ms(mutex_);
   pid_t k = threadId;
 
-  if (threadId == -1)
-      k = GETTID();
+  if (threadId == -1) k = GETTID();
 
   return threadInfos_.getFirstValue(&k);
 }
 
-void IpcEnvironment::addThreadInfo(IpcThreadInfo *ti)
-{
-  if (isMultiThreaded_)
-    {
-      NAMutexScope ms(mutex_);
+void IpcEnvironment::addThreadInfo(IpcThreadInfo *ti) {
+  if (isMultiThreaded_) {
+    NAMutexScope ms(mutex_);
 
-      // get the key that is embedded in the value
-      pid_t *k = ti->getKey();
+    // get the key that is embedded in the value
+    pid_t *k = ti->getKey();
 
-      assert(*k != -1);
-      threadInfos_.insert(k, ti);
-    }
+    assert(*k != -1);
+    threadInfos_.insert(k, ti);
+  }
 }
 
-void IpcEnvironment::removeThreadInfo(IpcThreadInfo *ti)
-{
-  if (isMultiThreaded_)
-    {
-      NAMutexScope ms(mutex_);
-      pid_t k = ti->getTid();
-      IpcThreadInfo *ck = getThreadInfo(k);
+void IpcEnvironment::removeThreadInfo(IpcThreadInfo *ti) {
+  if (isMultiThreaded_) {
+    NAMutexScope ms(mutex_);
+    pid_t k = ti->getTid();
+    IpcThreadInfo *ck = getThreadInfo(k);
 
-      // remove only if it is still there (tolerate duplicate remove calls)
-      if (ck)
-        {
-          assert(ck == ti);
+    // remove only if it is still there (tolerate duplicate remove calls)
+    if (ck) {
+      assert(ck == ti);
 
-          pid_t *removed = threadInfos_.remove(&k);
+      pid_t *removed = threadInfos_.remove(&k);
 
-          assert(removed);
-        }
+      assert(removed);
     }
+  }
 }
 
-void IpcEnvironment::wakeAllThreads()
-{
-  if (isMultiThreaded_)
-    {
-      NAMutexScope ms(mutex_);
-      NAHashDictionaryIterator<pid_t, IpcThreadInfo> iter(threadInfos_);
-      pid_t *pid = NULL;
-      IpcThreadInfo *ti = NULL;
+void IpcEnvironment::wakeAllThreads() {
+  if (isMultiThreaded_) {
+    NAMutexScope ms(mutex_);
+    NAHashDictionaryIterator<pid_t, IpcThreadInfo> iter(threadInfos_);
+    pid_t *pid = NULL;
+    IpcThreadInfo *ti = NULL;
 
-      while (iter.getNext(pid, ti))
-        ti->resume();
-    }
+    while (iter.getNext(pid, ti)) ti->resume();
+  }
 }
 
-void IpcAllocateDiagsArea(ComDiagsArea *&diags, CollHeap *diagsHeap)
-{
-  if ( NOT diags)
-    {
-      // diags does not point to an allocated diags area yet, allocate one
-      diags = ComDiagsArea::allocate(diagsHeap);
+void IpcAllocateDiagsArea(ComDiagsArea *&diags, CollHeap *diagsHeap) {
+  if (NOT diags) {
+    // diags does not point to an allocated diags area yet, allocate one
+    diags = ComDiagsArea::allocate(diagsHeap);
 
-      // catch the case where we can't even allocate the diags area
-      if (NOT diags)
-	ABORT("unable to allocate diagnostics area for IPC error");
-    }
+    // catch the case where we can't even allocate the diags area
+    if (NOT diags) ABORT("unable to allocate diagnostics area for IPC error");
+  }
 }
 
 // -----------------------------------------------------------------------
 // Global operator new with the placement form where an IPC environment
 // is specified
 // -----------------------------------------------------------------------
-void * operator new(size_t size, IpcEnvironment *env)
-{
-  return env->getHeap()->allocateMemory(size);
-}
+void *operator new(size_t size, IpcEnvironment *env) { return env->getHeap()->allocateMemory(size); }
 
-void * operator new[](size_t size, IpcEnvironment *env)
-{
-  return env->getHeap()->allocateMemory(size);
-}
+void *operator new[](size_t size, IpcEnvironment *env) { return env->getHeap()->allocateMemory(size); }
 
-char *getServerProcessName(IpcServerType serverType,
-                           short cpuNum, char *processName, short *envType)
-{
+char *getServerProcessName(IpcServerType serverType, short cpuNum, char *processName, short *envType) {
   const char *processPrefix = NULL;
-  char serverNodeName[MAX_SEGMENT_NAME_LEN+1];
+  char serverNodeName[MAX_SEGMENT_NAME_LEN + 1];
   short len;
 
-   if (processPrefix == NULL)
-   {
-       switch (serverType)
-       {
-         case IPC_SQLSSCP_SERVER:
-           processPrefix = SSCP_PROCESS_PREFIX;
-           break;
-         case IPC_SQLSSMP_SERVER:
-           processPrefix = SSMP_PROCESS_PREFIX;
-           break;
-         case IPC_SQLQMS_SERVER:
-           processPrefix = QMS_PROCESS_PREFIX;
-           break;
-         case IPC_SQLQMP_SERVER:
-           processPrefix = QMP_PROCESS_PREFIX;
-           break;
-         case IPC_SQLQMM_SERVER:
-           processPrefix = QMM_PROCESS_PREFIX;
-           break;
-         default:
-           return NULL;
-       }
-   }
-   str_sprintf(processName, "%s%d", processPrefix, cpuNum);
+  if (processPrefix == NULL) {
+    switch (serverType) {
+      case IPC_SQLSSCP_SERVER:
+        processPrefix = SSCP_PROCESS_PREFIX;
+        break;
+      case IPC_SQLSSMP_SERVER:
+        processPrefix = SSMP_PROCESS_PREFIX;
+        break;
+      case IPC_SQLQMS_SERVER:
+        processPrefix = QMS_PROCESS_PREFIX;
+        break;
+      case IPC_SQLQMP_SERVER:
+        processPrefix = QMP_PROCESS_PREFIX;
+        break;
+      case IPC_SQLQMM_SERVER:
+        processPrefix = QMM_PROCESS_PREFIX;
+        break;
+      default:
+        return NULL;
+    }
+  }
+  str_sprintf(processName, "%s%d", processPrefix, cpuNum);
   return processName;
 }
 
-void IpcAwaitiox::DoAwaitiox(NABoolean ignoreLrec)
-{
-  if (!completed_)
-  {
-    fileNum_ = ignoreLrec ? -2 : -1; // Reminder: change to -1
+void IpcAwaitiox::DoAwaitiox(NABoolean ignoreLrec) {
+  if (!completed_) {
+    fileNum_ = ignoreLrec ? -2 : -1;  // Reminder: change to -1
     bufAddr_ = 0;
     count_ = retCode_ = lastError_ = 0;
     tag_ = 0;
     if (ignoreLrec)
-       condCode_ = BAWAITIOXTS(&fileNum_, &bufAddr_, &count_, &tag_, 0);
+      condCode_ = BAWAITIOXTS(&fileNum_, &bufAddr_, &count_, &tag_, 0);
     else
-       condCode_ = BAWAITIOX(&fileNum_, &bufAddr_, &count_, &tag_, 0);
-    if (fileNum_ == -2)
-      fileNum_ = -1;
+      condCode_ = BAWAITIOX(&fileNum_, &bufAddr_, &count_, &tag_, 0);
+    if (fileNum_ == -2) fileNum_ = -1;
     completed_ = TRUE;
-    if (condCode_ != 0) // not successful completion
+    if (condCode_ != 0)  // not successful completion
     {
       retCode_ = BFILE_GETINFO_(fileNum_, &lastError_);
-      if (retCode_ == 0 && lastError_ == 40)
-      {
-	fileNum_ = -1;
-	completed_ = FALSE;
+      if (retCode_ == 0 && lastError_ == 40) {
+        fileNum_ = -1;
+        completed_ = FALSE;
       }
     }
     retryCount_ = 0;
-  }
-  else
-  {
+  } else {
     retryCount_ += 1;
     bool loop = false;
     char *envvarPtr;
-    if (retryCount_ >= 10)
-    {
+    if (retryCount_ >= 10) {
       envvarPtr = getenv("IPC_LOOP_ON_UNEXPECTED_COMPLETION");
-      if (envvarPtr && atoi(envvarPtr) == 1)
-        loop = true;
+      if (envvarPtr && atoi(envvarPtr) == 1) loop = true;
     }
-    while (retryCount_ >= 10  && loop)
-    {
+    while (retryCount_ >= 10 && loop) {
       sleep(10);
     }
     assert(retryCount_ < 10);
   }
 }
 
-Int32 IpcAwaitiox::ActOnAwaitiox(void **bufAddr, Int32 *count, SB_Tag_Type *tag)
-{
+Int32 IpcAwaitiox::ActOnAwaitiox(void **bufAddr, Int32 *count, SB_Tag_Type *tag) {
   *bufAddr = bufAddr_;
   *count = count_;
   *tag = tag_;
@@ -6542,82 +5294,55 @@ Int32 IpcAwaitiox::ActOnAwaitiox(void **bufAddr, Int32 *count, SB_Tag_Type *tag)
 
 // These operator delete functions will be called if initialization throws an
 // exception. They remove a compiler warning with the .NET 2003 compiler.
-void IpcMessageBuffer::operator delete(void *p,
-                                       IpcMessageObjSize bufferLength,
-                                       CollHeap *heap, NABoolean bIgnore)
-{
-  if (heap)
-    heap->deallocateMemory(p);
+void IpcMessageBuffer::operator delete(void *p, IpcMessageObjSize bufferLength, CollHeap *heap, NABoolean bIgnore) {
+  if (heap) heap->deallocateMemory(p);
 }
 
-void IpcAllConnections::printConnTraceLine(char *buffer, int *rsp_len, IpcConnection *conn)
-{
-      Int32 lineLen;
-      Int32 cpu, node, pin;
-      SB_Int64_Type seqNum = -1;
-      IpcNetworkDomain domain;
-      cpu = pin;
-      domain = conn->getOtherEnd().getDomain();
+void IpcAllConnections::printConnTraceLine(char *buffer, int *rsp_len, IpcConnection *conn) {
+  Int32 lineLen;
+  Int32 cpu, node, pin;
+  SB_Int64_Type seqNum = -1;
+  IpcNetworkDomain domain;
+  cpu = pin;
+  domain = conn->getOtherEnd().getDomain();
 
-      if (domain == IPC_DOM_GUA_PHANDLE)
-      {
-        GuaProcessHandle *otherEnd = (GuaProcessHandle *)&(conn->getOtherEnd().getPhandle().phandle_);
-        if (otherEnd)
-          otherEnd->decompose(cpu, pin, node
-                             , seqNum
-                             );
-      }
+  if (domain == IPC_DOM_GUA_PHANDLE) {
+    GuaProcessHandle *otherEnd = (GuaProcessHandle *)&(conn->getOtherEnd().getPhandle().phandle_);
+    if (otherEnd) otherEnd->decompose(cpu, pin, node, seqNum);
+  }
 
-      if (!memcmp(conn->getEyeCatcher(), "STBL", 4))
-      {
-      }
-      else if (conn->castToSMConnection())
-      {
-        cpu = ((SMConnection *)conn)->getSMTarget().node;
-        pin = ((SMConnection *)conn)->getSMTarget().pid;
-        sm_id_t smQueryId = ((SMConnection *)conn)->getSMTarget().id;
-        Int32 smTag = ((SMConnection *)conn)->getSMTarget().tag;
-        *rsp_len = sprintf(buffer + *rsp_len,
-                           "%.4s %s %.3d,%.8d,%.8" PRId64 
-                           ",%.8" PRId64 ",%.8d\n",
-                           conn->getEyeCatcher(),
-                           IpcConnStateName[conn->getState()],
-                           cpu, pin, seqNum, smQueryId, smTag);
-      }
-      else
-      {
-        *rsp_len  = sprintf(buffer, "%.4s %s %.3d,%.8d,%.8" PRId64 "\n",
-                          conn->getEyeCatcher(), 
-                          IpcConnStateName[conn->getState()], 
-                          cpu, pin, seqNum);
-
-      }
+  if (!memcmp(conn->getEyeCatcher(), "STBL", 4)) {
+  } else if (conn->castToSMConnection()) {
+    cpu = ((SMConnection *)conn)->getSMTarget().node;
+    pin = ((SMConnection *)conn)->getSMTarget().pid;
+    sm_id_t smQueryId = ((SMConnection *)conn)->getSMTarget().id;
+    Int32 smTag = ((SMConnection *)conn)->getSMTarget().tag;
+    *rsp_len = sprintf(buffer + *rsp_len, "%.4s %s %.3d,%.8d,%.8" PRId64 ",%.8" PRId64 ",%.8d\n", conn->getEyeCatcher(),
+                       IpcConnStateName[conn->getState()], cpu, pin, seqNum, smQueryId, smTag);
+  } else {
+    *rsp_len = sprintf(buffer, "%.4s %s %.3d,%.8d,%.8" PRId64 "\n", conn->getEyeCatcher(),
+                       IpcConnStateName[conn->getState()], cpu, pin, seqNum);
+  }
 }
 
-void IpcAllConnections::infoAllConnections(char *buffer, int max_len, int *rsp_len)
-{
+void IpcAllConnections::infoAllConnections(char *buffer, int max_len, int *rsp_len) {
   CollIndex i, usedLength = getUsedLength();
   IpcConnection *conn;
-  enum { MAX_LINE = 250 }; //  Currently printConnTraceLine sprintf's about 80 characters
+  enum { MAX_LINE = 250 };  //  Currently printConnTraceLine sprintf's about 80 characters
   char local_buffer[MAX_LINE];
-  int  line_len = 0;
-  for (i = 0; i < usedLength; i++)
-  {
-    if (getUsage(i) != UNUSED_COLL_ENTRY)
-    {
+  int line_len = 0;
+  for (i = 0; i < usedLength; i++) {
+    if (getUsage(i) != UNUSED_COLL_ENTRY) {
       conn = usedEntry(i);
       local_buffer[0] = '\0';
       line_len = 0;
       printConnTraceLine(local_buffer, &line_len, conn);
-      if ( (*rsp_len + line_len + 1) <= max_len)
-      {
-         strncpy( (buffer + *rsp_len), local_buffer, (size_t)line_len );
-         *rsp_len += line_len;
-      }
-      else
-      {
-         sprintf( (buffer + *rsp_len - 16 ),"\nOUT OF BUFFER!\n");
-         return;
+      if ((*rsp_len + line_len + 1) <= max_len) {
+        strncpy((buffer + *rsp_len), local_buffer, (size_t)line_len);
+        *rsp_len += line_len;
+      } else {
+        sprintf((buffer + *rsp_len - 16), "\nOUT OF BUFFER!\n");
+        return;
       }
     }
   }
@@ -6625,8 +5350,7 @@ void IpcAllConnections::infoAllConnections(char *buffer, int max_len, int *rsp_l
   *rsp_len += 1;
 }
 
-void IpcSetOfConnections::infoPendingConnections(char *buffer, int max_len, int *rsp_len) const
-{
+void IpcSetOfConnections::infoPendingConnections(char *buffer, int max_len, int *rsp_len) const {
   IpcAllConnections *allConns;
   IpcConnection *conn;
   enum { MAX_LINE = 250 };  // Currently printConnTraceLine sprintf's about 80 characters
@@ -6635,46 +5359,35 @@ void IpcSetOfConnections::infoPendingConnections(char *buffer, int max_len, int 
   CollIndex i, firstConnIndex = 0;
   if (!nextUsed(firstConnIndex))
     return;
-  else
-  {
+  else {
     conn = element(firstConnIndex);
     allConns = conn->getEnvironment()->getAllConnections();
     local_buffer[0] = '\0';
     line_len = 0;
     allConns->printConnTraceLine(local_buffer, &line_len, conn);
-    if ( (*rsp_len + line_len + 1) <= max_len )
-    {
-       strncpy( (buffer + *rsp_len), local_buffer, line_len);
-       *rsp_len += line_len;
-    }
-    else
-    {
-       sprintf( (buffer + *rsp_len - 16), "\nOUT OF BUFFER!\n");
-       return;
+    if ((*rsp_len + line_len + 1) <= max_len) {
+      strncpy((buffer + *rsp_len), local_buffer, line_len);
+      *rsp_len += line_len;
+    } else {
+      sprintf((buffer + *rsp_len - 16), "\nOUT OF BUFFER!\n");
+      return;
     }
   }
-  for (i = firstConnIndex + 1; nextUsed(i); i++)
-  {
+  for (i = firstConnIndex + 1; nextUsed(i); i++) {
     conn = element(i);
     local_buffer[0] = '\0';
     line_len = 0;
     allConns->printConnTraceLine(local_buffer, &line_len, conn);
-    if ( (*rsp_len + line_len + 1) <= max_len )
-    {
-       strncpy( (buffer + *rsp_len), local_buffer, line_len);
-       *rsp_len += line_len;
-    }
-    else
-    {
-       sprintf( (buffer + *rsp_len - 16), "\nOUT OF BUFFER!\n");
-       return;
+    if ((*rsp_len + line_len + 1) <= max_len) {
+      strncpy((buffer + *rsp_len), local_buffer, line_len);
+      *rsp_len += line_len;
+    } else {
+      sprintf((buffer + *rsp_len - 16), "\nOUT OF BUFFER!\n");
+      return;
     }
   }
   *(buffer + *rsp_len) = '\n';
   *rsp_len += 1;
 }
 
-void operator delete(void *p, IpcEnvironment *env)
-{
-  env->getHeap()->deallocateMemory(p);
-}
+void operator delete(void *p, IpcEnvironment *env) { env->getHeap()->deallocateMemory(p); }

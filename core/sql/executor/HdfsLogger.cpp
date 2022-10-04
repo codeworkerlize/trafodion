@@ -27,22 +27,18 @@
 #include <log4cxx/propertyconfigurator.h>
 #include <log4cxx/configurator.h>
 
-const char CAT_JNI_TOP        []      = "JniTop";
-const char CAT_SEQ_FILE_READER[]      = "SeqFileReader";
-const char CAT_SEQ_FILE_WRITER[]      = "SeqFileWriter";
-const char CAT_HBASE          []      = "HBase";
+const char CAT_JNI_TOP[] = "JniTop";
+const char CAT_SEQ_FILE_READER[] = "SeqFileReader";
+const char CAT_SEQ_FILE_WRITER[] = "SeqFileWriter";
+const char CAT_HBASE[] = "HBase";
 
 // **************************************************************************
 // **************************************************************************
-HdfsLogger::HdfsLogger()
-  : CommonLogger()
-{
-}
+HdfsLogger::HdfsLogger() : CommonLogger() {}
 
 // **************************************************************************
 // **************************************************************************
-HdfsLogger& HdfsLogger::instance()
-{
+HdfsLogger &HdfsLogger::instance() {
   static HdfsLogger onlyInstance_;
   return onlyInstance_;
 }
@@ -53,10 +49,8 @@ HdfsLogger& HdfsLogger::instance()
 // Create an appender, layout, and categories.
 // Attaches layout to the appender and appender to categories.
 // **************************************************************************
-NABoolean HdfsLogger::initLog4cxx(const char* configFileName)
-{
-  if (CommonLogger::initLog4cxx(configFileName))
-    return TRUE;
+NABoolean HdfsLogger::initLog4cxx(const char *configFileName) {
+  if (CommonLogger::initLog4cxx(configFileName)) return TRUE;
 
   NAString logFileName;
 
@@ -73,18 +67,17 @@ NABoolean HdfsLogger::initLog4cxx(const char* configFileName)
   // Top level categories
   initCategory(CAT_SEQ_FILE_READER, log4cxx::Priority::ERROR);
   initCategory(CAT_SEQ_FILE_WRITER, log4cxx::Priority::ERROR);
-  initCategory(CAT_HBASE,           log4cxx::Priority::ERROR);
+  initCategory(CAT_HBASE, log4cxx::Priority::ERROR);
 
-  //log4cxx::Category::getInstance(CAT_SEQ_FILE_READER).error("Failed to read the config file, using ERROR as logging level."); 
+  // log4cxx::Category::getInstance(CAT_SEQ_FILE_READER).error("Failed to read the config file, using ERROR as logging
+  // level.");
   return FALSE;
 }
 
 // **************************************************************************
 // **************************************************************************
-void HdfsLogger::initCategory(const char* cat, log4cxx::Priority::PriorityLevel defaultPriority)
-{
-  log4cxx::Category& catObj = log4cxx::Category::getInstance(cat);
+void HdfsLogger::initCategory(const char *cat, log4cxx::Priority::PriorityLevel defaultPriority) {
+  log4cxx::Category &catObj = log4cxx::Category::getInstance(cat);
   catObj.setAppender(fileAppender_);
   catObj.setPriority(defaultPriority);
 }
-

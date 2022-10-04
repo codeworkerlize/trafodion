@@ -7,7 +7,7 @@
 #include "qmscommon/QRLogger.h"
 #include "common/Collections.h"
 
-/** \file 
+/** \file
  * Contains classes and defines used to implement the memory management schemes
  * used in the Query Rewrite implementation, including extensions of the shared
  * pointer mechanism. Three different protocols are utilized for dynamic memory
@@ -48,10 +48,13 @@
  */
 
 class QRMemCheckMarker;
-template <class T> class QRMemCheckDeleter;
+template <class T>
+class QRMemCheckDeleter;
 class NAIntrusiveSharedPtrObject;
-template <class T> class QRIntrusiveSharedPtr;
-template <class T> class QRIntrusiveSharedRefCountDel;
+template <class T>
+class QRIntrusiveSharedPtr;
+template <class T>
+class QRIntrusiveSharedRefCountDel;
 
 /**
  * Declares the ISHP_ variable (used by the intrusive shared pointer mechanism)
@@ -125,58 +128,55 @@ template <class T> class QRIntrusiveSharedRefCountDel;
 
 #ifdef _MEMSHAREDPTR
 #ifdef _MEMCHECK
-#define createInstance(cls, var, heap) \
-  QRIntrusiveSharedPtr<cls> var(new (heap) cls(__FILE__,__LINE__))
-#define createInstance1(cls, var, heap, arg1) \
-  QRIntrusiveSharedPtr<cls> var(new (heap) cls(arg1,__FILE__,__LINE__))
+#define createInstance(cls, var, heap)        QRIntrusiveSharedPtr<cls> var(new (heap) cls(__FILE__, __LINE__))
+#define createInstance1(cls, var, heap, arg1) QRIntrusiveSharedPtr<cls> var(new (heap) cls(arg1, __FILE__, __LINE__))
 #define createInstance2(cls, var, heap, arg1, arg2) \
-  QRIntrusiveSharedPtr<cls> var(new (heap) cls(arg1,arg2,__FILE__,__LINE__))
+  QRIntrusiveSharedPtr<cls> var(new (heap) cls(arg1, arg2, __FILE__, __LINE__))
 #define SHARED_PTR_REF_COUNT(X) MEMCHECK_INTRUSIVE_SHARED_PTR(X);
-#define deletePtr(ptr) if (ptr) { ptr->mark(__FILE__, __LINE__); }
-#else  /* _MEMSHAREDPTR but not _MEMCHECK */
-#define createInstance(cls, var, heap) \
-  QRIntrusiveSharedPtr<cls> var(new (heap) cls(), heap)
-#define createInstance1(cls, var, heap, arg1) \
-  QRIntrusiveSharedPtr<cls> var(new (heap) cls(arg1), heap)
-#define createInstance2(cls, var, heap, arg1, arg2) \
-  QRIntrusiveSharedPtr<cls> var(new (heap) cls(arg1,arg2), heap)
-#define SHARED_PTR_REF_COUNT(X) INTRUSIVE_SHARED_PTR(X);
+#define deletePtr(ptr)             \
+  if (ptr) {                       \
+    ptr->mark(__FILE__, __LINE__); \
+  }
+#else /* _MEMSHAREDPTR but not _MEMCHECK */
+#define createInstance(cls, var, heap)              QRIntrusiveSharedPtr<cls> var(new (heap) cls(), heap)
+#define createInstance1(cls, var, heap, arg1)       QRIntrusiveSharedPtr<cls> var(new (heap) cls(arg1), heap)
+#define createInstance2(cls, var, heap, arg1, arg2) QRIntrusiveSharedPtr<cls> var(new (heap) cls(arg1, arg2), heap)
+#define SHARED_PTR_REF_COUNT(X)                     INTRUSIVE_SHARED_PTR(X);
 #define deletePtr(ptr)
 #endif
-#else  /* neither _MEMSHAREDPTR nor _MEMCHECK */
-#define createInstance(cls, var, heap) cls* var = new (heap) cls
-#define createInstance1(cls, var, heap, arg1) cls* var = new (heap) cls(arg1)
-#define createInstance2(cls, var, heap, arg1, arg2) cls* var = new (heap) cls(arg1, arg2)
+#else /* neither _MEMSHAREDPTR nor _MEMCHECK */
+#define createInstance(cls, var, heap)              cls *var = new (heap) cls
+#define createInstance1(cls, var, heap, arg1)       cls *var = new (heap) cls(arg1)
+#define createInstance2(cls, var, heap, arg1, arg2) cls *var = new (heap) cls(arg1, arg2)
 #define SHARED_PTR_REF_COUNT(X)
 #define deletePtr(ptr) delete ptr
 #endif
 
 #ifdef _MEMSHAREDPTR
-#define NAPtrList  NAShPtrList
-#define NAPtrArray NAShPtrArray
+#define NAPtrList      NAShPtrList
+#define NAPtrArray     NAShPtrArray
 #define PTR_TO_TYPE(T) QRIntrusiveSharedPtr<T>
 #else
-#define NAPtrList  NAList
-#define NAPtrArray NAArray
-#define PTR_TO_TYPE(T) T*
+#define NAPtrList      NAList
+#define NAPtrArray     NAArray
+#define PTR_TO_TYPE(T) T *
 #endif
 
 #if defined(_MEMSHAREDPTR) && defined(_MEMCHECK)
-#define MEMCHECK_ARGS __FILE__, __LINE__
-#define ADD_MEMCHECK_ARGS(arg) arg, __FILE__, __LINE__
-#define CHILD_ELEM_ARGS(arg) this, atts, arg, __FILE__, __LINE__
+#define MEMCHECK_ARGS               __FILE__, __LINE__
+#define ADD_MEMCHECK_ARGS(arg)      arg, __FILE__, __LINE__
+#define CHILD_ELEM_ARGS(arg)        this, atts, arg, __FILE__, __LINE__
 #define ADD_MEMCHECK_ARGS_DECL(arg) arg, char *fileName = __FILE__, Int32 lineNumber = __LINE__
 #define ADD_MEMCHECK_ARGS_DEF(arg)  arg, char *fileName, Int32 lineNumber
 #define ADD_MEMCHECK_ARGS_PASS(arg) arg, fileName, lineNumber
 #else
 #define MEMCHECK_ARGS
-#define ADD_MEMCHECK_ARGS(arg) arg
-#define CHILD_ELEM_ARGS(arg) this, atts, arg
+#define ADD_MEMCHECK_ARGS(arg)      arg
+#define CHILD_ELEM_ARGS(arg)        this, atts, arg
 #define ADD_MEMCHECK_ARGS_DECL(arg) arg
 #define ADD_MEMCHECK_ARGS_DEF(arg)  arg
 #define ADD_MEMCHECK_ARGS_PASS(arg) arg
 #endif
-
 
 /**
  * Class used in conjunction with shared pointers to mark objects in lieu of
@@ -191,118 +191,95 @@ template <class T> class QRIntrusiveSharedRefCountDel;
  * QRMemcheckMarker will log a "double deletion" memory error if the object is
  * already marked.
  */
-class QRMemCheckMarker : public NABasicObject
-{
-  public:
-    /**
-     * Creates an instance of this class without the file name and line number at
-     * which the referenced object was allocated.
-     */
-    QRMemCheckMarker() 
-      : marked_(FALSE) 
-      {}
+class QRMemCheckMarker : public NABasicObject {
+ public:
+  /**
+   * Creates an instance of this class without the file name and line number at
+   * which the referenced object was allocated.
+   */
+  QRMemCheckMarker() : marked_(FALSE) {}
 
-    /**
-     * Creates an instance of this class with the file name and line number at
-     * which the referenced object was allocated.
-     *
-     * @param[in] allocFileName   Name of the file in which the instance was allocated.
-     * @param[in] allocLineNumber Line number at which the instance was allocated.
-     */
-    QRMemCheckMarker(NAMemory *heap, char* allocFileName, Int32 allocLineNumber) 
-      : allocFileName_((allocFileName ? allocFileName : ""), heap),
-        allocLineNumber_(allocLineNumber),
-        marked_(FALSE) 
-      {}
+  /**
+   * Creates an instance of this class with the file name and line number at
+   * which the referenced object was allocated.
+   *
+   * @param[in] allocFileName   Name of the file in which the instance was allocated.
+   * @param[in] allocLineNumber Line number at which the instance was allocated.
+   */
+  QRMemCheckMarker(NAMemory *heap, char *allocFileName, Int32 allocLineNumber)
+      : allocFileName_((allocFileName ? allocFileName : ""), heap), allocLineNumber_(allocLineNumber), marked_(FALSE) {}
 
-    /**
-     * Tells if this instance of the class has been marked as deleted.
-     *
-     * @return \c TRUE if the instance has been marked.
-     */
-    NABoolean isMarked()
-      {
-        return marked_;
-      }
+  /**
+   * Tells if this instance of the class has been marked as deleted.
+   *
+   * @return \c TRUE if the instance has been marked.
+   */
+  NABoolean isMarked() { return marked_; }
 
-    /**
-     * Requests that this instance be marked as deleted. Although not actually
-     * deleted until the referencing shared pointer goes out of scope, marking
-     * an object indicates that it will be appropriately deleted if shared
-     * pointers are not used. If the object is already marked, a log entry will
-     * be posted indicating that a memory error would have occurred if conventional
-     * pointer were being used.
-     *
-     * @param[in] delFileName   Name of file from which the call came.
-     * @param[in] delLineNumber Line number at which the call was issued.
-     */
-    void mark(char* delFileName, Int32 delLineNumber)
-      {
-        if (marked_)
-          {
-            QRLogger::log(CAT_SQL_MEMORY, LL_WARN,
-              ">>> !!! %s instance deleted more than once: line %d in %s",
-			className(), delLineNumber, delFileName);
-          }
-        else
-          marked_ = TRUE;
-      }
+  /**
+   * Requests that this instance be marked as deleted. Although not actually
+   * deleted until the referencing shared pointer goes out of scope, marking
+   * an object indicates that it will be appropriately deleted if shared
+   * pointers are not used. If the object is already marked, a log entry will
+   * be posted indicating that a memory error would have occurred if conventional
+   * pointer were being used.
+   *
+   * @param[in] delFileName   Name of file from which the call came.
+   * @param[in] delLineNumber Line number at which the call was issued.
+   */
+  void mark(char *delFileName, Int32 delLineNumber) {
+    if (marked_) {
+      QRLogger::log(CAT_SQL_MEMORY, LL_WARN, ">>> !!! %s instance deleted more than once: line %d in %s", className(),
+                    delLineNumber, delFileName);
+    } else
+      marked_ = TRUE;
+  }
 
-    void checkDanglingPtr() const
-      {
-        if (marked_)
-          {
-            QRLogger::log(CAT_SQL_MEMORY, LL_WARN,
-              ">>> !!! Pointer to %s instance used after deletion", className());
-          }
-      }
+  void checkDanglingPtr() const {
+    if (marked_) {
+      QRLogger::log(CAT_SQL_MEMORY, LL_WARN, ">>> !!! Pointer to %s instance used after deletion", className());
+    }
+  }
 
-    /**
-     * Returns the name of the file where the \c new of this instance took place.
-     * This is used by \c QRMemCheckDeleter if it needs to log information for a
-     * memory leak.
-     *
-     * @return Name of the file from which this instance was allocated.
-     */
-    NAString& getAllocFileName()
-      {
-        return allocFileName_;
-      }
+  /**
+   * Returns the name of the file where the \c new of this instance took place.
+   * This is used by \c QRMemCheckDeleter if it needs to log information for a
+   * memory leak.
+   *
+   * @return Name of the file from which this instance was allocated.
+   */
+  NAString &getAllocFileName() { return allocFileName_; }
 
-    /**
-     * Returns the line number where the \c new of this instance took place.
-     * This is used by \c QRMemCheckDeleter if it needs to log information for a
-     * memory leak.
-     *
-     * @return Line number at which this instance was allocated.
-     */
-    Int32 getAllocLineNumber()
-      {
-        return allocLineNumber_;
-      }
+  /**
+   * Returns the line number where the \c new of this instance took place.
+   * This is used by \c QRMemCheckDeleter if it needs to log information for a
+   * memory leak.
+   *
+   * @return Line number at which this instance was allocated.
+   */
+  Int32 getAllocLineNumber() { return allocLineNumber_; }
 
-    /**
-     * Returns the class name of the allocated instance. 
-     * In _MEMCHECK mode, this method uses RTTI to return its own class name. 
-     * To enable RTTI compile with /GR. 
-     * This is used by \c QRMemCheckDeleter if it needs to log information for a
-     * memory leak.
-     *
-     * @return Class name of the allocated instance.
-     */
-    virtual const char* className() const
-      {
+  /**
+   * Returns the class name of the allocated instance.
+   * In _MEMCHECK mode, this method uses RTTI to return its own class name.
+   * To enable RTTI compile with /GR.
+   * This is used by \c QRMemCheckDeleter if it needs to log information for a
+   * memory leak.
+   *
+   * @return Class name of the allocated instance.
+   */
+  virtual const char *className() const {
 #if defined _MEMSHAREDPTR && _MEMCHECK
-	return typeid(*this).name();
+    return typeid(*this).name();
 #else
-        return "";
+    return "";
 #endif
-      }
+  }
 
-  private:
-    NAString allocFileName_;
-    Int32 allocLineNumber_;
-    NABoolean marked_;
+ private:
+  NAString allocFileName_;
+  Int32 allocLineNumber_;
+  NABoolean marked_;
 };
 
 /**
@@ -313,64 +290,54 @@ class QRMemCheckMarker : public NABasicObject
  * leaked if not using a shared pointer.
  */
 template <class T>
-class QRMemCheckDeleter
-{
-  public:
-    /**
-     * Returns a preexisting instance of \c QRMemCheckDeleter. Since the choice
-     * of an instance is arbitrary, we provide one (for each template
-     * instantiation) that will always be at hand. This class is not implemented
-     * as a singleton class, so it is also possible to create additional instances.
-     *
-     * @return A static instance of \c QRMemCheckDeleter.
-     */
-    static QRMemCheckDeleter& instance()
-      {
-        static QRMemCheckDeleter deleter;
-        return deleter;
-      }
+class QRMemCheckDeleter {
+ public:
+  /**
+   * Returns a preexisting instance of \c QRMemCheckDeleter. Since the choice
+   * of an instance is arbitrary, we provide one (for each template
+   * instantiation) that will always be at hand. This class is not implemented
+   * as a singleton class, so it is also possible to create additional instances.
+   *
+   * @return A static instance of \c QRMemCheckDeleter.
+   */
+  static QRMemCheckDeleter &instance() {
+    static QRMemCheckDeleter deleter;
+    return deleter;
+  }
 
-    /**
-     * Constructs a default instance of QRMemCheckDeleter. This is generally
-     * not needed by clients, who can use the static instance returned by
-     * #instance.
-     */
-    QRMemCheckDeleter()
-      {}
+  /**
+   * Constructs a default instance of QRMemCheckDeleter. This is generally
+   * not needed by clients, who can use the static instance returned by
+   * #instance.
+   */
+  QRMemCheckDeleter() {}
 
-    /**
-     * Deletes the passed pointer after checking to see if it has been marked.
-     * Marking is done by calling QRMemCheckMarker#mark (<tt>ptr</tt>'s type must be
-     * a subclass of QRMemCheckMarker), and indicates that the
-     * object would have been manually deleted if shared pointers were not in use.
-     * If an unmarked object is deleted, this function logs an entry indicating
-     * a potential memory leak.
-     *
-     * @param[in] ptr Pointer to the object being deleted.
-     */
-    void operator()(T* ptr) const
-      {
-        if (!ptr->isMarked())
-          {
+  /**
+   * Deletes the passed pointer after checking to see if it has been marked.
+   * Marking is done by calling QRMemCheckMarker#mark (<tt>ptr</tt>'s type must be
+   * a subclass of QRMemCheckMarker), and indicates that the
+   * object would have been manually deleted if shared pointers were not in use.
+   * If an unmarked object is deleted, this function logs an entry indicating
+   * a potential memory leak.
+   *
+   * @param[in] ptr Pointer to the object being deleted.
+   */
+  void operator()(T *ptr) const {
+    if (!ptr->isMarked()) {
 #if defined _MEMSHAREDPTR && _MEMCHECK
-            const char* clsName = typeid(*ptr).name();
+      const char *clsName = typeid(*ptr).name();
 #else
-            const char* clsName = ptr->className();
+      const char *clsName = ptr->className();
 #endif
-            if (!clsName)
-              {
-                QRLogger::log(CAT_SQL_MEMORY, LL_ERROR,
-                                          ">>> !!! memory leak");
-              }
-              else
-              {
-                QRLogger::log(CAT_SQL_MEMORY, LL_ERROR,
-                  ">>> !!! Instance of %s created at line %d in %s was leaked",
-                  clsName, ptr->getAllocLineNumber(), ptr->getAllocFileName().data());
-              }
-          }
-        delete ptr;
+      if (!clsName) {
+        QRLogger::log(CAT_SQL_MEMORY, LL_ERROR, ">>> !!! memory leak");
+      } else {
+        QRLogger::log(CAT_SQL_MEMORY, LL_ERROR, ">>> !!! Instance of %s created at line %d in %s was leaked", clsName,
+                      ptr->getAllocLineNumber(), ptr->getAllocFileName().data());
       }
+    }
+    delete ptr;
+  }
 };
 
 /**
@@ -381,141 +348,123 @@ class QRMemCheckDeleter
  * subclass provides an operator= that allows it to be done without the extra
  * object creation.
  */
-template<class T>
-class QRIntrusiveSharedPtr : public IntrusiveSharedPtr<T>
-{
-  public:
-    QRIntrusiveSharedPtr() {}
+template <class T>
+class QRIntrusiveSharedPtr : public IntrusiveSharedPtr<T> {
+ public:
+  QRIntrusiveSharedPtr() {}
 
-    template<class Y>
-    QRIntrusiveSharedPtr(Y *t)
-      : IntrusiveSharedPtr<T>(t)
-      {}
+  template <class Y>
+  QRIntrusiveSharedPtr(Y *t) : IntrusiveSharedPtr<T>(t) {}
 
-    template<class Y>
-    QRIntrusiveSharedPtr(const IntrusiveSharedPtr<Y> &rhs)
-      : IntrusiveSharedPtr<T>()
-      {
-        SharedPtr<T>::objectP_ = static_cast<T*>(rhs.get());
-        SharedPtr<T>::refCount_ = (SharedRefCountBase<T>*)&SharedPtr<T>::objectP_->ISHP_;
-        if (SharedPtr<T>::refCount_)
-          {
-            SharedPtr<T>::refCount_->objectP_ = SharedPtr<T>::objectP_;
-            SharedPtr<T>::refCount_->useCount_ = rhs.getUseCount();
-            SharedPtr<T>::refCount_->incrUseCount();
-          }
-      }
+  template <class Y>
+  QRIntrusiveSharedPtr(const IntrusiveSharedPtr<Y> &rhs) : IntrusiveSharedPtr<T>() {
+    SharedPtr<T>::objectP_ = static_cast<T *>(rhs.get());
+    SharedPtr<T>::refCount_ = (SharedRefCountBase<T> *)&SharedPtr<T>::objectP_->ISHP_;
+    if (SharedPtr<T>::refCount_) {
+      SharedPtr<T>::refCount_->objectP_ = SharedPtr<T>::objectP_;
+      SharedPtr<T>::refCount_->useCount_ = rhs.getUseCount();
+      SharedPtr<T>::refCount_->incrUseCount();
+    }
+  }
 
-    /**
-     * Allows construction with a NULL, creates a null-valued shared pointer.
-     * A separate constructor is required because using the macro NULL (which
-     * is 0) will not cause the "normal" constructor to be invoked.
-     *
-     * @param[in] i This will generally be 0 (NULL). 
-     */
-    QRIntrusiveSharedPtr(const Int32 i) : IntrusiveSharedPtr<T>(i) {} 
+  /**
+   * Allows construction with a NULL, creates a null-valued shared pointer.
+   * A separate constructor is required because using the macro NULL (which
+   * is 0) will not cause the "normal" constructor to be invoked.
+   *
+   * @param[in] i This will generally be 0 (NULL).
+   */
+  QRIntrusiveSharedPtr(const Int32 i) : IntrusiveSharedPtr<T>(i) {}
 
-    //@ZX
-    virtual ~QRIntrusiveSharedPtr()
-      {
-      }
+  //@ZX
+  virtual ~QRIntrusiveSharedPtr() {}
 
-    /**
-     * Reinitializes this shared pointer to reference \c ptr. If this shared
-     * pointer currently references a different object, the object's reference
-     * counter (which is a member of that object since this is an intrusive
-     * shared pointer) is decremented. This shared pointer will henceforth use
-     * the reference counter for \c ptr, which is incremented to reflect the
-     * new reference it has gained.
-     *
-     * @param[in] ptr Pointer to object to be referenced by this shared pointer.
-     * @return A reference to the assigned-to shared pointer.
-     */
-    QRIntrusiveSharedPtr<T>& operator=(T *ptr)
-      {
-        if (SharedPtr<T>::refCount_)
-          SharedPtr<T>::refCount_->decrUseCount();
+  /**
+   * Reinitializes this shared pointer to reference \c ptr. If this shared
+   * pointer currently references a different object, the object's reference
+   * counter (which is a member of that object since this is an intrusive
+   * shared pointer) is decremented. This shared pointer will henceforth use
+   * the reference counter for \c ptr, which is incremented to reflect the
+   * new reference it has gained.
+   *
+   * @param[in] ptr Pointer to object to be referenced by this shared pointer.
+   * @return A reference to the assigned-to shared pointer.
+   */
+  QRIntrusiveSharedPtr<T> &operator=(T *ptr) {
+    if (SharedPtr<T>::refCount_) SharedPtr<T>::refCount_->decrUseCount();
 
-        // Reconstruct the reference count from object
-        SharedPtr<T>::objectP_ = (T*)ptr;
-        SharedPtr<T>::refCount_ = (SharedRefCountBase<T>*)&ptr->ISHP_;
-        SharedPtr<T>::refCount_->objectP_ = (T*)ptr;
-        SharedPtr<T>::refCount_->useCount_++;
-        return *this;
-      }
+    // Reconstruct the reference count from object
+    SharedPtr<T>::objectP_ = (T *)ptr;
+    SharedPtr<T>::refCount_ = (SharedRefCountBase<T> *)&ptr->ISHP_;
+    SharedPtr<T>::refCount_->objectP_ = (T *)ptr;
+    SharedPtr<T>::refCount_->useCount_++;
+    return *this;
+  }
 
-    /**
-     * Sets the referenced object of this shared pointer to that of another one.
-     * The reference count for the current value is decremented, and the count
-     * for the new one is incremented. After the assignment takes place, both
-     * shared pointers reference the same object.
-     *
-     * @param[in] rhs Shared pointer to assign to this one.
-     * @return A reference to the assigned-to shared pointer.
-     */
-    template<class Y>
-    // @ZX
-    //QRIntrusiveSharedPtr<T>& operator=(const QRIntrusiveSharedPtr<Y>  &rhs)
-    QRIntrusiveSharedPtr<T>& operator=(const IntrusiveSharedPtr<Y>  &rhs)
-      {
-        if (SharedPtr<T>::objectP_ != rhs.get())  // don't copy if same object
-          {
-            if (SharedPtr<T>::refCount_) 
-              {
+  /**
+   * Sets the referenced object of this shared pointer to that of another one.
+   * The reference count for the current value is decremented, and the count
+   * for the new one is incremented. After the assignment takes place, both
+   * shared pointers reference the same object.
+   *
+   * @param[in] rhs Shared pointer to assign to this one.
+   * @return A reference to the assigned-to shared pointer.
+   */
+  template <class Y>
+  // @ZX
+  // QRIntrusiveSharedPtr<T>& operator=(const QRIntrusiveSharedPtr<Y>  &rhs)
+  QRIntrusiveSharedPtr<T> &operator=(const IntrusiveSharedPtr<Y> &rhs) {
+    if (SharedPtr<T>::objectP_ != rhs.get())  // don't copy if same object
+    {
+      if (SharedPtr<T>::refCount_) {
 #ifdef _DEBUG
-                assert(SharedPtr<T>::objectP_ == SharedPtr<T>::refCount_->objectP_);
+        assert(SharedPtr<T>::objectP_ == SharedPtr<T>::refCount_->objectP_);
 #endif
-                SharedPtr<T>::refCount_->decrUseCount();
-              }
-            
-            // @ZX
-            //objectP_ = rhs.get();
-            SharedPtr<T>::objectP_ = static_cast<T*>(rhs.get());
-            SharedPtr<T>::refCount_ = (SharedRefCountBase<T>*)&SharedPtr<T>::objectP_->ISHP_;
-            if (SharedPtr<T>::refCount_)
-              {
-                SharedPtr<T>::refCount_->objectP_ = SharedPtr<T>::objectP_;
-                SharedPtr<T>::refCount_->useCount_ = rhs.getUseCount();
-                SharedPtr<T>::refCount_->incrUseCount();
-              }
-          }
-        return *this;
+        SharedPtr<T>::refCount_->decrUseCount();
       }
 
-    /**
-     * Assigns an integer value (should be 0) to this shared pointer. This
-     * overload of operator= is necessary because "sp = NULL", where sp is a
-     * shared pointer will not match the version that take a pointer.
-     *
-     * @param[in] i Should be 0 (NULL) in almost all cases.
-     * @return A reference to the assigned-to shared pointer.
-     */
-    QRIntrusiveSharedPtr<T>& operator= (const Int32 i)
-      {
-        (void)SharedPtr<T>::operator=(i);
-        return *this;
+      // @ZX
+      // objectP_ = rhs.get();
+      SharedPtr<T>::objectP_ = static_cast<T *>(rhs.get());
+      SharedPtr<T>::refCount_ = (SharedRefCountBase<T> *)&SharedPtr<T>::objectP_->ISHP_;
+      if (SharedPtr<T>::refCount_) {
+        SharedPtr<T>::refCount_->objectP_ = SharedPtr<T>::objectP_;
+        SharedPtr<T>::refCount_->useCount_ = rhs.getUseCount();
+        SharedPtr<T>::refCount_->incrUseCount();
       }
+    }
+    return *this;
+  }
+
+  /**
+   * Assigns an integer value (should be 0) to this shared pointer. This
+   * overload of operator= is necessary because "sp = NULL", where sp is a
+   * shared pointer will not match the version that take a pointer.
+   *
+   * @param[in] i Should be 0 (NULL) in almost all cases.
+   * @return A reference to the assigned-to shared pointer.
+   */
+  QRIntrusiveSharedPtr<T> &operator=(const Int32 i) {
+    (void)SharedPtr<T>::operator=(i);
+    return *this;
+  }
 
 #if defined(_MEMSHAREDPTR) && defined(_MEMCHECK)
-    T& operator*() const
-      {
+  T &operator*() const {
 #ifdef _DEBUG
-        if (refCount_)
-          assert(objectP_ == refCount_->objectP_);
+    if (refCount_) assert(objectP_ == refCount_->objectP_);
 #endif
-        objectP_->checkDanglingPtr();
-        return *objectP_;
-      }
+    objectP_->checkDanglingPtr();
+    return *objectP_;
+  }
 
-    T* operator->() const
-      {
+  T *operator->() const {
 #ifdef _DEBUG
-        if (refCount_)
-          assert(objectP_ == refCount_->objectP_);
+    if (refCount_) assert(objectP_ == refCount_->objectP_);
 #endif
-        objectP_->checkDanglingPtr();
-        return objectP_;
-      }
+    objectP_->checkDanglingPtr();
+    return objectP_;
+  }
 #endif
 };
 
@@ -528,38 +477,34 @@ class QRIntrusiveSharedPtr : public IntrusiveSharedPtr<T>
  * the underlying pointer using QRMemCheckDeleter rather than doing a simple
  * delete.
  */
-template<class T>
-class QRIntrusiveSharedRefCountDel : public SharedRefCountBase<T> 
-{
-  public:
-    /**
-     * Constructs an uninitialized instance of this class.
-     */
-    QRIntrusiveSharedRefCountDel() {}
+template <class T>
+class QRIntrusiveSharedRefCountDel : public SharedRefCountBase<T> {
+ public:
+  /**
+   * Constructs an uninitialized instance of this class.
+   */
+  QRIntrusiveSharedRefCountDel() {}
 
-    /**
-     * Constructs a reference counter for the given pointer with the given
-     * initial use count.
-     *
-     * @param[in] t         Pointer to object for which references will be counted.
-     * @param[in] use_count Initial number of references to the object.
-     * @return 
-     */
-    QRIntrusiveSharedRefCountDel(T *t, Int32 use_count)
-      : SharedRefCountBase<T>(t, use_count)
-      {}
+  /**
+   * Constructs a reference counter for the given pointer with the given
+   * initial use count.
+   *
+   * @param[in] t         Pointer to object for which references will be counted.
+   * @param[in] use_count Initial number of references to the object.
+   * @return
+   */
+  QRIntrusiveSharedRefCountDel(T *t, Int32 use_count) : SharedRefCountBase<T>(t, use_count) {}
 
-    /**
-     * Uses the operator() of QRMemCheckDeleter to delete the object referenced
-     * by the shared pointer. That operator also checks to see if the object has
-     * been marked for deletion, solely for the purpose of tracking potential
-     * memory leaks.
-     */
-    virtual void destroyObjects()
-      {
-        // Only the object pointer should be deleted for this class.
-        QRMemCheckDeleter<T>::instance()(SharedRefCountBase<T>::objectP_);
-      }
+  /**
+   * Uses the operator() of QRMemCheckDeleter to delete the object referenced
+   * by the shared pointer. That operator also checks to see if the object has
+   * been marked for deletion, solely for the purpose of tracking potential
+   * memory leaks.
+   */
+  virtual void destroyObjects() {
+    // Only the object pointer should be deleted for this class.
+    QRMemCheckDeleter<T>::instance()(SharedRefCountBase<T>::objectP_);
+  }
 };
 
 /**
@@ -571,260 +516,225 @@ class QRIntrusiveSharedRefCountDel : public SharedRefCountBase<T>
  */
 class NAIntrusiveSharedPtrObject
 #if defined(_MEMSHAREDPTR) && defined(_MEMCHECK)
-      : public QRMemCheckMarker
+    : public QRMemCheckMarker
 #else
-      : public NABasicObject
+    : public NABasicObject
 #endif
 {
-  public:
-    /**
-     * Constructs an object usable with intrusive shared pointers, and possibly
-     * enabled memory checking, depending on defines.
-     *
-     * @param[in] fileName Name of the file from which this constructor was called.
-     * @param[in] lineNumber Line number at which this constructor was called.
-     */
+ public:
+  /**
+   * Constructs an object usable with intrusive shared pointers, and possibly
+   * enabled memory checking, depending on defines.
+   *
+   * @param[in] fileName Name of the file from which this constructor was called.
+   * @param[in] lineNumber Line number at which this constructor was called.
+   */
 #if defined(_MEMSHAREDPTR) && defined(_MEMCHECK)
-    NAIntrusiveSharedPtrObject(NAMemory* heap, char *fileName = NULL, Int32 lineNumber = 0)
-      : QRMemCheckMarker(heap, fileName, lineNumber)
-      {}
+  NAIntrusiveSharedPtrObject(NAMemory *heap, char *fileName = NULL, Int32 lineNumber = 0)
+      : QRMemCheckMarker(heap, fileName, lineNumber) {}
 #else
-    NAIntrusiveSharedPtrObject(NAMemory* heap)
-      {}
+  NAIntrusiveSharedPtrObject(NAMemory *heap) {}
 #endif
 
-    /** \var ISHP_
-     * This is a reference-counting object generated as a member variable when
-     * the code is compiled with _MEMSHAREDPTR defined.
-     */
+  /** \var ISHP_
+   * This is a reference-counting object generated as a member variable when
+   * the code is compiled with _MEMSHAREDPTR defined.
+   */
 
-    SHARED_PTR_REF_COUNT(NAIntrusiveSharedPtrObject);
+  SHARED_PTR_REF_COUNT(NAIntrusiveSharedPtrObject);
 };
 
 // Define initial hash sizes that are prime numbers.
-#define INIT_HASH_SIZE_SMALL  11
+#define INIT_HASH_SIZE_SMALL 11
 #define INIT_HASH_SIZE_LARGE 101
 
 /**
  * SharedPtrValueHash: a NAHashDictionary for use with Shared Pointers.
  * The value class is expected to be derived from NAIntrusiveSharedPtrObject.
  * The key class is expected to be a non-NAIntrusiveSharedPtrObject class.
- * This class attempts to solve the problem that a NAHashDictionary<K,V> is 
- * actually handling pointers to K and V, and don't know how to correctly 
- * handle shared pointers. Therefore, this class actually stores pointers to 
+ * This class attempts to solve the problem that a NAHashDictionary<K,V> is
+ * actually handling pointers to K and V, and don't know how to correctly
+ * handle shared pointers. Therefore, this class actually stores pointers to
  * shared pointer objects, and handles the dereferencing.
  */
 #ifndef _MEMSHAREDPTR
-  #define SharedPtrValueHash  NAHashDictionary
+#define SharedPtrValueHash NAHashDictionary
 #else
-  #define super NAHashDictionary<K, QRIntrusiveSharedPtr<V> >
-  template <class K, class V>
-  class SharedPtrValueHash : public super
-  {
-  public:
-    /**
-    * Constructor.
-    * @param hashFunction Pointer to a hash function
-    * @param initialHashSize Initial size of hash table.
-    * @param enforceUniqueness When FALSE rejects multiple values for the same key
-    * @param heap The heap pointer
-    */
-    SharedPtrValueHash(ULng32(*hashFunction)(const K&), 
-		  ULng32 initialHashSize = NAHashDictionary_Default_Size,
-		  NABoolean enforceUniqueness = FALSE,
-		  CollHeap * heap=0)
-    // Override constructor to save the heap pointer.
-    :  super(hashFunction, initialHashSize, enforceUniqueness, heap)
-      ,heap_(heap)
-      ,nullSharedPtrVal(NULL)
-      {}
+#define super NAHashDictionary<K, QRIntrusiveSharedPtr<V> >
+template <class K, class V>
+class SharedPtrValueHash : public super {
+ public:
+  /**
+   * Constructor.
+   * @param hashFunction Pointer to a hash function
+   * @param initialHashSize Initial size of hash table.
+   * @param enforceUniqueness When FALSE rejects multiple values for the same key
+   * @param heap The heap pointer
+   */
+  SharedPtrValueHash(ULng32 (*hashFunction)(const K &), ULng32 initialHashSize = NAHashDictionary_Default_Size,
+                     NABoolean enforceUniqueness = FALSE, CollHeap *heap = 0)
+      // Override constructor to save the heap pointer.
+      : super(hashFunction, initialHashSize, enforceUniqueness, heap), heap_(heap), nullSharedPtrVal(NULL) {}
 
-    /**
-    * Copy Constructor
-    * @param other The object to copy
-    * @param heap A Heap pointer
-    */
-    SharedPtrValueHash(const super& other, CollHeap * heap=0)
-      : super(other, heap)
-      ,heap_(heap)
-      ,nullSharedPtrVal(NULL)
-    {}
+  /**
+   * Copy Constructor
+   * @param other The object to copy
+   * @param heap A Heap pointer
+   */
+  SharedPtrValueHash(const super &other, CollHeap *heap = 0)
+      : super(other, heap), heap_(heap), nullSharedPtrVal(NULL) {}
 
-    /**
-    * Destructor
-    */
-    virtual ~SharedPtrValueHash()
-    {
-      clear(FALSE);
-    }
+  /**
+   * Destructor
+   */
+  virtual ~SharedPtrValueHash() { clear(FALSE); }
 
-    /**
-    * Check whether this dictionary contains a certain key, or a 
-    * certain key value pair. 
-    * @param key 
-    * @param value 
-    * @return 
-    */
-    inline NABoolean contains(const K* key, const QRIntrusiveSharedPtr<V> value = NULL) const
-    { 
-      if (value)
-      {
-	const QRIntrusiveSharedPtr<V>* vp = &value;
-	return super::contains(key, vp);
+  /**
+   * Check whether this dictionary contains a certain key, or a
+   * certain key value pair.
+   * @param key
+   * @param value
+   * @return
+   */
+  inline NABoolean contains(const K *key, const QRIntrusiveSharedPtr<V> value = NULL) const {
+    if (value) {
+      const QRIntrusiveSharedPtr<V> *vp = &value;
+      return super::contains(key, vp);
+    } else
+      return super::contains(key);
+  }
+
+  /**
+   * Insert a (key, value) pair. Allocate a pointer to the shared pointer
+   * to the value object, and insert the (key, QRIntrusiveSharedPtr<value>)
+   * pair into the hash table.
+   * @param key Pointer to key object.
+   * @param value Shared pointer to value object.
+   * @return The pointer to the key object.
+   */
+  K *insert(K *key, QRIntrusiveSharedPtr<V> value) {
+    QRIntrusiveSharedPtr<V> *vp = new (heap_) QRIntrusiveSharedPtr<V>;
+    *vp = value;
+    return super::insert(key, vp);
+  }
+
+  /**
+   * Get the first value corresponding to the input key. Dereference the
+   * value on the way out.
+   * @param key Pointer to key value.
+   * @return Shared pointer to value.
+   */
+  QRIntrusiveSharedPtr<V> getFirstValue(const K *key) const {
+    // Avoid dereferencing null value key is not in the hash table.
+    QRIntrusiveSharedPtr<V> *firstValPtr = super::getFirstValue(key);
+    if (firstValPtr)
+      return *firstValPtr;
+    else
+      return nullSharedPtrVal;
+    // return *(super::getFirstValue(key));
+  }
+
+  /**
+   * Remove the (key, value) pair, and delete the pointer to the
+   * shared pointer to the value.
+   * @param key
+   * @return
+   */
+  K *remove(K *key) {
+    QRIntrusiveSharedPtr<V> *vp = super::getFirstValue(key);
+    K *result = super::remove(key);
+    if (result != NULL) NADELETEBASIC(vp, heap_);
+    return result;
+  }
+
+  /**
+   * Clear the contents of the hash table, and delete memory used for
+   * internal pointers.
+   * @param deleteContents
+   */
+  void clear(NABoolean deleteContents = FALSE) {
+    // Iterate on the hash table.
+    QRIntrusiveSharedPtr<V> *vp;
+    K *k;
+    NAHashDictionaryIterator<K, QRIntrusiveSharedPtr<V> > iter(*this);
+    for (CollIndex i = 0; i < iter.entries(); i++) {
+      // For each (key, value) pair
+      iter.getNext(k, vp);
+      // Delete the shared pointer if requested to.
+      if (deleteContents) {
+        QRIntrusiveSharedPtr<V> v = *vp;
+        deletePtr(v);
       }
-      else
-	return super::contains(key);
+      // Delete the pointer to the shared pointer.
+      NADELETEBASIC(vp, heap_);
     }
+    // Now, really clear the contents.
+    super::clear(FALSE);
+  }
 
-    /**
-    * Insert a (key, value) pair. Allocate a pointer to the shared pointer 
-    * to the value object, and insert the (key, QRIntrusiveSharedPtr<value>)
-    * pair into the hash table.
-    * @param key Pointer to key object.
-    * @param value Shared pointer to value object.
-    * @return The pointer to the key object.
-    */
-    K* insert(K* key, QRIntrusiveSharedPtr<V> value)
-    {
-      QRIntrusiveSharedPtr<V>* vp = new(heap_) QRIntrusiveSharedPtr<V>;
-      *vp = value;
-      return super::insert(key, vp);
-    }
+ private:
+  // Unfortunatly, the heap_ member in NAHashDictionary is private, not protected.
+  CollHeap *heap_;
 
-    /**
-    * Get the first value corresponding to the input key. Dereference the
-    * value on the way out.
-    * @param key Pointer to key value.
-    * @return Shared pointer to value.
-    */
-    QRIntrusiveSharedPtr<V> getFirstValue(const K* key) const
-    {
-      // Avoid dereferencing null value key is not in the hash table.
-      QRIntrusiveSharedPtr<V>* firstValPtr = super::getFirstValue(key);
-      if (firstValPtr)
-        return *firstValPtr;
-      else
-        return nullSharedPtrVal;
-      //return *(super::getFirstValue(key));
-    }
-
-    /**
-    * Remove the (key, value) pair, and delete the pointer to the 
-    * shared pointer to the value.
-    * @param key 
-    * @return 
-    */
-    K* remove(K* key)
-    {
-      QRIntrusiveSharedPtr<V>* vp = super::getFirstValue(key);
-      K* result = super::remove(key);
-      if (result != NULL)
-	NADELETEBASIC(vp, heap_);
-      return result;
-    }
-
-    /**
-    * Clear the contents of the hash table, and delete memory used for 
-    * internal pointers.
-    * @param deleteContents 
-    */
-    void clear(NABoolean deleteContents = FALSE)
-    {
-      // Iterate on the hash table.
-      QRIntrusiveSharedPtr<V>* vp;
-      K* k; 
-      NAHashDictionaryIterator<K, QRIntrusiveSharedPtr<V> > iter(*this);
-      for ( CollIndex i = 0 ; i < iter.entries() ; i++) 
-      {
-	// For each (key, value) pair
-	iter.getNext (k, vp); 
-	// Delete the shared pointer if requested to.
-	if (deleteContents)
-	{
-	  QRIntrusiveSharedPtr<V> v = *vp;
-	  deletePtr(v);
-	}
-	// Delete the pointer to the shared pointer.
-	NADELETEBASIC(vp, heap_);
-      }
-      // Now, really clear the contents.
-      super::clear(FALSE);
-    }
-
-  private:
-    // Unfortunatly, the heap_ member in NAHashDictionary is private, not protected.
-    CollHeap* heap_;
-
-    // This is a value for getFirstValue() to return when a key is looked up that
-    // is not in the hash table.
-    QRIntrusiveSharedPtr<V> nullSharedPtrVal;
-  }; // class SharedPtrValueHash
-  #undef super
-#endif // #ifdef _MEMSHAREDPTR
+  // This is a value for getFirstValue() to return when a key is looked up that
+  // is not in the hash table.
+  QRIntrusiveSharedPtr<V> nullSharedPtrVal;
+};  // class SharedPtrValueHash
+#undef super
+#endif  // #ifdef _MEMSHAREDPTR
 
 /**
  * SharedPtrValueHashIterator: a NAHashDictionaryIterator for use with Shared Pointers.
  */
 #ifndef _MEMSHAREDPTR
-  #define SharedPtrValueHashIterator  NAHashDictionaryIterator
+#define SharedPtrValueHashIterator NAHashDictionaryIterator
 #else
-  #define super NAHashDictionaryIterator<K, QRIntrusiveSharedPtr<V> >
-  template <class K, class V>
-  class SharedPtrValueHashIterator : public super
-  {
-  public:
-    /**
-    * Constructor when both key and value are supplied.
-    * @param dict SharedPtrValueHash object to iterate on  
-    * @param key Initial key value
-    * @param value Initial value value
-    */
-    SharedPtrValueHashIterator (const SharedPtrValueHash<K,V> & dict, 
-				const K* key,
-				const QRIntrusiveSharedPtr<V> value)
-    : super(dict, key, &value)
-    {}
+#define super NAHashDictionaryIterator<K, QRIntrusiveSharedPtr<V> >
+template <class K, class V>
+class SharedPtrValueHashIterator : public super {
+ public:
+  /**
+   * Constructor when both key and value are supplied.
+   * @param dict SharedPtrValueHash object to iterate on
+   * @param key Initial key value
+   * @param value Initial value value
+   */
+  SharedPtrValueHashIterator(const SharedPtrValueHash<K, V> &dict, const K *key, const QRIntrusiveSharedPtr<V> value)
+      : super(dict, key, &value) {}
 
-    /**
-    * Constructor when no value is given.
-    * @param dict SharedPtrValueHash object to iterate on  
-    * @param key Initial key value
-    */
-    SharedPtrValueHashIterator (const SharedPtrValueHash<K,V> & dict, 
-				const K* key = NULL)
-    : super(dict, key)
-    {}
+  /**
+   * Constructor when no value is given.
+   * @param dict SharedPtrValueHash object to iterate on
+   * @param key Initial key value
+   */
+  SharedPtrValueHashIterator(const SharedPtrValueHash<K, V> &dict, const K *key = NULL) : super(dict, key) {}
 
-    /**
-    * Copy ctor
-    * @param other Object to copy
-    * @param heap Heap pointer
-    */
-    SharedPtrValueHashIterator (const SharedPtrValueHashIterator<K,V> & other,
-				CollHeap * heap=0)
-    : super(other, heap)
-    {}
+  /**
+   * Copy ctor
+   * @param other Object to copy
+   * @param heap Heap pointer
+   */
+  SharedPtrValueHashIterator(const SharedPtrValueHashIterator<K, V> &other, CollHeap *heap = 0) : super(other, heap) {}
 
-    /**
-    * Destructor
-    */
-    virtual ~SharedPtrValueHashIterator() {}
+  /**
+   * Destructor
+   */
+  virtual ~SharedPtrValueHashIterator() {}
 
-    /**
-    * Get the next (key, value) pair, and dereference the value pointer
-    * on the way out.
-    * @param key /out
-    * @param value /out
-    */
-    void getNext(K*& key, QRIntrusiveSharedPtr<V>& value)
-    {
-      QRIntrusiveSharedPtr<V>* vp;
-      super::getNext(key, vp);
-      value = *vp;
-    }
-  }; // class SharedPtrValueHashIterator
-  #undef super
-#endif // #ifdef _MEMSHAREDPTR
+  /**
+   * Get the next (key, value) pair, and dereference the value pointer
+   * on the way out.
+   * @param key /out
+   * @param value /out
+   */
+  void getNext(K *&key, QRIntrusiveSharedPtr<V> &value) {
+    QRIntrusiveSharedPtr<V> *vp;
+    super::getNext(key, vp);
+    value = *vp;
+  }
+};  // class SharedPtrValueHashIterator
+#undef super
+#endif  // #ifdef _MEMSHAREDPTR
 
 #if 0
 // Not used for now...
@@ -847,9 +757,9 @@ class NAIntrusiveSharedPtrObject
  * shared pointer objects, and handles the dereferencing.
  */
 #ifndef _MEMSHAREDPTR
-  #define SharedPtrHash  NAHashDictionary
+#define SharedPtrHash NAHashDictionary
 #else
-  #define super NAHashDictionary<QRIntrusiveSharedPtr<K>, QRIntrusiveSharedPtr<V> >
+#define super NAHashDictionary<QRIntrusiveSharedPtr<K>, QRIntrusiveSharedPtr<V> >
 
   template <class K, class V>
   class SharedPtrHash : public super
@@ -1009,16 +919,16 @@ class NAIntrusiveSharedPtrObject
     // is not in the hash table.
     QRIntrusiveSharedPtr<V> nullSharedPtrVal;
   }; // class SharedPtrHash
-  #undef super
-#endif // #ifdef _MEMSHAREDPTR
+#undef super
+#endif  // #ifdef _MEMSHAREDPTR
 
 /**
  * SharedPtrHashIterator: a NAHashDictionaryIterator for use with Shared Pointers.
  */
 #ifndef _MEMSHAREDPTR
-  #define SharedPtrHashIterator  NAHashDictionaryIterator
+#define SharedPtrHashIterator NAHashDictionaryIterator
 #else
-  #define super NAHashDictionaryIterator<QRIntrusiveSharedPtr<K>, QRIntrusiveSharedPtr<V> >
+#define super NAHashDictionaryIterator<QRIntrusiveSharedPtr<K>, QRIntrusiveSharedPtr<V> >
   template <class K, class V>
   class SharedPtrHashIterator : public super
   {
@@ -1075,8 +985,8 @@ class NAIntrusiveSharedPtrObject
       value = *vp;
     }
   }; // class SharedPtrHashIterator
-  #undef super
-#endif // #ifdef _MEMSHAREDPTR
+#undef super
+#endif  // #ifdef _MEMSHAREDPTR
 
 /**
  * SharedPtrKeyHash: a NAHashDictionary for use with Shared Pointers.
@@ -1273,66 +1183,47 @@ public:
 // Not used for now.
 #endif
 
-class StringPtrSet : public NABasicObject
-{
-public:
-  StringPtrSet(CollHeap* heap)
-    : theList_(heap)
-  { }
+class StringPtrSet : public NABasicObject {
+ public:
+  StringPtrSet(CollHeap *heap) : theList_(heap) {}
 
-  CollIndex entries() const 
-  {
-    return theList_.entries();
-  }
+  CollIndex entries() const { return theList_.entries(); }
 
-  const NAString* operator[](CollIndex i) const
-  {
-    return theList_[i];
-  }
+  const NAString *operator[](CollIndex i) const { return theList_[i]; }
 
-  NABoolean contains(const NAString* str)
-  {
+  NABoolean contains(const NAString *str) {
     CollIndex maxEntries = theList_.entries();
-    for (CollIndex i=0; i<maxEntries; i++)
-    {
-      if (*theList_[i] == *str)
-        return TRUE;
+    for (CollIndex i = 0; i < maxEntries; i++) {
+      if (*theList_[i] == *str) return TRUE;
     }
 
     return FALSE;
   }
 
-  void insert(const NAString* str)
-  {
+  void insert(const NAString *str) {
     // Check if duplicate
-    if (contains(str))
-      return;
+    if (contains(str)) return;
 
     // Do the insert.
     theList_.insert(str);
   }
 
-  void insert(const StringPtrSet& other)
-  {
+  void insert(const StringPtrSet &other) {
     CollIndex maxEntries = other.entries();
-    for (CollIndex i=0; i<maxEntries; i++)
-      insert(other[i]);
+    for (CollIndex i = 0; i < maxEntries; i++) insert(other[i]);
   }
 
-  void remove(const NAString* str)
-  {
+  void remove(const NAString *str) {
     CollIndex maxEntries = theList_.entries();
-    for (CollIndex i=0; i<maxEntries; i++)
-      if (*theList_[i] == *str)
-      {
+    for (CollIndex i = 0; i < maxEntries; i++)
+      if (*theList_[i] == *str) {
         theList_.removeAt(i);
         return;
       }
   }
 
-private:
-  NAList<const NAString*>   theList_;
+ private:
+  NAList<const NAString *> theList_;
 };  // class StringPtrSet
 
-
-#endif  /* _QRSHAREDPTR_H_ */
+#endif /* _QRSHAREDPTR_H_ */

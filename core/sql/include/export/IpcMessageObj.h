@@ -26,7 +26,7 @@
 * File:         IpcMessageObj.h (previously under /common)
 * Description:  IpcMessageObj is the base class for objects that need to
 *		be sent across an IPC interface (see file common/Ipc.h).
-*		
+*
 * Created:      5/6/98
 * Language:     C++
 *
@@ -40,7 +40,6 @@
 
 #include "common/Platform.h"
 #include "common/str.h"
-
 
 #include "common/IpcMessageType.h"
 #include "common/CollHeap.h"
@@ -73,30 +72,27 @@ class IpcMessageBuffer;
 // the message. A virtual method can also be used to determine the
 // length of the message when it gets packed into the message.
 // -----------------------------------------------------------------------
-class IpcMessageObj
-{
+class IpcMessageObj {
   friend class IpcMessageStream;
   friend class IpcBufferedMsgStream;
-  friend class SockSocket; // to access message header information
+  friend class SockSocket;  // to access message header information
 
   // A friend function to enable internal integrity checks in
   // IpcMessageBuffer objects.
   friend NABoolean verifyIpcMessageBufferBackbone(IpcMessageBuffer &);
 
-public:
-
+ public:
   // ---------------------------------------------------------------------
   // Constructor, to be used by derived classes to specify type and
   // version of the object.
   // ---------------------------------------------------------------------
-  IpcMessageObj(IpcMessageObjType objType,
-			   IpcMessageObjVersion version);
+  IpcMessageObj(IpcMessageObjType objType, IpcMessageObjVersion version);
 
   // constructor used to perform copyless receive, maps packed object in place.
   // Derived class should handle endianness. A message stream may route
   // a message after unpacking some of the objects so a message object must
   // deal with potentially being unpacked multiple times.
-  IpcMessageObj(IpcBufferedMsgStream* msgStream);
+  IpcMessageObj(IpcBufferedMsgStream *msgStream);
 
   // destructor
   virtual ~IpcMessageObj();
@@ -110,43 +106,37 @@ public:
   // objects must be derived from IpcMessageObj. Unpacking complex
   // objects on the receive side must be in same order as construction
   // on the send side.
-  void* operator new(size_t size,
-                                IpcBufferedMsgStream& msgStream,
-                                IpcMessageObjSize appendDataLen = 0);
+  void *operator new(size_t size, IpcBufferedMsgStream &msgStream, IpcMessageObjSize appendDataLen = 0);
 
   // used to perform copyless receive. User must get packedObj from
   // IpcBufferedMsgStream::receiveMsgObj(). "new" sets "this = packedObj"
   // for constructor so object can be mapped inplace.
-  void* operator new(size_t size, IpcMessageObj* packedObj)
-    { return packedObj; }
-
+  void *operator new(size_t size, IpcMessageObj *packedObj) { return packedObj; }
 
   // interface to global ::operator new
-  void* operator new(size_t size, CollHeap* h = NULL)
-    { return (h ? h->allocateMemory(size) : ::operator new(size)); }
+  void *operator new(size_t size, CollHeap *h = NULL) { return (h ? h->allocateMemory(size) : ::operator new(size)); }
 
-
-
-  void operator delete(void *ptr)       { ::operator delete(ptr); }
+  void operator delete(void *ptr) { ::operator delete(ptr); }
 
   // ---------------------------------------------------------------------
   // accessor methods
   // ---------------------------------------------------------------------
-  Int32 getType() const                  { return (Int32) s_.objType_; }
-  Int32 getObjLength() const           { return (Int32) s_.objLength_; }
+  Int32 getType() const { return (Int32)s_.objType_; }
+  Int32 getObjLength() const { return (Int32)s_.objLength_; }
   IpcMessageObjVersion getVersion() const { return s_.objVersion_; }
-  void setType(IpcMessageObjType t)             { s_.objType_ = t; }
-  void setVersion(IpcMessageObjVersion v)    { s_.objVersion_ = v; }
+  void setType(IpcMessageObjType t) { s_.objType_ = t; }
+  void setVersion(IpcMessageObjVersion v) { s_.objVersion_ = v; }
 
   char getEndianness() const { return s_.endianness_; }
   void setEndianness(char e) { s_.endianness_ = e; }
 
   // ---------------------------------------------------------------------
-  // A way for the user object to tell if the actual version is OK. 
+  // A way for the user object to tell if the actual version is OK.
   // The default is that the actual version is OK only if it matches the object.
-  // 
-  virtual NABoolean isActualVersionOK (const IpcMessageObjVersion actualVersion) const
-    { return (actualVersion == s_.objVersion_);}
+  //
+  virtual NABoolean isActualVersionOK(const IpcMessageObjVersion actualVersion) const {
+    return (actualVersion == s_.objVersion_);
+  }
 
   // ---------------------------------------------------------------------
   // A way for the user object to tell the message system how much space
@@ -164,14 +154,11 @@ public:
   // requirements of the IpcMessageObj base class (which must be included
   // in the returned result).
   // ---------------------------------------------------------------------
-  virtual IpcMessageObjSize packedLength()
-    { return (IpcMessageObjSize) sizeof(*this); }
+  virtual IpcMessageObjSize packedLength() { return (IpcMessageObjSize)sizeof(*this); }
 
   // hard-code the IpcMessageObj class size on 32-bit mode
   // maybe baseClassPackedLength32 is actually used
-  virtual IpcMessageObjSize packedLength32()
-    { return SQL_32BIT_IPC_MESSAGE_OBJ_SIZE; }
-
+  virtual IpcMessageObjSize packedLength32() { return SQL_32BIT_IPC_MESSAGE_OBJ_SIZE; }
 
   // ---------------------------------------------------------------------
   // A method to take a user object and pack it into a message
@@ -186,17 +173,13 @@ public:
   // in the call. It is safe, however, to assume that the packed length
   // of the header is the same as its unpacked length (32 bytes, see below).
   // ---------------------------------------------------------------------
-  virtual IpcMessageObjSize packObjIntoMessage(
-       IpcMessageBufferPtr buffer);
+  virtual IpcMessageObjSize packObjIntoMessage(IpcMessageBufferPtr buffer);
 
-  virtual IpcMessageObjSize packObjIntoMessage(
-       IpcMessageBufferPtr buffer, NABoolean swapBytes);
+  virtual IpcMessageObjSize packObjIntoMessage(IpcMessageBufferPtr buffer, NABoolean swapBytes);
 
-  virtual IpcMessageObjSize packObjIntoMessage32(
-       IpcMessageBufferPtr buffer);
+  virtual IpcMessageObjSize packObjIntoMessage32(IpcMessageBufferPtr buffer);
 
-  virtual IpcMessageObjSize packObjIntoMessage32(
-       IpcMessageBufferPtr buffer, NABoolean swapBytes);
+  virtual IpcMessageObjSize packObjIntoMessage32(IpcMessageBufferPtr buffer, NABoolean swapBytes);
 
   // ---------------------------------------------------------------------
   // Unpack this object from a buffer (overwrites all existing data
@@ -213,17 +196,11 @@ public:
   //   IpcMessageObj, see baseClassPackedLength() method)
   // - the array of bytes that contains the packed data
   // ---------------------------------------------------------------------
-  virtual void unpackObj(IpcMessageObjType objType,
-				    IpcMessageObjVersion objVersion,
-				    NABoolean sameEndianness,
-				    IpcMessageObjSize objSize,
-				    IpcConstMessageBufferPtr buffer);
+  virtual void unpackObj(IpcMessageObjType objType, IpcMessageObjVersion objVersion, NABoolean sameEndianness,
+                         IpcMessageObjSize objSize, IpcConstMessageBufferPtr buffer);
 
-  virtual void unpackObj32(IpcMessageObjType objType,
-				    IpcMessageObjVersion objVersion,
-				    NABoolean sameEndianness,
-				    IpcMessageObjSize objSize,
-				    IpcConstMessageBufferPtr buffer);
+  virtual void unpackObj32(IpcMessageObjType objType, IpcMessageObjVersion objVersion, NABoolean sameEndianness,
+                           IpcMessageObjSize objSize, IpcConstMessageBufferPtr buffer);
 
   // ---------------------------------------------------------------------
   // increment/decrement refcounts (indicates how many users the
@@ -260,7 +237,7 @@ public:
   // ---------------------------------------------------------------------
   virtual IpcMessageRefCount incrRefCount();
   virtual IpcMessageRefCount decrRefCount();
-  IpcMessageRefCount getRefCount()     { return s_.refCount_; }
+  IpcMessageRefCount getRefCount() { return s_.refCount_; }
 
   // ---------------------------------------------------------------------
   // Helper methods for derived classes that override the
@@ -268,34 +245,27 @@ public:
   // ---------------------------------------------------------------------
 
   // find out the packed length of the base class part of this object
-  inline IpcMessageObjSize baseClassPackedLength()
-                                                   {return sizeof(*this);}
+  inline IpcMessageObjSize baseClassPackedLength() { return sizeof(*this); }
 
   // find out the packed length of the 32-bit base class part of this object
-  inline IpcMessageObjSize baseClassPackedLength32()
-                                  {return SQL_32BIT_IPC_MESSAGE_OBJ_SIZE;}
+  inline IpcMessageObjSize baseClassPackedLength32() { return SQL_32BIT_IPC_MESSAGE_OBJ_SIZE; }
 
   // pack the base class part of this object into the buffer and side-effect
   // the buffer pointer to point past that packed object
-  IpcMessageObjSize packBaseClassIntoMessage(
-       IpcMessageBufferPtr &buffer);
+  IpcMessageObjSize packBaseClassIntoMessage(IpcMessageBufferPtr &buffer);
 
   // pack the base class to be read by 32-bit (BDR) client
-  IpcMessageObjSize packBaseClassIntoMessage32(
-       IpcMessageBufferPtr &buffer, NABoolean swapBytes);
+  IpcMessageObjSize packBaseClassIntoMessage32(IpcMessageBufferPtr &buffer, NABoolean swapBytes);
 
-  // pack the base class part of this object into the buffer after swapping 
+  // pack the base class part of this object into the buffer after swapping
   // if swapBytes is true
   // and side-effect the buffer pointer to point past that packed object
-  IpcMessageObjSize packBaseClassIntoMessage(
-       IpcMessageBufferPtr &buffer, NABoolean swapBytes);
+  IpcMessageObjSize packBaseClassIntoMessage(IpcMessageBufferPtr &buffer, NABoolean swapBytes);
 
   // add filler to a buffer pointer so it points to an 8 byte aligned address
   // (must be done before packing a dependent IpcMessageObj into a buffer)
-  static void alignBufferForNextObj(
-       IpcConstMessageBufferPtr &buffer);
-  static void alignBufferForNextObj(
-       IpcMessageBufferPtr &buffer);
+  static void alignBufferForNextObj(IpcConstMessageBufferPtr &buffer);
+  static void alignBufferForNextObj(IpcMessageBufferPtr &buffer);
 
   // do the same as alignBufferForNextObj, but with a size instead of a buffer
   static void alignSizeForNextObj(IpcMessageObjSize &size);
@@ -307,34 +277,26 @@ public:
   // unpack base class got from 32-bit server
   void unpackBaseClass32(IpcConstMessageBufferPtr &buffer);
 
-  IpcMessageObjSize packDependentObjIntoMessage(
-       IpcMessageBufferPtr buffer, NABoolean swapBytes);
+  IpcMessageObjSize packDependentObjIntoMessage(IpcMessageBufferPtr buffer, NABoolean swapBytes);
 
   // pack a dependent object that is also an IpcMessageObj into a buffer
   // (don't call packObjIntoMessage() directly to do this)
-  IpcMessageObjSize packDependentObjIntoMessage(
-       IpcMessageBufferPtr buffer);
+  IpcMessageObjSize packDependentObjIntoMessage(IpcMessageBufferPtr buffer);
 
-  IpcMessageObjSize packDependentObjIntoMessage32(
-       IpcMessageBufferPtr buffer, NABoolean swapBytes);
+  IpcMessageObjSize packDependentObjIntoMessage32(IpcMessageBufferPtr buffer, NABoolean swapBytes);
 
   // pack a dependent object that is also an IpcMessageObj into a buffer
   // (don't call packObjIntoMessage() directly to do this)
-  IpcMessageObjSize packDependentObjIntoMessage32(
-       IpcMessageBufferPtr buffer);
+  IpcMessageObjSize packDependentObjIntoMessage32(IpcMessageBufferPtr buffer);
 
   // unpack a dependent IpcMessageObj object from a buffer and side-effect
   // the buffer to point directly past the object that was unpacked
   // (this methods reads object type and version from the buffer and
   // then calls the virtual method unpackObj(), so it needs to be
   // called on the dependent object that has its virtual function ptr. set up)
-  void unpackDependentObjFromBuffer(
-       IpcConstMessageBufferPtr &buffer,
-       NABoolean sameEndianness);
+  void unpackDependentObjFromBuffer(IpcConstMessageBufferPtr &buffer, NABoolean sameEndianness);
 
-  void unpackDependentObjFromBuffer32(
-       IpcConstMessageBufferPtr &buffer,
-       NABoolean sameEndianness);
+  void unpackDependentObjFromBuffer32(IpcConstMessageBufferPtr &buffer, NABoolean sameEndianness);
 
   // ---------------------------------------------------------------------
   // The following "check" methods are used prior to unpacking to
@@ -348,32 +310,24 @@ public:
   // checkBaseClass() and checkDependentObj() are non-virtual helper
   // functions that can be used in overridden checkObj() methods.
   // ---------------------------------------------------------------------
-  virtual NABoolean checkObj(IpcMessageObjType t,
-                             IpcMessageObjVersion v,
-                             NABoolean sameEndianness,
-                             IpcMessageObjSize size,
-                             IpcConstMessageBufferPtr buffer) const;
+  virtual NABoolean checkObj(IpcMessageObjType t, IpcMessageObjVersion v, NABoolean sameEndianness,
+                             IpcMessageObjSize size, IpcConstMessageBufferPtr buffer) const;
 
-  NABoolean checkDependentObj(IpcConstMessageBufferPtr &buffer,
-                              NABoolean sameEndianness) const;
+  NABoolean checkDependentObj(IpcConstMessageBufferPtr &buffer, NABoolean sameEndianness) const;
 
-  NABoolean checkBaseClass(IpcMessageObjType t,
-                           IpcMessageObjVersion v,
-                           NABoolean sameEndianness,
-                           IpcMessageObjSize size,
-                           IpcConstMessageBufferPtr &buffer) const;
+  NABoolean checkBaseClass(IpcMessageObjType t, IpcMessageObjVersion v, NABoolean sameEndianness,
+                           IpcMessageObjSize size, IpcConstMessageBufferPtr &buffer) const;
 
   IpcMessageObj *getNextFromOffset();
-protected:
 
+ protected:
   // turn the representation of the internal object from little-endian
   // to big-endian and vice versa (used by communication services that
   // talk between big-endians and little-endians, e.g. sockets)
-public:
+ public:
   void turnByteOrder();
-  
-private:
 
+ private:
   // Called to check if IpcMessageObj in IpcMessageBuffer is available for
   // recycle. Derived classes MUST define if using copyless receive and object
   // needs to persist beyond the unpacking of the complete receive message. If
@@ -381,35 +335,32 @@ private:
   // to persist until the current receive message is advanced via
   // IpcBufferedMsgStream::getNextReceiveMsg().
 
-  virtual NABoolean msgObjIsFree()
-    { return(TRUE); }
+  virtual NABoolean msgObjIsFree() { return (TRUE); }
 
   // prepare object for send. Called prior to sending the IPC message via
   // IpcBufferedMsgStream::prepSendMsgForOutput(). Derived class may define
   // to deal with transport issues such as changing pointers to offsets, etc.
 
-  virtual void prepMsgObjForSend()
-    { return; }
-                  
+  virtual void prepMsgObjForSend() { return; }
+
   // merge next packed message object in IpcMessageBuffer with this object
   void mergeNextPackedObj();
 
   // make the data members reside in their own struct, since this is the unit
   // of transfer between in-memory objects and messages
   // NOTE: the struct does not contain the _vptr data member of the class!!!
-  struct IpcMessageObjStruct
-    {
-      IpcMessageObjType     objType_;    
-      IpcMessageObjVersion  objVersion_; 
-      IpcMessageRefCount    refCount_;
-      IpcMessageObjSize     objLength_;  // used by IpcMessageStream only
-      IpcMessageObj         *next_;      // IpcBufferedMsgStream - offset only
-                                         // IpcMessageStream - offset and ptr
-      char endianness_;                  // big-endian, little endian
-      char spare1_;                      // spare for future use
-      short spare2_;                     // spare for future use
-      char* vPtrPad_;                    // if NT or HSC, allocate space for NSK vptr
-    } s_;
+  struct IpcMessageObjStruct {
+    IpcMessageObjType objType_;
+    IpcMessageObjVersion objVersion_;
+    IpcMessageRefCount refCount_;
+    IpcMessageObjSize objLength_;  // used by IpcMessageStream only
+    IpcMessageObj *next_;          // IpcBufferedMsgStream - offset only
+                                   // IpcMessageStream - offset and ptr
+    char endianness_;              // big-endian, little endian
+    char spare1_;                  // spare for future use
+    short spare2_;                 // spare for future use
+    char *vPtrPad_;                // if NT or HSC, allocate space for NSK vptr
+  } s_;
 
   // ---------------------------------------------------------------------
   // we assume a 32 byte layout of this object that is as follows:
@@ -445,15 +396,13 @@ private:
   // starts on an address that is aligned on an 8 byte boundary.
   // ---------------------------------------------------------------------
 
-  char *getMyVPtr()      { return ((char **) (&this[0]))[0];  }
-  void setMyVPtr(char *v)   { ((char **) (&this[0]))[0] = v; }
+  char *getMyVPtr() { return ((char **)(&this[0]))[0]; }
+  void setMyVPtr(char *v) { ((char **)(&this[0]))[0] = v; }
   // return a pointer to the next object in the message by converting
   // the relative offset stored in next_ back into a pointer
 
-
   // convert the next_ pointer into an offset
   void convertNextToOffset();
-
 };
 
 // -----------------------------------------------------------------------
@@ -462,52 +411,41 @@ private:
 // has sufficient space for an item of a given size.
 // -----------------------------------------------------------------------
 
-IpcMessageObjSize packCharStarIntoBuffer(IpcMessageBufferPtr &buffer,
-						    char* strPtr,
-                                                  NABoolean swapBytes = FALSE);
+IpcMessageObjSize packCharStarIntoBuffer(IpcMessageBufferPtr &buffer, char *strPtr, NABoolean swapBytes = FALSE);
 
 // UR2
-IpcMessageObjSize packCharStarIntoBuffer(IpcMessageBufferPtr &buffer, 
-                                 NAWchar* strPtr,
-                                 NABoolean swapBytes = FALSE);
+IpcMessageObjSize packCharStarIntoBuffer(IpcMessageBufferPtr &buffer, NAWchar *strPtr, NABoolean swapBytes = FALSE);
 
-inline IpcMessageObjSize packStrIntoBuffer(char* &buffer,
-                                                      char* targetObj,
-                                                      ULng32 objSize)
-{
+inline IpcMessageObjSize packStrIntoBuffer(char *&buffer, char *targetObj, ULng32 objSize) {
   str_cpy_all(buffer, targetObj, (Lng32)objSize);
   buffer += objSize;
   return objSize;
 }
 
-void unpackBuffer(const char* &buffer,
-			     char* &strPtr, CollHeap* collHeapPtr);
+void unpackBuffer(const char *&buffer, char *&strPtr, CollHeap *collHeapPtr);
 
-inline void unpackStrFromBuffer(const char* &buffer,
-                                           char* targetObj,
-                                           ULng32 objSize)
-{
+inline void unpackStrFromBuffer(const char *&buffer, char *targetObj, ULng32 objSize) {
   str_cpy_all(targetObj, buffer, (Lng32)objSize);
   buffer += objSize;
 }
 
-void skipCharStarInBuffer(const char* &buffer);
+void skipCharStarInBuffer(const char *&buffer);
 
-NABoolean checkBuffer (
+NABoolean checkBuffer(
     /* INOUT */ IpcConstMessageBufferPtr &buffer,
     /* IN    */ ULng32 dataLength,
-    /* IN    */ IpcConstMessageBufferPtr lastByte );
+    /* IN    */ IpcConstMessageBufferPtr lastByte);
 
-NABoolean checkAndUnpackBuffer (
+NABoolean checkAndUnpackBuffer(
     /* INOUT */ IpcConstMessageBufferPtr &buffer,
     /* IN    */ ULng32 dataLength,
     /* OUT   */ char *dataPtr,
-    /* IN    */ IpcConstMessageBufferPtr lastByte );
+    /* IN    */ IpcConstMessageBufferPtr lastByte);
 
-NABoolean checkCharStarInBuffer (
+NABoolean checkCharStarInBuffer(
     /* INOUT */ IpcConstMessageBufferPtr &buffer,
     /* IN    */ NABoolean sameEndianness,
-    /* IN    */ IpcConstMessageBufferPtr lastByte );
+    /* IN    */ IpcConstMessageBufferPtr lastByte);
 
 // An integrity check epilogue function is provided here. It should be
 // called whenever an overridden IpcMessageObj::checkObj()
@@ -521,85 +459,83 @@ NABoolean checkCharStarInBuffer (
 void ipcIntegrityCheckEpilogue(NABoolean status);
 
 template <class ScalarType>
-inline IpcMessageObjSize packIntoBuffer(char* &buffer, 
-		ScalarType scalarVariable)
-{
+inline IpcMessageObjSize packIntoBuffer(char *&buffer, ScalarType scalarVariable) {
   // * (ScalarType *) buffer = scalarVariable;
-  str_cpy_all(buffer,(char*)&scalarVariable,sizeof(ScalarType));
+  str_cpy_all(buffer, (char *)&scalarVariable, sizeof(ScalarType));
   buffer += sizeof(ScalarType);
   return sizeof(ScalarType);
 }
 
 template <class ScalarType>
-inline IpcMessageObjSize packIntoBuffer(char* &buffer, 
-		ScalarType scalarVariable,
-                NABoolean swapBytes)
-{
-  if (swapBytes)
-  {
-     switch (sizeof(ScalarType))
-     {
-        case 2:
-          scalarVariable = (ScalarType)bswap_16(scalarVariable);
-          break;
-        case 4:
-          scalarVariable = (ScalarType)bswap_32(scalarVariable);
-          break;
-        case 8:
-          scalarVariable = (ScalarType)bswap_64(scalarVariable);
-          break;
-     }
+inline IpcMessageObjSize packIntoBuffer(char *&buffer, ScalarType scalarVariable, NABoolean swapBytes) {
+  if (swapBytes) {
+    switch (sizeof(ScalarType)) {
+      case 2:
+        scalarVariable = (ScalarType)bswap_16(scalarVariable);
+        break;
+      case 4:
+        scalarVariable = (ScalarType)bswap_32(scalarVariable);
+        break;
+      case 8:
+        scalarVariable = (ScalarType)bswap_64(scalarVariable);
+        break;
+    }
   }
   // * (ScalarType *) buffer = scalarVariable;
-  str_cpy_all(buffer,(char*)&scalarVariable,sizeof(ScalarType));
+  str_cpy_all(buffer, (char *)&scalarVariable, sizeof(ScalarType));
   buffer += sizeof(ScalarType);
   return sizeof(ScalarType);
 }
 
 template <class ScalarType>
-inline void unpackBuffer(const char* &buffer,
-				    ScalarType& scalarVariable)
-{
+inline void unpackBuffer(const char *&buffer, ScalarType &scalarVariable) {
   // scalarVariable = * (ScalarType *) buffer;
-  ScalarType  temp;
-  str_cpy_all((char*) &temp,buffer,sizeof(ScalarType));
+  ScalarType temp;
+  str_cpy_all((char *)&temp, buffer, sizeof(ScalarType));
   scalarVariable = temp;
   buffer += sizeof(ScalarType);
 }
 
-inline void swapFourBytes(UInt32 &b4)
-{
-  char *c4 = (char *) (&b4);
+inline void swapFourBytes(UInt32 &b4) {
+  char *c4 = (char *)(&b4);
   char x;
 
-  x = c4[0]; c4[0] = c4[3]; c4[3] = x;
-  x = c4[1]; c4[1] = c4[2]; c4[2] = x;
+  x = c4[0];
+  c4[0] = c4[3];
+  c4[3] = x;
+  x = c4[1];
+  c4[1] = c4[2];
+  c4[2] = x;
 }
 
-inline void swapFourBytes(Int32 &b4)
-{
-  char *c4 = (char *) (&b4);
+inline void swapFourBytes(Int32 &b4) {
+  char *c4 = (char *)(&b4);
   char x;
 
-  x = c4[0]; c4[0] = c4[3]; c4[3] = x;
-  x = c4[1]; c4[1] = c4[2]; c4[2] = x;
+  x = c4[0];
+  c4[0] = c4[3];
+  c4[3] = x;
+  x = c4[1];
+  c4[1] = c4[2];
+  c4[2] = x;
 }
 
-inline void swapTwoBytes(unsigned short &b2)
-{
-  char *c2 = (char *) (&b2);
+inline void swapTwoBytes(unsigned short &b2) {
+  char *c2 = (char *)(&b2);
   char x;
 
-  x = c2[0]; c2[0] = c2[1]; c2[1] = x;
+  x = c2[0];
+  c2[0] = c2[1];
+  c2[1] = x;
 }
 
-inline void swapTwoBytes(short &b2)
-{
-  char *c2 = (char *) (&b2);
+inline void swapTwoBytes(short &b2) {
+  char *c2 = (char *)(&b2);
   char x;
 
-  x = c2[0]; c2[0] = c2[1]; c2[1] = x;
+  x = c2[0];
+  c2[0] = c2[1];
+  c2[1] = x;
 }
 
-#endif  /* IPCMESSAGEOBJ_H */
-
+#endif /* IPCMESSAGEOBJ_H */

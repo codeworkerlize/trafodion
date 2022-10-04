@@ -28,7 +28,7 @@
  * File:         ex_transaction.h
  * Description:  TCB/TDB for transaction-related SQL statements
  *               and ExTransaction object that represents a TMF transaction
- *               
+ *
  * Created:      7/10/95
  * Language:     C++
  *
@@ -46,37 +46,29 @@
 #include "ex_error.h"
 #include "common/Int64.h"
 
-
 #define NULL_SAVEPOINT_ID -1
 
 struct TmfPhandle_Struct {
-  short  Data[10];
+  short Data[10];
 };
-
 
 class CliGlobals;
 class ExpHbaseInterface;
 
-
 enum SavepointState {
-  SP_SPNONE          = 0,
-  SP_GENERATED       = 1,
-  SP_TO_COMMIT       = 2,
-  SP_TO_ROLLBACK     = 3,
-  SP_COMMIT_FAILED   = 4,
+  SP_SPNONE = 0,
+  SP_GENERATED = 1,
+  SP_TO_COMMIT = 2,
+  SP_TO_ROLLBACK = 3,
+  SP_COMMIT_FAILED = 4,
   SP_ROLLBACK_FAILED = 5
 };
 
-
-class ExSavepointElement
-{
-public:
+class ExSavepointElement {
+ public:
   ExSavepointElement() {}
-  ExSavepointElement(NAString svptName, Int64 svptId, SavepointState state) :
-    savepointName_(svptName),
-    savepointId_(svptId),
-    savepointState_(state)
-  {}
+  ExSavepointElement(NAString svptName, Int64 svptId, SavepointState state)
+      : savepointName_(svptName), savepointId_(svptId), savepointState_(state) {}
 
   inline NAString getElemSavepointName() { return savepointName_; }
   inline Int64 getElemSavepointId() { return savepointId_; }
@@ -85,26 +77,20 @@ public:
   void setElemSavepointId(Int64 svptId) { savepointId_ = svptId; }
   void setElemSavepointState(SavepointState newState) { savepointState_ = newState; }
 
-private:
+ private:
   NAString savepointName_;
   Int64 savepointId_;
   SavepointState savepointState_;
 };
 
-class ExSavepointStack : public NAList<ExSavepointElement>
-{
-public:
-  ExSavepointStack(CollHeap* h = NULL) :
-    lastSvptId_(-1),
-    NAList<ExSavepointElement>(h ? h : STMTHEAP) {};
+class ExSavepointStack : public NAList<ExSavepointElement> {
+ public:
+  ExSavepointStack(CollHeap *h = NULL) : lastSvptId_(-1), NAList<ExSavepointElement>(h ? h : STMTHEAP){};
 
-  short removeByName(NAString svptName)
-  {
+  short removeByName(NAString svptName) {
     short ret = -1;
-    for (int i = 0; i < entries(); i++)
-    {
-      if (at(i).getElemSavepointName() == svptName)
-      {
+    for (int i = 0; i < entries(); i++) {
+      if (at(i).getElemSavepointName() == svptName) {
         removeAt(i);
         ret = 0;
       }
@@ -113,86 +99,67 @@ public:
     return ret;
   }
 
-  void push(NAString svptName, Int64 svptId, SavepointState state)
-  {
+  void push(NAString svptName, Int64 svptId, SavepointState state) {
     ExSavepointElement svpt(svptName, svptId, state);
     removeByName(svptName);
     append(svpt);
     lastSvptId_ = svptId;
   }
 
-  short pop(ExSavepointElement &elem)
-  {
-    return getLast(elem) ? 0 : -1;
-  }
+  short pop(ExSavepointElement &elem) { return getLast(elem) ? 0 : -1; }
 
-  short popToSvpt(NAString svptName)
-  {
+  short popToSvpt(NAString svptName) {
     short ret = 0;
     int cnt = 0;
 
-    for (; cnt < entries(); cnt++)
-    {
-      if (at(entries() - cnt - 1).getElemSavepointName() == svptName)
-        break;
+    for (; cnt < entries(); cnt++) {
+      if (at(entries() - cnt - 1).getElemSavepointName() == svptName) break;
     }
 
     // no savepoint found
-    if (cnt >= entries())
-      return -1;
+    if (cnt >= entries()) return -1;
 
     ExSavepointElement elem;
-    for (int i = 0; 0 == ret && i < cnt; i++)
-      ret += pop(elem);
+    for (int i = 0; 0 == ret && i < cnt; i++) ret += pop(elem);
 
     return ret;
   }
 
-  Int64 getCurrentSvptId()
-  {
-    if (isEmpty())
-      return NULL_SAVEPOINT_ID;
+  Int64 getCurrentSvptId() {
+    if (isEmpty()) return NULL_SAVEPOINT_ID;
 
-    return at(entries()-1).getElemSavepointId();
+    return at(entries() - 1).getElemSavepointId();
   }
 
-  Int64 getCurrentPSvptId()
-  {
+  Int64 getCurrentPSvptId() {
     if (entries() > 1)
       return at(entries() - 2).getElemSavepointId();
     else
       return NULL_SAVEPOINT_ID;
   }
 
-  Int64 getCurrentPPSvptId()
-  {
+  Int64 getCurrentPPSvptId() {
     if (entries() > 2)
       return at(entries() - 3).getElemSavepointId();
     else
       return NULL_SAVEPOINT_ID;
   }
 
-  NABoolean setCurrentSvptId(Int64 svptId)
-  {
-    if (isEmpty())
-      return FALSE;
+  NABoolean setCurrentSvptId(Int64 svptId) {
+    if (isEmpty()) return FALSE;
 
     at(entries() - 1).setElemSavepointId(svptId);
     return TRUE;
   }
 
-  SavepointState getCurrentSvptState()
-  {
-    if (isEmpty())
-      return SP_SPNONE;
+  SavepointState getCurrentSvptState() {
+    if (isEmpty()) return SP_SPNONE;
 
-    return at(entries()-1).getElemSavepointState();
+    return at(entries() - 1).getElemSavepointState();
   }
 
-  NABoolean setCurrentSvptState(SavepointState svptState)
-  {
-    if (isEmpty())
-      return FALSE;
+  NABoolean setCurrentSvptState(SavepointState svptState) {
+    if (isEmpty()) return FALSE;
 
     at(entries() - 1).setElemSavepointState(svptState);
     return TRUE;
@@ -201,26 +168,24 @@ public:
   void resetLastSvptId() { lastSvptId_ = -1; }
   Int64 getLastSvptId() { return lastSvptId_; }
 
-private:
+ private:
   Int64 lastSvptId_;
 };
 
-class ExTransaction : public NABasicObject
-{
-public:
-
+class ExTransaction : public NABasicObject {
+ public:
   // this flag is part of savepoint id to deliver flags to coprocessor side
   enum SavepointFlags {
     SP_FLAG_IS_IMPLICIT = 0x0100000000000000,
-    SP_FLAG_UNKNOWN     = 0x8000000000000000//should not be used
+    SP_FLAG_UNKNOWN = 0x8000000000000000  // should not be used
   };
 
-  ExTransaction(CliGlobals * cliGlob, CollHeap *heap);
+  ExTransaction(CliGlobals *cliGlob, CollHeap *heap);
   virtual ~ExTransaction();
-  
+
   //////////////////////////////////////////////////////////////
   // Methods to perform transaction related operations.
-  // Used for explicit (called by application via cli calls) 
+  // Used for explicit (called by application via cli calls)
   // and implicit (called internally when a statement requires
   // a transaction and one is not already running) transaction
   // operations.
@@ -249,17 +214,16 @@ public:
 
   short inheritTransaction();
   short validateTransaction();
-  short setProcessTransToContextTrans
-    (TmfPhandle_Struct * oldProcessTransId, /* out */
-     NABoolean & processTransactionChanged /* out */);
-  short resetProcessTrans(TmfPhandle_Struct * oldProcessTransId);
+  short setProcessTransToContextTrans(TmfPhandle_Struct *oldProcessTransId, /* out */
+                                      NABoolean &processTransactionChanged /* out */);
+  short resetProcessTrans(TmfPhandle_Struct *oldProcessTransId);
 
-  NABoolean xnInProgress()	{ return getTransMode()->xnInProgress(); }
+  NABoolean xnInProgress() { return getTransMode()->xnInProgress(); }
 
-  TransMode * getTransMode()	{ return transMode_; }
-  TransMode * getUserTransMode();
-  TransMode * getTransModeNext(){ return &transModeNext_; }
-  short setTransMode(TransMode * trans_mode);
+  TransMode *getTransMode() { return transMode_; }
+  TransMode *getUserTransMode();
+  TransMode *getTransModeNext() { return &transModeNext_; }
+  short setTransMode(TransMode *trans_mode);
 
   SavepointState getSavepointState();
   void setSavepointState(SavepointState s);
@@ -275,46 +239,34 @@ public:
    * txHandle, are supplied, the transaction identifier and handle also are
    * returned.
    */
-  short getCurrentXnId(Int64 *tcbref, 
-                       Int64 *transId = 0, short *txHandle = NULL);
+  short getCurrentXnId(Int64 *tcbref, Int64 *transId = 0, short *txHandle = NULL);
 
   short getCurrentSvptIdWithFlag(Int64 *svptId, Int64 *pSvptId);
 
-  short getCurrentTxHandle(short * txHandle);
+  short getCurrentTxHandle(short *txHandle);
 
   NABoolean getIsPropropagateTX();
 
   // this method returns the current Xn Id as known to executor.
-  Int64 getExeXnId()		{ return exeXnId_; }
+  Int64 getExeXnId() { return exeXnId_; }
 
   // Soln 10-050210-4624
   // This method returns the id of the current transaction.
-  Int64 getTransid()            { return transid_;}
+  Int64 getTransid() { return transid_; }
 
   // this method returns the current savepoint id, if dp2 savepoint is
   // being used for this stmt. -1, if they are not.
-  Int64 getSavepointId()
-  {
-    return savepointStack_->getCurrentSvptId();
-  }
-  Int64 getPSavepointId()
-  {
-    return savepointStack_->getCurrentPSvptId();
-  }
-  Int64 getPPSavepointId()
-  {
-    return savepointStack_->getCurrentPPSvptId();
-  }
+  Int64 getSavepointId() { return savepointStack_->getCurrentSvptId(); }
+  Int64 getPSavepointId() { return savepointStack_->getCurrentPSvptId(); }
+  Int64 getPPSavepointId() { return savepointStack_->getCurrentPPSvptId(); }
   Int64 getSavepointIdWithFlag();
   Int64 getPSavepointIdWithFlag();
   Int64 getPPSavepointIdWithFlag();
 
-  NAString getStackSavepointName()
-  {
-    if (savepointStack_->isEmpty())
-      return NAString("None");
+  NAString getStackSavepointName() {
+    if (savepointStack_->isEmpty()) return NAString("None");
 
-    return (savepointStack_->at(savepointStack_->entries()-1).getElemSavepointName());
+    return (savepointStack_->at(savepointStack_->entries() - 1).getElemSavepointName());
   }
 
   void resetStackLastSvptId() { savepointStack_->resetLastSvptId(); }
@@ -322,14 +274,11 @@ public:
 
   // this method generates a savepoint id. Its a juliantimestamp, for now.
   // If a transaction is not in progress, no savepoint id is generated.
-  //void generateSavepointId(NABoolean implicitSP = FALSE);
-  short pushSavepoint(NAString svptName)
-  {
+  // void generateSavepointId(NABoolean implicitSP = FALSE);
+  short pushSavepoint(NAString svptName) {
     Int64 svptId = NULL_SAVEPOINT_ID;
-    if (xnInProgress())
-    {
-      svptId = 1 + (getStackLastSvptId() > implicitSavepointId_ ?
-                                  getStackLastSvptId() : implicitSavepointId_);
+    if (xnInProgress()) {
+      svptId = 1 + (getStackLastSvptId() > implicitSavepointId_ ? getStackLastSvptId() : implicitSavepointId_);
 
       savepointStack_->push(svptName, svptId, SP_GENERATED);
       setSavepointState(SP_GENERATED);
@@ -339,91 +288,65 @@ public:
 
     return -1;
   }
-  short popSavepoint()
-  {
+  short popSavepoint() {
     ExSavepointElement elem;
     return savepointStack_->pop(elem);
   }
-  short removeSavepoint(NAString svptName)
-  {
-    return savepointStack_->removeByName(svptName);
-  }
-  void clearSavepoint()
-  {
+  short removeSavepoint(NAString svptName) { return savepointStack_->removeByName(svptName); }
+  void clearSavepoint() {
     savepointStack_->clear();
     savepointStack_->resetLastSvptId();
   }
 
-  void setSavepointId(Int64 sid)
-  { savepointStack_->setCurrentSvptId(sid); }
+  void setSavepointId(Int64 sid) { savepointStack_->setCurrentSvptId(sid); }
 
-  NABoolean exeStartedXn() 	{ return exeStartedXn_; }
+  NABoolean exeStartedXn() { return exeStartedXn_; }
 
-  NABoolean exeStartedXnDuringRecursiveCLICall() 	
-    { return exeStartedXnDuringRecursiveCLICall_; }
+  NABoolean exeStartedXnDuringRecursiveCLICall() { return exeStartedXnDuringRecursiveCLICall_; }
 
-  NABoolean &implicitXn() 	{ return implicitXn_; }
+  NABoolean &implicitXn() { return implicitXn_; }
 
-  NABoolean userEndedExeXn() 	{ return userEndedExeXn_; }
+  NABoolean userEndedExeXn() { return userEndedExeXn_; }
 
   void setTransId(Int64 transid);
   void disableAutoCommit();
   void enableAutoCommit();
-  
+
   // returns TRUE, if auto commit is on. Otherwise, returns FALSE.
-  NABoolean autoCommit()
-  {
-    if ((transMode_) &&
-	(transMode_->autoCommit() == TransMode::ON_))
+  NABoolean autoCommit() {
+    if ((transMode_) && (transMode_->autoCommit() == TransMode::ON_))
       return TRUE;
     else
       return FALSE;
   }
 
- // returns TRUE, if multi commit is on. Otherwise, returns FALSE.
-  NABoolean multiCommit()
-  {
-    if ((transMode_) &&
-	(transMode_->multiCommit() == TransMode::MC_ON_))
+  // returns TRUE, if multi commit is on. Otherwise, returns FALSE.
+  NABoolean multiCommit() {
+    if ((transMode_) && (transMode_->multiCommit() == TransMode::MC_ON_))
       return TRUE;
     else
       return FALSE;
   }
-  
-  ComDiagsArea *getDiagsArea() {return transDiagsArea_;}
-  inline CliGlobals *getCliGlobals() { return cliGlob_;}
 
-  void updateROVal(Int16 roval) 
-  {
-   roVal_ = roval;
-  }
-  Int16 getROVal()            { return roVal_;}
+  ComDiagsArea *getDiagsArea() { return transDiagsArea_; }
+  inline CliGlobals *getCliGlobals() { return cliGlob_; }
 
-  void updateRBVal(Int16 rbval) 
-  {
-   rbVal_ = rbval;
-  }
-  Int16 getRBVal()            { return rbVal_;}
+  void updateROVal(Int16 roval) { roVal_ = roval; }
+  Int16 getROVal() { return roVal_; }
 
-  void updateAIVal(Int32 aival) 
-  {
-   aiVal_ = aival;
-  }
-  Int32 getAIVal()            { return aiVal_;}
+  void updateRBVal(Int16 rbval) { rbVal_ = rbval; }
+  Int16 getRBVal() { return rbVal_; }
 
-  void setMayAlterDb(NABoolean x)
-  {
-    mayAlterDb_ = x;
-  }
+  void updateAIVal(Int32 aival) { aiVal_ = aival; }
+  Int32 getAIVal() { return aiVal_; }
 
-  NABoolean mayAlterDb()  { return mayAlterDb_; }
-  
-  void setMayHoldLock(NABoolean x)
-  {
-    mayHoldLock_ = x;
-  }
+  void setMayAlterDb(NABoolean x) { mayAlterDb_ = x; }
 
-  NABoolean mayHoldLock()  { return mayHoldLock_; }
+  NABoolean mayAlterDb() { return mayAlterDb_; }
+
+  void setMayHoldLock(NABoolean x) { mayHoldLock_ = x; }
+
+  NABoolean mayHoldLock() { return mayHoldLock_; }
 
   void resetXnState0();
   void saveAndResetXnState0();
@@ -433,7 +356,7 @@ public:
   void resetSavedXnState();
 
   // implicit savepoint when autocommit savepoint on
-  Int64 getImplicitSavepointId()        { return implicitSavepointId_; }
+  Int64 getImplicitSavepointId() { return implicitSavepointId_; }
   void setImplicitSavepointId(Int64 sid) { implicitSavepointId_ = sid; }
   void setImplicitPSavepointId(Int64 psid) { implicitPSavepointId_ = psid; }
   void generateImplicitSavepointId();
@@ -442,28 +365,27 @@ public:
 
   SavepointState getImplicitSavepointState() { return implicitSavepointState_; }
   void setImplicitSavepointState(SavepointState s);
-  NABoolean implicitSavepointInProgress()	{ return (implicitSavepointState_ != SP_SPNONE); }
+  NABoolean implicitSavepointInProgress() { return (implicitSavepointState_ != SP_SPNONE); }
 
   short commitImplicitSavepoint(Int64 implicitSvptId, Int64 parentSvptId);
   short rollbackImplicitSavepoint(Int64 implicitSvptId);
 
   NABoolean getAutoCommitSavepointOn();
 
-private:
-
+ private:
   // pointer to executor globals. Used to get to the open
   // cursor list. This list is needed to close all open
   // cursors at commit/rollback time.
-  CliGlobals * cliGlob_;
+  CliGlobals *cliGlob_;
 
-  // transaction attributes 
-  TransMode * transMode_;
+  // transaction attributes
+  TransMode *transMode_;
 
   // user transaction attributes that may be different to default trans mode
-  TransMode * userTransMode_;
+  TransMode *userTransMode_;
 
-  TransMode   transModeNext_;	// mode to use AFTER this trans completes
-                                // (see ComTdbControl.cpp)
+  TransMode transModeNext_;  // mode to use AFTER this trans completes
+                             // (see ComTdbControl.cpp)
 
   // Diagnostics Area for the transaction operation.
   // The transaction methods such as beginTransaction()... can be
@@ -471,9 +393,9 @@ private:
   // hold the diagnostics for such callers, who's request
   // are not sent thro' the conventional down queues.
   ComDiagsArea *transDiagsArea_;
-  ComCondition* errorCond_;
-  CollHeap* heap_;
-  
+  ComCondition *errorCond_;
+  CollHeap *heap_;
+
   short local_or_encompassing_trans;
 
   // TRUE, if executor started the transaction.
@@ -485,7 +407,7 @@ private:
   // must be committed before returning from the top-level CLI
   // call, otherwise data integrity problems could result in
   // multi-context applications.
-  NABoolean exeStartedXnDuringRecursiveCLICall_;  
+  NABoolean exeStartedXnDuringRecursiveCLICall_;
 
   // TRUE, if executor started the transaction implicitely.
   // FALSE, if the app started Xn by calling CLI or by starting
@@ -507,12 +429,12 @@ private:
   // Soln 10-050210-4624
   // The actual transaction id as known to the executor. Note that exeXnId_ is
   // actually the TCBREF associated with the transaction. exeXnId_ will be used
-  // in all the messaging with DP2, MXCMP and MXESP. 
+  // in all the messaging with DP2, MXCMP and MXESP.
   // This field will be used for interacting with TMF.
   Int64 transid_;
 
   // user named savepoints
-  ExSavepointStack * savepointStack_;
+  ExSavepointStack *savepointStack_;
 
   Int64 implicitSvptBatchCommitCount_;
 
@@ -550,12 +472,12 @@ private:
   // values saved during suspendxn and restored during resumexn
   Int64 savedExeXnId_;
   Int64 savedTransId_;
-  int   savedTransTag_;
+  int savedTransTag_;
   NABoolean savedExeStartedXn_;
   NABoolean savedXnInProgress_;
   NABoolean savedImplicitXn_;
 
-  ExpHbaseInterface * ehi_;
+  ExpHbaseInterface *ehi_;
 };
 
 ///////////////////////////////////////////////////////
@@ -576,27 +498,23 @@ class ex_tcb;
 // -----------------------------------------------------------------------
 // ExTransTdb
 // -----------------------------------------------------------------------
-class ExTransTdb : public ComTdbTransaction
-{
-public:
-
+class ExTransTdb : public ComTdbTransaction {
+ public:
   // ---------------------------------------------------------------------
   // Constructor is only called to instantiate an object used for
   // retrieval of the virtual table function pointer of the class while
   // unpacking. An empty constructor is enough.
   // ---------------------------------------------------------------------
-  ExTransTdb()
-  {}
+  ExTransTdb() {}
 
-  virtual ~ExTransTdb()
-  {}
+  virtual ~ExTransTdb() {}
 
   // ---------------------------------------------------------------------
   // Build a TCB for this TDB. Redefined in the Executor project.
   // ---------------------------------------------------------------------
   virtual ex_tcb *build(ex_globals *globals);
 
-private:
+ private:
   // ---------------------------------------------------------------------
   // !!!!!!! IMPORTANT -- NO DATA MEMBERS ALLOWED IN EXECUTOR TDB !!!!!!!!
   // *********************************************************************
@@ -616,7 +534,7 @@ private:
   // 1. Are those data members Compiler-generated?
   //    If yes, put them in the ComTdbTransaction instead.
   //    If no, they should probably belong to someplace else (like TCB).
-  // 
+  //
   // 2. Are the classes those data members belong defined in the executor
   //    project?
   //    If your answer to both questions is yes, you might need to move
@@ -624,74 +542,57 @@ private:
   // ---------------------------------------------------------------------
 };
 
-
-
 //
 // Task control block
-//   
-class ExTransTcb : public ex_tcb
-{
+//
+class ExTransTcb : public ex_tcb {
   friend class ExTransTdb;
   friend class ExTransPrivateState;
 
-public:
-  enum Step
-  {
-    EMPTY_,
-    PROCESSING_,
-    DONE_,
-    CANCELLED_
-  };
+ public:
+  enum Step { EMPTY_, PROCESSING_, DONE_, CANCELLED_ };
 
-  ExTransTcb(const ExTransTdb & trans_tdb,
-	    ex_globals * glob = 0);
+  ExTransTcb(const ExTransTdb &trans_tdb, ex_globals *glob = 0);
 
   ~ExTransTcb();
 
   virtual short work();
-  ex_queue_pair getParentQueue() const{return qparent_;}; 
-  inline Int32 orderedQueueProtocol() const{return ((const ExTransTdb &)tdb).orderedQueueProtocol();}
+  ex_queue_pair getParentQueue() const { return qparent_; };
+  inline Int32 orderedQueueProtocol() const { return ((const ExTransTdb &)tdb).orderedQueueProtocol(); }
 
   void freeResources(){};
-  
-  Int32 numChildren() const { return 0; }   
 
-  const ex_tcb* getChild(Int32 /*pos*/) const { return 0; }
+  Int32 numChildren() const { return 0; }
+
+  const ex_tcb *getChild(Int32 /*pos*/) const { return 0; }
 
   void beginTransaction(ExTransaction *ta);
   void commitTransaction(ExTransaction *ta);
   void rollbackTransaction(ExTransaction *ta);
 
-private:
-  ex_queue_pair	qparent_;
+ private:
+  ex_queue_pair qparent_;
 
   atp_struct *workAtp_;
-  
-  inline ExTransTdb & transTdb() const{return (ExTransTdb &) tdb;};
-  inline ex_expr * diagAreaSizeExpr() const 
-  { return transTdb().diagAreaSizeExpr_; };
+
+  inline ExTransTdb &transTdb() const { return (ExTransTdb &)tdb; };
+  inline ex_expr *diagAreaSizeExpr() const { return transTdb().diagAreaSizeExpr_; };
 
   // if diagsArea is not NULL, then its error code is used.
   // Otherwise, err is used to handle error.
-  void handleErrors(ex_queue_entry *pentry_down,  
-		    ComDiagsArea* diagsArea,
-		    ExeErrorCode err = EXE_INTERNAL_ERROR);
-
+  void handleErrors(ex_queue_entry *pentry_down, ComDiagsArea *diagsArea, ExeErrorCode err = EXE_INTERNAL_ERROR);
 };
 
-
-class ExTransPrivateState : public ex_tcb_private_state
-{
+class ExTransPrivateState : public ex_tcb_private_state {
   friend class ExTransTcb;
-  
-public:	
-  ExTransPrivateState(const ExTransTcb * tcb); //constructor
-  ~ExTransPrivateState();	// destructor
-  ex_tcb_private_state * allocate_new(const ex_tcb * tcb);
 
-private:
+ public:
+  ExTransPrivateState(const ExTransTcb *tcb);  // constructor
+  ~ExTransPrivateState();                      // destructor
+  ex_tcb_private_state *allocate_new(const ex_tcb *tcb);
+
+ private:
   ExTransTcb::Step step_;
-
 };
 
 #endif

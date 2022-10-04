@@ -49,89 +49,73 @@ class CostMethodSample;
 
 // Class RelSample
 
-class RelSample : public RelExpr
-{
-public:
-  enum SampleTypeEnum
-  {
-    RANDOM,
-    PERIODIC,
-    FIRSTN,
-    CLUSTER,
-    ANY
-  };
+class RelSample : public RelExpr {
+ public:
+  enum SampleTypeEnum { RANDOM, PERIODIC, FIRSTN, CLUSTER, ANY };
 
   // the constructor
-  RelSample (RelExpr *child,
-                    SampleTypeEnum sampleType = ANY,
-                    ItemExpr *balanceExpr = NULL,
-                    ItemExpr *requiredOrder = NULL,
-                    CollHeap *oHeap = CmpCommon::statementHeap());
+  RelSample(RelExpr *child, SampleTypeEnum sampleType = ANY, ItemExpr *balanceExpr = NULL,
+            ItemExpr *requiredOrder = NULL, CollHeap *oHeap = CmpCommon::statementHeap());
 
   // the desctructor
-  virtual ~RelSample ();
+  virtual ~RelSample();
 
   // RelSample operator has only one child
-  virtual Int32 getArity () const { return 1; };
+  virtual Int32 getArity() const { return 1; };
 
-  virtual const NAString getText() const {return "Sample";};
+  virtual const NAString getText() const { return "Sample"; };
 
   ValueIdList mapSortKey(const ValueIdList &sortKey) const;
 
   // Method to return data members
   //
   // Accessor methods
-  inline ValueIdList & requiredOrder() { return requiredOrder_; };
-  inline const ValueIdList & requiredOrder() const { return requiredOrder_; }
+  inline ValueIdList &requiredOrder() { return requiredOrder_; };
+  inline const ValueIdList &requiredOrder() const { return requiredOrder_; }
 
-  inline SampleTypeEnum sampleType () const { return sampleType_; };
+  inline SampleTypeEnum sampleType() const { return sampleType_; };
 
-  inline void sampleType (SampleTypeEnum type) {sampleType_ = type; };
+  inline void sampleType(SampleTypeEnum type) { sampleType_ = type; };
 
-  inline NABoolean sampleScanSucceeded () {return sampleScanSucceeded_; };
+  inline NABoolean sampleScanSucceeded() { return sampleScanSucceeded_; };
 
-  inline void setSampleScanSucceeded (NABoolean b) {sampleScanSucceeded_ = b;};
+  inline void setSampleScanSucceeded(NABoolean b) { sampleScanSucceeded_ = b; };
 
   inline ItemExpr *&balanceExprTree() { return balanceExprTree_; };
 
   inline const ItemExpr *balanceExprTree() const { return balanceExprTree_; };
 
-  inline ValueIdSet & balanceExpr() { return balanceExpr_; };
+  inline ValueIdSet &balanceExpr() { return balanceExpr_; };
 
-  inline const ValueIdSet & balanceExpr() const { return balanceExpr_; };
+  inline const ValueIdSet &balanceExpr() const { return balanceExpr_; };
 
-  inline ValueIdSet & sampledColumns() { return sampledColumns_; };
+  inline ValueIdSet &sampledColumns() { return sampledColumns_; };
 
-  inline const ValueIdSet & sampledColumns() const { return sampledColumns_; };
+  inline const ValueIdSet &sampledColumns() const { return sampledColumns_; };
 
   virtual HashValue topHash();
 
-  virtual NABoolean duplicateMatch(const RelExpr & other) const;
+  virtual NABoolean duplicateMatch(const RelExpr &other) const;
 
   virtual RelExpr *copyTopNode(RelExpr *derivedNode, CollHeap *outHeap);
 
-  virtual void addLocalExpr(LIST(ExprNode *) &xlist,
-                            LIST(NAString) &llist) const;
+  virtual void addLocalExpr(LIST(ExprNode *) & xlist, LIST(NAString) & llist) const;
 
-  virtual void getPotentialOutputValues(ValueIdSet & outputValues) const;
+  virtual void getPotentialOutputValues(ValueIdSet &outputValues) const;
 
-  virtual void pushdownCoveredExpr(const ValueIdSet & outputExprOnOperator,
-                                   const ValueIdSet &newExternalInputs,
-                                   ValueIdSet &predicatesOnParent,
-				   const ValueIdSet * setOfValuesReqdByParent = NULL,
-                                   Lng32 childIndex = (-MAX_REL_ARITY)
-                                  );
+  virtual void pushdownCoveredExpr(const ValueIdSet &outputExprOnOperator, const ValueIdSet &newExternalInputs,
+                                   ValueIdSet &predicatesOnParent, const ValueIdSet *setOfValuesReqdByParent = NULL,
+                                   Lng32 childIndex = (-MAX_REL_ARITY));
 
   ItemExpr *removeBalanceExprTree();
 
-  virtual void transformNode(NormWA &normWARef,
-                             ExprGroupId &locationOfPointerToMe);
+  virtual void transformNode(NormWA &normWARef, ExprGroupId &locationOfPointerToMe);
 
-  virtual void rewriteNode(NormWA & normWARef);
+  virtual void rewriteNode(NormWA &normWARef);
 
-  virtual RelExpr *normalizeNode(NormWA & normWARef);
+  virtual RelExpr *normalizeNode(NormWA &normWARef);
 
-  virtual RelExpr * semanticQueryOptimizeNode(NormWA & normWARef);
+  virtual RelExpr *semanticQueryOptimizeNode(NormWA &normWARef);
 
   virtual void pullUpPreds();
 
@@ -139,13 +123,11 @@ public:
 
   CostScalar computeResultSize(const CostScalar &childCardinality);
 
-  virtual void synthEstLogProp(const EstLogPropSharedPtr& inputEstLogProp);
+  virtual void synthEstLogProp(const EstLogPropSharedPtr &inputEstLogProp);
 
-  virtual void synthLogProp(NormWA * normWAPtr = NULL);
+  virtual void synthLogProp(NormWA *normWAPtr = NULL);
 
-  virtual Context* createContextForAChild(Context* myContext,
-                                          PlanWorkSpace* pws,
-                                          Lng32& childIndex);
+  virtual Context *createContextForAChild(Context *myContext, PlanWorkSpace *pws, Lng32 &childIndex);
 
   virtual RelExpr *bindNode(BindWA *bindWA);
 
@@ -155,7 +137,7 @@ public:
 
   Lng32 getClusterSize() const;
 
-private:
+ private:
   // Return a pointer to the required order tree after
   // setting it to NULL.
   //
@@ -191,7 +173,6 @@ private:
 
   // The output columns
   ValueIdSet sampledColumns_;
-
 };
 
 // Class PhysSample ----------------------------------------------------
@@ -200,15 +181,11 @@ private:
 // designed to present a purely physical verison of this operator
 // that is both a logical and physical node.
 // -----------------------------------------------------------------------
-class PhysSample : public RelSample
-{
-public:
-
+class PhysSample : public RelSample {
+ public:
   // The constructor
   //
-  PhysSample(RelExpr *child = NULL,
-                    RelSample::SampleTypeEnum type = ANY,
-		    CollHeap *oHeap = CmpCommon::statementHeap());
+  PhysSample(RelExpr *child = NULL, RelSample::SampleTypeEnum type = ANY, CollHeap *oHeap = CmpCommon::statementHeap());
 
   // The destructor.
   //
@@ -216,43 +193,35 @@ public:
 
   // methods to do code generation of the physical node.
   //
-  virtual RelExpr * preCodeGen(Generator * generator,
-			       const ValueIdSet & externalInputs,
-			       ValueIdSet &pulledNewInputs);
-  virtual short codeGen(Generator*);
+  virtual RelExpr *preCodeGen(Generator *generator, const ValueIdSet &externalInputs, ValueIdSet &pulledNewInputs);
+  virtual short codeGen(Generator *);
 
   // generate CONTROL QUERY SHAPE fragment for this node.
   //
-  virtual short generateShape(CollHeap * space, char * buf, NAString * shapeStr = NULL);
+  virtual short generateShape(CollHeap *space, char *buf, NAString *shapeStr = NULL);
 
   // Copy a chain of derived nodes (Calls UnPackRows::copyTopNode).
   // Needs to copy all relevant fields (in this case no fields
   // need to be copied)
   // Used by the Cascades engine.
   //
-  virtual RelExpr * copyTopNode(RelExpr *derivedNode = NULL,
-				CollHeap *outHeap = NULL);
+  virtual RelExpr *copyTopNode(RelExpr *derivedNode = NULL, CollHeap *outHeap = NULL);
 
   // cost functions
   //
-  virtual PhysicalProperty *synthPhysicalProperty(const Context *context,
-                                                  const Lng32 planNumber,
-                                                  PlanWorkSpace  *pws);
-  virtual CostMethod* costMethod() const;
+  virtual PhysicalProperty *synthPhysicalProperty(const Context *context, const Lng32 planNumber, PlanWorkSpace *pws);
+  virtual CostMethod *costMethod() const;
 
   // Redefine these virtual methods to declare this node as a
   // physical node.
   //
-  virtual NABoolean isLogical() const {return FALSE;};
-  virtual NABoolean isPhysical() const {return TRUE;};
+  virtual NABoolean isLogical() const { return FALSE; };
+  virtual NABoolean isPhysical() const { return TRUE; };
 
-  ExplainTuple *addSpecificExplainInfo(ExplainTupleMaster *explainTuple,
-					      ComTdb * tdb,
-					      Generator *generator);
-private:
+  ExplainTuple *addSpecificExplainInfo(ExplainTupleMaster *explainTuple, ComTdb *tdb, Generator *generator);
+
+ private:
   CostMethodSample *pCostMethod_;
-}; // class PhysSample
-
+};  // class PhysSample
 
 #endif
-

@@ -36,46 +36,44 @@
 
 #include "ExOverflow.h"
 
-namespace ExOverflow
-{
+namespace ExOverflow {
 
-  class BufferList : public NABasicObject
-  {
-    public:
-      BufferList(NAMemory* heap);
-      ~BufferList(void);
+class BufferList : public NABasicObject {
+ public:
+  BufferList(NAMemory *heap);
+  ~BufferList(void);
 
-      // Return a pointer to the last buffer in the list
-      char* back(void);
+  // Return a pointer to the last buffer in the list
+  char *back(void);
 
-      // Return a pointer to the current buffer in the list
-      char* current(void);
+  // Return a pointer to the current buffer in the list
+  char *current(void);
 
-      // Is the buffer list empty?
-      bool empty(void);
+  // Is the buffer list empty?
+  bool empty(void);
 
-      // Return a pointer to the first buffer in the list
-      char* front(void);
+  // Return a pointer to the first buffer in the list
+  char *front(void);
 
-      // Return a pointer to the next buffer in the list
-      char* next(void);
+  // Return a pointer to the next buffer in the list
+  char *next(void);
 
-      // Unlink the first buffer from the list
-      char* pop(void);
+  // Unlink the first buffer from the list
+  char *pop(void);
 
-      // Reset current position to head of list
-      void position(void);
+  // Reset current position to head of list
+  void position(void);
 
-      // Insert a buffer at the end of the list
-      void push_back(char* buffer);
+  // Insert a buffer at the end of the list
+  void push_back(char *buffer);
 
-      // Number of buffers in the buffer list
-      UInt32 size(void);
+  // Number of buffers in the buffer list
+  UInt32 size(void);
 
-    private:
-      Queue bufferList_;        // List of buffers
-  };
+ private:
+  Queue bufferList_;  // List of buffers
+};
 
-}
+}  // namespace ExOverflow
 
 #endif

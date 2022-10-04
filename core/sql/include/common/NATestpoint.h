@@ -43,14 +43,13 @@
 #include "common/NAString.h"
 #include "common/ComASSERT.h"
 
-#define DETAILS_NOT_DEFINED -1
-#define RQST_LEN 10
-#define IDS_PM_ERROR_MSG_TEST_POINT 0x00005207L //MSG_20999 from sqlutils_msg.h
-#define NSK_FILE_SYSTEM_ERROR 8551
+#define DETAILS_NOT_DEFINED         -1
+#define RQST_LEN                    10
+#define IDS_PM_ERROR_MSG_TEST_POINT 0x00005207L  // MSG_20999 from sqlutils_msg.h
+#define NSK_FILE_SYSTEM_ERROR       8551
 
 // Lists the available test points.
-enum ETestPointValue 
-{
+enum ETestPointValue {
   TESTPOINT_0,  // CmpSeabaseDDL::modifyObjectEpochCacheStartDDL after obtaining DDL lock
   TESTPOINT_1,  // label_restore (error recovery logic) in ALTER TABLE ALTER COLUMN
   TESTPOINT_2,  // the rest of these are unused at the moment
@@ -72,27 +71,23 @@ enum ETestPointValue
 //
 //
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-class CNATestPoint
-{
-
-public:
+class CNATestPoint {
+ public:
   // --------------------------------------------------------------------------
   // enums:
   // --------------------------------------------------------------------------
 
   // Describes the different types of test point requests
-  enum ETestPointRqst { eUNKNOWN, eKILL , eERROR, eFSERROR, eTRAP, eDELAY };
-  
-  CNATestPoint ( Lng32 number, 
-                 Lng32 iterator = 1, 
-                 ETestPointRqst rqst = eKILL); 
+  enum ETestPointRqst { eUNKNOWN, eKILL, eERROR, eFSERROR, eTRAP, eDELAY };
+
+  CNATestPoint(Lng32 number, Lng32 iterator = 1, ETestPointRqst rqst = eKILL);
 
   // --------------------------------------------------------------------------
   // constructors/destructors
   // --------------------------------------------------------------------------
-  CNATestPoint ( const CNATestPoint &testPoint );
+  CNATestPoint(const CNATestPoint &testPoint);
   virtual ~CNATestPoint();
-  
+
   // accessors
   Lng32 GetTestPoint() const { return m_iTestPoint; }
   Lng32 GetIterator() const { return m_iIterator; }
@@ -106,28 +101,25 @@ public:
   Lng32 GetDetails();
 
   // mutators
-  void SetTestPoint ( const Lng32 number ) { m_iTestPoint = number; }
-  void SetIterator ( const Lng32 iterator) { m_iIterator = iterator; }
-  void SetInnerLoopIterator ( const Lng32 innerLoopIterator)
-      { m_iInnerLoopIterator = innerLoopIterator; }
-  void SetRqst ( const CNATestPoint::ETestPointRqst rqst ) 
-      { m_eRqst = rqst; }
-  void SetDelayTime ( const Lng32 delayTime );
-  void SetError ( const Int32 error ) { m_iError = error; }
-  void SetFSError ( const Int32 fsError ) { m_iFSError = fsError; }
-  void SetTrapError ( const Int32 trapError ); 
+  void SetTestPoint(const Lng32 number) { m_iTestPoint = number; }
+  void SetIterator(const Lng32 iterator) { m_iIterator = iterator; }
+  void SetInnerLoopIterator(const Lng32 innerLoopIterator) { m_iInnerLoopIterator = innerLoopIterator; }
+  void SetRqst(const CNATestPoint::ETestPointRqst rqst) { m_eRqst = rqst; }
+  void SetDelayTime(const Lng32 delayTime);
+  void SetError(const Int32 error) { m_iError = error; }
+  void SetFSError(const Int32 fsError) { m_iFSError = fsError; }
+  void SetTrapError(const Int32 trapError);
 
-  Int32 Execute ( void );
-  void Wait ( Lng32 delayTime_in_millisecs );
-  
-protected:
+  Int32 Execute(void);
+  void Wait(Lng32 delayTime_in_millisecs);
+
+ protected:
   // --------------------------------------------------------------------------
   // constructors/destructors
   // --------------------------------------------------------------------------
   CNATestPoint();
 
-private:  
-
+ private:
   Lng32 m_iTestPoint;
   Lng32 m_iIterator;           // iteration of the outermost loop
   Lng32 m_iInnerLoopIterator;  // iteration of inner loop - 0 if no inner loop
@@ -136,44 +128,35 @@ private:
   Int32 m_iError;
   Int32 m_iFSError;
   Int32 m_iTrapError;
- 
-  void RecursiveCall( char buffer[100000] );
+
+  void RecursiveCall(char buffer[100000]);
 };
 
-class CNATestPointList : public NAList<CNATestPoint *>
-{
-private:
-    
+class CNATestPointList : public NAList<CNATestPoint *> {
+ private:
   CNATestPoint::ETestPointRqst ConvertStrToENum(const NAString rqstStr);
 
-public:
-  enum EOwnership {eItemsAreOwned, eItemsArentOwned};
+ public:
+  enum EOwnership { eItemsAreOwned, eItemsArentOwned };
 
-  CNATestPointList( EOwnership ownership = eItemsAreOwned);  
+  CNATestPointList(EOwnership ownership = eItemsAreOwned);
   ~CNATestPointList();
 
-  inline void AddTestPoint ( const Lng32 number,
-                             const Lng32 iterator,
-                             const NAString rqstStr,
-                             const Int32 details);
+  inline void AddTestPoint(const Lng32 number, const Lng32 iterator, const NAString rqstStr, const Int32 details);
 
-  void AddTestPoint ( const Lng32 number,
-                      const Lng32 outermostLoopIterator,
-                      const Lng32 innerLoopIterator,
-                      const NAString rqstStr,
-                      const Int32 details);
+  void AddTestPoint(const Lng32 number, const Lng32 outermostLoopIterator, const Lng32 innerLoopIterator,
+                    const NAString rqstStr, const Int32 details);
 
-  CNATestPoint * Find ( const Lng32 number,
-                        const Lng32 iterator,  // iteration of outermost loop
-                        const Lng32 innerLoopIterator = 0);  // 0: no inner loop
-private:
+  CNATestPoint *Find(const Lng32 number,
+                     const Lng32 iterator,                // iteration of outermost loop
+                     const Lng32 innerLoopIterator = 0);  // 0: no inner loop
+ private:
   EOwnership m_ownership;
 };
 
 // =======================================================================
 // In-line methods for class CNATestPointList
 // =======================================================================
-
 
 // ---------------------------------------------------------------------
 // Method: AddTestPoint
@@ -187,16 +170,11 @@ private:
 //   rqstStr - what to do when executed (TRAP, ERROR, FSERROR, DELAY, KILL)
 //   details - optional details: e.g. how long to wait for a DELAY
 // ---------------------------------------------------------------------
-inline void CNATestPointList::AddTestPoint ( const Lng32 number,
-                                             const Lng32 iterator,
-                                             const NAString rqstStr,
-                                             const Int32 details)
-{
-  AddTestPoint ( number,
-                 iterator,
-                 0,  // no inner loop
-                 rqstStr,
-                 details);
+inline void CNATestPointList::AddTestPoint(const Lng32 number, const Lng32 iterator, const NAString rqstStr,
+                                           const Int32 details) {
+  AddTestPoint(number, iterator,
+               0,  // no inner loop
+               rqstStr, details);
 }
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -206,23 +184,20 @@ inline void CNATestPointList::AddTestPoint ( const Lng32 number,
 // number.
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-class CNATestPointArray
-{
-public:
-  CNATestPointArray(NAHeap * heap);
+class CNATestPointArray {
+ public:
+  CNATestPointArray(NAHeap *heap);
   ~CNATestPointArray();
-  
-  bool configureTestPoint(const NAString & testPointSpec);  // returns false if bad spec
+
+  bool configureTestPoint(const NAString &testPointSpec);  // returns false if bad spec
   bool configureDelayTestPoint(enum ETestPointValue testPoint, const Lng32 delayInSeconds);
   void resetAllTestPoints();
   Int32 executeTestPoint(enum ETestPointValue testPoint);
 
-private:
+ private:
+  NAHeap *heap_;
 
-  NAHeap * heap_;
-  
-  CNATestPoint * testPoints_[LAST_TESTPOINT]; // array of pointers to CNATestPoint
+  CNATestPoint *testPoints_[LAST_TESTPOINT];  // array of pointers to CNATestPoint
 };
 
-
-#endif // NATESTPOINT_H
+#endif  // NATESTPOINT_H

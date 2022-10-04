@@ -2,9 +2,9 @@
  *****************************************************************************
  *
  * File:         key_mdam.C
- * Description:  
- *               
- *               
+ * Description:
+ *
+ *
  * Created:      10/22/96
  * Language:     C++
  *
@@ -40,6 +40,3 @@
 #include "key_range.h"
 #include "key_mdam.h"
 #include "exp/exp_clause_derived.h"
-
-
-

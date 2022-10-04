@@ -52,100 +52,89 @@ class CRULogCleanupTask;
 //
 //--------------------------------------------------------------------------//
 
-class REFRESH_LIB_CLASS CRULogCleanupTaskExecutor : public CRUTaskExecutor
-{
-private:
-	typedef CRUTaskExecutor inherited;
+class REFRESH_LIB_CLASS CRULogCleanupTaskExecutor : public CRUTaskExecutor {
+ private:
+  typedef CRUTaskExecutor inherited;
 
-public:
-	CRULogCleanupTaskExecutor(CRUTask *pParentTask = NULL);
-	virtual ~CRULogCleanupTaskExecutor() {}
+ public:
+  CRULogCleanupTaskExecutor(CRUTask *pParentTask = NULL);
+  virtual ~CRULogCleanupTaskExecutor() {}
 
-	//----------------------------------//
-	//	Accessors
-	//----------------------------------//
-public:
-	CRULogCleanupTask *GetLogCleanupTask() 
-	{ 
-		return (CRULogCleanupTask *) GetParentTask(); 
-	}
+  //----------------------------------//
+  //	Accessors
+  //----------------------------------//
+ public:
+  CRULogCleanupTask *GetLogCleanupTask() { return (CRULogCleanupTask *)GetParentTask(); }
 
-	//----------------------------------//
-	//	Mutators
-	//----------------------------------//
-public:
-	//-- Implementation of pure virtual functions
-	virtual void Work();
-	virtual void Init();
+  //----------------------------------//
+  //	Mutators
+  //----------------------------------//
+ public:
+  //-- Implementation of pure virtual functions
+  virtual void Work();
+  virtual void Init();
 
-public:
-	enum SQL_STATEMENT {
-		
-		CLEAN_IUD_BASIC	  = 0,
-		CLEAN_IUD_FIRSTN,
-		CLEAN_IUD_MCOMMIT,
-		CLEAN_RANGE,
-                CLEAN_ROWCOUNT,
+ public:
+  enum SQL_STATEMENT {
 
-		NUM_OF_SQL_STMT // should always be last
-	};
+    CLEAN_IUD_BASIC = 0,
+    CLEAN_IUD_FIRSTN,
+    CLEAN_IUD_MCOMMIT,
+    CLEAN_RANGE,
+    CLEAN_ROWCOUNT,
 
-	// These functions serialize/de-serialize the executor's context 
-	// for the message communication with the remote server process
+    NUM_OF_SQL_STMT  // should always be last
+  };
 
-	// Used in the main process side
-	virtual void StoreRequest(CUOFsIpcMessageTranslator &translator);
-	virtual void LoadReply(CUOFsIpcMessageTranslator &translator)
-	{
-		inherited::LoadReply(translator);
-	}
-	
-	// Used in the remote process side
-	virtual void LoadRequest(CUOFsIpcMessageTranslator &translator);
-	virtual void StoreReply(CUOFsIpcMessageTranslator &translator)
-	{
-		inherited::StoreReply(translator);
-	}
+  // These functions serialize/de-serialize the executor's context
+  // for the message communication with the remote server process
 
-protected:
-	enum { SIZE_OF_PACK_BUFFER = 2000 };
+  // Used in the main process side
+  virtual void StoreRequest(CUOFsIpcMessageTranslator &translator);
+  virtual void LoadReply(CUOFsIpcMessageTranslator &translator) { inherited::LoadReply(translator); }
 
-	//-- Implementation of pure virtual 
-	virtual Lng32 GetIpcBufferSize() const
-	{
-		return SIZE_OF_PACK_BUFFER; // Initial size 
-	}
+  // Used in the remote process side
+  virtual void LoadRequest(CUOFsIpcMessageTranslator &translator);
+  virtual void StoreReply(CUOFsIpcMessageTranslator &translator) { inherited::StoreReply(translator); }
 
-private:
-	//-- Prevent copying
-	CRULogCleanupTaskExecutor(const CRULogCleanupTaskExecutor &other);
-	CRULogCleanupTaskExecutor &operator = (const CRULogCleanupTaskExecutor &other);
+ protected:
+  enum { SIZE_OF_PACK_BUFFER = 2000 };
 
-private:
-	//Init() callee
-	void ComposeMySql();
+  //-- Implementation of pure virtual
+  virtual Lng32 GetIpcBufferSize() const {
+    return SIZE_OF_PACK_BUFFER;  // Initial size
+  }
 
-	//Work() callees
-	void Start();
-	void Clean();
-	void Epilogue();
+ private:
+  //-- Prevent copying
+  CRULogCleanupTaskExecutor(const CRULogCleanupTaskExecutor &other);
+  CRULogCleanupTaskExecutor &operator=(const CRULogCleanupTaskExecutor &other);
 
-        SQL_STATEMENT decideOnDeleteMethod();
-	void CleanLogBasic();
-	void CleanLogFirstN(SQL_STATEMENT statement);
-	void CleanLogMultiCommit();
-        TInt64 getRowCount();
+ private:
+  // Init() callee
+  void ComposeMySql();
 
-private:
-	enum State { 
-		
-		EX_EPILOGUE = MAIN_STATES_START, 
-		EX_CLEAN = REMOTE_STATES_START 
-	};
+  // Work() callees
+  void Start();
+  void Clean();
+  void Epilogue();
 
-	CRUSQLDynamicStatementContainer logCleanupTEDynamicContainer_;
-	BOOL hasRangeLog_;
-        Int32  noOfPartitions_;
+  SQL_STATEMENT decideOnDeleteMethod();
+  void CleanLogBasic();
+  void CleanLogFirstN(SQL_STATEMENT statement);
+  void CleanLogMultiCommit();
+  TInt64 getRowCount();
+
+ private:
+  enum State {
+
+    EX_EPILOGUE = MAIN_STATES_START,
+    EX_CLEAN = REMOTE_STATES_START
+  };
+
+  CRUSQLDynamicStatementContainer logCleanupTEDynamicContainer_;
+  BOOL hasRangeLog_;
+  Int32 noOfPartitions_;
 };
 
 #endif

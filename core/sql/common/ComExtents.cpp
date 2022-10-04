@@ -38,11 +38,7 @@
 #include "common/Int64.h"
 #include "common/ComASSERT.h"
 
-ComExtents::ComExtents (Int64      maxSize,
-	                ComUnits   units)
-: maxSize_(maxSize)
-, units_(units)
-{
+ComExtents::ComExtents(Int64 maxSize, ComUnits units) : maxSize_(maxSize), units_(units) {
   // ---------------------------------------------------------------------
   // Calculate the extent size:
   //
@@ -55,35 +51,28 @@ ComExtents::ComExtents (Int64      maxSize,
   // the extent sizes to use.
   // ---------------------------------------------------------------------
 
-   const Int64 maxSizeInBytes = getSizeInBytes ( maxSize_
-                                               , units_
-                                               );
+  const Int64 maxSizeInBytes = getSizeInBytes(maxSize_, units_);
 
-   Int64 maxFileSize = maxSizeInBytes;
-   // If maxSize_ is too small, set it to the minimum allowed (in bytes).
-   if (maxFileSize < COM_MIN_PART_SIZE_IN_BYTES)
-   {
-     maxSize_ = COM_MIN_PART_SIZE_IN_BYTES;
-     units_ = COM_BYTES;
-   }
-   // If maxSize_ is too large, set it to the maximum allowed (in bytes).
-   else if (maxFileSize > COM_MAX_PART_SIZE_IN_BYTES)
-   {
-     maxSize_ = COM_MAX_PART_SIZE_IN_BYTES;
-     units_ = COM_BYTES;
-   }
-   // If maxSize_ is within the allowed range, leave it and units_ unchanged.
+  Int64 maxFileSize = maxSizeInBytes;
+  // If maxSize_ is too small, set it to the minimum allowed (in bytes).
+  if (maxFileSize < COM_MIN_PART_SIZE_IN_BYTES) {
+    maxSize_ = COM_MIN_PART_SIZE_IN_BYTES;
+    units_ = COM_BYTES;
+  }
+  // If maxSize_ is too large, set it to the maximum allowed (in bytes).
+  else if (maxFileSize > COM_MAX_PART_SIZE_IN_BYTES) {
+    maxSize_ = COM_MAX_PART_SIZE_IN_BYTES;
+    units_ = COM_BYTES;
+  }
+  // If maxSize_ is within the allowed range, leave it and units_ unchanged.
 };
 
-ComExtents::ComExtents (Int64 maxSize)
-:  maxSize_(maxSize)
-{
+ComExtents::ComExtents(Int64 maxSize) : maxSize_(maxSize) {
   // Since units_ was unspecified, maxSize is bytes.
   units_ = COM_BYTES;
 
   // If maxSize_ is too small, set it to the minimum allowed.
-  if (maxSize < COM_MIN_PART_SIZE_IN_BYTES)
-     maxSize_ = COM_MIN_PART_SIZE_IN_BYTES;
+  if (maxSize < COM_MIN_PART_SIZE_IN_BYTES) maxSize_ = COM_MIN_PART_SIZE_IN_BYTES;
   // If maxSize_ is too large, set it to the maximum allowed.
   else if (maxSize > COM_MAX_PART_SIZE_IN_BYTES)
     maxSize_ = COM_MAX_PART_SIZE_IN_BYTES;
@@ -94,14 +83,10 @@ ComExtents::ComExtents (Int64 maxSize)
 //
 // This function calculates the size of the input parameter in bytes
 // -----------------------------------------------------------------------
-Int64 ComExtents::getSizeInBytes         ( Int64 sizeToConvert
-		                         , ComUnits  units
-					 )
-{
+Int64 ComExtents::getSizeInBytes(Int64 sizeToConvert, ComUnits units) {
   Int64 convertedSize = 0;
 
-  switch (units)
-    {
+  switch (units) {
     case COM_BYTES:
       convertedSize = (sizeToConvert);
       break;
@@ -115,10 +100,8 @@ Int64 ComExtents::getSizeInBytes         ( Int64 sizeToConvert
       convertedSize = (sizeToConvert * (1024 * 1024 * 1024));
       break;
     default:
-      ComASSERT( FALSE ); // raise an exception
+      ComASSERT(FALSE);  // raise an exception
       break;
-    };
+  };
   return convertedSize;
 };
-
-

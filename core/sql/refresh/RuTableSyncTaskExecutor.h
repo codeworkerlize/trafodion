@@ -48,106 +48,93 @@ class CUOFsIpcMessageTranslator;
 
 //--------------------------------------------------------------------------//
 //	CRUTableSyncTaskExecutor
-//	
+//
 //	The executor is responsible for the following tasks :
 //
-//	1.	Increment the epoch of a table that needs it (when ever the log may 
-//      be consumed in this refresh invocation),this stage may be executed in 
+//	1.	Increment the epoch of a table that needs it (when ever the log may
+//      be consumed in this refresh invocation),this stage may be executed in
 //		the remote process
-//	2.  Lock the table in case a long lock is needed (long lock is a lock 
-//      that remains until the last mv that required that lock has been 
+//	2.  Lock the table in case a long lock is needed (long lock is a lock
+//      that remains until the last mv that required that lock has been
 //		refreshed)
-//	3.  Save the syncronization timestamp in the table object for further 
-//		use	
+//	3.  Save the syncronization timestamp in the table object for further
+//		use
 //
 //--------------------------------------------------------------------------//
 
-class REFRESH_LIB_CLASS CRUTableSyncTaskExecutor : public CRUTaskExecutor
-{
-private:
-	typedef CRUTaskExecutor inherited;
+class REFRESH_LIB_CLASS CRUTableSyncTaskExecutor : public CRUTaskExecutor {
+ private:
+  typedef CRUTaskExecutor inherited;
 
-	//----------------------------------//
-	//	Public Members
-	//----------------------------------//
+  //----------------------------------//
+  //	Public Members
+  //----------------------------------//
 
-public:
-	CRUTableSyncTaskExecutor(CRUTask *pParentTask = NULL);
-	virtual ~CRUTableSyncTaskExecutor();
+ public:
+  CRUTableSyncTaskExecutor(CRUTask *pParentTask = NULL);
+  virtual ~CRUTableSyncTaskExecutor();
 
-public:
-	// These functions serialize/de-serialize the executor's context 
-	// for the message communication with the remote server process
+ public:
+  // These functions serialize/de-serialize the executor's context
+  // for the message communication with the remote server process
 
-	// Used in the main process side
-	virtual void StoreRequest(CUOFsIpcMessageTranslator &translator);
-	virtual void LoadReply(CUOFsIpcMessageTranslator &translator)
-	{
-		inherited::LoadReply(translator);
-	}
-	
-	// Used in the remote process side
-	virtual void LoadRequest(CUOFsIpcMessageTranslator &translator);
-	virtual void StoreReply(CUOFsIpcMessageTranslator &translator)
-	{
-		inherited::StoreReply(translator);
-	}
+  // Used in the main process side
+  virtual void StoreRequest(CUOFsIpcMessageTranslator &translator);
+  virtual void LoadReply(CUOFsIpcMessageTranslator &translator) { inherited::LoadReply(translator); }
 
-public:
-	//-- Implementation of pure virtual functions
-	virtual void Work();
-	virtual void Init();
+  // Used in the remote process side
+  virtual void LoadRequest(CUOFsIpcMessageTranslator &translator);
+  virtual void StoreReply(CUOFsIpcMessageTranslator &translator) { inherited::StoreReply(translator); }
 
-	//----------------------------------//
-	//	Protected Members
-	//----------------------------------//	
+ public:
+  //-- Implementation of pure virtual functions
+  virtual void Work();
+  virtual void Init();
 
-protected:
-	enum { SIZE_OF_PACK_BUFFER = 1000 };
+  //----------------------------------//
+  //	Protected Members
+  //----------------------------------//
 
-	//-- Implementation of pure virtual
-	virtual Lng32 GetIpcBufferSize() const
-	{
-		return SIZE_OF_PACK_BUFFER;
-	}
+ protected:
+  enum { SIZE_OF_PACK_BUFFER = 1000 };
 
-	//----------------------------------//
-	//	Private Members
-	//----------------------------------//	
+  //-- Implementation of pure virtual
+  virtual Lng32 GetIpcBufferSize() const { return SIZE_OF_PACK_BUFFER; }
 
-	//Init() callee
-private:
-	//  This functions updates the ddol cache object ,but avoids any
-	//  catalog opreation by clearing the object's modify flag.
-	//  The procedure also retrievs the cat api text that is needed for 
-	//  increasing the epoch  
-	void PrepareCatApi();
+  //----------------------------------//
+  //	Private Members
+  //----------------------------------//
 
-	//Work() callee
-private:
-	void IncEpoch();
-	void Epilogue();
+  // Init() callee
+ private:
+  //  This functions updates the ddol cache object ,but avoids any
+  //  catalog opreation by clearing the object's modify flag.
+  //  The procedure also retrievs the cat api text that is needed for
+  //  increasing the epoch
+  void PrepareCatApi();
 
+  // Work() callee
+ private:
+  void IncEpoch();
+  void Epilogue();
 
-private:
-	//-- Prevent copying
-	CRUTableSyncTaskExecutor(const CRUTableSyncTaskExecutor &other);
-	CRUTableSyncTaskExecutor &operator = (const CRUTableSyncTaskExecutor &other);
+ private:
+  //-- Prevent copying
+  CRUTableSyncTaskExecutor(const CRUTableSyncTaskExecutor &other);
+  CRUTableSyncTaskExecutor &operator=(const CRUTableSyncTaskExecutor &other);
 
-private:
+ private:
+  enum STATES { EX_EPILOGUE = MAIN_STATES_START, EX_INC_EPOCH = REMOTE_STATES_START };
 
-	enum STATES { EX_EPILOGUE = MAIN_STATES_START ,
-				  EX_INC_EPOCH = REMOTE_STATES_START };
+ private:
+  enum SQL_STATEMENT {
+    INC_EPOCH = 0,
+    NUM_OF_SQL_STMT  // should always be last
+  };
 
-private:
-	
-	enum SQL_STATEMENT { INC_EPOCH = 0, 
-						 NUM_OF_SQL_STMT // should always be last
-	};
+  CRUSQLDynamicStatementContainer syncTableDynamicContainer_;
 
-	CRUSQLDynamicStatementContainer syncTableDynamicContainer_;
-
-	CDSString tableName_;
+  CDSString tableName_;
 };
 
 #endif

@@ -30,12 +30,11 @@
 *
 * Created:      01/09/2001
 * Language:     C++
-* 
 *
-* 
+*
+*
 ******************************************************************************
 */
-
 
 #include "RuTestTaskExecutor.h"
 #include "RuException.h"
@@ -43,306 +42,259 @@
 #include "RuSQLComposer.h"
 #include "uofsIpcMessageTranslator.h"
 
-
 //--------------------------------------------------------------------------//
 //	CRUTestTaskExecutor::Work()
 //--------------------------------------------------------------------------//
-void CRUTestTaskExecutor::Work()
-{
-	switch (GetState())
-	{
-	case EX_READ_GROUP: // REMOTE PROCESS
-		{
-			ReadSqlStatement();
+void CRUTestTaskExecutor::Work() {
+  switch (GetState()) {
+    case EX_READ_GROUP:  // REMOTE PROCESS
+    {
+      ReadSqlStatement();
 
-			SetState(EX_COMPILE_ALL);
-			break;
-		}
-	case EX_COMPILE_ALL: // REMOTE PROCESS
-		{
-			RUASSERT(NULL != pDynamicSQLContainer_);
+      SetState(EX_COMPILE_ALL);
+      break;
+    }
+    case EX_COMPILE_ALL:  // REMOTE PROCESS
+    {
+      RUASSERT(NULL != pDynamicSQLContainer_);
 
-			pDynamicSQLContainer_->PrepareSQL();
+      pDynamicSQLContainer_->PrepareSQL();
 
-			SetState(EX_AFTER_COMPILATION_BEFORE_EXECUTION);
-			break;
-		}
-	case EX_AFTER_COMPILATION_BEFORE_EXECUTION: // MAIN PROCESS
-		{
-			// A dummy state ,used to syncronized all executors before 
-			// executing statements
-			SetState(EX_EXECUTE);
-			break;
-		}
-	case EX_EXECUTE: // REMOTE PROCESS
-		{
-			ExecuteAllStatements();
-			SetState(EX_COMPLETE);
-			break;
-		}	
-	default: RUASSERT(FALSE);
-	}
+      SetState(EX_AFTER_COMPILATION_BEFORE_EXECUTION);
+      break;
+    }
+    case EX_AFTER_COMPILATION_BEFORE_EXECUTION:  // MAIN PROCESS
+    {
+      // A dummy state ,used to syncronized all executors before
+      // executing statements
+      SetState(EX_EXECUTE);
+      break;
+    }
+    case EX_EXECUTE:  // REMOTE PROCESS
+    {
+      ExecuteAllStatements();
+      SetState(EX_COMPLETE);
+      break;
+    }
+    default:
+      RUASSERT(FALSE);
+  }
 }
 
 //--------------------------------------------------------------------------//
 //	CRUTestTaskExecutor::ReadSqlStatement()
 //--------------------------------------------------------------------------//
-void CRUTestTaskExecutor::ReadSqlStatement()
-{
-	pDynamicSQLContainer_ = 
-		new CRUSQLDynamicStatementContainer(numberOfStatements_);
+void CRUTestTaskExecutor::ReadSqlStatement() {
+  pDynamicSQLContainer_ = new CRUSQLDynamicStatementContainer(numberOfStatements_);
 
-	pNumberOfExecutions_ = new Int32[numberOfStatements_];
-	pNumberOfRetries_	 = new Int32[numberOfStatements_];
-	pAutoCommit_		 = new Int32[numberOfStatements_];
-	pNumberOfFailures_   = new Int32[numberOfStatements_];
+  pNumberOfExecutions_ = new Int32[numberOfStatements_];
+  pNumberOfRetries_ = new Int32[numberOfStatements_];
+  pAutoCommit_ = new Int32[numberOfStatements_];
+  pNumberOfFailures_ = new Int32[numberOfStatements_];
 
-	CRUSQLDynamicStatementContainer controlDynamicContainer(1);
+  CRUSQLDynamicStatementContainer controlDynamicContainer(1);
 
-	CDSString sqlText;
+  CDSString sqlText;
 
-	sqlText = "	SELECT number_of_executions,sql_text,ordinal,number_of_retries,auto_commit ";
-	sqlText +="	FROM CAT1.MVSCHM.RefreshControlTable ";
-	sqlText +="	WHERE group_id = ";
-	sqlText +=  CRUSQLComposer::ComposeCastExpr("INT UNSIGNED");	
-	sqlText +="	AND process_id = ";
-	sqlText +=  CRUSQLComposer::ComposeCastExpr("INT UNSIGNED");
-	sqlText +="	ORDER BY ordinal;";
+  sqlText = "	SELECT number_of_executions,sql_text,ordinal,number_of_retries,auto_commit ";
+  sqlText += "	FROM CAT1.MVSCHM.RefreshControlTable ";
+  sqlText += "	WHERE group_id = ";
+  sqlText += CRUSQLComposer::ComposeCastExpr("INT UNSIGNED");
+  sqlText += "	AND process_id = ";
+  sqlText += CRUSQLComposer::ComposeCastExpr("INT UNSIGNED");
+  sqlText += "	ORDER BY ordinal;";
 
-	const Int32 kNumber_of_executions		= 1;
-	const Int32 kSql_text					= 2;
-	const Int32 kSort_num					= 3;
-	const Int32 kRetries					= 4;
-	const Int32 kAutoCommit				= 5;
+  const Int32 kNumber_of_executions = 1;
+  const Int32 kSql_text = 2;
+  const Int32 kSort_num = 3;
+  const Int32 kRetries = 4;
+  const Int32 kAutoCommit = 5;
 
-	controlDynamicContainer.SetStatementText(0,sqlText);
+  controlDynamicContainer.SetStatementText(0, sqlText);
 
-	CDMPreparedStatement *pStmt =
-		controlDynamicContainer.GetPreparedStatement(0);
+  CDMPreparedStatement *pStmt = controlDynamicContainer.GetPreparedStatement(0);
 
-	pStmt->SetInt(1,groupId_);
-	pStmt->SetInt(2,GetProcessId() + 1);
+  pStmt->SetInt(1, groupId_);
+  pStmt->SetInt(2, GetProcessId() + 1);
 
-	
-	BeginTransaction();
-	
-	CDMResultSet *pResult = pStmt->ExecuteQuery();
+  BeginTransaction();
 
-	Int32 i=0;
-	while (pResult->Next()) 
-	{
-		RUASSERT(i < numberOfStatements_);
+  CDMResultSet *pResult = pStmt->ExecuteQuery();
 
-		char buffer[SQL_TEXT_MAX_SIZE];
+  Int32 i = 0;
+  while (pResult->Next()) {
+    RUASSERT(i < numberOfStatements_);
 
-		pNumberOfExecutions_[i] = pResult->GetInt(kNumber_of_executions);
-		
-		pNumberOfRetries_[i] = pResult->GetInt(kRetries);
+    char buffer[SQL_TEXT_MAX_SIZE];
 
-		pAutoCommit_[i] = pResult->GetInt(kAutoCommit);
+    pNumberOfExecutions_[i] = pResult->GetInt(kNumber_of_executions);
 
-		pNumberOfFailures_[i] = 0;
+    pNumberOfRetries_[i] = pResult->GetInt(kRetries);
 
-		pResult->GetString(kSql_text, buffer, SQL_TEXT_MAX_SIZE);
+    pAutoCommit_[i] = pResult->GetInt(kAutoCommit);
 
-		CDSString text(buffer);
+    pNumberOfFailures_[i] = 0;
 
-		text.TrimLeft();
-		
-		pDynamicSQLContainer_->SetStatementText(i,text);
+    pResult->GetString(kSql_text, buffer, SQL_TEXT_MAX_SIZE);
 
-		i++;		
-	}
+    CDSString text(buffer);
 
-	pStmt->Close();
+    text.TrimLeft();
 
-	CommitTransaction();
+    pDynamicSQLContainer_->SetStatementText(i, text);
 
-	// Error Handling
-	sqlText = "INSERT INTO RefreshOutputTable VALUES(?,?,?,?,?,?,?)";
+    i++;
+  }
 
-	errorDynamicSQLContainer_.SetStatementText(0,sqlText);
+  pStmt->Close();
+
+  CommitTransaction();
+
+  // Error Handling
+  sqlText = "INSERT INTO RefreshOutputTable VALUES(?,?,?,?,?,?,?)";
+
+  errorDynamicSQLContainer_.SetStatementText(0, sqlText);
 }
-
 
 //--------------------------------------------------------------------------//
 //	CRUTestTaskExecutor::ExecuteAllStatements()
 //--------------------------------------------------------------------------//
-void CRUTestTaskExecutor::ExecuteAllStatements()
-{
-	Int32 i=0;
-	for (Int32 j=0;j<pNumberOfRetries_[0];j++)
-	{
-		try 
-		{
-			BeginTransaction();
+void CRUTestTaskExecutor::ExecuteAllStatements() {
+  Int32 i = 0;
+  for (Int32 j = 0; j < pNumberOfRetries_[0]; j++) {
+    try {
+      BeginTransaction();
 
-			BOOL more = TRUE;
-			while (more)
-			{
-				more = FALSE;
-				for(i=0;i<numberOfStatements_;i++)
-				{
-					if (0 < pNumberOfExecutions_[i])
-					{
-						more = TRUE;
-						ExecuteStatement(i);
-						pNumberOfFailures_[i] = 0;
-						if (pAutoCommit_[i] != 0 && TRUE == IsTransactionOpen())
-						{
-							CommitTransaction();
-							BeginTransaction();
-						}
-						pNumberOfExecutions_[i]--;
-					}
-				}
-			}
+      BOOL more = TRUE;
+      while (more) {
+        more = FALSE;
+        for (i = 0; i < numberOfStatements_; i++) {
+          if (0 < pNumberOfExecutions_[i]) {
+            more = TRUE;
+            ExecuteStatement(i);
+            pNumberOfFailures_[i] = 0;
+            if (pAutoCommit_[i] != 0 && TRUE == IsTransactionOpen()) {
+              CommitTransaction();
+              BeginTransaction();
+            }
+            pNumberOfExecutions_[i]--;
+          }
+        }
+      }
 
-			CommitTransaction();
-		}
-		catch (CDMException &e)
-		{
-			
-			HandleError(groupId_,GetProcessId(),i,e);
+      CommitTransaction();
+    } catch (CDMException &e) {
+      HandleError(groupId_, GetProcessId(), i, e);
 
-			if (e.GetErrorCode(0) != -8551)
-			{
-				throw e;
-			}
-			
-			CDMPreparedStatement *pStmt =
-			pDynamicSQLContainer_->GetPreparedStatement(i);
+      if (e.GetErrorCode(0) != -8551) {
+        throw e;
+      }
 
-			pStmt->Close();
-			continue;
-		}
-	}
+      CDMPreparedStatement *pStmt = pDynamicSQLContainer_->GetPreparedStatement(i);
 
+      pStmt->Close();
+      continue;
+    }
+  }
 }
 
 //--------------------------------------------------------------------------//
 //	CRUTestTaskExecutor::ExecuteStatement()
 //--------------------------------------------------------------------------//
-void CRUTestTaskExecutor::ExecuteStatement(Int32 i)
-{
-	CDMPreparedStatement *pStmt =
-		pDynamicSQLContainer_->GetPreparedStatement(i);
+void CRUTestTaskExecutor::ExecuteStatement(Int32 i) {
+  CDMPreparedStatement *pStmt = pDynamicSQLContainer_->GetPreparedStatement(i);
 
-	if (pDynamicSQLContainer_->GetLastSQL(i)[0] == 'S' ||
-		pDynamicSQLContainer_->GetLastSQL(i)[0] == 's' )
-	{
-//		Sleep(10);
+  if (pDynamicSQLContainer_->GetLastSQL(i)[0] == 'S' || pDynamicSQLContainer_->GetLastSQL(i)[0] == 's') {
+    //		Sleep(10);
 
-		CDMResultSet *pResult = pStmt->ExecuteQuery();		
-		
-		while (pResult->Next()) {}
-		
-		pStmt->Close();
-	}
-	else
-	{
-		if (pDynamicSQLContainer_->GetLastSQL(i)[0] == 'R' ||
-			pDynamicSQLContainer_->GetLastSQL(i)[0] == 'r' )
-		{
-			if (TRUE == IsTransactionOpen())
-			{
-				CommitTransaction();
-			}
-			
-//			Sleep(100);
+    CDMResultSet *pResult = pStmt->ExecuteQuery();
 
-			pStmt->ExecuteUpdate();
-		
-			pStmt->Close();
-			
-			BeginTransaction();
-		}
-		else
-		{
-//			Sleep(1);
+    while (pResult->Next()) {
+    }
 
-			pStmt->ExecuteUpdate();
-		
-			pStmt->Close();
-		}
-	}
+    pStmt->Close();
+  } else {
+    if (pDynamicSQLContainer_->GetLastSQL(i)[0] == 'R' || pDynamicSQLContainer_->GetLastSQL(i)[0] == 'r') {
+      if (TRUE == IsTransactionOpen()) {
+        CommitTransaction();
+      }
+
+      //			Sleep(100);
+
+      pStmt->ExecuteUpdate();
+
+      pStmt->Close();
+
+      BeginTransaction();
+    } else {
+      //			Sleep(1);
+
+      pStmt->ExecuteUpdate();
+
+      pStmt->Close();
+    }
+  }
 }
-
 
 //----------------------------------------------------------//
 //	CRUTestTaskExecutor::HandleError()
 //----------------------------------------------------------//
 
-void CRUTestTaskExecutor::HandleError(Int32 groupId ,
-									  Int32 processId,
-									  Int32 ordinal,
-									  CDMException &e)
-{
-	pNumberOfFailures_[ordinal]++;
+void CRUTestTaskExecutor::HandleError(Int32 groupId, Int32 processId, Int32 ordinal, CDMException &e) {
+  pNumberOfFailures_[ordinal]++;
 
-	try {
-		if (TRUE == IsTransactionOpen())
-		{
-			CommitTransaction();
-		}
-	}
-	catch(...)
-	{}
+  try {
+    if (TRUE == IsTransactionOpen()) {
+      CommitTransaction();
+    }
+  } catch (...) {
+  }
 
-	BeginTransaction();
+  BeginTransaction();
 
-	CDMPreparedStatement *pStmt =
-		errorDynamicSQLContainer_.GetPreparedStatement(0);
-	
-	
-	Lng32 numErrors = e.GetNumErrors();
-		
-	for (Int32 index = 0; index < numErrors; index++) {
-		char errorMsg[1024];
+  CDMPreparedStatement *pStmt = errorDynamicSQLContainer_.GetPreparedStatement(0);
 
-		pStmt->SetInt(1,groupId);
-		pStmt->SetInt(2,processId + 1);
-		pStmt->SetInt(3,ordinal + 1);
-		pStmt->SetInt(4,pNumberOfFailures_[ordinal]);
-		pStmt->SetInt(5,index);
-		pStmt->SetInt(6,e.GetErrorCode(index));
-		e.GetErrorMsg(index, errorMsg, 1024);
-		pStmt->SetString(7,errorMsg);
+  Lng32 numErrors = e.GetNumErrors();
 
-		pStmt->ExecuteUpdate();
-	}	
-	
+  for (Int32 index = 0; index < numErrors; index++) {
+    char errorMsg[1024];
 
-	pStmt->Close();
+    pStmt->SetInt(1, groupId);
+    pStmt->SetInt(2, processId + 1);
+    pStmt->SetInt(3, ordinal + 1);
+    pStmt->SetInt(4, pNumberOfFailures_[ordinal]);
+    pStmt->SetInt(5, index);
+    pStmt->SetInt(6, e.GetErrorCode(index));
+    e.GetErrorMsg(index, errorMsg, 1024);
+    pStmt->SetString(7, errorMsg);
 
-	CommitTransaction();
+    pStmt->ExecuteUpdate();
+  }
+
+  pStmt->Close();
+
+  CommitTransaction();
 }
 
 //----------------------------------------------------------//
 //	CRUTestTaskExecutor::StoreData()
 //----------------------------------------------------------//
 
-void CRUTestTaskExecutor::
-	StoreData(CUOFsIpcMessageTranslator &translator)
-{
-	inherited::StoreData(translator);
+void CRUTestTaskExecutor::StoreData(CUOFsIpcMessageTranslator &translator) {
+  inherited::StoreData(translator);
 
-	translator.WriteBlock(&numberOfStatements_,sizeof(Int32));
-	translator.WriteBlock(&groupId_,sizeof(Int32));
-	translator.SetMessageType(CUOFsIpcMessageTranslator::
-								RU_TEST_EXECUTOR);	
+  translator.WriteBlock(&numberOfStatements_, sizeof(Int32));
+  translator.WriteBlock(&groupId_, sizeof(Int32));
+  translator.SetMessageType(CUOFsIpcMessageTranslator::RU_TEST_EXECUTOR);
 }
 
 //----------------------------------------------------------//
 //	CRUTestTaskExecutor::LoadData()
 //----------------------------------------------------------//
 
-void CRUTestTaskExecutor::
-	LoadData(CUOFsIpcMessageTranslator &translator)
-{
-	inherited::LoadData(translator);
+void CRUTestTaskExecutor::LoadData(CUOFsIpcMessageTranslator &translator) {
+  inherited::LoadData(translator);
 
-	translator.ReadBlock(&numberOfStatements_,sizeof(Int32));
-	translator.ReadBlock(&groupId_,sizeof(Int32));
+  translator.ReadBlock(&numberOfStatements_, sizeof(Int32));
+  translator.ReadBlock(&groupId_, sizeof(Int32));
 }
-

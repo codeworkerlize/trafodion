@@ -48,75 +48,73 @@ class CUOFsIpcMessageTranslator;
 
 //--------------------------------------------------------------------------//
 //	CRUEmpCheckTaskExecutor
-//	
+//
 //	Performs the EmpCheck protocol.
 //
 //	Also, computes and exports the current database timestamp
 //	and the emptiness check vector, which will be further
 //	forwarded to the client Refresh tasks.
-//	
+//
 //	The whole execution is performed in a single step.
 //--------------------------------------------------------------------------//
 
-class REFRESH_LIB_CLASS CRUEmpCheckTaskExecutor : public CRUTaskExecutor
-{
-private:
-	typedef CRUTaskExecutor inherited;
+class REFRESH_LIB_CLASS CRUEmpCheckTaskExecutor : public CRUTaskExecutor {
+ private:
+  typedef CRUTaskExecutor inherited;
 
-public:
-	CRUEmpCheckTaskExecutor(CRUTask *pParentTask = NULL);
-	virtual ~CRUEmpCheckTaskExecutor();
+ public:
+  CRUEmpCheckTaskExecutor(CRUTask *pParentTask = NULL);
+  virtual ~CRUEmpCheckTaskExecutor();
 
-	//----------------------------------//
-	//	Accessors
-	//----------------------------------//
-public:
-	const CRUEmpCheckVector &GetEmpCheckVector() const;
+  //----------------------------------//
+  //	Accessors
+  //----------------------------------//
+ public:
+  const CRUEmpCheckVector &GetEmpCheckVector() const;
 
-public:
-	// These functions serialize/de-serialize the executor's context 
-	// for the message communication with the remote server process
-	
-	// Used in the main process side
-	virtual void StoreRequest(CUOFsIpcMessageTranslator &translator);
-	virtual void LoadReply(CUOFsIpcMessageTranslator &translator);
-	
-	// Used in the remote process side
-	virtual void LoadRequest(CUOFsIpcMessageTranslator &translator);
-	virtual void StoreReply(CUOFsIpcMessageTranslator &translator);
+ public:
+  // These functions serialize/de-serialize the executor's context
+  // for the message communication with the remote server process
 
-	//----------------------------------//
-	//	Mutators
-	//----------------------------------//
-public:
-	//-- Single execution step.
-	//-- Implementation of pure virtual functions
-	virtual void Work();
-	virtual void Init();
+  // Used in the main process side
+  virtual void StoreRequest(CUOFsIpcMessageTranslator &translator);
+  virtual void LoadReply(CUOFsIpcMessageTranslator &translator);
 
-protected:
-	enum { SIZE_OF_PACK_BUFFER = 1000 };
+  // Used in the remote process side
+  virtual void LoadRequest(CUOFsIpcMessageTranslator &translator);
+  virtual void StoreReply(CUOFsIpcMessageTranslator &translator);
 
-	//-- Implementation of pure virtual 
-	virtual Lng32 GetIpcBufferSize() const
-	{
-		return SIZE_OF_PACK_BUFFER; // Initial size 
-	}
+  //----------------------------------//
+  //	Mutators
+  //----------------------------------//
+ public:
+  //-- Single execution step.
+  //-- Implementation of pure virtual functions
+  virtual void Work();
+  virtual void Init();
 
-private:
-	enum STATES {  EX_CHECK = REMOTE_STATES_START };
+ protected:
+  enum { SIZE_OF_PACK_BUFFER = 1000 };
 
-private:
-	//-- Prevent copying
-	CRUEmpCheckTaskExecutor(const CRUEmpCheckTaskExecutor &other);
-	CRUEmpCheckTaskExecutor &operator = (const CRUEmpCheckTaskExecutor &other);
+  //-- Implementation of pure virtual
+  virtual Lng32 GetIpcBufferSize() const {
+    return SIZE_OF_PACK_BUFFER;  // Initial size
+  }
 
-private:
-	//-- Work() callees
-	void PerformEmptinessCheck();
+ private:
+  enum STATES { EX_CHECK = REMOTE_STATES_START };
 
-private:
-	CRUEmpCheck *pEmpCheck_;
+ private:
+  //-- Prevent copying
+  CRUEmpCheckTaskExecutor(const CRUEmpCheckTaskExecutor &other);
+  CRUEmpCheckTaskExecutor &operator=(const CRUEmpCheckTaskExecutor &other);
+
+ private:
+  //-- Work() callees
+  void PerformEmptinessCheck();
+
+ private:
+  CRUEmpCheck *pEmpCheck_;
 };
 
 #endif

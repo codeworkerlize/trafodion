@@ -37,12 +37,11 @@
  *****************************************************************************
  */
 
-
 #include "StmtDDLNode.h"
 #include "AllStmtDDLAlterTable.h"
 #include "AllStmtDDLCreate.h"
 #include "AllStmtDDLDrop.h"
-#include "AllStmtDDLAlter.h" // MV - RG
+#include "AllStmtDDLAlter.h"  // MV - RG
 #include "AllStmtDDLGive.h"
 #include "StmtDDLAlterCatalog.h"
 #include "parser/StmtDDLAlterSchema.h"
@@ -63,11 +62,8 @@
 #include "parser/StmtDDLUserGroup.h"
 #include "parser/StmtDDLTenant.h"
 #include "parser/StmtDDLResourceGroup.h"
-#include "parser/StmtDDLRegOrUnregHive.h"
 #include "parser/StmtDDLCreateRole.h"
 #include "parser/StmtDDLRoleGrant.h"
 #include "parser/StmtDDLCleanupObjects.h"
 #include "parser/StmtDDLAlterSchemaHDFSCache.h"
-#include "parser/StmtDDLonHiveObjects.h"
 #include "parser/StmtDDLAlterSharedCache.h"
-

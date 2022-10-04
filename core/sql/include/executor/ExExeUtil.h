@@ -23,7 +23,6 @@
 #ifndef EX_EXE_UTIL_H
 #define EX_EXE_UTIL_H
 
-
 /* -*-C++-*-
 *****************************************************************************
 *
@@ -56,7 +55,7 @@ class ExProcessStats;
 class ExpHbaseInterface;
 class ExpExtStorageInterface;
 
-//class FILE_STREAM;
+// class FILE_STREAM;
 #include "common/ComAnsiNamePart.h"
 #include "comexe/ComTdbExeUtil.h"
 #include "comexe/ComTdbRoot.h"
@@ -67,13 +66,13 @@ class ExpExtStorageInterface;
 
 #include "SequenceFileReader.h"
 
-#define TO_FMT3u(u) MINOF(((u)+500)/1000, 999)
+#define TO_FMT3u(u)                MINOF(((u) + 500) / 1000, 999)
 #define MAX_ACCUMULATED_STATS_DESC 2
 #define MAX_PERTABLE_STATS_DESC    256
-#define MAX_PROGRESS_STATS_DESC    256 
+#define MAX_PROGRESS_STATS_DESC    256
 #define MAX_OPERATOR_STATS_DESC    512
 #define MAX_RMS_STATS_DESC         512
-#define BUFFER_SIZE 4000
+#define BUFFER_SIZE                4000
 #define MAX_AUTHIDTYPE_CHAR        11
 #define MAX_USERINFO_CHAR          257
 // max number of attempts to create ORSERV upon failure
@@ -97,20 +96,16 @@ class ex_tcb;
 // -----------------------------------------------------------------------
 // ExExeUtilTdb
 // -----------------------------------------------------------------------
-class ExExeUtilTdb : public ComTdbExeUtil
-{
+class ExExeUtilTdb : public ComTdbExeUtil {
  public:
-
   // ---------------------------------------------------------------------
   // Constructor is only called to instantiate an object used for
   // retrieval of the virtual table function pointer of the class while
   // unpacking. An empty constructor is enough.
   // ---------------------------------------------------------------------
-  ExExeUtilTdb()
-    {}
+  ExExeUtilTdb() {}
 
-  virtual ~ExExeUtilTdb()
-    {}
+  virtual ~ExExeUtilTdb() {}
 
   // ---------------------------------------------------------------------
   // Build a TCB for this TDB. Redefined in the Executor project.
@@ -145,47 +140,27 @@ class ExExeUtilTdb : public ComTdbExeUtil
   // ---------------------------------------------------------------------
 };
 
-
 struct QueryString {
-  public:
-const char * str;
+ public:
+  const char *str;
 };
 
 //
 // Task control block
 //
-class ExExeUtilTcb : public ex_tcb
-{
+class ExExeUtilTcb : public ex_tcb {
   friend class ExExeUtilTdb;
   friend class ExExeUtilPrivateState;
 
  public:
-  enum Step
-    {
-      EMPTY_,
-      PROCESSING_,
-      DONE_,
-      HANDLE_ERROR_,
-      CANCELLED_
-    };
+  enum Step { EMPTY_, PROCESSING_, DONE_, HANDLE_ERROR_, CANCELLED_ };
 
-  enum ProcessQueryStep
-  {
-    PROLOGUE_,
-    EXECUTE_,
-    FETCH_ROW_,
-    RETURN_ROW_,
-    ERROR_RETURN_,
-    CLOSE_,
-    EPILOGUE_,
-    ALL_DONE_
-  };
-
+  enum ProcessQueryStep { PROLOGUE_, EXECUTE_, FETCH_ROW_, RETURN_ROW_, ERROR_RETURN_, CLOSE_, EPILOGUE_, ALL_DONE_ };
 
   // Constructor
-  ExExeUtilTcb(const ComTdbExeUtil & exe_util_tdb,
-               const ex_tcb * child_tcb, // for child queue
-               ex_globals * glob = 0);
+  ExExeUtilTcb(const ComTdbExeUtil &exe_util_tdb,
+               const ex_tcb *child_tcb,  // for child queue
+               ex_globals *glob = 0);
 
   ~ExExeUtilTcb();
 
@@ -197,135 +172,87 @@ class ExExeUtilTcb : public ex_tcb
   virtual void freeResources();
 
   virtual Int32 numChildren() const;
-  virtual const ex_tcb* getChild(Int32 pos) const;
+  virtual const ex_tcb *getChild(Int32 pos) const;
 
-  void glueQueryFragments(Lng32 queryArraySize,
-                          const QueryString * queryArray,
-                          char * &gluedQuery,
+  void glueQueryFragments(Lng32 queryArraySize, const QueryString *queryArray, char *&gluedQuery,
                           Lng32 &gluedQuerySize);
 
   // extract parts from 'objectName' and fixes up delimited names.
-  Lng32 extractParts
-  (char * objectName,
-   char ** parts0,
-   char ** parts1,
-   char ** parts2,
-   NABoolean noValidate = FALSE
-  );
+  Lng32 extractParts(char *objectName, char **parts0, char **parts1, char **parts2, NABoolean noValidate = FALSE);
 
-  virtual short moveRowToUpQueue(const char * row, Lng32 len = -1,
-                                 short * rc = NULL, NABoolean isVarchar = TRUE);
+  virtual short moveRowToUpQueue(const char *row, Lng32 len = -1, short *rc = NULL, NABoolean isVarchar = TRUE);
 
   NABoolean isUpQueueFull(short size);
 
-  static char * getTimeAsString(Int64 t, char * timeBuf,
-                                NABoolean noUsec = FALSE);
-  char * getTimestampAsString(Int64 t, char * timeBuf);
+  static char *getTimeAsString(Int64 t, char *timeBuf, NABoolean noUsec = FALSE);
+  char *getTimestampAsString(Int64 t, char *timeBuf);
 
-  short initializeInfoList(Queue* &infoList);
-  short fetchAllRows(Queue * &infoList,
-                     char * query,
-                     Lng32 numOutputEntries,
-                     NABoolean varcharFormat,
-                     short &rc,
-		     NABoolean monitorThis=FALSE);
-    
-  ex_expr::exp_return_type evalScanExpr(char * ptr, Lng32 len, 
-                                        NABoolean copyToVCbuf);
+  short initializeInfoList(Queue *&infoList);
+  short fetchAllRows(Queue *&infoList, char *query, Lng32 numOutputEntries, NABoolean varcharFormat, short &rc,
+                     NABoolean monitorThis = FALSE);
 
-  char * getStatusString(const char * operation,
-                         const char * status,
-                         const char * object,
-                         char * outBuf,
-                         NABoolean isET = FALSE,
-                         char * timeBuf = NULL,
-                         char * queryBuf = NULL,
-                         char * sqlcodeBuf = NULL);
+  ex_expr::exp_return_type evalScanExpr(char *ptr, Lng32 len, NABoolean copyToVCbuf);
 
-  short executeQuery(char * step, char * object,
-                     char * query,
-                     NABoolean displayStartTime, NABoolean displayEndTime,
-                     short &rc, short * warning, Lng32 * errorCode = NULL,
-                     NABoolean moveErrorRow = TRUE,
-                     NABoolean continueOnError = FALSE,
-		     NABoolean monitorThis=FALSE);
+  char *getStatusString(const char *operation, const char *status, const char *object, char *outBuf,
+                        NABoolean isET = FALSE, char *timeBuf = NULL, char *queryBuf = NULL, char *sqlcodeBuf = NULL);
 
-  ExeCliInterface * cliInterface() { return cliInterface_; };
-  ExeCliInterface * cliInterface2() { return cliInterface2_; };
+  short executeQuery(char *step, char *object, char *query, NABoolean displayStartTime, NABoolean displayEndTime,
+                     short &rc, short *warning, Lng32 *errorCode = NULL, NABoolean moveErrorRow = TRUE,
+                     NABoolean continueOnError = FALSE, NABoolean monitorThis = FALSE);
+
+  ExeCliInterface *cliInterface() { return cliInterface_; };
+  ExeCliInterface *cliInterface2() { return cliInterface2_; };
 
   ComDiagsArea *&getDiagsArea() { return diagsArea_; }
 
-  void setDiagsArea(ComDiagsArea * d) { diagsArea_ = d; }
+  void setDiagsArea(ComDiagsArea *d) { diagsArea_ = d; }
 
-  short setSchemaVersion(char * param1);
+  short setSchemaVersion(char *param1);
 
   short setSystemVersion();
 
-  short holdAndSetCQD(const char * defaultName, const char * defaultValue,
-                      ComDiagsArea * globalDiags = NULL);
+  short holdAndSetCQD(const char *defaultName, const char *defaultValue, ComDiagsArea *globalDiags = NULL);
 
-  short restoreCQD(const char * defaultName, ComDiagsArea * globalDiags = NULL);
+  short restoreCQD(const char *defaultName, ComDiagsArea *globalDiags = NULL);
 
-  short setCS(const char * csName, char * csValue,
-              ComDiagsArea * globalDiags = NULL);
-  short resetCS(const char * csName, ComDiagsArea * globalDiags = NULL);
+  short setCS(const char *csName, char *csValue, ComDiagsArea *globalDiags = NULL);
+  short resetCS(const char *csName, ComDiagsArea *globalDiags = NULL);
 
-  void setMaintainControlTableTimeout(char * catalog);
-  void restoreMaintainControlTableTimeout(char * catalog);
+  void setMaintainControlTableTimeout(char *catalog);
+  void restoreMaintainControlTableTimeout(char *catalog);
 
-  static Lng32 holdAndSetCQD(const char * defaultName, const char * defaultValue,
-                         ExeCliInterface * cliInterface,
-                         ComDiagsArea * globalDiags = NULL);
+  static Lng32 holdAndSetCQD(const char *defaultName, const char *defaultValue, ExeCliInterface *cliInterface,
+                             ComDiagsArea *globalDiags = NULL);
 
-  static Lng32 restoreCQD(const char * defaultName,
-                         ExeCliInterface * cliInterface,
-                         ComDiagsArea * globalDiags = NULL);
+  static Lng32 restoreCQD(const char *defaultName, ExeCliInterface *cliInterface, ComDiagsArea *globalDiags = NULL);
 
-  static Lng32 setCS(const char * csName, char * csValue,
-                    ExeCliInterface * cliInterface,
-                    ComDiagsArea * globalDiags = NULL);
-  static Lng32 resetCS(const char * csName,
-                      ExeCliInterface * cliInterface,
-                      ComDiagsArea * globalDiags = NULL);
+  static Lng32 setCS(const char *csName, char *csValue, ExeCliInterface *cliInterface,
+                     ComDiagsArea *globalDiags = NULL);
+  static Lng32 resetCS(const char *csName, ExeCliInterface *cliInterface, ComDiagsArea *globalDiags = NULL);
 
   short disableCQS();
   short restoreCQS();
 
-  short doubleQuoteStr(char * str, char * newStr,
-                       NABoolean singleQuote);
+  short doubleQuoteStr(char *str, char *newStr, NABoolean singleQuote);
 
-  char * getSchemaVersion()
-  { return (strlen(versionStr_) == 0 ? (char *)"" : versionStr_); }
+  char *getSchemaVersion() { return (strlen(versionStr_) == 0 ? (char *)"" : versionStr_); }
 
-  char * getSystemVersion()
-  { return (strlen(sysVersionStr_) == 0 ? NULL : sysVersionStr_); }
+  char *getSystemVersion() { return (strlen(sysVersionStr_) == 0 ? NULL : sysVersionStr_); }
 
   Lng32 getSchemaVersionLen() { return versionStrLen_; }
 
-  short getObjectUid(char * catName, char * schName,
-                     char * objName,
-                     NABoolean isIndex, NABoolean isMv,
-                     char * uid);
+  short getObjectUid(char *catName, char *schName, char *objName, NABoolean isIndex, NABoolean isMv, char *uid);
 
   Int64 getObjectFlags(Int64 objectUID);
 
-  short lockUnlockObject(char * tableName,
-                         NABoolean lock,
-                         NABoolean parallel,
-                         char * failReason);
+  short lockUnlockObject(char *tableName, NABoolean lock, NABoolean parallel, char *failReason);
 
-  short alterObjectState(NABoolean online, char * tableName,
-                         char * failReason, NABoolean forPurgedata);
-  short alterDDLLock(NABoolean add, char * tableName,
-                     char * failReason, NABoolean isMV,
-                     Int32 lockType,
-                     const char * lockPrefix = NULL,
-                     NABoolean skipDDLLockCheck = FALSE);
-  short alterCorruptBit(short val, char * tableName,
-                        char * failReason, Queue* indexList);
+  short alterObjectState(NABoolean online, char *tableName, char *failReason, NABoolean forPurgedata);
+  short alterDDLLock(NABoolean add, char *tableName, char *failReason, NABoolean isMV, Int32 lockType,
+                     const char *lockPrefix = NULL, NABoolean skipDDLLockCheck = FALSE);
+  short alterCorruptBit(short val, char *tableName, char *failReason, Queue *indexList);
 
-  short alterAuditFlag(NABoolean audited, char * tableName,
-                       NABoolean isIndex);
+  short alterAuditFlag(NABoolean audited, char *tableName, NABoolean isIndex);
 
   short handleError();
 
@@ -336,54 +263,40 @@ class ExExeUtilTcb : public ex_tcb
   // Error: -1, creation of IpcServerClass failed.
   //        -2, PROCESSNAME_CREATE_ failed.
   //        -3, allocateServerProcess failed.
-  short createServer(char *serverName,
-                     const char *inPName,
-                     IpcServerTypeEnum serverType,
-                     IpcServerAllocationMethod servAllocMethod,
-                     char *nodeName,
-                     short cpu,
-                     const char *partnName,
-                     Lng32 priority,
-                     IpcServer* &ipcServer,
-                     NABoolean logError,
-                     const char * operation);
+  short createServer(char *serverName, const char *inPName, IpcServerTypeEnum serverType,
+                     IpcServerAllocationMethod servAllocMethod, char *nodeName, short cpu, const char *partnName,
+                     Lng32 priority, IpcServer *&ipcServer, NABoolean logError, const char *operation);
 
   void deleteServer(IpcServer *ipcServer);
 
-  NABoolean isProcessObsolete(short cpu, pid_t pin, short segmentNum,
-                              Int64 procCreateTime);
+  NABoolean isProcessObsolete(short cpu, pid_t pin, short segmentNum, Int64 procCreateTime);
 
-protected:
+ protected:
+  const ex_tcb *childTcb_;
 
-  const ex_tcb * childTcb_;
+  ex_queue_pair qparent_;
+  ex_queue_pair qchild_;
 
-  ex_queue_pair         qparent_;
-  ex_queue_pair  qchild_;
+  atp_struct *workAtp_;
 
-  atp_struct * workAtp_;
+  ComDiagsArea *diagsArea_;
 
-  ComDiagsArea * diagsArea_;
-
-  char * query_;
+  char *query_;
 
   unsigned short tcbFlags_;
 
-  char * explQuery_;
+  char *explQuery_;
 
-  ExExeUtilTdb & exeUtilTdb() const{return (ExExeUtilTdb &) tdb;};
+  ExExeUtilTdb &exeUtilTdb() const { return (ExExeUtilTdb &)tdb; };
   void handleErrors(Lng32 error);
 
-  CollHeap * getMyHeap()
-    {
-      return (getGlobals()->getDefaultHeap());
-    };
+  CollHeap *getMyHeap() { return (getGlobals()->getDefaultHeap()); };
 
-  void  AddCommas (char *outStr, Lng32 &intSize) const;
-  void FormatFloat (char *outStr, Lng32 &intSize,
-                    Lng32 &fullSize, double floatVal,
-                    NABoolean normalMode, NABoolean expertMode)const;
+  void AddCommas(char *outStr, Lng32 &intSize) const;
+  void FormatFloat(char *outStr, Lng32 &intSize, Lng32 &fullSize, double floatVal, NABoolean normalMode,
+                   NABoolean expertMode) const;
 
-  Queue * infoList_;
+  Queue *infoList_;
   NABoolean infoListIsOutputInfo_;
   char *childQueryId_;
   Lng32 childQueryIdLen_;
@@ -393,17 +306,17 @@ protected:
 
   char failReason_[2000];
 
-private:
-  ExeCliInterface * cliInterface_;
-  ExeCliInterface * cliInterface2_;
+ private:
+  ExeCliInterface *cliInterface_;
+  ExeCliInterface *cliInterface2_;
 
   ProcessQueryStep pqStep_;
 
-  char   versionStr_[10];
-  Lng32   versionStrLen_;
+  char versionStr_[10];
+  Lng32 versionStrLen_;
 
-  char   sysVersionStr_[10];
-  Lng32   sysVersionStrLen_;
+  char sysVersionStr_[10];
+  Lng32 sysVersionStrLen_;
 
   NABoolean restoreTimeout_;
 
@@ -416,8 +329,7 @@ private:
   short warning_;
 };
 
-class ExExeUtilPrivateState : public ex_tcb_private_state
-{
+class ExExeUtilPrivateState : public ex_tcb_private_state {
   friend class ExExeUtilTcb;
   friend class ExExeUtilCleanupVolatileTablesTcb;
   friend class ExExeUtilCreateTableAsTcb;
@@ -425,11 +337,11 @@ class ExExeUtilPrivateState : public ex_tcb_private_state
   friend class ExExeUtilHBaseBulkLoadTcb;
   friend class ExExeUtilUpdataDeleteTcb;
 
-
  public:
-  ExExeUtilPrivateState(const ExExeUtilTcb * tcb); //constructor
-  ~ExExeUtilPrivateState();        // destructor
-  ex_tcb_private_state * allocate_new(const ex_tcb * tcb);
+  ExExeUtilPrivateState(const ExExeUtilTcb *tcb);  // constructor
+  ~ExExeUtilPrivateState();                        // destructor
+  ex_tcb_private_state *allocate_new(const ex_tcb *tcb);
+
  protected:
   ExExeUtilTcb::Step step_;
   Int64 matches_;
@@ -438,20 +350,16 @@ class ExExeUtilPrivateState : public ex_tcb_private_state
 // -----------------------------------------------------------------------
 // ExExeUtilDisplayExplainTdb
 // -----------------------------------------------------------------------
-class ExExeUtilDisplayExplainTdb : public ComTdbExeUtilDisplayExplain
-{
+class ExExeUtilDisplayExplainTdb : public ComTdbExeUtilDisplayExplain {
  public:
-
   // ---------------------------------------------------------------------
   // Constructor is only called to instantiate an object used for
   // retrieval of the virtual table function pointer of the class while
   // unpacking. An empty constructor is enough.
   // ---------------------------------------------------------------------
-  ExExeUtilDisplayExplainTdb()
-    {}
+  ExExeUtilDisplayExplainTdb() {}
 
-  virtual ~ExExeUtilDisplayExplainTdb()
-    {}
+  virtual ~ExExeUtilDisplayExplainTdb() {}
 
   // ---------------------------------------------------------------------
   // Build a TCB for this TDB. Redefined in the Executor project.
@@ -486,110 +394,101 @@ class ExExeUtilDisplayExplainTdb : public ComTdbExeUtilDisplayExplain
   // ---------------------------------------------------------------------
 };
 
-
 //
 // Task control block
 //
-class ExExeUtilDisplayExplainTcb : public ExExeUtilTcb
-{
+class ExExeUtilDisplayExplainTcb : public ExExeUtilTcb {
   friend class ExExeUtilDisplayExplainTdb;
   friend class ExExeUtilPrivateState;
 
  public:
-
   // Constructor
-  ExExeUtilDisplayExplainTcb(const ComTdbExeUtilDisplayExplain & exe_util_tdb,
-                             ex_globals * glob = 0);
+  ExExeUtilDisplayExplainTcb(const ComTdbExeUtilDisplayExplain &exe_util_tdb, ex_globals *glob = 0);
 
   ~ExExeUtilDisplayExplainTcb();
 
   virtual short work();
 
-  virtual ex_tcb_private_state * allocatePstates(
-                                                            Lng32 &numElems,      // inout, desired/actual elements
-                                                            Lng32 &pstateLength); // out, length of one element
+  virtual ex_tcb_private_state *allocatePstates(Lng32 &numElems,       // inout, desired/actual elements
+                                                Lng32 &pstateLength);  // out, length of one element
 
   short processExplainRows();
 
-  //state machine states for work() method
-  enum Step
-    {
-      EMPTY_,
-      PREPARE_,
-      SETUP_EXPLAIN_,
-      FETCH_PROLOGUE_,
-      FETCH_EXPLAIN_ROW_,
-      FETCH_FIRST_EXPLAIN_ROW_,
-      GET_COLUMNS_,
-      DO_HEADER_,
-      DO_OPERATOR_,
-      RETURN_FMT_ROWS_,
-      RETURN_EXPLAIN_ROW_,
-      FETCH_EPILOGUE_,
-      FETCH_EPILOGUE_AND_RETURN_ERROR_,
-      DONE_,
-      HANDLE_ERROR_,
-      RETURN_ERROR_,
-      CANCELLED_
-    };
+  // state machine states for work() method
+  enum Step {
+    EMPTY_,
+    PREPARE_,
+    SETUP_EXPLAIN_,
+    FETCH_PROLOGUE_,
+    FETCH_EXPLAIN_ROW_,
+    FETCH_FIRST_EXPLAIN_ROW_,
+    GET_COLUMNS_,
+    DO_HEADER_,
+    DO_OPERATOR_,
+    RETURN_FMT_ROWS_,
+    RETURN_EXPLAIN_ROW_,
+    FETCH_EPILOGUE_,
+    FETCH_EPILOGUE_AND_RETURN_ERROR_,
+    DONE_,
+    HANDLE_ERROR_,
+    RETURN_ERROR_,
+    CANCELLED_
+  };
 
  protected:
-
  private:
   // Enums
   //  enum { MLINE = 74    };          // max number of lines in the array, 3000/50 + 14
   //  enum { MLEN  = 80    };          // max length of each line
-  enum { MNAME = 60    };          // width of the returned SQL name columns
-  enum { MOPER = 30    };          // width of the returned SQL operator column
-  enum { MCOST = 200   };          // width of the returned SQL detailed_cost column
-  enum { MDESC = 30000  };          // width of the returned SQL description column
-  enum { MUSERSP = 20  };          // max output number space for user
+  enum { MNAME = 60 };     // width of the returned SQL name columns
+  enum { MOPER = 30 };     // width of the returned SQL operator column
+  enum { MCOST = 200 };    // width of the returned SQL detailed_cost column
+  enum { MDESC = 30000 };  // width of the returned SQL description column
+  enum { MUSERSP = 20 };   // max output number space for user
   //  enum { MWIDE = MLEN-1};          // max line width in char for output
-  enum { COL2  = 28    };          // position of column 2 (value) on the line
-  enum Option                      //which output format we are using
-    {
-      N_,
-      E_,
-      F_,
-      M_
-    };
+  enum { COL2 = 28 };  // position of column 2 (value) on the line
+  enum Option          // which output format we are using
+  { N_,
+    E_,
+    F_,
+    M_ };
 
   // Variables
-  SQLMODULE_ID * module_;
-  SQLSTMT_ID   * stmt_;
-  SQLDESC_ID   * sql_src_;
-  SQLDESC_ID   * input_desc_;
-  SQLDESC_ID   * output_desc_;
-  char         * outputBuf_;
-  char * explainQuery_;
+  SQLMODULE_ID *module_;
+  SQLSTMT_ID *stmt_;
+  SQLDESC_ID *sql_src_;
+  SQLDESC_ID *input_desc_;
+  SQLDESC_ID *output_desc_;
+  char *outputBuf_;
+  char *explainQuery_;
 
-  Option optFlag_;              // option flag
-  char ** lines_;
+  Option optFlag_;  // option flag
+  char **lines_;
   //  char  lines_[MLINE][MLEN];    // array of MLINE lines MLEN char wide
-  Lng32  cntLines_;              // count of lines in lines_ array
-  Lng32  nextLine_;              // number of next line to output from array
-  char* parsePtr_;              // location in input string being parsed
-  Lng32  header_;                // flag saying current node is root if 1
-  Lng32  lastFrag_;              // previous row fragment number
-  char  lastOp_[MOPER+1];       // previous row operator name
+  Lng32 cntLines_;          // count of lines in lines_ array
+  Lng32 nextLine_;          // number of next line to output from array
+  char *parsePtr_;          // location in input string being parsed
+  Lng32 header_;            // flag saying current node is root if 1
+  Lng32 lastFrag_;          // previous row fragment number
+  char lastOp_[MOPER + 1];  // previous row operator name
 
-  char * optFOutput;
+  char *optFOutput;
   //  char  optFOutput[MLEN];        // formatted line for optionsF
 
   // Next 13 are the local column data, storage for one node's info
-  char  moduleName_[MNAME+1];   // module name column, sometimes null, MNAME=60
-  char  statementName_[MNAME+1];// stmt name column, sometimes null, MNAME=60
-  Int64 planId_;                // large number, unique per plan
-  Lng32  seqNum_;                // number of this node
-  char  operName_[MOPER+1];     // operator name, MOPER=30
-  Lng32  leftChild_;             // number of left child
-  Lng32  rightChild_;            // number of right child
-  char  tName_[MNAME+1];        // table name, often null, MNAME=60
-  float cardinality_;           // number of rows returned by this node
-  float operatorCost_;          // cost of this node alone, in seconds
-  float totalCost_;             // cost of this node and all children, in seconds
-  char  detailCost_[MCOST+1];   // node cost in 5 parts in key-value format, MCOST=200
-  char  description_[MDESC+1];  // other attributs in key-value format, MDESC=3000
+  char moduleName_[MNAME + 1];     // module name column, sometimes null, MNAME=60
+  char statementName_[MNAME + 1];  // stmt name column, sometimes null, MNAME=60
+  Int64 planId_;                   // large number, unique per plan
+  Lng32 seqNum_;                   // number of this node
+  char operName_[MOPER + 1];       // operator name, MOPER=30
+  Lng32 leftChild_;                // number of left child
+  Lng32 rightChild_;               // number of right child
+  char tName_[MNAME + 1];          // table name, often null, MNAME=60
+  float cardinality_;              // number of rows returned by this node
+  float operatorCost_;             // cost of this node alone, in seconds
+  float totalCost_;                // cost of this node and all children, in seconds
+  char detailCost_[MCOST + 1];     // node cost in 5 parts in key-value format, MCOST=200
+  char description_[MDESC + 1];    // other attributs in key-value format, MDESC=3000
 
   Lng32 MLINE;
   Lng32 MLEN;
@@ -597,42 +496,34 @@ class ExExeUtilDisplayExplainTcb : public ExExeUtilTcb
 
   // Methods
   short GetColumns();
-  void  FormatForF();                // formats the line for optionsF and places into optFOutput
-  void  DoHeader();
-  void  DoOperator();
+  void FormatForF();  // formats the line for optionsF and places into optFOutput
+  void DoHeader();
+  void DoOperator();
   short OutputLines();
-  void  truncate_whitespace(char * str) const;
-  void  DoSeparator();
-  //void  AddCommas (char *outStr, long &intSize) const;
-  //void  FormatFloat (char *outStr, long &intSize, long &fullSize, float floatVal) const;
-  void  FormatNumber (char *outStr, Lng32 &intSize, Lng32 &fullSize, char *strVal) const;
-  Lng32  GetField (char *col, const char *key, char *&fieldptr, Lng32 &fullSize) const;
-  Lng32  ParseField (char *&keyptr, char *&fieldptr, Lng32 &keySize, Lng32 &fullSize,
-                    Lng32 &done);
-  Lng32  IsNumberFmt(char *fieldptr) const;
-  void  FormatFirstLine (void);
-  NABoolean filterKey(
-       const char *key, Lng32 keySize, char * value, char * retVal,
-       Lng32 &decLoc);
-  void  FormatLine (const char *key, const char *val, Lng32 keySize, Lng32 valSize,
-                    Lng32 indent = 0, Lng32 decLoc = 0);
-  void  FormatLongLine (const char *key, char *val, Lng32 keySize, Lng32 valSize,
-                        Lng32 indent = 0);
-  void  FormatSQL (const char *key, char *val, Lng32 keySize, Lng32 valSize, Lng32 indent = 0);
-  Lng32  FindParens(char *inStr, Lng32 par[]) const;
+  void truncate_whitespace(char *str) const;
+  void DoSeparator();
+  // void  AddCommas (char *outStr, long &intSize) const;
+  // void  FormatFloat (char *outStr, long &intSize, long &fullSize, float floatVal) const;
+  void FormatNumber(char *outStr, Lng32 &intSize, Lng32 &fullSize, char *strVal) const;
+  Lng32 GetField(char *col, const char *key, char *&fieldptr, Lng32 &fullSize) const;
+  Lng32 ParseField(char *&keyptr, char *&fieldptr, Lng32 &keySize, Lng32 &fullSize, Lng32 &done);
+  Lng32 IsNumberFmt(char *fieldptr) const;
+  void FormatFirstLine(void);
+  NABoolean filterKey(const char *key, Lng32 keySize, char *value, char *retVal, Lng32 &decLoc);
+  void FormatLine(const char *key, const char *val, Lng32 keySize, Lng32 valSize, Lng32 indent = 0, Lng32 decLoc = 0);
+  void FormatLongLine(const char *key, char *val, Lng32 keySize, Lng32 valSize, Lng32 indent = 0);
+  void FormatSQL(const char *key, char *val, Lng32 keySize, Lng32 valSize, Lng32 indent = 0);
+  Lng32 FindParens(char *inStr, Lng32 par[]) const;
 
-  ExExeUtilDisplayExplainTdb & exeUtilTdb() const
-    {return (ExExeUtilDisplayExplainTdb &) tdb;};
+  ExExeUtilDisplayExplainTdb &exeUtilTdb() const { return (ExExeUtilDisplayExplainTdb &)tdb; };
 };
 
-
-class ExExeUtilDisplayExplainPrivateState : public ex_tcb_private_state
-{
+class ExExeUtilDisplayExplainPrivateState : public ex_tcb_private_state {
   friend class ExExeUtilDisplayExplainTcb;
 
  public:
   ExExeUtilDisplayExplainPrivateState();
-  ~ExExeUtilDisplayExplainPrivateState();        // destructor
+  ~ExExeUtilDisplayExplainPrivateState();  // destructor
  protected:
   ExExeUtilDisplayExplainTcb::Step step_;
   Int64 matches_;
@@ -640,24 +531,19 @@ class ExExeUtilDisplayExplainPrivateState : public ex_tcb_private_state
 
 //////////////////////////////////////////////////////////////////////////
 
-
 // -----------------------------------------------------------------------
 // ExExeUtilDisplayExplainComplexTdb
 // -----------------------------------------------------------------------
-class ExExeUtilDisplayExplainComplexTdb : public ComTdbExeUtilDisplayExplainComplex
-{
+class ExExeUtilDisplayExplainComplexTdb : public ComTdbExeUtilDisplayExplainComplex {
  public:
-
   // ---------------------------------------------------------------------
   // Constructor is only called to instantiate an object used for
   // retrieval of the virtual table function pointer of the class while
   // unpacking. An empty constructor is enough.
   // ---------------------------------------------------------------------
-  ExExeUtilDisplayExplainComplexTdb()
-    {}
+  ExExeUtilDisplayExplainComplexTdb() {}
 
-  virtual ~ExExeUtilDisplayExplainComplexTdb()
-    {}
+  virtual ~ExExeUtilDisplayExplainComplexTdb() {}
 
   // ---------------------------------------------------------------------
   // Build a TCB for this TDB. Redefined in the Executor project.
@@ -692,113 +578,89 @@ class ExExeUtilDisplayExplainComplexTdb : public ComTdbExeUtilDisplayExplainComp
   // ---------------------------------------------------------------------
 };
 
-
 //
 // Task control block
 //
-class ExExeUtilDisplayExplainComplexTcb : public ExExeUtilTcb
-{
+class ExExeUtilDisplayExplainComplexTcb : public ExExeUtilTcb {
   friend class ExExeUtilDisplayExplainComplexTdb;
   friend class ExExeUtilPrivateState;
 
  public:
-
   // Constructor
-  ExExeUtilDisplayExplainComplexTcb(const ComTdbExeUtilDisplayExplainComplex & exe_util_tdb,
-                                    ex_globals * glob = 0);
+  ExExeUtilDisplayExplainComplexTcb(const ComTdbExeUtilDisplayExplainComplex &exe_util_tdb, ex_globals *glob = 0);
 
   ~ExExeUtilDisplayExplainComplexTcb();
 
   virtual short work();
 
-  virtual ex_tcb_private_state *
-  allocatePstates(
-       Lng32 &numElems,      // inout, desired/actual elements
-       Lng32 &pstateLength); // out, length of one element
+  virtual ex_tcb_private_state *allocatePstates(Lng32 &numElems,       // inout, desired/actual elements
+                                                Lng32 &pstateLength);  // out, length of one element
 
-private:
-  //state machine states for work() method
-  enum Step
-    {
-      EMPTY_,
-      TURN_ON_IMOD_,
-      IN_MEMORY_BASE_TABLE_CREATE_,
-      IN_MEMORY_CREATE_,
-      REGULAR_CREATE_,
-      EXPLAIN_CREATE_,
-      EXPLAIN_INSERT_SELECT_,
-      DROP_AND_ERROR_,
-      DROP_AND_DONE_,
-      DONE_,
-      ERROR_,
-      CANCELLED_
-    };
+ private:
+  // state machine states for work() method
+  enum Step {
+    EMPTY_,
+    TURN_ON_IMOD_,
+    IN_MEMORY_BASE_TABLE_CREATE_,
+    IN_MEMORY_CREATE_,
+    REGULAR_CREATE_,
+    EXPLAIN_CREATE_,
+    EXPLAIN_INSERT_SELECT_,
+    DROP_AND_ERROR_,
+    DROP_AND_DONE_,
+    DONE_,
+    ERROR_,
+    CANCELLED_
+  };
 
-  ExExeUtilDisplayExplainComplexTdb & exeUtilTdb() const
-    {return (ExExeUtilDisplayExplainComplexTdb &) tdb;};
+  ExExeUtilDisplayExplainComplexTdb &exeUtilTdb() const { return (ExExeUtilDisplayExplainComplexTdb &)tdb; };
 
   Step step_;
 };
 
-class ExExeUtilDisplayExplainComplexPrivateState : public ex_tcb_private_state
-{
+class ExExeUtilDisplayExplainComplexPrivateState : public ex_tcb_private_state {
   friend class ExExeUtilDisplayExplainComplexTcb;
 
-public:
+ public:
   ExExeUtilDisplayExplainComplexPrivateState();
-  ~ExExeUtilDisplayExplainComplexPrivateState();        // destructor
-protected:
+  ~ExExeUtilDisplayExplainComplexPrivateState();  // destructor
+ protected:
   Int64 matches_;
 };
 
-class ExExeUtilDisplayExplainShowddlTcb : public ExExeUtilTcb
-{
+class ExExeUtilDisplayExplainShowddlTcb : public ExExeUtilTcb {
   friend class ExExeUtilDisplayExplainComplexTdb;
   friend class ExExeUtilPrivateState;
 
  public:
-
   // Constructor
-  ExExeUtilDisplayExplainShowddlTcb(const ComTdbExeUtilDisplayExplainComplex & exe_util_tdb,
-                                    ex_globals * glob = 0);
+  ExExeUtilDisplayExplainShowddlTcb(const ComTdbExeUtilDisplayExplainComplex &exe_util_tdb, ex_globals *glob = 0);
 
   ~ExExeUtilDisplayExplainShowddlTcb();
 
   virtual short work();
 
-  virtual ex_tcb_private_state *
-  allocatePstates(
-       Lng32 &numElems,      // inout, desired/actual elements
-       Lng32 &pstateLength); // out, length of one element
+  virtual ex_tcb_private_state *allocatePstates(Lng32 &numElems,       // inout, desired/actual elements
+                                                Lng32 &pstateLength);  // out, length of one element
 
-private:
-  //state machine states for work() method
-  enum Step
-    {
-      EMPTY_,
-      GET_LABEL_STATS_,
-      EXPLAIN_CREATE_,
-      DONE_,
-      ERROR_,
-      CANCELLED_
-    };
+ private:
+  // state machine states for work() method
+  enum Step { EMPTY_, GET_LABEL_STATS_, EXPLAIN_CREATE_, DONE_, ERROR_, CANCELLED_ };
 
-  ExExeUtilDisplayExplainComplexTdb & exeUtilTdb() const
-    {return (ExExeUtilDisplayExplainComplexTdb &) tdb;};
+  ExExeUtilDisplayExplainComplexTdb &exeUtilTdb() const { return (ExExeUtilDisplayExplainComplexTdb &)tdb; };
 
   Step step_;
 
-  char * newQry_;
+  char *newQry_;
 };
 
-class ExExeUtilDisplayExplainShowddlPrivateState : public ex_tcb_private_state
-{
+class ExExeUtilDisplayExplainShowddlPrivateState : public ex_tcb_private_state {
   friend class ExExeUtilDisplayExplainShowddlTcb;
 
-public:
+ public:
   ExExeUtilDisplayExplainShowddlPrivateState();
-  ~ExExeUtilDisplayExplainShowddlPrivateState();        // destructor
-protected:
+  ~ExExeUtilDisplayExplainShowddlPrivateState();  // destructor
+ protected:
   Int64 matches_;
 };
 
@@ -806,20 +668,16 @@ protected:
 // -----------------------------------------------------------------------
 // ExExeUtilCreateTableAsTdb
 // -----------------------------------------------------------------------
-class ExExeUtilCreateTableAsTdb : public ComTdbExeUtilCreateTableAs
-{
+class ExExeUtilCreateTableAsTdb : public ComTdbExeUtilCreateTableAs {
  public:
-
   // ---------------------------------------------------------------------
   // Constructor is only called to instantiate an object used for
   // retrieval of the virtual table function pointer of the class while
   // unpacking. An empty constructor is enough.
   // ---------------------------------------------------------------------
-  ExExeUtilCreateTableAsTdb()
-    {}
+  ExExeUtilCreateTableAsTdb() {}
 
-  virtual ~ExExeUtilCreateTableAsTdb()
-    {}
+  virtual ~ExExeUtilCreateTableAsTdb() {}
 
   // ---------------------------------------------------------------------
   // Build a TCB for this TDB. Redefined in the Executor project.
@@ -854,45 +712,39 @@ class ExExeUtilCreateTableAsTdb : public ComTdbExeUtilCreateTableAs
   // ---------------------------------------------------------------------
 };
 
-class ExExeUtilCreateTableAsTcb : public ExExeUtilTcb
-{
+class ExExeUtilCreateTableAsTcb : public ExExeUtilTcb {
   friend class ExExeUtilCreateTableAsTdb;
   friend class ExExeUtilPrivateState;
 
  public:
   // Constructor
-  ExExeUtilCreateTableAsTcb(const ComTdbExeUtil & exe_util_tdb,
-                            ex_globals * glob = 0);
+  ExExeUtilCreateTableAsTcb(const ComTdbExeUtil &exe_util_tdb, ex_globals *glob = 0);
 
   virtual short work();
 
-  ExExeUtilCreateTableAsTdb & ctaTdb() const
-    {
-      return (ExExeUtilCreateTableAsTdb &) tdb;
-    };
+  ExExeUtilCreateTableAsTdb &ctaTdb() const { return (ExExeUtilCreateTableAsTdb &)tdb; };
 
-  virtual ex_tcb_private_state * allocatePstates(
-       Lng32 &numElems,      // inout, desired/actual elements
-       Lng32 &pstateLength); // out, length of one element
+  virtual ex_tcb_private_state *allocatePstates(Lng32 &numElems,       // inout, desired/actual elements
+                                                Lng32 &pstateLength);  // out, length of one element
 
  private:
-  enum Step
-    {
-      INITIAL_,
-      CREATE_,
-      TRUNCATE_TABLE_,
-      INSERT_ROWS_,
-      INSERT_SIDETREE_,
-      INSERT_VSBB_,
-      UPD_STATS_,
-      DONE_,
-      HANDLE_ERROR_, TRUNCATE_TABLE_AND_ERROR_, ERROR_,
-      DROP_AND_ERROR_,
-      DROP_AND_DONE_,
-      INSERT_SIDETREE_EXECUTE_,
-      INSERT_VSBB_EXECUTE_
-    };
-
+  enum Step {
+    INITIAL_,
+    CREATE_,
+    TRUNCATE_TABLE_,
+    INSERT_ROWS_,
+    INSERT_SIDETREE_,
+    INSERT_VSBB_,
+    UPD_STATS_,
+    DONE_,
+    HANDLE_ERROR_,
+    TRUNCATE_TABLE_AND_ERROR_,
+    ERROR_,
+    DROP_AND_ERROR_,
+    DROP_AND_DONE_,
+    INSERT_SIDETREE_EXECUTE_,
+    INSERT_VSBB_EXECUTE_
+  };
 
   Step step_;
 
@@ -901,13 +753,12 @@ class ExExeUtilCreateTableAsTcb : public ExExeUtilTcb
   NABoolean tableExists_;
 };
 
-class ExExeUtilCreateTableAsPrivateState : public ex_tcb_private_state
-{
+class ExExeUtilCreateTableAsPrivateState : public ex_tcb_private_state {
   friend class ExExeUtilCreateTableAsTcb;
 
  public:
   ExExeUtilCreateTableAsPrivateState();
-  ~ExExeUtilCreateTableAsPrivateState();        // destructor
+  ~ExExeUtilCreateTableAsPrivateState();  // destructor
  protected:
 };
 
@@ -915,20 +766,16 @@ class ExExeUtilCreateTableAsPrivateState : public ex_tcb_private_state
 // -----------------------------------------------------------------------
 // ExExeUtilCleanupVolatileTablesTdb
 // -----------------------------------------------------------------------
-class ExExeUtilCleanupVolatileTablesTdb : public ComTdbExeUtilCleanupVolatileTables
-{
+class ExExeUtilCleanupVolatileTablesTdb : public ComTdbExeUtilCleanupVolatileTables {
  public:
-
   // ---------------------------------------------------------------------
   // Constructor is only called to instantiate an object used for
   // retrieval of the virtual table function pointer of the class while
   // unpacking. An empty constructor is enough.
   // ---------------------------------------------------------------------
-  ExExeUtilCleanupVolatileTablesTdb()
-    {}
+  ExExeUtilCleanupVolatileTablesTdb() {}
 
-  virtual ~ExExeUtilCleanupVolatileTablesTdb()
-    {}
+  virtual ~ExExeUtilCleanupVolatileTablesTdb() {}
 
   // ---------------------------------------------------------------------
   // Build a TCB for this TDB. Redefined in the Executor project.
@@ -963,80 +810,65 @@ class ExExeUtilCleanupVolatileTablesTdb : public ComTdbExeUtilCleanupVolatileTab
   // ---------------------------------------------------------------------
 };
 
-class ExExeUtilVolatileTablesTcb : public ExExeUtilTcb
-{
+class ExExeUtilVolatileTablesTcb : public ExExeUtilTcb {
  public:
   // Constructor
-  ExExeUtilVolatileTablesTcb(const ComTdbExeUtil & exe_util_tdb,
-                             ex_globals * glob = 0);
+  ExExeUtilVolatileTablesTcb(const ComTdbExeUtil &exe_util_tdb, ex_globals *glob = 0);
 
-  virtual ex_tcb_private_state * allocatePstates(
-                                                 Lng32 &numElems,      // inout, desired/actual elements
-                                                 Lng32 &pstateLength); // out, length of one element
+  virtual ex_tcb_private_state *allocatePstates(Lng32 &numElems,       // inout, desired/actual elements
+                                                Lng32 &pstateLength);  // out, length of one element
 
  protected:
-  short isCreatorProcessObsolete(const char * name,
-                                 NABoolean includesCat,
-                                 NABoolean isCSETableName);
+  short isCreatorProcessObsolete(const char *name, NABoolean includesCat, NABoolean isCSETableName);
 };
 
-class ExExeUtilCleanupVolatileTablesTcb : public ExExeUtilVolatileTablesTcb
-{
+class ExExeUtilCleanupVolatileTablesTcb : public ExExeUtilVolatileTablesTcb {
   friend class ExExeUtilCleanupVolatileTablesTdb;
   friend class ExExeUtilPrivateState;
 
  public:
   // Constructor
-  ExExeUtilCleanupVolatileTablesTcb(const ComTdbExeUtil & exe_util_tdb,
-                                    ex_globals * glob = 0);
+  ExExeUtilCleanupVolatileTablesTcb(const ComTdbExeUtil &exe_util_tdb, ex_globals *glob = 0);
 
   virtual short work();
 
-  ExExeUtilCleanupVolatileTablesTdb & cvtTdb() const
-    {
-      return (ExExeUtilCleanupVolatileTablesTdb &) tdb;
-    };
+  ExExeUtilCleanupVolatileTablesTdb &cvtTdb() const { return (ExExeUtilCleanupVolatileTablesTdb &)tdb; };
 
-  static short dropVolatileSchema(ContextCli * currContext,
-                                  char * schemaName,
-                                  CollHeap * heap,
-                                  ComDiagsArea *&diagsArea,
+  static short dropVolatileSchema(ContextCli *currContext, char *schemaName, CollHeap *heap, ComDiagsArea *&diagsArea,
                                   ex_globals *globals = NULL);
-  static short dropVolatileTables(ContextCli * currContext, CollHeap * heap);
+  static short dropVolatileTables(ContextCli *currContext, CollHeap *heap);
 
  private:
-  enum Step
-    {
-      INITIAL_,
-      FETCH_SCHEMA_NAMES_,
-      START_CLEANUP_,
-      CHECK_FOR_OBSOLETE_CREATOR_PROCESS_,
-      BEGIN_WORK_,
-      DO_CLEANUP_,
-      COMMIT_WORK_,
-      END_CLEANUP_,
-      CLEANUP_HIVE_TABLES_,
-      DONE_,
-      ERROR_
-    };
+  enum Step {
+    INITIAL_,
+    FETCH_SCHEMA_NAMES_,
+    START_CLEANUP_,
+    CHECK_FOR_OBSOLETE_CREATOR_PROCESS_,
+    BEGIN_WORK_,
+    DO_CLEANUP_,
+    COMMIT_WORK_,
+    END_CLEANUP_,
+    CLEANUP_HIVE_TABLES_,
+    DONE_,
+    ERROR_
+  };
 
   Step step_;
 
-  Queue * schemaNamesList_;
+  Queue *schemaNamesList_;
 
   NABoolean someSchemasCouldNotBeDropped_;
   char errorSchemas_[1010];
 
-  char * schemaQuery_;
+  char *schemaQuery_;
 };
 
-class ExExeUtilVolatileTablesPrivateState : public ex_tcb_private_state
-{
+class ExExeUtilVolatileTablesPrivateState : public ex_tcb_private_state {
   friend class ExExeUtilVolatileTablesTcb;
 
  public:
   ExExeUtilVolatileTablesPrivateState();
-  ~ExExeUtilVolatileTablesPrivateState();        // destructor
+  ~ExExeUtilVolatileTablesPrivateState();  // destructor
  protected:
 };
 
@@ -1044,20 +876,16 @@ class ExExeUtilVolatileTablesPrivateState : public ex_tcb_private_state
 // -----------------------------------------------------------------------
 // ExExeUtilGetVolatileInfoTdb
 // -----------------------------------------------------------------------
-class ExExeUtilGetVolatileInfoTdb : public ComTdbExeUtilGetVolatileInfo
-{
+class ExExeUtilGetVolatileInfoTdb : public ComTdbExeUtilGetVolatileInfo {
  public:
-
   // ---------------------------------------------------------------------
   // Constructor is only called to instantiate an object used for
   // retrieval of the virtual table function pointer of the class while
   // unpacking. An empty constructor is enough.
   // ---------------------------------------------------------------------
-  ExExeUtilGetVolatileInfoTdb()
-    {}
+  ExExeUtilGetVolatileInfoTdb() {}
 
-  virtual ~ExExeUtilGetVolatileInfoTdb()
-    {}
+  virtual ~ExExeUtilGetVolatileInfoTdb() {}
 
   // ---------------------------------------------------------------------
   // Build a TCB for this TDB. Redefined in the Executor project.
@@ -1096,63 +924,53 @@ class ExExeUtilGetVolatileInfoTdb : public ComTdbExeUtilGetVolatileInfo
 // -----------------------------------------------------------------------
 // ExExeUtilGetVolatileInfoTcb
 // -----------------------------------------------------------------------
-class ExExeUtilGetVolatileInfoTcb : public ExExeUtilVolatileTablesTcb
-{
+class ExExeUtilGetVolatileInfoTcb : public ExExeUtilVolatileTablesTcb {
   friend class ExExeUtilGetVolatileInfoTdb;
   friend class ExExeUtilPrivateState;
 
  public:
   // Constructor
-  ExExeUtilGetVolatileInfoTcb(const ComTdbExeUtil & exe_util_tdb,
-                              ex_globals * glob = 0);
+  ExExeUtilGetVolatileInfoTcb(const ComTdbExeUtil &exe_util_tdb, ex_globals *glob = 0);
 
   virtual short work();
 
-  ExExeUtilGetVolatileInfoTdb & gviTdb() const
-    {
-      return (ExExeUtilGetVolatileInfoTdb &) tdb;
-    };
+  ExExeUtilGetVolatileInfoTdb &gviTdb() const { return (ExExeUtilGetVolatileInfoTdb &)tdb; };
 
  private:
-  enum Step
-    {
-      INITIAL_,
-      GET_SCHEMA_VERSION_,
-      GET_ALL_NODE_NAMES_,
-      APPEND_NEXT_QUERY_FRAGMENT_,
-      FETCH_ALL_ROWS_,
-      RETURN_ALL_SCHEMAS_,
-      RETURN_ALL_TABLES_,
-      RETURN_TABLES_IN_A_SESSION_,
-      DONE_,
-      ERROR_
-    };
+  enum Step {
+    INITIAL_,
+    GET_SCHEMA_VERSION_,
+    GET_ALL_NODE_NAMES_,
+    APPEND_NEXT_QUERY_FRAGMENT_,
+    FETCH_ALL_ROWS_,
+    RETURN_ALL_SCHEMAS_,
+    RETURN_ALL_TABLES_,
+    RETURN_TABLES_IN_A_SESSION_,
+    DONE_,
+    ERROR_
+  };
 
   Step step_;
 
-  OutputInfo * prevInfo_;
+  OutputInfo *prevInfo_;
 
-  char * infoQuery_;
+  char *infoQuery_;
 };
 
 //////////////////////////////////////////////////////////////////////////
 // -----------------------------------------------------------------------
 // ExExeUtilGetErrorInfoTdb
 // -----------------------------------------------------------------------
-class ExExeUtilGetErrorInfoTdb : public ComTdbExeUtilGetErrorInfo
-{
+class ExExeUtilGetErrorInfoTdb : public ComTdbExeUtilGetErrorInfo {
  public:
-
   // ---------------------------------------------------------------------
   // Constructor is only called to instantiate an object used for
   // retrieval of the virtual table function pointer of the class while
   // unpacking. An empty constructor is enough.
   // ---------------------------------------------------------------------
-  ExExeUtilGetErrorInfoTdb()
-    {}
+  ExExeUtilGetErrorInfoTdb() {}
 
-  virtual ~ExExeUtilGetErrorInfoTdb()
-    {}
+  virtual ~ExExeUtilGetErrorInfoTdb() {}
 
   // ---------------------------------------------------------------------
   // Build a TCB for this TDB. Redefined in the Executor project.
@@ -1191,50 +1009,36 @@ class ExExeUtilGetErrorInfoTdb : public ComTdbExeUtilGetErrorInfo
 // -----------------------------------------------------------------------
 // ExExeUtilGetErrorInfoTcb
 // -----------------------------------------------------------------------
-class ExExeUtilGetErrorInfoTcb : public ExExeUtilTcb
-{
+class ExExeUtilGetErrorInfoTcb : public ExExeUtilTcb {
   friend class ExExeUtilGetErrorInfoTdb;
   friend class ExExeUtilPrivateState;
 
  public:
   // Constructor
-  ExExeUtilGetErrorInfoTcb(const ComTdbExeUtilGetErrorInfo & exe_util_tdb,
-			   ex_globals * glob = 0);
+  ExExeUtilGetErrorInfoTcb(const ComTdbExeUtilGetErrorInfo &exe_util_tdb, ex_globals *glob = 0);
 
   virtual short work();
 
-  ExExeUtilGetErrorInfoTdb & geiTdb() const
-    {
-      return (ExExeUtilGetErrorInfoTdb &) tdb;
-    };
+  ExExeUtilGetErrorInfoTdb &geiTdb() const { return (ExExeUtilGetErrorInfoTdb &)tdb; };
 
-  ex_tcb_private_state * 
-    allocatePstates(
-		    Lng32 &numElems,      // inout, desired/actual elements
-		    Lng32 &pstateLength)  // out, length of one element
-    ;
+  ex_tcb_private_state *allocatePstates(Lng32 &numElems,      // inout, desired/actual elements
+                                        Lng32 &pstateLength)  // out, length of one element
+      ;
 
  private:
-  enum Step
-    {
-      INITIAL_,
-      RETURN_TEXT_,
-      DONE_,
-      ERROR_
-    };
+  enum Step { INITIAL_, RETURN_TEXT_, DONE_, ERROR_ };
 
   Step step_;
 
-  char * outputBuf_;
+  char *outputBuf_;
 };
 
-class ExExeUtilGetErrorInfoPrivateState : public ex_tcb_private_state
-{
+class ExExeUtilGetErrorInfoPrivateState : public ex_tcb_private_state {
   friend class ExExeUtilGetErrorInfoTcb;
 
  public:
   ExExeUtilGetErrorInfoPrivateState();
-  ~ExExeUtilGetErrorInfoPrivateState();        // destructor
+  ~ExExeUtilGetErrorInfoPrivateState();  // destructor
  protected:
 };
 
@@ -1242,20 +1046,16 @@ class ExExeUtilGetErrorInfoPrivateState : public ex_tcb_private_state
 // -----------------------------------------------------------------------
 // ExExeUtilLoadVolatileTableTdb
 // -----------------------------------------------------------------------
-class ExExeUtilLoadVolatileTableTdb : public ComTdbExeUtilLoadVolatileTable
-{
+class ExExeUtilLoadVolatileTableTdb : public ComTdbExeUtilLoadVolatileTable {
  public:
-
   // ---------------------------------------------------------------------
   // Constructor is only called to instantiate an object used for
   // retrieval of the virtual table function pointer of the class while
   // unpacking. An empty constructor is enough.
   // ---------------------------------------------------------------------
-  ExExeUtilLoadVolatileTableTdb()
-    {}
+  ExExeUtilLoadVolatileTableTdb() {}
 
-  virtual ~ExExeUtilLoadVolatileTableTdb()
-    {}
+  virtual ~ExExeUtilLoadVolatileTableTdb() {}
 
   // ---------------------------------------------------------------------
   // Build a TCB for this TDB. Redefined in the Executor project.
@@ -1290,88 +1090,69 @@ class ExExeUtilLoadVolatileTableTdb : public ComTdbExeUtilLoadVolatileTable
   // ---------------------------------------------------------------------
 };
 
-class ExExeUtilLoadVolatileTableTcb : public ExExeUtilTcb
-{
+class ExExeUtilLoadVolatileTableTcb : public ExExeUtilTcb {
   friend class ExExeUtilLoadVolatileTableTdb;
   friend class ExExeUtilPrivateState;
 
  public:
   // Constructor
-  ExExeUtilLoadVolatileTableTcb(const ComTdbExeUtil & exe_util_tdb,
-                                ex_globals * glob = 0);
+  ExExeUtilLoadVolatileTableTcb(const ComTdbExeUtil &exe_util_tdb, ex_globals *glob = 0);
 
   virtual short work();
 
-  ExExeUtilLoadVolatileTableTdb & lvtTdb() const
-    {
-      return (ExExeUtilLoadVolatileTableTdb &) tdb;
-    };
+  ExExeUtilLoadVolatileTableTdb &lvtTdb() const { return (ExExeUtilLoadVolatileTableTdb &)tdb; };
 
-  ex_tcb_private_state * allocatePstates(
-                                         Lng32 &numElems,      // inout, desired/actual elements
-                                         Lng32 &pstateLength)  // out, length of one element
-    ;
+  ex_tcb_private_state *allocatePstates(Lng32 &numElems,      // inout, desired/actual elements
+                                        Lng32 &pstateLength)  // out, length of one element
+      ;
 
  private:
-  enum Step
-    {
-      INITIAL_,
-      INSERT_,
-      UPD_STATS_,
-      DONE_,
-      ERROR_
-    };
+  enum Step { INITIAL_, INSERT_, UPD_STATS_, DONE_, ERROR_ };
 
   Step step_;
-
 };
 
-class ExExeUtilLoadVolatileTablePrivateState : public ex_tcb_private_state
-{
+class ExExeUtilLoadVolatileTablePrivateState : public ex_tcb_private_state {
   friend class ExExeUtilLoadVolatileTableTcb;
 
  public:
   ExExeUtilLoadVolatileTablePrivateState();
-  ~ExExeUtilLoadVolatileTablePrivateState();        // destructor
+  ~ExExeUtilLoadVolatileTablePrivateState();  // destructor
  protected:
 };
 
 // FIXME: Is this required? How is this used?
-class ExExeUtilGetObjectEpochStatsPrivateState : public ex_tcb_private_state
-{
+class ExExeUtilGetObjectEpochStatsPrivateState : public ex_tcb_private_state {
   friend class ExExeUtilGetObjectEpochStatsTcb;
 
-public:
+ public:
   ExExeUtilGetObjectEpochStatsPrivateState() {}
   ~ExExeUtilGetObjectEpochStatsPrivateState() {}
-protected:
+
+ protected:
 };
 
 //////////////////////////////////////////////////////////////////////////
 // -----------------------------------------------------------------------
 // ExExeUtilGetObjectEpochStatsTdb
 // -----------------------------------------------------------------------
-class ExExeUtilGetObjectEpochStatsTdb : public ComTdbExeUtilGetObjectEpochStats
-{
-public:
-
+class ExExeUtilGetObjectEpochStatsTdb : public ComTdbExeUtilGetObjectEpochStats {
+ public:
   // ---------------------------------------------------------------------
   // Constructor is only called to instantiate an object used for
   // retrieval of the virtual table function pointer of the class while
   // unpacking. An empty constructor is enough.
   // ---------------------------------------------------------------------
-  ExExeUtilGetObjectEpochStatsTdb()
-  {}
+  ExExeUtilGetObjectEpochStatsTdb() {}
 
-  virtual ~ExExeUtilGetObjectEpochStatsTdb()
-  {}
+  virtual ~ExExeUtilGetObjectEpochStatsTdb() {}
 
   // ---------------------------------------------------------------------
   // Build a TCB for this TDB. Redefined in the Executor project.
   // ---------------------------------------------------------------------
   virtual ex_tcb *build(ex_globals *globals);
 
-private:
+ private:
   // ---------------------------------------------------------------------
   // !!!!!!! IMPORTANT -- NO DATA MEMBERS ALLOWED IN EXECUTOR TDB !!!!!!!!
   // *********************************************************************
@@ -1403,76 +1184,60 @@ private:
 // -----------------------------------------------------------------------
 // ExExeUtilGetObjectEpochStatsTcb
 // -----------------------------------------------------------------------
-class ExExeUtilGetObjectEpochStatsTcb : public ExExeUtilTcb
-{
+class ExExeUtilGetObjectEpochStatsTcb : public ExExeUtilTcb {
   friend class ExExeUtilGetObjectEpochStatsTdb;
 
-public:
+ public:
   // Constructor
-  ExExeUtilGetObjectEpochStatsTcb(const ComTdbExeUtilGetObjectEpochStats & exe_util_tdb,
-                                  ex_globals * glob = 0);
+  ExExeUtilGetObjectEpochStatsTcb(const ComTdbExeUtilGetObjectEpochStats &exe_util_tdb, ex_globals *glob = 0);
   ~ExExeUtilGetObjectEpochStatsTcb();
 
   virtual short work();
 
-  virtual ex_tcb_private_state * allocatePstates(
-       Lng32 &numElems,      // inout, desired/actual elements
-       Lng32 &pstateLength); // out, length of one element
+  virtual ex_tcb_private_state *allocatePstates(Lng32 &numElems,       // inout, desired/actual elements
+                                                Lng32 &pstateLength);  // out, length of one element
 
-  ExExeUtilGetObjectEpochStatsTdb & getObjectEpochStatsTdb() const
-  {
-    return (ExExeUtilGetObjectEpochStatsTdb &) tdb;
-  };
+  ExExeUtilGetObjectEpochStatsTdb &getObjectEpochStatsTdb() const { return (ExExeUtilGetObjectEpochStatsTdb &)tdb; };
 
-protected:
-  enum Step
-  {
-   INITIAL_,
-   RETURN_RESULT_,
-   HANDLE_ERROR_,
-   DONE_
-  };
+ protected:
+  enum Step { INITIAL_, RETURN_RESULT_, HANDLE_ERROR_, DONE_ };
 
   Step step_;
-  ExStatisticsArea * stats_;
+  ExStatisticsArea *stats_;
 };
 
 // FIXME: Is this required? How is this used?
-class ExExeUtilGetObjectLockStatsPrivateState : public ex_tcb_private_state
-{
+class ExExeUtilGetObjectLockStatsPrivateState : public ex_tcb_private_state {
   friend class ExExeUtilGetObjectLockStatsTcb;
 
-public:
+ public:
   ExExeUtilGetObjectLockStatsPrivateState() {}
   ~ExExeUtilGetObjectLockStatsPrivateState() {}
-protected:
+
+ protected:
 };
 
 //////////////////////////////////////////////////////////////////////////
 // -----------------------------------------------------------------------
 // ExExeUtilGetObjectLockStatsTdb
 // -----------------------------------------------------------------------
-class ExExeUtilGetObjectLockStatsTdb : public ComTdbExeUtilGetObjectLockStats
-{
-public:
-
+class ExExeUtilGetObjectLockStatsTdb : public ComTdbExeUtilGetObjectLockStats {
+ public:
   // ---------------------------------------------------------------------
   // Constructor is only called to instantiate an object used for
   // retrieval of the virtual table function pointer of the class while
   // unpacking. An empty constructor is enough.
   // ---------------------------------------------------------------------
-  ExExeUtilGetObjectLockStatsTdb()
-  {}
+  ExExeUtilGetObjectLockStatsTdb() {}
 
-  virtual ~ExExeUtilGetObjectLockStatsTdb()
-  {}
+  virtual ~ExExeUtilGetObjectLockStatsTdb() {}
 
   // ---------------------------------------------------------------------
   // Build a TCB for this TDB. Redefined in the Executor project.
   // ---------------------------------------------------------------------
   virtual ex_tcb *build(ex_globals *globals);
 
-private:
+ private:
   // ---------------------------------------------------------------------
   // !!!!!!! IMPORTANT -- NO DATA MEMBERS ALLOWED IN EXECUTOR TDB !!!!!!!!
   // *********************************************************************
@@ -1504,68 +1269,52 @@ private:
 // -----------------------------------------------------------------------
 // ExExeUtilGetObjectLockStatsTcb
 // -----------------------------------------------------------------------
-class ExExeUtilGetObjectLockStatsTcb : public ExExeUtilTcb
-{
+class ExExeUtilGetObjectLockStatsTcb : public ExExeUtilTcb {
   friend class ExExeUtilGetObjectLockStatsTdb;
 
-public:
+ public:
   // Constructor
-  ExExeUtilGetObjectLockStatsTcb(const ComTdbExeUtilGetObjectLockStats & exe_util_tdb,
-                                  ex_globals * glob = 0);
+  ExExeUtilGetObjectLockStatsTcb(const ComTdbExeUtilGetObjectLockStats &exe_util_tdb, ex_globals *glob = 0);
   ~ExExeUtilGetObjectLockStatsTcb();
 
   virtual short work();
 
-  virtual ex_tcb_private_state * allocatePstates(
-       Lng32 &numElems,      // inout, desired/actual elements
-       Lng32 &pstateLength); // out, length of one element
+  virtual ex_tcb_private_state *allocatePstates(Lng32 &numElems,       // inout, desired/actual elements
+                                                Lng32 &pstateLength);  // out, length of one element
 
-  ExExeUtilGetObjectLockStatsTdb & getObjectLockStatsTdb() const
-  {
-    return (ExExeUtilGetObjectLockStatsTdb &) tdb;
-  };
+  ExExeUtilGetObjectLockStatsTdb &getObjectLockStatsTdb() const { return (ExExeUtilGetObjectLockStatsTdb &)tdb; };
 
-  ExStatisticsArea* distinctLockStats();
+  ExStatisticsArea *distinctLockStats();
 
-protected:
-  enum Step
-  {
-   INITIAL_,
-   RETURN_RESULT_,
-   HANDLE_ERROR_,
-   DONE_
-  };
+ protected:
+  enum Step { INITIAL_, RETURN_RESULT_, HANDLE_ERROR_, DONE_ };
 
   Step step_;
-  ExStatisticsArea * stats_;
-  ExStatisticsArea * distinctStats_;
+  ExStatisticsArea *stats_;
+  ExStatisticsArea *distinctStats_;
 };
 
 //////////////////////////////////////////////////////////////////////////
 // -----------------------------------------------------------------------
 // ExExeUtilGetStatisticsTdb
 // -----------------------------------------------------------------------
-class ExExeUtilGetStatisticsTdb : public ComTdbExeUtilGetStatistics
-{
-public:
-
+class ExExeUtilGetStatisticsTdb : public ComTdbExeUtilGetStatistics {
+ public:
   // ---------------------------------------------------------------------
   // Constructor is only called to instantiate an object used for
   // retrieval of the virtual table function pointer of the class while
   // unpacking. An empty constructor is enough.
   // ---------------------------------------------------------------------
-  ExExeUtilGetStatisticsTdb()
-  {}
+  ExExeUtilGetStatisticsTdb() {}
 
-  virtual ~ExExeUtilGetStatisticsTdb()
-  {}
+  virtual ~ExExeUtilGetStatisticsTdb() {}
 
   // ---------------------------------------------------------------------
   // Build a TCB for this TDB. Redefined in the Executor project.
   // ---------------------------------------------------------------------
   virtual ex_tcb *build(ex_globals *globals);
 
-private:
+ private:
   // ---------------------------------------------------------------------
   // !!!!!!! IMPORTANT -- NO DATA MEMBERS ALLOWED IN EXECUTOR TDB !!!!!!!!
   // *********************************************************************
@@ -1597,34 +1346,28 @@ private:
 // -----------------------------------------------------------------------
 // ExExeUtilGetStatisticsTcb
 // -----------------------------------------------------------------------
-class ExExeUtilGetStatisticsTcb : public ExExeUtilTcb
-{
+class ExExeUtilGetStatisticsTcb : public ExExeUtilTcb {
   friend class ExExeUtilGetStatisticsTdb;
   friend class ExExeUtilPrivateState;
   friend class ExExeUtilGetRTSStatisticsTcb;
 
-public:
+ public:
   // Constructor
-  ExExeUtilGetStatisticsTcb(const ComTdbExeUtilGetStatistics & exe_util_tdb,
-                            ex_globals * glob = 0);
+  ExExeUtilGetStatisticsTcb(const ComTdbExeUtilGetStatistics &exe_util_tdb, ex_globals *glob = 0);
 
   ~ExExeUtilGetStatisticsTcb();
 
   virtual short work();
 
-  virtual ex_tcb_private_state * allocatePstates(
-       Lng32 &numElems,      // inout, desired/actual elements
-       Lng32 &pstateLength); // out, length of one element
+  virtual ex_tcb_private_state *allocatePstates(Lng32 &numElems,       // inout, desired/actual elements
+                                                Lng32 &pstateLength);  // out, length of one element
 
-  ExExeUtilGetStatisticsTdb & getStatsTdb() const
-  {
-    return (ExExeUtilGetStatisticsTdb &) tdb;
-  };
+  ExExeUtilGetStatisticsTdb &getStatsTdb() const { return (ExExeUtilGetStatisticsTdb &)tdb; };
+
  protected:
   void moveCompilationStatsToUpQueue(CompilationStatsData *cmpStats);
 
-  enum Step
-  {
+  enum Step {
     INITIAL_,
     RETURN_COMPILER_STATS_,
     RETURN_EXECUTOR_STATS_,
@@ -1645,14 +1388,14 @@ public:
 
   Step step_;
 
-  ExStatisticsArea * stats_;
+  ExStatisticsArea *stats_;
 
-  char * statsQuery_;
+  char *statsQuery_;
 
-  char * statsBuf_;
+  char *statsBuf_;
 
-  char * statsRow_;
-  Lng32   statsRowlen_;
+  char *statsRow_;
+  Lng32 statsRowlen_;
 
   char detailedStatsCQDValue_[40];
 
@@ -1661,69 +1404,59 @@ public:
   short hdfsAccess_;
 };
 
-class ExExeUtilGetStatisticsPrivateState : public ex_tcb_private_state
-{
+class ExExeUtilGetStatisticsPrivateState : public ex_tcb_private_state {
   friend class ExExeUtilGetStatisticsTcb;
 
-public:
+ public:
   ExExeUtilGetStatisticsPrivateState();
-  ~ExExeUtilGetStatisticsPrivateState();        // destructor
-protected:
+  ~ExExeUtilGetStatisticsPrivateState();  // destructor
+ protected:
 };
 
 //////////////////////////////////////////////////////////////////////////
 // -----------------------------------------------------------------------
 // ExExeUtilGetProcessStatisticsTdb
 // -----------------------------------------------------------------------
-class ExExeUtilGetProcessStatisticsTdb : public ComTdbExeUtilGetProcessStatistics
-{
-public:
-
+class ExExeUtilGetProcessStatisticsTdb : public ComTdbExeUtilGetProcessStatistics {
+ public:
   // ---------------------------------------------------------------------
   // Constructor is only called to instantiate an object used for
   // retrieval of the virtual table function pointer of the class while
   // unpacking. An empty constructor is enough.
   // ---------------------------------------------------------------------
-  ExExeUtilGetProcessStatisticsTdb()
-  {}
+  ExExeUtilGetProcessStatisticsTdb() {}
 
-  virtual ~ExExeUtilGetProcessStatisticsTdb()
-  {}
+  virtual ~ExExeUtilGetProcessStatisticsTdb() {}
 
   // ---------------------------------------------------------------------
   // Build a TCB for this TDB. Redefined in the Executor project.
   // ---------------------------------------------------------------------
   virtual ex_tcb *build(ex_globals *globals);
 
-private:
+ private:
 };
-
 
 //////////////////////////////////////////////////////////////////////////
 // -----------------------------------------------------------------------
 // ExExeUtilGetUIDTdb
 // -----------------------------------------------------------------------
-class ExExeUtilGetUIDTdb : public ComTdbExeUtilGetUID
-{
-public:
-
+class ExExeUtilGetUIDTdb : public ComTdbExeUtilGetUID {
+ public:
   // ---------------------------------------------------------------------
   // Constructor is only called to instantiate an object used for
   // retrieval of the virtual table function pointer of the class while
   // unpacking. An empty constructor is enough.
   // ---------------------------------------------------------------------
-  ExExeUtilGetUIDTdb()
-  {}
+  ExExeUtilGetUIDTdb() {}
 
-  virtual ~ExExeUtilGetUIDTdb()
-  {}
+  virtual ~ExExeUtilGetUIDTdb() {}
 
   // ---------------------------------------------------------------------
   // Build a TCB for this TDB. Redefined in the Executor project.
   // ---------------------------------------------------------------------
   virtual ex_tcb *build(ex_globals *globals);
 
-private:
+ private:
   // ---------------------------------------------------------------------
   // !!!!!!! IMPORTANT -- NO DATA MEMBERS ALLOWED IN EXECUTOR TDB !!!!!!!!
   // *********************************************************************
@@ -1755,32 +1488,25 @@ private:
 // -----------------------------------------------------------------------
 // ExExeUtilGetUIDTcb
 // -----------------------------------------------------------------------
-class ExExeUtilGetUIDTcb : public ExExeUtilTcb
-{
+class ExExeUtilGetUIDTcb : public ExExeUtilTcb {
   friend class ExExeUtilGetUIDTdb;
   friend class ExExeUtilPrivateState;
 
-public:
+ public:
   // Constructor
-  ExExeUtilGetUIDTcb(const ComTdbExeUtilGetUID & exe_util_tdb,
-                            ex_globals * glob = 0);
+  ExExeUtilGetUIDTcb(const ComTdbExeUtilGetUID &exe_util_tdb, ex_globals *glob = 0);
 
   ~ExExeUtilGetUIDTcb();
 
   virtual short work();
 
-  virtual ex_tcb_private_state * allocatePstates(
-       Lng32 &numElems,      // inout, desired/actual elements
-       Lng32 &pstateLength); // out, length of one element
+  virtual ex_tcb_private_state *allocatePstates(Lng32 &numElems,       // inout, desired/actual elements
+                                                Lng32 &pstateLength);  // out, length of one element
 
-  ExExeUtilGetUIDTdb & getUIDTdb() const
-  {
-    return (ExExeUtilGetUIDTdb &) tdb;
-  };
+  ExExeUtilGetUIDTdb &getUIDTdb() const { return (ExExeUtilGetUIDTdb &)tdb; };
 
-private:
-  enum Step
-  {
+ private:
+  enum Step {
     INITIAL_,
     RETURN_UID_,
     ERROR_,
@@ -1790,41 +1516,36 @@ private:
   Step step_;
 };
 
-class ExExeUtilGetUIDPrivateState : public ex_tcb_private_state
-{
+class ExExeUtilGetUIDPrivateState : public ex_tcb_private_state {
   friend class ExExeUtilGetUIDTcb;
 
-public:
+ public:
   ExExeUtilGetUIDPrivateState();
-  ~ExExeUtilGetUIDPrivateState();        // destructor
-protected:
+  ~ExExeUtilGetUIDPrivateState();  // destructor
+ protected:
 };
 
 //////////////////////////////////////////////////////////////////////////
 // -----------------------------------------------------------------------
 // ExExeUtilGetQIDTdb
 // -----------------------------------------------------------------------
-class ExExeUtilGetQIDTdb : public ComTdbExeUtilGetQID
-{
-public:
-
+class ExExeUtilGetQIDTdb : public ComTdbExeUtilGetQID {
+ public:
   // ---------------------------------------------------------------------
   // Constructor is only called to instantiate an object used for
   // retrieval of the virtual table function pointer of the class while
   // unpacking. An empty constructor is enough.
   // ---------------------------------------------------------------------
-  ExExeUtilGetQIDTdb()
-  {}
+  ExExeUtilGetQIDTdb() {}
 
-  virtual ~ExExeUtilGetQIDTdb()
-  {}
+  virtual ~ExExeUtilGetQIDTdb() {}
 
   // ---------------------------------------------------------------------
   // Build a TCB for this TDB. Redefined in the Executor project.
   // ---------------------------------------------------------------------
   virtual ex_tcb *build(ex_globals *globals);
 
-private:
+ private:
   // ---------------------------------------------------------------------
   // !!!!!!! IMPORTANT -- NO DATA MEMBERS ALLOWED IN EXECUTOR TDB !!!!!!!!
   // *********************************************************************
@@ -1856,32 +1577,25 @@ private:
 // -----------------------------------------------------------------------
 // ExExeUtilGetQIDTcb
 // -----------------------------------------------------------------------
-class ExExeUtilGetQIDTcb : public ExExeUtilTcb
-{
+class ExExeUtilGetQIDTcb : public ExExeUtilTcb {
   friend class ExExeUtilGetQIDTdb;
   friend class ExExeUtilPrivateState;
 
-public:
+ public:
   // Constructor
-  ExExeUtilGetQIDTcb(const ComTdbExeUtilGetQID & exe_util_tdb,
-                            ex_globals * glob = 0);
+  ExExeUtilGetQIDTcb(const ComTdbExeUtilGetQID &exe_util_tdb, ex_globals *glob = 0);
 
   ~ExExeUtilGetQIDTcb();
 
   virtual short work();
 
-  virtual ex_tcb_private_state * allocatePstates(
-       Lng32 &numElems,      // inout, desired/actual elements
-       Lng32 &pstateLength); // out, length of one element
+  virtual ex_tcb_private_state *allocatePstates(Lng32 &numElems,       // inout, desired/actual elements
+                                                Lng32 &pstateLength);  // out, length of one element
 
-  ExExeUtilGetQIDTdb & getQIDTdb() const
-  {
-    return (ExExeUtilGetQIDTdb &) tdb;
-  };
+  ExExeUtilGetQIDTdb &getQIDTdb() const { return (ExExeUtilGetQIDTdb &)tdb; };
 
-private:
-  enum Step
-  {
+ private:
+  enum Step {
     INITIAL_,
     RETURN_QID_,
     ERROR_,
@@ -1891,41 +1605,36 @@ private:
   Step step_;
 };
 
-class ExExeUtilGetQIDPrivateState : public ex_tcb_private_state
-{
+class ExExeUtilGetQIDPrivateState : public ex_tcb_private_state {
   friend class ExExeUtilGetQIDTcb;
 
-public:
+ public:
   ExExeUtilGetQIDPrivateState();
-  ~ExExeUtilGetQIDPrivateState();        // destructor
-protected:
+  ~ExExeUtilGetQIDPrivateState();  // destructor
+ protected:
 };
 
 //////////////////////////////////////////////////////////////////////////
 // -----------------------------------------------------------------------
 // ExExeUtilPopulateInMemStatsTdb
 // -----------------------------------------------------------------------
-class ExExeUtilPopulateInMemStatsTdb : public ComTdbExeUtilPopulateInMemStats
-{
-public:
-
+class ExExeUtilPopulateInMemStatsTdb : public ComTdbExeUtilPopulateInMemStats {
+ public:
   // ---------------------------------------------------------------------
   // Constructor is only called to instantiate an object used for
   // retrieval of the virtual table function pointer of the class while
   // unpacking. An empty constructor is enough.
   // ---------------------------------------------------------------------
-  ExExeUtilPopulateInMemStatsTdb()
-  {}
+  ExExeUtilPopulateInMemStatsTdb() {}
 
-  virtual ~ExExeUtilPopulateInMemStatsTdb()
-  {}
+  virtual ~ExExeUtilPopulateInMemStatsTdb() {}
 
   // ---------------------------------------------------------------------
   // Build a TCB for this TDB. Redefined in the Executor project.
   // ---------------------------------------------------------------------
   virtual ex_tcb *build(ex_globals *globals);
 
-private:
+ private:
   // ---------------------------------------------------------------------
   // !!!!!!! IMPORTANT -- NO DATA MEMBERS ALLOWED IN EXECUTOR TDB !!!!!!!!
   // *********************************************************************
@@ -1957,32 +1666,25 @@ private:
 // -----------------------------------------------------------------------
 // ExExeUtilPopulateInMemStatsTcb
 // -----------------------------------------------------------------------
-class ExExeUtilPopulateInMemStatsTcb : public ExExeUtilTcb
-{
+class ExExeUtilPopulateInMemStatsTcb : public ExExeUtilTcb {
   friend class ExExeUtilPopulateInMemStatsTdb;
   friend class ExExeUtilPrivateState;
 
-public:
+ public:
   // Constructor
-  ExExeUtilPopulateInMemStatsTcb(const ComTdbExeUtilPopulateInMemStats & exe_util_tdb,
-                                 ex_globals * glob = 0);
+  ExExeUtilPopulateInMemStatsTcb(const ComTdbExeUtilPopulateInMemStats &exe_util_tdb, ex_globals *glob = 0);
 
   ~ExExeUtilPopulateInMemStatsTcb();
 
   virtual short work();
 
-  virtual ex_tcb_private_state * allocatePstates(
-       Lng32 &numElems,      // inout, desired/actual elements
-       Lng32 &pstateLength); // out, length of one element
+  virtual ex_tcb_private_state *allocatePstates(Lng32 &numElems,       // inout, desired/actual elements
+                                                Lng32 &pstateLength);  // out, length of one element
 
-  ExExeUtilPopulateInMemStatsTdb & pimsTdb() const
-  {
-    return (ExExeUtilPopulateInMemStatsTdb &) tdb;
-  };
+  ExExeUtilPopulateInMemStatsTdb &pimsTdb() const { return (ExExeUtilPopulateInMemStatsTdb &)tdb; };
 
-private:
-  enum Step
-  {
+ private:
+  enum Step {
     INITIAL_,
     PROLOGUE_,
     DELETE_STATS_,
@@ -1998,41 +1700,36 @@ private:
   Step step_;
 };
 
-class ExExeUtilPopulateInMemStatsPrivateState : public ex_tcb_private_state
-{
+class ExExeUtilPopulateInMemStatsPrivateState : public ex_tcb_private_state {
   friend class ExExeUtilPopulateInMemStatsTcb;
 
-public:
+ public:
   ExExeUtilPopulateInMemStatsPrivateState();
-  ~ExExeUtilPopulateInMemStatsPrivateState();        // destructor
-protected:
+  ~ExExeUtilPopulateInMemStatsPrivateState();  // destructor
+ protected:
 };
 
 ///////////////////////////////////////////////////////////////////////////
 // -----------------------------------------------------------------------
 // ExExeUtilAqrWnrInsertTdb
 // -----------------------------------------------------------------------
-class ExExeUtilAqrWnrInsertTdb : public ComTdbExeUtilAqrWnrInsert
-{
-public:
-
+class ExExeUtilAqrWnrInsertTdb : public ComTdbExeUtilAqrWnrInsert {
+ public:
   // ---------------------------------------------------------------------
   // Constructor is only called to instantiate an object used for
   // retrieval of the virtual table function pointer of the class while
   // unpacking. An empty constructor is enough.
   // ---------------------------------------------------------------------
-  ExExeUtilAqrWnrInsertTdb()
-  {}
+  ExExeUtilAqrWnrInsertTdb() {}
 
-  virtual ~ExExeUtilAqrWnrInsertTdb()
-  {}
+  virtual ~ExExeUtilAqrWnrInsertTdb() {}
 
   // ---------------------------------------------------------------------
   // Build a TCB for this TDB. Redefined in the Executor project.
   // ---------------------------------------------------------------------
   virtual ex_tcb *build(ex_globals *globals);
 
-private:
+ private:
   // ---------------------------------------------------------------------
   // !!!!!!! IMPORTANT -- NO DATA MEMBERS ALLOWED IN EXECUTOR TDB !!!!!!!!
   // *********************************************************************
@@ -2063,13 +1760,11 @@ private:
 ///////////////////////////////////////////////////////////////
 // ExExeUtilAqrWnrInsertTcb
 ///////////////////////////////////////////////////////////////
-class ExExeUtilAqrWnrInsertTcb : public ExExeUtilTcb
-{
-public:
+class ExExeUtilAqrWnrInsertTcb : public ExExeUtilTcb {
+ public:
   // Constructor
-  ExExeUtilAqrWnrInsertTcb(const ComTdbExeUtilAqrWnrInsert & exe_util_tdb,
-							const ex_tcb * child_tcb,
-							ex_globals * glob = 0);
+  ExExeUtilAqrWnrInsertTcb(const ComTdbExeUtilAqrWnrInsert &exe_util_tdb, const ex_tcb *child_tcb,
+                           ex_globals *glob = 0);
 
   ~ExExeUtilAqrWnrInsertTcb();
 
@@ -2079,9 +1774,8 @@ public:
 
   virtual short workCancel();
 
-protected:
-  enum Step
-  {
+ protected:
+  enum Step {
     INITIAL_,
     LOCK_TARGET_,
     IS_TARGET_EMPTY_,
@@ -2093,41 +1787,35 @@ protected:
     DONE_
   };
 
-private:
-  ExExeUtilAqrWnrInsertTdb & ulTdb() const
-  {return (ExExeUtilAqrWnrInsertTdb &) tdb;}
+ private:
+  ExExeUtilAqrWnrInsertTdb &ulTdb() const { return (ExExeUtilAqrWnrInsertTdb &)tdb; }
 
   void setStep(Step s, int lineNum);
 
   Step step_;
   bool targetWasEmpty_;
-
 };
 
 // -----------------------------------------------------------------------
 // ExExeUtilLongRunningTdb
 // -----------------------------------------------------------------------
-class ExExeUtilLongRunningTdb : public ComTdbExeUtilLongRunning
-{
-public:
-
+class ExExeUtilLongRunningTdb : public ComTdbExeUtilLongRunning {
+ public:
   // ---------------------------------------------------------------------
   // Constructor is only called to instantiate an object used for
   // retrieval of the virtual table function pointer of the class while
   // unpacking. An empty constructor is enough.
   // ---------------------------------------------------------------------
-  ExExeUtilLongRunningTdb()
-  {}
+  ExExeUtilLongRunningTdb() {}
 
-  virtual ~ExExeUtilLongRunningTdb()
-  {}
+  virtual ~ExExeUtilLongRunningTdb() {}
 
   // ---------------------------------------------------------------------
   // Build a TCB for this TDB. Redefined in the Executor project.
   // ---------------------------------------------------------------------
   virtual ex_tcb *build(ex_globals *globals);
 
-private:
+ private:
   // ---------------------------------------------------------------------
   // !!!!!!! IMPORTANT -- NO DATA MEMBERS ALLOWED IN EXECUTOR TDB !!!!!!!!
   // *********************************************************************
@@ -2158,13 +1846,12 @@ private:
 ///////////////////////////////////////////////////////////////
 // ExExeUtilLongRunningTcb
 ///////////////////////////////////////////////////////////////
-class ExExeUtilLongRunningTcb : public ExExeUtilTcb
-{
-public:
+class ExExeUtilLongRunningTcb : public ExExeUtilTcb {
+ public:
   // Constructor
-  ExExeUtilLongRunningTcb(const ComTdbExeUtilLongRunning & exe_util_tdb,
+  ExExeUtilLongRunningTcb(const ComTdbExeUtilLongRunning &exe_util_tdb,
 
-                       ex_globals * glob = 0);
+                          ex_globals *glob = 0);
 
   ~ExExeUtilLongRunningTcb();
 
@@ -2172,13 +1859,12 @@ public:
 
   virtual short work();
 
-  virtual ex_tcb_private_state * allocatePstates(
-       Lng32 &numElems,      // inout, desired/actual elements
-       Lng32 &pstateLength); // out, length of one element
+  virtual ex_tcb_private_state *allocatePstates(Lng32 &numElems,       // inout, desired/actual elements
+                                                Lng32 &pstateLength);  // out, length of one element
 
   void registerSubtasks();
 
-  ExExeUtilLongRunningTdb & lrTdb() const{return (ExExeUtilLongRunningTdb &) tdb;};
+  ExExeUtilLongRunningTdb &lrTdb() const { return (ExExeUtilLongRunningTdb &)tdb; };
 
   short doLongRunning();
 
@@ -2209,84 +1895,60 @@ public:
 
   ComDiagsArea *getDiagAreaFromUpQueueTail();
 
-private:
-  enum Step
-  {
-    INITIAL_,
-    BEGIN_WORK_,
-    LONG_RUNNING_,
-    ERROR_,
-    DONE_
-  };
+ private:
+  enum Step { INITIAL_, BEGIN_WORK_, LONG_RUNNING_, ERROR_, DONE_ };
 
   Step step_;
   Int64 transactions_;
   Int64 rowsDeleted_;
   short initial_;
 
-  //Queue * initialOutputVarPtrList_;
-  //Queue * continuingOutputVarPtrList_;
-  char    * lruStmtAndPartInfo_;
-  //char    * lruStmtWithCKAndPartInfo_;
-  ExTransaction * currTransaction_;
+  // Queue * initialOutputVarPtrList_;
+  // Queue * continuingOutputVarPtrList_;
+  char *lruStmtAndPartInfo_;
+  // char    * lruStmtWithCKAndPartInfo_;
+  ExTransaction *currTransaction_;
 };
 
-class ExExeUtilLongRunningPrivateState : public ex_tcb_private_state
-{
+class ExExeUtilLongRunningPrivateState : public ex_tcb_private_state {
   friend class ExExeUtilLongRunningTcb;
 
-public:
+ public:
   ExExeUtilLongRunningPrivateState();
-  ~ExExeUtilLongRunningPrivateState();        // destructor
+  ~ExExeUtilLongRunningPrivateState();  // destructor
 
-protected:
+ protected:
 };
 
-
-class ExExeUtilGetRTSStatisticsTcb : public ExExeUtilTcb
-{
+class ExExeUtilGetRTSStatisticsTcb : public ExExeUtilTcb {
   friend class ExExeUtilGetStatisticsTdb;
   friend class ExExeUtilPrivateState;
 
-public:
+ public:
   // Constructor
-  ExExeUtilGetRTSStatisticsTcb(const ComTdbExeUtilGetStatistics & exe_util_tdb,
-                            ex_globals * glob = 0);
+  ExExeUtilGetRTSStatisticsTcb(const ComTdbExeUtilGetStatistics &exe_util_tdb, ex_globals *glob = 0);
 
   ~ExExeUtilGetRTSStatisticsTcb();
 
   virtual short work();
 
-  virtual ex_tcb_private_state * allocatePstates(
-       Lng32 &numElems,      // inout, desired/actual elements
-       Lng32 &pstateLength); // out, length of one element
+  virtual ex_tcb_private_state *allocatePstates(Lng32 &numElems,       // inout, desired/actual elements
+                                                Lng32 &pstateLength);  // out, length of one element
 
-  ExExeUtilGetStatisticsTdb & getStatsTdb() const
-  {
-    return (ExExeUtilGetStatisticsTdb &) tdb;
-  };
+  ExExeUtilGetStatisticsTdb &getStatsTdb() const { return (ExExeUtilGetStatisticsTdb &)tdb; };
 
-  void deleteSqlStatItems(SQLSTATS_ITEM *sqlStatsItem,
-                              ULng32  noOfStatsItem);
-  void initSqlStatsItems(SQLSTATS_ITEM *sqlStatsItem,
-                                  ULng32  noOfStatsItem,
-                                  NABoolean initTdbIdOnly);
-  NABoolean singleLineFormat() { return singleLineFormat_; } 
-  enum OperatorStatsOptions
-  {
-    ALL = 1,
-    DATA_USED = 2
-  };
+  void deleteSqlStatItems(SQLSTATS_ITEM *sqlStatsItem, ULng32 noOfStatsItem);
+  void initSqlStatsItems(SQLSTATS_ITEM *sqlStatsItem, ULng32 noOfStatsItem, NABoolean initTdbIdOnly);
+  NABoolean singleLineFormat() { return singleLineFormat_; }
+  enum OperatorStatsOptions { ALL = 1, DATA_USED = 2 };
 
-  OperatorStatsOptions getOperatorStatsOption() 
-   { return operatorStatsOption_; };
+  OperatorStatsOptions getOperatorStatsOption() { return operatorStatsOption_; };
 
-  void setFilePath(NAString& path) { filePath_ = path; };
-  NAString& getFilePath() { return filePath_; };
+  void setFilePath(NAString &path) { filePath_ = path; };
+  NAString &getFilePath() { return filePath_; };
 
-private:
-  enum Step
-  {
+ private:
+  enum Step {
     INITIAL_,
     GET_NEXT_STATS_DESC_ENTRY_,
     GET_MASTER_STATS_ENTRY_,
@@ -2331,7 +1993,7 @@ private:
   };
 
   Step step_;
-  char * statsBuf_;
+  char *statsBuf_;
   short statsCollectType_;
   SQLSTATS_DESC *sqlStatsDesc_;
   Lng32 maxStatsDescEntries_;
@@ -2341,9 +2003,9 @@ private:
 
   SQLSTATS_ITEM *masterStatsItems_;
   SQLSTATS_ITEM *measStatsItems_;
-  SQLSTATS_ITEM* operatorStatsItems_;
+  SQLSTATS_ITEM *operatorStatsItems_;
   SQLSTATS_ITEM *rootOperStatsItems_;
-  SQLSTATS_ITEM* partitionAccessStatsItems_;
+  SQLSTATS_ITEM *partitionAccessStatsItems_;
   SQLSTATS_ITEM *pertableStatsItems_;
   SQLSTATS_ITEM *rmsStatsItems_;
   SQLSTATS_ITEM *bmoStatsItems_;
@@ -2386,52 +2048,46 @@ private:
   void formatOperStatsDataUsed(SQLSTATS_ITEM operStatsItems[]);
 
   //  void formatDouble(SQLSTATS_ITEM stat, char* targetString);
-  void formatInt64(SQLSTATS_ITEM stat, char* targetString);
+  void formatInt64(SQLSTATS_ITEM stat, char *targetString);
   // void formatWDouble(SQLSTATS_ITEM stat, char* targetString);
-  void formatWInt64(SQLSTATS_ITEM stat, char* targetString);
+  void formatWInt64(SQLSTATS_ITEM stat, char *targetString);
   char *formatTimestamp(char *buf, Int64 inTime);
   char *formatElapsedTime(char *buf, Int64 inTime);
   NABoolean singleLineFormat_;
-  // Convert the Int64 field to string. No comma characters will be 
+  // Convert the Int64 field to string. No comma characters will be
   // inserted.
-  void convertInt64(SQLSTATS_ITEM stat, char* targetString);
-  
+  void convertInt64(SQLSTATS_ITEM stat, char *targetString);
 };
 
-class ExExeUtilGetRTSStatisticsPrivateState : public ex_tcb_private_state
-{
+class ExExeUtilGetRTSStatisticsPrivateState : public ex_tcb_private_state {
   friend class ExExeUtilGetRTSStatisticsTcb;
 
-public:
+ public:
   ExExeUtilGetRTSStatisticsPrivateState();
-  ~ExExeUtilGetRTSStatisticsPrivateState();        // destructor
-protected:
+  ~ExExeUtilGetRTSStatisticsPrivateState();  // destructor
+ protected:
 };
 //////////////////////////////////////////////////////////////////////////
 // -----------------------------------------------------------------------
 // ExExeUtilGetMetadataInfoTdb
 // -----------------------------------------------------------------------
-class ExExeUtilGetMetadataInfoTdb : public ComTdbExeUtilGetMetadataInfo
-{
-public:
-
+class ExExeUtilGetMetadataInfoTdb : public ComTdbExeUtilGetMetadataInfo {
+ public:
   // ---------------------------------------------------------------------
   // Constructor is only called to instantiate an object used for
   // retrieval of the virtual table function pointer of the class while
   // unpacking. An empty constructor is enough.
   // ---------------------------------------------------------------------
-  ExExeUtilGetMetadataInfoTdb()
-  {}
+  ExExeUtilGetMetadataInfoTdb() {}
 
-  virtual ~ExExeUtilGetMetadataInfoTdb()
-  {}
+  virtual ~ExExeUtilGetMetadataInfoTdb() {}
 
   // ---------------------------------------------------------------------
   // Build a TCB for this TDB. Redefined in the Executor project.
   // ---------------------------------------------------------------------
   virtual ex_tcb *build(ex_globals *globals);
 
-private:
+ private:
   // ---------------------------------------------------------------------
   // !!!!!!! IMPORTANT -- NO DATA MEMBERS ALLOWED IN EXECUTOR TDB !!!!!!!!
   // *********************************************************************
@@ -2463,37 +2119,27 @@ private:
 // -----------------------------------------------------------------------
 // ExExeUtilGetMetadataInfoTcb
 // -----------------------------------------------------------------------
-class ExExeUtilGetMetadataInfoTcb : public ExExeUtilTcb
-{
+class ExExeUtilGetMetadataInfoTcb : public ExExeUtilTcb {
   friend class ExExeUtilGetMetadataInfoTdb;
   friend class ExExeUtilPrivateState;
 
-public:
+ public:
   // Constructor
-  ExExeUtilGetMetadataInfoTcb(const ComTdbExeUtilGetMetadataInfo & exe_util_tdb,
-                              ex_globals * glob = 0);
+  ExExeUtilGetMetadataInfoTcb(const ComTdbExeUtilGetMetadataInfo &exe_util_tdb, ex_globals *glob = 0);
 
   ~ExExeUtilGetMetadataInfoTcb();
 
   virtual short work();
 
-  virtual ex_tcb_private_state * allocatePstates(
-       Lng32 &numElems,      // inout, desired/actual elements
-       Lng32 &pstateLength); // out, length of one element
+  virtual ex_tcb_private_state *allocatePstates(Lng32 &numElems,       // inout, desired/actual elements
+                                                Lng32 &pstateLength);  // out, length of one element
 
-  ExExeUtilGetMetadataInfoTdb & getMItdb() const
-  {
-    return (ExExeUtilGetMetadataInfoTdb &) tdb;
-  };
+  ExExeUtilGetMetadataInfoTdb &getMItdb() const { return (ExExeUtilGetMetadataInfoTdb &)tdb; };
 
-protected:
-  enum
-  {
-    NUM_MAX_PARAMS_ = 25
-  };
+ protected:
+  enum { NUM_MAX_PARAMS_ = 25 };
 
-  enum Step
-  {
+  enum Step {
     INITIAL_,
     DISABLE_CQS_,
     CHECK_ACCESS_,
@@ -2515,8 +2161,7 @@ protected:
     DONE_,
   };
 
-  enum ViewsStep
-  {
+  enum ViewsStep {
     VIEWS_INITIAL_,
     VIEWS_FETCH_PROLOGUE_,
     VIEWS_FETCH_ROW_,
@@ -2525,148 +2170,104 @@ protected:
     VIEWS_DONE_
   };
 
-  enum AuthIdType
-  {
-    USERS_ROLES_ = 0,
-    ROLES_,
-    USERS_,
-    TENANTS_
-  };
+  enum AuthIdType { USERS_ROLES_ = 0, ROLES_, USERS_, TENANTS_ };
 
   Step step_;
   ViewsStep vStep_;
 
-  char * metadataQuery_;
+  char *metadataQuery_;
 
   char objectUid_[25];
 
-  char * queryBuf_;
-  char * outputBuf_;
-  char * headingBuf_;
+  char *queryBuf_;
+  char *outputBuf_;
+  char *headingBuf_;
 
-  char * patternStr_;
+  char *patternStr_;
 
   Lng32 numOutputEntries_;
 
-  char * param_[NUM_MAX_PARAMS_];
+  char *param_[NUM_MAX_PARAMS_];
 
   NABoolean headingReturned_;
 
   short displayHeading();
 
-  Lng32 getUsingView(Queue * infoList,
+  Lng32 getUsingView(Queue *infoList,
 
-                    // TRUE: shorthand view, FALSE: Materialized View
-                    NABoolean isShorthandView,
+                     // TRUE: shorthand view, FALSE: Materialized View
+                     NABoolean isShorthandView,
 
-                    char* &viewName, Lng32 &len);
+                     char *&viewName, Lng32 &len);
 
-  Lng32 getUsedObjects(Queue * infoList,
-                      NABoolean isShorthandView,
-                      char* &viewName, Lng32 &len);
-  void setReturnRowCount( Lng32 n) { returnRowCount_ = n; }
+  Lng32 getUsedObjects(Queue *infoList, NABoolean isShorthandView, char *&viewName, Lng32 &len);
+  void setReturnRowCount(Lng32 n) { returnRowCount_ = n; }
 
-  Lng32 getReturnRowCount() {return returnRowCount_;}
+  Lng32 getReturnRowCount() { return returnRowCount_; }
 
-  void incReturnRowCount() {returnRowCount_++; }
+  void incReturnRowCount() { returnRowCount_++; }
 
   Lng32 returnRowCount_;
 
-private:
+ private:
+  NABoolean checkUserPrivs(ContextCli *currConnext, const ComTdbExeUtilGetMetadataInfo::QueryType queryType);
 
-  NABoolean checkUserPrivs(
-    ContextCli * currConnext, 
-    const ComTdbExeUtilGetMetadataInfo::QueryType queryType);
+  Int32 getAuthID(const char *authName, const char *catName, const char *schName, const char *objName);
 
-  Int32 getAuthID(
-    const char *authName,
-    const char *catName,
-    const char *schName,
-    const char *objName);
+  Int32 getCurrentUserRoles(ContextCli *currContext, NAString &authList, NAString &granteeList);
 
-  Int32 getCurrentUserRoles(
-    ContextCli * currContext,
-    NAString &authList,
-    NAString &granteeList);
+  Int32 colPrivsFrag(const char *authName, const char *catName, const NAString &privWhereClause,
+                     NAString &colPrivsStmt);
 
-  Int32 colPrivsFrag(
-    const char *authName,
-    const char *catName,
-    const NAString &privWhereClause,
-    NAString &colPrivsStmt);
+  NAString getGrantedPrivCmd(const NAString &roleList, const char *cat, const bool &getObjectsInSchema,
+                             const NAString &qualifier = NAString(""),
+                             const NAString &uidColumn = NAString("object_uid"), const char *qualifier2 = NULL);
 
-  NAString getGrantedPrivCmd(
-    const NAString &roleList,
-    const char * cat,
-    const bool &getObjectsInSchema,
-    const NAString &qualifier = NAString(""),
-    const NAString &uidColumn = NAString("object_uid"),
-    const char * qualifier2 = NULL);
+  void getGroupList(const char *userName, NAString &groupList);
 
-  void getGroupList(
-    const char * userName,
-    NAString &groupList);
+  char *getRoleList(bool &containsRootRole, const Int32 userID, const char *catName, const char *schName,
+                    const char *objName);
 
-  char * getRoleList(
-    bool &containsRootRole,
-    const Int32 userID,
-    const char *catName,
-    const char *schName,
-    const char *objName);
+  Int64 getObjectUID(const char *catName, const char *schName, const char *objName, const char *targetName,
+                     const char *type);
 
-  Int64 getObjectUID(
-    const char *catName,
-    const char *schName,
-    const char *objName,
-    const char *targetName,
-    const char *type);
-
-  Int32 colPrivsFrag(
-    const char * authName,
-    const NAString &privsWhereClause,
-    NAString &colPrivsStmt);
+  Int32 colPrivsFrag(const char *authName, const NAString &privsWhereClause, NAString &colPrivsStmt);
 };
 
 //////////////////////////////////////////////////////////////////////////
 // -----------------------------------------------------------------------
 // ExExeUtilGetMetadataInfoComplexTcb
 // -----------------------------------------------------------------------
-class ExExeUtilGetMetadataInfoComplexTcb : public ExExeUtilGetMetadataInfoTcb
-{
+class ExExeUtilGetMetadataInfoComplexTcb : public ExExeUtilGetMetadataInfoTcb {
   friend class ExExeUtilGetMetadataInfoTdb;
   friend class ExExeUtilPrivateState;
 
-public:
+ public:
   // Constructor
-  ExExeUtilGetMetadataInfoComplexTcb(
-       const ComTdbExeUtilGetMetadataInfo & exe_util_tdb,
-       ex_globals * glob = 0);
+  ExExeUtilGetMetadataInfoComplexTcb(const ComTdbExeUtilGetMetadataInfo &exe_util_tdb, ex_globals *glob = 0);
 
   ~ExExeUtilGetMetadataInfoComplexTcb();
 
   virtual short work();
 
-protected:
+ protected:
 };
 
 //////////////////////////////////////////////////////////////////////////
 // -----------------------------------------------------------------------
 // ExExeUtilGetMetadataInfoVersionTcb
 // -----------------------------------------------------------------------
-class ExExeUtilGetMetadataInfoVersionTcb : public ExExeUtilGetMetadataInfoTcb
-{
+class ExExeUtilGetMetadataInfoVersionTcb : public ExExeUtilGetMetadataInfoTcb {
   friend class ExExeUtilGetMetadataInfoTdb;
   friend class ExExeUtilPrivateState;
 
-public:
+ public:
   // Constructor
-  ExExeUtilGetMetadataInfoVersionTcb(
-       const ComTdbExeUtilGetMetadataInfo & exe_util_tdb,
-       ex_globals * glob = 0);
+  ExExeUtilGetMetadataInfoVersionTcb(const ComTdbExeUtilGetMetadataInfo &exe_util_tdb, ex_globals *glob = 0);
 
   virtual short work();
 
-protected:
+ protected:
   UInt32 maxObjLen_;
   char formatStr_[100];
 };
@@ -2675,55 +2276,48 @@ protected:
 // -----------------------------------------------------------------------
 // ExExeUtilGetHbaseObjectsTcb
 // -----------------------------------------------------------------------
-class ExExeUtilGetHbaseObjectsTcb : public ExExeUtilGetMetadataInfoTcb
-{
+class ExExeUtilGetHbaseObjectsTcb : public ExExeUtilGetMetadataInfoTcb {
   friend class ExExeUtilGetMetadataInfoTdb;
   friend class ExExeUtilPrivateState;
 
-public:
+ public:
   // Constructor
-  ExExeUtilGetHbaseObjectsTcb(
-       const ComTdbExeUtilGetMetadataInfo & exe_util_tdb,
-       ex_globals * glob = 0);
+  ExExeUtilGetHbaseObjectsTcb(const ComTdbExeUtilGetMetadataInfo &exe_util_tdb, ex_globals *glob = 0);
 
   ~ExExeUtilGetHbaseObjectsTcb();
 
   virtual short work();
 
  private:
-  ExpHbaseInterface * ehi_;
+  ExpHbaseInterface *ehi_;
   NAArray<HbaseStr> *hbaseTables_;
   Int32 currIndex_;
 
   NAString extTableName_;
 
-  char * hbaseName_;
-  char * hbaseNameBuf_;
-  char * outBuf_;
+  char *hbaseName_;
+  char *hbaseNameBuf_;
+  char *outBuf_;
 };
 
 //////////////////////////////////////////////////////////////////////////
 // -----------------------------------------------------------------------
 // ExExeUtilGetNamespaceObjectsTcb
 // -----------------------------------------------------------------------
-class ExExeUtilGetNamespaceObjectsTcb : public ExExeUtilGetMetadataInfoTcb
-{
+class ExExeUtilGetNamespaceObjectsTcb : public ExExeUtilGetMetadataInfoTcb {
   friend class ExExeUtilGetMetadataInfoTdb;
   friend class ExExeUtilPrivateState;
 
-public:
+ public:
   // Constructor
-  ExExeUtilGetNamespaceObjectsTcb(
-       const ComTdbExeUtilGetMetadataInfo & exe_util_tdb,
-       ex_globals * glob = 0);
-  
+  ExExeUtilGetNamespaceObjectsTcb(const ComTdbExeUtilGetMetadataInfo &exe_util_tdb, ex_globals *glob = 0);
+
   ~ExExeUtilGetNamespaceObjectsTcb();
-  
+
   virtual short work();
-  
-private:
-  enum Step
-  {
+
+ private:
+  enum Step {
     INITIAL_,
     GET_NAMESPACES_,
     CHECK_NAMESPACE_EXISTS_,
@@ -2738,54 +2332,46 @@ private:
     DONE_,
   };
 
-  ExpHbaseInterface * ehi_;
+  ExpHbaseInterface *ehi_;
   NAArray<HbaseStr> *namespaceObjects_;
 
   Int32 currIndex_;
 
   NAString extTableName_;
 
-  char * hbaseName_;
-  char * hbaseNameBuf_;
+  char *hbaseName_;
+  char *hbaseNameBuf_;
   Lng32 hbaseNameMaxLen_;
 
   Step step_;
 };
 
-
 //////////////////////////////////////////////////////////////////////////
-class ExExeUtilGetMetadataInfoPrivateState : public ex_tcb_private_state
-{
+class ExExeUtilGetMetadataInfoPrivateState : public ex_tcb_private_state {
   friend class ExExeUtilGetMetadataInfoTcb;
 
-public:
+ public:
   ExExeUtilGetMetadataInfoPrivateState();
-  ~ExExeUtilGetMetadataInfoPrivateState();        // destructor
-protected:
+  ~ExExeUtilGetMetadataInfoPrivateState();  // destructor
+ protected:
 };
 
-
 // See ExCancel.cpp
-
 
 //////////////////////////////////////////////////////////////////////////
 // -----------------------------------------------------------------------
 // ExExeUtilShowSetTdb
 // -----------------------------------------------------------------------
-class ExExeUtilShowSetTdb : public ComTdbExeUtilShowSet
-{
+class ExExeUtilShowSetTdb : public ComTdbExeUtilShowSet {
  public:
-
   // ---------------------------------------------------------------------
   // Constructor is only called to instantiate an object used for
   // retrieval of the virtual table function pointer of the class while
   // unpacking. An empty constructor is enough.
   // ---------------------------------------------------------------------
-  ExExeUtilShowSetTdb()
-    {}
+  ExExeUtilShowSetTdb() {}
 
-  virtual ~ExExeUtilShowSetTdb()
-    {}
+  virtual ~ExExeUtilShowSetTdb() {}
 
   // ---------------------------------------------------------------------
   // Build a TCB for this TDB. Redefined in the Executor project.
@@ -2824,33 +2410,20 @@ class ExExeUtilShowSetTdb : public ComTdbExeUtilShowSet
 // -----------------------------------------------------------------------
 // ExExeUtilShowSetTcb
 // -----------------------------------------------------------------------
-class ExExeUtilShowSetTcb : public ExExeUtilTcb
-{
+class ExExeUtilShowSetTcb : public ExExeUtilTcb {
   friend class ExExeUtilShowSetTdb;
   friend class ExExeUtilPrivateState;
 
-public:
+ public:
   // Constructor
-  ExExeUtilShowSetTcb(const ComTdbExeUtilShowSet & exe_util_tdb,
-                      ex_globals * glob = 0);
+  ExExeUtilShowSetTcb(const ComTdbExeUtilShowSet &exe_util_tdb, ex_globals *glob = 0);
 
   virtual short work();
 
-  ExExeUtilShowSetTdb & ssTdb() const
-  {
-    return (ExExeUtilShowSetTdb &) tdb;
-  };
+  ExExeUtilShowSetTdb &ssTdb() const { return (ExExeUtilShowSetTdb &)tdb; };
 
-protected:
-  enum Step
-  {
-    EMPTY_,
-    RETURN_HEADER_,
-    RETURNING_DEFAULT_,
-    DONE_,
-    HANDLE_ERROR_,
-    CANCELLED_
-  };
+ protected:
+  enum Step { EMPTY_, RETURN_HEADER_, RETURNING_DEFAULT_, DONE_, HANDLE_ERROR_, CANCELLED_ };
 
   Step step_;
 };
@@ -2859,20 +2432,16 @@ protected:
 // -----------------------------------------------------------------------
 // ExExeUtilAQRTdb
 // -----------------------------------------------------------------------
-class ExExeUtilAQRTdb : public ComTdbExeUtilAQR
-{
+class ExExeUtilAQRTdb : public ComTdbExeUtilAQR {
  public:
-
   // ---------------------------------------------------------------------
   // Constructor is only called to instantiate an object used for
   // retrieval of the virtual table function pointer of the class while
   // unpacking. An empty constructor is enough.
   // ---------------------------------------------------------------------
-  ExExeUtilAQRTdb()
-    {}
+  ExExeUtilAQRTdb() {}
 
-  virtual ~ExExeUtilAQRTdb()
-    {}
+  virtual ~ExExeUtilAQRTdb() {}
 
   // ---------------------------------------------------------------------
   // Build a TCB for this TDB. Redefined in the Executor project.
@@ -2911,107 +2480,73 @@ class ExExeUtilAQRTdb : public ComTdbExeUtilAQR
 // -----------------------------------------------------------------------
 // ExExeUtilAQRTcb
 // -----------------------------------------------------------------------
-class ExExeUtilAQRTcb : public ExExeUtilTcb
-{
+class ExExeUtilAQRTcb : public ExExeUtilTcb {
   friend class ExExeUtilAQRTdb;
   friend class ExExeUtilPrivateState;
 
-public:
+ public:
   // Constructor
-  ExExeUtilAQRTcb(const ComTdbExeUtilAQR & exe_util_tdb,
-                  ex_globals * glob = 0);
+  ExExeUtilAQRTcb(const ComTdbExeUtilAQR &exe_util_tdb, ex_globals *glob = 0);
 
   virtual short work();
 
-  ExExeUtilAQRTdb & aqrTdb() const
-  {
-    return (ExExeUtilAQRTdb &) tdb;
-  };
+  ExExeUtilAQRTdb &aqrTdb() const { return (ExExeUtilAQRTdb &)tdb; };
 
-protected:
-  enum Step
-  {
-    EMPTY_,
-    SET_ENTRY_,
-    RETURN_HEADER_,
-    RETURNING_ENTRY_,
-    DONE_,
-    HANDLE_ERROR_,
-    CANCELLED_
-  };
+ protected:
+  enum Step { EMPTY_, SET_ENTRY_, RETURN_HEADER_, RETURNING_ENTRY_, DONE_, HANDLE_ERROR_, CANCELLED_ };
 
   Step step_;
 };
 
-
-
-
-
-class ExExeUtilGetProcessStatisticsTcb : public ExExeUtilGetStatisticsTcb
-{
+class ExExeUtilGetProcessStatisticsTcb : public ExExeUtilGetStatisticsTcb {
   friend class ExExeUtilGetProcessStatisticsTdb;
   friend class ExExeUtilPrivateState;
 
-public:
+ public:
   // Constructor
-  ExExeUtilGetProcessStatisticsTcb
-      (const ComTdbExeUtilGetProcessStatistics & exe_util_tdb,
-         ex_globals * glob = 0);
- 
+  ExExeUtilGetProcessStatisticsTcb(const ComTdbExeUtilGetProcessStatistics &exe_util_tdb, ex_globals *glob = 0);
+
   //  ~ExExeUtilGetProcessStatisticsTcb();
 
   virtual short work();
 
-  ExExeUtilGetProcessStatisticsTdb & getStatsTdb() const
-  { 
-    return (ExExeUtilGetProcessStatisticsTdb &) tdb;
+  ExExeUtilGetProcessStatisticsTdb &getStatsTdb() const { return (ExExeUtilGetProcessStatisticsTdb &)tdb; };
+
+ private:
+  enum ProcessStatsStep {
+    INITIAL_,
+    GET_PROCESS_STATS_AREA_,
+    GET_PROCESS_STATS_ENTRY_,
+    FORMAT_AND_RETURN_PROCESS_STATS_,
+    HANDLE_ERROR_,
+    DONE_
   };
 
-private:
-  enum ProcessStatsStep
-  {
-     INITIAL_,
-     GET_PROCESS_STATS_AREA_,
-     GET_PROCESS_STATS_ENTRY_,
-     FORMAT_AND_RETURN_PROCESS_STATS_, 
-     HANDLE_ERROR_,
-     DONE_
-  };
-   
   ProcessStatsStep step_;
   const ExStatisticsArea *statsArea_;
   ExProcessStats *processStats_;
 };
-  
 
-
-
-
-class ExExeUtilHiveQueryPrivateState : public ex_tcb_private_state
-{
+class ExExeUtilHiveQueryPrivateState : public ex_tcb_private_state {
  public:
   ExExeUtilHiveQueryPrivateState();
-  ~ExExeUtilHiveQueryPrivateState();        // destructor
+  ~ExExeUtilHiveQueryPrivateState();  // destructor
  protected:
 };
 //////////////////////////////////////////////////////////////////////////
 // -----------------------------------------------------------------------
 // ExExeUtilHbaseLoadTdb
 // -----------------------------------------------------------------------
-class ExExeUtilHBaseBulkLoadTdb : public ComTdbExeUtilHBaseBulkLoad
-{
+class ExExeUtilHBaseBulkLoadTdb : public ComTdbExeUtilHBaseBulkLoad {
  public:
-
   // ---------------------------------------------------------------------
   // Constructor is only called to instantiate an object used for
   // retrieval of the virtual table function pointer of the class while
   // unpacking. An empty constructor is enough.
   // ---------------------------------------------------------------------
-  ExExeUtilHBaseBulkLoadTdb()
-    {}
+  ExExeUtilHBaseBulkLoadTdb() {}
 
-  virtual ~ExExeUtilHBaseBulkLoadTdb()
-    {}
+  virtual ~ExExeUtilHBaseBulkLoadTdb() {}
 
   // ---------------------------------------------------------------------
   // Build a TCB for this TDB. Redefined in the Executor project.
@@ -3046,71 +2581,58 @@ class ExExeUtilHBaseBulkLoadTdb : public ComTdbExeUtilHBaseBulkLoad
   // ---------------------------------------------------------------------
 };
 
-
-class ExExeUtilHBaseBulkLoadTcb : public ExExeUtilTcb
-{
+class ExExeUtilHBaseBulkLoadTcb : public ExExeUtilTcb {
   friend class ExExeUtilHBaseBulkLoadTdb;
   friend class ExExeUtilPrivateState;
 
  public:
   // Constructor
-  ExExeUtilHBaseBulkLoadTcb(const ComTdbExeUtil & exe_util_tdb,
-                            ex_globals * glob = 0);
+  ExExeUtilHBaseBulkLoadTcb(const ComTdbExeUtil &exe_util_tdb, ex_globals *glob = 0);
   ~ExExeUtilHBaseBulkLoadTcb();
   virtual short work();
 
-  ExExeUtilHBaseBulkLoadTdb & hblTdb() const
-  {
-    return (ExExeUtilHBaseBulkLoadTdb &) tdb;
-  };
+  ExExeUtilHBaseBulkLoadTdb &hblTdb() const { return (ExExeUtilHBaseBulkLoadTdb &)tdb; };
 
-  virtual short moveRowToUpQueue(const char * row, Lng32 len = -1,
-                                 short * rc = NULL, NABoolean isVarchar = TRUE);
+  virtual short moveRowToUpQueue(const char *row, Lng32 len = -1, short *rc = NULL, NABoolean isVarchar = TRUE);
 
   short printLoggingLocation(int bufPos);
- 
-  void setEndStatusMsg(const char * operation,
-                                       int bufPos = 0,
-                                       NABoolean   withtime= FALSE);
 
-  short setStartStatusMsgAndMoveToUpQueue(const char * operation,
-                                       short * rc,
-                                       int bufPos = 0,
-                                       NABoolean   withtime = FALSE);
-  virtual ex_tcb_private_state * allocatePstates(
-       Lng32 &numElems,      // inout, desired/actual elements
-       Lng32 &pstateLength); // out, length of one element
+  void setEndStatusMsg(const char *operation, int bufPos = 0, NABoolean withtime = FALSE);
+
+  short setStartStatusMsgAndMoveToUpQueue(const char *operation, short *rc, int bufPos = 0, NABoolean withtime = FALSE);
+  virtual ex_tcb_private_state *allocatePstates(Lng32 &numElems,       // inout, desired/actual elements
+                                                Lng32 &pstateLength);  // out, length of one element
   void setLoggingLocation();
-  NABoolean generateTrafSampleTable(const char* cTableName,const char* cSampleTableName);
- private:
-  enum Step
-    {
-    //initial state
-      INITIAL_,
-      //cleanup leftover files
-      PRE_LOAD_CLEANUP_,
-      LOAD_START_,
-      LOAD_END_,
-      LOAD_END_ERROR_,
-      PREPARATION_,
-      LOADING_DATA_,
-      COMPLETE_BULK_LOAD_, //load incremental
-      POST_LOAD_CLEANUP_,
-      TRUNCATE_TABLE_,
-      DISABLE_INDEXES_,
-      ENABLE_INDEXES_AND_LOAD_END_,
-      ENABLE_INDEXES_AND_ERROR_,
-      POPULATE_INDEXES_,
-      POPULATE_INDEXES_EXECUTE_,
-      UPDATE_STATS_,
-      UPDATE_STATS_EXECUTE_,
-      UPDATE_STATS__END_,
-      RETURN_STATUS_MSG_,
-      DONE_,
-      HANDLE_ERROR_, DELETE_DATA_AND_ERROR_,
-      LOAD_ERROR_
-    };
+  NABoolean generateTrafSampleTable(const char *cTableName, const char *cSampleTableName);
 
+ private:
+  enum Step {
+    // initial state
+    INITIAL_,
+    // cleanup leftover files
+    PRE_LOAD_CLEANUP_,
+    LOAD_START_,
+    LOAD_END_,
+    LOAD_END_ERROR_,
+    PREPARATION_,
+    LOADING_DATA_,
+    COMPLETE_BULK_LOAD_,  // load incremental
+    POST_LOAD_CLEANUP_,
+    TRUNCATE_TABLE_,
+    DISABLE_INDEXES_,
+    ENABLE_INDEXES_AND_LOAD_END_,
+    ENABLE_INDEXES_AND_ERROR_,
+    POPULATE_INDEXES_,
+    POPULATE_INDEXES_EXECUTE_,
+    UPDATE_STATS_,
+    UPDATE_STATS_EXECUTE_,
+    UPDATE_STATS__END_,
+    RETURN_STATUS_MSG_,
+    DONE_,
+    HANDLE_ERROR_,
+    DELETE_DATA_AND_ERROR_,
+    LOAD_ERROR_
+  };
 
   Step step_;
   Step nextStep_;
@@ -3119,7 +2641,7 @@ class ExExeUtilHBaseBulkLoadTcb : public ExExeUtilTcb
   Int64 endTime_;
   Int64 rowsAffected_;
   char statusMsgBuf_[BUFFER_SIZE];
-  ExpHbaseInterface * ehi_;
+  ExpHbaseInterface *ehi_;
   char *loggingLocation_;
   short setCQDs();
   short restoreCQDs();
@@ -3129,28 +2651,21 @@ class ExExeUtilHBaseBulkLoadTcb : public ExExeUtilTcb
   short loadWithParams(ComDiagsArea *&diagsArea);
 };
 
-class ExExeUtilHbaseLoadPrivateState : public ex_tcb_private_state
-{
+class ExExeUtilHbaseLoadPrivateState : public ex_tcb_private_state {
   friend class ExExeUtilHBaseBulkLoadTcb;
 
  public:
   ExExeUtilHbaseLoadPrivateState();
-  ~ExExeUtilHbaseLoadPrivateState();        // destructor
+  ~ExExeUtilHbaseLoadPrivateState();  // destructor
  protected:
 };
 
-
-
-
-
-
-class ExExeUtilHbaseUnLoadPrivateState : public ex_tcb_private_state
-{
+class ExExeUtilHbaseUnLoadPrivateState : public ex_tcb_private_state {
   friend class ExExeUtilHBaseBulkLoadTcb;
 
  public:
   ExExeUtilHbaseUnLoadPrivateState();
-  ~ExExeUtilHbaseUnLoadPrivateState();        // destructor
+  ~ExExeUtilHbaseUnLoadPrivateState();  // destructor
  protected:
 };
 
@@ -3158,27 +2673,23 @@ class ExExeUtilHbaseUnLoadPrivateState : public ex_tcb_private_state
 // -----------------------------------------------------------------------
 // ExExeUtilRegionStatsTdb
 // -----------------------------------------------------------------------
-class ExExeUtilRegionStatsTdb : public ComTdbExeUtilRegionStats
-{
-public:
-
+class ExExeUtilRegionStatsTdb : public ComTdbExeUtilRegionStats {
+ public:
   // ---------------------------------------------------------------------
   // Constructor is only called to instantiate an object used for
   // retrieval of the virtual table function pointer of the class while
   // unpacking. An empty constructor is enough.
   // ---------------------------------------------------------------------
-  ExExeUtilRegionStatsTdb()
-  {}
+  ExExeUtilRegionStatsTdb() {}
 
-  virtual ~ExExeUtilRegionStatsTdb()
-  {}
+  virtual ~ExExeUtilRegionStatsTdb() {}
 
   // ---------------------------------------------------------------------
   // Build a TCB for this TDB. Redefined in the Executor project.
   // ---------------------------------------------------------------------
   virtual ex_tcb *build(ex_globals *globals);
 
-private:
+ private:
   // ---------------------------------------------------------------------
   // !!!!!!! IMPORTANT -- NO DATA MEMBERS ALLOWED IN EXECUTOR TDB !!!!!!!!
   // *********************************************************************
@@ -3198,7 +2709,7 @@ private:
   // 1. Are those data members Compiler-generated?
   //    If yes, put them in the ComTdbDLL instead.
   //    If no, they should probably belong to someplace else (like TCB).
-  // 
+  //
   // 2. Are the classes those data members belong defined in the executor
   //    project?
   //    If your answer to both questions is yes, you might need to move
@@ -3210,28 +2721,22 @@ private:
 // -----------------------------------------------------------------------
 // ExExeUtilRegionStatsTcb
 // -----------------------------------------------------------------------
-class ExExeUtilRegionStatsTcb : public ExExeUtilTcb
-{
+class ExExeUtilRegionStatsTcb : public ExExeUtilTcb {
   friend class ExExeUtilRegionStatsTdb;
   friend class ExExeUtilPrivateState;
 
-public:
+ public:
   // Constructor
-  ExExeUtilRegionStatsTcb(const ComTdbExeUtilRegionStats & exe_util_tdb,
-                          ex_globals * glob = 0);
+  ExExeUtilRegionStatsTcb(const ComTdbExeUtilRegionStats &exe_util_tdb, ex_globals *glob = 0);
 
   ~ExExeUtilRegionStatsTcb();
 
   virtual short work();
 
-  ExExeUtilRegionStatsTdb & getDLStdb() const
-  {
-    return (ExExeUtilRegionStatsTdb &) tdb;
-  };
+  ExExeUtilRegionStatsTdb &getDLStdb() const { return (ExExeUtilRegionStatsTdb &)tdb; };
 
-private:
-  enum Step
-  {
+ private:
+  enum Step {
     INITIAL_,
     EVAL_INPUT_,
     COLLECT_STATS_,
@@ -3243,36 +2748,35 @@ private:
   };
   Step step_;
 
-protected:
-  Int64 getEmbeddedNumValue(char* &sep, char endChar, 
-                            NABoolean adjustLen = TRUE);
+ protected:
+  Int64 getEmbeddedNumValue(char *&sep, char endChar, NABoolean adjustLen = TRUE);
 
-  short collectStats(char * tableName, char* tableNameForUID, NABoolean replaceUID);
+  short collectStats(char *tableName, char *tableNameForUID, NABoolean replaceUID);
   short populateStats(Int32 currIndex);
 
-  char * hbaseRootdir_;
+  char *hbaseRootdir_;
 
-  char * tableName_;
+  char *tableName_;
 
-  char * tableNameForUID_;
+  char *tableNameForUID_;
 
-  char * inputNameBuf_;
+  char *inputNameBuf_;
 
-  char * statsBuf_;
+  char *statsBuf_;
   Lng32 statsBufLen_;
-  ComTdbRegionStatsVirtTableColumnStruct* stats_;  
+  ComTdbRegionStatsVirtTableColumnStruct *stats_;
 
-  ExpHbaseInterface * ehi_;
+  ExpHbaseInterface *ehi_;
   NAArray<HbaseStr> *regionInfoList_;
 
   Int32 currIndex_;
 
   Int32 numRegionStatsEntries_;
 
-  char * catName_;
-  char * schName_;
-  char * objName_;
-  char * regionName_;
+  char *catName_;
+  char *schName_;
+  char *objName_;
+  char *regionName_;
 
   NAString extNameForHbase_;
 };
@@ -3281,21 +2785,18 @@ protected:
 // -----------------------------------------------------------------------
 // ExExeUtilRegionStatsFormatTcb
 // -----------------------------------------------------------------------
-class ExExeUtilRegionStatsFormatTcb : public ExExeUtilRegionStatsTcb
-{
+class ExExeUtilRegionStatsFormatTcb : public ExExeUtilRegionStatsTcb {
   friend class ExExeUtilRegionStatsTdb;
   friend class ExExeUtilPrivateState;
 
-public:
+ public:
   // Constructor
-  ExExeUtilRegionStatsFormatTcb(const ComTdbExeUtilRegionStats & exe_util_tdb,
-                                      ex_globals * glob = 0);
+  ExExeUtilRegionStatsFormatTcb(const ComTdbExeUtilRegionStats &exe_util_tdb, ex_globals *glob = 0);
 
   virtual short work();
 
-private:
-  enum Step
-  {
+ private:
+  enum Step {
     INITIAL_,
     COLLECT_STATS_,
     EVAL_INPUT_,
@@ -3310,46 +2811,41 @@ private:
 
   Step step_;
 
-  char * statsTotalsBuf_;
-  ComTdbRegionStatsVirtTableColumnStruct* statsTotals_;  
+  char *statsTotalsBuf_;
+  ComTdbRegionStatsVirtTableColumnStruct *statsTotals_;
 
   short initTotals();
   short computeTotals();
 };
 
 ////////////////////////////////////////////////////////////////////////////
-class ExExeUtilRegionStatsPrivateState : public ex_tcb_private_state
-{
+class ExExeUtilRegionStatsPrivateState : public ex_tcb_private_state {
   friend class ExExeUtilRegionStatsTcb;
-  
-public:	
-  ExExeUtilRegionStatsPrivateState();
-  ~ExExeUtilRegionStatsPrivateState();	// destructor
-protected:
-};
 
+ public:
+  ExExeUtilRegionStatsPrivateState();
+  ~ExExeUtilRegionStatsPrivateState();  // destructor
+ protected:
+};
 
 //////////////////////////////////////////////////////////////////////////
 // -----------------------------------------------------------------------
 // ExExeUtilClusterStatsTcb
 // -----------------------------------------------------------------------
-class ExExeUtilClusterStatsTcb : public ExExeUtilRegionStatsTcb
-{
+class ExExeUtilClusterStatsTcb : public ExExeUtilRegionStatsTcb {
   friend class ExExeUtilClusterStatsTdb;
   friend class ExExeUtilPrivateState;
 
-public:
+ public:
   // Constructor
-  ExExeUtilClusterStatsTcb(const ComTdbExeUtilRegionStats & exe_util_tdb,
-                           ex_globals * glob = 0);
+  ExExeUtilClusterStatsTcb(const ComTdbExeUtilRegionStats &exe_util_tdb, ex_globals *glob = 0);
 
   ~ExExeUtilClusterStatsTcb();
 
   virtual short work();
 
-private:
-  enum Step
-  {
+ private:
+  enum Step {
     INITIAL_,
     EVAL_INPUT_,
     COLLECT_STATS_,
@@ -3364,21 +2860,16 @@ private:
   short collectStats();
   short populateStats(Int32 currIndex, NABoolean nullTerminate = FALSE);
 
-protected:
-  ComTdbClusterStatsVirtTableColumnStruct* stats_;  
+ protected:
+  ComTdbClusterStatsVirtTableColumnStruct *stats_;
 
-  Int32    currObjectRegionNum_;
+  Int32 currObjectRegionNum_;
   NAString currObjectName_;
 };
 
-
-
-
-class connectByStackItem
-{
-public:
-  connectByStackItem(CollHeap*h) 
-  {
+class connectByStackItem {
+ public:
+  connectByStackItem(CollHeap *h) {
     seedValue = NULL;
     pathItem = NULL;
     pathLen = 0;
@@ -3389,77 +2880,67 @@ public:
     h_ = h;
   }
   ~connectByStackItem() {}
-  void cleanup()
-  {
-    if(seedValue) {
-     NADELETEBASIC(seedValue, h_);
-    // printf("NADELETE20\n");
+  void cleanup() {
+    if (seedValue) {
+      NADELETEBASIC(seedValue, h_);
+      // printf("NADELETE20\n");
     }
-    if(pathItem)  {
+    if (pathItem) {
       NADELETEBASIC(pathItem, h_);
-      //printf("NADELETE21\n");
+      // printf("NADELETE21\n");
     }
   }
 
-  char * seedValue;
-  char * pathItem;
+  char *seedValue;
+  char *pathItem;
   int len;
   int level;
   int type;
   int pathLen;
   int parentId;
-  CollHeap* h_;
+  CollHeap *h_;
 };
 class connectByOneRow {
-public:
-  connectByOneRow()
-  {
+ public:
+  connectByOneRow() {
     data_ = NULL;
     len = 0;
     type = 0;
   }
   ~connectByOneRow() {}
-  char * data_;
+  char *data_;
   int len;
   int type;
 };
 
 #define CONNECT_BY_DEFAULT_BATCH_SIZE 300
-#define CONNECT_BY_MAX_LEVEL_SIZE 200
-#define CONNECT_BY_MAX_SQL_TEXT_SIZE 20000
-#define CONNECT_BY_MAX_PATH_SIZE 60
-
-
+#define CONNECT_BY_MAX_LEVEL_SIZE     200
+#define CONNECT_BY_MAX_SQL_TEXT_SIZE  20000
+#define CONNECT_BY_MAX_PATH_SIZE      60
 
 ////////////////////////////////////////////////////////////////////////////
-class ExExeUtilLobInfoTablePrivateState : public ex_tcb_private_state
-{
-  
-public:	
+class ExExeUtilLobInfoTablePrivateState : public ex_tcb_private_state {
+ public:
   ExExeUtilLobInfoTablePrivateState();
-  ~ExExeUtilLobInfoTablePrivateState();	// destructor
-protected:
+  ~ExExeUtilLobInfoTablePrivateState();  // destructor
+ protected:
 };
 
-short ExExeUtilLobExtractLibrary(ExeCliInterface *cliInterface,char *libHandle, char *cachedLibName,ComDiagsArea *toDiags);
+short ExExeUtilLobExtractLibrary(ExeCliInterface *cliInterface, char *libHandle, char *cachedLibName,
+                                 ComDiagsArea *toDiags);
 
-class ExExeUtilConnectbyTcb : public ExExeUtilTcb
-{
+class ExExeUtilConnectbyTcb : public ExExeUtilTcb {
   friend class ExExeUtilConnectbyTdb;
 
-public:
-  ExExeUtilConnectbyTcb(const ComTdbExeUtilConnectby &exe_util_tdb,
-                                      ex_globals * glob = 0);
+ public:
+  ExExeUtilConnectbyTcb(const ComTdbExeUtilConnectby &exe_util_tdb, ex_globals *glob = 0);
 
-  virtual ~ExExeUtilConnectbyTcb()
-  {}
+  virtual ~ExExeUtilConnectbyTcb() {}
 
   virtual short work();
-  virtual ex_tcb_private_state * allocatePstates(
-                                  Lng32 &numElems,      // inout, desired/actual elements
-                                  Lng32 &pstateLength); // out, length of one element
-  enum Step
-  {
+  virtual ex_tcb_private_state *allocatePstates(Lng32 &numElems,       // inout, desired/actual elements
+                                                Lng32 &pstateLength);  // out, length of one element
+  enum Step {
     INITIAL_,
     EVAL_INPUT_,
     EVAL_START_WITH_,
@@ -3472,16 +2953,20 @@ public:
     DONE_
   };
   Step step_;
-  ExExeUtilConnectbyTdb& exeUtilTdb() const {return (ExExeUtilConnectbyTdb&) tdb;};
+  ExExeUtilConnectbyTdb &exeUtilTdb() const { return (ExExeUtilConnectbyTdb &)tdb; };
 
-  short emitRow(ExpTupleDesc * tDesc, int level, int isleaf, int iscycle, connectByStackItem *it, NABoolean chkForStartWith = FALSE) ;
-  short emitCacheRow(char*);
-  short emitPrevRow(ExpTupleDesc * tDesc, int level, int isleaf, int iscycle, Queue* q, int index) ;
+  short emitRow(ExpTupleDesc *tDesc, int level, int isleaf, int iscycle, connectByStackItem *it,
+                NABoolean chkForStartWith = FALSE);
+  short emitCacheRow(char *);
+  short emitPrevRow(ExpTupleDesc *tDesc, int level, int isleaf, int iscycle, Queue *q, int index);
 
   Queue *currArray[200];
-  Queue * getCurrentQueue(int level) { if(level <0 || level >200) abort(); return currArray[level];}
-  short checkDuplicate(connectByStackItem *it,int len, int level);
-  void replaceStartWithStringWithValue(Queue* v, const NAString s, char* out, int size);
+  Queue *getCurrentQueue(int level) {
+    if (level < 0 || level > 200) abort();
+    return currArray[level];
+  }
+  short checkDuplicate(connectByStackItem *it, int len, int level);
+  void replaceStartWithStringWithValue(Queue *v, const NAString s, char *out, int size);
   int currLevel_;
   Int64 resultSize_;
   Queue *currQueue_;
@@ -3490,7 +2975,7 @@ public:
   Queue *prevQueue_;
   Queue *tmpPrevQueue_;
   Int32 currRootId_;
-  Int32 connBatchSize_ ; 
+  Int32 connBatchSize_;
   Int32 upQueueIsFull_;
   Int32 currSeedNum_;
   Int32 nq21cnt_;
@@ -3498,25 +2983,24 @@ public:
   Queue *resultCache_;
   short cachework_;
   short cacheptr_;
-  char * inputDynParamBuf_;
+  char *inputDynParamBuf_;
 
-
-protected:
+ protected:
   ExExeUtilConnectbyTcb *tcb_;
 
-private:
+ private:
   tupp tuppData_;
-  char * data_; 
+  char *data_;
 };
 
-class ExExeUtilConnectbyTdbState : public ex_tcb_private_state
-{
+class ExExeUtilConnectbyTdbState : public ex_tcb_private_state {
   friend class ExExeUtilConnectbyTcb;
 
-public:
+ public:
   ExExeUtilConnectbyTdbState();
   ~ExExeUtilConnectbyTdbState();
-protected:
+
+ protected:
   ExExeUtilConnectbyTcb::Step step_;
 };
 
@@ -3524,20 +3008,16 @@ protected:
 // -----------------------------------------------------------------------
 // ExExeUtilCompositeUnnestTdb
 // -----------------------------------------------------------------------
-class ExExeUtilCompositeUnnestTdb : public ComTdbExeUtilCompositeUnnest
-{
+class ExExeUtilCompositeUnnestTdb : public ComTdbExeUtilCompositeUnnest {
  public:
-
   // ---------------------------------------------------------------------
   // Constructor is only called to instantiate an object used for
   // retrieval of the virtual table function pointer of the class while
   // unpacking. An empty constructor is enough.
   // ---------------------------------------------------------------------
-  ExExeUtilCompositeUnnestTdb()
-    {}
+  ExExeUtilCompositeUnnestTdb() {}
 
-  virtual ~ExExeUtilCompositeUnnestTdb()
-    {}
+  virtual ~ExExeUtilCompositeUnnestTdb() {}
 
   // ---------------------------------------------------------------------
   // Build a TCB for this TDB. Redefined in the Executor project.
@@ -3576,31 +3056,24 @@ class ExExeUtilCompositeUnnestTdb : public ComTdbExeUtilCompositeUnnest
 // -----------------------------------------------------------------------
 // ExExeUtilCompositeUnnestTcb
 // -----------------------------------------------------------------------
-class ExExeUtilCompositeUnnestTcb : public ExExeUtilTcb
-{
+class ExExeUtilCompositeUnnestTcb : public ExExeUtilTcb {
   friend class ExExeUtilCompositeUnnestTdb;
   friend class ExExeUtilPrivateState;
 
-public:
+ public:
   // Constructor
-  ExExeUtilCompositeUnnestTcb(const ComTdbExeUtilCompositeUnnest & exe_util_tdb,
-                           const ex_tcb * child_tcb,
-                           ex_globals * glob = 0);
+  ExExeUtilCompositeUnnestTcb(const ComTdbExeUtilCompositeUnnest &exe_util_tdb, const ex_tcb *child_tcb,
+                              ex_globals *glob = 0);
 
   virtual short work();
 
-  virtual ex_tcb_private_state * allocatePstates(
-       Lng32 &numElems,      // inout, desired/actual elements
-       Lng32 &pstateLength); // out, length of one element
+  virtual ex_tcb_private_state *allocatePstates(Lng32 &numElems,       // inout, desired/actual elements
+                                                Lng32 &pstateLength);  // out, length of one element
 
-  ExExeUtilCompositeUnnestTdb & unnestTdb() const
-  {
-    return (ExExeUtilCompositeUnnestTdb &) tdb;
-  };
-  
+  ExExeUtilCompositeUnnestTdb &unnestTdb() const { return (ExExeUtilCompositeUnnestTdb &)tdb; };
+
  private:
-  enum Step
-  {
+  enum Step {
     INITIAL_,
     SEND_REQ_TO_CHILD_,
     GET_REPLY_FROM_CHILD_,
@@ -3625,13 +3098,12 @@ public:
   Int32 currElem_;
 };
 
-class ExExeUtilUpdataDeletePrivateState : public ex_tcb_private_state
-{
+class ExExeUtilUpdataDeletePrivateState : public ex_tcb_private_state {
   friend class ExExeUtilUpdataDeleteTcb;
 
  public:
   ExExeUtilUpdataDeletePrivateState();
-  ~ExExeUtilUpdataDeletePrivateState();        // destructor
+  ~ExExeUtilUpdataDeletePrivateState();  // destructor
  protected:
 };
 
@@ -3639,20 +3111,16 @@ class ExExeUtilUpdataDeletePrivateState : public ex_tcb_private_state
 // -----------------------------------------------------------------------
 // ExExeUtilUpdataDeleteTdb
 // -----------------------------------------------------------------------
-class ExExeUtilUpdataDeleteTdb : public ComTdbExeUtilUpdataDelete
-{
+class ExExeUtilUpdataDeleteTdb : public ComTdbExeUtilUpdataDelete {
  public:
-
   // ---------------------------------------------------------------------
   // Constructor is only called to instantiate an object used for
   // retrieval of the virtual table function pointer of the class while
   // unpacking. An empty constructor is enough.
   // ---------------------------------------------------------------------
-  ExExeUtilUpdataDeleteTdb()
-    {}
+  ExExeUtilUpdataDeleteTdb() {}
 
-  virtual ~ExExeUtilUpdataDeleteTdb()
-    {}
+  virtual ~ExExeUtilUpdataDeleteTdb() {}
 
   // ---------------------------------------------------------------------
   // Build a TCB for this TDB. Redefined in the Executor project.
@@ -3687,15 +3155,13 @@ class ExExeUtilUpdataDeleteTdb : public ComTdbExeUtilUpdataDelete
   // ---------------------------------------------------------------------
 };
 
-
-class ExExeUtilUpdataDeleteTcb : public ExExeUtilTcb
-{
+class ExExeUtilUpdataDeleteTcb : public ExExeUtilTcb {
   friend class ExExeUtilUpdataDeleteTdb;
   friend class ExExeUtilPrivateState;
 
  public:
   // Constructor
-  ExExeUtilUpdataDeleteTcb(const ComTdbExeUtil & exe_util_tdb, ex_globals * glob = 0);
+  ExExeUtilUpdataDeleteTcb(const ComTdbExeUtil &exe_util_tdb, ex_globals *glob = 0);
 
   ~ExExeUtilUpdataDeleteTcb();
 
@@ -3707,19 +3173,13 @@ class ExExeUtilUpdataDeleteTcb : public ExExeUtilTcb
   Lng32 unLockOperatingTable();
   Lng32 isBRInProgress();
 
-  ExExeUtilUpdataDeleteTdb & hblTdb() const
-  {
-    return (ExExeUtilUpdataDeleteTdb &) tdb;
-  };
+  ExExeUtilUpdataDeleteTdb &hblTdb() const { return (ExExeUtilUpdataDeleteTdb &)tdb; };
 
-
-  virtual ex_tcb_private_state * allocatePstates(
-       Lng32 &numElems,      // inout, desired/actual elements
-       Lng32 &pstateLength); // out, length of one element
+  virtual ex_tcb_private_state *allocatePstates(Lng32 &numElems,       // inout, desired/actual elements
+                                                Lng32 &pstateLength);  // out, length of one element
 
  private:
-  enum Step
-  {
+  enum Step {
     INITIAL_,
     EXE_GET_OBJNAME_,
     EXE_CLEANUP_,
@@ -3736,15 +3196,10 @@ class ExExeUtilUpdataDeleteTcb : public ExExeUtilTcb
   Step nextStep_;
 
   Int64 rowsAffected_;
-  ExpHbaseInterface * ehi_;
+  ExpHbaseInterface *ehi_;
 
   short setCQDs();
   short restoreCQDs();
-
 };
 
-
 #endif
-
-
-

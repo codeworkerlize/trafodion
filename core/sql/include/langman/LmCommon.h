@@ -37,17 +37,17 @@
 #include "export/ComDiags.h"
 
 #ifdef LMCOMP_BUILD
-  // This is for the lmcomp library which gets statically linked
-  // into tdm_arkcmp
-  #define SQLLM_LIB_FUNC
+// This is for the lmcomp library which gets statically linked
+// into tdm_arkcmp
+#define SQLLM_LIB_FUNC
 #else
-  #ifdef LM_DLL
-    // This is for building the LM DLL
-    #define SQLLM_LIB_FUNC __declspec( dllexport )
-  #else
-    // This is for LM DLL callers
-    #define SQLLM_LIB_FUNC __declspec( dllimport )
-  #endif
+#ifdef LM_DLL
+// This is for building the LM DLL
+#define SQLLM_LIB_FUNC __declspec(dllexport)
+#else
+// This is for LM DLL callers
+#define SQLLM_LIB_FUNC __declspec(dllimport)
+#endif
 #endif
 
 //////////////////////////////////////////////////////////////////////
@@ -55,19 +55,16 @@
 // Primitives used by LM files
 //
 //////////////////////////////////////////////////////////////////////
-typedef void* LmHandle;
+typedef void *LmHandle;
 
 enum {
-  LMJ_ERR_SIZE_256     = 256,
-  LMJ_ERR_SIZE_512     = 512,
-  LMJ_DEF_OPT_SIZE     = 32,
+  LMJ_ERR_SIZE_256 = 256,
+  LMJ_ERR_SIZE_512 = 512,
+  LMJ_DEF_OPT_SIZE = 32,
   LMJ_NT_FILE_PATH_LEN = 256,
 };
 
-enum LmResultSetMode {
-  RS_NONE,
-  RS_SET
-};
+enum LmResultSetMode { RS_NONE, RS_SET };
 
 enum LmResultSetType {
   RS_TYPE_FORWARD_ONLY,
@@ -88,10 +85,7 @@ char *copy_string(NAMemory *heap, const char *src);
 // Use the C runtime heap if heap is NULL. Target string is null
 // terminated if terminate flag is TRUE. A pointer to the copy is
 // returned.
-char *copy_chars(NAMemory *heap,
-                 const char *src,
-		 ComUInt32 len,
-		 NABoolean terminate = FALSE);
+char *copy_chars(NAMemory *heap, const char *src, ComUInt32 len, NABoolean terminate = FALSE);
 
 // copy_and_pad(): create a copy of the given buffer on the C runtime
 // heap. Optionally add zeroed-out padding at the end.
@@ -111,9 +105,8 @@ Lng32 getIntervalCode(short fstype);
 // aligned on an 8-byte boundary. Every buffer contains extra bytes at
 // the end to protect against the routine body from overwriting the
 // buffer and corrupting some other buffer.
-class LmCBuffer
-{
-public:
+class LmCBuffer {
+ public:
   LmCBuffer(ComUInt32 len = 0);
   virtual ~LmCBuffer();
 
@@ -129,28 +122,18 @@ public:
   // Release the buffer
   void release();
 
-protected:
+ protected:
   char *buf_;
   ComUInt32 len_;
-
 };
 
-void addDllErrors(ComDiagsArea &diags,
-                  const char *operation,
-                  NABoolean isWarningOnly);
+void addDllErrors(ComDiagsArea &diags, const char *operation, NABoolean isWarningOnly);
 
-LmHandle loadDll(
-  const char   *containerName,
-  const char   *externalPath,
-  LmHandle     extLoader,
-  ComUInt32    *containerSize,
-  ComDiagsArea *da,
-  NAMemory *heap);
+LmHandle loadDll(const char *containerName, const char *externalPath, LmHandle extLoader, ComUInt32 *containerSize,
+                 ComDiagsArea *da, NAMemory *heap);
 
 void unloadDll(LmHandle containerHandle, ComDiagsArea *da);
 
-LmHandle getRoutinePtr(
-  LmHandle     container,
-  const char   *routineName) ;
+LmHandle getRoutinePtr(LmHandle container, const char *routineName);
 
-#endif // LMCOMMON_H
+#endif  // LMCOMMON_H

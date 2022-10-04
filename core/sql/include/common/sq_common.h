@@ -19,8 +19,7 @@
 //
 // @@@ END COPYRIGHT @@@
 
-#define DTM_START_EVENT_ID 1
-#define PROXY_START_EVENT_ID 2
+#define DTM_START_EVENT_ID      1
+#define PROXY_START_EVENT_ID    2
 #define PROXY_CONTINUE_EVENT_ID 3
-#define PROXY_INIT_EVENT_ID 4
-
+#define PROXY_INIT_EVENT_ID     4

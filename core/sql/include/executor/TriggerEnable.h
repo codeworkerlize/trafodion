@@ -27,9 +27,9 @@
  *****************************************************************************
  *
  * File:         TriggerEnable.h
- * Description:  Classes and methods used by the executor for the trigger 
+ * Description:  Classes and methods used by the executor for the trigger
  *               enable/disable mechanism.
- *               
+ *
  * Created:      12/30/98
  * Language:     C++
  *
@@ -58,140 +58,112 @@ class ex_root_tcb;
 //-----------------------------------------------------------------------------
 
 // each trigger is represented by a bit in the vector
-const Int32 TRIGGERS_STATUS_VECTOR_SIZE	= 32;
+const Int32 TRIGGERS_STATUS_VECTOR_SIZE = 32;
 // limitation, enforced by binder
-const Int32 MAX_TRIGGERS_PER_STATEMENT	= 
-									TRIGGERS_STATUS_VECTOR_SIZE * 8;
+const Int32 MAX_TRIGGERS_PER_STATEMENT = TRIGGERS_STATUS_VECTOR_SIZE * 8;
 
 //-----------------------------------------------------------------------------
 //
 // -- class TriggerStatus
 //
 // Holds a pair (triggerId, enable/disable status).
-// I rely on ComTimeStamp (aka Int64, aka long on winnt) to behave 
+// I rely on ComTimeStamp (aka Int64, aka long on winnt) to behave
 // properly...
 //
 
-class TriggerStatus : public NABasicObject
-{
+class TriggerStatus : public NABasicObject {
+ public:
+  // default ctor
+  TriggerStatus() : triggerId_((ComTimestamp)0), enableStatus_(FALSE) {}
 
-public:
+  // ctor
+  TriggerStatus(ComTimestamp triggerId, NABoolean enableStatus) : triggerId_(triggerId), enableStatus_(enableStatus) {}
 
-	// default ctor
-	TriggerStatus():
-			triggerId_((ComTimestamp)0),
-			enableStatus_(FALSE)
-		{}
+  // copy ctor
+  TriggerStatus(const TriggerStatus &other)
+      : enableStatus_(other.enableStatus_),
+        triggerId_(other.triggerId_)
 
-	// ctor
-	TriggerStatus(
-		ComTimestamp triggerId, 
-		NABoolean enableStatus):
-			triggerId_(triggerId),
-			enableStatus_(enableStatus)
-		{}
-		
-	// copy ctor
-	TriggerStatus(
-		const TriggerStatus &other):
-			enableStatus_(other.enableStatus_),
-			triggerId_(other.triggerId_)
+  {}
 
-		{}
+  inline NABoolean getEnableStatus() { return enableStatus_; }
 
-	inline NABoolean getEnableStatus() { return enableStatus_; }
+  inline ComTimestamp getTriggerId() { return triggerId_; }
 
-	inline ComTimestamp getTriggerId() { return triggerId_; }
-
-private:
-	ComTimestamp triggerId_; // Int64
-	NABoolean enableStatus_;
+ private:
+  ComTimestamp triggerId_;  // Int64
+  NABoolean enableStatus_;
 };
 
 //-----------------------------------------------------------------------------
 //
 // -- class TriggerStatusWA
 //
-// Trigger status is stored in rfork on a per-table basis. For each statement, 
+// Trigger status is stored in rfork on a per-table basis. For each statement,
 // trigger status is accumulated for all subject tables in the statement.
-// This Working Area serves for this purpose. It assumes that the statement is 
+// This Working Area serves for this purpose. It assumes that the statement is
 // already fixed-up.
-// Holds an array of trigger status entries per table. 
+// Holds an array of trigger status entries per table.
 // Allocated from a given heap in a fixed size.
-// 
+//
 
+class TriggerStatusWA : public NABasicObject {
+ public:
+  enum TrgStatus {
+    ENABLED,
+    DISABLED,
+    NOT_FOUND  // trigger not found in this table's rfork
+  };
 
-class TriggerStatusWA : public NABasicObject
-{
+  // ctor. Called once per Statement after fixup
+  TriggerStatusWA(NAHeap *heap, ex_root_tcb *rootTcb)
+      : currentNumEntries_(0), totalTriggersCount_(0), triggerStatusArray_(NULL), heap_(heap), rootTcb_(rootTcb) {}
 
-public:
+  ~TriggerStatusWA() {}
 
-	enum TrgStatus
-	{
-		ENABLED, 
-		DISABLED,
-		NOT_FOUND // trigger not found in this table's rfork
-	};
+  // called once per table
+  void allocateStatusArray(UInt32 numEntries);
 
-	// ctor. Called once per Statement after fixup
-	TriggerStatusWA(NAHeap* heap, 
-		ex_root_tcb* rootTcb) :
-		currentNumEntries_(0), 
-		totalTriggersCount_(0),
-		triggerStatusArray_(NULL),
-		heap_(heap),
-		rootTcb_(rootTcb)
-	{}
+  // called once per table
+  void deallocateStatusArray();
 
-	~TriggerStatusWA()
-		{}
+  // given a triggerId, get its enable status, if trigger exists.
+  TrgStatus getStatus(ComTimestamp const triggerId) const;
 
-	// called once per table
-	void allocateStatusArray(UInt32 numEntries);
+  // number of triggers on current table, as read from rfork.
+  inline Int32 getCurrentNumEntries() const { return currentNumEntries_; }
 
-	// called once per table
-	void deallocateStatusArray();
+  // total number of triggers in the statement
+  inline Int32 getTotalTriggersCount() const { return totalTriggersCount_; }
 
-	// given a triggerId, get its enable status, if trigger exists.
-	TrgStatus getStatus(ComTimestamp const triggerId) const;
+  ComTdbRoot *getRootTdb() const;
 
-	// number of triggers on current table, as read from rfork.
-	inline Int32 getCurrentNumEntries()	const { return currentNumEntries_; }
+  void setEntry(TriggerStatus &entry, UInt32 index);
 
-	// total number of triggers in the statement
-	inline Int32 getTotalTriggersCount()	const { return totalTriggersCount_; }
-
-	ComTdbRoot* getRootTdb() const;
-
-	void setEntry(TriggerStatus &entry, UInt32 index);
-
-	// Given trigger status per table, update the (per statement) TCB trigger 
-	// status vector
-    void updateTriggerStatusPerTable();
+  // Given trigger status per table, update the (per statement) TCB trigger
+  // status vector
+  void updateTriggerStatusPerTable();
 
 #ifdef _DEBUG
-	// for debug
-	void print(ostream& os, const NAString& tableName);
-#endif //_DEBUG
+  // for debug
+  void print(ostream &os, const NAString &tableName);
+#endif  //_DEBUG
 
-private:
+ private:
+  // number of triggers on current table, as read from rfork.
+  UInt32 currentNumEntries_;
 
- 	// number of triggers on current table, as read from rfork.
-	UInt32 currentNumEntries_;
+  // Holds the status of triggers per a subject table as read from rfork
+  TriggerStatus *triggerStatusArray_;
 
-	// Holds the status of triggers per a subject table as read from rfork
-	TriggerStatus *triggerStatusArray_;
+  // The heap used for the allocations of the triggerStatusArray
+  NAHeap *heap_;
 
-	// The heap used for the allocations of the triggerStatusArray
-	NAHeap* heap_;
+  // The total number of triggers handled by this WA, in this statement
+  UInt32 totalTriggersCount_;
 
-	// The total number of triggers handled by this WA, in this statement
-	UInt32 totalTriggersCount_;
-
-	// The TCB of the statement. Used for getting root TDB as well
-	ex_root_tcb* rootTcb_;
-
+  // The TCB of the statement. Used for getting root TDB as well
+  ex_root_tcb *rootTcb_;
 };
 
 #endif
-

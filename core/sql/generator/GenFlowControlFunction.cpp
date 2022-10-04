@@ -21,8 +21,8 @@
 // @@@ END COPYRIGHT @@@
 **********************************************************************/
 //
-// This file contains the implementations for ::preCodeGen and ::codeGen 
-// for the item expression subclasses related to flow control. This 
+// This file contains the implementations for ::preCodeGen and ::codeGen
+// for the item expression subclasses related to flow control. This
 // currently includes ItmDoWhileFunction, ItmBlockFunction,
 // ItmPersistentExpressionVar and ItmWhileFunction.
 //
@@ -39,30 +39,28 @@
 //
 // Nothing to do in preCodeGen for DoWhile.
 //
-ItemExpr *ItmDoWhileFunction::preCodeGen(Generator *generator) {
-  return ItemExpr::preCodeGen(generator);
-}
+ItemExpr *ItmDoWhileFunction::preCodeGen(Generator *generator) { return ItemExpr::preCodeGen(generator); }
 
 // ItmDoWhileFunction::codeGen
 //
-// The DoWhile function executes the code represented by child(0) until 
-// the condition represented by child(1) becomes false. The result of 
+// The DoWhile function executes the code represented by child(0) until
+// the condition represented by child(1) becomes false. The result of
 // the DoWhile is the final value of child(0).
 //
 // The looping is accomplished by inserting a NOOP/BRANCH pair. The NOOP
-// is inserted before generating the code for either child and serves as a 
+// is inserted before generating the code for either child and serves as a
 // branch target. The BRANCH is inserted after generating the code for
 // both children and is targeted at the NOOP clause based on the result of
-// child(1). Between the NOOP and the BRANCH the body of the loop (child(0)) 
+// child(1). Between the NOOP and the BRANCH the body of the loop (child(0))
 // and the termination condition (child(1)) are repeatedly evaluated. After
 // the branch the final result of the loop body is assigned as the result
 // of the DoWhile.
 //
-short ItmDoWhileFunction::codeGen(Generator * generator) {
+short ItmDoWhileFunction::codeGen(Generator *generator) {
   // Get local handles...
   //
   Attributes **attr;
-  Space* space = generator->getSpace();
+  Space *space = generator->getSpace();
   CollHeap *wHeap = generator->wHeap();
   ExpGenerator *exp = generator->getExpGenerator();
 
@@ -71,13 +69,12 @@ short ItmDoWhileFunction::codeGen(Generator * generator) {
   // attr[0] to point to the result attribute data. Also, mark this
   // node as codeGenned.
   //
-  if (exp->genItemExpr(this, &attr, 2, 0) == 1)
-    return 0;
+  if (exp->genItemExpr(this, &attr, 2, 0) == 1) return 0;
 
   // Insert the NOOP clause to use as the branch target for the
   // start of the loop body.
   //
-  ex_clause * branchTarget = new(space) ex_noop_clause();
+  ex_clause *branchTarget = new (space) ex_noop_clause();
   exp->linkClause(this, branchTarget);
 
   // CodeGen the body of the loop.
@@ -88,8 +85,7 @@ short ItmDoWhileFunction::codeGen(Generator * generator) {
   // the src attribute for the convert (added below) to be the body of
   // the while loop. The dst attribute has already been set in genItemExpr().
   //
-  attr[1] = generator->getMapInfo
-    (child(0)->castToItemExpr()->getValueId())->getAttr();
+  attr[1] = generator->getMapInfo(child(0)->castToItemExpr()->getValueId())->getAttr();
 
   // CodeGen the loop termination condition.
   //
@@ -98,17 +94,15 @@ short ItmDoWhileFunction::codeGen(Generator * generator) {
   // Construct a BRANCH clause to loop back and repeat the expression
   // and condition if the condition evaluates to TRUE.
   //
-  Attributes ** branchAttrs = new(wHeap) Attributes*[2];
-  Attributes *boolAttr = generator->getMapInfo
-    (child(1)->castToItemExpr()->getValueId())->getAttr();
+  Attributes **branchAttrs = new (wHeap) Attributes *[2];
+  Attributes *boolAttr = generator->getMapInfo(child(1)->castToItemExpr()->getValueId())->getAttr();
   branchAttrs[0] = boolAttr->newCopy(wHeap);
   branchAttrs[1] = boolAttr->newCopy(wHeap);
   //  branchAttrs[0]->copyLocationAttrs(boolAttr);
   //  branchAttrs[1]->copyLocationAttrs(boolAttr);
 
   branchAttrs[0]->resetShowplan();
-  ex_branch_clause * branchClause
-    = new(space) ex_branch_clause(ITM_OR, branchAttrs, space);
+  ex_branch_clause *branchClause = new (space) ex_branch_clause(ITM_OR, branchAttrs, space);
   branchClause->set_branch_clause(branchTarget);
 
   // Insert the branch clause into the expression.
@@ -120,9 +114,7 @@ short ItmDoWhileFunction::codeGen(Generator * generator) {
   // side-effects of the result of child(0) -- if it is a local variable,
   // for instance -- will not change the result of the DoWhile.
   //
-  ex_conv_clause * convClause =
-    new(generator->getSpace()) ex_conv_clause
-    (getOperatorType(), attr, space);
+  ex_conv_clause *convClause = new (generator->getSpace()) ex_conv_clause(getOperatorType(), attr, space);
   exp->linkClause(this, convClause);
 
   return 0;
@@ -132,20 +124,18 @@ short ItmDoWhileFunction::codeGen(Generator * generator) {
 //
 // Nothing to do in preCodeGen for Block.
 //
-ItemExpr *ItmBlockFunction::preCodeGen(Generator *generator) {
-  return ItemExpr::preCodeGen(generator);
-}
+ItemExpr *ItmBlockFunction::preCodeGen(Generator *generator) { return ItemExpr::preCodeGen(generator); }
 
 // ItmBlockFunction::codeGen
 //
 // The Block function executes the code represented by both its children and
 // then returns the result of the right child (child(1)).
 //
-short ItmBlockFunction::codeGen(Generator * generator) {
+short ItmBlockFunction::codeGen(Generator *generator) {
   // Get local handles...
   //
   Attributes **attr;
-  Space* space = generator->getSpace();
+  Space *space = generator->getSpace();
   CollHeap *heap = generator->wHeap();
   ExpGenerator *exp = generator->getExpGenerator();
 
@@ -154,8 +144,7 @@ short ItmBlockFunction::codeGen(Generator * generator) {
   // attr[0] to point to the result attribute data. Also, mark this
   // node as codeGenned.
   //
-  if (exp->genItemExpr(this, &attr, 2, 0) == 1)
-    return 0;
+  if (exp->genItemExpr(this, &attr, 2, 0) == 1) return 0;
 
   // CodeGen the left child.
   //
@@ -169,17 +158,14 @@ short ItmBlockFunction::codeGen(Generator * generator) {
   // the src attribute for the convert (added below) to be the right child
   // The dst attribute has already been set in genItemExpr().
   //
-  attr[1] = generator->getMapInfo
-    (child(1)->castToItemExpr()->getValueId())->getAttr();
+  attr[1] = generator->getMapInfo(child(1)->castToItemExpr()->getValueId())->getAttr();
 
   // Allocate a convert clause to move the result from child(1) to the
   // result of this node. This move is necessary so that future
   // side-effects of the result of child(1) -- if it is a local variable,
   // for instance -- will not change the result of the Block.
   //
-  ex_conv_clause * convClause =
-    new(generator->getSpace()) ex_conv_clause
-    (getOperatorType(), attr, space);
+  ex_conv_clause *convClause = new (generator->getSpace()) ex_conv_clause(getOperatorType(), attr, space);
   generator->getExpGenerator()->linkClause(this, convClause);
 
   return 0;
@@ -189,17 +175,15 @@ short ItmBlockFunction::codeGen(Generator * generator) {
 //
 // Adds the persistent variable to the expression generator.
 //
-short ItmPersistentExpressionVar::codeGen(Generator * generator) {
-
+short ItmPersistentExpressionVar::codeGen(Generator *generator) {
   // If the variable has already been codeGenned, bug out...
   //
-  MapInfo * mi = generator->getMapInfoAsIs(getValueId());
+  MapInfo *mi = generator->getMapInfoAsIs(getValueId());
   if (mi && mi->isCodeGenerated()) return 0;
 
   // Otherwise, generate the code and add it to the map table.
   //
-  generator->getExpGenerator()->addPersistent(getValueId(), 
-					      generator->getMapTable());
+  generator->getExpGenerator()->addPersistent(getValueId(), generator->getMapTable());
 
   // Add the initial value to the persistent list in the ExpGenerator.
   //
@@ -214,27 +198,25 @@ short ItmPersistentExpressionVar::codeGen(Generator * generator) {
 //
 // Nothing to do in preCodeGen for While.
 //
-ItemExpr *ItmWhileFunction::preCodeGen(Generator *generator) {
-  return ItemExpr::preCodeGen(generator);
-}
+ItemExpr *ItmWhileFunction::preCodeGen(Generator *generator) { return ItemExpr::preCodeGen(generator); }
 
 // ItmWhileFunction::codeGen
 //
 // The While function is for loops that must have their condition evaluated
 // before any executions of the body.
 //
-// The While function evaluates the condition represented by child(1) and if it is true 
-// it executes the code represented by child(0). The loop is repeated as long as 
+// The While function evaluates the condition represented by child(1) and if it is true
+// it executes the code represented by child(0). The loop is repeated as long as
 // child(1) is true. The result of the While is the final value of child(0).
 //
-// The looping is accomplished by inserting a NOOP/unconditional BRANCH pair, and a 
-// NOOP/BRANCH pair.  The unconditional branch is evaluated only once and branches 
-// immediately to the loop condition for evaluation. 
+// The looping is accomplished by inserting a NOOP/unconditional BRANCH pair, and a
+// NOOP/BRANCH pair.  The unconditional branch is evaluated only once and branches
+// immediately to the loop condition for evaluation.
 
 // The NOOPs are inserted before generating the code for each child and serve
 // as branch targets for the loop branch and the undonditional brnach, repsecitevly.
-// Between the first NOOP and the BRANCH the body of the loop (child(0)) 
-// and the termination condition (child(1)) are repeatedly evaluated. 
+// Between the first NOOP and the BRANCH the body of the loop (child(0))
+// and the termination condition (child(1)) are repeatedly evaluated.
 //
 //  Before code gen:
 //
@@ -253,11 +235,11 @@ ItemExpr *ItmWhileFunction::preCodeGen(Generator *generator) {
 //                  |        |
 //                  --<-child(1)          <--- loop condition
 //
-short ItmWhileFunction::codeGen(Generator * generator) {
+short ItmWhileFunction::codeGen(Generator *generator) {
   // Get local handles...
   //
   Attributes **attr;
-  Space* space = generator->getSpace();
+  Space *space = generator->getSpace();
   CollHeap *wHeap = generator->wHeap();
   ExpGenerator *exp = generator->getExpGenerator();
 
@@ -266,21 +248,19 @@ short ItmWhileFunction::codeGen(Generator * generator) {
   // attr[0] to point to the result attribute data. Also, mark this
   // node as codeGenned.
   //
-  if (exp->genItemExpr(this, &attr, 2, 0) == 1)
-    return 0;
+  if (exp->genItemExpr(this, &attr, 2, 0) == 1) return 0;
 
-  // Insert the unconditional branch to evaluate the condition 
+  // Insert the unconditional branch to evaluate the condition
   // before entering the loop.
   //
-  ex_branch_clause * startBranchClause
-    = new(space) ex_branch_clause(ITM_RETURN_TRUE, space);
+  ex_branch_clause *startBranchClause = new (space) ex_branch_clause(ITM_RETURN_TRUE, space);
 
   exp->linkClause(this, startBranchClause);
 
   // Insert the NOOP clause to use as the branch target for the
   // start of the loop body.
   //
-  ex_clause * branchTarget = new(space) ex_noop_clause();
+  ex_clause *branchTarget = new (space) ex_noop_clause();
   exp->linkClause(this, branchTarget);
 
   // CodeGen the body of the loop.
@@ -291,14 +271,13 @@ short ItmWhileFunction::codeGen(Generator * generator) {
   // the src attribute for the convert (added below) to be the body of
   // the while loop. The dst attribute has already been set in genItemExpr().
   //
-  attr[1] = generator->getMapInfo
-    (child(0)->castToItemExpr()->getValueId())->getAttr();
+  attr[1] = generator->getMapInfo(child(0)->castToItemExpr()->getValueId())->getAttr();
 
   // Insert the NOOP clause to use as the branch target for the
   // unconditional branch to the loop condition.
   //
 
-  ex_clause * branchTarget2 = new(space) ex_noop_clause();
+  ex_clause *branchTarget2 = new (space) ex_noop_clause();
   exp->linkClause(this, branchTarget2);
 
   // CodeGen the loop termination condition.
@@ -308,17 +287,15 @@ short ItmWhileFunction::codeGen(Generator * generator) {
   // Construct a BRANCH clause to loop back and repeat the expression
   // and condition if the condition evaluates to TRUE.
   //
-  Attributes ** branchAttrs = new(wHeap) Attributes*[2];
-  Attributes *boolAttr = generator->getMapInfo
-    (child(1)->castToItemExpr()->getValueId())->getAttr();
+  Attributes **branchAttrs = new (wHeap) Attributes *[2];
+  Attributes *boolAttr = generator->getMapInfo(child(1)->castToItemExpr()->getValueId())->getAttr();
   branchAttrs[0] = boolAttr->newCopy(wHeap);
   branchAttrs[1] = boolAttr->newCopy(wHeap);
   //  branchAttrs[0]->copyLocationAttrs(boolAttr);
   //  branchAttrs[1]->copyLocationAttrs(boolAttr);
 
   branchAttrs[0]->resetShowplan();
-  ex_branch_clause * branchClause
-    = new(space) ex_branch_clause(ITM_OR, branchAttrs, space);
+  ex_branch_clause *branchClause = new (space) ex_branch_clause(ITM_OR, branchAttrs, space);
   branchClause->set_branch_clause(branchTarget);
 
   //
@@ -336,9 +313,7 @@ short ItmWhileFunction::codeGen(Generator * generator) {
   // side-effects of the result of child(0) -- if it is a local variable,
   // for instance -- will not change the result of the While.
   //
-  ex_conv_clause * convClause =
-    new(generator->getSpace()) ex_conv_clause
-    (getOperatorType(), attr, space);
+  ex_conv_clause *convClause = new (generator->getSpace()) ex_conv_clause(getOperatorType(), attr, space);
   exp->linkClause(this, convClause);
 
   return 0;

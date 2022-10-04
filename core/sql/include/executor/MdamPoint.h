@@ -27,8 +27,8 @@
 *
 * File:         MdamPoint.h
 * Description:  MDAM Point
-*               
-*               
+*
+*
 * Created:      9/11/96
 * Language:     C++
 *
@@ -55,34 +55,27 @@
 class MdamEndPoint;
 // End of forward declarations.
 
-class MdamPoint
-{
-
-public:
-  
+class MdamPoint {
+ public:
   // Constructor that accepts tupp and inclusion.
-  MdamPoint(const tupp & tupp,
-	    const MdamEnums::MdamInclusion inclusion);
+  MdamPoint(const tupp &tupp, const MdamEnums::MdamInclusion inclusion);
 
   // Constructor that accepts an MdamEndPoint.
-  MdamPoint(MdamEndPoint & endPoint);
+  MdamPoint(MdamEndPoint &endPoint);
 
   // Determine if v could be within an interval for which this MdamPoint
   // is the begin endpoint.
-  NABoolean beginContains
-    (const ULng32 keyLen, const char * v) const;
+  NABoolean beginContains(const ULng32 keyLen, const char *v) const;
 
   // Compare function.
-  MdamEnums::MdamOrder compare(const MdamPoint * other,
-					  const ULng32 keyLen) const;
+  MdamEnums::MdamOrder compare(const MdamPoint *other, const ULng32 keyLen) const;
 
   // Determine if v could be within an interval for which this MdamPoint
   // is the end endpoint.
-  NABoolean endContains
-    (const ULng32 keyLen, const char * v) const;
+  NABoolean endContains(const ULng32 keyLen, const char *v) const;
 
   // Get function for data pointer.
-  inline char * getDataPointer() const;
+  inline char *getDataPointer() const;
 
   // Get function for inclusion_.
   MdamEnums::MdamInclusion getInclusion() const;
@@ -96,92 +89,61 @@ public:
   // Release tupp storage
   inline void release();
 
-  // Print functions.
-  #ifdef NA_MDAM_EXECUTOR_DEBUG
-  void print(const char * header = "") const;
+// Print functions.
+#ifdef NA_MDAM_EXECUTOR_DEBUG
+  void print(const char *header = "") const;
   void printBrief() const;
-  #endif /* NA_MDAM_EXECUTOR_DEBUG */
-  
-private:
+#endif /* NA_MDAM_EXECUTOR_DEBUG */
 
+ private:
   // The point's value.
   tupp tupp_;
 
   // Defines whether the point is included or excluded.
   MdamEnums::MdamInclusion inclusion_;
 
-}; // class MdamPoint
-
+};  // class MdamPoint
 
 // *****************************************************************************
 // Inline member functions for class MdamPoint
 // *****************************************************************************
 
-
 // $$$$ Possibly not used except for testing.
 // Constructor.
-inline MdamPoint::MdamPoint(const tupp & tupp,
-                            const MdamEnums::MdamInclusion inclusion)
-     : tupp_ (tupp),
-       inclusion_ (inclusion) {}
-
+inline MdamPoint::MdamPoint(const tupp &tupp, const MdamEnums::MdamInclusion inclusion)
+    : tupp_(tupp), inclusion_(inclusion) {}
 
 // The comparision two MdamPoints.
-inline MdamEnums::MdamOrder MdamPoint::compare
-             (const MdamPoint * other, const ULng32 keyLen) const
-{
-  short retVal = str_cmp(tupp_.getDataPointer(), 
-                                      other->tupp_.getDataPointer(),
-                                      Int32(keyLen));
+inline MdamEnums::MdamOrder MdamPoint::compare(const MdamPoint *other, const ULng32 keyLen) const {
+  short retVal = str_cmp(tupp_.getDataPointer(), other->tupp_.getDataPointer(), Int32(keyLen));
   if (retVal < 0)
-     return MdamEnums::MDAM_LESS;
+    return MdamEnums::MDAM_LESS;
+  else if (retVal > 0)
+    return MdamEnums::MDAM_GREATER;
   else
-     if (retVal > 0)
-        return MdamEnums::MDAM_GREATER;
-       else
-          return MdamEnums::MDAM_EQUAL;
+    return MdamEnums::MDAM_EQUAL;
 }
-
 
 // Get function for data pointer.
-inline char * MdamPoint::getDataPointer() const
-{
-  return tupp_.getDataPointer();
-}
-
+inline char *MdamPoint::getDataPointer() const { return tupp_.getDataPointer(); }
 
 // Get function for inclusion_.
-inline MdamEnums::MdamInclusion MdamPoint::getInclusion() const
-{
-  return inclusion_;
-}
-
+inline MdamEnums::MdamInclusion MdamPoint::getInclusion() const { return inclusion_; }
 
 // Determine if the MdamPoint is included.
-inline NABoolean MdamPoint::included() const
-{
-  return (inclusion_ == MdamEnums::MDAM_INCLUDED);
-}
-
+inline NABoolean MdamPoint::included() const { return (inclusion_ == MdamEnums::MDAM_INCLUDED); }
 
 // Reverse inclusion.  MDAM_INCLUDED becomes MDAM_EXCLUDED and
 // MDAM_EXCLUDED becomes IMDAM_NCLUDED.
-inline void MdamPoint::reverseInclusion()
-{
-  if (inclusion_ == MdamEnums::MDAM_INCLUDED)
-    {
-      inclusion_ = MdamEnums::MDAM_EXCLUDED;
-    }
-  else
-    {
-      inclusion_ = MdamEnums::MDAM_INCLUDED;
-    };
+inline void MdamPoint::reverseInclusion() {
+  if (inclusion_ == MdamEnums::MDAM_INCLUDED) {
+    inclusion_ = MdamEnums::MDAM_EXCLUDED;
+  } else {
+    inclusion_ = MdamEnums::MDAM_INCLUDED;
+  };
 }
 
 // Release tupp storage associated with the point
-inline void MdamPoint::release()
-{
-	tupp_.release();
-}
+inline void MdamPoint::release() { tupp_.release(); }
 
 #endif /* MDAMPOINT_H */

@@ -44,10 +44,10 @@
 #include "optimizer/ValueDesc.h"
 #include "EstLogProp.h"
 #include "IndexDesc.h"
-//QSTUFF
+// QSTUFF
 #include "optimizer/RelScan.h"
 #include "optimizer/ItemOther.h"
-//QSTUFF
+// QSTUFF
 #include "ReqGen.h"
 
 #include "Stats.h"
@@ -120,10 +120,8 @@ class GroupAnalysis;
 *************************************************************************
 */
 
-
-class GroupAttributes : public ReferenceCounter
-{
-public:
+class GroupAttributes : public ReferenceCounter {
+ public:
   // --------------------------------------------------------------------
   // Constructor functions
   // --------------------------------------------------------------------
@@ -132,7 +130,7 @@ public:
   // --------------------------------------------------------------------
   // copy ctor
   // --------------------------------------------------------------------
-  GroupAttributes (const GroupAttributes &) ;
+  GroupAttributes(const GroupAttributes &);
 
   // --------------------------------------------------------------------
   // Destructor functions
@@ -142,7 +140,7 @@ public:
   // --------------------------------------------------------------------
   // comparison
   // --------------------------------------------------------------------
-  NABoolean operator == (const GroupAttributes &other) const;
+  NABoolean operator==(const GroupAttributes &other) const;
 
   // --------------------------------------------------------------------
   // a hash function
@@ -152,134 +150,113 @@ public:
   // --------------------------------------------------------------------
   // Methods for Characteristic Inputs
   // --------------------------------------------------------------------
-  NABoolean isCharacteristicInput(const ValueId& vid) const
-                                { return requiredInputs_.contains(vid); }
+  NABoolean isCharacteristicInput(const ValueId &vid) const { return requiredInputs_.contains(vid); }
 
-  const ValueIdSet& getCharacteristicInputs() const
-                                              { return requiredInputs_; }
+  const ValueIdSet &getCharacteristicInputs() const { return requiredInputs_; }
 
-  void setCharacteristicInputs(const ValueIdSet & vset)
-                                              { requiredInputs_ = vset; }
-  void addCharacteristicInput(const ValueId& vid)
-                                              { requiredInputs_ += vid; }
-  void addCharacteristicInputs(const ValueIdSet& vidSet)
-                                           { requiredInputs_ += vidSet; }
-  void addCharacteristicInputs(const ValueIdList& vidList)
-                                 { requiredInputs_.insertList(vidList); }
-  void removeCharacteristicInputs(const ValueIdSet &vidSet)
-                                           { requiredInputs_ -= vidSet; }
+  void setCharacteristicInputs(const ValueIdSet &vset) { requiredInputs_ = vset; }
+  void addCharacteristicInput(const ValueId &vid) { requiredInputs_ += vid; }
+  void addCharacteristicInputs(const ValueIdSet &vidSet) { requiredInputs_ += vidSet; }
+  void addCharacteristicInputs(const ValueIdList &vidList) { requiredInputs_.insertList(vidList); }
+  void removeCharacteristicInputs(const ValueIdSet &vidSet) { requiredInputs_ -= vidSet; }
 
   // --------------------------------------------------------------------
   // Methods for Characteristic Outputs
   // --------------------------------------------------------------------
-  NABoolean isCharacteristicOutput(const ValueId& vid) const
-                               { return requiredOutputs_.contains(vid); }
-  const ValueIdSet& getCharacteristicOutputs() const
-                                             { return requiredOutputs_; }
-  void setCharacteristicOutputs(const ValueIdSet & vset)
-                                             { requiredOutputs_ = vset; }
-  void addCharacteristicOutput(const ValueId& vid)
-                                             { requiredOutputs_ += vid; }
-  void addCharacteristicOutputs(const ValueIdSet& vidSet)
-                                          { requiredOutputs_ += vidSet; }
-  void addCharacteristicOutputs(const ValueIdList& vidList)
-                                { requiredOutputs_.insertList(vidList); }
+  NABoolean isCharacteristicOutput(const ValueId &vid) const { return requiredOutputs_.contains(vid); }
+  const ValueIdSet &getCharacteristicOutputs() const { return requiredOutputs_; }
+  void setCharacteristicOutputs(const ValueIdSet &vset) { requiredOutputs_ = vset; }
+  void addCharacteristicOutput(const ValueId &vid) { requiredOutputs_ += vid; }
+  void addCharacteristicOutputs(const ValueIdSet &vidSet) { requiredOutputs_ += vidSet; }
+  void addCharacteristicOutputs(const ValueIdList &vidList) { requiredOutputs_.insertList(vidList); }
 
   // --------------------------------------------------------------------
   // Methods for Essential/Non-Essential Characteristic Outputs
   // --------------------------------------------------------------------
-  NABoolean isEssentialCharacteristicOutput(const ValueId& vid) const
-                    { return requiredEssentialOutputs_.contains(vid); }
-  const ValueIdSet& getEssentialCharacteristicOutputs() const
-                                  { return requiredEssentialOutputs_; }
-  void setEssentialCharacteristicOutputs(const ValueIdSet & vset);
+  NABoolean isEssentialCharacteristicOutput(const ValueId &vid) const {
+    return requiredEssentialOutputs_.contains(vid);
+  }
+  const ValueIdSet &getEssentialCharacteristicOutputs() const { return requiredEssentialOutputs_; }
+  void setEssentialCharacteristicOutputs(const ValueIdSet &vset);
 
-  void addEssentialCharacteristicOutputs(const ValueIdSet& vidSet);
+  void addEssentialCharacteristicOutputs(const ValueIdSet &vidSet);
 
-  void getNonEssentialCharacteristicOutputs(ValueIdSet & vset) const ;
+  void getNonEssentialCharacteristicOutputs(ValueIdSet &vset) const;
 
   // --------------------------------------------------------------------
   // GroupAttr::minimizeOutputs()
   //
   // This method takes in (a) a vidset holding non-essential outputs, (2)
-  // a vidset holding essential outputs, and (3) an empty set that will hold 
-  // all the outputs. The method reduces each set such that no vid is covered 
-  // by all the other vids. In removing any covered essentianl vids, the 
+  // a vidset holding essential outputs, and (3) an empty set that will hold
+  // all the outputs. The method reduces each set such that no vid is covered
+  // by all the other vids. In removing any covered essentianl vids, the
   // values that contribute to that coverage are promoted to essential outputs
   // --------------------------------------------------------------------
-  void minimizeOutputs(ValueIdSet& nonEssentialOutputs, 
-                       ValueIdSet& essentialOutputs,
-                       ValueIdSet& allOutputs);
+  void minimizeOutputs(ValueIdSet &nonEssentialOutputs, ValueIdSet &essentialOutputs, ValueIdSet &allOutputs);
 
   // --------------------------------------------------------------------
   // Methods for Constraints
   // --------------------------------------------------------------------
-  const ValueIdSet& getConstraints() const       { return constraints_; }
-  void getConstraintsOfType(OperatorTypeEnum constraintType, 
-			    ValueIdSet& vidSet) const;
+  const ValueIdSet &getConstraints() const { return constraints_; }
+  void getConstraintsOfType(OperatorTypeEnum constraintType, ValueIdSet &vidSet) const;
 
   void addConstraint(ItemExpr *c);
 
-  void addConstraint(const ValueId& vid)         { constraints_ += vid; }
+  void addConstraint(const ValueId &vid) { constraints_ += vid; }
 
-  void addConstraints(const ValueIdSet& vidSet)
-                                              { constraints_ += vidSet; }
-  void addConstraints(const ValueIdList& vidList)
-                                    { constraints_.insertList(vidList); }
-  void addSuitableRefOptConstraints(const ValueIdSet& vidSet);
+  void addConstraints(const ValueIdSet &vidSet) { constraints_ += vidSet; }
+  void addConstraints(const ValueIdList &vidList) { constraints_.insertList(vidList); }
+  void addSuitableRefOptConstraints(const ValueIdSet &vidSet);
 
-  void addSuitableCompRefOptConstraints(const ValueIdSet& vidSet, 
-					const ValueIdSet& preds,
-					const RelExpr* node);
+  void addSuitableCompRefOptConstraints(const ValueIdSet &vidSet, const ValueIdSet &preds, const RelExpr *node);
 
-  void deleteConstraint(const ValueId& vid)      { constraints_ -= vid; }
+  void deleteConstraint(const ValueId &vid) { constraints_ -= vid; }
 
-  void deleteConstraints(const ValueIdSet& vidSet)
-                                              { constraints_ -= vidSet; }
+  void deleteConstraints(const ValueIdSet &vidSet) { constraints_ -= vidSet; }
   void clearConstraints() { constraints_.clear(); }
 
-  NABoolean isConstraint(const ValueId& vid) const
-                                   { return constraints_.contains(vid); }
+  NABoolean isConstraint(const ValueId &vid) const { return constraints_.contains(vid); }
   NABoolean isUnique(const ValueIdSet &cols) const;
   NABoolean findUniqueCols(ValueIdSet &uniqueCols) const;
-  NABoolean hasCardConstraint(Cardinality &minNumOfRows,
-                              Cardinality &maxNumOfRows) const;
+  NABoolean hasCardConstraint(Cardinality &minNumOfRows, Cardinality &maxNumOfRows) const;
   NABoolean hasConstraintOfType(OperatorTypeEnum constraintType) const;
-  Cardinality getMaxNumOfRows() const
-                   { Cardinality x,y; hasCardConstraint(x,y); return y; }
+  Cardinality getMaxNumOfRows() const {
+    Cardinality x, y;
+    hasCardConstraint(x, y);
+    return y;
+  }
 
   NABoolean canEliminateOrderColumnBasedOnEqualsPred(ValueId col) const;
-  NABoolean tryToEliminateOrderColumnBasedOnEqualsPred(ValueId col,
-                                                       const ValueIdSet *preds);
+  NABoolean tryToEliminateOrderColumnBasedOnEqualsPred(ValueId col, const ValueIdSet *preds);
 
   // ---------------------------------------------------------------------
   // Methods on group persistent estimates
   // ---------------------------------------------------------------------
-  inline RowSize getRecordLength() const         { return recordLength_; }
-  inline void setRecordLength(RowSize v)            { recordLength_ = v; }
-  inline RowSize getInputVarLength() const     { return inputVarLength_; }
-  inline void setInputVarLength(RowSize v)        { inputVarLength_ = v; }
+  inline RowSize getRecordLength() const { return recordLength_; }
+  inline void setRecordLength(RowSize v) { recordLength_ = v; }
+  inline RowSize getInputVarLength() const { return inputVarLength_; }
+  inline void setInputVarLength(RowSize v) { inputVarLength_ = v; }
 
-  inline Int32 getNumBaseTables() const           { return numBaseTables_; }
-  inline void setNumBaseTables(Int32 v)
-                             { numBaseTables_ = MAXOF(numBaseTables_,v); }
-  inline Int32 getNumTMUDFs() const                 { return numTMUDFs_; }
-  inline void setNumTMUDFs(Int32 v)                    { numTMUDFs_ = v; }
+  inline Int32 getNumBaseTables() const { return numBaseTables_; }
+  inline void setNumBaseTables(Int32 v) { numBaseTables_ = MAXOF(numBaseTables_, v); }
+  inline Int32 getNumTMUDFs() const { return numTMUDFs_; }
+  inline void setNumTMUDFs(Int32 v) { numTMUDFs_ = v; }
 
-  inline CostScalar getMinChildEstRowCount() const       { return minChildEstRowCount_; }
-  void setMinChildEstRowCount(CostScalar v)
-                             { DCMPASSERT (v >= csZero) ;
-				v.roundIfZero() ;
-				minChildEstRowCount_ = v; }
+  inline CostScalar getMinChildEstRowCount() const { return minChildEstRowCount_; }
+  void setMinChildEstRowCount(CostScalar v) {
+    DCMPASSERT(v >= csZero);
+    v.roundIfZero();
+    minChildEstRowCount_ = v;
+  }
 
-  void setOutputCardinalityForEmptyLogProp (CostScalar v)
-                             { DCMPASSERT (v >= csZero) ;
-				v.roundIfZero() ;
-				outputCardinalityForEmptyLogProp_ = v; }
+  void setOutputCardinalityForEmptyLogProp(CostScalar v) {
+    DCMPASSERT(v >= csZero);
+    v.roundIfZero();
+    outputCardinalityForEmptyLogProp_ = v;
+  }
 
-  inline void resetNumBaseTables(Int32 v)            { numBaseTables_ = v; }
-  inline Int32 getNumJoinedTables() const
-  {
+  inline void resetNumBaseTables(Int32 v) { numBaseTables_ = v; }
+  inline Int32 getNumJoinedTables() const {
     // QSTUFF
     // this prevent heuristics from
     // treating a generic update tree like
@@ -291,52 +268,46 @@ public:
       return numJoinedTables_;
     // QSTUFF
   }
-  inline void setNumJoinedTables(Int32 v)       // can be set only once
-                      { if (numJoinedTables_ == 1) numJoinedTables_ = v; }
+  inline void setNumJoinedTables(Int32 v)  // can be set only once
+  {
+    if (numJoinedTables_ == 1) numJoinedTables_ = v;
+  }
 
-  inline void resetNumJoinedTables(Int32 v)            { numJoinedTables_ = v; }
+  inline void resetNumJoinedTables(Int32 v) { numJoinedTables_ = v; }
 
   // QSTUFF
   // ---------------------------------------------------------------------
   // Methods to set and query stream logical properties
   // ---------------------------------------------------------------------
   inline void setStream(NABoolean b) { stream_ = b; };
-  inline NABoolean isStream() const          { return stream_; }
+  inline NABoolean isStream() const { return stream_; }
 
   inline void setSkipInitialScan(NABoolean b) { skipInitialScan_ = b; };
-  inline NABoolean isSkipInitialScan() const          { return skipInitialScan_; }
+  inline NABoolean isSkipInitialScan() const { return skipInitialScan_; }
 
   // indicates the embedded IUD operation contained within the group
-  inline void setEmbeddedIUD(OperatorTypeEnum o)
-    { embeddedIUD_ = o; };
-  inline OperatorTypeEnum getEmbeddedIUD()
-    { return embeddedIUD_; };
-  inline NABoolean isEmbeddedUpdateOrDelete() const
-    { return (isEmbeddedUpdate() || isEmbeddedDelete());}
-  inline NABoolean isEmbeddedUpdate() const
-    { return (embeddedIUD_ == REL_UNARY_UPDATE);}
-  inline NABoolean isEmbeddedDelete() const
-    { return (embeddedIUD_ == REL_UNARY_DELETE);}
- inline NABoolean isEmbeddedInsert() const
-    { return (embeddedIUD_ == REL_UNARY_INSERT);}
+  inline void setEmbeddedIUD(OperatorTypeEnum o) { embeddedIUD_ = o; };
+  inline OperatorTypeEnum getEmbeddedIUD() { return embeddedIUD_; };
+  inline NABoolean isEmbeddedUpdateOrDelete() const { return (isEmbeddedUpdate() || isEmbeddedDelete()); }
+  inline NABoolean isEmbeddedUpdate() const { return (embeddedIUD_ == REL_UNARY_UPDATE); }
+  inline NABoolean isEmbeddedDelete() const { return (embeddedIUD_ == REL_UNARY_DELETE); }
+  inline NABoolean isEmbeddedInsert() const { return (embeddedIUD_ == REL_UNARY_INSERT); }
 
   // indicates whether a node/group is at the root of a  generic update subtree
   inline void setGenericUpdateRoot(NABoolean b) { genericUpdateRoot_ = b; };
-  inline NABoolean isGenericUpdateRoot() const  { return genericUpdateRoot_;}
+  inline NABoolean isGenericUpdateRoot() const { return genericUpdateRoot_; }
 
   // indicates whether query tree needs to be reordered to satisfy the
   // constraints for embedded update and delete or stream operators
   // all of them have to be the leftmost child of the query tree
   inline void setReorderNeeded(NABoolean reorderNeeded) { reorderNeeded_ = reorderNeeded; };
-  inline NABoolean reorderNeeded() const        { return reorderNeeded_;}
+  inline NABoolean reorderNeeded() const { return reorderNeeded_; }
 
-  inline const ValueIdSet& getGenericUpdateRootOutputs() const
-    { return genericUpdateRootOutputs_; }
-  inline void setGenericUpdateRootOutputs(const ValueIdSet & vset)
-    { genericUpdateRootOutputs_ = vset; }
+  inline const ValueIdSet &getGenericUpdateRootOutputs() const { return genericUpdateRootOutputs_; }
+  inline void setGenericUpdateRootOutputs(const ValueIdSet &vset) { genericUpdateRootOutputs_ = vset; }
 
   // This method returns the operation as a string to be used
-  // in reporting errors. 
+  // in reporting errors.
   // This method is primarily used for reporting errors
   // on embedded IUD. Most error messages are common to all IUD,
   // just differing in the operation name.
@@ -344,12 +315,10 @@ public:
   const NAString getOperationWithinGroup() const;
 
   inline void setHasRefOptConstraint(NABoolean b) { hasRefOptConstraint_ = b; };
-  inline NABoolean hasRefOptConstraint() const  { return hasRefOptConstraint_; }
+  inline NABoolean hasRefOptConstraint() const { return hasRefOptConstraint_; }
 
-  inline void setHasCompRefOptConstraint(NABoolean b) 
-    { hasCompRefOptConstraint_ = b; };
-  inline NABoolean hasCompRefOptConstraint() const  
-    { return hasCompRefOptConstraint_; }
+  inline void setHasCompRefOptConstraint(NABoolean b) { hasCompRefOptConstraint_ = b; };
+  inline NABoolean hasCompRefOptConstraint() const { return hasCompRefOptConstraint_; }
 
   // QSTUFF
 
@@ -357,17 +326,13 @@ public:
   // Methods for Input and Output Estimated Logical Properties
   // --------------------------------------------------------------------
   SHPTR_LIST(EstLogPropSharedPtr) & inputLogPropList() { return inputEstLogProp_; }
-  const SHPTR_LIST(EstLogPropSharedPtr) & getInputLogPropList() const
-                                             { return inputEstLogProp_; }
+  const SHPTR_LIST(EstLogPropSharedPtr) & getInputLogPropList() const { return inputEstLogProp_; }
 
   SHPTR_LIST(EstLogPropSharedPtr) & outputLogPropList() { return outputEstLogProp_; }
-  const SHPTR_LIST(EstLogPropSharedPtr) & getOutputLogPropList() const
-                                            { return outputEstLogProp_; }
+  const SHPTR_LIST(EstLogPropSharedPtr) & getOutputLogPropList() const { return outputEstLogProp_; }
 
-  SHPTR_LIST(EstLogPropSharedPtr) & intermedOutputLogPropList()
-                                           { return intermedOutputLogProp_; }
-  const SHPTR_LIST(EstLogPropSharedPtr) & getIntermedOutputLogPropList() const
-                                           { return intermedOutputLogProp_; }
+  SHPTR_LIST(EstLogPropSharedPtr) & intermedOutputLogPropList() { return intermedOutputLogProp_; }
+  const SHPTR_LIST(EstLogPropSharedPtr) & getIntermedOutputLogPropList() const { return intermedOutputLogProp_; }
 
   // Get the respective (intermediate or final) output estimated logical
   // property (OLP), given the provided input estimated logical
@@ -377,42 +342,38 @@ public:
   // demand".  Since the estLogProp may not be synthesized by the time
   // they are requested, this method must side-effect the EstLogProp
   // self. Therefore, no const version for it can be constructed.
-  EstLogPropSharedPtr outputLogProp (const EstLogPropSharedPtr& inputLogProp);
-  EstLogPropSharedPtr intermedOutputLogProp (const EstLogPropSharedPtr& inputLogProp);
+  EstLogPropSharedPtr outputLogProp(const EstLogPropSharedPtr &inputLogProp);
+  EstLogPropSharedPtr intermedOutputLogProp(const EstLogPropSharedPtr &inputLogProp);
 
   // Answers an often-asked question : what is the result cardinality of
   // the output log prop when given an "empty" input logprop?
-  CostScalar getResultCardinalityForEmptyInput ();
+  CostScalar getResultCardinalityForEmptyInput();
 
-  CostScalar getResultMaxCardinalityForEmptyInput ();
-  CostScalar getResultMaxCardinalityForInput(EstLogPropSharedPtr & inLP);
+  CostScalar getResultMaxCardinalityForEmptyInput();
+  CostScalar getResultMaxCardinalityForInput(EstLogPropSharedPtr &inLP);
 
   // synthesize, if not already synthesized, the input or output
   // estLogProp for the child of a Materialize Operator.  NOTE: the
   // following two routines should Only be used in synthesizing the output
   // estLogProp for the child of a Materialize Operator.
-  EstLogPropSharedPtr
-  materializeInputLogProp(const EstLogPropSharedPtr& inLP, Int32 *multipleReads);
-  EstLogPropSharedPtr
-  materializeOutputLogProp (const EstLogPropSharedPtr& inLP, Int32 *numOfCalls);
+  EstLogPropSharedPtr materializeInputLogProp(const EstLogPropSharedPtr &inLP, Int32 *multipleReads);
+  EstLogPropSharedPtr materializeOutputLogProp(const EstLogPropSharedPtr &inLP, Int32 *numOfCalls);
 
   // See if the provided est. input logical property exists?  If so, return
   // the index in the list; otherwise, return -1.
-  Int32 existsInputLogProp (const EstLogPropSharedPtr& inputLP) const;
+  Int32 existsInputLogProp(const EstLogPropSharedPtr &inputLP) const;
 
   // Checks whether the OLP for the provided ILP has been synthesized.
-  NABoolean isPropSynthesized (const EstLogPropSharedPtr& inputLogProp) const;
+  NABoolean isPropSynthesized(const EstLogPropSharedPtr &inputLogProp) const;
 
   // Add a reference to the provided ILP, and allocate a corresponding OLP.
-  NABoolean addInputOutputLogProp (const EstLogPropSharedPtr& inputLogProp,
-                                   const EstLogPropSharedPtr& outputLogProp,
-                                   const EstLogPropSharedPtr& intermedOutputLogProp = NULL);
+  NABoolean addInputOutputLogProp(const EstLogPropSharedPtr &inputLogProp, const EstLogPropSharedPtr &outputLogProp,
+                                  const EstLogPropSharedPtr &intermedOutputLogProp = NULL);
 
-  void setLogExprForSynthesis (RelExpr * expr) { logExprForSynthesis_ = expr; }
-  RelExpr * getLogExprForSynthesis () const    { return logExprForSynthesis_; }
+  void setLogExprForSynthesis(RelExpr *expr) { logExprForSynthesis_ = expr; }
+  RelExpr *getLogExprForSynthesis() const { return logExprForSynthesis_; }
 
-  NABoolean existsLogExprForSynthesis() const {
-    return (logExprForSynthesis_ == NULL ? FALSE : TRUE); }
+  NABoolean existsLogExprForSynthesis() const { return (logExprForSynthesis_ == NULL ? FALSE : TRUE); }
 
   // ---------------------------------------------------------------------
   // Methods regarding the clearing/setting of logical properties
@@ -425,7 +386,7 @@ public:
   // those that have the same characteristic inputs and outputs.
   // ('this' is the merged one, 'other' remains unchanged)
   // --------------------------------------------------------------------
-  void reconcile (GroupAttributes &other) { lomerge(other, FALSE); }
+  void reconcile(GroupAttributes &other) { lomerge(other, FALSE); }
 
   // --------------------------------------------------------------------
   // merge() performs an unconditional merge of two Group Attributes.
@@ -435,16 +396,14 @@ public:
   // --------------------------------------------------------------------
   // Method for normalizing the Characteristic Inputs and Outputs.
   // --------------------------------------------------------------------
-  void normalizeInputsAndOutputs(NormWA & normWARef);
+  void normalizeInputsAndOutputs(NormWA &normWARef);
 
   // --------------------------------------------------------------------
   // Methods for availableBtreeIndexes
   // --------------------------------------------------------------------
-  SET(IndexDesc *) & availableBtreeIndexes(){ return availableBtreeIndexes_;}
-  const SET(IndexDesc *) & getAvailableBtreeIndexes() const
-                                            { return availableBtreeIndexes_;}
-  void addToAvailableBtreeIndexes(const SET(IndexDesc *) & newIndexes)
-  {  availableBtreeIndexes_.insert(newIndexes);}
+  SET(IndexDesc *) & availableBtreeIndexes() { return availableBtreeIndexes_; }
+  const SET(IndexDesc *) & getAvailableBtreeIndexes() const { return availableBtreeIndexes_; }
+  void addToAvailableBtreeIndexes(const SET(IndexDesc *) & newIndexes) { availableBtreeIndexes_.insert(newIndexes); }
 
   // --------------------------------------------------------------------
   // Methods for predicate pushdown
@@ -496,12 +455,9 @@ public:
   //         additional value ids needed to cover all of the expressions
   //         in "setOfExprOnParent".
   // --------------------------------------------------------------------
-  void coverTest(const ValueIdSet& setOfExprOnParent,
-                 const ValueIdSet& newInputsSuppliedByParent,
-                 ValueIdSet& coveredExpr,
-                 ValueIdSet& referencedInputs,
-                 ValueIdSet* coveredSubExpr = NULL,
-                 ValueIdSet* unCoveredExpr = NULL) const;
+  void coverTest(const ValueIdSet &setOfExprOnParent, const ValueIdSet &newInputsSuppliedByParent,
+                 ValueIdSet &coveredExpr, ValueIdSet &referencedInputs, ValueIdSet *coveredSubExpr = NULL,
+                 ValueIdSet *unCoveredExpr = NULL) const;
 
   // --------------------------------------------------------------------
   // covers()
@@ -544,11 +500,8 @@ public:
   //         FALSE: Otherwise.
   //
   // --------------------------------------------------------------------
-  NABoolean covers(const ValueId& exprId,
-                   const ValueIdSet& newInputsSuppliedByParent,
-                   ValueIdSet& referencedInputs,
-                   ValueIdSet* coveredSubExpr = NULL,
-                   ValueIdSet* unCoveredExpr = NULL) const;
+  NABoolean covers(const ValueId &exprId, const ValueIdSet &newInputsSuppliedByParent, ValueIdSet &referencedInputs,
+                   ValueIdSet *coveredSubExpr = NULL, ValueIdSet *unCoveredExpr = NULL) const;
 
   // --------------------------------------------------------------------
   // computeCharacteristicIO()
@@ -573,9 +526,9 @@ public:
   //
   // ValueIdSet outputExprOnParent
   //    IN : a read-only reference to a set of expressions (ValueIds)
-  //         that will be produced by the parent. Any output that 
+  //         that will be produced by the parent. Any output that
   //         the parent produces that it is simply passing through
-  //         from its children without using them is classified as 
+  //         from its children without using them is classified as
   //         an non-essential output.
   //
   // ValueIdSet essentialChildOutputs
@@ -583,7 +536,7 @@ public:
   //         that are marked essential for the calling node's grandchildren.
   //         These grandchild nodes are the direct children of the node
   //         whose IO is being computed. This input parameter is used to
-  //         enforce the rule, 
+  //         enforce the rule,
   //         If an output is essential in any of my children, then if the same
   //         valueid is present in my output, it is essential for me too.
   //
@@ -604,15 +557,10 @@ public:
   // The Group Attributes for the child can get new characteristic
   // inputs and outputs.
   // --------------------------------------------------------------------
-  void computeCharacteristicIO(const ValueIdSet& newInputs,
-                               const ValueIdSet& exprOnParent,
-			       const ValueIdSet& outputExprOnParent,
-			       const ValueIdSet& essentialChildOutputs,
-                               const ValueIdSet * selPred = NULL,
-			       const NABoolean childOfALeftJoin = FALSE,
-			       const NABoolean optimizeOutputs = TRUE,
-                               const ValueIdSet *extraHubEssOutputs = NULL);
-
+  void computeCharacteristicIO(const ValueIdSet &newInputs, const ValueIdSet &exprOnParent,
+                               const ValueIdSet &outputExprOnParent, const ValueIdSet &essentialChildOutputs,
+                               const ValueIdSet *selPred = NULL, const NABoolean childOfALeftJoin = FALSE,
+                               const NABoolean optimizeOutputs = TRUE, const ValueIdSet *extraHubEssOutputs = NULL);
 
   // --------------------------------------------------------------------
   // resolveCharacteristicInputs()
@@ -626,7 +574,7 @@ public:
   // Effect :
   // The Characteristic Inputs can change.
   // --------------------------------------------------------------------
-  void resolveCharacteristicInputs(const ValueIdSet& externalInputs);
+  void resolveCharacteristicInputs(const ValueIdSet &externalInputs);
 
   // --------------------------------------------------------------------
   // resolveCharacteristicOutputs()
@@ -641,8 +589,7 @@ public:
   // Effect :
   // The Characteristic Outputs can change.
   // --------------------------------------------------------------------
-  void resolveCharacteristicOutputs(const ValueIdSet & childOutputs,
-                                    const ValueIdSet & externalInputs);
+  void resolveCharacteristicOutputs(const ValueIdSet &childOutputs, const ValueIdSet &externalInputs);
 
   // --------------------------------------------------------------------
   // replaceOperandsOfInstantiateNull()
@@ -658,45 +605,38 @@ public:
   // Effect :
   // The Characteristic Outputs can change.
   // --------------------------------------------------------------------
-  void replaceOperandsOfInstantiateNull(const ValueIdSet & childOutputs,
-                                        const ValueIdSet & inputValues)
-  {
-    requiredOutputs_.replaceOperandsOfInstantiateNull(
-         childOutputs,inputValues);
+  void replaceOperandsOfInstantiateNull(const ValueIdSet &childOutputs, const ValueIdSet &inputValues) {
+    requiredOutputs_.replaceOperandsOfInstantiateNull(childOutputs, inputValues);
   }
 
-// -----------------------------------------------------------------------
-// Recommended order for NJ probing.
-// Find a good forward probing order for this group. A preferred probing
-// order is chosen as the key prefix of any available Btree index
-// that is covered by either constants or params/host vars
-// and at least one equijoin column, has the minimum number of
-// uncovered columns, and satisfys all partitioning and ordering
-// requirements.
-// Inputs: child0 Group Attributes
-//         Number of forced ESPs (-1 if no forcing)
-//         Requirement Generator object containing left child requirements
-//         Any required order or arrangement for the right child
-// Outputs: chosenIndexDesc
-//          Indicator if all part key cols are equijoin cols or
-//          covered by a partitioning requirement that has no part key cols
-// Returns: A list that is a prefix of the chosen index sort key.
-// -----------------------------------------------------------------------
- 
-ValueIdList recommendedOrderForNJProbing( 
-                               GroupAttributes* child0GA, // IN
-                               Lng32 numForcedParts, //IN
-                               RequirementGenerator& rg, // IN
-                               ValueIdList& reqdOrder1, // IN
-                               ValueIdSet& reqdArr1, // IN
-                               IndexDesc* &chosenIndexDesc, // OUT
-                               NABoolean partKeyColsAreMappable // OUT
-                              );
+  // -----------------------------------------------------------------------
+  // Recommended order for NJ probing.
+  // Find a good forward probing order for this group. A preferred probing
+  // order is chosen as the key prefix of any available Btree index
+  // that is covered by either constants or params/host vars
+  // and at least one equijoin column, has the minimum number of
+  // uncovered columns, and satisfys all partitioning and ordering
+  // requirements.
+  // Inputs: child0 Group Attributes
+  //         Number of forced ESPs (-1 if no forcing)
+  //         Requirement Generator object containing left child requirements
+  //         Any required order or arrangement for the right child
+  // Outputs: chosenIndexDesc
+  //          Indicator if all part key cols are equijoin cols or
+  //          covered by a partitioning requirement that has no part key cols
+  // Returns: A list that is a prefix of the chosen index sort key.
+  // -----------------------------------------------------------------------
 
-  inline GroupAnalysis * getGroupAnalysis()
-  {
-    return groupAnalysis_;
-  }
+  ValueIdList recommendedOrderForNJProbing(GroupAttributes *child0GA,        // IN
+                                           Lng32 numForcedParts,             // IN
+                                           RequirementGenerator &rg,         // IN
+                                           ValueIdList &reqdOrder1,          // IN
+                                           ValueIdSet &reqdArr1,             // IN
+                                           IndexDesc *&chosenIndexDesc,      // OUT
+                                           NABoolean partKeyColsAreMappable  // OUT
+  );
+
+  inline GroupAnalysis *getGroupAnalysis() { return groupAnalysis_; }
 
   void clearGroupAnalysis();
 
@@ -705,40 +645,32 @@ ValueIdList recommendedOrderForNJProbing(
   // outputEstLogProps for this group. If these are cacheable, it will
   // get the stats from the ASM cache, form a list and return to the debugger
 
-  SHPTR_LIST (EstLogPropSharedPtr) * getCachedStatsList();
+  SHPTR_LIST(EstLogPropSharedPtr) * getCachedStatsList();
 
   // This method will provide information about skewness of data for a column.
   // The skewness will indicate the highest frequency among all the intervals
   // and will be returned as a fraction of the entire row count of histogram.
 
-  CostScalar getSkewnessFactor(const ValueId vId,
-	       EncodedValue & mostFreqVal,
-	       const EstLogPropSharedPtr& inLP = (*GLOBAL_EMPTY_INPUT_LOGPROP));
+  CostScalar getSkewnessFactor(const ValueId vId, EncodedValue &mostFreqVal,
+                               const EstLogPropSharedPtr &inLP = (*GLOBAL_EMPTY_INPUT_LOGPROP));
 
   // This method will return a list of skew values associated with the
   // left child of the equal predicate such that formula
   // rowcount/totalRowCount > threshold holds for eaceh such value.
   // vId is the value Id of the equal predicate.
-  SkewedValueList* getSkewedValues(const ValueId& vId,
-               double threshold,
-               NABoolean& statsExist,
-               const EstLogPropSharedPtr& inLP = (*GLOBAL_EMPTY_INPUT_LOGPROP),
-               NABoolean includeNullIfSkewed = FALSE
-                                  );
-  
- double getAverageVarcharSize(const ValueId vId,
-                             const EstLogPropSharedPtr& inLP = (*GLOBAL_EMPTY_INPUT_LOGPROP));
+  SkewedValueList *getSkewedValues(const ValueId &vId, double threshold, NABoolean &statsExist,
+                                   const EstLogPropSharedPtr &inLP = (*GLOBAL_EMPTY_INPUT_LOGPROP),
+                                   NABoolean includeNullIfSkewed = FALSE);
 
- double getAverageVarcharSize(const ValueIdList &  vidList, UInt32 & maxRowSize);
+  double getAverageVarcharSize(const ValueId vId, const EstLogPropSharedPtr &inLP = (*GLOBAL_EMPTY_INPUT_LOGPROP));
+
+  double getAverageVarcharSize(const ValueIdList &vidList, UInt32 &maxRowSize);
 
   // methods to set, get and update group potential
   void setPotential(Int32 potential) { potential_ = potential; };
-  Int32 getPotential() const { return potential_;};
-  Int32 updatePotential(Int32 potential)
-  {
-    if ((potential != -1) &&
-        (potential_ == -1))
-    {
+  Int32 getPotential() const { return potential_; };
+  Int32 updatePotential(Int32 potential) {
+    if ((potential != -1) && (potential_ == -1)) {
       potential_ = potential;
     }
 
@@ -746,23 +678,16 @@ ValueIdList recommendedOrderForNJProbing(
   };
 
   // Does the group contain non-deterministic UDRs?
-  void setHasNonDeterministicUDRs(NABoolean b)
-  { hasNonDeterministicUDRs_ = b; }
-  NABoolean getHasNonDeterministicUDRs() const
-  { return hasNonDeterministicUDRs_; }
+  void setHasNonDeterministicUDRs(NABoolean b) { hasNonDeterministicUDRs_ = b; }
+  NABoolean getHasNonDeterministicUDRs() const { return hasNonDeterministicUDRs_; }
 
-  ColStatsSharedPtr getColStatsForSkewDetection(
-                                     const ValueId vId,
-                                     const EstLogPropSharedPtr& inLP);
+  ColStatsSharedPtr getColStatsForSkewDetection(const ValueId vId, const EstLogPropSharedPtr &inLP);
 
-  void setIsProbeCacheable(NABoolean b=TRUE)
-  { probeCacheable_ = b; }
-  NABoolean getIsProbeCacheable() const
-  { return probeCacheable_; }
+  void setIsProbeCacheable(NABoolean b = TRUE) { probeCacheable_ = b; }
+  NABoolean getIsProbeCacheable() const { return probeCacheable_; }
 
-  void setSeabaseMDTable(NABoolean b = FALSE)
-                { isSeabaseMD_ = b; }
-  NABoolean isSeabaseMDTable() const  { return isSeabaseMD_; }
+  void setSeabaseMDTable(NABoolean b = FALSE) { isSeabaseMD_ = b; }
+  NABoolean isSeabaseMDTable() const { return isSeabaseMD_; }
 
   NABoolean allHiveTables();
   NABoolean allHiveColumnarTables(HiveFileType type = ANY);
@@ -770,10 +695,9 @@ ValueIdList recommendedOrderForNJProbing(
   NABoolean allHiveORCTablesSorted();
 
   // get the name of the ith index (table)
-  NAString getIndexName(CollIndex i=0);
+  NAString getIndexName(CollIndex i = 0);
 
-private:
-
+ private:
   // --------------------------------------------------------------------
   // lomerge() is the low-level merge utility that is used by merge()
   // an reconcile(). If the flag mergeCIO() is set, then it also merges
@@ -784,27 +708,26 @@ private:
   // --------------------------------------------------------------------
   // Characteristic Inputs
   // --------------------------------------------------------------------
-  ValueIdSet  requiredInputs_;
+  ValueIdSet requiredInputs_;
 
   // --------------------------------------------------------------------
   // Characteristic Outputs
   // --------------------------------------------------------------------
-  ValueIdSet  requiredOutputs_;
+  ValueIdSet requiredOutputs_;
 
   // --------------------------------------------------------------------
-  // Characteristic Outputs that 
+  // Characteristic Outputs that
   // a) are needed by immediate parent to evaluate expressions
   // and are simply passed up to the granparent nodes OR
   // b) have been used to evaluate any expressions in children
   // nodes all the way down to leaf nodes.
   // --------------------------------------------------------------------
-  ValueIdSet  requiredEssentialOutputs_;
-
+  ValueIdSet requiredEssentialOutputs_;
 
   // --------------------------------------------------------------------
   // Constraints
   // --------------------------------------------------------------------
-  ValueIdSet  constraints_;
+  ValueIdSet constraints_;
   // The next two members indicate whether the constraints_ object contains
   // constraints of type RefOptConstraint and ComplementaryRefOptConstraint
   // respectively. These flags have been added for improved performance.
@@ -815,13 +738,13 @@ private:
   // Estimates that persists for a group, independent of different
   // input estimated logical properties.
   // ---------------------------------------------------------------------
-  RowSize          recordLength_;      // estimated size of a record
-  RowSize          inputVarLength_;    // estimated size of input parameters
+  RowSize recordLength_;    // estimated size of a record
+  RowSize inputVarLength_;  // estimated size of input parameters
 
   // values used to avoid bushy join trees
-  Int32          numBaseTables_;    // # of base tables involved in this subtree
-  Int32          numJoinedTables_;  // # of tables in join backbone (see note below)
-  Int32          numTMUDFs_;        // # of table-mapping UDFs in this subtree
+  Int32 numBaseTables_;    // # of base tables involved in this subtree
+  Int32 numJoinedTables_;  // # of tables in join backbone (see note below)
+  Int32 numTMUDFs_;        // # of table-mapping UDFs in this subtree
 
   // Note: For numJoinedTables_, we calculate this when we create the
   // GroupAttributes for an expression for the first time. For most nodes
@@ -872,7 +795,7 @@ private:
   // the outputs of the genericupdate subtree - we can't just simply look
   // at the update outputs as those may inlcude values needed for index
   // maintenance which are unrelated to the user query.
-  ValueIdSet  genericUpdateRootOutputs_;
+  ValueIdSet genericUpdateRootOutputs_;
   // QSTUFF ^^
 
   // ---------------------------------------------------------------------
@@ -880,7 +803,7 @@ private:
   //   This reference is set upon the first invocation of synthLogProp()
   //   for this set of Group Attributes.
   // ---------------------------------------------------------------------
-  RelExpr * logExprForSynthesis_;
+  RelExpr *logExprForSynthesis_;
 
   // ---------------------------------------------------------------------
   // Input Estimated Logical Properties
@@ -914,7 +837,7 @@ private:
   // ---------------------------------------------------------------------
   // This object contains analysis result for this group
   // ---------------------------------------------------------------------
-  GroupAnalysis* groupAnalysis_;
+  GroupAnalysis *groupAnalysis_;
 
   // ---------------------------------------------------------------------
   // This contains the minimum row count of all the tables involved in this
@@ -925,9 +848,9 @@ private:
   CostScalar minChildEstRowCount_;
 
   // cached skew values in relationship to EqualPredicates
-  NAHashDictionary<ValueId,SkewedValueList>* cachedSkewValuesPtr_;
+  NAHashDictionary<ValueId, SkewedValueList> *cachedSkewValuesPtr_;
 
-  //group's potential
+  // group's potential
   Int32 potential_;
 
   // Does the group contain non-deterministic UDRs?
@@ -936,16 +859,6 @@ private:
   // is cacheable per probe
   NABoolean probeCacheable_;
 
-}; // class GroupAttributes
+};  // class GroupAttributes
 
 #endif /* GROUPATTR_H */
-
-
-
-
-
-
-
-
-
-

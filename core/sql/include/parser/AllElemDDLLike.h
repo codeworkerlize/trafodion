@@ -8,7 +8,7 @@
  *               Please note that classes with prefix ElemDDLLikeOpt are
  *               not derived from class ElemDDLLike.  Therefore they are
  *               defined in file ElemDDLLikeOptions.h instead.
- *               
+ *
  * Created:      6/5/95
  * Language:     C++
  *
@@ -37,7 +37,6 @@
  *
  *****************************************************************************
  */
-
 
 #include "ElemDDLLike.h"
 

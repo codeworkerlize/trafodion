@@ -38,8 +38,7 @@
  *****************************************************************************
  */
 
-
-#include "ElemDDLNode.h" 
+#include "ElemDDLNode.h"
 #include "common/NAString.h"
 
 #include "common/ComSmallDefs.h"
@@ -50,46 +49,35 @@
 // ElemDDLCreateMVChangesClause
 
 //----------------------------------------------------------------------------
-class ElemDDLCreateMVOneAttributeTableList : public ElemDDLNode
-{
-
-public:
-
+class ElemDDLCreateMVOneAttributeTableList : public ElemDDLNode {
+ public:
   /*
-	enum listType {	IGNORE_CHNAGES_ON, 
-					INSERTONLY_ARE, 
-					UNKNOWN_CHANGES			};
+        enum listType {	IGNORE_CHNAGES_ON,
+                                        INSERTONLY_ARE,
+                                        UNKNOWN_CHANGES			};
 */
-	ElemDDLCreateMVOneAttributeTableList( ComMVSUsedTableAttribute type, 
-											ElemDDLNode *pTableList);
+  ElemDDLCreateMVOneAttributeTableList(ComMVSUsedTableAttribute type, ElemDDLNode *pTableList);
 
-	virtual ~ElemDDLCreateMVOneAttributeTableList(){}
+  virtual ~ElemDDLCreateMVOneAttributeTableList() {}
 
-	virtual ElemDDLCreateMVOneAttributeTableList* 
-										castToElemDDLCreateMVOneAttributeTableList()
-	{
-		return this;
-	}
+  virtual ElemDDLCreateMVOneAttributeTableList *castToElemDDLCreateMVOneAttributeTableList() { return this; }
 
-	QualifiedName & getFirstTableInList();
-	ComBoolean	listHasMoreTables() const;
-	QualifiedName & getNextTableInList();
+  QualifiedName &getFirstTableInList();
+  ComBoolean listHasMoreTables() const;
+  QualifiedName &getNextTableInList();
 
-	ComMVSUsedTableAttribute getType() const;
-	ElemDDLNode* getTableList() { return pTableList_; }
+  ComMVSUsedTableAttribute getType() const;
+  ElemDDLNode *getTableList() { return pTableList_; }
 
-	// methods for tracing
-	virtual const NAString displayLabel1() const;
-	virtual const NAString getText() const;
+  // methods for tracing
+  virtual const NAString displayLabel1() const;
+  virtual const NAString getText() const;
 
+ private:
+  const ComMVSUsedTableAttribute type_;
+  ElemDDLNode *pTableList_;
+  CollIndex listIndex_;
 
-private:
+};  // class ElemDDLCreateMVOneAttributeTableList
 
-	const ComMVSUsedTableAttribute		type_;
-	ElemDDLNode				* pTableList_;
-	CollIndex				listIndex_;
-
-
-}; // class ElemDDLCreateMVOneAttributeTableList 
-
-#endif // ELEMDDL_CREATE_MV_ONE_ATTRIBUTE_TABLE_LIST_H
+#endif  // ELEMDDL_CREATE_MV_ONE_ATTRIBUTE_TABLE_LIST_H

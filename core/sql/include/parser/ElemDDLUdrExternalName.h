@@ -29,7 +29,7 @@
 * Description:  class for UDR External Name (parse node) elements in
 *               DDL statements
 *
-*               
+*
 * Created:      10/08/1999
 * Language:     C++
 *
@@ -42,11 +42,8 @@
 #include "common/ComSmallDefs.h"
 #include "ElemDDLNode.h"
 
-class ElemDDLUdrExternalName : public ElemDDLNode
-{
-
-public:
-
+class ElemDDLUdrExternalName : public ElemDDLNode {
+ public:
   // default constructor
   ElemDDLUdrExternalName(NAString &theName);
 
@@ -54,26 +51,22 @@ public:
   virtual ~ElemDDLUdrExternalName();
 
   // cast
-  virtual ElemDDLUdrExternalName * castToElemDDLUdrExternalName(void);
+  virtual ElemDDLUdrExternalName *castToElemDDLUdrExternalName(void);
 
   // accessor
-  inline const NAString &getExternalName(void) const
-  {
-    return externalName_;
-  }
+  inline const NAString &getExternalName(void) const { return externalName_; }
 
   //
   // methods for tracing
   //
-  
+
   virtual const NAString displayLabel1() const;
   virtual NATraceList getDetailInfo() const;
   virtual const NAString getText() const;
 
-private:
+ private:
+  NAString &externalName_;
 
-  NAString & externalName_;
-
-}; // class ElemDDLUdrExternalName
+};  // class ElemDDLUdrExternalName
 
 #endif /* ELEMDDLUDREXTERNALNAME_H */

@@ -33,52 +33,48 @@ extern const char CAT_HBASE[];
 
 /**
  * A logging class for MVQR. This is a singleton class, the sole instance
- * being accessible via the #instance function. 
+ * being accessible via the #instance function.
  **************************************************************************
  */
-class HdfsLogger : public CommonLogger
-{
-public:
+class HdfsLogger : public CommonLogger {
+ public:
+  /**
+   * Initializes log4cxx by using the configuration file.
+   * If the path given is relative (does not start with a
+   * slash), it is appended to the $TRAF_HOME environment variable.
+   * If the configuration file is not found, perform hard-coded
+   * default configuration.
+   * @param configFileName name of the log4cxx configuration file.
+   * @return FALSE if the configuration file is not found.
+   */
+  virtual NABoolean initLog4cxx(const char *configFileName);
 
   /**
-    * Initializes log4cxx by using the configuration file.
-    * If the path given is relative (does not start with a
-    * slash), it is appended to the $TRAF_HOME environment variable.
-    * If the configuration file is not found, perform hard-coded
-    * default configuration.
-    * @param configFileName name of the log4cxx configuration file.
-    * @return FALSE if the configuration file is not found.
-    */
-  virtual NABoolean initLog4cxx(const char* configFileName);
+   * Returns a reference to the %QRLogger singelton instance in use.
+   * @return Reference to the singleton instance of this class.
+   */
+  static HdfsLogger &instance();
 
+ protected:
+  void initCategory(const char *cat, log4cxx::Priority::PriorityLevel defaultPriority);
+
+ private:
   /**
-    * Returns a reference to the %QRLogger singelton instance in use.
-    * @return Reference to the singleton instance of this class.
-    */
-  static HdfsLogger& instance();
+   * Creates the single instance of this class, with logging initially enabled.
+   * Append mode must be used to prevent separate processes from overwriting
+   * each other's logged messages.
+   */
+  HdfsLogger();
 
-protected:
+  virtual ~HdfsLogger(){};
+  HdfsLogger(const HdfsLogger &);
+  HdfsLogger &operator=(const HdfsLogger &);
 
-    void initCategory(const char* cat, log4cxx::Priority::PriorityLevel defaultPriority);
-
-private:
-    /**
-     * Creates the single instance of this class, with logging initially enabled.
-     * Append mode must be used to prevent separate processes from overwriting
-     * each other's logged messages.
-     */
-    HdfsLogger();
-
-    virtual ~HdfsLogger() {};
-    HdfsLogger(const HdfsLogger&);
-    HdfsLogger& operator=(const HdfsLogger&);
-
-private:
-
+ private:
   /** The appender. */
   log4cxx::Appender *fileAppender_;
 
-}; // HdfsLogger
+};  // HdfsLogger
 
 /**
  * Define used to enable tracing for a given function. When in debug mode, it
@@ -95,32 +91,25 @@ private:
 #define QRTRACER(fn)
 #endif
 
-
 /**
  * Exception thrown when an error in the program logic is found.
  */
-class QRLogicException : public QRException
-{
-  public:
-    /**
-     * Creates an exception with text consisting of the passed template filled in
-     * with the values of the other arguments.
-     *
-     * @param[in] msgTemplate Template for construction of the full message;
-     *                        contains printf-style placeholders for arguments,
-     *                        passed as part of a variable argument list.
-     * @param[in] ... Variable argument list, consisting of a value for each
-     *                placeholder in the message template.
-     */
-    QRLogicException(const char *msgTemplate ...)
-      : QRException()
-    {
-      qrBuildMessage(msgTemplate, msgBuffer_);
-    }
+class QRLogicException : public QRException {
+ public:
+  /**
+   * Creates an exception with text consisting of the passed template filled in
+   * with the values of the other arguments.
+   *
+   * @param[in] msgTemplate Template for construction of the full message;
+   *                        contains printf-style placeholders for arguments,
+   *                        passed as part of a variable argument list.
+   * @param[in] ... Variable argument list, consisting of a value for each
+   *                placeholder in the message template.
+   */
+  QRLogicException(const char *msgTemplate...) : QRException() { qrBuildMessage(msgTemplate, msgBuffer_); }
 
-    virtual ~QRLogicException()
-    {}
+  virtual ~QRLogicException() {}
 
-}; //QRLogicException
+};  // QRLogicException
 
-#endif  /* _QRLOGGER_H_ */
+#endif /* _QRLOGGER_H_ */

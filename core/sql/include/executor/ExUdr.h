@@ -64,26 +64,19 @@ class ExUDRStats;
 class ExUdrTdb;
 class ExUdrTcb;
 
-
 // -----------------------------------------------------------------------
 // ExUdrTdb
 // -----------------------------------------------------------------------
-class ExUdrTdb : public ComTdbUdr
-{
-public:
-
+class ExUdrTdb : public ComTdbUdr {
+ public:
   // ---------------------------------------------------------------------
   // Constructor is only called to instantiate an object used for
   // retrieval of the virtual table function pointer of the class while
   // unpacking. An empty constructor is enough.
   // ---------------------------------------------------------------------
-  ExUdrTdb()
-  {
-  }
+  ExUdrTdb() {}
 
-  virtual ~ExUdrTdb()
-  {
-  }
+  virtual ~ExUdrTdb() {}
 
   // ---------------------------------------------------------------------
   // Build a TCB for this TDB. Redefined in the Executor project.
@@ -96,251 +89,116 @@ public:
 
   // CRI desc for the work ATP. Will be NULL if the UDR
   // has no input or output parameters.
-  inline ex_cri_desc *getWorkCriDesc() const
-  {
-    return workCriDesc_;
-  }
+  inline ex_cri_desc *getWorkCriDesc() const { return workCriDesc_; }
 
   // SQL name and all external names
-  inline const char *getSqlName() const
-  {
-    return sqlName_;
-  }
-  inline const char *getRoutineName() const
-  {
-    return routineName_;
-  }
-  inline const char *getSignature() const
-  {
-    return routineSignature_;
-  }
-  inline const char *getContainerName() const
-  {
-    return containerName_;
-  }
-  inline const char *getPathName() const
-  {
-    return externalPath_;
-  }
-  inline const Int64 getLibraryRedefTime() const
-  {
-    return libraryRedefTime_;
-  }
-  inline const char *getLibraryBlobHandle() const
-  {
-    return libraryBlobHandle_;
-  }
-  inline const char *getLibrarySchName() const
-  {
-    return librarySchName_;
-  }
-  inline const char *getLibrarySqlName() const
-  {
-    return librarySqlName_;
-  }
+  inline const char *getSqlName() const { return sqlName_; }
+  inline const char *getRoutineName() const { return routineName_; }
+  inline const char *getSignature() const { return routineSignature_; }
+  inline const char *getContainerName() const { return containerName_; }
+  inline const char *getPathName() const { return externalPath_; }
+  inline const Int64 getLibraryRedefTime() const { return libraryRedefTime_; }
+  inline const char *getLibraryBlobHandle() const { return libraryBlobHandle_; }
+  inline const char *getLibrarySchName() const { return librarySchName_; }
+  inline const char *getLibrarySqlName() const { return librarySqlName_; }
 
   // Number of parameters and result sets
-  inline ULng32 getNumParams() const
-  {
-    return numParams_;
-  }
-  inline ULng32 getNumInputValues() const
-  {
-    return numInputValues_;
-  }
-  inline ULng32 getNumOutputValues() const
-  {
-    return numOutputValues_;
-  }
-  inline ULng32 getMaxResultSets() const
-  {
-    return maxResultSets_;
-  }
+  inline ULng32 getNumParams() const { return numParams_; }
+  inline ULng32 getNumInputValues() const { return numInputValues_; }
+  inline ULng32 getNumOutputValues() const { return numOutputValues_; }
+  inline ULng32 getMaxResultSets() const { return maxResultSets_; }
 
   // UDR flags
-  inline ULng32 getUdrFlags() const
-  {
-    return flags_;
-  }
+  inline ULng32 getUdrFlags() const { return flags_; }
 
-  NABoolean isResultSetProxy() const
-  {
-    return ((flags_ & UDR_RESULT_SET) ? TRUE : FALSE);
-  }
-  NABoolean isTmudf() const { return flags_&UDR_TMUDF ? TRUE : FALSE ;}
+  NABoolean isResultSetProxy() const { return ((flags_ & UDR_RESULT_SET) ? TRUE : FALSE); }
+  NABoolean isTmudf() const { return flags_ & UDR_TMUDF ? TRUE : FALSE; }
   // Other UDR metadata
-  inline ULng32 getStateAreaSize() const
-  {
-    return stateAreaSize_;
+  inline ULng32 getStateAreaSize() const { return stateAreaSize_; }
+  inline ComRoutineType getUdrType() const { return (ComRoutineType)udrType_; }
+  inline ComRoutineLanguage getLanguage() const { return (ComRoutineLanguage)languageType_; }
+  inline ComRoutineParamStyle getParamStyle() const { return (ComRoutineParamStyle)paramStyle_; }
+  inline ComRoutineExternalSecurity getExternalSecurity() const {
+    return (ComRoutineExternalSecurity)externalSecurity_;
   }
-  inline ComRoutineType getUdrType() const
-  {
-    return (ComRoutineType) udrType_;
-  }
-  inline ComRoutineLanguage getLanguage() const
-  {
-    return (ComRoutineLanguage) languageType_;
-  }
-  inline ComRoutineParamStyle getParamStyle() const
-  {
-    return (ComRoutineParamStyle) paramStyle_;
-  }
-  inline ComRoutineExternalSecurity getExternalSecurity() const
-  {
-    return (ComRoutineExternalSecurity) externalSecurity_;
-  }
-  inline Int32 getRoutineOwnerId() const
-  {
-    return routineOwnerId_;
-  }
-  inline ComRoutineSQLAccess getSqlAccessMode() const
-  {
-    return (ComRoutineSQLAccess) sqlAccessMode_;
-  }
-  inline ComRoutineTransactionAttributes getTransactionAttrs() const
-  {
-    return (ComRoutineTransactionAttributes) transactionAttrs_;
+  inline Int32 getRoutineOwnerId() const { return routineOwnerId_; }
+  inline ComRoutineSQLAccess getSqlAccessMode() const { return (ComRoutineSQLAccess)sqlAccessMode_; }
+  inline ComRoutineTransactionAttributes getTransactionAttrs() const {
+    return (ComRoutineTransactionAttributes)transactionAttrs_;
   }
 
   // Expressions to copy data values to/from message buffers
-  inline ex_expr *getInputExpression() const
-  {
-    return inputExpr_;
-  }
-  inline ex_expr *getOutputExpression() const
-  {
-    return outputExpr_;
-  }
+  inline ex_expr *getInputExpression() const { return inputExpr_; }
+  inline ex_expr *getOutputExpression() const { return outputExpr_; }
   // expression for copying child table input into a sqlbuffer
-  inline ex_expr *getChildInputExpr(Int32 pos) const
-  {
-    return childInputExprs_[pos];
-  }
+  inline ex_expr *getChildInputExpr(Int32 pos) const { return childInputExprs_[pos]; }
 
   // Predicate expression
   ex_expr *getPredicate() const { return scanExpr_; }
 
   // Defaults for the output buffer pool
-  inline ULng32 getNumOutputBuffers() const
-  {
-    return numBuffers_; // this field comes from the superclass
+  inline ULng32 getNumOutputBuffers() const {
+    return numBuffers_;  // this field comes from the superclass
   }
-  inline ULng32 getOutputSqlBufferSize() const
-  {
-    return bufferSize_; // this field comes from the superclass
+  inline ULng32 getOutputSqlBufferSize() const {
+    return bufferSize_;  // this field comes from the superclass
   }
 
   // Defaults for the input buffer pool
-  inline ULng32 getNumInputBuffers() const
-  {
-    return numChildTableInputs_; // each child input needs one buffer
+  inline ULng32 getNumInputBuffers() const {
+    return numChildTableInputs_;  // each child input needs one buffer
   }
-  inline ULng32 getInputSqlBufferSize() const
-  {
-    return bufferSize_; // this field comes from the superclass
-  }                        // keep it the same as output bufefr size for now
+  inline ULng32 getInputSqlBufferSize() const {
+    return bufferSize_;  // this field comes from the superclass
+  }                      // keep it the same as output bufefr size for now
   // Default size of sql_buffers in message objects
-  inline ULng32 getRequestSqlBufferSize() const
-  {
-    return requestSqlBufferSize_;
-  }
-  inline ULng32 getReplySqlBufferSize() const
-  {
-    return replySqlBufferSize_;
-  }
+  inline ULng32 getRequestSqlBufferSize() const { return requestSqlBufferSize_; }
+  inline ULng32 getReplySqlBufferSize() const { return replySqlBufferSize_; }
 
   // Size of a single request/reply/output row
-  inline ULng32 getRequestRowLen() const
-  {
-    return requestRowLen_;
-  }
-  inline ULng32 getReplyRowLen() const
-  {
-    return replyRowLen_;
-  }
-  inline ULng32 getOutputRowLen() const
-  {
-    return outputRowLen_;
-  }
+  inline ULng32 getRequestRowLen() const { return requestRowLen_; }
+  inline ULng32 getReplyRowLen() const { return replyRowLen_; }
+  inline ULng32 getOutputRowLen() const { return outputRowLen_; }
 
   // Attributes for input and output parameters. No checks
   // for NULL pointers are done and no bounds checking is done.
   // Only call these functions if you are sure workCriDesc_
   // exists and the index is valid.
-  inline Attributes *getRequestAttr(UInt32 i) const
-  {
+  inline Attributes *getRequestAttr(UInt32 i) const {
     return workCriDesc_->getTupleDescriptor(requestTuppIndex_)->getAttr(i);
   }
-  inline AttributesPtr *getRequestAttrs() const
-  {
-    return workCriDesc_->getTupleDescriptor(requestTuppIndex_)->attrs();
-  }
-  inline Attributes *getReplyAttr(UInt32 i) const
-  {
+  inline AttributesPtr *getRequestAttrs() const { return workCriDesc_->getTupleDescriptor(requestTuppIndex_)->attrs(); }
+  inline Attributes *getReplyAttr(UInt32 i) const {
     return workCriDesc_->getTupleDescriptor(replyTuppIndex_)->getAttr(i);
   }
-  inline AttributesPtr *getReplyAttrs() const
-  {
-    return workCriDesc_->getTupleDescriptor(replyTuppIndex_)->attrs();
-  }
-  inline Attributes *getChildTableAttr(UInt32 tabInd, 
-				       UInt32 colInd) const
-  {
-    UInt32 childTuppIndex = udrChildTableDescInfo_[tabInd]->
-      getOutputTuppIndex();
+  inline AttributesPtr *getReplyAttrs() const { return workCriDesc_->getTupleDescriptor(replyTuppIndex_)->attrs(); }
+  inline Attributes *getChildTableAttr(UInt32 tabInd, UInt32 colInd) const {
+    UInt32 childTuppIndex = udrChildTableDescInfo_[tabInd]->getOutputTuppIndex();
     return workCriDesc_->getTupleDescriptor(childTuppIndex)->getAttr(colInd);
   }
-  
+
   // Tuple descriptors for the input and output rows
-  inline ExpTupleDesc *getRequestTuple() const
-  {
-    return workCriDesc_->getTupleDescriptor(requestTuppIndex_);
-  }
-  inline ExpTupleDesc *getReplyTuple() const
-  {
-    return workCriDesc_->getTupleDescriptor(replyTuppIndex_);
-  }
-  inline ExpTupleDesc *getChildTuple(UInt32 tabInd) const
-  {
-     UInt32 childTuppIndex = udrChildTableDescInfo_[tabInd]->
-      getOutputTuppIndex();
+  inline ExpTupleDesc *getRequestTuple() const { return workCriDesc_->getTupleDescriptor(requestTuppIndex_); }
+  inline ExpTupleDesc *getReplyTuple() const { return workCriDesc_->getTupleDescriptor(replyTuppIndex_); }
+  inline ExpTupleDesc *getChildTuple(UInt32 tabInd) const {
+    UInt32 childTuppIndex = udrChildTableDescInfo_[tabInd]->getOutputTuppIndex();
     return workCriDesc_->getTupleDescriptor(childTuppIndex);
   }
 
   // Number of tupps in the output row
-  inline unsigned short getNumOutputTupps() const
-  {
-    return criDescUp_->noTuples();
-  }
+  inline unsigned short getNumOutputTupps() const { return criDescUp_->noTuples(); }
 
   // ATP index in the work ATP for the input and output rows
-  inline unsigned short getRequestTuppIndex() const
-  {
-    return requestTuppIndex_;
-  }
-  inline unsigned short getReplyTuppIndex() const
-  {
-    return replyTuppIndex_;
-  }
- 
-  inline const UdrTableDescInfo *getTableDescInfo(UInt32 i) const
-  {
-    return udrChildTableDescInfo_[i];
-  }
+  inline unsigned short getRequestTuppIndex() const { return requestTuppIndex_; }
+  inline unsigned short getReplyTuppIndex() const { return replyTuppIndex_; }
 
-  inline Int32 getJavaDebugPort() const
-  {
-    return javaDebugPort_;
-  }
+  inline const UdrTableDescInfo *getTableDescInfo(UInt32 i) const { return udrChildTableDescInfo_[i]; }
 
-  inline Int32 getJavaDebugTimeout() const
-  {
-    return javaDebugTimeout_;
-  }
- 
-  
- 
-private:
+  inline Int32 getJavaDebugPort() const { return javaDebugPort_; }
+
+  inline Int32 getJavaDebugTimeout() const { return javaDebugTimeout_; }
+
+ private:
   // ---------------------------------------------------------------------
   // !!!!!!! IMPORTANT -- NO DATA MEMBERS ALLOWED IN EXECUTOR TDB !!!!!!!!
   // *********************************************************************
@@ -371,13 +229,11 @@ private:
 //----------------------------------------------------------------------
 // Task control block
 //----------------------------------------------------------------------
-class ExUdrTcb : public ex_tcb
-{
+class ExUdrTcb : public ex_tcb {
   typedef ex_tcb super;
   friend class ExUdrTdb;
 
-public:
-
+ public:
   //
   // State transitions for a down queue entry
   //   NOT_STARTED ->
@@ -386,8 +242,7 @@ public:
   //   NOT_STARTED -> STARTED -> CANCEL_AFTER_SEND -> NOT_STARTED
   //   NOT_STARTED -> STARTED -> PRODUCE_ERROR_REPLY -> PRODUCE_EOD_AFTER_ERROR -> NOT_STARTED
   //
-  enum UdrTcbSendStep
-  {
+  enum UdrTcbSendStep {
     NOT_STARTED,
     STARTED,
     CANCEL_BEFORE_SEND,
@@ -395,14 +250,8 @@ public:
     PRODUCE_ERROR_REPLY,
     PRODUCE_EOD_AFTER_ERROR
   };
-  enum TmudfState
-    {
-      INITIAL =0,
-      READING_FROM_CHILD
-    };
-  ExUdrTcb(const ExUdrTdb &tdb, 
-	   const ex_tcb **childTcbs,
-	   ex_globals *glob);
+  enum TmudfState { INITIAL = 0, READING_FROM_CHILD };
+  ExUdrTcb(const ExUdrTdb &tdb, const ex_tcb **childTcbs, ex_globals *glob);
   ~ExUdrTcb();
 
   virtual void freeResources();
@@ -419,26 +268,17 @@ public:
   ExWorkProcRetcode tmudfCheckReceive();
   void registerSubtasks();
 
-  ex_queue_pair getParentQueue() const
-  {
-    return qParent_;
-  }
+  ex_queue_pair getParentQueue() const { return qParent_; }
 
-  Int32 numChildren() const
-  {
-    return myTdb().numChildTableInputs_;
-  }
+  Int32 numChildren() const { return myTdb().numChildTableInputs_; }
 
-  const ex_tcb *getChild(Int32 pos) const
-  {
-    ex_assert((pos >= 0) && (pos < numChildren()), ""); 
+  const ex_tcb *getChild(Int32 pos) const {
+    ex_assert((pos >= 0) && (pos < numChildren()), "");
     return childTcbs_[pos];
-
   }
 
-  ex_tcb_private_state *allocatePstates(
-    Lng32 &numElems,      // [IN/OUT] desired/actual elements
-    Lng32 &pstateLength); // [OUT] length of one element
+  ex_tcb_private_state *allocatePstates(Lng32 &numElems,       // [IN/OUT] desired/actual elements
+                                        Lng32 &pstateLength);  // [OUT] length of one element
 
   //
   // IPC callback functions communicate with the TCB by calling
@@ -463,52 +303,34 @@ public:
   //
 
   virtual ExOperStats *doAllocateStatsEntry(CollHeap *heap, ComTdb *tdb);
-  void incReplyMsg(Int64 msgBytes)
-  {
-    if (udrBaseStats_)
-      udrBaseStats_->incReplyMsg(msgBytes);
+  void incReplyMsg(Int64 msgBytes) {
+    if (udrBaseStats_) udrBaseStats_->incReplyMsg(msgBytes);
   }
 
-  void incReqMsg(Int64 msgBytes)
-  {
-    if (udrBaseStats_)
-      udrBaseStats_->incReqMsg(msgBytes);
+  void incReqMsg(Int64 msgBytes) {
+    if (udrBaseStats_) udrBaseStats_->incReqMsg(msgBytes);
   }
 
   void setTmUdfInfo(UdrLoadMsg *lm, const ExUdrTdb &udrTdb);
 
-protected:
-
-  inline const ExUdrTdb &myTdb() const { return (const ExUdrTdb &) tdb; }
+ protected:
+  inline const ExUdrTdb &myTdb() const { return (const ExUdrTdb &)tdb; }
   ExExeStmtGlobals *myExeStmtGlobals() const;
   IpcEnvironment *myIpcEnv() const;
 
   // ---------------------------------------------------------------------
   // Work and cancel subtasks
   // ---------------------------------------------------------------------
-  static ExWorkProcRetcode sWork(ex_tcb *tcb)
-  {
-    return ((ExUdrTcb *) tcb)->work();
-  }
-  
- 
+  static ExWorkProcRetcode sWork(ex_tcb *tcb) { return ((ExUdrTcb *)tcb)->work(); }
+
   ExWorkProcRetcode workCancel();
 
-  static ExWorkProcRetcode sWorkCancel(ex_tcb *tcb)
-  {
-    return ((ExUdrTcb *) tcb)->workCancel();
-  }
+  static ExWorkProcRetcode sWorkCancel(ex_tcb *tcb) { return ((ExUdrTcb *)tcb)->workCancel(); }
   // ---------------------------------------------------------------------
   // Work method for tble mapping udfs
   // ---------------------------------------------------------------------
-  static ExWorkProcRetcode sTmudfWork(ex_tcb *tcb)
-  {
-    return ((ExUdrTcb *) tcb)->tmudfWork();
-  }
-  inline void tickleSchedulerWork()
-  {
-    ioSubtask_->scheduleAndNoteCompletion();
-  }
+  static ExWorkProcRetcode sTmudfWork(ex_tcb *tcb) { return ((ExUdrTcb *)tcb)->tmudfWork(); }
+  inline void tickleSchedulerWork() { ioSubtask_->scheduleAndNoteCompletion(); }
 
   //
   // Helper functions used for resource management
@@ -523,8 +345,8 @@ protected:
   //
   // Helper function to send control messages
   //
-  NABoolean sendControlMessage(UdrIpcObjectType t,
-                               NABoolean callbackRequired, char *cachedLibName=NULL, char *cachedLibPath = NULL);
+  NABoolean sendControlMessage(UdrIpcObjectType t, NABoolean callbackRequired, char *cachedLibName = NULL,
+                               char *cachedLibPath = NULL);
 
   // ---------------------------------------------------------------------
   // Helper functions called by the work method. See comments in the
@@ -543,8 +365,7 @@ protected:
   ExWorkProcRetcode returnSingleRow();
   NABoolean anyOutstandingQueueRequests();
   NABoolean verifyUdrServerProcessId();
-  NABoolean insertUpQueueEntry(ex_queue::up_status status,
-                               ComDiagsArea *diags = NULL);
+  NABoolean insertUpQueueEntry(ex_queue::up_status status, ComDiagsArea *diags = NULL);
   NABoolean serverResourcesAreLoaded() const;
   void addIntegrityCheckFailureToDiagsArea(ComDiagsArea *diags) const;
   void tmudfCancelChildRequests(queue_index parentIndex);
@@ -553,8 +374,7 @@ protected:
 
   // This TCB implements a state machine. Valid state transitions are
   // defined by the code in setUdrTcbState().
-  enum UdrTcbState
-  {
+  enum UdrTcbState {
     BUILD = 1,
     FIXUP,
     SENDING_LOAD,
@@ -570,7 +390,6 @@ protected:
     DONE
   };
 
- 
   NABoolean setUdrTcbState(UdrTcbState target);
   static const char *getUdrTcbStateString(UdrTcbState s);
   void attemptTransitionToWorkState();
@@ -587,7 +406,7 @@ protected:
   sql_buffer_pool *inputPool_;
   UdrDataBuffer *replyBuffer_;
   UdrDataBuffer *requestBuffer_;
-  UdrDataBuffer **childInputBuffers_; // array of child table buffers
+  UdrDataBuffer **childInputBuffers_;  // array of child table buffers
   queue_index nextToSend_;
   ExUdrServer *udrServer_;
   UdrClientDataStream *dataStream_;
@@ -598,9 +417,9 @@ protected:
   RSHandle rsHandle_;
   ComUInt32 rsIndex_;
   ExRsInfo *rsInfo_;
-  const ex_tcb **childTcbs_;   // array of pointers to child task control blocks
-  ex_queue_pair *qChild_;      // array of pointers to child queues
-  TmudfState *tmudfStates_;    // array of states of these child queues
+  const ex_tcb **childTcbs_;  // array of pointers to child task control blocks
+  ex_queue_pair *qChild_;     // array of pointers to child queues
+  TmudfState *tmudfStates_;   // array of states of these child queues
   ExUDRBaseStats *udrBaseStats_;
   ExUDRStats *udrStats_;
 
@@ -617,27 +436,25 @@ protected:
   void printDataStreamState();
 #endif
 
-}; // class ExUdrTcb
+};  // class ExUdrTcb
 
 //----------------------------------------------------------------------
 // class ExUdrPrivateState
 //----------------------------------------------------------------------
-class ExUdrPrivateState : public ex_tcb_private_state
-{
+class ExUdrPrivateState : public ex_tcb_private_state {
   friend class ExUdrTcb;
 
-public:
+ public:
   ExUdrPrivateState();
   ~ExUdrPrivateState();
 
-protected:
+ protected:
   void init();
 
   ExUdrTcb::UdrTcbSendStep step_;
   Int64 matchCount_;
-  ComUInt32 numEodsFromChildTcbs_; // for future use 
-  ComSInt32 currentChildTcbIndex_; 
+  ComUInt32 numEodsFromChildTcbs_;  // for future use
+  ComSInt32 currentChildTcbIndex_;
 };
 
-#endif // __EX_UDR_H
-
+#endif  // __EX_UDR_H

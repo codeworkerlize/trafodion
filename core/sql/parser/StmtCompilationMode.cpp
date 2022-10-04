@@ -38,13 +38,6 @@
 #include "parser/StmtCompilationMode.h"
 
 // Init the static data members.
-THREAD_P WhoAmI		IdentifyMyself::myName_		= I_AM_UNKNOWN;
+THREAD_P WhoAmI IdentifyMyself::myName_ = I_AM_UNKNOWN;
 
-#endif // STMTCOMPILATIONMODE_C
-
-
-
-
-
-
-
+#endif  // STMTCOMPILATIONMODE_C

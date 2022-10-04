@@ -30,7 +30,7 @@
  *               Grant DDL statements; also classes representing
  *               arrays of privilege actions.
  *
- *               
+ *
  * Created:      10/16/95
  * Language:     C++
  *
@@ -40,9 +40,8 @@
  *****************************************************************************
  */
 
-
-#ifndef   SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
-#define   SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
+#ifndef SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
+#define SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
 #endif
 #include "parser/SqlParserGlobals.h"
 
@@ -72,38 +71,31 @@ class ElemDDLPrivActWithColumns;
 // -----------------------------------------------------------------------
 // definition of base class ElemDDLPrivAct
 // -----------------------------------------------------------------------
-class ElemDDLPrivAct : public ElemDDLNode
-{
-
-public:
-
-   enum PrivClass {DDLPriv = 2, DMLPriv = 3, OtherPriv = 4};
+class ElemDDLPrivAct : public ElemDDLNode {
+ public:
+  enum PrivClass { DDLPriv = 2, DMLPriv = 3, OtherPriv = 4 };
 
   // default constructor
-  ElemDDLPrivAct(OperatorTypeEnum operatorType = ELM_ANY_PRIV_ACT_ELEM,
-                 PrivClass privClass = DMLPriv)
-  : ElemDDLNode(operatorType),
-    privClass_(privClass)
-  { }
+  ElemDDLPrivAct(OperatorTypeEnum operatorType = ELM_ANY_PRIV_ACT_ELEM, PrivClass privClass = DMLPriv)
+      : ElemDDLNode(operatorType), privClass_(privClass) {}
 
   // virtual destructor
   virtual ~ElemDDLPrivAct();
 
   // cast
-  virtual ElemDDLPrivAct * castToElemDDLPrivAct();
+  virtual ElemDDLPrivAct *castToElemDDLPrivAct();
 
   // methods for tracing
   virtual NATraceList getDetailInfo() const;
   virtual const NAString getText() const;
   inline NABoolean isDDLPriv() const;
   inline NABoolean isDMLPriv() const;
-  NABoolean elmPrivToPrivType( PrivType &privType );
+  NABoolean elmPrivToPrivType(PrivType &privType);
 
-private:
+ private:
+  PrivClass privClass_;
 
-PrivClass privClass_;
-
-}; // class ElemDDLPrivAct
+};  // class ElemDDLPrivAct
 
 // -----------------------------------------------------------------------
 // definition of class ElemDDLPrivActArray
@@ -113,31 +105,24 @@ PrivClass privClass_;
 //   Note that class ElemDDLPrivActArray is not derived from
 //   class ElemDDLPrivAct.
 // -----------------------------------------------------------------------
-class ElemDDLPrivActArray : public LIST(ElemDDLPrivAct *)
-{
-
-public:
-
+class ElemDDLPrivActArray : public LIST(ElemDDLPrivAct *) {
+ public:
   // default constructor
-  ElemDDLPrivActArray(CollHeap * heap = PARSERHEAP())
-  : LIST(ElemDDLPrivAct *)(heap),
-    hasDDLPriv_(FALSE)
-  { }
+  ElemDDLPrivActArray(CollHeap *heap = PARSERHEAP()) : LIST(ElemDDLPrivAct *)(heap), hasDDLPriv_(FALSE) {}
 
   // copy ctor
-  ElemDDLPrivActArray (const ElemDDLPrivActArray & orig, 
-                       CollHeap * h=PARSERHEAP()) ; // not written
+  ElemDDLPrivActArray(const ElemDDLPrivActArray &orig,
+                      CollHeap *h = PARSERHEAP());  // not written
 
   // virtual destructor
   virtual ~ElemDDLPrivActArray();
   inline NABoolean hasDDLPriv() const;
   inline void setHasDDLPriv(NABoolean setting);
 
-private:
+ private:
+  NABoolean hasDDLPriv_;
 
-NABoolean hasDDLPriv_;
-
-}; // class ElemDDLPrivActArray
+};  // class ElemDDLPrivActArray
 
 // -----------------------------------------------------------------------
 // definition of base class ElemDDLPrivActWithColumns
@@ -146,46 +131,40 @@ NABoolean hasDDLPriv_;
 //   classes ElemDDLPrivActInsert, ElemDDLPrivActReferences, and
 //   ElemDDLPrivActUpdate are derived from this class.
 // -----------------------------------------------------------------------
-class ElemDDLPrivActWithColumns : public ElemDDLPrivAct
-{
-
-public:
-
+class ElemDDLPrivActWithColumns : public ElemDDLPrivAct {
+ public:
   // default constructor
-  ElemDDLPrivActWithColumns(OperatorTypeEnum operatorType
-                            = ELM_ANY_PRIV_ACT_WITH_COLUMNS_ELEM,
-                            ElemDDLNode * pColumnNameList = NULL,
-                            CollHeap * heap = PARSERHEAP());
+  ElemDDLPrivActWithColumns(OperatorTypeEnum operatorType = ELM_ANY_PRIV_ACT_WITH_COLUMNS_ELEM,
+                            ElemDDLNode *pColumnNameList = NULL, CollHeap *heap = PARSERHEAP());
 
   // virtual destructor
   virtual ~ElemDDLPrivActWithColumns();
 
-  virtual ElemDDLPrivActWithColumns * castToElemDDLPrivActWithColumns();
+  virtual ElemDDLPrivActWithColumns *castToElemDDLPrivActWithColumns();
 
   //
   // accessors
   //
 
   virtual Int32 getArity() const;
-  virtual ExprNode * getChild(Lng32 index);
+  virtual ExprNode *getChild(Lng32 index);
 
-  inline const ElemDDLColNameArray & getColumnNameArray() const;
-  inline       ElemDDLColNameArray & getColumnNameArray();
+  inline const ElemDDLColNameArray &getColumnNameArray() const;
+  inline ElemDDLColNameArray &getColumnNameArray();
 
   // mutator
-  virtual void setChild(Lng32 index, ExprNode * pElemDDLNode);
+  virtual void setChild(Lng32 index, ExprNode *pElemDDLNode);
 
   // methods for tracing
   virtual NATraceList getDetailInfo() const;
   virtual const NAString getText() const;
 
-private:
-
+ private:
   //
   // methods
   //
 
-  inline ElemDDLNode * getColumnNameList() const;
+  inline ElemDDLNode *getColumnNameList() const;
 
   //
   // data members
@@ -195,1381 +174,1062 @@ private:
 
   // pointers to child parse node
 
-  enum { INDEX_COLUMN_NAME_LIST = 0,
-         MAX_ELEM_DDL_PRIV_ACT_WITH_COLUMNS_ARITY };
+  enum { INDEX_COLUMN_NAME_LIST = 0, MAX_ELEM_DDL_PRIV_ACT_WITH_COLUMNS_ARITY };
 
-  ElemDDLNode * children_[MAX_ELEM_DDL_PRIV_ACT_WITH_COLUMNS_ARITY];
+  ElemDDLNode *children_[MAX_ELEM_DDL_PRIV_ACT_WITH_COLUMNS_ARITY];
 
-}; // class ElemDDLPrivActWithColumns
+};  // class ElemDDLPrivActWithColumns
 
 // -----------------------------------------------------------------------
 // definition of class ElemDDLPrivActAlter
 // -----------------------------------------------------------------------
-class ElemDDLPrivActAlter : public ElemDDLPrivAct
-{
-
-public:
-
+class ElemDDLPrivActAlter : public ElemDDLPrivAct {
+ public:
   // constructor
-  ElemDDLPrivActAlter()
-  : ElemDDLPrivAct(ELM_PRIV_ACT_ALTER_ELEM,ElemDDLPrivAct::DDLPriv)
-  { }
+  ElemDDLPrivActAlter() : ElemDDLPrivAct(ELM_PRIV_ACT_ALTER_ELEM, ElemDDLPrivAct::DDLPriv) {}
 
   // virtual destructor
   virtual ~ElemDDLPrivActAlter();
 
   // cast
-  virtual ElemDDLPrivActAlter * castToElemDDLPrivActAlter();
+  virtual ElemDDLPrivActAlter *castToElemDDLPrivActAlter();
 
   // methods for tracing
   virtual const NAString displayLabel1() const;
   virtual const NAString getText() const;
 
-private:
-
-}; // class ElemDDLPrivActAlter
+ private:
+};  // class ElemDDLPrivActAlter
 
 // -----------------------------------------------------------------------
 // definition of class ElemDDLPrivActAlterLibrary
 // -----------------------------------------------------------------------
-class ElemDDLPrivActAlterLibrary : public ElemDDLPrivAct
-{
-
-public:
-
+class ElemDDLPrivActAlterLibrary : public ElemDDLPrivAct {
+ public:
   // constructor
-  ElemDDLPrivActAlterLibrary()
-  : ElemDDLPrivAct(ELM_PRIV_ACT_ALTER_LIBRARY_ELEM,ElemDDLPrivAct::DDLPriv)
-  { }
+  ElemDDLPrivActAlterLibrary() : ElemDDLPrivAct(ELM_PRIV_ACT_ALTER_LIBRARY_ELEM, ElemDDLPrivAct::DDLPriv) {}
 
   // virtual destructor
   virtual ~ElemDDLPrivActAlterLibrary();
 
   // cast
-  virtual ElemDDLPrivActAlterLibrary * castToElemDDLPrivActAlterLibrary();
+  virtual ElemDDLPrivActAlterLibrary *castToElemDDLPrivActAlterLibrary();
 
   // methods for tracing
   virtual const NAString displayLabel1() const;
   virtual const NAString getText() const;
 
-private:
-
-}; // class ElemDDLPrivActAlterLibrary
+ private:
+};  // class ElemDDLPrivActAlterLibrary
 
 // -----------------------------------------------------------------------
 // definition of class ElemDDLPrivActAlterMV
 // -----------------------------------------------------------------------
-class ElemDDLPrivActAlterMV : public ElemDDLPrivAct
-{
-
-public:
-
+class ElemDDLPrivActAlterMV : public ElemDDLPrivAct {
+ public:
   // constructor
-  ElemDDLPrivActAlterMV()
-  : ElemDDLPrivAct(ELM_PRIV_ACT_ALTER_MV_ELEM,ElemDDLPrivAct::DDLPriv)
-  { }
+  ElemDDLPrivActAlterMV() : ElemDDLPrivAct(ELM_PRIV_ACT_ALTER_MV_ELEM, ElemDDLPrivAct::DDLPriv) {}
 
   // virtual destructor
   virtual ~ElemDDLPrivActAlterMV();
 
   // cast
-  virtual ElemDDLPrivActAlterMV * castToElemDDLPrivActAlterMV();
+  virtual ElemDDLPrivActAlterMV *castToElemDDLPrivActAlterMV();
 
   // methods for tracing
   virtual const NAString displayLabel1() const;
   virtual const NAString getText() const;
 
-private:
-
-}; // class ElemDDLPrivActAlterMV
+ private:
+};  // class ElemDDLPrivActAlterMV
 
 // -----------------------------------------------------------------------
 // definition of class ElemDDLPrivActAlterMVGroup
 // -----------------------------------------------------------------------
-class ElemDDLPrivActAlterMVGroup : public ElemDDLPrivAct
-{
-
-public:
-
+class ElemDDLPrivActAlterMVGroup : public ElemDDLPrivAct {
+ public:
   // constructor
-  ElemDDLPrivActAlterMVGroup()
-  : ElemDDLPrivAct(ELM_PRIV_ACT_ALTER_MVGROUP_ELEM,ElemDDLPrivAct::DDLPriv)
-  { }
+  ElemDDLPrivActAlterMVGroup() : ElemDDLPrivAct(ELM_PRIV_ACT_ALTER_MVGROUP_ELEM, ElemDDLPrivAct::DDLPriv) {}
 
   // virtual destructor
   virtual ~ElemDDLPrivActAlterMVGroup();
 
   // cast
-  virtual ElemDDLPrivActAlterMVGroup * castToElemDDLPrivActAlterMVGroup();
+  virtual ElemDDLPrivActAlterMVGroup *castToElemDDLPrivActAlterMVGroup();
 
   // methods for tracing
   virtual const NAString displayLabel1() const;
   virtual const NAString getText() const;
 
-private:
-
-}; // class ElemDDLPrivActAlterMVGroup
+ private:
+};  // class ElemDDLPrivActAlterMVGroup
 
 // -----------------------------------------------------------------------
 // definition of class ElemDDLPrivActAlterRoutine
 // -----------------------------------------------------------------------
-class ElemDDLPrivActAlterRoutine : public ElemDDLPrivAct
-{
-
-public:
-
+class ElemDDLPrivActAlterRoutine : public ElemDDLPrivAct {
+ public:
   // constructor
-  ElemDDLPrivActAlterRoutine()
-  : ElemDDLPrivAct(ELM_PRIV_ACT_ALTER_ROUTINE_ELEM,ElemDDLPrivAct::DDLPriv)
-  { }
+  ElemDDLPrivActAlterRoutine() : ElemDDLPrivAct(ELM_PRIV_ACT_ALTER_ROUTINE_ELEM, ElemDDLPrivAct::DDLPriv) {}
 
   // virtual destructor
   virtual ~ElemDDLPrivActAlterRoutine();
 
   // cast
-  virtual ElemDDLPrivActAlterRoutine * castToElemDDLPrivActAlterRoutine();
+  virtual ElemDDLPrivActAlterRoutine *castToElemDDLPrivActAlterRoutine();
 
   // methods for tracing
   virtual const NAString displayLabel1() const;
   virtual const NAString getText() const;
 
-private:
-
-}; // class ElemDDLPrivActAlterRoutine
+ private:
+};  // class ElemDDLPrivActAlterRoutine
 
 // -----------------------------------------------------------------------
 // definition of class ElemDDLPrivActAlterRoutineAction
 // -----------------------------------------------------------------------
-class ElemDDLPrivActAlterRoutineAction : public ElemDDLPrivAct
-{
-
-public:
-
+class ElemDDLPrivActAlterRoutineAction : public ElemDDLPrivAct {
+ public:
   // constructor
   ElemDDLPrivActAlterRoutineAction()
-  : ElemDDLPrivAct(ELM_PRIV_ACT_ALTER_ROUTINE_ACTION_ELEM,ElemDDLPrivAct::DDLPriv)
-  { }
+      : ElemDDLPrivAct(ELM_PRIV_ACT_ALTER_ROUTINE_ACTION_ELEM, ElemDDLPrivAct::DDLPriv) {}
 
   // virtual destructor
   virtual ~ElemDDLPrivActAlterRoutineAction();
 
   // cast
-  virtual ElemDDLPrivActAlterRoutineAction * castToElemDDLPrivActAlterRoutineAction();
+  virtual ElemDDLPrivActAlterRoutineAction *castToElemDDLPrivActAlterRoutineAction();
 
   // methods for tracing
   virtual const NAString displayLabel1() const;
   virtual const NAString getText() const;
 
-private:
-
-}; // class ElemDDLPrivActAlterRoutineAction
+ private:
+};  // class ElemDDLPrivActAlterRoutineAction
 
 // -----------------------------------------------------------------------
 // definition of class ElemDDLPrivActAlterSynonym
 // -----------------------------------------------------------------------
-class ElemDDLPrivActAlterSynonym : public ElemDDLPrivAct
-{
-
-public:
-
+class ElemDDLPrivActAlterSynonym : public ElemDDLPrivAct {
+ public:
   // constructor
-  ElemDDLPrivActAlterSynonym()
-  : ElemDDLPrivAct(ELM_PRIV_ACT_ALTER_SYNONYM_ELEM,ElemDDLPrivAct::DDLPriv)
-  { }
+  ElemDDLPrivActAlterSynonym() : ElemDDLPrivAct(ELM_PRIV_ACT_ALTER_SYNONYM_ELEM, ElemDDLPrivAct::DDLPriv) {}
 
   // virtual destructor
   virtual ~ElemDDLPrivActAlterSynonym();
 
   // cast
-  virtual ElemDDLPrivActAlterSynonym * castToElemDDLPrivActAlterSynonym();
+  virtual ElemDDLPrivActAlterSynonym *castToElemDDLPrivActAlterSynonym();
 
   // methods for tracing
   virtual const NAString displayLabel1() const;
   virtual const NAString getText() const;
 
-private:
-
-}; // class ElemDDLPrivActAlterSynonym
+ private:
+};  // class ElemDDLPrivActAlterSynonym
 
 // -----------------------------------------------------------------------
 // definition of class ElemDDLPrivActAlterTable
 // -----------------------------------------------------------------------
-class ElemDDLPrivActAlterTable : public ElemDDLPrivAct
-{
-
-public:
-
+class ElemDDLPrivActAlterTable : public ElemDDLPrivAct {
+ public:
   // constructor
-  ElemDDLPrivActAlterTable()
-  : ElemDDLPrivAct(ELM_PRIV_ACT_ALTER_TABLE_ELEM,ElemDDLPrivAct::DDLPriv)
-  { }
+  ElemDDLPrivActAlterTable() : ElemDDLPrivAct(ELM_PRIV_ACT_ALTER_TABLE_ELEM, ElemDDLPrivAct::DDLPriv) {}
 
   // virtual destructor
   virtual ~ElemDDLPrivActAlterTable();
 
   // cast
-  virtual ElemDDLPrivActAlterTable * castToElemDDLPrivActAlterTable();
+  virtual ElemDDLPrivActAlterTable *castToElemDDLPrivActAlterTable();
 
   // methods for tracing
   virtual const NAString displayLabel1() const;
   virtual const NAString getText() const;
 
-private:
-
-}; // class ElemDDLPrivActAlterTable
+ private:
+};  // class ElemDDLPrivActAlterTable
 
 // -----------------------------------------------------------------------
 // definition of class ElemDDLPrivActAlterTrigger
 // -----------------------------------------------------------------------
-class ElemDDLPrivActAlterTrigger : public ElemDDLPrivAct
-{
-
-public:
-
+class ElemDDLPrivActAlterTrigger : public ElemDDLPrivAct {
+ public:
   // constructor
-  ElemDDLPrivActAlterTrigger()
-  : ElemDDLPrivAct(ELM_PRIV_ACT_ALTER_TRIGGER_ELEM,ElemDDLPrivAct::DDLPriv)
-  { }
+  ElemDDLPrivActAlterTrigger() : ElemDDLPrivAct(ELM_PRIV_ACT_ALTER_TRIGGER_ELEM, ElemDDLPrivAct::DDLPriv) {}
 
   // virtual destructor
   virtual ~ElemDDLPrivActAlterTrigger();
 
   // cast
-  virtual ElemDDLPrivActAlterTrigger * castToElemDDLPrivActAlterTrigger();
+  virtual ElemDDLPrivActAlterTrigger *castToElemDDLPrivActAlterTrigger();
 
   // methods for tracing
   virtual const NAString displayLabel1() const;
   virtual const NAString getText() const;
 
-private:
-
-}; // class ElemDDLPrivActAlterTrigger
+ private:
+};  // class ElemDDLPrivActAlterTrigger
 
 // -----------------------------------------------------------------------
 // definition of class ElemDDLPrivActAlterView
 // -----------------------------------------------------------------------
-class ElemDDLPrivActAlterView : public ElemDDLPrivAct
-{
-
-public:
-
+class ElemDDLPrivActAlterView : public ElemDDLPrivAct {
+ public:
   // constructor
-  ElemDDLPrivActAlterView()
-  : ElemDDLPrivAct(ELM_PRIV_ACT_ALTER_VIEW_ELEM,ElemDDLPrivAct::DDLPriv)
-  { }
+  ElemDDLPrivActAlterView() : ElemDDLPrivAct(ELM_PRIV_ACT_ALTER_VIEW_ELEM, ElemDDLPrivAct::DDLPriv) {}
 
   // virtual destructor
   virtual ~ElemDDLPrivActAlterView();
 
   // cast
-  virtual ElemDDLPrivActAlterView * castToElemDDLPrivActAlterView();
+  virtual ElemDDLPrivActAlterView *castToElemDDLPrivActAlterView();
 
   // methods for tracing
   virtual const NAString displayLabel1() const;
   virtual const NAString getText() const;
 
-private:
-
-}; // class ElemDDLPrivActAlterView
+ private:
+};  // class ElemDDLPrivActAlterView
 
 // -----------------------------------------------------------------------
 // definition of class ElemDDLPrivActAllOther
 // -----------------------------------------------------------------------
-class ElemDDLPrivActAllOther : public ElemDDLPrivAct
-{
-
-public:
-
+class ElemDDLPrivActAllOther : public ElemDDLPrivAct {
+ public:
   // constructor
-  ElemDDLPrivActAllOther()
-  : ElemDDLPrivAct(ELM_PRIV_ACT_ALL_OTHER_ELEM,ElemDDLPrivAct::OtherPriv)
-  { }
+  ElemDDLPrivActAllOther() : ElemDDLPrivAct(ELM_PRIV_ACT_ALL_OTHER_ELEM, ElemDDLPrivAct::OtherPriv) {}
 
   // virtual destructor
   virtual ~ElemDDLPrivActAllOther();
 
   // cast
-  virtual ElemDDLPrivActAllOther * castToElemDDLPrivActAllOther();
+  virtual ElemDDLPrivActAllOther *castToElemDDLPrivActAllOther();
 
   // methods for tracing
   virtual const NAString displayLabel1() const;
   virtual const NAString getText() const;
 
-private:
-
-}; // class ElemDDLPrivActAllOther
+ private:
+};  // class ElemDDLPrivActAllOther
 
 // -----------------------------------------------------------------------
 // definition of class ElemDDLPrivActCreate
 // -----------------------------------------------------------------------
-class ElemDDLPrivActCreate : public ElemDDLPrivAct
-{
-
-public:
-
+class ElemDDLPrivActCreate : public ElemDDLPrivAct {
+ public:
   // constructor
-  ElemDDLPrivActCreate()
-  : ElemDDLPrivAct(ELM_PRIV_ACT_CREATE_ELEM,ElemDDLPrivAct::DDLPriv)
-  { }
+  ElemDDLPrivActCreate() : ElemDDLPrivAct(ELM_PRIV_ACT_CREATE_ELEM, ElemDDLPrivAct::DDLPriv) {}
 
   // virtual destructor
   virtual ~ElemDDLPrivActCreate();
 
   // cast
-  virtual ElemDDLPrivActCreate * castToElemDDLPrivActCreate();
+  virtual ElemDDLPrivActCreate *castToElemDDLPrivActCreate();
 
   // methods for tracing
   virtual const NAString displayLabel1() const;
   virtual const NAString getText() const;
 
-private:
-
-}; // class ElemDDLPrivActCreate
+ private:
+};  // class ElemDDLPrivActCreate
 
 // -----------------------------------------------------------------------
 // definition of class ElemDDLPrivActCreateLibrary
 // -----------------------------------------------------------------------
-class ElemDDLPrivActCreateLibrary : public ElemDDLPrivAct
-{
-
-public:
-
+class ElemDDLPrivActCreateLibrary : public ElemDDLPrivAct {
+ public:
   // constructor
-  ElemDDLPrivActCreateLibrary()
-  : ElemDDLPrivAct(ELM_PRIV_ACT_CREATE_LIBRARY_ELEM,ElemDDLPrivAct::DDLPriv)
-  { }
+  ElemDDLPrivActCreateLibrary() : ElemDDLPrivAct(ELM_PRIV_ACT_CREATE_LIBRARY_ELEM, ElemDDLPrivAct::DDLPriv) {}
 
   // virtual destructor
   virtual ~ElemDDLPrivActCreateLibrary();
 
   // cast
-  virtual ElemDDLPrivActCreateLibrary * castToElemDDLPrivActCreateLibrary();
+  virtual ElemDDLPrivActCreateLibrary *castToElemDDLPrivActCreateLibrary();
 
   // methods for tracing
   virtual const NAString displayLabel1() const;
   virtual const NAString getText() const;
 
-private:
-
-}; // class ElemDDLPrivActCreateLibrary
+ private:
+};  // class ElemDDLPrivActCreateLibrary
 
 // -----------------------------------------------------------------------
 // definition of class ElemDDLPrivActCreateMV
 // -----------------------------------------------------------------------
-class ElemDDLPrivActCreateMV : public ElemDDLPrivAct
-{
-
-public:
-
+class ElemDDLPrivActCreateMV : public ElemDDLPrivAct {
+ public:
   // constructor
-  ElemDDLPrivActCreateMV()
-  : ElemDDLPrivAct(ELM_PRIV_ACT_CREATE_MV_ELEM,ElemDDLPrivAct::DDLPriv)
-  { }
+  ElemDDLPrivActCreateMV() : ElemDDLPrivAct(ELM_PRIV_ACT_CREATE_MV_ELEM, ElemDDLPrivAct::DDLPriv) {}
 
   // virtual destructor
   virtual ~ElemDDLPrivActCreateMV();
 
   // cast
-  virtual ElemDDLPrivActCreateMV * castToElemDDLPrivActCreateMV();
+  virtual ElemDDLPrivActCreateMV *castToElemDDLPrivActCreateMV();
 
   // methods for tracing
   virtual const NAString displayLabel1() const;
   virtual const NAString getText() const;
 
-private:
-
-}; // class ElemDDLPrivActCreateMV
+ private:
+};  // class ElemDDLPrivActCreateMV
 
 // -----------------------------------------------------------------------
 // definition of class ElemDDLPrivActCreateMVGroup
 // -----------------------------------------------------------------------
-class ElemDDLPrivActCreateMVGroup : public ElemDDLPrivAct
-{
-
-public:
-
+class ElemDDLPrivActCreateMVGroup : public ElemDDLPrivAct {
+ public:
   // constructor
-  ElemDDLPrivActCreateMVGroup()
-  : ElemDDLPrivAct(ELM_PRIV_ACT_CREATE_MVGROUP_ELEM,ElemDDLPrivAct::DDLPriv)
-  { }
+  ElemDDLPrivActCreateMVGroup() : ElemDDLPrivAct(ELM_PRIV_ACT_CREATE_MVGROUP_ELEM, ElemDDLPrivAct::DDLPriv) {}
 
   // virtual destructor
   virtual ~ElemDDLPrivActCreateMVGroup();
 
   // cast
-  virtual ElemDDLPrivActCreateMVGroup * castToElemDDLPrivActCreateMVGroup();
+  virtual ElemDDLPrivActCreateMVGroup *castToElemDDLPrivActCreateMVGroup();
 
   // methods for tracing
   virtual const NAString displayLabel1() const;
   virtual const NAString getText() const;
 
-private:
-
-}; // class ElemDDLPrivActCreateMVGroup
+ private:
+};  // class ElemDDLPrivActCreateMVGroup
 
 // -----------------------------------------------------------------------
 // definition of class ElemDDLPrivActCreateProcedure
 // -----------------------------------------------------------------------
-class ElemDDLPrivActCreateProcedure : public ElemDDLPrivAct
-{
-
-public:
-
+class ElemDDLPrivActCreateProcedure : public ElemDDLPrivAct {
+ public:
   // constructor
-  ElemDDLPrivActCreateProcedure()
-  : ElemDDLPrivAct(ELM_PRIV_ACT_CREATE_PROCEDURE_ELEM,ElemDDLPrivAct::DDLPriv)
-  { }
+  ElemDDLPrivActCreateProcedure() : ElemDDLPrivAct(ELM_PRIV_ACT_CREATE_PROCEDURE_ELEM, ElemDDLPrivAct::DDLPriv) {}
 
   // virtual destructor
   virtual ~ElemDDLPrivActCreateProcedure();
 
   // cast
-  virtual ElemDDLPrivActCreateProcedure * castToElemDDLPrivActCreateProcedure();
+  virtual ElemDDLPrivActCreateProcedure *castToElemDDLPrivActCreateProcedure();
 
   // methods for tracing
   virtual const NAString displayLabel1() const;
   virtual const NAString getText() const;
 
-private:
-
-}; // class ElemDDLPrivActCreateProcedure
+ private:
+};  // class ElemDDLPrivActCreateProcedure
 
 // -----------------------------------------------------------------------
 // definition of class ElemDDLPrivActCreateRoutine
 // -----------------------------------------------------------------------
-class ElemDDLPrivActCreateRoutine : public ElemDDLPrivAct
-{
-
-public:
-
+class ElemDDLPrivActCreateRoutine : public ElemDDLPrivAct {
+ public:
   // constructor
-  ElemDDLPrivActCreateRoutine()
-  : ElemDDLPrivAct(ELM_PRIV_ACT_CREATE_ROUTINE_ELEM,ElemDDLPrivAct::DDLPriv)
-  { }
+  ElemDDLPrivActCreateRoutine() : ElemDDLPrivAct(ELM_PRIV_ACT_CREATE_ROUTINE_ELEM, ElemDDLPrivAct::DDLPriv) {}
 
   // virtual destructor
   virtual ~ElemDDLPrivActCreateRoutine();
 
   // cast
-  virtual ElemDDLPrivActCreateRoutine * castToElemDDLPrivActCreateRoutine();
+  virtual ElemDDLPrivActCreateRoutine *castToElemDDLPrivActCreateRoutine();
 
   // methods for tracing
   virtual const NAString displayLabel1() const;
   virtual const NAString getText() const;
 
-private:
-
-}; // class ElemDDLPrivActCreateRoutine
+ private:
+};  // class ElemDDLPrivActCreateRoutine
 
 // -----------------------------------------------------------------------
 // definition of class ElemDDLPrivActCreateRoutineAction
 // -----------------------------------------------------------------------
-class ElemDDLPrivActCreateRoutineAction : public ElemDDLPrivAct
-{
-
-public:
-
+class ElemDDLPrivActCreateRoutineAction : public ElemDDLPrivAct {
+ public:
   // constructor
   ElemDDLPrivActCreateRoutineAction()
-  : ElemDDLPrivAct(ELM_PRIV_ACT_CREATE_ROUTINE_ACTION_ELEM,ElemDDLPrivAct::DDLPriv)
-  { }
+      : ElemDDLPrivAct(ELM_PRIV_ACT_CREATE_ROUTINE_ACTION_ELEM, ElemDDLPrivAct::DDLPriv) {}
 
   // virtual destructor
   virtual ~ElemDDLPrivActCreateRoutineAction();
 
   // cast
-  virtual ElemDDLPrivActCreateRoutineAction * castToElemDDLPrivActCreateRoutineAction();
+  virtual ElemDDLPrivActCreateRoutineAction *castToElemDDLPrivActCreateRoutineAction();
 
   // methods for tracing
   virtual const NAString displayLabel1() const;
   virtual const NAString getText() const;
 
-private:
-
-}; // class ElemDDLPrivActCreateRoutineAction
+ private:
+};  // class ElemDDLPrivActCreateRoutineAction
 
 // -----------------------------------------------------------------------
 // definition of class ElemDDLPrivActCreateSynonym
 // -----------------------------------------------------------------------
-class ElemDDLPrivActCreateSynonym : public ElemDDLPrivAct
-{
-
-public:
-
+class ElemDDLPrivActCreateSynonym : public ElemDDLPrivAct {
+ public:
   // constructor
-  ElemDDLPrivActCreateSynonym()
-  : ElemDDLPrivAct(ELM_PRIV_ACT_CREATE_SYNONYM_ELEM,ElemDDLPrivAct::DDLPriv)
-  { }
+  ElemDDLPrivActCreateSynonym() : ElemDDLPrivAct(ELM_PRIV_ACT_CREATE_SYNONYM_ELEM, ElemDDLPrivAct::DDLPriv) {}
 
   // virtual destructor
   virtual ~ElemDDLPrivActCreateSynonym();
 
   // cast
-  virtual ElemDDLPrivActCreateSynonym * castToElemDDLPrivActCreateSynonym();
+  virtual ElemDDLPrivActCreateSynonym *castToElemDDLPrivActCreateSynonym();
 
   // methods for tracing
   virtual const NAString displayLabel1() const;
   virtual const NAString getText() const;
 
-private:
-
-}; // class ElemDDLPrivActCreateSynonym
+ private:
+};  // class ElemDDLPrivActCreateSynonym
 
 // -----------------------------------------------------------------------
 // definition of class ElemDDLPrivActCreateTable
 // -----------------------------------------------------------------------
-class ElemDDLPrivActCreateTable : public ElemDDLPrivAct
-{
-
-public:
-
+class ElemDDLPrivActCreateTable : public ElemDDLPrivAct {
+ public:
   // constructor
-  ElemDDLPrivActCreateTable()
-  : ElemDDLPrivAct(ELM_PRIV_ACT_CREATE_TABLE_ELEM,ElemDDLPrivAct::DDLPriv)
-  { }
+  ElemDDLPrivActCreateTable() : ElemDDLPrivAct(ELM_PRIV_ACT_CREATE_TABLE_ELEM, ElemDDLPrivAct::DDLPriv) {}
 
   // virtual destructor
   virtual ~ElemDDLPrivActCreateTable();
 
   // cast
-  virtual ElemDDLPrivActCreateTable * castToElemDDLPrivActCreateTable();
+  virtual ElemDDLPrivActCreateTable *castToElemDDLPrivActCreateTable();
 
   // methods for tracing
   virtual const NAString displayLabel1() const;
   virtual const NAString getText() const;
 
-private:
-
-}; // class ElemDDLPrivActCreateTable
+ private:
+};  // class ElemDDLPrivActCreateTable
 
 // -----------------------------------------------------------------------
 // definition of class ElemDDLPrivActCreateTrigger
 // -----------------------------------------------------------------------
-class ElemDDLPrivActCreateTrigger : public ElemDDLPrivAct
-{
-
-public:
-
+class ElemDDLPrivActCreateTrigger : public ElemDDLPrivAct {
+ public:
   // constructor
-  ElemDDLPrivActCreateTrigger()
-  : ElemDDLPrivAct(ELM_PRIV_ACT_CREATE_TRIGGER_ELEM,ElemDDLPrivAct::DDLPriv)
-  { }
+  ElemDDLPrivActCreateTrigger() : ElemDDLPrivAct(ELM_PRIV_ACT_CREATE_TRIGGER_ELEM, ElemDDLPrivAct::DDLPriv) {}
 
   // virtual destructor
   virtual ~ElemDDLPrivActCreateTrigger();
 
   // cast
-  virtual ElemDDLPrivActCreateTrigger * castToElemDDLPrivActCreateTrigger();
+  virtual ElemDDLPrivActCreateTrigger *castToElemDDLPrivActCreateTrigger();
 
   // methods for tracing
   virtual const NAString displayLabel1() const;
   virtual const NAString getText() const;
 
-private:
-
-}; // class ElemDDLPrivActCreateTrigger
+ private:
+};  // class ElemDDLPrivActCreateTrigger
 
 // -----------------------------------------------------------------------
 // definition of class ElemDDLPrivActCreateView
 // -----------------------------------------------------------------------
-class ElemDDLPrivActCreateView : public ElemDDLPrivAct
-{
-
-public:
-
+class ElemDDLPrivActCreateView : public ElemDDLPrivAct {
+ public:
   // constructor
-  ElemDDLPrivActCreateView()
-  : ElemDDLPrivAct(ELM_PRIV_ACT_CREATE_VIEW_ELEM,ElemDDLPrivAct::DDLPriv)
-  { }
+  ElemDDLPrivActCreateView() : ElemDDLPrivAct(ELM_PRIV_ACT_CREATE_VIEW_ELEM, ElemDDLPrivAct::DDLPriv) {}
 
   // virtual destructor
   virtual ~ElemDDLPrivActCreateView();
 
   // cast
-  virtual ElemDDLPrivActCreateView * castToElemDDLPrivActCreateView();
+  virtual ElemDDLPrivActCreateView *castToElemDDLPrivActCreateView();
 
   // methods for tracing
   virtual const NAString displayLabel1() const;
   virtual const NAString getText() const;
 
-private:
-
-}; // class ElemDDLPrivActCreateView
+ private:
+};  // class ElemDDLPrivActCreateView
 
 // -----------------------------------------------------------------------
 // definition of class ElemDDLPrivActDBA
 // -----------------------------------------------------------------------
-class ElemDDLPrivActDBA : public ElemDDLPrivAct
-{
-
-public:
-
+class ElemDDLPrivActDBA : public ElemDDLPrivAct {
+ public:
   // constructor
-  ElemDDLPrivActDBA()
-  : ElemDDLPrivAct(ELM_PRIV_ACT_DBA_ELEM,ElemDDLPrivAct::DDLPriv)
-  { }
+  ElemDDLPrivActDBA() : ElemDDLPrivAct(ELM_PRIV_ACT_DBA_ELEM, ElemDDLPrivAct::DDLPriv) {}
 
   // virtual destructor
   virtual ~ElemDDLPrivActDBA();
 
   // cast
-  virtual ElemDDLPrivActDBA * castToElemDDLPrivActDBA();
+  virtual ElemDDLPrivActDBA *castToElemDDLPrivActDBA();
 
   // methods for tracing
   virtual const NAString displayLabel1() const;
   virtual const NAString getText() const;
 
-private:
-
-}; // class ElemDDLPrivActDBA
+ private:
+};  // class ElemDDLPrivActDBA
 
 // -----------------------------------------------------------------------
 // definition of class ElemDDLPrivActDelete
 // -----------------------------------------------------------------------
-class ElemDDLPrivActDelete : public ElemDDLPrivAct
-{
-
-public:
-
+class ElemDDLPrivActDelete : public ElemDDLPrivAct {
+ public:
   // constructor
-  ElemDDLPrivActDelete()
-  : ElemDDLPrivAct(ELM_PRIV_ACT_DELETE_ELEM)
-  { }
+  ElemDDLPrivActDelete() : ElemDDLPrivAct(ELM_PRIV_ACT_DELETE_ELEM) {}
 
   // virtual destructor
   virtual ~ElemDDLPrivActDelete();
 
   // cast
-  virtual ElemDDLPrivActDelete * castToElemDDLPrivActDelete();
+  virtual ElemDDLPrivActDelete *castToElemDDLPrivActDelete();
 
   // methods for tracing
   virtual const NAString displayLabel1() const;
   virtual const NAString getText() const;
 
-private:
-
-}; // class ElemDDLPrivActDelete
+ private:
+};  // class ElemDDLPrivActDelete
 
 // -----------------------------------------------------------------------
 // definition of class ElemDDLPrivActDrop
 // -----------------------------------------------------------------------
-class ElemDDLPrivActDrop : public ElemDDLPrivAct
-{
-
-public:
-
+class ElemDDLPrivActDrop : public ElemDDLPrivAct {
+ public:
   // constructor
-  ElemDDLPrivActDrop()
-  : ElemDDLPrivAct(ELM_PRIV_ACT_DROP_ELEM,ElemDDLPrivAct::DDLPriv)
-  { }
+  ElemDDLPrivActDrop() : ElemDDLPrivAct(ELM_PRIV_ACT_DROP_ELEM, ElemDDLPrivAct::DDLPriv) {}
 
   // virtual destructor
   virtual ~ElemDDLPrivActDrop();
 
   // cast
-  virtual ElemDDLPrivActDrop * castToElemDDLPrivActDrop();
+  virtual ElemDDLPrivActDrop *castToElemDDLPrivActDrop();
 
   // methods for tracing
   virtual const NAString displayLabel1() const;
   virtual const NAString getText() const;
 
-private:
-
-}; // class ElemDDLPrivActDrop
+ private:
+};  // class ElemDDLPrivActDrop
 
 // -----------------------------------------------------------------------
 // definition of class ElemDDLPrivActDropLibrary
 // -----------------------------------------------------------------------
-class ElemDDLPrivActDropLibrary : public ElemDDLPrivAct
-{
-
-public:
-
+class ElemDDLPrivActDropLibrary : public ElemDDLPrivAct {
+ public:
   // constructor
-  ElemDDLPrivActDropLibrary()
-  : ElemDDLPrivAct(ELM_PRIV_ACT_DROP_LIBRARY_ELEM,ElemDDLPrivAct::DDLPriv)
-  { }
+  ElemDDLPrivActDropLibrary() : ElemDDLPrivAct(ELM_PRIV_ACT_DROP_LIBRARY_ELEM, ElemDDLPrivAct::DDLPriv) {}
 
   // virtual destructor
   virtual ~ElemDDLPrivActDropLibrary();
 
   // cast
-  virtual ElemDDLPrivActDropLibrary * castToElemDDLPrivActDropLibrary();
+  virtual ElemDDLPrivActDropLibrary *castToElemDDLPrivActDropLibrary();
 
   // methods for tracing
   virtual const NAString displayLabel1() const;
   virtual const NAString getText() const;
 
-private:
-
-}; // class ElemDDLPrivActDropLibrary
+ private:
+};  // class ElemDDLPrivActDropLibrary
 
 // -----------------------------------------------------------------------
 // definition of class ElemDDLPrivActDropMV
 // -----------------------------------------------------------------------
-class ElemDDLPrivActDropMV : public ElemDDLPrivAct
-{
-
-public:
-
+class ElemDDLPrivActDropMV : public ElemDDLPrivAct {
+ public:
   // constructor
-  ElemDDLPrivActDropMV()
-  : ElemDDLPrivAct(ELM_PRIV_ACT_DROP_MV_ELEM,ElemDDLPrivAct::DDLPriv)
-  { }
+  ElemDDLPrivActDropMV() : ElemDDLPrivAct(ELM_PRIV_ACT_DROP_MV_ELEM, ElemDDLPrivAct::DDLPriv) {}
 
   // virtual destructor
   virtual ~ElemDDLPrivActDropMV();
 
   // cast
-  virtual ElemDDLPrivActDropMV * castToElemDDLPrivActDropMV();
+  virtual ElemDDLPrivActDropMV *castToElemDDLPrivActDropMV();
 
   // methods for tracing
   virtual const NAString displayLabel1() const;
   virtual const NAString getText() const;
 
-private:
-
-}; // class ElemDDLPrivActDropMV
+ private:
+};  // class ElemDDLPrivActDropMV
 
 // -----------------------------------------------------------------------
 // definition of class ElemDDLPrivActDropMVGroup
 // -----------------------------------------------------------------------
-class ElemDDLPrivActDropMVGroup : public ElemDDLPrivAct
-{
-
-public:
-
+class ElemDDLPrivActDropMVGroup : public ElemDDLPrivAct {
+ public:
   // constructor
-  ElemDDLPrivActDropMVGroup()
-  : ElemDDLPrivAct(ELM_PRIV_ACT_DROP_MVGROUP_ELEM,ElemDDLPrivAct::DDLPriv)
-  { }
+  ElemDDLPrivActDropMVGroup() : ElemDDLPrivAct(ELM_PRIV_ACT_DROP_MVGROUP_ELEM, ElemDDLPrivAct::DDLPriv) {}
 
   // virtual destructor
   virtual ~ElemDDLPrivActDropMVGroup();
 
   // cast
-  virtual ElemDDLPrivActDropMVGroup * castToElemDDLPrivActDropMVGroup();
+  virtual ElemDDLPrivActDropMVGroup *castToElemDDLPrivActDropMVGroup();
 
   // methods for tracing
   virtual const NAString displayLabel1() const;
   virtual const NAString getText() const;
 
-private:
-
-}; // class ElemDDLPrivActDropMVGroup
+ private:
+};  // class ElemDDLPrivActDropMVGroup
 
 // -----------------------------------------------------------------------
 // definition of class ElemDDLPrivActDropProcedure
 // -----------------------------------------------------------------------
-class ElemDDLPrivActDropProcedure : public ElemDDLPrivAct
-{
-
-public:
-
+class ElemDDLPrivActDropProcedure : public ElemDDLPrivAct {
+ public:
   // constructor
-  ElemDDLPrivActDropProcedure()
-  : ElemDDLPrivAct(ELM_PRIV_ACT_DROP_PROCEDURE_ELEM,ElemDDLPrivAct::DDLPriv)
-  { }
+  ElemDDLPrivActDropProcedure() : ElemDDLPrivAct(ELM_PRIV_ACT_DROP_PROCEDURE_ELEM, ElemDDLPrivAct::DDLPriv) {}
 
   // virtual destructor
   virtual ~ElemDDLPrivActDropProcedure();
 
   // cast
-  virtual ElemDDLPrivActDropProcedure * castToElemDDLPrivActDropProcedure();
+  virtual ElemDDLPrivActDropProcedure *castToElemDDLPrivActDropProcedure();
 
   // methods for tracing
   virtual const NAString displayLabel1() const;
   virtual const NAString getText() const;
 
-private:
-
-}; // class ElemDDLPrivActDropProcedure
+ private:
+};  // class ElemDDLPrivActDropProcedure
 
 // -----------------------------------------------------------------------
 // definition of class ElemDDLPrivActDropRoutine
 // -----------------------------------------------------------------------
-class ElemDDLPrivActDropRoutine : public ElemDDLPrivAct
-{
-
-public:
-
+class ElemDDLPrivActDropRoutine : public ElemDDLPrivAct {
+ public:
   // constructor
-  ElemDDLPrivActDropRoutine()
-  : ElemDDLPrivAct(ELM_PRIV_ACT_DROP_ROUTINE_ELEM,ElemDDLPrivAct::DDLPriv)
-  { }
+  ElemDDLPrivActDropRoutine() : ElemDDLPrivAct(ELM_PRIV_ACT_DROP_ROUTINE_ELEM, ElemDDLPrivAct::DDLPriv) {}
 
   // virtual destructor
   virtual ~ElemDDLPrivActDropRoutine();
 
   // cast
-  virtual ElemDDLPrivActDropRoutine * castToElemDDLPrivActDropRoutine();
+  virtual ElemDDLPrivActDropRoutine *castToElemDDLPrivActDropRoutine();
 
   // methods for tracing
   virtual const NAString displayLabel1() const;
   virtual const NAString getText() const;
 
-private:
-
-}; // class ElemDDLPrivActDropRoutine
+ private:
+};  // class ElemDDLPrivActDropRoutine
 
 // -----------------------------------------------------------------------
 // definition of class ElemDDLPrivActDropRoutineAction
 // -----------------------------------------------------------------------
-class ElemDDLPrivActDropRoutineAction : public ElemDDLPrivAct
-{
-
-public:
-
+class ElemDDLPrivActDropRoutineAction : public ElemDDLPrivAct {
+ public:
   // constructor
-  ElemDDLPrivActDropRoutineAction()
-  : ElemDDLPrivAct(ELM_PRIV_ACT_DROP_ROUTINE_ACTION_ELEM,ElemDDLPrivAct::DDLPriv)
-  { }
+  ElemDDLPrivActDropRoutineAction() : ElemDDLPrivAct(ELM_PRIV_ACT_DROP_ROUTINE_ACTION_ELEM, ElemDDLPrivAct::DDLPriv) {}
 
   // virtual destructor
   virtual ~ElemDDLPrivActDropRoutineAction();
 
   // cast
-  virtual ElemDDLPrivActDropRoutineAction * castToElemDDLPrivActDropRoutineAction();
+  virtual ElemDDLPrivActDropRoutineAction *castToElemDDLPrivActDropRoutineAction();
 
   // methods for tracing
   virtual const NAString displayLabel1() const;
   virtual const NAString getText() const;
 
-private:
-
-}; // class ElemDDLPrivActDropRoutineAction
+ private:
+};  // class ElemDDLPrivActDropRoutineAction
 
 // -----------------------------------------------------------------------
 // definition of class ElemDDLPrivActDropSynonym
 // -----------------------------------------------------------------------
-class ElemDDLPrivActDropSynonym : public ElemDDLPrivAct
-{
-
-public:
-
+class ElemDDLPrivActDropSynonym : public ElemDDLPrivAct {
+ public:
   // constructor
-  ElemDDLPrivActDropSynonym()
-  : ElemDDLPrivAct(ELM_PRIV_ACT_DROP_SYNONYM_ELEM,ElemDDLPrivAct::DDLPriv)
-  { }
+  ElemDDLPrivActDropSynonym() : ElemDDLPrivAct(ELM_PRIV_ACT_DROP_SYNONYM_ELEM, ElemDDLPrivAct::DDLPriv) {}
 
   // virtual destructor
   virtual ~ElemDDLPrivActDropSynonym();
 
   // cast
-  virtual ElemDDLPrivActDropSynonym * castToElemDDLPrivActDropSynonym();
+  virtual ElemDDLPrivActDropSynonym *castToElemDDLPrivActDropSynonym();
 
   // methods for tracing
   virtual const NAString displayLabel1() const;
   virtual const NAString getText() const;
 
-private:
-
-}; // class ElemDDLPrivActDropSynonym
+ private:
+};  // class ElemDDLPrivActDropSynonym
 
 // -----------------------------------------------------------------------
 // definition of class ElemDDLPrivActDropTable
 // -----------------------------------------------------------------------
-class ElemDDLPrivActDropTable : public ElemDDLPrivAct
-{
-
-public:
-
+class ElemDDLPrivActDropTable : public ElemDDLPrivAct {
+ public:
   // constructor
-  ElemDDLPrivActDropTable()
-  : ElemDDLPrivAct(ELM_PRIV_ACT_DROP_TABLE_ELEM,ElemDDLPrivAct::DDLPriv)
-  { }
+  ElemDDLPrivActDropTable() : ElemDDLPrivAct(ELM_PRIV_ACT_DROP_TABLE_ELEM, ElemDDLPrivAct::DDLPriv) {}
 
   // virtual destructor
   virtual ~ElemDDLPrivActDropTable();
 
   // cast
-  virtual ElemDDLPrivActDropTable * castToElemDDLPrivActDropTable();
+  virtual ElemDDLPrivActDropTable *castToElemDDLPrivActDropTable();
 
   // methods for tracing
   virtual const NAString displayLabel1() const;
   virtual const NAString getText() const;
 
-private:
-
-}; // class ElemDDLPrivActDropTable
+ private:
+};  // class ElemDDLPrivActDropTable
 
 // -----------------------------------------------------------------------
 // definition of class ElemDDLPrivActDropTrigger
 // -----------------------------------------------------------------------
-class ElemDDLPrivActDropTrigger : public ElemDDLPrivAct
-{
-
-public:
-
+class ElemDDLPrivActDropTrigger : public ElemDDLPrivAct {
+ public:
   // constructor
-  ElemDDLPrivActDropTrigger()
-  : ElemDDLPrivAct(ELM_PRIV_ACT_DROP_TRIGGER_ELEM,ElemDDLPrivAct::DDLPriv)
-  { }
+  ElemDDLPrivActDropTrigger() : ElemDDLPrivAct(ELM_PRIV_ACT_DROP_TRIGGER_ELEM, ElemDDLPrivAct::DDLPriv) {}
 
   // virtual destructor
   virtual ~ElemDDLPrivActDropTrigger();
 
   // cast
-  virtual ElemDDLPrivActDropTrigger * castToElemDDLPrivActDropTrigger();
+  virtual ElemDDLPrivActDropTrigger *castToElemDDLPrivActDropTrigger();
 
   // methods for tracing
   virtual const NAString displayLabel1() const;
   virtual const NAString getText() const;
 
-private:
-
-}; // class ElemDDLPrivActDropTrigger
+ private:
+};  // class ElemDDLPrivActDropTrigger
 
 // -----------------------------------------------------------------------
 // definition of class ElemDDLPrivActDropView
 // -----------------------------------------------------------------------
-class ElemDDLPrivActDropView : public ElemDDLPrivAct
-{
-
-public:
-
+class ElemDDLPrivActDropView : public ElemDDLPrivAct {
+ public:
   // constructor
-  ElemDDLPrivActDropView()
-  : ElemDDLPrivAct(ELM_PRIV_ACT_DROP_VIEW_ELEM,ElemDDLPrivAct::DDLPriv)
-  { }
+  ElemDDLPrivActDropView() : ElemDDLPrivAct(ELM_PRIV_ACT_DROP_VIEW_ELEM, ElemDDLPrivAct::DDLPriv) {}
 
   // virtual destructor
   virtual ~ElemDDLPrivActDropView();
 
   // cast
-  virtual ElemDDLPrivActDropView * castToElemDDLPrivActDropView();
+  virtual ElemDDLPrivActDropView *castToElemDDLPrivActDropView();
 
   // methods for tracing
   virtual const NAString displayLabel1() const;
   virtual const NAString getText() const;
 
-private:
-
-}; // class ElemDDLPrivActDropView
+ private:
+};  // class ElemDDLPrivActDropView
 
 // -----------------------------------------------------------------------
 // definition of class ElemDDLPrivActExecute
 // -----------------------------------------------------------------------
-class ElemDDLPrivActExecute : public ElemDDLPrivAct
-{
-
-public:
-
+class ElemDDLPrivActExecute : public ElemDDLPrivAct {
+ public:
   // constructor
-  ElemDDLPrivActExecute()
-  : ElemDDLPrivAct(ELM_PRIV_ACT_EXECUTE_ELEM)
-  { }
+  ElemDDLPrivActExecute() : ElemDDLPrivAct(ELM_PRIV_ACT_EXECUTE_ELEM) {}
 
   // virtual destructor
   virtual ~ElemDDLPrivActExecute();
 
   // cast
-  virtual ElemDDLPrivActExecute * castToElemDDLPrivActExecute();
+  virtual ElemDDLPrivActExecute *castToElemDDLPrivActExecute();
 
   // methods for tracing
   virtual const NAString displayLabel1() const;
   virtual const NAString getText() const;
 
-private:
-
-}; // class ElemDDLPrivActExecute
+ private:
+};  // class ElemDDLPrivActExecute
 
 // -----------------------------------------------------------------------
 // definition of class ElemDDLPrivActInsert
 // -----------------------------------------------------------------------
-class ElemDDLPrivActInsert : public ElemDDLPrivActWithColumns
-{
-
-public:
-
+class ElemDDLPrivActInsert : public ElemDDLPrivActWithColumns {
+ public:
   // constructor
-  ElemDDLPrivActInsert(ElemDDLNode * pColumnNameList,
-                       CollHeap * heap = PARSERHEAP())
-  : ElemDDLPrivActWithColumns(ELM_PRIV_ACT_INSERT_ELEM,
-                            pColumnNameList,
-                            heap)
-  { }
+  ElemDDLPrivActInsert(ElemDDLNode *pColumnNameList, CollHeap *heap = PARSERHEAP())
+      : ElemDDLPrivActWithColumns(ELM_PRIV_ACT_INSERT_ELEM, pColumnNameList, heap) {}
 
   // virtual destructor
   virtual ~ElemDDLPrivActInsert();
 
   // cast
-  virtual ElemDDLPrivActInsert * castToElemDDLPrivActInsert();
+  virtual ElemDDLPrivActInsert *castToElemDDLPrivActInsert();
 
   // methods for tracing
   virtual const NAString displayLabel1() const;
   virtual const NAString getText() const;
 
-private:
-
-}; // class ElemDDLPrivActInsert
+ private:
+};  // class ElemDDLPrivActInsert
 
 // -----------------------------------------------------------------------
 // definition of class ElemDDLPrivActMaintain
 // -----------------------------------------------------------------------
-class ElemDDLPrivActMaintain : public ElemDDLPrivAct
-{
-
-public:
-
+class ElemDDLPrivActMaintain : public ElemDDLPrivAct {
+ public:
   // constructor
-  ElemDDLPrivActMaintain()
-  : ElemDDLPrivAct(ELM_PRIV_ACT_MAINTAIN_ELEM,ElemDDLPrivAct::DDLPriv)
-  { }
+  ElemDDLPrivActMaintain() : ElemDDLPrivAct(ELM_PRIV_ACT_MAINTAIN_ELEM, ElemDDLPrivAct::DDLPriv) {}
 
   // virtual destructor
   virtual ~ElemDDLPrivActMaintain();
 
   // cast
-  virtual ElemDDLPrivActMaintain * castToElemDDLPrivActMaintain();
+  virtual ElemDDLPrivActMaintain *castToElemDDLPrivActMaintain();
 
   // methods for tracing
   virtual const NAString displayLabel1() const;
   virtual const NAString getText() const;
 
-private:
-
-}; // class ElemDDLPrivActMaintain
+ private:
+};  // class ElemDDLPrivActMaintain
 
 // -----------------------------------------------------------------------
 // definition of class ElemDDLPrivActReferences
 // -----------------------------------------------------------------------
-class ElemDDLPrivActReferences : public ElemDDLPrivActWithColumns
-{
-
-public:
-
+class ElemDDLPrivActReferences : public ElemDDLPrivActWithColumns {
+ public:
   // constructor
-  ElemDDLPrivActReferences(ElemDDLNode * pColumnNameList,
-                                  CollHeap * heap = PARSERHEAP())
-  : ElemDDLPrivActWithColumns(ELM_PRIV_ACT_REFERENCES_ELEM,
-                            pColumnNameList,
-                            heap)
-  { }
+  ElemDDLPrivActReferences(ElemDDLNode *pColumnNameList, CollHeap *heap = PARSERHEAP())
+      : ElemDDLPrivActWithColumns(ELM_PRIV_ACT_REFERENCES_ELEM, pColumnNameList, heap) {}
 
   // virtual destructor
   virtual ~ElemDDLPrivActReferences();
 
   // cast
-  virtual ElemDDLPrivActReferences * castToElemDDLPrivActReferences();
+  virtual ElemDDLPrivActReferences *castToElemDDLPrivActReferences();
 
   // methods for tracing
   virtual const NAString displayLabel1() const;
   virtual const NAString getText() const;
 
-private:
-
-}; // class ElemDDLPrivActReferences
+ private:
+};  // class ElemDDLPrivActReferences
 
 // -----------------------------------------------------------------------
 // definition of class ElemDDLPrivActRefresh
 // -----------------------------------------------------------------------
-class ElemDDLPrivActRefresh : public ElemDDLPrivAct
-{
-
-public:
-
+class ElemDDLPrivActRefresh : public ElemDDLPrivAct {
+ public:
   // constructor
-  ElemDDLPrivActRefresh()
-  : ElemDDLPrivAct(ELM_PRIV_ACT_REFRESH_ELEM,ElemDDLPrivAct::DDLPriv)
-  { }
+  ElemDDLPrivActRefresh() : ElemDDLPrivAct(ELM_PRIV_ACT_REFRESH_ELEM, ElemDDLPrivAct::DDLPriv) {}
 
   // virtual destructor
   virtual ~ElemDDLPrivActRefresh();
 
   // cast
-  virtual ElemDDLPrivActRefresh * castToElemDDLPrivActRefresh();
+  virtual ElemDDLPrivActRefresh *castToElemDDLPrivActRefresh();
 
   // methods for tracing
   virtual const NAString displayLabel1() const;
   virtual const NAString getText() const;
 
-private:
-
-}; // class ElemDDLPrivActRefresh
+ private:
+};  // class ElemDDLPrivActRefresh
 
 // -----------------------------------------------------------------------
 // definition of class ElemDDLPrivActReorg
 // -----------------------------------------------------------------------
-class ElemDDLPrivActReorg : public ElemDDLPrivAct
-{
-
-public:
-
+class ElemDDLPrivActReorg : public ElemDDLPrivAct {
+ public:
   // constructor
-  ElemDDLPrivActReorg()
-  : ElemDDLPrivAct(ELM_PRIV_ACT_REORG_ELEM,ElemDDLPrivAct::DDLPriv)
-  { }
+  ElemDDLPrivActReorg() : ElemDDLPrivAct(ELM_PRIV_ACT_REORG_ELEM, ElemDDLPrivAct::DDLPriv) {}
 
   // virtual destructor
   virtual ~ElemDDLPrivActReorg();
 
   // cast
-  virtual ElemDDLPrivActReorg * castToElemDDLPrivActReorg();
+  virtual ElemDDLPrivActReorg *castToElemDDLPrivActReorg();
 
   // methods for tracing
   virtual const NAString displayLabel1() const;
   virtual const NAString getText() const;
 
-private:
-
-}; // class ElemDDLPrivActReorg
+ private:
+};  // class ElemDDLPrivActReorg
 
 // -----------------------------------------------------------------------
 // definition of class ElemDDLPrivActReplicate
 // -----------------------------------------------------------------------
-class ElemDDLPrivActReplicate : public ElemDDLPrivAct
-{
-
-public:
-
+class ElemDDLPrivActReplicate : public ElemDDLPrivAct {
+ public:
   // constructor
-  ElemDDLPrivActReplicate()
-  : ElemDDLPrivAct(ELM_PRIV_ACT_REPLICATE_ELEM,ElemDDLPrivAct::OtherPriv)
-  { }
+  ElemDDLPrivActReplicate() : ElemDDLPrivAct(ELM_PRIV_ACT_REPLICATE_ELEM, ElemDDLPrivAct::OtherPriv) {}
 
   // virtual destructor
   virtual ~ElemDDLPrivActReplicate();
 
   // cast
-  virtual ElemDDLPrivActReplicate * castToElemDDLPrivActReplicate();
+  virtual ElemDDLPrivActReplicate *castToElemDDLPrivActReplicate();
 
   // methods for tracing
   virtual const NAString displayLabel1() const;
   virtual const NAString getText() const;
 
-private:
-
-}; // class ElemDDLPrivActReplicate
+ private:
+};  // class ElemDDLPrivActReplicate
 
 // -----------------------------------------------------------------------
 // definition of class ElemDDLPrivActAllDML
 // -----------------------------------------------------------------------
-class ElemDDLPrivActAllDML : public ElemDDLPrivAct
-{
-
-public:
-
+class ElemDDLPrivActAllDML : public ElemDDLPrivAct {
+ public:
   // constructor
-  ElemDDLPrivActAllDML()
-  : ElemDDLPrivAct(ELM_PRIV_ACT_ALL_DML_ELEM,ElemDDLPrivAct::DMLPriv)
-  { }
+  ElemDDLPrivActAllDML() : ElemDDLPrivAct(ELM_PRIV_ACT_ALL_DML_ELEM, ElemDDLPrivAct::DMLPriv) {}
 
   // virtual destructor
   virtual ~ElemDDLPrivActAllDML();
 
   // cast
-  virtual ElemDDLPrivActAllDML * castToElemDDLPrivActAllDML();
+  virtual ElemDDLPrivActAllDML *castToElemDDLPrivActAllDML();
 
   // methods for tracing
   virtual const NAString displayLabel1() const;
   virtual const NAString getText() const;
 
-private:
-
-}; // class ElemDDLPrivActAllDML
+ private:
+};  // class ElemDDLPrivActAllDML
 
 // -----------------------------------------------------------------------
 // definition of class ElemDDLPrivActSelect
 // -----------------------------------------------------------------------
-class ElemDDLPrivActSelect : public ElemDDLPrivActWithColumns
-{
-
-public:
-
+class ElemDDLPrivActSelect : public ElemDDLPrivActWithColumns {
+ public:
   // constructor
-  ElemDDLPrivActSelect(ElemDDLNode * pColumnNameList,
-                       CollHeap * heap = PARSERHEAP())
-  : ElemDDLPrivActWithColumns(ELM_PRIV_ACT_SELECT_ELEM,
-                            pColumnNameList,
-                            heap)
-  { }
+  ElemDDLPrivActSelect(ElemDDLNode *pColumnNameList, CollHeap *heap = PARSERHEAP())
+      : ElemDDLPrivActWithColumns(ELM_PRIV_ACT_SELECT_ELEM, pColumnNameList, heap) {}
 
   // virtual destructor
   virtual ~ElemDDLPrivActSelect();
 
   // cast
-  virtual ElemDDLPrivActSelect * castToElemDDLPrivActSelect();
+  virtual ElemDDLPrivActSelect *castToElemDDLPrivActSelect();
 
   // methods for tracing
   virtual const NAString displayLabel1() const;
   virtual const NAString getText() const;
 
-private:
-
-}; // class ElemDDLPrivActSelect
+ private:
+};  // class ElemDDLPrivActSelect
 
 // -----------------------------------------------------------------------
 // definition of class ElemDDLPrivActTransform
 // -----------------------------------------------------------------------
-class ElemDDLPrivActTransform : public ElemDDLPrivAct
-{
-
-public:
-
+class ElemDDLPrivActTransform : public ElemDDLPrivAct {
+ public:
   // constructor
-  ElemDDLPrivActTransform()
-  : ElemDDLPrivAct(ELM_PRIV_ACT_TRANSFORM_ELEM,ElemDDLPrivAct::DDLPriv)
-  { }
+  ElemDDLPrivActTransform() : ElemDDLPrivAct(ELM_PRIV_ACT_TRANSFORM_ELEM, ElemDDLPrivAct::DDLPriv) {}
 
   // virtual destructor
   virtual ~ElemDDLPrivActTransform();
 
   // cast
-  virtual ElemDDLPrivActTransform * castToElemDDLPrivActTransform();
+  virtual ElemDDLPrivActTransform *castToElemDDLPrivActTransform();
 
   // methods for tracing
   virtual const NAString displayLabel1() const;
   virtual const NAString getText() const;
 
-private:
-
-}; // class ElemDDLPrivActTransform
+ private:
+};  // class ElemDDLPrivActTransform
 
 // -----------------------------------------------------------------------
 // definition of class ElemDDLPrivActUpdate
 // -----------------------------------------------------------------------
-class ElemDDLPrivActUpdate : public ElemDDLPrivActWithColumns
-{
-
-public:
-
+class ElemDDLPrivActUpdate : public ElemDDLPrivActWithColumns {
+ public:
   // constructor
-  ElemDDLPrivActUpdate(ElemDDLNode * pColumnNameList,
-                              CollHeap * heap = PARSERHEAP())
-  : ElemDDLPrivActWithColumns(ELM_PRIV_ACT_UPDATE_ELEM,
-                            pColumnNameList,
-                            heap)
-  { }
+  ElemDDLPrivActUpdate(ElemDDLNode *pColumnNameList, CollHeap *heap = PARSERHEAP())
+      : ElemDDLPrivActWithColumns(ELM_PRIV_ACT_UPDATE_ELEM, pColumnNameList, heap) {}
 
   // virtual destructor
   virtual ~ElemDDLPrivActUpdate();
 
   // cast
-  virtual ElemDDLPrivActUpdate * castToElemDDLPrivActUpdate();
+  virtual ElemDDLPrivActUpdate *castToElemDDLPrivActUpdate();
 
   // methods for tracing
   virtual const NAString displayLabel1() const;
   virtual const NAString getText() const;
 
-private:
-
-}; // class ElemDDLPrivActUpdate
+ private:
+};  // class ElemDDLPrivActUpdate
 
 // -----------------------------------------------------------------------
 // definition of class ElemDDLPrivActUpdateStats
 // -----------------------------------------------------------------------
-class ElemDDLPrivActUpdateStats : public ElemDDLPrivAct
-{
-
-public:
-
+class ElemDDLPrivActUpdateStats : public ElemDDLPrivAct {
+ public:
   // constructor
-  ElemDDLPrivActUpdateStats()
-  : ElemDDLPrivAct(ELM_PRIV_ACT_UPDATE_STATS_ELEM,ElemDDLPrivAct::DDLPriv)
-  { }
+  ElemDDLPrivActUpdateStats() : ElemDDLPrivAct(ELM_PRIV_ACT_UPDATE_STATS_ELEM, ElemDDLPrivAct::DDLPriv) {}
 
   // virtual destructor
   virtual ~ElemDDLPrivActUpdateStats();
 
   // cast
-  virtual ElemDDLPrivActUpdateStats * castToElemDDLPrivActUpdateStats();
+  virtual ElemDDLPrivActUpdateStats *castToElemDDLPrivActUpdateStats();
 
   // methods for tracing
   virtual const NAString displayLabel1() const;
   virtual const NAString getText() const;
 
-private:
-
-}; // class ElemDDLPrivActUpdateStats
+ private:
+};  // class ElemDDLPrivActUpdateStats
 
 // -----------------------------------------------------------------------
 // definition of class ElemDDLPrivActAllDDL
 // -----------------------------------------------------------------------
-class ElemDDLPrivActAllDDL : public ElemDDLPrivAct
-{
-public:
-
+class ElemDDLPrivActAllDDL : public ElemDDLPrivAct {
+ public:
   // constructor
-  ElemDDLPrivActAllDDL()
-  : ElemDDLPrivAct(ELM_PRIV_ACT_ALL_DDL_ELEM,ElemDDLPrivAct::DDLPriv)
-  { }
+  ElemDDLPrivActAllDDL() : ElemDDLPrivAct(ELM_PRIV_ACT_ALL_DDL_ELEM, ElemDDLPrivAct::DDLPriv) {}
 
   // virtual destructor
   virtual ~ElemDDLPrivActAllDDL();
 
   // cast
-  virtual ElemDDLPrivActAllDDL * castToElemDDLPrivActAllDDL();
+  virtual ElemDDLPrivActAllDDL *castToElemDDLPrivActAllDDL();
 
   // methods for tracing
   virtual const NAString displayLabel1() const;
   virtual const NAString getText() const;
 
-private:
-
-}; // class ElemDDLPrivActAllDDL
-
+ private:
+};  // class ElemDDLPrivActAllDDL
 
 // -----------------------------------------------------------------------
 // definition of class ElemDDLPrivActUsage
 // -----------------------------------------------------------------------
-class ElemDDLPrivActUsage : public ElemDDLPrivAct
-{
-
-public:
-
+class ElemDDLPrivActUsage : public ElemDDLPrivAct {
+ public:
   // constructor
-  ElemDDLPrivActUsage()
-  : ElemDDLPrivAct(ELM_PRIV_ACT_USAGE_ELEM)
-  { }
+  ElemDDLPrivActUsage() : ElemDDLPrivAct(ELM_PRIV_ACT_USAGE_ELEM) {}
 
   // virtual destructor
   virtual ~ElemDDLPrivActUsage();
 
   // cast
-  virtual ElemDDLPrivActUsage * castToElemDDLPrivActUsage();
+  virtual ElemDDLPrivActUsage *castToElemDDLPrivActUsage();
 
   // methods for tracing
   virtual const NAString displayLabel1() const;
   virtual const NAString getText() const;
 
-private:
-
-}; // class ElemDDLPrivActUsage
-
+ private:
+};  // class ElemDDLPrivActUsage
 
 // -----------------------------------------------------------------------
 // definitions of inline methods for class ElemDDLPrivAct
 // -----------------------------------------------------------------------
 
+inline NABoolean ElemDDLPrivAct::isDDLPriv() const { return privClass_ == DDLPriv; }
 
-inline NABoolean ElemDDLPrivAct::isDDLPriv() const 
-{
-   return privClass_ == DDLPriv;
-   
-}
-
-inline NABoolean ElemDDLPrivAct::isDMLPriv() const 
-{
-   return privClass_ == DMLPriv;
-   
-}
+inline NABoolean ElemDDLPrivAct::isDMLPriv() const { return privClass_ == DMLPriv; }
 
 // -----------------------------------------------------------------------
 // definitions of inline methods for class ElemDDLPrivActArray
 // -----------------------------------------------------------------------
 
+inline NABoolean ElemDDLPrivActArray::hasDDLPriv() const { return hasDDLPriv_; }
 
-inline NABoolean ElemDDLPrivActArray::hasDDLPriv() const 
-{
-   return hasDDLPriv_;  
-}
-  
-  
-inline void ElemDDLPrivActArray::setHasDDLPriv(NABoolean setting) 
-{
-   hasDDLPriv_ = setting;
-}
+inline void ElemDDLPrivActArray::setHasDDLPriv(NABoolean setting) { hasDDLPriv_ = setting; }
 
 // -----------------------------------------------------------------------
 // definitions of inline methods for class ElemDDLPrivActWithColumns
@@ -1579,23 +1239,10 @@ inline void ElemDDLPrivActArray::setHasDDLPriv(NABoolean setting)
 // accessors
 //
 
-inline ElemDDLColNameArray &
-ElemDDLPrivActWithColumns::getColumnNameArray()
-{
-  return columnNameArray_;
-}
+inline ElemDDLColNameArray &ElemDDLPrivActWithColumns::getColumnNameArray() { return columnNameArray_; }
 
-inline const ElemDDLColNameArray &
-ElemDDLPrivActWithColumns::getColumnNameArray() const
-{
-  return columnNameArray_;
-}
+inline const ElemDDLColNameArray &ElemDDLPrivActWithColumns::getColumnNameArray() const { return columnNameArray_; }
 
+inline ElemDDLNode *ElemDDLPrivActWithColumns::getColumnNameList() const { return children_[INDEX_COLUMN_NAME_LIST]; }
 
-inline ElemDDLNode *
-ElemDDLPrivActWithColumns::getColumnNameList() const
-{
-  return children_[INDEX_COLUMN_NAME_LIST];
-}
-
-#endif // ELEMDDLPRIVACTIONS_H
+#endif  // ELEMDDLPRIVACTIONS_H

@@ -25,14 +25,14 @@
 *
 * File:         Computations.C
 * RCS:          $Id: Computations.cpp,v 1.4.6.2 1998/07/08 21:46:58  Exp $
-*                               
+*
 * Description:  This file contains the implementation of all member functions
-*               of the class Computations. This class is used by sort for 
-*               all computations required. Examples of such computations 
+*               of the class Computations. This class is used by sort for
+*               all computations required. Examples of such computations
 *               include : the optimal run size as calculated using Knuth's
 *               Square root formula, the optimal merge order, or the optimal
 *               scratch block size when memory limitations exist..
-*               
+*
 * Created:	    07/29/96
 * Modified:     $ $Date: 1998/07/08 21:46:58 $ (GMT)
 * Language:     C++
@@ -41,15 +41,12 @@
 ******************************************************************************
 */
 
-
 // ***************This file is Obsolete ***************
 
-
-
-//Update: 10/07/2009
-//Below knuth formula is no more valid since run size is not fixed anymore.
-//Run sizes vary based on run time memory availability. Also, the Io block 
-//size if fixed at 56Kb.
+// Update: 10/07/2009
+// Below knuth formula is no more valid since run size is not fixed anymore.
+// Run sizes vary based on run time memory availability. Also, the Io block
+// size if fixed at 56Kb.
 
 /*------------------------------------------------------------------------
  Using Knuth's square root formula for determining the optimal memory.
@@ -68,7 +65,7 @@
     NumRuns * (TS+SS) <= M      ...................(ii)
 
 
- Where 
+ Where
 
    M  = <optimalMemory_> = Optimal Memory.
    P  = <runsize_>       = Sort Order/Number of Initial Tree Nodes.
@@ -77,12 +74,12 @@
    SS = <scrBlockSize_>  = Scratch Buffer Size.
 
  Also,
-   NumRuns = Number of runs generated 
+   NumRuns = Number of runs generated
            = Input FileSize/Average RunSize
            = FileSize/2*P*RecSize
 
- So (ii) can be rewritten as 
-   
+ So (ii) can be rewritten as
+
    FileSize * (TS+SS) / 2*P*RecSize <= M  ....................(iii)
 
 
@@ -90,23 +87,23 @@
 
    FileSize*(TS+SS)*(RS+TS)
    ------------------------         <= M*M
-         2 
+         2
 
-    FileSize*(TS+SS)*(1+TS/RS)      
+    FileSize*(TS+SS)*(1+TS/RS)
     --------------------------      <= M*M
          2
 
-   
+
     SQRT(FileSize*(TS+RS)/2) * SQRT(1+TS/RS) <= M
 
- RS-->infinity TS/RS --> 0 Therefor use 1.3 as a safe estimate 
+ RS-->infinity TS/RS --> 0 Therefor use 1.3 as a safe estimate
 
   ------------------------------------------
  |   1.3 * SQRT(FileSize*(TS+SS)/2)   <= M  |
   ------------------------------------------
 
  Conversely,
- 
+
      ------------------------------------------
    |   M >= 1.3 * SQRT(FileSize*(TS+SS)/2)    |
     ------------------------------------------
@@ -115,24 +112,22 @@
 
 //----------------------------------------------------------------------
 // Name         : estimateMinMergeMemory
-// 
-// Parameters   : 
 //
-// Description  : 
-//   
+// Parameters   :
+//
+// Description  :
+//
 // Return Value :
-//   
+//
 //----------------------------------------------------------------------
-
 
 //----------------------------------------------------------------------
 // Name         : estimateMemoryToAvoidIntermediateMerge
-// 
-// Parameters   : 
 //
-// Description  : 
-//   
+// Parameters   :
+//
+// Description  :
+//
 // Return Value :
-//   
+//
 //----------------------------------------------------------------------
-

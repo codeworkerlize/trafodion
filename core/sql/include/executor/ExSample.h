@@ -28,7 +28,7 @@
 *
 * File:         ExSample.h
 * Description:  Class declarations for ExSample, a sample scan operator.
-* Created:      
+* Created:
 * Language:     C++
 *
 *
@@ -61,27 +61,23 @@ class ex_tdb;
 // -----------------------------------------------------------------------
 // ExSampleTdb
 // -----------------------------------------------------------------------
-class ExSampleTdb : public ComTdbSample
-{
-public:
-
+class ExSampleTdb : public ComTdbSample {
+ public:
   // ---------------------------------------------------------------------
   // Constructor is only called to instantiate an object used for
   // retrieval of the virtual table function pointer of the class while
   // unpacking. An empty constructor is enough.
   // ---------------------------------------------------------------------
-  ExSampleTdb()
-  {};
+  ExSampleTdb(){};
 
-  virtual ~ExSampleTdb()
-  {};
+  virtual ~ExSampleTdb(){};
 
   // ---------------------------------------------------------------------
   // Build a TCB for this TDB. Redefined in the Executor project.
   // ---------------------------------------------------------------------
   virtual ex_tcb *build(ex_globals *globals);
 
-private:
+ private:
   // ---------------------------------------------------------------------
   // !!!!!!! IMPORTANT -- NO DATA MEMBERS ALLOWED IN EXECUTOR TDB !!!!!!!!
   // *********************************************************************
@@ -101,7 +97,7 @@ private:
   // 1. Are those data members Compiler-generated?
   //    If yes, put them in the ComTdbSortGrby instead.
   //    If no, they should probably belong to someplace else (like TCB).
-  // 
+  //
   // 2. Are the classes those data members belong defined in the executor
   //    project?
   //    If your answer to both questions is yes, you might need to move
@@ -109,17 +105,14 @@ private:
   // ---------------------------------------------------------------------
 };
 
-
-
 //
 // Task control block
 //
-class ExSampleTcb : public ex_tcb
-{
-  friend class   ExSampleTdb;
-  friend class   ExSamplePrivateState;
-  
-public:
+class ExSampleTcb : public ex_tcb {
+  friend class ExSampleTdb;
+  friend class ExSamplePrivateState;
+
+ public:
   enum RequestState {
     ExSamp_EMPTY,
     ExSamp_PREWORK,
@@ -129,107 +122,71 @@ public:
     ExSamp_ERROR,
     ExSamp_DONE
   };
-  
-  ExSampleTcb(const ExSampleTdb & sample_tdb,    
-			 const ex_tcb &    child_tcb,
-			 ex_globals * glob
-			 );
-  ~ExSampleTcb();  
-  
+
+  ExSampleTcb(const ExSampleTdb &sample_tdb, const ex_tcb &child_tcb, ex_globals *glob);
+  ~ExSampleTcb();
+
   void freeResources();
   short work();
-  
-  inline ExSampleTdb & myTdb() const;
-  ex_queue_pair getParentQueue() const
-  {
-  return (qparent_);
-  }
 
-  inline ex_expr * initExpr() const;
-  inline ex_expr * balanceExpr() const;
+  inline ExSampleTdb &myTdb() const;
+  ex_queue_pair getParentQueue() const { return (qparent_); }
+
+  inline ex_expr *initExpr() const;
+  inline ex_expr *balanceExpr() const;
   inline Int32 returnFactorOffset() const;
-  inline ex_expr * postPred() const;
-  
-  virtual Int32 numChildren() const;
-  virtual const ex_tcb* getChild(Int32 pos) const;
+  inline ex_expr *postPred() const;
 
-private:
-  const ex_tcb * childTcb_;
-  
-  ex_queue_pair  qparent_;
-  ex_queue_pair  qchild_;
-  
-  queue_index    processedInputs_;
-}; // class ExSampleTcb
+  virtual Int32 numChildren() const;
+  virtual const ex_tcb *getChild(Int32 pos) const;
+
+ private:
+  const ex_tcb *childTcb_;
+
+  ex_queue_pair qparent_;
+  ex_queue_pair qchild_;
+
+  queue_index processedInputs_;
+};  // class ExSampleTcb
 
 // ExSampleTdb inline function definitions
 //
-inline ex_expr * ExSampleTcb::initExpr() const 
-{ 
-  return myTdb().initExpr_; 
-};
+inline ex_expr *ExSampleTcb::initExpr() const { return myTdb().initExpr_; };
 
-inline ex_expr * ExSampleTcb::balanceExpr() const 
-{ 
-  return myTdb().balanceExpr_; 
-};
+inline ex_expr *ExSampleTcb::balanceExpr() const { return myTdb().balanceExpr_; };
 
-inline Int32 ExSampleTcb::returnFactorOffset() const
-{ 
-  return myTdb().returnFactorOffset_; 
-};
+inline Int32 ExSampleTcb::returnFactorOffset() const { return myTdb().returnFactorOffset_; };
 
-inline ex_expr * ExSampleTcb::postPred() const 
-{ 
-  return myTdb().postPred_; 
-};
-  
-inline Int32 ExSampleTcb::numChildren() const 
-{ 
-  return 1; 
-}   
+inline ex_expr *ExSampleTcb::postPred() const { return myTdb().postPred_; };
 
-inline const ex_tcb* ExSampleTcb::getChild(Int32 pos) const
-{
-   ex_assert((pos >= 0), ""); 
-   if (pos == 0)
-      return childTcb_;
-   else
-      return NULL;
+inline Int32 ExSampleTcb::numChildren() const { return 1; }
+
+inline const ex_tcb *ExSampleTcb::getChild(Int32 pos) const {
+  ex_assert((pos >= 0), "");
+  if (pos == 0)
+    return childTcb_;
+  else
+    return NULL;
 }
 
-inline ExSampleTdb & ExSampleTcb::myTdb() const
-{
-        return (ExSampleTdb &) tdb;
-};
-
+inline ExSampleTdb &ExSampleTcb::myTdb() const { return (ExSampleTdb &)tdb; };
 
 // class ExSamplePrivateState
 //
-class ExSamplePrivateState : public ex_tcb_private_state
-{
+class ExSamplePrivateState : public ex_tcb_private_state {
   friend class ExSampleTcb;
 
-public:
-  ExSamplePrivateState(const ExSampleTcb * tcb);
-  ex_tcb_private_state * allocate_new(const ex_tcb * tcb);
+ public:
+  ExSamplePrivateState(const ExSampleTcb *tcb);
+  ex_tcb_private_state *allocate_new(const ex_tcb *tcb);
   ~ExSamplePrivateState();
 
-private:
+ private:
   ExSampleTcb::RequestState step_;
-  queue_index index_;  
+  queue_index index_;
   Int64 matchCount_;
   ULng32 rowsToReturn_;
-  atp_struct * workAtp_;
+  atp_struct *workAtp_;
 };
 
-
 #endif
-
-
-
-
-
-
-
-

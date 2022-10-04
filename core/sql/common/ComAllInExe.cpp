@@ -49,7 +49,7 @@
 #include "IpcSockets.cpp"
 #include "NAAssert.cpp"
 #include "NAMemory.cpp"
-#include "str.cpp"	
+#include "str.cpp"
 #include "unicode_char_set.cpp"
 #include "charinfo.cpp"
 #include "wstr.cpp"

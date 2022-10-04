@@ -1,15 +1,15 @@
 /******************************************************************************
 *
 * File:         DiskPool_base.h
-*                               
-* Description:  This file contains the member function implementation for 
-*               class DiskPool. This class is used to encapsulate all 
-*               data and methods about a scratch file.  
-*                                                                 
+*
+* Description:  This file contains the member function implementation for
+*               class DiskPool. This class is used to encapsulate all
+*               data and methods about a scratch file.
+*
 * Created:      01/02/2007
 * Language:     C++
-* Status:       Re-write to move platform dependent implemenations out of this 
-* 				base file. 
+* Status:       Re-write to move platform dependent implemenations out of this
+* 				base file.
 *
 *
 // @@@ START COPYRIGHT @@@
@@ -71,63 +71,47 @@ struct DiskDetails;
 class ScratchSpace;
 
 class DiskPool : public NABasicObject {
-  
-public:
+ public:
   DiskPool(CollHeap *heap);
   virtual ~DiskPool() = 0;  // pure virtual
-  
-  virtual 
-  NABoolean generateDiskTable(const ExScratchDiskDrive * scratchDiskSpecified,
-			      ULng32 numSpecified,			     
-			      char * volumeNameMask,
-			      answer including = ::right,
-                              NABoolean includeAuditTrailDisks = FALSE
-			      ) = 0;
 
-  virtual NABoolean returnBestDisk(char** diskname,
-                                   ULng32 espInstance, 
-                                   ULng32 numEsps,
-                                   unsigned short threshold
-                                  ) = 0; 
+  virtual NABoolean generateDiskTable(const ExScratchDiskDrive *scratchDiskSpecified, ULng32 numSpecified,
+                                      char *volumeNameMask, answer including = ::right,
+                                      NABoolean includeAuditTrailDisks = FALSE) = 0;
 
-  DiskDetails **getDiskTablePtr() const {return diskTablePtr_;};
-  DiskDetails **getLocalDisksPtr() const {return localDisksPtr_;};
-  Int32 getNumberOfDisks() {return numberOfDisks_; };
-  Int32 getNumberOfLocalDisks() {return numberOfLocalDisks_; };
-  void setScratchSpace(ScratchSpace *scratchSpace)
-  {
-    scratchSpace_ = scratchSpace;
-  }
+  virtual NABoolean returnBestDisk(char **diskname, ULng32 espInstance, ULng32 numEsps, unsigned short threshold) = 0;
 
+  DiskDetails **getDiskTablePtr() const { return diskTablePtr_; };
+  DiskDetails **getLocalDisksPtr() const { return localDisksPtr_; };
+  Int32 getNumberOfDisks() { return numberOfDisks_; };
+  Int32 getNumberOfLocalDisks() { return numberOfLocalDisks_; };
+  void setScratchSpace(ScratchSpace *scratchSpace) { scratchSpace_ = scratchSpace; }
 
 #ifdef FORDEBUG
   virtual NABoolean printDiskTable() = 0;
 #endif
 
-  protected:
-
+ protected:
   virtual void assignWeight(DiskDetails *diskPtr) = 0;
 
   virtual NABoolean refreshDisk(DiskDetails *diskPtr) = 0;
-  virtual NABoolean computeNumScratchFiles(DiskDetails *diskPtr )= 0;
-                                        // index into the diskdetails pointer
+  virtual NABoolean computeNumScratchFiles(DiskDetails *diskPtr) = 0;
+  // index into the diskdetails pointer
   Int32 numberOfDisks_;
   Int32 numberOfLocalDisks_;
 
-  DiskDetails **diskTablePtr_;           // This is a pointer to an array
-                                         // of <n> pointers to structures 
-                                         // of the type DiskDetails.
-  DiskDetails **localDisksPtr_;          //Pointer to array of local disks
-                                         //pointers
+  DiskDetails **diskTablePtr_;   // This is a pointer to an array
+                                 // of <n> pointers to structures
+                                 // of the type DiskDetails.
+  DiskDetails **localDisksPtr_;  // Pointer to array of local disks
+                                 // pointers
 
-  short currentDisk_;                   //This feild is deprecated on NSK.
+  short currentDisk_;  // This feild is deprecated on NSK.
   ScratchSpace *scratchSpace_;
   CollHeap *heap_;
 };
 
-typedef DiskDetails* DiskDetailsPtr;
-const Lng32 longMaxInPageUnits =1048576;// INT_MAX/2048
+typedef DiskDetails *DiskDetailsPtr;
+const Lng32 longMaxInPageUnits = 1048576;  // INT_MAX/2048
 
-
-#endif //DISKPOOL_BASE_H 
-
+#endif  // DISKPOOL_BASE_H

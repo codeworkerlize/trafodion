@@ -41,24 +41,16 @@
 // -----------------------------------------------------------------------
 
 // virtual destructor
-ElemDDLRefAct::~ElemDDLRefAct()
-{
-}
+ElemDDLRefAct::~ElemDDLRefAct() {}
 
 // casting
-ElemDDLRefAct *
-ElemDDLRefAct::castToElemDDLRefAct()
-{
-  return this;
-}
+ElemDDLRefAct *ElemDDLRefAct::castToElemDDLRefAct() { return this; }
 
 //
 // methods for tracing
 //
 
-NATraceList
-ElemDDLRefAct::getDetailInfo() const
-{
+NATraceList ElemDDLRefAct::getDetailInfo() const {
   NATraceList detailTextList;
 
   //
@@ -70,9 +62,7 @@ ElemDDLRefAct::getDetailInfo() const
   return detailTextList;
 }
 
-const NAString
-ElemDDLRefAct::getText() const
-{
+const NAString ElemDDLRefAct::getText() const {
   ABORT("internal logic error");
   return "ElemDDLRefAct";
 }
@@ -82,161 +72,90 @@ ElemDDLRefAct::getText() const
 // -----------------------------------------------------------------------
 
 // virtual destructor
-ElemDDLRefActCascade::~ElemDDLRefActCascade()
-{
-}
+ElemDDLRefActCascade::~ElemDDLRefActCascade() {}
 
 // casting
-ElemDDLRefActCascade *
-ElemDDLRefActCascade::castToElemDDLRefActCascade()
-{
-  return this;
-}
+ElemDDLRefActCascade *ElemDDLRefActCascade::castToElemDDLRefActCascade() { return this; }
 
 //
 // methods for tracing
 //
 
-const NAString
-ElemDDLRefActCascade::displayLabel1() const
-{
-  return NAString("Cascade referential action");
-}
+const NAString ElemDDLRefActCascade::displayLabel1() const { return NAString("Cascade referential action"); }
 
-const NAString
-ElemDDLRefActCascade::getText() const
-{
-  return "ElemDDLRefActCascade";
-}
+const NAString ElemDDLRefActCascade::getText() const { return "ElemDDLRefActCascade"; }
 
 // -----------------------------------------------------------------------
 // methods for class ElemDDLRefActNoAction
 // -----------------------------------------------------------------------
 
 // virtual destructor
-ElemDDLRefActNoAction::~ElemDDLRefActNoAction()
-{
-}
+ElemDDLRefActNoAction::~ElemDDLRefActNoAction() {}
 
 // casting
-ElemDDLRefActNoAction *
-ElemDDLRefActNoAction::castToElemDDLRefActNoAction()
-{
-  return this;
-}
+ElemDDLRefActNoAction *ElemDDLRefActNoAction::castToElemDDLRefActNoAction() { return this; }
 
 //
 // methods for tracing
 //
 
-const NAString
-ElemDDLRefActNoAction::displayLabel1() const
-{
-  return NAString("No referential action");
-}
+const NAString ElemDDLRefActNoAction::displayLabel1() const { return NAString("No referential action"); }
 
-const NAString
-ElemDDLRefActNoAction::getText() const
-{
-  return "ElemDDLRefActNoAction";
-}
+const NAString ElemDDLRefActNoAction::getText() const { return "ElemDDLRefActNoAction"; }
 
 // -----------------------------------------------------------------------
 // methods for class ElemDDLRefActRestrict
 // -----------------------------------------------------------------------
 
 // virtual destructor
-ElemDDLRefActRestrict::~ElemDDLRefActRestrict()
-{
-}
+ElemDDLRefActRestrict::~ElemDDLRefActRestrict() {}
 
 // casting
-ElemDDLRefActRestrict *
-ElemDDLRefActRestrict::castToElemDDLRefActRestrict()
-{
-  return this;
-}
+ElemDDLRefActRestrict *ElemDDLRefActRestrict::castToElemDDLRefActRestrict() { return this; }
 
 //
 // methods for tracing
 //
 
-const NAString
-ElemDDLRefActRestrict::displayLabel1() const
-{
-  return NAString("Restrict referential action");
-}
+const NAString ElemDDLRefActRestrict::displayLabel1() const { return NAString("Restrict referential action"); }
 
-const NAString
-ElemDDLRefActRestrict::getText() const
-{
-  return "ElemDDLRefActRestrict";
-}
-
+const NAString ElemDDLRefActRestrict::getText() const { return "ElemDDLRefActRestrict"; }
 
 // -----------------------------------------------------------------------
 // methods for class ElemDDLRefActSetDefault
 // -----------------------------------------------------------------------
 
 // virtual destructor
-ElemDDLRefActSetDefault::~ElemDDLRefActSetDefault()
-{
-}
+ElemDDLRefActSetDefault::~ElemDDLRefActSetDefault() {}
 
 // casting
-ElemDDLRefActSetDefault *
-ElemDDLRefActSetDefault::castToElemDDLRefActSetDefault()
-{
-  return this;
-}
+ElemDDLRefActSetDefault *ElemDDLRefActSetDefault::castToElemDDLRefActSetDefault() { return this; }
 
 //
 // methods for tracing
 //
 
-const NAString
-ElemDDLRefActSetDefault::displayLabel1() const
-{
-  return NAString("Set Default referential action");
-}
+const NAString ElemDDLRefActSetDefault::displayLabel1() const { return NAString("Set Default referential action"); }
 
-const NAString
-ElemDDLRefActSetDefault::getText() const
-{
-  return "ElemDDLRefActSetDefault";
-}
+const NAString ElemDDLRefActSetDefault::getText() const { return "ElemDDLRefActSetDefault"; }
 
 // -----------------------------------------------------------------------
 // methods for class ElemDDLRefActSetNull
 // -----------------------------------------------------------------------
 
 // virtual destructor
-ElemDDLRefActSetNull::~ElemDDLRefActSetNull()
-{
-}
+ElemDDLRefActSetNull::~ElemDDLRefActSetNull() {}
 
 // casting
-ElemDDLRefActSetNull *
-ElemDDLRefActSetNull::castToElemDDLRefActSetNull()
-{
-  return this;
-}
+ElemDDLRefActSetNull *ElemDDLRefActSetNull::castToElemDDLRefActSetNull() { return this; }
 
 //
 // methods for tracing
 //
 
-const NAString
-ElemDDLRefActSetNull::displayLabel1() const
-{
-  return NAString("Set Null referential action");
-}
+const NAString ElemDDLRefActSetNull::displayLabel1() const { return NAString("Set Null referential action"); }
 
-const NAString
-ElemDDLRefActSetNull::getText() const
-{
-  return "ElemDDLRefActSetNull";
-}
+const NAString ElemDDLRefActSetNull::getText() const { return "ElemDDLRefActSetNull"; }
 
 //
 // End of File

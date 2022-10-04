@@ -2634,17 +2634,10 @@ enum DefaultConstants {
   // WMS child query monitoring,
   WMS_CHILD_QUERY_MONITORING,
 
-  // size in Mb of the file containing a blob/clob column.
-  // size is for all rows for a particular column.
-  // Size is expressed in Mbs
-  LOB_MAX_SIZE,
   // Max memory used to tranfer data/perform I/O to lob data file.
-  LOB_MAX_CHUNK_MEM_SIZE,
   LOB_STORAGE_TYPE,
   LOB_HDFS_SERVER,
   LOB_HDFS_PORT,
-  LOB_GC_LIMIT_SIZE,
-  LOB_LOCKING,
   // Should the DISK POOL be turned on when replicating the DDL using COPY DDL
   REPLICATE_DISK_POOL,
 
@@ -3724,8 +3717,6 @@ enum DefaultConstants {
 
   // dynamic param default charset(ISO88591 or UTF8)
   DYNAMIC_PARAM_DEFAULT_CHARSET,
-  // used to debug hive external tables with problematic files
-  HIVE_MAX_ERROR_FILES,
 
   // Hive Straw scanner feature on/off
   HIVE_STRAW_SCAN,
@@ -3914,10 +3905,6 @@ enum DefaultConstants {
 
   CANCEL_QUERY_ALLOWED,
 
-  // allow hive data files to be contained in subdirs under rootdir. For part.
-  // tables, only subdirs under each partition's rootdir are included
-  HIVE_SUPPORTS_SUBDIRECTORIES,
-
   ORC_STATS_MAX_SAMPLE_FILES,
 
   // Determines if a transaction needs to be started for select
@@ -3936,12 +3923,6 @@ enum DefaultConstants {
 
   // load table descriptors into a shared cache
   TRAF_ENABLE_METADATA_LOAD_IN_SHARED_CACHE,
-
-  // number of lob v2 datafiles to be created.
-  NUMBER_OF_LOBV2_DATAFILES,
-
-  // Max limit for hybrid lob
-  LOB_HYBRID_ROW_LIMIT,
 
   USE_HDFS_WRITE_LOCK,
 

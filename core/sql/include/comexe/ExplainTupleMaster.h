@@ -2,7 +2,7 @@
 ****************************************************************************
 *
 * File:         ExplainTupleMaster.h
-* Description:  
+* Description:
 *
 * Created:      5/6/98
 * Language:     C++
@@ -42,17 +42,14 @@
 
 class Cost;
 
-class ExplainTupleMaster : public ExplainTuple
-{
-public:
-  inline ExplainTupleMaster(ExplainTuple *leftChild,
-			    ExplainTuple *rightChild,
-			    ExplainDesc *explainDesc);
+class ExplainTupleMaster : public ExplainTuple {
+ public:
+  inline ExplainTupleMaster(ExplainTuple *leftChild, ExplainTuple *rightChild, ExplainDesc *explainDesc);
   ~ExplainTupleMaster(){};
-  
+
   Int32 init(Space *space, NABoolean doExplainSpaceOpt);
   void setPlanId(Int64 planId);
-  void setOperator(const char * op);
+  void setOperator(const char *op);
   void setTableName(const char *tabName);
   void setCardinality(double card);
   void setOperatorCost(double opCost);
@@ -60,19 +57,11 @@ public:
   void setDetailCost(char *detail);
   void setDescription(const char *desc);
 
-private:
-
+ private:
 };
 
-inline 
-ExplainTupleMaster::ExplainTupleMaster(ExplainTuple *leftChild,
-                                       ExplainTuple *rightChild,
-                                       ExplainDesc *explainDesc)
-: ExplainTuple(leftChild, rightChild, explainDesc)
-{
-};
+inline ExplainTupleMaster::ExplainTupleMaster(ExplainTuple *leftChild, ExplainTuple *rightChild,
+                                              ExplainDesc *explainDesc)
+    : ExplainTuple(leftChild, rightChild, explainDesc){};
 
 #endif
-
-
-

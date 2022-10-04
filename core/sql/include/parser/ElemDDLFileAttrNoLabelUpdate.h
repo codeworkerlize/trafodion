@@ -4,10 +4,10 @@
 ******************************************************************************
 *
 * File:         ElemDDLFileAttrNoLabelUpdate.h
-* Description:  
+* Description:
 *
-*               
-* Created:      
+*
+* Created:
 * Language:     C++
 *
 *
@@ -36,7 +36,6 @@
 ******************************************************************************
 */
 
-
 #include "ElemDDLFileAttr.h"
 
 // -----------------------------------------------------------------------
@@ -49,40 +48,28 @@ class ElemDDLFileAttrNoLabelUpdate;
 // -----------------------------------------------------------------------
 // None.
 
-class ElemDDLFileAttrNoLabelUpdate : public ElemDDLFileAttr
-{
-
-public:
-
+class ElemDDLFileAttrNoLabelUpdate : public ElemDDLFileAttr {
+ public:
   // default constructor
   ElemDDLFileAttrNoLabelUpdate(NABoolean noLabelUpdate = FALSE)
-        : ElemDDLFileAttr(ELM_FILE_ATTR_NO_LABEL_UPDATE_ELEM),
-          noLabelUpdate_(noLabelUpdate)
-  {
-  }
+      : ElemDDLFileAttr(ELM_FILE_ATTR_NO_LABEL_UPDATE_ELEM), noLabelUpdate_(noLabelUpdate) {}
 
   // virtual destructor
   virtual ~ElemDDLFileAttrNoLabelUpdate();
 
   // cast
-  virtual ElemDDLFileAttrNoLabelUpdate * castToElemDDLFileAttrNoLabelUpdate();
+  virtual ElemDDLFileAttrNoLabelUpdate *castToElemDDLFileAttrNoLabelUpdate();
 
   // accessor
-  const NABoolean
-  getIsNoLabelUpdate() const
-  {
-    return noLabelUpdate_;
-  }
+  const NABoolean getIsNoLabelUpdate() const { return noLabelUpdate_; }
 
   // member functions for tracing
   virtual const NAString getText() const;
   virtual const NAString displayLabel1() const;
 
-
-private:
-
+ private:
   NABoolean noLabelUpdate_;
 
-}; // class ElemDDLFileAttrNoLabelUpdate
+};  // class ElemDDLFileAttrNoLabelUpdate
 
 #endif /* ELEMDDLFILEATTRNOLABELUPDATE_H */

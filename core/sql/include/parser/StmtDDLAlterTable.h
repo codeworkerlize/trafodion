@@ -36,7 +36,6 @@
  *****************************************************************************
  */
 
-
 #include "StmtDDLNode.h"
 
 // -----------------------------------------------------------------------
@@ -52,67 +51,60 @@ class StmtDDLAlterTable;
 // -----------------------------------------------------------------------
 // Create Catalog statement
 // -----------------------------------------------------------------------
-class StmtDDLAlterTable : public StmtDDLNode
-{
-
-public:
-
-  enum PartitionEntityType
-    {
-      OPT_NOT_PARTITION,
-      OPT_PARTITION_ENTITY,
-      OPT_SUBPARTITION_ENTITY,
-    };
+class StmtDDLAlterTable : public StmtDDLNode {
+ public:
+  enum PartitionEntityType {
+    OPT_NOT_PARTITION,
+    OPT_PARTITION_ENTITY,
+    OPT_SUBPARTITION_ENTITY,
+  };
 
   // constructors
   StmtDDLAlterTable();
   StmtDDLAlterTable(OperatorTypeEnum operatorType);
-  StmtDDLAlterTable(OperatorTypeEnum operatorType,
-                    ElemDDLNode * pAlterTableAction);
-  StmtDDLAlterTable(OperatorTypeEnum operatorType,
-                    const QualifiedName & tableQualName,
-                    ElemDDLNode * pAlterTableAction);
+  StmtDDLAlterTable(OperatorTypeEnum operatorType, ElemDDLNode *pAlterTableAction);
+  StmtDDLAlterTable(OperatorTypeEnum operatorType, const QualifiedName &tableQualName, ElemDDLNode *pAlterTableAction);
 
   // virtual destructor
   virtual ~StmtDDLAlterTable();
 
   // cast
-  virtual StmtDDLAlterTable * castToStmtDDLAlterTable();
+  virtual StmtDDLAlterTable *castToStmtDDLAlterTable();
 
   //
   // accessors
   //
 
   virtual Int32 getArity() const;
-  virtual ExprNode * getChild(Lng32 index);
+  virtual ExprNode *getChild(Lng32 index);
 
-  inline ElemDDLNode * getAlterTableAction() const;
+  inline ElemDDLNode *getAlterTableAction() const;
   inline const NAString getTableName() const;
-  inline const QualifiedName & getOrigTableNameAsQualifiedName() const;
-  inline       QualifiedName & getOrigTableNameAsQualifiedName();
-  inline const QualifiedName & getTableNameAsQualifiedName() const;
-  inline       QualifiedName & getTableNameAsQualifiedName();
-  
+  inline const QualifiedName &getOrigTableNameAsQualifiedName() const;
+  inline QualifiedName &getOrigTableNameAsQualifiedName();
+  inline const QualifiedName &getTableNameAsQualifiedName() const;
+  inline QualifiedName &getTableNameAsQualifiedName();
+
   inline const NABoolean isFakeNode() const;
   inline const NABoolean isDroppable() const;
   inline const NABoolean isInsertOnly() const;
   inline const NABoolean isOnline() const;
   inline const NABoolean forPurgedata() const;
 
-        // returns TRUE if this node is fake node created by the
-        // parser to represent a check constraint definition
-        // appearring in a Create Table statement; returns FALSE
-        // otherwise.  For more information, please read the
-        // comments preceding the definition of data member
-        // isParseSubTreeDestroyedByDestructor_
-  
+  // returns TRUE if this node is fake node created by the
+  // parser to represent a check constraint definition
+  // appearring in a Create Table statement; returns FALSE
+  // otherwise.  For more information, please read the
+  // comments preceding the definition of data member
+  // isParseSubTreeDestroyedByDestructor_
+
   //
   // mutators
   //
 
-  virtual void setChild(Lng32 index, ExprNode * pChildNode);
+  virtual void setChild(Lng32 index, ExprNode *pChildNode);
   inline void setIsParseSubTreeDestroyedByDestructor(NABoolean setting);
-  void setTableName(const QualifiedName & tableName);
+  void setTableName(const QualifiedName &tableName);
   void setIsDroppable(NABoolean d);
   void setInsertOnly(NABoolean d);
   void setIsOnline(NABoolean d);
@@ -122,28 +114,26 @@ public:
   virtual const NAString getText() const;
   virtual const NAString displayLabel1() const;
 
-  // method for binding 
-  ExprNode * bindNode(BindWA *bindWAPtr);
+  // method for binding
+  ExprNode *bindNode(BindWA *bindWAPtr);
 
   PartitionEntityType getPartEntityType() const;
   void setPartEntityType(PartitionEntityType pt) { partitionEntityType_ = pt; }
 
-private:
-
+ private:
   // ---------------------------------------------------------------------
   // private methods
   // ---------------------------------------------------------------------
 
-  StmtDDLAlterTable(OperatorTypeEnum operatorType,
-                    const NAString & tableName,
-                    ElemDDLNode * pAlterTableAction);         // DO NOT USE
-  StmtDDLAlterTable(const StmtDDLAlterTable &);               // DO NOT USE
-  StmtDDLAlterTable & operator=(const StmtDDLAlterTable &);   // DO NOT USE
-  
+  StmtDDLAlterTable(OperatorTypeEnum operatorType, const NAString &tableName,
+                    ElemDDLNode *pAlterTableAction);        // DO NOT USE
+  StmtDDLAlterTable(const StmtDDLAlterTable &);             // DO NOT USE
+  StmtDDLAlterTable &operator=(const StmtDDLAlterTable &);  // DO NOT USE
+
   // ---------------------------------------------------------------------
   // private data members
   // ---------------------------------------------------------------------
-  
+
   // the tablename specified by user in the alter stmt.
   // This name is not fully qualified during bind phase.
   QualifiedName origTableQualName_;
@@ -182,10 +172,9 @@ private:
 
   // pointer to child parse node
 
-  enum { INDEX_ALTER_TABLE_ACTION = 0,
-         MAX_STMT_DDL_ALTER_TABLE_ARITY };
+  enum { INDEX_ALTER_TABLE_ACTION = 0, MAX_STMT_DDL_ALTER_TABLE_ARITY };
 
-  ElemDDLNode * alterTableAction_;
+  ElemDDLNode *alterTableAction_;
 
   NABoolean isDroppable_;
   NABoolean insertOnly_;
@@ -200,117 +189,54 @@ private:
   // Used for internal operation(parallel purgedata) only.
   NABoolean forPurgedata_;
 
-  PartitionEntityType  partitionEntityType_;
+  PartitionEntityType partitionEntityType_;
 
-}; // class StmtDDLAlterTable
+};  // class StmtDDLAlterTable
 
 // -----------------------------------------------------------------------
 // definitions of inline methods for class StmtDDLAlterTable
 // -----------------------------------------------------------------------
 
-
 //
 // accessors
 //
 
-inline ElemDDLNode *
-StmtDDLAlterTable::getAlterTableAction() const
-{
-  return alterTableAction_;
-}
+inline ElemDDLNode *StmtDDLAlterTable::getAlterTableAction() const { return alterTableAction_; }
 
-inline const NAString
-StmtDDLAlterTable::getTableName() const
-{
-  return tableQualName_.getQualifiedNameAsAnsiString();
-}
+inline const NAString StmtDDLAlterTable::getTableName() const { return tableQualName_.getQualifiedNameAsAnsiString(); }
 
-inline QualifiedName &
-StmtDDLAlterTable::getOrigTableNameAsQualifiedName()
-{
-  return origTableQualName_;
-}
+inline QualifiedName &StmtDDLAlterTable::getOrigTableNameAsQualifiedName() { return origTableQualName_; }
 
-inline const QualifiedName &
-StmtDDLAlterTable::getOrigTableNameAsQualifiedName() const
-{
-  return origTableQualName_;
-}
+inline const QualifiedName &StmtDDLAlterTable::getOrigTableNameAsQualifiedName() const { return origTableQualName_; }
 
-inline const QualifiedName &
-StmtDDLAlterTable::getTableNameAsQualifiedName() const
-{
-  return tableQualName_;
-}
+inline const QualifiedName &StmtDDLAlterTable::getTableNameAsQualifiedName() const { return tableQualName_; }
 
-inline QualifiedName &
-StmtDDLAlterTable::getTableNameAsQualifiedName()
-{
-  return tableQualName_;
-}
+inline QualifiedName &StmtDDLAlterTable::getTableNameAsQualifiedName() { return tableQualName_; }
 
-inline const NABoolean
-StmtDDLAlterTable::isFakeNode() const
-{
-  return (NOT isParseSubTreeDestroyedByDestructor_);
-}
+inline const NABoolean StmtDDLAlterTable::isFakeNode() const { return (NOT isParseSubTreeDestroyedByDestructor_); }
 
-inline const NABoolean
-StmtDDLAlterTable::isDroppable() const
-{
-  return isDroppable_;
-}
+inline const NABoolean StmtDDLAlterTable::isDroppable() const { return isDroppable_; }
 
-inline const NABoolean 
-StmtDDLAlterTable::isInsertOnly() const
-{
-  return insertOnly_;
-}
+inline const NABoolean StmtDDLAlterTable::isInsertOnly() const { return insertOnly_; }
 
-inline const NABoolean 
-StmtDDLAlterTable::isOnline() const
-{
-  return isOnline_;
-}
+inline const NABoolean StmtDDLAlterTable::isOnline() const { return isOnline_; }
 
-inline const NABoolean 
-StmtDDLAlterTable::forPurgedata() const
-{
-  return forPurgedata_;
-}
+inline const NABoolean StmtDDLAlterTable::forPurgedata() const { return forPurgedata_; }
 
 //
 // mutator
 //
 
-inline void
-StmtDDLAlterTable::setIsParseSubTreeDestroyedByDestructor(NABoolean setting)
-{
+inline void StmtDDLAlterTable::setIsParseSubTreeDestroyedByDestructor(NABoolean setting) {
   isParseSubTreeDestroyedByDestructor_ = setting;
 }
 
-inline void 
-StmtDDLAlterTable::setIsDroppable(NABoolean d)
-{
-  isDroppable_ = d;
-}
+inline void StmtDDLAlterTable::setIsDroppable(NABoolean d) { isDroppable_ = d; }
 
-inline void
-StmtDDLAlterTable::setInsertOnly(NABoolean d)
-{
-  insertOnly_ = d;
-}
+inline void StmtDDLAlterTable::setInsertOnly(NABoolean d) { insertOnly_ = d; }
 
-inline void 
-StmtDDLAlterTable::setIsOnline(NABoolean d)
-{
-  isOnline_ = d;
-}
+inline void StmtDDLAlterTable::setIsOnline(NABoolean d) { isOnline_ = d; }
 
-inline void 
-StmtDDLAlterTable::setForPurgedata(NABoolean d)
-{
-  forPurgedata_ = d;
-}
+inline void StmtDDLAlterTable::setForPurgedata(NABoolean d) { forPurgedata_ = d; }
 
-#endif // STMTDDLALTERTABLE_H
+#endif  // STMTDDLALTERTABLE_H

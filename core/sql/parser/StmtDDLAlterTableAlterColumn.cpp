@@ -21,54 +21,32 @@
 //// @@@ END COPYRIGHT @@@
 //**********************************************************************/
 
-
 //----------------------------------------------------------------------------
 // CLASS StmtDDLAlterTableAlterColumn
 //----------------------------------------------------------------------------
-StmtDDLAlterTableAlterColumn::StmtDDLAlterTableAlterColumn(
-     OperatorTypeEnum operatorType
-     , const NAString &columnName 
-     , ElemDDLNode *pColDefault
-     , CollHeap *heap)
-     : StmtDDLAlterTable(operatorType,
-                         QualifiedName(PARSERHEAP()) /*no table name*/,
-                         pColDefault),
-       columnName_(columnName, heap)
-{
-}
+StmtDDLAlterTableAlterColumn::StmtDDLAlterTableAlterColumn(OperatorTypeEnum operatorType, const NAString &columnName,
+                                                           ElemDDLNode *pColDefault, CollHeap *heap)
+    : StmtDDLAlterTable(operatorType, QualifiedName(PARSERHEAP()) /*no table name*/, pColDefault),
+      columnName_(columnName, heap) {}
 
 //
 // Virtual destructor
 //
 
-StmtDDLAlterTableAlterColumn::~StmtDDLAlterTableAlterColumn()
-{}
+StmtDDLAlterTableAlterColumn::~StmtDDLAlterTableAlterColumn() {}
 
-const NAString
-StmtDDLAlterTableAlterColumn::getText() const
-{
-  return "StmtDDLAlterTableAlterColumn" ;
-}
-	
+const NAString StmtDDLAlterTableAlterColumn::getText() const { return "StmtDDLAlterTableAlterColumn"; }
 
 //----------------------------------------------------------------------------
 // CLASS StmtDDLAlterTableAlterColumnDatatype
 //----------------------------------------------------------------------------
-StmtDDLAlterTableAlterColumnDatatype::StmtDDLAlterTableAlterColumnDatatype(
-     ElemDDLNode * pColumnToAlter
-     ,CollHeap    * heap)
-     : StmtDDLAlterTableAlterColumn(DDL_ALTER_TABLE_ALTER_COLUMN_DATATYPE,
-                                    NAString(""),
-                                    NULL,
-                                    heap),
-       pColumnToAlter_(pColumnToAlter)
-{
+StmtDDLAlterTableAlterColumnDatatype::StmtDDLAlterTableAlterColumnDatatype(ElemDDLNode *pColumnToAlter, CollHeap *heap)
+    : StmtDDLAlterTableAlterColumn(DDL_ALTER_TABLE_ALTER_COLUMN_DATATYPE, NAString(""), NULL, heap),
+      pColumnToAlter_(pColumnToAlter) {
   ElemDDLColDef *pColDef = pColumnToAlter->castToElemDDLColDef();
-  if (pColDef NEQ NULL)
-    {
-      getColDefArray().insert(pColDef);
-    }
-  else
+  if (pColDef NEQ NULL) {
+    getColDefArray().insert(pColDef);
+  } else
     *SqlParser_Diags << DgSqlCode(-1001);
 }
 
@@ -76,98 +54,67 @@ StmtDDLAlterTableAlterColumnDatatype::StmtDDLAlterTableAlterColumnDatatype(
 // Virtual destructor
 //
 
-StmtDDLAlterTableAlterColumnDatatype::~StmtDDLAlterTableAlterColumnDatatype()
-{}
+StmtDDLAlterTableAlterColumnDatatype::~StmtDDLAlterTableAlterColumnDatatype() {}
 
 //
 // Cast function: to provide the safe castdown to the current object
 //
 
 StmtDDLAlterTableAlterColumnDatatype *
-StmtDDLAlterTableAlterColumnDatatype::castToStmtDDLAlterTableAlterColumnDatatype()
-{
+StmtDDLAlterTableAlterColumnDatatype::castToStmtDDLAlterTableAlterColumnDatatype() {
   return this;
 }
 
-const NAString
-StmtDDLAlterTableAlterColumnDatatype::getText() const
-{
-  return "StmtDDLAlterTableAlterColumnDatatype" ;
-}
-	
+const NAString StmtDDLAlterTableAlterColumnDatatype::getText() const { return "StmtDDLAlterTableAlterColumnDatatype"; }
+
 //----------------------------------------------------------------------------
 // CLASS StmtDDLAlterTableAlterColumnRename
 //----------------------------------------------------------------------------
-StmtDDLAlterTableAlterColumnRename::StmtDDLAlterTableAlterColumnRename( 
-     const NAString &columnName,
-     const NAString &renamedColumnName,
-     CollHeap *heap)
-    : StmtDDLAlterTableAlterColumn(DDL_ALTER_TABLE_ALTER_COLUMN_RENAME, 
-                                   columnName,
-                                   NULL,
-                                   heap),
-      renamedColumnName_(renamedColumnName)
-{
-}
+StmtDDLAlterTableAlterColumnRename::StmtDDLAlterTableAlterColumnRename(const NAString &columnName,
+                                                                       const NAString &renamedColumnName,
+                                                                       CollHeap *heap)
+    : StmtDDLAlterTableAlterColumn(DDL_ALTER_TABLE_ALTER_COLUMN_RENAME, columnName, NULL, heap),
+      renamedColumnName_(renamedColumnName) {}
 
 //
 // Virtual destructor
 //
 
-StmtDDLAlterTableAlterColumnRename::~StmtDDLAlterTableAlterColumnRename()
-{}
+StmtDDLAlterTableAlterColumnRename::~StmtDDLAlterTableAlterColumnRename() {}
 
 //
 // Cast function: to provide the safe castdown to the current object
 //
 
-StmtDDLAlterTableAlterColumnRename *
-StmtDDLAlterTableAlterColumnRename::castToStmtDDLAlterTableAlterColumnRename()
-{
+StmtDDLAlterTableAlterColumnRename *StmtDDLAlterTableAlterColumnRename::castToStmtDDLAlterTableAlterColumnRename() {
   return this;
 }
 
-const NAString
-StmtDDLAlterTableAlterColumnRename::getText() const
-{
-  return "StmtDDLAlterTableAlterColumnRename" ;
-}
-	
+const NAString StmtDDLAlterTableAlterColumnRename::getText() const { return "StmtDDLAlterTableAlterColumnRename"; }
 
 //----------------------------------------------------------------------------
 // CLASS StmtDDLAlterTableAlterColumnDefaultValue
 //----------------------------------------------------------------------------
-StmtDDLAlterTableAlterColumnDefaultValue::StmtDDLAlterTableAlterColumnDefaultValue( 
-     const NAString &columnName 
-     , ElemDDLNode *pColDefault
-     , CollHeap *heap)
-    : StmtDDLAlterTableAlterColumn(DDL_ALTER_TABLE_ALTER_COLUMN_DEFAULT_VALUE, 
-                                   columnName,
-                                   pColDefault,
-                                   heap)
-{
-}
+StmtDDLAlterTableAlterColumnDefaultValue::StmtDDLAlterTableAlterColumnDefaultValue(const NAString &columnName,
+                                                                                   ElemDDLNode *pColDefault,
+                                                                                   CollHeap *heap)
+    : StmtDDLAlterTableAlterColumn(DDL_ALTER_TABLE_ALTER_COLUMN_DEFAULT_VALUE, columnName, pColDefault, heap) {}
 
 //
 // Virtual destructor
 //
 
-StmtDDLAlterTableAlterColumnDefaultValue::~StmtDDLAlterTableAlterColumnDefaultValue()
-{}
+StmtDDLAlterTableAlterColumnDefaultValue::~StmtDDLAlterTableAlterColumnDefaultValue() {}
 
 //
 // Cast function: to provide the safe castdown to the current object
 //
 
 StmtDDLAlterTableAlterColumnDefaultValue *
-StmtDDLAlterTableAlterColumnDefaultValue::castToStmtDDLAlterTableAlterColumnDefaultValue()
-{
+StmtDDLAlterTableAlterColumnDefaultValue::castToStmtDDLAlterTableAlterColumnDefaultValue() {
   return this;
 }
 
-const NAString
-StmtDDLAlterTableAlterColumnDefaultValue::getText() const
-{
-  return "StmtDDLAlterTableAlterColumnDefaultValue" ;
+const NAString StmtDDLAlterTableAlterColumnDefaultValue::getText() const {
+  return "StmtDDLAlterTableAlterColumnDefaultValue";
 }
-	

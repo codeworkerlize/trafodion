@@ -43,4 +43,4 @@ typedef int xfat_16;
 #define _xstatus_ge(x) ((x) >= 0)
 #define _xstatus_ne(x) ((x) != 0)
 
-#endif // !__SB_CC_H_
+#endif  // !__SB_CC_H_

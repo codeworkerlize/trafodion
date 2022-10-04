@@ -28,11 +28,11 @@
  * Language:     C++
  *
  *
-*****************************************************************************
-*/
+ *****************************************************************************
+ */
 
 #include "vproc.h"
 
-extern "C" { void
-VPROC (PRODNUMSUPERTCL,DATE1SUPERTCL,SUPERTCL_CC_LABEL)
-() {} }
+extern "C" {
+void VPROC(PRODNUMSUPERTCL, DATE1SUPERTCL, SUPERTCL_CC_LABEL)() {}
+}

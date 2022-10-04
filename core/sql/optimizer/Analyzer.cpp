@@ -45,7 +45,7 @@
 #include "optimizer/RelExpr.h"
 #include "TransRule.h"
 
-//tmp includes for join and other relexpr methods
+// tmp includes for join and other relexpr methods
 #include "RelJoin.h"
 #include "optimizer/RelScan.h"
 #include "optimizer/RelGrby.h"
@@ -62,31 +62,22 @@
 void forceCQS1(RelExpr *, RelExpr *);
 
 // tmp methods
-void xxx()
-{
-  CMPASSERT(FALSE);
-}
+void xxx() { CMPASSERT(FALSE); }
 
-void revisitLater()
-{
-  CMPASSERT(FALSE);
-}
+void revisitLater() { CMPASSERT(FALSE); }
 
 // -----------------------------------------------------------------------
 // Methods for class CANodeId
 // -----------------------------------------------------------------------
-EstLogPropSharedPtr CANodeId::getJBBInput()
-{
-  JBB * jbb = NULL;
+EstLogPropSharedPtr CANodeId::getJBBInput() {
+  JBB *jbb = NULL;
 
-  if(getNodeAnalysis()->getJBBC())
-    jbb = getNodeAnalysis()->getJBBC()->getJBB();
+  if (getNodeAnalysis()->getJBBC()) jbb = getNodeAnalysis()->getJBBC()->getJBB();
 
   EstLogPropSharedPtr jbbInLP = (*GLOBAL_EMPTY_INPUT_LOGPROP);
 
-  if(jbb)
-    jbbInLP = jbb->getInputEstLP();
-    
+  if (jbb) jbbInLP = jbb->getInputEstLP();
+
   return jbbInLP;
 }
 
@@ -94,37 +85,25 @@ EstLogPropSharedPtr CANodeId::getJBBInput()
 // Methods for class CANodeIdSet
 // -----------------------------------------------------------------------
 
-CANodeIdSet::CANodeIdSet(CollHeap *outHeap) :
-   SUBARRAY(NodeAnalysis *)(NULL, outHeap)
-{}
+CANodeIdSet::CANodeIdSet(CollHeap *outHeap) : SUBARRAY(NodeAnalysis *)(NULL, outHeap) {}
 
-CANodeIdSet::CANodeIdSet(const CANodeIdSet &other, CollHeap *outHeap) :
-   SUBARRAY(NodeAnalysis *)(other, outHeap)
-{}
+CANodeIdSet::CANodeIdSet(const CANodeIdSet &other, CollHeap *outHeap) : SUBARRAY(NodeAnalysis *)(other, outHeap) {}
 
-CANodeIdSet::CANodeIdSet(const CANodeId& id, CollHeap *outHeap) :
-   SUBARRAY(NodeAnalysis *)(NULL, outHeap)
-{
+CANodeIdSet::CANodeIdSet(const CANodeId &id, CollHeap *outHeap) : SUBARRAY(NodeAnalysis *)(NULL, outHeap) {
   addElement(id.id_);
 }
 
-CANodeId CANodeIdSet::getFirst() const
-{
+CANodeId CANodeIdSet::getFirst() const {
   CANodeId id = init();
-  if (NOT next(id))
-    id = NULL_CA_ID;
+  if (NOT next(id)) id = NULL_CA_ID;
   return id;
 }
 
-CANodeIdSet CANodeIdSet::operator +(const CANodeIdSet & other) const
-{
+CANodeIdSet CANodeIdSet::operator+(const CANodeIdSet &other) const {
   CANodeId id_;
   CANodeIdSet result(*this, CmpCommon::statementHeap());
 
-  for (id_ = other.init();
-       other.next(id_);
-       other.advance(id_))
-  {
+  for (id_ = other.init(); other.next(id_); other.advance(id_)) {
     result.addElement(id_);
   }
 
@@ -139,34 +118,28 @@ CANodeIdSet CANodeIdSet::operator +(const CANodeIdSet & other) const
 // AND
 // * there is atleast on jbbc connected via a InnerNonSemi
 //   join
-NABoolean CANodeIdSet::legal() const
-{
+NABoolean CANodeIdSet::legal() const {
   CANodeIdSet nodeSet(*this);
   CANodeId i;
   NABoolean hasInnerNonSemiNonTSJJoin = FALSE;
-  
-  JBBSubset * jbbSubset = jbbcsToJBBSubset();
-  
-  if(jbbSubset && (jbbSubset->getLegality() != NOT_KNOWN))
-  {
-    if(jbbSubset->getLegality() == LEGAL)
-      return TRUE;
-    
+
+  JBBSubset *jbbSubset = jbbcsToJBBSubset();
+
+  if (jbbSubset && (jbbSubset->getLegality() != NOT_KNOWN)) {
+    if (jbbSubset->getLegality() == LEGAL) return TRUE;
+
     return FALSE;
   }
-  
-  for (i = init(); next(i); advance(i))
-  {
-    Join * parentJoin =
-      i.getNodeAnalysis()->getJBBC()->getOriginalParentJoin();
+
+  for (i = init(); next(i); advance(i)) {
+    Join *parentJoin = i.getNodeAnalysis()->getJBBC()->getOriginalParentJoin();
 
     // if a jbbc is connected via a InnerNonSemi join it is
     // legal. It can be legally present anywhere and does not
     // depend on the presence of a predecessor. Such guys are
     // citizens they don't need anyone to sponsor them to make
     // them legal :)
-    if ((!parentJoin) ||
-        (parentJoin->isInnerNonSemiNonTSJJoin()))
+    if ((!parentJoin) || (parentJoin->isInnerNonSemiNonTSJJoin()))
       // an interesting thing to note is that sometimes jbbcs
       // connected via a special join e.g. left join don't have
       // any join predicate. In such a case the jbbc would be
@@ -176,54 +149,46 @@ NABoolean CANodeIdSet::legal() const
       // via a InnerNonSemi join so that it can be the left child
       // of the left most join.
       hasInnerNonSemiNonTSJJoin = TRUE;
-    else{
+    else {
       // if a jbbc is connected via a special join (i.e. left,
       // semi, anti semi) then it needs some predecessors to
       // make it legal. He needs some predecessor to sponsor
       // him to make him a legal citizen. The legal addition
       // check below ensures that jbbc i is a legal citizen :)
       nodeSet -= i;
-      if(!nodeSet.legalAddition(i))
-      {
-        if(jbbSubset)
-          jbbSubset->setLegality(ILLEGAL);
+      if (!nodeSet.legalAddition(i)) {
+        if (jbbSubset) jbbSubset->setLegality(ILLEGAL);
         return FALSE;
       }
       nodeSet += i;
     }
-
   }
 
-  if(hasInnerNonSemiNonTSJJoin)
-  {
-    if(jbbSubset)
-      jbbSubset->setLegality(LEGAL);
+  if (hasInnerNonSemiNonTSJJoin) {
+    if (jbbSubset) jbbSubset->setLegality(LEGAL);
 
     return TRUE;
   }
 
-  if(jbbSubset)
-    jbbSubset->setLegality(ILLEGAL);
+  if (jbbSubset) jbbSubset->setLegality(ILLEGAL);
 
   return FALSE;
 }
 
-NABoolean CANodeIdSet::legalAddition(CANodeId newNode) const
-{
-  JBBC* newNodeJBBC = newNode.getNodeAnalysis()->getJBBC();
-  Join * newNodeParentJoin = newNodeJBBC->getOriginalParentJoin();
+NABoolean CANodeIdSet::legalAddition(CANodeId newNode) const {
+  JBBC *newNodeJBBC = newNode.getNodeAnalysis()->getJBBC();
+  Join *newNodeParentJoin = newNodeJBBC->getOriginalParentJoin();
 
   // left most child in the original join ordering
-  if(!newNodeParentJoin)
-    return TRUE;
+  if (!newNodeParentJoin) return TRUE;
   // right child of an inner join
   else if (newNodeParentJoin->isInnerNonSemiNonTSJJoin())
     return TRUE;
   // right child of left, semi, anti-semi join, routine join
-  else{
+  else {
     CANodeIdSet predecessorJBBCs = newNodeJBBC->getPredecessorJBBCs();
 
-	  // if the newNode is connect via a:
+    // if the newNode is connect via a:
     // * left outer join
     // * semi join
     // * anti semi join
@@ -232,63 +197,44 @@ NABoolean CANodeIdSet::legalAddition(CANodeId newNode) const
 
     // return false since there are no JBBCs in 'this' set
     // therefore any dependency will not be satisfied
-    if(!entries())
-      return FALSE;
+    if (!entries()) return FALSE;
 
-	  if(CmpCommon::getDefault(ASYMMETRIC_JOIN_TRANSFORMATION) == DF_MINIMUM)
-	  {
-      if(!contains(predecessorJBBCs))
-        return FALSE;
-	  }
-    else{
+    if (CmpCommon::getDefault(ASYMMETRIC_JOIN_TRANSFORMATION) == DF_MINIMUM) {
+      if (!contains(predecessorJBBCs)) return FALSE;
+    } else {
+      if (contains(predecessorJBBCs)) return TRUE;
 
-      if(contains(predecessorJBBCs))
-        return TRUE;
-
-      if(predecessorJBBCs.entries() < 2)
-	    {
-        if(!contains(predecessorJBBCs))
-          return FALSE;
-      }
-      else{
-
-        JBBSubset * jbbSubset = jbbcsToJBBSubset();
+      if (predecessorJBBCs.entries() < 2) {
+        if (!contains(predecessorJBBCs)) return FALSE;
+      } else {
+        JBBSubset *jbbSubset = jbbcsToJBBSubset();
 
         // predicates for which newNode is successor
-        ValueIdSet dependencyPreds =
-          jbbSubset->getPredsWithSuccessors();
-        ValueIdSet newNodePredsWithPredecessors =
-          newNodeJBBC->getPredsWithPredecessors();
-        newNodePredsWithPredecessors -=
-          newNodeJBBC->getConstPredsWithPredecessors();
+        ValueIdSet dependencyPreds = jbbSubset->getPredsWithSuccessors();
+        ValueIdSet newNodePredsWithPredecessors = newNodeJBBC->getPredsWithPredecessors();
+        newNodePredsWithPredecessors -= newNodeJBBC->getConstPredsWithPredecessors();
         dependencyPreds.intersectSet(newNodePredsWithPredecessors);
 
         CANodeIdSet combinedSet;
         combinedSet += *this;
         combinedSet += newNode;
-        JBBSubset * combinedJBBSubset = combinedSet.jbbcsToJBBSubset();
+        JBBSubset *combinedJBBSubset = combinedSet.jbbcsToJBBSubset();
 
-        if(newNodeParentJoin && newNodeParentJoin->isRoutineJoin())
-        {
-          ValueIdSet newNodeInputsRequiredFromSiblings =
-            newNodeJBBC->getInputsRequiredFromSiblings();
+        if (newNodeParentJoin && newNodeParentJoin->isRoutineJoin()) {
+          ValueIdSet newNodeInputsRequiredFromSiblings = newNodeJBBC->getInputsRequiredFromSiblings();
 
           // check if input required from siblings is covered
-          for (ValueId input= newNodeInputsRequiredFromSiblings.init();
-              newNodeInputsRequiredFromSiblings.next(input);
-              newNodeInputsRequiredFromSiblings.advance(input) )
-          {
+          for (ValueId input = newNodeInputsRequiredFromSiblings.init(); newNodeInputsRequiredFromSiblings.next(input);
+               newNodeInputsRequiredFromSiblings.advance(input)) {
             NABoolean inputIsCovered = combinedJBBSubset->coversExpr(input);
 
-            if(!inputIsCovered)
-              return FALSE;
-          }          
+            if (!inputIsCovered) return FALSE;
+          }
         }
 
         // if all predicates with predecessors for the new node
         // are not covered then this is not a legal addition
-        if (dependencyPreds.entries() != newNodePredsWithPredecessors.entries())
-          return FALSE;
+        if (dependencyPreds.entries() != newNodePredsWithPredecessors.entries()) return FALSE;
 
         // if all predicates with predecessors for the new node
         // are covered, we need to do a coverage test. This is
@@ -313,14 +259,11 @@ NABoolean CANodeIdSet::legalAddition(CANodeId newNode) const
         // {t1, t2, t3} is legal of course {t1,t2} would be legal
         // This is because we need all three to evaluate the predicate
         // t3.a = t1.b + t2.c
-        for (ValueId x= newNodePredsWithPredecessors.init();
-            newNodePredsWithPredecessors.next(x);
-            newNodePredsWithPredecessors.advance(x) )
-        {
+        for (ValueId x = newNodePredsWithPredecessors.init(); newNodePredsWithPredecessors.next(x);
+             newNodePredsWithPredecessors.advance(x)) {
           NABoolean predIsCovered = combinedJBBSubset->coversExpr(x);
 
-          if(!predIsCovered)
-            return FALSE;
+          if (!predIsCovered) return FALSE;
         }
       }
     }
@@ -332,8 +275,7 @@ NABoolean CANodeIdSet::legalAddition(CANodeId newNode) const
 // If there are more than one jbbcs, with the same number of
 // connections, pick the first one.
 
-CANodeId CANodeIdSet::getJBBCwithMinConnectionsToThisJBBSubset() const
-{
+CANodeId CANodeIdSet::getJBBCwithMinConnectionsToThisJBBSubset() const {
   CollIndex noOfConn = MAX_COLL_INDEX;
   CANodeId childWithMinConnections = getFirst();
 
@@ -342,20 +284,17 @@ CANodeId CANodeIdSet::getJBBCwithMinConnectionsToThisJBBSubset() const
 
   CANodeId id;
 
-  if (entries() == 1)
-    return childWithMinConnections;
+  if (entries() == 1) return childWithMinConnections;
 
   // For two way joins make sure to return a child that can be the
   // right side of a join. If one child is the right child of a
   // left, semi, anti-semi join then that child should be returned.
   // This is because that child cannot be the left child of a join
-  if (entries() == 2){
-    for(id = init(); next(id); advance(id))
-    {
-      JBBC* idJbbc = id.getNodeAnalysis()->getJBBC();
-      Join * jbbcParent = idJbbc->getOriginalParentJoin();
-      if (jbbcParent && (!jbbcParent->isInnerNonSemiNonTSJJoin()))
-        childWithMinConnections = id;
+  if (entries() == 2) {
+    for (id = init(); next(id); advance(id)) {
+      JBBC *idJbbc = id.getNodeAnalysis()->getJBBC();
+      Join *jbbcParent = idJbbc->getOriginalParentJoin();
+      if (jbbcParent && (!jbbcParent->isInnerNonSemiNonTSJJoin())) childWithMinConnections = id;
     }
     return childWithMinConnections;
   }
@@ -365,13 +304,10 @@ CANodeId CANodeIdSet::getJBBCwithMinConnectionsToThisJBBSubset() const
   // a inner non semi join
   UInt32 numNodesConnectedViaInnerNonSemiJoin = 0;
   CANodeId nodeConnectedViaInnerNonSemiJoin;
-  for(id = init(); next(id); advance(id))
-  {
-    JBBC* idJbbc = id.getNodeAnalysis()->getJBBC();
-    Join * jbbcParent = idJbbc->getOriginalParentJoin();
-    if((!jbbcParent) ||
-       (jbbcParent->isInnerNonSemiNonTSJJoin()))
-    {
+  for (id = init(); next(id); advance(id)) {
+    JBBC *idJbbc = id.getNodeAnalysis()->getJBBC();
+    Join *jbbcParent = idJbbc->getOriginalParentJoin();
+    if ((!jbbcParent) || (jbbcParent->isInnerNonSemiNonTSJJoin())) {
       numNodesConnectedViaInnerNonSemiJoin++;
       nodeConnectedViaInnerNonSemiJoin = id;
     }
@@ -379,190 +315,136 @@ CANodeId CANodeIdSet::getJBBCwithMinConnectionsToThisJBBSubset() const
 
   // traverse thru all connections passed
   // to determine the one with minimum connection
-  for (id = init();
-       next(id);
-	   advance(id))
-  {
-    JBBC* idJbbc = id.getNodeAnalysis()->getJBBC();
+  for (id = init(); next(id); advance(id)) {
+    JBBC *idJbbc = id.getNodeAnalysis()->getJBBC();
 
     // dont pick the only node that can be a left child of a join
-    if((numNodesConnectedViaInnerNonSemiJoin == 1) &&
-       (id == nodeConnectedViaInnerNonSemiJoin ))
-      continue;
+    if ((numNodesConnectedViaInnerNonSemiJoin == 1) && (id == nodeConnectedViaInnerNonSemiJoin)) continue;
 
     CANodeIdSet jbbcsJoinedToThisSet(*this);
-	  jbbcsJoinedToThisSet.intersectSet(idJbbc->getJoinedJBBCs());
+    jbbcsJoinedToThisSet.intersectSet(idJbbc->getJoinedJBBCs());
 
-	  if (idJbbc->getSuccessorJBBCs().entries() != 0)
-	  {
-	    CANodeIdSet dependentJbbcs(*this);
-	    dependentJbbcs.intersectSet(idJbbc->getSuccessorJBBCs());
-	    if (dependentJbbcs.entries() != 0)
-	      continue;
+    if (idJbbc->getSuccessorJBBCs().entries() != 0) {
+      CANodeIdSet dependentJbbcs(*this);
+      dependentJbbcs.intersectSet(idJbbc->getSuccessorJBBCs());
+      if (dependentJbbcs.entries() != 0) continue;
     }
 
-	  CollIndex connectedJBBCsCount = jbbcsJoinedToThisSet.entries();
+    CollIndex connectedJBBCsCount = jbbcsJoinedToThisSet.entries();
 
-   // get the connections from this subset
-   if ( connectedJBBCsCount < noOfConn)
-   {
-	  noOfConn = connectedJBBCsCount;
-	  // flush the previously stored conflicitng JBBCs and start a new set
-	  jbbcsWithMinConnections.clear();
-	  jbbcsWithMinConnections.insert(id);
-	  childWithMinConnections = id;
-	}
-	else
-	{
-	  // collect all conflicting nodes
-	   if ( connectedJBBCsCount == noOfConn)
-	  {
-		noOfConn = connectedJBBCsCount;
-		jbbcsWithMinConnections.insert(id);
-	  }
-	}
-   } // for loop to pick the jbbc with min connections, and collect if there are
-	 // more than one with min connections.
+    // get the connections from this subset
+    if (connectedJBBCsCount < noOfConn) {
+      noOfConn = connectedJBBCsCount;
+      // flush the previously stored conflicitng JBBCs and start a new set
+      jbbcsWithMinConnections.clear();
+      jbbcsWithMinConnections.insert(id);
+      childWithMinConnections = id;
+    } else {
+      // collect all conflicting nodes
+      if (connectedJBBCsCount == noOfConn) {
+        noOfConn = connectedJBBCsCount;
+        jbbcsWithMinConnections.insert(id);
+      }
+    }
+  }  // for loop to pick the jbbc with min connections, and collect if there are
+     // more than one with min connections.
 
 // debugging code
 #ifdef _DEBUG
-if ( CmpCommon::getDefault( NSK_DBG ) == DF_ON  &&
-   CmpCommon::getDefault( NSK_DBG_MJRULES_TRACKING ) == DF_ON )
-{
-  CURRCONTEXT_OPTDEBUG->stream() << endl
-				  << "jbbcs with minimum connection "\
-		          << jbbcsWithMinConnections.getText();
-  CURRCONTEXT_OPTDEBUG->stream() << "Number of connections "\
-                  << istring(Lng32(noOfConn))\
-                  <<endl;
-}
+  if (CmpCommon::getDefault(NSK_DBG) == DF_ON && CmpCommon::getDefault(NSK_DBG_MJRULES_TRACKING) == DF_ON) {
+    CURRCONTEXT_OPTDEBUG->stream() << endl << "jbbcs with minimum connection " << jbbcsWithMinConnections.getText();
+    CURRCONTEXT_OPTDEBUG->stream() << "Number of connections " << istring(Lng32(noOfConn)) << endl;
+  }
 #endif
-  if (jbbcsWithMinConnections.entries() > 1)
-  {
+  if (jbbcsWithMinConnections.entries() > 1) {
+    CostScalar smallestTableSize = COSTSCALAR_MAX;
+    CostScalar currentTableSize = csOne;
 
-	CostScalar smallestTableSize = COSTSCALAR_MAX;
-	CostScalar currentTableSize = csOne;
+    // traverse thru all conflicting nodes (nodes with minimum connection)
+    for (id = jbbcsWithMinConnections.init(); jbbcsWithMinConnections.next(id); jbbcsWithMinConnections.advance(id)) {
+      // if the node is not a table, we continue
+      TableAnalysis *currentTA = id.getNodeAnalysis()->getTableAnalysis();
 
-	// traverse thru all conflicting nodes (nodes with minimum connection)
-	for (id = jbbcsWithMinConnections.init();
-	   jbbcsWithMinConnections.next(id);
-	   jbbcsWithMinConnections.advance(id))
-	{
-	  // if the node is not a table, we continue
-	  TableAnalysis * currentTA = id.getNodeAnalysis()->getTableAnalysis();
+      if (!currentTA) continue;
 
-	  if (!currentTA) continue;
-
-	  // get all the nodes, this one is connected to
+      // get all the nodes, this one is connected to
       CANodeIdSet jbbcsConnectedToId(*this);
 
-	  jbbcsConnectedToId.subtractElement(id);
+      jbbcsConnectedToId.subtractElement(id);
 
-	  // out of the remaining nodes, traverse thru the ones that are
-	  // connected to current id.
+      // out of the remaining nodes, traverse thru the ones that are
+      // connected to current id.
 
-	  CANodeIdSet connectedNodes = currentTA->getConnectedTables();
+      CANodeIdSet connectedNodes = currentTA->getConnectedTables();
 
-	  jbbcsConnectedToId.intersectSet(connectedNodes);
+      jbbcsConnectedToId.intersectSet(connectedNodes);
 
-	  for (CANodeId id2 = jbbcsConnectedToId.init();
-		   jbbcsConnectedToId.next(id2);
-		   jbbcsConnectedToId.advance(id2) )
-		   {
-			 // get all columns with equality predicates between this
-			 // and the connecting node
-			 ValueIdSet idCols = currentTA->getColsConnectedViaVEGPreds(id2);
+      for (CANodeId id2 = jbbcsConnectedToId.init(); jbbcsConnectedToId.next(id2); jbbcsConnectedToId.advance(id2)) {
+        // get all columns with equality predicates between this
+        // and the connecting node
+        ValueIdSet idCols = currentTA->getColsConnectedViaVEGPreds(id2);
 
-			 // get the equality factor for this set of columns.
-			 // Equality factor is defined as UEC / base row count.
-			 CostScalar eqFactor = currentTA->getEqualityVal(idCols);
+        // get the equality factor for this set of columns.
+        // Equality factor is defined as UEC / base row count.
+        CostScalar eqFactor = currentTA->getEqualityVal(idCols);
 
-			 currentTableSize = currentTA->getCardinalityOfBaseTable();
+        currentTableSize = currentTA->getCardinalityOfBaseTable();
 
-			 if ((eqFactor > maxEqFactor) ||
-				   ((!CURRSTMT_OPTDEFAULTS->isComplexMJQuery()) &&
-            (eqFactor == maxEqFactor) &&
-				    (currentTableSize < smallestTableSize)))
-			 {
-			   // save the node with max equality factor
-			   maxEqFactor = eqFactor;
-			   childWithMinConnections = id;
-               smallestTableSize = currentTableSize;
-
-			 }
+        if ((eqFactor > maxEqFactor) || ((!CURRSTMT_OPTDEFAULTS->isComplexMJQuery()) && (eqFactor == maxEqFactor) &&
+                                         (currentTableSize < smallestTableSize))) {
+          // save the node with max equality factor
+          maxEqFactor = eqFactor;
+          childWithMinConnections = id;
+          smallestTableSize = currentTableSize;
+        }
 #ifdef _DEBUG
-if ( CmpCommon::getDefault( NSK_DBG ) == DF_ON  &&
-   CmpCommon::getDefault( NSK_DBG_MJRULES_TRACKING ) == DF_ON )
-{
-  CURRCONTEXT_OPTDEBUG->stream() << "Connections tried "\
-                  << id.getText() \
-				  << " with " << id2.getText() \
-				  << endl;
-  CURRCONTEXT_OPTDEBUG->stream() << "Number of columns "\
-                  << istring(Lng32(idCols.entries()))\
-                  <<endl;
-  CURRCONTEXT_OPTDEBUG->stream() << "Equality factor "\
-                  << eqFactor.value() \
-                  << endl
-				  << endl;
-}
+        if (CmpCommon::getDefault(NSK_DBG) == DF_ON && CmpCommon::getDefault(NSK_DBG_MJRULES_TRACKING) == DF_ON) {
+          CURRCONTEXT_OPTDEBUG->stream() << "Connections tried " << id.getText() << " with " << id2.getText() << endl;
+          CURRCONTEXT_OPTDEBUG->stream() << "Number of columns " << istring(Lng32(idCols.entries())) << endl;
+          CURRCONTEXT_OPTDEBUG->stream() << "Equality factor " << eqFactor.value() << endl << endl;
+        }
 #endif
-		   } // for loop to traverse all two way connections
+      }  // for loop to traverse all two way connections
 
-	} // For loop to traverse over all confliciting ID, computing their equality factors
-  } // end if number of conflicting jbbcs > 1
+    }  // For loop to traverse over all confliciting ID, computing their equality factors
+  }    // end if number of conflicting jbbcs > 1
 
 #ifdef _DEBUG
-if ( CmpCommon::getDefault( NSK_DBG ) == DF_ON  &&
-   CmpCommon::getDefault( NSK_DBG_MJRULES_TRACKING ) == DF_ON )
-{
-  CURRCONTEXT_OPTDEBUG->stream() << "CANodeId picked up "\
-                  << childWithMinConnections.getText() \
-				  << endl;
-  CURRCONTEXT_OPTDEBUG->stream() << "Max Equality factor "\
-                  << maxEqFactor.value() \
-                  << endl
-				  << endl;
-}
+  if (CmpCommon::getDefault(NSK_DBG) == DF_ON && CmpCommon::getDefault(NSK_DBG_MJRULES_TRACKING) == DF_ON) {
+    CURRCONTEXT_OPTDEBUG->stream() << "CANodeId picked up " << childWithMinConnections.getText() << endl;
+    CURRCONTEXT_OPTDEBUG->stream() << "Max Equality factor " << maxEqFactor.value() << endl << endl;
+  }
 #endif
   return childWithMinConnections;
 }
 
 // get minimum estimated row count of the group from amongst the nodeSet
-CostScalar CANodeIdSet::getMinChildEstRowCount() const
-{
+CostScalar CANodeIdSet::getMinChildEstRowCount() const {
   CostScalar minEstCard = COSTSCALAR_MAX;
   CostScalar minCard = csOne;
 
-  for (CANodeId nodeId = init();
-       next(nodeId);
-       advance(nodeId) )
-    {
-      minCard = (nodeId.getNodeAnalysis()->getOriginalExpr()->getGroupAttr()->getMinChildEstRowCount()).minCsOne();
-      if (minCard < minEstCard)
-	minEstCard = minCard;
-    }
-    return minEstCard;
+  for (CANodeId nodeId = init(); next(nodeId); advance(nodeId)) {
+    minCard = (nodeId.getNodeAnalysis()->getOriginalExpr()->getGroupAttr()->getMinChildEstRowCount()).minCsOne();
+    if (minCard < minEstCard) minEstCard = minCard;
+  }
+  return minEstCard;
 }
-
 
 // compute the JBBSubset structure for this CANodeIdSet
 // Note that not every CANodeIdSet has a JBBSubset (for example
 // all JBBCs has to be of the same JBB). The method verify()
 // on JBBSubset can be used to verify this condition.
-JBBSubset * CANodeIdSet::computeJBBSubset() const
-{
-  QueryAnalysis* qa = QueryAnalysis::Instance();
+JBBSubset *CANodeIdSet::computeJBBSubset() const {
+  QueryAnalysis *qa = QueryAnalysis::Instance();
 
   CANodeIdSet jbbcs(*this);
   jbbcs.intersectSet(qa->getJBBCs());
 
-  JBBSubset* result = jbbcs.jbbcsToJBBSubset();
+  JBBSubset *result = jbbcs.jbbcsToJBBSubset();
 
   CANodeIdSet gbs(*this);
   gbs.intersectSet(qa->getGBs());
-  if (gbs.entries() > 0)
-  {
+  if (gbs.entries() > 0) {
     CMPASSERT(gbs.entries() == 1);
     CANodeId gb = gbs.getFirst();
     result->setGB(gb);
@@ -570,14 +452,12 @@ JBBSubset * CANodeIdSet::computeJBBSubset() const
   return result;
 }
 
-EstLogPropSharedPtr CANodeIdSet::getJBBInput() const
-{
-  JBB * jbb = NULL;
+EstLogPropSharedPtr CANodeIdSet::getJBBInput() const {
+  JBB *jbb = NULL;
 
   CANodeId jbbcId = getFirst();
 
-  if(jbbcId != NULL_CA_ID)
-    return jbbcId.getJBBInput();
+  if (jbbcId != NULL_CA_ID) return jbbcId.getJBBInput();
 
   return (*GLOBAL_EMPTY_INPUT_LOGPROP);
 }
@@ -587,114 +467,93 @@ EstLogPropSharedPtr CANodeIdSet::getJBBInput() const
 // only sibling JBBCs. Use only if that condition is true (which
 // is the case for most CANodeIdSet values generated by getJoinedJBBCs()
 // and similar methods on JBBC and JBBSubset).
-JBBSubset * CANodeIdSet::jbbcsToJBBSubset() const
-{
-  JBBSubset* result = new (CmpCommon::statementHeap())
-	                    JBBSubset(CmpCommon::statementHeap());
+JBBSubset *CANodeIdSet::jbbcsToJBBSubset() const {
+  JBBSubset *result = new (CmpCommon::statementHeap()) JBBSubset(CmpCommon::statementHeap());
   result->setJBBCs(*this);
   return result;
 }
 
-const NAString CANodeIdSet::getText() const
-{
+const NAString CANodeIdSet::getText() const {
   NAString result("CANodeIdSet: {");
-  for (CANodeId x= init();  next(x); advance(x) )
-  {
+  for (CANodeId x = init(); next(x); advance(x)) {
     result += " " + istring(x) + " ";
   }
   result += "}\n";
   return result;
 }
 
-void CANodeIdSet::display() const
-{
-  print();
-}
+void CANodeIdSet::display() const { print(); }
 
-void CANodeIdSet::print (FILE *f,
-	      const char * prefix,
-	      const char * suffix) const
-{
-  fprintf (f, "%s", (const char*)getText());
+void CANodeIdSet::print(FILE *f, const char *prefix, const char *suffix) const {
+  fprintf(f, "%s", (const char *)getText());
 }
 
 // -----------------------------------------------------------------------
 // Methods for class CANodeIdSetMap
 // -----------------------------------------------------------------------
 
-CANodeIdSetMap::CANodeIdSetMap(ULng32 init_size,
-                               CollHeap *outHeap):
-  HASHDICTIONARY(CANodeIdSet, JBBSubsetAnalysis) (&(CANodeIdSetMap::Hasher),
-                                                  init_size,
-                                                  TRUE, // uniqueness constraint
-                                                  outHeap )
-{
+CANodeIdSetMap::CANodeIdSetMap(ULng32 init_size, CollHeap *outHeap)
+    : HASHDICTIONARY(CANodeIdSet, JBBSubsetAnalysis)(&(CANodeIdSetMap::Hasher), init_size,
+                                                     TRUE,  // uniqueness constraint
+                                                     outHeap) {
   hits_ = 0;
   misses_ = 0;
 }
 
-ULng32 CANodeIdSetMap::Hasher(const CANodeIdSet & key)
-{
-  return key.hash();
-}
+ULng32 CANodeIdSetMap::Hasher(const CANodeIdSet &key) { return key.hash(); }
 
-JBBSubsetAnalysis* CANodeIdSetMap::getFirstValue(const CANodeIdSet* key) const
-{
-  JBBSubsetAnalysis* result =
-    HASHDICTIONARY(CANodeIdSet, JBBSubsetAnalysis)::getFirstValue(key);
+JBBSubsetAnalysis *CANodeIdSetMap::getFirstValue(const CANodeIdSet *key) const {
+  JBBSubsetAnalysis *result = HASHDICTIONARY(CANodeIdSet, JBBSubsetAnalysis)::getFirstValue(key);
 
   // Record hit and miss stat (may be debug code only)
   if (result)
-    ((CANodeIdSetMap*)this)->hits_++; // cast to non-const
+    ((CANodeIdSetMap *)this)->hits_++;  // cast to non-const
   else
-    ((CANodeIdSetMap*)this)->misses_++;
+    ((CANodeIdSetMap *)this)->misses_++;
 
   return result;
 }
-
 
 // -----------------------------------------------------------------------
 // Methods for class QueryAnalysis
 // -----------------------------------------------------------------------
 
 // construct a QueryAnalysis
-QueryAnalysis::QueryAnalysis(CollHeap *outHeap, NABoolean analysis):
-  jbbSubsetMap_(107,outHeap),
-  analysisON_(analysis),
-  multiJoinsUsed_(FALSE),
-  optimizeForFirstNRows_(FALSE),
-  compressedHistsViable_(TRUE),
-  heap_(outHeap),
-  nodeAnalysisArray_(outHeap),
-  jbbArray_(outHeap),
-  allJBBCs_(outHeap),
-  allGBs_(outHeap),
-  origJBBTopExprs_(outHeap),
-  colAnalysisArray_(outHeap),
-  outputToJBBCsMap_(outHeap),
-  predAnalysisArray_(outHeap),
-  nodeMapArray_(outHeap),
-  mvQueryRewriteHandler_(new (outHeap) MvQueryRewriteHandler(outHeap)),
-  isMvCreation_(FALSE),
-  skippedSomeJoins_(FALSE),
-  dontSurfTheWave_(FALSE), // WaveFix
-  largestTable_(NULL),
-  joinedToLargestTable_(outHeap),
-  compilerPhase_(PRE_BINDER),
-  hasMandatoryXPComputed_(FALSE),
-  queryComplexityVector_(NULL),
-  highestNumOfPartns_(-1),
-  statsToDisplay_(NULL)
-{
+QueryAnalysis::QueryAnalysis(CollHeap *outHeap, NABoolean analysis)
+    : jbbSubsetMap_(107, outHeap),
+      analysisON_(analysis),
+      multiJoinsUsed_(FALSE),
+      optimizeForFirstNRows_(FALSE),
+      compressedHistsViable_(TRUE),
+      heap_(outHeap),
+      nodeAnalysisArray_(outHeap),
+      jbbArray_(outHeap),
+      allJBBCs_(outHeap),
+      allGBs_(outHeap),
+      origJBBTopExprs_(outHeap),
+      colAnalysisArray_(outHeap),
+      outputToJBBCsMap_(outHeap),
+      predAnalysisArray_(outHeap),
+      nodeMapArray_(outHeap),
+      mvQueryRewriteHandler_(new (outHeap) MvQueryRewriteHandler(outHeap)),
+      isMvCreation_(FALSE),
+      skippedSomeJoins_(FALSE),
+      dontSurfTheWave_(FALSE),  // WaveFix
+      largestTable_(NULL),
+      joinedToLargestTable_(outHeap),
+      compilerPhase_(PRE_BINDER),
+      hasMandatoryXPComputed_(FALSE),
+      queryComplexityVector_(NULL),
+      highestNumOfPartns_(-1),
+      statsToDisplay_(NULL) {
   // create the table connectivity graph
   tCGraph_ = new (heap_) TableConnectivityGraph(heap_);
 
   // create a NULL entry for CANodeId = 0
-  nodeAnalysisArray_.insertAt(0,NULL);
+  nodeAnalysisArray_.insertAt(0, NULL);
 
   // set the limit at which one JBB should reach in order to invoke MJ-Rewrite
-  multiJoinThreshold_ =
-    ActiveSchemaDB()->getDefaults().getAsLong(MULTI_JOIN_THRESHOLD);
+  multiJoinThreshold_ = ActiveSchemaDB()->getDefaults().getAsLong(MULTI_JOIN_THRESHOLD);
 
   // set the property of JoinOrder By User. May get reset by hint later
   joinOrderByUser_ = (CmpCommon::getDefault(JOIN_ORDER_BY_USER) == DF_ON);
@@ -707,14 +566,12 @@ QueryAnalysis::QueryAnalysis(CollHeap *outHeap, NABoolean analysis):
 }
 
 // destruct a QueryAnalysis
-QueryAnalysis::~QueryAnalysis()
-{
+QueryAnalysis::~QueryAnalysis() {
   delete tCGraph_;
   delete appStatMan_;
   delete mvQueryRewriteHandler_;
   // should loop over other collections and delete later
 }
-
 
 // This is a temporary placement of initialization. Later it shall be
 // moved to a common area where we can have all global initialization
@@ -726,10 +583,9 @@ THREAD_P NABoolean CompCCAssert::useCCMPAssert_ = FALSE;
 // -----------------------------------------------------------------------
 
 // create a new NodeAnalysis for expr node and assign it new CANodeId
-NodeAnalysis * QueryAnalysis::newNodeAnalysis(RelExpr* expr)
-{
+NodeAnalysis *QueryAnalysis::newNodeAnalysis(RelExpr *expr) {
   CollIndex newId = nodeAnalysisArray_.entries();
-  NodeAnalysis* result = new (heap_) NodeAnalysis(newId, expr, heap_);
+  NodeAnalysis *result = new (heap_) NodeAnalysis(newId, expr, heap_);
   nodeAnalysisArray_.insertAt(newId, result);
   return result;
 }
@@ -737,11 +593,10 @@ NodeAnalysis * QueryAnalysis::newNodeAnalysis(RelExpr* expr)
 // create new JBB. The provided expr is the top node at the join
 // backbone in the normalizer output. expr could be either a join
 // or a group by on top of a join
-JBB * QueryAnalysis::newJBB(RelExpr* expr)
-{
+JBB *QueryAnalysis::newJBB(RelExpr *expr) {
   CollIndex newId = jbbArray_.entries();
 
-  JBB* result = new (heap_) JBB(newId, heap_);
+  JBB *result = new (heap_) JBB(newId, heap_);
   result->setNormInputs(expr->getGroupAttr()->getCharacteristicInputs());
   result->setNormOutputs(expr->getGroupAttr()->getCharacteristicOutputs());
 
@@ -759,8 +614,7 @@ JBB * QueryAnalysis::newJBB(RelExpr* expr)
 // create a new TableAnalysis structure for this tableExpr
 // currently only Scan and TableValuedFunction can have
 // TableAnalysis structure associated with them
-TableAnalysis * QueryAnalysis::newTableAnalysis(RelExpr* tableExpr)
-{
+TableAnalysis *QueryAnalysis::newTableAnalysis(RelExpr *tableExpr) {
   // tableExpr could be of type Scan (most probably) or it could
   // be of type TableValuedFunction. I could put the TableDesc
   // extraction logic below in the pilotAnalysis implementation for
@@ -769,78 +623,55 @@ TableAnalysis * QueryAnalysis::newTableAnalysis(RelExpr* tableExpr)
   // compute something else that is expression based (other than
   // TableDesc) inside TableAnalysis
 
-  TableDesc* tableDesc = NULL;
-  if (tableExpr->getOperator().match(REL_SCAN))
-  {
-    tableDesc = ((Scan*)tableExpr)->getTableDesc();
-  } else if ((tableExpr->getOperator().match(REL_UNARY_INSERT)) ||
-	  (tableExpr->getOperator().match(REL_LEAF_INSERT))) {
-
-	tableDesc = ((Insert *)tableExpr)->getTableDesc();
-  } else if ((tableExpr->getOperator().match(REL_UNARY_UPDATE)) ||
-    (tableExpr->getOperator().match(REL_LEAF_UPDATE))) {
-
+  TableDesc *tableDesc = NULL;
+  if (tableExpr->getOperator().match(REL_SCAN)) {
+    tableDesc = ((Scan *)tableExpr)->getTableDesc();
+  } else if ((tableExpr->getOperator().match(REL_UNARY_INSERT)) || (tableExpr->getOperator().match(REL_LEAF_INSERT))) {
+    tableDesc = ((Insert *)tableExpr)->getTableDesc();
+  } else if ((tableExpr->getOperator().match(REL_UNARY_UPDATE)) || (tableExpr->getOperator().match(REL_LEAF_UPDATE))) {
     tableDesc = ((Update *)tableExpr)->getTableDesc();
-  } else if ((tableExpr->getOperator().match(REL_UNARY_DELETE)) ||
-    (tableExpr->getOperator().match(REL_LEAF_DELETE))) {
-
+  } else if ((tableExpr->getOperator().match(REL_UNARY_DELETE)) || (tableExpr->getOperator().match(REL_LEAF_DELETE))) {
     tableDesc = ((Delete *)tableExpr)->getTableDesc();
-  }
-  else if (tableExpr->getOperatorType() == REL_EXE_UTIL)
-    {
-      tableDesc = ((ExeUtilExpr*)tableExpr)->getVirtualTableDesc();
-      if (tableDesc == NULL)
-	return NULL;
-    }
-  else if ((tableExpr->getOperatorType() == REL_HBASE_ACCESS) ||
-	   (tableExpr->getOperatorType() == REL_HBASE_COPROC_AGGR))
-    {
-      tableDesc = ((HbaseAccess*)tableExpr)->getTableDesc();
-      if (tableDesc == NULL)
-	return NULL;
-    }
-  else if (tableExpr->getOperatorType() == REL_HBASE_DELETE)
-    {
-      tableDesc = ((HbaseDelete*)tableExpr)->getTableDesc();
-      if (tableDesc == NULL)
-	return NULL;
-    }
-  else
-  {
-    tableDesc = ((TableValuedFunction*)tableExpr)->getTableDesc();
+  } else if (tableExpr->getOperatorType() == REL_EXE_UTIL) {
+    tableDesc = ((ExeUtilExpr *)tableExpr)->getVirtualTableDesc();
+    if (tableDesc == NULL) return NULL;
+  } else if ((tableExpr->getOperatorType() == REL_HBASE_ACCESS) ||
+             (tableExpr->getOperatorType() == REL_HBASE_COPROC_AGGR)) {
+    tableDesc = ((HbaseAccess *)tableExpr)->getTableDesc();
+    if (tableDesc == NULL) return NULL;
+  } else if (tableExpr->getOperatorType() == REL_HBASE_DELETE) {
+    tableDesc = ((HbaseDelete *)tableExpr)->getTableDesc();
+    if (tableDesc == NULL) return NULL;
+  } else {
+    tableDesc = ((TableValuedFunction *)tableExpr)->getTableDesc();
     // some TableValuedFunction returns NULL tableDesc
-    if (tableDesc == NULL)
-      return NULL;
+    if (tableDesc == NULL) return NULL;
   }
 
   const IndexDesc *tableIndexDesc = tableDesc->getClusteringIndex();
-  // Record the highest no of partitions for a table among all of the tables 
+  // Record the highest no of partitions for a table among all of the tables
   // in a query. This is used in opt.cpp to adjust max parallelism.
-  if (CmpCommon::getDefault(COMP_BOOL_24) == DF_ON)
-  {
+  if (CmpCommon::getDefault(COMP_BOOL_24) == DF_ON) {
     // Get the number of partitions for the table
     Lng32 tableNumOfPartns = tableIndexDesc->getNAFileSet()->getCountOfPartitions();
 
     // Check and save highest no of partitions
     if (highestNumOfPartns_ == -1)
-      highestNumOfPartns_  = tableNumOfPartns;
-    else
-      if (tableNumOfPartns > highestNumOfPartns_)
-        highestNumOfPartns_  = tableNumOfPartns;
-  }    
+      highestNumOfPartns_ = tableNumOfPartns;
+    else if (tableNumOfPartns > highestNumOfPartns_)
+      highestNumOfPartns_ = tableNumOfPartns;
+  }
 
   // find NodeAnalysis. create new one if NULL
-  NodeAnalysis* nodeAnalysis = tableExpr->getGroupAnalysis()->getNodeAnalysis();
+  NodeAnalysis *nodeAnalysis = tableExpr->getGroupAnalysis()->getNodeAnalysis();
 
-  if (!nodeAnalysis)
-  {
+  if (!nodeAnalysis) {
     nodeAnalysis = newNodeAnalysis(tableExpr);
     tableExpr->getGroupAnalysis()->setNodeAnalysis(nodeAnalysis);
   }
 
   // create a new TableAnalysis and assign it to this Node
-  TableAnalysis* tabAnalysis =
-    new (heap_) TableAnalysis(nodeAnalysis, tableDesc, heap_);
+  TableAnalysis *tabAnalysis = new (heap_) TableAnalysis(nodeAnalysis, tableDesc, heap_);
   nodeAnalysis->setTableAnalysis(tabAnalysis);
   tableDesc->setTableAnalysis(tabAnalysis);
 
@@ -850,71 +681,62 @@ TableAnalysis * QueryAnalysis::newTableAnalysis(RelExpr* tableExpr)
   ValueIdSet selectionPred = tableExpr->getSelectionPred();
   selectionPred.findAllReferencedBaseCols(usedCols);
   // append columns referenced in the scan required outputs
-  tableExpr->getGroupAttr()->getCharacteristicOutputs()
-    .findAllReferencedBaseCols(usedCols);
- // add table's clustering key for index joins
+  tableExpr->getGroupAttr()->getCharacteristicOutputs().findAllReferencedBaseCols(usedCols);
+  // add table's clustering key for index joins
   ValueIdSet keyAsSet(tableIndexDesc->getIndexKey());
-  keyAsSet.findAllReferencedBaseCols(usedCols) ;
-
+  keyAsSet.findAllReferencedBaseCols(usedCols);
 
   const ValueIdSet tableCols(tableDesc->getColumnList());
 
-  if (((tableExpr->getOperator().match(REL_UNARY_UPDATE)) ||
-        (tableExpr->getOperator().match(REL_LEAF_UPDATE)) ||
-        (tableExpr->getOperator().match(REL_UNARY_DELETE)) ||
-        (tableExpr->getOperator().match(REL_LEAF_DELETE))))
-  {
+  if (((tableExpr->getOperator().match(REL_UNARY_UPDATE)) || (tableExpr->getOperator().match(REL_LEAF_UPDATE)) ||
+       (tableExpr->getOperator().match(REL_UNARY_DELETE)) || (tableExpr->getOperator().match(REL_LEAF_DELETE)))) {
     usedCols += tableCols;
   }
 
   // Remove columns that belong to other tables. Those arrive here because they
   // are equivalent to one of this table used columns (already in usedCols)
-  usedCols.intersectSet(tableCols); // should i make tableCols a member of TA too?
+  usedCols.intersectSet(tableCols);  // should i make tableCols a member of TA too?
   // set the usedCols_ field in TableAnalysis and append to allUsedCols_
   tabAnalysis->setUsedCols(usedCols);
   allUsedCols_ += usedCols;
 
   // initialize ColAnalysis objects for each usedCols (no need to do it for
   // columns that are not used)
-  for (ValueId x= usedCols.init(); usedCols.next(x); usedCols.advance(x) )
-  {
-    ColAnalysis* colAn = new (heap_) ColAnalysis(x, tabAnalysis);
+  for (ValueId x = usedCols.init(); usedCols.next(x); usedCols.advance(x)) {
+    ColAnalysis *colAn = new (heap_) ColAnalysis(x, tabAnalysis);
     colAnalysisArray_.insertAt(x, colAn);
   }
 
-  // If column x in usedCols is the underlying column of a computed column, 
+  // If column x in usedCols is the underlying column of a computed column,
   // compute the column analysis for the computed column.
   ValueIdSet divColumns = tableDesc->getDivisioningColumns();
 
-  for (ValueId x= divColumns.init(); divColumns.next(x); divColumns.advance(x) )
-  {
-     // Generate ColAnalysis for every DIV column, regardless of whether
-     // it appears in a predicate or not. A leading DIV column that does
-     // not appear in a prdicate can still be consiered for MDAM scan over
-     // it. See keyless heuristics for NJ in JoinToTSJRule::topMatch() in
-     // TransRule.cpp.
-     ColAnalysis* colAn = new (heap_) ColAnalysis(x, tabAnalysis);
-     colAnalysisArray_.insertAt(x, colAn);
+  for (ValueId x = divColumns.init(); divColumns.next(x); divColumns.advance(x)) {
+    // Generate ColAnalysis for every DIV column, regardless of whether
+    // it appears in a predicate or not. A leading DIV column that does
+    // not appear in a prdicate can still be consiered for MDAM scan over
+    // it. See keyless heuristics for NJ in JoinToTSJRule::topMatch() in
+    // TransRule.cpp.
+    ColAnalysis *colAn = new (heap_) ColAnalysis(x, tabAnalysis);
+    colAnalysisArray_.insertAt(x, colAn);
   }
 
   // By the same argument as for the divisioning columns, include the salt column.
   ValueIdSet saltColumnSet = tableDesc->getSaltColumnAsSet();
-  for (ValueId x= saltColumnSet.init(); saltColumnSet.next(x); saltColumnSet.advance(x) )
-  {
-     ColAnalysis* colAn = new (heap_) ColAnalysis(x, tabAnalysis);
-     colAnalysisArray_.insertAt(x, colAn);
+  for (ValueId x = saltColumnSet.init(); saltColumnSet.next(x); saltColumnSet.advance(x)) {
+    ColAnalysis *colAn = new (heap_) ColAnalysis(x, tabAnalysis);
+    colAnalysisArray_.insertAt(x, colAn);
   }
 
   // initialize local preds. Add characteristics inputs as
   // used cols, to account for host variables. Host variables
   // come as characteristic inputs
-  ValueIdSet scanCoverageExprs =
-    tableExpr->getGroupAttr()->getCharacteristicInputs();
+  ValueIdSet scanCoverageExprs = tableExpr->getGroupAttr()->getCharacteristicInputs();
   scanCoverageExprs += usedCols;
   ValueIdSet localPreds(tableExpr->getSelectionPred());
   localPreds.removeUnCoveredExprs(scanCoverageExprs);
   tabAnalysis->setLocalPreds(localPreds);
-  //local preds not final, will be finalized at finishAnalysis
+  // local preds not final, will be finalized at finishAnalysis
 
   // initialize AccessPathAnalysis objects
   tabAnalysis->initAccessPaths();
@@ -932,39 +754,32 @@ TableAnalysis * QueryAnalysis::newTableAnalysis(RelExpr* tableExpr)
 // create a new RoutineAnalysis structure for this routineExpr
 // currently only scalar udfs can have RoutineAnalysis structure
 // associated with them
-RoutineAnalysis * QueryAnalysis::newRoutineAnalysis(RelExpr* routineExpr)
-{
+RoutineAnalysis *QueryAnalysis::newRoutineAnalysis(RelExpr *routineExpr) {
+  RelRoutine *rExpr = (RelRoutine *)routineExpr;
+  RoutineDesc *routineDesc = rExpr->getRoutineDesc();
 
-  RelRoutine * rExpr = (RelRoutine*) routineExpr;
-  RoutineDesc * routineDesc = rExpr->getRoutineDesc();
-  
   // find NodeAnalysis. create new one if NULL
-  NodeAnalysis* nodeAnalysis = routineExpr->getGroupAnalysis()->getNodeAnalysis();
+  NodeAnalysis *nodeAnalysis = routineExpr->getGroupAnalysis()->getNodeAnalysis();
 
-  if (!nodeAnalysis)
-  {
+  if (!nodeAnalysis) {
     nodeAnalysis = newNodeAnalysis(routineExpr);
     routineExpr->getGroupAnalysis()->setNodeAnalysis(nodeAnalysis);
   }
 
   // create a new RoutineAnalysis and assign it to this Node
-  RoutineAnalysis* routineAnalysis =
-    new (heap_) RoutineAnalysis(nodeAnalysis, routineDesc, heap_);
+  RoutineAnalysis *routineAnalysis = new (heap_) RoutineAnalysis(nodeAnalysis, routineDesc, heap_);
   nodeAnalysis->setRoutineAnalysis(routineAnalysis);
   routineDesc->setRoutineAnalysis(routineAnalysis);
-  
+
   return routineAnalysis;
 }
 
-void QueryAnalysis::addProducingJBBC(ValueId expr, CANodeId jbbc)
-{
-  CANodeIdSet * jbbcsProducingOutput = NULL;
+void QueryAnalysis::addProducingJBBC(ValueId expr, CANodeId jbbc) {
+  CANodeIdSet *jbbcsProducingOutput = NULL;
 
-  if (outputToJBBCsMap_.used(expr))
-  {
+  if (outputToJBBCsMap_.used(expr)) {
     jbbcsProducingOutput = outputToJBBCsMap_[expr];
-  }
-  else{
+  } else {
     jbbcsProducingOutput = new (STMTHEAP) CANodeIdSet();
     outputToJBBCsMap_.insertAt(expr, jbbcsProducingOutput);
   }
@@ -974,65 +789,50 @@ void QueryAnalysis::addProducingJBBC(ValueId expr, CANodeId jbbc)
 
 // create a new JBBC for this expr (which is a join child
 // of parent). Create a new NodeAnalysis if needed.
-JBBC * QueryAnalysis::newJBBC(Join* parent, RelExpr* expr,
-                              NABoolean isFullOuterJoinOrTSJJBBC)
-{
+JBBC *QueryAnalysis::newJBBC(Join *parent, RelExpr *expr, NABoolean isFullOuterJoinOrTSJJBBC) {
   // find NodeAnalysis. create new one if NULL
-  NodeAnalysis* nodeAnalysis = expr->getGroupAnalysis()->getNodeAnalysis();
+  NodeAnalysis *nodeAnalysis = expr->getGroupAnalysis()->getNodeAnalysis();
 
-  if (!nodeAnalysis)
-  {
+  if (!nodeAnalysis) {
     nodeAnalysis = newNodeAnalysis(expr);
     expr->getGroupAnalysis()->setNodeAnalysis(nodeAnalysis);
   }
 
-  JBBC* jbbc = new (heap_) JBBC(nodeAnalysis, parent, heap_);
-  if(isFullOuterJoinOrTSJJBBC)
-    jbbc->setIsFullOuterJoinOrTSJJBBC();
+  JBBC *jbbc = new (heap_) JBBC(nodeAnalysis, parent, heap_);
+  if (isFullOuterJoinOrTSJJBBC) jbbc->setIsFullOuterJoinOrTSJJBBC();
 
-  if((expr->getOperator() == REL_SCAN) &&
-     expr->isExtraHub())
-    jbbc->isGuaranteedEqualizer_=1;
+  if ((expr->getOperator() == REL_SCAN) && expr->isExtraHub()) jbbc->isGuaranteedEqualizer_ = 1;
 
-  if( parent &&
-      parent->isRoutineJoin())
-    jbbc->setRoutineJoinFilterPreds(parent->getSelectionPred());
+  if (parent && parent->isRoutineJoin()) jbbc->setRoutineJoinFilterPreds(parent->getSelectionPred());
 
   nodeAnalysis->setJBBC(jbbc);
 
   // add this nodeId to allJBBCs
   allJBBCs_.insert(nodeAnalysis->getId());
 
-  if( parent )
-  {
-    if(parent->isInnerNonSemiNonTSJJoin())
+  if (parent) {
+    if (parent->isInnerNonSemiNonTSJJoin())
       innerNonSemiNonTSJJBBCs_ += nodeAnalysis->getId();
-    else if(parent->isRoutineJoin())
+    else if (parent->isRoutineJoin())
       routineJoinJBBCs_ += nodeAnalysis->getId();
-    else if(parent->isLeftJoin())
+    else if (parent->isLeftJoin())
       leftJoinJBBCs_ += nodeAnalysis->getId();
-    else if( parent->isSemiJoin() || parent->isAntiSemiJoin())
+    else if (parent->isSemiJoin() || parent->isAntiSemiJoin())
       semiJoinJBBCs_ += nodeAnalysis->getId();
     else
       CMPASSERT(FALSE);
-  }
-  else
+  } else
     innerNonSemiNonTSJJBBCs_ += nodeAnalysis->getId();
 
   ValueIdSet jbbcOutputs = expr->getGroupAttr()->getCharacteristicOutputs();
 
-  for (ValueId jbbcOutput = jbbcOutputs.init();
-                            jbbcOutputs.next(jbbcOutput);
-                            jbbcOutputs.advance(jbbcOutput))
-  {
+  for (ValueId jbbcOutput = jbbcOutputs.init(); jbbcOutputs.next(jbbcOutput); jbbcOutputs.advance(jbbcOutput)) {
     addProducingJBBC(jbbcOutput, nodeAnalysis->getId());
-    CANodeIdSet * jbbcsProducingOutput = NULL;
+    CANodeIdSet *jbbcsProducingOutput = NULL;
 
-    if (outputToJBBCsMap_.used(jbbcOutput))
-    {
+    if (outputToJBBCsMap_.used(jbbcOutput)) {
       jbbcsProducingOutput = outputToJBBCsMap_[jbbcOutput];
-    }
-    else{
+    } else {
       jbbcsProducingOutput = new (STMTHEAP) CANodeIdSet();
       outputToJBBCsMap_.insertAt(jbbcOutput, jbbcsProducingOutput);
     }
@@ -1040,22 +840,20 @@ JBBC * QueryAnalysis::newJBBC(Join* parent, RelExpr* expr,
     (*jbbcsProducingOutput) += nodeAnalysis->getId();
   }
 
-
   return jbbc;
 }
 
 // create a new GBAnalysis
-GBAnalysis * QueryAnalysis::newGBAnalysis(GroupByAgg* gb)
-{
+GBAnalysis *QueryAnalysis::newGBAnalysis(GroupByAgg *gb) {
   // Note that calling gb->getGroupAnalysis()->getNodeAnalysis() would
   // give you a different NodeAnalysis object that the one we are associating
   // here with GBAnalysis. This is OK. This should be the case.
-  NodeAnalysis* nodeAnalysis = newNodeAnalysis(gb);
+  NodeAnalysis *nodeAnalysis = newNodeAnalysis(gb);
   // This NodeAnalysis has no association with a Group. It is associated
   // with groupBy expression. This NodeAnalysis is actually a hidden one.
   // It is only there to give an extra unique id for the presence of this
   // group by in a jbbsubset.
-  GBAnalysis* gbAnalysis = new (heap_) GBAnalysis(nodeAnalysis->getId(), gb, heap_);
+  GBAnalysis *gbAnalysis = new (heap_) GBAnalysis(nodeAnalysis->getId(), gb, heap_);
   nodeAnalysis->setGBAnalysis(gbAnalysis);
   gb->setGBAnalysis(gbAnalysis);
   // add this nodeId to allGBs_
@@ -1065,21 +863,19 @@ GBAnalysis * QueryAnalysis::newGBAnalysis(GroupByAgg* gb)
 
 // Lookup a JBBSubsetAnalysis by CANodeIdSet. If none is available in cache,
 // then create a new one and insert it in cache
-JBBSubsetAnalysis * QueryAnalysis::findJBBSubsetAnalysis(const JBBSubset & subset)
-{
-  JBBSubsetAnalysis* result = jbbSubsetMap_.get(subset.getJBBCsAndGB());
+JBBSubsetAnalysis *QueryAnalysis::findJBBSubsetAnalysis(const JBBSubset &subset) {
+  JBBSubsetAnalysis *result = jbbSubsetMap_.get(subset.getJBBCsAndGB());
 
-  if (result)
-  {
+  if (result) {
     return result;  // A hit
   }
 
   // A miss. Create a new JBBSubsetAnalysis and insert it
   result = new (heap_) JBBSubsetAnalysis(subset, heap_);
 
-  CANodeIdSet * key = new (heap_) CANodeIdSet(subset.getJBBCsAndGB(), heap_);
+  CANodeIdSet *key = new (heap_) CANodeIdSet(subset.getJBBCsAndGB(), heap_);
 
-  CANodeIdSet * insertion = jbbSubsetMap_.insert(key, result);
+  CANodeIdSet *insertion = jbbSubsetMap_.insert(key, result);
 
   // Should work
   CMPASSERT(insertion != NULL);
@@ -1089,12 +885,10 @@ JBBSubsetAnalysis * QueryAnalysis::findJBBSubsetAnalysis(const JBBSubset & subse
 
 // Find the PredAnalysis the predicate with ValueId x. If none is created
 // so far, then create a new one and insert it in array
-PredAnalysis* QueryAnalysis::findPredAnalysis(ValueId x)
-{
+PredAnalysis *QueryAnalysis::findPredAnalysis(ValueId x) {
   // if predAnalysis not yet created, then do so
-  if (!allPreds_.contains(x))
-  {
-    PredAnalysis* predAn = new (CmpCommon::statementHeap()) PredAnalysis(x);
+  if (!allPreds_.contains(x)) {
+    PredAnalysis *predAn = new (CmpCommon::statementHeap()) PredAnalysis(x);
     predAnalysisArray_.insertAt(x, predAn);
     allPreds_ += x;
   }
@@ -1104,11 +898,10 @@ PredAnalysis* QueryAnalysis::findPredAnalysis(ValueId x)
 // -------------------------------------------------------------
 // Method to initialize flags for global directives
 // -------------------------------------------------------------
-void QueryAnalysis::initializeGlobalDirectives(RelExpr * root)
-{
+void QueryAnalysis::initializeGlobalDirectives(RelExpr *root) {
   // Figure out if First N optimization is required
 
-  RelExpr * firstNExpr = NULL;
+  RelExpr *firstNExpr = NULL;
 
   // The firstN info could be stamped on the root or inserted as a firstN node
   // as child of the root
@@ -1117,121 +910,97 @@ void QueryAnalysis::initializeGlobalDirectives(RelExpr * root)
   else if (root->getFirstNRows() >= 0)
     firstNExpr = root;
 
-  if (firstNExpr)
-  {
+  if (firstNExpr) {
     // get the number of rows requested i.e. the FirstN rows
     // Note: its different methods for RelExpr and FirstN classes
     Int64 numRowsRequested;
     if (firstNExpr->getOperator() == REL_FIRST_N)
-      numRowsRequested = ((FirstN*) firstNExpr)->getFirstNRows();
+      numRowsRequested = ((FirstN *)firstNExpr)->getFirstNRows();
     else
       numRowsRequested = firstNExpr->getFirstNRows();
 
-    RelExpr * childOfFirstN = firstNExpr->child(0);
+    RelExpr *childOfFirstN = firstNExpr->child(0);
 
-    GroupAttributes * childOfFirstNGroupAttr = childOfFirstN->getGroupAttr();
+    GroupAttributes *childOfFirstNGroupAttr = childOfFirstN->getGroupAttr();
 
     // get the number of rows estimated to be returned
-    CostScalar numRowsProduced =
-      childOfFirstNGroupAttr->getResultCardinalityForEmptyInput();
+    CostScalar numRowsProduced = childOfFirstNGroupAttr->getResultCardinalityForEmptyInput();
 
-    if((numRowsRequested < 100) ||
-       ((double)numRowsRequested < (0.01 * numRowsProduced.getValue())))
-    {
+    if ((numRowsRequested < 100) || ((double)numRowsRequested < (0.01 * numRowsProduced.getValue()))) {
       optimizeForFirstNRows_ = TRUE;
     }
-    if (CmpCommon::getDefault(COMP_BOOL_78) != DF_ON)
-    {
+    if (CmpCommon::getDefault(COMP_BOOL_78) != DF_ON) {
       optimizeForFirstNRows_ = FALSE;
     }
   }
 
   // WaveFix Begin
-  if ((root->child(0)) &&
-      (root->child(0)->getOperatorType() == REL_GROUPBY) &&
+  if ((root->child(0)) && (root->child(0)->getOperatorType() == REL_GROUPBY) &&
       (!((GroupByAgg *)(root->child(0).getPtr()))->groupExpr().entries()) &&
-      (root->child(0)->child(0)->getOperatorType() == REL_SCAN) &&
-	  (CmpCommon::getDefault(COMP_BOOL_169) == DF_OFF))
-  {
+      (root->child(0)->child(0)->getOperatorType() == REL_SCAN) && (CmpCommon::getDefault(COMP_BOOL_169) == DF_OFF)) {
     // check if table is a single partitioned table
     NABoolean isASinglePartitionedTable = FALSE;
 
-    Scan * tableScan = (Scan *)root->child(0)->child(0).getPtr();
+    Scan *tableScan = (Scan *)root->child(0)->child(0).getPtr();
 
-    TableAnalysis * tableAnalysis =
-      (TableAnalysis *)tableScan->getTableDesc()->getTableAnalysis();
+    TableAnalysis *tableAnalysis = (TableAnalysis *)tableScan->getTableDesc()->getTableAnalysis();
 
-    const IndexDesc * tableIndexDesc =
-      tableAnalysis
-        ->getTableDesc()
-          ->getClusteringIndex();
+    const IndexDesc *tableIndexDesc = tableAnalysis->getTableDesc()->getClusteringIndex();
 
-    const PartitioningFunction * tablePartFunc =
-      tableIndexDesc->getPartitioningFunction();
+    const PartitioningFunction *tablePartFunc = tableIndexDesc->getPartitioningFunction();
 
-    if ((!tablePartFunc)||
-        (tablePartFunc->getCountOfPartitions()==1) || 
-        (tablePartFunc->getPartitioningKey().
-            doAllExprsEvaluateToConstant(FALSE,TRUE)))
-    {
+    if ((!tablePartFunc) || (tablePartFunc->getCountOfPartitions() == 1) ||
+        (tablePartFunc->getPartitioningKey().doAllExprsEvaluateToConstant(FALSE, TRUE))) {
       isASinglePartitionedTable = TRUE;
     }
 
     // check if there are any count distincts
     NABoolean noCountDistincts = FALSE;
-    GroupByAgg * groupByNode = (GroupByAgg *)(root->child(0).getPtr());
+    GroupByAgg *groupByNode = (GroupByAgg *)(root->child(0).getPtr());
 
-    ValueIdSet distinctColumns;              // columns (exprs) referenced
-                                             // in non-redundant DISTINCT
-                                             // aggregates
+    ValueIdSet distinctColumns;  // columns (exprs) referenced
+                                 // in non-redundant DISTINCT
+                                 // aggregates
     CollIndex numNonMultiDistinctAggs = 0;
 
     const ValueIdSet &aggrs = groupByNode->aggregateExpr();
-    for (ValueId x = aggrs.init(); aggrs.next(x); aggrs.advance(x))
-    {
-      Aggregate *agg = (Aggregate *) x.getItemExpr();
+    for (ValueId x = aggrs.init(); aggrs.next(x); aggrs.advance(x)) {
+      Aggregate *agg = (Aggregate *)x.getItemExpr();
 
       CMPASSERT(x.getItemExpr()->isAnAggregate());
 
-      if (agg->isDistinct())
-      {
+      if (agg->isDistinct()) {
         ValueIdSet uniqueSet = groupByNode->groupExpr();
         uniqueSet += agg->getDistinctValueId();
         if (NOT groupByNode->child(0).getGroupAttr()->isUnique(uniqueSet)) {
           distinctColumns += agg->getDistinctValueId();
-          if((agg->getDistinctValueId() != agg->child(0)) ||
-             (agg->getArity() > 1)) {
+          if ((agg->getDistinctValueId() != agg->child(0)) || (agg->getArity() > 1)) {
             numNonMultiDistinctAggs++;
           }
         }
       }
     }
 
-    if (!distinctColumns.entries())
-      noCountDistincts = TRUE;
+    if (!distinctColumns.entries()) noCountDistincts = TRUE;
 
     // don't surf the wave if:
     // * the table is not a single partitioned table
     // And
     // * there are no count distincts
     // * it has no local predicates
-    if ((!isASinglePartitionedTable) && 
-        noCountDistincts &&
-        tableAnalysis->getLocalPreds().entries() == 0)
+    if ((!isASinglePartitionedTable) && noCountDistincts && tableAnalysis->getLocalPreds().entries() == 0)
       setDontSurfTheWave(TRUE);
   }
   // WaveFix End
 }
 
-NABoolean QueryAnalysis::fixupTriggers(RelExpr* expr)
-{
+NABoolean QueryAnalysis::fixupTriggers(RelExpr *expr) {
   NABoolean treeFixed = FALSE;
   expr->calcAccessSets(CmpCommon::statementHeap());
   expr->fixupTriggers(treeFixed);
   expr->clearAllEstLogProp();
 
-  if(treeFixed)
-    expr->synthLogProp();
+  if (treeFixed) expr->synthLogProp();
 
   return treeFixed;
 }
@@ -1242,14 +1011,13 @@ NABoolean QueryAnalysis::fixupTriggers(RelExpr* expr)
 // TRUE (it is FALSE by default), MV query rewrite is suppressed
 // regardless of the value of the MVQR_REWRITE_LEVEL CQD.
 // -------------------------------------------------------------
-RelExpr* QueryAnalysis::analyzeThis(RelExpr* expr, NABoolean noMVQR)
-{
+RelExpr *QueryAnalysis::analyzeThis(RelExpr *expr, NABoolean noMVQR) {
   NABoolean status = TRUE;
   NABoolean monitor = CURRSTMT_OPTDEFAULTS->compileTimeMonitor();
   NABoolean treeFixed = fixupTriggers(expr);
-    
+
   // analyzedExpr is the pointer returned to the caller.
-  RelExpr* analyzedExpr = expr;
+  RelExpr *analyzedExpr = expr;
 
   // First do pilot phase analysis
   if (monitor) pilotPhaseMon_.enter();
@@ -1257,8 +1025,7 @@ RelExpr* QueryAnalysis::analyzeThis(RelExpr* expr, NABoolean noMVQR)
   if (monitor) pilotPhaseMon_.exit();
 
   // stop if incompatible node found
-  if (!status || !analysisON_)
-  {
+  if (!status || !analysisON_) {
     // clear analysis
     cleanup(expr);
 
@@ -1290,9 +1057,9 @@ RelExpr* QueryAnalysis::analyzeThis(RelExpr* expr, NABoolean noMVQR)
   expr->predAnalysis(this);
 
   finishConnectivityAnalysis();
-  
+
   checkIfCompressedHistsViable();
-  
+
   if (monitor) tcgSetupMon_.exit();
 
   // finishSynthEstLogProp has nothing to do with Query Analysis, but it
@@ -1303,19 +1070,16 @@ RelExpr* QueryAnalysis::analyzeThis(RelExpr* expr, NABoolean noMVQR)
   ULng32 sizeOfLargestJBB = getSizeOfLargestJBB();
 
 #ifndef NDEBUG
-  RelExpr * analyzerInput = expr;
+  RelExpr *analyzerInput = expr;
 #endif
 
   // Do the multi join re-write now
-  if ((sizeOfLargestJBB >= multiJoinThreshold_) AND
-      !joinOrderByUser())
-  {
+  if ((sizeOfLargestJBB >= multiJoinThreshold_) AND !joinOrderByUser()) {
 #ifndef NDEBUG
     // get a copy of the RelExpr tree before it is converted to
     // multiJoin. This is needed below for the MultiJoinTester.
     // Want to invoke the MultiJoinTester after setting JBBInput.
-    if (sizeOfLargestJBB && (CmpCommon::getDefault(COMP_BOOL_8) == DF_ON))
-    {
+    if (sizeOfLargestJBB && (CmpCommon::getDefault(COMP_BOOL_8) == DF_ON)) {
       analyzerInput = expr->copyRelExprTree(CmpCommon::statementHeap());
     }
 #endif
@@ -1323,18 +1087,15 @@ RelExpr* QueryAnalysis::analyzeThis(RelExpr* expr, NABoolean noMVQR)
     expr->convertToMultiJoinSubtree(this);
 
     double n, n2, n3, n4;
-    n= n2= n3= n4= 0;
+    n = n2 = n3 = n4 = 0;
 
-    double queryMJComplexity =
-      expr->calculateQueryMJComplexity(n,n2,n3,n4);
-   
+    double queryMJComplexity = expr->calculateQueryMJComplexity(n, n2, n3, n4);
+
     // complexity should be atleast 1
-    if (queryMJComplexity < 1)
-      queryMJComplexity=n=n2=n3=n4=1;
+    if (queryMJComplexity < 1) queryMJComplexity = n = n2 = n3 = n4 = 1;
 
-    queryComplexityVector_ = new(CmpCommon::statementHeap())
-      QueryComplexityVector(CmpCommon::statementHeap());
-      
+    queryComplexityVector_ = new (CmpCommon::statementHeap()) QueryComplexityVector(CmpCommon::statementHeap());
+
     queryComplexityVector_->setNComplexity(n);
     queryComplexityVector_->setN2Complexity(n2);
     queryComplexityVector_->setN3Complexity(n3);
@@ -1351,14 +1112,12 @@ RelExpr* QueryAnalysis::analyzeThis(RelExpr* expr, NABoolean noMVQR)
 
   expr->setJBBInput((*GLOBAL_EMPTY_INPUT_LOGPROP));
 
-  if ((expr->getOperatorType() == REL_ROOT) AND
-      (CmpCommon::context()->showQueryStats()))
-    setHistogramsToDisplay((RelRoot*) expr);
+  if ((expr->getOperatorType() == REL_ROOT) AND(CmpCommon::context()->showQueryStats()))
+    setHistogramsToDisplay((RelRoot *)expr);
 
 #ifndef NDEBUG
   // TESTING
-  if (sizeOfLargestJBB && (CmpCommon::getDefault(COMP_BOOL_8) == DF_ON))
-  {
+  if (sizeOfLargestJBB && (CmpCommon::getDefault(COMP_BOOL_8) == DF_ON)) {
     MultiJoinTester::Test1(analyzerInput, expr);
     expr->clearLogExprForSynthDuringAnalysis();
     expr->synthLogProp();
@@ -1366,15 +1125,13 @@ RelExpr* QueryAnalysis::analyzeThis(RelExpr* expr, NABoolean noMVQR)
   }
 #endif
 
-  if (expr->getOperatorType() == REL_ROOT)
-  {
+  if (expr->getOperatorType() == REL_ROOT) {
     ((RelRoot *)expr)->setHasMandatoryXP(hasMandatoryXP());
   }
 
   // ASM and QG work
   // This should also be disabled if cqsRewrite succeed
-  if (appStatMan_ && CmpCommon::getDefault(ASM_PRECOMPUTE) == DF_ON)
-  {
+  if (appStatMan_ && CmpCommon::getDefault(ASM_PRECOMPUTE) == DF_ON) {
     if (monitor) asmPrecompMon_.enter();
     initializeASM();
     if (monitor) asmPrecompMon_.exit();
@@ -1384,13 +1141,11 @@ RelExpr* QueryAnalysis::analyzeThis(RelExpr* expr, NABoolean noMVQR)
   computeStatsForNodes();
 
   // Compute the set of tables joined to the largest table
-  if (CmpCommon::getDefault(COMP_BOOL_119) == DF_ON)
-    computeTablesJoinedToLargestTable();
+  if (CmpCommon::getDefault(COMP_BOOL_119) == DF_ON) computeTablesJoinedToLargestTable();
 
   // Now we do the CQS Fixup if applicable
-  if (expr->getOperatorType() == REL_ROOT)
-  {
-     cqsRewrite(expr);
+  if (expr->getOperatorType() == REL_ROOT) {
+    cqsRewrite(expr);
   }
 
   // Initialize the global directive flags
@@ -1408,72 +1163,58 @@ RelExpr* QueryAnalysis::analyzeThis(RelExpr* expr, NABoolean noMVQR)
   // this should be the last active call
   // i.e. last call that does anything to
   // the expression
-  if (CmpCommon::getDefault(COMP_BOOL_115) == DF_OFF)
-    expr->analyzeInitialPlan();
+  if (CmpCommon::getDefault(COMP_BOOL_115) == DF_OFF) expr->analyzeInitialPlan();
 
   // display (or dump to file) JBB connectivity graph if requested
   graphDisplay();
 
-  if ( CmpCommon::getDefault( NSK_DBG ) == DF_ON  &&
-       CmpCommon::getDefault( NSK_DBG_MJRULES_TRACKING ) == DF_ON )
-  {
+  if (CmpCommon::getDefault(NSK_DBG) == DF_ON && CmpCommon::getDefault(NSK_DBG_MJRULES_TRACKING) == DF_ON) {
     CURRCONTEXT_OPTDEBUG->stream() << getText() << endl;
   }
 
 #define MVQR
 #ifdef MVQR
-if (!noMVQR && CmpCommon::getDefaultLong(MVQR_REWRITE_LEVEL) > 0)
-  analyzedExpr = handleMvQueryRewrite(analyzedExpr);
+  if (!noMVQR && CmpCommon::getDefaultLong(MVQR_REWRITE_LEVEL) > 0) analyzedExpr = handleMvQueryRewrite(analyzedExpr);
 
   // if dontSurfTheWave() is set previously and there are any MVQR matches
   // then unset dont suf the wave as we do not want the privority of the
   // SortGrby plan to be increased that avoids checking the costing
   // between SortGrby plan and the matching MV plan.
-  if ((dontSurfTheWave()) &&
-      (expr->child(0)) &&
-      (expr->child(0)->getOperatorType() == REL_GROUPBY) &&
+  if ((dontSurfTheWave()) && (expr->child(0)) && (expr->child(0)->getOperatorType() == REL_GROUPBY) &&
       (((GroupByAgg *)(expr->child(0).getPtr()))->getJBBSubsetAnalysis() &&
-       ((GroupByAgg *)(expr->child(0).getPtr()))->getJBBSubsetAnalysis()
-             ->getMatchingMVs().entries()))
+       ((GroupByAgg *)(expr->child(0).getPtr()))->getJBBSubsetAnalysis()->getMatchingMVs().entries()))
     setDontSurfTheWave(FALSE);
 #endif
 
   return analyzedExpr;
 }
 
-void QueryAnalysis::setHistogramsToDisplay(RelRoot * root)
-{
+void QueryAnalysis::setHistogramsToDisplay(RelRoot *root) {
   CANodeIdSet nodeSetForHistEst;
-  const char * nodeSetStr = ActiveSchemaDB()->getDefaults().getValue(HIST_ROOT_NODE);
+  const char *nodeSetStr = ActiveSchemaDB()->getDefaults().getValue(HIST_ROOT_NODE);
   size_t nodeSetStrLen = strlen(nodeSetStr);
   NABoolean validNodeSet = TRUE;
-  
-  if (nodeSetStr && nodeSetStrLen)
-  {
-    char * nodeSetStrForTokenization = NULL;
-    validNodeSet = FALSE;
-    
-    if (nodeSetStr)
-    {
-      if (nodeSetStrLen)
-      {
-        nodeSetStrForTokenization = new (CmpCommon::statementHeap()) char[nodeSetStrLen+1];
-        strcpy(nodeSetStrForTokenization, nodeSetStr);
-        char * token;
-        token = strtok (nodeSetStrForTokenization," ,");
 
-        while (token != NULL)
-        {
+  if (nodeSetStr && nodeSetStrLen) {
+    char *nodeSetStrForTokenization = NULL;
+    validNodeSet = FALSE;
+
+    if (nodeSetStr) {
+      if (nodeSetStrLen) {
+        nodeSetStrForTokenization = new (CmpCommon::statementHeap()) char[nodeSetStrLen + 1];
+        strcpy(nodeSetStrForTokenization, nodeSetStr);
+        char *token;
+        token = strtok(nodeSetStrForTokenization, " ,");
+
+        while (token != NULL) {
           nodeSetForHistEst.insert(atoi(token));
-          token = strtok (NULL, " ,");
+          token = strtok(NULL, " ,");
         }
-      }      
+      }
     }
 
-    if(nodeSetForHistEst.entries())
-    {
-      if(nodeSetForHistEst.entries() == 1)
-      {
+    if (nodeSetForHistEst.entries()) {
+      if (nodeSetForHistEst.entries() == 1) {
         // can be:
         // 0. any jbbc
         // 1. scan
@@ -1481,73 +1222,56 @@ void QueryAnalysis::setHistogramsToDisplay(RelRoot * root)
         // 3. full outer join
         // 4. tsj
         CANodeId node = nodeSetForHistEst.getFirst();
-        if(node.getNodeAnalysis())
-        {
-          RelExpr * nodeExpr = node.getNodeAnalysis()->getModifiedExpr();
-          if(node.getNodeAnalysis()->getJBBC() ||
-             node.getNodeAnalysis()->getTableAnalysis() ||
-             node.getNodeAnalysis()->getGBAnalysis() ||
-             (nodeExpr->isAnyJoin() &&
-               (((Join*) nodeExpr)->isFullOuterJoin() ||
-                ((Join*) nodeExpr)->isTSJ())))
-             validNodeSet = TRUE;
+        if (node.getNodeAnalysis()) {
+          RelExpr *nodeExpr = node.getNodeAnalysis()->getModifiedExpr();
+          if (node.getNodeAnalysis()->getJBBC() || node.getNodeAnalysis()->getTableAnalysis() ||
+              node.getNodeAnalysis()->getGBAnalysis() ||
+              (nodeExpr->isAnyJoin() && (((Join *)nodeExpr)->isFullOuterJoin() || ((Join *)nodeExpr)->isTSJ())))
+            validNodeSet = TRUE;
         }
-      }
-      else{
+      } else {
         validNodeSet = TRUE;
-        
+
         // has to be a join
         // check if all nodes are jbbcs in the same jbb
         CollIndex jbbId = -1;
-        for(CANodeId node = nodeSetForHistEst.init();
-            nodeSetForHistEst.next(node);
-            nodeSetForHistEst.advance(node))
-        {
+        for (CANodeId node = nodeSetForHistEst.init(); nodeSetForHistEst.next(node); nodeSetForHistEst.advance(node)) {
           // each node should be jbbc
-          if (!node.getNodeAnalysis() || !node.getNodeAnalysis()->getJBBC())
-          {
+          if (!node.getNodeAnalysis() || !node.getNodeAnalysis()->getJBBC()) {
             validNodeSet = FALSE;
             break;
           }
-          
+
           // all jbbcs should belong to the same JBB
-          if((jbbId != -1) && (node.getNodeAnalysis()->getJBBC()->getJBB()->getJBBId()!=jbbId))
-          {
+          if ((jbbId != -1) && (node.getNodeAnalysis()->getJBBC()->getJBB()->getJBBId() != jbbId)) {
             validNodeSet = FALSE;
             break;
           }
 
           jbbId = node.getNodeAnalysis()->getJBBC()->getJBB()->getJBBId();
         }
-      
-        if(validNodeSet)
-          validNodeSet = nodeSetForHistEst.legal();
+
+        if (validNodeSet) validNodeSet = nodeSetForHistEst.legal();
       }
-    }    
+    }
   }
-  
-  if (validNodeSet)
-  {
+
+  if (validNodeSet) {
     EstLogPropSharedPtr inputLP = (*GLOBAL_EMPTY_INPUT_LOGPROP);
-    
-    if (nodeSetForHistEst.entries() == 0)
-    {
+
+    if (nodeSetForHistEst.entries() == 0) {
       statsToDisplay_ = root->child(0)->getGroupAttr()->outputLogProp(inputLP);
-    }
-    else if (nodeSetForHistEst.entries() == 1)
-    {
-       inputLP = nodeSetForHistEst.getFirst().getNodeAnalysis()->getJBBInput();
-       if(inputLP.get() == NULL) inputLP = (*GLOBAL_EMPTY_INPUT_LOGPROP);
-       statsToDisplay_ =
-        nodeSetForHistEst.getFirst().getNodeAnalysis()->getModifiedExpr()->getGroupAttr()->outputLogProp(inputLP);
-    }
-    else{        
-      JBBSubset * jbbSubset = nodeSetForHistEst.jbbcsToJBBSubset();
+    } else if (nodeSetForHistEst.entries() == 1) {
+      inputLP = nodeSetForHistEst.getFirst().getNodeAnalysis()->getJBBInput();
+      if (inputLP.get() == NULL) inputLP = (*GLOBAL_EMPTY_INPUT_LOGPROP);
+      statsToDisplay_ =
+          nodeSetForHistEst.getFirst().getNodeAnalysis()->getModifiedExpr()->getGroupAttr()->outputLogProp(inputLP);
+    } else {
+      JBBSubset *jbbSubset = nodeSetForHistEst.jbbcsToJBBSubset();
       inputLP = jbbSubset->getJBB()->getInputEstLP();
-      //create and prime multijoin
-      //use multijoin to get EstLogProp
-      MultiJoin* mj = new (CmpCommon::statementHeap())
-        MultiJoin((*jbbSubset), CmpCommon::statementHeap());
+      // create and prime multijoin
+      // use multijoin to get EstLogProp
+      MultiJoin *mj = new (CmpCommon::statementHeap()) MultiJoin((*jbbSubset), CmpCommon::statementHeap());
       // Set the children based on the Query Analysis jbbcExprMap_
       mj->setChildrenFromOrigExprs(this);
       mj->setGroupAttr(new (CmpCommon::statementHeap()) GroupAttributes());
@@ -1559,44 +1283,34 @@ void QueryAnalysis::setHistogramsToDisplay(RelRoot * root)
 }
 
 // method to show a query's histograms
-void QueryAnalysis::showQueryStats(const char *qText, CollHeap *c, char *buf)
-{
-  if (statsToDisplay_)
-  {
+void QueryAnalysis::showQueryStats(const char *qText, CollHeap *c, char *buf) {
+  if (statsToDisplay_) {
     sprintf(buf, "Histograms for query %s", qText);
     statsToDisplay_->getColStats().showQueryStats(c, buf, selectListCols_);
   }
 }
 
 //----------------------------------------------------------------------------
-RelExpr* QueryAnalysis::handleMvQueryRewrite(RelExpr* expr)
-{
+RelExpr *QueryAnalysis::handleMvQueryRewrite(RelExpr *expr) {
   NAString warningMessage = "";
 
   // We don't handle olap or sequence functions yet,
-  if (expr->containsNode(REL_SEQUENCE))
-  {
+  if (expr->containsNode(REL_SEQUENCE)) {
     warningMessage = "SEQUENCE is not supported.";
-  }
-  else if (isMvCreation())
-  {
+  } else if (isMvCreation()) {
     // We are in a CREATE MV operation.
-    // Need to create an MV descriptor, 
+    // Need to create an MV descriptor,
     mvQueryRewriteHandler_->createMvDescriptor(this, expr, warningMessage);
-  }
-  else
-  {
+  } else {
     // Don't attempt rewrite of DDL statements, and don't warn about it.
-    if (expr->getRETDesc()->getBindWA()->inDDL())
-      return expr;
+    if (expr->getRETDesc()->getBindWA()->inDDL()) return expr;
 
     // Do the work here.
     expr = mvQueryRewriteHandler_->handleMvQueryRewrite(this, expr, warningMessage);
   }
 
   // Anything to warn about?
-  if (warningMessage != "")
-  {
+  if (warningMessage != "") {
     QRLogger::log(CAT_SQL_COMP_QR_HANDLER, LL_WARN, warningMessage);
     mvQueryRewriteHandler_->getWarningMessage() = warningMessage;
   }
@@ -1605,8 +1319,7 @@ RelExpr* QueryAnalysis::handleMvQueryRewrite(RelExpr* expr)
 }  // handleMvQueryRewrite()
 
 //----------------------------------------------------------------------------
-void QueryAnalysis::analyzeJBBCDependencies(RelExpr* expr)
-{
+void QueryAnalysis::analyzeJBBCDependencies(RelExpr *expr) {
   // set the dependencies between the children of JBB
   ValueIdSet predsWithDependencies;
 
@@ -1615,112 +1328,76 @@ void QueryAnalysis::analyzeJBBCDependencies(RelExpr* expr)
 
   // The loop below will set the dependent
   // JBBCs based on the predicates set above
-  const ARRAY(JBB*) jBBs = getJBBs();
-  for(UInt32 i = 0; i < jBBs.entries(); i++)
-    jBBs[i]->analyzeChildrenDependencies();
+  const ARRAY(JBB *) jBBs = getJBBs();
+  for (UInt32 i = 0; i < jBBs.entries(); i++) jBBs[i]->analyzeChildrenDependencies();
 
-  for(UInt32 i = 0; i < jBBs.entries(); i++)
-    jBBs[i]->computeLeftJoinFilterPreds();
-    
-  //compute children subgraph dependencies
-  for(UInt32 i = 0; i < jBBs.entries(); i++)
-    jBBs[i]->computeChildrenSubGraphDependencies();
-  
+  for (UInt32 i = 0; i < jBBs.entries(); i++) jBBs[i]->computeLeftJoinFilterPreds();
+
+  // compute children subgraph dependencies
+  for (UInt32 i = 0; i < jBBs.entries(); i++) jBBs[i]->computeChildrenSubGraphDependencies();
 }
 
-NABoolean QueryAnalysis::hasMandatoryXP()
-{
-  if(hasMandatoryXPComputed_)
-    return hasMandatoryXP_;
+NABoolean QueryAnalysis::hasMandatoryXP() {
+  if (hasMandatoryXPComputed_) return hasMandatoryXP_;
 
   hasMandatoryXP_ = FALSE;
 
-  const ARRAY(JBB*) jBBs = getJBBs();
-  for(UInt32 i = 0; i < jBBs.entries(); i++)
-    if(jBBs[i]->hasMandatoryXP())
-      hasMandatoryXP_ = TRUE;
+  const ARRAY(JBB *) jBBs = getJBBs();
+  for (UInt32 i = 0; i < jBBs.entries(); i++)
+    if (jBBs[i]->hasMandatoryXP()) hasMandatoryXP_ = TRUE;
 
   hasMandatoryXPComputed_ = TRUE;
 
   return hasMandatoryXP_;
 }
 
-void QueryAnalysis::computeTablesJoinedToLargestTable()
-{
-  if(!largestTable_)
-    return;
+void QueryAnalysis::computeTablesJoinedToLargestTable() {
+  if (!largestTable_) return;
 
-  ValueIdList largestTableCK =
-    largestTable_
-      ->getTableDesc()
-        ->getClusteringIndex()
-          ->getIndexKey();
+  ValueIdList largestTableCK = largestTable_->getTableDesc()->getClusteringIndex()->getIndexKey();
 
-  if (!largestTableCK.entries())
-    return;
+  if (!largestTableCK.entries()) return;
 
   // get a handle to the key prefix column
   ValueId keyColumn = largestTableCK[0];
 
-  //get a handle to the column analysis for this column
-  ColAnalysis * keyColAnalysis = keyColumn.colAnalysis();
+  // get a handle to the column analysis for this column
+  ColAnalysis *keyColAnalysis = keyColumn.colAnalysis();
 
-  if (!keyColAnalysis)
-    return;
+  if (!keyColAnalysis) return;
 
-  CANodeIdSet tablesConnectedViaKeyCol =
-    keyColAnalysis->getConnectedTables();
+  CANodeIdSet tablesConnectedViaKeyCol = keyColAnalysis->getConnectedTables();
 
-  if (!tablesConnectedViaKeyCol.entries())
-    return;
+  if (!tablesConnectedViaKeyCol.entries()) return;
 
   CANodeId mostReducedTable;
   CostScalar highestRedFactor = -1;
 
-  for(CANodeId currentTable = tablesConnectedViaKeyCol.init();
-      tablesConnectedViaKeyCol.next(currentTable);
-      tablesConnectedViaKeyCol.advance(currentTable))
-  {
-    if(!currentTable.getNodeAnalysis()->getTableAnalysis())
-      continue;
+  for (CANodeId currentTable = tablesConnectedViaKeyCol.init(); tablesConnectedViaKeyCol.next(currentTable);
+       tablesConnectedViaKeyCol.advance(currentTable)) {
+    if (!currentTable.getNodeAnalysis()->getTableAnalysis()) continue;
 
-    if(mostReducedTable==NULL_CA_ID)
-    {
+    if (mostReducedTable == NULL_CA_ID) {
       mostReducedTable = currentTable;
-      highestRedFactor =
-        (mostReducedTable.
-          getNodeAnalysis()->
-            getTableAnalysis()->
-              getCardinalityOfBaseTable())/
-        (mostReducedTable.
-          getNodeAnalysis()->
-            getCardinality());
+      highestRedFactor = (mostReducedTable.getNodeAnalysis()->getTableAnalysis()->getCardinalityOfBaseTable()) /
+                         (mostReducedTable.getNodeAnalysis()->getCardinality());
       continue;
     }
 
     CostScalar currentTableRedFactor =
-      (currentTable.
-        getNodeAnalysis()->
-          getTableAnalysis()->
-            getCardinalityOfBaseTable())/
-      (currentTable.
-        getNodeAnalysis()->
-          getCardinality());
+        (currentTable.getNodeAnalysis()->getTableAnalysis()->getCardinalityOfBaseTable()) /
+        (currentTable.getNodeAnalysis()->getCardinality());
 
-    if (currentTableRedFactor > highestRedFactor)
-    {
+    if (currentTableRedFactor > highestRedFactor) {
       highestRedFactor = currentTableRedFactor;
       mostReducedTable = currentTable;
     }
   }
 
-  if(mostReducedTable != NULL_CA_ID)
-    joinedToLargestTable_.insert(mostReducedTable);
-
+  if (mostReducedTable != NULL_CA_ID) joinedToLargestTable_.insert(mostReducedTable);
 }
 
-void QueryAnalysis::cleanup(RelExpr* expr)
-{
+void QueryAnalysis::cleanup(RelExpr *expr) {
   Lng32 sizeOfLargestJBB = getSizeOfLargestJBB();
   // set Analysis flag OFF
   analysisON_ = FALSE;
@@ -1735,41 +1412,35 @@ void QueryAnalysis::cleanup(RelExpr* expr)
   return;
 }
 
-void QueryAnalysis::cqsRewrite(RelExpr* expr)
-{
-  RelRoot *root = (RelRoot *) expr;
+void QueryAnalysis::cqsRewrite(RelExpr *expr) {
+  RelRoot *root = (RelRoot *)expr;
   CURRENTSTMT->clearCqsWA();
-  if (multiJoinsUsed_ AND // cqsRewrite expect multiJoins
-      root->getReqdShape() AND
-      NOT root->getReqdShape()->isCutOp())
-  {
-     RelExpr * cqsExpr = root->getReqdShape();
-     root->forceCQS(cqsExpr);
-     root->synthLogProp();
+  if (multiJoinsUsed_ AND  // cqsRewrite expect multiJoins
+          root->getReqdShape() AND NOT root->getReqdShape()
+              ->isCutOp()) {
+    RelExpr *cqsExpr = root->getReqdShape();
+    root->forceCQS(cqsExpr);
+    root->synthLogProp();
   }
   return;
 }
 
-void QueryAnalysis::clearAnalysis(RelExpr* expr)
-{
+void QueryAnalysis::clearAnalysis(RelExpr *expr) {
   // do self
   expr->getGroupAttr()->clearGroupAnalysis();
   // do children
   Int32 arity = expr->getArity();
-  for (Lng32 i = 0; i < arity; i++)
-  {
+  for (Lng32 i = 0; i < arity; i++) {
     clearAnalysis(expr->child(i).getPtr());
   }
 
   return;
 }
 
-void QueryAnalysis::primeGroupAnalysisForSubtree(RelExpr* expr)
-{
+void QueryAnalysis::primeGroupAnalysisForSubtree(RelExpr *expr) {
   // do children first
   Int32 arity = expr->getArity();
-  for (Lng32 i = 0; i < arity; i++)
-  {
+  for (Lng32 i = 0; i < arity; i++) {
     primeGroupAnalysisForSubtree(expr->child(i).getPtr());
   }
   // do self now
@@ -1777,46 +1448,34 @@ void QueryAnalysis::primeGroupAnalysisForSubtree(RelExpr* expr)
   return;
 }
 
-void QueryAnalysis::finishConnectivityAnalysis()
-{
+void QueryAnalysis::finishConnectivityAnalysis() {
   CANodeIdSet tables = tCGraph_->tables_;
   CANodeId table;
-  for (table = tables.init();
-       tables.next(table);
-       tables.advance(table))
-  {
+  for (table = tables.init(); tables.next(table); tables.advance(table)) {
     table.getNodeAnalysis()->getTableAnalysis()->finishAnalysis();
   }
   return;
 }
 
-void QueryAnalysis::checkIfCompressedHistsViable()
-{
+void QueryAnalysis::checkIfCompressedHistsViable() {
   CANodeIdSet tables = tCGraph_->tables_;
   CANodeId table;
-  for (table = tables.init();
-       tables.next(table);
-       tables.advance(table))
-  {
+  for (table = tables.init(); tables.next(table); tables.advance(table)) {
     table.getNodeAnalysis()->getTableAnalysis()->checkIfCompressedHistsViable();
   }
   return;
 }
 
 // Find JBB with most JBBCs
-JBB* QueryAnalysis::getLargestJBB()
-{
-  JBB* largestJBB = NULL;
+JBB *QueryAnalysis::getLargestJBB() {
+  JBB *largestJBB = NULL;
   CollIndex sizeOfLargestJBB = 0;
 
   CollIndex i = 0;
   CollIndex remainingJBBs = jbbArray_.entries();
-  for (i = 0; remainingJBBs > 0; i++)
-  {
-    if (jbbArray_.used(i))
-    {
-      if (sizeOfLargestJBB < jbbArray_[i]->getJBBCs().entries())
-      {
+  for (i = 0; remainingJBBs > 0; i++) {
+    if (jbbArray_.used(i)) {
+      if (sizeOfLargestJBB < jbbArray_[i]->getJBBCs().entries()) {
         largestJBB = jbbArray_[i];
         sizeOfLargestJBB = largestJBB->getJBBCs().entries();
       }
@@ -1826,9 +1485,8 @@ JBB* QueryAnalysis::getLargestJBB()
   return largestJBB;
 }
 
-ULng32 QueryAnalysis::getSizeOfLargestJBB()
-{
-  JBB* largestJBB = getLargestJBB();
+ULng32 QueryAnalysis::getSizeOfLargestJBB() {
+  JBB *largestJBB = getLargestJBB();
   if (largestJBB)
     return largestJBB->getJBBCs().entries();
   else
@@ -1837,15 +1495,13 @@ ULng32 QueryAnalysis::getSizeOfLargestJBB()
 
 // This method is called only after ASM initialization
 // It computes some basic stats for nodes and tables and caches them.
-void QueryAnalysis::computeStatsForNodes()
-{
+void QueryAnalysis::computeStatsForNodes() {
   CollIndex i = 0;
   CollIndex remainingNodes = nodeAnalysisArray_.entries();
-  for (i = 0; remainingNodes > 0; i++)
-  {
+  for (i = 0; remainingNodes > 0; i++) {
     remainingNodes--;
     CMPASSERT(nodeAnalysisArray_.used(i));
-    if (nodeAnalysisArray_.used(i) && i != NULL_CA_ID) // NULL_CA_ID is zero
+    if (nodeAnalysisArray_.used(i) && i != NULL_CA_ID)  // NULL_CA_ID is zero
     {
       nodeAnalysisArray_[i]->computeStats();
     }
@@ -1853,29 +1509,22 @@ void QueryAnalysis::computeStatsForNodes()
 }
 
 // For the graph display by the dotty tool
-void QueryAnalysis::graphDisplay() const
-{
+void QueryAnalysis::graphDisplay() const {
   // See if there is something to display first
-  if(jbbArray_.entries() == 0)
-    return;
+  if (jbbArray_.entries() == 0) return;
 
   NAString fileName = "";
 
-  const char* fname = ActiveSchemaDB()->getDefaults().
-                        getValue(DISPLAY_DATA_FLOW_GRAPH);
+  const char *fname = ActiveSchemaDB()->getDefaults().getValue(DISPLAY_DATA_FLOW_GRAPH);
 
-  if(!(*fname) || strcasecmp(fname,"OFF") == 0)
-  {
+  if (!(*fname) || strcasecmp(fname, "OFF") == 0) {
     // Display graph is OFF. bye bye
     return;
   }
-  if(*fname && strcasecmp(fname,"ON") == 0)
-  {
+  if (*fname && strcasecmp(fname, "ON") == 0) {
     // The default file name is used here
     fileName = "C:\\ATT\\Graphviz\\graphs\\f.dot";
-  }
-  else
-  {
+  } else {
     // Use name specified in CQD
     fileName = fname;
   }
@@ -1889,48 +1538,41 @@ void QueryAnalysis::graphDisplay() const
 
   CollIndex i = 0;
   CollIndex remainingJBBs = jbbArray_.entries();
-  for (i = 0; remainingJBBs > 0; i++)
-  {
-    if (jbbArray_.used(i))
-    {
+  for (i = 0; remainingJBBs > 0; i++) {
+    if (jbbArray_.used(i)) {
       result += jbbArray_[i]->graphDisplay(this) + "\n";
-	  remainingJBBs--;
+      remainingJBBs--;
     }
   }
   result += "}\n";
-  fileout<<result;
+  fileout << result;
 
   return;
 }
 
-const NAString QueryAnalysis::getText() const
-{
+const NAString QueryAnalysis::getText() const {
   NAString result(heap_);
   result += "-----------------------------------------------------\n";
   result += "QueryAnalysis:\n\n";
 
   CollIndex i = 0;
-  result += "Have "+ istring(nodeAnalysisArray_.entries()-1) + " CA Nodes:\n\n";
+  result += "Have " + istring(nodeAnalysisArray_.entries() - 1) + " CA Nodes:\n\n";
   CollIndex remainingNodes = nodeAnalysisArray_.entries();
-  for (i = 0; remainingNodes > 0; i++)
-  {
-    if (nodeAnalysisArray_.used(i))
-    {
-      if (i != NULL_CA_ID) // which is zero
+  for (i = 0; remainingNodes > 0; i++) {
+    if (nodeAnalysisArray_.used(i)) {
+      if (i != NULL_CA_ID)  // which is zero
         result += nodeAnalysisArray_[i]->getText() + "\n";
-	  remainingNodes--;
+      remainingNodes--;
     }
   }
-  result += "Have "+ istring(allJBBCs_.entries()) + " JBBCs:\n";
-  result += allJBBCs_.getText()+"\n";
-  result += "Have "+ istring(jbbArray_.entries()) + " JBBs:\n";
+  result += "Have " + istring(allJBBCs_.entries()) + " JBBCs:\n";
+  result += allJBBCs_.getText() + "\n";
+  result += "Have " + istring(jbbArray_.entries()) + " JBBs:\n";
   CollIndex remainingJBBs = jbbArray_.entries();
-  for (i = 0; remainingJBBs > 0; i++)
-  {
-    if (jbbArray_.used(i))
-    {
+  for (i = 0; remainingJBBs > 0; i++) {
+    if (jbbArray_.used(i)) {
       result += jbbArray_[i]->getText() + "\n";
-	  remainingJBBs--;
+      remainingJBBs--;
     }
   }
   result += "\n";
@@ -1938,24 +1580,17 @@ const NAString QueryAnalysis::getText() const
   return result;
 }
 
-void QueryAnalysis::display() const
-{
-  print();
-}
+void QueryAnalysis::display() const { print(); }
 
-void QueryAnalysis::print (FILE *f,
-	      const char * prefix,
-	      const char * suffix) const
-{
-  fprintf (f, "%s", (const char*)getText());
+void QueryAnalysis::print(FILE *f, const char *prefix, const char *suffix) const {
+  fprintf(f, "%s", (const char *)getText());
 }
 
 // -----------------------------------------------------------------------
 // pilotAnalysis() and jbbAnalysis() and other RelExpr methods
 // -----------------------------------------------------------------------
 
-NABoolean RelExpr::pilotAnalysis(QueryAnalysis* qa)
-{
+NABoolean RelExpr::pilotAnalysis(QueryAnalysis *qa) {
   NABoolean status = TRUE;
   // do pilot analysis on this expr
 
@@ -1964,57 +1599,49 @@ NABoolean RelExpr::pilotAnalysis(QueryAnalysis* qa)
   // Compound Statements are not supported now. xxx
   // This can be added, but no big gain expected since CS
   // statements are small usually.
-  if (getOperator().match(REL_COMPOUND_STMT))
-  {
+  if (getOperator().match(REL_COMPOUND_STMT)) {
     return FALSE;
   }
 
   // Streams causes problems now with the MultiJoin becuase
   // they requires TSJ and the MultiJoin rules do not respect
   // this requirement for now. This can be fixed.
-  if (getGroupAttr()->isStream())
-  {
+  if (getGroupAttr()->isStream()) {
     return FALSE;
   }
 
   // now pass it to children
   Int32 arity = getArity();
 
-  for (Lng32 i = 0; i < arity; i++)
-    status = status AND child(i)->pilotAnalysis(qa);
+  for (Lng32 i = 0; i < arity; i++) status = status AND child(i)->pilotAnalysis(qa);
 
   return status;
 }
 
-NABoolean GroupByAgg::pilotAnalysis(QueryAnalysis* qa)
-{
+NABoolean GroupByAgg::pilotAnalysis(QueryAnalysis *qa) {
   // First we do the normal RelExpr pilotAnalysis work
   NABoolean status = RelExpr::pilotAnalysis(qa);
   // stop here if it fails
-  if (!status)
-    return FALSE;
+  if (!status) return FALSE;
 
   // Now we do special GB work
-  RelExpr* child = this->child(0);
-  NABoolean joinThatCanBePartOfJBB =
-      (child->getOperator().match(REL_ANY_JOIN) && ((Join*)child)->canBePartOfJBB());
+  RelExpr *child = this->child(0);
+  NABoolean joinThatCanBePartOfJBB = (child->getOperator().match(REL_ANY_JOIN) && ((Join *)child)->canBePartOfJBB());
 
   NABoolean singleScanThatCanBePartOfJBB =
       ((child->getOperator().match(REL_SCAN)) && (CmpCommon::getDefaultLong(MVQR_REWRITE_LEVEL) > 0) &&
-       !(child->getGroupAttr()->isUnique(groupExpr()))); // group by can be eliminated
+       !(child->getGroupAttr()->isUnique(groupExpr())));  // group by can be eliminated
 
-  if (!joinThatCanBePartOfJBB && !singleScanThatCanBePartOfJBB)
-  {
+  if (!joinThatCanBePartOfJBB && !singleScanThatCanBePartOfJBB) {
     // This is not on top of JBB. No more work needed.
-	return status;
+    return status;
   }
 
   // Now that this GB is on top of a JBB, we need to create a GBAnalysis
   // and assigh a special CANodeId for it.
 
-  if (singleScanThatCanBePartOfJBB)
-  {
-     qa->newJBBC(NULL, child);
+  if (singleScanThatCanBePartOfJBB) {
+    qa->newJBBC(NULL, child);
   }
 
   qa->newGBAnalysis(this);
@@ -2022,59 +1649,45 @@ NABoolean GroupByAgg::pilotAnalysis(QueryAnalysis* qa)
   return status;
 }
 
-NABoolean Scan::pilotAnalysis(QueryAnalysis* qa)
-{
+NABoolean Scan::pilotAnalysis(QueryAnalysis *qa) {
   // Describe operator is a problem because it is derived from
   // Scan but it has junk TableDesc. This check will be put later
   // in Describe::pilotAnalysis(), but this is a fast kludge xxx.
-  if (getOperator().match(REL_DESCRIBE))
-  {
+  if (getOperator().match(REL_DESCRIBE)) {
     return FALSE;
   }
 
-  if (!qa->newTableAnalysis(this))
-    return FALSE;
+  if (!qa->newTableAnalysis(this)) return FALSE;
 
   return TRUE;
 }
 
-
-NABoolean TableValuedFunction::pilotAnalysis(QueryAnalysis* qa)
-{
-  if (!qa->newTableAnalysis(this))
-    return FALSE;
+NABoolean TableValuedFunction::pilotAnalysis(QueryAnalysis *qa) {
+  if (!qa->newTableAnalysis(this)) return FALSE;
 
   return TRUE;
 }
 
-NABoolean RelRoutine::pilotAnalysis(QueryAnalysis* qa)
-{
+NABoolean RelRoutine::pilotAnalysis(QueryAnalysis *qa) {
   NABoolean status = RelExpr::pilotAnalysis(qa);
-  
-  if(!status)
-    return FALSE;
-    
-  if (!qa->newRoutineAnalysis(this))
-    return FALSE;
+
+  if (!status) return FALSE;
+
+  if (!qa->newRoutineAnalysis(this)) return FALSE;
 
   return TRUE;
 }
 
-NABoolean Join::pilotAnalysis(QueryAnalysis* qa)
-{
+NABoolean Join::pilotAnalysis(QueryAnalysis *qa) {
   NABoolean status = TRUE;
 
   // set status to FALSE if this
   // join cannot be part of JBB
-  if (isASpoilerJoin())
-    status = FALSE;
+  if (isASpoilerJoin()) status = FALSE;
 
-  if ( qa->isCompressedHistsViable() &&
-       (isTSJ() || isSemiJoin() || isOuterJoin() ) )
-    qa->disableCompressedHistsViable();
+  if (qa->isCompressedHistsViable() && (isTSJ() || isSemiJoin() || isOuterJoin())) qa->disableCompressedHistsViable();
 
-  if(canBePartOfJBB())
-  {
+  if (canBePartOfJBB()) {
     // the right child is always a JBBC
     qa->newJBBC(this, child(1).getPtr());
 
@@ -2086,43 +1699,33 @@ NABoolean Join::pilotAnalysis(QueryAnalysis* qa)
     //   * anti-semi
     // * full outer join becomes a JBBC
     // * TSJ becomes a JBBC but by default it is a spoiler
-    if ((!child(0)->getOperator().match(REL_ANY_JOIN))||
-        (!((Join *)child(0).getPtr())->canBePartOfJBB()))
-    {
+    if ((!child(0)->getOperator().match(REL_ANY_JOIN)) || (!((Join *)child(0).getPtr())->canBePartOfJBB())) {
       NABoolean isFullOuterJoinOrTSJJBBC = FALSE;
-      if (child(0)->getOperator().match(REL_ANY_JOIN))
-        isFullOuterJoinOrTSJJBBC = TRUE;
-      qa->newJBBC(NULL, child(0).getPtr(),isFullOuterJoinOrTSJJBBC);
+      if (child(0)->getOperator().match(REL_ANY_JOIN)) isFullOuterJoinOrTSJJBBC = TRUE;
+      qa->newJBBC(NULL, child(0).getPtr(), isFullOuterJoinOrTSJJBBC);
     }
-  }
-  else
+  } else
     qa->setSkippedSomeJoins();
 
   // now pass call to children
-  for (Lng32 i = 0; i < 2; i++)
-    status = status AND child(i)->pilotAnalysis(qa);
+  for (Lng32 i = 0; i < 2; i++) status = status AND child(i)->pilotAnalysis(qa);
 
   return status;
 }
 
-NABoolean Insert::pilotAnalysis(QueryAnalysis* qa)
-{
-
+NABoolean Insert::pilotAnalysis(QueryAnalysis *qa) {
   NABoolean status = TRUE;
 
   // Ensure the column analysis is properly set up
   // for an embedded insert that contains predicates.
-  if (getGroupAttr()->isEmbeddedInsert() || (getGroupAttr()->getCharacteristicOutputs().entries() > 0))
-    {
-      if (!qa->newTableAnalysis(this))
-	return FALSE;
-    }
+  if (getGroupAttr()->isEmbeddedInsert() || (getGroupAttr()->getCharacteristicOutputs().entries() > 0)) {
+    if (!qa->newTableAnalysis(this)) return FALSE;
+  }
 
   // now pass it to children
   Int32 arity = getArity();
 
-  for (Lng32 i = 0; i < arity; i++)
-    status = status AND child(i)->pilotAnalysis(qa);
+  for (Lng32 i = 0; i < arity; i++) status = status AND child(i)->pilotAnalysis(qa);
 
   return status;
 }
@@ -2130,9 +1733,7 @@ NABoolean Insert::pilotAnalysis(QueryAnalysis* qa)
 // this method will be used for update and delete (both are derived from
 // generic update. Insert (also derived from generic update) has its own
 // pilotAnalysis
-NABoolean GenericUpdate::pilotAnalysis(QueryAnalysis* qa)
-{
-
+NABoolean GenericUpdate::pilotAnalysis(QueryAnalysis *qa) {
   NABoolean status = TRUE;
 
   // Update operator is a problem for TCG because it generates
@@ -2144,70 +1745,58 @@ NABoolean GenericUpdate::pilotAnalysis(QueryAnalysis* qa)
   // to rely on base column list in analyzer to test.
   // Same thing for Delete operator.
   if (((CmpCommon::getDefault(COMP_BOOL_217) == DF_ON) &&
-       ((getOperator().match(REL_UNARY_UPDATE)) OR
-        (getOperator().match(REL_UNARY_DELETE)))) OR
-      (getGroupAttr()->isEmbeddedUpdateOrDelete()))
-  {
+       ((getOperator().match(REL_UNARY_UPDATE))OR(getOperator().match(REL_UNARY_DELETE))))
+          OR(getGroupAttr()->isEmbeddedUpdateOrDelete())) {
     return FALSE;
   }
 
   // Ensure the column analysis is properly set up
-  if (((getOperator().match(REL_UNARY_UPDATE)) OR
-       (getOperator().match(REL_UNARY_DELETE)) OR
-       (getGroupAttr()->getCharacteristicOutputs().entries() > 0))
-       &&
+  if (((getOperator().match(REL_UNARY_UPDATE))OR(getOperator().match(REL_UNARY_DELETE))
+           OR(getGroupAttr()->getCharacteristicOutputs().entries() > 0)) &&
       (!qa->newTableAnalysis(this)))
     return FALSE;
 
   // now pass it to children
   Int32 arity = getArity();
 
-  for (Lng32 i = 0; i < arity; i++)
-    status = status AND child(i)->pilotAnalysis(qa);
+  for (Lng32 i = 0; i < arity; i++) status = status AND child(i)->pilotAnalysis(qa);
 
   return status;
 }
 
-void RelExpr::jbbAnalysis(QueryAnalysis* qa)
-{
+void RelExpr::jbbAnalysis(QueryAnalysis *qa) {
   // recursively call the children
   Int32 arity = getArity();
-  for (Lng32 i = 0; i < arity; i++)
-  {
+  for (Lng32 i = 0; i < arity; i++) {
     child(i)->jbbAnalysis(qa);
   }
   return;
 }
 
-void GroupByAgg::jbbAnalysis(QueryAnalysis* qa)
-{
-  RelExpr* child = this->child(0);
+void GroupByAgg::jbbAnalysis(QueryAnalysis *qa) {
+  RelExpr *child = this->child(0);
 
-  NABoolean joinThatCanBePartOfJBB =
-      (child->getOperator().match(REL_ANY_JOIN) && ((Join*)child)->canBePartOfJBB());
+  NABoolean joinThatCanBePartOfJBB = (child->getOperator().match(REL_ANY_JOIN) && ((Join *)child)->canBePartOfJBB());
 
   NABoolean singleScanThatCanBePartOfJBB =
       ((child->getOperator().match(REL_SCAN)) && (CmpCommon::getDefaultLong(MVQR_REWRITE_LEVEL) > 0) &&
-       !(child->getGroupAttr()->isUnique(groupExpr()))); // group by can be eliminated
+       !(child->getGroupAttr()->isUnique(groupExpr())));  // group by can be eliminated
 
-  if (!joinThatCanBePartOfJBB && !singleScanThatCanBePartOfJBB)
-  {
+  if (!joinThatCanBePartOfJBB && !singleScanThatCanBePartOfJBB) {
     // not on top of JBB. do it like other RelExprs.
     RelExpr::jbbAnalysis(qa);
-	return;
+    return;
   }
 
   // This GB is on top of a JBB. create a JBB object.
-  JBB* jbb = qa->newJBB(this);
+  JBB *jbb = qa->newJBB(this);
 
   // analyse the JBB and children
   jbb->analyze(this);
 
   // recursively pass call to children exprs of the entire JBB
-  RelExpr* expr = child;
-  while (expr->getOperator().match(REL_ANY_JOIN) &&
-         ((Join*)expr)->canBePartOfJBB())
-  {
+  RelExpr *expr = child;
+  while (expr->getOperator().match(REL_ANY_JOIN) && ((Join *)expr)->canBePartOfJBB()) {
     expr->child(1)->jbbAnalysis(qa);
     expr = expr->child(0);
   }
@@ -2219,25 +1808,21 @@ void GroupByAgg::jbbAnalysis(QueryAnalysis* qa)
   return;
 }
 
-void Join::jbbAnalysis(QueryAnalysis* qa)
-{
-  if(!canBePartOfJBB())
-  {
+void Join::jbbAnalysis(QueryAnalysis *qa) {
+  if (!canBePartOfJBB()) {
     RelExpr::jbbAnalysis(qa);
     return;
   }
 
   // this is the top join in a JBB. create a JBB object for it
-  JBB* jbb = qa->newJBB(this);
+  JBB *jbb = qa->newJBB(this);
 
   // analyse the JBB and children
   jbb->analyze(this);
 
   // recursively pass call to children exprs of the entire JBB
-  RelExpr* expr = this;
-  while (expr->getOperator().match(REL_ANY_JOIN)&&
-         ((Join*)expr)->canBePartOfJBB())
-  {
+  RelExpr *expr = this;
+  while (expr->getOperator().match(REL_ANY_JOIN) && ((Join *)expr)->canBePartOfJBB()) {
     expr->child(1)->jbbAnalysis(qa);
     expr = expr->child(0);
   }
@@ -2247,63 +1832,45 @@ void Join::jbbAnalysis(QueryAnalysis* qa)
   return;
 }
 
-void RelExpr::jbbJoinDependencyAnalysis(ValueIdSet & predsWithDependencies)
-{
+void RelExpr::jbbJoinDependencyAnalysis(ValueIdSet &predsWithDependencies) {
   // call dependency analysis on children
   Int32 arity = getArity();
 
-  for(Lng32 i = 0; i < arity; i++)
-    child(i)->jbbJoinDependencyAnalysis(predsWithDependencies);
+  for (Lng32 i = 0; i < arity; i++) child(i)->jbbJoinDependencyAnalysis(predsWithDependencies);
 }
 
-void Join::jbbJoinDependencyAnalysis(ValueIdSet & predsWithDependencies)
-{
-  if(canBePartOfJBB())
-  {
+void Join::jbbJoinDependencyAnalysis(ValueIdSet &predsWithDependencies) {
+  if (canBePartOfJBB()) {
     predsWithDependencies += getJoinPred();
   }
 
   RelExpr::jbbJoinDependencyAnalysis(predsWithDependencies);
 
-  if(canBePartOfJBB())
-  {
+  if (canBePartOfJBB()) {
     ValueIdSet emptySet;
 
-    JBBC * rightChildJBBC =
-      child(1)->
-        getGroupAnalysis()->
-          getNodeAnalysis()->
-            getJBBC();
+    JBBC *rightChildJBBC = child(1)->getGroupAnalysis()->getNodeAnalysis()->getJBBC();
 
-    if(rightChildJBBC)
-	  {
-      if(!isInnerNonSemiNonTSJJoin())
-        rightChildJBBC->setPredsWithDependencies(predsWithDependencies,
-                                                 getJoinPred());
-	    else
-        rightChildJBBC->setPredsWithDependencies(predsWithDependencies,
-                                                 emptySet);
-	  }
+    if (rightChildJBBC) {
+      if (!isInnerNonSemiNonTSJJoin())
+        rightChildJBBC->setPredsWithDependencies(predsWithDependencies, getJoinPred());
+      else
+        rightChildJBBC->setPredsWithDependencies(predsWithDependencies, emptySet);
+    }
 
-    NodeAnalysis * leftChildNodeAnalysis =
-      child(0)->
-        getGroupAnalysis()->
-          getNodeAnalysis();
+    NodeAnalysis *leftChildNodeAnalysis = child(0)->getGroupAnalysis()->getNodeAnalysis();
 
-    JBBC * leftChildJBBC = NULL;
+    JBBC *leftChildJBBC = NULL;
 
-    if (leftChildNodeAnalysis)
-      leftChildJBBC =
-        leftChildNodeAnalysis->getJBBC();
+    if (leftChildNodeAnalysis) leftChildJBBC = leftChildNodeAnalysis->getJBBC();
 
-    if(leftChildJBBC){
+    if (leftChildJBBC) {
       leftChildJBBC->setPredsWithDependencies(predsWithDependencies, emptySet);
     }
   }
 }
 
-void RelExpr::predAnalysis(QueryAnalysis* qa)
-{
+void RelExpr::predAnalysis(QueryAnalysis *qa) {
   // do pred analysis on this expr
   ValueIdSet exprSet = getSelectionPred();
 
@@ -2312,105 +1879,83 @@ void RelExpr::predAnalysis(QueryAnalysis* qa)
   // now pass it to children
   Int32 arity = getArity();
 
-  for (Lng32 i = 0; i < arity; i++)
-    child(i)->predAnalysis(qa);
+  for (Lng32 i = 0; i < arity; i++) child(i)->predAnalysis(qa);
 
   return;
 }
 
-
-void Join::predAnalysis(QueryAnalysis* qa)
-{
+void Join::predAnalysis(QueryAnalysis *qa) {
   // do pred analysis on this expr
   ValueIdSet exprSet = getSelectionPred();
   exprSet += joinPred();
 
-  NABoolean predsOnSemiOrLeftJoin =
-    !isInnerNonSemiJoin();
-    
+  NABoolean predsOnSemiOrLeftJoin = !isInnerNonSemiJoin();
+
   exprSet.columnAnalysis(qa, predsOnSemiOrLeftJoin);
 
   // now pass it to children
   Int32 arity = getArity();
 
-  for (Lng32 i = 0; i < arity; i++)
-    child(i)->predAnalysis(qa);
+  for (Lng32 i = 0; i < arity; i++) child(i)->predAnalysis(qa);
 
   return;
 }
 
 // returns TRUE if join is a spoiler
-NABoolean Join::isASpoilerJoin()
-{
-  if(isRoutineJoin() && (CmpCommon::getDefault(ROUTINE_JOINS_SPOIL_JBB) == DF_ON))
-    return TRUE;
-    
+NABoolean Join::isASpoilerJoin() {
+  if (isRoutineJoin() && (CmpCommon::getDefault(ROUTINE_JOINS_SPOIL_JBB) == DF_ON)) return TRUE;
+
   // TSJ and right outer join are not allowed in the MultiJoin framework
   // Note isRightJoin returns TRUE for full outer joins also, hence
   // the second OR condition
-  if(((isTSJ() && !isRoutineJoin()) && (CmpCommon::getDefault(TSJS_SPOIL_JBB) == DF_ON))||
-     (!isFullOuterJoin() && isRightJoin()))
+  if (((isTSJ() && !isRoutineJoin()) && (CmpCommon::getDefault(TSJS_SPOIL_JBB) == DF_ON)) ||
+      (!isFullOuterJoin() && isRightJoin()))
     return TRUE;
 
   // control if left joins are allowed allowed in MultiJoin framework
-  if(isFullOuterJoin() &&
-     (CmpCommon::getDefault(FULL_OUTER_JOINS_SPOIL_JBB) == DF_ON))
-    return TRUE;
+  if (isFullOuterJoin() && (CmpCommon::getDefault(FULL_OUTER_JOINS_SPOIL_JBB) == DF_ON)) return TRUE;
 
   // control if left joins are allowed allowed in MultiJoin framework
-  if(isLeftJoin() &&
-     (CmpCommon::getDefault(LEFT_JOINS_SPOIL_JBB) == DF_ON))
-    return TRUE;
+  if (isLeftJoin() && (CmpCommon::getDefault(LEFT_JOINS_SPOIL_JBB) == DF_ON)) return TRUE;
 
   // control if semi and anti-semijoins are allowed in MultiJoin framework
-  if((isSemiJoin() || isAntiSemiJoin()) &&
-     (CmpCommon::getDefault(SEMI_JOINS_SPOIL_JBB) == DF_ON))
-    return TRUE;
+  if ((isSemiJoin() || isAntiSemiJoin()) && (CmpCommon::getDefault(SEMI_JOINS_SPOIL_JBB) == DF_ON)) return TRUE;
 
   return FALSE;
 }
 
 // returns TRUE if join can be part of the JBB
-NABoolean Join::canBePartOfJBB()
-{
+NABoolean Join::canBePartOfJBB() {
   // Non-RoutineJoin-TSJ and right-outer-join and full-outer-join cannot be part of JBB
-  if((isTSJ() && !isRoutineJoin()) || isRightJoin() || isFullOuterJoin())
-    return FALSE;
+  if ((isTSJ() && !isRoutineJoin()) || isRightJoin() || isFullOuterJoin()) return FALSE;
 
   return TRUE;
 }
 
-RelExpr* RelExpr::convertToMultiJoinSubtree(QueryAnalysis* qa)
-{
+RelExpr *RelExpr::convertToMultiJoinSubtree(QueryAnalysis *qa) {
   // pass it to children
   Int32 arity = getArity();
 
-  for (Lng32 i = 0; i < arity; i++)
-    child(i) = child(i)->convertToMultiJoinSubtree(qa);
+  for (Lng32 i = 0; i < arity; i++) child(i) = child(i)->convertToMultiJoinSubtree(qa);
 
-  if (getGroupAnalysis()->getNodeAnalysis())
-  getGroupAnalysis()->getNodeAnalysis()->setModifiedExpr(this);
+  if (getGroupAnalysis()->getNodeAnalysis()) getGroupAnalysis()->getNodeAnalysis()->setModifiedExpr(this);
 
   return this;
 }
 
-RelExpr* Join::convertToMultiJoinSubtree(QueryAnalysis* qa)
-{
-  if(!canBePartOfJBB())
-  {
+RelExpr *Join::convertToMultiJoinSubtree(QueryAnalysis *qa) {
+  if (!canBePartOfJBB()) {
     return RelExpr::convertToMultiJoinSubtree(qa);
   }
 
-  if (!getGroupAnalysis()->getLocalJBBView())
-  {
+  if (!getGroupAnalysis()->getLocalJBBView()) {
     // in this case just use default RelExpr implementation
-	return RelExpr::convertToMultiJoinSubtree(qa);
+    return RelExpr::convertToMultiJoinSubtree(qa);
   }
 
-  CollHeap* outHeap = qa->outHeap();
+  CollHeap *outHeap = qa->outHeap();
 
-  MultiJoin* result = new (outHeap)
-    MultiJoin(*(getGroupAnalysis()->getLocalJBBView()), outHeap);
+  MultiJoin *result = new (outHeap) MultiJoin(*(getGroupAnalysis()->getLocalJBBView()), outHeap);
 
   // Share my groupAttr with result
   result->setGroupAttr(getGroupAttr());
@@ -2424,33 +1969,25 @@ RelExpr* Join::convertToMultiJoinSubtree(QueryAnalysis* qa)
   return result;
 }
 
-EstLogPropSharedPtr RelExpr::setJBBInput(EstLogPropSharedPtr & inLP)
-{
+EstLogPropSharedPtr RelExpr::setJBBInput(EstLogPropSharedPtr &inLP) {
   // pass it to children
   Int32 arity = getArity();
 
-  for (Lng32 i = 0; i < arity; i++)
-    child(i)->setJBBInput(inLP);
+  for (Lng32 i = 0; i < arity; i++) child(i)->setJBBInput(inLP);
 
-  if (getGroupAttr() &&
-      getGroupAttr()->getGroupAnalysis() &&
-      getGroupAttr()->getGroupAnalysis()->getNodeAnalysis())
-  {
+  if (getGroupAttr() && getGroupAttr()->getGroupAnalysis() && getGroupAttr()->getGroupAnalysis()->getNodeAnalysis()) {
     getGroupAttr()->getGroupAnalysis()->getNodeAnalysis()->setJBBInput(inLP);
   }
 
   return getGroupAttr()->outputLogProp(inLP);
 }
 
-EstLogPropSharedPtr Join::setJBBInput(EstLogPropSharedPtr & inLP)
-{
+EstLogPropSharedPtr Join::setJBBInput(EstLogPropSharedPtr &inLP) {
   EstLogPropSharedPtr inputForRight = inLP;
 
-  EstLogPropSharedPtr leftOutput =
-    child(0)->setJBBInput(inLP);
+  EstLogPropSharedPtr leftOutput = child(0)->setJBBInput(inLP);
 
-  if(isTSJ())
-  {
+  if (isTSJ()) {
     // if this is a TSJ set the flag that indicates
     // that it is a mandatory TSJ, i.e. a TSJ that
     // could not be unnested
@@ -2460,25 +1997,20 @@ EstLogPropSharedPtr Join::setJBBInput(EstLogPropSharedPtr & inLP)
 
   child(1)->setJBBInput(inputForRight);
 
-  if (getGroupAttr() &&
-      getGroupAttr()->getGroupAnalysis())
-  {
+  if (getGroupAttr() && getGroupAttr()->getGroupAnalysis()) {
     if (getGroupAttr()->getGroupAnalysis()->getNodeAnalysis())
       getGroupAttr()->getGroupAnalysis()->getNodeAnalysis()->setJBBInput(inLP);
     else if (getGroupAttr()->getGroupAnalysis()->getLocalJBBView() &&
-		     getGroupAttr()->getGroupAnalysis()->getLocalJBBView()->getJBBCs().entries() == 2)
+             getGroupAttr()->getGroupAnalysis()->getLocalJBBView()->getJBBCs().entries() == 2)
       getGroupAttr()->getGroupAnalysis()->getLocalJBBView()->getJBB()->setInputEstLP(inLP);
   }
 
   return getGroupAttr()->outputLogProp(inLP);
-
 }
 
-EstLogPropSharedPtr MultiJoin::setJBBInput(EstLogPropSharedPtr & inLP)
-{
-  if((inLP != (*GLOBAL_EMPTY_INPUT_LOGPROP)) && (!inLP->getNodeSet()))
-  {
-    CANodeIdSet * inputNodeSet = new (CmpCommon::statementHeap()) CANodeIdSet();
+EstLogPropSharedPtr MultiJoin::setJBBInput(EstLogPropSharedPtr &inLP) {
+  if ((inLP != (*GLOBAL_EMPTY_INPUT_LOGPROP)) && (!inLP->getNodeSet())) {
+    CANodeIdSet *inputNodeSet = new (CmpCommon::statementHeap()) CANodeIdSet();
     *inputNodeSet += NULL_CA_ID;
     inLP->setNodeSet(inputNodeSet);
   }
@@ -2489,27 +2021,24 @@ EstLogPropSharedPtr MultiJoin::setJBBInput(EstLogPropSharedPtr & inLP)
   // pass it to children
   Int32 arity = getArity();
 
-  for (Lng32 i = 0; i < arity; i++)
-    child(i)->setJBBInput(inLP);
+  for (Lng32 i = 0; i < arity; i++) child(i)->setJBBInput(inLP);
 
   // first clear out the expression already synthesized
   getGroupAttr()->setLogExprForSynthesis(NULL);
-  
+
   // Now do the synthLogProp. This is done here since stats for all the leaf
   // nodes have been computed. We can now correctly break down the MultiJoin
   // into a join tree join the jbbcs in the preferred order.
   synthLogProp();
-  
+
   return QueryAnalysis::ASM()->getStatsForJBBSubset(jbbSubset_);
 }
 
-RelExpr* RelExpr::expandMultiJoinSubtree()
-{
+RelExpr *RelExpr::expandMultiJoinSubtree() {
   // pass it to children
   Int32 arity = getArity();
 
-  for (Lng32 i = 0; i < arity; i++)
-    child(i) = child(i)->expandMultiJoinSubtree();
+  for (Lng32 i = 0; i < arity; i++) child(i) = child(i)->expandMultiJoinSubtree();
 
   // Need to clear log properties since we are re-shaping the tree.
   getGroupAttr()->clearLogProperties();
@@ -2518,18 +2047,13 @@ RelExpr* RelExpr::expandMultiJoinSubtree()
 }
 
 // xxx move this to RelExpr.h and make inline
-GroupAnalysis * RelExpr::getGroupAnalysis()
-{
-  return getGroupAttr()->getGroupAnalysis();
-}
+GroupAnalysis *RelExpr::getGroupAnalysis() { return getGroupAttr()->getGroupAnalysis(); }
 
-void RelExpr::primeGroupAnalysis()
-{
+void RelExpr::primeGroupAnalysis() {
   // Do no GroupAnalysis priming if there was no QueryAnalysis
-  if (!QueryAnalysis::Instance()->isAnalysisON())
-    return;
+  if (!QueryAnalysis::Instance()->isAnalysisON()) return;
 
-  GroupAnalysis* groupAnalysis = getGroupAnalysis();
+  GroupAnalysis *groupAnalysis = getGroupAnalysis();
 
   // The LocalJBBView is NULL unless a join or GB on top of join
   groupAnalysis->setLocalJBBView(NULL);
@@ -2537,15 +2061,11 @@ void RelExpr::primeGroupAnalysis()
   // recursively call the children appending their subtreeTables
   CANodeIdSet allSubtreeTables;
   Int32 arity = getArity();
-  for (Lng32 i = 0; i < arity; i++)
-  {
-    allSubtreeTables +=
-      child(i).getPtr()->getGroupAnalysis()->getAllSubtreeTables();
+  for (Lng32 i = 0; i < arity; i++) {
+    allSubtreeTables += child(i).getPtr()->getGroupAnalysis()->getAllSubtreeTables();
   }
   // If this node has TableAnalysis itself, add it.
-  if (groupAnalysis->getNodeAnalysis() AND
-      groupAnalysis->getNodeAnalysis()->getTableAnalysis())
-  {
+  if (groupAnalysis->getNodeAnalysis() AND groupAnalysis->getNodeAnalysis()->getTableAnalysis()) {
     allSubtreeTables += groupAnalysis->getNodeAnalysis()->getId();
   }
 
@@ -2554,30 +2074,24 @@ void RelExpr::primeGroupAnalysis()
   return;
 }
 
-void Join::primeGroupAnalysis()
-{
+void Join::primeGroupAnalysis() {
   // Do no GroupAnalysis priming if there was no QueryAnalysis
-  if (!QueryAnalysis::Instance()->isAnalysisON())
-    return;
+  if (!QueryAnalysis::Instance()->isAnalysisON()) return;
 
-  GroupAnalysis* groupAnalysis = getGroupAnalysis();
+  GroupAnalysis *groupAnalysis = getGroupAnalysis();
 
   // recursively call the children appending their subtreeTables
   // and parentJBBViews
-  JBBSubset* localView = NULL;
-  if (canBePartOfJBB())
-    localView = new (groupAnalysis->outHeap()) JBBSubset(groupAnalysis->outHeap());
+  JBBSubset *localView = NULL;
+  if (canBePartOfJBB()) localView = new (groupAnalysis->outHeap()) JBBSubset(groupAnalysis->outHeap());
   CANodeIdSet allSubtreeTables;
   Int32 arity = getArity();
-  for (Lng32 i = 0; i < arity; i++)
-  {
-    GroupAnalysis* childAnalysis = child(i).getPtr()->getGroupAnalysis();
+  for (Lng32 i = 0; i < arity; i++) {
+    GroupAnalysis *childAnalysis = child(i).getPtr()->getGroupAnalysis();
 
-	// use children parentViews to build this join local view
-    if (canBePartOfJBB())
-    {
-      const JBBSubset * childParentView =
-        childAnalysis->getParentJBBView();
+    // use children parentViews to build this join local view
+    if (canBePartOfJBB()) {
+      const JBBSubset *childParentView = childAnalysis->getParentJBBView();
       if (childParentView && localView)
         localView->addSubset((*childParentView));
       else
@@ -2585,21 +2099,18 @@ void Join::primeGroupAnalysis()
     }
     allSubtreeTables += childAnalysis->getAllSubtreeTables();
   }
-  if(canBePartOfJBB())
-    groupAnalysis->setLocalJBBView(localView);
+  if (canBePartOfJBB()) groupAnalysis->setLocalJBBView(localView);
   groupAnalysis->setSubtreeTables(allSubtreeTables);
 
   return;
 }
 
-void GroupByAgg::primeGroupAnalysis()
-{
+void GroupByAgg::primeGroupAnalysis() {
   // Do no GroupAnalysis priming if there was no QueryAnalysis
-  if (!QueryAnalysis::Instance()->isAnalysisON())
-    return;
+  if (!QueryAnalysis::Instance()->isAnalysisON()) return;
 
-  GroupAnalysis* groupAnalysis = getGroupAnalysis();
-  GroupAnalysis* childAnalysis = child(0).getPtr()->getGroupAnalysis();
+  GroupAnalysis *groupAnalysis = getGroupAnalysis();
+  GroupAnalysis *childAnalysis = child(0).getPtr()->getGroupAnalysis();
 
   // have same subtree tables as child
   groupAnalysis->setSubtreeTables(childAnalysis->getAllSubtreeTables());
@@ -2611,18 +2122,14 @@ void GroupByAgg::primeGroupAnalysis()
   // This assure that any generated localJBBView would not mingle GB and JBBCs from
   // different JBBs. For such evil combination, we set localJBBView to NULL.
 
-  if (getGBAnalysis() AND
-      childAnalysis->getParentJBBView() AND
-      childAnalysis->getParentJBBView()->getJBB()->getGBAnalysis() == getGBAnalysis())
-  {
-    JBBSubset* localView =
-      new (groupAnalysis->outHeap()) JBBSubset(groupAnalysis->outHeap());
+  if (getGBAnalysis() AND childAnalysis->getParentJBBView() AND childAnalysis->getParentJBBView()
+          ->getJBB()
+          ->getGBAnalysis() == getGBAnalysis()) {
+    JBBSubset *localView = new (groupAnalysis->outHeap()) JBBSubset(groupAnalysis->outHeap());
     localView->addSubset(*(childAnalysis->getParentJBBView()));
     localView->setGB(getGBAnalysis()->getGroupingNodeId());
     groupAnalysis->setLocalJBBView(localView);
-  }
-  else
-  {
+  } else {
     groupAnalysis->setLocalJBBView(NULL);
   }
   // Warning: I should attach GBAnalysis to groupBy expr rather than
@@ -2635,29 +2142,23 @@ void GroupByAgg::primeGroupAnalysis()
   return;
 }
 
-void Filter::primeGroupAnalysis()
-{
+void Filter::primeGroupAnalysis() {
   // Do no GroupAnalysis priming if there was no QueryAnalysis
-  if (!QueryAnalysis::Instance()->isAnalysisON())
-    return;
+  if (!QueryAnalysis::Instance()->isAnalysisON()) return;
 
   // a filter node is transparent with respect to group analysis (so far)
-  GroupAnalysis* groupAnalysis = getGroupAnalysis();
-  GroupAnalysis* childAnalysis = child(0).getPtr()->getGroupAnalysis();
+  GroupAnalysis *groupAnalysis = getGroupAnalysis();
+  GroupAnalysis *childAnalysis = child(0).getPtr()->getGroupAnalysis();
 
   // have same subtree tables as child
   groupAnalysis->setSubtreeTables(childAnalysis->getAllSubtreeTables());
 
   // have same localJBBView as child. Make deep copy (if not NULL of course)
-  if (childAnalysis->getLocalJBBView())
-  {
-    JBBSubset* localView =
-      new (groupAnalysis->outHeap()) JBBSubset(groupAnalysis->outHeap());
+  if (childAnalysis->getLocalJBBView()) {
+    JBBSubset *localView = new (groupAnalysis->outHeap()) JBBSubset(groupAnalysis->outHeap());
     localView->copySubsetMembers(*(childAnalysis->getLocalJBBView()));
     groupAnalysis->setLocalJBBView(localView);
-  }
-  else
-  {
+  } else {
     groupAnalysis->setLocalJBBView(NULL);
   }
 
@@ -2679,32 +2180,21 @@ void Filter::primeGroupAnalysis()
 // This method accumulates those expressions that are members of the
 // referencingSet and are referencing any value in ReferencedSet.
 // -----------------------------------------------------------------------
-void ValueIdSet::accumulateReferencingExpressions(const ValueIdSet & referencingSet,
-                                  const ValueIdSet & referencedSet,
-                                  NABoolean doNotDigInsideVegRefs,
-                                  NABoolean doNotDigInsideInstNulls)
-{
-  for (ValueId referencingExpr = referencingSet.init();
-	   referencingSet.next(referencingExpr);
-	   referencingSet.advance(referencingExpr))
-  {
-    for (ValueId referencedExpr = referencedSet.init();
-         referencedSet.next(referencedExpr);
-         referencedSet.advance(referencedExpr))
-	{
-      if (referencingExpr.getItemExpr()
-          ->referencesTheGivenValue(
-                   referencedExpr,
-                   doNotDigInsideVegRefs,
-                   doNotDigInsideInstNulls))
-      {
-	    addElement(referencingExpr);
+void ValueIdSet::accumulateReferencingExpressions(const ValueIdSet &referencingSet, const ValueIdSet &referencedSet,
+                                                  NABoolean doNotDigInsideVegRefs, NABoolean doNotDigInsideInstNulls) {
+  for (ValueId referencingExpr = referencingSet.init(); referencingSet.next(referencingExpr);
+       referencingSet.advance(referencingExpr)) {
+    for (ValueId referencedExpr = referencedSet.init(); referencedSet.next(referencedExpr);
+         referencedSet.advance(referencedExpr)) {
+      if (referencingExpr.getItemExpr()->referencesTheGivenValue(referencedExpr, doNotDigInsideVegRefs,
+                                                                 doNotDigInsideInstNulls)) {
+        addElement(referencingExpr);
         break;
       }
-	} // referencedExpr loop
-  } // referencingExpr loop
+    }  // referencedExpr loop
+  }    // referencingExpr loop
 
-} // ValueIdSet::accumulateReferencingExpressions()
+}  // ValueIdSet::accumulateReferencingExpressions()
 
 // -----------------------------------------------------------------------
 // ValueIdSet::removeNonReferencingExpressions()
@@ -2712,30 +2202,18 @@ void ValueIdSet::accumulateReferencingExpressions(const ValueIdSet & referencing
 // This method remove those expressions that are members of the
 // referencingSet and not referencing any value in ReferencedSet.
 // -----------------------------------------------------------------------
-void ValueIdSet::removeNonReferencingExpressions(const ValueIdSet & otherSet,
-                                    NABoolean doNotDigInsideVegRefs,
-                                    NABoolean doNotDigInsideInstNulls)
-{
-  for (ValueId myExpr = init(); next(myExpr); advance(myExpr))
-  {
+void ValueIdSet::removeNonReferencingExpressions(const ValueIdSet &otherSet, NABoolean doNotDigInsideVegRefs,
+                                                 NABoolean doNotDigInsideInstNulls) {
+  for (ValueId myExpr = init(); next(myExpr); advance(myExpr)) {
     NABoolean isReferencing = FALSE;
-    for (ValueId otherExpr = otherSet.init();
-         otherSet.next(otherExpr);
-         otherSet.advance(otherExpr))
-	{
-      if (myExpr.getItemExpr()
-          ->referencesTheGivenValue(
-                   otherExpr,
-                   doNotDigInsideVegRefs,
-                   doNotDigInsideInstNulls))
-      {
-	    isReferencing = TRUE;
+    for (ValueId otherExpr = otherSet.init(); otherSet.next(otherExpr); otherSet.advance(otherExpr)) {
+      if (myExpr.getItemExpr()->referencesTheGivenValue(otherExpr, doNotDigInsideVegRefs, doNotDigInsideInstNulls)) {
+        isReferencing = TRUE;
         break;
       }
-	} // otherExpr loop
-    if (NOT isReferencing)
-      subtractElement(myExpr); // delete expression from set
-  } // myExpr loop
+    }                                                // otherExpr loop
+    if (NOT isReferencing) subtractElement(myExpr);  // delete expression from set
+  }                                                  // myExpr loop
 }
 
 // -----------------------------------------------------------------------
@@ -2745,20 +2223,16 @@ void ValueIdSet::removeNonReferencingExpressions(const ValueIdSet & otherSet,
 // via this ValueIdSet. This includes digging into VEGs and recursively
 // walking ItemExpr trees until the leaf nodes.
 // -----------------------------------------------------------------------
-void ValueIdSet::findAllReferencedBaseCols(ValueIdSet & result) const
-{
+void ValueIdSet::findAllReferencedBaseCols(ValueIdSet &result) const {
   // Simply loop over all the expressions in the set
-  for (ValueId x= init(); next(x); advance(x) )
-  {
+  for (ValueId x = init(); next(x); advance(x)) {
     x.getItemExpr()->findAll(ITM_BASECOLUMN, result, TRUE, TRUE);
   }
 }
 
-void ValueIdSet::findAllDynParams(ValueIdSet & result) const
-{
+void ValueIdSet::findAllDynParams(ValueIdSet &result) const {
   // Simply loop over all the expressions in the set
-  for (ValueId x= init(); next(x); advance(x) )
-  {
+  for (ValueId x = init(); next(x); advance(x)) {
     x.getItemExpr()->findAll(ITM_DYN_PARAM, result, TRUE, TRUE);
   }
 }
@@ -2770,15 +2244,12 @@ void ValueIdSet::findAllDynParams(ValueIdSet & result) const
 // via this ValueIdSet. This includes digging into VEGs and recursively
 // walking ItemExpr trees until the leaf nodes.
 // -----------------------------------------------------------------------
-void ValueIdSet::findAllReferencedIndexCols(ValueIdSet & result) const
-{
+void ValueIdSet::findAllReferencedIndexCols(ValueIdSet &result) const {
   // Simply loop over all the expressions in the set
-  for (ValueId x= init(); next(x); advance(x) )
-  {
+  for (ValueId x = init(); next(x); advance(x)) {
     x.getItemExpr()->findAll(ITM_INDEXCOLUMN, result, TRUE, TRUE);
   }
 }
-
 
 // -----------------------------------------------------------------------
 // ValueIdSet::findAllEqualityCols()
@@ -2786,11 +2257,9 @@ void ValueIdSet::findAllReferencedIndexCols(ValueIdSet & result) const
 // This method finds all eqaulity columns referenced directly or indirectly
 // via this ValueIdSet.
 // -----------------------------------------------------------------------
-void ValueIdSet::findAllEqualityCols(ValueIdSet & result) const
-{
+void ValueIdSet::findAllEqualityCols(ValueIdSet &result) const {
   // Iterate through all the expressions in the set
-  for (ValueId x = init(); next(x); advance(x) )
-  {
+  for (ValueId x = init(); next(x); advance(x)) {
     x.getItemExpr()->findEqualityCols(result);
   }
 }
@@ -2804,16 +2273,14 @@ void ValueIdSet::findAllEqualityCols(ValueIdSet & result) const
 // connection-by-VEG means that the two columns are in the same VEG.
 //
 // Another version of this method (which is commented) include also connection
-// via range predicates and equal (non-VEG) predicates. 
+// via range predicates and equal (non-VEG) predicates.
 // -----------------------------------------------------------------------
-void ValueIdSet::columnAnalysis(QueryAnalysis* qa, NABoolean predOnSemiOrLeftJoin) const
-{
-  QueryAnalysis* queryAnalysis = QueryAnalysis::Instance();
+void ValueIdSet::columnAnalysis(QueryAnalysis *qa, NABoolean predOnSemiOrLeftJoin) const {
+  QueryAnalysis *queryAnalysis = QueryAnalysis::Instance();
 
   ValueIdSet cols;
   // Loop over all expressions in the set
-  for (ValueId x= init(); next(x); advance(x) )
-  {
+  for (ValueId x = init(); next(x); advance(x)) {
     cols.clear();
     x.getItemExpr()->findAll(ITM_BASECOLUMN, cols, TRUE, TRUE);
 
@@ -2821,52 +2288,42 @@ void ValueIdSet::columnAnalysis(QueryAnalysis* qa, NABoolean predOnSemiOrLeftJoi
     // been created so far.
     QueryAnalysis::Instance()->findPredAnalysis(x);
 
-    for (ValueId c= cols.init(); cols.next(c); cols.advance(c) )
-    {
-      if (c.colAnalysis())
-      {
-	c.colAnalysis()->addToReferencingPreds(x);
-	x.predAnalysis()->addToReferencedCols(c);
+    for (ValueId c = cols.init(); cols.next(c); cols.advance(c)) {
+      if (c.colAnalysis()) {
+        c.colAnalysis()->addToReferencingPreds(x);
+        x.predAnalysis()->addToReferencedCols(c);
       }
     }
 
     // look for VEGPredicates and add them to their column's
     // vegPreds_ field
-    ItemExpr* itemExpr = x.getItemExpr();
+    ItemExpr *itemExpr = x.getItemExpr();
     OperatorTypeEnum op = itemExpr->getOperatorType();
-    if (op ==  ITM_VEG_PREDICATE)
-    {
+    if (op == ITM_VEG_PREDICATE) {
       // I do not think we need to check for vegRef too. only vegPreds
-      VEG* veg = ((VEGPredicate*) itemExpr)->getVEG();
-      const ValueIdSet & values = veg->getAllValues();
-      for (ValueId v = values.init(); values.next(v); values.advance(v))
-      {
-        if (v.getItemExpr()->getOperatorType() == ITM_BASECOLUMN)
-        {
-	  if (v.colAnalysis())
-	  {
-	    v.colAnalysis()->addToVegPreds(x);
-	    x.predAnalysis()->addToVegConnectedCols(v);
-	  }
+      VEG *veg = ((VEGPredicate *)itemExpr)->getVEG();
+      const ValueIdSet &values = veg->getAllValues();
+      for (ValueId v = values.init(); values.next(v); values.advance(v)) {
+        if (v.getItemExpr()->getOperatorType() == ITM_BASECOLUMN) {
+          if (v.colAnalysis()) {
+            v.colAnalysis()->addToVegPreds(x);
+            x.predAnalysis()->addToVegConnectedCols(v);
+          }
         }
       }
-    }
-    else if((!predOnSemiOrLeftJoin) && (op == ITM_EQUAL))
-    {
-      ItemExpr * rhs = itemExpr->child(1);
-      ItemExpr * lhs = itemExpr->child(0);
-      
+    } else if ((!predOnSemiOrLeftJoin) && (op == ITM_EQUAL)) {
+      ItemExpr *rhs = itemExpr->child(1);
+      ItemExpr *lhs = itemExpr->child(0);
+
       ValueId rVid = rhs->getValueId();
       ValueId lVid = lhs->getValueId();
-         
+
       ValueIdSet rightCols;
       ValueIdSet leftCols;
-      
-      NABoolean rightEvaluatesToConstant =
-        rhs->doesExprEvaluateToConstant(FALSE, TRUE);
-      NABoolean leftEvaluatesToConstant = 
-        lhs->doesExprEvaluateToConstant(FALSE, TRUE);
-        
+
+      NABoolean rightEvaluatesToConstant = rhs->doesExprEvaluateToConstant(FALSE, TRUE);
+      NABoolean leftEvaluatesToConstant = lhs->doesExprEvaluateToConstant(FALSE, TRUE);
+
       /*
       ValueIdSet rExprBaseCols;
       if(rhs)
@@ -2876,41 +2333,27 @@ void ValueIdSet::columnAnalysis(QueryAnalysis* qa, NABoolean predOnSemiOrLeftJoi
         lhs->findAll(ITM_BASECOLUMN, lExprBaseCols, TRUE, TRUE);
       */
 
-      if (rhs->getOperatorType() == ITM_BASECOLUMN)
-      {
+      if (rhs->getOperatorType() == ITM_BASECOLUMN) {
         rightCols += rhs->getValueId();
-      }
-      else if( rhs->getOperatorType() == ITM_VEG_REFERENCE )
-      {
-        ValueIdSet rVegMembers = ((VEGReference*)rhs)->getVEG()->getAllValues();
-        
-        for (ValueId rVegMember = rVegMembers.init();
-                                  rVegMembers.next(rVegMember);
-                                  rVegMembers.advance(rVegMember))
-        {
-          ItemExpr * rExpr = rVegMember.getItemExpr();
-          if(rExpr && (rExpr->getOperatorType() == ITM_BASECOLUMN))
-          {
+      } else if (rhs->getOperatorType() == ITM_VEG_REFERENCE) {
+        ValueIdSet rVegMembers = ((VEGReference *)rhs)->getVEG()->getAllValues();
+
+        for (ValueId rVegMember = rVegMembers.init(); rVegMembers.next(rVegMember); rVegMembers.advance(rVegMember)) {
+          ItemExpr *rExpr = rVegMember.getItemExpr();
+          if (rExpr && (rExpr->getOperatorType() == ITM_BASECOLUMN)) {
             rightCols += rVegMember;
           }
         }
       }
-        
-      if (lhs->getOperatorType() == ITM_BASECOLUMN)
-      {
+
+      if (lhs->getOperatorType() == ITM_BASECOLUMN) {
         leftCols += lhs->getValueId();
-      }
-      else if( lhs->getOperatorType() == ITM_VEG_REFERENCE )
-      {
-        ValueIdSet lVegMembers = ((VEGReference*)lhs)->getVEG()->getAllValues();
-        
-        for (ValueId lVegMember = lVegMembers.init();
-                                  lVegMembers.next(lVegMember);
-                                  lVegMembers.advance(lVegMember))
-        {
-          ItemExpr * lExpr = lVegMember.getItemExpr();
-          if(lExpr && (lExpr->getOperatorType() == ITM_BASECOLUMN))
-          {
+      } else if (lhs->getOperatorType() == ITM_VEG_REFERENCE) {
+        ValueIdSet lVegMembers = ((VEGReference *)lhs)->getVEG()->getAllValues();
+
+        for (ValueId lVegMember = lVegMembers.init(); lVegMembers.next(lVegMember); lVegMembers.advance(lVegMember)) {
+          ItemExpr *lExpr = lVegMember.getItemExpr();
+          if (lExpr && (lExpr->getOperatorType() == ITM_BASECOLUMN)) {
             leftCols += lVegMember;
           }
         }
@@ -2920,134 +2363,84 @@ void ValueIdSet::columnAnalysis(QueryAnalysis* qa, NABoolean predOnSemiOrLeftJoi
       // should be independent of any other columns of the same table. i.e.
       // 1) RHS should evaluate to constan, OR
       // 2) RHS should  be produced by other JBBCs/tables.
-      if(!leftEvaluatesToConstant)  // i.e. the left is not a constant
-        if(leftCols.entries() && 
-           rightEvaluatesToConstant)
-        {
-          for (ValueId lCol = leftCols.init();
-                              leftCols.next(lCol);
-                              leftCols.advance(lCol))
-          {
-            if (lCol.colAnalysis())
-               lCol.colAnalysis()->addToEqualityCoveringPreds(x);
-            //x.predAnalysis()->addToEqualityConnectedCols(lCol);
-          }          
-        }
-        else{
-          for (ValueId lCol = leftCols.init();
-                              leftCols.next(lCol);
-                              leftCols.advance(lCol))
-          {
-            JBBC * lTableJBBC = NULL;
+      if (!leftEvaluatesToConstant)  // i.e. the left is not a constant
+        if (leftCols.entries() && rightEvaluatesToConstant) {
+          for (ValueId lCol = leftCols.init(); leftCols.next(lCol); leftCols.advance(lCol)) {
+            if (lCol.colAnalysis()) lCol.colAnalysis()->addToEqualityCoveringPreds(x);
+            // x.predAnalysis()->addToEqualityConnectedCols(lCol);
+          }
+        } else {
+          for (ValueId lCol = leftCols.init(); leftCols.next(lCol); leftCols.advance(lCol)) {
+            JBBC *lTableJBBC = NULL;
 
-            if (lCol.colAnalysis())
-            {
-               CANodeId lTable = lCol.colAnalysis()->
-                                        getTableAnalysis()->
-                                          getNodeAnalysis()->
-                                            getId();
-               lTableJBBC = lCol.colAnalysis()->
-                                        getTableAnalysis()->
-                                          getNodeAnalysis()->
-                                            getJBBC();
+            if (lCol.colAnalysis()) {
+              CANodeId lTable = lCol.colAnalysis()->getTableAnalysis()->getNodeAnalysis()->getId();
+              lTableJBBC = lCol.colAnalysis()->getTableAnalysis()->getNodeAnalysis()->getJBBC();
             }
 
             CANodeIdSet lJoinedJBBCs;
 
-            if(lTableJBBC)
-              lJoinedJBBCs = lTableJBBC->getJoinedJBBCs();
+            if (lTableJBBC) lJoinedJBBCs = lTableJBBC->getJoinedJBBCs();
 
-            for(CANodeId joinedJBBC = lJoinedJBBCs.init();
-                                      lJoinedJBBCs.next(joinedJBBC);
-                                      lJoinedJBBCs.advance(joinedJBBC))
-            {
+            for (CANodeId joinedJBBC = lJoinedJBBCs.init(); lJoinedJBBCs.next(joinedJBBC);
+                 lJoinedJBBCs.advance(joinedJBBC)) {
               CANodeIdSet jbbcSubset;
               jbbcSubset += joinedJBBC;
 
-              ValueIdSet joinPreds = joinedJBBC.
-                                       getNodeAnalysis()->
-                                         getJBBC()->
-                                           getJoinPreds();
-              if(joinPreds.contains(x) &&
-                 jbbcSubset.jbbcsToJBBSubset()->coversExpr(rVid))
-              {
+              ValueIdSet joinPreds = joinedJBBC.getNodeAnalysis()->getJBBC()->getJoinPreds();
+              if (joinPreds.contains(x) && jbbcSubset.jbbcsToJBBSubset()->coversExpr(rVid)) {
                 queryAnalysis->addProducingJBBC(rVid, joinedJBBC);
                 lCol.colAnalysis()->addEqualityRelation(lVid, x, rVid, joinedJBBC);
-                //x.predAnalysis()->addToEqualityConnectedCols(lCol);
+                // x.predAnalysis()->addToEqualityConnectedCols(lCol);
               }
-            }                                         
+            }
           }
         }
-        
+
       // For this predicate to be useful for positionining the RHS, the LHS
       // should be independent of any other columns of the same table. i.e.
       // 1) LHS should evaluate to constant, OR
       // 2) LHS should be produced by other JBBCs/tables.
-      if(!rightEvaluatesToConstant)
-        if(rightCols.entries() && 
-           leftEvaluatesToConstant)
-        {
-          for (ValueId rCol = rightCols.init();
-                              rightCols.next(rCol);
-                              rightCols.advance(rCol))
-          {
-            if (rCol.colAnalysis())
-               rCol.colAnalysis()->addToEqualityCoveringPreds(x);
-            //x.predAnalysis()->addToEqualityConnectedCols(rCol);
-          }          
-        }
-        else{
-          for (ValueId rCol = rightCols.init();
-                              rightCols.next(rCol);
-                              rightCols.advance(rCol))
-          {
-            JBBC * rTableJBBC = NULL;
-            if (rCol.colAnalysis())
-            {
-               CANodeId rTable = rCol.colAnalysis()->
-                                        getTableAnalysis()->
-                                          getNodeAnalysis()->
-                                            getId();
-                                         
-               rTableJBBC = rCol.colAnalysis()->
-                                        getTableAnalysis()->
-                                          getNodeAnalysis()->
-                                            getJBBC();
+      if (!rightEvaluatesToConstant)
+        if (rightCols.entries() && leftEvaluatesToConstant) {
+          for (ValueId rCol = rightCols.init(); rightCols.next(rCol); rightCols.advance(rCol)) {
+            if (rCol.colAnalysis()) rCol.colAnalysis()->addToEqualityCoveringPreds(x);
+            // x.predAnalysis()->addToEqualityConnectedCols(rCol);
+          }
+        } else {
+          for (ValueId rCol = rightCols.init(); rightCols.next(rCol); rightCols.advance(rCol)) {
+            JBBC *rTableJBBC = NULL;
+            if (rCol.colAnalysis()) {
+              CANodeId rTable = rCol.colAnalysis()->getTableAnalysis()->getNodeAnalysis()->getId();
+
+              rTableJBBC = rCol.colAnalysis()->getTableAnalysis()->getNodeAnalysis()->getJBBC();
             }
 
             CANodeIdSet rJoinedJBBCs;
 
-            if(rTableJBBC)
-              rJoinedJBBCs = rTableJBBC->getJoinedJBBCs();
+            if (rTableJBBC) rJoinedJBBCs = rTableJBBC->getJoinedJBBCs();
 
-            for(CANodeId joinedJBBC = rJoinedJBBCs.init();
-                                      rJoinedJBBCs.next(joinedJBBC);
-                                      rJoinedJBBCs.advance(joinedJBBC))
-            {
+            for (CANodeId joinedJBBC = rJoinedJBBCs.init(); rJoinedJBBCs.next(joinedJBBC);
+                 rJoinedJBBCs.advance(joinedJBBC)) {
               CANodeIdSet jbbcSubset;
               jbbcSubset += joinedJBBC;
 
-              ValueIdSet joinPreds = joinedJBBC.
-                                       getNodeAnalysis()->
-                                         getJBBC()->
-                                           getJoinPreds();
-              if(joinPreds.contains(x) &&
-                 jbbcSubset.jbbcsToJBBSubset()->coversExpr(lVid))
-              {
+              ValueIdSet joinPreds = joinedJBBC.getNodeAnalysis()->getJBBC()->getJoinPreds();
+              if (joinPreds.contains(x) && jbbcSubset.jbbcsToJBBSubset()->coversExpr(lVid)) {
                 queryAnalysis->addProducingJBBC(lVid, joinedJBBC);
                 rCol.colAnalysis()->addEqualityRelation(rVid, x, lVid, joinedJBBC);
-                //x.predAnalysis()->addToEqualityConnectedCols(lCol);
+                // x.predAnalysis()->addToEqualityConnectedCols(lCol);
               }
             }
-          }          
+          }
         }
     }
     /* Inspectors ignore this commented block
 
     else if (op == ITM_LESS OR
-	     op == ITM_LESS_EQ OR
-	     op == ITM_GREATER OR
-	     op == ITM_GREATER_EQ)
+             op == ITM_LESS_EQ OR
+             op == ITM_GREATER OR
+             op == ITM_GREATER_EQ)
     {
       ItemExpr * lhs = itemExpr->child(0);
       ItemExpr * rhs = itemExpr->child(1);
@@ -3108,7 +2501,6 @@ void ValueIdSet::columnAnalysis(QueryAnalysis* qa, NABoolean predOnSemiOrLeftJoi
     }
     Inpspectors ignore end here
     */
-
   }
 
   return;
@@ -3119,98 +2511,67 @@ void ValueIdSet::columnAnalysis(QueryAnalysis* qa, NABoolean predOnSemiOrLeftJoi
 // -----------------------------------------------------------------------
 
 // copy constructor.
-GroupAnalysis::GroupAnalysis(const GroupAnalysis & other,
-                             CollHeap *outHeap):
-  groupAttr_(other.groupAttr_),
-  allSubtreeTables_(other.allSubtreeTables_),
-  caNode_(other.caNode_),
-  heap_(outHeap)
-{
-  if (other.localJBBView_)
-  {
+GroupAnalysis::GroupAnalysis(const GroupAnalysis &other, CollHeap *outHeap)
+    : groupAttr_(other.groupAttr_), allSubtreeTables_(other.allSubtreeTables_), caNode_(other.caNode_), heap_(outHeap) {
+  if (other.localJBBView_) {
     localJBBView_ = new (heap_) JBBSubset(heap_);
     localJBBView_->copySubsetMembers(*(other.localJBBView_));
-  }
-  else
-  {
+  } else {
     localJBBView_ = NULL;
   }
 }
 
-GroupAnalysis::~GroupAnalysis()
-{
-  delete localJBBView_;
-}
+GroupAnalysis::~GroupAnalysis() { delete localJBBView_; }
 
 // clear analysis results in GroupAnalysis.
 // note: this should clear only analysis results and
 // should not clear groupAttr_ or heap_
-void GroupAnalysis::clear()
-{
+void GroupAnalysis::clear() {
   localJBBView_ = NULL;
   caNode_ = NULL;
   allSubtreeTables_.clear();
 }
 
-const NAString GroupAnalysis::getText() const
-{
+const NAString GroupAnalysis::getText() const {
   NAString result("GroupAnalysis:\n");
-  if (localJBBView_)
-  {
+  if (localJBBView_) {
     result += "LocalJBBView     :" + localJBBView_->getText() + "\n";
   }
   result += "SubtreeTables    : " + allSubtreeTables_.getText() + "\n";
-  if (caNode_)
-  {
+  if (caNode_) {
     result += caNode_->getText() + "\n";
   }
-  if (localJBBView_ &&
-      localJBBView_->getJBB() &&
-      localJBBView_->getJBB()->getInputEstLP() &&
-      localJBBView_->getJBB()->getInputEstLP()->getNodeSet())
-  {
-    result += "JBBInput         : " + 
-      localJBBView_->getJBB()->getInputEstLP()->getNodeSet()->getText() + "\n";
+  if (localJBBView_ && localJBBView_->getJBB() && localJBBView_->getJBB()->getInputEstLP() &&
+      localJBBView_->getJBB()->getInputEstLP()->getNodeSet()) {
+    result += "JBBInput         : " + localJBBView_->getJBB()->getInputEstLP()->getNodeSet()->getText() + "\n";
   }
 
   Int32 potential = groupAttr_->getPotential();
 
-  if(potential < 0)
-    result += "GroupPotential   : -" + istring(-1*groupAttr_->getPotential()) + "\n";
+  if (potential < 0)
+    result += "GroupPotential   : -" + istring(-1 * groupAttr_->getPotential()) + "\n";
   else
     result += "GroupPotential   : " + istring(groupAttr_->getPotential()) + "\n";
   return result;
 }
 
-void GroupAnalysis::display() const
-{
-  print();
-}
+void GroupAnalysis::display() const { print(); }
 
-void GroupAnalysis::print (FILE *f,
-	      const char * prefix,
-	      const char * suffix) const
-{
-  fprintf (f, "%s", (const char*)getText());
+void GroupAnalysis::print(FILE *f, const char *prefix, const char *suffix) const {
+  fprintf(f, "%s", (const char *)getText());
 }
 
 // Comparison between two groups
 // should move this to GroupAttributes ==
-NABoolean GroupAnalysis::operator == (const GroupAnalysis & other)
-{
-  if (this == &other)
-    return TRUE;
+NABoolean GroupAnalysis::operator==(const GroupAnalysis &other) {
+  if (this == &other) return TRUE;
 
   // two groups are the same if they have the same jbbParentView
-  //and same char inputs.
-  if (getGroupAttr()->getCharacteristicInputs() !=
-        other.getGroupAttr()->getCharacteristicInputs())
-    return FALSE;
+  // and same char inputs.
+  if (getGroupAttr()->getCharacteristicInputs() != other.getGroupAttr()->getCharacteristicInputs()) return FALSE;
 
-  const JBBSubset * parentJBBView = getParentJBBView();
-  if (parentJBBView == NULL OR
-      parentJBBView != other.getParentJBBView())
-    return FALSE;
+  const JBBSubset *parentJBBView = getParentJBBView();
+  if (parentJBBView == NULL OR parentJBBView != other.getParentJBBView()) return FALSE;
 
   // the two groups are equivalent
   return TRUE;
@@ -3219,30 +2580,22 @@ NABoolean GroupAnalysis::operator == (const GroupAnalysis & other)
 // The parent JBB view of the JBBSubset. If this group is a
 // JBBC then a JBBSubset of this JBBC alone is returned. Otherwise
 // the localJBBView_ is returned
-const JBBSubset * GroupAnalysis::getParentJBBView() const
-{
-  if (getNodeAnalysis() &&
-      getNodeAnalysis()->getJBBC())
-  {
-    JBBSubset* parentView = new (heap_) JBBSubset();
-	parentView->addJBBC(getNodeAnalysis()->getId());
-	return parentView;
-  }
-  else
+const JBBSubset *GroupAnalysis::getParentJBBView() const {
+  if (getNodeAnalysis() && getNodeAnalysis()->getJBBC()) {
+    JBBSubset *parentView = new (heap_) JBBSubset();
+    parentView->addJBBC(getNodeAnalysis()->getId());
+    return parentView;
+  } else
     return localJBBView_;
 }
 
-void GroupAnalysis::reconcile(GroupAnalysis * other)
-{
+void GroupAnalysis::reconcile(GroupAnalysis *other) {
   // reconcile NodeAnalysis
-  NodeAnalysis* othersNodeAnalysis = other->getNodeAnalysis();
+  NodeAnalysis *othersNodeAnalysis = other->getNodeAnalysis();
 
-  if (!getNodeAnalysis())
-  {
+  if (!getNodeAnalysis()) {
     setNodeAnalysis(othersNodeAnalysis);
-  }
-  else
-  {
+  } else {
     // I have a NodeAnalysis
     // Reconcile NodeAnalysis
     // In order to avoid inconsistencies between the ids used in
@@ -3254,34 +2607,24 @@ void GroupAnalysis::reconcile(GroupAnalysis * other)
     // allSubTreeTables (point to obsolete TableAnalysis ids),
     // we will need to fix this when allSubTreeTables starting
     // getting used (post R2.0).
-    if(othersNodeAnalysis &&
-       othersNodeAnalysis->getJBBC() &&
-       !getNodeAnalysis()->getJBBC())
-    {
+    if (othersNodeAnalysis && othersNodeAnalysis->getJBBC() && !getNodeAnalysis()->getJBBC()) {
       // reconcile othersNodeAnalysis with mine
       othersNodeAnalysis->reconcile(getNodeAnalysis());
       caNode_ = othersNodeAnalysis;
-    }
-    else{
+    } else {
       // reconcile NodeAnalysis with other
       getNodeAnalysis()->reconcile(othersNodeAnalysis);
     }
   }
 
   // reconcile localJBBView
-  JBBSubset* othersLocalView = (JBBSubset*) other->getLocalJBBView();
-  if (!getLocalJBBView() && othersLocalView)
-  {
+  JBBSubset *othersLocalView = (JBBSubset *)other->getLocalJBBView();
+  if (!getLocalJBBView() && othersLocalView) {
     setLocalJBBView(othersLocalView);
-  }
-  else if (getLocalJBBView() && !othersLocalView)
-  {
+  } else if (getLocalJBBView() && !othersLocalView) {
     // keep yours in this case
-  }
-  else if (getLocalJBBView() && othersLocalView)
-  {
-    if (getLocalJBBView()->getJBB() == othersLocalView->getJBB())
-    {
+  } else if (getLocalJBBView() && othersLocalView) {
+    if (getLocalJBBView()->getJBB() == othersLocalView->getJBB()) {
       // The assertion below may become invalid in the future if we implement
       // features like elimination of referential integrity joins.
       CMPASSERT(getLocalJBBView()->getJBBCs() == othersLocalView->getJBBCs());
@@ -3290,17 +2633,13 @@ void GroupAnalysis::reconcile(GroupAnalysis * other)
       // If any of the two groupAnalysis has no GB, make the result without GB.
       // First lets check for the following
       // if both have GBs they should be the same
-      CMPASSERT((othersLocalView->getGB()==NULL_CA_ID) ||
-                (getLocalJBBView()->getGB()==NULL_CA_ID) ||
-                (getLocalJBBView()->getGB()==othersLocalView->getGB()));
+      CMPASSERT((othersLocalView->getGB() == NULL_CA_ID) || (getLocalJBBView()->getGB() == NULL_CA_ID) ||
+                (getLocalJBBView()->getGB() == othersLocalView->getGB()));
 
-      if (othersLocalView->getGB() == NULL_CA_ID)
-      {
-        ((JBBSubset*)(getLocalJBBView()))->setGB(NULL_CA_ID);
+      if (othersLocalView->getGB() == NULL_CA_ID) {
+        ((JBBSubset *)(getLocalJBBView()))->setGB(NULL_CA_ID);
       }
-    }
-    else
-    {
+    } else {
       // In some rare cases we may get two JBBSubsets from different JBBs
       // merging. This requires an expression (group) that is a JBBC for
       // for a parent JBB (parentJBBView) and a mainSubset for a child JBB
@@ -3313,38 +2652,31 @@ void GroupAnalysis::reconcile(GroupAnalysis * other)
       // In practice this should be the child expr groupAnalysis and other should
       // be that of the GB. But its safer not to assume that. So we try both ways.
 
-      if (othersLocalView->getJBBCs().entries() == 1)
-      {
-	// other has 1 JBBC and this is mainJBBSubset
-        CMPASSERT(*(getLocalJBBView()) ==
-                    getLocalJBBView()->getJBB()->getMainJBBSubset());
+      if (othersLocalView->getJBBCs().entries() == 1) {
+        // other has 1 JBBC and this is mainJBBSubset
+        CMPASSERT(*(getLocalJBBView()) == getLocalJBBView()->getJBB()->getMainJBBSubset());
         // We keep localJBBView as is
-      }
-      else
-      {
-	// other is a mainJBBSubset and this has 1 JBBC
-        CMPASSERT(getLocalJBBView()->getJBBCs().entries() == 1 AND
-                  *(othersLocalView) ==
-                    othersLocalView->getJBB()->getMainJBBSubset());
-        setLocalJBBView(othersLocalView); // take the values of the child group
+      } else {
+        // other is a mainJBBSubset and this has 1 JBBC
+        CMPASSERT(getLocalJBBView()->getJBBCs().entries() == 1 AND * (othersLocalView) ==
+                  othersLocalView->getJBB()->getMainJBBSubset());
+        setLocalJBBView(othersLocalView);  // take the values of the child group
       }
     }
   }
 
   // For now allSubtreeTables should be the same
   // this may change later if we enable table re-use and table elimination
-  CCMPASSERT(getAllSubtreeTables() ==
-  	      other->getAllSubtreeTables());
+  CCMPASSERT(getAllSubtreeTables() == other->getAllSubtreeTables());
 }
 
 // list of all promising indexes in this subtree
 // this will replace availableBtreeIndexes in GroupAttr
-//const LIST(AccessPathAnalysis*) &
+// const LIST(AccessPathAnalysis*) &
 //  GroupAnalysis::getAllSubtreePromisingAccessPaths()
 //{
 //  xxx();
 //}
-
 
 // -----------------------------------------------------------------------
 // Methods for class NodeAnalysis
@@ -3353,21 +2685,18 @@ void GroupAnalysis::reconcile(GroupAnalysis * other)
 EstLogPropSharedPtr NodeAnalysis::getStats()
 
 {
-  if (stats_ == NULL)
-  {
-	AppliedStatMan * appStatMan = QueryAnalysis::ASM();
-	stats_ = appStatMan->getStatsForCANodeId(id_);
+  if (stats_ == NULL) {
+    AppliedStatMan *appStatMan = QueryAnalysis::ASM();
+    stats_ = appStatMan->getStatsForCANodeId(id_);
   }
 
   return stats_;
 }
 
-CostScalar NodeAnalysis::getCardinality()
-{
-  if (stats_ == NULL)
-  {
-	AppliedStatMan * appStatMan = QueryAnalysis::ASM();
-	stats_ = appStatMan->getStatsForCANodeId(id_);
+CostScalar NodeAnalysis::getCardinality() {
+  if (stats_ == NULL) {
+    AppliedStatMan *appStatMan = QueryAnalysis::ASM();
+    stats_ = appStatMan->getStatsForCANodeId(id_);
   }
 
   return stats_->getResultCardinality();
@@ -3376,42 +2705,29 @@ CostScalar NodeAnalysis::getCardinality()
 // reconcile this NodeAnalysis object with the NodeAnalysis
 // object passed in
 // This is used in case of Group Merges
-void NodeAnalysis::reconcile(NodeAnalysis * other)
-{
-  if (!other)
-  {
+void NodeAnalysis::reconcile(NodeAnalysis *other) {
+  if (!other) {
     // the other guy is NULL
     // nothing to reconcile
     return;
   }
 
-  if (getId() == other->getId())
-    return;
+  if (getId() == other->getId()) return;
 
-  if(!getJBBC())
-  {
+  if (!getJBBC()) {
     setJBBC(other->getJBBC());
-  }
-  else if (!other->getJBBC())
-  {
+  } else if (!other->getJBBC()) {
     // keep yours
-  }
-  else
-  {
+  } else {
     // both should be same JBBC
     CMPASSERT(getJBBC() == other->getJBBC());
   }
 
-  if(!getTableAnalysis())
-  {
+  if (!getTableAnalysis()) {
     setTableAnalysis(other->getTableAnalysis());
-  }
-  else if (!other->getTableAnalysis())
-  {
+  } else if (!other->getTableAnalysis()) {
     // keep yours
-  }
-  else
-  {
+  } else {
     // both should have the same table analysis
     CCMPASSERT(getTableAnalysis() == other->getTableAnalysis());
   }
@@ -3421,29 +2737,24 @@ void NodeAnalysis::reconcile(NodeAnalysis * other)
 }
 
 // This method computes some basic stats about the node, and caches them
-void NodeAnalysis::computeStats()
-{
-  //Get a handle to ASM
-  AppliedStatMan * appStatMan = QueryAnalysis::ASM();
+void NodeAnalysis::computeStats() {
+  // Get a handle to ASM
+  AppliedStatMan *appStatMan = QueryAnalysis::ASM();
   stats_ = appStatMan->getStatsForCANodeId(id_);
   recordSize_ = getOriginalExpr()->getGroupAttr()->getRecordLength();
   // if table compute table specific stats
-  if (getTableAnalysis())
-  getTableAnalysis()->computeTableStats();
+  if (getTableAnalysis()) getTableAnalysis()->computeTableStats();
   return;
 }
 
-const NAString NodeAnalysis::getText() const
-{
+const NAString NodeAnalysis::getText() const {
   NAString result("NodeAnalysis # ");
   result += istring(id_) + ":\n";
-  if (jbbc_)
-  {
+  if (jbbc_) {
     result += "This node is a JBBC\n";
     result += jbbc_->getText();
   }
-  if (table_)
-  {
+  if (table_) {
     result += "This node is a Base Table\n";
     result += table_->getText();
   }
@@ -3451,37 +2762,27 @@ const NAString NodeAnalysis::getText() const
   return result;
 }
 
-void NodeAnalysis::display() const
-{
-  print();
+void NodeAnalysis::display() const { print(); }
+
+void NodeAnalysis::print(FILE *f, const char *prefix, const char *suffix) const {
+  fprintf(f, "%s", (const char *)getText());
 }
 
-void NodeAnalysis::print (FILE *f,
-	      const char * prefix,
-	      const char * suffix) const
-{
-  fprintf (f, "%s", (const char*)getText());
-}
-
-NABoolean NodeAnalysis::isExtraHub()
-{
-//// Debugging stuff TBD!!!
-//NAString name(table_->getTableDesc()->getNATable()->getTableName().getQualifiedNameAsString());
-//if (!name.compareTo("CAT.TPCD.REGION"))
-//return TRUE;
+NABoolean NodeAnalysis::isExtraHub() {
+  //// Debugging stuff TBD!!!
+  // NAString name(table_->getTableDesc()->getNATable()->getTableName().getQualifiedNameAsString());
+  // if (!name.compareTo("CAT.TPCD.REGION"))
+  // return TRUE;
 
   return isExtraHub_;
 }
-
 
 // -----------------------------------------------------------------------
 // Methods for class TableAnalysis
 // -----------------------------------------------------------------------
 
 // List access paths that are promising for predicate lookup
-const LIST(AccessPathAnalysis*) &
-  TableAnalysis::promisingAccessPathsForLookup()
-{
+const LIST(AccessPathAnalysis *) & TableAnalysis::promisingAccessPathsForLookup() {
   //  xxx Not complete. Return all indexes for now.
   return accessPaths_;
 }
@@ -3492,13 +2793,10 @@ const LIST(AccessPathAnalysis*) &
 // - vidSet is the provided set to check for coverage.
 // - exactMatch is only relevant for partitioning key coverage and
 //      specifies if exact match is needed with the provided set.
-LIST(AccessPathAnalysis*)
-TableAnalysis::getCoveringAccessPaths(NABoolean indexOnly,
-                                      coverageCriteria cc,
-                                      const ValueIdSet& vidSet,
-                                      NABoolean exactMatch)
-{
-  LIST(AccessPathAnalysis*) accessPaths(STMTHEAP), retAccessPaths(STMTHEAP);
+LIST(AccessPathAnalysis *)
+TableAnalysis::getCoveringAccessPaths(NABoolean indexOnly, coverageCriteria cc, const ValueIdSet &vidSet,
+                                      NABoolean exactMatch) {
+  LIST(AccessPathAnalysis *) accessPaths(STMTHEAP), retAccessPaths(STMTHEAP);
 
   if (indexOnly)
     // Search index-only access paths.
@@ -3508,18 +2806,15 @@ TableAnalysis::getCoveringAccessPaths(NABoolean indexOnly,
     accessPaths = accessPaths_;
 
   // Iterate through access paths to locate required access paths
-  for (CollIndex i=0; i<accessPaths.entries(); i++)
-  {
+  for (CollIndex i = 0; i < accessPaths.entries(); i++) {
     // Index coverage
-    if (cc == INDEX)
-    {
+    if (cc == INDEX) {
       if (accessPaths[i]->numIndexPrefixCovered(vidSet, exactMatch))
         // The index prefix is covered, so add the access path to the list.
         retAccessPaths.insert(accessPaths[i]);
     }
     // Partitioning key coverage
-    if (cc == PART_KEY)
-    {
+    if (cc == PART_KEY) {
       if (accessPaths[i]->isPartKeyCovered(vidSet, exactMatch))
         // The part key is covered, so add the access path to the list.
         retAccessPaths.insert(accessPaths[i]);
@@ -3540,11 +2835,8 @@ TableAnalysis::getCoveringAccessPaths(NABoolean indexOnly,
 // the members of the provided set are covered i.e the provided set
 // is a subset of index columns. Otherwise, return access paths
 // where the provided set covers prefix of an index.
-LIST(AccessPathAnalysis*)
-TableAnalysis::accessPathsCoveringIndex(const ValueIdSet& vidSet,
-                                        NABoolean indexOnly,
-                                        NABoolean exactMatch)
-{
+LIST(AccessPathAnalysis *)
+TableAnalysis::accessPathsCoveringIndex(const ValueIdSet &vidSet, NABoolean indexOnly, NABoolean exactMatch) {
   return getCoveringAccessPaths(indexOnly, INDEX, vidSet, exactMatch);
 }
 
@@ -3558,16 +2850,12 @@ TableAnalysis::accessPathsCoveringIndex(const ValueIdSet& vidSet,
 // provided set is exact match with the partitioning key. Otherwise,
 // return access paths where the partitioning key columns are a
 // prefix-subset of the provded set.
-LIST(AccessPathAnalysis*)
-TableAnalysis::accessPathsCoveringPartKey(const ValueIdSet& vidSet,
-                                          NABoolean indexOnly,
-                                          NABoolean exactMatch)
-{
+LIST(AccessPathAnalysis *)
+TableAnalysis::accessPathsCoveringPartKey(const ValueIdSet &vidSet, NABoolean indexOnly, NABoolean exactMatch) {
   return getCoveringAccessPaths(indexOnly, PART_KEY, vidSet, exactMatch);
 }
 
-const NAString TableAnalysis::getText() const
-{
+const NAString TableAnalysis::getText() const {
   NAString result(">> TableAnalysis # ");
   result += istring(caNodeAnalysis_->getId()) + ":\n";
   result += tableDesc_->getNATable()->getTableName().getQualifiedNameAsString();
@@ -3580,102 +2868,83 @@ const NAString TableAnalysis::getText() const
   result += "constCols: " + valueIdSetGetText(constCols_) + "\n";
   result += "usedCols: " + valueIdSetGetText(usedCols_) + "\n";
 
-  for (ValueId x = usedCols_.init(); usedCols_.next(x); usedCols_.advance(x))
-  {
+  for (ValueId x = usedCols_.init(); usedCols_.next(x); usedCols_.advance(x)) {
     result += ">>>> " + x.colAnalysis()->getText();
   }
 
-  if (caNodeAnalysis_ && caNodeAnalysis_->getJBBC())
-    {
-      const CANodeIdSet &predecessors = caNodeAnalysis_->getJBBC()->getPredecessorJBBCs();
-      
-      if (predecessors.entries() > 0)
-        {
-          char buf[12];
-          NABoolean first = TRUE;
-          result += "predecessor JBBCs: {";
-          for (CANodeId x=predecessors.init(); predecessors.next(x); predecessors.advance(x))
-            {
-              if (!first)
-                result += ", ";
-              first = FALSE;
-              snprintf(buf, sizeof(buf), "%d", x.toUInt32());
-              result += buf;
-            }
-          result += "}";
-        }
+  if (caNodeAnalysis_ && caNodeAnalysis_->getJBBC()) {
+    const CANodeIdSet &predecessors = caNodeAnalysis_->getJBBC()->getPredecessorJBBCs();
+
+    if (predecessors.entries() > 0) {
+      char buf[12];
+      NABoolean first = TRUE;
+      result += "predecessor JBBCs: {";
+      for (CANodeId x = predecessors.init(); predecessors.next(x); predecessors.advance(x)) {
+        if (!first) result += ", ";
+        first = FALSE;
+        snprintf(buf, sizeof(buf), "%d", x.toUInt32());
+        result += buf;
+      }
+      result += "}";
     }
+  }
 
   result += "\nIndexOnly Access Paths: \n";
-  for (CollIndex i=0; i<indexOnlyAccessPaths_.entries(); i++)
-  {
+  for (CollIndex i = 0; i < indexOnlyAccessPaths_.entries(); i++) {
     result += indexOnlyAccessPaths_[i]->getText() + "\n";
   }
 
   result += "\nAll Access Paths: \n";
-  for (CollIndex i=0; i<accessPaths_.entries(); i++)
-  {
+  for (CollIndex i = 0; i < accessPaths_.entries(); i++) {
     result += accessPaths_[i]->getText() + "\n";
   }
 
   return result;
 }
 
-void TableAnalysis::print (FILE *f,
-	      const char * prefix,
-	      const char * suffix) const
-{
-  fprintf (f, "%s", (const char*)getText());
+void TableAnalysis::print(FILE *f, const char *prefix, const char *suffix) const {
+  fprintf(f, "%s", (const char *)getText());
 }
 
-void TableAnalysis::initAccessPaths()
-{
+void TableAnalysis::initAccessPaths() {
   // Base table column cell timestamp and corresponding index cell
   // timestamp will be different depending on when data was inserted.
-  // If hbase access options are specified to get versions at a particular 
+  // If hbase access options are specified to get versions at a particular
   // time, then do not use index access.
   Scan *scanExpr = (Scan *)getNodeAnalysis()->getOriginalExpr();
   if ((scanExpr->getOperatorType() == REL_SCAN) &&
-      (scanExpr->getOptHbaseAccessOptions() &&
-       scanExpr->getOptHbaseAccessOptions()->tsSpecified()))
+      (scanExpr->getOptHbaseAccessOptions() && scanExpr->getOptHbaseAccessOptions()->tsSpecified()))
     return;
 
   const LIST(IndexDesc *) &indexes = tableDesc_->getIndexes();
-  for (CollIndex i = 0; i < indexes.entries(); i++)
-  {
-    AccessPathAnalysis * accessPath =
-      new (heap_) AccessPathAnalysis(indexes[i], this, heap_);
+  for (CollIndex i = 0; i < indexes.entries(); i++) {
+    AccessPathAnalysis *accessPath = new (heap_) AccessPathAnalysis(indexes[i], this, heap_);
     indexes[i]->setAccessPathAnalysis(accessPath);
     accessPaths_.insert(accessPath);
 
     // if index is Unique add to uniqueIndexes_
     // have to consider base table also
-    if((indexes[i]->isUniqueIndex()) ||
-       (indexes[i]->isClusteringIndex() &&
-        (indexes[i]->getPrimaryTableDesc()->getPrimaryKeyColumns().entries()>0)))
+    if ((indexes[i]->isUniqueIndex()) ||
+        (indexes[i]->isClusteringIndex() && (indexes[i]->getPrimaryTableDesc()->getPrimaryKeyColumns().entries() > 0)))
       uniqueIndexes_.insert(accessPath);
 
     // Set AccessPathAnalysis for base table.
-    if (indexes[i]->isClusteringIndex())
-      setApaForBaseTable(accessPath);
+    if (indexes[i]->isClusteringIndex()) setApaForBaseTable(accessPath);
   }
 }
 
-void TableAnalysis::initIndexOnlyAccessPaths()
-{
+void TableAnalysis::initIndexOnlyAccessPaths() {
   // Get the expression from node analysis.
   Scan *scanExpr = (Scan *)getNodeAnalysis()->getOriginalExpr();
   // Only do this if the operator is REL_SCAN.
-  if (scanExpr->getOperatorType() != REL_SCAN)
-    return;
+  if (scanExpr->getOperatorType() != REL_SCAN) return;
 
   // Base table column cell timestamp and corresponding index cell
   // timestamp will be different depending on when data was inserted.
-  // If hbase access options are specified to get versions at a particular 
+  // If hbase access options are specified to get versions at a particular
   // time, then do not use index access.
   if ((scanExpr->getOperatorType() == REL_SCAN) &&
-      (scanExpr->getOptHbaseAccessOptions() &&
-       scanExpr->getOptHbaseAccessOptions()->tsSpecified()))
+      (scanExpr->getOptHbaseAccessOptions() && scanExpr->getOptHbaseAccessOptions()->tsSpecified()))
     return;
 
   GroupAttributes *groupAttr = scanExpr->getGroupAttr();
@@ -3687,8 +2956,7 @@ void TableAnalysis::initIndexOnlyAccessPaths()
   // Add local predicates since they are also required.
   requiredValueIds += getLocalPreds();
 
-  for (CollIndex i=0; i<accessPaths_.entries(); i++)
-  {
+  for (CollIndex i = 0; i < accessPaths_.entries(); i++) {
     ValueIdSet referencedInputs;
     ValueIdSet coveredSubexpr;
     ValueIdSet unCoveredExpr;
@@ -3702,14 +2970,9 @@ void TableAnalysis::initIndexOnlyAccessPaths()
 
     // Check if the index covers all required values.
     // There is additional information that is returned but not used here.
-    indexOnlyScan =
-      requiredValueIds.isCovered(groupAttr->getCharacteristicInputs(),
-                                 indexOnlyGA,
-                                 referencedInputs,
-                                 coveredSubexpr,
-                                 unCoveredExpr);
-    if (indexOnlyScan)
-    {
+    indexOnlyScan = requiredValueIds.isCovered(groupAttr->getCharacteristicInputs(), indexOnlyGA, referencedInputs,
+                                               coveredSubexpr, unCoveredExpr);
+    if (indexOnlyScan) {
       // If all the required value ids are covered, add this to the list
       // of index-only access paths.
       indexOnlyAccessPaths_.insert(accessPaths_[i]);
@@ -3717,39 +2980,26 @@ void TableAnalysis::initIndexOnlyAccessPaths()
   }
 }
 
-void TableAnalysis::finishAnalysis()
-{
+void TableAnalysis::finishAnalysis() {
   ValueIdSet inputsToScan;
 
-  inputsToScan = getNodeAnalysis()->
-                  getOriginalExpr()->
-                    getGroupAttr()->
-                      getCharacteristicInputs();
+  inputsToScan = getNodeAnalysis()->getOriginalExpr()->getGroupAttr()->getCharacteristicInputs();
 
   ValueIdSet scanInputs;
 
-  for (ValueId inputVid = inputsToScan.init();
-                          inputsToScan.next(inputVid);
-                          inputsToScan.advance(inputVid) )
-  {
-    if(inputVid.getItemExpr()->getOperatorType() == ITM_VEG_REFERENCE)
-    {
-      const ItemExpr * vegRef = inputVid.getItemExpr();
-      scanInputs +=
-        ((VEGReference *)vegRef)->getVEG()->getAllValues();
-    }
-    else
+  for (ValueId inputVid = inputsToScan.init(); inputsToScan.next(inputVid); inputsToScan.advance(inputVid)) {
+    if (inputVid.getItemExpr()->getOperatorType() == ITM_VEG_REFERENCE) {
+      const ItemExpr *vegRef = inputVid.getItemExpr();
+      scanInputs += ((VEGReference *)vegRef)->getVEG()->getAllValues();
+    } else
       scanInputs += inputVid;
   }
 
   connectedCols_.clear();
   connectedTables_.clear();
 
-  ColAnalysis* col = NULL;
-  for (ValueId c = usedCols_.init();
-       usedCols_.next(c);
-       usedCols_.advance(c))
-  {
+  ColAnalysis *col = NULL;
+  for (ValueId c = usedCols_.init(); usedCols_.next(c); usedCols_.advance(c)) {
     col = c.colAnalysis();
     col->finishAnalysis();
     connectedCols_ += col->getConnectedCols();
@@ -3768,10 +3018,7 @@ void TableAnalysis::finishAnalysis()
   // Now finalize local preds and compute constCols_
   ValueIdSet localVegs = localPreds_;
   localVegs.intersectSet(vegPreds_);
-  for (ValueId veg = localVegs.init();
-       localVegs.next(veg);
-       localVegs.advance(veg))
-  {
+  for (ValueId veg = localVegs.init(); localVegs.next(veg); localVegs.advance(veg)) {
     // a VegPred is considered local if it has a constant value
     // or if it equates 2 or more columns from this table
 
@@ -3782,29 +3029,26 @@ void TableAnalysis::finishAnalysis()
     // Now let us see if this veg reference any const expression.
     // (I am thinking of caching the fact that veg is constant in
     // PredAnalysis in future).
-    const ItemExpr* pred = veg.getItemExpr();
-    const VEG * predVEG = ((VEGPredicate *)pred)->getVEG();
+    const ItemExpr *pred = veg.getItemExpr();
+    const VEG *predVEG = ((VEGPredicate *)pred)->getVEG();
     ValueIdSet vegGroup;
     vegGroup += predVEG->getAllValues();
 
-    if (vegGroup.referencesAConstExpr())
-    {
+    if (vegGroup.referencesAConstExpr()) {
       // Certainly a local pred.
       // also add tableColsInVeg to constCols.
       constCols_ += myColsInVeg;
       continue;
     }
 
-    if (myColsInVeg.entries() > 1)
-    {
+    if (myColsInVeg.entries() > 1) {
       // do nothing, this is a local Pred since it is connecting
       // two or more of my columns. The fact that it may be connecting
       // to other tables as well is fine.
       continue;
     }
 
-    if (vegGroup.intersectSet(scanInputs).entries())
-      continue;
+    if (vegGroup.intersectSet(scanInputs).entries()) continue;
 
     // Fail both conditions. Remove from localPreds_.
     // This predicate can't be evaluated localy
@@ -3813,95 +3057,69 @@ void TableAnalysis::finishAnalysis()
 
   // Add a column to constCols_ if it has an equality predicate
   // against a constant that did not become a VEG e.g. c1 = extract_month(10212009);
-  for (ValueId colId= usedCols_.init(); usedCols_.next(colId); usedCols_.advance(colId))
-  {
-    ColAnalysis* colAn = QueryAnalysis::Instance()->getColAnalysis(colId);
-    if(colAn->getEqualityCoveringPreds().entries())
-      constCols_+=colId;
+  for (ValueId colId = usedCols_.init(); usedCols_.next(colId); usedCols_.advance(colId)) {
+    ColAnalysis *colAn = QueryAnalysis::Instance()->getColAnalysis(colId);
+    if (colAn->getEqualityCoveringPreds().entries()) constCols_ += colId;
   }
 
   // Initialize index only access paths.
-  if(CmpCommon::getDefault(COMP_BOOL_23) == DF_ON)
-    initIndexOnlyAccessPaths();
+  if (CmpCommon::getDefault(COMP_BOOL_23) == DF_ON) initIndexOnlyAccessPaths();
 
   return;
 }
 
-void TableAnalysis::checkIfCompressedHistsViable()
-{
+void TableAnalysis::checkIfCompressedHistsViable() {
   QueryAnalysis *qa = QueryAnalysis::Instance();
-  if(!qa || !qa->isCompressedHistsViable())
-    return;
+  if (!qa || !qa->isCompressedHistsViable()) return;
 
   NABoolean okToCompress = TRUE;
 
-  for (ValueId c = usedCols_.init();
-       usedCols_.next(c);
-       usedCols_.advance(c))
-  {
-    if(!okToCompress || (CmpCommon::getDefault(COMP_BOOL_25) == DF_OFF))
-      break;
-    
-    ColAnalysis * colAnalysis = c.colAnalysis();
-     
-      if(colAnalysis)
-      {
-        ValueIdSet localPreds = colAnalysis->getLocalPreds();	
-        ValueIdSet vegPreds = colAnalysis->getVegPreds();	
-        ValueIdSet refPreds = colAnalysis->getReferencingPreds();
-        refPreds.subtractSet(localPreds);
-        refPreds.subtractSet(vegPreds);
+  for (ValueId c = usedCols_.init(); usedCols_.next(c); usedCols_.advance(c)) {
+    if (!okToCompress || (CmpCommon::getDefault(COMP_BOOL_25) == DF_OFF)) break;
 
-        for (ValueId col = refPreds.init();
-                           refPreds.next(col);
-                           refPreds.advance(col))
-        {
-          if(!okToCompress)
-            break;
+    ColAnalysis *colAnalysis = c.colAnalysis();
 
-          ItemExpr *tempIE = col.getItemExpr();
+    if (colAnalysis) {
+      ValueIdSet localPreds = colAnalysis->getLocalPreds();
+      ValueIdSet vegPreds = colAnalysis->getVegPreds();
+      ValueIdSet refPreds = colAnalysis->getReferencingPreds();
+      refPreds.subtractSet(localPreds);
+      refPreds.subtractSet(vegPreds);
 
-          if(tempIE->getOperatorType() != ITM_OR)
+      for (ValueId col = refPreds.init(); refPreds.next(col); refPreds.advance(col)) {
+        if (!okToCompress) break;
+
+        ItemExpr *tempIE = col.getItemExpr();
+
+        if (tempIE->getOperatorType() != ITM_OR) continue;
+
+        ValueIdSet constExprs;
+        tempIE->accumulateConstExprs(constExprs);
+
+        for (ValueId constExprId = constExprs.init(); constExprs.next(constExprId); constExprs.advance(constExprId)) {
+          OperatorTypeEnum op = constExprId.getItemExpr()->getOperatorType();
+          if ((op != ITM_EQUAL) && (op != ITM_NOT_EQUAL) && (op != ITM_LESS) && (op != ITM_LESS_EQ) &&
+              (op != ITM_GREATER) && (op != ITM_GREATER_EQ))
             continue;
 
-          ValueIdSet constExprs;
-          tempIE->accumulateConstExprs(constExprs);
-
-          for (ValueId constExprId = constExprs.init();
-                       constExprs.next(constExprId);
-                       constExprs.advance(constExprId))
-          {
-            OperatorTypeEnum op = constExprId.getItemExpr()->getOperatorType();
-            if( (op != ITM_EQUAL)     &&
-                (op != ITM_NOT_EQUAL) &&
-                (op != ITM_LESS)      &&
-                (op != ITM_LESS_EQ)   &&
-                (op != ITM_GREATER)   &&
-                (op != ITM_GREATER_EQ))
-              continue;
-
-            if(constExprId.getItemExpr()->referencesTheGivenValue(c))
-            {
-              okToCompress = FALSE;
-              break;
-            }
+          if (constExprId.getItemExpr()->referencesTheGivenValue(c)) {
+            okToCompress = FALSE;
+            break;
           }
         }
       }
+    }
   }
-  if(!okToCompress)
-    qa->disableCompressedHistsViable();
+  if (!okToCompress) qa->disableCompressedHistsViable();
 }
 
-ValueIdSet TableAnalysis::getConnectingVegPreds(ColAnalysis & col) const
-{
+ValueIdSet TableAnalysis::getConnectingVegPreds(ColAnalysis &col) const {
   ValueIdSet result = vegPreds_;
   result.intersectSet(col.getVegPreds());
   return result;
 }
 
-ValueIdSet TableAnalysis::getConnectingVegPreds(TableAnalysis & other) const
-{
+ValueIdSet TableAnalysis::getConnectingVegPreds(TableAnalysis &other) const {
   ValueIdSet result = vegPreds_;
   result.intersectSet(other.getVegPreds());
   return result;
@@ -3911,45 +3129,31 @@ ValueIdSet TableAnalysis::getConnectingVegPreds(TableAnalysis & other) const
 
 // Get all JBBCs that are connected to this set of columns and the join preds
 // This table must be JBBC
-CANodeIdSet TableAnalysis::getJBBCsConnectedToCols(const CANodeIdSet & jbbcs,
-                                    const ValueIdSet & cols,
-                                    ValueIdSet & joinPreds /*OUT*/,
-                                    ValueIdSet & localPreds /*OUT*/,
-                                    ValueIdSet * predCols /*OUT*/ /*could be either join or local pred*/)
-{
+CANodeIdSet TableAnalysis::getJBBCsConnectedToCols(
+    const CANodeIdSet &jbbcs, const ValueIdSet &cols, ValueIdSet &joinPreds /*OUT*/, ValueIdSet &localPreds /*OUT*/,
+    ValueIdSet *predCols /*OUT*/ /*could be either join or local pred*/) {
   CANodeIdSet result;
   localPreds.clear();
   joinPreds.clear();
-  if (predCols)
-    predCols->clear();
+  if (predCols) predCols->clear();
 
-  for (ValueId col = cols.init();
-       cols.next(col);
-       cols.advance(col))
-  {
-    ColAnalysis* colAn = col.colAnalysis();
-    if (!colAn) continue; // no preds on this column
+  for (ValueId col = cols.init(); cols.next(col); cols.advance(col)) {
+    ColAnalysis *colAn = col.colAnalysis();
+    if (!colAn) continue;  // no preds on this column
 
-    const ValueIdSet & colLocalPreds = colAn->getLocalPreds();
-    if (colLocalPreds.entries())
-    {
+    const ValueIdSet &colLocalPreds = colAn->getLocalPreds();
+    if (colLocalPreds.entries()) {
       localPreds += colLocalPreds;
-      if (predCols)
-        *predCols += col;
+      if (predCols) *predCols += col;
     }
 
-    for (CANodeId jbbc = jbbcs.init();
-         jbbcs.next(jbbc);
-         jbbcs.advance(jbbc))
-    {
-      //ValueIdSet currentJoinPreds = colAn->getConnectingPreds(jbbc.getNodeAnalysis()->getJBBC());
+    for (CANodeId jbbc = jbbcs.init(); jbbcs.next(jbbc); jbbcs.advance(jbbc)) {
+      // ValueIdSet currentJoinPreds = colAn->getConnectingPreds(jbbc.getNodeAnalysis()->getJBBC());
       ValueIdSet currentJoinPreds = colAn->getAllConnectingPreds(jbbc.getNodeAnalysis()->getJBBC());
-      if (currentJoinPreds.entries() > 0)
-      {
+      if (currentJoinPreds.entries() > 0) {
         result.insert(jbbc);
         joinPreds += currentJoinPreds;
-        if (predCols)
-          *predCols += col;
+        if (predCols) *predCols += col;
       }
     }
   }
@@ -3958,44 +3162,34 @@ CANodeIdSet TableAnalysis::getJBBCsConnectedToCols(const CANodeIdSet & jbbcs,
 
 // Get the JBBCs that are connected to the maximum prefix size in the given column list
 // This table must be JBBC
-CANodeIdSet TableAnalysis::getJBBCsConnectedToPrefixOfList(const CANodeIdSet & jbbcs,
-                                            const ValueIdList & cols,
-                                            Lng32 & prefixSize /*OUT*/,
-                                            ValueIdSet & joinPreds /*OUT*/,
-                                            ValueIdSet & localPreds /*OUT*/)
-{
+CANodeIdSet TableAnalysis::getJBBCsConnectedToPrefixOfList(const CANodeIdSet &jbbcs, const ValueIdList &cols,
+                                                           Lng32 &prefixSize /*OUT*/, ValueIdSet &joinPreds /*OUT*/,
+                                                           ValueIdSet &localPreds /*OUT*/) {
   CANodeIdSet result;
   prefixSize = 0;
   localPreds.clear();
   joinPreds.clear();
 
-  for (CollIndex i = 0; i < cols.entries(); i++)
-  {
+  for (CollIndex i = 0; i < cols.entries(); i++) {
     NABoolean continuePrefix = FALSE;
-    ColAnalysis* colAn = cols[i].colAnalysis();
-    if (!colAn) break; // no preds on this column
+    ColAnalysis *colAn = cols[i].colAnalysis();
+    if (!colAn) break;  // no preds on this column
 
     // xxx should change this to positioning local preds post EAP
-    const ValueIdSet & colLocalPreds = colAn->getLocalPreds();
-    if (colLocalPreds.entries() &&
-        constCols_.contains(colAn->getColumnId()))
-    {
+    const ValueIdSet &colLocalPreds = colAn->getLocalPreds();
+    if (colLocalPreds.entries() && constCols_.contains(colAn->getColumnId())) {
       localPreds += colLocalPreds;
       continuePrefix = TRUE;
     }
 
-    for (CANodeId jbbc = jbbcs.init();
-         jbbcs.next(jbbc);
-         jbbcs.advance(jbbc))
-    {
-      //ValueIdSet currentJoinPreds = colAn->getConnectingPreds(jbbc.getNodeAnalysis()->getJBBC());
+    for (CANodeId jbbc = jbbcs.init(); jbbcs.next(jbbc); jbbcs.advance(jbbc)) {
+      // ValueIdSet currentJoinPreds = colAn->getConnectingPreds(jbbc.getNodeAnalysis()->getJBBC());
       ValueIdSet currentJoinPreds = colAn->getAllConnectingPreds(jbbc.getNodeAnalysis()->getJBBC());
 
-     if (currentJoinPreds.entries() && result.legalAddition(jbbc))
-      {
-          result.insert(jbbc);
-          joinPreds += currentJoinPreds;
-          continuePrefix = TRUE;
+      if (currentJoinPreds.entries() && result.legalAddition(jbbc)) {
+        result.insert(jbbc);
+        joinPreds += currentJoinPreds;
+        continuePrefix = TRUE;
       }
     }
 
@@ -4006,25 +3200,23 @@ CANodeIdSet TableAnalysis::getJBBCsConnectedToPrefixOfList(const CANodeIdSet & j
   }
 
   return result;
-
 };
 
 // Get the JBBCs that are connected to the maximum prefix size in the given column list
 // This table must be JBBC
-ValueIdSet TableAnalysis::getColsConnectedViaEquiJoinPreds(const CANodeIdSet & jbbcs)
-{
+ValueIdSet TableAnalysis::getColsConnectedViaEquiJoinPreds(const CANodeIdSet &jbbcs) {
   ValueIdSet result;
-  QueryAnalysis* qa = QueryAnalysis::Instance();
+  QueryAnalysis *qa = QueryAnalysis::Instance();
 
   CANodeIdSet joinedNodes = jbbcs;
   CANodeIdSet mySelf(this->getNodeAnalysis()->getId());
 
-  JBBSubset * joinedJBBCs = joinedNodes.jbbcsToJBBSubset();
-  JBBSubset * mySubset = mySelf.jbbcsToJBBSubset();
+  JBBSubset *joinedJBBCs = joinedNodes.jbbcsToJBBSubset();
+  JBBSubset *mySubset = mySelf.jbbcsToJBBSubset();
 
   // get all join preds in this JBBSubset
   ValueIdSet equiJoinPreds = joinedJBBCs->joinPredsWithOther(*mySubset);
-  
+
   // narrow down join preds to veg preds
   equiJoinPreds.intersectSet(getVegPreds());
 
@@ -4033,11 +3225,8 @@ ValueIdSet TableAnalysis::getColsConnectedViaEquiJoinPreds(const CANodeIdSet & j
 
   // iterate over join preds, for each pred
   // get the column from this table
-  for (ValueId joinPred = equiJoinPreds.init();
-       equiJoinPreds.next(joinPred);
-       equiJoinPreds.advance(joinPred))
-  {
-    PredAnalysis * predAnalysis = joinPred.predAnalysis();
+  for (ValueId joinPred = equiJoinPreds.init(); equiJoinPreds.next(joinPred); equiJoinPreds.advance(joinPred)) {
+    PredAnalysis *predAnalysis = joinPred.predAnalysis();
     ValueIdSet predRefCols = predAnalysis->getReferencedCols();
     predRefCols.intersectSet(tableCols);
     result.insert(predRefCols);
@@ -4045,40 +3234,31 @@ ValueIdSet TableAnalysis::getColsConnectedViaEquiJoinPreds(const CANodeIdSet & j
 
   // add columns connected via non-VEG equijoin predicates
   // e.g. t1.a in predicate t1.a = t2.b + 1
-  for (ValueId column = usedCols_.init();
-       usedCols_.next(column);
-       usedCols_.advance(column))
-  {
-    ColAnalysis * ca = qa->getColAnalysis(column);
+  for (ValueId column = usedCols_.init(); usedCols_.next(column); usedCols_.advance(column)) {
+    ColAnalysis *ca = qa->getColAnalysis(column);
     CANodeIdSet equalityConnectedJBBCs;
-    
-    if(ca)
-      equalityConnectedJBBCs = ca->getEqualityConnectedJBBCs();
-    
+
+    if (ca) equalityConnectedJBBCs = ca->getEqualityConnectedJBBCs();
+
     equalityConnectedJBBCs.intersectSet(jbbcs);
-    
-    if(equalityConnectedJBBCs.entries())
-      result.insert(column);
+
+    if (equalityConnectedJBBCs.entries()) result.insert(column);
   }
 
   return result;
-
 };
 
 // get equality Join predicates connected to the given CANodeID
 // jbbc should be a table
-ValueIdSet TableAnalysis::getColsConnectedViaVEGPreds(CANodeId jbbc)
-{
+ValueIdSet TableAnalysis::getColsConnectedViaVEGPreds(CANodeId jbbc) {
   ValueIdSet equiJoinPreds;
 
   CANodeIdSet connectedNodes = getConnectedTables();
 
-  if (!connectedNodes.contains(jbbc) )
-	return equiJoinPreds;
+  if (!connectedNodes.contains(jbbc)) return equiJoinPreds;
 
-  TableAnalysis * connctedTA = jbbc.getNodeAnalysis()->getTableAnalysis();
-  if (!connctedTA )
-	return equiJoinPreds;
+  TableAnalysis *connctedTA = jbbc.getNodeAnalysis()->getTableAnalysis();
+  if (!connctedTA) return equiJoinPreds;
 
   equiJoinPreds.insert(getConnectingVegPreds(*connctedTA));
 
@@ -4092,34 +3272,28 @@ ValueIdSet TableAnalysis::getColsConnectedViaVEGPreds(CANodeId jbbc)
 // defined as base UEC of given column set dividied by the base row count
 // In case of multiple columns, if it would be multi-col UEC. If no stats
 // exist for these set of columns, equality factor is zero.
-CostScalar TableAnalysis::getEqualityVal(ValueIdSet joinCols)
-{
+CostScalar TableAnalysis::getEqualityVal(ValueIdSet joinCols) {
   CostScalar equalityFactor = csZero;
 
   // nothing to do for cross products
-  if (joinCols.entries() == 0)
-	return equalityFactor;
+  if (joinCols.entries() == 0) return equalityFactor;
 
   CostScalar baseRC = getCardinalityOfBaseTable();
 
   CostScalar baseUec = getBaseUec(joinCols);
 
-  if (baseUec == csMinusOne)
-	return equalityFactor;
+  if (baseUec == csMinusOne) return equalityFactor;
 
-  equalityFactor = baseUec/baseRC;
+  equalityFactor = baseUec / baseRC;
 
   return equalityFactor;
 }
 
-  // UEC of the given column set
-CostScalar TableAnalysis::getBaseUec(const ValueIdSet & columns)
-{
-  const MultiColumnUecList * MCUecOfCurJoinPred = \
-	  getStatsOfBaseTable()->getColStats().getUecList();
+// UEC of the given column set
+CostScalar TableAnalysis::getBaseUec(const ValueIdSet &columns) {
+  const MultiColumnUecList *MCUecOfCurJoinPred = getStatsOfBaseTable()->getColStats().getUecList();
 
-  if (!MCUecOfCurJoinPred)
-	return csMinusOne;
+  if (!MCUecOfCurJoinPred) return csMinusOne;
 
   ValueIdSet baseColSet;
 
@@ -4131,45 +3305,33 @@ CostScalar TableAnalysis::getBaseUec(const ValueIdSet & columns)
   // it could be single or multi-col UEC depending on the number of columns passed
   CostScalar baseUec = MCUecOfCurJoinPred->lookup(baseColSet);
 
-  if (baseUec <= 0)
-  {
-	TableDesc * tableDesc = getTableDesc();
-        // The flag is passed to indicate if stats should be used to check for uniqueness
-        // too. That is define unique if rowcount == uec
-	if (baseColSet.doColumnsConstituteUniqueIndex(tableDesc, FALSE) )
-	  baseUec = getCardinalityOfBaseTable();
+  if (baseUec <= 0) {
+    TableDesc *tableDesc = getTableDesc();
+    // The flag is passed to indicate if stats should be used to check for uniqueness
+    // too. That is define unique if rowcount == uec
+    if (baseColSet.doColumnsConstituteUniqueIndex(tableDesc, FALSE)) baseUec = getCardinalityOfBaseTable();
   }
 
   return baseUec;
 }
 
-
-
 // Compute the local predicates on this table that references any of these columns
 // of the table
-ValueIdSet TableAnalysis::getLocalPredsOnColumns(const ValueIdSet & cols,
-                                  ValueIdSet * colsWithLocalPreds /*OUT*/)
-{
+ValueIdSet TableAnalysis::getLocalPredsOnColumns(const ValueIdSet &cols, ValueIdSet *colsWithLocalPreds /*OUT*/) {
   // one other way of doing this is to get the table local preds and then select from
   // it the preds that reference cols in this set.
 
   ValueIdSet result;
-  if (colsWithLocalPreds)
-    colsWithLocalPreds->clear();
+  if (colsWithLocalPreds) colsWithLocalPreds->clear();
 
-  for (ValueId col = cols.init();
-       cols.next(col);
-       cols.advance(col))
-  {
-    ColAnalysis* colAn = col.colAnalysis();
-    if (!colAn) continue; // no preds on this column
+  for (ValueId col = cols.init(); cols.next(col); cols.advance(col)) {
+    ColAnalysis *colAn = col.colAnalysis();
+    if (!colAn) continue;  // no preds on this column
 
-    const ValueIdSet & colLocalPreds = colAn->getLocalPreds();
-    if (colLocalPreds.entries())
-    {
+    const ValueIdSet &colLocalPreds = colAn->getLocalPreds();
+    if (colLocalPreds.entries()) {
       result += colLocalPreds;
-      if (colsWithLocalPreds)
-        *colsWithLocalPreds += col;
+      if (colsWithLocalPreds) *colsWithLocalPreds += col;
     }
   }
 
@@ -4181,9 +3343,7 @@ ValueIdSet TableAnalysis::getLocalPredsOnColumns(const ValueIdSet & cols,
 
 // Compute the local predicates on this table that references a prefix of this
 // column list. compute also the prefix size.
-ValueIdSet TableAnalysis::getLocalPredsOnPrefixOfList(const ValueIdList & cols,
-                                       Lng32 & prefixSize /*OUT*/)
-{
+ValueIdSet TableAnalysis::getLocalPredsOnPrefixOfList(const ValueIdList &cols, Lng32 &prefixSize /*OUT*/) {
   // xxx warning: at this point we do not distinguish between local predicates
   // and local predicates good for positioning. For example a=c is local but not
   // good for key positioning. Moreover a=c will be in a local preds but it needs
@@ -4194,20 +3354,15 @@ ValueIdSet TableAnalysis::getLocalPredsOnPrefixOfList(const ValueIdList & cols,
   ValueIdSet result;
   prefixSize = 0;
 
-  for (CollIndex i = 0; i < cols.entries(); i++)
-  {
-    ColAnalysis* colAn = cols[i].colAnalysis();
-    if (!colAn) break; // no preds on this column
-    const ValueIdSet & colLocalPreds = colAn->getLocalPreds();
-    if (colLocalPreds.entries())
-    {
+  for (CollIndex i = 0; i < cols.entries(); i++) {
+    ColAnalysis *colAn = cols[i].colAnalysis();
+    if (!colAn) break;  // no preds on this column
+    const ValueIdSet &colLocalPreds = colAn->getLocalPreds();
+    if (colLocalPreds.entries()) {
       result += colLocalPreds;
       prefixSize++;
-    }
-    else {
-
-      if ( !cols[i].isSaltColumn() )
-        break;
+    } else {
+      if (!cols[i].isSaltColumn()) break;
     }
   }
 
@@ -4215,145 +3370,109 @@ ValueIdSet TableAnalysis::getLocalPredsOnPrefixOfList(const ValueIdList & cols,
 };
 
 // This method computes some basic stats about the table, and caches them
-void TableAnalysis::computeTableStats()
-{
-  //Get a handle to ASM
-  AppliedStatMan * appStatMan = QueryAnalysis::ASM();
+void TableAnalysis::computeTableStats() {
+  // Get a handle to ASM
+  AppliedStatMan *appStatMan = QueryAnalysis::ASM();
   ValueIdSet emptySet;
   CANodeId id = getNodeAnalysis()->getId();
 
-  statsOfBaseTable_ = appStatMan->getStatsForCANodeId(id,(*GLOBAL_EMPTY_INPUT_LOGPROP),&emptySet);
+  statsOfBaseTable_ = appStatMan->getStatsForCANodeId(id, (*GLOBAL_EMPTY_INPUT_LOGPROP), &emptySet);
 
-  statsAfterLocalPreds_ = appStatMan->
-           getStatsForLocalPredsOnGivenCols(id, getLocalPreds(), (*GLOBAL_EMPTY_INPUT_LOGPROP));
+  statsAfterLocalPreds_ =
+      appStatMan->getStatsForLocalPredsOnGivenCols(id, getLocalPreds(), (*GLOBAL_EMPTY_INPUT_LOGPROP));
 
-
-  statsAfterLocalPredsOnCKPrefix_ =
-    appStatMan->getStatsForLocalPredsOnCKPOfJBBC(id); // should change ASM method name
+  statsAfterLocalPredsOnCKPrefix_ = appStatMan->getStatsForLocalPredsOnCKPOfJBBC(id);  // should change ASM method name
 
   recordSizeOfBaseTable_ = tableDesc_->getNATable()->getRecordLength();
 
-      QueryAnalysis* queryAnalysis = QueryAnalysis::Instance();
-      TableAnalysis * largestTable = queryAnalysis->getLargestTable();
-      if(!largestTable)
-        queryAnalysis->setLargestTable(this);
-      else{
-        CostScalar largestTableCardinality =
-          largestTable->getCardinalityAfterLocalPredsOnCKPrefix();
-        CostScalar largestTableRecordSize =
-          largestTable->getRecordSizeOfBaseTable();
-        CostScalar largestTableSize =
-          largestTableCardinality * largestTableRecordSize;
-        CostScalar tableCardinality =
-          getCardinalityAfterLocalPredsOnCKPrefix();
-        CostScalar tableRecordSize =
-          getRecordSizeOfBaseTable();
-        CostScalar tableSize =
-          tableCardinality * tableRecordSize;
+  QueryAnalysis *queryAnalysis = QueryAnalysis::Instance();
+  TableAnalysis *largestTable = queryAnalysis->getLargestTable();
+  if (!largestTable)
+    queryAnalysis->setLargestTable(this);
+  else {
+    CostScalar largestTableCardinality = largestTable->getCardinalityAfterLocalPredsOnCKPrefix();
+    CostScalar largestTableRecordSize = largestTable->getRecordSizeOfBaseTable();
+    CostScalar largestTableSize = largestTableCardinality * largestTableRecordSize;
+    CostScalar tableCardinality = getCardinalityAfterLocalPredsOnCKPrefix();
+    CostScalar tableRecordSize = getRecordSizeOfBaseTable();
+    CostScalar tableSize = tableCardinality * tableRecordSize;
 
-        if (tableSize > largestTableSize)
-          queryAnalysis->setLargestTable(this);
-      }
+    if (tableSize > largestTableSize) queryAnalysis->setLargestTable(this);
+  }
   return;
 }
 
-EstLogPropSharedPtr TableAnalysis::getStatsOfBaseTable()
-{
-	if (statsOfBaseTable_ == NULL)
-	{
-        AppliedStatMan * appStatMan = QueryAnalysis::ASM();
-        ValueIdSet emptySet;
-        CANodeId id = getNodeAnalysis()->getId();
+EstLogPropSharedPtr TableAnalysis::getStatsOfBaseTable() {
+  if (statsOfBaseTable_ == NULL) {
+    AppliedStatMan *appStatMan = QueryAnalysis::ASM();
+    ValueIdSet emptySet;
+    CANodeId id = getNodeAnalysis()->getId();
 
-        statsOfBaseTable_ = appStatMan->getStatsForCANodeId(id,(*GLOBAL_EMPTY_INPUT_LOGPROP),&emptySet);
-	}
-	return statsOfBaseTable_;
+    statsOfBaseTable_ = appStatMan->getStatsForCANodeId(id, (*GLOBAL_EMPTY_INPUT_LOGPROP), &emptySet);
+  }
+  return statsOfBaseTable_;
 }
 
-CostScalar TableAnalysis::getCardinalityOfBaseTable()
-{
-    return getStatsOfBaseTable()->getResultCardinality();
-}
+CostScalar TableAnalysis::getCardinalityOfBaseTable() { return getStatsOfBaseTable()->getResultCardinality(); }
 
-CostScalar TableAnalysis::getMaxCardinalityOfBaseTable()
-{
-    return getStatsOfBaseTable()->getMaxCardEst();
-}
+CostScalar TableAnalysis::getMaxCardinalityOfBaseTable() { return getStatsOfBaseTable()->getMaxCardEst(); }
 
-NABoolean TableAnalysis::hasMatchingHashPartitioning(TableAnalysis * other)
-{
+NABoolean TableAnalysis::hasMatchingHashPartitioning(TableAnalysis *other) {
   // get the index desc for me
-  const IndexDesc * myIndxDesc = getTableDesc()->getClusteringIndex();
+  const IndexDesc *myIndxDesc = getTableDesc()->getClusteringIndex();
 
   // get the index desc for the other table
-  const IndexDesc * otherIndxDesc = other->getTableDesc()->getClusteringIndex();
+  const IndexDesc *otherIndxDesc = other->getTableDesc()->getClusteringIndex();
 
   // get my partitioning function
-  PartitioningFunction * myPartFunc = myIndxDesc->getNAFileSet()->getPartitioningFunction();
+  PartitioningFunction *myPartFunc = myIndxDesc->getNAFileSet()->getPartitioningFunction();
 
   // get other table partition function
-  PartitioningFunction * otherPartFunc = otherIndxDesc->getNAFileSet()->getPartitioningFunction();
+  PartitioningFunction *otherPartFunc = otherIndxDesc->getNAFileSet()->getPartitioningFunction();
 
   // return false if the partitioning type does not match
-  if( myPartFunc->getPartitioningFunctionType() !=
-      otherPartFunc->getPartitioningFunctionType())
-    return FALSE;
+  if (myPartFunc->getPartitioningFunctionType() != otherPartFunc->getPartitioningFunctionType()) return FALSE;
 
   // return false if not hash partitioned
-  if ((!myPartFunc->isATableHashPartitioningFunction()))
-    return FALSE;
+  if ((!myPartFunc->isATableHashPartitioningFunction())) return FALSE;
 
   // get my number of partitions
-  Int32 myPartNum =  myIndxDesc->
-                   getNAFileSet()->
-                   getCountOfPartitions();
+  Int32 myPartNum = myIndxDesc->getNAFileSet()->getCountOfPartitions();
 
   // get other number of partitions
-  Int32 otherPartNum =  otherIndxDesc->
-                      getNAFileSet()->
-                      getCountOfPartitions();
+  Int32 otherPartNum = otherIndxDesc->getNAFileSet()->getCountOfPartitions();
 
   // return false if number of partitions don't match
-  if (myPartNum != otherPartNum)
-    return FALSE;
+  if (myPartNum != otherPartNum) return FALSE;
 
   // get my partitioning key
-  ValueIdList myPartKey = ((TableHashPartitioningFunction *) myPartFunc)->getKeyColumnList();
+  ValueIdList myPartKey = ((TableHashPartitioningFunction *)myPartFunc)->getKeyColumnList();
 
   // get other partitioning key
-  ValueIdList otherPartKey = ((TableHashPartitioningFunction *) otherPartFunc)->getKeyColumnList();
+  ValueIdList otherPartKey = ((TableHashPartitioningFunction *)otherPartFunc)->getKeyColumnList();
 
   // return false if number of partitioning key columns is different
-  if (myPartKey.entries() != otherPartKey.entries())
-    return FALSE;
+  if (myPartKey.entries() != otherPartKey.entries()) return FALSE;
 
-  for (UInt32 i = 0; i < myPartKey.entries(); i++)
-  {
+  for (UInt32 i = 0; i < myPartKey.entries(); i++) {
     //
-    ColAnalysis * myColAnalysis = myPartKey[i].colAnalysis();
+    ColAnalysis *myColAnalysis = myPartKey[i].colAnalysis();
 
-    if(!myColAnalysis)
-      return FALSE;
+    if (!myColAnalysis) return FALSE;
 
-    if(!myColAnalysis->getConnectedCols().contains(otherPartKey[i]))
-      return FALSE;
+    if (!myColAnalysis->getConnectedCols().contains(otherPartKey[i])) return FALSE;
   }
 
   return TRUE;
 };
 
-NABoolean TableAnalysis::predsOnUnique(ValueIdSet& vidSet, 
-                                       NABoolean *hasPrefix)
-{
-  if(!vidSet.entries())
-    return FALSE;
+NABoolean TableAnalysis::predsOnUnique(ValueIdSet &vidSet, NABoolean *hasPrefix) {
+  if (!vidSet.entries()) return FALSE;
   ValueIdSet preds = vidSet;
   preds += localPreds_;
 
-  for (CollIndex i=0; i<uniqueIndexes_.entries(); i++)
-  {
-    if(uniqueIndexes_[i]->keyCoveredByEqualityPreds(preds, hasPrefix))
-      return TRUE;
+  for (CollIndex i = 0; i < uniqueIndexes_.entries(); i++) {
+    if (uniqueIndexes_[i]->keyCoveredByEqualityPreds(preds, hasPrefix)) return TRUE;
   }
 
   return FALSE;
@@ -4363,63 +3482,42 @@ NABoolean TableAnalysis::predsOnUnique(ValueIdSet& vidSet,
 // number of probes = dataFlowFromEdge
 // Rows of fact table that will be scanned = factTableRowsToScan
 // 0 probes = Hash Join i.e. no nested join
-CostScalar TableAnalysis::computeDataAccessCostForTable(
-                                CostScalar probes,
-                                CostScalar tableRowsToScan) const
-{
-  //Get a handle to ASM
-  AppliedStatMan * appStatMan = QueryAnalysis::ASM();
-  
+CostScalar TableAnalysis::computeDataAccessCostForTable(CostScalar probes, CostScalar tableRowsToScan) const {
+  // Get a handle to ASM
+  AppliedStatMan *appStatMan = QueryAnalysis::ASM();
+
   CANodeId tableId = getNodeAnalysis()->getId();
 
-  CostScalar costPerProbe ((ActiveSchemaDB()->getDefaults()).getAsDouble(COMP_FLOAT_0));
-  CostScalar costPerUnitSize ((ActiveSchemaDB()->getDefaults()).getAsDouble(COMP_FLOAT_1));
-  CostScalar costPerRowReturned ((ActiveSchemaDB()->getDefaults()).getAsDouble(COMP_FLOAT_2));
+  CostScalar costPerProbe((ActiveSchemaDB()->getDefaults()).getAsDouble(COMP_FLOAT_0));
+  CostScalar costPerUnitSize((ActiveSchemaDB()->getDefaults()).getAsDouble(COMP_FLOAT_1));
+  CostScalar costPerRowReturned((ActiveSchemaDB()->getDefaults()).getAsDouble(COMP_FLOAT_2));
 
-  //Record Size of the factTable
-  CostScalar tableRecordSize = getTableDesc()->
-                                 getNATable()->
-                                   getRecordLength();
+  // Record Size of the factTable
+  CostScalar tableRecordSize = getTableDesc()->getNATable()->getRecordLength();
 
-  CostScalar subsetSizeKB = (tableRowsToScan * tableRecordSize)/1024;
+  CostScalar subsetSizeKB = (tableRowsToScan * tableRecordSize) / 1024;
 
-  CostScalar tableRowsReturned = appStatMan->
-                                 getStatsForCANodeId(tableId)->
-                                 getResultCardinality();
+  CostScalar tableRowsReturned = appStatMan->getStatsForCANodeId(tableId)->getResultCardinality();
 
-  RelExpr * tableScanExpr = getNodeAnalysis()->getOriginalExpr();
+  RelExpr *tableScanExpr = getNodeAnalysis()->getOriginalExpr();
 
-  CostScalar sizeOfRowReturnedFromTable =
-    tableScanExpr->getGroupAttr()->getRecordLength();
+  CostScalar sizeOfRowReturnedFromTable = tableScanExpr->getGroupAttr()->getRecordLength();
 
-
-  CostScalar costForTable = (costPerProbe * probes) +
-                            (costPerUnitSize * subsetSizeKB) +
-                            (costPerRowReturned *
-                            tableRowsReturned *
-                            sizeOfRowReturnedFromTable);
+  CostScalar costForTable = (costPerProbe * probes) + (costPerUnitSize * subsetSizeKB) +
+                            (costPerRowReturned * tableRowsReturned * sizeOfRowReturnedFromTable);
 
   return costForTable;
 }
 
-void 
-TableAnalysis::computeConnectedTables(const ValueIdSet& vegPreds, 
-                                            CANodeIdSet& connectedTables)
-{
+void TableAnalysis::computeConnectedTables(const ValueIdSet &vegPreds, CANodeIdSet &connectedTables) {
   ValueIdSet connectedCols;
   computeConnectedTables(vegPreds, connectedTables, connectedCols);
 }
 
-void 
-TableAnalysis::computeConnectedTables(const ValueIdSet& vegPreds, 
-                                            CANodeIdSet& connectedTables,
-                                            ValueIdSet& connectedCols)
-{
+void TableAnalysis::computeConnectedTables(const ValueIdSet &vegPreds, CANodeIdSet &connectedTables,
+                                           ValueIdSet &connectedCols) {
   connectedCols.clear();
-  for (ValueId pred = vegPreds.init();
-       vegPreds.next(pred);
-       vegPreds.advance(pred))
-  {
+  for (ValueId pred = vegPreds.init(); vegPreds.next(pred); vegPreds.advance(pred)) {
     connectedCols += pred.predAnalysis()->getVegConnectedCols();
   }
   // remove self and cols from same table
@@ -4427,33 +3525,24 @@ TableAnalysis::computeConnectedTables(const ValueIdSet& vegPreds,
 
   // Now compute connectedTables_;
   connectedTables.clear();
-  for (ValueId c= connectedCols.init();
-       connectedCols.next(c);
-       connectedCols.advance(c) )
-  {
-    connectedTables += c.colAnalysis()->
-        getTableAnalysis()->getNodeAnalysis()->getId();
+  for (ValueId c = connectedCols.init(); connectedCols.next(c); connectedCols.advance(c)) {
+    connectedTables += c.colAnalysis()->getTableAnalysis()->getNodeAnalysis()->getId();
   }
 }
 
-NABoolean TableAnalysis::referencedInLocalPred(ItemExpr* other)
-{
-   const ValueIdSet & localPreds = getLocalPreds();
+NABoolean TableAnalysis::referencedInLocalPred(ItemExpr *other) {
+  const ValueIdSet &localPreds = getLocalPreds();
 
-   if ( localPreds.isEmpty() )
-     return FALSE;
+  if (localPreds.isEmpty()) return FALSE;
 
-   ValueIdSet otherVidSet(other->getValueId());
+  ValueIdSet otherVidSet(other->getValueId());
 
-   ValueIdSet result;
-   result.accumulateReferencingExpressions(
-      localPreds,
-      otherVidSet,
-      FALSE, /* do dig inside vegrefs */
-      FALSE  /* do dig inside inst nulls */
-   ); 
+  ValueIdSet result;
+  result.accumulateReferencingExpressions(localPreds, otherVidSet, FALSE, /* do dig inside vegrefs */
+                                          FALSE                           /* do dig inside inst nulls */
+  );
 
-   return ( result == localPreds );
+  return (result == localPreds);
 }
 
 ////////////////////////////////////////
@@ -4462,127 +3551,93 @@ NABoolean TableAnalysis::referencedInLocalPred(ItemExpr* other)
 // Methods for class AccessPathAnalysis
 // -----------------------------------------------------------------------
 
-AccessPathAnalysis::AccessPathAnalysis
-  (IndexDesc* indexDesc,
-   TableAnalysis* tableAnalysis,
-   CollHeap *outHeap):
-  indexDesc_(indexDesc),
-  tableAnalysis_(tableAnalysis),
-  accessPathKeyCount_(0),
-  heap_(outHeap)
-  {
-    if(indexDesc_)
-    {
-      // setup index cols list
-      ValueIdList indexCols = indexDesc_->getIndexColumns();
-      ValueIdList keyCols = indexDesc_->getIndexKey();
+AccessPathAnalysis::AccessPathAnalysis(IndexDesc *indexDesc, TableAnalysis *tableAnalysis, CollHeap *outHeap)
+    : indexDesc_(indexDesc), tableAnalysis_(tableAnalysis), accessPathKeyCount_(0), heap_(outHeap) {
+  if (indexDesc_) {
+    // setup index cols list
+    ValueIdList indexCols = indexDesc_->getIndexColumns();
+    ValueIdList keyCols = indexDesc_->getIndexKey();
 
-      for(UInt32 i =0;
-          i < indexCols.entries();
-          i++)
-      {
-        ItemExpr   *ie = indexCols[i].getItemExpr();
-        accessPathColList_.insert(((IndexColumn *) ie)->getDefinition());
-      }
+    for (UInt32 i = 0; i < indexCols.entries(); i++) {
+      ItemExpr *ie = indexCols[i].getItemExpr();
+      accessPathColList_.insert(((IndexColumn *)ie)->getDefinition());
+    }
 
-      for(UInt32 i =0;
-          i < keyCols.entries();
-          i++)
-      {
-        ItemExpr   *ie = keyCols[i].getItemExpr();
-        accessPathKeyCols_.insert(((IndexColumn *) ie)->getDefinition());
-      }
+    for (UInt32 i = 0; i < keyCols.entries(); i++) {
+      ItemExpr *ie = keyCols[i].getItemExpr();
+      accessPathKeyCols_.insert(((IndexColumn *)ie)->getDefinition());
+    }
 
-      // the set of columns in the access path
-      accessPathColSet_.insertList(accessPathColList_);
+    // the set of columns in the access path
+    accessPathColSet_.insertList(accessPathColList_);
 
-      // get the column count of the access path key
-      accessPathKeyCount_ = indexDesc_->getIndexKey().entries();
+    // get the column count of the access path key
+    accessPathKeyCount_ = indexDesc_->getIndexKey().entries();
 
-      // setup part key cols list
-      ValueIdList partKeyCols = indexDesc_->getPartitioningKey();
+    // setup part key cols list
+    ValueIdList partKeyCols = indexDesc_->getPartitioningKey();
 
-      for(UInt32 i =0;
-          i < partKeyCols.entries();
-          i++)
-      {
-        ItemExpr   *ie = partKeyCols[i].getItemExpr();
-        accessPathPartKeyCols_.insert(((IndexColumn *) ie)->getDefinition());
-      }
+    for (UInt32 i = 0; i < partKeyCols.entries(); i++) {
+      ItemExpr *ie = partKeyCols[i].getItemExpr();
+      accessPathPartKeyCols_.insert(((IndexColumn *)ie)->getDefinition());
     }
   }
+}
 
-NABoolean AccessPathAnalysis::isIndexOnly()
-{
+NABoolean AccessPathAnalysis::isIndexOnly() {
   // xxx May be I should cache the result of this method if turn out
   // to be frequently asked.
-  const ValueIdSet & usedCols =
-    indexDesc_->getPrimaryTableDesc()->getTableAnalysis()->getUsedCols();
+  const ValueIdSet &usedCols = indexDesc_->getPrimaryTableDesc()->getTableAnalysis()->getUsedCols();
   return accessPathColSet_.contains(usedCols);
 }
 
-Int32 AccessPathAnalysis::numIndexPrefixCovered(const ValueIdSet& vidSet,
-                                              NABoolean exactMatch,
-                                              NABoolean useKeyCols)
-{
-    // find all the equality columns
-  ValueIdSet equalityCols;
-  vidSet.findAllEqualityCols(equalityCols);
-
-  // Intersect the equality columns with the set of used columns
-  // to get the columns for only this table.
-  const ValueIdSet& usedCols =
-    indexDesc_->getPrimaryTableDesc()->getTableAnalysis()->getUsedCols();
-
-  // get the use equality columns
-  equalityCols.intersectSet((ValueIdSet&)usedCols);
-
-  // Get the list of index columns and check if a prefix is
-  // covered in the provided set.
-  Int32 numCoveredCols = useKeyCols ? 
-    accessPathKeyCols_.prefixCoveredInSet(equalityCols) :
-    accessPathColList_.prefixCoveredInSet(equalityCols) ;
-
-  if (numCoveredCols &&
-      ((!exactMatch) || numCoveredCols == vidSet.entries()))
-    return numCoveredCols;
-  else
-    return 0;
-}
-
-NABoolean AccessPathAnalysis::isPartKeyCovered(const ValueIdSet& vidSet,
-                                               NABoolean exactMatch)
-{
+Int32 AccessPathAnalysis::numIndexPrefixCovered(const ValueIdSet &vidSet, NABoolean exactMatch, NABoolean useKeyCols) {
   // find all the equality columns
   ValueIdSet equalityCols;
   vidSet.findAllEqualityCols(equalityCols);
 
   // Intersect the equality columns with the set of used columns
   // to get the columns for only this table.
-  const ValueIdSet& usedCols =
-    indexDesc_->getPrimaryTableDesc()->getTableAnalysis()->getUsedCols();
+  const ValueIdSet &usedCols = indexDesc_->getPrimaryTableDesc()->getTableAnalysis()->getUsedCols();
+
+  // get the use equality columns
+  equalityCols.intersectSet((ValueIdSet &)usedCols);
+
+  // Get the list of index columns and check if a prefix is
+  // covered in the provided set.
+  Int32 numCoveredCols = useKeyCols ? accessPathKeyCols_.prefixCoveredInSet(equalityCols)
+                                    : accessPathColList_.prefixCoveredInSet(equalityCols);
+
+  if (numCoveredCols && ((!exactMatch) || numCoveredCols == vidSet.entries()))
+    return numCoveredCols;
+  else
+    return 0;
+}
+
+NABoolean AccessPathAnalysis::isPartKeyCovered(const ValueIdSet &vidSet, NABoolean exactMatch) {
+  // find all the equality columns
+  ValueIdSet equalityCols;
+  vidSet.findAllEqualityCols(equalityCols);
+
+  // Intersect the equality columns with the set of used columns
+  // to get the columns for only this table.
+  const ValueIdSet &usedCols = indexDesc_->getPrimaryTableDesc()->getTableAnalysis()->getUsedCols();
 
   // get the used equality cols
-  equalityCols.intersect((ValueIdSet&)usedCols);
+  equalityCols.intersect((ValueIdSet &)usedCols);
 
   // check if part key cols are covered in the provided set.
   return accessPathPartKeyCols_.allMembersCoveredInSet(equalityCols, exactMatch);
 }
 
-NABoolean AccessPathAnalysis::keyCoveredByEqualityPreds
-(const ValueIdSet& vidSet, NABoolean *hasPrefix)
-{
-  Int32 keyPrefixCovered = numIndexPrefixCovered(vidSet, FALSE, 
-                                                 hasPrefix?TRUE:FALSE);
-  if (hasPrefix)
-    *hasPrefix = (keyPrefixCovered > 0);
-  if(keyPrefixCovered == accessPathKeyCount_)
-    return TRUE;
+NABoolean AccessPathAnalysis::keyCoveredByEqualityPreds(const ValueIdSet &vidSet, NABoolean *hasPrefix) {
+  Int32 keyPrefixCovered = numIndexPrefixCovered(vidSet, FALSE, hasPrefix ? TRUE : FALSE);
+  if (hasPrefix) *hasPrefix = (keyPrefixCovered > 0);
+  if (keyPrefixCovered == accessPathKeyCount_) return TRUE;
   return FALSE;
 }
 
-const NAString AccessPathAnalysis::getText() const
-{
+const NAString AccessPathAnalysis::getText() const {
   NAString result("AccessPathAnalysis: \n");
   result += "Index:  " + indexDesc_->getExtIndexName() + "   ";
   result += "Index Columns: " + valueIdSetGetText(indexDesc_->getIndexColumns());
@@ -4590,11 +3645,8 @@ const NAString AccessPathAnalysis::getText() const
   return result;
 }
 
-void AccessPathAnalysis::print (FILE *f,
-                                const char * prefix,
-                                const char * suffix) const
-{
-  fprintf (f, "%s", (const char*)getText());
+void AccessPathAnalysis::print(FILE *f, const char *prefix, const char *suffix) const {
+  fprintf(f, "%s", (const char *)getText());
 }
 
 // -----------------------------------------------------------------------
@@ -4602,16 +3654,14 @@ void AccessPathAnalysis::print (FILE *f,
 // -----------------------------------------------------------------------
 
 // Get all dependent predicates from other JBBItem on this JBBItem.
-ValueIdSet JBBItem::successorPredsOfOther(const JBBItem & other) const
-{
+ValueIdSet JBBItem::successorPredsOfOther(const JBBItem &other) const {
   ValueIdSet result = getPredsWithSuccessors();
   result.intersectSet(other.getPredsWithPredecessors());
   return result;
 }
 
 // Get all dependent predicates from this JBBItem on other JBBItem.
-ValueIdSet JBBItem::predecessorPredsOnOther(const JBBItem & other) const
-{
+ValueIdSet JBBItem::predecessorPredsOnOther(const JBBItem &other) const {
   ValueIdSet result = getPredsWithPredecessors();
   result.intersectSet(other.getPredsWithSuccessors());
   return result;
@@ -4623,25 +3673,19 @@ ValueIdSet JBBItem::predecessorPredsOnOther(const JBBItem & other) const
 
 // Set the join preds to this JBBC.
 // This will also update predAnalysis of these preds of this JBBC
-void JBBC::setJoinPreds(const ValueIdSet & joinPreds)
-{
+void JBBC::setJoinPreds(const ValueIdSet &joinPreds) {
   joinPreds_ = joinPreds;
 
-  for (ValueId pred = joinPreds_.init();
-       joinPreds_.next(pred);
-       joinPreds_.advance(pred))
-  {
+  for (ValueId pred = joinPreds_.init(); joinPreds_.next(pred); joinPreds_.advance(pred)) {
     // This method will create PredAnalysis for this value if none has
     // been created so far.
-	PredAnalysis* predAnalysis =
-      QueryAnalysis::Instance()->findPredAnalysis(pred);
+    PredAnalysis *predAnalysis = QueryAnalysis::Instance()->findPredAnalysis(pred);
     predAnalysis->addToReferencedJBBCs(getId());
   }
 }
 
 // Not used - we are using the JBBSubset version of this
-ValueIdSet JBBC::joinPredsWithOther(const JBBC & other) const
-{
+ValueIdSet JBBC::joinPredsWithOther(const JBBC &other) const {
   ValueIdSet predSet = getJoinPreds();
   predSet.intersectSet(other.getJoinPreds());
 
@@ -4651,60 +3695,43 @@ ValueIdSet JBBC::joinPredsWithOther(const JBBC & other) const
 
   ValueIdSet result;
 
-  for (ValueId pred = predSet.init();
-       predSet.next(pred);
-       predSet.advance(pred))
-  {
-    if (combinedSubset.coversExpr(pred))
-      result += pred;
+  for (ValueId pred = predSet.init(); predSet.next(pred); predSet.advance(pred)) {
+    if (combinedSubset.coversExpr(pred)) result += pred;
   }
 
   return result;
 }
 
-void JBBC::setPredsWithDependencies(const ValueIdSet & predsWithDependencies,
-                                    const ValueIdSet & predsWithPredecessors)
-{
+void JBBC::setPredsWithDependencies(const ValueIdSet &predsWithDependencies, const ValueIdSet &predsWithPredecessors) {
   // set predsWithPredecessors_
   predsWithPredecessors_ += predsWithPredecessors;
-  predsWithPredecessorsList_ =
-    new (CmpCommon::statementHeap()) ValueIdList(predsWithPredecessors_);
-  predecessorJBBCsList_ =
-    new (CmpCommon::statementHeap())
-      LIST(CANodeIdSet)(CmpCommon::statementHeap(),
-                        predsWithPredecessorsList_->entries());
+  predsWithPredecessorsList_ = new (CmpCommon::statementHeap()) ValueIdList(predsWithPredecessors_);
+  predecessorJBBCsList_ = new (CmpCommon::statementHeap())
+      LIST(CANodeIdSet)(CmpCommon::statementHeap(), predsWithPredecessorsList_->entries());
 
   // set constPredsWithPredecessors_
   NABoolean strict = FALSE;
 
-  for (ValueId predId= predsWithPredecessors_.init();
-       predsWithPredecessors_.next(predId);
-       predsWithPredecessors_.advance(predId) )
-  {
-    ItemExpr * predExpr = predId.getItemExpr();
-    if(predExpr && predExpr->doesExprEvaluateToConstant(strict))
-      constPredsWithPredecessors_ += predId;
+  for (ValueId predId = predsWithPredecessors_.init(); predsWithPredecessors_.next(predId);
+       predsWithPredecessors_.advance(predId)) {
+    ItemExpr *predExpr = predId.getItemExpr();
+    if (predExpr && predExpr->doesExprEvaluateToConstant(strict)) constPredsWithPredecessors_ += predId;
   }
 
   // set predsWithSuccessors_
   // get characterisic outputs of JBBCs
-  const GroupAttributes * jbbcGA = getNodeAnalysis()->
-                                     getOriginalExpr()->
-                                       getGroupAttr();
+  const GroupAttributes *jbbcGA = getNodeAnalysis()->getOriginalExpr()->getGroupAttr();
 
   ValueIdSet jbbcCharOutput = jbbcGA->getCharacteristicOutputs();
-  jbbcCharOutput += (ValueIdSet) nullInstantiatedOutput();
+  jbbcCharOutput += (ValueIdSet)nullInstantiatedOutput();
 
   ValueIdSet potentialPredsWithSuccessors = predsWithDependencies;
   potentialPredsWithSuccessors -= predsWithPredecessors_;
-  predsWithSuccessors_.
-    accumulateReferencingExpressions(potentialPredsWithSuccessors,
-                                     jbbcCharOutput);
+  predsWithSuccessors_.accumulateReferencingExpressions(potentialPredsWithSuccessors, jbbcCharOutput);
 }
 
 // Get all JBBCs that are have no join predicate with this JBBC.
-CANodeIdSet JBBC::getJBBCsThatXProductWithMe() const
-{
+CANodeIdSet JBBC::getJBBCsThatXProductWithMe() const {
   CANodeIdSet result = jbb_->getMainJBBSubset().getJBBCs();
   result.subtractElement(getId());
   result.subtractSet(joinedJBBCs_);
@@ -4713,42 +3740,29 @@ CANodeIdSet JBBC::getJBBCsThatXProductWithMe() const
   return result;
 }
 
-CANodeIdSet JBBC::getJBBCsConnectedViaKeyJoins()
-{
-  if(jbbcsJoinedViaTheirKeyIsSet_)
-    return jbbcsJoinedViaTheirKey_;
+CANodeIdSet JBBC::getJBBCsConnectedViaKeyJoins() {
+  if (jbbcsJoinedViaTheirKeyIsSet_) return jbbcsJoinedViaTheirKey_;
 
   CANodeIdSet joinedJBBCs = joinedJBBCs_;
   CANodeIdSet jbbcsJoinedViaTheirKey;
 
-  for (CANodeId joinedJBBCNode = joinedJBBCs.init();
-       joinedJBBCs.next(joinedJBBCNode);
-       joinedJBBCs.advance(joinedJBBCNode) )
-  {
-    TableAnalysis * tAnalysis = joinedJBBCNode.
-                                  getNodeAnalysis()->
-                                    getTableAnalysis();
+  for (CANodeId joinedJBBCNode = joinedJBBCs.init(); joinedJBBCs.next(joinedJBBCNode);
+       joinedJBBCs.advance(joinedJBBCNode)) {
+    TableAnalysis *tAnalysis = joinedJBBCNode.getNodeAnalysis()->getTableAnalysis();
 
-    if (!tAnalysis)
-      continue;
+    if (!tAnalysis) continue;
 
-    TableDesc * tDesc = tAnalysis->getTableDesc();
+    TableDesc *tDesc = tAnalysis->getTableDesc();
     ValueIdSet primaryKey = tDesc->getPrimaryKeyColumns();
 
-    JBBC * joinedJBBC = joinedJBBCNode.
-                          getNodeAnalysis()->
-                            getJBBC();
+    JBBC *joinedJBBC = joinedJBBCNode.getNodeAnalysis()->getJBBC();
 
     // JBBC is joined via Left or Semi Join
-    if (joinedJBBC->getPredecessorJBBCs().entries())
-      continue;
+    if (joinedJBBC->getPredecessorJBBCs().entries()) continue;
 
-    ValueIdSet joinedCols =
-      tAnalysis->getColsConnectedViaEquiJoinPreds(getId());
+    ValueIdSet joinedCols = tAnalysis->getColsConnectedViaEquiJoinPreds(getId());
 
-    if(joinedCols.contains(primaryKey))
-      jbbcsJoinedViaTheirKey += joinedJBBCNode;
-
+    if (joinedCols.contains(primaryKey)) jbbcsJoinedViaTheirKey += joinedJBBCNode;
   }
 
   jbbcsJoinedViaTheirKey_ = jbbcsJoinedViaTheirKey;
@@ -4760,9 +3774,7 @@ CANodeIdSet JBBC::getJBBCsConnectedViaKeyJoins()
 /* Do not inspect this method */
 // Returns a subset of getJoinedJBBCs that are joined with this JBBC
 // on this particular column
-CANodeIdSet JBBC::getJoinedJBBCsOnThisColumn(const ValueId & col,
-	                                         ValueIdSet& joiningPreds /*OUT*/) const
-{
+CANodeIdSet JBBC::getJoinedJBBCsOnThisColumn(const ValueId &col, ValueIdSet &joiningPreds /*OUT*/) const {
   xxx();
   return CANodeIdSet(heap_);
 }
@@ -4770,36 +3782,26 @@ CANodeIdSet JBBC::getJoinedJBBCsOnThisColumn(const ValueId & col,
 /* Do not inspect this method */
 // Returns a subset of getJoinedJBBCs that are joined with this JBBC
 // on these particular columns
-CANodeIdSet JBBC::getJoinedJBBCsOnTheseColumns(const ValueIdSet & cols,
-	                                           ValueIdSet & joiningPreds /*OUT*/) const
-{
+CANodeIdSet JBBC::getJoinedJBBCsOnTheseColumns(const ValueIdSet &cols, ValueIdSet &joiningPreds /*OUT*/) const {
   xxx();
   return CANodeIdSet(heap_);
 }
 
-NABoolean JBBC::isGuaranteedEqualizer()
-{
-  if(isGuaranteedEqualizer_ == -1)
-  {
+NABoolean JBBC::isGuaranteedEqualizer() {
+  if (isGuaranteedEqualizer_ == -1) {
     isGuaranteedEqualizer_ = 0;
-    if(parentIsLeftJoin() &&
-       !getSuccessorJBBCs().entries() &&
-       !getJoinedJBBCs().entries() &&
-       (getPredecessorJBBCs().entries()==1))
-    {
+    if (parentIsLeftJoin() && !getSuccessorJBBCs().entries() && !getJoinedJBBCs().entries() &&
+        (getPredecessorJBBCs().entries() == 1)) {
       ValueIdSet leftJoinPreds = getPredsWithPredecessors();
       ValueIdSet leftJoinedCols;
       leftJoinPreds.findAllReferencedBaseCols(leftJoinedCols);
-      TableAnalysis * leftJoinedTA = getNodeAnalysis()->
-                                          getTableAnalysis();
+      TableAnalysis *leftJoinedTA = getNodeAnalysis()->getTableAnalysis();
 
-      if(leftJoinedTA)
-      {
-        TableDesc * leftJoinedTDesc = leftJoinedTA->getTableDesc();
+      if (leftJoinedTA) {
+        TableDesc *leftJoinedTDesc = leftJoinedTA->getTableDesc();
         ValueIdSet primaryKeyCols = leftJoinedTDesc->getPrimaryKeyColumns();
 
-        if(leftJoinedCols.contains(primaryKeyCols))
-          isGuaranteedEqualizer_ = 1;
+        if (leftJoinedCols.contains(primaryKeyCols)) isGuaranteedEqualizer_ = 1;
       }
     }
   }
@@ -4807,38 +3809,28 @@ NABoolean JBBC::isGuaranteedEqualizer()
   return isGuaranteedEqualizer_;
 }
 
-NABoolean JBBC::hasNonExpandingJoin()
-{
+NABoolean JBBC::hasNonExpandingJoin() {
+  if (hasNonExpandingJoin_ != -1) return hasNonExpandingJoin_;
 
-  if(hasNonExpandingJoin_ != -1)
-    return hasNonExpandingJoin_;
+  Join *jbbcParentJoin = getOriginalParentJoin();
 
-  Join * jbbcParentJoin = getOriginalParentJoin();
-
-  if(jbbcParentJoin &&
-     (jbbcParentJoin->isSemiJoin() ||
-      jbbcParentJoin->isAntiSemiJoin()))
-    return TRUE;
+  if (jbbcParentJoin && (jbbcParentJoin->isSemiJoin() || jbbcParentJoin->isAntiSemiJoin())) return TRUE;
 
   ValueIdSet joinPreds = getJoinPreds();
 
   joinPreds += getPredsWithPredecessors();
 
-  NodeAnalysis * jbbcNodeAnalysis = getNodeAnalysis();
+  NodeAnalysis *jbbcNodeAnalysis = getNodeAnalysis();
 
-  RelExpr * jbbcExpr = jbbcNodeAnalysis->getOriginalExpr();
-  GroupAttributes * jbbcGA = jbbcExpr->getGroupAttr();
+  RelExpr *jbbcExpr = jbbcNodeAnalysis->getOriginalExpr();
+  GroupAttributes *jbbcGA = jbbcExpr->getGroupAttr();
   ValueIdSet equalityCols;
 
-  for (ValueId x = joinPreds.init();
-                   joinPreds.next(x);
-                   joinPreds.advance(x) )
-  {
-    ItemExpr * ie = x.getItemExpr();
+  for (ValueId x = joinPreds.init(); joinPreds.next(x); joinPreds.advance(x)) {
+    ItemExpr *ie = x.getItemExpr();
     OperatorType ot = ie->getOperator();
-    if(ot == ITM_VEG_PREDICATE)
-    {
-      VEGPredicate * vegPred = (VEGPredicate *) ie;
+    if (ot == ITM_VEG_PREDICATE) {
+      VEGPredicate *vegPred = (VEGPredicate *)ie;
       equalityCols.insert(vegPred->getVEG()->getVEGReference()->getValueId());
     }
   }
@@ -4846,8 +3838,7 @@ NABoolean JBBC::hasNonExpandingJoin()
   // add predicates that did not become a VEG and are against a single JBBC
   // this should capture something like t1.a = t2.a + 1
   // this will miss something like t1.a = t2.a + t3.a
-  if(jbbcNodeAnalysis->getTableAnalysis())
-  {
+  if (jbbcNodeAnalysis->getTableAnalysis()) {
     equalityCols += jbbcNodeAnalysis->getTableAnalysis()->getEqualityConnectedCols();
   }
 
@@ -4856,8 +3847,7 @@ NABoolean JBBC::hasNonExpandingJoin()
   return hasNonExpandingJoin_;
 }
 
-const NAString JBBC::getText() const
-{
+const NAString JBBC::getText() const {
   NAString result("JBBC # ");
   result += istring(caNodeAnalysis_->getId()) + ":\n";
   result += "Child of JBB#" + istring(jbb_->getJBBId()) + "\n";
@@ -4872,17 +3862,9 @@ const NAString JBBC::getText() const
   return result;
 }
 
-void JBBC::display() const
-{
-  print();
-}
+void JBBC::display() const { print(); }
 
-void JBBC::print (FILE *f,
-	      const char * prefix,
-	      const char * suffix) const
-{
-  fprintf (f, "%s", (const char*)getText());
-}
+void JBBC::print(FILE *f, const char *prefix, const char *suffix) const { fprintf(f, "%s", (const char *)getText()); }
 
 // -----------------------------------------------------------------------
 // Methods for class JBBSubset
@@ -4890,8 +3872,7 @@ void JBBC::print (FILE *f,
 
 // Get all the join predicates (no dependency) between this JBBItem
 // and the other JBBSubset
-ValueIdSet JBBSubset::joinPredsWithOther(const JBBSubset & other) const
-{
+ValueIdSet JBBSubset::joinPredsWithOther(const JBBSubset &other) const {
   ValueIdSet predSet = getJoinPreds();
   predSet.intersectSet(other.getJoinPreds());
 
@@ -4901,38 +3882,30 @@ ValueIdSet JBBSubset::joinPredsWithOther(const JBBSubset & other) const
 
   ValueIdSet result;
 
-  for (ValueId pred = predSet.init();
-       predSet.next(pred);
-       predSet.advance(pred))
-  {
-    if (combinedSubset.coversExpr(pred))
-      result += pred;
+  for (ValueId pred = predSet.init(); predSet.next(pred); predSet.advance(pred)) {
+    if (combinedSubset.coversExpr(pred)) result += pred;
   }
 
   return result;
 }
 
-Join * JBBSubset::getPreferredJoin()
-{
-  if(jbbcs_.entries() < 2)
-    return NULL;
+Join *JBBSubset::getPreferredJoin() {
+  if (jbbcs_.entries() < 2) return NULL;
 
-  MultiJoin * subsetMJ = getSubsetMJ();
+  MultiJoin *subsetMJ = getSubsetMJ();
 
-  if(!subsetMJ)
-  {
+  if (!subsetMJ) {
     CANodeIdSet allJBBCs = getJBB()->getMainJBBSubset().getJBBCs();
-    JBBSubset * mainJBBSubset = allJBBCs.jbbcsToJBBSubset();
-    MultiJoin * jbbMJ = mainJBBSubset->getSubsetMJ();
+    JBBSubset *mainJBBSubset = allJBBCs.jbbcsToJBBSubset();
+    MultiJoin *jbbMJ = mainJBBSubset->getSubsetMJ();
     NABoolean reUseMJ = TRUE;
     subsetMJ = jbbMJ->createSubsetMultiJoin(*this, reUseMJ);
     subsetMJ->synthLogPropWithMJReuse();
   }
 
-  Join * preferredJoin = subsetMJ->getPreferredJoin();
-  
-  if(!preferredJoin->isJoinFromMJSynthLogProp())
-  {
+  Join *preferredJoin = subsetMJ->getPreferredJoin();
+
+  if (!preferredJoin->isJoinFromMJSynthLogProp()) {
     CCMPASSERT(FALSE);
     subsetMJ->synthLogPropWithMJReuse();
   }
@@ -4940,19 +3913,16 @@ Join * JBBSubset::getPreferredJoin()
   return subsetMJ->getPreferredJoin();
 }
 
-  // union of both getJBBCs() and getGB()
-CANodeIdSet JBBSubset::getJBBCsAndGB() const
-  {
-    // I may endup caching this as member (depending on usage frequency)
-    CANodeIdSet jbbcsAndGB = jbbcs_;
-	if (gb_ != NULL_CA_ID)
-	  jbbcsAndGB.insert(gb_);
-	return jbbcsAndGB;
-  }
+// union of both getJBBCs() and getGB()
+CANodeIdSet JBBSubset::getJBBCsAndGB() const {
+  // I may endup caching this as member (depending on usage frequency)
+  CANodeIdSet jbbcsAndGB = jbbcs_;
+  if (gb_ != NULL_CA_ID) jbbcsAndGB.insert(gb_);
+  return jbbcsAndGB;
+}
 
 // Get all JBBCs that are have no join predicate with this JBBSubset.
-CANodeIdSet JBBSubset::getJBBCsThatXProductWithMe() const
-{
+CANodeIdSet JBBSubset::getJBBCsThatXProductWithMe() const {
   CANodeIdSet result = getJBB()->getMainJBBSubset().getJBBCs();
   result.subtractSet(getJBBCs());
   result.subtractSet(getJoinedJBBCs());
@@ -4963,9 +3933,8 @@ CANodeIdSet JBBSubset::getJBBCsThatXProductWithMe() const
 
 // Copy the JBBCs and GB from other JBBSubset.
 // This method copy the JBBSubset without copying its heap_ affiliation.
-void JBBSubset::copySubsetMembers(const JBBSubset & other)
-{
-  jbbcs_= other.jbbcs_;
+void JBBSubset::copySubsetMembers(const JBBSubset &other) {
+  jbbcs_ = other.jbbcs_;
   gb_ = other.gb_;
   // instead of clearing Analysis, its a good idea to copy the pointer
   // jbbSubsetAnalysis_ as well. Its either null (so thats like clearing it)
@@ -4976,11 +3945,9 @@ void JBBSubset::copySubsetMembers(const JBBSubset & other)
 
 // Subtract the content (JBBCs and GB) of other JBBSubset from this
 // JBBSubset. This method side-effect this JBBSubset.
-void JBBSubset::subtractSubset(const JBBSubset & other)
-{
+void JBBSubset::subtractSubset(const JBBSubset &other) {
   jbbcs_ -= other.getJBBCs();
-  if (gb_ == other.getGB())
-  {
+  if (gb_ == other.getGB()) {
     gb_ = NULL_CA_ID;
   }
   clearAnalysis();
@@ -4988,12 +3955,10 @@ void JBBSubset::subtractSubset(const JBBSubset & other)
 
 // add the content (JBBCs and GB) of other JBBSubset to this
 // JBBSubset. This method side-effect this JBBSubset.
-void JBBSubset::addSubset(const JBBSubset & other)
-{
+void JBBSubset::addSubset(const JBBSubset &other) {
   jbbcs_ += other.getJBBCs();
   CANodeId othersGB = other.getGB();
-  if (othersGB != NULL_CA_ID)
-  {
+  if (othersGB != NULL_CA_ID) {
     CMPASSERT((gb_ == NULL_CA_ID) || (gb_ == othersGB))
     gb_ = othersGB;
   }
@@ -5006,17 +3971,14 @@ void JBBSubset::addSubset(const JBBSubset & other)
 // xxx: this function will be moved to JBBSubsetAnalysis
 // Note: this method will retire now since numConnectedSubgraphs()
 // does its job.
-NABoolean JBBSubset::hasMandatoryXP() const
-{
-  if (jbbcs_.entries() < 2)
-    return FALSE;
+NABoolean JBBSubset::hasMandatoryXP() const {
+  if (jbbcs_.entries() < 2) return FALSE;
 
   CANodeIdSet available(jbbcs_);
   CANodeIdSet frontNodes(available.getFirst());
 
   CANodeId currNode;
-  while ((frontNodes.entries() != 0) && (available.entries() != 0))
-  {
+  while ((frontNodes.entries() != 0) && (available.entries() != 0)) {
     currNode = frontNodes.getFirst();
     available -= currNode;
     CANodeIdSet newNodes(currNode.getNodeAnalysis()->getJBBC()->getJoinedJBBCs());
@@ -5029,7 +3991,7 @@ NABoolean JBBSubset::hasMandatoryXP() const
     frontNodes += newNodes;
     frontNodes -= currNode;
   }
-  if (available.entries() !=0)
+  if (available.entries() != 0)
     return TRUE;
   else
     return FALSE;
@@ -5037,11 +3999,8 @@ NABoolean JBBSubset::hasMandatoryXP() const
 
 // Calculate number of disjunct subgraphs in this JBBSubset
 // xxx: this function will be moved to JBBSubsetAnalysis
-Lng32 JBBSubset::numConnectedSubgraphs(NABoolean followSuccessors, 
-                                      NABoolean pullInPredecessors) const
-{
-  if (jbbcs_.entries() < 1)
-    return 0;
+Lng32 JBBSubset::numConnectedSubgraphs(NABoolean followSuccessors, NABoolean pullInPredecessors) const {
+  if (jbbcs_.entries() < 1) return 0;
 
   Lng32 numSubgraphs = 1;
 
@@ -5049,31 +4008,23 @@ Lng32 JBBSubset::numConnectedSubgraphs(NABoolean followSuccessors,
   CANodeId frontNode;
 
   // pick a node that does not have predecessors
-  for(frontNode = available.init();
-      available.next(frontNode);
-      available.advance(frontNode))
-  {
-    JBBC * frontNodeJBBC = frontNode.getNodeAnalysis()->getJBBC();
-    CANodeIdSet frontNodePredecessors =
-      frontNodeJBBC->getPredecessorJBBCs();
-    if(!frontNodePredecessors.entries())
-      break;
+  for (frontNode = available.init(); available.next(frontNode); available.advance(frontNode)) {
+    JBBC *frontNodeJBBC = frontNode.getNodeAnalysis()->getJBBC();
+    CANodeIdSet frontNodePredecessors = frontNodeJBBC->getPredecessorJBBCs();
+    if (!frontNodePredecessors.entries()) break;
   }
 
   CANodeIdSet frontNodes(frontNode);
 
   CANodeId currNode;
-  while (available.entries() != 0)
-  {
+  while (available.entries() != 0) {
     currNode = frontNodes.getFirst();
     available -= currNode;
     CANodeIdSet newNodes(currNode.getNodeAnalysis()->getJBBC()->getJoinedJBBCs());
 
-    if(followSuccessors)
-      newNodes += currNode.getNodeAnalysis()->getJBBC()->getSuccessorJBBCs();
+    if (followSuccessors) newNodes += currNode.getNodeAnalysis()->getJBBC()->getSuccessorJBBCs();
 
-    if(pullInPredecessors)
-      newNodes += currNode.getNodeAnalysis()->getJBBC()->getPredecessorJBBCs();
+    if (pullInPredecessors) newNodes += currNode.getNodeAnalysis()->getJBBC()->getPredecessorJBBCs();
 
     // execlude nodes that are already tested and nodes that are outside
     // this JBBSubset jbbcs
@@ -5086,8 +4037,7 @@ Lng32 JBBSubset::numConnectedSubgraphs(NABoolean followSuccessors,
     // Check to see if we finished all nodes in current subgraph
     // In that case start a new subgraph, unless this is the last
     // subgraph i.e available set is empty.
-    if ((frontNodes.entries() == 0) && (available.entries() > 0))
-    {
+    if ((frontNodes.entries() == 0) && (available.entries() > 0)) {
       frontNodes += available.getFirst();
       numSubgraphs++;
     }
@@ -5096,30 +4046,22 @@ Lng32 JBBSubset::numConnectedSubgraphs(NABoolean followSuccessors,
   return numSubgraphs;
 }
 
+NAList<CANodeIdSet *> *JBBSubsetAnalysis::getConnectedSubgraphs(NABoolean followSuccessors,
+                                                                NABoolean pullInPredecessors) {
+  if (connectedSubgraphs_ && followSuccessors && (!pullInPredecessors)) return connectedSubgraphs_;
 
-NAList<CANodeIdSet*>* JBBSubsetAnalysis::getConnectedSubgraphs(NABoolean followSuccessors,
-                                                               NABoolean pullInPredecessors)
-{
-  if (connectedSubgraphs_ && followSuccessors && (!pullInPredecessors))
-    return connectedSubgraphs_;
+  NAList<CANodeIdSet *> *connectedSubgraphs = new (heap_) NAList<CANodeIdSet *>(heap_);
 
-  NAList<CANodeIdSet*>* connectedSubgraphs = new (heap_) NAList<CANodeIdSet*>(heap_);
-
-  //long numSubgraphs = 1;
+  // long numSubgraphs = 1;
   CANodeIdSet available(jbbcs_);
 
   CANodeId frontNode;
 
   // pick a node that does not have predecessors
-  for(frontNode = available.init();
-      available.next(frontNode);
-      available.advance(frontNode))
-  {
-    JBBC * frontNodeJBBC = frontNode.getNodeAnalysis()->getJBBC();
-    CANodeIdSet frontNodePredecessors =
-      frontNodeJBBC->getPredecessorJBBCs();
-    if(!frontNodePredecessors.entries())
-      break;
+  for (frontNode = available.init(); available.next(frontNode); available.advance(frontNode)) {
+    JBBC *frontNodeJBBC = frontNode.getNodeAnalysis()->getJBBC();
+    CANodeIdSet frontNodePredecessors = frontNodeJBBC->getPredecessorJBBCs();
+    if (!frontNodePredecessors.entries()) break;
   }
 
   CANodeIdSet frontNodes(frontNode);
@@ -5127,20 +4069,17 @@ NAList<CANodeIdSet*>* JBBSubsetAnalysis::getConnectedSubgraphs(NABoolean followS
   CANodeId currNode;
   CANodeIdSet currSubgraph;
 
-  while (available.entries() != 0)
-  {
+  while (available.entries() != 0) {
     currNode = frontNodes.getFirst();
     currSubgraph += currNode;
 
     available -= currNode;
     CANodeIdSet newNodes(currNode.getNodeAnalysis()->getJBBC()->getJoinedJBBCs());
 
-    if(followSuccessors)
-      newNodes += currNode.getNodeAnalysis()->getJBBC()->getSuccessorJBBCs();
+    if (followSuccessors) newNodes += currNode.getNodeAnalysis()->getJBBC()->getSuccessorJBBCs();
 
-    if(pullInPredecessors)
-      newNodes += currNode.getNodeAnalysis()->getJBBC()->getPredecessorJBBCs();
-      
+    if (pullInPredecessors) newNodes += currNode.getNodeAnalysis()->getJBBC()->getPredecessorJBBCs();
+
     // execlude nodes that are already tested and nodes that are outside
     // this JBBSubset jbbcs
     newNodes.intersectSet(available);
@@ -5154,32 +4093,27 @@ NAList<CANodeIdSet*>* JBBSubsetAnalysis::getConnectedSubgraphs(NABoolean followS
     // Check to see if we finished all nodes in current subgraph
     // In that case start a new subgraph, unless this is the last
     // subgraph i.e available set is empty.
-    if ((frontNodes.entries() == 0) && (available.entries() > 0))
-    {
+    if ((frontNodes.entries() == 0) && (available.entries() > 0)) {
       frontNodes += available.getFirst();
       connectedSubgraphs->insert(new (heap_) CANodeIdSet(currSubgraph, heap_));
-      //numSubgraphs++;
+      // numSubgraphs++;
       currSubgraph.clear();
     }
   }
 
   connectedSubgraphs->insert(new (heap_) CANodeIdSet(currSubgraph, heap_));
 
-  if (followSuccessors)
-    connectedSubgraphs_ = connectedSubgraphs;
-  
+  if (followSuccessors) connectedSubgraphs_ = connectedSubgraphs;
+
   return connectedSubgraphs;
 }
 
-
-CANodeIdSet JBBSubsetAnalysis::getInputSubgraph(CANodeId node, NABoolean followSuccessors) const
-{
-  
+CANodeIdSet JBBSubsetAnalysis::getInputSubgraph(CANodeId node, NABoolean followSuccessors) const {
   CANodeIdSet inputSubgraph;
 
-  //long numSubgraphs = 1;
+  // long numSubgraphs = 1;
   CANodeIdSet available(jbbcs_);
-  
+
   available -= node;
 
   CANodeIdSet frontNodes(node.getNodeAnalysis()->getJBBC()->getPredecessorJBBCs());
@@ -5188,18 +4122,16 @@ CANodeIdSet JBBSubsetAnalysis::getInputSubgraph(CANodeId node, NABoolean followS
   CANodeId currNode;
   CANodeIdSet currSubgraph;
 
-  while (available.entries() != 0)
-  {
+  while (available.entries() != 0) {
     currNode = frontNodes.getFirst();
     inputSubgraph += currNode;
 
     available -= currNode;
     CANodeIdSet newNodes(currNode.getNodeAnalysis()->getJBBC()->getJoinedJBBCs());
 
-    if(followSuccessors)
-      newNodes += currNode.getNodeAnalysis()->getJBBC()->getSuccessorJBBCs();
+    if (followSuccessors) newNodes += currNode.getNodeAnalysis()->getJBBC()->getSuccessorJBBCs();
     newNodes += currNode.getNodeAnalysis()->getJBBC()->getPredecessorJBBCs();
-    
+
     // execlude nodes that are already tested and nodes that are outside
     // this JBBSubset jbbcs
     newNodes.intersectSet(available);
@@ -5213,61 +4145,47 @@ CANodeIdSet JBBSubsetAnalysis::getInputSubgraph(CANodeId node, NABoolean followS
     // Check to see if we finished all nodes in current subgraph
     // In that case start a new subgraph, unless this is the last
     // subgraph i.e available set is empty.
-    if (frontNodes.entries() == 0)
-      break;
+    if (frontNodes.entries() == 0) break;
   }
 
   return inputSubgraph;
 }
-  
-CANodeIdSet JBBSubset::getSubtreeTables() const
-{
+
+CANodeIdSet JBBSubset::getSubtreeTables() const {
   CANodeIdSet result;
 
-  for (CANodeId x= jbbcs_.init();  jbbcs_.next(x); jbbcs_.advance(x) )
-  {
+  for (CANodeId x = jbbcs_.init(); jbbcs_.next(x); jbbcs_.advance(x)) {
     result += x.getNodeAnalysis()->getJBBC()->getSubtreeTables();
   }
 
   return result;
 }
 
-ValueIdSet CANodeIdSet::getUsedCols() const
-{
+ValueIdSet CANodeIdSet::getUsedCols() const {
   ValueIdSet usedCols;
   usedCols.clear();
 
-  for (CANodeId table = init();
-				next(table);
-				advance(table) )
-  {
-	usedCols += table.getNodeAnalysis()->getTableAnalysis()->getUsedCols();
+  for (CANodeId table = init(); next(table); advance(table)) {
+    usedCols += table.getNodeAnalysis()->getTableAnalysis()->getUsedCols();
   }
   return usedCols;
 }
 
-ValueIdSet CANodeId::getUsedTableCols()
-{
+ValueIdSet CANodeId::getUsedTableCols() {
   ValueIdSet usedCols;
   usedCols.clear();
 
-  if((!getNodeAnalysis()) ||
-     (!(getNodeAnalysis()->getTableAnalysis())))
-    return usedCols;
-    
+  if ((!getNodeAnalysis()) || (!(getNodeAnalysis()->getTableAnalysis()))) return usedCols;
+
   return getNodeAnalysis()->getTableAnalysis()->getUsedCols();
 }
 
-ValueIdSet CANodeIdSet::getUsedTableCols()
-{
+ValueIdSet CANodeIdSet::getUsedTableCols() {
   ValueIdSet usedCols;
   usedCols.clear();
 
-  for (CANodeId table = init();
-        next(table);
-        advance(table) )
-  {
-  usedCols += table.getUsedTableCols();
+  for (CANodeId table = init(); next(table); advance(table)) {
+    usedCols += table.getUsedTableCols();
   }
   return usedCols;
 }
@@ -5277,93 +4195,72 @@ ValueIdSet CANodeIdSet::getUsedTableCols()
 // local predicates to individual JBBCs
 // ------------------------------------------------------------------------
 
-CostScalar JBBSubset::getMinimumJBBCRowCount() const
-{
-
+CostScalar JBBSubset::getMinimumJBBCRowCount() const {
   CostScalar minimumRowCount = COSTSCALAR_MAX;
 
-  //Get a handle to ASM
-  AppliedStatMan * appStatMan = QueryAnalysis::ASM();
+  // Get a handle to ASM
+  AppliedStatMan *appStatMan = QueryAnalysis::ASM();
 
-  for (CANodeId x= jbbcs_.init();  jbbcs_.next(x); jbbcs_.advance(x) )
-  {
+  for (CANodeId x = jbbcs_.init(); jbbcs_.next(x); jbbcs_.advance(x)) {
     CostScalar cardx = appStatMan->getStatsForCANodeId(x)->getResultCardinality();
-    if (cardx < minimumRowCount)
-      minimumRowCount = cardx;
+    if (cardx < minimumRowCount) minimumRowCount = cardx;
   }
 
   return minimumRowCount;
 
-} // JBBSubset::getMinimumJBBCRowCount
+}  // JBBSubset::getMinimumJBBCRowCount
 
-NABoolean JBBSubset::isGuaranteedNonExpandingJoin(JBBC jbbc)
-{
+NABoolean JBBSubset::isGuaranteedNonExpandingJoin(JBBC jbbc) {
   CANodeIdSet thisSetJBBCs = getJBBCs();
 
-  if(!thisSetJBBCs.entries())
-    return TRUE;
+  if (!thisSetJBBCs.entries()) return TRUE;
 
-  Join * jbbcParentJoin = jbbc.getOriginalParentJoin();
+  Join *jbbcParentJoin = jbbc.getOriginalParentJoin();
 
   CANodeIdSet successorJBBCs = getSuccessorJBBCs();
 
-  if(successorJBBCs.contains(jbbc.getId()) &&
-     jbbcParentJoin &&
-     (jbbcParentJoin->isSemiJoin() ||
-      jbbcParentJoin->isAntiSemiJoin()))
+  if (successorJBBCs.contains(jbbc.getId()) && jbbcParentJoin &&
+      (jbbcParentJoin->isSemiJoin() || jbbcParentJoin->isAntiSemiJoin()))
     return TRUE;
 
-  CANodeIdSet jbbcsThatCanComeBefore =
-    jbbc.getJoinedJBBCs();
-  jbbcsThatCanComeBefore +=
-    jbbc.getPredecessorJBBCs();
+  CANodeIdSet jbbcsThatCanComeBefore = jbbc.getJoinedJBBCs();
+  jbbcsThatCanComeBefore += jbbc.getPredecessorJBBCs();
 
   jbbcsThatCanComeBefore.intersectSet(thisSetJBBCs);
 
-  if(!jbbcsThatCanComeBefore.entries())
-    return FALSE;
+  if (!jbbcsThatCanComeBefore.entries()) return FALSE;
 
-  JBBSubset * jbbcSubset =
-    ((CANodeIdSet)jbbc.getId()).jbbcsToJBBSubset();
+  JBBSubset *jbbcSubset = ((CANodeIdSet)jbbc.getId()).jbbcsToJBBSubset();
 
-  JBBSubset * connectedJBBCs =
-    jbbcsThatCanComeBefore.jbbcsToJBBSubset();
+  JBBSubset *connectedJBBCs = jbbcsThatCanComeBefore.jbbcsToJBBSubset();
 
-  ValueIdSet connectingPreds =
-    connectedJBBCs->joinPredsWithOther(*jbbcSubset);
+  ValueIdSet connectingPreds = connectedJBBCs->joinPredsWithOther(*jbbcSubset);
 
-  ValueIdSet jbbcPredsWithPredecessors =
-    jbbc.getPredsWithPredecessors();
+  ValueIdSet jbbcPredsWithPredecessors = jbbc.getPredsWithPredecessors();
 
   jbbcPredsWithPredecessors.intersectSet(connectedJBBCs->getPredsWithSuccessors());
 
   connectingPreds += jbbcPredsWithPredecessors;
 
-  NodeAnalysis * jbbcNodeAnalysis = jbbc.getNodeAnalysis();
+  NodeAnalysis *jbbcNodeAnalysis = jbbc.getNodeAnalysis();
 
-  RelExpr * jbbcExpr = jbbcNodeAnalysis->getOriginalExpr();
-  TableAnalysis * jbbcTable = jbbcNodeAnalysis->getTableAnalysis();
+  RelExpr *jbbcExpr = jbbcNodeAnalysis->getOriginalExpr();
+  TableAnalysis *jbbcTable = jbbcNodeAnalysis->getTableAnalysis();
   ValueIdSet equalityConnectingPreds;
-  if(jbbcTable)
-    equalityConnectingPreds = jbbcTable->getEqualityConnectingPreds();
-  
-  GroupAttributes * jbbcGA = jbbcExpr->getGroupAttr();
+  if (jbbcTable) equalityConnectingPreds = jbbcTable->getEqualityConnectingPreds();
+
+  GroupAttributes *jbbcGA = jbbcExpr->getGroupAttr();
   ValueIdSet ColVegRefSet;
 
-  for (ValueId x = connectingPreds.init();
-                   connectingPreds.next(x);
-                   connectingPreds.advance(x) )
-  {
-    ItemExpr * ie = x.getItemExpr();
+  for (ValueId x = connectingPreds.init(); connectingPreds.next(x); connectingPreds.advance(x)) {
+    ItemExpr *ie = x.getItemExpr();
     OperatorType ot = ie->getOperator();
-    if(ot == ITM_VEG_PREDICATE)
-    {
-      VEGPredicate * vegPred = (VEGPredicate *) ie;
+    if (ot == ITM_VEG_PREDICATE) {
+      VEGPredicate *vegPred = (VEGPredicate *)ie;
       ColVegRefSet.insert(vegPred->getVEG()->getVEGReference()->getValueId());
     }
-    
-    if(equalityConnectingPreds.contains(x))
-      ColVegRefSet.insert(jbbcTable->getEqualityConnectedCol(x));
+
+    if (equalityConnectingPreds.contains(x)) ColVegRefSet.insert(jbbcTable->getEqualityConnectedCol(x));
   }
 
   return jbbcGA->isUnique(ColVegRefSet);
@@ -5372,39 +4269,29 @@ NABoolean JBBSubset::isGuaranteedNonExpandingJoin(JBBC jbbc)
 // verify integrity of the JBBSubset. That is
 // jbbcs_ contains only jbbcs from same JBB
 // gb_ belongs to a group by of the same JBB
-NABoolean JBBSubset::verify()
-{
-  xxx(); // never called for now
+NABoolean JBBSubset::verify() {
+  xxx();  // never called for now
   return FALSE;
 }
 
-const NAString JBBSubset::getText() const
-{
+const NAString JBBSubset::getText() const {
   NAString result("JBBSubset : {");
 
-  for (CANodeId x= jbbcs_.init();  jbbcs_.next(x); jbbcs_.advance(x) )
-  {
+  for (CANodeId x = jbbcs_.init(); jbbcs_.next(x); jbbcs_.advance(x)) {
     result += " " + istring(x) + " ";
   }
 
-  if (gb_ != NULL_CA_ID)
-    result += "; " + istring(gb_);
+  if (gb_ != NULL_CA_ID) result += "; " + istring(gb_);
 
   result += "}\n";
 
   return result;
 }
 
-void JBBSubset::display() const
-{
-  print();
-}
+void JBBSubset::display() const { print(); }
 
-void JBBSubset::print (FILE *f,
-	      const char * prefix,
-	      const char * suffix) const
-{
-  fprintf (f, "%s", (const char*)getText());
+void JBBSubset::print(FILE *f, const char *prefix, const char *suffix) const {
+  fprintf(f, "%s", (const char *)getText());
 }
 
 // -----------------------------------------------------------------------
@@ -5412,12 +4299,9 @@ void JBBSubset::print (FILE *f,
 // -----------------------------------------------------------------------
 
 // construct a JBBSubsetAnalysis
-JBBSubsetAnalysis::JBBSubsetAnalysis(const JBBSubset & subset,
-                                     CollHeap *outHeap)
-  :leftDeepJoinSequence_(CmpCommon::statementHeap(),
-                         subset.getJBBCs().entries()),
-   matchingMVs_(CmpCommon::statementHeap())
-{
+JBBSubsetAnalysis::JBBSubsetAnalysis(const JBBSubset &subset, CollHeap *outHeap)
+    : leftDeepJoinSequence_(CmpCommon::statementHeap(), subset.getJBBCs().entries()),
+      matchingMVs_(CmpCommon::statementHeap()) {
   heap_ = outHeap;
   jbb_ = subset.getJBB();
   jbbcs_ = subset.getJBBCs();
@@ -5425,13 +4309,13 @@ JBBSubsetAnalysis::JBBSubsetAnalysis(const JBBSubset & subset,
   gb_ = subset.getGB();
   allMembers_ = subset.getJBBCsAndGB();
   allJoinsInnerNonSemi_ = TRUE;
-  connectedSubgraphs_ = NULL; // on demand only
+  connectedSubgraphs_ = NULL;  // on demand only
   mjRulesWA_ = NULL;
-  mjStarJoinIRuleWA_ = NULL; // this will be created and passed in by
-                             // MJStarJoinIRule
+  mjStarJoinIRuleWA_ = NULL;  // this will be created and passed in by
+                              // MJStarJoinIRule
 
   legality_ = NOT_KNOWN;
-  
+
   computedFactAndLargestTable_ = FALSE;
   factTable_ = NULL_CA_ID;
   largestTable_ = NULL_CA_ID;
@@ -5439,7 +4323,7 @@ JBBSubsetAnalysis::JBBSubsetAnalysis(const JBBSubset & subset,
   computedLargestIndependentNode_ = FALSE;
   largestIndependentNode_ = NULL_CA_ID;
 
-  starJoinTypeIFeasible_ =  FALSE;
+  starJoinTypeIFeasible_ = FALSE;
   analyzedInitialPlan_ = FALSE;
 
   centerTableComputed_ = FALSE;
@@ -5462,8 +4346,7 @@ JBBSubsetAnalysis::JBBSubsetAnalysis(const JBBSubset & subset,
 }
 
 // which JBBCs can I add to this subset while reserving its self-dpendency
-CANodeIdSet JBBSubsetAnalysis::legalJBBCAdditions() const
-{
+CANodeIdSet JBBSubsetAnalysis::legalJBBCAdditions() const {
   // for now, all other JBBCs are legal additions
   // when we include dependency joins, we need to use
   // dependency graph for this.
@@ -5473,8 +4356,7 @@ CANodeIdSet JBBSubsetAnalysis::legalJBBCAdditions() const
 }
 
 // initialize JBBSubsetAnalysis computable fields
-void JBBSubsetAnalysis::init()
-{
+void JBBSubsetAnalysis::init() {
   joinedJBBCs_.clear();
   successorJBBCs_.clear();
   predecessorJBBCs_.clear();
@@ -5484,18 +4366,16 @@ void JBBSubsetAnalysis::init()
 
   CANodeId i;
 
-  for (i = jbbcs_.init();  jbbcs_.next(i); jbbcs_.advance(i) )
-  {
-    JBBC* jbbc = i.getNodeAnalysis()->getJBBC();
+  for (i = jbbcs_.init(); jbbcs_.next(i); jbbcs_.advance(i)) {
+    JBBC *jbbc = i.getNodeAnalysis()->getJBBC();
     joinedJBBCs_ += jbbc->getJoinedJBBCs();
     successorJBBCs_ += jbbc->getSuccessorJBBCs();
     predecessorJBBCs_ += jbbc->getPredecessorJBBCs();
     tmpJoinPreds += jbbc->getJoinPreds();
     tmpSuccessorPreds += jbbc->getPredsWithSuccessors();
     tmpPredecessorPreds += jbbc->getPredsWithPredecessors();
-    Join * parentJoin = jbbc->getOriginalParentJoin();
-    if(parentJoin && !(parentJoin->isInnerNonSemiNonTSJJoin()))
-      allJoinsInnerNonSemi_ = FALSE;
+    Join *parentJoin = jbbc->getOriginalParentJoin();
+    if (parentJoin && !(parentJoin->isInnerNonSemiNonTSJJoin())) allJoinsInnerNonSemi_ = FALSE;
   }
 
   // take subset members out
@@ -5508,55 +4388,42 @@ void JBBSubsetAnalysis::init()
   predsWithPredecessors_.clear();
 
   // now loop over joinedJBBCs_ etc to compute joinPreds_ etc
-  for (i = joinedJBBCs_.init();
-       joinedJBBCs_.next(i);
-       joinedJBBCs_.advance(i) )
-  {
-    JBBC* jbbc = i.getNodeAnalysis()->getJBBC();
+  for (i = joinedJBBCs_.init(); joinedJBBCs_.next(i); joinedJBBCs_.advance(i)) {
+    JBBC *jbbc = i.getNodeAnalysis()->getJBBC();
     ValueIdSet currentPreds = jbbc->getJoinPreds();
     // include joinPreds from current JBBC that are
     // joinPreds for some JBBC in this JBBSubset
     joinPreds_ += currentPreds.intersectSet(tmpJoinPreds);
   }
 
-  for (i = successorJBBCs_.init();
-       successorJBBCs_.next(i);
-       successorJBBCs_.advance(i) )
-  {
-    JBBC* jbbc = i.getNodeAnalysis()->getJBBC();
+  for (i = successorJBBCs_.init(); successorJBBCs_.next(i); successorJBBCs_.advance(i)) {
+    JBBC *jbbc = i.getNodeAnalysis()->getJBBC();
     ValueIdSet currentPreds = jbbc->getPredsWithPredecessors();
     // include myDependentPreds from current JBBC that are
     // dependentPreds for some JBBC in this JBBSubset
     predsWithSuccessors_ += currentPreds.intersectSet(tmpSuccessorPreds);
   }
 
-  for (i = predecessorJBBCs_.init();
-       predecessorJBBCs_.next(i);
-       predecessorJBBCs_.advance(i) )
-  {
-    JBBC* jbbc = i.getNodeAnalysis()->getJBBC();
+  for (i = predecessorJBBCs_.init(); predecessorJBBCs_.next(i); predecessorJBBCs_.advance(i)) {
+    JBBC *jbbc = i.getNodeAnalysis()->getJBBC();
     ValueIdSet currentPreds = jbbc->getPredsWithSuccessors();
     // include dependentPreds from current JBBC that are
     // myDependentPreds for some JBBC in this JBBSubset
     predsWithPredecessors_ += currentPreds.intersectSet(tmpPredecessorPreds);
   }
 
-  if(jbbcs_.entries() == 1)
-  {
-     synthLogPropPath_ =
-       new (CmpCommon::statementHeap()) 
-       CASortedList(CmpCommon::statementHeap(), jbbcs_.entries());
-     
-     (*synthLogPropPath_).insert(jbbcs_.getFirst());
+  if (jbbcs_.entries() == 1) {
+    synthLogPropPath_ = new (CmpCommon::statementHeap()) CASortedList(CmpCommon::statementHeap(), jbbcs_.entries());
+
+    (*synthLogPropPath_).insert(jbbcs_.getFirst());
   }
-  
+
   // xxx consider making this on demand only
   computeLocalJoinPreds();
 }
 
 // compute the join preds between these subset members
-void JBBSubsetAnalysis::computeLocalJoinPreds()
-{
+void JBBSubsetAnalysis::computeLocalJoinPreds() {
   ValueIdSet accumulatedJoinPreds;
   ValueIdSet currentJoinPreds;
   ValueIdSet newLocalJoinPreds;
@@ -5570,9 +4437,8 @@ void JBBSubsetAnalysis::computeLocalJoinPreds()
   // that are referencing more than 1 JBBC is this subset.
   CANodeId i;
 
-  for (i = jbbcs_.init();  jbbcs_.next(i); jbbcs_.advance(i) )
-  {
-    JBBC* jbbc = i.getNodeAnalysis()->getJBBC();
+  for (i = jbbcs_.init(); jbbcs_.next(i); jbbcs_.advance(i)) {
+    JBBC *jbbc = i.getNodeAnalysis()->getJBBC();
     currentJoinPreds = jbbc->getJoinPreds();
     newLocalJoinPreds = currentJoinPreds;
     multipleReferenceJoinPreds += newLocalJoinPreds.intersectSet(accumulatedJoinPreds);
@@ -5590,7 +4456,7 @@ void JBBSubsetAnalysis::computeLocalJoinPreds()
   multipleReferenceJoinPreds -= allPredecessorPreds;
   multipleReferenceJoinPreds -= allConstPredsWithPredecessors;
   multipleReferenceJoinPreds -= allLeftJoinFilterPreds;
-  
+
   // It is now guaranteed that each pred in multipleReferenceJoinPreds references
   // at least two JBBCs. This is necessary but not suffecient condition since it
   // is possible that the pred needs other values not supplied by any JBBC in
@@ -5598,15 +4464,11 @@ void JBBSubsetAnalysis::computeLocalJoinPreds()
 
   localInnerNonSemiJoinPreds_.clear();
 
-  for (ValueId pred = multipleReferenceJoinPreds.init();
-       multipleReferenceJoinPreds.next(pred);
-       multipleReferenceJoinPreds.advance(pred))
-  {
+  for (ValueId pred = multipleReferenceJoinPreds.init(); multipleReferenceJoinPreds.next(pred);
+       multipleReferenceJoinPreds.advance(pred)) {
     // if pred is a VEG then add it to the cache
-    if ((pred.getItemExpr()->getOperatorType() == ITM_VEG_PREDICATE)||
-        coversExpr(pred))
-    {
-      knownCovered_+=pred;
+    if ((pred.getItemExpr()->getOperatorType() == ITM_VEG_PREDICATE) || coversExpr(pred)) {
+      knownCovered_ += pred;
       localInnerNonSemiJoinPreds_ += pred;
     }
   }
@@ -5617,22 +4479,15 @@ void JBBSubsetAnalysis::computeLocalJoinPreds()
   localDependentJoinPreds_.clear();
 
   ValueIdSet allDependentPreds;
-  allDependentPreds +=
-    allPredecessorPreds.intersectSet(allSuccessorPreds);
-  allDependentPreds +=
-    allConstPredsWithPredecessors;
-  allDependentPreds +=
-    allLeftJoinFilterPreds;
+  allDependentPreds += allPredecessorPreds.intersectSet(allSuccessorPreds);
+  allDependentPreds += allConstPredsWithPredecessors;
+  allDependentPreds += allLeftJoinFilterPreds;
 
-  for (ValueId pred = allDependentPreds.init();
-       allDependentPreds.next(pred);
-       allDependentPreds.advance(pred))
-  {
+  for (ValueId pred = allDependentPreds.init(); allDependentPreds.next(pred); allDependentPreds.advance(pred)) {
     // if pred is a VEG then add it to the cache
-    if (//(pred.getItemExpr()->getOperatorType() == ITM_VEG_PREDICATE)||
-        coversExpr(pred))
-    {
-      knownCovered_+=pred;
+    if (  //(pred.getItemExpr()->getOperatorType() == ITM_VEG_PREDICATE)||
+        coversExpr(pred)) {
+      knownCovered_ += pred;
       localDependentJoinPreds_ += pred;
     }
   }
@@ -5646,21 +4501,18 @@ void JBBSubsetAnalysis::computeLocalJoinPreds()
   // localJoinPreds_ is now computed
 }
 
-NABoolean JBBSubsetAnalysis::coversExpr(ValueId vid) const
-{
+NABoolean JBBSubsetAnalysis::coversExpr(ValueId vid) const {
   // first check the known covered and not covered caches
-  if(knownCovered_.contains(vid))
-    return TRUE;
+  if (knownCovered_.contains(vid)) return TRUE;
 
-  if(knownNotCovered_.contains(vid))
-    return FALSE;
+  if (knownNotCovered_.contains(vid)) return FALSE;
 
   // have to do this since we don't want to change the signature to remove
   // the const. The two data members that can be potentially modified are
   // there to cache the result, since a given vid should always return the
   // same result
-  ValueIdSet * knownCovered = const_cast<ValueIdSet*> (&knownCovered_);
-  ValueIdSet * knownNotCovered = const_cast<ValueIdSet*> (&knownNotCovered_);
+  ValueIdSet *knownCovered = const_cast<ValueIdSet *>(&knownCovered_);
+  ValueIdSet *knownNotCovered = const_cast<ValueIdSet *>(&knownNotCovered_);
 
   // if this Expr is already one of my local join predicates then
   // it is covered already. xxx add this to dependent local preds
@@ -5668,62 +4520,50 @@ NABoolean JBBSubsetAnalysis::coversExpr(ValueId vid) const
   // Note: Every localJoinPred is covered by the JBBSubset but *not*
   // every covered pred is part of the localJoinPred. For example
   // a covered subexpression which is evaluated at the JBBC level.
-  if (getLocalJoinPreds().contains(vid))
-  {
-    (*knownCovered)+=vid;
+  if (getLocalJoinPreds().contains(vid)) {
+    (*knownCovered) += vid;
     return TRUE;
   }
 
   NABoolean isAVEGPred = FALSE;
   ValueId vegRefId;
-  
-  if(vid.getItemExpr()->getOperatorType() == ITM_VEG_PREDICATE)
-  {
+
+  if (vid.getItemExpr()->getOperatorType() == ITM_VEG_PREDICATE) {
     isAVEGPred = TRUE;
-    vegRefId = ((VEGPredicate*)(vid.getItemExpr()))->getVEG()->getVEGReference()->getValueId();
+    vegRefId = ((VEGPredicate *)(vid.getItemExpr()))->getVEG()->getVEGReference()->getValueId();
   }
-  
+
   // Otherwise we do the actual check for covering. We uses the
   // isCovered() method on the ItemExpr for that. Use the combined
   // JBBCs outputs for output and the JBB normInputs for inputs.
   ValueIdSet maximumOutput;
-  for (CANodeId x= jbbcs_.init();  jbbcs_.next(x); jbbcs_.advance(x) )
-  {
-    JBBC * jbbc = x.getNodeAnalysis()->getJBBC();
-    Join * parentJoin = jbbc->getOriginalParentJoin();
-    
-    
-    if(!parentJoin || (parentJoin->isInnerNonSemiJoin() ||
-        jbbc->getPredsWithPredecessors().contains(vid)))
-    {
-      ValueIdSet childOutputs = 
-       x.getNodeAnalysis()->getOriginalExpr()->getGroupAttr()->getCharacteristicOutputs();
-       
-      if(jbbc->getPredsWithPredecessors().contains(vid) && isAVEGPred)
-      {
-        if(childOutputs.contains(vegRefId))
-          childOutputs -= vegRefId;
+  for (CANodeId x = jbbcs_.init(); jbbcs_.next(x); jbbcs_.advance(x)) {
+    JBBC *jbbc = x.getNodeAnalysis()->getJBBC();
+    Join *parentJoin = jbbc->getOriginalParentJoin();
+
+    if (!parentJoin || (parentJoin->isInnerNonSemiJoin() || jbbc->getPredsWithPredecessors().contains(vid))) {
+      ValueIdSet childOutputs = x.getNodeAnalysis()->getOriginalExpr()->getGroupAttr()->getCharacteristicOutputs();
+
+      if (jbbc->getPredsWithPredecessors().contains(vid) && isAVEGPred) {
+        if (childOutputs.contains(vegRefId)) childOutputs -= vegRefId;
       }
-      
+
       maximumOutput += childOutputs;
     }
 
-	// have to add the null instantiated values if the JBBC is
-	// connected via a left outer join. If a JBBC is connected
-	// via a left outer join then it has nullInstantiatedOutput
-	// otherwise nullInstantiatedOutput is empty. This is because
-	// the nullInstantiated output is not part of the JBBC's group
-	// characteristic output, rather it is the output of the left
-	// join.
-    ValueIdSet nullInstantiatedOutputs(x.getNodeAnalysis()->
-		                               getJBBC()->
-									   nullInstantiatedOutput());
+    // have to add the null instantiated values if the JBBC is
+    // connected via a left outer join. If a JBBC is connected
+    // via a left outer join then it has nullInstantiatedOutput
+    // otherwise nullInstantiatedOutput is empty. This is because
+    // the nullInstantiated output is not part of the JBBC's group
+    // characteristic output, rather it is the output of the left
+    // join.
+    ValueIdSet nullInstantiatedOutputs(x.getNodeAnalysis()->getJBBC()->nullInstantiatedOutput());
     maximumOutput += nullInstantiatedOutputs;
   }
 
-  if(maximumOutput.contains(vid))
-  {
-    (*knownCovered)+=vid;
+  if (maximumOutput.contains(vid)) {
+    (*knownCovered) += vid;
     return TRUE;
   }
 
@@ -5733,78 +4573,62 @@ NABoolean JBBSubsetAnalysis::coversExpr(ValueId vid) const
   ValueIdSet dummyReferencedInputs;
   ValueIdSet dummyCoveredSubExpr;
   ValueIdSet dummyUnCoveredExpr;
-  GroupAttributes* dummyGA =
-    new (CmpCommon::statementHeap()) GroupAttributes();
+  GroupAttributes *dummyGA = new (CmpCommon::statementHeap()) GroupAttributes();
 
   dummyGA->setCharacteristicOutputs(maximumOutput);
   dummyGA->setCharacteristicInputs(inputs);
 
-  if (vid.getItemExpr()->isCovered
-              (dummyNewExternalInputs,
-		       *dummyGA,
-		       dummyReferencedInputs,
-		       dummyCoveredSubExpr,
-		       dummyUnCoveredExpr))
-  {
-     (*knownCovered)+=vid;
-     return TRUE;
+  if (vid.getItemExpr()->isCovered(dummyNewExternalInputs, *dummyGA, dummyReferencedInputs, dummyCoveredSubExpr,
+                                   dummyUnCoveredExpr)) {
+    (*knownCovered) += vid;
+    return TRUE;
   }
 
-  (*knownNotCovered)+=vid;
+  (*knownNotCovered) += vid;
   return FALSE;
 }
 
-void JBBSubsetAnalysis::setSubsetMJ(MultiJoin * subsetMJ)
-{
-  if(!jbbcs_.entries())
-    subsetMJ_ = NULL;
+void JBBSubsetAnalysis::setSubsetMJ(MultiJoin *subsetMJ) {
+  if (!jbbcs_.entries()) subsetMJ_ = NULL;
 
   CMPASSERT(subsetMJ);
 
   CANodeIdSet mjJBBCs = subsetMJ->getJBBSubset().getJBBCs();
 
-  if(jbbcs_ == mjJBBCs)
-    subsetMJ_ = subsetMJ;
+  if (jbbcs_ == mjJBBCs) subsetMJ_ = subsetMJ;
 }
 
 // Used to be used by LargeScopeRules old topMatch method of MJStarJoinIRule,
 // not used anymore this code is OFF by default
-MJRulesWA * JBBSubsetAnalysis::getMJRulesWA()
-{
-  if(!mjRulesWA_)
-    mjRulesWA_ = new (CmpCommon::statementHeap()) MJRulesWA(this);
+MJRulesWA *JBBSubsetAnalysis::getMJRulesWA() {
+  if (!mjRulesWA_) mjRulesWA_ = new (CmpCommon::statementHeap()) MJRulesWA(this);
   return mjRulesWA_;
 }
 
-CANodeId MJRulesWA::computeCenterTable()
-{
-  if(centerTableComputed_)
-  {
+CANodeId MJRulesWA::computeCenterTable() {
+  if (centerTableComputed_) {
     return centerTable_;
   }
 
-  //get CANodeIdSet representing this MultiJoin
+  // get CANodeIdSet representing this MultiJoin
   CANodeIdSet childSet = analysis_->getJBBCs();
 
-  //Get a handle to ASM
-  AppliedStatMan * appStatMan = QueryAnalysis::ASM();
+  // Get a handle to ASM
+  AppliedStatMan *appStatMan = QueryAnalysis::ASM();
 
-  //n is the number of jbbcs (i.e. tables) in this multijoin
+  // n is the number of jbbcs (i.e. tables) in this multijoin
   UInt32 n = childSet.entries();
 
   CANodeId center = NULL_CA_ID;
 
 #ifdef _DEBUG
-  if ( CmpCommon::getDefault( NSK_DBG ) == DF_ON  &&
-       CmpCommon::getDefault( NSK_DBG_MJRULES_TRACKING ) == DF_ON )
-  {
-    CURRCONTEXT_OPTDEBUG->stream() << "There are "<<n<<" jbbcs"<<endl;
+  if (CmpCommon::getDefault(NSK_DBG) == DF_ON && CmpCommon::getDefault(NSK_DBG_MJRULES_TRACKING) == DF_ON) {
+    CURRCONTEXT_OPTDEBUG->stream() << "There are " << n << " jbbcs" << endl;
   }
-#endif //_DEBUG
+#endif  //_DEBUG
 
   // require atleast 3 tables
-  if (n < 3)
-  {
+  if (n < 3) {
     centerTableComputed_ = TRUE;
     centerTable_ = NULL_CA_ID;
     centerTableConnectivity_ = 0;
@@ -5821,28 +4645,18 @@ CANodeId MJRulesWA::computeCenterTable()
   // go over all the tables in the query
   // and create a set of tables that are
   // returning just one row
-  for(currentTable = childSet.init();
-      childSet.next(currentTable);
-      childSet.advance(currentTable))
-  {
+  for (currentTable = childSet.init(); childSet.next(currentTable); childSet.advance(currentTable)) {
     // get number of tables in this JBBC
-    Int32 numSubtreeTables = currentTable.getNodeAnalysis()
-                                      ->getJBBC()
-                                      ->getSubtreeTables().entries();
-    CostScalar jbbcCardinality = appStatMan->
-                                 getStatsForCANodeId(currentTable)->
-                                 getResultCardinality();
-    //currentTable.getNodeAnalysis()->getCardinality();
+    Int32 numSubtreeTables = currentTable.getNodeAnalysis()->getJBBC()->getSubtreeTables().entries();
+    CostScalar jbbcCardinality = appStatMan->getStatsForCANodeId(currentTable)->getResultCardinality();
+    // currentTable.getNodeAnalysis()->getCardinality();
 
-    if((jbbcCardinality == 1) &&
-       (numSubtreeTables < 2))
-       singleRowTables.insert(currentTable);
+    if ((jbbcCardinality == 1) && (numSubtreeTables < 2)) singleRowTables.insert(currentTable);
   }
 
   n = n - singleRowTables.entries();
 
-  if( n < 3)
-  {
+  if (n < 3) {
     centerTableComputed_ = TRUE;
     centerTable_ = NULL_CA_ID;
     centerTableConnectivity_ = 0;
@@ -5851,15 +4665,13 @@ CANodeId MJRulesWA::computeCenterTable()
   }
 
 #ifdef _DEBUG
-  if ( CmpCommon::getDefault( NSK_DBG ) == DF_ON  &&
-       CmpCommon::getDefault( NSK_DBG_MJRULES_TRACKING ) == DF_ON )
-  {
-    CURRCONTEXT_OPTDEBUG->stream() << "SingleRow JBBCs are "<<singleRowTables.getText()<<endl;
+  if (CmpCommon::getDefault(NSK_DBG) == DF_ON && CmpCommon::getDefault(NSK_DBG_MJRULES_TRACKING) == DF_ON) {
+    CURRCONTEXT_OPTDEBUG->stream() << "SingleRow JBBCs are " << singleRowTables.getText() << endl;
   }
-#endif //_DEBUG
+#endif  //_DEBUG
 
   // minimum connectivity for center
-  UInt32 minimumCenterConnectivity = n-1;
+  UInt32 minimumCenterConnectivity = n - 1;
 
   // maximum connectivity for dimensions
   UInt32 maximumDimensionConnectivity = 1;
@@ -5872,22 +4684,21 @@ CANodeId MJRulesWA::computeCenterTable()
   UInt32 maxDimConnectivity = 0;
 
   // figure out the parameters for matching the connectivity pattern
-  switch (n)
-  {
+  switch (n) {
     case 3:
     case 4:
       // for n == 4 or n==3
-      minimumCenterConnectivity = n-1;
+      minimumCenterConnectivity = n - 1;
       maximumDimensionConnectivity = 1;
       break;
     case 5:
       // for n == 5
-      minimumCenterConnectivity = n-2;
+      minimumCenterConnectivity = n - 2;
       maximumDimensionConnectivity = 2;
       break;
     default:
       // for n >= 6
-      minimumCenterConnectivity = n-3;
+      minimumCenterConnectivity = n - 3;
       // Changed COMP_INT_0 to COMP_INT_20 to avoid conflict with Nice context changes, with this
       // Nice Context feature is OFF by default. (06/07/06)
       maximumDimensionConnectivity = (ActiveSchemaDB()->getDefaults()).getAsLong(COMP_INT_20);
@@ -5895,20 +4706,16 @@ CANodeId MJRulesWA::computeCenterTable()
   }
 
 #ifdef _DEBUG
-  if ( CmpCommon::getDefault( NSK_DBG ) == DF_ON  &&
-       CmpCommon::getDefault( NSK_DBG_MJRULES_TRACKING ) == DF_ON )
-  {
-    CURRCONTEXT_OPTDEBUG->stream() << "Pattern match parameters are: "<<endl;
-    CURRCONTEXT_OPTDEBUG->stream() << "Min center connectivity: "<<minimumCenterConnectivity<<endl;
-    CURRCONTEXT_OPTDEBUG->stream() << "Max dimension connectivity: "<<maximumDimensionConnectivity<<endl;
+  if (CmpCommon::getDefault(NSK_DBG) == DF_ON && CmpCommon::getDefault(NSK_DBG_MJRULES_TRACKING) == DF_ON) {
+    CURRCONTEXT_OPTDEBUG->stream() << "Pattern match parameters are: " << endl;
+    CURRCONTEXT_OPTDEBUG->stream() << "Min center connectivity: " << minimumCenterConnectivity << endl;
+    CURRCONTEXT_OPTDEBUG->stream() << "Max dimension connectivity: " << maximumDimensionConnectivity << endl;
     CURRCONTEXT_OPTDEBUG->stream() << endl;
   }
-#endif //_DEBUG
-
+#endif  //_DEBUG
 
   // get the fact table name if a fact table has been forced
-  const char* factTableName = ActiveSchemaDB()->getDefaults().
-                                getValue(COMP_STRING_1);
+  const char *factTableName = ActiveSchemaDB()->getDefaults().getValue(COMP_STRING_1);
 
   // variable that tells us that the
   // table we want to be the fact table
@@ -5922,67 +4729,52 @@ CANodeId MJRulesWA::computeCenterTable()
   // Figure out:
   // * if this table is the center/fact table
   // * if this table is a dimension table
-  for(currentTable = childSet.init();
-      childSet.next(currentTable);
-      childSet.advance(currentTable))
-  {
+  for (currentTable = childSet.init(); childSet.next(currentTable); childSet.advance(currentTable)) {
     // if factTableName is NONE (default value),
     // then we don't want to force a particular
     // table to be the fact table
-    if(stricmp(factTableName,"NONE") != 0)
-    {
-      //if this is not a table move on to the next node
-      if(!currentTable.getNodeAnalysis()->getTableAnalysis())
-      {
+    if (stricmp(factTableName, "NONE") != 0) {
+      // if this is not a table move on to the next node
+      if (!currentTable.getNodeAnalysis()->getTableAnalysis()) {
         // compare to currentTable's name
         // if comparison is successful we get a zero
         // therefore reverse the result
-        centerTableForced = !(currentTable.getNodeAnalysis()->
-                                           getTableAnalysis()->
-                                           getTableDesc()->
-                                           getCorrNameObj().\
-                                           getCorrNameAsString().\
-                                           compareTo(factTableName,
-                                                     NAString::ignoreCase));
+        centerTableForced = !(currentTable.getNodeAnalysis()
+                                  ->getTableAnalysis()
+                                  ->getTableDesc()
+                                  ->getCorrNameObj()
+                                  .getCorrNameAsString()
+                                  .compareTo(factTableName, NAString::ignoreCase));
         // we found a the table that we wanted
         // force as the fact table
-        if (centerTableForced)
-        {
+        if (centerTableForced) {
           center = currentTable;
-          centerConnectivity = center.getNodeAnalysis()->
-                                      getJBBC()->
-                                      getJoinedJBBCs().
-                                      entries();
+          centerConnectivity = center.getNodeAnalysis()->getJBBC()->getJoinedJBBCs().entries();
         }
       }
     }
 
-    //all JBBCs connect to current table
+    // all JBBCs connect to current table
     CANodeIdSet connectedChildren = currentTable.getNodeAnalysis()->getJBBC()->getJoinedJBBCs();
 
     // get number of tables connected to current jbbc
     UInt32 numConnectedChildren = connectedChildren.entries();
 
 #ifdef _DEBUG
-  if ( CmpCommon::getDefault( NSK_DBG ) == DF_ON  &&
-       CmpCommon::getDefault( NSK_DBG_MJRULES_TRACKING ) == DF_ON )
-  {
-    CURRCONTEXT_OPTDEBUG->stream() << "JBBC: "<<currentTable.getText()<<endl;
-    CURRCONTEXT_OPTDEBUG->stream() << "connected jbbcs: "<<connectedChildren.getText()<<endl;
-    CURRCONTEXT_OPTDEBUG->stream() << endl;
-  }
-#endif //_DEBUG
+    if (CmpCommon::getDefault(NSK_DBG) == DF_ON && CmpCommon::getDefault(NSK_DBG_MJRULES_TRACKING) == DF_ON) {
+      CURRCONTEXT_OPTDEBUG->stream() << "JBBC: " << currentTable.getText() << endl;
+      CURRCONTEXT_OPTDEBUG->stream() << "connected jbbcs: " << connectedChildren.getText() << endl;
+      CURRCONTEXT_OPTDEBUG->stream() << endl;
+    }
+#endif  //_DEBUG
 
     // if current jbbc is:
     // * connected to at least minimumCenterConnectivity jbbcs
     // * has a connectivity greater than the connectivity
     //   of the current center/fact table
     // then set this jbbc to be the center/fact table
-    if ((numConnectedChildren >= minimumCenterConnectivity) &&
-        (centerConnectivity < numConnectedChildren) &&
-        (currentTable.getNodeAnalysis()->getTableAnalysis()) &&
-        (!centerTableForced))
-    {
+    if ((numConnectedChildren >= minimumCenterConnectivity) && (centerConnectivity < numConnectedChildren) &&
+        (currentTable.getNodeAnalysis()->getTableAnalysis()) && (!centerTableForced)) {
       // see we are going have found a new center
       // the previous center should be a dimension
       // make sure it is not connected to more than
@@ -5991,9 +4783,8 @@ CANodeId MJRulesWA::computeCenterTable()
       // If the previous center is connected to a
       // greater number of tables than allowed for
       // a dimension table then fail pattern match
-      if (centerConnectivity > maximumDimensionConnectivity)
-      {
-	centerTableComputed_ = TRUE;
+      if (centerConnectivity > maximumDimensionConnectivity) {
+        centerTableComputed_ = TRUE;
         centerTable_ = NULL_CA_ID;
         centerTableConnectivity_ = 0;
         maxDimensionConnectivity_ = 0;
@@ -6002,30 +4793,25 @@ CANodeId MJRulesWA::computeCenterTable()
 
       center = currentTable;
       centerConnectivity = numConnectedChildren;
-    }
-    else{
-
+    } else {
       // this table is potentially a dimension table
       // make sure it is not connected to more than
       // the allowed number of tables
 
       // Ignore tables that return 1 row when counting
       // the connected tables
-      UInt32 numNonSingleRowConnectedChildren =
-        connectedChildren.subtractSet(singleRowTables).entries();
+      UInt32 numNonSingleRowConnectedChildren = connectedChildren.subtractSet(singleRowTables).entries();
 
       // if the number of connected children is greater than
       // the maximum connectivity of any dimension table upto
       // this point, then update the maximum connectivity
-      if (numNonSingleRowConnectedChildren > maxDimConnectivity)
-        maxDimConnectivity = numNonSingleRowConnectedChildren;
+      if (numNonSingleRowConnectedChildren > maxDimConnectivity) maxDimConnectivity = numNonSingleRowConnectedChildren;
 
       // if this table is connected to more than the maximum
       // number of tables allowed for a dimension table
       // then fail the pattern match
-      if ( numNonSingleRowConnectedChildren > maximumDimensionConnectivity)
-      {
-	centerTableComputed_ = TRUE;
+      if (numNonSingleRowConnectedChildren > maximumDimensionConnectivity) {
+        centerTableComputed_ = TRUE;
         centerTable_ = NULL_CA_ID;
         centerTableConnectivity_ = 0;
         maxDimensionConnectivity_ = 0;
@@ -6035,25 +4821,20 @@ CANodeId MJRulesWA::computeCenterTable()
   }
 
 #ifdef _DEBUG
-  if ( CmpCommon::getDefault( NSK_DBG ) == DF_ON  &&
-       CmpCommon::getDefault( NSK_DBG_MJRULES_TRACKING ) == DF_ON )
-  {
-    if(center != NULL_CA_ID)
-    {
-      CURRCONTEXT_OPTDEBUG->stream() << "Center Table is: "<<center.getText()<<endl;
-      CURRCONTEXT_OPTDEBUG->stream() << "Center connectivity is: "<<centerConnectivity<<endl;
-      CURRCONTEXT_OPTDEBUG->stream() << "Max dimension connectivity is: "<<maxDimConnectivity<<endl;
+  if (CmpCommon::getDefault(NSK_DBG) == DF_ON && CmpCommon::getDefault(NSK_DBG_MJRULES_TRACKING) == DF_ON) {
+    if (center != NULL_CA_ID) {
+      CURRCONTEXT_OPTDEBUG->stream() << "Center Table is: " << center.getText() << endl;
+      CURRCONTEXT_OPTDEBUG->stream() << "Center connectivity is: " << centerConnectivity << endl;
+      CURRCONTEXT_OPTDEBUG->stream() << "Max dimension connectivity is: " << maxDimConnectivity << endl;
       CURRCONTEXT_OPTDEBUG->stream() << endl;
-    }
-    else{
-      CURRCONTEXT_OPTDEBUG->stream() << "No center table found "<<center.getText()<<endl;
+    } else {
+      CURRCONTEXT_OPTDEBUG->stream() << "No center table found " << center.getText() << endl;
     }
   }
-#endif //_DEBUG
+#endif  //_DEBUG
 
   // we did not find a center table
-  if (center == NULL_CA_ID)
-  {
+  if (center == NULL_CA_ID) {
     centerTableComputed_ = TRUE;
     centerTable_ = NULL_CA_ID;
     centerTableConnectivity_ = 0;
@@ -6062,31 +4843,23 @@ CANodeId MJRulesWA::computeCenterTable()
   }
 
   // get rows to be scanned for center table
-  CostScalar centerTableRowsToBeScanned =
-    appStatMan->getStatsForLocalPredsOnCKPOfJBBC(center)->
-                getResultCardinality();
+  CostScalar centerTableRowsToBeScanned = appStatMan->getStatsForLocalPredsOnCKPOfJBBC(center)->getResultCardinality();
 
   // get record size for center table
   CostScalar centerTableRecordSize =
-    center.getNodeAnalysis()->
-           getTableAnalysis()->
-           getTableDesc()->
-           getNATable()->
-           getRecordLength();
+      center.getNodeAnalysis()->getTableAnalysis()->getTableDesc()->getNATable()->getRecordLength();
 
   // compute amount of data to be scanned from center table
   // amount is in KB
-  CostScalar centerTableDataToBeScanned =
-    (centerTableRowsToBeScanned * centerTableRecordSize) / 1024;
+  CostScalar centerTableDataToBeScanned = (centerTableRowsToBeScanned * centerTableRecordSize) / 1024;
 
   // get number of partitions for the center table
-  CostScalar numCenterTablePartitions =
-    center.getNodeAnalysis()->
-           getTableAnalysis()->
-           getTableDesc()->
-           getClusteringIndex()->
-           getNAFileSet()->
-           getCountOfPartitions();
+  CostScalar numCenterTablePartitions = center.getNodeAnalysis()
+                                            ->getTableAnalysis()
+                                            ->getTableDesc()
+                                            ->getClusteringIndex()
+                                            ->getNAFileSet()
+                                            ->getCountOfPartitions();
 
   CostScalar sizePerPartition = centerTableDataToBeScanned / numCenterTablePartitions;
 
@@ -6099,121 +4872,85 @@ CANodeId MJRulesWA::computeCenterTable()
   centerTablePartitions_ = numCenterTablePartitions;
   centerTableDataPerPartition_ = sizePerPartition;
 
-
 #ifdef _DEBUG
-  if ( CmpCommon::getDefault( NSK_DBG ) == DF_ON  &&
-       CmpCommon::getDefault( NSK_DBG_MJRULES_TRACKING ) == DF_ON )
-  {
-    CURRCONTEXT_OPTDEBUG->stream() << "Center Table Rows Scanned: "\
-                    <<centerTableRowsScanned_.getValue()<<endl;
-    CURRCONTEXT_OPTDEBUG->stream() << "Center Table Record Size: "\
-                    <<centerTableRecordSize.getValue()<<endl;
-    CURRCONTEXT_OPTDEBUG->stream() << "Center Table Data Scanned: "\
-                    <<centerTableDataScanned_.getValue()<<endl;
-    CURRCONTEXT_OPTDEBUG->stream() << "Center Table Num partitions: "\
-                    <<centerTablePartitions_.getValue()<<endl;
-    CURRCONTEXT_OPTDEBUG->stream() << "Center Table size per partition: "\
-                    <<centerTableDataPerPartition_.getValue()<<endl;
+  if (CmpCommon::getDefault(NSK_DBG) == DF_ON && CmpCommon::getDefault(NSK_DBG_MJRULES_TRACKING) == DF_ON) {
+    CURRCONTEXT_OPTDEBUG->stream() << "Center Table Rows Scanned: " << centerTableRowsScanned_.getValue() << endl;
+    CURRCONTEXT_OPTDEBUG->stream() << "Center Table Record Size: " << centerTableRecordSize.getValue() << endl;
+    CURRCONTEXT_OPTDEBUG->stream() << "Center Table Data Scanned: " << centerTableDataScanned_.getValue() << endl;
+    CURRCONTEXT_OPTDEBUG->stream() << "Center Table Num partitions: " << centerTablePartitions_.getValue() << endl;
+    CURRCONTEXT_OPTDEBUG->stream() << "Center Table size per partition: " << centerTableDataPerPartition_.getValue()
+                                   << endl;
   }
-#endif //_DEBUG
+#endif  //_DEBUG
 
   return centerTable_;
 }
 
-CASortedList * JBBSubsetAnalysis::getNodesSortedByLocalPredsCard()
-{
+CASortedList *JBBSubsetAnalysis::getNodesSortedByLocalPredsCard() {
   // get CANodeIdSet representing this MultiJoin
   CANodeIdSet childSet = getJBBCs();
 
-  JBBWA * jbbWA = jbb_->getJBBWA();
+  JBBWA *jbbWA = jbb_->getJBBWA();
 
-  const CASortedList * sortedListOfNodes =
-                                   jbbWA->
-                                     getNodesSortedByLocalPredsCard();
+  const CASortedList *sortedListOfNodes = jbbWA->getNodesSortedByLocalPredsCard();
 
-  CASortedList * result = new (CmpCommon::statementHeap())
-    CASortedList(CmpCommon::statementHeap(), childSet.entries());
+  CASortedList *result = new (CmpCommon::statementHeap()) CASortedList(CmpCommon::statementHeap(), childSet.entries());
 
-  for( UInt32 i = 0;
-       i < sortedListOfNodes->entries();
-       i++)
-  {
-    if(childSet.contains((*sortedListOfNodes)[i]))
-      (*result).insert((*sortedListOfNodes)[i]);
+  for (UInt32 i = 0; i < sortedListOfNodes->entries(); i++) {
+    if (childSet.contains((*sortedListOfNodes)[i])) (*result).insert((*sortedListOfNodes)[i]);
   }
 
   return result;
 }
 
-CASortedList * JBBSubsetAnalysis::getNodesSortedByLocalKeyPrefixPredsCard()
-{
+CASortedList *JBBSubsetAnalysis::getNodesSortedByLocalKeyPrefixPredsCard() {
   // get CANodeIdSet representing this MultiJoin
   CANodeIdSet childSet = getJBBCs();
 
-  JBBWA * jbbWA = jbb_->getJBBWA();
+  JBBWA *jbbWA = jbb_->getJBBWA();
 
-  const CASortedList * sortedListOfNodes =
-                                   jbbWA->
-                                     getNodesSortedByLocalKeyPrefixPredsCard();
+  const CASortedList *sortedListOfNodes = jbbWA->getNodesSortedByLocalKeyPrefixPredsCard();
 
-  CASortedList * result = new (CmpCommon::statementHeap())
-    CASortedList(CmpCommon::statementHeap(), childSet.entries());
+  CASortedList *result = new (CmpCommon::statementHeap()) CASortedList(CmpCommon::statementHeap(), childSet.entries());
 
-  for( UInt32 i = 0;
-       i < sortedListOfNodes->entries();
-       i++)
-  {
-    if(childSet.contains((*sortedListOfNodes)[i]))
-      (*result).insert((*sortedListOfNodes)[i]);
+  for (UInt32 i = 0; i < sortedListOfNodes->entries(); i++) {
+    if (childSet.contains((*sortedListOfNodes)[i])) (*result).insert((*sortedListOfNodes)[i]);
   }
 
   return result;
 }
 
-CANodeId JBBSubsetAnalysis::getLargestNode()
-{
+CANodeId JBBSubsetAnalysis::getLargestNode() {
   // get CANodeIdSet representing this JBBSubset
   CANodeIdSet childSet = getJBBCs();
 
-  JBBWA * jbbWA = jbb_->getJBBWA();
+  JBBWA *jbbWA = jbb_->getJBBWA();
 
-  const CASortedList * sortedListOfNodes = jbbWA->getNodesSortedByOutputData();
+  const CASortedList *sortedListOfNodes = jbbWA->getNodesSortedByOutputData();
 
-  for( UInt32 i = 0;
-       i < sortedListOfNodes->entries();
-       i++)
-  {
-    if(childSet.contains((*sortedListOfNodes)[i]))
-      return (*sortedListOfNodes)[i];
+  for (UInt32 i = 0; i < sortedListOfNodes->entries(); i++) {
+    if (childSet.contains((*sortedListOfNodes)[i])) return (*sortedListOfNodes)[i];
   }
 
   return NULL_CA_ID;
 }
 
-CANodeId JBBSubsetAnalysis::getLargestIndependentNode()
-{
-  if(computedLargestIndependentNode_)
-    return largestIndependentNode_;
+CANodeId JBBSubsetAnalysis::getLargestIndependentNode() {
+  if (computedLargestIndependentNode_) return largestIndependentNode_;
 
   // get CANodeIdSet representing this JBBSubset
   CANodeIdSet childSet = getJBBCs();
 
-  JBBWA * jbbWA = jbb_->getJBBWA();
+  JBBWA *jbbWA = jbb_->getJBBWA();
 
-  const CASortedList * sortedListOfNodes = jbbWA->getNodesSortedByOutputData();
+  const CASortedList *sortedListOfNodes = jbbWA->getNodesSortedByOutputData();
 
-  for( UInt32 i = 0;
-       i < sortedListOfNodes->entries();
-       i++)
-  {
-    if(childSet.contains((*sortedListOfNodes)[i]))
-    {
+  for (UInt32 i = 0; i < sortedListOfNodes->entries(); i++) {
+    if (childSet.contains((*sortedListOfNodes)[i])) {
       CANodeId nodeId = (*sortedListOfNodes)[i];
-      JBBC * nodeJBBC = nodeId.getNodeAnalysis()->getJBBC();
-      Join * parentJoin = nodeJBBC->getOriginalParentJoin();
-      if ((!parentJoin) ||
-          (parentJoin->isInnerNonSemiNonTSJJoin()))
-      {
+      JBBC *nodeJBBC = nodeId.getNodeAnalysis()->getJBBC();
+      Join *parentJoin = nodeJBBC->getOriginalParentJoin();
+      if ((!parentJoin) || (parentJoin->isInnerNonSemiNonTSJJoin())) {
         largestIndependentNode_ = nodeId;
         computedLargestIndependentNode_ = TRUE;
         return nodeId;
@@ -6230,57 +4967,43 @@ CANodeId JBBSubsetAnalysis::getLargestIndependentNode()
   return NULL_CA_ID;
 }
 
-void JBBSubsetAnalysis::analyzeInitialPlan(MultiJoin * mjoin)
-{
+void JBBSubsetAnalysis::analyzeInitialPlan(MultiJoin *mjoin) {
   CMPASSERT(mjoin);
 
   // get the subset analysis for this MultiJoin
-  JBBSubsetAnalysis * subsetAnalysis = mjoin->getJBBSubset().getJBBSubsetAnalysis();
+  JBBSubsetAnalysis *subsetAnalysis = mjoin->getJBBSubset().getJBBSubsetAnalysis();
 
   // makesure it is the same as 'this'
-  CMPASSERT(this==subsetAnalysis);
+  CMPASSERT(this == subsetAnalysis);
 
   analyzeInitialPlan();
-
 }
 
-void JBBSubsetAnalysis::analyzeInitialPlan()
-{
-  if(analyzedInitialPlan_)
-    return;
+void JBBSubsetAnalysis::analyzeInitialPlan() {
+  if (analyzedInitialPlan_) return;
 
   CANodeId factTable = NULL_CA_ID;
   CANodeId largestTable = NULL_CA_ID;
   CostScalar factTableCKPrefixCardinality;
 
-  factTable = findFactAndLargestTable(factTableCKPrefixCardinality,
-                                      largestTable);
+  factTable = findFactAndLargestTable(factTableCKPrefixCardinality, largestTable);
 
   // if we did not find a fact table then look for the center table
-  if (factTable == NULL_CA_ID)
-  {
-
+  if (factTable == NULL_CA_ID) {
     CANodeId centerTable = computeCenterTable();
-    CostScalar centerTableSize = getCenterTableSize();//centerTableDataScanned_;
-    CostScalar centerTableSizePerPartition =
-      getCenterTableSizePerPartition();//centerTableDataPerPartition_;
-    CostScalar centerTablePartitions = getCenterTablePartitions();//centerTablePartitions_;
+    CostScalar centerTableSize = getCenterTableSize();                          // centerTableDataScanned_;
+    CostScalar centerTableSizePerPartition = getCenterTableSizePerPartition();  // centerTableDataPerPartition_;
+    CostScalar centerTablePartitions = getCenterTablePartitions();              // centerTablePartitions_;
 
-    if(centerTable != NULL_CA_ID)
-    {
-      JBBC * centerTableJBBC = centerTable.getNodeAnalysis()->getJBBC();
+    if (centerTable != NULL_CA_ID) {
+      JBBC *centerTableJBBC = centerTable.getNodeAnalysis()->getJBBC();
 
-      if(!(centerTableJBBC->getPredecessorJBBCs().entries()))
-      {
-        if(centerTable == largestTable)
+      if (!(centerTableJBBC->getPredecessorJBBCs().entries())) {
+        if (centerTable == largestTable)
           factTable = centerTable;
-        else
-        {
-          if((centerTableSizePerPartition >
-              ((ActiveSchemaDB()->getDefaults()).getAsLong(COMP_INT_16)*1024))||
-             (centerTablePartitions >
-              (ActiveSchemaDB()->getDefaults()).getAsLong(COMP_INT_17)))
-          {
+        else {
+          if ((centerTableSizePerPartition > ((ActiveSchemaDB()->getDefaults()).getAsLong(COMP_INT_16) * 1024)) ||
+              (centerTablePartitions > (ActiveSchemaDB()->getDefaults()).getAsLong(COMP_INT_17))) {
             factTable = centerTable;
           }
         }
@@ -6289,9 +5012,7 @@ void JBBSubsetAnalysis::analyzeInitialPlan()
   }
 
 #ifdef _DEBUG
-  if ( CmpCommon::getDefault( NSK_DBG ) == DF_ON  &&
-       CmpCommon::getDefault( NSK_DBG_MJRULES_TRACKING ) == DF_ON )
-  {
+  if (CmpCommon::getDefault(NSK_DBG) == DF_ON && CmpCommon::getDefault(NSK_DBG_MJRULES_TRACKING) == DF_ON) {
     CURRCONTEXT_OPTDEBUG->stream() << "FactTable: " << factTable.getText() << endl;
     CURRCONTEXT_OPTDEBUG->stream() << endl;
   }
@@ -6301,19 +5022,14 @@ void JBBSubsetAnalysis::analyzeInitialPlan()
   // Begin: Find if there is a full outer join or TSJ node
   // -----------------------------------------------------
 
-  //get CANodeIdSet representing this MultiJoin
+  // get CANodeIdSet representing this MultiJoin
   CANodeIdSet childSet = getJBBCs();
   NABoolean hasFullOuterJoinOrTSJ = FALSE;
 
   CANodeId currentNode = NULL_CA_ID;
-  for(currentNode=childSet.init();
-      childSet.next(currentNode);
-      childSet.advance(currentNode))
-  {
-    JBBC * currentJBBC = currentNode.getNodeAnalysis()->getJBBC();
-    if (currentJBBC->isFullOuterJoinOrTSJJBBC() &&
-       !(currentJBBC->getOriginalParentJoin()))
-    {
+  for (currentNode = childSet.init(); childSet.next(currentNode); childSet.advance(currentNode)) {
+    JBBC *currentJBBC = currentNode.getNodeAnalysis()->getJBBC();
+    if (currentJBBC->isFullOuterJoinOrTSJJBBC() && !(currentJBBC->getOriginalParentJoin())) {
       hasFullOuterJoinOrTSJ = TRUE;
     }
   }
@@ -6328,30 +5044,23 @@ void JBBSubsetAnalysis::analyzeInitialPlan()
   // If there is a good key prefix coverage this method
   // will find the set of dimension tables that should
   // be used to probe the fact table.
-  if ((!hasFullOuterJoinOrTSJ) &&
-      (factTable != NULL_CA_ID ) &&
-      isAStarPattern(factTable, factTableCKPrefixCardinality))
-  {
+  if ((!hasFullOuterJoinOrTSJ) && (factTable != NULL_CA_ID) &&
+      isAStarPattern(factTable, factTableCKPrefixCardinality)) {
 // for debugging only
 #ifdef _DEBUG
-    if ( CmpCommon::getDefault( NSK_DBG ) == DF_ON  &&
-         CmpCommon::getDefault( NSK_DBG_MJRULES_TRACKING ) == DF_ON )
-    {
-      CURRCONTEXT_OPTDEBUG->stream() << "JBBSubsetAnalysis StarJoinTypeI feasible" <<endl;
+    if (CmpCommon::getDefault(NSK_DBG) == DF_ON && CmpCommon::getDefault(NSK_DBG_MJRULES_TRACKING) == DF_ON) {
+      CURRCONTEXT_OPTDEBUG->stream() << "JBBSubsetAnalysis StarJoinTypeI feasible" << endl;
     }
-#endif //_DEBUG
+#endif  //_DEBUG
     factTable_ = factTable;
     setStarJoinTypeIFeasible();
     arrangeTablesAfterFactForStarJoinTypeI();
-  }
-  else{
+  } else {
 #ifdef _DEBUG
-    if ( CmpCommon::getDefault( NSK_DBG ) == DF_ON  &&
-         CmpCommon::getDefault( NSK_DBG_MJRULES_TRACKING ) == DF_ON )
-    {
-      CURRCONTEXT_OPTDEBUG->stream() << "JBBSubsetAnalysis StarJoinTypeI not feasible" <<endl;
+    if (CmpCommon::getDefault(NSK_DBG) == DF_ON && CmpCommon::getDefault(NSK_DBG_MJRULES_TRACKING) == DF_ON) {
+      CURRCONTEXT_OPTDEBUG->stream() << "JBBSubsetAnalysis StarJoinTypeI not feasible" << endl;
     }
-#endif //_DEBUG
+#endif  //_DEBUG
     arrangeTablesAfterFactForStarJoinTypeII();
   }
 
@@ -6359,38 +5068,31 @@ void JBBSubsetAnalysis::analyzeInitialPlan()
   // that are JBBSubsets i.e. MultiJoins
   UInt32 numJoinChildren = leftDeepJoinSequence_.entries();
 
-  for (UInt32 i = 0; i < numJoinChildren; i++)
-  {
+  for (UInt32 i = 0; i < numJoinChildren; i++) {
     CANodeIdSet joinChild = leftDeepJoinSequence_[i];
 
-    if (joinChild.entries() > 1)
-    {
-      JBBSubset * childSet = joinChild.jbbcsToJBBSubset();
-      childSet->
-        getJBBSubsetAnalysis()->
-          analyzeInitialPlan();
+    if (joinChild.entries() > 1) {
+      JBBSubset *childSet = joinChild.jbbcsToJBBSubset();
+      childSet->getJBBSubsetAnalysis()->analyzeInitialPlan();
     }
   }
 
   analyzedInitialPlan_ = TRUE;
-
 }
 
 // compute the resources required for this subset
-void JBBSubsetAnalysis::computeRequiredResources(
-  MultiJoin * mjoin,
-  RequiredResources & reqResources,
-  EstLogPropSharedPtr & inLP)
+void JBBSubsetAnalysis::computeRequiredResources(MultiJoin *mjoin, RequiredResources &reqResources,
+                                                 EstLogPropSharedPtr &inLP)
 
 {
   // makesure initial plan has been analyzed
   CMPASSERT(analyzedInitialPlan_);
 
   CostScalar A = csOne;
-  CostScalar B (getDefaultAsDouble(WORK_UNIT_ESP_DATA_COPY_COST));
+  CostScalar B(getDefaultAsDouble(WORK_UNIT_ESP_DATA_COPY_COST));
 
-  //Get a handle to ASM
-  AppliedStatMan * appStatMan = QueryAnalysis::ASM();
+  // Get a handle to ASM
+  AppliedStatMan *appStatMan = QueryAnalysis::ASM();
 
   UInt32 numJoinChildren = leftDeepJoinSequence_.entries();
 
@@ -6403,16 +5105,15 @@ void JBBSubsetAnalysis::computeRequiredResources(
   NABoolean useMin = FALSE;
   NABoolean useGeoMetric = FALSE;
 
-  if ( reqResources.getNumOfHiveTables() > 0 ) {
+  if (reqResources.getNumOfHiveTables() > 0) {
     // 0: use max
-    // 1: use min 
+    // 1: use min
     // 2: use geometric mean
-    Int32 computeCpuRes = 
-      (ActiveSchemaDB()->getDefaults()).getAsLong(MJ_COMPUTE_CPU_RESOURCE);
+    Int32 computeCpuRes = (ActiveSchemaDB()->getDefaults()).getAsLong(MJ_COMPUTE_CPU_RESOURCE);
     useMax = computeCpuRes == 0;
     useMin = computeCpuRes == 1;
     useGeoMetric = computeCpuRes == 2;
-  } 
+  }
 
   CostScalar currentMemoryRes = csZero;
   CostScalar currentMinCpuRes = (useMin) ? COSTSCALAR_MAX : csZero;
@@ -6420,13 +5121,11 @@ void JBBSubsetAnalysis::computeRequiredResources(
 
   // iterate over all children except the last child
   UInt32 i = 0;
-  for (i = 0; i < numJoinChildren; i++)
-  {
+  for (i = 0; i < numJoinChildren; i++) {
     // get join's max cardinality
-    joinMaxCard = appStatMan->
-                 getStatsForCANodeIdSet(joinOuterChildren)-> getMaxCardEst();
+    joinMaxCard = appStatMan->getStatsForCANodeIdSet(joinOuterChildren)->getMaxCardEst();
 
-    CostScalar memoryResourcesRequired  = csZero;
+    CostScalar memoryResourcesRequired = csZero;
     CostScalar cpuResourcesRequired = csZero;
 
     CANodeIdSet joinChild = leftDeepJoinSequence_[i];
@@ -6443,142 +5142,109 @@ void JBBSubsetAnalysis::computeRequiredResources(
     CostScalar joinChildDataAccessCost = csZero;
 
     // if child is a MultiJoin
-    if (joinChild.entries() > 1)
-    {
-      JBBSubset * innerChildSet = joinChild.jbbcsToJBBSubset();
-      MultiJoin * innerChildMJ = mjoin->createSubsetMultiJoin(*innerChildSet);
-      JBBSubsetAnalysis * innerChildAnalysis = innerChildSet->getJBBSubsetAnalysis();
-      innerChildAnalysis->computeRequiredResources(innerChildMJ,reqResources, inLP);
-      innerChildCardinality =  appStatMan->
-                                 getStatsForCANodeIdSet(joinChild)->
-                                   getResultCardinality();
+    if (joinChild.entries() > 1) {
+      JBBSubset *innerChildSet = joinChild.jbbcsToJBBSubset();
+      MultiJoin *innerChildMJ = mjoin->createSubsetMultiJoin(*innerChildSet);
+      JBBSubsetAnalysis *innerChildAnalysis = innerChildSet->getJBBSubsetAnalysis();
+      innerChildAnalysis->computeRequiredResources(innerChildMJ, reqResources, inLP);
+      innerChildCardinality = appStatMan->getStatsForCANodeIdSet(joinChild)->getResultCardinality();
 
-      innerChildMaxCardinality =  appStatMan->
-                                 getStatsForCANodeIdSet(joinChild)->
-                                   getMaxCardEst();
+      innerChildMaxCardinality = appStatMan->getStatsForCANodeIdSet(joinChild)->getMaxCardEst();
 
       innerChildRecordSize = innerChildMJ->getGroupAttr()->getCharacteristicOutputs().getRowLength();
 
     }
     // child is a single node
-    else if (!joinChild.contains(factTable_) || !starJoinTypeIFeasible())
-    {
+    else if (!joinChild.contains(factTable_) || !starJoinTypeIFeasible()) {
       CANodeId innerChildNode = joinChild.getFirst();
 
       if (innerChildNode.isValid()) {
-         innerChildCardinality = appStatMan->
-                                getStatsForCANodeId(innerChildNode)->
-                                  getResultCardinality();
+        innerChildCardinality = appStatMan->getStatsForCANodeId(innerChildNode)->getResultCardinality();
 
-         innerChildMaxCardinality = appStatMan->
-                                getStatsForCANodeId(innerChildNode)->
-                                  getMaxCardEst();
+        innerChildMaxCardinality = appStatMan->getStatsForCANodeId(innerChildNode)->getMaxCardEst();
 
-         RelExpr * innerChildExpr = innerChildNode.getNodeAnalysis()->getOriginalExpr();
-         innerChildRecordSize = innerChildExpr->getGroupAttr()->getCharacteristicOutputs().getRowLength();
+        RelExpr *innerChildExpr = innerChildNode.getNodeAnalysis()->getOriginalExpr();
+        innerChildRecordSize = innerChildExpr->getGroupAttr()->getCharacteristicOutputs().getRowLength();
       }
     }
 
-    if (joinOuterChildren.entries() > 1)
-    {
-      JBBSubset * outerChildSet = joinOuterChildren.jbbcsToJBBSubset();
-      MultiJoin * outerChildMJ = mjoin->createSubsetMultiJoin(*outerChildSet);
-      JBBSubsetAnalysis * outerChildAnalysis = outerChildSet->getJBBSubsetAnalysis();
-      outerChildCardinality =  appStatMan->
-                                 getStatsForCANodeIdSet(joinOuterChildren)->
-                                   getResultCardinality();
+    if (joinOuterChildren.entries() > 1) {
+      JBBSubset *outerChildSet = joinOuterChildren.jbbcsToJBBSubset();
+      MultiJoin *outerChildMJ = mjoin->createSubsetMultiJoin(*outerChildSet);
+      JBBSubsetAnalysis *outerChildAnalysis = outerChildSet->getJBBSubsetAnalysis();
+      outerChildCardinality = appStatMan->getStatsForCANodeIdSet(joinOuterChildren)->getResultCardinality();
 
-      outerChildMaxCardinality =  appStatMan->
-                                 getStatsForCANodeIdSet(joinOuterChildren)->
-                                   getMaxCardEst();
+      outerChildMaxCardinality = appStatMan->getStatsForCANodeIdSet(joinOuterChildren)->getMaxCardEst();
 
       outerChildRecordSize = outerChildMJ->getGroupAttr()->getCharacteristicOutputs().getRowLength();
-    }
-    else{
+    } else {
       CANodeId outerChildNode = joinOuterChildren.getFirst();
 
       if (outerChildNode.isValid()) {
-        outerChildCardinality = appStatMan->
-                                getStatsForCANodeId(outerChildNode)->
-                                  getResultCardinality();
+        outerChildCardinality = appStatMan->getStatsForCANodeId(outerChildNode)->getResultCardinality();
 
-        outerChildMaxCardinality = appStatMan->
-                                getStatsForCANodeId(outerChildNode)->
-                                  getMaxCardEst();
+        outerChildMaxCardinality = appStatMan->getStatsForCANodeId(outerChildNode)->getMaxCardEst();
 
-        RelExpr * outerChildExpr = outerChildNode.getNodeAnalysis()->getOriginalExpr();
+        RelExpr *outerChildExpr = outerChildNode.getNodeAnalysis()->getOriginalExpr();
         outerChildRecordSize = outerChildExpr->getGroupAttr()->getCharacteristicOutputs().getRowLength();
       }
     }
 
-    if (maxCard < joinMaxCard)
-      maxCard = joinMaxCard;
+    if (maxCard < joinMaxCard) maxCard = joinMaxCard;
 
-    if (maxCard < innerChildMaxCardinality)
-      maxCard = innerChildMaxCardinality;
+    if (maxCard < innerChildMaxCardinality) maxCard = innerChildMaxCardinality;
 
-    if (maxCard < outerChildMaxCardinality)
-      maxCard = outerChildMaxCardinality;
+    if (maxCard < outerChildMaxCardinality) maxCard = outerChildMaxCardinality;
 
-    memoryResourcesRequired  += (innerChildCardinality * innerChildRecordSize);
+    memoryResourcesRequired += (innerChildCardinality * innerChildRecordSize);
 
-    cpuResourcesRequired +=
-      (A * innerChildCardinality) +
-      (B * innerChildCardinality * innerChildRecordSize );
+    cpuResourcesRequired += (A * innerChildCardinality) + (B * innerChildCardinality * innerChildRecordSize);
 
-    cpuResourcesRequired +=
-      (A * outerChildCardinality) +
-      (B * outerChildCardinality * outerChildRecordSize );
+    cpuResourcesRequired += (A * outerChildCardinality) + (B * outerChildCardinality * outerChildRecordSize);
 
-    if ( useMax )
-       reqResources.accumulate(memoryResourcesRequired, cpuResourcesRequired, csZero, maxCard);
-    else { 
-       if ( useGeoMetric ) {
-          currentMemoryRes += std::log(memoryResourcesRequired.value());
-          currentMinCpuRes += std::log(cpuResourcesRequired.value());
-          currentMaxCard += std::log(maxCard.value());
-       } 
-       if ( useMin ) {
-          if ( cpuResourcesRequired > 0 && 
-               currentMinCpuRes > cpuResourcesRequired ) 
-          {
-             currentMemoryRes = memoryResourcesRequired.value();
-             currentMinCpuRes = cpuResourcesRequired.value();
-             currentMaxCard = maxCard.value();
-          }
-       }
+    if (useMax)
+      reqResources.accumulate(memoryResourcesRequired, cpuResourcesRequired, csZero, maxCard);
+    else {
+      if (useGeoMetric) {
+        currentMemoryRes += std::log(memoryResourcesRequired.value());
+        currentMinCpuRes += std::log(cpuResourcesRequired.value());
+        currentMaxCard += std::log(maxCard.value());
+      }
+      if (useMin) {
+        if (cpuResourcesRequired > 0 && currentMinCpuRes > cpuResourcesRequired) {
+          currentMemoryRes = memoryResourcesRequired.value();
+          currentMinCpuRes = cpuResourcesRequired.value();
+          currentMaxCard = maxCard.value();
+        }
+      }
     }
   }
-       
-  if ( useGeoMetric ) {
+
+  if (useGeoMetric) {
     currentMemoryRes = std::exp(currentMemoryRes.value() / numJoinChildren);
     currentMinCpuRes = std::exp(currentMinCpuRes.value() / numJoinChildren);
-    currentMaxCard   = std::exp(currentMaxCard.value() / numJoinChildren);
+    currentMaxCard = std::exp(currentMaxCard.value() / numJoinChildren);
 
     reqResources.accumulate(currentMemoryRes, currentMinCpuRes, csZero, currentMaxCard);
-  } else if ( useMin ) 
-     {
-       reqResources.accumulate(currentMemoryRes, currentMinCpuRes, csZero, currentMaxCard);
-     }
-
-/*
-  CANodeIdSet outerMostChild = leftDeepJoinSequence_[numJoinChildren-1];
-  if (outerMostChild.entries() > 1)
-  {
-    JBBSubset * childSet = outerMostChild.jbbcsToJBBSubset();
-    MultiJoin * childMJ = mjoin->createSubsetMultiJoin(*childSet);
-    JBBSubsetAnalysis * childAnalysis = childSet->getJBBSubsetAnalysis();
-
-    childAnalysis->computeRequiredResources(childMJ,reqResources, inLP);
+  } else if (useMin) {
+    reqResources.accumulate(currentMemoryRes, currentMinCpuRes, csZero, currentMaxCard);
   }
-*/
+
+  /*
+    CANodeIdSet outerMostChild = leftDeepJoinSequence_[numJoinChildren-1];
+    if (outerMostChild.entries() > 1)
+    {
+      JBBSubset * childSet = outerMostChild.jbbcsToJBBSubset();
+      MultiJoin * childMJ = mjoin->createSubsetMultiJoin(*childSet);
+      JBBSubsetAnalysis * childAnalysis = childSet->getJBBSubsetAnalysis();
+
+      childAnalysis->computeRequiredResources(childMJ,reqResources, inLP);
+    }
+  */
 }
 
-CANodeId JBBSubsetAnalysis::findFactTable(
-  CANodeIdSet childSet,
-  CostScalar & factTableCKPrefixCardinality,
-  CANodeId & biggestTable)
-{
+CANodeId JBBSubsetAnalysis::findFactTable(CANodeIdSet childSet, CostScalar &factTableCKPrefixCardinality,
+                                          CANodeId &biggestTable) {
   // The fact table should be the table that has significantly more data read
   // from it as compared to all the other tables in a multi-join. The data read
   // is measured by the number of rows read by a scan of the table multiplied
@@ -6589,68 +5255,52 @@ CANodeId JBBSubsetAnalysis::findFactTable(
   // cardinality of a table after application of local predicates on the prefix
   // of the clustering key
 
-  //Get a handle to ASM
-  AppliedStatMan * appStatMan = QueryAnalysis::ASM();
+  // Get a handle to ASM
+  AppliedStatMan *appStatMan = QueryAnalysis::ASM();
 
   CANodeId factTable = NULL_CA_ID;
 
-  const char* factTableName = ActiveSchemaDB()->getDefaults().
-                                getValue(COMP_STRING_1);
+  const char *factTableName = ActiveSchemaDB()->getDefaults().getValue(COMP_STRING_1);
 
   // if the user is trying to force a certain table to be considered
   // the fact table
-  if(stricmp(factTableName,"NONE") != 0)
-  {
-    //try to match the factTable Name to the table names of the JBBCs
+  if (stricmp(factTableName, "NONE") != 0) {
+    // try to match the factTable Name to the table names of the JBBCs
 
     CANodeId currentTable = NULL_CA_ID;
-    for(currentTable=childSet.init();
-        childSet.next(currentTable);
-        childSet.advance(currentTable))
-    {
-      //if this is not a table move on to the next node
-      if(!currentTable.getNodeAnalysis()->getTableAnalysis())
-        continue;
+    for (currentTable = childSet.init(); childSet.next(currentTable); childSet.advance(currentTable)) {
+      // if this is not a table move on to the next node
+      if (!currentTable.getNodeAnalysis()->getTableAnalysis()) continue;
 
-      JBBC * tableJBBC = currentTable.getNodeAnalysis()->getJBBC();
+      JBBC *tableJBBC = currentTable.getNodeAnalysis()->getJBBC();
 
       // fact table cannot depend on any other table
-      if(tableJBBC->getPredecessorJBBCs().entries())
-        continue;
+      if (tableJBBC->getPredecessorJBBCs().entries()) continue;
 
-      //compare to currentTable's name
-      Int32 comparison_result = currentTable.getNodeAnalysis()->
-                                           getTableAnalysis()->
-                                           getTableDesc()->
-                                           getCorrNameObj().\
-                                           getCorrNameAsString().\
-                                           compareTo(factTableName,
-                                                     NAString::ignoreCase);
-      if(comparison_result == 0)
-      {
+      // compare to currentTable's name
+      Int32 comparison_result = currentTable.getNodeAnalysis()
+                                    ->getTableAnalysis()
+                                    ->getTableDesc()
+                                    ->getCorrNameObj()
+                                    .getCorrNameAsString()
+                                    .compareTo(factTableName, NAString::ignoreCase);
+      if (comparison_result == 0) {
         factTable = currentTable;
 
         // get fact table cardinality after application
         // of local key prefix preds
-        factTableCKPrefixCardinality =
-        appStatMan->
-          getStatsForLocalPredsOnCKPOfJBBC(factTable)->
-            getResultCardinality();
+        factTableCKPrefixCardinality = appStatMan->getStatsForLocalPredsOnCKPOfJBBC(factTable)->getResultCardinality();
 
 #ifdef _DEBUG
-        if ( CmpCommon::getDefault( NSK_DBG ) == DF_ON  &&
-             CmpCommon::getDefault( NSK_DBG_MJRULES_TRACKING ) == DF_ON )
-        {
+        if (CmpCommon::getDefault(NSK_DBG) == DF_ON && CmpCommon::getDefault(NSK_DBG_MJRULES_TRACKING) == DF_ON) {
           CURRCONTEXT_OPTDEBUG->stream() << "Picked the fact Table specified by user" << endl;
           CURRCONTEXT_OPTDEBUG->stream() << "fact Table: " << factTable.getText() << endl;
           CURRCONTEXT_OPTDEBUG->stream() << "fact Table  num rows scanned: ";
-          CURRCONTEXT_OPTDEBUG->stream() << istring(Lng32(factTableCKPrefixCardinality.value()))\
-                          << endl;
+          CURRCONTEXT_OPTDEBUG->stream() << istring(Lng32(factTableCKPrefixCardinality.value())) << endl;
         }
 #endif
         break;
       }
-
     }
   }
 
@@ -6664,7 +5314,7 @@ CANodeId JBBSubsetAnalysis::findFactTable(
   // these are for debugging
   CostScalar largestTableActualRecordSize(0);
   CostScalar largestTableEffectiveRecordSize(0);
-#endif //_DEBUG
+#endif  //_DEBUG
 
   // second largest table after application of local predicates on prefix of
   // clustering key
@@ -6676,10 +5326,9 @@ CANodeId JBBSubsetAnalysis::findFactTable(
   // these are for debugging
   CostScalar secondLargestTableActualRecordSize(0);
   CostScalar secondLargestTableEffectiveRecordSize(0);
-#endif //_DEBUG
+#endif  //_DEBUG
 
-  UInt32 recordSizeCap =
-    (ActiveSchemaDB()->getDefaults()).getAsLong(COMP_INT_4);
+  UInt32 recordSizeCap = (ActiveSchemaDB()->getDefaults()).getAsLong(COMP_INT_4);
 
   CostScalar maxRecordSize(recordSizeCap);
 
@@ -6688,8 +5337,7 @@ CANodeId JBBSubsetAnalysis::findFactTable(
 
   UInt32 numChildren = childSet.entries();
 
-  CostScalar PAtoScanRatio =
-    (ActiveSchemaDB()->getDefaults()).getAsLong(COMP_INT_45);
+  CostScalar PAtoScanRatio = (ActiveSchemaDB()->getDefaults()).getAsLong(COMP_INT_45);
 
   // Flag indicating if we got the following info for independent tables i.e.
   // tables that are join via inner-non-semi joins
@@ -6697,165 +5345,135 @@ CANodeId JBBSubsetAnalysis::findFactTable(
   // * sumOfTotalDataVol
   NABoolean gotTableStats = FALSE;
 
-  //The following loop performs the sorting of the JBBCs in
-  //this multi-join based on the cardinality after application
-  //of local predicates on clustering key prefix
-  for(UInt32 i = 0; i < numChildren; i++)
-  {
-    //To start with, pick an arbitrary child as largest
+  // The following loop performs the sorting of the JBBCs in
+  // this multi-join based on the cardinality after application
+  // of local predicates on clustering key prefix
+  for (UInt32 i = 0; i < numChildren; i++) {
+    // To start with, pick an arbitrary child as largest
     CANodeId largestChild = childSet.init();
     childSet.next(largestChild);
 
-    if(!largestChild.getNodeAnalysis()->getTableAnalysis())
-    {
+    if (!largestChild.getNodeAnalysis()->getTableAnalysis()) {
       childSet.remove(largestChild);
       continue;
     }
 
-    JBBC * largestChildJBBC = largestChild.getNodeAnalysis()->getJBBC();
+    JBBC *largestChildJBBC = largestChild.getNodeAnalysis()->getJBBC();
 
-    Join * largestChildParentJoin = largestChildJBBC->getOriginalParentJoin();
+    Join *largestChildParentJoin = largestChildJBBC->getOriginalParentJoin();
 
     // fact table cannot depend on any other table
-    if (largestChildParentJoin &&
-        !(largestChildParentJoin->isInnerNonSemiNonTSJJoin()))
-    {
+    if (largestChildParentJoin && !(largestChildParentJoin->isInnerNonSemiNonTSJJoin())) {
       childSet.remove(largestChild);
       continue;
     }
 
-    //get cardinality
+    // get cardinality
     EstLogPropSharedPtr estLogProps = appStatMan->getStatsForLocalPredsOnCKPOfJBBC(largestChild);
 
     // cardinality of largest child
     CostScalar largestChildCardinality = estLogProps->getResultCardinality();
 
     // record size of largest child
-    CostScalar largestChildRecordSize = largestChild.getNodeAnalysis()->
-                                                     getTableAnalysis()->
-                                                     getTableDesc()->
-                                                     getNATable()->
-                                                     getRecordLength();
+    CostScalar largestChildRecordSize =
+        largestChild.getNodeAnalysis()->getTableAnalysis()->getTableDesc()->getNATable()->getRecordLength();
 
     estLogProps = appStatMan->getStatsForCANodeId(largestChild);
     CostScalar largestChildOutputCard = estLogProps->getResultCardinality();
-    RowSize largestChildOutputRowSize = largestChild.getNodeAnalysis()->
-                                    getOriginalExpr()->
-                                      getGroupAnalysis()->
-                                        getGroupAttr()->
-                                          getRecordLength();
+    RowSize largestChildOutputRowSize =
+        largestChild.getNodeAnalysis()->getOriginalExpr()->getGroupAnalysis()->getGroupAttr()->getRecordLength();
 
 #ifdef _DEBUG
     // This is for debugging
     CostScalar largestChildActualRecordSize = largestChildRecordSize;
-#endif //_DEBUG
+#endif  //_DEBUG
 
-    if(largestChildRecordSize > maxRecordSize)
-      largestChildRecordSize = maxRecordSize;
+    if (largestChildRecordSize > maxRecordSize) largestChildRecordSize = maxRecordSize;
 
 #ifdef _DEBUG
     // This is for debugging
     CostScalar largestChildEffectiveRecordSize = largestChildRecordSize;
-#endif //_DEBUG
+#endif  //_DEBUG
 
-    CostScalar largestChildSubsetSize = largestChildCardinality *
-                                        largestChildRecordSize;
+    CostScalar largestChildSubsetSize = largestChildCardinality * largestChildRecordSize;
 
-    CostScalar largestChildDataRetrievedSize = largestChildOutputCard *
-                                        largestChildOutputRowSize;
+    CostScalar largestChildDataRetrievedSize = largestChildOutputCard * largestChildOutputRowSize;
 
-    CostScalar largestChildTotalDataVol = largestChildSubsetSize +
-      PAtoScanRatio * largestChildDataRetrievedSize / 100.0;
+    CostScalar largestChildTotalDataVol =
+        largestChildSubsetSize + PAtoScanRatio * largestChildDataRetrievedSize / 100.0;
 
-    for( CANodeId child = largestChild; childSet.next(child); childSet.advance(child))
-    {
-      //don't execute the following code if child is not a table
-      if(!child.getNodeAnalysis()->getTableAnalysis())
+    for (CANodeId child = largestChild; childSet.next(child); childSet.advance(child)) {
+      // don't execute the following code if child is not a table
+      if (!child.getNodeAnalysis()->getTableAnalysis()) continue;
+
+      JBBC *childJBBC = child.getNodeAnalysis()->getJBBC();
+
+      Join *childParentJoin = childJBBC->getOriginalParentJoin();
+
+      // fact table cannot depend on any other table
+      if (childParentJoin && !(childParentJoin->isInnerNonSemiNonTSJJoin())) continue;
+
+      /*
+      // fact table cannot depend on any other table
+      if(childJBBC->getPredecessorJBBCs().entries())
         continue;
-
-     JBBC * childJBBC = child.getNodeAnalysis()->getJBBC();
-
-     Join * childParentJoin = childJBBC->getOriginalParentJoin();
-
-     // fact table cannot depend on any other table
-     if (childParentJoin &&
-         !(childParentJoin->isInnerNonSemiNonTSJJoin()))
-       continue;
-
-     /*
-     // fact table cannot depend on any other table
-     if(childJBBC->getPredecessorJBBCs().entries())
-       continue;
-     */
+      */
 
       // Current child is a table increment the count
-      if(!gotTableStats)
-        numTablesInCurrentMultiJoin++;
+      if (!gotTableStats) numTablesInCurrentMultiJoin++;
 
-      //get cardinality of child after application of local preds on
-      //clustering key prefix
+      // get cardinality of child after application of local preds on
+      // clustering key prefix
       estLogProps = appStatMan->getStatsForLocalPredsOnCKPOfJBBC(child);
       CostScalar childCardinality = estLogProps->getResultCardinality();
 
-      //Record Size of the factTable
-      CostScalar childRecordSize = child.getNodeAnalysis()->
-                                         getTableAnalysis()->
-                                         getTableDesc()->
-                                         getNATable()->
-                                         getRecordLength();
+      // Record Size of the factTable
+      CostScalar childRecordSize =
+          child.getNodeAnalysis()->getTableAnalysis()->getTableDesc()->getNATable()->getRecordLength();
 
 #ifdef _DEBUG
       CostScalar childActualRecordSize = childRecordSize;
-#endif //_DEBUG
+#endif  //_DEBUG
 
-      if(childRecordSize > maxRecordSize)
-        childRecordSize = maxRecordSize;
+      if (childRecordSize > maxRecordSize) childRecordSize = maxRecordSize;
 
 #ifdef _DEBUG
       CostScalar childEffectiveRecordSize = childRecordSize;
-#endif //_DEBUG
+#endif  //_DEBUG
 
       CostScalar childSubsetSize = childCardinality * childRecordSize;
-      
+
       estLogProps = appStatMan->getStatsForCANodeId(child);
       CostScalar childOutputCard = estLogProps->getResultCardinality();
-      RowSize childOutputRowSize = child.getNodeAnalysis()->
-                               getOriginalExpr()->
-                                 getGroupAnalysis()->
-                                   getGroupAttr()->
-                                     getRecordLength();
+      RowSize childOutputRowSize =
+          child.getNodeAnalysis()->getOriginalExpr()->getGroupAnalysis()->getGroupAttr()->getRecordLength();
       CostScalar childDataRetrievedSize = childOutputCard * childOutputRowSize;
-      CostScalar childTotalDataVol = childSubsetSize +
-        PAtoScanRatio * childDataRetrievedSize / 100.0;
+      CostScalar childTotalDataVol = childSubsetSize + PAtoScanRatio * childDataRetrievedSize / 100.0;
 
-      if(!gotTableStats)
-        sumOfTotalDataVol += childTotalDataVol;
+      if (!gotTableStats) sumOfTotalDataVol += childTotalDataVol;
 
-      //if this child's TotalDataVol is larger than the largest child's
-      //TotalDataVol, set this child to be the largest
-      if( childTotalDataVol >= largestChildTotalDataVol)
-      {
+      // if this child's TotalDataVol is larger than the largest child's
+      // TotalDataVol, set this child to be the largest
+      if (childTotalDataVol >= largestChildTotalDataVol) {
         largestChild = child;
         largestChildCardinality = childCardinality;
-        largestChildTotalDataVol=childTotalDataVol;
+        largestChildTotalDataVol = childTotalDataVol;
 
 #ifdef _DEBUG
         // These are for debugging
         largestChildActualRecordSize = childActualRecordSize;
         largestChildEffectiveRecordSize = childEffectiveRecordSize;
-#endif //_DEBUG
+#endif  //_DEBUG
       }
     }
 
     // we got the table stats (not histograms but the stats mentioned above)
     gotTableStats = TRUE;
 
-    //remove the largest child from the child set
+    // remove the largest child from the child set
     childSet.remove(largestChild);
 
-    if ((largestTable != NULL_CA_ID) &&
-        (largestChild.getNodeAnalysis()->getTableAnalysis()))
-    {
+    if ((largestTable != NULL_CA_ID) && (largestChild.getNodeAnalysis()->getTableAnalysis())) {
       secondLargestTable = largestChild;
       secondLargestTableCardinality = largestChildCardinality;
       secondLargestTableTotalDataVol = largestChildTotalDataVol;
@@ -6864,149 +5482,117 @@ CANodeId JBBSubsetAnalysis::findFactTable(
       // These are for debugging
       secondLargestTableActualRecordSize = largestChildActualRecordSize;
       secondLargestTableEffectiveRecordSize = largestChildEffectiveRecordSize;
-#endif //_DEBUG
+#endif  //_DEBUG
       break;
     }
 
     // get the fact Table
-    if ((largestTable == NULL_CA_ID) &&
-        (largestChild.getNodeAnalysis()->getTableAnalysis()))
-    {
+    if ((largestTable == NULL_CA_ID) && (largestChild.getNodeAnalysis()->getTableAnalysis())) {
       largestTable = largestChild;
       largestTableCardinality = largestChildCardinality;
       largestTableTotalDataVol = largestChildTotalDataVol;
 
 #ifdef _DEBUG
-      //These are for debugging
+      // These are for debugging
       largestTableActualRecordSize = largestChildActualRecordSize;
       largestTableEffectiveRecordSize = largestChildEffectiveRecordSize;
-#endif //_DEBUG
+#endif  //_DEBUG
     }
   }
 
   biggestTable = largestTable;
 
-  if ((secondLargestTable == NULL_CA_ID) &&
-      (largestTable != NULL_CA_ID))
-  {
+  if ((secondLargestTable == NULL_CA_ID) && (largestTable != NULL_CA_ID)) {
     // get CANodeIdSet representing this JBBSubset
     CANodeIdSet childSet = getJBBCs();
-    
-    JBBWA * jbbWA = jbb_->getJBBWA();
-    
-    const CASortedList * sortedListOfNodes = jbbWA->getNodesSortedByLocalKeyPrefixPredsCard();
-    
-    for( UInt32 i = 0;
-         i < sortedListOfNodes->entries();
-         i++)
-    {
-      if(childSet.contains((*sortedListOfNodes)[i]))
-      {
-        if((*sortedListOfNodes)[i] == largestTable)
-        {
+
+    JBBWA *jbbWA = jbb_->getJBBWA();
+
+    const CASortedList *sortedListOfNodes = jbbWA->getNodesSortedByLocalKeyPrefixPredsCard();
+
+    for (UInt32 i = 0; i < sortedListOfNodes->entries(); i++) {
+      if (childSet.contains((*sortedListOfNodes)[i])) {
+        if ((*sortedListOfNodes)[i] == largestTable) {
           factTableCKPrefixCardinality = largestTableCardinality;
           factTable = largestTable;
         }
         break;
       }
-    }    
+    }
 
     return factTable;
   }
 
   CostScalar averageSizeOfAllTablesExceptLargest(csZero);
 
-  sumOfTotalDataVol-=largestTableTotalDataVol;
-  numTablesInCurrentMultiJoin-=1;
+  sumOfTotalDataVol -= largestTableTotalDataVol;
+  numTablesInCurrentMultiJoin -= 1;
 
-  if(numTablesInCurrentMultiJoin.isGreaterThanZero())
-    averageSizeOfAllTablesExceptLargest=
-      sumOfTotalDataVol / numTablesInCurrentMultiJoin;
+  if (numTablesInCurrentMultiJoin.isGreaterThanZero())
+    averageSizeOfAllTablesExceptLargest = sumOfTotalDataVol / numTablesInCurrentMultiJoin;
 
 #ifdef _DEBUG
-  if ( CmpCommon::getDefault( NSK_DBG ) == DF_ON  &&
-       CmpCommon::getDefault( NSK_DBG_MJRULES_TRACKING ) == DF_ON )
-  {
+  if (CmpCommon::getDefault(NSK_DBG) == DF_ON && CmpCommon::getDefault(NSK_DBG_MJRULES_TRACKING) == DF_ON) {
     CURRCONTEXT_OPTDEBUG->stream() << "Largest Table: " << largestTable.getText() << endl;
     CURRCONTEXT_OPTDEBUG->stream() << "Largest Table  num rows scanned: ";
-    CURRCONTEXT_OPTDEBUG->stream() << istring(Lng32(largestTableCardinality.value()))\
-                    << endl;
+    CURRCONTEXT_OPTDEBUG->stream() << istring(Lng32(largestTableCardinality.value())) << endl;
     CURRCONTEXT_OPTDEBUG->stream() << "Largest Table actual rowsize: ";
-    CURRCONTEXT_OPTDEBUG->stream() << istring(Lng32(largestTableActualRecordSize.value()))\
-                    << endl;
+    CURRCONTEXT_OPTDEBUG->stream() << istring(Lng32(largestTableActualRecordSize.value())) << endl;
     CURRCONTEXT_OPTDEBUG->stream() << "Largest Table effective rowsize: ";
-    CURRCONTEXT_OPTDEBUG->stream() << istring(Lng32(largestTableEffectiveRecordSize.value()))\
-                    << endl;
+    CURRCONTEXT_OPTDEBUG->stream() << istring(Lng32(largestTableEffectiveRecordSize.value())) << endl;
     CURRCONTEXT_OPTDEBUG->stream() << "Largest Table data scanned: ";
-    CURRCONTEXT_OPTDEBUG->stream() << istring(Lng32(largestTableTotalDataVol.value()))\
-                    << endl;
+    CURRCONTEXT_OPTDEBUG->stream() << istring(Lng32(largestTableTotalDataVol.value())) << endl;
     CURRCONTEXT_OPTDEBUG->stream() << "Average size of all tables apart from largest: ";
-    CURRCONTEXT_OPTDEBUG->stream() << istring(Lng32(averageSizeOfAllTablesExceptLargest.value()))\
-                    << endl;
-    CURRCONTEXT_OPTDEBUG->stream() << "Second Largest Table is: " << secondLargestTable.getText() <<endl;
+    CURRCONTEXT_OPTDEBUG->stream() << istring(Lng32(averageSizeOfAllTablesExceptLargest.value())) << endl;
+    CURRCONTEXT_OPTDEBUG->stream() << "Second Largest Table is: " << secondLargestTable.getText() << endl;
     CURRCONTEXT_OPTDEBUG->stream() << "Second Largest Table num rows scanned: ";
-    CURRCONTEXT_OPTDEBUG->stream() << istring(Lng32(secondLargestTableCardinality.value()))\
-                    << endl;
+    CURRCONTEXT_OPTDEBUG->stream() << istring(Lng32(secondLargestTableCardinality.value())) << endl;
     CURRCONTEXT_OPTDEBUG->stream() << "Second Largest Table actual rowsize: ";
-    CURRCONTEXT_OPTDEBUG->stream() << istring(Lng32(secondLargestTableActualRecordSize.value()))\
-                    << endl;
+    CURRCONTEXT_OPTDEBUG->stream() << istring(Lng32(secondLargestTableActualRecordSize.value())) << endl;
     CURRCONTEXT_OPTDEBUG->stream() << "Second Largest Table effective rowsize: ";
-    CURRCONTEXT_OPTDEBUG->stream() << istring(Lng32(secondLargestTableEffectiveRecordSize.value()))\
-                    << endl;
+    CURRCONTEXT_OPTDEBUG->stream() << istring(Lng32(secondLargestTableEffectiveRecordSize.value())) << endl;
     CURRCONTEXT_OPTDEBUG->stream() << "Second Largest Table data scanned: ";
-    CURRCONTEXT_OPTDEBUG->stream() << istring(Lng32(secondLargestTableTotalDataVol.value()))\
-                    << endl;
+    CURRCONTEXT_OPTDEBUG->stream() << istring(Lng32(secondLargestTableTotalDataVol.value())) << endl;
     CURRCONTEXT_OPTDEBUG->stream() << endl;
   }
-#endif //_DEBUG
+#endif  //_DEBUG
 
-  UInt32 factTableFactor =
-    (ActiveSchemaDB()->getDefaults()).getAsLong(COMP_INT_2);
+  UInt32 factTableFactor = (ActiveSchemaDB()->getDefaults()).getAsLong(COMP_INT_2);
 
-  //check if the largest table can be considered a fact table
-  if (((largestTableTotalDataVol/secondLargestTableTotalDataVol) >= factTableFactor) &&
-      (factTable == NULL_CA_ID))
-  {
+  // check if the largest table can be considered a fact table
+  if (((largestTableTotalDataVol / secondLargestTableTotalDataVol) >= factTableFactor) && (factTable == NULL_CA_ID)) {
     factTableCKPrefixCardinality = largestTableCardinality;
     factTable = largestTable;
   }
 
-  //if we want to force a star join plan
-  //This has to be done otherwise the star join pattern is
-  //not considered a match without a fact table
+  // if we want to force a star join plan
+  // This has to be done otherwise the star join pattern is
+  // not considered a match without a fact table
   if (((CmpCommon::getDefault(DIMENSIONAL_QUERY_OPTIMIZATION) == DF_ON) ||
        (CmpCommon::getDefault(COMP_BOOL_13) == DF_ON)) &&
       (factTable == NULL_CA_ID))
     factTable = largestTable;
 
 #ifdef _DEBUG
-  if ( CmpCommon::getDefault( NSK_DBG ) == DF_ON  &&
-       CmpCommon::getDefault( NSK_DBG_MJRULES_TRACKING ) == DF_ON )
-  {
+  if (CmpCommon::getDefault(NSK_DBG) == DF_ON && CmpCommon::getDefault(NSK_DBG_MJRULES_TRACKING) == DF_ON) {
     CURRCONTEXT_OPTDEBUG->stream() << "FactTable chosen: " << factTable.getText() << endl;
   }
-#endif //_DEBUG
+#endif  //_DEBUG
 
   return factTable;
 
-};//JBBSubsetAnalysis::findFactTable
+};  // JBBSubsetAnalysis::findFactTable
 
-CANodeId JBBSubsetAnalysis::findFactAndLargestTable(
-  CostScalar & factTableCKPrefixCardinality,
-  CANodeId & biggestTable)
-{
-
-  if (computedFactAndLargestTable_)
-  {
+CANodeId JBBSubsetAnalysis::findFactAndLargestTable(CostScalar &factTableCKPrefixCardinality, CANodeId &biggestTable) {
+  if (computedFactAndLargestTable_) {
     biggestTable = largestTable_;
     return factTable_;
   }
 
-  //get CANodeIdSet representing this MultiJoin
+  // get CANodeIdSet representing this MultiJoin
   CANodeIdSet childSet = getJBBCs();
 
-  CANodeId factTable = findFactTable
-    ( childSet, factTableCKPrefixCardinality, biggestTable );
+  CANodeId factTable = findFactTable(childSet, factTableCKPrefixCardinality, biggestTable);
 
   largestTable_ = biggestTable;
   factTable_ = factTable;
@@ -7015,37 +5601,32 @@ CANodeId JBBSubsetAnalysis::findFactAndLargestTable(
 
   return factTable;
 
-};//JBBSubsetAnalysis::findFactAndLargestTable
+};  // JBBSubsetAnalysis::findFactAndLargestTable
 
-CANodeId JBBSubsetAnalysis::computeCenterTable()
-{
-  if(centerTableComputed_)
-  {
+CANodeId JBBSubsetAnalysis::computeCenterTable() {
+  if (centerTableComputed_) {
     return centerTable_;
   }
 
-  //get CANodeIdSet representing this MultiJoin
+  // get CANodeIdSet representing this MultiJoin
   CANodeIdSet childSet = getJBBCs();
 
-  //Get a handle to ASM
-  AppliedStatMan * appStatMan = QueryAnalysis::ASM();
+  // Get a handle to ASM
+  AppliedStatMan *appStatMan = QueryAnalysis::ASM();
 
-  //n is the number of jbbcs (i.e. tables) in this multijoin
+  // n is the number of jbbcs (i.e. tables) in this multijoin
   UInt32 n = childSet.entries();
 
   CANodeId center = NULL_CA_ID;
 
 #ifdef _DEBUG
-  if ( CmpCommon::getDefault( NSK_DBG ) == DF_ON  &&
-       CmpCommon::getDefault( NSK_DBG_MJRULES_TRACKING ) == DF_ON )
-  {
-    CURRCONTEXT_OPTDEBUG->stream() << "There are "<<n<<" jbbcs"<<endl;
+  if (CmpCommon::getDefault(NSK_DBG) == DF_ON && CmpCommon::getDefault(NSK_DBG_MJRULES_TRACKING) == DF_ON) {
+    CURRCONTEXT_OPTDEBUG->stream() << "There are " << n << " jbbcs" << endl;
   }
-#endif //_DEBUG
+#endif  //_DEBUG
 
   // require atleast 3 tables
-  if (n < 3)
-  {
+  if (n < 3) {
     centerTableComputed_ = TRUE;
     centerTable_ = NULL_CA_ID;
     centerTableConnectivity_ = 0;
@@ -7062,28 +5643,18 @@ CANodeId JBBSubsetAnalysis::computeCenterTable()
   // go over all the tables in the query
   // and create a set of tables that are
   // returning just one row
-  for(currentTable = childSet.init();
-      childSet.next(currentTable);
-      childSet.advance(currentTable))
-  {
+  for (currentTable = childSet.init(); childSet.next(currentTable); childSet.advance(currentTable)) {
     // get number of tables in this JBBC
-    Int32 numSubtreeTables = currentTable.getNodeAnalysis()
-                                      ->getJBBC()
-                                      ->getSubtreeTables().entries();
-    CostScalar jbbcCardinality = appStatMan->
-                                 getStatsForCANodeId(currentTable)->
-                                 getResultCardinality();
-    //currentTable.getNodeAnalysis()->getCardinality();
+    Int32 numSubtreeTables = currentTable.getNodeAnalysis()->getJBBC()->getSubtreeTables().entries();
+    CostScalar jbbcCardinality = appStatMan->getStatsForCANodeId(currentTable)->getResultCardinality();
+    // currentTable.getNodeAnalysis()->getCardinality();
 
-    if((jbbcCardinality == 1) &&
-       (numSubtreeTables < 2))
-       singleRowTables.insert(currentTable);
+    if ((jbbcCardinality == 1) && (numSubtreeTables < 2)) singleRowTables.insert(currentTable);
   }
 
   n = n - singleRowTables.entries();
 
-  if( n < 3)
-  {
+  if (n < 3) {
     centerTableComputed_ = TRUE;
     centerTable_ = NULL_CA_ID;
     centerTableConnectivity_ = 0;
@@ -7092,15 +5663,13 @@ CANodeId JBBSubsetAnalysis::computeCenterTable()
   }
 
 #ifdef _DEBUG
-  if ( CmpCommon::getDefault( NSK_DBG ) == DF_ON  &&
-       CmpCommon::getDefault( NSK_DBG_MJRULES_TRACKING ) == DF_ON )
-  {
-    CURRCONTEXT_OPTDEBUG->stream() << "SingleRow JBBCs are "<<singleRowTables.getText()<<endl;
+  if (CmpCommon::getDefault(NSK_DBG) == DF_ON && CmpCommon::getDefault(NSK_DBG_MJRULES_TRACKING) == DF_ON) {
+    CURRCONTEXT_OPTDEBUG->stream() << "SingleRow JBBCs are " << singleRowTables.getText() << endl;
   }
-#endif //_DEBUG
+#endif  //_DEBUG
 
   // minimum connectivity for center
-  UInt32 minimumCenterConnectivity = n-1;
+  UInt32 minimumCenterConnectivity = n - 1;
 
   // maximum connectivity for dimensions
   UInt32 maximumDimensionConnectivity = 1;
@@ -7113,22 +5682,21 @@ CANodeId JBBSubsetAnalysis::computeCenterTable()
   UInt32 maxDimConnectivity = 0;
 
   // figure out the parameters for matching the connectivity pattern
-  switch (n)
-  {
+  switch (n) {
     case 3:
     case 4:
       // for n == 4 or n==3
-      minimumCenterConnectivity = n-1;
+      minimumCenterConnectivity = n - 1;
       maximumDimensionConnectivity = 1;
       break;
     case 5:
       // for n == 5
-      minimumCenterConnectivity = n-2;
+      minimumCenterConnectivity = n - 2;
       maximumDimensionConnectivity = 2;
       break;
     default:
       // for n >= 6
-      minimumCenterConnectivity = n-3;
+      minimumCenterConnectivity = n - 3;
       // Changed COMP_INT_0 to COMP_INT_20 to avoid conflict with Nice context changes, with this
       // Nice Context feature is OFF by default. (06/07/06)
       maximumDimensionConnectivity = (ActiveSchemaDB()->getDefaults()).getAsLong(COMP_INT_20);
@@ -7136,20 +5704,16 @@ CANodeId JBBSubsetAnalysis::computeCenterTable()
   }
 
 #ifdef _DEBUG
-  if ( CmpCommon::getDefault( NSK_DBG ) == DF_ON  &&
-       CmpCommon::getDefault( NSK_DBG_MJRULES_TRACKING ) == DF_ON )
-  {
-    CURRCONTEXT_OPTDEBUG->stream() << "Pattern match parameters are: "<<endl;
-    CURRCONTEXT_OPTDEBUG->stream() << "Min center connectivity: "<<minimumCenterConnectivity<<endl;
-    CURRCONTEXT_OPTDEBUG->stream() << "Max dimension connectivity: "<<maximumDimensionConnectivity<<endl;
+  if (CmpCommon::getDefault(NSK_DBG) == DF_ON && CmpCommon::getDefault(NSK_DBG_MJRULES_TRACKING) == DF_ON) {
+    CURRCONTEXT_OPTDEBUG->stream() << "Pattern match parameters are: " << endl;
+    CURRCONTEXT_OPTDEBUG->stream() << "Min center connectivity: " << minimumCenterConnectivity << endl;
+    CURRCONTEXT_OPTDEBUG->stream() << "Max dimension connectivity: " << maximumDimensionConnectivity << endl;
     CURRCONTEXT_OPTDEBUG->stream() << endl;
   }
-#endif //_DEBUG
-
+#endif  //_DEBUG
 
   // get the fact table name if a fact table has been forced
-  const char* factTableName = ActiveSchemaDB()->getDefaults().
-                                getValue(COMP_STRING_1);
+  const char *factTableName = ActiveSchemaDB()->getDefaults().getValue(COMP_STRING_1);
 
   // variable that tells us that the
   // table we want to be the fact table
@@ -7163,67 +5727,52 @@ CANodeId JBBSubsetAnalysis::computeCenterTable()
   // Figure out:
   // * if this table is the center/fact table
   // * if this table is a dimension table
-  for(currentTable = childSet.init();
-      childSet.next(currentTable);
-      childSet.advance(currentTable))
-  {
+  for (currentTable = childSet.init(); childSet.next(currentTable); childSet.advance(currentTable)) {
     // if factTableName is NONE (default value),
     // then we don't want to force a particular
     // table to be the fact table
-    if(stricmp(factTableName,"NONE") != 0)
-    {
-      //if this is not a table move on to the next node
-      if(!currentTable.getNodeAnalysis()->getTableAnalysis())
-      {
+    if (stricmp(factTableName, "NONE") != 0) {
+      // if this is not a table move on to the next node
+      if (!currentTable.getNodeAnalysis()->getTableAnalysis()) {
         // compare to currentTable's name
         // if comparison is successful we get a zero
         // therefore reverse the result
-        centerTableForced = !(currentTable.getNodeAnalysis()->
-                                           getTableAnalysis()->
-                                           getTableDesc()->
-                                           getCorrNameObj().\
-                                           getCorrNameAsString().\
-                                           compareTo(factTableName,
-                                                     NAString::ignoreCase));
+        centerTableForced = !(currentTable.getNodeAnalysis()
+                                  ->getTableAnalysis()
+                                  ->getTableDesc()
+                                  ->getCorrNameObj()
+                                  .getCorrNameAsString()
+                                  .compareTo(factTableName, NAString::ignoreCase));
         // we found a the table that we wanted
         // force as the fact table
-        if (centerTableForced)
-        {
+        if (centerTableForced) {
           center = currentTable;
-          centerConnectivity = center.getNodeAnalysis()->
-                                      getJBBC()->
-                                      getJoinedJBBCs().
-                                      entries();
+          centerConnectivity = center.getNodeAnalysis()->getJBBC()->getJoinedJBBCs().entries();
         }
       }
     }
 
-    //all JBBCs connect to current table
+    // all JBBCs connect to current table
     CANodeIdSet connectedChildren = currentTable.getNodeAnalysis()->getJBBC()->getJoinedJBBCs();
 
     // get number of tables connected to current jbbc
     UInt32 numConnectedChildren = connectedChildren.entries();
 
 #ifdef _DEBUG
-  if ( CmpCommon::getDefault( NSK_DBG ) == DF_ON  &&
-       CmpCommon::getDefault( NSK_DBG_MJRULES_TRACKING ) == DF_ON )
-  {
-    CURRCONTEXT_OPTDEBUG->stream() << "JBBC: "<<currentTable.getText()<<endl;
-    CURRCONTEXT_OPTDEBUG->stream() << "connected jbbcs: "<<connectedChildren.getText()<<endl;
-    CURRCONTEXT_OPTDEBUG->stream() << endl;
-  }
-#endif //_DEBUG
+    if (CmpCommon::getDefault(NSK_DBG) == DF_ON && CmpCommon::getDefault(NSK_DBG_MJRULES_TRACKING) == DF_ON) {
+      CURRCONTEXT_OPTDEBUG->stream() << "JBBC: " << currentTable.getText() << endl;
+      CURRCONTEXT_OPTDEBUG->stream() << "connected jbbcs: " << connectedChildren.getText() << endl;
+      CURRCONTEXT_OPTDEBUG->stream() << endl;
+    }
+#endif  //_DEBUG
 
     // if current jbbc is:
     // * connected to at least minimumCenterConnectivity jbbcs
     // * has a connectivity greater than the connectivity
     //   of the current center/fact table
     // then set this jbbc to be the center/fact table
-    if ((numConnectedChildren >= minimumCenterConnectivity) &&
-        (centerConnectivity < numConnectedChildren) &&
-        (currentTable.getNodeAnalysis()->getTableAnalysis()) &&
-        (!centerTableForced))
-    {
+    if ((numConnectedChildren >= minimumCenterConnectivity) && (centerConnectivity < numConnectedChildren) &&
+        (currentTable.getNodeAnalysis()->getTableAnalysis()) && (!centerTableForced)) {
       // see we are going have found a new center
       // the previous center should be a dimension
       // make sure it is not connected to more than
@@ -7232,9 +5781,8 @@ CANodeId JBBSubsetAnalysis::computeCenterTable()
       // If the previous center is connected to a
       // greater number of tables than allowed for
       // a dimension table then fail pattern match
-      if (centerConnectivity > maximumDimensionConnectivity)
-      {
-  centerTableComputed_ = TRUE;
+      if (centerConnectivity > maximumDimensionConnectivity) {
+        centerTableComputed_ = TRUE;
         centerTable_ = NULL_CA_ID;
         centerTableConnectivity_ = 0;
         maxDimensionConnectivity_ = 0;
@@ -7243,30 +5791,25 @@ CANodeId JBBSubsetAnalysis::computeCenterTable()
 
       center = currentTable;
       centerConnectivity = numConnectedChildren;
-    }
-    else{
-
+    } else {
       // this table is potentially a dimension table
       // make sure it is not connected to more than
       // the allowed number of tables
 
       // Ignore tables that return 1 row when counting
       // the connected tables
-      UInt32 numNonSingleRowConnectedChildren =
-        connectedChildren.subtractSet(singleRowTables).entries();
+      UInt32 numNonSingleRowConnectedChildren = connectedChildren.subtractSet(singleRowTables).entries();
 
       // if the number of connected children is greater than
       // the maximum connectivity of any dimension table upto
       // this point, then update the maximum connectivity
-      if (numNonSingleRowConnectedChildren > maxDimConnectivity)
-        maxDimConnectivity = numNonSingleRowConnectedChildren;
+      if (numNonSingleRowConnectedChildren > maxDimConnectivity) maxDimConnectivity = numNonSingleRowConnectedChildren;
 
       // if this table is connected to more than the maximum
       // number of tables allowed for a dimension table
       // then fail the pattern match
-      if ( numNonSingleRowConnectedChildren > maximumDimensionConnectivity)
-      {
-  centerTableComputed_ = TRUE;
+      if (numNonSingleRowConnectedChildren > maximumDimensionConnectivity) {
+        centerTableComputed_ = TRUE;
         centerTable_ = NULL_CA_ID;
         centerTableConnectivity_ = 0;
         maxDimensionConnectivity_ = 0;
@@ -7276,25 +5819,20 @@ CANodeId JBBSubsetAnalysis::computeCenterTable()
   }
 
 #ifdef _DEBUG
-  if ( CmpCommon::getDefault( NSK_DBG ) == DF_ON  &&
-       CmpCommon::getDefault( NSK_DBG_MJRULES_TRACKING ) == DF_ON )
-  {
-    if(center != NULL_CA_ID)
-    {
-      CURRCONTEXT_OPTDEBUG->stream() << "Center Table is: "<<center.getText()<<endl;
-      CURRCONTEXT_OPTDEBUG->stream() << "Center connectivity is: "<<centerConnectivity<<endl;
-      CURRCONTEXT_OPTDEBUG->stream() << "Max dimension connectivity is: "<<maxDimConnectivity<<endl;
+  if (CmpCommon::getDefault(NSK_DBG) == DF_ON && CmpCommon::getDefault(NSK_DBG_MJRULES_TRACKING) == DF_ON) {
+    if (center != NULL_CA_ID) {
+      CURRCONTEXT_OPTDEBUG->stream() << "Center Table is: " << center.getText() << endl;
+      CURRCONTEXT_OPTDEBUG->stream() << "Center connectivity is: " << centerConnectivity << endl;
+      CURRCONTEXT_OPTDEBUG->stream() << "Max dimension connectivity is: " << maxDimConnectivity << endl;
       CURRCONTEXT_OPTDEBUG->stream() << endl;
-    }
-    else{
-      CURRCONTEXT_OPTDEBUG->stream() << "No center table found "<<center.getText()<<endl;
+    } else {
+      CURRCONTEXT_OPTDEBUG->stream() << "No center table found " << center.getText() << endl;
     }
   }
-#endif //_DEBUG
+#endif  //_DEBUG
 
   // we did not find a center table
-  if (center == NULL_CA_ID)
-  {
+  if (center == NULL_CA_ID) {
     centerTableComputed_ = TRUE;
     centerTable_ = NULL_CA_ID;
     centerTableConnectivity_ = 0;
@@ -7303,31 +5841,23 @@ CANodeId JBBSubsetAnalysis::computeCenterTable()
   }
 
   // get rows to be scanned for center table
-  CostScalar centerTableRowsToBeScanned =
-    appStatMan->getStatsForLocalPredsOnCKPOfJBBC(center)->
-                getResultCardinality();
+  CostScalar centerTableRowsToBeScanned = appStatMan->getStatsForLocalPredsOnCKPOfJBBC(center)->getResultCardinality();
 
   // get record size for center table
   CostScalar centerTableRecordSize =
-    center.getNodeAnalysis()->
-           getTableAnalysis()->
-           getTableDesc()->
-           getNATable()->
-           getRecordLength();
+      center.getNodeAnalysis()->getTableAnalysis()->getTableDesc()->getNATable()->getRecordLength();
 
   // compute amount of data to be scanned from center table
   // amount is in KB
-  CostScalar centerTableDataToBeScanned =
-    (centerTableRowsToBeScanned * centerTableRecordSize) / 1024;
+  CostScalar centerTableDataToBeScanned = (centerTableRowsToBeScanned * centerTableRecordSize) / 1024;
 
   // get number of partitions for the center table
-  CostScalar numCenterTablePartitions =
-    center.getNodeAnalysis()->
-           getTableAnalysis()->
-           getTableDesc()->
-           getClusteringIndex()->
-           getNAFileSet()->
-           getCountOfPartitions();
+  CostScalar numCenterTablePartitions = center.getNodeAnalysis()
+                                            ->getTableAnalysis()
+                                            ->getTableDesc()
+                                            ->getClusteringIndex()
+                                            ->getNAFileSet()
+                                            ->getCountOfPartitions();
 
   CostScalar sizePerPartition = centerTableDataToBeScanned / numCenterTablePartitions;
 
@@ -7340,72 +5870,53 @@ CANodeId JBBSubsetAnalysis::computeCenterTable()
   centerTablePartitions_ = numCenterTablePartitions;
   centerTableDataPerPartition_ = sizePerPartition;
 
-
 #ifdef _DEBUG
-  if ( CmpCommon::getDefault( NSK_DBG ) == DF_ON  &&
-       CmpCommon::getDefault( NSK_DBG_MJRULES_TRACKING ) == DF_ON )
-  {
-    CURRCONTEXT_OPTDEBUG->stream() << "Center Table Rows Scanned: "\
-                    <<centerTableRowsScanned_.getValue()<<endl;
-    CURRCONTEXT_OPTDEBUG->stream() << "Center Table Record Size: "\
-                    <<centerTableRecordSize.getValue()<<endl;
-    CURRCONTEXT_OPTDEBUG->stream() << "Center Table Data Scanned: "\
-                    <<centerTableDataScanned_.getValue()<<endl;
-    CURRCONTEXT_OPTDEBUG->stream() << "Center Table Num partitions: "\
-                    <<centerTablePartitions_.getValue()<<endl;
-    CURRCONTEXT_OPTDEBUG->stream() << "Center Table size per partition: "\
-                    <<centerTableDataPerPartition_.getValue()<<endl;
+  if (CmpCommon::getDefault(NSK_DBG) == DF_ON && CmpCommon::getDefault(NSK_DBG_MJRULES_TRACKING) == DF_ON) {
+    CURRCONTEXT_OPTDEBUG->stream() << "Center Table Rows Scanned: " << centerTableRowsScanned_.getValue() << endl;
+    CURRCONTEXT_OPTDEBUG->stream() << "Center Table Record Size: " << centerTableRecordSize.getValue() << endl;
+    CURRCONTEXT_OPTDEBUG->stream() << "Center Table Data Scanned: " << centerTableDataScanned_.getValue() << endl;
+    CURRCONTEXT_OPTDEBUG->stream() << "Center Table Num partitions: " << centerTablePartitions_.getValue() << endl;
+    CURRCONTEXT_OPTDEBUG->stream() << "Center Table size per partition: " << centerTableDataPerPartition_.getValue()
+                                   << endl;
   }
-#endif //_DEBUG
+#endif  //_DEBUG
 
   return centerTable_;
-} //JBBSubsetAnalysis::computeCenterTable
+}  // JBBSubsetAnalysis::computeCenterTable
 
 // This method, given a fact table, matches a multi-join to a star pattern
-NABoolean JBBSubsetAnalysis::isAStarPattern(CANodeId factTable,
-                                            CostScalar factTableCKPrefixCardinality)
-{
+NABoolean JBBSubsetAnalysis::isAStarPattern(CANodeId factTable, CostScalar factTableCKPrefixCardinality) {
+  if (CmpCommon::getDefault(COMP_BOOL_88) == DF_ON) return FALSE;
 
-  if (CmpCommon::getDefault(COMP_BOOL_88) == DF_ON)
-    return FALSE;
-
-  if(CmpCommon::getDefault(NESTED_JOINS) == DF_OFF)
-    return FALSE;
+  if (CmpCommon::getDefault(NESTED_JOINS) == DF_OFF) return FALSE;
 
 #ifdef _DEBUG
-  if ( CmpCommon::getDefault( NSK_DBG ) == DF_ON  &&
-       CmpCommon::getDefault( NSK_DBG_MJRULES_TRACKING ) == DF_ON )
-  {
-    CURRCONTEXT_OPTDEBUG->stream() << "JBBSubsetAnalysis_isAStarPattern_Begin" <<endl;
+  if (CmpCommon::getDefault(NSK_DBG) == DF_ON && CmpCommon::getDefault(NSK_DBG_MJRULES_TRACKING) == DF_ON) {
+    CURRCONTEXT_OPTDEBUG->stream() << "JBBSubsetAnalysis_isAStarPattern_Begin" << endl;
   }
-#endif //_DEBUG
+#endif  //_DEBUG
 
-  //get CANodeIdSet representing this MultiJoin
+  // get CANodeIdSet representing this MultiJoin
   CANodeIdSet childSet = getJBBCs();
 
-  //Get a handle to ASM
-  AppliedStatMan * appStatMan = QueryAnalysis::ASM();
+  // Get a handle to ASM
+  AppliedStatMan *appStatMan = QueryAnalysis::ASM();
 
-  //all nodes in this multi-join except the fact table
+  // all nodes in this multi-join except the fact table
   CANodeIdSet nodesExcludingFactTable = childSet;
   nodesExcludingFactTable.remove(factTable);
 
-  //temp vars used for iteration
-  ULng32 i=0;
+  // temp vars used for iteration
+  ULng32 i = 0;
   CANodeId currentNode;
   CANodeIdSet currentNodeSet;
   CostScalar currentCardinality;
 
   // get the index_desc for the facttable primary index
-  const IndexDesc * factTableIndexDesc =
-    factTable.getNodeAnalysis()
-      ->getTableAnalysis()
-        ->getTableDesc()
-          ->getClusteringIndex();
+  const IndexDesc *factTableIndexDesc =
+      factTable.getNodeAnalysis()->getTableAnalysis()->getTableDesc()->getClusteringIndex();
 
-  const PartitioningFunction * factTablePartFunc =
-    factTableIndexDesc
-      ->getPartitioningFunction();
+  const PartitioningFunction *factTablePartFunc = factTableIndexDesc->getPartitioningFunction();
 
   ValueIdSet factTablePartKey;
 
@@ -7413,23 +5924,16 @@ NABoolean JBBSubsetAnalysis::isAStarPattern(CANodeId factTable,
 
   NABoolean factIsHashPartitioned = FALSE;
 
-  if (factTablePartFunc)
-  {
-    factTablePartKey =
-      factTablePartFunc->getPartitioningKey();
+  if (factTablePartFunc) {
+    factTablePartKey = factTablePartFunc->getPartitioningKey();
 
-    factTableNumPartitions =
-      factTablePartFunc->getCountOfPartitions();
+    factTableNumPartitions = factTablePartFunc->getCountOfPartitions();
 
-    factIsHashPartitioned =
-      factTablePartFunc->isATableHashPartitioningFunction();
-
+    factIsHashPartitioned = factTablePartFunc->isATableHashPartitioningFunction();
   }
 
-  //for further processing we'll need the clustering key of the fact table
-  ValueIdList factTableCK =
-    factTableIndexDesc->getIndexKey();
-
+  // for further processing we'll need the clustering key of the fact table
+  ValueIdList factTableCK = factTableIndexDesc->getIndexKey();
 
   // Variables used during iteration
   ValueId keyColumn;
@@ -7451,32 +5955,23 @@ NABoolean JBBSubsetAnalysis::isAStarPattern(CANodeId factTable,
   // 1. Tables connected to Fact Table via join predicates on clustering key prefix
   // 2. Fact Table clustering key prefix columns that have a predicate on them
   // 3. Number of fact table clustering key prefix columns covered
-  connectedTables = factTable.getNodeAnalysis()->
-                              getTableAnalysis()->
-                              getJBBCsConnectedToPrefixOfList(
-                      nodesExcludingFactTable,
-                                        factTableCK,
-                                        numPrefixColsCoveredFromFactTableCK,
-                                        dummyForJoinPreds,
-                                              dummyForLocalPreds);
+  connectedTables = factTable.getNodeAnalysis()->getTableAnalysis()->getJBBCsConnectedToPrefixOfList(
+      nodesExcludingFactTable, factTableCK, numPrefixColsCoveredFromFactTableCK, dummyForJoinPreds, dummyForLocalPreds);
 
   // if a prefix of the fact table clustering key is not covered
   // by a join predicate, then return FALSE
-  if((!connectedTables.entries()))
-  {
+  if ((!connectedTables.entries())) {
 #ifdef _DEBUG
-    if ( CmpCommon::getDefault( NSK_DBG ) == DF_ON  &&
-         CmpCommon::getDefault( NSK_DBG_MJRULES_TRACKING ) == DF_ON )
-    {
-      CURRCONTEXT_OPTDEBUG->stream() << "Pattern Not Matched, there is no join predicate on prefix of clustering key" <<endl;
-      CURRCONTEXT_OPTDEBUG->stream() << "MJStarJoinIRule_isAStarPattern_End" <<endl;
+    if (CmpCommon::getDefault(NSK_DBG) == DF_ON && CmpCommon::getDefault(NSK_DBG_MJRULES_TRACKING) == DF_ON) {
+      CURRCONTEXT_OPTDEBUG->stream() << "Pattern Not Matched, there is no join predicate on prefix of clustering key"
+                                     << endl;
+      CURRCONTEXT_OPTDEBUG->stream() << "MJStarJoinIRule_isAStarPattern_End" << endl;
     }
-#endif //_DEBUG
+#endif  //_DEBUG
     // return FALSE, indicating this rule is not a good match for the current
     // query
     return FALSE;
   }
-
 
   // this set will be used to keep track of tables
   // that are not part of the edges of the star
@@ -7484,12 +5979,12 @@ NABoolean JBBSubsetAnalysis::isAStarPattern(CANodeId factTable,
   CANodeIdSet availableNodes(childSet);
 
   // remove fact table from available nodes
-  availableNodes-=factTable;
+  availableNodes -= factTable;
 
   // remove tables directly connected to the fact table
   // via join predicates on fact table clustering key
   // prefix
-  availableNodes-=connectedTables;
+  availableNodes -= connectedTables;
 
   // set of tables representing the edges of the star from tables connected to the
   // prefix of the fact table clustering key
@@ -7525,9 +6020,7 @@ NABoolean JBBSubsetAnalysis::isAStarPattern(CANodeId factTable,
   CostScalar factTableHashJoinCost;
 
   // compute the cost of accessing the fact Table as the outer most table
-  factTableHashJoinCost = computeDataAccessCostForTable(csZero,
-                                                        factTableCKPrefixCardinality,
-                                                        factTable);
+  factTableHashJoinCost = computeDataAccessCostForTable(csZero, factTableCKPrefixCardinality, factTable);
 
   // variable will be used while iterating through the loops below
   // cost of nested join of fact table with tables from edge
@@ -7535,7 +6028,7 @@ NABoolean JBBSubsetAnalysis::isAStarPattern(CANodeId factTable,
 
   // variable use to keep track of the lowest cost of a nested join
   // on the fact table
-  //CostScalar lowestFactTableCost(csZero);
+  // CostScalar lowestFactTableCost(csZero);
   CostScalar lowestCombinedCost(csZero);
 
   // This determines how much cheaper a fact table nested should be
@@ -7546,36 +6039,29 @@ NABoolean JBBSubsetAnalysis::isAStarPattern(CANodeId factTable,
   // Remember we are trying to find if a type-I plan is feasible
   // If not we'll try a type-II plan (i.e. a plan with a hash
   // join on the fact table)
-  UInt32 factTableCostFactor =
-    (ActiveSchemaDB()->getDefaults()).getAsLong(COMP_INT_3);
+  UInt32 factTableCostFactor = (ActiveSchemaDB()->getDefaults()).getAsLong(COMP_INT_3);
 
   // list of edges, where each edge starts from a column connected
   // to a key prefix of the fact table. The list is in the order
   // of the columns in the key of the fact table
-  NAList<CANodeIdSet> * listOfEdges =
-    new (CmpCommon::statementHeap()) NAList<CANodeIdSet> (CmpCommon::statementHeap(),
-                                                          connectedTables.entries());
-
+  NAList<CANodeIdSet> *listOfEdges =
+      new (CmpCommon::statementHeap()) NAList<CANodeIdSet>(CmpCommon::statementHeap(), connectedTables.entries());
 
 #ifdef _DEBUG
-      if ( CmpCommon::getDefault( NSK_DBG ) == DF_ON  &&
-           CmpCommon::getDefault( NSK_DBG_MJRULES_TRACKING ) == DF_ON )
-      {
-        CURRCONTEXT_OPTDEBUG->stream() << "Cost estimate of fact table access as outer most table: "\
-                        << istring(Lng32(factTableHashJoinCost.value()))\
-                        <<endl;
-        CURRCONTEXT_OPTDEBUG->stream() << "Star Join will make sense if fact table nested join access is "\
-                        << istring(Lng32(factTableCostFactor))\
-                        << " times cheaper" << endl;
-      }
-#endif //_DEBUG
+  if (CmpCommon::getDefault(NSK_DBG) == DF_ON && CmpCommon::getDefault(NSK_DBG_MJRULES_TRACKING) == DF_ON) {
+    CURRCONTEXT_OPTDEBUG->stream() << "Cost estimate of fact table access as outer most table: "
+                                   << istring(Lng32(factTableHashJoinCost.value())) << endl;
+    CURRCONTEXT_OPTDEBUG->stream() << "Star Join will make sense if fact table nested join access is "
+                                   << istring(Lng32(factTableCostFactor)) << " times cheaper" << endl;
+  }
+#endif  //_DEBUG
 
-  //Doing a nested join on the fact table will only make sense if accessing
-  //fact table as outer most table is factTableCostFactor times as expensive
-  //as doing a nested join
+  // Doing a nested join on the fact table will only make sense if accessing
+  // fact table as outer most table is factTableCostFactor times as expensive
+  // as doing a nested join
   factTableHashJoinCost = factTableHashJoinCost / factTableCostFactor;
 
-  //set of connected tables that have already been used to build edges
+  // set of connected tables that have already been used to build edges
   CANodeIdSet usedConnectedTables;
 
   UInt32 lookAhead = (ActiveSchemaDB()->getDefaults()).getAsLong(COMP_INT_18);
@@ -7617,9 +6103,8 @@ NABoolean JBBSubsetAnalysis::isAStarPattern(CANodeId factTable,
   CANodeIdSet prevEdgeAndFact;
   prevEdgeAndFact += factTable;
 
-  //iterate over the covered prefix of the clustering key
-  for (i = 0 ; i < (ULng32) numPrefixColsCoveredFromFactTableCK; i++)
-  {
+  // iterate over the covered prefix of the clustering key
+  for (i = 0; i < (ULng32)numPrefixColsCoveredFromFactTableCK; i++) {
     // Get the covered prefix on the fact table clustering key
     // covered prefix is constituted by columns that have either
     // a local or a join predicate on them.
@@ -7627,12 +6112,11 @@ NABoolean JBBSubsetAnalysis::isAStarPattern(CANodeId factTable,
     // get a handle to the key column
     keyColumn = factTableCK[i];
 
-    //get a handle to the column analysis for this column
-    ColAnalysis * keyColAnalysis = keyColumn.colAnalysis();
+    // get a handle to the column analysis for this column
+    ColAnalysis *keyColAnalysis = keyColumn.colAnalysis();
 
     // check if this column has join predicates on it
-    if(!keyColAnalysis->getAllConnectedJBBCs().entries())
-    {
+    if (!keyColAnalysis->getAllConnectedJBBCs().entries()) {
       // if this does not have a join predicate on it
       // then it's covered by a local pred. Add it to
       // the list of key prefix columns covered.
@@ -7664,15 +6148,14 @@ NABoolean JBBSubsetAnalysis::isAStarPattern(CANodeId factTable,
     // tables to connected tables in this multi-join
     tablesConnectedViaThisColumn.intersectSet(connectedTables);
 
-    if(!tablesConnectedViaThisColumn.entries())
-    {
-      if(usedConnectedTables.entries())
-	break;
+    if (!tablesConnectedViaThisColumn.entries()) {
+      if (usedConnectedTables.entries())
+        break;
       else
-	return FALSE;
+        return FALSE;
     }
 
-    //tablesConnectedViaThisColumn should have atleast one entry
+    // tablesConnectedViaThisColumn should have atleast one entry
     CCMPASSERT(tablesConnectedViaThisColumn.entries());
 
     /*
@@ -7688,26 +6171,22 @@ NABoolean JBBSubsetAnalysis::isAStarPattern(CANodeId factTable,
     // insert this column into list of key prefix columns covered
     coveredFactTableCKPrefix.insert(keyColumn);
 
-    //get the number of tables connected via this columns
-    UInt32 numTablesConnectedViaThisColumn =
-      tablesConnectedViaThisColumn.entries();
+    // get the number of tables connected via this columns
+    UInt32 numTablesConnectedViaThisColumn = tablesConnectedViaThisColumn.entries();
 
     // Remove tables that have already been considered in previous iterations
     tablesConnectedViaThisColumn.subtractSet(usedConnectedTables);
 
     // get connected tables that have not been considered
     // i.e. we have not built an edge starting from them.
-    UInt32 connectedTablesNotConsidered =
-      tablesConnectedViaThisColumn.entries();
+    UInt32 connectedTablesNotConsidered = tablesConnectedViaThisColumn.entries();
 
     // there are no connected tables to consider
-    if(!connectedTablesNotConsidered)
-      continue;
+    if (!connectedTablesNotConsidered) continue;
 
     // if tables connected via this column is less than the number of
     // connected tables not considered
-    if(numTablesConnectedViaThisColumn > connectedTablesNotConsidered)
-    {
+    if (numTablesConnectedViaThisColumn > connectedTablesNotConsidered) {
       // This would happen in the following scenario
       // consider fact table key is a, b, c
       // consider column connectivity as below
@@ -7739,15 +6218,11 @@ NABoolean JBBSubsetAnalysis::isAStarPattern(CANodeId factTable,
     CostScalar dataFlowFromTableToConsider = -1;
     CostScalar dataFlowAfterIncludingTableToConsider = -1;
 
-    if (tablesConnectedViaThisColumn.entries()==1)
-    {
-
+    if (tablesConnectedViaThisColumn.entries() == 1) {
       // get the jbbc in this set
       tableToConsider = tablesConnectedViaThisColumn.getFirst();
 
-    }
-    else{
-
+    } else {
       Lng32 prefixCoveredByTableToConsider = 0;
       CostScalar tableToConsiderFactTableCost = 0;
       CANodeIdSet coveredTables;
@@ -7767,18 +6242,12 @@ NABoolean JBBSubsetAnalysis::isAStarPattern(CANodeId factTable,
       // from table DIM1 rather than DIM2, since 'a' will cover a greater
       // key prefix.
 
-      for(CANodeId currentTable = tablesConnectedViaThisColumn.init();
-          tablesConnectedViaThisColumn.next(currentTable);
-          tablesConnectedViaThisColumn.advance(currentTable))
-      {
-        if (!usedConnectedTables.legalAddition(currentTable))
-          continue;
+      for (CANodeId currentTable = tablesConnectedViaThisColumn.init(); tablesConnectedViaThisColumn.next(currentTable);
+           tablesConnectedViaThisColumn.advance(currentTable)) {
+        if (!usedConnectedTables.legalAddition(currentTable)) continue;
 
         Lng32 coveredPrefix = 0;
-        CostScalar dataFlowFromCurrentTable =
-          appStatMan->
-            getStatsForCANodeId(currentTable)->
-              getResultCardinality();
+        CostScalar dataFlowFromCurrentTable = appStatMan->getStatsForCANodeId(currentTable)->getResultCardinality();
 
         // add currentTable to list of tables that we
         // have already determined cover key prefix
@@ -7791,127 +6260,95 @@ NABoolean JBBSubsetAnalysis::isAStarPattern(CANodeId factTable,
         usedConnectedTables.insert(currentTable);
 
         // find the key prefix covered
-        coveredTables = factTable.getNodeAnalysis()->
-                                  getTableAnalysis()->
-                                  getJBBCsConnectedToPrefixOfList(
-                                    usedConnectedTables,
-                                    factTableCK,
-                                    coveredPrefix,
-                                    dummyForJoinPreds,
-                                    dummyForLocalPreds);
+        coveredTables = factTable.getNodeAnalysis()->getTableAnalysis()->getJBBCsConnectedToPrefixOfList(
+            usedConnectedTables, factTableCK, coveredPrefix, dummyForJoinPreds, dummyForLocalPreds);
 
-        //build the edge from the current table
-        CANodeIdSet currentTableEdge =
-          extendEdge(currentTable, availableNodes,lookAhead);
-          
-        //all tables before fact
+        // build the edge from the current table
+        CANodeIdSet currentTableEdge = extendEdge(currentTable, availableNodes, lookAhead);
+
+        // all tables before fact
         CANodeIdSet jbbcsBeforeFact = currentTableEdge;
         jbbcsBeforeFact += edge;
-        
-        CostScalar dataFlowAfterIncludingCurrentTable =
-          appStatMan->
-            getStatsForCANodeIdSet(jbbcsBeforeFact)->
-              getResultCardinality();
 
-        if((factIsHashPartitioned) &&
-           (CmpCommon::getDefault(COMP_BOOL_150) == DF_OFF))
-        {
-          ValueIdSet factTableColumnsJoined = factTable.getNodeAnalysis()
-                                                ->getTableAnalysis()
-                                                  ->getColsConnectedViaEquiJoinPreds(jbbcsBeforeFact);
+        CostScalar dataFlowAfterIncludingCurrentTable =
+            appStatMan->getStatsForCANodeIdSet(jbbcsBeforeFact)->getResultCardinality();
+
+        if ((factIsHashPartitioned) && (CmpCommon::getDefault(COMP_BOOL_150) == DF_OFF)) {
+          ValueIdSet factTableColumnsJoined =
+              factTable.getNodeAnalysis()->getTableAnalysis()->getColsConnectedViaEquiJoinPreds(jbbcsBeforeFact);
 
           CollIndex numPartKeyCols = factTablePartKey.entries();
           CollIndex numJoinedCols = factTableColumnsJoined.entries();
           CollIndex numPartKeyColsCovered = 0;
 
-          for (ValueId VId = factTablePartKey.init();
-                             factTablePartKey.next(VId);
-                             factTablePartKey.advance(VId) )
-          {
-            ItemExpr * ce;
+          for (ValueId VId = factTablePartKey.init(); factTablePartKey.next(VId); factTablePartKey.advance(VId)) {
+            ItemExpr *ce;
             ValueIdSet vIdSet(VId);
-            if(vIdSet.referencesAConstExpr(&ce))
-            {
+            if (vIdSet.referencesAConstExpr(&ce)) {
               numPartKeyColsCovered++;
               continue;
             };
-            
+
             ValueIdSet tempJoinedCols = factTableColumnsJoined;
             tempJoinedCols.removeCoveredVIdSet(VId);
-            if(tempJoinedCols.entries() < numJoinedCols)
+            if (tempJoinedCols.entries() < numJoinedCols)
               numPartKeyColsCovered++;
             else
               break;
           }
 
-          if(numPartKeyColsCovered < numPartKeyCols)
-          {
-            dataFlowAfterIncludingCurrentTable = 
-              dataFlowAfterIncludingCurrentTable * factTableNumPartitions;
+          if (numPartKeyColsCovered < numPartKeyCols) {
+            dataFlowAfterIncludingCurrentTable = dataFlowAfterIncludingCurrentTable * factTableNumPartitions;
           }
         }
 
         // figure out the number of fact table rows that'll be scanned for this
         // nested join
-        factTableRowsToScan = appStatMan->
-                                getStatsForJoinPredsOnCKOfJBBC(jbbcsBeforeFact, factTable)->
-                                  getResultCardinality();
+        factTableRowsToScan =
+            appStatMan->getStatsForJoinPredsOnCKOfJBBC(jbbcsBeforeFact, factTable)->getResultCardinality();
 
         // figure out the rows coming out of the fact table after this nested join
         // using joinJBBChildren(prevEdgeAndFact, currentEdge) instead of
         // using joinJBBChildren(edge, factTable), in order to drive ASM using
         // joins, 'edge' could have cross products and will miss some cardinality
         // adjustments because of join with a potential cross product.
-        dataFlowFromFactTable = appStatMan->
-                                  joinJBBChildren(prevEdgeAndFact, currentTableEdge)->
-                                    getResultCardinality();
-
+        dataFlowFromFactTable = appStatMan->joinJBBChildren(prevEdgeAndFact, currentTableEdge)->getResultCardinality();
 
         // now cost the nested join
-        factTableCost = computeDataAccessCostForTable(dataFlowAfterIncludingCurrentTable,
-                                                      factTableRowsToScan,
-                                                      factTable);
-        
-        //put back nodes that were made unavailable
+        factTableCost =
+            computeDataAccessCostForTable(dataFlowAfterIncludingCurrentTable, factTableRowsToScan, factTable);
+
+        // put back nodes that were made unavailable
         currentTableEdge -= currentTable;
         availableNodes += currentTableEdge;
 
-        if ( (CmpCommon::getDefault(COMP_BOOL_14) == DF_ON))
-        {
-        // if covered prefix is the greater than the
-        // max prefix we have till now, then consider
-        // this table to start an edge from.
-        if((tableToConsider == NULL_CA_ID) ||
-             (prefixCoveredByTableToConsider < coveredPrefix) ||
-             ((prefixCoveredByTableToConsider) &&
-              (prefixCoveredByTableToConsider == coveredPrefix) &&
-            (dataFlowFromTableToConsider > dataFlowFromCurrentTable)))
-        {
-          tableToConsider = currentTable;
+        if ((CmpCommon::getDefault(COMP_BOOL_14) == DF_ON)) {
+          // if covered prefix is the greater than the
+          // max prefix we have till now, then consider
+          // this table to start an edge from.
+          if ((tableToConsider == NULL_CA_ID) || (prefixCoveredByTableToConsider < coveredPrefix) ||
+              ((prefixCoveredByTableToConsider) && (prefixCoveredByTableToConsider == coveredPrefix) &&
+               (dataFlowFromTableToConsider > dataFlowFromCurrentTable))) {
+            tableToConsider = currentTable;
+            tableToConsiderFactTableCost = factTableCost;
+            prefixCoveredByTableToConsider = coveredPrefix;
+            dataFlowFromTableToConsider = dataFlowFromCurrentTable;
+            dataFlowAfterIncludingTableToConsider = dataFlowAfterIncludingCurrentTable;
+          }
+        } else {
+          if ((tableToConsiderFactTableCost == 0) || (factTableCost < tableToConsiderFactTableCost)) {
+            tableToConsider = currentTable;
             tableToConsiderFactTableCost = factTableCost;
             prefixCoveredByTableToConsider = coveredPrefix;
             dataFlowFromTableToConsider = dataFlowFromCurrentTable;
             dataFlowAfterIncludingTableToConsider = dataFlowAfterIncludingCurrentTable;
           }
         }
-        else{
-          if ((tableToConsiderFactTableCost == 0) ||
-              (factTableCost < tableToConsiderFactTableCost))
-          {
-            tableToConsider = currentTable;
-            tableToConsiderFactTableCost = factTableCost;
-            prefixCoveredByTableToConsider = coveredPrefix;
-            dataFlowFromTableToConsider = dataFlowFromCurrentTable;
-            dataFlowAfterIncludingTableToConsider = dataFlowAfterIncludingCurrentTable;            
-          }
-        }
 
         // remove currentTable from list of tables that we
         // have already determined cover key prefix
         usedConnectedTables.remove(currentTable);
-
       }
-
     }
 
     // finally we have determined the table that provides for
@@ -7919,20 +6356,16 @@ NABoolean JBBSubsetAnalysis::isAStarPattern(CANodeId factTable,
     // the list of connected tables for which we had built edges
     usedConnectedTables.insert(tableToConsider);
 
-    //build the edge
-    currentEdge = extendEdge(tableToConsider, availableNodes,lookAhead);
+    // build the edge
+    currentEdge = extendEdge(tableToConsider, availableNodes, lookAhead);
 
     (*listOfEdges).insert(currentEdge);
 
     edge += currentEdge;
 #ifdef _DEBUG
-    if ( CmpCommon::getDefault( NSK_DBG ) == DF_ON  &&
-         CmpCommon::getDefault( NSK_DBG_MJRULES_TRACKING ) == DF_ON )
-    {
-      CURRCONTEXT_OPTDEBUG->stream() << "Built an edge starting from table "\
-                      << tableToConsider.getText()<< endl;
-      CURRCONTEXT_OPTDEBUG->stream() << "The edge is " \
-                      << currentEdge.getText()<<endl;
+    if (CmpCommon::getDefault(NSK_DBG) == DF_ON && CmpCommon::getDefault(NSK_DBG_MJRULES_TRACKING) == DF_ON) {
+      CURRCONTEXT_OPTDEBUG->stream() << "Built an edge starting from table " << tableToConsider.getText() << endl;
+      CURRCONTEXT_OPTDEBUG->stream() << "The edge is " << currentEdge.getText() << endl;
     }
 #endif
 
@@ -7941,9 +6374,7 @@ NABoolean JBBSubsetAnalysis::isAStarPattern(CANodeId factTable,
     // using joinJBBChildren(edge, factTable), in order to drive ASM using
     // joins, 'edge' could have cross products and will miss some cardinality
     // adjustments because of join with a potential cross product.
-    dataFlowFromFactTable = appStatMan->
-                              joinJBBChildren(prevEdgeAndFact, currentEdge)->
-                                getResultCardinality();
+    dataFlowFromFactTable = appStatMan->joinJBBChildren(prevEdgeAndFact, currentEdge)->getResultCardinality();
 
     prevEdgeAndFact += currentEdge;
   }
@@ -7954,38 +6385,29 @@ NABoolean JBBSubsetAnalysis::isAStarPattern(CANodeId factTable,
   // if there are still some tables left that were on the key columns
   // but were not considered earlier because we where optimizing key
   // coverage
-  if(usedConnectedTables.entries() != connectedTables.entries())
-  {
+  if (usedConnectedTables.entries() != connectedTables.entries()) {
     // build an edge from all the tables in the unusedConnectedTables set
     // since they still have predicates on fact table clustering key prefix
     // columns and could provide reduction.
     CANodeIdSet unusedConnectedTables(connectedTables);
     unusedConnectedTables.subtractSet(usedConnectedTables);
 
-    for(connectedTable = unusedConnectedTables.init();
-                         unusedConnectedTables.next(connectedTable);
-                         unusedConnectedTables.advance(connectedTable))
-    {
-
-      //build the edge
+    for (connectedTable = unusedConnectedTables.init(); unusedConnectedTables.next(connectedTable);
+         unusedConnectedTables.advance(connectedTable)) {
+      // build the edge
       currentEdge = extendEdge(connectedTable, availableNodes, lookAhead);
 
       (*listOfEdges).insert(currentEdge);
 
-       edge += currentEdge;
+      edge += currentEdge;
 #ifdef _DEBUG
-      if ( CmpCommon::getDefault( NSK_DBG ) == DF_ON  &&
-           CmpCommon::getDefault( NSK_DBG_MJRULES_TRACKING ) == DF_ON )
-      {
-        CURRCONTEXT_OPTDEBUG->stream() << "Built an edge starting from table "\
-                        << connectedTable.getText()<< endl;
-        CURRCONTEXT_OPTDEBUG->stream() << "The edge is " \
-                        << currentEdge.getText()<<endl;
+      if (CmpCommon::getDefault(NSK_DBG) == DF_ON && CmpCommon::getDefault(NSK_DBG_MJRULES_TRACKING) == DF_ON) {
+        CURRCONTEXT_OPTDEBUG->stream() << "Built an edge starting from table " << connectedTable.getText() << endl;
+        CURRCONTEXT_OPTDEBUG->stream() << "The edge is " << currentEdge.getText() << endl;
       }
 #endif
     }
   }
-
 
   // We have the list of edges joined to the fact table in the order
   // of the fact table clustering key columns.
@@ -8018,34 +6440,27 @@ NABoolean JBBSubsetAnalysis::isAStarPattern(CANodeId factTable,
   // whole fact table.
 
 #ifdef _DEBUG
-  if ( CmpCommon::getDefault( NSK_DBG ) == DF_ON  &&
-       CmpCommon::getDefault( NSK_DBG_MJRULES_TRACKING ) == DF_ON )
-  {
-    CURRCONTEXT_OPTDEBUG->stream() << "Starting to evaluate optimal location of Fact Table "<< endl;
-
+  if (CmpCommon::getDefault(NSK_DBG) == DF_ON && CmpCommon::getDefault(NSK_DBG_MJRULES_TRACKING) == DF_ON) {
+    CURRCONTEXT_OPTDEBUG->stream() << "Starting to evaluate optimal location of Fact Table " << endl;
   }
 #endif
 
-  //cost of fact table nested join after
-  //maximum possible key prefix coverage
-  CostScalar costForMaxKeyCoverage=0;
+  // cost of fact table nested join after
+  // maximum possible key prefix coverage
+  CostScalar costForMaxKeyCoverage = 0;
 
   prevEdgeAndFact.clear();
   edge.clear();
 
   CostScalar costOfDimProbes(csZero);
-  double probeHashTableUnitCost =
-    (double) (ActiveSchemaDB()->getDefaults()).getAsDouble
-    (MULTI_JOIN_PROBE_HASH_TABLE);
+  double probeHashTableUnitCost = (double)(ActiveSchemaDB()->getDefaults()).getAsDouble(MULTI_JOIN_PROBE_HASH_TABLE);
 
   // iterate over list of edges
-  for ( i = 0; i < (*listOfEdges).entries(); i++)
-  {
-
+  for (i = 0; i < (*listOfEdges).entries(); i++) {
     // get the current edge from the list of edges
     currentEdge = (*listOfEdges)[i];
 
-    //the edge that was used in the last iteration
+    // the edge that was used in the last iteration
     prevEdgeAndFact = edge;
     prevEdgeAndFact += factTable;
 
@@ -8058,68 +6473,50 @@ NABoolean JBBSubsetAnalysis::isAStarPattern(CANodeId factTable,
     // that'll be below the fact tables.
     // This is the number of probes going into the fact table
     // for this nested join
-    dataFlowFromEdge = appStatMan->
-                         getStatsForCANodeIdSet(edge)->
-                           getResultCardinality();
+    dataFlowFromEdge = appStatMan->getStatsForCANodeIdSet(edge)->getResultCardinality();
 
-    if((factIsHashPartitioned) &&
-       (CmpCommon::getDefault(COMP_BOOL_150) == DF_OFF))
-    {
-      ValueIdSet factTableColumnsJoined = factTable.getNodeAnalysis()
-                                            ->getTableAnalysis()
-                                              ->getColsConnectedViaEquiJoinPreds(edge);
+    if ((factIsHashPartitioned) && (CmpCommon::getDefault(COMP_BOOL_150) == DF_OFF)) {
+      ValueIdSet factTableColumnsJoined =
+          factTable.getNodeAnalysis()->getTableAnalysis()->getColsConnectedViaEquiJoinPreds(edge);
 
       CollIndex numPartKeyCols = factTablePartKey.entries();
       CollIndex numJoinedCols = factTableColumnsJoined.entries();
       CollIndex numPartKeyColsCovered = 0;
 
-      for (ValueId VId = factTablePartKey.init();
-	   factTablePartKey.next(VId);
-	   factTablePartKey.advance(VId) )
-      {
-        ItemExpr * ce;
+      for (ValueId VId = factTablePartKey.init(); factTablePartKey.next(VId); factTablePartKey.advance(VId)) {
+        ItemExpr *ce;
         ValueIdSet vIdSet(VId);
-        if(vIdSet.referencesAConstExpr(&ce))
-        {
+        if (vIdSet.referencesAConstExpr(&ce)) {
           numPartKeyColsCovered++;
           continue;
         };
- 
+
         ValueIdSet tempJoinedCols = factTableColumnsJoined;
         tempJoinedCols.removeCoveredVIdSet(VId);
-        if(tempJoinedCols.entries() < numJoinedCols)
+        if (tempJoinedCols.entries() < numJoinedCols)
           numPartKeyColsCovered++;
         else
           break;
       }
 
-      if(numPartKeyColsCovered < numPartKeyCols)
-      {
+      if (numPartKeyColsCovered < numPartKeyCols) {
         dataFlowFromEdge = dataFlowFromEdge * factTableNumPartitions;
       }
-
     }
 
     // figure out the number of fact table rows that'll be scanned for this
     // nested join
-    factTableRowsToScan = appStatMan->
-                            getStatsForJoinPredsOnCKOfJBBC(edge, factTable)->
-                              getResultCardinality();
+    factTableRowsToScan = appStatMan->getStatsForJoinPredsOnCKOfJBBC(edge, factTable)->getResultCardinality();
 
     // figure out the rows coming out of the fact table after this nested join
     // using joinJBBChildren(prevEdgeAndFact, currentEdge) instead of
     // using joinJBBChildren(edge, factTable), in order to drive ASM using
     // joins, 'edge' could have cross products and will miss some cardinality
     // adjustments because of join with a potential cross product.
-    dataFlowFromFactTable = appStatMan->
-                              joinJBBChildren(prevEdgeAndFact, currentEdge)->
-                                getResultCardinality();
-
+    dataFlowFromFactTable = appStatMan->joinJBBChildren(prevEdgeAndFact, currentEdge)->getResultCardinality();
 
     // now cost the nested join
-    factTableCost = computeDataAccessCostForTable(dataFlowFromEdge,
-                                                  factTableRowsToScan,
-                                                  factTable);
+    factTableCost = computeDataAccessCostForTable(dataFlowFromEdge, factTableRowsToScan, factTable);
 
     // capture the cost of the nested join when all edges are join below the
     // fact table.
@@ -8127,50 +6524,37 @@ NABoolean JBBSubsetAnalysis::isAStarPattern(CANodeId factTable,
     costForMaxKeyCoverage = factTableCost;
 
 #ifdef _DEBUG
-    if ( CmpCommon::getDefault( NSK_DBG ) == DF_ON  &&
-         CmpCommon::getDefault( NSK_DBG_MJRULES_TRACKING ) == DF_ON )
-    {
-      CURRCONTEXT_OPTDEBUG->stream() << "FactTable after edge " \
-                      << currentEdge.getText()<<endl;
-      CURRCONTEXT_OPTDEBUG->stream() << "The cummulative edge is "\
-                      << edge.getText()<<endl;
-      CURRCONTEXT_OPTDEBUG->stream() << "Probes into fact table: "\
-                      << istring(Lng32(dataFlowFromEdge.value()))\
-                      <<endl;
-      CURRCONTEXT_OPTDEBUG->stream() << "Fact Table Rows to scan: "\
-                      << istring(Lng32(factTableRowsToScan.value()))\
-                      <<endl;
-      CURRCONTEXT_OPTDEBUG->stream() << "Rows coming out of fact table: "\
-                      << istring(Lng32(dataFlowFromFactTable.value()))\
-                      <<endl;
-      CURRCONTEXT_OPTDEBUG->stream() << "Our cost estimate of fact table nested join: "\
-                      << istring(Lng32(factTableCost.value()))\
-                      <<endl;
+    if (CmpCommon::getDefault(NSK_DBG) == DF_ON && CmpCommon::getDefault(NSK_DBG_MJRULES_TRACKING) == DF_ON) {
+      CURRCONTEXT_OPTDEBUG->stream() << "FactTable after edge " << currentEdge.getText() << endl;
+      CURRCONTEXT_OPTDEBUG->stream() << "The cummulative edge is " << edge.getText() << endl;
+      CURRCONTEXT_OPTDEBUG->stream() << "Probes into fact table: " << istring(Lng32(dataFlowFromEdge.value())) << endl;
+      CURRCONTEXT_OPTDEBUG->stream() << "Fact Table Rows to scan: " << istring(Lng32(factTableRowsToScan.value()))
+                                     << endl;
+      CURRCONTEXT_OPTDEBUG->stream() << "Rows coming out of fact table: "
+                                     << istring(Lng32(dataFlowFromFactTable.value())) << endl;
+      CURRCONTEXT_OPTDEBUG->stream() << "Our cost estimate of fact table nested join: "
+                                     << istring(Lng32(factTableCost.value())) << endl;
     }
-#endif //_DEBUG
+#endif  //_DEBUG
 
     // if this is the first iteration
     // or current nested join cost is cheaper
     // than lowest nested join cost
     CostScalar combinedCost = costOfDimProbes + factTableCost;
-    if ((NOT lowestCombinedCost.isGreaterThanZero()) ||
-        (combinedCost < lowestCombinedCost))
-    {
+    if ((NOT lowestCombinedCost.isGreaterThanZero()) || (combinedCost < lowestCombinedCost)) {
       lowestCombinedCost = combinedCost;
 
-      if (lowestCombinedCost <= factTableHashJoinCost)
-      {
+      if (lowestCombinedCost <= factTableHashJoinCost) {
         optimalEdgeSet = edge;
 
         // set the set Of tables to be joined before the fact table,
         // this will be used during nextSubstitute for this rule.
-        nodesJoinedBeforeFactTable_ =
-        optimalEdgeSet;
+        nodesJoinedBeforeFactTable_ = optimalEdgeSet;
 
         // set the optimal location of the fact table in the
         // list of edges, this will be used by the nextSubstitute()
         // method
-        optimalFTLocation_ = (Int32) i+1;
+        optimalFTLocation_ = (Int32)i + 1;
         lowestFactNJCost_ = lowestCombinedCost;
       }
     }
@@ -8204,9 +6588,9 @@ NABoolean JBBSubsetAnalysis::isAStarPattern(CANodeId factTable,
   // if all the edges are below the fact
   costForMaxKeyFactNJ_ = costForMaxKeyCoverage;
 
-  //This variable determines if we want all edges of the star
-  //that join on the key prefix on the Fact Table, to be joined
-  //below i.e. before the fact table.
+  // This variable determines if we want all edges of the star
+  // that join on the key prefix on the Fact Table, to be joined
+  // below i.e. before the fact table.
   NABoolean forceMaxKeyCoverageOnFT = FALSE;
 
   // COMP_BOOL_12 is used to force a plan with max key coverage on
@@ -8221,44 +6605,36 @@ NABoolean JBBSubsetAnalysis::isAStarPattern(CANodeId factTable,
 
   // COMP_BOOL_13 basically means to force a star join rule plan.
 
-  //if we want to force max key prefix coverage on fact table
-  //this should only be allowed if fact table nested join is
-  //cheaper than doing a full scan of the fact table (i.e. the
-  //hash join scenario)
-  //If COMP_BOOL_12 is 'ON' then we'll just force a plan with
-  //max key prefix coverage on fact table
-  if ((costForMaxKeyCoverage < factTableHashJoinCost) &&
-      (CmpCommon::getDefault(COMP_BOOL_11) == DF_ON))
+  // if we want to force max key prefix coverage on fact table
+  // this should only be allowed if fact table nested join is
+  // cheaper than doing a full scan of the fact table (i.e. the
+  // hash join scenario)
+  // If COMP_BOOL_12 is 'ON' then we'll just force a plan with
+  // max key prefix coverage on fact table
+  if ((costForMaxKeyCoverage < factTableHashJoinCost) && (CmpCommon::getDefault(COMP_BOOL_11) == DF_ON))
     forceMaxKeyCoverageOnFT = TRUE;
 
-  //If COMP_BOOL_12 is 'ON' then we'll just force a plan with
-  //max key prefix coverage on fact table
-  if (CmpCommon::getDefault(COMP_BOOL_12) == DF_ON)
-    forceMaxKeyCoverageOnFT = TRUE;
+  // If COMP_BOOL_12 is 'ON' then we'll just force a plan with
+  // max key prefix coverage on fact table
+  if (CmpCommon::getDefault(COMP_BOOL_12) == DF_ON) forceMaxKeyCoverageOnFT = TRUE;
 
-
-  //COMP_BOOL_13 means force star join rule !!!
-  //therefore if starjoin rule was not found feasible
-  //just force max key coverage i.e. force all the
-  //edges joining on FT key prefix columns to be below
-  //fact table
-  if (((!optimalEdgeSet.entries()) &&
-       ( (CmpCommon::getDefault(DIMENSIONAL_QUERY_OPTIMIZATION) == DF_ON) ||
-         (CmpCommon::getDefault(COMP_BOOL_13) == DF_ON) )) &&
+  // COMP_BOOL_13 means force star join rule !!!
+  // therefore if starjoin rule was not found feasible
+  // just force max key coverage i.e. force all the
+  // edges joining on FT key prefix columns to be below
+  // fact table
+  if (((!optimalEdgeSet.entries()) && ((CmpCommon::getDefault(DIMENSIONAL_QUERY_OPTIMIZATION) == DF_ON) ||
+                                       (CmpCommon::getDefault(COMP_BOOL_13) == DF_ON))) &&
       (CmpCommon::getDefault(COMP_BOOL_77) != DF_ON))
     forceMaxKeyCoverageOnFT = TRUE;
 
-
   // if we are forcing max key prefix coverage for the
   // fact table nested join.
-  if(forceMaxKeyCoverageOnFT)
-  {
+  if (forceMaxKeyCoverageOnFT) {
     edge.clear();
 
     // iterate over list of edges
-    for ( i = 0; i < (*listOfEdges).entries(); i++)
-    {
-
+    for (i = 0; i < (*listOfEdges).entries(); i++) {
       currentEdge = (*listOfEdges)[i];
 
       edge += currentEdge;
@@ -8270,7 +6646,7 @@ NABoolean JBBSubsetAnalysis::isAStarPattern(CANodeId factTable,
     // this will be used during nextSubstitute for this rule.
     nodesJoinedBeforeFactTable_ = optimalEdgeSet;
 
-    optimalFTLocation_ = (Int32) (*listOfEdges).entries();
+    optimalFTLocation_ = (Int32)(*listOfEdges).entries();
   }
 
   // from the set of tables in all the edges that join to the key prefix
@@ -8284,17 +6660,11 @@ NABoolean JBBSubsetAnalysis::isAStarPattern(CANodeId factTable,
   availableNodes.addSet(edge);
 
 #ifdef _DEBUG
-  if ( CmpCommon::getDefault( NSK_DBG ) == DF_ON  &&
-       CmpCommon::getDefault( NSK_DBG_MJRULES_TRACKING ) == DF_ON )
-  {
-      CURRCONTEXT_OPTDEBUG->stream() << "The tables below fact table"\
-                      << optimalEdgeSet.getText()<<endl;
-      CURRCONTEXT_OPTDEBUG->stream() << "The tables above fact table "\
-                      << availableNodes.getText()<<endl;
-
+  if (CmpCommon::getDefault(NSK_DBG) == DF_ON && CmpCommon::getDefault(NSK_DBG_MJRULES_TRACKING) == DF_ON) {
+    CURRCONTEXT_OPTDEBUG->stream() << "The tables below fact table" << optimalEdgeSet.getText() << endl;
+    CURRCONTEXT_OPTDEBUG->stream() << "The tables above fact table " << availableNodes.getText() << endl;
   }
-#endif //_DEBUG
-
+#endif  //_DEBUG
 
   // nodes to be joined after Fact Table
   availableNodes_ = availableNodes;
@@ -8307,115 +6677,90 @@ NABoolean JBBSubsetAnalysis::isAStarPattern(CANodeId factTable,
   // 2. there were join predicates on fact table clustering key prefix but
   //    nested join on fact table clustering is just too expensive.
   // In either case, a type-I nested join plan is not a good idea
-  if (!optimalEdgeSet.entries())
-  {
-
+  if (!optimalEdgeSet.entries()) {
 #ifdef _DEBUG
-    if ( CmpCommon::getDefault( NSK_DBG ) == DF_ON  &&
-         CmpCommon::getDefault( NSK_DBG_MJRULES_TRACKING ) == DF_ON )
-    {
-      CURRCONTEXT_OPTDEBUG->stream() << "Pattern Not Matched, there is no significant reduction on fact table" <<endl;
-      CURRCONTEXT_OPTDEBUG->stream() << "JBBSubsetAnalysis_isAStarPattern_End" <<endl;
+    if (CmpCommon::getDefault(NSK_DBG) == DF_ON && CmpCommon::getDefault(NSK_DBG_MJRULES_TRACKING) == DF_ON) {
+      CURRCONTEXT_OPTDEBUG->stream() << "Pattern Not Matched, there is no significant reduction on fact table" << endl;
+      CURRCONTEXT_OPTDEBUG->stream() << "JBBSubsetAnalysis_isAStarPattern_End" << endl;
     }
-#endif //_DEBUG
+#endif  //_DEBUG
     // return FALSE, indicating this rule is not a good match for the current
     // query
     return FALSE;
   }
 
 #ifdef _DEBUG
-  if ( CmpCommon::getDefault( NSK_DBG ) == DF_ON  &&
-       CmpCommon::getDefault( NSK_DBG_MJRULES_TRACKING ) == DF_ON )
-  {
-    CURRCONTEXT_OPTDEBUG->stream() << "Pattern Matched" <<endl;
-    CURRCONTEXT_OPTDEBUG->stream() << "JBBSubsetAnalysis_isAStarPattern_End" <<endl;
+  if (CmpCommon::getDefault(NSK_DBG) == DF_ON && CmpCommon::getDefault(NSK_DBG_MJRULES_TRACKING) == DF_ON) {
+    CURRCONTEXT_OPTDEBUG->stream() << "Pattern Matched" << endl;
+    CURRCONTEXT_OPTDEBUG->stream() << "JBBSubsetAnalysis_isAStarPattern_End" << endl;
   }
-#endif //_DEBUG
+#endif  //_DEBUG
 
   CostScalar factNJAccessCost = lowestFactNJCost_;
-  
-  if (CmpCommon::getDefault(COMP_BOOL_12) == DF_ON)
-    factNJAccessCost = costForMaxKeyFactNJ_;
 
-  factTable.getNodeAnalysis()->
-    getTableAnalysis()->
-      setFactTableNJAccessCost(factNJAccessCost);
-      
+  if (CmpCommon::getDefault(COMP_BOOL_12) == DF_ON) factNJAccessCost = costForMaxKeyFactNJ_;
+
+  factTable.getNodeAnalysis()->getTableAnalysis()->setFactTableNJAccessCost(factNJAccessCost);
+
   return TRUE;
 }
 
 // get a rough estimate of cost for doing a nested join on the fact table
 // number of probes = dataFlowFromEdge
 // Rows of fact table that will be scanned = factTableRowsToScan
-CostScalar JBBSubsetAnalysis::computeDataAccessCostForTable(
-                                CostScalar probes,
-                                CostScalar tableRowsToScan,
-                                CANodeId   table)
-{
-  //Get a handle to ASM
-  AppliedStatMan * appStatMan = QueryAnalysis::ASM();
+CostScalar JBBSubsetAnalysis::computeDataAccessCostForTable(CostScalar probes, CostScalar tableRowsToScan,
+                                                            CANodeId table) {
+  // Get a handle to ASM
+  AppliedStatMan *appStatMan = QueryAnalysis::ASM();
 
-  CostScalar costPerProbe ((ActiveSchemaDB()->getDefaults()).getAsDouble(COMP_FLOAT_0));
-  CostScalar costPerUnitSize ((ActiveSchemaDB()->getDefaults()).getAsDouble(COMP_FLOAT_1));
-  CostScalar costPerRowReturned ((ActiveSchemaDB()->getDefaults()).getAsDouble(COMP_FLOAT_2));
+  CostScalar costPerProbe((ActiveSchemaDB()->getDefaults()).getAsDouble(COMP_FLOAT_0));
+  CostScalar costPerUnitSize((ActiveSchemaDB()->getDefaults()).getAsDouble(COMP_FLOAT_1));
+  CostScalar costPerRowReturned((ActiveSchemaDB()->getDefaults()).getAsDouble(COMP_FLOAT_2));
 
-  //Record Size of the factTable
-  CostScalar tableRecordSize = table.getNodeAnalysis()->
-                                     getTableAnalysis()->
-                                     getTableDesc()->
-                                     getNATable()->
-                                     getRecordLength();
+  // Record Size of the factTable
+  CostScalar tableRecordSize =
+      table.getNodeAnalysis()->getTableAnalysis()->getTableDesc()->getNATable()->getRecordLength();
 
-  CostScalar subsetSizeKB = (tableRowsToScan * tableRecordSize)/1024;
+  CostScalar subsetSizeKB = (tableRowsToScan * tableRecordSize) / 1024;
 
-  CostScalar tableRowsReturned = appStatMan->
-                                 getStatsForCANodeId(table)->
-                                 getResultCardinality();
+  CostScalar tableRowsReturned = appStatMan->getStatsForCANodeId(table)->getResultCardinality();
 
-  RelExpr * tableScanExpr = table.getNodeAnalysis()->getOriginalExpr();
+  RelExpr *tableScanExpr = table.getNodeAnalysis()->getOriginalExpr();
 
-  CostScalar sizeOfRowReturnedFromTable =
-    tableScanExpr->getGroupAttr()->getRecordLength();
+  CostScalar sizeOfRowReturnedFromTable = tableScanExpr->getGroupAttr()->getRecordLength();
 
-
-  CostScalar costForTable = (costPerProbe * probes) +
-                            (costPerUnitSize * subsetSizeKB) +
-                            (costPerRowReturned *
-                            tableRowsReturned *
-                            sizeOfRowReturnedFromTable);
+  CostScalar costForTable = (costPerProbe * probes) + (costPerUnitSize * subsetSizeKB) +
+                            (costPerRowReturned * tableRowsReturned * sizeOfRowReturnedFromTable);
 
   return costForTable;
 }
 
-//extends an edge of the star
-CANodeIdSet JBBSubsetAnalysis::extendEdge(CANodeId thisTable,//in
-                                          CANodeIdSet& availableNodes,
-                                          UInt32 lookAhead)//in\out
+// extends an edge of the star
+CANodeIdSet JBBSubsetAnalysis::extendEdge(CANodeId thisTable,  // in
+                                          CANodeIdSet &availableNodes,
+                                          UInt32 lookAhead)  // in\out
 {
   // CANodeIdSet representing thisTable
   CANodeIdSet thisTableSet(thisTable);
 
-  //Get a handle to ASM
-  AppliedStatMan * appStatMan = QueryAnalysis::ASM();
+  // Get a handle to ASM
+  AppliedStatMan *appStatMan = QueryAnalysis::ASM();
 
   // return value
   CANodeIdSet edge;
 
-  //remove this table from the availableNodes
-  //if it there
-  if(availableNodes.contains(thisTable))
-    availableNodes.remove(thisTable);
+  // remove this table from the availableNodes
+  // if it there
+  if (availableNodes.contains(thisTable)) availableNodes.remove(thisTable);
 
-  //extend the edge to include thisTable
+  // extend the edge to include thisTable
   edge += thisTable;
 
-  if(!availableNodes.entries())
-    return edge;
+  if (!availableNodes.entries()) return edge;
 
-  if(lookAhead)
-    lookAhead -=1;
+  if (lookAhead) lookAhead -= 1;
 
-  //if(!lookAhead)
+  // if(!lookAhead)
   //  return edge;
 
   // Tables connected to thisTable that are still available
@@ -8423,8 +6768,7 @@ CANodeIdSet JBBSubsetAnalysis::extendEdge(CANodeId thisTable,//in
 
   // get all connected tables that are still available
   // i.e. not already part of some edge.
-  connectedTables = thisTable.getNodeAnalysis()
-                      ->getJBBC()->getJoinedJBBCs();
+  connectedTables = thisTable.getNodeAnalysis()->getJBBC()->getJoinedJBBCs();
   connectedTables.intersectSet(availableNodes);
 
   CANodeIdSet connectedTablesBackup = connectedTables;
@@ -8432,130 +6776,99 @@ CANodeIdSet JBBSubsetAnalysis::extendEdge(CANodeId thisTable,//in
   UInt32 numConnectedTables = connectedTables.entries();
 
   // get after local predicate cardinality of thisTable
-  CostScalar thisTableCardinality =  appStatMan->
-                                       getStatsForCANodeId(thisTable)->
-                                         getResultCardinality();
+  CostScalar thisTableCardinality = appStatMan->getStatsForCANodeId(thisTable)->getResultCardinality();
 
-  //temp var to capture the set representing edge extension
+  // temp var to capture the set representing edge extension
   CANodeIdSet edgeExtension;
 
-  //temp var to get cardinality of edge as it is being built
+  // temp var to get cardinality of edge as it is being built
   CostScalar currentEdgeCardinality;
 
-  //variables used for iteration
+  // variables used for iteration
   UInt32 i;
   CANodeId connectedTable;
   CANodeIdSet connectedTableSet;
 
-  const CostScalar EXTENSION_ALLOWANCE(1.05); // We allow 5% increase
+  const CostScalar EXTENSION_ALLOWANCE(1.05);  // We allow 5% increase
 
   // sort connected Tables by cardinality of join with thisTable
-  for (i = 0;i < numConnectedTables; i++)
-  {
+  for (i = 0; i < numConnectedTables; i++) {
     CostScalar lowestCardinality = 0;
 
     // A table from the set of connectedTables that produces the lowest
     // cardinality when joined to thisTable
     CANodeId smallestRemainingTable = NULL_CA_ID;
 
-    for(connectedTable = connectedTables.init();
-                         connectedTables.next(connectedTable);
-                         connectedTables.advance(connectedTable))
-    {
+    for (connectedTable = connectedTables.init(); connectedTables.next(connectedTable);
+         connectedTables.advance(connectedTable)) {
+      if (!edge.legalAddition(connectedTable)) continue;
 
-      if(!edge.legalAddition(connectedTable))
-        continue;
-
-      //get a CANodeIdSet only containing the connectedTable to estimate
-      //join of connectedTable with thisTable.
+      // get a CANodeIdSet only containing the connectedTable to estimate
+      // join of connectedTable with thisTable.
       connectedTableSet = connectedTable;
 
-      //get cardinality for join of thisTable and connectedTable
-      CostScalar joinCardinality =
-        appStatMan->joinJBBChildren(thisTableSet, connectedTableSet)
-          ->getResultCardinality();
+      // get cardinality for join of thisTable and connectedTable
+      CostScalar joinCardinality = appStatMan->joinJBBChildren(thisTableSet, connectedTableSet)->getResultCardinality();
 
-      if(smallestRemainingTable == NULL_CA_ID)
-      {
+      if (smallestRemainingTable == NULL_CA_ID) {
         lowestCardinality = joinCardinality;
         smallestRemainingTable = connectedTable;
         continue;
       }
 
-      if(joinCardinality < lowestCardinality)
-      {
+      if (joinCardinality < lowestCardinality) {
         lowestCardinality = joinCardinality;
         smallestRemainingTable = connectedTable;
       }
     }
 
-    //add the table that produces the lowest cardinality
-    //after joining with thisTable
-    //connectedTablesSorted.insert(smallestRemainingTable);
+    // add the table that produces the lowest cardinality
+    // after joining with thisTable
+    // connectedTablesSorted.insert(smallestRemainingTable);
 
-    if(smallestRemainingTable == NULL_CA_ID)
-      continue;
+    if (smallestRemainingTable == NULL_CA_ID) continue;
 
-    JBBC * smallestRemainingTableJBBC =
-      smallestRemainingTable.getNodeAnalysis()->getJBBC();
+    JBBC *smallestRemainingTableJBBC = smallestRemainingTable.getNodeAnalysis()->getJBBC();
 
-    JBBSubset * thisTableJBBSubset =
-      thisTableSet.jbbcsToJBBSubset();
+    JBBSubset *thisTableJBBSubset = thisTableSet.jbbcsToJBBSubset();
 
     NABoolean isGuaranteedNonExpandingJoin =
-      thisTableJBBSubset->
-        isGuaranteedNonExpandingJoin(*smallestRemainingTableJBBC);
+        thisTableJBBSubset->isGuaranteedNonExpandingJoin(*smallestRemainingTableJBBC);
 
     // if the smallestRemaingTable
-    if((lowestCardinality <= (EXTENSION_ALLOWANCE * thisTableCardinality))&&
-       (isGuaranteedNonExpandingJoin || 
-        lookAhead || 
-        smallestRemainingTableJBBC->isOneRowMax()))
-    {
-
-      //sortedListOfConnectedReducingTables.insert(connectedTable);
-      //only extend to a table that is still available
-      if(availableNodes.contains(smallestRemainingTable))
-      {
-
-        edgeExtension = extendEdge(smallestRemainingTable,
-                                   availableNodes,
-                                   lookAhead);
+    if ((lowestCardinality <= (EXTENSION_ALLOWANCE * thisTableCardinality)) &&
+        (isGuaranteedNonExpandingJoin || lookAhead || smallestRemainingTableJBBC->isOneRowMax())) {
+      // sortedListOfConnectedReducingTables.insert(connectedTable);
+      // only extend to a table that is still available
+      if (availableNodes.contains(smallestRemainingTable)) {
+        edgeExtension = extendEdge(smallestRemainingTable, availableNodes, lookAhead);
 
         // get cardinality for join of edge and edgeExtension
         // I don't really need to do this, but doing this to
         // better drive the ASM cache
-        currentEdgeCardinality =
-          appStatMan->joinJBBChildren(edge, edgeExtension)
-            ->getResultCardinality();
+        currentEdgeCardinality = appStatMan->joinJBBChildren(edge, edgeExtension)->getResultCardinality();
 
         edge += edgeExtension;
       }
     }
 
-    //remove it from connectedTables
+    // remove it from connectedTables
     connectedTables.remove(smallestRemainingTable);
   }
 
   return edge;
 }
-//JBBSubsetAnalysis::extendEdge
+// JBBSubsetAnalysis::extendEdge
 
-void JBBSubsetAnalysis::arrangeTablesAfterFactForStarJoinTypeI()
-{
-
+void JBBSubsetAnalysis::arrangeTablesAfterFactForStarJoinTypeI() {
 #ifdef _DEBUG
-  if ( CmpCommon::getDefault( NSK_DBG ) == DF_ON  &&
-       CmpCommon::getDefault( NSK_DBG_MJRULES_TRACKING ) == DF_ON )
-  {
-    CURRCONTEXT_OPTDEBUG->stream() << "JBBSubsetAnalysis_arrangeTablesAfterFactForStarJoinTypeI_Begin"\
-    <<endl;
-
+  if (CmpCommon::getDefault(NSK_DBG) == DF_ON && CmpCommon::getDefault(NSK_DBG_MJRULES_TRACKING) == DF_ON) {
+    CURRCONTEXT_OPTDEBUG->stream() << "JBBSubsetAnalysis_arrangeTablesAfterFactForStarJoinTypeI_Begin" << endl;
   }
-#endif //_DEBUG
+#endif  //_DEBUG
 
-  //Get a handle to ASM
-  AppliedStatMan * appStatMan = QueryAnalysis::ASM();
+  // Get a handle to ASM
+  AppliedStatMan *appStatMan = QueryAnalysis::ASM();
 
   // create the plan
   // By this time we should have already done the following:
@@ -8595,86 +6908,65 @@ void JBBSubsetAnalysis::arrangeTablesAfterFactForStarJoinTypeI()
   CANodeIdSet availableNodes = availableNodes_;
 
 #ifdef _DEBUG
-    //print the right child of the current join
-    if ( CmpCommon::getDefault( NSK_DBG ) == DF_ON  &&
-       CmpCommon::getDefault( NSK_DBG_MJRULES_TRACKING ) == DF_ON )
-    {
-
-      CURRCONTEXT_OPTDEBUG->stream() << "Table to be joined after fact table "\
-                      << availableNodes.getText() << endl;
-      CURRCONTEXT_OPTDEBUG->stream() << "Fact table "\
-                      << factTable.getText() << endl;
-      CURRCONTEXT_OPTDEBUG->stream() << "Table to be joined before fact table "\
-                      << nodesJoinedBeforeFactTable_.getText() << endl;
-    }
+  // print the right child of the current join
+  if (CmpCommon::getDefault(NSK_DBG) == DF_ON && CmpCommon::getDefault(NSK_DBG_MJRULES_TRACKING) == DF_ON) {
+    CURRCONTEXT_OPTDEBUG->stream() << "Table to be joined after fact table " << availableNodes.getText() << endl;
+    CURRCONTEXT_OPTDEBUG->stream() << "Fact table " << factTable.getText() << endl;
+    CURRCONTEXT_OPTDEBUG->stream() << "Table to be joined before fact table " << nodesJoinedBeforeFactTable_.getText()
+                                   << endl;
+  }
 #endif
 
   // this list should contain the available nodes in the order
   // they should be joined
-  NAList<CANodeIdSet> availableNodesOrdered(CmpCommon::statementHeap(),
-                                            availableNodes.entries());
+  NAList<CANodeIdSet> availableNodesOrdered(CmpCommon::statementHeap(), availableNodes.entries());
 
-  while (availableNodes.entries())
-  {
+  while (availableNodes.entries()) {
     // Node that produces the fewest rows when joined to the factTableSet
     CANodeId smallestNode = NULL_CA_ID;
 
     CostScalar lowestReduction = 0;
 
-    for( CANodeId availableNode = availableNodes.init();
-         availableNodes.next(availableNode);
-         availableNodes.advance(availableNode))
-    {
-      JBBC * availableNodeJBBC =
-        availableNode.getNodeAnalysis()->getJBBC();
+    for (CANodeId availableNode = availableNodes.init(); availableNodes.next(availableNode);
+         availableNodes.advance(availableNode)) {
+      JBBC *availableNodeJBBC = availableNode.getNodeAnalysis()->getJBBC();
 
-      if (!factTableSet.legalAddition(availableNode))
-        continue;
+      if (!factTableSet.legalAddition(availableNode)) continue;
 
-      //get cardinality of joining factTableset to availableNode
-      //to nonAvailableNodes
-      CostScalar joinReduction =
-        appStatMan->
-          computeJoinReduction(factTableSet, availableNode);
+      // get cardinality of joining factTableset to availableNode
+      // to nonAvailableNodes
+      CostScalar joinReduction = appStatMan->computeJoinReduction(factTableSet, availableNode);
 
       if ((CmpCommon::getDefault(COMP_BOOL_163) == DF_OFF) &&
           !(availableNodeJBBC->getOriginalParentJoin() &&
-            availableNodeJBBC->getOriginalParentJoin()->isRoutineJoin()))
-      {
-        JBBSubset * factTableSetJBBSubset = factTableSet.jbbcsToJBBSubset();
+            availableNodeJBBC->getOriginalParentJoin()->isRoutineJoin())) {
+        JBBSubset *factTableSetJBBSubset = factTableSet.jbbcsToJBBSubset();
         CANodeIdSet availableNodeSet;
         availableNodeSet += availableNode;
-        JBBSubset * availableNodeJBBSubset = availableNodeSet.jbbcsToJBBSubset();
+        JBBSubset *availableNodeJBBSubset = availableNodeSet.jbbcsToJBBSubset();
         ValueIdSet joinPreds = factTableSetJBBSubset->joinPredsWithOther(*availableNodeJBBSubset);
         joinPreds += availableNodeJBBSubset->getPredsWithPredecessors();
-        if(joinPreds.entries() == 0)
-        {
+        if (joinPreds.entries() == 0) {
           joinReduction += 1000000;
         }
       }
 
-      if((smallestNode == NULL_CA_ID) ||
-         (joinReduction <= lowestReduction))
-      {
+      if ((smallestNode == NULL_CA_ID) || (joinReduction <= lowestReduction)) {
         lowestReduction = joinReduction;
         smallestNode = availableNode;
       }
-
     }
 
     CANodeIdSet smallestAndAttachedNodes = smallestNode;
 
-    Join * smallestNodeParentJoin = smallestNode.getNodeAnalysis()->getJBBC()
-                                                     ->getOriginalParentJoin();
-    
+    Join *smallestNodeParentJoin = smallestNode.getNodeAnalysis()->getJBBC()->getOriginalParentJoin();
+
     NABoolean smallestNodeParentIsInnerNonSemiJoin =
-      (!smallestNodeParentJoin) || smallestNodeParentJoin->isInnerNonSemiJoin();
-      
-    if ((CmpCommon::getDefault(COMP_BOOL_49) == DF_OFF) &&
-        smallestNodeParentIsInnerNonSemiJoin)
+        (!smallestNodeParentJoin) || smallestNodeParentJoin->isInnerNonSemiJoin();
+
+    if ((CmpCommon::getDefault(COMP_BOOL_49) == DF_OFF) && smallestNodeParentIsInnerNonSemiJoin)
       // Add nodes connected to smallestNode by join on their key.
-      smallestAndAttachedNodes += smallestNode.getNodeAnalysis()->
-                                        getJBBC()->getJBBCsConnectedViaKeyJoins();
+      smallestAndAttachedNodes += smallestNode.getNodeAnalysis()->getJBBC()->getJBBCsConnectedViaKeyJoins();
 
     smallestAndAttachedNodes.intersectSet(availableNodes);
 
@@ -8698,21 +6990,19 @@ void JBBSubsetAnalysis::arrangeTablesAfterFactForStarJoinTypeI()
   UInt32 i = 0;
 
   // first insert tables from AFT
-  for(i = availableNodesOrdered.entries(); i > 0; i--)
-  {
-    leftDeepJoinSequence_.insert(availableNodesOrdered[(i-1)]);
+  for (i = availableNodesOrdered.entries(); i > 0; i--) {
+    leftDeepJoinSequence_.insert(availableNodesOrdered[(i - 1)]);
   }
 
   // insert the fact table
   leftDeepJoinSequence_.insert(factTable);
 
-  NAList<CANodeIdSet> * listOfEdges = listOfEdges_;
+  NAList<CANodeIdSet> *listOfEdges = listOfEdges_;
 
   // insert the tables from the BFT
   // tables in the BFT are organized as a list of edges
-  for(i = optimalFTLocation_; i > 0; i--)
-  {
-    leftDeepJoinSequence_.insert((*listOfEdges)[(i-1)]);
+  for (i = optimalFTLocation_; i > 0; i--) {
+    leftDeepJoinSequence_.insert((*listOfEdges)[(i - 1)]);
   }
 
   // Consolidate the fringes
@@ -8721,40 +7011,28 @@ void JBBSubsetAnalysis::arrangeTablesAfterFactForStarJoinTypeI()
   // end - construct left deep join sequence
 
 #ifdef _DEBUG
-  if ( CmpCommon::getDefault( NSK_DBG ) == DF_ON  &&
-       CmpCommon::getDefault( NSK_DBG_MJRULES_TRACKING ) == DF_ON )
-  {
-    CURRCONTEXT_OPTDEBUG->stream() << "JBBSubsetAnalysis_arrangeTablesAfterFactForStarJoinTypeI_End" <<endl;
+  if (CmpCommon::getDefault(NSK_DBG) == DF_ON && CmpCommon::getDefault(NSK_DBG_MJRULES_TRACKING) == DF_ON) {
+    CURRCONTEXT_OPTDEBUG->stream() << "JBBSubsetAnalysis_arrangeTablesAfterFactForStarJoinTypeI_End" << endl;
   }
-#endif //_DEBUG
+#endif  //_DEBUG
 }
 
-void JBBSubsetAnalysis::arrangeTablesAfterFactForStarJoinTypeII()
-{
-
+void JBBSubsetAnalysis::arrangeTablesAfterFactForStarJoinTypeII() {
 #ifdef _DEBUG
-  if ( CmpCommon::getDefault( NSK_DBG ) == DF_ON  &&
-       CmpCommon::getDefault( NSK_DBG_MJRULES_TRACKING ) == DF_ON )
-  {
-    CURRCONTEXT_OPTDEBUG->stream()
-      << "JBBSubsetAnalysis_arrangeTablesAfterFactForStarJoinTypeII_Begin"
-      << endl;
+  if (CmpCommon::getDefault(NSK_DBG) == DF_ON && CmpCommon::getDefault(NSK_DBG_MJRULES_TRACKING) == DF_ON) {
+    CURRCONTEXT_OPTDEBUG->stream() << "JBBSubsetAnalysis_arrangeTablesAfterFactForStarJoinTypeII_Begin" << endl;
   }
-#endif //_DEBUG
+#endif  //_DEBUG
 
+  // Get a handle to ASM
+  AppliedStatMan *appStatMan = QueryAnalysis::ASM();
 
-  //Get a handle to ASM
-  AppliedStatMan * appStatMan = QueryAnalysis::ASM();
-
-  RelExpr * result = NULL;
+  RelExpr *result = NULL;
 
   CANodeId factTable;
-  if (CmpCommon::getDefault(COMP_BOOL_1) == DF_OFF)
-  {
+  if (CmpCommon::getDefault(COMP_BOOL_1) == DF_OFF) {
     factTable = getLargestIndependentNode();
-  }
-  else
-  {
+  } else {
     factTable = factTable_;
   }
 
@@ -8762,19 +7040,14 @@ void JBBSubsetAnalysis::arrangeTablesAfterFactForStarJoinTypeII()
   // Begin: Find if there is a full outer join or TSJ node
   // -----------------------------------------------------
 
-  //get CANodeIdSet representing this MultiJoin
+  // get CANodeIdSet representing this MultiJoin
   CANodeIdSet childSet = getJBBCs();
   CANodeId fullOuterJoinOrTSJNode = NULL_CA_ID;
 
   CANodeId currentNode = NULL_CA_ID;
-  for(currentNode=childSet.init();
-      childSet.next(currentNode);
-      childSet.advance(currentNode))
-  {
-    JBBC * currentJBBC = currentNode.getNodeAnalysis()->getJBBC();
-    if (currentJBBC->isFullOuterJoinOrTSJJBBC() && 
-        !(currentJBBC->getOriginalParentJoin()))
-    {
+  for (currentNode = childSet.init(); childSet.next(currentNode); childSet.advance(currentNode)) {
+    JBBC *currentJBBC = currentNode.getNodeAnalysis()->getJBBC();
+    if (currentJBBC->isFullOuterJoinOrTSJJBBC() && !(currentJBBC->getOriginalParentJoin())) {
       fullOuterJoinOrTSJNode = currentNode;
     }
   }
@@ -8783,130 +7056,104 @@ void JBBSubsetAnalysis::arrangeTablesAfterFactForStarJoinTypeII()
   // End: Find if there is a outerjoin node with large num of tables
   // -----------------------------------------------------------------
 
-  if(fullOuterJoinOrTSJNode != NULL_CA_ID)
-    factTable = fullOuterJoinOrTSJNode;
+  if (fullOuterJoinOrTSJNode != NULL_CA_ID) factTable = fullOuterJoinOrTSJNode;
 
-  if(factTable == NULL_CA_ID)
-    factTable = getLargestIndependentNode();
+  if (factTable == NULL_CA_ID) factTable = getLargestIndependentNode();
 
 #ifdef _DEBUG
-  if ( CmpCommon::getDefault( NSK_DBG ) == DF_ON  &&
-       CmpCommon::getDefault( NSK_DBG_MJRULES_TRACKING ) == DF_ON )
-  {
-    CURRCONTEXT_OPTDEBUG->stream() << "Using factTable as outermost "\
-                    << factTable.getText()<< endl;
+  if (CmpCommon::getDefault(NSK_DBG) == DF_ON && CmpCommon::getDefault(NSK_DBG_MJRULES_TRACKING) == DF_ON) {
+    CURRCONTEXT_OPTDEBUG->stream() << "Using factTable as outermost " << factTable.getText() << endl;
   }
-#endif //_DEBUG
+#endif  //_DEBUG
 
   CANodeIdSet factTableSet;
   factTableSet.insert(factTable);
 
   // Get list of JBBCs in this Multi Join, the list should be sorted by the
   // after local pred cardinality of the JBBC
-  NAList<CANodeId> * sortedJBBCs = getNodesSortedByLocalPredsCard();
+  NAList<CANodeId> *sortedJBBCs = getNodesSortedByLocalPredsCard();
 
   // compute list of fringes
 
-  //for tracking, which of the JBBCs in the multijoin are still available
+  // for tracking, which of the JBBCs in the multijoin are still available
   CANodeIdSet availableNodes = getJBBCs();
   availableNodes.remove(factTable);
 
   // get tables directly connected to Fact Table
-  CANodeIdSet connectedTables = factTable.getNodeAnalysis()->getJBBC()
-                                                           ->getJoinedJBBCs();
-  connectedTables += factTable.getNodeAnalysis()->getJBBC()
-                                                ->getJBBCsRequiringInputFromMe();
-  
+  CANodeIdSet connectedTables = factTable.getNodeAnalysis()->getJBBC()->getJoinedJBBCs();
+  connectedTables += factTable.getNodeAnalysis()->getJBBC()->getJBBCsRequiringInputFromMe();
+
   // remove connected tables from availableNodes
   // this is because we want to make sure only
   // one directly connected table per fringer
   availableNodes -= connectedTables;
 
-  //List of fringes
-  NAList<CANodeIdSet> listOfFringes(CmpCommon::statementHeap(),30);
+  // List of fringes
+  NAList<CANodeIdSet> listOfFringes(CmpCommon::statementHeap(), 30);
 
   CANodeIdSet currentEdge;
 
   UInt32 lookAhead = (ActiveSchemaDB()->getDefaults()).getAsLong(COMP_INT_18);
 
-  for(UInt32 j=(*sortedJBBCs).entries(); j > 0; j--)
-  {
-    CANodeId jbbc = (*sortedJBBCs)[(j-1)];
+  for (UInt32 j = (*sortedJBBCs).entries(); j > 0; j--) {
+    CANodeId jbbc = (*sortedJBBCs)[(j - 1)];
 
-    if (connectedTables.contains(jbbc))
-    {
+    if (connectedTables.contains(jbbc)) {
       NABoolean isLegalAddition = factTableSet.legalAddition(jbbc);
 
-      if(!isLegalAddition)
-      {
+      if (!isLegalAddition) {
         availableNodes += jbbc;
         continue;
       }
 
-      Join * jbbcParentJoin =
-        jbbc.getNodeAnalysis()->getJBBC()->getOriginalParentJoin();
+      Join *jbbcParentJoin = jbbc.getNodeAnalysis()->getJBBC()->getOriginalParentJoin();
 
       currentEdge = jbbc;
       CANodeIdSet attachedNodes;
 
-      JBBC * nodeJBBC = jbbc.getNodeAnalysis()->getJBBC();
+      JBBC *nodeJBBC = jbbc.getNodeAnalysis()->getJBBC();
 
       // build a fringe if jbbc not connect via routine join
-      if((!jbbcParentJoin) ||
-         (jbbcParentJoin->isInnerNonSemiNonTSJJoin()))
-      {
-      currentEdge = extendEdge(jbbc, availableNodes,lookAhead);
+      if ((!jbbcParentJoin) || (jbbcParentJoin->isInnerNonSemiNonTSJJoin())) {
+        currentEdge = extendEdge(jbbc, availableNodes, lookAhead);
 
-      // attachedNodes are nodes connected
-      // to jbbc by join on their key
-        attachedNodes =
-        jbbc.getNodeAnalysis()->
-          getJBBC()->
-            getJBBCsConnectedViaKeyJoins();
+        // attachedNodes are nodes connected
+        // to jbbc by join on their key
+        attachedNodes = jbbc.getNodeAnalysis()->getJBBC()->getJBBCsConnectedViaKeyJoins();
 
-      attachedNodes.intersectSet(availableNodes);
+        attachedNodes.intersectSet(availableNodes);
       }
 
-      if (CmpCommon::getDefault(COMP_BOOL_49) == DF_OFF)
-      {
+      if (CmpCommon::getDefault(COMP_BOOL_49) == DF_OFF) {
         currentEdge += attachedNodes;
         availableNodes -= attachedNodes;
       }
 
       listOfFringes.insert(currentEdge);
 #ifdef _DEBUG
-      if ( CmpCommon::getDefault( NSK_DBG ) == DF_ON  &&
-           CmpCommon::getDefault( NSK_DBG_MJRULES_TRACKING ) == DF_ON )
-      {
-        CURRCONTEXT_OPTDEBUG->stream() << "Built a fringe starting from table "\
-                        << jbbc.getText()<< endl;
-        CURRCONTEXT_OPTDEBUG->stream() << "The fringe is " \
-                        << currentEdge.getText()<<endl;
+      if (CmpCommon::getDefault(NSK_DBG) == DF_ON && CmpCommon::getDefault(NSK_DBG_MJRULES_TRACKING) == DF_ON) {
+        CURRCONTEXT_OPTDEBUG->stream() << "Built a fringe starting from table " << jbbc.getText() << endl;
+        CURRCONTEXT_OPTDEBUG->stream() << "The fringe is " << currentEdge.getText() << endl;
       }
 #endif
-    }
-    else{
+    } else {
       continue;
     }
   }
 
 #ifdef _DEBUG
-  if ( CmpCommon::getDefault( NSK_DBG ) == DF_ON  &&
-       CmpCommon::getDefault( NSK_DBG_MJRULES_TRACKING ) == DF_ON )
-  {
-    CURRCONTEXT_OPTDEBUG->stream() << "Following tables are not part of any fringe, " \
-                    << "put each of them as a fringe by itself: \n" \
-                    << availableNodes.getText()<< endl;
+  if (CmpCommon::getDefault(NSK_DBG) == DF_ON && CmpCommon::getDefault(NSK_DBG_MJRULES_TRACKING) == DF_ON) {
+    CURRCONTEXT_OPTDEBUG->stream() << "Following tables are not part of any fringe, "
+                                   << "put each of them as a fringe by itself: \n"
+                                   << availableNodes.getText() << endl;
   }
 #endif
 
   // create fringes out of each one of the remaining tables
   // i.e. tables that have not been included as part of any
   // fringe
-  for (CANodeId availableNode = availableNodes.init();
-       availableNodes.next(availableNode);
-       availableNodes.advance(availableNode))
-  {
+  for (CANodeId availableNode = availableNodes.init(); availableNodes.next(availableNode);
+       availableNodes.advance(availableNode)) {
     listOfFringes.insert(availableNode);
   }
 
@@ -8914,59 +7161,43 @@ void JBBSubsetAnalysis::arrangeTablesAfterFactForStarJoinTypeII()
   NAList<CANodeIdSet> orderedListOfFringes(STMTHEAP);
   orderedListOfFringes.insert(factTableSet);
 
-
-  while (listOfFringes.entries())
-  {
+  while (listOfFringes.entries()) {
     // fringe that produces lowest cardinality when joined to the factTableSet
     CANodeIdSet smallestFringe;
 
     CostScalar lowestReduction = 0;
 
-    for (UInt32 i = 0;
-         i < listOfFringes.entries();
-         i ++)
-    {
+    for (UInt32 i = 0; i < listOfFringes.entries(); i++) {
       CANodeIdSet currentFringe = listOfFringes[i];
 
       NABoolean currentFringeIsARoutine = FALSE;
-      
-      if(currentFringe.entries() == 1)
-      {
-        CANodeId fringeNode =
-          currentFringe.getFirst();
 
-        if(!factTableSet.legalAddition(fringeNode))
-          continue;
-          
-        JBBC * currentFringeJBBC = fringeNode.getNodeAnalysis()->getJBBC();
+      if (currentFringe.entries() == 1) {
+        CANodeId fringeNode = currentFringe.getFirst();
 
-        if (currentFringeJBBC->getOriginalParentJoin() &&
-            currentFringeJBBC->getOriginalParentJoin()->isRoutineJoin())
+        if (!factTableSet.legalAddition(fringeNode)) continue;
+
+        JBBC *currentFringeJBBC = fringeNode.getNodeAnalysis()->getJBBC();
+
+        if (currentFringeJBBC->getOriginalParentJoin() && currentFringeJBBC->getOriginalParentJoin()->isRoutineJoin())
           currentFringeIsARoutine = TRUE;
       }
 
       // get cardinality fo join factTableSet to currentFringe
-      CostScalar joinReduction =
-        appStatMan->
-          computeJoinReduction(factTableSet, currentFringe);
+      CostScalar joinReduction = appStatMan->computeJoinReduction(factTableSet, currentFringe);
 
       // xxx kkk
-      if ((CmpCommon::getDefault(COMP_BOOL_163) == DF_OFF) &&
-          !currentFringeIsARoutine)
-      {
-        JBBSubset * factTableSetJBBSubset = factTableSet.jbbcsToJBBSubset();
-        JBBSubset * currentFringeJBBSubset = currentFringe.jbbcsToJBBSubset();
+      if ((CmpCommon::getDefault(COMP_BOOL_163) == DF_OFF) && !currentFringeIsARoutine) {
+        JBBSubset *factTableSetJBBSubset = factTableSet.jbbcsToJBBSubset();
+        JBBSubset *currentFringeJBBSubset = currentFringe.jbbcsToJBBSubset();
         ValueIdSet joinPreds = factTableSetJBBSubset->joinPredsWithOther(*currentFringeJBBSubset);
         joinPreds += currentFringeJBBSubset->getPredsWithPredecessors();
-        if(joinPreds.entries() == 0)
-        {
+        if (joinPreds.entries() == 0) {
           joinReduction += 1000000;
         }
       }
 
-      if((!smallestFringe.entries()) ||
-         (joinReduction <= lowestReduction))
-      {
+      if ((!smallestFringe.entries()) || (joinReduction <= lowestReduction)) {
         lowestReduction = joinReduction;
         smallestFringe = currentFringe;
       }
@@ -8988,87 +7219,60 @@ void JBBSubsetAnalysis::arrangeTablesAfterFactForStarJoinTypeII()
   // sequence produced by this rule
   // Element 0: is inner most / top most element in left deep join sequence
   // Element N: is left most/outer most element in left deep join sequence
-  for(UInt32 k = orderedListOfFringes.entries(); k > 0; k--)
-  {
-    leftDeepJoinSequence_.insert(orderedListOfFringes[(k-1)]);
+  for (UInt32 k = orderedListOfFringes.entries(); k > 0; k--) {
+    leftDeepJoinSequence_.insert(orderedListOfFringes[(k - 1)]);
   }
 
   // Consolidate the fringes
   consolidateFringes(factTable, leftDeepJoinSequence_);
-
 }
 
-void JBBSubsetAnalysis::consolidateFringes(CANodeId factTable,
-                                           NAList<CANodeIdSet> &leftDeepJoinSequence)
-{
-  if(leftDeepJoinSequence.entries() < 3)
-    return;
+void JBBSubsetAnalysis::consolidateFringes(CANodeId factTable, NAList<CANodeIdSet> &leftDeepJoinSequence) {
+  if (leftDeepJoinSequence.entries() < 3) return;
 
-  //Get a handle to ASM
-  AppliedStatMan * appStatMan = QueryAnalysis::ASM();
+  // Get a handle to ASM
+  AppliedStatMan *appStatMan = QueryAnalysis::ASM();
 
   CANodeIdSet factTableSet;
 
-  UInt32 i= 0;
+  UInt32 i = 0;
 
   // go through the join sequence till the fact table is encountered
-  for(i = leftDeepJoinSequence.entries()-1;
-      !factTableSet.contains(factTable);
-      i--)
-  {
+  for (i = leftDeepJoinSequence.entries() - 1; !factTableSet.contains(factTable); i--) {
     factTableSet.insert(leftDeepJoinSequence[i]);
 
-    if (i == 0)
-      break;
+    if (i == 0) break;
   }
 
   CostScalar r1 = 0;
 
-  CostScalar significanceFactor =
-    (ActiveSchemaDB()->getDefaults()).getAsLong(COMP_INT_21);
+  CostScalar significanceFactor = (ActiveSchemaDB()->getDefaults()).getAsLong(COMP_INT_21);
 
-  UInt32 numRowsLimit =
-    (ActiveSchemaDB()->getDefaults()).getAsLong(COMP_INT_14);
+  UInt32 numRowsLimit = (ActiveSchemaDB()->getDefaults()).getAsLong(COMP_INT_14);
 
-  while (i > 0)
-  {
-    r1 =
-      appStatMan->
-        joinJBBChildren(factTableSet,leftDeepJoinSequence[i])->
-          getResultCardinality();
+  while (i > 0) {
+    r1 = appStatMan->joinJBBChildren(factTableSet, leftDeepJoinSequence[i])->getResultCardinality();
 
-    UInt32 j = i-1;
+    UInt32 j = i - 1;
 
-    if (leftDeepJoinSequence[i].entries() == 1)
-    {
-      JBBC * iJBBC =
-        leftDeepJoinSequence[i].getFirst().
-          getNodeAnalysis()->getJBBC();
+    if (leftDeepJoinSequence[i].entries() == 1) {
+      JBBC *iJBBC = leftDeepJoinSequence[i].getFirst().getNodeAnalysis()->getJBBC();
 
-      Join * iParentJoin =
-        iJBBC->getOriginalParentJoin();
+      Join *iParentJoin = iJBBC->getOriginalParentJoin();
 
-      if(iParentJoin &&
-         !(iParentJoin->isInnerNonSemiNonTSJJoin()))
-      {
+      if (iParentJoin && !(iParentJoin->isInnerNonSemiNonTSJJoin())) {
         factTableSet.insert(leftDeepJoinSequence[i]);
         i--;
         continue;
       }
     }
 
-    if (leftDeepJoinSequence[j].entries() == 1)
-    {
-      JBBC * jJBBC =
-        leftDeepJoinSequence[j].getFirst().
-          getNodeAnalysis()->getJBBC();
+    if (leftDeepJoinSequence[j].entries() == 1) {
+      JBBC *jJBBC = leftDeepJoinSequence[j].getFirst().getNodeAnalysis()->getJBBC();
 
-      Join * jParentJoin =
-        jJBBC->getOriginalParentJoin();
+      Join *jParentJoin = jJBBC->getOriginalParentJoin();
 
-      if(jParentJoin &&
-         !(jParentJoin->isInnerNonSemiNonTSJJoin()))
-      {
+      if (jParentJoin && !(jParentJoin->isInnerNonSemiNonTSJJoin())) {
         factTableSet.insert(leftDeepJoinSequence[i]);
         i--;
         continue;
@@ -9077,42 +7281,27 @@ void JBBSubsetAnalysis::consolidateFringes(CANodeId factTable,
 
     CostScalar cardD1D2 = 0;
 
-    if ( CmpCommon::getDefault( COMP_BOOL_117 ) == DF_OFF )
-      cardD1D2 =
-        appStatMan->
-          joinJBBChildren(leftDeepJoinSequence[i],leftDeepJoinSequence[j])->
-            getResultCardinality();
-    else
-    {
-      cardD1D2 =
-      appStatMan->
-        getStatsForCANodeIdSet(leftDeepJoinSequence[i])->
-          getResultCardinality();
+    if (CmpCommon::getDefault(COMP_BOOL_117) == DF_OFF)
+      cardD1D2 = appStatMan->joinJBBChildren(leftDeepJoinSequence[i], leftDeepJoinSequence[j])->getResultCardinality();
+    else {
+      cardD1D2 = appStatMan->getStatsForCANodeIdSet(leftDeepJoinSequence[i])->getResultCardinality();
 
-      cardD1D2 *=
-      appStatMan->
-        getStatsForCANodeIdSet(leftDeepJoinSequence[j])->
-          getResultCardinality();
+      cardD1D2 *= appStatMan->getStatsForCANodeIdSet(leftDeepJoinSequence[j])->getResultCardinality();
     }
 
     // multiplying by 1000000 to save on COMP_FLOATs
-    if (((r1 * significanceFactor) > (cardD1D2 * 1000000)) &&
-        !(cardD1D2 > numRowsLimit))
-    {
+    if (((r1 * significanceFactor) > (cardD1D2 * 1000000)) && !(cardD1D2 > numRowsLimit)) {
       leftDeepJoinSequence[i].insert(leftDeepJoinSequence[j]);
       leftDeepJoinSequence.removeAt(j);
       i--;
-    }
-    else
-    {
+    } else {
       factTableSet.insert(leftDeepJoinSequence[i]);
       i--;
     }
   }
 }
 
-void JBBSubsetAnalysis::addMVMatch(MVMatchPtr match, NABoolean isPreferred)
-{
+void JBBSubsetAnalysis::addMVMatch(MVMatchPtr match, NABoolean isPreferred) {
   if (isPreferred)
     matchingMVs_.insertAt(0, match);
   else
@@ -9123,42 +7312,32 @@ void JBBSubsetAnalysis::addMVMatch(MVMatchPtr match, NABoolean isPreferred)
 // Methods for class JBBWA
 // -----------------------------------------------------------------------
 
-const CASortedList * JBBWA::getNodesSortedByLocalPredsCard()
-{
-  if(!byLocalPredsCard_)
-    byLocalPredsCard_ = sort(&JBBWA::getCardinalityAfterLocalPreds);
+const CASortedList *JBBWA::getNodesSortedByLocalPredsCard() {
+  if (!byLocalPredsCard_) byLocalPredsCard_ = sort(&JBBWA::getCardinalityAfterLocalPreds);
 
   return byLocalPredsCard_;
 }
 
-const CASortedList * JBBWA::getNodesSortedByLocalKeyPrefixPredsCard()
-{
-  if(!byLocalKeyPrefixPredsCard_)
-    byLocalKeyPrefixPredsCard_ = sort(&JBBWA::getCardinalityAfterLocalKeyPrefixPreds);
+const CASortedList *JBBWA::getNodesSortedByLocalKeyPrefixPredsCard() {
+  if (!byLocalKeyPrefixPredsCard_) byLocalKeyPrefixPredsCard_ = sort(&JBBWA::getCardinalityAfterLocalKeyPrefixPreds);
 
   return byLocalKeyPrefixPredsCard_;
 }
 
-const CASortedList * JBBWA::getNodesSortedByCard()
-{
-  if(!byNodeCard_)
-    byNodeCard_ = sort(&JBBWA::getNodeCardinality);
+const CASortedList *JBBWA::getNodesSortedByCard() {
+  if (!byNodeCard_) byNodeCard_ = sort(&JBBWA::getNodeCardinality);
 
   return byNodeCard_;
 }
 
-const CASortedList * JBBWA::getNodesSortedByData()
-{
-  if(!byNodeData_)
-    byNodeData_ = sort(&JBBWA::getNodeDataSize);
+const CASortedList *JBBWA::getNodesSortedByData() {
+  if (!byNodeData_) byNodeData_ = sort(&JBBWA::getNodeDataSize);
 
   return byNodeData_;
 }
 
-const CASortedList * JBBWA::getNodesSortedByOutputData()
-{
-  if(!byNodeOutputData_)
-    byNodeOutputData_ = sort(&JBBWA::getNodeOutputDataSize);
+const CASortedList *JBBWA::getNodesSortedByOutputData() {
+  if (!byNodeOutputData_) byNodeOutputData_ = sort(&JBBWA::getNodeOutputDataSize);
 
   return byNodeOutputData_;
 }
@@ -9166,20 +7345,16 @@ const CASortedList * JBBWA::getNodesSortedByOutputData()
 // Given a node, return it's cardinality after application of local preds
 // on the prefix of the clustering key. If logProps is passed in is NULL,
 // then ASM will be called to compute the logical properties.
-CostScalar
-JBBWA::getCardinalityAfterLocalKeyPrefixPreds(CANodeId node,
-                                              EstLogPropSharedPtr & logProps)
-{
-  if (!logProps)
-  {
-    //Get a handle to ASM
-    AppliedStatMan * appStatMan = QueryAnalysis::ASM();
+CostScalar JBBWA::getCardinalityAfterLocalKeyPrefixPreds(CANodeId node, EstLogPropSharedPtr &logProps) {
+  if (!logProps) {
+    // Get a handle to ASM
+    AppliedStatMan *appStatMan = QueryAnalysis::ASM();
 
-    //get cardinality
+    // get cardinality
     logProps = appStatMan->getStatsForLocalPredsOnCKPOfJBBC(node);
   }
 
-  //return the cardinality
+  // return the cardinality
   return logProps->getResultCardinality();
 }
 
@@ -9187,235 +7362,175 @@ JBBWA::getCardinalityAfterLocalKeyPrefixPreds(CANodeId node,
 // after application of local preds on the prefix of the clustering key
 // If logProps is passed in is NULL, then ASM will be called to compute
 // the logical properties
-CostScalar
-JBBWA::getDataSizeAfterLocalKeyPrefixPreds(CANodeId node,
-                                           EstLogPropSharedPtr & logProps)
-{
-  if (!logProps)
-  {
-    //Get a handle to ASM
-    AppliedStatMan * appStatMan = QueryAnalysis::ASM();
+CostScalar JBBWA::getDataSizeAfterLocalKeyPrefixPreds(CANodeId node, EstLogPropSharedPtr &logProps) {
+  if (!logProps) {
+    // Get a handle to ASM
+    AppliedStatMan *appStatMan = QueryAnalysis::ASM();
 
-    //get cardinality
+    // get cardinality
     logProps = appStatMan->getStatsForLocalPredsOnCKPOfJBBC(node);
   }
 
-  //record i.e. row size for node
+  // record i.e. row size for node
   CostScalar nodeRecordSize = -1;
 
-  if(node.getNodeAnalysis()->getTableAnalysis())
-    nodeRecordSize = node.getNodeAnalysis()->
-                          getTableAnalysis()->
-                          getTableDesc()->
-                          getNATable()->
-                          getRecordLength();
+  if (node.getNodeAnalysis()->getTableAnalysis())
+    nodeRecordSize = node.getNodeAnalysis()->getTableAnalysis()->getTableDesc()->getNATable()->getRecordLength();
 
-  //return the datasize, datasize will be < 0 if this is not a table
+  // return the datasize, datasize will be < 0 if this is not a table
   return (logProps->getResultCardinality() * nodeRecordSize);
-
 }
 
 // Given a node, return it's cardinality after application of local preds.
 // If logProps is passed in is NULL, then ASM will be called to compute
 // the logical properties
-CostScalar
-JBBWA::getCardinalityAfterLocalPreds(CANodeId node,
-                                     EstLogPropSharedPtr & logProps)
-{
-  if (!logProps)
-  {
-    //Get a handle to ASM
-    AppliedStatMan * appStatMan = QueryAnalysis::ASM();
+CostScalar JBBWA::getCardinalityAfterLocalPreds(CANodeId node, EstLogPropSharedPtr &logProps) {
+  if (!logProps) {
+    // Get a handle to ASM
+    AppliedStatMan *appStatMan = QueryAnalysis::ASM();
 
-    //get cardinality
+    // get cardinality
     logProps = appStatMan->getStatsForCANodeId(node);
   }
 
-  //return the cardinality
+  // return the cardinality
   return logProps->getResultCardinality();
 }
 
 // Given a node, return it's data-size (i.e. cardinality * rowsize)
 // after application of local preds. If logProps is passed in is NULL,
 // then ASM will be called to compute the logical properties
-CostScalar
-JBBWA::getDataSizeAfterLocalPreds(CANodeId node,
-                                  EstLogPropSharedPtr & logProps)
-{
-  if (!logProps)
-  {
-    //Get a handle to ASM
-    AppliedStatMan * appStatMan = QueryAnalysis::ASM();
+CostScalar JBBWA::getDataSizeAfterLocalPreds(CANodeId node, EstLogPropSharedPtr &logProps) {
+  if (!logProps) {
+    // Get a handle to ASM
+    AppliedStatMan *appStatMan = QueryAnalysis::ASM();
 
-    //get cardinality
+    // get cardinality
     logProps = appStatMan->getStatsForCANodeId(node);
   }
 
-  //record i.e. row size for node
+  // record i.e. row size for node
   CostScalar nodeRecordSize = -1;
 
-  if(node.getNodeAnalysis()->getTableAnalysis())
-    nodeRecordSize = node.getNodeAnalysis()->
-                          getTableAnalysis()->
-                          getTableDesc()->
-                          getNATable()->
-                          getRecordLength();
+  if (node.getNodeAnalysis()->getTableAnalysis())
+    nodeRecordSize = node.getNodeAnalysis()->getTableAnalysis()->getTableDesc()->getNATable()->getRecordLength();
 
-  //return the datasize, datasize will be < 0 if this is not a table
+  // return the datasize, datasize will be < 0 if this is not a table
   return (logProps->getResultCardinality() * nodeRecordSize);
 }
 
 // Given a node, return it's base cardinality
-CostScalar JBBWA::getBaseCardinality(CANodeId node,
-                                     EstLogPropSharedPtr& logProps)
-{
-  if (!logProps)
-  {
-    //Get a handle to ASM
-    AppliedStatMan * appStatMan = QueryAnalysis::ASM();
+CostScalar JBBWA::getBaseCardinality(CANodeId node, EstLogPropSharedPtr &logProps) {
+  if (!logProps) {
+    // Get a handle to ASM
+    AppliedStatMan *appStatMan = QueryAnalysis::ASM();
 
-    //empty set, i.e. no preds are to be applied
+    // empty set, i.e. no preds are to be applied
     ValueIdSet emptySet;
 
-    //get cardinality
-    logProps = appStatMan->getStatsForCANodeId(node,
-                                               (*GLOBAL_EMPTY_INPUT_LOGPROP),
-                                               &emptySet);
+    // get cardinality
+    logProps = appStatMan->getStatsForCANodeId(node, (*GLOBAL_EMPTY_INPUT_LOGPROP), &emptySet);
   }
 
-  //return the cardinality
+  // return the cardinality
   return logProps->getResultCardinality();
-
 }
 
 // Given a node, return it's size (i.e. rowcount * rowsize)
-CostScalar JBBWA::getBaseDataSize(CANodeId node,
-                                  EstLogPropSharedPtr & logProps)
-{
-  if (!logProps)
-  {
-    //Get a handle to ASM
-    AppliedStatMan * appStatMan = QueryAnalysis::ASM();
+CostScalar JBBWA::getBaseDataSize(CANodeId node, EstLogPropSharedPtr &logProps) {
+  if (!logProps) {
+    // Get a handle to ASM
+    AppliedStatMan *appStatMan = QueryAnalysis::ASM();
 
-    //empty set, i.e. no preds are to be applied
+    // empty set, i.e. no preds are to be applied
     ValueIdSet emptySet;
 
-    //get cardinality
-    logProps = appStatMan->getStatsForCANodeId(node,
-                                               (*GLOBAL_EMPTY_INPUT_LOGPROP),
-                                               &emptySet);
+    // get cardinality
+    logProps = appStatMan->getStatsForCANodeId(node, (*GLOBAL_EMPTY_INPUT_LOGPROP), &emptySet);
   }
 
-  //record i.e. row size for node
+  // record i.e. row size for node
   CostScalar nodeRecordSize = -1;
 
-  if(node.getNodeAnalysis()->getTableAnalysis())
-    nodeRecordSize = node.getNodeAnalysis()->
-                          getTableAnalysis()->
-                          getTableDesc()->
-                          getNATable()->
-                          getRecordLength();
+  if (node.getNodeAnalysis()->getTableAnalysis())
+    nodeRecordSize = node.getNodeAnalysis()->getTableAnalysis()->getTableDesc()->getNATable()->getRecordLength();
 
-  //return the datasize, datasize will be < 0 if this is not a table
+  // return the datasize, datasize will be < 0 if this is not a table
   return (logProps->getResultCardinality() * nodeRecordSize);
 }
 
 // Given a node, return it's cardinality
-CostScalar JBBWA::getNodeCardinality(CANodeId node,
-                                     EstLogPropSharedPtr & logProps)
-{
-  if (!logProps)
-  {
-    //Get a handle to ASM
-    AppliedStatMan * appStatMan = QueryAnalysis::ASM();
+CostScalar JBBWA::getNodeCardinality(CANodeId node, EstLogPropSharedPtr &logProps) {
+  if (!logProps) {
+    // Get a handle to ASM
+    AppliedStatMan *appStatMan = QueryAnalysis::ASM();
 
-    //get cardinality
+    // get cardinality
     logProps = appStatMan->getStatsForCANodeId(node);
   }
 
-  //return the cardinality
+  // return the cardinality
   return logProps->getResultCardinality();
-
 }
 
 // Given a node, return it's size (i.e. rowcount * rowsize)
-CostScalar JBBWA::getNodeDataSize(CANodeId node,
-                                  EstLogPropSharedPtr & logProps)
-{
-  if (!logProps)
-  {
-    //Get a handle to ASM
-    AppliedStatMan * appStatMan = QueryAnalysis::ASM();
+CostScalar JBBWA::getNodeDataSize(CANodeId node, EstLogPropSharedPtr &logProps) {
+  if (!logProps) {
+    // Get a handle to ASM
+    AppliedStatMan *appStatMan = QueryAnalysis::ASM();
 
-    //get cardinality
+    // get cardinality
     logProps = appStatMan->getStatsForCANodeId(node);
   }
 
-  //record i.e. row size for node
+  // record i.e. row size for node
   CostScalar nodeRecordSize = node.getNodeAnalysis()->getRecordSize();
 
-  //return the datasize, datasize will be < 0 if this is not a table
+  // return the datasize, datasize will be < 0 if this is not a table
   return (logProps->getResultCardinality() * nodeRecordSize);
 }
 
 // Given a node, return it's output data size (i.e. rowcount * outputrowsize)
-CostScalar JBBWA::getNodeOutputDataSize(CANodeId node,
-                                  EstLogPropSharedPtr & logProps)
-{
-  if (!logProps)
-  {
-    //Get a handle to ASM
-    AppliedStatMan * appStatMan = QueryAnalysis::ASM();
+CostScalar JBBWA::getNodeOutputDataSize(CANodeId node, EstLogPropSharedPtr &logProps) {
+  if (!logProps) {
+    // Get a handle to ASM
+    AppliedStatMan *appStatMan = QueryAnalysis::ASM();
 
-    //get cardinality
+    // get cardinality
     logProps = appStatMan->getStatsForCANodeId(node);
   }
 
-  //record i.e. output row size for node
-  CostScalar nodeOutputRecordSize = node.getNodeAnalysis()->
-                                      getOriginalExpr()->
-                                        getGroupAnalysis()->
-                                          getGroupAttr()->
-                                            getRecordLength();
+  // record i.e. output row size for node
+  CostScalar nodeOutputRecordSize =
+      node.getNodeAnalysis()->getOriginalExpr()->getGroupAnalysis()->getGroupAttr()->getRecordLength();
 
-  //return the datasize, datasize will be < 0 if this is not a table
+  // return the datasize, datasize will be < 0 if this is not a table
   return (logProps->getResultCardinality() * nodeOutputRecordSize);
 }
 
 // A generic method to sort given a method to compute the sort
 // metric for each node
-CASortedList* JBBWA::sort(JBBWA::shortMetricFunc getSortMetric)
-{
+CASortedList *JBBWA::sort(JBBWA::shortMetricFunc getSortMetric) {
   CANodeIdSet nodesToSort = parentJBB_->getJBBCs();
-  CASortedList * result = new (CmpCommon::statementHeap())
-    CASortedList(CmpCommon::statementHeap(), nodesToSort.entries());
+  CASortedList *result =
+      new (CmpCommon::statementHeap()) CASortedList(CmpCommon::statementHeap(), nodesToSort.entries());
 
-  while(nodesToSort.entries())
-  {
-
-
+  while (nodesToSort.entries()) {
     CANodeId largestNode = nodesToSort.init();
     // coverity cid 819 flags this a CHECKED_RETURN anomaly. Ignore it.
     // coverity[unchecked_value]
     nodesToSort.next(largestNode);
     EstLogPropSharedPtr estLogProps;
-    CostScalar largestNodeSortMetric = (*this.*getSortMetric)(largestNode,
-                                                              estLogProps);
+    CostScalar largestNodeSortMetric = (*this.*getSortMetric)(largestNode, estLogProps);
 
-    for( CANodeId node = largestNode;
-         nodesToSort.next(node);
-         nodesToSort.advance(node))
-    {
+    for (CANodeId node = largestNode; nodesToSort.next(node); nodesToSort.advance(node)) {
       estLogProps = NULL;
-      CostScalar nodeSortMetric = (*this.*getSortMetric)(node,
-                                                         estLogProps);
+      CostScalar nodeSortMetric = (*this.*getSortMetric)(node, estLogProps);
 
-      if(nodeSortMetric > largestNodeSortMetric)
-      {
-	      largestNode = node;
-	      largestNodeSortMetric = nodeSortMetric;
+      if (nodeSortMetric > largestNodeSortMetric) {
+        largestNode = node;
+        largestNodeSortMetric = nodeSortMetric;
       }
-
     }
 
     result->insert(largestNode);
@@ -9430,23 +7545,20 @@ CASortedList* JBBWA::sort(JBBWA::shortMetricFunc getSortMetric)
 // -----------------------------------------------------------------------
 
 // Add this JBBC to the JBB.
-void JBB::addJBBC(CANodeId jbbc)
-{
+void JBB::addJBBC(CANodeId jbbc) {
   mainJBBSubset_.addJBBC(jbbc);
   // jbbc id must belong to JBBC node (no need to check for null)
   jbbc.getNodeAnalysis()->getJBBC()->setJBB(this);
 }
 
-void JBB::addJBBC(JBBC* jbbc)
-{
+void JBB::addJBBC(JBBC *jbbc) {
   mainJBBSubset_.addJBBC(jbbc->getId());
   jbbc->setJBB(this);
 }
 
 // Currently not used
 // Set the GB in the JBB.
-void JBB::setGB(CANodeId gb)
-{
+void JBB::setGB(CANodeId gb) {
   mainJBBSubset_.setGB(gb);
   gbAnalysis_ = gb.getNodeAnalysis()->getGBAnalysis();
   // gb id must belong to GBAnalysis node (no need to check for null)
@@ -9454,45 +7566,33 @@ void JBB::setGB(CANodeId gb)
 }
 
 // Set the GB in the JBB using GBAnalysis
-void JBB::setGB(GBAnalysis* gb)
-{
+void JBB::setGB(GBAnalysis *gb) {
   mainJBBSubset_.setGB(gb->getGroupingNodeId());
   gbAnalysis_ = gb;
   gb->setJBB(this);
 }
 
 // Set the norm char inputs and outputs
-void JBB::setNormInputs(const ValueIdSet & inputs)
-{
-  normInputs_ = inputs;
-}
-void JBB::setNormOutputs(const ValueIdSet & outputs)
-{
-  normOutputs_ = outputs;
-}
+void JBB::setNormInputs(const ValueIdSet &inputs) { normInputs_ = inputs; }
+void JBB::setNormOutputs(const ValueIdSet &outputs) { normOutputs_ = outputs; }
 
-void JBB::setInputEstLP(EstLogPropSharedPtr& inEstLP)
-{
-  inEstLP_ = inEstLP;
-}
+void JBB::setInputEstLP(EstLogPropSharedPtr &inEstLP) { inEstLP_ = inEstLP; }
 
 // JBB Analysis method on Group By
 // Capture the GB info and pass the call to child join
-void JBB::analyze(GroupByAgg* topGBExpr)
-{
+void JBB::analyze(GroupByAgg *topGBExpr) {
   // do GB Analysis stuff here.
-  GBAnalysis* gb = topGBExpr->getGBAnalysis();
+  GBAnalysis *gb = topGBExpr->getGBAnalysis();
   gb->setJBB(this);
   setGB(gb);
 
   // analyse the joins below the GB
-  RelExpr* topExpr = (RelExpr*)(topGBExpr->child(0));
+  RelExpr *topExpr = (RelExpr *)(topGBExpr->child(0));
 
   if (topExpr->getOperator().match(REL_ANY_JOIN))
-    analyze((Join*)topExpr);
+    analyze((Join *)topExpr);
   else if (topExpr->getOperator().match(REL_SCAN))
-    analyze((Scan*)topExpr);
-
+    analyze((Scan *)topExpr);
 
   // One potential place to do the R1 and R2 computation
   // for GBAnalysis
@@ -9501,33 +7601,28 @@ void JBB::analyze(GroupByAgg* topGBExpr)
 }
 
 // Main JBB Analysis method for Single JBB with GroupBy (MVQR only for now)
-void JBB::analyze(Scan* topScanExpr)
-{
-  RelExpr* expr = topScanExpr;
+void JBB::analyze(Scan *topScanExpr) {
+  RelExpr *expr = topScanExpr;
 
-  JBBC* jbbc = NULL;
+  JBBC *jbbc = NULL;
 
   // A CANode must have been assigned to this child in pilot analysis
-  CMPASSERT(expr->getGroupAnalysis() &&
-            expr->getGroupAnalysis()->getNodeAnalysis());
+  CMPASSERT(expr->getGroupAnalysis() && expr->getGroupAnalysis()->getNodeAnalysis());
   jbbc = expr->getGroupAnalysis()->getNodeAnalysis()->getJBBC();
   addJBBC(jbbc);
 }
 
 // Main JBB Analysis method
-void JBB::analyze(Join* topJoinExpr)
-{
-  RelExpr* expr = topJoinExpr;
+void JBB::analyze(Join *topJoinExpr) {
+  RelExpr *expr = topJoinExpr;
 
   ValueIdSet joinPreds;  // accumulation of join selectionPreds
 
-  JBBC* jbbc = NULL;
+  JBBC *jbbc = NULL;
 
-// change start
+  // change start
 
-  while (expr->getOperator().match(REL_ANY_JOIN)&&
-         ((Join*)expr)->canBePartOfJBB())
-  {
+  while (expr->getOperator().match(REL_ANY_JOIN) && ((Join *)expr)->canBePartOfJBB()) {
     joinPreds += expr->getSelectionPred();
     expr = expr->child(0);
   }
@@ -9535,28 +7630,25 @@ void JBB::analyze(Join* topJoinExpr)
   ValueIdSet freeRadicalPreds = joinPreds;
   expr = topJoinExpr;
   ValueIdSet childCharOutputs;
-  while (expr->getOperator().match(REL_ANY_JOIN)&&
-         ((Join*)expr)->canBePartOfJBB())
-  {
+  while (expr->getOperator().match(REL_ANY_JOIN) && ((Join *)expr)->canBePartOfJBB()) {
     // A CANode must have been assigned to this child in pilot analysis
-    CMPASSERT(expr->child(1)->getGroupAnalysis() &&
-              expr->child(1)->getGroupAnalysis()->getNodeAnalysis());
-	  jbbc = expr->child(1)->getGroupAnalysis()->getNodeAnalysis()->getJBBC();
-	  addJBBC(jbbc);
+    CMPASSERT(expr->child(1)->getGroupAnalysis() && expr->child(1)->getGroupAnalysis()->getNodeAnalysis());
+    jbbc = expr->child(1)->getGroupAnalysis()->getNodeAnalysis()->getJBBC();
+    addJBBC(jbbc);
 
     ValueIdSet jbbcJoinPreds;
-	  childCharOutputs = expr->child(1)->getGroupAttr()->getCharacteristicOutputs();
-  
+    childCharOutputs = expr->child(1)->getGroupAttr()->getCharacteristicOutputs();
+
     // Soln. 10-100203-7927. If we have NullInstantiate(VEG{that contains a constant})
     // then that veg is not included in child charOutputs. The following IF block
     // is to include such VEGs so that we can figure out the correct join linkages.
-    Join * parentJoin = jbbc->getOriginalParentJoin() ;
+    Join *parentJoin = jbbc->getOriginalParentJoin();
 
     if (parentJoin && parentJoin->getOperator().match(REL_ANY_LEFT_JOIN))
-      childCharOutputs += (ValueIdSet) parentJoin->nullInstantiatedOutput();
+      childCharOutputs += (ValueIdSet)parentJoin->nullInstantiatedOutput();
 
     jbbcJoinPreds.accumulateReferencingExpressions(joinPreds, childCharOutputs);
-	  jbbc->setJoinPreds(jbbcJoinPreds);
+    jbbc->setJoinPreds(jbbcJoinPreds);
 
     freeRadicalPreds -= jbbcJoinPreds;
     expr = expr->child(0);
@@ -9564,8 +7656,7 @@ void JBB::analyze(Join* topJoinExpr)
 
   // do the most left child here
   // A CANode must have been assigned to this child in pilot analysis
-  CMPASSERT(expr->getGroupAnalysis() &&
-            expr->getGroupAnalysis()->getNodeAnalysis());
+  CMPASSERT(expr->getGroupAnalysis() && expr->getGroupAnalysis()->getNodeAnalysis());
   jbbc = expr->getGroupAnalysis()->getNodeAnalysis()->getJBBC();
   addJBBC(jbbc);
 
@@ -9577,11 +7668,8 @@ void JBB::analyze(Join* topJoinExpr)
 
   expr = topJoinExpr;
 
-  while (expr->getOperator().match(REL_ANY_JOIN)&&
-         ((Join*)expr)->canBePartOfJBB())
-  {
-    if(expr->getOperatorType() == REL_LEFT_JOIN)
-    {
+  while (expr->getOperator().match(REL_ANY_JOIN) && ((Join *)expr)->canBePartOfJBB()) {
+    if (expr->getOperatorType() == REL_LEFT_JOIN) {
       ValueIdSet freePredsToAddBack = freeRadicalPreds;
       freePredsToAddBack.intersectSet(expr->getSelectionPred());
       jbbc = expr->child(1)->getGroupAnalysis()->getNodeAnalysis()->getJBBC();
@@ -9592,61 +7680,58 @@ void JBB::analyze(Join* topJoinExpr)
     expr = expr->child(0);
   }
 
-// change end
+  // change end
 
-/*
-old one
-  while (expr->getOperator().match(REL_ANY_JOIN))
-  {
-    ValueIdSet childCharOutputs =
-      expr->child(1)->getGroupAttr()->getCharacteristicOutputs();
+  /*
+  old one
+    while (expr->getOperator().match(REL_ANY_JOIN))
+    {
+      ValueIdSet childCharOutputs =
+        expr->child(1)->getGroupAttr()->getCharacteristicOutputs();
 
-    ValueIdSet otherChildCharOutputs =
-      expr->child(0)->getGroupAttr()->getCharacteristicOutputs();
+      ValueIdSet otherChildCharOutputs =
+        expr->child(0)->getGroupAttr()->getCharacteristicOutputs();
 
-    ValueIdSet selectionPreds = expr->getSelectionPred();
+      ValueIdSet selectionPreds = expr->getSelectionPred();
 
-	jbbc = expr->child(1)->getGroupAnalysis()->getNodeAnalysis()->getJBBC();
+          jbbc = expr->child(1)->getGroupAnalysis()->getNodeAnalysis()->getJBBC();
 
-	addJBBC(jbbc);
+          addJBBC(jbbc);
 
-    // Add any selectionPreds or a (joinPreds that reference child's
-    // char output) to joinPreds_ or nonLocalOrPreds_(future) of the JBBC
-    // Warning: we are not doing the OR case yet 
-    ValueIdSet jbbcJoinPreds = selectionPreds;
-    jbbcJoinPreds.accumulateReferencingExpressions(joinPreds, childCharOutputs);
+      // Add any selectionPreds or a (joinPreds that reference child's
+      // char output) to joinPreds_ or nonLocalOrPreds_(future) of the JBBC
+      // Warning: we are not doing the OR case yet
+      ValueIdSet jbbcJoinPreds = selectionPreds;
+      jbbcJoinPreds.accumulateReferencingExpressions(joinPreds, childCharOutputs);
 
-	jbbc->setJoinPreds(jbbcJoinPreds);
+          jbbc->setJoinPreds(jbbcJoinPreds);
 
-    joinPreds.removeNonReferencingExpressions(otherChildCharOutputs);
+      joinPreds.removeNonReferencingExpressions(otherChildCharOutputs);
 
-    joinPreds.accumulateReferencingExpressions(selectionPreds,
-                                              otherChildCharOutputs);
+      joinPreds.accumulateReferencingExpressions(selectionPreds,
+                                                otherChildCharOutputs);
 
-    expr = expr->child(0);
-  }
+      expr = expr->child(0);
+    }
 
-  // do the most left child here
-  jbbc = expr->getGroupAnalysis()->getNodeAnalysis()->getJBBC();
-  addJBBC(jbbc);
+    // do the most left child here
+    jbbc = expr->getGroupAnalysis()->getNodeAnalysis()->getJBBC();
+    addJBBC(jbbc);
 
-  jbbc->setJoinPreds(joinPreds);
-*/
+    jbbc->setJoinPreds(joinPreds);
+  */
 
   // now that all JBBCs are added and their predicates are set
   // compute the other fields in the JBBC
-  const CANodeIdSet & jbbcs = getJBBCs();
-  CANodeId i,j;
-  for (i = jbbcs.init(); jbbcs.next(i); jbbcs.advance(i))
-  {
-    JBBC* jbbci = i.getNodeAnalysis()->getJBBC();
-    for (j=i+1; jbbcs.next(j); jbbcs.advance(j))
-    {
-      JBBC* jbbcj = j.getNodeAnalysis()->getJBBC();
+  const CANodeIdSet &jbbcs = getJBBCs();
+  CANodeId i, j;
+  for (i = jbbcs.init(); jbbcs.next(i); jbbcs.advance(i)) {
+    JBBC *jbbci = i.getNodeAnalysis()->getJBBC();
+    for (j = i + 1; jbbcs.next(j); jbbcs.advance(j)) {
+      JBBC *jbbcj = j.getNodeAnalysis()->getJBBC();
       ValueIdSet commonPreds = jbbci->getJoinPreds();
       commonPreds.intersectSet(jbbcj->getJoinPreds());
-      if (commonPreds.entries() > 0)
-      {
+      if (commonPreds.entries() > 0) {
         jbbci->joinedJBBCs_.insert(j);
         jbbcj->joinedJBBCs_.insert(i);
       }
@@ -9654,53 +7739,44 @@ old one
   }
 }
 
-void JBB::analyzeChildrenDependencies()
-{
-  const CANodeIdSet & jbbcs = getJBBCs();
+void JBB::analyzeChildrenDependencies() {
+  const CANodeIdSet &jbbcs = getJBBCs();
 
-  CANodeId i,j;
-  for (i = jbbcs.init(); jbbcs.next(i); jbbcs.advance(i))
-  {
-    JBBC* jbbci = i.getNodeAnalysis()->getJBBC();
-    RelExpr * const expri = i.getNodeAnalysis()->getOriginalExpr();
-    GroupAttributes * const attri = expri->getGroupAttr();
+  CANodeId i, j;
+  for (i = jbbcs.init(); jbbcs.next(i); jbbcs.advance(i)) {
+    JBBC *jbbci = i.getNodeAnalysis()->getJBBC();
+    RelExpr *const expri = i.getNodeAnalysis()->getOriginalExpr();
+    GroupAttributes *const attri = expri->getGroupAttr();
     ValueIdSet charOutputsi = attri->getCharacteristicOutputs();
-    
+
     // set inputs required from sibling JBBCs
     ValueIdSet inputsRequiredFromSiblings;
-    
-    if(jbbci->getOriginalParentJoin() &&
-       jbbci->getOriginalParentJoin()->isRoutineJoin())
-    {
+
+    if (jbbci->getOriginalParentJoin() && jbbci->getOriginalParentJoin()->isRoutineJoin()) {
       inputsRequiredFromSiblings = attri->getCharacteristicInputs();
       inputsRequiredFromSiblings -= getNormInputs();
       jbbci->setInputsRequiredFromSiblings(inputsRequiredFromSiblings);
     }
-    
-    for (j= jbbcs.init(); jbbcs.next(j); jbbcs.advance(j))
-    {
-      if(i == j)
-        continue;
 
-      JBBC* jbbcj = j.getNodeAnalysis()->getJBBC();
-      RelExpr * const exprj = j.getNodeAnalysis()->getOriginalExpr();
-      GroupAttributes * const attrj = exprj->getGroupAttr();
-      Join * parentJoinj = jbbcj->getOriginalParentJoin();
+    for (j = jbbcs.init(); jbbcs.next(j); jbbcs.advance(j)) {
+      if (i == j) continue;
+
+      JBBC *jbbcj = j.getNodeAnalysis()->getJBBC();
+      RelExpr *const exprj = j.getNodeAnalysis()->getOriginalExpr();
+      GroupAttributes *const attrj = exprj->getGroupAttr();
+      Join *parentJoinj = jbbcj->getOriginalParentJoin();
 
       // find if j depends on i
       ValueIdSet predsWithDependencies = jbbci->getPredsWithSuccessors();
       predsWithDependencies.intersectSet(jbbcj->getPredsWithPredecessors());
-      if (predsWithDependencies.entries() > 0)
-      {
+      if (predsWithDependencies.entries() > 0) {
         jbbci->successorJBBCs_.insert(j);
         jbbcj->predecessorJBBCs_.insert(i);
       }
-      
-      if(inputsRequiredFromSiblings.entries())
-      {
+
+      if (inputsRequiredFromSiblings.entries()) {
         ValueIdSet charOutputsj = attrj->getCharacteristicOutputs();
-        if(charOutputsj.intersectSet(inputsRequiredFromSiblings).entries())
-        {
+        if (charOutputsj.intersectSet(inputsRequiredFromSiblings).entries()) {
           jbbci->predecessorJBBCs_.insert(j);
           jbbci->jbbcsProvidingInput_.insert(j);
           jbbcj->successorJBBCs_.insert(i);
@@ -9711,28 +7787,24 @@ void JBB::analyzeChildrenDependencies()
   }
 }
 
-void JBB::computeLeftJoinFilterPreds()
-{
-  const CANodeIdSet & jbbcs = getJBBCs();
+void JBB::computeLeftJoinFilterPreds() {
+  const CANodeIdSet &jbbcs = getJBBCs();
 
   CANodeId i;
-  for (i = jbbcs.init(); jbbcs.next(i); jbbcs.advance(i))
-  {
-    JBBC* jbbci = i.getNodeAnalysis()->getJBBC();
+  for (i = jbbcs.init(); jbbcs.next(i); jbbcs.advance(i)) {
+    JBBC *jbbci = i.getNodeAnalysis()->getJBBC();
 
-    if(!jbbci->parentIsLeftJoin())
-      continue;
+    if (!jbbci->parentIsLeftJoin()) continue;
 
     CANodeIdSet jbbciIdSet;
     jbbciIdSet.insert(i);
-    JBBSubset * jbbciSubset = jbbciIdSet.jbbcsToJBBSubset();
+    JBBSubset *jbbciSubset = jbbciIdSet.jbbcsToJBBSubset();
 
     CANodeIdSet othersIdSet(getJBBCs());
     othersIdSet -= i;
-    JBBSubset * othersJBBSubset = othersIdSet.jbbcsToJBBSubset();
+    JBBSubset *othersJBBSubset = othersIdSet.jbbcsToJBBSubset();
 
-    ValueIdSet predsWithOthers =
-      jbbciSubset->joinPredsWithOther(*othersJBBSubset);
+    ValueIdSet predsWithOthers = jbbciSubset->joinPredsWithOther(*othersJBBSubset);
 
     ValueIdSet leftJoinFilterPreds = jbbci->getJoinPreds();
     leftJoinFilterPreds -= predsWithOthers;
@@ -9740,29 +7812,24 @@ void JBB::computeLeftJoinFilterPreds()
     // compute predicates that are covered by the JBBC's output
     ValueIdSet predsCoveredByJBBC;
 
-    for(ValueId joinPred = predsWithOthers.init(); 
-                           predsWithOthers.next(joinPred); 
-                           predsWithOthers.advance(joinPred))
-    {
+    for (ValueId joinPred = predsWithOthers.init(); predsWithOthers.next(joinPred); predsWithOthers.advance(joinPred)) {
       CANodeIdSet jbbcNodeSet;
       jbbcNodeSet.insert(i);
-      JBBSubset * jbbcSubset = jbbcNodeSet.jbbcsToJBBSubset();
-      if(jbbcSubset->coversExpr(joinPred))
-        predsCoveredByJBBC += joinPred;
+      JBBSubset *jbbcSubset = jbbcNodeSet.jbbcsToJBBSubset();
+      if (jbbcSubset->coversExpr(joinPred)) predsCoveredByJBBC += joinPred;
     }
-    
+
     leftJoinFilterPreds += predsCoveredByJBBC;
-    
+
     // set the left join filter preds
     jbbci->setLeftJoinFilterPreds(leftJoinFilterPreds);
   }
 }
 
-void JBB::computeChildrenSubGraphDependencies()
-{
+void JBB::computeChildrenSubGraphDependencies() {
   /*
   CANodeIdSet jbbcs = getJBBCs();
-  
+
   //SubGraphs produced by excluding nodes that are not innerNonSemiNonTSJ
   CANodeIdSet subGraph = jbbcs;
   subGraph.intersectSet(QueryAnalysis::Instance()->getInnerNonSemiNonTSJJBBCs());
@@ -9770,9 +7837,9 @@ void JBB::computeChildrenSubGraphDependencies()
   jbbcsNotInSubGraph -= subGraph;
   NAList<CANodeIdSet*>* innerJoinedJBBCsConnectedSubGraphs =
     subGraph.jbbcsToJBBSubset()->getJBBSubsetAnalysis()->getConnectedSubgraphs();
-  int numInnerJoinedJBBCsConnectedSubGraphs = 
+  int numInnerJoinedJBBCsConnectedSubGraphs =
     innerJoinedJBBCsConnectedSubGraphs->entries();
-  
+
   // SubGraphs produced by just following inner joins, i.e. not traversing
   // successor/predecessor relationships (i.e. left, semi, routine joins)
   NABoolean followSuccessors = FALSE;
@@ -9783,39 +7850,31 @@ void JBB::computeChildrenSubGraphDependencies()
   */
 }
 
-NABoolean JBB::hasMandatoryXP() const
-{
-  NAList<CANodeIdSet*>* connectedSubgraphs =
-    getMainJBBSubset().getJBBSubsetAnalysis()->getConnectedSubgraphs();
+NABoolean JBB::hasMandatoryXP() const {
+  NAList<CANodeIdSet *> *connectedSubgraphs = getMainJBBSubset().getJBBSubsetAnalysis()->getConnectedSubgraphs();
 
-  if(connectedSubgraphs)
+  if (connectedSubgraphs)
     return (connectedSubgraphs->entries() > 1);
   else
     return FALSE;
 }
 
-const NAString JBB::graphDisplay(const QueryAnalysis* qa) const
-{
+const NAString JBB::graphDisplay(const QueryAnalysis *qa) const {
   NAString result = "";
 
   CANodeIdSet jbbcs = mainJBBSubset_.getJBBCs();
   CANodeIdSet usedJbbcs_;
 
-  AppliedStatMan * appStatMan = qa->getASM();
+  AppliedStatMan *appStatMan = qa->getASM();
 
-  for (CANodeId x= jbbcs.init();  jbbcs.next(x); jbbcs.advance(x) )
-  {
+  for (CANodeId x = jbbcs.init(); jbbcs.next(x); jbbcs.advance(x)) {
     CANodeIdSet cons = x.getNodeAnalysis()->getJBBC()->getJoinedJBBCs();
     cons -= usedJbbcs_;
 
     NAString name;
-    if (x.getNodeAnalysis()->getTableAnalysis())
-    {
-      name = x.getNodeAnalysis()->getTableAnalysis()->getTableDesc()
-		->getNATable()->getTableName().getObjectName();
-    }
-    else
-    {
+    if (x.getNodeAnalysis()->getTableAnalysis()) {
+      name = x.getNodeAnalysis()->getTableAnalysis()->getTableDesc()->getNATable()->getTableName().getObjectName();
+    } else {
       name = "JBBC:#" + istring(x);
     }
 
@@ -9823,63 +7882,56 @@ const NAString JBB::graphDisplay(const QueryAnalysis* qa) const
 
     CostScalar cardx0 = 0;
     CostScalar cardx1 = 0;
-    TableAnalysis* tableAn = x.getNodeAnalysis()->getTableAnalysis();
+    TableAnalysis *tableAn = x.getNodeAnalysis()->getTableAnalysis();
 
-    if (tableAn)
-    {
+    if (tableAn) {
       cardx0 = tableAn->getCardinalityOfBaseTable();
       cardx1 = tableAn->getCardinalityAfterLocalPredsOnCKPrefix();
     }
 
     CostScalar cardx2 = x.getNodeAnalysis()->getCardinality();
 
-    ULng32 intx0 = (Int32) cardx0.value();
-    ULng32 intx1 = (Int32) cardx1.value();
-    ULng32 intx2 = (Int32) cardx2.value();
+    ULng32 intx0 = (Int32)cardx0.value();
+    ULng32 intx1 = (Int32)cardx1.value();
+    ULng32 intx2 = (Int32)cardx2.value();
 
-    result += istring(x) + " [label =\"" + name + ":\\n" + istring(intx0)
-              + "\\n" + istring(intx1) + "\\n" + istring(intx2) + "\"];\n";
+    result += istring(x) + " [label =\"" + name + ":\\n" + istring(intx0) + "\\n" + istring(intx1) + "\\n" +
+              istring(intx2) + "\"];\n";
 
-    for (CANodeId y= cons.init();  cons.next(y); cons.advance(y))
-    {
+    for (CANodeId y = cons.init(); cons.next(y); cons.advance(y)) {
       CostScalar cardy = appStatMan->getStatsForCANodeId(y)->getResultCardinality();
       CANodeIdSet xy = CANodeIdSet(x);
       xy += y;
       CANodeIdSet xSet = CANodeIdSet(x);
       CANodeIdSet ySet = CANodeIdSet(y);
 
-      CostScalar cardxy = appStatMan->joinJBBChildren(xSet, ySet)\
-                              ->getResultCardinality();
+      CostScalar cardxy = appStatMan->joinJBBChildren(xSet, ySet)->getResultCardinality();
 
-      CostScalar xcardy = appStatMan->getStatsForJoinPredsOnCKOfJBBC(xSet,y)\
-                              ->getResultCardinality();
+      CostScalar xcardy = appStatMan->getStatsForJoinPredsOnCKOfJBBC(xSet, y)->getResultCardinality();
 
-      CostScalar ycardx = appStatMan->getStatsForJoinPredsOnCKOfJBBC(ySet,x)\
-                              ->getResultCardinality();
+      CostScalar ycardx = appStatMan->getStatsForJoinPredsOnCKOfJBBC(ySet, x)->getResultCardinality();
 
-      ULng32 ixy = (Int32) cardxy.value();
-      ULng32 ixjy = (Int32) xcardy.value();
-      ULng32 iyjx = (Int32) ycardx.value();
+      ULng32 ixy = (Int32)cardxy.value();
+      ULng32 ixjy = (Int32)xcardy.value();
+      ULng32 iyjx = (Int32)ycardx.value();
 
-      result += istring(x) + " -- " + istring(y) + " [label =\""
-                + istring(ixjy) + " , " + istring(ixy) + " , " + istring(iyjx) + "\"];\n";
+      result += istring(x) + " -- " + istring(y) + " [label =\"" + istring(ixjy) + " , " + istring(ixy) + " , " +
+                istring(iyjx) + "\"];\n";
     }
 
-	usedJbbcs_ += x;
+    usedJbbcs_ += x;
   }
 
   return result;
 }
 
-const NAString JBB::getText() const
-{
+const NAString JBB::getText() const {
   NAString result("JBB # ");
   result += istring(jbbId_) + " :\n";
   result += "mainJBBSubset_ :" + mainJBBSubset_.getText();
   CANodeIdSet jbbcs = mainJBBSubset_.getJBBCs();
 
-  for (CANodeId x= jbbcs.init();  jbbcs.next(x); jbbcs.advance(x) )
-  {
+  for (CANodeId x = jbbcs.init(); jbbcs.next(x); jbbcs.advance(x)) {
     result += x.getNodeAnalysis()->getJBBC()->getText();
   }
 
@@ -9902,31 +7954,21 @@ const NAString JBB::getText() const
   return result;
 }
 
-void JBB::display() const
-{
-  print();
-}
+void JBB::display() const { print(); }
 
-void JBB::print (FILE *f,
-	      const char * prefix,
-	      const char * suffix) const
-{
-  fprintf (f, "%s", (const char*)getText());
-}
-
+void JBB::print(FILE *f, const char *prefix, const char *suffix) const { fprintf(f, "%s", (const char *)getText()); }
 
 // -----------------------------------------------------------------------
 // Methods for class ColAnalysis
 // -----------------------------------------------------------------------
 
-const NAString ColAnalysis::getText() const
-{
+const NAString ColAnalysis::getText() const {
   NAString result("ColAnalysis # ");
   result += istring(column_) + ":\n";
 
-  Int32 i = (Int32)((CollIndex) column_); // valueid as an integer
+  Int32 i = (Int32)((CollIndex)column_);  // valueid as an integer
   NAString unparsed(CmpCommon::statementHeap());
-  column_.getItemExpr()->unparse(unparsed); // expression as ascii string
+  column_.getItemExpr()->unparse(unparsed);  // expression as ascii string
   result += unparsed + "\n";
   result += "vegPreds: " + valueIdSetGetText(vegPreds_) + "\n";
   result += "referencingPreds: " + valueIdSetGetText(referencingPreds_) + "\n";
@@ -9934,39 +7976,37 @@ const NAString ColAnalysis::getText() const
   return result;
 }
 
-void ColAnalysis::finishAnalysis()
-{
-  table_->computeConnectedTables(vegPreds_, connectedTables_, connectedCols_); 
-/*
-  connectedCols_.clear();
+void ColAnalysis::finishAnalysis() {
+  table_->computeConnectedTables(vegPreds_, connectedTables_, connectedCols_);
+  /*
+    connectedCols_.clear();
 
-  for (ValueId pred = vegPreds_.init();
-       vegPreds_.next(pred);
-       vegPreds_.advance(pred))
-  {
-    connectedCols_ += pred.predAnalysis()->getVegConnectedCols();
-  }
-  // remove self and cols from same table
-  connectedCols_ -= table_->getUsedCols();
+    for (ValueId pred = vegPreds_.init();
+         vegPreds_.next(pred);
+         vegPreds_.advance(pred))
+    {
+      connectedCols_ += pred.predAnalysis()->getVegConnectedCols();
+    }
+    // remove self and cols from same table
+    connectedCols_ -= table_->getUsedCols();
 
-  // Now compute connectedTables_;
-  connectedTables_.clear();
-  for (ValueId c= connectedCols_.init();
-       connectedCols_.next(c);
-       connectedCols_.advance(c) )
-  {
-    connectedTables_ += c.colAnalysis()->
-        getTableAnalysis()->getNodeAnalysis()->getId();
-  }
-  // assert self is not there
- */
+    // Now compute connectedTables_;
+    connectedTables_.clear();
+    for (ValueId c= connectedCols_.init();
+         connectedCols_.next(c);
+         connectedCols_.advance(c) )
+    {
+      connectedTables_ += c.colAnalysis()->
+          getTableAnalysis()->getNodeAnalysis()->getId();
+    }
+    // assert self is not there
+   */
 
   return;
 }
 
 // Currently not used
-ValueIdSet ColAnalysis::getConnectingVegPreds(ValueId other)
-{
+ValueIdSet ColAnalysis::getConnectingVegPreds(ValueId other) {
   ValueIdSet result = vegPreds_;
   result.intersectSet(other.colAnalysis()->getVegPreds());
   return result;
@@ -9974,8 +8014,7 @@ ValueIdSet ColAnalysis::getConnectingVegPreds(ValueId other)
 
 // find all local preds referencing this column
 // I am considering caching this localPred xxx
-const ValueIdSet ColAnalysis::getLocalPreds() const
-{
+const ValueIdSet ColAnalysis::getLocalPreds() const {
   ValueIdSet result(table_->getLocalPreds());
   result.intersectSet(referencingPreds_);
   return result;
@@ -9985,24 +8024,21 @@ const ValueIdSet ColAnalysis::getLocalPreds() const
 // MJStarJoinIRule::isAStarPattern but that code is no longer used
 // Get all sibling JBBCs that are joined to this table on this column
 // (via VEG predicates).
-CANodeIdSet ColAnalysis::getConnectedJBBCs()
-{
+CANodeIdSet ColAnalysis::getConnectedJBBCs() {
   // Must be JBBC
-  JBBC* myJBBC = table_->getNodeAnalysis()->getJBBC();
+  JBBC *myJBBC = table_->getNodeAnalysis()->getJBBC();
   CMPASSERT(myJBBC);
 
   CANodeIdSet jbbcs(myJBBC->getJoinedJBBCs());
   CANodeIdSet myJoinedJBBCs;
 
   CANodeId i;
-  for (i = jbbcs.init(); jbbcs.next(i); jbbcs.advance(i))
-  {
+  for (i = jbbcs.init(); jbbcs.next(i); jbbcs.advance(i)) {
     ValueIdSet commonPreds = i.getNodeAnalysis()->getJBBC()->getJoinPreds();
     // xxx for now we only consider veg preds
     // In the future we may include range and non-Veg-equality as well (still not decided)
     commonPreds.intersectSet(vegPreds_);
-    if (commonPreds.entries() > 0)
-    {
+    if (commonPreds.entries() > 0) {
       myJoinedJBBCs.insert(i);
     }
   }
@@ -10012,28 +8048,24 @@ CANodeIdSet ColAnalysis::getConnectedJBBCs()
 
 // Get all sibling JBBCs that are joined to this table on this column
 // these include JBBCs joined via non_VEG preds like t1.a = t2.b + 7
-CANodeIdSet ColAnalysis::getAllConnectedJBBCs()
-{
+CANodeIdSet ColAnalysis::getAllConnectedJBBCs() {
   // Must be JBBC
-  JBBC* myJBBC = table_->getNodeAnalysis()->getJBBC();
+  JBBC *myJBBC = table_->getNodeAnalysis()->getJBBC();
   CMPASSERT(myJBBC);
 
   CANodeIdSet jbbcs(myJBBC->getJoinedJBBCs());
   CANodeIdSet myJoinedJBBCs;
 
   CANodeId i;
-  for (i = jbbcs.init(); jbbcs.next(i); jbbcs.advance(i))
-  {
-    if(equalityConnectedJBBCs_.contains(i))
-    {
+  for (i = jbbcs.init(); jbbcs.next(i); jbbcs.advance(i)) {
+    if (equalityConnectedJBBCs_.contains(i)) {
       myJoinedJBBCs.insert(i);
       continue;
     }
 
     ValueIdSet commonPreds = i.getNodeAnalysis()->getJBBC()->getJoinPreds();
     commonPreds.intersectSet(vegPreds_);
-    if (commonPreds.entries() > 0)
-    {
+    if (commonPreds.entries() > 0) {
       myJoinedJBBCs.insert(i);
     }
   }
@@ -10043,8 +8075,7 @@ CANodeIdSet ColAnalysis::getAllConnectedJBBCs()
 
 // This is no longer used. Seems to have been replaced by getAllConnectingPreds
 // Get connecting Veg Preds between me and this JBBC.
-ValueIdSet ColAnalysis::getConnectingPreds(JBBC* jbbc)
-{
+ValueIdSet ColAnalysis::getConnectingPreds(JBBC *jbbc) {
   ValueIdSet commonPreds = jbbc->getJoinPreds();
   // xxx for now we only consider veg preds
   // In the future we may include range and non-Veg-equality as well (still not decided)
@@ -10053,23 +8084,16 @@ ValueIdSet ColAnalysis::getConnectingPreds(JBBC* jbbc)
 }
 
 // Get connecting Veg Preds between me and this JBBC.
-ValueIdSet ColAnalysis::getAllConnectingPreds(JBBC* jbbc)
-{
+ValueIdSet ColAnalysis::getAllConnectingPreds(JBBC *jbbc) {
   ValueIdSet commonPreds = jbbc->getJoinPreds();
   // xxx for now we only consider veg preds
   // In the future we may include range and non-Veg-equality as well (still not decided)
   ValueIdSet connectingPreds = vegPreds_;
-  if(equalityConnectedJBBCs_.contains(jbbc->getId()))
-  {
-    for (ValueId pred = equalityConnectingPreds_.init();
-                        equalityConnectingPreds_.next(pred);
-                        equalityConnectingPreds_.advance(pred))
-    {
-      const CANodeIdSet * jbbcsConnectedViaPred =
-        table_->getEqualityConnectedJBBCs(pred);
-      if(jbbcsConnectedViaPred &&
-         jbbcsConnectedViaPred->contains(jbbc->getId()))
-        connectingPreds += pred;
+  if (equalityConnectedJBBCs_.contains(jbbc->getId())) {
+    for (ValueId pred = equalityConnectingPreds_.init(); equalityConnectingPreds_.next(pred);
+         equalityConnectingPreds_.advance(pred)) {
+      const CANodeIdSet *jbbcsConnectedViaPred = table_->getEqualityConnectedJBBCs(pred);
+      if (jbbcsConnectedViaPred && jbbcsConnectedViaPred->contains(jbbc->getId())) connectingPreds += pred;
     }
   }
   commonPreds.intersectSet(connectingPreds);
@@ -10079,16 +8103,13 @@ ValueIdSet ColAnalysis::getAllConnectingPreds(JBBC* jbbc)
 // ****************************************************************
 
 // this will be changed to a getText method for ValueIdSet
-NAString valueIdSetGetText(const ValueIdSet & set)
-{
+NAString valueIdSetGetText(const ValueIdSet &set) {
   NAString result("ValueIdSet {");
-  for (ValueId x = set.init(); set.next(x); set.advance(x))
-  {
-    Int32 i = (Int32)((CollIndex) x); // valueid as an integer
+  for (ValueId x = set.init(); set.next(x); set.advance(x)) {
+    Int32 i = (Int32)((CollIndex)x);  // valueid as an integer
     NAString unparsed(CmpCommon::statementHeap());
-    if (x.getItemExpr())
-    {
-      x.getItemExpr()->unparse(unparsed); // expression as ascii string
+    if (x.getItemExpr()) {
+      x.getItemExpr()->unparse(unparsed);  // expression as ascii string
       result += unparsed;
       result += " ";
     }
@@ -10099,20 +8120,14 @@ NAString valueIdSetGetText(const ValueIdSet & set)
 
 // FALSE does not mean column is not a constant. It means we did not verify
 // that it is a constant.
-NABoolean ColAnalysis::getConstValue(ItemExpr* & cv, 
-                                     NABoolean refAConstValue) const
-{
+NABoolean ColAnalysis::getConstValue(ItemExpr *&cv, NABoolean refAConstValue) const {
   ValueIdSet localPreds(getLocalPreds());
 
   // iterate over ValueIdSet to find a VEGPred
-  for( ValueId vid = localPreds.init();
-       localPreds.next(vid);
-       localPreds.advance(vid))
-  {
-    const ItemExpr * ie = vid.getItemExpr();
+  for (ValueId vid = localPreds.init(); localPreds.next(vid); localPreds.advance(vid)) {
+    const ItemExpr *ie = vid.getItemExpr();
 
-    if (ie->getOperatorType() == ITM_VEG_PREDICATE)
-    {
+    if (ie->getOperatorType() == ITM_VEG_PREDICATE) {
       VEG *veg = ((VEGPredicate *)ie)->getVEG();
 
       ValueIdSet vegMembers = veg->getAllValues();
@@ -10121,70 +8136,54 @@ NABoolean ColAnalysis::getConstValue(ItemExpr* & cv,
       // NOTE:  A VEG group should not contain more than 1 constant; but if
       //        that should happen, referencesAConstValue will return the first
       //        constant found.
-      if (refAConstValue)
-        {
-          if (vegMembers.referencesAConstValue(&cv))
-            {
-              return TRUE;
-            }
+      if (refAConstValue) {
+        if (vegMembers.referencesAConstValue(&cv)) {
+          return TRUE;
         }
-      else
-        {
-          if (vegMembers.referencesAConstExpr(&cv))
-            {
-              return TRUE;
-            }
+      } else {
+        if (vegMembers.referencesAConstExpr(&cv)) {
+          return TRUE;
         }
+      }
     }
   }
   return FALSE;
 }
 
-NAString istring (ULng32 i)
-{
+NAString istring(ULng32 i) {
   char buffer[20];
   str_itoa(i, buffer);
   return NAString(buffer);
 }
 
-JBBSubsetAnalysis* GroupByAgg::getJBBSubsetAnalysis()
-{
-  JBBSubsetAnalysis* jbbSubsetAnalysis = NULL;
+JBBSubsetAnalysis *GroupByAgg::getJBBSubsetAnalysis() {
+  JBBSubsetAnalysis *jbbSubsetAnalysis = NULL;
 
-  GBAnalysis* gb = NULL;
-  JBB * jbb = NULL;
+  GBAnalysis *gb = NULL;
+  JBB *jbb = NULL;
 
-  if ( (gb  = getGBAnalysis()) &&
-       (jbb = gb->getJBB())
-     )
-  {
-     jbbSubsetAnalysis = jbb->getMainJBBSubset().getJBBSubsetAnalysis();
+  if ((gb = getGBAnalysis()) && (jbb = gb->getJBB())) {
+    jbbSubsetAnalysis = jbb->getMainJBBSubset().getJBBSubsetAnalysis();
   }
 
   return jbbSubsetAnalysis;
 }
 
-JBBSubsetAnalysis* Scan::getJBBSubsetAnalysis()
-{
-  JBBSubsetAnalysis* jbbSubsetAnalysis = NULL;
+JBBSubsetAnalysis *Scan::getJBBSubsetAnalysis() {
+  JBBSubsetAnalysis *jbbSubsetAnalysis = NULL;
 
   GroupAttributes *groupAttr = NULL;
-  GroupAnalysis *groupAnal =  NULL;
-  JBBSubset *jbbSubset =  NULL;
-  JBBC * myJBBC = NULL;
+  GroupAnalysis *groupAnal = NULL;
+  JBBSubset *jbbSubset = NULL;
+  JBBC *myJBBC = NULL;
 
-  if ((groupAttr = getGroupAttr()) &&
-      (groupAnal =  groupAttr->getGroupAnalysis()) &&
+  if ((groupAttr = getGroupAttr()) && (groupAnal = groupAttr->getGroupAnalysis()) &&
       (groupAnal->getAllSubtreeTables().entries()) &&
-      (jbbSubset =  groupAnal->getAllSubtreeTables().jbbcsToJBBSubset()) &&
-      (jbbSubset->getJBB()))
-  {
-     jbbSubsetAnalysis =  jbbSubset->getJBBSubsetAnalysis();
+      (jbbSubset = groupAnal->getAllSubtreeTables().jbbcsToJBBSubset()) && (jbbSubset->getJBB())) {
+    jbbSubsetAnalysis = jbbSubset->getJBBSubsetAnalysis();
   }
 
   return jbbSubsetAnalysis;
 }
 
 // ****************************************************************
-
-

@@ -38,7 +38,6 @@
  *****************************************************************************
  */
 
-
 #include "ElemDDLNode.h"
 #include "optimizer/ObjectNames.h"
 #ifndef SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
@@ -59,44 +58,37 @@ class ElemDDLLike;
 // -----------------------------------------------------------------------
 // definition of class ElemDDLLike
 // -----------------------------------------------------------------------
-class ElemDDLLike : public ElemDDLNode
-{
-
-public:
-
+class ElemDDLLike : public ElemDDLNode {
+ public:
   // default constructor
   ElemDDLLike(OperatorTypeEnum operatorType = ELM_ANY_LIKE_ELEM,
-                     const CorrName & sourceTableName = 
-                           CorrName("", PARSERHEAP()) ,
-                     ElemDDLNode * pLikeOptions = NULL,
-                     CollHeap * h=0)
-  : ElemDDLNode(operatorType),
-  sourceTableName_(h),
-  sourceTableCorrName_(sourceTableName, h),
-  pLikeOptions_(pLikeOptions)
-  {
-   sourceTableName_ =  
-     sourceTableCorrName_.getQualifiedNameObj().getQualifiedNameAsAnsiString();
+              const CorrName &sourceTableName = CorrName("", PARSERHEAP()), ElemDDLNode *pLikeOptions = NULL,
+              CollHeap *h = 0)
+      : ElemDDLNode(operatorType),
+        sourceTableName_(h),
+        sourceTableCorrName_(sourceTableName, h),
+        pLikeOptions_(pLikeOptions) {
+    sourceTableName_ = sourceTableCorrName_.getQualifiedNameObj().getQualifiedNameAsAnsiString();
   }
 
   // copy ctor
-  ElemDDLLike (const ElemDDLLike & orig, CollHeap * h=0 ) ; // not written
+  ElemDDLLike(const ElemDDLLike &orig, CollHeap *h = 0);  // not written
 
   // virtual destructor
   virtual ~ElemDDLLike();
 
   // cast
-  virtual ElemDDLLike * castToElemDDLLike();
+  virtual ElemDDLLike *castToElemDDLLike();
 
   // accessors
   virtual Int32 getArity() const;
-  virtual ExprNode * getChild(Lng32 index);
-  inline const NAString & getSourceTableName() const;
-  inline const CorrName & getDDLLikeNameAsCorrName() const;
-  inline       CorrName & getDDLLikeNameAsCorrName();
+  virtual ExprNode *getChild(Lng32 index);
+  inline const NAString &getSourceTableName() const;
+  inline const CorrName &getDDLLikeNameAsCorrName() const;
+  inline CorrName &getDDLLikeNameAsCorrName();
   // mutators
-  virtual void setChild(Lng32 index, ExprNode * pChildNode);
-  inline void setSourceTableName(const NAString & sourceTableName);
+  virtual void setChild(Lng32 index, ExprNode *pChildNode);
+  inline void setSourceTableName(const NAString &sourceTableName);
 
   // methods for tracing
   virtual const NAString getText() const;
@@ -104,22 +96,18 @@ public:
 
   // methods for binding.
 
-  ExprNode * bindNode(BindWA *bindWAPtr);
+  ExprNode *bindNode(BindWA *bindWAPtr);
 
-
-
-private:
-
+ private:
   NAString sourceTableName_;
-  CorrName sourceTableCorrName_; // ++ MV - see comment at top of file
+  CorrName sourceTableCorrName_;  // ++ MV - see comment at top of file
   // pointer to child parse node
 
-  enum { INDEX_LIKE_OPT_LIST = 0,
-         MAX_ELEM_DDL_LIKE_ARITY };
+  enum { INDEX_LIKE_OPT_LIST = 0, MAX_ELEM_DDL_LIKE_ARITY };
 
-  ElemDDLNode * pLikeOptions_;
+  ElemDDLNode *pLikeOptions_;
 
-}; // class ElemDDLLike
+};  // class ElemDDLLike
 
 // -----------------------------------------------------------------------
 // definitions of inline methods for class ElemDDLLike
@@ -128,32 +116,16 @@ private:
 // accessor
 //
 
-inline CorrName &
-ElemDDLLike::getDDLLikeNameAsCorrName()
-{
-  return sourceTableCorrName_;
-}
+inline CorrName &ElemDDLLike::getDDLLikeNameAsCorrName() { return sourceTableCorrName_; }
 
-inline const CorrName & 
-ElemDDLLike::getDDLLikeNameAsCorrName() const 
-{
-  return sourceTableCorrName_;
-}
+inline const CorrName &ElemDDLLike::getDDLLikeNameAsCorrName() const { return sourceTableCorrName_; }
 
-inline const NAString &
-ElemDDLLike::getSourceTableName() const
-{
-  return sourceTableName_;
-}
+inline const NAString &ElemDDLLike::getSourceTableName() const { return sourceTableName_; }
 
 //
 // mutator
 //
 
-inline void
-ElemDDLLike::setSourceTableName(const NAString & sourceTableName)
-{
-  sourceTableName_ = sourceTableName;
-}
+inline void ElemDDLLike::setSourceTableName(const NAString &sourceTableName) { sourceTableName_ = sourceTableName; }
 
-#endif // ELEMDDLLIKE_H
+#endif  // ELEMDDLLIKE_H

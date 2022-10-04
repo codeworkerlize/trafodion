@@ -44,16 +44,13 @@
 #include "ExCextdecs.h"
 #include "common/ComRtUtils.h"
 
-
 //----------------------------------------------------------------------
 // UDR debugging code. See comments in UdrExeIpc.h.
 //----------------------------------------------------------------------
 #ifdef UDR_DEBUG
 #include <stdarg.h>
-void UdrPrintf(FILE *f, const char *formatString, ...)
-{
-  if (f)
-  {
+void UdrPrintf(FILE *f, const char *formatString, ...) {
+  if (f) {
     va_list args;
     va_start(args, formatString);
     fprintf(f, "[UDR] ");
@@ -64,43 +61,74 @@ void UdrPrintf(FILE *f, const char *formatString, ...)
 }
 #endif
 
-const char *GetUdrIpcTypeString(UdrIpcObjectType t)
-{
-  switch (t)
-  {
-    case UDR_MSG_LOAD:              return "UDR_MSG_LOAD";
-    case UDR_MSG_LOAD_REPLY:        return "UDR_MSG_LOAD_REPLY";
-    case UDR_MSG_UNLOAD:            return "UDR_MSG_UNLOAD";
-    case UDR_MSG_UNLOAD_REPLY:      return "UDR_MSG_UNLOAD_REPLY";
-    case UDR_MSG_DATA_HEADER:       return "UDR_MSG_DATA_HEADER";
-    case UDR_MSG_DATA_REQUEST:      return "UDR_MSG_DATA_REQUEST";
-    case UDR_MSG_DATA_REPLY:        return "UDR_MSG_DATA_REPLY";
-    case UDR_MSG_CONTINUE_REQUEST:  return "UDR_MSG_CONTINUE_REQUEST";
-    case UDR_MSG_ERROR_REPLY:       return "UDR_MSG_ERROR_REPLY";
-    case UDR_MSG_SESSION:           return "UDR_MSG_SESSION";
-    case UDR_MSG_SESSION_REPLY:     return "UDR_MSG_SESSION_REPLY";
-    case UDR_MSG_ENTER_TX:          return "UDR_MSG_ENTER_TX";
-    case UDR_MSG_ENTER_TX_REPLY:    return "UDR_MSG_ENTER_TX_REPLY";
-    case UDR_MSG_EXIT_TX:           return "UDR_MSG_EXIT_TX";
-    case UDR_MSG_EXIT_TX_REPLY:     return "UDR_MSG_EXIT_TX_REPLY";
-    case UDR_MSG_RS_LOAD:           return "UDR_MSG_RS_LOAD";
-    case UDR_MSG_RS_LOAD_REPLY:     return "UDR_MSG_RS_LOAD_REPLY";
-    case UDR_MSG_RS_DATA_HEADER:    return "UDR_MSG_RS_DATA_HEADER";
-    case UDR_MSG_RS_CONTINUE:       return "UDR_MSG_RS_CONTINUE";
-    case UDR_MSG_RS_CLOSE:          return "UDR_MSG_RS_CLOSE";
-    case UDR_MSG_RS_CLOSE_REPLY:    return "UDR_MSG_RS_CLOSE_REPLY";
-    case UDR_MSG_RS_UNLOAD:         return "UDR_MSG_RS_UNLOAD";
-    case UDR_MSG_RS_UNLOAD_REPLY:   return "UDR_MSG_RS_UNLOAD_REPLY";
-    case UDR_MSG_RS_INFO:           return "UDR_MSG_RS_INFO";
-    case UDR_MSG_SUSPEND_TX:        return "UDR_MSG_SUSPEND_TX";
-    case UDR_MSG_SUSPEND_TX_REPLY:  return "UDR_MSG_SUSPEND_TX_REPLY";
-    case UDR_STREAM_CLIENT_CONTROL: return "UDR_STREAM_CLIENT_CONTROL";
-    case UDR_STREAM_SERVER_CONTROL: return "UDR_STREAM_SERVER_CONTROL";
-    case UDR_STREAM_CLIENT_DATA:    return "UDR_STREAM_CLIENT_DATA";
-    case UDR_STREAM_SERVER_DATA:    return "UDR_STREAM_SERVER_DATA";
-    case UDR_STREAM_SERVER_REPLY:   return "UDR_STREAM_SERVER_REPLY";
-    case UDR_IPC_INVALID:           return "UDR_IPC_INVALID";
-    default:                        return ComRtGetUnknownString((Int32) t);
+const char *GetUdrIpcTypeString(UdrIpcObjectType t) {
+  switch (t) {
+    case UDR_MSG_LOAD:
+      return "UDR_MSG_LOAD";
+    case UDR_MSG_LOAD_REPLY:
+      return "UDR_MSG_LOAD_REPLY";
+    case UDR_MSG_UNLOAD:
+      return "UDR_MSG_UNLOAD";
+    case UDR_MSG_UNLOAD_REPLY:
+      return "UDR_MSG_UNLOAD_REPLY";
+    case UDR_MSG_DATA_HEADER:
+      return "UDR_MSG_DATA_HEADER";
+    case UDR_MSG_DATA_REQUEST:
+      return "UDR_MSG_DATA_REQUEST";
+    case UDR_MSG_DATA_REPLY:
+      return "UDR_MSG_DATA_REPLY";
+    case UDR_MSG_CONTINUE_REQUEST:
+      return "UDR_MSG_CONTINUE_REQUEST";
+    case UDR_MSG_ERROR_REPLY:
+      return "UDR_MSG_ERROR_REPLY";
+    case UDR_MSG_SESSION:
+      return "UDR_MSG_SESSION";
+    case UDR_MSG_SESSION_REPLY:
+      return "UDR_MSG_SESSION_REPLY";
+    case UDR_MSG_ENTER_TX:
+      return "UDR_MSG_ENTER_TX";
+    case UDR_MSG_ENTER_TX_REPLY:
+      return "UDR_MSG_ENTER_TX_REPLY";
+    case UDR_MSG_EXIT_TX:
+      return "UDR_MSG_EXIT_TX";
+    case UDR_MSG_EXIT_TX_REPLY:
+      return "UDR_MSG_EXIT_TX_REPLY";
+    case UDR_MSG_RS_LOAD:
+      return "UDR_MSG_RS_LOAD";
+    case UDR_MSG_RS_LOAD_REPLY:
+      return "UDR_MSG_RS_LOAD_REPLY";
+    case UDR_MSG_RS_DATA_HEADER:
+      return "UDR_MSG_RS_DATA_HEADER";
+    case UDR_MSG_RS_CONTINUE:
+      return "UDR_MSG_RS_CONTINUE";
+    case UDR_MSG_RS_CLOSE:
+      return "UDR_MSG_RS_CLOSE";
+    case UDR_MSG_RS_CLOSE_REPLY:
+      return "UDR_MSG_RS_CLOSE_REPLY";
+    case UDR_MSG_RS_UNLOAD:
+      return "UDR_MSG_RS_UNLOAD";
+    case UDR_MSG_RS_UNLOAD_REPLY:
+      return "UDR_MSG_RS_UNLOAD_REPLY";
+    case UDR_MSG_RS_INFO:
+      return "UDR_MSG_RS_INFO";
+    case UDR_MSG_SUSPEND_TX:
+      return "UDR_MSG_SUSPEND_TX";
+    case UDR_MSG_SUSPEND_TX_REPLY:
+      return "UDR_MSG_SUSPEND_TX_REPLY";
+    case UDR_STREAM_CLIENT_CONTROL:
+      return "UDR_STREAM_CLIENT_CONTROL";
+    case UDR_STREAM_SERVER_CONTROL:
+      return "UDR_STREAM_SERVER_CONTROL";
+    case UDR_STREAM_CLIENT_DATA:
+      return "UDR_STREAM_CLIENT_DATA";
+    case UDR_STREAM_SERVER_DATA:
+      return "UDR_STREAM_SERVER_DATA";
+    case UDR_STREAM_SERVER_REPLY:
+      return "UDR_STREAM_SERVER_REPLY";
+    case UDR_IPC_INVALID:
+      return "UDR_IPC_INVALID";
+    default:
+      return ComRtGetUnknownString((Int32)t);
   }
 }
 
@@ -108,16 +136,14 @@ const char *GetUdrIpcTypeString(UdrIpcObjectType t)
 // Helper function to determine number of bytes that a string
 // will occupy in a packed IpcMessageObj.
 //
-inline static IpcMessageObjSize packedStringLength(const char *s)
-{
+inline static IpcMessageObjSize packedStringLength(const char *s) {
   //
   // The string will be preceded by a 4-byte length field and will
   // include the null-terminator
   //
   IpcMessageObjSize result;
   result = sizeof(Lng32);
-  if (s)
-  {
+  if (s) {
     result += str_len(s) + 1;
   }
   return result;
@@ -126,53 +152,37 @@ inline static IpcMessageObjSize packedStringLength(const char *s)
 // -----------------------------------------------------------------------
 // class UdrParameterInfo
 // -----------------------------------------------------------------------
-UdrParameterInfo::UdrParameterInfo(ComUInt32 position,
-                                   ComUInt32 flags,
-                                   ComSInt16 fsType,
-                                   ComSInt16 ansiType,
-                                   ComUInt16 paramNameLen,
-                                   const char *paramName,
-                                   ComUInt16 prec,
-                                   ComUInt16 scale,
-                                   ComUInt16 encodingCharSet,
-                                   ComUInt16 collation,
-                                   ComUInt32 dataLength,
-                                   ComSInt16 tupleFormat,
-                                   ComSInt16 nullIndicatorLength,
-                                   ComSInt32 nullIndicatorOffset,
-                                   ComSInt16 nullBitIndex,
-                                   ComUInt32 dataOffset,
-                                   ComSInt32 vcLenIndOffset,
-                                   ComSInt16 vcIndicatorLength,
-                                   ComUInt32 voaOffset)
+UdrParameterInfo::UdrParameterInfo(ComUInt32 position, ComUInt32 flags, ComSInt16 fsType, ComSInt16 ansiType,
+                                   ComUInt16 paramNameLen, const char *paramName, ComUInt16 prec, ComUInt16 scale,
+                                   ComUInt16 encodingCharSet, ComUInt16 collation, ComUInt32 dataLength,
+                                   ComSInt16 tupleFormat, ComSInt16 nullIndicatorLength, ComSInt32 nullIndicatorOffset,
+                                   ComSInt16 nullBitIndex, ComUInt32 dataOffset, ComSInt32 vcLenIndOffset,
+                                   ComSInt16 vcIndicatorLength, ComUInt32 voaOffset)
 
- : position_(position),
-   flags_(flags),
-   fsType_(fsType),
-   ansiType_(ansiType),
-   paramNameLen_((short) paramNameLen),
-   prec_(prec),
-   scale_(scale),
-   encodingCharSet_(encodingCharSet),
-   collation_(collation),
-   dataLength_(dataLength),
-   tupleFormat_(tupleFormat),
-   nullIndicatorLength_(nullIndicatorLength),
-   nullIndicatorOffset_(nullIndicatorOffset),
-   nullBitIndex_(nullBitIndex),
-   dataOffset_(dataOffset),
-   vcLenIndOffset_(vcLenIndOffset),
-   vcIndicatorLength_(vcIndicatorLength),
-   voaOffset_(voaOffset)
-{
+    : position_(position),
+      flags_(flags),
+      fsType_(fsType),
+      ansiType_(ansiType),
+      paramNameLen_((short)paramNameLen),
+      prec_(prec),
+      scale_(scale),
+      encodingCharSet_(encodingCharSet),
+      collation_(collation),
+      dataLength_(dataLength),
+      tupleFormat_(tupleFormat),
+      nullIndicatorLength_(nullIndicatorLength),
+      nullIndicatorOffset_(nullIndicatorOffset),
+      nullBitIndex_(nullBitIndex),
+      dataOffset_(dataOffset),
+      vcLenIndOffset_(vcLenIndOffset),
+      vcIndicatorLength_(vcIndicatorLength),
+      voaOffset_(voaOffset) {
   UdrExeAssert(paramNameLen <= 128, "Param name length cannot exceed 128");
-  if (paramNameLen > 0)
-    str_cpy_all(paramName_, paramName, paramNameLen);
+  if (paramNameLen > 0) str_cpy_all(paramName_, paramName, paramNameLen);
   paramName_[paramNameLen_] = 0;
 }
 
-IpcMessageObjSize UdrParameterInfo::packedLength() const
-{
+IpcMessageObjSize UdrParameterInfo::packedLength() const {
   IpcMessageObjSize result = 0;
   result += sizeof(position_);
   result += sizeof(flags_);
@@ -196,17 +206,14 @@ IpcMessageObjSize UdrParameterInfo::packedLength() const
   return result;
 }
 
-IpcMessageObjSize UdrParameterInfo::pack(IpcMessageBufferPtr &buffer) const
-{
+IpcMessageObjSize UdrParameterInfo::pack(IpcMessageBufferPtr &buffer) const {
   IpcMessageObjSize result = 0;
   result += packIntoBuffer(buffer, position_);
   result += packIntoBuffer(buffer, flags_);
   result += packIntoBuffer(buffer, fsType_);
   result += packIntoBuffer(buffer, ansiType_);
   result += packIntoBuffer(buffer, paramNameLen_);
-  if (paramNameLen_ > 0)
-    result += packStrIntoBuffer(buffer, (char *) (&paramName_[0]),
-                                paramNameLen_);
+  if (paramNameLen_ > 0) result += packStrIntoBuffer(buffer, (char *)(&paramName_[0]), paramNameLen_);
   result += packIntoBuffer(buffer, prec_);
   result += packIntoBuffer(buffer, scale_);
   result += packIntoBuffer(buffer, encodingCharSet_);
@@ -223,15 +230,13 @@ IpcMessageObjSize UdrParameterInfo::pack(IpcMessageBufferPtr &buffer) const
   return result;
 }
 
-void UdrParameterInfo::unpack(IpcConstMessageBufferPtr &buffer)
-{
+void UdrParameterInfo::unpack(IpcConstMessageBufferPtr &buffer) {
   unpackBuffer(buffer, position_);
   unpackBuffer(buffer, flags_);
   unpackBuffer(buffer, fsType_);
   unpackBuffer(buffer, ansiType_);
   unpackBuffer(buffer, paramNameLen_);
-  if (paramNameLen_ > 0)
-    unpackStrFromBuffer(buffer, paramName_, paramNameLen_);
+  if (paramNameLen_ > 0) unpackStrFromBuffer(buffer, paramName_, paramNameLen_);
   paramName_[paramNameLen_] = 0;
   unpackBuffer(buffer, prec_);
   unpackBuffer(buffer, scale_);
@@ -248,236 +253,183 @@ void UdrParameterInfo::unpack(IpcConstMessageBufferPtr &buffer)
   unpackBuffer(buffer, voaOffset_);
 }
 
-UdrParameterInfo& UdrParameterInfo::operator=(const UdrParameterInfo &other)
-{
+UdrParameterInfo &UdrParameterInfo::operator=(const UdrParameterInfo &other) {
   //--------------------------------------
   // Nothing to do when copying yourself
   //--------------------------------------
-  if (this == &other)
-  {
+  if (this == &other) {
     return *this;
   }
 
-  position_            = other.position_;
-  flags_               = other.flags_;
-  fsType_              = other.fsType_;
-  ansiType_            = other.ansiType_;
-  paramNameLen_        = other.paramNameLen_;
+  position_ = other.position_;
+  flags_ = other.flags_;
+  fsType_ = other.fsType_;
+  ansiType_ = other.ansiType_;
+  paramNameLen_ = other.paramNameLen_;
   str_cpy_all(paramName_, other.paramName_, paramNameLen_ + 1);
-  prec_                = other.prec_;
-  scale_               = other.scale_;
-  encodingCharSet_     = other.encodingCharSet_;
-  collation_           = other.collation_;
-  dataLength_          = other.dataLength_;
-  tupleFormat_         = other.tupleFormat_;
+  prec_ = other.prec_;
+  scale_ = other.scale_;
+  encodingCharSet_ = other.encodingCharSet_;
+  collation_ = other.collation_;
+  dataLength_ = other.dataLength_;
+  tupleFormat_ = other.tupleFormat_;
   nullIndicatorLength_ = other.nullIndicatorLength_;
   nullIndicatorOffset_ = other.nullIndicatorOffset_;
-  nullBitIndex_        = other.nullBitIndex_;
-  dataOffset_          = other.dataOffset_;
-  vcLenIndOffset_      = other.vcLenIndOffset_;
-  vcIndicatorLength_   = other.vcIndicatorLength_;
-  voaOffset_           = other.voaOffset_;
+  nullBitIndex_ = other.nullBitIndex_;
+  dataOffset_ = other.dataOffset_;
+  vcLenIndOffset_ = other.vcLenIndOffset_;
+  vcIndicatorLength_ = other.vcIndicatorLength_;
+  voaOffset_ = other.voaOffset_;
 
   return *this;
 
-} //UdrParameterInfo::operator=
+}  // UdrParameterInfo::operator=
 
-
-void UdrParameterInfo::display(FILE *f, Lng32 indent,
-                               UdrParameterInfo *pi) const
-{
+void UdrParameterInfo::display(FILE *f, Lng32 indent, UdrParameterInfo *pi) const {
   char ind[100];
   Lng32 indIdx = 0;
-  if (indent > 99)
-  {
+  if (indent > 99) {
     indent = 99;
   }
-  for (indIdx = 0; indIdx < indent; indIdx++)
-  {
+  for (indIdx = 0; indIdx < indent; indIdx++) {
     ind[indIdx] = ' ';
   }
   ind[indIdx] = '\0';
 
   fprintf(f, "\n");
   fprintf(f, "%sContents of UdrParameterInfo:\n", ind);
-  fprintf(f, "%s-----------------------------\n", ind );
+  fprintf(f, "%s-----------------------------\n", ind);
 
-  fprintf(f, "%sPosition                 : %d\n", ind ,
-          (Lng32) pi->getPosition());
-  fprintf(f, "%sFS Data Type             : %d\n", ind ,
-          (Lng32) pi->getFSType());
-  fprintf(f, "%sANSI Data Type           : %d\n", ind ,
-          (Lng32) pi->getAnsiType());
-  fprintf(f, "%sPrecision                : %d\n", ind ,
-          (Lng32) pi->getPrec());
-  fprintf(f, "%sScale                    : %d\n", ind ,
-          (Lng32) pi->getScale());
-  fprintf(f, "%sencodingCharSet          : %d\n", ind ,
-          (Lng32) pi->getEncodingCharSet());
-  fprintf(f, "%scollation                : %d\n", ind ,
-          (Lng32) pi->getCollation());
+  fprintf(f, "%sPosition                 : %d\n", ind, (Lng32)pi->getPosition());
+  fprintf(f, "%sFS Data Type             : %d\n", ind, (Lng32)pi->getFSType());
+  fprintf(f, "%sANSI Data Type           : %d\n", ind, (Lng32)pi->getAnsiType());
+  fprintf(f, "%sPrecision                : %d\n", ind, (Lng32)pi->getPrec());
+  fprintf(f, "%sScale                    : %d\n", ind, (Lng32)pi->getScale());
+  fprintf(f, "%sencodingCharSet          : %d\n", ind, (Lng32)pi->getEncodingCharSet());
+  fprintf(f, "%scollation                : %d\n", ind, (Lng32)pi->getCollation());
 
-  if (pi->isInOut())
-  {
-    fprintf(f, "%sMode                     : INOUT\n", ind );
-  }
-  else if (pi->isIn())
-  {
-    fprintf(f, "%sMode                     : IN\n", ind );
-  }
-  else if (pi->isOut())
-  {
-    fprintf(f, "%sMode                     : OUT\n", ind );
-  }
-  else
-  {
-    fprintf(f, "%sMode                     : INVALID\n", ind );
+  if (pi->isInOut()) {
+    fprintf(f, "%sMode                     : INOUT\n", ind);
+  } else if (pi->isIn()) {
+    fprintf(f, "%sMode                     : IN\n", ind);
+  } else if (pi->isOut()) {
+    fprintf(f, "%sMode                     : OUT\n", ind);
+  } else {
+    fprintf(f, "%sMode                     : INVALID\n", ind);
   }
 
   if (pi->isLmObjType())
-    fprintf(f, "%sObject Mapping           : TRUE\n", ind );
+    fprintf(f, "%sObject Mapping           : TRUE\n", ind);
   else
-    fprintf(f, "%sObject Mapping           : FALSE\n", ind );
+    fprintf(f, "%sObject Mapping           : FALSE\n", ind);
 
   if (pi->isNullable())
-    fprintf(f, "%sNull Flag                : TRUE\n", ind );
+    fprintf(f, "%sNull Flag                : TRUE\n", ind);
   else
-    fprintf(f, "%sNull Flag                : FALSE\n", ind );
+    fprintf(f, "%sNull Flag                : FALSE\n", ind);
 
-  fprintf(f, "%sNull Indicator Length    : %d\n",
-          ind , (Lng32) pi->getNullIndicatorLength());
+  fprintf(f, "%sNull Indicator Length    : %d\n", ind, (Lng32)pi->getNullIndicatorLength());
 
-  fprintf(f, "%sNull Indicator Offset    : %d\n",
-          ind , (Lng32) pi->getNullIndicatorOffset());
+  fprintf(f, "%sNull Indicator Offset    : %d\n", ind, (Lng32)pi->getNullIndicatorOffset());
 
-  fprintf(f, "%sVC Len Indicator Offset  : %d\n",
-          ind , (Lng32) pi->getVCLenIndOffset());
+  fprintf(f, "%sVC Len Indicator Offset  : %d\n", ind, (Lng32)pi->getVCLenIndOffset());
 
-  fprintf(f, "%sVC Indicator Length      : %d\n",
-          ind , (Lng32) pi->getVCIndicatorLength());
+  fprintf(f, "%sVC Indicator Length      : %d\n", ind, (Lng32)pi->getVCIndicatorLength());
 
-  fprintf(f, "%sData Offset              : %d\n",
-          ind , (Lng32) pi->getDataOffset());
+  fprintf(f, "%sData Offset              : %d\n", ind, (Lng32)pi->getDataOffset());
 
-  fprintf(f, "%sData Length              : %d\n",
-          ind , (Lng32) pi->getDataLength());
+  fprintf(f, "%sData Length              : %d\n", ind, (Lng32)pi->getDataLength());
 
-  fprintf(f, "%sPosition                 : %d\n\n",
-          ind , (Lng32) pi->getPosition());
+  fprintf(f, "%sPosition                 : %d\n\n", ind, (Lng32)pi->getPosition());
 
   fflush(f);
 
-} // UdrParameterInfo::display
+}  // UdrParameterInfo::display
 
-UdrTableInputInfo::UdrTableInputInfo(
-    ComUInt16 tabIndex,
-    ComUInt16 tableNameLen,
-    const char *tableName,
-    ComUInt16 numColumns,
-    ComUInt32 outputRowLen
-    )
-  :tabIndex_(tabIndex),
-   tableNameLen_(tableNameLen),
-   numColumns_(numColumns),
-   outputRowLen_(outputRowLen),
-   inTableColumnDescs_(NULL)
-{
-  if (tableNameLen >0)
-    {
-    str_cpy_all(tableName_,tableName,tableNameLen);
+UdrTableInputInfo::UdrTableInputInfo(ComUInt16 tabIndex, ComUInt16 tableNameLen, const char *tableName,
+                                     ComUInt16 numColumns, ComUInt32 outputRowLen)
+    : tabIndex_(tabIndex),
+      tableNameLen_(tableNameLen),
+      numColumns_(numColumns),
+      outputRowLen_(outputRowLen),
+      inTableColumnDescs_(NULL) {
+  if (tableNameLen > 0) {
+    str_cpy_all(tableName_, tableName, tableNameLen);
     tableName_[tableNameLen_] = 0;
-    }
- 
+  }
 }
-const UdrParameterInfo &UdrTableInputInfo::getInTableColumnDesc(ComUInt32 i) const
-{
-UdrExeAssert(inTableColumnDescs_ && numColumns_ > i,
-    "An invalid index was passed to UdrLoadMsg::getInTableCoumndesc()");
+const UdrParameterInfo &UdrTableInputInfo::getInTableColumnDesc(ComUInt32 i) const {
+  UdrExeAssert(inTableColumnDescs_ && numColumns_ > i,
+               "An invalid index was passed to UdrLoadMsg::getInTableCoumndesc()");
   return inTableColumnDescs_[i];
 }
 
-void UdrTableInputInfo::setInTableColumnDesc(ComUInt32 i, const UdrParameterInfo &info, NAMemory *heap)
-{
-  UdrExeAssert(numColumns_ > i,
-    "An invalid index was passed to UdrLoadMsg::setInTableColumnDesc()");
-  
-  if(inTableColumnDescs_== NULL)
-  {
+void UdrTableInputInfo::setInTableColumnDesc(ComUInt32 i, const UdrParameterInfo &info, NAMemory *heap) {
+  UdrExeAssert(numColumns_ > i, "An invalid index was passed to UdrLoadMsg::setInTableColumnDesc()");
+
+  if (inTableColumnDescs_ == NULL) {
     // allocate memory for the column desc info for this table desc entry
-    const ComUInt32 colsize= numColumns_ *sizeof(UdrParameterInfo);
-    inTableColumnDescs_ = (UdrParameterInfo *)(colsize ? 
-						heap->allocateMemory(colsize) : NULL);
+    const ComUInt32 colsize = numColumns_ * sizeof(UdrParameterInfo);
+    inTableColumnDescs_ = (UdrParameterInfo *)(colsize ? heap->allocateMemory(colsize) : NULL);
   }
   inTableColumnDescs_[i] = info;
 }
 
-UdrTableInputInfo& UdrTableInputInfo::operator=(const UdrTableInputInfo &other)
-{
+UdrTableInputInfo &UdrTableInputInfo::operator=(const UdrTableInputInfo &other) {
   tabIndex_ = other.tabIndex_;
   tableNameLen_ = other.tableNameLen_;
-  str_cpy_all(tableName_,other.tableName_,tableNameLen_+1);
- 
+  str_cpy_all(tableName_, other.tableName_, tableNameLen_ + 1);
+
   numColumns_ = other.numColumns_;
   outputRowLen_ = other.outputRowLen_;
   inTableColumnDescs_ = other.inTableColumnDescs_;
   return *this;
-  
 }
-IpcMessageObjSize UdrTableInputInfo::packedLength() const
-{
+IpcMessageObjSize UdrTableInputInfo::packedLength() const {
   IpcMessageObjSize result = 0;
   result += sizeof(tabIndex_);
   result += sizeof(tableNameLen_);
   result += tableNameLen_;
   result += sizeof(numColumns_);
-  result +=sizeof(outputRowLen_);
+  result += sizeof(outputRowLen_);
   UInt32 i = 0;
-  for (i = 0; i < numColumns_; i++)
-    {
-      UdrParameterInfo &cinfo = inTableColumnDescs_[i];
-      result += cinfo.packedLength();
-    }
+  for (i = 0; i < numColumns_; i++) {
+    UdrParameterInfo &cinfo = inTableColumnDescs_[i];
+    result += cinfo.packedLength();
+  }
   return result;
 }
 
-IpcMessageObjSize UdrTableInputInfo::pack(IpcMessageBufferPtr &buffer) const
-{
+IpcMessageObjSize UdrTableInputInfo::pack(IpcMessageBufferPtr &buffer) const {
   IpcMessageObjSize result = 0;
-  result += packIntoBuffer(buffer,tabIndex_);
-  result += packIntoBuffer(buffer,tableNameLen_);
-  if (tableNameLen_ >0)
-    result += packStrIntoBuffer(buffer,(char *)(&tableName_[0]), 
-				     tableNameLen_);
-  
-  result += packIntoBuffer(buffer,numColumns_);
-  result += packIntoBuffer(buffer,outputRowLen_);
+  result += packIntoBuffer(buffer, tabIndex_);
+  result += packIntoBuffer(buffer, tableNameLen_);
+  if (tableNameLen_ > 0) result += packStrIntoBuffer(buffer, (char *)(&tableName_[0]), tableNameLen_);
+
+  result += packIntoBuffer(buffer, numColumns_);
+  result += packIntoBuffer(buffer, outputRowLen_);
   UInt32 i = 0;
 
-  for (i=0; i < numColumns_; i++)
-    {
-      const UdrParameterInfo &cinfo = inTableColumnDescs_[i];
-      result += cinfo.pack(buffer);
-    }
+  for (i = 0; i < numColumns_; i++) {
+    const UdrParameterInfo &cinfo = inTableColumnDescs_[i];
+    result += cinfo.pack(buffer);
+  }
   return result;
 }
 
-void UdrTableInputInfo::unpack(IpcConstMessageBufferPtr &buffer, NAMemory *heap)
-{
-  unpackBuffer(buffer,tabIndex_);
-  unpackBuffer(buffer,tableNameLen_);
-  if (tableNameLen_ >0)
-    unpackStrFromBuffer(buffer,tableName_,tableNameLen_);
+void UdrTableInputInfo::unpack(IpcConstMessageBufferPtr &buffer, NAMemory *heap) {
+  unpackBuffer(buffer, tabIndex_);
+  unpackBuffer(buffer, tableNameLen_);
+  if (tableNameLen_ > 0) unpackStrFromBuffer(buffer, tableName_, tableNameLen_);
   tableName_[tableNameLen_] = 0;
-  unpackBuffer(buffer,numColumns_);
-  unpackBuffer(buffer,outputRowLen_);
-  
+  unpackBuffer(buffer, numColumns_);
+  unpackBuffer(buffer, outputRowLen_);
+
   // allocate memory for the column desc info for this table desc entry
-  const ComUInt32 colsize= numColumns_ *sizeof(UdrParameterInfo);
-  inTableColumnDescs_ = (UdrParameterInfo *)(colsize ? 
-			  heap->allocateMemory(colsize) : NULL);
+  const ComUInt32 colsize = numColumns_ * sizeof(UdrParameterInfo);
+  inTableColumnDescs_ = (UdrParameterInfo *)(colsize ? heap->allocateMemory(colsize) : NULL);
   ComUInt32 i;
-  for (i = 0; i < numColumns_; i++)
-  {
+  for (i = 0; i < numColumns_; i++) {
     UdrParameterInfo &cinfo = inTableColumnDescs_[i];
     cinfo.unpack(buffer);
   }
@@ -485,48 +437,26 @@ void UdrTableInputInfo::unpack(IpcConstMessageBufferPtr &buffer, NAMemory *heap)
 // -----------------------------------------------------------------------
 // class UdrMessageObj
 // -----------------------------------------------------------------------
-UdrMessageObj::UdrMessageObj(UdrIpcObjectType objType,
-                             IpcMessageObjVersion objVersion,
-                             NAMemory *heap)
- : IpcMessageObj(objType, objVersion),
- heap_(heap),
- handle_(INVALID_UDR_HANDLE)
-{
-}
+UdrMessageObj::UdrMessageObj(UdrIpcObjectType objType, IpcMessageObjVersion objVersion, NAMemory *heap)
+    : IpcMessageObj(objType, objVersion), heap_(heap), handle_(INVALID_UDR_HANDLE) {}
 
-void UdrMessageObj::operator delete(void *p)
-{
-  if (p)
-  {
-    NAMemory *h = ((UdrMessageObj *) p)->getHeap();
-    if (h)
-    {
+void UdrMessageObj::operator delete(void *p) {
+  if (p) {
+    NAMemory *h = ((UdrMessageObj *)p)->getHeap();
+    if (h) {
       h->deallocateMemory(p);
-    }
-    else
-    {
-      ::delete ((UdrMessageObj *) p);
+    } else {
+      ::delete ((UdrMessageObj *)p);
     }
   }
 }
 
+IpcMessageObjSize UdrMessageObj::packedLength() { return udrBaseClassPackedLength(); }
 
-IpcMessageObjSize UdrMessageObj::packedLength()
-{
-  return udrBaseClassPackedLength();
-}
+IpcMessageObjSize UdrMessageObj::packObjIntoMessage(IpcMessageBufferPtr buffer) { return packUdrBaseClass(buffer); }
 
-IpcMessageObjSize UdrMessageObj::packObjIntoMessage(IpcMessageBufferPtr buffer)
-{
-  return packUdrBaseClass(buffer);
-}
-
-void UdrMessageObj::unpackObj(IpcMessageObjType objType,
-                              IpcMessageObjVersion objVersion,
-                              NABoolean sameEndianness,
-                              IpcMessageObjSize objSize,
-                              IpcConstMessageBufferPtr buffer)
-{
+void UdrMessageObj::unpackObj(IpcMessageObjType objType, IpcMessageObjVersion objVersion, NABoolean sameEndianness,
+                              IpcMessageObjSize objSize, IpcConstMessageBufferPtr buffer) {
   unpackUdrBaseClass(buffer);
 }
 
@@ -550,8 +480,7 @@ static NABoolean corruptLoadReply = FALSE;
 static NABoolean corruptUnloadReply = FALSE;
 #endif
 
-IpcMessageObjSize UdrMessageObj::udrBaseClassPackedLength()
-{
+IpcMessageObjSize UdrMessageObj::udrBaseClassPackedLength() {
   // NOTE: changes to any of the following methods also require
   // corresponding changes in the others:
   // - udrBaseClassPackedLength()
@@ -571,26 +500,20 @@ IpcMessageObjSize UdrMessageObj::udrBaseClassPackedLength()
   // the variable gets an empty string as its value.
   NABoolean packTheHandle = TRUE;
   IpcMessageType t = getType();
-  if (t == UDR_MSG_LOAD_REPLY)
-  {
+  if (t == UDR_MSG_LOAD_REPLY) {
     char *val = getenv("MXUDR_CORRUPT_LOAD_REPLY");
     corruptLoadReply = (val && val[0]);
-    if (corruptLoadReply)
-    {
+    if (corruptLoadReply) {
       packTheHandle = FALSE;
     }
-  }
-  else if (t == UDR_MSG_UNLOAD_REPLY)
-  {
+  } else if (t == UDR_MSG_UNLOAD_REPLY) {
     char *val = getenv("MXUDR_CORRUPT_UNLOAD_REPLY");
     corruptUnloadReply = (val && val[0]);
-    if (corruptUnloadReply)
-    {
+    if (corruptUnloadReply) {
       packTheHandle = FALSE;
     }
   }
-  if (packTheHandle)
-  {
+  if (packTheHandle) {
     result += sizeof(handle_);
   }
 #else
@@ -600,8 +523,7 @@ IpcMessageObjSize UdrMessageObj::udrBaseClassPackedLength()
   return result;
 }
 
-IpcMessageObjSize UdrMessageObj::packUdrBaseClass(IpcMessageBufferPtr &buffer)
-{
+IpcMessageObjSize UdrMessageObj::packUdrBaseClass(IpcMessageBufferPtr &buffer) {
   // NOTE: changes to any of the following methods also require
   // corresponding changes in the others:
   // - udrBaseClassPackedLength()
@@ -621,16 +543,12 @@ IpcMessageObjSize UdrMessageObj::packUdrBaseClass(IpcMessageBufferPtr &buffer)
   // udrBaseClassPackedLength().
   NABoolean packTheHandle = TRUE;
   IpcMessageType t = getType();
-  if (t == UDR_MSG_LOAD_REPLY && corruptLoadReply)
-  {
+  if (t == UDR_MSG_LOAD_REPLY && corruptLoadReply) {
+    packTheHandle = FALSE;
+  } else if (t == UDR_MSG_UNLOAD_REPLY && corruptUnloadReply) {
     packTheHandle = FALSE;
   }
-  else if (t == UDR_MSG_UNLOAD_REPLY && corruptUnloadReply)
-  {
-    packTheHandle = FALSE;
-  }
-  if (packTheHandle)
-  {
+  if (packTheHandle) {
     result += packIntoBuffer(buffer, handle_);
   }
 #else
@@ -640,8 +558,7 @@ IpcMessageObjSize UdrMessageObj::packUdrBaseClass(IpcMessageBufferPtr &buffer)
   return result;
 }
 
-void UdrMessageObj::unpackUdrBaseClass(IpcConstMessageBufferPtr &buffer)
-{
+void UdrMessageObj::unpackUdrBaseClass(IpcConstMessageBufferPtr &buffer) {
   // NOTE: changes to any of the following methods also require
   // corresponding changes in the others:
   // - udrBaseClassPackedLength()
@@ -653,21 +570,13 @@ void UdrMessageObj::unpackUdrBaseClass(IpcConstMessageBufferPtr &buffer)
   unpackBuffer(buffer, handle_);
 }
 
-NABoolean UdrMessageObj::checkObj(IpcMessageObjType t,
-                                  IpcMessageObjVersion v,
-                                  NABoolean sameEndianness,
-                                  IpcMessageObjSize size,
-                                  IpcConstMessageBufferPtr buffer) const
-{
+NABoolean UdrMessageObj::checkObj(IpcMessageObjType t, IpcMessageObjVersion v, NABoolean sameEndianness,
+                                  IpcMessageObjSize size, IpcConstMessageBufferPtr buffer) const {
   return checkUdrBaseClass(t, v, sameEndianness, size, buffer);
 }
 
-NABoolean UdrMessageObj::checkUdrBaseClass(IpcMessageObjType t,
-                                           IpcMessageObjVersion v,
-                                           NABoolean sameEndianness,
-                                           IpcMessageObjSize size,
-                                           IpcConstMessageBufferPtr &buf) const
-{
+NABoolean UdrMessageObj::checkUdrBaseClass(IpcMessageObjType t, IpcMessageObjVersion v, NABoolean sameEndianness,
+                                           IpcMessageObjSize size, IpcConstMessageBufferPtr &buf) const {
   // NOTE: changes to any of the following methods also require
   // corresponding changes in the others:
   // - udrBaseClassPackedLength()
@@ -676,19 +585,15 @@ NABoolean UdrMessageObj::checkUdrBaseClass(IpcMessageObjType t,
   // - checkUdrBaseClass()
 
   const IpcConstMessageBufferPtr lastByte = buf + size - 1;
-  if (!super::checkBaseClass(t, v, sameEndianness, size, buf))
-    return FALSE;
-  if (!checkBuffer(buf, sizeof(handle_), lastByte))
-    return FALSE;
+  if (!super::checkBaseClass(t, v, sameEndianness, size, buf)) return FALSE;
+  if (!checkBuffer(buf, sizeof(handle_), lastByte)) return FALSE;
   return TRUE;
 }
 
-IpcMessageRefCount UdrMessageObj::decrRefCount()
-{
+IpcMessageRefCount UdrMessageObj::decrRefCount() {
   IpcMessageRefCount result = 0;
 
-  if (getRefCount() == 1)
-  {
+  if (getRefCount() == 1) {
     //
     // IpcMessageObj::decrRefCount() would delete the object by calling
     // global operator delete since IpcMessageObj doesn't have an
@@ -698,9 +603,7 @@ IpcMessageRefCount UdrMessageObj::decrRefCount()
     //
     delete this;
     result = 0;
-  }
-  else
-  {
+  } else {
     //
     // This is the normal case. The object won't be deleted
     //
@@ -710,40 +613,29 @@ IpcMessageRefCount UdrMessageObj::decrRefCount()
   return result;
 }
 
-char *UdrMessageObj::allocateMemory(ComUInt32 nBytes)
-{
+char *UdrMessageObj::allocateMemory(ComUInt32 nBytes) {
   char *result = NULL;
-  if (getHeap())
-  {
-    result = (char *) getHeap()->allocateMemory(nBytes);
-  }
-  else
-  {
+  if (getHeap()) {
+    result = (char *)getHeap()->allocateMemory(nBytes);
+  } else {
     result = new char[nBytes];
   }
   return result;
 }
 
-void UdrMessageObj::deallocateMemory(char *s)
-{
-  if (s)
-  {
-    if (getHeap())
-    {
+void UdrMessageObj::deallocateMemory(char *s) {
+  if (s) {
+    if (getHeap()) {
       getHeap()->deallocateMemory(s);
-    }
-    else
-    {
-      delete [] s;
+    } else {
+      delete[] s;
     }
   }
 }
 
-char *UdrMessageObj::allocateString(const char *s)
-{
+char *UdrMessageObj::allocateString(const char *s) {
   char *result = NULL;
-  if (s)
-  {
+  if (s) {
     ComUInt32 n = str_len(s) + 1;
     result = allocateMemory(n);
     str_cpy_all(result, s, (Lng32)n);
@@ -751,8 +643,7 @@ char *UdrMessageObj::allocateString(const char *s)
   return result;
 }
 
-void UdrMessageObj::deallocateString(char *&s)
-{
+void UdrMessageObj::deallocateString(char *&s) {
   deallocateMemory(s);
   s = NULL;
 }
@@ -760,32 +651,23 @@ void UdrMessageObj::deallocateString(char *&s)
 //----------------------------------------------------------------------
 // UdrControlStream
 //----------------------------------------------------------------------
-UdrControlStream::UdrControlStream(IpcEnvironment *env,
-                                   IpcMessageType msgType,
-                                   IpcMessageObjVersion version,
+UdrControlStream::UdrControlStream(IpcEnvironment *env, IpcMessageType msgType, IpcMessageObjVersion version,
                                    IpcThreadInfo *threadInfo)
-  : IpcMessageStream(env,
-                     msgType,
-                     version,
-                     0,      // 0 implies no fixed buffer size
-                     TRUE,   // share message objects?
-                     threadInfo)
-{
+    : IpcMessageStream(env, msgType, version,
+                       0,     // 0 implies no fixed buffer size
+                       TRUE,  // share message objects?
+                       threadInfo) {
   sendCount_ = 0;
   recvCount_ = 0;
 }
 
-UdrControlStream::~UdrControlStream()
-{
-}
+UdrControlStream::~UdrControlStream() {}
 
-void UdrControlStream::actOnSend(IpcConnection *connection)
-{
+void UdrControlStream::actOnSend(IpcConnection *connection) {
   // Base class implementation does nothing
 }
 
-void UdrControlStream::actOnReceive(IpcConnection *connection)
-{
+void UdrControlStream::actOnReceive(IpcConnection *connection) {
   // Base class implementation does nothing
 }
 
@@ -793,96 +675,98 @@ void UdrControlStream::actOnReceive(IpcConnection *connection)
 // UdrLoadMsg
 //----------------------------------------------------------------------
 UdrLoadMsg::UdrLoadMsg(NAMemory *heap)
-: UdrControlMsg(UDR_MSG_LOAD, UdrLoadMsgVersionNumber, heap),
-  sqlName_(NULL), routineName_(NULL), routineSignature_(NULL),
-  containerName_(NULL), externalPath_(NULL), librarySqlName_(NULL),transactionAttrs_(0),
-  sqlAccessMode_(0), language_(0), paramStyle_(0),
-  externalSecurity_(0), maxNumResultSets_(0),
-  numParameters_(0), numInValues_(0), numOutValues_(0),
-  inBufferSize_(0), outBufferSize_(0),
-  inputRowSize_(0), outputRowSize_(0),
-  udrFlags_(0), inParamInfo_(NULL), outParamInfo_(NULL), 
-  routineOwnerId_(0),
-  parentQid_(NULL),
-  tenantName_(NULL),
-  numInputTables_(0),
-  inTables_(NULL),
-  instanceNum_(0),
-  numInstances_(0),
-  numOptionalDataBufs_(0),
-  optionalData_(NULL),
-  optionalDataIsShared_(TRUE),
-  udrSerInvocationInfoLen_(0),
-  udrSerInvocationInfo_(NULL),
-  udrSerPlanInfoLen_(0),
-  udrSerPlanInfo_(NULL),
-  udrJavaDebugPort_(-1),
-  udrJavaDebugTimeout_(0),
-  clientInfo_(NULL)
-{
-}
+    : UdrControlMsg(UDR_MSG_LOAD, UdrLoadMsgVersionNumber, heap),
+      sqlName_(NULL),
+      routineName_(NULL),
+      routineSignature_(NULL),
+      containerName_(NULL),
+      externalPath_(NULL),
+      librarySqlName_(NULL),
+      transactionAttrs_(0),
+      sqlAccessMode_(0),
+      language_(0),
+      paramStyle_(0),
+      externalSecurity_(0),
+      maxNumResultSets_(0),
+      numParameters_(0),
+      numInValues_(0),
+      numOutValues_(0),
+      inBufferSize_(0),
+      outBufferSize_(0),
+      inputRowSize_(0),
+      outputRowSize_(0),
+      udrFlags_(0),
+      inParamInfo_(NULL),
+      outParamInfo_(NULL),
+      routineOwnerId_(0),
+      parentQid_(NULL),
+      tenantName_(NULL),
+      numInputTables_(0),
+      inTables_(NULL),
+      instanceNum_(0),
+      numInstances_(0),
+      numOptionalDataBufs_(0),
+      optionalData_(NULL),
+      optionalDataIsShared_(TRUE),
+      udrSerInvocationInfoLen_(0),
+      udrSerInvocationInfo_(NULL),
+      udrSerPlanInfoLen_(0),
+      udrSerPlanInfo_(NULL),
+      udrJavaDebugPort_(-1),
+      udrJavaDebugTimeout_(0),
+      clientInfo_(NULL) {}
 
-UdrLoadMsg::UdrLoadMsg(NAMemory *heap,
-                       const char *sqlName,
-                       const char *routineName,
-                       const char *routineSignature,
-                       const char *containerName,
-                       const char *externalPath,
-                       const char *librarySqlName,
-                       ComRoutineTransactionAttributes transactionAttrs,
-                       ComRoutineSQLAccess sqlAccessMode,
-                       ComRoutineLanguage language,
-                       ComRoutineParamStyle paramStyle,
-                       ComRoutineExternalSecurity externalSecurity,
-                       ComUInt32 maxNumResultSets,
-                       ComUInt32 numParameters,
-                       ComUInt32 numInValues,
-                       ComUInt32 numOutValues,
-                       ComUInt32 inBufferSize,
-                       ComUInt32 outBufferSize,
-                       ComUInt32 inputRowSize,
-                       ComUInt32 outputRowSize,
-                       ComUInt32 udrFlags,
-                       Int32 routineOwnerId,
-                       const char *parentQid,
-                       const char *clientInfo,
-                       const char *tenantName,
-                       ComUInt32 udrSerInvocationInfoLen,
-                       const char *udrSerInvocationInfo,
-                       ComUInt32 udrSerPlanInfoLen,
-                       const char *udrSerPlanInfo,
-                       Int32 javaDebugPort,
-                       Int32 javaDebugTimeout,
-		       ComUInt32 instanceNum,
-		       ComUInt32 numInstances
-		       )
-: UdrControlMsg(UDR_MSG_LOAD, UdrLoadMsgVersionNumber, heap),
-  sqlName_(NULL), routineName_(NULL), routineSignature_(NULL),
-  containerName_(NULL), externalPath_(NULL), librarySqlName_(NULL),transactionAttrs_(transactionAttrs),
-  sqlAccessMode_(sqlAccessMode), language_(language), paramStyle_(paramStyle),
-  externalSecurity_(externalSecurity),
-  maxNumResultSets_(maxNumResultSets),
-  numParameters_(numParameters), numInValues_(numInValues),
-  numOutValues_(numOutValues),
-  inBufferSize_(inBufferSize), outBufferSize_(outBufferSize),
-  inputRowSize_(inputRowSize), outputRowSize_(outputRowSize),
-  udrFlags_(udrFlags), inParamInfo_(NULL), outParamInfo_(NULL),
-  numInputTables_(0),
-  inTables_(NULL), 
-  routineOwnerId_(routineOwnerId),
-  parentQid_(NULL),
-  clientInfo_(NULL),
-  tenantName_(NULL),
-  numOptionalDataBufs_(0), optionalData_(NULL), optionalDataIsShared_(TRUE),
-  udrSerInvocationInfoLen_(udrSerInvocationInfoLen),
-  udrSerInvocationInfo_(udrSerInvocationInfo),
-  udrSerPlanInfoLen_(udrSerPlanInfoLen),
-  udrSerPlanInfo_(udrSerPlanInfo),
-  instanceNum_(instanceNum),
-  numInstances_(numInstances),
-  udrJavaDebugPort_(javaDebugPort),
-  udrJavaDebugTimeout_(javaDebugTimeout)
-{
+UdrLoadMsg::UdrLoadMsg(NAMemory *heap, const char *sqlName, const char *routineName, const char *routineSignature,
+                       const char *containerName, const char *externalPath, const char *librarySqlName,
+                       ComRoutineTransactionAttributes transactionAttrs, ComRoutineSQLAccess sqlAccessMode,
+                       ComRoutineLanguage language, ComRoutineParamStyle paramStyle,
+                       ComRoutineExternalSecurity externalSecurity, ComUInt32 maxNumResultSets, ComUInt32 numParameters,
+                       ComUInt32 numInValues, ComUInt32 numOutValues, ComUInt32 inBufferSize, ComUInt32 outBufferSize,
+                       ComUInt32 inputRowSize, ComUInt32 outputRowSize, ComUInt32 udrFlags, Int32 routineOwnerId,
+                       const char *parentQid, const char *clientInfo, const char *tenantName,
+                       ComUInt32 udrSerInvocationInfoLen, const char *udrSerInvocationInfo, ComUInt32 udrSerPlanInfoLen,
+                       const char *udrSerPlanInfo, Int32 javaDebugPort, Int32 javaDebugTimeout, ComUInt32 instanceNum,
+                       ComUInt32 numInstances)
+    : UdrControlMsg(UDR_MSG_LOAD, UdrLoadMsgVersionNumber, heap),
+      sqlName_(NULL),
+      routineName_(NULL),
+      routineSignature_(NULL),
+      containerName_(NULL),
+      externalPath_(NULL),
+      librarySqlName_(NULL),
+      transactionAttrs_(transactionAttrs),
+      sqlAccessMode_(sqlAccessMode),
+      language_(language),
+      paramStyle_(paramStyle),
+      externalSecurity_(externalSecurity),
+      maxNumResultSets_(maxNumResultSets),
+      numParameters_(numParameters),
+      numInValues_(numInValues),
+      numOutValues_(numOutValues),
+      inBufferSize_(inBufferSize),
+      outBufferSize_(outBufferSize),
+      inputRowSize_(inputRowSize),
+      outputRowSize_(outputRowSize),
+      udrFlags_(udrFlags),
+      inParamInfo_(NULL),
+      outParamInfo_(NULL),
+      numInputTables_(0),
+      inTables_(NULL),
+      routineOwnerId_(routineOwnerId),
+      parentQid_(NULL),
+      clientInfo_(NULL),
+      tenantName_(NULL),
+      numOptionalDataBufs_(0),
+      optionalData_(NULL),
+      optionalDataIsShared_(TRUE),
+      udrSerInvocationInfoLen_(udrSerInvocationInfoLen),
+      udrSerInvocationInfo_(udrSerInvocationInfo),
+      udrSerPlanInfoLen_(udrSerPlanInfoLen),
+      udrSerPlanInfo_(udrSerPlanInfo),
+      instanceNum_(instanceNum),
+      numInstances_(numInstances),
+      udrJavaDebugPort_(javaDebugPort),
+      udrJavaDebugTimeout_(javaDebugTimeout) {
   sqlName_ = allocateString(sqlName);
   routineName_ = allocateString(routineName);
   routineSignature_ = allocateString(routineSignature);
@@ -907,142 +791,107 @@ UdrLoadMsg::UdrLoadMsg(NAMemory *heap,
 // which returns NULL, and NAMemory::deallocate(NULL), which does
 // nothing.
 //
-void UdrLoadMsg::allocateParamInfo()
-{
+void UdrLoadMsg::allocateParamInfo() {
   deallocateParamInfo();
   const ComUInt32 n1 = numInValues_ * sizeof(UdrParameterInfo);
   const ComUInt32 n2 = numOutValues_ * sizeof(UdrParameterInfo);
-  inParamInfo_ = (UdrParameterInfo *) (n1 ? allocateMemory(n1) : NULL);
-  outParamInfo_ = (UdrParameterInfo *) (n2 ? allocateMemory(n2) : NULL);
+  inParamInfo_ = (UdrParameterInfo *)(n1 ? allocateMemory(n1) : NULL);
+  outParamInfo_ = (UdrParameterInfo *)(n2 ? allocateMemory(n2) : NULL);
 }
-void UdrLoadMsg::deallocateParamInfo()
-{
-  deallocateMemory((char *) inParamInfo_);
-  deallocateMemory((char *) outParamInfo_);
+void UdrLoadMsg::deallocateParamInfo() {
+  deallocateMemory((char *)inParamInfo_);
+  deallocateMemory((char *)outParamInfo_);
   inParamInfo_ = NULL;
   outParamInfo_ = NULL;
 }
 
-void UdrLoadMsg::allocateTableInputInfo()
-{
+void UdrLoadMsg::allocateTableInputInfo() {
   deallocateTableInputInfo();
   // First allocate the array of table descriptors
   const ComUInt32 t1 = numInputTables_ * sizeof(UdrTableInputInfo);
-  inTables_ = (UdrTableInputInfo *) (t1 ? allocateMemory(t1) : NULL);
-  
+  inTables_ = (UdrTableInputInfo *)(t1 ? allocateMemory(t1) : NULL);
 
   /*
-  // For each table descriptor allocate memory for the column descriptors  
+  // For each table descriptor allocate memory for the column descriptors
   short j= 0;
   for (j = 0; j < numInputTables_; j++)
     {
       const ComUInt32 colsize=inTables_[j].getNumColumns() *sizeof(UdrParameterInfo);
-      inTables_[j].inTableColumnDescs_ = (UdrParameterInfo *)(colsize ? 
-      allocateMemory(colsize) : NULL); 
-      
+      inTables_[j].inTableColumnDescs_ = (UdrParameterInfo *)(colsize ?
+      allocateMemory(colsize) : NULL);
+
       } */
-
 }
 
-void UdrLoadMsg::deallocateTableInputInfo()
-{
+void UdrLoadMsg::deallocateTableInputInfo() {
   short j = 0;
-  if (inTables_)
-    {
-      for (j=0; j < numInputTables_;j++)
-	{
-	  deallocateMemory((char *)inTables_[j].inTableColumnDescs_);
-	  inTables_[j].inTableColumnDescs_ = NULL;
-	}
-      deallocateMemory((char *)inTables_);
-    
-      inTables_ = NULL;
+  if (inTables_) {
+    for (j = 0; j < numInputTables_; j++) {
+      deallocateMemory((char *)inTables_[j].inTableColumnDescs_);
+      inTables_[j].inTableColumnDescs_ = NULL;
     }
+    deallocateMemory((char *)inTables_);
+
+    inTables_ = NULL;
+  }
 }
 
-void UdrLoadMsg::allocateInvocationInfo()
-{
-  if (udrSerInvocationInfoLen_)
-    udrSerInvocationInfo_ = allocateMemory(udrSerInvocationInfoLen_);
-  if (udrSerPlanInfoLen_)
-    udrSerPlanInfo_ = allocateMemory(udrSerPlanInfoLen_);
+void UdrLoadMsg::allocateInvocationInfo() {
+  if (udrSerInvocationInfoLen_) udrSerInvocationInfo_ = allocateMemory(udrSerInvocationInfoLen_);
+  if (udrSerPlanInfoLen_) udrSerPlanInfo_ = allocateMemory(udrSerPlanInfoLen_);
 }
 
-void UdrLoadMsg::deallocateInvocationInfo()
-{
-  if (udrSerInvocationInfoLen_)
-    deallocateMemory((char *) udrSerInvocationInfo_);
-  if (udrSerPlanInfoLen_)
-    deallocateMemory((char *) udrSerPlanInfo_);
+void UdrLoadMsg::deallocateInvocationInfo() {
+  if (udrSerInvocationInfoLen_) deallocateMemory((char *)udrSerInvocationInfo_);
+  if (udrSerPlanInfoLen_) deallocateMemory((char *)udrSerPlanInfo_);
   udrSerInvocationInfoLen_ = 0;
   udrSerInvocationInfo_ = NULL;
   udrSerPlanInfoLen_ = 0;
   udrSerPlanInfo_ = NULL;
 }
 
-UdrParameterInfo *UdrLoadMsg::setInParam(ComUInt32 i,
-                                         const UdrParameterInfo &info)
-{
-  UdrExeAssert(inParamInfo_ && numInValues_ > i,
-    "An invalid index was passed to UdrLoadMsg::setInParam()");
+UdrParameterInfo *UdrLoadMsg::setInParam(ComUInt32 i, const UdrParameterInfo &info) {
+  UdrExeAssert(inParamInfo_ && numInValues_ > i, "An invalid index was passed to UdrLoadMsg::setInParam()");
   UdrParameterInfo *result = NULL;
-  if (inParamInfo_ && numInValues_ > i)
-  {
+  if (inParamInfo_ && numInValues_ > i) {
     inParamInfo_[i] = info;
     result = &(inParamInfo_[i]);
   }
   return result;
 }
 
-UdrParameterInfo *UdrLoadMsg::setOutParam(ComUInt32 i,
-                                          const UdrParameterInfo &info)
-{
-  UdrExeAssert(outParamInfo_ && numOutValues_ > i,
-    "An invalid index was passed to UdrLoadMsg::setOutParam()");
+UdrParameterInfo *UdrLoadMsg::setOutParam(ComUInt32 i, const UdrParameterInfo &info) {
+  UdrExeAssert(outParamInfo_ && numOutValues_ > i, "An invalid index was passed to UdrLoadMsg::setOutParam()");
   UdrParameterInfo *result = NULL;
-  if (outParamInfo_ && numOutValues_ > i)
-  {
+  if (outParamInfo_ && numOutValues_ > i) {
     outParamInfo_[i] = info;
     result = &(outParamInfo_[i]);
   }
   return result;
 }
 
-const UdrParameterInfo &UdrLoadMsg::getInParam(ComUInt32 i) const
-{
-  UdrExeAssert(inParamInfo_ && numInValues_ > i,
-    "An invalid index was passed to UdrLoadMsg::getInParam()");
+const UdrParameterInfo &UdrLoadMsg::getInParam(ComUInt32 i) const {
+  UdrExeAssert(inParamInfo_ && numInValues_ > i, "An invalid index was passed to UdrLoadMsg::getInParam()");
   return inParamInfo_[i];
 }
 
-const UdrParameterInfo &UdrLoadMsg::getOutParam(ComUInt32 i) const
-{
-  UdrExeAssert(outParamInfo_ && numOutValues_ > i,
-    "An invalid index was passed to UdrLoadMsg::getOutParam()");
+const UdrParameterInfo &UdrLoadMsg::getOutParam(ComUInt32 i) const {
+  UdrExeAssert(outParamInfo_ && numOutValues_ > i, "An invalid index was passed to UdrLoadMsg::getOutParam()");
   return outParamInfo_[i];
 }
-void UdrLoadMsg::setChildTableInput(ComUInt32 i,
-                                         const UdrTableInputInfo &info)
-{
-  UdrExeAssert(inTables_ && numInputTables_ > i,
-    "An invalid index was passed to UdrLoadMsg::setInParam()");
+void UdrLoadMsg::setChildTableInput(ComUInt32 i, const UdrTableInputInfo &info) {
+  UdrExeAssert(inTables_ && numInputTables_ > i, "An invalid index was passed to UdrLoadMsg::setInParam()");
   UdrTableInputInfo *result = NULL;
-  if (inTables_ && numInputTables_ > i)
-  {
+  if (inTables_ && numInputTables_ > i) {
     inTables_[i] = info;
   }
- 
 }
-void UdrLoadMsg::deallocateOptionalDataBufs()
-{
-  if (optionalData_)
-  {
-    if (!optionalDataIsShared_)
-    {
-      for (ComUInt32 i = 0; i < numOptionalDataBufs_; i++)
-        deallocateMemory(optionalData_[i]);
+void UdrLoadMsg::deallocateOptionalDataBufs() {
+  if (optionalData_) {
+    if (!optionalDataIsShared_) {
+      for (ComUInt32 i = 0; i < numOptionalDataBufs_; i++) deallocateMemory(optionalData_[i]);
     }
-    deallocateMemory((char *) optionalData_);
+    deallocateMemory((char *)optionalData_);
   }
 
   numOptionalDataBufs_ = 0;
@@ -1050,45 +899,32 @@ void UdrLoadMsg::deallocateOptionalDataBufs()
   optionalData_ = NULL;
 }
 
-void UdrLoadMsg::initOptionalDataBufs(ComUInt32 numBufs, NABoolean isShared)
-{
+void UdrLoadMsg::initOptionalDataBufs(ComUInt32 numBufs, NABoolean isShared) {
   deallocateOptionalDataBufs();
   numOptionalDataBufs_ = numBufs;
   optionalDataIsShared_ = isShared;
   optionalData_ = NULL;
-  if (numBufs > 0)
-    optionalData_ = (char **) allocateMemory(numBufs * sizeof(char *));
+  if (numBufs > 0) optionalData_ = (char **)allocateMemory(numBufs * sizeof(char *));
 }
 
-ComUInt32 UdrLoadMsg::getNumOptionalDataBufs()
-{
-  return numOptionalDataBufs_;
-}
+ComUInt32 UdrLoadMsg::getNumOptionalDataBufs() { return numOptionalDataBufs_; }
 
-void UdrLoadMsg::setOptionalDataBuf(ComUInt32 i,
-                                    const char *buf,
-                                    ComUInt32 bufLen)
-{
+void UdrLoadMsg::setOptionalDataBuf(ComUInt32 i, const char *buf, ComUInt32 bufLen) {
   UdrExeAssert(i < numOptionalDataBufs_, "Index out of range");
   const char *buf2 = buf;
-  if (!optionalDataIsShared_)
-  {
+  if (!optionalDataIsShared_) {
     buf2 = allocateMemory(bufLen);
-    str_cpy_all((char *) buf2, buf, (Lng32) bufLen);
+    str_cpy_all((char *)buf2, buf, (Lng32)bufLen);
   }
-  optionalData_[i] = (char *) buf2;
+  optionalData_[i] = (char *)buf2;
 }
 
-char *UdrLoadMsg::getOptionalDataBuf(ComUInt32 i)
-{
+char *UdrLoadMsg::getOptionalDataBuf(ComUInt32 i) {
   UdrExeAssert(i < numOptionalDataBufs_, "Index out of range");
   return optionalData_[i];
 }
 
-
-
-UdrLoadMsg::~UdrLoadMsg()
-{
+UdrLoadMsg::~UdrLoadMsg() {
   deallocateString(sqlName_);
   deallocateString(routineName_);
   deallocateString(routineSignature_);
@@ -1103,8 +939,7 @@ UdrLoadMsg::~UdrLoadMsg()
   deallocateString(clientInfo_);
 }
 
-IpcMessageObjSize UdrLoadMsg::packedLength()
-{
+IpcMessageObjSize UdrLoadMsg::packedLength() {
   IpcMessageObjSize result;
   result = udrBaseClassPackedLength();
   result += packedStringLength(sqlName_);
@@ -1137,32 +972,28 @@ IpcMessageObjSize UdrLoadMsg::packedLength()
   result += sizeof(instanceNum_);
 
   ComUInt32 i = 0;
-  for (i = 0; i < numInValues_; i++)
-  {
+  for (i = 0; i < numInValues_; i++) {
     const UdrParameterInfo &info = inParamInfo_[i];
     const IpcMessageObjSize infoSize = info.packedLength();
     result += infoSize;
   }
-  for (i = 0; i < numOutValues_; i++)
-  {
+  for (i = 0; i < numOutValues_; i++) {
     const UdrParameterInfo &info = outParamInfo_[i];
     const IpcMessageObjSize infoSize = info.packedLength();
     result += infoSize;
   }
 
-  for (i=0; i <numInputTables_;i++)
-    {
-      const UdrTableInputInfo &tinfo = inTables_[i];
-      const IpcMessageObjSize tinfosize = tinfo.packedLength();
-      result += tinfosize;
-    }
+  for (i = 0; i < numInputTables_; i++) {
+    const UdrTableInputInfo &tinfo = inTables_[i];
+    const IpcMessageObjSize tinfosize = tinfo.packedLength();
+    result += tinfosize;
+  }
 
   result += sizeof(numOptionalDataBufs_);
-  for (i = 0; i < numOptionalDataBufs_; i++)
-  {
+  for (i = 0; i < numOptionalDataBufs_; i++) {
     const char *buf = optionalData_[i];
     ComUInt32 dataLen = 0;
-    str_cpy_all((char *) &dataLen, buf, 4);
+    str_cpy_all((char *)&dataLen, buf, 4);
     result += (dataLen + 4);
   }
 
@@ -1174,8 +1005,7 @@ IpcMessageObjSize UdrLoadMsg::packedLength()
   return result;
 }
 
-IpcMessageObjSize UdrLoadMsg::packObjIntoMessage(IpcMessageBufferPtr buffer)
-{
+IpcMessageObjSize UdrLoadMsg::packObjIntoMessage(IpcMessageBufferPtr buffer) {
   IpcMessageObjSize result;
   result = packUdrBaseClass(buffer);
   result += packCharStarIntoBuffer(buffer, sqlName_);
@@ -1207,53 +1037,40 @@ IpcMessageObjSize UdrLoadMsg::packObjIntoMessage(IpcMessageBufferPtr buffer)
   result += packIntoBuffer(buffer, instanceNum_);
 
   ComUInt32 i;
-  for (i = 0; i < numInValues_; i++)
-  {
+  for (i = 0; i < numInValues_; i++) {
     const UdrParameterInfo &info = inParamInfo_[i];
     result += info.pack(buffer);
   }
-  for (i = 0; i < numOutValues_; i++)
-  {
+  for (i = 0; i < numOutValues_; i++) {
     const UdrParameterInfo &info = outParamInfo_[i];
     result += info.pack(buffer);
   }
 
-  result +=packIntoBuffer(buffer,numInputTables_);
-  for (i = 0; i < numInputTables_; i++)
-    {
-      const UdrTableInputInfo &tinfo = inTables_[i];
-      result += tinfo.pack(buffer);
-    }
+  result += packIntoBuffer(buffer, numInputTables_);
+  for (i = 0; i < numInputTables_; i++) {
+    const UdrTableInputInfo &tinfo = inTables_[i];
+    result += tinfo.pack(buffer);
+  }
   result += packIntoBuffer(buffer, numOptionalDataBufs_);
-  for (i = 0; i < numOptionalDataBufs_; i++)
-  {
+  for (i = 0; i < numOptionalDataBufs_; i++) {
     char *buf = optionalData_[i];
     ComUInt32 dataLen = 0;
-    str_cpy_all((char *) &dataLen, buf, 4);
+    str_cpy_all((char *)&dataLen, buf, 4);
     result += packStrIntoBuffer(buffer, buf, (dataLen + 4));
   }
 
   result += packIntoBuffer(buffer, udrSerInvocationInfoLen_);
   result += packIntoBuffer(buffer, udrSerPlanInfoLen_);
   if (udrSerInvocationInfoLen_)
-    result += packStrIntoBuffer(buffer,
-                                (char *) udrSerInvocationInfo_,
-                                udrSerInvocationInfoLen_); 
-  if (udrSerPlanInfoLen_)
-    result += packStrIntoBuffer(buffer,
-                                (char *) udrSerPlanInfo_,
-                                udrSerPlanInfoLen_);
+    result += packStrIntoBuffer(buffer, (char *)udrSerInvocationInfo_, udrSerInvocationInfoLen_);
+  if (udrSerPlanInfoLen_) result += packStrIntoBuffer(buffer, (char *)udrSerPlanInfo_, udrSerPlanInfoLen_);
   result += packCharStarIntoBuffer(buffer, clientInfo_);
 
   return result;
 }
 
-void UdrLoadMsg::unpackObj(IpcMessageObjType objType,
-                           IpcMessageObjVersion objVersion,
-                           NABoolean sameEndianness,
-                           IpcMessageObjSize objSize,
-                           IpcConstMessageBufferPtr buffer)
-{
+void UdrLoadMsg::unpackObj(IpcMessageObjType objType, IpcMessageObjVersion objVersion, NABoolean sameEndianness,
+                           IpcMessageObjSize objSize, IpcConstMessageBufferPtr buffer) {
   unpackUdrBaseClass(buffer);
   unpackBuffer(buffer, sqlName_, getHeap());
   unpackBuffer(buffer, routineName_, getHeap());
@@ -1283,32 +1100,28 @@ void UdrLoadMsg::unpackObj(IpcMessageObjType objType,
   unpackBuffer(buffer, numInstances_);
   unpackBuffer(buffer, instanceNum_);
   allocateParamInfo();
-  
+
   ComUInt32 i;
-  for (i = 0; i < numInValues_; i++)
-  {
+  for (i = 0; i < numInValues_; i++) {
     UdrParameterInfo &info = inParamInfo_[i];
     info.unpack(buffer);
   }
-  for (i = 0; i < numOutValues_; i++)
-  {
+  for (i = 0; i < numOutValues_; i++) {
     UdrParameterInfo &info = outParamInfo_[i];
     info.unpack(buffer);
   }
   unpackBuffer(buffer, numInputTables_);
   allocateTableInputInfo();
-  for (i =0; i < numInputTables_; i++)
-    {
-      UdrTableInputInfo &tinfo = inTables_[i];
-      tinfo.unpack(buffer, getHeap());
-    }
+  for (i = 0; i < numInputTables_; i++) {
+    UdrTableInputInfo &tinfo = inTables_[i];
+    tinfo.unpack(buffer, getHeap());
+  }
   ComUInt32 numBufs = 0;
   unpackBuffer(buffer, numBufs);
   initOptionalDataBufs(numBufs, FALSE);
-  for (i = 0; i < numOptionalDataBufs_; i++)
-  {
+  for (i = 0; i < numOptionalDataBufs_; i++) {
     ComUInt32 dataLen = 0;
-    str_cpy_all((char *) &dataLen, buffer, 4);
+    str_cpy_all((char *)&dataLen, buffer, 4);
     ComUInt32 totalLen = dataLen + 4;
     setOptionalDataBuf(i, buffer, totalLen);
     buffer += totalLen;
@@ -1318,14 +1131,8 @@ void UdrLoadMsg::unpackObj(IpcMessageObjType objType,
   unpackBuffer(buffer, udrSerInvocationInfoLen_);
   unpackBuffer(buffer, udrSerPlanInfoLen_);
   allocateInvocationInfo();
-  if (udrSerInvocationInfoLen_)
-    unpackStrFromBuffer(buffer,
-                        (char *) udrSerInvocationInfo_,
-                        udrSerInvocationInfoLen_);
-  if (udrSerPlanInfoLen_)
-    unpackStrFromBuffer(buffer,
-                        (char *) udrSerPlanInfo_,
-                        udrSerPlanInfoLen_);
+  if (udrSerInvocationInfoLen_) unpackStrFromBuffer(buffer, (char *)udrSerInvocationInfo_, udrSerInvocationInfoLen_);
+  if (udrSerPlanInfoLen_) unpackStrFromBuffer(buffer, (char *)udrSerPlanInfo_, udrSerPlanInfoLen_);
   unpackBuffer(buffer, clientInfo_, getHeap());
 }
 
@@ -1333,36 +1140,26 @@ void UdrLoadMsg::unpackObj(IpcMessageObjType objType,
 // UdrSessionMsg
 //----------------------------------------------------------------------
 UdrSessionMsg::UdrSessionMsg(NAMemory *heap)
-  : UdrControlMsg(UDR_MSG_SESSION, UdrSessionMsgVersionNumber, heap),
-    attrType_(UDR_SESSION_TYPE_UNKNOWN),
-    flags_(0),
-    strings_(heap)
-{
-}
+    : UdrControlMsg(UDR_MSG_SESSION, UdrSessionMsgVersionNumber, heap),
+      attrType_(UDR_SESSION_TYPE_UNKNOWN),
+      flags_(0),
+      strings_(heap) {}
 
-UdrSessionMsg::UdrSessionMsg(UdrSessionAttrType attrType,
-                             ComUInt32 flags,
-                             NAMemory *heap)
-  : UdrControlMsg(UDR_MSG_SESSION, UdrSessionMsgVersionNumber, heap),
-    attrType_(attrType),
-    flags_(flags),
-    strings_(heap)
-{
-}
+UdrSessionMsg::UdrSessionMsg(UdrSessionAttrType attrType, ComUInt32 flags, NAMemory *heap)
+    : UdrControlMsg(UDR_MSG_SESSION, UdrSessionMsgVersionNumber, heap),
+      attrType_(attrType),
+      flags_(flags),
+      strings_(heap) {}
 
-UdrSessionMsg::~UdrSessionMsg()
-{
+UdrSessionMsg::~UdrSessionMsg() {
   ComUInt32 e = strings_.entries();
-  for (ULng32 i = 0; i < e; i++)
-  {
+  for (ULng32 i = 0; i < e; i++) {
     NADELETEBASIC(strings_[i], getHeap());
   }
 }
 
-void UdrSessionMsg::addString(const char *option)
-{
-  if (option == NULL || option[0] == '\0')
-  {
+void UdrSessionMsg::addString(const char *option) {
+  if (option == NULL || option[0] == '\0') {
     return;
   }
   Int32 len = str_len(option);
@@ -1371,8 +1168,7 @@ void UdrSessionMsg::addString(const char *option)
   strings_.insert(copy);
 }
 
-IpcMessageObjSize UdrSessionMsg::packedLength()
-{
+IpcMessageObjSize UdrSessionMsg::packedLength() {
   IpcMessageObjSize result;
   result = udrBaseClassPackedLength();
 
@@ -1382,16 +1178,14 @@ IpcMessageObjSize UdrSessionMsg::packedLength()
   ComUInt32 e = strings_.entries();
   result += sizeof(e);
 
-  for (ULng32 i = 0; i < e; i++)
-  {
+  for (ULng32 i = 0; i < e; i++) {
     result += packedStringLength(strings_[i]);
   }
 
   return result;
 }
 
-IpcMessageObjSize UdrSessionMsg::packObjIntoMessage(IpcMessageBufferPtr buffer)
-{
+IpcMessageObjSize UdrSessionMsg::packObjIntoMessage(IpcMessageBufferPtr buffer) {
   IpcMessageObjSize result;
   result = packUdrBaseClass(buffer);
   result += packIntoBuffer(buffer, attrType_);
@@ -1400,20 +1194,15 @@ IpcMessageObjSize UdrSessionMsg::packObjIntoMessage(IpcMessageBufferPtr buffer)
   ComUInt32 e = strings_.entries();
   result += packIntoBuffer(buffer, e);
 
-  for (ULng32 i = 0; i < e; i++)
-  {
+  for (ULng32 i = 0; i < e; i++) {
     result += packCharStarIntoBuffer(buffer, strings_[i]);
   }
 
   return result;
 }
 
-void UdrSessionMsg::unpackObj(IpcMessageObjType objType,
-                              IpcMessageObjVersion objVersion,
-                              NABoolean sameEndianness,
-                              IpcMessageObjSize objSize,
-                              IpcConstMessageBufferPtr buffer)
-{
+void UdrSessionMsg::unpackObj(IpcMessageObjType objType, IpcMessageObjVersion objVersion, NABoolean sameEndianness,
+                              IpcMessageObjSize objSize, IpcConstMessageBufferPtr buffer) {
   unpackUdrBaseClass(buffer);
 
   unpackBuffer(buffer, attrType_);
@@ -1423,8 +1212,7 @@ void UdrSessionMsg::unpackObj(IpcMessageObjType objType,
   unpackBuffer(buffer, e);
 
   char *copy;
-  for (ULng32 i = 0; i < e; i++)
-  {
+  for (ULng32 i = 0; i < e; i++) {
     // The unpackBuffer() call will deallocate copy from the heap if
     // copy is non-NULL which is not what we want. So we make sure
     // copy is set to NULL before calling unpackBuffer().
@@ -1435,20 +1223,17 @@ void UdrSessionMsg::unpackObj(IpcMessageObjType objType,
 }
 
 #ifdef UDR_DEBUG
-void UdrSessionMsg::display(FILE *f, const char *prefix) const
-{
-  fprintf(f, "%s[UdrSessionMsg] type %d, flags 0x%08x\n",
-          prefix, (Lng32) attrType_, (Lng32) flags_);
+void UdrSessionMsg::display(FILE *f, const char *prefix) const {
+  fprintf(f, "%s[UdrSessionMsg] type %d, flags 0x%08x\n", prefix, (Lng32)attrType_, (Lng32)flags_);
 
   ComUInt32 e = strings_.entries();
-  for (ULng32 i = 0; i < e; i++)
-  {
+  for (ULng32 i = 0; i < e; i++) {
     fprintf(f, "%s  '%s'\n", prefix, strings_[i]);
   }
 
   fflush(f);
 }
-#endif // UDR_DEBUG
+#endif  // UDR_DEBUG
 
 //----------------------------------------------------------------------
 // UdrDataBuffer
@@ -1458,38 +1243,29 @@ void UdrSessionMsg::display(FILE *f, const char *prefix) const
 // Constructor for either copyless send or allocation on an NAMemory heap.
 // For copyless send the NAMemory pointer should be NULL.
 //
-UdrDataBuffer::UdrDataBuffer(ULng32 sqlBufferLength,
-                             InOut mode, NAMemory *heap)
-  : UdrMessageObj(mode == UDR_DATA_IN ?
-                  UDR_MSG_DATA_REQUEST : UDR_MSG_DATA_REPLY,
-                  UdrDataBufferVersionNumber,
-                  heap),
-    sqlBufferLength_(sqlBufferLength),
-    flags_(0)
-{
-  if (getHeap())
-  {
+UdrDataBuffer::UdrDataBuffer(ULng32 sqlBufferLength, InOut mode, NAMemory *heap)
+    : UdrMessageObj(mode == UDR_DATA_IN ? UDR_MSG_DATA_REQUEST : UDR_MSG_DATA_REPLY, UdrDataBufferVersionNumber, heap),
+      sqlBufferLength_(sqlBufferLength),
+      flags_(0) {
+  if (getHeap()) {
     //
     // Allocate SqlBuffer on a heap
     //
-    theBuffer_ = (SqlBuffer *) new (getHeap()) char[sqlBufferLength];
-  }
-  else
-  {
+    theBuffer_ = (SqlBuffer *)new (getHeap()) char[sqlBufferLength];
+  } else {
     //
     // The SqlBuffer starts at the next address that is aligned on an
     // 8-byte boundary
     //
-    IpcMessageBufferPtr bufferStart = (IpcMessageBufferPtr) this;
+    IpcMessageBufferPtr bufferStart = (IpcMessageBufferPtr)this;
     bufferStart += sizeof(*this);
     alignBufferForNextObj(bufferStart);
-    theBuffer_ = (SqlBuffer *) (bufferStart);
+    theBuffer_ = (SqlBuffer *)(bufferStart);
   }
 
   // TODO use dense for reply data buffer
   SqlBufferHeader::BufferType bt = SqlBuffer::NORMAL_;
-  if (mode == UDR_DATA_IN)
-  {
+  if (mode == UDR_DATA_IN) {
     bt = SqlBuffer::DENSE_;
   }
   theBuffer_->driveInit(sqlBufferLength_, TRUE, bt);
@@ -1500,26 +1276,18 @@ UdrDataBuffer::UdrDataBuffer(ULng32 sqlBufferLength,
 //
 // Constructors for copyless receive
 //
-UdrDataBuffer::UdrDataBuffer(IpcBufferedMsgStream *msgStream,
-                             NABoolean driveUnPack)
-  : UdrMessageObj(msgStream)
-{
+UdrDataBuffer::UdrDataBuffer(IpcBufferedMsgStream *msgStream, NABoolean driveUnPack) : UdrMessageObj(msgStream) {
   copylessUnpack(FALSE, 0, driveUnPack);
 }
 
-
 UdrDataBuffer::UdrDataBuffer(/* IN  */ IpcBufferedMsgStream *msgStream,
                              /* IN  */ IpcMessageObjSize objSize,
-                             /* OUT */ NABoolean &integrityCheckResult )
-  : UdrMessageObj(msgStream)
-{
+                             /* OUT */ NABoolean &integrityCheckResult)
+    : UdrMessageObj(msgStream) {
   integrityCheckResult = copylessUnpack(TRUE, objSize);
 }
 
-NABoolean UdrDataBuffer::copylessUnpack(NABoolean doChecks,
-                                        IpcMessageObjSize objSize,
-                                        NABoolean driveUnPack)
-{
+NABoolean UdrDataBuffer::copylessUnpack(NABoolean doChecks, IpcMessageObjSize objSize, NABoolean driveUnPack) {
   //
   // Notes about this method
   //
@@ -1532,65 +1300,51 @@ NABoolean UdrDataBuffer::copylessUnpack(NABoolean doChecks,
   //
   theBuffer_ = NULL;
   NABoolean result = TRUE;
-  IpcConstMessageBufferPtr buffer = (IpcMessageBufferPtr) this;
+  IpcConstMessageBufferPtr buffer = (IpcMessageBufferPtr)this;
   IpcConstMessageBufferPtr lastByte = (doChecks ? buffer + objSize - 1 : 0);
 
   IpcMessageObjSize bytesForThis = sizeof(*this);
   alignSizeForNextObj(bytesForThis);
 
   // The buffer must be large enough to hold an instance of this class
-  if (doChecks)
-  {
-    if (!checkBuffer(buffer, bytesForThis, lastByte))
-    {
+  if (doChecks) {
+    if (!checkBuffer(buffer, bytesForThis, lastByte)) {
       result = FALSE;
     }
-  }
-  else
-  {
+  } else {
     buffer += bytesForThis;
   }
 
-  if (result)
-  {
-    if (doChecks)
-    {
+  if (result) {
+    if (doChecks) {
       // The buffer must be large enough to hold a SqlBufferNormal instance
       IpcConstMessageBufferPtr startOfSqlBuffer = buffer;
-      if (!checkBuffer(startOfSqlBuffer, sizeof(SqlBufferNormal), lastByte))
-      {
+      if (!checkBuffer(startOfSqlBuffer, sizeof(SqlBufferNormal), lastByte)) {
         result = FALSE;
-      }
-      else
-      {
+      } else {
         // Now we verify the contents of the SqlBuffer instance. We must
         // not call virtual methods on the SqlBuffer at this point. That
         // can only be done reliably after the SqlBuffer has been
         // unpacked.
-        theBuffer_ = (SqlBuffer *) buffer;
-        if ((theBuffer_->bufType() != SqlBufferBase::NORMAL_ &&
-             theBuffer_->bufType() != SqlBufferBase::DENSE_) ||
-            theBuffer_->get_buffer_size() != sqlBufferLength_ ||
-            !theBuffer_->packed() ||
-            !theBuffer_->driveVerify(lastByte - buffer + 1))
-        {
+        theBuffer_ = (SqlBuffer *)buffer;
+        if ((theBuffer_->bufType() != SqlBufferBase::NORMAL_ && theBuffer_->bufType() != SqlBufferBase::DENSE_) ||
+            theBuffer_->get_buffer_size() != sqlBufferLength_ || !theBuffer_->packed() ||
+            !theBuffer_->driveVerify(lastByte - buffer + 1)) {
           theBuffer_ = NULL;
           result = FALSE;
         }
       }
-    } // if (doChecks)
+    }  // if (doChecks)
 
-    else
-    {
-      theBuffer_ = (SqlBuffer *) buffer;
+    else {
+      theBuffer_ = (SqlBuffer *)buffer;
     }
 
-  } // if (result)
+  }  // if (result)
 
-  if (result && driveUnPack)
-  {
+  if (result && driveUnPack) {
     theBuffer_->driveUnpack();
-    
+
     //
     // The sql_buffer state was set to IN_USE by the sender. This
     // prevents the buffer from being deallocated during I/O. Once all
@@ -1603,34 +1357,25 @@ NABoolean UdrDataBuffer::copylessUnpack(NABoolean doChecks,
     // because it requires a virtual method and we have to unpack the
     // object before we can reliably invoke virtual methods.
     //
-    if (doChecks)
-    {
-      if (theBuffer_->isFree())
-      {
+    if (doChecks) {
+      if (theBuffer_->isFree()) {
         theBuffer_ = NULL;
         result = FALSE;
       }
+    } else {
+      UdrExeAssert(!(theBuffer_->isFree()), "An empty UdrDataBuffer arrived on a UDR data stream");
     }
-    else
-    {
-      UdrExeAssert(!(theBuffer_->isFree()),
-                   "An empty UdrDataBuffer arrived on a UDR data stream");
-    }
-  } // if (result)
+  }  // if (result)
 
-  if (!result)
-  {
-    UdrExeAssert(theBuffer_ == NULL,
-                 "SqlBuffer should be NULL following integrity check failure");
+  if (!result) {
+    UdrExeAssert(theBuffer_ == NULL, "SqlBuffer should be NULL following integrity check failure");
   }
 
   return result;
 }
 
-UdrDataBuffer::~UdrDataBuffer()
-{
-  if (getHeap())
-  {
+UdrDataBuffer::~UdrDataBuffer() {
+  if (getHeap()) {
     getHeap()->deallocateMemory(theBuffer_);
   }
 }
@@ -1638,8 +1383,7 @@ UdrDataBuffer::~UdrDataBuffer()
 //
 // Determine if UdrDataBuffer in IpcMessageBuffer is available for recycle
 //
-NABoolean UdrDataBuffer::msgObjIsFree()
-{
+NABoolean UdrDataBuffer::msgObjIsFree() {
   NABoolean result = (theBuffer_ && (!theBuffer_->packed()) ? theBuffer_->isFree() : TRUE);
   return result;
 }
@@ -1647,8 +1391,7 @@ NABoolean UdrDataBuffer::msgObjIsFree()
 //
 // Deal with transport issues, change pointers to offsets, etc.
 //
-void UdrDataBuffer::prepMsgObjForSend()
-{
+void UdrDataBuffer::prepMsgObjForSend() {
   theBuffer_->drivePack();
 #ifdef UDR_DEBUG
   // We allow the debug-build UDR server to corrupt an INVOKE
@@ -1657,26 +1400,22 @@ void UdrDataBuffer::prepMsgObjForSend()
   // not remove the environment setting.
   {
     char *val = getenv("MXUDR_CORRUPT_DATA_REPLY");
-    if (val && val[0])
-    {
+    if (val && val[0]) {
       sqlBufferLength_ -= 1;
     }
   }
 #endif
 }
 
-NABoolean UdrDataBuffer::moreRows() const
-{
+NABoolean UdrDataBuffer::moreRows() const {
   NABoolean result = FALSE;
-  if (theBuffer_ && !theBuffer_->atEOTD())
-  {
+  if (theBuffer_ && !theBuffer_->atEOTD()) {
     result = TRUE;
   }
   return result;
 }
 
-IpcMessageObjSize UdrDataBuffer::packedLength()
-{
+IpcMessageObjSize UdrDataBuffer::packedLength() {
   //
   // Note: The number returned by this function is valid only for use
   // with "regular" message streams, not with buffered message streams
@@ -1686,13 +1425,12 @@ IpcMessageObjSize UdrDataBuffer::packedLength()
   result = udrBaseClassPackedLength();
   result += sizeof(flags_);
   result += sizeof(sqlBufferLength_);
-  result +=sizeof(tableIndex_);
+  result += sizeof(tableIndex_);
   result += sqlBufferLength_;
   return result;
 }
 
-IpcMessageObjSize UdrDataBuffer::packObjIntoMessage(IpcMessageBufferPtr buffer)
-{
+IpcMessageObjSize UdrDataBuffer::packObjIntoMessage(IpcMessageBufferPtr buffer) {
   IpcMessageObjSize result = 0;
   result += packUdrBaseClass(buffer);
   result += packIntoBuffer(buffer, flags_);
@@ -1702,23 +1440,16 @@ IpcMessageObjSize UdrDataBuffer::packObjIntoMessage(IpcMessageBufferPtr buffer)
   // Convert pointers in the SqlBuffer to offsets and copy the SqlBuffer
   //
   theBuffer_->drivePack();
-  str_cpy_all(buffer, (char *) theBuffer_, (Lng32)sqlBufferLength_);
+  str_cpy_all(buffer, (char *)theBuffer_, (Lng32)sqlBufferLength_);
   result += sqlBufferLength_;
-  result += packIntoBuffer(buffer,tableIndex_);
+  result += packIntoBuffer(buffer, tableIndex_);
   return result;
 }
 
-void UdrDataBuffer::unpackObj(IpcMessageObjType objType,
-                              IpcMessageObjVersion objVersion,
-                              NABoolean sameEndianness,
-                              IpcMessageObjSize objSize,
-                              IpcConstMessageBufferPtr buffer)
-{
-  UdrExeAssert((objType == UDR_MSG_DATA_REQUEST
-                || objType == UDR_MSG_DATA_REPLY)
-               && objVersion == UdrDataBufferVersionNumber
-               && sameEndianness
-               && objSize > sizeof(IpcMessageObj),
+void UdrDataBuffer::unpackObj(IpcMessageObjType objType, IpcMessageObjVersion objVersion, NABoolean sameEndianness,
+                              IpcMessageObjSize objSize, IpcConstMessageBufferPtr buffer) {
+  UdrExeAssert((objType == UDR_MSG_DATA_REQUEST || objType == UDR_MSG_DATA_REPLY) &&
+                   objVersion == UdrDataBufferVersionNumber && sameEndianness && objSize > sizeof(IpcMessageObj),
                "Invalid type or version seen by UdrDataBuffer::unpackObj()");
 
   unpackUdrBaseClass(buffer);
@@ -1728,18 +1459,13 @@ void UdrDataBuffer::unpackObj(IpcMessageObjType objType,
   //
   // Unpack the SqlBuffer
   //
-  str_cpy_all((char *) theBuffer_, buffer, (Lng32)sqlBufferLength_);
+  str_cpy_all((char *)theBuffer_, buffer, (Lng32)sqlBufferLength_);
   theBuffer_->driveUnpack();
-  unpackBuffer(buffer,tableIndex_);
-
+  unpackBuffer(buffer, tableIndex_);
 }
 
-NABoolean UdrDataBuffer::checkObj(IpcMessageObjType t,
-                                  IpcMessageObjVersion v,
-                                  NABoolean sameEndianness,
-                                  IpcMessageObjSize size,
-                                  IpcConstMessageBufferPtr buffer) const
-{
+NABoolean UdrDataBuffer::checkObj(IpcMessageObjType t, IpcMessageObjVersion v, NABoolean sameEndianness,
+                                  IpcMessageObjSize size, IpcConstMessageBufferPtr buffer) const {
   //
   // This method is not implemented for now. All UDR data replies
   // travel on buffered streams via copyless IPC and should be
@@ -1752,27 +1478,16 @@ NABoolean UdrDataBuffer::checkObj(IpcMessageObjType t,
 //----------------------------------------------------------------------
 // class UdrRSMessageObj
 //----------------------------------------------------------------------
-IpcMessageObjSize UdrRSMessageObj::packedLength()
-{
-  return udrBaseClassPackedLength();
-}
+IpcMessageObjSize UdrRSMessageObj::packedLength() { return udrBaseClassPackedLength(); }
 
-IpcMessageObjSize UdrRSMessageObj::packObjIntoMessage(IpcMessageBufferPtr buf)
-{
-  return packUdrBaseClass(buf);
-}
+IpcMessageObjSize UdrRSMessageObj::packObjIntoMessage(IpcMessageBufferPtr buf) { return packUdrBaseClass(buf); }
 
-void UdrRSMessageObj::unpackObj(IpcMessageObjType objType,
-                                IpcMessageObjVersion objVersion,
-                                NABoolean sameEndianness,
-                                IpcMessageObjSize objSize,
-                                IpcConstMessageBufferPtr buffer)
-{
+void UdrRSMessageObj::unpackObj(IpcMessageObjType objType, IpcMessageObjVersion objVersion, NABoolean sameEndianness,
+                                IpcMessageObjSize objSize, IpcConstMessageBufferPtr buffer) {
   unpackUdrBaseClass(buffer);
 }
 
-IpcMessageObjSize UdrRSMessageObj::udrBaseClassPackedLength()
-{
+IpcMessageObjSize UdrRSMessageObj::udrBaseClassPackedLength() {
   // NOTE: changes to any of the following methods also require
   // corresponding changes in the others:
   // - udrBaseClassPackedLength()
@@ -1786,8 +1501,7 @@ IpcMessageObjSize UdrRSMessageObj::udrBaseClassPackedLength()
   return result;
 }
 
-IpcMessageObjSize UdrRSMessageObj::packUdrBaseClass(IpcMessageBufferPtr &buf)
-{
+IpcMessageObjSize UdrRSMessageObj::packUdrBaseClass(IpcMessageBufferPtr &buf) {
   // NOTE: changes to any of the following methods also require
   // corresponding changes in the others:
   // - udrBaseClassPackedLength()
@@ -1801,8 +1515,7 @@ IpcMessageObjSize UdrRSMessageObj::packUdrBaseClass(IpcMessageBufferPtr &buf)
   return result;
 }
 
-void UdrRSMessageObj::unpackUdrBaseClass(IpcConstMessageBufferPtr &buffer)
-{
+void UdrRSMessageObj::unpackUdrBaseClass(IpcConstMessageBufferPtr &buffer) {
   // NOTE: changes to any of the following methods also require
   // corresponding changes in the others:
   // - udrBaseClassPackedLength()
@@ -1814,22 +1527,13 @@ void UdrRSMessageObj::unpackUdrBaseClass(IpcConstMessageBufferPtr &buffer)
   unpackBuffer(buffer, rshandle_);
 }
 
-NABoolean UdrRSMessageObj::checkObj(IpcMessageObjType t,
-                                    IpcMessageObjVersion v,
-                                    NABoolean sameEndianness,
-                                    IpcMessageObjSize size,
-                                    IpcConstMessageBufferPtr buffer) const
-{
+NABoolean UdrRSMessageObj::checkObj(IpcMessageObjType t, IpcMessageObjVersion v, NABoolean sameEndianness,
+                                    IpcMessageObjSize size, IpcConstMessageBufferPtr buffer) const {
   return checkUdrBaseClass(t, v, sameEndianness, size, buffer);
 }
 
-NABoolean
-UdrRSMessageObj::checkUdrBaseClass(IpcMessageObjType t,
-                                   IpcMessageObjVersion v,
-                                   NABoolean sameEndianness,
-                                   IpcMessageObjSize size,
-                                   IpcConstMessageBufferPtr &buf) const
-{
+NABoolean UdrRSMessageObj::checkUdrBaseClass(IpcMessageObjType t, IpcMessageObjVersion v, NABoolean sameEndianness,
+                                             IpcMessageObjSize size, IpcConstMessageBufferPtr &buf) const {
   // NOTE: changes to any of the following methods also require
   // corresponding changes in the others:
   // - udrBaseClassPackedLength()
@@ -1838,72 +1542,60 @@ UdrRSMessageObj::checkUdrBaseClass(IpcMessageObjType t,
   // - checkUdrBaseClass()
 
   const IpcConstMessageBufferPtr lastByte = buf + size - 1;
-  if (!super::checkUdrBaseClass(t, v, sameEndianness, size, buf))
-    return FALSE;
-  if (!checkBuffer(buf, sizeof(rshandle_), lastByte))
-    return FALSE;
+  if (!super::checkUdrBaseClass(t, v, sameEndianness, size, buf)) return FALSE;
+  if (!checkBuffer(buf, sizeof(rshandle_), lastByte)) return FALSE;
   return TRUE;
 }
 
 //----------------------------------------------------------------------
 // class UdrRSLoadMsg
 //----------------------------------------------------------------------
-UdrRSLoadMsg::UdrRSLoadMsg(ComUInt32 rsIndex,
-                           ComUInt32 numRSCols,
-                           ComUInt32 rowSize,
-                           ComUInt32 bufferSize,
-                           ComUInt32 flags,
-                           NAMemory *heap)
-  : UdrRSControlMsg(UDR_MSG_RS_LOAD, UdrRSLoadMsgVersionNumber, heap),
-    rsIndex_(rsIndex), numRSCols_(numRSCols), rsColumnDesc_(NULL),
-    outputRowSize_(rowSize), outBufferSize_(bufferSize), rsLoadFlags_(flags)
-{
+UdrRSLoadMsg::UdrRSLoadMsg(ComUInt32 rsIndex, ComUInt32 numRSCols, ComUInt32 rowSize, ComUInt32 bufferSize,
+                           ComUInt32 flags, NAMemory *heap)
+    : UdrRSControlMsg(UDR_MSG_RS_LOAD, UdrRSLoadMsgVersionNumber, heap),
+      rsIndex_(rsIndex),
+      numRSCols_(numRSCols),
+      rsColumnDesc_(NULL),
+      outputRowSize_(rowSize),
+      outBufferSize_(bufferSize),
+      rsLoadFlags_(flags) {
   allocateColumnDescs();
 }
 
 UdrRSLoadMsg::UdrRSLoadMsg(NAMemory *heap)
-  : UdrRSControlMsg(UDR_MSG_RS_LOAD, UdrRSLoadMsgVersionNumber, heap),
-    rsIndex_(0), numRSCols_(0), rsColumnDesc_(NULL),
-    outputRowSize_(0), outBufferSize_(0), rsLoadFlags_(0)
-{
-}
+    : UdrRSControlMsg(UDR_MSG_RS_LOAD, UdrRSLoadMsgVersionNumber, heap),
+      rsIndex_(0),
+      numRSCols_(0),
+      rsColumnDesc_(NULL),
+      outputRowSize_(0),
+      outBufferSize_(0),
+      rsLoadFlags_(0) {}
 
-UdrRSLoadMsg::~UdrRSLoadMsg()
-{
-  deallocateColumnDescs();
-}
+UdrRSLoadMsg::~UdrRSLoadMsg() { deallocateColumnDescs(); }
 
-void UdrRSLoadMsg::allocateColumnDescs()
-{
+void UdrRSLoadMsg::allocateColumnDescs() {
   deallocateColumnDescs();
   const ComUInt32 n = numRSCols_ * sizeof(UdrParameterInfo);
-  rsColumnDesc_ = (UdrParameterInfo *) (n ? allocateMemory(n) : NULL);
+  rsColumnDesc_ = (UdrParameterInfo *)(n ? allocateMemory(n) : NULL);
 }
 
-void UdrRSLoadMsg::deallocateColumnDescs()
-{
-  deallocateMemory((char *) rsColumnDesc_);
+void UdrRSLoadMsg::deallocateColumnDescs() {
+  deallocateMemory((char *)rsColumnDesc_);
   rsColumnDesc_ = NULL;
 }
 
-UdrParameterInfo& UdrRSLoadMsg::getColumnDesc(ComUInt32 i) const
-{
-  UdrExeAssert(rsColumnDesc_ && numRSCols_ > i,
-	       "An invalid index was passed to UdrRSLoadMsg::getColumnDesc()");
+UdrParameterInfo &UdrRSLoadMsg::getColumnDesc(ComUInt32 i) const {
+  UdrExeAssert(rsColumnDesc_ && numRSCols_ > i, "An invalid index was passed to UdrRSLoadMsg::getColumnDesc()");
   return rsColumnDesc_[i];
 }
 
-UdrParameterInfo * UdrRSLoadMsg::setColumnDesc(ComUInt32 i,
-                                               const UdrParameterInfo &info)
-{
-  UdrExeAssert(rsColumnDesc_ && numRSCols_ > i,
-	       "An invalid index was passed to UdrRSLoadMsg::setColumnDesc()");
+UdrParameterInfo *UdrRSLoadMsg::setColumnDesc(ComUInt32 i, const UdrParameterInfo &info) {
+  UdrExeAssert(rsColumnDesc_ && numRSCols_ > i, "An invalid index was passed to UdrRSLoadMsg::setColumnDesc()");
   rsColumnDesc_[i] = info;
   return &rsColumnDesc_[i];
 }
 
-IpcMessageObjSize UdrRSLoadMsg::packedLength()
-{
+IpcMessageObjSize UdrRSLoadMsg::packedLength() {
   IpcMessageObjSize result;
   result = udrBaseClassPackedLength();
   result += sizeof(rsIndex_);
@@ -1913,16 +1605,14 @@ IpcMessageObjSize UdrRSLoadMsg::packedLength()
   result += sizeof(rsLoadFlags_);
 
   ComUInt32 i = 0;
-  for (i = 0; i < numRSCols_; i++)
-  {
+  for (i = 0; i < numRSCols_; i++) {
     result += getColumnDesc(i).packedLength();
   }
 
   return result;
 }
 
-IpcMessageObjSize UdrRSLoadMsg::packObjIntoMessage(IpcMessageBufferPtr buffer)
-{
+IpcMessageObjSize UdrRSLoadMsg::packObjIntoMessage(IpcMessageBufferPtr buffer) {
   IpcMessageObjSize result;
   result = packUdrBaseClass(buffer);
   result += packIntoBuffer(buffer, rsIndex_);
@@ -1931,20 +1621,15 @@ IpcMessageObjSize UdrRSLoadMsg::packObjIntoMessage(IpcMessageBufferPtr buffer)
   result += packIntoBuffer(buffer, outBufferSize_);
   result += packIntoBuffer(buffer, rsLoadFlags_);
 
-  for (ComUInt32 i=0; i<numRSCols_; i++)
-  {
+  for (ComUInt32 i = 0; i < numRSCols_; i++) {
     result += getColumnDesc(i).pack(buffer);
   }
 
   return result;
 }
 
-void UdrRSLoadMsg::unpackObj(IpcMessageObjType objType,
-                             IpcMessageObjVersion objVersion,
-                             NABoolean sameEndianness,
-                             IpcMessageObjSize objSize,
-                             IpcConstMessageBufferPtr buffer)
-{
+void UdrRSLoadMsg::unpackObj(IpcMessageObjType objType, IpcMessageObjVersion objVersion, NABoolean sameEndianness,
+                             IpcMessageObjSize objSize, IpcConstMessageBufferPtr buffer) {
   unpackUdrBaseClass(buffer);
   unpackBuffer(buffer, rsIndex_);
   unpackBuffer(buffer, numRSCols_);
@@ -1954,8 +1639,7 @@ void UdrRSLoadMsg::unpackObj(IpcMessageObjType objType,
 
   allocateColumnDescs();
 
-  for (ComUInt32 i=0; i<numRSCols_; i++)
-  {
+  for (ComUInt32 i = 0; i < numRSCols_; i++) {
     getColumnDesc(i).unpack(buffer);
   }
 }
@@ -1963,52 +1647,40 @@ void UdrRSLoadMsg::unpackObj(IpcMessageObjType objType,
 //----------------------------------------------------------------------
 // struct ResultSetInfo
 //----------------------------------------------------------------------
-ResultSetInfo::ResultSetInfo(const char *proxy,
-                             SQLSTMT_ID *stmtID,
-                             ComUInt32 cntxID,
-                             NAMemory *heap)
-  : stmtID_(stmtID), cntxID_(cntxID), proxySyntax_(NULL), heap_(heap)
-{
+ResultSetInfo::ResultSetInfo(const char *proxy, SQLSTMT_ID *stmtID, ComUInt32 cntxID, NAMemory *heap)
+    : stmtID_(stmtID), cntxID_(cntxID), proxySyntax_(NULL), heap_(heap) {
   proxySyntax_ = allocateString(proxy);
 }
 
-ResultSetInfo::~ResultSetInfo()
-{
-  deallocateString(proxySyntax_);
-}
+ResultSetInfo::~ResultSetInfo() { deallocateString(proxySyntax_); }
 
-void ResultSetInfo::deallocateString(char *&s)
-{
-  if (s)
-  {
+void ResultSetInfo::deallocateString(char *&s) {
+  if (s) {
     if (heap_)
       heap_->deallocateMemory(s);
     else
-      delete [] s;
+      delete[] s;
     s = NULL;
   }
 }
 
-char *ResultSetInfo::allocateString(const char *s)
-{
+char *ResultSetInfo::allocateString(const char *s) {
   char *result = NULL;
-  if (s)
-  {
+  if (s) {
     ComUInt32 n = str_len(s) + 1;
 
     if (heap_)
-      result = (char *) heap_->allocateMemory(n);
+      result = (char *)heap_->allocateMemory(n);
     else
       result = new char[n];
 
-    str_cpy_all(result, s, (Lng32) n);
+    str_cpy_all(result, s, (Lng32)n);
   }
 
   return result;
 }
 
-IpcMessageObjSize ResultSetInfo::packedLength()
-{
+IpcMessageObjSize ResultSetInfo::packedLength() {
   IpcMessageObjSize result = 0;
   result += sizeof(stmtID_);
   result += sizeof(cntxID_);
@@ -2017,8 +1689,7 @@ IpcMessageObjSize ResultSetInfo::packedLength()
   return result;
 }
 
-IpcMessageObjSize ResultSetInfo::pack(IpcMessageBufferPtr &buffer) const
-{
+IpcMessageObjSize ResultSetInfo::pack(IpcMessageBufferPtr &buffer) const {
   IpcMessageObjSize result = 0;
   result += packIntoBuffer(buffer, stmtID_);
   result += packIntoBuffer(buffer, cntxID_);
@@ -2027,48 +1698,37 @@ IpcMessageObjSize ResultSetInfo::pack(IpcMessageBufferPtr &buffer) const
   return result;
 }
 
-void ResultSetInfo::unpack(IpcConstMessageBufferPtr &buffer)
-{
-
+void ResultSetInfo::unpack(IpcConstMessageBufferPtr &buffer) {
   unpackBuffer(buffer, stmtID_);
   unpackBuffer(buffer, cntxID_);
   unpackBuffer(buffer, proxySyntax_, heap_);
 }
 
-NABoolean ResultSetInfo::checkResultSetInfoClass(IpcMessageObjType t,
-                                          IpcMessageObjVersion v,
-                                          NABoolean sameEndianness,
-                                          IpcMessageObjSize size,
-                                          IpcConstMessageBufferPtr &buf) 
-{
-   IpcConstMessageBufferPtr lastByte = buf + size - 1;
+NABoolean ResultSetInfo::checkResultSetInfoClass(IpcMessageObjType t, IpcMessageObjVersion v, NABoolean sameEndianness,
+                                                 IpcMessageObjSize size, IpcConstMessageBufferPtr &buf) {
+  IpcConstMessageBufferPtr lastByte = buf + size - 1;
 
-   // check the buffer for stmtID_
-   if (!checkBuffer(buf, sizeof(void *), lastByte))
-     {
-       ipcIntegrityCheckEpilogue(FALSE);
-       return FALSE;
-     }
+  // check the buffer for stmtID_
+  if (!checkBuffer(buf, sizeof(void *), lastByte)) {
+    ipcIntegrityCheckEpilogue(FALSE);
+    return FALSE;
+  }
 
-   // check the buffer after cntxID_
-   if (!checkBuffer(buf, sizeof(ComUInt32), lastByte))
-     {
-        ipcIntegrityCheckEpilogue(FALSE);
-        return FALSE;
-     }
+  // check the buffer after cntxID_
+  if (!checkBuffer(buf, sizeof(ComUInt32), lastByte)) {
+    ipcIntegrityCheckEpilogue(FALSE);
+    return FALSE;
+  }
 
-   // check for proxySyntax_, it is stored as (long length, *char)
-   if (!(checkCharStarInBuffer(buf, sameEndianness, lastByte)))
-      return FALSE;
+  // check for proxySyntax_, it is stored as (long length, *char)
+  if (!(checkCharStarInBuffer(buf, sameEndianness, lastByte))) return FALSE;
 
-   return TRUE;
+  return TRUE;
 }
 
-ResultSetInfo& ResultSetInfo::operator=(const ResultSetInfo &src)
-{
+ResultSetInfo &ResultSetInfo::operator=(const ResultSetInfo &src) {
   // Nothing to do if source and target are same
-  if (this == &src)
-    return *this;
+  if (this == &src) return *this;
 
   deallocateString(proxySyntax_);
   proxySyntax_ = allocateString(src.proxySyntax_);
@@ -2083,153 +1743,116 @@ ResultSetInfo& ResultSetInfo::operator=(const ResultSetInfo &src)
 // class UdrRSInfoMsg
 //----------------------------------------------------------------------
 UdrRSInfoMsg::UdrRSInfoMsg(ComUInt32 numRS, NAMemory *heap)
-    : UdrMessageObj(UDR_MSG_RS_INFO, UdrRSInfoMsgVersionNumber, heap),
-      numRS_(numRS), resultSetInfo_(NULL)
-{
+    : UdrMessageObj(UDR_MSG_RS_INFO, UdrRSInfoMsgVersionNumber, heap), numRS_(numRS), resultSetInfo_(NULL) {
   allocateResultSetInfo();
 }
 
-UdrRSInfoMsg::~UdrRSInfoMsg()
-{
-  deallocateResultSetInfo();
-}
+UdrRSInfoMsg::~UdrRSInfoMsg() { deallocateResultSetInfo(); }
 
-ResultSetInfo &UdrRSInfoMsg::getRSInfo(ComUInt32 i) const
-{
-  UdrExeAssert(resultSetInfo_ && numRS_ > i,
-	       "An invalid index was passed to UdrRSInfoMsg::getRSInfo()");
+ResultSetInfo &UdrRSInfoMsg::getRSInfo(ComUInt32 i) const {
+  UdrExeAssert(resultSetInfo_ && numRS_ > i, "An invalid index was passed to UdrRSInfoMsg::getRSInfo()");
   return resultSetInfo_[i];
 }
 
-void UdrRSInfoMsg::setRSInfo(ComUInt32 i, const ResultSetInfo &info)
-{
-  UdrExeAssert(resultSetInfo_ && numRS_ > i,
-	       "An invalid index was passed to UdrRSInfoMsg::setRSInfo()");
+void UdrRSInfoMsg::setRSInfo(ComUInt32 i, const ResultSetInfo &info) {
+  UdrExeAssert(resultSetInfo_ && numRS_ > i, "An invalid index was passed to UdrRSInfoMsg::setRSInfo()");
   resultSetInfo_[i] = info;
 }
 
-void UdrRSInfoMsg::allocateResultSetInfo()
-{
+void UdrRSInfoMsg::allocateResultSetInfo() {
   deallocateResultSetInfo();
 
   // Allocate memory for resultSetInfo_ field
   ComUInt32 n = numRS_ * sizeof(ResultSetInfo);
-  resultSetInfo_ = (ResultSetInfo *) (n ? allocateMemory(n) : NULL);
+  resultSetInfo_ = (ResultSetInfo *)(n ? allocateMemory(n) : NULL);
   memset(resultSetInfo_, 0, n);
 
-  for (ComUInt32 i=0; i < numRS_; i++)
-    resultSetInfo_[i].setHeap(getHeap());
+  for (ComUInt32 i = 0; i < numRS_; i++) resultSetInfo_[i].setHeap(getHeap());
 }
 
-void UdrRSInfoMsg::deallocateResultSetInfo()
-{
-  if (resultSetInfo_)
-  {
-     for (ComUInt32 i=0; i < numRS_; i++)
-     {
-        deallocateMemory(resultSetInfo_[i].proxySyntax_);
-     }
+void UdrRSInfoMsg::deallocateResultSetInfo() {
+  if (resultSetInfo_) {
+    for (ComUInt32 i = 0; i < numRS_; i++) {
+      deallocateMemory(resultSetInfo_[i].proxySyntax_);
+    }
   }
-  deallocateMemory((char *) resultSetInfo_);
+  deallocateMemory((char *)resultSetInfo_);
   resultSetInfo_ = NULL;
 }
 
-IpcMessageObjSize UdrRSInfoMsg::packedLength()
-{
+IpcMessageObjSize UdrRSInfoMsg::packedLength() {
   IpcMessageObjSize result = super::packedLength();
   result += sizeof(numRS_);
 
-  for (ComUInt32 i=0; i<numRS_; i++)
-    result += getRSInfo(i).packedLength();
+  for (ComUInt32 i = 0; i < numRS_; i++) result += getRSInfo(i).packedLength();
 
   return result;
 }
 
-IpcMessageObjSize UdrRSInfoMsg::packObjIntoMessage(IpcMessageBufferPtr buffer)
-{
+IpcMessageObjSize UdrRSInfoMsg::packObjIntoMessage(IpcMessageBufferPtr buffer) {
   IpcMessageObjSize result = 0;
 
   result += packUdrBaseClass(buffer);
 
-  #ifdef UDR_DEBUG  
-    char *val = getenv("MXUDR_CORRUPT_UDRRSINFOMSG");
-    if (val && val[0])
-    {
-       result += packIntoBuffer(buffer, (numRS_+ 1));
-    } else
-       result += packIntoBuffer(buffer, numRS_);
-    
-  #else
+#ifdef UDR_DEBUG
+  char *val = getenv("MXUDR_CORRUPT_UDRRSINFOMSG");
+  if (val && val[0]) {
+    result += packIntoBuffer(buffer, (numRS_ + 1));
+  } else
     result += packIntoBuffer(buffer, numRS_);
-  #endif
 
-  for (ComUInt32 i=0; i<numRS_; i++)
-  {
+#else
+  result += packIntoBuffer(buffer, numRS_);
+#endif
+
+  for (ComUInt32 i = 0; i < numRS_; i++) {
     result += getRSInfo(i).pack(buffer);
   }
 
   return result;
 }
 
-void UdrRSInfoMsg::unpackObj(IpcMessageObjType objType,
-                             IpcMessageObjVersion objVersion,
-                             NABoolean sameEndianness,
-                             IpcMessageObjSize objSize,
-                             IpcConstMessageBufferPtr buffer)
-{
+void UdrRSInfoMsg::unpackObj(IpcMessageObjType objType, IpcMessageObjVersion objVersion, NABoolean sameEndianness,
+                             IpcMessageObjSize objSize, IpcConstMessageBufferPtr buffer) {
   unpackUdrBaseClass(buffer);
 
   unpackBuffer(buffer, numRS_);
 
   allocateResultSetInfo();
 
-  for (ComUInt32 i=0; i<numRS_; i++)
-  {
+  for (ComUInt32 i = 0; i < numRS_; i++) {
     getRSInfo(i).unpack(buffer);
   }
 }
 
-NABoolean UdrRSInfoMsg::checkObj(IpcMessageObjType t,
-                                 IpcMessageObjVersion v,
-                                 NABoolean sameEndianness,
-                                 IpcMessageObjSize size,
-                                 IpcConstMessageBufferPtr buffer) const
-{
+NABoolean UdrRSInfoMsg::checkObj(IpcMessageObjType t, IpcMessageObjVersion v, NABoolean sameEndianness,
+                                 IpcMessageObjSize size, IpcConstMessageBufferPtr buffer) const {
   return checkUdrBaseClass(t, v, sameEndianness, size, buffer);
 }
 
-NABoolean UdrRSInfoMsg::checkUdrBaseClass(IpcMessageObjType t,
-                                          IpcMessageObjVersion v,
-                                          NABoolean sameEndianness,
-                                          IpcMessageObjSize size,
-                                          IpcConstMessageBufferPtr &buf) const
-{
-   IpcConstMessageBufferPtr lastByte = buf + size - 1;
-   IpcConstMessageBufferPtr oldBuf = buf;
+NABoolean UdrRSInfoMsg::checkUdrBaseClass(IpcMessageObjType t, IpcMessageObjVersion v, NABoolean sameEndianness,
+                                          IpcMessageObjSize size, IpcConstMessageBufferPtr &buf) const {
+  IpcConstMessageBufferPtr lastByte = buf + size - 1;
+  IpcConstMessageBufferPtr oldBuf = buf;
 
-   if (!super::checkUdrBaseClass(t, v, sameEndianness, size, buf))
-      return FALSE;
+  if (!super::checkUdrBaseClass(t, v, sameEndianness, size, buf)) return FALSE;
 
-   // We need to adjust size since it will be used by
-   // ResultSetInfo::checkResultSetInfoClass()
-   size -= (buf - oldBuf);
-   oldBuf = buf;
+  // We need to adjust size since it will be used by
+  // ResultSetInfo::checkResultSetInfoClass()
+  size -= (buf - oldBuf);
+  oldBuf = buf;
 
-   ComUInt32 numRS = 0;
-   if (!checkAndUnpackBuffer(buf, sizeof(numRS),
-                            (char *) &numRS, lastByte))
-     {
-       ipcIntegrityCheckEpilogue(FALSE);
-       return FALSE;
-     }
+  ComUInt32 numRS = 0;
+  if (!checkAndUnpackBuffer(buf, sizeof(numRS), (char *)&numRS, lastByte)) {
+    ipcIntegrityCheckEpilogue(FALSE);
+    return FALSE;
+  }
 
-   for (ComUInt32 i=0; i<numRS; i++)
-     {
-       size -= (buf - oldBuf);
-       oldBuf = buf;
-       if (!(ResultSetInfo::checkResultSetInfoClass(t, v, sameEndianness, size, buf)))
-          return FALSE;
-     }
+  for (ComUInt32 i = 0; i < numRS; i++) {
+    size -= (buf - oldBuf);
+    oldBuf = buf;
+    if (!(ResultSetInfo::checkResultSetInfoClass(t, v, sameEndianness, size, buf))) return FALSE;
+  }
 
-   return TRUE;
+  return TRUE;
 }

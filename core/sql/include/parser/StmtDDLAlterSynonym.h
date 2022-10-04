@@ -1,17 +1,17 @@
 #ifndef STMTDDLALTERSYNONYM_H
 #define STMTDDLALTERSYNONYM_H
-/* 
+/*
 ******************************************************************************
-* 
+*
 * File:          StmtDDLSynonym.h
 * RCS:           $Id:
 * Description:   class for parse node representing ALTER SYNONYM statement.
 *
-* Created:       1/27/2006 
+* Created:       1/27/2006
 * Language:      C++
-* 
 *
-* 
+*
+*
 // @@@ START COPYRIGHT @@@
 //
 // Licensed to the Apache Software Foundation (ASF) under one
@@ -40,45 +40,39 @@
 class StmtDDLAlterSynonym : public StmtDDLNode
 
 {
- 
-public: 
-   
-// constructor
+ public:
+  // constructor
 
-StmtDDLAlterSynonym();
-StmtDDLAlterSynonym (const QualifiedName & synonymName,
-                     const QualifiedName & objectReference);
+  StmtDDLAlterSynonym();
+  StmtDDLAlterSynonym(const QualifiedName &synonymName, const QualifiedName &objectReference);
 
-// Virtual Destructor  
-virtual ~StmtDDLAlterSynonym();
+  // Virtual Destructor
+  virtual ~StmtDDLAlterSynonym();
 
-// Cast 
+  // Cast
 
-virtual StmtDDLAlterSynonym * castToStmtDDLAlterSynonym();
+  virtual StmtDDLAlterSynonym *castToStmtDDLAlterSynonym();
 
-//
-// method for binding
-//
+  //
+  // method for binding
+  //
 
-ExprNode * bindNode(BindWA *bindWAPtr);
+  ExprNode *bindNode(BindWA *bindWAPtr);
 
-// accessors
+  // accessors
 
-inline const NAString getSynonymName() const;
-inline const NAString getObjectReference() const ;
+  inline const NAString getSynonymName() const;
+  inline const NAString getObjectReference() const;
 
-// for tracing
+  // for tracing
 
-virtual const NAString displayLabel1() const;
-virtual const NAString displayLabel2() const;
-virtual const NAString getText() const;                    
+  virtual const NAString displayLabel1() const;
+  virtual const NAString displayLabel2() const;
+  virtual const NAString getText() const;
 
-
-private:
-  
-   QualifiedName synonymName_;
-   QualifiedName objectReference_; 
-
+ private:
+  QualifiedName synonymName_;
+  QualifiedName objectReference_;
 };
 
 //----------------------------------------------------------------------------
@@ -86,19 +80,17 @@ private:
 //----------------------------------------------------------------------------
 
 //
-// accessors 
-// 
+// accessors
+//
 
-inline const  NAString StmtDDLAlterSynonym::getSynonymName() const
-{
-   NAString synonymName = synonymName_.getQualifiedNameAsAnsiString();
-   return synonymName;
+inline const NAString StmtDDLAlterSynonym::getSynonymName() const {
+  NAString synonymName = synonymName_.getQualifiedNameAsAnsiString();
+  return synonymName;
 }
 
-inline const  NAString StmtDDLAlterSynonym::getObjectReference() const 
-{
-   NAString objectReference =  objectReference_.getQualifiedNameAsAnsiString();
-   return objectReference;
-}   
+inline const NAString StmtDDLAlterSynonym::getObjectReference() const {
+  NAString objectReference = objectReference_.getQualifiedNameAsAnsiString();
+  return objectReference;
+}
 
 #endif  // STMTDDLALTERSYNONYM

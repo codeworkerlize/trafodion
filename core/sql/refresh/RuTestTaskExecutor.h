@@ -33,142 +33,114 @@
 *
 * Created:      01/09/2001
 * Language:     C++
-* 
 *
-* 
+*
+*
 ******************************************************************************
 */
 
 #include "RuTaskExecutor.h"
 #include "RuSQLDynamicStatementContainer.h"
 
+class REFRESH_LIB_CLASS CRUTestTaskExecutor : public CRUTaskExecutor {
+ public:
+  enum { SQL_TEXT_MAX_SIZE = 1000 };
 
-class REFRESH_LIB_CLASS CRUTestTaskExecutor : public CRUTaskExecutor
-{
-public:
-	enum { SQL_TEXT_MAX_SIZE = 1000 };
+ private:
+  typedef CRUTaskExecutor inherited;
 
-private:
-	typedef CRUTaskExecutor inherited;
+ public:
+  CRUTestTaskExecutor(CRUTask *pParentTask = NULL)
+      : pDynamicSQLContainer_(NULL),
+        pNumberOfExecutions_(NULL),
+        pNumberOfRetries_(NULL),
+        pNumberOfFailures_(NULL),
+        pAutoCommit_(NULL),
+        errorDynamicSQLContainer_(1)
 
-public:
-	CRUTestTaskExecutor(CRUTask *pParentTask = NULL) 
-		:
-		pDynamicSQLContainer_(NULL),
-		pNumberOfExecutions_(NULL),
-		pNumberOfRetries_(NULL),
-		pNumberOfFailures_(NULL),
-		pAutoCommit_(NULL),
-		errorDynamicSQLContainer_(1)
+  {}
 
-	{}
+  virtual ~CRUTestTaskExecutor() {
+    delete[] pNumberOfExecutions_;
+    delete[] pNumberOfRetries_;
+    delete[] pNumberOfFailures_;
+    delete[] pAutoCommit_;
+    delete pDynamicSQLContainer_;
+  }
 
-	virtual ~CRUTestTaskExecutor()
-	{
-		delete[] pNumberOfExecutions_;
-		delete[] pNumberOfRetries_;
-		delete[] pNumberOfFailures_;
-		delete[] pAutoCommit_;
-		delete pDynamicSQLContainer_;
-	}
+ public:
+  virtual void Init() { SetState(EX_READ_GROUP); }
 
-public:
-	
-	virtual void Init() 
-	{
-		SetState(EX_READ_GROUP);
-	}
-	
-	virtual void Work();
+  virtual void Work();
 
-	void SetNumberOfStatements(Int32 numberOfStatements)
-	{
-		numberOfStatements_ = numberOfStatements;
-	}
+  void SetNumberOfStatements(Int32 numberOfStatements) { numberOfStatements_ = numberOfStatements; }
 
-	void SetGroupId(Int32 groupId)
-	{
-		groupId_ = groupId;
-	}
+  void SetGroupId(Int32 groupId) { groupId_ = groupId; }
 
-	Int32 GetGroupId()
-	{
-		return groupId_;
-	}
+  Int32 GetGroupId() { return groupId_; }
 
-	virtual Lng32 GetIpcBufferSize() const
-	{
-		return 2000;
-	}
+  virtual Lng32 GetIpcBufferSize() const { return 2000; }
 
-public:
-	// These functions serialize/de-serialize the executor's context 
-	// for the message communication with the remote server process
-	
-	// Used in the main process side
-	virtual void StoreRequest(CUOFsIpcMessageTranslator &translator)
-	{
-		inherited::StoreRequest(translator);
-		StoreData(translator);
-	}
+ public:
+  // These functions serialize/de-serialize the executor's context
+  // for the message communication with the remote server process
 
-	virtual void LoadReply(CUOFsIpcMessageTranslator &translator)
-	{
-		inherited::LoadReply(translator);
-		LoadData(translator);
-	}
-	
-	// Used in the remote process side
-	virtual void LoadRequest(CUOFsIpcMessageTranslator &translator)
-	{
-		inherited::LoadRequest(translator);
-		LoadData(translator);
-	}
+  // Used in the main process side
+  virtual void StoreRequest(CUOFsIpcMessageTranslator &translator) {
+    inherited::StoreRequest(translator);
+    StoreData(translator);
+  }
 
-	virtual void StoreReply(CUOFsIpcMessageTranslator &translator)
-	{
-		inherited::StoreReply(translator);
-		StoreData(translator);
-	}
+  virtual void LoadReply(CUOFsIpcMessageTranslator &translator) {
+    inherited::LoadReply(translator);
+    LoadData(translator);
+  }
 
-public:
-	// fsm's state definitions
-	enum STATES { EX_AFTER_COMPILATION_BEFORE_EXECUTION = MAIN_STATES_START  ,
-				  EX_READ_GROUP = REMOTE_STATES_START ,
-				  EX_COMPILE_ALL,
-				  EX_EXECUTE
-	};
-private:
-	void ReadSqlStatement();
-	void ExecuteAllStatements();
-	void ExecuteStatement(Int32 i);
-	void HandleError( Int32 groupId ,
-					  Int32 processId,
-					  Int32 ordinal,
-					  CDMException &e);
+  // Used in the remote process side
+  virtual void LoadRequest(CUOFsIpcMessageTranslator &translator) {
+    inherited::LoadRequest(translator);
+    LoadData(translator);
+  }
 
-	void StoreData(CUOFsIpcMessageTranslator &translator);
-	void LoadData(CUOFsIpcMessageTranslator &translator);
+  virtual void StoreReply(CUOFsIpcMessageTranslator &translator) {
+    inherited::StoreReply(translator);
+    StoreData(translator);
+  }
 
-private:
+ public:
+  // fsm's state definitions
+  enum STATES {
+    EX_AFTER_COMPILATION_BEFORE_EXECUTION = MAIN_STATES_START,
+    EX_READ_GROUP = REMOTE_STATES_START,
+    EX_COMPILE_ALL,
+    EX_EXECUTE
+  };
 
-	//-- Prevent copying
-	CRUTestTaskExecutor(const CRUTestTaskExecutor &other);
-	CRUTestTaskExecutor &operator = (const CRUTestTaskExecutor &other);
+ private:
+  void ReadSqlStatement();
+  void ExecuteAllStatements();
+  void ExecuteStatement(Int32 i);
+  void HandleError(Int32 groupId, Int32 processId, Int32 ordinal, CDMException &e);
 
-private:
+  void StoreData(CUOFsIpcMessageTranslator &translator);
+  void LoadData(CUOFsIpcMessageTranslator &translator);
 
-	Int32 numberOfStatements_;
-	Int32 groupId_;
+ private:
+  //-- Prevent copying
+  CRUTestTaskExecutor(const CRUTestTaskExecutor &other);
+  CRUTestTaskExecutor &operator=(const CRUTestTaskExecutor &other);
 
-private:
-	CRUSQLDynamicStatementContainer *pDynamicSQLContainer_;
-	Int32 *pNumberOfExecutions_;
-	Int32 *pNumberOfRetries_;
-	Int32 *pNumberOfFailures_;
-	Int32 *pAutoCommit_;
-	CRUSQLDynamicStatementContainer errorDynamicSQLContainer_;
+ private:
+  Int32 numberOfStatements_;
+  Int32 groupId_;
+
+ private:
+  CRUSQLDynamicStatementContainer *pDynamicSQLContainer_;
+  Int32 *pNumberOfExecutions_;
+  Int32 *pNumberOfRetries_;
+  Int32 *pNumberOfFailures_;
+  Int32 *pAutoCommit_;
+  CRUSQLDynamicStatementContainer errorDynamicSQLContainer_;
 };
-
 
 #endif

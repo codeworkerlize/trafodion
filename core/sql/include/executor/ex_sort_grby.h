@@ -30,7 +30,7 @@
 * Description:  Class declarations for ex_sort_grby_tcb and ex_sort_grby_tdb
 *               The sort groupby operator assumes that its input comes grouped
 *               already, therefore it needs no internal table
-* Created:      
+* Created:
 * Language:     C++
 *
 *
@@ -63,27 +63,23 @@ class ex_tcb;
 // -----------------------------------------------------------------------
 // ex_sort_grby_tdb
 // -----------------------------------------------------------------------
-class ex_sort_grby_tdb : public ComTdbSortGrby
-{
-public:
-
+class ex_sort_grby_tdb : public ComTdbSortGrby {
+ public:
   // ---------------------------------------------------------------------
   // Constructor is only called to instantiate an object used for
   // retrieval of the virtual table function pointer of the class while
   // unpacking. An empty constructor is enough.
   // ---------------------------------------------------------------------
-  ex_sort_grby_tdb()
-  {}
+  ex_sort_grby_tdb() {}
 
-  virtual ~ex_sort_grby_tdb()
-  {}
+  virtual ~ex_sort_grby_tdb() {}
 
   // ---------------------------------------------------------------------
   // Build a TCB for this TDB. Redefined in the Executor project.
   // ---------------------------------------------------------------------
   virtual ex_tcb *build(ex_globals *globals);
 
-private:
+ private:
   // ---------------------------------------------------------------------
   // !!!!!!! IMPORTANT -- NO DATA MEMBERS ALLOWED IN EXECUTOR TDB !!!!!!!!
   // *********************************************************************
@@ -103,7 +99,7 @@ private:
   // 1. Are those data members Compiler-generated?
   //    If yes, put them in the ComTdbSortGrby instead.
   //    If no, they should probably belong to someplace else (like TCB).
-  // 
+  //
   // 2. Are the classes those data members belong defined in the executor
   //    project?
   //    If your answer to both questions is yes, you might need to move
@@ -111,37 +107,33 @@ private:
   // ---------------------------------------------------------------------
 };
 
-
-
 //
 // Task control block for ex_sort_grby_tcb
 //
-class ex_sort_grby_tcb : public ex_tcb
-{
-  friend class   ex_sort_grby_tdb;
-  friend class   ex_sort_grby_private_state;
+class ex_sort_grby_tcb : public ex_tcb {
+  friend class ex_sort_grby_tdb;
+  friend class ex_sort_grby_private_state;
 
-protected:
-  const ex_tcb * childTcb_;
+ protected:
+  const ex_tcb *childTcb_;
 
-  ex_queue_pair  qparent_;
-  ex_queue_pair  qchild_;
+  ex_queue_pair qparent_;
+  ex_queue_pair qchild_;
 
   ExSimpleSQLBuffer *pool_;
 
-  queue_index    processedInputs_;
+  queue_index processedInputs_;
 
   atp_struct *workAtp_;
 
-public:
+ public:
   // Constructor
-  ex_sort_grby_tcb(const ex_sort_grby_tdb & sort_grby_tdb,    
-		   const ex_tcb &    child_tcb , // child queue pair
-		   ex_globals * glob
-		   );
-  
-  ~ex_sort_grby_tcb();  
-  
+  ex_sort_grby_tcb(const ex_sort_grby_tdb &sort_grby_tdb,
+                   const ex_tcb &child_tcb,  // child queue pair
+                   ex_globals *glob);
+
+  ~ex_sort_grby_tcb();
+
   enum sort_grby_step {
     SORT_GRBY_EMPTY,
     SORT_GRBY_NEW_GROUP,
@@ -162,76 +154,65 @@ public:
     SORT_GRBY_ROLLUP_GROUP,
     SORT_GRBY_ROLLUP_FINAL_GROUP_START,
     SORT_GRBY_ROLLUP_FINAL_GROUP
-    };
-  
+  };
+
   void freeResources();  // free resources
-  
+
   virtual short work();  // when scheduled to do work
 
-  ex_sort_grby_tdb & sort_grby_tdb() const
-  {return (ex_sort_grby_tdb &) tdb;}
+  ex_sort_grby_tdb &sort_grby_tdb() const { return (ex_sort_grby_tdb &)tdb; }
 
   // return a pair of queue pointers to the parent node. Needed only during
   // construction of nodes.
-  ex_queue_pair getParentQueue() const
-  {
-    return (qparent_);
-  }
-  
-  virtual ex_tcb_private_state * allocatePstates(
-       Lng32 &numElems,      // inout, desired/actual elements
-       Lng32 &pstateLength); // out, length of one element
+  ex_queue_pair getParentQueue() const { return (qparent_); }
 
-  AggrExpr * aggrExpr() const { return sort_grby_tdb().aggrExpr(); }
+  virtual ex_tcb_private_state *allocatePstates(Lng32 &numElems,       // inout, desired/actual elements
+                                                Lng32 &pstateLength);  // out, length of one element
 
-  inline ex_expr * grbyExpr() const { return sort_grby_tdb().grbyExpr_; };
-  inline ex_expr * moveExpr() const { return sort_grby_tdb().moveExpr_; };
-  inline ex_expr * havingExpr() const { return sort_grby_tdb().havingExpr_; };
+  AggrExpr *aggrExpr() const { return sort_grby_tdb().aggrExpr(); }
 
-  inline Lng32 recLen() {return sort_grby_tdb().recLen_;};
+  inline ex_expr *grbyExpr() const { return sort_grby_tdb().grbyExpr_; };
+  inline ex_expr *moveExpr() const { return sort_grby_tdb().moveExpr_; };
+  inline ex_expr *havingExpr() const { return sort_grby_tdb().havingExpr_; };
 
-  virtual Int32 numChildren() const { return 1; }   
-  virtual const ex_tcb* getChild(Int32 pos) const
-  {
-    ex_assert((pos >= 0), ""); 
+  inline Lng32 recLen() { return sort_grby_tdb().recLen_; };
+
+  virtual Int32 numChildren() const { return 1; }
+  virtual const ex_tcb *getChild(Int32 pos) const {
+    ex_assert((pos >= 0), "");
     if (pos == 0)
       return childTcb_;
     else
       return NULL;
   }
-  
-protected:
-  // code contained in the next 4 methods was previously part of mainline 
+
+ protected:
+  // code contained in the next 4 methods was previously part of mainline
   // sort groupby code.
   // That has now been extracted into these methods so it could be
   // used by regular and rollup sortgroupby tcbs.
   short handleCancel(sort_grby_step &step, short &rc);
   short handleError(sort_grby_step &step, short &rc);
   short handleFinalize(sort_grby_step &step, short &rc);
-  short handleDone(sort_grby_step &step, short &rc,
-                   NABoolean noAssert = FALSE);
-  
+  short handleDone(sort_grby_step &step, short &rc, NABoolean noAssert = FALSE);
 };
-
 
 /////////////////////////////////////////////////////////////////////
 // Task control block for ex_sort_grby_rollup_tcb
 /////////////////////////////////////////////////////////////////////
-class ex_sort_grby_rollup_tcb : public ex_sort_grby_tcb
-{
-  friend class   ex_sort_grby_tdb;
-  friend class   ex_sort_grby_private_state;
+class ex_sort_grby_rollup_tcb : public ex_sort_grby_tcb {
+  friend class ex_sort_grby_tdb;
+  friend class ex_sort_grby_private_state;
 
-public:
+ public:
   // Constructor
-  ex_sort_grby_rollup_tcb(const ex_sort_grby_tdb & sort_grby_tdb,    
-                          const ex_tcb &    child_tcb , // child queue pair
-                          ex_globals * glob
-                          );
-  
+  ex_sort_grby_rollup_tcb(const ex_sort_grby_tdb &sort_grby_tdb,
+                          const ex_tcb &child_tcb,  // child queue pair
+                          ex_globals *glob);
+
   virtual short work();  // when scheduled to do work
 
-private:
+ private:
   short rollupAggrInit();
 
   // this method does 3 things:
@@ -241,13 +222,13 @@ private:
   short processRollupGrbyNulls(Int16 groupNum);
 
   // move values from child row to rollup array
-  short rollupGrbyMoveValue(ex_queue_entry * centry);
+  short rollupGrbyMoveValue(ex_queue_entry *centry);
 
   // evaluate aggregate for all regular and rollup entries
-  short rollupAggrEval(ex_queue_entry * centry);
+  short rollupAggrEval(ex_queue_entry *centry);
 
   // array of entries where rollup aggrs and group values will be computed
-  char ** rollupGroupAggrArr_;
+  char **rollupGroupAggrArr_;
 
   sort_grby_step step_;
 
@@ -259,28 +240,21 @@ private:
   NABoolean allDone_;
 };
 
-
-
 ///////////////////////////////////////////////////////////////////
-class ex_sort_grby_private_state : public ex_tcb_private_state
-{
+class ex_sort_grby_private_state : public ex_tcb_private_state {
   friend class ex_sort_grby_tcb;
   friend class ex_sort_grby_rollup_tcb;
-  
-public:
 
+ public:
   ex_sort_grby_private_state();
   ~ex_sort_grby_private_state();
 
-private:
-
+ private:
   ex_sort_grby_tcb::sort_grby_step step_;
 
-  queue_index index_;        // index into down queue
-  Int64 matchCount_;         // number of rows returned for this parent row
-  NABoolean     oneRowAggr_;
+  queue_index index_;  // index into down queue
+  Int64 matchCount_;   // number of rows returned for this parent row
+  NABoolean oneRowAggr_;
 };
 
-
 #endif
-

@@ -41,8 +41,6 @@
 #include "common/ComSmallDefs.h"
 #include "StmtDDLNode.h"
 
-
-
 // -----------------------------------------------------------------------
 // forward references
 // -----------------------------------------------------------------------
@@ -51,11 +49,8 @@
 // -----------------------------------------------------------------------
 // Comment On statement
 // -----------------------------------------------------------------------
-class StmtDDLCommentOn : public StmtDDLNode
-{
-  
-public:
-
+class StmtDDLCommentOn : public StmtDDLNode {
+ public:
   enum COMMENT_ON_TYPES {
     COMMENT_ON_TYPE_TABLE,
     COMMENT_ON_TYPE_COLUMN,
@@ -69,33 +64,32 @@ public:
     COMMENT_ON_TYPE_UNKNOWN
   };
 
-
   // (default) constructor
-  StmtDDLCommentOn(COMMENT_ON_TYPES objType, const QualifiedName & objName, const NAString & commentStr, CollHeap * heap);
-  StmtDDLCommentOn(COMMENT_ON_TYPES objType, const QualifiedName & objName, const NAString & commentStr, ColReference  * colRef, CollHeap * heap);
+  StmtDDLCommentOn(COMMENT_ON_TYPES objType, const QualifiedName &objName, const NAString &commentStr, CollHeap *heap);
+  StmtDDLCommentOn(COMMENT_ON_TYPES objType, const QualifiedName &objName, const NAString &commentStr,
+                   ColReference *colRef, CollHeap *heap);
 
   // virtual destructor
   virtual ~StmtDDLCommentOn();
 
   // cast
-  virtual StmtDDLCommentOn  * castToStmtDDLCommentOn();
+  virtual StmtDDLCommentOn *castToStmtDDLCommentOn();
 
   // ---------------------------------------------------------------------
   // accessors
   // ---------------------------------------------------------------------
 
   // methods relating to parse tree
-  //virtual Int32 getArity() const;
-  //virtual ExprNode * getChild(Lng32 index);
+  // virtual Int32 getArity() const;
+  // virtual ExprNode * getChild(Lng32 index);
 
   // method for binding
-  ExprNode * bindNode(BindWA *bindWAPtr);
+  ExprNode *bindNode(BindWA *bindWAPtr);
 
+  // accessors
 
-// accessors
-
-  inline QualifiedName & getObjectNameAsQualifiedName();
-  inline const QualifiedName & getObjectNameAsQualifiedName() const ;
+  inline QualifiedName &getObjectNameAsQualifiedName();
+  inline const QualifiedName &getObjectNameAsQualifiedName() const;
 
   inline const enum COMMENT_ON_TYPES getObjectType() { return type_; }
   inline const NAString getObjectName() const;
@@ -105,50 +99,35 @@ public:
   inline NABoolean getIsViewCol() { return isViewCol_; }
   inline Lng32 getColNum() { return colNum_; }
 
+  inline Int32 getVersion() { return 1; }
 
-  inline Int32 getVersion() {return 1;}
+  // for tracing
 
-// for tracing
+  /*  virtual const NAString displayLabel1() const;
+    virtual const NAString displayLabel2() const;
+    virtual NATraceList getDetailInfo() const;
+    virtual const NAString getText() const;
+  */
 
-/*  virtual const NAString displayLabel1() const;
-  virtual const NAString displayLabel2() const;
-  virtual NATraceList getDetailInfo() const;
-  virtual const NAString getText() const;               
-*/
+ private:
+  enum COMMENT_ON_TYPES type_;
+  QualifiedName objectName_;
+  ColReference *colRef_;
+  NABoolean isViewCol_;
+  Lng32 colNum_;
 
-private:
+  const NAString &comment_;
 
-  enum COMMENT_ON_TYPES  type_;
-  QualifiedName          objectName_;
-  ColReference         * colRef_;
-  NABoolean              isViewCol_;
-  Lng32                  colNum_;
+};  // class StmtDDLCreateTable
 
-  const NAString       & comment_;
-
-}; // class StmtDDLCreateTable
-
-
-inline const    NAString StmtDDLCommentOn::getObjectName() const
-{
+inline const NAString StmtDDLCommentOn::getObjectName() const {
   NAString objectName = objectName_.getQualifiedNameAsAnsiString();
 
-  return objectName; 
+  return objectName;
 }
 
-inline QualifiedName &
-StmtDDLCommentOn::getObjectNameAsQualifiedName()
-{
-  return objectName_;
-}
+inline QualifiedName &StmtDDLCommentOn::getObjectNameAsQualifiedName() { return objectName_; }
 
-inline const QualifiedName &
-StmtDDLCommentOn::getObjectNameAsQualifiedName() const
-{
-  return objectName_;
-}
+inline const QualifiedName &StmtDDLCommentOn::getObjectNameAsQualifiedName() const { return objectName_; }
 
-
-
-#endif // STMTDDLCREATETABLE_H
-
+#endif  // STMTDDLCREATETABLE_H

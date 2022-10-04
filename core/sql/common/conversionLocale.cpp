@@ -24,10 +24,10 @@
  *****************************************************************************
  *
  * File:         conversionLocale.h
- * RCS:          $Id: 
+ * RCS:          $Id:
  * Description:  The implementation of locale related conversion routins
- *               
- *               
+ *
+ *
  * Created:      7/8/98
  * Modified:     $ $Date: 1998/08/10 16:00:39 $ (GMT)
  * Language:     C++
@@ -45,194 +45,186 @@
 #include "common/NLSConversion.h"
 #include "common/charinfo.h"
 #include "common/csconvert.h"
-cnv_charset convertCharsetEnum (Int32 inset)
-{
- switch(inset){ 
-   case CharInfo::ISO88591:   return cnv_ISO88591; break;
-   case CharInfo::SJIS:       return cnv_SJIS; break;
-   case CharInfo::UNICODE:    return cnv_UTF16; break;
-   case CharInfo::EUCJP:      return cnv_EUCJP; break;
-   case CharInfo::BIG5:       return cnv_BIG5; break;
-   case CharInfo::GB18030:    return cnv_GB18030; break;
-   case CharInfo::UTF8:       return cnv_UTF8; break;
-   case CharInfo::KSC5601:    return cnv_KSC; break;
-   case CharInfo::GB2312:     return cnv_GB2312; break;
-   case CharInfo::GBK:        return cnv_GBK;    break;
-   default:                   return cnv_UnknownCharSet; break;
-   }
+cnv_charset convertCharsetEnum(Int32 inset) {
+  switch (inset) {
+    case CharInfo::ISO88591:
+      return cnv_ISO88591;
+      break;
+    case CharInfo::SJIS:
+      return cnv_SJIS;
+      break;
+    case CharInfo::UNICODE:
+      return cnv_UTF16;
+      break;
+    case CharInfo::EUCJP:
+      return cnv_EUCJP;
+      break;
+    case CharInfo::BIG5:
+      return cnv_BIG5;
+      break;
+    case CharInfo::GB18030:
+      return cnv_GB18030;
+      break;
+    case CharInfo::UTF8:
+      return cnv_UTF8;
+      break;
+    case CharInfo::KSC5601:
+      return cnv_KSC;
+      break;
+    case CharInfo::GB2312:
+      return cnv_GB2312;
+      break;
+    case CharInfo::GBK:
+      return cnv_GBK;
+      break;
+    default:
+      return cnv_UnknownCharSet;
+      break;
+  }
 }
 
-
-// Unicode to UTF8 conversion. 
+// Unicode to UTF8 conversion.
 //
 // This function takes a Unicode UCS2/UTF16 string and returns its UTF8 equivalent.
 // The optional utf8String argument holds the buffer into which the Unicode string
-// will be stored. In case the argument is NULL or it is not big enough, 
-// the function allocates memory from the heap (if the heap pointer is not NULL), 
+// will be stored. In case the argument is NULL or it is not big enough,
+// the function allocates memory from the heap (if the heap pointer is not NULL),
 // or from the C run-time system heap.
-// If the memory allocation fails, the function returns 0. If any illegal 
+// If the memory allocation fails, the function returns 0. If any illegal
 // characters are encountered, the function also returns 0.
 //
-charBuf* unicodeToUtf8(const NAWcharBuf& unicodeString, CollHeap *heap,
-                       charBuf*& utf8String, NABoolean addNullAtEnd,
-                       NABoolean allowInvalidCodePoint)
-{
-  charBuf* cbufPtr = NULL; // tell unicodeTocset() to allocate a new buffer
-  charBuf* res = NULL;
+charBuf *unicodeToUtf8(const NAWcharBuf &unicodeString, CollHeap *heap, charBuf *&utf8String, NABoolean addNullAtEnd,
+                       NABoolean allowInvalidCodePoint) {
+  charBuf *cbufPtr = NULL;  // tell unicodeTocset() to allocate a new buffer
+  charBuf *res = NULL;
   Int32 errorcode = 0;
-  res = unicodeTocset ( unicodeString // in - const NAWcharBuf &
-                      , heap          // in - CollHeap *
-                      , cbufPtr
-                      , (Lng32) SQLCHARSETCODE_UTF8 // in - Lng32 targetCharSet      
-                      , errorcode     // out - Int32 &
-                      , addNullAtEnd
-                      , allowInvalidCodePoint 
-                      );
-   if ( res == NULL || errorcode != 0) // translation failed
-     return NULL;
+  res = unicodeTocset(unicodeString  // in - const NAWcharBuf &
+                      ,
+                      heap  // in - CollHeap *
+                      ,
+                      cbufPtr, (Lng32)SQLCHARSETCODE_UTF8  // in - Lng32 targetCharSet
+                      ,
+                      errorcode  // out - Int32 &
+                      ,
+                      addNullAtEnd, allowInvalidCodePoint);
+  if (res == NULL || errorcode != 0)  // translation failed
+    return NULL;
 
-   charBuf* output = checkSpace(heap, res->getStrLen(), utf8String, addNullAtEnd);
+  charBuf *output = checkSpace(heap, res->getStrLen(), utf8String, addNullAtEnd);
 
-   if ( output == NULL )
-   {
-     NADELETE(res, charBuf, heap);
-     return 0;
-   }
+  if (output == NULL) {
+    NADELETE(res, charBuf, heap);
+    return 0;
+  }
 
-   Int32 finalLengthInBytes = res->getStrLen();
-   memmove(output->data(), res->data(), finalLengthInBytes);
-   output->setStrLen(res->getStrLen());
-  
-   if ( addNullAtEnd == TRUE )
-     output->data()[finalLengthInBytes] = '\0';
+  Int32 finalLengthInBytes = res->getStrLen();
+  memmove(output->data(), res->data(), finalLengthInBytes);
+  output->setStrLen(res->getStrLen());
 
-   NADELETE(res, charBuf, heap);
-   return output;
+  if (addNullAtEnd == TRUE) output->data()[finalLengthInBytes] = '\0';
+
+  NADELETE(res, charBuf, heap);
+  return output;
 }
 
-Lng32 UnicodeStringToLocale(Lng32 charset, const NAWchar* wstr, Lng32 wstrLen, 
-                           char* buf, Lng32 bufLen, NABoolean addNullAtEnd,
-                           NABoolean allowInvalidCodePoint)
-{
-   charBuf cbuf((unsigned char*)buf, bufLen);
-   charBuf* cbufPtr = &cbuf;
-   charBuf* res = 0;
-   Int32 errorcode = 0;
+Lng32 UnicodeStringToLocale(Lng32 charset, const NAWchar *wstr, Lng32 wstrLen, char *buf, Lng32 bufLen,
+                            NABoolean addNullAtEnd, NABoolean allowInvalidCodePoint) {
+  charBuf cbuf((unsigned char *)buf, bufLen);
+  charBuf *cbufPtr = &cbuf;
+  charBuf *res = 0;
+  Int32 errorcode = 0;
 
-   switch (charset)
-   {
+  switch (charset) {
 #ifdef IS_MP /* :cnu -- As of 8/30/2011, not used in SQ SQL */
     case CharInfo::KANJI_MP:
-      res = unicodeToSjis(
-                NAWcharBuf((NAWchar*)wstr, wstrLen), 0, cbufPtr, addNullAtEnd,
-                           allowInvalidCodePoint 
-                        );
+      res = unicodeToSjis(NAWcharBuf((NAWchar *)wstr, wstrLen), 0, cbufPtr, addNullAtEnd, allowInvalidCodePoint);
       break;
     case CharInfo::KSC5601_MP:
-      res = unicodeToKsc5601(
-                NAWcharBuf((NAWchar*)wstr, wstrLen), 0, cbufPtr, addNullAtEnd,
-                           allowInvalidCodePoint 
-                        );
+      res = unicodeToKsc5601(NAWcharBuf((NAWchar *)wstr, wstrLen), 0, cbufPtr, addNullAtEnd, allowInvalidCodePoint);
       break;
 #endif
     case CharInfo::ISO88591:
-     res = unicodeToISO88591(
-                NAWcharBuf((NAWchar*)wstr, wstrLen), 0, cbufPtr, addNullAtEnd,
-                           allowInvalidCodePoint 
-                        );
-     break;
- //	 case CharInfo::ISO88591:
-	 case CharInfo::EUCJP:
-	 case CharInfo::GB18030:
-	 case CharInfo::GB2312:
-	 case CharInfo::GBK:
-	 case CharInfo::KSC5601:
-	 case CharInfo::BIG5:
-	 case CharInfo::UTF8:
-	 case CharInfo::SJIS:
-	  res = unicodeTocset(
-                NAWcharBuf((NAWchar*)wstr, wstrLen), 0, cbufPtr, charset, errorcode, addNullAtEnd,
-                           allowInvalidCodePoint 
-                        );
-     break;
+      res = unicodeToISO88591(NAWcharBuf((NAWchar *)wstr, wstrLen), 0, cbufPtr, addNullAtEnd, allowInvalidCodePoint);
+      break;
+      //	 case CharInfo::ISO88591:
+    case CharInfo::EUCJP:
+    case CharInfo::GB18030:
+    case CharInfo::GB2312:
+    case CharInfo::GBK:
+    case CharInfo::KSC5601:
+    case CharInfo::BIG5:
+    case CharInfo::UTF8:
+    case CharInfo::SJIS:
+      res = unicodeTocset(NAWcharBuf((NAWchar *)wstr, wstrLen), 0, cbufPtr, charset, errorcode, addNullAtEnd,
+                          allowInvalidCodePoint);
+      break;
     default:
-     break;
-   }
+      break;
+  }
 
-   return (res) ? res->getStrLen() : 0;
+  return (res) ? res->getStrLen() : 0;
 }
 
+Lng32 LocaleStringToUnicode(Lng32 charset, const char *str, Lng32 strLen, NAWchar *wstrBuf, Lng32 wstrBufLen,
+                            NABoolean addNullAtEnd) {
+  // Changed the algorithm to call the new LocaleToUTF16() but keep
+  // the old call to old ISO88591ToUnicode() when the character set is
+  // ISO88591.  We want to keep the old "pass through" behavior so
+  // Use of ISO 8859-15 characters (a.k.a., Latin-9) in
+  // CHARACTER SET ISO88591 target column continues to work.
 
-Lng32 
-LocaleStringToUnicode(Lng32 charset, const char* str, Lng32 strLen, 
-                      NAWchar* wstrBuf, Lng32 wstrBufLen, NABoolean addNullAtEnd)
-{
-   // Changed the algorithm to call the new LocaleToUTF16() but keep
-   // the old call to old ISO88591ToUnicode() when the character set is
-   // ISO88591.  We want to keep the old "pass through" behavior so
-   // Use of ISO 8859-15 characters (a.k.a., Latin-9) in
-   // CHARACTER SET ISO88591 target column continues to work.
+  if (charset == (Lng32)CharInfo::ISO88591) {
+    NAWcharBuf wcbuf(wstrBuf, wstrBufLen);
+    NAWcharBuf *wcbufPtr = &wcbuf;
+    NAWcharBuf *res = 0;
+    res = ISO88591ToUnicode(charBuf((unsigned char *)str, strLen), 0, wcbufPtr, addNullAtEnd);
+    return (res) ? res->getStrLen() : 0;
+  }
 
-   if (charset == (Lng32) CharInfo::ISO88591)
-   {
-     NAWcharBuf wcbuf(wstrBuf, wstrBufLen);
-     NAWcharBuf* wcbufPtr = &wcbuf;
-     NAWcharBuf* res = 0;
-     res = ISO88591ToUnicode(
-                charBuf((unsigned char*)str, strLen), 0,
-                wcbufPtr, addNullAtEnd
-                        );
-     return (res) ? res->getStrLen() : 0;
-   }
+  //
+  // else (charset != (Lng32) CharInfo::ISO88591)
+  //
 
-   //
-   // else (charset != (Lng32) CharInfo::ISO88591)
-   //
+  enum cnv_charset convCS = convertCharsetEnum(charset);
+  if (convCS == cnv_UnknownCharSet) return 0;  // nothing we can do; exit the routine
 
-   enum cnv_charset convCS = convertCharsetEnum(charset);
-   if (convCS == cnv_UnknownCharSet)
-     return 0; // nothing we can do; exit the routine
+  UInt32 outBufSizeInBytes = wstrBufLen * sizeof(NAWchar);
+  char *pFirstUntranslatedChar = NULL;
+  UInt32 outputDataLenInBytes = 0;
+  UInt32 translatedtCharCount = 0;
+  Int32 convStatus = LocaleToUTF16(cnv_version1,           // const enum cnv_version version
+                                   str,                    // const char *in_bufr
+                                   strLen,                 // const int in_len in # of bytes
+                                   (const char *)wstrBuf,  // const char *out_bufr
+                                   (const Int32)outBufSizeInBytes,
+                                   convCS,                  // enum cnv_charset charset -- output charset
+                                   pFirstUntranslatedChar,  // char * & first_untranslated_char
+                                   &outputDataLenInBytes,   // unsigned int *output_data_len_p
+                                   0,                       // const int cnv_flags (default is 0)
+                                   (const Int32)addNullAtEnd,
+                                   &translatedtCharCount);  // unsigned int *translated_char_cnt_p
 
-   UInt32 outBufSizeInBytes = wstrBufLen*sizeof(NAWchar);
-   char * pFirstUntranslatedChar = NULL;
-   UInt32 outputDataLenInBytes = 0;
-   UInt32 translatedtCharCount = 0;
-   Int32 convStatus =
-     LocaleToUTF16(cnv_version1,           // const enum cnv_version version
-                   str,                    // const char *in_bufr
-                   strLen,                 // const int in_len in # of bytes
-                   (const char *)wstrBuf,  // const char *out_bufr
-                   (const Int32)outBufSizeInBytes,
-                   convCS,       // enum cnv_charset charset -- output charset
-                   pFirstUntranslatedChar, // char * & first_untranslated_char
-                   &outputDataLenInBytes,  // unsigned int *output_data_len_p
-                   0,                      // const int cnv_flags (default is 0)
-                   (const Int32)addNullAtEnd,
-                   &translatedtCharCount); // unsigned int *translated_char_cnt_p
+  UInt32 outLenInW = outputDataLenInBytes / sizeof(NAWchar);
+  if (convStatus == 0)  // success
+    return outLenInW;   // include the NULL terminator if (addNullAtEnd == TRUE)
 
-   UInt32 outLenInW = outputDataLenInBytes/sizeof(NAWchar);
-   if (convStatus == 0) // success
-     return outLenInW;  // include the NULL terminator if (addNullAtEnd == TRUE)
-
-   // If convStatus != 0, LocaleToUTF16 will not add the NULL terminator
-   if (addNullAtEnd && wstrBuf && wstrBufLen > 0)
-   {
-     if (outLenInW < (UInt32)wstrBufLen)
-       wstrBuf[outLenInW] = WIDE_('\0');
-     else
-     {
-       // assume the specified wstrBufLen includes room for the NULL terminator
-       // when the passed-in addNullAtEnd parameter is set to TRUE
-       wstrBuf[wstrBufLen-1] = WIDE_('\0');
-     }
-   }
-   return 0; // tell the caller not to use data in wstrBuf
+  // If convStatus != 0, LocaleToUTF16 will not add the NULL terminator
+  if (addNullAtEnd && wstrBuf && wstrBufLen > 0) {
+    if (outLenInW < (UInt32)wstrBufLen)
+      wstrBuf[outLenInW] = WIDE_('\0');
+    else {
+      // assume the specified wstrBufLen includes room for the NULL terminator
+      // when the passed-in addNullAtEnd parameter is set to TRUE
+      wstrBuf[wstrBufLen - 1] = WIDE_('\0');
+    }
+  }
+  return 0;  // tell the caller not to use data in wstrBuf
 }
 
-  // *************************************************************** 
-  // * Convert the string to UTF8
-  // *************************************************************** 
-#if 0 /* As of 8/30/2011, there are no callers in SQ SQL */
+// ***************************************************************
+// * Convert the string to UTF8
+// ***************************************************************
+#if 0  /* As of 8/30/2011, there are no callers in SQ SQL */
   Int32 localeConvertToUTF8(char* source,
                     Lng32 sourceLen,
                     char* target,
@@ -399,12 +391,12 @@ LocaleStringToUnicode(Lng32 charset, const char* str, Lng32 strLen,
   }
 #endif /* As of 8/30/2011, no callers in SQ SQL */
 
-  // *************************************************************** 
-  // * Encode the string from a UTF8 multibyte string to the
-  // * designated charset
-  // *************************************************************** 
+// ***************************************************************
+// * Encode the string from a UTF8 multibyte string to the
+// * designated charset
+// ***************************************************************
 
-#if 0 /* As of 8/30/2011, there are no callers in SQ SQL */
+#if 0  /* As of 8/30/2011, there are no callers in SQ SQL */
   Int32 UTF8ConvertToLocale(char* source,
                           Lng32 sourceLen,
                           char* target,
@@ -592,55 +584,57 @@ LocaleStringToUnicode(Lng32 charset, const char* str, Lng32 strLen,
 // Return an error code (a negative number) if encounters an error.  The
 // error code values are defined in w:/common/csconvert.h.
 // -----------------------------------------------------------------------
-Int32 ComputeStrLenInNAWchars (const char * pStr,
-                               const Int32 strLenInBytes,
-                               const CharInfo::CharSet strCS,
-                               NAMemory *workspaceHeap) // in - default is NULL (the C++ runtime heap)
+Int32 ComputeStrLenInNAWchars(const char *pStr, const Int32 strLenInBytes, const CharInfo::CharSet strCS,
+                              NAMemory *workspaceHeap)  // in - default is NULL (the C++ runtime heap)
 {
-  if (pStr == NULL || strLenInBytes == 0)
-    return 0;
+  if (pStr == NULL || strLenInBytes == 0) return 0;
 
-  if (strCS == CharInfo::UCS2)
-    return strLenInBytes / BYTES_PER_NAWCHAR;
+  if (strCS == CharInfo::UCS2) return strLenInBytes / BYTES_PER_NAWCHAR;
 
-  Int32        lenInNAWchars = 0;
-  char *       pFirstByteOfUntranslatedChar = NULL;
-  UInt32       outputDataLen = 0;
-  Int32        rtnCode = 0;
+  Int32 lenInNAWchars = 0;
+  char *pFirstByteOfUntranslatedChar = NULL;
+  UInt32 outputDataLen = 0;
+  Int32 rtnCode = 0;
 
-  cnv_charset  cnvCharSet = convertCharsetEnum(strCS);
+  cnv_charset cnvCharSet = convertCharsetEnum(strCS);
 
   // Compute the size of the to-be-allocated output buffer, include a UCS-2 NULL terminator, for the worst case.
-  const Int32  bufSizeInBytes = (BYTES_PER_NAWCHAR+1) * strLenInBytes + BYTES_PER_NAWCHAR;
-  char *       charBuf = new (workspaceHeap) char [bufSizeInBytes];
+  const Int32 bufSizeInBytes = (BYTES_PER_NAWCHAR + 1) * strLenInBytes + BYTES_PER_NAWCHAR;
+  char *charBuf = new (workspaceHeap) char[bufSizeInBytes];
 
-  if (charBuf EQU NULL)
-    return CNV_ERR_INVALID_HEAP;
+  if (charBuf EQU NULL) return CNV_ERR_INVALID_HEAP;
 
   rtnCode =
-    LocaleToUTF16 ( cnv_version1                    // in  - const enum cnv_version
-                  , pStr                            // in  - const char *   in_buf
-                  , strLenInBytes                   // in  - const int      in_len
-                  , charBuf                         // out - const char *   out_buf - plenty of room
-                  , bufSizeInBytes                  // in  - const int      out_len - buffer size in bytes
-                  , cnvCharSet                      // in  - const int      cnv_charset
-                  , pFirstByteOfUntranslatedChar    // out - char *       & ptr_to_first_untranslated_char
-                  , & outputDataLen                 // out - unsigned int * output_data_len_p     = NULL
-               // , 0                               // in  - const int      cnv_flags             = 0
-               // , (Int32)FALSE                    // in  - const int      addNullAtEnd_flag     = FALSE
-               // , & translatedCharCount           // out - unsigned int * translated_char_cnt_p = NULL
-               // ,                                 // in  - unsigned int   max_chars_to_convert  = 0xffffffff
-                  );
+      LocaleToUTF16(cnv_version1  // in  - const enum cnv_version
+                    ,
+                    pStr  // in  - const char *   in_buf
+                    ,
+                    strLenInBytes  // in  - const int      in_len
+                    ,
+                    charBuf  // out - const char *   out_buf - plenty of room
+                    ,
+                    bufSizeInBytes  // in  - const int      out_len - buffer size in bytes
+                    ,
+                    cnvCharSet  // in  - const int      cnv_charset
+                    ,
+                    pFirstByteOfUntranslatedChar  // out - char *       & ptr_to_first_untranslated_char
+                    ,
+                    &outputDataLen  // out - unsigned int * output_data_len_p     = NULL
+                    // , 0                               // in  - const int      cnv_flags             = 0
+                    // , (Int32)FALSE                    // in  - const int      addNullAtEnd_flag     = FALSE
+                    // , & translatedCharCount           // out - unsigned int * translated_char_cnt_p = NULL
+                    // ,                                 // in  - unsigned int   max_chars_to_convert  = 0xffffffff
+      );
   lenInNAWchars = outputDataLen / BYTES_PER_NAWCHAR;
   NADELETEBASIC(charBuf, workspaceHeap);
 
   if (rtnCode == 0)
-    return lenInNAWchars; // a positive integer value
+    return lenInNAWchars;  // a positive integer value
   else
-    return rtnCode;       // a negative integer value
+    return rtnCode;  // a negative integer value
 
   return lenInNAWchars;
-} // ComputeStrLenInNAWchars()
+}  // ComputeStrLenInNAWchars()
 
 // -----------------------------------------------------------------------
 // ComputeStrLenInUCS4chars:
@@ -651,12 +645,8 @@ Int32 ComputeStrLenInNAWchars (const char * pStr,
 // error code values are defined in w:/common/csconvert.h.  Note that
 // this function does not need to use a workspace heap.
 // -----------------------------------------------------------------------
-Int32 ComputeStrLenInUCS4chars (const char * pStr,
-                                const Int32 strLenInBytes,
-                                const CharInfo::CharSet cs)
-{
-  if (cs == CharInfo::ISO88591 || strLenInBytes == 0)
-    return strLenInBytes;
+Int32 ComputeStrLenInUCS4chars(const char *pStr, const Int32 strLenInBytes, const CharInfo::CharSet cs) {
+  if (cs == CharInfo::ISO88591 || strLenInBytes == 0) return strLenInBytes;
 
   Int32 numberOfUCS4chars = 0;
   Int32 firstCharLenInBuf = 0;
@@ -666,23 +656,20 @@ Int32 ComputeStrLenInUCS4chars (const char * pStr,
   Int32 num_trailing_zeros = 0;
   Int32 len = (Int32)strLenInBytes;
 
-  while (len > 0)
-  {
-    firstCharLenInBuf = LocaleCharToUCS4 (s, len, &UCS4value, cnvCharSet);
+  while (len > 0) {
+    firstCharLenInBuf = LocaleCharToUCS4(s, len, &UCS4value, cnvCharSet);
 
-    if (firstCharLenInBuf <= 0)
-      return CNV_ERR_INVALID_CHAR;
+    if (firstCharLenInBuf <= 0) return CNV_ERR_INVALID_CHAR;
 
     numberOfUCS4chars++;
-    if ( *s == '\0' )
-       num_trailing_zeros += 1;
-    else 
-       num_trailing_zeros = 0;
+    if (*s == '\0')
+      num_trailing_zeros += 1;
+    else
+      num_trailing_zeros = 0;
     s += firstCharLenInBuf;
     len -= firstCharLenInBuf;
   }
 
-  return numberOfUCS4chars - num_trailing_zeros ; //NOTE: Don't count trailing zeros !
+  return numberOfUCS4chars - num_trailing_zeros;  // NOTE: Don't count trailing zeros !
 
-} // ComputeStrLenInUCS4chars ()
-
+}  // ComputeStrLenInUCS4chars ()

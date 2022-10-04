@@ -6,9 +6,9 @@
  *
  * File:         SqlciDefs.h
  * RCS:          $Id: SqlciDefs.h,v 1.6 1998/07/10 00:51:45  Exp $
- * Description:  
- *               
- *               
+ * Description:
+ *
+ *
  * Created:      4/15/95
  * Modified:     $ $Date: 1998/07/10 00:51:45 $ (GMT)
  * Language:     C++
@@ -42,9 +42,8 @@
 
 #include "common/Platform.h"
 
-enum dml_type 
-{
-  DML_CONTROL_TYPE, 
+enum dml_type {
+  DML_CONTROL_TYPE,
   DML_SELECT_TYPE,
   DML_UPDATE_TYPE,
   DML_INSERT_TYPE,
@@ -52,31 +51,32 @@ enum dml_type
   DML_DDL_TYPE,
   DML_DESCRIBE_TYPE,
   DML_SHOWSHAPE_TYPE,
-  DML_DISPLAY_NO_ROWS_TYPE,	// special-purpose
-  DML_DISPLAY_NO_HEADING_TYPE,	// special-purpose
+  DML_DISPLAY_NO_ROWS_TYPE,     // special-purpose
+  DML_DISPLAY_NO_HEADING_TYPE,  // special-purpose
   // $$$$ SPJ RS THROWAWAY
-  DML_CALL_STMT_TYPE, // $$$$ Might not even need this one
+  DML_CALL_STMT_TYPE,  // $$$$ Might not even need this one
   DML_CALL_STMT_RS_TYPE,
   DML_UNLOAD_TYPE,
   DML_OSIM_TYPE
 };
 
-enum SQLCI_CLI_RETCODE
-{
-  SQL_Success = 0, SQL_Eof = 100, SQL_Error = -1, SQL_Warning = 1, SQL_Canceled = -8007,
-    SQL_Rejected = -15026
+enum SQLCI_CLI_RETCODE {
+  SQL_Success = 0,
+  SQL_Eof = 100,
+  SQL_Error = -1,
+  SQL_Warning = 1,
+  SQL_Canceled = -8007,
+  SQL_Rejected = -15026
 
 };
 
-// A simple structure used by the sqlci parser to hold information 
+// A simple structure used by the sqlci parser to hold information
 // about a cursor
-struct SqlciCursorInfo
-{
+struct SqlciCursorInfo {
   Int32 queryTextSpecified_;
   char *queryTextOrStmtName_;
   Lng32 resultSetIndex_;
-  SqlciCursorInfo()
-  {
+  SqlciCursorInfo() {
     queryTextSpecified_ = 0;
     queryTextOrStmtName_ = 0;
     resultSetIndex_ = 0;

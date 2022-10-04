@@ -29,31 +29,27 @@
 *
 * File:         RuSQLMultiTxnRefreshComposer.h
 * Description:  Definition of class CRUSQLRefreshComposer
-*				
+*
 *
 * Created:      08/17/2000
 * Language:     C++
-* 
 *
-* 
+*
+*
 ******************************************************************************
 */
 #include "RuSQLRefreshComposer.h"
 
 class REFRESH_LIB_CLASS CRUSQLMultiTxnRefreshComposer : public CRUSQLRefreshComposer {
+ public:
+  CRUSQLMultiTxnRefreshComposer(CRURefreshTask *pTask);
+  virtual ~CRUSQLMultiTxnRefreshComposer() {}
 
-public:
+ public:
+  void ComposeRefresh(Int32 phase, BOOL catchup);
 
-	CRUSQLMultiTxnRefreshComposer(CRURefreshTask *pTask);
-	virtual ~CRUSQLMultiTxnRefreshComposer() {}
-
-public:
-
-	void ComposeRefresh(Int32 phase, BOOL catchup);
-
-private:
-
-	void AddNRowsClause(Int32 phase, BOOL catchup);
+ private:
+  void AddNRowsClause(Int32 phase, BOOL catchup);
 };
 
 #endif

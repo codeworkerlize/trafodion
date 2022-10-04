@@ -37,11 +37,6 @@
 #include "vproc.h"
 #include "common/Platform.h"
 
-extern "C" { 
-void
-VPROC (PRODNUMEID,DATE1EID,EID_CC_LABEL)
-() {} }
-
-
-
-
+extern "C" {
+void VPROC(PRODNUMEID, DATE1EID, EID_CC_LABEL)() {}
+}

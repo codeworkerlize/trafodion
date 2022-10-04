@@ -30,11 +30,11 @@
 * Language:     C++
 * Status:       $State: Exp $
 *
-*/ 
+*/
 
 #define INITIALIZE_OLD_AND_NEW_NAMES  // used in Triggers.h
-#define  SQLPARSERGLOBALS_FLAGS	   // must precede all #include's
-#define  SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
+#define SQLPARSERGLOBALS_FLAGS        // must precede all #include's
+#define SQLPARSERGLOBALS_CONTEXT_AND_DIAGS
 
 #include "optimizer/Sqlcomp.h"
 #include "optimizer/AllItemExpr.h"
@@ -59,18 +59,18 @@
 #include "RelSequence.h"
 
 #ifdef NA_DEBUG_GUI
-	#include "common/ComSqlcmpdbg.h"
+#include "common/ComSqlcmpdbg.h"
 #endif
 
-#include "parser/SqlParserGlobals.h"		// must be last #include
+#include "parser/SqlParserGlobals.h"  // must be last #include
 
 #define DISABLE_TRIGGERS 0
 #define DISABLE_RI       0
 
 extern THREAD_P NABoolean GU_DEBUG;
 
-static const char NEWTable [] = "NEW";    // QSTUFF:  corr for embedded d/u
-static const char OLDTable [] = "OLD";    // QSTUFF:  corr for embedded d/u
+static const char NEWTable[] = "NEW";  // QSTUFF:  corr for embedded d/u
+static const char OLDTable[] = "OLD";  // QSTUFF:  corr for embedded d/u
 
 /*******************************************************************************
 ****  Independant Utility Functions
@@ -80,18 +80,18 @@ static const char OLDTable [] = "OLD";    // QSTUFF:  corr for embedded d/u
 //////////////////////////////////////////////////////////////////////////////
 // Create a CorrName to the temp table from the subject table name.
 //////////////////////////////////////////////////////////////////////////////
-/*static CorrName *calcTempTableName(const CorrName &theTable, CollHeap *heap) 
+/*static CorrName *calcTempTableName(const CorrName &theTable, CollHeap *heap)
 {
   const QualifiedName &tableName = theTable.getQualifiedNameObj();
 
-  CorrName *result = new(heap) 
+  CorrName *result = new(heap)
     CorrName(subjectNameToTrigTemp(tableName.getObjectName()),
-	     heap,
-	     tableName.getSchemaName(),
-	     tableName.getCatalogName());
+             heap,
+             tableName.getSchemaName(),
+             tableName.getCatalogName());
 
   // Specify the trigger temporary table namespace.
-  result->setSpecialType(ExtendedQualName::TRIGTEMP_TABLE); 
+  result->setSpecialType(ExtendedQualName::TRIGTEMP_TABLE);
   return result;
 }
 
@@ -102,14 +102,14 @@ static NABoolean isNewCol(const NAString& colName)
 {
   if (colName.length() < sizeof(NEW_COLUMN_PREFIX))
     return FALSE;
-  
+
   return (colName(0,sizeof(NEW_COLUMN_PREFIX)-1) == NEW_COLUMN_PREFIX);
 }
 
 //////////////////////////////////////////////////////////////////////////////
 // Does this column name start with OLD_COLUMN_PREFIX?
 //////////////////////////////////////////////////////////////////////////////
-static NABoolean isOldCol(const NAString& colName) 
+static NABoolean isOldCol(const NAString& colName)
 {
   if (colName.length() < sizeof(OLD_COLUMN_PREFIX))
     return FALSE;
@@ -125,10 +125,10 @@ static void FixTempColName(NAString *colName)
   CMPASSERT (sizeof(OLD_COLUMN_PREFIX) == sizeof(NEW_COLUMN_PREFIX));
 
   colName->remove(0,sizeof(OLD_COLUMN_PREFIX)-1); // remove the prefix
-} 
+}
 
 //////////////////////////////////////////////////////////////////////////////
-// Does this column name from the temp table contain the @ sign? 
+// Does this column name from the temp table contain the @ sign?
 // If so  - it must be either a NEW@ or an OLD@ column.
 // If not - it must be part of either the primary or clustering keys.
 //////////////////////////////////////////////////////////////////////////////
@@ -142,14 +142,13 @@ static NABoolean isSingleCopyColumn(const NAString& colName)
 // Creates a Cast ItemExpr around the parameter, so it stays the same but
 // gets a new ValueId.
 //////////////////////////////////////////////////////////////////////////////
-static ValueId wrapWithCastExpr(BindWA *bindWA, ValueId col, CollHeap *heap)
-{
-  ItemExpr *expr = col.getItemExpr(); 
-  ItemExpr *cast = new(heap) Cast(expr, col.getType().newCopy(heap));
+static ValueId wrapWithCastExpr(BindWA *bindWA, ValueId col, CollHeap *heap) {
+  ItemExpr *expr = col.getItemExpr();
+  ItemExpr *cast = new (heap) Cast(expr, col.getType().newCopy(heap));
   cast->bindNode(bindWA);
   return cast->getValueId();
 }
-    
+
 /*****************************************************************************
 ******************************************************************************
 ****  Inlining functions of classes other than GenericUpdate
@@ -160,17 +159,15 @@ static ValueId wrapWithCastExpr(BindWA *bindWA, ValueId col, CollHeap *heap)
 // Is this CorrName using a name of a trigger transition table (from the
 // REFERENCING clause)?
 // Find if we are in the scope of a trigger action, and if the names match.
-// onlyNew has a default value of FALSE, which is overridden only for DDL 
+// onlyNew has a default value of FALSE, which is overridden only for DDL
 // semantic checks of before triggers.
 //////////////////////////////////////////////////////////////////////////////
-NABoolean CorrName::isATriggerTransitionName(BindWA *bindWA, NABoolean onlyNew) const
-{
+NABoolean CorrName::isATriggerTransitionName(BindWA *bindWA, NABoolean onlyNew) const {
   BindScope *scope = bindWA->findNextScopeWithTriggerInfo();
 
-  if ((scope==NULL) || (scope->context()->triggerObj() == NULL))
-    return FALSE;
+  if ((scope == NULL) || (scope->context()->triggerObj() == NULL)) return FALSE;
 
-  const NAString& objName = getQualifiedNameObj().getObjectName();
+  const NAString &objName = getQualifiedNameObj().getObjectName();
   if (onlyNew)
     return scope->context()->triggerObj()->isNewTransitionName(objName);
   else
@@ -180,21 +177,18 @@ NABoolean CorrName::isATriggerTransitionName(BindWA *bindWA, NABoolean onlyNew) 
 //////////////////////////////////////////////////////////////////////////////
 // This is a Scan on a temp table inside the action of a statement trigger.
 // Add the uniqifier WHERE expression for it.
-// Put a RelRoot node with a select list on top of it, to select only the 
+// Put a RelRoot node with a select list on top of it, to select only the
 // needed columns. Above the RelRoot, put a RenameTable node to change the
 // scanned temp-table to the corrlation name used in the trigger action.
 //////////////////////////////////////////////////////////////////////////////
-RelExpr *Scan::buildTriggerTransitionTableView(BindWA *bindWA)
-{
+RelExpr *Scan::buildTriggerTransitionTableView(BindWA *bindWA) {
   BindScope *scope = bindWA->findNextScopeWithTriggerInfo();
 
-  CMPASSERT((scope!=NULL) && (scope->context()->triggerObj() != NULL));
+  CMPASSERT((scope != NULL) && (scope->context()->triggerObj() != NULL));
 
-  StmtDDLCreateTrigger *createTriggerNode = 
-    scope->context()->triggerObj();
+  StmtDDLCreateTrigger *createTriggerNode = scope->context()->triggerObj();
 
-  if (!createTriggerNode->isStatement())
-  {
+  if (!createTriggerNode->isStatement()) {
     // 11019 Only statement triggers can select from the transition table.
     *CmpCommon::diags() << DgSqlCode(-11019);
     bindWA->setErrStatus();
@@ -202,28 +196,24 @@ RelExpr *Scan::buildTriggerTransitionTableView(BindWA *bindWA)
   }
 
   // The transition table name must not have catalog/schema.
-  QualifiedName& objName = userTableName_.getQualifiedNameObj();
-  if  (objName.getSchemaName() != "")
-  {
+  QualifiedName &objName = userTableName_.getQualifiedNameObj();
+  if (objName.getSchemaName() != "") {
     // *** 4057 Correlation name MYNEW conflicts with qualified identifier of table CAT.SCHM.MYNEW.
-    *CmpCommon::diags() << DgSqlCode(-4057)
-	<< DgString0(objName.getObjectName())
-	<< DgTableName(objName.getQualifiedNameAsAnsiString());
+    *CmpCommon::diags() << DgSqlCode(-4057) << DgString0(objName.getObjectName())
+                        << DgTableName(objName.getQualifiedNameAsAnsiString());
     bindWA->setErrStatus();
     return this;
   }
 
-  if (bindWA->inDDL())
-  {
+  if (bindWA->inDDL()) {
     // This bind is for DDL semantic checks during a CREATE TRIGGER statement.
     // When the first trigger is created, the temp table does not yet exist,
     // so we replace the scan on the temp table by a scan on the subject
     // table. This is actually simpler since the column names stay the same.
 
-    // Set the name of the table to be scanned to be the fully qualified 
+    // Set the name of the table to be scanned to be the fully qualified
     // subject table.
-    if (userTableName_.getCorrNameAsString() == "")
-      userTableName_.setCorrName(objName.getObjectName());
+    if (userTableName_.getCorrNameAsString() == "") userTableName_.setCorrName(objName.getObjectName());
     objName = createTriggerNode->getTableNameObject();
 
     // Don't fix the name in the LocList.
@@ -234,32 +224,26 @@ RelExpr *Scan::buildTriggerTransitionTableView(BindWA *bindWA)
     bindWA->getCurrentScope()->context()->inRIConstraint() = TRUE;
 
     RelExpr *boundNode = bindNode(bindWA);
-    if (bindWA->errStatus()) 
-      return this;
+    if (bindWA->errStatus()) return this;
 
-    // Remove the SYSKEY column from the current RETDesc. It is illegal 
+    // Remove the SYSKEY column from the current RETDesc. It is illegal
     // for a trigger action to select the SYSKEY from the transition table.
     ColRefName syskeyName("SYSKEY");
-    bindWA->getCurrentScope()->getRETDesc()->delColumn(bindWA, syskeyName, SYSTEM_COLUMN);	
+    bindWA->getCurrentScope()->getRETDesc()->delColumn(bindWA, syskeyName, SYSTEM_COLUMN);
 
     // Restore the previous BindWA state.
     bindWA->getCurrentScope()->context()->inRIConstraint() = inRIFlag;
 
     return boundNode;
-  }
-  else
-  {
+  } else {
     // OK - this is DML time - build the select list for the root and rename.
 
-    QualifiedName& thisTable = userTableName_.getQualifiedNameObj();
+    QualifiedName &thisTable = userTableName_.getQualifiedNameObj();
 
     ChangesTable::RowsType scanType;
-    if (createTriggerNode->isOldTransitionName(thisTable.getObjectName()))
-    {
+    if (createTriggerNode->isOldTransitionName(thisTable.getObjectName())) {
       scanType = ChangesTable::DELETED_ROWS;
-    }
-    else
-    {
+    } else {
       CMPASSERT(createTriggerNode->isNewTransitionName(thisTable.getObjectName()));
       scanType = ChangesTable::INSERTED_ROWS;
     }
@@ -271,7 +255,7 @@ RelExpr *Scan::buildTriggerTransitionTableView(BindWA *bindWA)
 
     RelExpr *transformedScan = tempTableObj.transformScan();
 
-    return transformedScan->bindNode(bindWA);    // Bind the result
+    return transformedScan->bindNode(bindWA);  // Bind the result
   }
 }
 
@@ -289,16 +273,11 @@ RelExpr *Scan::buildTriggerTransitionTableView(BindWA *bindWA)
 // When before triggers exist we don't consider the optimization, since the
 // values in the Tuple (TupleList) are not the actual values inserted into the
 // table (they are modified by the before trigger).
-// 
+//
 //////////////////////////////////////////////////////////////////////////////
-void Insert::insertMvToTriggerList(BeforeAndAfterTriggers *list,
-				   BindWA                 *bindWA,
-				   CollHeap               *heap,
-				   const QualifiedName    &mvName,
-				   MVInfoForDML           *mvInfo,
-				   const QualifiedName    &subjectTable,
-				   UpdateColumns          *updatedCols)
-{
+void Insert::insertMvToTriggerList(BeforeAndAfterTriggers *list, BindWA *bindWA, CollHeap *heap,
+                                   const QualifiedName &mvName, MVInfoForDML *mvInfo, const QualifiedName &subjectTable,
+                                   UpdateColumns *updatedCols) {
   CMPASSERT(getOperatorType() == REL_UNARY_INSERT);
 
   CorrName mvCorrName(mvName, heap);
@@ -306,8 +285,7 @@ void Insert::insertMvToTriggerList(BeforeAndAfterTriggers *list,
   mvCorrName.setSpecialType(ExtendedQualName::MV_TABLE);
 
   // Instansiate the apprpriate builder
-  MjvImmInsertBuilder *triggerBuilder = new(heap)
-    MjvImmInsertBuilder(mvCorrName, mvInfo, this, bindWA);
+  MjvImmInsertBuilder *triggerBuilder = new (heap) MjvImmInsertBuilder(mvCorrName, mvInfo, this, bindWA);
 
   // By default, the refresh is implemented as an after statement trigger
   ComGranularity granularity = COM_STATEMENT;
@@ -315,31 +293,21 @@ void Insert::insertMvToTriggerList(BeforeAndAfterTriggers *list,
   // If MV_AS_ROW_TRIGGER default value is ON or if we deal with insert of only
   // 1 row (i.e. the child is REL_TUPLE), generate the optimized refresh tree,
   // in which case the refresh is implemented as a row after trigger.
-  if (child(0)->getOperatorType() == REL_TUPLE ||
-      CmpCommon::getDefault(MV_AS_ROW_TRIGGER) == DF_ON)
-  {
+  if (child(0)->getOperatorType() == REL_TUPLE || CmpCommon::getDefault(MV_AS_ROW_TRIGGER) == DF_ON) {
     // build the optimized version of the tree as requested
     granularity = COM_ROW;
     triggerBuilder->optimizeForFewRows();
   }
 
   // Instansiate the MVImmediate trigger
-  MVImmediate *mvTrigger = new(heap) MVImmediate(bindWA,
-						 triggerBuilder,
-						 mvName,
-						 subjectTable,
-						 COM_INSERT,
-						 granularity,
-						 updatedCols);
+  MVImmediate *mvTrigger =
+      new (heap) MVImmediate(bindWA, triggerBuilder, mvName, subjectTable, COM_INSERT, granularity, updatedCols);
 
   // Register the trigger in the general list of triggers
 
-  if (granularity == COM_STATEMENT)
-  {
+  if (granularity == COM_STATEMENT) {
     list->addNewAfterStatementTrigger(mvTrigger);
-  }
-  else
-  {
+  } else {
     list->addNewAfterRowTrigger(mvTrigger);
   }
 }
@@ -366,97 +334,71 @@ void Insert::insertMvToTriggerList(BeforeAndAfterTriggers *list,
 //    participating in the MJV (the ones that were not changed).
 //
 //////////////////////////////////////////////////////////////////////////////
-void Update::insertMvToTriggerList(BeforeAndAfterTriggers *list,
-				   BindWA                 *bindWA,
-				   CollHeap               *heap,
-				   const QualifiedName    &mvName,
-				   MVInfoForDML           *mvInfo,
-				   const QualifiedName    &subjectTable,
-				   UpdateColumns          *updatedCols)
-{
+void Update::insertMvToTriggerList(BeforeAndAfterTriggers *list, BindWA *bindWA, CollHeap *heap,
+                                   const QualifiedName &mvName, MVInfoForDML *mvInfo, const QualifiedName &subjectTable,
+                                   UpdateColumns *updatedCols) {
   CMPASSERT(getOperatorType() == REL_UNARY_UPDATE);
 
   CorrName mvCorrName(mvName, heap);
   // The namespace is set in order to allow special update directly on the MV
   mvCorrName.setSpecialType(ExtendedQualName::MV_TABLE);
 
-  switch(checkUpdateType(mvInfo, subjectTable, updatedCols))
-  {
-  case DIRECT:
-    {
-    /////////////////////////////////////////////////////////
-    // adding a row trigger to directly update rows in the MV
-    /////////////////////////////////////////////////////////
+  switch (checkUpdateType(mvInfo, subjectTable, updatedCols)) {
+    case DIRECT: {
+      /////////////////////////////////////////////////////////
+      // adding a row trigger to directly update rows in the MV
+      /////////////////////////////////////////////////////////
 
-    // Instansiate the apprpriate builder
-    MvRefreshBuilder *triggerBuilder = new(heap)
-      MjvImmDirectUpdateBuilder(mvCorrName, mvInfo, this, bindWA);
+      // Instansiate the apprpriate builder
+      MvRefreshBuilder *triggerBuilder = new (heap) MjvImmDirectUpdateBuilder(mvCorrName, mvInfo, this, bindWA);
 
-    // Instansiate the MVImmediate trigger
-    MVImmediate *mvTrigger = new(heap) MVImmediate(bindWA,
-						   triggerBuilder,
-						   mvName,
-						   subjectTable,
-						   COM_UPDATE,
-						   COM_ROW,
-						   updatedCols);
+      // Instansiate the MVImmediate trigger
+      MVImmediate *mvTrigger =
+          new (heap) MVImmediate(bindWA, triggerBuilder, mvName, subjectTable, COM_UPDATE, COM_ROW, updatedCols);
 
-    // Register the trigger in the general list of triggers
-    list->addNewAfterRowTrigger(mvTrigger);
-    break;
+      // Register the trigger in the general list of triggers
+      list->addNewAfterRowTrigger(mvTrigger);
+      break;
     }
-  case INDIRECT:
-    {
-    ///////////////////////////////////////////////////////////////////
-    // PART I: adding a row trigger to delete updated rows from the MJV
-    ///////////////////////////////////////////////////////////////////
+    case INDIRECT: {
+      ///////////////////////////////////////////////////////////////////
+      // PART I: adding a row trigger to delete updated rows from the MJV
+      ///////////////////////////////////////////////////////////////////
 
-    // Instansiate the apprpriate builder
-    MvRefreshBuilder *rowTriggerBuilder = new(heap)
-      MjvImmDeleteBuilder(mvCorrName, mvInfo, this, bindWA);
+      // Instansiate the apprpriate builder
+      MvRefreshBuilder *rowTriggerBuilder = new (heap) MjvImmDeleteBuilder(mvCorrName, mvInfo, this, bindWA);
 
-    // Instansiate the MVImmediate trigger
-    MVImmediate *mvRowTrigger = new(heap) MVImmediate(bindWA,
-						      rowTriggerBuilder,
-						      mvName,
-						      subjectTable,
-						      COM_DELETE,
-						      COM_ROW,
-						      updatedCols);
+      // Instansiate the MVImmediate trigger
+      MVImmediate *mvRowTrigger =
+          new (heap) MVImmediate(bindWA, rowTriggerBuilder, mvName, subjectTable, COM_DELETE, COM_ROW, updatedCols);
 
-    // Register the trigger in the general list of triggers
-    list->addNewAfterRowTrigger(mvRowTrigger);
+      // Register the trigger in the general list of triggers
+      list->addNewAfterRowTrigger(mvRowTrigger);
 
-    //////////////////////////////////////////////////////////////////////////
-    // PART II: adding a statement trigger to insert the new rows into the MJV
-    //////////////////////////////////////////////////////////////////////////
+      //////////////////////////////////////////////////////////////////////////
+      // PART II: adding a statement trigger to insert the new rows into the MJV
+      //////////////////////////////////////////////////////////////////////////
 
-    // Instansiate the apprpriate builder
-    MvRefreshBuilder *stmtTriggerBuilder = new(heap)
-      MjvImmInsertBuilder(mvCorrName, mvInfo, this, bindWA);
+      // Instansiate the apprpriate builder
+      MvRefreshBuilder *stmtTriggerBuilder = new (heap) MjvImmInsertBuilder(mvCorrName, mvInfo, this, bindWA);
 
-    // Instansiate the MVImmediate trigger
-    MVImmediate *mvStmtTrigger = new(heap) MVImmediate(bindWA,
-						       stmtTriggerBuilder,
-						       mvName,
-						       subjectTable,
-						       COM_INSERT,
-						       COM_STATEMENT,
-						       updatedCols);
+      // Instansiate the MVImmediate trigger
+      MVImmediate *mvStmtTrigger = new (heap)
+          MVImmediate(bindWA, stmtTriggerBuilder, mvName, subjectTable, COM_INSERT, COM_STATEMENT, updatedCols);
 
-    // Register the trigger in the general list of triggers
-    list->addNewAfterStatementTrigger(mvStmtTrigger);
-    break;
+      // Register the trigger in the general list of triggers
+      list->addNewAfterStatementTrigger(mvStmtTrigger);
+      break;
     }
-  default:
-    break; // update is IRELEVANT - nothing to do
+    default:
+      break;  // update is IRELEVANT - nothing to do
   }
 }
 
 //////////////////////////////////////////////////////////////////////////////
 // This method checks which type of update is it:
 // IRELEVANT, DIRECT or INDIRECT.
-// 
+//
 // An update is considered as IRELEVANT until proven otherwise. The list of
 // columns of the subject table that are in use by the MJV is scanned. For
 // each column we check if it is updated in the current update operation. If
@@ -466,34 +408,27 @@ void Update::insertMvToTriggerList(BeforeAndAfterTriggers *list,
 // is stopped at once. MJV columns of type complex cause INDIRECT update also.
 //
 //////////////////////////////////////////////////////////////////////////////
-Update::MvUpdateType Update::checkUpdateType(MVInfoForDML *mvInfo,
-					     const QualifiedName &subjectTable,
-					     UpdateColumns *updatedCols) const
-{
+Update::MvUpdateType Update::checkUpdateType(MVInfoForDML *mvInfo, const QualifiedName &subjectTable,
+                                             UpdateColumns *updatedCols) const {
   MvUpdateType updateType = IRELEVANT;
-  mvInfo->initUsedObjectsHash(); // initialization for the searching
+  mvInfo->initUsedObjectsHash();  // initialization for the searching
   const MVUsedObjectInfo *mvUseInfo = mvInfo->findUsedInfoForTable(subjectTable);
-  const LIST (Lng32) &colsUsedByMv = mvUseInfo->getUsedColumnList();
-  for (CollIndex i = 0; i < colsUsedByMv.entries(); i++ )
-  {
+  const LIST(Lng32) &colsUsedByMv = mvUseInfo->getUsedColumnList();
+  for (CollIndex i = 0; i < colsUsedByMv.entries(); i++) {
     // Check whether the column was updated in the current update operation.
     // If so, this update is not IRELEVANT anymore. Otherwise, skip this column.
-    if (updatedCols->contains(colsUsedByMv[i]))
-    {
+    if (updatedCols->contains(colsUsedByMv[i])) {
       updateType = DIRECT;
-    }
-    else
-    {
+    } else {
       continue;
     }
 
     // Check whether the column is an indirect-update column in the MJV, which
     // means that updating it may not only affect the corresponding row in the
     // MJV, but also affect other rows in it.
-    if (mvUseInfo->isIndirectUpdateCol(colsUsedByMv[i]))
-    {
+    if (mvUseInfo->isIndirectUpdateCol(colsUsedByMv[i])) {
       updateType = INDIRECT;
-      break; // no further search is needed
+      break;  // no further search is needed
     }
   }
 
@@ -507,14 +442,9 @@ Update::MvUpdateType Update::checkUpdateType(MVInfoForDML *mvInfo,
 // The refresh action is implemented as a row after trigger.
 //
 //////////////////////////////////////////////////////////////////////////////
-void Delete::insertMvToTriggerList(BeforeAndAfterTriggers *list,
-				   BindWA                 *bindWA,
-				   CollHeap               *heap,
-				   const QualifiedName    &mvName,
-				   MVInfoForDML           *mvInfo,
-				   const QualifiedName    &subjectTable,
-				   UpdateColumns          *updatedCols)
-{
+void Delete::insertMvToTriggerList(BeforeAndAfterTriggers *list, BindWA *bindWA, CollHeap *heap,
+                                   const QualifiedName &mvName, MVInfoForDML *mvInfo, const QualifiedName &subjectTable,
+                                   UpdateColumns *updatedCols) {
   CMPASSERT(getOperatorType() == REL_UNARY_DELETE);
 
   CorrName mvCorrName(mvName, heap);
@@ -522,17 +452,11 @@ void Delete::insertMvToTriggerList(BeforeAndAfterTriggers *list,
   mvCorrName.setSpecialType(ExtendedQualName::MV_TABLE);
 
   // Instansiate the apprpriate builder
-  MvRefreshBuilder *triggerBuilder = new(heap)
-    MjvImmDeleteBuilder(mvCorrName, mvInfo, this, bindWA);
+  MvRefreshBuilder *triggerBuilder = new (heap) MjvImmDeleteBuilder(mvCorrName, mvInfo, this, bindWA);
 
   // Instansiate the MVImmediate trigger
-  MVImmediate *mvTrigger = new(heap) MVImmediate(bindWA,
-						 triggerBuilder,
-						 mvName,
-						 subjectTable,
-						 COM_DELETE,
-						 COM_ROW,
-						 updatedCols);
+  MVImmediate *mvTrigger =
+      new (heap) MVImmediate(bindWA, triggerBuilder, mvName, subjectTable, COM_DELETE, COM_ROW, updatedCols);
 
   // Register the trigger in the general list of triggers
   list->addNewAfterRowTrigger(mvTrigger);
@@ -544,7 +468,7 @@ void Delete::insertMvToTriggerList(BeforeAndAfterTriggers *list,
 ******************************************************************************
 *****************************************************************************/
 
-// This method was originaly called 
+// This method was originaly called
 // setRETDescForTSJTree().
 //
 // For GenericUpdate Referential Integrity, Index Maintenance and Triggers
@@ -574,27 +498,22 @@ void Delete::insertMvToTriggerList(BeforeAndAfterTriggers *list,
 // i.e. it should pass them to RefConstraint::getPredicateText().
 //
 
-RETDesc *GenericUpdate::createOldAndNewCorrelationNames(BindWA *bindWA, NABoolean createRETDescOnly)
-{
-  CMPASSERT(getOperatorType() == REL_UNARY_INSERT ||
-            getOperatorType() == REL_UNARY_UPDATE ||
-	    getOperatorType() == REL_UNARY_DELETE);
+RETDesc *GenericUpdate::createOldAndNewCorrelationNames(BindWA *bindWA, NABoolean createRETDescOnly) {
+  CMPASSERT(getOperatorType() == REL_UNARY_INSERT || getOperatorType() == REL_UNARY_UPDATE ||
+            getOperatorType() == REL_UNARY_DELETE);
 
   CMPASSERT(getRETDesc());
-  CMPASSERT(getRETDesc()->isEmpty());	
+  CMPASSERT(getRETDesc()->isEmpty());
 
   RETDesc *rd;
 
-  if (getOperatorType() != REL_UNARY_DELETE) 
-  {
+  if (getOperatorType() != REL_UNARY_DELETE) {
     // INSERT or UPDATE --
     // GenericUpdate::bindNode has previously set its TableDesc to the
     // desc whose column valueid's represent the new/source/after values.
     // Put these into a new RETDesc with columns all named "NEW@.<colname>"
     //
-    CorrName corrName(getTableDesc()->getCorrNameObj().getQualifiedNameObj(),
-	bindWA->wHeap(),
-	NEWCorr);
+    CorrName corrName(getTableDesc()->getCorrNameObj().getQualifiedNameObj(), bindWA->wHeap(), NEWCorr);
     rd = new (bindWA->wHeap()) RETDesc(bindWA, getTableDesc(), &corrName);
 
     // IM: Add all columns in rd as local reference to current scope.
@@ -603,105 +522,79 @@ RETDesc *GenericUpdate::createOldAndNewCorrelationNames(BindWA *bindWA, NABoolea
     // yes, this view can produce *all* the b.t.cols as outputs...
     //
     ValueIdList vidList;
-    rd->getValueIdList(vidList,  USER_AND_SYSTEM_COLUMNS);
-    for (CollIndex i = 0; i < vidList.entries(); i++)
-      bindWA->getCurrentScope()->addLocalRef(vidList[i]);
+    rd->getValueIdList(vidList, USER_AND_SYSTEM_COLUMNS);
+    for (CollIndex i = 0; i < vidList.entries(); i++) bindWA->getCurrentScope()->addLocalRef(vidList[i]);
 
     // ##IM:## Having done the above for local refs, oughtn't we also now
     // ##recompute inputs?
     // ##  bindWA->getCurrentScope()->mergeOuterRefs(bindWA->getCurrentScope()->getOuterRefs());
     // ##  gu->getGroupAttr()->addCharacteristicInputs(bindWA->getCurrentScope()->getOuterRefs());
-  }
-  else
-  {
+  } else {
     // DELETE -- init an empty RETDesc, and next merge in "OLD@.<col>"'s
     rd = new (bindWA->wHeap()) RETDesc(bindWA);
   }
 
-  
-  if ((getOperatorType() != REL_UNARY_INSERT) || 
-      getUpdateCKorUniqueIndexKey() ||
-      ((getOperatorType() == REL_UNARY_INSERT) &&((Insert *)this)->isMerge()) ||
-      ((getOperatorType() == REL_UNARY_INSERT) &&((Insert *)this)->xformedEffUpsert()))
-  {
+  if ((getOperatorType() != REL_UNARY_INSERT) || getUpdateCKorUniqueIndexKey() ||
+      ((getOperatorType() == REL_UNARY_INSERT) && ((Insert *)this)->isMerge()) ||
+      ((getOperatorType() == REL_UNARY_INSERT) && ((Insert *)this)->xformedEffUpsert())) {
     // DELETE or UPDATE --
     // Now merge the old/target/before valueid's (the Scan child RETDesc)
     // into this RETDesc such that these cols are all named "OLD@.<col>"
     //
-    Scan *scan ;
-    if ((getOperatorType() != REL_UNARY_INSERT) && 
-         (getOperatorType() != REL_UNARY_DELETE))
+    Scan *scan;
+    if ((getOperatorType() != REL_UNARY_INSERT) && (getOperatorType() != REL_UNARY_DELETE))
       scan = getScanNode();
-    else 
-      scan = getLeftmostScanNode();
-   
-    if ((getOperatorType() == REL_UNARY_INSERT) &&((Insert *)this)->xformedEffUpsert())
-      {
-	RelSequence *olapChild = getOlapChild();
-	CorrName corrName(getTableDesc()->getCorrNameObj().getQualifiedNameObj(), 
-			  bindWA->wHeap(),
-			  OLDCorr);
-
-	for (short i = 0; i< olapChild->getRETDesc()->getDegree();i++)
-	  {
-	    // we remembered if the original columns was from the right side of
-	    // this olap node so add those to the RetDesc since those are the 
-	    //ones we want to delete from the dependent indexes.
-	    if ((olapChild->getRETDesc()->getValueId(i)).getItemExpr()->origOpType() == ITM_INSTANTIATE_NULL)
-	      {		    
-		rd->addColumn(bindWA, 
-			      ColRefName(olapChild->getRETDesc()->getColRefNameObj(i).getColName(), corrName),
-			      olapChild->getRETDesc()->getValueId(i),
-			      USER_COLUMN,
-			      olapChild->getRETDesc()->getHeading(i));
-		    
-	      }	    
-	  }
-	rd->addColumns(bindWA, *olapChild->getRETDesc()->getSystemColumnList(),  SYSTEM_COLUMN,&corrName);
-	
-
-      }	
-    
     else
-      {
-	CMPASSERT(scan);
-	CorrName corrName(scan->getTableDesc()->getCorrNameObj().getQualifiedNameObj(), 
-			  bindWA->wHeap(),
-			  OLDCorr);
+      scan = getLeftmostScanNode();
 
-	rd->addColumns(bindWA, *scan->getRETDesc(), &corrName);
+    if ((getOperatorType() == REL_UNARY_INSERT) && ((Insert *)this)->xformedEffUpsert()) {
+      RelSequence *olapChild = getOlapChild();
+      CorrName corrName(getTableDesc()->getCorrNameObj().getQualifiedNameObj(), bindWA->wHeap(), OLDCorr);
+
+      for (short i = 0; i < olapChild->getRETDesc()->getDegree(); i++) {
+        // we remembered if the original columns was from the right side of
+        // this olap node so add those to the RetDesc since those are the
+        // ones we want to delete from the dependent indexes.
+        if ((olapChild->getRETDesc()->getValueId(i)).getItemExpr()->origOpType() == ITM_INSTANTIATE_NULL) {
+          rd->addColumn(bindWA, ColRefName(olapChild->getRETDesc()->getColRefNameObj(i).getColName(), corrName),
+                        olapChild->getRETDesc()->getValueId(i), USER_COLUMN, olapChild->getRETDesc()->getHeading(i));
+        }
       }
-  }
-   
+      rd->addColumns(bindWA, *olapChild->getRETDesc()->getSystemColumnList(), SYSTEM_COLUMN, &corrName);
 
-  Set_SqlParser_Flags(ALLOW_FUNNY_IDENTIFIER);	// allow "@" processing
-  Set_SqlParser_Flags(DELAYED_RESET); // allow multiple parser calls.
+    }
+
+    else {
+      CMPASSERT(scan);
+      CorrName corrName(scan->getTableDesc()->getCorrNameObj().getQualifiedNameObj(), bindWA->wHeap(), OLDCorr);
+
+      rd->addColumns(bindWA, *scan->getRETDesc(), &corrName);
+    }
+  }
+
+  Set_SqlParser_Flags(ALLOW_FUNNY_IDENTIFIER);  // allow "@" processing
+  Set_SqlParser_Flags(DELAYED_RESET);           // allow multiple parser calls.
 
   CMPASSERT(!rd->isEmpty());
 
   // we only need the RETDesc to use it later for the transformation. Don't change the
   // RETDesc of the current operator or the current bind scope.
-  if (!createRETDescOnly)
-  {
-    delete getRETDesc();			// safe because empty
+  if (!createRETDescOnly) {
+    delete getRETDesc();  // safe because empty
     setRETDesc(rd);
     bindWA->getCurrentScope()->setRETDesc(rd);
   }
 
   return rd;
 
-} // GenericUpdate::createOldAndNewCorrelationNames()
+}  // GenericUpdate::createOldAndNewCorrelationNames()
 
 //////////////////////////////////////////////////////////////////////////////
 // Add a virtual column to the RETDesc of this GenericUpdate node.
 // Currently used for the Unique Execute ID column (before triggers),
 // and for MV logging: the current Epoch, row type and row count.
 //////////////////////////////////////////////////////////////////////////////
-ValueId GenericUpdate::addVirtualColumn(BindWA     *bindWA, 
-				        ItemExpr   *colExpr, 
-				        const char *colName,
-				        CollHeap   *heap)
-{
+ValueId GenericUpdate::addVirtualColumn(BindWA *bindWA, ItemExpr *colExpr, const char *colName, CollHeap *heap) {
   RETDesc *retDesc = getRETDesc();
 
   colExpr->bindNode(bindWA);
@@ -720,93 +613,71 @@ ValueId GenericUpdate::addVirtualColumn(BindWA     *bindWA,
 //               |
 //             LeafInsert
 //////////////////////////////////////////////////////////////////////////////
-RelExpr *GenericUpdate::inlineTempInsert(RelExpr  *topNode, 
-					 BindWA   *bindWA, 
-					 TriggersTempTable& tempTableObj, 
-					 NABoolean isDrivenByBeforeTriggers, 
-					 NABoolean isTopMostTSJ,
-					 CollHeap *heap)
-{
+RelExpr *GenericUpdate::inlineTempInsert(RelExpr *topNode, BindWA *bindWA, TriggersTempTable &tempTableObj,
+                                         NABoolean isDrivenByBeforeTriggers, NABoolean isTopMostTSJ, CollHeap *heap) {
   // The new top node should be a left TSJ for after triggers,
   // and a normal TSJ for before triggers.
-  OperatorTypeEnum JoinType = 
-    (  (isDrivenByBeforeTriggers || isTopMostTSJ)
-       ? REL_TSJ
-       : REL_LEFT_TSJ);
-  
-  if (isDrivenByBeforeTriggers)
-    tempTableObj.setBeforeTriggersExist();
+  OperatorTypeEnum JoinType = ((isDrivenByBeforeTriggers || isTopMostTSJ) ? REL_TSJ : REL_LEFT_TSJ);
+
+  if (isDrivenByBeforeTriggers) tempTableObj.setBeforeTriggersExist();
 
   RelExpr *insertNode = tempTableObj.buildInsert(!isDrivenByBeforeTriggers);
-  if (bindWA->errStatus()) 
-    return NULL;
+  if (bindWA->errStatus()) return NULL;
 
   RelRoot *rootNode = new (heap) RelRoot(insertNode);
   rootNode->setRootFlag(FALSE);
   rootNode->setEmptySelectList();
 
-  topNode = new(heap) Join(topNode, rootNode, JoinType);
-  topNode->getInliningInfo().setFlags(II_DrivingTempInsert | 
-                                      II_SingleExecutionForTriggersTSJ |
-				      II_AccessSetNeeded);
+  topNode = new (heap) Join(topNode, rootNode, JoinType);
+  topNode->getInliningInfo().setFlags(II_DrivingTempInsert | II_SingleExecutionForTriggersTSJ | II_AccessSetNeeded);
   // Indicate to the Normalizer that this TSJ cannot be optimized away,
-  // and that if the write operation is implemented via a cursor then 
+  // and that if the write operation is implemented via a cursor then
   // it cannot be a "flow" cursor operation - i.e. it cannot utilize
   // a TSJFlow node.
   // Genesis case #10-990116-7164
   ((Join *)topNode)->setTSJForWrite(TRUE);
-  if (bindWA->getHostArraysArea() && bindWA->getHostArraysArea()->getTolerateNonFatalError())
-    {
-      ((Join *)topNode)->setTolerateNonFatalError(RelExpr::NOT_ATOMIC_);
-      ((Join *)topNode)->setTSJForSetNFError(TRUE);
-    }
+  if (bindWA->getHostArraysArea() && bindWA->getHostArraysArea()->getTolerateNonFatalError()) {
+    ((Join *)topNode)->setTolerateNonFatalError(RelExpr::NOT_ATOMIC_);
+    ((Join *)topNode)->setTSJForSetNFError(TRUE);
+  }
   return topNode;
 }
 
 //////////////////////////////////////////////////////////////////////////////
 // Do we need Index Maintenance on this GenericUpdate node?
-// We do if there are indexes except the clustering index. In case this is 
-// an Update, at least one such index must match ant of the columns actually 
+// We do if there are indexes except the clustering index. In case this is
+// an Update, at least one such index must match ant of the columns actually
 // being updated.
 //////////////////////////////////////////////////////////////////////////////
-NABoolean GenericUpdate::isIMNeeded(UpdateColumns *updatedColumns)
-{
+NABoolean GenericUpdate::isIMNeeded(UpdateColumns *updatedColumns) {
   NABoolean imNeeded = FALSE;
 
-  if (!getTableDesc()->hasSecondaryIndexes()) 
-    return FALSE;
+  if (!getTableDesc()->hasSecondaryIndexes()) return FALSE;
 
   const LIST(IndexDesc *) indexList = getTableDesc()->getIndexes();
-  for (CollIndex i=0; (i<indexList.entries()) && !imNeeded; i++) 
-  {
+  for (CollIndex i = 0; (i < indexList.entries()) && !imNeeded; i++) {
     IndexDesc *index = indexList[i];
 
     // The base table itself is an index (the clustering index);
     // obviously IM need not deal with it.
-    if (index->isClusteringIndex())
-      continue;
- 
+    if (index->isClusteringIndex()) continue;
+
     // An index always needs maintenance on an Insert or Delete...
-    if(((getOperatorType() != REL_UNARY_UPDATE) && 
-	(!transformedUpdateNoDtmXn())) ||
-        (isMerge()))
+    if (((getOperatorType() != REL_UNARY_UPDATE) && (!transformedUpdateNoDtmXn())) || (isMerge()))
       imNeeded = TRUE;
-    else
-    {
+    else {
       // This is Update - check if columns match.
-      CMPASSERT(updatedColumns!=NULL);
+      CMPASSERT(updatedColumns != NULL);
       const ValueIdList &indexColumns = index->getIndexColumns();
-      for (CollIndex j=0; j < indexColumns.entries() && !imNeeded; j++)
-      {
-	Lng32 indexCol = indexColumns[j].getNAColumn()->getPosition();
-	if (updatedColumns->contains(indexCol))
-	{
-	  imNeeded = TRUE;
-	  break;
-	}
-      } // for k
-    } // else
-  } // for j
+      for (CollIndex j = 0; j < indexColumns.entries() && !imNeeded; j++) {
+        Lng32 indexCol = indexColumns[j].getNAColumn()->getPosition();
+        if (updatedColumns->contains(indexCol)) {
+          imNeeded = TRUE;
+          break;
+        }
+      }  // for k
+    }    // else
+  }      // for j
 
   return imNeeded;
 }
@@ -819,33 +690,22 @@ NABoolean GenericUpdate::isIMNeeded(UpdateColumns *updatedColumns)
 //         /   \
 //   topNode    IM
 //////////////////////////////////////////////////////////////////////////////
-RelExpr *GenericUpdate::inlineIM(RelExpr   *topNode, 
-				 BindWA    *bindWA, 
-				 NABoolean isLastTSJ,
-				 UpdateColumns *updatedColumns,
-				 CollHeap  *heap,
-				 NABoolean useInternalSyskey,
-				 NABoolean rowTriggersPresents)
-{
+RelExpr *GenericUpdate::inlineIM(RelExpr *topNode, BindWA *bindWA, NABoolean isLastTSJ, UpdateColumns *updatedColumns,
+                                 CollHeap *heap, NABoolean useInternalSyskey, NABoolean rowTriggersPresents) {
   // Create the tree that handles Index Maintainance.
   RelExpr *imTree = createIMTree(bindWA, updatedColumns, useInternalSyskey);
 
   // If no IM tree was created than we have a bug!
   CMPASSERT(imTree != NULL);
 
-  if (bindWA->isTrafLoadPrep())
-    return imTree;
+  if (bindWA->isTrafLoadPrep()) return imTree;
 
   // Drive IM and RI trees using a TSJ on top of the GenericUpdate node.
-  topNode = new(bindWA->wHeap()) 
-    Join(topNode, 
-	 imTree, 
-	 (isLastTSJ ? REL_TSJ : REL_LEFT_TSJ));
+  topNode = new (bindWA->wHeap()) Join(topNode, imTree, (isLastTSJ ? REL_TSJ : REL_LEFT_TSJ));
   topNode->getInliningInfo().setFlags(II_DrivingIM | II_AccessSetNeeded);
-  if (rowTriggersPresents)
-     topNode->getInliningInfo().setFlags(II_SingleExecutionForTriggersTSJ);
+  if (rowTriggersPresents) topNode->getInliningInfo().setFlags(II_SingleExecutionForTriggersTSJ);
   // Indicate to the Normalizer that this TSJ cannot be optimized away,
-  // and that if the write operation is implemented via a cursor then 
+  // and that if the write operation is implemented via a cursor then
   // it cannot be a "flow" cursor operation - i.e. it cannot utilize
   // a TSJFlow node.
   // Genesis case #10-990116-7164
@@ -865,100 +725,84 @@ RelExpr *GenericUpdate::inlineIM(RelExpr   *topNode,
 // GetTriggerStatus       TriggerIndex
 //
 //////////////////////////////////////////////////////////////////////////////
-static ItemExpr *addCheckForTriggerEnabled(BindWA    *bindWA,
-					   ItemExpr  *whenClause, 
-					   Trigger   *triggerObj,
-					   CollHeap  *heap)
-{
+static ItemExpr *addCheckForTriggerEnabled(BindWA *bindWA, ItemExpr *whenClause, Trigger *triggerObj, CollHeap *heap) {
   // Register the trigger timestamp in the list managed by bindWA. The
   // returned value is the index into the trigger array for this RelExpr
   CollIndex triggerIndex = bindWA->addTrigger(triggerObj->getTimeStamp());
 
   CollIndex MaxTriggersPerStatement = MAX_TRIGGERS_PER_STATEMENT;
-  
+
 // debugging for coverage
 #ifndef NDEBUG
-  char* env = getenv("TESTING_MAX_TRIGGERS_PER_STATEMENT");
-  if (env)
-  {
-     MaxTriggersPerStatement = atol(env);
+  char *env = getenv("TESTING_MAX_TRIGGERS_PER_STATEMENT");
+  if (env) {
+    MaxTriggersPerStatement = atol(env);
   }
 #endif
 
-  if (triggerIndex >= MaxTriggersPerStatement)
-  {
+  if (triggerIndex >= MaxTriggersPerStatement) {
     // There are more than 256 triggers in this statement
     *CmpCommon::diags() << DgSqlCode(-11001);
     bindWA->setErrStatus();
     return NULL;
   }
 
-  ItemExpr *enableCheck = new(heap) 
-    GetBitValueAt(new(heap) GetTriggersStatus(), 
-		  new(heap) ConstValue(triggerIndex) );
+  ItemExpr *enableCheck = new (heap) GetBitValueAt(new (heap) GetTriggersStatus(), new (heap) ConstValue(triggerIndex));
 
   // Check if whenClause is empty or TRUE
   if (whenClause == NULL || whenClause->getOperatorType() == ITM_RETURN_TRUE)
     return enableCheck;
   else {
-
     /*
-    * for proper typing and transformation use correct AND subtree as follows:
-    * (AND (AND (NOT_NULL GBVA) (NOT_EQUALS GBVA 0)) whenClause)
-    * Here enableCheck is GBVA (GetBitValueAt) 
-    */
+     * for proper typing and transformation use correct AND subtree as follows:
+     * (AND (AND (NOT_NULL GBVA) (NOT_EQUALS GBVA 0)) whenClause)
+     * Here enableCheck is GBVA (GetBitValueAt)
+     */
 
-    ItemExpr *notNullNode = new(heap) UnLogic (ITM_IS_NOT_NULL, enableCheck);
-    
-    ItemExpr *constZeroNode = new(heap) ConstValue(0);
-    
-    ItemExpr *notZeroNode = new(heap) BiRelat(ITM_NOT_EQUAL, enableCheck, constZeroNode);
+    ItemExpr *notNullNode = new (heap) UnLogic(ITM_IS_NOT_NULL, enableCheck);
 
-    enableCheck = new(heap) BiLogic(ITM_AND, notNullNode, notZeroNode);
-    
-    return new(heap) BiLogic(ITM_AND, enableCheck, whenClause);
+    ItemExpr *constZeroNode = new (heap) ConstValue(0);
+
+    ItemExpr *notZeroNode = new (heap) BiRelat(ITM_NOT_EQUAL, enableCheck, constZeroNode);
+
+    enableCheck = new (heap) BiLogic(ITM_AND, notNullNode, notZeroNode);
+
+    return new (heap) BiLogic(ITM_AND, enableCheck, whenClause);
   }
 }
 
-
 // auxiliary function that reutrns an expression that wraps a RaiseError
 // built-in function.
-static ItemExpr *addTrigActionExcept (Trigger *trigObj, CollHeap *heap)
-{
-  ItemExpr *trigActionExceptExprPred =
-     new (heap) RaiseError(ComDiags_TrigActionExceptionSQLCODE, 
-                   trigObj->getTriggerName(),
-                   trigObj->getSubjectTableName());
- 
+static ItemExpr *addTrigActionExcept(Trigger *trigObj, CollHeap *heap) {
+  ItemExpr *trigActionExceptExprPred = new (heap)
+      RaiseError(ComDiags_TrigActionExceptionSQLCODE, trigObj->getTriggerName(), trigObj->getSubjectTableName());
+
   return trigActionExceptExprPred;
 }
 
 //////////////////////////////////////////////////////////////////////////////
-// This function is only called for row triggers. Look for all update 
+// This function is only called for row triggers. Look for all update
 // nodes in the action of the trigger and flag them as being in the action
 // of a row trigger
 //////////////////////////////////////////////////////////////////////////////
-static void flagUpdateAsRowTrigger(RelExpr  *topNode)
-{
-   if (topNode)
-   {
-      if (topNode->getOperatorType() == REL_UNARY_UPDATE)
-      {
-         topNode->getInliningInfo().setFlags(II_InActionOfRowTrigger);
-      }
+static void flagUpdateAsRowTrigger(RelExpr *topNode) {
+  if (topNode) {
+    if (topNode->getOperatorType() == REL_UNARY_UPDATE) {
+      topNode->getInliningInfo().setFlags(II_InActionOfRowTrigger);
+    }
 
-      flagUpdateAsRowTrigger((RelExpr *)topNode->child(0));
-      flagUpdateAsRowTrigger((RelExpr *)topNode->child(1));
-   }
+    flagUpdateAsRowTrigger((RelExpr *)topNode->child(0));
+    flagUpdateAsRowTrigger((RelExpr *)topNode->child(1));
+  }
 }
 
 //////////////////////////////////////////////////////////////////////////////
-// Statement triggers are blocked by an ordered union node, but then 
+// Statement triggers are blocked by an ordered union node, but then
 // driven to execute in parallel, by connecting them using a left linear tree
 // of union nodes. Row triggers are similarly attached to each other, but are
 // connected to the trigger backbone as part of the "Pipelined actions".
 // The result looks like this for three triggers:
-// The trigger transformation code expects this trigger group to be 
+// The trigger transformation code expects this trigger group to be
 // in a left linear tree structure.
 //
 // Statement triggers:        Row triggers:
@@ -970,95 +814,70 @@ static void flagUpdateAsRowTrigger(RelExpr  *topNode)
 //          / \                 / \
 //        ST1  ST2            RT1  RT2
 //////////////////////////////////////////////////////////////////////////////
-static RelExpr *inlineTriggerGroup(RelExpr	     *topNode, 
-				   const TriggerList *triggers, 
-				   NABoolean	     isRow, 
-				   CollHeap	     *heap,
-				   BindWA	     *bindWA)
-{
+static RelExpr *inlineTriggerGroup(RelExpr *topNode, const TriggerList *triggers, NABoolean isRow, CollHeap *heap,
+                                   BindWA *bindWA) {
   RelExpr *topUnion = NULL;
 
-  if ((triggers == NULL) || (triggers->entries() == 0))
-    return topNode;
+  if ((triggers == NULL) || (triggers->entries() == 0)) return topNode;
 
   // Now do the rest, and connect them with Union nodes.
-  for (CollIndex i=0; i<triggers->entries(); i++)
-  {
+  for (CollIndex i = 0; i < triggers->entries(); i++) {
     // Get the Trigger object.
-    Trigger *current = (*triggers)[i]; 
+    Trigger *current = (*triggers)[i];
     // Get the trigger action tree.
     RelExpr *triggerTree = current->getParsedTrigger(bindWA);
-    if (bindWA->errStatus())
-      return NULL;
+    if (bindWA->errStatus()) return NULL;
 
     triggerTree->getInliningInfo().setFlags(II_TriggerRoot);
     triggerTree->getInliningInfo().setTriggerObject(current);
 
     // The check whether the trigger is enabled is applicable only for regular
     // triggers. ON STATEMENT MVs (MVImmediate triggers) are always enabled.
-    if ( !(current->isMVImmediate()) )
-    {
-      Union *triggerRoot = (Union *)triggerTree->getChild(0);  // Get past the RelRoot
-      if (isRow)
-        triggerRoot = (Union *)triggerRoot->getChild(0); // Get past the RenameReference
-      if (triggerRoot != NULL && triggerRoot->getOperatorType() == REL_UNION)
-      {
+    if (!(current->isMVImmediate())) {
+      Union *triggerRoot = (Union *)triggerTree->getChild(0);      // Get past the RelRoot
+      if (isRow) triggerRoot = (Union *)triggerRoot->getChild(0);  // Get past the RenameReference
+      if (triggerRoot != NULL && triggerRoot->getOperatorType() == REL_UNION) {
         // mark the update nodes as being in the action of a row trigger
-        // so IM can be set appropriately of this case to avoid a data 
+        // so IM can be set appropriately of this case to avoid a data
         // corruption - refer to method createIMNodes for more info on this issue
         flagUpdateAsRowTrigger((RelExpr *)triggerRoot->getChild(0));
         ItemExpr *whenClause = triggerRoot->removeCondExprTree();
-        triggerRoot->addCondExprTree(
-	  addCheckForTriggerEnabled(bindWA, whenClause, current, heap));
-        triggerRoot->addTrigExceptExprTree(
-	  addTrigActionExcept(current, heap));
+        triggerRoot->addCondExprTree(addCheckForTriggerEnabled(bindWA, whenClause, current, heap));
+        triggerRoot->addTrigExceptExprTree(addTrigActionExcept(current, heap));
 
-	// if we are in a not atomic statement, set a flag in the unary_union node
-	// this flag will passed to the executor through the union tdb. During execution
-	// if condExpr() evaluates to truw and this flag is set, then error -30029 is raised.
-	if (bindWA->getHostArraysArea() && 
-	      bindWA->getHostArraysArea()->getTolerateNonFatalError()) 
-	{
-	  triggerRoot->setInNotAtomicStatement();
-	}
+        // if we are in a not atomic statement, set a flag in the unary_union node
+        // this flag will passed to the executor through the union tdb. During execution
+        // if condExpr() evaluates to truw and this flag is set, then error -30029 is raised.
+        if (bindWA->getHostArraysArea() && bindWA->getHostArraysArea()->getTolerateNonFatalError()) {
+          triggerRoot->setInNotAtomicStatement();
+        }
       }
     }
 
-    if (i == 0) // topUnion is still NULL?
+    if (i == 0)  // topUnion is still NULL?
       topUnion = triggerTree;
-    else
-    {
-      topUnion = new(heap) Union(topUnion, triggerTree, NULL, NULL, REL_UNION, 
-                                 CmpCommon::statementHeap(), TRUE);
+    else {
+      topUnion = new (heap) Union(topUnion, triggerTree, NULL, NULL, REL_UNION, CmpCommon::statementHeap(), TRUE);
 
-      if (bindWA->getHostArraysArea() && 
-        bindWA->getHostArraysArea()->getTolerateNonFatalError()) 
-      {
-	((Union *)topUnion)->setInNotAtomicStatement();
+      if (bindWA->getHostArraysArea() && bindWA->getHostArraysArea()->getTolerateNonFatalError()) {
+        ((Union *)topUnion)->setInNotAtomicStatement();
       }
-
     }
 
     topUnion->getInliningInfo().setFlags(II_AccessSetNeeded);
-
   }
 
-  if (isRow) 
+  if (isRow)
     return topUnion;
-  else 
-  {
-    Union *newOU = new(heap) Union(topNode, topUnion, NULL, NULL, REL_UNION,
-                                   CmpCommon::statementHeap(), TRUE);
+  else {
+    Union *newOU = new (heap) Union(topNode, topUnion, NULL, NULL, REL_UNION, CmpCommon::statementHeap(), TRUE);
     newOU->setOrderedUnion();
     newOU->setNoOutputs();
-    newOU->getInliningInfo().setFlags(II_DrivingStatementTrigger | 
- 				      II_AccessSetNeeded);
+    newOU->getInliningInfo().setFlags(II_DrivingStatementTrigger | II_AccessSetNeeded);
 
-    if (bindWA->getHostArraysArea() && 
-        bindWA->getHostArraysArea()->getTolerateNonFatalError()) 
-      {
-	newOU->setInNotAtomicStatement();
-      }
+    if (bindWA->getHostArraysArea() && bindWA->getHostArraysArea()->getTolerateNonFatalError()) {
+      newOU->setInNotAtomicStatement();
+    }
     return newOU;
   }
 }
@@ -1068,9 +887,8 @@ static RelExpr *inlineTriggerGroup(RelExpr	     *topNode,
 // (RI or row triggers), in order to maintain a regular tree.
 // Such dummy statements are later removed by the trigger transformation code.
 //////////////////////////////////////////////////////////////////////////////
-static RelExpr *createDummyStatement(CollHeap *heap)
-{
-  Tuple *tupleNode = new(heap) Tuple(new(heap) ConstValue(0));
+static RelExpr *createDummyStatement(CollHeap *heap) {
+  Tuple *tupleNode = new (heap) Tuple(new (heap) ConstValue(0));
   tupleNode->getInliningInfo().setFlags(II_DummyStatement);
 
   RelRoot *result = new RelRoot(tupleNode);
@@ -1079,13 +897,12 @@ static RelExpr *createDummyStatement(CollHeap *heap)
   return result;
 }
 
-
 //////////////////////////////////////////////////////////////////////////////
 // Inline the pipelined actions: RI and row triggers.
 // The root node above the TSJ has an empty select-list, so that the Union
 // node above it will accept it as compatible with it's other child. It also
-// will not open a new BindScope when bound, so that when the binding will 
-// reach the already bound 'this' node - it will be in the same scope. This 
+// will not open a new BindScope when bound, so that when the binding will
+// reach the already bound 'this' node - it will be in the same scope. This
 // avoids problems when calculating inputs.
 //
 // The resulting tree looks like this:
@@ -1097,87 +914,70 @@ static RelExpr *createDummyStatement(CollHeap *heap)
 //            / \
 //          RI   Row
 //               Triggers
-////////////////////////////////////////////////////////////////////////////// 
-RelExpr *GenericUpdate::inlinePipelinedActions(RelExpr *topNode, 
-					       BindWA *bindWA, 
-					       TriggerList *rowTriggers, 
-					       RefConstraintList *riList,
-					       CollHeap *heap)
-{
-  RelExpr *resultTree=topNode;
-  
-  if ((rowTriggers != NULL) || (riList != NULL))
-  {
-    RelExpr *rowTriggersTree=NULL;
-    RelExpr *riTree=NULL;
-    
+//////////////////////////////////////////////////////////////////////////////
+RelExpr *GenericUpdate::inlinePipelinedActions(RelExpr *topNode, BindWA *bindWA, TriggerList *rowTriggers,
+                                               RefConstraintList *riList, CollHeap *heap) {
+  RelExpr *resultTree = topNode;
+
+  if ((rowTriggers != NULL) || (riList != NULL)) {
+    RelExpr *rowTriggersTree = NULL;
+    RelExpr *riTree = NULL;
+
     // Create the tree that handles all row triggers
-    if (rowTriggers != NULL)
-    {
-      rowTriggersTree = inlineTriggerGroup(NULL,
-					   rowTriggers,
-					   TRUE,
-					   heap,
-					   bindWA);
-    }
-    else
-    {
+    if (rowTriggers != NULL) {
+      rowTriggersTree = inlineTriggerGroup(NULL, rowTriggers, TRUE, heap, bindWA);
+    } else {
       rowTriggersTree = createDummyStatement(heap);
     }
-    
+
     // Create the tree that handles Referencial Integrity.
-    if (riList != NULL) 
+    if (riList != NULL)
       riTree = inlineRI(bindWA, riList, heap);
     else
       riTree = createDummyStatement(heap);
-    
-    resultTree = new(heap) Union(riTree, rowTriggersTree, NULL, NULL, 
-                                 REL_UNION, CmpCommon::statementHeap(), TRUE);
+
+    resultTree = new (heap) Union(riTree, rowTriggersTree, NULL, NULL, REL_UNION, CmpCommon::statementHeap(), TRUE);
     resultTree->getInliningInfo().setFlags(II_AccessSetNeeded);
-    if (riList!=NULL) 
-      resultTree->getInliningInfo().setFlags(II_DrivingRI);
-    if (rowTriggers != NULL)
-      resultTree->getInliningInfo().setFlags(II_DrivingRowTrigger);
-    
+    if (riList != NULL) resultTree->getInliningInfo().setFlags(II_DrivingRI);
+    if (rowTriggers != NULL) resultTree->getInliningInfo().setFlags(II_DrivingRowTrigger);
+
     // Put a RelRoot on top of the Union to avoid trashing the current scope.
-    resultTree = new(heap) RelRoot(resultTree);
+    resultTree = new (heap) RelRoot(resultTree);
     ((RelRoot *)resultTree)->setRootFlag(FALSE);
     ((RelRoot *)resultTree)->setEmptySelectList();
-    
+
     // Drive IM and RI trees using a TSJ on top of the GenericUpdate node.
-    NABoolean needsOutputs = isMtsStatement() ||
-      (getUpdateCKorUniqueIndexKey() && (getOperatorType() == REL_UNARY_DELETE));
+    NABoolean needsOutputs =
+        isMtsStatement() || (getUpdateCKorUniqueIndexKey() && (getOperatorType() == REL_UNARY_DELETE));
     OperatorTypeEnum joinType = needsOutputs ? REL_ANTI_SEMITSJ : REL_TSJ;
-    resultTree = new(bindWA->wHeap()) Join(topNode, resultTree, joinType);
+    resultTree = new (bindWA->wHeap()) Join(topNode, resultTree, joinType);
     resultTree->getInliningInfo().setFlags(II_AccessSetNeeded);
     resultTree->getInliningInfo().setFlags(II_DrivingPipelinedActions);
 
     // disable parallele execution for TSJs that control row triggers
-    // execution. Parallel execution for triggers TSJ introduces the 
-    // potential for non-deterministic execution 
-    if (rowTriggers)
-       resultTree->getInliningInfo().setFlags(II_SingleExecutionForTriggersTSJ);
+    // execution. Parallel execution for triggers TSJ introduces the
+    // potential for non-deterministic execution
+    if (rowTriggers) resultTree->getInliningInfo().setFlags(II_SingleExecutionForTriggersTSJ);
 
     // Indicate to the Normalizer that this TSJ cannot be optimized away,
-    // and that if the write operation is implemented via a cursor then 
+    // and that if the write operation is implemented via a cursor then
     // it cannot be a "flow" cursor operation - i.e. it cannot utilize
     // a TSJFlow node.
     // Genesis case #10-990116-7164
     ((Join *)resultTree)->setTSJForWrite(TRUE);
-
   }
-  
-  RelRoot *rootNode = new(heap) RelRoot(resultTree);
+
+  RelRoot *rootNode = new (heap) RelRoot(resultTree);
   rootNode->setRootFlag(FALSE);
   rootNode->setEmptySelectList();
-  rootNode->setDontOpenNewScope(); 
-  
+  rootNode->setDontOpenNewScope();
+
   return rootNode;
-} // GenericUpdate::inlinePipelinedActions
+}  // GenericUpdate::inlinePipelinedActions
 
 //////////////////////////////////////////////////////////////////////////////
 // Create the sub-tree that deletes the affected set from the temporary table.
-// The corresponding SQL text is 
+// The corresponding SQL text is
 //    DELETE FROM <temp table> WHERE <Uniquifier> = <Uniquifier value>;
 //
 // The result looks like this:
@@ -1187,19 +987,13 @@ RelExpr *GenericUpdate::inlinePipelinedActions(RelExpr *topNode,
 //              |
 //             Scan (temp table)
 //////////////////////////////////////////////////////////////////////////////
-RelExpr *GenericUpdate::inlineTempDelete(BindWA   *bindWA, 
-					 RelExpr  *topNode, 
-					 TriggersTempTable& tempTableObj, 
-					 CollHeap *heap)
-{
+RelExpr *GenericUpdate::inlineTempDelete(BindWA *bindWA, RelExpr *topNode, TriggersTempTable &tempTableObj,
+                                         CollHeap *heap) {
   RelExpr *deleteSubTree = tempTableObj.buildDelete();
 
-  Union   *newOU      = new(heap) Union(topNode, deleteSubTree, NULL, NULL,
-                                        REL_UNION,CmpCommon::statementHeap(),
-                                        TRUE);
+  Union *newOU = new (heap) Union(topNode, deleteSubTree, NULL, NULL, REL_UNION, CmpCommon::statementHeap(), TRUE);
   newOU->setOrderedUnion();
-  newOU->getInliningInfo().setFlags(II_DrivingTempDelete | 
-				    II_AccessSetNeeded);
+  newOU->getInliningInfo().setFlags(II_DrivingTempDelete | II_AccessSetNeeded);
   return newOU;
 }
 
@@ -1210,31 +1004,29 @@ RelExpr *GenericUpdate::inlineTempDelete(BindWA   *bindWA,
 *****************************************************************************/
 
 //////////////////////////////////////////////////////////////////////////////
-// Find all the NEW@columns in the RETDesc of the GU that is about to be 
-// replaced by a "tentative execution" node. These columns point to columns 
+// Find all the NEW@columns in the RETDesc of the GU that is about to be
+// replaced by a "tentative execution" node. These columns point to columns
 // in the IUD TableDesc that will soon be not valid anymore. The names NEW@.*
-// should instead reference the appropriate expresions from the new record 
+// should instead reference the appropriate expresions from the new record
 // expression.
 //////////////////////////////////////////////////////////////////////////////
-void GenericUpdate::fixTentativeRETDesc(BindWA *bindWA, CollHeap *heap)
-{
+void GenericUpdate::fixTentativeRETDesc(BindWA *bindWA, CollHeap *heap) {
   RETDesc *retDesc = getRETDesc();
 
   // The name of the subject table should no longer be in the XTNM.
   bindWA->getCurrentScope()->getXTNM()->remove(&getTableName());
 
-  // Create a "virtual column" called @EXECID for the value of the Unique 
+  // Create a "virtual column" called @EXECID for the value of the Unique
   // Execute ID. All the before trigger SIGNAL expressions will be piggy-
   // backed on this "column" before it is inserted into the temp table.
-  ItemExpr *execId = new(heap) UniqueExecuteId();
+  ItemExpr *execId = new (heap) UniqueExecuteId();
   addVirtualColumn(bindWA, execId, InliningInfo::getExecIdVirtualColName(), heap);
 
-  if (getOperatorType() == REL_UNARY_DELETE)
-    return;  // No NEW@ values for Delete.
+  if (getOperatorType() == REL_UNARY_DELETE) return;  // No NEW@ values for Delete.
 
   CorrName newCorr(NEWCorr);
   ColumnDescList newCols(heap);
-  ValueIdArray& newRecordExpr = newRecExprArray();
+  ValueIdArray &newRecordExpr = newRecExprArray();
   ValueId *foundAssignToCol;
 
   // Get all the NEW@ columns from the GU's RETDesc.
@@ -1242,54 +1034,47 @@ void GenericUpdate::fixTentativeRETDesc(BindWA *bindWA, CollHeap *heap)
 
   // The getQualColumnList() call does not return SYSKEY, so if it's there
   // find it and add it to the list.
-  NAString    syskeyName("SYSKEY", heap);
-  ColRefName  newSyskeyName(syskeyName, newCorr, heap);
+  NAString syskeyName("SYSKEY", heap);
+  ColRefName newSyskeyName(syskeyName, newCorr, heap);
   ColumnNameMap *newSyskeyMap = retDesc->findColumn(newSyskeyName);
-  if (newSyskeyMap != NULL)
-  {
+  if (newSyskeyMap != NULL) {
     ColumnDesc *newSyskey = newSyskeyMap->getColumnDesc();
     // Make sure SYSKEY is not already in the list.
     CMPASSERT(!newCols.contains(newSyskey));
     newCols.insert(newSyskey);
   }
 
-  for (CollIndex i=0; i<newCols.entries(); i++) // For each NEW@ column,
+  for (CollIndex i = 0; i < newCols.entries(); i++)  // For each NEW@ column,
   {
     ValueId tempValueId;
     foundAssignToCol = NULL;
-    const ColRefName& colName = newCols[i]->getColRefNameObj();
+    const ColRefName &colName = newCols[i]->getColRefNameObj();
 
-    // Lookup the column name in the target of an Assign node in the 
+    // Lookup the column name in the target of an Assign node in the
     // new record expression of the GU.
-    for (CollIndex j=0; j<newRecordExpr.entries(); j++)
-    {
-      ItemExpr *currentExpr = newRecordExpr[j].getItemExpr(); 
+    for (CollIndex j = 0; j < newRecordExpr.entries(); j++) {
+      ItemExpr *currentExpr = newRecordExpr[j].getItemExpr();
       CMPASSERT(currentExpr->getOperatorType() == ITM_ASSIGN);
       Assign *currentAssign = (Assign *)currentExpr;
-      
+
       ItemExpr *target = currentAssign->getTarget().getItemExpr();
-      if (target->getOperatorType() == ITM_BASECOLUMN)
-      {
-	// Do the column names match?
-	const NAString& trgtCol = ((BaseColumn *)target)->getColName();
-	if (!trgtCol.compareTo(colName.getColName()))
-	{
-	  // Save the ValueId of the Assign source expression.
-	  tempValueId = currentAssign->getSource();
+      if (target->getOperatorType() == ITM_BASECOLUMN) {
+        // Do the column names match?
+        const NAString &trgtCol = ((BaseColumn *)target)->getColName();
+        if (!trgtCol.compareTo(colName.getColName())) {
+          // Save the ValueId of the Assign source expression.
+          tempValueId = currentAssign->getSource();
           foundAssignToCol = &tempValueId;
-	  // No need to check the rest of the new record expression.
-	  break;  
-	}
+          // No need to check the rest of the new record expression.
+          break;
+        }
       }
     }  // for each Assign in the newRecExpr
 
     // Delete the current NEW@.* column from the RETDesc.
-    if (colName.getColName() == "SYSKEY")
-    {
+    if (colName.getColName() == "SYSKEY") {
       retDesc->delColumn(bindWA, colName, SYSTEM_COLUMN);
-    }
-    else
-    {
+    } else {
       retDesc->delColumn(bindWA, colName, USER_COLUMN);
     }
     // it is no longer a local reference in the current scope.
@@ -1297,25 +1082,21 @@ void GenericUpdate::fixTentativeRETDesc(BindWA *bindWA, CollHeap *heap)
     bindWA->getCurrentScope()->removeLocalRef(colValId);
 
     // Did we find a matching Assign expression?
-    if (foundAssignToCol != NULL)
-    {
+    if (foundAssignToCol != NULL) {
       ValueId newExpr = *foundAssignToCol;
 
       // Yes - Make NEW@.* reference it.
-      if (getGroupAttr()->isCharacteristicInput(newExpr))
-	newExpr = wrapWithCastExpr(bindWA, newExpr, heap);
+      if (getGroupAttr()->isCharacteristicInput(newExpr)) newExpr = wrapWithCastExpr(bindWA, newExpr, heap);
 
       retDesc->addColumn(bindWA, colName, newExpr);
-    }
-    else
-    {
+    } else {
       // No - this must be a column that is not SET into, in an Update node.
-      CMPASSERT (getOperatorType() == REL_UNARY_UPDATE);
+      CMPASSERT(getOperatorType() == REL_UNARY_UPDATE);
 
       // OK - just reference the appropriate OLD@.* value.
-      CorrName   oldCorr(OLDCorr);
+      CorrName oldCorr(OLDCorr);
       ColRefName oldColName(colName.getColName(), oldCorr);
-      ValueId    oldCol = retDesc->findColumn(oldColName)->getValueId();
+      ValueId oldCol = retDesc->findColumn(oldColName)->getValueId();
 
       // Wrap it with a Cast expression to give it a different ValueId
       // than the original OLD@.* column, thus marking it as a
@@ -1324,41 +1105,37 @@ void GenericUpdate::fixTentativeRETDesc(BindWA *bindWA, CollHeap *heap)
     }
   }  // for each NEW@ column
 
-  // The next block handles the value of the SYSKEY column in the 
+  // The next block handles the value of the SYSKEY column in the
   // temporary table for Insert operations. The problem is that the row
-  // is inserted into the temp table before it is inserted into the 
-  // subject table, and so - before the actual SYSKEY value was 
+  // is inserted into the temp table before it is inserted into the
+  // subject table, and so - before the actual SYSKEY value was
   // generated for it. Since this column is part of the primary key of
-  // the temp table, and the rest of the primary key columns may be 
+  // the temp table, and the rest of the primary key columns may be
   // identical, this SYSKEY value must be unique for each row.
   // Solution - give it the value of JulianTimestamp.
   // The Timestamp ItemExpr is a new BuiltInFunction that is evaluated
   // for each row.
-  if (getOperatorType() == REL_UNARY_INSERT) 
-  {
+  if (getOperatorType() == REL_UNARY_INSERT) {
     // Does this RETDesc have a NEW@.SYSKEY column?
-    CorrName   newCorr(NEWCorr);
+    CorrName newCorr(NEWCorr);
     ColRefName syskey("SYSKEY", newCorr);
-    if (retDesc->findColumn(syskey) != NULL)
-    {
+    if (retDesc->findColumn(syskey) != NULL) {
       // code added to make sure that the generated julian
       // timestamp is unique. This change is added to support
       // bulk inserts (including rowset inserts) when before
       // row triggers are used.
-      ItemExpr* counterExpr, *incrementExpr;
+      ItemExpr *counterExpr, *incrementExpr;
       counterExpr = new (heap) ItmPersistentExpressionVar(0);
-      incrementExpr = new (heap) ItmBlockFunction
-          (counterExpr, new (heap) Assign (counterExpr,
-           new (heap) BiArith(ITM_PLUS, counterExpr,
-           new (heap) ConstValue(1))));
+      incrementExpr = new (heap) ItmBlockFunction(
+          counterExpr,
+          new (heap) Assign(counterExpr, new (heap) BiArith(ITM_PLUS, counterExpr, new (heap) ConstValue(1))));
 
       // Synthesize the types and value IDs for the new items
       incrementExpr->synthTypeAndValueId(TRUE);
-      
+
       // Construct a new JulianTimestamp expression
-      ItemExpr *fakeSyskey = new (heap) 
-        BiArith(ITM_PLUS, incrementExpr, new (heap)
-	  JulianTimestamp(new (heap) InternalTimestamp));
+      ItemExpr *fakeSyskey =
+          new (heap) BiArith(ITM_PLUS, incrementExpr, new (heap) JulianTimestamp(new (heap) InternalTimestamp));
 
       fakeSyskey->bindNode(bindWA);
 
@@ -1372,42 +1149,35 @@ void GenericUpdate::fixTentativeRETDesc(BindWA *bindWA, CollHeap *heap)
 //////////////////////////////////////////////////////////////////////////////
 // For Update nodes, add the predicate: OLD@.<ci> = NEW@.<ci>
 //////////////////////////////////////////////////////////////////////////////
-void GenericUpdate::addPredicateOnClusteringKey(BindWA   *bindWA, 
-						RelExpr  *tentativeNode, 
-						CollHeap *heap)
-{  
+void GenericUpdate::addPredicateOnClusteringKey(BindWA *bindWA, RelExpr *tentativeNode, CollHeap *heap) {
   TableDesc *newTableDesc = getTableDesc();
   const IndexDesc *newCI = newTableDesc->getClusteringIndex();
-  const ValueIdList& newCICols = newCI->getIndexKey();
+  const ValueIdList &newCICols = newCI->getIndexKey();
   CorrName newCorrName(NEWCorr);
   CorrName oldCorrName(OLDCorr);
 
   ItemExpr *predicate = NULL;
-  for (CollIndex i=0; i<newCICols.entries(); i++)
-  {
+  for (CollIndex i = 0; i < newCICols.entries(); i++) {
     ItemExpr *currentCol = newCICols[i].getItemExpr();
     CMPASSERT(currentCol->getOperatorType() == ITM_INDEXCOLUMN);
-    IndexColumn *currentBaseCol = (IndexColumn *) currentCol;
-    const NAString& colName = currentBaseCol->getNAColumn()->getColName();
+    IndexColumn *currentBaseCol = (IndexColumn *)currentCol;
+    const NAString &colName = currentBaseCol->getNAColumn()->getColName();
 
-    ColRefName *newColName = new(heap) ColRefName(colName, newCorrName, heap);
-    ColRefName *oldColName = new(heap) ColRefName(colName, oldCorrName, heap);
+    ColRefName *newColName = new (heap) ColRefName(colName, newCorrName, heap);
+    ColRefName *oldColName = new (heap) ColRefName(colName, oldCorrName, heap);
 
-    ItemExpr *currentPredicate = new(heap)
-      BiRelat(ITM_EQUAL, 
-              new(heap) ColReference(newColName),
-              new(heap) ColReference(oldColName));
+    ItemExpr *currentPredicate =
+        new (heap) BiRelat(ITM_EQUAL, new (heap) ColReference(newColName), new (heap) ColReference(oldColName));
 
     if (predicate == NULL)
       predicate = currentPredicate;
     else
-      predicate = new(heap) BiLogic(ITM_AND, predicate, currentPredicate);
+      predicate = new (heap) BiLogic(ITM_AND, predicate, currentPredicate);
   }
 
   CMPASSERT(predicate != NULL);
   predicate->bindNode(bindWA);
-  if (bindWA->errStatus()) 
-    return;
+  if (bindWA->errStatus()) return;
 
   tentativeNode->selectionPred().insert(predicate->getValueId());
 }
@@ -1416,20 +1186,17 @@ void GenericUpdate::addPredicateOnClusteringKey(BindWA   *bindWA,
 // This method replaces the GenericUpdate node that fired the triggers (this)
 // with a "tentative execution" node.
 //////////////////////////////////////////////////////////////////////////////
-RelExpr *GenericUpdate::createTentativeGU(BindWA *bindWA, CollHeap *heap)
-{
+RelExpr *GenericUpdate::createTentativeGU(BindWA *bindWA, CollHeap *heap) {
   // 'this' is the GU that started the whole mess. Let's kill it!
   // Create a dummy Rename node.
-  RelExpr *tentativeNode = new(heap) 
-    RenameTable(child(0), "TentativeGU");     
+  RelExpr *tentativeNode = new (heap) RenameTable(child(0), "TentativeGU");
   // Fix the NEW@ cols to point to the right expressions.
-  fixTentativeRETDesc(bindWA, heap); 
+  fixTentativeRETDesc(bindWA, heap);
   // Give it my RETDesc with all the NEW and OLD stuff
-  tentativeNode->setRETDesc(getRETDesc());      
+  tentativeNode->setRETDesc(getRETDesc());
   tentativeNode->setGroupAttr(getGroupAttr());
 
-  ColumnNameMap *execIdCol = 
-    getRETDesc()->findColumn(InliningInfo::getExecIdVirtualColName());
+  ColumnNameMap *execIdCol = getRETDesc()->findColumn(InliningInfo::getExecIdVirtualColName());
   CMPASSERT(execIdCol != NULL);
 
   ValueIdList outputs;
@@ -1438,14 +1205,12 @@ RelExpr *GenericUpdate::createTentativeGU(BindWA *bindWA, CollHeap *heap)
   tentativeNode->getGroupAttr()->addCharacteristicOutputs(outputs);
 
   // For Update nodes, add the predicate: OLD@.<ci> = NEW@.<ci>s
-  if (getOperatorType() == REL_UNARY_UPDATE)
-  {
+  if (getOperatorType() == REL_UNARY_UPDATE) {
     addPredicateOnClusteringKey(bindWA, tentativeNode, heap);
-    if (bindWA->errStatus()) 
-      return NULL;
+    if (bindWA->errStatus()) return NULL;
   }
 
-  tentativeNode->markAsBound(); // No more binding is needed here.
+  tentativeNode->markAsBound();  // No more binding is needed here.
   return tentativeNode;
 }
 
@@ -1454,15 +1219,12 @@ RelExpr *GenericUpdate::createTentativeGU(BindWA *bindWA, CollHeap *heap)
 // them to colToSet. This way, when we call TriggerDB for after triggers we
 // will get triggers that fire on these columns too.
 //////////////////////////////////////////////////////////////////////////////
-void BeforeTrigger::addUpdatedColumns(UpdateColumns *colsToSet, 
-				      const NATable *naTable)
-{
+void BeforeTrigger::addUpdatedColumns(UpdateColumns *colsToSet, const NATable *naTable) {
   if (setList_ == NULL)  // Does this trigger have a SET clause?
     return;
 
   // For each Assign expression, add the col position to ColsToSet.
-  for (CollIndex i=0; i<setList_->entries(); i++)
-  {
+  for (CollIndex i = 0; i < setList_->entries(); i++) {
     Lng32 targetColPosition = getTargetColumn(i, NULL, naTable);
     CMPASSERT(targetColPosition != -1);
     colsToSet->addColumn(targetColPosition);
@@ -1470,7 +1232,7 @@ void BeforeTrigger::addUpdatedColumns(UpdateColumns *colsToSet,
 }
 
 //////////////////////////////////////////////////////////////////////////////
-// This method is called only when before triggers exist, and it builds the 
+// This method is called only when before triggers exist, and it builds the
 // left side of the inlining tree - the tentative execution tree.
 // 1. Create the tentative GU node, that replaces this node.
 // 2. Build a totem of before triggers on top of the tentative GU node.
@@ -1499,28 +1261,22 @@ void BeforeTrigger::addUpdatedColumns(UpdateColumns *colsToSet,
 //        |
 //    this->child(0)
 //////////////////////////////////////////////////////////////////////////////
-RelExpr *GenericUpdate::createTentativeSubTree(BindWA *bindWA, 
-					       TriggerList *beforeTriggers, 
-					       UpdateColumns *updatedColumns, 
-					       TriggersTempTable& tempTableObj,
-					       CollHeap *heap)
-{
+RelExpr *GenericUpdate::createTentativeSubTree(BindWA *bindWA, TriggerList *beforeTriggers,
+                                               UpdateColumns *updatedColumns, TriggersTempTable &tempTableObj,
+                                               CollHeap *heap) {
   const NATable *naTable = getTableDesc()->getNATable();
 
   // Step 1.
-  RelExpr *topNode = createTentativeGU(bindWA, heap);  
-  if (bindWA->errStatus()) 
-    return NULL;
+  RelExpr *topNode = createTentativeGU(bindWA, heap);
+  if (bindWA->errStatus()) return NULL;
 
   // Step 2.
   Trigger *current;
-  BeforeTrigger *triggerNode=0;
-  for (CollIndex i=0; i<beforeTriggers->entries(); i++)   
-  {
+  BeforeTrigger *triggerNode = 0;
+  for (CollIndex i = 0; i < beforeTriggers->entries(); i++) {
     current = (*beforeTriggers)[i];
     triggerNode = (BeforeTrigger *)current->getParsedTrigger(bindWA);
-    if (bindWA->errStatus())
-      return this;
+    if (bindWA->errStatus()) return this;
 
     CMPASSERT(triggerNode->getOperatorType() == REL_BEFORE_TRIGGER);
 
@@ -1529,7 +1285,7 @@ RelExpr *GenericUpdate::createTentativeSubTree(BindWA *bindWA,
     triggerNode->child(0) = topNode;
     topNode = triggerNode;
 
-    if (updatedColumns != NULL) // Is this an UPDATE op?
+    if (updatedColumns != NULL)  // Is this an UPDATE op?
     {
       // Add columns changed by the trigger to the columns changed
       // by the original UPDATE operation.
@@ -1541,65 +1297,54 @@ RelExpr *GenericUpdate::createTentativeSubTree(BindWA *bindWA,
   }
 
   // Step 3.
-  topNode = inlineTempInsert(topNode, bindWA, tempTableObj, TRUE, TRUE, heap);  
-  if (bindWA->errStatus()) 
-    return NULL;
+  topNode = inlineTempInsert(topNode, bindWA, tempTableObj, TRUE, TRUE, heap);
+  if (bindWA->errStatus()) return NULL;
   // Save a pointer to the TSJ for tansformNod().
   CMPASSERT(triggerNode);
-  triggerNode->setParentTSJ(topNode);  
+  triggerNode->setParentTSJ(topNode);
 
   // Step 4
-  RelRoot *rootNode = new(heap) RelRoot(topNode);
+  RelRoot *rootNode = new (heap) RelRoot(topNode);
   rootNode->setRootFlag(FALSE);
-  rootNode->setEmptySelectList();			
+  rootNode->setEmptySelectList();
   rootNode->setDontOpenNewScope();
   return rootNode;
-} 
+}
 
 //////////////////////////////////////////////////////////////////////////////
 // The effective GU affects the rows in the affected set into the subject
 // table itself. Since this operation is different in Insert, Update and
-// Delete, I implemented it as a virtual method, that is implemented by the 
+// Delete, I implemented it as a virtual method, that is implemented by the
 // child classes only.
 //////////////////////////////////////////////////////////////////////////////
 // we are not supposed to get here
-RelExpr *GenericUpdate::createEffectiveGU(BindWA   *bindWA, 
-					  CollHeap *heap, 
-					  TriggersTempTable& tempTableObj,
-					  GenericUpdate **effectiveGUNode,
-					  UpdateColumns *colsToSet)
-{
-  CMPASSERT(FALSE); // Not supposed to get here !!!
+RelExpr *GenericUpdate::createEffectiveGU(BindWA *bindWA, CollHeap *heap, TriggersTempTable &tempTableObj,
+                                          GenericUpdate **effectiveGUNode, UpdateColumns *colsToSet) {
+  CMPASSERT(FALSE);  // Not supposed to get here !!!
   return NULL;
 }
 
 //////////////////////////////////////////////////////////////////////////////
 // Create an Insert node that inserts the NEW@ values into the subject table.
 //////////////////////////////////////////////////////////////////////////////
-RelExpr *Insert::createEffectiveGU(BindWA   *bindWA, 
-				   CollHeap *heap, 
-				   TriggersTempTable& tempTableObj, 
-				   GenericUpdate **effectiveGUNode,
-				   UpdateColumns *colsToSet)
-{
+RelExpr *Insert::createEffectiveGU(BindWA *bindWA, CollHeap *heap, TriggersTempTable &tempTableObj,
+                                   GenericUpdate **effectiveGUNode, UpdateColumns *colsToSet) {
   // Create the Scan on the temporary table.
-  Scan *tempScanNode = 
-    tempTableObj.buildScan(ChangesTable::INSERTED_ROWS);
+  Scan *tempScanNode = tempTableObj.buildScan(ChangesTable::INSERTED_ROWS);
 
-  CorrName& tempTable = tempScanNode->getTableName();
+  CorrName &tempTable = tempScanNode->getTableName();
   ItemExpr *selectList = tempTableObj.buildBaseColsSelectList(tempTable);
 
   // Build a RelRoot on top of the Scan node.
-  RelRoot *rootNode = new(heap) RelRoot(tempScanNode, REL_ROOT, selectList);
+  RelRoot *rootNode = new (heap) RelRoot(tempScanNode, REL_ROOT, selectList);
   rootNode->setRootFlag(FALSE);
 
   // Create an Insert node above the RelRoot.
   // The newRecExpr will be created during binding if the Insert node.
-  GenericUpdate *gu = new(heap) 
-    Insert(getTableName(), NULL, REL_UNARY_INSERT, rootNode);
+  GenericUpdate *gu = new (heap) Insert(getTableName(), NULL, REL_UNARY_INSERT, rootNode);
 
   // If this GU is an action of a trigger - don't count rows affected.
-  gu->rowsAffected() = rowsAffected(); 
+  gu->rowsAffected() = rowsAffected();
   gu->getInliningInfo().setFlags(II_EffectiveGU);
 
   *effectiveGUNode = gu;
@@ -1607,80 +1352,66 @@ RelExpr *Insert::createEffectiveGU(BindWA   *bindWA,
 }
 
 //////////////////////////////////////////////////////////////////////////////
-// Create an Update node that updates rows in the subject table according to 
+// Create an Update node that updates rows in the subject table according to
 // primary key, and sets them to the NEW@ values.
-// Normally, the Update node itself does not have any outputs, because the 
-// OLD and NEW values are taken from the temp table. However, when MV 
+// Normally, the Update node itself does not have any outputs, because the
+// OLD and NEW values are taken from the temp table. However, when MV
 // logging is needed, the Update node must project the CurrentEpoch column.
 //////////////////////////////////////////////////////////////////////////////
-RelExpr *Update::createEffectiveGU(BindWA   *bindWA, 
-				   CollHeap *heap, 
-				   TriggersTempTable& tempTableObj, 
-    				   GenericUpdate **effectiveGUNode,
-				   UpdateColumns *colsToSet)
-{
-  ItemExpr *assignList=NULL;
-  Assign *assignExpr=NULL;
+RelExpr *Update::createEffectiveGU(BindWA *bindWA, CollHeap *heap, TriggersTempTable &tempTableObj,
+                                   GenericUpdate **effectiveGUNode, UpdateColumns *colsToSet) {
+  ItemExpr *assignList = NULL;
+  Assign *assignExpr = NULL;
   CorrName newCorrName(NEWCorr);
 
   NABoolean mvLoggingRequired = isMvLoggingRequired();
 
   // Get the columns of the subject table.
-  const NAColumnArray &subjectColumns = 
-    getTableDesc()->getNATable()->getNAColumnArray(); 
+  const NAColumnArray &subjectColumns = getTableDesc()->getNATable()->getNAColumnArray();
 
-  for (CollIndex i=0; i<subjectColumns.entries(); i++)
-  {
+  for (CollIndex i = 0; i < subjectColumns.entries(); i++) {
     // If this column was not SET into, no need to change it.
-    if (!colsToSet->contains(i))
-      continue;
+    if (!colsToSet->contains(i)) continue;
 
     NAColumn *currentColumn = subjectColumns.getColumn(i);
     const NAString &colName = currentColumn->getColName();
 
     // Cannot update a clustering/primary key column!
-    // This error is caught during binding in DDL. 
+    // This error is caught during binding in DDL.
     // see BeforeTrigger::bindSetClause() in BindRelExpr.cpp
     CMPASSERT(!currentColumn->isClusteringKey() && !currentColumn->isPrimaryKey());
 
     NAString tempColName(colName);
-    assignExpr = new(heap) 
-      Assign(new(heap) ColReference(
-	new(heap) ColRefName(colName)),
-	new(heap) ColReference(new(heap) ColRefName(tempColName, newCorrName)),
-	FALSE);
-    if (assignList==NULL)
+    assignExpr = new (heap) Assign(new (heap) ColReference(new (heap) ColRefName(colName)),
+                                   new (heap) ColReference(new (heap) ColRefName(tempColName, newCorrName)), FALSE);
+    if (assignList == NULL)
       assignList = assignExpr;
     else
-      assignList = new(heap) ItemList(assignExpr, assignList);
+      assignList = new (heap) ItemList(assignExpr, assignList);
   }
 
   // The selection predicate on the Scan is on the NEW@ clustering index cols.
   // The left side of the equation is using the "@SYSKEY" column while the right
   // side uses the SYSKEY column.
   NAString newName(NEWCorr);
-  ItemExpr *selectionPredicate = new(heap)
-    BiRelat(ITM_EQUAL,
-	    tempTableObj.buildClusteringIndexVector(&newName,TRUE),
-	    tempTableObj.buildClusteringIndexVector() );
+  ItemExpr *selectionPredicate = new (heap) BiRelat(ITM_EQUAL, tempTableObj.buildClusteringIndexVector(&newName, TRUE),
+                                                    tempTableObj.buildClusteringIndexVector());
 
-  Scan *baseScanNode = new(heap) Scan(getTableName());
+  Scan *baseScanNode = new (heap) Scan(getTableName());
   baseScanNode->addSelPredTree(selectionPredicate);
-  GenericUpdate *effectiveGu = new(heap) 
-    Update(getTableName(), NULL, REL_UNARY_UPDATE, baseScanNode, assignList);
+  GenericUpdate *effectiveGu = new (heap) Update(getTableName(), NULL, REL_UNARY_UPDATE, baseScanNode, assignList);
 
   // If this GU is an action of a trigger - don't count rows affected.
-  effectiveGu->rowsAffected() = rowsAffected(); 
+  effectiveGu->rowsAffected() = rowsAffected();
   effectiveGu->getInliningInfo().setFlags(II_EffectiveGU);
 
-  RelRoot *effectiveRoot = new(heap) RelRoot(effectiveGu);
-  if (!mvLoggingRequired)
-    effectiveRoot->setEmptySelectList();
+  RelRoot *effectiveRoot = new (heap) RelRoot(effectiveGu);
+  if (!mvLoggingRequired) effectiveRoot->setEmptySelectList();
 
   RelExpr *joinTemps = tempTableObj.buildOldAndNewJoin();
 
   OperatorTypeEnum joinType = mvLoggingRequired ? REL_TSJ : REL_LEFT_TSJ;
-  Join *tsjNode = new(heap) Join(joinTemps, effectiveRoot, joinType);
+  Join *tsjNode = new (heap) Join(joinTemps, effectiveRoot, joinType);
   tsjNode->setTSJForWrite(TRUE);
 
   *effectiveGUNode = effectiveGu;
@@ -1691,20 +1422,15 @@ RelExpr *Update::createEffectiveGU(BindWA   *bindWA,
 // Create a Delete node that deletes rows from the subject table according
 // to the primary from the row read by the temp Scan node.
 //////////////////////////////////////////////////////////////////////////////
-RelExpr *Delete::createEffectiveGU(BindWA   *bindWA, 
-  				   CollHeap *heap, 
-				   TriggersTempTable& tempTableObj, 
-				   GenericUpdate **effectiveGUNode,
-				   UpdateColumns *colsToSet)
-{
+RelExpr *Delete::createEffectiveGU(BindWA *bindWA, CollHeap *heap, TriggersTempTable &tempTableObj,
+                                   GenericUpdate **effectiveGUNode, UpdateColumns *colsToSet) {
   // Create the Scan on the temporary table.
   Scan *tempScanNode = tempTableObj.buildScan(ChangesTable::DELETED_ROWS);
 
-  Delete *gu = new(heap) 
-    Delete(getTableName(), NULL, REL_UNARY_DELETE, tempScanNode);
+  Delete *gu = new (heap) Delete(getTableName(), NULL, REL_UNARY_DELETE, tempScanNode);
 
   // If this GU is an action of a trigger - don't count rows affected.
-  gu->rowsAffected() = rowsAffected(); 
+  gu->rowsAffected() = rowsAffected();
   gu->getInliningInfo().setFlags(II_EffectiveGU);
 
   *effectiveGUNode = gu;
@@ -1713,19 +1439,15 @@ RelExpr *Delete::createEffectiveGU(BindWA   *bindWA,
 
 //////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
-RelExpr *GenericUpdate::bindEffectiveGU(BindWA *bindWA)
-{
-  if (getInliningInfo().hasPipelinedActions())
-  {
+RelExpr *GenericUpdate::bindEffectiveGU(BindWA *bindWA) {
+  if (getInliningInfo().hasPipelinedActions()) {
     setNoFlow(TRUE);
 
-    if (getOperatorType() != REL_UNARY_UPDATE)
-    {
+    if (getOperatorType() != REL_UNARY_UPDATE) {
       createOldAndNewCorrelationNames(bindWA);
     }
 
-    if (isMvLoggingRequired())
-    {
+    if (isMvLoggingRequired()) {
       prepareForMvLogging(bindWA, bindWA->wHeap());
     }
 
@@ -1735,11 +1457,10 @@ RelExpr *GenericUpdate::bindEffectiveGU(BindWA *bindWA)
   }
   // case of before triggers and after statement triggers where the after triggers are in conflict
   // and the effective GU is either an insert or a delete.
-  else if (getOperatorType() != REL_UNARY_UPDATE)
-  {
-      RETDesc *rd = createOldAndNewCorrelationNames(bindWA, TRUE /* only create RETDesc */);
-      getInliningInfo().buildTriggerBindInfo(bindWA, rd, bindWA->wHeap());
-      delete rd;
+  else if (getOperatorType() != REL_UNARY_UPDATE) {
+    RETDesc *rd = createOldAndNewCorrelationNames(bindWA, TRUE /* only create RETDesc */);
+    getInliningInfo().buildTriggerBindInfo(bindWA, rd, bindWA->wHeap());
+    delete rd;
   }
   // indicate that this is a subject table for enable/disable
   getOptStoi()->getStoi()->setSubjectTable(TRUE);
@@ -1756,49 +1477,37 @@ RelExpr *GenericUpdate::bindEffectiveGU(BindWA *bindWA)
 //////////////////////////////////////////////////////////////////////////////
 // See comments in common/ComTransInfo.h
 //////////////////////////////////////////////////////////////////////////////
-static void setScanLockForIM(const RelExpr *re)
-{
+static void setScanLockForIM(const RelExpr *re) {
   if (re->getOperator().match(REL_SCAN)) {
-     Scan *rs = (Scan *)re;
-     rs->accessOptions().setScanLockForIM(TRUE);
+    Scan *rs = (Scan *)re;
+    rs->accessOptions().setScanLockForIM(TRUE);
   }
-  for (Int32 i = 0; i < re->getArity(); ++i ) {
-    if (re->child(i)) 
-       setScanLockForIM(re->child(i));
+  for (Int32 i = 0; i < re->getArity(); ++i) {
+    if (re->child(i)) setScanLockForIM(re->child(i));
   }
 }
-
 
 // All table info in these createIM*() methods must come from the TableDesc.
 // In particular, use of getTableName() is wrong:  that is the name of the
 // topmost view if the target table is a view.  The TableDesc always represents
 // the underlying *base* table.
 //
-RelExpr *GenericUpdate::createIMTree(BindWA *bindWA,
-				     UpdateColumns *updatedColumns,
-				     NABoolean useInternalSyskey)
-{
+RelExpr *GenericUpdate::createIMTree(BindWA *bindWA, UpdateColumns *updatedColumns, NABoolean useInternalSyskey) {
   RelExpr *imTree = NULL;
 
-  NAString origCorr(getTableDesc()->getCorrNameObj().getCorrNameAsString(),
-		    bindWA->wHeap());
+  NAString origCorr(getTableDesc()->getCorrNameObj().getCorrNameAsString(), bindWA->wHeap());
 
   const LIST(IndexDesc *) indexList = getTableDesc()->getIndexes();
-  for (CollIndex i=0; i < indexList.entries(); i++) {
-
+  for (CollIndex i = 0; i < indexList.entries(); i++) {
     IndexDesc *index = indexList[i];
 
     // The base table itself is an index (the clustering index);
     // obviously IM need not deal with it.
     //
     if (!index->isClusteringIndex()) {
-
       // An index always needs maintenance on an Insert or Delete...
       //
-      NABoolean imNeeded = 
-	(((getOperatorType() != REL_UNARY_UPDATE) && 
-          (!transformedUpdateNoDtmXn())) ||
-	 (isMerge()));
+      NABoolean imNeeded = (((getOperatorType() != REL_UNARY_UPDATE) && (!transformedUpdateNoDtmXn())) || (isMerge()));
 
       // ...but for an Update, it needs maint if it contains any of the columns
       // being updated.  The test for intersection must use column position
@@ -1809,131 +1518,104 @@ RelExpr *GenericUpdate::createIMTree(BindWA *bindWA,
       if (!imNeeded) {
         const ValueIdList &indexColumns = index->getIndexColumns();
 
-      for (CollIndex j=0; j < indexColumns.entries() && !imNeeded; j++) {
-        Lng32 indexCol = indexColumns[j].getNAColumn()->getPosition();
+        for (CollIndex j = 0; j < indexColumns.entries() && !imNeeded; j++) {
+          Lng32 indexCol = indexColumns[j].getNAColumn()->getPosition();
 
-        if (updatedColumns != NULL)  // -- Triggers
-          imNeeded |= updatedColumns->contains(indexCol);
-        else {
-          for (CollIndex k=0; k < newRecExprArray().entries(); k++) {
-            Lng32 tableCol = newRecExprArray()[k].getItemExpr()->child(0).
-	      					  getNAColumn()->getPosition();
+          if (updatedColumns != NULL)  // -- Triggers
+            imNeeded |= updatedColumns->contains(indexCol);
+          else {
+            for (CollIndex k = 0; k < newRecExprArray().entries(); k++) {
+              Lng32 tableCol = newRecExprArray()[k].getItemExpr()->child(0).getNAColumn()->getPosition();
 
-            if (indexCol <= tableCol) {
-              if (indexCol == tableCol) imNeeded = TRUE;
+              if (indexCol <= tableCol) {
+                if (indexCol == tableCol) imNeeded = TRUE;
                 break;  // newRecExprArray is ordered by position, so break if <=
-			}
-		  } // for k
-		} // else
-	  } // for j
+              }
+            }  // for k
+          }    // else
+        }      // for j
 
-	#ifndef NDEBUG
-	  if (imNeeded && GU_DEBUG)
-	    cerr << "imNeeded: " << index->getNAFileSet()->getExtFileSetName()
-	         << endl;
-	#endif
-      } // Update, need to test whether IM is needed for this index
+#ifndef NDEBUG
+        if (imNeeded && GU_DEBUG) cerr << "imNeeded: " << index->getNAFileSet()->getExtFileSetName() << endl;
+#endif
+      }  // Update, need to test whether IM is needed for this index
 
       if (imNeeded)
-        if (!imTree)
-        {
-          imTree = createIMNodes(bindWA, useInternalSyskey,
-                                 index, producedMergeIUDIndicator_);
-          if (getOperatorType() == REL_UNARY_UPDATE ||
-              getOperatorType() == REL_UNARY_DELETE)
+        if (!imTree) {
+          imTree = createIMNodes(bindWA, useInternalSyskey, index, producedMergeIUDIndicator_);
+          if (getOperatorType() == REL_UNARY_UPDATE || getOperatorType() == REL_UNARY_DELETE)
             setScanLockForIM(child(0));
-          if (bindWA->isTrafLoadPrep())
-            imTree->setChild(0,this);
-        }
-        else
-        {
-          if (!bindWA->isTrafLoadPrep())
-          {
-            imTree = new (bindWA->wHeap()) 
-              Union(imTree, createIMNodes(bindWA, useInternalSyskey,
-                                          index, producedMergeIUDIndicator_),
-                    NULL, NULL, REL_UNION, CmpCommon::statementHeap(), TRUE, TRUE);
+          if (bindWA->isTrafLoadPrep()) imTree->setChild(0, this);
+        } else {
+          if (!bindWA->isTrafLoadPrep()) {
+            imTree = new (bindWA->wHeap())
+                Union(imTree, createIMNodes(bindWA, useInternalSyskey, index, producedMergeIUDIndicator_), NULL, NULL,
+                      REL_UNION, CmpCommon::statementHeap(), TRUE, TRUE);
             imTree->setBlockStmt(isinBlockStmt());
             imTree->getInliningInfo().setFlags(II_isIMUnion);
-          } // not bulk load
+          }  // not bulk load
           else {
-            RelExpr * oldIMTree = imTree;
-            imTree = createIMNodes(bindWA, useInternalSyskey, index,
-                                   producedMergeIUDIndicator_);
-            imTree->setChild(0,oldIMTree);
-          } // is bulk load
+            RelExpr *oldIMTree = imTree;
+            imTree = createIMNodes(bindWA, useInternalSyskey, index, producedMergeIUDIndicator_);
+            imTree->setChild(0, oldIMTree);
+          }  // is bulk load
         }
 
-    } // !clusteringIndex
-  } // loop over all indexes
+    }  // !clusteringIndex
+  }    // loop over all indexes
 
   // ##IM: This extra RelRoot is probably unnecessary (wasteful),
   // ##    due to createIMNode*() always returning a RelRoot-topped tree --
   // ##    but I didn't have time to remove it and re-test.
-  if (imTree && imTree->getOperatorType() != REL_ROOT)
-    imTree = new (bindWA->wHeap()) RelRoot(imTree);
+  if (imTree && imTree->getOperatorType() != REL_ROOT) imTree = new (bindWA->wHeap()) RelRoot(imTree);
 
   getTableDesc()->getCorrNameObj().setCorrName(origCorr);
 
   return imTree;
-} // GenericUpdate::createIMTree()
-
+}  // GenericUpdate::createIMTree()
 
 // Here, we make virgin ColReferences, which when bound will be found
 // in an outer scope engendered by our (and/or GenericUpdate's) interposing
 // a RelRoot between us and our parent GenericUpdate --
 // and the LeafXxx will add these outer refs to its characteristic inputs.
-static RelExpr *createIMNode(BindWA *bindWA, 
-			     CorrName &tableCorrName,
-			     const CorrName &indexCorrName,
-			     IndexDesc *index,
-                             const ValueId &mergeIUDIndicator,
-			     NABoolean isIMInsert,
-			     NABoolean useInternalSyskey,
-                             NABoolean isForUpdateOrMergeUpdate,
-                             NABoolean mergeDeleteWithInsertOrMergeUpdate,
-			     NABoolean isEffUpsert)
-{
-   
- // See createOldAndNewCorrelationNames() for info on OLDCorr/NEWCorr
-  
-  // A merge statement can perform an update or an insert if a matching row 
-  // is detected or not, correspondingly. In either case, a update operation is 
+static RelExpr *createIMNode(BindWA *bindWA, CorrName &tableCorrName, const CorrName &indexCorrName, IndexDesc *index,
+                             const ValueId &mergeIUDIndicator, NABoolean isIMInsert, NABoolean useInternalSyskey,
+                             NABoolean isForUpdateOrMergeUpdate, NABoolean mergeDeleteWithInsertOrMergeUpdate,
+                             NABoolean isEffUpsert) {
+  // See createOldAndNewCorrelationNames() for info on OLDCorr/NEWCorr
+
+  // A merge statement can perform an update or an insert if a matching row
+  // is detected or not, correspondingly. In either case, a update operation is
   // performed on the index table. If a unique index is involved, a update
   // operation would be able to delete a corresponding row in the index table
   // using the index "key" column before inserting a new row. If it is a insert
-  // operation on the base table, then a update on the index table should not 
+  // operation on the base table, then a update on the index table should not
   // delete a row that corresponds to a different row in the base table(index
   // key belonging to a different row). Hence in this case, it is better to always
   // match not only the index key but also remaining columns in the index table
-  // that correspond to the base table. Hence we introduce 
-  // robustDelete below. This flag could also be called 
+  // that correspond to the base table. Hence we introduce
+  // robustDelete below. This flag could also be called
   // isIMOnAUniqueIndexForMerge
-  NABoolean robustDelete = (mergeDeleteWithInsertOrMergeUpdate && index->isUniqueIndex()) || 
+  NABoolean robustDelete = (mergeDeleteWithInsertOrMergeUpdate && index->isUniqueIndex()) ||
                            (isEffUpsert && index->isUniqueIndex()) ||
                            (isForUpdateOrMergeUpdate && index->isUniqueIndex());
 
-  tableCorrName.setCorrName(isIMInsert ?  NEWCorr : OLDCorr);
-  
-  ItemExprList *colRefList = new(bindWA->wHeap()) ItemExprList(bindWA->wHeap());
-  
-  const ValueIdList &indexColVids = ((isIMInsert || robustDelete )? 
-				     index->getIndexColumns() : 
-				     index->getIndexKey());
-  ItemExpr *preCond = NULL; // pre-condition for delete, insert if any
-  for (CollIndex i=0; i < indexColVids.entries(); i++) {
+  tableCorrName.setCorrName(isIMInsert ? NEWCorr : OLDCorr);
 
+  ItemExprList *colRefList = new (bindWA->wHeap()) ItemExprList(bindWA->wHeap());
+
+  const ValueIdList &indexColVids = ((isIMInsert || robustDelete) ? index->getIndexColumns() : index->getIndexKey());
+  ItemExpr *preCond = NULL;  // pre-condition for delete, insert if any
+  for (CollIndex i = 0; i < indexColVids.entries(); i++) {
     const NAString &colName = indexColVids[i].getNAColumn()->getColName();
 
     NAString realColName = colName;
-    if (useInternalSyskey && colName == "SYSKEY")
-    {
+    if (useInternalSyskey && colName == "SYSKEY") {
       realColName = "@SYSKEY";
     }
 
-    ColReference *colRef =
-      new (bindWA->wHeap()) ColReference
-        (new (bindWA->wHeap()) ColRefName (realColName, tableCorrName, bindWA->wHeap()));
+    ColReference *colRef = new (bindWA->wHeap())
+        ColReference(new (bindWA->wHeap()) ColRefName(realColName, tableCorrName, bindWA->wHeap()));
 
     colRefList->insert(colRef);
   }
@@ -1943,127 +1625,97 @@ static RelExpr *createIMNode(BindWA *bindWA,
   // Index Type/IM operation->  Delete  | Insert
   // Non-unique Index           Yes        No
   // Unique Index               Yes        Yes
-  if ((!isIMInsert && isForUpdateOrMergeUpdate)||robustDelete || (!isIMInsert && isEffUpsert))
-    {
-      // For delete nodes that are part of an update or merge update or upsert,
-      // generate a comparison expression between old and new index column 
-      // values and suppress the delete if no columns change. This avoids the
-      // situation where we delete and then re-insert the same index
-      // row within one millisecond and get the same HBase timestamp
-      // value assigned. In that case, the delete will win out over
-      // the insert, even though the insert happens later in time. The
-      // HBase-trx folks are also working on a change to avoid that.
-      // similar checks are added for unique index insert (into the index
-      // table only, using the robustDelete flag above). 
-      // Since we do checkandput for unique indexes, putting 
-      // an existing row (key + value) will raise a uniqueness violation,
-      // while from the user's point of view no change in the uninque index
-      // table is expected.
+  if ((!isIMInsert && isForUpdateOrMergeUpdate) || robustDelete || (!isIMInsert && isEffUpsert)) {
+    // For delete nodes that are part of an update or merge update or upsert,
+    // generate a comparison expression between old and new index column
+    // values and suppress the delete if no columns change. This avoids the
+    // situation where we delete and then re-insert the same index
+    // row within one millisecond and get the same HBase timestamp
+    // value assigned. In that case, the delete will win out over
+    // the insert, even though the insert happens later in time. The
+    // HBase-trx folks are also working on a change to avoid that.
+    // similar checks are added for unique index insert (into the index
+    // table only, using the robustDelete flag above).
+    // Since we do checkandput for unique indexes, putting
+    // an existing row (key + value) will raise a uniqueness violation,
+    // while from the user's point of view no change in the uninque index
+    // table is expected.
 
-      CorrName predValues(tableCorrName);
+    CorrName predValues(tableCorrName);
 
-      if (isIMInsert)
-	predValues.setCorrName(OLDCorr);
+    if (isIMInsert)
+      predValues.setCorrName(OLDCorr);
+    else
+      predValues.setCorrName(NEWCorr);
+
+    for (CollIndex cc = 0; cc < colRefList->entries(); cc++) {
+      ColReference *predColRef = static_cast<ColReference *>((*colRefList)[cc]);
+
+      BiRelat *comp1Col = NULL;
+      // create a predicate OLD@.<col> = NEW@.<col>
+      comp1Col =
+          new (bindWA->wHeap()) BiRelat(ITM_EQUAL, predColRef,
+                                        new (bindWA->wHeap()) ColReference(new (bindWA->wHeap()) ColRefName(
+                                            predColRef->getColRefNameObj().getColName(), predValues, bindWA->wHeap())),
+                                        TRUE);  // special NULLs, treat NULL == NULL as true
+
+      if (preCond == NULL)
+        preCond = comp1Col;
       else
-	predValues.setCorrName(NEWCorr);
-
-      for (CollIndex cc=0; cc<colRefList->entries(); cc++)
-        {
-          ColReference *predColRef = static_cast<ColReference *>
-	    ((*colRefList)[cc]);
-
-	  BiRelat *comp1Col  = NULL;
-          // create a predicate OLD@.<col> = NEW@.<col>
-	  comp1Col = new (bindWA->wHeap())
-	    BiRelat(ITM_EQUAL,
-		    predColRef,
-		    new (bindWA->wHeap()) ColReference(
-			 new (bindWA->wHeap()) ColRefName(
-	    		 predColRef->getColRefNameObj().getColName(),
-			 predValues,
-			 bindWA->wHeap())),
-                    TRUE); // special NULLs, treat NULL == NULL as true
-
-          if (preCond == NULL)
-            preCond = comp1Col;
-          else
-            preCond = new (bindWA->wHeap()) BiLogic(ITM_AND, preCond, comp1Col);
-        }
-
-      // the actual condition is that the values are NOT the same
-      preCond = new (bindWA->wHeap()) UnLogic(ITM_NOT, preCond);
+        preCond = new (bindWA->wHeap()) BiLogic(ITM_AND, preCond, comp1Col);
     }
+
+    // the actual condition is that the values are NOT the same
+    preCond = new (bindWA->wHeap()) UnLogic(ITM_NOT, preCond);
+  }
 
   // If we got an IUD indicator passed in, that means that we have
   // an IM tree for update, but the actual operation may be an
   // insert or a delete, and therefore we may need to suppress the
   // index delete or insert, respectively, with a precondition.
-  if (mergeIUDIndicator != NULL_VALUE_ID)
-    {
-      ItemExpr *iudCond = 
-        new(bindWA->wHeap()) BiRelat(
-             ITM_NOT_EQUAL,
-             mergeIUDIndicator.getItemExpr(),
-             new(bindWA->wHeap()) SystemLiteral(
-                  (isIMInsert ? "D" : "I"),
-                  CharInfo::ISO88591));
+  if (mergeIUDIndicator != NULL_VALUE_ID) {
+    ItemExpr *iudCond = new (bindWA->wHeap())
+        BiRelat(ITM_NOT_EQUAL, mergeIUDIndicator.getItemExpr(),
+                new (bindWA->wHeap()) SystemLiteral((isIMInsert ? "D" : "I"), CharInfo::ISO88591));
 
-      if (preCond == NULL) 
-        preCond = iudCond;
-      else
-        preCond = new (bindWA->wHeap()) BiLogic(
-             ITM_AND,
-             iudCond,
-             preCond);
-    }
+    if (preCond == NULL)
+      preCond = iudCond;
+    else
+      preCond = new (bindWA->wHeap()) BiLogic(ITM_AND, iudCond, preCond);
+  }
 
   // NULL tableDesc here, like all Insert/Update/Delete ctors in SqlParser,
   // because the LeafXxx::bindNode will call GenericUpdate::bindNode
   // which will do the appropriate createTableDesc.
   GenericUpdate *imNode;
-  if (isIMInsert)
-    {
-      if (!bindWA->isTrafLoadPrep())
-      {
-        imNode = new (bindWA->wHeap()) 
-	  LeafInsert(indexCorrName, NULL, colRefList, REL_LEAF_INSERT,
-		     preCond, bindWA->wHeap());
-        HostArraysWA * arrayWA = bindWA->getHostArraysArea() ;
-        if (arrayWA && arrayWA->hasHostArraysInTuple()) {
-          if (arrayWA->getTolerateNonFatalError() == TRUE)
-            imNode->setTolerateNonFatalError(RelExpr::NOT_ATOMIC_);    
-        }
-        // For index maintenance on non-unique HBase indexes we can use a put.
-        // In fact we must use a put, otherwise we'll get a uniqueness constraint
-        // violation for those rows that didn't change and therefore didn't get
-        // deleted, due to the precondition (see below).
-        if (!index->isUniqueIndex())
-          imNode->setNoCheck(TRUE);
-      } // regular insert
-      else {
-        imNode = new (bindWA->wHeap()) Insert(indexCorrName,
-                 NULL,
-                 REL_UNARY_INSERT,
-                 NULL);
-        ((Insert *)imNode)->setBaseColRefs(colRefList);
-        ((Insert *)imNode)->setInsertType(Insert::UPSERT_LOAD);
-        ((Insert *)imNode)->setIsTrafLoadPrep(true);
-        ((Insert *)imNode)->setNoIMneeded(TRUE);
-      } // traf load prep
-    }
-  else
-    {
-      imNode = new (bindWA->wHeap()) LeafDelete(indexCorrName,
-                                                NULL,
-                                                colRefList,
-                                                (robustDelete )?TRUE:FALSE,
-                                                REL_LEAF_DELETE,
-                                                preCond,
-                                                bindWA->wHeap());
-      imNode->setReferencedMergeIUDIndicator(mergeIUDIndicator);
-    }
+  if (isIMInsert) {
+    if (!bindWA->isTrafLoadPrep()) {
+      imNode =
+          new (bindWA->wHeap()) LeafInsert(indexCorrName, NULL, colRefList, REL_LEAF_INSERT, preCond, bindWA->wHeap());
+      HostArraysWA *arrayWA = bindWA->getHostArraysArea();
+      if (arrayWA && arrayWA->hasHostArraysInTuple()) {
+        if (arrayWA->getTolerateNonFatalError() == TRUE) imNode->setTolerateNonFatalError(RelExpr::NOT_ATOMIC_);
+      }
+      // For index maintenance on non-unique HBase indexes we can use a put.
+      // In fact we must use a put, otherwise we'll get a uniqueness constraint
+      // violation for those rows that didn't change and therefore didn't get
+      // deleted, due to the precondition (see below).
+      if (!index->isUniqueIndex()) imNode->setNoCheck(TRUE);
+    }  // regular insert
+    else {
+      imNode = new (bindWA->wHeap()) Insert(indexCorrName, NULL, REL_UNARY_INSERT, NULL);
+      ((Insert *)imNode)->setBaseColRefs(colRefList);
+      ((Insert *)imNode)->setInsertType(Insert::UPSERT_LOAD);
+      ((Insert *)imNode)->setIsTrafLoadPrep(true);
+      ((Insert *)imNode)->setNoIMneeded(TRUE);
+    }  // traf load prep
+  } else {
+    imNode = new (bindWA->wHeap()) LeafDelete(indexCorrName, NULL, colRefList, (robustDelete) ? TRUE : FALSE,
+                                              REL_LEAF_DELETE, preCond, bindWA->wHeap());
+    imNode->setReferencedMergeIUDIndicator(mergeIUDIndicator);
+  }
 
-   // The base table's rowsAffected() will get set in ImplRule.cpp,
+  // The base table's rowsAffected() will get set in ImplRule.cpp,
   // but we don't want any of these indexes' rowsAffected to be computed
   // (if I insert one row into a table, I want to see "1 row(s) inserted",
   // not 1 + number of indexes being maintained!).
@@ -2071,23 +1723,19 @@ static RelExpr *createIMNode(BindWA *bindWA,
 
   // Do not collect STOI info for security checks.
   imNode->getInliningInfo().setFlags(II_AvoidSecurityChecks);
-  
+
   // Set the flag that this GU is part of IM
   imNode->getInliningInfo().setFlags(II_isIMGU);
 
-  if (bindWA->isTrafLoadPrep())
-    return imNode;
+  if (bindWA->isTrafLoadPrep()) return imNode;
 
   // Add a root here to prevent error 4056 when binding the LeafDelete+Insert
   // pair for an Update.
   return new (bindWA->wHeap()) RelRoot(imNode);
-} // static createIMNode()
+}  // static createIMNode()
 
-RelExpr *GenericUpdate::createIMNodes(BindWA *bindWA,
-				      NABoolean useInternalSyskey,
-				      IndexDesc *index,
-                                      const ValueId &mergeIUDIndicator)
-{
+RelExpr *GenericUpdate::createIMNodes(BindWA *bindWA, NABoolean useInternalSyskey, IndexDesc *index,
+                                      const ValueId &mergeIUDIndicator) {
   // We call getExtFileSetObj (returns QualifiedName),
   // NOT getExtFileSetName (returns NAString),
   // hence the CorrName ctor sets up entire QualifiedName,
@@ -2097,70 +1745,43 @@ RelExpr *GenericUpdate::createIMNodes(BindWA *bindWA,
   indexCorrName.setSpecialType(ExtendedQualName::INDEX_TABLE);
 
   CorrName &tableCorrName = getTableDesc()->getCorrNameObj();
-  if(tableCorrName.isVolatile())
-    indexCorrName.setIsVolatile(TRUE);
+  if (tableCorrName.isVolatile()) indexCorrName.setIsVolatile(TRUE);
 
   RelExpr *indexInsert = NULL, *indexDelete = NULL, *indexOp = NULL;
-  NABoolean isForUpdateOrMergeUpdate = (getOperatorType() == REL_UNARY_UPDATE ||
-                           isMergeUpdate());
-  
+  NABoolean isForUpdateOrMergeUpdate = (getOperatorType() == REL_UNARY_UPDATE || isMergeUpdate());
+
   NABoolean isEffUpsert = ((getOperatorType() == REL_UNARY_INSERT) && ((Insert *)this)->xformedEffUpsert());
-  NABoolean transformedToUpsert = isEffUpsert || transformedUpdateNoDtmXn() ;
+  NABoolean transformedToUpsert = isEffUpsert || transformedUpdateNoDtmXn();
   NABoolean hasRowsets = bindWA->getHostArraysArea() && bindWA->getHostArraysArea()->hasHostArrays();
 
-  if (indexCorrName.getUgivenName().isNull())
-    {
-      indexCorrName.setUgivenName(tableCorrName.getUgivenName());
-    }
+  if (indexCorrName.getUgivenName().isNull()) {
+    indexCorrName.setUgivenName(tableCorrName.getUgivenName());
+  }
 
   // Create a list of base columns ColReferences for
   // ALL the index columns as AFTER/NEW columns.
   //
-  if (getOperatorType() == REL_UNARY_INSERT ||
-      getOperatorType() == REL_UNARY_UPDATE || 
-      transformedToUpsert)
-    indexInsert = indexOp = createIMNode(bindWA,
-					 tableCorrName,
-					 indexCorrName,
-					 index,
-                                         mergeIUDIndicator,
-					 TRUE,
-					 useInternalSyskey,
-                                         isForUpdateOrMergeUpdate,
-                                         isMerge(),
-					 isEffUpsert);
+  if (getOperatorType() == REL_UNARY_INSERT || getOperatorType() == REL_UNARY_UPDATE || transformedToUpsert)
+    indexInsert = indexOp = createIMNode(bindWA, tableCorrName, indexCorrName, index, mergeIUDIndicator, TRUE,
+                                         useInternalSyskey, isForUpdateOrMergeUpdate, isMerge(), isEffUpsert);
 
   // Create a list of base columns ColReferences for
   // ONLY the index KEY columns as BEFORE/OLD columns.
   //
-  if (getOperatorType() == REL_UNARY_DELETE ||
-      getOperatorType() == REL_UNARY_UPDATE ||
-      transformedToUpsert)
-    {
-      NABoolean mergeDeleteWithInsertOrMergeUpdate = isMerge();
-      if (mergeDeleteWithInsertOrMergeUpdate && 
-          (getOperatorType() == REL_UNARY_DELETE) && 
-          (!insertValues()))
-        // merge delete without an insert
-        mergeDeleteWithInsertOrMergeUpdate = FALSE;
-      
-      indexDelete = indexOp = createIMNode(bindWA,
-					 tableCorrName,
-                                         indexCorrName,
-					 index,
-                                         mergeIUDIndicator,
-					 FALSE,
-    			       		 useInternalSyskey,
-                                         isForUpdateOrMergeUpdate,
-                                         mergeDeleteWithInsertOrMergeUpdate,
-					 isEffUpsert);
-    }
+  if (getOperatorType() == REL_UNARY_DELETE || getOperatorType() == REL_UNARY_UPDATE || transformedToUpsert) {
+    NABoolean mergeDeleteWithInsertOrMergeUpdate = isMerge();
+    if (mergeDeleteWithInsertOrMergeUpdate && (getOperatorType() == REL_UNARY_DELETE) && (!insertValues()))
+      // merge delete without an insert
+      mergeDeleteWithInsertOrMergeUpdate = FALSE;
 
-  if ((getOperatorType() == REL_UNARY_UPDATE) || 
-       transformedToUpsert){
-    indexOp = new (bindWA->wHeap()) Union(indexDelete, indexInsert, 
-                                          NULL, NULL, REL_UNION, 
-                                          CmpCommon::statementHeap(),TRUE,TRUE);
+    indexDelete = indexOp =
+        createIMNode(bindWA, tableCorrName, indexCorrName, index, mergeIUDIndicator, FALSE, useInternalSyskey,
+                     isForUpdateOrMergeUpdate, mergeDeleteWithInsertOrMergeUpdate, isEffUpsert);
+  }
+
+  if ((getOperatorType() == REL_UNARY_UPDATE) || transformedToUpsert) {
+    indexOp = new (bindWA->wHeap())
+        Union(indexDelete, indexInsert, NULL, NULL, REL_UNION, CmpCommon::statementHeap(), TRUE, TRUE);
 
     // is this in a compound statement?
     indexOp->setBlockStmt(isinBlockStmt());
@@ -2168,25 +1789,22 @@ RelExpr *GenericUpdate::createIMNodes(BindWA *bindWA,
     // is this GU driven by a row trigger
     // this a temporary fix to prevent data corruption when
     // the update operation is in the action of a row
-    // trigger. The data corruption is the result of the 
+    // trigger. The data corruption is the result of the
     // insert side of the IM tree lagging behind the delete
     // in the case where multiple request to update the same rows
     // are flowing to this update node.
-    // This is also the case when updates are being driven 
+    // This is also the case when updates are being driven
     // by rowsets.
     // Changing this code that  unconditionally blocked the ordered union
     // to handle all cases of IM updates.
-    //We can use the ordered union in the case where we have the sequence operator 
-    // in the tree on the left side to remove duplicates before it flows to the 
+    // We can use the ordered union in the case where we have the sequence operator
+    // in the tree on the left side to remove duplicates before it flows to the
     // IM tree. This is to improve performance.
-    // 
+    //
     if (this->getInliningInfo().isInActionOfRowTrigger() ||
-        /*(hasRowsets && !transformedToUpsert))*/(bindWA->getHostArraysArea() && !isEffUpsert))
-    {
+        /*(hasRowsets && !transformedToUpsert))*/ (bindWA->getHostArraysArea() && !isEffUpsert)) {
       ((Union *)indexOp)->setBlockedUnion();
-    }
-    else
-    {
+    } else {
       ((Union *)indexOp)->setOrderedUnion();
     }
 
@@ -2199,8 +1817,7 @@ RelExpr *GenericUpdate::createIMNodes(BindWA *bindWA,
   }
 
   return indexOp;
-} // GenericUpdate::createIMNodes()
-
+}  // GenericUpdate::createIMNodes()
 
 /*****************************************************************************
 ******************************************************************************
@@ -2213,169 +1830,120 @@ RelExpr *GenericUpdate::createIMNodes(BindWA *bindWA,
 // topmost view if the target table is a view.  The TableDesc always represents
 // the underlying *base* table.
 //
-RelExpr *GenericUpdate::createUndoTree(BindWA *bindWA,
-				       UpdateColumns *updatedColumns,
-				       NABoolean useInternalSyskey,
-				       NABoolean imOrRiPresent,
-				       NABoolean ormvPresent,
-				       TriggersTempTable  *tempTableObj)
-{
+RelExpr *GenericUpdate::createUndoTree(BindWA *bindWA, UpdateColumns *updatedColumns, NABoolean useInternalSyskey,
+                                       NABoolean imOrRiPresent, NABoolean ormvPresent,
+                                       TriggersTempTable *tempTableObj) {
   RelExpr *undoTree = NULL;
 
-  NAString origCorr(getTableDesc()->getCorrNameObj().getCorrNameAsString(),
-		    bindWA->wHeap());
+  NAString origCorr(getTableDesc()->getCorrNameObj().getCorrNameAsString(), bindWA->wHeap());
 
   const LIST(IndexDesc *) indexList = getTableDesc()->getIndexes();
- 
 
-   
   NABoolean undoNeeded = getOperatorType() == REL_UNARY_INSERT;
-  if (!undoNeeded)
-    return NULL;
-  if (imOrRiPresent)
-    {
-      for (CollIndex i=0; i < indexList.entries(); i++) 
-	{
+  if (!undoNeeded) return NULL;
+  if (imOrRiPresent) {
+    for (CollIndex i = 0; i < indexList.entries(); i++) {
+      IndexDesc *index = indexList[i];
+      if (undoNeeded)
+        if (!undoTree)
+          undoTree = createUndoNodes(bindWA, useInternalSyskey, index);
+        else {
+          undoTree = new (bindWA->wHeap()) Union(undoTree, createUndoNodes(bindWA, useInternalSyskey, index), NULL,
+                                                 NULL, REL_UNION, CmpCommon::statementHeap(), TRUE, TRUE);
+          undoTree->setBlockStmt(isinBlockStmt());
+        }
 
-	  IndexDesc *index = indexList[i];
-	  if (undoNeeded)
-	    if (!undoTree)
-	      undoTree = createUndoNodes(bindWA, useInternalSyskey, index);
-	    else
-	      {
-		undoTree = new (bindWA->wHeap()) 
-		  Union(undoTree, createUndoNodes(bindWA, useInternalSyskey, index),
-			NULL, NULL, REL_UNION, CmpCommon::statementHeap(), TRUE, TRUE);
-		undoTree->setBlockStmt(isinBlockStmt());
-	      }
-
-	  
-	} // loop over all indexes
-    }
-  if (ormvPresent)
-    {
-      if (!undoTree)
-	undoTree = createUndoIUDLog(bindWA);
-      else	
-	undoTree = new (bindWA->wHeap()) 
-	  Union(undoTree, createUndoIUDLog(bindWA),
-		NULL, NULL, REL_UNION, CmpCommon::statementHeap(), TRUE, TRUE);
-    }
-  if (tempTableObj)
-    {
-      if (!undoTree)
-	undoTree = createUndoTempTable(tempTableObj,bindWA);
-      else	
-	undoTree = new (bindWA->wHeap()) 
-	  Union(undoTree, createUndoTempTable(tempTableObj,bindWA),
-		NULL, NULL, REL_UNION, CmpCommon::statementHeap(), TRUE, TRUE); 
-    }
+    }  // loop over all indexes
+  }
+  if (ormvPresent) {
+    if (!undoTree)
+      undoTree = createUndoIUDLog(bindWA);
+    else
+      undoTree = new (bindWA->wHeap())
+          Union(undoTree, createUndoIUDLog(bindWA), NULL, NULL, REL_UNION, CmpCommon::statementHeap(), TRUE, TRUE);
+  }
+  if (tempTableObj) {
+    if (!undoTree)
+      undoTree = createUndoTempTable(tempTableObj, bindWA);
+    else
+      undoTree = new (bindWA->wHeap()) Union(undoTree, createUndoTempTable(tempTableObj, bindWA), NULL, NULL, REL_UNION,
+                                             CmpCommon::statementHeap(), TRUE, TRUE);
+  }
 
   // ##IM: This extra RelRoot is probably unnecessary (wasteful),
   // ##    due to createIMNode*() always returning a RelRoot-topped tree --
   // ##    but I didn't have time to remove it and re-test.
-  if (undoTree && undoTree->getOperatorType() != REL_ROOT)
-    undoTree = new (bindWA->wHeap()) RelRoot(undoTree);
+  if (undoTree && undoTree->getOperatorType() != REL_ROOT) undoTree = new (bindWA->wHeap()) RelRoot(undoTree);
 
   getTableDesc()->getCorrNameObj().setCorrName(origCorr);
 
   return undoTree;
-} // GenericUpdate::createUndoTree()
+}  // GenericUpdate::createUndoTree()
 
-
-RelExpr * GenericUpdate::createUndoTempTable(TriggersTempTable *tempTableObj,BindWA *bindWA)
-{
-  
+RelExpr *GenericUpdate::createUndoTempTable(TriggersTempTable *tempTableObj, BindWA *bindWA) {
   // TriggersTempTable *tempTableObj = new(bindWA->wHeap()) TriggersTempTable(this, bindWA);
-  const NAColumnArray &tempColumns = tempTableObj->getNaTable()->getNAColumnArray(); 
-  ItemExprList *tempColRefList = new(bindWA->wHeap()) ItemExprList(bindWA->wHeap());
-  /*  CorrName tempCorrName = *(tempTableObj->calcTargetTableName(tempTableObj->getSubjectTableName().getQualifiedNameObj()));*/
+  const NAColumnArray &tempColumns = tempTableObj->getNaTable()->getNAColumnArray();
+  ItemExprList *tempColRefList = new (bindWA->wHeap()) ItemExprList(bindWA->wHeap());
+  /*  CorrName tempCorrName =
+   * *(tempTableObj->calcTargetTableName(tempTableObj->getSubjectTableName().getQualifiedNameObj()));*/
   CorrName tempCorrName = *(tempTableObj->getTableName());
   CorrName origTempCorrName = tempCorrName;
-  tempCorrName.setCorrName( NEWCorr);
-  for (CollIndex i=0; i<tempColumns.entries(); i++) 
-    {
-      NAString tempColName(tempColumns.getColumn(i)->getColName());
-   
+  tempCorrName.setCorrName(NEWCorr);
+  for (CollIndex i = 0; i < tempColumns.entries(); i++) {
+    NAString tempColName(tempColumns.getColumn(i)->getColName());
 
-      ColReference *tempColRef = new(bindWA->wHeap()) 
-	ColReference(new(bindWA->wHeap()) ColRefName(tempColName, tempCorrName));
+    ColReference *tempColRef =
+        new (bindWA->wHeap()) ColReference(new (bindWA->wHeap()) ColRefName(tempColName, tempCorrName));
 
-      tempColRefList->insert(tempColRef);
-    }
+    tempColRefList->insert(tempColRef);
+  }
 
-  RelExpr *delTemp = new (bindWA->wHeap()) LeafDelete(origTempCorrName, NULL, 
-						      tempColRefList,FALSE);
+  RelExpr *delTemp = new (bindWA->wHeap()) LeafDelete(origTempCorrName, NULL, tempColRefList, FALSE);
   ((LeafDelete *)delTemp)->setTrigTemp(tempTableObj);
   ((GenericUpdate *)delTemp)->rowsAffected() = GenericUpdate::DO_NOT_COMPUTE_ROWSAFFECTED;
- 
-  return new (bindWA->wHeap()) RelRoot(delTemp); 
- 
-  
+
+  return new (bindWA->wHeap()) RelRoot(delTemp);
 }
 
 // Here, we make virgin ColReferences, which when bound will be found
 // in an outer scope engendered by our (and/or GenericUpdate's) interposing
 // a RelRoot between us and our parent GenericUpdate --
 // and the LeafXxx will add these outer refs to its characteristic inputs.
-static RelExpr *createUndoNode(BindWA *bindWA, 
-			     CorrName &tableCorrName,
-			     const CorrName &indexCorrName,
-			     IndexDesc *index,
-			     NABoolean useInternalSyskey)
-{
-   
- // See createOldAndNewCorrelationNames() for info on OLDCorr/NEWCorr
+static RelExpr *createUndoNode(BindWA *bindWA, CorrName &tableCorrName, const CorrName &indexCorrName, IndexDesc *index,
+                               NABoolean useInternalSyskey) {
+  // See createOldAndNewCorrelationNames() for info on OLDCorr/NEWCorr
   CorrName btCorrName = tableCorrName;
-   
-  tableCorrName.setCorrName( NEWCorr);
-  
-  
-  ItemExprList *colRefList = new(bindWA->wHeap()) ItemExprList(bindWA->wHeap());
-  
-  const ValueIdList &indexColVids =  
-    (index->isUniqueIndex()? index->getIndexColumns(): index->getIndexKey());
-  
-    
 
-  
-  for (CollIndex i=0; i < indexColVids.entries(); i++) {
+  tableCorrName.setCorrName(NEWCorr);
 
+  ItemExprList *colRefList = new (bindWA->wHeap()) ItemExprList(bindWA->wHeap());
+
+  const ValueIdList &indexColVids = (index->isUniqueIndex() ? index->getIndexColumns() : index->getIndexKey());
+
+  for (CollIndex i = 0; i < indexColVids.entries(); i++) {
     const NAString &colName = indexColVids[i].getNAColumn()->getColName();
 
     NAString realColName = colName;
-    if (useInternalSyskey && colName == "SYSKEY")
-    {
+    if (useInternalSyskey && colName == "SYSKEY") {
       realColName = "@SYSKEY";
     }
 
-    ColReference *colRef =
-      new (bindWA->wHeap()) ColReference
-        (new (bindWA->wHeap()) ColRefName (realColName, tableCorrName, bindWA->wHeap()));
+    ColReference *colRef = new (bindWA->wHeap())
+        ColReference(new (bindWA->wHeap()) ColRefName(realColName, tableCorrName, bindWA->wHeap()));
 
     colRefList->insert(colRef);
   }
 
-  
-
   // NULL tableDesc here, like all Insert/Update/Delete ctors in SqlParser,
   // because the LeafXxx::bindNode will call GenericUpdate::bindNode
   // which will do the appropriate createTableDesc.
-  GenericUpdate *delIndex; 
- 
- 
-     
-	
- 
+  GenericUpdate *delIndex;
+
   if (index->isClusteringIndex())
-    delIndex = new (bindWA->wHeap()) LeafDelete(btCorrName, NULL, 
-						    colRefList);
+    delIndex = new (bindWA->wHeap()) LeafDelete(btCorrName, NULL, colRefList);
   else
-    delIndex = new (bindWA->wHeap()) LeafDelete(indexCorrName, NULL 
-							,colRefList 
-							,index->isUniqueIndex());
-	
-         
+    delIndex = new (bindWA->wHeap()) LeafDelete(indexCorrName, NULL, colRefList, index->isUniqueIndex());
+
   // The base table's rowsAffected() will get set in ImplRule.cpp,
   // but we don't want any of these indexes' rowsAffected to be computed
   // (if I insert one row into a table, I want to see "1 row(s) inserted",
@@ -2384,70 +1952,50 @@ static RelExpr *createUndoNode(BindWA *bindWA,
 
   // Do not collect STOI info for security checks.
   delIndex->getInliningInfo().setFlags(II_AvoidSecurityChecks);
-  
-  
+
   // Add a root here to prevent error 4056 when binding the LeafDelete+Insert
   // pair for an Update.
-  return new (bindWA->wHeap()) RelRoot(delIndex); 	 
-  
-    
-  return NULL;
-} // static createUndoNode()
+  return new (bindWA->wHeap()) RelRoot(delIndex);
 
-RelExpr *GenericUpdate::createUndoNodes(BindWA *bindWA,
-				      NABoolean useInternalSyskey,
-				      IndexDesc *index)
-{
+  return NULL;
+}  // static createUndoNode()
+
+RelExpr *GenericUpdate::createUndoNodes(BindWA *bindWA, NABoolean useInternalSyskey, IndexDesc *index) {
   // We call getExtFileSetObj (returns QualifiedName),
   // NOT getExtFileSetName (returns NAString),
   // hence the CorrName ctor sets up entire QualifiedName,
   // NOT just an (erroneously delimited) objectName part of one.
   //
-  
+
   CorrName indexCorrName(index->getNAFileSet()->getExtFileSetObj());
   indexCorrName.setSpecialType(ExtendedQualName::INDEX_TABLE);
 
   CorrName &tableCorrName = getTableDesc()->getCorrNameObj();
   RelExpr *undoInsert = NULL;
 
-  if (indexCorrName.getUgivenName().isNull())
-    {
-      indexCorrName.setUgivenName(tableCorrName.getUgivenName());
-    }
+  if (indexCorrName.getUgivenName().isNull()) {
+    indexCorrName.setUgivenName(tableCorrName.getUgivenName());
+  }
 
-  if(tableCorrName.isVolatile())
-    indexCorrName.setIsVolatile(TRUE);
+  if (tableCorrName.isVolatile()) indexCorrName.setIsVolatile(TRUE);
 
   // Create a list of base columns ColReferences for
   // ALL the index columns as AFTER/NEW columns.
   //
-  
-    undoInsert =  createUndoNode(bindWA, 
-				 tableCorrName, 
-				 indexCorrName,
-				 index, 
-				 useInternalSyskey);
 
- 
+  undoInsert = createUndoNode(bindWA, tableCorrName, indexCorrName, index, useInternalSyskey);
 
-    return undoInsert;
-} // GenericUpdate::createUndoNodes()
+  return undoInsert;
+}  // GenericUpdate::createUndoNodes()
 /*****************************************************************************
 ******************************************************************************
 ****  Methods for handling undo from IUD log
 ******************************************************************************
 *****************************************************************************/
 
-
-
-RelExpr *GenericUpdate::createUndoIUDLog(BindWA *bindWA)
-{
- 						    
+RelExpr *GenericUpdate::createUndoIUDLog(BindWA *bindWA) {
   MvIudLog logTableObj(this, bindWA);
-  RelExpr *undoIUDNode = logTableObj.buildInsert(TRUE,
-                                                 ChangesTable::ALL_ROWS,
-                                                 TRUE,
-                                                 TRUE);
+  RelExpr *undoIUDNode = logTableObj.buildInsert(TRUE, ChangesTable::ALL_ROWS, TRUE, TRUE);
   return undoIUDNode;
 }
 
@@ -2459,39 +2007,27 @@ RelExpr *GenericUpdate::createUndoIUDLog(BindWA *bindWA)
 
 //////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
-RefConstraintList *GenericUpdate::getRIs(BindWA *bindWA, 
-					 const NATable *naTable)
-{
-  RefConstraintList *allRIConstraints = new(bindWA->wHeap()) 
-    RefConstraintList(bindWA->wHeap());
+RefConstraintList *GenericUpdate::getRIs(BindWA *bindWA, const NATable *naTable) {
+  RefConstraintList *allRIConstraints = new (bindWA->wHeap()) RefConstraintList(bindWA->wHeap());
 
-  if ((getOperatorType() == REL_UNARY_INSERT) || 
-      (getOperatorType()== REL_UNARY_UPDATE))
-    naTable->getRefConstraints().getRefConstraints(bindWA, 
-						   newRecExpr(), 
-						   *allRIConstraints);
-  
-  if ((getOperatorType() == REL_UNARY_DELETE) || 
-      (getOperatorType()== REL_UNARY_UPDATE) ||
+  if ((getOperatorType() == REL_UNARY_INSERT) || (getOperatorType() == REL_UNARY_UPDATE))
+    naTable->getRefConstraints().getRefConstraints(bindWA, newRecExpr(), *allRIConstraints);
+
+  if ((getOperatorType() == REL_UNARY_DELETE) || (getOperatorType() == REL_UNARY_UPDATE) ||
       ((getOperatorType() == REL_UNARY_INSERT) && ((Insert *)this)->xformedEffUpsert()))
-    naTable->getUniqueConstraints().getRefConstraints(bindWA, 
-						      newRecExpr(), 
-						      *allRIConstraints);
+    naTable->getUniqueConstraints().getRefConstraints(bindWA, newRecExpr(), *allRIConstraints);
 
   CollIndex numConstraints = allRIConstraints->entries();
 
-  for(CollIndex index = 0; index < numConstraints; index++)
-  {
-    if(NOT (allRIConstraints->at(index)->getIsEnforced()))
-    {
-	allRIConstraints->removeAt(index);
-	numConstraints--;
-	index--;
+  for (CollIndex index = 0; index < numConstraints; index++) {
+    if (NOT(allRIConstraints->at(index)->getIsEnforced())) {
+      allRIConstraints->removeAt(index);
+      numConstraints--;
+      index--;
     }
   }
 
-  if(allRIConstraints->isEmpty())
-  {
+  if (allRIConstraints->isEmpty()) {
     delete allRIConstraints;
     allRIConstraints = NULL;
   }
@@ -2504,19 +2040,15 @@ RefConstraintList *GenericUpdate::getRIs(BindWA *bindWA,
 // Check if there is any matching columns in both the RI key columns and
 // in the set of columns being updated.
 //////////////////////////////////////////////////////////////////////////////
-NABoolean RefConstraint::isRINeededForUpdatedColumns(UpdateColumns *UpdatedColumns)
-{
+NABoolean RefConstraint::isRINeededForUpdatedColumns(UpdateColumns *UpdatedColumns) {
   // UpdatedColumns is NULL for INSERT and DELETE. Columns should be matched
   // for UPDATE operations only.
 
-  if (NOT getIsEnforced())
-    return FALSE;
+  if (NOT getIsEnforced()) return FALSE;
 
-  if (UpdatedColumns == NULL)
-    return TRUE;
+  if (UpdatedColumns == NULL) return TRUE;
 
-  NABoolean isAReferencingConstraint = isaForeignKeyinTableBeingUpdated() 
-					&& getIsEnforced();
+  NABoolean isAReferencingConstraint = isaForeignKeyinTableBeingUpdated() && getIsEnforced();
   const KeyColumns *riColumns;
 
   if (isAReferencingConstraint)
@@ -2524,10 +2056,8 @@ NABoolean RefConstraint::isRINeededForUpdatedColumns(UpdateColumns *UpdatedColum
   else
     riColumns = uniqueConstraintReferencedByMe_.keyColumns_;
 
-  for (CollIndex i=0; i<riColumns->entries(); i++)
-  {
-    if (UpdatedColumns->contains(riColumns->at(i)->getPosition()))
-      return TRUE;
+  for (CollIndex i = 0; i < riColumns->entries(); i++) {
+    if (UpdatedColumns->contains(riColumns->at(i)->getPosition())) return TRUE;
   }
   return FALSE;
 }
@@ -2536,15 +2066,12 @@ NABoolean RefConstraint::isRINeededForUpdatedColumns(UpdateColumns *UpdatedColum
 // Return a list of only the RI constraints needed when updating the
 // specified columns.
 //////////////////////////////////////////////////////////////////////////////
-RefConstraintList *RefConstraintList::getNeededRIs(UpdateColumns *updatedColumns,
-						   CollHeap *heap)
-{
+RefConstraintList *RefConstraintList::getNeededRIs(UpdateColumns *updatedColumns, CollHeap *heap) {
   // Insert into neededRIs only the constraints that match the columns
   // being updated.
-  RefConstraintList *neededRIs = new(heap) RefConstraintList(heap);
-  for (CollIndex i=0; i<entries(); i++)
-    if (at(i)->isRINeededForUpdatedColumns(updatedColumns))
-      neededRIs->insert(at(i));
+  RefConstraintList *neededRIs = new (heap) RefConstraintList(heap);
+  for (CollIndex i = 0; i < entries(); i++)
+    if (at(i)->isRINeededForUpdatedColumns(updatedColumns)) neededRIs->insert(at(i));
 
   return neededRIs;
 }
@@ -2564,46 +2091,39 @@ RefConstraintList *RefConstraintList::getNeededRIs(UpdateColumns *updatedColumns
 // Step 2. Create the GroupBy Node with the aggregate expression.
 // Step 3. create the RelRoot node.
 //////////////////////////////////////////////////////////////////////////////
-RelExpr* GenericUpdate::createRISubtree(BindWA *bindWA, 
-				        const NATable *naTable, 
-				        const RefConstraint& refConstraint,
-				        CollHeap *heap)
-{
+RelExpr *GenericUpdate::createRISubtree(BindWA *bindWA, const NATable *naTable, const RefConstraint &refConstraint,
+                                        CollHeap *heap) {
   RelExpr *newScan = NULL;
   NAString constraintName(bindWA->wHeap());
   NAString tableName(bindWA->wHeap());
   Parser parser(bindWA->currentCmpContext());
 
-  NABoolean isReferencingConstraint = 
-    (refConstraint.isaForeignKeyinTableBeingUpdated() &&
-    refConstraint.getIsEnforced());
-  
+  NABoolean isReferencingConstraint =
+      (refConstraint.isaForeignKeyinTableBeingUpdated() && refConstraint.getIsEnforced());
+
   // Step 1: Create a scan node with predicate given by the refConstraint.
   const QualifiedName parentQualName = refConstraint.getOtherTableName();
-  
+
   NAString scanPredicateTxt;
-  CorrName corrName(naTable->getTableName(), heap,
-		    (isReferencingConstraint ? NEWAnsi : OLDAnsi));
+  CorrName corrName(naTable->getTableName(), heap, (isReferencingConstraint ? NEWAnsi : OLDAnsi));
 
   NAString corrNameString = corrName.getCorrNameAsString();
   refConstraint.getPredicateText(scanPredicateTxt, &corrNameString);
-  
+
   constraintName = refConstraint.getConstraintName().getQualifiedNameAsAnsiString();
   tableName = naTable->getTableName().getQualifiedNameAsAnsiString();
-  
+
   // Create the Scan node.
-  newScan = new (heap) Scan (CorrName(parentQualName));
-  ItemExpr *newScanPredicate = parser.getItemExprTree 
-    ((char *)scanPredicateTxt.data());
+  newScan = new (heap) Scan(CorrName(parentQualName));
+  ItemExpr *newScanPredicate = parser.getItemExprTree((char *)scanPredicateTxt.data());
   newScan->addSelPredTree(newScanPredicate);
   ((Scan *)newScan)->accessOptions().accessType() = TransMode::REPEATABLE_READ_ACCESS_;
   // Do not collect STOI info for security checks.
   newScan->getInliningInfo().setFlags(II_AvoidSecurityChecks);
 
-  
   // Step 2: Create GroupBy Node.
   // Create a selection predicate and attach it to the
-  // GroupBy  Node. in the 
+  // GroupBy  Node. in the
   //                      case
   //                       |
   //                   IfThenElse
@@ -2615,29 +2135,28 @@ RelExpr* GenericUpdate::createRISubtree(BindWA *bindWA,
   //           /    \
   //          /      \
   //    OneTrue  (FK1 IS NULL
-  //       |          OR     
+  //       |          OR
   //       =      FK2 IS NULL..)
   //     /   \
   //    1     1
-  
-  ItemExpr *aggSelPredicate = parser.getItemExprTree ("1 = 1");
+
+  ItemExpr *aggSelPredicate = parser.getItemExprTree("1 = 1");
 
   ItemExpr *newAggExpr = NULL;
-  
+
   // For inserts we have to see if a value exists in the referenced table
   // and for deletes we have to check that the deleted value does not exist
   // in the referencing table. Update is a delete and an insert, so we
   // have to check both.
   // You can tell whether to use "EXISTS" or "NOT EXISTS" by looking at
   // RefConstraint::isaForeignKeyinTableBeingUpdated
-  
-  if (isReferencingConstraint) 
-  {
-    // According to ANSI SQL99 (4.17.2), RI constraint is satisfied if one of the 
+
+  if (isReferencingConstraint) {
+    // According to ANSI SQL99 (4.17.2), RI constraint is satisfied if one of the
     // following conditions is true, depending on the <match option> specified in the
     // <referential constraint definition>:
     // If no < match type> was specified then, for each row R1 of the referencing
-    // table, either at least one of the values of the referencing columns in 
+    // table, either at least one of the values of the referencing columns in
     // R1 shall be a null value, or the value of each referencing column in R1 shall
     // be equal to the value of the corresponding referenced  column in
     // some row of the referenced table.
@@ -2652,76 +2171,52 @@ RelExpr* GenericUpdate::createRISubtree(BindWA *bindWA,
     // instead of Scan node. This is because when this predicate is added
     // to the row value constructor in the Scan node, the Optimizer fails to
     // recognise it as a key predicate, hence affecting performance.
-    
-    NAString matchOptionPredicateTxt;
-    refConstraint.getMatchOptionPredicateText(matchOptionPredicateTxt, 
-					      &corrNameString);
-    
-    ItemExpr *matchOptionPred = parser.getItemExprTree
-      ((char *)matchOptionPredicateTxt.data());
-    newAggExpr = new (heap) BiLogic(ITM_OR, 
-				    new (heap) 
-				    Aggregate(ITM_ONE_TRUE, aggSelPredicate),
-				    matchOptionPred
-				    );
-    
-  }
-  else 
-  {
-    newAggExpr = new (heap) 
-      UnLogic(ITM_NOT, new (heap) Aggregate(ITM_ONE_TRUE, aggSelPredicate));
-  }
-  
-  ItemExpr *grbySelectionPred = new (heap)
-    Case(NULL,
-	 new (heap)
-	   IfThenElse(newAggExpr,
-		    new (heap) BoolVal(ITM_RETURN_FALSE),
-		    new (heap) 
-		      RaiseError((Lng32)EXE_RI_CONSTRAINT_VIOLATION, constraintName, 
-			       tableName)));
 
-  
+    NAString matchOptionPredicateTxt;
+    refConstraint.getMatchOptionPredicateText(matchOptionPredicateTxt, &corrNameString);
+
+    ItemExpr *matchOptionPred = parser.getItemExprTree((char *)matchOptionPredicateTxt.data());
+    newAggExpr = new (heap) BiLogic(ITM_OR, new (heap) Aggregate(ITM_ONE_TRUE, aggSelPredicate), matchOptionPred);
+
+  } else {
+    newAggExpr = new (heap) UnLogic(ITM_NOT, new (heap) Aggregate(ITM_ONE_TRUE, aggSelPredicate));
+  }
+
+  ItemExpr *grbySelectionPred = new (heap)
+      Case(NULL,
+           new (heap) IfThenElse(newAggExpr, new (heap) BoolVal(ITM_RETURN_FALSE),
+                                 new (heap) RaiseError((Lng32)EXE_RI_CONSTRAINT_VIOLATION, constraintName, tableName)));
+
   // Create a GroupBy on the newScan, and attach the new case as "having" predicate.
-  RelExpr * newGrby = new(heap)
-    GroupByAgg(newScan, REL_GROUPBY);
+  RelExpr *newGrby = new (heap) GroupByAgg(newScan, REL_GROUPBY);
   newGrby->addSelPredTree(grbySelectionPred);
-  
+
   // Create the Root Node.
-  RelExpr *newRoot = new (heap) 
-    RelRoot(newGrby,
-	    TransMode::REPEATABLE_READ_ACCESS_,
-	    SHARE_);
+  RelExpr *newRoot = new (heap) RelRoot(newGrby, TransMode::REPEATABLE_READ_ACCESS_, SHARE_);
 
   ((RelRoot *)newRoot)->setEmptySelectList();
 
   return newRoot;
-} // createRISubtree()
+}  // createRISubtree()
 
 //////////////////////////////////////////////////////////////////////////////
 // Given the ConstraintList, this function creates a RI subtree and returns
 // the root of the subtree to the caller.
 //////////////////////////////////////////////////////////////////////////////
-RelExpr* GenericUpdate::inlineRI (BindWA *bindWA, 
-				  const RefConstraintList *refConstraints,
-				  CollHeap *heap)
-{
+RelExpr *GenericUpdate::inlineRI(BindWA *bindWA, const RefConstraintList *refConstraints, CollHeap *heap) {
   Int32 entries = 0;
   RelExpr *riSubtree = NULL;
   const NATable *naTable = getTableDesc()->getNATable();
 
-  CMPASSERT (!refConstraints->isEmpty())
-  
-  if ((entries = refConstraints->entries())) 
-  {
+  CMPASSERT(!refConstraints->isEmpty())
+
+  if ((entries = refConstraints->entries())) {
     riSubtree = createRISubtree(bindWA, naTable, *(refConstraints->at(0)), heap);
-    for (Int32 i=1; i < entries; i++) 
-    {
-      riSubtree = new(heap) 
-	Union(createRISubtree(bindWA, naTable, *(refConstraints->at(i)), heap),
-	      riSubtree, NULL, NULL, REL_UNION, CmpCommon::statementHeap(), TRUE);
-    } //end of for
-  } 
+    for (Int32 i = 1; i < entries; i++) {
+      riSubtree = new (heap) Union(createRISubtree(bindWA, naTable, *(refConstraints->at(i)), heap), riSubtree, NULL,
+                                   NULL, REL_UNION, CmpCommon::statementHeap(), TRUE);
+    }  // end of for
+  }
 
   CMPASSERT(riSubtree);
 
@@ -2729,16 +2224,13 @@ RelExpr* GenericUpdate::inlineRI (BindWA *bindWA,
   // "riSubtree" will be a relroot when there is only one RI constraint.
   // Avoding duplicate roots.
   if (riSubtree->getOperatorType() != REL_ROOT) {
-    riSubtree = new (heap) 
-      RelRoot(riSubtree,
-              TransMode::REPEATABLE_READ_ACCESS_,
-              SHARE_);
+    riSubtree = new (heap) RelRoot(riSubtree, TransMode::REPEATABLE_READ_ACCESS_, SHARE_);
     ((RelRoot *)riSubtree)->setEmptySelectList();
   }
 
   riSubtree->getInliningInfo().setFlags(II_ActionOfRI);
   return riSubtree;
-} // inlineRI.
+}  // inlineRI.
 
 /*****************************************************************************
 ******************************************************************************
@@ -2753,22 +2245,19 @@ RelExpr* GenericUpdate::inlineRI (BindWA *bindWA,
 //    3. NOLOG option specified
 //    4. Pipelined refresh.
 //    5. Recompute.
-// In the first 3 cases, the table should be marked as inconsistent, and 
+// In the first 3 cases, the table should be marked as inconsistent, and
 // getIsInsertLog() returns INCONSISTENT_NOLOG.
-// In the cases of pipelined refresh and recompute, logging is 
+// In the cases of pipelined refresh and recompute, logging is
 // disabled, but the table is NOT marked as inconsistent (CONSISTENT_NOLOG).
 // P.S. Marking the table as inconsistent is not implemented yet.
 //////////////////////////////////////////////////////////////////////////////
-NABoolean GenericUpdate::isMvLoggingRequired()
-{
-  const ComMvAttributeBitmap& bitmap = 
-    getTableDesc()->getNATable()->getMvAttributeBitmap();
+NABoolean GenericUpdate::isMvLoggingRequired() {
+  const ComMvAttributeBitmap &bitmap = getTableDesc()->getNATable()->getMvAttributeBitmap();
 
-  if (!bitmap.getLoggingRequired())
-  {
-    // Just in case the user used NOLOG when logging is not required. We don't 
+  if (!bitmap.getLoggingRequired()) {
+    // Just in case the user used NOLOG when logging is not required. We don't
     // want to mark the table as inconsistent.
-    isNoLogOperation_ = NORMAL_LOGGING; 
+    isNoLogOperation_ = NORMAL_LOGGING;
     return FALSE;
   }
 
@@ -2806,10 +2295,8 @@ NABoolean GenericUpdate::isMvLoggingRequired()
 #endif
 
   // Check for Update/Delete on an INSERTLOG table
-  if (getOperatorType() != REL_UNARY_INSERT &&
-      bitmap.getIsInsertLog() )
-  {
-    setNoLogOperation(FALSE); // This is an inconsistent operation.
+  if (getOperatorType() != REL_UNARY_INSERT && bitmap.getIsInsertLog()) {
+    setNoLogOperation(FALSE);  // This is an inconsistent operation.
   }
 
   // Marking the table as inconsistent is not implemented yet,
@@ -2817,45 +2304,32 @@ NABoolean GenericUpdate::isMvLoggingRequired()
   // When implemented, it will mean writing the CurrentEpoch to the UMD
   // table, and will be handled just like logging.
   return (isNoLogOperation() == NORMAL_LOGGING);
-//return (isNoLogOperation() == NORMAL_LOGGING || 
-//        isNoLogOperation() == INCONSISTENT_NOLOG);  
+  // return (isNoLogOperation() == NORMAL_LOGGING ||
+  //        isNoLogOperation() == INCONSISTENT_NOLOG);
 }
 
 //////////////////////////////////////////////////////////////////////////////
 // Add to the RETDesc the virtual columns needed for MV logging.
 //////////////////////////////////////////////////////////////////////////////
-void GenericUpdate::prepareForMvLogging(BindWA   *bindWA, 
-					CollHeap *heap)
-{
-  // Create a "virtual column" called @CURRENT_EPOCH for the CurrentEpoch 
+void GenericUpdate::prepareForMvLogging(BindWA *bindWA, CollHeap *heap) {
+  // Create a "virtual column" called @CURRENT_EPOCH for the CurrentEpoch
   // function. This function must be evaluated on the GU, and pipelined to
   // the Log Insert node.
-  ItemExpr *currEpoch = new(heap) GenericUpdateOutputFunction(ITM_CURRENTEPOCH);
-  ValueId epochId = 
-    addVirtualColumn(bindWA, currEpoch, InliningInfo::getEpochVirtualColName(), heap);
+  ItemExpr *currEpoch = new (heap) GenericUpdateOutputFunction(ITM_CURRENTEPOCH);
+  ValueId epochId = addVirtualColumn(bindWA, currEpoch, InliningInfo::getEpochVirtualColName(), heap);
   ValueId rowTypeId, rowCountId;
   if (getOperatorType() == REL_UNARY_INSERT &&
-      getTableDesc()->getNATable()->getMvAttributeBitmap().getAutomaticRangeLoggingRequired())
-  {
+      getTableDesc()->getNATable()->getMvAttributeBitmap().getAutomaticRangeLoggingRequired()) {
     // dead code, range logging is not supported
-    ItemExpr *rowType  = new(heap) GenericUpdateOutputFunction(ITM_VSBBROWTYPE);
-    ItemExpr *rowCount = new(heap) GenericUpdateOutputFunction(ITM_VSBBROWCOUNT);
-    rowTypeId  = 
-      addVirtualColumn(bindWA, rowType, InliningInfo::getRowTypeVirtualColName(), heap);
-    rowCountId = 
-      addVirtualColumn(bindWA, rowCount, InliningInfo::getRowCountVirtualColName(), heap);
+    ItemExpr *rowType = new (heap) GenericUpdateOutputFunction(ITM_VSBBROWTYPE);
+    ItemExpr *rowCount = new (heap) GenericUpdateOutputFunction(ITM_VSBBROWCOUNT);
+    rowTypeId = addVirtualColumn(bindWA, rowType, InliningInfo::getRowTypeVirtualColName(), heap);
+    rowCountId = addVirtualColumn(bindWA, rowCount, InliningInfo::getRowCountVirtualColName(), heap);
   }
 
-  ItemExpr *tsOutExpr = new (heap) 
-                  GenericUpdateOutputFunction(ITM_JULIANTIMESTAMP, 
-                                              1,
-                                              new (heap) InternalTimestamp);
+  ItemExpr *tsOutExpr = new (heap) GenericUpdateOutputFunction(ITM_JULIANTIMESTAMP, 1, new (heap) InternalTimestamp);
 
-  ValueId tsId = addVirtualColumn(bindWA, 
-                                  tsOutExpr, 
-                                  InliningInfo::getMvLogTsColName(), 
-                                  heap);
-
+  ValueId tsId = addVirtualColumn(bindWA, tsOutExpr, InliningInfo::getMvLogTsColName(), heap);
 
   ValueIdSet potentialOutputs;
   getPotentialOutputValues(potentialOutputs);
@@ -2865,61 +2339,49 @@ void GenericUpdate::prepareForMvLogging(BindWA   *bindWA,
   getInliningInfo().setFlags(II_isMVLoggingInlined);
 
   // for push down
-  if ( ((getOperatorType() == REL_UNARY_UPDATE)  && CmpCommon::getDefault(MV_LOG_PUSH_DOWN_DP2_UPDATE) == DF_ON) || 
-       ((getOperatorType() == REL_UNARY_DELETE)  && CmpCommon::getDefault(MV_LOG_PUSH_DOWN_DP2_DELETE) == DF_ON) || 
-       ((getOperatorType() == REL_UNARY_INSERT)  && CmpCommon::getDefault(MV_LOG_PUSH_DOWN_DP2_INSERT) == DF_ON) )
-      getInliningInfo().setFlags(II_isUsedForMvLogging);
+  if (((getOperatorType() == REL_UNARY_UPDATE) && CmpCommon::getDefault(MV_LOG_PUSH_DOWN_DP2_UPDATE) == DF_ON) ||
+      ((getOperatorType() == REL_UNARY_DELETE) && CmpCommon::getDefault(MV_LOG_PUSH_DOWN_DP2_DELETE) == DF_ON) ||
+      ((getOperatorType() == REL_UNARY_INSERT) && CmpCommon::getDefault(MV_LOG_PUSH_DOWN_DP2_INSERT) == DF_ON))
+    getInliningInfo().setFlags(II_isUsedForMvLogging);
 }
 
 //////////////////////////////////////////////////////////////////////////////
 // Insert the OLD and NEW values into the MV IUD Log
 //////////////////////////////////////////////////////////////////////////////
-RelExpr *GenericUpdate::createMvLogInsert(BindWA   *bindWA, 
-					  CollHeap *heap,
-					  UpdateColumns *updatedColumns,
-					  NABoolean projectMidRangeRows)
-{
+RelExpr *GenericUpdate::createMvLogInsert(BindWA *bindWA, CollHeap *heap, UpdateColumns *updatedColumns,
+                                          NABoolean projectMidRangeRows) {
   MvIudLog logTableObj(this, bindWA);
   logTableObj.setUpdatedColumns(updatedColumns);
-  RelExpr *insertNode = logTableObj.buildInsert(TRUE,
-                                                ChangesTable::ALL_ROWS,
-                                                FALSE,
-                                                TRUE);
+  RelExpr *insertNode = logTableObj.buildInsert(TRUE, ChangesTable::ALL_ROWS, FALSE, TRUE);
 
-  if (bindWA->errStatus())
-    return NULL;
+  if (bindWA->errStatus()) return NULL;
 
   prepareForMvLogging(bindWA, heap);
 
-  if (projectMidRangeRows)
-  {
+  if (projectMidRangeRows) {
     // Set the flag on this node.
     // This flag should be set even when range logging is off.
     getInliningInfo().setFlags(II_ProjectMidRangeRows);
   }
 
   RelExpr *topNode = insertNode;
-  if (logTableObj.needsRangeLogging() && projectMidRangeRows)
-  {
+  if (logTableObj.needsRangeLogging() && projectMidRangeRows) {
     // dead code, range logging is not supported
     RelRoot *rootNode = new (heap) RelRoot(insertNode);
     rootNode->setEmptySelectList();
 
-    ItemExpr *noIgnoreCondition = new(heap)
-      BiRelat(ITM_NOT_EQUAL,
-	      new(heap) ConstValue(ComMvRowType_MidRange),
-	      new(heap) ColReference(new(heap) 
-		ColRefName(InliningInfo::getRowTypeVirtualColName())) );
+    ItemExpr *noIgnoreCondition =
+        new (heap) BiRelat(ITM_NOT_EQUAL, new (heap) ConstValue(ComMvRowType_MidRange),
+                           new (heap) ColReference(new (heap) ColRefName(InliningInfo::getRowTypeVirtualColName())));
 
     //  for the "else" of the 'when clause'
-    ItemExpr *noOpArg  = new (heap) ConstValue(0);
-    RelExpr  *noOp     = new (heap) Tuple(noOpArg);
-    RelRoot  *noOpRoot = new (heap) RelRoot(noOp);
+    ItemExpr *noOpArg = new (heap) ConstValue(0);
+    RelExpr *noOp = new (heap) Tuple(noOpArg);
+    RelRoot *noOpRoot = new (heap) RelRoot(noOp);
     noOpRoot->setEmptySelectList();
-	      
-    Union *ifNode = new(heap) Union
-      (rootNode, noOpRoot, NULL, noIgnoreCondition, REL_UNION,
-       CmpCommon::statementHeap(), TRUE);
+
+    Union *ifNode =
+        new (heap) Union(rootNode, noOpRoot, NULL, noIgnoreCondition, REL_UNION, CmpCommon::statementHeap(), TRUE);
     ifNode->setCondUnary();
 
     topNode = ifNode;
@@ -2927,39 +2389,30 @@ RelExpr *GenericUpdate::createMvLogInsert(BindWA   *bindWA,
 
   RelRoot *rootNode = new (heap) RelRoot(topNode);
   rootNode->setEmptySelectList();
-  rootNode->getInliningInfo().setFlags(II_ActionOfRI); 
+  rootNode->getInliningInfo().setFlags(II_ActionOfRI);
 
   return rootNode;
 }
 
 // This helper function is called only from GenericUpdate::handleInlining and GenericUpdate::getTriggeredMVs
 // It checks if we are compiling a NOT ATOMIC statement as raises the appropriate
-// error/warning. A warning is raised for ODBC and the statement will be compiled as an 
+// error/warning. A warning is raised for ODBC and the statement will be compiled as an
 // ATOMIC statement. This method retuns TRUE if an error is raised and returns FALSE otherwise
-NABoolean GenericUpdate::checkForNotAtomicStatement(BindWA *bindWA, Lng32 sqlcode, NAString objname, NAString tabname)
-{
-  if (bindWA->getHostArraysArea() &&
-	    bindWA->getHostArraysArea()->getTolerateNonFatalError()) {
-      
-      if (CmpCommon::getDefault(ODBC_PROCESS) != DF_ON) {
-	*CmpCommon::diags() << DgSqlCode(-sqlcode) 
-	  << DgString0(objname) 
-	  << DgString1(tabname);
-	bindWA->setErrStatus();
-	return TRUE;
-      }
-      else {
-	bindWA->getHostArraysArea()->setTolerateNonFatalError(FALSE);
-	setTolerateNonFatalError(RelExpr::UNSPECIFIED_);
-	*CmpCommon::diags() << DgSqlCode(sqlcode)
-	  << DgString0(objname) 
-	  << DgString1(tabname);
-      }
-
+NABoolean GenericUpdate::checkForNotAtomicStatement(BindWA *bindWA, Lng32 sqlcode, NAString objname, NAString tabname) {
+  if (bindWA->getHostArraysArea() && bindWA->getHostArraysArea()->getTolerateNonFatalError()) {
+    if (CmpCommon::getDefault(ODBC_PROCESS) != DF_ON) {
+      *CmpCommon::diags() << DgSqlCode(-sqlcode) << DgString0(objname) << DgString1(tabname);
+      bindWA->setErrStatus();
+      return TRUE;
+    } else {
+      bindWA->getHostArraysArea()->setTolerateNonFatalError(FALSE);
+      setTolerateNonFatalError(RelExpr::UNSPECIFIED_);
+      *CmpCommon::diags() << DgSqlCode(sqlcode) << DgString0(objname) << DgString1(tabname);
     }
-  return FALSE ;
+  }
+  return FALSE;
 }
- 
+
 /*****************************************************************************
 ******************************************************************************
 ****  Methods for handling ON STATEMENT MVs
@@ -2983,133 +2436,102 @@ NABoolean GenericUpdate::checkForNotAtomicStatement(BindWA *bindWA, Lng32 sqlcod
 // For now, only ON STATEMENT MJVs are supported!!!
 //
 //////////////////////////////////////////////////////////////////////////////
-BeforeAndAfterTriggers *
-GenericUpdate::getTriggeredMvs(BindWA                 *bindWA,
-			       BeforeAndAfterTriggers *list,
-			       UpdateColumns          *updatedColumns)
-{
+BeforeAndAfterTriggers *GenericUpdate::getTriggeredMvs(BindWA *bindWA, BeforeAndAfterTriggers *list,
+                                                       UpdateColumns *updatedColumns) {
   CollHeap *heap = bindWA->wHeap();
 
   const NATable *subjectNA = tabId_->getNATable();
   CMPASSERT(subjectNA != NULL);
 
   const UsingMvInfoList &mvList = subjectNA->getMvsUsingMe();
-  if (mvList.isEmpty())
-  {
+  if (mvList.isEmpty()) {
     // No MVs are to be refreshed - return the given list as is
     return list;
+  } else {  // check for any non-atomic statements
+    const PartitioningFunction *partFunc = subjectNA->getClusteringIndex()->getPartitioningFunction();
+
+    for (CollIndex i = 0; i < mvList.entries(); i++) {
+      if ((CmpCommon::getDefault(NAR_DEPOBJ_ENABLE2) == DF_OFF) || ((partFunc->isARangePartitioningFunction())))
+
+      {
+        if (checkForNotAtomicStatement(bindWA, 30033, (mvList[i]->getMvName()).getQualifiedNameAsAnsiString(),
+                                       (subjectNA->getTableName()).getQualifiedNameAsAnsiString())) {
+          return list;
+        }
+      }
+
+      if (isNoRollback() || (CmpCommon::transMode()->getRollbackMode() == TransMode::NO_ROLLBACK_)) {
+        *CmpCommon::diags() << DgSqlCode(-3232) << DgString0((subjectNA->getTableName()).getQualifiedNameAsAnsiString())
+                            << DgString1("Materialized View :")
+                            << DgString2((mvList[i]->getMvName()).getQualifiedNameAsAnsiString());
+        bindWA->setErrStatus();
+
+        return list;
+      }
+    }
   }
-   else {  //check for any non-atomic statements
-     const PartitioningFunction *partFunc =
-       subjectNA->getClusteringIndex()->getPartitioningFunction();
-
-
-     for (CollIndex i = 0; i < mvList.entries(); i++)
-       {
-	 if ((CmpCommon::getDefault(NAR_DEPOBJ_ENABLE2) == DF_OFF) ||
-	     ((partFunc->isARangePartitioningFunction())))
-
-	   {
-	     if (checkForNotAtomicStatement(bindWA,30033,
-					    (mvList[i]->getMvName()).getQualifiedNameAsAnsiString(),
-					    (subjectNA->getTableName()).getQualifiedNameAsAnsiString()))
-	       {
-		 return list;
-	       } 
-	   }
-	
-	 if (isNoRollback() ||
-	     (CmpCommon::transMode()->getRollbackMode() == TransMode::NO_ROLLBACK_)) {
-	   *CmpCommon::diags() << DgSqlCode(-3232) 
-			       << DgString0((subjectNA->getTableName()).getQualifiedNameAsAnsiString()) 
-			       << DgString1("Materialized View :")
-			       << DgString2((mvList[i]->getMvName()).getQualifiedNameAsAnsiString());
-	   bindWA->setErrStatus();
-
-	   return list ;
-	 }
-       }
-   }
-
 
   // If the given list of triggers is still empty, allocate a new one for the
   // new MVImmediate trigger(s) that might be added
   BeforeAndAfterTriggers *newList = list;
-  if (newList == NULL)
-  {
-    newList = new(heap)
-      BeforeAndAfterTriggers(NULL, NULL, NULL, subjectNA->getRedefTime());
+  if (newList == NULL) {
+    newList = new (heap) BeforeAndAfterTriggers(NULL, NULL, NULL, subjectNA->getRedefTime());
   }
 
   // Search for MVs that should be refreshed
-  for (CollIndex i = 0; i < mvList.entries(); i++)
-  {
+  for (CollIndex i = 0; i < mvList.entries(); i++) {
     // If MV is not ON STATEMENT - skip it
-    if (mvList[i]->getRefreshType() != COM_ON_STATEMENT)
-    {
+    if (mvList[i]->getRefreshType() != COM_ON_STATEMENT) {
       continue;
     }
 
     // If MV not intialized - skip it
-    if (!mvList[i]->isInitialized())
-    {
+    if (!mvList[i]->isInitialized()) {
       continue;
     }
 
     // Retreive NATable of the MV. Return on error.
     CorrName mvCorr = CorrName(mvList[i]->getMvName(), heap);
     NATable *naTableMv = bindWA->getNATable(mvCorr);
-    if (bindWA->errStatus())
-    {
+    if (bindWA->errStatus()) {
       return list;
     }
 
     // Retreive MVInfo for the MV. Return on error.
     MVInfoForDML *mvInfo = naTableMv->getMVInfo(bindWA);
-    if (mvInfo == NULL)
-    {
+    if (mvInfo == NULL) {
       return list;
     }
 
     // For now, only ON STATMENET MJVs are supported!
-    if (mvInfo->getMVType() != COM_MJV)
-    {
+    if (mvInfo->getMVType() != COM_MJV) {
       continue;
     }
 
-    if (bindWA->getTopRoot() != NULL)
-      bindWA->getTopRoot()->setContainsOnStatementMV(TRUE);
+    if (bindWA->getTopRoot() != NULL) bindWA->getTopRoot()->setContainsOnStatementMV(TRUE);
 
     // The MV have passed all the general pre-conditions. Do some specific
     // checks and if it passes, add it to the triggers list.
-    insertMvToTriggerList(newList,
-			  bindWA,
-			  heap,
-			  mvList[i]->getMvName(),
-			  mvInfo,
-			  getTableName().getQualifiedNameObj(),
-			  updatedColumns);
+    insertMvToTriggerList(newList, bindWA, heap, mvList[i]->getMvName(), mvInfo, getTableName().getQualifiedNameObj(),
+                          updatedColumns);
   }
 
-  if (newList->entries() == 0)
-  {
+  if (newList->entries() == 0) {
     //"newList" will be freed by statementHeap
     // add code annotation to prevent Coverity RESORUCE_LEAK checking error
     // coverity[leaked_storage]
-    return NULL; // the list doesn't contain any triggers
+    return NULL;  // the list doesn't contain any triggers
   }
 
-  // If there are only immediate MVs but not triggers, and this is an 
+  // If there are only immediate MVs but not triggers, and this is an
   // embedded IUD statement, abort with an error.
-  if (list == NULL &&
-      (getGroupAttr()->isEmbeddedUpdateOrDelete() || getGroupAttr()->isEmbeddedInsert()))
-  {
+  if (list == NULL && (getGroupAttr()->isEmbeddedUpdateOrDelete() || getGroupAttr()->isEmbeddedInsert())) {
     *CmpCommon::diags() << DgSqlCode(-12118);
     bindWA->setErrStatus();
     return NULL;
   }
 
-  return newList; // return the updated list (including added MVs, if any)
+  return newList;  // return the updated list (including added MVs, if any)
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -3119,27 +2541,17 @@ GenericUpdate::getTriggeredMvs(BindWA                 *bindWA,
 //////////////////////////////////////////////////////////////////////////////
 
 // we are not supposed to get here
-void GenericUpdate::insertMvToTriggerList(BeforeAndAfterTriggers *list,
-					  BindWA                 *bindWA,
-					  CollHeap               *heap,
-					  const QualifiedName    &mvName,
-					  MVInfoForDML           *mvInfo,
-					  const QualifiedName    &subjectTable,
-					  UpdateColumns          *updateCols)
-{
-  CMPASSERT(false); // not implemented in GenericUpdate
+void GenericUpdate::insertMvToTriggerList(BeforeAndAfterTriggers *list, BindWA *bindWA, CollHeap *heap,
+                                          const QualifiedName &mvName, MVInfoForDML *mvInfo,
+                                          const QualifiedName &subjectTable, UpdateColumns *updateCols) {
+  CMPASSERT(false);  // not implemented in GenericUpdate
 }
 
 //////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
-RelExpr *GenericUpdate::inlineOnlyRIandIMandMVLogging(BindWA *bindWA,
-						      RelExpr *topNode,
-						      NABoolean needIM,
-						      RefConstraintList *riConstraints, 
-						      NABoolean isMVLoggingRequired,
-						      UpdateColumns *columns, 
-						      CollHeap *heap)
-{
+RelExpr *GenericUpdate::inlineOnlyRIandIMandMVLogging(BindWA *bindWA, RelExpr *topNode, NABoolean needIM,
+                                                      RefConstraintList *riConstraints, NABoolean isMVLoggingRequired,
+                                                      UpdateColumns *columns, CollHeap *heap) {
   RelExpr *imTree = NULL;
   RelExpr *undoTree = NULL;
   RelExpr *riTree = NULL;
@@ -3147,148 +2559,118 @@ RelExpr *GenericUpdate::inlineOnlyRIandIMandMVLogging(BindWA *bindWA,
   RelExpr *result = NULL;
 
   // Create the tree that handles Index Maintainance.
-  if (needIM)
-    {
-      // here we don't use the internal syskey column name ("@SYSKEY") since the
-      // whole backbone is driven by the IUD node on the subject table
-      imTree = createIMTree(bindWA, columns, FALSE);
-
-    }
-  
+  if (needIM) {
+    // here we don't use the internal syskey column name ("@SYSKEY") since the
+    // whole backbone is driven by the IUD node on the subject table
+    imTree = createIMTree(bindWA, columns, FALSE);
+  }
 
   // Create the tree that handles RI
-  if (riConstraints!=NULL)
-    riTree = inlineRI(bindWA, riConstraints, heap);
+  if (riConstraints != NULL) riTree = inlineRI(bindWA, riConstraints, heap);
 
   // Create the tree for MV Logging.
-  if (isMVLoggingRequired)
-  {
+  if (isMVLoggingRequired) {
     // When RI/IM/Triggers are not inlined, we can skip the projection of
     // the rows that are not Single/BeginRange/EndRange.
     NABoolean projectMidRangeRows = TRUE;
-    if (imTree==NULL && riTree==NULL)
-      projectMidRangeRows = FALSE;
+    if (imTree == NULL && riTree == NULL) projectMidRangeRows = FALSE;
 
     mvTree = createMvLogInsert(bindWA, heap, columns, projectMidRangeRows);
-    if (mvTree != NULL)
-    {
+    if (mvTree != NULL) {
       // Use REL_SEMITSJ if it should not project any outputs
       // to the IM or RI trees.
-      OperatorTypeEnum 
-	joinType = (imTree || riTree) ? REL_LEFT_TSJ : REL_TSJ;
-         NABoolean needsOutputs = isMtsStatement() ||
-	  (getUpdateCKorUniqueIndexKey() && (getOperatorType() == REL_UNARY_DELETE));
-	if (needsOutputs && joinType == REL_TSJ)
-	  joinType = REL_ANTI_SEMITSJ;
-//	joinType = (imTree || riTree) ? REL_ANTI_SEMITSJ : REL_SEMITSJ;
-  
-	Join *logTSJ = new(heap) Join (topNode, mvTree, joinType);
-	logTSJ->getInliningInfo().setFlags(II_DrivingMvLogInsert);
-	logTSJ->setTSJForWrite(TRUE);
+      OperatorTypeEnum joinType = (imTree || riTree) ? REL_LEFT_TSJ : REL_TSJ;
+      NABoolean needsOutputs =
+          isMtsStatement() || (getUpdateCKorUniqueIndexKey() && (getOperatorType() == REL_UNARY_DELETE));
+      if (needsOutputs && joinType == REL_TSJ) joinType = REL_ANTI_SEMITSJ;
+      //	joinType = (imTree || riTree) ? REL_ANTI_SEMITSJ : REL_SEMITSJ;
 
-        if ( ((getOperatorType() == REL_UNARY_UPDATE)  && CmpCommon::getDefault(MV_LOG_PUSH_DOWN_DP2_UPDATE) != DF_ON) ||
-             ((getOperatorType() == REL_UNARY_DELETE)  && CmpCommon::getDefault(MV_LOG_PUSH_DOWN_DP2_DELETE) != DF_ON) ||
-             ((getOperatorType() == REL_UNARY_INSERT)  && CmpCommon::getDefault(MV_LOG_PUSH_DOWN_DP2_INSERT) != DF_ON) )
-           logTSJ->setAllowPushDown (FALSE);
+      Join *logTSJ = new (heap) Join(topNode, mvTree, joinType);
+      logTSJ->getInliningInfo().setFlags(II_DrivingMvLogInsert);
+      logTSJ->setTSJForWrite(TRUE);
 
-	if (bindWA->getHostArraysArea() && bindWA->getHostArraysArea()->getTolerateNonFatalError())
-	  logTSJ->setTolerateNonFatalError(RelExpr::NOT_ATOMIC_);
-	topNode = logTSJ;
+      if (((getOperatorType() == REL_UNARY_UPDATE) && CmpCommon::getDefault(MV_LOG_PUSH_DOWN_DP2_UPDATE) != DF_ON) ||
+          ((getOperatorType() == REL_UNARY_DELETE) && CmpCommon::getDefault(MV_LOG_PUSH_DOWN_DP2_DELETE) != DF_ON) ||
+          ((getOperatorType() == REL_UNARY_INSERT) && CmpCommon::getDefault(MV_LOG_PUSH_DOWN_DP2_INSERT) != DF_ON))
+        logTSJ->setAllowPushDown(FALSE);
+
+      if (bindWA->getHostArraysArea() && bindWA->getHostArraysArea()->getTolerateNonFatalError())
+        logTSJ->setTolerateNonFatalError(RelExpr::NOT_ATOMIC_);
+      topNode = logTSJ;
     }
   }
 
   result = imTree;
-  if (riTree != NULL)
-  {
-    if (result == NULL)
-    {
+  if (riTree != NULL) {
+    if (result == NULL) {
       result = riTree;
-    }
-    else
-    {
-      result = new (heap) Union(imTree, riTree, NULL, NULL, REL_UNION,
-                                CmpCommon::statementHeap(), TRUE);
+    } else {
+      result = new (heap) Union(imTree, riTree, NULL, NULL, REL_UNION, CmpCommon::statementHeap(), TRUE);
     }
   }
- 
- // For NAR , do not generate an undo tree any more
+
+  // For NAR , do not generate an undo tree any more
   if (bindWA->getHostArraysArea() && bindWA->getHostArraysArea()->getTolerateNonFatalError() &&
-               !(bindWA->getHostArraysArea()->getTolerateNonFatalError()) && (imTree || riTree)) 
-    undoTree = createUndoTree(bindWA,columns,FALSE,(imTree||riTree),isMVLoggingRequired,NULL);
-   if (undoTree && result)
-    {
-      OperatorTypeEnum joinType= REL_TSJ;
-      Join * joinResultUndo = new (heap) Join(result,undoTree,joinType);      
-      joinResultUndo->setTSJForWrite(TRUE);
-      joinResultUndo->setTolerateNonFatalError(RelExpr::NOT_ATOMIC_);
-      joinResultUndo->setTSJForUndo(TRUE); 
-      result = joinResultUndo;
-    }
-  
-  
-   if (bindWA->isTrafLoadPrep())
-     return result ;
+      !(bindWA->getHostArraysArea()->getTolerateNonFatalError()) && (imTree || riTree))
+    undoTree = createUndoTree(bindWA, columns, FALSE, (imTree || riTree), isMVLoggingRequired, NULL);
+  if (undoTree && result) {
+    OperatorTypeEnum joinType = REL_TSJ;
+    Join *joinResultUndo = new (heap) Join(result, undoTree, joinType);
+    joinResultUndo->setTSJForWrite(TRUE);
+    joinResultUndo->setTolerateNonFatalError(RelExpr::NOT_ATOMIC_);
+    joinResultUndo->setTSJForUndo(TRUE);
+    result = joinResultUndo;
+  }
 
+  if (bindWA->isTrafLoadPrep()) return result;
 
-  if (result!=NULL)
-  {
+  if (result != NULL) {
     // This RelRoot opens a new BindScope, so that Union::bindChildern()
-    // will not overwrite the RETDesc of the current scope with the NEW 
+    // will not overwrite the RETDesc of the current scope with the NEW
     // and OLD values.
-    RelRoot *rootNode = new(heap) RelRoot(result);
+    RelRoot *rootNode = new (heap) RelRoot(result);
     rootNode->setRootFlag(FALSE);
     rootNode->setEmptySelectList();
 
     OperatorTypeEnum joinOp;
     if ((topNode->child(0).getGroupAttr()->getEmbeddedIUD()) ||
-	isMtsStatement() || // This is an embedded IUD statement 
-	                   // (i.e. an IUD statement that has an outer select)
-	(getUpdateCKorUniqueIndexKey() && (getOperatorType() == REL_UNARY_DELETE)))  
-    {
+        isMtsStatement() ||  // This is an embedded IUD statement
+                             // (i.e. an IUD statement that has an outer select)
+        (getUpdateCKorUniqueIndexKey() && (getOperatorType() == REL_UNARY_DELETE))) {
       // originally index maintenance was using a TSJ joining the
       // tuples to be deleted from the base table with the tuples to
       // be deleted in the invidual indices. When returning tuples to
       // the user this causes the tuples to be deleted multiplied by
-      // the number of indices. Therefore we now use an ANTI_SEMITSJ 
-      // which does not require LeafDeletes to return tuples...i.e. it 
-      // only return the leaf tuple if nothing is returned from the right 
+      // the number of indices. Therefore we now use an ANTI_SEMITSJ
+      // which does not require LeafDeletes to return tuples...i.e. it
+      // only return the leaf tuple if nothing is returned from the right
       // child...this is what we want.
       joinOp = REL_ANTI_SEMITSJ;
-    }
-    else
-    {
+    } else {
       joinOp = REL_TSJ;
     }
 
-    Join *newTSJ = new(heap) Join (topNode, rootNode, joinOp);
+    Join *newTSJ = new (heap) Join(topNode, rootNode, joinOp);
     topNode = newTSJ;
   }
-  
+
   ((Join *)topNode)->setTSJForWrite(TRUE);
 
-  if (isMerge())
-    {
-      ((Join *)topNode)->setTSJForMerge(TRUE);
+  if (isMerge()) {
+    ((Join *)topNode)->setTSJForMerge(TRUE);
 
-      if (isMergeUpdate())
-	{
-	  if (((MergeUpdate*)this)->insertValues())
-	    ((Join *)topNode)->setTSJForMergeWithInsert(TRUE);
-	}
-      else
-	{
-	  if (((MergeDelete*)this)->insertValues())
-	    ((Join *)topNode)->setTSJForMergeWithInsert(TRUE);
-	}
+    if (isMergeUpdate()) {
+      if (((MergeUpdate *)this)->insertValues()) ((Join *)topNode)->setTSJForMergeWithInsert(TRUE);
+    } else {
+      if (((MergeDelete *)this)->insertValues()) ((Join *)topNode)->setTSJForMergeWithInsert(TRUE);
     }
+  }
 
-  if (bindWA->getHostArraysArea() && bindWA->getHostArraysArea()->getTolerateNonFatalError())
-    { 
-      ((Join *)topNode)->setTolerateNonFatalError(RelExpr::NOT_ATOMIC_);
-      ((Join *)topNode)->setTSJForSetNFError(TRUE);
-    }
+  if (bindWA->getHostArraysArea() && bindWA->getHostArraysArea()->getTolerateNonFatalError()) {
+    ((Join *)topNode)->setTolerateNonFatalError(RelExpr::NOT_ATOMIC_);
+    ((Join *)topNode)->setTSJForSetNFError(TRUE);
+  }
   return topNode;
-    
 }
 
 /*****************************************************************************
@@ -3300,70 +2682,46 @@ RelExpr *GenericUpdate::inlineOnlyRIandIMandMVLogging(BindWA *bindWA,
 
 //////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
-RelExpr *GenericUpdate::inlineAfterOnlyBackbone(BindWA *bindWA, 
-						TriggersTempTable& tempTableObj,
-						TriggerList *rowTriggers,
-						TriggerList *stmtTriggers,
-						RefConstraintList *riConstraints,
-						NABoolean needIM,
-						NABoolean isMVLoggingRequired,
-						UpdateColumns *updatedColumns,
-						CollHeap *heap)
-{
+RelExpr *GenericUpdate::inlineAfterOnlyBackbone(BindWA *bindWA, TriggersTempTable &tempTableObj,
+                                                TriggerList *rowTriggers, TriggerList *stmtTriggers,
+                                                RefConstraintList *riConstraints, NABoolean needIM,
+                                                NABoolean isMVLoggingRequired, UpdateColumns *updatedColumns,
+                                                CollHeap *heap) {
+  RelExpr *topNode = this;
 
-
-
-
-
-  RelExpr   *topNode = this;
-
-  NABoolean noPipelinedActions = 
-    (rowTriggers == NULL) && (riConstraints == NULL);
+  NABoolean noPipelinedActions = (rowTriggers == NULL) && (riConstraints == NULL);
 
   NABoolean rowTriggersPresent = (rowTriggers != NULL);
 
   // First inline MV logging, so it will be pushed to DP2 with the IUD.
-  if (isMVLoggingRequired)
-  {
+  if (isMVLoggingRequired) {
     RelExpr *mvTree = createMvLogInsert(bindWA, heap, updatedColumns, TRUE);
-    if (mvTree != NULL)
-    {
-      Join *logTSJ = new(heap) Join(topNode, mvTree, REL_LEFT_TSJ);
+    if (mvTree != NULL) {
+      Join *logTSJ = new (heap) Join(topNode, mvTree, REL_LEFT_TSJ);
       logTSJ->setTSJForWrite(TRUE);
       logTSJ->getInliningInfo().setFlags(II_DrivingMvLogInsert);
       if (bindWA->getHostArraysArea() && bindWA->getHostArraysArea()->getTolerateNonFatalError())
-	logTSJ->setTolerateNonFatalError(RelExpr::NOT_ATOMIC_);
+        logTSJ->setTolerateNonFatalError(RelExpr::NOT_ATOMIC_);
       topNode = logTSJ;
     }
   }
 
   // Next inline Index Maintainance
-  if (needIM)
-  {
+  if (needIM) {
     // here we don't use the internal syskey column name ("@SYSKEY") since the
     // whole backbone is driven by the IUD node on the subject table
     topNode = inlineIM(topNode, bindWA, FALSE, updatedColumns, heap, FALSE, rowTriggersPresent);
   }
 
   // Next inline the temp Insert
-  topNode = inlineTempInsert(topNode,
-			     bindWA,
-			     tempTableObj,
-			     FALSE,
-			     noPipelinedActions,
-			     heap);
-  if (bindWA->errStatus()) 
-    return NULL;
+  topNode = inlineTempInsert(topNode, bindWA, tempTableObj, FALSE, noPipelinedActions, heap);
+  if (bindWA->errStatus()) return NULL;
 
   Insert *pTempInsert = (Insert *)(RelExpr *)(topNode->child(1)->child(0));
-  CMPASSERT(pTempInsert->getOperatorType() == REL_LEAF_INSERT ||
-            pTempInsert->getOperatorType() == REL_UNARY_INSERT  );
+  CMPASSERT(pTempInsert->getOperatorType() == REL_LEAF_INSERT || pTempInsert->getOperatorType() == REL_UNARY_INSERT);
 
   // Inline RI and row triggers.
-  topNode = inlinePipelinedActions(topNode, bindWA, 
-				   rowTriggers, 
-				   riConstraints, 
-				   heap);
+  topNode = inlinePipelinedActions(topNode, bindWA, rowTriggers, riConstraints, heap);
 
   // Inline statement triggers
   topNode = inlineTriggerGroup(topNode, stmtTriggers, FALSE, heap, bindWA);
@@ -3372,25 +2730,20 @@ RelExpr *GenericUpdate::inlineAfterOnlyBackbone(BindWA *bindWA,
   topNode = inlineTempDelete(bindWA, topNode, tempTableObj, heap);
   ((Union *)topNode)->setBlockedUnion();
   ((Union *)topNode)->setNoOutputs();
-  if (isMtsStatement())
-   ((Union *)topNode)->setIsTemporary();
-  
-  // If we are in an NAR, then set the InNotAtomicStatement flag
-  if (bindWA->getHostArraysArea() && 
-      bindWA->getHostArraysArea()->getTolerateNonFatalError()) 
-    {
-      ((Union *)topNode)->setInNotAtomicStatement();
-    }
+  if (isMtsStatement()) ((Union *)topNode)->setIsTemporary();
 
-  if (bindWA->errStatus())
-  {
-     return this;
+  // If we are in an NAR, then set the InNotAtomicStatement flag
+  if (bindWA->getHostArraysArea() && bindWA->getHostArraysArea()->getTolerateNonFatalError()) {
+    ((Union *)topNode)->setInNotAtomicStatement();
+  }
+
+  if (bindWA->errStatus()) {
+    return this;
   }
 
   // Now bind the resulting tree
   topNode = topNode->bindNode(bindWA);
-  if (bindWA->errStatus())
-  {
+  if (bindWA->errStatus()) {
     return this;
   }
 
@@ -3400,187 +2753,146 @@ RelExpr *GenericUpdate::inlineAfterOnlyBackbone(BindWA *bindWA,
   return topNode;
 }
 
-
-
-
-RelExpr *GenericUpdate::inlineAfterOnlyBackboneForUndo(BindWA *bindWA, 
-						       TriggersTempTable&  tempTableObj,
-						       TriggerList *rowTriggers,
-						       TriggerList *stmtTriggers,
-						       RefConstraintList *riConstraints,
-						       NABoolean needIM,
-						       NABoolean isMVLoggingRequired,
-						       UpdateColumns *updatedColumns,
-						       CollHeap *heap)
-{
+RelExpr *GenericUpdate::inlineAfterOnlyBackboneForUndo(BindWA *bindWA, TriggersTempTable &tempTableObj,
+                                                       TriggerList *rowTriggers, TriggerList *stmtTriggers,
+                                                       RefConstraintList *riConstraints, NABoolean needIM,
+                                                       NABoolean isMVLoggingRequired, UpdateColumns *updatedColumns,
+                                                       CollHeap *heap) {
   RelExpr *imTree = NULL;
   RelExpr *undoTree = NULL;
   RelExpr *riTree = NULL;
   RelExpr *mvTree = NULL;
   RelExpr *result = NULL;
-  RelExpr   *topNode = this;
+  RelExpr *topNode = this;
 
-  NABoolean noPipelinedActions = 
-    (rowTriggers == NULL) && (riConstraints == NULL);
+  NABoolean noPipelinedActions = (rowTriggers == NULL) && (riConstraints == NULL);
 
   NABoolean rowTriggersPresent = (rowTriggers != NULL);
- 
-  // create the temp insert tree here 
-      
+
+  // create the temp insert tree here
+
   RelExpr *tempInsertNode = tempTableObj.buildInsert(TRUE);
   RelRoot *tempInsRoot = new (heap) RelRoot(tempInsertNode);
   tempInsRoot->setRootFlag(FALSE);
   tempInsRoot->setEmptySelectList();
 
-  if (isMVLoggingRequired)  
-    mvTree = createMvLogInsert(bindWA, heap, updatedColumns, TRUE);
-  
-  
-  if (mvTree != NULL)
-    {
-    
-      RelRoot *mvRoot = new (heap) RelRoot(mvTree);	       
-      if (mvRoot != NULL)
-	{
-	  Join *logTSJ = new(heap) Join(topNode, mvRoot, REL_LEFT_TSJ);     
-	  logTSJ->setTSJForWrite(TRUE);
-	  logTSJ->setTolerateNonFatalError(RelExpr::NOT_ATOMIC_);
-          logTSJ->getInliningInfo().setFlags(II_DrivingMvLogInsert);
-	  topNode = logTSJ;
-	}      
-    }
+  if (isMVLoggingRequired) mvTree = createMvLogInsert(bindWA, heap, updatedColumns, TRUE);
 
-  if (tempInsRoot != NULL)
-    {
-      Join *logTSJ = new(heap) Join(topNode, tempInsRoot, REL_LEFT_TSJ);     
+  if (mvTree != NULL) {
+    RelRoot *mvRoot = new (heap) RelRoot(mvTree);
+    if (mvRoot != NULL) {
+      Join *logTSJ = new (heap) Join(topNode, mvRoot, REL_LEFT_TSJ);
       logTSJ->setTSJForWrite(TRUE);
       logTSJ->setTolerateNonFatalError(RelExpr::NOT_ATOMIC_);
+      logTSJ->getInliningInfo().setFlags(II_DrivingMvLogInsert);
       topNode = logTSJ;
     }
-    
-  
-    
+  }
+
+  if (tempInsRoot != NULL) {
+    Join *logTSJ = new (heap) Join(topNode, tempInsRoot, REL_LEFT_TSJ);
+    logTSJ->setTSJForWrite(TRUE);
+    logTSJ->setTolerateNonFatalError(RelExpr::NOT_ATOMIC_);
+    topNode = logTSJ;
+  }
 
   // Create the tree that handles Index Maintainance.
-  if (needIM)
-    {
-      // here we don't use the internal syskey column name ("@SYSKEY") since the
-      // whole backbone is driven by the IUD node on the subject table
-      imTree = createIMTree(bindWA, updatedColumns, FALSE);
-
-    }
+  if (needIM) {
+    // here we don't use the internal syskey column name ("@SYSKEY") since the
+    // whole backbone is driven by the IUD node on the subject table
+    imTree = createIMTree(bindWA, updatedColumns, FALSE);
+  }
   // Create the tree that handles RI
-  if (riConstraints!=NULL)
-    riTree = inlineRI(bindWA, riConstraints, heap);
+  if (riConstraints != NULL) riTree = inlineRI(bindWA, riConstraints, heap);
 
   result = imTree;
-  if (riTree != NULL)
-    {
-      if (result == NULL)
-	{
-	  result = riTree;
-	}
-      else
-	{
-	  result = new (heap) Union(imTree, riTree, NULL, NULL, REL_UNION,
-				    CmpCommon::statementHeap(), TRUE);
-	}
+  if (riTree != NULL) {
+    if (result == NULL) {
+      result = riTree;
+    } else {
+      result = new (heap) Union(imTree, riTree, NULL, NULL, REL_UNION, CmpCommon::statementHeap(), TRUE);
     }
-  undoTree = createUndoTree(bindWA,updatedColumns,FALSE,(imTree||riTree),isMVLoggingRequired, &tempTableObj);
-  if (undoTree && result)
+  }
+  undoTree = createUndoTree(bindWA, updatedColumns, FALSE, (imTree || riTree), isMVLoggingRequired, &tempTableObj);
+  if (undoTree && result) {
+    OperatorTypeEnum joinType = REL_TSJ;
+    Join *joinResultUndo = new (heap) Join(result, undoTree, joinType);
+    joinResultUndo->setTSJForWrite(TRUE);
+    joinResultUndo->setTolerateNonFatalError(RelExpr::NOT_ATOMIC_);
+    joinResultUndo->setTSJForUndo(TRUE);
+    result = joinResultUndo;
+  }
+
+  if (result != NULL) {
+    // This RelRoot opens a new BindScope, so that Union::bindChildern()
+    // will not overwrite the RETDesc of the current scope with the NEW
+    // and OLD values.
+    RelRoot *rootNode = new (heap) RelRoot(result);
+    rootNode->setRootFlag(FALSE);
+    rootNode->setEmptySelectList();
+
+    OperatorTypeEnum joinOp;
+    if ((topNode->child(0).getGroupAttr()->getEmbeddedIUD()) || isMtsStatement())  // This is an embedded IUD statement
+    // (i.e. an IUD statement that has an outer select)
     {
-      OperatorTypeEnum joinType= REL_TSJ;
-      Join * joinResultUndo = new (heap) Join(result,undoTree,joinType);
-      joinResultUndo->setTSJForWrite(TRUE);
-      joinResultUndo->setTolerateNonFatalError(RelExpr::NOT_ATOMIC_);
-      joinResultUndo->setTSJForUndo(TRUE); 
-      result = joinResultUndo;
-	 
+      // originally index maintenance was using a TSJ joining the
+      // tuples to be deleted from the base table with the tuples to
+      // be deleted in the invidual indices. When returning tuples to
+      // the user this causes the tuples to be deleted multiplied by
+      // the number of indices. Therefore we now use an ANTI_SEMITSJ
+      // which does not require LeafDeletes to return tuples...i.e. it
+      // only return the leaf tuple if nothing is returned from the right
+      // child...this is what we want.
+      joinOp = REL_ANTI_SEMITSJ;
+    } else {
+      joinOp = REL_TSJ;
     }
 
- 
+    Join *newTSJ = new (heap) Join(topNode, rootNode, joinOp);
+    newTSJ->setTSJForWrite(TRUE);
 
-  if (result!=NULL)
-    {
-      // This RelRoot opens a new BindScope, so that Union::bindChildern()
-      // will not overwrite the RETDesc of the current scope with the NEW 
-      // and OLD values.
-      RelRoot *rootNode = new(heap) RelRoot(result);
-      rootNode->setRootFlag(FALSE);
-      rootNode->setEmptySelectList();
+    newTSJ->setTolerateNonFatalError(RelExpr::NOT_ATOMIC_);
+    newTSJ->setTSJForSetNFError(TRUE);
+    RelRoot *rootNode2 = new (heap) RelRoot(newTSJ);
+    rootNode2->setRootFlag(FALSE);
+    rootNode2->setEmptySelectList();
 
-      OperatorTypeEnum joinOp;
-      if ((topNode->child(0).getGroupAttr()->getEmbeddedIUD()) ||
-	  isMtsStatement())  // This is an embedded IUD statement 
-	// (i.e. an IUD statement that has an outer select)
-	{
-	  // originally index maintenance was using a TSJ joining the
-	  // tuples to be deleted from the base table with the tuples to
-	  // be deleted in the invidual indices. When returning tuples to
-	  // the user this causes the tuples to be deleted multiplied by
-	  // the number of indices. Therefore we now use an ANTI_SEMITSJ 
-	  // which does not require LeafDeletes to return tuples...i.e. it 
-	  // only return the leaf tuple if nothing is returned from the right 
-	  // child...this is what we want.
-	  joinOp = REL_ANTI_SEMITSJ;
-	}
-      else
-	{
-	  joinOp = REL_TSJ;
-	}
+    topNode = rootNode2;
+  }
+  // Inline statement triggers
+  topNode = inlineTriggerGroup(topNode, stmtTriggers, FALSE, heap, bindWA);
 
-      Join *newTSJ = new(heap) Join (topNode, rootNode, joinOp);
-      newTSJ->setTSJForWrite(TRUE);
-	
-      newTSJ->setTolerateNonFatalError(RelExpr::NOT_ATOMIC_);
-      newTSJ->setTSJForSetNFError(TRUE);      
-      RelRoot *rootNode2 = new(heap) RelRoot(newTSJ);
-      rootNode2->setRootFlag(FALSE);
-      rootNode2->setEmptySelectList();
-	  
-      topNode = rootNode2;
-    }
-    // Inline statement triggers
-     topNode = inlineTriggerGroup(topNode, stmtTriggers, FALSE, heap, bindWA);
+  // Inline the Temp delete.
+  topNode = inlineTempDelete(bindWA, topNode, tempTableObj, heap);
+  ((Union *)topNode)->setBlockedUnion();
+  ((Union *)topNode)->setNoOutputs();
+  if (isMtsStatement()) ((Union *)topNode)->setIsTemporary();
 
-    // Inline the Temp delete.
-     topNode = inlineTempDelete(bindWA, topNode, tempTableObj, heap);
-    ((Union *)topNode)->setBlockedUnion();
-    ((Union *)topNode)->setNoOutputs();
-    if (isMtsStatement())
-      ((Union *)topNode)->setIsTemporary();
+  // If we are in an NAR, then set the InNotAtomicStatement flag
+  if (bindWA->getHostArraysArea() && bindWA->getHostArraysArea()->getTolerateNonFatalError()) {
+    ((Union *)topNode)->setInNotAtomicStatement();
+  }
 
-    // If we are in an NAR, then set the InNotAtomicStatement flag
-    if (bindWA->getHostArraysArea() && 
-        bindWA->getHostArraysArea()->getTolerateNonFatalError()) 
-      {
-	((Union *)topNode)->setInNotAtomicStatement();
-      }
+  if (bindWA->errStatus()) {
+    return this;
+  }
 
-    if (bindWA->errStatus())
-      {
-	return this;
-      }
+  // Now bind the resulting tree
+  topNode = topNode->bindNode(bindWA);
+  if (bindWA->errStatus()) {
+    return this;
+  }
 
-    // Now bind the resulting tree
-    topNode = topNode->bindNode(bindWA);
-    if (bindWA->errStatus())
-      {
-	return this;
-      }
+  // store information for triggers transformation phase
+  getInliningInfo().buildTriggerBindInfo(bindWA, getRETDesc(), heap);
 
-    // store information for triggers transformation phase
-    getInliningInfo().buildTriggerBindInfo(bindWA, getRETDesc(), heap);
- 
-    return topNode;
-   
+  return topNode;
 }
 //////////////////////////////////////////////////////////////////////////////
-// Remove from the inputs of 'node' any ValueIds that do not reference 
+// Remove from the inputs of 'node' any ValueIds that do not reference
 // any of the values in realInputs.
 //////////////////////////////////////////////////////////////////////////////
-static void minimizeInputsForNode(RelExpr *node, ValueIdSet &realInputs)
-{
+static void minimizeInputsForNode(RelExpr *node, ValueIdSet &realInputs) {
   ValueIdSet inputsOfNode(node->getGroupAttr()->getCharacteristicInputs());
   realInputs.weedOutUnreferenced(inputsOfNode);
   node->getGroupAttr()->setCharacteristicInputs(inputsOfNode);
@@ -3590,27 +2902,23 @@ static void minimizeInputsForNode(RelExpr *node, ValueIdSet &realInputs)
 // For each and every node in 'subtree' call minimizeInputsForNode()
 // to remove the redundant inputs.
 //////////////////////////////////////////////////////////////////////////////
-static void minimizeInputsForSubtree(RelExpr *subtree, ValueIdSet &realInputs)
-{
+static void minimizeInputsForSubtree(RelExpr *subtree, ValueIdSet &realInputs) {
   minimizeInputsForNode(subtree, realInputs);
 
-  for (Int32 i=0; i<subtree->getArity(); i++)
-    minimizeInputsForSubtree(subtree->child(i), realInputs);
+  for (Int32 i = 0; i < subtree->getArity(); i++) minimizeInputsForSubtree(subtree->child(i), realInputs);
 }
 
 //////////////////////////////////////////////////////////////////////////////
 // The binding process adds redundant inputs to the temp insert subtree.
 // This usually works out in the transformation and normalization, but
 // when the triggering action is an Update with sub-queries - it does not.
-// The real inputs for the temp insert subtree, are the OLD values, plus 
+// The real inputs for the temp insert subtree, are the OLD values, plus
 // the UniqueExecuteId. Remove from thecharacteristic inputs of every node
 // of the temp insert subtree, all the values that do not reference the
 // real inputs as defined above.
 //////////////////////////////////////////////////////////////////////////////
-void GenericUpdate::removeRedundantInputsFromTempInsertTree(BindWA  *bindWA, 
-							    RelExpr *tentativeSubtree)
-{
-  // The OLD values are the outputs of the Scan node below the triggering IUD 
+void GenericUpdate::removeRedundantInputsFromTempInsertTree(BindWA *bindWA, RelExpr *tentativeSubtree) {
+  // The OLD values are the outputs of the Scan node below the triggering IUD
   // node (this node).
   Scan *scanNode = getScanNode();
   CMPASSERT(scanNode != NULL);
@@ -3619,7 +2927,7 @@ void GenericUpdate::removeRedundantInputsFromTempInsertTree(BindWA  *bindWA,
   // All instantiations of the UniqueExcuteId funcction have the same ValueId.
   // Once the transformation code changes are merged in, we can take the ExecId
   // ValueId from the BindInfo.
-  ItemExpr *execId = new(bindWA->wHeap()) UniqueExecuteId();
+  ItemExpr *execId = new (bindWA->wHeap()) UniqueExecuteId();
   execId->bindNode(bindWA);
   realInputs += execId->getValueId();
 
@@ -3634,21 +2942,14 @@ void GenericUpdate::removeRedundantInputsFromTempInsertTree(BindWA  *bindWA,
 
 //////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
-RelExpr *GenericUpdate::inlineBeforeAndAfterBackbone(BindWA *bindWA, 
-						     RelExpr *tentativeSubtree,
-						     TriggersTempTable& tempTableObj,
-						     TriggerList *rowTriggers,
-						     TriggerList *stmtTriggers,
-						     RefConstraintList *riConstraints,
-						     NABoolean needIM,
-						     NABoolean isMVLoggingRequired,
-						     UpdateColumns *updatedColumns,
-						     CollHeap *heap)
-{
+RelExpr *GenericUpdate::inlineBeforeAndAfterBackbone(BindWA *bindWA, RelExpr *tentativeSubtree,
+                                                     TriggersTempTable &tempTableObj, TriggerList *rowTriggers,
+                                                     TriggerList *stmtTriggers, RefConstraintList *riConstraints,
+                                                     NABoolean needIM, NABoolean isMVLoggingRequired,
+                                                     UpdateColumns *updatedColumns, CollHeap *heap) {
   // Create the effective Insert, Update or Delete node.
   GenericUpdate *effectiveGuNode = NULL;
-  RelExpr *effectiveGuRootNode = 
-    createEffectiveGU(bindWA, heap, tempTableObj, &effectiveGuNode, updatedColumns);
+  RelExpr *effectiveGuRootNode = createEffectiveGU(bindWA, heap, tempTableObj, &effectiveGuNode, updatedColumns);
 
   CMPASSERT(effectiveGuNode != NULL);
 
@@ -3659,60 +2960,46 @@ RelExpr *GenericUpdate::inlineBeforeAndAfterBackbone(BindWA *bindWA,
 
   // We only use the FiringTriggers flag if this GU will have to generate
   // the NEW and OLD values for Row triggers, RI or IM.
-  if (getInliningInfo().hasPipelinedActions())
-  {
-    effectiveGuNode->getInliningInfo().setFlags(II_hasPipelinedActions); 
+  if (getInliningInfo().hasPipelinedActions()) {
+    effectiveGuNode->getInliningInfo().setFlags(II_hasPipelinedActions);
   }
 
   // First inline MV logging, so it will be pushed to DP2 with the IUD.
-  if (isMVLoggingRequired)
-  {
+  if (isMVLoggingRequired) {
     RelExpr *mvTree = createMvLogInsert(bindWA, heap, updatedColumns, TRUE);
-    if (mvTree != NULL)
-    {
+    if (mvTree != NULL) {
       OperatorTypeEnum joinType = REL_LEFT_TSJ;
-      if (!rowTriggers && !riConstraints && !needIM)
-	joinType = REL_TSJ;
-      Join *logTSJ = new(heap) Join(topNode, mvTree, joinType);
+      if (!rowTriggers && !riConstraints && !needIM) joinType = REL_TSJ;
+      Join *logTSJ = new (heap) Join(topNode, mvTree, joinType);
       logTSJ->setTSJForWrite(TRUE);
 
       // disable parallele execution for TSJs that control row triggers
       // execution. Parallel execution for triggers TSJ introduces the
       // potential for non-deterministic execution
-      if (rowTriggers)
-        logTSJ->getInliningInfo().setFlags(II_SingleExecutionForTriggersTSJ);
+      if (rowTriggers) logTSJ->getInliningInfo().setFlags(II_SingleExecutionForTriggersTSJ);
 
       topNode = logTSJ;
     }
   }
 
-  if (needIM)
-  {
+  if (needIM) {
     // Next inline Index Maintainance
-    NABoolean imIsLastTSJ = ((rowTriggers==NULL) && (riConstraints==NULL));
+    NABoolean imIsLastTSJ = ((rowTriggers == NULL) && (riConstraints == NULL));
     // here we do use the internal syskey column name ("@SYSKEY") since the
     // whole backbone is driven by the temp-table insert node
 
     NABoolean rowTriggersPresent = (rowTriggers != NULL);
 
-    if (getOperatorType() == REL_UNARY_INSERT)
+    if (getOperatorType() == REL_UNARY_INSERT) {
+      topNode = inlineIM(topNode, bindWA, imIsLastTSJ, updatedColumns, heap, FALSE, rowTriggersPresent);
+    } else  // REL_UNARY_UPDATE or REL_UNARY_DELETE
     {
-       topNode = inlineIM(topNode, bindWA, imIsLastTSJ, updatedColumns, 
-                          heap, FALSE, rowTriggersPresent);
-    }
-    else  // REL_UNARY_UPDATE or REL_UNARY_DELETE
-    { 
-       topNode = inlineIM(topNode, bindWA, imIsLastTSJ, updatedColumns, 
-                          heap, TRUE, rowTriggersPresent);
+      topNode = inlineIM(topNode, bindWA, imIsLastTSJ, updatedColumns, heap, TRUE, rowTriggersPresent);
     }
   }
 
   // Next inline RI and row triggers (temp Insert is on the tentative side).
-  topNode = inlinePipelinedActions(topNode,
-                                   bindWA, 
-				   rowTriggers, 
-				   riConstraints, 
-				   heap);
+  topNode = inlinePipelinedActions(topNode, bindWA, rowTriggers, riConstraints, heap);
 
   // Inline statement triggers
   topNode = inlineTriggerGroup(topNode, stmtTriggers, FALSE, heap, bindWA);
@@ -3722,51 +3009,42 @@ RelExpr *GenericUpdate::inlineBeforeAndAfterBackbone(BindWA *bindWA,
   topNode->getInliningInfo().setFlags(II_BeforeTriggersExist);
 
   // Open a new scope for the after-trigger part.
-  topNode = new(heap) RelRoot(topNode); 
+  topNode = new (heap) RelRoot(topNode);
   ((RelRoot *)topNode)->setRootFlag(FALSE);
 
   // Join the two parts of the backbone using a blocked Union node.
-  Union *topUnion = new(heap) Union(tentativeSubtree, topNode, NULL, NULL,
-                                    REL_UNION, CmpCommon::statementHeap(),
-                                    TRUE);
+  Union *topUnion =
+      new (heap) Union(tentativeSubtree, topNode, NULL, NULL, REL_UNION, CmpCommon::statementHeap(), TRUE);
   topUnion->setBlockedUnion();
   topUnion->setNoOutputs();
   topUnion->getInliningInfo().setFlags(II_DrivingBeforeTriggers);
- 
+
   // If we are in an NAR, then set the InNotAtomicStatement flag
-  if (bindWA->getHostArraysArea() && 
-      bindWA->getHostArraysArea()->getTolerateNonFatalError()) 
-    {
-	topUnion->setInNotAtomicStatement();
-    }
-  
+  if (bindWA->getHostArraysArea() && bindWA->getHostArraysArea()->getTolerateNonFatalError()) {
+    topUnion->setInNotAtomicStatement();
+  }
+
   topNode = topUnion;
 
   // Now bind the resulting tree
   topNode = topNode->bindNode(bindWA);
-  if (bindWA->errStatus())
-    return this;
+  if (bindWA->errStatus()) return this;
 
   // store information for triggers transformation phase
   InliningInfo &info = effectiveGuNode->getInliningInfo();
 
-  if (!(info.hasPipelinedActions()) && getOperatorType() != REL_UNARY_UPDATE)
-  {
-     // case of before triggers and after statement triggers where the after triggers are in conflict
-     // and the effective GU is either an insert or a delete.
-     info.getTriggerBindInfo()->setBackboneIudNum(bindWA->getUniqueIudNum());
+  if (!(info.hasPipelinedActions()) && getOperatorType() != REL_UNARY_UPDATE) {
+    // case of before triggers and after statement triggers where the after triggers are in conflict
+    // and the effective GU is either an insert or a delete.
+    info.getTriggerBindInfo()->setBackboneIudNum(bindWA->getUniqueIudNum());
+  } else {
+    info.buildTriggerBindInfo(bindWA, effectiveGuRootNode->getRETDesc(), heap);
   }
-  else
-  {
-     info.buildTriggerBindInfo(bindWA, effectiveGuRootNode->getRETDesc(), heap);
-  }
-
 
   // The binding process adds redundant inputs to the temp insert subtree.
   // This usually works out in the transformation and normalization, but
   // when the triggering action is an Update with sub-queries - it does not.
-  if (getOperatorType() == REL_UNARY_UPDATE)
-    removeRedundantInputsFromTempInsertTree(bindWA, tentativeSubtree);
+  if (getOperatorType() == REL_UNARY_UPDATE) removeRedundantInputsFromTempInsertTree(bindWA, tentativeSubtree);
 
   return topNode;
 }
@@ -3774,22 +3052,17 @@ RelExpr *GenericUpdate::inlineBeforeAndAfterBackbone(BindWA *bindWA,
 //////////////////////////////////////////////////////////////////////////////
 // Is this backbone cascaded from a row trigger?
 //////////////////////////////////////////////////////////////////////////////
-NABoolean GenericUpdate::shouldForbidMaterializeNodeHere(BindWA *bindWA)
-{
+NABoolean GenericUpdate::shouldForbidMaterializeNodeHere(BindWA *bindWA) {
   // If this backbone is cascaded from a row after trigger, Do not allow the
   // optimizer to use any Materialize nodes below this point.
   BindScope *triggerScope = NULL;
   // Skip this if the flag was already set by a trigger above us.
-  if (!getInliningInfo().isMaterializeNodeForbidden())
-  {
+  if (!getInliningInfo().isMaterializeNodeForbidden()) {
     // For each scope above us, that has a trigger object
-    while ((triggerScope = bindWA->findNextScopeWithTriggerInfo(triggerScope))
-           != NULL)
-    {
-      StmtDDLCreateTrigger* triggerObj = triggerScope->context()->triggerObj();
+    while ((triggerScope = bindWA->findNextScopeWithTriggerInfo(triggerScope)) != NULL) {
+      StmtDDLCreateTrigger *triggerObj = triggerScope->context()->triggerObj();
       // If its not a row after trigger - continue searching.
-      if (triggerObj->isStatement() || !triggerObj->isAfter())
-	continue;
+      if (triggerObj->isStatement() || !triggerObj->isAfter()) continue;
 
       return TRUE;
     }
@@ -3800,70 +3073,52 @@ NABoolean GenericUpdate::shouldForbidMaterializeNodeHere(BindWA *bindWA)
 
 //////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
-void GenericUpdate::InliningFinale(BindWA *bindWA, RelExpr *topNode, 
-                                   RETDesc *origRETDesc)
-{
+void GenericUpdate::InliningFinale(BindWA *bindWA, RelExpr *topNode, RETDesc *origRETDesc) {
   // QSTUFF
-  // this expression is executed once all inlining and binding 
-  // for index maintenance, RI and triggers has been done. We replace the 
+  // this expression is executed once all inlining and binding
+  // for index maintenance, RI and triggers has been done. We replace the
   // current scope with a RETDesc containing references to old and new column
   // values as can be referenced in the return clause of an embedded delete or
-  // and embedded update 
-  
-  if (getGroupAttr()->isEmbeddedUpdateOrDelete() ||
-      isMtsStatement() ||
-      (getUpdateCKorUniqueIndexKey() && (getOperatorType() == REL_UNARY_DELETE)) ||
-      isEmbeddedDeleteWithFirstN())
-    {
-      
-      // lets only return the implicit old and new table columns
-      if (getRETDesc()) delete getRETDesc();
-      
-      CorrName corrNEWTable
-	(getTableDesc()->getCorrNameObj().getQualifiedNameObj(), 
-	 bindWA->wHeap(),NEWTable);
-      
-      if (getOperatorType() == REL_UNARY_UPDATE  ||
-	  getOperatorType() == REL_UNARY_INSERT){
-	// expose NEW table columns
-	setRETDesc(new (bindWA->wHeap()) 
-		   RETDesc(bindWA,getTableDesc(),&corrNEWTable));
-      }
-      else
-	setRETDesc(new (bindWA->wHeap()) RETDesc(bindWA));
-      
-      if (getOperatorType() == REL_UNARY_UPDATE ||
-	  getOperatorType() == REL_UNARY_DELETE)
-	{
-	  CorrName corrOLDTable
-	    (getScanNode(TRUE)->getTableDesc()->getCorrNameObj().getQualifiedNameObj(), 
-	     bindWA->wHeap(),OLDTable
-	     );
-	  
-	  // expose OLD table columns
-	  getRETDesc()->
-	    addColumns(bindWA, *getScanNode(TRUE)->getRETDesc(), &corrOLDTable);
-	  
-	}
-      
-      // allow the TSJRule to be used to transform Updates/Deletes
-      setNoFlow(TRUE);
-      
-      // record the GenericUpdateRoot property in the group
-      // attributes of the root of the generic update tree.
-      // this is used by pushdowncovered expression to prevent
-      // expression to be push beyond the root of a generic update
-      // tree
-      topNode->getGroupAttr()->setGenericUpdateRoot(TRUE);
-      
-      // set current scope to contain NEW and OLD tables only               
-      origRETDesc = getRETDesc();       
+  // and embedded update
+
+  if (getGroupAttr()->isEmbeddedUpdateOrDelete() || isMtsStatement() ||
+      (getUpdateCKorUniqueIndexKey() && (getOperatorType() == REL_UNARY_DELETE)) || isEmbeddedDeleteWithFirstN()) {
+    // lets only return the implicit old and new table columns
+    if (getRETDesc()) delete getRETDesc();
+
+    CorrName corrNEWTable(getTableDesc()->getCorrNameObj().getQualifiedNameObj(), bindWA->wHeap(), NEWTable);
+
+    if (getOperatorType() == REL_UNARY_UPDATE || getOperatorType() == REL_UNARY_INSERT) {
+      // expose NEW table columns
+      setRETDesc(new (bindWA->wHeap()) RETDesc(bindWA, getTableDesc(), &corrNEWTable));
+    } else
+      setRETDesc(new (bindWA->wHeap()) RETDesc(bindWA));
+
+    if (getOperatorType() == REL_UNARY_UPDATE || getOperatorType() == REL_UNARY_DELETE) {
+      CorrName corrOLDTable(getScanNode(TRUE)->getTableDesc()->getCorrNameObj().getQualifiedNameObj(), bindWA->wHeap(),
+                            OLDTable);
+
+      // expose OLD table columns
+      getRETDesc()->addColumns(bindWA, *getScanNode(TRUE)->getRETDesc(), &corrOLDTable);
     }
-  
-  if (bindWA->inDDL())
-    return;
-  
-  //QSTUFF
+
+    // allow the TSJRule to be used to transform Updates/Deletes
+    setNoFlow(TRUE);
+
+    // record the GenericUpdateRoot property in the group
+    // attributes of the root of the generic update tree.
+    // this is used by pushdowncovered expression to prevent
+    // expression to be push beyond the root of a generic update
+    // tree
+    topNode->getGroupAttr()->setGenericUpdateRoot(TRUE);
+
+    // set current scope to contain NEW and OLD tables only
+    origRETDesc = getRETDesc();
+  }
+
+  if (bindWA->inDDL()) return;
+
+  // QSTUFF
 
   ValueIdList outputs;
   getRETDesc()->getValueIdList(outputs, USER_AND_SYSTEM_COLUMNS);
@@ -3875,27 +3130,24 @@ void GenericUpdate::InliningFinale(BindWA *bindWA, RelExpr *topNode,
   // then we'll want to revisit these next two lines,
   // (resetting our RETDesc to an empty one) because otherwise
   // this nonempty one'll become our parent RelRoot's compExpr(),
-  // which will cause 
-  // 		RelRoot::preCodeGen - compExpr().replaceVEGExpressions - 
+  // which will cause
+  // 		RelRoot::preCodeGen - compExpr().replaceVEGExpressions -
   //		VEGReference::replaceVEGReference
   // to assert with "no available values hence valuesToBeBound.isEmpty".
   //
   // QSTUFF
-  // please see above..we made the extensions and did fixed whats 
+  // please see above..we made the extensions and did fixed whats
   // referred to above
   // select * from (delete from x)y, z where y.x = z.x;
   // select * from (update x set x = x + 1) y, z where y.x = z.x;
-  if (!getGroupAttr()->isEmbeddedUpdateOrDelete() &&
-      !isMtsStatement() &&
-      !(getUpdateCKorUniqueIndexKey() && (getOperatorType() == REL_UNARY_DELETE)) &&
-      !isEmbeddedDeleteWithFirstN())
-  {
+  if (!getGroupAttr()->isEmbeddedUpdateOrDelete() && !isMtsStatement() &&
+      !(getUpdateCKorUniqueIndexKey() && (getOperatorType() == REL_UNARY_DELETE)) && !isEmbeddedDeleteWithFirstN()) {
     // not safe there because may is not empty,
     // delete getRETDesc();
     setRETDesc(new (bindWA->wHeap()) RETDesc(bindWA));
   }
 
-    // QSTUFF
+  // QSTUFF
   topNode->setRETDesc(getRETDesc());
   bindWA->getCurrentScope()->setRETDesc(origRETDesc);
 }
@@ -3903,137 +3155,108 @@ void GenericUpdate::InliningFinale(BindWA *bindWA, RelExpr *topNode,
 // Helper function used to check the existence of at least one update
 // trigger whose explicit columns match at least one of the columns
 // supplied as a second parameter
-NABoolean atLeastOneMatch(const BeforeAndAfterTriggers *allTriggers,
-                          const UpdateColumns *columns)
-{
-    TriggerList *trigs = NULL;
+NABoolean atLeastOneMatch(const BeforeAndAfterTriggers *allTriggers, const UpdateColumns *columns) {
+  TriggerList *trigs = NULL;
 
-    assert(allTriggers != NULL);
+  assert(allTriggers != NULL);
 
-    // check the before row triggers for a match
-    if (allTriggers->getBeforeTriggers() != NULL)
-    {
-       trigs = 
-         allTriggers->getBeforeTriggers()->getColumnMatchingTriggers (columns);
-    }
+  // check the before row triggers for a match
+  if (allTriggers->getBeforeTriggers() != NULL) {
+    trigs = allTriggers->getBeforeTriggers()->getColumnMatchingTriggers(columns);
+  }
 
-    // check the after row triggers for a match
-    if ((trigs == NULL) && (allTriggers->getAfterRowTriggers() != NULL))
-    {
-       trigs = 
-        allTriggers->getAfterRowTriggers()->getColumnMatchingTriggers (columns);
-    }
+  // check the after row triggers for a match
+  if ((trigs == NULL) && (allTriggers->getAfterRowTriggers() != NULL)) {
+    trigs = allTriggers->getAfterRowTriggers()->getColumnMatchingTriggers(columns);
+  }
 
-    // check the after statement triggers for a match
-    if ((trigs == NULL) && (allTriggers->getAfterStatementTriggers() != NULL))
-    {
-       trigs = 
-        allTriggers->getAfterStatementTriggers()->getColumnMatchingTriggers (columns);
-    } 
+  // check the after statement triggers for a match
+  if ((trigs == NULL) && (allTriggers->getAfterStatementTriggers() != NULL)) {
+    trigs = allTriggers->getAfterStatementTriggers()->getColumnMatchingTriggers(columns);
+  }
 
-    // at least one match was found
-    if (trigs != NULL)
-    {
-       return TRUE;
-    }
+  // at least one match was found
+  if (trigs != NULL) {
+    return TRUE;
+  }
 
-    // no match
-    return FALSE;
+  // no match
+  return FALSE;
 }
 
-NABoolean GenericUpdate::checkNonSupportedTriggersUse(BindWA *bindWA, 
-                           QualifiedName &subjectTable,
-                           ComOperation op,
-                           BeforeAndAfterTriggers *allTriggers)
-{
+NABoolean GenericUpdate::checkNonSupportedTriggersUse(BindWA *bindWA, QualifiedName &subjectTable, ComOperation op,
+                                                      BeforeAndAfterTriggers *allTriggers) {
   CollHeap *heap = bindWA->wHeap();
 
   // disable embedded update and delete as trigger events
-  if ((allTriggers != NULL) && (getGroupAttr()->isEmbeddedUpdateOrDelete()))
-  {
-       // for update operations we have to make sure that there is at least
-       // one trigger defined on the column updated by the operation
-       if (op == COM_UPDATE)
-       {
-           // Get the list of updated columns.
-           UpdateColumns *columns = new(heap) UpdateColumns(stoi_->getStoi());
+  if ((allTriggers != NULL) && (getGroupAttr()->isEmbeddedUpdateOrDelete())) {
+    // for update operations we have to make sure that there is at least
+    // one trigger defined on the column updated by the operation
+    if (op == COM_UPDATE) {
+      // Get the list of updated columns.
+      UpdateColumns *columns = new (heap) UpdateColumns(stoi_->getStoi());
 
-           // find at least one trigger that is fired by the columns updated
-           // by this operation 
-           if (atLeastOneMatch(allTriggers, columns))
-           {
-               *CmpCommon::diags() << DgSqlCode(-11027);
-               bindWA->setErrStatus();
-               // "columns" will be freed by statementHeap. 
-               // add code annotation to prevent Coverity checking error
-               // coverity[leaked_storage]
-               return TRUE;
-           }
-                 
-       }
-       else // delete - all delete triggers are considered
-       {
-           *CmpCommon::diags() << DgSqlCode(-11027);
-           bindWA->setErrStatus();
-           return TRUE;
-       }
+      // find at least one trigger that is fired by the columns updated
+      // by this operation
+      if (atLeastOneMatch(allTriggers, columns)) {
+        *CmpCommon::diags() << DgSqlCode(-11027);
+        bindWA->setErrStatus();
+        // "columns" will be freed by statementHeap.
+        // add code annotation to prevent Coverity checking error
+        // coverity[leaked_storage]
+        return TRUE;
+      }
 
+    } else  // delete - all delete triggers are considered
+    {
+      *CmpCommon::diags() << DgSqlCode(-11027);
+      bindWA->setErrStatus();
+      return TRUE;
+    }
   }
 
   // disable embedded insert as trigger events
-  if ((allTriggers != NULL) && (getGroupAttr()->isEmbeddedInsert()))
-  {
+  if ((allTriggers != NULL) && (getGroupAttr()->isEmbeddedInsert())) {
     *CmpCommon::diags() << DgSqlCode(-11027);
     bindWA->setErrStatus();
     return TRUE;
   }
 
   // the set clause of SET ON ROLLBACK statements may not change
-  // columns on which update triggers are defined 
-  if (newRecBeforeExpr() != NULL)
-  {
-        BeforeAndAfterTriggers *allTriggers2 = allTriggers;
+  // columns on which update triggers are defined
+  if (newRecBeforeExpr() != NULL) {
+    BeforeAndAfterTriggers *allTriggers2 = allTriggers;
 
-        // for SET ON ROLLBACK delete statements, we are not interested
-        // in the triggers fired by the delete operation but rather by the
-        // triggers defined on the columns updated by the SET ON ROLLBACK
-        // clause. These triggers are update triggers not delete triggers.
-        if (op == COM_DELETE)
-        {
-           ComOperation op2 = COM_UPDATE;
-           allTriggers2 =
-               bindWA->getSchemaDB()->getTriggerDB()->getTriggers(subjectTable,
-                                         op2, bindWA);
-           if (bindWA->errStatus())
-             return TRUE;   
-        }
+    // for SET ON ROLLBACK delete statements, we are not interested
+    // in the triggers fired by the delete operation but rather by the
+    // triggers defined on the columns updated by the SET ON ROLLBACK
+    // clause. These triggers are update triggers not delete triggers.
+    if (op == COM_DELETE) {
+      ComOperation op2 = COM_UPDATE;
+      allTriggers2 = bindWA->getSchemaDB()->getTriggerDB()->getTriggers(subjectTable, op2, bindWA);
+      if (bindWA->errStatus()) return TRUE;
+    }
 
-        if (allTriggers2 != NULL)
-        {
-            ValueId exprId;
-            UpdateColumns *columns = 
-                        new(heap) UpdateColumns((SqlTableOpenInfo *)NULL);
-            for (exprId = newRecBeforeExpr().init(); 
-               newRecBeforeExpr().next(exprId); 
-               newRecBeforeExpr().advance(exprId))
-            {
-                 ItemExpr *thisIE = exprId.getItemExpr();
-                 columns->addColumn((thisIE->child(0).getNAColumn())->getPosition());
-            }
+    if (allTriggers2 != NULL) {
+      ValueId exprId;
+      UpdateColumns *columns = new (heap) UpdateColumns((SqlTableOpenInfo *)NULL);
+      for (exprId = newRecBeforeExpr().init(); newRecBeforeExpr().next(exprId); newRecBeforeExpr().advance(exprId)) {
+        ItemExpr *thisIE = exprId.getItemExpr();
+        columns->addColumn((thisIE->child(0).getNAColumn())->getPosition());
+      }
 
-           // if at least one of the columns updated in SET ON ROLLBACK clause 
-           // of the SET ON ROLLBACK statement is a subject column of an update
-           //  trigger, raise an error message
-           if (atLeastOneMatch(allTriggers2, columns))
-           {
-               *CmpCommon::diags() << DgSqlCode(-11026);
-               bindWA->setErrStatus();
-               // "columns" will be freed by statementHeap. 
-               // add code annotation to prevent Coverity checking error
-               // coverity[leaked_storage]
-               return TRUE;   
-           }
-       }
+      // if at least one of the columns updated in SET ON ROLLBACK clause
+      // of the SET ON ROLLBACK statement is a subject column of an update
+      //  trigger, raise an error message
+      if (atLeastOneMatch(allTriggers2, columns)) {
+        *CmpCommon::diags() << DgSqlCode(-11026);
+        bindWA->setErrStatus();
+        // "columns" will be freed by statementHeap.
+        // add code annotation to prevent Coverity checking error
+        // coverity[leaked_storage]
+        return TRUE;
+      }
+    }
   }
 
   return FALSE;
@@ -4047,13 +3270,11 @@ NABoolean GenericUpdate::checkNonSupportedTriggersUse(BindWA *bindWA,
 // Please read the Triggers internal documentation before trying to understand
 // this code.
 //////////////////////////////////////////////////////////////////////////////
-RelExpr * GenericUpdate::handleInlining(BindWA *bindWA, RelExpr *boundExpr)
-{
-  RETDesc  *origScopeRETDesc = bindWA->getCurrentScope()->getRETDesc();
+RelExpr *GenericUpdate::handleInlining(BindWA *bindWA, RelExpr *boundExpr) {
+  RETDesc *origScopeRETDesc = bindWA->getCurrentScope()->getRETDesc();
   CorrName &subjectTableCorr = getTableDesc()->getCorrNameObj();
 
-  if (bindWA->inDDL())
-  {
+  if (bindWA->inDDL()) {
     // some QSTUFF code in inlineingFinale() should be executed when we
     // are in create view statement.
     InliningFinale(bindWA, boundExpr, origScopeRETDesc);
@@ -4061,48 +3282,39 @@ RelExpr * GenericUpdate::handleInlining(BindWA *bindWA, RelExpr *boundExpr)
   }
 
   // MultiCommit is currently only valid for DELETE statements
-  if (NOT getOperator().match(REL_ANY_DELETE)
-      &&
-      CmpCommon::transMode()->getMultiCommit() == TransMode::MC_ON_)
-    {
-      *CmpCommon::diags() << DgSqlCode(-4351);	 
-      bindWA->setErrStatus();  
-      return boundExpr;
-    }
-  
+  if (NOT getOperator().match(REL_ANY_DELETE) && CmpCommon::transMode()->getMultiCommit() == TransMode::MC_ON_) {
+    *CmpCommon::diags() << DgSqlCode(-4351);
+    bindWA->setErrStatus();
+    return boundExpr;
+  }
+
   // We don't do views.
   // ignore location specified operations.
-  if ( (getTableDesc()->getNATable()->getViewText() != NULL) ||
-       (subjectTableCorr.isLocationNameSpecified() ))
+  if ((getTableDesc()->getNATable()->getViewText() != NULL) || (subjectTableCorr.isLocationNameSpecified()))
     return boundExpr;
 
-  if (subjectTableCorr.getSpecialType() == ExtendedQualName::SG_TABLE)
-    {
-      InliningFinale(bindWA, boundExpr, origScopeRETDesc);
-      return boundExpr;  // Nothing for us to do here.
-    }
+  if (subjectTableCorr.getSpecialType() == ExtendedQualName::SG_TABLE) {
+    InliningFinale(bindWA, boundExpr, origScopeRETDesc);
+    return boundExpr;  // Nothing for us to do here.
+  }
 
   // A "DELETE [FIRST n] FROM <IUD-log-table>"
   // is the only case we allow a special table through here.
   NABoolean firstN_OnIudLogTable = FALSE;
-  if ((subjectTableCorr.getSpecialType() == ExtendedQualName::IUD_LOG_TABLE) &&
-      (getFirstNRows() > 0) )
+  if ((subjectTableCorr.getSpecialType() == ExtendedQualName::IUD_LOG_TABLE) && (getFirstNRows() > 0))
     firstN_OnIudLogTable = TRUE;
 
   // Don't waste time on special tables like index etc.
   // The IUD log is allowed here because we allow delete with multi commit on it.
   if ((subjectTableCorr.getSpecialType() != ExtendedQualName::NORMAL_TABLE) &&
-      (subjectTableCorr.getSpecialType() != ExtendedQualName::MV_TABLE)     &&
-      !firstN_OnIudLogTable                                                 &&
-      !getInliningInfo().isNeedGuOutputs() )
+      (subjectTableCorr.getSpecialType() != ExtendedQualName::MV_TABLE) && !firstN_OnIudLogTable &&
+      !getInliningInfo().isNeedGuOutputs())
     return boundExpr;
 
   // no inlining for the effective GU of a before trigger
-  if (getInliningInfo().isEffectiveGU())
-    return bindEffectiveGU(bindWA);
+  if (getInliningInfo().isEffectiveGU()) return bindEffectiveGU(bindWA);
 
-  if (getInliningInfo().isNeedGuOutputs())
-  {
+  if (getInliningInfo().isNeedGuOutputs()) {
     // The OLD/NEW outputs of this GU node are needed for some purpose
     // other than triggers/RI/IM etc.
     createOldAndNewCorrelationNames(bindWA);
@@ -4121,16 +3333,22 @@ RelExpr * GenericUpdate::handleInlining(BindWA *bindWA, RelExpr *boundExpr)
   CMPASSERT(boundExpr == this);
 
   ComOperation op;
-  switch (getOperatorType()) 
-  {
-    case REL_UNARY_INSERT: op = COM_INSERT; break;
-    case REL_UNARY_UPDATE: op = COM_UPDATE; break;
-    case REL_UNARY_DELETE: op = COM_DELETE; break;
-    default : return boundExpr;  // We only handle these three operators.
+  switch (getOperatorType()) {
+    case REL_UNARY_INSERT:
+      op = COM_INSERT;
+      break;
+    case REL_UNARY_UPDATE:
+      op = COM_UPDATE;
+      break;
+    case REL_UNARY_DELETE:
+      op = COM_DELETE;
+      break;
+    default:
+      return boundExpr;  // We only handle these three operators.
   }
 
   CollHeap *heap = bindWA->wHeap();
-  QualifiedName& subjectTable = subjectTableCorr.getQualifiedNameObj();
+  QualifiedName &subjectTable = subjectTableCorr.getQualifiedNameObj();
 
   // get all triggers in the triggerDB, and RIs from the SchemaDB.
 #if DISABLE_TRIGGERS
@@ -4138,38 +3356,30 @@ RelExpr * GenericUpdate::handleInlining(BindWA *bindWA, RelExpr *boundExpr)
 #else
   BeforeAndAfterTriggers *allTriggers = 0;
 
-     if ((isIgnoreTriggers() == FALSE) && !firstN_OnIudLogTable )
-  {
-    if (getUpdateCKorUniqueIndexKey())
-    {
+  if ((isIgnoreTriggers() == FALSE) && !firstN_OnIudLogTable) {
+    if (getUpdateCKorUniqueIndexKey()) {
       // if this the delete node of updateCKorUniqueIndexKey then skip
       // inlining triggers altogether (allTriggers remains NULL).
-      if (op == COM_INSERT)
-      {
-	op = COM_UPDATE;
-	allTriggers = bindWA->getSchemaDB()->getTriggerDB()->getTriggers(subjectTable, op, bindWA);
+      if (op == COM_INSERT) {
+        op = COM_UPDATE;
+        allTriggers = bindWA->getSchemaDB()->getTriggerDB()->getTriggers(subjectTable, op, bindWA);
+      }
+    } else {
+      allTriggers = bindWA->getSchemaDB()->getTriggerDB()->getTriggers(subjectTable, op, bindWA);
+
+      if ((allTriggers == NULL) && (isMerge())) {
+        // Triggers are not supported with Merge statement.
+        // if update part of merge didn't cause any triggers to be inlined,
+        // check for insert triggers.
+        // These triggers will be inlined here but an error will be
+        // returned during preCodeGen.
+        allTriggers = bindWA->getSchemaDB()->getTriggerDB()->getTriggers(subjectTable, COM_INSERT, bindWA);
       }
     }
-    else
-      {
-	allTriggers = bindWA->getSchemaDB()->getTriggerDB()->getTriggers(subjectTable, op, bindWA);
-
-	if ((allTriggers == NULL) && (isMerge()))
-	  {
-	    // Triggers are not supported with Merge statement.
-	    // if update part of merge didn't cause any triggers to be inlined,
-	    // check for insert triggers.
-	    // These triggers will be inlined here but an error will be
-	    // returned during preCodeGen.
-	    allTriggers = bindWA->getSchemaDB()->getTriggerDB()->getTriggers(
-		 subjectTable, COM_INSERT, bindWA);
-	  }
-      }
   }
 #endif
 
-  if (bindWA->errStatus())
-     return NULL;
+  if (bindWA->errStatus()) return NULL;
 
   if (allTriggers) {
     getInliningInfo().setFlags(II_hasTriggers);
@@ -4178,20 +3388,17 @@ RelExpr * GenericUpdate::handleInlining(BindWA *bindWA, RelExpr *boundExpr)
 
   // certain triggers uses are currently not supported and errors
   // are raised if these uses are tried
-  if (checkNonSupportedTriggersUse(bindWA, subjectTable, op, allTriggers))
-  {
-     return this;
+  if (checkNonSupportedTriggersUse(bindWA, subjectTable, op, allTriggers)) {
+    return this;
   }
 
 #if DISABLE_RI
-  RefConstraintList *riConstraints = NULL; 
+  RefConstraintList *riConstraints = NULL;
 #else
-  RefConstraintList *riConstraints = 
-    getRIs(bindWA, getTableDesc()->getNATable());
+  RefConstraintList *riConstraints = getRIs(bindWA, getTableDesc()->getNATable());
 #endif
 
-  if (riConstraints) 
-    getInliningInfo().setFlags(II_hasRI);
+  if (riConstraints) getInliningInfo().setFlags(II_hasRI);
 
 #if DISABLE_MV_LOGGING
   NABoolean isMVLoggingRequired = FALSE;
@@ -4199,12 +3406,11 @@ RelExpr * GenericUpdate::handleInlining(BindWA *bindWA, RelExpr *boundExpr)
   NABoolean isMVLoggingRequired = isMvLoggingRequired();
 #endif
 
-  RelExpr  *topNode=boundExpr;
+  RelExpr *topNode = boundExpr;
 
   // Get the list of updated columns.
   UpdateColumns *columns = NULL;
-  if (op == COM_UPDATE)
-    columns = new(heap) UpdateColumns(stoi_->getStoi());
+  if (op == COM_UPDATE) columns = new (heap) UpdateColumns(stoi_->getStoi());
 
   // Get only the before triggers that match these columns.
   TriggerList *beforeTriggers = NULL;
@@ -4213,18 +3419,17 @@ RelExpr * GenericUpdate::handleInlining(BindWA *bindWA, RelExpr *boundExpr)
 
   NABoolean tsjRETDescCreated = FALSE;
 
-  if (beforeTriggers != NULL) {   
-    if (checkForNotAtomicStatement(bindWA, 30027, 
-				  ((*beforeTriggers)[0])->getTriggerName(), 
-				  subjectTable.getQualifiedNameAsAnsiString())) {
-	return this;
+  if (beforeTriggers != NULL) {
+    if (checkForNotAtomicStatement(bindWA, 30027, ((*beforeTriggers)[0])->getTriggerName(),
+                                   subjectTable.getQualifiedNameAsAnsiString())) {
+      return this;
     }
 
     tsjRETDescCreated = TRUE;
     createOldAndNewCorrelationNames(bindWA);
   }
 
-  // Save the previous IudNum, it will be restored at the end of the 
+  // Save the previous IudNum, it will be restored at the end of the
   // inlining of the current backbone.
   Lng32 prevIudNum = bindWA->getUniqueIudNum();
   // Set the IudNum for the current generic update backbone.
@@ -4238,302 +3443,230 @@ RelExpr * GenericUpdate::handleInlining(BindWA *bindWA, RelExpr *boundExpr)
   // must be sure this table actually exists before creating that object.
 
   TriggersTempTable *tempTableObj = NULL;
-  if (allTriggers != NULL)
-  {
-    tempTableObj = new(heap) TriggersTempTable(this, bindWA);
+  if (allTriggers != NULL) {
+    tempTableObj = new (heap) TriggersTempTable(this, bindWA);
   }
 
   // Build the before triggers side of the inlining backbone.
   // This method also adds to 'columns' any column that is updated by before triggers.
-  RelExpr  *beforeSubtree = NULL;
-  if (beforeTriggers != NULL) 
-    beforeSubtree = createTentativeSubTree(bindWA, 
-					   beforeTriggers, 
-					   columns,	
-					   *tempTableObj, 
-					   heap);
+  RelExpr *beforeSubtree = NULL;
+  if (beforeTriggers != NULL)
+    beforeSubtree = createTentativeSubTree(bindWA, beforeTriggers, columns, *tempTableObj, heap);
 
-  if (bindWA->errStatus()) 
-    return NULL;
+  if (bindWA->errStatus()) return NULL;
 
 #if DISABLE_TRIGGERS
-  // Nothing to do.
+    // Nothing to do.
 #else
-  if ((allTriggers != NULL) && (allTriggers->getAfterStatementTriggers() != NULL))
-    {
+  if ((allTriggers != NULL) && (allTriggers->getAfterStatementTriggers() != NULL)) {
     TriggerList *pureStmtTriggers = allTriggers->getAfterStatementTriggers()->getColumnMatchingTriggers(columns);
     // There are statement triggers which are not for statement MVs.
     // The ones used for statement MVs will be pupulated with the
     // getTriggeredMVs call below.
     if (pureStmtTriggers)
-      if (checkForNotAtomicStatement(bindWA, 30034, 
-				     ((*pureStmtTriggers)[0])->getTriggerName(), 
-				     subjectTable.getQualifiedNameAsAnsiString())) 
-	{
-	  return this;
-	}
-    }
+      if (checkForNotAtomicStatement(bindWA, 30034, ((*pureStmtTriggers)[0])->getTriggerName(),
+                                     subjectTable.getQualifiedNameAsAnsiString())) {
+        return this;
+      }
+  }
   // Now that we know the final set of columns updated in the query, we
   // can determine whether the update of the MVs is direct or indirect.
   allTriggers = getTriggeredMvs(bindWA, allTriggers, columns);
-  if (bindWA->errStatus())
-    return this;
+  if (bindWA->errStatus()) return this;
 #endif
 
-  if ((allTriggers   == NULL) && 
-      (riConstraints == NULL) && 
-      !isMVLoggingRequired    &&
-      !getTableDesc()->hasSecondaryIndexes())
-  {
+  if ((allTriggers == NULL) && (riConstraints == NULL) && !isMVLoggingRequired &&
+      !getTableDesc()->hasSecondaryIndexes()) {
     InliningFinale(bindWA, boundExpr, origScopeRETDesc);
-    bindWA->resetUniqueIudNum(prevIudNum); // restore the saved IudNum
-    return boundExpr;  // Nothing for us to do here.
+    bindWA->resetUniqueIudNum(prevIudNum);  // restore the saved IudNum
+    return boundExpr;                       // Nothing for us to do here.
   }
 
   // Get the row and statement triggers that match the updated column list.
-  TriggerList *rowTriggers  = NULL;
+  TriggerList *rowTriggers = NULL;
   if ((allTriggers != NULL) && (allTriggers->getAfterRowTriggers() != NULL))
     rowTriggers = allTriggers->getAfterRowTriggers()->getColumnMatchingTriggers(columns);
   TriggerList *stmtTriggers = NULL;
   if ((allTriggers != NULL) && (allTriggers->getAfterStatementTriggers() != NULL))
     stmtTriggers = allTriggers->getAfterStatementTriggers()->getColumnMatchingTriggers(columns);
 
-  if (rowTriggers != NULL) {   
-    if (checkForNotAtomicStatement(bindWA, 30034, 
-				  ((*rowTriggers)[0])->getTriggerName(), 
-				  subjectTable.getQualifiedNameAsAnsiString())) 
-    {
-	return this;
-    }
-    else if (isNoRollback() ||
-	      (CmpCommon::transMode()->getRollbackMode() == TransMode::NO_ROLLBACK_)) 
-    {
-	*CmpCommon::diags() << DgSqlCode(-3232) 
-	<< DgString0(subjectTable.getQualifiedNameAsAnsiString()) 
-	<< DgString1("After Trigger :")
-	<< DgString2(((*rowTriggers)[0])->getTriggerName());
-	bindWA->setErrStatus();
+  if (rowTriggers != NULL) {
+    if (checkForNotAtomicStatement(bindWA, 30034, ((*rowTriggers)[0])->getTriggerName(),
+                                   subjectTable.getQualifiedNameAsAnsiString())) {
+      return this;
+    } else if (isNoRollback() || (CmpCommon::transMode()->getRollbackMode() == TransMode::NO_ROLLBACK_)) {
+      *CmpCommon::diags() << DgSqlCode(-3232) << DgString0(subjectTable.getQualifiedNameAsAnsiString())
+                          << DgString1("After Trigger :") << DgString2(((*rowTriggers)[0])->getTriggerName());
+      bindWA->setErrStatus();
 
-	return this ;
+      return this;
     }
-  }
-  else if (stmtTriggers != NULL) { 
-   if ((CmpCommon::getDefault(NAR_DEPOBJ_ENABLE2) == DF_OFF) )
-     {
-       if (checkForNotAtomicStatement(bindWA, 30034, 
-				      ((*stmtTriggers)[0])->getTriggerName(), 
-				      subjectTable.getQualifiedNameAsAnsiString())) 
-	 {
-	   return this;
-	 }
-     }
-    else if (isNoRollback() ||
-	      (CmpCommon::transMode()->getRollbackMode() == TransMode::NO_ROLLBACK_)) 
-    {
-	*CmpCommon::diags() << DgSqlCode(-3232) 
-	<< DgString0(subjectTable.getQualifiedNameAsAnsiString()) 
-	<< DgString1("After Trigger :")
-	<< DgString2(((*stmtTriggers)[0])->getTriggerName());
-	bindWA->setErrStatus();
+  } else if (stmtTriggers != NULL) {
+    if ((CmpCommon::getDefault(NAR_DEPOBJ_ENABLE2) == DF_OFF)) {
+      if (checkForNotAtomicStatement(bindWA, 30034, ((*stmtTriggers)[0])->getTriggerName(),
+                                     subjectTable.getQualifiedNameAsAnsiString())) {
+        return this;
+      }
+    } else if (isNoRollback() || (CmpCommon::transMode()->getRollbackMode() == TransMode::NO_ROLLBACK_)) {
+      *CmpCommon::diags() << DgSqlCode(-3232) << DgString0(subjectTable.getQualifiedNameAsAnsiString())
+                          << DgString1("After Trigger :") << DgString2(((*stmtTriggers)[0])->getTriggerName());
+      bindWA->setErrStatus();
 
-	return this ;
+      return this;
     }
   }
-  
 
-  if ((stmtTriggers != NULL) || (beforeTriggers != NULL))
-  {
-    NAString trigName = stmtTriggers ? ((*stmtTriggers)[0])->getTriggerName() : ((*beforeTriggers)[0])->getTriggerName() ;
-    if (getFirstNRows() > 0)
-    {
+  if ((stmtTriggers != NULL) || (beforeTriggers != NULL)) {
+    NAString trigName =
+        stmtTriggers ? ((*stmtTriggers)[0])->getTriggerName() : ((*beforeTriggers)[0])->getTriggerName();
+    if (getFirstNRows() > 0) {
       // first N delete not supported with before triggers and after statement triggers.
-      *CmpCommon::diags() << DgSqlCode(-11045) 
-	  << DgString0(trigName) 
-	  << DgString1(subjectTable.getQualifiedNameAsAnsiString());
-	bindWA->setErrStatus();
-	return this;
+      *CmpCommon::diags() << DgSqlCode(-11045) << DgString0(trigName)
+                          << DgString1(subjectTable.getQualifiedNameAsAnsiString());
+      bindWA->setErrStatus();
+      return this;
     }
   }
 
   // Filter only the RI constraints that match the updated columns.
-  if (riConstraints != NULL)
-  {
+  if (riConstraints != NULL) {
     riConstraints = riConstraints->getNeededRIs(columns, heap);
     if (riConstraints->isEmpty())
-      riConstraints = NULL;		
-    else // There are RI constraints that need to be enforced.  
-      {
-	// Disallow embedded delete on a referenced table.
-	// Disallow embedded updates on columns which are part of an RI constraint.
-	if (getGroupAttr()->isEmbeddedDelete()) 
-	  {
-	    *CmpCommon::diags() << DgSqlCode(-4183);
-	    bindWA->setErrStatus();
-	    return this;
-	  }
-	if (getGroupAttr()->isEmbeddedUpdate()) 
-	  {
-	    *CmpCommon::diags() << DgSqlCode(-4184);
-	    bindWA->setErrStatus();
-	    return this;
-	  }
-	if ((CmpCommon::getDefault(NAR_DEPOBJ_ENABLE2) == DF_OFF) )
-	  {
-       
-	    if (checkForNotAtomicStatement(bindWA, 30028, 
-					   (riConstraints->at(0)->getConstraintName()).getQualifiedNameAsAnsiString(),
-					   subjectTable.getQualifiedNameAsAnsiString())) {
-	      return this ;
-	    }
-	  }
-	  
-	if (isNoRollback() ||
-		  (CmpCommon::transMode()->getRollbackMode() == TransMode::NO_ROLLBACK_)) {
-	  *CmpCommon::diags() << DgSqlCode(-3232) 
-	  << DgString0(subjectTable.getQualifiedNameAsAnsiString()) 
-	  << DgString1("Referential Intergrity Constraint :")
-	  << DgString2((riConstraints->at(0)->getConstraintName()).getQualifiedNameAsAnsiString());
-	  bindWA->setErrStatus();
-
-	  return this ;
-	}
-	
+      riConstraints = NULL;
+    else  // There are RI constraints that need to be enforced.
+    {
+      // Disallow embedded delete on a referenced table.
+      // Disallow embedded updates on columns which are part of an RI constraint.
+      if (getGroupAttr()->isEmbeddedDelete()) {
+        *CmpCommon::diags() << DgSqlCode(-4183);
+        bindWA->setErrStatus();
+        return this;
       }
+      if (getGroupAttr()->isEmbeddedUpdate()) {
+        *CmpCommon::diags() << DgSqlCode(-4184);
+        bindWA->setErrStatus();
+        return this;
+      }
+      if ((CmpCommon::getDefault(NAR_DEPOBJ_ENABLE2) == DF_OFF)) {
+        if (checkForNotAtomicStatement(bindWA, 30028,
+                                       (riConstraints->at(0)->getConstraintName()).getQualifiedNameAsAnsiString(),
+                                       subjectTable.getQualifiedNameAsAnsiString())) {
+          return this;
+        }
+      }
+
+      if (isNoRollback() || (CmpCommon::transMode()->getRollbackMode() == TransMode::NO_ROLLBACK_)) {
+        *CmpCommon::diags() << DgSqlCode(-3232) << DgString0(subjectTable.getQualifiedNameAsAnsiString())
+                            << DgString1("Referential Intergrity Constraint :")
+                            << DgString2((riConstraints->at(0)->getConstraintName()).getQualifiedNameAsAnsiString());
+        bindWA->setErrStatus();
+
+        return this;
+      }
+    }
   }
 
   NABoolean needIM = isIMNeeded(columns);
 
   if (needIM) {
-    if ((isNoRollback() || 
-	(CmpCommon::transMode()->getRollbackMode() == TransMode::NO_ROLLBACK_)) ||
-	(bindWA->getHostArraysArea() &&
-	bindWA->getHostArraysArea()->getTolerateNonFatalError())) {
+    if ((isNoRollback() || (CmpCommon::transMode()->getRollbackMode() == TransMode::NO_ROLLBACK_)) ||
+        (bindWA->getHostArraysArea() && bindWA->getHostArraysArea()->getTolerateNonFatalError())) {
       NAString indexName;
       const LIST(IndexDesc *) indexList = getTableDesc()->getIndexes();
-      for (CollIndex i=0; i<indexList.entries(); i++) 
-	{
-	  IndexDesc *index = indexList[i];
-	  if (!(index->isClusteringIndex())) {
-	    indexName = index->getExtIndexName();
-	    break;
-	  }
-	}
-      if ((CmpCommon::getDefault(NAR_DEPOBJ_ENABLE) == DF_OFF) )
-	{
-	  if (checkForNotAtomicStatement(bindWA, 
-					 30026, 
-					 indexName, 
-					 subjectTable.getQualifiedNameAsAnsiString())) 
-	    {
-	      return this;
-	
-	    }
-	}
-      if (isNoRollback() ||
-	  (CmpCommon::transMode()->getRollbackMode() == TransMode::NO_ROLLBACK_)) {
-	*CmpCommon::diags() << DgSqlCode(-3232) 
-			    << DgString0(subjectTable.getQualifiedNameAsAnsiString()) 
-			    << DgString1("Index :")
-			    << DgString2(indexName);
-	bindWA->setErrStatus();
+      for (CollIndex i = 0; i < indexList.entries(); i++) {
+        IndexDesc *index = indexList[i];
+        if (!(index->isClusteringIndex())) {
+          indexName = index->getExtIndexName();
+          break;
+        }
+      }
+      if ((CmpCommon::getDefault(NAR_DEPOBJ_ENABLE) == DF_OFF)) {
+        if (checkForNotAtomicStatement(bindWA, 30026, indexName, subjectTable.getQualifiedNameAsAnsiString())) {
+          return this;
+        }
+      }
+      if (isNoRollback() || (CmpCommon::transMode()->getRollbackMode() == TransMode::NO_ROLLBACK_)) {
+        *CmpCommon::diags() << DgSqlCode(-3232) << DgString0(subjectTable.getQualifiedNameAsAnsiString())
+                            << DgString1("Index :") << DgString2(indexName);
+        bindWA->setErrStatus();
 
-	return this ;
-	  
+        return this;
       }
     }
     getInliningInfo().setFlags(II_hasIM);
   }
 
   // Do we have any triggers to work on?
-  if ((beforeTriggers == NULL) && 
-      (rowTriggers    == NULL) && 
-      (stmtTriggers   == NULL) )
-  {
-     bindWA->resetUniqueIudNum(prevIudNum);
+  if ((beforeTriggers == NULL) && (rowTriggers == NULL) && (stmtTriggers == NULL)) {
+    bindWA->resetUniqueIudNum(prevIudNum);
 
-     if (!needIM && !isMVLoggingRequired && (riConstraints  == NULL))
-     {
-	// We get here only if this is an Update operation, and there are 
-	// triggers/IM/RI defined on Update on this table, but all of them
-	// are on columns other than the ones updated.
-	// e.g. A trigger AFTER UPDATE OF (a) ON T1,
-	// and a triggering statement like: UPDATE T1 SET B=5;
-        InliningFinale(bindWA, boundExpr, origScopeRETDesc);
-	CMPASSERT (op == COM_UPDATE);		
-	return boundExpr;
-     }
+    if (!needIM && !isMVLoggingRequired && (riConstraints == NULL)) {
+      // We get here only if this is an Update operation, and there are
+      // triggers/IM/RI defined on Update on this table, but all of them
+      // are on columns other than the ones updated.
+      // e.g. A trigger AFTER UPDATE OF (a) ON T1,
+      // and a triggering statement like: UPDATE T1 SET B=5;
+      InliningFinale(bindWA, boundExpr, origScopeRETDesc);
+      CMPASSERT(op == COM_UPDATE);
+      return boundExpr;
+    }
 
-     // OK, so we have no triggers - just RI, IM or both.
-     createOldAndNewCorrelationNames(bindWA);
-     setNoFlow(TRUE);
-     getInliningInfo().setFlags(II_hasPipelinedActions); 
+    // OK, so we have no triggers - just RI, IM or both.
+    createOldAndNewCorrelationNames(bindWA);
+    setNoFlow(TRUE);
+    getInliningInfo().setFlags(II_hasPipelinedActions);
 
-     RelExpr *tempNode = NULL;
-     if ( this->getOperatorType() == REL_UNARY_DELETE &&
-          this->child(0)->getOperatorType() == REL_ANTI_SEMITSJ )
-       tempNode = this->child(0);
-     else
-       tempNode = this;
-     topNode = 
-       inlineOnlyRIandIMandMVLogging(bindWA, 
-				     tempNode, 
-				     needIM, 
-				     riConstraints, 
-				     isMVLoggingRequired, 
-				     columns, 
-				     heap);
+    RelExpr *tempNode = NULL;
+    if (this->getOperatorType() == REL_UNARY_DELETE && this->child(0)->getOperatorType() == REL_ANTI_SEMITSJ)
+      tempNode = this->child(0);
+    else
+      tempNode = this;
+    topNode =
+        inlineOnlyRIandIMandMVLogging(bindWA, tempNode, needIM, riConstraints, isMVLoggingRequired, columns, heap);
 
-     if (needIM)
-     {
-        topNode->getInliningInfo().setFlags(II_DrivingIM);
-     }
+    if (needIM) {
+      topNode->getInliningInfo().setFlags(II_DrivingIM);
+    }
 
-     topNode = topNode->bindNode(bindWA);
-     // Create the tree that handles Index Maintainance.
-     if (needIM)
-     {
-       // don't allow index maintenance on non-audited tables unless
-       // this is enabled by a default
-       // We allow index maintenance in an Internal refresh statement 
-       if (!getTableDesc()->getClusteringIndex()->getNAFileSet()->isAudited() &&
-	   !bindWA->isBindingMvRefresh())
-       {
-         NAString dummyTokString(bindWA->wHeap());
-         const NATable *naTable = bindWA->getNATable(getTableName());
-         DefaultToken imAllowed =
-            bindWA->getSchemaDB()->getDefaults().token(IUD_NONAUDITED_INDEX_MAINT,
-						       dummyTokString);
+    topNode = topNode->bindNode(bindWA);
+    // Create the tree that handles Index Maintainance.
+    if (needIM) {
+      // don't allow index maintenance on non-audited tables unless
+      // this is enabled by a default
+      // We allow index maintenance in an Internal refresh statement
+      if (!getTableDesc()->getClusteringIndex()->getNAFileSet()->isAudited() && !bindWA->isBindingMvRefresh()) {
+        NAString dummyTokString(bindWA->wHeap());
+        const NATable *naTable = bindWA->getNATable(getTableName());
+        DefaultToken imAllowed = bindWA->getSchemaDB()->getDefaults().token(IUD_NONAUDITED_INDEX_MAINT, dummyTokString);
 
-         switch (imAllowed)
-         {
-           case DF_ON:
-             // go ahead and do it, the user asked for it
-             break;
-           case DF_WARN:
-             // emit a warning and continue
-             *CmpCommon::diags() << DgSqlCode(4203) <<
-               DgTableName(naTable->getTableName().getQualifiedNameAsAnsiString());
-             break;
-           default:
-             // stop with an error, index maintenance is not allowed on
-             // nonaudited tables
-             *CmpCommon::diags() << DgSqlCode(-4203) <<
-               DgTableName(naTable->getTableName().getQualifiedNameAsAnsiString());
-             bindWA->setErrStatus();
-             return this;
-         }
-       }
-     }
+        switch (imAllowed) {
+          case DF_ON:
+            // go ahead and do it, the user asked for it
+            break;
+          case DF_WARN:
+            // emit a warning and continue
+            *CmpCommon::diags() << DgSqlCode(4203)
+                                << DgTableName(naTable->getTableName().getQualifiedNameAsAnsiString());
+            break;
+          default:
+            // stop with an error, index maintenance is not allowed on
+            // nonaudited tables
+            *CmpCommon::diags() << DgSqlCode(-4203)
+                                << DgTableName(naTable->getTableName().getQualifiedNameAsAnsiString());
+            bindWA->setErrStatus();
+            return this;
+        }
+      }
+    }
 
-     if (bindWA->errStatus())
-     {
-       return boundExpr;
-     }
+    if (bindWA->errStatus()) {
+      return boundExpr;
+    }
 
-     getInliningInfo().setFlags(II_hasInlinedActions);
+    getInliningInfo().setFlags(II_hasInlinedActions);
 
-     InliningFinale(bindWA, topNode, origScopeRETDesc);
-     return topNode;
+    InliningFinale(bindWA, topNode, origScopeRETDesc);
+    return topNode;
   }
 
   // Now, that we know for sure there are triggers to be fired, tempTableObj
@@ -4541,28 +3674,22 @@ RelExpr * GenericUpdate::handleInlining(BindWA *bindWA, RelExpr *boundExpr)
   // defined on the table, the tempTableObj is not initialized yet (see initializing
   // of tempTableObj above).
 
-  if (tempTableObj == NULL)
-  {
-    tempTableObj = new(heap) TriggersTempTable(this, bindWA);
+  if (tempTableObj == NULL) {
+    tempTableObj = new (heap) TriggersTempTable(this, bindWA);
   }
 
   setNoFlow(TRUE);
 
-  if (!tsjRETDescCreated)
-    createOldAndNewCorrelationNames(bindWA);
+  if (!tsjRETDescCreated) createOldAndNewCorrelationNames(bindWA);
 
-  if ( (rowTriggers   != NULL) ||
-       (riConstraints != NULL) ||
-	needIM                 ||
-	isMVLoggingRequired)
-    getInliningInfo().setFlags(II_hasPipelinedActions); 
+  if ((rowTriggers != NULL) || (riConstraints != NULL) || needIM || isMVLoggingRequired)
+    getInliningInfo().setFlags(II_hasPipelinedActions);
 
   // Forbid the use of the Materialize node by the optimizer, for the entire
   // backbone, if we are now cascaded from a row after trigger.
   NABoolean forbidMaterializeNodeHere = shouldForbidMaterializeNodeHere(bindWA);
   Int32 prevStateOfFlags = 0;
-  if (forbidMaterializeNodeHere)
-  {
+  if (forbidMaterializeNodeHere) {
     // Set this InliningInfo flag in every node being bound (see RelExpr::bindSelf())
     // but save the previous state first.
     prevStateOfFlags = bindWA->getInliningInfoFlagsToSetRecursivly();
@@ -4570,50 +3697,22 @@ RelExpr * GenericUpdate::handleInlining(BindWA *bindWA, RelExpr *boundExpr)
   }
 
   // Create and bind the rest of the trigger backbone.
-  if (beforeTriggers == NULL)
-    {
-      if (bindWA->getHostArraysArea() && bindWA->getHostArraysArea()->getTolerateNonFatalError()&& (needIM || riConstraints))
-	{
-	  
-	  topNode = inlineAfterOnlyBackboneForUndo(bindWA, 
-					    *tempTableObj,
-					    rowTriggers,
-					    stmtTriggers,
-					    riConstraints,
-					    needIM,
-					    isMVLoggingRequired,
-					    columns,
-					    heap);
-	}
-      else
-	{
-	  topNode = inlineAfterOnlyBackbone(bindWA, 
-					    *tempTableObj,
-					    rowTriggers,
-					    stmtTriggers,
-					    riConstraints,
-					    needIM,
-					    isMVLoggingRequired,
-					    columns,
-					    heap);
-	}
+  if (beforeTriggers == NULL) {
+    if (bindWA->getHostArraysArea() && bindWA->getHostArraysArea()->getTolerateNonFatalError() &&
+        (needIM || riConstraints)) {
+      topNode = inlineAfterOnlyBackboneForUndo(bindWA, *tempTableObj, rowTriggers, stmtTriggers, riConstraints, needIM,
+                                               isMVLoggingRequired, columns, heap);
+    } else {
+      topNode = inlineAfterOnlyBackbone(bindWA, *tempTableObj, rowTriggers, stmtTriggers, riConstraints, needIM,
+                                        isMVLoggingRequired, columns, heap);
     }
-  else
-    topNode = inlineBeforeAndAfterBackbone(bindWA, 
-					   beforeSubtree,
-					   *tempTableObj,
-					   rowTriggers,
-					   stmtTriggers,
-					   riConstraints,
-					   needIM,
-					   isMVLoggingRequired,
-					   columns,
-					   heap);
+  } else
+    topNode = inlineBeforeAndAfterBackbone(bindWA, beforeSubtree, *tempTableObj, rowTriggers, stmtTriggers,
+                                           riConstraints, needIM, isMVLoggingRequired, columns, heap);
 
-  if (forbidMaterializeNodeHere)
-  {
+  if (forbidMaterializeNodeHere) {
     // Restore to the the previous state. This effectivly resets the flag
-    // we set before binding, so we don't affect sibtrees that will be bound 
+    // we set before binding, so we don't affect sibtrees that will be bound
     // after us.
     bindWA->setInliningInfoFlagsToSetRecursivly(prevStateOfFlags);
   }
@@ -4629,11 +3728,11 @@ RelExpr * GenericUpdate::handleInlining(BindWA *bindWA, RelExpr *boundExpr)
 }
 
 //////////////////////////////////////////////////////////////////////////////
-// This method checks to see if an update should be transformed into 
+// This method checks to see if an update should be transformed into
 // insert/delete nodes.  This is true if the update is on a primary key and
 // special conditions don't exist.
 //
-// Return value: 
+// Return value:
 // TRUE  - if the update is on a clustering or unique index key and no special
 //         conditions exist.  Causes the update to be transformed to a delete
 //         followed by an insert with intervening order by.
@@ -4641,118 +3740,93 @@ RelExpr * GenericUpdate::handleInlining(BindWA *bindWA, RelExpr *boundExpr)
 //         conditions exist.  OR
 //         NOT update is on a clustering or unique index key.
 //////////////////////////////////////////////////////////////////////////////
-NABoolean Update::updatesClusteringKeyOrUniqueIndexKey(BindWA *bindWA)
-{
-  // This CQD must be ON or AGGRESSIVE in order to enable the transformation 
+NABoolean Update::updatesClusteringKeyOrUniqueIndexKey(BindWA *bindWA) {
+  // This CQD must be ON or AGGRESSIVE in order to enable the transformation
   // for special conditions.  If not, return false
-  if (CmpCommon::getDefault(UPDATE_CLUSTERING_OR_UNIQUE_INDEX_KEY) == DF_OFF)
-    return FALSE;
+  if (CmpCommon::getDefault(UPDATE_CLUSTERING_OR_UNIQUE_INDEX_KEY) == DF_OFF) return FALSE;
 
-  ULng32 numberofKeys = getTableDesc()->
-                         getClusteringIndex()->getIndexKey().entries();
+  ULng32 numberofKeys = getTableDesc()->getClusteringIndex()->getIndexKey().entries();
 
-  NABoolean hasSysKey = getTableDesc()->getClusteringIndex()->
-                            getNAFileSet()->hasSyskey();
+  NABoolean hasSysKey = getTableDesc()->getClusteringIndex()->getNAFileSet()->hasSyskey();
 
   // this restriction (i.e unable to transform update of unique index key
   // if base table has only syskey as clustering key may be removable
-  // the intention is to revisit this once a similar problem has been 
+  // the intention is to revisit this once a similar problem has been
   // solved for the Halloween feature.
-  if ((numberofKeys == 1) AND hasSysKey)
-    return FALSE;  // This should never be reached.
+  if ((numberofKeys == 1) AND hasSysKey) return FALSE;  // This should never be reached.
 
   // 1. Determine whether columns being updated are clustering key columns
   //    of base table or of a unique index.  Set flags used later.
-  const LIST(IndexDesc *) & ixlist = getTableDesc()->getIndexes();
+  const LIST(IndexDesc *) &ixlist = getTableDesc()->getIndexes();
   NABoolean isUniqueIndexCol = FALSE;
   NABoolean isClusteringKeyCol = FALSE;
   NAString ckColName;  // Save column name if is clustering key.
-  Scan * scanNode = getScanNode();
+  Scan *scanNode = getScanNode();
   const ValueIdList colUpdated = scanNode->getTableDesc()->getColUpdated();
-  for (CollIndex indexNo = 0; indexNo < ixlist.entries(); indexNo++)
-  {
-    if (isUniqueIndexCol && isClusteringKeyCol)
-      break ;
+  for (CollIndex indexNo = 0; indexNo < ixlist.entries(); indexNo++) {
+    if (isUniqueIndexCol && isClusteringKeyCol) break;
 
     IndexDesc *idesc = ixlist[indexNo];
-    if (idesc->isUniqueIndex() || idesc->isClusteringIndex())
-    {
+    if (idesc->isUniqueIndex() || idesc->isClusteringIndex()) {
       const ValueIdList indexKey = idesc->getIndexKey();
 
-      for (CollIndex i = 0; i < colUpdated.entries(); i++)
-      {
+      for (CollIndex i = 0; i < colUpdated.entries(); i++) {
         ItemExpr *updateCol = colUpdated[i].getItemExpr();
         CMPASSERT(updateCol->getOperatorType() == ITM_BASECOLUMN);
-        for (CollIndex j = 0; j < indexKey.entries(); j++)
-        {
+        for (CollIndex j = 0; j < indexKey.entries(); j++) {
           ItemExpr *keyCol = indexKey[j].getItemExpr();
-          ItemExpr *baseCol = ((IndexColumn*)keyCol)->getDefinition().getItemExpr();
+          ItemExpr *baseCol = ((IndexColumn *)keyCol)->getDefinition().getItemExpr();
           CMPASSERT(baseCol->getOperatorType() == ITM_BASECOLUMN);
-          if (((BaseColumn*)updateCol)->getColNumber() ==
-              ((BaseColumn*)baseCol)->getColNumber())
-          {
+          if (((BaseColumn *)updateCol)->getColNumber() == ((BaseColumn *)baseCol)->getColNumber()) {
             if (idesc->isUniqueIndex())
               isUniqueIndexCol = TRUE;
             else {
               isClusteringKeyCol = TRUE;
-              ckColName = ((BaseColumn*)updateCol)->getColName();
+              ckColName = ((BaseColumn *)updateCol)->getColName();
             }
           }
         }
-      } // for (CollIndex ...)
+      }  // for (CollIndex ...)
     }
-  } // for (CollIndex ...)
+  }  // for (CollIndex ...)
 
-  if ((CmpCommon::getDefault(UPDATE_CLUSTERING_OR_UNIQUE_INDEX_KEY) == DF_AGGRESSIVE) &&
-      (NOT isClusteringKeyCol)) 
+  if ((CmpCommon::getDefault(UPDATE_CLUSTERING_OR_UNIQUE_INDEX_KEY) == DF_AGGRESSIVE) && (NOT isClusteringKeyCol))
     return FALSE;
 
-  // 2. If columns being updated are unique index or clustering key columns, 
+  // 2. If columns being updated are unique index or clustering key columns,
   //    check for 5 unsupported special cases and issue error in each case.
-  if (isUniqueIndexCol || isClusteringKeyCol)
-  {
+  if (isUniqueIndexCol || isClusteringKeyCol) {
     // 2a. Check for first three unsupported special cases:
     //     i.   User declared cursor and performing update current of.
     //     ii.  Update statement with set on rollback.
     //     iii. Update with a select surrounding it.
-    if ( updateCurrentOf() || 
-         newRecBeforeExpr().entries() > 0 || 
-         getGroupAttr()->isEmbeddedUpdate()
-       )
-    {
+    if (updateCurrentOf() || newRecBeforeExpr().entries() > 0 || getGroupAttr()->isEmbeddedUpdate()) {
       if (isUniqueIndexCol && NOT isClusteringKeyCol)
-	return FALSE; // column being updated is unique key but one of the 
-        // three special cases apply. Revert to delete followed by insert 
-        // without intervening sort.  NOT AN ERROR.
+        return FALSE;  // column being updated is unique key but one of the
+      // three special cases apply. Revert to delete followed by insert
+      // without intervening sort.  NOT AN ERROR.
 
       // Set appropriate error for first three special cases.
-      if ( updateCurrentOf() )
-	*CmpCommon::diags() << DgSqlCode(-4118) ;
-      if (newRecBeforeExpr().entries() > 0)
-	*CmpCommon::diags() << DgSqlCode(-4199) ;
-      if (getGroupAttr()->isEmbeddedUpdate())
-	*CmpCommon::diags() << DgSqlCode(-4198) ;
+      if (updateCurrentOf()) *CmpCommon::diags() << DgSqlCode(-4118);
+      if (newRecBeforeExpr().entries() > 0) *CmpCommon::diags() << DgSqlCode(-4199);
+      if (getGroupAttr()->isEmbeddedUpdate()) *CmpCommon::diags() << DgSqlCode(-4198);
       bindWA->setErrStatus();
-      return FALSE ; // ERROR condition.
+      return FALSE;  // ERROR condition.
     }
-     
+
     // 2b. Check for unsupported special case 4:
-    //     iv. There is an MV on this table that is defined on 
+    //     iv. There is an MV on this table that is defined on
     //         the clustering key(s).
     const NATable *naTable = bindWA->getNATable(getTableName());
-    if (naTable)
-    {
+    if (naTable) {
       // Check for MVs on table.
       const UsingMvInfoList &mvList = naTable->getMvsUsingMe();
-      if (!mvList.isEmpty())
-      {
+      if (!mvList.isEmpty()) {
         // MV(s) exist.  Check to see if any MV is ON STATEMENT and is
-        // significant.  (Update on a primary key with an MV on that 
+        // significant.  (Update on a primary key with an MV on that
         // key is not supported - return FALSE.)
         for (CollIndex i = 0; i < mvList.entries(); i++)
-          if (mvList[i]->isInitialized() && 
-              mvList[i]->getRefreshType() == COM_ON_STATEMENT)
-          {
+          if (mvList[i]->isInitialized() && mvList[i]->getRefreshType() == COM_ON_STATEMENT) {
             CorrName mvCorr = CorrName(mvList[i]->getMvName(), bindWA->wHeap());
             NATable *naTableMv = bindWA->getNATable(mvCorr);
             if (bindWA->errStatus()) return FALSE;
@@ -4760,11 +3834,9 @@ NABoolean Update::updatesClusteringKeyOrUniqueIndexKey(BindWA *bindWA)
             // getMVInfo() reads from metadata, but saves the info found
             // and will be called later anyway during binding.
             UpdateColumns *columns = NULL;
-            columns = new(bindWA->wHeap()) UpdateColumns(getOptStoi()->getStoi());
-            if (checkUpdateType(mvInfo, naTable->getTableName(), columns) !=
-                IRELEVANT)
-            {
-              if (isClusteringKeyCol) // update CK not supported in this case.
+            columns = new (bindWA->wHeap()) UpdateColumns(getOptStoi()->getStoi());
+            if (checkUpdateType(mvInfo, naTable->getTableName(), columns) != IRELEVANT) {
+              if (isClusteringKeyCol)  // update CK not supported in this case.
               {
                 *CmpCommon::diags() << DgSqlCode(-4033) << DgColumnName(ckColName);
                 bindWA->setErrStatus();
@@ -4775,21 +3847,19 @@ NABoolean Update::updatesClusteringKeyOrUniqueIndexKey(BindWA *bindWA)
       }
     }
 
-if (isIgnoreTriggers() == FALSE)
-    {
+    if (isIgnoreTriggers() == FALSE) {
       ComOperation op;
-      op = COM_UPDATE; 
+      op = COM_UPDATE;
       BeforeAndAfterTriggers *allTriggers = 0;
-      QualifiedName& subjectTable = getTableDesc()->getCorrNameObj().getQualifiedNameObj();
+      QualifiedName &subjectTable = getTableDesc()->getCorrNameObj().getQualifiedNameObj();
       allTriggers = bindWA->getSchemaDB()->getTriggerDB()->getTriggers(subjectTable, op, bindWA);
       UpdateColumns *columns = NULL;
-      columns = new(bindWA->wHeap()) UpdateColumns(getOptStoi()->getStoi());
+      columns = new (bindWA->wHeap()) UpdateColumns(getOptStoi()->getStoi());
       TriggerList *beforeTriggers = NULL;
       if ((allTriggers != NULL) && (allTriggers->getBeforeTriggers() != NULL))
         beforeTriggers = allTriggers->getBeforeTriggers()->getColumnMatchingTriggers(columns);
-      if (beforeTriggers)
-      {
-        if (isClusteringKeyCol) // update CK not supported if table has beforeTriggers.
+      if (beforeTriggers) {
+        if (isClusteringKeyCol)  // update CK not supported if table has beforeTriggers.
         {
           *CmpCommon::diags() << DgSqlCode(-4033) << DgColumnName(ckColName);
           bindWA->setErrStatus();
@@ -4799,114 +3869,97 @@ if (isIgnoreTriggers() == FALSE)
     }
 
     return TRUE;  // Column being updated is CK or unique index key and no special cases apply.
-  } // if (isUniqueIndexCol || isClusteringKeyCol)
+  }               // if (isUniqueIndexCol || isClusteringKeyCol)
 
-  return FALSE ;  // Column being updated is not CK or unique index key
+  return FALSE;  // Column being updated is not CK or unique index key
 }
 
-// This method transforms an update query to select/delete/upsert for 
+// This method transforms an update query to select/delete/upsert for
 // multiple cases.
 // It is done to support perf enhancement of an update query of non pkey
-// and pkey columns, plus updates in non-transactional mode. 
+// and pkey columns, plus updates in non-transactional mode.
 // Only the first part (upd of non-pkey cols) is supported here. Other
 // parts will be added at a later time.
 // This code has some similarity with method transformUpdatePrimaryKey.
-// Some code consolidation and refactoring of these 2 methods will also 
+// Some code consolidation and refactoring of these 2 methods will also
 // be done later.
-RelExpr *Update::transformUpdateNoDtmXn(BindWA *bindWA, NABoolean updatePKey)
-{
+RelExpr *Update::transformUpdateNoDtmXn(BindWA *bindWA, NABoolean updatePKey) {
   ValueIdList selectList, sourceColsList, lhsOfSetClause;
-  
+
   getTableDesc()->getAllExceptCCList(selectList);
   getScanIndexDesc()->getPrimaryTableDesc()->getAllExceptCCList(sourceColsList);
 
-  ItemExprList *colRefList = new(bindWA->wHeap()) ItemExprList(bindWA->wHeap());
-  RelExpr * updateSource = NULL;
-  Delete * delNode = NULL;
-  if (updatePKey)
-    {
-      delNode = new (bindWA->wHeap())
-        LeafDelete(CorrName(getTableDesc()->getCorrNameObj(), bindWA->wHeap()),
-                   NULL,
-                   colRefList,
-                   FALSE,
-                   REL_LEAF_DELETE,
-                   NULL,
-                   bindWA->wHeap());
-      delNode->setNoLogOp(CONSISTENT_NOLOG);
-      //delNode->setUpdateCKorUniqueIndexKey(TRUE);
-      delNode->rowsAffected() = GenericUpdate::DO_NOT_COMPUTE_ROWSAFFECTED;
+  ItemExprList *colRefList = new (bindWA->wHeap()) ItemExprList(bindWA->wHeap());
+  RelExpr *updateSource = NULL;
+  Delete *delNode = NULL;
+  if (updatePKey) {
+    delNode = new (bindWA->wHeap()) LeafDelete(CorrName(getTableDesc()->getCorrNameObj(), bindWA->wHeap()), NULL,
+                                               colRefList, FALSE, REL_LEAF_DELETE, NULL, bindWA->wHeap());
+    delNode->setNoLogOp(CONSISTENT_NOLOG);
+    // delNode->setUpdateCKorUniqueIndexKey(TRUE);
+    delNode->rowsAffected() = GenericUpdate::DO_NOT_COMPUTE_ROWSAFFECTED;
 
-      ValueIdSet newOuterRefs;
+    ValueIdSet newOuterRefs;
 
-      // Create a new BindScope, to encompass the new del/insert
-      // and any inlining nodes that will be created. Any values the del/insert
-      // and children will need from src will be marked as outer references in
-      // that new BindScope. We assume that "src" is already bound.
-      ValueIdSet currOuterRefs = bindWA->getCurrentScope()->getOuterRefs();
- 
-      bindWA->initNewScope();
-      BindScope *mergeScope = bindWA->getCurrentScope();
-      for (CollIndex i=0; i < sourceColsList.entries(); i++) 
-      {
-	colRefList->insert(sourceColsList[i].getItemExpr());
-	
-	if (sourceColsList[i].getItemExpr()->getOperatorType() != ITM_CONSTANT)
-        {
-          newOuterRefs += sourceColsList[i];
-          mergeScope->addOuterRef(sourceColsList[i]);
-        }
-      } // for
-      
-      RelExpr *boundDN = delNode->bindNode(bindWA);
-      
-      // remove the BindScope created earlier in this method
-      bindWA->removeCurrentScope();
-      
-      // Remove the outer refs from the parent scope, they are provided
-      // by the left child of the TSJ_FLOW, unless they were already outer refs
-      // when we started this method. The binder logic doesn't handle
-      // that well, since they come from a child scope, not the current one,
-      // so we help a little.
-      newOuterRefs -= currOuterRefs;
-      bindWA->getCurrentScope()->removeOuterRefs(newOuterRefs);
-      
-      updateSource = new(bindWA->wHeap()) 
-        Join(child(0),
-             boundDN, 
-             REL_ANTI_SEMITSJ);
-      
-      ((Join*)updateSource)->setTSJForWrite(TRUE);
-    }
-  else
-    {
-      updateSource = child(0);
-    }
+    // Create a new BindScope, to encompass the new del/insert
+    // and any inlining nodes that will be created. Any values the del/insert
+    // and children will need from src will be marked as outer references in
+    // that new BindScope. We assume that "src" is already bound.
+    ValueIdSet currOuterRefs = bindWA->getCurrentScope()->getOuterRefs();
 
-  ValueId vid ;
+    bindWA->initNewScope();
+    BindScope *mergeScope = bindWA->getCurrentScope();
+    for (CollIndex i = 0; i < sourceColsList.entries(); i++) {
+      colRefList->insert(sourceColsList[i].getItemExpr());
+
+      if (sourceColsList[i].getItemExpr()->getOperatorType() != ITM_CONSTANT) {
+        newOuterRefs += sourceColsList[i];
+        mergeScope->addOuterRef(sourceColsList[i]);
+      }
+    }  // for
+
+    RelExpr *boundDN = delNode->bindNode(bindWA);
+
+    // remove the BindScope created earlier in this method
+    bindWA->removeCurrentScope();
+
+    // Remove the outer refs from the parent scope, they are provided
+    // by the left child of the TSJ_FLOW, unless they were already outer refs
+    // when we started this method. The binder logic doesn't handle
+    // that well, since they come from a child scope, not the current one,
+    // so we help a little.
+    newOuterRefs -= currOuterRefs;
+    bindWA->getCurrentScope()->removeOuterRefs(newOuterRefs);
+
+    updateSource = new (bindWA->wHeap()) Join(child(0), boundDN, REL_ANTI_SEMITSJ);
+
+    ((Join *)updateSource)->setTSJForWrite(TRUE);
+  } else {
+    updateSource = child(0);
+  }
+
+  ValueId vid;
   CollIndex pos;
-      
+
   // newRecExprArray is a list of assigns. For each assign
   // child(0) is the LHS of the set clause and child(1) is
   // the RHS of the SET clause
-  
-  for (CollIndex i=0; i < newRecExprArray().entries(); i++)
-    {
-      lhsOfSetClause.insertAt(i,newRecExprArray().at(i).getItemExpr()->child(0).getValueId());
-    }
-  
-  for (CollIndex i=0; i < selectList.entries(); i++)
-    {
-      if ((pos = lhsOfSetClause.index(selectList[i])) == NULL_COLL_INDEX)
-	selectList[i] = sourceColsList[i];
-      else
-	selectList[i] = newRecExprArray().at(pos).getItemExpr()->child(1).getValueId();
-    }
-  
-  for (CollIndex i=0; i < oldToNewMap().getTopValues().entries(); i++) {
-    BaseColumn *col = (BaseColumn *) oldToNewMap().getBottomValues()[i].getItemExpr();
+
+  for (CollIndex i = 0; i < newRecExprArray().entries(); i++) {
+    lhsOfSetClause.insertAt(i, newRecExprArray().at(i).getItemExpr()->child(0).getValueId());
+  }
+
+  for (CollIndex i = 0; i < selectList.entries(); i++) {
+    if ((pos = lhsOfSetClause.index(selectList[i])) == NULL_COLL_INDEX)
+      selectList[i] = sourceColsList[i];
+    else
+      selectList[i] = newRecExprArray().at(pos).getItemExpr()->child(1).getValueId();
+  }
+
+  for (CollIndex i = 0; i < oldToNewMap().getTopValues().entries(); i++) {
+    BaseColumn *col = (BaseColumn *)oldToNewMap().getBottomValues()[i].getItemExpr();
     NABoolean addToOldToNewMap = TRUE;
-    
+
     // Copy the oldToNewMap.
     if (col->getNAColumn()->isComputedColumnAlways()) {
       // Computed columns can be copied from delete to insert if they don't
@@ -4915,184 +3968,154 @@ RelExpr *Update::transformUpdateNoDtmXn(BindWA *bindWA, NABoolean updatePKey)
       // computed column has to be recomputed. That computation will be
       // done in the new insert node.
       ValueIdSet underlyingCols;
-      
+
       col->getUnderlyingColumnsForCC(underlyingCols);
-      
-      if (NOT underlyingCols.intersect(lhsOfSetClause).isEmpty())
-        addToOldToNewMap = FALSE;
+
+      if (NOT underlyingCols.intersect(lhsOfSetClause).isEmpty()) addToOldToNewMap = FALSE;
     }
-    
+
     // Copy the oldToNewMap.
     if (addToOldToNewMap && delNode)
-      delNode->oldToNewMap().addMapEntry(oldToNewMap().getTopValues()[i],
-                                         oldToNewMap().getBottomValues()[i]);
+      delNode->oldToNewMap().addMapEntry(oldToNewMap().getTopValues()[i], oldToNewMap().getBottomValues()[i]);
   }
-  
-  RelRoot * rootNode = new (bindWA->wHeap())
-    RelRoot(updateSource, 
-            REL_ROOT,
-            selectList.rebuildExprTree(ITM_ITEM_LIST));
-  
-  RelExpr * boundExpr;
-  Insert * insNode = new (bindWA->wHeap())
-    Insert(CorrName(getTableDesc()->getCorrNameObj(),bindWA->wHeap()),
-           getTableDesc(), // insert gets the same tabledesc as the update
-           REL_UNARY_INSERT,
-           rootNode,
-           NULL);
+
+  RelRoot *rootNode = new (bindWA->wHeap()) RelRoot(updateSource, REL_ROOT, selectList.rebuildExprTree(ITM_ITEM_LIST));
+
+  RelExpr *boundExpr;
+  Insert *insNode = new (bindWA->wHeap()) Insert(CorrName(getTableDesc()->getCorrNameObj(), bindWA->wHeap()),
+                                                 getTableDesc(),  // insert gets the same tabledesc as the update
+                                                 REL_UNARY_INSERT, rootNode, NULL);
   insNode->setNoLogOp(isNoLogOperation());
   insNode->setSubqInUpdateAssign(subqInUpdateAssign());
-  
+
   if (this->rowsAffected() == GenericUpdate::DO_NOT_COMPUTE_ROWSAFFECTED)
     insNode->rowsAffected() = GenericUpdate::DO_NOT_COMPUTE_ROWSAFFECTED;
   else
     insNode->rowsAffected() = GenericUpdate::COMPUTE_ROWSAFFECTED;
-  
+
   insNode->setUpdateCKorUniqueIndexKey(TRUE);
   insNode->setTransformedUpdateNoDtmXn(TRUE);
 
   InliningInfo inlineInfo = getInliningInfo();
   insNode->setInliningInfo(&inlineInfo);
-  if (CmpCommon::getDefault(UPDATE_CLUSTERING_OR_UNIQUE_INDEX_KEY) == DF_ON)
-    {
-      insNode->setAvoidHalloween(TRUE);
-    }
+  if (CmpCommon::getDefault(UPDATE_CLUSTERING_OR_UNIQUE_INDEX_KEY) == DF_ON) {
+    insNode->setAvoidHalloween(TRUE);
+  }
 
   insNode->setInsertType(Insert::UPSERT_INSERT);
-  
+
   // used to convey updated columns to insert node's stoi
-  // during inlining the update node is not present anymore, we read the 
+  // during inlining the update node is not present anymore, we read the
   // insert's stoi to figure out which columns are updated.
-  SqlTableOpenInfo * scanStoi = getLeftmostScanNode()->getOptStoi()->getStoi();
+  SqlTableOpenInfo *scanStoi = getLeftmostScanNode()->getOptStoi()->getStoi();
   short updateColsCount = getOptStoi()->getStoi()->getColumnListCount();
   scanStoi->setColumnListCount(updateColsCount);
   scanStoi->setColumnList(new (bindWA->wHeap()) short[updateColsCount]);
-  for (short i=0; i<updateColsCount; i++)
-    scanStoi->setUpdateColumn(i,getOptStoi()->getStoi()->getUpdateColumn(i));
-  
+  for (short i = 0; i < updateColsCount; i++) scanStoi->setUpdateColumn(i, getOptStoi()->getStoi()->getUpdateColumn(i));
+
   boundExpr = insNode->bindNode(bindWA);
   return boundExpr;
 }
 
-RelExpr *Update::transformUpdatePrimaryKey(BindWA *bindWA)
-{
+RelExpr *Update::transformUpdatePrimaryKey(BindWA *bindWA) {
+  Delete *delNode = new (bindWA->wHeap())
+      Delete(CorrName(getTableDesc()->getCorrNameObj(), bindWA->wHeap()), NULL, REL_UNARY_DELETE, child(0), NULL);
+  delNode->setPartQualPreCond(getPartQualPreCond());
+  delNode->setNoLogOp(CONSISTENT_NOLOG);
+  delNode->setUpdateCKorUniqueIndexKey(TRUE);
+  delNode->rowsAffected() = GenericUpdate::DO_NOT_COMPUTE_ROWSAFFECTED;
+  // there is a issue caused by 'set transaction autocommit savepoint on;'
+  // So, this delete node will not be converted to anti-semi-join
+  // Will remove this line after the issue is fixed
+  delNode->needConvertToAsj() = FALSE;
 
-   Delete * delNode = new (bindWA->wHeap())
-			Delete(CorrName(getTableDesc()->getCorrNameObj(), bindWA->wHeap()),
-				NULL,
-				REL_UNARY_DELETE,
-				child(0),
-				NULL);
-   delNode->setPartQualPreCond(getPartQualPreCond());
-   delNode->setNoLogOp(CONSISTENT_NOLOG);
-   delNode->setUpdateCKorUniqueIndexKey(TRUE);
-   delNode->rowsAffected() = GenericUpdate::DO_NOT_COMPUTE_ROWSAFFECTED;
-   // there is a issue caused by 'set transaction autocommit savepoint on;'
-   // So, this delete node will not be converted to anti-semi-join
-   // Will remove this line after the issue is fixed
-   delNode->needConvertToAsj() = FALSE;
+  ValueIdList selectList, sourceColsList, lhsOfSetClause;
 
-   ValueIdList selectList, sourceColsList, lhsOfSetClause;
-   
-   getTableDesc()->getAllExceptCCList(selectList);
-   getScanIndexDesc()->getPrimaryTableDesc()->getAllExceptCCList(sourceColsList);
-   ValueId vid ;
-   CollIndex pos;
+  getTableDesc()->getAllExceptCCList(selectList);
+  getScanIndexDesc()->getPrimaryTableDesc()->getAllExceptCCList(sourceColsList);
+  ValueId vid;
+  CollIndex pos;
 
-   // newRecExprArray is a list of assigns. For each assign
-   // child(0) is the LHS of the set clause and child(1) is
-   // the RHS of the SET clause
+  // newRecExprArray is a list of assigns. For each assign
+  // child(0) is the LHS of the set clause and child(1) is
+  // the RHS of the SET clause
 
-   for (CollIndex i=0; i < newRecExprArray().entries(); i++)
-    {
-      ValueId vid = newRecExprArray().at(i).getItemExpr()->child(0).getValueId();
-      if (vid.getType().isLob())
-        {
-          *CmpCommon::diags() << DgSqlCode(-3242)
-                              << DgString0("Primary key and lob column cannot be updated in the same statement.");
-          bindWA->setErrStatus();
-          return this;
-         }
-
-      lhsOfSetClause.insertAt(i, vid);
+  for (CollIndex i = 0; i < newRecExprArray().entries(); i++) {
+    ValueId vid = newRecExprArray().at(i).getItemExpr()->child(0).getValueId();
+    if (vid.getType().isLob()) {
+      *CmpCommon::diags() << DgSqlCode(-3242)
+                          << DgString0("Primary key and lob column cannot be updated in the same statement.");
+      bindWA->setErrStatus();
+      return this;
     }
 
-   for (CollIndex i=0; i < selectList.entries(); i++)
-    {
-      if ((pos = lhsOfSetClause.index(selectList[i])) == NULL_COLL_INDEX)
-	selectList[i] = sourceColsList[i];
-      else
-	selectList[i] = newRecExprArray().at(pos).getItemExpr()->child(1).getValueId();
+    lhsOfSetClause.insertAt(i, vid);
+  }
+
+  for (CollIndex i = 0; i < selectList.entries(); i++) {
+    if ((pos = lhsOfSetClause.index(selectList[i])) == NULL_COLL_INDEX)
+      selectList[i] = sourceColsList[i];
+    else
+      selectList[i] = newRecExprArray().at(pos).getItemExpr()->child(1).getValueId();
+  }
+
+  for (CollIndex i = 0; i < oldToNewMap().getTopValues().entries(); i++) {
+    BaseColumn *col = (BaseColumn *)oldToNewMap().getBottomValues()[i].getItemExpr();
+    NABoolean addToOldToNewMap = TRUE;
+
+    // Copy the oldToNewMap.
+    if (col->getNAColumn()->isComputedColumnAlways()) {
+      // Computed columns can be copied from delete to insert if they don't
+      // change. Don't include the column in this map, though, if one of
+      // the underlying columns gets updated, because the value of the
+      // computed column has to be recomputed. That computation will be
+      // done in the new insert node.
+      ValueIdSet underlyingCols;
+
+      col->getUnderlyingColumnsForCC(underlyingCols);
+
+      if (NOT underlyingCols.intersect(lhsOfSetClause).isEmpty()) addToOldToNewMap = FALSE;
     }
+    // When table has STORE BY attribute, SYSKEY and Identity column
+    // shouldn't be included in this map
+    if (col->getNAColumn()->isIndependentSystemColumn()) addToOldToNewMap = FALSE;
 
-    for (CollIndex i=0; i < oldToNewMap().getTopValues().entries(); i++) {
-      BaseColumn *col = (BaseColumn *) oldToNewMap().getBottomValues()[i].getItemExpr();
-      NABoolean addToOldToNewMap = TRUE;
+    // Copy the oldToNewMap.
+    if (addToOldToNewMap)
+      delNode->oldToNewMap().addMapEntry(oldToNewMap().getTopValues()[i], oldToNewMap().getBottomValues()[i]);
+  }
 
-      // Copy the oldToNewMap.
-      if (col->getNAColumn()->isComputedColumnAlways()) {
-        // Computed columns can be copied from delete to insert if they don't
-        // change. Don't include the column in this map, though, if one of
-        // the underlying columns gets updated, because the value of the
-        // computed column has to be recomputed. That computation will be
-        // done in the new insert node.
-        ValueIdSet underlyingCols;
+  RelRoot *rootNode = new (bindWA->wHeap()) RelRoot(delNode, REL_ROOT, selectList.rebuildExprTree(ITM_ITEM_LIST));
 
-        col->getUnderlyingColumnsForCC(underlyingCols);
+  RelExpr *boundExpr;
+  Insert *insNode = new (bindWA->wHeap()) Insert(CorrName(getTableDesc()->getCorrNameObj(), bindWA->wHeap()),
+                                                 getTableDesc(),  // insert gets the same tabledesc as the update
+                                                 REL_UNARY_INSERT, rootNode, NULL);
+  insNode->setNoLogOp(isNoLogOperation());
+  insNode->setSubqInUpdateAssign(subqInUpdateAssign());
+  if (getOperatorType() == REL_UNARY_UPDATE && getCacheKey4UpdateSetList().length() > 0)
+    insNode->setCacheKey4UpdateSetList(getCacheKey4UpdateSetList());
+  if (this->rowsAffected() == GenericUpdate::DO_NOT_COMPUTE_ROWSAFFECTED)
+    insNode->rowsAffected() = GenericUpdate::DO_NOT_COMPUTE_ROWSAFFECTED;
+  else
+    insNode->rowsAffected() = GenericUpdate::COMPUTE_ROWSAFFECTED;
 
-        if (NOT underlyingCols.intersect(lhsOfSetClause).isEmpty())
-          addToOldToNewMap = FALSE;
-      }
-      // When table has STORE BY attribute, SYSKEY and Identity column 
-      // shouldn't be included in this map
-      if (col->getNAColumn()->isIndependentSystemColumn())
-	addToOldToNewMap = FALSE;
+  insNode->setUpdateCKorUniqueIndexKey(TRUE);
+  InliningInfo inlineInfo = getInliningInfo();
+  insNode->setInliningInfo(&inlineInfo);
+  if (CmpCommon::getDefault(UPDATE_CLUSTERING_OR_UNIQUE_INDEX_KEY) == DF_ON) {
+    insNode->setAvoidHalloween(TRUE);
+    insNode->setHalloweenCannotUseDP2Locks(TRUE);
+  }
+  // used to convey updated columns to insert node's stoi
+  // during inlining the update node is not present anymore, we read the
+  // insert's stoi to figure out which columns are updated.
+  SqlTableOpenInfo *scanStoi = getLeftmostScanNode()->getOptStoi()->getStoi();
+  short updateColsCount = getOptStoi()->getStoi()->getColumnListCount();
+  scanStoi->setColumnListCount(updateColsCount);
+  scanStoi->setColumnList(new (bindWA->wHeap()) short[updateColsCount]);
+  for (short i = 0; i < updateColsCount; i++) scanStoi->setUpdateColumn(i, getOptStoi()->getStoi()->getUpdateColumn(i));
 
-      // Copy the oldToNewMap.
-      if (addToOldToNewMap) 
-        delNode->oldToNewMap().addMapEntry(oldToNewMap().getTopValues()[i],
-                                           oldToNewMap().getBottomValues()[i]);
-    }
-
-   RelRoot * rootNode = new (bindWA->wHeap())
-			RelRoot(delNode, 
-				REL_ROOT,
-				selectList.rebuildExprTree(ITM_ITEM_LIST));
-
-   RelExpr * boundExpr;
-   Insert * insNode = new (bindWA->wHeap())
-		Insert(CorrName(getTableDesc()->getCorrNameObj(),bindWA->wHeap()),
-				getTableDesc(), // insert gets the same tabledesc as the update
-				REL_UNARY_INSERT,
-				rootNode,
-				NULL);
-   insNode->setNoLogOp(isNoLogOperation());
-   insNode->setSubqInUpdateAssign(subqInUpdateAssign());
-   if (getOperatorType() == REL_UNARY_UPDATE && getCacheKey4UpdateSetList().length()>0)
-     insNode->setCacheKey4UpdateSetList(getCacheKey4UpdateSetList());
-   if (this->rowsAffected() == GenericUpdate::DO_NOT_COMPUTE_ROWSAFFECTED)
-      insNode->rowsAffected() = GenericUpdate::DO_NOT_COMPUTE_ROWSAFFECTED;
-   else
-      insNode->rowsAffected() = GenericUpdate::COMPUTE_ROWSAFFECTED;
-      
-   insNode->setUpdateCKorUniqueIndexKey(TRUE);
-   InliningInfo inlineInfo = getInliningInfo();
-   insNode->setInliningInfo(&inlineInfo);
-   if (CmpCommon::getDefault(UPDATE_CLUSTERING_OR_UNIQUE_INDEX_KEY) == DF_ON) {
-     insNode->setAvoidHalloween(TRUE);
-     insNode->setHalloweenCannotUseDP2Locks(TRUE);
-   }
-   // used to convey updated columns to insert node's stoi
-   // during inlining the update node is not present anymore, we read the 
-   // insert's stoi to figure out which columns are updated.
-   SqlTableOpenInfo * scanStoi = getLeftmostScanNode()->getOptStoi()->getStoi();
-   short updateColsCount = getOptStoi()->getStoi()->getColumnListCount();
-   scanStoi->setColumnListCount(updateColsCount);
-   scanStoi->setColumnList(new (bindWA->wHeap()) short[updateColsCount]);
-   for (short i=0; i<updateColsCount; i++)
-    scanStoi->setUpdateColumn(i,getOptStoi()->getStoi()->getUpdateColumn(i));
-
-   boundExpr = insNode->bindNode(bindWA);
-   return boundExpr;
+  boundExpr = insNode->bindNode(bindWA);
+  return boundExpr;
 }
-

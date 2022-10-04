@@ -35,13 +35,12 @@
 // returns true if the name is an internal and/or generated name;
 // returns false otherwise.
 //
-static Int32 isDelimitedIdentifierReservedForInternalUse
-( const char *delimitedIdentWithoutTheLeadingQuote,
-  size_t identLen )
-  // delimitedIdentWithoutTheLeadingQuote may or may not be '\0' terminated.
-  // Rely on indentLen to get the length of delimitedIdentWithoutTheLeadingQuote
-  // Do not rely on the strlen(delimitedIdentWithoutTheLeadingQuote) call.
-  // The logic in this routine also handles internal-format name correctly.
+static Int32 isDelimitedIdentifierReservedForInternalUse(const char *delimitedIdentWithoutTheLeadingQuote,
+                                                         size_t identLen)
+// delimitedIdentWithoutTheLeadingQuote may or may not be '\0' terminated.
+// Rely on indentLen to get the length of delimitedIdentWithoutTheLeadingQuote
+// Do not rely on the strlen(delimitedIdentWithoutTheLeadingQuote) call.
+// The logic in this routine also handles internal-format name correctly.
 {
   // Prefixes of names reserved for internal use
   //
@@ -79,41 +78,26 @@ static Int32 isDelimitedIdentifierReservedForInternalUse
   // Starting from 4/7/2007, please use @ prefix for any new
   // internal and/or generated names to improve efficiency.
   //
-  const char * reservedNamePrefixes[] =
-    {
-      "DELTA@",
-      "INDIRECT@",
-      "KEYTAG@",
-      "NEW@",
-      "OLD@",
-      "PACKED__@",
-      "PACKED__IDU__@",
-      ""
-    };
+  const char *reservedNamePrefixes[] = {"DELTA@", "INDIRECT@", "KEYTAG@",        "NEW@",
+                                        "OLD@",   "PACKED__@", "PACKED__IDU__@", ""};
 
-  if (identLen == 0)
-    return false;
+  if (identLen == 0) return false;
 
   char firstChar = delimitedIdentWithoutTheLeadingQuote[0];
-  if (firstChar == '@')
-    return true;
+  if (firstChar == '@') return true;
 
-  const char *  *p = &reservedNamePrefixes[0];
+  const char **p = &reservedNamePrefixes[0];
   size_t len = 0;
   char prefix1stChar;
-  for ( ; (prefix1stChar = **p) <= firstChar && prefix1stChar != '\0'; p++ )
-  {
-    if ( prefix1stChar == firstChar )
-    {
+  for (; (prefix1stChar = **p) <= firstChar && prefix1stChar != '\0'; p++) {
+    if (prefix1stChar == firstChar) {
       len = strlen(*p);
-      if ( identLen >= len  &&
-           strncmp(delimitedIdentWithoutTheLeadingQuote, *p, len) == 0 )
-        return true;
+      if (identLen >= len && strncmp(delimitedIdentWithoutTheLeadingQuote, *p, len) == 0) return true;
     }
-  } // for
+  }  // for
 
   return false;
 
-} // isDelimitedIdentifierReservedForInternalUse()
+}  // isDelimitedIdentifierReservedForInternalUse()
 
-#endif // RESERVED_INTERNAL_NAMES_CPP
+#endif  // RESERVED_INTERNAL_NAMES_CPP

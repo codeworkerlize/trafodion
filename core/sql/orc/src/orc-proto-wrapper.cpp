@@ -23,13 +23,13 @@ DIAGNOSTIC_IGNORE("-Wsign-conversion")
 DIAGNOSTIC_IGNORE("-Wunused-parameter")
 
 #ifdef __clang__
-  DIAGNOSTIC_IGNORE("-Wdisabled-macro-expansion")
-  DIAGNOSTIC_IGNORE("-Wglobal-constructors")
-  DIAGNOSTIC_IGNORE("-Wmissing-variable-declarations")
-  DIAGNOSTIC_IGNORE("-Wnested-anon-types")
-  DIAGNOSTIC_IGNORE("-Wreserved-id-macro")
-  DIAGNOSTIC_IGNORE("-Wshorten-64-to-32")
-  DIAGNOSTIC_IGNORE("-Wweak-vtables")
+DIAGNOSTIC_IGNORE("-Wdisabled-macro-expansion")
+DIAGNOSTIC_IGNORE("-Wglobal-constructors")
+DIAGNOSTIC_IGNORE("-Wmissing-variable-declarations")
+DIAGNOSTIC_IGNORE("-Wnested-anon-types")
+DIAGNOSTIC_IGNORE("-Wreserved-id-macro")
+DIAGNOSTIC_IGNORE("-Wshorten-64-to-32")
+DIAGNOSTIC_IGNORE("-Wweak-vtables")
 #endif
 
 #include "wrap/orc_proto.pb.cc"

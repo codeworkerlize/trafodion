@@ -38,7 +38,6 @@
  *****************************************************************************
  */
 
-
 #include "StmtDDLNode.h"
 
 // -----------------------------------------------------------------------
@@ -54,65 +53,58 @@ class StmtDDLAlterIndex;
 // -----------------------------------------------------------------------
 // Create Catalog statement
 // -----------------------------------------------------------------------
-class StmtDDLAlterIndex : public StmtDDLNode
-{
-
-public:
-
+class StmtDDLAlterIndex : public StmtDDLNode {
+ public:
   // constructors
   inline StmtDDLAlterIndex();
   inline StmtDDLAlterIndex(OperatorTypeEnum operatorType);
-  StmtDDLAlterIndex(OperatorTypeEnum operatorType,
-                           ElemDDLNode * pAlterIndexAction);
-  inline StmtDDLAlterIndex(OperatorTypeEnum operatorType,
-                           const QualifiedName & indexName,
-                           ElemDDLNode * pAlterIndexAction);
+  StmtDDLAlterIndex(OperatorTypeEnum operatorType, ElemDDLNode *pAlterIndexAction);
+  inline StmtDDLAlterIndex(OperatorTypeEnum operatorType, const QualifiedName &indexName,
+                           ElemDDLNode *pAlterIndexAction);
 
   // virtual destructor
   virtual ~StmtDDLAlterIndex();
 
   // cast
-  virtual StmtDDLAlterIndex * castToStmtDDLAlterIndex();
+  virtual StmtDDLAlterIndex *castToStmtDDLAlterIndex();
 
   //
   // accessors
   //
 
   virtual Int32 getArity() const;
-  virtual ExprNode * getChild(Lng32 index);
+  virtual ExprNode *getChild(Lng32 index);
 
-  inline ElemDDLNode * getAlterIndexAction() const;
-  inline const NAString & getIndexName() const;
+  inline ElemDDLNode *getAlterIndexAction() const;
+  inline const NAString &getIndexName() const;
 
-  inline const QualifiedName & getIndexNameAsQualifiedName() const;
-  inline       QualifiedName & getIndexNameAsQualifiedName();
+  inline const QualifiedName &getIndexNameAsQualifiedName() const;
+  inline QualifiedName &getIndexNameAsQualifiedName();
 
   //
   // mutators
   //
 
-  virtual void setChild(Lng32 index, ExprNode * pChildNode);
-  virtual void setIndexName(const QualifiedName & indexName);
+  virtual void setChild(Lng32 index, ExprNode *pChildNode);
+  virtual void setIndexName(const QualifiedName &indexName);
 
   // methods for tracing
   virtual const NAString getText() const;
   virtual const NAString displayLabel1() const;
 
-  // method for binding 
-  ExprNode * bindNode(BindWA *bindWAPtr);
+  // method for binding
+  ExprNode *bindNode(BindWA *bindWAPtr);
 
-private:
-
+ private:
   NAString indexName_;
   QualifiedName indexQualName_;
   // pointer to child parse node
 
-  enum { INDEX_ALTER_INDEX_ACTION = 0,
-         MAX_STMT_DDL_ALTER_INDEX_ARITY };
+  enum { INDEX_ALTER_INDEX_ACTION = 0, MAX_STMT_DDL_ALTER_INDEX_ARITY };
 
-  ElemDDLNode * alterIndexAction_;
+  ElemDDLNode *alterIndexAction_;
 
-}; // class StmtDDLAlterIndex
+};  // class StmtDDLAlterIndex
 
 // -----------------------------------------------------------------------
 // definitions of inline methods for class StmtDDLAlterIndex
@@ -122,33 +114,16 @@ private:
 // constructors in StmtDDLAlter.cpp
 //
 
-
 //
 // accessors
 //
 
-inline QualifiedName &
-StmtDDLAlterIndex::getIndexNameAsQualifiedName()
-{
-  return indexQualName_;
-}
+inline QualifiedName &StmtDDLAlterIndex::getIndexNameAsQualifiedName() { return indexQualName_; }
 
-inline const QualifiedName & 
-StmtDDLAlterIndex::getIndexNameAsQualifiedName() const 
-{
-  return indexQualName_;
-}
+inline const QualifiedName &StmtDDLAlterIndex::getIndexNameAsQualifiedName() const { return indexQualName_; }
 
-inline ElemDDLNode *
-StmtDDLAlterIndex::getAlterIndexAction() const
-{
-  return alterIndexAction_;
-}
+inline ElemDDLNode *StmtDDLAlterIndex::getAlterIndexAction() const { return alterIndexAction_; }
 
-inline const NAString &
-StmtDDLAlterIndex::getIndexName() const
-{
-  return indexName_;
-}
+inline const NAString &StmtDDLAlterIndex::getIndexName() const { return indexName_; }
 
-#endif // STMTDDLALTERINDEX_H
+#endif  // STMTDDLALTERINDEX_H

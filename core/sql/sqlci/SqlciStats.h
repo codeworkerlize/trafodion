@@ -29,9 +29,9 @@
  *
  * File:         SqlciStats.h
  * RCS:          $Id: SqlciStats.h,v 1.2.18.1 1998/03/11 22:34:26  Exp $
- * Description:  
- *               
- *               
+ * Description:
+ *
+ *
  * Created:      7/25/95
  * Modified:     $ $Date: 1998/03/11 22:34:26 $ (GMT)
  * Language:     C++
@@ -43,22 +43,20 @@
  *****************************************************************************
  */
 
-#include "common/Platform.h"		       
-#include "SqlciCmd.h"			// Statistics class enum
+#include "common/Platform.h"
+#include "SqlciCmd.h"  // Statistics class enum
 #include <sys/time.h>
 
 class SqlciEnv;
 
-
-class SqlciStats 
-{
+class SqlciStats {
   enum StatsStatus { NO_STATS, STATS_AVAILABLE };
-  
+
   // to keep track of the statement whose statistics are being gathered.
   // Used at "display statistics" time to retrieve information from
   // executor via cli calls.
-  PrepStmt * prep_stmt_;
-  
+  PrepStmt *prep_stmt_;
+
   timeval start_time;
   timeval end_time;
 
@@ -73,36 +71,30 @@ class SqlciStats
   // Set to ON by SET STATISTICS ON.
   NABoolean statsDisplay_;
 
-  char * statsOptions_;
-public:
+  char *statsOptions_;
+
+ public:
   SqlciStats();
   ~SqlciStats();
 
-  void startStats(PrepStmt * prep_stmt = 0);
-  void endStats(SqlciEnv * sqlci_env);
+  void startStats(PrepStmt *prep_stmt = 0);
+  void endStats(SqlciEnv *sqlci_env);
 
   void startExeStats();
   void endExeStats();
 
-  short displayStats(SqlciEnv * sqlci_env);
+  short displayStats(SqlciEnv *sqlci_env);
   short displayChildQryStats(SqlciEnv *sqlci_env);
 
-  inline void setStatsDisplay(NABoolean stats_disp)
-    {
-      statsDisplay_ = stats_disp;
-    };
+  inline void setStatsDisplay(NABoolean stats_disp) { statsDisplay_ = stats_disp; };
 
-  void setStatsOptions(char * statsOptions)
-  {
-    if (statsOptions_)
-      delete statsOptions_;
+  void setStatsOptions(char *statsOptions) {
+    if (statsOptions_) delete statsOptions_;
 
-    if (statsOptions)
-      {
-	statsOptions_ = new char[strlen(statsOptions)+1];
-	strcpy (statsOptions_, statsOptions);
-      }
-    else
+    if (statsOptions) {
+      statsOptions_ = new char[strlen(statsOptions) + 1];
+      strcpy(statsOptions_, statsOptions);
+    } else
       statsOptions_ = NULL;
   }
 

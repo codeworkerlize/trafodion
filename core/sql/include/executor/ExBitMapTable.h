@@ -50,11 +50,10 @@
 class NAMemory;
 
 class ExBitMapTable : public ExGod {
-public:
+ public:
   // constructor
   //
-  ExBitMapTable(Int32 keySize, Int32 dataSize, Int32 countOffset,
-		Int32 memSize, NAMemory *heap);
+  ExBitMapTable(Int32 keySize, Int32 dataSize, Int32 countOffset, Int32 memSize, NAMemory *heap);
 
   // destructor
   //
@@ -73,7 +72,7 @@ public:
   // Returns a pointer to the current group's data.
   //
   char *getData() const { return data_; };
-  
+
   // Returns a pointer to the Nth group's data.
   //
   char *getGroup(Int32 n) { return groups_ + n * rowSize_; }
@@ -84,8 +83,7 @@ public:
 
   // Returns a pointer to the group's next group pointer.
   //
-  char**getNextPtr(char *group) 
-  { return (char**)(group + dataSize_ + ROUND4(keySize_) ); }
+  char **getNextPtr(char *group) { return (char **)(group + dataSize_ + ROUND4(keySize_)); }
 
   // Return the number of groups in the table.
   //
@@ -101,8 +99,8 @@ public:
 
   // Gets the current returng group.
   //
-  char *getReturnGroup() { 
-    if(returnGroup_ < numberGroups_) return getGroup(returnGroup_);
+  char *getReturnGroup() {
+    if (returnGroup_ < numberGroups_) return getGroup(returnGroup_);
     return NULL;
   }
 
@@ -112,17 +110,17 @@ public:
 
   // Initialize any table aggregates.
   //
-  inline void initAggregates() { *(Int64*)(data_ + countOffset_) = 0; };
+  inline void initAggregates() { *(Int64 *)(data_ + countOffset_) = 0; };
 
   // Increment any table aggregates.
   //
-  inline void applyAggregates() { (*(Int64*)(data_ + countOffset_))++; };
+  inline void applyAggregates() { (*(Int64 *)(data_ + countOffset_))++; };
 
   // Reset the table.
   //
   void reset();
 
-private:
+ private:
   Int32 keySize_;
   Int32 dataSize_;
   Int32 countOffset_;
@@ -142,4 +140,3 @@ private:
 };
 
 #endif
-

@@ -57,17 +57,10 @@
 //	Constructor and destructor
 //--------------------------------------------------------------------------//
 
-CRUDependenceGraphBuilder::
-CRUDependenceGraphBuilder(CRUCache& cache, 
-						  CRUDependenceGraph& dg) :
-	cache_(cache),
-	dg_(dg),
-	nTasks_(0),
-	refreshTaskList_(eItemsArentOwned),
-	tblTasksList_(eItemsArentOwned)
-{
-	CRUOptions &options = CRUGlobals::GetInstance()->GetOptions();
-	lcType_ = options.GetLogCleanupType();
+CRUDependenceGraphBuilder::CRUDependenceGraphBuilder(CRUCache &cache, CRUDependenceGraph &dg)
+    : cache_(cache), dg_(dg), nTasks_(0), refreshTaskList_(eItemsArentOwned), tblTasksList_(eItemsArentOwned) {
+  CRUOptions &options = CRUGlobals::GetInstance()->GetOptions();
+  lcType_ = options.GetLogCleanupType();
 }
 
 //--------------------------------------------------------------------------//
@@ -80,33 +73,30 @@ CRUDependenceGraphBuilder(CRUCache& cache,
 //	     The dependencies between them are established,
 //	     in a way that reflects hierarchy between the MVs.
 //
-//   (2) At the second stage, the LockEquivSet, EmpCheck, TableSync, 
-//	     Duplicate Elimination and LogCleanup tasks are created, 
+//   (2) At the second stage, the LockEquivSet, EmpCheck, TableSync,
+//	     Duplicate Elimination and LogCleanup tasks are created,
 //		 if necessary, and are integrated into the dependence graph.
-//	     
+//
 //	 (3) At the third stage, the RcRelease tasks are created
 //		 and integrated into the dependence graph.
-// 
+//
 //--------------------------------------------------------------------------//
 
-void CRUDependenceGraphBuilder::Build()
-{
-	// Stage 1
-	if (CRUOptions::DO_ONLY_LC != lcType_)
-	{
-		BuildRefreshTasks();
-		TraverseRefreshTasks();
-	}	
+void CRUDependenceGraphBuilder::Build() {
+  // Stage 1
+  if (CRUOptions::DO_ONLY_LC != lcType_) {
+    BuildRefreshTasks();
+    TraverseRefreshTasks();
+  }
 
-	// Stage 2
-	// LockEquivSet/TableSync/EmpCheck/DE/LogCleanup
-	BuildTableTasks();
+  // Stage 2
+  // LockEquivSet/TableSync/EmpCheck/DE/LogCleanup
+  BuildTableTasks();
 
-	// Stage 3
-	if (CRUOptions::DO_ONLY_LC != lcType_)
-	{
-		BuildRcReleaseTasks();
-	}
+  // Stage 3
+  if (CRUOptions::DO_ONLY_LC != lcType_) {
+    BuildRcReleaseTasks();
+  }
 }
 
 //--------------------------------------------------------------------------//
@@ -123,40 +113,37 @@ void CRUDependenceGraphBuilder::Build()
 //	Build() callee - the first stage of building the graph.
 //
 //	Create the Refresh tasks and dependencies between them.
-//	A Refresh task corresponds to every involved MV, the 
+//	A Refresh task corresponds to every involved MV, the
 //	dependencies reflect the MV hierarchy.
 //
 //--------------------------------------------------------------------------//
 
-void CRUDependenceGraphBuilder::BuildRefreshTasks()
-{
-	RUASSERT (CRUOptions::DO_ONLY_LC != lcType_);
+void CRUDependenceGraphBuilder::BuildRefreshTasks() {
+  RUASSERT(CRUOptions::DO_ONLY_LC != lcType_);
 
-	CRUTask *pTask;
-	CRUMVList &mvList = cache_.GetMVList();
+  CRUTask *pTask;
+  CRUMVList &mvList = cache_.GetMVList();
 
-	// Pass one: build the tasks
-	DSListPosition pos = mvList.GetHeadPosition();
-	while (NULL != pos)
-	{
-		CRUMV *pMV = mvList.GetNext(pos);
+  // Pass one: build the tasks
+  DSListPosition pos = mvList.GetHeadPosition();
+  while (NULL != pos) {
+    CRUMV *pMV = mvList.GetNext(pos);
 
-		// Skip the non-involved MVs
-		if (FALSE == pMV->IsInvolved())
-		{
-			continue;
-		}
+    // Skip the non-involved MVs
+    if (FALSE == pMV->IsInvolved()) {
+      continue;
+    }
 
-		// Create a new task 
-		pTask = new CRURefreshTask(++nTasks_, *pMV);
-		dg_.InsertTask(pTask);
+    // Create a new task
+    pTask = new CRURefreshTask(++nTasks_, *pMV);
+    dg_.InsertTask(pTask);
 
-		// Store the pointer to the task
-		refreshTaskList_.AddTail(pTask);
-	}
+    // Store the pointer to the task
+    refreshTaskList_.AddTail(pTask);
+  }
 
-	// Pass two: connect the tasks
-	InterconnectRefreshTasks();
+  // Pass two: connect the tasks
+  InterconnectRefreshTasks();
 }
 
 //--------------------------------------------------------------------------//
@@ -169,59 +156,48 @@ void CRUDependenceGraphBuilder::BuildRefreshTasks()
 //
 //--------------------------------------------------------------------------//
 
-void CRUDependenceGraphBuilder::InterconnectRefreshTasks()
-{
-	DSListPosition pos = refreshTaskList_.GetHeadPosition();
-	while (NULL != pos)
-	{
-		CRUTask *pTask = refreshTaskList_.GetNext(pos);
-		
-		CRUMV &rootMV = ((CRURefreshTask *)pTask)->GetRootMV();
-		if (FALSE == rootMV.IsInvolvedTbl())
-		{
-			continue;
-		}
+void CRUDependenceGraphBuilder::InterconnectRefreshTasks() {
+  DSListPosition pos = refreshTaskList_.GetHeadPosition();
+  while (NULL != pos) {
+    CRUTask *pTask = refreshTaskList_.GetNext(pos);
 
-		CRUMVList &mvList = 
-			rootMV.GetTblInterface()->GetInvolvedMVsUsingMe();
+    CRUMV &rootMV = ((CRURefreshTask *)pTask)->GetRootMV();
+    if (FALSE == rootMV.IsInvolvedTbl()) {
+      continue;
+    }
 
-		ConnectTaskToRefreshTasks(*pTask, mvList);
-	}
+    CRUMVList &mvList = rootMV.GetTblInterface()->GetInvolvedMVsUsingMe();
+
+    ConnectTaskToRefreshTasks(*pTask, mvList);
+  }
 }
 
 //--------------------------------------------------------------------------//
 //	CRUDependenceGraphBuilder::ConnectTaskToRefreshTasks()
 //
-//	Connect the task to the Refresh tasks associated with the 
+//	Connect the task to the Refresh tasks associated with the
 //	MVs in the list. The Dir parameter is the edges' direction
 //	(the default is FROM this task TO the other Refresh tasks).
 //
 //--------------------------------------------------------------------------//
 
-void CRUDependenceGraphBuilder::
-ConnectTaskToRefreshTasks(CRUTask &task, 
-						  CRUMVList &mvList,
-						  CRUDependenceGraphBuilder::Dir dir)
-{
-	RUASSERT(FALSE == mvList.IsEmpty());
+void CRUDependenceGraphBuilder::ConnectTaskToRefreshTasks(CRUTask &task, CRUMVList &mvList,
+                                                          CRUDependenceGraphBuilder::Dir dir) {
+  RUASSERT(FALSE == mvList.IsEmpty());
 
-	DSListPosition pos = mvList.GetHeadPosition();
-	while (NULL != pos)
-	{
-		CRUMV *pMV = mvList.GetNext(pos);
-		
-		CRUTask *pTargetTask = dg_.GetTask(pMV->GetUID(), CRUTask::REFRESH);
-		RUASSERT(NULL != pTargetTask);
+  DSListPosition pos = mvList.GetHeadPosition();
+  while (NULL != pos) {
+    CRUMV *pMV = mvList.GetNext(pos);
 
-		if (FORWARD == dir)
-		{
-			task.AddTaskThatDependsOnMe(pTargetTask);	
-		}
-		else
-		{
-			task.AddTaskThatIDependOn(pTargetTask);
-		}
-	}
+    CRUTask *pTargetTask = dg_.GetTask(pMV->GetUID(), CRUTask::REFRESH);
+    RUASSERT(NULL != pTargetTask);
+
+    if (FORWARD == dir) {
+      task.AddTaskThatDependsOnMe(pTargetTask);
+    } else {
+      task.AddTaskThatIDependOn(pTargetTask);
+    }
+  }
 }
 
 //--------------------------------------------------------------------------//
@@ -237,38 +213,36 @@ ConnectTaskToRefreshTasks(CRUTask &task,
 //		  the recompute of a used MV implies the recompute of this MV.
 //		  If the MV will not be recomputed, build a delta-def list for it.
 //
-//	(2) Perform the pre-runtime checks for this MV (privileges, 
+//	(2) Perform the pre-runtime checks for this MV (privileges,
 //	    consistency etc.)
-//	
+//
 //	IMPORTANT: The operations performed on the tasks suppose that the graph
 //	is traversed in the direct topological order.
 //
 //--------------------------------------------------------------------------//
 
-void CRUDependenceGraphBuilder::TraverseRefreshTasks()
-{
-	CRUTask *pTask;
+void CRUDependenceGraphBuilder::TraverseRefreshTasks() {
+  CRUTask *pTask;
 
-	CRUTopologicalDGIterator it(dg_, CRUTopologicalDGIterator::DIRECT);
+  CRUTopologicalDGIterator it(dg_, CRUTopologicalDGIterator::DIRECT);
 
-	for (; (pTask = it.GetCurrentTask()) != NULL; it.Next())
-	{
-		// The topological traversal is done
-		// when there are only REFRESH tasks in the graph
-		RUASSERT(CRUTask::REFRESH == pTask->GetType());
-		CRURefreshTask *pRefreshTask = (CRURefreshTask *)pTask;
+  for (; (pTask = it.GetCurrentTask()) != NULL; it.Next()) {
+    // The topological traversal is done
+    // when there are only REFRESH tasks in the graph
+    RUASSERT(CRUTask::REFRESH == pTask->GetType());
+    CRURefreshTask *pRefreshTask = (CRURefreshTask *)pTask;
 
-		// Action 1
-		pRefreshTask->GetRootMV().PropagateRecomputeProperty();
+    // Action 1
+    pRefreshTask->GetRootMV().PropagateRecomputeProperty();
 
-		// Action 2
-		CRUPreRuntimeCheck tester(*pRefreshTask);
-		tester.PerformCheck();
-	}
+    // Action 2
+    CRUPreRuntimeCheck tester(*pRefreshTask);
+    tester.PerformCheck();
+  }
 }
 
 //--------------------------------------------------------------------------//
-//	BUILDING THE TABLE TASKS: 
+//	BUILDING THE TABLE TASKS:
 //	LockEquivSet, TableSync, EmpCheck, DE
 //--------------------------------------------------------------------------//
 
@@ -277,13 +251,13 @@ void CRUDependenceGraphBuilder::TraverseRefreshTasks()
 //
 //	Build() callee - the second stage of building the graph.
 //
-//	Create the Lock Equivalence Set, Table Sync, Duplicate 
-//	Elimination(DE), Emptiness Check and Log Cleanup tasks, 
-//	and integrate them into the graph. These tasks relate to 
-//	involved tables that are being used by the involved 
+//	Create the Lock Equivalence Set, Table Sync, Duplicate
+//	Elimination(DE), Emptiness Check and Log Cleanup tasks,
+//	and integrate them into the graph. These tasks relate to
+//	involved tables that are being used by the involved
 //	ON REQUEST/RECOMPUTED MVs.
 //
-//  None of these tasks is created if the utility operates 
+//  None of these tasks is created if the utility operates
 //	on a (single) ON STATEMENT MV.
 //
 //	The construction is performed in two stages:
@@ -293,156 +267,139 @@ void CRUDependenceGraphBuilder::TraverseRefreshTasks()
 //
 //--------------------------------------------------------------------------//
 
-void CRUDependenceGraphBuilder::BuildTableTasks()
-{
-	CRUMVList &mvList = cache_.GetMVList();
-	if (0 == mvList.GetHeadPosition())
-	  return;
+void CRUDependenceGraphBuilder::BuildTableTasks() {
+  CRUMVList &mvList = cache_.GetMVList();
+  if (0 == mvList.GetHeadPosition()) return;
 
-	// Do not create table tasks if an ON STATEMENT MV is refreshed
-	if (CDDObject::eON_STATEMENT 
-		== 
-		// Recall the ON STATEMENT MVs cannot be refreshed in a group
-		cache_.GetMVList().GetAt(0)->GetRefreshType())
-	{
-		return;
-	}
+  // Do not create table tasks if an ON STATEMENT MV is refreshed
+  if (CDDObject::eON_STATEMENT ==
+      // Recall the ON STATEMENT MVs cannot be refreshed in a group
+      cache_.GetMVList().GetAt(0)->GetRefreshType()) {
+    return;
+  }
 
-	// Stage 1
-	if (CRUOptions::DO_ONLY_LC != lcType_)
-	{
-		BuildEquivSetBasedTableTasks();		// LockEquivSet	
-	}
+  // Stage 1
+  if (CRUOptions::DO_ONLY_LC != lcType_) {
+    BuildEquivSetBasedTableTasks();  // LockEquivSet
+  }
 
-	BuildSingleTableTasks();	// EmpCheck/TableSync/DE/LogCleanup
+  BuildSingleTableTasks();  // EmpCheck/TableSync/DE/LogCleanup
 
-	// Prepare stage 2
-	BuildMVEquivSets();
+  // Prepare stage 2
+  BuildMVEquivSets();
 
-	// Stage 2
-	ConnectTableTasks();		
+  // Stage 2
+  ConnectTableTasks();
 }
 
 //--------------------------------------------------------------------------//
 //	CRUDependenceGraphBuilder::BuildEquivSetBasedTableTasks()
-//	
+//
 //	Perform the equivalence set analysis, and partition the involved
 //	tables (which are not the involved MVs) into disjoint equivalence
-//	sets. 
+//	sets.
 //
 //	For every set, there is a single LockEquivSet task.
 //
 //--------------------------------------------------------------------------//
 
-void CRUDependenceGraphBuilder::BuildEquivSetBasedTableTasks()
-{
-	CRUMVList &mvList = cache_.GetMVList();
+void CRUDependenceGraphBuilder::BuildEquivSetBasedTableTasks() {
+  CRUMVList &mvList = cache_.GetMVList();
 
-	// Initialize the equivalence set analyzer ...
-	DSListPosition pos = mvList.GetHeadPosition();
-	while (NULL != pos)
-	{
-		CRUMV *pMV = mvList.GetNext(pos);
-		if (FALSE == pMV->IsInvolved())
-		{
-			continue;
-		}
+  // Initialize the equivalence set analyzer ...
+  DSListPosition pos = mvList.GetHeadPosition();
+  while (NULL != pos) {
+    CRUMV *pMV = mvList.GetNext(pos);
+    if (FALSE == pMV->IsInvolved()) {
+      continue;
+    }
 
-		tblEquivSetBuilder_.AddMV(pMV);
-	}
+    tblEquivSetBuilder_.AddMV(pMV);
+  }
 
-	// Perform the equivalence set analysis...
-	tblEquivSetBuilder_.Run();
+  // Perform the equivalence set analysis...
+  tblEquivSetBuilder_.Run();
 
-	// And create the tasks, equivalence set-based
-	for (Int32 i=0; i<tblEquivSetBuilder_.GetNumOfSets(); i++)
-	{
-		CRUTblList &tblList = tblEquivSetBuilder_.GetSet(i);
+  // And create the tasks, equivalence set-based
+  for (Int32 i = 0; i < tblEquivSetBuilder_.GetNumOfSets(); i++) {
+    CRUTblList &tblList = tblEquivSetBuilder_.GetSet(i);
 
-		// The LockEquivSet task handles a number of tables
-		BuildLockEquivSetTask(tblList);
-	}
+    // The LockEquivSet task handles a number of tables
+    BuildLockEquivSetTask(tblList);
+  }
 }
 
 //--------------------------------------------------------------------------//
 //	CRUDependenceGraphBuilder::BuildMVEquivSets()
-//	
+//
 //	Partition the ON REQUEST MVs to equivalence sets.
 //	This is a basis for the correct wiring of the EmpCheck tasks in the graph.
 //
-//	MV equivalence sets are connected components in the hierarchy 
+//	MV equivalence sets are connected components in the hierarchy
 //	between the involved MVs.
 //
 //--------------------------------------------------------------------------//
 
-void CRUDependenceGraphBuilder::BuildMVEquivSets()
-{
-	CRUMVList &mvList = cache_.GetMVList();
+void CRUDependenceGraphBuilder::BuildMVEquivSets() {
+  CRUMVList &mvList = cache_.GetMVList();
 
-	// Initialize the equivalence set analyzer ...
-	DSListPosition pos = mvList.GetHeadPosition();
-	while (NULL != pos)
-	{
-		CRUMV *pMV = mvList.GetNext(pos);
-		if (FALSE == pMV->IsInvolved())
-		{
-			continue;
-		}
+  // Initialize the equivalence set analyzer ...
+  DSListPosition pos = mvList.GetHeadPosition();
+  while (NULL != pos) {
+    CRUMV *pMV = mvList.GetNext(pos);
+    if (FALSE == pMV->IsInvolved()) {
+      continue;
+    }
 
-		if (CDDObject::eON_REQUEST == pMV->GetRefreshType())
-		{
-			mvEquivSetBuilder_.AddMV(pMV);
-		}
-	}
+    if (CDDObject::eON_REQUEST == pMV->GetRefreshType()) {
+      mvEquivSetBuilder_.AddMV(pMV);
+    }
+  }
 
-	// Perform the equivalence set analysis...
-	mvEquivSetBuilder_.Run();
+  // Perform the equivalence set analysis...
+  mvEquivSetBuilder_.Run();
 
 #ifdef _DEBUG
-	CRUOptions &options = CRUGlobals::GetInstance()->GetOptions();
-	if (NULL != options.FindDebugOption(CRUGlobals::DUMP_DS, ""))
-	{
-		mvEquivSetBuilder_.DumpSets();
-	}
+  CRUOptions &options = CRUGlobals::GetInstance()->GetOptions();
+  if (NULL != options.FindDebugOption(CRUGlobals::DUMP_DS, "")) {
+    mvEquivSetBuilder_.DumpSets();
+  }
 #endif
 }
 
 //--------------------------------------------------------------------------//
 //  CRUDependenceGraphBuilder::BuildSingleTableTasks()
 //
-//	Create the TableSync/EmpCheck/DE/LogCleanup tasks. 
+//	Create the TableSync/EmpCheck/DE/LogCleanup tasks.
 //
-//	Each task handles a single table object. Tasks of these types are created 
-//	only for involved tables (i.e., tables used by involved MVs). 
+//	Each task handles a single table object. Tasks of these types are created
+//	only for involved tables (i.e., tables used by involved MVs).
 //
 //	ASSUMPTION: applied after the Recompute attribute is propagated
 //	through the Refresh tasks.
 //
 //--------------------------------------------------------------------------//
 
-void CRUDependenceGraphBuilder::BuildSingleTableTasks()
-{
-	// A single pass over all CRUTbl objects in the cache
-	CRUTblList &tblList = cache_.GetTableList();
-	DSListPosition pos = tblList.GetHeadPosition();
+void CRUDependenceGraphBuilder::BuildSingleTableTasks() {
+  // A single pass over all CRUTbl objects in the cache
+  CRUTblList &tblList = cache_.GetTableList();
+  DSListPosition pos = tblList.GetHeadPosition();
 
-	while (NULL != pos)
-	{
-		CRUTbl *pTbl = tblList.GetNext(pos);
+  while (NULL != pos) {
+    CRUTbl *pTbl = tblList.GetNext(pos);
 
-		if (FALSE == pTbl->IsInvolved())
-		{
-			continue;
-		}
+    if (FALSE == pTbl->IsInvolved()) {
+      continue;
+    }
 
-		RUASSERT (pTbl->GetInvolvedMVsUsingMe().GetCount() > 0);
+    RUASSERT(pTbl->GetInvolvedMVsUsingMe().GetCount() > 0);
 
-		// Now that we know for every MV whether it will be
-		// refreshed incrementally or not - build the list
-		pTbl->BuildListOfIncrementalInvolvedMVsUsingMe();
+    // Now that we know for every MV whether it will be
+    // refreshed incrementally or not - build the list
+    pTbl->BuildListOfIncrementalInvolvedMVsUsingMe();
 
-		BuildSingleTableTasksForTbl(*pTbl);
-	}
+    BuildSingleTableTasksForTbl(*pTbl);
+  }
 }
 
 //--------------------------------------------------------------------------//
@@ -461,99 +418,79 @@ void CRUDependenceGraphBuilder::BuildSingleTableTasks()
 //		refreshed ON REQUEST MV + the conditions in CRUTbl::IsDENeeded().
 //	(4) Log Cleanup task - the table is used by an incrementally
 //		refreshed ON REQUEST MV, and WITH LOG CLEANUP was requested.
-//	
+//
 //--------------------------------------------------------------------------//
 
-void CRUDependenceGraphBuilder::BuildSingleTableTasksForTbl(CRUTbl &tbl)
-{	
-	if (FALSE == tbl.IsInvolvedMV()
-		&&
-		CRUOptions::DO_ONLY_LC != lcType_)
-	{
-		BuildTableSyncTask(tbl);	// (1)
-	}
+void CRUDependenceGraphBuilder::BuildSingleTableTasksForTbl(CRUTbl &tbl) {
+  if (FALSE == tbl.IsInvolvedMV() && CRUOptions::DO_ONLY_LC != lcType_) {
+    BuildTableSyncTask(tbl);  // (1)
+  }
 
-	// Pre-conditions for EmpCheck and DE tasks
-	if (TRUE == tbl.IsUsedByIncRefreshedMV()
-		&&
-		CRUOptions::DO_ONLY_LC != lcType_)
-	{
-		BuildEmpCheckTask(tbl);	// (2) 
+  // Pre-conditions for EmpCheck and DE tasks
+  if (TRUE == tbl.IsUsedByIncRefreshedMV() && CRUOptions::DO_ONLY_LC != lcType_) {
+    BuildEmpCheckTask(tbl);  // (2)
 
-		// Compute whether we need duplicate elimination ...
-		tbl.CheckIfDENeeded();
+    // Compute whether we need duplicate elimination ...
+    tbl.CheckIfDENeeded();
 
-		// And if yes, create the DE task
-		if (TRUE == tbl.IsDENeeded())
-		{
-			BuildDETask(tbl);	// (3)
-		}
-	}
+    // And if yes, create the DE task
+    if (TRUE == tbl.IsDENeeded()) {
+      BuildDETask(tbl);  // (3)
+    }
+  }
 
-	if (TRUE == tbl.IsUsedByOnRequestMV()
-		&&
-		CRUOptions::WITHOUT_LC != lcType_)
-	{
-		BuildLogCleanupTask(tbl);	// (4)	
-	}
+  if (TRUE == tbl.IsUsedByOnRequestMV() && CRUOptions::WITHOUT_LC != lcType_) {
+    BuildLogCleanupTask(tbl);  // (4)
+  }
 }
 
 //--------------------------------------------------------------------------//
 //	CRUDependenceGraphBuilder::ConnectTableTasks()
 //
 //	BuildTableTasks() callee.
-//	
+//
 //	The newly-created table tasks are stored in tblTasksList_.
 //	Traverse the list and connect each task by its own rules.
-// 
+//
 //--------------------------------------------------------------------------//
 
-void CRUDependenceGraphBuilder::ConnectTableTasks()
-{
-	DSListPosition pos = tblTasksList_.GetHeadPosition();
-	while (NULL != pos)
-	{
-		CRUTask *pTask = tblTasksList_.GetNext(pos);
-		switch (pTask->GetType())
-		{
-			case CRUTask::TABLE_SYNC:
-				{
-					ConnectTableSyncTask((CRUTableSyncTask &) *pTask);
-					break;
-				}
-			
-			case CRUTask::DUP_ELIM:
-				{
-					ConnectDupElimTask((CRUDupElimTask &) *pTask);
-					break;
-				}
-			
-			case CRUTask::EMP_CHECK:
-				{
-					ConnectEmpCheckTask((CRUEmpCheckTask &) *pTask);
-					break;
-				}
-			
-			case CRUTask::LOCK_EQUIV_SET:
-				{
-					ConnectLockEquivSetTask((CRULockEquivSetTask &) *pTask);
-					break;
-				}
-			
-			case CRUTask::LOG_CLEANUP:
-				{
-					ConnectLogCleanupTask((CRULogCleanupTask &) *pTask);
-					break;
-				}
+void CRUDependenceGraphBuilder::ConnectTableTasks() {
+  DSListPosition pos = tblTasksList_.GetHeadPosition();
+  while (NULL != pos) {
+    CRUTask *pTask = tblTasksList_.GetNext(pos);
+    switch (pTask->GetType()) {
+      case CRUTask::TABLE_SYNC: {
+        ConnectTableSyncTask((CRUTableSyncTask &)*pTask);
+        break;
+      }
 
-			case CRUTask::RC_RELEASE:
-			case CRUTask::REFRESH:
-			default:
-			{
-				RUASSERT(FALSE);	// All irrelevant
-			}
-		}
-	}
+      case CRUTask::DUP_ELIM: {
+        ConnectDupElimTask((CRUDupElimTask &)*pTask);
+        break;
+      }
+
+      case CRUTask::EMP_CHECK: {
+        ConnectEmpCheckTask((CRUEmpCheckTask &)*pTask);
+        break;
+      }
+
+      case CRUTask::LOCK_EQUIV_SET: {
+        ConnectLockEquivSetTask((CRULockEquivSetTask &)*pTask);
+        break;
+      }
+
+      case CRUTask::LOG_CLEANUP: {
+        ConnectLogCleanupTask((CRULogCleanupTask &)*pTask);
+        break;
+      }
+
+      case CRUTask::RC_RELEASE:
+      case CRUTask::REFRESH:
+      default: {
+        RUASSERT(FALSE);  // All irrelevant
+      }
+    }
+  }
 }
 
 //--------------------------------------------------------------------------//
@@ -564,11 +501,10 @@ void CRUDependenceGraphBuilder::ConnectTableTasks()
 //	CRUDependenceGraphBuilder::BuildLockEquivSetTask()
 //--------------------------------------------------------------------------//
 
-void CRUDependenceGraphBuilder::BuildLockEquivSetTask(CRUTblList &tblList)
-{
-	CRUTask *pTask = new CRULockEquivSetTask(++nTasks_, tblList);
-	dg_.InsertTask(pTask);
-	tblTasksList_.AddTail(pTask);
+void CRUDependenceGraphBuilder::BuildLockEquivSetTask(CRUTblList &tblList) {
+  CRUTask *pTask = new CRULockEquivSetTask(++nTasks_, tblList);
+  dg_.InsertTask(pTask);
+  tblTasksList_.AddTail(pTask);
 }
 
 //--------------------------------------------------------------------------//
@@ -585,21 +521,18 @@ void CRUDependenceGraphBuilder::BuildLockEquivSetTask(CRUTblList &tblList)
 //
 //--------------------------------------------------------------------------//
 
-void CRUDependenceGraphBuilder::
-ConnectLockEquivSetTask(CRULockEquivSetTask &task)
-{
-	CRUTblList &tblList = task.GetTableList();
+void CRUDependenceGraphBuilder::ConnectLockEquivSetTask(CRULockEquivSetTask &task) {
+  CRUTblList &tblList = task.GetTableList();
 
-	DSListPosition pos = tblList.GetHeadPosition();
-	while (NULL != pos)
-	{
-		CRUTbl *pTbl = tblList.GetNext(pos);
-		
-		CRUTask *pSuccTask = dg_.GetTask(pTbl->GetUID(), CRUTask::TABLE_SYNC);
-		RUASSERT(NULL != pSuccTask);
+  DSListPosition pos = tblList.GetHeadPosition();
+  while (NULL != pos) {
+    CRUTbl *pTbl = tblList.GetNext(pos);
 
-		task.AddTaskThatDependsOnMe(pSuccTask);
-	}	
+    CRUTask *pSuccTask = dg_.GetTask(pTbl->GetUID(), CRUTask::TABLE_SYNC);
+    RUASSERT(NULL != pSuccTask);
+
+    task.AddTaskThatDependsOnMe(pSuccTask);
+  }
 }
 
 //--------------------------------------------------------------------------//
@@ -610,25 +543,24 @@ ConnectLockEquivSetTask(CRULockEquivSetTask &task)
 //  CRUDependenceGraphBuilder::BuildTableSyncTask()
 //--------------------------------------------------------------------------//
 
-void CRUDependenceGraphBuilder::BuildTableSyncTask(CRUTbl &tbl)
-{
-	CRUTask *pTask = new CRUTableSyncTask(++nTasks_, tbl);
-	dg_.InsertTask(pTask);
-	tblTasksList_.AddTail(pTask);
+void CRUDependenceGraphBuilder::BuildTableSyncTask(CRUTbl &tbl) {
+  CRUTask *pTask = new CRUTableSyncTask(++nTasks_, tbl);
+  dg_.InsertTask(pTask);
+  tblTasksList_.AddTail(pTask);
 }
 
 //--------------------------------------------------------------------------//
 //	CRUDependenceGraphBuilder::ConnectTableSyncTask()
 //
-//	Establish the TableSync's task's connectivity. 
-// 
-//	(1) The TableSync task will be connected to the Refresh tasks 
+//	Establish the TableSync's task's connectivity.
+//
+//	(1) The TableSync task will be connected to the Refresh tasks
 //		for ALL the involved MVs using the table.
 //	(2) If the table is used by am incrementally refreshed MV
 //		(hence, there is an EmpCheck task for it), there is also
 //		an edge TableSync(T) --> EmpCheck(T)
-//		
-//		EmpCheck(T1) --> Refresh(MV2) 
+//
+//		EmpCheck(T1) --> Refresh(MV2)
 //		    ^             ^
 //		    |			  |
 //		TableSync(T1) ----+
@@ -639,25 +571,21 @@ void CRUDependenceGraphBuilder::BuildTableSyncTask(CRUTbl &tbl)
 //
 //--------------------------------------------------------------------------//
 
-void CRUDependenceGraphBuilder::ConnectTableSyncTask(CRUTableSyncTask &task)
-{
-	CRUTbl &tbl = task.GetTable();
+void CRUDependenceGraphBuilder::ConnectTableSyncTask(CRUTableSyncTask &task) {
+  CRUTbl &tbl = task.GetTable();
 
-	if (TRUE == tbl.IsUsedByIncRefreshedMV())
-	{
-		CRUTask *pSuccTask = dg_.GetTask(tbl.GetUID(), CRUTask::EMP_CHECK);
+  if (TRUE == tbl.IsUsedByIncRefreshedMV()) {
+    CRUTask *pSuccTask = dg_.GetTask(tbl.GetUID(), CRUTask::EMP_CHECK);
 
-		// TableSync(T) --> EmpCheck(T)
-		RUASSERT (NULL != pSuccTask);
-		task.AddTaskThatDependsOnMe(pSuccTask);
-	}
-	else
-	{
-		// If there is no emptiness check, there is also no DE
-		RUASSERT(FALSE == tbl.IsDENeeded());
-	}
+    // TableSync(T) --> EmpCheck(T)
+    RUASSERT(NULL != pSuccTask);
+    task.AddTaskThatDependsOnMe(pSuccTask);
+  } else {
+    // If there is no emptiness check, there is also no DE
+    RUASSERT(FALSE == tbl.IsDENeeded());
+  }
 
-	ConnectTaskToRefreshTasks(task, tbl.GetInvolvedMVsUsingMe());
+  ConnectTaskToRefreshTasks(task, tbl.GetInvolvedMVsUsingMe());
 }
 
 //--------------------------------------------------------------------------//
@@ -668,37 +596,32 @@ void CRUDependenceGraphBuilder::ConnectTableSyncTask(CRUTableSyncTask &task)
 //  CRUDependenceGraphBuilder::BuildEmpCheckTask()
 //--------------------------------------------------------------------------//
 
-void CRUDependenceGraphBuilder::BuildEmpCheckTask(CRUTbl &tbl)
-{
-	CRUTask *pTask = new CRUEmpCheckTask(++nTasks_, tbl);
-	dg_.InsertTask(pTask);
-	tblTasksList_.AddTail(pTask);
+void CRUDependenceGraphBuilder::BuildEmpCheckTask(CRUTbl &tbl) {
+  CRUTask *pTask = new CRUEmpCheckTask(++nTasks_, tbl);
+  dg_.InsertTask(pTask);
+  tblTasksList_.AddTail(pTask);
 }
 
 //--------------------------------------------------------------------------//
 //	CRUDependenceGraphBuilder::ConnectEmpCheckTask()
 //--------------------------------------------------------------------------//
 
-void CRUDependenceGraphBuilder::ConnectEmpCheckTask(CRUEmpCheckTask &task)
-{
-	if (TRUE == task.GetTable().IsInvolvedMV())
-	{
-		ConnectEmpCheckTaskIfTblIsInvolvedMV(task);
-	}
-	else
-	{
-		ConnectEmpCheckTaskIfTblIsNotInvolvedMV(task);
-	}
+void CRUDependenceGraphBuilder::ConnectEmpCheckTask(CRUEmpCheckTask &task) {
+  if (TRUE == task.GetTable().IsInvolvedMV()) {
+    ConnectEmpCheckTaskIfTblIsInvolvedMV(task);
+  } else {
+    ConnectEmpCheckTaskIfTblIsNotInvolvedMV(task);
+  }
 }
 
 //--------------------------------------------------------------------------//
 //	CRUDependenceGraphBuilder::ConnectEmpCheckTaskIfTblIsInvolvedMV()
 //
 //	If the table is also an involved MV, then connect it *BEFORE* each
-//	Refresh(MVi) task for every MVi that can pipeline the data to this MV. 
-//	
+//	Refresh(MVi) task for every MVi that can pipeline the data to this MV.
+//
 //	BEFORE-STATE
-//	  	
+//
 //		Refresh(MV1) ---> Refresh(MV2) ---> Refresh(MV3)
 //
 //	AFTER-STATE
@@ -709,7 +632,7 @@ void CRUDependenceGraphBuilder::ConnectEmpCheckTask(CRUEmpCheckTask &task)
 //	     |   +----- EmpCheck(MV1)
 //		 |
 //		 +--------- EmpCheck(MV2)
-//	
+//
 //	This connection is the requirement of the pipelining mechanism,
 //	because the results of MV1's and MV2's emptiness check must be ready
 //	BEFORE scheduling Refresh(MV1), in order to decide which REFRESH tasks
@@ -719,60 +642,52 @@ void CRUDependenceGraphBuilder::ConnectEmpCheckTask(CRUEmpCheckTask &task)
 //	confuse with the *table equivalence set*). MV1 is the equivalence set's
 //	*root*. The connection rule is:
 //
-//	(1) If the MV is an equiv set's root, connect EmpCheck(MV) directly 
+//	(1) If the MV is an equiv set's root, connect EmpCheck(MV) directly
 //		to Refresh(MV).
-//	(2) Otherwise, connect EmpCheck(MV) to all of the roots of its 
+//	(2) Otherwise, connect EmpCheck(MV) to all of the roots of its
 //		equivalence set.
 //
 //--------------------------------------------------------------------------//
 
-void CRUDependenceGraphBuilder::
-ConnectEmpCheckTaskIfTblIsInvolvedMV(CRUEmpCheckTask &task)
-{
-	TInt64 uid = task.GetTable().GetUID();
+void CRUDependenceGraphBuilder::ConnectEmpCheckTaskIfTblIsInvolvedMV(CRUEmpCheckTask &task) {
+  TInt64 uid = task.GetTable().GetUID();
 
-	CRUMVList &mvList = mvEquivSetBuilder_.GetEquivSetsRootsByMVUID(uid);
-	
-	// Check whether the MV is the MV equiv set's root itself ...
-	BOOL isRoot = FALSE;
-	
-	DSListPosition pos = mvList.GetHeadPosition();
-	while (NULL != pos)
-	{
-		CRUMV *pMV = mvList.GetNext(pos);
+  CRUMVList &mvList = mvEquivSetBuilder_.GetEquivSetsRootsByMVUID(uid);
 
-		if (pMV->GetUID() == uid)
-		{
-			isRoot = TRUE;
-			break;
-		}
-	}
+  // Check whether the MV is the MV equiv set's root itself ...
+  BOOL isRoot = FALSE;
 
-	// Connect the EmpCheck task ...
-	CRUTask *pSuccTask;
+  DSListPosition pos = mvList.GetHeadPosition();
+  while (NULL != pos) {
+    CRUMV *pMV = mvList.GetNext(pos);
 
-	if (TRUE == isRoot)
-	{
-		// EmpCheck(MV) --> REFRESH(MV), MV is the equiv set's root itself
-		pSuccTask = dg_.GetTask(uid, CRUTask::REFRESH);
-		RUASSERT(NULL != pSuccTask);
+    if (pMV->GetUID() == uid) {
+      isRoot = TRUE;
+      break;
+    }
+  }
 
-		task.AddTaskThatDependsOnMe(pSuccTask);
-	}
-	else
-	{
-		pos = mvList.GetHeadPosition();
-		while (NULL != pos)
-		{
-			CRUMV *pMV = mvList.GetNext(pos);
+  // Connect the EmpCheck task ...
+  CRUTask *pSuccTask;
 
-			// EmpCheck(MV) --> REFRESH(MVx), MVx is the equiv's set root
-			pSuccTask = dg_.GetTask(pMV->GetUID(), CRUTask::REFRESH);
-			RUASSERT(NULL != pSuccTask);
+  if (TRUE == isRoot) {
+    // EmpCheck(MV) --> REFRESH(MV), MV is the equiv set's root itself
+    pSuccTask = dg_.GetTask(uid, CRUTask::REFRESH);
+    RUASSERT(NULL != pSuccTask);
 
-			task.AddTaskThatDependsOnMe(pSuccTask);
-		}
-	}
+    task.AddTaskThatDependsOnMe(pSuccTask);
+  } else {
+    pos = mvList.GetHeadPosition();
+    while (NULL != pos) {
+      CRUMV *pMV = mvList.GetNext(pos);
+
+      // EmpCheck(MV) --> REFRESH(MVx), MVx is the equiv's set root
+      pSuccTask = dg_.GetTask(pMV->GetUID(), CRUTask::REFRESH);
+      RUASSERT(NULL != pSuccTask);
+
+      task.AddTaskThatDependsOnMe(pSuccTask);
+    }
+  }
 }
 
 //--------------------------------------------------------------------------//
@@ -800,28 +715,20 @@ ConnectEmpCheckTaskIfTblIsInvolvedMV(CRUEmpCheckTask &task)
 //
 //--------------------------------------------------------------------------//
 
-void CRUDependenceGraphBuilder::
-ConnectEmpCheckTaskIfTblIsNotInvolvedMV(CRUEmpCheckTask &task)
-{
-	CRUTbl &tbl = task.GetTable();
+void CRUDependenceGraphBuilder::ConnectEmpCheckTaskIfTblIsNotInvolvedMV(CRUEmpCheckTask &task) {
+  CRUTbl &tbl = task.GetTable();
 
-	if (TRUE == tbl.IsDENeeded())
-	{
-		// Connection through the DE task
-		TInt64 uid = task.GetTable().GetUID();
-		CRUTask *pSuccTask = dg_.GetTask(uid, CRUTask::DUP_ELIM);
-		
-		RUASSERT(NULL != pSuccTask);
-		task.AddTaskThatDependsOnMe(pSuccTask);
-	}
-	else
-	{
-		// Direct connection to the Refresh tasks
-		ConnectTaskToRefreshTasks(
-			task, 
-			tbl.GetIncrementalInvolvedMVsUsingMe()
-		);
-	}
+  if (TRUE == tbl.IsDENeeded()) {
+    // Connection through the DE task
+    TInt64 uid = task.GetTable().GetUID();
+    CRUTask *pSuccTask = dg_.GetTask(uid, CRUTask::DUP_ELIM);
+
+    RUASSERT(NULL != pSuccTask);
+    task.AddTaskThatDependsOnMe(pSuccTask);
+  } else {
+    // Direct connection to the Refresh tasks
+    ConnectTaskToRefreshTasks(task, tbl.GetIncrementalInvolvedMVsUsingMe());
+  }
 }
 
 //--------------------------------------------------------------------------//
@@ -832,18 +739,17 @@ ConnectEmpCheckTaskIfTblIsNotInvolvedMV(CRUEmpCheckTask &task)
 //  CRUDependenceGraphBuilder::BuildDETask()
 //--------------------------------------------------------------------------//
 
-void CRUDependenceGraphBuilder::BuildDETask(CRUTbl &tbl)
-{
-	CRUTask *pTask = new CRUDupElimTask(++nTasks_, tbl);
-	dg_.InsertTask(pTask);
-	tblTasksList_.AddTail(pTask);
+void CRUDependenceGraphBuilder::BuildDETask(CRUTbl &tbl) {
+  CRUTask *pTask = new CRUDupElimTask(++nTasks_, tbl);
+  dg_.InsertTask(pTask);
+  tblTasksList_.AddTail(pTask);
 }
 
 //--------------------------------------------------------------------------//
 //	CRUDependenceGraphBuilder::ConnectDupElimTask()
 //
 //	Establish the DE task's connectivity. There are two cases.
-// 
+//
 //	(1) If the table is an MV that is refreshed in this invocation
 //	    (and hence, has a corresponding Refresh task):
 //
@@ -852,36 +758,34 @@ void CRUDependenceGraphBuilder::BuildDETask(CRUTbl &tbl)
 //		REFRESH(MV1) -----> REFRESH(MV2)
 //
 //	AFTER-STATE
-//					     
+//
 //		REFRESH(MV1) --> REFRESH(MV2)
 //			|                ^
 //          |                |
-//          +-----------> DE(MV1)		
+//          +-----------> DE(MV1)
 //
 //	(2) Otherwise, the DE task will have only outgoing edges:
-//		
+//
 //		 DE(T) ---> REFRESH(MV1)
 //
 //--------------------------------------------------------------------------//
 
-void CRUDependenceGraphBuilder::ConnectDupElimTask(CRUDupElimTask &task)
-{
-	CRUTbl &tbl = task.GetTable();
+void CRUDependenceGraphBuilder::ConnectDupElimTask(CRUDupElimTask &task) {
+  CRUTbl &tbl = task.GetTable();
 
-	// (1) Check whether the DE must be performed on an involved MV
-	if (TRUE == tbl.IsInvolvedMV())
-	{
-		// The DE task is performed after the Refresh task
-		// Add the edge REFRESH -> DE
-		CRUTask *pPredTask = dg_.GetTask(tbl.GetUID(), CRUTask::REFRESH);
+  // (1) Check whether the DE must be performed on an involved MV
+  if (TRUE == tbl.IsInvolvedMV()) {
+    // The DE task is performed after the Refresh task
+    // Add the edge REFRESH -> DE
+    CRUTask *pPredTask = dg_.GetTask(tbl.GetUID(), CRUTask::REFRESH);
 
-		RUASSERT (NULL != pPredTask);
-		task.AddTaskThatIDependOn(pPredTask);
-	}
+    RUASSERT(NULL != pPredTask);
+    task.AddTaskThatIDependOn(pPredTask);
+  }
 
-	// (2) Connect the DE task to all of its customers
-	//     (incremental Refresh tasks)
-	ConnectTaskToRefreshTasks(task, tbl.GetIncrementalInvolvedMVsUsingMe());
+  // (2) Connect the DE task to all of its customers
+  //     (incremental Refresh tasks)
+  ConnectTaskToRefreshTasks(task, tbl.GetIncrementalInvolvedMVsUsingMe());
 }
 
 //--------------------------------------------------------------------------//
@@ -892,34 +796,31 @@ void CRUDependenceGraphBuilder::ConnectDupElimTask(CRUDupElimTask &task)
 //  CRUDependenceGraphBuilder::BuildLogCleanupTask()
 //--------------------------------------------------------------------------//
 
-void CRUDependenceGraphBuilder::BuildLogCleanupTask(CRUTbl &tbl)
-{
-	CRUTask *pTask = new CRULogCleanupTask(++nTasks_, tbl);
-	dg_.InsertTask(pTask);
-	tblTasksList_.AddTail(pTask);
+void CRUDependenceGraphBuilder::BuildLogCleanupTask(CRUTbl &tbl) {
+  CRUTask *pTask = new CRULogCleanupTask(++nTasks_, tbl);
+  dg_.InsertTask(pTask);
+  tblTasksList_.AddTail(pTask);
 }
 
 //--------------------------------------------------------------------------//
 //	CRUDependenceGraphBuilder::ConnectLogCleanupTask()
 //
-//	Add the edge Refresh(MV) --> LogCleanup(T) for every involved 
+//	Add the edge Refresh(MV) --> LogCleanup(T) for every involved
 //	ON REQUEST MV that uses T. The MV is NOT NECESSARILY refreshed
 //	incrementally (log cleanup cannot happen before all the MVs' epoch
 //	vectors are advanced).
 //
 //--------------------------------------------------------------------------//
 
-void CRUDependenceGraphBuilder::ConnectLogCleanupTask(CRULogCleanupTask &task)
-{
-	if (CRUOptions::DO_ONLY_LC == lcType_)
-	{
-		return;	// There are only Log Cleanup tasks in the graph
-	}
+void CRUDependenceGraphBuilder::ConnectLogCleanupTask(CRULogCleanupTask &task) {
+  if (CRUOptions::DO_ONLY_LC == lcType_) {
+    return;  // There are only Log Cleanup tasks in the graph
+  }
 
-	CRUTbl &tbl = task.GetTable();
-	CRUMVList &mvList = tbl.GetOnRequestInvolvedMVsUsingMe();
+  CRUTbl &tbl = task.GetTable();
+  CRUMVList &mvList = tbl.GetOnRequestInvolvedMVsUsingMe();
 
-	ConnectTaskToRefreshTasks(task, mvList, BACKWARD /* !!! */);
+  ConnectTaskToRefreshTasks(task, mvList, BACKWARD /* !!! */);
 }
 
 //--------------------------------------------------------------------------//
@@ -938,47 +839,43 @@ void CRUDependenceGraphBuilder::ConnectLogCleanupTask(CRULogCleanupTask &task)
 //
 //--------------------------------------------------------------------------//
 
-void CRUDependenceGraphBuilder::BuildRcReleaseTasks()
-{
-	//RUASSERT(FALSE == cache_.GetMVList().IsEmpty());
-	
-	BuildRcReleaseTasksForMVs();
+void CRUDependenceGraphBuilder::BuildRcReleaseTasks() {
+  // RUASSERT(FALSE == cache_.GetMVList().IsEmpty());
 
-	BuildRcReleaseTasksForTables();
+  BuildRcReleaseTasksForMVs();
 
-	ConnectRcReleaseTasks();
+  BuildRcReleaseTasksForTables();
+
+  ConnectRcReleaseTasks();
 }
 
 //--------------------------------------------------------------------------//
 //	CRUDependenceGraphBuilder::BuildRcReleaseTasksForMVs()
 //
 //	Create the Resource Release tasks that correspond to the involved MVs.
-//	
+//
 //--------------------------------------------------------------------------//
 
-void CRUDependenceGraphBuilder::BuildRcReleaseTasksForMVs()
-{
-	CRUMVList &mvList = cache_.GetMVList();
+void CRUDependenceGraphBuilder::BuildRcReleaseTasksForMVs() {
+  CRUMVList &mvList = cache_.GetMVList();
 
-	DSListPosition pos = mvList.GetHeadPosition();
-	while (NULL != pos)
-	{
-		CRUMV *pMV = mvList.GetNext(pos);
+  DSListPosition pos = mvList.GetHeadPosition();
+  while (NULL != pos) {
+    CRUMV *pMV = mvList.GetNext(pos);
 
-		// Skip the non-involved MVs
-		if (FALSE == pMV->IsInvolved())
-		{
-			continue;
-		}
+    // Skip the non-involved MVs
+    if (FALSE == pMV->IsInvolved()) {
+      continue;
+    }
 
-		BuildRcReleaseTask(*pMV);
-	}
+    BuildRcReleaseTask(*pMV);
+  }
 }
 
 //--------------------------------------------------------------------------//
 //	CRUDependenceGraphBuilder::BuildRcReleaseTasksForTables()
 //
-//	Create the tasks that correspond to the involved tables 
+//	Create the tasks that correspond to the involved tables
 //	that are NOT involved MVs (for those, they are already
 //	created).
 //
@@ -988,43 +885,38 @@ void CRUDependenceGraphBuilder::BuildRcReleaseTasksForMVs()
 //	boundary), the RcRelease task will not be created. Therefore,
 //	for these objects, the DDL lock will be *replaced* at the
 //	cache construction stage, but will finally NOT be removed.
-//	
+//
 //--------------------------------------------------------------------------//
 
-void CRUDependenceGraphBuilder::BuildRcReleaseTasksForTables()
-{
-	CRUTblList &tableList = cache_.GetTableList();
+void CRUDependenceGraphBuilder::BuildRcReleaseTasksForTables() {
+  CRUTblList &tableList = cache_.GetTableList();
 
-	DSListPosition pos = tableList.GetHeadPosition();
-	while (NULL != pos)
-	{
-		CRUTbl *pTbl = tableList.GetNext(pos);
+  DSListPosition pos = tableList.GetHeadPosition();
+  while (NULL != pos) {
+    CRUTbl *pTbl = tableList.GetNext(pos);
 
-		if (FALSE == pTbl->IsInvolved())
-		{
-			continue;
-		}
+    if (FALSE == pTbl->IsInvolved()) {
+      continue;
+    }
 
-		if (TRUE == pTbl->IsInvolvedMV())
-		{
-			// If the table is also an involved MV,
-			// there is already an RcRelease task for it
-			RUASSERT (NULL != dg_.GetTask(pTbl->GetUID(), CRUTask::RC_RELEASE));
-			continue;
-		}
+    if (TRUE == pTbl->IsInvolvedMV()) {
+      // If the table is also an involved MV,
+      // there is already an RcRelease task for it
+      RUASSERT(NULL != dg_.GetTask(pTbl->GetUID(), CRUTask::RC_RELEASE));
+      continue;
+    }
 
-		BuildRcReleaseTask(*pTbl);
-	}
+    BuildRcReleaseTask(*pTbl);
+  }
 }
 
 //--------------------------------------------------------------------------//
 //	CRUDependenceGraphBuilder::BuildRcReleaseTask()
 //--------------------------------------------------------------------------//
 
-void CRUDependenceGraphBuilder::BuildRcReleaseTask(CRUObject &obj)
-{ 
-	CRUTask *pTask = new CRURcReleaseTask(++nTasks_, obj);
-	dg_.InsertTask(pTask);
+void CRUDependenceGraphBuilder::BuildRcReleaseTask(CRUObject &obj) {
+  CRUTask *pTask = new CRURcReleaseTask(++nTasks_, obj);
+  dg_.InsertTask(pTask);
 }
 
 //--------------------------------------------------------------------------//
@@ -1034,7 +926,7 @@ void CRUDependenceGraphBuilder::BuildRcReleaseTask(CRUObject &obj)
 //	and the rest of the graph. The edges are of two types:
 //	(1) Refresh(MV) --> RcRelease(MV), where MV is an involved MV.
 //	(2) Refresh(MV) --> RcRelease(T), where T is a table used by MV.
-//	
+//
 //	EXAMPLE
 //		MV2 uses MV1 that uses T, and both MV1 and MV2 are involved.
 //
@@ -1051,27 +943,22 @@ void CRUDependenceGraphBuilder::BuildRcReleaseTask(CRUObject &obj)
 //
 //--------------------------------------------------------------------------//
 
-void CRUDependenceGraphBuilder::ConnectRcReleaseTasks()
-{
-	DSListPosition pos = refreshTaskList_.GetHeadPosition();
-	while (NULL != pos)
-	{
-		CRURefreshTask *pRefreshTask  = 
-			(CRURefreshTask *)(refreshTaskList_.GetNext(pos));
+void CRUDependenceGraphBuilder::ConnectRcReleaseTasks() {
+  DSListPosition pos = refreshTaskList_.GetHeadPosition();
+  while (NULL != pos) {
+    CRURefreshTask *pRefreshTask = (CRURefreshTask *)(refreshTaskList_.GetNext(pos));
 
-		CRUTask *pRcReleaseTask = 
-			dg_.GetTask(pRefreshTask->GetRootMV().GetUID(), 
-			            CRUTask::RC_RELEASE);
-		
-		RUASSERT(NULL != pRcReleaseTask);
+    CRUTask *pRcReleaseTask = dg_.GetTask(pRefreshTask->GetRootMV().GetUID(), CRUTask::RC_RELEASE);
 
-		// Refresh(MV) --> RcRelease(MV)
-		pRefreshTask->AddTaskThatDependsOnMe(pRcReleaseTask);
+    RUASSERT(NULL != pRcReleaseTask);
 
-		// Build the Refresh(MV) --> RcRelease(T) tasks,
-		// for each table T used by MV
-		ConnectRefreshTaskToTableRcReleaseTasks(*pRefreshTask);
-	}
+    // Refresh(MV) --> RcRelease(MV)
+    pRefreshTask->AddTaskThatDependsOnMe(pRcReleaseTask);
+
+    // Build the Refresh(MV) --> RcRelease(T) tasks,
+    // for each table T used by MV
+    ConnectRefreshTaskToTableRcReleaseTasks(*pRefreshTask);
+  }
 }
 
 //--------------------------------------------------------------------------//
@@ -1079,34 +966,29 @@ void CRUDependenceGraphBuilder::ConnectRcReleaseTasks()
 //
 //	Build the Refresh(MV) --> RcRelease(T) tasks, for each table T used by MV.
 //
-//	Condition: there must be an RcRelease task associated with T.	
+//	Condition: there must be an RcRelease task associated with T.
 //	For example, if a DDL lock on T is non-cancellable, no RcRelease task
 //	will be created for T.
-//	
+//
 //--------------------------------------------------------------------------//
 
-void CRUDependenceGraphBuilder::
-ConnectRefreshTaskToTableRcReleaseTasks(CRURefreshTask &task)
-{
-	CRUMV &mv = task.GetRootMV();
+void CRUDependenceGraphBuilder::ConnectRefreshTaskToTableRcReleaseTasks(CRURefreshTask &task) {
+  CRUMV &mv = task.GetRootMV();
 
-	CRUTblList &tblList = mv.GetTablesUsedByMe();
+  CRUTblList &tblList = mv.GetTablesUsedByMe();
 
-	DSListPosition pos = tblList.GetHeadPosition();
-	while (NULL != pos)
-	{
-		CRUTbl *pTbl = tblList.GetNext(pos);
+  DSListPosition pos = tblList.GetHeadPosition();
+  while (NULL != pos) {
+    CRUTbl *pTbl = tblList.GetNext(pos);
 
-		CRUTask *pRcReleaseTask = 
-			dg_.GetTask(pTbl->GetUID(), CRUTask::RC_RELEASE);
+    CRUTask *pRcReleaseTask = dg_.GetTask(pTbl->GetUID(), CRUTask::RC_RELEASE);
 
-		if (NULL == pRcReleaseTask)
-		{
-			// No RcRelease task corresponding to this table 
-			continue;
-		}
+    if (NULL == pRcReleaseTask) {
+      // No RcRelease task corresponding to this table
+      continue;
+    }
 
-		// Refresh(MV) --> RcRelease(T)
-		task.AddTaskThatDependsOnMe(pRcReleaseTask);
-	}
+    // Refresh(MV) --> RcRelease(T)
+    task.AddTaskThatDependsOnMe(pRcReleaseTask);
+  }
 }

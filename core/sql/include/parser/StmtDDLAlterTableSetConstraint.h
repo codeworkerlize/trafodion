@@ -32,7 +32,7 @@
  *               The methods in this class are defined either in this
  *               header file or the source file StmtDDLAlter.C.
  *
- *               
+ *
  * Created:      9/20/95
  * Language:     C++
  *
@@ -41,7 +41,6 @@
  *
  *****************************************************************************
  */
-
 
 #include "StmtDDLAlterTable.h"
 
@@ -58,59 +57,40 @@ class StmtDDLAlterTableSetConstraint;
 // -----------------------------------------------------------------------
 // definition of class StmtDDLAlterTableSetConstraint
 // -----------------------------------------------------------------------
-class StmtDDLAlterTableSetConstraint : public StmtDDLAlterTable
-{
-
-public:
-
+class StmtDDLAlterTableSetConstraint : public StmtDDLAlterTable {
+ public:
   // constructor
-  StmtDDLAlterTableSetConstraint(ElemDDLNode * constraintNameList,
-                                        NABoolean setting)
-  : StmtDDLAlterTable(DDL_ALTER_TABLE_SET_CONSTRAINT,
-                    constraintNameList),
-  setting_(setting)        
-  { }
+  StmtDDLAlterTableSetConstraint(ElemDDLNode *constraintNameList, NABoolean setting)
+      : StmtDDLAlterTable(DDL_ALTER_TABLE_SET_CONSTRAINT, constraintNameList), setting_(setting) {}
 
   // virtual destructor
   virtual ~StmtDDLAlterTableSetConstraint();
 
   // cast
-  virtual StmtDDLAlterTableSetConstraint *
-    castToStmtDDLAlterTableSetConstraint();
+  virtual StmtDDLAlterTableSetConstraint *castToStmtDDLAlterTableSetConstraint();
 
   // accessors
-  inline ElemDDLNode * getConstraintNameList() const;
+  inline ElemDDLNode *getConstraintNameList() const;
   inline NABoolean getConstraintSetting() const;
 
   // method for tracing
   virtual const NAString getText() const;
 
-
-private:
-
+ private:
   NABoolean setting_;
 
-}; // class StmtDDLAlterTableSetConstraint
+};  // class StmtDDLAlterTableSetConstraint
 
 // -----------------------------------------------------------------------
 // definitions of inline methods for class StmtDDLAlterTableSetConstraint
 // -----------------------------------------------------------------------
 
-
 //
 // accessor
 //
 
-inline ElemDDLNode *
-StmtDDLAlterTableSetConstraint::getConstraintNameList() const
-{
-  return getAlterTableAction();
-}
+inline ElemDDLNode *StmtDDLAlterTableSetConstraint::getConstraintNameList() const { return getAlterTableAction(); }
 
-inline NABoolean
-StmtDDLAlterTableSetConstraint::getConstraintSetting() const
-{
-  return setting_;
-}
+inline NABoolean StmtDDLAlterTableSetConstraint::getConstraintSetting() const { return setting_; }
 
-#endif // STMTDDLALTERTABLESETCONSTRAINT_H
+#endif  // STMTDDLALTERTABLESETCONSTRAINT_H

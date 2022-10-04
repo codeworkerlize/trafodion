@@ -24,7 +24,7 @@
 ****************************************************************************
 *
 * File:         ComTdbTransaction.h
-* Description:  
+* Description:
 *
 * Created:      5/6/98
 * Language:     C++
@@ -47,113 +47,84 @@ class ComCondition;
 ///////////////////////////////////////////////////////
 // class ComTdbTransaction
 ///////////////////////////////////////////////////////
-class ComTdbTransaction : public ComTdb
-{
-friend class ExTransTcb;
-friend class ExTransPrivateState;
+class ComTdbTransaction : public ComTdb {
+  friend class ExTransTcb;
+  friend class ExTransPrivateState;
 
+ public:
+  ComTdbTransaction() : ComTdb(ComTdb::ex_TRANSACTION, eye_TRANSACTION), flags_(0){};
 
-public:
-  ComTdbTransaction()
-    : ComTdb(ComTdb::ex_TRANSACTION, eye_TRANSACTION),
-      flags_(0)
-  {};
-    
-  ComTdbTransaction(TransStmtType trans_type,
-	     TransMode * trans_mode,
-	     ex_expr * diag_area_size_expr,
-	     ex_cri_desc * work_cri_desc,
-	     ex_cri_desc * given_cri_desc,
-	     ex_cri_desc * returned_cri_desc,
-	     queue_index down,
-	     queue_index up,
-	     Lng32 num_buffers,
-	     ULng32 buffer_size);
+  ComTdbTransaction(TransStmtType trans_type, TransMode *trans_mode, ex_expr *diag_area_size_expr,
+                    ex_cri_desc *work_cri_desc, ex_cri_desc *given_cri_desc, ex_cri_desc *returned_cri_desc,
+                    queue_index down, queue_index up, Lng32 num_buffers, ULng32 buffer_size);
 
   // ---------------------------------------------------------------------
   // Redefine virtual functions required for Versioning.
   //----------------------------------------------------------------------
-  virtual unsigned char getClassVersionID()
-  {
-    return 1;
-  }
+  virtual unsigned char getClassVersionID() { return 1; }
 
-  virtual void populateImageVersionIDArray()
-  {
-    setImageVersionID(1,getClassVersionID());
+  virtual void populateImageVersionIDArray() {
+    setImageVersionID(1, getClassVersionID());
     ComTdb::populateImageVersionIDArray();
   }
 
-  virtual short getClassSize() { return (short)sizeof(ComTdbTransaction); } 
+  virtual short getClassSize() { return (short)sizeof(ComTdbTransaction); }
 
   Long pack(void *);
-  Lng32 unpack(void *, void * reallocator);
-  
-  Int32 orderedQueueProtocol() const{return -1;};
-  
+  Lng32 unpack(void *, void *reallocator);
+
+  Int32 orderedQueueProtocol() const { return -1; };
+
   virtual const ComTdb *getChild(Int32 /*child*/) const { return NULL; };
   virtual Int32 numChildren() const { return 0; };
   virtual const char *getNodeName() const { return "EX_TRANSACTION"; };
   virtual Int32 numExpressions() const { return 1; };
-  virtual const char * getExpressionName(Int32) const { return "diagAreaSizeExpr_"; };
-  virtual ex_expr* getExpressionNode(Int32) { return diagAreaSizeExpr_; };
-  
-  NABoolean setAllowedInXn() { return (flags_ & SET_ALLOWED_IN_XN)    != 0; }
-  void setSetAllowedInXn(NABoolean v)      
-  { (v ? flags_ |= SET_ALLOWED_IN_XN : flags_ &= ~SET_ALLOWED_IN_XN); }
+  virtual const char *getExpressionName(Int32) const { return "diagAreaSizeExpr_"; };
+  virtual ex_expr *getExpressionNode(Int32) { return diagAreaSizeExpr_; };
 
-  NABoolean coverageSavePoint() 
-  { return (flags_ & SET_SAVEPOINT_COVERED)    != 0; }
-  void setCoverageSavePoint(NABoolean v)
-  { (v ? flags_ |= SET_SAVEPOINT_COVERED : flags_ &= ~SET_SAVEPOINT_COVERED);}
+  NABoolean setAllowedInXn() { return (flags_ & SET_ALLOWED_IN_XN) != 0; }
+  void setSetAllowedInXn(NABoolean v) { (v ? flags_ |= SET_ALLOWED_IN_XN : flags_ &= ~SET_ALLOWED_IN_XN); }
 
-  TransMode * getTransMode() { return transMode_; }
+  NABoolean coverageSavePoint() { return (flags_ & SET_SAVEPOINT_COVERED) != 0; }
+  void setCoverageSavePoint(NABoolean v) { (v ? flags_ |= SET_SAVEPOINT_COVERED : flags_ &= ~SET_SAVEPOINT_COVERED); }
 
-  void setSavepointName(const char * svptName)
-  {
-    if (svptName == NULL)
-    {
+  TransMode *getTransMode() { return transMode_; }
+
+  void setSavepointName(const char *svptName) {
+    if (svptName == NULL) {
       savepointName_[0] = '\0';
-      return ;
+      return;
     }
 
     int len = strlen(svptName);
-    if (len > sizeof(savepointName_) - 1)
-      len = sizeof(savepointName_) - 1;
+    if (len > sizeof(savepointName_) - 1) len = sizeof(savepointName_) - 1;
     strncpy(savepointName_, svptName, len);
     hasSavepointName_ = 1;
   }
 
-protected:
-
+ protected:
   // transaction mode specified for the SQL SET TRANSACTION statement.
   // Valid when transType_ is SET_TRANSACTION_.
-  TransModePtr transMode_;                                   // 00-07
+  TransModePtr transMode_;  // 00-07
 
   // expression used to compute the size of diagnostic area
-  ExExprPtr diagAreaSizeExpr_;                               // 08-15
-  
-  ExCriDescPtr workCriDesc_;                                 // 16-23
+  ExExprPtr diagAreaSizeExpr_;  // 08-15
+
+  ExCriDescPtr workCriDesc_;  // 16-23
 
   // See ComTransInfo.h in common directory. (TransStmtType)
-  Int16 transType_;                                          // 24-25
+  Int16 transType_;  // 24-25
 
-  UInt16 flags_;                                             // 26-27
+  UInt16 flags_;  // 26-27
 
-  Int16 hasSavepointName_;                                   // 28-29
+  Int16 hasSavepointName_;  // 28-29
 
-  char savepointName_[33];                                   // 30-63
+  char savepointName_[33];  // 30-63
 
-  char fillersComTdbTransaction_[8];                         // 64-71
+  char fillersComTdbTransaction_[8];  // 64-71
 
-private:
-  enum Flags 
-  {
-    SET_ALLOWED_IN_XN = 0x0001,
-    SET_SAVEPOINT_COVERED = 0x0020
-  };
-
+ private:
+  enum Flags { SET_ALLOWED_IN_XN = 0x0001, SET_SAVEPOINT_COVERED = 0x0020 };
 };
-
 
 #endif

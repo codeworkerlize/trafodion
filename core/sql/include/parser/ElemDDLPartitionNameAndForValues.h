@@ -29,7 +29,7 @@
  * Description:  class for parse nodes representing partition clauses
  *               in DDL statements.  Note that this class is derived
  *               from class ElemDDLNode instead of class ElemDDLPartition.
- *               
+ *
  *
  * Created:      3/8/2021
  * Language:     C++
@@ -39,7 +39,6 @@
  *
  *****************************************************************************
  */
-
 
 #include "ElemDDLNode.h"
 #include "ItemConstValueArray.h"
@@ -59,68 +58,50 @@ class ElemDDLPartitionNameAndForValuesArray;
 // definition of class ElemDDLPartitionNameAndForValues
 // -----------------------------------------------------------------------
 
-class ElemDDLPartitionNameAndForValues : public ElemDDLNode
-{
-public:
-  ElemDDLPartitionNameAndForValues(const NAString& partitionName)
-    : ElemDDLNode(ELM_PARTITION_NAME_AND_FOR_VALUES)
-    , partName_(partitionName)
-    , isPartForValues_(FALSE)
-    , partForValues_(NULL)
-  {}
+class ElemDDLPartitionNameAndForValues : public ElemDDLNode {
+ public:
+  ElemDDLPartitionNameAndForValues(const NAString &partitionName)
+      : ElemDDLNode(ELM_PARTITION_NAME_AND_FOR_VALUES),
+        partName_(partitionName),
+        isPartForValues_(FALSE),
+        partForValues_(NULL) {}
 
   ElemDDLPartitionNameAndForValues(ItemExpr *forValues)
-    : ElemDDLNode(ELM_PARTITION_NAME_AND_FOR_VALUES)
-    , isPartForValues_(FALSE)
-    , partForValues_(forValues)
-  {}
+      : ElemDDLNode(ELM_PARTITION_NAME_AND_FOR_VALUES), isPartForValues_(FALSE), partForValues_(forValues) {}
 
   virtual ~ElemDDLPartitionNameAndForValues();
 
   // cast
-  virtual ElemDDLPartitionNameAndForValues * castToElemDDLPartitionNameAndForValues();
-  
-  inline const NAString & getPartitionName() const
-  { return partName_; }
+  virtual ElemDDLPartitionNameAndForValues *castToElemDDLPartitionNameAndForValues();
 
-  inline ItemExpr * getPartitionForValues() const
-  { return partForValues_; }
+  inline const NAString &getPartitionName() const { return partName_; }
 
-  inline NABoolean isPartitionForValues() const
-  { return isPartForValues_; }
-  
-  inline void setIsPartitionForValues(const NABoolean isPartitionForValues)
-  { isPartForValues_ = isPartitionForValues; }
+  inline ItemExpr *getPartitionForValues() const { return partForValues_; }
 
-private:
+  inline NABoolean isPartitionForValues() const { return isPartForValues_; }
+
+  inline void setIsPartitionForValues(const NABoolean isPartitionForValues) { isPartForValues_ = isPartitionForValues; }
+
+ private:
   NABoolean isPartForValues_;
   NAString partName_;
-  ItemExpr* partForValues_;
-}; // class ElemDDLPartitionNameAndForValues
-
+  ItemExpr *partForValues_;
+};  // class ElemDDLPartitionNameAndForValues
 
 // -----------------------------------------------------------------------
 // Definition of typedef ElemDDLPartitionNameAndForValuesArray
 // -----------------------------------------------------------------------
 
-class ElemDDLPartitionNameAndForValuesArray : public LIST(ElemDDLPartitionNameAndForValues *)
-{
-public:
-
+class ElemDDLPartitionNameAndForValuesArray : public LIST(ElemDDLPartitionNameAndForValues *) {
+ public:
   // constructor
   ElemDDLPartitionNameAndForValuesArray(CollHeap *heap = PARSERHEAP())
-    : LIST(ElemDDLPartitionNameAndForValues *)(heap)
-  {}
+      : LIST(ElemDDLPartitionNameAndForValues *)(heap) {}
 
   // virtual destructor
-  virtual ~ElemDDLPartitionNameAndForValuesArray()
-  {}
+  virtual ~ElemDDLPartitionNameAndForValuesArray() {}
 
-private:
+ private:
+};  // class ElemDDLPartitionNameAndKeyValuesArray
 
-}; // class ElemDDLPartitionNameAndKeyValuesArray
-
-
-
-#endif // ELEMDDLPARTITIONNAMEANDFORVALUES_H
-
+#endif  // ELEMDDLPARTITIONNAMEANDFORVALUES_H

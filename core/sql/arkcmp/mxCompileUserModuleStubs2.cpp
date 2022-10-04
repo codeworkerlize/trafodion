@@ -22,15 +22,6 @@
 **********************************************************************/
 #include "common/CharType.h"
 
-NABoolean NAType::isComparable(const NAType &other, ItemExpr *parentOp,
-                               Int32 emitErr) const
-{ 
-  return FALSE;  
-} 
+NABoolean NAType::isComparable(const NAType &other, ItemExpr *parentOp, Int32 emitErr) const { return FALSE; }
 
-NABoolean CharType::isComparable(const NAType &other, ItemExpr *parentOp,
-                                 Int32 emitErr) const
-{
-  return FALSE;
-}
-
+NABoolean CharType::isComparable(const NAType &other, ItemExpr *parentOp, Int32 emitErr) const { return FALSE; }

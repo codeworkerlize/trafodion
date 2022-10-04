@@ -27,8 +27,8 @@
 *
 * File:         MdamIntervalListIterator.h
 * Description:  MDAM Interval List Iterator
-*               
-*               
+*
+*
 * Created:      9/11/96
 * Language:     C++
 *
@@ -49,62 +49,45 @@
 // are inline.
 // *****************************************************************************
 
-class MdamIntervalListIterator
-{
-
-public:
-
+class MdamIntervalListIterator {
+ public:
   // Constructor.
-  MdamIntervalListIterator
-    (const MdamIntervalList & intervalListRef)
-           : intervalListRef_(intervalListRef),
-           intervalPtr_(intervalListRef.firstIntervalPtr_)
-  { }
+  MdamIntervalListIterator(const MdamIntervalList &intervalListRef)
+      : intervalListRef_(intervalListRef), intervalPtr_(intervalListRef.firstIntervalPtr_) {}
 
   // Destructor.
   ~MdamIntervalListIterator() {}
 
   // Iteration operator returns a pointer to the next interval on each call.
   // It is safe to use this operator even if the intervals are being deleted.
-  inline MdamInterval * operator()();
+  inline MdamInterval *operator()();
 
   // This function resets the iterator to the beginning of the list.
   inline void init();
 
-
-private:
-
+ private:
   // Reference to the MdamIntervalList for which the iterator is used.
-  const MdamIntervalList & intervalListRef_;
+  const MdamIntervalList &intervalListRef_;
 
   // Pointer to the current MdamInterval.
-  MdamInterval * intervalPtr_;
+  MdamInterval *intervalPtr_;
 
-}; // class MdamIntervalListIterator
-
+};  // class MdamIntervalListIterator
 
 // *****************************************************************************
 // Inline member functions for class MdamIntervalListIterator
 // *****************************************************************************
 
-
 // Iteration operator returns a pointer to the next interval on each call.
-inline MdamInterval * MdamIntervalListIterator::operator()()
-{
-  MdamInterval * tempIntervalPtr = intervalPtr_;
-  if (intervalPtr_ != 0)
-    {
-      intervalPtr_ = intervalPtr_->getNextMdamIntervalPtr();
-    };
+inline MdamInterval *MdamIntervalListIterator::operator()() {
+  MdamInterval *tempIntervalPtr = intervalPtr_;
+  if (intervalPtr_ != 0) {
+    intervalPtr_ = intervalPtr_->getNextMdamIntervalPtr();
+  };
   return tempIntervalPtr;
 }
 
-
 // This function resets the iterator to the beginning of the list.
-inline void MdamIntervalListIterator::init()
-{
-  intervalPtr_ = intervalListRef_.firstIntervalPtr_;
-}
-
+inline void MdamIntervalListIterator::init() { intervalPtr_ = intervalListRef_.firstIntervalPtr_; }
 
 #endif /* MDAMINTERVALLISTITERATOR_H */

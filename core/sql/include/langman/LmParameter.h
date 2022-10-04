@@ -62,102 +62,46 @@
 //
 //////////////////////////////////////////////////////////////////////
 
-class SQLLM_LIB_FUNC LmParameter
-{
-public:
-
-  LmParameter(ComFSDataType fsType,
-              ComUInt16 prec = 0,
-              ComUInt16 scale = 0)
-  {
+class SQLLM_LIB_FUNC LmParameter {
+ public:
+  LmParameter(ComFSDataType fsType, ComUInt16 prec = 0, ComUInt16 scale = 0) {
     paramName_ = NULL;
-    init(fsType,
-         prec,
-         scale,
-         CharInfo::UnknownCharSet,
-         CharInfo::UNKNOWN_COLLATION,
-         COM_INPUT_COLUMN,
-         FALSE, // objMap
+    init(fsType, prec, scale, CharInfo::UnknownCharSet, CharInfo::UNKNOWN_COLLATION, COM_INPUT_COLUMN,
+         FALSE,  // objMap
          RS_NONE,
-         0, // tuple format
-         0, 0, 0, 0, 0, 0, 0, 0, // input offsets and lengths
-         0, 0, 0, 0, 0, 0, // output offsets and lengths
-         NULL); // name
+         0,                       // tuple format
+         0, 0, 0, 0, 0, 0, 0, 0,  // input offsets and lengths
+         0, 0, 0, 0, 0, 0,        // output offsets and lengths
+         NULL);                   // name
   }
 
-  LmParameter(ComFSDataType       fsType,
-              ComUInt16           prec,
-              ComUInt16           scale,
-              CharInfo::CharSet   encodingCharSet,
-              CharInfo::Collation collation,
-              ComColumnDirection  direction,
-              ComBoolean          objMap,
-              LmResultSetMode     resultSet,
-              ComSInt16           tupleFormat,
-              ComUInt32           inDataOffset,
-              ComUInt32           inSize,
-              ComSInt32           inNullIndOffset,
-              ComSInt16           inNullIndSize,
-              ComSInt16           inNullBitIndex,
-              ComSInt32           inVCLenIndOffset,
-              ComSInt16           inVCLenIndSize,
-              ComUInt32           inVoaOffset,
-              ComUInt32           outDataOffset,
-              ComUInt32           outSize,
-              ComSInt32           outNullIndOffset,
-              ComSInt16           outNullIndSize,
-              ComSInt32           outVCLenIndOffset,
-              ComSInt16           outVCLenIndSize,
-              const char         *paramName)
-  {
+  LmParameter(ComFSDataType fsType, ComUInt16 prec, ComUInt16 scale, CharInfo::CharSet encodingCharSet,
+              CharInfo::Collation collation, ComColumnDirection direction, ComBoolean objMap, LmResultSetMode resultSet,
+              ComSInt16 tupleFormat, ComUInt32 inDataOffset, ComUInt32 inSize, ComSInt32 inNullIndOffset,
+              ComSInt16 inNullIndSize, ComSInt16 inNullBitIndex, ComSInt32 inVCLenIndOffset, ComSInt16 inVCLenIndSize,
+              ComUInt32 inVoaOffset, ComUInt32 outDataOffset, ComUInt32 outSize, ComSInt32 outNullIndOffset,
+              ComSInt16 outNullIndSize, ComSInt32 outVCLenIndOffset, ComSInt16 outVCLenIndSize, const char *paramName) {
     paramName_ = NULL;
-    init(fsType, prec, scale, encodingCharSet, collation,
-         direction, objMap, resultSet, tupleFormat,
-         inDataOffset, inSize, inNullIndOffset, inNullIndSize, inNullBitIndex,
-         inVCLenIndOffset, inVCLenIndSize, inVoaOffset,
-         outDataOffset, outSize, outNullIndOffset, outNullIndSize,
-         outVCLenIndOffset, outVCLenIndSize, paramName);
+    init(fsType, prec, scale, encodingCharSet, collation, direction, objMap, resultSet, tupleFormat, inDataOffset,
+         inSize, inNullIndOffset, inNullIndSize, inNullBitIndex, inVCLenIndOffset, inVCLenIndSize, inVoaOffset,
+         outDataOffset, outSize, outNullIndOffset, outNullIndSize, outVCLenIndOffset, outVCLenIndSize, paramName);
   }
 
-  virtual ~LmParameter()
-  {
-    freeResources();
-  }
+  virtual ~LmParameter() { freeResources(); }
 
-  void freeResources()
-  {
-    if (paramName_)
-    {
+  void freeResources() {
+    if (paramName_) {
       free(paramName_);
       paramName_ = NULL;
     }
   }
-  
-  void init(ComFSDataType       fsType,
-            ComUInt16           prec,
-            ComUInt16           scale,
-            CharInfo::CharSet   encodingCharSet,
-            CharInfo::Collation collation,
-            ComColumnDirection  direction,
-            ComBoolean          objMap,
-            LmResultSetMode     resultSet,
-            ComSInt16           tupleFormat,
-            ComUInt32           inDataOffset,
-            ComUInt32           inSize,
-            ComSInt32           inNullIndOffset,
-            ComSInt16           inNullIndSize,
-            ComSInt16           inNullBitIndex,
-            ComSInt32           inVCLenIndOffset,
-            ComSInt16           inVCLenIndSize,
-            ComUInt32           inVoaOffset,
-            ComUInt32           outDataOffset,
-            ComUInt32           outSize,
-            ComSInt32           outNullIndOffset,
-            ComSInt16           outNullIndSize,
-            ComSInt32           outVCLenIndOffset,
-            ComSInt16           outVCLenIndSize,
-            const char         *paramName)
-  {
+
+  void init(ComFSDataType fsType, ComUInt16 prec, ComUInt16 scale, CharInfo::CharSet encodingCharSet,
+            CharInfo::Collation collation, ComColumnDirection direction, ComBoolean objMap, LmResultSetMode resultSet,
+            ComSInt16 tupleFormat, ComUInt32 inDataOffset, ComUInt32 inSize, ComSInt32 inNullIndOffset,
+            ComSInt16 inNullIndSize, ComSInt16 inNullBitIndex, ComSInt32 inVCLenIndOffset, ComSInt16 inVCLenIndSize,
+            ComUInt32 inVoaOffset, ComUInt32 outDataOffset, ComUInt32 outSize, ComSInt32 outNullIndOffset,
+            ComSInt16 outNullIndSize, ComSInt32 outVCLenIndOffset, ComSInt16 outVCLenIndSize, const char *paramName) {
     setParamName(paramName);
 
     fsType_ = fsType;
@@ -172,7 +116,7 @@ public:
     inDataOffset_ = inDataOffset;
     inSize_ = inSize;
     inNullIndOffset_ = inNullIndOffset;
-    inNullIndSize_ = inNullIndSize; 
+    inNullIndSize_ = inNullIndSize;
     inNullBitIndex_ = inNullBitIndex;
     inVCLenIndOffset_ = inVCLenIndOffset;
     inVCLenIndSize_ = inVCLenIndSize;
@@ -180,55 +124,42 @@ public:
     outDataOffset_ = outDataOffset;
     outSize_ = outSize;
     outNullIndOffset_ = outNullIndOffset;
-    outNullIndSize_ = outNullIndSize; 
+    outNullIndSize_ = outNullIndSize;
     outVCLenIndOffset_ = outVCLenIndOffset;
     outVCLenIndSize_ = outVCLenIndSize;
   }
 
-  void setInDataInfo(ComUInt32 offset,
-                     ComUInt32 size,
-		     ComSInt32 nullIndOffset,
-                     ComSInt16 nullIndSize,
-                     ComSInt16 nullBitIndex,
-                     ComSInt32 vcLenIndOffset,
-                     ComSInt16 vcLenIndSize,
-                     ComUInt32 inVoaOffset)
-  {
+  void setInDataInfo(ComUInt32 offset, ComUInt32 size, ComSInt32 nullIndOffset, ComSInt16 nullIndSize,
+                     ComSInt16 nullBitIndex, ComSInt32 vcLenIndOffset, ComSInt16 vcLenIndSize, ComUInt32 inVoaOffset) {
     inDataOffset_ = offset;
     inSize_ = size;
     inNullIndOffset_ = nullIndOffset;
-    inNullIndSize_ = nullIndSize; 
+    inNullIndSize_ = nullIndSize;
     inNullBitIndex_ = nullBitIndex;
     inVCLenIndOffset_ = vcLenIndOffset;
     inVCLenIndSize_ = vcLenIndSize;
     inVoaOffset_ = inVoaOffset;
   }
 
-  void setOutDataInfo(ComUInt32 offset,
-                      ComUInt32 size,
-                      ComSInt32 nullIndOffset,
-                      ComSInt16 nullIndSize,
-                      ComSInt32 vcLenIndOffset,
-                      ComSInt16 vcLenIndSize) 
-  {
+  void setOutDataInfo(ComUInt32 offset, ComUInt32 size, ComSInt32 nullIndOffset, ComSInt16 nullIndSize,
+                      ComSInt32 vcLenIndOffset, ComSInt16 vcLenIndSize) {
     outDataOffset_ = offset;
     outSize_ = size;
     outNullIndOffset_ = nullIndOffset;
-    outNullIndSize_ = nullIndSize; 
+    outNullIndSize_ = nullIndSize;
     outVCLenIndOffset_ = vcLenIndOffset;
     outVCLenIndSize_ = vcLenIndSize;
   }
 
   // Accessors.
-  ComFSDataType fsType() const          { return fsType_; }
-  ComUInt16 prec() const                { return prec_; }
-  ComUInt16 scale() const               { return scale_; }
-  ComColumnDirection direction() const  { return direction_; }
-  ComBoolean objMapping() const         { return objMap_; }
+  ComFSDataType fsType() const { return fsType_; }
+  ComUInt16 prec() const { return prec_; }
+  ComUInt16 scale() const { return scale_; }
+  ComColumnDirection direction() const { return direction_; }
+  ComBoolean objMapping() const { return objMap_; }
 
-  ComBoolean resultSet() const
-  { return (resultSet_ == RS_SET ? TRUE : FALSE); }
-  
+  ComBoolean resultSet() const { return (resultSet_ == RS_SET ? TRUE : FALSE); }
+
   CharInfo::CharSet encodingCharSet() const { return encodingCharSet_; }
 
   CharInfo::Collation collation() const { return collation_; }
@@ -240,124 +171,91 @@ public:
   // TIME and TIMESTAMP precision is stored in the scale field
   ComUInt16 getTimePrecision() const { return scale_; }
 
-  ComSInt16 tupleFormat() const       { return tupleFormat_; }
+  ComSInt16 tupleFormat() const { return tupleFormat_; }
 
-  ComBoolean isAlignedFormat() const
-  {
-    return tupleFormat() == ExpTupleDesc::SQLMX_ALIGNED_FORMAT;
-  }
+  ComBoolean isAlignedFormat() const { return tupleFormat() == ExpTupleDesc::SQLMX_ALIGNED_FORMAT; }
 
-  ComUInt32 inDataOffset() const      { return inDataOffset_; }
-  ComUInt32 inDataOffset(void *row) const
-  {
-    if (isAlignedFormat()
-        && inVCLenIndSize_ > 0
-        && inDataOffset_ == UINT_MAX)
-    {
+  ComUInt32 inDataOffset() const { return inDataOffset_; }
+  ComUInt32 inDataOffset(void *row) const {
+    if (isAlignedFormat() && inVCLenIndSize_ > 0 && inDataOffset_ == UINT_MAX) {
       UInt32 offset = ((ExpAlignedFormat *)row)->getVoaEntry(inVoaOffset_);
       return offset + inVCLenIndSize_;
     }
     return inDataOffset_;
   }
 
-  ComUInt32 inSize() const            { return inSize_; }
-  ComSInt32 inNullIndOffset() const   { return inNullIndOffset_; }
-  ComSInt16 inNullIndSize() const     { return inNullIndSize_; }
-  ComSInt16 inNullBitIndex() const    { return inNullBitIndex_; }
-  ComSInt32 inVCLenIndOffset() const  { return inVCLenIndOffset_; } 
-  ComSInt16 inVCLenIndSize() const    { return inVCLenIndSize_; }
-  ComUInt32 inVoaOffset() const      { return inVoaOffset_; }
+  ComUInt32 inSize() const { return inSize_; }
+  ComSInt32 inNullIndOffset() const { return inNullIndOffset_; }
+  ComSInt16 inNullIndSize() const { return inNullIndSize_; }
+  ComSInt16 inNullBitIndex() const { return inNullBitIndex_; }
+  ComSInt32 inVCLenIndOffset() const { return inVCLenIndOffset_; }
+  ComSInt16 inVCLenIndSize() const { return inVCLenIndSize_; }
+  ComUInt32 inVoaOffset() const { return inVoaOffset_; }
 
-  ComUInt32 outDataOffset() const     { return outDataOffset_; }
-  ComUInt32 outSize() const           { return outSize_; }
-  ComSInt32 outNullIndOffset() const  { return outNullIndOffset_; }
-  ComSInt16 outNullIndSize() const    { return outNullIndSize_; }
-  ComSInt32 outVCLenIndOffset() const { return outVCLenIndOffset_; } 
-  ComSInt16 outVCLenIndSize() const   { return outVCLenIndSize_; }
+  ComUInt32 outDataOffset() const { return outDataOffset_; }
+  ComUInt32 outSize() const { return outSize_; }
+  ComSInt32 outNullIndOffset() const { return outNullIndOffset_; }
+  ComSInt16 outNullIndSize() const { return outNullIndSize_; }
+  ComSInt32 outVCLenIndOffset() const { return outVCLenIndOffset_; }
+  ComSInt16 outVCLenIndSize() const { return outVCLenIndSize_; }
 
   const char *getParamName() const { return paramName_; }
 
-  ComUInt32 actualInDataSize(void* data) const;
-  ComUInt32 actualOutDataSize(void* data) const;
+  ComUInt32 actualInDataSize(void *data) const;
+  ComUInt32 actualOutDataSize(void *data) const;
 
   // Mutators
   void setObjMapping(ComBoolean o = TRUE) { objMap_ = o; }
 
   // Utilities.
-  ComBoolean isNumeric() const
-  {
+  ComBoolean isNumeric() const {
     if (prec_ > 0 &&
-        (fsType_ == COM_SIGNED_BIN16_FSDT ||
-         fsType_ == COM_UNSIGNED_BIN16_FSDT ||
-         fsType_ == COM_SIGNED_BIN32_FSDT ||
-         fsType_ == COM_UNSIGNED_BIN32_FSDT ||
-         fsType_ == COM_SIGNED_BIN64_FSDT ||
-         fsType_ == COM_SIGNED_NUM_BIG_FSDT ||
+        (fsType_ == COM_SIGNED_BIN16_FSDT || fsType_ == COM_UNSIGNED_BIN16_FSDT || fsType_ == COM_SIGNED_BIN32_FSDT ||
+         fsType_ == COM_UNSIGNED_BIN32_FSDT || fsType_ == COM_SIGNED_BIN64_FSDT || fsType_ == COM_SIGNED_NUM_BIG_FSDT ||
          fsType_ == COM_UNSIGNED_NUM_BIG_FSDT))
       return TRUE;
     return FALSE;
   }
-  
-  ComBoolean isBigNum() const
-  {
-    if (fsType_ == COM_SIGNED_NUM_BIG_FSDT ||
-        fsType_ == COM_UNSIGNED_NUM_BIG_FSDT)
+
+  ComBoolean isBigNum() const {
+    if (fsType_ == COM_SIGNED_NUM_BIG_FSDT || fsType_ == COM_UNSIGNED_NUM_BIG_FSDT) return TRUE;
+    return FALSE;
+  }
+
+  ComBoolean isDecimal() const {
+    if (fsType_ == COM_UNSIGNED_DECIMAL_FSDT || fsType_ == COM_SIGNED_DECIMAL_FSDT) return TRUE;
+    return FALSE;
+  }
+
+  ComBoolean isCharacter() const {
+    if (fsType_ == COM_FCHAR_FSDT || fsType_ == COM_FCHAR_DBL_FSDT || fsType_ == COM_VCHAR_FSDT ||
+        fsType_ == COM_VCHAR_DBL_FSDT || fsType_ == COM_VCHAR_LONG_FSDT)
       return TRUE;
     return FALSE;
   }
-  
-  ComBoolean isDecimal() const
-  {
-    if (fsType_ == COM_UNSIGNED_DECIMAL_FSDT ||
-        fsType_ == COM_SIGNED_DECIMAL_FSDT)
-      return TRUE;
+
+  ComBoolean isDateTime() const {
+    if (fsType_ == COM_DATETIME_FSDT) return TRUE;
     return FALSE;
   }
-  
-  ComBoolean isCharacter() const
-  {
-    if (fsType_ == COM_FCHAR_FSDT ||
-        fsType_ == COM_FCHAR_DBL_FSDT ||
-        fsType_ == COM_VCHAR_FSDT ||
-        fsType_ == COM_VCHAR_DBL_FSDT ||
-        fsType_ == COM_VCHAR_LONG_FSDT)
-      return TRUE;
+
+  ComBoolean isTimeOrTimestamp() const {
+    if (fsType_ == COM_DATETIME_FSDT && (prec_ == REC_DTCODE_TIME || prec_ == REC_DTCODE_TIMESTAMP)) return TRUE;
     return FALSE;
   }
-  
-  ComBoolean isDateTime() const
-  {
-    if (fsType_ == COM_DATETIME_FSDT)
-      return TRUE;
+
+  ComBoolean isInterval() const {
+    if (DFS2REC::isInterval(fsType_)) return TRUE;
     return FALSE;
   }
-  
-  ComBoolean isTimeOrTimestamp() const
-  {
-    if (fsType_ == COM_DATETIME_FSDT &&
-        (prec_ == REC_DTCODE_TIME || prec_ == REC_DTCODE_TIMESTAMP))
-      return TRUE;
+
+  ComBoolean isIn() const {
+    if (direction_ == COM_INPUT_COLUMN || direction_ == COM_INOUT_COLUMN) return TRUE;
     return FALSE;
   }
-  
-  ComBoolean isInterval() const
-  {
-    if (DFS2REC::isInterval(fsType_))
-      return TRUE;
-    return FALSE;
-  }
-  
-  ComBoolean isIn() const 
-  {
-    if (direction_ == COM_INPUT_COLUMN || direction_ == COM_INOUT_COLUMN)
-      return TRUE;
-    return FALSE;
-  }
-  
-  ComBoolean isOut() const
-  {
-    if (direction_ == COM_OUTPUT_COLUMN || direction_ == COM_INOUT_COLUMN)
-      return TRUE;
+
+  ComBoolean isOut() const {
+    if (direction_ == COM_OUTPUT_COLUMN || direction_ == COM_INOUT_COLUMN) return TRUE;
     return FALSE;
   }
 
@@ -369,81 +267,65 @@ public:
   LmResult setOutReal(void *, float);
   LmResult setOutFloat(void *, double);
   LmResult setOutDouble(void *, double);
-  LmResult setOutNumeric(void *, const char *, ComBoolean, CollHeap *,
-                         ComDiagsArea *);
-  LmResult setOutDecimal(void *, const char*, CollHeap *, ComDiagsArea *);
-  LmResult setOutChar(void *, const char*, ComUInt32 len);
-  LmResult setOutDate(void *, const char*);
-  LmResult setOutTime(void *, const char*);
-  LmResult setOutTimestamp(void *, const char*);
-  LmResult setOutInterval(void *, const char*, ComUInt32 len);
-  
+  LmResult setOutNumeric(void *, const char *, ComBoolean, CollHeap *, ComDiagsArea *);
+  LmResult setOutDecimal(void *, const char *, CollHeap *, ComDiagsArea *);
+  LmResult setOutChar(void *, const char *, ComUInt32 len);
+  LmResult setOutDate(void *, const char *);
+  LmResult setOutTime(void *, const char *);
+  LmResult setOutTimestamp(void *, const char *);
+  LmResult setOutInterval(void *, const char *, ComUInt32 len);
+
   // Methods to set and retrieve null indicators
-  void setNullInput(char *dataRow, ComBoolean isNull) const
-  {
-    if (inNullIndSize_ > 0)
-      setNullValue(dataRow, inNullIndOffset_, inNullIndSize_, isNull);
+  void setNullInput(char *dataRow, ComBoolean isNull) const {
+    if (inNullIndSize_ > 0) setNullValue(dataRow, inNullIndOffset_, inNullIndSize_, isNull);
   }
-  void setNullOutput(char *dataRow, ComBoolean isNull) const
-  {
-    if (outNullIndSize_ > 0)
-      setNullValue(dataRow, outNullIndOffset_, outNullIndSize_, isNull);
+  void setNullOutput(char *dataRow, ComBoolean isNull) const {
+    if (outNullIndSize_ > 0) setNullValue(dataRow, outNullIndOffset_, outNullIndSize_, isNull);
   }
-  ComBoolean isNullInput(char *dataRow) const
-  {
-    if (isAlignedFormat())
-    {
-      if (inNullBitIndex_ >= 0)
-      {
+  ComBoolean isNullInput(char *dataRow) const {
+    if (isAlignedFormat()) {
+      if (inNullBitIndex_ >= 0) {
         char *bitmap = ExpAlignedFormat::getBitmap(dataRow);
         return ExpAlignedFormat::isNullValue(bitmap, inNullBitIndex_);
       }
       return FALSE;
     }
-    return (inNullIndSize_ > 0 ?
-            isNullValue(dataRow, inNullIndOffset_) :
-            FALSE);
+    return (inNullIndSize_ > 0 ? isNullValue(dataRow, inNullIndOffset_) : FALSE);
   }
-  ComBoolean isNullOutput(char *dataRow) const
-  {
-    return (outNullIndSize_ > 0 ?
-            isNullValue(dataRow, outNullIndOffset_) :
-            FALSE);
+  ComBoolean isNullOutput(char *dataRow) const {
+    return (outNullIndSize_ > 0 ? isNullValue(dataRow, outNullIndOffset_) : FALSE);
   }
 
-private:
-
+ private:
   ComUInt32 vcDataSize(char *data, ComSInt32 offset, ComSInt16 size) const;
 
   // These private methods to get and set null indicators should not
   // be called for NOT NULL parameters.
   ComBoolean isNullValue(char *dataRow, ComUInt32 indOffset) const;
-  void setNullValue(char *dataRow,
-                    ComUInt32 indOffset, ComUInt32 indSize,
-                    ComBoolean isNull) const;
-  
+  void setNullValue(char *dataRow, ComUInt32 indOffset, ComUInt32 indSize, ComBoolean isNull) const;
+
   ComFSDataType fsType_;  // FS data type
 
-  ComUInt16 prec_;        // Precision for NUMERIC/DECIMAL
-                          // Datetime qualifier for DATE/TIME/TIMESTAMP
+  ComUInt16 prec_;  // Precision for NUMERIC/DECIMAL
+                    // Datetime qualifier for DATE/TIME/TIMESTAMP
 
-  ComUInt16 scale_;       // Scale for NUMERIC/DECIMAL
-                          // Precision for TIME/TIMESTAMP
+  ComUInt16 scale_;  // Scale for NUMERIC/DECIMAL
+                     // Precision for TIME/TIMESTAMP
 
-  CharInfo::CharSet encodingCharSet_; // Encoded charset for CHAR/VARCHAR
+  CharInfo::CharSet encodingCharSet_;  // Encoded charset for CHAR/VARCHAR
 
-  CharInfo::Collation collation_;     // Collation for CHAR/VARCHAR
+  CharInfo::Collation collation_;  // Collation for CHAR/VARCHAR
 
-  ComColumnDirection direction_;      // IN, OUT, or INOUT parameter mode
+  ComColumnDirection direction_;  // IN, OUT, or INOUT parameter mode
 
-  ComBoolean objMap_;   // Object mapping flag. Used for SQL/JRT extended
-                        // Java object types (e.g. java.lang.Integer)
+  ComBoolean objMap_;  // Object mapping flag. Used for SQL/JRT extended
+                       // Java object types (e.g. java.lang.Integer)
 
-  char resultSet_;      // Specifies the parameter is a dummy result set
-                        // parameter to support SQL/JRT syntax inside SPs
-                        // (see LmResultSet).
+  char resultSet_;  // Specifies the parameter is a dummy result set
+                    // parameter to support SQL/JRT syntax inside SPs
+                    // (see LmResultSet).
 
-  ComSInt16 tupleFormat_;      // Tuple Format for parameters.
+  ComSInt16 tupleFormat_;  // Tuple Format for parameters.
 
   ComUInt32 inDataOffset_;      // Input data offset for IN/INOUT parameters.
   ComUInt32 inSize_;            // Input buffer size.
@@ -454,20 +336,20 @@ private:
   ComSInt16 inVCLenIndSize_;    // VC len ind length for IN/INOUT parameters
   ComUInt32 inVoaOffset_;       // VC offset in VOA[] for IN/INOUT parameters
 
-  ComUInt32 outDataOffset_;     // Output data offset for OUT/INOUT parameters.
-  ComUInt32 outSize_;           // Max Output buffer size.
-  ComSInt32 outNullIndOffset_;  // Null ind offset for OUT/INOUT parameters.
-  ComSInt16 outNullIndSize_;    // Null ind size for OUT/INOUT parameters.
-  ComSInt32 outVCLenIndOffset_; // VC len ind offset for OUT/INOUT parameters
-  ComSInt16 outVCLenIndSize_;   // VC len ind length for OUT/INOUT parameters
+  ComUInt32 outDataOffset_;      // Output data offset for OUT/INOUT parameters.
+  ComUInt32 outSize_;            // Max Output buffer size.
+  ComSInt32 outNullIndOffset_;   // Null ind offset for OUT/INOUT parameters.
+  ComSInt16 outNullIndSize_;     // Null ind size for OUT/INOUT parameters.
+  ComSInt32 outVCLenIndOffset_;  // VC len ind offset for OUT/INOUT parameters
+  ComSInt16 outVCLenIndSize_;    // VC len ind length for OUT/INOUT parameters
 
-  char *paramName_;             // Optional parameter name
+  char *paramName_;  // Optional parameter name
 
   void setParamName(const char *name);
 
   // Do not implement a default constructor
   LmParameter();
 
-}; // class LmParameter
+};  // class LmParameter
 
 #endif

@@ -2,7 +2,6 @@
 #ifndef STR_H
 #define STR_H
 
-
 #include <string.h>
 #include "common/Platform.h"
 

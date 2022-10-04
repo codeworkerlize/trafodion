@@ -28,8 +28,8 @@
  *
  * File:         sql_buffer_neededsize.h
  * Description:  Definition for static method SqlBufferNeededSize
- *               
- *               
+ *
+ *
  * Created:      7/10/95
  * Language:     C++
  *
@@ -40,20 +40,18 @@
  */
 
 //
-// NOTE : Definition for SqlBufferNeededSize and SqlBufferGetTuppSize moved to this file as part of warning 
+// NOTE : Definition for SqlBufferNeededSize and SqlBufferGetTuppSize moved to this file as part of warning
 // elimination effort. If these static methods are defined in sql_buffer.h we get
 // warning 262 (function defined but not referenced) when compiling various files such
 // as ex_transaction.cpp. These functions are not used by all cpp files that include sql_buffer.h
-// Therefore we moved SqlBufferNeededSize and SqlBufferGetTuppSize to this file and changed the cpp files that call 
+// Therefore we moved SqlBufferNeededSize and SqlBufferGetTuppSize to this file and changed the cpp files that call
 // SqlBufferNeededSize or SqlBufferGetTuppSize to include this file (11/01/2003)
 //
 
-static inline ULng32 SqlBufferHeaderSize(SqlBufferHeader::BufferType bufType)
-{
-  // Return the buffer header size 
+static inline ULng32 SqlBufferHeaderSize(SqlBufferHeader::BufferType bufType) {
+  // Return the buffer header size
   Lng32 headerSize = 0;
-  switch (bufType)
-    {
+  switch (bufType) {
     case SqlBufferHeader::DENSE_:
       headerSize = sizeof(SqlBufferDense);
       break;
@@ -69,35 +67,28 @@ static inline ULng32 SqlBufferHeaderSize(SqlBufferHeader::BufferType bufType)
     default:
       headerSize = sizeof(SqlBufferNormal);
       break;
-    }
+  }
 
   headerSize = ROUND8(headerSize);
 
   return (headerSize);
 }
 
-static inline ULng32 SqlBufferGetTuppSize(
-     Lng32 recordLength = 0,
-     SqlBufferHeader::BufferType bufType = SqlBufferHeader::NORMAL_)
-{
-  Lng32 sizeofTuppDescriptor = 
-    ((bufType == SqlBufferHeader::DENSE_) ? ROUND8(sizeof(TupleDescInfo))
-     : sizeof(tupp_descriptor));
-  
+static inline ULng32 SqlBufferGetTuppSize(Lng32 recordLength = 0,
+                                          SqlBufferHeader::BufferType bufType = SqlBufferHeader::NORMAL_) {
+  Lng32 sizeofTuppDescriptor =
+      ((bufType == SqlBufferHeader::DENSE_) ? ROUND8(sizeof(TupleDescInfo)) : sizeof(tupp_descriptor));
+
   return ROUND8(recordLength) + sizeofTuppDescriptor;
-  
 }
 
-static inline ULng32 SqlBufferNeededSize(Lng32 numTuples = 0, 
-				  Lng32 recordLength = 0,
-				  SqlBufferHeader::BufferType bufType = SqlBufferHeader::NORMAL_)
-{
+static inline ULng32 SqlBufferNeededSize(Lng32 numTuples = 0, Lng32 recordLength = 0,
+                                         SqlBufferHeader::BufferType bufType = SqlBufferHeader::NORMAL_) {
   // Return the header size plus the size of any tuple descriptors
   // beyond the first (which is included in the header) plus the
   // size for the aligned data.
-  Lng32 headerSize = SqlBufferHeaderSize (bufType);
-  return (headerSize +
-	  (numTuples * SqlBufferGetTuppSize(recordLength, bufType)));
+  Lng32 headerSize = SqlBufferHeaderSize(bufType);
+  return (headerSize + (numTuples * SqlBufferGetTuppSize(recordLength, bufType)));
 }
 
 #endif

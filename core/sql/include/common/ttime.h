@@ -23,8 +23,8 @@
 
 #include "common/Int64.h"
 
-extern const char* reportTimeDiff(Int64 time);
-extern const char* reportTimestamp();
+extern const char *reportTimeDiff(Int64 time);
+extern const char *reportTimestamp();
 extern Int64 currentTimeStampInUsec();
 
-#endif // TTIME_H
+#endif  // TTIME_H

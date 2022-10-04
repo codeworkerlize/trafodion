@@ -26,7 +26,7 @@
 *
 * File:         ForceOptionsParser.cpp
 * Description:  Force options' parser
-*				
+*
 * Created:      12/16/2001
 * Language:     C++
 *
@@ -43,41 +43,33 @@
 #include "RuGlobals.h"
 #include "RuOptions.h"
 
-
 //----------------------------------------------------------------------------
-//Destructor
+// Destructor
 //----------------------------------------------------------------------------
 
-CRUForceOptionsParser::CRUForceOptionsParser() :
-	pFileName_(NULL),
-	state_(STATE_INIT),
-	pCurrentMV_(NULL),
-	pCurrentChar_(NULL),
-	bufferIsEmpty_(TRUE),
-	lineNumber_(0)
-{}
+CRUForceOptionsParser::CRUForceOptionsParser()
+    : pFileName_(NULL),
+      state_(STATE_INIT),
+      pCurrentMV_(NULL),
+      pCurrentChar_(NULL),
+      bufferIsEmpty_(TRUE),
+      lineNumber_(0) {}
 
-
-CRUForceOptionsParser::~CRUForceOptionsParser() 
-{
-	if (NULL != pFileName_)
-	{
-		delete pFileName_;
-	}
+CRUForceOptionsParser::~CRUForceOptionsParser() {
+  if (NULL != pFileName_) {
+    delete pFileName_;
+  }
 }
-
 
 //----------------------------------------------------------------------------
 // CRUForceOptionsParser::SetFile
 //----------------------------------------------------------------------------
-void CRUForceOptionsParser::SetFile(const CDSString& file) 
-{
-	if (pFileName_!=NULL)
-	{
-		delete pFileName_;
-	}
+void CRUForceOptionsParser::SetFile(const CDSString &file) {
+  if (pFileName_ != NULL) {
+    delete pFileName_;
+  }
 
-	pFileName_ = new CDSString(file);
+  pFileName_ = new CDSString(file);
 }
 
 //----------------------------------------------------------------------------
@@ -85,35 +77,29 @@ void CRUForceOptionsParser::SetFile(const CDSString& file)
 //
 // Open the file and check for errors
 //----------------------------------------------------------------------------
-void CRUForceOptionsParser::InitStateHandler()
-{
-	CDSStdioFile::EOpenMode openMode=CDSStdioFile::eRead;
+void CRUForceOptionsParser::InitStateHandler() {
+  CDSStdioFile::EOpenMode openMode = CDSStdioFile::eRead;
 
-	BOOL result = forceFile_.Open(*pFileName_,openMode);
-	
-	if (FALSE == result) 
-	{
-		CDSException e;
-		e.SetError(IDS_RU_OPEN_FORCEFILE);
-		e.AddArgument(*pFileName_);
-		throw e;
-	}
+  BOOL result = forceFile_.Open(*pFileName_, openMode);
 
-	GetNextWord(); // get the first word
+  if (FALSE == result) {
+    CDSException e;
+    e.SetError(IDS_RU_OPEN_FORCEFILE);
+    e.AddArgument(*pFileName_);
+    throw e;
+  }
 
-	if (state_ == STATE_EOF)
-	{
-		return;
-	}
-	
-	if (IsCurrentWord("MV"))
-	{
-		state_ = STATE_NEXT_MV;
-	}
-	else
-	{
-		ThrowBadFormat();
-	}
+  GetNextWord();  // get the first word
+
+  if (state_ == STATE_EOF) {
+    return;
+  }
+
+  if (IsCurrentWord("MV")) {
+    state_ = STATE_NEXT_MV;
+  } else {
+    ThrowBadFormat();
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -121,168 +107,144 @@ void CRUForceOptionsParser::InitStateHandler()
 //
 // Throw a syntax error exception
 //----------------------------------------------------------------------------
-void CRUForceOptionsParser::ThrowBadFormat()
-{
-	CDSException e;
-	e.SetError(IDS_RU_BAD_FORMAT_FORCEFILE);
-	e.AddArgument(*pFileName_);
-	e.AddArgument(GetCurrentToken());
-	e.AddArgument(lineNumber_);
-	throw e;
+void CRUForceOptionsParser::ThrowBadFormat() {
+  CDSException e;
+  e.SetError(IDS_RU_BAD_FORMAT_FORCEFILE);
+  e.AddArgument(*pFileName_);
+  e.AddArgument(GetCurrentToken());
+  e.AddArgument(lineNumber_);
+  throw e;
 }
 
 //----------------------------------------------------------------------------
 // CRUForceOptionsParser::Parse
 //----------------------------------------------------------------------------
 
-void CRUForceOptionsParser::Parse() 
-{
-	while ( STATE_EOF != state_) 
-	{	
-		switch(state_)
-		{
-		case CRUForceOptionsParser::STATE_INIT : 
-		{
-			InitStateHandler();
-			break;
-		}
-		case CRUForceOptionsParser::STATE_NEXT_MV : 
-		{
-			NextMVStateHandler();
-			break;
-		}
-		case CRUForceOptionsParser::STATE_NEXT_FORCE_OPT : 
-		{
-			NextForceOptionStateHandler();
-			break;
-		}
-		case CRUForceOptionsParser::STATE_GB : 
-		{
-			GBClauseHandler();
-			break;
-		}
-		case CRUForceOptionsParser::STATE_JOIN :
-		{
-			JoinClauseHandler();
-			break;
-		}
-		case CRUForceOptionsParser::STATE_MV_MDAM :
-		{
-			MvMdamClauseHandler();
-			break;
-		}
-		case CRUForceOptionsParser::STATE_TABLE :
-		{
-			TableClauseHandler();
-			break;
-		}
-		case CRUForceOptionsParser::STATE_EXPLAIN :
-		{
-			ExplainClauseHandler();
-			break;
-		}
-		case CRUForceOptionsParser::STATE_CQS :
-		{
-			CQSClauseHandler();
-			break;
-		}
-		default :
-			RUASSERT(FALSE);
-		}
-	}
-	
-	forceFile_.Close();
+void CRUForceOptionsParser::Parse() {
+  while (STATE_EOF != state_) {
+    switch (state_) {
+      case CRUForceOptionsParser::STATE_INIT: {
+        InitStateHandler();
+        break;
+      }
+      case CRUForceOptionsParser::STATE_NEXT_MV: {
+        NextMVStateHandler();
+        break;
+      }
+      case CRUForceOptionsParser::STATE_NEXT_FORCE_OPT: {
+        NextForceOptionStateHandler();
+        break;
+      }
+      case CRUForceOptionsParser::STATE_GB: {
+        GBClauseHandler();
+        break;
+      }
+      case CRUForceOptionsParser::STATE_JOIN: {
+        JoinClauseHandler();
+        break;
+      }
+      case CRUForceOptionsParser::STATE_MV_MDAM: {
+        MvMdamClauseHandler();
+        break;
+      }
+      case CRUForceOptionsParser::STATE_TABLE: {
+        TableClauseHandler();
+        break;
+      }
+      case CRUForceOptionsParser::STATE_EXPLAIN: {
+        ExplainClauseHandler();
+        break;
+      }
+      case CRUForceOptionsParser::STATE_CQS: {
+        CQSClauseHandler();
+        break;
+      }
+      default:
+        RUASSERT(FALSE);
+    }
+  }
+
+  forceFile_.Close();
 }
 
 //----------------------------------------------------------------------------
 // CRUForceOptionsParser::NextForceOptionStateHandler()
 //
-// Read next the next mv, 
+// Read next the next mv,
 //----------------------------------------------------------------------------
 
-void CRUForceOptionsParser::NextMVStateHandler() 
-{
-	RUASSERT(IsCurrentWord("MV"));  // cerr<<"Syntax error: MV's name decleration expected"
-	
-	GetNextWord(); // fetch the MV's name
-	
-	CDSString mvName = GetQualifiedName();
+void CRUForceOptionsParser::NextMVStateHandler() {
+  RUASSERT(IsCurrentWord("MV"));  // cerr<<"Syntax error: MV's name decleration expected"
 
-	if 	(TRUE == forceOptions_.IsMVExist(mvName))
-	{
-		CDSException e;
-		e.SetError(IDS_RU_FORCEFILE_DUP_MV);
-		e.AddArgument(mvName);
-		e.AddArgument(*pFileName_);
-		throw e;
-	}
+  GetNextWord();  // fetch the MV's name
 
-	pCurrentMV_ = new CRUMVForceOptions();
+  CDSString mvName = GetQualifiedName();
 
-	pCurrentMV_->SetMVName(mvName);
+  if (TRUE == forceOptions_.IsMVExist(mvName)) {
+    CDSException e;
+    e.SetError(IDS_RU_FORCEFILE_DUP_MV);
+    e.AddArgument(mvName);
+    e.AddArgument(*pFileName_);
+    throw e;
+  }
 
-	forceOptions_.AddMV(pCurrentMV_);
+  pCurrentMV_ = new CRUMVForceOptions();
 
-	state_ = STATE_NEXT_FORCE_OPT;
+  pCurrentMV_->SetMVName(mvName);
+
+  forceOptions_.AddMV(pCurrentMV_);
+
+  state_ = STATE_NEXT_FORCE_OPT;
 }
 
 //----------------------------------------------------------------------------
 // CRUForceOptionsParser::ReadForceOption()
 //
-// Check which force options are used for the current mv 
+// Check which force options are used for the current mv
 //----------------------------------------------------------------------------
-void CRUForceOptionsParser::NextForceOptionStateHandler()
-{
-	GetNextWord();
+void CRUForceOptionsParser::NextForceOptionStateHandler() {
+  GetNextWord();
 
-	if (state_ == STATE_EOF)
-	{
-		return;
-	}
+  if (state_ == STATE_EOF) {
+    return;
+  }
 
-	if (IsCurrentWord("MV"))
-	{
-		state_ = STATE_NEXT_MV;
-		return;
-	}
+  if (IsCurrentWord("MV")) {
+    state_ = STATE_NEXT_MV;
+    return;
+  }
 
-	if (IsCurrentWord("GROUPBY"))
-	{
-		state_ = STATE_GB;
-		return;
-	}
+  if (IsCurrentWord("GROUPBY")) {
+    state_ = STATE_GB;
+    return;
+  }
 
-	if (IsCurrentWord("JOIN"))
-	{
-		state_ = STATE_JOIN;
-		return;
-	}
+  if (IsCurrentWord("JOIN")) {
+    state_ = STATE_JOIN;
+    return;
+  }
 
-	if (IsCurrentWord("MDAM"))
-	{
-		state_ = STATE_MV_MDAM;
-		return;
-	}
+  if (IsCurrentWord("MDAM")) {
+    state_ = STATE_MV_MDAM;
+    return;
+  }
 
-	if (IsCurrentWord("TABLE"))
-	{
-		state_ = STATE_TABLE;
-		return;
-	}
+  if (IsCurrentWord("TABLE")) {
+    state_ = STATE_TABLE;
+    return;
+  }
 
-	if (IsCurrentWord("EXPLAIN"))
-	{
-		state_ = STATE_EXPLAIN;
-		return;
-	}
+  if (IsCurrentWord("EXPLAIN")) {
+    state_ = STATE_EXPLAIN;
+    return;
+  }
 
-	if (IsCurrentWord("FORCE_CQS"))
-	{
-		state_ = STATE_CQS;
-		return;
-	}
+  if (IsCurrentWord("FORCE_CQS")) {
+    state_ = STATE_CQS;
+    return;
+  }
 
-	ThrowBadFormat();
+  ThrowBadFormat();
 }
 
 //----------------------------------------------------------------------------
@@ -294,39 +256,34 @@ void CRUForceOptionsParser::NextForceOptionStateHandler()
 //	GBOptions --> "SORT"
 //----------------------------------------------------------------------------
 
-void CRUForceOptionsParser::GBClauseHandler() 
-{
-	RUASSERT(IsCurrentWord("GROUPBY"));
-		
-	CRUForceOptions::GroupByOptions result = CRUForceOptions::GB_NO_FORCE;
-	
-	GetNextWord(); // fetch the = operator
+void CRUForceOptionsParser::GBClauseHandler() {
+  RUASSERT(IsCurrentWord("GROUPBY"));
 
-	if (!IsCurrentWord("="))
-	{
-		ThrowBadFormat();
-	}
+  CRUForceOptions::GroupByOptions result = CRUForceOptions::GB_NO_FORCE;
 
-	GetNextWord(); // fetch the GB option
+  GetNextWord();  // fetch the = operator
 
-	if (IsCurrentWord("HASH"))
-	{
-		result = CRUForceOptions::GB_HASH;
-	}
+  if (!IsCurrentWord("=")) {
+    ThrowBadFormat();
+  }
 
-	if (IsCurrentWord("SORT"))
-	{
-		result = CRUForceOptions::GB_SORT;
-	}
-	
-	if (CRUForceOptions::GB_NO_FORCE == result)
-	{
-		ThrowBadFormat();
-	}
+  GetNextWord();  // fetch the GB option
 
-	pCurrentMV_->SetGroupBy(result);
+  if (IsCurrentWord("HASH")) {
+    result = CRUForceOptions::GB_HASH;
+  }
 
-	state_= STATE_NEXT_FORCE_OPT;
+  if (IsCurrentWord("SORT")) {
+    result = CRUForceOptions::GB_SORT;
+  }
+
+  if (CRUForceOptions::GB_NO_FORCE == result) {
+    ThrowBadFormat();
+  }
+
+  pCurrentMV_->SetGroupBy(result);
+
+  state_ = STATE_NEXT_FORCE_OPT;
 }
 
 //----------------------------------------------------------------------------
@@ -339,44 +296,38 @@ void CRUForceOptionsParser::GBClauseHandler()
 //	JoinOptions --> "HASH"
 //----------------------------------------------------------------------------
 
-void CRUForceOptionsParser::JoinClauseHandler() 
-{
-	RUASSERT(IsCurrentWord("JOIN"));
-		
-	CRUForceOptions::JoinOptions result = CRUForceOptions::JOIN_NO_FORCE;
-	
-	GetNextWord(); // fetch the = operator
+void CRUForceOptionsParser::JoinClauseHandler() {
+  RUASSERT(IsCurrentWord("JOIN"));
 
-	if (!IsCurrentWord("="))
-	{
-		ThrowBadFormat();
-	}
+  CRUForceOptions::JoinOptions result = CRUForceOptions::JOIN_NO_FORCE;
 
-	GetNextWord(); // fetch the GB option
+  GetNextWord();  // fetch the = operator
 
-	if (IsCurrentWord("NESTED"))
-	{
-		result = CRUForceOptions::JOIN_NESTED;
-	}
+  if (!IsCurrentWord("=")) {
+    ThrowBadFormat();
+  }
 
-	if (IsCurrentWord("MERGE"))
-	{
-		result = CRUForceOptions::JOIN_MERGE;
-	}
+  GetNextWord();  // fetch the GB option
 
-	if (IsCurrentWord("HASH"))
-	{
-		result = CRUForceOptions::JOIN_HASH;
-	}
-	
-	if (CRUForceOptions::JOIN_NO_FORCE == result)
-	{
-		ThrowBadFormat();
-	}
+  if (IsCurrentWord("NESTED")) {
+    result = CRUForceOptions::JOIN_NESTED;
+  }
 
-	pCurrentMV_->SetJoin(result);
+  if (IsCurrentWord("MERGE")) {
+    result = CRUForceOptions::JOIN_MERGE;
+  }
 
-	state_= STATE_NEXT_FORCE_OPT;
+  if (IsCurrentWord("HASH")) {
+    result = CRUForceOptions::JOIN_HASH;
+  }
+
+  if (CRUForceOptions::JOIN_NO_FORCE == result) {
+    ThrowBadFormat();
+  }
+
+  pCurrentMV_->SetJoin(result);
+
+  state_ = STATE_NEXT_FORCE_OPT;
 }
 
 //----------------------------------------------------------------------------
@@ -386,175 +337,121 @@ void CRUForceOptionsParser::JoinClauseHandler()
 //
 //	MDAMOptions --> "ENABLE"
 //	MDAMOptions --> "ON"
-//	MDAMOptions --> "OFF" 
+//	MDAMOptions --> "OFF"
 //----------------------------------------------------------------------------
 
-void CRUForceOptionsParser::MvMdamClauseHandler() 
-{
-	RUASSERT(IsCurrentWord("MDAM"));
+void CRUForceOptionsParser::MvMdamClauseHandler() {
+  RUASSERT(IsCurrentWord("MDAM"));
 
-	CRUForceOptions::MdamOptions result = CRUForceOptions::MDAM_NO_FORCE;
-	
-	result= GetMDAMOption();
+  CRUForceOptions::MdamOptions result = CRUForceOptions::MDAM_NO_FORCE;
 
-	pCurrentMV_->SetMdam(result);
+  result = GetMDAMOption();
 
-	state_ = STATE_NEXT_FORCE_OPT;
+  pCurrentMV_->SetMdam(result);
+
+  state_ = STATE_NEXT_FORCE_OPT;
 }
 
 //----------------------------------------------------------------------------
 // CRUForceOptionsParser::TableStateHandler
 //----------------------------------------------------------------------------
 
-void CRUForceOptionsParser::TableClauseHandler() 
-{
-	RUASSERT(IsCurrentWord("TABLE"));
+void CRUForceOptionsParser::TableClauseHandler() {
+  RUASSERT(IsCurrentWord("TABLE"));
 
-	GetNextWord(); // fetch the table name
+  GetNextWord();  // fetch the table name
 
-	if (IsCurrentWord("*"))
-	{
-		HandleStarOptions();
-	}
-	else
-	{
-		HandleTableOptions();
-	}
+  if (IsCurrentWord("*")) {
+    HandleStarOptions();
+  } else {
+    HandleTableOptions();
+  }
 
-	state_ = STATE_NEXT_FORCE_OPT;
+  state_ = STATE_NEXT_FORCE_OPT;
 }
-
 
 //----------------------------------------------------------------------------
 // CRUForceOptionsParser::GetMDAMOption()
 //----------------------------------------------------------------------------
 
-CRUForceOptions::MdamOptions CRUForceOptionsParser::GetMDAMOption()
-{
-	RUASSERT(IsCurrentWord("MDAM"));
+CRUForceOptions::MdamOptions CRUForceOptionsParser::GetMDAMOption() {
+  RUASSERT(IsCurrentWord("MDAM"));
 
-	CRUForceOptions::MdamOptions result = CRUForceOptions::MDAM_NO_FORCE;
+  CRUForceOptions::MdamOptions result = CRUForceOptions::MDAM_NO_FORCE;
 
-	GetNextWord(); // fetch the = operator
+  GetNextWord();  // fetch the = operator
 
-	if (!IsCurrentWord("="))
-	{
-		ThrowBadFormat();
-	}
+  if (!IsCurrentWord("=")) {
+    ThrowBadFormat();
+  }
 
-	GetNextWord(); // fetch the mdam option
+  GetNextWord();  // fetch the mdam option
 
-	if (IsCurrentWord("ON"))
-	{
-		result = CRUForceOptions::MDAM_ON;
-	}
-	
-	if (IsCurrentWord("OFF"))
-	{
-		result = CRUForceOptions::MDAM_OFF;
-	}
+  if (IsCurrentWord("ON")) {
+    result = CRUForceOptions::MDAM_ON;
+  }
 
-	if (IsCurrentWord("ENABLE"))
-	{
-		result = CRUForceOptions::MDAM_ENABLE;
-	}
+  if (IsCurrentWord("OFF")) {
+    result = CRUForceOptions::MDAM_OFF;
+  }
 
-	if (CRUForceOptions::MDAM_NO_FORCE == result)
-	{
-		ThrowBadFormat();
-	}
-	
-	return result;
+  if (IsCurrentWord("ENABLE")) {
+    result = CRUForceOptions::MDAM_ENABLE;
+  }
+
+  if (CRUForceOptions::MDAM_NO_FORCE == result) {
+    ThrowBadFormat();
+  }
+
+  return result;
 }
 
 //----------------------------------------------------------------------------
 // CRUForceOptionsParser::HandleStarOptions()
 //----------------------------------------------------------------------------
 
-void CRUForceOptionsParser::HandleStarOptions()
-{
-	RUASSERT(IsCurrentWord("*") && STATE_TABLE == state_);
+void CRUForceOptionsParser::HandleStarOptions() {
+  RUASSERT(IsCurrentWord("*") && STATE_TABLE == state_);
 
-	if(0 != pCurrentMV_->GetNumOfTables()); 
-	{
-		CRUException ex;
-		ex.SetError(IDS_RU_FORCE_FILE_STAR_TABLE);
-		ex.AddArgument(pCurrentMV_->GetMVName());
-		throw ex;
-	}
+  if (0 != pCurrentMV_->GetNumOfTables())
+    ;
+  {
+    CRUException ex;
+    ex.SetError(IDS_RU_FORCE_FILE_STAR_TABLE);
+    ex.AddArgument(pCurrentMV_->GetMVName());
+    throw ex;
+  }
 
-	CRUForceOptions::MdamOptions result = GetMDAMOption();
+  CRUForceOptions::MdamOptions result = GetMDAMOption();
 
-	pCurrentMV_->SetUsedTableStarOption(result);
+  pCurrentMV_->SetUsedTableStarOption(result);
 }
 
 //----------------------------------------------------------------------------
 // CRUForceOptionsParser::HandleTableOptions()
 //----------------------------------------------------------------------------
 
-void CRUForceOptionsParser::HandleTableOptions()
-{
-	RUASSERT(STATE_TABLE == state_);
+void CRUForceOptionsParser::HandleTableOptions() {
+  RUASSERT(STATE_TABLE == state_);
 
-	CDSString tableName = GetQualifiedName();
+  CDSString tableName = GetQualifiedName();
 
-	if(CRUForceOptions::MDAM_NO_FORCE != pCurrentMV_->GetForceMdamOptionForTable(tableName))
-	{
-		CRUException ex;
-		ex.SetError(IDS_RU_FORCE_FILE_STAR_TABLE);
-		ex.AddArgument(pCurrentMV_->GetMVName());
-		throw ex;
-	}
+  if (CRUForceOptions::MDAM_NO_FORCE != pCurrentMV_->GetForceMdamOptionForTable(tableName)) {
+    CRUException ex;
+    ex.SetError(IDS_RU_FORCE_FILE_STAR_TABLE);
+    ex.AddArgument(pCurrentMV_->GetMVName());
+    throw ex;
+  }
 
-	GetNextWord(); // fetch the = operator
-	
-	CRUForceOptions::MdamOptions result = GetMDAMOption();
-	
-	CRUTableForceOptions *pNewTableOpt = new CRUTableForceOptions(tableName);
+  GetNextWord();  // fetch the = operator
 
-	pNewTableOpt->SetMdam(result);
+  CRUForceOptions::MdamOptions result = GetMDAMOption();
 
-	pCurrentMV_->AddTable(pNewTableOpt);
-}	
-	
-//----------------------------------------------------------------------------
-//	CRUForceOptionsParser::GBClauseHandler
-//
-// line --> ExplainOption
-//		ExplainOption --> "EXPLAIN = ON"
-//		ExplainOption --> "EXPLAIN = OFF"
-//----------------------------------------------------------------------------
+  CRUTableForceOptions *pNewTableOpt = new CRUTableForceOptions(tableName);
 
-void CRUForceOptionsParser::ExplainClauseHandler() 
-{
-	RUASSERT(IsCurrentWord("EXPLAIN"));
-		
-	CRUForceOptions::ExplainOptions result = CRUForceOptions::EXPLAIN_OFF;
+  pNewTableOpt->SetMdam(result);
 
-	GetNextWord();
-
-	if (!IsCurrentWord("="))
-	{
-		ThrowBadFormat();
-	}
-
-	GetNextWord(); // fetch the explain option
-
-	if (IsCurrentWord("ON"))
-	{
-		result = CRUForceOptions::EXPLAIN_ON;
-	}
-	else
-	{
-		if (!IsCurrentWord("OFF"))
-		{
-			ThrowBadFormat();
-		}
-	}
-
-	pCurrentMV_->SetExplainOption(result);
-
-	state_= STATE_NEXT_FORCE_OPT;
+  pCurrentMV_->AddTable(pNewTableOpt);
 }
 
 //----------------------------------------------------------------------------
@@ -565,39 +462,67 @@ void CRUForceOptionsParser::ExplainClauseHandler()
 //		ExplainOption --> "EXPLAIN = OFF"
 //----------------------------------------------------------------------------
 
-void CRUForceOptionsParser::CQSClauseHandler() 
-{
-	RUASSERT(IsCurrentWord("FORCE_CQS"));
+void CRUForceOptionsParser::ExplainClauseHandler() {
+  RUASSERT(IsCurrentWord("EXPLAIN"));
 
-	GetNextWord();
+  CRUForceOptions::ExplainOptions result = CRUForceOptions::EXPLAIN_OFF;
 
-	if (!IsCurrentWord("="))
-	{
-		ThrowBadFormat();
-	}
+  GetNextWord();
 
-	CDSString sqlStmt;
-	CDSString currentToken;
-	do 
-	{
-		GetNextWord();
-		currentToken = GetCurrentToken();
-		sqlStmt += " " + currentToken;
+  if (!IsCurrentWord("=")) {
+    ThrowBadFormat();
+  }
 
-	} while (FALSE == IsCurrentWord(";") && STATE_EOF != state_);
+  GetNextWord();  // fetch the explain option
 
-	if (STATE_EOF != state_)
-	{
-		pCurrentMV_->SetCQSStatment(sqlStmt);
-		state_= STATE_NEXT_FORCE_OPT;
-	}
-	else
-	{
-		CDSException e;
-		e.SetError(IDS_RU_FORCE_BAD_CQS);
-		e.AddArgument(pCurrentMV_->GetMVName());
-		throw e;
-	}
+  if (IsCurrentWord("ON")) {
+    result = CRUForceOptions::EXPLAIN_ON;
+  } else {
+    if (!IsCurrentWord("OFF")) {
+      ThrowBadFormat();
+    }
+  }
+
+  pCurrentMV_->SetExplainOption(result);
+
+  state_ = STATE_NEXT_FORCE_OPT;
+}
+
+//----------------------------------------------------------------------------
+//	CRUForceOptionsParser::GBClauseHandler
+//
+// line --> ExplainOption
+//		ExplainOption --> "EXPLAIN = ON"
+//		ExplainOption --> "EXPLAIN = OFF"
+//----------------------------------------------------------------------------
+
+void CRUForceOptionsParser::CQSClauseHandler() {
+  RUASSERT(IsCurrentWord("FORCE_CQS"));
+
+  GetNextWord();
+
+  if (!IsCurrentWord("=")) {
+    ThrowBadFormat();
+  }
+
+  CDSString sqlStmt;
+  CDSString currentToken;
+  do {
+    GetNextWord();
+    currentToken = GetCurrentToken();
+    sqlStmt += " " + currentToken;
+
+  } while (FALSE == IsCurrentWord(";") && STATE_EOF != state_);
+
+  if (STATE_EOF != state_) {
+    pCurrentMV_->SetCQSStatment(sqlStmt);
+    state_ = STATE_NEXT_FORCE_OPT;
+  } else {
+    CDSException e;
+    e.SetError(IDS_RU_FORCE_BAD_CQS);
+    e.AddArgument(pCurrentMV_->GetMVName());
+    throw e;
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -606,26 +531,23 @@ void CRUForceOptionsParser::CQSClauseHandler()
 // Fill the buffer with the content of a new non empty line and normalize it
 // also check for EOF
 //----------------------------------------------------------------------------
-void CRUForceOptionsParser::ReadNextLine()
-{
-	BOOL ret = forceFile_.ReadLine(buffer_,MAX_BUFFER_SIZE); //reading a line from the input file   
+void CRUForceOptionsParser::ReadNextLine() {
+  BOOL ret = forceFile_.ReadLine(buffer_, MAX_BUFFER_SIZE);  // reading a line from the input file
 
-	if (FALSE == ret)
-	{
-		if (forceFile_.IsEOF())
-		{
-			state_ = STATE_EOF;
-			return;
-		}
-		
-		CRUException ex;
-		ex.SetError(IDS_RU_CORRUPTED_FORCE_FILE);
-		ex.AddArgument(*pFileName_);
-		throw ex;
-	}
-	
-	UpCase(buffer_);
-	lineNumber_++;
+  if (FALSE == ret) {
+    if (forceFile_.IsEOF()) {
+      state_ = STATE_EOF;
+      return;
+    }
+
+    CRUException ex;
+    ex.SetError(IDS_RU_CORRUPTED_FORCE_FILE);
+    ex.AddArgument(*pFileName_);
+    throw ex;
+  }
+
+  UpCase(buffer_);
+  lineNumber_++;
 }
 
 //----------------------------------------------------------------------------
@@ -633,106 +555,85 @@ void CRUForceOptionsParser::ReadNextLine()
 //
 //
 //----------------------------------------------------------------------------
-BOOL CRUForceOptionsParser::GetNextToken()
-{
-	if ('\0' == *pCurrentChar_)
-		return FALSE;
+BOOL CRUForceOptionsParser::GetNextToken() {
+  if ('\0' == *pCurrentChar_) return FALSE;
 
-	// remove leading spaces
-	while(isspace((unsigned char)*pCurrentChar_))  // For VS2003
-	{
-		pCurrentChar_++;
+  // remove leading spaces
+  while (isspace((unsigned char)*pCurrentChar_))  // For VS2003
+  {
+    pCurrentChar_++;
 
-		if ('\0' == *pCurrentChar_)
-			return FALSE;
-	} 
-	
-	Int32 i=0;
-	do 
-	{ 
-		// copy characters from the buffer to the current token.
-		currentToken_[i++] = *pCurrentChar_++;
-		
-		// Deals with non space seperator (Only '=' or ';') 
-		if ('=' == (*pCurrentChar_) || 
-			';' == (*pCurrentChar_) ||
-			isspace((unsigned char)*pCurrentChar_) || // For VS2003
-			'\0' == (*pCurrentChar_))
-		{
-		    break;
-		}
+    if ('\0' == *pCurrentChar_) return FALSE;
+  }
 
-		RUASSERT(i < MAX_BUFFER_SIZE);
+  Int32 i = 0;
+  do {
+    // copy characters from the buffer to the current token.
+    currentToken_[i++] = *pCurrentChar_++;
 
-	} while (1);
+    // Deals with non space seperator (Only '=' or ';')
+    if ('=' == (*pCurrentChar_) || ';' == (*pCurrentChar_) || isspace((unsigned char)*pCurrentChar_) ||  // For VS2003
+        '\0' == (*pCurrentChar_)) {
+      break;
+    }
 
-	currentToken_[i] = '\0';
+    RUASSERT(i < MAX_BUFFER_SIZE);
 
-	return TRUE;
+  } while (1);
+
+  currentToken_[i] = '\0';
+
+  return TRUE;
 }
 
 //----------------------------------------------------------------------------
 // CRUForceOptionsParser::GetNextWord()
 //----------------------------------------------------------------------------
-void CRUForceOptionsParser::GetNextWord()
-{
-	do 
-	{
-		if (TRUE == bufferIsEmpty_)
-		{
-			ReadNextLine();
-			bufferIsEmpty_ = FALSE;
-			pCurrentChar_ = buffer_;
-		}
+void CRUForceOptionsParser::GetNextWord() {
+  do {
+    if (TRUE == bufferIsEmpty_) {
+      ReadNextLine();
+      bufferIsEmpty_ = FALSE;
+      pCurrentChar_ = buffer_;
+    }
 
-		bufferIsEmpty_ = !GetNextToken();
+    bufferIsEmpty_ = !GetNextToken();
 
-	} while (TRUE == bufferIsEmpty_ && STATE_EOF != state_);
+  } while (TRUE == bufferIsEmpty_ && STATE_EOF != state_);
 }
 
 //----------------------------------------------------------------------------
 // CRUForceOptionsParser::IsCurrentWord
-//----------------------------------------------------------------------------	
-BOOL CRUForceOptionsParser::IsCurrentWord(const char* word)
-{
-	return 0 == strcmp(currentToken_,word);
-}
+//----------------------------------------------------------------------------
+BOOL CRUForceOptionsParser::IsCurrentWord(const char *word) { return 0 == strcmp(currentToken_, word); }
 
 //----------------------------------------------------------------------------
 // CRUForceOptionsParser::UpCase
-//----------------------------------------------------------------------------	
+//----------------------------------------------------------------------------
 
-void CRUForceOptionsParser::UpCase(char* aLine)
-{
-	Int32 len = strlen(aLine);
-	Int32 i;
-	for (i=0; i<len; i++)
-	{
-		if((aLine[i]>='a') && (aLine[i]<='z'))
-		{
-			aLine[i] -= 32;
-		}
-	}
+void CRUForceOptionsParser::UpCase(char *aLine) {
+  Int32 len = strlen(aLine);
+  Int32 i;
+  for (i = 0; i < len; i++) {
+    if ((aLine[i] >= 'a') && (aLine[i] <= 'z')) {
+      aLine[i] -= 32;
+    }
+  }
 }
-
 
 //----------------------------------------------------------------------------
 // CRUForceOptionsParser::GetQualifiedName()
-// 
+//
 // Parse the current token into an object name
-//----------------------------------------------------------------------------	
+//----------------------------------------------------------------------------
 
-CDSString CRUForceOptionsParser::GetQualifiedName() const
-{
-	CDsAnsiSQLName ansiName;
+CDSString CRUForceOptionsParser::GetQualifiedName() const {
+  CDsAnsiSQLName ansiName;
 
-	ansiName.SetDefaultSchema(CRUGlobals::GetInstance()->GetOptions().GetDefaultSchema());
-	ansiName.SetName(currentToken_);
+  ansiName.SetDefaultSchema(CRUGlobals::GetInstance()->GetOptions().GetDefaultSchema());
+  ansiName.SetName(currentToken_);
 
-	ansiName.Parse();
+  ansiName.Parse();
 
-	return ansiName.GetCatalogName() + "." +
-		   ansiName.GetSchemaName() + "." +
-		   ansiName.GetObjectName();
+  return ansiName.GetCatalogName() + "." + ansiName.GetSchemaName() + "." + ansiName.GetObjectName();
 }
-

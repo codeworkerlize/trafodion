@@ -76,8 +76,8 @@
 #include "common/NAWNodeSet.h"
 #include "cli/Context.h"
 
-#define   SQLPARSERGLOBALS_FLAGS
-#include "parser/SqlParserGlobals.h"   // Parser Flags
+#define SQLPARSERGLOBALS_FLAGS
+#include "parser/SqlParserGlobals.h"  // Parser Flags
 
 #include "sqlcomp/CmpSeabaseDDLmd.h"
 
@@ -91,38 +91,36 @@
 // To prevent redefinition problem on platforms where the executor is (still)
 // directly linked to arkcmp.exe.
 
-
-
 ///////////////////////////////////////////////////
 // class Generator
 //////////////////////////////////////////////////
-Generator::Generator(CmpContext* currentCmpContext, NAHeap* workingHeap) :
-    currentCmpContext_(currentCmpContext)
-    ,wHeap_(workingHeap)
-    ,objectUids_(wHeap(), 1)
-    ,objectNames_(wHeap(),0)
-    ,snapshotScanTmpLocation_(NULL)
-    ,baseFileDescs_(wHeap())       
-    ,baseStoiList_(wHeap())   
-    ,numOfVpsPerBase_(wHeap())              
-    ,vpFileDescs_(wHeap())       
-    ,lateNameInfoList_(wHeap())  
-    ,genOperSimInfoList_(wHeap())  
-    ,stoiList_(wHeap())  
-    ,insertNodesList_(wHeap())  
-    ,avgVarCharSizeList_(wHeap())  
-    ,trafSimTableInfoList_(wHeap())
-    ,startMinMaxIndex_(0)
-    ,endMinMaxIndex_(0)
-    ,numTrafReplicas_(0)
-    //,minMaxRowLength_(0)
-    ,bmoQuotaMap_(wHeap())
-    ,callers_(wHeap())
-    ,innerChildUecs_(wHeap())
-    ,innerIsBroadcastPartitioned_(wHeap())
-    ,rowsProducedByHJ_(wHeap())
-    ,outerRowsToSurvive_(wHeap())
-{
+Generator::Generator(CmpContext *currentCmpContext, NAHeap *workingHeap)
+    : currentCmpContext_(currentCmpContext),
+      wHeap_(workingHeap),
+      objectUids_(wHeap(), 1),
+      objectNames_(wHeap(), 0),
+      snapshotScanTmpLocation_(NULL),
+      baseFileDescs_(wHeap()),
+      baseStoiList_(wHeap()),
+      numOfVpsPerBase_(wHeap()),
+      vpFileDescs_(wHeap()),
+      lateNameInfoList_(wHeap()),
+      genOperSimInfoList_(wHeap()),
+      stoiList_(wHeap()),
+      insertNodesList_(wHeap()),
+      avgVarCharSizeList_(wHeap()),
+      trafSimTableInfoList_(wHeap()),
+      startMinMaxIndex_(0),
+      endMinMaxIndex_(0),
+      numTrafReplicas_(0)
+      //,minMaxRowLength_(0)
+      ,
+      bmoQuotaMap_(wHeap()),
+      callers_(wHeap()),
+      innerChildUecs_(wHeap()),
+      innerIsBroadcastPartitioned_(wHeap()),
+      rowsProducedByHJ_(wHeap()),
+      outerRowsToSurvive_(wHeap()) {
   // nothing generated yet.
   genObj = 0;
   genObjLength = 0;
@@ -132,14 +130,14 @@ Generator::Generator(CmpContext* currentCmpContext, NAHeap* workingHeap) :
   down_cri_desc = 0;
 
   // fragment directory and resource entries for ESPs
-  fragmentDir_      = new (wHeap()) FragmentDir(wHeap());
+  fragmentDir_ = new (wHeap()) FragmentDir(wHeap());
 
   firstMapTable_ = NULL;
-  lastMapTable_  = NULL;
+  lastMapTable_ = NULL;
 
-  tableId_     = 0;
+  tableId_ = 0;
   tempTableId_ = 0;
-  tdbId_       = 0;
+  tdbId_ = 0;
   pertableStatsTdbId_ = 0;
 
   bindWA = 0;
@@ -228,7 +226,7 @@ Generator::Generator(CmpContext* currentCmpContext, NAHeap* workingHeap) :
   avgVarCharSizeList_.clear();
 
   tupleFlowLeftChildAttrs_ = NULL;
-  //avgVarCharSizeValList_.clear();
+  // avgVarCharSizeValList_.clear();
   initNNodes();
 
   initNbStrawScans();
@@ -238,13 +236,11 @@ Generator::Generator(CmpContext* currentCmpContext, NAHeap* workingHeap) :
 
   // Initialize the NExDbgInfoObj_ object within the Generator object.
   //
-  NExDbgInfoObj_.setNExDbgLvl( getDefaultAsLong(PCODE_NE_DBG_LEVEL) );
-  NExDbgInfoObj_.setNExStmtSrc( NULL );
-  NExDbgInfoObj_.setNExStmtPrinted( FALSE );
+  NExDbgInfoObj_.setNExDbgLvl(getDefaultAsLong(PCODE_NE_DBG_LEVEL));
+  NExDbgInfoObj_.setNExStmtSrc(NULL);
+  NExDbgInfoObj_.setNExStmtPrinted(FALSE);
 
-  NExLogPathNam_[0] = '\0' ;
-
-
+  NExLogPathNam_[0] = '\0';
 
   // Initialize other member variables.
   //
@@ -255,102 +251,69 @@ Generator::Generator(CmpContext* currentCmpContext, NAHeap* workingHeap) :
   setMinmaxOptWithRangeOfValues(CURRSTMT_OPTDEFAULTS->rangeOptimizedScan());
 }
 
-void Generator::initTdbFields(ComTdb *tdb)
-{
-  if (!dynQueueSizeValuesAreValid_)
-    {
-      // get the values from the default table if this is the first time
-      // we are calling this method
-      NADefaults &def = ActiveSchemaDB()->getDefaults();
+void Generator::initTdbFields(ComTdb *tdb) {
+  if (!dynQueueSizeValuesAreValid_) {
+    // get the values from the default table if this is the first time
+    // we are calling this method
+    NADefaults &def = ActiveSchemaDB()->getDefaults();
 
-      initialQueueSizeDown_ =
-	(ULng32) def.getAsULong(DYN_QUEUE_RESIZE_INIT_DOWN);
-      initialQueueSizeUp_   =
-	(ULng32) def.getAsULong(DYN_QUEUE_RESIZE_INIT_UP);
-      initialPaQueueSizeDown_ =
-	(ULng32) def.getAsULong(DYN_PA_QUEUE_RESIZE_INIT_DOWN);
-      initialPaQueueSizeUp_   =
-	(ULng32) def.getAsULong(DYN_PA_QUEUE_RESIZE_INIT_UP);
-      queueResizeLimit_     = (short) def.getAsULong(DYN_QUEUE_RESIZE_LIMIT);
-      queueResizeFactor_    = (short) def.getAsULong(DYN_QUEUE_RESIZE_FACTOR);
-      makeOnljLeftQueuesBig_ = 
-          (def.getToken(GEN_ONLJ_SET_QUEUE_LEFT) == DF_ON);
-      onljLeftUpQueue_ = 
-          (ULng32) def.getAsULong(GEN_ONLJ_LEFT_CHILD_QUEUE_UP);
-      onljLeftDownQueue_ = 
-          (ULng32) def.getAsULong(GEN_ONLJ_LEFT_CHILD_QUEUE_DOWN);
-      makeOnljRightQueuesBig_ = 
-         (def.getToken(GEN_ONLJ_SET_QUEUE_RIGHT) == DF_ON);
-      onljRightSideUpQueue_ = 
-          (ULng32) def.getAsULong(GEN_ONLJ_RIGHT_SIDE_QUEUE_UP);
-      onljRightSideDownQueue_ = 
-          (ULng32) def.getAsULong(GEN_ONLJ_RIGHT_SIDE_QUEUE_DOWN);
+    initialQueueSizeDown_ = (ULng32)def.getAsULong(DYN_QUEUE_RESIZE_INIT_DOWN);
+    initialQueueSizeUp_ = (ULng32)def.getAsULong(DYN_QUEUE_RESIZE_INIT_UP);
+    initialPaQueueSizeDown_ = (ULng32)def.getAsULong(DYN_PA_QUEUE_RESIZE_INIT_DOWN);
+    initialPaQueueSizeUp_ = (ULng32)def.getAsULong(DYN_PA_QUEUE_RESIZE_INIT_UP);
+    queueResizeLimit_ = (short)def.getAsULong(DYN_QUEUE_RESIZE_LIMIT);
+    queueResizeFactor_ = (short)def.getAsULong(DYN_QUEUE_RESIZE_FACTOR);
+    makeOnljLeftQueuesBig_ = (def.getToken(GEN_ONLJ_SET_QUEUE_LEFT) == DF_ON);
+    onljLeftUpQueue_ = (ULng32)def.getAsULong(GEN_ONLJ_LEFT_CHILD_QUEUE_UP);
+    onljLeftDownQueue_ = (ULng32)def.getAsULong(GEN_ONLJ_LEFT_CHILD_QUEUE_DOWN);
+    makeOnljRightQueuesBig_ = (def.getToken(GEN_ONLJ_SET_QUEUE_RIGHT) == DF_ON);
+    onljRightSideUpQueue_ = (ULng32)def.getAsULong(GEN_ONLJ_RIGHT_SIDE_QUEUE_UP);
+    onljRightSideDownQueue_ = (ULng32)def.getAsULong(GEN_ONLJ_RIGHT_SIDE_QUEUE_DOWN);
 
-      dynQueueSizeValuesAreValid_ = TRUE;
-    }
+    dynQueueSizeValuesAreValid_ = TRUE;
+  }
 
-  if  (ActiveSchemaDB()->getDefaults().getToken(DYN_QUEUE_RESIZE_OVERRIDE) == DF_ON)
-    {
-      tdb->setQueueResizeParams(tdb->getMaxQueueSizeDown(), tdb->getMaxQueueSizeUp(),
-                                queueResizeLimit_,queueResizeFactor_);
-    }
-  //Typically the sequence operaotr may have to deal with a large numer of rows when 
-  //it's part of the IM tree that performs elimination of dups. 
-  if ((tdb->getNodeType() == ComTdb::ex_SEQUENCE_FUNCTION) && isEffTreeUpsert())
-    {
-     tdb->setQueueResizeParams(tdb->getMaxQueueSizeDown(), tdb->getMaxQueueSizeUp(),
-                                queueResizeLimit_,queueResizeFactor_); 
-    }
-   // Make the size of the upQ of ONLJ the same as that of the upQ
-   // of the right child. 
-   if ((tdb->getNodeType() == ComTdb::ex_ONLJ || getRightSideOfOnlj()) 
-        && makeOnljRightQueuesBig_)
-    {
-      tdb->setQueueResizeParams(onljRightSideDownQueue_,
-			        onljRightSideUpQueue_,
-			        queueResizeLimit_,
-			        queueResizeFactor_);
-    }
-   else
-    {
-      tdb->setQueueResizeParams(initialQueueSizeDown_,
-   			        initialQueueSizeUp_,
-   			        queueResizeLimit_,
-			        queueResizeFactor_);
-    }
-
+  if (ActiveSchemaDB()->getDefaults().getToken(DYN_QUEUE_RESIZE_OVERRIDE) == DF_ON) {
+    tdb->setQueueResizeParams(tdb->getMaxQueueSizeDown(), tdb->getMaxQueueSizeUp(), queueResizeLimit_,
+                              queueResizeFactor_);
+  }
+  // Typically the sequence operaotr may have to deal with a large numer of rows when
+  // it's part of the IM tree that performs elimination of dups.
+  if ((tdb->getNodeType() == ComTdb::ex_SEQUENCE_FUNCTION) && isEffTreeUpsert()) {
+    tdb->setQueueResizeParams(tdb->getMaxQueueSizeDown(), tdb->getMaxQueueSizeUp(), queueResizeLimit_,
+                              queueResizeFactor_);
+  }
+  // Make the size of the upQ of ONLJ the same as that of the upQ
+  // of the right child.
+  if ((tdb->getNodeType() == ComTdb::ex_ONLJ || getRightSideOfOnlj()) && makeOnljRightQueuesBig_) {
+    tdb->setQueueResizeParams(onljRightSideDownQueue_, onljRightSideUpQueue_, queueResizeLimit_, queueResizeFactor_);
+  } else {
+    tdb->setQueueResizeParams(initialQueueSizeDown_, initialQueueSizeUp_, queueResizeLimit_, queueResizeFactor_);
+  }
 
   // If large queue sizes are specified, then adjust the up and down
   // queue sizes.  This is used when a SplitTop appears on the RHS of
   // a Flow/NestedJoin.  Above the SplitTop the queue sizes may be
   // very large (e.g. 128K), below the split top they will be modestly
   // large (e.g. 2048)
-  if(largeQueueSize_ > 0 &&
-     tdb->getInitialQueueSizeDown() < largeQueueSize_ &&
-     tdb->getNodeType() != ComTdb::ex_ROOT &&
-     (ActiveSchemaDB()->getDefaults().getToken(USE_LARGE_QUEUES) == DF_ON)) {
-
-    tdb->setQueueResizeParams(largeQueueSize_,
-                              largeQueueSize_,
-                              queueResizeLimit_,
-                              queueResizeFactor_);
+  if (largeQueueSize_ > 0 && tdb->getInitialQueueSizeDown() < largeQueueSize_ &&
+      tdb->getNodeType() != ComTdb::ex_ROOT && (ActiveSchemaDB()->getDefaults().getToken(USE_LARGE_QUEUES) == DF_ON)) {
+    tdb->setQueueResizeParams(largeQueueSize_, largeQueueSize_, queueResizeLimit_, queueResizeFactor_);
   }
- 
+
   tdb->setTdbId(getAndIncTdbId());
 
   tdb->setPlanVersion(ComVersion_GetCurrentPlanVersion());
-    
-  if (computeStats())
-    {
-      tdb->setCollectStats(computeStats());
-      tdb->setCollectStatsType(collectStatsType());
-    }
+
+  if (computeStats()) {
+    tdb->setCollectStats(computeStats());
+    tdb->setCollectStatsType(collectStatsType());
+  }
 
   compilerStatsInfo().totalOps()++;
 }
 
-RelExpr * Generator::preGenCode(RelExpr * expr_node)
-{
+RelExpr *Generator::preGenCode(RelExpr *expr_node) {
   // initialize flags
   //  flags_ = 0;
   //  flags2_ = 0;
@@ -363,17 +326,13 @@ RelExpr * Generator::preGenCode(RelExpr * expr_node)
   //  exp_generator->setNoTempSpace(TRUE);
 
   // later get it from CmpContext after parser sets it there.
-  const NAString * val =
-    ActiveControlDB()->getControlSessionValue("SHOWPLAN");
-  if ((val) && (*val == "ON"))
-    exp_generator->setShowplan(1);
+  const NAString *val = ActiveControlDB()->getControlSessionValue("SHOWPLAN");
+  if ((val) && (*val == "ON")) exp_generator->setShowplan(1);
 
   // the following is to support transaction handling for
   // CatAPIRequest.  Not to start transaction if TRANSACTION OFF.
-  const NAString * tval =
-    ActiveControlDB()->getControlSessionValue("TRANSACTION");
-  if ((tval) && (*tval == "OFF"))
-    exp_generator->setNoTransaction(1);
+  const NAString *tval = ActiveControlDB()->getControlSessionValue("TRANSACTION");
+  if ((tval) && (*tval == "OFF")) exp_generator->setNoTransaction(1);
 
   if (CmpCommon::context()->GetMode() == STMT_STATIC)
     staticCompMode_ = TRUE;
@@ -381,39 +340,35 @@ RelExpr * Generator::preGenCode(RelExpr * expr_node)
     staticCompMode_ = FALSE;
 
   // remember whether expression has order by clause
-  if (NOT ((RelRoot *)expr_node)->reqdOrder().isEmpty())
-    orderRequired_ = TRUE;
+  if (NOT((RelRoot *)expr_node)->reqdOrder().isEmpty()) orderRequired_ = TRUE;
 
   NAString tmp;
 
   computeStats_ = FALSE;
 
-  //check whether rms reached limit
+  // check whether rms reached limit
   NABoolean genStats = true;
   StatsGlobals *statsGlobals = GetCliGlobals()->getStatsGlobals();
   ContextCli *curCtx = GetCliGlobals()->currContext();
-  if((statsGlobals && statsGlobals->calLimitLevel()) ||
-     (curCtx && (curCtx->getSqlParserFlags() & 0x20000) != 0))
+  if ((statsGlobals && statsGlobals->calLimitLevel()) || (curCtx && (curCtx->getSqlParserFlags() & 0x20000) != 0))
     genStats = false;
   CmpCommon::getDefault(DETAILED_STATISTICS, tmp, -1);
-  if ((tmp != "OFF") &&
-      (! Get_SqlParser_Flags(DISABLE_RUNTIME_STATS)) && genStats)
+  if ((tmp != "OFF") && (!Get_SqlParser_Flags(DISABLE_RUNTIME_STATS)) && genStats)
 
-    {
-      computeStats_ = TRUE;
-      if ((tmp == "ALL") || (tmp == "ON"))
-      	collectStatsType_ = ComTdb::ALL_STATS;
-      else if (tmp == "ACCUMULATED")
-	collectStatsType_ = ComTdb::ACCUMULATED_STATS;
-      else if (tmp == "PERTABLE")
-	collectStatsType_ = ComTdb::PERTABLE_STATS;
-      else if (tmp == "OPERATOR")
-	collectStatsType_ = ComTdb::OPERATOR_STATS;
-      else
-	computeStats_ = FALSE;
-    }
+  {
+    computeStats_ = TRUE;
+    if ((tmp == "ALL") || (tmp == "ON"))
+      collectStatsType_ = ComTdb::ALL_STATS;
+    else if (tmp == "ACCUMULATED")
+      collectStatsType_ = ComTdb::ACCUMULATED_STATS;
+    else if (tmp == "PERTABLE")
+      collectStatsType_ = ComTdb::PERTABLE_STATS;
+    else if (tmp == "OPERATOR")
+      collectStatsType_ = ComTdb::OPERATOR_STATS;
     else
-       explainInRms_ = FALSE;
+      computeStats_ = FALSE;
+  } else
+    explainInRms_ = FALSE;
 
   if (CmpCommon::getDefault(COMP_BOOL_156) == DF_ON && genStats)
     collectRtsStats_ = TRUE;
@@ -422,7 +377,7 @@ RelExpr * Generator::preGenCode(RelExpr * expr_node)
 
   if (CmpCommon::getDefault(COMP_BOOL_166) == DF_OFF)
     r251HalloweenPrecode_ = true;
-  else 
+  else
     r251HalloweenPrecode_ = false;
 
   precodeHalloweenLHSofTSJ_ = false;
@@ -433,10 +388,9 @@ RelExpr * Generator::preGenCode(RelExpr * expr_node)
 
   if (CmpCommon::getDefault(DefaultConstants::PARQUET_IN_SUPPORT) == DF_OFF)
     setParquetInSupport(FALSE);
-  else 
+  else
     setParquetInSupport(TRUE);
 
-    
   CmpCommon::getDefault(OVERFLOW_MODE, tmp, -1);
   if (tmp == "SSD")
     overflowMode_ = ComTdb::OFM_SSD;
@@ -456,34 +410,27 @@ RelExpr * Generator::preGenCode(RelExpr * expr_node)
        (expr_node->child(0)->getOperatorType() == REL_SET_SESSION_DEFAULT) ||
        (expr_node->child(0)->getOperatorType() == REL_TRANSACTION) ||
        (expr_node->child(0)->getOperatorType() == REL_DESCRIBE) ||
-       (expr_node->child(0)->getOperatorType() == REL_LOCK) ||
-       (expr_node->child(0)->getOperatorType() == REL_UNLOCK) ||
+       (expr_node->child(0)->getOperatorType() == REL_LOCK) || (expr_node->child(0)->getOperatorType() == REL_UNLOCK) ||
        (expr_node->child(0)->getOperatorType() == REL_SET_TIMEOUT) ||
        (expr_node->child(0)->getOperatorType() == REL_CONTROL_RUNNING_QUERY) ||
-       (expr_node->child(0)->getOperatorType() == REL_SP_PROXY)))
-   {
-      computeStats_ = FALSE;
-      explainInRms_ = FALSE;
-   }
-   if (expr_node->child(0) &&
-      ((expr_node->child(0)->getOperatorType() == REL_DDL) ||
-      (expr_node->child(0)->getOperatorType() == REL_CALLSP) ||
-      (expr_node->child(0)->getOperatorType() == REL_EXE_UTIL)))
-     explainInRms_ = FALSE;
-   if (expr_node->child(0) &&
-    (expr_node->child(0)->getOperatorType() == REL_EXE_UTIL &&
-	((((ExeUtilExpr*)expr_node->child(0)->castToRelExpr())->getExeUtilType() == 
-	 ExeUtilExpr::GET_STATISTICS_) ||
-        (((ExeUtilExpr*)expr_node->child(0)->castToRelExpr())->getExeUtilType() == 
-	 ExeUtilExpr::DISPLAY_EXPLAIN_))))
-    {
-      computeStats_ = FALSE;
-      explainInRms_ = FALSE;
-    }
-   
+       (expr_node->child(0)->getOperatorType() == REL_SP_PROXY))) {
+    computeStats_ = FALSE;
+    explainInRms_ = FALSE;
+  }
+  if (expr_node->child(0) &&
+      ((expr_node->child(0)->getOperatorType() == REL_DDL) || (expr_node->child(0)->getOperatorType() == REL_CALLSP) ||
+       (expr_node->child(0)->getOperatorType() == REL_EXE_UTIL)))
+    explainInRms_ = FALSE;
+  if (expr_node->child(0) &&
+      (expr_node->child(0)->getOperatorType() == REL_EXE_UTIL &&
+       ((((ExeUtilExpr *)expr_node->child(0)->castToRelExpr())->getExeUtilType() == ExeUtilExpr::GET_STATISTICS_) ||
+        (((ExeUtilExpr *)expr_node->child(0)->castToRelExpr())->getExeUtilType() == ExeUtilExpr::DISPLAY_EXPLAIN_)))) {
+    computeStats_ = FALSE;
+    explainInRms_ = FALSE;
+  }
+
 #ifdef _DEBUG
-  if (getenv("NO_DETAILED_STATS"))
-  {
+  if (getenv("NO_DETAILED_STATS")) {
     computeStats_ = FALSE;
     explainInRms_ = FALSE;
   }
@@ -493,10 +440,8 @@ RelExpr * Generator::preGenCode(RelExpr * expr_node)
   // RelRoot::updatableSelect() is not accurate,
   // also use lock mode to detect select-for-update for now
   if (NOT updatableSelect() && gEnableRowLevelLock &&
-      ((RelRoot *)expr_node)->accessOptions().accessType() ==
-                                           TransMode::ACCESS_TYPE_NOT_SPECIFIED_ &&
-      ((RelRoot *)expr_node)->accessOptions().lockMode() == LockMode::PROTECTED_)
-  {
+      ((RelRoot *)expr_node)->accessOptions().accessType() == TransMode::ACCESS_TYPE_NOT_SPECIFIED_ &&
+      ((RelRoot *)expr_node)->accessOptions().lockMode() == LockMode::PROTECTED_) {
     setUpdatableSelect(TRUE);
   }
 
@@ -504,57 +449,37 @@ RelExpr * Generator::preGenCode(RelExpr * expr_node)
   NABoolean aqr = FALSE;
   // Only dynamic queries from odbc/jdbc, trafci or mxci will enable AQR.
   if ((staticCompMode_ == FALSE) &&
-      ((CmpCommon::getDefault(IS_SQLCI) == DF_ON) ||
-       (CmpCommon::getDefault(IS_TRAFCI) == DF_ON) ||
-       (CmpCommon::getDefault(ODBC_PROCESS) == DF_ON)))
-    {
-      // Users can enable aqr by setting AUTO_QUERY_RETRY to ON.
-      if (CmpCommon::getDefault(AUTO_QUERY_RETRY) == DF_ON)
-	{
-	  aqr = TRUE;
-	}
-      else if (CmpCommon::getDefault(AUTO_QUERY_RETRY) == DF_SYSTEM)
-	{
-	  if (Get_SqlParser_Flags(INTERNAL_QUERY_FROM_EXEUTIL))
-	    {
-	      // if internal query from executor for explain, enable aqr.
-	      const NAString * val =
-		ActiveControlDB()->getControlSessionValue("EXPLAIN");
-	      if (((val) && (*val == "ON")) ||
-                  (exp_generator->getShowplan()))
-		{
-		  aqr = TRUE;
-		}
-	      else if (Get_SqlParser_Flags(ALLOW_SPECIALTABLETYPE))
-                {
-                  // special/ghost tables are accessed internally.
-                  // They need to be cached.
-                  aqr = TRUE;
-                }
-	      else
-		{
-                  aqr = FALSE;
-		}
-	    }
-	  else
-	    {
-	      aqr = TRUE;
-	    }
-	}
+      ((CmpCommon::getDefault(IS_SQLCI) == DF_ON) || (CmpCommon::getDefault(IS_TRAFCI) == DF_ON) ||
+       (CmpCommon::getDefault(ODBC_PROCESS) == DF_ON))) {
+    // Users can enable aqr by setting AUTO_QUERY_RETRY to ON.
+    if (CmpCommon::getDefault(AUTO_QUERY_RETRY) == DF_ON) {
+      aqr = TRUE;
+    } else if (CmpCommon::getDefault(AUTO_QUERY_RETRY) == DF_SYSTEM) {
+      if (Get_SqlParser_Flags(INTERNAL_QUERY_FROM_EXEUTIL)) {
+        // if internal query from executor for explain, enable aqr.
+        const NAString *val = ActiveControlDB()->getControlSessionValue("EXPLAIN");
+        if (((val) && (*val == "ON")) || (exp_generator->getShowplan())) {
+          aqr = TRUE;
+        } else if (Get_SqlParser_Flags(ALLOW_SPECIALTABLETYPE)) {
+          // special/ghost tables are accessed internally.
+          // They need to be cached.
+          aqr = TRUE;
+        } else {
+          aqr = FALSE;
+        }
+      } else {
+        aqr = TRUE;
+      }
     }
+  }
   setAqrEnabled(aqr);
 
   // pre code gen.
   ValueIdSet pulledInputs;
-  return expr_node->preCodeGen(
-       this,
-       expr_node->getGroupAttr()->getCharacteristicInputs(),
-       pulledInputs);
+  return expr_node->preCodeGen(this, expr_node->getGroupAttr()->getCharacteristicInputs(), pulledInputs);
 }
 
-
-void Generator::genCode(const char *source, RelExpr * expr_node)
-{
+void Generator::genCode(const char *source, RelExpr *expr_node) {
   // Set the plan Ident. to be a time stamp.
   // This is used by EXPLAIN as the planID.
 
@@ -566,27 +491,24 @@ void Generator::genCode(const char *source, RelExpr * expr_node)
 
   stmtSource_ = source;
 
-  NExDbgInfoObj_.setNExStmtSrc( (char *)source );
+  NExDbgInfoObj_.setNExStmtSrc((char *)source);
 
   explainFragDirIndex_ = NULL_COLL_INDEX;
 
   explainIsDisabled_ = 0;
-  if (CmpCommon::getDefault(GENERATE_EXPLAIN) == DF_OFF)
-    disableExplain();
-    
-  if (expr_node->child(0) &&
-    ((expr_node->child(0)->getOperatorType() == REL_CONTROL_QUERY_SHAPE) ||
-    (expr_node->child(0)->getOperatorType() == REL_CONTROL_QUERY_DEFAULT) || 
-    (expr_node->child(0)->getOperatorType() == REL_CONTROL_TABLE) ||
-    (expr_node->child(0)->getOperatorType() == REL_CONTROL_SESSION) || 
-    (expr_node->child(0)->getOperatorType() == REL_SET_SESSION_DEFAULT)))
+  if (CmpCommon::getDefault(GENERATE_EXPLAIN) == DF_OFF) disableExplain();
+
+  if (expr_node->child(0) && ((expr_node->child(0)->getOperatorType() == REL_CONTROL_QUERY_SHAPE) ||
+                              (expr_node->child(0)->getOperatorType() == REL_CONTROL_QUERY_DEFAULT) ||
+                              (expr_node->child(0)->getOperatorType() == REL_CONTROL_TABLE) ||
+                              (expr_node->child(0)->getOperatorType() == REL_CONTROL_SESSION) ||
+                              (expr_node->child(0)->getOperatorType() == REL_SET_SESSION_DEFAULT)))
     disableExplain();
 
   foundAnUpdate_ = FALSE;
 
-  if ((expr_node->getOperatorType() == REL_ROOT) &&
-      (((RelRoot*)expr_node)->isTrueRoot()) &&
-      (((RelRoot*)expr_node)->hasCompositeExpr()))
+  if ((expr_node->getOperatorType() == REL_ROOT) && (((RelRoot *)expr_node)->isTrueRoot()) &&
+      (((RelRoot *)expr_node)->hasCompositeExpr()))
     setHasCompositeExpr(TRUE);
 
   // walk through the tree of RelExpr and ItemExpr objects, generating
@@ -595,19 +517,17 @@ void Generator::genCode(const char *source, RelExpr * expr_node)
 
   // pack each fragment independently; packing converts pointers to offsets
   // relative to the start of the fragment
-  for (CollIndex i = 0; i < fragmentDir_->entries(); i++)
-  {
+  for (CollIndex i = 0; i < fragmentDir_->entries(); i++) {
     Space *fragSpace = fragmentDir_->getSpace(i);
     char *fragTopNode = fragmentDir_->getTopNode(i);
 
-    switch (fragmentDir_->getType(i))
-    {
+    switch (fragmentDir_->getType(i)) {
       case FragmentDir::MASTER:
         ComTdbPtr((ComTdb *)fragTopNode).pack(fragSpace);
         break;
 
       case FragmentDir::DP2:
-        GenAssert(0,"DP2 fragments not supported");
+        GenAssert(0, "DP2 fragments not supported");
         break;
 
       case FragmentDir::ESP:
@@ -619,88 +539,65 @@ void Generator::genCode(const char *source, RelExpr * expr_node)
         break;
     }
   }
-
 }
 
-Generator::~Generator()
-{
+Generator::~Generator() {
   // cleanup
-  if (fragmentDir_)
-    NADELETE(fragmentDir_,  FragmentDir, wHeap());
+  if (fragmentDir_) NADELETE(fragmentDir_, FragmentDir, wHeap());
 }
 
 // moves the generated code into out_buf. If the generated code
 // is allocated from a list of buffers, then each of the buffer is
 // moved contiguously to out_buf. The caller MUST have allocated
 // sufficient space in out_buf to contain the generated code.
-char * Generator::getFinalObj(char * out_buf, ULng32 out_buflen)
-{
-  if (out_buflen < (ULng32)getFinalObjLength())
-    return NULL;
+char *Generator::getFinalObj(char *out_buf, ULng32 out_buflen) {
+  if (out_buflen < (ULng32)getFinalObjLength()) return NULL;
 
   // copy the objects of all spaces into one big buffer
   Lng32 outputLengthSoFar = 0;
-  for (CollIndex i = 0; i < fragmentDir_->entries(); i++)
-    {
-      // copy the next space into the buffer
-      if (fragmentDir_->getSpace(i)->makeContiguous(
-	   &out_buf[outputLengthSoFar],
-	   out_buflen - outputLengthSoFar) == 0)
-	return NULL;
-      outputLengthSoFar += fragmentDir_->getFragmentLength(i);
-    }
+  for (CollIndex i = 0; i < fragmentDir_->entries(); i++) {
+    // copy the next space into the buffer
+    if (fragmentDir_->getSpace(i)->makeContiguous(&out_buf[outputLengthSoFar], out_buflen - outputLengthSoFar) == 0)
+      return NULL;
+    outputLengthSoFar += fragmentDir_->getFragmentLength(i);
+  }
   return out_buf;
 }
 
-void Generator::doRuntimeSpaceComputation(char * root_tdb,
-					  char * fragTopNode,
-					  Lng32 &tcbSize)
-{
+void Generator::doRuntimeSpaceComputation(char *root_tdb, char *fragTopNode, Lng32 &tcbSize) {
   tcbSize = 0;
   // compute space.
   tcbSize = SQL_EXEC_GetTotalTcbSpace(root_tdb, fragTopNode);
 }
 
-void Generator::setTransactionFlag(NABoolean transIsNeeded,
-				   NABoolean isNeededForAllFragments)
-{
-  if (transIsNeeded) // if transaction is needed
-    {
-      // remember it for the entire statement...
-      flags_ |= TRANSACTION_FLAG;
+void Generator::setTransactionFlag(NABoolean transIsNeeded, NABoolean isNeededForAllFragments) {
+  if (transIsNeeded)  // if transaction is needed
+  {
+    // remember it for the entire statement...
+    flags_ |= TRANSACTION_FLAG;
 
-      if (fragmentDir_->entries() > 0)
-	{
-	  // ...and also for the current fragment...
-	  fragmentDir_->setNeedsTransaction(fragmentDir_->getCurrentId(),TRUE);
-	  // ...and for the root fragment
-	  fragmentDir_->setNeedsTransaction(0,TRUE);
-	  
-	  if (isNeededForAllFragments)
-	    fragmentDir_->setAllEspFragmentsNeedTransaction();
-	}
+    if (fragmentDir_->entries() > 0) {
+      // ...and also for the current fragment...
+      fragmentDir_->setNeedsTransaction(fragmentDir_->getCurrentId(), TRUE);
+      // ...and for the root fragment
+      fragmentDir_->setNeedsTransaction(0, TRUE);
+
+      if (isNeededForAllFragments) fragmentDir_->setAllEspFragmentsNeedTransaction();
     }
+  }
 }
 
-void Generator::resetTransactionFlag()
-{
-  flags_ &= ~TRANSACTION_FLAG;
-}
+void Generator::resetTransactionFlag() { flags_ &= ~TRANSACTION_FLAG; }
 
-TransMode * Generator::getTransMode()
-{
-  return CmpCommon::transMode() ;
-}
+TransMode *Generator::getTransMode() { return CmpCommon::transMode(); }
 
 // Verify that the current transaction mode is suitable for
 // update, delete, insert, or ddl operation.
 // Clone of code in GenericUpdate::bindNode(),
 // which cannot (?) detect all cases of transgression (at least the DDL ones).
 //
-void Generator::verifyUpdatableTransMode(StmtLevelAccessOptions *sAxOpt,
-					 TransMode * tm,
-					 TransMode::IsolationLevel *ilForUpd)
-{
+void Generator::verifyUpdatableTransMode(StmtLevelAccessOptions *sAxOpt, TransMode *tm,
+                                         TransMode::IsolationLevel *ilForUpd) {
   Lng32 sqlcodeA = 0, sqlcodeB = 0;
 
   //  if (getTransMode()->isolationLevel() == TransMode::READ_UNCOMMITTED_)
@@ -709,67 +606,50 @@ void Generator::verifyUpdatableTransMode(StmtLevelAccessOptions *sAxOpt,
   //   sqlcodeB = -3141;
 
   TransMode::IsolationLevel il;
-  ActiveSchemaDB()->getDefaults().getIsolationLevel
-    (il,
-     CmpCommon::getDefault(ISOLATION_LEVEL_FOR_UPDATES));
-  verifyUpdatableTrans(sAxOpt, tm,
-		       il,
-		       sqlcodeA, sqlcodeB);
-  if (ilForUpd)
-    *ilForUpd = il;
+  ActiveSchemaDB()->getDefaults().getIsolationLevel(il, CmpCommon::getDefault(ISOLATION_LEVEL_FOR_UPDATES));
+  verifyUpdatableTrans(sAxOpt, tm, il, sqlcodeA, sqlcodeB);
+  if (ilForUpd) *ilForUpd = il;
 
-  if (sqlcodeA || sqlcodeB)
-    {
-      // 3140 The isolation level cannot be READ UNCOMMITTED.
-      // 3141 The transaction access mode must be READ WRITE.
-      if (sqlcodeA) *CmpCommon::diags() << DgSqlCode(sqlcodeA);
-      if (sqlcodeB) *CmpCommon::diags() << DgSqlCode(sqlcodeB);
-      GenExit();
-    }
+  if (sqlcodeA || sqlcodeB) {
+    // 3140 The isolation level cannot be READ UNCOMMITTED.
+    // 3141 The transaction access mode must be READ WRITE.
+    if (sqlcodeA) *CmpCommon::diags() << DgSqlCode(sqlcodeA);
+    if (sqlcodeB) *CmpCommon::diags() << DgSqlCode(sqlcodeB);
+    GenExit();
+  }
   setNeedsReadWriteTransaction(TRUE);
 }
 
-CollIndex Generator::addFileDesc(const IndexDesc* desc, SqlTableOpenInfo* stoi)
-  {
+CollIndex Generator::addFileDesc(const IndexDesc *desc, SqlTableOpenInfo *stoi) {
   CollIndex index = baseFileDescs_.entries();
   baseFileDescs_.insert(desc);
   baseStoiList_.insert(stoi);
-  numOfVpsPerBase_.insert(0);   // no vertical partitions for this entry
+  numOfVpsPerBase_.insert(0);  // no vertical partitions for this entry
   return index;
-  }
+}
 
-CollIndex Generator::addVpFileDesc(const IndexDesc* vpDesc,
-                                   SqlTableOpenInfo* stoi,
-                                   CollIndex& vpIndex)
-  {
-  const TableDesc* baseDesc = vpDesc->getPrimaryTableDesc();
+CollIndex Generator::addVpFileDesc(const IndexDesc *vpDesc, SqlTableOpenInfo *stoi, CollIndex &vpIndex) {
+  const TableDesc *baseDesc = vpDesc->getPrimaryTableDesc();
   CollIndex i = 0;
-  for (i = 0; i < baseFileDescs_.entries(); i++)
-    {
-    if (numOfVpsPerBase_[i] &&
-        baseDesc == baseFileDescs_[i]->getPrimaryTableDesc())
-      break;
-    }
-  if (i == baseFileDescs_.entries())
-    {  // no base entry found, add new base file descriptor
+  for (i = 0; i < baseFileDescs_.entries(); i++) {
+    if (numOfVpsPerBase_[i] && baseDesc == baseFileDescs_[i]->getPrimaryTableDesc()) break;
+  }
+  if (i == baseFileDescs_.entries()) {  // no base entry found, add new base file descriptor
     i = addFileDesc(vpDesc, stoi);
-    }
-  vpIndex = numOfVpsPerBase_[i]; // vp descriptor index
+  }
+  vpIndex = numOfVpsPerBase_[i];  // vp descriptor index
   numOfVpsPerBase_[i]++;
   vpFileDescs_.insert(vpDesc);  // add to list of all vp descriptors
   return i;
-  }
+}
 
-NAHeap* Generator::wHeap()
-{
-  if ( wHeap_ )
-    return wHeap_;
+NAHeap *Generator::wHeap() {
+  if (wHeap_) return wHeap_;
 
   return (currentCmpContext_) ? currentCmpContext_->statementHeap() : 0;
 }
 
-void Generator::setGenObj(const RelExpr * node, ComTdb * genObj_)
-{
+void Generator::setGenObj(const RelExpr *node, ComTdb *genObj_) {
   genObj = genObj_;
 
   // if my child needs to return first N rows, then get that number from
@@ -779,22 +659,19 @@ void Generator::setGenObj(const RelExpr * node, ComTdb * genObj_)
   //    genObj->firstNRows() = (Int32)((RelExpr *)node)->child(0)->getFirstNRows();
 };
 
-ComTdbRoot * Generator::getTopRoot()
-{
-  for (CollIndex i = 0; i < fragmentDir_->entries(); i++)
-    {
-      if (fragmentDir_->getType(i) == FragmentDir::MASTER) {
-        ComTdb *root = (ComTdb *)(fragmentDir_->getTopNode(i));
+ComTdbRoot *Generator::getTopRoot() {
+  for (CollIndex i = 0; i < fragmentDir_->entries(); i++) {
+    if (fragmentDir_->getType(i) == FragmentDir::MASTER) {
+      ComTdb *root = (ComTdb *)(fragmentDir_->getTopNode(i));
 
-        GenAssert(root->getNodeType() == ComTdb::ex_ROOT, "Bad Top Root");
-        return (ComTdbRoot *)root;
-      }
+      GenAssert(root->getNodeType() == ComTdb::ex_ROOT, "Bad Top Root");
+      return (ComTdbRoot *)root;
     }
+  }
   return NULL;
 }
 
-const Space* Generator::getTopSpace() const
-{
+const Space *Generator::getTopSpace() const {
   for (CollIndex i = 0; i < fragmentDir_->entries(); i++) {
     if (fragmentDir_->getType(i) == FragmentDir::MASTER) {
       return fragmentDir_->getSpace(i);
@@ -804,23 +681,18 @@ const Space* Generator::getTopSpace() const
 }
 
 //
-// Handle user specified ESP remapping case.  
+// Handle user specified ESP remapping case.
 //
 // Return false if the specification is not correct. For spec, refer to
 // COMP_STRING_2 in the comment section for method remapESPAllocationAS().
 //
-static NABoolean remapESPAllocationViaUserInputs(FragmentDir *fragDir,
-                                                 const char *espOrder,
-                                                 CollHeap *heap)
-{
-
+static NABoolean remapESPAllocationViaUserInputs(FragmentDir *fragDir, const char *espOrder, CollHeap *heap) {
   CollIndex i;
 
   // if CycleSegs TRUE, will cause each ESP layer to start with the next
   // CPU in the list.
   //
-  NABoolean cycleSegs =
-    (ActiveSchemaDB()->getDefaults()).getAsLong(AS_CYCLIC_ESP_PLACEMENT);
+  NABoolean cycleSegs = (ActiveSchemaDB()->getDefaults()).getAsLong(AS_CYCLIC_ESP_PLACEMENT);
   Int32 numCPUs = CURRCONTEXT_CLUSTERINFO->getTotalNumberOfCPUs();
 
   ULng32 *utilcpus = new (heap) ULng32[numCPUs];
@@ -828,47 +700,41 @@ static NABoolean remapESPAllocationViaUserInputs(FragmentDir *fragDir,
 
   // Parse the espOrderString is specified.
   //
-  
+
   // Indicates if the espOrderString is properly specified.
   //
   NABoolean espOrderOK = FALSE;
-  if(espOrder && *espOrder) {
-
+  if (espOrder && *espOrder) {
     espOrderOK = TRUE;
     const char *espOrderp = espOrder;
 
     for (i = 0; i < (CollIndex)numCPUs && espOrderOK && *espOrderp; i++) {
-
       Lng32 seg = 0;
       Lng32 cpu = 0;
       Lng32 state = 0;
 
-      if(*espOrderp >= '0' && *espOrderp <= '9') {
+      if (*espOrderp >= '0' && *espOrderp <= '9') {
         state++;
 
         seg = atoi(espOrderp);
-        while(*espOrderp >= '0' && *espOrderp <= '9')
-          espOrderp++;
+        while (*espOrderp >= '0' && *espOrderp <= '9') espOrderp++;
       }
 
-      if(*espOrderp == ':') {
+      if (*espOrderp == ':') {
         espOrderp++;
         state++;
       }
 
-      if(*espOrderp >= '0' && *espOrderp <= '9') {
+      if (*espOrderp >= '0' && *espOrderp <= '9') {
         state++;
 
         cpu = atoi(espOrderp);
-        while(*espOrderp >= '0' && *espOrderp <= '9')
-          espOrderp++;
+        while (*espOrderp >= '0' && *espOrderp <= '9') espOrderp++;
       }
 
-      if(*espOrderp == ',')
-        espOrderp++;
+      if (*espOrderp == ',') espOrderp++;
 
-      if(state == 3) {
-
+      if (state == 3) {
         utilcpus[i] = cpu;
         utilsegs[i] = seg;
 
@@ -877,11 +743,10 @@ static NABoolean remapESPAllocationViaUserInputs(FragmentDir *fragDir,
       }
     }
   }
-  
+
   Int32 numEntries = i;
 
-  if(!espOrderOK) {
-
+  if (!espOrderOK) {
     return FALSE;
 
   } else {
@@ -891,108 +756,91 @@ static NABoolean remapESPAllocationViaUserInputs(FragmentDir *fragDir,
     Int32 nextCPUToUse = 0;
 
     for (i = 0; i < fragDir->entries(); i++) {
-      if (fragDir->getPartitioningFunction(i) != NULL &&
-          fragDir->getType(i) == FragmentDir::ESP)
-        {
+      if (fragDir->getPartitioningFunction(i) != NULL && fragDir->getType(i) == FragmentDir::ESP) {
+        // Get the node map for this ESP fragment.
+        //
+        NodeMap *nodeMap = (NodeMap *)fragDir->getPartitioningFunction(i)->getNodeMap();
 
-          // Get the node map for this ESP fragment.
-          //
-          NodeMap *nodeMap =
-            (NodeMap *)fragDir->getPartitioningFunction(i)->getNodeMap();
-          
+        // Copy the existing node map for this ESP fragment.
+        // Need to make a copy because this node map could be
+        // shared with other node maps.
+        //
+        nodeMap = nodeMap->copy(heap);
 
-          // Copy the existing node map for this ESP fragment.
-          // Need to make a copy because this node map could be
-          // shared with other node maps.
+        // Reset for each ESP layer, unless cycleSegs was specified.
+        //
+        if (!cycleSegs) nextCPUToUse = 0;
+
+        // Remap each entry in the node map for this fragment.
+        //
+        for (CollIndex j = 0; j < nodeMap->getNumEntries(); j++) {
+          // The index into the CPU and Segment maps.  This
+          // cpuNumber is the number relative to the whole
+          // system (all segments)
           //
-          nodeMap = nodeMap->copy(heap);
-          
-          // Reset for each ESP layer, unless cycleSegs was specified.
+          ULng32 cpuNumber = nextCPUToUse++;
+
+          // Wrap around if at end of list.
           //
-          if(!cycleSegs)
+          if (nextCPUToUse == numEntries) {
             nextCPUToUse = 0;
-
-          // Remap each entry in the node map for this fragment.
-          //
-          for(CollIndex j=0; j < nodeMap->getNumEntries(); j++) {
-
-            // The index into the CPU and Segment maps.  This
-            // cpuNumber is the number relative to the whole
-            // system (all segments)
-            //
-            ULng32 cpuNumber = nextCPUToUse++;
-
-            // Wrap around if at end of list.
-            //
-            if(nextCPUToUse == numEntries) {
-              nextCPUToUse = 0;
-            }
-
-            // Get the cpu based on the CPU map.
-            // This cpu is the cpu number for a specific segment.
-            //
-            Lng32 cpu = (Lng32)utilcpus[cpuNumber];
-            Lng32 seg = (Lng32)utilsegs[cpuNumber];
-
-            // Set the cpu and segment for this node map entry.
-            //
-            nodeMap->setNodeNumber(j, cpu);
-            nodeMap->setClusterNumber(j, seg);
           }
 
-          // After remapping the node map (copy), make it the
-          // node map for this ESP fragment.
+          // Get the cpu based on the CPU map.
+          // This cpu is the cpu number for a specific segment.
           //
-          PartitioningFunction *partFunc = (PartitioningFunction *)
-            (fragDir->getPartitioningFunction(i));
-          partFunc->replaceNodeMap(nodeMap);
-      } // end of ESP fragment processing
-    } // end of FOR loop on all fragments
+          Lng32 cpu = (Lng32)utilcpus[cpuNumber];
+          Lng32 seg = (Lng32)utilsegs[cpuNumber];
+
+          // Set the cpu and segment for this node map entry.
+          //
+          nodeMap->setNodeNumber(j, cpu);
+          nodeMap->setClusterNumber(j, seg);
+        }
+
+        // After remapping the node map (copy), make it the
+        // node map for this ESP fragment.
+        //
+        PartitioningFunction *partFunc = (PartitioningFunction *)(fragDir->getPartitioningFunction(i));
+        partFunc->replaceNodeMap(nodeMap);
+      }  // end of ESP fragment processing
+    }    // end of FOR loop on all fragments
   }
   return TRUE;
 }
 
-void Generator::remapESPAllocation()
-{
-  if (!fragmentDir_ || !fragmentDir_->containsESPLayer())
-    return; 
+void Generator::remapESPAllocation() {
+  if (!fragmentDir_ || !fragmentDir_->containsESPLayer()) return;
 
   const NAWNodeSet *tenantNodes = CmpCommon::context()->getAvailableNodes();
-  const NAASNodes *asNodes      = tenantNodes->castToNAASNodes();
+  const NAASNodes *asNodes = tenantNodes->castToNAASNodes();
   int defaultAffinity = ActiveSchemaDB()->getDefaults().getAsLong(AS_AFFINITY_VALUE);
 
-  if (// we are using a non-AS tenant
+  if (  // we are using a non-AS tenant
       asNodes == NULL ||
       // or we are using a tenant that can use all nodes and AS is off
-      (asNodes->canUseAllNodes(CURRCONTEXT_CLUSTERINFO) &&
-       defaultAffinity == -2))
+      (asNodes->canUseAllNodes(CURRCONTEXT_CLUSTERINFO) && defaultAffinity == -2))
     remapESPAllocationRandomly();
-  else
-    {
-      // If set, defines a new ordering of the CPUs.
-      //
-      const char *espOrder =
-        ActiveSchemaDB()->getDefaults().getValue(COMP_STRING_2);
+  else {
+    // If set, defines a new ordering of the CPUs.
+    //
+    const char *espOrder = ActiveSchemaDB()->getDefaults().getValue(COMP_STRING_2);
 
-      if(espOrder && *espOrder) {
-        GenAssert(0, "ESP remapping via COMP_STRING_2 currently not supported");
-        if(remapESPAllocationViaUserInputs(fragmentDir_, espOrder, wHeap())) {
-          return;
-        }
+    if (espOrder && *espOrder) {
+      GenAssert(0, "ESP remapping via COMP_STRING_2 currently not supported");
+      if (remapESPAllocationViaUserInputs(fragmentDir_, espOrder, wHeap())) {
+        return;
       }
-      // use Adaptive Segmentation
-      remapESPAllocationAS(asNodes);
     }
+    // use Adaptive Segmentation
+    remapESPAllocationAS(asNodes);
+  }
 
   compilerStatsInfo().affinityNumber() = getAffinityValueUsed();
 }
 
-void Generator::computeAvailableNodes(NAWNodeSet *&availableNodes,
-                                      const NAWNodeSet *availableNodesFromCLI,
-                                      const NAWNodeSet *availableNodesFromOSIM,
-                                      int defaultAffinity,
-                                      CollHeap *heap)
-{
+void Generator::computeAvailableNodes(NAWNodeSet *&availableNodes, const NAWNodeSet *availableNodesFromCLI,
+                                      const NAWNodeSet *availableNodesFromOSIM, int defaultAffinity, CollHeap *heap) {
   // At the end of this call, availableNodes will point to an object
   // that is allocated on <heap> and fits one of these descriptions:
   // - a) an NAASNodes object representing the entire cluster when not
@@ -1012,128 +860,97 @@ void Generator::computeAvailableNodes(NAWNodeSet *&availableNodes,
   // See method Generator::remapESPAllocationAS for a description
   // of the allowed values for the AS_AFFINITY_VALUE CQD.
 
-  const NAWNodeSet * tenantNodes = availableNodesFromOSIM;
-  const NAASNodes * asNodes = NULL;
+  const NAWNodeSet *tenantNodes = availableNodesFromOSIM;
+  const NAASNodes *asNodes = NULL;
 
-  if (!tenantNodes)
-    tenantNodes = availableNodesFromCLI;
+  if (!tenantNodes) tenantNodes = availableNodesFromCLI;
 
-  if (defaultAffinity < -4 || defaultAffinity == -1)
-    {
-      // invalid affinity value in CQD
-      *CmpCommon::diags() << DgSqlCode(-7034)
-                          << DgInt0(defaultAffinity);
-      return;
-    }
+  if (defaultAffinity < -4 || defaultAffinity == -1) {
+    // invalid affinity value in CQD
+    *CmpCommon::diags() << DgSqlCode(-7034) << DgInt0(defaultAffinity);
+    return;
+  }
 
-  if (tenantNodes)
-    asNodes = tenantNodes->castToNAASNodes();
+  if (tenantNodes) asNodes = tenantNodes->castToNAASNodes();
 
   DCMPASSERT(availableNodes == NULL);
 
   // if AS is off (default affinity -2) and we can't use all nodes
   // then change that to affinity -4, since this situation requires AS
-  if (defaultAffinity == -2 &&
-      asNodes && !asNodes->canUseAllNodes(CURRCONTEXT_CLUSTERINFO))
-    defaultAffinity = -4;
+  if (defaultAffinity == -2 && asNodes && !asNodes->canUseAllNodes(CURRCONTEXT_CLUSTERINFO)) defaultAffinity = -4;
 
-  if (tenantNodes == NULL || // a)
-      (asNodes != NULL && defaultAffinity != -2)) // b)
-    {
-      // a) or b)
+  if (tenantNodes == NULL ||                       // a)
+      (asNodes != NULL && defaultAffinity != -2))  // b)
+  {
+    // a) or b)
 
-      // the new affinity we want to use, based on the other two
-      // (defaultAffinity and tenant affinity)
-      int newAffinity = defaultAffinity;
+    // the new affinity we want to use, based on the other two
+    // (defaultAffinity and tenant affinity)
+    int newAffinity = defaultAffinity;
 
-      // Handle negative affinity values -2, -3 and -4. See
-      // comment in Generator::remapESPAllocationAS()
-      if (defaultAffinity == -2)
-        newAffinity = 0; // doesn't really matter, AS is off
-      else if (defaultAffinity == -3)
-        {
-          // default affinity -3: A random value based on the session id
-          const char *sessionId =
-            ActiveSchemaDB()->getDefaults().getValue(SESSION_ID);
+    // Handle negative affinity values -2, -3 and -4. See
+    // comment in Generator::remapESPAllocationAS()
+    if (defaultAffinity == -2)
+      newAffinity = 0;  // doesn't really matter, AS is off
+    else if (defaultAffinity == -3) {
+      // default affinity -3: A random value based on the session id
+      const char *sessionId = ActiveSchemaDB()->getDefaults().getValue(SESSION_ID);
 
-          Lng32 length = strlen(sessionId);
+      Lng32 length = strlen(sessionId);
 
-          length = (length > 43 ? 43 : length);
+      length = (length > 43 ? 43 : length);
 
-          UInt32 affinity32 = ExHDPHash::hash(sessionId,
-                                              ExHDPHash::NO_FLAGS,
-                                              length);
+      UInt32 affinity32 = ExHDPHash::hash(sessionId, ExHDPHash::NO_FLAGS, length);
 
-          // make it non-negative
-          affinity32 &= 0x7FFFFFFF;
-          newAffinity = (int) affinity32;
-          GenAssert(
-               tenantNodes == NULL ||
-               tenantNodes->canUseAllNodes(CURRCONTEXT_CLUSTERINFO),
-               "default affinity -3 is not supported in a multi-tenant environment");
-        }
-      else if (defaultAffinity == -4)
-        {
-          // affinity -4: choose affinity such that node of master
-          //              executor is a part of the segment
-          const char *sessionId =
-            ActiveSchemaDB()->getDefaults().getValue(SESSION_ID);
-          Lng32 length = strlen(sessionId);
-          Int64 cpu_l = -99;
+      // make it non-negative
+      affinity32 &= 0x7FFFFFFF;
+      newAffinity = (int)affinity32;
+      GenAssert(tenantNodes == NULL || tenantNodes->canUseAllNodes(CURRCONTEXT_CLUSTERINFO),
+                "default affinity -3 is not supported in a multi-tenant environment");
+    } else if (defaultAffinity == -4) {
+      // affinity -4: choose affinity such that node of master
+      //              executor is a part of the segment
+      const char *sessionId = ActiveSchemaDB()->getDefaults().getValue(SESSION_ID);
+      Lng32 length = strlen(sessionId);
+      Int64 cpu_l = -99;
 
-          ComSqlId::getSqlSessionIdAttr(ComSqlId::SQLQUERYID_CPUNUM,
-                                        sessionId,
-                                        length,
-                                        cpu_l,
-                                        NULL);
+      ComSqlId::getSqlSessionIdAttr(ComSqlId::SQLQUERYID_CPUNUM, sessionId, length, cpu_l, NULL);
 
-          // Use the CPU/node number of the session. MXOAS balances the
-          // connections among the nodes and it also makes sure that
-          // a connection for a tenant is running on one of the allowed
-          // nodes for this tenant. Note that AS uses "dense" node ids,
-          // so we need to map the physical node id to a dense id.
-          newAffinity =
-            CURRCONTEXT_CLUSTERINFO->mapPhysicalToLogicalNodeId((int) cpu_l);
-          DCMPASSERT(newAffinity >= 0);
-          if (newAffinity < 0)
-            // this should be very unlikely, an invalid node number in
-            // the session id, pick a more or less random affinity
-            newAffinity = 3;
-        }
-  
-      // now create a new object, based on the cases a) and b) described above
-      if (defaultAffinity == -2 ||
-          asNodes == NULL)
-        {
-          // a) no tenant or AS tenant covering all nodes
-          int numUnits =
-            CURRCONTEXT_CLUSTERINFO->numberOfTenantUnitsInTheCluster();
-          int numNodes =
-            CURRCONTEXT_CLUSTERINFO->getTotalNumberOfCPUs();
-
-          availableNodes = new(heap) NAASNodes(numUnits,
-                                               numNodes,
-                                               newAffinity);
-        }
-      else
-        {
-          // b) AS tenant not covering all nodes, AS is ON via CQD
-
-          // Make newAffinity compatible with the tenant, such that
-          // we will choose the same nodes, but with a random starting
-          // point
-          newAffinity = asNodes->randomizeAffinity(newAffinity);
-
-          availableNodes = new(heap) NAASNodes(asNodes->getTotalWeight(),
-                                               asNodes->getClusterSize(),
-                                               newAffinity);
-        }
-    } // a) or b)
-  else
-    {
-      // c) non-AS tenant or AS tenant and AS CQD is off
-      availableNodes = tenantNodes->copy(heap);
+      // Use the CPU/node number of the session. MXOAS balances the
+      // connections among the nodes and it also makes sure that
+      // a connection for a tenant is running on one of the allowed
+      // nodes for this tenant. Note that AS uses "dense" node ids,
+      // so we need to map the physical node id to a dense id.
+      newAffinity = CURRCONTEXT_CLUSTERINFO->mapPhysicalToLogicalNodeId((int)cpu_l);
+      DCMPASSERT(newAffinity >= 0);
+      if (newAffinity < 0)
+        // this should be very unlikely, an invalid node number in
+        // the session id, pick a more or less random affinity
+        newAffinity = 3;
     }
+
+    // now create a new object, based on the cases a) and b) described above
+    if (defaultAffinity == -2 || asNodes == NULL) {
+      // a) no tenant or AS tenant covering all nodes
+      int numUnits = CURRCONTEXT_CLUSTERINFO->numberOfTenantUnitsInTheCluster();
+      int numNodes = CURRCONTEXT_CLUSTERINFO->getTotalNumberOfCPUs();
+
+      availableNodes = new (heap) NAASNodes(numUnits, numNodes, newAffinity);
+    } else {
+      // b) AS tenant not covering all nodes, AS is ON via CQD
+
+      // Make newAffinity compatible with the tenant, such that
+      // we will choose the same nodes, but with a random starting
+      // point
+      newAffinity = asNodes->randomizeAffinity(newAffinity);
+
+      availableNodes = new (heap) NAASNodes(asNodes->getTotalWeight(), asNodes->getClusterSize(), newAffinity);
+    }
+  }  // a) or b)
+  else {
+    // c) non-AS tenant or AS tenant and AS CQD is off
+    availableNodes = tenantNodes->copy(heap);
+  }
 }
 
 // remapESPAllocationAS: Called by RelRoot::codeGen()
@@ -1204,9 +1021,7 @@ void Generator::computeAvailableNodes(NAWNodeSet *&availableNodes,
 // 1 and so on.  With this control, it is possible to map each
 // adaptive segment to any subset of CPUs.
 //
-void
-Generator::remapESPAllocationAS(const NAASNodes *asNodes)
-{
+void Generator::remapESPAllocationAS(const NAASNodes *asNodes) {
   DCMPASSERT(asNodes);
   int numTenantNodes = asNodes->getNumNodes();
   const NAArray<CollIndex> &cpuArray(CURRCONTEXT_CLUSTERINFO->getCPUArray());
@@ -1224,9 +1039,8 @@ Generator::remapESPAllocationAS(const NAASNodes *asNodes)
   // if CycleSegs TRUE, will cause ESP layers after layersInCycle to use the
   // next affinity_value.
   //
-  ULng32 layersInCycle =
-    ((ActiveSchemaDB()->getDefaults()).getAsLong(AS_CYCLIC_ESP_PLACEMENT));
-      
+  ULng32 layersInCycle = ((ActiveSchemaDB()->getDefaults()).getAsLong(AS_CYCLIC_ESP_PLACEMENT));
+
   NABoolean cycleSegs = (layersInCycle > 0);
   int espLayersInCurrentCycle = 0;
 
@@ -1234,14 +1048,12 @@ Generator::remapESPAllocationAS(const NAASNodes *asNodes)
   // touch all the nodes
   //
   NABoolean shiftFullFragments =
-    (CmpCommon::getDefault(AS_SHIFT_FULL_FRAGMENTS) == DF_ON &&
-     asNodes->canUseAllNodes(CURRCONTEXT_CLUSTERINFO));
+      (CmpCommon::getDefault(AS_SHIFT_FULL_FRAGMENTS) == DF_ON && asNodes->canUseAllNodes(CURRCONTEXT_CLUSTERINFO));
 
   // The fragment size threshold specifies the ESP layer size below
   // which a random affinity value is used.
   //
-  int asThreshold =
-    ActiveSchemaDB()->getDefaults().getAsLong(AS_FRAGMENT_SIZE_THRESHOLD);
+  int asThreshold = ActiveSchemaDB()->getDefaults().getAsLong(AS_FRAGMENT_SIZE_THRESHOLD);
 
   // Save the affinity value in the Generator so it can be used by Explain.
   //
@@ -1249,677 +1061,530 @@ Generator::remapESPAllocationAS(const NAASNodes *asNodes)
 
   // Remap Each ESP fragment.
   //
-  for (CollIndex i = 0; i < fragmentDir_->entries(); i++)
-    {
-      if (fragmentDir_->getPartitioningFunction(i) != NULL &&
-          fragmentDir_->getType(i) == FragmentDir::ESP)
-        {
-          // Get the node map for this ESP fragment.
-          //
-          NodeMap *nodeMap =
-            (NodeMap *)fragmentDir_->getPartitioningFunction(i)->getNodeMap();
+  for (CollIndex i = 0; i < fragmentDir_->entries(); i++) {
+    if (fragmentDir_->getPartitioningFunction(i) != NULL && fragmentDir_->getType(i) == FragmentDir::ESP) {
+      // Get the node map for this ESP fragment.
+      //
+      NodeMap *nodeMap = (NodeMap *)fragmentDir_->getPartitioningFunction(i)->getNodeMap();
 
-          // If this node map is qualified for remapping ...
-          //
-          NAText output;
-          if (!nodeMap->usesLocality() &&
-              nodeMap->getNumEntries() >= asThreshold)
-            {
-
+      // If this node map is qualified for remapping ...
+      //
+      NAText output;
+      if (!nodeMap->usesLocality() && nodeMap->getNumEntries() >= asThreshold) {
 #ifdef _DEBUG
-              if ((CmpCommon::getDefault( NSK_DBG ) == DF_ON) &&
-                  (CmpCommon::getDefault( NSK_DBG_GENERIC ) == DF_ON )) {
-                OptDebug* optDbg = CmpCommon::context()->getOptDbg();
-                optDbg->stream()
-                  << "Remapping NodeMap::" << endl
-                  << "fragment number = " << i
-                  << ", entries = " << nodeMap->getNumEntries()
-                  << ", query affinity = " << queryAffinity
-                  << ", fragment affinity = " << fragmentAffinity
-                  << endl;
-              }
+        if ((CmpCommon::getDefault(NSK_DBG) == DF_ON) && (CmpCommon::getDefault(NSK_DBG_GENERIC) == DF_ON)) {
+          OptDebug *optDbg = CmpCommon::context()->getOptDbg();
+          optDbg->stream() << "Remapping NodeMap::" << endl
+                           << "fragment number = " << i << ", entries = " << nodeMap->getNumEntries()
+                           << ", query affinity = " << queryAffinity << ", fragment affinity = " << fragmentAffinity
+                           << endl;
+        }
 #endif
 
-              int dop = nodeMap->getNumEntries();
+        int dop = nodeMap->getNumEntries();
 
-              // The optimizer should use DoPs that are factors or
-              // multiples of asNodes, but in some cases it computes
-              // the DoP from the size of tables.  This code should
-              // tolerate any DoP.
-              int segmentSize = asNodes->makeSizeFeasible(dop,
-                                                          numTenantNodes,
-                                                          1);
+        // The optimizer should use DoPs that are factors or
+        // multiples of asNodes, but in some cases it computes
+        // the DoP from the size of tables.  This code should
+        // tolerate any DoP.
+        int segmentSize = asNodes->makeSizeFeasible(dop, numTenantNodes, 1);
 
-              // don't let the tenant out of its subset of nodes
-              if (segmentSize > numTenantNodes &&
-                  numTenantNodes < clusterSize)
-                segmentSize = numTenantNodes;
+        // don't let the tenant out of its subset of nodes
+        if (segmentSize > numTenantNodes && numTenantNodes < clusterSize) segmentSize = numTenantNodes;
 
-              // Make an NAASNodes object for the tenant with the
-              // given affinity and size, and the DoP of this fragment
-              NAASNodes fragmentNodes(segmentSize,
-                                      clusterSize,
-                                      fragmentAffinity);
-              int nodeNumber = -1;
+        // Make an NAASNodes object for the tenant with the
+        // given affinity and size, and the DoP of this fragment
+        NAASNodes fragmentNodes(segmentSize, clusterSize, fragmentAffinity);
+        int nodeNumber = -1;
 
-              NABoolean shiftNodes = (shiftFullFragments && dop >= numTenantNodes);
-              int shift = (shiftNodes ? i : 0);
+        NABoolean shiftNodes = (shiftFullFragments && dop >= numTenantNodes);
+        int shift = (shiftNodes ? i : 0);
 
-              // Copy the existing node map for this ESP fragment.
-              // Need to make a copy because this node map could be
-              // shared with other node maps.
-              //
-              nodeMap = nodeMap->copy(wHeap());
+        // Copy the existing node map for this ESP fragment.
+        // Need to make a copy because this node map could be
+        // shared with other node maps.
+        //
+        nodeMap = nodeMap->copy(wHeap());
 
-              // Remap each entry in the node map for this fragment.
-              //
-              for(CollIndex j=0; j < dop; j++)
-                {
-                  int physNodeNumber;
+        // Remap each entry in the node map for this fragment.
+        //
+        for (CollIndex j = 0; j < dop; j++) {
+          int physNodeNumber;
 
-                  nodeNumber = fragmentNodes.getNodeNumber(j+shift);
+          nodeNumber = fragmentNodes.getNodeNumber(j + shift);
 
-                  // one more, final, mapping, accounts for potential
-                  // holes in the list of node ids for this cluster
-                  physNodeNumber = cpuArray[nodeNumber % numCPUs];
+          // one more, final, mapping, accounts for potential
+          // holes in the list of node ids for this cluster
+          physNodeNumber = cpuArray[nodeNumber % numCPUs];
 
-                  // this is where the actual remapping happens
-                  // ------------------------------------------
-                  nodeMap->setNodeNumber(j, physNodeNumber);
+          // this is where the actual remapping happens
+          // ------------------------------------------
+          nodeMap->setNodeNumber(j, physNodeNumber);
 
 #ifdef _DEBUG
-                  if ((CmpCommon::getDefault( NSK_DBG ) == DF_ON) &&
-                      (CmpCommon::getDefault( NSK_DBG_GENERIC ) == DF_ON )) {
-                    OptDebug* optDbg = CmpCommon::context()->getOptDbg();
-                    optDbg->stream()
-                      << " entry = " << j
-                      << ", nodeNumber = " << nodeNumber
-                      << ", physNodeNumber = " << physNodeNumber << endl;
-                  }
+          if ((CmpCommon::getDefault(NSK_DBG) == DF_ON) && (CmpCommon::getDefault(NSK_DBG_GENERIC) == DF_ON)) {
+            OptDebug *optDbg = CmpCommon::context()->getOptDbg();
+            optDbg->stream() << " entry = " << j << ", nodeNumber = " << nodeNumber
+                             << ", physNodeNumber = " << physNodeNumber << endl;
+          }
 #endif
-                } // loop over node map entries
+        }  // loop over node map entries
 
-              // After remapping the node map (copy), make it the
-              // node map for this ESP fragment.
-              //
-              PartitioningFunction *partFunc = (PartitioningFunction *)
-                (fragmentDir_->getPartitioningFunction(i));
-              partFunc->replaceNodeMap(nodeMap);
+        // After remapping the node map (copy), make it the
+        // node map for this ESP fragment.
+        //
+        PartitioningFunction *partFunc = (PartitioningFunction *)(fragmentDir_->getPartitioningFunction(i));
+        partFunc->replaceNodeMap(nodeMap);
 
-              espLayersInCurrentCycle++;
+        espLayersInCurrentCycle++;
 
-              // Count an ESP fragment with BMOs twice. This is an 
-              // approximation to the real logic used in run-time to
-              // pack ESPs with BMO operators into ESP proceses. 
-              if ( fragmentDir_->getNumBMOs(i) > 0 )
-                espLayersInCurrentCycle++;
+        // Count an ESP fragment with BMOs twice. This is an
+        // approximation to the real logic used in run-time to
+        // pack ESPs with BMO operators into ESP proceses.
+        if (fragmentDir_->getNumBMOs(i) > 0) espLayersInCurrentCycle++;
 
-              // If cycleSegs is specified, use a different affinity
-              // value for layersInCycle # of ESP layers.
-              //
-              if (cycleSegs &&
-                  (espLayersInCurrentCycle >= layersInCycle)) {
-                // set the affinity to the next allowed value
-                // (mod numTenantNodes), so that the allocated
-                // segments look something like this
-                // (may also wrap-around, of course):
-                // +--+--+--+-- fragment 0, dop 4, affinity 3
-                // +--+--+--+-- fragment 1, dop 4, affinity 3
-                //              ---- shift affinity to 4 ----
-                // -+--+--+--+- fragment 2, dop 4, affinity 4
-                // +---+---+--- fragment 3, dop 3, affinity 4
-                fragmentAffinity =
-                  (fragmentAffinity + fragmentNodes.getNodeDistanceInSegment()) % clusterSize;
-                espLayersInCurrentCycle = 0;
-              } // cycle segs
-              fragmentNodes.serialize(output);
-            } // fragment qualifies for remapping
-          QRLogger::log("SQL", LL_INFO,"remapESPAllocationAS(). fragmentNodes(%s). NodeMap(%s).",
-                        output.data(), nodeMap->getText().data());
-        } // ESP fragment
-    } // loop over fragments of the statement
-} // remapESPAllocationAS()
-
+        // If cycleSegs is specified, use a different affinity
+        // value for layersInCycle # of ESP layers.
+        //
+        if (cycleSegs && (espLayersInCurrentCycle >= layersInCycle)) {
+          // set the affinity to the next allowed value
+          // (mod numTenantNodes), so that the allocated
+          // segments look something like this
+          // (may also wrap-around, of course):
+          // +--+--+--+-- fragment 0, dop 4, affinity 3
+          // +--+--+--+-- fragment 1, dop 4, affinity 3
+          //              ---- shift affinity to 4 ----
+          // -+--+--+--+- fragment 2, dop 4, affinity 4
+          // +---+---+--- fragment 3, dop 3, affinity 4
+          fragmentAffinity = (fragmentAffinity + fragmentNodes.getNodeDistanceInSegment()) % clusterSize;
+          espLayersInCurrentCycle = 0;
+        }  // cycle segs
+        fragmentNodes.serialize(output);
+      }  // fragment qualifies for remapping
+      QRLogger::log("SQL", LL_INFO, "remapESPAllocationAS(). fragmentNodes(%s). NodeMap(%s).", output.data(),
+                    nodeMap->getText().data());
+    }  // ESP fragment
+  }    // loop over fragments of the statement
+}  // remapESPAllocationAS()
 
 // map ESPs randomly
-void Generator::remapESPAllocationRandomly()
-{
-   NAClusterInfo* nac = CmpCommon::context()->getClusterInfo();
-   Lng32 numCPUs = nac->getTotalNumberOfCPUs();
-   for (Int32 i = 0; i < fragmentDir_->entries(); i++) {
+void Generator::remapESPAllocationRandomly() {
+  NAClusterInfo *nac = CmpCommon::context()->getClusterInfo();
+  Lng32 numCPUs = nac->getTotalNumberOfCPUs();
+  for (Int32 i = 0; i < fragmentDir_->entries(); i++) {
+    if (fragmentDir_->getPartitioningFunction(i) != NULL && fragmentDir_->getType(i) == FragmentDir::ESP) {
+      // Get the node map for this ESP fragment.
+      NodeMap *nodeMap = (NodeMap *)fragmentDir_->getPartitioningFunction(i)->getNodeMap();
 
-     if (fragmentDir_->getPartitioningFunction(i) != NULL &&
-         fragmentDir_->getType(i) == FragmentDir::ESP)
-     {
+      NABoolean allowRandomMapping = fragmentDir_->getPartitioningFunction(i)->allowRandomMapping();
 
-       // Get the node map for this ESP fragment.
-       NodeMap *nodeMap =
-          (NodeMap *)fragmentDir_->getPartitioningFunction(i)->getNodeMap();
+      for (CollIndex j = 0; j < nodeMap->getNumEntries(); j++) {
+        if (!allowRandomMapping) {
+          // Assign the node number to j, limited by the total
+          // number of CPUs. The limit is needed to take care of
+          // situations where the number of available CPUs is faked.
+          nodeMap->setNodeNumber(j, MINOF(j, numCPUs - 1));
+        } else
+            // if ESP-RegionServer colocation logic is off, then assign any node
+            if (CmpCommon::getDefault(TRAF_ALLOW_ESP_COLOCATION) == DF_OFF)
+          nodeMap->setNodeNumber(j, IPC_CPU_DONT_CARE);
 
-       NABoolean allowRandomMapping = 
-          fragmentDir_->getPartitioningFunction(i)->allowRandomMapping();
-           
-       for (CollIndex j=0; j<nodeMap->getNumEntries(); j++) {
- 
-         if ( !allowRandomMapping ) {
-           // Assign the node number to j, limited by the total
-           // number of CPUs. The limit is needed to take care of
-           // situations where the number of available CPUs is faked.
-           nodeMap->setNodeNumber(j, MINOF(j, numCPUs-1));
-         } else
-          // if ESP-RegionServer colocation logic is off, then assign any node
-         if (CmpCommon::getDefault(TRAF_ALLOW_ESP_COLOCATION) == DF_OFF)
-           nodeMap->setNodeNumber(j, IPC_CPU_DONT_CARE);
+        nodeMap->setClusterNumber(j, 0);
+      }
 
-         nodeMap->setClusterNumber(j, 0);
-
-       }
-
-       // After remapping the node map (copy), make it the
-       // node map for this ESP fragment.
-       PartitioningFunction *partFunc = (PartitioningFunction *)
-                           (fragmentDir_->getPartitioningFunction(i));
-       partFunc->replaceNodeMap(nodeMap);
-       QRLogger::log("SQL", LL_INFO,"remapESPAllocationRandomly(numCPUs : %d). NodeMap%s",
-                     numCPUs, nodeMap->getText().data());
-     }
-   }
+      // After remapping the node map (copy), make it the
+      // node map for this ESP fragment.
+      PartitioningFunction *partFunc = (PartitioningFunction *)(fragmentDir_->getPartitioningFunction(i));
+      partFunc->replaceNodeMap(nodeMap);
+      QRLogger::log("SQL", LL_INFO, "remapESPAllocationRandomly(numCPUs : %d). NodeMap%s", numCPUs,
+                    nodeMap->getText().data());
+    }
+  }
 }
 
-Lng32 Generator::getRecordLength(ComTdbVirtTableIndexInfo * indexInfo,
-                                 ComTdbVirtTableColumnInfo * columnInfoArray)
-{
+Lng32 Generator::getRecordLength(ComTdbVirtTableIndexInfo *indexInfo, ComTdbVirtTableColumnInfo *columnInfoArray) {
   Lng32 recLen = 0;
 
-  if ((! indexInfo) && (! columnInfoArray))
-    return recLen;
+  if ((!indexInfo) && (!columnInfoArray)) return recLen;
 
   Lng32 keyCount = indexInfo->keyColCount;
-  const ComTdbVirtTableKeyInfo * keyInfoArray = indexInfo->keyInfoArray;
+  const ComTdbVirtTableKeyInfo *keyInfoArray = indexInfo->keyInfoArray;
 
-  if (! keyInfoArray)
-    return recLen;
+  if (!keyInfoArray) return recLen;
 
-  for (Int16 keyNum = 0; keyNum < keyCount; keyNum++)
-    {
+  for (Int16 keyNum = 0; keyNum < keyCount; keyNum++) {
+    const ComTdbVirtTableKeyInfo &keyInfo = keyInfoArray[keyNum];
+
+    const ComTdbVirtTableColumnInfo &colInfo = columnInfoArray[keyInfo.tableColNum];
+    recLen += colInfo.length;
+  }
+
+  if (indexInfo->nonKeyInfoArray) {
+    keyCount = indexInfo->nonKeyColCount;
+    keyInfoArray = indexInfo->nonKeyInfoArray;
+
+    for (Int16 keyNum = 0; keyNum < keyCount; keyNum++) {
       const ComTdbVirtTableKeyInfo &keyInfo = keyInfoArray[keyNum];
-      
+
       const ComTdbVirtTableColumnInfo &colInfo = columnInfoArray[keyInfo.tableColNum];
       recLen += colInfo.length;
     }
-  
-  if (indexInfo->nonKeyInfoArray)
-    {
-      keyCount = indexInfo->nonKeyColCount;
-      keyInfoArray = indexInfo->nonKeyInfoArray;
-      
-      for (Int16 keyNum = 0; keyNum < keyCount; keyNum++)
-        {
-          const ComTdbVirtTableKeyInfo &keyInfo = keyInfoArray[keyNum];
-          
-          const ComTdbVirtTableColumnInfo &colInfo = columnInfoArray[keyInfo.tableColNum];
-          recLen += colInfo.length;
-        }
-    }
-  
+  }
+
   return recLen;
 }
 
-TrafDesc* Generator::createColDescs(
-  const char * tableName,
-  ComTdbVirtTableColumnInfo * columnInfo,
-  Int16 numCols,
-  UInt32 &offset,
-  NAMemory * space)
-{
-  if (! columnInfo)
-    return NULL;
+TrafDesc *Generator::createColDescs(const char *tableName, ComTdbVirtTableColumnInfo *columnInfo, Int16 numCols,
+                                    UInt32 &offset, NAMemory *space) {
+  if (!columnInfo) return NULL;
 
-  TrafDesc * first_col_desc = NULL;
-  TrafDesc * prev_desc = NULL;
-  for (Int16 colNum = 0; colNum < numCols; colNum++)
-    {
-      ComTdbVirtTableColumnInfo * info = columnInfo + colNum;
+  TrafDesc *first_col_desc = NULL;
+  TrafDesc *prev_desc = NULL;
+  for (Int16 colNum = 0; colNum < numCols; colNum++) {
+    ComTdbVirtTableColumnInfo *info = columnInfo + colNum;
 
-      UInt32 colOffset = ExpTupleDesc::sqlarkExplodedOffsets(offset,
-                           info->length,
-                           (Int16) info->datatype,
-                           info->nullable);
+    UInt32 colOffset = ExpTupleDesc::sqlarkExplodedOffsets(offset, info->length, (Int16)info->datatype, info->nullable);
 
-      Int32 i = colNum;                // Don't want colNum altered by the call
-      Lng32 tmpOffset = (Lng32) offset;  // Ignore returned offset
-      SQLCHARSET_CODE info_charset = info->charset;
-      if (info_charset == SQLCHARSETCODE_UNKNOWN && (info->datatype == REC_NCHAR_V_UNICODE ||
-                                                     info->datatype == REC_NCHAR_F_UNICODE ||
-                                                     info->datatype == REC_NCHAR_V_ANSI_UNICODE))
-        info_charset = SQLCHARSETCODE_UCS2;
+    Int32 i = colNum;                 // Don't want colNum altered by the call
+    Lng32 tmpOffset = (Lng32)offset;  // Ignore returned offset
+    SQLCHARSET_CODE info_charset = info->charset;
+    if (info_charset == SQLCHARSETCODE_UNKNOWN &&
+        (info->datatype == REC_NCHAR_V_UNICODE || info->datatype == REC_NCHAR_F_UNICODE ||
+         info->datatype == REC_NCHAR_V_ANSI_UNICODE))
+      info_charset = SQLCHARSETCODE_UCS2;
 
-      char * colname = new GENHEAP(space) char[strlen(info->colName)+1];
-      strcpy(colname, info->colName);
+    char *colname = new GENHEAP(space) char[strlen(info->colName) + 1];
+    strcpy(colname, info->colName);
 
-      TrafDesc * col_desc = TrafMakeColumnDesc(
-           tableName,
-           colname, //info->colName,
-           i,
-           info->datatype,
-           info->length,
-           tmpOffset,
-           info->nullable,
-           info_charset,
-           space);
-      
-      // Virtual tables use SQLARK_EXPLODED_FORMAT in which numeric column
-      // values are aligned.  Ignore TrafMakeColumnDesc's
-      // offset calculation which doesn't reflect column value alignment.
-      offset = colOffset + info->length;
+    TrafDesc *col_desc =
+        TrafMakeColumnDesc(tableName,
+                           colname,  // info->colName,
+                           i, info->datatype, info->length, tmpOffset, info->nullable, info_charset, space);
 
-      // EXPLAIN__ table uses 22-bit precision REAL values
-      if (info->datatype == REC_FLOAT32)
-        col_desc->columnsDesc()->precision = 22;
+    // Virtual tables use SQLARK_EXPLODED_FORMAT in which numeric column
+    // values are aligned.  Ignore TrafMakeColumnDesc's
+    // offset calculation which doesn't reflect column value alignment.
+    offset = colOffset + info->length;
 
-      col_desc->columnsDesc()->precision = info->precision;
-      if (DFS2REC::isInterval(info->datatype))
-	col_desc->columnsDesc()->intervalleadingprec = info->precision;
+    // EXPLAIN__ table uses 22-bit precision REAL values
+    if (info->datatype == REC_FLOAT32) col_desc->columnsDesc()->precision = 22;
 
-      col_desc->columnsDesc()->scale = info->scale;
-      if ((DFS2REC::isInterval(info->datatype)) ||
-	  (DFS2REC::isDateTime(info->datatype)))
-	col_desc->columnsDesc()->datetimefractprec = info->scale;
+    col_desc->columnsDesc()->precision = info->precision;
+    if (DFS2REC::isInterval(info->datatype)) col_desc->columnsDesc()->intervalleadingprec = info->precision;
 
-      col_desc->columnsDesc()->datetimestart = (rec_datetime_field)info->dtStart;
-      col_desc->columnsDesc()->datetimeend = (rec_datetime_field)info->dtEnd;
+    col_desc->columnsDesc()->scale = info->scale;
+    if ((DFS2REC::isInterval(info->datatype)) || (DFS2REC::isDateTime(info->datatype)))
+      col_desc->columnsDesc()->datetimefractprec = info->scale;
 
-      col_desc->columnsDesc()->setUpshifted(info->upshifted);
-      col_desc->columnsDesc()->setCaseInsensitive(FALSE);
+    col_desc->columnsDesc()->datetimestart = (rec_datetime_field)info->dtStart;
+    col_desc->columnsDesc()->datetimeend = (rec_datetime_field)info->dtEnd;
 
-      char pt[350];
-      NAType::convertTypeToText(pt, //OUT
-				col_desc->columnsDesc()->datatype,
-				col_desc->columnsDesc()->length,
-				col_desc->columnsDesc()->precision,
-				col_desc->columnsDesc()->scale,
-				col_desc->columnsDesc()->datetimeStart(),
-				col_desc->columnsDesc()->datetimeEnd(),
-				col_desc->columnsDesc()->datetimefractprec,
-				col_desc->columnsDesc()->intervalleadingprec,
-				col_desc->columnsDesc()->isUpshifted(),
-				col_desc->columnsDesc()->isCaseInsensitive(),
-				(CharInfo::CharSet)col_desc->columnsDesc()->character_set,
-				(CharInfo::Collation)col_desc->columnsDesc()->collation_sequence,
-				NULL
-				);
-      col_desc->columnsDesc()->pictureText 
-        = new GENHEAP(space) char[strlen(pt)+1];
-      strcpy(col_desc->columnsDesc()->pictureText, pt);
-      col_desc->columnsDesc()->setDefaultClass(info->defaultClass);
-      if ((info->defaultClass == COM_NO_DEFAULT) ||
-          (info->defVal == NULL))
-	col_desc->columnsDesc()->defaultvalue = NULL;
-      else
-        {
-          col_desc->columnsDesc()->defaultvalue = new GENHEAP(space) char[strlen(info->defVal) +1];
-          strcpy(col_desc->columnsDesc()->defaultvalue, (char*)info->defVal);
-        }
+    col_desc->columnsDesc()->setUpshifted(info->upshifted);
+    col_desc->columnsDesc()->setCaseInsensitive(FALSE);
 
-      if ((info->defaultClass == COM_CURRENT_DEFAULT ||
-            info->defaultClass == COM_CATALOG_FUNCTION_DEFAULT ||
-            info->defaultClass == COM_SCHEMA_FUNCTION_DEFAULT) && 
-           (info->initDefVal != NULL) && 
-           (strlen(info->initDefVal) > 0))
-        {
-          col_desc->columnsDesc()->initDefaultValue = new GENHEAP(space) char[strlen(info->initDefVal) +1];
-          strcpy(col_desc->columnsDesc()->initDefaultValue, (char*)info->initDefVal);
-        }
-      else
-          col_desc->columnsDesc()->initDefaultValue = NULL;
+    char pt[350];
+    NAType::convertTypeToText(pt,  // OUT
+                              col_desc->columnsDesc()->datatype, col_desc->columnsDesc()->length,
+                              col_desc->columnsDesc()->precision, col_desc->columnsDesc()->scale,
+                              col_desc->columnsDesc()->datetimeStart(), col_desc->columnsDesc()->datetimeEnd(),
+                              col_desc->columnsDesc()->datetimefractprec, col_desc->columnsDesc()->intervalleadingprec,
+                              col_desc->columnsDesc()->isUpshifted(), col_desc->columnsDesc()->isCaseInsensitive(),
+                              (CharInfo::CharSet)col_desc->columnsDesc()->character_set,
+                              (CharInfo::Collation)col_desc->columnsDesc()->collation_sequence, NULL);
+    col_desc->columnsDesc()->pictureText = new GENHEAP(space) char[strlen(pt) + 1];
+    strcpy(col_desc->columnsDesc()->pictureText, pt);
+    col_desc->columnsDesc()->setDefaultClass(info->defaultClass);
+    if ((info->defaultClass == COM_NO_DEFAULT) || (info->defVal == NULL))
+      col_desc->columnsDesc()->defaultvalue = NULL;
+    else {
+      col_desc->columnsDesc()->defaultvalue = new GENHEAP(space) char[strlen(info->defVal) + 1];
+      strcpy(col_desc->columnsDesc()->defaultvalue, (char *)info->defVal);
+    }
 
-      col_desc->columnsDesc()->colclass = *(char*)COM_USER_COLUMN_LIT;
-      col_desc->columnsDesc()->setAdded(FALSE);
-      if (info->columnClass == COM_SYSTEM_COLUMN)
-	col_desc->columnsDesc()->colclass = *(char*)COM_SYSTEM_COLUMN_LIT;
-      else if (info->columnClass == COM_ADDED_USER_COLUMN)
-	{
-	  col_desc->columnsDesc()->colclass = *(char*)COM_ADDED_USER_COLUMN_LIT;
-	  col_desc->columnsDesc()->setAdded(TRUE);
-	}
-      else if (info->columnClass == COM_ADDED_ALTERED_USER_COLUMN)
-	{
-	  col_desc->columnsDesc()->colclass = *(char*)COM_ADDED_ALTERED_USER_COLUMN_LIT;
-	  col_desc->columnsDesc()->setAdded(TRUE);
-	}
-      else if (info->columnClass == COM_ALTERED_USER_COLUMN)
-	{
-	  col_desc->columnsDesc()->colclass = *(char*)COM_ALTERED_USER_COLUMN_LIT;
-	}
+    if ((info->defaultClass == COM_CURRENT_DEFAULT || info->defaultClass == COM_CATALOG_FUNCTION_DEFAULT ||
+         info->defaultClass == COM_SCHEMA_FUNCTION_DEFAULT) &&
+        (info->initDefVal != NULL) && (strlen(info->initDefVal) > 0)) {
+      col_desc->columnsDesc()->initDefaultValue = new GENHEAP(space) char[strlen(info->initDefVal) + 1];
+      strcpy(col_desc->columnsDesc()->initDefaultValue, (char *)info->initDefVal);
+    } else
+      col_desc->columnsDesc()->initDefaultValue = NULL;
 
-      if (info->colHeading)
-        {
-          col_desc->columnsDesc()->heading = new GENHEAP(space) char[strlen(info->colHeading) + 1];
-          strcpy(col_desc->columnsDesc()->heading, info->colHeading);
-        }
-      else
-	col_desc->columnsDesc()->heading = NULL;
+    col_desc->columnsDesc()->colclass = *(char *)COM_USER_COLUMN_LIT;
+    col_desc->columnsDesc()->setAdded(FALSE);
+    if (info->columnClass == COM_SYSTEM_COLUMN)
+      col_desc->columnsDesc()->colclass = *(char *)COM_SYSTEM_COLUMN_LIT;
+    else if (info->columnClass == COM_ADDED_USER_COLUMN) {
+      col_desc->columnsDesc()->colclass = *(char *)COM_ADDED_USER_COLUMN_LIT;
+      col_desc->columnsDesc()->setAdded(TRUE);
+    } else if (info->columnClass == COM_ADDED_ALTERED_USER_COLUMN) {
+      col_desc->columnsDesc()->colclass = *(char *)COM_ADDED_ALTERED_USER_COLUMN_LIT;
+      col_desc->columnsDesc()->setAdded(TRUE);
+    } else if (info->columnClass == COM_ALTERED_USER_COLUMN) {
+      col_desc->columnsDesc()->colclass = *(char *)COM_ALTERED_USER_COLUMN_LIT;
+    }
 
-      if (info->hbaseColFam)
-        {
-          col_desc->columnsDesc()->hbaseColFam = new GENHEAP(space) char[strlen(info->hbaseColFam) + 1];
-          strcpy(col_desc->columnsDesc()->hbaseColFam, (char*)info->hbaseColFam);
-        }
-      else
-	col_desc->columnsDesc()->hbaseColFam = NULL;
+    if (info->colHeading) {
+      col_desc->columnsDesc()->heading = new GENHEAP(space) char[strlen(info->colHeading) + 1];
+      strcpy(col_desc->columnsDesc()->heading, info->colHeading);
+    } else
+      col_desc->columnsDesc()->heading = NULL;
 
-      if (info->hbaseColQual)
-        {
-          col_desc->columnsDesc()->hbaseColQual = new GENHEAP(space) char[strlen(info->hbaseColQual) + 1];
-          strcpy(col_desc->columnsDesc()->hbaseColQual, (char*)info->hbaseColQual);
-        }
-      else
-	col_desc->columnsDesc()->hbaseColQual = NULL;
+    if (info->hbaseColFam) {
+      col_desc->columnsDesc()->hbaseColFam = new GENHEAP(space) char[strlen(info->hbaseColFam) + 1];
+      strcpy(col_desc->columnsDesc()->hbaseColFam, (char *)info->hbaseColFam);
+    } else
+      col_desc->columnsDesc()->hbaseColFam = NULL;
 
-      col_desc->columnsDesc()->hbaseColFlags = info->hbaseColFlags;
+    if (info->hbaseColQual) {
+      col_desc->columnsDesc()->hbaseColQual = new GENHEAP(space) char[strlen(info->hbaseColQual) + 1];
+      strcpy(col_desc->columnsDesc()->hbaseColQual, (char *)info->hbaseColQual);
+    } else
+      col_desc->columnsDesc()->hbaseColQual = NULL;
 
-      col_desc->columnsDesc()->setParamDirection(
-           CmGetComDirectionAsComParamDirection(info->paramDirection));
-      col_desc->columnsDesc()->setOptional(info->isOptional);
-      col_desc->columnsDesc()->colFlags = info->colFlags;
+    col_desc->columnsDesc()->hbaseColFlags = info->hbaseColFlags;
 
-      if (info->colFlags & SEABASE_COLUMN_IS_COMPOSITE)
-        {
-          if (info->compDefnStr)
-            {
-              col_desc->columnsDesc()->compDefnStr = 
-                new GENHEAP(space) char[strlen(info->compDefnStr) + 1];
-              strcpy(col_desc->columnsDesc()->compDefnStr, 
-                     (char*)info->compDefnStr);
-            }
-        }
+    col_desc->columnsDesc()->setParamDirection(CmGetComDirectionAsComParamDirection(info->paramDirection));
+    col_desc->columnsDesc()->setOptional(info->isOptional);
+    col_desc->columnsDesc()->colFlags = info->colFlags;
 
-      if (!first_col_desc)
-	first_col_desc = col_desc;
-      else
-	prev_desc->next = col_desc;
+    if (info->colFlags & SEABASE_COLUMN_IS_COMPOSITE) {
+      if (info->compDefnStr) {
+        col_desc->columnsDesc()->compDefnStr = new GENHEAP(space) char[strlen(info->compDefnStr) + 1];
+        strcpy(col_desc->columnsDesc()->compDefnStr, (char *)info->compDefnStr);
+      }
+    }
 
-      prev_desc = col_desc;
-    } // for
+    if (!first_col_desc)
+      first_col_desc = col_desc;
+    else
+      prev_desc->next = col_desc;
+
+    prev_desc = col_desc;
+  }  // for
 
   return first_col_desc;
 }
 
-static void initKeyDescStruct(TrafKeysDesc * tgt,
-                              const ComTdbVirtTableKeyInfo * src,
-                              NAMemory * space)
-{
-  if (src->colName)
-    {
-      tgt->keyname = new GENHEAP(space) char[strlen(src->colName) +1];
-      strcpy(tgt->keyname, src->colName);
-    }
-  else
+static void initKeyDescStruct(TrafKeysDesc *tgt, const ComTdbVirtTableKeyInfo *src, NAMemory *space) {
+  if (src->colName) {
+    tgt->keyname = new GENHEAP(space) char[strlen(src->colName) + 1];
+    strcpy(tgt->keyname, src->colName);
+  } else
     tgt->keyname = NULL;
-      
-  tgt->keyseqnumber     = src->keySeqNum;
-  tgt->tablecolnumber   = src->tableColNum;
+
+  tgt->keyseqnumber = src->keySeqNum;
+  tgt->tablecolnumber = src->tableColNum;
   tgt->setDescending(src->ordering ? TRUE : FALSE);
 
-  if (src->nonKeyCol == 2)
-    tgt->setAddnlCol(TRUE);
+  if (src->nonKeyCol == 2) tgt->setAddnlCol(TRUE);
 
-  if (src->hbaseColFam)
-    {
-      tgt->hbaseColFam = new GENHEAP(space) char[strlen(src->hbaseColFam)+1];
-      strcpy(tgt->hbaseColFam, src->hbaseColFam);
-    }
-  else
+  if (src->hbaseColFam) {
+    tgt->hbaseColFam = new GENHEAP(space) char[strlen(src->hbaseColFam) + 1];
+    strcpy(tgt->hbaseColFam, src->hbaseColFam);
+  } else
     tgt->hbaseColFam = NULL;
 
-  if (src->hbaseColQual)
-    {
-      tgt->hbaseColQual = new GENHEAP(space) char[strlen(src->hbaseColQual)+1];
-      strcpy(tgt->hbaseColQual, src->hbaseColQual);
-    }
-  else
+  if (src->hbaseColQual) {
+    tgt->hbaseColQual = new GENHEAP(space) char[strlen(src->hbaseColQual) + 1];
+    strcpy(tgt->hbaseColQual, src->hbaseColQual);
+  } else
     tgt->hbaseColQual = NULL;
 }
 
-TrafDesc * Generator::createKeyDescs(Int32 numKeys,
-                                     const ComTdbVirtTableKeyInfo * keyInfo,
-                                     NAMemory * space)
-{
-  TrafDesc * first_key_desc = NULL;
+TrafDesc *Generator::createKeyDescs(Int32 numKeys, const ComTdbVirtTableKeyInfo *keyInfo, NAMemory *space) {
+  TrafDesc *first_key_desc = NULL;
 
-  if (keyInfo == NULL)
-    return NULL;
+  if (keyInfo == NULL) return NULL;
 
   // create key descs
-  TrafDesc * prev_desc = NULL;
-  for (Int32 keyNum = 0; keyNum < numKeys; keyNum++)
-    {
-      TrafDesc * key_desc = TrafAllocateDDLdesc(DESC_KEYS_TYPE, space);
-      if (prev_desc)
-	prev_desc->next = key_desc;
-      else
-       first_key_desc = key_desc;
+  TrafDesc *prev_desc = NULL;
+  for (Int32 keyNum = 0; keyNum < numKeys; keyNum++) {
+    TrafDesc *key_desc = TrafAllocateDDLdesc(DESC_KEYS_TYPE, space);
+    if (prev_desc)
+      prev_desc->next = key_desc;
+    else
+      first_key_desc = key_desc;
 
-      prev_desc = key_desc;
+    prev_desc = key_desc;
 
-      initKeyDescStruct(key_desc->keysDesc(),
-			&keyInfo[keyNum], space);
-    }
+    initKeyDescStruct(key_desc->keysDesc(), &keyInfo[keyNum], space);
+  }
 
   return first_key_desc;
 }
 
-TrafDesc * Generator::createConstrKeyColsDescs(Int32 numKeys,
-                                               ComTdbVirtTableKeyInfo * keyInfo,
-                                               ComTdbVirtTableColumnInfo * columnInfo,
-                                               NAMemory * space)
-{
-  TrafDesc * first_key_desc = NULL;
+TrafDesc *Generator::createConstrKeyColsDescs(Int32 numKeys, ComTdbVirtTableKeyInfo *keyInfo,
+                                              ComTdbVirtTableColumnInfo *columnInfo, NAMemory *space) {
+  TrafDesc *first_key_desc = NULL;
 
-  if (keyInfo == NULL)
-    return NULL;
+  if (keyInfo == NULL) return NULL;
 
   // create key descs
-  TrafDesc * prev_desc = NULL;
-  for (Int32 keyNum = 0; keyNum < numKeys; keyNum++)
-    {
-      TrafDesc * key_desc = TrafAllocateDDLdesc(DESC_CONSTRNT_KEY_COLS_TYPE, space);
-      if (prev_desc)
-	prev_desc->next = key_desc;
-      else
-       first_key_desc = key_desc;
+  TrafDesc *prev_desc = NULL;
+  for (Int32 keyNum = 0; keyNum < numKeys; keyNum++) {
+    TrafDesc *key_desc = TrafAllocateDDLdesc(DESC_CONSTRNT_KEY_COLS_TYPE, space);
+    if (prev_desc)
+      prev_desc->next = key_desc;
+    else
+      first_key_desc = key_desc;
 
-      prev_desc = key_desc;
+    prev_desc = key_desc;
 
-      ComTdbVirtTableKeyInfo * src = &keyInfo[keyNum];
-      TrafConstrntKeyColsDesc * tgt = key_desc->constrntKeyColsDesc();
-      if (src->colName)
-	{
-	  tgt->colname = new GENHEAP(space) char[strlen(src->colName) +1];
-	  strcpy(tgt->colname, src->colName);
-	}
-      else
-	tgt->colname = NULL;
-      
-      tgt->position   = src->tableColNum;
-      ComTdbVirtTableColumnInfo * info = columnInfo +  src->tableColNum;
-      if(info->columnClass == COM_SYSTEM_COLUMN )
-        tgt->setSystemKey(TRUE);
-    }
+    ComTdbVirtTableKeyInfo *src = &keyInfo[keyNum];
+    TrafConstrntKeyColsDesc *tgt = key_desc->constrntKeyColsDesc();
+    if (src->colName) {
+      tgt->colname = new GENHEAP(space) char[strlen(src->colName) + 1];
+      strcpy(tgt->colname, src->colName);
+    } else
+      tgt->colname = NULL;
+
+    tgt->position = src->tableColNum;
+    ComTdbVirtTableColumnInfo *info = columnInfo + src->tableColNum;
+    if (info->columnClass == COM_SYSTEM_COLUMN) tgt->setSystemKey(TRUE);
+  }
 
   return first_key_desc;
 }
 
 // ****************************************************************************
-// This method creates a set of trafodion descriptors (TrafDesc) based on 
-// ComTdbVirtTablePrivInfo 
+// This method creates a set of trafodion descriptors (TrafDesc) based on
+// ComTdbVirtTablePrivInfo
 //
 // see ComTdb.h for a description of the ComTdbVirtTablePrivInfo
 // see TrafDDLdesc.h for a description of TrafDesc for the priv_desc
 // ****************************************************************************
-TrafDesc * Generator::createPrivDescs( const ComTdbVirtTablePrivInfo * privInfo,
-                                       NAMemory * space)
-{
+TrafDesc *Generator::createPrivDescs(const ComTdbVirtTablePrivInfo *privInfo, NAMemory *space) {
   // When authorization is enabled, each object must have at least one grantee
   // - the system grant to the object owner
   PrivMgrDescList *privGrantees = privInfo[0].privmgr_desc_list;
-  DCMPASSERT (privGrantees->entries() > 0);
- 
-  TrafDesc * priv_desc = TrafAllocateDDLdesc(DESC_PRIV_TYPE, space);
-  TrafDesc * first_grantee_desc = NULL;
-  TrafDesc * prev_grantee_desc = NULL;
+  DCMPASSERT(privGrantees->entries() > 0);
+
+  TrafDesc *priv_desc = TrafAllocateDDLdesc(DESC_PRIV_TYPE, space);
+  TrafDesc *first_grantee_desc = NULL;
+  TrafDesc *prev_grantee_desc = NULL;
 
   // generate a TrafPrivGranteeDesc for each grantee and
   // attach to the privileges descriptor (priv_desc)
-  for (int i = 0; i < privGrantees->entries(); i++)
-    {
-      PrivMgrDesc *granteeDesc = (*privGrantees)[i];
-      TrafDesc * curr_grantee_desc = TrafAllocateDDLdesc(DESC_PRIV_GRANTEE_TYPE, space);
-      if (! first_grantee_desc)
-        first_grantee_desc = curr_grantee_desc;
+  for (int i = 0; i < privGrantees->entries(); i++) {
+    PrivMgrDesc *granteeDesc = (*privGrantees)[i];
+    TrafDesc *curr_grantee_desc = TrafAllocateDDLdesc(DESC_PRIV_GRANTEE_TYPE, space);
+    if (!first_grantee_desc) first_grantee_desc = curr_grantee_desc;
 
-      curr_grantee_desc->privGranteeDesc()->grantee = granteeDesc->getGrantee();
-      curr_grantee_desc->privGranteeDesc()->schemaUID = granteeDesc->getSchemaUID();
+    curr_grantee_desc->privGranteeDesc()->grantee = granteeDesc->getGrantee();
+    curr_grantee_desc->privGranteeDesc()->schemaUID = granteeDesc->getSchemaUID();
 
-      // generate a TrafPrivBitmap for the schema level privs and
-      // attach it to the privilege grantee descriptor (curr_grantee_desc)
-      PrivMgrCoreDesc schDesc = granteeDesc->getSchemaPrivs(); 
+    // generate a TrafPrivBitmap for the schema level privs and
+    // attach it to the privilege grantee descriptor (curr_grantee_desc)
+    PrivMgrCoreDesc schDesc = granteeDesc->getSchemaPrivs();
 
-      TrafDesc *sch_bitmap_desc = TrafAllocateDDLdesc(DESC_PRIV_BITMAP_TYPE, space);
-      sch_bitmap_desc->privBitmapDesc()->columnOrdinal = -1;
-      sch_bitmap_desc->privBitmapDesc()->privBitmap = schDesc.getPrivBitmap().to_ulong();
-      sch_bitmap_desc->privBitmapDesc()->privWGOBitmap = schDesc.getWgoBitmap().to_ulong();
-      curr_grantee_desc->privGranteeDesc()->schemaBitmap = sch_bitmap_desc;
+    TrafDesc *sch_bitmap_desc = TrafAllocateDDLdesc(DESC_PRIV_BITMAP_TYPE, space);
+    sch_bitmap_desc->privBitmapDesc()->columnOrdinal = -1;
+    sch_bitmap_desc->privBitmapDesc()->privBitmap = schDesc.getPrivBitmap().to_ulong();
+    sch_bitmap_desc->privBitmapDesc()->privWGOBitmap = schDesc.getWgoBitmap().to_ulong();
+    curr_grantee_desc->privGranteeDesc()->schemaBitmap = sch_bitmap_desc;
 
-      // generate a TrafPrivBitmap for the object level privs and
-      // attach it to the privilege grantee descriptor (curr_grantee_desc)
-      // if this is a schema, then get object privileges from schema privileges
-      PrivMgrCoreDesc objDesc = 
-         (granteeDesc->isSchemaObject()) ? 
-           granteeDesc->getSchemaPrivs() : granteeDesc->getTablePrivs();
+    // generate a TrafPrivBitmap for the object level privs and
+    // attach it to the privilege grantee descriptor (curr_grantee_desc)
+    // if this is a schema, then get object privileges from schema privileges
+    PrivMgrCoreDesc objDesc =
+        (granteeDesc->isSchemaObject()) ? granteeDesc->getSchemaPrivs() : granteeDesc->getTablePrivs();
 
-      TrafDesc *obj_bitmap_desc = TrafAllocateDDLdesc(DESC_PRIV_BITMAP_TYPE, space);
-      obj_bitmap_desc->privBitmapDesc()->columnOrdinal = -1;
-      obj_bitmap_desc->privBitmapDesc()->privBitmap = objDesc.getPrivBitmap().to_ulong();
-      obj_bitmap_desc->privBitmapDesc()->privWGOBitmap = objDesc.getWgoBitmap().to_ulong();
-      curr_grantee_desc->privGranteeDesc()->objectBitmap = obj_bitmap_desc;
+    TrafDesc *obj_bitmap_desc = TrafAllocateDDLdesc(DESC_PRIV_BITMAP_TYPE, space);
+    obj_bitmap_desc->privBitmapDesc()->columnOrdinal = -1;
+    obj_bitmap_desc->privBitmapDesc()->privBitmap = objDesc.getPrivBitmap().to_ulong();
+    obj_bitmap_desc->privBitmapDesc()->privWGOBitmap = objDesc.getWgoBitmap().to_ulong();
+    curr_grantee_desc->privGranteeDesc()->objectBitmap = obj_bitmap_desc;
 
-      // generate a list of TrafPrivBitmapDesc, one for each column and
-      // attach it to the TrafPrivGranteeDesc
-      size_t numCols = granteeDesc->getColumnPrivs().entries();
-      if (numCols > 0)
-        {
-          TrafDesc * first_col_desc = NULL;
-          TrafDesc * prev_col_desc = NULL;
-          for (int j = 0; j < numCols; j++)
-            {
-              const PrivMgrCoreDesc colBitmap = granteeDesc->getColumnPrivs()[j];
-              TrafDesc * curr_col_desc = TrafAllocateDDLdesc(DESC_PRIV_BITMAP_TYPE, space);
-              if (! first_col_desc)
-                first_col_desc = curr_col_desc;
+    // generate a list of TrafPrivBitmapDesc, one for each column and
+    // attach it to the TrafPrivGranteeDesc
+    size_t numCols = granteeDesc->getColumnPrivs().entries();
+    if (numCols > 0) {
+      TrafDesc *first_col_desc = NULL;
+      TrafDesc *prev_col_desc = NULL;
+      for (int j = 0; j < numCols; j++) {
+        const PrivMgrCoreDesc colBitmap = granteeDesc->getColumnPrivs()[j];
+        TrafDesc *curr_col_desc = TrafAllocateDDLdesc(DESC_PRIV_BITMAP_TYPE, space);
+        if (!first_col_desc) first_col_desc = curr_col_desc;
 
-              curr_col_desc->privBitmapDesc()->columnOrdinal = colBitmap.getColumnOrdinal();
-              curr_col_desc->privBitmapDesc()->privBitmap = colBitmap.getPrivBitmap().to_ulong();
-              curr_col_desc->privBitmapDesc()->privWGOBitmap = colBitmap.getWgoBitmap().to_ulong();
+        curr_col_desc->privBitmapDesc()->columnOrdinal = colBitmap.getColumnOrdinal();
+        curr_col_desc->privBitmapDesc()->privBitmap = colBitmap.getPrivBitmap().to_ulong();
+        curr_col_desc->privBitmapDesc()->privWGOBitmap = colBitmap.getWgoBitmap().to_ulong();
 
-              if (prev_col_desc)
-                prev_col_desc->next = curr_col_desc;
-              prev_col_desc = curr_col_desc;
-            }
-          curr_grantee_desc->privGranteeDesc()->columnBitmaps = first_col_desc;
-        }
-      else
-        curr_grantee_desc->privGranteeDesc()->columnBitmaps = NULL;
+        if (prev_col_desc) prev_col_desc->next = curr_col_desc;
+        prev_col_desc = curr_col_desc;
+      }
+      curr_grantee_desc->privGranteeDesc()->columnBitmaps = first_col_desc;
+    } else
+      curr_grantee_desc->privGranteeDesc()->columnBitmaps = NULL;
 
-      if (prev_grantee_desc)
-         prev_grantee_desc->next = curr_grantee_desc;
-      prev_grantee_desc = curr_grantee_desc;
-    }
-    priv_desc->privDesc()->privGrantees = first_grantee_desc;
-    return priv_desc;
+    if (prev_grantee_desc) prev_grantee_desc->next = curr_grantee_desc;
+    prev_grantee_desc = curr_grantee_desc;
+  }
+  priv_desc->privDesc()->privGrantees = first_grantee_desc;
+  return priv_desc;
 }
-
 
 // this method is used to create both referencing and referenced constraint structs.
-TrafDesc * Generator::createRefConstrDescStructs(
-						    Int32 numConstrs,
-						    ComTdbVirtTableRefConstraints * refConstrs,
-						    NAMemory * space)
-{
-  TrafDesc * first_constr_desc = NULL;
+TrafDesc *Generator::createRefConstrDescStructs(Int32 numConstrs, ComTdbVirtTableRefConstraints *refConstrs,
+                                                NAMemory *space) {
+  TrafDesc *first_constr_desc = NULL;
 
-  if ((numConstrs == 0) || (refConstrs == NULL))
-    return NULL;
+  if ((numConstrs == 0) || (refConstrs == NULL)) return NULL;
 
-   // create constr descs
-  TrafDesc * prev_desc = NULL;
-  for (Int32 constrNum = 0; constrNum < numConstrs; constrNum++)
-    {
-      TrafDesc * constr_desc = TrafAllocateDDLdesc(DESC_REF_CONSTRNTS_TYPE, space);
-      if (prev_desc)
-	prev_desc->next = constr_desc;
-      else
-       first_constr_desc = constr_desc;
+  // create constr descs
+  TrafDesc *prev_desc = NULL;
+  for (Int32 constrNum = 0; constrNum < numConstrs; constrNum++) {
+    TrafDesc *constr_desc = TrafAllocateDDLdesc(DESC_REF_CONSTRNTS_TYPE, space);
+    if (prev_desc)
+      prev_desc->next = constr_desc;
+    else
+      first_constr_desc = constr_desc;
 
-      prev_desc = constr_desc;
+    prev_desc = constr_desc;
 
-      ComTdbVirtTableRefConstraints * src = &refConstrs[constrNum];
-      TrafRefConstrntsDesc * tgt = constr_desc->refConstrntsDesc();
-      if (src->constrName)
-	{
-	  tgt->constrntname = new GENHEAP(space) char[strlen(src->constrName) +1];
-	  strcpy(tgt->constrntname, src->constrName);
-	}
-      else
-	tgt->constrntname = NULL;
+    ComTdbVirtTableRefConstraints *src = &refConstrs[constrNum];
+    TrafRefConstrntsDesc *tgt = constr_desc->refConstrntsDesc();
+    if (src->constrName) {
+      tgt->constrntname = new GENHEAP(space) char[strlen(src->constrName) + 1];
+      strcpy(tgt->constrntname, src->constrName);
+    } else
+      tgt->constrntname = NULL;
 
-      if (src->baseTableName)
-	{
-	  tgt->tablename = new GENHEAP(space) char[strlen(src->baseTableName) +1];
-	  strcpy(tgt->tablename, src->baseTableName);
-	}
-      else
-	tgt->tablename = NULL;
-    }
+    if (src->baseTableName) {
+      tgt->tablename = new GENHEAP(space) char[strlen(src->baseTableName) + 1];
+      strcpy(tgt->tablename, src->baseTableName);
+    } else
+      tgt->tablename = NULL;
+  }
 
   return first_constr_desc;
- 
 }
 
-static Lng32 createDescStructs(char * tableName,
-                               Int32 numCols,
-                               ComTdbVirtTableColumnInfo * columnInfo,
-                               Int32 numKeys,
-                               ComTdbVirtTableKeyInfo * keyInfo,
-                               TrafDesc* &colDescs,
-                               TrafDesc* &keyDescs,
-                               NAMemory * space)
-{
+static Lng32 createDescStructs(char *tableName, Int32 numCols, ComTdbVirtTableColumnInfo *columnInfo, Int32 numKeys,
+                               ComTdbVirtTableKeyInfo *keyInfo, TrafDesc *&colDescs, TrafDesc *&keyDescs,
+                               NAMemory *space) {
   colDescs = NULL;
   keyDescs = NULL;
   UInt32 reclen = 0;
 
   // create column descs
-  colDescs = Generator::createColDescs(tableName, columnInfo, (Int16) numCols,
-                                       reclen, space);
+  colDescs = Generator::createColDescs(tableName, columnInfo, (Int16)numCols, reclen, space);
 
   keyDescs = Generator::createKeyDescs(numKeys, keyInfo, space);
 
-  return (Lng32) reclen;
+  return (Lng32)reclen;
 }
 
-static void populateRegionDescForEndKey(char* buf, Int32 len, struct TrafDesc* target)
-{
-   target->hbaseRegionDesc()->beginKey = NULL;
-   target->hbaseRegionDesc()->beginKeyLen = 0;
-   target->hbaseRegionDesc()->endKey = buf;
-   target->hbaseRegionDesc()->endKeyLen = len;
+static void populateRegionDescForEndKey(char *buf, Int32 len, struct TrafDesc *target) {
+  target->hbaseRegionDesc()->beginKey = NULL;
+  target->hbaseRegionDesc()->beginKeyLen = 0;
+  target->hbaseRegionDesc()->endKey = buf;
+  target->hbaseRegionDesc()->endKeyLen = len;
 }
 
-static void populateRegionDescAsRANGE(char* buf, Int32 len, struct TrafDesc* target)
-{
-   target->nodetype = DESC_HBASE_RANGE_REGION_TYPE;
-   populateRegionDescForEndKey(buf, len, target);
+static void populateRegionDescAsRANGE(char *buf, Int32 len, struct TrafDesc *target) {
+  target->nodetype = DESC_HBASE_RANGE_REGION_TYPE;
+  populateRegionDescForEndKey(buf, len, target);
 }
 
 //
@@ -1927,64 +1592,40 @@ static void populateRegionDescAsRANGE(char* buf, Int32 len, struct TrafDesc* tar
 // field points at hbaseRegion_desc. The order of the keyinfo, obtained from
 // org.apache.hadoop.hbase.client.HTable.getEndKey(), is preserved.
 //
-TrafDesc* Generator::assembleDescs(
-     NAArray<HbaseStr>* keyArray,
-     NAMemory * space)
-{
-   if (keyArray == NULL)
-     return NULL;
-   
-   TrafDesc *result = NULL;
-   Int32 entries = keyArray->entries();
-   Int32 len = 0;
-   char* buf = NULL;
+TrafDesc *Generator::assembleDescs(NAArray<HbaseStr> *keyArray, NAMemory *space) {
+  if (keyArray == NULL) return NULL;
 
-   for (Int32 i=entries-1; i>=0; i-- ) {
-     len = keyArray->at(i).len;
-     if ( len > 0 ) { 
-       buf = new GENHEAP(space) char[len];
-       memcpy(buf, keyArray->at(i).val, len); 
-     } else
-       buf = NULL;
-     
-     TrafDesc* wrapper = 
-       TrafAllocateDDLdesc(DESC_HBASE_RANGE_REGION_TYPE, space);
-     
-     populateRegionDescAsRANGE(buf, len, wrapper);
-     
-     wrapper->next = result;
-     result = wrapper;
-   }
-   
-   return result;
+  TrafDesc *result = NULL;
+  Int32 entries = keyArray->entries();
+  Int32 len = 0;
+  char *buf = NULL;
+
+  for (Int32 i = entries - 1; i >= 0; i--) {
+    len = keyArray->at(i).len;
+    if (len > 0) {
+      buf = new GENHEAP(space) char[len];
+      memcpy(buf, keyArray->at(i).val, len);
+    } else
+      buf = NULL;
+
+    TrafDesc *wrapper = TrafAllocateDDLdesc(DESC_HBASE_RANGE_REGION_TYPE, space);
+
+    populateRegionDescAsRANGE(buf, len, wrapper);
+
+    wrapper->next = result;
+    result = wrapper;
+  }
+
+  return result;
 }
 
-TrafDesc * Generator::createVirtualTableDesc
-(
-     const char * inTableName,
-     NAMemory * heap,
-     Int32 numCols,
-     ComTdbVirtTableColumnInfo * columnInfo,
-     Int32 numKeys,
-     ComTdbVirtTableKeyInfo * keyInfo,
-     Int32 numConstrs,
-     ComTdbVirtTableConstraintInfo * constrInfo,
-     Int32 numIndexes,
-     ComTdbVirtTableIndexInfo * indexInfo,
-     Int32 numViews,
-     ComTdbVirtTableViewInfo * viewInfo,
-     ComTdbVirtTableTableInfo * tableInfo,
-     ComTdbVirtTableSequenceInfo * seqInfo,
-     ComTdbVirtTableStatsInfo * statsInfo,
-     NAArray<HbaseStr>* endKeyArray,
-     NABoolean genPackedDesc,
-     Int32 * packedDescLen,
-     NABoolean isSharedSchema,
-     ComTdbVirtTablePrivInfo * privInfo,
-     const char *nameSpace,
-     ComTdbVirtTablePartitionV2Info* partitionV2Info
- )
-{
+TrafDesc *Generator::createVirtualTableDesc(
+    const char *inTableName, NAMemory *heap, Int32 numCols, ComTdbVirtTableColumnInfo *columnInfo, Int32 numKeys,
+    ComTdbVirtTableKeyInfo *keyInfo, Int32 numConstrs, ComTdbVirtTableConstraintInfo *constrInfo, Int32 numIndexes,
+    ComTdbVirtTableIndexInfo *indexInfo, Int32 numViews, ComTdbVirtTableViewInfo *viewInfo,
+    ComTdbVirtTableTableInfo *tableInfo, ComTdbVirtTableSequenceInfo *seqInfo, ComTdbVirtTableStatsInfo *statsInfo,
+    NAArray<HbaseStr> *endKeyArray, NABoolean genPackedDesc, Int32 *packedDescLen, NABoolean isSharedSchema,
+    ComTdbVirtTablePrivInfo *privInfo, const char *nameSpace, ComTdbVirtTablePartitionV2Info *partitionV2Info) {
   // If genPackedDesc is set, then use Space class to allocate descriptors and
   // returned contiguous packed copy of it.
   // This packed copy will be stored in metadata.
@@ -1996,7 +1637,7 @@ TrafDesc * Generator::createVirtualTableDesc
 
   // There is some danger in this mixed use of the "space" variable as a
   // base class pointer. The NAMemory and Space classes avoid using virtual
-  // functions, so we can't count on polymorphism to pick the right 
+  // functions, so we can't count on polymorphism to pick the right
   // implementation of a method on "space". Rather, the NAMemory methods
   // will be used unless we explicitly override them. Fortunately, in
   // almost all of this method, and the methods it calls, the only use of
@@ -2008,42 +1649,39 @@ TrafDesc * Generator::createVirtualTableDesc
   // would have been a lot more changes to rename the "space" variable.)
 
   Space lSpace(ComSpace::GENERATOR_SPACE);
-  NAMemory * space = NULL;
+  NAMemory *space = NULL;
   if (genPackedDesc)
     space = &lSpace;
   else if (heap)
     space = heap;
-  
-  const char * tableName = (tableInfo ? tableInfo->tableName : inTableName);
-  TrafDesc * table_desc = TrafAllocateDDLdesc(DESC_TABLE_TYPE, space);
-  table_desc->tableDesc()->tablename = new GENHEAP(space) char[strlen(tableName)+1];
+
+  const char *tableName = (tableInfo ? tableInfo->tableName : inTableName);
+  TrafDesc *table_desc = TrafAllocateDDLdesc(DESC_TABLE_TYPE, space);
+  table_desc->tableDesc()->tablename = new GENHEAP(space) char[strlen(tableName) + 1];
   strcpy(table_desc->tableDesc()->tablename, tableName);
 
   table_desc->tableDesc()->tableDescFlags = 0;
   table_desc->tableDesc()->catUID = 0;
   table_desc->tableDesc()->schemaUID = 0;
-  if (tableInfo)
-    {
-      table_desc->tableDesc()->createTime = tableInfo->createTime;
-      table_desc->tableDesc()->redefTime = tableInfo->redefTime;
-      table_desc->tableDesc()->objectUID = tableInfo->objUID;
-      table_desc->tableDesc()->objDataUID = tableInfo->objDataUID;
-      table_desc->tableDesc()->schemaUID = tableInfo->schemaUID;
+  if (tableInfo) {
+    table_desc->tableDesc()->createTime = tableInfo->createTime;
+    table_desc->tableDesc()->redefTime = tableInfo->redefTime;
+    table_desc->tableDesc()->objectUID = tableInfo->objUID;
+    table_desc->tableDesc()->objDataUID = tableInfo->objDataUID;
+    table_desc->tableDesc()->schemaUID = tableInfo->schemaUID;
 
-      table_desc->tableDesc()->baseTableUID = tableInfo->baseTableUID;
-    }
-  else
-    {
-      table_desc->tableDesc()->createTime = 0;
-      table_desc->tableDesc()->redefTime = 0;
+    table_desc->tableDesc()->baseTableUID = tableInfo->baseTableUID;
+  } else {
+    table_desc->tableDesc()->createTime = 0;
+    table_desc->tableDesc()->redefTime = 0;
 
-      ComUID comUID;
-      comUID.make_UID();
-      Int64 objUID = comUID.get_value();
+    ComUID comUID;
+    comUID.make_UID();
+    Int64 objUID = comUID.get_value();
 
-      table_desc->tableDesc()->objectUID = objUID;
-      table_desc->tableDesc()->objDataUID = objUID;
-    }
+    table_desc->tableDesc()->objectUID = objUID;
+    table_desc->tableDesc()->objDataUID = objUID;
+  }
 
   if (isSharedSchema)
     table_desc->tableDesc()->setSystemTableCode(FALSE);
@@ -2051,17 +1689,16 @@ TrafDesc * Generator::createVirtualTableDesc
     table_desc->tableDesc()->setSystemTableCode(TRUE);
 
   table_desc->tableDesc()->setStorageType(COM_STORAGE_HBASE);
-  if (tableInfo)
-    {
-      table_desc->tableDesc()->setRowFormat(tableInfo->rowFormat);
-      
-      if (tableInfo->xnRepl == COM_REPL_SYNC)
-        table_desc->tableDesc()->setXnReplSync(TRUE);
-      else if (tableInfo->xnRepl == COM_REPL_ASYNC)
-         table_desc->tableDesc()->setXnReplAsync(TRUE);
+  if (tableInfo) {
+    table_desc->tableDesc()->setRowFormat(tableInfo->rowFormat);
 
-      table_desc->tableDesc()->setStorageType(tableInfo->storageType);
-    }
+    if (tableInfo->xnRepl == COM_REPL_SYNC)
+      table_desc->tableDesc()->setXnReplSync(TRUE);
+    else if (tableInfo->xnRepl == COM_REPL_ASYNC)
+      table_desc->tableDesc()->setXnReplAsync(TRUE);
+
+    table_desc->tableDesc()->setStorageType(tableInfo->storageType);
+  }
 
   if (CmpCommon::context()->sqlSession()->validateVolatileName(tableName))
     table_desc->tableDesc()->setVolatileTable(TRUE);
@@ -2069,15 +1706,14 @@ TrafDesc * Generator::createVirtualTableDesc
     table_desc->tableDesc()->setVolatileTable(FALSE);
 
   // view, the view object
-  if (numViews > 0)
-    table_desc->tableDesc()->setObjectType(COM_VIEW_OBJECT);
+  if (numViews > 0) table_desc->tableDesc()->setObjectType(COM_VIEW_OBJECT);
 
   // if have sequence info, then sequence object
-  else if ((seqInfo) && (! columnInfo))
+  else if ((seqInfo) && (!columnInfo))
     table_desc->tableDesc()->setObjectType(COM_SEQUENCE_GENERATOR_OBJECT);
-  
+
   // If not as sequence and no columns defined, then a schema object
-  else if ((!seqInfo) && (! columnInfo))
+  else if ((!seqInfo) && (!columnInfo))
     if (isSharedSchema)
       table_desc->tableDesc()->setObjectType(COM_SHARED_SCHEMA_OBJECT);
     else
@@ -2090,334 +1726,286 @@ TrafDesc * Generator::createVirtualTableDesc
   table_desc->tableDesc()->owner = (tableInfo ? tableInfo->objOwnerID : SUPER_USER);
   table_desc->tableDesc()->schemaOwner = (tableInfo ? tableInfo->schemaOwnerID : SUPER_USER);
 
-  if (tableInfo && tableInfo->defaultColFam)
-    {
-      table_desc->tableDesc()->default_col_fam = 
-        new GENHEAP(space) char[strlen(tableInfo->defaultColFam)+1];
-      strcpy(table_desc->tableDesc()->default_col_fam, tableInfo->defaultColFam);
-    }
+  if (tableInfo && tableInfo->defaultColFam) {
+    table_desc->tableDesc()->default_col_fam = new GENHEAP(space) char[strlen(tableInfo->defaultColFam) + 1];
+    strcpy(table_desc->tableDesc()->default_col_fam, tableInfo->defaultColFam);
+  }
 
-  if (tableInfo && tableInfo->allColFams)
-    {
-      table_desc->tableDesc()->all_col_fams = 
-        new GENHEAP(space) char[strlen(tableInfo->allColFams)+1];
-      strcpy(table_desc->tableDesc()->all_col_fams, tableInfo->allColFams);
-    }
+  if (tableInfo && tableInfo->allColFams) {
+    table_desc->tableDesc()->all_col_fams = new GENHEAP(space) char[strlen(tableInfo->allColFams) + 1];
+    strcpy(table_desc->tableDesc()->all_col_fams, tableInfo->allColFams);
+  }
 
-  if (tableInfo && tableInfo->tableNamespace)
-    {
-      table_desc->tableDesc()->tableNamespace = 
-        new GENHEAP(space) char[strlen(tableInfo->tableNamespace)+1];
-      strcpy(table_desc->tableDesc()->tableNamespace, tableInfo->tableNamespace);
-    }
-  else if (nameSpace)
-    {
-      table_desc->tableDesc()->tableNamespace = 
-        new GENHEAP(space) char[strlen(nameSpace) + 1];
-      strcpy(table_desc->tableDesc()->tableNamespace, nameSpace);
-    }
+  if (tableInfo && tableInfo->tableNamespace) {
+    table_desc->tableDesc()->tableNamespace = new GENHEAP(space) char[strlen(tableInfo->tableNamespace) + 1];
+    strcpy(table_desc->tableDesc()->tableNamespace, tableInfo->tableNamespace);
+  } else if (nameSpace) {
+    table_desc->tableDesc()->tableNamespace = new GENHEAP(space) char[strlen(nameSpace) + 1];
+    strcpy(table_desc->tableDesc()->tableNamespace, nameSpace);
+  }
 
   table_desc->tableDesc()->objectFlags = (tableInfo ? tableInfo->objectFlags : 0);
   table_desc->tableDesc()->tablesFlags = (tableInfo ? tableInfo->tablesFlags : 0);
 
   table_desc->tableDesc()->numLOBdatafiles_ = -1;
-  if (tableInfo)
-    table_desc->tableDesc()->numLOBdatafiles_ = tableInfo->numLOBdatafiles;
-  
-  TrafDesc * files_desc = TrafAllocateDDLdesc(DESC_FILES_TYPE, space);
+  if (tableInfo) table_desc->tableDesc()->numLOBdatafiles_ = tableInfo->numLOBdatafiles;
+
+  TrafDesc *files_desc = TrafAllocateDDLdesc(DESC_FILES_TYPE, space);
   files_desc->filesDesc()->setAudited(tableInfo ? tableInfo->isAudited : -1);
 
   table_desc->tableDesc()->files_desc = files_desc;
 
-  TrafDesc * cols_descs = NULL;
-  TrafDesc * keys_descs = NULL;
+  TrafDesc *cols_descs = NULL;
+  TrafDesc *keys_descs = NULL;
   table_desc->tableDesc()->colcount = numCols;
-  table_desc->tableDesc()->record_length =
-    createDescStructs(table_desc->tableDesc()->tablename,
-		      numCols, columnInfo, numKeys, keyInfo,
-		      cols_descs, keys_descs, space);
+  table_desc->tableDesc()->record_length = createDescStructs(table_desc->tableDesc()->tablename, numCols, columnInfo,
+                                                             numKeys, keyInfo, cols_descs, keys_descs, space);
 
-  TrafDesc * first_constr_desc = NULL;
-  if (numConstrs > 0)
-    {
-      TrafDesc * prev_desc = NULL;
-      for (int i = 0; i < numConstrs; i++)
-	{
-	  TrafDesc * curr_constr_desc = TrafAllocateDDLdesc(DESC_CONSTRNTS_TYPE, space);
+  TrafDesc *first_constr_desc = NULL;
+  if (numConstrs > 0) {
+    TrafDesc *prev_desc = NULL;
+    for (int i = 0; i < numConstrs; i++) {
+      TrafDesc *curr_constr_desc = TrafAllocateDDLdesc(DESC_CONSTRNTS_TYPE, space);
 
-	  if (! first_constr_desc)
-	    first_constr_desc = curr_constr_desc;
+      if (!first_constr_desc) first_constr_desc = curr_constr_desc;
 
-	  curr_constr_desc->constrntsDesc()->tablename = new GENHEAP(space) char[strlen(constrInfo[i].baseTableName)+1];
-	  strcpy(curr_constr_desc->constrntsDesc()->tablename, constrInfo[i].baseTableName);
-	  
-	  curr_constr_desc->constrntsDesc()->constrntname = new GENHEAP(space) char[strlen(constrInfo[i].constrName)+1];
-	  strcpy(curr_constr_desc->constrntsDesc()->constrntname, constrInfo[i].constrName);
-	  
-	  curr_constr_desc->constrntsDesc()->check_constrnts_desc = NULL;
-	  curr_constr_desc->constrntsDesc()->setEnforced(constrInfo[i].isEnforced);
-	  curr_constr_desc->constrntsDesc()->setNotSerialized(constrInfo[i].notSerialized);
+      curr_constr_desc->constrntsDesc()->tablename = new GENHEAP(space) char[strlen(constrInfo[i].baseTableName) + 1];
+      strcpy(curr_constr_desc->constrntsDesc()->tablename, constrInfo[i].baseTableName);
 
-	  switch (constrInfo[i].constrType)
-	    {
-	    case 0: // unique_constr
-	      curr_constr_desc->constrntsDesc()->type = UNIQUE_CONSTRAINT;
-	      break;
+      curr_constr_desc->constrntsDesc()->constrntname = new GENHEAP(space) char[strlen(constrInfo[i].constrName) + 1];
+      strcpy(curr_constr_desc->constrntsDesc()->constrntname, constrInfo[i].constrName);
 
-	    case 1: // ref_constr
-	      curr_constr_desc->constrntsDesc()->type = REF_CONSTRAINT;
-	      break;
+      curr_constr_desc->constrntsDesc()->check_constrnts_desc = NULL;
+      curr_constr_desc->constrntsDesc()->setEnforced(constrInfo[i].isEnforced);
+      curr_constr_desc->constrntsDesc()->setNotSerialized(constrInfo[i].notSerialized);
 
-	    case 2: // check_constr
-	      curr_constr_desc->constrntsDesc()->type = CHECK_CONSTRAINT;
-	      break;
+      switch (constrInfo[i].constrType) {
+        case 0:  // unique_constr
+          curr_constr_desc->constrntsDesc()->type = UNIQUE_CONSTRAINT;
+          break;
 
-	    case 3: // pkey_constr
-	      curr_constr_desc->constrntsDesc()->type = PRIMARY_KEY_CONSTRAINT;
-	      break;
+        case 1:  // ref_constr
+          curr_constr_desc->constrntsDesc()->type = REF_CONSTRAINT;
+          break;
 
-	    } // switch
+        case 2:  // check_constr
+          curr_constr_desc->constrntsDesc()->type = CHECK_CONSTRAINT;
+          break;
 
-	  curr_constr_desc->constrntsDesc()->colcount = constrInfo[i].colCount;
+        case 3:  // pkey_constr
+          curr_constr_desc->constrntsDesc()->type = PRIMARY_KEY_CONSTRAINT;
+          break;
 
-	  curr_constr_desc->constrntsDesc()->constr_key_cols_desc =
-	    Generator::createConstrKeyColsDescs(constrInfo[i].colCount, constrInfo[i].keyInfoArray, columnInfo, space);
+      }  // switch
 
-	  if (constrInfo[i].ringConstrArray)
-	    {
-	      curr_constr_desc->constrntsDesc()->referencing_constrnts_desc =
-		Generator::createRefConstrDescStructs(constrInfo[i].numRingConstr,
-						      constrInfo[i].ringConstrArray, space);
-	    }
+      curr_constr_desc->constrntsDesc()->colcount = constrInfo[i].colCount;
 
-	  if (constrInfo[i].refdConstrArray)
-	    {
-	      curr_constr_desc->constrntsDesc()->referenced_constrnts_desc =
-		Generator::createRefConstrDescStructs(constrInfo[i].numRefdConstr,
-						      constrInfo[i].refdConstrArray, space);
-	    }
+      curr_constr_desc->constrntsDesc()->constr_key_cols_desc =
+          Generator::createConstrKeyColsDescs(constrInfo[i].colCount, constrInfo[i].keyInfoArray, columnInfo, space);
 
-	  if ((constrInfo[i].constrType == 2) && // check constr
-	      (constrInfo[i].checkConstrLen > 0))
-	    {
-	      TrafDesc * check_constr_desc = TrafAllocateDDLdesc(DESC_CHECK_CONSTRNTS_TYPE, space);
-	      
-	      check_constr_desc->checkConstrntsDesc()->constrnt_text = 
-		new GENHEAP(space) char[constrInfo[i].checkConstrLen + 1];
-	      memcpy(check_constr_desc->checkConstrntsDesc()->constrnt_text,
-		     constrInfo[i].checkConstrText, constrInfo[i].checkConstrLen);
-	      check_constr_desc->checkConstrntsDesc()->constrnt_text
-		[constrInfo[i].checkConstrLen] = 0;
+      if (constrInfo[i].ringConstrArray) {
+        curr_constr_desc->constrntsDesc()->referencing_constrnts_desc =
+            Generator::createRefConstrDescStructs(constrInfo[i].numRingConstr, constrInfo[i].ringConstrArray, space);
+      }
 
-	      curr_constr_desc->constrntsDesc()->check_constrnts_desc =
-		check_constr_desc;
-	    }
+      if (constrInfo[i].refdConstrArray) {
+        curr_constr_desc->constrntsDesc()->referenced_constrnts_desc =
+            Generator::createRefConstrDescStructs(constrInfo[i].numRefdConstr, constrInfo[i].refdConstrArray, space);
+      }
 
-	  if (prev_desc)
-	    prev_desc->next = curr_constr_desc;
+      if ((constrInfo[i].constrType == 2) &&  // check constr
+          (constrInfo[i].checkConstrLen > 0)) {
+        TrafDesc *check_constr_desc = TrafAllocateDDLdesc(DESC_CHECK_CONSTRNTS_TYPE, space);
 
-	  prev_desc = curr_constr_desc;
-	} // for
-    }
+        check_constr_desc->checkConstrntsDesc()->constrnt_text =
+            new GENHEAP(space) char[constrInfo[i].checkConstrLen + 1];
+        memcpy(check_constr_desc->checkConstrntsDesc()->constrnt_text, constrInfo[i].checkConstrText,
+               constrInfo[i].checkConstrLen);
+        check_constr_desc->checkConstrntsDesc()->constrnt_text[constrInfo[i].checkConstrLen] = 0;
 
-  TrafDesc * index_desc = TrafAllocateDDLdesc(DESC_INDEXES_TYPE, space);
+        curr_constr_desc->constrntsDesc()->check_constrnts_desc = check_constr_desc;
+      }
+
+      if (prev_desc) prev_desc->next = curr_constr_desc;
+
+      prev_desc = curr_constr_desc;
+    }  // for
+  }
+
+  TrafDesc *index_desc = TrafAllocateDDLdesc(DESC_INDEXES_TYPE, space);
   index_desc->indexesDesc()->tablename = table_desc->tableDesc()->tablename;
   index_desc->indexesDesc()->indexname = table_desc->tableDesc()->tablename;
-  index_desc->indexesDesc()->keytag = 0; // primary index
+  index_desc->indexesDesc()->keytag = 0;  // primary index
   index_desc->indexesDesc()->indexUID = 0;
   index_desc->indexesDesc()->record_length = table_desc->tableDesc()->record_length;
   index_desc->indexesDesc()->colcount = table_desc->tableDesc()->colcount;
-  index_desc->indexesDesc()->blocksize = 32*1024;
+  index_desc->indexesDesc()->blocksize = 32 * 1024;
   index_desc->indexesDesc()->setVolatile(table_desc->tableDesc()->isVolatileTable());
-  index_desc->indexesDesc()->hbaseCreateOptions  = NULL;
+  index_desc->indexesDesc()->hbaseCreateOptions = NULL;
   index_desc->indexesDesc()->numSaltPartns = 0;
   index_desc->indexesDesc()->numInitialSaltRegions = -1;
   index_desc->indexesDesc()->hbaseSplitClause = NULL;
   index_desc->indexesDesc()->setRowFormat(table_desc->tableDesc()->rowFormat());
 
-  if (tableInfo)
-  {
+  if (tableInfo) {
     index_desc->indexesDesc()->indexUID = tableInfo->objUID;
-    
+
     index_desc->indexesDesc()->numSaltPartns = tableInfo->numSaltPartns;
 
     index_desc->indexesDesc()->numInitialSaltRegions = tableInfo->numInitialSaltRegions;
-    if (tableInfo->hbaseSplitClause)
-    {
-      index_desc->indexesDesc()->hbaseSplitClause  = 
-        new HEAP char[strlen(tableInfo->hbaseSplitClause) + 1];
-      strcpy(index_desc->indexesDesc()->hbaseSplitClause, 
-             tableInfo->hbaseSplitClause);
+    if (tableInfo->hbaseSplitClause) {
+      index_desc->indexesDesc()->hbaseSplitClause = new HEAP char[strlen(tableInfo->hbaseSplitClause) + 1];
+      strcpy(index_desc->indexesDesc()->hbaseSplitClause, tableInfo->hbaseSplitClause);
     }
 
-    if (tableInfo->hbaseCreateOptions)
-      {
-        index_desc->indexesDesc()->hbaseCreateOptions  = 
+    if (tableInfo->hbaseCreateOptions) {
+      index_desc->indexesDesc()->hbaseCreateOptions =
           new GENHEAP(space) char[strlen(tableInfo->hbaseCreateOptions) + 1];
-        strcpy(index_desc->indexesDesc()->hbaseCreateOptions, 
-               tableInfo->hbaseCreateOptions);
-      }
+      strcpy(index_desc->indexesDesc()->hbaseCreateOptions, tableInfo->hbaseCreateOptions);
+    }
   }
-  
-  if (numIndexes > 0)
-    {
-      TrafDesc * prev_desc = index_desc;
-      for (int i = 0; i < numIndexes; i++)
-	{
-	  TrafDesc * curr_index_desc = TrafAllocateDDLdesc(DESC_INDEXES_TYPE, space);
-	  
-	  prev_desc->next = curr_index_desc;
 
-	  curr_index_desc->indexesDesc()->tablename = new GENHEAP(space) char[strlen(indexInfo[i].baseTableName)+1];
-	  strcpy(curr_index_desc->indexesDesc()->tablename, indexInfo[i].baseTableName);
+  if (numIndexes > 0) {
+    TrafDesc *prev_desc = index_desc;
+    for (int i = 0; i < numIndexes; i++) {
+      TrafDesc *curr_index_desc = TrafAllocateDDLdesc(DESC_INDEXES_TYPE, space);
 
-	  curr_index_desc->indexesDesc()->indexname = new GENHEAP(space) char[strlen(indexInfo[i].indexName)+1];
-	  strcpy(curr_index_desc->indexesDesc()->indexname, indexInfo[i].indexName);
+      prev_desc->next = curr_index_desc;
 
-          curr_index_desc->indexesDesc()->indexUID = indexInfo[i].indexUID;
-	  curr_index_desc->indexesDesc()->keytag = indexInfo[i].keytag;
-	  curr_index_desc->indexesDesc()->setUnique(indexInfo[i].isUnique);
-	  // set ngram flag
-	  curr_index_desc->indexesDesc()->setNgram(indexInfo[i].isNgram);
+      curr_index_desc->indexesDesc()->tablename = new GENHEAP(space) char[strlen(indexInfo[i].baseTableName) + 1];
+      strcpy(curr_index_desc->indexesDesc()->tablename, indexInfo[i].baseTableName);
 
-    if (CmpSeabaseDDL::isMDflagsSet(indexInfo[i].indexFlags, MD_IS_LOCAL_BASE_PARTITION_FLG))
+      curr_index_desc->indexesDesc()->indexname = new GENHEAP(space) char[strlen(indexInfo[i].indexName) + 1];
+      strcpy(curr_index_desc->indexesDesc()->indexname, indexInfo[i].indexName);
+
+      curr_index_desc->indexesDesc()->indexUID = indexInfo[i].indexUID;
+      curr_index_desc->indexesDesc()->keytag = indexInfo[i].keytag;
+      curr_index_desc->indexesDesc()->setUnique(indexInfo[i].isUnique);
+      // set ngram flag
+      curr_index_desc->indexesDesc()->setNgram(indexInfo[i].isNgram);
+
+      if (CmpSeabaseDDL::isMDflagsSet(indexInfo[i].indexFlags, MD_IS_LOCAL_BASE_PARTITION_FLG))
         curr_index_desc->indexesDesc()->setPartLocalBaseIndex(TRUE);
 
-    if (CmpSeabaseDDL::isMDflagsSet(indexInfo[i].indexFlags, MD_IS_LOCAL_PARTITION_FLG))
+      if (CmpSeabaseDDL::isMDflagsSet(indexInfo[i].indexFlags, MD_IS_LOCAL_PARTITION_FLG))
         curr_index_desc->indexesDesc()->setPartLocalIndex(TRUE);
 
-    if (CmpSeabaseDDL::isMDflagsSet(indexInfo[i].indexFlags, MD_IS_GLOBAL_PARTITION_FLG))
+      if (CmpSeabaseDDL::isMDflagsSet(indexInfo[i].indexFlags, MD_IS_GLOBAL_PARTITION_FLG))
         curr_index_desc->indexesDesc()->setPartGlobalIndex(TRUE);
-    
-	  curr_index_desc->indexesDesc()->setExplicit(indexInfo[i].isExplicit);
-          curr_index_desc->indexesDesc()->record_length = 
-            getRecordLength(&indexInfo[i], columnInfo);
-	  curr_index_desc->indexesDesc()->colcount = indexInfo[i].keyColCount + indexInfo[i].nonKeyColCount;
-	  curr_index_desc->indexesDesc()->blocksize = 32*1024;
 
-	  curr_index_desc->indexesDesc()->keys_desc = 
-	    Generator::createKeyDescs(indexInfo[i].keyColCount, indexInfo[i].keyInfoArray, space);
+      curr_index_desc->indexesDesc()->setExplicit(indexInfo[i].isExplicit);
+      curr_index_desc->indexesDesc()->record_length = getRecordLength(&indexInfo[i], columnInfo);
+      curr_index_desc->indexesDesc()->colcount = indexInfo[i].keyColCount + indexInfo[i].nonKeyColCount;
+      curr_index_desc->indexesDesc()->blocksize = 32 * 1024;
 
-	  curr_index_desc->indexesDesc()->non_keys_desc = 
-	    Generator::createKeyDescs(indexInfo[i].nonKeyColCount, indexInfo[i].nonKeyInfoArray, space);
+      curr_index_desc->indexesDesc()->keys_desc =
+          Generator::createKeyDescs(indexInfo[i].keyColCount, indexInfo[i].keyInfoArray, space);
 
-	  if (CmpCommon::context()->sqlSession()->validateVolatileName(indexInfo[i].indexName))
-	    curr_index_desc->indexesDesc()->setVolatile(TRUE);
-	  else
-	    curr_index_desc->indexesDesc()->setVolatile(FALSE);
-          curr_index_desc->indexesDesc()->hbaseCreateOptions  = NULL;
-          curr_index_desc->indexesDesc()->numSaltPartns = 
-            indexInfo[i].numSaltPartns;
-          if (curr_index_desc->indexesDesc()->numSaltPartns > 0)
-          {
-            // that the index is salted like the base table
-            TrafDesc * ci_files_desc = TrafAllocateDDLdesc(DESC_FILES_TYPE, space);
-            ci_files_desc->filesDesc()->setAudited(TRUE); // audited table
-            curr_index_desc->indexesDesc()->files_desc = ci_files_desc;
-          }
-          curr_index_desc->indexesDesc()->setRowFormat(indexInfo[i].rowFormat);
-          if (indexInfo[i].hbaseCreateOptions)
-          {
-            curr_index_desc->indexesDesc()->hbaseCreateOptions  = 
-              new GENHEAP(space) char[strlen(indexInfo[i].hbaseCreateOptions) + 1];
-            strcpy(curr_index_desc->indexesDesc()->hbaseCreateOptions, 
-               indexInfo[i].hbaseCreateOptions);
-          }
+      curr_index_desc->indexesDesc()->non_keys_desc =
+          Generator::createKeyDescs(indexInfo[i].nonKeyColCount, indexInfo[i].nonKeyInfoArray, space);
 
-	  prev_desc = curr_index_desc;
-
-	}
-    }
-
-  TrafDesc * view_desc = NULL;
-  if (numViews > 0)
-    {
-      view_desc = TrafAllocateDDLdesc(DESC_VIEW_TYPE, space);
-      
-      view_desc->viewDesc()->viewname = new GENHEAP(space) char[strlen(viewInfo[0].viewName)+1];
-      strcpy(view_desc->viewDesc()->viewname, viewInfo[0].viewName);
-
-      view_desc->viewDesc()->viewfilename = view_desc->viewDesc()->viewname;
-      view_desc->viewDesc()->viewtext = new GENHEAP(space) char[strlen(viewInfo[0].viewText) + 1];
-      strcpy(view_desc->viewDesc()->viewtext, viewInfo[0].viewText);
-
-      view_desc->viewDesc()->viewtextcharset = (CharInfo::CharSet)SQLCHARSETCODE_UTF8;
-
-      if (viewInfo[0].viewCheckText)
-	{
-	  view_desc->viewDesc()->viewchecktext = new GENHEAP(space) char[strlen(viewInfo[0].viewCheckText)+1];
-	  strcpy(view_desc->viewDesc()->viewchecktext, viewInfo[0].viewCheckText);
-	}
+      if (CmpCommon::context()->sqlSession()->validateVolatileName(indexInfo[i].indexName))
+        curr_index_desc->indexesDesc()->setVolatile(TRUE);
       else
-	view_desc->viewDesc()->viewchecktext = NULL;
+        curr_index_desc->indexesDesc()->setVolatile(FALSE);
+      curr_index_desc->indexesDesc()->hbaseCreateOptions = NULL;
+      curr_index_desc->indexesDesc()->numSaltPartns = indexInfo[i].numSaltPartns;
+      if (curr_index_desc->indexesDesc()->numSaltPartns > 0) {
+        // that the index is salted like the base table
+        TrafDesc *ci_files_desc = TrafAllocateDDLdesc(DESC_FILES_TYPE, space);
+        ci_files_desc->filesDesc()->setAudited(TRUE);  // audited table
+        curr_index_desc->indexesDesc()->files_desc = ci_files_desc;
+      }
+      curr_index_desc->indexesDesc()->setRowFormat(indexInfo[i].rowFormat);
+      if (indexInfo[i].hbaseCreateOptions) {
+        curr_index_desc->indexesDesc()->hbaseCreateOptions =
+            new GENHEAP(space) char[strlen(indexInfo[i].hbaseCreateOptions) + 1];
+        strcpy(curr_index_desc->indexesDesc()->hbaseCreateOptions, indexInfo[i].hbaseCreateOptions);
+      }
 
-      if (viewInfo[0].viewColUsages)
-	{
-	  view_desc->viewDesc()->viewcolusages = new GENHEAP(space) char[strlen(viewInfo[0].viewColUsages)+1];
-	  strcpy(view_desc->viewDesc()->viewcolusages, viewInfo[0].viewColUsages);
-	}
-      else
-	view_desc->viewDesc()->viewcolusages = NULL;
-
-      view_desc->viewDesc()->setUpdatable(viewInfo[0].isUpdatable);
-      view_desc->viewDesc()->setInsertable(viewInfo[0].isInsertable);
+      prev_desc = curr_index_desc;
     }
+  }
 
-  TrafDesc * seq_desc = NULL;
-  if (seqInfo)
-    {
-      seq_desc = TrafAllocateDDLdesc(DESC_SEQUENCE_GENERATOR_TYPE, space);
-      
-      seq_desc->sequenceGeneratorDesc()->setSgType((ComSequenceGeneratorType)seqInfo->seqType);
+  TrafDesc *view_desc = NULL;
+  if (numViews > 0) {
+    view_desc = TrafAllocateDDLdesc(DESC_VIEW_TYPE, space);
 
-      seq_desc->sequenceGeneratorDesc()->fsDataType = (ComFSDataType)seqInfo->datatype;
-      seq_desc->sequenceGeneratorDesc()->startValue = seqInfo->startValue;
-      seq_desc->sequenceGeneratorDesc()->increment = seqInfo->increment;
+    view_desc->viewDesc()->viewname = new GENHEAP(space) char[strlen(viewInfo[0].viewName) + 1];
+    strcpy(view_desc->viewDesc()->viewname, viewInfo[0].viewName);
 
-      seq_desc->sequenceGeneratorDesc()->maxValue = seqInfo->maxValue;
-      seq_desc->sequenceGeneratorDesc()->minValue = seqInfo->minValue;
-      seq_desc->sequenceGeneratorDesc()->cycleOption = 
-	(seqInfo->cycleOption ? TRUE : FALSE);
-      seq_desc->sequenceGeneratorDesc()->cache = seqInfo->cache;      
-      seq_desc->sequenceGeneratorDesc()->objectUID = seqInfo->seqUID;
-      
-      seq_desc->sequenceGeneratorDesc()->nextValue = seqInfo->nextValue;
-      seq_desc->sequenceGeneratorDesc()->redefTime = seqInfo->redefTime;
-      if (CmpSeabaseDDL::isMDflagsSet(seqInfo->flags, MD_SEQGEN_ORDER_FLG))
-        seq_desc->sequenceGeneratorDesc()->seqOrder = true;
+    view_desc->viewDesc()->viewfilename = view_desc->viewDesc()->viewname;
+    view_desc->viewDesc()->viewtext = new GENHEAP(space) char[strlen(viewInfo[0].viewText) + 1];
+    strcpy(view_desc->viewDesc()->viewtext, viewInfo[0].viewText);
 
-      if (CmpSeabaseDDL::isMDflagsSet(seqInfo->flags, MD_SEQGEN_REPL_SYNC_FLG))
-        seq_desc->sequenceGeneratorDesc()->setXnReplSync(TRUE);
-      else if (CmpSeabaseDDL::isMDflagsSet(seqInfo->flags, MD_SEQGEN_REPL_ASYNC_FLG))
-        seq_desc->sequenceGeneratorDesc()->setXnReplAsync(TRUE);
-    }
+    view_desc->viewDesc()->viewtextcharset = (CharInfo::CharSet)SQLCHARSETCODE_UTF8;
 
-  //partition table
+    if (viewInfo[0].viewCheckText) {
+      view_desc->viewDesc()->viewchecktext = new GENHEAP(space) char[strlen(viewInfo[0].viewCheckText) + 1];
+      strcpy(view_desc->viewDesc()->viewchecktext, viewInfo[0].viewCheckText);
+    } else
+      view_desc->viewDesc()->viewchecktext = NULL;
+
+    if (viewInfo[0].viewColUsages) {
+      view_desc->viewDesc()->viewcolusages = new GENHEAP(space) char[strlen(viewInfo[0].viewColUsages) + 1];
+      strcpy(view_desc->viewDesc()->viewcolusages, viewInfo[0].viewColUsages);
+    } else
+      view_desc->viewDesc()->viewcolusages = NULL;
+
+    view_desc->viewDesc()->setUpdatable(viewInfo[0].isUpdatable);
+    view_desc->viewDesc()->setInsertable(viewInfo[0].isInsertable);
+  }
+
+  TrafDesc *seq_desc = NULL;
+  if (seqInfo) {
+    seq_desc = TrafAllocateDDLdesc(DESC_SEQUENCE_GENERATOR_TYPE, space);
+
+    seq_desc->sequenceGeneratorDesc()->setSgType((ComSequenceGeneratorType)seqInfo->seqType);
+
+    seq_desc->sequenceGeneratorDesc()->fsDataType = (ComFSDataType)seqInfo->datatype;
+    seq_desc->sequenceGeneratorDesc()->startValue = seqInfo->startValue;
+    seq_desc->sequenceGeneratorDesc()->increment = seqInfo->increment;
+
+    seq_desc->sequenceGeneratorDesc()->maxValue = seqInfo->maxValue;
+    seq_desc->sequenceGeneratorDesc()->minValue = seqInfo->minValue;
+    seq_desc->sequenceGeneratorDesc()->cycleOption = (seqInfo->cycleOption ? TRUE : FALSE);
+    seq_desc->sequenceGeneratorDesc()->cache = seqInfo->cache;
+    seq_desc->sequenceGeneratorDesc()->objectUID = seqInfo->seqUID;
+
+    seq_desc->sequenceGeneratorDesc()->nextValue = seqInfo->nextValue;
+    seq_desc->sequenceGeneratorDesc()->redefTime = seqInfo->redefTime;
+    if (CmpSeabaseDDL::isMDflagsSet(seqInfo->flags, MD_SEQGEN_ORDER_FLG))
+      seq_desc->sequenceGeneratorDesc()->seqOrder = true;
+
+    if (CmpSeabaseDDL::isMDflagsSet(seqInfo->flags, MD_SEQGEN_REPL_SYNC_FLG))
+      seq_desc->sequenceGeneratorDesc()->setXnReplSync(TRUE);
+    else if (CmpSeabaseDDL::isMDflagsSet(seqInfo->flags, MD_SEQGEN_REPL_ASYNC_FLG))
+      seq_desc->sequenceGeneratorDesc()->setXnReplAsync(TRUE);
+  }
+
+  // partition table
   TrafDesc *partitionv2_desc = NULL;
-  if (partitionV2Info)
-  {
+  if (partitionV2Info) {
     NABoolean isPartitionBaseTable = false;
-    if ((tableInfo->objectFlags & MD_PARTITION_V2) != 0)
-      isPartitionBaseTable = true;
+    if ((tableInfo->objectFlags & MD_PARTITION_V2) != 0) isPartitionBaseTable = true;
     partitionv2_desc = TrafAllocateDDLdesc(DESC_PARTITIONV2_TYPE, space);
     partitionv2_desc->partitionV2Desc()->baseTableUid = partitionV2Info->baseTableUid;
     partitionv2_desc->partitionV2Desc()->partitionType = partitionV2Info->partitionType;
     partitionv2_desc->partitionV2Desc()->partitionColIdx =
-                new GENHEAP(space)char[strlen(partitionV2Info->partitionColIdx)+1];
-    
+        new GENHEAP(space) char[strlen(partitionV2Info->partitionColIdx) + 1];
+
     strcpy(partitionv2_desc->partitionV2Desc()->partitionColIdx, partitionV2Info->partitionColIdx);
     partitionv2_desc->partitionV2Desc()->partitionColCount = partitionV2Info->partitionColCount;
     partitionv2_desc->partitionV2Desc()->subpartitionType = partitionV2Info->subpartitionType;
-    if (partitionV2Info->subpartitionColCount > 0)
-    {
+    if (partitionV2Info->subpartitionColCount > 0) {
       partitionv2_desc->partitionV2Desc()->subpartitionColIdx =
-                  new GENHEAP(space)char[strlen(partitionV2Info->subpartitionColIdx)+1];
+          new GENHEAP(space) char[strlen(partitionV2Info->subpartitionColIdx) + 1];
       strcpy(partitionv2_desc->partitionV2Desc()->subpartitionColIdx, partitionV2Info->subpartitionColIdx);
     }
     partitionv2_desc->partitionV2Desc()->subpartitionColCount = partitionV2Info->subpartitionColCount;
     if (isPartitionBaseTable)
       partitionv2_desc->partitionV2Desc()->stlPartitionCnt = 1;
-    else 
+    else
       partitionv2_desc->partitionV2Desc()->stlPartitionCnt = partitionV2Info->stlPartitionCnt;
     partitionv2_desc->partitionV2Desc()->partitionInterval = NULL;
     partitionv2_desc->partitionV2Desc()->subpartitionInterval = NULL;
@@ -2425,43 +2013,35 @@ TrafDesc * Generator::createVirtualTableDesc
     partitionv2_desc->partitionV2Desc()->subpartitionAutolist = 0;
     partitionv2_desc->partitionV2Desc()->flags = partitionV2Info->flags;
 
-    TrafDesc * firstl_prev_desc = NULL;
+    TrafDesc *firstl_prev_desc = NULL;
     ComTdbVirtTablePartInfo *partInfo = partitionV2Info->partArray;
     int startwith = 0;
-    if (isPartitionBaseTable && partitionV2Info->stlPartitionCnt == 2)
-      startwith = 1;
-    for (int i = startwith; i < partitionV2Info->stlPartitionCnt; i++)
-    {
+    if (isPartitionBaseTable && partitionV2Info->stlPartitionCnt == 2) startwith = 1;
+    for (int i = startwith; i < partitionV2Info->stlPartitionCnt; i++) {
       TrafDesc *st_curr_desc = TrafAllocateDDLdesc(DESC_PART_TYPE, space);
       TrafPartDesc *pdesc = st_curr_desc->partDesc();
-      pdesc->parentUid = partInfo[i].parentUid; 
+      pdesc->parentUid = partInfo[i].parentUid;
       pdesc->partitionUid = partInfo[i].partitionUid;
-      pdesc->partitionName = 
-                    new GENHEAP(space)char[strlen(partInfo[i].partitionName) + 1];
+      pdesc->partitionName = new GENHEAP(space) char[strlen(partInfo[i].partitionName) + 1];
       strcpy(pdesc->partitionName, partInfo[i].partitionName);
-      pdesc->partitionEntityName = 
-                    new GENHEAP(space)char[strlen(partInfo[i].partitionEntityName) + 1];
+      pdesc->partitionEntityName = new GENHEAP(space) char[strlen(partInfo[i].partitionEntityName) + 1];
       strcpy(pdesc->partitionEntityName, partInfo[i].partitionEntityName);
       pdesc->isSubPartition = partInfo[i].isSubPartition;
       pdesc->hasSubPartition = partInfo[i].hasSubPartition;
       pdesc->partPosition = partInfo[i].partPosition;
-      pdesc->partitionValueExpr =
-                    new GENHEAP(space)char[partInfo[i].partExpressionLen + 1];
+      pdesc->partitionValueExpr = new GENHEAP(space) char[partInfo[i].partExpressionLen + 1];
       memset(pdesc->partitionValueExpr, '\0', partInfo[i].partExpressionLen + 1);
       memcpy(pdesc->partitionValueExpr, partInfo[i].partExpression, partInfo[i].partExpressionLen);
       pdesc->partitionValueExprLen = partInfo[i].partExpressionLen;
-      if (i == 0) //first partition
+      if (i == 0)  // first partition
       {
         pdesc->prevPartitionValueExpr = NULL;
         pdesc->prevPartitionValueExprLen = 0;
-      }
-      else
-      {
-        pdesc->prevPartitionValueExpr =
-                      new GENHEAP(space)char[partInfo[i-1].partExpressionLen + 1];
-        memset(pdesc->prevPartitionValueExpr, '\0', partInfo[i-1].partExpressionLen + 1);
-        memcpy(pdesc->prevPartitionValueExpr, partInfo[i-1].partExpression, partInfo[i-1].partExpressionLen);
-        pdesc->prevPartitionValueExprLen = partInfo[i-1].partExpressionLen;
+      } else {
+        pdesc->prevPartitionValueExpr = new GENHEAP(space) char[partInfo[i - 1].partExpressionLen + 1];
+        memset(pdesc->prevPartitionValueExpr, '\0', partInfo[i - 1].partExpressionLen + 1);
+        memcpy(pdesc->prevPartitionValueExpr, partInfo[i - 1].partExpression, partInfo[i - 1].partExpressionLen);
+        pdesc->prevPartitionValueExprLen = partInfo[i - 1].partExpressionLen;
       }
       pdesc->isValid = partInfo[i].isValid;
       pdesc->isReadonly = partInfo[i].isReadonly;
@@ -2470,44 +2050,36 @@ TrafDesc * Generator::createVirtualTableDesc
       pdesc->flags = partInfo[i].flags;
 
       pdesc->subpartitionCnt = partInfo[i].subpartitionCnt;
-      if (partInfo[i].subpartitionCnt > 0)
-      {
+      if (partInfo[i].subpartitionCnt > 0) {
         TrafDesc *sub_prev_desc = NULL;
         ComTdbVirtTablePartInfo *subpartInfo = partInfo[i].subPartArray;
-        for (int j = 0; j < partInfo[i].subpartitionCnt; j++)
-        {
+        for (int j = 0; j < partInfo[i].subpartitionCnt; j++) {
           TrafDesc *sub_curr_desc = TrafAllocateDDLdesc(DESC_PART_TYPE, space);
-          TrafPartDesc* subdesc = sub_curr_desc->partDesc();
+          TrafPartDesc *subdesc = sub_curr_desc->partDesc();
           subdesc->parentUid = pdesc->partitionUid;
           subdesc->partitionUid = subpartInfo[j].partitionUid;
-          subdesc->partitionName =
-                     new GENHEAP(space)char[strlen(subpartInfo[j].partitionName)+1];
+          subdesc->partitionName = new GENHEAP(space) char[strlen(subpartInfo[j].partitionName) + 1];
           strcpy(subdesc->partitionName, subpartInfo[j].partitionName);
-          subdesc->partitionEntityName =
-                     new GENHEAP(space)char[strlen(subpartInfo[j].partitionEntityName)+1];
+          subdesc->partitionEntityName = new GENHEAP(space) char[strlen(subpartInfo[j].partitionEntityName) + 1];
           strcpy(subdesc->partitionEntityName, subpartInfo[j].partitionEntityName);
           subdesc->isSubPartition = subpartInfo[j].isSubPartition;
           subdesc->hasSubPartition = subpartInfo[j].hasSubPartition;
           subdesc->partPosition = subpartInfo[j].partPosition;
-          subdesc->partitionValueExpr = 
-                     new GENHEAP(space)char[subpartInfo[j].partExpressionLen+1];
-          memset(subdesc->partitionValueExpr, '\0', subpartInfo[j].partExpressionLen+1);
-          memcpy(subdesc->partitionValueExpr,  subpartInfo[j].partExpression,
-                 subpartInfo[j].partExpressionLen);
+          subdesc->partitionValueExpr = new GENHEAP(space) char[subpartInfo[j].partExpressionLen + 1];
+          memset(subdesc->partitionValueExpr, '\0', subpartInfo[j].partExpressionLen + 1);
+          memcpy(subdesc->partitionValueExpr, subpartInfo[j].partExpression, subpartInfo[j].partExpressionLen);
           subdesc->partitionValueExprLen = subpartInfo[j].partExpressionLen;
 
-          if (j == 0) //first subpartition
+          if (j == 0)  // first subpartition
           {
             subdesc->prevPartitionValueExpr = NULL;
             subdesc->prevPartitionValueExprLen = 0;
-          }
-          else
-          {
-            subdesc->prevPartitionValueExpr =
-                          new GENHEAP(space)char[subpartInfo[j-1].partExpressionLen + 1];
-            memset(subdesc->prevPartitionValueExpr, '\0', subpartInfo[j-1].partExpressionLen + 1);
-            memcpy(subdesc->prevPartitionValueExpr, subpartInfo[j-1].partExpression, subpartInfo[j-1].partExpressionLen);
-            subdesc->prevPartitionValueExprLen = subpartInfo[j-1].partExpressionLen;
+          } else {
+            subdesc->prevPartitionValueExpr = new GENHEAP(space) char[subpartInfo[j - 1].partExpressionLen + 1];
+            memset(subdesc->prevPartitionValueExpr, '\0', subpartInfo[j - 1].partExpressionLen + 1);
+            memcpy(subdesc->prevPartitionValueExpr, subpartInfo[j - 1].partExpression,
+                   subpartInfo[j - 1].partExpressionLen);
+            subdesc->prevPartitionValueExprLen = subpartInfo[j - 1].partExpressionLen;
           }
 
           subdesc->isValid = subpartInfo[j].isValid;
@@ -2528,416 +2100,330 @@ TrafDesc * Generator::createVirtualTableDesc
         partitionv2_desc->partitionV2Desc()->part_desc = st_curr_desc;
       else
         firstl_prev_desc->next = st_curr_desc;
-      firstl_prev_desc = st_curr_desc; 
+      firstl_prev_desc = st_curr_desc;
     }
   }
 
-  // Setup the privilege descriptors for objects including views, tables, 
+  // Setup the privilege descriptors for objects including views, tables,
   // libraries, udrs, sequences, and constraints.
-  TrafDesc * priv_desc = NULL;
-  if (privInfo)
-      priv_desc = createPrivDescs(privInfo, space);
+  TrafDesc *priv_desc = NULL;
+  if (privInfo) priv_desc = createPrivDescs(privInfo, space);
 
-  TrafDesc * i_files_desc = TrafAllocateDDLdesc(DESC_FILES_TYPE, space);
-  i_files_desc->filesDesc()->setAudited(TRUE); // audited table
+  TrafDesc *i_files_desc = TrafAllocateDDLdesc(DESC_FILES_TYPE, space);
+  i_files_desc->filesDesc()->setAudited(TRUE);  // audited table
   index_desc->indexesDesc()->files_desc = i_files_desc;
 
-  index_desc->indexesDesc()->keys_desc  = keys_descs;
+  index_desc->indexesDesc()->keys_desc = keys_descs;
   table_desc->tableDesc()->columns_desc = cols_descs;
   table_desc->tableDesc()->indexes_desc = index_desc;
   table_desc->tableDesc()->views_desc = view_desc;
   table_desc->tableDesc()->constrnts_desc = first_constr_desc;
-  table_desc->tableDesc()->constr_count = numConstrs; 
+  table_desc->tableDesc()->constr_count = numConstrs;
   table_desc->tableDesc()->sequence_generator_desc = seq_desc;
   table_desc->tableDesc()->priv_desc = priv_desc;
   table_desc->tableDesc()->partitionv2_desc = partitionv2_desc;
 
-  if (statsInfo)
+  if (statsInfo) {
+    TrafDesc *stats_desc = NULL;
+
+    stats_desc = TrafAllocateDDLdesc(DESC_TABLE_STATS_TYPE, space);
+    stats_desc->tableStatsDesc()->setFastStats(TRUE);
+    stats_desc->tableStatsDesc()->rowcount = statsInfo->rowcount;
+    stats_desc->tableStatsDesc()->hbtBlockSize = statsInfo->hbtBlockSize;
+    stats_desc->tableStatsDesc()->hbtIndexLevels = statsInfo->hbtIndexLevels;
+    stats_desc->tableStatsDesc()->numHistograms = statsInfo->numHistograms;
+    stats_desc->tableStatsDesc()->numHistIntervals = statsInfo->numHistIntervals;
+
+    if (statsInfo->histogramInfo) {
+      TrafDesc *prev_desc = NULL;
+      ComTdbVirtTableHistogramInfo *histInfo = statsInfo->histogramInfo;
+      for (int i = 0; i < statsInfo->numHistograms; i++) {
+        TrafHistogramDesc *curr_desc = (TrafHistogramDesc *)TrafAllocateDDLdesc(DESC_HISTOGRAM_TYPE, space);
+
+        // copy info from histInfo[i].histogramDesc_ to curr_desc
+        curr_desc->copyFrom(&histInfo[i].histogramDesc_, space);
+
+        if (!prev_desc) {
+          stats_desc->tableStatsDesc()->histograms_desc = curr_desc;
+        } else
+          prev_desc->next = curr_desc;
+
+        prev_desc = curr_desc;
+      }  // for
+
+      if (statsInfo->histintInfo) {
+        prev_desc = NULL;
+        ComTdbVirtTableHistintInfo *histInfo = statsInfo->histintInfo;
+
+        for (int i = 0; i < statsInfo->numHistIntervals; i++) {
+          TrafHistIntervalDesc *curr_desc = (TrafHistIntervalDesc *)TrafAllocateDDLdesc(DESC_HIST_INTERVAL_TYPE, space);
+
+          // copy info from histInfo[i].histintDesc_ to curr_desc
+          curr_desc->copyFrom(&histInfo[i].histintDesc_, space);
+
+          if (!prev_desc) {
+            stats_desc->tableStatsDesc()->hist_interval_desc = curr_desc;
+          } else
+            prev_desc->next = curr_desc;
+
+          prev_desc = curr_desc;
+        }  // for
+      }    // if histint
+    }      // if histogram
+
+    table_desc->tableDesc()->table_stats_desc = stats_desc;
+  }
+
+  if (endKeyArray) {
+    // create a list of region descriptors
+    table_desc->tableDesc()->hbase_regionkey_desc = assembleDescs(endKeyArray, space);
+  }
+
+  if (genPackedDesc && space) {
+    if (!space->isComSpace())  // to insure cast (Space *) is safe
     {
-      TrafDesc * stats_desc = NULL;
-
-      stats_desc = TrafAllocateDDLdesc(DESC_TABLE_STATS_TYPE, space);
-      stats_desc->tableStatsDesc()->setFastStats(TRUE);
-      stats_desc->tableStatsDesc()->rowcount = statsInfo->rowcount;
-      stats_desc->tableStatsDesc()->hbtBlockSize = statsInfo->hbtBlockSize;
-      stats_desc->tableStatsDesc()->hbtIndexLevels = statsInfo->hbtIndexLevels;
-      stats_desc->tableStatsDesc()->numHistograms = statsInfo->numHistograms;
-      stats_desc->tableStatsDesc()->numHistIntervals = statsInfo->numHistIntervals;
-
-      if (statsInfo->histogramInfo)
-        {
-          TrafDesc * prev_desc = NULL;
-          ComTdbVirtTableHistogramInfo * histInfo = statsInfo->histogramInfo;
-          for (int i = 0; i < statsInfo->numHistograms; i++)
-            {
-              TrafHistogramDesc * curr_desc = 
-                (TrafHistogramDesc *)TrafAllocateDDLdesc(DESC_HISTOGRAM_TYPE, space);
-              
-              // copy info from histInfo[i].histogramDesc_ to curr_desc
-              curr_desc->copyFrom(&histInfo[i].histogramDesc_, space);
-
-              if (! prev_desc)
-                {
-                  stats_desc->tableStatsDesc()->histograms_desc = curr_desc;
-                }
-              else
-                prev_desc->next = curr_desc;
-
-              prev_desc = curr_desc;
-            } // for
-
-          if (statsInfo->histintInfo)
-            {
-              prev_desc = NULL;
-              ComTdbVirtTableHistintInfo * histInfo = statsInfo->histintInfo;
-
-              for (int i = 0; i < statsInfo->numHistIntervals; i++)
-                {
-                  TrafHistIntervalDesc * curr_desc = 
-                    (TrafHistIntervalDesc *)TrafAllocateDDLdesc(DESC_HIST_INTERVAL_TYPE, space);
-                  
-                  // copy info from histInfo[i].histintDesc_ to curr_desc
-                  curr_desc->copyFrom(&histInfo[i].histintDesc_, space);
-                  
-                  if (! prev_desc)
-                    {
-                      stats_desc->tableStatsDesc()->hist_interval_desc = curr_desc;
-                    }
-                  else
-                    prev_desc->next = curr_desc;
-
-                  prev_desc = curr_desc;
-                } // for
-            } // if histint
-        } // if histogram
-
-      table_desc->tableDesc()->table_stats_desc = stats_desc;
+      table_desc = NULL;
+      return table_desc;
     }
 
-  if (endKeyArray)
-    {
-      // create a list of region descriptors
-      table_desc->tableDesc()->hbase_regionkey_desc = 
-        assembleDescs(endKeyArray, space);
+    Space *trueSpace = (Space *)space;  // space really is a Space
+
+    // pack generated desc and move it to a contiguous buffer before return.
+    DescStructPtr((TrafDesc *)table_desc).pack(trueSpace);
+    Lng32 allocSize = trueSpace->getAllocatedSpaceSize();
+    char *contigTableDesc = new HEAP char[allocSize];
+
+    if (!trueSpace->makeContiguous(contigTableDesc, allocSize)) {
+      table_desc = NULL;
+      return table_desc;
     }
 
-  if (genPackedDesc && space)
-    {
-      if (! space->isComSpace() ) // to insure cast (Space *) is safe
-        {
-          table_desc = NULL;
-          return table_desc;
-        }  
+    table_desc = (TrafDesc *)contigTableDesc;
 
-      Space * trueSpace = (Space *)space; // space really is a Space
-
-      // pack generated desc and move it to a contiguous buffer before return.
-      DescStructPtr((TrafDesc*)table_desc).pack(trueSpace);
-      Lng32 allocSize = trueSpace->getAllocatedSpaceSize();
-      char * contigTableDesc = new HEAP char[allocSize];
- 
-      if (! trueSpace->makeContiguous(contigTableDesc, allocSize))
-        {
-          table_desc = NULL;
-          return table_desc;
-        }
-
-      table_desc = (TrafDesc*)contigTableDesc;
-
-      if (packedDescLen)
-        *packedDescLen = allocSize;
-    }
+    if (packedDescLen) *packedDescLen = allocSize;
+  }
 
   return table_desc;
 }
 
-TrafDesc *Generator::createVirtualLibraryDesc(
-     const char *libraryName,
-     ComTdbVirtTableLibraryInfo *libraryInfo,
-     Space * space)
-{
-
+TrafDesc *Generator::createVirtualLibraryDesc(const char *libraryName, ComTdbVirtTableLibraryInfo *libraryInfo,
+                                              Space *space) {
   TrafDesc *library_desc = TrafAllocateDDLdesc(DESC_LIBRARY_TYPE, space);
-   library_desc->libraryDesc()->libraryName = new GENHEAP(space) char[strlen(libraryName) + 1];
-   strcpy(library_desc->libraryDesc()->libraryName, libraryName);
-   library_desc->libraryDesc()->libraryFilename = new GENHEAP(space) char[strlen(libraryInfo->library_filename) + 1];
-   strcpy(library_desc->libraryDesc()->libraryFilename, libraryInfo->library_filename);
-   library_desc->libraryDesc()->libraryVersion = libraryInfo->library_version;
-   library_desc->libraryDesc()->libraryUID = libraryInfo->library_UID;
-   library_desc->libraryDesc()->libraryOwnerID = libraryInfo->object_owner_id;
-   library_desc->libraryDesc()->librarySchemaOwnerID = libraryInfo->schema_owner_id;
-   
-   return library_desc;
-   
+  library_desc->libraryDesc()->libraryName = new GENHEAP(space) char[strlen(libraryName) + 1];
+  strcpy(library_desc->libraryDesc()->libraryName, libraryName);
+  library_desc->libraryDesc()->libraryFilename = new GENHEAP(space) char[strlen(libraryInfo->library_filename) + 1];
+  strcpy(library_desc->libraryDesc()->libraryFilename, libraryInfo->library_filename);
+  library_desc->libraryDesc()->libraryVersion = libraryInfo->library_version;
+  library_desc->libraryDesc()->libraryUID = libraryInfo->library_UID;
+  library_desc->libraryDesc()->libraryOwnerID = libraryInfo->object_owner_id;
+  library_desc->libraryDesc()->librarySchemaOwnerID = libraryInfo->schema_owner_id;
+
+  return library_desc;
 }
 
-
-TrafDesc *Generator::createVirtualRoutineDesc(
-     const char *routineName,
-     ComTdbVirtTableRoutineInfo *routineInfo,
-     Int32 numParams,
-     ComTdbVirtTableColumnInfo *paramsArray,
-     ComTdbVirtTablePrivInfo *privInfo,
-     Space * space)
-{
+TrafDesc *Generator::createVirtualRoutineDesc(const char *routineName, ComTdbVirtTableRoutineInfo *routineInfo,
+                                              Int32 numParams, ComTdbVirtTableColumnInfo *paramsArray,
+                                              ComTdbVirtTablePrivInfo *privInfo, Space *space) {
   TrafDesc *routine_desc = TrafAllocateDDLdesc(DESC_ROUTINE_TYPE, space);
-   routine_desc->routineDesc()->objectUID = routineInfo->object_uid;
-   routine_desc->routineDesc()->routineName = new GENHEAP(space) char[strlen(routineName)+1];
-   strcpy(routine_desc->routineDesc()->routineName, routineName);
-   routine_desc->routineDesc()->externalName = new GENHEAP(space) char[strlen(routineInfo->external_name)+1];
-   strcpy(routine_desc->routineDesc()->externalName, routineInfo->external_name);
-   routine_desc->routineDesc()->librarySqlName = NULL; 
-   routine_desc->routineDesc()->libraryFileName = new GENHEAP(space) char[strlen(routineInfo->library_filename)+1];
-   strcpy(routine_desc->routineDesc()->libraryFileName, routineInfo->library_filename);
-   routine_desc->routineDesc()->signature = new GENHEAP(space) char[strlen(routineInfo->signature)+1];
-   strcpy(routine_desc->routineDesc()->signature, routineInfo->signature);
-   routine_desc->routineDesc()->librarySqlName = new GENHEAP(space) char[strlen(routineInfo->library_sqlname)+1];
-   strcpy(routine_desc->routineDesc()->librarySqlName, routineInfo->library_sqlname);
-   routine_desc->routineDesc()->libRedefTime = routineInfo->lib_redef_time;
-   routine_desc->routineDesc()->libBlobHandle = routineInfo->lib_blob_handle;
+  routine_desc->routineDesc()->objectUID = routineInfo->object_uid;
+  routine_desc->routineDesc()->routineName = new GENHEAP(space) char[strlen(routineName) + 1];
+  strcpy(routine_desc->routineDesc()->routineName, routineName);
+  routine_desc->routineDesc()->externalName = new GENHEAP(space) char[strlen(routineInfo->external_name) + 1];
+  strcpy(routine_desc->routineDesc()->externalName, routineInfo->external_name);
+  routine_desc->routineDesc()->librarySqlName = NULL;
+  routine_desc->routineDesc()->libraryFileName = new GENHEAP(space) char[strlen(routineInfo->library_filename) + 1];
+  strcpy(routine_desc->routineDesc()->libraryFileName, routineInfo->library_filename);
+  routine_desc->routineDesc()->signature = new GENHEAP(space) char[strlen(routineInfo->signature) + 1];
+  strcpy(routine_desc->routineDesc()->signature, routineInfo->signature);
+  routine_desc->routineDesc()->librarySqlName = new GENHEAP(space) char[strlen(routineInfo->library_sqlname) + 1];
+  strcpy(routine_desc->routineDesc()->librarySqlName, routineInfo->library_sqlname);
+  routine_desc->routineDesc()->libRedefTime = routineInfo->lib_redef_time;
+  routine_desc->routineDesc()->libBlobHandle = routineInfo->lib_blob_handle;
 
-   routine_desc->routineDesc()->libVersion = routineInfo->library_version;
-   routine_desc->routineDesc()->libObjUID = routineInfo->lib_obj_uid;
-   //routine_desc->routineDesc()->libSchName = new GENHEAP(space) char[strlen(routineInfo->lib_sch_name)+1];
-   //strcpy(routine_desc->routineDesc()->libSchName ,routineInfo->lib_sch_name);
-   routine_desc->routineDesc()->libSchName = routineInfo->lib_sch_name;
-   routine_desc->routineDesc()->language  = 
-           CmGetComRoutineLanguageAsRoutineLanguage(routineInfo->language_type);
-   routine_desc->routineDesc()->UDRType  = 
-           CmGetComRoutineTypeAsRoutineType(routineInfo->UDR_type);
-   routine_desc->routineDesc()->sqlAccess  = 
-           CmGetComRoutineSQLAccessAsRoutineSQLAccess(routineInfo->sql_access);
-   routine_desc->routineDesc()->transactionAttributes  = 
-           CmGetComRoutineTransactionAttributesAsRoutineTransactionAttributes
-                  (routineInfo->transaction_attributes);
-   routine_desc->routineDesc()->maxResults = routineInfo->max_results;
-   routine_desc->routineDesc()->paramStyle  = 
-           CmGetComRoutineParamStyleAsRoutineParamStyle(routineInfo->param_style);
-   routine_desc->routineDesc()->isDeterministic = routineInfo->deterministic;
-   routine_desc->routineDesc()->isCallOnNull = routineInfo->call_on_null;
-   routine_desc->routineDesc()->isIsolate = routineInfo->isolate;
-   routine_desc->routineDesc()->externalSecurity  = 
-           CmGetRoutineExternalSecurityAsComRoutineExternalSecurity
-                  (routineInfo->external_security);
-   routine_desc->routineDesc()->executionMode  = 
-           CmGetRoutineExecutionModeAsComRoutineExecutionMode
-                 (routineInfo->execution_mode);
-   routine_desc->routineDesc()->stateAreaSize = routineInfo->state_area_size;
-   routine_desc->routineDesc()->parallelism  = 
-           CmGetRoutineParallelismAsComRoutineParallelism(routineInfo->parallelism);
-   UInt32 reclen; 
-   routine_desc->routineDesc()->paramsCount = numParams;
-   routine_desc->routineDesc()->params = 
-             Generator::createColDescs(routineName, 
-                                       paramsArray, (Int16) numParams, reclen, 
-                                       space);
-   routine_desc->routineDesc()->owner = routineInfo->object_owner_id;
-   routine_desc->routineDesc()->schemaOwner = routineInfo->schema_owner_id; 
+  routine_desc->routineDesc()->libVersion = routineInfo->library_version;
+  routine_desc->routineDesc()->libObjUID = routineInfo->lib_obj_uid;
+  // routine_desc->routineDesc()->libSchName = new GENHEAP(space) char[strlen(routineInfo->lib_sch_name)+1];
+  // strcpy(routine_desc->routineDesc()->libSchName ,routineInfo->lib_sch_name);
+  routine_desc->routineDesc()->libSchName = routineInfo->lib_sch_name;
+  routine_desc->routineDesc()->language = CmGetComRoutineLanguageAsRoutineLanguage(routineInfo->language_type);
+  routine_desc->routineDesc()->UDRType = CmGetComRoutineTypeAsRoutineType(routineInfo->UDR_type);
+  routine_desc->routineDesc()->sqlAccess = CmGetComRoutineSQLAccessAsRoutineSQLAccess(routineInfo->sql_access);
+  routine_desc->routineDesc()->transactionAttributes =
+      CmGetComRoutineTransactionAttributesAsRoutineTransactionAttributes(routineInfo->transaction_attributes);
+  routine_desc->routineDesc()->maxResults = routineInfo->max_results;
+  routine_desc->routineDesc()->paramStyle = CmGetComRoutineParamStyleAsRoutineParamStyle(routineInfo->param_style);
+  routine_desc->routineDesc()->isDeterministic = routineInfo->deterministic;
+  routine_desc->routineDesc()->isCallOnNull = routineInfo->call_on_null;
+  routine_desc->routineDesc()->isIsolate = routineInfo->isolate;
+  routine_desc->routineDesc()->externalSecurity =
+      CmGetRoutineExternalSecurityAsComRoutineExternalSecurity(routineInfo->external_security);
+  routine_desc->routineDesc()->executionMode =
+      CmGetRoutineExecutionModeAsComRoutineExecutionMode(routineInfo->execution_mode);
+  routine_desc->routineDesc()->stateAreaSize = routineInfo->state_area_size;
+  routine_desc->routineDesc()->parallelism = CmGetRoutineParallelismAsComRoutineParallelism(routineInfo->parallelism);
+  UInt32 reclen;
+  routine_desc->routineDesc()->paramsCount = numParams;
+  routine_desc->routineDesc()->params =
+      Generator::createColDescs(routineName, paramsArray, (Int16)numParams, reclen, space);
+  routine_desc->routineDesc()->owner = routineInfo->object_owner_id;
+  routine_desc->routineDesc()->schemaOwner = routineInfo->schema_owner_id;
 
   // Setup the privilege descriptors for routines.
-  TrafDesc * priv_desc = NULL;
-  if (privInfo)
-      priv_desc = createPrivDescs(privInfo, space);
+  TrafDesc *priv_desc = NULL;
+  if (privInfo) priv_desc = createPrivDescs(privInfo, space);
   routine_desc->routineDesc()->priv_desc = priv_desc;
 
-   return routine_desc;
+  return routine_desc;
 }
 
-short Generator::genAndEvalExpr(
-				CmpContext * cmpContext,
-				char * exprStr, Lng32 numChildren, 
-				ItemExpr * childNode0, ItemExpr * childNode1,
-				ComDiagsArea * diagsArea)
-{
+short Generator::genAndEvalExpr(CmpContext *cmpContext, char *exprStr, Lng32 numChildren, ItemExpr *childNode0,
+                                ItemExpr *childNode1, ComDiagsArea *diagsArea) {
   short rc = 0;
 
   Parser parser(cmpContext);
   BindWA bindWA(ActiveSchemaDB(), cmpContext);
 
   ItemExpr *parseTree = NULL;
-  parseTree = parser.getItemExprTree(exprStr, strlen(exprStr), 
-				     CharInfo::ISO88591,
-				     numChildren, childNode0, childNode1); 
+  parseTree = parser.getItemExprTree(exprStr, strlen(exprStr), CharInfo::ISO88591, numChildren, childNode0, childNode1);
 
-  if (! parseTree)
-    return -1;
+  if (!parseTree) return -1;
 
   parseTree = parseTree->bindNode(&bindWA);
-  if (bindWA.errStatus())
-    return -1;
+  if (bindWA.errStatus()) return -1;
 
   const NAType &resultType = parseTree->getValueId().getType();
 
-  //result may contain ExpTupleDesc::LONG_FORMAT info
+  // result may contain ExpTupleDesc::LONG_FORMAT info
   Lng32 castValBufLen = resultType.getNominalSize() + 8;
   char *castValBuf = new (CmpCommon::statementHeap()) char[castValBufLen];
   Lng32 outValLen = 0;
   Lng32 outValOffset = 0;
-  rc = ValueIdList::evaluateTree(parseTree, castValBuf, castValBufLen, 
-				 &outValLen, &outValOffset, diagsArea);
-  
-  if (rc)
-    return -1;
+  rc = ValueIdList::evaluateTree(parseTree, castValBuf, castValBufLen, &outValLen, &outValOffset, diagsArea);
+
+  if (rc) return -1;
 
   return 0;
 }
 
-PhysicalProperty *
-Generator::genPartitionedPhysProperty(const IndexDesc * clusIndex)
-{
+PhysicalProperty *Generator::genPartitionedPhysProperty(const IndexDesc *clusIndex) {
   PlanExecutionEnum plenum = EXECUTE_IN_ESP;
 
   PartitioningFunction *myPartFunc = NULL;
   if ((clusIndex->getPartitioningFunction()) &&
-      (clusIndex->getPartitioningFunction()->isAHash2PartitioningFunction()))
-    {
-      Lng32 forcedEsps = 0;
-      if (CmpCommon::getDefault(PARALLEL_NUM_ESPS, 0) != DF_SYSTEM)
-	forcedEsps =
-	  ActiveSchemaDB()->getDefaults().getAsLong(PARALLEL_NUM_ESPS);
-      else
-	forcedEsps = 32; // this seems to be an optimum number
-      //forcedEsps = rpp->getCountOfAvailableCPUs();
-      
-      const Hash2PartitioningFunction * h2pf =
-	clusIndex->getPartitioningFunction()->
-	castToHash2PartitioningFunction();
-      Lng32 numPartns = h2pf->getCountOfPartitions();
-      forcedEsps = numPartns;
-      if ((forcedEsps <= numPartns) &&
-	  ((numPartns % forcedEsps) == 0))
-	{
-	  NodeMap* myNodeMap = new(CmpCommon::statementHeap())
-	    NodeMap(CmpCommon::statementHeap(),
-		    forcedEsps,
-		    NodeMapEntry::ACTIVE);
-	  
-	  CollIndex entryNum = 0;
-	  Int32 currNodeNum = -1;
-	  Int32 i = 0;
-	  while (i < forcedEsps)
-	    {
-	      if (entryNum == h2pf->getNodeMap()->getNumEntries())
-		{
-		  entryNum = 0;
-		  currNodeNum = -1;
-		  continue;
-		}
-	      
-	      const NodeMapEntry * entry = 
-		h2pf->getNodeMap()->getNodeMapEntry(entryNum);
-	      
-	      if (entry->getNodeNumber() == currNodeNum)
-		{
-		  entryNum++;
-		  continue;
-		}
-	      
-	      myNodeMap->setNodeMapEntry(i, *entry);
-	      currNodeNum = entry->getNodeNumber();
-	      
-	      entryNum++;
-	      i++;
-	    }
-	  
-	  myPartFunc = new(CmpCommon::statementHeap())
-	    Hash2PartitioningFunction(
-		 h2pf->getPartitioningKey(),
-		 h2pf->getKeyColumnList(),
-		 forcedEsps, myNodeMap);
-	  myPartFunc->createPartitioningKeyPredicates();
-	}
-    }
-  
-  if (myPartFunc == NULL)
-    myPartFunc = clusIndex->getPartitioningFunction();
+      (clusIndex->getPartitioningFunction()->isAHash2PartitioningFunction())) {
+    Lng32 forcedEsps = 0;
+    if (CmpCommon::getDefault(PARALLEL_NUM_ESPS, 0) != DF_SYSTEM)
+      forcedEsps = ActiveSchemaDB()->getDefaults().getAsLong(PARALLEL_NUM_ESPS);
+    else
+      forcedEsps = 32;  // this seems to be an optimum number
+    // forcedEsps = rpp->getCountOfAvailableCPUs();
 
+    const Hash2PartitioningFunction *h2pf = clusIndex->getPartitioningFunction()->castToHash2PartitioningFunction();
+    Lng32 numPartns = h2pf->getCountOfPartitions();
+    forcedEsps = numPartns;
+    if ((forcedEsps <= numPartns) && ((numPartns % forcedEsps) == 0)) {
+      NodeMap *myNodeMap =
+          new (CmpCommon::statementHeap()) NodeMap(CmpCommon::statementHeap(), forcedEsps, NodeMapEntry::ACTIVE);
 
-  if (!myPartFunc)
-    {
-      //----------------------------------------------------------
-      // Create a node map with a single, active, wild-card entry.
-      //----------------------------------------------------------
-      NodeMap* myNodeMap = new(CmpCommon::statementHeap())
-	NodeMap(CmpCommon::statementHeap(),
-		1,
-		NodeMapEntry::ACTIVE);
-      
-      //------------------------------------------------------------
-      // The table is not partitioned. No need to start ESPs.
-      // Synthesize a partitioning function with a single partition.
-      //------------------------------------------------------------
-      myPartFunc = new(CmpCommon::statementHeap())
-	SinglePartitionPartitioningFunction(myNodeMap);
-      plenum = EXECUTE_IN_MASTER;
+      CollIndex entryNum = 0;
+      Int32 currNodeNum = -1;
+      Int32 i = 0;
+      while (i < forcedEsps) {
+        if (entryNum == h2pf->getNodeMap()->getNumEntries()) {
+          entryNum = 0;
+          currNodeNum = -1;
+          continue;
+        }
+
+        const NodeMapEntry *entry = h2pf->getNodeMap()->getNodeMapEntry(entryNum);
+
+        if (entry->getNodeNumber() == currNodeNum) {
+          entryNum++;
+          continue;
+        }
+
+        myNodeMap->setNodeMapEntry(i, *entry);
+        currNodeNum = entry->getNodeNumber();
+
+        entryNum++;
+        i++;
+      }
+
+      myPartFunc = new (CmpCommon::statementHeap())
+          Hash2PartitioningFunction(h2pf->getPartitioningKey(), h2pf->getKeyColumnList(), forcedEsps, myNodeMap);
+      myPartFunc->createPartitioningKeyPredicates();
     }
-  
-  PhysicalProperty * sppForMe = new(CmpCommon::statementHeap())
-    PhysicalProperty(myPartFunc,
-		     plenum,
-		     SOURCE_VIRTUAL_TABLE);
+  }
+
+  if (myPartFunc == NULL) myPartFunc = clusIndex->getPartitioningFunction();
+
+  if (!myPartFunc) {
+    //----------------------------------------------------------
+    // Create a node map with a single, active, wild-card entry.
+    //----------------------------------------------------------
+    NodeMap *myNodeMap = new (CmpCommon::statementHeap()) NodeMap(CmpCommon::statementHeap(), 1, NodeMapEntry::ACTIVE);
+
+    //------------------------------------------------------------
+    // The table is not partitioned. No need to start ESPs.
+    // Synthesize a partitioning function with a single partition.
+    //------------------------------------------------------------
+    myPartFunc = new (CmpCommon::statementHeap()) SinglePartitionPartitioningFunction(myNodeMap);
+    plenum = EXECUTE_IN_MASTER;
+  }
+
+  PhysicalProperty *sppForMe =
+      new (CmpCommon::statementHeap()) PhysicalProperty(myPartFunc, plenum, SOURCE_VIRTUAL_TABLE);
 
   return sppForMe;
 }
 
 /////////////////////////////////////////////////////////////////
-// 
+//
 // This next method helps with the fix for Soln 10-071204-9253.
-// Sometimes, SORT is used as a blocking operator to make a self-ref 
+// Sometimes, SORT is used as a blocking operator to make a self-ref
 // update safe from the Halloween problem.  But if the TSJforWrite and
 // SORT are executed in parallel and the scan of the self-ref table is
-// accessed from the same ESP as the SORT, the resulting plan 
+// accessed from the same ESP as the SORT, the resulting plan
 // will not be safe, because the scans can finish asynchronously
-// which will allow some SORT to return rows before other scans 
-// have finished.  To prevent this, Sort::preCodeGen will call 
-// this method to insert an ESP Exchange below the SORT, so that 
+// which will allow some SORT to return rows before other scans
+// have finished.  To prevent this, Sort::preCodeGen will call
+// this method to insert an ESP Exchange below the SORT, so that
 // none of the SORT instances will begin returning rows until
 // all of the scans have finished.  There is also code in the
 // preCodeGen methods of NestedJoin, Exchange, and PartitionAccess
 // to help detect the need for Sort::preCodeGen to call this method.
-// 
+//
 // The method is also used to add an ESP Exchange on top of a
 // SequenceGenerator operator.  In this case the Exchange is actually
 // treated as an ESP Access operator.
 /////////////////////////////////////////////////////////////////
 
-RelExpr *
-Generator::insertEspExchange(RelExpr *oper, 
-                             const PhysicalProperty *unPreCodeGendPP)
-{
+RelExpr *Generator::insertEspExchange(RelExpr *oper, const PhysicalProperty *unPreCodeGendPP) {
   GroupAttributes *ga = oper->getGroupAttr();
 
-  // Gather some information about partitioning to allow an 
+  // Gather some information about partitioning to allow an
   // assertion to check the assumption that this is safe to do.
-  
+
   PartitioningFunction *pf = unPreCodeGendPP->getPartitioningFunction();
-  
+
   const ValueIdSet &partKeys = pf->getPartitioningKey();
 
   ValueId pkey;
   partKeys.getFirst(pkey);
-  
-  NABoolean isRandomRepart = 
-    ((pf->isAHashPartitioningFunction() ||
-      pf->isATableHashPartitioningFunction()) &&
-     (partKeys.entries() == 1) &&
-     (pkey.getItemExpr()->getOperatorType() == ITM_RANDOMNUM));
 
-  if (isRandomRepart == FALSE)
-    {
-      ValueIdSet newInputs;
-      ValueIdSet referencedInputs;
-      ValueIdSet coveredSubExpr;
-      ValueIdSet uncoveredExpr;
-      NABoolean isCovered = partKeys.isCovered(newInputs,
-                                       *ga,
-                                       referencedInputs,
-                                       coveredSubExpr,
-                                       uncoveredExpr);
-      //      if (isCovered == FALSE)
-      //GenAssert(0, "Bad assumptions in Generator::insertEspExchange.")
-    }        
- 
+  NABoolean isRandomRepart = ((pf->isAHashPartitioningFunction() || pf->isATableHashPartitioningFunction()) &&
+                              (partKeys.entries() == 1) && (pkey.getItemExpr()->getOperatorType() == ITM_RANDOMNUM));
+
+  if (isRandomRepart == FALSE) {
+    ValueIdSet newInputs;
+    ValueIdSet referencedInputs;
+    ValueIdSet coveredSubExpr;
+    ValueIdSet uncoveredExpr;
+    NABoolean isCovered = partKeys.isCovered(newInputs, *ga, referencedInputs, coveredSubExpr, uncoveredExpr);
+    //      if (isCovered == FALSE)
+    // GenAssert(0, "Bad assumptions in Generator::insertEspExchange.")
+  }
+
   Exchange *exch = new (CmpCommon::statementHeap()) Exchange(oper);
 
   exch->setPhysicalProperty(unPreCodeGendPP);
@@ -2948,13 +2434,11 @@ Generator::insertEspExchange(RelExpr *oper,
   exch->setOperatorCost(0);
   exch->setRollUpCost(exch->getRollUpCost());
 
-  // Don't let Exchange::preCodeGen eliminate this Exchange.    
+  // Don't let Exchange::preCodeGen eliminate this Exchange.
   exch->doSkipRedundancyCheck();
 
-  exch->setUpMessageBufferLength( ActiveSchemaDB()->getDefaults().getAsULong
-                                 (UNOPTIMIZED_ESP_BUFFER_SIZE_UP) / 1024 );
-  exch->setDownMessageBufferLength( ActiveSchemaDB()->getDefaults().getAsULong
-                              (UNOPTIMIZED_ESP_BUFFER_SIZE_DOWN) / 1024 ); 
+  exch->setUpMessageBufferLength(ActiveSchemaDB()->getDefaults().getAsULong(UNOPTIMIZED_ESP_BUFFER_SIZE_UP) / 1024);
+  exch->setDownMessageBufferLength(ActiveSchemaDB()->getDefaults().getAsULong(UNOPTIMIZED_ESP_BUFFER_SIZE_DOWN) / 1024);
 
   return exch;
 }
@@ -2967,27 +2451,21 @@ Generator::insertEspExchange(RelExpr *oper,
 // If no map table is passed in, allocates a new map table
 // and appends it.
 // Returns pointer to the maptable being added.
-MapTable * Generator::appendAtEnd(MapTable * map_table)
-{
-  MapTable * mt = (map_table ? map_table : (new(wHeap()) MapTable()));
+MapTable *Generator::appendAtEnd(MapTable *map_table) {
+  MapTable *mt = (map_table ? map_table : (new (wHeap()) MapTable()));
 
-  if (! mt)
-    return NULL;
+  if (!mt) return NULL;
 
-  if (! firstMapTable_)
-    {
-      firstMapTable_ = mt;
-      lastMapTable_  = mt;
-    }
-  else
-    {
-      mt->prev() = lastMapTable_;
-      lastMapTable_->next() = mt;
-      lastMapTable_ = mt;
+  if (!firstMapTable_) {
+    firstMapTable_ = mt;
+    lastMapTable_ = mt;
+  } else {
+    mt->prev() = lastMapTable_;
+    lastMapTable_->next() = mt;
+    lastMapTable_ = mt;
 
-      while (lastMapTable_->next())
-	lastMapTable_ = lastMapTable_->next();
-    }
+    while (lastMapTable_->next()) lastMapTable_ = lastMapTable_->next();
+  }
 
   return mt;
 }
@@ -2996,11 +2474,9 @@ MapTable * Generator::appendAtEnd(MapTable * map_table)
 // If mapTable is input, starts the search from there.
 // Returns MapInfo, if found.
 // Raises assertion, if not found.
-MapInfo * Generator::getMapInfo(const ValueId & value_id, MapTable * mapTable)
-{
-  MapInfo * mi = getMapInfoAsIs(value_id, mapTable);
-  if (mi)
-    return mi;
+MapInfo *Generator::getMapInfo(const ValueId &value_id, MapTable *mapTable) {
+  MapInfo *mi = getMapInfoAsIs(value_id, mapTable);
+  if (mi) return mi;
 
   // value not found. Assert.
   NAString unparsed(wHeap());
@@ -3008,34 +2484,31 @@ MapInfo * Generator::getMapInfo(const ValueId & value_id, MapTable * mapTable)
   char errmsg[200];
 
   if (mapTable) {
-     sprintf(errmsg, "\nValueId %d (%.100s...) not found in MapTable %p",
-   	  (CollIndex)value_id, unparsed.data(), mapTable);
+    sprintf(errmsg, "\nValueId %d (%.100s...) not found in MapTable %p", (CollIndex)value_id, unparsed.data(),
+            mapTable);
   } else {
-     sprintf(errmsg, "\nValueId %d (%.100s...) not found in all chained MapTables",
-   	  (CollIndex)value_id, unparsed.data());
+    sprintf(errmsg, "\nValueId %d (%.100s...) not found in all chained MapTables", (CollIndex)value_id,
+            unparsed.data());
   }
 
   displayMapTables(INT32_MAX, errmsg);
 
-  *CmpCommon::diags() << DgSqlCode(-7007)
-                      << DgString0(" ");
+  *CmpCommon::diags() << DgSqlCode(-7007) << DgString0(" ");
   GenExit();
 
   return NULL;
 }
 
-MapTable * Generator::getMapTable(ValueId id)
-{
-  MapTable * x = lastMapTable_;
+MapTable *Generator::getMapTable(ValueId id) {
+  MapTable *x = lastMapTable_;
 
   while (x) {
-     if ( x->getTotalVids() > 0 ) {
-       MapInfo * mi = x->getMapInfoFromThis(id);
-       if (mi)
-         return x;
-     }
+    if (x->getTotalVids() > 0) {
+      MapInfo *mi = x->getMapInfoFromThis(id);
+      if (mi) return x;
+    }
 
-     x = x->prev();
+    x = x->prev();
   }
 
   return NULL;
@@ -3045,60 +2518,45 @@ MapTable * Generator::getMapTable(ValueId id)
 // If mapTable is input, starts the search from there.
 // Returns MapInfo, if found.
 // Returns NULL, if not found.
-MapInfo * Generator::getMapInfoAsIs(const ValueId & value_id, MapTable * mapTable)
-{
+MapInfo *Generator::getMapInfoAsIs(const ValueId &value_id, MapTable *mapTable) {
   // first look for this value_id in the last map table. There
   // is a good chance it will be there.
-  MapInfo * mi =
-    ((getLastMapTable()->getTotalVids() > 0) ?
-     getLastMapTable()->getMapInfoFromThis(value_id) :
-     NULL);
-  if (mi)
-    return mi;
+  MapInfo *mi = ((getLastMapTable()->getTotalVids() > 0) ? getLastMapTable()->getMapInfoFromThis(value_id) : NULL);
+  if (mi) return mi;
 
   // now search all the map tables.
   // Do not look in the last map table as we have already searched it.
 
-  if ((!mapTable) && (getLastMapTable() == getMapTable()))
-    return NULL ;
-  MapTable * mt = (mapTable ? mapTable : getLastMapTable()->prev());
-  while (mt)
-    {
-      if (mt->getTotalVids() > 0)
-	{
-	  mi = mt->getMapInfoFromThis(value_id);
-	  if (mi)
-	    return mi;
-	}
-
-      if (mt != (mapTable ? mapTable : getMapTable()))
-	mt = mt->prev();
-      else
-	break ;
+  if ((!mapTable) && (getLastMapTable() == getMapTable())) return NULL;
+  MapTable *mt = (mapTable ? mapTable : getLastMapTable()->prev());
+  while (mt) {
+    if (mt->getTotalVids() > 0) {
+      mi = mt->getMapInfoFromThis(value_id);
+      if (mi) return mi;
     }
+
+    if (mt != (mapTable ? mapTable : getMapTable()))
+      mt = mt->prev();
+    else
+      break;
+  }
 
   return NULL;
 }
 
 // gets MapInfo from mapTable.
 // Raises assertion, if not found.
-MapInfo * Generator::getMapInfoFromThis(MapTable * mapTable,
-					const ValueId & value_id)
-{
+MapInfo *Generator::getMapInfoFromThis(MapTable *mapTable, const ValueId &value_id) {
   return mapTable->getMapInfoFromThis(value_id);
 }
 
-
 // adds to the last maptable, if value doesn't exist.
 // Returns the MapInfo, if that value exists.
-MapInfo * Generator::addMapInfo(const ValueId & value_id,
-				Attributes * attr)
-{
-  MapInfo * map_info;
+MapInfo *Generator::addMapInfo(const ValueId &value_id, Attributes *attr) {
+  MapInfo *map_info;
 
   // return the map information, if already been added to the map table.
-  if (map_info = getMapInfoAsIs(value_id))
-    return map_info;
+  if (map_info = getMapInfoAsIs(value_id)) return map_info;
 
   return getLastMapTable()->addMapInfoToThis(value_id, attr);
 }
@@ -3106,65 +2564,52 @@ MapInfo * Generator::addMapInfo(const ValueId & value_id,
 // adds to input mapTable. Does NOT check if the value exists.
 // Caller should have checked for that.
 // Returns the MapInfo for the added value.
-MapInfo * Generator::addMapInfoToThis(MapTable * mapTable,
-				      const ValueId & value_id,
-				      Attributes * attr)
-{
+MapInfo *Generator::addMapInfoToThis(MapTable *mapTable, const ValueId &value_id, Attributes *attr) {
   return mapTable->addMapInfoToThis(value_id, attr);
 }
 
 // deletes ALL maptables starting at 'next' of inMapTable.
 // If inMapTable is NULL, removes all map tables in generator.
 // Makes inMapTable the last map table.
-void Generator::removeAll(MapTable * inMapTable)
-{
+void Generator::removeAll(MapTable *inMapTable) {
   MapTable *moreToDelete = (inMapTable ? inMapTable->next() : firstMapTable_);
   MapTable *me;
 
-  while (moreToDelete)
-    {
-      me = moreToDelete;
-      moreToDelete = moreToDelete->next();
+  while (moreToDelete) {
+    me = moreToDelete;
+    moreToDelete = moreToDelete->next();
 
-      me->next() = NULL;  // no dangling pointer
-      delete me;
-    }
+    me->next() = NULL;  // no dangling pointer
+    delete me;
+  }
 
-  if (inMapTable)
-    {
-      inMapTable->next() = NULL;
-      lastMapTable_ = inMapTable;
-    }
-  else
-    {
-      firstMapTable_ = NULL;
-      lastMapTable_ = NULL;
-    }
+  if (inMapTable) {
+    inMapTable->next() = NULL;
+    lastMapTable_ = inMapTable;
+  } else {
+    firstMapTable_ = NULL;
+    lastMapTable_ = NULL;
+  }
 }
 
 // removes the last map table in the list.
-void Generator::removeLast()
-{
-  if (!lastMapTable_)
-    return;
+void Generator::removeLast() {
+  if (!lastMapTable_) return;
 
-  MapTable * newLastMapTable = lastMapTable_->prev();
+  MapTable *newLastMapTable = lastMapTable_->prev();
   delete lastMapTable_;
   lastMapTable_ = newLastMapTable;
 
-  if (lastMapTable_)
-    lastMapTable_->next() = NULL;
+  if (lastMapTable_) lastMapTable_->next() = NULL;
 }
 
 // unlinks the next mapTable in the list and returns it.
 // Makes mapTable the last map table.
 // Does not delete the next map table.
-void Generator::unlinkNext(MapTable * mapTable)
-{
-  if (mapTable == NULL)
-    return;
+void Generator::unlinkNext(MapTable *mapTable) {
+  if (mapTable == NULL) return;
 
-  MapTable * mt = mapTable->next();
+  MapTable *mt = mapTable->next();
   mapTable->next() = NULL;
   lastMapTable_ = mapTable;
 
@@ -3172,94 +2617,79 @@ void Generator::unlinkNext(MapTable * mapTable)
 }
 
 // unlinks the last mapTable in the list and returns it.
-MapTable * Generator::unlinkLast()
-{
-  if (!lastMapTable_)
-    return NULL;
+MapTable *Generator::unlinkLast() {
+  if (!lastMapTable_) return NULL;
 
-  MapTable * lastMapTable = lastMapTable_;
+  MapTable *lastMapTable = lastMapTable_;
   lastMapTable_ = lastMapTable_->prev();
   lastMapTable_->next() = NULL;
 
   return lastMapTable;
 }
 
-void Generator::displayMapTables(Int32 depth, const char* msg)
-{
-  if (msg)
-    cout << msg << ". ";
+void Generator::displayMapTables(Int32 depth, const char *msg) {
+  if (msg) cout << msg << ". ";
 
   cout << "All mapTables of up to a depth of " << depth << "." << endl;
-  MapTable * x = lastMapTable_;
+  MapTable *x = lastMapTable_;
 
   Int32 i = 0;
   char buf[100];
 
-  while (x && i<depth) {
+  while (x && i < depth) {
+    if (x == lastMapTable_)  // is the last one?
+      sprintf(buf, "last->  ");
+    else if (x == getMapTable())  // is the first one?
+      sprintf(buf, "first-> ");
+    else
+      sprintf(buf, "        ");
 
-     if ( x == lastMapTable_ ) // is the last one?
-       sprintf(buf, "last->  ");
-     else
-     if ( x == getMapTable() ) // is the first one?
-       sprintf(buf, "first-> ");
-     else
-       sprintf(buf, "        ");
+    sprintf(buf + strlen(buf), "mapTable[%d]: %p, ", i++, x);
 
-     sprintf(buf + strlen(buf), "mapTable[%d]: %p, ", i++, x);
+    x->display(buf);
 
-     x->display(buf);
+    buf[0] = 0;
 
-     buf[0] = 0;
-
-     x = x->prev();
+    x = x->prev();
   }
   cout << endl;
 }
 
-void Generator::reportMappingInfo(ostream& out, const ValueIdList& list, const char* title)
-{
-   if (title)
-     cout << title << endl;
+void Generator::reportMappingInfo(ostream &out, const ValueIdList &list, const char *title) {
+  if (title) cout << title << endl;
 
-   for (Int32 i=0; i<list.entries(); i++ ) {
+  for (Int32 i = 0; i < list.entries(); i++) {
+    ValueId id = list[i];
 
-      ValueId id = list[i];
+    MapTable *mapt = getMapTable(id);
 
-      MapTable* mapt = getMapTable(id);
+    out << "vid=" << id << ", ";
+    id.getItemExpr()->display(out);
 
-      out << "vid=" << id << ", ";
-      id.getItemExpr()->display(out);
+    out << "mapTable=" << static_cast<void *>(mapt) << endl;
 
-      out << "mapTable=" << static_cast<void*>(mapt) << endl;
+    Attributes *attr = getMapInfo(id)->getAttr();
 
-      Attributes* attr = getMapInfo(id)->getAttr();
+    out << "attr=";
+    if (attr)
+      attr->displayContents(out);
+    else
+      out << "NULL";
 
-      out << "attr=";
-      if ( attr )
-         attr->displayContents(out);
-      else
-         out << "NULL";
-
-      out << endl;
-   }
+    out << endl;
+  }
 }
 
-
 // unlinks the this mapTable in the list, and whatever follows
-void Generator::unlinkMe(MapTable * mapTable)
-{
-  if (mapTable == NULL)
-    return;
+void Generator::unlinkMe(MapTable *mapTable) {
+  if (mapTable == NULL) return;
 
-  MapTable * mt = mapTable->prev();
-  if (mt != NULL) 
-  {
+  MapTable *mt = mapTable->prev();
+  if (mt != NULL) {
     mapTable->prev() = NULL;
     mt->next() = NULL;
     lastMapTable_ = mt;
-  } 
-  else if ( mapTable == firstMapTable_ )
-  {
+  } else if (mapTable == firstMapTable_) {
     lastMapTable_ = NULL;
     firstMapTable_ = NULL;
   }
@@ -3268,34 +2698,25 @@ void Generator::unlinkMe(MapTable * mapTable)
   // return mt;
 }
 
-
-void Generator::setMapTable(MapTable * map_table_)
-{
+void Generator::setMapTable(MapTable *map_table_) {
   firstMapTable_ = map_table_;
   lastMapTable_ = firstMapTable_;
 
   if (lastMapTable_)
-    while (lastMapTable_->next())
-      lastMapTable_ = lastMapTable_->next();
+    while (lastMapTable_->next()) lastMapTable_ = lastMapTable_->next();
 }
 
-const NAString Generator::genGetNameAsAnsiNAString(const QualifiedName& qual)
-{
+const NAString Generator::genGetNameAsAnsiNAString(const QualifiedName &qual) {
   return qual.getQualifiedNameAsAnsiString();
 }
 
-const NAString Generator::genGetNameAsAnsiNAString(const CorrName& corr)
-{
+const NAString Generator::genGetNameAsAnsiNAString(const CorrName &corr) {
   return genGetNameAsAnsiNAString(corr.getQualifiedNameObj());
 }
 
-const NAString Generator::genGetNameAsNAString(const QualifiedName& qual)
-{
-  return qual.getQualifiedNameAsString();
-}
+const NAString Generator::genGetNameAsNAString(const QualifiedName &qual) { return qual.getQualifiedNameAsString(); }
 
-const NAString Generator::genGetNameAsNAString(const CorrName& corr)
-{
+const NAString Generator::genGetNameAsNAString(const CorrName &corr) {
   // This warning is wrong, or at least misleading.  True, at this call we
   // are ignoring (losing) host-variable name, but at a later point in
   // CodeGen the proper hv linkage is set up for correct Late Name Resolution.
@@ -3313,26 +2734,21 @@ const NAString Generator::genGetNameAsNAString(const CorrName& corr)
 // If clause has already been generated for this ie, then returns
 // attribute from operand 0 (result) of clause.
 // If not, searches the map table and returns it from there.
-Attributes * Generator::getAttr(ItemExpr * ie)
-{
+Attributes *Generator::getAttr(ItemExpr *ie) {
   if ((getExpGenerator()->clauseLinked()) && (ie->getClause()))
     return ie->getClause()->getOperand(0);
   else
     return getMapInfo(ie->getValueId())->getAttr();
 }
 
-void Generator::addTrafSimTableInfo(TrafSimilarityTableInfo *newST)
-{
-  for (CollIndex i = 0; i < getTrafSimTableInfoList().entries(); i++)
-    {
-      TrafSimilarityTableInfo *ti = 
-        (TrafSimilarityTableInfo*)getTrafSimTableInfoList()[i];
-      if (*ti == *newST)
-        {
-          // value exists, do not add.
-          return;
-        }
+void Generator::addTrafSimTableInfo(TrafSimilarityTableInfo *newST) {
+  for (CollIndex i = 0; i < getTrafSimTableInfoList().entries(); i++) {
+    TrafSimilarityTableInfo *ti = (TrafSimilarityTableInfo *)getTrafSimTableInfoList()[i];
+    if (*ti == *newST) {
+      // value exists, do not add.
+      return;
     }
+  }
 
   getTrafSimTableInfoList().insert(newST);
 }
@@ -3341,24 +2757,21 @@ void Generator::addTrafSimTableInfo(TrafSimilarityTableInfo *newST)
 // execution count is included in their characteristic input.
 // The "getOrAdd" semantic is to create the ValueId if it doesn't
 // exist, otherwise return a preexisting one.
-ValueId Generator::getOrAddStatementExecutionCount()
-{
+ValueId Generator::getOrAddStatementExecutionCount() {
   ValueId execCount;
 
-  for (ValueId x = internalInputs_.init();
-       internalInputs_.next(x);
-       internalInputs_.advance(x)) {
-        if (x.getItemExpr()->getOperatorType() == ITM_EXEC_COUNT) {
-          execCount = x;
-          break;
-        }
+  for (ValueId x = internalInputs_.init(); internalInputs_.next(x); internalInputs_.advance(x)) {
+    if (x.getItemExpr()->getOperatorType() == ITM_EXEC_COUNT) {
+      execCount = x;
+      break;
+    }
   }
 
-  if (execCount == NULL_VALUE_ID)  {
+  if (execCount == NULL_VALUE_ID) {
     // nobody has asked for an execution count before, create
     // a new item expression and add it to the internal input
     // values that are to be generated by the root node
-    ItemExpr *ec = new(wHeap()) StatementExecutionCount();
+    ItemExpr *ec = new (wHeap()) StatementExecutionCount();
     ec->bindNode(getBindWA());
     execCount = ec->getValueId();
     internalInputs_ += execCount;
@@ -3367,34 +2780,24 @@ ValueId Generator::getOrAddStatementExecutionCount()
   return execCount;
 }
 
-bool Generator::setPrecodeHalloweenLHSofTSJ(bool newVal)
-{
+bool Generator::setPrecodeHalloweenLHSofTSJ(bool newVal) {
   bool oldVal = precodeHalloweenLHSofTSJ_;
   precodeHalloweenLHSofTSJ_ = newVal;
   return oldVal;
 }
 
-bool Generator::setPrecodeRHSofNJ(bool newVal)
-{
+bool Generator::setPrecodeRHSofNJ(bool newVal) {
   bool oldVal = precodeRHSofNJ_;
   precodeRHSofNJ_ = newVal;
   return oldVal;
 }
 
-// Called by the HJ for one of the min/max expressions to be 
+// Called by the HJ for one of the min/max expressions to be
 // evaluated there.
-void Generator::addMinMaxVals(const ValueId &outerVal,
-                              const ValueId &innerVal,
-                              const ValueId &minValScan,
-                              const ValueId &maxValScan,
-                              const ValueId &bitMapScan,
-                              CostScalar child1Uec,
-                              NABoolean isNonPartitioned,
-                              NABoolean child1IsBroadcastPartitioned,
-                              RelExpr* caller,
-                              CostScalar rowsProducedByHJ
-                             )
-{
+void Generator::addMinMaxVals(const ValueId &outerVal, const ValueId &innerVal, const ValueId &minValScan,
+                              const ValueId &maxValScan, const ValueId &bitMapScan, CostScalar child1Uec,
+                              NABoolean isNonPartitioned, NABoolean child1IsBroadcastPartitioned, RelExpr *caller,
+                              CostScalar rowsProducedByHJ) {
   CollIndex ix = outerMinMaxKeys_.entries();
 
   outerMinMaxKeys_.insert(outerVal);
@@ -3416,22 +2819,14 @@ void Generator::addMinMaxVals(const ValueId &outerVal,
   // values start out in the enabled, unused state
   minMaxEnabled_ += ix;
 
-  if (isNonPartitioned)
-    minMaxNonPartitioned_ += ix;
+  if (isNonPartitioned) minMaxNonPartitioned_ += ix;
 
-  DCMPASSERT(outerMinMaxKeys_.entries() == ++ix &&
-             innerMinMaxKeys_.entries() == ix &&
-             minVals_.entries() == ix &&
-             maxVals_.entries() == ix &&
-             callers_.entries() == ix &&
-             innerChildUecs_.entries() == ix  &&
-             rowsProducedByHJ_.entries() == ix 
-            );
+  DCMPASSERT(outerMinMaxKeys_.entries() == ++ix && innerMinMaxKeys_.entries() == ix && minVals_.entries() == ix &&
+             maxVals_.entries() == ix && callers_.entries() == ix && innerChildUecs_.entries() == ix &&
+             rowsProducedByHJ_.entries() == ix);
 }
 
-void Generator::saveAndMapMinMaxKeys(ValueIdMap &map,
-                                     ValueIdList &savedValues /*OUT*/)
-{
+void Generator::saveAndMapMinMaxKeys(ValueIdMap &map, ValueIdList &savedValues /*OUT*/) {
   // save the old values for later use with restoreMinMaxVals
   savedValues = outerMinMaxKeys_;
   outerMinMaxKeys_.clear();
@@ -3439,21 +2834,17 @@ void Generator::saveAndMapMinMaxKeys(ValueIdMap &map,
   DCMPASSERT(outerMinMaxKeys_.entries() == innerMinMaxKeys_.entries());
 }
 
-void Generator::restoreMinMaxKeys(const ValueIdList &savedValues /*IN*/)
-{
+void Generator::restoreMinMaxKeys(const ValueIdList &savedValues /*IN*/) {
   // copy the saved values back, leave additional values
   // generated by the child tree in place
-  for (CollIndex i=0; i<savedValues.entries(); i++)
-    outerMinMaxKeys_[i] = savedValues[i];
+  for (CollIndex i = 0; i < savedValues.entries(); i++) outerMinMaxKeys_[i] = savedValues[i];
   DCMPASSERT(outerMinMaxKeys_.entries() == innerMinMaxKeys_.entries());
 }
 
-void Generator::setPlanExpirationTimestamp(Int64 t) 
-{
+void Generator::setPlanExpirationTimestamp(Int64 t) {
   // if t == -1 that has no effect (initial default is -1)
   // Otherwise, use the smaller of planExpirationTimestamp_ and t
-  if (t >= 0 && planExpirationTimestamp_ > t)
-    planExpirationTimestamp_ = t;
+  if (t >= 0 && planExpirationTimestamp_ > t) planExpirationTimestamp_ = t;
 }
 
 ////////////////////////////////////////////////////////////////////
@@ -3522,21 +2913,14 @@ void Generator::setPlanExpirationTimestamp(Int64 t)
 // ##
 //
 
-const NAString GenGetQualifiedName(const CorrName& corr,
-				   NABoolean formatForDisplay,
-                                   NABoolean asAnsiString)
-{
+const NAString GenGetQualifiedName(const CorrName &corr, NABoolean formatForDisplay, NABoolean asAnsiString) {
   if (asAnsiString)
     return corr.getQualifiedNameObj().getQualifiedNameAsAnsiString(formatForDisplay);
   else
     return corr.getQualifiedNameObj().getQualifiedNameAsString(formatForDisplay);
 }
 
-
-void GeneratorAssert(const char *file, Int32 line, 
-                     const char *assertionMsg,
-                     const char *errorMessage)
-{
+void GeneratorAssert(const char *file, Int32 line, const char *assertionMsg, const char *errorMessage) {
   NAString msg;
   if (errorMessage)
     msg += NAString("Error Message: ") + errorMessage;
@@ -3545,17 +2929,12 @@ void GeneratorAssert(const char *file, Int32 line,
 
   SQLMXLoggingArea::logSQLMXAssertionFailureEvent(file, line, msg);
 
-  *CmpCommon::diags() << DgSqlCode(-7000) << DgString0(file)
-                      << DgInt0(line) << DgString1(msg);
-  
+  *CmpCommon::diags() << DgSqlCode(-7000) << DgString0(file) << DgInt0(line) << DgString1(msg);
+
   GeneratorExit(file, line);
 }
 
-
-void GeneratorExit(const char *file, Int32 line)
-{
-  UserException(file,line).throwException();
-}
+void GeneratorExit(const char *file, Int32 line) { UserException(file, line).throwException(); }
 /*****************************
  Determine the tuple data format to use based on some heuristics.
  and whether we want to resize or not
@@ -3577,105 +2956,79 @@ void GeneratorExit(const char *file, Int32 line)
                               on stats info if available
 
 */
-ExpTupleDesc::TupleDataFormat Generator::determineInternalFormat( const ValueIdList & valIdList,
-                                                                 RelExpr * relExpr,
-                                                                 NABoolean & resizeCifRecord,
-                                                                 RelExpr::CifUseOptions bmo_cif,
-                                                                 NABoolean bmo_affinity,
-                                                                 UInt32 & alignedLength,
-                                                                 UInt32 & explodedLength,
-                                                                 UInt32 & alignedVarCharSize,
-                                                                 UInt32 & alignedHeaderSize,
-                                                                 double & avgVarCharUsage,
-                                                                 UInt32 prefixLength)
+ExpTupleDesc::TupleDataFormat Generator::determineInternalFormat(const ValueIdList &valIdList, RelExpr *relExpr,
+                                                                 NABoolean &resizeCifRecord,
+                                                                 RelExpr::CifUseOptions bmo_cif, NABoolean bmo_affinity,
+                                                                 UInt32 &alignedLength, UInt32 &explodedLength,
+                                                                 UInt32 &alignedVarCharSize, UInt32 &alignedHeaderSize,
+                                                                 double &avgVarCharUsage, UInt32 prefixLength)
 
 {
-
-  if (bmo_cif == RelExpr::CIF_OFF)
-  {
+  if (bmo_cif == RelExpr::CIF_OFF) {
     resizeCifRecord = FALSE;
     return ExpTupleDesc::SQLARK_EXPLODED_FORMAT;
   }
 
   resizeCifRecord = valIdList.hasVarChars();
 
-  if (bmo_cif == RelExpr::CIF_ON)
-  {
+  if (bmo_cif == RelExpr::CIF_ON) {
     return ExpTupleDesc::SQLMX_ALIGNED_FORMAT;
   }
 
-  DCMPASSERT (bmo_cif == RelExpr::CIF_SYSTEM);
+  DCMPASSERT(bmo_cif == RelExpr::CIF_SYSTEM);
 
-  //when bmo affinity is true ==> use the same tuple format as the main one
-  //valid when bmo cif is sett o system only
-  if (bmo_affinity == TRUE)
-  {
-    if (getInternalFormat() == ExpTupleDesc::SQLMX_ALIGNED_FORMAT)
-    {
-      return  ExpTupleDesc::SQLMX_ALIGNED_FORMAT;
-    }
-    else
-    {
+  // when bmo affinity is true ==> use the same tuple format as the main one
+  // valid when bmo cif is sett o system only
+  if (bmo_affinity == TRUE) {
+    if (getInternalFormat() == ExpTupleDesc::SQLMX_ALIGNED_FORMAT) {
+      return ExpTupleDesc::SQLMX_ALIGNED_FORMAT;
+    } else {
       DCMPASSERT(getInternalFormat() == ExpTupleDesc::SQLARK_EXPLODED_FORMAT);
       resizeCifRecord = FALSE;
-      return  ExpTupleDesc::SQLARK_EXPLODED_FORMAT;
+      return ExpTupleDesc::SQLARK_EXPLODED_FORMAT;
     }
   }
 
   // The aligned and exploded row length and aligned row length and  varchar size
   // are computed first --
-  alignedHeaderSize= 0;
+  alignedHeaderSize = 0;
   alignedVarCharSize = 0;
   explodedLength = 0;
   alignedLength = 0;
 
-  ExpGenerator * exp_gen = getExpGenerator();
+  ExpGenerator *exp_gen = getExpGenerator();
 
-  //compute the aligned row  length, varchar size and header size
-  exp_gen->computeTupleSize(valIdList,
-                             ExpTupleDesc::SQLMX_ALIGNED_FORMAT,
-                             alignedLength,
-                             0,
-                             &alignedVarCharSize,
-                             &alignedHeaderSize);
+  // compute the aligned row  length, varchar size and header size
+  exp_gen->computeTupleSize(valIdList, ExpTupleDesc::SQLMX_ALIGNED_FORMAT, alignedLength, 0, &alignedVarCharSize,
+                            &alignedHeaderSize);
 
   alignedLength += prefixLength;
 
   DCMPASSERT(resizeCifRecord == (alignedVarCharSize > 0));
 
   // compute the exploded format row size also
-  exp_gen->computeTupleSize(valIdList,
-                             ExpTupleDesc::SQLARK_EXPLODED_FORMAT,
-                             explodedLength,
-                             0);
+  exp_gen->computeTupleSize(valIdList, ExpTupleDesc::SQLARK_EXPLODED_FORMAT, explodedLength, 0);
   explodedLength += prefixLength;
-
 
   // use exploded format if row size is less than a predefined Min row size....
   // this parameter is set to a low number like 8 or less
   // the idea is that is a row is very shor than using CIF may not be a good idea because
   // of the aligned format header
   if (alignedLength < CmpCommon::getDefaultNumeric(COMPRESSED_INTERNAL_FORMAT_MIN_ROW_SIZE) ||
-      explodedLength < CmpCommon::getDefaultNumeric(COMPRESSED_INTERNAL_FORMAT_MIN_ROW_SIZE))
-  {
+      explodedLength < CmpCommon::getDefaultNumeric(COMPRESSED_INTERNAL_FORMAT_MIN_ROW_SIZE)) {
     resizeCifRecord = FALSE;
     return ExpTupleDesc::SQLARK_EXPLODED_FORMAT;
   }
 
   double cifRowSizeAdj = CmpCommon::getDefaultNumeric(COMPRESSED_INTERNAL_FORMAT_ROW_SIZE_ADJ);
-  if (resizeCifRecord == FALSE)
-  {
-    if (alignedLength < explodedLength * cifRowSizeAdj)
-    {
+  if (resizeCifRecord == FALSE) {
+    if (alignedLength < explodedLength * cifRowSizeAdj) {
       return ExpTupleDesc::SQLMX_ALIGNED_FORMAT;
-    }
-    else
-    {
-      //resizeCifRecord is false
+    } else {
+      // resizeCifRecord is false
       return ExpTupleDesc::SQLARK_EXPLODED_FORMAT;
     }
   }
-
 
   double cumulAvgVarCharSize = 0;
   UInt32 CumulTotVarCharSize = 0;
@@ -3683,45 +3036,37 @@ ExpTupleDesc::TupleDataFormat Generator::determineInternalFormat( const ValueIdL
 
   // compute the average varchar size usage for the whole row based on individuka fileds average
   // varchar usages
-  //resizeCifRecord is TRUE
+  // resizeCifRecord is TRUE
 
   CollIndex numEntries = valIdList.entries();
 
-  for( CollIndex i = 0; i < numEntries; i++ )
-  {
-    if (valIdList.at(i).getType().getVarLenHdrSize()>0)
-    {
+  for (CollIndex i = 0; i < numEntries; i++) {
+    if (valIdList.at(i).getType().getVarLenHdrSize() > 0) {
       double avgVarCharSize = 0;
       ValueId vid = valIdList.at(i);
 
-      if (!findCifAvgVarCharSizeToCache(vid, avgVarCharSize))// do we need the cache???
+      if (!findCifAvgVarCharSizeToCache(vid, avgVarCharSize))  // do we need the cache???
       {
-        avgVarCharSize = relExpr->getGroupAttr()->getAverageVarcharSize( valIdList.at(i));
-        addCifAvgVarCharSizeToCache( vid, avgVarCharSize);
+        avgVarCharSize = relExpr->getGroupAttr()->getAverageVarcharSize(valIdList.at(i));
+        addCifAvgVarCharSizeToCache(vid, avgVarCharSize);
       }
 
-      if (avgVarCharSize >0)
-      {
+      if (avgVarCharSize > 0) {
         cumulAvgVarCharSize += avgVarCharSize;
-      }
-      else
-      {
+      } else {
         cumulAvgVarCharSize += valIdList.at(i).getType().getTotalSize() * avgVarCharUsage;
       }
       CumulTotVarCharSize += valIdList.at(i).getType().getTotalSize();
     }
   }
 
-  if (CumulTotVarCharSize > 0 )
-    avgVarCharUsage = cumulAvgVarCharSize / CumulTotVarCharSize;
+  if (CumulTotVarCharSize > 0) avgVarCharUsage = cumulAvgVarCharSize / CumulTotVarCharSize;
 
   UInt32 alignedNonVarSize = alignedLength - alignedVarCharSize;
 
   // if cumulltative var char size > header size and ...  use aligned format
   if (alignedVarCharSize > alignedHeaderSize &&
-      (alignedNonVarSize + avgVarCharUsage * alignedVarCharSize <
-       explodedLength * cifRowSizeAdj))
-  {
+      (alignedNonVarSize + avgVarCharUsage * alignedVarCharSize < explodedLength * cifRowSizeAdj)) {
     return ExpTupleDesc::SQLMX_ALIGNED_FORMAT;
   }
 
@@ -3729,99 +3074,70 @@ ExpTupleDesc::TupleDataFormat Generator::determineInternalFormat( const ValueIdL
   return ExpTupleDesc::SQLARK_EXPLODED_FORMAT;
 }
 
-ExpTupleDesc::TupleDataFormat Generator::determineInternalFormat( const ValueIdList & valIdList,
-                                                                 RelExpr * relExpr,
-                                                                 NABoolean & resizeCifRecord,
-                                                                 RelExpr::CifUseOptions bmo_cif,
-                                                                 NABoolean bmo_affinity,
-                                                                 NABoolean & considerDefrag,
-                                                                 UInt32 prefixLength)
+ExpTupleDesc::TupleDataFormat Generator::determineInternalFormat(const ValueIdList &valIdList, RelExpr *relExpr,
+                                                                 NABoolean &resizeCifRecord,
+                                                                 RelExpr::CifUseOptions bmo_cif, NABoolean bmo_affinity,
+                                                                 NABoolean &considerDefrag, UInt32 prefixLength)
 
 {
   considerDefrag = FALSE;
   resizeCifRecord = FALSE;
-  if (bmo_cif == RelExpr::CIF_OFF)
-  {
+  if (bmo_cif == RelExpr::CIF_OFF) {
     return ExpTupleDesc::SQLARK_EXPLODED_FORMAT;
   }
 
-  UInt32 alignedHeaderSize= 0;
+  UInt32 alignedHeaderSize = 0;
   UInt32 alignedVarCharSize = 0;
   UInt32 explodedLength = 0;
   UInt32 alignedLength = 0;
   double avgVarCharUsage = 1;
-  ExpTupleDesc::TupleDataFormat tf = determineInternalFormat( valIdList,
-                                                    relExpr,
-                                                    resizeCifRecord,
-                                                    bmo_cif,
-                                                    bmo_affinity,
-                                                    alignedLength,
-                                                    explodedLength,
-                                                    alignedVarCharSize,
-                                                    alignedHeaderSize,
-                                                    avgVarCharUsage,
-                                                    prefixLength);
+  ExpTupleDesc::TupleDataFormat tf =
+      determineInternalFormat(valIdList, relExpr, resizeCifRecord, bmo_cif, bmo_affinity, alignedLength, explodedLength,
+                              alignedVarCharSize, alignedHeaderSize, avgVarCharUsage, prefixLength);
 
-  if (relExpr)
-  {
-    considerDefrag = considerDefragmentation( valIdList,
-                                            relExpr->getGroupAttr(),
-                                            resizeCifRecord,
-                                            prefixLength);
+  if (relExpr) {
+    considerDefrag = considerDefragmentation(valIdList, relExpr->getGroupAttr(), resizeCifRecord, prefixLength);
   }
   return tf;
-
 }
 
-NABoolean Generator::considerDefragmentation( const ValueIdList & valIdList,
-                                              GroupAttributes * gattr,
-                                              NABoolean  resizeCifRecord,
-                                              UInt32 prefixLength)
+NABoolean Generator::considerDefragmentation(const ValueIdList &valIdList, GroupAttributes *gattr,
+                                             NABoolean resizeCifRecord, UInt32 prefixLength)
 
 {
-  if (resizeCifRecord &&  CmpCommon::getDefaultNumeric(COMPRESSED_INTERNAL_FORMAT_DEFRAG_RATIO) > 1)
-    return TRUE;
+  if (resizeCifRecord && CmpCommon::getDefaultNumeric(COMPRESSED_INTERNAL_FORMAT_DEFRAG_RATIO) > 1) return TRUE;
 
-  if (!resizeCifRecord || !gattr)
-    return FALSE;
+  if (!resizeCifRecord || !gattr) return FALSE;
 
   NABoolean considerDefrag = FALSE;
 
-  //determine if we wantto defragment the buffers or not using the average row size stats
-  UInt32 maxRowSize=0;
+  // determine if we wantto defragment the buffers or not using the average row size stats
+  UInt32 maxRowSize = 0;
   double avgRowSize = gattr->getAverageVarcharSize(valIdList, maxRowSize);
-  if ( maxRowSize >0 &&
-      (prefixLength + avgRowSize)/(prefixLength + maxRowSize) < CmpCommon::getDefaultNumeric(COMPRESSED_INTERNAL_FORMAT_DEFRAG_RATIO))
-  {
+  if (maxRowSize > 0 && (prefixLength + avgRowSize) / (prefixLength + maxRowSize) <
+                            CmpCommon::getDefaultNumeric(COMPRESSED_INTERNAL_FORMAT_DEFRAG_RATIO)) {
     considerDefrag = TRUE;
   }
 
   return considerDefrag;
 }
 
-void Generator::setHBaseNumCacheRows(double estRowsAccessed,
-                                     ComTdbHbaseAccess::HbasePerfAttributes * hbpa,
-                                     Int32 hbaseRowSize,
-                                     Float32 samplePercent,
-                                     NABoolean isNeedPushDownLimit
-                                     )
-{
- 
+void Generator::setHBaseNumCacheRows(double estRowsAccessed, ComTdbHbaseAccess::HbasePerfAttributes *hbpa,
+                                     Int32 hbaseRowSize, Float32 samplePercent, NABoolean isNeedPushDownLimit) {
   // compute the number of rows accessed per scan node instance and use it
   // to set HBase scan cache size (in units of number of rows). This cache
-  // is in the HBase client, i.e. in the java side of 
+  // is in the HBase client, i.e. in the java side of
   // master executor or esp process. Using this cache avoids RPC calls to the
-  // region server for each row, however setting the value too high consumes 
-  // memory and can lead to timeout errors as the RPC call that gets a 
+  // region server for each row, however setting the value too high consumes
+  // memory and can lead to timeout errors as the RPC call that gets a
   // big chunk of rows can take longer to complete.
   CollIndex myId = getFragmentDir()->getCurrentId();
   Lng32 numProcesses = getFragmentDir()->getNumESPs(myId);
-  NABoolean bParallel = (numProcesses>0);
+  NABoolean bParallel = (numProcesses > 0);
   Lng32 cacheMin = CmpCommon::getDefaultNumeric(HBASE_NUM_CACHE_ROWS_MIN);
   Lng32 cacheMax = CmpCommon::getDefaultNumeric(HBASE_NUM_CACHE_ROWS_MAX);
-  if (numProcesses == 0)
-    numProcesses++;
-  UInt32 rowsAccessedPerProcess = ceil(estRowsAccessed/numProcesses) ;
+  if (numProcesses == 0) numProcesses++;
+  UInt32 rowsAccessedPerProcess = ceil(estRowsAccessed / numProcesses);
   Lng32 cacheRows;
   if (rowsAccessedPerProcess < cacheMin)
     cacheRows = cacheMin;
@@ -3835,63 +3151,47 @@ void Generator::setHBaseNumCacheRows(double estRowsAccessed,
   // USTAT_HBASE_SAMPLE_RETURN_INTERVAL rows on average. This avoids long stays
   // in the region server (and a possible OutOfOrderScannerNextException), where
   // a random row filter is used for sampling.
-  if (cacheRows > cacheMin && samplePercent > 0.0)
-  {
-    ULng32 sampleReturnInterval =
-        ActiveSchemaDB()->getDefaults().getAsULong(USTAT_HBASE_SAMPLE_RETURN_INTERVAL);
+  if (cacheRows > cacheMin && samplePercent > 0.0) {
+    ULng32 sampleReturnInterval = ActiveSchemaDB()->getDefaults().getAsULong(USTAT_HBASE_SAMPLE_RETURN_INTERVAL);
     Lng32 newScanCacheSize = (Lng32)(sampleReturnInterval * samplePercent);
-    if (newScanCacheSize < cacheRows)
-      {
-        if (newScanCacheSize >= cacheMin)
-          cacheRows = newScanCacheSize;
-        else
-          cacheRows = cacheMin;
-      }
+    if (newScanCacheSize < cacheRows) {
+      if (newScanCacheSize >= cacheMin)
+        cacheRows = newScanCacheSize;
+      else
+        cacheRows = cacheMin;
+    }
   }
 
   // Limit the scanner cache size to a fixed number if we are dealing with
   // very wide rows eg rows with varchar(16MB)
-  Int32 maxRowSizeInCache = CmpCommon::getDefaultNumeric(TRAF_MAX_ROWSIZE_IN_CACHE)*1024*1024;
-  if (hbaseRowSize > maxRowSizeInCache)
-    cacheRows = 2;
-  if (CmpCommon::getDefault(AUTO_ADJUST_CACHEROWS) == DF_ON)
-    {
-      //check whether total size > JVM_MAX_HEAP_SIZE_MB or ESP_JVM_MAX_HEAP_SIZE_MB,
-      //and limit the scanner cache size to a fixed number.
-      Int64 nTotalSize = cacheRows*hbaseRowSize;
-      char* jvm_env = getenv("JVM_MAX_HEAP_SIZE_MB");
-      Int32 nJvmHeapSize = 0;
-      Int32 nEspJvmHeapSize = 0;
-      if (jvm_env)
-        nJvmHeapSize = atoi(jvm_env);
-      if (bParallel)
-        {
-          jvm_env = getenv("ESP_JVM_MAX_HEAP_SIZE_MB");
-          if (jvm_env)
-            nEspJvmHeapSize = atoi(jvm_env);
-        }
-      Int64 nJVMHeapSize = nJvmHeapSize;
-      if (nEspJvmHeapSize !=0)
-        nJVMHeapSize = min(nJvmHeapSize,nEspJvmHeapSize);
-      if (nJVMHeapSize>0)
-        {
-          int percentCanBeUsed = (nJVMHeapSize <= 512) ? 80 : 90;
-          int nNeedMemroyInMB  = (nTotalSize >> 20);
-          if (nNeedMemroyInMB > nJVMHeapSize * percentCanBeUsed / 100)
-            {
-              *CmpCommon::diags() << DgSqlCode(4499)
-                                  << DgInt0(cacheRows)
-                                  << DgInt1(2)
-                                  << DgInt2((nNeedMemroyInMB*100)/percentCanBeUsed);
-              cacheRows = 2;
-            }
-        }
+  Int32 maxRowSizeInCache = CmpCommon::getDefaultNumeric(TRAF_MAX_ROWSIZE_IN_CACHE) * 1024 * 1024;
+  if (hbaseRowSize > maxRowSizeInCache) cacheRows = 2;
+  if (CmpCommon::getDefault(AUTO_ADJUST_CACHEROWS) == DF_ON) {
+    // check whether total size > JVM_MAX_HEAP_SIZE_MB or ESP_JVM_MAX_HEAP_SIZE_MB,
+    // and limit the scanner cache size to a fixed number.
+    Int64 nTotalSize = cacheRows * hbaseRowSize;
+    char *jvm_env = getenv("JVM_MAX_HEAP_SIZE_MB");
+    Int32 nJvmHeapSize = 0;
+    Int32 nEspJvmHeapSize = 0;
+    if (jvm_env) nJvmHeapSize = atoi(jvm_env);
+    if (bParallel) {
+      jvm_env = getenv("ESP_JVM_MAX_HEAP_SIZE_MB");
+      if (jvm_env) nEspJvmHeapSize = atoi(jvm_env);
     }
+    Int64 nJVMHeapSize = nJvmHeapSize;
+    if (nEspJvmHeapSize != 0) nJVMHeapSize = min(nJvmHeapSize, nEspJvmHeapSize);
+    if (nJVMHeapSize > 0) {
+      int percentCanBeUsed = (nJVMHeapSize <= 512) ? 80 : 90;
+      int nNeedMemroyInMB = (nTotalSize >> 20);
+      if (nNeedMemroyInMB > nJVMHeapSize * percentCanBeUsed / 100) {
+        *CmpCommon::diags() << DgSqlCode(4499) << DgInt0(cacheRows) << DgInt1(2)
+                            << DgInt2((nNeedMemroyInMB * 100) / percentCanBeUsed);
+        cacheRows = 2;
+      }
+    }
+  }
 
-  if (isNeedPushDownLimit &&
-      (topNRows_ > 0) &&
-      (!orderRequired_) &&
-      (topNRows_ < cacheRows) &&
+  if (isNeedPushDownLimit && (topNRows_ > 0) && (!orderRequired_) && (topNRows_ < cacheRows) &&
       (topNRows_ <= ActiveSchemaDB()->getDefaults().getAsULong(GEN_SORT_TOPN_THRESHOLD)))
     cacheRows = topNRows_;
 
@@ -3899,160 +3199,140 @@ void Generator::setHBaseNumCacheRows(double estRowsAccessed,
 }
 
 void Generator::setHBaseCacheBlocks(Int32 hbaseRowSize, double estRowsAccessed,
-                                    ComTdbHbaseAccess::HbasePerfAttributes * hbpa)
-{
+                                    ComTdbHbaseAccess::HbasePerfAttributes *hbpa) {
   if (CmpCommon::getDefault(HBASE_CACHE_BLOCKS) == DF_ON)
     hbpa->setCacheBlocks(TRUE);
-  else if (CmpCommon::getDefault(HBASE_CACHE_BLOCKS) == DF_SYSTEM)
-  {
+  else if (CmpCommon::getDefault(HBASE_CACHE_BLOCKS) == DF_SYSTEM) {
     float frac = ActiveSchemaDB()->getHbaseBlockCacheFrac();
-    float regionServerCacheMemInMB = 
-      frac*getDefaultAsLong(HBASE_REGION_SERVER_MAX_HEAP_SIZE);
-    float memNeededForScanInMB = (hbaseRowSize*estRowsAccessed)/(1024*1024);
-    if (regionServerCacheMemInMB > memNeededForScanInMB)
-      hbpa->setCacheBlocks(TRUE);
+    float regionServerCacheMemInMB = frac * getDefaultAsLong(HBASE_REGION_SERVER_MAX_HEAP_SIZE);
+    float memNeededForScanInMB = (hbaseRowSize * estRowsAccessed) / (1024 * 1024);
+    if (regionServerCacheMemInMB > memNeededForScanInMB) hbpa->setCacheBlocks(TRUE);
   }
 }
 
-void Generator::setHBaseSmallScanner(Int32 hbaseRowSize, double estRowsAccessed,
-                      Lng32 hbaseBlockSize, ComTdbHbaseAccess::HbasePerfAttributes * hbpa)
-{
-  if (CmpCommon::getDefault(HBASE_SMALL_SCANNER) == DF_SYSTEM)
-  {
-    if(((hbaseRowSize*estRowsAccessed)<hbaseBlockSize) && (estRowsAccessed>0))//added estRowsAccessed > 0 because MDAM costing is not populating this field correctly
-        hbpa->setUseSmallScanner(TRUE);
-    hbpa->setUseSmallScannerForProbes(TRUE);
-  }else if (CmpCommon::getDefault(HBASE_SMALL_SCANNER) == DF_ON)
-  {
+void Generator::setHBaseSmallScanner(Int32 hbaseRowSize, double estRowsAccessed, Lng32 hbaseBlockSize,
+                                     ComTdbHbaseAccess::HbasePerfAttributes *hbpa) {
+  if (CmpCommon::getDefault(HBASE_SMALL_SCANNER) == DF_SYSTEM) {
+    if (((hbaseRowSize * estRowsAccessed) < hbaseBlockSize) &&
+        (estRowsAccessed > 0))  // added estRowsAccessed > 0 because MDAM costing is not populating this field correctly
       hbpa->setUseSmallScanner(TRUE);
-      hbpa->setUseSmallScannerForProbes(TRUE);
+    hbpa->setUseSmallScannerForProbes(TRUE);
+  } else if (CmpCommon::getDefault(HBASE_SMALL_SCANNER) == DF_ON) {
+    hbpa->setUseSmallScanner(TRUE);
+    hbpa->setUseSmallScannerForProbes(TRUE);
   }
-  hbpa->setMaxNumRowsPerHbaseBlock(hbaseBlockSize/hbaseRowSize);
+  hbpa->setMaxNumRowsPerHbaseBlock(hbaseBlockSize / hbaseRowSize);
 }
 
-void Generator::setHBaseParallelScanner(ComTdbHbaseAccess::HbasePerfAttributes * hbpa){
-    hbpa->setDopParallelScanner(CmpCommon::getDefaultNumeric(HBASE_DOP_PARALLEL_SCANNER));
+void Generator::setHBaseParallelScanner(ComTdbHbaseAccess::HbasePerfAttributes *hbpa) {
+  hbpa->setDopParallelScanner(CmpCommon::getDefaultNumeric(HBASE_DOP_PARALLEL_SCANNER));
 }
 
-double Generator::getEstMemPerNode(NAString *key, Lng32 &numStreams)
-{
-  OperBMOQuota *operBMOQuota = bmoQuotaMap_.get(key); 
+double Generator::getEstMemPerNode(NAString *key, Lng32 &numStreams) {
+  OperBMOQuota *operBMOQuota = bmoQuotaMap_.get(key);
   if (operBMOQuota != NULL) {
-     numStreams = operBMOQuota->getNumStreams();
-     return operBMOQuota->getEstMemPerNode();
+    numStreams = operBMOQuota->getNumStreams();
+    return operBMOQuota->getEstMemPerNode();
   } else {
-     numStreams = 0;
-     return 0;
+    numStreams = 0;
+    return 0;
   }
 }
 
-double Generator::getEstMemForTdb(NAString *key)
-{
-  OperBMOQuota *operBMOQuota = bmoQuotaMap_.get(key); 
-  if (operBMOQuota != NULL) 
-     return operBMOQuota->getEstMemForTdb();
+double Generator::getEstMemForTdb(NAString *key) {
+  OperBMOQuota *operBMOQuota = bmoQuotaMap_.get(key);
+  if (operBMOQuota != NULL)
+    return operBMOQuota->getEstMemForTdb();
   else
-     return 0;
+    return 0;
 }
 
-double Generator::getEstMemPerInst(NAString *key)
-{
-  OperBMOQuota *operBMOQuota = bmoQuotaMap_.get(key); 
-  if (operBMOQuota != NULL) 
-     return operBMOQuota->getEstMemPerInst();
+double Generator::getEstMemPerInst(NAString *key) {
+  OperBMOQuota *operBMOQuota = bmoQuotaMap_.get(key);
+  if (operBMOQuota != NULL)
+    return operBMOQuota->getEstMemPerInst();
   else
-     return 0;
+    return 0;
 }
 
-void Generator::finetuneBMOEstimates()
-{
-   if (bmoQuotaMap_.entries() == 1)
-      return;
-   double bmoMemoryLimitPerNode = ActiveSchemaDB()->getDefaults().getAsDouble(BMO_MEMORY_LIMIT_PER_NODE_IN_MB);
-   if (bmoMemoryLimitPerNode == 0)
-      return;
-   NAHashDictionaryIterator<NAString, OperBMOQuota> iter (bmoQuotaMap_) ;
+void Generator::finetuneBMOEstimates() {
+  if (bmoQuotaMap_.entries() == 1) return;
+  double bmoMemoryLimitPerNode = ActiveSchemaDB()->getDefaults().getAsDouble(BMO_MEMORY_LIMIT_PER_NODE_IN_MB);
+  if (bmoMemoryLimitPerNode == 0) return;
+  NAHashDictionaryIterator<NAString, OperBMOQuota> iter(bmoQuotaMap_);
 
-   double capMemoryRatio = ActiveSchemaDB()->getDefaults().getAsDouble(BMO_MEMORY_ESTIMATE_RATIO_CAP);
-   double bmoMemoryEstOutlier = 
-      ActiveSchemaDB()->getDefaults().getAsDouble(BMO_MEMORY_ESTIMATE_OUTLIER_FACTOR) * bmoMemoryLimitPerNode * 1024 * 1024;
+  double capMemoryRatio = ActiveSchemaDB()->getDefaults().getAsDouble(BMO_MEMORY_ESTIMATE_RATIO_CAP);
+  double bmoMemoryEstOutlier = ActiveSchemaDB()->getDefaults().getAsDouble(BMO_MEMORY_ESTIMATE_OUTLIER_FACTOR) *
+                               bmoMemoryLimitPerNode * 1024 * 1024;
 
-   double totalEstMemPerNode = totalBMOsMemoryPerNode_.value();
-   double bmoMemoryRatio;
-   double calcTotalEstMemPerNode = 0;
-   double calcOperEstMemPerNode;
+  double totalEstMemPerNode = totalBMOsMemoryPerNode_.value();
+  double bmoMemoryRatio;
+  double calcTotalEstMemPerNode = 0;
+  double calcOperEstMemPerNode;
 
-   NAString* key;
-   OperBMOQuota *operBMOQuota;
-   // Find the outliers and set it to the tolerable value first
-   iter.reset(); 
-   iter.getNext(key,operBMOQuota);
-   while(key) {
-     calcOperEstMemPerNode = operBMOQuota->getEstMemPerNode();
-     if (calcOperEstMemPerNode > bmoMemoryEstOutlier) {
-        operBMOQuota->setEstMemPerNode(bmoMemoryEstOutlier);
-        calcTotalEstMemPerNode += bmoMemoryEstOutlier;
-     }
-     else 
-       calcTotalEstMemPerNode += calcOperEstMemPerNode;
-     iter.getNext(key,operBMOQuota);
-   }
-   totalBMOsMemoryPerNode_ = calcTotalEstMemPerNode;   
-   
-   // Then check for the CAP to adjust it again
-   totalEstMemPerNode = totalBMOsMemoryPerNode_.value();
-   calcTotalEstMemPerNode = 0;
-   iter.reset();
-   iter.getNext(key,operBMOQuota);
-   while(key) {
-     calcOperEstMemPerNode = operBMOQuota->getEstMemPerNode();
-     bmoMemoryRatio = calcOperEstMemPerNode / totalEstMemPerNode;
-     if (capMemoryRatio > 0 && capMemoryRatio <=1 && bmoMemoryRatio > capMemoryRatio) {
-        bmoMemoryRatio = capMemoryRatio;
-        calcOperEstMemPerNode = bmoMemoryRatio * calcOperEstMemPerNode;
-        operBMOQuota->setEstMemPerNode(calcOperEstMemPerNode);
-        calcTotalEstMemPerNode += calcOperEstMemPerNode;
-     }
-     else
-        calcTotalEstMemPerNode += calcOperEstMemPerNode;
-     iter.getNext(key,operBMOQuota);
-   }
-   totalBMOsMemoryPerNode_ = calcTotalEstMemPerNode;   
+  NAString *key;
+  OperBMOQuota *operBMOQuota;
+  // Find the outliers and set it to the tolerable value first
+  iter.reset();
+  iter.getNext(key, operBMOQuota);
+  while (key) {
+    calcOperEstMemPerNode = operBMOQuota->getEstMemPerNode();
+    if (calcOperEstMemPerNode > bmoMemoryEstOutlier) {
+      operBMOQuota->setEstMemPerNode(bmoMemoryEstOutlier);
+      calcTotalEstMemPerNode += bmoMemoryEstOutlier;
+    } else
+      calcTotalEstMemPerNode += calcOperEstMemPerNode;
+    iter.getNext(key, operBMOQuota);
+  }
+  totalBMOsMemoryPerNode_ = calcTotalEstMemPerNode;
+
+  // Then check for the CAP to adjust it again
+  totalEstMemPerNode = totalBMOsMemoryPerNode_.value();
+  calcTotalEstMemPerNode = 0;
+  iter.reset();
+  iter.getNext(key, operBMOQuota);
+  while (key) {
+    calcOperEstMemPerNode = operBMOQuota->getEstMemPerNode();
+    bmoMemoryRatio = calcOperEstMemPerNode / totalEstMemPerNode;
+    if (capMemoryRatio > 0 && capMemoryRatio <= 1 && bmoMemoryRatio > capMemoryRatio) {
+      bmoMemoryRatio = capMemoryRatio;
+      calcOperEstMemPerNode = bmoMemoryRatio * calcOperEstMemPerNode;
+      operBMOQuota->setEstMemPerNode(calcOperEstMemPerNode);
+      calcTotalEstMemPerNode += calcOperEstMemPerNode;
+    } else
+      calcTotalEstMemPerNode += calcOperEstMemPerNode;
+    iter.getNext(key, operBMOQuota);
+  }
+  totalBMOsMemoryPerNode_ = calcTotalEstMemPerNode;
 }
 
-CostScalar Generator::findRowsToSurvive(const ValueId& outerColValId)
-{
-   CollIndex idx = outerMinMaxKeys_.index(outerColValId);
-   for (CollIndex i = 0; i < outerMinMaxKeys_.entries(); i++)
-   {
-      ValueIdSet vidSet(outerMinMaxKeys_[i]);
+CostScalar Generator::findRowsToSurvive(const ValueId &outerColValId) {
+  CollIndex idx = outerMinMaxKeys_.index(outerColValId);
+  for (CollIndex i = 0; i < outerMinMaxKeys_.entries(); i++) {
+    ValueIdSet vidSet(outerMinMaxKeys_[i]);
 
-      ValueIdSet result;
-      vidSet.findAllReferencedBaseCols(result);
+    ValueIdSet result;
+    vidSet.findAllReferencedBaseCols(result);
 
-      ItemExpr* ie = outerColValId.getItemExpr();
+    ItemExpr *ie = outerColValId.getItemExpr();
 
-      ValueId id;
-      switch ( ie ->getOperatorType() ) {
-         case ITM_INDEXCOLUMN:
-          { 
-            IndexColumn *ixCol = (IndexColumn*)(ie);
-            id = ixCol->getDefinition();
-          }
-          break;
+    ValueId id;
+    switch (ie->getOperatorType()) {
+      case ITM_INDEXCOLUMN: {
+        IndexColumn *ixCol = (IndexColumn *)(ie);
+        id = ixCol->getDefinition();
+      } break;
 
-         case ITM_BASECOLUMN:
-          id = outerColValId;
-          break;
-    
-         default:
-          continue;
-      }
+      case ITM_BASECOLUMN:
+        id = outerColValId;
+        break;
 
-      if ( result.contains(id) )
-        return outerRowsToSurvive_[i];
-   }
+      default:
+        continue;
+    }
 
-   return 0.0;
+    if (result.contains(id)) return outerRowsToSurvive_[i];
+  }
 
+  return 0.0;
 }

@@ -56,7 +56,7 @@ class NATable;
 class NAType;
 class TrafColumnsDesc;
 
-enum ColumnClass  { SYSTEM_COLUMN, USER_COLUMN, USER_AND_SYSTEM_COLUMNS };
+enum ColumnClass { SYSTEM_COLUMN, USER_COLUMN, USER_AND_SYSTEM_COLUMNS };
 enum SortOrdering { NOT_ORDERED = 0, ASCENDING = +1, DESCENDING = -1 };
 
 // ***********************************************************************
@@ -74,15 +74,15 @@ enum SortOrdering { NOT_ORDERED = 0, ASCENDING = +1, DESCENDING = -1 };
 //
 // ***********************************************************************
 
-class NAColumn : public NABasicObject
-{
-public:
-
-  enum KeyKind	  { NON_KEY = 0,
-		    INDEX_KEY = 0x1, PARTITIONING_KEY = 0x2,
-                    PRIMARY_KEY = 0x4,
-                    PRIMARY_KEY_NOT_SERIALIZED = 0x8
-		  };
+class NAColumn : public NABasicObject {
+ public:
+  enum KeyKind {
+    NON_KEY = 0,
+    INDEX_KEY = 0x1,
+    PARTITIONING_KEY = 0x2,
+    PRIMARY_KEY = 0x4,
+    PRIMARY_KEY_NOT_SERIALIZED = 0x8
+  };
   enum NAColumnAssert { MustBeBaseColumn, MustBeColumn, NoError };
   enum VirtColType { NON_VIRTUAL_COL = 0, HIVE_PART_COL, HIVE_VIRT_FILE_COL, HIVE_VIRT_ROW_COL };
 
@@ -90,113 +90,99 @@ public:
   // Constructor
   // ---------------------------------------------------------------------
 
-  NAColumn(const char* colName,
-           Lng32 position,
-           NAType *type,
-           CollHeap *h,
-           const NATable* table = NULL,
-           ColumnClass columnClass = USER_COLUMN,
-           const ComColumnDefaultClass defaultClass = COM_NO_DEFAULT,
-           char* defaultValue = NULL,
-           char* heading = NULL,
-           NABoolean upshift = FALSE,
-           NABoolean addedColumn = FALSE,
-           ComColumnDirection colDirection = COM_UNKNOWN_DIRECTION,
-           NABoolean isOptional = FALSE,
-           char *routineParamType = NULL,
-           NABoolean storedOnDisk = TRUE,
-           char *computedColExpr = NULL,
-           NABoolean isSaltColumn = FALSE,
-           NABoolean isDivisioningColumn = FALSE,
-           NABoolean isReplicaColumn = FALSE,
-           NABoolean isAlteredColumn = FALSE,
-           char* initDefaultValue = NULL)
-  : heap_(h),
-    colName_(colName, h),
-    position_(position),
-    type_(type),
-    table_(table),
-    columnClass_(columnClass),
-    defaultClass_(defaultClass),
-    defaultValue_(defaultValue),
-    initDefaultValue_(initDefaultValue),
-    heading_(heading),
-    upshift_(upshift),
-    addedColumn_(addedColumn),
-    alteredColumn_(isAlteredColumn),
-    addnlColumn_(FALSE),
-    keyKind_(NON_KEY),
-    clusteringKeyOrdering_(NOT_ORDERED),
-    isNotNullNondroppable_(NULL),
-    mvSystemAddedColumn_(FALSE),
-    referenced_(NOT_REFERENCED),
-    needHistogram_(DONT_NEED_HIST),
-    hasJoinPred_(FALSE),
-    hasRangePred_(FALSE),
-    columnMode_ (colDirection),
-    isUnique_(FALSE),
-    isOptional_(isOptional),
-    storedOnDisk_(storedOnDisk),
-    computedColumnExpression_(computedColExpr),
-    isSaltColumn_(isSaltColumn),
-    isDivisioningColumn_(isDivisioningColumn),
-    isReplicaColumn_(isReplicaColumn),
-    lobNum_(-1),
-    lobStorageType_(Lob_Outline),
-    lobStorageLocation_(NULL),
-    lobInlinedDataMaxLen_(0),
-    lobHbaseDataMaxLen_(0),
-    lobChunkMaxLen_(0),
-    hbaseColFlags_(0),
-    virtualColumnType_(NON_VIRTUAL_COL)
-  {
+  NAColumn(const char *colName, Lng32 position, NAType *type, CollHeap *h, const NATable *table = NULL,
+           ColumnClass columnClass = USER_COLUMN, const ComColumnDefaultClass defaultClass = COM_NO_DEFAULT,
+           char *defaultValue = NULL, char *heading = NULL, NABoolean upshift = FALSE, NABoolean addedColumn = FALSE,
+           ComColumnDirection colDirection = COM_UNKNOWN_DIRECTION, NABoolean isOptional = FALSE,
+           char *routineParamType = NULL, NABoolean storedOnDisk = TRUE, char *computedColExpr = NULL,
+           NABoolean isSaltColumn = FALSE, NABoolean isDivisioningColumn = FALSE, NABoolean isReplicaColumn = FALSE,
+           NABoolean isAlteredColumn = FALSE, char *initDefaultValue = NULL)
+      : heap_(h),
+        colName_(colName, h),
+        position_(position),
+        type_(type),
+        table_(table),
+        columnClass_(columnClass),
+        defaultClass_(defaultClass),
+        defaultValue_(defaultValue),
+        initDefaultValue_(initDefaultValue),
+        heading_(heading),
+        upshift_(upshift),
+        addedColumn_(addedColumn),
+        alteredColumn_(isAlteredColumn),
+        addnlColumn_(FALSE),
+        keyKind_(NON_KEY),
+        clusteringKeyOrdering_(NOT_ORDERED),
+        isNotNullNondroppable_(NULL),
+        mvSystemAddedColumn_(FALSE),
+        referenced_(NOT_REFERENCED),
+        needHistogram_(DONT_NEED_HIST),
+        hasJoinPred_(FALSE),
+        hasRangePred_(FALSE),
+        columnMode_(colDirection),
+        isUnique_(FALSE),
+        isOptional_(isOptional),
+        storedOnDisk_(storedOnDisk),
+        computedColumnExpression_(computedColExpr),
+        isSaltColumn_(isSaltColumn),
+        isDivisioningColumn_(isDivisioningColumn),
+        isReplicaColumn_(isReplicaColumn),
+        lobNum_(-1),
+        lobStorageType_(Lob_Outline),
+        lobStorageLocation_(NULL),
+        lobInlinedDataMaxLen_(0),
+        lobHbaseDataMaxLen_(0),
+        lobChunkMaxLen_(0),
+        hbaseColFlags_(0),
+        virtualColumnType_(NON_VIRTUAL_COL) {
     routineParamType_[0] = 0;
-     if (routineParamType) strncpy(routineParamType_, routineParamType, 2);
-     else                  routineParamType_[0] = 0;
+    if (routineParamType)
+      strncpy(routineParamType_, routineParamType, 2);
+    else
+      routineParamType_[0] = 0;
     routineParamType_[2] = 0;
   }
 
-  NAColumn (const NAColumn & nac, NAMemory * h):
-  heap_(h),
-    colName_(nac.colName_,h),
-    position_(nac.position_),
-    type_(nac.type_),
-    table_(nac.table_),
-    columnClass_(nac.columnClass_),
-    defaultClass_(nac.defaultClass_),
-    defaultValue_(nac.defaultValue_),
-    initDefaultValue_(nac.initDefaultValue_),
-    heading_(nac.heading_),
-    upshift_(nac.upshift_),
-    addedColumn_(nac.addedColumn_),
-    alteredColumn_(nac.alteredColumn_),
-    addnlColumn_(nac.addnlColumn_),
-    keyKind_(nac.keyKind_),
-    clusteringKeyOrdering_(nac.clusteringKeyOrdering_),
-    isNotNullNondroppable_(nac.isNotNullNondroppable_),
-    referenced_(nac.referenced_),
-    needHistogram_(nac.needHistogram_),
-    hasJoinPred_(nac.hasJoinPred_),
-    hasRangePred_(nac.hasRangePred_),
-    columnMode_ (nac.columnMode_),
-    isUnique_(nac.isUnique_),
-    isOptional_(nac.isOptional_),
-    storedOnDisk_(nac.storedOnDisk_),
-    computedColumnExpression_(nac.computedColumnExpression_),
-    isSaltColumn_(nac.isSaltColumn_),
-    isDivisioningColumn_(nac.isDivisioningColumn_),
-    isReplicaColumn_(nac.isReplicaColumn_),
-    lobNum_(nac.lobNum_),
-    lobStorageType_(nac.lobStorageType_),
-    lobStorageLocation_(nac.lobStorageLocation_),
-    lobInlinedDataMaxLen_(nac.lobInlinedDataMaxLen_),
-    lobHbaseDataMaxLen_(nac.lobHbaseDataMaxLen_),
-    lobChunkMaxLen_(nac.lobChunkMaxLen_),
-    hbaseColFam_(nac.hbaseColFam_),
-    hbaseColQual_(nac.hbaseColQual_),
-    hbaseColFlags_(nac.hbaseColFlags_),
-    virtualColumnType_(nac.virtualColumnType_)
-  {
+  NAColumn(const NAColumn &nac, NAMemory *h)
+      : heap_(h),
+        colName_(nac.colName_, h),
+        position_(nac.position_),
+        type_(nac.type_),
+        table_(nac.table_),
+        columnClass_(nac.columnClass_),
+        defaultClass_(nac.defaultClass_),
+        defaultValue_(nac.defaultValue_),
+        initDefaultValue_(nac.initDefaultValue_),
+        heading_(nac.heading_),
+        upshift_(nac.upshift_),
+        addedColumn_(nac.addedColumn_),
+        alteredColumn_(nac.alteredColumn_),
+        addnlColumn_(nac.addnlColumn_),
+        keyKind_(nac.keyKind_),
+        clusteringKeyOrdering_(nac.clusteringKeyOrdering_),
+        isNotNullNondroppable_(nac.isNotNullNondroppable_),
+        referenced_(nac.referenced_),
+        needHistogram_(nac.needHistogram_),
+        hasJoinPred_(nac.hasJoinPred_),
+        hasRangePred_(nac.hasRangePred_),
+        columnMode_(nac.columnMode_),
+        isUnique_(nac.isUnique_),
+        isOptional_(nac.isOptional_),
+        storedOnDisk_(nac.storedOnDisk_),
+        computedColumnExpression_(nac.computedColumnExpression_),
+        isSaltColumn_(nac.isSaltColumn_),
+        isDivisioningColumn_(nac.isDivisioningColumn_),
+        isReplicaColumn_(nac.isReplicaColumn_),
+        lobNum_(nac.lobNum_),
+        lobStorageType_(nac.lobStorageType_),
+        lobStorageLocation_(nac.lobStorageLocation_),
+        lobInlinedDataMaxLen_(nac.lobInlinedDataMaxLen_),
+        lobHbaseDataMaxLen_(nac.lobHbaseDataMaxLen_),
+        lobChunkMaxLen_(nac.lobChunkMaxLen_),
+        hbaseColFam_(nac.hbaseColFam_),
+        hbaseColQual_(nac.hbaseColQual_),
+        hbaseColFlags_(nac.hbaseColFlags_),
+        virtualColumnType_(nac.virtualColumnType_) {
     routineParamType_[0] = 0;
     if (nac.routineParamType_) strncpy(routineParamType_, nac.routineParamType_, 2);
     routineParamType_[2] = 0;
@@ -205,262 +191,233 @@ public:
   virtual ~NAColumn();
   virtual void deepDelete();
 
-  //IF U R CHANGING ANYTHING IN NAColumn MAKE SURE TO READ THE FOLLOWING
-  //Anything that changes in a NAColumn object over the course
-  //of a single statement is reset back to its value at it was
-  //after NATable construction.
+  // IF U R CHANGING ANYTHING IN NAColumn MAKE SURE TO READ THE FOLLOWING
+  // Anything that changes in a NAColumn object over the course
+  // of a single statement is reset back to its value at it was
+  // after NATable construction.
   //********************************************************************
-  //If change any datamembers of NAColumn after NATable contruction
-  //U SHOULD RESET those datamembers in here to their value as it is
-  //after NATable construction.
-  //NATable construction is invoke from BindWA::getNATable which is
-  //called while binding leaf nodes like Scan, Insert, etc.
-  //This is used to reset the NAColumn object so that it can be used
-  //by subsequent statements. This method is invoked at the end of a
-  //statement by NATable::resetAfterStatement().
+  // If change any datamembers of NAColumn after NATable contruction
+  // U SHOULD RESET those datamembers in here to their value as it is
+  // after NATable construction.
+  // NATable construction is invoke from BindWA::getNATable which is
+  // called while binding leaf nodes like Scan, Insert, etc.
+  // This is used to reset the NAColumn object so that it can be used
+  // by subsequent statements. This method is invoked at the end of a
+  // statement by NATable::resetAfterStatement().
   //********************************************************************
   void resetAfterStatement();
 
   // deepCopy of the members necessary
-  static NAColumn * deepCopy(const NAColumn & nac,NAMemory * heap);
+  static NAColumn *deepCopy(const NAColumn &nac, NAMemory *heap);
 
   // ---------------------------------------------------------------------
   // Accessor functions
   // ---------------------------------------------------------------------
-  inline const NAString& getColName() const	{ return colName_; }
-  inline const NATable* getNATable() const	{ return table_; }
-  inline void setNATable(NATable * tab) { table_ = tab; }
-  const QualifiedName* getTableName(NABoolean okIfNoTable = FALSE) const;
+  inline const NAString &getColName() const { return colName_; }
+  inline const NATable *getNATable() const { return table_; }
+  inline void setNATable(NATable *tab) { table_ = tab; }
+  const QualifiedName *getTableName(NABoolean okIfNoTable = FALSE) const;
 
-  inline ColRefName getFullColRefName() const
-  {
-    const QualifiedName* qn = getTableName(TRUE);
+  inline ColRefName getFullColRefName() const {
+    const QualifiedName *qn = getTableName(TRUE);
     return qn ? ColRefName(getColName(), *qn) : ColRefName(getColName());
   }
-  inline NAString getFullColRefNameAsAnsiString() const
-         { return getFullColRefName().getColRefAsAnsiString(); }
+  inline NAString getFullColRefNameAsAnsiString() const { return getFullColRefName().getColRefAsAnsiString(); }
 
-  inline Lng32 getPosition() const 		{ return position_; }
-  inline const NAType* getType() const		{ return type_; }
-  inline NAType*& mutateType()			{ return type_; }
-  //Returns TRUE if type_ is a numeric type
+  inline Lng32 getPosition() const { return position_; }
+  inline const NAType *getType() const { return type_; }
+  inline NAType *&mutateType() { return type_; }
+  // Returns TRUE if type_ is a numeric type
   NABoolean isNumeric() const;
-  inline const char* getDefaultValue() const	{ return defaultValue_; }
-  inline const char* getInitDefaultValue() const	{ return initDefaultValue_; }
-  inline const ComColumnDefaultClass getDefaultClass() const	{ return defaultClass_; }
-  inline const char* getHeading() const	        { return heading_; }
-  inline ColumnClass getColumnClass() const     { return columnClass_; }
-  inline NABoolean isUpshiftReqd() const        { return upshift_; }
-  inline NABoolean isUserColumn() const         { return columnClass_ == USER_COLUMN; }
-  inline NABoolean isSystemColumn() const       { return columnClass_ == SYSTEM_COLUMN;}
-  inline NABoolean isSyskeyColumn() const       { return columnClass_ == SYSTEM_COLUMN && colName_ == "SYSKEY" &&
-                                                         defaultClass_ == COM_NO_DEFAULT;}
+  inline const char *getDefaultValue() const { return defaultValue_; }
+  inline const char *getInitDefaultValue() const { return initDefaultValue_; }
+  inline const ComColumnDefaultClass getDefaultClass() const { return defaultClass_; }
+  inline const char *getHeading() const { return heading_; }
+  inline ColumnClass getColumnClass() const { return columnClass_; }
+  inline NABoolean isUpshiftReqd() const { return upshift_; }
+  inline NABoolean isUserColumn() const { return columnClass_ == USER_COLUMN; }
+  inline NABoolean isSystemColumn() const { return columnClass_ == SYSTEM_COLUMN; }
+  inline NABoolean isSyskeyColumn() const {
+    return columnClass_ == SYSTEM_COLUMN && colName_ == "SYSKEY" && defaultClass_ == COM_NO_DEFAULT;
+  }
 
-  inline NABoolean isIdentityColumn() const {return (defaultClass_ == COM_IDENTITY_GENERATED_BY_DEFAULT ||
-                                                     defaultClass_ == COM_IDENTITY_GENERATED_ALWAYS);}
-  inline NABoolean isIdentityColumnByDefault() const {return defaultClass_ == COM_IDENTITY_GENERATED_BY_DEFAULT;}
-  inline NABoolean isIdentityColumnAlways() const {return defaultClass_ == COM_IDENTITY_GENERATED_ALWAYS;}
+  inline NABoolean isIdentityColumn() const {
+    return (defaultClass_ == COM_IDENTITY_GENERATED_BY_DEFAULT || defaultClass_ == COM_IDENTITY_GENERATED_ALWAYS);
+  }
+  inline NABoolean isIdentityColumnByDefault() const { return defaultClass_ == COM_IDENTITY_GENERATED_BY_DEFAULT; }
+  inline NABoolean isIdentityColumnAlways() const { return defaultClass_ == COM_IDENTITY_GENERATED_ALWAYS; }
   inline NABoolean isIndependentSystemColumn() const { return (isSyskeyColumn() || isIdentityColumn()); }
-  inline virtual NABoolean isComputedColumn() const { return (defaultClass_ == COM_ALWAYS_COMPUTE_COMPUTED_COLUMN_DEFAULT ||
-                                                      defaultClass_ == COM_ALWAYS_DEFAULT_COMPUTED_COLUMN_DEFAULT);}
-  inline NABoolean isComputedColumnAlways() const { return defaultClass_ == COM_ALWAYS_COMPUTE_COMPUTED_COLUMN_DEFAULT; }
-  inline const char* getComputedColumnExprString() const { return computedColumnExpression_; }
-  inline NABoolean isStoredOnDisk() const       { return storedOnDisk_; }
+  inline virtual NABoolean isComputedColumn() const {
+    return (defaultClass_ == COM_ALWAYS_COMPUTE_COMPUTED_COLUMN_DEFAULT ||
+            defaultClass_ == COM_ALWAYS_DEFAULT_COMPUTED_COLUMN_DEFAULT);
+  }
+  inline NABoolean isComputedColumnAlways() const {
+    return defaultClass_ == COM_ALWAYS_COMPUTE_COMPUTED_COLUMN_DEFAULT;
+  }
+  inline const char *getComputedColumnExprString() const { return computedColumnExpression_; }
+  inline NABoolean isStoredOnDisk() const { return storedOnDisk_; }
   inline NABoolean isAddedColumn() const { return addedColumn_; }
   inline NABoolean isAlteredColumn() const { return alteredColumn_; }
   inline NABoolean isAddnlColumn() const { return addnlColumn_; }
-  inline void setAddnlColumn()	{ addnlColumn_ = TRUE; }
+  inline void setAddnlColumn() { addnlColumn_ = TRUE; }
 
-  inline NABoolean isSaltColumn() const        { return isSaltColumn_;}
+  inline NABoolean isSaltColumn() const { return isSaltColumn_; }
   inline NABoolean isDivisioningColumn() const { return isDivisioningColumn_; }
-  inline NABoolean isReplicaColumn() const        { return isReplicaColumn_;}
+  inline NABoolean isReplicaColumn() const { return isReplicaColumn_; }
   inline NABoolean isHivePartColumn() const { return virtualColumnType_ == HIVE_PART_COL; }
   inline NABoolean isHiveVirtualFileColumn() const { return virtualColumnType_ == HIVE_VIRT_FILE_COL; }
   inline NABoolean isHiveVirtualRowColumn() const { return virtualColumnType_ == HIVE_VIRT_ROW_COL; }
-  inline NABoolean isHiveVirtualColumn() const { return (virtualColumnType_ == HIVE_VIRT_FILE_COL ||
-                                                         virtualColumnType_ == HIVE_VIRT_ROW_COL); }
+  inline NABoolean isHiveVirtualColumn() const {
+    return (virtualColumnType_ == HIVE_VIRT_FILE_COL || virtualColumnType_ == HIVE_VIRT_ROW_COL);
+  }
 
+  inline SortOrdering getClusteringKeyOrdering() const { return clusteringKeyOrdering_; }
+  inline NABoolean isClusteringKey() const { return clusteringKeyOrdering_ != NOT_ORDERED; }
+  inline void setClusteringKey(SortOrdering o) {
+    clusteringKeyOrdering_ = o;
+    setIndexKey();
+  }
 
-  inline SortOrdering getClusteringKeyOrdering() const	{return clusteringKeyOrdering_;}
-  inline NABoolean isClusteringKey() const	{ return clusteringKeyOrdering_
-  						 != NOT_ORDERED; 	}
-  inline void setClusteringKey(SortOrdering o)	{ clusteringKeyOrdering_ = o;
-  					  setIndexKey(); 		}
-
-  inline NABoolean isUnique() const            { return isUnique_;}
-  inline void setIsUnique()                    { isUnique_ = TRUE; }
-  inline NABoolean isOptional() const          { return isOptional_;}
-  inline void setIsOptional(NABoolean optional){ isOptional_ = optional; }
-  const char *getRoutineParamType() const      { return &routineParamType_[0]; }
-  inline void setRoutineParamType (char *type) { strncpy(routineParamType_, type, 2);
-                                                 routineParamType_[2]=0; }
-  inline NABoolean isIndexKey() const          { return keyKind_ & INDEX_KEY; }
-  inline void setIndexKey()                    { keyKind_ |= INDEX_KEY; }
-  inline NABoolean isPartitioningKey() const   { return keyKind_ & PARTITIONING_KEY; }
-  inline void setPartitioningKey()             { keyKind_ |= PARTITIONING_KEY; }
+  inline NABoolean isUnique() const { return isUnique_; }
+  inline void setIsUnique() { isUnique_ = TRUE; }
+  inline NABoolean isOptional() const { return isOptional_; }
+  inline void setIsOptional(NABoolean optional) { isOptional_ = optional; }
+  const char *getRoutineParamType() const { return &routineParamType_[0]; }
+  inline void setRoutineParamType(char *type) {
+    strncpy(routineParamType_, type, 2);
+    routineParamType_[2] = 0;
+  }
+  inline NABoolean isIndexKey() const { return keyKind_ & INDEX_KEY; }
+  inline void setIndexKey() { keyKind_ |= INDEX_KEY; }
+  inline NABoolean isPartitioningKey() const { return keyKind_ & PARTITIONING_KEY; }
+  inline void setPartitioningKey() { keyKind_ |= PARTITIONING_KEY; }
   NABoolean isPartV2Column() const;
-  inline NABoolean isPrimaryKey() const        { return keyKind_ & PRIMARY_KEY;}
-  inline NABoolean isPrimaryKeyNotSerialized() const 
-  { return keyKind_ & PRIMARY_KEY_NOT_SERIALIZED;}
-  inline void setPrimaryKey()                  { keyKind_ |= PRIMARY_KEY; }
-  inline void setPrimaryKeyNotSerialized()     { keyKind_ |= PRIMARY_KEY_NOT_SERIALIZED; }
-  inline void setIsStoredOnDisk(NABoolean x)   { storedOnDisk_ = x; }
-  inline NABoolean isReferenced() const        { return (referenced_ != NOT_REFERENCED); }
-  inline NABoolean isReferencedForHistogram() const
-              { return ((referenced_ == REFERENCED_FOR_MULTI_INTERVAL_HISTOGRAM)
-                         || (referenced_ == REFERENCED_FOR_SINGLE_INTERVAL_HISTOGRAM) ); }
-  inline NABoolean isReferencedForSingleIntHist() const
-         { return (referenced_ == REFERENCED_FOR_SINGLE_INTERVAL_HISTOGRAM); }
+  inline NABoolean isPrimaryKey() const { return keyKind_ & PRIMARY_KEY; }
+  inline NABoolean isPrimaryKeyNotSerialized() const { return keyKind_ & PRIMARY_KEY_NOT_SERIALIZED; }
+  inline void setPrimaryKey() { keyKind_ |= PRIMARY_KEY; }
+  inline void setPrimaryKeyNotSerialized() { keyKind_ |= PRIMARY_KEY_NOT_SERIALIZED; }
+  inline void setIsStoredOnDisk(NABoolean x) { storedOnDisk_ = x; }
+  inline NABoolean isReferenced() const { return (referenced_ != NOT_REFERENCED); }
+  inline NABoolean isReferencedForHistogram() const {
+    return ((referenced_ == REFERENCED_FOR_MULTI_INTERVAL_HISTOGRAM) ||
+            (referenced_ == REFERENCED_FOR_SINGLE_INTERVAL_HISTOGRAM));
+  }
+  inline NABoolean isReferencedForSingleIntHist() const {
+    return (referenced_ == REFERENCED_FOR_SINGLE_INTERVAL_HISTOGRAM);
+  }
 
-  NABoolean isReferencedForMultiIntHist() const
-  { return (referenced_ == REFERENCED_FOR_MULTI_INTERVAL_HISTOGRAM); }
+  NABoolean isReferencedForMultiIntHist() const { return (referenced_ == REFERENCED_FOR_MULTI_INTERVAL_HISTOGRAM); }
 
-  NABoolean needHistogram() const
-    { return (needHistogram_==NEED_COMPRESSED) ||
-        (needHistogram_==NEED_FULL); }
+  NABoolean needHistogram() const { return (needHistogram_ == NEED_COMPRESSED) || (needHistogram_ == NEED_FULL); }
 
-  NABoolean needFullHistogram() const
-    { return needHistogram_==NEED_FULL; }
+  NABoolean needFullHistogram() const { return needHistogram_ == NEED_FULL; }
 
-  NABoolean needCompressedHistogram() const 
-    { return needHistogram_==NEED_COMPRESSED; }
+  NABoolean needCompressedHistogram() const { return needHistogram_ == NEED_COMPRESSED; }
 
-  inline NABoolean hasJoinPred() const
-              { return hasJoinPred_;}
-  inline NABoolean hasRangePred() const
-              { return hasRangePred_;}
-  inline void setReferenced()
-         { if (!isReferenced()) referenced_ = REFERENCED_ANYWHERE; }
+  inline NABoolean hasJoinPred() const { return hasJoinPred_; }
+  inline NABoolean hasRangePred() const { return hasRangePred_; }
+  inline void setReferenced() {
+    if (!isReferenced()) referenced_ = REFERENCED_ANYWHERE;
+  }
 
-  void setReferencedForMultiIntHist()
-         { referenced_ = REFERENCED_FOR_MULTI_INTERVAL_HISTOGRAM; }
+  void setReferencedForMultiIntHist() { referenced_ = REFERENCED_FOR_MULTI_INTERVAL_HISTOGRAM; }
 
-  inline void setReferencedForSingleIntHist()
-         { referenced_ = REFERENCED_FOR_SINGLE_INTERVAL_HISTOGRAM; }
+  inline void setReferencedForSingleIntHist() { referenced_ = REFERENCED_FOR_SINGLE_INTERVAL_HISTOGRAM; }
 
   void setDontNeedHistogram() { needHistogram_ = DONT_NEED_HIST; }
   void setNeedFullHistogram() { needHistogram_ = NEED_FULL; }
   void setNeedCompressedHistogram() { needHistogram_ = NEED_COMPRESSED; }
 
-  //use this method to mark the column as being involved in a join predicate
-  inline void setHasJoinPred()
-         { if (!hasJoinPred()) hasJoinPred_ = TRUE; }
+  // use this method to mark the column as being involved in a join predicate
+  inline void setHasJoinPred() {
+    if (!hasJoinPred()) hasJoinPred_ = TRUE;
+  }
 
-  //use this method to mard the column as being involved in a range predicate
-  inline void setHasRangePred()
-         { if (!hasRangePred()) hasRangePred_ = TRUE; }
+  // use this method to mard the column as being involved in a range predicate
+  inline void setHasRangePred() {
+    if (!hasRangePred()) hasRangePred_ = TRUE;
+  }
 
-  inline CheckConstraint* getNotNullNondroppable() { return isNotNullNondroppable_; } const
-  inline void setNotNullNondroppable(CheckConstraint *c) { isNotNullNondroppable_ = c;}
+  inline CheckConstraint *getNotNullNondroppable() { return isNotNullNondroppable_; }
+  const inline void setNotNullNondroppable(CheckConstraint *c) { isNotNullNondroppable_ = c; }
   Lng32 getNotNullViolationCode() const;
   const QualifiedName &getNotNullConstraintName() const;
-  inline void setNotReferencedAndNotKey()
-  {
-	  referenced_ = NOT_REFERENCED;
-	  keyKind_ &= NON_KEY;
+  inline void setNotReferencedAndNotKey() {
+    referenced_ = NOT_REFERENCED;
+    keyKind_ &= NON_KEY;
   }
-  inline void setNotReferenced()      { referenced_ = NOT_REFERENCED; }
+  inline void setNotReferenced() { referenced_ = NOT_REFERENCED; }
 
   inline void setMvSystemAddedColumn() { mvSystemAddedColumn_ = TRUE; }
   inline NABoolean isMvSystemAddedColumn() const { return mvSystemAddedColumn_; }
   inline void setVirtualColumnType(VirtColType vct) { virtualColumnType_ = vct; }
 
-  static NABoolean createNAType(TrafColumnsDesc *column_desc	/*IN*/,
-				const NATable *table  		/*IN*/,
-                                Int64 tablesFlags               /*IN*/,
-				NAType *&type       		/*OUT*/,
-				NAMemory *heap			/*IN*/,
-				Lng32 * errorCode = NULL
-				);
+  static NABoolean createNAType(TrafColumnsDesc *column_desc /*IN*/, const NATable *table /*IN*/,
+                                Int64 tablesFlags /*IN*/, NAType *&type /*OUT*/, NAMemory *heap /*IN*/,
+                                Lng32 *errorCode = NULL);
 
   // ---------------------------------------------------------------------
   // Standard operators
   // ---------------------------------------------------------------------
-  NABoolean operator==(const NAColumn& other) const;
-  NABoolean operator==(const NAString& other) const;
+  NABoolean operator==(const NAColumn &other) const;
+  NABoolean operator==(const NAString &other) const;
 
   // needed by priority_queue for printing column names in order
   // do NOT use this operator for any other purpose because it
   // copies only the column name
-  void operator = (const NAColumn& other)
-    { colName_ = other.colName_; }
+  void operator=(const NAColumn &other) { colName_ = other.colName_; }
 
   // ---------------------------------------------------------------------
   // Display function for debugging
   // ---------------------------------------------------------------------
-  void print(FILE* ofd = stdout,
-             const char* indent = DEFAULT_INDENT,
-	     const char* title = "NAColumn",
-             CollHeap *c=NULL, char *buf=NULL) const;
+  void print(FILE *ofd = stdout, const char *indent = DEFAULT_INDENT, const char *title = "NAColumn",
+             CollHeap *c = NULL, char *buf = NULL) const;
 
-  void display() ;
+  void display();
 
-  void trace (FILE *f) const;
+  void trace(FILE *f) const;
 
-  inline ComColumnDirection getColumnMode ()  const {return columnMode_;}
-  inline void setColumnMode (ComColumnDirection mode){columnMode_ = mode;}
+  inline ComColumnDirection getColumnMode() const { return columnMode_; }
+  inline void setColumnMode(ComColumnDirection mode) { columnMode_ = mode; }
 
-  short &lobNum() {return lobNum_; }
+  short &lobNum() { return lobNum_; }
   ComLobsStorageType &lobStorageType() { return lobStorageType_; }
-  char* &lobStorageLocation() { return lobStorageLocation_; }
+  char *&lobStorageLocation() { return lobStorageLocation_; }
   Int32 &lobInlinedDataMaxLen() { return lobInlinedDataMaxLen_; }
   Int64 &lobHbaseDataMaxLen() { return lobHbaseDataMaxLen_; }
   Int32 &lobChunkMaxLen() { return lobChunkMaxLen_; }
 
-  void setIndexColName(const char *idxName)
-  {indexColName_ = idxName;}
-  const NAString& getIndexColName() const	
-  { 
-    return (indexColName_.isNull() ? getColName() : indexColName_); 
-  }
+  void setIndexColName(const char *idxName) { indexColName_ = idxName; }
+  const NAString &getIndexColName() const { return (indexColName_.isNull() ? getColName() : indexColName_); }
 
-  void setHbaseColFam(const char * colFam)
-  {
-    if (colFam)
-      hbaseColFam_ = colFam;
+  void setHbaseColFam(const char *colFam) {
+    if (colFam) hbaseColFam_ = colFam;
   }
-  const NAString &getHbaseColFam() const
-  {
-    return 
-      hbaseColFam_;
-  }
+  const NAString &getHbaseColFam() const { return hbaseColFam_; }
 
-  void setHbaseColQual(const char * colQual)
-  {
-    if (colQual)
-      hbaseColQual_ = colQual;
+  void setHbaseColQual(const char *colQual) {
+    if (colQual) hbaseColQual_ = colQual;
   }
-  const NAString &getHbaseColQual() const
-  {
-    return hbaseColQual_;
-  }
+  const NAString &getHbaseColQual() const { return hbaseColQual_; }
 
-  void setHbaseColFlags(const ULng32 colFlags)
-  {
-    hbaseColFlags_ = colFlags;
-  }
+  void setHbaseColFlags(const ULng32 colFlags) { hbaseColFlags_ = colFlags; }
 
-  const ULng32 getHbaseColFlags() const
-  {
-    return hbaseColFlags_;
-  }
+  const ULng32 getHbaseColFlags() const { return hbaseColFlags_; }
 
-  void resetSerialization() {
-     hbaseColFlags_ &= SEABASE_SERIALIZED;
-  }
+  void resetSerialization() { hbaseColFlags_ &= SEABASE_SERIALIZED; }
 
-  enum {
-    SEABASE_SERIALIZED = 0x0001
+  enum { SEABASE_SERIALIZED = 0x0001 };
+
+ private:
+  enum referencedState {
+    NOT_REFERENCED,
+    REFERENCED_ANYWHERE,
+    REFERENCED_FOR_MULTI_INTERVAL_HISTOGRAM,
+    REFERENCED_FOR_SINGLE_INTERVAL_HISTOGRAM
   };
 
-
-private:
-  enum referencedState { NOT_REFERENCED, REFERENCED_ANYWHERE, REFERENCED_FOR_MULTI_INTERVAL_HISTOGRAM, REFERENCED_FOR_SINGLE_INTERVAL_HISTOGRAM };
-
-  enum histRequirement {
-    DONT_NEED_HIST, NEED_COMPRESSED, NEED_FULL
-  };
-  NAMemory * heap_;
+  enum histRequirement { DONT_NEED_HIST, NEED_COMPRESSED, NEED_FULL };
+  NAMemory *heap_;
   // ---------------------------------------------------------------------
   // The column name
   // ---------------------------------------------------------------------
@@ -549,15 +506,15 @@ private:
   // ---------------------------------------------------------------------
   referencedState referenced_;
 
-  // need to decouple concept of referenced_ 
-  // (ie, where column is referenced in query) 
+  // need to decouple concept of referenced_
+  // (ie, where column is referenced in query)
   // from concept of needHistogram_
   // (ie, if we need to get histograms for column
   //  and type needed: NEED_FULL or NEED_COMPRESSED)
   histRequirement needHistogram_;
 
   // MVs --
-  // This column was added to the MV by CREATE MV. Don't show it 
+  // This column was added to the MV by CREATE MV. Don't show it
   // in SELECT * statements.
   NABoolean mvSystemAddedColumn_;
 
@@ -616,7 +573,7 @@ private:
 
   // is this a virtual Hive column?
   VirtColType virtualColumnType_;
-}; // class NAColumn
+};  // class NAColumn
 
 typedef NABoolean (NAColumn::*NAColumnBooleanFuncPtrT)() const;
 
@@ -624,66 +581,57 @@ typedef NABoolean (NAColumn::*NAColumnBooleanFuncPtrT)() const;
 // An array of column pointers
 // ***********************************************************************
 
-class NAColumnArray : public LIST(NAColumn*)
-{
-public:
-
-  NAColumnArray(CollHeap* h=CmpCommon::statementHeap()) : LIST(NAColumn*)(h), ascending_(h) {}
+class NAColumnArray : public LIST(NAColumn *) {
+ public:
+  NAColumnArray(CollHeap *h = CmpCommon::statementHeap()) : LIST(NAColumn *)(h), ascending_(h) {}
 
   // Copy constructor
   // NOTE: This only copies NAColumn pointers.  It does not do a deep copy.
   //       So, it should not be used to create an NAColumn on a new heap.
-  NAColumnArray(const NAColumnArray & naca, CollHeap *h=0)
-    : LIST (NAColumn*)(naca, h), ascending_(naca.ascending_, h)
-    {}
+  NAColumnArray(const NAColumnArray &naca, CollHeap *h = 0)
+      : LIST(NAColumn *)(naca, h), ascending_(naca.ascending_, h) {}
 
   virtual ~NAColumnArray();
   virtual void deepDelete();
   // Assignment
   // NOTE: This only copies NAColumn pointers.  It does not do a deep copy.
   //       So, it should not be used to copy to an NAColumn on a different heap.
-  NAColumnArray & operator=(const NAColumnArray& other);
+  NAColumnArray &operator=(const NAColumnArray &other);
 
-  NABoolean operator==(const NAColumnArray& other) const;
-  NABoolean compare(const NAColumnArray &other,
-                    NABoolean compareSystemCols = TRUE) const;
+  NABoolean operator==(const NAColumnArray &other) const;
+  NABoolean compare(const NAColumnArray &other, NABoolean compareSystemCols = TRUE) const;
 
-  virtual void print( FILE* ofd = stdout,
-		      const char* indent = DEFAULT_INDENT,
-                      const char* title = "NAColumnArray",
-                      CollHeap *c=NULL, char *buf=NULL) const;
+  virtual void print(FILE *ofd = stdout, const char *indent = DEFAULT_INDENT, const char *title = "NAColumnArray",
+                     CollHeap *c = NULL, char *buf = NULL) const;
 
   void display() const;
-  void trace (FILE *f) const;
+  void trace(FILE *f) const;
 
   // ---------------------------------------------------------------------
   // A method for inserting new NAColumns is required in order to grow
   // the ascending_ array at the same rate as the LIST(NAColumn *).
   // ---------------------------------------------------------------------
-  void insertAt(CollIndex index, NAColumn * newColumn);
-  void insert(NAColumn * newColumn)	{ insertAt(entries(),newColumn); }
-  void insertArray(const NAColumnArray &src,
-                   Int32 tgtPosition = -1,
-                   Int32 srcStartPosition = 0,
-                   Int32 numEntries = -1);
+  void insertAt(CollIndex index, NAColumn *newColumn);
+  void insert(NAColumn *newColumn) { insertAt(entries(), newColumn); }
+  void insertArray(const NAColumnArray &src, Int32 tgtPosition = -1, Int32 srcStartPosition = 0, Int32 numEntries = -1);
   void removeAt(CollIndex start, CollIndex numEntries = 1);
 
   // ---------------------------------------------------------------------
   // check and set whether a column in the column list has ascending or
   // descending order (ascending is the default order, if nothing was set)
   // ---------------------------------------------------------------------
-  NABoolean isAscending(CollIndex i) const
-  { return (ascending_.used(i) ? ascending_[i] : TRUE); }
-  void setAscending(CollIndex i, NABoolean a = TRUE)
-  { ascending_.insertAt(i,a); }
+  NABoolean isAscending(CollIndex i) const { return (ascending_.used(i) ? ascending_[i] : TRUE); }
+  void setAscending(CollIndex i, NABoolean a = TRUE) { ascending_.insertAt(i, a); }
 
   // ---------------------------------------------------------------------
   // Mark each NAColumn in the array
   // ---------------------------------------------------------------------
-  void setIndexKey() const
-  { for (CollIndex i = 0; i < entries(); i++) at(i)->setIndexKey(); }
-  void setPartitioningKey() const
-  { for (CollIndex i = 0; i < entries(); i++) at(i)->setPartitioningKey(); }
+  void setIndexKey() const {
+    for (CollIndex i = 0; i < entries(); i++) at(i)->setIndexKey();
+  }
+  void setPartitioningKey() const {
+    for (CollIndex i = 0; i < entries(); i++) at(i)->setPartitioningKey();
+  }
 
   // ---------------------------------------------------------------------
   // calculate offsets for columns, assuming that all columns in the
@@ -694,16 +642,16 @@ public:
   // ---------------------------------------------------------------------
   // get column (non-const, can be modified) by position or by name lookup
   // ---------------------------------------------------------------------
-  NAColumn * getColumn(Lng32 index) const;	// same as nacolarray[position]
-  NAColumn * getColumn(const char* colName) const;
-  NAColumn * getColumnByPos(Lng32 position) const;
+  NAColumn *getColumn(Lng32 index) const;  // same as nacolarray[position]
+  NAColumn *getColumn(const char *colName) const;
+  NAColumn *getColumnByPos(Lng32 position) const;
 
-  // return 
+  // return
   //    i (i>=0) if the column is found in the array via NAColumn::operator==
   //    -1 if the column is not found in the array
-  Int32 getColumnPosition(NAColumn&) const;
+  Int32 getColumnPosition(NAColumn &) const;
 
-  Int32 getColumnPosition(const NAString&) const;
+  Int32 getColumnPosition(const NAString &) const;
 
   Int32 getIdentityColumnPosition() const;
 
@@ -714,7 +662,7 @@ public:
   // character type columns
   Int32 getTotalStorageSizeForNonChars() const;
 
-  // For Trafodion tables column qualifier is an unsigned 
+  // For Trafodion tables column qualifier is an unsigned
   // numeric > 0. This method is used during alter table add
   // column to find the maximum value currently in use. Columns
   // are deleted during alter table drop column.
@@ -723,10 +671,9 @@ public:
   NAString getColumnNamesAsString(char separator) const;
   NAString getColumnNamesAsString(char separator, UInt32 ct) const;
 
-private:
+ private:
+  ARRAY(NABoolean) ascending_;  // ignore for non-key or hash key columns
 
-  ARRAY(NABoolean) ascending_; // ignore for non-key or hash key columns
-
-}; // class NAColumnArray
+};  // class NAColumnArray
 
 #endif /* NACOLUMN_H */

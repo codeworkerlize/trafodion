@@ -86,29 +86,23 @@ class RequirementGenerator;
 //       }
 //   }
 // -----------------------------------------------------------------------
-class RequirementGenerator
-{
-public:
-
+class RequirementGenerator {
+ public:
   // ---------------------------------------------------------------------
   // constructor: it takes a child of a RelExpr to get the child's
   // group attributes, and it takes an optional ReqdPhysicalProperty
   // object with starting requirements (which can be selectively
   // removed before adding other ones)
   // ---------------------------------------------------------------------
-  RequirementGenerator(
-      const ExprGroupId &groupForRequirement,
-      const ReqdPhysicalProperty *startRequirements = NULL);
+  RequirementGenerator(const ExprGroupId &groupForRequirement, const ReqdPhysicalProperty *startRequirements = NULL);
 
   // ---------------------------------------------------------------------
   // accessor methods
   // ---------------------------------------------------------------------
-  inline Lng32 getCountOfPipelines() const
-                             { return availableCPUs_ * pipelinesPerCPU_; }
-  inline Lng32 getCountOfAvailableCPUs() const   { return availableCPUs_; }
+  inline Lng32 getCountOfPipelines() const { return availableCPUs_ * pipelinesPerCPU_; }
+  inline Lng32 getCountOfAvailableCPUs() const { return availableCPUs_; }
 
-  inline const ReqdPhysicalProperty* getStartRequirements() const
-    { return startRequirements_; }
+  inline const ReqdPhysicalProperty *getStartRequirements() const { return startRequirements_; }
 
   // ---------------------------------------------------------------------
   // Methods to add new requirements to the RequirementGenerator.
@@ -117,23 +111,19 @@ public:
   // and the requirements. Use the checkFeasibility() method to
   // find out whether the different requirements contradict each other.
   // ---------------------------------------------------------------------
-  void addSortKey(const ValueIdList &additionalSortKey,
-               SortOrderTypeEnum sortOrderTypeReq = INCOMPATIBLE_SOT,
-               PartitioningRequirement* dp2SortOrderPartReq = NULL);
+  void addSortKey(const ValueIdList &additionalSortKey, SortOrderTypeEnum sortOrderTypeReq = INCOMPATIBLE_SOT,
+                  PartitioningRequirement *dp2SortOrderPartReq = NULL);
   void addArrangement(const ValueIdSet &additionalArrangementParam,
-               SortOrderTypeEnum sortOrderTypeReq = INCOMPATIBLE_SOT,
-               PartitioningRequirement* dp2SortOrderPartReq = NULL);
-  void addSortOrderTypeReq(SortOrderTypeEnum sortOrderTypeReq,
-               PartitioningRequirement* dp2SortOrderPartReq = NULL);
+                      SortOrderTypeEnum sortOrderTypeReq = INCOMPATIBLE_SOT,
+                      PartitioningRequirement *dp2SortOrderPartReq = NULL);
+  void addSortOrderTypeReq(SortOrderTypeEnum sortOrderTypeReq, PartitioningRequirement *dp2SortOrderPartReq = NULL);
   void addPartitioningKey(const ValueIdSet &partKey);
   void addNumOfPartitions(Lng32 newNumberOfPartitions,
-                          float newNumOfPartsAllowedDeviation = 
-                            CURRSTMT_OPTDEFAULTS->numberOfPartitionsDeviation());
+                          float newNumOfPartsAllowedDeviation = CURRSTMT_OPTDEFAULTS->numberOfPartitionsDeviation());
   void addPartRequirement(PartitioningRequirement *pr);
   void addLocationRequirement(PlanExecutionEnum loc);
   void addLogicalPartRequirement(LogicalPartitioningRequirement *pr);
-  void addPushDownRequirement(const PushDownRequirement* pdr)
-   { pushDownRequirement_ = pdr; };
+  void addPushDownRequirement(const PushDownRequirement *pdr) { pushDownRequirement_ = pdr; };
   void addNoEspExchangeRequirement();
   void addOcbCostingRequirement();
   // ---------------------------------------------------------------------
@@ -152,8 +142,7 @@ public:
   // Methods to replace or modify requirements.
   // ---------------------------------------------------------------------
   void replaceLocationRequirement(PlanExecutionEnum loc);
-  void setLogicalOrderOrArrangementFlag(NABoolean newValue)
-    { logicalOrderOrArrangement_ = newValue; }
+  void setLogicalOrderOrArrangementFlag(NABoolean newValue) { logicalOrderOrArrangement_ = newValue; }
 
   // ---------------------------------------------------------------------
   // Methods that help in generating "good" requirements in cases where
@@ -169,9 +158,7 @@ public:
   void makeArrangementFeasible(ValueIdSet &proposedArrangement);
 
   // modify the number of required partitions such that it doesn't conflict
-  void makeNumOfPartsFeasible(Lng32 &proposedNumOfParts,
-                        float *proposedNumOfPartsAllowedDeviation = NULL);
-
+  void makeNumOfPartsFeasible(Lng32 &proposedNumOfParts, float *proposedNumOfPartsAllowedDeviation = NULL);
 
   // ---------------------------------------------------------------------
   // Methods to do consistency checking and to get information about
@@ -187,47 +174,41 @@ public:
 
   static void initSortOrderTypeReqCompTab();
 
-  SortOrderTypeEnum determineCompatibleSortOrderTypeReq(     
-                    SortOrderTypeEnum otherSortOrderTypeReq) const;
+  SortOrderTypeEnum determineCompatibleSortOrderTypeReq(SortOrderTypeEnum otherSortOrderTypeReq) const;
 
   // Add the skew data handling requirement. If a fully specified partition
   // rquirement is to be added, it must be added earlier than the skew
   // requirement and any skewness property specified in that partition
   // requirement is overwritten by this skew requirement.
-  void addSkewRequirement(skewProperty::skewDataHandlingEnum,
-                          SkewedValueList* skList,
-                          NABoolean broadcastOneRow);
+  void addSkewRequirement(skewProperty::skewDataHandlingEnum, SkewedValueList *skList, NABoolean broadcastOneRow);
   void removeSkewRequirement() { skewPropertyAdded_ = FALSE; };
 
   // Check that the added skew requirement can be made compatible with
   // what exists in the partR, and if so, modify partR so that the skew
   // requirement is properly represented in partR.
-  void makeSkewReqFeasible(PartitioningRequirement* partR);
+  void makeSkewReqFeasible(PartitioningRequirement *partR);
 
-private:
-
+ private:
   // private methods
 
   void processStartRequirements();
   void producePartitioningRequirements();
   void checkCompatibilityWithGroupAttributes();
-  ValueIdSet combinePartKeysHeuristically(
-     const ValueIdSet& partKey1,
-     const ValueIdSet& partKey2);
+  ValueIdSet combinePartKeysHeuristically(const ValueIdSet &partKey1, const ValueIdSet &partKey2);
 
   // private data members
 
-  static THREAD_P LookupTable<SortOrderTypeEnum>* sortOrderTypeReqCompTab_;
+  static THREAD_P LookupTable<SortOrderTypeEnum> *sortOrderTypeReqCompTab_;
 
-  const ReqdPhysicalProperty     *startRequirements_;
-  const GroupAttributes          *ga_;
+  const ReqdPhysicalProperty *startRequirements_;
+  const GroupAttributes *ga_;
 
   // data members that store the overall state of requirement generation
-  NABoolean                      stillFeasible_;
-  NABoolean                      startRequirementsHaveBeenProcessed_;
-  ReqdPhysicalProperty           *generatedRequirement_;
-  PartitioningRequirement        *generatedPartitioningRequirement_;
-  NABoolean                      generatedPartitioningReqIsValid_;
+  NABoolean stillFeasible_;
+  NABoolean startRequirementsHaveBeenProcessed_;
+  ReqdPhysicalProperty *generatedRequirement_;
+  PartitioningRequirement *generatedPartitioningRequirement_;
+  NABoolean generatedPartitioningReqIsValid_;
 
   // Things that got added to the requirements (either through the add
   // methods above or through the start requirements in the constructor)
@@ -235,57 +216,57 @@ private:
   // such as adding start requirements and checking.
 
   // order
-  ValueIdList                    *addedSortKey_;
-  NABoolean                      sortKeyIsUnique_;
-  NABoolean                      removeStartSortKey_;
+  ValueIdList *addedSortKey_;
+  NABoolean sortKeyIsUnique_;
+  NABoolean removeStartSortKey_;
 
-  // simplified columns from required orders 
-  ValueIdList                    simpleSortCols_;
+  // simplified columns from required orders
+  ValueIdList simpleSortCols_;
 
   // arrangement
-  ValueIdSet                     *addedArrangement_;
-  NABoolean                      removeStartArrangement_;
+  ValueIdSet *addedArrangement_;
+  NABoolean removeStartArrangement_;
 
-  // simplified columns from required arrangements 
-  ValueIdSet                     simpleArrangedCols_;
+  // simplified columns from required arrangements
+  ValueIdSet simpleArrangedCols_;
 
   // order or arrangement
-  NABoolean                      logicalOrderOrArrangement_;
+  NABoolean logicalOrderOrArrangement_;
 
   // partitioning
   // "fuzzy" requirements
-  ValueIdSet                     addedPartKey_;
-  NABoolean                      partKeyHasBeenAdded_;
-  Lng32                           addedNumberOfPartitions_;
-  float                          addedNumOfPartsAllowedDeviation_;
+  ValueIdSet addedPartKey_;
+  NABoolean partKeyHasBeenAdded_;
+  Lng32 addedNumberOfPartitions_;
+  float addedNumOfPartsAllowedDeviation_;
   // fully specified partitioning requirement
-  PartitioningRequirement  *addedPartitioningRequirement_;
-  NABoolean                      removeStartPartitioningRequirements_;
+  PartitioningRequirement *addedPartitioningRequirement_;
+  NABoolean removeStartPartitioningRequirements_;
 
   // location
-  PlanExecutionEnum              addedLocation_;
-  NABoolean                      locationHasBeenAdded_;
-  NABoolean                      removeStartLocation_;
-  
+  PlanExecutionEnum addedLocation_;
+  NABoolean locationHasBeenAdded_;
+  NABoolean removeStartLocation_;
+
   // sort order type
-  SortOrderTypeEnum              addedSortOrderTypeReq_;
-  PartitioningRequirement*       addedDp2SortOrderPartReq_;
+  SortOrderTypeEnum addedSortOrderTypeReq_;
+  PartitioningRequirement *addedDp2SortOrderPartReq_;
 
   // the other requirements that we don't check
-  Lng32                           availableCPUs_;
-  Lng32                           pipelinesPerCPU_;
-  const CostWeight               *costWeight_;
-  const PerformanceGoal          *perfGoal_;
+  Lng32 availableCPUs_;
+  Lng32 pipelinesPerCPU_;
+  const CostWeight *costWeight_;
+  const PerformanceGoal *perfGoal_;
   LogicalPartitioningRequirement *logicalPartReq_;
-   
-  const PushDownRequirement*	 pushDownRequirement_;
 
-  skewProperty                   addedSkewProperty_;
-  NABoolean                      skewPropertyAdded_;
+  const PushDownRequirement *pushDownRequirement_;
 
-  NABoolean                      requireNoESPExchange_;
-  NABoolean                      requireOcbEnabledCosting_;
-  NABoolean                      requireHash2Only_;
-}; // RequirementGenerator
+  skewProperty addedSkewProperty_;
+  NABoolean skewPropertyAdded_;
+
+  NABoolean requireNoESPExchange_;
+  NABoolean requireOcbEnabledCosting_;
+  NABoolean requireHash2Only_;
+};  // RequirementGenerator
 
 #endif

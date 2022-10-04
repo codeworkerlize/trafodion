@@ -25,7 +25,7 @@
 
 #include "HvRoles.h"
 
-// These two static functions were moved from HvRoles.h to this file as 
+// These two static functions were moved from HvRoles.h to this file as
 // they are called only by sqlparser.y while HvRoles.h is included by many
 // other cpp files. This was causing the compiler to emit warning 262  (function
 // defined but not referenced). Therefore the definitions were moved to this file
@@ -41,26 +41,20 @@
  * role to the first Unassigned host variable in TheHostVarRoles.
  */
 
-static void
-assignRoleToFirst(void* ptrAsFlag, HostVarRole  theRole)
-{
+static void assignRoleToFirst(void *ptrAsFlag, HostVarRole theRole) {
   assert(theRole != HV_UNASSIGNED && theRole);
   if (ptrAsFlag == NULL)
     // Then entity_name is a host variable per theRole
     TheHostVarRoles->setFirstUnassignedTo(theRole);
-  //if
-} 
+  // if
+}
 
-
-static void
-assignRoleToLast(void* ptrAsFlag, HostVarRole  theRole)
-{
+static void assignRoleToLast(void *ptrAsFlag, HostVarRole theRole) {
   assert(theRole != HV_UNASSIGNED && theRole);
   if (ptrAsFlag == NULL)
     // Then entity_name is a host variable per theRole
     TheHostVarRoles->setLastUnassignedTo(theRole);
-  //if
-} 
+  // if
+}
 
-
-#endif // HVROLES_H
+#endif  // HVROLES_H

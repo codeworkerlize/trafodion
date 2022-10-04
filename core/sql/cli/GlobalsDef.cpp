@@ -21,7 +21,6 @@
 
 #include "common/Platform.h"
 
-
 #define CLI_GLOBALS_DEF_
 
 #include <stdlib.h>
@@ -41,5 +40,5 @@
 // DLL and linked in to tdm_sqlcli.dll , also any other programs needs
 // to link cli.lib
 
-__declspec(dllexport) CliGlobals * cli_globals = 0;
+__declspec(dllexport) CliGlobals *cli_globals = 0;
 THREAD_P jmp_buf ExportJmpBuf;

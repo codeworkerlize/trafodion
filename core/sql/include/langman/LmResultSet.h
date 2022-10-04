@@ -53,10 +53,8 @@ class LmResultSet;
 //
 //////////////////////////////////////////////////////////////////////
 
-class SQLLM_LIB_FUNC LmResultSet : public NABasicObject
-{
-
-public:
+class SQLLM_LIB_FUNC LmResultSet : public NABasicObject {
+ public:
   // Gets the pointer to the result set's SQLSTMT_ID CLI structure.
   SQLSTMT_ID *getStmtID() const { return stmtID_; }
 
@@ -66,7 +64,7 @@ public:
   SQLCTX_HANDLE getCtxHandle() const { return ctxHandle_; }
 
   // Destructor
-  virtual ~LmResultSet() {};
+  virtual ~LmResultSet(){};
 
   virtual NABoolean moreSpecialRows() { return 0; }
 
@@ -76,22 +74,19 @@ public:
   virtual char *getProxySyntax() = 0;
 
   // Gets a row from JDBC. It can not get a row from CLI.
-  virtual Lng32 fetchSpecialRows(void *, LmParameter *, ComUInt32, 
-                                ComDiagsArea &, ComDiagsArea *) = 0; 
+  virtual Lng32 fetchSpecialRows(void *, LmParameter *, ComUInt32, ComDiagsArea &, ComDiagsArea *) = 0;
 
-protected:
+ protected:
   // Constructor
-  LmResultSet() : ctxHandle_(0), stmtID_(NULL)
-  {}
+  LmResultSet() : ctxHandle_(0), stmtID_(NULL) {}
 
   // Mutator methods
-  void setStmtID( SQLSTMT_ID *stmtID ) { stmtID_ = stmtID; }
-  void setCtxHandle( SQLCTX_HANDLE ctxHndl ) { ctxHandle_ = ctxHndl; }
+  void setStmtID(SQLSTMT_ID *stmtID) { stmtID_ = stmtID; }
+  void setCtxHandle(SQLCTX_HANDLE ctxHndl) { ctxHandle_ = ctxHndl; }
 
-private:
-  SQLCTX_HANDLE ctxHandle_;	// CLI Context Handle containing the result set cursor
-  SQLSTMT_ID *stmtID_;		// Pointer to result set's SQLSTMT_ID CLI structure.
-
+ private:
+  SQLCTX_HANDLE ctxHandle_;  // CLI Context Handle containing the result set cursor
+  SQLSTMT_ID *stmtID_;       // Pointer to result set's SQLSTMT_ID CLI structure.
 };
 
 #endif

@@ -29,8 +29,8 @@
  * File:         GenMaptable.h
  * Description:  The map table. Used to keep track of value ids and
  *               their address where this value will be found at runtime.
- *               
- *               
+ *
+ *
  * Created:      4/15/95
  * Language:     C++
  *
@@ -47,8 +47,8 @@
 /////////////////////////////////////////////////////////////////
 // class MapInfo
 //   Contains information about a value id, its type attributes
-//   and its buffer attributes. 
-//   
+//   and its buffer attributes.
+//
 //   Type attributes for a value id contain datatype, length
 //   etc. See exp_attrs.h for detail on type attributes.
 //
@@ -57,7 +57,6 @@
 //   spec and/or files ex_queue.h and sql_tupp.h in executor
 //   directory.
 /////////////////////////////////////////////////////////////////
-
 
 /////////////////////////////////////////////////////////////////
 // Important note :
@@ -68,81 +67,68 @@
 //
 /////////////////////////////////////////////////////////////////
 
-
-class MapInfo // : public NABasicObject
+class MapInfo  // : public NABasicObject
 {
   ValueId value_id;
-  Attributes * attr_; // contains type and buffer attributes.
+  Attributes *attr_;  // contains type and buffer attributes.
   ULng32 flags;
 
-  enum {CODE_GENERATED = 0x0001, MARKED = 0x0002};
+  enum { CODE_GENERATED = 0x0001, MARKED = 0x0002 };
 
-public:
+ public:
   // MapInfo(const ValueId & value_id_, Attributes * attr);
 
-  MapInfo() 
-  {
-    init();
-  }
+  MapInfo() { init(); }
 
-  void init()
-  {
+  void init() {
     flags = 0;
 
 #ifdef _DEBUG
     // Initialize the attribute pointer to repeating sequence of 1011.
     // Make it eye-catching and if we ever try dereferencing
     // an odd pointer, it'll crash.
-    attr_ = (Attributes *) 0xBBBBBBBB;
+    attr_ = (Attributes *)0xBBBBBBBB;
 #endif
   }
 
   // ~MapInfo() {}
-  
-  inline ValueId getValueId(){return value_id;};
-  
-  inline Attributes * getAttr(){return attr_;};
+
+  inline ValueId getValueId() { return value_id; };
+
+  inline Attributes *getAttr() { return attr_; };
 
   // returns 1, if code has been generated for this value id.
-  inline ULng32 isCodeGenerated()
-  {
-    return flags & CODE_GENERATED;
-  }
+  inline ULng32 isCodeGenerated() { return flags & CODE_GENERATED; }
 
   // remembers that code has been generated.
-  inline void codeGenerated(){flags |= CODE_GENERATED;};
+  inline void codeGenerated() { flags |= CODE_GENERATED; };
   inline void resetCodeGenerated() { flags &= ~CODE_GENERATED; };
 
-  inline void setMark(){flags |= MARKED;};
-  inline void clearMark(){flags &= ~MARKED;};
+  inline void setMark() { flags |= MARKED; };
+  inline void clearMark() { flags &= ~MARKED; };
   inline ULng32 marked() { return flags & MARKED; };
 
   short isOffsetAssigned();
 
   // Set the value id and attributes for this map info.
-  void set( const ValueId & valueId, Attributes * attr, CollHeap * heap );
-
+  void set(const ValueId &valueId, Attributes *attr, CollHeap *heap);
 };
 
-
-class MapInfoContainer
-{
+class MapInfoContainer {
 #define MICAsize 8  // Map Info Container Array size
 
-public:
-  MapInfoContainer(CollHeap * heap)
-  {
-    mapInfoArray_ = (MapInfo*)(new(heap) char[sizeof(MapInfo) * MICAsize]);
-    for (Int32 i = 0; i < MICAsize; i++)
-      {
-	mapInfoArray_[i].init();
-      }
+ public:
+  MapInfoContainer(CollHeap *heap) {
+    mapInfoArray_ = (MapInfo *)(new (heap) char[sizeof(MapInfo) * MICAsize]);
+    for (Int32 i = 0; i < MICAsize; i++) {
+      mapInfoArray_[i].init();
+    }
 
     next_ = NULL;
   }
 
-  MapInfoContainer * next_;
-  MapInfo * mapInfoArray_;
+  MapInfoContainer *next_;
+  MapInfo *mapInfoArray_;
 };
 
 /////////////////////////////////////////////////////////////////////
@@ -170,8 +156,7 @@ public:
 //
 /////////////////////////////////////////////////////////////////////
 
-class MapTable : public NABasicObject
-{
+class MapTable : public NABasicObject {
   // ---------------------------------------------------------------------
   // The map table contains the following:
   // 1. an array of value id bitmaps
@@ -198,7 +183,7 @@ class MapTable : public NABasicObject
   //        total value ids = 5
   // ---------------------------------------------------------------------
 
-private:
+ private:
   friend class Generator;
 
   // ---------------------------------------------------------------------
@@ -209,49 +194,49 @@ private:
   // function.
   // ---------------------------------------------------------------------
   typedef UInt32 MTBitmapUnit;  // prefix MT stands for map table
-  #define bitsPerUnit	      32
-  #define bitsPerUnitMinus1   31
+#define bitsPerUnit       32
+#define bitsPerUnitMinus1 31
 
-  // ---------------------------------------------------------------------
-  // Bitmap for value ids in the map table.
-  // ---------------------------------------------------------------------
-  #define initMTBAsize 8              // initial map table bitmap array size
-  Int32            vidBitMapArraySize_; // size of value id bitmap array
-  MTBitmapUnit * vidBitMapArray_;     // array of value id bitmaps
-  short        * vidsInBitMapArray_;  // array of number of value ids in bitmap
-  Int32            totalVids_;          // total number of value ids in map table
-                                      // it is the sum of vidsInBitMapArray_
+// ---------------------------------------------------------------------
+// Bitmap for value ids in the map table.
+// ---------------------------------------------------------------------
+#define initMTBAsize 8            // initial map table bitmap array size
+  Int32 vidBitMapArraySize_;      // size of value id bitmap array
+  MTBitmapUnit *vidBitMapArray_;  // array of value id bitmaps
+  short *vidsInBitMapArray_;      // array of number of value ids in bitmap
+  Int32 totalVids_;               // total number of value ids in map table
+                                  // it is the sum of vidsInBitMapArray_
 
-  // ---------------------------------------------------------------------
-  // Map infos in the map table.
-  // ---------------------------------------------------------------------
-  #define initMTMIPAsize 8            // initial map table map info array size
-  #define mapInfoPtrArrayStepSize 8   // increase the map info array size by 8
-  Int32        mapInfoPtrArraySize_;    // size of map info array ptr
-  MapInfo ** mapInfoPtrArray_;        // array of map infos ptrs
+// ---------------------------------------------------------------------
+// Map infos in the map table.
+// ---------------------------------------------------------------------
+#define initMTMIPAsize          8  // initial map table map info array size
+#define mapInfoPtrArrayStepSize 8  // increase the map info array size by 8
+  Int32 mapInfoPtrArraySize_;      // size of map info array ptr
+  MapInfo **mapInfoPtrArray_;      // array of map infos ptrs
 
   // ---------------------------------------------------------------------
   // List of MapInfoContainer's
   // ---------------------------------------------------------------------
-  MapInfoContainer * firstMapInfoContainer_;
-  MapInfoContainer * lastMapInfoContainer_;
+  MapInfoContainer *firstMapInfoContainer_;
+  MapInfoContainer *lastMapInfoContainer_;
 
   // ---------------------------------------------------------------------
   // Next map table.
   // ---------------------------------------------------------------------
-  MapTable * next_;
+  MapTable *next_;
 
   // ---------------------------------------------------------------------
   // Previous map table.
   // ---------------------------------------------------------------------
-  MapTable * prev_;
-  
+  MapTable *prev_;
+
   // ---------------------------------------------------------------------
   // getBits()
   //
   // Get the bits that we are interested in.
   // ---------------------------------------------------------------------
-  inline MTBitmapUnit getBits( const CollIndex valueId, const Int32 whichMap );
+  inline MTBitmapUnit getBits(const CollIndex valueId, const Int32 whichMap);
 
   // ---------------------------------------------------------------------
   // getIndexIntoMapInfoPtrArray()
@@ -260,12 +245,9 @@ private:
   // Inputs: whichMap -- the bitmap the value id is in
   //         inBits   -- the relevant bits that we're interested in
   // ---------------------------------------------------------------------
-  Int32 getIndexIntoMapInfoPtrArray( const Int32    whichMap, 
-                                          MTBitmapUnit inBits    ) const;
+  Int32 getIndexIntoMapInfoPtrArray(const Int32 whichMap, MTBitmapUnit inBits) const;
 
-public:
-
-
+ public:
   void setAllAtp(short Atp);
   void resetCodeGen();
 
@@ -277,58 +259,50 @@ public:
   void printToFile(FILE *f = stdout);
 #endif
 
-  void display(char* title=NULL);
+  void display(char *title = NULL);
 
-protected:
+ protected:
   // ---------------------------------------------------------------------
   // Constructor.
   // ---------------------------------------------------------------------
-  MapTable() :
-       vidBitMapArraySize_(0)
-    , totalVids_( 0 )
-    , mapInfoPtrArraySize_(0)
-    , next_( NULL )
-    , prev_( NULL )
-    , firstMapInfoContainer_(0)
-    , lastMapInfoContainer_(0)
-  {
-  }
-  
+  MapTable()
+      : vidBitMapArraySize_(0),
+        totalVids_(0),
+        mapInfoPtrArraySize_(0),
+        next_(NULL),
+        prev_(NULL),
+        firstMapInfoContainer_(0),
+        lastMapInfoContainer_(0) {}
+
   // ---------------------------------------------------------------------
   // Destructor.
   // ---------------------------------------------------------------------
-  ~MapTable() 
-  {
-    if (vidBitMapArraySize_ > 0)
-      NADELETEBASIC(vidBitMapArray_, collHeap());
-    if (mapInfoPtrArraySize_ > 0)
-      NADELETEBASIC(mapInfoPtrArray_, collHeap());
-    
-    MapInfoContainer * curr = firstMapInfoContainer_;
-    while (curr)
-      {
-	MapInfoContainer * next = curr->next_;
-	NADELETEBASIC(curr->mapInfoArray_, collHeap());
-	NADELETEBASIC(curr, collHeap());
-	curr = next;
-      }
+  ~MapTable() {
+    if (vidBitMapArraySize_ > 0) NADELETEBASIC(vidBitMapArray_, collHeap());
+    if (mapInfoPtrArraySize_ > 0) NADELETEBASIC(mapInfoPtrArray_, collHeap());
+
+    MapInfoContainer *curr = firstMapInfoContainer_;
+    while (curr) {
+      MapInfoContainer *next = curr->next_;
+      NADELETEBASIC(curr->mapInfoArray_, collHeap());
+      NADELETEBASIC(curr, collHeap());
+      curr = next;
+    }
   }
 
   // adds to 'this' map table
-  MapInfo * addMapInfoToThis(const ValueId &value_id,
-			     Attributes * attr);
-  
+  MapInfo *addMapInfoToThis(const ValueId &value_id, Attributes *attr);
+
   // searches for value_id in the list of map tables
   // starting at 'this'. Returns MapInfo, if found.
   // Raises assertion, if not found.
-  MapInfo * getMapInfoFromThis(const ValueId & value_id);
+  MapInfo *getMapInfoFromThis(const ValueId &value_id);
 
-  MapTable* &next() {return next_;};
-  MapTable* &prev() {return prev_;};
+  MapTable *&next() { return next_; };
+  MapTable *&prev() { return prev_; };
 
-  Int32 getTotalVids() { return totalVids_;};
+  Int32 getTotalVids() { return totalVids_; };
 };
-
 
 // ---------------------------------------------------------------------
 // getBits()
@@ -336,24 +310,20 @@ protected:
 // Get the bits that we are interested in.
 // ---------------------------------------------------------------------
 
-MapTable::MTBitmapUnit MapTable::getBits( const CollIndex valueId, const Int32 whichMap )
-{
+MapTable::MTBitmapUnit MapTable::getBits(const CollIndex valueId, const Int32 whichMap) {
   // Get the bitmap and right shift away the bits that we don't care about.
-  
+
 #ifdef _DEBUG
-  
+
   MTBitmapUnit bitmap = *(vidBitMapArray_ + whichMap);
-  MTBitmapUnit bits   = bitmap >> (bitsPerUnitMinus1 - (valueId % bitsPerUnit));
+  MTBitmapUnit bits = bitmap >> (bitsPerUnitMinus1 - (valueId % bitsPerUnit));
   return bits;
-  
+
 #else
-  
-  return ( *(vidBitMapArray_ + whichMap) 
-           >> (bitsPerUnitMinus1 - (valueId % bitsPerUnit))
-	   );
-  
+
+  return (*(vidBitMapArray_ + whichMap) >> (bitsPerUnitMinus1 - (valueId % bitsPerUnit)));
+
 #endif
 }
 
 #endif /* GEN_MAPTABLE_H */
-

@@ -44,24 +44,15 @@
 #include "common/dfs2rec.h"
 
 class ExpInterval : public SimpleType {
+ public:
+  static short getIntervalStartField(Lng32 fsDatatype, rec_datetime_field &startField);
 
-public:
+  static short getIntervalEndField(Lng32 fsDatatype, rec_datetime_field &endField);
 
-static short getIntervalStartField(Lng32 fsDatatype,
-				   rec_datetime_field &startField);
+  static Lng32 getStorageSize(rec_datetime_field startField, UInt32 leadingPrecision, rec_datetime_field endField,
+                              UInt32 fractionPrecision = 0);
 
-static short getIntervalEndField(Lng32 fsDatatype,
-				 rec_datetime_field &endField);
-  
-static Lng32 getStorageSize(rec_datetime_field startField,
-			   UInt32 leadingPrecision,
-			   rec_datetime_field endField,
-			   UInt32 fractionPrecision = 0);
-  
-static Lng32 getDisplaySize(Lng32 fsDatatype,
-			   short leadingPrecision,
-			   short fractionPrecision);
-  
+  static Lng32 getDisplaySize(Lng32 fsDatatype, short leadingPrecision, short fractionPrecision);
 };
 
 #endif

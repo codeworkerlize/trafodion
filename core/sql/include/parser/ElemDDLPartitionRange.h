@@ -39,7 +39,6 @@
  *****************************************************************************
  */
 
-
 #include "common/NAString.h"
 #include "ElemDDLPartitionSystem.h"
 #include "ItemConstValueArray.h"
@@ -57,37 +56,31 @@ class ElemDDLPartitionRange;
 // -----------------------------------------------------------------------
 // definition of class ElemDDLPartitionRange
 // -----------------------------------------------------------------------
-class ElemDDLPartitionRange : public ElemDDLPartitionSystem
-{
-
-public:
-
+class ElemDDLPartitionRange : public ElemDDLPartitionSystem {
+ public:
   // constructors
-  ElemDDLPartitionRange(CollHeap    * heap = PARSERHEAP());
-  ElemDDLPartitionRange(ElemDDLPartition::optionEnum,
-                        ElemDDLNode * pKeyValueList,
-                        ElemDDLNode * pLocation,
-                        ElemDDLNode * pPartitionRangeAttrList,
-                        CollHeap    * heap = PARSERHEAP());
+  ElemDDLPartitionRange(CollHeap *heap = PARSERHEAP());
+  ElemDDLPartitionRange(ElemDDLPartition::optionEnum, ElemDDLNode *pKeyValueList, ElemDDLNode *pLocation,
+                        ElemDDLNode *pPartitionRangeAttrList, CollHeap *heap = PARSERHEAP());
 
   // virtual destructor
   virtual ~ElemDDLPartitionRange();
 
   // cast
-  virtual ElemDDLPartitionRange * castToElemDDLPartitionRange();
+  virtual ElemDDLPartitionRange *castToElemDDLPartitionRange();
 
   //
   // accessors
   //
 
   virtual Int32 getArity() const;
-  virtual ExprNode * getChild(Lng32 index);
+  virtual ExprNode *getChild(Lng32 index);
 
-  inline ItemConstValueArray &       getKeyValueArray();
-  inline const ItemConstValueArray & getKeyValueArray() const;
+  inline ItemConstValueArray &getKeyValueArray();
+  inline const ItemConstValueArray &getKeyValueArray() const;
 
   // mutators
-  virtual void setChild(Lng32 index, ExprNode * pChildNode);
+  virtual void setChild(Lng32 index, ExprNode *pChildNode);
 
   // functions for tracing
   virtual NATraceList getDetailInfo() const;
@@ -98,10 +91,7 @@ public:
   // method for building text
   virtual NAString getSyntax() const;
 
-
-
-private:
-
+ private:
   //
   // range partitioning information
   //
@@ -121,12 +111,11 @@ private:
   //   methods getChild() and setChild() contain additional logic to
   //   handle this special case.
 
-  enum { INDEX_KEY_VALUE_LIST = MAX_ELEM_DDL_PARTITION_SYSTEM_ARITY,
-         MAX_ELEM_DDL_PARTITION_RANGE_ARITY };
+  enum { INDEX_KEY_VALUE_LIST = MAX_ELEM_DDL_PARTITION_SYSTEM_ARITY, MAX_ELEM_DDL_PARTITION_RANGE_ARITY };
 
-  ElemDDLNode * pKeyValueList_;
+  ElemDDLNode *pKeyValueList_;
 
-}; // class ElemDDLPartitionRange
+};  // class ElemDDLPartitionRange
 
 // -----------------------------------------------------------------------
 // definitions of inline methods for class ElemDDLPartitionRange
@@ -136,16 +125,8 @@ private:
 // accessors
 //
 
-inline ItemConstValueArray &
-ElemDDLPartitionRange::getKeyValueArray()
-{
-  return keyValueArray_;
-}
+inline ItemConstValueArray &ElemDDLPartitionRange::getKeyValueArray() { return keyValueArray_; }
 
-inline const ItemConstValueArray &
-ElemDDLPartitionRange::getKeyValueArray() const
-{
-  return keyValueArray_;
-}
+inline const ItemConstValueArray &ElemDDLPartitionRange::getKeyValueArray() const { return keyValueArray_; }
 
-#endif // ELEMDDLPARTITIONRANGE_H
+#endif  // ELEMDDLPARTITIONRANGE_H

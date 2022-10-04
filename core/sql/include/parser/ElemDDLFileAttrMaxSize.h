@@ -28,7 +28,7 @@
  * File:         ElemDDLFileAttrMaxSize.h
  * Description:  class for MaxSize File Attribute (parse node) elements
  *               in MaxSize clause in DDL statements
- *               
+ *
  * Created:      4/20/95
  * Language:     C++
  *
@@ -37,7 +37,6 @@
  *
  *****************************************************************************
  */
-
 
 #include "common/ComUnits.h"
 #include "ElemDDLFileAttr.h"
@@ -55,11 +54,8 @@ class ElemDDLFileAttrMaxSize;
 // -----------------------------------------------------------------------
 // definition of class ElemDDLFileAttrMaxSize
 // -----------------------------------------------------------------------
-class ElemDDLFileAttrMaxSize : public ElemDDLFileAttr
-{
-
-public:
-
+class ElemDDLFileAttrMaxSize : public ElemDDLFileAttr {
+ public:
   enum { DEFAULT_MAX_SIZE_IN_BYTES = COM_MAX_PART_SIZE_IN_BYTES };
   enum { DEFAULT_MAX_SIZE_UNIT = COM_BYTES };
 
@@ -72,12 +68,12 @@ public:
   virtual ~ElemDDLFileAttrMaxSize();
 
   // cast
-  virtual ElemDDLFileAttrMaxSize * castToElemDDLFileAttrMaxSize();
+  virtual ElemDDLFileAttrMaxSize *castToElemDDLFileAttrMaxSize();
 
   // accessors
   inline ULng32 getMaxSize() const;
-  inline ComUnits      getMaxSizeUnit() const;
-  NAString             getMaxSizeUnitAsNAString() const;
+  inline ComUnits getMaxSizeUnit() const;
+  NAString getMaxSizeUnitAsNAString() const;
   inline NABoolean isUnbounded() const;
 
   // methods for tracing
@@ -89,10 +85,7 @@ public:
   // method for building text
   virtual NAString getSyntax() const;
 
-
-
-private:
-
+ private:
   //
   // methods
   //
@@ -107,15 +100,14 @@ private:
   NABoolean isUnbounded_;
   ULng32 maxSize_;
   ComUnits maxSizeUnit_;
-  
-}; // class ElemDDLFileAttrMaxSize
+
+};  // class ElemDDLFileAttrMaxSize
 
 //
 // helpers
 //
 
-void ParSetDefaultMaxSize(ULng32 &maxSize,
-                          ComUnits &maxSizeUnit);
+void ParSetDefaultMaxSize(ULng32 &maxSize, ComUnits &maxSizeUnit);
 
 // -----------------------------------------------------------------------
 // definitions of inline methods for class ElemDDLFileAttrMaxSize
@@ -125,22 +117,10 @@ void ParSetDefaultMaxSize(ULng32 &maxSize,
 // accessors
 //
 
-inline ULng32
-ElemDDLFileAttrMaxSize::getMaxSize() const
-{
-  return maxSize_;
-}
+inline ULng32 ElemDDLFileAttrMaxSize::getMaxSize() const { return maxSize_; }
 
-inline ComUnits
-ElemDDLFileAttrMaxSize::getMaxSizeUnit() const
-{
-  return maxSizeUnit_;
-}
+inline ComUnits ElemDDLFileAttrMaxSize::getMaxSizeUnit() const { return maxSizeUnit_; }
 
-inline NABoolean
-ElemDDLFileAttrMaxSize::isUnbounded() const
-{
-  return isUnbounded_;
-}
+inline NABoolean ElemDDLFileAttrMaxSize::isUnbounded() const { return isUnbounded_; }
 
-#endif // ELEMDDLFILEATTRMAXSIZE_H
+#endif  // ELEMDDLFILEATTRMAXSIZE_H

@@ -47,24 +47,16 @@
 // -----------------------------------------------------------------------
 
 // virtual destructor
-ElemDDLLikeOpt::~ElemDDLLikeOpt()
-{
-}
+ElemDDLLikeOpt::~ElemDDLLikeOpt() {}
 
 // casting
-ElemDDLLikeOpt *
-ElemDDLLikeOpt::castToElemDDLLikeOpt()
-{
-  return this;
-}
+ElemDDLLikeOpt *ElemDDLLikeOpt::castToElemDDLLikeOpt() { return this; }
 
 //
 // methods for tracing
 //
 
-const NAString
-ElemDDLLikeOpt::getText() const
-{
+const NAString ElemDDLLikeOpt::getText() const {
   ABORT("internal logic error");
   return "ElemDDLLikeOpt";
 }
@@ -74,14 +66,10 @@ ElemDDLLikeOpt::getText() const
 // -----------------------------------------------------------------------
 
 // virtual destructor
-ElemDDLLikeOptWithoutConstraints::~ElemDDLLikeOptWithoutConstraints()
-{
-}
+ElemDDLLikeOptWithoutConstraints::~ElemDDLLikeOptWithoutConstraints() {}
 
 // casting
-ElemDDLLikeOptWithoutConstraints *
-ElemDDLLikeOptWithoutConstraints::castToElemDDLLikeOptWithoutConstraints()
-{
+ElemDDLLikeOptWithoutConstraints *ElemDDLLikeOptWithoutConstraints::castToElemDDLLikeOptWithoutConstraints() {
   return this;
 }
 
@@ -89,75 +77,47 @@ ElemDDLLikeOptWithoutConstraints::castToElemDDLLikeOptWithoutConstraints()
 // methods for tracing
 //
 
-const NAString
-ElemDDLLikeOptWithoutConstraints::getText() const
-{
-  return "ElemDDLLikeOptWithoutConstraints";
-}
+const NAString ElemDDLLikeOptWithoutConstraints::getText() const { return "ElemDDLLikeOptWithoutConstraints"; }
 
 // -----------------------------------------------------------------------
 // methods for class ElemDDLLikeOptWithoutIndexes
 // -----------------------------------------------------------------------
-ElemDDLLikeOptWithoutIndexes::~ElemDDLLikeOptWithoutIndexes()
-{
-}
+ElemDDLLikeOptWithoutIndexes::~ElemDDLLikeOptWithoutIndexes() {}
 
-//casting
-ElemDDLLikeOptWithoutIndexes *
-ElemDDLLikeOptWithoutIndexes::castToElemDDLLikeOptWithoutIndexes()
-{
-  return this;
-}
+// casting
+ElemDDLLikeOptWithoutIndexes *ElemDDLLikeOptWithoutIndexes::castToElemDDLLikeOptWithoutIndexes() { return this; }
 
 //
 // methods for tracing
 //
-const NAString
-ElemDDLLikeOptWithoutIndexes::getText() const
-{
-  return "ElemDDLLikeOptWithoutIndexes";
-}
+const NAString ElemDDLLikeOptWithoutIndexes::getText() const { return "ElemDDLLikeOptWithoutIndexes"; }
 
 // -----------------------------------------------------------------------
 // methods for class ElemDDLLikeOptWithHeadings
 // -----------------------------------------------------------------------
 
 // virtual destructor
-ElemDDLLikeOptWithHeadings::~ElemDDLLikeOptWithHeadings()
-{
-}
+ElemDDLLikeOptWithHeadings::~ElemDDLLikeOptWithHeadings() {}
 
 // casting
-ElemDDLLikeOptWithHeadings *
-ElemDDLLikeOptWithHeadings::castToElemDDLLikeOptWithHeadings()
-{
-  return this;
-}
+ElemDDLLikeOptWithHeadings *ElemDDLLikeOptWithHeadings::castToElemDDLLikeOptWithHeadings() { return this; }
 
 //
 // methods for tracing
 //
 
-const NAString
-ElemDDLLikeOptWithHeadings::getText() const
-{
-  return "ElemDDLLikeOptWithHeadings";
-}
-
+const NAString ElemDDLLikeOptWithHeadings::getText() const { return "ElemDDLLikeOptWithHeadings"; }
 
 // -----------------------------------------------------------------------
 // methods for class ElemDDLLikeOptWithHorizontalPartitions
 // -----------------------------------------------------------------------
 
 // virtual destructor
-ElemDDLLikeOptWithHorizontalPartitions::~ElemDDLLikeOptWithHorizontalPartitions()
-{
-}
+ElemDDLLikeOptWithHorizontalPartitions::~ElemDDLLikeOptWithHorizontalPartitions() {}
 
 // casting
 ElemDDLLikeOptWithHorizontalPartitions *
-ElemDDLLikeOptWithHorizontalPartitions::castToElemDDLLikeOptWithHorizontalPartitions()
-{
+ElemDDLLikeOptWithHorizontalPartitions::castToElemDDLLikeOptWithHorizontalPartitions() {
   return this;
 }
 
@@ -165,149 +125,99 @@ ElemDDLLikeOptWithHorizontalPartitions::castToElemDDLLikeOptWithHorizontalPartit
 // methods for tracing
 //
 
-const NAString
-ElemDDLLikeOptWithHorizontalPartitions::getText() const
-{
+const NAString ElemDDLLikeOptWithHorizontalPartitions::getText() const {
   return "ElemDDLLikeOptWithHorizontalPartitions";
 }
-
 
 // -----------------------------------------------------------------------
 // methods for class ElemDDLLikeOptWithoutSalt
 // -----------------------------------------------------------------------
 
 // virtual destructor
-ElemDDLLikeOptWithoutSalt::~ElemDDLLikeOptWithoutSalt()
-{
-}
+ElemDDLLikeOptWithoutSalt::~ElemDDLLikeOptWithoutSalt() {}
 
 // casting
-ElemDDLLikeOptWithoutSalt * ElemDDLLikeOptWithoutSalt::castToElemDDLLikeOptWithoutSalt()
-{
-  return this;
-}
+ElemDDLLikeOptWithoutSalt *ElemDDLLikeOptWithoutSalt::castToElemDDLLikeOptWithoutSalt() { return this; }
 
 //
 // methods for tracing
 //
 
-const NAString ElemDDLLikeOptWithoutSalt::getText() const
-{
-  return "ElemDDLLikeOptWithoutSalt";
-}
+const NAString ElemDDLLikeOptWithoutSalt::getText() const { return "ElemDDLLikeOptWithoutSalt"; }
 
 // -----------------------------------------------------------------------
 // methods for class ElemDDLLikeSaltClause
 // -----------------------------------------------------------------------
 
 // virtual destructor
-ElemDDLLikeSaltClause::~ElemDDLLikeSaltClause()
-{
-  delete saltClause_;
-}
+ElemDDLLikeSaltClause::~ElemDDLLikeSaltClause() { delete saltClause_; }
 
 // casting
-ElemDDLLikeSaltClause * ElemDDLLikeSaltClause::castToElemDDLLikeSaltClause()
-{
-  return this;
-}
+ElemDDLLikeSaltClause *ElemDDLLikeSaltClause::castToElemDDLLikeSaltClause() { return this; }
 
 //
 // methods for tracing
 //
 
-const NAString ElemDDLLikeSaltClause::getText() const
-{
-  return "ElemDDLLikeSaltClause";
-}
-
+const NAString ElemDDLLikeSaltClause::getText() const { return "ElemDDLLikeSaltClause"; }
 
 // -----------------------------------------------------------------------
 // methods for class ElemDDLLikeOptWithoutDivision
 // -----------------------------------------------------------------------
 
 // virtual destructor
-ElemDDLLikeOptWithoutDivision::~ElemDDLLikeOptWithoutDivision()
-{
-}
+ElemDDLLikeOptWithoutDivision::~ElemDDLLikeOptWithoutDivision() {}
 
 // casting
-ElemDDLLikeOptWithoutDivision * ElemDDLLikeOptWithoutDivision::castToElemDDLLikeOptWithoutDivision()
-{
-  return this;
-}
+ElemDDLLikeOptWithoutDivision *ElemDDLLikeOptWithoutDivision::castToElemDDLLikeOptWithoutDivision() { return this; }
 
 //
 // methods for tracing
 //
 
-const NAString ElemDDLLikeOptWithoutDivision::getText() const
-{
-  return "ElemDDLLikeOptWithoutDivision";
-}
-
+const NAString ElemDDLLikeOptWithoutDivision::getText() const { return "ElemDDLLikeOptWithoutDivision"; }
 
 // -----------------------------------------------------------------------
 // methods for class ElemDDLLikeLimitColumnLength
 // -----------------------------------------------------------------------
 
 // virtual destructor
-ElemDDLLikeLimitColumnLength::~ElemDDLLikeLimitColumnLength()
-{
-}
+ElemDDLLikeLimitColumnLength::~ElemDDLLikeLimitColumnLength() {}
 
 // casting
-ElemDDLLikeLimitColumnLength * ElemDDLLikeLimitColumnLength::castToElemDDLLikeLimitColumnLength()
-{
-  return this;
-}
+ElemDDLLikeLimitColumnLength *ElemDDLLikeLimitColumnLength::castToElemDDLLikeLimitColumnLength() { return this; }
 
 //
 // methods for tracing
 //
 
-const NAString ElemDDLLikeLimitColumnLength::getText() const
-{
-  return "ElemDDLLikeLimitColumnLength";
-}
+const NAString ElemDDLLikeLimitColumnLength::getText() const { return "ElemDDLLikeLimitColumnLength"; }
 
 // -----------------------------------------------------------------------
 // methods for class ElemDDLLikeOptWithoutRowFormat
 // -----------------------------------------------------------------------
 
 // virtual destructor
-ElemDDLLikeOptWithoutRowFormat::~ElemDDLLikeOptWithoutRowFormat()
-{
-}
+ElemDDLLikeOptWithoutRowFormat::~ElemDDLLikeOptWithoutRowFormat() {}
 
 // casting
-ElemDDLLikeOptWithoutRowFormat * ElemDDLLikeOptWithoutRowFormat::castToElemDDLLikeOptWithoutRowFormat()
-{
-  return this;
-}
+ElemDDLLikeOptWithoutRowFormat *ElemDDLLikeOptWithoutRowFormat::castToElemDDLLikeOptWithoutRowFormat() { return this; }
 
 //
 // methods for tracing
 //
 
-const NAString ElemDDLLikeOptWithoutRowFormat::getText() const
-{
-  return "ElemDDLLikeOptWithoutRowFormat";
-}
-
+const NAString ElemDDLLikeOptWithoutRowFormat::getText() const { return "ElemDDLLikeOptWithoutRowFormat"; }
 
 // -----------------------------------------------------------------------
 // methods for class ElemDDLLikeOptWithoutLobColumns
 // -----------------------------------------------------------------------
 
 // virtual destructor
-ElemDDLLikeOptWithoutLobColumns::~ElemDDLLikeOptWithoutLobColumns()
-{
-}
+ElemDDLLikeOptWithoutLobColumns::~ElemDDLLikeOptWithoutLobColumns() {}
 
 // casting
-ElemDDLLikeOptWithoutLobColumns * ElemDDLLikeOptWithoutLobColumns::castToElemDDLLikeOptWithoutLobColumns()
-{
+ElemDDLLikeOptWithoutLobColumns *ElemDDLLikeOptWithoutLobColumns::castToElemDDLLikeOptWithoutLobColumns() {
   return this;
 }
 
@@ -315,72 +225,50 @@ ElemDDLLikeOptWithoutLobColumns * ElemDDLLikeOptWithoutLobColumns::castToElemDDL
 // methods for tracing
 //
 
-const NAString ElemDDLLikeOptWithoutLobColumns::getText() const
-{
-  return "ElemDDLLikeOptWithoutLobColumns";
-}
+const NAString ElemDDLLikeOptWithoutLobColumns::getText() const { return "ElemDDLLikeOptWithoutLobColumns"; }
 
 // -----------------------------------------------------------------------
 // methods for class ElemDDLLikeOptWithData
 // -----------------------------------------------------------------------
 
 // virtual destructor
-ElemDDLLikeOptWithData::~ElemDDLLikeOptWithData()
-{
-}
+ElemDDLLikeOptWithData::~ElemDDLLikeOptWithData() {}
 
 // casting
-ElemDDLLikeOptWithData * ElemDDLLikeOptWithData::castToElemDDLLikeOptWithData()
-{
-  return this;
-}
+ElemDDLLikeOptWithData *ElemDDLLikeOptWithData::castToElemDDLLikeOptWithData() { return this; }
 
 //
 // methods for tracing
 //
 
-const NAString ElemDDLLikeOptWithData::getText() const
-{
-  return "ElemDDLLikeOptWithData";
-}
-
+const NAString ElemDDLLikeOptWithData::getText() const { return "ElemDDLLikeOptWithData"; }
 
 // -----------------------------------------------------------------------
 // methods for class ElemDDLLikeOptWithoutNamespace
 // -----------------------------------------------------------------------
 
 // virtual destructor
-ElemDDLLikeOptWithoutNamespace::~ElemDDLLikeOptWithoutNamespace()
-{
-}
+ElemDDLLikeOptWithoutNamespace::~ElemDDLLikeOptWithoutNamespace() {}
 
 // casting
-ElemDDLLikeOptWithoutNamespace * ElemDDLLikeOptWithoutNamespace::castToElemDDLLikeOptWithoutNamespace()
-{
-  return this;
-}
+ElemDDLLikeOptWithoutNamespace *ElemDDLLikeOptWithoutNamespace::castToElemDDLLikeOptWithoutNamespace() { return this; }
 
 //
 // methods for tracing
 //
 
-const NAString ElemDDLLikeOptWithoutNamespace::getText() const
-{
-  return "ElemDDLLikeOptWithoutNamespace";
-}
+const NAString ElemDDLLikeOptWithoutNamespace::getText() const { return "ElemDDLLikeOptWithoutNamespace"; }
 
 // -----------------------------------------------------------------------
 // methods for class ElemDDLLikeOptWithoutRegionReplication
 // -----------------------------------------------------------------------
 
 // virtual destructor
-ElemDDLLikeOptWithoutRegionReplication::~ElemDDLLikeOptWithoutRegionReplication()
-{
-}
+ElemDDLLikeOptWithoutRegionReplication::~ElemDDLLikeOptWithoutRegionReplication() {}
 
 // casting
-ElemDDLLikeOptWithoutRegionReplication * ElemDDLLikeOptWithoutRegionReplication::castToElemDDLLikeOptWithoutRegionReplication()
-{
+ElemDDLLikeOptWithoutRegionReplication *
+ElemDDLLikeOptWithoutRegionReplication::castToElemDDLLikeOptWithoutRegionReplication() {
   return this;
 }
 
@@ -388,8 +276,7 @@ ElemDDLLikeOptWithoutRegionReplication * ElemDDLLikeOptWithoutRegionReplication:
 // methods for tracing
 //
 
-const NAString ElemDDLLikeOptWithoutRegionReplication::getText() const
-{
+const NAString ElemDDLLikeOptWithoutRegionReplication::getText() const {
   return "ElemDDLLikeOptWithoutRegionReplication";
 }
 
@@ -398,13 +285,10 @@ const NAString ElemDDLLikeOptWithoutRegionReplication::getText() const
 // -----------------------------------------------------------------------
 
 // virtual destructor
-ElemDDLLikeOptWithoutIncrBackup::~ElemDDLLikeOptWithoutIncrBackup()
-{
-}
+ElemDDLLikeOptWithoutIncrBackup::~ElemDDLLikeOptWithoutIncrBackup() {}
 
 // casting
-ElemDDLLikeOptWithoutIncrBackup * ElemDDLLikeOptWithoutIncrBackup::castToElemDDLLikeOptWithoutIncrBackup()
-{
+ElemDDLLikeOptWithoutIncrBackup *ElemDDLLikeOptWithoutIncrBackup::castToElemDDLLikeOptWithoutIncrBackup() {
   return this;
 }
 
@@ -412,10 +296,7 @@ ElemDDLLikeOptWithoutIncrBackup * ElemDDLLikeOptWithoutIncrBackup::castToElemDDL
 // methods for tracing
 //
 
-const NAString ElemDDLLikeOptWithoutIncrBackup::getText() const
-{
-  return "ElemDDLLikeOptWithoutIncrBackup";
-}
+const NAString ElemDDLLikeOptWithoutIncrBackup::getText() const { return "ElemDDLLikeOptWithoutIncrBackup"; }
 //
 // End of File
 //

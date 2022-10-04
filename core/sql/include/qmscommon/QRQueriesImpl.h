@@ -54,10 +54,10 @@
  * Examples include, transaction control and charset processing.
  */
 
-typedef NAList<const NAString*>    NAStringList;
-typedef NAList<QRMVDefinition*>    QRMVDefinitionList;
+typedef NAList<const NAString *> NAStringList;
+typedef NAList<QRMVDefinition *> QRMVDefinitionList;
 
-#define XML_BUFF_SIZE       32768
+#define XML_BUFF_SIZE 32768
 
 #define CURRENT_VERSION_STR "2400"
 #define CURRENT_VERSION     2400
@@ -65,53 +65,51 @@ typedef NAList<QRMVDefinition*>    QRMVDefinitionList;
 
 /**
  * Class representing the initialization procedures when a QMS process
- * is starting.  
+ * is starting.
  */
-class QRQueriesImpl
-{
-public:
-  QRQueriesImpl(CollHeap* heap);
+class QRQueriesImpl {
+ public:
+  QRQueriesImpl(CollHeap *heap);
 
   virtual ~QRQueriesImpl();
 
   /**
-    * getHeap() obtains the address to the XMLParser heap
-    * @return The CollHeap heap address.
-    */
-  inline CollHeap * getHeap() { return heap_; };
+   * getHeap() obtains the address to the XMLParser heap
+   * @return The CollHeap heap address.
+   */
+  inline CollHeap *getHeap() { return heap_; };
 
   /**
-    * getNAHeap() obtains the NAHeap address to the XMLParser heap
-    * @return The NAHeap heap address.
-    */
-  inline NAHeap * getNAHeap() { return (NAHeap *) heap_; };
+   * getNAHeap() obtains the NAHeap address to the XMLParser heap
+   * @return The NAHeap heap address.
+   */
+  inline NAHeap *getNAHeap() { return (NAHeap *)heap_; };
 
-  NAString* prepareDefinitionSchemaName(const NAString* catalog,
-			                const NAString* version);
-
-  /**
-    * getMvqrPrivateQMSInit obtains the MVQR_PRIVATE_QMS_INIT attribute value
-    * from the system defaults table.
-    * @return The return code from internal SQL query execution.
-    */
-  const NAString* getMvqrPrivateQMSInit();
+  NAString *prepareDefinitionSchemaName(const NAString *catalog, const NAString *version);
 
   /**
-    * getCatalogNames obtains all the catalog names
-    * on the system
-    */
-  const NAStringList* getAllCatalogNames();
+   * getMvqrPrivateQMSInit obtains the MVQR_PRIVATE_QMS_INIT attribute value
+   * from the system defaults table.
+   * @return The return code from internal SQL query execution.
+   */
+  const NAString *getMvqrPrivateQMSInit();
 
   /**
-    * getIsoMapping obtains the ISO_MAPPING attribute value
-    * from the system defaults table.
-    */
+   * getCatalogNames obtains all the catalog names
+   * on the system
+   */
+  const NAStringList *getAllCatalogNames();
+
+  /**
+   * getIsoMapping obtains the ISO_MAPPING attribute value
+   * from the system defaults table.
+   */
   CharInfo::CharSet getIsoMapping();
 
   /**
-    * getDefaultCharset obtains the DEFAULT_CHARSET attribute value
-    * from the system defaults table.
-    */
+   * getDefaultCharset obtains the DEFAULT_CHARSET attribute value
+   * from the system defaults table.
+   */
   CharInfo::CharSet getDefaultCharset();
 
   /**
@@ -124,71 +122,70 @@ public:
   Int32 getMvqrQMSCpuOffset();
 
   /**
-    * getCatalogUID obtains the CAT_UID for a
-    * specific catalog.
-    * @param catalog [IN] The name of the catalog.
-    */
-  Int64 getCatalogUID(const NAString* catalog);
+   * getCatalogUID obtains the CAT_UID for a
+   * specific catalog.
+   * @param catalog [IN] The name of the catalog.
+   */
+  Int64 getCatalogUID(const NAString *catalog);
 
   /**
-    * getSchemaVersion obtains the version number for the
-    * definition schema for a specific catalog
-    */
-  const NAString* getSchemaVersion(Int64 catalogUID);
+   * getSchemaVersion obtains the version number for the
+   * definition schema for a specific catalog
+   */
+  const NAString *getSchemaVersion(Int64 catalogUID);
 
   /**
-    * getMvUIDs obtains all the MV UIDs for a specific catalog.
-    * @param catalog [IN] The name of the catalog.
-    * @param version [IN] The version for the catalog.
-    */
-  QRMVDefinitionList* getMvUIDAndDefinitions(const NAString& definitionSchema);
+   * getMvUIDs obtains all the MV UIDs for a specific catalog.
+   * @param catalog [IN] The name of the catalog.
+   * @param version [IN] The version for the catalog.
+   */
+  QRMVDefinitionList *getMvUIDAndDefinitions(const NAString &definitionSchema);
 
   /**
-    * getMvDescriptor obtains all the MV descriptor text and
-    * MV attributes for a specific MV UID under a specific catalog.
-    * @param catalog [IN] The name of the catalog.
-    * @param version [IN] The version for the catalog.
-    * @param uid [IN] The MV UID.
-    */
-  NAString* getMvDescriptor(const NAString& textTable,
-			    const char * uid);
+   * getMvDescriptor obtains all the MV descriptor text and
+   * MV attributes for a specific MV UID under a specific catalog.
+   * @param catalog [IN] The name of the catalog.
+   * @param version [IN] The version for the catalog.
+   * @param uid [IN] The MV UID.
+   */
+  NAString *getMvDescriptor(const NAString &textTable, const char *uid);
 
   /**
-    * beginTransaction starts a transaction
-    */
+   * beginTransaction starts a transaction
+   */
   void beginTransaction();
 
   /**
-    * commitTransaction ends a transaction
-    */
+   * commitTransaction ends a transaction
+   */
   void commitTransaction();
 
   /**
-    * rollbackTransaction rolls back a transaction
-    * @return The return code from the ROLLBACK WORK.
-    */
+   * rollbackTransaction rolls back a transaction
+   * @return The return code from the ROLLBACK WORK.
+   */
   void rollbackTransaction();
 
   /**
-    * open the cursor for stream delete reading from the PUBLISH_REWRITE table
-    */
+   * open the cursor for stream delete reading from the PUBLISH_REWRITE table
+   */
   void openRewritePublishCursor();
 
   /**
-    * fetch from the cursor for stream delete reading from the PUBLISH_REWRITE table
-    */
-  NABoolean fetchRewritePublishCursor(MVQR_Publish* publish);
+   * fetch from the cursor for stream delete reading from the PUBLISH_REWRITE table
+   */
+  NABoolean fetchRewritePublishCursor(MVQR_Publish *publish);
 
   /**
-    * close the cursor for stream delete reading from the PUBLISH_REWRITE table
-    */
+   * close the cursor for stream delete reading from the PUBLISH_REWRITE table
+   */
   void closeRewritePublishCursor();
 
   /**
-    * getCatalogName obtains the catalog name for
-    * a specific catalog UID
-    */
-  const NAString* getCatalogName(Int64 catalogUID);
+   * getCatalogName obtains the catalog name for
+   * a specific catalog UID
+   */
+  const NAString *getCatalogName(Int64 catalogUID);
 
   /**
    * Find all the MVs in a specific catalog, and collect their names.
@@ -197,16 +194,13 @@ public:
    * @param mvNames [OUT] The list of MV names.
    * @return TRUE for success, FALSE for failure.
    */
-  NABoolean collectCatalogMVs(const NAString& catalogName, 
-                              const NAString& definitionSchema,
-                              NAStringList&   mvNames);
+  NABoolean collectCatalogMVs(const NAString &catalogName, const NAString &definitionSchema, NAStringList &mvNames);
   /**
    * Set the special parser flags so we can use internal syntax.
    */
   void setParserFlags();
 
-  Lng32 controlQueryDefault(const NAString& cqdName, 
-                           const NAString& cqdValue);
+  Lng32 controlQueryDefault(const NAString &cqdName, const NAString &cqdValue);
 
   /**
    * Call catman to regenerate the MV descriptor for an MV.
@@ -214,54 +208,51 @@ public:
    * @param rePublish TRUE if the new MV descriptor is to be re-published.
    * @return TRUE for success, FALSE for failure.
    */
-  NABoolean reDescribeMV(const NAString* fullMvName, NABoolean rePublish);
+  NABoolean reDescribeMV(const NAString *fullMvName, NABoolean rePublish);
 
-protected: 
-
+ protected:
   /**
-    * initializeNodeName obtains the local node name
-    */
+   * initializeNodeName obtains the local node name
+   */
   void initializeNodeName();
 
   /**
-    * getNodeNameWithBackslash returns a character string
-    * containing the name of the local node, with a backslash.
-    * @return The name of the local node with a backslash.
-    */
-  inline const char * getNodeNameWithBackslash()
-  { return nodeNameWithBackslash_.data(); };
+   * getNodeNameWithBackslash returns a character string
+   * containing the name of the local node, with a backslash.
+   * @return The name of the local node with a backslash.
+   */
+  inline const char *getNodeNameWithBackslash() { return nodeNameWithBackslash_.data(); };
 
   /**
-    * getNodeName returns a character string
-    * containing the name of the local node.
-    * @return The name of the local node.
-    */
-  inline const char * getNodeName()
-  { return nodeName_.data(); };
+   * getNodeName returns a character string
+   * containing the name of the local node.
+   * @return The name of the local node.
+   */
+  inline const char *getNodeName() { return nodeName_.data(); };
 
   /**
-    * fixupDelimitedName returns a character string
-    * handling special characters such as double quote
-    * for an object name.
-    * @param inName The input object name to fixup.
-    * @param outName The output object name to fixup.
-    */
-  void fixupDelimitedName(const char * inName, char * outName);
+   * fixupDelimitedName returns a character string
+   * handling special characters such as double quote
+   * for an object name.
+   * @param inName The input object name to fixup.
+   * @param outName The output object name to fixup.
+   */
+  void fixupDelimitedName(const char *inName, char *outName);
 
-protected:
-  NABoolean getSystemDefault(const char* attribute, char* defValue);
+ protected:
+  NABoolean getSystemDefault(const char *attribute, char *defValue);
 
-private:
-  NAString   nodeNameWithBackslash_;
-  NAString   nodeName_;
-  CollHeap*  heap_;
-  QRQueries* queries_;  
-  QRMVData*  data_;
+ private:
+  NAString nodeNameWithBackslash_;
+  NAString nodeName_;
+  CollHeap *heap_;
+  QRQueries *queries_;
+  QRMVData *data_;
 
   // Copy construction/assignment not defined.
-  QRQueriesImpl(const QRQueriesImpl&);
-  QRQueriesImpl& operator=(const QRQueriesImpl&);
-  
-}; // QRQueriesImpl
+  QRQueriesImpl(const QRQueriesImpl &);
+  QRQueriesImpl &operator=(const QRQueriesImpl &);
 
-#endif  /* _QRQUERIESIMPL_H_ */
+};  // QRQueriesImpl
+
+#endif /* _QRQUERIESIMPL_H_ */

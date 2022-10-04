@@ -90,8 +90,8 @@ class ex_send_bottom_tdb : public ComTdbSendBottom {
 
   // allocate one node to communicate with a particular parent instance
   virtual ex_send_bottom_tcb *buildInstance(ExExeStmtGlobals *glob, ExEspFragInstanceDir *espInstanceDir,
-                                            const ExFragKey &myKey, const ExFragKey &parentKey,
-                                            int myHandle, Lng32 parentInstanceNum, NABoolean isLocal);
+                                            const ExFragKey &myKey, const ExFragKey &parentKey, int myHandle,
+                                            Lng32 parentInstanceNum, NABoolean isLocal);
 
  private:
   // ---------------------------------------------------------------------

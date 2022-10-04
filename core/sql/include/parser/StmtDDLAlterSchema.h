@@ -30,7 +30,7 @@
  * Description:  Alter Schema Statement (parse node)
  *
  *
- * Created:     
+ * Created:
  * Language:     C++
  *
  *
@@ -38,7 +38,6 @@
  *
  *****************************************************************************
  */
-
 
 #include "ElemDDLSchemaName.h"
 #include "StmtDDLNode.h"
@@ -54,27 +53,21 @@ class StmtDDLAlterSchema;
 // -----------------------------------------------------------------------
 // None.
 
-
 // -----------------------------------------------------------------------
 // Alter Schema statement
 // -----------------------------------------------------------------------
-class StmtDDLAlterSchema : public StmtDDLNode
-{
-public:
-
+class StmtDDLAlterSchema : public StmtDDLNode {
+ public:
   // called for 'drop all tables'
-  StmtDDLAlterSchema(const ElemDDLSchemaName & aSchemaNameParseNode,
-                     CollHeap    * heap = PARSERHEAP());
-  
+  StmtDDLAlterSchema(const ElemDDLSchemaName &aSchemaNameParseNode, CollHeap *heap = PARSERHEAP());
+
   // called for 'rename schema'
-  StmtDDLAlterSchema(const ElemDDLSchemaName & aSchemaNameParseNode,
-                     NAString &renamedSchName,
-                     CollHeap    * heap = PARSERHEAP());
-  
+  StmtDDLAlterSchema(const ElemDDLSchemaName &aSchemaNameParseNode, NAString &renamedSchName,
+                     CollHeap *heap = PARSERHEAP());
+
   // called for 'stored descriptor' processing
-  StmtDDLAlterSchema(const ElemDDLSchemaName & aSchemaNameParseNode,
-                     const StmtDDLAlterTableStoredDesc::AlterStoredDescType oper,
-                     CollHeap    * heap = PARSERHEAP());
+  StmtDDLAlterSchema(const ElemDDLSchemaName &aSchemaNameParseNode,
+                     const StmtDDLAlterTableStoredDesc::AlterStoredDescType oper, CollHeap *heap = PARSERHEAP());
 
   void initChecks();
 
@@ -82,15 +75,15 @@ public:
   virtual ~StmtDDLAlterSchema();
 
   // cast
-  virtual StmtDDLAlterSchema * castToStmtDDLAlterSchema();
+  virtual StmtDDLAlterSchema *castToStmtDDLAlterSchema();
 
   //
   // accessors
   //
 
-  inline const NAString & getSchemaName() const;
-  inline const SchemaName & getSchemaNameAsQualifiedName() const;
-  inline       SchemaName & getSchemaNameAsQualifiedName();
+  inline const NAString &getSchemaName() const;
+  inline const SchemaName &getSchemaNameAsQualifiedName() const;
+  inline SchemaName &getSchemaNameAsQualifiedName();
 
   //
   // other public methods
@@ -108,11 +101,10 @@ public:
   NAString &getRenamedSchemaName() { return renamedSchName_; }
   const NAString &getRenamedSchemaName() const { return renamedSchName_; }
 
-  StmtDDLAlterTableStoredDesc::AlterStoredDescType &getStoredDescOperation()
-  { return storedDescOper_; }
+  StmtDDLAlterTableStoredDesc::AlterStoredDescType &getStoredDescOperation() { return storedDescOper_; }
 
   // method for processing
-  ExprNode * bindNode(BindWA *bindWAPtr);
+  ExprNode *bindNode(BindWA *bindWAPtr);
 
   // method for collecting information
   //  void synthesize();
@@ -121,8 +113,7 @@ public:
   virtual const NAString displayLabel1() const;
   virtual const NAString getText() const;
 
-private:
-
+ private:
   // ---------------------------------------------------------------------
   // private methods
   // ---------------------------------------------------------------------
@@ -130,15 +121,15 @@ private:
   //
   // please do not use the following methods
   //
-  
-  StmtDDLAlterSchema();                                         // DO NOT USE
-  StmtDDLAlterSchema(const StmtDDLAlterSchema &);              // DO NOT USE
-  StmtDDLAlterSchema & operator=(const StmtDDLAlterSchema &);  // DO NOT USE
+
+  StmtDDLAlterSchema();                                       // DO NOT USE
+  StmtDDLAlterSchema(const StmtDDLAlterSchema &);             // DO NOT USE
+  StmtDDLAlterSchema &operator=(const StmtDDLAlterSchema &);  // DO NOT USE
 
   // ---------------------------------------------------------------------
   // private data members
   // ---------------------------------------------------------------------
-  
+
   NAString schemaName_;
   SchemaName schemaQualName_;
   NABoolean dropAllTables_;
@@ -147,7 +138,7 @@ private:
   NABoolean alterStoredDesc_;
   StmtDDLAlterTableStoredDesc::AlterStoredDescType storedDescOper_;
 
-}; // class StmtDDLAlterSchema
+};  // class StmtDDLAlterSchema
 
 // -----------------------------------------------------------------------
 // definitions of inline methods for class StmtDDLAlterSchema
@@ -156,22 +147,10 @@ private:
 //
 // accessors
 //
-inline SchemaName &
-StmtDDLAlterSchema::getSchemaNameAsQualifiedName() 
-{
-  return schemaQualName_;
-}
+inline SchemaName &StmtDDLAlterSchema::getSchemaNameAsQualifiedName() { return schemaQualName_; }
 
-inline const SchemaName &
-StmtDDLAlterSchema::getSchemaNameAsQualifiedName() const
-{
-  return schemaQualName_;
-}
+inline const SchemaName &StmtDDLAlterSchema::getSchemaNameAsQualifiedName() const { return schemaQualName_; }
 
-inline const NAString &
-StmtDDLAlterSchema::getSchemaName() const
-{
-  return schemaName_;
-}
+inline const NAString &StmtDDLAlterSchema::getSchemaName() const { return schemaName_; }
 
-#endif // STMTDDLALTERSCHEMA_H
+#endif  // STMTDDLALTERSCHEMA_H

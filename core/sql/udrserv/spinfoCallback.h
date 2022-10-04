@@ -27,7 +27,7 @@
  * Description:  The SPInfo APIs provided for LmRoutines to call back
  *               SPInfo methods.
  *
- * Created:      
+ * Created:
  * Language:     C++
  *
  *****************************************************************************
@@ -36,20 +36,17 @@
 #include "sqludr/sqludr.h"
 #include "common/Platform.h"
 
+void SpInfoGetNextRow(char *rowData,               // OUT
+                      Int32 tableIndex,            // IN
+                      SQLUDR_Q_STATE *queue_state  // OUT
+);
 
-void SpInfoGetNextRow(char            *rowData,           //OUT
-                      Int32             tableIndex,         //IN     
-                      SQLUDR_Q_STATE  *queue_state        //OUT
-                      );
+Int32 SpInfoEmitRow(char *rowData,               // IN
+                    Int32 tableIndex,            // IN
+                    SQLUDR_Q_STATE *queue_state  // IN/OUT
+);
 
-Int32 SpInfoEmitRow  (char            *rowData,           //IN
-                     Int32             tableIndex,         //IN
-                     SQLUDR_Q_STATE  *queue_state        //IN/OUT
-                    );
-
-void SpInfoEmitRowCpp(char            *rowData,           //IN
-                      Int32             tableIndex,       //IN
-                      SQLUDR_Q_STATE  *queue_state        //IN/OUT
-                      );
-
-
+void SpInfoEmitRowCpp(char *rowData,               // IN
+                      Int32 tableIndex,            // IN
+                      SQLUDR_Q_STATE *queue_state  // IN/OUT
+);

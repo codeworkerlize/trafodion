@@ -25,8 +25,8 @@
 *
 * File:         GenItemFunc.C
 * Description:  Function expressions
-*               
-*               
+*
+*
 * Created:      5/17/94
 * Language:     C++
 *
@@ -39,7 +39,7 @@
 /////////////////////////////////////////////////////////////////////
 //
 // Contents:
-//    
+//
 //   BuiltinFunction::codeGen()
 //   Case::codeGen()
 //   Cast::codeGen()
@@ -67,989 +67,679 @@
 #include "optimizer/RelMisc.h"
 #include "ItemFuncUDF.h"
 
-short BuiltinFunction::codeGen(Generator * generator)
-{
-  Attributes ** attr;
-  
-  Space * space = generator->getSpace();
-  
-  if (generator->getExpGenerator()->genItemExpr(this, &attr, (1 + getArity()), -1) == 1)
-    return 0;
-  
-  ex_clause * function_clause = 0;
-  
-  switch (getOperatorType())
-    {
-    case ITM_CONVERTTOBITS:
-      {
-	function_clause =
-	  new(generator->getSpace()) ExFunctionBitOper(getOperatorType(), 
-						       (1+getArity()),
-						       attr, space);
-      }
-    break;
-    case ITM_REGEXP:
-      {
-        function_clause = 
-          new(generator->getSpace()) ExRegexpClauseChar(getOperatorType(), (1+getArity()),
-                                                       attr, space);
-      }
-    break; 
-    case ITM_REGEXP_REPLACE:
-      {
-        function_clause = 
-          new(generator->getSpace()) ExRegexpReplace(getOperatorType(), (1+getArity()),
-                                                     attr, space);
-      }
-    break;
-    case ITM_REGEXP_SUBSTR:
-      {
-        function_clause = 
-          new(generator->getSpace()) ExRegexpSubstrOrCount(getOperatorType(), (1+getArity()),
-                                                    attr, space, TRUE);
-      }
-    break;
-    case ITM_REGEXP_COUNT:
-      {
-        function_clause = 
-          new(generator->getSpace()) ExRegexpSubstrOrCount(getOperatorType(), (1+getArity()),
-                                                   attr, space, FALSE);
-      }
-    break;
-    case ITM_LIKE:
-      {
+short BuiltinFunction::codeGen(Generator *generator) {
+  Attributes **attr;
 
-        const CharType& likeSource = 
-           (CharType&)((child(0)->getValueId()).getType());
+  Space *space = generator->getSpace();
 
-        const CharType& likePattern =
-           (CharType&)((child(1)->getValueId()).getType());
+  if (generator->getExpGenerator()->genItemExpr(this, &attr, (1 + getArity()), -1) == 1) return 0;
 
-        switch ( likeSource.getCharSet() )
-        {
-          case CharInfo::ISO88591:
-          case CharInfo::UTF8:
-          case CharInfo::BINARY:
+  ex_clause *function_clause = 0;
+
+  switch (getOperatorType()) {
+    case ITM_CONVERTTOBITS: {
+      function_clause = new (generator->getSpace()) ExFunctionBitOper(getOperatorType(), (1 + getArity()), attr, space);
+    } break;
+    case ITM_REGEXP: {
+      function_clause =
+          new (generator->getSpace()) ExRegexpClauseChar(getOperatorType(), (1 + getArity()), attr, space);
+    } break;
+    case ITM_REGEXP_REPLACE: {
+      function_clause = new (generator->getSpace()) ExRegexpReplace(getOperatorType(), (1 + getArity()), attr, space);
+    } break;
+    case ITM_REGEXP_SUBSTR: {
+      function_clause =
+          new (generator->getSpace()) ExRegexpSubstrOrCount(getOperatorType(), (1 + getArity()), attr, space, TRUE);
+    } break;
+    case ITM_REGEXP_COUNT: {
+      function_clause =
+          new (generator->getSpace()) ExRegexpSubstrOrCount(getOperatorType(), (1 + getArity()), attr, space, FALSE);
+    } break;
+    case ITM_LIKE: {
+      const CharType &likeSource = (CharType &)((child(0)->getValueId()).getType());
+
+      const CharType &likePattern = (CharType &)((child(1)->getValueId()).getType());
+
+      switch (likeSource.getCharSet()) {
+        case CharInfo::ISO88591:
+        case CharInfo::UTF8:
+        case CharInfo::BINARY:
           // case CharInfo::SJIS:  // Uncomment this if we ever support SJIS
-           function_clause =
-               new(generator->getSpace()) ex_like_clause_char(getOperatorType()
-                                                   ,1+getArity()
-                                                   , CmpCommon::getDefault(MODE_COMPATIBLE_1) == DF_OFF
-                                                   ,attr
-                                                   ,space
-                                                   );
+          function_clause = new (generator->getSpace()) ex_like_clause_char(
+              getOperatorType(), 1 + getArity(), CmpCommon::getDefault(MODE_COMPATIBLE_1) == DF_OFF, attr, space);
 
-           // Consider generating pcode for this.  Certain criteria must be
-           // met, however.  If pattern string is a constant, with no escape
-           // characters, and we're dealing with a fixed-length string (should
-           // be see constants are exploded), then we met the minimum criteria.
-           // Pcode generation for LIKE will do other checks.
+          // Consider generating pcode for this.  Certain criteria must be
+          // met, however.  If pattern string is a constant, with no escape
+          // characters, and we're dealing with a fixed-length string (should
+          // be see constants are exploded), then we met the minimum criteria.
+          // Pcode generation for LIKE will do other checks.
 
-           if ((child(1)->castToItemExpr()->getOperatorType() == ITM_CONSTANT)&&
-               (likePattern.getFSDatatype() == REC_BYTE_F_ASCII) &&
-               (getArity() <= 2))
-           {
-             char* pat = (char*)
-               ((ConstValue*)(child(1)->castToItemExpr()))->getConstValue();
+          if ((child(1)->castToItemExpr()->getOperatorType() == ITM_CONSTANT) &&
+              (likePattern.getFSDatatype() == REC_BYTE_F_ASCII) && (getArity() <= 2)) {
+            char *pat = (char *)((ConstValue *)(child(1)->castToItemExpr()))->getConstValue();
 
-             // Pass in constant string for analysis during pcode generation.
-             ((ex_like_clause_base*)(function_clause))->setPatternStr(pat);
-           }
-           else
-             function_clause->setNoPCodeAvailable(TRUE);
+            // Pass in constant string for analysis during pcode generation.
+            ((ex_like_clause_base *)(function_clause))->setPatternStr(pat);
+          } else
+            function_clause->setNoPCodeAvailable(TRUE);
 
-           break;
-          case CharInfo::UCS2:
-           function_clause = new(generator->getSpace()) 
-                                   ex_like_clause_doublebyte(ITM_LIKE_DOUBLEBYTE
-                                                   ,1+getArity()
-                                                   ,CmpCommon::getDefault(MODE_COMPATIBLE_1) == DF_OFF
-                                                   ,attr
-                                                   ,space
-                                                   );
-           break;
-          default:
-	    GenAssert(0, "unknown value for bytes-per-char.");
-        }
+          break;
+        case CharInfo::UCS2:
+          function_clause = new (generator->getSpace()) ex_like_clause_doublebyte(
+              ITM_LIKE_DOUBLEBYTE, 1 + getArity(), CmpCommon::getDefault(MODE_COMPATIBLE_1) == DF_OFF, attr, space);
+          break;
+        default:
+          GenAssert(0, "unknown value for bytes-per-char.");
       }
+    }
 
-      break;
-      
-    case ITM_SLEEP:
-      {
-	function_clause =
-	  new(generator->getSpace()) ex_function_sleep(getOperatorType(),(1+getArity()), 
-							 attr, space);
-      }
-      
-      break;
-    case ITM_UNIX_TIMESTAMP:
-      {
-	function_clause =
-	  new(generator->getSpace()) ex_function_unixtime(getOperatorType(), (1+getArity()),
-							 attr, space);
-      }
-      
-      break;
+    break;
+
+    case ITM_SLEEP: {
+      function_clause = new (generator->getSpace()) ex_function_sleep(getOperatorType(), (1 + getArity()), attr, space);
+    }
+
+    break;
+    case ITM_UNIX_TIMESTAMP: {
+      function_clause =
+          new (generator->getSpace()) ex_function_unixtime(getOperatorType(), (1 + getArity()), attr, space);
+    }
+
+    break;
     case ITM_CURRENT_TIMESTAMP:
-    case ITM_CURRENT_TIMESTAMP_RUNNING:
-      {
-	function_clause =
-	  new(generator->getSpace()) ex_function_current(getOperatorType(), 
-							 attr, space);
-      }
-      
-      break;
+    case ITM_CURRENT_TIMESTAMP_RUNNING: {
+      function_clause = new (generator->getSpace()) ex_function_current(getOperatorType(), attr, space);
+    }
+
+    break;
 
     // MV,
     case ITM_CURRENTEPOCH:
     case ITM_VSBBROWTYPE:
-    case ITM_VSBBROWCOUNT:
-      {
-	function_clause =
-	  new(generator->getSpace()) ExFunctionGenericUpdateOutput(getOperatorType(), 
-							 attr, space);
-      }      
-      break;
+    case ITM_VSBBROWCOUNT: {
+      function_clause = new (generator->getSpace()) ExFunctionGenericUpdateOutput(getOperatorType(), attr, space);
+    } break;
 
-	// ++ Triggers -
-    case ITM_INTERNALTIMESTAMP:
-      {
-	function_clause =
-	  new(generator->getSpace()) ExFunctionInternalTimestamp(getOperatorType(), 
-							 attr, space);
-      }
-      
-      break;
+      // ++ Triggers -
+    case ITM_INTERNALTIMESTAMP: {
+      function_clause = new (generator->getSpace()) ExFunctionInternalTimestamp(getOperatorType(), attr, space);
+    }
 
-    case ITM_UNIQUE_EXECUTE_ID:
-      {
-	function_clause =
-	  new(generator->getSpace()) ex_function_unique_execute_id(getOperatorType(), 
-							 attr, space);
-      }
-      
-      break;
+    break;
 
-   case ITM_GET_TRIGGERS_STATUS:
-      {
-	function_clause =
-	  new(generator->getSpace()) ex_function_get_triggers_status(getOperatorType(), 
-							 attr, space);
-      }
-      
-      break;
+    case ITM_UNIQUE_EXECUTE_ID: {
+      function_clause = new (generator->getSpace()) ex_function_unique_execute_id(getOperatorType(), attr, space);
+    }
 
-   case ITM_GET_BIT_VALUE_AT:
-      {
-	function_clause =
-	  new(generator->getSpace()) ex_function_get_bit_value_at(getOperatorType(), 
-							 attr, space);
-      }
-      
-      break;
+    break;
+
+    case ITM_GET_TRIGGERS_STATUS: {
+      function_clause = new (generator->getSpace()) ex_function_get_triggers_status(getOperatorType(), attr, space);
+    }
+
+    break;
+
+    case ITM_GET_BIT_VALUE_AT: {
+      function_clause = new (generator->getSpace()) ex_function_get_bit_value_at(getOperatorType(), attr, space);
+    }
+
+    break;
       // -- Triggers -
 
-   case ITM_IS_BITWISE_AND_TRUE:
-      {
-	function_clause =
-	  new(generator->getSpace()) ex_function_is_bitwise_and_true(getOperatorType(), 
-							 attr, space);
+    case ITM_IS_BITWISE_AND_TRUE: {
+      function_clause = new (generator->getSpace()) ex_function_is_bitwise_and_true(getOperatorType(), attr, space);
+    }
+
+    break;
+
+    case ITM_SHA1: {
+      function_clause = new (generator->getSpace()) ExFunctionSha(getOperatorType(), attr, space);
+    }
+
+    break;
+
+    case ITM_SHA2_256:
+    case ITM_SHA2_224:
+    case ITM_SHA2_384:
+    case ITM_SHA2_512: {
+      Lng32 mode = 0;
+      switch (getOperatorType()) {
+        case ITM_SHA2_256:
+          mode = 256;
+          break;
+
+        case ITM_SHA2_224:
+          mode = 224;
+          break;
+
+        case ITM_SHA2_384:
+          mode = 384;
+          break;
+
+        case ITM_SHA2_512:
+          mode = 512;
+          break;
       }
-      
-      break;
+      function_clause = new (generator->getSpace()) ExFunctionSha2(getOperatorType(), attr, space, mode);
+    }
 
-   case ITM_SHA1:
-      {
-         function_clause =
-           new(generator->getSpace()) ExFunctionSha(getOperatorType(),
-                                                         attr, space);
-      }
-     
-      break;
+    break;
 
-   case ITM_SHA2_256:
-   case ITM_SHA2_224:
-   case ITM_SHA2_384:
-   case ITM_SHA2_512:
-      {
-          Lng32 mode = 0;
-          switch (getOperatorType()) {
-          case ITM_SHA2_256:
-              mode = 256;
-              break;
+    case ITM_MD5: {
+      function_clause = new (generator->getSpace()) ExFunctionMd5(getOperatorType(), attr, space);
+    }
 
-          case ITM_SHA2_224:
-              mode = 224;
-              break;
+    break;
 
-          case ITM_SHA2_384:
-              mode = 384;
-              break;
+    case ITM_CRC32: {
+      function_clause = new (generator->getSpace()) ExFunctionCrc32(getOperatorType(), attr, space);
+    }
 
-          case ITM_SHA2_512:
-              mode = 512;
-              break;
-          }
-         function_clause =
-           new(generator->getSpace()) ExFunctionSha2(getOperatorType(),
-                                                         attr, space, mode);
-      }
-     
-      break;
+    break;
 
-   case ITM_MD5:
-      {
-         function_clause =
-           new(generator->getSpace()) ExFunctionMd5(getOperatorType(),
-                                                         attr, space);
-      }
-     
-      break;
+    case ITM_ISIPV4:
+    case ITM_ISIPV6: {
+      function_clause = new (generator->getSpace()) ExFunctionIsIP(getOperatorType(), attr, space);
+    }
 
-   case ITM_CRC32:
-      {
-         function_clause =
-           new(generator->getSpace()) ExFunctionCrc32(getOperatorType(),
-                                                         attr, space);
-      }
-     
-      break;
+    break;
+    case ITM_INET_ATON: {
+      function_clause = new (generator->getSpace()) ExFunctionInetAton(getOperatorType(), attr, space);
+    }
 
-   case ITM_ISIPV4:
-   case ITM_ISIPV6:
-      {
-	function_clause =
-	  new(generator->getSpace()) ExFunctionIsIP(getOperatorType(), 
-							 attr, space);
-      }
-      
-      break;
-    case ITM_INET_ATON:
-      {
-        function_clause =
-          new(generator->getSpace()) ExFunctionInetAton(getOperatorType(),
-                                                         attr, space);
-      }
+    break;
 
-      break;
+    case ITM_INET_NTOA: {
+      function_clause = new (generator->getSpace()) ExFunctionInetNtoa(getOperatorType(), attr, space);
+    }
 
-    case ITM_INET_NTOA:
-      {
-        function_clause =
-          new(generator->getSpace()) ExFunctionInetNtoa(getOperatorType(),
-                                                         attr, space);
-      }
-
-      break;
+    break;
 
     // -- MV
-    case ITM_CONCAT:
-      {
-	function_clause =
-	  new(generator->getSpace()) ex_function_concat(getOperatorType(),
-							attr, space);
-    //disable CONCAT's pcode, since our PCODE does not support NULL 
-    if (CmpCommon::getDefault(MODE_COMPATIBLE_1) == DF_ON)
-      function_clause->setNoPCodeAvailable(TRUE);
-      }
-      
-      break;
-      
-    case ITM_SUBSTR:
-      {
+    case ITM_CONCAT: {
+      function_clause = new (generator->getSpace()) ex_function_concat(getOperatorType(), attr, space);
+      // disable CONCAT's pcode, since our PCODE does not support NULL
+      if (CmpCommon::getDefault(MODE_COMPATIBLE_1) == DF_ON) function_clause->setNoPCodeAvailable(TRUE);
+    }
 
+    break;
 
-	
+    case ITM_SUBSTR: {
+      const CharType &substringOperandType = (CharType &)((child(0)->getValueId()).getType());
 
-        const CharType& substringOperandType = 
-           (CharType&)((child(0)->getValueId()).getType());
-
-        switch ( substringOperandType.getCharSet() )
-        {
-          case CharInfo::ISO88591:
-          case CharInfo::UTF8:
-          case CharInfo::BINARY:
+      switch (substringOperandType.getCharSet()) {
+        case CharInfo::ISO88591:
+        case CharInfo::UTF8:
+        case CharInfo::BINARY:
           // case CharInfo::SJIS:  // Uncomment this if we ever support SJIS
-       {
-	   function_clause = new(generator->getSpace()) 
-		ex_function_substring(getOperatorType(), 
-				      (1+getArity()), attr, space);
-       //disable SUBSTRING's pcode, since our PCODE does not support NULL 
-       if (CmpCommon::getDefault(MODE_COMPATIBLE_1) == DF_ON)
-         function_clause->setNoPCodeAvailable(TRUE);
-       }
-            break;
-     
-          case CharInfo::UCS2:
-       {
-	   function_clause = new(generator->getSpace()) 
-		ex_function_substring_doublebyte(ITM_SUBSTR_DOUBLEBYTE,
-				(1+getArity()), attr, space
-					     );
-       //disable SUBSTRING's pcode, since our PCODE does not support NULL 
-       if (CmpCommon::getDefault(MODE_COMPATIBLE_1) == DF_ON)
-         function_clause->setNoPCodeAvailable(TRUE);
-       }
-            break;
+          {
+            function_clause =
+                new (generator->getSpace()) ex_function_substring(getOperatorType(), (1 + getArity()), attr, space);
+            // disable SUBSTRING's pcode, since our PCODE does not support NULL
+            if (CmpCommon::getDefault(MODE_COMPATIBLE_1) == DF_ON) function_clause->setNoPCodeAvailable(TRUE);
+          }
+          break;
 
-          default:
-	    GenAssert(0, "unknown value for bytes-per-char.");
-        }
+        case CharInfo::UCS2: {
+          function_clause = new (generator->getSpace())
+              ex_function_substring_doublebyte(ITM_SUBSTR_DOUBLEBYTE, (1 + getArity()), attr, space);
+          // disable SUBSTRING's pcode, since our PCODE does not support NULL
+          if (CmpCommon::getDefault(MODE_COMPATIBLE_1) == DF_ON) function_clause->setNoPCodeAvailable(TRUE);
+        } break;
+
+        default:
+          GenAssert(0, "unknown value for bytes-per-char.");
       }
-      
-      break;
-      
-    case ITM_LOWER:
-      {
-        const CharType& lowerOperandType = 
-		(CharType&)((child(0)->getValueId()).getType());
+    }
 
-        if ( lowerOperandType.getCharSet() != CharInfo::UNICODE )
-	  function_clause = new(generator->getSpace()) 
-		ex_function_lower(getOperatorType(), attr, space);
-        else
-	  function_clause = new(generator->getSpace()) 
-	   ex_function_lower_unicode(ITM_LOWER_UNICODE, attr, space);
-      }
-      
-      break;
-      
-    case ITM_UPPER:
-      {
-        const CharType& upperOperandType = 
-           (CharType&)((child(0)->getValueId()).getType());
+    break;
 
-        if ( upperOperandType.getCharSet() != CharInfo::UNICODE )
-	   function_clause = new(generator->getSpace()) 
-		ex_function_upper(ITM_UPPER, attr, space);
-        else
-	    function_clause = new(generator->getSpace()) 
-		ex_function_upper_unicode(ITM_UPPER_UNICODE, attr, space);
-      }
-      
-      break;
-      
-    case ITM_CHAR_LENGTH:
-      {
+    case ITM_LOWER: {
+      const CharType &lowerOperandType = (CharType &)((child(0)->getValueId()).getType());
 
-        const CharType& charLenOperandType = 
-		(CharType&)(child(0)->getValueId().getType());
+      if (lowerOperandType.getCharSet() != CharInfo::UNICODE)
+        function_clause = new (generator->getSpace()) ex_function_lower(getOperatorType(), attr, space);
+      else
+        function_clause = new (generator->getSpace()) ex_function_lower_unicode(ITM_LOWER_UNICODE, attr, space);
+    }
 
-        switch ( charLenOperandType.getCharSet() )
-        {
-          case CharInfo::ISO88591:
-          case CharInfo::UTF8:
-          case CharInfo::BINARY:
+    break;
+
+    case ITM_UPPER: {
+      const CharType &upperOperandType = (CharType &)((child(0)->getValueId()).getType());
+
+      if (upperOperandType.getCharSet() != CharInfo::UNICODE)
+        function_clause = new (generator->getSpace()) ex_function_upper(ITM_UPPER, attr, space);
+      else
+        function_clause = new (generator->getSpace()) ex_function_upper_unicode(ITM_UPPER_UNICODE, attr, space);
+    }
+
+    break;
+
+    case ITM_CHAR_LENGTH: {
+      const CharType &charLenOperandType = (CharType &)(child(0)->getValueId().getType());
+
+      switch (charLenOperandType.getCharSet()) {
+        case CharInfo::ISO88591:
+        case CharInfo::UTF8:
+        case CharInfo::BINARY:
           // case CharInfo::SJIS: // Uncomment this if we ever support SJIS
-	    function_clause = new(generator->getSpace()) 
-		ex_function_char_length(ITM_CHAR_LENGTH, attr, space);
-            break;
-          case CharInfo::UCS2:
-	    function_clause = new(generator->getSpace()) 
-		ex_function_char_length_doublebyte(ITM_CHAR_LENGTH_DOUBLEBYTE,
-					        attr, space);
-            break;
-          default:
-	    GenAssert(0, "unknown value for bytes-per-char.");
+          function_clause = new (generator->getSpace()) ex_function_char_length(ITM_CHAR_LENGTH, attr, space);
+          break;
+        case CharInfo::UCS2:
+          function_clause =
+              new (generator->getSpace()) ex_function_char_length_doublebyte(ITM_CHAR_LENGTH_DOUBLEBYTE, attr, space);
+          break;
+        default:
+          GenAssert(0, "unknown value for bytes-per-char.");
+      }
+    }
+
+    break;
+
+    case ITM_OCTET_LENGTH: {
+      function_clause = new (generator->getSpace()) ex_function_oct_length(getOperatorType(), attr, space);
+    }
+
+    break;
+
+    case ITM_POSITION: {
+      const CharType &patternOperandType = (CharType &)(child(0)->getValueId().getType());
+
+      switch (patternOperandType.getCharSet()) {
+        case CharInfo::ISO88591:
+        case CharInfo::UTF8:
+        case CharInfo::BINARY:
+        case CharInfo::UCS2:
+          // case CharInfo::SJIS: // Uncomment this if we ever support SJIS
+          function_clause =
+              new (generator->getSpace()) ex_function_position(ITM_POSITION, attr, space, (getArity() + 1));
+
+          if (patternOperandType.getCharSet() == CharInfo::UCS2)
+            ((ex_function_position *)function_clause)->setCollation(CharInfo::DefaultCollation);
+          else
+            ((ex_function_position *)function_clause)->setCollation(((PositionFunc *)this)->getCollation());
+
+          function_clause =
+              new (generator->getSpace()) ex_function_position(ITM_POSITION, attr, space, (getArity() + 1));
+
+          ((ex_function_position *)function_clause)->setIsNullRelevant(TRUE);
+
+          // If INSTR function was specified and
+          // the string to be seached for can be of length zero,
+          // null processing is to be done in eval method.
+          // This is needed as the result in this case has to be NULL value.
+          if ((!getUserTextStr().isNull()) && (strcmp(getUserTextStr(), "INSTR") == 0)) {
+            ((ex_function_position *)function_clause)->setIsInstr(TRUE);
+
+            if ((patternOperandType.isVaryingLen()) || (patternOperandType.getNominalSize() == 0)) {
+              ((ex_function_position *)function_clause)->setIsNullRelevant(FALSE);
+            }
+          }
+
+          break;
+
+        default:
+          GenAssert(0, "unknown value for bytes-per-char.");
+      }
+    }
+
+    break;
+
+    case ITM_REPLACE: {
+      function_clause = new (generator->getSpace()) ExFunctionReplace(getOperatorType(), attr, space);
+
+      const NAType &type1 = child(0)->castToItemExpr()->getValueId().getType();
+      const NAType &type2 = child(1)->castToItemExpr()->getValueId().getType();
+      const NAType &type3 = child(2)->castToItemExpr()->getValueId().getType();
+
+      if ((type1.getTypeQualifier() == NA_CHARACTER_TYPE) && (type2.getTypeQualifier() == NA_CHARACTER_TYPE)) {
+        const CharType &cType1 = (CharType &)type1;
+        const CharType &cType2 = (CharType &)type2;
+        const CharType &cType3 = (CharType &)type3;
+
+        CharInfo::Collation coll1 = cType1.getCollation();
+        CharInfo::Collation coll2 = cType2.getCollation();
+        CharInfo::Collation coll3 = cType3.getCollation();
+
+        CMPASSERT(coll1 == coll2 && coll1 == coll3);
+        if (CollationInfo::isSystemCollation(coll1)) {
+          ((ExFunctionReplace *)function_clause)->setCollation(coll1);
+
+          Lng32 len = 0;
+          ItemExpr *tmpEncode;
+          const NAType *typ;
+          const CharType *ctyp;
+
+          tmpEncode = new (generator->wHeap()) CompEncode(child(0), FALSE, -1, CollationInfo::Search);
+
+          typ = tmpEncode->synthesizeType();
+          ctyp = (CharType *)typ;
+          len = ctyp->getNominalSize();
+
+          ((ExFunctionReplace *)function_clause)->setArgEncodedLen((Int16)len, 0);
+
+          tmpEncode = new (generator->wHeap()) CompEncode(child(1), FALSE, -1, CollationInfo::Search);
+
+          typ = tmpEncode->synthesizeType();
+          ctyp = (CharType *)typ;
+          len = ctyp->getNominalSize();
+
+          ((ExFunctionReplace *)function_clause)->setArgEncodedLen((Int16)len, 1);
+
+        } else {
+          NABoolean doCIcomp = ((cType1.isCaseinsensitive()) && (cType2.isCaseinsensitive()));
+
+          if ((doCIcomp) && (NOT cType1.isUpshifted()))
+            ((ExFunctionReplace *)function_clause)->setCaseInsensitiveOperation(TRUE);
         }
       }
-      
-      break;
-      
-    case ITM_OCTET_LENGTH:
-      {
-	function_clause =
-	  new(generator->getSpace()) ex_function_oct_length(getOperatorType(),
-							    attr, space);
-      }
-      
-      break;
-      
-    case ITM_POSITION:
-      {
-        const CharType& patternOperandType = 
-		(CharType&)(child(0)->getValueId().getType());
+    } break;
 
-        switch ( patternOperandType.getCharSet() )
-        {
-          case CharInfo::ISO88591:
-          case CharInfo::UTF8:
-          case CharInfo::BINARY:
-          case CharInfo::UCS2:
-            // case CharInfo::SJIS: // Uncomment this if we ever support SJIS
-            function_clause = new(generator->getSpace()) 
-              ex_function_position(ITM_POSITION, attr, space,
-                                   (getArity() + 1));
-            
-            if (patternOperandType.getCharSet() == CharInfo::UCS2)
-              ((ex_function_position *)function_clause)->setCollation(CharInfo::DefaultCollation);
-            else
-              ((ex_function_position *)function_clause)->setCollation(((PositionFunc*)this)->getCollation());
-            
-            function_clause = new(generator->getSpace())
-              ex_function_position(ITM_POSITION, attr, space,
-                                   (getArity() + 1));
-            
-            ((ex_function_position*)function_clause)->setIsNullRelevant(TRUE);
-
-            // If INSTR function was specified and 
-            // the string to be seached for can be of length zero,
-            // null processing is to be done in eval method.
-            // This is needed as the result in this case has to be NULL value.
-            if ((! getUserTextStr().isNull()) && 
-                (strcmp(getUserTextStr(), "INSTR") == 0))
-              {
-                ((ex_function_position*)function_clause)->setIsInstr(TRUE);
-
-                if ((patternOperandType.isVaryingLen()) ||
-                    (patternOperandType.getNominalSize() == 0))
-                  {
-                    ((ex_function_position*)function_clause)->setIsNullRelevant(FALSE);
-                  }
-              }
-
-           break;
-
-           default:
-	    GenAssert(0, "unknown value for bytes-per-char.");
-         }
-      }
-      
-      break;
-      
-    case ITM_REPLACE:
-      {
-	function_clause =
-	  new(generator->getSpace()) ExFunctionReplace(getOperatorType(),
-						       attr, space);
-
-	const NAType &type1 = 
-	  child(0)->castToItemExpr()->getValueId().getType();
-	const NAType &type2 = 
-	  child(1)->castToItemExpr()->getValueId().getType();
-	const NAType &type3 = 
-	  child(2)->castToItemExpr()->getValueId().getType();
-
-	if ((type1.getTypeQualifier() == NA_CHARACTER_TYPE) &&
-	    (type2.getTypeQualifier() == NA_CHARACTER_TYPE))
-	  {
-	    const CharType &cType1 = (CharType&)type1;
-	    const CharType &cType2 = (CharType&)type2;
-	    const CharType &cType3 = (CharType&)type3;
-
-	    CharInfo::Collation coll1= cType1.getCollation();
-    	    CharInfo::Collation coll2= cType2.getCollation();
-    	    CharInfo::Collation coll3= cType3.getCollation();
-
-	    CMPASSERT(coll1 == coll2 && coll1 == coll3);
-	    if (CollationInfo::isSystemCollation(coll1))
-            {
-	      ((ExFunctionReplace*)function_clause)->setCollation(coll1);
-
-	      Lng32 len = 0;
-	      ItemExpr * tmpEncode;
-	      const NAType * typ;
-	      const CharType * ctyp;
-	      
-	      tmpEncode =  
-		  new(generator->wHeap()) 
-		  CompEncode(child(0),FALSE, -1, CollationInfo::Search);
-
-	      typ= tmpEncode->synthesizeType();
-	      ctyp = (CharType *)typ;
-	      len = ctyp->getNominalSize();
-
-	      ((ExFunctionReplace*)function_clause)->setArgEncodedLen((Int16)len, 0);
-
-	      tmpEncode = 
-		  new(generator->wHeap()) 
-		  CompEncode(child(1),FALSE, -1, CollationInfo::Search);
-	      
-	      typ = tmpEncode->synthesizeType();
-	      ctyp = (CharType *)typ;
-	      len = ctyp->getNominalSize();
-
-	      ((ExFunctionReplace*)function_clause)->setArgEncodedLen((Int16)len, 1);
-
-	    }
-	    else
-	    {
-	      NABoolean doCIcomp = 
-		((cType1.isCaseinsensitive()) && (cType2.isCaseinsensitive()));
-  	    
-	      if ((doCIcomp) && (NOT cType1.isUpshifted()))
-		((ExFunctionReplace*)function_clause)->
-		  setCaseInsensitiveOperation(TRUE);
-	    }
-	  }
-      }
-    break;
-
-    case ITM_REPEAT:
-      {
-	function_clause =
-	  new(generator->getSpace()) ExFunctionRepeat(getOperatorType(),
-						       attr, space);
-      }
-    break;
+    case ITM_REPEAT: {
+      function_clause = new (generator->getSpace()) ExFunctionRepeat(getOperatorType(), attr, space);
+    } break;
 
     case ITM_RETURN_TRUE:
     case ITM_RETURN_FALSE:
-    case ITM_RETURN_NULL:
-      {
-	function_clause =
-	  new(generator->getSpace()) ex_function_bool(getOperatorType(),
-						      attr, space);
-      }
-      break;
-      
-    case ITM_INVERSE:
-      {
-	MapInfo * inv_map_info 
-	  = generator->getMapInfo(getValueId());
-	
- 	MapInfo * child_map_info 
-	  = generator->getMapInfo(child(0)->castToItemExpr()->getValueId());
-	
-	(inv_map_info->getAttr())->copyLocationAttrs(child_map_info->getAttr());
-      }
-      break;
-      
-    case ITM_DAYOFWEEK:
-      {
-	function_clause =
-	  new(generator->getSpace()) ex_function_dayofweek(getOperatorType(),
-                                                           attr, space);
-      }
-      break;
-      
-    case ITM_JULIANTIMESTAMP:
-      {
-	function_clause =
-	  new(generator->getSpace()) ex_function_juliantimestamp(getOperatorType(),
-                                                                 attr, space);
-      }
-      break;
+    case ITM_RETURN_NULL: {
+      function_clause = new (generator->getSpace()) ex_function_bool(getOperatorType(), attr, space);
+    } break;
 
-    case ITM_MONTHS_BETWEEN:
-      {
-        function_clause =
-          new(generator->getSpace()) ex_function_monthsbetween(getOperatorType(),
-                                                                 attr, space);
-      }
-      break;
-    case ITM_EXEC_COUNT:
-      {
-	function_clause =
-	  new(generator->getSpace()) ex_function_exec_count(getOperatorType(),
-							    attr, space);
-      }
-      break;
+    case ITM_INVERSE: {
+      MapInfo *inv_map_info = generator->getMapInfo(getValueId());
 
-    case ITM_CURR_TRANSID:
-      {
-	function_clause =
-	  new(generator->getSpace()) ex_function_curr_transid(getOperatorType(),
-							      attr, space);
-	GenAssert(0, "eval method is missing for curr_transid function");
-      }
-      break;
+      MapInfo *child_map_info = generator->getMapInfo(child(0)->castToItemExpr()->getValueId());
+
+      (inv_map_info->getAttr())->copyLocationAttrs(child_map_info->getAttr());
+    } break;
+
+    case ITM_DAYOFWEEK: {
+      function_clause = new (generator->getSpace()) ex_function_dayofweek(getOperatorType(), attr, space);
+    } break;
+
+    case ITM_JULIANTIMESTAMP: {
+      function_clause = new (generator->getSpace()) ex_function_juliantimestamp(getOperatorType(), attr, space);
+    } break;
+
+    case ITM_MONTHS_BETWEEN: {
+      function_clause = new (generator->getSpace()) ex_function_monthsbetween(getOperatorType(), attr, space);
+    } break;
+    case ITM_EXEC_COUNT: {
+      function_clause = new (generator->getSpace()) ex_function_exec_count(getOperatorType(), attr, space);
+    } break;
+
+    case ITM_CURR_TRANSID: {
+      function_clause = new (generator->getSpace()) ex_function_curr_transid(getOperatorType(), attr, space);
+      GenAssert(0, "eval method is missing for curr_transid function");
+    } break;
 
     case ITM_USER:
     case ITM_USERID:
     case ITM_AUTHNAME:
-    case ITM_AUTHTYPE:
-      {
-	function_clause =
-	  new(generator->getSpace()) ex_function_user(getOperatorType(),
-						      attr, space);
-      }
-      break;
-      
-    case ITM_NULLIFZERO:
-      {
-	function_clause =
-	  new(generator->getSpace()) ex_function_nullifzero(getOperatorType(),
-						      attr, space);
-      }
-      break;
-      
-    case ITM_NVL:
-      {
-	function_clause =
-	  new(generator->getSpace()) ex_function_nvl(getOperatorType(),
-						     attr, space);
-      }
-      break;
+    case ITM_AUTHTYPE: {
+      function_clause = new (generator->getSpace()) ex_function_user(getOperatorType(), attr, space);
+    } break;
+
+    case ITM_NULLIFZERO: {
+      function_clause = new (generator->getSpace()) ex_function_nullifzero(getOperatorType(), attr, space);
+    } break;
+
+    case ITM_NVL: {
+      function_clause = new (generator->getSpace()) ex_function_nvl(getOperatorType(), attr, space);
+    } break;
 
     // for ngram
-    case ITM_FIRSTNGRAM:
-    {
-	  function_clause =
-	    new(generator->getSpace()) ex_function_firstngram(getOperatorType(),
-						     attr, space);
-    }
-    break;
-    case ITM_NGRAMCOUNT:
-    {
-	  function_clause =
-	    new(generator->getSpace()) ex_function_firstngram(getOperatorType(),
-						     attr, space);
-    }
-    break;
-    case ITM_QUERYID_EXTRACT:
-      {
-	function_clause =
-	  new(generator->getSpace()) 
-	  ex_function_queryid_extract(getOperatorType(),
-				      attr, space);
-      }
-      break;
+    case ITM_FIRSTNGRAM: {
+      function_clause = new (generator->getSpace()) ex_function_firstngram(getOperatorType(), attr, space);
+    } break;
+    case ITM_NGRAMCOUNT: {
+      function_clause = new (generator->getSpace()) ex_function_firstngram(getOperatorType(), attr, space);
+    } break;
+    case ITM_QUERYID_EXTRACT: {
+      function_clause = new (generator->getSpace()) ex_function_queryid_extract(getOperatorType(), attr, space);
+    } break;
 
-    case ITM_TOKENSTR:
-      {
-	function_clause =
-	  new(generator->getSpace()) ExFunctionTokenStr(getOperatorType(), 
-                                                        1+getArity(),
-							attr, space);
-      }
-    break;
+    case ITM_TOKENSTR: {
+      function_clause = new (generator->getSpace()) ExFunctionTokenStr(getOperatorType(), 1 + getArity(), attr, space);
+    } break;
 
-    case ITM_REVERSE:
-      {
-	function_clause =
-	  new(generator->getSpace()) ExFunctionReverseStr(getOperatorType(), 
-                                                          attr, space);
-      }
-    break;
+    case ITM_REVERSE: {
+      function_clause = new (generator->getSpace()) ExFunctionReverseStr(getOperatorType(), attr, space);
+    } break;
 
     case ITM_UNIQUE_ID:
     case ITM_UNIQUE_ID_SYS_GUID:
-    case ITM_UNIQUE_SHORT_ID:
-      {
-	function_clause =
-	  new(generator->getSpace()) ExFunctionUniqueId(getOperatorType(),
-							attr,
-							space);
-      }
-    break;
- 
-    case ITM_ROWNUM:
-      {
-	function_clause =
-	  new(generator->getSpace()) ExFunctionRowNum(getOperatorType(),
-							attr,
-							space);
-      }
-    break;
+    case ITM_UNIQUE_SHORT_ID: {
+      function_clause = new (generator->getSpace()) ExFunctionUniqueId(getOperatorType(), attr, space);
+    } break;
 
-    case ITM_SOUNDEX:
-    {
-        function_clause =
-            new(generator->getSpace()) ExFunctionSoundex(getOperatorType(),
-                    attr,
-                    space);
-    }
-    break;
+    case ITM_ROWNUM: {
+      function_clause = new (generator->getSpace()) ExFunctionRowNum(getOperatorType(), attr, space);
+    } break;
 
-    case ITM_AES_ENCRYPT:
-    {
-      function_clause =
-        new(generator->getSpace()) ExFunctionAESEncrypt(getOperatorType(),
-                                                        attr,
-                                                        space,
-                                                        getArity(),
-                                                        CmpCommon::getDefaultNumeric(BLOCK_ENCRYPTION_MODE));
+    case ITM_SOUNDEX: {
+      function_clause = new (generator->getSpace()) ExFunctionSoundex(getOperatorType(), attr, space);
+    } break;
+
+    case ITM_AES_ENCRYPT: {
+      function_clause = new (generator->getSpace()) ExFunctionAESEncrypt(
+          getOperatorType(), attr, space, getArity(), CmpCommon::getDefaultNumeric(BLOCK_ENCRYPTION_MODE));
       break;
     }
 
-    case ITM_AES_DECRYPT:
-    {
-      function_clause =
-        new(generator->getSpace()) ExFunctionAESDecrypt(getOperatorType(),
-                                                        attr,
-                                                        space,
-                                                        getArity(),
-                                                        CmpCommon::getDefaultNumeric(BLOCK_ENCRYPTION_MODE));
+    case ITM_AES_DECRYPT: {
+      function_clause = new (generator->getSpace()) ExFunctionAESDecrypt(
+          getOperatorType(), attr, space, getArity(), CmpCommon::getDefaultNumeric(BLOCK_ENCRYPTION_MODE));
       break;
     }
 
-    case ITM_ENCODE_BASE64:
-      {
-        function_clause =
-          new(generator->getSpace()) ExFunctionBase64EncDec
-          (getOperatorType(),
-           attr,
-           space,
-           TRUE,
-           -1);
-      }
-      break;
+    case ITM_ENCODE_BASE64: {
+      function_clause = new (generator->getSpace()) ExFunctionBase64EncDec(getOperatorType(), attr, space, TRUE, -1);
+    } break;
 
-    case ITM_SPLIT_PART:
-    {
-      function_clause = 
-            new (generator->getSpace()) ex_function_split_part(getOperatorType(), attr, space);
+    case ITM_SPLIT_PART: {
+      function_clause = new (generator->getSpace()) ex_function_split_part(getOperatorType(), attr, space);
       break;
     }
 
     default:
       break;
-    }
-  
-  if (function_clause)
-    generator->getExpGenerator()->linkClause(this, function_clause);
-  
+  }
+
+  if (function_clause) generator->getExpGenerator()->linkClause(this, function_clause);
+
   return 0;
 }
 
-short Abs::codeGen(Generator * generator)
-{
-  Attributes ** attr;
-  
-  Space * space = generator->getSpace();
-  
-  if (generator->getExpGenerator()->genItemExpr(this, &attr, (1 + getArity()), -1) == 1)
-    return 0;
+short Abs::codeGen(Generator *generator) {
+  Attributes **attr;
 
-  ex_clause * function_clause =
-    new(generator->getSpace()) ex_function_abs(getOperatorType(), 
-					       attr, space);
+  Space *space = generator->getSpace();
+
+  if (generator->getExpGenerator()->genItemExpr(this, &attr, (1 + getArity()), -1) == 1) return 0;
+
+  ex_clause *function_clause = new (generator->getSpace()) ex_function_abs(getOperatorType(), attr, space);
 
   generator->getExpGenerator()->linkClause(this, function_clause);
- 
+
   return 0;
 }
 
-short CharFunc::codeGen(Generator * generator)
-{
-  Attributes ** attr;
-  
-  Space * space = generator->getSpace();
-  
-  if (generator->getExpGenerator()->genItemExpr(this, &attr, (1 + getArity()), -1) == 1)
-    return 0;
+short CharFunc::codeGen(Generator *generator) {
+  Attributes **attr;
 
-  ex_clause * function_clause =
-    new(generator->getSpace()) ExFunctionChar(getOperatorType(), 
-					       attr, space);
+  Space *space = generator->getSpace();
+
+  if (generator->getExpGenerator()->genItemExpr(this, &attr, (1 + getArity()), -1) == 1) return 0;
+
+  ex_clause *function_clause = new (generator->getSpace()) ExFunctionChar(getOperatorType(), attr, space);
 
   generator->getExpGenerator()->linkClause(this, function_clause);
- 
+
   return 0;
 }
 
-short CodeVal::codeGen(Generator * generator)
-{
-  Attributes ** attr;
-  
-  Space * space = generator->getSpace();
-  
-  if (generator->getExpGenerator()->genItemExpr(this, &attr, (1 + getArity()), -1) == 1)
-    return 0;
+short CodeVal::codeGen(Generator *generator) {
+  Attributes **attr;
 
-  ex_clause * function_clause =
-    new(generator->getSpace()) ExFunctionAscii(getOperatorType(), 
-					       attr, space);
+  Space *space = generator->getSpace();
+
+  if (generator->getExpGenerator()->genItemExpr(this, &attr, (1 + getArity()), -1) == 1) return 0;
+
+  ex_clause *function_clause = new (generator->getSpace()) ExFunctionAscii(getOperatorType(), attr, space);
 
   generator->getExpGenerator()->linkClause(this, function_clause);
- 
+
   return 0;
 }
 
-short ConvertTimestamp::codeGen(Generator * generator)
-{
-  Attributes ** attr;
-  
-  Space * space = generator->getSpace();
-  
-  if (generator->getExpGenerator()->genItemExpr(this, &attr, (1 + getArity()), -1) == 1)
-    return 0;
+short ConvertTimestamp::codeGen(Generator *generator) {
+  Attributes **attr;
 
-  ex_function_converttimestamp* function_clause =
-    new(generator->getSpace()) ex_function_converttimestamp(
-         getOperatorType(),
-         attr, space,
-         (Int64)CmpCommon::context()->gmtDiff() * 60 * 1000000);
+  Space *space = generator->getSpace();
+
+  if (generator->getExpGenerator()->genItemExpr(this, &attr, (1 + getArity()), -1) == 1) return 0;
+
+  ex_function_converttimestamp *function_clause = new (generator->getSpace()) ex_function_converttimestamp(
+      getOperatorType(), attr, space, (Int64)CmpCommon::context()->gmtDiff() * 60 * 1000000);
 
   function_clause->setToLocalTime(toLocalTime_);
 
   generator->getExpGenerator()->linkClause(this, function_clause);
- 
+
   return 0;
 }
 
-short MaxBytes::codeGen(Generator * generator)
-{
-  Attributes ** attr;
+short MaxBytes::codeGen(Generator *generator) {
+  Attributes **attr;
 
-  Space * space = generator->getSpace();
+  Space *space = generator->getSpace();
 
-  if (generator->getExpGenerator()->genItemExpr(this, &attr, (1 + getArity()), -1) == 1)
-    return 0;
+  if (generator->getExpGenerator()->genItemExpr(this, &attr, (1 + getArity()), -1) == 1) return 0;
 
-  ex_clause * function_clause =
-    new(generator->getSpace()) ExFunctionMaxBytes(getOperatorType(),
-                                                  attr, space);
+  ex_clause *function_clause = new (generator->getSpace()) ExFunctionMaxBytes(getOperatorType(), attr, space);
 
   generator->getExpGenerator()->linkClause(this, function_clause);
 
   return 0;
 }
 
+short ConvertHex::codeGen(Generator *generator) {
+  Attributes **attr;
 
-short ConvertHex::codeGen(Generator * generator)
-{
-  Attributes ** attr;
-  
-  Space * space = generator->getSpace();
-  
-  if (generator->getExpGenerator()->genItemExpr(this, &attr, (1 + getArity()), -1) == 1)
-    return 0;
+  Space *space = generator->getSpace();
 
-  ex_clause * function_clause =
-    new(generator->getSpace()) ExFunctionConvertHex(getOperatorType(), 
-						    attr, space);
+  if (generator->getExpGenerator()->genItemExpr(this, &attr, (1 + getArity()), -1) == 1) return 0;
+
+  ex_clause *function_clause = new (generator->getSpace()) ExFunctionConvertHex(getOperatorType(), attr, space);
 
   generator->getExpGenerator()->linkClause(this, function_clause);
- 
+
   return 0;
 }
 
-short AggrMinMax::codeGen(Generator * generator)
-{
-  Attributes ** attr;
-  
-  Space * space = generator->getSpace();
-  
-  if (generator->getExpGenerator()->genItemExpr(this, &attr, (1 + getArity()), -1) == 1)
-    return 0;
-  
-  ex_clause * function_clause = 
-    new(generator->getSpace()) ex_aggr_min_max_clause(getOperatorType(),
-						      (short) (1+getArity()),
-						      attr, generator->getSpace());
-  
+short AggrMinMax::codeGen(Generator *generator) {
+  Attributes **attr;
+
+  Space *space = generator->getSpace();
+
+  if (generator->getExpGenerator()->genItemExpr(this, &attr, (1 + getArity()), -1) == 1) return 0;
+
+  ex_clause *function_clause = new (generator->getSpace())
+      ex_aggr_min_max_clause(getOperatorType(), (short)(1 + getArity()), attr, generator->getSpace());
+
   generator->getExpGenerator()->linkClause(this, function_clause);
-  
+
   return 0;
 }
 
-short AggrGrouping::codeGen(Generator * generator)
-{
-  Attributes ** attr;
-  
-  Space * space = generator->getSpace();
-  
-  if (generator->getExpGenerator()->genItemExpr(this, &attr, (1 + getArity()), -1) == 1)
-    return 0;
-  
-  GenAssert((rollupGroupIndex_ >= 0), 
-            "AggrGrouping::codeGen. rollupGroupIndex_ must be >= 0.");
+short AggrGrouping::codeGen(Generator *generator) {
+  Attributes **attr;
 
-  ex_clause * function_clause = 
-    new(generator->getSpace()) ExFunctionGrouping(getOperatorType(),
-                                                  1,
-                                                  attr, 
-                                                  rollupGroupIndex_,
-                                                  generator->getSpace());
-  
+  Space *space = generator->getSpace();
+
+  if (generator->getExpGenerator()->genItemExpr(this, &attr, (1 + getArity()), -1) == 1) return 0;
+
+  GenAssert((rollupGroupIndex_ >= 0), "AggrGrouping::codeGen. rollupGroupIndex_ must be >= 0.");
+
+  ex_clause *function_clause = new (generator->getSpace())
+      ExFunctionGrouping(getOperatorType(), 1, attr, rollupGroupIndex_, generator->getSpace());
+
   generator->getExpGenerator()->linkClause(this, function_clause);
-  
+
   return 0;
 }
 
-short AnsiUSERFunction::codeGen(Generator * generator)
-{
-  Attributes ** attr;
-  
-  Space * space = generator->getSpace();
-  
-  if (generator->getExpGenerator()->genItemExpr(this, &attr, (1 + getArity()), -1) == 1)
-    return 0;
-  
-  ex_clause * function_clause = NULL;
-  
-  function_clause =
-    new(generator->getSpace()) ex_function_ansi_user(getOperatorType(),
-						     attr, space);
+short AnsiUSERFunction::codeGen(Generator *generator) {
+  Attributes **attr;
 
-  if (function_clause)
-    generator->getExpGenerator()->linkClause(this, function_clause);
-  
+  Space *space = generator->getSpace();
+
+  if (generator->getExpGenerator()->genItemExpr(this, &attr, (1 + getArity()), -1) == 1) return 0;
+
+  ex_clause *function_clause = NULL;
+
+  function_clause = new (generator->getSpace()) ex_function_ansi_user(getOperatorType(), attr, space);
+
+  if (function_clause) generator->getExpGenerator()->linkClause(this, function_clause);
+
   return 0;
 }
 
-short AnsiTenantFunction::codeGen(Generator * generator)
-{
-  Attributes ** attr;
-  
-  Space * space = generator->getSpace();
-  
-  if (generator->getExpGenerator()->genItemExpr(this, &attr, (1 + getArity()), -1) == 1)
-    return 0;
-  
-  ex_clause * function_clause = NULL;
-  
-  function_clause =
-    new(generator->getSpace()) ex_function_ansi_tenant(getOperatorType(),
-						     attr, space);
+short AnsiTenantFunction::codeGen(Generator *generator) {
+  Attributes **attr;
 
-  if (function_clause)
-    generator->getExpGenerator()->linkClause(this, function_clause);
-  
+  Space *space = generator->getSpace();
+
+  if (generator->getExpGenerator()->genItemExpr(this, &attr, (1 + getArity()), -1) == 1) return 0;
+
+  ex_clause *function_clause = NULL;
+
+  function_clause = new (generator->getSpace()) ex_function_ansi_tenant(getOperatorType(), attr, space);
+
+  if (function_clause) generator->getExpGenerator()->linkClause(this, function_clause);
+
   return 0;
 }
 
-short BoolResult::codeGen(Generator * generator)
-{
-  Attributes ** attr;
+short BoolResult::codeGen(Generator *generator) {
+  Attributes **attr;
 
   child(0)->codeGen(generator);
-  
+
   ItemExpr *rightMost = child(0);
 
-  while (rightMost->getOperatorType() == ITM_ITEM_LIST)
-    rightMost = rightMost->child(1);
+  while (rightMost->getOperatorType() == ITM_ITEM_LIST) rightMost = rightMost->child(1);
 
-  if (rightMost->getOperatorType() == ITM_RANGE_SPEC_FUNC)
-    rightMost = rightMost->child(1);
+  if (rightMost->getOperatorType() == ITM_RANGE_SPEC_FUNC) rightMost = rightMost->child(1);
 
-  if (generator->getExpGenerator()->genItemExpr(this, &attr, 1, -1) == 1)
-    return 0;
-  
-  attr[0]->copyLocationAttrs(
-       generator->getMapInfo(rightMost->getValueId())->getAttr());
-  
-  ex_clause * function_clause =
-    new(generator->getSpace()) bool_result_clause(getOperatorType(),
-						  attr, generator->getSpace()
-						  );
-  
+  if (generator->getExpGenerator()->genItemExpr(this, &attr, 1, -1) == 1) return 0;
+
+  attr[0]->copyLocationAttrs(generator->getMapInfo(rightMost->getValueId())->getAttr());
+
+  ex_clause *function_clause =
+      new (generator->getSpace()) bool_result_clause(getOperatorType(), attr, generator->getSpace());
+
   // this is the last clause.
   function_clause->setLastClause();
   generator->getExpGenerator()->linkClause(this, function_clause);
- 
-  MapInfo * map_info = generator->addMapInfo(getValueId(), NULL);
+
+  MapInfo *map_info = generator->addMapInfo(getValueId(), NULL);
   map_info->codeGenerated();
 
   return 0;
 }
 
-short BitOperFunc::codeGen(Generator * generator)
-{
-  Attributes ** attr;
+short BitOperFunc::codeGen(Generator *generator) {
+  Attributes **attr;
 
-  if (generator->getExpGenerator()->genItemExpr(this, &attr, (1 + getArity()), -1) == 1)
-    return 0;
+  if (generator->getExpGenerator()->genItemExpr(this, &attr, (1 + getArity()), -1) == 1) return 0;
 
-  ex_clause * function_clause = NULL;
+  ex_clause *function_clause = NULL;
   function_clause =
-    new(generator->getSpace()) ExFunctionBitOper(getOperatorType(), 
-						 (1+getArity()),
-						 attr, generator->getSpace());
-  
+      new (generator->getSpace()) ExFunctionBitOper(getOperatorType(), (1 + getArity()), attr, generator->getSpace());
+
   generator->getExpGenerator()->linkClause(this, function_clause);
 
   return 0;
@@ -1062,61 +752,51 @@ short IfThenElse::codeGen(Generator *generator) {
   //
   //  if (generator->getExpGenerator()->genItemExpr(this, &attr, 1, 0) == 1)
   //    return 0;
-  //  
+  //
   //  return 0;
 }
 
 short RaiseError::codeGen(Generator *generator) {
-  Attributes ** attr;
-  
-  if (generator->getExpGenerator()->genItemExpr(this, &attr, 1 + getArity(), -1) == 1)
-    return 0;
-  
-  const char * constraintName = NULL;
-  const char * tableName  = NULL;
-  const char * optionalStr = NULL;
+  Attributes **attr;
+
+  if (generator->getExpGenerator()->genItemExpr(this, &attr, 1 + getArity(), -1) == 1) return 0;
+
+  const char *constraintName = NULL;
+  const char *tableName = NULL;
+  const char *optionalStr = NULL;
 
   if (!getConstraintName().isNull()) {
-    constraintName = generator->getSpace()->AllocateAndCopyToAlignedSpace(
-         getConstraintName(), 0);
+    constraintName = generator->getSpace()->AllocateAndCopyToAlignedSpace(getConstraintName(), 0);
   }
-  
+
   if (!getTableName().isNull()) {
-    tableName  = generator->getSpace()->AllocateAndCopyToAlignedSpace(
-         getTableName(), 0);
+    tableName = generator->getSpace()->AllocateAndCopyToAlignedSpace(getTableName(), 0);
   }
-  
+
   if (!optionalStr_.isNull()) {
-    optionalStr  = generator->getSpace()->allocateAndCopyToAlignedSpace(
-         optionalStr_.data(), optionalStr_.length(), 0);
+    optionalStr = generator->getSpace()->allocateAndCopyToAlignedSpace(optionalStr_.data(), optionalStr_.length(), 0);
   }
-  
+
   // make raiseError a field in this class. TBD.
   NABoolean raiseError = ((getSQLCODE() > 0) ? TRUE : FALSE);
-  ex_clause * function_clause =
-    new(generator->getSpace()) ExpRaiseErrorFunction (attr, 
-						      generator->getSpace(),
-						      (raiseError ? getSQLCODE() : - getSQLCODE()),
-						      raiseError,
-						      constraintName,
-						      tableName,
-                                                      (getArity()==1) ? TRUE : FALSE,  // -- Triggers
-                                                      optionalStr);
-  
+  ex_clause *function_clause = new (generator->getSpace()) ExpRaiseErrorFunction(
+      attr, generator->getSpace(), (raiseError ? getSQLCODE() : -getSQLCODE()), raiseError, constraintName, tableName,
+      (getArity() == 1) ? TRUE : FALSE,  // -- Triggers
+      optionalStr);
+
   generator->getExpGenerator()->linkClause(this, function_clause);
-  
+
   return 0;
 }
 
-short Case::codeGen(Generator * generator)
-{
+short Case::codeGen(Generator *generator) {
   ///////////////////////////////////////////////////////////////////
   // A case statement of the form:
   //   CASE CO
   //     WHEN C1 THEN R1
   //     WHEN C2 THEN R2
   //     ...
-  //     ELSE EO 
+  //     ELSE EO
   //   END
   //
   // gets transformed into:
@@ -1133,12 +813,12 @@ short Case::codeGen(Generator * generator)
   // a search condition.
   //
   // The case statement then further gets transformed into:
-  // 
+  //
   //    ((CO = C1) AND (R1)) OR
   //    ((CO = C2) AND (R2)) OR
   //    ...                  OR
   //    (EO)
-  // 
+  //
   // This transformation evaluates the 'when' part (CO = Ci) first
   // and if that is true, then the corresponding Ri is evaluated.
   // The logical statement then branches out using boolean short
@@ -1150,20 +830,19 @@ short Case::codeGen(Generator * generator)
   // Later, move to preCodeGen.
   /////////////////////////////////////////////////////////////////////
 
-  Attributes ** attr;
+  Attributes **attr;
 
   // add the case node to the map table
-  if (generator->getExpGenerator()->genItemExpr(this, &attr, 1, 0) == 1)
-    return 0;
+  if (generator->getExpGenerator()->genItemExpr(this, &attr, 1, 0) == 1) return 0;
 
-  Attributes * case_map_info_attr = generator->getMapInfo(getValueId())->getAttr();
-  
-  ItemExpr * rootNode = 0;
+  Attributes *case_map_info_attr = generator->getMapInfo(getValueId())->getAttr();
+
+  ItemExpr *rootNode = 0;
 
   // Set flag indicating that a case stmt was generated
   generator->getExpGenerator()->setCaseStmtGenerated(TRUE);
 
-  if ( CmpCommon::getDefault(COMP_BOOL_91) == DF_OFF ) {
+  if (CmpCommon::getDefault(COMP_BOOL_91) == DF_OFF) {
     // Do the codegen for the CASE Logic here in the codegen method,
     // rather than translating to an AND/OR tree and calling codegen
     // on that.  The advantage of this is that we can reuse the
@@ -1182,69 +861,56 @@ short Case::codeGen(Generator * generator)
     // Collect all the WHEN and THEN clauses in lists.
     //
     ItemExpr *ifThenElse = child(0);
-    for (;
-         (ifThenElse != NULL) AND
-           (ifThenElse->getOperatorType() == ITM_IF_THEN_ELSE);
-         ifThenElse = ifThenElse->child(2))
-      {
-        ItemExpr * when_part = ifThenElse->child(0);
-        ItemExpr * then_part = new(generator->wHeap()) Cast(ifThenElse->child(1),
-                                                            &(getValueId().getType()));
+    for (; (ifThenElse != NULL) AND(ifThenElse->getOperatorType() == ITM_IF_THEN_ELSE);
+         ifThenElse = ifThenElse->child(2)) {
+      ItemExpr *when_part = ifThenElse->child(0);
+      ItemExpr *then_part = new (generator->wHeap()) Cast(ifThenElse->child(1), &(getValueId().getType()));
 
-        then_part->bindNode(generator->getBindWA());
-      
-        // set the buffer location of all the convert nodes that were added
-        // in the last step to be the same as that of the case node. This
-        // will make all result values to be moved to the same location.
-        MapInfo * map_info 
-          = generator->addMapInfo(then_part->getValueId(),
-                                  case_map_info_attr);
-        (map_info->getAttr())->copyLocationAttrs(case_map_info_attr);   
-      
-        ItemExpr *caseOperand = removeCaseOperand();
+      then_part->bindNode(generator->getBindWA());
 
-        if (caseOperand != NULL) 
-          {
-            when_part = new(generator->wHeap()) BiRelat(ITM_EQUAL, caseOperand, when_part);
-          }
-      
-        // Then part must return TRUE after moving result to the proper location.
-        // It must return TRUE so that the AND/OR processing will work properly.
-        //
-        then_part = new(generator->wHeap()) BoolVal(ITM_RETURN_TRUE, then_part);
+      // set the buffer location of all the convert nodes that were added
+      // in the last step to be the same as that of the case node. This
+      // will make all result values to be moved to the same location.
+      MapInfo *map_info = generator->addMapInfo(then_part->getValueId(), case_map_info_attr);
+      (map_info->getAttr())->copyLocationAttrs(case_map_info_attr);
 
-        when_part->bindNode(generator->getBindWA());
-        then_part->bindNode(generator->getBindWA());
+      ItemExpr *caseOperand = removeCaseOperand();
 
-        whens.insert(when_part->getValueId());
-        thens.insert(then_part->getValueId());
+      if (caseOperand != NULL) {
+        when_part = new (generator->wHeap()) BiRelat(ITM_EQUAL, caseOperand, when_part);
+      }
 
-    } // for
+      // Then part must return TRUE after moving result to the proper location.
+      // It must return TRUE so that the AND/OR processing will work properly.
+      //
+      then_part = new (generator->wHeap()) BoolVal(ITM_RETURN_TRUE, then_part);
 
+      when_part->bindNode(generator->getBindWA());
+      then_part->bindNode(generator->getBindWA());
+
+      whens.insert(when_part->getValueId());
+      thens.insert(then_part->getValueId());
+
+    }  // for
 
     // If there is an ELSE part, process it as one of the THEN clauses.
     //
-    if (ifThenElse)
-      {
-        // Move the ELSE value into the same location as the THENs.
-        //
-        ItemExpr * else_part = new(generator->wHeap()) Cast(ifThenElse, 
-                                                            &(getValueId().getType()));
-      
-        else_part->bindNode(generator->getBindWA());
-        MapInfo * map_info = 
-          generator->addMapInfo(else_part->getValueId(),
-                                case_map_info_attr);
-      
-        (map_info->getAttr())->copyLocationAttrs(case_map_info_attr);
-      
-        else_part =  new(generator->wHeap()) BoolVal(ITM_RETURN_TRUE, else_part); 
+    if (ifThenElse) {
+      // Move the ELSE value into the same location as the THENs.
+      //
+      ItemExpr *else_part = new (generator->wHeap()) Cast(ifThenElse, &(getValueId().getType()));
 
-        else_part->bindNode(generator->getBindWA());
+      else_part->bindNode(generator->getBindWA());
+      MapInfo *map_info = generator->addMapInfo(else_part->getValueId(), case_map_info_attr);
 
-        thens.insert(else_part->getValueId());
+      (map_info->getAttr())->copyLocationAttrs(case_map_info_attr);
+
+      else_part = new (generator->wHeap()) BoolVal(ITM_RETURN_TRUE, else_part);
+
+      else_part->bindNode(generator->getBindWA());
+
+      thens.insert(else_part->getValueId());
     }
-    
 
     // Disable the Common Expression Detection Cache.
     //
@@ -1262,34 +928,32 @@ short Case::codeGen(Generator * generator)
     MapTable *mt = generator->unlinkLast();
     GenAssert(mt == thenscMapTable, "Unexpected map table");
 
-    Space * space = generator->getSpace();
-    
+    Space *space = generator->getSpace();
+
     // Attributes for AND/OR Branching and AND/OR BiLogic.
     //
-    Attributes ** branch_attr = new(generator->wHeap()) Attributes * [2];
-    Attributes ** allAttr = new(generator->wHeap()) Attributes * [3];
-    Attributes ** prevAttr = new(generator->wHeap()) Attributes * [3];
-    
+    Attributes **branch_attr = new (generator->wHeap()) Attributes *[2];
+    Attributes **allAttr = new (generator->wHeap()) Attributes *[3];
+    Attributes **prevAttr = new (generator->wHeap()) Attributes *[3];
+
     // Must remember previous Branch Clause.
     //
     ex_branch_clause *orBranchClause = NULL;
 
     // For all the WHEN/THEN pairs.
     //
-    for(CollIndex i = 0; i < whens.entries(); i++) {
-
+    for (CollIndex i = 0; i < whens.entries(); i++) {
       ItemExpr *when_part = whens[i].getItemExpr();
       ItemExpr *then_part = thens[i].getItemExpr();
-      
+
       // Create an AND node and bind it.  Just used to get a ValueId.
       // Will not call codegen in this AND node.
       //
-      ItemExpr *andNode = new(generator->wHeap()) BiLogic(ITM_AND, when_part, then_part);
+      ItemExpr *andNode = new (generator->wHeap()) BiLogic(ITM_AND, when_part, then_part);
       andNode->bindNode(generator->getBindWA());
 
       // Create a temporary space for the result of the AND clause.
-      MapInfo *mapInfoAndNode = 
-        generator->getExpGenerator()->addTemporary(andNode->getValueId(), NULL);
+      MapInfo *mapInfoAndNode = generator->getExpGenerator()->addTemporary(andNode->getValueId(), NULL);
 
       when_part->preCodeGen(generator);
       generator->getExpGenerator()->setClauseLinked(FALSE);
@@ -1310,16 +974,15 @@ short Case::codeGen(Generator * generator)
 
       branch_attr[0]->resetShowplan();
 
-      ex_branch_clause  *andBranchClause 
-        = new(space) ex_branch_clause(ITM_AND, branch_attr, space);
-  
+      ex_branch_clause *andBranchClause = new (space) ex_branch_clause(ITM_AND, branch_attr, space);
+
       generator->getExpGenerator()->linkClause(0, andBranchClause);
-      
+
       // Use the Short Circuit Map Table when processing the THEN Clause.
       //
       generator->appendAtEnd(thenscMapTable);
       then_part->preCodeGen(generator);
-      
+
       // Disable the Common Expression Detection Cache.
       //
       generator->getExpGenerator()->incrementLevel();
@@ -1329,15 +992,13 @@ short Case::codeGen(Generator * generator)
       generator->getExpGenerator()->decrementLevel();
 
       ItemExpr *rightMost = then_part;
-      
+
       // Find the right most part of the THEN clause.
       // (Can this really be a list in the context of a CASE statement?)
       //
-      while (rightMost->getOperatorType() == ITM_ITEM_LIST)
-        rightMost = rightMost->child(1)->castToItemExpr();
+      while (rightMost->getOperatorType() == ITM_ITEM_LIST) rightMost = rightMost->child(1)->castToItemExpr();
 
-      allAttr[2] = generator->
-        getMapInfo(rightMost->getValueId())->getAttr();
+      allAttr[2] = generator->getMapInfo(rightMost->getValueId())->getAttr();
 
       // Add the REAL Boolean AND Clause.  The AND between the WHEN
       // and the TRUE (of the THEN)
@@ -1345,8 +1006,7 @@ short Case::codeGen(Generator * generator)
 
       allAttr[0]->resetShowplan();
 
-      ex_bool_clause * andClause =
-        new(space) ex_bool_clause(ITM_AND, allAttr, space);
+      ex_bool_clause *andClause = new (space) ex_bool_clause(ITM_AND, allAttr, space);
 
       generator->getExpGenerator()->linkClause(this, andClause);
 
@@ -1357,7 +1017,7 @@ short Case::codeGen(Generator * generator)
       // clauses.
       mt = generator->unlinkLast();
       GenAssert(mt == thenscMapTable, "Unexpected map table");
-      
+
       // Clear the codegen flag in the Short Circuit MapTable.  The
       // items codegened for one THEN clause should not be available
       // for the next THEN clause.
@@ -1368,20 +1028,18 @@ short Case::codeGen(Generator * generator)
       // previous AND or previous OR of ANDS.  The first time thru the
       // loop there is no previous so only do this after the first
       // iteration.
-      if(i > 0) {
+      if (i > 0) {
         // Add OR
 
         prevAttr[2] = mapInfoAndNode->getAttr();
 
         prevAttr[0]->resetShowplan();
 
-        ex_bool_clause * orClause =
-          new(space) ex_bool_clause(ITM_OR, prevAttr, space);
+        ex_bool_clause *orClause = new (space) ex_bool_clause(ITM_OR, prevAttr, space);
 
         generator->getExpGenerator()->linkClause(this, orClause);
 
         orBranchClause->set_branch_clause((ex_clause *)orClause);
-
       }
 
       // If there is another CLAUSE to process after this one (either
@@ -1389,25 +1047,22 @@ short Case::codeGen(Generator * generator)
       // clause to branch around WHEN/THENs (ELSE) once one of the THENs has
       // been taken.
       //
-      if(i < (thens.entries() - 1)) {
-        
+      if (i < (thens.entries() - 1)) {
         // Add OR Branch Create a dummy OR node and bind it.  Just
         // used to get a ValueId.  Will not call codegen in this OR
         // node.  (note that the OR is not between the right values.
         // It is okay since it is just used as a placeholder.)
         //
-        ItemExpr *orNode = new(generator->wHeap()) BiLogic(ITM_OR, andNode, 
-                                                           andNode);
+        ItemExpr *orNode = new (generator->wHeap()) BiLogic(ITM_OR, andNode, andNode);
         orNode->bindNode(generator->getBindWA());
 
         // Create temp space for the result of the OR clause.
-        MapInfo *mapInfoOrNode = 
-          generator->getExpGenerator()->addTemporary(orNode->getValueId(), NULL);
-      
+        MapInfo *mapInfoOrNode = generator->getExpGenerator()->addTemporary(orNode->getValueId(), NULL);
+
         // On the first time, the OR is between two ANDs,  after that it is between
         // the previous OR (OR of ANDS) and the current AND.
         //
-        if(i > 0) {
+        if (i > 0) {
           prevAttr[1] = prevAttr[0];
         } else {
           prevAttr[1] = mapInfoAndNode->getAttr();
@@ -1421,9 +1076,9 @@ short Case::codeGen(Generator * generator)
         branch_attr[1]->copyLocationAttrs(prevAttr[1]);
 
         generator->getExpGenerator()->setClauseLinked(FALSE);
-        
+
         branch_attr[0]->resetShowplan();
-        orBranchClause  = new(space) ex_branch_clause(ITM_OR, branch_attr, space);
+        orBranchClause = new (space) ex_branch_clause(ITM_OR, branch_attr, space);
 
         generator->getExpGenerator()->linkClause(0, orBranchClause);
       }
@@ -1431,7 +1086,7 @@ short Case::codeGen(Generator * generator)
 
     // If there is an ELSE clause, generate code for the ELSE clause
     // and OR it into the rest.
-    if(thens.entries() > whens.entries()) {
+    if (thens.entries() > whens.entries()) {
       ItemExpr *else_part = thens[whens.entries()].getItemExpr();
 
       // Use the Short Circuit Map Table for the ELSE clause.
@@ -1443,22 +1098,21 @@ short Case::codeGen(Generator * generator)
       generator->getExpGenerator()->setClauseLinked(FALSE);
       else_part->codeGen(generator);
       generator->getExpGenerator()->decrementLevel();
-    
+
       prevAttr[2] = generator->getAttr(else_part);
       generator->getExpGenerator()->setClauseLinked(FALSE);
 
       prevAttr[0]->resetShowplan();
 
-      ex_bool_clause * orClause =
-        new(space) ex_bool_clause(ITM_OR, prevAttr, space);
+      ex_bool_clause *orClause = new (space) ex_bool_clause(ITM_OR, prevAttr, space);
 
       generator->getExpGenerator()->linkClause(this, orClause);
-    
+
       orBranchClause->set_branch_clause((ex_clause *)orClause);
-    
+
       mt = generator->unlinkLast();
       GenAssert(mt == thenscMapTable, "Unexpected map table");
-      
+
       thenscMapTable->resetCodeGen();
     }
     generator->getExpGenerator()->setClauseLinked(FALSE);
@@ -1474,357 +1128,271 @@ short Case::codeGen(Generator * generator)
     generator->getExpGenerator()->decrementLevel();
 
     return 0;
-
   }
-  
-  char * str = new(generator->wHeap()) char[100];
-  
+
+  char *str = new (generator->wHeap()) char[100];
+
   ItemExpr *ifThenElse = child(0);
-  for (;
-       (ifThenElse != NULL) AND
-       (ifThenElse->getOperatorType() == ITM_IF_THEN_ELSE);
-       ifThenElse = ifThenElse->child(2))
-    {
-      ItemExpr * when_part = ifThenElse->child(0);
-      ItemExpr * then_part = new(generator->wHeap()) Cast(ifThenElse->child(1),
-				      &(getValueId().getType()));
-      
-      then_part->bindNode(generator->getBindWA());
-      
-      // set the buffer location of all the convert nodes that were added
-      // in the last step to be the same as that of the case node. This
-      // will make all result values to be moved to the same location.
-      MapInfo * map_info 
-	= generator->addMapInfo(then_part->getValueId(),
-					       case_map_info_attr);
-      (map_info->getAttr())->copyLocationAttrs(case_map_info_attr);   
-      
-      ItemExpr *caseOperand = removeCaseOperand();
-      if (caseOperand != NULL)
-	strcpy(str, "@A1 = @A2 AND @B3");
-      else
-	strcpy(str, "@B2 AND @B3");
-      
-      ItemExpr * andNode 
-	= generator->getExpGenerator()->createExprTree(str, 0, 3,
-						       caseOperand,
-						       when_part,
-						       new(generator->wHeap())
-						       BoolVal(ITM_RETURN_TRUE, then_part));
-      
-      if (rootNode)
-	{
-	  rootNode = generator->getExpGenerator()->createExprTree("@B1 OR @B2", 0, 2,
-								  rootNode, andNode);
-	}
-      else
-	{
-	  rootNode = andNode;
-	}
-    } // for
-  
-  // now add the else part, if present
-  if (ifThenElse)
-    {
-      ItemExpr * conv_node = new(generator->wHeap()) Cast(ifThenElse, 
-				      &(getValueId().getType()));
-      
-      conv_node->bindNode(generator->getBindWA());
-      MapInfo * map_info = 
-	generator->addMapInfo(conv_node->getValueId(),
-					   case_map_info_attr);
-      
-      (map_info->getAttr())->copyLocationAttrs(case_map_info_attr);
-      
-      rootNode = new(generator->wHeap()) BiLogic(ITM_OR, rootNode,
-			     new(generator->wHeap()) BoolVal(ITM_RETURN_TRUE, 
-					 conv_node)); 
+  for (; (ifThenElse != NULL) AND(ifThenElse->getOperatorType() == ITM_IF_THEN_ELSE);
+       ifThenElse = ifThenElse->child(2)) {
+    ItemExpr *when_part = ifThenElse->child(0);
+    ItemExpr *then_part = new (generator->wHeap()) Cast(ifThenElse->child(1), &(getValueId().getType()));
+
+    then_part->bindNode(generator->getBindWA());
+
+    // set the buffer location of all the convert nodes that were added
+    // in the last step to be the same as that of the case node. This
+    // will make all result values to be moved to the same location.
+    MapInfo *map_info = generator->addMapInfo(then_part->getValueId(), case_map_info_attr);
+    (map_info->getAttr())->copyLocationAttrs(case_map_info_attr);
+
+    ItemExpr *caseOperand = removeCaseOperand();
+    if (caseOperand != NULL)
+      strcpy(str, "@A1 = @A2 AND @B3");
+    else
+      strcpy(str, "@B2 AND @B3");
+
+    ItemExpr *andNode = generator->getExpGenerator()->createExprTree(
+        str, 0, 3, caseOperand, when_part, new (generator->wHeap()) BoolVal(ITM_RETURN_TRUE, then_part));
+
+    if (rootNode) {
+      rootNode = generator->getExpGenerator()->createExprTree("@B1 OR @B2", 0, 2, rootNode, andNode);
+    } else {
+      rootNode = andNode;
     }
+  }  // for
 
-  NADELETEBASIC( str, generator->wHeap()) ;
+  // now add the else part, if present
+  if (ifThenElse) {
+    ItemExpr *conv_node = new (generator->wHeap()) Cast(ifThenElse, &(getValueId().getType()));
 
-  GenAssert(rootNode,"Case::codeGen: Expected ELSE condition"); // ported back from R2
+    conv_node->bindNode(generator->getBindWA());
+    MapInfo *map_info = generator->addMapInfo(conv_node->getValueId(), case_map_info_attr);
 
-  #ifdef _DEBUG
-    if (getenv("GEN_FUNC_DEBUG"))
-      {
-        NAString unparsed;
-	unparse(unparsed);
-	cout << "(a)" << unparsed << endl;
+    (map_info->getAttr())->copyLocationAttrs(case_map_info_attr);
 
-	unparsed = "";
-	rootNode->unparse(unparsed);
-	cout << "(b)" << unparsed << endl;
-      }
-  #endif
-  
+    rootNode = new (generator->wHeap())
+        BiLogic(ITM_OR, rootNode, new (generator->wHeap()) BoolVal(ITM_RETURN_TRUE, conv_node));
+  }
+
+  NADELETEBASIC(str, generator->wHeap());
+
+  GenAssert(rootNode, "Case::codeGen: Expected ELSE condition");  // ported back from R2
+
+#ifdef _DEBUG
+  if (getenv("GEN_FUNC_DEBUG")) {
+    NAString unparsed;
+    unparse(unparsed);
+    cout << "(a)" << unparsed << endl;
+
+    unparsed = "";
+    rootNode->unparse(unparsed);
+    cout << "(b)" << unparsed << endl;
+  }
+#endif
+
   rootNode->bindNode(generator->getBindWA());
 
-  GenAssert(rootNode,"Case::codeGen: Expected ELSE condition");
+  GenAssert(rootNode, "Case::codeGen: Expected ELSE condition");
   // generate child
   rootNode->preCodeGen(generator);
   rootNode->codeGen(generator);
-  
+
   return 0;
 }
 
-short Cast::codeGen(Generator * generator)
-{
+short Cast::codeGen(Generator *generator) {
+  Attributes **attr;
 
-  Attributes ** attr;
+  ExpGenerator *eg = generator->getExpGenerator();
 
-  ExpGenerator * eg = generator->getExpGenerator();
-  
-  if (eg->genItemExpr(this, &attr, (1+getArity()), -1) == 1)
-    return 0;
+  if (eg->genItemExpr(this, &attr, (1 + getArity()), -1) == 1) return 0;
 
   // if temp space is needed for this operation, set it.
-  if (attr[0]->isComplexType())
-    {
-      eg->addTempsLength(((ComplexType *)attr[0])->setTempSpaceInfo(getOperatorType(),
-								    eg->getTempsLength()));
-    }
-  ex_conv_clause * conv_clause;
-  if(attr[0]->getNullFlag())  //if target is nullable
-    conv_clause = new(generator->getSpace()) ex_conv_clause(getOperatorType(), attr,
-						    generator->getSpace(),
-						    1 + getArity(), 
-  						    checkTruncationError(),
-                                                    reverseDataErrorConversionFlag_,
-                                                    noStringTruncationWarnings(),
-                                                    convertNullWhenError(),
-                                                    padUseZero());
+  if (attr[0]->isComplexType()) {
+    eg->addTempsLength(((ComplexType *)attr[0])->setTempSpaceInfo(getOperatorType(), eg->getTempsLength()));
+  }
+  ex_conv_clause *conv_clause;
+  if (attr[0]->getNullFlag())  // if target is nullable
+    conv_clause = new (generator->getSpace()) ex_conv_clause(
+        getOperatorType(), attr, generator->getSpace(), 1 + getArity(), checkTruncationError(),
+        reverseDataErrorConversionFlag_, noStringTruncationWarnings(), convertNullWhenError(), padUseZero());
   else
-    conv_clause = new(generator->getSpace()) ex_conv_clause(getOperatorType(), attr,
-                                                    generator->getSpace(),
-                                                    1 + getArity(), 
-                                                    checkTruncationError(),
-                                                    reverseDataErrorConversionFlag_,
-                                                    noStringTruncationWarnings(),
-                                                    FALSE,
-                                                    padUseZero());
+    conv_clause = new (generator->getSpace())
+        ex_conv_clause(getOperatorType(), attr, generator->getSpace(), 1 + getArity(), checkTruncationError(),
+                       reverseDataErrorConversionFlag_, noStringTruncationWarnings(), FALSE, padUseZero());
 
   conv_clause->setTreatAllSpacesAsZero(treatAllSpacesAsZero());
 
-  if ( CmpCommon::getDefault(MARIAQUEST_PROCESS) == DF_ON ) 
-  {
+  if (CmpCommon::getDefault(MARIAQUEST_PROCESS) == DF_ON) {
     conv_clause->setAllowSignInInterval(TRUE);
     conv_clause->setNoDatetimeValidation(TRUE);
   }
-  
+
   conv_clause->setAllowSignInInterval(allowSignInInterval());
   conv_clause->setSrcIsVarcharPtr(srcIsVarcharPtr());
 
-  generator->getExpGenerator()->linkClause(this, conv_clause); 
+  generator->getExpGenerator()->linkClause(this, conv_clause);
 
   return 0;
 }
 
-short CastType::codeGen(Generator * generator)
-{
-  if (makeNullable_)
-    return Cast::codeGen(generator);
+short CastType::codeGen(Generator *generator) {
+  if (makeNullable_) return Cast::codeGen(generator);
 
-  Attributes ** attr;
+  Attributes **attr;
 
-  ExpGenerator * eg = generator->getExpGenerator();
-  
-  if (eg->genItemExpr(this, &attr, (1+getArity()), -1) == 1)
-    return 0;
+  ExpGenerator *eg = generator->getExpGenerator();
 
-  ExFunctionCastType * ct =
-	  new(generator->getSpace()) ExFunctionCastType(getOperatorType(), attr,
-							generator->getSpace());
+  if (eg->genItemExpr(this, &attr, (1 + getArity()), -1) == 1) return 0;
 
-  generator->getExpGenerator()->linkClause(this, ct); 
+  ExFunctionCastType *ct =
+      new (generator->getSpace()) ExFunctionCastType(getOperatorType(), attr, generator->getSpace());
+
+  generator->getExpGenerator()->linkClause(this, ct);
 
   return 0;
 }
 
-short CompEncode::codeGen(Generator * generator)
-{
-  Attributes ** attr;
+short CompEncode::codeGen(Generator *generator) {
+  Attributes **attr;
 
-  if (generator->getExpGenerator()->genItemExpr(this, &attr, (1 + getArity()), -1) == 1)
-    return 0;
-
+  if (generator->getExpGenerator()->genItemExpr(this, &attr, (1 + getArity()), -1) == 1) return 0;
 
   CharInfo::Collation collation = encodedCollation_;
 
-  ex_function_encode * function_clause =
-    new(generator->getSpace()) ex_function_encode(getOperatorType(),
-						  attr, generator->getSpace(), 
-						  collation,
-						  descFlag_, 
-						  collationType_
-						  );
-  
+  ex_function_encode *function_clause = new (generator->getSpace())
+      ex_function_encode(getOperatorType(), attr, generator->getSpace(), collation, descFlag_, collationType_);
+
   // don't need data alignment for the operand since it is treated
   // as a byte stream to encode the value.
   function_clause->getOperand(1)->dontNeedDataAlignment();
 
   // encode as case insensitive if needed.
-  if (caseinsensitiveEncode_)
-    {
-      function_clause->setCaseInsensitive(TRUE);
-    }
-  
-  if (regularNullability_)
-    {
-      function_clause->setRegularNullability(TRUE);
-    }
+  if (caseinsensitiveEncode_) {
+    function_clause->setCaseInsensitive(TRUE);
+  }
 
-  if (isDecode())
-    function_clause->setIsDecode(TRUE);
+  if (regularNullability_) {
+    function_clause->setRegularNullability(TRUE);
+  }
+
+  if (isDecode()) function_clause->setIsDecode(TRUE);
 
   generator->getExpGenerator()->linkClause(this, function_clause);
 
   if (CollationInfo::isSystemCollation(collation))
-  //test implies child is of character type and has a system collation
+  // test implies child is of character type and has a system collation
   {
     short nPasses = CollationInfo::getCollationNPasses(collation);
-    
-    GenAssert(function_clause->getOperand(1)->getLength() * nPasses
-            <= function_clause->getOperand(0)->getLength(),
-            "Not enough storage allocated for encode");
-  }
-  else
-  {
+
+    GenAssert(function_clause->getOperand(1)->getLength() * nPasses <= function_clause->getOperand(0)->getLength(),
+              "Not enough storage allocated for encode");
+  } else {
     // Runtime assumes that the target is large enough to hold the source.
     //
-    if (NOT regularNullability_)
-      {
-	GenAssert(function_clause->getOperand(1)->getLength() +
-                  function_clause->getOperand(1)->getNullIndicatorLength()
-		  <= function_clause->getOperand(0)->getLength(),
-		  "Not enough storage allocated for encode");
-      }
+    if (NOT regularNullability_) {
+      GenAssert(
+          function_clause->getOperand(1)->getLength() + function_clause->getOperand(1)->getNullIndicatorLength() <=
+              function_clause->getOperand(0)->getLength(),
+          "Not enough storage allocated for encode");
+    }
   }
 
   return 0;
 }
- 
-short CompDecode::codeGen(Generator * generator)
-{
-  Attributes ** attr;
 
-  if (generator->getExpGenerator()->genItemExpr(this, &attr, (1 + getArity()), -1) == 1)
-    return 0;
+short CompDecode::codeGen(Generator *generator) {
+  Attributes **attr;
+
+  if (generator->getExpGenerator()->genItemExpr(this, &attr, (1 + getArity()), -1) == 1) return 0;
 
   CharInfo::Collation collation = encodedCollation_;
 
-  ex_function_encode * function_clause =
-    new(generator->getSpace()) ex_function_encode(getOperatorType(),
-						  attr, generator->getSpace(), 
-						  collation,
-						  descFlag_, 
-						  collationType_
-						  );
-  
+  ex_function_encode *function_clause = new (generator->getSpace())
+      ex_function_encode(getOperatorType(), attr, generator->getSpace(), collation, descFlag_, collationType_);
+
   // don't need data alignment for the operand since it is treated
   // as a byte stream to encode the value.
   function_clause->getOperand(1)->dontNeedDataAlignment();
 
   // encode as case insensitive if needed.
-  if (caseinsensitiveEncode_)
-    {
-      function_clause->setCaseInsensitive(TRUE);
-    }
-  
-  if (regularNullability_)
-    {
-      function_clause->setRegularNullability(TRUE);
-    }
+  if (caseinsensitiveEncode_) {
+    function_clause->setCaseInsensitive(TRUE);
+  }
+
+  if (regularNullability_) {
+    function_clause->setRegularNullability(TRUE);
+  }
 
   function_clause->setIsDecode(TRUE);
 
   generator->getExpGenerator()->linkClause(this, function_clause);
 
-  if (0) //CollationInfo::isSystemCollation(collation))
-    //test implies child is of character type and has a system collation
-    {
-      short nPasses = CollationInfo::getCollationNPasses(collation);
-      
-      GenAssert(function_clause->getOperand(1)->getLength() * nPasses
-		<= function_clause->getOperand(0)->getLength(),
-		"Not enough storage allocated for decode");
+  if (0)  // CollationInfo::isSystemCollation(collation))
+          // test implies child is of character type and has a system collation
+  {
+    short nPasses = CollationInfo::getCollationNPasses(collation);
+
+    GenAssert(function_clause->getOperand(1)->getLength() * nPasses <= function_clause->getOperand(0)->getLength(),
+              "Not enough storage allocated for decode");
+  } else if (0) {
+    // Runtime assumes that the target is large enough to hold the source.
+    //
+    if (NOT regularNullability_) {
+      GenAssert(function_clause->getOperand(1)->getStorageLength() <= function_clause->getOperand(0)->getLength(),
+                "Not enough storage allocated for decode");
     }
-  else if (0)
-    {
-      // Runtime assumes that the target is large enough to hold the source.
-      //
-      if (NOT regularNullability_)
-	{
-	  GenAssert(function_clause->getOperand(1)->getStorageLength() 
-		    <= function_clause->getOperand(0)->getLength(),
-		    "Not enough storage allocated for decode");
-	}
-    }
-  
+  }
+
   return 0;
 }
- 
-short DecodeBase64::codeGen(Generator * generator)
-{
-  Attributes ** attr;
 
-  Space * space = generator->getSpace();
- 
-  if (generator->getExpGenerator()->genItemExpr(this, &attr, (1 + getArity()), -1) == 1)
-    return 0;
+short DecodeBase64::codeGen(Generator *generator) {
+  Attributes **attr;
+
+  Space *space = generator->getSpace();
+
+  if (generator->getExpGenerator()->genItemExpr(this, &attr, (1 + getArity()), -1) == 1) return 0;
 
   // if explicit type_ was specified, set the max buf len for decoded value.
   // If the target length for the specified type_ is not sufficient,
   // an error will be returned at runtime.
   Int32 maxDecodedBuflen = -1;
-  if (type_)
-    {
-      const NAType &typ1 = child(0)->getValueId().getType();
-      maxDecodedBuflen = str_decoded_len_base64(typ1.getNominalSize());
-    }
+  if (type_) {
+    const NAType &typ1 = child(0)->getValueId().getType();
+    maxDecodedBuflen = str_decoded_len_base64(typ1.getNominalSize());
+  }
 
-  ex_clause * function_clause =
-    new(generator->getSpace()) ExFunctionBase64EncDec
-    (getOperatorType(),
-     attr,
-     space,
-     FALSE,
-     maxDecodedBuflen);
-  
+  ex_clause *function_clause =
+      new (generator->getSpace()) ExFunctionBase64EncDec(getOperatorType(), attr, space, FALSE, maxDecodedBuflen);
+
   generator->getExpGenerator()->linkClause(this, function_clause);
- 
-  return 0; 
+
+  return 0;
 }
 
-short ExplodeVarchar::codeGen(Generator * generator)
-{
-  Attributes ** attr;
+short ExplodeVarchar::codeGen(Generator *generator) {
+  Attributes **attr;
 
-  if (generator->getExpGenerator()->genItemExpr(this, &attr, (1 + getArity()), -1) == 1)
-    return 0;
+  if (generator->getExpGenerator()->genItemExpr(this, &attr, (1 + getArity()), -1) == 1) return 0;
 
-  ex_clause * explode_clause =
-    new(generator->getSpace()) ex_function_explode_varchar(getOperatorType(),
-							   2,
-							   attr, generator->getSpace(),
-							   forInsert_);
-  
+  ex_clause *explode_clause = new (generator->getSpace())
+      ex_function_explode_varchar(getOperatorType(), 2, attr, generator->getSpace(), forInsert_);
+
   generator->getExpGenerator()->linkClause(this, explode_clause);
 
   return 0;
 }
 
-short Hash::codeGen(Generator * generator)
-{
-  Attributes ** attr;
+short Hash::codeGen(Generator *generator) {
+  Attributes **attr;
 
-  if (generator->getExpGenerator()->genItemExpr(this, &attr, (1 + getArity()), -1) == 1)
-    return 0;
+  if (generator->getExpGenerator()->genItemExpr(this, &attr, (1 + getArity()), -1) == 1) return 0;
 
-  ex_clause * function_clause =
-    new(generator->getSpace()) ex_function_hash(getOperatorType(),
-						attr, generator->getSpace());
-  
+  ex_clause *function_clause =
+      new (generator->getSpace()) ex_function_hash(getOperatorType(), attr, generator->getSpace());
+
   // don't need data alignment for the operand since it is treated
   // as a byte stream to hash the value.
   function_clause->getOperand(1)->dontNeedDataAlignment();
@@ -1834,57 +1402,44 @@ short Hash::codeGen(Generator * generator)
   return 0;
 }
 
-short HashComb::codeGen(Generator * generator)
-{
-  Attributes ** attr;
+short HashComb::codeGen(Generator *generator) {
+  Attributes **attr;
 
-  if (generator->getExpGenerator()->genItemExpr(this, &attr, (1 + getArity()), -1) == 1)
-    return 0;
+  if (generator->getExpGenerator()->genItemExpr(this, &attr, (1 + getArity()), -1) == 1) return 0;
 
-  ex_clause * function_clause =
-    new(generator->getSpace()) ExHashComb(getOperatorType(),
-                                          attr, generator->getSpace());
-  
-  generator->getExpGenerator()->linkClause(this, function_clause);
-
-  return 0;
-}
-
-short HiveHashComb::codeGen(Generator * generator)
-{
-  Attributes ** attr;
-
-  if (generator->getExpGenerator()->genItemExpr(this, &attr, (1 + getArity()), -1) == 1)
-    return 0;
-
-  ex_clause * function_clause =
-    new(generator->getSpace()) ExHiveHashComb(getOperatorType(),
-                                          attr, generator->getSpace());
+  ex_clause *function_clause = new (generator->getSpace()) ExHashComb(getOperatorType(), attr, generator->getSpace());
 
   generator->getExpGenerator()->linkClause(this, function_clause);
 
   return 0;
 }
 
+short HiveHashComb::codeGen(Generator *generator) {
+  Attributes **attr;
+
+  if (generator->getExpGenerator()->genItemExpr(this, &attr, (1 + getArity()), -1) == 1) return 0;
+
+  ex_clause *function_clause =
+      new (generator->getSpace()) ExHiveHashComb(getOperatorType(), attr, generator->getSpace());
+
+  generator->getExpGenerator()->linkClause(this, function_clause);
+
+  return 0;
+}
 
 // --------------------------------------------------------------
-// member functions for HashDistPartHash operator 
+// member functions for HashDistPartHash operator
 // Hash Function used by Hash Partitioning. This function cannot change
 // once Hash Partitioning is released!  Defined for all data types,
 // returns a 32 bit non-nullable hash value for the data item.
 //--------------------------------------------------------------
-short HashDistPartHash::codeGen(Generator * generator)
-{
-  Attributes ** attr;
+short HashDistPartHash::codeGen(Generator *generator) {
+  Attributes **attr;
 
-  if (generator->getExpGenerator()->
-      genItemExpr(this, &attr, (1 + getArity()), -1) == 1)
-    return 0;
+  if (generator->getExpGenerator()->genItemExpr(this, &attr, (1 + getArity()), -1) == 1) return 0;
 
-  ex_clause * hashClause =
-    new(generator->getSpace()) ExHDPHash(getOperatorType(),
-                                         attr, generator->getSpace());
-  
+  ex_clause *hashClause = new (generator->getSpace()) ExHDPHash(getOperatorType(), attr, generator->getSpace());
+
   // don't need data alignment for the operand since it is treated
   // as a byte stream to hash the value.
   hashClause->getOperand(1)->dontNeedDataAlignment();
@@ -1895,40 +1450,32 @@ short HashDistPartHash::codeGen(Generator * generator)
 }
 
 // --------------------------------------------------------------
-// member functions for HashDistPartHashComp operator 
+// member functions for HashDistPartHashComp operator
 // This function is used to combine two hash values to produce a new
 // hash value. Used by Hash Partitioning. This function cannot change
 // once Hash Partitioning is released!  Defined for all data types,
 // returns a 32 bit non-nullable hash value for the data item.
 // --------------------------------------------------------------
 //
-short HashDistPartHashComb::codeGen(Generator * generator)
-{
-  Attributes ** attr;
+short HashDistPartHashComb::codeGen(Generator *generator) {
+  Attributes **attr;
 
-  if (generator->getExpGenerator()->
-      genItemExpr(this, &attr, (1 + getArity()), -1) == 1)
-    return 0;
+  if (generator->getExpGenerator()->genItemExpr(this, &attr, (1 + getArity()), -1) == 1) return 0;
 
-  ex_clause * hashCombClause =
-    new(generator->getSpace()) ExHDPHashComb(getOperatorType(),
-                                             attr, generator->getSpace());
-  
+  ex_clause *hashCombClause = new (generator->getSpace()) ExHDPHashComb(getOperatorType(), attr, generator->getSpace());
+
   generator->getExpGenerator()->linkClause(this, hashCombClause);
 
   return 0;
 }
 
-short HiveHash::codeGen(Generator * generator)
-{
-  Attributes ** attr;
+short HiveHash::codeGen(Generator *generator) {
+  Attributes **attr;
 
-  if (generator->getExpGenerator()->genItemExpr(this, &attr, (1 + getArity()), -1) == 1)
-    return 0;
+  if (generator->getExpGenerator()->genItemExpr(this, &attr, (1 + getArity()), -1) == 1) return 0;
 
-  ex_clause * function_clause =
-    new(generator->getSpace()) ex_function_hivehash(getOperatorType(),
-                                                    attr, generator->getSpace());
+  ex_clause *function_clause =
+      new (generator->getSpace()) ex_function_hivehash(getOperatorType(), attr, generator->getSpace());
 
   // don't need data alignment for the operand since it is treated
   // as a byte stream to hive hash the value.
@@ -1939,355 +1486,265 @@ short HiveHash::codeGen(Generator * generator)
   return 0;
 }
 
-short PivotGroup::codeGen(Generator * generator)
-{
-  Attributes ** attr;
-  
-  Space * space = generator->getSpace();
-  
-  if (generator->getExpGenerator()->genItemExpr(this, &attr, (1 + getArity()), -1) == 1)
-    return 0;
-  
-  ex_clause * function_clause = 
-    new(generator->getSpace()) ex_pivot_group_clause(getOperatorType(),
-                                                     (short) (1+getArity()),
-                                                     attr, 
-                                                     maxLen_,
-                                                     orderBy_,
-                                                     generator->getSpace());
-  
-  generator->getExpGenerator()->linkClause(this, function_clause);
-  
-  return 0;
-}
+short PivotGroup::codeGen(Generator *generator) {
+  Attributes **attr;
 
-short ReplaceNull::codeGen(Generator * generator)
-{
-  Attributes ** attr;
+  Space *space = generator->getSpace();
 
-  if (generator->getExpGenerator()->
-      genItemExpr(this, &attr, (1 + getArity()), -1) == 1)
-    return 0;
+  if (generator->getExpGenerator()->genItemExpr(this, &attr, (1 + getArity()), -1) == 1) return 0;
 
-  ex_clause * function_clause =
-    new(generator->getSpace()) 
-    ex_function_replace_null(getOperatorType(), attr, generator->getSpace());
-  
-  generator->getExpGenerator()->linkClause(this, function_clause);
-  return 0;
-}
+  ex_clause *function_clause = new (generator->getSpace())
+      ex_pivot_group_clause(getOperatorType(), (short)(1 + getArity()), attr, maxLen_, orderBy_, generator->getSpace());
 
-short MathFunc::codeGen(Generator * generator)
-{
-  Attributes ** attr;
-
-  if (generator->getExpGenerator()->genItemExpr(this, &attr, (1 + getArity()), -1) == 1)
-    return 0;
-
-
-  ex_clause * function_clause = NULL;
-  function_clause =
-    new(generator->getSpace()) ExFunctionMath(getOperatorType(), 
-					      (1+getArity()),
-					      getCompatibleMode(),
-					      attr, generator->getSpace());
-  
-  
   generator->getExpGenerator()->linkClause(this, function_clause);
 
   return 0;
 }
 
-short Modulus::codeGen(Generator * generator)
-{
-  Attributes ** attr;
+short ReplaceNull::codeGen(Generator *generator) {
+  Attributes **attr;
 
-  if (generator->getExpGenerator()->genItemExpr(this, &attr, (1 + getArity()), -1) == 1)
-    return 0;
+  if (generator->getExpGenerator()->genItemExpr(this, &attr, (1 + getArity()), -1) == 1) return 0;
 
-  ex_clause * function_clause =
-    new(generator->getSpace()) ex_function_mod(getOperatorType(),
-					       attr, generator->getSpace());
-  
+  ex_clause *function_clause =
+      new (generator->getSpace()) ex_function_replace_null(getOperatorType(), attr, generator->getSpace());
+
+  generator->getExpGenerator()->linkClause(this, function_clause);
+  return 0;
+}
+
+short MathFunc::codeGen(Generator *generator) {
+  Attributes **attr;
+
+  if (generator->getExpGenerator()->genItemExpr(this, &attr, (1 + getArity()), -1) == 1) return 0;
+
+  ex_clause *function_clause = NULL;
+  function_clause = new (generator->getSpace())
+      ExFunctionMath(getOperatorType(), (1 + getArity()), getCompatibleMode(), attr, generator->getSpace());
+
   generator->getExpGenerator()->linkClause(this, function_clause);
 
   return 0;
 }
 
+short Modulus::codeGen(Generator *generator) {
+  Attributes **attr;
 
-short Narrow::codeGen(Generator * generator)
-{
-  return Cast::codeGen(generator);
-}
+  if (generator->getExpGenerator()->genItemExpr(this, &attr, (1 + getArity()), -1) == 1) return 0;
 
+  ex_clause *function_clause =
+      new (generator->getSpace()) ex_function_mod(getOperatorType(), attr, generator->getSpace());
 
-short Mask::codeGen(Generator * generator)
-{
-  Attributes ** attr;
-
-  if (generator->getExpGenerator()->genItemExpr(this, &attr, (1 + getArity()), -1) == 1)
-    return 0;
-
-  ex_clause * function_clause =
-    new(generator->getSpace()) ex_function_mask(getOperatorType(),
-                                                attr, generator->getSpace());
-  
   generator->getExpGenerator()->linkClause(this, function_clause);
 
   return 0;
 }
 
-short Shift::codeGen(Generator * generator)
-{
-  Attributes ** attr;
+short Narrow::codeGen(Generator *generator) { return Cast::codeGen(generator); }
 
-  if (generator->getExpGenerator()->genItemExpr(this, &attr, (1 + getArity()), -1) == 1)
-    return 0;
+short Mask::codeGen(Generator *generator) {
+  Attributes **attr;
 
-  ex_clause * function_clause =
-    new(generator->getSpace()) ExFunctionShift(getOperatorType(),
-                                               attr, generator->getSpace());
-  
+  if (generator->getExpGenerator()->genItemExpr(this, &attr, (1 + getArity()), -1) == 1) return 0;
+
+  ex_clause *function_clause =
+      new (generator->getSpace()) ex_function_mask(getOperatorType(), attr, generator->getSpace());
+
   generator->getExpGenerator()->linkClause(this, function_clause);
 
   return 0;
 }
 
-short NoOp::codeGen(Generator * generator)
-{
-  Attributes ** attr;
+short Shift::codeGen(Generator *generator) {
+  Attributes **attr;
 
-  if (generator->getExpGenerator()->genItemExpr(this, &attr, (1 + getArity()), -1) == 1)
-    return 0;
+  if (generator->getExpGenerator()->genItemExpr(this, &attr, (1 + getArity()), -1) == 1) return 0;
 
-  ex_clause * function_clause =
-    new(generator->getSpace()) ex_noop_clause();
+  ex_clause *function_clause =
+      new (generator->getSpace()) ExFunctionShift(getOperatorType(), attr, generator->getSpace());
+
+  generator->getExpGenerator()->linkClause(this, function_clause);
+
+  return 0;
+}
+
+short NoOp::codeGen(Generator *generator) {
+  Attributes **attr;
+
+  if (generator->getExpGenerator()->genItemExpr(this, &attr, (1 + getArity()), -1) == 1) return 0;
+
+  ex_clause *function_clause = new (generator->getSpace()) ex_noop_clause();
 
   // this is the last clause.
   function_clause->setLastClause();
   generator->getExpGenerator()->linkClause(0, function_clause);
- 
+
   return 0;
 }
 
-short Translate::codeGen(Generator * generator)
-{
-  Attributes ** attr;
+short Translate::codeGen(Generator *generator) {
+  Attributes **attr;
   NABoolean unicodeToUnicode = FALSE;
   Int16 translateFlags = 0;
-  
-  if (generator->getExpGenerator()->genItemExpr(this, &attr, (1 + getArity()), -1) == 1)
-    return 0;
-  
+
+  if (generator->getExpGenerator()->genItemExpr(this, &attr, (1 + getArity()), -1) == 1) return 0;
+
   Int32 convType = CONV_UNKNOWN;
-  switch ( map_table_id_ ) {
-     case ISO88591_TO_UNICODE:
-	convType = CONV_ASCII_UNICODE_V;
-	break;
-     case SJIS_TO_UNICODE:
-	convType = CONV_SJIS_F_UNICODE_V;
-	break;
-     case UNICODE_TO_SJIS:
-	convType = CONV_UNICODE_F_SJIS_V;
-	break;
-     case SJIS_TO_UCS2:
-	convType = CONV_SJIS_F_UCS2_V;
-	break;
-     case UTF8_TO_UCS2:
-	convType = CONV_UTF8_F_UCS2_V;
-        unicodeToUnicode = TRUE;
-	break;
-     case UCS2_TO_SJIS:
-	convType = CONV_UCS2_F_SJIS_V;
-	break;
-     case UCS2_TO_UTF8:
-	convType = CONV_UCS2_F_UTF8_V;
-        unicodeToUnicode = TRUE;
-	break;
-     case GBK_TO_UTF8:
-        convType = CONV_GBK_F_UTF8_V;
-        break;
-     case UNICODE_TO_ISO88591:
-	convType = CONV_UNICODE_F_ASCII_V;
-	break;
-     case KANJI_MP_TO_ISO88591:
-     case KSC5601_MP_TO_ISO88591:
-	convType = CONV_ASCII_F_V;
-	break;
+  switch (map_table_id_) {
+    case ISO88591_TO_UNICODE:
+      convType = CONV_ASCII_UNICODE_V;
+      break;
+    case SJIS_TO_UNICODE:
+      convType = CONV_SJIS_F_UNICODE_V;
+      break;
+    case UNICODE_TO_SJIS:
+      convType = CONV_UNICODE_F_SJIS_V;
+      break;
+    case SJIS_TO_UCS2:
+      convType = CONV_SJIS_F_UCS2_V;
+      break;
+    case UTF8_TO_UCS2:
+      convType = CONV_UTF8_F_UCS2_V;
+      unicodeToUnicode = TRUE;
+      break;
+    case UCS2_TO_SJIS:
+      convType = CONV_UCS2_F_SJIS_V;
+      break;
+    case UCS2_TO_UTF8:
+      convType = CONV_UCS2_F_UTF8_V;
+      unicodeToUnicode = TRUE;
+      break;
+    case GBK_TO_UTF8:
+      convType = CONV_GBK_F_UTF8_V;
+      break;
+    case UNICODE_TO_ISO88591:
+      convType = CONV_UNICODE_F_ASCII_V;
+      break;
+    case KANJI_MP_TO_ISO88591:
+    case KSC5601_MP_TO_ISO88591:
+      convType = CONV_ASCII_F_V;
+      break;
   }
 
   if (CmpCommon::getDefault(TRANSLATE_ERROR) == DF_OFF ||
-      (unicodeToUnicode &&
-       CmpCommon::getDefault(TRANSLATE_ERROR_UNICODE_TO_UNICODE) == DF_OFF))
+      (unicodeToUnicode && CmpCommon::getDefault(TRANSLATE_ERROR_UNICODE_TO_UNICODE) == DF_OFF))
     translateFlags |= ex_function_translate::TRANSLATE_FLAG_ALLOW_INVALID_CODEPOINT;
 
-  ex_clause * function_clause = 
-	new(generator->getSpace()) ex_function_translate(
-			         getOperatorType(),
-				 attr, 
-				 generator->getSpace(),
-                                 convType,
-                                 translateFlags
-				);
+  ex_clause *function_clause = new (generator->getSpace())
+      ex_function_translate(getOperatorType(), attr, generator->getSpace(), convType, translateFlags);
 
   generator->getExpGenerator()->linkClause(this, function_clause);
-  
+
   return 0;
 }
 
-short Trim::codeGen(Generator * generator)
-{
-  Attributes ** attr;
-  
-  if (generator->getExpGenerator()->genItemExpr(this, &attr, (1 + getArity()), -1) == 1)
-    return 0;
-  
-  ex_clause * function_clause = 0;
+short Trim::codeGen(Generator *generator) {
+  Attributes **attr;
 
-  const CharType& trimSourceType = 
-        (CharType&)((child(0)->getValueId()).getType());
+  if (generator->getExpGenerator()->genItemExpr(this, &attr, (1 + getArity()), -1) == 1) return 0;
 
-  const CharType& trimCharT = 
-        (CharType&)((child(1)->getValueId()).getType());
+  ex_clause *function_clause = 0;
 
-  switch ( trimSourceType.getCharSet() ) 
-  {
+  const CharType &trimSourceType = (CharType &)((child(0)->getValueId()).getType());
+
+  const CharType &trimCharT = (CharType &)((child(1)->getValueId()).getType());
+
+  switch (trimSourceType.getCharSet()) {
     case CharInfo::ISO88591:
     case CharInfo::UTF8:
     case CharInfo::BINARY:
-    // case CharInfo::SJIS: // Uncomment this if we ever support SJIS
-      function_clause = new(generator->getSpace()) 
-		ex_function_trim_char(ITM_TRIM,
-				 attr, 
-				 generator->getSpace(), getTrimMode()
-				);
+      // case CharInfo::SJIS: // Uncomment this if we ever support SJIS
+      function_clause =
+          new (generator->getSpace()) ex_function_trim_char(ITM_TRIM, attr, generator->getSpace(), getTrimMode());
       ((ex_function_trim_char *)function_clause)->setCollation(getCollation());
-      
-      if (CollationInfo::isSystemCollation(getCollation()))
-      {
+
+      if (CollationInfo::isSystemCollation(getCollation())) {
         Lng32 len = 0;
-	const CharType * ctyp ;
-	      
-	const NAType & typ1 = child(1)->getValueId().getType();
+        const CharType *ctyp;
+
+        const NAType &typ1 = child(1)->getValueId().getType();
         ctyp = (CharType *)&typ1;
-    
-	len = CompEncode::getEncodedLength(getCollation(),
-					  CollationInfo::Search,
-					  ctyp->getNominalSize(),
-					  ctyp->supportsSQLnull());
 
-        ((ex_function_trim_char*)function_clause)->setSrcStrEncodedLength((Int16)len);
+        len = CompEncode::getEncodedLength(getCollation(), CollationInfo::Search, ctyp->getNominalSize(),
+                                           ctyp->supportsSQLnull());
 
-	const NAType & typ0= child(0)->getValueId().getType();
+        ((ex_function_trim_char *)function_clause)->setSrcStrEncodedLength((Int16)len);
+
+        const NAType &typ0 = child(0)->getValueId().getType();
         ctyp = (CharType *)&typ0;
 
-	len = CompEncode::getEncodedLength(getCollation(),
-					CollationInfo::Search,
-					ctyp->getNominalSize(),
-					ctyp->supportsSQLnull());
+        len = CompEncode::getEncodedLength(getCollation(), CollationInfo::Search, ctyp->getNominalSize(),
+                                           ctyp->supportsSQLnull());
 
-        ((ex_function_trim_char*)function_clause)->setTrimCharEncodedLength((Int16)len);
+        ((ex_function_trim_char *)function_clause)->setTrimCharEncodedLength((Int16)len);
       }
 
       // pcode is only supported if the trim char is a single byte literal with
       // length of 1 and value of ' '
-      if (NOT ((child(0)->castToItemExpr()->getOperatorType() == ITM_CONSTANT) &&
-	       (trimSourceType.getFSDatatype() == REC_BYTE_F_ASCII) &&
-	       (trimSourceType.getNominalSize() == 1) &&
-	       (str_cmp((char*)((ConstValue*)(child(0)->castToItemExpr()))->getConstValue(), " ", 1) == 0)))
-	{
-	  function_clause->setNoPCodeAvailable(TRUE);
-	}
+      if (NOT((child(0)->castToItemExpr()->getOperatorType() == ITM_CONSTANT) &&
+              (trimSourceType.getFSDatatype() == REC_BYTE_F_ASCII) && (trimSourceType.getNominalSize() == 1) &&
+              (str_cmp((char *)((ConstValue *)(child(0)->castToItemExpr()))->getConstValue(), " ", 1) == 0))) {
+        function_clause->setNoPCodeAvailable(TRUE);
+      }
       break;
 
     case CharInfo::UCS2:
-      function_clause = new(generator->getSpace()) 
-		ex_function_trim_doublebyte(ITM_TRIM_DOUBLEBYTE,
-				 attr, 
-				 generator->getSpace(), getTrimMode()
-				);
-     break;
+      function_clause = new (generator->getSpace())
+          ex_function_trim_doublebyte(ITM_TRIM_DOUBLEBYTE, attr, generator->getSpace(), getTrimMode());
+      break;
 
     default:
-     GenAssert(0, "unknown value for bytes-per-char.");
+      GenAssert(0, "unknown value for bytes-per-char.");
   }
-  //disable Trim's pcode, since our PCODE does not support NULL
-  if (CmpCommon::getDefault(MODE_COMPATIBLE_1) == DF_ON)
-    function_clause->setNoPCodeAvailable(TRUE);
+  // disable Trim's pcode, since our PCODE does not support NULL
+  if (CmpCommon::getDefault(MODE_COMPATIBLE_1) == DF_ON) function_clause->setNoPCodeAvailable(TRUE);
   generator->getExpGenerator()->linkClause(this, function_clause);
-  
+
   return 0;
 }
 
-short DateFormat::codeGen(Generator * generator)
-{
-  Attributes ** attr;
-  
-  if (generator->getExpGenerator()->genItemExpr(this,
-                                                &attr,
-                                                1 + getArity(),
-                                                -1) == 1)
-    return 0;
+short DateFormat::codeGen(Generator *generator) {
+  Attributes **attr;
 
-  ex_clause * function_clause = NULL;
-  switch (getDateFormat())
-  {
-    case NUMBER_FORMAT_STR:
-      {
-        const NAType *naType = &child(0)->getValueId().getType();
-        Lng32 nOperaLen = naType->getDisplayLength();
-        function_clause =
-          new(generator->getSpace()) ex_function_numberformat(ITM_NUMBERFORMAT,
-                                                              attr,
-                                                              generator->getSpace(),
-                                                              nOperaLen);
-      }
-      break;
+  if (generator->getExpGenerator()->genItemExpr(this, &attr, 1 + getArity(), -1) == 1) return 0;
+
+  ex_clause *function_clause = NULL;
+  switch (getDateFormat()) {
+    case NUMBER_FORMAT_STR: {
+      const NAType *naType = &child(0)->getValueId().getType();
+      Lng32 nOperaLen = naType->getDisplayLength();
+      function_clause = new (generator->getSpace())
+          ex_function_numberformat(ITM_NUMBERFORMAT, attr, generator->getSpace(), nOperaLen);
+    } break;
     case DATE_FORMAT_STR:
     case TIME_FORMAT_STR:
-    case TIMESTAMP_FORMAT_STR:
-      {
-        function_clause = 
-          new(generator->getSpace()) ex_function_dateformat(getOperatorType(),
-                                                            attr, 
-                                                            generator->getSpace(),
-                                                            getExpDatetimeFormat(),
-                                                            1 + getArity(),
-                                                            getCaseSensitivity());
-      }
-      break;
+    case TIMESTAMP_FORMAT_STR: {
+      function_clause = new (generator->getSpace()) ex_function_dateformat(
+          getOperatorType(), attr, generator->getSpace(), getExpDatetimeFormat(), 1 + getArity(), getCaseSensitivity());
+    } break;
     default:
       GenAssert(0, "unknown type for date format.");
   }
   generator->getExpGenerator()->linkClause(this, function_clause);
-  
+
   return 0;
 }
 
-short Extract::codeGen(Generator * generator)
-{
-  Attributes ** attr;
-  
-  if (generator->getExpGenerator()->genItemExpr(this,
-                                                &attr,
-                                                1 + getArity(),
-                                                -1) == 1)
-    return 0;
-  
-  ex_clause * function_clause = 
-    new(generator->getSpace()) ex_function_extract(getOperatorType(),
-                                                   attr, 
-                                                   generator->getSpace(),
-                                                   getExtractField());
+short Extract::codeGen(Generator *generator) {
+  Attributes **attr;
+
+  if (generator->getExpGenerator()->genItemExpr(this, &attr, 1 + getArity(), -1) == 1) return 0;
+
+  ex_clause *function_clause = new (generator->getSpace())
+      ex_function_extract(getOperatorType(), attr, generator->getSpace(), getExtractField());
   generator->getExpGenerator()->linkClause(this, function_clause);
-  
+
   return 0;
 }
 
-short RangeLookup::codeGen(Generator * generator)
-{
-  Attributes ** attr2;
-  Attributes ** attr3;
+short RangeLookup::codeGen(Generator *generator) {
+  Attributes **attr2;
+  Attributes **attr3;
   Lng32 arity = getArity();
   Lng32 keysLen = splitKeysLen();
   Attributes *splitKeyAttr;
@@ -2295,235 +1752,176 @@ short RangeLookup::codeGen(Generator * generator)
   ConstValue *constValSplitKeys;
 
   // generate code for child (allocates an array with 2 Attributes pointers)
-  if (generator->getExpGenerator()->genItemExpr(this,
-                                                &attr2,
-                                                1 + arity,
-                                                -1) == 1)
-    return 0;
+  if (generator->getExpGenerator()->genItemExpr(this, &attr2, 1 + arity, -1) == 1) return 0;
 
   // now allocate a third child for this clause, which is a constant
   // array of all the encoded start key values
-  Int32 numAttrs = arity+2;
+  Int32 numAttrs = arity + 2;
   Int32 numAttrsShowPlan = (generator->getExpGenerator()->getShowplan() ? numAttrs : 0);
 
-  attr3 = new(generator->wHeap()) Attributes * [numAttrs + numAttrsShowPlan];
+  attr3 = new (generator->wHeap()) Attributes *[numAttrs + numAttrsShowPlan];
 
   // copy 2 Attribute pointers and 2 showplan attribute pointers to array with 3 pointers
-  str_cpy_all((char *) attr3,
-	      (const char *) attr2,
-	      sizeof(Attributes *) * (numAttrs-1));
-  if (numAttrsShowPlan)
-    {
-      str_cpy_all((char *) &attr3[numAttrs],
-		  (const char *) &attr2[numAttrs-1],
-		  sizeof(Attributes *) * (numAttrs-1));
-    }
+  str_cpy_all((char *)attr3, (const char *)attr2, sizeof(Attributes *) * (numAttrs - 1));
+  if (numAttrsShowPlan) {
+    str_cpy_all((char *)&attr3[numAttrs], (const char *)&attr2[numAttrs - 1], sizeof(Attributes *) * (numAttrs - 1));
+  }
 
   // make a ConstValue that is a huge character column with all the
   // split keys in it, then generate code for it and get its Attributes
 
-  constKeyArray = new(generator->wHeap()) char [keysLen];
-  // now fill the allocated constant space with the data  
+  constKeyArray = new (generator->wHeap()) char[keysLen];
+  // now fill the allocated constant space with the data
   copySplitKeys(constKeyArray, keysLen);
 
-  constValSplitKeys = new (generator->wHeap()) ConstValue(
-       new (generator->wHeap()) SQLChar(generator->wHeap(), keysLen,FALSE),
-       constKeyArray,
-       keysLen,
-       NULL,
-       generator->wHeap());
+  constValSplitKeys =
+      new (generator->wHeap()) ConstValue(new (generator->wHeap()) SQLChar(generator->wHeap(), keysLen, FALSE),
+                                          constKeyArray, keysLen, NULL, generator->wHeap());
   constValSplitKeys->bindNode(generator->getBindWA());
   constValSplitKeys->codeGen(generator);
 
   // code generation is done, now get the Attributes info back
-  MapInfo * map_info = generator->getMapInfoAsIs(
-       constValSplitKeys->getValueId());
+  MapInfo *map_info = generator->getMapInfoAsIs(constValSplitKeys->getValueId());
   GenAssert(map_info, "failed to generate long constant for split keys");
   splitKeyAttr = map_info->getAttr();
 
   // copy last Attributes pointer
-  attr3[numAttrs-1] = splitKeyAttr;
+  attr3[numAttrs - 1] = splitKeyAttr;
 
   // ...and showplan equivalent, if needed
-  if (numAttrsShowPlan)
-    {
-      attr3[numAttrs + numAttrsShowPlan - 1] = new (generator->wHeap())
-	ShowplanAttributes(
-	     constValSplitKeys->getValueId(),
-	     convertNAString("SplitKeysForRangeRepartitioning",
-			     generator->wHeap()));
-    }
+  if (numAttrsShowPlan) {
+    attr3[numAttrs + numAttrsShowPlan - 1] = new (generator->wHeap()) ShowplanAttributes(
+        constValSplitKeys->getValueId(), convertNAString("SplitKeysForRangeRepartitioning", generator->wHeap()));
+  }
 
   // now that we prepared all the inputs, add the clause itself
-  ex_clause * function_clause = 
-    new(generator->getSpace()) ExFunctionRangeLookup(
-	 attr3, 
-	 generator->getSpace(),
-	 getNumOfPartitions(),
-	 getEncodedBoundaryKeyLength());
+  ex_clause *function_clause = new (generator->getSpace())
+      ExFunctionRangeLookup(attr3, generator->getSpace(), getNumOfPartitions(), getEncodedBoundaryKeyLength());
   generator->getExpGenerator()->linkClause(this, function_clause);
-  
+
   return 0;
 }
 
-short UDFunction::codeGen(Generator * /* generator */)
-{
+short UDFunction::codeGen(Generator * /* generator */) {
   GenAssert(0, "UDFunction::codeGen. We don't have any!");
-  
+
   return -1;
 }
-  
-short
-ScalarVariance::codeGen(Generator *generator)
-{
+
+short ScalarVariance::codeGen(Generator *generator) {
   Attributes **attr;
   Space *space = generator->getSpace();
-  
-  if (generator->getExpGenerator()->genItemExpr(this, &attr, (1 + getArity()), -1) == 1)
-    return 0;
-  
+
+  if (generator->getExpGenerator()->genItemExpr(this, &attr, (1 + getArity()), -1) == 1) return 0;
+
   ex_clause *function_clause = 0;
 
-  switch(getOperatorType())
-    {
-	case ITM_STDDEV_SAMP:
-	case ITM_STDDEV_POP:
-      function_clause =	new(space) ExFunctionSStddev(getOperatorType(), attr, space);
-	  break;
-	case ITM_VARIANCE_SAMP:
-	case ITM_VARIANCE_POP:
-      function_clause =	new(space) ExFunctionSVariance(getOperatorType(), attr, space);
-	  break;
-    default:
-      GenAssert(0,"ScalarVariance: Unknown operator");
+  switch (getOperatorType()) {
+    case ITM_STDDEV_SAMP:
+    case ITM_STDDEV_POP:
+      function_clause = new (space) ExFunctionSStddev(getOperatorType(), attr, space);
       break;
-    }
+    case ITM_VARIANCE_SAMP:
+    case ITM_VARIANCE_POP:
+      function_clause = new (space) ExFunctionSVariance(getOperatorType(), attr, space);
+      break;
+    default:
+      GenAssert(0, "ScalarVariance: Unknown operator");
+      break;
+  }
 
-  if (function_clause)
-    generator->getExpGenerator()->linkClause(this, function_clause);
-  
+  if (function_clause) generator->getExpGenerator()->linkClause(this, function_clause);
+
   return 0;
 }
 
 // UnPackCol::codeGen() ----------------------------
 // UnPackCol is implemented by the ExUnPackCol function_clause.
 //
-short
-UnPackCol::codeGen(Generator *generator)
-{
+short UnPackCol::codeGen(Generator *generator) {
   Attributes **attr;
   Space *space = generator->getSpace();
-  
-  if (generator->getExpGenerator()->
-      genItemExpr(this, &attr, (1 + getArity()), -1) == 1)
-    return 0;
+
+  if (generator->getExpGenerator()->genItemExpr(this, &attr, (1 + getArity()), -1) == 1) return 0;
 
   ex_clause *function_clause = NULL;
 
   switch (child(0)->getValueId().getType().getTypeQualifier()) {
-  case NA_CHARACTER_TYPE:
-    // A packed column....
-    //
-    function_clause = new(space) ExUnPackCol(attr, 
-                                             space,
-                                             width_,
-                                             base_,
-                                             nullsPresent_);
-    break;
-  case NA_NUMERIC_TYPE:
-    // A virtually packed SYSKEY column...
-    //
-    function_clause = new(space) ex_arith_clause(ITM_PLUS, attr, space, 
-						 0, FALSE);
-    break;
-  default:
-    GenAssert(0, "UnPackCol::codeGen() Unknown type");
-    break;
+    case NA_CHARACTER_TYPE:
+      // A packed column....
+      //
+      function_clause = new (space) ExUnPackCol(attr, space, width_, base_, nullsPresent_);
+      break;
+    case NA_NUMERIC_TYPE:
+      // A virtually packed SYSKEY column...
+      //
+      function_clause = new (space) ex_arith_clause(ITM_PLUS, attr, space, 0, FALSE);
+      break;
+    default:
+      GenAssert(0, "UnPackCol::codeGen() Unknown type");
+      break;
   }
 
-  if (function_clause)
-    generator->getExpGenerator()->linkClause(this, function_clause);
-  
+  if (function_clause) generator->getExpGenerator()->linkClause(this, function_clause);
+
   return 0;
 }
 
 // RowsetArrayScan::codeGen() ----------------------------
 // RowsetArrayScan is implemented by the ExRowsetArrayScan function_clause.
 //
-short
-RowsetArrayScan::codeGen(Generator *generator)
-{
+short RowsetArrayScan::codeGen(Generator *generator) {
   Attributes **attr;
-  ex_clause * function_clause = 0;
+  ex_clause *function_clause = 0;
   Space *space = generator->getSpace();
 
-  if (generator->getExpGenerator()->genItemExpr(this, &attr, 
-                                                (1 + getArity()), -1) == 1)
-    return 0;
-  
+  if (generator->getExpGenerator()->genItemExpr(this, &attr, (1 + getArity()), -1) == 1) return 0;
+
   switch (getOperatorType()) {
-  case ITM_ROWSETARRAY_SCAN:
-    function_clause = new(space) ExRowsetArrayScan(attr, 
-                                                   space,
-                                                   maxNumElem_,
-                                                   elemSize_,
-                                                   elemNullInd_,
-                                                   optLargVar_);
-    break;
+    case ITM_ROWSETARRAY_SCAN:
+      function_clause = new (space) ExRowsetArrayScan(attr, space, maxNumElem_, elemSize_, elemNullInd_, optLargVar_);
+      break;
 
-  case ITM_ROWSETARRAY_ROWID:
-    function_clause = new(space) ExRowsetArrayRowid(attr, 
-                                                    space,
-                                                    maxNumElem_);
-    break;
+    case ITM_ROWSETARRAY_ROWID:
+      function_clause = new (space) ExRowsetArrayRowid(attr, space, maxNumElem_);
+      break;
 
-  default:
-    GenAssert(0,"ScalarVariance: Unknown operator");
-    break;
+    default:
+      GenAssert(0, "ScalarVariance: Unknown operator");
+      break;
   }
 
-  if (function_clause)
-    generator->getExpGenerator()->linkClause(this, function_clause);
-  
-  return 0;
-}
-
-short
-RowsetArrayInto::codeGen(Generator *generator)
-{
-  Attributes **attr;
-  ex_clause * function_clause = 0;
-  Space *space = generator->getSpace();
-
-  if (generator->getExpGenerator()->genItemExpr(this, &attr, 
-                                                (1 + getArity()), -1) == 1)
-    return 0;
-
-  function_clause = new(space) ExRowsetArrayInto(attr, 
-                                                 space,
-                                                 maxNumElem_,
-                                                 elemSize_,
-                                                 elemNullInd_);
-
-  if(function_clause)
-    generator->getExpGenerator()->linkClause(this,function_clause);
+  if (function_clause) generator->getExpGenerator()->linkClause(this, function_clause);
 
   return 0;
 }
 
-short RandomNum::codeGen(Generator *generator)
-{
+short RowsetArrayInto::codeGen(Generator *generator) {
+  Attributes **attr;
+  ex_clause *function_clause = 0;
+  Space *space = generator->getSpace();
+
+  if (generator->getExpGenerator()->genItemExpr(this, &attr, (1 + getArity()), -1) == 1) return 0;
+
+  function_clause = new (space) ExRowsetArrayInto(attr, space, maxNumElem_, elemSize_, elemNullInd_);
+
+  if (function_clause) generator->getExpGenerator()->linkClause(this, function_clause);
+
+  return 0;
+}
+
+short RandomNum::codeGen(Generator *generator) {
   Attributes **attr;
   Space *space = generator->getSpace();
-  
+
   /*
   // convert seed, if present, to 'unsigned int'.
   if (getArity() == 1)
     {
-      ItemExpr * newChild = 
-	new (generator->wHeap()) 
-	Cast(child(0), 
-	     new (generator->wHeap()) SQLInt(generator->wHeap(), FALSE, FALSE));
+      ItemExpr * newChild =
+        new (generator->wHeap())
+        Cast(child(0),
+             new (generator->wHeap()) SQLInt(generator->wHeap(), FALSE, FALSE));
       newChild = newChild->bindNode(generator->getBindWA());
       newChild->preCodeGen(generator);
 
@@ -2531,124 +1929,94 @@ short RandomNum::codeGen(Generator *generator)
     }
     */
 
-  if (generator->getExpGenerator()->genItemExpr(this, &attr, (1 + getArity()), -1) == 1)
-    return 0;
+  if (generator->getExpGenerator()->genItemExpr(this, &attr, (1 + getArity()), -1) == 1) return 0;
 
   // see Exchange::codeGenForESP for allowed values of this CQD
   Int32 randomNumCQD = getDefaultAsLong(USE_ROUND_ROBIN_FOR_RANDOMNUM);
   NABoolean useThreadIdForRandomNum = (simpleRandom_ && ((randomNumCQD & 1) != 0));
 
-  ex_clause *function_clause = new (space) ExFunctionRandomNum(ITM_RANDOMNUM,
-							       (1+getArity()),
-							       simpleRandom_,
-                                                               useThreadIdForRandomNum,
-                                                               attr, 
-                                                               space);
-  
-  if (function_clause)
-    generator->getExpGenerator()->linkClause(this, function_clause);
-  
+  ex_clause *function_clause = new (space)
+      ExFunctionRandomNum(ITM_RANDOMNUM, (1 + getArity()), simpleRandom_, useThreadIdForRandomNum, attr, space);
+
+  if (function_clause) generator->getExpGenerator()->linkClause(this, function_clause);
+
   return 0;
 }
 
-short HashDistrib::codeGen(Generator *generator)
-{
+short HashDistrib::codeGen(Generator *generator) {
   GenAssert(0, "HashDistrib::codeGen. Should use ProgDistrib or Hash2Distrib");
   return -1;
 }
 
-short Hash2Distrib::codeGen(Generator *generator)
-{ 
+short Hash2Distrib::codeGen(Generator *generator) {
   Attributes **attr;
   Space *space = generator->getSpace();
 
-  if (generator->getExpGenerator()->
-      genItemExpr(this, &attr, (1 + getArity()), -1) == 1)
-    return 0;
+  if (generator->getExpGenerator()->genItemExpr(this, &attr, (1 + getArity()), -1) == 1) return 0;
 
   ex_clause *function_clause = new (space) ExHash2Distrib(attr, space);
 
-  if (function_clause)
-    generator->getExpGenerator()->linkClause(this, function_clause);
+  if (function_clause) generator->getExpGenerator()->linkClause(this, function_clause);
 
   return 0;
 }
 
-short ProgDistrib::codeGen(Generator *generator)
-{
+short ProgDistrib::codeGen(Generator *generator) {
   Attributes **attr;
   Space *space = generator->getSpace();
-  
-  if (generator->getExpGenerator()->
-      genItemExpr(this, &attr, (1 + getArity()), -1) == 1)
-    return 0;
-  
-  ex_clause *function_clause = new (space) ExProgDistrib(attr, space);;
 
-  if (function_clause)
-    generator->getExpGenerator()->linkClause(this, function_clause);
-  
+  if (generator->getExpGenerator()->genItemExpr(this, &attr, (1 + getArity()), -1) == 1) return 0;
+
+  ex_clause *function_clause = new (space) ExProgDistrib(attr, space);
+  ;
+
+  if (function_clause) generator->getExpGenerator()->linkClause(this, function_clause);
+
   return 0;
 }
 
-short ProgDistribKey::codeGen(Generator *generator)
-{
+short ProgDistribKey::codeGen(Generator *generator) {
   Attributes **attr;
   Space *space = generator->getSpace();
-  
-  if (generator->getExpGenerator()->
-      genItemExpr(this, &attr, (1 + getArity()), -1) == 1)
-    return 0;
-  
+
+  if (generator->getExpGenerator()->genItemExpr(this, &attr, (1 + getArity()), -1) == 1) return 0;
+
   ex_clause *function_clause = new (space) ExProgDistribKey(attr, space);
 
-  if (function_clause)
-    generator->getExpGenerator()->linkClause(this, function_clause);
-  
+  if (function_clause) generator->getExpGenerator()->linkClause(this, function_clause);
+
   return 0;
 }
 
-short PAGroup::codeGen(Generator *generator)
-{
+short PAGroup::codeGen(Generator *generator) {
   Attributes **attr;
   Space *space = generator->getSpace();
-  
-  if (generator->getExpGenerator()->
-      genItemExpr(this, &attr, (1 + getArity()), -1) == 1)
-    return 0;
-  
+
+  if (generator->getExpGenerator()->genItemExpr(this, &attr, (1 + getArity()), -1) == 1) return 0;
+
   ex_clause *function_clause = new (space) ExPAGroup(attr, space);
 
-  if (function_clause)
-    generator->getExpGenerator()->linkClause(this, function_clause);
-  
+  if (function_clause) generator->getExpGenerator()->linkClause(this, function_clause);
+
   return 0;
 }
 
 #include "common/NumericType.h"
 
-short PackFunc::codeGen(Generator* generator)
-{
-  Attributes** attr;
-  Space* space = generator->getSpace();
+short PackFunc::codeGen(Generator *generator) {
+  Attributes **attr;
+  Space *space = generator->getSpace();
 
-  if(generator->getExpGenerator()->genItemExpr(this,&attr,(1 + getArity()),-1) == 1)
-    return 0;
+  if (generator->getExpGenerator()->genItemExpr(this, &attr, (1 + getArity()), -1) == 1) return 0;
 
   // If format info is not valid, synthesize them from child's format info.
-  if(!isFormatInfoValid_)
-  {
-    const NAType* columnType = &child(0)->getValueId().getType();
+  if (!isFormatInfoValid_) {
+    const NAType *columnType = &child(0)->getValueId().getType();
     deriveFormatInfoFromUnpackType(columnType);
   }
 
-  ex_clause* function_clause = new(space) ExFunctionPack(attr,
-                                                         space,
-                                                         width_,
-                                                         base_,
-                                                         nullsPresent_);
-  if(function_clause)
-    generator->getExpGenerator()->linkClause(this,function_clause);
+  ex_clause *function_clause = new (space) ExFunctionPack(attr, space, width_, base_, nullsPresent_);
+  if (function_clause) generator->getExpGenerator()->linkClause(this, function_clause);
 
   return 0;
 }
@@ -2658,126 +2026,101 @@ short PackFunc::codeGen(Generator* generator)
 // Generates a CASE expression of the form CASE WHEN child(0) > child(1) THEN child(0) ELSE child(1).
 //
 
-short ItmScalarMinMax::codeGen(Generator* generator)
-{
- const char *str = NULL;
+short ItmScalarMinMax::codeGen(Generator *generator) {
+  const char *str = NULL;
 
- switch (getOperatorType()) {
+  switch (getOperatorType()) {
+    case ITM_SCALAR_MAX:  // SCALAR_MAX(5, 6) ==> 6; SCALAR_MAX(5, NULL) ==> 5; SCALAR_MAX(NULL, 6) ==> 6
+      str = "CASE WHEN @A1 IS NULL OR @A2 > @A1 THEN @A2 ELSE @A1 END";
+      break;
 
- case ITM_SCALAR_MAX:              // SCALAR_MAX(5, 6) ==> 6; SCALAR_MAX(5, NULL) ==> 5; SCALAR_MAX(NULL, 6) ==> 6
-    str = "CASE WHEN @A1 IS NULL OR @A2 > @A1 THEN @A2 ELSE @A1 END";
-    break;
+    case ITM_SCALAR_MIN:  // SCALAR_MIN(5, 6) ==> 5; SCALAR_MIN (5, NULL) ==> 5; SCALAR_MIN (NULL, 6) ==> 6
+      str = "CASE WHEN @A1 IS NULL OR @A2 < @A1 THEN @A2 ELSE @A1 END";
+      break;
 
- case ITM_SCALAR_MIN:              // SCALAR_MIN(5, 6) ==> 5; SCALAR_MIN (5, NULL) ==> 5; SCALAR_MIN (NULL, 6) ==> 6
-    str = "CASE WHEN @A1 IS NULL OR @A2 < @A1 THEN @A2 ELSE @A1 END";
-    break;
+    default:
+      break;
 
- default:
-    break;
+  }  // switch on getOperatorType()
 
- }  //switch on getOperatorType()
+  ItemExpr *newExpr = generator->getExpGenerator()->createExprTree(str, 0, 2, child(0), child(1));
+  newExpr = new (generator->wHeap()) Cast(newExpr, getValueId().getType().newCopy(generator->wHeap()));
 
-ItemExpr *newExpr = generator->getExpGenerator()->createExprTree(str, 0, 2, child(0), child(1));
-newExpr = new (generator->wHeap()) Cast (newExpr, getValueId().getType().newCopy(generator->wHeap()));
+  getValueId().replaceItemExpr(newExpr);  // I am now an ITM_CASE
+  newExpr->synthTypeAndValueId(TRUE);
+  setReplacementExpr(newExpr);
 
-getValueId().replaceItemExpr(newExpr);  // I am now an ITM_CASE
-newExpr->synthTypeAndValueId(TRUE); 
-setReplacementExpr(newExpr);
+  newExpr->preCodeGen(generator);
+  newExpr->codeGen(generator);
 
-newExpr->preCodeGen(generator);
-newExpr->codeGen(generator);
-
-return 0;
+  return 0;
 }
 
-short HbaseColumnLookup::codeGen(Generator * generator)
-{
-  Attributes ** attr;
-  
-  Space * space = generator->getSpace();
-  
-  if (generator->getExpGenerator()->genItemExpr(this, &attr, (1 + getArity()), -1) == 1)
-    return 0;
+short HbaseColumnLookup::codeGen(Generator *generator) {
+  Attributes **attr;
+
+  Space *space = generator->getSpace();
+
+  if (generator->getExpGenerator()->genItemExpr(this, &attr, (1 + getArity()), -1) == 1) return 0;
 
   std::string colFam;
   std::string colName;
-  ExFunctionHbaseColumnLookup::extractColFamilyAndName(
-						       hbaseCol_.data(), -1, FALSE, colFam, colName);
+  ExFunctionHbaseColumnLookup::extractColFamilyAndName(hbaseCol_.data(), -1, FALSE, colFam, colName);
 
-  if (colFam.empty())
-    {
-      GenAssert(0, "Must specify the column family in the COLUMN_LOOKUP function");
-    }
+  if (colFam.empty()) {
+    GenAssert(0, "Must specify the column family in the COLUMN_LOOKUP function");
+  }
 
   NAString qualColName = colFam.data();
   qualColName += ":";
   qualColName += colName.data();
 
-  ExFunctionHbaseColumnLookup * cl =
-    new(generator->getSpace()) ExFunctionHbaseColumnLookup
-    (getOperatorType(), 
-     attr, 
-     qualColName.data(),
-     space);
+  ExFunctionHbaseColumnLookup *cl =
+      new (generator->getSpace()) ExFunctionHbaseColumnLookup(getOperatorType(), attr, qualColName.data(), space);
 
-  if (cl)
-    generator->getExpGenerator()->linkClause(this, cl);
-  
+  if (cl) generator->getExpGenerator()->linkClause(this, cl);
+
   return 0;
 }
 
-short HbaseColumnsDisplay::codeGen(Generator * generator)
-{
-  Attributes ** attr;
-  
-  Space * space = generator->getSpace();
-  
-  if (generator->getExpGenerator()->genItemExpr(this, &attr, (1 + getArity()), -1) == 1)
-    return 0;
+short HbaseColumnsDisplay::codeGen(Generator *generator) {
+  Attributes **attr;
 
-  char * colNames = NULL;
+  Space *space = generator->getSpace();
+
+  if (generator->getExpGenerator()->genItemExpr(this, &attr, (1 + getArity()), -1) == 1) return 0;
+
+  char *colNames = NULL;
   NAString allCols;
-  if ((csl()) && (csl()->entries() > 0))
-    {
-      for (Lng32 i = 0; i < csl()->entries(); i++)
-	{
-	  NAString * nas = (NAString*)(*csl())[i];
+  if ((csl()) && (csl()->entries() > 0)) {
+    for (Lng32 i = 0; i < csl()->entries(); i++) {
+      NAString *nas = (NAString *)(*csl())[i];
 
-	  short colNameLen = nas->length();
-	  allCols.append((char*)&colNameLen, sizeof(colNameLen));
-	  
-	  allCols += *nas;
-	}
+      short colNameLen = nas->length();
+      allCols.append((char *)&colNameLen, sizeof(colNameLen));
 
-      colNames = 
-      	generator->getSpace()->allocateAndCopyToAlignedSpace(allCols.data(), allCols.length());
-
+      allCols += *nas;
     }
 
-  ExFunctionHbaseColumnsDisplay * cd =
-    new(generator->getSpace()) ExFunctionHbaseColumnsDisplay
-    (getOperatorType(), 
-     attr, 
-     (csl() ? csl()->entries() : 0),
-     colNames,
-     space);
+    colNames = generator->getSpace()->allocateAndCopyToAlignedSpace(allCols.data(), allCols.length());
+  }
 
-  if (cd)
-    generator->getExpGenerator()->linkClause(this, cd);
+  ExFunctionHbaseColumnsDisplay *cd = new (generator->getSpace())
+      ExFunctionHbaseColumnsDisplay(getOperatorType(), attr, (csl() ? csl()->entries() : 0), colNames, space);
 
-  generator->getExpGenerator()->setPCodeMode( ex_expr::PCODE_NONE );
+  if (cd) generator->getExpGenerator()->linkClause(this, cd);
+
+  generator->getExpGenerator()->setPCodeMode(ex_expr::PCODE_NONE);
 
   return 0;
 }
 
-short HbaseColumnCreate::codeGen(Generator * generator)
-{
-  Attributes ** attr;
-  
-  Space * space = generator->getSpace();
-  
-  if (generator->getExpGenerator()->genItemExpr(this, &attr, 1, -1) == 1)
-    return 0;
+short HbaseColumnCreate::codeGen(Generator *generator) {
+  Attributes **attr;
+
+  Space *space = generator->getSpace();
+
+  if (generator->getExpGenerator()->genItemExpr(this, &attr, 1, -1) == 1) return 0;
 
   short numEntries = hccol_->entries();
 
@@ -2787,94 +2130,67 @@ short HbaseColumnCreate::codeGen(Generator * generator)
 
   ValueIdList colCreateVIDlist;
 
-  for (Lng32 i = 0; i < numEntries; i++)
-    {
-      HbaseColumnCreateOptions * hcco = (*hccol_)[i];
+  for (Lng32 i = 0; i < numEntries; i++) {
+    HbaseColumnCreateOptions *hcco = (*hccol_)[i];
 
-      hcco->colName()->preCodeGen(generator);
-      hcco->colVal()->preCodeGen(generator);
+    hcco->colName()->preCodeGen(generator);
+    hcco->colVal()->preCodeGen(generator);
 
-      const NAType &childType = hcco->colVal()->getValueId().getType();
+    const NAType &childType = hcco->colVal()->getValueId().getType();
 
-      if (NOT childType.supportsSQLnull())
-	{
-	  NAType *newType= childType.newCopy(generator->wHeap());
-	  newType->setNullable(TRUE);
-	  ItemExpr * ne = new (generator->wHeap()) Cast(hcco->colVal(), 
-							 newType);
-	  ne = ne->bindNode(generator->getBindWA());
-	  ne->preCodeGen(generator);
-	  hcco->setColVal(ne);
-	}
-
-      colCreateVIDlist.insert(hcco->colName()->getValueId());
-      colCreateVIDlist.insert(hcco->colVal()->getValueId());
+    if (NOT childType.supportsSQLnull()) {
+      NAType *newType = childType.newCopy(generator->wHeap());
+      newType->setNullable(TRUE);
+      ItemExpr *ne = new (generator->wHeap()) Cast(hcco->colVal(), newType);
+      ne = ne->bindNode(generator->getBindWA());
+      ne->preCodeGen(generator);
+      hcco->setColVal(ne);
     }
-									
+
+    colCreateVIDlist.insert(hcco->colName()->getValueId());
+    colCreateVIDlist.insert(hcco->colVal()->getValueId());
+  }
+
   ULng32 tupleLength = 0;
   short colValVCIndLen = 0;
-  generator->getExpGenerator()->processValIdList(colCreateVIDlist,
-						 ExpTupleDesc::SQLARK_EXPLODED_FORMAT,
-						 tupleLength,
-						 attr[0]->getAtp(),
-						 attr[0]->getAtpIndex(),
-						 NULL,
-						 ExpTupleDesc::SHORT_FORMAT,
-						 attr[0]->getOffset() + 
-						 (sizeof(numEntries) + sizeof(colNameMaxLen_) +
-						  sizeof(colValVCIndLen) + sizeof(colValMaxLen_)));
-			
-  for (Lng32 i = 0; i < numEntries; i++)
-    {
-      HbaseColumnCreateOptions * hcco = (*hccol_)[i];
+  generator->getExpGenerator()->processValIdList(
+      colCreateVIDlist, ExpTupleDesc::SQLARK_EXPLODED_FORMAT, tupleLength, attr[0]->getAtp(), attr[0]->getAtpIndex(),
+      NULL, ExpTupleDesc::SHORT_FORMAT,
+      attr[0]->getOffset() +
+          (sizeof(numEntries) + sizeof(colNameMaxLen_) + sizeof(colValVCIndLen) + sizeof(colValMaxLen_)));
 
-      hcco->colName()->codeGen(generator);
-      hcco->colVal()->codeGen(generator);
+  for (Lng32 i = 0; i < numEntries; i++) {
+    HbaseColumnCreateOptions *hcco = (*hccol_)[i];
 
-      const NAType &childType = hcco->colVal()->getValueId().getType();
-      colValVCIndLen = (childType.isVaryingLen() ?
-                        childType.getVarLenHdrSize() : 0);
-    }
-			 
-  ExFunctionHbaseColumnCreate * cl =
-    new(generator->getSpace()) ExFunctionHbaseColumnCreate
-    (getOperatorType(), 
-     attr, 
-     numEntries,
-     colNameMaxLen_,
-     colValMaxLen_,
-     colValVCIndLen,
-     generator->getSpace());
+    hcco->colName()->codeGen(generator);
+    hcco->colVal()->codeGen(generator);
+
+    const NAType &childType = hcco->colVal()->getValueId().getType();
+    colValVCIndLen = (childType.isVaryingLen() ? childType.getVarLenHdrSize() : 0);
+  }
+
+  ExFunctionHbaseColumnCreate *cl = new (generator->getSpace()) ExFunctionHbaseColumnCreate(
+      getOperatorType(), attr, numEntries, colNameMaxLen_, colValMaxLen_, colValVCIndLen, generator->getSpace());
 
   generator->getExpGenerator()->linkClause(this, cl);
-  
+
   return 0;
 }
 
+short SequenceValue::codeGen(Generator *generator) {
+  Attributes **attr;
 
+  Space *space = generator->getSpace();
 
-
-short SequenceValue::codeGen(Generator * generator)
-{
-  Attributes ** attr;
-  
-  Space * space = generator->getSpace();
-  
-  if (generator->getExpGenerator()->genItemExpr(this, &attr, (1 + getArity()), -1) == 1)
-    return 0;
+  if (generator->getExpGenerator()->genItemExpr(this, &attr, (1 + getArity()), -1) == 1) return 0;
   Int64 origCacheSize = naTable_->getSGAttributes()->getSGCache();
   Lng32 cacheSize = CmpCommon::getDefaultNumeric(TRAF_SEQUENCE_CACHE_SIZE);
-  if (cacheSize > 0)
-    {
-      ((SequenceGeneratorAttributes*)naTable_->getSGAttributes())->setSGCache(cacheSize);
-    }
+  if (cacheSize > 0) {
+    ((SequenceGeneratorAttributes *)naTable_->getSGAttributes())->setSGCache(cacheSize);
+  }
 
-  ExFunctionSequenceValue * sv =
-    new(generator->getSpace()) ExFunctionSequenceValue
-    (getOperatorType(), 
-     attr, 
-     *naTable_->getSGAttributes(),
-     space);
+  ExFunctionSequenceValue *sv =
+      new (generator->getSpace()) ExFunctionSequenceValue(getOperatorType(), attr, *naTable_->getSGAttributes(), space);
 
   sv->setRetryNum(CmpCommon::getDefaultLong(TRAF_SEQUENCE_RETRY_TIMES));
   sv->setUseDlockImpl(CmpCommon::getDefault(TRAF_SEQUENCE_USE_DLOCK) == DF_ON);
@@ -2883,75 +2199,52 @@ short SequenceValue::codeGen(Generator * generator)
 
   sv->setUseDtmImpl(naTable_->getSGAttributes()->getSGUseDtmImpl());
 
-  if (cacheSize > 0)
-    ((SequenceGeneratorAttributes*)naTable_->getSGAttributes())->setSGCache(origCacheSize);
+  if (cacheSize > 0) ((SequenceGeneratorAttributes *)naTable_->getSGAttributes())->setSGCache(origCacheSize);
 
-  if (sv)
-    generator->getExpGenerator()->linkClause(this, sv);
-  
-  if (currVal_)
-    sv->setIsCurr(TRUE);
+  if (sv) generator->getExpGenerator()->linkClause(this, sv);
 
-  generator->objectUids().insert(
-       naTable_->objectUid().get_value());
+  if (currVal_) sv->setIsCurr(TRUE);
+
+  generator->objectUids().insert(naTable_->objectUid().get_value());
 
   return 0;
 }
 
-short HbaseAttribute::codeGen(Generator * generator)
-{
-  Attributes ** attr;
-  
-  MapInfo * hbtMapInfo = generator->getMapInfoAsIs(getValueId());
-  if (hbtMapInfo && hbtMapInfo->isCodeGenerated())
-    return 0;
+short HbaseAttribute::codeGen(Generator *generator) {
+  Attributes **attr;
 
-  Space * space = generator->getSpace();
-  
+  MapInfo *hbtMapInfo = generator->getMapInfoAsIs(getValueId());
+  if (hbtMapInfo && hbtMapInfo->isCodeGenerated()) return 0;
+
+  Space *space = generator->getSpace();
+
   setChild(0, tsVals_);
 
-  if (generator->getExpGenerator()->genItemExpr(this, &attr, (1 + getArity()), -1) == 1)
-    return 0;
+  if (generator->getExpGenerator()->genItemExpr(this, &attr, (1 + getArity()), -1) == 1) return 0;
 
-  ex_function_clause * hbf = NULL;
+  ex_function_clause *hbf = NULL;
 
-  switch (getOperatorType())
-    {
+  switch (getOperatorType()) {
     case ITM_HBASE_VISIBILITY:
-      hbf = new(generator->getSpace()) ExFunctionHbaseVisibility
-        (getOperatorType(), 
-         attr, 
-         0, // tagType
-         colIndex_,
-         space);
+      hbf = new (generator->getSpace()) ExFunctionHbaseVisibility(getOperatorType(), attr,
+                                                                  0,  // tagType
+                                                                  colIndex_, space);
       break;
 
     case ITM_HBASE_TIMESTAMP:
-      hbf = new(generator->getSpace()) ExFunctionHbaseTimestamp
-        (getOperatorType(), 
-         attr, 
-         colIndex_,
-         space);
+      hbf = new (generator->getSpace()) ExFunctionHbaseTimestamp(getOperatorType(), attr, colIndex_, space);
       break;
 
     case ITM_HBASE_VERSION:
-      hbf = new(generator->getSpace()) ExFunctionHbaseVersion
-        (getOperatorType(), 
-         attr, 
-         colIndex_,
-         space);
+      hbf = new (generator->getSpace()) ExFunctionHbaseVersion(getOperatorType(), attr, colIndex_, space);
       break;
 
     case ITM_HBASE_ROWID:
-       hbf = new (generator->getSpace()) ExFunctionHbaseRowid
-         (getOperatorType(),
-         attr,
-         space);
+      hbf = new (generator->getSpace()) ExFunctionHbaseRowid(getOperatorType(), attr, space);
       break;
-    }
+  }
 
-  if (hbf)
-    generator->getExpGenerator()->linkClause(this, hbf);
+  if (hbf) generator->getExpGenerator()->linkClause(this, hbf);
 
   setChild(0, NULL);
 
@@ -2960,75 +2253,54 @@ short HbaseAttribute::codeGen(Generator * generator)
   return 0;
 }
 
-short HbaseVisibilitySet::codeGen(Generator * generator)
-{
-  Attributes ** attr;
-  
-  MapInfo * hbtMapInfo = generator->getMapInfoAsIs(getValueId());
-  if (hbtMapInfo && hbtMapInfo->isCodeGenerated())
-    return 0;
+short HbaseVisibilitySet::codeGen(Generator *generator) {
+  Attributes **attr;
 
-  Space * space = generator->getSpace();
-  
-  if (generator->getExpGenerator()->genItemExpr(this, &attr, (1 + getArity()), -1) == 1)
-    return 0;
+  MapInfo *hbtMapInfo = generator->getMapInfoAsIs(getValueId());
+  if (hbtMapInfo && hbtMapInfo->isCodeGenerated()) return 0;
 
-  ex_function_clause * hbf = NULL;
+  Space *space = generator->getSpace();
 
-  hbf = new(generator->getSpace()) ExFunctionHbaseVisibilitySet
-    (getOperatorType(), 
-     attr, 
-     colId_.length()-sizeof(short),
-     colId_.data() + sizeof(short),
-     visExpr_.length(),
-     visExpr_.data(),
-     space);
+  if (generator->getExpGenerator()->genItemExpr(this, &attr, (1 + getArity()), -1) == 1) return 0;
 
-  if (hbf)
-    generator->getExpGenerator()->linkClause(this, hbf);
+  ex_function_clause *hbf = NULL;
+
+  hbf = new (generator->getSpace())
+      ExFunctionHbaseVisibilitySet(getOperatorType(), attr, colId_.length() - sizeof(short),
+                                   colId_.data() + sizeof(short), visExpr_.length(), visExpr_.data(), space);
+
+  if (hbf) generator->getExpGenerator()->linkClause(this, hbf);
 
   //  hbtMapInfo->codeGenerated();
 
   return 0;
 }
 
-short HbaseAttributeRef::codeGen(Generator * generator)
-{
+short HbaseAttributeRef::codeGen(Generator *generator) {
   GenAssert(0, "HbaseAttributeRef::codeGen. Should not reach here.");
 
   return 0;
 }
 
-
-short BeginKey::codeGen(Generator *generator)
-{
+short BeginKey::codeGen(Generator *generator) {
   Attributes **attr;
 
-  if (generator->getExpGenerator()->genItemExpr(this, &attr, 1 + getArity(), -1) == 1)
-    return 0;
+  if (generator->getExpGenerator()->genItemExpr(this, &attr, 1 + getArity(), -1) == 1) return 0;
 
   ex_clause *function_clause =
-      new (generator->getSpace()) ex_function_beginkey(getOperatorType(),
-                                                       attr,
-                                                       generator->getSpace());
+      new (generator->getSpace()) ex_function_beginkey(getOperatorType(), attr, generator->getSpace());
   generator->getExpGenerator()->linkClause(this, function_clause);
 
   return 0;
 }
 
-short EndKey::codeGen(Generator *generator)
-{
+short EndKey::codeGen(Generator *generator) {
   Attributes **attr;
 
-  if (generator->getExpGenerator()->genItemExpr(this, &attr, 1 + getArity(), -1) == 1)
-    return 0;
+  if (generator->getExpGenerator()->genItemExpr(this, &attr, 1 + getArity(), -1) == 1) return 0;
 
-  ex_clause *function_clause =
-      new (generator->getSpace()) ex_function_endkey(getOperatorType(),
-                                                       attr,
-                                                       bytesPerChar_,
-                                                       maxValue_,
-                                                       generator->getSpace());
+  ex_clause *function_clause = new (generator->getSpace())
+      ex_function_endkey(getOperatorType(), attr, bytesPerChar_, maxValue_, generator->getSpace());
   generator->getExpGenerator()->linkClause(this, function_clause);
 
   return 0;

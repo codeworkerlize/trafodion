@@ -32,7 +32,7 @@
  *               The methods in this class are defined either in this
  *               header file or the source file StmtDDLAlter.C.
  *
- *               
+ *
  * Created:      9/20/95
  * Language:     C++
  *
@@ -41,7 +41,6 @@
  *
  *****************************************************************************
  */
-
 
 #include "StmtDDLAlterTable.h"
 
@@ -58,46 +57,34 @@ class StmtDDLAlterTablePartition;
 // -----------------------------------------------------------------------
 // definition of class StmtDDLAlterTablePartition
 // -----------------------------------------------------------------------
-class StmtDDLAlterTablePartition : public StmtDDLAlterTable
-{
-
-public:
-
+class StmtDDLAlterTablePartition : public StmtDDLAlterTable {
+ public:
   // constructor
-  StmtDDLAlterTablePartition(ElemDDLNode* pPartitionAction);
-
+  StmtDDLAlterTablePartition(ElemDDLNode *pPartitionAction);
 
   // virtual destructor
   virtual ~StmtDDLAlterTablePartition();
 
   // cast
-  virtual StmtDDLAlterTablePartition * castToStmtDDLAlterTablePartition();
+  virtual StmtDDLAlterTablePartition *castToStmtDDLAlterTablePartition();
 
   // accessor
-  inline ElemDDLNode * getPartitionAction() const;
+  inline ElemDDLNode *getPartitionAction() const;
 
   // method for tracing
   virtual const NAString getText() const;
 
-
-private:
-
-}; // class StmtDDLAlterTablePartition
+ private:
+};  // class StmtDDLAlterTablePartition
 
 // -----------------------------------------------------------------------
 // definitions of inline methods for class StmtDDLAlterTablePartition
 // -----------------------------------------------------------------------
 
-
 //
 // accessor
 //
 
-inline
-ElemDDLNode *
-StmtDDLAlterTablePartition::getPartitionAction() const
-{
-  return getAlterTableAction();
-}
+inline ElemDDLNode *StmtDDLAlterTablePartition::getPartitionAction() const { return getAlterTableAction(); }
 
-#endif // STMTDDLALTERTABLEPARTITION_H
+#endif  // STMTDDLALTERTABLEPARTITION_H

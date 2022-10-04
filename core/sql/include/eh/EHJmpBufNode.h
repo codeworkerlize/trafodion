@@ -7,7 +7,7 @@
 * Description:  class for records in the JmpBuf stack to support
 *               exception handling
 *
-*               
+*
 * Created:      5/16/95
 * Language:     C++
 *
@@ -37,7 +37,6 @@
 ******************************************************************************
 */
 
-
 #include <setjmp.h>
 
 // -----------------------------------------------------------------------
@@ -53,24 +52,16 @@ class EHExceptionTypeNode;
 // -----------------------------------------------------------------------
 // class for records of the shadow runtime stack
 // -----------------------------------------------------------------------
-class EHExceptionJmpBufNode
-{
-
-public:
-
-  struct env
-  {
+class EHExceptionJmpBufNode {
+ public:
+  struct env {
     jmp_buf jmpBuf;
   } environment;
-  
+
   // default constructor
 
-  EHExceptionJmpBufNode(
-       EHExceptionTypeNode * firstExceptionTypeNode = NULL,
-       EHExceptionJmpBufNode * pPrevRecord = NULL)
-    : firstExceptionTypeNode_(firstExceptionTypeNode), link_(pPrevRecord)
-  {
-  }
+  EHExceptionJmpBufNode(EHExceptionTypeNode *firstExceptionTypeNode = NULL, EHExceptionJmpBufNode *pPrevRecord = NULL)
+      : firstExceptionTypeNode_(firstExceptionTypeNode), link_(pPrevRecord) {}
 
   // destructor
   //
@@ -80,45 +71,28 @@ public:
 
   // accessors
 
-  EHExceptionTypeNode *
-  getExceptionTypeList() const
-  {
-    return firstExceptionTypeNode_;
-  }
+  EHExceptionTypeNode *getExceptionTypeList() const { return firstExceptionTypeNode_; }
 
-  EHExceptionJmpBufNode *
-  getLink() const
-  {
-    return link_;
-  }
+  EHExceptionJmpBufNode *getLink() const { return link_; }
 
   // mutators
 
-  void setEnv(const env & envStruct);
+  void setEnv(const env &envStruct);
 
-  void
-  setExceptionTypeList(EHExceptionTypeNode * pExceptionTypeList)
-  {
-    firstExceptionTypeNode_ = pExceptionTypeList;
-  }
+  void setExceptionTypeList(EHExceptionTypeNode *pExceptionTypeList) { firstExceptionTypeNode_ = pExceptionTypeList; }
 
-  void
-  setLink(EHExceptionJmpBufNode * pPrevRecord)
-  {
-    link_ = pPrevRecord;
-  }
+  void setLink(EHExceptionJmpBufNode *pPrevRecord) { link_ = pPrevRecord; }
 
-private:
-
+ private:
   // pointer pointing to a singular linked list containing
   // a list of types of exceptions associating with a try block
-  
-  EHExceptionTypeNode * firstExceptionTypeNode_;
+
+  EHExceptionTypeNode *firstExceptionTypeNode_;
 
   // pointer to the record (node) right below this record
 
-  EHExceptionJmpBufNode * link_;
+  EHExceptionJmpBufNode *link_;
 
 };  // class EHExceptionJmpBufNode
 
-#endif // EHJMPBUFNODE_H
+#endif  // EHJMPBUFNODE_H

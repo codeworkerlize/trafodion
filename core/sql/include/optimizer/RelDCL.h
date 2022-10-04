@@ -38,7 +38,6 @@
  *****************************************************************************
  */
 
-
 #include "common/Collections.h"
 #include "common/ComTransInfo.h"
 #include "optimizer/ObjectNames.h"
@@ -67,67 +66,55 @@ class Generator;
 //       All generator methods are defined in file RelGenLock.C in
 //       the generator directory.
 // -----------------------------------------------------------------------
-class RelLock : public RelExpr
-{
-public:
-
+class RelLock : public RelExpr {
+ public:
   // constructor
-  RelLock(const CorrName& name,
-	  LockMode lockMode = SHARE_,
-	  NABoolean lockIndex = TRUE, 
-	  OperatorTypeEnum otype = REL_LOCK,  // REL_UNLOCK for unlock stmt.
-	  NABoolean parallelExecution = FALSE);
+  RelLock(const CorrName &name, LockMode lockMode = SHARE_, NABoolean lockIndex = TRUE,
+          OperatorTypeEnum otype = REL_LOCK,  // REL_UNLOCK for unlock stmt.
+          NABoolean parallelExecution = FALSE);
 
   // copy ctor
-  RelLock (const RelLock & rel, CollHeap * h=0) ; // not written
+  RelLock(const RelLock &rel, CollHeap *h = 0);  // not written
 
   ~RelLock();
 
-  LockMode getLockMode() const			{ return lockMode_; }
+  LockMode getLockMode() const { return lockMode_; }
 
   // get and set the table name
-  inline const CorrName & getTableName() const  { return userTableName_; }
-  inline       CorrName & getTableName()        { return userTableName_; }
-  inline const CorrName * getPtrToTableName() const
-                                                { return &userTableName_; }
+  inline const CorrName &getTableName() const { return userTableName_; }
+  inline CorrName &getTableName() { return userTableName_; }
+  inline const CorrName *getPtrToTableName() const { return &userTableName_; }
 
-  inline const NAString &getLocationName() const {
-    return userTableName_.getLocationName();}
-  inline void setLocationName(const NAString& locName) { 
-    userTableName_.setLocationName (locName); }
-  inline NABoolean isView() const {return isView_;};
-  inline void setView()           {isView_ = TRUE;}
+  inline const NAString &getLocationName() const { return userTableName_.getLocationName(); }
+  inline void setLocationName(const NAString &locName) { userTableName_.setLocationName(locName); }
+  inline NABoolean isView() const { return isView_; };
+  inline void setView() { isView_ = TRUE; }
 
   // a virtual function for performing name binding within the query tree
-  virtual RelExpr * bindNode(BindWA *bindWAPtr);
+  virtual RelExpr *bindNode(BindWA *bindWAPtr);
 
   // The set of values that I can potentially produce as output.
-  virtual void getPotentialOutputValues(ValueIdSet & vs) const;
+  virtual void getPotentialOutputValues(ValueIdSet &vs) const;
 
   // cost functions
-  virtual PhysicalProperty *synthPhysicalProperty(const Context *context,
-                                                  const Lng32    planNumber,
-                                                  PlanWorkSpace  *pws);
+  virtual PhysicalProperty *synthPhysicalProperty(const Context *context, const Lng32 planNumber, PlanWorkSpace *pws);
 
   // this is both logical and physical node
-  virtual NABoolean isLogical() const{return TRUE;};
-  virtual NABoolean isPhysical() const{return TRUE;};
+  virtual NABoolean isLogical() const { return TRUE; };
+  virtual NABoolean isPhysical() const { return TRUE; };
 
   // method to do code generation.
   // Defined in GenRelDCL.cpp in generator directory.
-  RelExpr * preCodeGen(Generator * generator,
-		       const ValueIdSet & externalInputs,
-		       ValueIdSet &pulledNewInputs);
-  virtual short codeGen(Generator*);
+  RelExpr *preCodeGen(Generator *generator, const ValueIdSet &externalInputs, ValueIdSet &pulledNewInputs);
+  virtual short codeGen(Generator *);
 
   // various PC methods
   // get the degree of this node (it is a leaf op).
-  virtual Int32 getArity() const{return 0;};
-  virtual RelExpr * copyTopNode(RelExpr *derivedNode = NULL,
-				CollHeap* outHeap = NULL);
+  virtual Int32 getArity() const { return 0; };
+  virtual RelExpr *copyTopNode(RelExpr *derivedNode = NULL, CollHeap *outHeap = NULL);
   virtual const NAString getText() const;
 
-private:
+ private:
   // the user-specified name of the table or view
   CorrName userTableName_;
 
@@ -155,10 +142,9 @@ private:
   // the bound tree created by binder when it expands the view text.
   // Adds to baseTableNameList_ the table names of all the Scan
   // nodes that are part of this tree.
-  void addTableNameToList(RelExpr * node);
+  void addTableNameToList(RelExpr *node);
 
   TableDescList tabIds_;
-
 };
 
 // -----------------------------------------------------------------------
@@ -172,61 +158,54 @@ private:
 //       All generator methods are defined in file GenRelDCL.C in
 //       the generator directory.
 // -----------------------------------------------------------------------
-class RelTransaction : public RelExpr
-{
-public:
+class RelTransaction : public RelExpr {
+ public:
   // constructor
-  RelTransaction(TransStmtType type, TransMode * mode = NULL,
-		 ItemExpr * diagAreaSizeExpr = NULL);
+  RelTransaction(TransStmtType type, TransMode *mode = NULL, ItemExpr *diagAreaSizeExpr = NULL);
 
   ~RelTransaction();
 
   // a virtual function for performing name binding within the query tree
-  virtual RelExpr * bindNode(BindWA *bindWAPtr);
+  virtual RelExpr *bindNode(BindWA *bindWAPtr);
 
-  virtual void transformNode(NormWA & normWARef,
-			     ExprGroupId & locationOfPointerToMe);
+  virtual void transformNode(NormWA &normWARef, ExprGroupId &locationOfPointerToMe);
 
   // The set of values that I can potentially produce as output.
-  virtual void getPotentialOutputValues(ValueIdSet & vs) const;
+  virtual void getPotentialOutputValues(ValueIdSet &vs) const;
 
   // cost functions
-  virtual PhysicalProperty *synthPhysicalProperty(const Context *context,
-                                                  const Lng32    planNumber,
-                                                  PlanWorkSpace  *pws);
+  virtual PhysicalProperty *synthPhysicalProperty(const Context *context, const Lng32 planNumber, PlanWorkSpace *pws);
 
   // this is both logical and physical node
-  virtual NABoolean isLogical() const{return TRUE;};
-  virtual NABoolean isPhysical() const{return TRUE;};
+  virtual NABoolean isLogical() const { return TRUE; };
+  virtual NABoolean isPhysical() const { return TRUE; };
 
-   // method to do code generation.
+  // method to do code generation.
   // Defined in GenRelDCL.C in generator directory.
-  virtual short codeGen(Generator*);
+  virtual short codeGen(Generator *);
 
   // various PC methods
   // get the degree of this node (it is a leaf op).
-  virtual Int32 getArity() const{return 0;};
-  virtual RelExpr * copyTopNode(RelExpr *derivedNode = NULL,
-				CollHeap* outHeap = NULL);
+  virtual Int32 getArity() const { return 0; };
+  virtual RelExpr *copyTopNode(RelExpr *derivedNode = NULL, CollHeap *outHeap = NULL);
   virtual const NAString getText() const;
 
   TransStmtType getType() { return type_; }
 
-  void setSavepointName(NAString svptName)
-  {
+  void setSavepointName(NAString svptName) {
     savepointName_ = svptName;
     hasSavepointName_ = TRUE;
   }
 
-private:
+ private:
   // See ComTransInfo.h
   TransStmtType type_;
 
   // contains options specified in a SET TRANSACTION statement.
-  TransMode * mode_;
+  TransMode *mode_;
 
   // the expression to compute the diagnostic area size
-  ItemExpr * diagAreaSizeExpr_;
+  ItemExpr *diagAreaSizeExpr_;
 
   NABoolean hasSavepointName_;
   NAString savepointName_;
@@ -242,80 +221,70 @@ private:
 //       All generator methods are defined in file GenRelDCL.cpp in
 //       the generator directory.
 // -----------------------------------------------------------------------
-class RelSetTimeout : public RelExpr
-{
-public:
+class RelSetTimeout : public RelExpr {
+ public:
   // constructor
-  RelSetTimeout(const CorrName & tableName,
-		ItemExpr * timeoutValueExpr,
-		NABoolean  isStreamTimeout = FALSE,
-		NABoolean  isReset = FALSE,
-		NABoolean  isForAllTables = FALSE,
-		char * physicalFileName = NULL );
+  RelSetTimeout(const CorrName &tableName, ItemExpr *timeoutValueExpr, NABoolean isStreamTimeout = FALSE,
+                NABoolean isReset = FALSE, NABoolean isForAllTables = FALSE, char *physicalFileName = NULL);
 
   ~RelSetTimeout() {}  // do nothing dtor
 
   // Copy constructor, not implemented!
-  RelSetTimeout (const RelSetTimeout & rel, CollHeap *h=0); 
+  RelSetTimeout(const RelSetTimeout &rel, CollHeap *h = 0);
 
   // a bunch of virtual methods
   // --------------------------
 
   // perform name binding within the query tree
-  virtual RelExpr * bindNode(BindWA *bindWAPtr);
+  virtual RelExpr *bindNode(BindWA *bindWAPtr);
 
-  virtual void transformNode(NormWA & normWARef,
-			     ExprGroupId & locationOfPointerToMe);
+  virtual void transformNode(NormWA &normWARef, ExprGroupId &locationOfPointerToMe);
 
   // The set of values that I can potentially produce as output.
-  virtual void getPotentialOutputValues(ValueIdSet & vs) const;
+  virtual void getPotentialOutputValues(ValueIdSet &vs) const;
 
   // cost functions
-  virtual PhysicalProperty *synthPhysicalProperty(const Context *context,
-                                                  const Lng32    planNumber,
-                                                  PlanWorkSpace  *pws);
+  virtual PhysicalProperty *synthPhysicalProperty(const Context *context, const Lng32 planNumber, PlanWorkSpace *pws);
 
   // this is both logical and physical node
-  virtual NABoolean isLogical() const{return TRUE;};
-  virtual NABoolean isPhysical() const{return TRUE;};
+  virtual NABoolean isLogical() const { return TRUE; };
+  virtual NABoolean isPhysical() const { return TRUE; };
 
   // method to do code generation.
   // Defined in GenRelDCL.cpp in generator directory.
-  virtual short codeGen(Generator*);
+  virtual short codeGen(Generator *);
 
   // various PC methods
   // get the degree of this node (it is a leaf op).
-  virtual Int32 getArity() const{return 0;};
-  virtual RelExpr * copyTopNode(RelExpr *derivedNode = NULL,
-				CollHeap* outHeap = NULL);
+  virtual Int32 getArity() const { return 0; };
+  virtual RelExpr *copyTopNode(RelExpr *derivedNode = NULL, CollHeap *outHeap = NULL);
   virtual const NAString getText() const;
 
   //  Public methods unique for SET TABLE TIMEOUT
   //  -------------------------------------------
   // get and set the table name given by the user who called SET TIMEOUT
-  inline const CorrName & getUserTableName() const  { return userTableName_; }
-  inline       CorrName & getUserTableName()        { return userTableName_; }
-  
-  ItemExpr * getTimeoutValue()  { return timeoutValueExpr_;}
+  inline const CorrName &getUserTableName() const { return userTableName_; }
+  inline CorrName &getUserTableName() { return userTableName_; }
+
+  ItemExpr *getTimeoutValue() { return timeoutValueExpr_; }
   NABoolean isStream() { return isStream_; }
   NABoolean isReset() { return isReset_; }
   NABoolean isForAllTables() { return isForAllTables_; }
-  void setPhysicalFileName(const char * fName)
-  { str_cpy_all( physicalFileName_, fName, 50 ) ; }
+  void setPhysicalFileName(const char *fName) { str_cpy_all(physicalFileName_, fName, 50); }
 
-private:
+ private:
   // the user-specified name of the table
   CorrName userTableName_;
 
   // the expression to compute the value (may be a hostvar or param)
-  ItemExpr * timeoutValueExpr_;
+  ItemExpr *timeoutValueExpr_;
 
   NABoolean isStream_;
   NABoolean isReset_;
   NABoolean isForAllTables_;
 
   // keep the apropriate guardian file name, given explicitly or deduced
-  // by the binder (This is the name used to check statements at runtime.) 
+  // by the binder (This is the name used to check statements at runtime.)
   char physicalFileName_[50];
 };
 

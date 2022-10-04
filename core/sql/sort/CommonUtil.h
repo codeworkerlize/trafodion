@@ -30,6 +30,6 @@
 
 typedef Int32 answer;
 const answer right = 1;
-const answer wrong  = 0;
+const answer wrong = 0;
 
 #endif

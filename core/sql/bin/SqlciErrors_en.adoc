@@ -244,12 +244,6 @@ ZZZZZ 99999 BEGINNER MINOR DBADMIN Object $0~TableName could not be dropped.
 *Effect:* Failed to delete the table.
 *Recovery:* 
 1. The table is Not temporary table, or connect to temporary schema and get table information without enough memory.
-2. The table have lob objects, so it need to delete lob objects first. But it returned error when drop lob. 
-   If there has LOBV2, it will return error 8448 and more detail content. If without other error, please set
-   environment variable TRACE_LOB_ACTIONS=1 and trace the step of drop lob and get more content.
-3. When create untemporary index, coneect to temporary schema and get information of index in temporary schema without enough space.
-4. When delete untemporary index, coneect to temporary schema and get information of index in temporary schema without enough space.
-5. When truncate table with lob object, it need to truncate lob object first. If it return error when truncate lob object,
    please make sure HDFS service and HBase service work right.
 6. If see "Object  could not be dropped", please ensure the index or table object is not exist when return error table or index is null.
 
@@ -11399,14 +11393,12 @@ ZZZZZ 99999 BEGINNER MAJOR DBADMIN Unable to access $0~string0 interface. Call t
 
 [[SQL-8443]]
 == SQL 8443
-ZZZZZ 99999 BEGINNER MAJOR DBADMIN Provided LOB handle is invalid.
 *Cause:* 
 *Effect:* 
 *Recovery:* 
 
 [[SQL-8444]]
 == SQL 8444
-ZZZZZ 99999 BEGINNER MAJOR DBADMIN Only one lob handle can be returned by child for data extract.
 *Cause:* 
 *Effect:* 
 *Recovery:* 

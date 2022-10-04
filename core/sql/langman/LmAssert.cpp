@@ -3,8 +3,8 @@
  *
  * File:         LmAssert.cpp
  * Description:  assertion function of the language manager
- *               
- *               
+ *
+ *
  * Created:      5/4/02
  * Language:     C++
  *
@@ -41,24 +41,16 @@
 
 // Exclude this function from coverage as it is called only when there is an assertion in LM
 // which results in UDR server abend, so no coverage info can be generated.
-void lmAssert(const char *file, Int32 linenum, const char *msg)
-{
-  if (!file)
-    file = "";
-  if (!msg)
-    msg = "";
+void lmAssert(const char *file, Int32 linenum, const char *msg) {
+  if (!file) file = "";
+  if (!msg) msg = "";
 
-  cout << "LM Assertion: " << msg << endl
-       << "at FILE: " << file << " LINE: " << linenum << endl;
+  cout << "LM Assertion: " << msg << endl << "at FILE: " << file << " LINE: " << linenum << endl;
 
   char message[1060];  // 1024 for 'msg'
 
-  snprintf(message, 1060,  "Language Manager internal error : %s", msg);
+  snprintf(message, 1060, "Language Manager internal error : %s", msg);
 
   lmMakeTFDSCall(message, file, linenum);
   // should not reach here
 }
-
-
-
-

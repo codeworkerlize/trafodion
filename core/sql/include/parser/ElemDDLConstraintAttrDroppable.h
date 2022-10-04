@@ -29,7 +29,7 @@
  * Description:  class for parse node representing the droppable or
  *               nondroppable constraint attribute specified in
  *               constraint definitions
- *               
+ *
  * Created:      11/10/95
  * Language:     C++
  *
@@ -38,7 +38,6 @@
  *
  *****************************************************************************
  */
-
 
 #include "ElemDDLConstraintAttr.h"
 
@@ -55,23 +54,17 @@ class ElemDDLConstraintAttrDroppable;
 // -----------------------------------------------------------------------
 // definition of class ElemDDLConstraintAttrDroppable
 // -----------------------------------------------------------------------
-class ElemDDLConstraintAttrDroppable : public ElemDDLConstraintAttr
-{
-
-public:
-
+class ElemDDLConstraintAttrDroppable : public ElemDDLConstraintAttr {
+ public:
   // default constructor
   ElemDDLConstraintAttrDroppable(NABoolean isDroppable = FALSE)
-  : ElemDDLConstraintAttr(ELM_CONSTRAINT_ATTR_DROPPABLE_ELEM),
-  isDroppable_(isDroppable)
-  { }
+      : ElemDDLConstraintAttr(ELM_CONSTRAINT_ATTR_DROPPABLE_ELEM), isDroppable_(isDroppable) {}
 
   // virtual destructor
   virtual ~ElemDDLConstraintAttrDroppable();
 
   // cast
-  virtual ElemDDLConstraintAttrDroppable *
-                castToElemDDLConstraintAttrDroppable();
+  virtual ElemDDLConstraintAttrDroppable *castToElemDDLConstraintAttrDroppable();
 
   // accessor
   inline NABoolean isDroppable() const;
@@ -80,21 +73,15 @@ public:
   virtual const NAString displayLabel1() const;
   virtual const NAString getText() const;
 
-
-private:
-
+ private:
   NABoolean isDroppable_;
 
-}; // class ElemDDLConstraintAttrDroppable
+};  // class ElemDDLConstraintAttrDroppable
 
 //
 // accessor
 //
 
-inline NABoolean
-ElemDDLConstraintAttrDroppable::isDroppable() const
-{
-  return isDroppable_;
-}
+inline NABoolean ElemDDLConstraintAttrDroppable::isDroppable() const { return isDroppable_; }
 
-#endif // ELEMDDLCONSTRAINTATTRDROPPABLE_H
+#endif  // ELEMDDLCONSTRAINTATTRDROPPABLE_H

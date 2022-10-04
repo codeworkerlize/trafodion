@@ -41,24 +41,16 @@
 // -----------------------------------------------------------------------
 
 // virtual destructor
-ElemDDLConstraintAttr::~ElemDDLConstraintAttr()
-{
-}
+ElemDDLConstraintAttr::~ElemDDLConstraintAttr() {}
 
 // cast
-ElemDDLConstraintAttr *
-ElemDDLConstraintAttr::castToElemDDLConstraintAttr()
-{
-  return this;
-}
+ElemDDLConstraintAttr *ElemDDLConstraintAttr::castToElemDDLConstraintAttr() { return this; }
 
 //
 // method for tracing
 //
 
-const NAString
-ElemDDLConstraintAttr::getText() const
-{
+const NAString ElemDDLConstraintAttr::getText() const {
   NAAbort("ElemDDLConstraintAttr.C", __LINE__, "internal logic error");
   return "ElemDDLConstraintAttr";
 }
@@ -68,64 +60,40 @@ ElemDDLConstraintAttr::getText() const
 // -----------------------------------------------------------------------
 
 // virtual destructor
-ElemDDLConstraintAttrDroppable::~ElemDDLConstraintAttrDroppable()
-{
-}
+ElemDDLConstraintAttrDroppable::~ElemDDLConstraintAttrDroppable() {}
 
 // cast
-ElemDDLConstraintAttrDroppable *
-ElemDDLConstraintAttrDroppable::castToElemDDLConstraintAttrDroppable()
-{
-  return this;
-}
+ElemDDLConstraintAttrDroppable *ElemDDLConstraintAttrDroppable::castToElemDDLConstraintAttrDroppable() { return this; }
 
 //
 // methods for tracing
 //
 
-const NAString
-ElemDDLConstraintAttrDroppable::displayLabel1() const
-{
+const NAString ElemDDLConstraintAttrDroppable::displayLabel1() const {
   return NAString("is droppable? ") + YesNo(isDroppable());
 }
 
-const NAString
-ElemDDLConstraintAttrDroppable::getText() const
-{
-  return "ElemDDLConstraintAttrDroppable";
-}
+const NAString ElemDDLConstraintAttrDroppable::getText() const { return "ElemDDLConstraintAttrDroppable"; }
 
 // -----------------------------------------------------------------------
 // methods for class ElemDDLConstraintAttrEnforced
 // -----------------------------------------------------------------------
 
 // virtual destructor
-ElemDDLConstraintAttrEnforced::~ElemDDLConstraintAttrEnforced()
-{
-}
+ElemDDLConstraintAttrEnforced::~ElemDDLConstraintAttrEnforced() {}
 
 // cast
-ElemDDLConstraintAttrEnforced *
-ElemDDLConstraintAttrEnforced::castToElemDDLConstraintAttrEnforced()
-{
-  return this;
-}
+ElemDDLConstraintAttrEnforced *ElemDDLConstraintAttrEnforced::castToElemDDLConstraintAttrEnforced() { return this; }
 
 //
 // methods for tracing
 //
 
-const NAString
-ElemDDLConstraintAttrEnforced::displayLabel1() const
-{
+const NAString ElemDDLConstraintAttrEnforced::displayLabel1() const {
   return NAString("is enforced? ") + YesNo(isEnforced());
 }
 
-const NAString
-ElemDDLConstraintAttrEnforced::getText() const
-{
-  return "ElemDDLConstraintAttrEnforced";
-}
+const NAString ElemDDLConstraintAttrEnforced::getText() const { return "ElemDDLConstraintAttrEnforced"; }
 
 //
 // End of File

@@ -55,51 +55,26 @@ void displaySqlBuffer(SqlBuffer *, Lng32, ostream &os = cout);
 void displayStatement(const SQLSTMT_ID &);
 
 void dumpLmParameter(LmParameter &, Lng32, const char *);
-void dumpBuffer(unsigned char * );
-void dumpBuffer(unsigned char * , size_t );
-void dumpComCondition(ComCondition * , char * );
-void dumpDiagnostics (ComDiagsArea *, Lng32 );
+void dumpBuffer(unsigned char *);
+void dumpBuffer(unsigned char *, size_t);
+void dumpComCondition(ComCondition *, char *);
+void dumpDiagnostics(ComDiagsArea *, Lng32);
 
-const char * getFSDataTypeName(const ComFSDataType &);
-const char * getDirectionName(ComColumnDirection d);
-const char * getLmResultSetMode(const LmResultSetMode &);
+const char *getFSDataTypeName(const ComFSDataType &);
+const char *getDirectionName(ComColumnDirection d);
+const char *getLmResultSetMode(const LmResultSetMode &);
 
 extern FILE *UdrTraceFile;
 void ServerDebug(const char *, ...);
 
-void doMessageBox(UdrGlobals *UdrGlob, Int32 trLevel,
-                  NABoolean moduleType, const char *moduleName);
-
+void doMessageBox(UdrGlobals *UdrGlob, Int32 trLevel, NABoolean moduleType, const char *moduleName);
 
 #ifdef _DEBUG
-void sleepIfPropertySet(LmLanguageManager &lm,
-                        const char *property,
-                        ComDiagsArea *d);
-NABoolean getLmProperty(LmLanguageManager &lm,
-                        const char *property,
-                        Lng32 &result,
-                        ComDiagsArea *diags);
-#endif // _DEBUG
+void sleepIfPropertySet(LmLanguageManager &lm, const char *property, ComDiagsArea *d);
+NABoolean getLmProperty(LmLanguageManager &lm, const char *property, Lng32 &result, ComDiagsArea *diags);
+#endif  // _DEBUG
 
-void  getActiveRoutineInfo(UdrGlobals *UdrGlob, 
-                           char *routineName,
-                           char *routineType,
-                           char *routineLanguage,
-                           NABoolean &isRoutineActive);
+void getActiveRoutineInfo(UdrGlobals *UdrGlob, char *routineName, char *routineType, char *routineLanguage,
+                          NABoolean &isRoutineActive);
 
-#endif // _UDRUTIL_H_
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+#endif  // _UDRUTIL_H_

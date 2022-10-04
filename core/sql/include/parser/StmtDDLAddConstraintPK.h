@@ -20,7 +20,7 @@
  *               The methods in this class are defined either in this
  *               header file or the source file StmtDDLAlter.C.
  *
- *               
+ *
  * Created:      6/21/95
  * Language:     C++
  *
@@ -50,7 +50,6 @@
  *****************************************************************************
  */
 
-
 #include "StmtDDLAlterTable.h"
 #include "StmtDDLAddConstraint.h"
 #include "StmtDDLAddConstraintUnique.h"
@@ -68,23 +67,18 @@ class StmtDDLAddConstraintPK;
 // -----------------------------------------------------------------------
 // definition of class StmtDDLAddConstraintPK
 // -----------------------------------------------------------------------
-class StmtDDLAddConstraintPK : public StmtDDLAddConstraintUnique
-{
-
-public:
-
+class StmtDDLAddConstraintPK : public StmtDDLAddConstraintUnique {
+ public:
   // constructors
-  StmtDDLAddConstraintPK(ElemDDLNode         * pElemDDLConstraintPK,
-                         const NABoolean       isAlwaysDroppable = FALSE);
-  StmtDDLAddConstraintPK(const QualifiedName & tableQualName,
-                         ElemDDLNode         * pElemDDLConstraintPK,
-                         const NABoolean       isAlwaysDroppable = FALSE);
+  StmtDDLAddConstraintPK(ElemDDLNode *pElemDDLConstraintPK, const NABoolean isAlwaysDroppable = FALSE);
+  StmtDDLAddConstraintPK(const QualifiedName &tableQualName, ElemDDLNode *pElemDDLConstraintPK,
+                         const NABoolean isAlwaysDroppable = FALSE);
 
   // virtual destructor
   virtual ~StmtDDLAddConstraintPK();
 
   // cast
-  virtual StmtDDLAddConstraintPK * castToStmtDDLAddConstraintPK();
+  virtual StmtDDLAddConstraintPK *castToStmtDDLAddConstraintPK();
 
   // accessor
   inline const NABoolean isAlwaysDroppable() const;
@@ -95,20 +89,17 @@ public:
   // method for tracing
   virtual const NAString getText() const;
 
-
-private:
-
+ private:
   // ---------------------------------------------------------------------
   // private methods
   // ---------------------------------------------------------------------
 
-  StmtDDLAddConstraintPK();                                 // DO NOT USE
-  StmtDDLAddConstraintPK(const NAString & tableName,
-                         ElemDDLNode *);                    // DO NOT USE
-  StmtDDLAddConstraintPK(const StmtDDLAddConstraintPK &);   // DO NOT USE
-  StmtDDLAddConstraintPK & operator=
-        (const StmtDDLAddConstraintPK &);                   // DO NOT USE
-  
+  StmtDDLAddConstraintPK();  // DO NOT USE
+  StmtDDLAddConstraintPK(const NAString &tableName,
+                         ElemDDLNode *);                              // DO NOT USE
+  StmtDDLAddConstraintPK(const StmtDDLAddConstraintPK &);             // DO NOT USE
+  StmtDDLAddConstraintPK &operator=(const StmtDDLAddConstraintPK &);  // DO NOT USE
+
   // ---------------------------------------------------------------------
   // private data member
   // ---------------------------------------------------------------------
@@ -119,24 +110,16 @@ private:
   // in DEFAULTS table.
   NABoolean isAlwaysDroppable_;
 
-}; // class StmtDDLAddConstraintPK
+};  // class StmtDDLAddConstraintPK
 
 // -----------------------------------------------------------------------
 // definitions of inline methods for class StmtDDLAddConstraint
 // -----------------------------------------------------------------------
 
 // accessor
-inline const NABoolean
-StmtDDLAddConstraintPK::isAlwaysDroppable() const
-{
-  return isAlwaysDroppable_;
-}
+inline const NABoolean StmtDDLAddConstraintPK::isAlwaysDroppable() const { return isAlwaysDroppable_; }
 
 // mutator
-inline void
-StmtDDLAddConstraintPK::setIsAlwaysDroppable(const NABoolean flag)
-{
-  isAlwaysDroppable_ = flag;
-}
+inline void StmtDDLAddConstraintPK::setIsAlwaysDroppable(const NABoolean flag) { isAlwaysDroppable_ = flag; }
 
-#endif // STMTDDLADDCONSTRAINTPK_H
+#endif  // STMTDDLADDCONSTRAINTPK_H

@@ -27,10 +27,10 @@
 *
 * File:         ElemDDLLibClientName.h
 * Description:  class that contains the (parse node) elements in DDL statements
-                for name of client that deployed a library 
-*               
+                for name of client that deployed a library
 *
-*               
+*
+*
 * Created:      10/14/2011
 * Language:     C++
 *
@@ -43,34 +43,27 @@
 #include "common/ComSmallDefs.h"
 #include "ElemDDLNode.h"
 
-class ElemDDLLibClientName : public ElemDDLNode
-{
+class ElemDDLLibClientName : public ElemDDLNode {
+ public:
+  ElemDDLLibClientName(const NAString &theName);
 
-public:
+  virtual ~ElemDDLLibClientName();
 
-   ElemDDLLibClientName(const NAString &theName);
+  virtual ElemDDLLibClientName *castToElemDDLLibClientName(void);
 
-   virtual ~ElemDDLLibClientName();
+  inline const NAString &getClientName(void) const { return clientName_; }
 
-   virtual ElemDDLLibClientName * castToElemDDLLibClientName(void);
+  //
+  // methods for tracing
+  //
 
-   inline const NAString &getClientName(void) const
-   {
-      return clientName_;
-   }
+  virtual const NAString displayLabel1() const;
+  NAString getSyntax() const;
+  virtual const NAString getText() const;
 
-//
-// methods for tracing
-//
-  
-   virtual const NAString displayLabel1() const;
-                 NAString getSyntax() const;
-   virtual const NAString getText() const;
+ private:
+  const NAString &clientName_;
 
-private:
-
-const NAString & clientName_;
-
-}; // class ElemDDLLibClientName
+};  // class ElemDDLLibClientName
 
 #endif /* ELEMDDLLIBCLIENTNAME_H */

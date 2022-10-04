@@ -27,7 +27,7 @@
  *****************************************************************************
  *
  * File:         utility.h
- * Description:  utility functions. 
+ * Description:  utility functions.
  * Created:      3/23/2017
  * Language:     C++
  *
@@ -55,8 +55,8 @@ Int32 largestFactor(Int32 x);
 //
 //  closestFactor(maxDoP, numCPUs, numNodes);
 //
-//  where 
-//    numCPUs is <n> * numNodes, where <n> is the # of 
+//  where
+//    numCPUs is <n> * numNodes, where <n> is the # of
 //    usable cores in a node.
 //
 //
@@ -66,5 +66,4 @@ Int32 closestFactor(Int32 x, Int32 y, Int32 z);
 // The returned value can be either smaller or larger than x
 Int32 adjustToMultiple(Int32 x, Int32 y);
 
-#endif // UTILITY_H
-
+#endif  // UTILITY_H

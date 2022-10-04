@@ -322,8 +322,6 @@ class RangeOfValues : public NABasicObject {
   // dump the content to out.
   virtual void dump(ostream &out, const char *title = NULL) = 0;
 
-
-
   // The enabled/disabled status.
   NABoolean isEnabled() { return enabled_; };
   void setEnable(NABoolean x) { enabled_ = x; };
@@ -406,7 +404,6 @@ class ClusteredBitmapForIntegers : public RangeOfValues {
 
   // dump the content to out.
   void dump(ostream &out, const char *title = NULL);
-
 
  private:
   ClusteredBitmap bitMapPos_;  // to hold 0 and positive values
